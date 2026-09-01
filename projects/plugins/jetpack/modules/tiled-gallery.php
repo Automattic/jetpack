@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: Tiled Galleries
- * Module Description: Display image galleries in a variety of elegant arrangements.
+ * Module Description: Create visually engaging tiled image galleries with multiple layout options.
  * First Introduced: 2.1
  * Requires Connection: No
  * Auto Activate: No
@@ -12,6 +12,10 @@
  *
  * @package jetpack
  */
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
 
 /**
  * Include the tiled gallery for loading.

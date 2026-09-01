@@ -1,5 +1,7 @@
 import { JetpackLogo } from '@automattic/jetpack-components';
-import React from 'react';
+import { isWoASite } from '@automattic/jetpack-script-data';
+import { __ } from '@wordpress/i18n';
+import { Component } from 'react';
 import { connect } from 'react-redux';
 import analytics from 'lib/analytics';
 import {
@@ -7,10 +9,9 @@ import {
 	getSandboxDomain,
 	fetchSiteConnectionTest,
 } from 'state/connection';
-import { isWoASite as getIsWoASite } from 'state/initial-state';
 import { HeaderNav } from './header-nav';
 
-export class Masthead extends React.Component {
+export class Masthead extends Component {
 	trackLogoClick = () => {
 		analytics.tracks.recordJetpackClick( {
 			target: 'masthead',
@@ -22,8 +23,32 @@ export class Masthead extends React.Component {
 		return this.props.testConnection();
 	};
 
+	getTitle() {
+		const { pathname = '' } = this.props.location || {};
+
+		if (
+			[
+				'/settings',
+				'/security',
+				'/performance',
+				'/writing',
+				'/sharing',
+				'/discussion',
+				'/earn',
+				'/newsletter',
+				'/reader',
+				'/traffic',
+				'/privacy',
+			].includes( pathname )
+		) {
+			return __( 'Settings', 'jetpack' );
+		}
+
+		return __( 'Jetpack', 'jetpack' );
+	}
+
 	render() {
-		const { isWoASite, sandboxDomain, siteConnectionStatus } = this.props;
+		const { sandboxDomain, siteConnectionStatus } = this.props;
 
 		const offlineNotice = siteConnectionStatus === 'offline' ? <code>Offline Mode</code> : '',
 			sandboxedBadge = sandboxDomain ? (
@@ -43,18 +68,19 @@ export class Masthead extends React.Component {
 			);
 
 		return (
-			<div className="jp-masthead">
+			<header className="jp-masthead">
 				<div className="jp-masthead__inside-container">
-					<div className="jp-masthead__logo-container">
+					<div className="jp-masthead__title-container">
 						<a onClick={ this.trackLogoClick } className="jp-masthead__logo-link" href="#dashboard">
-							<JetpackLogo className="jetpack-logo__masthead" height={ 40 } />
+							<JetpackLogo showText={ false } height={ 20 } />
 						</a>
+						<h2 className="jp-masthead__title">{ this.getTitle() }</h2>
 						{ offlineNotice }
 						{ sandboxedBadge }
 					</div>
-					{ isWoASite && <HeaderNav location={ this.props.location } /> }
+					{ isWoASite() && <HeaderNav location={ this.props.location } /> }
 				</div>
-			</div>
+			</header>
 		);
 	}
 }
@@ -62,7 +88,6 @@ export class Masthead extends React.Component {
 export default connect(
 	state => {
 		return {
-			isWoASite: getIsWoASite( state ),
 			sandboxDomain: getSandboxDomain( state ),
 			siteConnectionStatus: getSiteConnectionStatus( state ),
 		};

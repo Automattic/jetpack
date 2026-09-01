@@ -1,5 +1,9 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Comments Walker Class.
  */
@@ -137,6 +141,8 @@ new WPCOM_JSON_API_List_Comments_Endpoint(
  * /sites/%s/comments/%d/replies/ -> $blog_id, $comment_id
  *
  * @todo permissions
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class WPCOM_JSON_API_List_Comments_Endpoint extends WPCOM_JSON_API_Comment_Endpoint { // phpcs:ignore
 
@@ -338,7 +344,8 @@ class WPCOM_JSON_API_List_Comments_Endpoint extends WPCOM_JSON_API_Comment_Endpo
 
 		if ( $args['hierarchical'] ) {
 			$walker      = new WPCOM_JSON_API_List_Comments_Walker();
-			$comment_ids = $walker->paged_walk( $comments, get_option( 'thread_comments_depth', -1 ), isset( $args['page'] ) ? $args['page'] : 1, $args['number'] );
+			$comment_ids = $walker->paged_walk( $comments, get_option( 'thread_comments_depth', -1 ), $args['page'] ?? 1, $args['number'] );
+			'@phan-var int[] $comment_ids';
 			if ( ! empty( $comment_ids ) ) {
 				$comments = array_map( 'get_comment', $comment_ids );
 			}

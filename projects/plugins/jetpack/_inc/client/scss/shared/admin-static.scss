@@ -1,11 +1,12 @@
-@import '../calypso-colors';
+@use "../calypso-colors";
+@use "../variables/colors";
 
 #wpcontent {
 	padding-left: 0 !important;
 }
 
 #wpbody-content {
-	background-color: #F9F9F6;
+	background-color: #f9f9f6;
 }
 
 @media (max-width: 782px) {
@@ -17,22 +18,22 @@
 
 #jp-plugin-container .wrap {
 	margin: 0 auto;
-	max-width:45rem;
+	max-width: 45rem;
 	padding: 0 1.5rem;
 
 	.jp-static-block {
 		display: block;
 		margin-top: 24px;
-		background: $white;
-		box-shadow: 0 0 40px rgba(0, 0, 0, 0.08);
-		border-radius: 4px;
+		background: var(--wpds-color-background-surface-neutral-strong, #fff);
+		border: 1px solid var(--wpds-color-stroke-surface-neutral-weak, #e4e4e4);
+		border-radius: var(--wpds-border-radius-lg, 8px);
 
 		.jp-static-block-body {
 			padding: 0 24px 20px;
 		}
 
 		h2 {
-			border-bottom: 1px solid $gray-5;
+			border-bottom: 1px solid calypso-colors.$gray-5;
 			margin: 0 0 8px 0;
 			padding: 16px 24px;
 			font-size: 20px;
@@ -40,13 +41,14 @@
 			line-height: 30px;
 		}
 
-		h3, h4 {
+		h3,
+		h4 {
 			font-size: 20px;
 			font-weight: 500;
 			line-height: 30px;
 			padding: 8px 0 4px 0;
 			margin: 0;
-			color: $gray-80;
+			color: calypso-colors.$gray-80;
 		}
 
 		p {
@@ -54,15 +56,16 @@
 			line-height: 24px;
 			padding: 4px 0;
 			margin: 0;
-			color: $gray-80;
+			color: calypso-colors.$gray-80;
 		}
 
-		ol, ul {
+		ol,
+		ul {
 			padding: 4px 0 8px 18px;
 			margin: 0;
 			font-size: 14px;
 			line-height: 24px;
-			color: $gray-80;
+			color: calypso-colors.$gray-80;
 			list-style-position: outside;
 
 			li {
@@ -85,15 +88,19 @@
 			}
 		}
 
-		a, a:visited, a:active, a:hover, a:focus {
-			color: $gray-80;
+		a,
+		a:visited,
+		a:active,
+		a:hover,
+		a:focus {
+			color: calypso-colors.$gray-80;
 			text-decoration: underline;
 		}
 
 		.notice {
 			margin: 16px 24px;
 			padding: 24px 31px 27px 18px;
-			border: 1px solid $gray-5;
+			border: 1px solid calypso-colors.$gray-5;
 			border-left-width: 6px;
 			border-radius: 4px;
 			display: flex;
@@ -119,20 +126,20 @@
 			}
 
 			&.notice-warning {
-				border-left-color: $black;
+				border-left-color: colors.$black;
 			}
 
 			&.notice-error {
-				border-left-color: var( --jp-red );
+				border-left-color: var(--jp-red);
 			}
 
 			.notice-icon-wrapper {
 				margin-right: 20px;
-				width: calc( var( --spacing-base ) * 3 );
-				height: calc( var( --spacing-base ) * 3 );
+				width: calc(var(--spacing-base) * 3);
+				height: calc(var(--spacing-base) * 3);
 
 				svg {
-					fill: var( --jp-red );
+					fill: var(--jp-red);
 				}
 			}
 
@@ -151,19 +158,25 @@
 
 					a {
 
-						&, &:hover, &:active, &:focus {
-							color: var( --jp-black );
+						&,
+						&:hover,
+						&:active,
+						&:focus {
+							color: var(--jp-black);
 						}
 					}
 
-					.components-button, .components-button:hover, .components-button:active, .components-button:focus {
+					.components-button,
+					.components-button:hover,
+					.components-button:active,
+					.components-button:focus {
 						display: block;
 						height: auto;
-						font-size: var( --font-body );
+						font-size: var(--font-body);
 						line-height: 24px;
 						padding: 8px 24px;
-						background: var( --jp-black );
-						color: var( --jp-white );
+						background: var(--jp-black);
+						color: var(--jp-white);
 						text-decoration: none;
 					}
 
@@ -186,19 +199,4 @@
 
 #jp-plugin-container .wrap .jetpack-wrap-container {
 	margin-top: 1em;
-}
-
-.wp-admin #dolly {
-	float: none;
-	position: relative;
-	right: 0;
-	left: 0;
-	top: 0;
-	padding: .625rem;
-	text-align: right;
-	background: #fff;
-	font-size: .75rem;
-	font-style: italic;
-	color: #87a6bc;
-	border-bottom: 1px #e9eff3 solid;
 }

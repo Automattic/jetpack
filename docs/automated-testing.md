@@ -25,7 +25,7 @@ These tests are used to test both plugins and packages code. Depending on develo
 
 Unit tests are used to test individual units of code, such as a function or a class. They are meant to be run in isolation, without any external dependencies. They are fast and easy to write. This is a preferred approach to PHP testing, that leads to decoupled and testable code.
 
-Refer to PHPUnit [documentation](https://phpunit.readthedocs.io/en/9.5/writing-tests-for-phpunit.html) for more details on how to write tests. Also, there are various examples in the repo such as [here](/projects/packages/a8c-mc-stats/tests/php/test_Stats.php).
+Refer to PHPUnit [documentation](https://phpunit.readthedocs.io/en/9.5/writing-tests-for-phpunit.html) for more details on how to write tests. Also, there are various examples in the repo such as [here](/projects/packages/a8c-mc-stats/tests/php/StatsTest.php).
 
 Note: Jetpack monorepo is using a bit different code style to one that used in documentation examples.
 
@@ -43,7 +43,7 @@ Normally, integration tests for packages rely on various mocking solutions avail
 - [brain/monkey](https://packagist.org/packages/brain/monkey) - For mocking and stubbing WordPress functions and classes.
 - [automattic/jetpack-test-environment](../projects/packages/test-environment/README.md) is used to pull in WordPress for testing. It calls in a lightweight version of WordPress (via the [WorDBless](https://packagist.org/packages/automattic/wordbless) package) and provides a way to run tests in a WordPress environment. We use the jetpack-test-environment package within the monorepo to only need one install of WordPress for the entire monorepo.
 
-There are a lot of examples on how to use these tools in the `/projects/packages` folder, such as [here](/projects/packages/connection/tests/php/test_Manager_integration.php).
+There are a lot of examples on how to use these tools in the `/projects/packages` folder, such as [here](/projects/packages/connection/tests/php/ManagerIntegrationTest.php).
 
 ## Javascript tests
 
@@ -51,7 +51,7 @@ Monorepo provides support for `jest` as testing framework, and `@testing-library
 
 ### React components
 
-There are examples scattered through the monorepo such as [connection-status-card](/projects/packages/my-jetpack/_inc/components/connection-status-card/test/component.jsx) card. Refer to [documentation](https://testing-library.com/docs/react-testing-library/intro) for more details.
+There are examples scattered through the monorepo such as [connection-status-card](/projects/packages/my-jetpack/_inc/components/connection-status-card/index.tsx) card. Refer to [documentation](https://testing-library.com/docs/react-testing-library/intro) for more details.
 
 ### Gutenberg blocks
 

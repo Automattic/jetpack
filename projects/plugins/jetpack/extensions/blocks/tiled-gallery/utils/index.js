@@ -1,25 +1,9 @@
-import {
-	isAtomicSite,
-	isPrivateSite,
-	isSimpleSite,
-} from '@automattic/jetpack-shared-extension-utils';
+import { getScriptData, isWoASite, isSimpleSite } from '@automattic/jetpack-script-data';
+import { isPrivateSite } from '@automattic/jetpack-shared-extension-utils';
 import { isBlobURL } from '@wordpress/blob';
-import { select } from '@wordpress/data';
-import { range } from 'lodash';
 import photon from 'photon';
 import isOfflineMode from '../../../shared/is-offline-mode';
 import { PHOTON_MAX_RESIZE } from '../constants';
-
-let jetpackPlanFromState;
-
-window.addEventListener( 'load', function () {
-	const hasImageCompare = select( 'core/block-editor' )
-		.getBlocks()
-		.some( block => block.name === 'jetpack/image-compare' );
-	if ( hasImageCompare && ! jetpackPlanFromState ) {
-		jetpackPlanFromState = window?.Jetpack_Editor_Initial_State?.jetpack?.jetpack_plan;
-	}
-} );
 
 export function isSquareishLayout( layout ) {
 	return [ 'circle', 'square' ].includes( layout );
@@ -28,16 +12,24 @@ export function isSquareishLayout( layout ) {
 /**
  * Build src and srcSet properties which can be used on an <img />
  *
- * @param {object} img                     - Image
- * @param {number} img.height              - Image height
- * @param {string} img.url                 - Image URL
- * @param {number} img.width               - Image width
- * @param {object} galleryAtts             - Gallery attributes relevant for image optimization.
- * @param {string} galleryAtts.layoutStyle - Gallery layout. 'rectangular', 'circle', etc.
- * @param {number} galleryAtts.columns     - Gallery columns. Not applicable for all layouts.
+ * @param {object}  img                      - Image
+ * @param {number}  img.height               - Image height
+ * @param {string}  img.url                  - Image URL
+ * @param {number}  img.width                - Image width
+ * @param {object}  galleryAtts              - Gallery attributes relevant for image optimization.
+ * @param {string}  galleryAtts.layoutStyle  - Gallery layout. 'rectangular', 'circle', etc.
+ * @param {number}  galleryAtts.columns      - Gallery columns. Not applicable for all layouts.
+ * @param {object}  options                  - Options.
+ * @param {boolean} options.skipPhotonDomain - Whether to skip the external Photon domain. Defaults
+ *                                           to what the site asks for; deprecated block versions
+ *                                           pass `false` to keep emitting the URLs they saved.
  * @return {object} Returns an object. If possible, the object will include `src` and `srcSet` properties {string} for use on an image.
  */
-export function photonizedImgProps( img, galleryAtts = {} ) {
+export function photonizedImgProps(
+	img,
+	galleryAtts = {},
+	{ skipPhotonDomain: skipDomain = skipPhotonDomain() } = {}
+) {
 	if ( ! img.height || ! img.width ) {
 		return img.url ? { src: img.url } : {};
 	}
@@ -52,7 +44,7 @@ export function photonizedImgProps( img, galleryAtts = {} ) {
 		isBlobURL( img.url ) ||
 		/^https?:\/\/localhost/.test( img.url ) ||
 		/^https?:\/\/.*\.local\//.test( img.url ) ||
-		( isAtomicSite() && isPrivateSite() )
+		( isWoASite() && isPrivateSite() )
 	) {
 		return { src: img.url };
 	}
@@ -63,7 +55,7 @@ export function photonizedImgProps( img, galleryAtts = {} ) {
 	const { height, width } = img;
 	const { layoutStyle } = galleryAtts;
 
-	const photonImplementation = true === isVIP() || isSimpleSite() ? photonWpcomImage : photon;
+	const photonImplementation = skipDomain || isSimpleSite() ? photonWpcomImage : photon;
 
 	/**
 	 * Build the `src`
@@ -89,49 +81,53 @@ export function photonizedImgProps( img, galleryAtts = {} ) {
 	const step = 300;
 	const srcsetMinWith = 600;
 
-	let srcSet;
+	let srcSet = [];
 	if ( isSquareishLayout( layoutStyle ) ) {
 		const minWidth = Math.min( srcsetMinWith, width, height );
 		const maxWidth = Math.min( PHOTON_MAX_RESIZE, width, height );
 
-		srcSet = range( minWidth, maxWidth, step )
-			.map( srcsetWidth => {
-				const srcsetSrc = photonImplementation( url, {
-					resize: `${ srcsetWidth },${ srcsetWidth }`,
-					strip: 'info',
-				} );
-				return srcsetSrc ? `${ srcsetSrc } ${ srcsetWidth }w` : null;
-			} )
-			.filter( Boolean )
-			.join( ',' );
+		for ( let srcsetWidth = minWidth; srcsetWidth < maxWidth; srcsetWidth += step ) {
+			const srcsetSrc = photonImplementation( url, {
+				resize: `${ srcsetWidth },${ srcsetWidth }`,
+				strip: 'info',
+			} );
+			if ( srcsetSrc ) {
+				srcSet.push( `${ srcsetSrc } ${ srcsetWidth }w` );
+			}
+		}
 	} else {
 		const minWidth = Math.min( srcsetMinWith, width );
 		const maxWidth = Math.min( PHOTON_MAX_RESIZE, width );
 
-		srcSet = range( minWidth, maxWidth, step )
-			.map( srcsetWidth => {
-				const srcsetSrc = photonImplementation( url, {
-					strip: 'info',
-					width: srcsetWidth,
-				} );
-				return srcsetSrc ? `${ srcsetSrc } ${ srcsetWidth }w` : null;
-			} )
-			.filter( Boolean )
-			.join( ',' );
+		for ( let srcsetWidth = minWidth; srcsetWidth < maxWidth; srcsetWidth += step ) {
+			const srcsetSrc = photonImplementation( url, {
+				strip: 'info',
+				width: srcsetWidth,
+			} );
+			if ( srcsetSrc ) {
+				srcSet.push( `${ srcsetSrc } ${ srcsetWidth }w` );
+			}
+		}
 	}
+	srcSet = srcSet.join( ',' );
 
 	return Object.assign( { src }, srcSet && { srcSet } );
 }
-function isVIP() {
-	/*global jetpack_plan*/
-	// Use `jetpackPlanFromState` if available, otherwise fall back to `jetpack_plan` defined within the render function in tiled-gallery.php.
-	let jetpackPlan;
-	if ( typeof jetpackPlanFromState !== 'undefined' ) {
-		jetpackPlan = jetpackPlanFromState;
-	} else if ( typeof jetpack_plan !== 'undefined' ) {
-		jetpackPlan = jetpack_plan;
-	}
-	return jetpackPlan && jetpackPlan?.data === 'vip';
+/**
+ * Whether the current site should skip the external Photon (photon.js) domain and instead build
+ * files.wordpress.com-style URLs via photonWpcomImage.
+ *
+ * The value is computed in PHP (true on VIP sites, overridable via the `jetpack_skip_photon_domain`
+ * filter) and delivered in the script data. It is deliberately read from that global rather than from
+ * editor settings or any other store: this runs inside the blocks' save() output, which is
+ * regenerated during block validation while the post is parsed — before the editor stores hold any
+ * settings. Reading store state there yields the default value on the first pass and marks saved
+ * galleries as invalid.
+ *
+ * @return {boolean} True when the external Photon domain should be skipped.
+ */
+export function skipPhotonDomain() {
+	return true === getScriptData()?.jetpack?.flags?.skipPhotonDomain;
 }
 
 /**

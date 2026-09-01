@@ -1,0 +1,75 @@
+/**
+ * External dependencies
+ */
+import { Button } from '@wordpress/components';
+import { useCallback } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
+import { download } from '@wordpress/icons';
+/**
+ * Internal dependencies
+ */
+import useExportResponses from '../../hooks/use-export-responses.ts';
+import useInboxData from '../../hooks/use-inbox-data.ts';
+import ExportResponsesModal from './modal.tsx';
+
+import './style.scss';
+
+const ExportResponsesButton = ( {
+	isPrimary = false,
+	showIcon = true,
+	onClick: onClickProp,
+}: {
+	isPrimary?: boolean;
+	showIcon?: boolean;
+	onClick?: () => void;
+} ) => {
+	const {
+		showExportModal,
+		openModal,
+		closeModal,
+		userCanExport,
+		onExport,
+		autoConnectGdrive,
+		exportLabel,
+	} = useExportResponses();
+
+	const { totalItems, isLoadingData } = useInboxData();
+	const isEmpty = isLoadingData || totalItems === 0;
+	const isDisabled = isEmpty || userCanExport === false;
+
+	const handleClick = useCallback( () => {
+		onClickProp?.();
+		openModal();
+	}, [ onClickProp, openModal ] );
+
+	if ( userCanExport === false ) {
+		return null;
+	}
+
+	return (
+		<>
+			<Button
+				size="compact"
+				variant={ isPrimary ? 'primary' : 'secondary' }
+				icon={ showIcon ? download : undefined }
+				onClick={ handleClick }
+				accessibleWhenDisabled
+				disabled={ isDisabled }
+				label={ isEmpty ? __( 'Nothing to export.', 'jetpack-forms' ) : '' }
+				showTooltip={ isEmpty }
+			>
+				{ exportLabel }
+			</Button>
+
+			{ showExportModal && (
+				<ExportResponsesModal
+					onRequestClose={ closeModal }
+					onExport={ onExport }
+					autoConnectGdrive={ autoConnectGdrive }
+				/>
+			) }
+		</>
+	);
+};
+
+export default ExportResponsesButton;

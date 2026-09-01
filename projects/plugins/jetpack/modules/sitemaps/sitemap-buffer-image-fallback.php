@@ -10,6 +10,10 @@
  * @package automattic/jetpack
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * A buffer for constructing sitemap image xml files for users that have no libxml support.
  *

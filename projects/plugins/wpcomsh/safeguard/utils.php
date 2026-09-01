@@ -198,6 +198,7 @@ function get_plugin_data_from_package( $package ) {
 		return new WP_Error( 'process_package_fails', 'Invalid plugin file.' );
 	}
 
+	$plugin_folder     = false;
 	$tmp_plugin_folder = uncompress_package( $package );
 	if ( is_wp_error( $tmp_plugin_folder ) ) {
 		return $tmp_plugin_folder;

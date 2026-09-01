@@ -8,6 +8,10 @@
 
 use Automattic\Jetpack\Redirect;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 // phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable -- HTML template, let Phan handle it.
 
 ?>
@@ -148,7 +152,7 @@ use Automattic\Jetpack\Redirect;
 
 <p>
 	<strong>
-		<?php esc_html_x( 'Capture consent & hide the banner', 'action', 'jetpack' ); ?>
+		<?php echo esc_html_x( 'Capture consent & hide the banner', 'action', 'jetpack' ); ?>
 	</strong>
 	<ul>
 		<li>
@@ -210,7 +214,7 @@ use Automattic\Jetpack\Redirect;
 
 <p>
 	<strong>
-		<?php esc_html_x( 'Consent expires after', 'action', 'jetpack' ); ?>
+		<?php echo esc_html_x( 'Consent expires after', 'action', 'jetpack' ); ?>
 	</strong>
 	<ul>
 		<li>

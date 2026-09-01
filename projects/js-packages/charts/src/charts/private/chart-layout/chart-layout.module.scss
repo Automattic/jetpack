@@ -1,0 +1,15 @@
+// Shared content area for charts using the render prop.
+// Wraps render prop output and handles measurement.
+.chart-layout__content {
+	flex: 1;
+	min-height: 0;
+	min-width: 0;
+
+	// The svg displaying inline includes a few px for descenders, which
+	// confuses some browser environments (e.g. headless Chrome) into
+	// constantly growing the container. Setting it to display as block avoids
+	// that.
+	svg {
+		display: block;
+	}
+}

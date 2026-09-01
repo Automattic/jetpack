@@ -28,7 +28,7 @@ class CLI {
 	 */
 	private $jetpack_boost;
 
-	const MAKE_E2E_TESTS_WORK_MODULES = array( 'critical_css', 'render_blocking_js', 'page_cache', 'minify_js', 'minify_css', 'image_cdn', 'image_guide' );
+	const MAKE_E2E_TESTS_WORK_MODULES = array( 'critical_css', 'speculation_rules', 'render_blocking_js', 'page_cache', 'lcp', 'minify_js', 'minify_css', 'image_cdn', 'image_guide' );
 
 	/**
 	 * CLI constructor.
@@ -63,18 +63,18 @@ class CLI {
 	 * @param array $args Command arguments.
 	 */
 	public function module( $args ) {
-		$action      = isset( $args[0] ) ? $args[0] : null;
-		$module_slug = isset( $args[1] ) ? $args[1] : null;
+		$action      = $args[0] ?? null;
+		$module_slug = $args[1] ?? null;
 
 		if ( $module_slug === null ) {
 			/* translators: Placeholder is list of available modules. */
-			\WP_CLI::error( sprintf( __( 'Please specify a valid module. It should be one of %s', 'jetpack-boost' ), wp_json_encode( self::MAKE_E2E_TESTS_WORK_MODULES ) ) );
+			\WP_CLI::error( sprintf( __( 'Please specify a valid module. It should be one of %s', 'jetpack-boost' ), wp_json_encode( self::MAKE_E2E_TESTS_WORK_MODULES, JSON_UNESCAPED_SLASHES ) ) );
 		}
 
 		if ( ! in_array( $module_slug, self::MAKE_E2E_TESTS_WORK_MODULES, true ) ) {
 			\WP_CLI::error(
 				/* translators: %1$s refers to the module slug like 'critical-css', %2$s is the list of available modules. */
-				sprintf( __( "The '%1\$s' module slug is invalid. It should be one of %2\$s", 'jetpack-boost' ), $module_slug, wp_json_encode( self::MAKE_E2E_TESTS_WORK_MODULES ) )
+				sprintf( __( "The '%1\$s' module slug is invalid. It should be one of %2\$s", 'jetpack-boost' ), $module_slug, wp_json_encode( self::MAKE_E2E_TESTS_WORK_MODULES, JSON_UNESCAPED_SLASHES ) )
 			);
 		}
 
@@ -89,7 +89,7 @@ class CLI {
 	}
 
 	public function getting_started( $args ) {
-		$status = isset( $args[0] ) ? $args[0] : null;
+		$status = $args[0] ?? null;
 
 		if ( ! in_array( $status, array( 'true', 'false' ), true ) ) {
 			\WP_CLI::error(
@@ -171,7 +171,7 @@ class CLI {
 	 * @param array $args Command arguments.
 	 */
 	public function connection( $args ) {
-		$action = isset( $args[0] ) ? $args[0] : null;
+		$action = $args[0] ?? null;
 
 		switch ( $action ) {
 			case 'activate':

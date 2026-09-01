@@ -1,0 +1,620 @@
+import { Meta, Canvas, Story, Source } from '@storybook/addon-docs/blocks';
+import * as LeaderboardChartStories from './index.stories';
+
+<Meta title="JS Packages/Charts Library/Charts/Leaderboard Chart" of={ LeaderboardChartStories } />
+
+# Leaderboard Chart
+
+A flexible and accessible leaderboard chart component for displaying ranked data with optional comparison values and legend support.
+
+<Canvas of={ LeaderboardChartStories.Default } />
+
+## Overview
+
+The Leaderboard Chart component provides a clean, responsive visualization for displaying ranked data with optional comparison values. Built with WordPress components, it supports customizable colors, flexible formatting, and accessibility-friendly defaults.
+
+<Source
+	language="tsx"
+	code={ `import { LeaderboardChart } from '@automattic/charts';
+import '@automattic/charts/style.css';
+
+	<LeaderboardChart
+		data={data}
+		withComparison={true}
+		primaryColor="#3858E9"
+		secondaryColor="#66BDFF"
+	/>` }
+/>
+
+## API Reference
+
+For detailed information about component props, types, and method signatures, see the [Leaderboard Chart API Reference](./?path=/docs/js-packages-charts-library-charts-leaderboard-chart-api-reference--docs).
+
+## Basic Usage
+
+### Simple Leaderboard Chart
+
+The simplest leaderboard chart requires only a `data` prop with pre-processed leaderboard entries:
+
+<Canvas of={ LeaderboardChartStories.WithoutComparison } />
+
+<Source
+	language="tsx"
+	code={ `<LeaderboardChart
+		data={[
+			{
+				id: 'direct',
+				label: 'Direct',
+				currentValue: 12500,
+				previousValue: 10000,
+				currentShare: 100,
+				previousShare: 80,
+				delta: 25,
+			},
+			{
+				id: 'social',
+				label: 'Social Media',
+				currentValue: 8750,
+				previousValue: 9500,
+				currentShare: 70,
+				previousShare: 76,
+				delta: -7.9,
+			}
+		]}
+	/>` }
+/>
+
+### Required Props
+
+- **`data`**: Array of LeaderboardEntry objects with pre-processed data including shares and deltas
+
+### Optional Props
+
+**Visual Features:**
+- **`withComparison`**: Show comparison data (previous period bars and delta values) - `false` by default
+- **`withOverlayLabel`**: Overlay labels on top of the bars instead of beside them - `false` by default
+- **`primaryColor`**: Primary color for current period bars (theme default)
+- **`secondaryColor`**: Secondary color for comparison period bars (theme default)
+
+**Data Formatting:**
+- **`valueFormatter`**: Custom formatter function for values - defaults to `formatMetricValue` with compact notation
+- **`deltaFormatter`**: Custom formatter function for delta values - defaults to percentage formatting
+
+**State & Styling:**
+- **`loading`**: Whether the chart is in loading state - `false` by default
+- **`fitRows`**: Show only complete rows that fit a height-constrained container instead of scrolling - `false` by default
+- **`className`**: Additional CSS class name for the chart container
+- **`style`**: Custom styling including CSS custom properties for border radius
+- **`width` / `height`**: Optional fixed chart container dimensions
+- **`aspectRatio`**: Height-to-width ratio (e.g. `0.4`) for responsive charts; the chart is contained within its parent on both axes. When omitted, fills the parent container's height
+- **`gap`**: Spacing between legend and chart content (Stack gap token/value)
+
+For detailed prop information, type definitions, and examples, see the [Leaderboard Chart API Reference](./?path=/docs/js-packages-charts-library-charts-leaderboard-chart-api-reference--docs).
+
+## Comparison Features
+
+### With Comparison Data
+
+Display both current and previous period data with delta indicators:
+
+<Canvas of={ LeaderboardChartStories.Default } />
+
+<Source
+	language="tsx"
+	code={ `<LeaderboardChart
+		data={data}
+		withComparison={true}
+	/>` }
+/>
+
+### Negative Growth Handling
+
+The chart automatically handles negative growth with appropriate color coding:
+
+<Canvas of={ LeaderboardChartStories.NegativeGrowth } />
+
+<Source
+	language="tsx"
+	code={ `// Data with negative deltas will show in warning colors
+	const dataWithDeclines = [
+		{
+			id: 'declining',
+			label: 'Declining Channel',
+			currentValue: 8000,
+			previousValue: 10000,
+			currentShare: 80,
+			previousShare: 100,
+			delta: -20, // Negative growth
+		}
+	];` }
+/>
+
+## Data Formatting
+
+### Custom Value Formatting
+
+Customize how values are displayed using the `valueFormatter` prop:
+
+<Canvas of={ LeaderboardChartStories.CurrencyFormatting } />
+
+<Source
+	language="tsx"
+	code={ `<LeaderboardChart
+		data={data}
+		withComparison={true}
+		valueFormatter={(value) =>
+			formatMetricValue(value, 'currency', {
+				useMultipliers: true,
+				decimals: 1,
+			})
+		}
+		deltaFormatter={(value) =>
+			formatMetricValue(value / 100, 'average', {
+				decimals: 0,
+			})
+		}
+	/>` }
+/>
+
+### Number Formatting
+
+For non-currency values, use number formatting:
+
+<Canvas of={ LeaderboardChartStories.NumberFormatting } />
+
+<Source
+	language="tsx"
+	code={ `<LeaderboardChart
+		data={data}
+		valueFormatter={(value) =>
+			formatMetricValue(value, 'number', {
+				useMultipliers: false,
+				decimals: 0,
+			})
+		}
+	/>` }
+/>
+
+### Advanced Formatting
+
+Handle different value ranges with conditional formatting:
+
+<Canvas of={ LeaderboardChartStories.AdvancedFormatting } />
+
+<Source
+	language="tsx"
+	code={ `<LeaderboardChart
+		data={largeValues}
+		valueFormatter={(value) => {
+			if (value >= 1000000) {
+				return formatMetricValue(value, 'currency', {
+					useMultipliers: true,
+					decimals: 1,
+				});
+			}
+			return formatMetricValue(value, 'currency', {
+				useMultipliers: false,
+				decimals: 0,
+			});
+		}}
+		deltaFormatter={(value) =>
+			formatMetricValue(value / 100, 'average', {
+				decimals: 1,
+				signDisplay: 'always',
+			})
+		}
+	/>` }
+/>
+
+## Interactive Items
+
+Any entry with an `onClick` field becomes a clickable, keyboard-accessible row. The row renders as a `<button>` (activatable with Enter or Space) and reveals a chevron on hover or focus. Rows without `onClick` remain inert.
+
+By default the button's accessible name is derived from its rendered content (the label plus the formatted value). For an image-only JSX label whose text content doesn't yield a clean name, set the optional `ariaLabel` field on the entry to give assistive tech a deterministic name.
+
+Configuring what happens on click — for example, drilling down into a sub-view — is the consumer's responsibility, not the chart's:
+
+<Canvas of={ LeaderboardChartStories.Interactive } />
+
+<Source
+	language="tsx"
+	code={ `<LeaderboardChart
+	data={ data.map( d => ( {
+		...d,
+		onClick: () => drillDown( d.id ),
+	} ) ) }
+/>` }
+/>
+
+## Data States
+
+### Loading State
+
+Display loading indicator while data is being fetched:
+
+<Canvas of={ LeaderboardChartStories.Loading } />
+
+<Source
+	language="tsx"
+	code={ `<LeaderboardChart
+		data={data}
+		loading={true}
+	/>` }
+/>
+
+### Empty Data
+
+Gracefully handle empty data arrays:
+
+<Canvas of={ LeaderboardChartStories.EmptyData } />
+
+<Source
+	language="tsx"
+	code={ `<LeaderboardChart
+		data={[]}
+		withComparison={true}
+	/>` }
+/>
+
+### Empty Data with Children
+
+Children passed to the composition API still render in empty-data state:
+
+<Canvas of={ LeaderboardChartStories.EmptyDataWithChildren } />
+
+### Small Datasets
+
+Handle minimal datasets effectively:
+
+<Canvas of={ LeaderboardChartStories.SmallDataset } />
+
+### Large Values
+
+Automatically format large numeric values:
+
+<Canvas of={ LeaderboardChartStories.LargeValues } />
+
+## Data Preparation
+
+### Transforming Raw Data
+
+The LeaderboardChart expects pre-processed data. You'll need to transform your raw data into the required format:
+
+<Source
+	language="tsx"
+	code={ `// Transform your raw data into LeaderboardEntry format
+	function transformRawData(rawData) {
+		const maxValue = Math.max(...rawData.map(item => item.current_period.value));
+
+		return rawData.map(item => {
+			// A row absent from the comparison period has an unknown previous
+			// value; leave the comparison fields undefined so the chart shows
+			// its missing-data placeholder.
+			const previousValue = item.previous_period?.value;
+
+			return {
+				id: item.id,
+				label: item.name,
+				currentValue: item.current_period.value,
+				previousValue,
+				currentShare: (item.current_period.value / maxValue) * 100,
+				previousShare: previousValue !== undefined ? (previousValue / maxValue) * 100 : undefined,
+				// Omit delta when the percentage change cannot be calculated,
+				// such as from a previous value of 0.
+				delta: previousValue
+					? ((item.current_period.value - previousValue) / previousValue) * 100
+					: undefined,
+			};
+		});
+	}
+
+	function ProcessedDataChart() {
+		const processedData = transformRawData(rawData);
+
+		return (
+			<LeaderboardChart
+				data={processedData}
+				withComparison={true}
+			/>
+		);
+	}` }
+/>
+
+### Share Calculation
+
+Calculate the `currentShare` and `previousShare` values to determine bar widths:
+
+<Source
+	language="tsx"
+	code={ `// For relative scaling (bars relative to max value)
+	const maxCurrentValue = Math.max(...data.map(item => item.currentValue));
+	const maxPreviousValue = Math.max(...data.map(item => item.previousValue));
+
+	const processedData = data.map(item => ({
+		...item,
+		currentShare: (item.currentValue / maxCurrentValue) * 100,
+		previousShare: (item.previousValue / maxPreviousValue) * 100,
+	}));
+
+	// For absolute scaling (bars relative to same baseline)
+	const maxValue = Math.max(
+		...data.map(item => Math.max(item.currentValue, item.previousValue))
+	);
+
+	const processedData = data.map(item => ({
+		...item,
+		currentShare: (item.currentValue / maxValue) * 100,
+		previousShare: (item.previousValue / maxValue) * 100,
+	}));` }
+/>
+
+## Legends
+
+Use the composition API to add a legend by placing `<LeaderboardChart.Legend />` as a child:
+
+<Canvas of={ LeaderboardChartStories.WithCompositionLegend } />
+
+<Source
+	language="tsx"
+	code={ `<LeaderboardChart data={data} withComparison={true}>
+		<LeaderboardChart.Legend />
+	</LeaderboardChart>` }
+/>
+
+Use `legendLabels` to show descriptive labels (e.g. date ranges) for the primary and comparison series:
+
+<Canvas of={ LeaderboardChartStories.WithLegendLabels } />
+
+<Source
+	language="tsx"
+	code={ `<LeaderboardChart
+		data={data}
+		withComparison={true}
+		showLegend={true}
+		legendLabels={{
+			primary: 'Aug 11-Sep 9, 2025',
+			comparison: 'Jul 11-Aug 11, 2025',
+		}}
+	/>` }
+/>
+
+For full legend configuration options — positioning, orientation, shapes, interactivity, and the composition API — see the [Legend component docs](./?path=/docs/js-packages-charts-library-components-legend--docs).
+
+## Styling and Customization
+
+### Custom Colors
+
+Override default theme colors with custom primary and secondary colors:
+
+<Canvas of={ LeaderboardChartStories.CustomColors } />
+
+<Source
+	language="tsx"
+	code={ `<LeaderboardChart
+		data={data}
+		withComparison={true}
+		primaryColor="red"
+		secondaryColor="green"
+	/>` }
+/>
+
+### Custom Labels
+
+Use React components as labels for rich content display:
+
+<Canvas of={ LeaderboardChartStories.CustomLabel } />
+
+<Source
+	language="tsx"
+	code={ `const CustomLabelComponent = ({ label, imageColor }) => (
+		<div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+			<img
+				src={\`data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='50' height='50'><rect width='50' height='50' fill='\${encodeURIComponent(imageColor)}'/></svg>\`}
+				alt="icon"
+				style={{ width: '28px', height: '28px', borderRadius: '4px' }}
+			/>
+			<span>{label}</span>
+		</div>
+	);
+
+	<LeaderboardChart
+		data={dataWithImages.map(entry => ({
+			...entry,
+			label: <CustomLabelComponent label={entry.label} imageColor={entry.imageColor} />
+		}))}
+	/>` }
+/>
+
+### Overlay Labels
+
+Position labels on top of bars for a more compact display:
+
+<Canvas of={ LeaderboardChartStories.WithOverlayLabel } />
+
+<Source
+	language="tsx"
+	code={ `<LeaderboardChart
+		data={data}
+		withOverlayLabel={true}
+	/>` }
+/>
+
+### Advanced Overlay Styling
+
+Combine overlay labels with custom styling and transparent colors:
+
+<Canvas of={ LeaderboardChartStories.OverlayLabelWithImage } />
+
+<Source
+	language="tsx"
+	code={ `<LeaderboardChart
+		data={richLabelData}
+		withComparison={true}
+		withOverlayLabel={true}
+		primaryColor="rgba(56, 88, 233, 0.08)" // Semi-transparent
+		style={{
+			'--a8c-charts-border-radius-leaderboard-bar': '4px',
+		}}
+	/>` }
+/>
+
+### CSS Custom Properties
+
+The component supports CSS custom properties for advanced styling:
+
+<Source
+	language="tsx"
+	code={ `<LeaderboardChart
+		data={data}
+		style={{
+			'--a8c-charts-border-radius-leaderboard-bar': '8px',
+		}}
+		className="myCustomChart"
+	/>` }
+/>
+
+<Source
+	language="css"
+	code={ `.myCustomChart {
+		--a8c-charts-border-radius-leaderboard-bar: 8px;
+	}` }
+/>
+
+## Theming Integration
+
+Leaderboard Charts integrate seamlessly with the chart theming system. The default theme has neutral colors and styling, and is automatically applied to all charts unless a custom theme is provided.
+
+**Series colors come from the palette custom properties, not the theme object.** Set as many of the five slots as you need; an unset slot is skipped, and charts generates accessible colors beyond whatever you set:
+
+<Source
+	language="css"
+	code={ `.a8c-charts-scope {
+		--a8c-charts-color-series-1: #FF6B6B;
+	}` }
+/>
+
+Every other color works the same way — declare its catalog role. The closest declaration inside the provider tree wins, so scope the rule to one dashboard, or to `.a8c-charts-scope` to move every chart on the page:
+
+<Source
+	language="css"
+	code={ `.my-dashboard {
+		--a8c-charts-color-background: #f5f5f5;
+		/* The trend arrows on each row: */
+		--a8c-charts-color-trend-up: #008030;
+		--a8c-charts-color-trend-down: #cc1818;
+	}` }
+/>
+
+## Responsive Behavior
+
+By default, leaderboard charts **fill their parent container's dimensions**. The parent must have an explicit height, or the chart must receive an `aspectRatio`:
+
+<Source
+	language="tsx"
+	code={ `// Fill parent container (default) - parent needs explicit height
+		<div style={{ width: '100%', height: '320px' }}>
+			<LeaderboardChart data={ data } showLegend={ true } />
+		</div>
+
+		// Use aspect ratio - height from width, contained if the parent is shorter
+		<div style={{ width: '100%' }}>
+			<LeaderboardChart data={ data } aspectRatio={ 0.4 } showLegend={ true } />
+		</div>
+
+		// Fixed dimensions
+		<LeaderboardChart
+			data={ data }
+			width={ 300 }
+			height={ 400 }
+			showLegend={ true }
+		/>` }
+/>
+
+By default, when content is taller than the available area, the content region scrolls and the legend remains visible without overlap. Set `fitRows` inside a height-constrained container to hide rows that do not fit instead. The example below uses `LeaderboardChartUnresponsive` because refits are debounced with the parent resize on the responsive export, which lags a live drag:
+
+<Canvas of={ LeaderboardChartStories.FitRows } />
+
+<Source
+	language="tsx"
+	code={ `import { LeaderboardChartUnresponsive } from '@automattic/charts';
+
+	<div style={{ height: '180px' }}>
+		<LeaderboardChartUnresponsive data={ data } fitRows />
+	</div>` }
+/>
+
+Hidden rows also leave the tab order and the accessibility tree, so keyboard focus only ever lands on a fully visible row — tab through the example below to verify:
+
+<Canvas of={ LeaderboardChartStories.FitRowsInteractive } />
+
+For more details on responsive behavior, see the [Responsive Design section](./?path=/docs/js-packages-charts-library-introduction--docs#responsive-design) in the introduction.
+
+## Animation
+
+The Leaderboard Chart component supports an optional entry animation that creates a smooth reveal effect when the chart first renders:
+
+<Canvas of={ LeaderboardChartStories.Animation } />
+
+<Source
+	language="tsx"
+	code={ `<LeaderboardChart
+		data={ data }
+		animation={ true }
+	/>` }
+/>
+
+### Animation Behavior
+
+- **Opt-in**: Animation is disabled by default and must be explicitly enabled with the `animation` prop
+- **Accessibility**: Automatically respects the user's `prefers-reduced-motion` system setting - animation will not play for users who prefer reduced motion
+- **Effect**: Creates a stretching effect where bars grow from left to right, revealing the leaderboard data progressively
+- **Duration**: 1000ms (1 second) with ease-out timing
+
+**Note**: The animation plays once when the chart initially renders and does not repeat.
+
+## Advanced Usage
+
+### E-commerce Sales Channels
+
+<Source language="tsx" code={ `
+	const salesData = [
+		{ id: 'organic', label: 'Organic Search', currentValue: 45000, previousValue: 38000, currentShare: 100, previousShare: 84, delta: 18 },
+		{ id: 'paid', label: 'Paid Advertising', currentValue: 32000, previousValue: 35000, currentShare: 71, previousShare: 78, delta: -9 },
+		{ id: 'social', label: 'Social Media', currentValue: 18000, previousValue: 15000, currentShare: 40, previousShare: 33, delta: 20 },
+		{ id: 'email', label: 'Email Marketing', currentValue: 12000, previousValue: 11000, currentShare: 27, previousShare: 24, delta: 9 },
+	];
+
+	<LeaderboardChart data={salesData} withComparison={true} />
+` } />
+
+### Traffic Sources
+
+<Source language="tsx" code={ `
+	const trafficData = [
+		{ id: 'direct', label: 'Direct', currentValue: 15420, previousValue: 13200, currentShare: 100, previousShare: 86, delta: 17 },
+		{ id: 'search', label: 'Search Engines', currentValue: 12350, previousValue: 11800, currentShare: 80, previousShare: 77, delta: 5 },
+		{ id: 'social', label: 'Social Networks', currentValue: 8760, previousValue: 9200, currentShare: 57, previousShare: 60, delta: -5 },
+	];
+
+	<LeaderboardChart data={trafficData} withComparison={true} />
+` } />
+
+## Accessibility
+
+### Keyboard Navigation
+
+- Interactive legends are keyboard accessible when `legend.interactive` is enabled.
+- Legend items can be toggled via keyboard using standard button interaction.
+- Rows with `onClick` render as native `<button>` elements and are activatable with Enter or Space.
+- An interactive row's accessible name comes from its content (label + value); set the entry's `ariaLabel` to override it for image-only labels.
+
+### Screen Reader Support
+
+- Uses semantic text content for labels and values.
+- Legend items expose visible labels and state when interactive.
+- Value and delta text supplement color-based feedback.
+
+### Focus Management
+
+- Interactive legend items use standard focus behavior and visible focus indicators from the shared legend component.
+- By default, the chart content area scrolls in constrained layouts, keeping focused legend controls visible and non-overlapping. With `fitRows`, rows that do not fit are removed from the focus order and accessibility tree.

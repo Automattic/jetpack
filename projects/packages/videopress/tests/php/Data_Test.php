@@ -1,0 +1,547 @@
+<?php
+/**
+ * Tests for Automattic\Jetpack\VideoPress\Data methods
+ *
+ * @package automattic/jetpack-videopress
+ */
+
+namespace Automattic\Jetpack\VideoPress;
+
+use PHPUnit\Framework\Attributes\DataProvider;
+use WorDBless\BaseTestCase;
+
+/**
+ * Class Data_Test
+ *
+ * Tests that Data::get_video_data() produces the correct WP_Query parameters.
+ */
+class Data_Test extends BaseTestCase {
+
+	/**
+	 * Captured WP_Query instance.
+	 *
+	 * @var \WP_Query|null
+	 */
+	private $captured_query;
+
+	/**
+	 * VideoPress REST API data instance.
+	 *
+	 * @var WPCOM_REST_API_V2_Attachment_VideoPress_Data
+	 */
+	private static $videopress_rest_data;
+
+	/**
+	 * Set up once before all tests in this class.
+	 */
+	public static function set_up_before_class() {
+		parent::set_up_before_class();
+
+		// Load mock plugin to make Status::is_standalone_plugin_active() return true.
+		require_once __DIR__ . '/assets/videopress-mock-plugin.txt';
+
+		// Initialize VideoPress components once for all tests.
+		Attachment_Handler::init();
+		self::$videopress_rest_data = new WPCOM_REST_API_V2_Attachment_VideoPress_Data();
+	}
+
+	/**
+	 * Set up before each test.
+	 */
+	public function set_up() {
+		parent::set_up();
+
+		$this->captured_query = null;
+
+		// WorDBless resets hooks between tests, so re-register the
+		// rest_attachment_query filter and REST fields each test.
+		self::$videopress_rest_data->register_fields();
+		self::$videopress_rest_data->add_jetpack_videopress_custom_query_filters();
+
+		// Use high priority to capture before other filters might short-circuit.
+		add_filter( 'posts_pre_query', array( $this, 'capture_query' ), 10, 2 );
+	}
+
+	/**
+	 * Clean up after each test.
+	 */
+	public function tear_down() {
+		remove_filter( 'posts_pre_query', array( $this, 'capture_query' ) );
+		parent::tear_down();
+	}
+
+	/**
+	 * Capture WP_Query instance for attachment queries.
+	 *
+	 * @param array|null $posts Return value to short-circuit.
+	 * @param \WP_Query  $query The WP_Query instance.
+	 * @return array Empty array to short-circuit the query.
+	 */
+	public function capture_query( $posts, $query ) {
+		if ( $query->get( 'post_type' ) === 'attachment' ) {
+			$this->captured_query = $query;
+			// Return empty array to short-circuit the actual database query.
+			return array();
+		}
+
+		return $posts;
+	}
+
+	/**
+	 * Test that get_video_data for VideoPress videos queries only video/videopress mime type.
+	 *
+	 * The bug was that using both media_type=video AND mime_type=video/videopress
+	 * caused WordPress to include ALL video mime types in the query instead of just video/videopress.
+	 */
+	public function test_get_video_data_for_videopress_queries_only_videopress_mime_type() {
+		// Call get_video_data for VideoPress videos.
+		Data::get_video_data();
+
+		$this->assertNotNull( $this->captured_query, 'WP_Query should have been executed' );
+
+		$mime_types = (array) $this->captured_query->query_vars['post_mime_type'];
+
+		$this->assertContains( 'video/videopress', $mime_types, 'Query should include video/videopress mime type' );
+		$this->assertCount( 1, $mime_types, 'Query should ONLY include video/videopress, not other video types' );
+	}
+
+	/**
+	 * Test that get_video_data for local videos queries all video mime types
+	 * and uses meta_query to exclude VideoPress videos.
+	 */
+	public function test_get_video_data_for_local_queries_video_mime_types() {
+		// Call get_video_data for local (non-VideoPress) videos.
+		Data::get_video_data( false );
+
+		$this->assertNotNull( $this->captured_query, 'WP_Query should have been executed' );
+
+		$mime_types = (array) $this->captured_query->query_vars['post_mime_type'];
+
+		// Local video query uses media_type=video which includes all video mime types.
+		$this->assertGreaterThan( 1, count( $mime_types ), 'Local video query should include multiple video mime types' );
+		$this->assertContains( 'video/mp4', $mime_types, 'Local video query should include video/mp4' );
+
+		// VideoPress videos are excluded via meta_query (no_videopress parameter).
+		$meta_query = $this->captured_query->meta_query;
+		$this->assertNotNull( $meta_query, 'meta_query should be set to exclude VideoPress videos' );
+
+		// Check that meta_query excludes posts with videopress_guid.
+		$has_videopress_exclusion = false;
+		foreach ( $meta_query->queries as $query ) {
+			if ( is_array( $query ) && isset( $query['key'] ) && $query['key'] === 'videopress_guid' && $query['compare'] === 'NOT EXISTS' ) {
+				$has_videopress_exclusion = true;
+				break;
+			}
+		}
+		$this->assertTrue( $has_videopress_exclusion, 'meta_query should exclude posts with videopress_guid' );
+	}
+
+	/**
+	 * Test that VideoPress query does NOT pass media_type parameter to REST API.
+	 *
+	 * This is the actual fix validation: ensuring media_type is not sent for VideoPress queries.
+	 * When media_type=video is combined with mime_type=video/videopress, WordPress may fall back
+	 * to all video types if video/videopress is not in the allowed mime types list.
+	 */
+	public function test_videopress_query_does_not_include_media_type_parameter() {
+		$captured_params = null;
+
+		// Capture the REST API request parameters before WordPress processes them.
+		add_filter(
+			'rest_pre_dispatch',
+			function ( $result, $server, $request ) use ( &$captured_params ) {
+				if ( strpos( $request->get_route(), '/wp/v2/media' ) !== false ) {
+					$captured_params = $request->get_params();
+				}
+				return $result;
+			},
+			10,
+			3
+		);
+
+		Data::get_video_data();
+
+		$this->assertNotNull( $captured_params, 'REST API request should have been made' );
+		$this->assertArrayHasKey( 'mime_type', $captured_params, 'Request should include mime_type parameter' );
+		$this->assertEquals( 'video/videopress', $captured_params['mime_type'], 'mime_type should be video/videopress' );
+		$this->assertArrayNotHasKey( 'media_type', $captured_params, 'Request should NOT include media_type parameter (this causes the bug)' );
+	}
+
+	/**
+	 * Test that the custom query filters hook is registered unconditionally
+	 * (it used to be skipped on WPCOM, where the `videopress_only_videos`
+	 * param is now handled).
+	 */
+	public function test_query_filters_hook_registers_unconditionally() {
+		$instance = new WPCOM_REST_API_V2_Attachment_VideoPress_Data();
+
+		$this->assertNotFalse(
+			has_action( 'rest_api_init', array( $instance, 'add_jetpack_videopress_custom_query_filters' ) ),
+			'add_jetpack_videopress_custom_query_filters should hook rest_api_init on every host'
+		);
+	}
+
+	/**
+	 * Test that off-WPCOM the `videopress_only_videos` param is a no-op:
+	 * no post_mime_type narrowing, no meta_query entries. The WPCOM branch
+	 * (post_mime_type = video, meta_query skipped) can't be exercised here
+	 * because IS_WPCOM can't be defined in this test environment.
+	 */
+	public function test_videopress_only_videos_is_ignored_off_wpcom() {
+		$request = new \WP_REST_Request( 'GET', '/wp/v2/media' );
+		$request->set_param( 'videopress_only_videos', 1 );
+
+		$args = self::$videopress_rest_data->filter_attachments_by_jetpack_videopress_fields( array(), $request );
+
+		$this->assertArrayNotHasKey( 'post_mime_type', $args, 'Off-WPCOM the param must not touch post_mime_type' );
+		$this->assertSame( array(), $args['meta_query'], 'No meta_query entries should be added for this param' );
+	}
+
+	/**
+	 * Test that off-WPCOM the meta-query filters still apply when
+	 * `videopress_only_videos` accompanies them (the WPCOM early-return
+	 * must not leak into the self-hosted path).
+	 */
+	public function test_meta_query_filters_still_apply_off_wpcom() {
+		$request = new \WP_REST_Request( 'GET', '/wp/v2/media' );
+		$request->set_param( 'videopress_only_videos', 1 );
+		$request->set_param( 'no_videopress', 1 );
+
+		$args = self::$videopress_rest_data->filter_attachments_by_jetpack_videopress_fields( array(), $request );
+
+		$this->assertSame(
+			array(
+				array(
+					'key'     => 'videopress_guid',
+					'compare' => 'NOT EXISTS',
+				),
+			),
+			$args['meta_query'],
+			'no_videopress must keep producing its meta_query entry off-WPCOM'
+		);
+	}
+
+	/**
+	 * Test that off-WPCOM the new WPCOM-only `videopress_has_guid` param is a
+	 * no-op: the videos-table ID-set logic is IS_WPCOM-guarded, so on a
+	 * self-hosted site it must not add a post__in constraint or a meta_query
+	 * entry. (The WPCOM branch itself can't be exercised here because IS_WPCOM
+	 * can't be defined in this test environment.)
+	 */
+	public function test_videopress_has_guid_is_ignored_off_wpcom() {
+		$request = new \WP_REST_Request( 'GET', '/wp/v2/media' );
+		$request->set_param( 'videopress_has_guid', 1 );
+
+		$args = self::$videopress_rest_data->filter_attachments_by_jetpack_videopress_fields( array(), $request );
+
+		$this->assertArrayNotHasKey( 'post__in', $args, 'Off-WPCOM the param must not add a post__in constraint' );
+		$this->assertSame( array(), $args['meta_query'], 'No meta_query entries should be added for this param' );
+	}
+
+	/**
+	 * Test the pure effective-visibility folding used to build the WPCOM
+	 * privacy ID set. It must reproduce the client's old matchesClientSideFilters:
+	 * effective_private = setting===1 OR ((setting===2 or absent) AND site private);
+	 * the 'site-default' request (2) matches the stored setting (2 or absent).
+	 *
+	 * @dataProvider provider_privacy_value_set
+	 *
+	 * @param int   $code            Requested privacy code.
+	 * @param bool  $site_is_private Whether the site default resolves to private.
+	 * @param int[] $expected_values Expected acceptable stored privacy_setting values.
+	 * @param bool  $expected_null   Whether an absent meta row should qualify.
+	 */
+	#[DataProvider( 'provider_privacy_value_set' )]
+	public function test_wpcom_privacy_value_set( $code, $site_is_private, $expected_values, $expected_null ) {
+		$method = new \ReflectionMethod( WPCOM_REST_API_V2_Attachment_VideoPress_Data::class, 'wpcom_privacy_value_set' );
+
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+
+		list( $values, $inc_null ) = $method->invoke( self::$videopress_rest_data, $code, $site_is_private );
+
+		$this->assertSame( $expected_values, $values );
+		$this->assertSame( $expected_null, $inc_null );
+	}
+
+	/**
+	 * Data provider for test_wpcom_privacy_value_set.
+	 *
+	 * @return array<string, array{0:int,1:bool,2:int[],3:bool}>
+	 */
+	public static function provider_privacy_value_set() {
+		return array(
+			// On a private-by-default site, site-default + absent fold into "private".
+			'private on private site'      => array( 1, true, array( 1, 2 ), true ),
+			'public on private site'       => array( 0, true, array( 0 ), false ),
+			// On a public-by-default site, site-default + absent fold into "public".
+			'private on public site'       => array( 1, false, array( 1 ), false ),
+			'public on public site'        => array( 0, false, array( 0, 2 ), true ),
+			// Site-default matches the stored setting regardless of resolved privacy.
+			'site-default on private site' => array( 2, true, array( 2 ), true ),
+			'site-default on public site'  => array( 2, false, array( 2 ), true ),
+		);
+	}
+
+	/**
+	 * Test the pure (type, privacy) → ID-set-constraint mapping that reproduces
+	 * the old client-side matchesClientSideFilters. Exhaustively covers all 12
+	 * (type ∈ {none, videopress, local}) × (privacy ∈ {none, private, public,
+	 * site-default}) combinations. This plan is independent of the resolved site
+	 * privacy — only the *contents* of each named set depend on it — so it's
+	 * asserted directly against ($mode, $set).
+	 *
+	 * @dataProvider provider_privacy_type_plan
+	 *
+	 * @param bool        $has_guid Type filter = VideoPress.
+	 * @param bool        $no_vp    Type filter = local.
+	 * @param int|null    $privacy  Single privacy code (0/1/2) or null.
+	 * @param string      $mode     Expected mode: none|in|not_in|empty.
+	 * @param string|null $set      Expected named set: all|priv|pub|sd|expl|null.
+	 */
+	#[DataProvider( 'provider_privacy_type_plan' )]
+	public function test_wpcom_privacy_type_plan( $has_guid, $no_vp, $privacy, $mode, $set ) {
+		$method = new \ReflectionMethod( WPCOM_REST_API_V2_Attachment_VideoPress_Data::class, 'wpcom_privacy_type_plan' );
+
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+
+		$this->assertSame(
+			array( $mode, $set ),
+			$method->invoke( self::$videopress_rest_data, $has_guid, $no_vp, $privacy )
+		);
+	}
+
+	/**
+	 * Data provider for test_wpcom_privacy_type_plan — the full 12-combo truth table.
+	 *
+	 * @return array<string, array{0:bool,1:bool,2:int|null,3:string,4:string|null}>
+	 */
+	public static function provider_privacy_type_plan() {
+		return array(
+			// type = none (no type filter): privacy folds L into Public/Site-default.
+			'none / none'               => array( false, false, null, 'none', null ),
+			'none / private'            => array( false, false, 1, 'in', 'priv' ),
+			'none / public'             => array( false, false, 0, 'not_in', 'priv' ),
+			'none / site-default'       => array( false, false, 2, 'not_in', 'expl' ),
+			// type = videopress: always restrict to videos-table members.
+			'videopress / none'         => array( true, false, null, 'in', 'all' ),
+			'videopress / private'      => array( true, false, 1, 'in', 'priv' ),
+			'videopress / public'       => array( true, false, 0, 'in', 'pub' ),
+			'videopress / site-default' => array( true, false, 2, 'in', 'sd' ),
+			// type = local: exclude members; locals are public + site-default, never private.
+			'local / none'              => array( false, true, null, 'not_in', 'all' ),
+			'local / private'           => array( false, true, 1, 'empty', null ),
+			'local / public'            => array( false, true, 0, 'not_in', 'all' ),
+			'local / site-default'      => array( false, true, 2, 'not_in', 'all' ),
+		);
+	}
+
+	/**
+	 * Tests that apply_wpcom_id_constraint composes with core's include/exclude
+	 * (post__in / post__not_in) instead of clobbering them, and keeps the
+	 * match-nothing sentinel on empty restrict-sets.
+	 *
+	 * @dataProvider provider_apply_id_constraint
+	 *
+	 * @param array  $args     Incoming WP_Query args.
+	 * @param string $mode     Constraint mode: none|in|not_in|empty.
+	 * @param int[]  $ids      Resolved ID set.
+	 * @param array  $expected Expected outgoing args.
+	 */
+	#[DataProvider( 'provider_apply_id_constraint' )]
+	public function test_apply_wpcom_id_constraint( $args, $mode, $ids, $expected ) {
+		$method = new \ReflectionMethod( WPCOM_REST_API_V2_Attachment_VideoPress_Data::class, 'apply_wpcom_id_constraint' );
+
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+
+		$this->assertSame( $expected, $method->invoke( self::$videopress_rest_data, $args, $mode, $ids ) );
+	}
+
+	/**
+	 * Data provider for test_apply_wpcom_id_constraint.
+	 *
+	 * @return array<string, array{0:array,1:string,2:int[],3:array}>
+	 */
+	public static function provider_apply_id_constraint() {
+		return array(
+			'in, plain'                       => array( array(), 'in', array( 3, 5 ), array( 'post__in' => array( 3, 5 ) ) ),
+			'in, empty set -> sentinel'       => array( array(), 'in', array(), array( 'post__in' => array( 0 ) ) ),
+			'in intersects REST include'      => array( array( 'post__in' => array( 5, 9 ) ), 'in', array( 3, 5 ), array( 'post__in' => array( 5 ) ) ),
+			'in disjoint include -> sentinel' => array( array( 'post__in' => array( 9 ) ), 'in', array( 3, 5 ), array( 'post__in' => array( 0 ) ) ),
+			'in folds a lone REST exclude'    => array( array( 'post__not_in' => array( 3 ) ), 'in', array( 3, 5 ), array( 'post__in' => array( 5 ) ) ),
+			'in exclude-swallows -> sentinel' => array( array( 'post__not_in' => array( 3, 5 ) ), 'in', array( 3, 5 ), array( 'post__in' => array( 0 ) ) ),
+			'in include+exclude: core precedence (exclude dropped)' => array(
+				array(
+					'post__in'     => array( 3, 9 ),
+					'post__not_in' => array( 3 ),
+				),
+				'in',
+				array( 3, 5 ),
+				array(
+					'post__in'     => array( 3 ),
+					'post__not_in' => array( 3 ),
+				),
+			),
+			'not_in, plain'                   => array( array(), 'not_in', array( 3, 5 ), array( 'post__not_in' => array( 3, 5 ) ) ),
+			'not_in, empty set -> untouched'  => array( array( 'post__not_in' => array( 7 ) ), 'not_in', array(), array( 'post__not_in' => array( 7 ) ) ),
+			'not_in merges REST exclude'      => array( array( 'post__not_in' => array( 7, 3 ) ), 'not_in', array( 3, 5 ), array( 'post__not_in' => array( 7, 3, 5 ) ) ),
+			'not_in subtracts REST include'   => array( array( 'post__in' => array( 3, 9 ) ), 'not_in', array( 3, 5 ), array( 'post__in' => array( 9 ) ) ),
+			'not_in swallows include whole'   => array( array( 'post__in' => array( 3, 5 ) ), 'not_in', array( 3, 5 ), array( 'post__in' => array( 0 ) ) ),
+			'empty overrides include'         => array( array( 'post__in' => array( 9 ) ), 'empty', array(), array( 'post__in' => array( 0 ) ) ),
+			'none leaves args alone'          => array( array( 'post__in' => array( 9 ) ), 'none', array(), array( 'post__in' => array( 9 ) ) ),
+		);
+	}
+
+	/**
+	 * Invokes the private Data::prepare_videopress_video_data() method.
+	 *
+	 * @param array|object $video A single video entry from the media REST endpoint.
+	 * @return array The formatted video data.
+	 */
+	private function prepare_videopress_video_data( $video ) {
+		$method = new \ReflectionMethod( Data::class, 'prepare_videopress_video_data' );
+
+		// setAccessible() is required to invoke private methods on PHP < 8.1, but
+		// is a no-op (and deprecated as of 8.5) on newer versions.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+
+		return $method->invoke( null, $video );
+	}
+
+	/**
+	 * Returns a video entry as the media REST endpoint shapes it, with the
+	 * jetpack_videopress field fully populated.
+	 *
+	 * @param array $media_details The media_details value to use.
+	 * @return array
+	 */
+	private function videopress_rest_video( $media_details ) {
+		return array(
+			'id'                      => 123,
+			'jetpack_videopress_guid' => 'abcd1234',
+			'media_details'           => $media_details,
+			'jetpack_videopress'      => array(
+				'title'                => 'Test video',
+				'description'          => '',
+				'caption'              => '',
+				'rating'               => 'G',
+				'allow_download'       => 0,
+				'display_embed'        => 0,
+				'privacy_setting'      => 2,
+				'needs_playback_token' => false,
+				'is_private'           => false,
+			),
+		);
+	}
+
+	/**
+	 * Test that prepare_videopress_video_data does not emit warnings when the
+	 * media_details is missing the `videopress`, `width` and `height` keys.
+	 *
+	 * Videos that are still processing (or otherwise have partial metadata) come
+	 * back from the media REST endpoint without those keys. The data-shaping map
+	 * previously accessed them directly, raising "Undefined array key" and
+	 * "Trying to access array offset on null" warnings for every such video.
+	 */
+	public function test_prepare_videopress_video_data_handles_missing_media_details() {
+		// media_details intentionally lacks `videopress`, `width` and `height`.
+		$result = $this->prepare_videopress_video_data( $this->videopress_rest_video( array( 'length' => 5 ) ) );
+
+		$this->assertSame( 123, $result['id'] );
+		$this->assertNull( $result['url'] );
+		$this->assertNull( $result['posterImage'] );
+		$this->assertNull( $result['width'] );
+		$this->assertNull( $result['height'] );
+		$this->assertNull( $result['thumbnail'] );
+		$this->assertNull( $result['filename'] );
+		$this->assertSame( array( 'src' => null ), $result['poster'] );
+	}
+
+	/**
+	 * Test that prepare_videopress_video_data maps a fully-populated video.
+	 */
+	public function test_prepare_videopress_video_data_maps_complete_media_details() {
+		$video = $this->videopress_rest_video(
+			array(
+				'width'      => 1920,
+				'height'     => 1080,
+				'videopress' => array(
+					'original'      => 'https://videos.example.com/original.mp4',
+					'poster'        => 'https://videos.example.com/poster.jpg',
+					'upload_date'   => '2026-01-01',
+					'duration'      => 12345,
+					'file_url_base' => array( 'https' => 'https://videos.example.com/' ),
+					'finished'      => true,
+					'files'         => array( 'dvd' => array( 'original_img' => 'thumb.jpg' ) ),
+				),
+			)
+		);
+		$video['jetpack_videopress']['privacy_setting'] = 0;
+
+		$result = $this->prepare_videopress_video_data( $video );
+
+		$this->assertSame( 'https://videos.example.com/original.mp4', $result['url'] );
+		$this->assertSame( 'https://videos.example.com/poster.jpg', $result['posterImage'] );
+		$this->assertSame( 1920, $result['width'] );
+		$this->assertSame( 1080, $result['height'] );
+		$this->assertSame( 'original.mp4', $result['filename'] );
+		$this->assertSame( 'https://videos.example.com/thumb.jpg', $result['thumbnail'] );
+	}
+
+	/**
+	 * Test that the thumbnail is null when the DVD image is present but its base
+	 * URL is missing, rather than a bare, relative filename.
+	 */
+	public function test_prepare_videopress_video_data_thumbnail_null_without_base_url() {
+		$video = $this->videopress_rest_video(
+			array(
+				'videopress' => array(
+					// original_img is present, but file_url_base is missing.
+					'files' => array( 'dvd' => array( 'original_img' => 'thumb.jpg' ) ),
+				),
+			)
+		);
+		$video['jetpack_videopress']['privacy_setting'] = 0;
+
+		$result = $this->prepare_videopress_video_data( $video );
+
+		$this->assertNull( $result['thumbnail'] );
+	}
+
+	/**
+	 * Test that auto-generated subtitles are not disabled by default (subtitles on).
+	 */
+	public function test_auto_subtitles_disabled_defaults_to_false() {
+		delete_option( 'videopress_auto_subtitles_disabled' );
+
+		$this->assertFalse( Data::get_videopress_auto_subtitles_disabled() );
+	}
+
+	/**
+	 * Test that the stored auto-generated subtitles opt-out option is honored.
+	 */
+	public function test_auto_subtitles_disabled_reflects_stored_option() {
+		update_option( 'videopress_auto_subtitles_disabled', true );
+
+		$this->assertTrue( Data::get_videopress_auto_subtitles_disabled() );
+	}
+
+	/**
+	 * Test that get_videopress_settings exposes the auto-generated subtitles opt-out value.
+	 */
+	public function test_get_videopress_settings_includes_auto_subtitles() {
+		update_option( 'videopress_auto_subtitles_disabled', true );
+
+		$settings = Data::get_videopress_settings();
+
+		$this->assertArrayHasKey( 'videopress_auto_subtitles_disabled', $settings );
+		$this->assertTrue( $settings['videopress_auto_subtitles_disabled'] );
+	}
+}

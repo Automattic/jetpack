@@ -1,19 +1,20 @@
-#!/bin/bash
+#!/usr/bin/env bash
 set -e
 
 # This file is run for the Docker image defined in Dockerfile.
-# These commands will be run each time the container is run.
+# These commands will be run each time the container is created.
 #
 # If you modify anything here, remember to build the image again by running:
 # jetpack docker build-image
 
 source /etc/docker-args.sh
 
-user="${APACHE_RUN_USER:-www-data}"
-group="${APACHE_RUN_GROUP:-www-data}"
-
 # Download WordPress
-[ -f /var/www/html/xmlrpc.php ] || wp core download
+# Sometimes it fails, and a retry would be nice:
+#   https://github.com/wp-cli/core-command/pull/258
+#   https://github.com/wp-cli/wp-cli/pull/6140
+# For now this should work well enough
+[ -f /var/www/html/xmlrpc.php ] || wp core download || { sleep $(( 30 + RANDOM % 8 )) && wp core download; }
 
 # Configure WordPress
 if [ ! -f /var/www/html/wp-config.php ]; then
@@ -78,7 +79,7 @@ fi
 
 if [ "$COMPOSE_PROJECT_NAME" == "jetpack_dev" ] ; then
 	# If we don't have the wordpress test helpers, download them
-	if [ ! -d /tmp/wordpress-develop/tests ]; then
+	if [[ ! -d /tmp/wordpress-develop/tests/phpunit/data || ! -d /tmp/wordpress-develop/tests/phpunit/includes ]]; then
 		CUR_WP_VERSION=$(wp core version);
 		# Get latest WordPress unit-test helper files
 		svn co \
@@ -109,17 +110,24 @@ if [ "$COMPOSE_PROJECT_NAME" == "jetpack_dev" ] ; then
 	fi
 fi
 
+PLUGINS_TO_NOT_SYMLINK=('wpcloud-sso')
 for DIR in /usr/local/src/jetpack-monorepo/projects/plugins/*; do
-	[ -d "$DIR" ] || continue # We are only interested in directories, e.g. different plugins.
-	PLUGIN="$(basename $DIR)"
+	[[ -d "$DIR" ]] || continue # We are only interested in directories, e.g. different plugins.
+	[[ -f "$DIR/composer.json" ]] || continue # If there's no composer.json in the folder, it's probably not a plugin.
+	PLUGIN="$(basename "$DIR")"
+
+	# Some plugins should not be symlinked
+	printf '%s\n' "${PLUGINS_TO_NOT_SYMLINK[@]}" | grep -qxF "$PLUGIN" && continue
+
+	# Read plugin slug from composer.json, with fallback to beta-plugin-slug
+	PLUGIN_SLUG=$(jq -r '.extra["wp-plugin-slug"] // .extra["beta-plugin-slug"]' "$DIR/composer.json")
+
 	# Symlink plugins into the wp-content dir.
-	if [ ! -e /var/www/html/wp-content/plugins/"$PLUGIN" ]; then
-		echo "Linking the $PLUGIN plugin."
-		ln -s "$DIR" /var/www/html/wp-content/plugins/"$PLUGIN"
+	if [ ! -e /var/www/html/wp-content/plugins/"$PLUGIN_SLUG" ]; then
+		echo "Linking the $PLUGIN plugin as $PLUGIN_SLUG."
+		ln -s "$DIR" /var/www/html/wp-content/plugins/"$PLUGIN_SLUG"
 	fi
 done
-
-
 
 WP_HOST_PORT=":$HOST_PORT"
 

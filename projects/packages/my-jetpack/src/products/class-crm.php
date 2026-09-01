@@ -10,6 +10,10 @@ namespace Automattic\Jetpack\My_Jetpack\Products;
 use Automattic\Jetpack\My_Jetpack\Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Class responsible for handling the CRM product
  */
@@ -91,7 +95,7 @@ class Crm extends Product {
 	 * @return string
 	 */
 	public static function get_description() {
-		return __( 'Strengthen customer relationships and grow your business', 'jetpack-my-jetpack' );
+		return __( 'All of the tools you need to grow your business.', 'jetpack-my-jetpack' );
 	}
 
 	/**

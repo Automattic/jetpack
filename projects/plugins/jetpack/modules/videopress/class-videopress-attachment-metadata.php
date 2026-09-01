@@ -7,6 +7,10 @@
 
 use Automattic\Jetpack\Connection\Client;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Class Videopress_Attachment_Metadata
  */
@@ -44,7 +48,7 @@ class Videopress_Attachment_Metadata {
 		$endpoint       = 'videos';
 		$values['guid'] = $guid;
 
-		$result = Client::wpcom_json_api_request_as_blog( $endpoint, '2', $args, wp_json_encode( $values ), 'wpcom' );
+		$result = Client::wpcom_json_api_request_as_blog( $endpoint, '2', $args, wp_json_encode( $values, JSON_UNESCAPED_SLASHES ), 'wpcom' );
 
 		$validated_result = self::validate_result( $result );
 		if ( true !== $validated_result ) {
@@ -132,7 +136,7 @@ class Videopress_Attachment_Metadata {
 	 * @param array|\WP_Error $result The result returned by the client.
 	 */
 	private static function validate_result( $result ) {
-		$response_code = isset( $result['response']['code'] ) ? $result['response']['code'] : 500;
+		$response_code = $result['response']['code'] ?? 500;
 
 		// When Client::wpcom_json_api_request_as_blog is called in WPCOM, bad response codes are not converted to WP_Error.
 		// Because of this, we need to manually check the response code to check if the direct API call is 200 (OK).

@@ -1,0 +1,426 @@
+import { test as baseTest, expect } from '@automattic/_jetpack-e2e-commons/fixtures/base-test';
+import logger from '@automattic/_jetpack-e2e-commons/logger';
+import { SearchUtils } from '../utils/index';
+
+export const SEARCH_API_PATTERN =
+	/^https:\/\/public-api\.wordpress.com\/rest\/v1.3\/sites\/\d+\/search.*/;
+
+export const searchResultForTest1 = {
+	total: 3,
+	corrected_query: false,
+	page_handle: false,
+	results: [
+		{
+			_score: null,
+			fields: {
+				date: '2021-03-25 05:27:29',
+				'meta._wc_average_rating.double': 0,
+				blog_id: 190651342,
+				'has.image': 1,
+				'image.url.raw':
+					'woocommerce.com/wp-content/uploads/2021/04/blog-fb-Facebook-Conversion@2x.jpg?resize=1536,803',
+				'title.default': 'Test1 Record 1',
+				'permalink.url.raw': '/product/test1-record-1/',
+				'meta._wc_review_count.long': 0,
+				post_id: 52,
+				'wc.price': 50,
+				'wc.formatted_price':
+					'<span class="woocommerce-Price-amount amount"><span class="woocommerce-Price-currencySymbol">&#036;</span>50.00</span>',
+				post_type: 'product',
+				'excerpt.default': '',
+			},
+			result_type: 'post',
+			railcar: {
+				railcar: 'H(pN&lRu#DK5',
+				fetch_algo: 'jetpack:search/1-date_desc',
+				fetch_position: 0,
+				rec_blog_id: 190651342,
+				rec_post_id: 52,
+				fetch_lang: 'en',
+				fetch_query: 'test1',
+				session_id: 'wLrI$1',
+			},
+			highlight: {
+				title: [ '<mark>Test1</mark> Record 1' ],
+				content: [ '' ],
+			},
+			tags: [ 'tag-1' ],
+			categories: [ 'category-1' ],
+		},
+		{
+			_score: null,
+			fields: {
+				date: '2021-03-25 02:44:24',
+				'meta._wc_average_rating.double': 0,
+				blog_id: 190651342,
+				'has.image': 1,
+				'image.url.raw':
+					'woocommerce.com/wp-content/uploads/2021/01/blog-fb-Choosing-Plugins@2x.jpg?resize=1536,803',
+				'title.default': 'Test1 Record 2',
+				'permalink.url.raw': '/product/test1-record-2/',
+				'meta._wc_review_count.long': 0,
+				post_id: 44,
+				'wc.price': 5,
+				'wc.formatted_price':
+					'<span class="woocommerce-Price-amount amount"><span class="woocommerce-Price-currencySymbol">&#036;</span>5.00</span>',
+				post_type: 'product',
+				'excerpt.default': '',
+			},
+			result_type: 'post',
+			railcar: {
+				railcar: '@cnGDFSUA&bY',
+				fetch_algo: 'jetpack:search/1-date_desc',
+				fetch_position: 1,
+				rec_blog_id: 190651342,
+				rec_post_id: 44,
+				fetch_lang: 'en',
+				fetch_query: 'test1',
+				session_id: 'wLrI$1',
+			},
+			highlight: {
+				title: [ '<mark>Test1</mark> Record 2' ],
+				content: [ 'The content of <mark>Test1</mark> Record 2' ],
+			},
+			tags: [ 'tag-2' ],
+			categories: [ 'category-2' ],
+		},
+		{
+			_score: null,
+			fields: {
+				date: '2021-03-25 02:44:24',
+				'meta._wc_average_rating.double': 0,
+				blog_id: 190651342,
+				'has.image': 1,
+				'image.url.raw':
+					'woocommerce.com/wp-content/uploads/2021/01/blog-fb-Choosing-Plugins@2x.jpg?resize=1536,803',
+				'title.default': 'Test1 Record 3',
+				'permalink.url.raw': '/product/test1-record-3/',
+				'meta._wc_review_count.long': 0,
+				post_id: 44,
+				'wc.price': 5,
+				'wc.formatted_price':
+					'<span class="woocommerce-Price-amount amount"><span class="woocommerce-Price-currencySymbol">&#036;</span>5.00</span>',
+				post_type: 'product',
+				'excerpt.default': '',
+			},
+			result_type: 'post',
+			railcar: {
+				railcar: '@cnGDFSUA&bY',
+				fetch_algo: 'jetpack:search/1-date_desc',
+				fetch_position: 1,
+				rec_blog_id: 190651342,
+				rec_post_id: 44,
+				fetch_lang: 'en',
+				fetch_query: 'test1',
+				session_id: 'wLrI$1',
+			},
+			highlight: {
+				title: [ '<mark>Test1</mark> Record 3' ],
+				content: [ 'The content of <mark>Test1</mark> Record 3' ],
+			},
+		},
+	],
+	suggestions: [],
+	aggregations: {
+		date_histogram_2: {
+			buckets: [
+				{
+					key_as_string: '2020-01-01 00:00:00',
+					key: 1199145600000,
+					doc_count: 4,
+				},
+				{
+					key_as_string: '2021-01-01 00:00:00',
+					key: 1230768000000,
+					doc_count: 4,
+				},
+			],
+		},
+		taxonomy_0: {
+			doc_count_error_upper_bound: 0,
+			sum_other_doc_count: 0,
+			buckets: [
+				{
+					key: 'category-1/Category 1',
+					doc_count: 1,
+				},
+				{
+					key: 'category-2/Category 2',
+					doc_count: 1,
+				},
+			],
+		},
+		taxonomy_1: {
+			doc_count_error_upper_bound: 0,
+			sum_other_doc_count: 35,
+			buckets: [
+				{
+					key: 'tag-1/Tag 1',
+					doc_count: 1,
+				},
+				{
+					key: 'tag-2/Tag 2',
+					doc_count: 1,
+				},
+			],
+		},
+	},
+};
+
+export const searchResultForTest2 = {
+	total: 3,
+	corrected_query: false,
+	page_handle: false,
+	results: [
+		{
+			_score: null,
+			fields: {
+				date: '2021-03-25 05:27:29',
+				'meta._wc_average_rating.double': 0,
+				blog_id: 190651342,
+				'has.image': 1,
+				'image.url.raw':
+					'woocommerce.com/wp-content/uploads/2021/04/blog-fb-Facebook-Conversion@2x.jpg?resize=1536,803',
+				'title.default': 'Test2 Record 1',
+				'permalink.url.raw': '/product/test2-record-1/',
+				'meta._wc_review_count.long': 0,
+				post_id: 52,
+				'wc.price': 50,
+				'wc.formatted_price':
+					'<span class="woocommerce-Price-amount amount"><span class="woocommerce-Price-currencySymbol">&#036;</span>50.00</span>',
+				post_type: 'product',
+				'excerpt.default': '',
+			},
+			result_type: 'post',
+			railcar: {
+				railcar: 'H(pN&lRu#DK5',
+				fetch_algo: 'jetpack:search/1-date_desc',
+				fetch_position: 0,
+				rec_blog_id: 190651342,
+				rec_post_id: 52,
+				fetch_lang: 'en',
+				fetch_query: 'test2',
+				session_id: 'wLrI$1',
+			},
+			highlight: {
+				title: [ '<mark>Test2</mark> Record 1' ],
+				content: [ '' ],
+			},
+		},
+		{
+			_score: null,
+			fields: {
+				date: '2021-03-25 02:44:24',
+				'meta._wc_average_rating.double': 0,
+				blog_id: 190651342,
+				'has.image': 1,
+				'image.url.raw':
+					'woocommerce.com/wp-content/uploads/2021/01/blog-fb-Choosing-Plugins@2x.jpg?resize=1536,803',
+				'title.default': 'Test2 Record 2',
+				'permalink.url.raw': '/product/test2-record-2/',
+				'meta._wc_review_count.long': 0,
+				post_id: 44,
+				'wc.price': 5,
+				'wc.formatted_price':
+					'<span class="woocommerce-Price-amount amount"><span class="woocommerce-Price-currencySymbol">&#036;</span>5.00</span>',
+				post_type: 'product',
+				'excerpt.default': '',
+			},
+			result_type: 'post',
+			railcar: {
+				railcar: '@cnGDFSUA&bY',
+				fetch_algo: 'jetpack:search/1-date_desc',
+				fetch_position: 1,
+				rec_blog_id: 190651342,
+				rec_post_id: 44,
+				fetch_lang: 'en',
+				fetch_query: 'test2',
+				session_id: 'wLrI$1',
+			},
+			highlight: {
+				title: [ '<mark>Test2</mark> Record 2' ],
+				content: [ 'The content of <mark>Test2</mark> Record 2' ],
+			},
+			tags: [ 'tag-2' ],
+			categories: [ 'category-2' ],
+		},
+		{
+			_score: null,
+			fields: {
+				date: '2021-03-25 02:44:24',
+				'meta._wc_average_rating.double': 0,
+				blog_id: 190651342,
+				'has.image': 1,
+				'image.url.raw':
+					'woocommerce.com/wp-content/uploads/2021/01/blog-fb-Choosing-Plugins@2x.jpg?resize=1536,803',
+				'title.default': 'Test2 Record 3',
+				'permalink.url.raw': '/product/test2-record-3/',
+				'meta._wc_review_count.long': 0,
+				post_id: 44,
+				'wc.price': 5,
+				'wc.formatted_price':
+					'<span class="woocommerce-Price-amount amount"><span class="woocommerce-Price-currencySymbol">&#036;</span>5.00</span>',
+				post_type: 'product',
+				'excerpt.default': '',
+			},
+			result_type: 'post',
+			railcar: {
+				railcar: '@cnGDFSUA&bY',
+				fetch_algo: 'jetpack:search/1-date_desc',
+				fetch_position: 1,
+				rec_blog_id: 190651342,
+				rec_post_id: 44,
+				fetch_lang: 'en',
+				fetch_query: 'test2',
+				session_id: 'wLrI$1',
+			},
+			highlight: {
+				title: [ '<mark>Test2</mark> Record 3' ],
+				content: [ 'The content of <mark>Test2</mark> Record 3' ],
+			},
+			tags: [ 'tag-3' ],
+			categories: [ 'category-3' ],
+		},
+	],
+	suggestions: [],
+	aggregations: {
+		date_histogram_2: {
+			buckets: [
+				{
+					key_as_string: '2020-01-01 00:00:00',
+					key: 1199145600000,
+					doc_count: 4,
+				},
+				{
+					key_as_string: '2021-01-01 00:00:00',
+					key: 1230768000000,
+					doc_count: 4,
+				},
+			],
+		},
+		taxonomy_0: {
+			doc_count_error_upper_bound: 0,
+			sum_other_doc_count: 0,
+			buckets: [
+				{
+					key: 'category-3/Category 3',
+					doc_count: 1,
+				},
+				{
+					key: 'category-2/Category 2',
+					doc_count: 1,
+				},
+			],
+		},
+		taxonomy_1: {
+			doc_count_error_upper_bound: 0,
+			sum_other_doc_count: 35,
+			buckets: [
+				{
+					key: 'tag-3/Tag 3',
+					doc_count: 1,
+				},
+				{
+					key: 'tag-2/Tag 2',
+					doc_count: 1,
+				},
+			],
+		},
+	},
+};
+
+const test = baseTest.extend< object, { searchUtils: SearchUtils } >( {
+	searchUtils: [
+		async ( { requestUtils }, use ) => {
+			await use( new SearchUtils( requestUtils ) );
+		},
+		{ scope: 'worker' },
+	],
+
+	/**
+	 * The fixture intercepts requests made to WPCOM Search API and returns mocked
+	 * results to the frontend. It also simulates sorting and filtering.
+	 *
+	 * The route returns `searchResultForTest1` for query `test1`.
+	 * And returns `searchResultForTest2` for any other queries.
+	 *
+	 * NOTE: The route sometimes is not persisted after page reloads so would need to
+	 * call the function again to make sure.
+	 *
+	 * @param {Page} page - instance of a Playwright Page type
+	 * @param        use  - function to call with the page instance
+	 * @see https://playwright.dev/docs/api/class-page#pagerouteurl-handler
+	 */
+	page: async ( { page }, use ) => {
+		await page.route( SEARCH_API_PATTERN, ( route, request ) => {
+			logger.debug( `intercepted search API call: ${ request.url() }` );
+			const url = new URL( request.url() );
+			const params = url.searchParams;
+
+			// loads response for queries
+			// IMPORTANT: We must create a deep copy of the results array to avoid mutating
+			// the original mock data. Without this, sorting operations would permanently
+			// modify the mock data, causing inconsistent test results on subsequent runs.
+			let body;
+			switch ( params.get( 'query' ) ) {
+				case 'test1':
+					body = { ...searchResultForTest1, results: [ ...searchResultForTest1.results ] };
+					break;
+				case 'test2':
+				default:
+					body = { ...searchResultForTest2, results: [ ...searchResultForTest2.results ] };
+					break;
+			}
+
+			// deal with sorting
+			switch ( params.get( 'sort' ) ) {
+				case 'date_asc': {
+					// put record 2 first
+					const tmpResult1 = body.results[ 0 ];
+					body.results[ 0 ] = body.results[ 1 ];
+					body.results[ 1 ] = tmpResult1;
+					break;
+				}
+				case 'date_desc': {
+					// put record 3 first
+					const tmpResult2 = body.results[ 0 ];
+					body.results[ 0 ] = body.results[ 2 ];
+					body.results[ 2 ] = tmpResult2;
+					break;
+				}
+				case 'score_default':
+				default:
+					// the original sorting
+					break;
+			}
+
+			// deal with filtering: only works with one category and one tag by filtering the results array
+			const category = params.get( 'filter[bool][must][0][term][category.slug]' );
+			const tag = params.get( 'filter[bool][must][0][term][tag.slug]' );
+
+			if ( category ) {
+				body.results = body.results.filter(
+					( v: { categories?: string | string[] } ) => v?.categories?.includes( category )
+				);
+			}
+
+			if ( tag ) {
+				body.results = body.results.filter(
+					( v: { tags?: string | string[] } ) => v?.tags?.includes( tag )
+				);
+			}
+
+			logger.debug( `returning ${ JSON.stringify( body ) }` );
+
+			route.fulfill( {
+				contentType: 'application/json',
+				headers: { 'Access-Control-Allow-Origin': '*' },
+				body: JSON.stringify( body ),
+			} );
+		} );
+
+		await use( page );
+	},
+} );
+
+export { test, expect };

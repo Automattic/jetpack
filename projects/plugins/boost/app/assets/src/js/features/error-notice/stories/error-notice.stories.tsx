@@ -1,6 +1,5 @@
 import ErrorNotice from '../error-notice';
 import type { Meta } from '@storybook/react';
-import React from 'react';
 import {Button} from '@automattic/jetpack-components'
 
 const meta: Meta< typeof ErrorNotice > = {

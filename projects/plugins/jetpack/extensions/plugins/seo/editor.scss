@@ -5,7 +5,8 @@
 .jetpack-seo-sidebar__feature-section {
 	display: block;
 
-	p, p > * {
+	p,
+	p > * {
 		text-wrap: pretty;
 	}
 
@@ -14,4 +15,3 @@
 		justify-content: center;
 	}
 }
-

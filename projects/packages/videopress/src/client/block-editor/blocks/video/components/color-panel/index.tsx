@@ -20,13 +20,13 @@ import './style.scss';
 /**
  * Types
  */
-import type React from 'react';
+import type { ReactElement } from 'react';
 
 /**
  * Sidebar Control component.
  *
  * @param {VideoControlProps} props - Component props.
- * @return {React.ReactElement}    Component template
+ * @return {ReactElement}    Component template
  */
 export default function ColorPanel( { clientId, attributes, setAttributes }: VideoControlProps ) {
 	const { useAverageColor, seekbarColor, seekbarLoadingColor, seekbarPlayedColor } = attributes;

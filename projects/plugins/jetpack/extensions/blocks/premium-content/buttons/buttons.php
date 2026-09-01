@@ -10,6 +10,10 @@ namespace Automattic\Jetpack\Extensions\Premium_Content;
 use Automattic\Jetpack\Blocks;
 use Jetpack_Gutenberg;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 const BUTTONS_NAME = 'premium-content/buttons';
 
 /**

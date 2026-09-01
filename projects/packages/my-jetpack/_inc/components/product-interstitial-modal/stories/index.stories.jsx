@@ -1,9 +1,9 @@
 import { ProductPrice, JetpackLogo } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import { HashRouter, Routes, Route } from 'react-router-dom';
+import { HashRouter, Routes, Route } from 'react-router';
 import ProductInterstitialFeatureList from '../product-interstifial-feature-list';
 import ProductInterstitialModal from '../product-interstitial-modal';
-import boostImage from './boost.png';
+import boostImage from './boost.webp';
 
 export default {
 	title: 'Packages/My Jetpack/Product Interstitial Modal',
@@ -18,7 +18,6 @@ const DefaultArgs = {
 			<ProductInterstitialFeatureList
 				features={ [
 					'Automated critical CSS',
-					'Image size analyzer',
 					'Performance history',
 					'Image quality control',
 					'Concatenate JS and CSS',

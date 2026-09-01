@@ -29,12 +29,12 @@ export const useGetExpiringNoticeContent = ( {
 	const noticeHeading =
 		expiredAlertType === 'expired'
 			? sprintf(
-					// translators: %s is the Jetpack product name, i.e.- Jetpack Backup, Jetpack Security, etc..
+					// translators: %1$s is the Jetpack product name (e.g. Jetpack Backup, Jetpack Security, etc.)
 					__( 'Your %1$s plan has expired', 'jetpack-my-jetpack' ),
 					productName
 			  )
 			: sprintf(
-					// translators: %1$s is the Jetpack product name, i.e.- Jetpack Backup, Jetpack Security, etc..
+					// translators: %1$s is the Jetpack product name, (e.g. Jetpack Backup, Jetpack Security, etc.)
 					__( 'Heads up! Your %1$s plan is about to expire', 'jetpack-my-jetpack' ),
 					productName
 			  );

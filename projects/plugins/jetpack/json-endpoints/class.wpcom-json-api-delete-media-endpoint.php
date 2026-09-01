@@ -1,5 +1,9 @@
 <?php // phpcs:ignore Squiz.Commenting.FileComment.Missing
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 new WPCOM_JSON_API_Delete_Media_Endpoint(
 	array(
 		'description'          => 'Delete a piece of media.',
@@ -38,6 +42,8 @@ new WPCOM_JSON_API_Delete_Media_Endpoint(
 
 /**
  * Delete media endpoint class.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class WPCOM_JSON_API_Delete_Media_Endpoint extends WPCOM_JSON_API_Endpoint {
 	/**

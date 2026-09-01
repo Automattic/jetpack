@@ -1,12 +1,13 @@
 import { getRedirectUrl, JetpackLogo } from '@automattic/jetpack-components';
 import { formatNumber } from '@automattic/number-formatters';
-import { ExternalLink, Spinner } from '@wordpress/components';
-import { dateI18n } from '@wordpress/date';
+import { Spinner } from '@wordpress/components';
+import { gmdateI18n } from '@wordpress/date';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { forEach, get, isEmpty } from 'lodash';
+import { Link } from '@wordpress/ui';
+import { isEmpty } from 'lodash';
 import PropTypes from 'prop-types';
-import React, { Component } from 'react';
+import { Component } from 'react';
 import { connect } from 'react-redux';
 import Button from 'components/button';
 import Card from 'components/card';
@@ -21,10 +22,11 @@ import {
 	isOdysseyStatsEnabled,
 	getInitialStateStatsData,
 	getDateFormat,
-	isWoASite,
 } from 'state/initial-state';
 import { isModuleAvailable, getModuleOverride } from 'state/modules';
 import { emptyStatsCardDismissed } from 'state/settings';
+import { getAnalyticsUrl, hasAnalyticsDashboard } from '../../../shared/analytics-url';
+import { chartBarRange } from './chart-bar-range';
 import DashStatsBottom from './dash-stats-bottom';
 
 export class DashStats extends Component {
@@ -55,8 +57,39 @@ export class DashStats extends Component {
 		}
 	};
 
+	/**
+	 * Off-site to WordPress.com when Odyssey is disabled, otherwise into the
+	 * site's own analytics UI. Only the dashboard link carries the bar's period;
+	 * the Stats deep link it replaces always pointed at a single day.
+	 *
+	 * @param {string} date - The bar's date, as a UTC-midnight ISO string.
+	 * @param {string} unit - The active chart tab: 'day', 'week', or 'month'.
+	 *
+	 * @return {?string} The bar's link, or null when there is nowhere to send the user.
+	 */
+	barLink( date, unit ) {
+		const { siteAdminUrl, siteRawUrl } = this.props;
+
+		if ( this.shouldLinkToWpcomStats() ) {
+			return getRedirectUrl( `calypso-stats-${ unit }`, {
+				site: siteRawUrl,
+				query: `startDate=${ date }`,
+			} );
+		}
+
+		if ( hasAnalyticsDashboard() ) {
+			return getAnalyticsUrl( {
+				view: 'dashboard',
+				section: 'traffic',
+				range: chartBarRange( date, unit ),
+			} );
+		}
+
+		return `${ siteAdminUrl }admin.php?page=stats#!/stats/day/${ siteRawUrl }?startDate=${ date }`;
+	}
+
 	statsChart( unit ) {
-		const { siteAdminUrl, siteRawUrl, statsData } = this.props,
+		const { statsData } = this.props,
 			s = [];
 
 		if ( 'object' !== typeof statsData[ unit ] ) {
@@ -72,7 +105,7 @@ export class DashStats extends Component {
 			/* translators: long month/year format, such as: January, 2021. */
 			longMonthYearFormat = __( 'F Y', 'jetpack' );
 
-		forEach( statsData[ unit ].data, v => {
+		for ( const v of statsData[ unit ].data ?? [] ) {
 			const views = v[ 1 ];
 			let date = v[ 0 ],
 				chartLabel = '',
@@ -88,18 +121,18 @@ export class DashStats extends Component {
 			totalViews += views;
 
 			if ( 'day' === unit ) {
-				chartLabel = dateI18n( shortMonthFormat, date );
-				tooltipLabel = dateI18n( longMonthFormat, date );
+				chartLabel = gmdateI18n( shortMonthFormat, date );
+				tooltipLabel = gmdateI18n( longMonthFormat, date );
 			} else if ( 'week' === unit ) {
-				chartLabel = dateI18n( shortMonthFormat, date );
+				chartLabel = gmdateI18n( shortMonthFormat, date );
 				tooltipLabel = sprintf(
-					/* translators: placeholder is a date. */
+					/* translators: %s: a date. */
 					__( 'Week of %s', 'jetpack' ),
-					dateI18n( longMonthFormat, date )
+					gmdateI18n( longMonthFormat, date )
 				);
 			} else if ( 'month' === unit ) {
-				chartLabel = dateI18n( 'M', date );
-				tooltipLabel = dateI18n( longMonthYearFormat, date );
+				chartLabel = gmdateI18n( 'M', date );
+				tooltipLabel = gmdateI18n( longMonthYearFormat, date );
 			}
 
 			s.push( {
@@ -108,18 +141,13 @@ export class DashStats extends Component {
 				nestedValue: null,
 				className: 'statsChartbar',
 				data: {
-					link: ! this.shouldLinkToWpcomStats()
-						? `${ siteAdminUrl }admin.php?page=stats#!/stats/day/${ siteRawUrl }?startDate=${ date }`
-						: getRedirectUrl( `calypso-stats-${ unit }`, {
-								site: siteRawUrl,
-								query: `startDate=${ date }`,
-						  } ),
+					link: this.barLink( date, unit ),
 				},
 				tooltipData: [
 					{
 						label: tooltipLabel,
 						value: sprintf(
-							/* translators: placeholder is a number */
+							/* translators: %s: the number of views */
 							__( 'Views: %s', 'jetpack' ),
 							formatNumber( views )
 						),
@@ -127,7 +155,7 @@ export class DashStats extends Component {
 					},
 				],
 			} );
-		} );
+		}
 
 		return { chartData: s, totalViews: totalViews };
 	}
@@ -138,7 +166,7 @@ export class DashStats extends Component {
 	 * @return {object|boolean} Returns statsData.general.errors or false if it is not an object
 	 */
 	statsErrors() {
-		return get( this.props.statsData, [ 'general', 'errors' ], false );
+		return this.props.statsData?.general?.errors ?? false;
 	}
 
 	renderStatsChart( chartData ) {
@@ -259,7 +287,8 @@ export class DashStats extends Component {
 								),
 								{
 									a1: (
-										<ExternalLink
+										<Link
+											openInNewTab
 											href={ getRedirectUrl( 'jetpack-support-wordpress-com-stats' ) }
 											target="_blank"
 											rel="noopener noreferrer"
@@ -359,7 +388,11 @@ export class DashStats extends Component {
 		if ( 'inactive' === this.props.getModuleOverride( 'stats' ) ) {
 			return (
 				<div>
-					<ModuleOverriddenBanner moduleName={ __( 'Jetpack Stats', 'jetpack' ) } />
+					<ModuleOverriddenBanner
+						moduleName={
+							'Jetpack Stats' /** "Jetpack Stats" is a product name, do not translate. */
+						}
+					/>
 				</div>
 			);
 		}
@@ -400,7 +433,6 @@ export default connect(
 		isEmptyStatsCardDismissed: emptyStatsCardDismissed( state ),
 		getModuleOverride: module_name => getModuleOverride( state, module_name ),
 		isOdysseyStatsEnabled: isOdysseyStatsEnabled( state ),
-		isWoASite: isWoASite( state ),
 	} ),
 	dispatch => ( {
 		switchView: tab => dispatch( statsSwitchTab( tab ) ),

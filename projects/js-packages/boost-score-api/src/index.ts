@@ -6,7 +6,11 @@ import { isJsonObject, JSONObject } from './utils/json-types';
 import pollPromise from './utils/poll-promise';
 import { standardizeError } from './utils/standardize-error';
 
-const pollTimeout = 2 * 60 * 1000;
+// Four minutes covers the large majority of successful runs, including queue
+// and poll overhead. Over the seven days to 26 August 2026, about 0.9% of
+// production runs took longer than two minutes and about 0.04% took longer
+// than four. A timeout here therefore does not mean the run failed.
+const pollTimeout = 4 * 60 * 1000;
 const pollInterval = 5 * 1000;
 
 type SpeedScores = {
@@ -270,12 +274,10 @@ export function didScoresChange( scores: SpeedScoresSet ): boolean {
 export function getScoreMovementPercentage( scores: SpeedScoresSet ): number {
 	const current = scores.current;
 	const noBoost = scores.noBoost;
-	let currentScore = 0;
-	let noBoostScore = 0;
 
 	if ( current !== null && noBoost !== null ) {
-		currentScore = scores.current.mobile + scores.current.desktop;
-		noBoostScore = scores.noBoost.mobile + scores.noBoost.desktop;
+		const currentScore = scores.current.mobile + scores.current.desktop;
+		const noBoostScore = scores.noBoost.mobile + scores.noBoost.desktop;
 		const change = currentScore / noBoostScore - 1;
 		return Math.round( change * 100 );
 	}

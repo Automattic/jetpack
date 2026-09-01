@@ -5,6 +5,306 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.0.0] - 2026-08-26
+### Removed
+- Minimum supported PHP version is now 7.4. [#51515]
+
+## [4.4.11] - 2026-08-19
+### Changed
+- Update package dependencies. [#51399]
+
+## [4.4.10] - 2026-08-06
+### Fixed
+- Script Data: Decode HTML entities in the shared site title to avoid consumers seeing the encoded entities. [#50991]
+
+## [4.4.9] - 2026-07-31
+### Fixed
+- Don't honor a textdomain self-alias: aliasing a domain to itself made the gettext filter recurse infinitely on any untranslated string in that domain. The package's path is still recorded, since JavaScript translation files are located by it whether or not the domain is aliased.
+
+## [4.4.8] - 2026-07-27
+### Changed
+- Update package dependencies. [#50751]
+
+## [4.4.7] - 2026-07-22
+### Changed
+- Update dependencies. [#50674]
+
+## [4.4.6] - 2026-07-20
+### Changed
+- Update dependencies. [#50551]
+- Update package dependencies. [#50529]
+
+## [4.4.5] - 2026-07-13
+### Changed
+- Update dependencies. [#42554]
+
+## [4.4.4] - 2026-07-09
+### Changed
+- Update dependencies. [#42554]
+
+## [4.4.3] - 2026-07-06
+### Added
+- Expose the current user's `edit_others_posts` capability in the localized script data. [#50162]
+
+### Changed
+- Update package dependencies. [#50097] [#50183]
+
+## [4.4.2] - 2026-06-26
+### Changed
+- Update dependencies. [#42554]
+
+## [4.4.1] - 2026-06-23
+### Changed
+- Update package dependencies. [#49831]
+
+## [4.4.0] - 2026-06-22
+### Added
+- Register the `jetpack-shared-stores` asset bundle so dependent scripts can declare it as a dependency. [#49494]
+
+### Changed
+- Update package dependencies. [#49691]
+
+## [4.3.44] - 2026-06-15
+### Changed
+- Update dependencies. [#42554]
+
+## [4.3.43] - 2026-06-10
+### Changed
+- Update package dependencies. [#49492]
+
+## [4.3.42] - 2026-06-09
+### Changed
+- Update package dependencies. [#49273]
+
+## [4.3.41] - 2026-06-08
+### Changed
+- Internal updates.
+
+## [4.3.40] - 2026-06-03
+### Changed
+- Internal updates.
+
+## [4.3.39] - 2026-06-02
+### Changed
+- Update dependencies. [#42554]
+
+## [4.3.38] - 2026-05-21
+### Changed
+- Update package dependencies. [#48405]
+- Update package dependencies. [#49012]
+
+## [4.3.37] - 2026-05-19
+### Changed
+- Internal updates.
+
+## [4.3.36] - 2026-05-13
+### Changed
+- Update dependencies. [#42554]
+
+## [4.3.35] - 2026-05-11
+### Changed
+- Update dependencies. [#42554]
+
+## [4.3.34] - 2026-05-04
+### Changed
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+
+## [4.3.33] - 2026-04-20
+### Changed
+- Update package dependencies. [#48106]
+
+## [4.3.32] - 2026-04-09
+### Changed
+- Update package dependencies. [#47890]
+
+## [4.3.31] - 2026-04-06
+### Changed
+- Update dependencies. [#42554]
+
+## [4.3.30] - 2026-03-30
+### Changed
+- Update package dependencies. [#47799]
+
+## [4.3.29] - 2026-03-23
+### Changed
+- Update package dependencies. [#47684]
+
+## [4.3.28] - 2026-03-16
+### Changed
+- Update dependencies. [#47472]
+
+## [4.3.27] - 2026-03-09
+### Changed
+- Update dependencies. [#42554]
+
+## [4.3.26] - 2026-02-26
+### Changed
+- Update package dependencies. [#47300]
+
+## [4.3.25] - 2026-02-18
+### Changed
+- Update package dependencies. [#47173]
+
+## [4.3.24] - 2026-02-16
+### Changed
+- Internal updates.
+
+## [4.3.23] - 2026-02-10
+### Changed
+- Update package dependencies. [#47002]
+
+## [4.3.22] - 2026-02-02
+### Changed
+- Update package dependencies. [#46836] [#46854]
+
+## [4.3.21] - 2026-01-26
+### Changed
+- Update dependencies. [#42554]
+
+## [4.3.20] - 2026-01-19
+### Changed
+- Update package dependencies. [#46647]
+
+## [4.3.19] - 2026-01-07
+### Changed
+- Update package dependencies. [#46456]
+
+## [4.3.18] - 2025-12-22
+### Changed
+- Internal updates.
+
+## [4.3.17] - 2025-12-15
+### Changed
+- Internal updates.
+
+## [4.3.16] - 2025-12-11
+### Changed
+- Update dependencies. [#42554]
+
+## [4.3.15] - 2025-12-08
+### Fixed
+- Ensure proper flags are used with `json_encode()`. [#46092]
+
+## [4.3.14] - 2025-12-01
+### Changed
+- Update package dependencies. [#46143]
+
+## [4.3.13] - 2025-11-17
+### Changed
+- Update package dependencies. [#45915] [#45958]
+
+## [4.3.12] - 2025-11-10
+### Changed
+- Tests: Ensure PHP 8.5 compatibility. [#45769]
+- Update package dependencies. [#45756]
+
+### Fixed
+- Tests: Improve compatibility with PHP 8.5. [#45771]
+
+## [4.3.11] - 2025-10-28
+### Changed
+- Update dependencies. [#42554]
+
+## [4.3.10] - 2025-10-02
+### Changed
+- Update dependencies. [#42554]
+
+## [4.3.9] - 2025-09-22
+### Changed
+- Update dependencies. [#42554]
+
+## [4.3.8] - 2025-09-19
+### Changed
+- Update package dependencies. [#45173] [#45229]
+
+## [4.3.7] - 2025-09-15
+### Changed
+- Internal updates.
+
+## [4.3.6] - 2025-09-08
+### Changed
+- Update package dependencies. [#45027]
+
+## [4.3.5] - 2025-08-18
+### Changed
+- Update dependencies. [#42554]
+
+## [4.3.4] - 2025-08-13
+### Changed
+- Update package dependencies. [#44701] [#44725]
+
+## [4.3.3] - 2025-08-11
+### Changed
+- Update package dependencies. [#44677]
+
+## [4.3.2] - 2025-08-04
+### Changed
+- Internal updates.
+
+## [4.3.1] - 2025-07-30
+### Fixed
+- Script Data: Ensure we always enqueue instead of print script data. [#44447]
+
+## [4.3.0] - 2025-07-23
+### Changed
+- Script data: Provide script data to authenticated REST API requests. [#44077]
+
+## [4.2.0] - 2025-07-21
+### Changed
+- Script Data: Ensure we only add host information on the front-end for P2 and sites using Verbum Comments. [#44241]
+
+## [4.1.2] - 2025-07-08
+### Changed
+- Update dependencies. [#42554]
+
+## [4.1.1] - 2025-07-08
+### Changed
+- Update package dependencies. [#44217]
+
+## [4.1.0] - 2025-07-07
+### Changed
+- Scripts: Ensure host-related checks and functionality are only added via Assets. [#44133]
+
+## [4.0.32] - 2025-07-03
+### Changed
+- Update package dependencies. [#44148]
+
+## [4.0.31] - 2025-06-30
+### Changed
+- Update dependencies. [#42554]
+
+## [4.0.30] - 2025-06-27
+### Added
+- Script Data: Add host information available on front-end. [#44072]
+
+## [4.0.29] - 2025-06-24
+### Changed
+- Update dependencies. [#42554]
+
+## [4.0.28] - 2025-06-23
+### Changed
+- Update package dependencies. [#44020]
+
+## [4.0.27] - 2025-06-18
+### Changed
+- Internal updates.
+
+## [4.0.26] - 2025-06-10
+### Changed
+- Update dependencies. [#42554]
+
+## [4.0.25] - 2025-06-04
+### Changed
+- Update dependencies. [#42554]
+
+## [4.0.24] - 2025-06-03
+### Changed
+- Update dependencies.
+
+## [4.0.23] - 2025-06-02
+### Changed
+- Update dependencies. [#42554]
+
 ## [4.0.22] - 2025-05-26
 ### Changed
 - Update package dependencies. [#43578]
@@ -624,6 +924,78 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Statically access asset tools
 
+[5.0.0]: https://github.com/Automattic/jetpack-assets/compare/v4.4.11...v5.0.0
+[4.4.11]: https://github.com/Automattic/jetpack-assets/compare/v4.4.10...v4.4.11
+[4.4.10]: https://github.com/Automattic/jetpack-assets/compare/v4.4.9...v4.4.10
+[4.4.9]: https://github.com/Automattic/jetpack-assets/compare/v4.4.8...v4.4.9
+[4.4.8]: https://github.com/Automattic/jetpack-assets/compare/v4.4.7...v4.4.8
+[4.4.7]: https://github.com/Automattic/jetpack-assets/compare/v4.4.6...v4.4.7
+[4.4.6]: https://github.com/Automattic/jetpack-assets/compare/v4.4.5...v4.4.6
+[4.4.5]: https://github.com/Automattic/jetpack-assets/compare/v4.4.4...v4.4.5
+[4.4.4]: https://github.com/Automattic/jetpack-assets/compare/v4.4.3...v4.4.4
+[4.4.3]: https://github.com/Automattic/jetpack-assets/compare/v4.4.2...v4.4.3
+[4.4.2]: https://github.com/Automattic/jetpack-assets/compare/v4.4.1...v4.4.2
+[4.4.1]: https://github.com/Automattic/jetpack-assets/compare/v4.4.0...v4.4.1
+[4.4.0]: https://github.com/Automattic/jetpack-assets/compare/v4.3.44...v4.4.0
+[4.3.44]: https://github.com/Automattic/jetpack-assets/compare/v4.3.43...v4.3.44
+[4.3.43]: https://github.com/Automattic/jetpack-assets/compare/v4.3.42...v4.3.43
+[4.3.42]: https://github.com/Automattic/jetpack-assets/compare/v4.3.41...v4.3.42
+[4.3.41]: https://github.com/Automattic/jetpack-assets/compare/v4.3.40...v4.3.41
+[4.3.40]: https://github.com/Automattic/jetpack-assets/compare/v4.3.39...v4.3.40
+[4.3.39]: https://github.com/Automattic/jetpack-assets/compare/v4.3.38...v4.3.39
+[4.3.38]: https://github.com/Automattic/jetpack-assets/compare/v4.3.37...v4.3.38
+[4.3.37]: https://github.com/Automattic/jetpack-assets/compare/v4.3.36...v4.3.37
+[4.3.36]: https://github.com/Automattic/jetpack-assets/compare/v4.3.35...v4.3.36
+[4.3.35]: https://github.com/Automattic/jetpack-assets/compare/v4.3.34...v4.3.35
+[4.3.34]: https://github.com/Automattic/jetpack-assets/compare/v4.3.33...v4.3.34
+[4.3.33]: https://github.com/Automattic/jetpack-assets/compare/v4.3.32...v4.3.33
+[4.3.32]: https://github.com/Automattic/jetpack-assets/compare/v4.3.31...v4.3.32
+[4.3.31]: https://github.com/Automattic/jetpack-assets/compare/v4.3.30...v4.3.31
+[4.3.30]: https://github.com/Automattic/jetpack-assets/compare/v4.3.29...v4.3.30
+[4.3.29]: https://github.com/Automattic/jetpack-assets/compare/v4.3.28...v4.3.29
+[4.3.28]: https://github.com/Automattic/jetpack-assets/compare/v4.3.27...v4.3.28
+[4.3.27]: https://github.com/Automattic/jetpack-assets/compare/v4.3.26...v4.3.27
+[4.3.26]: https://github.com/Automattic/jetpack-assets/compare/v4.3.25...v4.3.26
+[4.3.25]: https://github.com/Automattic/jetpack-assets/compare/v4.3.24...v4.3.25
+[4.3.24]: https://github.com/Automattic/jetpack-assets/compare/v4.3.23...v4.3.24
+[4.3.23]: https://github.com/Automattic/jetpack-assets/compare/v4.3.22...v4.3.23
+[4.3.22]: https://github.com/Automattic/jetpack-assets/compare/v4.3.21...v4.3.22
+[4.3.21]: https://github.com/Automattic/jetpack-assets/compare/v4.3.20...v4.3.21
+[4.3.20]: https://github.com/Automattic/jetpack-assets/compare/v4.3.19...v4.3.20
+[4.3.19]: https://github.com/Automattic/jetpack-assets/compare/v4.3.18...v4.3.19
+[4.3.18]: https://github.com/Automattic/jetpack-assets/compare/v4.3.17...v4.3.18
+[4.3.17]: https://github.com/Automattic/jetpack-assets/compare/v4.3.16...v4.3.17
+[4.3.16]: https://github.com/Automattic/jetpack-assets/compare/v4.3.15...v4.3.16
+[4.3.15]: https://github.com/Automattic/jetpack-assets/compare/v4.3.14...v4.3.15
+[4.3.14]: https://github.com/Automattic/jetpack-assets/compare/v4.3.13...v4.3.14
+[4.3.13]: https://github.com/Automattic/jetpack-assets/compare/v4.3.12...v4.3.13
+[4.3.12]: https://github.com/Automattic/jetpack-assets/compare/v4.3.11...v4.3.12
+[4.3.11]: https://github.com/Automattic/jetpack-assets/compare/v4.3.10...v4.3.11
+[4.3.10]: https://github.com/Automattic/jetpack-assets/compare/v4.3.9...v4.3.10
+[4.3.9]: https://github.com/Automattic/jetpack-assets/compare/v4.3.8...v4.3.9
+[4.3.8]: https://github.com/Automattic/jetpack-assets/compare/v4.3.7...v4.3.8
+[4.3.7]: https://github.com/Automattic/jetpack-assets/compare/v4.3.6...v4.3.7
+[4.3.6]: https://github.com/Automattic/jetpack-assets/compare/v4.3.5...v4.3.6
+[4.3.5]: https://github.com/Automattic/jetpack-assets/compare/v4.3.4...v4.3.5
+[4.3.4]: https://github.com/Automattic/jetpack-assets/compare/v4.3.3...v4.3.4
+[4.3.3]: https://github.com/Automattic/jetpack-assets/compare/v4.3.2...v4.3.3
+[4.3.2]: https://github.com/Automattic/jetpack-assets/compare/v4.3.1...v4.3.2
+[4.3.1]: https://github.com/Automattic/jetpack-assets/compare/v4.3.0...v4.3.1
+[4.3.0]: https://github.com/Automattic/jetpack-assets/compare/v4.2.0...v4.3.0
+[4.2.0]: https://github.com/Automattic/jetpack-assets/compare/v4.1.2...v4.2.0
+[4.1.2]: https://github.com/Automattic/jetpack-assets/compare/v4.1.1...v4.1.2
+[4.1.1]: https://github.com/Automattic/jetpack-assets/compare/v4.1.0...v4.1.1
+[4.1.0]: https://github.com/Automattic/jetpack-assets/compare/v4.0.32...v4.1.0
+[4.0.32]: https://github.com/Automattic/jetpack-assets/compare/v4.0.31...v4.0.32
+[4.0.31]: https://github.com/Automattic/jetpack-assets/compare/v4.0.30...v4.0.31
+[4.0.30]: https://github.com/Automattic/jetpack-assets/compare/v4.0.29...v4.0.30
+[4.0.29]: https://github.com/Automattic/jetpack-assets/compare/v4.0.28...v4.0.29
+[4.0.28]: https://github.com/Automattic/jetpack-assets/compare/v4.0.27...v4.0.28
+[4.0.27]: https://github.com/Automattic/jetpack-assets/compare/v4.0.26...v4.0.27
+[4.0.26]: https://github.com/Automattic/jetpack-assets/compare/v4.0.25...v4.0.26
+[4.0.25]: https://github.com/Automattic/jetpack-assets/compare/v4.0.24...v4.0.25
+[4.0.24]: https://github.com/Automattic/jetpack-assets/compare/v4.0.23...v4.0.24
+[4.0.23]: https://github.com/Automattic/jetpack-assets/compare/v4.0.22...v4.0.23
 [4.0.22]: https://github.com/Automattic/jetpack-assets/compare/v4.0.21...v4.0.22
 [4.0.21]: https://github.com/Automattic/jetpack-assets/compare/v4.0.20...v4.0.21
 [4.0.20]: https://github.com/Automattic/jetpack-assets/compare/v4.0.19...v4.0.20

@@ -1,24 +1,26 @@
 {
 	"name": "@automattic/remove-asset-webpack-plugin",
-	"version": "1.0.28",
+	"version": "1.0.42",
 	"description": "A Webpack plugin to remove assets from the build.",
-	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/remove-asset-webpack-plugin/README.md#readme",
-	"bugs": {
-		"url": "https://github.com/Automattic/jetpack/labels/[JS Package] Remove Asset Webpack Plugin"
-	},
 	"keywords": [
 		"webpack",
 		"plugin",
 		"remove",
 		"assets"
 	],
+	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/remove-asset-webpack-plugin/README.md#readme",
+	"bugs": {
+		"url": "https://github.com/Automattic/jetpack/labels/[JS Package] Remove Asset Webpack Plugin"
+	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/Automattic/jetpack.git",
-		"directory": "projects/js-packages/remove-asset-webpack-plugin"
+		"url": "git+https://github.com/Automattic/remove-asset-webpack-plugin.git"
 	},
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
+	"exports": {
+		".": "./src/index.js"
+	},
 	"scripts": {
 		"test": "jest --config=tests/jest.config.cjs",
 		"test-coverage": "pnpm run test --coverage"
@@ -27,14 +29,11 @@
 		"debug": "^4.3.2"
 	},
 	"devDependencies": {
-		"jest": "29.7.0",
-		"webpack": "5.94.0",
-		"webpack-cli": "6.0.1"
+		"jest": "30.4.2",
+		"webpack": "5.107.2",
+		"webpack-cli": "7.2.1"
 	},
 	"peerDependencies": {
-		"webpack": "^5.94.0"
-	},
-	"exports": {
-		".": "./src/index.js"
+		"webpack": "^5.104.1"
 	}
 }

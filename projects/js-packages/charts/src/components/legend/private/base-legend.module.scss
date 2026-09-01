@@ -1,0 +1,59 @@
+.legend {
+	align-self: stretch;
+}
+
+.legend-item {
+	font-size: var(--wpds-typography-font-size-md, 13px);
+
+	&--interactive {
+		cursor: pointer;
+		user-select: none;
+		transition:
+			opacity var(--wpds-motion-duration-md, 200ms)
+			var(--wpds-motion-easing-subtle, cubic-bezier(0.15, 0, 0.15, 1));
+
+		&:hover {
+			opacity: 0.8;
+		}
+
+		&:focus {
+			outline: 2px solid currentColor;
+			outline-offset: 2px;
+			border-radius: var(--wpds-border-radius-md, 4px);
+		}
+
+		&:focus:not(:focus-visible) {
+			outline: none;
+		}
+	}
+
+	&--inactive {
+		opacity: 0.4;
+
+		.legend-item-label {
+			text-decoration: line-through;
+		}
+	}
+}
+
+.legend-item-text {
+
+	&--wrap {
+		overflow-wrap: break-word;
+		white-space: normal;
+		hyphens: auto;
+	}
+
+	&--ellipsis {
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		flex-shrink: 1;
+		min-width: 0;
+	}
+}
+
+.legend-item-value {
+	font-weight: var(--wpds-typography-font-weight-emphasis, 600);
+	flex-shrink: 0; // Prevent value from shrinking when text is ellipsized
+}

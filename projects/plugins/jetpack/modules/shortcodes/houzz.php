@@ -11,6 +11,10 @@
  * @package automattic/jetpack
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 // Register oEmbed provider.
 wp_oembed_add_provider( '#https?://(.+?\.)?houzz\.(com|co\.uk|com\.au|de|fr|ru|jp|it|es|dk|se)/.*#i', 'https://www.houzz.com/oembed', true );
 

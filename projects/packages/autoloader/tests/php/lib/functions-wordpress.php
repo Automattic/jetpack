@@ -395,7 +395,7 @@ if ( ! function_exists( 'wp_debug_backtrace_summary' ) ) {
 	 * @param string $ignore_class Unused in this stub.
 	 * @param int    $skip_frames  Unused in this stub.
 	 * @param bool   $pretty       Unused in this stub.
-	 * @return string|array Either a string containing a reversed comma separated trace or an array
+	 * @return string|array Either a string containing a reversed comma-separated trace or an array
 	 *                      of individual calls.
 	 */
 	function wp_debug_backtrace_summary( $ignore_class = null, $skip_frames = 0, $pretty = true ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable

@@ -47,9 +47,8 @@ function cliLink( options ) {
 						[
 							{
 								title: chalkJetpackGreen( `Enabling global access to the CLI` ),
-								// Theoretically we shouldn't need the --global as of v10.0, but there was a bug until 10.5.
-								// It shouldn't hurt to leave this.
-								task: () => command( 'pnpm link --global', options.v, path.resolve( 'tools/cli' ) ),
+								task: () =>
+									command( 'pnpm add --global .', options.v, path.resolve( 'tools/cli' ) ),
 							},
 						],
 						opts
@@ -89,8 +88,6 @@ function cliUnlink( options ) {
 						[
 							{
 								title: chalkJetpackGreen( `Removing global access to the CLI` ),
-								// In theory unlink should work, but it doesn't (and there are dozens of issues related
-								// to link/unlink in the pnpm repo. This works well.
 								task: () => command( 'pnpm uninstall --global jetpack-cli', options.v ),
 							},
 						],

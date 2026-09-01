@@ -2,11 +2,12 @@
  * External dependencies
  */
 import { useEffect, useRef } from '@wordpress/element';
+import type { MutableRefObject } from 'react';
 
 function animate(
 	analyser: AnalyserNode,
 	canvas: HTMLCanvasElement,
-	pausedRef: React.MutableRefObject< boolean >
+	pausedRef: MutableRefObject< boolean >
 ) {
 	const canvasCtx = canvas.getContext( '2d' );
 	const points = 10;

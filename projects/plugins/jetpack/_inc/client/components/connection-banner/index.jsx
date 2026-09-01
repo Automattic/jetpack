@@ -1,37 +1,34 @@
-import { ActionButton, Notice } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
+import { Notice } from '@wordpress/ui';
 import PropTypes from 'prop-types';
-import React from 'react';
+import { Component } from 'react';
 import { connect } from 'react-redux';
 import { connectUser as _connectUser } from 'state/connection';
 
-export class ConnectionBanner extends React.Component {
+export class ConnectionBanner extends Component {
 	static propTypes = {
 		title: PropTypes.string.isRequired,
 		description: PropTypes.node,
 		from: PropTypes.string,
 	};
 
-	handleClick() {
+	handleClick = () => {
 		this.props.doConnectUser( null, this.props.from );
-	}
+	};
 
 	render() {
 		const { description, title } = this.props;
 
-		const connectButtonProps = {
-			label: __( 'Connect your WordPress.com account', 'jetpack' ),
-			onClick: () => this.handleClick(),
-		};
-
 		return (
-			<Notice
-				title={ title }
-				hideCloseButton
-				actions={ [ <ActionButton key="connect" { ...connectButtonProps } /> ] }
-			>
-				{ description }
-			</Notice>
+			<Notice.Root intent="info">
+				<Notice.Title>{ title }</Notice.Title>
+				<Notice.Description>{ description }</Notice.Description>
+				<Notice.Actions>
+					<Notice.ActionButton onClick={ this.handleClick }>
+						{ __( 'Connect your WordPress.com account', 'jetpack' ) }
+					</Notice.ActionButton>
+				</Notice.Actions>
+			</Notice.Root>
 		);
 	}
 }

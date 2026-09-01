@@ -1,5 +1,6 @@
 import apiFetch from '@wordpress/api-fetch';
-import { noop } from 'lodash';
+
+const noop = () => {};
 
 /**
  * Test if a URL is accessible and respond with status code < 400.

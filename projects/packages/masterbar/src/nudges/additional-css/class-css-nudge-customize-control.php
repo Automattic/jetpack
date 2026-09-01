@@ -8,6 +8,10 @@
 
 namespace Automattic\Jetpack\Masterbar;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Class CSS_Nudge_Customize_Control
  */

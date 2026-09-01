@@ -10,7 +10,7 @@ import Listr from 'listr';
 import UpdateRenderer from 'listr-update-renderer';
 import VerboseRenderer from 'listr-verbose-renderer';
 import { getInstallArgs, projectDir } from '../helpers/install.js';
-import { readComposerJson } from '../helpers/json.js';
+import { readComposerJson, readPackageJson } from '../helpers/json.js';
 import { coerceConcurrency } from '../helpers/normalizeArgv.js';
 import PrefixStream from '../helpers/prefix-stream.js';
 import { allProjects } from '../helpers/projectHelpers.js';
@@ -29,7 +29,7 @@ export async function builder( yargs ) {
 	return yargs
 		.positional( 'test', {
 			describe:
-				'Test to run. Typically "js", "php", or "coverage", but available tests depend on the project.',
+				'Test to run. Typically "js", "php", or "typecheck", but available tests depend on the project.',
 			type: 'string',
 		} )
 		.positional( 'project', {
@@ -41,6 +41,7 @@ export async function builder( yargs ) {
 			type: 'boolean',
 			description: 'Run tests on everything.',
 		} )
+		.option( 'use-uncommitted-composer-lock', { type: 'boolean', hidden: true } )
 		.option( 'no-use-uncommitted-composer-lock', {
 			type: 'boolean',
 			description: "Don't use uncommitted composer.lock files.",
@@ -48,18 +49,19 @@ export async function builder( yargs ) {
 		.option( 'concurrency', {
 			type: 'number',
 			description: 'Maximum number of test tasks to run at once. Ignored with `--verbose`.',
-			default: os.cpus().length,
+			default: os.availableParallelism(),
 			coerce: coerceConcurrency,
 		} )
+		.option( 'html', { type: 'boolean', hidden: true } )
 		.option( 'no-html', {
 			type: 'boolean',
-			description: 'For coverage tests, do not generate HTML reports.',
+			description: 'For coverage, do not generate HTML reports.',
 		} )
 		.option( 'html-dir', {
 			type: 'string',
 			description:
 				// prettier-ignore
-				`For coverage tests, write HTML reports to this path instead of creating a new directory in ${ os.tmpdir() }.`,
+				`For coverage, write HTML reports to this path instead of creating a new directory in ${ os.tmpdir() }.`,
 		} )
 		.option( 'artifacts-dir', {
 			type: 'string',
@@ -68,6 +70,15 @@ export async function builder( yargs ) {
 		.check( argv => {
 			if ( argv.v ) {
 				argv.concurrency = false;
+			}
+			if ( argv.test === 'coverage' ) {
+				throw new Error(
+					'The `coverage` test was split. Use `jetpack test php-coverage` or `jetpack test js-coverage`.'
+				);
+			}
+			if ( argv.test?.endsWith( '-coverage' ) ) {
+				argv.isCoverage = true;
+				argv.coverageGroup = argv.test.slice( 0, -'-coverage'.length );
 			}
 			return true;
 		} );
@@ -91,7 +102,7 @@ export async function handler( argv ) {
 		rmartifacts = true;
 	}
 
-	if ( argv.test === 'coverage' && argv.html !== false ) {
+	if ( argv.isCoverage && argv.html !== false ) {
 		if ( argv.htmlDir ) {
 			opts.HTML_DIR = path.resolve( argv.htmlDir );
 			await fs.mkdir( argv.htmlDir, { recursive: true } );
@@ -160,7 +171,7 @@ export async function runTests( argv, opts ) {
 				type: 'confirm',
 				name: 'verbose',
 				message: 'See output from the test runner?',
-				initial: argv.test !== 'coverage',
+				initial: ! argv.isCoverage,
 			},
 		] );
 		argv.v = response.verbose;
@@ -172,7 +183,7 @@ export async function runTests( argv, opts ) {
 		);
 	}
 
-	if ( argv.test === 'coverage' ) {
+	if ( argv.coverageGroup === 'php' ) {
 		try {
 			await execa(
 				'php',
@@ -228,6 +239,47 @@ export async function runTests( argv, opts ) {
 		process.stderr.setMaxListeners( projects.size + 10 );
 	}
 
+	// Do a monorepo root install if anything uses automattic/jetpack-test-environment.
+	const {
+		promise: rootInstall,
+		resolve: rootInstallResolve,
+		reject: rootInstallReject,
+	} = Promise.withResolvers();
+	let any = false;
+	if ( argv.test === 'php' || argv.coverageGroup === 'php' ) {
+		for ( const project of projects ) {
+			const composerJson = await readComposerJson( project, false );
+			if ( composerJson?.[ 'require-dev' ]?.[ 'automattic/jetpack-test-environment' ] ) {
+				any = true;
+				break;
+			}
+		}
+	}
+	if ( any ) {
+		tasks.push( {
+			title: 'Installing monorepo composer dependencies',
+			task: async () => {
+				try {
+					const args = await getInstallArgs( 'monorepo', 'composer', argv );
+					const proc = execa( 'composer', args, {
+						cwd: projectDir( 'monorepo' ),
+						stdio: [ 'ignore', argv.v ? 'pipe' : 'ignore', argv.v ? 'pipe' : 'ignore' ],
+					} );
+					if ( argv.v ) {
+						proc.stdout.pipe( process.stdout, { end: false } );
+						proc.stderr.pipe( process.stderr, { end: false } );
+					}
+					await proc;
+					rootInstallResolve();
+				} catch ( e ) {
+					rootInstallReject( e );
+				}
+			},
+		} );
+	} else {
+		rootInstallResolve();
+	}
+
 	const promises = [];
 	for ( const project of projects ) {
 		const cwd = projectDir( project );
@@ -251,17 +303,33 @@ export async function runTests( argv, opts ) {
 		const { promise, resolve } = Promise.withResolvers();
 		promises.push( promise );
 
-		// Composer install.
-		tasks.push( {
-			title: `Checking ${ project }`,
-			skip: async () => {
+		let skip;
+		if ( argv.test === 'typecheck' ) {
+			skip = async () => {
+				await rootInstall;
+				const packageJson = await readPackageJson( project );
+				if ( ! packageJson?.scripts?.typecheck ) {
+					resolve();
+					return `No typecheck script in package.json`;
+				}
+				return false;
+			};
+		} else {
+			skip = async () => {
+				await rootInstall;
 				const composerJson = await readComposerJson( project );
 				if ( ! composerJson?.scripts?.[ `test-${ argv.test }` ] ) {
 					resolve();
 					return `No test-${ argv.test } script in composer.json`;
 				}
 				return false;
-			},
+			};
+		}
+
+		// Composer install.
+		tasks.push( {
+			title: `Checking ${ project }`,
+			skip,
 			task: async () => {
 				const subtasks = [];
 
@@ -287,19 +355,29 @@ export async function runTests( argv, opts ) {
 						const env = { ...genv };
 						env.ARTIFACTS_DIR = path.join( opts.ARTIFACTS_DIR, project );
 						await fs.mkdir( env.ARTIFACTS_DIR, { recursive: true } );
-						if ( argv.test === 'coverage' ) {
+						if ( argv.isCoverage ) {
 							env.COVERAGE_DIR = path.join( opts.ARTIFACTS_DIR, 'coverage', project );
 							await fs.mkdir( env.COVERAGE_DIR, { recursive: true } );
 						}
 
-						if ( argv.v ) {
-							sstdout.write( `Executing composer run test-${ argv.test }\n` );
+						let cmd;
+						if ( argv.test === 'typecheck' ) {
+							if ( argv.v ) {
+								sstdout.write( `Executing pnpm run typecheck\n` );
+							}
+							cmd = [ 'pnpm', [ 'run', 'typecheck' ] ];
+						} else {
+							if ( argv.v ) {
+								sstdout.write( `Executing composer run test-${ argv.test }\n` );
+							}
+							cmd = [ 'composer', [ 'run', '--timeout=0', `test-${ argv.test }` ] ];
 						}
-						const proc = execa( 'composer', [ 'run', '--timeout=0', `test-${ argv.test }` ], {
+						cmd[ 2 ] = {
 							cwd,
 							stdio: [ 'ignore', argv.v ? 'pipe' : 'ignore', argv.v ? 'pipe' : 'ignore' ],
 							env,
-						} );
+						};
+						const proc = execa( ...cmd );
 						if ( argv.v ) {
 							proc.stdout.pipe( sstdout, { end: false } );
 							proc.stderr.pipe( sstderr, { end: false } );
@@ -329,20 +407,22 @@ export async function runTests( argv, opts ) {
 		} );
 	}
 
-	if ( argv.test === 'coverage' && argv.html !== false ) {
+	if ( argv.isCoverage && argv.html !== false ) {
 		const scriptDir = path.join( basedir, '.github/files/coverage-munger' );
 		const coverageDir = path.join( opts.ARTIFACTS_DIR, 'coverage' );
-		let phpFiles, jsFiles;
+		let coverageFiles;
 
 		tasks.push( {
 			title: 'Generate HTML coverage reports',
 			skip: async () => {
 				await Promise.all( promises );
 
-				phpFiles = await glob( '**/*.cov', { cwd: coverageDir } );
-				jsFiles = await glob( '**/*.json', { cwd: coverageDir, absolute: true } );
+				coverageFiles =
+					argv.coverageGroup === 'php'
+						? await glob( '**/*.cov', { cwd: coverageDir } )
+						: await glob( '**/*.json', { cwd: coverageDir, absolute: true } );
 
-				return phpFiles.length === 0 && jsFiles.length === 0 ? 'No coverage data generated' : false;
+				return coverageFiles.length === 0 ? 'No coverage data generated' : false;
 			},
 			task: async () => {
 				let sstdout = process.stdout,
@@ -357,7 +437,7 @@ export async function runTests( argv, opts ) {
 
 				const subtasks = [];
 
-				if ( phpFiles.length > 0 ) {
+				if ( argv.coverageGroup === 'php' ) {
 					subtasks.push( {
 						title: 'Generate PHP coverage report',
 						task: async () => {
@@ -395,7 +475,7 @@ export async function runTests( argv, opts ) {
 					} );
 				}
 
-				if ( jsFiles.length > 0 ) {
+				if ( argv.coverageGroup === 'js' ) {
 					subtasks.push( {
 						title: 'Generate JS coverage report',
 						task: async () => {
@@ -404,8 +484,8 @@ export async function runTests( argv, opts ) {
 
 							try {
 								// nyc can merge files itself, but needs them all in one directory (not in subdirs).
-								for ( let i = 0; i < jsFiles.length; i++ ) {
-									await fs.cp( jsFiles[ i ], path.join( tmpdir, `${ i + 10000 }.json` ) );
+								for ( let i = 0; i < coverageFiles.length; i++ ) {
+									await fs.cp( coverageFiles[ i ], path.join( tmpdir, `${ i + 10000 }.json` ) );
 								}
 
 								const dir = path.join( opts.HTML_DIR, 'js' );
@@ -469,9 +549,15 @@ export async function runTests( argv, opts ) {
 export async function promptForTest( argv ) {
 	const project = argv.project[ 0 ];
 	const composerJson = await readComposerJson( project );
+	const packageJson = await readPackageJson( project );
 	const tests = Object.keys( composerJson.scripts ?? {} )
 		.filter( test => test.startsWith( 'test-' ) )
-		.map( test => test.substring( 5 ) );
+		.map( test => test.substring( 5 ) )
+		// Hide the legacy `coverage` script; use `js-coverage`/`php-coverage` instead.
+		.filter( test => test !== 'coverage' );
+	if ( packageJson?.scripts?.typecheck ) {
+		tests.push( 'typecheck' );
+	}
 	if ( tests.length === 0 ) {
 		console.log( chalk.red( `No tests found in ${ project }'s composer.json file!` ) );
 		process.exit( 1 );

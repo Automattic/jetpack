@@ -98,6 +98,9 @@ if ( ! class_exists( __NAMESPACE__ . '\Jetpack_Testimonial' ) ) {
 
 			// CPT magic
 			$this->register_post_types();
+			if ( ! post_type_exists( self::CUSTOM_POST_TYPE ) ) {
+				return;
+			}
 			add_action( sprintf( 'add_option_%s', self::OPTION_NAME ), array( $this, 'flush_rules_on_enable' ), 10 );
 			add_action( sprintf( 'update_option_%s', self::OPTION_NAME ), array( $this, 'flush_rules_on_enable' ), 10 );
 			add_action( sprintf( 'publish_%s', self::CUSTOM_POST_TYPE ), array( $this, 'flush_rules_on_first_testimonial' ) );
@@ -112,7 +115,7 @@ if ( ! class_exists( __NAMESPACE__ . '\Jetpack_Testimonial' ) ) {
 			}
 
 			// Only add the 'Customize' sub-menu if the theme supports it.
-			if ( is_admin() && current_theme_supports( self::CUSTOM_POST_TYPE ) && ! empty( self::count_testimonials() ) ) {
+			if ( is_admin() && current_theme_supports( self::CUSTOM_POST_TYPE ) ) {
 				add_action( 'admin_menu', array( $this, 'add_customize_page' ) );
 			}
 
@@ -155,6 +158,10 @@ if ( ! class_exists( __NAMESPACE__ . '\Jetpack_Testimonial' ) ) {
 		 */
 		public static function site_should_display_testimonials() {
 			$should_display = true;
+			if ( current_theme_supports( self::CUSTOM_POST_TYPE ) ) {
+				return true;
+			}
+
 			if ( ( ! ( new Host() )->is_wpcom_simple() ) && Blocks::is_fse_theme() ) {
 				if ( ! get_option( self::OPTION_NAME, '0' ) ) {
 					$should_display = false;
@@ -220,7 +227,7 @@ if ( ! class_exists( __NAMESPACE__ . '\Jetpack_Testimonial' ) ) {
 				<label for="<?php echo esc_attr( self::OPTION_NAME ); ?>">
 					<input name="<?php echo esc_attr( self::OPTION_NAME ); ?>" id="<?php echo esc_attr( self::OPTION_NAME ); ?>" <?php echo checked( get_option( self::OPTION_NAME, '0' ), true, false ); ?> type="checkbox" value="1" />
 					<?php esc_html_e( 'Enable Testimonials for this site.', 'jetpack-classic-theme-helper' ); ?>
-					<a target="_blank" href="https://en.support.wordpress.com/testimonials/"><?php esc_html_e( 'Learn More', 'jetpack-classic-theme-helper' ); ?></a>
+					<a target="_blank" href="https://en.support.wordpress.com/testimonials/" data-target="wpcom-help-center"><?php esc_html_e( 'Learn More', 'jetpack-classic-theme-helper' ); ?></a>
 				</label>
 				<?php
 			endif;
@@ -525,7 +532,7 @@ if ( ! class_exists( __NAMESPACE__ . '\Jetpack_Testimonial' ) ) {
 			global $wp_query;
 
 			if ( ! is_admin() && true === $settings['click_handle'] && $wp_query->is_post_type_archive( self::CUSTOM_POST_TYPE ) ) {
-				$settings['posts_per_page'] = get_option( self::OPTION_READING_SETTING, $settings['posts_per_page'] ); // phpcs:ignore WordPress.WP.PostsPerPage.posts_per_page_posts_per_page
+				$settings['posts_per_page'] = get_option( self::OPTION_READING_SETTING, $settings['posts_per_page'] );
 			}
 
 			return $settings;
@@ -552,7 +559,7 @@ if ( ! class_exists( __NAMESPACE__ . '\Jetpack_Testimonial' ) ) {
 			$testimonials = get_transient( 'jetpack-testimonial-count-cache' );
 
 			if ( false === $testimonials ) {
-				$testimonials = (int) wp_count_posts( self::CUSTOM_POST_TYPE )->publish;
+				$testimonials = (int) ( wp_count_posts( self::CUSTOM_POST_TYPE )->publish ?? 0 );
 
 				if ( ! empty( $testimonials ) ) {
 					set_transient( 'jetpack-testimonial-count-cache', $testimonials, 60 * 60 * 12 );
@@ -566,6 +573,9 @@ if ( ! class_exists( __NAMESPACE__ . '\Jetpack_Testimonial' ) ) {
 		 * Adds a submenu link to the Customizer.
 		 */
 		public function add_customize_page() {
+			if ( ! empty( self::count_testimonials() ) ) {
+				return;
+			}
 			add_submenu_page(
 				'edit.php?post_type=' . self::CUSTOM_POST_TYPE,
 				esc_html__( 'Customize Testimonials Archive', 'jetpack-classic-theme-helper' ),
@@ -771,9 +781,12 @@ if ( ! class_exists( __NAMESPACE__ . '\Jetpack_Testimonial' ) ) {
 			// Default query arguments
 			$defaults = array(
 				'order'          => $atts['order'],
-				'orderby'        => $atts['orderby'],
 				'posts_per_page' => $atts['showposts'],
 			);
+
+			if ( ! empty( $atts['orderby'] ) ) {
+				$defaults['orderby'] = $atts['orderby'];
+			}
 
 			$args              = wp_parse_args( $atts, $defaults );
 			$args['post_type'] = self::CUSTOM_POST_TYPE; // Force this post type

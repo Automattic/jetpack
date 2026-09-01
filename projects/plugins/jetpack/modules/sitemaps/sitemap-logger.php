@@ -6,6 +6,10 @@
  * @since 4.8.0
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Handles logging errors and debug messages for sitemap generator.
  *

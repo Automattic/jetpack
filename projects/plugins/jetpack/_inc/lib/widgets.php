@@ -362,7 +362,7 @@ class Jetpack_Widgets {
 		$last_position = 0;
 		foreach ( $widgets as $widget_id ) {
 			$widget = self::get_widget_by_id( $widget_id );
-			if ( (int) $widget['position'] > (int) $last_position ) {
+			if ( (int) $widget['position'] > $last_position ) {
 				$last_position = (int) $widget['position'];
 			}
 		}
@@ -383,7 +383,7 @@ class Jetpack_Widgets {
 		$widget_option_name = self::get_widget_option_name( $widget_id );
 		$widget_settings    = get_option( $widget_option_name );
 		$instance_key       = self::get_widget_instance_key( $widget_id );
-		$old_settings       = $widget_settings[ $instance_key ];
+		$old_settings       = $widget_settings[ $instance_key ] ?? array();
 		$settings           = self::sanitize_widget_settings( $widget_id, $settings, $old_settings );
 
 		if ( ! $settings ) {
@@ -576,7 +576,7 @@ class Jetpack_Widgets {
 				'wpcom_widgets_activate_widget',
 				array(
 					'widget'   => $id_base,
-					'settings' => wp_json_encode( $settings ),
+					'settings' => wp_json_encode( $settings, JSON_UNESCAPED_SLASHES ),
 				)
 			);
 		}

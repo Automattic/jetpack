@@ -1,5 +1,6 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { useCallback, useEffect } from 'react';
+import { assignLocation } from './utils/assignLocation.js';
 
 /**
  * Handle partner coupon redeem analytics and clicks.
@@ -45,11 +46,13 @@ export function usePartnerCouponRedemption(
 			} );
 		}
 
-		window.location.href = getRedirectUrl( 'jetpack-plugin-partner-coupon-checkout', {
-			path: partnerCoupon.product.slug,
-			site: siteRawUrl,
-			query: `coupon=${ partnerCoupon.coupon_code }`,
-		} );
+		assignLocation(
+			getRedirectUrl( 'jetpack-plugin-partner-coupon-checkout', {
+				path: partnerCoupon.product.slug,
+				site: siteRawUrl,
+				query: `coupon=${ partnerCoupon.coupon_code }`,
+			} )
+		);
 	}, [ analytics, tracksUserData, connectionStatus, partnerCoupon, siteRawUrl ] );
 
 	return onClick;

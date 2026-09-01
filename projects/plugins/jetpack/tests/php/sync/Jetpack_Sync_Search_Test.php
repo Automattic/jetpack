@@ -53,10 +53,9 @@ class Jetpack_Sync_Search_Test extends Jetpack_Sync_TestBase {
 	 * @return void
 	 */
 	public static function tear_down_after_class() {
-		parent::tear_down_after_class();
-
 		\Jetpack::deactivate_module( 'search' );
 		remove_filter( 'jetpack_sync_post_meta_whitelist', array( 'Automattic\\Jetpack\\Sync\\Modules\\Search', 'add_search_post_meta_whitelist' ), 10 );
+		parent::tear_down_after_class();
 	}
 
 	/**
@@ -222,7 +221,7 @@ class Jetpack_Sync_Search_Test extends Jetpack_Sync_TestBase {
 			)
 		);
 
-		$term = md5( wp_rand() );
+		$term = md5( (string) wp_rand() );
 		if ( 'post_format' === $taxonomy ) {
 			// Special case in Core.
 			$term = 'Standard';
@@ -246,7 +245,7 @@ class Jetpack_Sync_Search_Test extends Jetpack_Sync_TestBase {
 
 		// clean up - speeds up tests.
 		wp_remove_object_terms( $this->post_id, array( $term_obj['term_id'] ), $taxonomy );
-		unregister_taxonomy_for_object_type( $taxonomy, 'post' );
+		unregister_taxonomy( $taxonomy );
 	}
 
 	/**

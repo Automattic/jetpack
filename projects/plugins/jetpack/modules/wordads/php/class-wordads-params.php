@@ -7,6 +7,10 @@
 
 use Automattic\Jetpack\Status;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Class WordAds_Params
  *

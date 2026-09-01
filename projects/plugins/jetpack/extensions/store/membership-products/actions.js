@@ -110,13 +110,28 @@ export const setSubscriberCounts = subscriberCounts => ( {
 	subscriberCounts,
 } );
 
+export const setTotalEmailsSentCount = totalEmailsSentCount => ( {
+	type: 'SET_TOTAL_EMAILS_SENT_COUNT',
+	totalEmailsSentCount,
+} );
+
 export const setNewsletterCategories = newsletterCategories => ( {
 	type: 'SET_NEWSLETTER_CATEGORIES',
 	newsletterCategories,
 } );
 
-export const setNewsletterCategoriesSubscriptionsCount =
-	newsletterCategoriesSubscriptionsCount => ( {
-		type: 'SET_NEWSLETTER_CATEGORIES_SUBSCRIPTIONS_COUNT',
-		newsletterCategoriesSubscriptionsCount,
-	} );
+export const setPostEmailSentState = ( postId, { email_sent_at, stats_on_send } ) => ( {
+	type: 'SET_POST_EMAIL_SENT_STATE',
+	postId,
+	payload: { email_sent_at, stats_on_send },
+} );
+
+export const setAlreadySentPostModifiedInSession = postId => ( {
+	type: 'SET_ALREADY_SENT_POST_MODIFIED_IN_SESSION',
+	postId,
+} );
+
+export const setPublishedWithEmailEnabledInSession = postId => ( {
+	type: 'SET_PUBLISHED_WITH_EMAIL_ENABLED_IN_SESSION',
+	postId,
+} );

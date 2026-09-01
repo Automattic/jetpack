@@ -89,7 +89,6 @@ class Jetpack_Sync_Full_Test extends Jetpack_Sync_TestBase {
 		self::factory()->comment->create_post_comments( $post, 1 );
 
 		$this->full_sync->start();
-		$this->full_sync->start();
 		$this->sender->do_full_sync();
 		$start_event                    = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_start' );
 		list( $config, $range, $empty ) = $start_event->args; // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
@@ -350,7 +349,6 @@ class Jetpack_Sync_Full_Test extends Jetpack_Sync_TestBase {
 		}
 
 		// 28
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 		$original_number_of_term_relationships = (int) $wpdb->get_var( "SELECT COUNT(*) FROM $wpdb->term_relationships" );
 		// ceil(28/4) = 7 phpcs:ignore Squiz.PHP.CommentedOutCode.Found
 		$total_items = (int) ceil( $original_number_of_term_relationships / $sync_item_size );
@@ -366,6 +364,7 @@ class Jetpack_Sync_Full_Test extends Jetpack_Sync_TestBase {
 		$this->assertNotTrue( $finished );
 
 		$this->full_sync->continue_enqueuing(); // try to enqueue $max_enqueue_full_sync items
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Intentional to ensure we get everything.
 		$this->full_sync->continue_enqueuing(); // try to enqueue $max_enqueue_full_sync items
 
 		// hit $max_queue_size_full_sync limit
@@ -467,6 +466,7 @@ class Jetpack_Sync_Full_Test extends Jetpack_Sync_TestBase {
 	public function test_full_sync_sends_all_users() {
 		self::factory()->user->create( array( 'role' => 'subscriber' ) );
 		$first_user_id = self::factory()->user->create( array( 'role' => 'contributor' ) );
+		$user_id       = 0; // Phan thinks the for loop might not run and thus $user_id might not be declared, so let's initialize it.
 		for ( $i = 0; $i < 9; $i++ ) {
 			$user_id = self::factory()->user->create( array( 'role' => 'contributor' ) );
 		}
@@ -1041,7 +1041,8 @@ class Jetpack_Sync_Full_Test extends Jetpack_Sync_TestBase {
 								),
 							),
 							'translations' => array(),
-						)
+						),
+						JSON_UNESCAPED_SLASHES
 					),
 				);
 			},
@@ -1109,7 +1110,9 @@ class Jetpack_Sync_Full_Test extends Jetpack_Sync_TestBase {
 
 		$this->full_sync->start();
 		$this->sender->do_full_sync();
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Intentional to ensure we get everything.
 		$this->sender->do_full_sync();
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Intentional to ensure we get everything.
 		$this->sender->do_full_sync();
 
 		$this->assertTrue( isset( $this->full_sync_end_checksum ) );
@@ -1123,7 +1126,9 @@ class Jetpack_Sync_Full_Test extends Jetpack_Sync_TestBase {
 
 		$this->full_sync->start();
 		$this->sender->do_full_sync();
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Intentional to ensure we get everything.
 		$this->sender->do_full_sync();
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Intentional to ensure we get everything.
 		$this->sender->do_full_sync();
 
 		$this->assertTrue( isset( $this->full_sync_end_range ) );
@@ -1157,6 +1162,7 @@ class Jetpack_Sync_Full_Test extends Jetpack_Sync_TestBase {
 
 	public function create_dummy_data_and_empty_the_queue() {
 		// lets create a bunch of posts
+		$post = 0; // Phan thinks the for loop might not run and thus $post might not be declared, so let's initialize it.
 		for ( $i = 0; $i < $this->test_posts_count; $i++ ) {
 			$post = self::factory()->post->create();
 		}
@@ -1463,7 +1469,9 @@ class Jetpack_Sync_Full_Test extends Jetpack_Sync_TestBase {
 		$this->full_sync->start( array( 'users' => true ) );
 
 		$this->sender->do_full_sync();
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Intentional to ensure we get everything.
 		$this->sender->do_full_sync();
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Intentional to ensure we get everything.
 		$this->sender->do_full_sync();
 
 		$full_sync_status = $this->full_sync->get_status();
@@ -1492,7 +1500,9 @@ class Jetpack_Sync_Full_Test extends Jetpack_Sync_TestBase {
 		$this->assertSame( null, $full_sync_status['finished'] );
 
 		$this->sender->do_full_sync();
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Intentional to ensure we get everything.
 		$this->sender->do_full_sync(); // juuuust in case
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Intentional to ensure we get everything.
 		$this->sender->do_full_sync(); // juuuust in case - otherwise we use too many bytes for multisite
 
 		$full_sync_status = $this->full_sync->get_status();

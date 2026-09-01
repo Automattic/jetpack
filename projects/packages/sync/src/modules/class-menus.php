@@ -7,6 +7,10 @@
 
 namespace Automattic\Jetpack\Sync\Modules;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Class to handle sync for menus.
  */
@@ -138,7 +142,7 @@ class Menus extends Module {
 	 * @param \WP_Post $post_after  Nav menu item post object after the update.
 	 */
 	public function remove_just_added_menu_item( $nav_item_id, $post_after ) {
-		if ( 'nav_menu_item' !== $post_after->post_type ) {
+		if ( ! $post_after instanceof \WP_Post || 'nav_menu_item' !== $post_after->post_type ) {
 			return;
 		}
 		$this->nav_items_just_added = array_diff( $this->nav_items_just_added, array( $nav_item_id ) );

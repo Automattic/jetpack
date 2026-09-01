@@ -1,6 +1,6 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { __, _x } from '@wordpress/i18n';
-import React, { Component } from 'react';
+import { Component } from 'react';
 import { connect } from 'react-redux';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
@@ -72,9 +72,12 @@ const AccountProtectionComponent = class extends Component {
 					<ModuleToggle
 						slug="account-protection"
 						compact
-						disabled={ ! isSupported || unavailableInOfflineMode }
+						disabled={
+							! isSupported ||
+							unavailableInOfflineMode ||
+							this.props.isSavingAnyOption( MODULE_NAME )
+						}
 						activated={ isActive }
-						toggling={ this.props.isSavingAnyOption( MODULE_NAME ) }
 						toggleModule={ this.props.toggleModuleNow }
 					>
 						<span className="jp-form-toggle-explanation">

@@ -5,10 +5,103 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.19] - 2026-08-14
+### Changed
+- Update package dependencies. [#50510]
+- Update package dependencies. [#50751]
+- Update package dependencies. [#50753]
+- Update package dependencies. [#51008]
+
+## [1.0.18] - 2026-06-26
+### Changed
+- Internal updates.
+
+## [1.0.17] - 2026-06-24
+### Changed
+- Update package dependencies. [#49757]
+- Update package dependencies. [#49831]
+
+## [1.0.16] - 2026-06-10
+### Changed
+- Update package dependencies. [#49492]
+
+## [1.0.15] - 2026-06-08
+### Changed
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+- Update package dependencies. [#48302]
+- Update package dependencies. [#48695]
+- Update package dependencies. [#48844]
+- Update package dependencies. [#49012]
+
+## [1.0.14] - 2026-04-13
+### Changed
+- Update package dependencies. [#47610]
+- Update package dependencies. [#47799]
+- Update package dependencies. [#47998]
+
+## [1.0.13] - 2026-03-09
+### Changed
+- Set `.repository.url` in `package.json` to the mirror repo rather than the monorepo. Required for enabling provenance. [#47149]
+- Switch to Native TypeScript compiler based on Go. [#47375]
+- Update package dependencies. [#47002] [#47099] [#47173] [#47229] [#47337] [#47498]
+
+## [1.0.12] - 2026-01-26
+### Changed
+- Update package dependencies. [#46552]
+
+## [1.0.11] - 2025-11-25
+### Changed
+- Update package dependencies. [#45958]
+
+## [1.0.10] - 2025-11-11
+### Changed
+- Update package dependencies. [#45756]
+
+## [1.0.9] - 2025-10-28
+### Changed
+- Update package dependencies. [#45652]
+
+## [1.0.8] - 2025-10-14
+### Changed
+- Update package dependencies. [#45173] [#45241] [#45334]
+
+## [1.0.7] - 2025-09-17
+### Changed
+- Update package dependencies. [#45097]
+- Update package dependencies. [#45127]
+
+## [1.0.6] - 2025-08-21
+### Added
+- Add `typecheck` script to ensure that TypeScript files are type-checked. [#44795]
+
+## [1.0.5] - 2025-08-05
+### Changed
+- Internal updates.
+
+## [1.0.4] - 2025-07-23
+### Changed
+- Update package dependencies. [#44356]
+
+## [1.0.3] - 2025-07-08
+### Changed
+- Build with new React JSX transform. [#44128]
+- Update package dependencies. [#44217]
+
+## [1.0.2] - 2025-06-23
+### Fixed
+- Fix picking up images in WordPress admin bar. [#43964]
+
+## [1.0.1] - 2025-06-11
+### Changed
+- Update package dependencies. [#43766]
+
+## [1.0.0] - 2025-06-03
+### Changed
+- Update package dependencies. [#43734]
+
 ## [0.6.1] - 2025-05-15
 ### Changed
-- Update package dependencies. [#43398]
-- Update package dependencies. [#43400]
+- Update package dependencies. [#43398] [#43400]
 
 ### Fixed
 - Linting: Fix more Stylelint violations. [#43213]
@@ -173,6 +266,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - Minor package.json change - removing private entry.
 
+[1.0.19]: https://github.com/Automattic/jetpack-image-guide/compare/v1.0.18...v1.0.19
+[1.0.18]: https://github.com/Automattic/jetpack-image-guide/compare/v1.0.17...v1.0.18
+[1.0.17]: https://github.com/Automattic/jetpack-image-guide/compare/v1.0.16...v1.0.17
+[1.0.16]: https://github.com/Automattic/jetpack-image-guide/compare/v1.0.15...v1.0.16
+[1.0.15]: https://github.com/Automattic/jetpack-image-guide/compare/v1.0.14...v1.0.15
+[1.0.14]: https://github.com/Automattic/jetpack-image-guide/compare/v1.0.13...v1.0.14
+[1.0.13]: https://github.com/Automattic/jetpack-image-guide/compare/v1.0.12...v1.0.13
+[1.0.12]: https://github.com/Automattic/jetpack-image-guide/compare/v1.0.11...v1.0.12
+[1.0.11]: https://github.com/Automattic/jetpack-image-guide/compare/v1.0.10...v1.0.11
+[1.0.10]: https://github.com/Automattic/jetpack-image-guide/compare/v1.0.9...v1.0.10
+[1.0.9]: https://github.com/Automattic/jetpack-image-guide/compare/v1.0.8...v1.0.9
+[1.0.8]: https://github.com/Automattic/jetpack-image-guide/compare/v1.0.7...v1.0.8
+[1.0.7]: https://github.com/Automattic/jetpack-image-guide/compare/v1.0.6...v1.0.7
+[1.0.6]: https://github.com/Automattic/jetpack-image-guide/compare/v1.0.5...v1.0.6
+[1.0.5]: https://github.com/Automattic/jetpack-image-guide/compare/v1.0.4...v1.0.5
+[1.0.4]: https://github.com/Automattic/jetpack-image-guide/compare/v1.0.3...v1.0.4
+[1.0.3]: https://github.com/Automattic/jetpack-image-guide/compare/v1.0.2...v1.0.3
+[1.0.2]: https://github.com/Automattic/jetpack-image-guide/compare/v1.0.1...v1.0.2
+[1.0.1]: https://github.com/Automattic/jetpack-image-guide/compare/v1.0.0...v1.0.1
+[1.0.0]: https://github.com/Automattic/jetpack-image-guide/compare/v0.6.1...v1.0.0
 [0.6.1]: https://github.com/Automattic/jetpack-image-guide/compare/v0.6.0...v0.6.1
 [0.6.0]: https://github.com/Automattic/jetpack-image-guide/compare/v0.5.20...v0.6.0
 [0.5.20]: https://github.com/Automattic/jetpack-image-guide/compare/v0.5.19...v0.5.20

@@ -1,0 +1,72 @@
+/* Geometry from the design prototype's `post` skeleton variant: the post's
+ * title lines above a row of stat columns. The prototype's leading 60px
+ * thumbnail is omitted — see the note on the component. Lengths are on WPDS
+ * dimension tokens; the block gap lands on the same `gap-lg` the loaded card
+ * puts between its title and metric row. */
+$title-line-inline-size: 90%;
+$title-line-short-inline-size: 65%;
+
+/* Sits 4px from `gap-xl` and from `gap-2xl`, and the loaded card's own
+ * `gap-lg` does not transfer: its metric columns are `flex: 1` text, while
+ * these are fixed-width blocks that would read as cramped at the same gap. */
+$stats-column-gap: 28px;
+
+/* `safe` keeps the centring from pushing the title out of the top of the tile:
+ * once the shape no longer fits it falls back to packing it at the start, so a
+ * short tile clips the tail instead of spilling into the widget footer. */
+.shape {
+	display: flex;
+	flex: 1 1 auto;
+	flex-direction: column;
+	justify-content: safe center;
+	gap: var(--wpds-dimension-gap-lg);
+	min-block-size: 0;
+	overflow: hidden;
+}
+
+/* `flex: none` on both blocks so the wrapper clips what does not fit rather
+ * than squashing the placeholders shorter than the lines they stand in for. */
+.title {
+	flex: none;
+}
+
+/* `md` is 4px, the radius the prototype leaves these lines at. */
+.titleLine {
+	inline-size: $title-line-inline-size;
+	block-size: var(--wpds-dimension-size-3xs);
+	border-radius: var(--wpds-border-radius-md);
+}
+
+.titleLineShort {
+	inline-size: $title-line-short-inline-size;
+	block-size: var(--wpds-dimension-size-3xs);
+	margin-block-start: var(--wpds-dimension-gap-sm);
+	border-radius: var(--wpds-border-radius-md);
+}
+
+.stats {
+	display: flex;
+	flex: none;
+	gap: $stats-column-gap;
+}
+
+/* Label above value, as the loaded card stacks them. */
+.stat {
+	display: flex;
+	flex-direction: column;
+}
+
+.statLabel {
+	inline-size: var(--wpds-dimension-size-md);
+	block-size: var(--wpds-dimension-size-4xs);
+	border-radius: var(--wpds-border-radius-md);
+}
+
+/* `md` (4px) is the nearest token to the prototype's 5px radius — this package
+ * has no 5px token. */
+.statValue {
+	inline-size: var(--wpds-dimension-size-lg);
+	block-size: var(--wpds-dimension-size-2xs);
+	margin-block-start: var(--wpds-dimension-gap-xs);
+	border-radius: var(--wpds-border-radius-md);
+}

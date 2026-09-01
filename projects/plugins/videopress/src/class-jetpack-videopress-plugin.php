@@ -9,6 +9,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
 
+use Automattic\Jetpack\Activity_Log\Jetpack_Activity_Log;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
@@ -16,6 +17,8 @@ use Automattic\Jetpack\VideoPress\Initializer as VideoPress_Pkg_Initializer;
 
 /**
  * Class Jetpack_VideoPress_Plugin
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Jetpack_VideoPress_Plugin {
 
@@ -60,6 +63,10 @@ class Jetpack_VideoPress_Plugin {
 		add_action( 'init', array( $this, 'register_videopress_blocks' ) );
 
 		My_Jetpack_Initializer::init();
+
+		// Activity Log. Idempotent, so it no-ops when the Jetpack plugin already
+		// initialized the package on this request.
+		Jetpack_Activity_Log::initialize();
 	}
 
 	/**

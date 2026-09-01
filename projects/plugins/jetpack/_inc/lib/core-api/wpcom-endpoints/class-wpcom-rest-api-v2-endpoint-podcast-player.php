@@ -6,6 +6,10 @@
  * @since 8.4.0
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Fetch podcast feeds and parse data for the Podcast Player block.
  *
@@ -16,10 +20,6 @@ class WPCOM_REST_API_V2_Endpoint_Podcast_Player extends WP_REST_Controller {
 	 * Constructor.
 	 */
 	public function __construct() {
-		if ( ! class_exists( 'Jetpack_Podcast_Helper' ) ) {
-			require_once JETPACK__PLUGIN_DIR . '/_inc/lib/class-jetpack-podcast-helper.php';
-		}
-
 		$this->namespace = 'wpcom/v2';
 		$this->rest_base = 'podcast-player';
 		// This endpoint *does not* need to connect directly to Jetpack sites.
@@ -94,6 +94,10 @@ class WPCOM_REST_API_V2_Endpoint_Podcast_Player extends WP_REST_Controller {
 	 * @return Integer number of tracks.
 	 * */
 	public function get_tracks_quantity() {
+		if ( ! class_exists( 'Jetpack_Podcast_Helper' ) ) {
+			require_once JETPACK__PLUGIN_DIR . '/_inc/lib/class-jetpack-podcast-helper.php';
+		}
+
 		return rest_ensure_response( Jetpack_Podcast_Helper::get_tracks_quantity() );
 	}
 
@@ -104,9 +108,14 @@ class WPCOM_REST_API_V2_Endpoint_Podcast_Player extends WP_REST_Controller {
 	 * @return WP_REST_Response The REST API response.
 	 */
 	public function get_player_data( $request ) {
+		if ( ! class_exists( 'Jetpack_Podcast_Helper' ) ) {
+			require_once JETPACK__PLUGIN_DIR . '/_inc/lib/class-jetpack-podcast-helper.php';
+		}
+
 		$helper = new Jetpack_Podcast_Helper( $request['url'] );
 
-		$args = array();
+		// The editor needs the feed's true state, not a fallback papering over a broken URL.
+		$args = array( 'report_errors' => true );
 
 		if ( isset( $request['guids'] ) ) {
 			$args['guids'] = $request['guids'];
@@ -156,6 +165,10 @@ class WPCOM_REST_API_V2_Endpoint_Podcast_Player extends WP_REST_Controller {
 	 * @return array
 	 */
 	public function get_item_schema() {
+		if ( ! class_exists( 'Jetpack_Podcast_Helper' ) ) {
+			require_once JETPACK__PLUGIN_DIR . '/_inc/lib/class-jetpack-podcast-helper.php';
+		}
+
 		return Jetpack_Podcast_Helper::get_player_data_schema();
 	}
 }

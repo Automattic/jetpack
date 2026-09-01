@@ -21,24 +21,17 @@ class StdinBootstrapTest extends TestCase {
 	private function runPhpcs( $args, $content ) {
 		$args = array_merge(
 			array(
+				'-q',
 				'--report=json',
 				'--bootstrap=' . __DIR__ . '/../../stdin-bootstrap.php',
-				'--filter=' . __DIR__ . '/../../src/PhpcsFilter.php',
+				'--filter=Automattic\\JetpackPhpcsFilter',
 			),
 			$args
 		);
 
 		$phpcs = __DIR__ . '/../../vendor/bin/phpcs';
-		if ( PHP_VERSION_ID >= 70400 ) {
-			$cmd = array_merge( array( $phpcs ), $args );
-		} else {
-			$cmd = $phpcs;
-			foreach ( $args as $arg ) {
-				$cmd .= ' ' . escapeshellarg( $arg );
-			}
-		}
-		$p = proc_open(
-			$cmd,
+		$p     = proc_open(
+			array( $phpcs, ...$args ),
 			array(
 				array( 'pipe', 'r' ),
 				array( 'pipe', 'w' ),
@@ -107,7 +100,7 @@ class StdinBootstrapTest extends TestCase {
 		$iter = new RecursiveIteratorIterator( new RecursiveDirectoryIterator( $dir, RecursiveDirectoryIterator::SKIP_DOTS | RecursiveDirectoryIterator::CURRENT_AS_PATHNAME ) );
 		foreach ( $iter as $path ) {
 			$file = substr( $path, $l );
-			if ( $file === 'excludedfile.php' || $file === 'exclude-pattern/excluded1.php' || substr( $file, -4 ) !== '.php' ) {
+			if ( $file === 'excludedfile.php' || $file === 'exclude-pattern/excludedfile.php' || $file === 'exclude-pattern/excluded1.php' || $file === 'exclude-pattern/excluded2.php' || substr( $file, -4 ) !== '.php' ) {
 				continue;
 			}
 			$contents = file_get_contents( $path );

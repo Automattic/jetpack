@@ -1,4 +1,0 @@
-Significance: minor
-Type: fixed
-
-Ensure we'll always enable jetpack modules after an atomic transfer

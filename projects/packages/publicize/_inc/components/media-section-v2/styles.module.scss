@@ -1,0 +1,91 @@
+/**
+ * Styles for the unified media section
+ */
+
+.media-section {
+	margin-bottom: 16px;
+
+	.preview {
+		margin-top: 1rem;
+	}
+}
+
+.description {
+	color: #757575;
+	font-size: 13px;
+	line-height: 1.4;
+	margin-block: 0;
+}
+
+// Dropdown wrapper — always fills its parent width
+.dropdownMenu {
+	width: 100%;
+	margin-top: 1rem;
+}
+
+// The Select button inside the dropdown toggle
+.selectButton {
+	width: 100%;
+	justify-content: center;
+}
+
+// Row of buttons below the preview (Select + optional Edit)
+.actions {
+	display: flex;
+	gap: 8px;
+	width: 100%;
+	margin-top: 8px;
+
+	// Inside the actions row, dropdown and buttons share space equally
+	.dropdownMenu {
+		flex: 1;
+		width: auto;
+		margin-top: 0;
+	}
+
+	.action {
+		flex: 1;
+		justify-content: center;
+	}
+}
+
+// Media preview
+.preview {
+	width: 100%;
+	padding: 0;
+	overflow: hidden;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	outline: 1px solid rgba(0, 0, 0, 0.1);
+	position: relative;
+	aspect-ratio: 2/1;
+
+	.components-spinner {
+		position: absolute;
+	}
+}
+
+.previewImage {
+	object-fit: cover;
+	width: 100%;
+	height: 100%;
+	object-position: 50% 50%;
+}
+
+.focal-point {
+	margin-block: 1rem;
+}
+
+.custom-media-toggle {
+	margin-top: 1rem;
+}
+
+.notice {
+	margin-top: 1rem;
+}
+
+.learn-more {
+	display: block;
+	margin-top: 1rem;
+}

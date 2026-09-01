@@ -1,0 +1,79 @@
+import type { ConnectionErrorMap } from '../../hooks/use-connection-error-notice/types.ts';
+import type { ConnectionOwner, WpcomUser } from '../../types.ts';
+import type { SyntheticEvent } from 'react';
+
+export type { ConnectionOwner, WpcomUser };
+
+export interface UseConnectionProps {
+	/**
+	 * The registration nonce.
+	 */
+	registrationNonce?: string;
+	/**
+	 * The API root URL.
+	 */
+	apiRoot?: string;
+	/**
+	 * The API nonce.
+	 */
+	apiNonce?: string;
+	/**
+	 * The redirect URI.
+	 */
+	redirectUri?: string;
+	/**
+	 * Whether to auto-trigger the connection process.
+	 */
+	autoTrigger?: boolean;
+	/**
+	 * Value that represents the redirect origin.
+	 */
+	from?: string;
+	/**
+	 * Whether to skip user connection.
+	 */
+	skipUserConnection?: boolean;
+	/**
+	 * Whether to skip the pricing page.
+	 */
+	skipPricingPage?: boolean;
+}
+
+export interface UserConnectionData {
+	currentUser?: {
+		wpcomUser?: WpcomUser;
+		username?: string;
+		/** The viewer's local WordPress user ID. */
+		id?: number;
+		isMaster?: boolean;
+		possibleAccountErrors?: Record< string, unknown >;
+		[ key: string ]: unknown;
+	};
+	connectionOwner?: string | null;
+	[ key: string ]: unknown;
+}
+
+export interface RegistrationError {
+	message?: string;
+	response?: { code?: string };
+	[ key: string ]: unknown;
+}
+
+export interface UseConnectionReturn {
+	handleRegisterSite: ( e?: Event | SyntheticEvent ) => Promise< unknown >;
+	handleConnectUser: () => Promise< unknown >;
+	refreshConnectedPlugins: () => Promise< unknown >;
+	isRegistered: boolean;
+	isUserConnected: boolean;
+	siteIsRegistering: boolean;
+	userIsConnecting: boolean;
+	registrationError: RegistrationError | false;
+	userConnectionData: UserConnectionData;
+	/** The owner of record; null when unresolvable or withheld from this viewer. */
+	connectionOwner: ConnectionOwner | null;
+	hasConnectedOwner: boolean;
+	connectedPlugins: Record< string, unknown > | unknown[];
+	connectionErrors: Array< string | object >;
+	connectionHealthErrors: ConnectionErrorMap;
+	isOfflineMode: boolean;
+}

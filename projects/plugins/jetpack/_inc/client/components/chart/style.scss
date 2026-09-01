@@ -1,18 +1,17 @@
 // Chart
 // Life is a statistical anomaly
 
-@use 'sass:color';
-@use '../../scss/z-index';
-@import '../../scss/calypso-colors';
-@import '../../scss/layout';
-@import '../../scss/mixin_clear-fix';
-@import '../../scss/mixin_long-content-fade';
-@import '../../scss/mixin_icons';
+@use "sass:color";
+@use "../../scss/z-index";
+@use "../../scss/calypso-colors";
+@use "../../scss/layout";
+@use "../../scss/mixins/clear-fix";
+@use "../../scss/mixins/icons";
 
 .dops-chart {
 	position: relative;
 	box-sizing: border-box;
-	background-color: $white;
+	background-color: calypso-colors.$white;
 	padding: 8px 0 0 20px;
 }
 
@@ -23,29 +22,29 @@
 
 .dops-chart .dops-chart__y-axis-markers {
 	position: absolute;
-		top: 8px; // 1
-		left: 0;
-		right: 0;
+	top: 8px; // 1
+	left: 0;
+	right: 0;
 	height: 200px;
 }
 
 .dops-chart .dops-chart__y-axis-marker {
 	position: absolute;
-		top: 0;
+	top: 0;
 	width: 100%;
 	height: 1px;
-	border-top: 1px solid color.adjust( $gray, $lightness: 30% );
+	border-top: 1px solid color.adjust(calypso-colors.$gray, $lightness: 30%);
 }
 
 // Y-axis marker lines inside each chart__bar
 // (This is needed so that bars overlap correctly)
 .dops-chart__bar-marker {
-	z-index: z-index.z-index( 'root', '.dops-chart__bar-marker' );
+	z-index: z-index.z-index("root", ".dops-chart__bar-marker");
 	position: absolute;
-		top: 0;
+	top: 0;
 	width: 100%;
 	height: 1px;
-	border-top: 1px solid rgba( color.adjust( $gray, $lightness: 30% ), .1 );
+	border-top: 1px solid rgba(color.adjust(calypso-colors.$gray, $lightness: 30%), 0.1);
 }
 
 .dops-chart__bar-marker,
@@ -70,20 +69,20 @@
 	height: 200px;
 	padding: 0 20px 0 10px;
 	font-size: 11px;
-	color: $gray-80;
+	color: calypso-colors.$gray-80;
 	margin-bottom: 30px;
 }
 
 .dops-chart__y-axis-label {
 	position: absolute;
-		top: 0;
-		right: 20px; // 1
+	top: 0;
+	right: 20px; // 1
 	text-align: right;
 }
 
 // For forcing the width of y-axis to the width of the label
 .dops-chart__y-axis-width-fix {
-	color: $transparent;
+	color: calypso-colors.$transparent;
 }
 
 // X-axis
@@ -94,7 +93,7 @@
 	font-size: 0; // 1
 	padding: 5px 0 0;
 	min-height: 18px;
-	color: $black;
+	color: calypso-colors.$black;
 }
 
 .dops-chart__x-axis-label {
@@ -109,16 +108,16 @@
 // (vertical thin grey bar)
 
 .dops-chart__x-axis-label::before {
-	content: '';
+	content: "";
 	display: block;
 	position: absolute;
-		top: -4px;
-		left: 50%;
-	margin-left: -.5px;
+	top: -4px;
+	left: 50%;
+	margin-left: -0.5px;
 	width: 1px;
 	height: 5px;
-	background: $gray-light;
-	background-image: linear-gradient(to bottom, $gray-light 0%, color.adjust( $gray, $lightness: 20% ) 100%);
+	background: calypso-colors.$gray-light;
+	background-image: linear-gradient(to bottom, calypso-colors.$gray-light 0%, color.adjust(calypso-colors.$gray, $lightness: 20%) 100%);
 }
 
 // Bar wrapper
@@ -146,64 +145,64 @@
 
 
 	&.is-weekend {
-		background-color: rgba( color.adjust( $gray, $lightness: 30% ), .5 );
+		background-color: rgba(color.adjust(calypso-colors.$gray, $lightness: 30%), 0.5);
 	}
 
 	&:focus {
-		background-color: rgba( $orange-jazzy, .1 );
+		background-color: rgba(calypso-colors.$orange-jazzy, 0.1);
 	}
 
 	&:hover {
 		cursor: pointer;
-		background-color: rgba( color.adjust( $gray, $lightness: 30% ), .25 );
+		background-color: rgba(color.adjust(calypso-colors.$gray, $lightness: 30%), 0.25);
 	}
 
 	&.is-selected {
 		cursor: default;
-		background-color: rgba( $orange-jazzy, .1 );
+		background-color: rgba(calypso-colors.$orange-jazzy, 0.1);
 	}
 }
 
 // Individual bar wrapper & misc
 // 1: Positions the bar in the space as defined by .bar
 // 2: Default value for top so bars grow when they get a new value
-//    (doesn't function correctly for period switching right now, not sure why)
-//    (also doesn't work because updating the DOM is so heavy it stalls all animations)
+//   (doesn't function correctly for period switching right now, not sure why)
+//   (also doesn't work since updating DOM is so heavy it stalls all animations)
 
 .dops-chart__bar-section {
 	display: inline-block;
-	background-color: $black;
+	background-color: calypso-colors.$black;
 	position: absolute;
-		top: 0; // 2
-		right: 16%; // 1
-		bottom: 0; // 1
-		left: 16%; // 1
-	z-index: z-index.z-index( 'root', '.dops-chart__bar-section' );
+	top: 0; // 2
+	right: 16%; // 1
+	bottom: 0; // 1
+	left: 16%; // 1
+	z-index: z-index.z-index("root", ".dops-chart__bar-section");
 
 	.dops-chart__bar:hover &.is-bar {
-		background-color: var( --jp-green-40 );
+		background-color: var(--jp-green-40);
 	}
 
 	.dops-chart__bar.is-selected &.is-bar {
-		background-color: $orange-jazzy;
+		background-color: calypso-colors.$orange-jazzy;
 	}
 
 	&.is-spacer {
-		z-index: z-index.z-index( 'root', '.dops-chart__bar-section.is-spacer' );
-		background-color: $transparent;
+		z-index: z-index.z-index("root", ".dops-chart__bar-section.is-spacer");
+		background-color: calypso-colors.$transparent;
 	}
 
 	&.is-ghost::after {
 		content: "";
 		display: block;
 		position: absolute;
-			top: 160px;
-			bottom: 0;
-			left: 0;
-		z-index: z-index.z-index( 'root', '.dops-chart__bar-section.is-ghost::after' );
+		top: 160px;
+		bottom: 0;
+		left: 0;
+		z-index: z-index.z-index("root", ".dops-chart__bar-section.is-ghost::after");
 		width: 100%;
 		height: 40px;
-		background-image: linear-gradient(to bottom, $transparent, rgba( color.adjust( $gray, $lightness: 30% ), .5 ) ); // TODO: needs to use default color for gradient
+		background-image: linear-gradient(to bottom, calypso-colors.$transparent, rgba(color.adjust(calypso-colors.$gray, $lightness: 30%), 0.5)); // TODO: needs to use default color for gradient
 
 		.dops-chart__bar:hover & {
 			display: none;
@@ -212,14 +211,14 @@
 }
 
 .dops-chart__bar-section-inner {
-	background: color.adjust( $blue-dark, $lightness: -5% );
+	background: color.adjust(calypso-colors.$blue-dark, $lightness: -5%);
 	position: absolute;
-		right: 23.33%;
-		bottom: 0;
-		left: 23.33%;
+	right: 23.33%;
+	bottom: 0;
+	left: 23.33%;
 
 	.dops-chart__bar.is-selected & {
-		background-color: $orange-fire;
+		background-color: calypso-colors.$orange-fire;
 	}
 }
 
@@ -228,7 +227,7 @@
 
 .dops-chart__legend {
 
-	@include clear-fix;
+	@include clear-fix.clear-fix;
 	margin-bottom: -8px;
 }
 
@@ -236,14 +235,14 @@
 
 .dops-chart__legend .dops-chart__legend-options {
 	float: right;
-	color: color.adjust( $gray-dark, $lightness: 20% );
+	color: color.adjust(calypso-colors.$gray-dark, $lightness: 20%);
 	list-style-type: none;
 	margin: 0;
 	font-size: 11px;
 	text-transform: uppercase;
 	letter-spacing: 0.1em;
 
-	@include breakpoint( "<480px" ) {
+	@include layout.breakpoint( "<480px" ) {
 		width: 100%;
 	}
 
@@ -256,7 +255,7 @@
 	text-align: left;
 
 	// Expand labels to create bigger touch targets
-	@include breakpoint( "<480px") {
+	@include layout.breakpoint( "<480px") {
 		width: 50%;
 		display: inline-block;
 	}
@@ -274,11 +273,11 @@
 
 		&:focus,
 		&:hover {
-			color: $link-highlight;
+			color: calypso-colors.$link-highlight;
 		}
 	}
 
-	@include breakpoint( "<480px" ) {
+	@include layout.breakpoint( "<480px" ) {
 		display: block;
 	}
 }
@@ -290,14 +289,14 @@
 .dops-chart__legend-option .dops-chart__legend-color {
 	width: 10px;
 	height: 10px;
-	background: $blue-wordpress;
+	background: calypso-colors.$blue-wordpress;
 	display: inline-block;
 	border-radius: 1px;
 	vertical-align: top;
 	margin: 3px 5px 3px 8px; // 1
 }
 
-@include breakpoint( "<480px" ) {
+@include layout.breakpoint( "<480px" ) {
 
 	.dops-chart__legend-option:first-child .dops-chart__legend-color {
 		margin-left: 2px; // 2
@@ -305,7 +304,7 @@
 }
 
 .dops-chart__legend-color.is-dark-blue {
-	background: color.adjust( $blue-dark, $lightness: -5% );
+	background: color.adjust(calypso-colors.$blue-dark, $lightness: -5%);
 }
 
 // Chart legend checkbox
@@ -321,20 +320,20 @@
 
 .dops-chart__empty {
 	position: absolute;
-		top: 0;
-		right: 0;
-		bottom: 0;
-		left: 0;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
 	text-align: center;
 	font-size: 14px;
 	line-height: 24px;
 	clear: both;
-	z-index: z-index.z-index( 'root', '.dops-chart__empty' );
+	z-index: z-index.z-index("root", ".dops-chart__empty");
 }
 
 .dops-chart__empty_notice {
 	position: relative;
-		top: 97px;
+	top: 97px;
 	padding: 11px 24px;
 	margin-bottom: 24px;
 	border-radius: 1px;
@@ -342,21 +341,22 @@
 	box-sizing: border-box;
 	font-size: 14px;
 	line-height: 1.4285;
-	animation: appear .3s ease-in-out;
-	box-shadow: 0 0 0 1px color.adjust( $gray, $lightness: 20%, $alpha: -.5 ),
-		0 1px 2px color.adjust( $gray, $lightness: 30% );
+	animation: appear 0.3s ease-in-out;
+	box-shadow:
+		0 0 0 1px color.adjust(calypso-colors.$gray, $lightness: 20%, $alpha: -0.5),
+		0 1px 2px color.adjust(calypso-colors.$gray, $lightness: 30%);
 
-	@include breakpoint( ">660px" ) {
+	@include layout.breakpoint( ">660px" ) {
 		padding: 13px 48px;
 		font-size: inherit;
 
 		&::before {
 
-			@include noticons;
-			content: '\f456';
+			@include icons.noticons;
+			content: "\f456";
 			position: absolute;
-				top: 23px;
-				left: 20px;
+			top: 23px;
+			left: 20px;
 			margin: -12px 0 0 -8px;
 			font-size: 24px;
 			line-height: 1;
@@ -377,7 +377,7 @@
 
 		ul {
 
-			@include clear-fix;
+			@include clear-fix.clear-fix;
 			list-style: none;
 			margin: 0;
 			padding: 0;
@@ -466,7 +466,7 @@
 		margin-bottom: 2px;
 		text-transform: uppercase;
 		font-weight: 700;
-		border-bottom: 1px solid color.adjust( $gray, $lightness: -27% );
+		border-bottom: 1px solid color.adjust(calypso-colors.$gray, $lightness: -27%);
 		padding-bottom: 2px;
 	}
 
@@ -476,7 +476,7 @@
 
 		.label {
 			text-transform: none;
-			color: color.adjust( $gray, $lightness: 20% );
+			color: color.adjust(calypso-colors.$gray, $lightness: 20%);
 			overflow: hidden;
 			letter-spacing: 0;
 			height: 19px;
@@ -487,7 +487,7 @@
 			min-width: 0;
 
 			&::before {
-				content: '';
+				content: "";
 				position: relative;
 				background-image: linear-gradient(to right, rgba(61, 89, 109, 0) 0%, rgba(61, 89, 109, 0.5), rgba(61, 89, 109, 1));
 				left: -30px;

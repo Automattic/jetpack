@@ -18,6 +18,10 @@ use Automattic\Jetpack\Classic_Theme_Helper\Jetpack_Testimonial;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status\Host;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 if ( ! function_exists( 'jetpack_load_custom_post_types' ) ) {
 	/**
 	 * Load Portfolio, Testimonial, and Nova CPT.
@@ -50,16 +54,15 @@ if ( ! function_exists( 'jetpack_custom_post_types_loaded' ) ) {
 		if ( ! isset( $_GET['page'] ) || 'jetpack' !== $_GET['page'] ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- We are not processing any data here.
 			return;
 		}
-		$initial_state = 'var CUSTOM_CONTENT_TYPE__INITIAL_STATE; typeof CUSTOM_CONTENT_TYPE__INITIAL_STATE === "object" || (CUSTOM_CONTENT_TYPE__INITIAL_STATE = JSON.parse(decodeURIComponent("' . rawurlencode(
-			wp_json_encode(
-				array(
-					'active'                   => classic_theme_helper_cpt_should_be_active(),
-					'over_ride'                => false,
-					'should_show_testimonials' => Jetpack_Testimonial::site_should_display_testimonials() ? true : false,
-					'should_show_portfolios'   => Jetpack_Portfolio::site_should_display_portfolios() ? true : false,
-				)
-			)
-		) . '")));';
+		$initial_state = 'var CUSTOM_CONTENT_TYPE__INITIAL_STATE; typeof CUSTOM_CONTENT_TYPE__INITIAL_STATE === "object" || (CUSTOM_CONTENT_TYPE__INITIAL_STATE = ' . wp_json_encode(
+			array(
+				'active'                   => classic_theme_helper_cpt_should_be_active(),
+				'over_ride'                => false,
+				'should_show_testimonials' => Jetpack_Testimonial::site_should_display_testimonials() ? true : false,
+				'should_show_portfolios'   => Jetpack_Portfolio::site_should_display_portfolios() ? true : false,
+			),
+			JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
+		) . ');';
 
 			// Create a global variable with the custom content type feature status so that the value is available
 			// earlier than the API method above allows, preventing delayed loading of the settings card.

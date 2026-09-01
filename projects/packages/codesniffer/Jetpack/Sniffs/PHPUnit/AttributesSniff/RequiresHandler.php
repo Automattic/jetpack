@@ -151,7 +151,7 @@ class RequiresHandler extends Handler {
 			return null;
 		}
 
-		return json_encode( $ret );
+		return json_encode( $ret, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );
 	}
 
 	/**

@@ -1,12 +1,12 @@
 import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
-import React from 'react';
+import { Component, Fragment } from 'react';
 import SimpleNotice from 'components/notice';
 import NoticeAction from 'components/notice/notice-action.jsx';
 import { JETPACK_CONTACT_SUPPORT, JETPACK_CONTACT_BETA_SUPPORT } from 'constants/urls';
 import ErrorNoticeCycleConnection from './error-notice-cycle-connection';
 
-export default class JetpackConnectionErrors extends React.Component {
+export default class JetpackConnectionErrors extends Component {
 	static propTypes = {
 		errors: PropTypes.array.isRequired,
 		display: PropTypes.bool,
@@ -42,9 +42,64 @@ export default class JetpackConnectionErrors extends React.Component {
 						</NoticeAction>
 					</SimpleNotice>
 				);
-		}
+			case 'none':
+				// Informational only (e.g. a secondary admin viewing a locked connection
+				// owner's error). Render the message with no call to action.
+				return (
+					<SimpleNotice
+						text={ message }
+						status={ 'is-error' }
+						icon={ 'link-break' }
+						showDismiss={ false }
+						display={ this.props.display }
+					/>
+				);
+			default:
+				// Check for URL action (navigation)
+				if ( errorData.action_url && errorData.action_label ) {
+					const actions = [
+						<NoticeAction key="primary" href={ errorData.action_url }>
+							{ errorData.action_label }
+						</NoticeAction>,
+					];
 
-		return null;
+					// Add secondary action if available
+					if ( errorData.secondary_action_url && errorData.secondary_action_label ) {
+						actions.push(
+							<NoticeAction
+								key="secondary"
+								href={ errorData.secondary_action_url }
+								variant="secondary"
+							>
+								{ errorData.secondary_action_label }
+							</NoticeAction>
+						);
+					}
+
+					return (
+						<SimpleNotice
+							text={ message }
+							status={ 'is-error' }
+							icon={ 'link-break' }
+							showDismiss={ false }
+							display={ this.props.display }
+						>
+							{ actions }
+						</SimpleNotice>
+					);
+				}
+
+				// If no custom action available, fall back to default reconnect behavior
+				return (
+					<ErrorNoticeCycleConnection
+						text={ message }
+						errorCode={ code }
+						errorData={ errorData }
+						action={ 'reconnect' }
+						display={ this.props.display }
+					/>
+				);
+		}
 	}
 
 	renderOne( error ) {
@@ -60,9 +115,7 @@ export default class JetpackConnectionErrors extends React.Component {
 			supportURl
 		);
 
-		return null === action ? null : (
-			<React.Fragment key={ error.action }>{ action }</React.Fragment>
-		);
+		return null === action ? null : <Fragment key={ error.action }>{ action }</Fragment>;
 	}
 
 	render() {

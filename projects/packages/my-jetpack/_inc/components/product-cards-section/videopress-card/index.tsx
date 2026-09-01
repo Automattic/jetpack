@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { Text } from '@automattic/jetpack-components';
+import { Text } from '@wordpress/ui';
 import { useCallback, useMemo } from 'react';
 import { PRODUCT_STATUSES } from '../../../constants';
 import {
@@ -56,7 +56,7 @@ const VideopressCard: ProductCardComponent = props => {
 
 	const Description = useCallback( () => {
 		return (
-			<Text variant="body-small" className="description">
+			<Text variant="body-sm" className="description">
 				{ descriptionText || detail.description }
 				{ isPluginActive && ! videoCount && (
 					<InfoTooltip

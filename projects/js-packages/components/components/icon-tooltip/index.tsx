@@ -1,8 +1,8 @@
 import { Popover } from '@wordpress/components';
+import { Icon, info } from '@wordpress/icons';
 import clsx from 'clsx';
-import React, { useCallback, useState } from 'react';
+import { useCallback, useState, ReactElement, FC } from 'react';
 import Button from '../button/index.tsx';
-import Gridicon from '../gridicon/index.tsx';
 import { IconTooltipProps, Placement, Position } from './types.ts';
 
 import './style.scss';
@@ -24,14 +24,14 @@ const placementsToPositions = ( placement: Placement ): Position => {
  * Generate Icon Tooltip
  *
  * @param {IconTooltipProps} props - Props
- * @return {React.ReactElement} - JSX element
+ * @return {ReactElement} - JSX element
  */
-const IconTooltip: React.FC< IconTooltipProps > = ( {
+const IconTooltip: FC< IconTooltipProps > = ( {
 	className = '',
 	iconClassName = '',
 	placement = 'bottom-end',
 	animate = true,
-	iconCode = 'info-outline',
+	iconCode = info,
 	iconSize = 18,
 	offset = 10,
 	title,
@@ -64,12 +64,12 @@ const IconTooltip: React.FC< IconTooltipProps > = ( {
 		resize: false,
 		flip: false,
 		offset, // The distance (in px) between the anchor and the popover.
-		focusOnMount: 'container' as const,
+		focusOnMount: 'firstElement',
 		onClose: hideTooltip,
 		className: 'icon-tooltip-container',
 		inline,
 		shift,
-	};
+	} satisfies Omit< React.ComponentProps< typeof Popover >, 'children' >;
 
 	const isAnchorWrapper = popoverAnchorStyle === 'wrapper';
 
@@ -109,7 +109,7 @@ const IconTooltip: React.FC< IconTooltipProps > = ( {
 		>
 			{ ! isAnchorWrapper && (
 				<Button variant="link" onMouseDown={ toggleTooltip }>
-					<Gridicon className={ iconClassName } icon={ iconCode } size={ iconSize } />
+					<Icon className={ iconClassName } icon={ iconCode } size={ iconSize } />
 				</Button>
 			) }
 			<div

@@ -2,19 +2,19 @@ import clsx from 'clsx';
 import { createElement } from 'react';
 import { ColProps } from '../types.ts';
 import styles from './style.module.scss';
-import type React from 'react';
+import type { FC, ReactElement } from 'react';
 
-const smCols = Number( styles.smCols );
-const mdCols = Number( styles.mdCols );
-const lgCols = Number( styles.lgCols );
+const smCols = Number( styles.smcols );
+const mdCols = Number( styles.mdcols );
+const lgCols = Number( styles.lgcols );
 
 /**
  * The basic Col component.
  *
  * @param {ColProps} props - Component properties.
- * @return {React.ReactElement}   Col component.
+ * @return {ReactElement}   Col component.
  */
-const Col: React.FC< ColProps > = props => {
+const Col: FC< ColProps > = props => {
 	const { children, tagName = 'div', className } = props;
 
 	const sm = Math.min( smCols, typeof props.sm === 'number' ? props.sm : smCols ); // max of 4, if undefined = 4

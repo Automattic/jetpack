@@ -1,0 +1,69 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="JS Packages/Charts Library/Charts/Conversion Funnel Chart/API Reference" />
+
+# Conversion Funnel Chart API Reference
+
+## ConversionFunnelChart
+
+Main component for displaying conversion funnel visualizations.
+
+**Props:**
+
+| Prop | Type | Default | Description |
+| ---- | ---- | ------- | ----------- |
+| `mainRate` | `number` | - | **Required.** Main conversion rate to highlight (0-100) |
+| `steps` | `FunnelStep[]` | - | **Required.** Array of funnel steps |
+| `changeIndicator` | `string` | - | Change indicator (e.g., "+2%", "-1.5%") |
+| `loading` | `boolean` | `false` | Whether the chart is in loading state |
+| `animation` | `boolean` | `false` | Enable entry animation on initial render. Funnel bars grow from bottom to full height. Automatically respects user's `prefers-reduced-motion` system setting |
+| `height` | `string \| number` | `"100%"` | Height of the chart container. Accepts a number (pixels) or CSS string (e.g., `"400px"`, `"100%"`). Falls back to `style.height` if set, otherwise defaults to `"100%"` |
+| `className` | `string` | - | Additional CSS class name |
+| `chartId` | `string` | - | Optional unique identifier for the chart |
+| `style` | `React.CSSProperties` | - | Custom styling for the chart container |
+| `renderStepLabel` | `(props: StepLabelRenderProps) => ReactNode` | - | Custom render function for step labels |
+| `renderStepRate` | `(props: StepRateRenderProps) => ReactNode` | - | Custom render function for step rates |
+| `renderMainMetric` | `(props: MainMetricRenderProps) => ReactNode` | - | Custom render function for main metric section |
+| `renderTooltip` | `(props: TooltipRenderProps) => ReactNode` | - | Custom render function for tooltip content |
+
+## FunnelStep Type
+
+```typescript
+interface FunnelStep {
+	id: string;           // Unique identifier
+	label: string;        // Display name for the step
+	rate: number;         // Conversion rate as percentage (0-100)
+	count?: number;       // Optional absolute count
+}
+```
+
+## Render Prop Types
+
+```typescript
+interface StepLabelRenderProps {
+	step: FunnelStep;
+	index: number;
+	className?: string;
+}
+
+interface StepRateRenderProps {
+	step: FunnelStep;
+	index: number;
+	className?: string;
+}
+
+interface MainMetricRenderProps {
+	mainRate: number;
+	changeIndicator?: string;
+	className?: string;
+	changeColor?: string;
+}
+
+interface TooltipRenderProps {
+	step: FunnelStep;
+	index: number;
+	top: number;
+	left: number;
+	className?: string;
+}
+```

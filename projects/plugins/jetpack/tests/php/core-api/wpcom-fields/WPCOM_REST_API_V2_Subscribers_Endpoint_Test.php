@@ -39,9 +39,9 @@ class WPCOM_REST_API_V2_Subscribers_Endpoint_Test extends Jetpack_REST_TestCase 
 		}
 	}
 
-	public static function set_subscribers_counts( $email_subscribers, $social_followers ) {
+	public static function set_subscribers_counts( $total_subscribers, $email_subscribers, $social_followers ) {
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			wp_cache_set( 'wpcom_blog_subscriber_total_' . get_current_blog_id(), $email_subscribers, 'subs' );
+			wp_cache_set( 'wpcom_blog_subscriber_total_' . get_current_blog_id(), $total_subscribers, 'subs' );
 			wp_cache_set( 'wpcom_blog_social_followers_total_' . get_current_blog_id(), $social_followers, 'subs' );
 
 		} else {
@@ -49,6 +49,7 @@ class WPCOM_REST_API_V2_Subscribers_Endpoint_Test extends Jetpack_REST_TestCase 
 				'wpcom_subscribers_totals',
 				array(
 					'value'  => array(
+						'total_subscribers' => $total_subscribers,
 						'email_subscribers' => $email_subscribers,
 						'social_followers'  => $social_followers,
 					),
@@ -82,13 +83,14 @@ class WPCOM_REST_API_V2_Subscribers_Endpoint_Test extends Jetpack_REST_TestCase 
 
 	public function test_get_subscriber_counts_with_edit_permission() {
 		wp_set_current_user( self::$editor_user_id );
-		self::set_subscribers_counts( 100, 200 );
+		self::set_subscribers_counts( 100, 75, 200 );
 
 		$request  = new WP_REST_Request( WP_REST_Server::READABLE, '/wpcom/v2/subscribers/counts' );
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 
-		$this->assertEquals( 100, $data['counts']['email_subscribers'] );
+		$this->assertEquals( 100, $data['counts']['total_subscribers'] );
+		$this->assertEquals( 75, $data['counts']['email_subscribers'] );
 		$this->assertEquals( 200, $data['counts']['social_followers'] );
 	}
 

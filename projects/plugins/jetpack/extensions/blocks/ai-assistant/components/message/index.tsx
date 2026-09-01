@@ -3,7 +3,7 @@
  */
 import {
 	Icon,
-	warning,
+	cautionFilled as warning,
 	info,
 	cancelCircleFilled as error,
 	check as success,
@@ -11,7 +11,7 @@ import {
 /**
  * Types
  */
-import type React from 'react';
+import type { ReactElement, ReactNode } from 'react';
 
 import './style.scss';
 
@@ -28,8 +28,8 @@ export type MessageSeverityProp =
 	| null;
 
 export type MessageProps = {
-	icon?: React.ReactNode;
-	children: React.ReactNode;
+	icon?: ReactNode;
+	children: ReactNode;
 	severity: MessageSeverityProp;
 };
 
@@ -44,16 +44,18 @@ const messageIconsMap = {
  * React component to render a block message.
  *
  * @param {MessageProps} props - Component props.
- * @return {React.ReactElement }    Banner component.
+ * @return {ReactElement }    Banner component.
  */
 export default function Message( {
 	severity = null,
 	icon = null,
 	children,
-}: MessageProps ): React.ReactElement {
+}: MessageProps ): ReactElement {
 	return (
 		<div className="jetpack-ai-assistant__message">
-			{ ( severity || icon ) && <Icon icon={ messageIconsMap[ severity ] || icon } /> }
+			{ ( severity || icon ) && (
+				<Icon icon={ ( messageIconsMap[ severity ] || icon ) as ReactElement } />
+			) }
 			<div className="jetpack-ai-assistant__message-content">{ children }</div>
 		</div>
 	);

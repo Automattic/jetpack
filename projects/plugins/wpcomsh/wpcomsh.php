@@ -2,14 +2,20 @@
 /**
  * Plugin Name: WordPress.com Site Helper
  * Description: A helper for connecting WordPress.com sites to external host infrastructure.
- * Version: 6.1.0
+ * Version: 9.0.0
  * Author: Automattic
  * Author URI: http://automattic.com/
  *
  * @package wpcomsh
  */
 
-define( 'WPCOMSH_VERSION', '6.1.0' );
+define( 'WPCOMSH_VERSION', '9.0.0' );
+
+// Loaded first: fatal-error screen filter + one-shot plugin-deactivation endpoint.
+// The deactivator also needs to load before any regular plugin, so in production
+// a stub in wp-content/mu-plugins/ should re-include fatal-plugin-deactivator.php
+// directly (see wpcom-fatal-error/mu-plugin-stub.php).
+require_once __DIR__ . '/wpcom-fatal-error/load.php';
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
@@ -45,6 +51,7 @@ require_once __DIR__ . '/customizer-fixes/customizer-fixes.php';
 
 require_once __DIR__ . '/class-wpcomsh-log.php';
 require_once __DIR__ . '/safeguard/plugins.php';
+require_once __DIR__ . '/plugin-conflicts-guardian-rollout.php';
 require_once __DIR__ . '/jetpack-token-error-header/class-atomic-record-jetpack-token-errors.php';
 
 /**
@@ -68,9 +75,54 @@ require_once __DIR__ . '/widgets/class-widget-top-clicks.php';
 require_once __DIR__ . '/widgets/class-pd-top-rated.php';
 require_once __DIR__ . '/widgets/class-jetpack-widget-twitter.php';
 
-// autoload composer sourced plugins
-require_once __DIR__ . '/vendor/autoload_packages.php';
-require_once __DIR__ . '/vendor/automattic/at-pressable-podcasting/podcasting.php';
+/*
+ * Autoloader check: This ensures the plugin doesn't fatal if activated before
+ * `composer install` has been run. This is a common oversight during development
+ * setup. The admin notice helps developers quickly identify the issue.
+ */
+$jetpack_autoloader = __DIR__ . '/vendor/autoload_packages.php';
+if ( is_readable( $jetpack_autoloader ) ) {
+	require_once $jetpack_autoloader;
+} else {
+	if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+		error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			__( 'Error loading autoloader file for WordPress.com Site Helper plugin', 'wpcomsh' )
+		);
+	}
+
+	add_action(
+		'admin_notices',
+		function () {
+			if ( get_current_screen()->id !== 'plugins' ) {
+				return;
+			}
+
+			$message = sprintf(
+				wp_kses(
+					/* translators: Placeholder is a link to a support document. */
+					__( 'Your installation of WordPress.com Site Helper is incomplete. If you installed WordPress.com Site Helper from GitHub, please refer to <a href="%1$s" target="_blank" rel="noopener noreferrer">this document</a> to set up your development environment. WordPress.com Site Helper must have Composer dependencies installed and built via the build command.', 'wpcomsh' ),
+					array(
+						'a' => array(
+							'href'   => array(),
+							'target' => array(),
+							'rel'    => array(),
+						),
+					)
+				),
+				'https://github.com/Automattic/jetpack/blob/trunk/docs/development-environment.md#building-your-project'
+			);
+			wp_admin_notice(
+				$message,
+				array(
+					'type'        => 'error',
+					'dismissible' => true,
+				)
+			);
+		}
+	);
+
+	return;
+}
 require_once __DIR__ . '/vendor/automattic/custom-fonts/custom-fonts.php';
 require_once __DIR__ . '/vendor/automattic/custom-fonts-typekit/custom-fonts-typekit.php';
 require_once __DIR__ . '/vendor/automattic/text-media-widget-styles/text-media-widget-styles.php';
@@ -79,10 +131,12 @@ require_once __DIR__ . '/vendor/automattic/text-media-widget-styles/text-media-w
 require_once __DIR__ . '/endpoints/rest-api.php';
 
 // Load feature plugins.
+require_once __DIR__ . '/feature-plugins/activitypub.php';
 require_once __DIR__ . '/feature-plugins/additional-css.php';
 require_once __DIR__ . '/feature-plugins/autosave-revision.php';
 require_once __DIR__ . '/feature-plugins/blaze.php';
 require_once __DIR__ . '/feature-plugins/coblocks-mods.php';
+require_once __DIR__ . '/feature-plugins/crowdsignal.php';
 require_once __DIR__ . '/feature-plugins/full-site-editing.php';
 require_once __DIR__ . '/feature-plugins/google-fonts.php';
 require_once __DIR__ . '/feature-plugins/gutenberg-mods.php';
@@ -96,12 +150,16 @@ require_once __DIR__ . '/feature-plugins/masterbar.php';
 require_once __DIR__ . '/feature-plugins/migrate-guru-canary.php';
 require_once __DIR__ . '/feature-plugins/nav-redesign.php';
 require_once __DIR__ . '/feature-plugins/post-list.php';
+require_once __DIR__ . '/feature-plugins/class-wpcomsh-recovery-mode-sync.php';
 require_once __DIR__ . '/feature-plugins/sensei-pro-mods.php';
 require_once __DIR__ . '/feature-plugins/smtp-email-priority.php';
 require_once __DIR__ . '/feature-plugins/staging-sites.php';
 require_once __DIR__ . '/feature-plugins/stats.php';
 require_once __DIR__ . '/feature-plugins/woocommerce.php';
 require_once __DIR__ . '/feature-plugins/wordpress-mods.php';
+require_once __DIR__ . '/feature-plugins/wpcom-reader-link.php';
+require_once __DIR__ . '/feature-plugins/reprint-exporter-api.php';
+require_once __DIR__ . '/feature-plugins/featured-image-in-email.php';
 
 /**
  * Conditionally load the jetpack-mu-wpcom package.
@@ -152,8 +210,8 @@ require_once __DIR__ . '/support-session.php';
 // Adds fallback behavior for non-Gutenframed sites to be able to use the 'Share Post' functionality from WPCOM Reader.
 require_once __DIR__ . '/share-post/share-post.php';
 
-// Jetpack Token Resilience.
-require_once __DIR__ . '/jetpack-token-resilience/class-wpcomsh-blog-token-resilience.php';
+// Jetpack Connection Handlers (external storage and protected owner).
+require_once __DIR__ . '/connection/connection-handlers.php';
 
 // Require a Jetpack Connection Owner.
 require_once __DIR__ . '/jetpack-require-connection-owner/class-wpcomsh-require-connection-owner.php';
@@ -240,7 +298,9 @@ function wpcomsh_bypass_jetpack_sso_login() {
 
 	if ( class_exists( '\Automattic\Jetpack\Connection\Manager' ) ) {
 		$connection_manager = new \Automattic\Jetpack\Connection\Manager( 'jetpack' );
-		$users              = get_users( array( 'fields' => array( 'ID' ) ) );
+
+		// Fetching an extra field to overcome the caching bug: https://core.trac.wordpress.org/ticket/62003
+		$users = get_users( array( 'fields' => array( 'ID', 'user_login' ) ) );
 		foreach ( $users as $user ) {
 			if ( ! $connection_manager->is_user_connected( $user->ID ) ) {
 				return false;
@@ -371,110 +431,39 @@ add_filter( 'allowed_redirect_hosts', 'wpcomsh_allowed_redirect_hosts', 11 );
 /**
  * WP.com make clickable
  *
- * Converts all plain-text HTTP URLs in post_content to links on display
+ * Converts all plain-text HTTP URLs in post_content to links on display.
+ * Uses WP_HTML_Tag_Processor for proper HTML tokenization that won't be confused by
+ * content inside tags (e.g., JavaScript comparison operators in script tags).
  *
  * @param string $content The content.
- *
+ * @return string Modified content with linkified URLs.
  * @uses make_clickable()
  * @since 20121125
  */
 function wpcomsh_make_content_clickable( $content ) {
-	// make_clickable() is expensive, check if plain-text URLs exist before running it
-	// don't look inside HTML tags
-	// don't look in <a></a>, <pre></pre>, <script></script> and <style></style>
-	// use <div class="skip-make-clickable"> in support docs where linkifying
-	// breaks shortcodes, etc.
-	$_split  = preg_split( '/(<[^>]+>)/i', $content, -1, PREG_SPLIT_DELIM_CAPTURE );
-	$end     = '';
-	$out     = '';
-	$combine = '';
-	$split   = array();
+	// Fast path: no URL-shaped substring, no work to do. Avoids loading the
+	// linkifier and walking the tokenizer for the common case.
+	if ( false === stripos( $content, 'http' ) && false === stripos( $content, 'www.' ) ) {
+		return $content;
+	}
 
-	// Defines a set of rules for the wpcomsh_make_content_clickable() function to ignore matching html elements.
-	$make_clickable_rules = array(
-		array(
-			'match' => array( '<a ' ),
-			'end'   => '</a>',
-		),
-		array(
-			'match' => array( '<pre ', '<pre>' ),
-			'end'   => '</pre>',
-		),
-		array(
-			'match' => array( '<code ', '<code>' ),
-			'end'   => '</code>',
-		),
-		array(
-			'match' => array( '<script ', '<script>' ),
-			'end'   => '</script>',
-		),
-		array(
-			'match' => array( '<style ', '<style>' ),
-			'end'   => '</style>',
-		),
-		array(
-			'match' => array( '<textarea ', '<textarea>' ),
-			'end'   => '</textarea>',
-		),
-		array(
-			'match' => array( '<div class="skip-make-clickable' ),
-			'end'   => '</div>',
-		),
+	if ( ! method_exists( 'WP_HTML_Tag_Processor', 'next_token' ) ) {
+		if ( function_exists( 'bump_stats_extras' ) ) {
+			bump_stats_extras( 'wpcomsh-make-content-clickable', 'skipped-no-html-api' );
+		}
+		return $content;
+	}
+
+	require_once __DIR__ . '/class-wpcomsh-html-linkifier.php';
+
+	return Wpcomsh_HTML_Linkifier::modify_raw_text_nodes(
+		$content,
+		static function ( $raw_text ) {
+			return 1 === preg_match( '~https?://|www\.~', $raw_text )
+				? make_clickable( $raw_text )
+				: $raw_text;
+		}
 	);
-
-	// filter the array and combine <a></a>, <pre></pre>, <script></script> and <style></style> into one
-	// (none of these tags can be nested so when we see the opening tag, we grab everything untill we reach the closing tag).
-	foreach ( $_split as $chunk ) {
-		if ( '' === $chunk ) {
-			continue;
-		}
-
-		if ( $end ) {
-			$combine .= $chunk;
-
-			if ( $end === strtolower( str_replace( array( "\t", ' ', "\r", "\n" ), '', $chunk ) ) ) {
-				$split[] = $combine;
-				$end     = '';
-				$combine = '';
-			}
-			continue;
-		}
-
-		$found = false;
-		foreach ( $make_clickable_rules as $rule ) {
-			foreach ( $rule['match'] as $match ) {
-				if ( stripos( $chunk, $match ) === 0 ) {
-					$combine .= $chunk;
-					$end      = $rule['end'];
-					$found    = true;
-
-					break 2;
-				}
-			}
-		}
-
-		if ( ! $found ) {
-			$split[] = $chunk;
-		}
-	}
-
-	foreach ( $split as $chunk ) {
-		// if $chunk is white space or a tag (or a combined tag), add it and continue.
-		if ( preg_match( '/^\s+$/', $chunk ) || ( '<' === $chunk[0] && '>' === $chunk[ strlen( $chunk ) - 1 ] ) ) {
-			$out .= $chunk;
-			continue;
-		}
-
-		// three strpos() are faster than one preg_match() here. If we need to check for more protocols, preg_match() would probably be better.
-		if ( strpos( $chunk, 'http://' ) !== false || strpos( $chunk, 'https://' ) !== false || strpos( $chunk, 'www.' ) !== false ) {
-			// looks like there is a plain-text url.
-			$out .= make_clickable( $chunk );
-		} else {
-			$out .= $chunk;
-		}
-	}
-
-	return $out;
 }
 add_filter( 'the_content', 'wpcomsh_make_content_clickable', 120 );
 add_filter( 'the_excerpt', 'wpcomsh_make_content_clickable', 120 );
@@ -530,7 +519,7 @@ function wpcom_hide_scan_threats_from_api( $response ) {
 	}
 
 	$json_body['threats']  = array();
-	$response_data['data'] = wp_json_encode( $json_body );
+	$response_data['data'] = wp_json_encode( $json_body, JSON_UNESCAPED_SLASHES );
 	$response->set_data( $response_data );
 
 	return $response;
@@ -598,6 +587,11 @@ function wpcomsh_footer_rum_js() {
 	}
 
 	$rum_kv = array();
+	$rum_kv = apply_filters( 'wpcomsh_rum_kv', $rum_kv, $service );
+	if ( ! is_array( $rum_kv ) ) {
+		$rum_kv = array();
+	}
+
 	$rum_kv = wpcomsh_get_woo_rum_data( $rum_kv );
 	// Add user login and theme info.
 	$rum_kv['logged_in']        = is_user_logged_in() ? '1' : '0';
@@ -605,7 +599,7 @@ function wpcomsh_footer_rum_js() {
 	$rum_kv['wptheme_is_block'] = wp_is_block_theme() ? '1' : '0';
 
 	if ( count( $rum_kv ) > 0 ) {
-		$rum_kv = wp_json_encode( $rum_kv, JSON_FORCE_OBJECT );
+		$rum_kv = wp_json_encode( $rum_kv, JSON_FORCE_OBJECT | JSON_UNESCAPED_SLASHES | JSON_HEX_AMP );
 		if ( is_string( $rum_kv ) ) {
 			$rum_kv = 'data-customproperties="' . esc_attr( $rum_kv ) . '"';
 		} else {
@@ -615,14 +609,25 @@ function wpcomsh_footer_rum_js() {
 		$rum_kv = '';
 	}
 
+	$site_v = apply_filters( 'wpcomsh_bilmur_site_v', null );
+
+	if ( true === $site_v ) {
+		$site_v = md5( (string) wp_parse_url( home_url(), PHP_URL_HOST ) );
+	}
+
 	$data_site_tz = 'data-site-tz="' . esc_attr( wpcomsh_stats_timezone_string() ) . '"';
 
+	$data_site_v = ( is_string( $site_v ) && '' !== $site_v )
+			? 'data-site-v="' . esc_attr( $site_v ) . '"'
+			: '';
+
 	printf(
-		'<meta id="bilmur" property="bilmur:data" content="" %1$s data-provider="wordpress.com" data-service="%2$s" %3$s %4$s >' . "\n",
+		'<meta id="bilmur" property="bilmur:data" content="" %1$s data-provider="wordpress.com" data-service="%2$s" %3$s %4$s %5$s >' . "\n",
 		$rum_kv, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		esc_attr( $service ),
 		wp_kses_post( $allow_iframe ),
-		$data_site_tz // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		$data_site_tz, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		$data_site_v // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	);
 	printf(
 		'<script defer src="%s"></script>' . "\n", //phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
@@ -715,7 +720,6 @@ function wpcomsh_jetpack_filter_tos_for_tracking( $value, $name ) {
  * Avoid proxied v2 banner
  *
  * @return void
- * @phan-suppress PhanUndeclaredFunctionInCallable -- No point in stubbing `atomic_proxy_bar` just for remove_action().
  */
 function wpcomsh_avoid_proxied_v2_banner() {
 	$priority = has_action( 'wp_footer', 'atomic_proxy_bar' );

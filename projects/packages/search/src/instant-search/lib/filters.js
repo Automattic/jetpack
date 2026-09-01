@@ -41,8 +41,13 @@ export function getFilterKeys(
 		.map( w => w.filters )
 		.filter( filters => Array.isArray( filters ) )
 		.reduce( ( filtersA, filtersB ) => filtersA.concat( filtersB ), [] )
-		.filter( filter => filter.type === 'taxonomy' )
-		.forEach( filter => keys.add( filter.taxonomy ) );
+		.forEach( filter => {
+			if ( filter.type === 'taxonomy' ) {
+				keys.add( filter.taxonomy );
+			} else if ( filter.type === 'product_attribute' && filter.attribute ) {
+				keys.add( filter.attribute );
+			}
+		} );
 
 	return [ ...keys ];
 }
@@ -141,6 +146,8 @@ export function mapFilterToFilterKey( filter ) {
 		return 'authors';
 	} else if ( filter.type === 'blog_id' ) {
 		return 'blog_ids';
+	} else if ( filter.type === 'product_attribute' ) {
+		return filter.attribute;
 	} else if ( filter.type === 'group' ) {
 		return filter.filter_id;
 	}
@@ -183,6 +190,11 @@ export function mapFilterKeyToFilter( filterKey ) {
 		return {
 			type: 'group',
 		};
+	} else if ( filterKey.startsWith( 'pa_' ) ) {
+		return {
+			type: 'product_attribute',
+			attribute: filterKey,
+		};
 	}
 
 	return {
@@ -208,6 +220,8 @@ export function mapFilterToType( filter ) {
 		return 'author';
 	} else if ( filter.type === 'blog_id' ) {
 		return 'blogId';
+	} else if ( filter.type === 'product_attribute' ) {
+		return 'productAttribute';
 	} else if ( filter.type === 'group' ) {
 		return 'group';
 	}

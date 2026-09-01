@@ -1,9 +1,9 @@
 import PropTypes from 'prop-types';
-import React from 'react';
+import { Component } from 'react';
 import Bar from './bar';
 import XAxis from './x-axis';
 
-export default class ModuleChartBarContainer extends React.Component {
+export default class ModuleChartBarContainer extends Component {
 	static displayName = 'ModuleChartBarContainer';
 
 	static propTypes = {

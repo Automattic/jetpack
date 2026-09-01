@@ -1,9 +1,8 @@
-import { ActionButton } from '@automattic/jetpack-components';
 import { ConnectScreen } from '@automattic/jetpack-connection';
 import { __, sprintf } from '@wordpress/i18n';
+import { Button } from '@wordpress/ui';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
-import React from 'react';
 import { usePartnerCouponRedemption } from '../../hooks.js';
 
 /**
@@ -75,14 +74,13 @@ const RedeemPartnerCouponPreConnection = props => {
 					) ) }
 				</ul>
 				{ connectionStatus.hasConnectedOwner && (
-					<ActionButton
-						label={ sprintf(
+					<Button onClick={ onClick }>
+						{ sprintf(
 							/* translators: %s: Name of a Jetpack product. */
 							__( 'Redeem %s', 'jetpack-partner-coupon' ),
 							partnerCoupon.product.title
 						) }
-						onClick={ onClick }
-					/>
+					</Button>
 				) }
 			</ConnectScreen>
 		</div>

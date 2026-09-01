@@ -15,22 +15,15 @@
 		}
 	},
 	"charactor ?": {
-		"rules": [
-			"foo?bar"
-		],
+		"rules": [ "foo?bar" ],
 		"expects": {
 			"foo/bar": "nomatch",
-			"fooxbar" :"ignored",
+			"fooxbar": "ignored",
 			"fooxxbar": "nomatch"
 		}
 	},
 	"#57, normal * and normal consecutive *": {
-		"rules": [
-			"**foo",
-			"*bar",
-			"ba*z",
-			"folder/other-folder/**/**js"
-		],
+		"rules": [ "**foo", "*bar", "ba*z", "folder/other-folder/**/**js" ],
 		"expects": {
 			"foo": "ignored",
 			"a/foo": "ignored",
@@ -46,9 +39,7 @@
 		}
 	},
 	"#76 (invalid), comments with no heading whitespace": {
-		"rules": [
-			"node_modules# comments"
-		],
+		"rules": [ "node_modules# comments" ],
 		"expects": {
 			"node_modules/a.js": "nomatch"
 		}
@@ -98,30 +89,20 @@
 		"nogit": true
 	},
 	"gitignore 2.22.1 example": {
-		"rules": [
-			"doc/frotz/"
-		],
+		"rules": [ "doc/frotz/" ],
 		"expects": {
 			"doc/frotz/": "ignored",
 			"a/doc/frotz/": "nomatch"
 		}
 	},
 	"#56": {
-		"rules": [
-			"/*/",
-			"!/foo/"
-		],
+		"rules": [ "/*/", "!/foo/" ],
 		"expects": {
 			"foo/bar.js": "nomatch"
 		}
 	},
 	"a and a/": {
-		"rules": [
-			"a",
-			"a2",
-			"b/",
-			"b2/"
-		],
+		"rules": [ "a", "a2", "b/", "b2/" ],
 		"expects": {
 			"a": "ignored",
 			"a2/": "ignored",
@@ -130,9 +111,7 @@
 		}
 	},
 	"ending question mark": {
-		"rules": [
-			"*.web?"
-		],
+		"rules": [ "*.web?" ],
 		"expects": {
 			"a.webp": "ignored",
 			"a.webm": "ignored",
@@ -144,9 +123,7 @@
 		}
 	},
 	"intermediate question mark": {
-		"rules": [
-			"a?c"
-		],
+		"rules": [ "a?c" ],
 		"expects": {
 			"abc": "ignored",
 			"acc": "ignored",
@@ -155,18 +132,14 @@
 		}
 	},
 	"multiple question marks": {
-		"rules": [
-			"a?b??"
-		],
+		"rules": [ "a?b??" ],
 		"expects": {
 			"acbdd": "ignored",
 			"acbddd": "nomatch"
 		}
 	},
 	"normal *.[oa]": {
-		"rules": [
-			"*.[oa]"
-		],
+		"rules": [ "*.[oa]" ],
 		"expects": {
 			"a.js": "nomatch",
 			"a.a": "ignored",
@@ -177,9 +150,7 @@
 		}
 	},
 	"multiple brackets": {
-		"rules": [
-			"*.[ab][cd][ef]"
-		],
+		"rules": [ "*.[ab][cd][ef]" ],
 		"expects": {
 			"a.ace": "ignored",
 			"a.bdf": "ignored",
@@ -189,9 +160,7 @@
 		}
 	},
 	"special case: []": {
-		"rules": [
-			"*.[]"
-		],
+		"rules": [ "*.[]" ],
 		"expects": {
 			// node-ignore has this one wrong.
 			"a.[]": "ignored",
@@ -201,9 +170,7 @@
 		"nogit": true
 	},
 	"mixed with numbers, characters and symbols: *.[0a_]": {
-		"rules": [
-			"*.[0a_]"
-		],
+		"rules": [ "*.[0a_]" ],
 		"expects": {
 			"a.0": "ignored",
 			"a.1": "nomatch",
@@ -214,9 +181,7 @@
 		}
 	},
 	"range: [a-z]": {
-		"rules": [
-			"*.pn[a-z]"
-		],
+		"rules": [ "*.pn[a-z]" ],
 		"expects": {
 			"a.pn1": "nomatch",
 			"a.pn2": "nomatch",
@@ -225,9 +190,7 @@
 		}
 	},
 	"range: [0-9]": {
-		"rules": [
-			"*.pn[0-9]"
-		],
+		"rules": [ "*.pn[0-9]" ],
 		"expects": {
 			"a.pn1": "ignored",
 			"a.pn2": "ignored",
@@ -236,9 +199,7 @@
 		}
 	},
 	"multiple ranges: [0-9a-z]": {
-		"rules": [
-			"*.pn[0-9a-z]"
-		],
+		"rules": [ "*.pn[0-9a-z]" ],
 		"expects": {
 			"a.pn1": "ignored",
 			"a.pn2": "ignored",
@@ -249,9 +210,7 @@
 	},
 	// Node-ignore claims "[0-z] represents 0-0A-Za-z". It includes the other digits and certain punctuation too.
 	"special range: [0-z]": {
-		"rules": [
-			"*.[0-z]"
-		],
+		"rules": [ "*.[0-z]" ],
 		"expects": {
 			"a.0": "ignored",
 			"a.9": "ignored",
@@ -269,9 +228,7 @@
 	},
 	// If range is out of order, then omitted
 	"special case: range out of order: [a-9]": {
-		"rules": [
-			"*.[a-9]"
-		],
+		"rules": [ "*.[a-9]" ],
 		"expects": {
 			"a.0": "nomatch",
 			"a.-": "nomatch",
@@ -280,9 +237,7 @@
 	},
 	// Just treat it as normal character set
 	"special case: range-like character set": {
-		"rules": [
-			"*.[a-]"
-		],
+		"rules": [ "*.[a-]" ],
 		"expects": {
 			"a.a": "ignored",
 			"a.-": "ignored",
@@ -290,9 +245,7 @@
 		}
 	},
 	"special case: the combination of range and set": {
-		"rules": [
-			"*.[a-z01]"
-		],
+		"rules": [ "*.[a-z01]" ],
 		"expects": {
 			"a.a": "ignored",
 			"a.b": "ignored",
@@ -303,9 +256,7 @@
 		}
 	},
 	"special case: 1 step range": {
-		"rules": [
-			"*.[0-0]"
-		],
+		"rules": [ "*.[0-0]" ],
 		"expects": {
 			"a.0": "ignored",
 			"a.1": "nomatch",
@@ -313,9 +264,7 @@
 		}
 	},
 	"special case: similar, but not a character set": {
-		"rules": [
-			"*.[a-"
-		],
+		"rules": [ "*.[a-" ],
 		"expects": {
 			"a.": "nomatch",
 			"a.[": "nomatch",
@@ -324,10 +273,7 @@
 		}
 	},
 	"related to #38": {
-		"rules": [
-			"*",
-			"!abc*"
-		],
+		"rules": [ "*", "!abc*" ],
 		"expects": {
 			"a": "ignored",
 			"abc": "unignored",
@@ -335,11 +281,7 @@
 		}
 	},
 	"#38": {
-		"rules": [
-			"*",
-			"!*/",
-			"!foo/bar"
-		],
+		"rules": [ "*", "!*/", "!foo/bar" ],
 		"expects": {
 			"a": "ignored",
 			"b/c": "ignored",
@@ -348,11 +290,7 @@
 		}
 	},
 	"intermediate `\\ ` should be unescaped to ` `": {
-		"rules": [
-			"abc\\ d",
-			"abc e",
-			"a\\ b\\ c"
-		],
+		"rules": [ "abc\\ d", "abc e", "a\\ b\\ c" ],
 		"expects": {
 			"abc d": "ignored",
 			"abc e": "ignored",
@@ -362,11 +300,7 @@
 		}
 	},
 	"#25": {
-		"rules": [
-			".git/*",
-			"!.git/config",
-			".ftpconfig"
-		],
+		"rules": [ ".git/*", "!.git/config", ".ftpconfig" ],
 		"expects": {
 			".ftpconfig": "ignored",
 			".git/config": "unignored",
@@ -390,51 +324,35 @@
 		}
 	},
 	"wildcard: special case, escaped wildcard": {
-		"rules": [
-			"*.html",
-			"!a/b/\\*/index.html"
-		],
+		"rules": [ "*.html", "!a/b/\\*/index.html" ],
 		"expects": {
 			"a/b/*/index.html": "unignored",
 			"a/b/index.html": "ignored"
 		}
 	},
 	"wildcard: treated as a shell glob suitable for consumption by fnmatch(3)": {
-		"rules": [
-			"*.html",
-			"!b/\\*/index.html"
-		],
+		"rules": [ "*.html", "!b/\\*/index.html" ],
 		"expects": {
 			"a/b/*/index.html": "ignored",
 			"a/b/index.html": "ignored"
 		}
 	},
 	"wildcard: with no escape": {
-		"rules": [
-			"*.html",
-			"!a/b/*/index.html"
-		],
+		"rules": [ "*.html", "!a/b/*/index.html" ],
 		"expects": {
 			"a/b/*/index.html": "unignored",
 			"a/b/index.html": "ignored"
 		}
 	},
 	"#24: a negative pattern without a trailing wildcard": {
-		"rules": [
-			"/node_modules/*",
-			"!/node_modules",
-			"!/node_modules/package"
-		],
+		"rules": [ "/node_modules/*", "!/node_modules", "!/node_modules/package" ],
 		"expects": {
 			"node_modules/a/a.js": "ignored",
 			"node_modules/package/a.js": "nomatch"
 		}
 	},
 	"#21: unignore with 1 globstar, reversed order": {
-		"rules": [
-			"!foo/bar.js",
-			"foo/*"
-		],
+		"rules": [ "!foo/bar.js", "foo/*" ],
 		"expects": {
 			"foo/bar.js": "ignored",
 			"foo/bar2.js": "ignored",
@@ -443,10 +361,7 @@
 	},
 
 	"#21: unignore with 2 globstars, reversed order": {
-		"rules": [
-			"!foo/bar.js",
-			"foo/**"
-		],
+		"rules": [ "!foo/bar.js", "foo/**" ],
 		"expects": {
 			"foo/bar.js": "ignored",
 			"foo/bar2.js": "ignored",
@@ -455,10 +370,7 @@
 	},
 
 	"#21: unignore with several groups of 2 globstars, reversed order": {
-		"rules": [
-			"!foo/bar.js",
-			"foo/**/**"
-		],
+		"rules": [ "!foo/bar.js", "foo/**/**" ],
 		"expects": {
 			"foo/bar.js": "ignored",
 			"foo/bar2.js": "ignored",
@@ -467,10 +379,7 @@
 	},
 
 	"#21: unignore with 1 globstar": {
-		"rules": [
-			"foo/*",
-			"!foo/bar.js"
-		],
+		"rules": [ "foo/*", "!foo/bar.js" ],
 		"expects": {
 			"foo/bar.js": "unignored",
 			"foo/bar2.js": "ignored",
@@ -479,10 +388,7 @@
 	},
 
 	"#21: unignore with 2 globstars": {
-		"rules": [
-			"foo/**",
-			"!foo/bar.js"
-		],
+		"rules": [ "foo/**", "!foo/bar.js" ],
 		"expects": {
 			"foo/bar.js": "unignored",
 			"foo/bar2.js": "ignored",
@@ -491,10 +397,7 @@
 	},
 
 	"related to #21: several groups of 2 globstars": {
-		"rules": [
-			"foo/**/**",
-			"!foo/bar.js"
-		],
+		"rules": [ "foo/**/**", "!foo/bar.js" ],
 		"expects": {
 			"foo/bar.js": "unignored",
 			"foo/bar2.js": "ignored",
@@ -503,9 +406,7 @@
 	},
 
 	"ignore dot files": {
-		"rules": [
-			".*"
-		],
+		"rules": [ ".*" ],
 		"expects": {
 			".a": "ignored",
 			".gitignore": "ignored"
@@ -513,10 +414,7 @@
 	},
 
 	"#14, README example broken in `3.0.3`": {
-		"rules": [
-			".abc/*",
-			"!.abc/d/"
-		],
+		"rules": [ ".abc/*", "!.abc/d/" ],
 		"expects": {
 			".abc/a.js": "ignored",
 			".abc/d/e.js": "nomatch"
@@ -537,26 +435,20 @@
 	},
 
 	"A blank line matches no files": {
-		"rules": [
-			""
-		],
+		"rules": [ "" ],
 		"expects": {
 			"a": "nomatch",
 			"a/b/c": "nomatch"
 		}
 	},
 	"A line starting with # serves as a comment.": {
-		"rules": [
-			"#abc"
-		],
+		"rules": [ "#abc" ],
 		"expects": {
 			"#abc": "nomatch"
 		}
 	},
 	"Put a backslash (`\\`) in front of the first hash for patterns that begin with a hash.": {
-		"rules": [
-			"\\#abc"
-		],
+		"rules": [ "\\#abc" ],
 		"expects": {
 			"#abc": "ignored"
 		}
@@ -585,10 +477,7 @@
 		}
 	},
 	"An optional prefix `!` which negates the pattern; any matching file excluded by a previous pattern will become included again": {
-		"rules": [
-			"abc",
-			"!abc"
-		],
+		"rules": [ "abc", "!abc" ],
 		"expects": {
 			// the parent folder is included again
 			"abc/a.js": "nomatch",
@@ -596,30 +485,21 @@
 		}
 	},
 	"issue #10: It is not possible to re-include a file if a parent directory of that file is excluded": {
-		"rules": [
-			"/abc/",
-			"!/abc/a.js"
-		],
+		"rules": [ "/abc/", "!/abc/a.js" ],
 		"expects": {
 			"abc/a.js": "ignored",
 			"abc/d/e.js": "ignored"
 		}
 	},
 	"we did not know whether the rule is a dir first": {
-		"rules": [
-			"abc",
-			"!bcd/abc/a.js"
-		],
+		"rules": [ "abc", "!bcd/abc/a.js" ],
 		"expects": {
 			"abc/a.js": "ignored",
 			"bcd/abc/a.js": "ignored"
 		}
 	},
 	"Put a backslash (`\\`) in front of the first `!` for patterns that begin with a literal `!`": {
-		"rules": [
-			"\\!abc",
-			"\\!important!.txt"
-		],
+		"rules": [ "\\!abc", "\\!important!.txt" ],
 		"expects": {
 			"!abc": "ignored",
 			"abc": "nomatch",
@@ -629,9 +509,7 @@
 	},
 
 	"If the pattern ends with a slash, it is removed for the purpose of the following description, but it would only find a match with a directory": {
-		"rules": [
-			"abc/"
-		],
+		"rules": [ "abc/" ],
 		"expects": {
 			"abc": "nomatch",
 			"abc/": "ignored",
@@ -642,10 +520,7 @@
 	},
 
 	"If the pattern does not contain a slash /, Git treats it as a shell glob pattern": {
-		"rules": [
-			"a.js",
-			"f/"
-		],
+		"rules": [ "a.js", "f/" ],
 		"expects": {
 			"a.js": "ignored",
 			"b/a/a.js": "ignored",
@@ -656,9 +531,7 @@
 		}
 	},
 	"Otherwise, Git treats the pattern as a shell glob suitable for consumption by fnmatch(3) with the FNM_PATHNAME flag": {
-		"rules": [
-			"a/a.js"
-		],
+		"rules": [ "a/a.js" ],
 		"expects": {
 			"a/a.js": "ignored",
 			"a/a.jsa": "nomatch",
@@ -668,9 +541,7 @@
 	},
 
 	"wildcards in the pattern will not match a / in the pathname.": {
-		"rules": [
-			"Documentation/*.html"
-		],
+		"rules": [ "Documentation/*.html" ],
 		"expects": {
 			"Documentation/git.html": "ignored",
 			"Documentation/ppc/ppc.html": "nomatch",
@@ -679,9 +550,7 @@
 	},
 
 	"A leading slash matches the beginning of the pathname": {
-		"rules": [
-			"/*.c"
-		],
+		"rules": [ "/*.c" ],
 		"expects": {
 			"cat-file.c": "ignored",
 			"mozilla-sha1/sha1.c": "nomatch"
@@ -689,9 +558,7 @@
 	},
 
 	"A leading `**` followed by a slash means match in all directories": {
-		"rules": [
-			"**/foo"
-		],
+		"rules": [ "**/foo" ],
 		"expects": {
 			"foo": "ignored",
 			"a/foo": "ignored",
@@ -702,9 +569,7 @@
 	},
 
 	"`**/foo/bar` matches file or directory `bar` anywhere that is directly under directory `foo`": {
-		"rules": [
-			"**/foo/bar"
-		],
+		"rules": [ "**/foo/bar" ],
 		"expects": {
 			"foo/bar": "ignored",
 			"abc/foo/bar": "ignored",
@@ -713,9 +578,7 @@
 	},
 
 	"A trailing `/**` matches everything inside": {
-		"rules": [
-			"abc/**"
-		],
+		"rules": [ "abc/**" ],
 		"expects": {
 			"abc/a/": "ignored",
 			"abc/b": "ignored",
@@ -726,9 +589,7 @@
 	},
 
 	"A slash followed by two consecutive asterisks then a slash matches zero or more directories": {
-		"rules": [
-			"a/**/b"
-		],
+		"rules": [ "a/**/b" ],
 		"expects": {
 			"a/b": "ignored",
 			"a/x/b": "ignored",
@@ -782,17 +643,13 @@
 		}
 	},
 	"dir ended with `*`": {
-		"rules": [
-			"abc/*"
-		],
+		"rules": [ "abc/*" ],
 		"expects": {
 			"abc": "nomatch"
 		}
 	},
 	"file ended with `*`": {
-		"rules": [
-			"abc.js*"
-		],
+		"rules": [ "abc.js*" ],
 		"expects": {
 			"abc.js/": "ignored",
 			"abc.js/abc": "ignored",
@@ -801,9 +658,7 @@
 		}
 	},
 	"wildcard as filename": {
-		"rules": [
-			"*.b"
-		],
+		"rules": [ "*.b" ],
 		"expects": {
 			"b/a.b": "ignored",
 			"b/.b": "ignored",
@@ -812,9 +667,7 @@
 		}
 	},
 	"slash at the beginning and come with a wildcard": {
-		"rules": [
-			"/*.c"
-		],
+		"rules": [ "/*.c" ],
 		"expects": {
 			".c": "ignored",
 			"c.c": "ignored",
@@ -823,9 +676,7 @@
 		}
 	},
 	"dot file": {
-		"rules": [
-			".d"
-		],
+		"rules": [ ".d" ],
 		"expects": {
 			".d": "ignored",
 			".dd": "nomatch",
@@ -836,9 +687,7 @@
 		}
 	},
 	"dot dir": {
-		"rules": [
-			".e"
-		],
+		"rules": [ ".e" ],
 		"expects": {
 			".e/": "ignored",
 			".ee/": "nomatch",
@@ -850,42 +699,33 @@
 		}
 	},
 	"node modules: once": {
-		"rules": [
-			"node_modules/"
-		],
+		"rules": [ "node_modules/" ],
 		"expects": {
 			"node_modules/gulp/node_modules/abc.md": "ignored",
 			"node_modules/gulp/node_modules/abc.json": "ignored"
 		}
 	},
 	"node modules: sub directories": {
-		"rules": [
-			"node_modules"
-		],
+		"rules": [ "node_modules" ],
 		"expects": {
 			"a/b/node_modules/abc.md": "ignored"
 		}
 	},
 	"node modules: twice": {
-		"rules": [
-			"node_modules/",
-			"node_modules/"
-		],
+		"rules": [ "node_modules/", "node_modules/" ],
 		"expects": {
 			"node_modules/gulp/node_modules/abc.md": "ignored",
 			"node_modules/gulp/node_modules/abc.json": "ignored"
 		}
 	},
 	"unicode characters in windows paths": {
-		"rules": [
-			"test"
-		],
+		"rules": [ "test" ],
 		"expects": {
 			"some/path/to/test/ignored.js": "ignored",
 			"some/special/path/to/目录/test/ignored.js": "ignored"
 		}
 	},
-	"#81: invalid trailing backslash at the end should not throw, test non-windows env only" : {
+	"#81: invalid trailing backslash at the end should not throw, test non-windows env only": {
 		"rules": [
 			"test\\",
 			"testa\\\\",
@@ -903,10 +743,7 @@
 		}
 	},
 	"linux: back slashes on paths": {
-		"rules": [
-			"a",
-			"b\\\\c"
-		],
+		"rules": [ "a", "b\\\\c" ],
 		"expects": {
 			"b\\c/a.md": "ignored",
 			"a\\b/a.js": "nomatch",
@@ -962,10 +799,7 @@
 
 	"#57 Handling of `**folder`": {
 		// https://github.com/kaelzhang/node-ignore/issues/57
-		"rules": [
-			"**folder",
-			"!folder/folder/testFile.txt"
-		],
+		"rules": [ "**folder", "!folder/folder/testFile.txt" ],
 		"expects": {
 			"folder/folder/testFile.txt": "ignored",
 			"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaafolde": "nomatch"
@@ -973,10 +807,7 @@
 	},
 
 	"#76 (invalid), comments with no heading whitespace - additional tests": {
-		"rules": [
-			"foo # comments",
-			"bar# comments"
-		],
+		"rules": [ "foo # comments", "bar# comments" ],
 		"expects": {
 			"foo": "nomatch",
 			"foo # comments": "ignored",
@@ -986,9 +817,7 @@
 	},
 
 	"Multiple separate /**/": {
-		"rules": [
-			"a/**/b/**/c"
-		],
+		"rules": [ "a/**/b/**/c" ],
 		"expects": {
 			"a/a/a/a/b/b/b/b/c": "ignored",
 			"a/a/a/a/b/b/b/b/b": "nomatch"
@@ -996,20 +825,14 @@
 	},
 
 	"Star and question mark do not match `/`": {
-		"rules": [
-			"a*b",
-			"a?b"
-		],
+		"rules": [ "a*b", "a?b" ],
 		"expects": {
 			"a/b": "nomatch"
 		}
 	},
 
 	"Backslash slash": {
-		"rules": [
-			"a\\/b",
-			"c\\/**/d"
-		],
+		"rules": [ "a\\/b", "c\\/**/d" ],
 		"expects": {
 			"a/b": "ignored",
 			"c/x/x/x/d": "ignored"
@@ -1017,9 +840,7 @@
 	},
 
 	"Negated bracket expressions": {
-		"rules": [
-			"a[!x]b"
-		],
+		"rules": [ "a[!x]b" ],
 		"expects": {
 			"awb": "ignored",
 			"axb": "nomatch",
@@ -1029,10 +850,7 @@
 	},
 
 	"Range across `/`": {
-		"rules": [
-			"a[,-9]b",
-			"c[.-0]d"
-		],
+		"rules": [ "a[,-9]b", "c[.-0]d" ],
 		"expects": {
 			"a.b": "ignored",
 			"a/b": "nomatch",
@@ -1044,9 +862,7 @@
 	},
 
 	"Escaped dash in (non-)range": {
-		"rules": [
-			"a[a\\-z]b"
-		],
+		"rules": [ "a[a\\-z]b" ],
 		"expects": {
 			"aab": "ignored",
 			"abb": "nomatch",
@@ -1057,9 +873,7 @@
 		}
 	},
 	"Escaped range endpoints": {
-		"rules": [
-			"a[\\[-\\]]b"
-		],
+		"rules": [ "a[\\[-\\]]b" ],
 		"expects": {
 			"a[b": "ignored",
 			"a\\b": "ignored",
@@ -1068,11 +882,7 @@
 	},
 
 	"Dash as endpoint of a range": {
-		"rules": [
-			"a[--9]b",
-			"c[+--]d",
-			"e[---]f"
-		],
+		"rules": [ "a[--9]b", "c[+--]d", "e[---]f" ],
 		"expects": {
 			"a,b": "nomatch",
 			"a-b": "ignored",
@@ -1110,12 +920,7 @@
 	},
 
 	"Unspecified (and probably unsupported in git or elsewhere) behavior: Unicode": {
-		"rules": [
-			"a.[[:alnum:]]",
-			"b.[🙄]",
-			"c.?",
-			"d.????"
-		],
+		"rules": [ "a.[[:alnum:]]", "b.[🙄]", "c.?", "d.????" ],
 		"expects": {
 			"a.á": "ignored",
 			"b.🙄": "ignored",
@@ -1130,11 +935,7 @@
 	},
 
 	"Literal Unicode and matching with `*` should work anywhere though": {
-		"rules": [
-			"a.🙂",
-			"b.*",
-			"c*d"
-		],
+		"rules": [ "a.🙂", "b.*", "c*d" ],
 		"expects": {
 			"a.🙂": "ignored",
 			"b.🙂": "ignored",
@@ -1143,9 +944,7 @@
 	},
 
 	"Unspecified behavior: a.[^x]": {
-		"rules": [
-			"a.[^x]"
-		],
+		"rules": [ "a.[^x]" ],
 		"expects": {
 			"a.^": "ignored",
 			"a.x": "nomatch",
@@ -1154,9 +953,7 @@
 	},
 
 	"Unspecified behavior: a.[a-m-o]": {
-		"rules": [
-			"a.[a-m-o]"
-		],
+		"rules": [ "a.[a-m-o]" ],
 		"expects": {
 			"a.a": "ignored",
 			"a.l": "ignored",
@@ -1169,11 +966,7 @@
 	},
 
 	"fnmatch does not follow 2.13.3 for FNM_PATHNAME: a[b/c]d": {
-		"rules": [
-			"a[b/c]d",
-			"e[,-/]f",
-			"g[/-9]h"
-		],
+		"rules": [ "a[b/c]d", "e[,-/]f", "g[/-9]h" ],
 		"expects": {
 			"a[b/c]d": "nomatch",
 			"abd": "ignored",
@@ -1188,9 +981,7 @@
 	},
 
 	"fnmatch uses backslashes for escapes, even in bracket expressions (2.13.1 overrides 9.3.5?): a.[\\]": {
-		"rules": [
-			"a.[\\]"
-		],
+		"rules": [ "a.[\\]" ],
 		"expects": {
 			"a.\\": "nomatch",
 			"a.[": "nomatch",
@@ -1199,9 +990,7 @@
 		}
 	},
 	"fnmatch uses backslashes for escapes, even in bracket expressions (2.13.1 overrides 9.3.5?): a.[\\] (2)": {
-		"rules": [
-			"a.[\\]"
-		],
+		"rules": [ "a.[\\]" ],
 		"expects": {
 			"a.[]": "ignored"
 		},
@@ -1209,9 +998,7 @@
 		"nogit": true
 	},
 	"fnmatch uses backslashes for escapes, even in bracket expressions (2.13.1 overrides 9.3.5?): a.[b\\]c]": {
-		"rules": [
-			"a.[b\\]c]"
-		],
+		"rules": [ "a.[b\\]c]" ],
 		"expects": {
 			"a.bc]": "nomatch",
 			"a.\\c]": "nomatch",
@@ -1223,9 +1010,7 @@
 	},
 
 	"Various cases where git doesn't match its own docs: a.[": {
-		"rules": [
-			"a.["
-		],
+		"rules": [ "a.[" ],
 		"expects": {
 			"a.[": "ignored"
 		},
@@ -1233,9 +1018,7 @@
 		"nogit": true
 	},
 	"Various cases where git doesn't match its own docs: a.[!]": {
-		"rules": [
-			"a.[!]"
-		],
+		"rules": [ "a.[!]" ],
 		"expects": {
 			"a.[!]": "ignored",
 			"a.!": "nomatch"
@@ -1244,11 +1027,7 @@
 		"nogit": true
 	},
 	"Various cases where git doesn't match its own docs: a.[z-a]": {
-		"rules": [
-			"a.[z-a]",
-			"b.[z-a@]",
-			"c.[@z-a]"
-		],
+		"rules": [ "a.[z-a]", "b.[z-a@]", "c.[@z-a]" ],
 		"expects": {
 			"a.a": "nomatch",
 			"a.x": "nomatch",

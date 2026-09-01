@@ -1,10 +1,16 @@
 .dropdown {
 
+	button,
+	a {
+		width: 100%;
+		justify-content: flex-start;
+	}
+
 	.separator {
-		margin: var( --spacing-base ) 0;
+		margin: var(--spacing-base) 0;
 	}
 
 	.delete {
-		color: var( --jp-red-60 );
+		color: var(--jp-red-60);
 	}
 }

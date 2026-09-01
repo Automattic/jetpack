@@ -1,0 +1,9 @@
+// Centered connect prompt shown inside the AdminPage content area when the
+// Subscribers tab is gated. Mirrors the spacing of the empty-state view.
+.jetpack-newsletter-connection-gate {
+	align-items: center;
+	text-align: center;
+	max-width: 480px;
+	margin: 0 auto;
+	padding: 48px 24px;
+}

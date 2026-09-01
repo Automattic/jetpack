@@ -1,4 +1,4 @@
-@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
 
 .no-videopress-media-placeholder {
 
@@ -134,7 +134,8 @@
 .videopress-block-tracks-editor__single-track-editor-upload-file-label {
 	display: flex;
 
-	.components-form-file-upload, .videopress-block-tracks-editor__single-track-editor-upload-file-label-name {
+	.components-form-file-upload,
+	.videopress-block-tracks-editor__single-track-editor-upload-file-label-name {
 		margin-inline-start: gb.$grid-unit;
 	}
 }

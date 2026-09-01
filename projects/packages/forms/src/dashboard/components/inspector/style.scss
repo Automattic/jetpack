@@ -1,0 +1,119 @@
+/**
+ * Response View Component Styles
+ */
+
+@use "@wordpress/base-styles/breakpoints";
+@use "../../mixins";
+
+// Main response container
+.jp-forms__inbox-response {
+
+	@include mixins.flex-column;
+	min-height: 50vh;
+	overflow: auto;
+	background-color: #fff;
+	position: relative;
+	flex-grow: 2;
+
+	.jp-forms__inbox-response-header {
+		padding: 0 16px 0 0;
+
+		@media (min-width: #{ (breakpoints.$break-medium + 1) }) {
+			padding: 0 16px;
+		}
+	}
+
+	.jp-forms__inbox-response-meta {
+		padding-left: 16px;
+		padding-right: 16px;
+	}
+}
+
+.jp-forms-response-actions {
+	padding: 8px 16px;
+	border-bottom: 1px solid var(--jp-forms-border-color);
+}
+
+.jp-forms-response-navigation {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+
+	.jp-forms-response-navigation__arrows {
+		display: flex;
+		align-items: center;
+
+		// Add separator after the arrows group (before close button)
+		&::after {
+			content: "";
+			display: inline-block;
+			width: 1px;
+			height: 20px;
+			background-color: var(--wp-admin-theme-color-darker-10, #135e96);
+			opacity: 0.2;
+			margin-left: 4px;
+		}
+	}
+}
+
+.jp-forms-response-content {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+}
+
+.jp-forms__inbox__tip-container {
+	border-top: 1px solid var(--jp-forms-border-color);
+	margin: 8px 0 0 0;
+	padding: 16px 0;
+	text-wrap: balance;
+
+	// https://wordpress.github.io/gutenberg/?path=/docs/components-tip--docs
+	.components-tip {
+		align-items: anchor-center;
+	}
+
+	@media (min-width: #{ (breakpoints.$break-medium + 1) }) {
+		padding: 16px 16px;
+	}
+}
+
+.jp-forms__inbox__response-mobile {
+
+	.jp-forms__inbox__response-mobile__header-heading {
+		font-size: 1.2rem;
+		font-weight: 600;
+	}
+
+	.jp-forms__inbox__response-mobile__header-actions {
+		width: auto;
+	}
+}
+
+
+// Styling override when loaded in modal on mobile
+.components-modal__content {
+
+	.jp-forms__inbox-response-title,
+	.jp-forms__inbox-response-subtitle,
+	.jp-forms__inbox-response-meta,
+	.jp-forms__inbox-response-data {
+		padding-left: 0;
+		padding-right: 0;
+	}
+
+	.jp-forms__inbox-response-meta {
+		background-color: transparent;
+	}
+
+	.jp-forms__inbox__tip-container {
+		border-top: none;
+	}
+
+	.jp-forms__inbox-file-preview-modal {
+		max-width: 90vw;
+		width: auto;
+		z-index: var(--jp-forms-z-modal); // Higher than parent modal
+	}
+}
+

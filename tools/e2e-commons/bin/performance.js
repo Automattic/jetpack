@@ -2,9 +2,10 @@ import { spawn } from 'child_process';
 import { readFileSync, writeFileSync, existsSync } from 'fs';
 import path from 'path';
 import { URL } from 'url';
-import { mergeWith, isArray } from 'lodash-es';
-import { prerequisitesBuilder } from '../env/prerequisites.js';
-import { execSyncShellCommand, execWpCommand, resolveSiteUrl } from '../helpers/utils-helper.js';
+import { mergeWith } from 'lodash-es';
+import pwConfig from '../playwright.config';
+import { executeWpCommand, executeCommand } from '../utils/cli';
+import { connect } from '../utils/connection';
 
 const __dirname = new URL( '.', import.meta.url ).pathname;
 
@@ -22,10 +23,10 @@ if ( ! existsSync( resultsPath ) ) {
 /**
  * Reset environment.
  */
-function envReset() {
-	console.log( execSyncShellCommand( 'pwd' ) );
-	execSyncShellCommand( 'pnpm env:reset' );
-	execSyncShellCommand( 'pnpm tunnel:reset' );
+async function envReset() {
+	console.log( await executeCommand( 'pwd' ) );
+	await executeCommand( 'pnpm env:reset' );
+	await executeCommand( 'pnpm tunnel:reset' );
 }
 
 /**
@@ -34,13 +35,13 @@ function envReset() {
  */
 async function envSetup( type ) {
 	if ( type === 'base' ) {
-		await execWpCommand( 'plugin deactivate jetpack' );
+		await executeWpCommand( 'plugin deactivate jetpack' );
 	} else if ( type === 'jetpack' ) {
-		await prerequisitesBuilder().withConnection( true ).build();
-		await execWpCommand( 'jetpack module deactivate sso' );
+		await connect();
+		await executeWpCommand( 'jetpack module deactivate sso' );
 	}
 
-	await execWpCommand(
+	await executeWpCommand(
 		'user create admin admin@example.com --role=administrator --user_pass=password'
 	);
 }
@@ -55,7 +56,7 @@ async function runTests( type, round ) {
 		cwd: gutenbergPath,
 		env: {
 			...process.env,
-			WP_BASE_URL: resolveSiteUrl(),
+			WP_BASE_URL: pwConfig.use.baseURL,
 			WP_ARTIFACTS_PATH: resultsPath,
 			RESULTS_ID: `${ type }.${ round }`,
 		},
@@ -69,7 +70,7 @@ async function runTests( type, round ) {
  */
 async function testRun( type, round ) {
 	console.log( `Starting test run #${ round } for ${ type }` );
-	envReset();
+	await envReset();
 	await envSetup( type );
 	await runTests( type, round );
 	console.log( `Finished test run #${ round } for ${ type }` );
@@ -105,7 +106,7 @@ function mergeResults( type ) {
 	}
 
 	const out = mergeWith( {}, ...objs, ( objValue, srcValue ) => {
-		if ( isArray( objValue ) ) {
+		if ( Array.isArray( objValue ) ) {
 			return objValue.concat( srcValue );
 		}
 	} );

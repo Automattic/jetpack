@@ -1,4 +1,5 @@
 import { Col, getRedirectUrl, Text } from '@automattic/jetpack-components';
+import { getScriptData } from '@automattic/jetpack-script-data';
 import { getSettings as getDateSettings, dateI18n } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
 import { useContext, useEffect, useCallback } from 'react';
@@ -25,11 +26,11 @@ const useBackupNeedsAttentionNotice: NoticeHookType = ( redBubbleAlerts, isLoadi
 
 	const {
 		timezone: { offset },
-	} = getDateSettings() || { offset: '0' };
+	} = getDateSettings() || { offset: 0 };
 	// Using dateI18n() to apply internationalization and formatting.
 	const backupStatusLastUpdatedDate = dateI18n(
 		'F jS, Y g:ia',
-		applyTimezone( lastUpdated, parseInt( offset ) )
+		applyTimezone( lastUpdated, offset )
 	);
 
 	const troubleshootBackupsUrl = getRedirectUrl( 'jetpack-support-troubleshooting-backup' );
@@ -58,7 +59,12 @@ const useBackupNeedsAttentionNotice: NoticeHookType = ( redBubbleAlerts, isLoadi
 	}, [ recordEvent, status, contactSupportUrl ] );
 
 	useEffect( () => {
-		if ( ! redBubbleAlerts?.backup_failure || status === 'backups-deactivated' ) {
+		if (
+			! redBubbleAlerts?.backup_failure ||
+			status === 'backups-deactivated' ||
+			status === 'multisite_not_supported' ||
+			getScriptData().site.is_multisite
+		) {
 			return;
 		}
 

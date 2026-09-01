@@ -1,0 +1,160 @@
+import ConnectionErrorNotice from '../../components/connection-error-notice';
+import useConnection from '../../components/use-connection';
+import useRestoreConnection from '../../hooks/use-restore-connection';
+import { resolveConnectionErrorActions } from './resolve-actions';
+import { isOtherUsersConnectionError } from './viewer-scope';
+import type {
+	ConnectionErrorMap,
+	ConnectionErrorObject,
+	ConnectionErrorProps,
+	UseConnectionErrorNoticeResult,
+} from './types';
+import type { ReactElement } from 'react';
+
+export type {
+	ConnectionErrorAudience,
+	ConnectionErrorData,
+	ConnectionErrorMap,
+	ConnectionErrorObject,
+} from './types';
+
+/**
+ * Connection error notice hook.
+ *
+ * The single source of truth for user-facing connection errors. It surfaces
+ * real WPCOM-reported errors from the store (`connectionErrors`) and resolves
+ * them into ready-to-render `actions`, so consumers render resolved CTAs
+ * instead of re-deriving copy/handlers themselves. Pass the same options
+ * accepted by `<ConnectionError />` to customize action handlers, tracking and
+ * navigation.
+ *
+ * @param {ConnectionErrorProps} options - Action resolution options.
+ * @return {UseConnectionErrorNoticeResult} - The hook data, including resolved `actions`.
+ */
+export default function useConnectionErrorNotice( {
+	actionHandlers = {},
+	trackingCallback = null,
+	customActions = null,
+	reconnectTrackingEvent,
+	navigate,
+	includeHealthErrors = false,
+}: ConnectionErrorProps = {} ): UseConnectionErrorNoticeResult {
+	const { connectionErrors, connectionHealthErrors, connectionOwner, userConnectionData } =
+		useConnection( {} );
+	const { restoreConnection, isRestoringConnection, restoreConnectionError } =
+		useRestoreConnection();
+
+	// connectionErrors is typed as Array<string|object> but is actually a nested
+	// object at runtime; the store selector can also fall back to `[]`. Normalize
+	// to a map so the returned value is honest to the ConnectionErrorMap contract.
+	const storedErrorMap: ConnectionErrorMap =
+		connectionErrors && typeof connectionErrors === 'object' && ! Array.isArray( connectionErrors )
+			? ( connectionErrors as unknown as ConnectionErrorMap )
+			: {};
+	// `connectionHealthErrors` is typed as a `ConnectionErrorMap` at the store
+	// boundary (selector defaults to `{}`, never an array), so no normalization
+	// is needed — just guard against a caller that never populated the slot.
+	// Only consumers that opted in (i.e. actually ran the probe) inherit it; for
+	// everyone else the shared health slot is invisible.
+	const healthErrorMap: ConnectionErrorMap = includeHealthErrors
+		? connectionHealthErrors ?? {}
+		: {};
+
+	// Precedence: real WPCOM-reported store errors win; health-check failures are
+	// the fallback so a broken connection still surfaces when the store is empty.
+	const errorMap: ConnectionErrorMap = Object.keys( storedErrorMap ).length
+		? storedErrorMap
+		: healthErrorMap;
+	const connectionErrorList = Object.values( errorMap ).shift();
+	const firstError: ConnectionErrorObject | undefined =
+		connectionErrorList && Object.values( connectionErrorList ).length
+			? Object.values( connectionErrorList ).shift()
+			: undefined;
+
+	const currentUserId = userConnectionData?.currentUser?.id;
+
+	// Not `currentUser.isMaster`: that goes false for the owner themselves once
+	// their token breaks, which is exactly when this runs.
+	const isCurrentUserConnectionOwner = Boolean(
+		connectionOwner && connectionOwner.id === currentUserId
+	);
+
+	// The CTA comes from an error the viewer can actually resolve, and one they can
+	// see: a message-less error is never rendered, and another user's broken token
+	// is not this viewer's to act on — see `isOtherUsersConnectionError`.
+	const actionError =
+		Object.values( errorMap )
+			.flatMap( byUser => ( byUser && typeof byUser === 'object' ? Object.values( byUser ) : [] ) )
+			.find(
+				error =>
+					error?.error_message &&
+					error.error_data?.action !== 'none' &&
+					! isOtherUsersConnectionError( error, currentUserId )
+			) ?? firstError;
+
+	// Message and CTA describe the same error.
+	const connectionErrorMessage = actionError?.error_message;
+	const hasConnectionError = Boolean( connectionErrorMessage );
+
+	const actions = actionError
+		? resolveConnectionErrorActions( actionError, {
+				actionHandlers,
+				trackingCallback,
+				customActions,
+				restoreConnection,
+				isRestoringConnection,
+				reconnectTrackingEvent,
+				navigate,
+		  } )
+		: [];
+
+	return {
+		hasConnectionError,
+		connectionErrorMessage,
+		connectionError: actionError, // Full error object with error_type, etc.
+		connectionErrors: errorMap, // All errors for advanced use cases.
+		actions, // Resolved CTA actions for the connection error.
+		restoreConnection,
+		isRestoringConnection,
+		restoreConnectionError,
+		connectionOwner,
+		isCurrentUserConnectionOwner,
+		currentUserId,
+	};
+}
+
+export const ConnectionError = ( {
+	context,
+	...props
+}: ConnectionErrorProps = {} ): ReactElement | null => {
+	const {
+		hasConnectionError,
+		connectionErrorMessage,
+		connectionError,
+		actions,
+		restoreConnection,
+		isRestoringConnection,
+		restoreConnectionError,
+	} = useConnectionErrorNotice( props );
+
+	if ( ! hasConnectionError ) {
+		return null;
+	}
+
+	// An explicit 'none' action marks the error as informational only, so the
+	// default "Restore Connection" fallback must not be shown either.
+	const suppressRestoreFallback = connectionError?.error_data?.action === 'none';
+
+	return (
+		<ConnectionErrorNotice
+			isRestoringConnection={ isRestoringConnection }
+			restoreConnectionError={ restoreConnectionError }
+			restoreConnectionCallback={
+				actions.length === 0 && ! suppressRestoreFallback ? restoreConnection : null
+			}
+			message={ connectionErrorMessage }
+			context={ context }
+			actions={ actions }
+		/>
+	);
+};

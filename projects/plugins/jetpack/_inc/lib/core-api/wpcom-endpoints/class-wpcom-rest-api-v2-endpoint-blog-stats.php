@@ -5,6 +5,10 @@
  * @package automattic/jetpack
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 if ( ! class_exists( 'Jetpack_Blog_Stats_Helper' ) ) {
 	require_once JETPACK__PLUGIN_DIR . '/_inc/lib/class-jetpack-blog-stats-helper.php';
 }

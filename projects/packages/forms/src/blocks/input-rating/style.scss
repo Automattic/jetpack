@@ -1,0 +1,87 @@
+/* Rating input block – front-end styles */
+@use "../shared/styles/visually-hidden" as *;
+
+.jetpack-field-rating {
+
+	.jetpack-field-rating__option:last-child .jetpack-field-rating__label {
+		padding-right: 0;
+	}
+
+	/* Layout */
+	.jetpack-field-rating__options {
+		display: flex;
+		flex-wrap: wrap;
+
+		.jetpack-field-rating__label {
+			padding-right: 5px;
+
+			/* Guard against theme label font-size overrides (e.g., Twenty Sixteen) */
+			font-size: inherit;
+			display: inline-flex;
+			cursor: pointer;
+
+			.jetpack-field-rating__icon {
+				width: 1em;
+				height: 1em;
+
+				path {
+					fill: none;
+					stroke: var(--jetpack--contact-form--rating-star-color, currentColor);
+				}
+			}
+		}
+
+		// Filled states: current (checked/hover)
+		:is(
+			input[type="radio"].jetpack-field-rating__input:checked + .jetpack-field-rating__label,
+			.jetpack-field-rating__label:hover
+		) {
+
+			.jetpack-field-rating__icon path {
+				fill: var(--jetpack--contact-form--rating-star-color, currentColor);
+			}
+		}
+
+		// Filled states: current (checked/hover)
+		:is(
+			input[type="radio"].jetpack-field-rating__input:focus-visible + .jetpack-field-rating__label) {
+
+			.jetpack-field-rating__icon {
+				scale: 1.3;
+			}
+		}
+
+
+		/* Filled states: previous siblings */
+		.jetpack-field-rating__option {
+
+			&:has(
+				~ .jetpack-field-rating__option :is(
+					input[type="radio"].jetpack-field-rating__input:checked,
+					.jetpack-field-rating__label:hover
+				)
+			) {
+
+				.jetpack-field-rating__label .jetpack-field-rating__icon path {
+					fill: var(--jetpack--contact-form--rating-star-color, currentColor);
+				}
+			}
+		}
+
+		/* Unfill all options to the right of the hovered one (container scoped) */
+		&:has(.jetpack-field-rating__label:hover) {
+
+			.jetpack-field-rating__option:has(.jetpack-field-rating__label:hover) ~ .jetpack-field-rating__option {
+
+				.jetpack-field-rating__label .jetpack-field-rating__icon path {
+					fill: none;
+				}
+
+				input[type="radio"].jetpack-field-rating__input:checked + .jetpack-field-rating__label .jetpack-field-rating__icon path {
+					fill: none;
+				}
+			}
+		}
+	}
+}
+

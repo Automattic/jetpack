@@ -8,8 +8,9 @@ import useScanStatusQuery from '../../data/scan/use-scan-status-query';
 import usePlan from '../../hooks/use-plan';
 import useWafData from '../../hooks/use-waf-data';
 import styles from './styles.module.scss';
+import type { FC } from 'react';
 
-const ScanningAdminSectionHero: React.FC = () => {
+const ScanningAdminSectionHero: FC = () => {
 	const { hasPlan } = usePlan();
 	const { globalStats } = useWafData();
 	const { data: status } = useScanStatusQuery( { usePolling: true } );
@@ -36,7 +37,7 @@ const ScanningAdminSectionHero: React.FC = () => {
 							) }
 							<Text>
 								{ sprintf(
-									// translators: placeholder is the number of total vulnerabilities i.e. "22,000".
+									// translators: %s: the number of total vulnerabilities listed (e.g. "22,000").
 									__(
 										'We are scanning for security threats from our more than %s listed vulnerabilities, powered by WPScan. This could take a minute or two.',
 										'jetpack-protect'

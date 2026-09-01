@@ -1,34 +1,44 @@
 // Base eslint config generator for normal projects. If for some reason you need to override the config, use this something like
 //
 // ```
-// import makeBaseConfig from 'jetpack-js-tools/eslintrc/base.mjs';
+// import { makeBaseConfig, defineConfig } from 'jetpack-js-tools/eslintrc/base.mjs';
 //
-// export default [
-//     ...makeBaseConfig( import.meta.url ),
+// export default defineConfig(
+//     makeBaseConfig( import.meta.url ),
 //
 //     // Add any overrides after.
-// ];
+// );
 // ```
 
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { fixupConfigRules } from '@eslint/compat';
-import { FlatCompat } from '@eslint/eslintrc';
+import { fixupPluginRules } from '@eslint/compat';
 import eslintJs from '@eslint/js';
+import eslintJson from '@eslint/json';
 import tanstackEslintPluginQuery from '@tanstack/eslint-plugin-query';
+import wordpressEslintPlugin from '@wordpress/eslint-plugin';
 import makeDebug from 'debug';
+import { defineConfig, globalIgnores } from 'eslint/config';
 import { defaultConditionNames } from 'eslint-import-resolver-typescript';
 import eslintPluginImport from 'eslint-plugin-import';
 import eslintPluginLodash from 'eslint-plugin-lodash';
 import eslintPluginN from 'eslint-plugin-n';
+import eslintPluginPackageJson from 'eslint-plugin-package-json/experimental';
 import eslintPluginPrettier from 'eslint-plugin-prettier';
 import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
+import eslintPluginStorybook from 'eslint-plugin-storybook';
+import eslintPluginYouDontNeedLodashUnderscore from 'eslint-plugin-you-dont-need-lodash-underscore';
+import { glob } from 'glob';
 import globals from 'globals';
 import typescriptEslint from 'typescript-eslint';
 import loadIgnorePatterns from '../load-eslint-ignore.js';
+import { javascriptFiles, jsonFiles, typescriptFiles, jestFiles } from './files.mjs';
 import jestConfig from './jest.mjs';
 import makeReactConfig from './react.mjs';
+
+export * from './files.mjs';
+export { defineConfig, globalIgnores } from 'eslint/config';
 
 const debug = makeDebug( 'eslintrc/base' );
 
@@ -45,25 +55,6 @@ const restrictedPaths = [
 ];
 
 /**
- * File patterns for files treated as TypeScript.
- */
-export const typescriptFiles = [ '**/*.ts', '**/*.tsx' ];
-
-/**
- * File patterns for files treated as Jest.
- */
-export const jestFiles = [
-	'**/jest-globals.?([mc])js',
-	'**/jest.setup.?([mc])js',
-	// Note: Keep the patterns here in sync with tools/js-tools/jest/config.base.js.
-	'**/__tests__/**/*.[jt]s?(x)',
-	'**/?(*.)+(spec|test).[jt]s?(x)',
-	'**/test/*.[jt]s?(x)',
-	// Other files under /test/ probably need jest rules too.
-	'**/test?(s)/**/*.[jt]s?(x)',
-];
-
-/**
  * Generate the base eslint config.
  *
  * @param {string}   configurl       - File URL for the eslint.config.mjs. Pass `import.meta.url`.
@@ -73,13 +64,8 @@ export const jestFiles = [
  * @param {string}   opts.textdomain - Text domain for `@wordpress/i18n-text-domain` rule. Default is read from `project/.../.../composer.json` if possible.
  * @return {object[]} Eslint config.
  */
-export default function makeBaseConfig( configurl, opts = {} ) {
+export function makeBaseConfig( configurl, opts = {} ) {
 	const basedir = path.dirname( fileURLToPath( configurl ) );
-
-	const compat = new FlatCompat( {
-		baseDirectory: basedir,
-		resolvePluginsRelativeTo: fileURLToPath( import.meta.url ),
-	} );
 
 	let m;
 	if (
@@ -134,44 +120,107 @@ export default function makeBaseConfig( configurl, opts = {} ) {
 		}
 	}
 
-	return [
-		{
-			name: 'Global files',
-			files: [
-				'**/*.js',
-				'**/*.jsx',
-				'**/*.cjs',
-				'**/*.mjs',
-				'**/*.ts',
-				'**/*.tsx',
-				'**/*.svelte',
-			],
-		},
-		{
-			name: 'Global ignores',
-			ignores: loadIgnorePatterns( basedir ),
-		},
+	const envConditionNames = [ 'jetpack:src' ];
+
+	const jsPackageJsons = glob
+		.sync( path.join( rootdir, 'projects/js-packages/*/package.json' ) )
+		.map( p => path.relative( basedir, p ) )
+		.filter( p => ! p.startsWith( '../' ) );
+	const nonPrivateJsPackageJsons = jsPackageJsons.filter( p => {
+		try {
+			return ! JSON.parse( fs.readFileSync( path.join( basedir, p ) ) )?.private;
+		} catch {
+			return false;
+		}
+	} );
+
+	const storybookMainJs = path.relative(
+		basedir,
+		path.join( rootdir, 'projects/js-packages/storybook/storybook/main.js' )
+	);
+
+	return defineConfig(
+		globalIgnores( loadIgnorePatterns( basedir ) ),
 
 		// Extended configs.
-		eslintJs.configs.recommended,
-		// Can't just `@wordpress/recommended-with-formatting` because that includes React too and we only want that with opts.react.
-		...fixupConfigRules(
-			compat.extends(
-				'plugin:@wordpress/jsx-a11y',
-				'plugin:@wordpress/custom',
-				'plugin:@wordpress/esnext',
-				'plugin:@wordpress/i18n'
-			)
-		),
-		eslintPluginPrettierRecommended,
-		...tanstackEslintPluginQuery.configs[ 'flat/recommended' ],
+		{
+			files: javascriptFiles,
+			extends: [
+				eslintJs.configs.recommended,
+
+				eslintPluginStorybook.configs[ 'flat/recommended' ].map( v => {
+					// We don't have a `.storybook/` dir at the repo root like the config expects.
+					if ( Array.isArray( v.files ) ) {
+						v.files = v.files.map( s =>
+							s.startsWith( '.storybook/main.' ) ? storybookMainJs : s
+						);
+					}
+					return v;
+				} ),
+				{
+					name: 'Storybook overrides',
+					files: [ '**/*.stories.@(ts|tsx|js|jsx|mjs|cjs)' ],
+					rules: {
+						'storybook/csf-component': 'warn',
+
+						// Our Storybook uses vite while our builds use webpack. Easier to stick with the generic package.
+						'storybook/no-renderer-packages': 'off',
+					},
+				},
+				{
+					name: 'Storybook config overrides',
+					files: [ storybookMainJs ],
+					rules: {
+						'storybook/no-uninstalled-addons': [
+							'error',
+							{
+								packageJsonLocation: path.join(
+									rootdir,
+									'projects/js-packages/storybook/package.json'
+								),
+							},
+						],
+					},
+				},
+
+				// Can't just `wordpressEslintPlugin.configs["recommended-with-formatting"]` because that includes React too and we only want that with opts.react.
+				wordpressEslintPlugin.configs[ 'jsx-a11y' ],
+				wordpressEslintPlugin.configs.custom,
+				wordpressEslintPlugin.configs.esnext,
+				wordpressEslintPlugin.configs.i18n,
+
+				{
+					plugins: {
+						'you-dont-need-lodash-underscore': fixupPluginRules(
+							eslintPluginYouDontNeedLodashUnderscore
+						),
+					},
+					rules: {
+						...eslintPluginYouDontNeedLodashUnderscore.configs.compatible.rules,
+
+						// Replacement for throttle is not as straightforward as you-dont-need-lodash-underscore claims.
+						'you-dont-need-lodash-underscore/throttle': 'off',
+					},
+				},
+				tanstackEslintPluginQuery.configs[ 'flat/recommended' ],
+			],
+		},
+
+		// Prettier
+		{
+			files: [ ...javascriptFiles, ...jsonFiles ],
+			plugins: {
+				prettier: eslintPluginPrettier,
+			},
+			extends: [ eslintPluginPrettierRecommended ],
+		},
 
 		// Base config.
 		{
 			name: 'Monorepo base config',
+			files: javascriptFiles,
 			plugins: {
-				import: eslintPluginImport,
-				prettier: eslintPluginPrettier,
+				import: fixupPluginRules( eslintPluginImport ), // https://github.com/import-js/eslint-plugin-import/issues/3227
 				lodash: eslintPluginLodash,
 				n: eslintPluginN,
 				'@typescript-eslint': typescriptEslint.plugin,
@@ -185,20 +234,26 @@ export default function makeBaseConfig( configurl, opts = {} ) {
 				),
 				ecmaVersion: 'latest', // Restore default overridden by plugin:@wordpress/esnext
 				parserOptions: {
+					tsconfigRootDir: rootdir,
 					ecmaFeatures: {
 						jsx: true,
 					},
 				},
 			},
 			settings: {
+				'import/extensions': javascriptFiles
+					.map( v => v.replace( '**/*', '' ) )
+					.filter( v => v !== '.svelte' ),
+				'import/internal-regex': '^jetpack-js-tools/',
 				'import/resolver': {
 					typescript: {
 						project: tsconfigPath,
-						conditionNames: process.env.npm_config_jetpack_webpack_config_resolve_conditions
-							? process.env.npm_config_jetpack_webpack_config_resolve_conditions
-									.split( ',' )
-									.concat( defaultConditionNames )
-							: defaultConditionNames,
+						conditionNames: [ ...envConditionNames, ...defaultConditionNames ],
+						alias: {
+							// These somehow confuse import/named (maybe they're outdated or incomplete?), alias them to nothing.
+							'@types/lodash': [ null ],
+							'@types/wordpress__block-editor': [ null ],
+						},
 					},
 				},
 				jsdoc: {
@@ -235,6 +290,23 @@ export default function makeBaseConfig( configurl, opts = {} ) {
 					},
 				],
 
+				'import/no-extraneous-dependencies': [
+					'error',
+					{
+						peerDependencies: true,
+					},
+				],
+				'import/no-unresolved': [
+					'error',
+					{
+						ignore: [
+							// Jest dummy package.
+							'^@jest/globals$',
+						],
+					},
+				],
+				'import/default': 'warn',
+				'import/named': 'warn',
 				'import/order': [
 					'error',
 					{
@@ -272,6 +344,10 @@ export default function makeBaseConfig( configurl, opts = {} ) {
 				'jsdoc/require-param-description': 'warn',
 				'jsdoc/require-returns': 'warn',
 				'jsdoc/require-yields': 'warn',
+
+				// Too many of these to clean up now. Unclear if we even want to.
+				'jsdoc/reject-any-type': 'off',
+				'jsdoc/reject-function-type': 'off',
 
 				'jsx-a11y/anchor-has-content': 'off',
 				'jsx-a11y/anchor-is-valid': 'off',
@@ -328,10 +404,10 @@ export default function makeBaseConfig( configurl, opts = {} ) {
 		},
 
 		// React config.
-		...( opts.react ? makeReactConfig( configurl ) : [] ),
+		opts.react ? makeReactConfig( configurl ) : [],
 
 		// Typescript.
-		...typescriptEslint.config( {
+		{
 			files: typescriptFiles,
 			extends: [ typescriptEslint.configs.recommended ],
 			rules: {
@@ -346,14 +422,87 @@ export default function makeBaseConfig( configurl, opts = {} ) {
 				'jsdoc/require-property-type': 'off',
 				// Let us use TS return type for better inference
 				'jsdoc/require-returns-type': 'off',
+				// TS should handle this too.
+				'import/named': 'off',
 			},
-		} ),
+		},
+
+		// JSON files.
+		{
+			files: [ '**/*.json' ],
+			plugins: { json: eslintJson },
+			language: 'json/json',
+			extends: [ 'json/recommended' ],
+		},
+
+		// JSONC files, which includes vscode and tsconfig.
+		{
+			files: [
+				'**/*.jsonc',
+				'.vscode/*.json',
+				'**/tsconfig.json',
+				'**/tsconfig.*.json',
+				'**/jsconfig.json',
+			],
+			plugins: { json: eslintJson },
+			language: 'json/jsonc',
+			extends: [ 'json/recommended' ],
+		},
+
+		// lint JSON5 files
+		{
+			files: [ '**/*.json5' ],
+			plugins: { json: eslintJson },
+			language: 'json/json5',
+			extends: [ 'json/recommended' ],
+		},
+
+		// package.json files.
+		{
+			name: 'Package.json - base',
+			files: [ '**/package.json' ],
+			plugins: {
+				'package-json': eslintPluginPackageJson,
+			},
+			rules: {
+				...eslintPluginPackageJson.configs.recommended.rules,
+
+				// Our mirror repo publishing setup makes `files` pointless.
+				'package-json/require-files': 'off',
+
+				// Empty browserslist does something.
+				'package-json/no-empty-fields': [ 'error', { ignoreProperties: [ 'browserslist' ] } ],
+
+				// Maybe someday, but not yet.
+				'package-json/require-sideEffects': 'off',
+				'package-json/require-type': 'off',
+			},
+		},
+		{
+			name: 'Package.json - Only js-packages need a name',
+			files: [ '**/package.json' ],
+			ignores: jsPackageJsons,
+			rules: {
+				'package-json/require-name': 'off',
+			},
+		},
+		{
+			name: 'Package.json - Only published js-packages need various fields',
+			files: [ '**/package.json' ],
+			ignores: nonPrivateJsPackageJsons,
+			rules: {
+				'package-json/require-description': 'off',
+				'package-json/require-version': 'off',
+				'package-json/require-license': 'off',
+			},
+		},
+
 		// Jest.
-		...typescriptEslint.config( {
+		{
 			files: jestFiles,
 			extends: [ jestConfig ],
-		} ),
-	];
+		}
+	);
 }
 
 /**
@@ -364,7 +513,7 @@ export default function makeBaseConfig( configurl, opts = {} ) {
  * @return {object} Eslint config.
  */
 export function makeEnvConfig( envs, files ) {
-	return {
+	return defineConfig( {
 		files: files,
 		languageOptions: {
 			globals: ( Array.isArray( envs ) ? envs : [ envs ] ).reduce(
@@ -372,7 +521,5 @@ export function makeEnvConfig( envs, files ) {
 				{}
 			),
 		},
-	};
+	} );
 }
-
-export const config = typescriptEslint.config;

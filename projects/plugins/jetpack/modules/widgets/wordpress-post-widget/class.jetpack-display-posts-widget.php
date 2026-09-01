@@ -2,6 +2,10 @@
 
 use Automattic\Jetpack\Status;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Display a list of recent posts from a WordPress.com or Jetpack-enabled blog.
  */

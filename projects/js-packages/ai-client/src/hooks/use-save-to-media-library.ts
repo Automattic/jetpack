@@ -12,9 +12,15 @@ import type { BlockEditorStore } from '../types.ts';
 
 const debug = debugFactory( 'jetpack-ai-client:save-to-media-library' );
 
+type SavedMediaItem = {
+	id: string;
+	url: string;
+	mime?: string;
+};
+
 type UseSaveToMediaLibraryReturn = {
 	isLoading: boolean;
-	saveToMediaLibrary: ( url: string, name: string ) => Promise< { id: string; url: string } >;
+	saveToMediaLibrary: ( url: string, name?: string ) => Promise< SavedMediaItem >;
 };
 
 /**
@@ -29,10 +35,7 @@ export default function useSaveToMediaLibrary() {
 		[]
 	) as BlockEditorStore[ 'selectors' ];
 
-	const saveToMediaLibrary = (
-		url: string,
-		name: string = null
-	): Promise< { id: string; url: string } > => {
+	const saveToMediaLibrary = ( url: string, name: string = null ): Promise< SavedMediaItem > => {
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		const settings = getSettings() as any;
 
@@ -67,7 +70,11 @@ export default function useSaveToMediaLibrary() {
 
 									if ( image ) {
 										debug( 'Image uploaded to media library', image );
-										resolve( image );
+										resolve( {
+											id: image.id,
+											url: image.url,
+											mime: image.mime,
+										} );
 									}
 
 									setIsLoading( false );

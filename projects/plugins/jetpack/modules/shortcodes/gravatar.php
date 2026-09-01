@@ -10,6 +10,10 @@
  * @package automattic/jetpack
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 add_shortcode( 'gravatar', 'jetpack_gravatar_shortcode' );
 add_shortcode( 'gravatar_profile', 'jetpack_gravatar_profile_shortcode' );
 

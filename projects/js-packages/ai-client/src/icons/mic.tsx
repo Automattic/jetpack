@@ -2,7 +2,6 @@
  * External dependencies
  */
 import { SVG, Rect, Path } from '@wordpress/components';
-import React from 'react';
 
 const mic = (
 	<SVG width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/SVG">

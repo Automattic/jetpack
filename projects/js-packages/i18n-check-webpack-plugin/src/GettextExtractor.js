@@ -8,9 +8,9 @@ const debug = require( 'debug' )( `${ PLUGIN_NAME }:gettext` ); // eslint-disabl
 const { parseAsync, parseSync, traverse, types: t } = babel;
 
 // Some typedefs for jsdoc. Babel doesn't export the actual constructors for us.
-/** @typedef babel.Node */
-/** @typedef babel.Comment */
-/** @typedef {babel.Node} babel.CallExpression */
+/** @typedef {babel.Node} BabelNode */
+/** @typedef {babel.Comment} BabelComment */
+/** @typedef {babel.Node} BabelCallExpression */
 
 /**
  * Default function mappings.
@@ -310,7 +310,7 @@ class GettextExtractor {
 	 * Resolve the callee of a CallExpression.
 	 *
 	 * @see https://github.com/wp-cli/i18n-command/blob/e9eef8aab4b5e43c3aa09bf60e1e7a9d6d30d302/src/JsFunctionsScanner.php#L254
-	 * @param {babel.CallExpression} node - CallExpression node.
+	 * @param {BabelCallExpression} node - CallExpression node.
 	 * @return {{ name: string, comments: string[] }|undefined} Callee name and comments, or undefined.
 	 */
 	#resolveExpressionCallee( node ) {
@@ -421,8 +421,8 @@ class GettextExtractor {
 	 * Test if the comment comes before the node.
 	 *
 	 * @see https://github.com/wp-cli/i18n-command/blob/e9eef8aab4b5e43c3aa09bf60e1e7a9d6d30d302/src/JsFunctionsScanner.php#L364
-	 * @param {babel.Comment} comment - Comment.
-	 * @param {babel.Node}    node    - Node.
+	 * @param {BabelComment} comment - Comment.
+	 * @param {BabelNode}    node    - Node.
 	 * @return {boolean} Whether the comment comes before the node.
 	 */
 	#commentPrecedesNode( comment, node ) {

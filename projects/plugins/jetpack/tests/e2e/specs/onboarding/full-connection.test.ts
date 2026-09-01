@@ -1,14 +1,12 @@
-import { prerequisitesBuilder } from '_jetpack-e2e-commons/env/index.js';
-import { test, expect } from '_jetpack-e2e-commons/fixtures/base-test.js';
-import { Onboarding } from '_jetpack-e2e-commons/flows/onboarding.ts';
-import logger from '_jetpack-e2e-commons/logger.js';
+import { expect, test } from '@automattic/_jetpack-e2e-commons/fixtures/base-test';
+import logger from '@automattic/_jetpack-e2e-commons/logger';
+import { Onboarding } from '../../helpers/onboarding';
 
-test.beforeEach( async ( { page } ) => {
-	await prerequisitesBuilder( page )
-		.withCleanEnv()
-		.withLoggedIn( true )
-		.withWpComLoggedIn( true )
-		.build();
+test.beforeEach( async ( { testUtils } ) => {
+	await testUtils.disconnect();
+
+	expect( await testUtils.isUserConnected() ).toBe( false );
+	expect( await testUtils.isSiteConnected() ).toBe( false );
 } );
 
 test( 'Full connection - Site and User', async ( { page, requestUtils, admin } ) => {
@@ -65,19 +63,15 @@ test( 'Full connection - Site and User', async ( { page, requestUtils, admin } )
 
 	await test.step( 'Verify site and user connection', async () => {
 		// Find a block which has h2 with text "Connection"
-		const h2 = page.getByRole( 'heading', { level: 2, name: 'Connection' } );
-		const connectionBlock = h2.locator( 'xpath=..' ); // immediate parent
+		const h3 = page.getByRole( 'heading', { level: 3, name: 'Connection' } );
+		const connectionBlock = h3.locator( 'xpath=..' ); // immediate parent
 
 		await expect( connectionBlock, {
 			message: 'Should have the text saying the site is connected.',
-		} ).toContainText( 'Site connected.' );
+		} ).toContainText( 'Site and account connected' );
 
 		await expect( connectionBlock, {
 			message: 'Should have the text showing user connection.',
-		} ).toContainText( /Connected as .+ \(Owner\)/ );
-
-		await expect( connectionBlock.getByRole( 'button', { name: 'Manage' } ), {
-			message: 'Should have the "Manage" button.',
-		} ).toBeVisible();
+		} ).toContainText( 'Connected as owner' );
 	} );
 } );

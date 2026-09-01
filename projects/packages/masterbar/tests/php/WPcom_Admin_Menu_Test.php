@@ -144,26 +144,6 @@ class WPcom_Admin_Menu_Test extends TestCase {
 	}
 
 	/**
-	 * Tests add_upgrades_menu
-	 */
-	public function test_add_upgrades_menu() {
-		global $submenu;
-
-		static::$admin_menu->add_upgrades_menu();
-
-		$this->assertSame( 'https://wordpress.com/plans/' . static::$domain, $submenu['paid-upgrades.php'][1][2] );
-		$this->assertSame( 'https://wordpress.com/domains/manage/' . static::$domain, $submenu['paid-upgrades.php'][2][2] );
-
-		/** This filter is already documented in modules/masterbar/admin-menu/class-atomic-admin-menu.php */
-		if ( apply_filters( 'jetpack_show_wpcom_upgrades_email_menu', false ) ) {
-			$this->assertSame( 'https://wordpress.com/email/' . static::$domain, $submenu['paid-upgrades.php'][3][2] );
-			$this->assertSame( 'https://wordpress.com/purchases/subscriptions/' . static::$domain, $submenu['paid-upgrades.php'][4][2] );
-		} else {
-			$this->assertSame( 'https://wordpress.com/purchases/subscriptions/' . static::$domain, $submenu['paid-upgrades.php'][3][2] );
-		}
-	}
-
-	/**
 	 * Tests add_users_menu
 	 */
 	public function test_add_users_menu() {
@@ -173,18 +153,6 @@ class WPcom_Admin_Menu_Test extends TestCase {
 		static::$admin_menu->set_preferred_view( 'users.php', 'unknown' );
 		static::$admin_menu->add_users_menu();
 		$this->assertSame( 'https://wordpress.com/people/team/' . static::$domain, array_shift( $submenu['users.php'] )[2] );
-		$this->assertSame( 'https://wordpress.com/subscribers/' . static::$domain, $submenu['users.php'][2][2] );
-	}
-
-	/**
-	 * Tests add_options_menu
-	 */
-	public function test_add_options_menu() {
-		global $submenu;
-
-		static::$admin_menu->add_options_menu();
-
-		$this->assertSame( 'https://wordpress.com/hosting-features/' . static::$domain, $submenu['options-general.php'][10][2] );
 	}
 
 	/**

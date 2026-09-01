@@ -1,10 +1,10 @@
 === Jetpack Search ===
 Contributors: automattic, annamcphee, bluefuton, kangzj, jsnmoon, robfelty, gibrown, trakos, dognose24, a8ck3n
 Tags: search, filter, woocommerce search, ajax search, product search, free cloud-based search
-Requires at least: 6.7
-Requires PHP: 7.2
-Tested up to: 6.8
-Stable tag: 1.4.0
+Requires at least: 7.0
+Requires PHP: 7.4
+Tested up to: 7.1
+Stable tag: 7.1.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -122,24 +122,10 @@ If you are using the Jetpack Search free option, and you have more than 5000 rec
 5. Manage all of your Jetpack products, including Search, in a single place.
 
 == Changelog ==
-### 4.1.0 - 2025-04-04
+### 7.1.0 - 2026-08-13
 #### Added
-- Add Account Protection initialization.
-- Connection: Disconnect all other users before disconnecting connection owner account.
-- Improve the onboarding experience of Jetpack guiding the users through a new onboarding process.
-- My Jetpack: Introduce a new onboarding screen to provide clear, step-by-step instructions for new users connecting to Jetpack.
-
-#### Changed
-- Code: Use function-style `exit()` and `die()` with a default status code of 0.
-- Connection: Allow pre-selected login providers.
-- Connection: Display connection status on Users page independent of the SSO module.
-- General: Indicate compatibility with WordPress 6.8.
-- Update composer.lock
-- Update package dependencies.
-- Update the unowned section from a product grid to a product list
-
-#### Fixed
-- Search: Ensure the count of returned results is shown after searching.
+- Add the Activity Log page to wp-admin, so it is available without the Jetpack plugin installed.
+- Search Blocks: Add a No Results block so empty states can contain links, images, buttons, and other blocks instead of plain text. Continue rendering existing Results List messages while deprecating their settings.
 
 == Testimonials ==
 

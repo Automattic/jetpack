@@ -1,7 +1,13 @@
-import { spawn } from 'child_process';
+import { spawn } from 'node:child_process';
+import path from 'node:path';
 import { chalkStderr } from 'chalk';
 import ignore from 'ignore';
-import { getDependencies, filterDeps, getBuildOrder } from '../helpers/dependencyAnalysis.js';
+import {
+	getDependencies,
+	filterDeps,
+	getBuildOrder,
+	getDependencyDepths,
+} from '../helpers/dependencyAnalysis.js';
 
 // Files that mean --git-changed should report all projects as changed.
 const infrastructureFileSets = {};
@@ -16,6 +22,7 @@ infrastructureFileSets.base = new Set( [
 	'.github/versions.sh',
 	// If pnpm stuff changed, we should build/test everything since we can't know what the change will affect.
 	'pnpm-lock.yaml',
+	'pnpm-workspace.yaml',
 ] );
 infrastructureFileSets.test = new Set( [
 	...infrastructureFileSets.base,
@@ -37,7 +44,11 @@ infrastructureFileSets.build = new Set( [
 ] );
 infrastructureFileSets.e2e = {
 	has( f ) {
-		return infrastructureFileSets.base.has( f ) || f.startsWith( 'tools/e2e-commons/' );
+		return (
+			infrastructureFileSets.base.has( f ) ||
+			f.startsWith( 'tools/e2e-commons/' ) ||
+			f.startsWith( 'tools/docker/' )
+		);
 	},
 };
 
@@ -64,9 +75,9 @@ export function builder( yargs ) {
 	return yargs
 		.positional( 'subcommand', {
 			describe:
-				'Whether to print `json` dependency data, a `list` of projects, or print a `build-order`.',
+				'Whether to print `json` dependency data, a `list` of projects, print a `build-order`, or calculate `depths`.',
 			type: 'string',
-			choices: [ 'json', 'list', 'build-order' ],
+			choices: [ 'json', 'list', 'build-order', 'depths' ],
 		} )
 		.positional( 'projects', {
 			describe: 'Only include dependencies relevant to these projects.',
@@ -89,16 +100,21 @@ export function builder( yargs ) {
 			type: 'string',
 			choices: [ 'build', 'test', 'e2e' ],
 		} )
+		.option( 'targets', {
+			describe: 'Targets for `depth`, comma-separated.',
+			type: 'string',
+		} )
 		.option( 'ignore-root', {
 			describe: 'Ignore the monorepo root.',
 			type: 'boolean',
 		} )
+		.option( 'dev', { type: 'boolean', hidden: true } )
 		.option( 'no-dev', {
 			describe: 'Do not consider dev dependencies.',
 			type: 'boolean',
 		} )
 		.option( 'pretty', {
-			describe: 'Pretty-print JSON or build-order output.',
+			describe: 'Pretty-print JSON, build-order, or depths output.',
 			type: 'boolean',
 		} );
 }
@@ -109,6 +125,7 @@ export function builder( yargs ) {
  * @param {object} argv - the arguments passed.
  */
 export async function handler( argv ) {
+	const debug = argv.v ? m => console.error( chalkStderr.blue( m ) ) : () => {};
 	let deps = await getDependencies( process.cwd(), argv.extra, argv.dev === false );
 
 	if ( argv.ignoreRoot ) {
@@ -150,7 +167,6 @@ export async function handler( argv ) {
 		);
 		const projset = new Set( argv.projects );
 		const ig = ignore().add( ignoreFiles );
-		const debug = argv.v ? m => console.error( chalkStderr.blue( m ) ) : () => {};
 		for ( const file of stdout.split( '\n' ).filter( v => v.length ) ) {
 			if ( infrastructureFiles.has( file ) ) {
 				debug( `Diff touches infrastructure file ${ file }, considering all projects as changed.` );
@@ -177,6 +193,31 @@ export async function handler( argv ) {
 				}
 			}
 		}
+
+		// If this is for a build or tests, add js-packages/storybook if any project having stories is touched.
+		// This will help catch changes that work fine in the project but break the storybook build.
+		if (
+			argv.addDependents &&
+			( argv.extra === 'build' || argv.extra === 'test' ) &&
+			! projset.has( 'js-packages/storybook' )
+		) {
+			const tmpdeps = filterDeps( deps, [ ...projset ], { dependencies: false, dependents: true } );
+			const { projects: storybookProjects } = await import(
+				path.join( process.cwd(), 'projects/js-packages/storybook/storybook/projects.js' )
+			);
+			for ( const p of storybookProjects ) {
+				const m = p.match( /(?:^|\/)projects\/([^/]+\/[^/]+)(?:$|\/)/ );
+				if ( m && tmpdeps.has( m[ 1 ] ) ) {
+					const touched = projset.has( m[ 1 ] ) ? 'touched' : 'indirectly touched';
+					debug(
+						`Adding js-packages/storybook for ${ argv.extra } because ${ m[ 1 ] } is ${ touched }.`
+					);
+					projset.add( 'js-packages/storybook' );
+					break;
+				}
+			}
+		}
+
 		argv.projects = [ ...projset ];
 
 		// If the diff touched nothing, we output nothing.
@@ -216,6 +257,37 @@ export async function handler( argv ) {
 		const order = getBuildOrder( deps );
 		for ( const group of order ) {
 			console.log( Array.from( group ).join( argv.pretty ? '\n' : ' ' ) );
+		}
+	} else if ( argv.subcommand === 'depths' ) {
+		const depths = getDependencyDepths(
+			deps,
+			String( argv.targets ?? '' )
+				.split( ',' )
+				.map( v => v.trim() )
+		);
+		if ( argv.pretty ) {
+			const tiers = new Map();
+			for ( const [ p, d ] of depths.entries() ) {
+				if ( ! tiers.has( d ) ) {
+					tiers.set( d, [] );
+				}
+				tiers.get( d ).push( p );
+			}
+			const keys = tiers
+				.keys()
+				.toArray()
+				.sort( ( a, b ) => Math.sign( b - a ) || 0 );
+			for ( const d of keys ) {
+				console.log( d, tiers.get( d ).sort().join( ' ' ) );
+			}
+		} else {
+			const entries = depths
+				.entries()
+				.toArray()
+				.sort( ( [ p1, d1 ], [ p2, d2 ] ) => Math.sign( d2 - d1 ) || p1.localeCompare( p2 ) );
+			for ( const [ p, d ] of entries ) {
+				console.log( p, d );
+			}
 		}
 	}
 }

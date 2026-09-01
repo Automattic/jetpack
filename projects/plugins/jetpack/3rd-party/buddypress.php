@@ -7,6 +7,10 @@
 
 namespace Automattic\Jetpack\Third_Party;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 add_filter( 'bp_core_pre_avatar_handle_upload', __NAMESPACE__ . '\blobphoto' );
 
 /**

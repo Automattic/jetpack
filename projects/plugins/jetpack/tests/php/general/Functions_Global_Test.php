@@ -8,11 +8,40 @@ use PHPUnit\Framework\Attributes\DataProvider;
  *
  * @covers ::jetpack_get_future_removed_version
  * @covers ::jetpack_get_vary_headers
+ * @covers ::jetpack_is_internal_testing_environment
  */
 #[CoversFunction( 'jetpack_get_future_removed_version' )]
 #[CoversFunction( 'jetpack_get_vary_headers' )]
+#[CoversFunction( 'jetpack_is_internal_testing_environment' )]
 class Functions_Global_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
+
+	/**
+	 * Saved siteurl option for restoration in tear_down.
+	 *
+	 * @var string|null
+	 */
+	private $saved_siteurl;
+
+	/**
+	 * Set up before each test.
+	 */
+	public function set_up() {
+		parent::set_up();
+		$this->saved_siteurl = get_option( 'siteurl' );
+		unset( $_SERVER['A8C_PROXIED_REQUEST'] );
+	}
+
+	/**
+	 * Tear down after each test.
+	 */
+	public function tear_down() {
+		if ( null !== $this->saved_siteurl ) {
+			update_option( 'siteurl', $this->saved_siteurl );
+		}
+		unset( $_SERVER['A8C_PROXIED_REQUEST'] );
+		parent::tear_down();
+	}
 
 	/**
 	 * Test string returned by jetpack_deprecated_function
@@ -69,76 +98,33 @@ class Functions_Global_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test jetpack_get_vary_headers.
-	 *
-	 * @dataProvider get_test_headers
-	 * @param array $headers  Array of headers.
-	 * @param array $expected Expected array of headers, to be used as Vary header.
+	 * Test jetpack_is_internal_testing_environment returns false for a production domain.
 	 */
-	#[DataProvider( 'get_test_headers' )]
-	public function test_jetpack_get_vary_headers( $headers, $expected ) {
-		$vary_header_parts = jetpack_get_vary_headers( $headers );
-
-		$this->assertEquals( $expected, $vary_header_parts );
+	public function test_jetpack_is_internal_testing_environment_returns_false_for_production() {
+		$this->assertFalse( jetpack_is_internal_testing_environment() );
 	}
 
 	/**
-	 * Data provider for the test_jetpack_get_vary_headers() test.
-	 *
-	 * @return array
+	 * Test jetpack_is_internal_testing_environment returns true for localhost.
 	 */
-	public static function get_test_headers() {
-		return array(
-			'no headers'                             => array(
-				array(),
-				array( 'accept', 'content-type' ),
-			),
-			'Single Vary Encoding header'            => array(
-				array(
-					'Vary: Accept-Encoding',
-				),
-				array( 'accept', 'content-type', 'accept-encoding' ),
-			),
-			'Double Vary: Accept-Encoding & Accept'  => array(
-				array(
-					'Vary: Accept, Accept-Encoding',
-				),
-				array( 'accept', 'content-type', 'accept-encoding' ),
-			),
-			'vary header'                            => array(
-				array(
-					'Cache-Control: no-cache, must-revalidate, max-age=0',
-					'Content-Type: text/html; charset=UTF-8',
-					'Vary: Accept',
-				),
-				array( 'accept', 'content-type' ),
-			),
-			'Wildcard Vary header'                   => array(
-				array(
-					'Cache-Control: no-cache, must-revalidate, max-age=0',
-					'Content-Type: text/html; charset=UTF-8',
-					'Vary: *',
-				),
-				array( '*' ),
-			),
-			'Multiple Vary headers'                  => array(
-				array(
-					'Cache-Control: no-cache, must-revalidate, max-age=0',
-					'Content-Type: text/html; charset=UTF-8',
-					'Vary: Accept',
-					'Vary: Accept-Encoding',
-				),
-				array( 'accept', 'content-type', 'accept-encoding' ),
-			),
-			'Multiple Vary headers, with a wildcard' => array(
-				array(
-					'Cache-Control: no-cache, must-revalidate, max-age=0',
-					'Content-Type: text/html; charset=UTF-8',
-					'Vary: *',
-					'Vary: Accept-Encoding',
-				),
-				array( '*' ),
-			),
-		);
+	public function test_jetpack_is_internal_testing_environment_true_for_localhost() {
+		update_option( 'siteurl', 'http://localhost:8888' );
+		$this->assertTrue( jetpack_is_internal_testing_environment() );
+	}
+
+	/**
+	 * Test jetpack_is_internal_testing_environment returns true for jurassic.ninja domain.
+	 */
+	public function test_jetpack_is_internal_testing_environment_true_for_jurassic_ninja() {
+		update_option( 'siteurl', 'https://mysite.jurassic.ninja' );
+		$this->assertTrue( jetpack_is_internal_testing_environment() );
+	}
+
+	/**
+	 * Test jetpack_is_internal_testing_environment returns true for jurassic.tube domain.
+	 */
+	public function test_jetpack_is_internal_testing_environment_true_for_jurassic_tube() {
+		update_option( 'siteurl', 'https://mysite.jurassic.tube' );
+		$this->assertTrue( jetpack_is_internal_testing_environment() );
 	}
 }

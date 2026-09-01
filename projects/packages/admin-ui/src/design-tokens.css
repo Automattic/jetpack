@@ -1,0 +1,13 @@
+/**
+ * Token-only WPDS design-tokens stylesheet.
+ *
+ * Re-exports the `:root{--wpds-*}` custom-property definitions from
+ * @wordpress/theme so they can be enqueued as a standalone WP style handle on
+ * every Jetpack admin page. The import is resolved and inlined by css-loader at
+ * build time (a local entry file is used rather than pointing the webpack entry
+ * straight at the package, which would get externalized to a non-existent
+ * `wp-theme/design-tokens.css` script handle).
+ *
+ * Keep this token-only: do not add component or class selectors here.
+ */
+@import "@wordpress/theme/design-tokens.css";

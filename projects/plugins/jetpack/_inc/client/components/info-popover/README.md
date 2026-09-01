@@ -43,7 +43,7 @@ that can trigger the opening and closing of the InfoPopover then you need to pas
 
 #### `screenReaderText`
 
-This optional property admits a string that will be wrapped in a span.screen-reader-text and used for accesibility.
+This optional property admits a string that will be wrapped in a span.screen-reader-text and used for accessibility.
 
 ### Basic `InfoPopover` Usage
 

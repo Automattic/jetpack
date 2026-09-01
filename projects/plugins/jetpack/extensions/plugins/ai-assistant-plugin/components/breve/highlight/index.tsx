@@ -3,14 +3,13 @@
  */
 import { fixes, Block, AiFeedbackThumbs, AiSVG } from '@automattic/jetpack-ai-client';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
-import { rawHandler, serialize } from '@wordpress/blocks';
+import { rawHandler, serialize, type Block as WPBlock } from '@wordpress/blocks';
 import { Button, Popover, Spinner } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useState, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { reusableBlock as retry } from '@wordpress/icons';
 import clsx from 'clsx';
-import React from 'react';
 /**
  * Internal dependencies
  */
@@ -30,6 +29,7 @@ import './style.scss';
  * Types
  */
 import type { BreveDispatch, BreveSelect } from '../types';
+import type { MouseEvent } from 'react';
 
 type CoreBlockEditorSelect = {
 	getBlock: ( clientId: string ) => Block;
@@ -120,7 +120,7 @@ export default function Highlight() {
 		setPopoverHover( true );
 	};
 
-	const handleMouseLeave = ( e: React.MouseEvent ) => {
+	const handleMouseLeave = ( e: MouseEvent ) => {
 		e.stopPropagation();
 		setPopoverHover( false );
 	};
@@ -197,7 +197,7 @@ export default function Highlight() {
 		const { target, occurrence } = getTargetText( anchor as HTMLElement );
 
 		// The serialize function returns the block's HTML with its Gutenberg comments
-		const html = serialize( block );
+		const html = serialize( block as WPBlock );
 		const fixedHtml = replaceOccurrence( {
 			text: html,
 			target,
@@ -266,7 +266,6 @@ export default function Highlight() {
 					anchor={ virtual }
 					placement={ feature === LONG_SENTENCES.name ? 'bottom' : 'bottom-start' }
 					className="jetpack-ai-breve__highlight-popover"
-					variant="tooltip"
 					animate={ false }
 					focusOnMount={ false }
 					onMouseEnter={ handleMouseEnter }

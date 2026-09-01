@@ -1,48 +1,62 @@
-import SimpleNotice from 'components/notice/index.jsx';
-import NoticeAction from 'components/notice/notice-action';
-import React from 'react';
+import { Notice } from '@wordpress/ui';
+import { useCallback, useEffect } from 'react';
 
 import './style.scss';
+
+const STATUS_TO_INTENT = {
+	'is-success': 'success',
+	'is-error': 'error',
+	'is-warning': 'warning',
+	'is-info': 'info',
+};
+
+const NoticeItem = ( { notice, onDismissNotice } ) => {
+	const { id, duration, showDismiss = true, status, text } = notice;
+
+	const handleDismiss = useCallback( () => onDismissNotice( id ), [ onDismissNotice, id ] );
+
+	useEffect( () => {
+		if ( duration > 0 ) {
+			const timer = setTimeout( handleDismiss, duration );
+			return () => clearTimeout( timer );
+		}
+	}, [ duration, handleDismiss ] );
+
+	return (
+		<Notice.Root intent={ STATUS_TO_INTENT[ status ] ?? 'neutral' } spokenMessage={ text }>
+			{ text && <Notice.Description>{ text }</Notice.Description> }
+			{ showDismiss && <Notice.CloseIcon onClick={ handleDismiss } /> }
+		</Notice.Root>
+	);
+};
 
 /**
  * NoticesList component
  *
  * @param {*} props - Props
- * @return {React.Component} - NoticesList component
+ * @return {import('react').Component} - NoticesList component
  */
 export default function NoticesList(
 	props = { handleLocalNoticeDismissClick: null, notices: Object.freeze( [] ) }
 ) {
-	const noticesList = props.notices.map( function ( notice ) {
-		const onDismissClick = theNotice => () => {
-			theNotice && props.handleLocalNoticeDismissClick( theNotice.id );
-		};
-		return (
-			<SimpleNotice
-				key={ 'notice-' + notice.id }
-				status={ notice.status }
-				duration={ notice.duration || null }
-				text={ notice.text }
-				isCompact={ notice.isCompact }
-				onDismissClick={ onDismissClick( notice ) }
-				showDismiss={ notice.showDismiss }
-			>
-				{ notice.button && (
-					<NoticeAction href={ notice.href } onClick={ onDismissClick( notice ) }>
-						{ notice.button }
-					</NoticeAction>
-				) }
-			</SimpleNotice>
-		);
-	} );
+	const onDismissNotice = useCallback(
+		noticeId => props.handleLocalNoticeDismissClick?.( noticeId ),
+		[ props ]
+	);
 
-	if ( ! noticesList.length ) {
+	if ( ! props.notices.length ) {
 		return null;
 	}
 
 	return (
 		<div id={ props.id } className="global-notices">
-			{ noticesList }
+			{ props.notices.map( notice => (
+				<NoticeItem
+					key={ 'notice-' + notice.id }
+					notice={ notice }
+					onDismissNotice={ onDismissNotice }
+				/>
+			) ) }
 		</div>
 	);
 }

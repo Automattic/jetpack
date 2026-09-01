@@ -1,22 +1,24 @@
-@use 'sass:color';
+@use "../../scss/mixins/breakpoints";
+@use "../../scss/variables/colors";
+@use "sass:color";
 
 $color__border: #dcdcde;
 $color__back-link: #787c82;
 
 .jetpack-about__main,
 .jetpack-about__plugin {
-	background-color: $white;
-	box-shadow: 0 0 40px rgba(0, 0, 0, 0.08);
-	border-radius: 4px;
+	background-color: var(--wpds-color-background-surface-neutral-strong, #fff);
+	border: 1px solid var(--wpds-color-stroke-surface-neutral-weak, #e4e4e4);
+	border-radius: var(--wpds-border-radius-lg, 8px);
 }
 
 .jetpack-about__main,
 .jetpack-about__colophon {
 	font-size: 14px;
 
-		p {
-			font-size: 14px;
-		}
+	p {
+		font-size: 14px;
+	}
 }
 
 .jetpack-about__link-back {
@@ -24,11 +26,11 @@ $color__back-link: #787c82;
 	border-bottom: none;
 
 	a {
-		color: #3C434A;
+		color: #3c434a;
 
 		&:hover,
 		&:active {
-			color: color.adjust( $color__back-link, $lightness: -30% );
+			color: color.adjust($color__back-link, $lightness: -30%);
 		}
 
 		svg {
@@ -64,15 +66,15 @@ $color__back-link: #787c82;
 
 .jetpack-about__text,
 .meet-the-team,
-.details-link{
+.details-link {
 	order: 1;
 
 	p {
-	  font-size: 14px;
-	  font-weight: 400;
-	  line-height: 24px;
-	  color: var(--jp-gray-80);
-	  margin: 24px 0;
+		font-size: 14px;
+		font-weight: 400;
+		line-height: 24px;
+		color: var(--jp-gray-80);
+		margin: 24px 0;
 
 		&:last-child {
 			margin-bottom: 0;
@@ -80,29 +82,29 @@ $color__back-link: #787c82;
 	}
 
 	a {
-	  color: #000;
-	  font-weight: 400;
-	  text-decoration: underline;
-	  transition-duration: .05s;
-	  transition-property: border,background,color;
-	  transition-timing-function: ease-in-out;
+		color: #000;
+		font-weight: 400;
+		text-decoration: underline;
+		transition-duration: 0.05s;
+		transition-property: border, background, color;
+		transition-timing-function: ease-in-out;
 
-	  &:hover {
-		text-decoration-thickness: 3px;
-	  }
+		&:hover {
+			text-decoration-thickness: 3px;
+		}
 
-	  &:focus {
-		text-decoration-line: none;
-		border-radius: 2px;
-		box-shadow: 0 0 0 var(--wp-admin-border-width-focus) #000;
-		outline: 3px solid transparent;
-	  }
-  }
+		&:focus {
+			text-decoration-line: none;
+			border-radius: 2px;
+			box-shadow: 0 0 0 var(--wp-admin-border-width-focus) #000;
+			outline: 3px solid transparent;
+		}
+	}
 }
 
 .gridicons-external {
-  vertical-align: top;
-  width: 1rem;
+	vertical-align: top;
+	width: 1rem;
 }
 
 .jetpack-about__images {
@@ -156,48 +158,48 @@ $color__back-link: #787c82;
 		font-weight: 500;
 		line-height: 24px;
 
-	  a {
-		color: #000;
-	  }
+		a {
+			color: #000;
+		}
 	}
 
-  	.button {
-	  background: $white;
-	  border: none;
-	  border-radius: var(--jp-border-radius);
-	  outline: solid 1.5px var(--jp-black);
-	  color: #000;
-	  font-weight: 500;
-
-	  &:hover {
-		background: var(--jp-gray-0);
-		outline: solid 1px var(--jp-black);
+	.button {
+		background: colors.$white;
+		border: none;
+		border-radius: var(--jp-border-radius);
+		outline: solid 1.5px var(--jp-black);
 		color: #000;
-	  }
+		font-weight: 500;
 
-	  &:focus {
-		outline: solid 2px var(--jp-black);
-		border-color: transparent;
-		background: var(--jp-gray-0);
-		color: #000;
-	  }
+		&:hover {
+			background: var(--jp-gray-0);
+			outline: solid 1px var(--jp-black);
+			color: #000;
+		}
+
+		&:focus {
+			outline: solid 2px var(--jp-black);
+			border-color: transparent;
+			background: var(--jp-gray-0);
+			color: #000;
+		}
 	}
 
 	.star-rating .star {
-	  color: #000;
+		color: #000;
 	}
 }
 
 .jetpack-about__services-more {
-  	margin: 24px 0 48px;
+	margin: 24px 0 48px;
 	text-align: center;
 
 	a {
-	  color: #000;
-	  text-decoration: underline;
+		color: #000;
+		text-decoration: underline;
 	}
 
-		:hover {
+	:hover {
 		text-decoration-thickness: 3px;
 	}
 }
@@ -206,20 +208,20 @@ $color__back-link: #787c82;
 .jetpack-about__services {
 	display: grid;
 	grid-template-columns: 1fr 1fr;
-	grid-gap: 24px;
+	gap: 24px;
 
-	@include breakpoint( "<960px" ) {
-	  display: block;
+	@include breakpoints.breakpoint( "<960px" ) {
+		display: block;
 	}
 }
 
 .jetpack-about__plugin {
 	margin-bottom: 0;
 
- 	.plugin-card-top {
+	.plugin-card-top {
 		padding: 24px;
 		position: relative;
-	  	min-height: 128px;
+		min-height: 128px;
 
 		.name,
 		.desc,
@@ -229,7 +231,7 @@ $color__back-link: #787c82;
 
 		.name h3 {
 			margin-top: 0;
-		  font-size: 20px;
+			font-size: 20px;
 		}
 
 		.details-link {
@@ -237,18 +239,22 @@ $color__back-link: #787c82;
 		}
 
 		.plugin-icon {
-		  top: 24px;
-		  left: 24px;
+			position: absolute;
+			top: 24px;
+			inset-inline-start: 24px;
+			width: 128px;
+			height: 128px;
+			border-radius: 24px; /* This is done so that the icons end up with the same border radius across the plugins even though they are not there by default. */
 		}
 	}
 
 	.plugin-card-bottom {
 		align-items: center;
-		background-color: $white;
+		background-color: colors.$white;
 		display: flex;
 		flex-wrap: wrap;
 		justify-content: space-between;
-	  	padding: 16px;
+		padding: 16px;
 
 		.meta {
 			margin-right: 1em;
@@ -269,7 +275,7 @@ $color__back-link: #787c82;
 		}
 	}
 
-	@include breakpoint( "<960px" ) {
-	  margin-bottom: 24px;
+	@include breakpoints.breakpoint( "<960px" ) {
+		margin-bottom: 24px;
 	}
 }

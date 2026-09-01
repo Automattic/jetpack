@@ -1,4 +1,4 @@
-@use 'sass:list';
+@use "sass:list";
 
 $sans-font: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen-Sans", "Ubuntu", "Cantarell", "Helvetica Neue", sans-serif;
 
@@ -12,14 +12,14 @@ $sans-font: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen-San
 		&.is-mandatory {
 
 			&::before {
-				content: '';
+				content: "";
 				position: absolute;
 				top: -11px;
 				left: -11px;
 				width: 18px;
 				height: 18px;
 				border-radius: 50%;
-				background-color: var( --jp-red-50 );
+				background-color: var(--jp-red-50);
 				border: 2px solid var(--jp-white-off);
 			}
 		}
@@ -35,7 +35,8 @@ $sans-font: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen-San
 		border-radius: 50%;
 		transform: scale(0.75);
 
-		&:hover, &:focus {
+		&:hover,
+		&:focus {
 			background-color: var(--jp-white);
 		}
 
@@ -62,61 +63,65 @@ $sans-font: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen-San
 }
 
 .banner-image-evaluation {
-    background-image: url(./assets/images/evaluation-blank.png),
-    radial-gradient(circle at 40% 70%, rgba(206, 217, 242, 0.75) 0%, rgba(255, 255, 255, 0) 40%),
-    radial-gradient(circle at 80% 80%, rgba(6, 158, 8, 0.15) 5%, rgba(255, 255, 255, 0) 50%),
-    radial-gradient(circle at 80% 20%, rgba(245, 230, 179, 0.75) 0%, rgba(255, 255, 255, 0) 50%);
-    background-repeat: no-repeat;
-    background-position: 75% center;
-	background-size: 393px, cover, cover, cover;
-
-	&.is-selected {
-		background-image: url(./assets/images/evaluation-selected.png),
+	background-image:
+		url(./assets/images/evaluation-blank.png),
 		radial-gradient(circle at 40% 70%, rgba(206, 217, 242, 0.75) 0%, rgba(255, 255, 255, 0) 40%),
 		radial-gradient(circle at 80% 80%, rgba(6, 158, 8, 0.15) 5%, rgba(255, 255, 255, 0) 50%),
 		radial-gradient(circle at 80% 20%, rgba(245, 230, 179, 0.75) 0%, rgba(255, 255, 255, 0) 50%);
+	background-repeat: no-repeat;
+	background-position: 75% center;
+	background-size: 393px, cover, cover, cover;
+
+	&.is-selected {
+		background-image:
+			url(./assets/images/evaluation-selected.png),
+			radial-gradient(circle at 40% 70%, rgba(206, 217, 242, 0.75) 0%, rgba(255, 255, 255, 0) 40%),
+			radial-gradient(circle at 80% 80%, rgba(6, 158, 8, 0.15) 5%, rgba(255, 255, 255, 0) 50%),
+			radial-gradient(circle at 80% 20%, rgba(245, 230, 179, 0.75) 0%, rgba(255, 255, 255, 0) 50%);
 	}
 }
 
 .banner-image {
-	background-image: url(./assets/images/site-cards.png),
-				radial-gradient(circle at 90% 30%, rgba(6, 158, 8, 0.15) 0%, rgba(255, 255, 255, 0) 35%),
-				radial-gradient(circle at 75% 65%, rgba(206, 217, 242, 0.5) 5%, rgba(255, 255, 255, 0) 15%),
-				radial-gradient(circle at 90% 90%, rgba(245, 230, 179, 0.5) 0%, rgba(255, 255, 255, 0) 25%);
+	background-image:
+		url(./assets/images/site-cards.png),
+		radial-gradient(circle at 90% 30%, rgba(6, 158, 8, 0.15) 0%, rgba(255, 255, 255, 0) 35%),
+		radial-gradient(circle at 75% 65%, rgba(206, 217, 242, 0.5) 5%, rgba(255, 255, 255, 0) 15%),
+		radial-gradient(circle at 90% 90%, rgba(245, 230, 179, 0.5) 0%, rgba(255, 255, 255, 0) 25%);
 	background-repeat: no-repeat;
 	background-size: cover;
 
 	@media screen and (max-width: 960px) {
-		background-image: url(./assets/images/site-cards.png),
-				radial-gradient(circle at 55% 30%, rgba(6, 158, 8, 0.15) 0%, rgba(255, 255, 255, 0) 100%),
-				radial-gradient(circle at 25% 40%, rgba(206, 217, 242, 0.5) 5%, rgba(255, 255, 255, 0) 50%),
-				radial-gradient(circle at 50% 85%, rgba(245, 230, 179, 0.3) 0%, rgba(255, 255, 255, 0) 35%);
+		background-image:
+			url(./assets/images/site-cards.png),
+			radial-gradient(circle at 55% 30%, rgba(6, 158, 8, 0.15) 0%, rgba(255, 255, 255, 0) 100%),
+			radial-gradient(circle at 25% 40%, rgba(206, 217, 242, 0.5) 5%, rgba(255, 255, 255, 0) 50%),
+			radial-gradient(circle at 50% 85%, rgba(245, 230, 179, 0.3) 0%, rgba(255, 255, 255, 0) 35%);
 		order: -1;
 		min-height: 160px;
 	}
 }
 
 .form {
-    margin-top: 24px;
+	margin-top: 24px;
 }
 
 .form-checkbox {
-    margin-top: 16px;
-    font-size: 16px !important;
+	margin-top: 16px;
+	font-size: 16px !important;
 }
 
 .form-actions {
-    margin-top: 64px;
+	margin-top: 64px;
 
-    display: flex;
-    flex-direction: row;
-    column-gap: 40px;
+	display: flex;
+	flex-direction: row;
+	column-gap: 40px;
 }
 
 .form-link-action {
-    text-decoration: none !important;
-    padding-right: calc( var( --spacing-base ) * 3 );
-    padding-left: calc( var( --spacing-base ) * 3 );
+	text-decoration: none !important;
+	padding-right: calc(var(--spacing-base) * 3);
+	padding-left: calc(var(--spacing-base) * 3);
 }
 
 .loading-banner {
@@ -126,8 +131,8 @@ $sans-font: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen-San
 	justify-content: center;
 	padding: 144px 32px;
 	background-image: radial-gradient(circle at 80% 80%, rgba(6, 158, 8, 0.15) 5%, rgba(255, 255, 255, 0) 50%);
-    background-repeat: no-repeat;
-    background-position: 100% 80%;
+	background-repeat: no-repeat;
+	background-position: 100% 80%;
 	background-size: cover;
 }
 
@@ -139,11 +144,14 @@ $sans-font: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen-San
 	.logo {
 		width: 88px;
 		height: 88px;
-		color: var( --jp-green-40 );
+		color: var(--jp-green-40);
 		transform: scale(1.3);
 		transition: transform 0.3s ease-out;
 
-		.circle-outline, .circle-fill, .triangles-outline, .triangles-fill {
+		.circle-outline,
+		.circle-fill,
+		.triangles-outline,
+		.triangles-fill {
 			opacity: 0;
 		}
 
@@ -164,7 +172,8 @@ $sans-font: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen-San
 			transform: scale(1.4);
 			animation: popIn 1s ease-out 0.3s forwards;
 
-			.circle-fill, .triangles-fill {
+			.circle-fill,
+			.triangles-fill {
 				animation: fadeIn 0.85s ease-out 0.3s forwards;
 			}
 		}
@@ -176,7 +185,8 @@ $sans-font: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen-San
 			transform: scale(1.4);
 			animation: none;
 
-			.circle-fill, .triangles-fill {
+			.circle-fill,
+			.triangles-fill {
 				opacity: 1;
 			}
 		}

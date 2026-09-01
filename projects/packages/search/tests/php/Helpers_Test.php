@@ -13,6 +13,7 @@ use PHPUnit\Framework\TestCase;
 
 require_once __DIR__ . '/class-test-helpers-customize.php';
 require_once __DIR__ . '/class-test-helpers-query.php';
+require_once __DIR__ . '/woocommerce-mocks.php';
 
 /**
  * Helpers for Classic and Instant Search tests
@@ -97,6 +98,10 @@ class Helpers_Test extends TestCase {
 
 		Constants::$set_constants = static::$constants_backup;
 		remove_all_filters( 'jetpack_search_has_vip_index' );
+
+		// Restore `posts_per_page` so a `resolve_results_per_page()` test that
+		// mutates it doesn't leak into other tests in this class.
+		update_option( 'posts_per_page', 10 );
 	}
 
 	/**
@@ -610,6 +615,46 @@ class Helpers_Test extends TestCase {
 	}
 
 	/**
+	 * An explicit override takes precedence over the site's `posts_per_page`
+	 * setting, clamped to `get_max_posts_per_page()`.
+	 */
+	public function test_resolve_results_per_page_uses_override() {
+		update_option( 'posts_per_page', 5 );
+		$this->assertSame( 25, Helper::resolve_results_per_page( 25 ) );
+	}
+
+	/**
+	 * No override (or `0`) falls back to the site's `posts_per_page` setting.
+	 */
+	public function test_resolve_results_per_page_falls_back_to_site_setting() {
+		update_option( 'posts_per_page', 7 );
+		$this->assertSame( 7, Helper::resolve_results_per_page() );
+		$this->assertSame( 7, Helper::resolve_results_per_page( 0 ) );
+	}
+
+	/**
+	 * A non-positive `posts_per_page` (e.g. `-1`, "show all") falls back to
+	 * 10 rather than clamping down to a single result.
+	 */
+	public function test_resolve_results_per_page_handles_show_all_reading_setting() {
+		update_option( 'posts_per_page', -1 );
+		$this->assertSame( 10, Helper::resolve_results_per_page() );
+	}
+
+	/**
+	 * Both the override and the site-default path clamp to
+	 * `get_max_posts_per_page()`.
+	 */
+	public function test_resolve_results_per_page_clamps_to_max() {
+		update_option( 'posts_per_page', 500 );
+		$this->assertSame( Helper::get_max_posts_per_page(), Helper::resolve_results_per_page() );
+		$this->assertSame(
+			Helper::get_max_posts_per_page(),
+			Helper::resolve_results_per_page( Helper::get_max_posts_per_page() + 500 )
+		);
+	}
+
+	/**
 	 * Test case
 	 *
 	 * @param mixed $expected - Expected value.
@@ -974,9 +1019,6 @@ class Helpers_Test extends TestCase {
 					'2'            => static::get_sample_widget_instance( 2 ),
 					'_multiwidget' => 1,
 				),
-				array(
-					'_multiwidget' => 1,
-				),
 			),
 			'multiple_widgets_filter_added'      => array(
 				array(
@@ -1001,9 +1043,6 @@ class Helpers_Test extends TestCase {
 					'2'            => static::get_sample_widget_instance( 2 ),
 					'_multiwidget' => 1,
 				),
-				array(
-					'_multiwidget' => 1,
-				),
 			),
 			'multiple_widgets_filter_updated'    => array(
 				array(
@@ -1026,9 +1065,6 @@ class Helpers_Test extends TestCase {
 					'0'            => static::get_sample_widget_instance( 0 ),
 					'1'            => static::get_sample_widget_instance( 1 ),
 					'2'            => $instance_with_filter_updated,
-					'_multiwidget' => 1,
-				),
-				array(
 					'_multiwidget' => 1,
 				),
 			),
@@ -1644,6 +1680,367 @@ class Helpers_Test extends TestCase {
 			'field'    => 'post_modified_gmt',
 			'interval' => 'year',
 			'count'    => 10,
+		);
+	}
+
+	/**
+	 * Data provider for product attribute filter.
+	 */
+	public static function get_product_attribute_filter() {
+		return array(
+			'type'  => 'product_attribute',
+			'name'  => 'Product Attributes',
+			'count' => 10,
+		);
+	}
+
+	/**
+	 * Data provider for product attribute filter with specific attribute.
+	 */
+	public static function get_product_attribute_filter_with_attribute() {
+		return array(
+			'type'      => 'product_attribute',
+			'name'      => 'Color',
+			'attribute' => 'pa_color',
+			'count'     => 10,
+		);
+	}
+
+	/**
+	 * Test case for get_filters_from_widgets with product_attribute filters
+	 */
+	public function test_get_filters_from_widgets_with_product_attributes() {
+		$raw_option = static::get_sample_widgets_option();
+		// Add a product_attribute filter without specific attribute (should expand).
+		$raw_option[22]['filters'][] = array(
+			'type'  => 'product_attribute',
+			'name'  => 'Product Attributes',
+			'count' => 10,
+		);
+
+		// Add a product_attribute filter with specific attribute (should not expand).
+		$raw_option[22]['filters'][] = array(
+			'type'      => 'product_attribute',
+			'name'      => 'Color',
+			'attribute' => 'pa_color',
+			'count'     => 5,
+		);
+
+		update_option( Helper::get_widget_option_name(), $raw_option );
+		$this->register_fake_widgets();
+
+		$filters = Helper::get_filters_from_widgets();
+
+		// Collect product_attribute filters.
+		$product_attributes = array_filter(
+			$filters,
+			function ( $filter ) {
+				return isset( $filter['type'] ) && $filter['type'] === 'product_attribute';
+			}
+		);
+
+		// Should have 4 product_attribute filters total (3 expanded + 1 specific)
+		$this->assertCount( 4, $product_attributes, 'Should have 4 product attribute filters' );
+
+		// Find specific attributes and verify their properties
+		$found_pa_color         = 0;
+		$found_pa_size          = 0;
+		$found_pa_material      = 0;
+		$found_pa_color_count_5 = false;
+		$found_expanded_color   = false;
+
+		foreach ( $product_attributes as $filter ) {
+			$this->assertArrayHasKey( 'attribute', $filter, 'Filter should have attribute key' );
+			$this->assertArrayHasKey( 'widget_id', $filter, 'Filter should have widget_id' );
+			$this->assertSame( 'jetpack-search-filters-22', $filter['widget_id'], 'widget_id should be inherited' );
+
+			if ( $filter['attribute'] === 'pa_color' ) {
+				++$found_pa_color;
+				if ( isset( $filter['count'] ) && $filter['count'] === 5 ) {
+					$found_pa_color_count_5 = true;
+					// This is the specific filter, name should be preserved
+					$this->assertSame( 'Color', $filter['name'], 'Specific filter should preserve its name' );
+				} else {
+					// This is the expanded filter
+					$found_expanded_color = true;
+					$this->assertSame( 'Color', $filter['name'], 'Expanded filter should use attribute label' );
+					$this->assertSame( 10, $filter['count'], 'Expanded filter should inherit count from parent' );
+				}
+			}
+			if ( $filter['attribute'] === 'pa_size' ) {
+				++$found_pa_size;
+				$this->assertSame( 'Size', $filter['name'], 'Expanded filter should use attribute label' );
+				$this->assertSame( 10, $filter['count'], 'Expanded filter should inherit count from parent' );
+			}
+			if ( $filter['attribute'] === 'pa_material' ) {
+				++$found_pa_material;
+				$this->assertSame( 'Material', $filter['name'], 'Expanded filter should use attribute label' );
+				$this->assertSame( 10, $filter['count'], 'Expanded filter should inherit count from parent' );
+			}
+		}
+
+		$this->assertSame( 2, $found_pa_color, 'Should have 2 pa_color filters (1 expanded, 1 specific)' );
+		$this->assertSame( 1, $found_pa_size, 'Should have 1 pa_size filter (expanded)' );
+		$this->assertSame( 1, $found_pa_material, 'Should have 1 pa_material filter (expanded)' );
+		$this->assertTrue( $found_pa_color_count_5, 'Should have pa_color filter with count=5' );
+		$this->assertTrue( $found_expanded_color, 'Should have expanded pa_color filter with count=10' );
+	}
+
+	/**
+	 * Test case for get_filters_from_widgets with product_attribute and included_attributes
+	 */
+	public function test_get_filters_from_widgets_with_product_attributes_inclusion() {
+		// WooCommerce functions are already mocked in the previous test
+
+		$raw_option = static::get_sample_widgets_option();
+		// Add a product_attribute filter with specific included attributes.
+		$raw_option[22]['filters'][] = array(
+			'type'                => 'product_attribute',
+			'name'                => 'Product Attributes',
+			'count'               => 10,
+			'included_attributes' => array( 'pa_color', 'pa_size' ),
+		);
+
+		update_option( Helper::get_widget_option_name(), $raw_option );
+		$this->register_fake_widgets();
+
+		$filters = Helper::get_filters_from_widgets();
+
+		// Collect product_attribute filters.
+		$product_attributes = array_filter(
+			$filters,
+			function ( $filter ) {
+				return isset( $filter['type'] ) && $filter['type'] === 'product_attribute';
+			}
+		);
+
+		// Should have 2 product_attribute filters (color and size from included_attributes)
+		$this->assertCount( 2, $product_attributes, 'Should have 2 product attribute filters' );
+
+		// Check that only included attributes are present and verify all properties
+		$found_pa_color    = false;
+		$found_pa_size     = false;
+		$found_pa_material = false;
+
+		foreach ( $product_attributes as $filter ) {
+			// Verify required keys exist
+			$this->assertArrayHasKey( 'attribute', $filter, 'Filter should have attribute key' );
+			$this->assertArrayHasKey( 'widget_id', $filter, 'Filter should have widget_id' );
+			$this->assertArrayHasKey( 'count', $filter, 'Filter should have count' );
+			$this->assertArrayHasKey( 'name', $filter, 'Filter should have name' );
+
+			// Verify inherited properties
+			$this->assertSame( 'jetpack-search-filters-22', $filter['widget_id'], 'widget_id should be inherited' );
+			$this->assertSame( 10, $filter['count'], 'count should be inherited from parent filter' );
+
+			// Verify included_attributes was removed from expanded filters
+			$this->assertArrayNotHasKey( 'included_attributes', $filter, 'included_attributes should be removed from expanded filters' );
+
+			// Track which attributes were found
+			if ( $filter['attribute'] === 'pa_color' ) {
+				$found_pa_color = true;
+				$this->assertSame( 'Color', $filter['name'], 'pa_color filter should use attribute label as name' );
+			}
+			if ( $filter['attribute'] === 'pa_size' ) {
+				$found_pa_size = true;
+				$this->assertSame( 'Size', $filter['name'], 'pa_size filter should use attribute label as name' );
+			}
+			if ( $filter['attribute'] === 'pa_material' ) {
+				$found_pa_material = true;
+			}
+		}
+
+		// Verify the inclusion filtering worked correctly
+		$this->assertTrue( $found_pa_color, 'Should have pa_color attribute (was in included_attributes)' );
+		$this->assertTrue( $found_pa_size, 'Should have pa_size attribute (was in included_attributes)' );
+		$this->assertFalse( $found_pa_material, 'Should NOT have pa_material attribute (was NOT in included_attributes)' );
+	}
+
+	/**
+	 * Test that parse_instant_search_query_options normalizes empty / invalid option values.
+	 */
+	public function test_parse_instant_search_query_options_edge_cases() {
+		$parsed = Helper::parse_instant_search_query_options(
+			array(
+				'highlightFields'     => array( '', '' ),
+				'customResults'       => array(
+					'not-an-array',
+					array(
+						'pattern' => 'hello',
+						'ids'     => array( 1 ),
+					),
+					array(
+						'pattern' => '',
+						'ids'     => array( 2 ),
+					),
+					array(
+						'pattern' => 'missing-ids',
+						'ids'     => array(),
+					),
+				),
+				'highlightPhraseOnly' => false,
+			)
+		);
+
+		$this->assertNull( $parsed['highlightFields'] );
+		$this->assertSame(
+			array(
+				array(
+					'pattern' => 'hello',
+					'ids'     => array( 1 ),
+				),
+			),
+			$parsed['customResults']
+		);
+		$this->assertFalse( $parsed['highlightPhraseOnly'] );
+	}
+
+	/**
+	 * Test that stopwords drop when combined with highlightPhraseOnly — the v1.3 API
+	 * rejects requests carrying both.
+	 */
+	public function test_parse_instant_search_query_options_phrase_only_wins_over_stopwords() {
+		$parsed = Helper::parse_instant_search_query_options(
+			array(
+				'highlightPhraseOnly'      => true,
+				'highlightFilterStopwords' => array( 'the', 'a' ),
+			)
+		);
+
+		$this->assertTrue( $parsed['highlightPhraseOnly'] );
+		$this->assertSame( array(), $parsed['highlightFilterStopwords'] );
+
+		$parsed = Helper::parse_instant_search_query_options(
+			array(
+				'highlightFilterStopwords' => array( 'the', 'a' ),
+			)
+		);
+
+		$this->assertFalse( $parsed['highlightPhraseOnly'] );
+		$this->assertSame( array( 'the', 'a' ), $parsed['highlightFilterStopwords'] );
+	}
+
+	/**
+	 * Test that get_instant_search_query_options ignores a non-array filter return.
+	 */
+	public function test_get_instant_search_query_options_non_array_filter() {
+		$callback = static function () {
+			return 'not-an-array';
+		};
+		$options  = array(
+			'highlightPhraseOnly' => false,
+			'customResults'       => array(),
+		);
+		add_filter( 'jetpack_instant_search_options', $callback );
+		try {
+			$options = Helper::get_instant_search_query_options();
+		} finally {
+			remove_filter( 'jetpack_instant_search_options', $callback );
+		}
+
+		$this->assertFalse( $options['highlightPhraseOnly'] );
+		$this->assertSame( array(), $options['customResults'] );
+	}
+
+	/**
+	 * Test apply_instant_search_query_options_to_api_args for regex customResults,
+	 * missing fields, and a non-array options filter when options are loaded via generate.
+	 */
+	public function test_apply_instant_search_query_options_to_api_args_edge_cases() {
+		$with_regex = Helper::apply_instant_search_query_options_to_api_args(
+			array(
+				'query' => 'hello world',
+			),
+			array(
+				'customResults'     => array(
+					array(
+						'pattern' => 'regex:hello.*',
+						'ids'     => array( 99 ),
+					),
+				),
+				'additionalBlogIds' => array( 7 ),
+			)
+		);
+		$this->assertSame( array( 99 ), $with_regex['custom_results'] );
+		$this->assertSame( array( 7 ), $with_regex['additional_blog_ids'] );
+		$this->assertSame(
+			Helper::MULTISITE_SEARCH_FIELD_NAMES,
+			$with_regex['fields']
+		);
+
+		$no_match = Helper::apply_instant_search_query_options_to_api_args(
+			array( 'query' => 'nope' ),
+			array(
+				'customResults' => array(
+					array(
+						'pattern' => 'hello',
+						'ids'     => array( 1 ),
+					),
+					array(
+						'pattern' => 'regex:^world$',
+						'ids'     => array( 2 ),
+					),
+				),
+			)
+		);
+		$this->assertArrayNotHasKey( 'custom_results', $no_match );
+
+		$callback = static function () {
+			return 'not-an-array';
+		};
+		add_filter( 'jetpack_instant_search_options', $callback );
+		try {
+			$passthrough = Helper::apply_instant_search_query_options_to_api_args(
+				array( 'query' => 'keep-me' )
+			);
+		} finally {
+			remove_filter( 'jetpack_instant_search_options', $callback );
+		}
+		$this->assertSame( array( 'query' => 'keep-me' ), $passthrough );
+	}
+
+	/**
+	 * Test that resolve_instant_search_custom_results matches exact and regex: patterns.
+	 */
+	public function test_resolve_instant_search_custom_results() {
+		$rules = array(
+			array(
+				'pattern' => 'exact',
+				'ids'     => array( 1 ),
+			),
+			array(
+				'pattern' => 'regex:^hello.*',
+				'ids'     => array( 2, 3 ),
+			),
+		);
+
+		$this->assertNull( Helper::resolve_instant_search_custom_results( 'x', array() ) );
+		$this->assertSame( array( 1 ), Helper::resolve_instant_search_custom_results( 'exact', $rules ) );
+		$this->assertSame( array( 2, 3 ), Helper::resolve_instant_search_custom_results( 'hello there', $rules ) );
+		$this->assertNull( Helper::resolve_instant_search_custom_results( 'nope', $rules ) );
+		$this->assertNull(
+			Helper::resolve_instant_search_custom_results(
+				'hello',
+				array(
+					array(
+						'pattern' => 'regex:[invalid',
+						'ids'     => array( 9 ),
+					),
+				)
+			)
+		);
+		$this->assertSame(
+			array( 4 ),
+			Helper::resolve_instant_search_custom_results(
+				'docs/getting-started',
+				array(
+					array(
+						'pattern' => 'regex:docs/.*',
+						'ids'     => array( 4 ),
+					),
+				)
+			),
+			'Patterns containing the PCRE delimiter should still match.'
 		);
 	}
 }

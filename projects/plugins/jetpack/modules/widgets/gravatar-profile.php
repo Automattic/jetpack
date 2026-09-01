@@ -1,5 +1,9 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 // phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
 
 add_action( 'widgets_init', 'jetpack_gravatar_profile_widget_init' );
@@ -325,9 +329,9 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 	 * @return string|void
 	 */
 	public function form( $instance ) {
-		$title               = isset( $instance['title'] ) ? $instance['title'] : '';
-		$email               = isset( $instance['email'] ) ? $instance['email'] : '';
-		$email_user          = isset( $instance['email_user'] ) ? $instance['email_user'] : get_current_user_id();
+		$title               = $instance['title'] ?? '';
+		$email               = $instance['email'] ?? '';
+		$email_user          = $instance['email_user'] ?? get_current_user_id();
 		$show_personal_links = isset( $instance['show_personal_links'] ) ? (bool) $instance['show_personal_links'] : '';
 		$show_account_links  = isset( $instance['show_account_links'] ) ? (bool) $instance['show_account_links'] : '';
 		$profile_url         = 'https://gravatar.com/profile/edit';

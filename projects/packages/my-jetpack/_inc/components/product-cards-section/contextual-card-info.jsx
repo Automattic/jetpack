@@ -1,13 +1,13 @@
 /**
  * External dependencies
  */
-import { Text, LoadingPlaceholder } from '@automattic/jetpack-components';
+import { LoadingPlaceholder } from '@automattic/jetpack-components';
 import { formatNumberCompact } from '@automattic/number-formatters';
 import { __, sprintf } from '@wordpress/i18n';
 import { arrowUp, arrowDown, Icon } from '@wordpress/icons';
+import { Text } from '@wordpress/ui';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
-import React from 'react';
 /**
  * Internal dependencies
  */
@@ -38,7 +38,7 @@ export const ChangePercentageContext = ( { change, changePercentage } ) => {
 			) }
 			<Text className={ styles[ 'change-values' ] }>
 				{ sprintf(
-					/* translators: both placeholders are numbers */
+					/* translators: %1$s: the formatted change amount, %2$s: the percentage amount */
 					__( '%1$s (%2$s%%)', 'jetpack-my-jetpack' ),
 					changeFormatted,
 					changePercentage

@@ -175,6 +175,7 @@ class Actions {
 		) ) {
 			self::initialize_sender();
 			add_action( 'shutdown', array( self::$sender, 'do_sync' ), 9998 );
+
 			if ( self::should_initialize_sender( true ) ) {
 				add_action( 'shutdown', array( self::$sender, 'do_full_sync' ), 9999 );
 			}
@@ -362,6 +363,10 @@ class Actions {
 
 		$queue      = self::$sender->get_sync_queue();
 		$full_queue = self::$sender->get_full_sync_queue();
+		// We are sending the expiry vs the actual dedicated lock value to ensure backwards compatibility
+		// with previous versions where the lock value was a timestamp.
+		$dedicated_sync_lock_option_name  = Dedicated_Sender::DEDICATED_SYNC_REQUEST_LOCK_OPTION_NAME;
+		$dedicated_sync_lock_expires_name = $dedicated_sync_lock_option_name . '_expires';
 
 		$debug['debug_details']['sync_locks'] = array(
 			'retry_time_sync'                       => get_option( self::RETRY_AFTER_PREFIX . 'sync' ),
@@ -370,7 +375,7 @@ class Actions {
 			'next_sync_time_full_sync'              => self::$sender->get_next_sync_time( 'full_sync' ),
 			'queue_locked_sync'                     => $queue->is_locked(),
 			'queue_locked_full_sync'                => $full_queue->is_locked(),
-			'dedicated_sync_request_lock'           => \Jetpack_Options::get_raw_option( Dedicated_Sender::DEDICATED_SYNC_REQUEST_LOCK_OPTION_NAME, null ),
+			'dedicated_sync_request_lock'           => \Jetpack_Options::get_raw_option( $dedicated_sync_lock_expires_name, null ),
 			'dedicated_sync_temporary_disable_flag' => get_transient( Dedicated_Sender::DEDICATED_SYNC_TEMPORARY_DISABLE_FLAG ),
 		);
 
@@ -666,11 +671,9 @@ class Actions {
 	 */
 	public static function jetpack_cron_schedule( $schedules ) {
 		if ( ! isset( $schedules[ self::DEFAULT_SYNC_CRON_INTERVAL_NAME ] ) ) {
-			$minutes = (int) ( self::DEFAULT_SYNC_CRON_INTERVAL_VALUE / 60 );
-			$display = ( 1 === $minutes ) ?
-				__( 'Every minute', 'jetpack-sync' ) :
-				/* translators: %d is an integer indicating the number of minutes. */
-				sprintf( __( 'Every %d minutes', 'jetpack-sync' ), $minutes );
+			$minutes = ( self::DEFAULT_SYNC_CRON_INTERVAL_VALUE / 60 );
+			/* translators: %d is an integer indicating the number of minutes. */
+			$display = sprintf( __( 'Every %d minutes', 'jetpack-sync' ), $minutes );
 			$schedules[ self::DEFAULT_SYNC_CRON_INTERVAL_NAME ] = array(
 				'interval' => self::DEFAULT_SYNC_CRON_INTERVAL_VALUE,
 				'display'  => $display,
@@ -686,7 +689,45 @@ class Actions {
 	 * @static
 	 */
 	public static function do_cron_sync() {
-		self::do_cron_sync_by_type( 'sync' );
+		if ( ! self::sync_allowed() ) {
+			return;
+		}
+
+		self::initialize_sender();
+
+		$time_limit = Settings::get_setting( 'cron_sync_time_limit' );
+		$start_time = time();
+		$executions = 0;
+
+		$lock_id = Dedicated_Sender::try_lock_spawn_request();
+
+		do {
+			$next_sync_time = self::$sender->get_next_sync_time( 'sync' );
+
+			if ( $next_sync_time ) {
+				$delay = $next_sync_time - time() + 1;
+				if ( $delay > 15 ) {
+					break;
+				} elseif ( $delay > 0 ) {
+					sleep( (int) $delay );
+				}
+			}
+
+			$result = self::$sender->do_sync_and_set_delays( self::$sender->get_sync_queue() );
+
+			if ( is_wp_error( $result ) && in_array( $result->get_error_code(), array( 'unclosed_buffer', 'sync_throttled' ), true ) ) {
+				$result = true; // Give it some time.
+			}
+			// # of send actions performed.
+			++$executions;
+
+		} while ( $result && ! is_wp_error( $result ) && ( $start_time + $time_limit ) > time() );
+
+		if ( $lock_id ) {
+			Dedicated_Sender::try_release_lock_spawn_request( $lock_id );
+		}
+
+		return $executions;
 	}
 
 	/**
@@ -696,7 +737,31 @@ class Actions {
 	 * @static
 	 */
 	public static function do_cron_full_sync() {
-		self::do_cron_sync_by_type( 'full_sync' );
+		if ( ! self::sync_allowed() ) {
+			return;
+		}
+
+		self::initialize_sender();
+
+		$executions = 0;
+
+		$next_sync_time = self::$sender->get_next_sync_time( 'full_sync' );
+
+		if ( $next_sync_time ) {
+			$delay = $next_sync_time - time() + 1;
+			if ( $delay > 15 ) {
+				return;
+			} elseif ( $delay > 0 ) {
+				sleep( (int) $delay );
+			}
+		}
+
+		// Explicitly only allow 1 do_full_sync call until issue with Immediate Full Sync is resolved.
+		// For more context see p1HpG7-9pe-p2.
+		self::$sender->do_full_sync();
+		++$executions;
+
+		return $executions;
 	}
 
 	/**
@@ -728,7 +793,7 @@ class Actions {
 				if ( $delay > 15 ) {
 					break;
 				} elseif ( $delay > 0 ) {
-					sleep( $delay );
+					sleep( (int) $delay );
 				}
 			}
 
@@ -784,7 +849,7 @@ class Actions {
 	 * @static
 	 */
 	public static function initialize_woocommerce() {
-		if ( false === class_exists( 'WooCommerce' ) ) {
+		if ( ! class_exists( 'WooCommerce' ) ) {
 			return;
 		}
 		add_filter( 'jetpack_sync_modules', array( __CLASS__, 'add_woocommerce_sync_module' ) );
@@ -799,19 +864,28 @@ class Actions {
 	}
 
 	/**
-	 * Initializes sync for Instant Search.
+	 * Initializes sync for Jetpack Search.
+	 *
+	 * The Search sync module owns the option-whitelist entries for
+	 * `instant_search_enabled` and `jetpack_search_experience`. Registration
+	 * is unconditional whenever the Search package is present — gating on
+	 * either `is_instant_search_enabled()` or `is_active()` reintroduces a
+	 * chicken-and-egg, because the very request that flips Search on (or
+	 * flips Instant Search on) must already have the option whitelist in
+	 * place to enqueue the write.
+	 *
+	 * The `class_exists()` guard below tracks package presence (autoloader
+	 * concern), not module activation — `Module_Control` is autoloaded as
+	 * long as the Search package is installed, even when the module is off.
 	 *
 	 * @access public
 	 * @static
 	 */
 	public static function initialize_search() {
-		if ( false === class_exists( 'Automattic\\Jetpack\\Search\\Module_Control' ) ) {
+		if ( ! class_exists( 'Automattic\\Jetpack\\Search\\Module_Control' ) ) {
 			return;
 		}
-		$search_module = new \Automattic\Jetpack\Search\Module_Control();
-		if ( $search_module->is_instant_search_enabled() ) {
-			add_filter( 'jetpack_sync_modules', array( __CLASS__, 'add_search_sync_module' ) );
-		}
+		add_filter( 'jetpack_sync_modules', array( __CLASS__, 'add_search_sync_module' ) );
 	}
 
 	/**
@@ -858,13 +932,30 @@ class Actions {
 	}
 
 	/**
+	 * Adds Woo's Products sync module to existing modules for sending.
+	 *
+	 * Note: This module is currently used for WooCommerce Analytics only.
+	 *
+	 * @param array $sync_modules The list of sync modules declared prior to this filter.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @return array A list of sync modules that now includes Woo's Products module.
+	 */
+	public static function add_woocommerce_products_sync_module( $sync_modules ) {
+		$sync_modules[] = 'Automattic\\Jetpack\\Sync\\Modules\\WooCommerce_Products';
+		return $sync_modules;
+	}
+
+	/**
 	 * Initializes sync for WP Super Cache.
 	 *
 	 * @access public
 	 * @static
 	 */
 	public static function initialize_wp_super_cache() {
-		if ( false === function_exists( 'wp_cache_is_enabled' ) ) {
+		if ( ! function_exists( 'wp_cache_is_enabled' ) ) {
 			return;
 		}
 		add_filter( 'jetpack_sync_modules', array( __CLASS__, 'add_wp_super_cache_sync_module' ) );
@@ -1127,7 +1218,11 @@ class Actions {
 		delete_option( self::RETRY_AFTER_PREFIX . 'sync' );
 		delete_option( self::RETRY_AFTER_PREFIX . 'full_sync' );
 		// Dedicated sync locks.
-		\Jetpack_Options::delete_raw_option( Dedicated_Sender::DEDICATED_SYNC_REQUEST_LOCK_OPTION_NAME );
+		$dedicated_sync_lock_option         = Dedicated_Sender::DEDICATED_SYNC_REQUEST_LOCK_OPTION_NAME;
+		$dedicated_sync_lock_expires_option = $dedicated_sync_lock_option . '_expires';
+		\Jetpack_Options::delete_raw_option( $dedicated_sync_lock_option );
+		\Jetpack_Options::delete_raw_option( $dedicated_sync_lock_expires_option );
+
 		delete_transient( Dedicated_Sender::DEDICATED_SYNC_TEMPORARY_DISABLE_FLAG );
 		// Lock for disabling Sync sending temporarily.
 		delete_transient( Sender::TEMP_SYNC_DISABLE_TRANSIENT_NAME );
@@ -1155,7 +1250,7 @@ class Actions {
 			"\n",
 			array_map(
 				function ( $key, $value ) {
-					return wp_json_encode( array( $key => $value ) );
+					return wp_json_encode( array( $key => $value ), JSON_UNESCAPED_SLASHES );
 				},
 				array_keys( (array) $data ),
 				array_values( (array) $data )
@@ -1179,12 +1274,12 @@ class Actions {
 		}
 		$decoded_response = json_decode( $response_body, true );
 
-		if ( false === is_array( $decoded_response ) ) {
+		if ( ! is_array( $decoded_response ) ) {
 			return new WP_Error( 'sync_rest_api_response_decoding_failed', 'Sync REST API response decoding failed', $response_body );
 		}
 
-		if ( $response_code !== 200 || false === isset( $decoded_response['processed_items'] ) ) {
-			if ( is_array( $decoded_response ) && isset( $decoded_response['code'] ) && isset( $decoded_response['message'] ) ) {
+		if ( $response_code !== 200 || ! isset( $decoded_response['processed_items'] ) ) {
+			if ( isset( $decoded_response['code'] ) && isset( $decoded_response['message'] ) ) {
 				return new WP_Error(
 					'jetpack_sync_send_error_' . $decoded_response['code'],
 					$decoded_response['message'],

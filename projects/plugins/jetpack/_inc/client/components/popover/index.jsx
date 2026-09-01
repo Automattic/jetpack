@@ -2,9 +2,8 @@ import { createRef } from '@wordpress/element';
 import clsx from 'clsx';
 import uid from 'component-uid';
 import debugFactory from 'debug';
-import { assign } from 'lodash';
 import PropTypes from 'prop-types';
-import React, { Component } from 'react';
+import { Component } from 'react';
 import RootChild from 'components/root-child';
 import {
 	bindWindowListeners,
@@ -297,7 +296,7 @@ class Popover extends Component {
 			this.debug( 'suggested position: %o', suggestedPosition );
 		}
 
-		const reposition = assign(
+		const reposition = Object.assign(
 			{},
 			constrainLeft(
 				offset( suggestedPosition, domContainerRef.current, domContextRef.current ),

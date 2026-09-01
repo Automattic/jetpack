@@ -82,46 +82,48 @@ export const useSpeedScores = ( siteUrl: string ) => {
 	return [ state as SpeedScoreState, loadScore as RefreshFunction ] as const;
 };
 
+type PendingState = {
+	isPending: boolean;
+	timestamp?: number;
+};
+
 type RefreshDependencies = {
 	moduleStates: Array< boolean >;
-	criticalCssCreated: number;
-	criticalCssIsGenerating: boolean;
+	pendingStates: Record< string, PendingState >;
 };
 
 /**
  * Watches the dependencies and refreshes the speed score when needed.
  *
- * @param {RefreshDependencies} dependencies                         - The dependencies to watch.
- * @param {Array<boolean>}      dependencies.moduleStates            - An array of booleans that represent the state of the modules.
- * @param {number}              dependencies.criticalCssCreated      - The timestamp of when the critical CSS was created.
- * @param {boolean}             dependencies.criticalCssIsGenerating - Whether the critical CSS is currently generating.
- * @param {RefreshFunction}     loadScore                            - The method to refresh the speed score.
+ * @param {RefreshDependencies}          dependencies               - The dependencies to watch.
+ * @param {Array<boolean>}               dependencies.moduleStates  - An array of booleans that represent the state of the modules.
+ * @param {Record<string, PendingState>} dependencies.pendingStates - A record of pending states and their timestamps.
+ * @param {RefreshFunction}              loadScore                  - The method to refresh the speed score.
  */
 export const useDebouncedRefreshScore = (
-	{ moduleStates, criticalCssCreated, criticalCssIsGenerating }: RefreshDependencies,
+	{ moduleStates, pendingStates }: RefreshDependencies,
 	loadScore: RefreshFunction
 ) => {
-	const currentConfigString = JSON.stringify( [ moduleStates, criticalCssCreated ] );
+	// Create a config string that includes all relevant state
+	const currentConfigString = JSON.stringify( [
+		moduleStates,
+		// Include timestamps of all pending states to track when they complete
+		Object.entries( pendingStates ).map( ( [ key, state ] ) => ( {
+			key,
+			timestamp: state.timestamp,
+		} ) ),
+	] );
 
-	/*
-	 * Keep track of the config string that was responsible for the last score refresh.
-	 *
-	 * By maintaining this value and comparing it to the current config string, we can
-	 * avoid refreshing the score when the config change was undone by the user quickly.
-	 * Example: The user toggles on a module, then toggles it off again within debounce
-	 * duration. We don't want to refresh the score in this case.
-	 */
 	const lastScoreConfigString = useRef( currentConfigString );
 
 	// Debounced function: Refresh the speed score if the config has changed.
 	const debouncedRefreshScore = useDebouncedCallback(
-		( newConfig: string, generating: boolean ) => {
+		( newConfig: string, hasPendingStates: boolean ) => {
 			/*
-			 * Trigger a refresh if config is different from last speed score refresh.
-			 * While critical CSS is currently generating, skip refreshing the score as
-			 * the impact of the config change won't be visible until the CSS is done.
+			 * Trigger a refresh if config is different from last speed score refresh
+			 * and there are no pending states that would affect the score.
 			 */
-			if ( lastScoreConfigString.current !== newConfig && ! generating ) {
+			if ( lastScoreConfigString.current !== newConfig && ! hasPendingStates ) {
 				lastScoreConfigString.current = newConfig;
 				loadScore();
 			}
@@ -130,6 +132,7 @@ export const useDebouncedRefreshScore = (
 	);
 
 	useEffect( () => {
-		debouncedRefreshScore( currentConfigString, criticalCssIsGenerating );
-	}, [ currentConfigString, debouncedRefreshScore, criticalCssIsGenerating ] );
+		const hasPendingStates = Object.values( pendingStates ).some( state => state.isPending );
+		debouncedRefreshScore( currentConfigString, hasPendingStates );
+	}, [ currentConfigString, debouncedRefreshScore, pendingStates ] );
 };

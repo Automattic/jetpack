@@ -50,7 +50,7 @@ $scale-factor: 0.55;
 			display: flex;
 			align-items: center;
 			overflow: hidden;
-			height: calc( 768px * $scale-factor );
+			height: calc(768px * $scale-factor);
 
 			.ai-carrousel {
 
@@ -80,7 +80,7 @@ $scale-factor: 0.55;
 					background: transparent;
 
 					&:hover {
-						background-color: rgba( 0, 0, 0, 0.3 );
+						background-color: rgba(0, 0, 0, 0.3);
 						opacity: 1;
 					}
 
@@ -136,8 +136,8 @@ $scale-factor: 0.55;
 		}
 
 		&-image {
-			max-height: calc( 768px * $scale-factor );
-			max-width: calc( 1024px * $scale-factor );
+			max-height: calc(768px * $scale-factor);
+			max-width: calc(1024px * $scale-factor);
 			width: auto;
 			height: auto;
 			margin: auto 0;
@@ -149,18 +149,18 @@ $scale-factor: 0.55;
 			height: 100%;
 			position: absolute;
 			left: 8px;
-			transform: translateX( 100% );
+			transform: translateX(100%);
 			transition: transform 0.5s;
 			flex-direction: column;
 			align-items: center;
 
 			&.is-prev {
-				transform: translateX( -100% );
+				transform: translateX(-100%);
 				left: -8px;
 			}
 
 			&.is-current {
-				transform: translateX( 0 );
+				transform: translateX(0);
 				position: static;
 			}
 		}

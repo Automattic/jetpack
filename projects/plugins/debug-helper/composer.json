@@ -4,9 +4,6 @@
 	"type": "wordpress-plugin",
 	"license": "GPL-2.0-or-later",
 	"require": {},
-	"require-dev": {
-		"automattic/jetpack-changelogger": "@dev"
-	},
 	"repositories": [
 		{
 			"type": "path",
@@ -19,6 +16,10 @@
 	"minimum-stability": "dev",
 	"prefer-stable": true,
 	"extra": {
+		"autotagger": {
+			"v": false
+		},
+		"autorelease": true,
 		"mirror-repo": "Automattic/jetpack-debug-helper",
 		"version-constants": {
 			"JETPACK_DEBUG_HELPER_VERSION": "plugin.php"

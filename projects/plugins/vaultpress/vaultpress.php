@@ -3,7 +3,7 @@
  * Plugin Name: VaultPress
  * Plugin URI: http://vaultpress.com/?utm_source=plugin-uri&amp;utm_medium=plugin-description&amp;utm_campaign=1.0
  * Description: Protect your content, themes, plugins, and settings with <strong>realtime backup</strong> and <strong>automated security scanning</strong> from <a href="http://vaultpress.com/?utm_source=wp-admin&amp;utm_medium=plugin-description&amp;utm_campaign=1.0" rel="nofollow">VaultPress</a>. Activate, enter your registration key, and never worry again. <a href="http://vaultpress.com/help/?utm_source=wp-admin&amp;utm_medium=plugin-description&amp;utm_campaign=1.0" rel="nofollow">Need some help?</a>
- * Version: 4.0.1
+ * Version: 4.0.7
  * Author: Automattic
  * Author URI: http://vaultpress.com/?utm_source=author-uri&amp;utm_medium=plugin-description&amp;utm_campaign=1.0
  * License: GPL2+
@@ -16,8 +16,8 @@
 // don't call the file directly.
 defined( 'ABSPATH' ) || die( 0 );
 
-define( 'VAULTPRESS__MINIMUM_PHP_VERSION', '7.2' );
-define( 'VAULTPRESS__VERSION', '4.0.1' );
+define( 'VAULTPRESS__MINIMUM_PHP_VERSION', '7.4' );
+define( 'VAULTPRESS__VERSION', '4.0.7' );
 define( 'VAULTPRESS__PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 
 /**
@@ -436,16 +436,29 @@ class VaultPress {
 		}
 	}
 
-	// get any messages from the VP servers
+	/**
+	 * Get messages from the VP servers
+	 *
+	 * @param bool $force_reload Whether to force a reload of the messages.
+	 * @return array The messages.
+	 */
 	function get_messages( $force_reload = false ) {
 		$last_contact = $this->get_option( 'messages_last_contact' );
 
 		// only run the messages check every 30 minutes
-		if ( ( time() - (int)$last_contact ) > 1800 || $force_reload ) {
-			$messages = base64_decode( $this->contact_service( 'messages', array() ) );
-			$messages = unserialize( $messages );
-			$this->update_option( 'messages_last_contact', time() );
-			$this->update_option( 'messages', $messages );
+		if ( ( time() - (int) $last_contact ) > 1800 || $force_reload ) {
+			$response = $this->contact_service( 'messages', array() );
+
+			// Only process if we got a valid string response
+			if ( is_string( $response ) && ! empty( $response ) ) {
+				$messages = base64_decode( $response ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
+				$messages = unserialize( $messages ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_unserialize
+				$this->update_option( 'messages_last_contact', time() );
+				$this->update_option( 'messages', $messages );
+			} else {
+				// If we got an error (array) or false/empty, fall back to cached messages
+				$messages = $this->get_option( 'messages' );
+			}
 		} else {
 			$messages = $this->get_option( 'messages' );
 		}
@@ -620,7 +633,7 @@ class VaultPress {
 			$this->update_option( 'connection_error_code', 'error_localhost' );
 			$this->update_option(
 				'connection_error_message',
-				esc_html__( 'Hostnames such as localhost or 127.0.0.1 can not be reached by vaultpress.com and will not work with the service. Sites must be publicly accessible in order to work with VaultPress.', 'vaultpress' )
+				esc_html__( 'Hostnames such as localhost or 127.0.0.1 cannot be reached by vaultpress.com and will not work with the service. Sites must be publicly accessible in order to work with VaultPress.', 'vaultpress' )
 			);
 			$this->error_notice();
 			return array( 'ui' => ob_get_clean(), 'dashboard_link' => false );
@@ -1016,8 +1029,8 @@ class VaultPress {
 	function ui_logo() {
 		if ( ! class_exists( 'Jetpack_Logo' ) ) {
 			require_once VAULTPRESS__PLUGIN_DIR . 'class-jetpack-logo.php';
-			$jetpack_logo = new Jetpack_Logo();
 		}
+		$jetpack_logo = new Jetpack_Logo();
 
 		return $jetpack_logo->output();
 	}
@@ -1495,7 +1508,7 @@ class VaultPress {
 		$protocol = 'https';
 		do {
 			--$retry;
-			$args['sslverify'] = 'https' == $protocol ? true : false;
+			$args['sslverify'] = 'https' === $protocol;
 			$r = wp_remote_get( $url=sprintf( "%s://%s/%s?cidr_ranges=1", $protocol, $hostname, $path ), $args );
 			if ( 200 == wp_remote_retrieve_response_code( $r ) ) {
 				if ( 99 == $this->get_option( 'connection_error_code' ) )
@@ -2073,7 +2086,7 @@ JS;
 					$where = null;
 
 				if ( isset( $_POST['table'] ) ) {
-					$parse_create_table = isset( $_POST['use_new_hash'] ) && $_POST['use_new_hash'] ? true : false;
+					$parse_create_table = isset( $_POST['use_new_hash'] ) && $_POST['use_new_hash']; //phpcs:ignore WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.MissingUnslash,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 					$bdb->attach( base64_decode( $_POST['table'] ), $parse_create_table );
 				}
 
@@ -2239,6 +2252,17 @@ JS;
 		return false;
 	}
 
+	/**
+	 * Contact the VaultPress service.
+	 *
+	 * @param string $action The action to perform.
+	 * @param array  $args   Optional. Arguments to pass to the service. Default empty array.
+	 * @return string|array|false The service response. Returns:
+	 *                           - A string containing the base64-encoded response on success
+	 *                           - An array with 'faultCode' and 'faultString' keys on XML-RPC error
+	 *                           - An empty string if the client message is empty
+	 *                           - false if connection check fails
+	 */
 	function contact_service( $action, $args = array() ) {
 		if ( 'test' != $action && 'register' != $action && !$this->check_connection() )
 			return false;
@@ -2268,9 +2292,9 @@ JS;
 			$args['cause_user_id'] = -1;
 			$args['cause_user_login'] = '';
 		}
-		$args['cause_ip'] = isset( $_SERVER['REMOTE_ADDR'] ) ? $_SERVER['REMOTE_ADDR'] : null ;
-		$args['cause_uri'] = isset( $_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : null;
-		$args['cause_method'] = isset( $_SERVER['REQUEST_METHOD'] ) ? $_SERVER['REQUEST_METHOD'] : null;
+		$args['cause_ip']     = $_SERVER['REMOTE_ADDR'] ?? null; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$args['cause_uri']    = $_SERVER['REQUEST_URI'] ?? null; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$args['cause_method'] = $_SERVER['REQUEST_METHOD'] ?? null; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		// End audit trail breadcrumbs
 
 		$args['version']   = $this->plugin_version;
@@ -2320,8 +2344,11 @@ JS;
 			if ( ! $this->check_firewall() )
 				return false;
 		}
+		if ( ! is_string( $sig ) ) {
+			return false;
+		}
 		$sig = explode( ':', $sig );
-		if ( !is_array( $sig ) || count( $sig ) != 2 || !isset( $sig[0] ) || !isset( $sig[1] ) ) {
+		if ( count( $sig ) !== 2 || ! isset( $sig[0] ) || ! isset( $sig[1] ) ) {
 			$__vp_validate_error = array( 'error' => 'invalid_signature_format' );
 			return false;
 		}
@@ -2544,9 +2571,9 @@ JS;
 			if ( !isset( $_GET['re'] ) )
 				die( $response );
 			else if ( '1' === $_GET['re'] )
-				die( base64_encode( $response ) );
+				die( base64_encode( (string) $response ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped,WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
 			else if ( '2' === $_GET['re'] )
-				die( str_rot13( $response ) );
+				die( str_rot13( (string) $response ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped,WordPress.PHP.DiscouragedPHPFunctions.obfuscation_str_rot13
 			else
 				die( $response );
 		}
@@ -2602,7 +2629,7 @@ JS;
 			return;
 
 		switch( $type ) {
-			case 'editedtables';
+			case 'editedtables':
 				$vaultpress_pings[$type] = $data;
 				return;
 			case 'uploads':
@@ -2833,7 +2860,7 @@ JS;
 		if ( $this->check_connection( true ) ) {
 			$registration['action'] = 'response';
 			$registration['error'] = 'VaultPress is already registered on this site.';
-			update_option( $this->auto_register_option, json_encode( $registration ) );
+			update_option( $this->auto_register_option, wp_json_encode( $registration, JSON_UNESCAPED_SLASHES ) );
 			return;
 		}
 
@@ -2854,7 +2881,7 @@ JS;
 			$registration['error'] = false;
 		}
 
-		update_option( $this->auto_register_option, json_encode( $registration ) );
+		update_option( $this->auto_register_option, wp_json_encode( $registration, JSON_UNESCAPED_SLASHES ) );
 	}
 
 	function add_global_actions_and_filters() {

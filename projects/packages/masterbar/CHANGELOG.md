@@ -5,6 +5,309 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.27.38] - 2026-08-25
+### Fixed
+- Admin color schemes: Stop labelling the Fresh scheme "Default", which duplicated the Default (Modern) entry on WordPress 7.0. [#51376]
+
+## [0.27.37] - 2026-08-20
+### Changed
+- Update package dependencies. [#51008]
+
+### Removed
+- Remove a dead CSS rule for the Jetpack release post modal, which no longer exists. [#51402]
+
+## [0.27.36] - 2026-08-03
+### Changed
+- Relabel the WooCommerce admin menu item to "Store setup" on Commerce and Commerce-trial sites. [#50203]
+
+## [0.27.35] - 2026-07-27
+### Changed
+- Update dependencies. [#50719]
+- Update package dependencies. [#50751] [#50753]
+
+## [0.27.34] - 2026-07-20
+### Changed
+- Update dependencies. [#50551]
+- Update package dependencies. [#50529]
+
+## [0.27.33] - 2026-07-13
+### Changed
+- Update dependencies. [#50360]
+
+### Fixed
+- Fix the sidebar notice dismiss icon being invisible against the dark admin menu background. [#50381]
+
+## [0.27.32] - 2026-07-06
+### Changed
+- Update package dependencies. [#50097] [#50183]
+
+## [0.27.31] - 2026-06-29
+### Changed
+- Update dependencies. [#50001]
+
+## [0.27.30] - 2026-06-25
+### Changed
+- Update package dependencies. [#49831]
+
+## [0.27.29] - 2026-06-22
+### Changed
+- Update package dependencies. [#49631] [#49691] [#49757]
+
+## [0.27.28] - 2026-06-15
+### Changed
+- Update package dependencies. [#49273]
+
+## [0.27.27] - 2026-06-08
+### Changed
+- Update dependencies. [#49354]
+
+## [0.27.26] - 2026-05-25
+### Changed
+- Update package dependencies. [#48405]
+
+## [0.27.25] - 2026-05-19
+### Changed
+- Update package dependencies. [#48695]
+
+## [0.27.24] - 2026-05-11
+### Changed
+- Update dependencies. [#46383]
+
+## [0.27.23] - 2026-05-04
+### Changed
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+
+## [0.27.22] - 2026-04-27
+### Changed
+- Update package dependencies. [#48302]
+
+## [0.27.21] - 2026-04-20
+### Changed
+- Update package dependencies. [#48106]
+
+## [0.27.20] - 2026-04-09
+### Changed
+- Update package dependencies. [#47890]
+
+## [0.27.19] - 2026-04-06
+### Changed
+- Update dependencies. [#46383]
+
+## [0.27.18] - 2026-03-30
+### Changed
+- Update package dependencies. [#47818]
+
+## [0.27.17] - 2026-03-23
+### Changed
+- Update package dependencies. [#47684]
+
+## [0.27.16] - 2026-03-16
+### Changed
+- Update dependencies. [#47472]
+
+## [0.27.15] - 2026-03-09
+### Changed
+- Update package dependencies. [#47496]
+
+## [0.27.14] - 2026-02-26
+### Changed
+- Admin Menu: Move Upgrades menu registration to jetpack-mu-wpcom for all admin interfaces. [#47146]
+- Update package dependencies. [#47288] [#47300]
+
+### Fixed
+- Fix admin menu upsell banner layout shift by rendering server-side instead of via AJAX. [#47268]
+
+## [0.27.13] - 2026-02-23
+### Changed
+- Update package dependencies. [#47173]
+
+## [0.27.12] - 2026-02-16
+### Changed
+- Update package dependencies. [#47099]
+
+## [0.27.11] - 2026-02-10
+### Changed
+- Update package dependencies. [#46936] [#47002]
+
+### Fixed
+- Admin Menu: Fix passing JSON string instead of array to JITM `get_messages()`. [#46906]
+
+## [0.27.10] - 2026-02-02
+### Changed
+- Update package dependencies. [#46854]
+
+## [0.27.9] - 2026-01-26
+### Changed
+- Update dependencies. [#46383]
+
+## [0.27.8] - 2026-01-19
+### Changed
+- Update package dependencies. [#46552] [#46647]
+
+## [0.27.7] - 2026-01-09
+### Changed
+- Update package dependencies. [#46456]
+
+## [0.27.6] - 2025-12-22
+### Changed
+- Update dependencies. [#46381]
+
+## [0.27.5] - 2025-12-15
+### Changed
+- Update dependencies. [#46271]
+
+## [0.27.4] - 2025-12-08
+### Fixed
+- Ensure proper flags are used with `json_encode()`. [#46092]
+
+## [0.27.3] - 2025-12-01
+### Changed
+- Update package dependencies. [#46143]
+
+## [0.27.2] - 2025-11-18
+### Changed
+- Update package dependencies. [#45961]
+
+## [0.27.1] - 2025-11-17
+### Changed
+- Update package dependencies. [#45915]
+
+## [0.27.0] - 2025-11-03
+### Changed
+- Don't translate product names. [#43961]
+- Update dependencies. [#45664]
+
+## [0.26.0] - 2025-10-20
+### Fixed
+- Show Additional CSS nudges on both Simple and Atomic, independently of the admin interface. [#45458]
+
+## [0.25.0] - 2025-10-10
+### Removed
+- Admin Menu: Remove `P2_Admin_Menu` class. [#45355]
+
+## [0.24.0] - 2025-10-06
+### Changed
+- Admin Menu: Use original menu order for self-hosted Jetpack sites in Calypso. [#45336]
+- Clean up the code for quick switcher after RDV. [#45353]
+- Update package dependencies. [#45334]
+
+### Removed
+- Admin Menu: Remove unused menu registrations. [#45351]
+
+## [0.23.3] - 2025-09-29
+### Changed
+- Internal updates.
+
+## [0.23.2] - 2025-09-22
+### Changed
+- Update dependencies. [#44736]
+
+## [0.23.1] - 2025-09-19
+### Changed
+- Update package dependencies. [#45173] [#45229]
+
+## [0.23.0] - 2025-09-15
+### Changed
+- Update package dependencies. [#45127] [#45128]
+
+### Removed
+- Admin Menu: Remove Settings > Newsletter. [#45041]
+
+## [0.22.3] - 2025-09-08
+### Changed
+- Update package dependencies. [#45027]
+
+## [0.22.2] - 2025-09-01
+### Changed
+- Internal updates.
+
+## [0.22.1] - 2025-08-25
+### Fixed
+- Fix the target upsell plan for the Additional CSS feature (needed for WP Cloud Personal sites). [#44838]
+
+## [0.22.0] - 2025-08-18
+### Removed
+- Admin Menu: Remove "Settings > Podcasting". [#44750]
+- Admin Menu: Remove "Tools > Monetize". [#44748]
+- Admin Menu: Remove "Users > Subscribers". [#44749]
+
+## [0.21.0] - 2025-08-14
+### Changed
+- Admin Menu: Move Jetpack menu before Posts. [#44733]
+- Update package dependencies. [#44701]
+
+## [0.20.0] - 2025-08-11
+### Changed
+- Admin Menu: Move "Hosting > Marketing" to "Tools > Marketing". [#44663]
+- Update dependencies. [#44673]
+- Update package dependencies. [#44677]
+
+### Deprecated
+- Admin Menu: Deprecate "Settings > Newsletter". [#44630]
+
+## [0.19.2] - 2025-08-04
+### Removed
+- Remove Dashboard link from Jetpack admin menu. [#44565]
+
+## [0.19.1] - 2025-07-28
+### Changed
+- Internal updates.
+
+## [0.19.0] - 2025-07-21
+### Changed
+- Update package dependencies. [#44356]
+
+### Deprecated
+- Admin Menu: Deprecate "Settings > Podcasting" menu. [#44367]
+- Admin Menu: Deprecate "Tools > Monetize" menu. [#44216]
+- Admin Menu: Deprecate "Users > Subscribers" menu. [#44302]
+
+## [0.18.2] - 2025-07-14
+### Changed
+- Update dependencies. [#44229]
+
+## [0.18.1] - 2025-07-07
+### Changed
+- Update package dependencies. [#44148] [#44151]
+
+## [0.18.0] - 2025-06-30
+### Changed
+- Admin Menu: Show Jetpack > Stats to Calypso users. [#44090]
+
+### Fixed
+- Admin Menu: Add JITM upsells back to default admin interface. [#44125]
+- Phan: Clean up error due to errant file reference. [#44031]
+
+## [0.17.11] - 2025-06-23
+### Changed
+- Admin Menu: Consolidate "Dashboard" and "My Home" menus. [#43983]
+- Update dependencies. [#44002]
+- Update package dependencies. [#44020]
+
+## [0.17.10] - 2025-06-16
+### Changed
+- Update package dependencies. [#43914]
+
+## [0.17.9] - 2025-06-09
+### Changed
+- Forms: Update Feedback menu slug to point to forms inbox. [#43780]
+
+## [0.17.8] - 2025-06-06
+### Fixed
+- Fix the Jetpack submenu order for WordPress.com sites that use Nav Unification. [#43781]
+
+## [0.17.7] - 2025-06-05
+### Changed
+- Update dependencies. [#43785]
+
+## [0.17.6] - 2025-06-03
+### Changed
+- Update package dependencies. [#43734]
+
+## [0.17.5] - 2025-06-02
+### Changed
+- Update package dependencies. [#43710]
+
 ## [0.17.4] - 2025-05-26
 ### Changed
 - Update package dependencies. [#43516] [#43578]
@@ -335,6 +638,71 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Notifications: Change Icon [#37676]
 - Updated package dependencies. [#37669] [#37706]
 
+[0.27.38]: https://github.com/Automattic/jetpack-masterbar/compare/v0.27.37...v0.27.38
+[0.27.37]: https://github.com/Automattic/jetpack-masterbar/compare/v0.27.36...v0.27.37
+[0.27.36]: https://github.com/Automattic/jetpack-masterbar/compare/v0.27.35...v0.27.36
+[0.27.35]: https://github.com/Automattic/jetpack-masterbar/compare/v0.27.34...v0.27.35
+[0.27.34]: https://github.com/Automattic/jetpack-masterbar/compare/v0.27.33...v0.27.34
+[0.27.33]: https://github.com/Automattic/jetpack-masterbar/compare/v0.27.32...v0.27.33
+[0.27.32]: https://github.com/Automattic/jetpack-masterbar/compare/v0.27.31...v0.27.32
+[0.27.31]: https://github.com/Automattic/jetpack-masterbar/compare/v0.27.30...v0.27.31
+[0.27.30]: https://github.com/Automattic/jetpack-masterbar/compare/v0.27.29...v0.27.30
+[0.27.29]: https://github.com/Automattic/jetpack-masterbar/compare/v0.27.28...v0.27.29
+[0.27.28]: https://github.com/Automattic/jetpack-masterbar/compare/v0.27.27...v0.27.28
+[0.27.27]: https://github.com/Automattic/jetpack-masterbar/compare/v0.27.26...v0.27.27
+[0.27.26]: https://github.com/Automattic/jetpack-masterbar/compare/v0.27.25...v0.27.26
+[0.27.25]: https://github.com/Automattic/jetpack-masterbar/compare/v0.27.24...v0.27.25
+[0.27.24]: https://github.com/Automattic/jetpack-masterbar/compare/v0.27.23...v0.27.24
+[0.27.23]: https://github.com/Automattic/jetpack-masterbar/compare/v0.27.22...v0.27.23
+[0.27.22]: https://github.com/Automattic/jetpack-masterbar/compare/v0.27.21...v0.27.22
+[0.27.21]: https://github.com/Automattic/jetpack-masterbar/compare/v0.27.20...v0.27.21
+[0.27.20]: https://github.com/Automattic/jetpack-masterbar/compare/v0.27.19...v0.27.20
+[0.27.19]: https://github.com/Automattic/jetpack-masterbar/compare/v0.27.18...v0.27.19
+[0.27.18]: https://github.com/Automattic/jetpack-masterbar/compare/v0.27.17...v0.27.18
+[0.27.17]: https://github.com/Automattic/jetpack-masterbar/compare/v0.27.16...v0.27.17
+[0.27.16]: https://github.com/Automattic/jetpack-masterbar/compare/v0.27.15...v0.27.16
+[0.27.15]: https://github.com/Automattic/jetpack-masterbar/compare/v0.27.14...v0.27.15
+[0.27.14]: https://github.com/Automattic/jetpack-masterbar/compare/v0.27.13...v0.27.14
+[0.27.13]: https://github.com/Automattic/jetpack-masterbar/compare/v0.27.12...v0.27.13
+[0.27.12]: https://github.com/Automattic/jetpack-masterbar/compare/v0.27.11...v0.27.12
+[0.27.11]: https://github.com/Automattic/jetpack-masterbar/compare/v0.27.10...v0.27.11
+[0.27.10]: https://github.com/Automattic/jetpack-masterbar/compare/v0.27.9...v0.27.10
+[0.27.9]: https://github.com/Automattic/jetpack-masterbar/compare/v0.27.8...v0.27.9
+[0.27.8]: https://github.com/Automattic/jetpack-masterbar/compare/v0.27.7...v0.27.8
+[0.27.7]: https://github.com/Automattic/jetpack-masterbar/compare/v0.27.6...v0.27.7
+[0.27.6]: https://github.com/Automattic/jetpack-masterbar/compare/v0.27.5...v0.27.6
+[0.27.5]: https://github.com/Automattic/jetpack-masterbar/compare/v0.27.4...v0.27.5
+[0.27.4]: https://github.com/Automattic/jetpack-masterbar/compare/v0.27.3...v0.27.4
+[0.27.3]: https://github.com/Automattic/jetpack-masterbar/compare/v0.27.2...v0.27.3
+[0.27.2]: https://github.com/Automattic/jetpack-masterbar/compare/v0.27.1...v0.27.2
+[0.27.1]: https://github.com/Automattic/jetpack-masterbar/compare/v0.27.0...v0.27.1
+[0.27.0]: https://github.com/Automattic/jetpack-masterbar/compare/v0.26.0...v0.27.0
+[0.26.0]: https://github.com/Automattic/jetpack-masterbar/compare/v0.25.0...v0.26.0
+[0.25.0]: https://github.com/Automattic/jetpack-masterbar/compare/v0.24.0...v0.25.0
+[0.24.0]: https://github.com/Automattic/jetpack-masterbar/compare/v0.23.3...v0.24.0
+[0.23.3]: https://github.com/Automattic/jetpack-masterbar/compare/v0.23.2...v0.23.3
+[0.23.2]: https://github.com/Automattic/jetpack-masterbar/compare/v0.23.1...v0.23.2
+[0.23.1]: https://github.com/Automattic/jetpack-masterbar/compare/v0.23.0...v0.23.1
+[0.23.0]: https://github.com/Automattic/jetpack-masterbar/compare/v0.22.3...v0.23.0
+[0.22.3]: https://github.com/Automattic/jetpack-masterbar/compare/v0.22.2...v0.22.3
+[0.22.2]: https://github.com/Automattic/jetpack-masterbar/compare/v0.22.1...v0.22.2
+[0.22.1]: https://github.com/Automattic/jetpack-masterbar/compare/v0.22.0...v0.22.1
+[0.22.0]: https://github.com/Automattic/jetpack-masterbar/compare/v0.21.0...v0.22.0
+[0.21.0]: https://github.com/Automattic/jetpack-masterbar/compare/v0.20.0...v0.21.0
+[0.20.0]: https://github.com/Automattic/jetpack-masterbar/compare/v0.19.2...v0.20.0
+[0.19.2]: https://github.com/Automattic/jetpack-masterbar/compare/v0.19.1...v0.19.2
+[0.19.1]: https://github.com/Automattic/jetpack-masterbar/compare/v0.19.0...v0.19.1
+[0.19.0]: https://github.com/Automattic/jetpack-masterbar/compare/v0.18.2...v0.19.0
+[0.18.2]: https://github.com/Automattic/jetpack-masterbar/compare/v0.18.1...v0.18.2
+[0.18.1]: https://github.com/Automattic/jetpack-masterbar/compare/v0.18.0...v0.18.1
+[0.18.0]: https://github.com/Automattic/jetpack-masterbar/compare/v0.17.11...v0.18.0
+[0.17.11]: https://github.com/Automattic/jetpack-masterbar/compare/v0.17.10...v0.17.11
+[0.17.10]: https://github.com/Automattic/jetpack-masterbar/compare/v0.17.9...v0.17.10
+[0.17.9]: https://github.com/Automattic/jetpack-masterbar/compare/v0.17.8...v0.17.9
+[0.17.8]: https://github.com/Automattic/jetpack-masterbar/compare/v0.17.7...v0.17.8
+[0.17.7]: https://github.com/Automattic/jetpack-masterbar/compare/v0.17.6...v0.17.7
+[0.17.6]: https://github.com/Automattic/jetpack-masterbar/compare/v0.17.5...v0.17.6
+[0.17.5]: https://github.com/Automattic/jetpack-masterbar/compare/v0.17.4...v0.17.5
 [0.17.4]: https://github.com/Automattic/jetpack-masterbar/compare/v0.17.3...v0.17.4
 [0.17.3]: https://github.com/Automattic/jetpack-masterbar/compare/v0.17.2...v0.17.3
 [0.17.2]: https://github.com/Automattic/jetpack-masterbar/compare/v0.17.1...v0.17.2

@@ -43,7 +43,7 @@ export const updateTrackingSettings = newSettings => {
 				// then we try to let Javascript stringify the error object.
 				error: error =>
 					sprintf(
-						/* translators: placeholder is an error message. */
+						/* translators: %s: an error message. */
 						__( 'Error updating privacy settings. %s', 'jetpack' ),
 						error.message || error.code || error.name || error
 					),

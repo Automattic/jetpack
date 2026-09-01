@@ -9,6 +9,10 @@ namespace Automattic\Jetpack\Extensions\Seo;
 
 use Automattic\Jetpack\Modules;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 add_action(
 	'jetpack_register_gutenberg_extensions',
 	function () {
@@ -44,7 +48,7 @@ add_filter(
 	'jetpack_set_available_extensions',
 	function ( $extensions ) {
 		return array_merge(
-			$extensions,
+			(array) $extensions,
 			array( 'advanced-seo' )
 		);
 	}

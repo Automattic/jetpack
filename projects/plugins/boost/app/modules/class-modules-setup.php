@@ -4,10 +4,12 @@ namespace Automattic\Jetpack_Boost\Modules;
 
 use Automattic\Jetpack\Schema\Schema;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync;
+use Automattic\Jetpack_Boost\Admin\Config;
 use Automattic\Jetpack_Boost\Contracts\Changes_Output_After_Activation;
 use Automattic\Jetpack_Boost\Contracts\Feature;
 use Automattic\Jetpack_Boost\Contracts\Has_Data_Sync;
 use Automattic\Jetpack_Boost\Contracts\Has_Setup;
+use Automattic\Jetpack_Boost\Contracts\Needs_Website_To_Be_Public;
 use Automattic\Jetpack_Boost\Data_Sync\Modules_State_Entry;
 use Automattic\Jetpack_Boost\Lib\Setup;
 use Automattic\Jetpack_Boost\Lib\Status;
@@ -30,6 +32,30 @@ class Modules_Setup implements Has_Setup, Has_Data_Sync {
 	public function __construct() {
 		$this->available_modules    = $this->get_available_modules();
 		$this->available_submodules = $this->get_available_submodules();
+		$this->prime_status_option_caches();
+	}
+
+	/**
+	 * Warm the object cache for every module status option in a single query.
+	 *
+	 * Each module's status is read individually via get_option() when its enabled
+	 * state is checked. On a site with no persistent object cache, a module whose
+	 * status option has never been stored is re-queried on every request. Priming
+	 * the caches here collapses those into one query without creating any rows.
+	 */
+	private function prime_status_option_caches() {
+		if ( ! function_exists( 'wp_prime_option_caches' ) ) {
+			return;
+		}
+
+		$option_names = array();
+		foreach ( $this->get_available_modules_and_submodules() as $module ) {
+			$option_names[] = $module->get_status_option_name();
+		}
+
+		if ( ! empty( $option_names ) ) {
+			wp_prime_option_caches( $option_names );
+		}
 	}
 
 	public function get_available_modules() {
@@ -168,6 +194,10 @@ class Modules_Setup implements Has_Setup, Has_Data_Sync {
 				continue;
 			}
 
+			if ( ! $this->can_module_run( $module ) ) {
+				continue;
+			}
+
 			Setup::add( $module->feature );
 
 			$submodules = $module->get_available_submodules();
@@ -240,6 +270,10 @@ class Modules_Setup implements Has_Setup, Has_Data_Sync {
 		$status = new Status( $module_slug );
 		$status->on_update( $is_activated );
 
+		if ( ! $this->can_module_run( $module ) ) {
+			return;
+		}
+
 		if ( $is_activated ) {
 			$module->on_activate();
 		} else {
@@ -270,5 +304,35 @@ class Modules_Setup implements Has_Setup, Has_Data_Sync {
 				}
 			}
 		}
+	}
+
+	/**
+	 * Determines whether the functionality of a module should run.
+	 * If the website is not public but the module requires it,
+	 * the module's functionality should not run.
+	 *
+	 * @param Module $module The module to check.
+	 * @return bool True if the module can run, false otherwise.
+	 */
+	public function can_module_run( $module ) {
+		$website_public = Config::is_website_public();
+		$can_module_run = true;
+
+		// If the module requires the website to be public and it's not, don't allow it to run.
+		if ( $module->feature instanceof Needs_Website_To_Be_Public && ! $website_public ) {
+			$can_module_run = false;
+		}
+
+		/**
+		 * Filter to allow modules to run even if the website is not public.
+		 * This is useful for debugging purposes.
+		 *
+		 * @since 4.2.0
+		 *
+		 * @param bool   $can_module_run Whether the module should be disabled.
+		 * @param Module $module         The module to check.
+		 * @param bool   $website_public Whether the website is public.
+		 */
+		return apply_filters( 'jetpack_boost_can_module_run', $can_module_run, $module, $website_public );
 	}
 }

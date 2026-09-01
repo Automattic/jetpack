@@ -1,16 +1,16 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { ExternalLink } from '@wordpress/components';
+import { isWoASite } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
-import { get, includes } from 'lodash';
+import { Link } from '@wordpress/ui';
 import PropTypes from 'prop-types';
-import React from 'react';
+import { Component } from 'react';
 import { connect } from 'react-redux';
 import Button from 'components/button';
 import QuerySitePlugins from 'components/data/query-site-plugins';
 import { imagePath } from 'constants/urls';
 import analytics from 'lib/analytics';
 import { getPlanClass } from 'lib/plans/constants';
-import { showBackups, isWoASite } from 'state/initial-state';
+import { showBackups } from 'state/initial-state';
 import {
 	isModuleActivated as _isModuleActivated,
 	activateModule,
@@ -27,7 +27,7 @@ import {
 	isPluginInstalled,
 } from 'state/site/plugins';
 
-class MyPlanBody extends React.Component {
+class MyPlanBody extends Component {
 	static propTypes = {
 		plan: PropTypes.string,
 	};
@@ -69,27 +69,24 @@ class MyPlanBody extends React.Component {
 	};
 
 	render() {
-		let planCard = '';
+		let planCard;
 		const planClass = 'offline' !== this.props.plan ? getPlanClass( this.props.plan ) : 'offline';
-		const isPlanPremiumOrBetter = includes(
-			[
-				'is-premium-plan',
-				'is-business-plan',
-				'is-security-t1-plan',
-				'is-security-t2-plan',
-				'is-complete-plan',
+		const isPlanPremiumOrBetter = [
+			'is-premium-plan',
+			'is-business-plan',
+			'is-security-t1-plan',
+			'is-security-t2-plan',
+			'is-complete-plan',
 
-				// DEPRECATED: Daily and Real-time variations will soon be retired.
-				// Remove after all customers are migrated to new products.
-				'is-daily-security-plan',
-				'is-realtime-security-plan',
-			],
-			planClass
-		);
-		const rewindActive = 'active' === get( this.props.rewindStatus, [ 'state' ], false ),
+			// DEPRECATED: Daily and Real-time variations will soon be retired.
+			// Remove after all customers are migrated to new products.
+			'is-daily-security-plan',
+			'is-realtime-security-plan',
+		].includes( planClass );
+		const rewindActive = 'active' === this.props.rewindStatus?.state,
 			hideVaultPressCard =
 				! this.props.showBackups ||
-				( ! rewindActive && 'unavailable' !== get( this.props.rewindStatus, [ 'state' ], false ) );
+				( ! rewindActive && 'unavailable' !== this.props.rewindStatus?.state );
 
 		const getJetpackBackupCard = args => {
 			const { title, description } = args;
@@ -107,13 +104,14 @@ class MyPlanBody extends React.Component {
 						<h3 className="jp-landing__plan-features-title">{ title }</h3>
 						<p>{ description }</p>
 						<Button onClick={ this.handleButtonClickForTracking( 'view_backup_dash' ) } compact rna>
-							<ExternalLink
+							<Link
+								openInNewTab
 								href={ getRedirectUrl( 'calypso-activity-log', {
 									site: this.props.blogID ?? this.props.siteRawUrl,
 								} ) }
 							>
 								{ __( 'View your backups', 'jetpack' ) }
-							</ExternalLink>
+							</Link>
 						</Button>
 					</div>
 				</div>
@@ -150,20 +148,21 @@ class MyPlanBody extends React.Component {
 								compact
 								rna
 							>
-								<ExternalLink
+								<Link
+									openInNewTab
 									href={ getRedirectUrl( 'calypso-activity-log', {
 										site: this.props.blogID ?? this.props.siteRawUrl,
 									} ) }
 								>
 									{ __( 'View your security activity', 'jetpack' ) }
-								</ExternalLink>
+								</Link>
 							</Button>
 						</div>
 					</div>
 				);
 			}
 
-			let description = '';
+			let description;
 			switch ( planClass ) {
 				case 'is-personal-plan':
 					description = __(
@@ -209,9 +208,9 @@ class MyPlanBody extends React.Component {
 								compact
 								rna
 							>
-								<ExternalLink href={ getRedirectUrl( 'vaultpress-dashboard' ) }>
+								<Link openInNewTab href={ getRedirectUrl( 'vaultpress-dashboard' ) }>
 									{ __( 'View your security dashboard', 'jetpack' ) }
-								</ExternalLink>
+								</Link>
 							</Button>
 						) : (
 							<Button
@@ -219,14 +218,15 @@ class MyPlanBody extends React.Component {
 								compact
 								rna
 							>
-								<ExternalLink
+								<Link
+									openInNewTab
 									href={ getRedirectUrl( 'calypso-plugins-setup', {
 										site: this.props.blogID ?? this.props.siteRawUrl,
 										query: 'only=vaultpress',
 									} ) }
 								>
 									{ __( 'View settings', 'jetpack' ) }
-								</ExternalLink>
+								</Link>
 							</Button>
 						) }
 					</div>
@@ -380,14 +380,15 @@ class MyPlanBody extends React.Component {
 										compact
 										rna
 									>
-										<ExternalLink
+										<Link
+											openInNewTab
 											href={ getRedirectUrl( 'calypso-plugins-setup', {
 												site: this.props.blogID ?? this.props.siteRawUrl,
 												query: 'only=akismet',
 											} ) }
 										>
 											{ __( 'View settings', 'jetpack' ) }
-										</ExternalLink>
+										</Link>
 									</Button>
 								) }
 							</div>
@@ -465,13 +466,14 @@ class MyPlanBody extends React.Component {
 									compact
 									rna
 								>
-									<ExternalLink
+									<Link
+										openInNewTab
 										href={ getRedirectUrl( 'calypso-activity-log', {
 											site: this.props.blogID ?? this.props.siteRawUrl,
 										} ) }
 									>
 										{ __( 'View your site activity', 'jetpack' ) }
-									</ExternalLink>
+									</Link>
 								</Button>
 							</div>
 						</div>
@@ -501,13 +503,14 @@ class MyPlanBody extends React.Component {
 											compact
 											rna
 										>
-											<ExternalLink
+											<Link
+												openInNewTab
 												href={ getRedirectUrl( 'wpcom-ads-earnings', {
 													site: this.props.blogID ?? this.props.siteRawUrl,
 												} ) }
 											>
 												{ __( 'View your earnings', 'jetpack' ) }
-											</ExternalLink>
+											</Link>
 										</Button>
 									) : (
 										<Button
@@ -523,7 +526,7 @@ class MyPlanBody extends React.Component {
 							</div>
 						) }
 
-						{ isPlanPremiumOrBetter && this.props.isWoASite && (
+						{ isPlanPremiumOrBetter && isWoASite() && (
 							<div className="jp-landing__plan-features-card">
 								<div className="jp-landing__plan-features-img">
 									<img
@@ -550,13 +553,14 @@ class MyPlanBody extends React.Component {
 										compact
 										rna
 									>
-										<ExternalLink
+										<Link
+											openInNewTab
 											href={ getRedirectUrl( 'calypso-marketing-traffic', {
 												site: this.props.blogID ?? this.props.siteRawUrl,
 											} ) }
 										>
 											{ __( 'Configure Google Analytics', 'jetpack' ) }
-										</ExternalLink>
+										</Link>
 									</Button>
 								</div>
 							</div>
@@ -588,13 +592,14 @@ class MyPlanBody extends React.Component {
 												compact
 												rna
 											>
-												<ExternalLink
+												<Link
+													openInNewTab
 													href={ getRedirectUrl( 'calypso-edit-posts', {
 														site: this.props.blogID ?? this.props.siteRawUrl,
 													} ) }
 												>
 													{ __( 'Schedule posts', 'jetpack' ) }
-												</ExternalLink>
+												</Link>
 											</Button>
 										) : (
 											<Button
@@ -654,13 +659,14 @@ class MyPlanBody extends React.Component {
 									compact
 									rna
 								>
-									<ExternalLink
+									<Link
+										openInNewTab
 										href={ getRedirectUrl( 'calypso-settings-security', {
 											site: this.props.blogID ?? this.props.siteRawUrl,
 										} ) }
 									>
 										{ __( 'Set up your site security', 'jetpack' ) }
-									</ExternalLink>
+									</Link>
 								</Button>
 							</div>
 						</div>
@@ -713,13 +719,14 @@ class MyPlanBody extends React.Component {
 									) }
 								</p>
 								<Button onClick={ this.handleButtonClickForTracking( 'free_themes' ) } compact rna>
-									<ExternalLink
+									<Link
+										openInNewTab
 										href={ getRedirectUrl( 'calypso-themes', {
 											site: this.props.blogID ?? this.props.siteRawUrl,
 										} ) }
 									>
 										{ __( 'Explore themes', 'jetpack' ) }
-									</ExternalLink>
+									</Link>
 								</Button>
 							</div>
 						</div>
@@ -752,13 +759,14 @@ class MyPlanBody extends React.Component {
 											compact
 											rna
 										>
-											<ExternalLink
+											<Link
+												openInNewTab
 												href={ getRedirectUrl( 'calypso-marketing-connections', {
 													site: this.props.blogID ?? this.props.siteRawUrl,
 												} ) }
 											>
 												{ __( 'Start sharing', 'jetpack' ) }
-											</ExternalLink>
+											</Link>
 										</Button>
 									) : (
 										<Button
@@ -800,13 +808,14 @@ class MyPlanBody extends React.Component {
 									compact
 									rna
 								>
-									<ExternalLink
+									<Link
+										openInNewTab
 										href={ getRedirectUrl( 'calypso-activity-log', {
 											site: this.props.blogID ?? this.props.siteRawUrl,
 										} ) }
 									>
 										{ __( 'View your site activity', 'jetpack' ) }
-									</ExternalLink>
+									</Link>
 								</Button>
 							</div>
 						</div>
@@ -834,9 +843,9 @@ class MyPlanBody extends React.Component {
 									compact
 									rna
 								>
-									<ExternalLink href={ getRedirectUrl( 'jetpack-support' ) }>
+									<Link openInNewTab href={ getRedirectUrl( 'jetpack-support' ) }>
 										{ __( 'Search support docs', 'jetpack' ) }
-									</ExternalLink>
+									</Link>
 								</Button>
 							</div>
 						</div>
@@ -886,7 +895,6 @@ export default connect(
 			showBackups: showBackups( state ),
 			getFeatureState: feature => getSetting( state, feature ),
 			isActivatingFeature: feature => isUpdatingSetting( state, feature ),
-			isWoASite: isWoASite( state ),
 		};
 	},
 	dispatch => {

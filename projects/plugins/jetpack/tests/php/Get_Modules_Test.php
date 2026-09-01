@@ -55,6 +55,7 @@ class Get_Modules_Test extends WP_UnitTestCase {
 			'notes',
 			'photon-cdn',
 			'photon',
+			'podcast',
 			'post-by-email',
 			'protect',
 			'publicize',
@@ -212,7 +213,7 @@ class Get_Modules_Test extends WP_UnitTestCase {
 
 		StatusCache::clear();
 		add_filter( 'jetpack_offline_mode', '__return_true' );
-		$this->assertSame( 'Offline mode', Jetpack_Admin::get_module_unavailable_reason( $dummy_module ) );
+		$this->assertSame( 'Unavailable in Offline mode', Jetpack_Admin::get_module_unavailable_reason( $dummy_module ) );
 		remove_filter( 'jetpack_offline_mode', '__return_true' );
 		StatusCache::clear();
 
@@ -229,7 +230,7 @@ class Get_Modules_Test extends WP_UnitTestCase {
 	public function test_get_module_valid_module() {
 		$module_info = array(
 			'name'                      => 'Secure Sign On',
-			'description'               => 'Allow users to log in to this site using WordPress.com accounts',
+			'description'               => 'Let users log in with their WordPress.com account for quick, secure access.',
 			'sort'                      => 30,
 			'recommendation_order'      => 5,
 			'introduced'                => '2.6',

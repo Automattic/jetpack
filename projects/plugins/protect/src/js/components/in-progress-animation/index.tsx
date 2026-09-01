@@ -1,6 +1,7 @@
 import styles from './styles.module.scss';
+import type { FC } from 'react';
 
-const InProgressAnimation: React.FC = () => {
+const InProgressAnimation: FC = () => {
 	return (
 		<svg
 			width="440"

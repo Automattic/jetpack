@@ -3,10 +3,11 @@ import {
 	Button,
 	DiffViewer,
 	MarkedLines,
-	useBreakpointMatch,
+	DetailsViewer,
 } from '@automattic/jetpack-components';
+import { useViewportMatch } from '@wordpress/compose';
 import { __, sprintf } from '@wordpress/i18n';
-import React, { useCallback } from 'react';
+import { useCallback } from 'react';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import useFixers from '../../hooks/use-fixers';
 import useModal from '../../hooks/use-modal';
@@ -18,6 +19,8 @@ const ThreatAccordionItem = ( {
 	context,
 	description,
 	diff,
+	extension,
+	signature,
 	filename,
 	firstDetected,
 	fixedIn,
@@ -29,6 +32,7 @@ const ThreatAccordionItem = ( {
 	name,
 	source,
 	title,
+	details,
 	type,
 	severity,
 	status,
@@ -72,7 +76,7 @@ const ThreatAccordionItem = ( {
 			event.preventDefault();
 			setModal( {
 				type: 'FIX_THREAT',
-				props: { id, fixable, label, icon, severity },
+				props: { id, signature, extension, fixable, label, icon, severity },
 			} );
 		};
 	};
@@ -111,7 +115,7 @@ const ThreatAccordionItem = ( {
 					{ learnMoreButton }
 				</div>
 			) }
-			{ ( filename || context || diff ) && (
+			{ ( filename || context || diff || details ) && (
 				<Text variant="title-small" mb={ 2 }>
 					{ __( 'The technical details', 'jetpack-protect' ) }
 				</Text>
@@ -128,6 +132,7 @@ const ThreatAccordionItem = ( {
 				</>
 			) }
 			{ context && <MarkedLines context={ context } /> }
+			{ details && <DetailsViewer details={ details } /> }
 			{ diff && <DiffViewer diff={ diff } /> }
 			{ fixedIn && status !== 'fixed' && (
 				<div className={ styles[ 'threat-section' ] }>
@@ -181,7 +186,7 @@ const ThreatAccordionItem = ( {
 };
 
 const PaidList = ( { list, hideAutoFixColumn = false } ) => {
-	const [ isSmall ] = useBreakpointMatch( [ 'sm', 'lg' ], [ null, '<' ] );
+	const isSmall = useViewportMatch( 'small', '<' );
 
 	return (
 		<>
@@ -201,6 +206,8 @@ const PaidList = ( { list, hideAutoFixColumn = false } ) => {
 								context,
 								description,
 								diff,
+								extension,
+								signature,
 								filename,
 								firstDetected,
 								fixedIn,
@@ -212,7 +219,7 @@ const PaidList = ( { list, hideAutoFixColumn = false } ) => {
 								name,
 								severity,
 								source,
-								table,
+								details,
 								title,
 								type,
 								version,
@@ -222,6 +229,8 @@ const PaidList = ( { list, hideAutoFixColumn = false } ) => {
 									context={ context }
 									description={ description }
 									diff={ diff }
+									extension={ extension }
+									signature={ signature }
 									filename={ filename }
 									firstDetected={ firstDetected }
 									fixedIn={ fixedIn }
@@ -234,7 +243,7 @@ const PaidList = ( { list, hideAutoFixColumn = false } ) => {
 									name={ name }
 									severity={ severity }
 									source={ source }
-									table={ table }
+									details={ details }
 									title={ title }
 									type={ type }
 									version={ version }

@@ -1,12 +1,12 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { ExternalLink } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import PropTypes from 'prop-types';
-import React from 'react';
+import { PureComponent } from 'react';
 
-class ProductExpiration extends React.PureComponent {
+class ProductExpiration extends PureComponent {
 	static propTypes = {
 		expiryDate: PropTypes.string,
 		purchaseDate: PropTypes.string,
@@ -34,7 +34,7 @@ class ProductExpiration extends React.PureComponent {
 			const giftedDateObj = new Date( purchaseDate );
 			if ( giftedDateObj.toString() !== 'Invalid Date' ) {
 				return sprintf(
-					/* translators: placeholder is a date. */
+					/* translators: %s: the date it was gifted. */
 					__( 'Gifted on %s.', 'jetpack' ),
 					dateI18n( dateFormat, giftedDateObj )
 				);
@@ -48,7 +48,7 @@ class ProductExpiration extends React.PureComponent {
 			const purchaseDateObj = new Date( purchaseDate );
 			if ( purchaseDateObj.toString() !== 'Invalid Date' ) {
 				return sprintf(
-					/* translators: placeholder is a date. */
+					/* translators: %s: the date of purchase. */
 					__( 'Purchased on %s.', 'jetpack' ),
 					dateI18n( dateFormat, purchaseDateObj )
 				);
@@ -69,7 +69,7 @@ class ProductExpiration extends React.PureComponent {
 		if ( expiryStatus === 'expired' ) {
 			return createInterpolateElement(
 				sprintf(
-					/* translators: %d is a count of how many new (unread) recommendations are available. */
+					/* translators: %s: the date it expired. */
 					__( '<span>Expired on %s.</span> <renewLink />', 'jetpack' ),
 					dateI18n( dateFormat, expiryDateObj )
 				),
@@ -77,12 +77,13 @@ class ProductExpiration extends React.PureComponent {
 					span: <span className="my-plan-card__expired" />,
 					renewLink: (
 						<span className={ 'my-plan-card__renew' }>
-							<ExternalLink
+							<Link
+								openInNewTab
 								href={ getRedirectUrl( 'jetpack-subscription-renew', { path } ) }
 								className="my-plan-card__renew"
 							>
 								{ __( 'Renew subscription', 'jetpack' ) }
-							</ExternalLink>
+							</Link>
 						</span>
 					),
 				}
@@ -91,7 +92,7 @@ class ProductExpiration extends React.PureComponent {
 
 		// Lastly, return the renewal date.
 		return sprintf(
-			/* translators: placeholder is a date. */
+			/* translators: %s the renewal date. */
 			__( 'Renews on %s.', 'jetpack' ),
 			dateI18n( dateFormat, expiryDateObj )
 		);

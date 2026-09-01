@@ -5,6 +5,121 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.0.0] - 2026-08-26
+### Removed
+- Minimum supported PHP version is now 7.4. [#51515]
+
+## [6.5.0] - 2026-08-25
+### Changed
+- Visitor: Resolve the visitor address through the site's trusted header alone where one is configured, instead of also reading the forwarded headers. [#51349]
+- Visitor: Return only a valid IP address, and take the client address from a comma-separated forwarded header. [#51349]
+
+## [6.4.0] - 2026-08-19
+### Added
+- Visitor: Add is_tracking_automattician() to identify Automattician traffic for analytics reporting. [#51280]
+
+### Fixed
+- Status: detect local development sites served on a port, such as http://127.0.0.1:8080, and stop treating a production site as local when a domain like .test or .localhost appears in its URL path. [#51218]
+
+## [6.3.1] - 2026-08-13
+### Added
+- Identify WordPress Playground sites as local, so Jetpack starts in offline mode there. [#51216]
+
+## [6.3.0] - 2026-08-11
+### Removed
+- Remove Host::is_pressable(). Check the IS_PRESSABLE constant directly instead. [#51179]
+
+## [6.2.1] - 2026-08-06
+### Fixed
+- Offline mode: Avoid a redundant per-request database query on sites without a persistent object cache. [#50961]
+
+## [6.2.0] - 2026-08-03
+### Added
+- Add Host::is_pressable() to detect sites hosted on the Pressable platform via the IS_PRESSABLE constant. [#50369]
+
+## [6.1.9] - 2026-07-09
+### Changed
+- Update dependencies.
+
+## [6.1.8] - 2026-06-15
+### Changed
+- Internal updates.
+
+## [6.1.7] - 2026-06-08
+### Changed
+- Internal updates.
+
+## [6.1.6] - 2026-06-03
+### Changed
+- Internal updates.
+
+## [6.1.5] - 2026-05-21
+### Fixed
+- Phan: Address PhanPluginDuplicateConditionalNullCoalescing violations. [#48887]
+
+## [6.1.4] - 2026-05-19
+### Changed
+- Internal updates.
+
+## [6.1.3] - 2026-05-04
+### Added
+- Tests: Load polyfills for `str_contains`, `str_starts_with`, and `str_ends_with` in the test bootstrap on PHP < 8.0. [#48225]
+
+### Changed
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+
+## [6.1.2] - 2025-12-15
+### Changed
+- Internal updates.
+
+## [6.1.1] - 2025-11-03
+### Fixed
+- Phan: Address PhanRedundantCondition, PhanRedundantArrayValuesCall, and PhanPluginRedundantAssignment violations. [#45681]
+
+## [6.1.0] - 2025-10-13
+### Added
+- Identify `.ddev.site` as a local site. [#45457]
+
+## [6.0.4] - 2025-09-08
+### Changed
+- Internal updates.
+
+## [6.0.3] - 2025-08-14
+### Changed
+- Update `is_frontend` method to allow not sending "Vary" header. [#44741]
+
+## [6.0.2] - 2025-08-06
+### Added
+- Status: Add two new helper functions for P2 and WordPress.com site ID checks. [#44512]
+
+## [6.0.1] - 2025-08-04
+### Added
+- Requests: Treat WPCOM_CLI_SCRIPT as a backend request. [#44553]
+
+## [6.0.0] - 2025-07-21
+### Removed
+- Remove host guess based on DNS. [#44325]
+
+## [5.4.0] - 2025-07-08
+### Changed
+- VIP: Change hosting check method back now that constant is reliable. [#44223]
+
+## [5.3.1] - 2025-06-27
+### Changed
+- Internal updates.
+
+## [5.3.0] - 2025-06-23
+### Changed
+- VIP: Change hosting check method. [#44059]
+
+## [5.2.1] - 2025-06-19
+### Changed
+- Internal updates.
+
+## [5.2.0] - 2025-06-10
+### Added
+- Request: Add new class used to classify requests on a site. [#43843]
+
 ## [5.1.4] - 2025-04-28
 ### Changed
 - Internal updates.
@@ -469,6 +584,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Packages: Introduce a status package
 
+[7.0.0]: https://github.com/Automattic/jetpack-status/compare/v6.5.0...v7.0.0
+[6.5.0]: https://github.com/Automattic/jetpack-status/compare/v6.4.0...v6.5.0
+[6.4.0]: https://github.com/Automattic/jetpack-status/compare/v6.3.1...v6.4.0
+[6.3.1]: https://github.com/Automattic/jetpack-status/compare/v6.3.0...v6.3.1
+[6.3.0]: https://github.com/Automattic/jetpack-status/compare/v6.2.1...v6.3.0
+[6.2.1]: https://github.com/Automattic/jetpack-status/compare/v6.2.0...v6.2.1
+[6.2.0]: https://github.com/Automattic/jetpack-status/compare/v6.1.9...v6.2.0
+[6.1.9]: https://github.com/Automattic/jetpack-status/compare/v6.1.8...v6.1.9
+[6.1.8]: https://github.com/Automattic/jetpack-status/compare/v6.1.7...v6.1.8
+[6.1.7]: https://github.com/Automattic/jetpack-status/compare/v6.1.6...v6.1.7
+[6.1.6]: https://github.com/Automattic/jetpack-status/compare/v6.1.5...v6.1.6
+[6.1.5]: https://github.com/Automattic/jetpack-status/compare/v6.1.4...v6.1.5
+[6.1.4]: https://github.com/Automattic/jetpack-status/compare/v6.1.3...v6.1.4
+[6.1.3]: https://github.com/Automattic/jetpack-status/compare/v6.1.2...v6.1.3
+[6.1.2]: https://github.com/Automattic/jetpack-status/compare/v6.1.1...v6.1.2
+[6.1.1]: https://github.com/Automattic/jetpack-status/compare/v6.1.0...v6.1.1
+[6.1.0]: https://github.com/Automattic/jetpack-status/compare/v6.0.4...v6.1.0
+[6.0.4]: https://github.com/Automattic/jetpack-status/compare/v6.0.3...v6.0.4
+[6.0.3]: https://github.com/Automattic/jetpack-status/compare/v6.0.2...v6.0.3
+[6.0.2]: https://github.com/Automattic/jetpack-status/compare/v6.0.1...v6.0.2
+[6.0.1]: https://github.com/Automattic/jetpack-status/compare/v6.0.0...v6.0.1
+[6.0.0]: https://github.com/Automattic/jetpack-status/compare/v5.4.0...v6.0.0
+[5.4.0]: https://github.com/Automattic/jetpack-status/compare/v5.3.1...v5.4.0
+[5.3.1]: https://github.com/Automattic/jetpack-status/compare/v5.3.0...v5.3.1
+[5.3.0]: https://github.com/Automattic/jetpack-status/compare/v5.2.1...v5.3.0
+[5.2.1]: https://github.com/Automattic/jetpack-status/compare/v5.2.0...v5.2.1
+[5.2.0]: https://github.com/Automattic/jetpack-status/compare/v5.1.4...v5.2.0
 [5.1.4]: https://github.com/Automattic/jetpack-status/compare/v5.1.3...v5.1.4
 [5.1.3]: https://github.com/Automattic/jetpack-status/compare/v5.1.2...v5.1.3
 [5.1.2]: https://github.com/Automattic/jetpack-status/compare/v5.1.1...v5.1.2

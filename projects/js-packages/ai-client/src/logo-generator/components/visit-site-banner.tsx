@@ -13,9 +13,9 @@ import './visit-site-banner.scss';
 /**
  * Types
  */
-import type React from 'react';
+import type { FC } from 'react';
 
-export const VisitSiteBanner: React.FC< {
+export const VisitSiteBanner: FC< {
 	className?: string;
 	onVisitBlankTarget?: () => void;
 } > = ( { className = null, onVisitBlankTarget } ) => {
@@ -44,7 +44,7 @@ export const VisitSiteBanner: React.FC< {
 						target="_blank"
 						onClick={ onVisitBlankTarget ? onVisitBlankTarget : null }
 					>
-						{ __( 'Learn more about Jetpack AI', 'jetpack-ai-client' ) }
+						<span>{ __( 'Learn more about Jetpack AI', 'jetpack-ai-client' ) }</span>
 						<Icon icon={ external } size={ 20 } />
 					</Button>
 				</div>

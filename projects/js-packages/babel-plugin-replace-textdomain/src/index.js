@@ -1,5 +1,6 @@
 const pluginName = require( '../package.json' ).name;
 const debug = require( 'debug' )( pluginName ); // eslint-disable-line import/order
+const { resolveGettextCallee } = require( './resolve-gettext-callee.js' );
 
 const defaultFunctions = Object.freeze( {
 	__: 1,
@@ -8,12 +9,29 @@ const defaultFunctions = Object.freeze( {
 	_nx: 4,
 } );
 
+const defaultI18nModule = '@wordpress/i18n';
+
+/**
+ * Log a code frame only when debug output is enabled, as generating one scans
+ * the source file.
+ *
+ * @param {object} path    - Babel path to point the code frame at.
+ * @param {string} message - Message to log.
+ */
+function debugCodeFrame( path, message ) {
+	if ( debug.enabled ) {
+		debug( path.buildCodeFrameError( message, Error ).message );
+	}
+}
+
 module.exports = ( babel, opts ) => {
 	const { types: t } = babel;
 	const seenDomains = {};
 
 	let functions = defaultFunctions;
+	let i18nModule = defaultI18nModule;
 	let replacementDomain;
+	const requireI18nSource = !! opts.requireI18nSource;
 
 	if ( typeof opts.textdomain === 'undefined' ) {
 		throw new Error( `${ pluginName }: The \`textdomain\` option is not set.` );
@@ -41,26 +59,30 @@ module.exports = ( babel, opts ) => {
 		functions = opts.functions;
 	}
 
+	if ( opts.i18nModule !== undefined ) {
+		if ( typeof opts.i18nModule !== 'string' ) {
+			throw new Error( `${ pluginName }: The \`i18nModule\` option must be a string.` );
+		}
+		i18nModule = opts.i18nModule;
+	}
+
 	return {
 		name: pluginName,
 		visitor: {
 			CallExpression( path ) {
-				let callee = path.node.callee;
-				if ( t.isSequenceExpression( callee ) ) {
-					callee = callee.expressions[ callee.expressions.length - 1 ];
-				}
-				const funcName = t.isMemberExpression( callee ) ? callee.property.name : callee.name;
-				if ( ! Object.hasOwn( functions, funcName ) ) {
+				const funcName = resolveGettextCallee( t, path, {
+					functions,
+					i18nModule,
+					requireI18nSource,
+				} );
+				if ( ! funcName ) {
 					return;
 				}
 				const idx = functions[ funcName ];
 
 				// If the domain argument is not set, maybe inject one.
 				if ( ! path.node.arguments[ idx ] ) {
-					debug(
-						path.buildCodeFrameError( `Domain argument (index ${ idx + 1 }) is missing`, Error )
-							.message
-					);
+					debugCodeFrame( path, `Domain argument (index ${ idx + 1 }) is missing` );
 					const newdomain = replacementDomain( '' );
 					if ( typeof newdomain === 'string' ) {
 						for ( let i = path.node.arguments.length; i < idx; i++ ) {
@@ -80,11 +102,9 @@ module.exports = ( babel, opts ) => {
 				} else if ( t.isTemplateLiteral( argnode ) && argnode.expressions.length === 0 ) {
 					olddomain = argnode.quasis[ 0 ].value.cooked;
 				} else {
-					debug(
-						argpath.buildCodeFrameError(
-							`Domain argument should be a StringLiteral, not ${ argnode.type }`,
-							Error
-						).message
+					debugCodeFrame(
+						argpath,
+						`Domain argument should be a StringLiteral, not ${ argnode.type }`
 					);
 					return;
 				}
@@ -95,12 +115,7 @@ module.exports = ( babel, opts ) => {
 					argpath.replaceWith( t.stringLiteral( newdomain ) );
 				} else if ( ! seenDomains[ olddomain ] ) {
 					seenDomains[ olddomain ] = true;
-					debug(
-						argpath.buildCodeFrameError(
-							`No mapping for textdomain ${ olddomain } (first instance)`,
-							Error
-						).message
-					);
+					debugCodeFrame( argpath, `No mapping for textdomain ${ olddomain } (first instance)` );
 				}
 			},
 		},
@@ -108,3 +123,5 @@ module.exports = ( babel, opts ) => {
 };
 
 module.exports.defaultFunctions = defaultFunctions;
+module.exports.defaultI18nModule = defaultI18nModule;
+module.exports.resolveGettextCallee = resolveGettextCallee;

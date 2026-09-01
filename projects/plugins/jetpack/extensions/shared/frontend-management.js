@@ -1,5 +1,5 @@
 import { createElement, createRoot } from '@wordpress/element';
-import { assign, kebabCase } from 'lodash';
+import { kebabCase } from 'lodash';
 
 export class FrontendManagement {
 	blockIterator( rootNode, blocks ) {
@@ -20,7 +20,7 @@ export class FrontendManagement {
 			}
 
 			const data = this.extractAttributesFromContainer( node, attributes );
-			assign( data, options.props );
+			Object.assign( data, options.props );
 			const children = this.extractChildrenFromContainer( node );
 			const el = createElement( component, data, children );
 			const root = createRoot( el );

@@ -5,6 +5,103 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.44] - 2026-07-27
+### Changed
+- Update package dependencies. [#50751]
+
+## [1.1.43] - 2026-06-23
+### Changed
+- Update package dependencies. [#49831]
+
+## [1.1.42] - 2026-06-22
+### Changed
+- Update package dependencies. [#49757]
+
+## [1.1.41] - 2026-06-15
+### Changed
+- Update package dependencies. [#49631]
+
+## [1.1.40] - 2026-06-08
+### Changed
+- Internal updates.
+
+## [1.1.39] - 2026-06-03
+### Changed
+- Internal updates.
+
+## [1.1.38] - 2026-05-21
+### Changed
+- Update package dependencies. [#49012]
+
+## [1.1.37] - 2026-05-19
+### Changed
+- Internal updates.
+
+## [1.1.36] - 2026-05-04
+### Changed
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+
+## [1.1.35] - 2026-03-30
+### Changed
+- Update package dependencies. [#47799]
+
+## [1.1.34] - 2026-02-18
+### Changed
+- Set `.repository.url` in `package.json` to the mirror repo rather than the monorepo. [#47149]
+- Update package dependencies. [#47173]
+
+## [1.1.33] - 2026-02-12
+### Changed
+- Update package dependencies. [#47099]
+
+## [1.1.32] - 2026-02-10
+### Changed
+- Update package dependencies. [#47002]
+
+## [1.1.31] - 2025-12-11
+### Changed
+- Internal updates.
+
+## [1.1.30] - 2025-12-08
+### Changed
+- Internal updates.
+
+## [1.1.29] - 2025-11-17
+### Changed
+- Update package dependencies. [#45958]
+
+## [1.1.28] - 2025-10-02
+### Changed
+- Update package dependencies. [#45334]
+
+## [1.1.27] - 2025-09-19
+### Changed
+- Update package dependencies. [#45173]
+
+## [1.1.26] - 2025-08-01
+### Changed
+- Internal updates.
+
+## [1.1.25] - 2025-07-21
+### Changed
+- Update package dependencies. [#44356]
+
+## [1.1.24] - 2025-07-08
+### Changed
+- Update package dependencies. [#44217]
+
+## [1.1.23] - 2025-07-03
+### Changed
+- Update package dependencies. [#44151]
+
+## [1.1.22] - 2025-06-18
+### Added
+- Add a link to the "Known problematic code patterns" documentation in relevant error messages. [#43974]
+
+## [1.1.21] - 2025-06-03
+### Changed
+- Update package dependencies. [#43734]
+
 ## [1.1.20] - 2025-04-10
 ### Added
 - Add keywords in package.json for npm search. [#42948]
@@ -257,6 +354,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial release.
 
+[1.1.44]: https://github.com/Automattic/i18n-check-webpack-plugin/compare/v1.1.43...v1.1.44
+[1.1.43]: https://github.com/Automattic/i18n-check-webpack-plugin/compare/v1.1.42...v1.1.43
+[1.1.42]: https://github.com/Automattic/i18n-check-webpack-plugin/compare/v1.1.41...v1.1.42
+[1.1.41]: https://github.com/Automattic/i18n-check-webpack-plugin/compare/v1.1.40...v1.1.41
+[1.1.40]: https://github.com/Automattic/i18n-check-webpack-plugin/compare/v1.1.39...v1.1.40
+[1.1.39]: https://github.com/Automattic/i18n-check-webpack-plugin/compare/v1.1.38...v1.1.39
+[1.1.38]: https://github.com/Automattic/i18n-check-webpack-plugin/compare/v1.1.37...v1.1.38
+[1.1.37]: https://github.com/Automattic/i18n-check-webpack-plugin/compare/v1.1.36...v1.1.37
+[1.1.36]: https://github.com/Automattic/i18n-check-webpack-plugin/compare/v1.1.35...v1.1.36
+[1.1.35]: https://github.com/Automattic/i18n-check-webpack-plugin/compare/v1.1.34...v1.1.35
+[1.1.34]: https://github.com/Automattic/i18n-check-webpack-plugin/compare/v1.1.33...v1.1.34
+[1.1.33]: https://github.com/Automattic/i18n-check-webpack-plugin/compare/v1.1.32...v1.1.33
+[1.1.32]: https://github.com/Automattic/i18n-check-webpack-plugin/compare/v1.1.31...v1.1.32
+[1.1.31]: https://github.com/Automattic/i18n-check-webpack-plugin/compare/v1.1.30...v1.1.31
+[1.1.30]: https://github.com/Automattic/i18n-check-webpack-plugin/compare/v1.1.29...v1.1.30
+[1.1.29]: https://github.com/Automattic/i18n-check-webpack-plugin/compare/v1.1.28...v1.1.29
+[1.1.28]: https://github.com/Automattic/i18n-check-webpack-plugin/compare/v1.1.27...v1.1.28
+[1.1.27]: https://github.com/Automattic/i18n-check-webpack-plugin/compare/v1.1.26...v1.1.27
+[1.1.26]: https://github.com/Automattic/i18n-check-webpack-plugin/compare/v1.1.25...v1.1.26
+[1.1.25]: https://github.com/Automattic/i18n-check-webpack-plugin/compare/v1.1.24...v1.1.25
+[1.1.24]: https://github.com/Automattic/i18n-check-webpack-plugin/compare/v1.1.23...v1.1.24
+[1.1.23]: https://github.com/Automattic/i18n-check-webpack-plugin/compare/v1.1.22...v1.1.23
+[1.1.22]: https://github.com/Automattic/i18n-check-webpack-plugin/compare/v1.1.21...v1.1.22
+[1.1.21]: https://github.com/Automattic/i18n-check-webpack-plugin/compare/v1.1.20...v1.1.21
 [1.1.20]: https://github.com/Automattic/i18n-check-webpack-plugin/compare/v1.1.19...v1.1.20
 [1.1.19]: https://github.com/Automattic/i18n-check-webpack-plugin/compare/v1.1.18...v1.1.19
 [1.1.18]: https://github.com/Automattic/i18n-check-webpack-plugin/compare/v1.1.17...v1.1.18

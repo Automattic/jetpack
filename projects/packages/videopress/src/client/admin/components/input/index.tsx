@@ -1,11 +1,11 @@
 /**
  * External dependencies
  */
-import { Text, SearchIcon } from '@automattic/jetpack-components';
+import { Text } from '@automattic/jetpack-components';
 import { Spinner } from '@wordpress/components';
 import { useDebounce } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
-import { Icon, closeSmall } from '@wordpress/icons';
+import { Icon, closeSmall, search } from '@wordpress/icons';
 import clsx from 'clsx';
 import { useCallback, ChangeEvent, KeyboardEvent } from 'react';
 /**
@@ -13,7 +13,7 @@ import { useCallback, ChangeEvent, KeyboardEvent } from 'react';
  */
 import styles from './style.module.scss';
 import { InputProps, SearchInputProps } from './types';
-import type React from 'react';
+import type { ReactNode } from 'react';
 
 const InputWrapper = ( {
 	className,
@@ -89,7 +89,7 @@ const InputWrapper = ( {
  * Input component
  *
  * @param {InputProps} props - Component props.
- * @return {React.ReactNode} - Input react component.
+ * @return {ReactNode} - Input react component.
  */
 export const Input = ( {
 	name,
@@ -103,9 +103,9 @@ export const Input = ( {
 			<Text
 				component="label"
 				variant={ size === 'small' ? 'body-small' : 'body' }
-				htmlFor={ name }
 				mb={ 1 }
 				className={ styles.label }
+				{ ...( { htmlFor: name } as Record< string, unknown > ) }
 			>
 				{ label }
 			</Text>
@@ -120,7 +120,7 @@ export const Input = ( {
  * Search Input component
  *
  * @param {InputProps} props - Component props.
- * @return {React.ReactNode} - Input react component.
+ * @return {ReactNode} - Input react component.
  */
 export const SearchInput = ( {
 	placeholder = __( 'Search your library', 'jetpack-videopress-pkg' ),
@@ -154,7 +154,7 @@ export const SearchInput = ( {
 	return (
 		<Input
 			{ ...componentProps }
-			icon={ <SearchIcon size={ 24 } /> }
+			icon={ <Icon icon={ search } size={ 24 } /> }
 			placeholder={ placeholder }
 			type="text"
 			onEnter={ onEnterHandler }

@@ -56,7 +56,14 @@ class XMLRPC_Connector_Test extends TestCase {
 			'url'        => 'https://example.com',
 		);
 
-		openssl_sign( wp_json_encode( $url_parameters ), $signature, $private_key );
+		openssl_sign(
+			wp_json_encode(
+				$url_parameters,
+				0 // phpcs:ignore Jetpack.Functions.JsonEncodeFlags.ZeroFound -- No `json_encode()` flags because this needs to match whatever is calculating the hash on the other end.
+			),
+			$signature,
+			$private_key
+		);
 		self::$signature = ( base64_encode( $signature ) );
 	}
 

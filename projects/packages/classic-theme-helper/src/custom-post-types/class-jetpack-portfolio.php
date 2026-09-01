@@ -100,6 +100,9 @@ if ( ! class_exists( __NAMESPACE__ . '\Jetpack_Portfolio' ) ) {
 
 			// CPT magic.
 			$this->register_post_types();
+			if ( ! post_type_exists( self::CUSTOM_POST_TYPE ) ) {
+				return;
+			}
 			add_action( sprintf( 'add_option_%s', self::OPTION_NAME ), array( $this, 'flush_rules_on_enable' ), 10 );
 			add_action( sprintf( 'update_option_%s', self::OPTION_NAME ), array( $this, 'flush_rules_on_enable' ), 10 );
 			add_action( sprintf( 'publish_%s', self::CUSTOM_POST_TYPE ), array( $this, 'flush_rules_on_first_project' ) );
@@ -157,6 +160,9 @@ if ( ! class_exists( __NAMESPACE__ . '\Jetpack_Portfolio' ) ) {
 		 */
 		public static function site_should_display_portfolios() {
 			$should_display = true;
+			if ( current_theme_supports( self::CUSTOM_POST_TYPE ) ) {
+				return true;
+			}
 			if ( ( ! ( new Host() )->is_wpcom_simple() ) && Blocks::is_fse_theme() ) {
 				if ( ! get_option( self::OPTION_NAME, '0' ) ) {
 					$should_display = false;
@@ -232,7 +238,7 @@ if ( ! class_exists( __NAMESPACE__ . '\Jetpack_Portfolio' ) ) {
 				<label for="<?php echo esc_attr( self::OPTION_NAME ); ?>">
 					<input name="<?php echo esc_attr( self::OPTION_NAME ); ?>" id="<?php echo esc_attr( self::OPTION_NAME ); ?>" <?php echo checked( get_option( self::OPTION_NAME, '0' ), true, false ); ?> type="checkbox" value="1" />
 					<?php esc_html_e( 'Enable Portfolio Projects for this site.', 'jetpack-classic-theme-helper' ); ?>
-					<a target="_blank" href="https://en.support.wordpress.com/portfolios/"><?php esc_html_e( 'Learn More', 'jetpack-classic-theme-helper' ); ?></a>
+					<a target="_blank" href="https://en.support.wordpress.com/portfolios/" data-target="wpcom-help-center"><?php esc_html_e( 'Learn More', 'jetpack-classic-theme-helper' ); ?></a>
 				</label>
 					<?php
 				endif;
@@ -719,7 +725,7 @@ if ( ! class_exists( __NAMESPACE__ . '\Jetpack_Portfolio' ) ) {
 					|| $wp_query->is_tax( self::CUSTOM_TAXONOMY_TYPE )
 					|| $wp_query->is_tax( self::CUSTOM_TAXONOMY_TAG ) )
 			) {
-				$settings['posts_per_page'] = get_option( self::OPTION_READING_SETTING, $settings['posts_per_page'] ); // phpcs:ignore WordPress.WP.PostsPerPage.posts_per_page_posts_per_page
+				$settings['posts_per_page'] = get_option( self::OPTION_READING_SETTING, $settings['posts_per_page'] );
 			}
 
 			return $settings;
@@ -880,9 +886,12 @@ if ( ! class_exists( __NAMESPACE__ . '\Jetpack_Portfolio' ) ) {
 			// Default query arguments.
 			$default = array(
 				'order'          => $atts['order'],
-				'orderby'        => $atts['orderby'],
 				'posts_per_page' => $atts['showposts'],
 			);
+
+			if ( ! empty( $atts['orderby'] ) ) {
+				$default['orderby'] = $atts['orderby'];
+			}
 
 			$args              = wp_parse_args( $atts, $default );
 			$args['post_type'] = self::CUSTOM_POST_TYPE; // Force this post type.

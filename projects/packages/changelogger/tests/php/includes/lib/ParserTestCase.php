@@ -99,7 +99,7 @@ abstract class ParserTestCase extends TestCase {
 		$this->assertTrue( isset( $data['changelog'] ) || isset( $data['object'] ), 'Must provide at least one of "changelog" or "object"' );
 		$this->assertFalse( isset( $data['parse-output'] ) && isset( $data['parse-exception'] ), 'Cannot provide both "parse-output" and "parse-exception".' );
 		$this->assertFalse( isset( $data['format-output'] ) && isset( $data['format-exception'] ), 'Cannot provide both "format-output" and "format-exception".' );
-		$jsonFlags = JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR; // phpcs:ignore PHPCompatibility.Constants.NewConstants.json_throw_on_errorFound
+		$jsonFlags = JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR;
 
 		$contents = "# {$this->className} test fixture file\n";
 		if ( ! empty( $data['args'] ) ) {

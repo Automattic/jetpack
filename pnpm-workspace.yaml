@@ -1,8 +1,89 @@
 packages:
-  - 'projects/*/*'
+  - projects/*/*
   - '!projects/js-packages/jetpack-cli'
-  - 'projects/plugins/*/tests/e2e'
-  - 'tools/cli'
-  - 'tools/e2e-commons'
-  - 'tools/js-tools'
-  - '.github/files/coverage-munger'
+  - projects/plugins/*/tests/e2e
+  - tools/cli
+  - tools/e2e-commons
+  - tools/e2e-commons/no-lighthouse
+  - tools/js-tools
+  - tools/performance
+  - .github/files/coverage-munger
+
+engineStrict: true
+pmOnFail: ignore
+preferWorkspacePackages: true
+
+# Feature is buggy in pnpm 11.5, e.g. https://github.com/pnpm/pnpm/issues/12100.
+optimisticRepeatInstall: false
+
+# Be strict about peer deps
+autoInstallPeers: false
+dedupePeerDependents: false
+dedupePeers: false
+strictPeerDependencies: true
+
+# No hoisting by default.
+hoistPattern: []
+
+# Silence this warning. Our `jetpack dependencies build-order` (also used by `jetpack build --all`) checks for cycles itself, plus it has a way to indicate that a dep is only for testing.
+ignoreWorkspaceCycles: true
+
+# Package compromise avoidance: let new releases age a day, and don't allow trust downgrades unless explicitly excepted.
+minimumReleaseAge: 1440
+minimumReleaseAgeExclude:
+  # Packages we often want to immediately update after releasing them.
+  - '@automattic/*'
+  - '@woocommerce/*'
+  - '@wordpress/*'
+  - 'gridicons'
+  - 'i18n-calypso'
+trustPolicy: no-downgrade
+trustPolicyExclude:
+  # https://github.com/paulmillr/chokidar/issues/1440
+  - chokidar@4.0.3
+
+  # Packages where newer majors have provenance but we're still on an older one.
+  - rollup@3.30.0
+  - rxjs@7.8.2
+  - semver@6.3.1
+
+# Package compromise avoidance: require dep build script approval.
+strictDepBuilds: true
+verifyDepsBeforeRun: install
+allowBuilds:
+  # Tries to download/install stuff if optional deps weren't installed.
+  '@swc/core': false
+  esbuild: false
+  unrs-resolver: false
+  # Tries to rebuild its bundled libs if a newer version of libvips-dev is installed, which probably isn't.
+  sharp: false
+  # Attempt to show "remember to install other stuff" spam.
+  svelte-preprocess: false
+  # Attempt to show "support me" spam.
+  core-js: false
+  core-js-pure: false
+  print-this: false
+
+# Package compromise avoidance: Block odd protocols in subdeps
+blockExoticSubdeps: true
+
+# Some optional dependencies we don't actually need.
+ignoredOptionalDependencies:
+  - '@oxc-parser/binding-wasm32-wasi' # https://github.com/oxc-project/oxc/issues/21038
+  - '@rolldown/binding-wasm32-wasi' # https://github.com/rolldown/rolldown/issues/8974
+  - sass-embedded-all-unknown # Brings in `sass`; platforms we support should have a binary package instead of this.
+  - sass-embedded-unknown-all # Brings in `sass`; platforms we support should have a binary package instead of this.
+
+# Dependencies needing patching.
+patchedDependencies:
+
+  # Vite/esbuild doesn't like the `__esModule` + `exports["default"]` pattern, it winds up double-wrapping the default.
+  # See also https://github.com/WordPress/gutenberg/issues/39619
+  react-autosize-textarea: .pnpm-patches/react-autosize-textarea.patch
+
+  # The wp-admin page template delegates boot init modules to initSinglePage(),
+  # but WordPress cores bundling an older @wordpress/boot (e.g. WP 7.0) ignore
+  # the option, so init modules never run there. The patch runs them in the
+  # inline bootstrap instead. Remove once the template runs init modules itself
+  # upstream (or Jetpack's WP floor ships a boot with initModules support).
+  "@wordpress/build": .pnpm-patches/@wordpress__build.patch

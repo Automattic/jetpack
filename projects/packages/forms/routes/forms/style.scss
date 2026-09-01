@@ -1,0 +1,11 @@
+@use "../shared";
+
+// The "not collecting" badge is wrapped in a Tooltip trigger, which renders a
+// native <button>; strip its default chrome so only the Badge shows.
+.jetpack-forms__not-collecting-badge {
+	display: inline-flex;
+	padding: 0;
+	border: 0;
+	background: none;
+	cursor: help;
+}

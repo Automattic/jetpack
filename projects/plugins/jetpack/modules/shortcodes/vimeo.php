@@ -14,6 +14,10 @@
  * @package automattic/jetpack
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Extract Vimeo ID from shortcode.
  *
@@ -342,7 +346,10 @@ function vimeo_embed_to_shortcode( $content ) {
 
 	return $content;
 }
-add_filter( 'pre_kses', 'vimeo_embed_to_shortcode' );
+
+if ( jetpack_shortcodes_should_hook_pre_kses() ) {
+	add_filter( 'pre_kses', 'vimeo_embed_to_shortcode' );
+}
 
 /**
  * Replaces shortcodes and plain-text URLs to Vimeo videos with Vimeo embeds.
@@ -398,7 +405,7 @@ function vimeo_link( $content ) {
  * @return string The Vimeo HTML embed code.
  */
 function vimeo_link_callback( $matches ) {
-	$id = isset( $matches[2] ) ? $matches[2] : $matches[1];
+	$id = $matches[2] ?? $matches[1];
 	if ( isset( $id ) && ctype_digit( $id ) ) {
 		return "\n" . vimeo_shortcode( array( 'id' => $id ) ) . "\n";
 	}

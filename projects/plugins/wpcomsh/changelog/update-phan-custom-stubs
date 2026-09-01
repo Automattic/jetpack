@@ -1,5 +1,5 @@
 Significance: patch
-Type: fixed
-Comment: Fix a test Phan has started complaining about.
+Type: changed
+Comment: Add Phan suppressions for the older-WP-stubs compatibility run; no runtime change.
 
 

@@ -1,11 +1,11 @@
 /** @ssr-ready **/
 
 import PropTypes from 'prop-types';
-import React from 'react';
+import { PureComponent } from 'react';
 
 import './style.scss';
 
-export default class extends React.PureComponent {
+export default class extends PureComponent {
 	static displayName = 'Count';
 
 	static propTypes = {

@@ -8,6 +8,10 @@
  * @package automattic/jetpack
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 	add_action( 'init', 'jetpack_descript_enable_embeds' );
 } else {
@@ -23,8 +27,10 @@ function jetpack_descript_enable_embeds() {
 	// Support their oEmbed Endpoint.
 	wp_oembed_add_provider( '#https?://share.descript.com/(?:view|embed)/\w+#i', 'https://api.descript.com/v2/oembed', true );
 
-	// Allow script to be filtered to short code (so direct copy+paste can be done).
-	add_filter( 'pre_kses', 'jetpack_shortcodereverse_descript' );
+	if ( jetpack_shortcodes_should_hook_pre_kses() ) {
+		// Allow script to be filtered to short code (so direct copy+paste can be done).
+		add_filter( 'pre_kses', 'jetpack_shortcodereverse_descript' );
+	}
 
 	// Actually display the descript Embed.
 	add_shortcode( 'descript', 'jetpack_descript_shortcode' );

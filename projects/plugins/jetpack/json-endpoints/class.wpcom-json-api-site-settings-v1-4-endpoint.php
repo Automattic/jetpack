@@ -1,5 +1,9 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 new WPCOM_JSON_API_Site_Settings_V1_4_Endpoint(
 	array(
 		'description'      => 'Get detailed settings information about a site.',
@@ -119,12 +123,14 @@ new WPCOM_JSON_API_Site_Settings_V1_4_Endpoint(
 			'wpcom_publish_posts_with_markdown'         => '(bool) Whether markdown is enabled for posts',
 			'wpcom_publish_comments_with_markdown'      => '(bool) Whether markdown is enabled for comments',
 			'launchpad_screen'                          => '(string) Whether or not launchpad is presented and what size it will be',
+			'wpcom_newsletter_send_default'             => '(bool) Whether to send newsletter emails by default when publishing a post',
 			'wpcom_featured_image_in_email'             => '(bool) Whether the Featured image is displayed in the New Post email template or not',
 			'jetpack_gravatar_in_email'                 => '(bool) Whether to show author avatar in the email byline',
 			'jetpack_author_in_email'                   => '(bool) Whether to show author display name in the email byline',
 			'jetpack_post_date_in_email'                => '(bool) Whether to show date in the email byline',
 			'wpcom_newsletter_categories'               => '(array) Array of post category ids that are marked as newsletter categories',
 			'wpcom_newsletter_categories_enabled'       => '(bool) Whether the newsletter categories are enabled or not',
+			'newsletter_has_active_plan'                => '(bool) Whether there is an active newsletter plan for the site',
 			'sm_enabled'                                => '(bool) Whether the newsletter Subscribe Modal is enabled or not',
 			'jetpack_subscribe_overlay_enabled'         => '(bool) Whether the newsletter Subscribe Overlay is enabled or not',
 			'jetpack_subscribe_floating_button_enabled' => '(bool) Whether the newsletter floating subscribe button is enabled or not',
@@ -139,7 +145,7 @@ new WPCOM_JSON_API_Site_Settings_V1_4_Endpoint(
 			'show_on_front'                             => '(string) Whether homepage should display related posts or a static page. The expected value is \'posts\' or \'page\'.',
 			'page_on_front'                             => '(string) The page ID of the page to use as the site\'s homepage. It will apply only if \'show_on_front\' is set to \'page\'.',
 			'page_for_posts'                            => '(string) The page ID of the page to use as the site\'s posts page. It will apply only if \'show_on_front\' is set to \'page\'.',
-			'subscription_options'                      => '(array) Array of three options used in subscription email templates: \'invitation\', \'welcome\' and \'comment_follow\' strings.',
+			'subscription_options'                      => '(array) Array of options used in subscription email templates and the Subscribe block: \'invitation\', \'welcome\', \'comment_follow\' and \'subscribe_modal_heading\' strings.',
 			'jetpack_verbum_subscription_modal'         => '(bool) Whether Subscription modal is enabled in Verbum comments',
 			'wpcom_ai_site_prompt'                      => '(string) User input in the AI site prompt',
 			'enable_verbum_commenting'                  => '(bool) Whether Verbum commenting is enabled',
@@ -148,6 +154,7 @@ new WPCOM_JSON_API_Site_Settings_V1_4_Endpoint(
 			'jetpack_comment_form_color_scheme'         => '(string) The color scheme for the comment form',
 			'is_fully_managed_agency_site'              => '(bool) Whether the site is a fully managed agency site',
 			'wpcom_hide_action_bar'                     => '(bool) Whether to hide the Action bar',
+			'mcp_abilities'                             => '(array) List of MCP Abilities',
 		),
 
 		'response_format' => array(
@@ -160,6 +167,8 @@ new WPCOM_JSON_API_Site_Settings_V1_4_Endpoint(
 
 /**
  * Settings v1_4 endpoint class.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint extends WPCOM_JSON_API_Site_Settings_V1_3_Endpoint {
 

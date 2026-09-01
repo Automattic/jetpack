@@ -5,6 +5,160 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 9.0.3 - 2026-06-26
+### Fixed
+- Fix fatal error on My Jetpack when the current stable Jetpack plugin is active. [#49994]
+
+## 9.0.2 - 2026-06-24
+### Fixed
+- Fix the Social admin page rendering blank, and restore the editor sharing panel, on WordPress 6.9. [#49859]
+
+## 9.0.1 - 2026-06-23
+### Changed
+- Reconnect accounts in place instead of disconnecting and recreating them, retaining connection settings. [#49695]
+- Updated package dependencies. [#49793] [#49448] [#49492]
+
+### Fixed
+- Fix PHP warnings on the front end of posts shared with the no link sharing option. [#49372]
+- Contain errors in the post-publish sharing status panel so they no longer crash the editor. [#49823]
+- Detect when the browser blocks the connection popup and notify the user. [#49688]
+- Social Previews: Remove the misleading URL from captions when it is not a part of it. [#49745]
+- Fix Jetpack Social admin page rendering blank on WordPress 6.9.x. [#49654]
+
+## 9.0.0 - 2026-06-01
+### Added
+- Google Search Preview: Fix site icon not being shown on some sites. [#47551]
+
+### Changed
+- Dependencies: Update lock file to keep root requirements in sync. [#47418] [#48826] [#48860]
+- General: Update minimum WordPress version to 6.9. [#49021]
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+- Publicize: updated e2e connection spec to assert the 'Write a post' CTA as a button (role=button) rather than a link, to match the @wordpress/ui Button migration. [#48150]
+- Remove header border-bottom from the admin page for a cleaner unified header appearance. [#47313]
+- Remove unneeded development and documentation files from the published plugin. [#49014]
+- Switch to Native TypeScript compiler based on Go. [#47375]
+- Tested up to WordPress 7.0. [#48114]
+- Update design of the sidebar upsell. [#47909]
+- Update package dependencies. [#47285] [#47371] [#47505] [#47825] [#48064] [#48683] [#48735] [#49218]
+
+### Removed
+- Remove post publish review prompt. [#47650]
+
+### Fixed
+- Admin Page: Restore border on header component. [#47425]
+- Fall back to the site-wide social message template when no per-post share message is set. [#48606]
+- Fix flaky E2E tests. [#47407]
+- Fix Threads social preview for posts with gallery. [#47322]
+- Fix TS errors detected by tsgo. [#47426]
+- Fix useSelect warning for notesConfig on Social admin page. [#47740]
+
+## 8.0.1 - 2026-02-19
+### Added
+- Add visual dot to active connection in preview modal. [#47218]
+
+### Changed
+- Disable AI image option in the media UI when Jetpack plugin is not active. [#47193]
+
+## 8.0.0 - 2026-02-18
+### Added
+- Add Jetpack Protect details page for users without the dedicated Jetpack Protect plugin. [#46630]
+- Gate per-network customization behind paid features. [#46740]
+- Show a snackbar while sharing is in progress. [#46672]
+
+### Changed
+- Mark new connections as shared by default for privileged users. [#46796]
+- My Jetpack: Check red bubble notification async when cache is not available. [#46396]
+- Refactor share status UI to use Notice component. [#46673]
+- Update `composer.lock`. [#46686]
+- Update package dependencies. [#46785] [#47021]
+- Update social post preview modal height. [#46882]
+- Use fallback avatar for Jetpack Social connection icons. [#46677]
+
+### Removed
+- General: Update minimum WordPress version to 6.8. [#46801]
+
+### Fixed
+- Fix Tumblr preview to prioritize custom message when it is set. [#47075]
+- Refresh plan features on post-checkout redirect. [#46961]
+- Social Previews: Use fallback image when social preview profile picture fails. [#46674]
+
+## 7.4.0 - 2026-01-14
+### Added
+- Add the new media selection UI for Social. [#46085]
+- IDC: Add revalidation for IDCs. [#46268]
+- Reuse AI image generation in media section. [#46147]
+
+### Changed
+- Improve the sidebar by making titles more descriptive and combining sections. [#46007]
+- Unified social provider preview. [#46364]
+- Update composer lock following Publicize changes. [#46516]
+
+### Removed
+- Remove the obsolete share limits logic. [#46468]
+- Remove the unused dismiss review endpoint. [#46398]
+
+### Fixed
+- Fix connections management modal not opening from pre-publish panel. [#46316]
+- Fix e2e tests for link preview in the editor sidebar. [#46098]
+- UI: Prevent the modals in editor from stretching too wide on large screens. [#46400]
+
+## 7.3.0 - 2025-11-21
+### Added
+- Tested up to WordPress 6.9. [#45571]
+
+### Changed
+- Don't translate product names. [#43961]
+- Improve auto-share UI in the editor by streamlining the notices and descriptions. [#45970]
+- Update package dependencies. [#45478] [#45652] [#45676] [#45756]
+- Update the connections list in the editor to a vertical toggle list with labels and icons. [#45939]
+
+### Fixed
+- Fix connection icon not reflecting the change when profile picture is updated. [#45937]
+- Jetpack: Remove getIconColor functions for block icons. [#45992]
+- My Jetpack: Fix expiring renewal prompt to show all products [#45995]
+- My Jetpack: Fix visual compatibility issue with Hello Dolly plugin. [#45474]
+
+## 7.2.0 - 2025-10-10
+### Added
+- Add typecheck support for E2E tests. [#44788]
+
+### Changed
+- Remove CRM installation nudge for Complete plan users. [#45026]
+- My Jetpack: Fix multisite availability check for restricted products and modules. [#44710]
+- Update dependencies. [#44673]
+- Update package dependencies. [#44725] [#45096] [#45097] [#45200] [#45298] [#45299]
+
+### Fixed
+- Fixes an issue with Social where default image id could not be cleared. [#44994]
+
+## 7.1.0 - 2025-08-05
+### Added
+- Social Image Generator: Add font option. [#44514]
+- My Jetpack: Add analytics for empty product search results. [#44344]
+- Social Notes: Add a fallback title that can be customized via the `jetpack_social_notes_default_title` filter. [#43864]
+
+### Changed
+- E2E tests: Remove redundant logic in test fixture and converted the fixture to Typscript. [#44327]
+- Improve performance of WordPress.com comment likes by caching and minimizing API requests. [#44205]
+- My Jetpack: Enable access to My Jetpack on WP Multisite. [#44260]
+- My Jetpack: Hide backup failure notice when backups are deactivated. [#43568]
+- My Jetpack: Unify the user connection flow with a unified screen. [#44469]
+- My Jetpack: Update Stats card to include a chart for better analytics. [#43870]
+- Sync: Ignore the ActivityPub Outbox CPT. [#44222]
+- Update package dependencies. [#43839] [#44206]
+
+### Fixed
+- Ensure images load in connections management when concatenating JS. [#43655]
+- Fix image validation when images sizes are customised. [#44368]
+- JITM: Fix ineffective caching due to expired plugin sync transient. [#44117]
+- My Jetpack: Fix footer alignment for disconnected accounts. [#44468]
+- My Jetpack: Prevent expiration alerts for products covered by active bundles. [#44586]
+- My Jetpack: Restore plan purchase link in footer. [#44535]
+- Social Image Generator: Do not use the latest post's Social Image as Open Graph Image tag on the home page. [#44377]
+- Social Notes: Update filter name to match recent changes in WordPress. [#43947]
+- Social Previews: Fix a bug with text overflowing with Mastodon. [#44019]
+- Update JITMs to remove jQuery dependency. [#43783]
+
 ## 7.0.0 - 2025-05-22
 ### Added
 - Added option to set default image for Social Image Generator. [#43461]

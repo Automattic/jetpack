@@ -1,9 +1,6 @@
 import clsx from 'clsx';
-import { includes, noop } from 'lodash';
 import PropTypes from 'prop-types';
-import React from 'react';
 import { connect } from 'react-redux';
-import Card from 'components/card';
 import SupportInfo from 'components/support-info';
 import {
 	isOfflineMode,
@@ -13,6 +10,8 @@ import {
 } from 'state/connection';
 import { userCanManageModules, isSitePublic, userCanEditPosts } from 'state/initial-state';
 import { isModuleActivated } from 'state/modules';
+
+const noop = () => {};
 
 export const SettingsGroup = inprops => {
 	const props = {
@@ -36,7 +35,7 @@ export const SettingsGroup = inprops => {
 	if (
 		module.module &&
 		! props.userCanManageModules &&
-		! includes( [ 'post-by-email', 'publicize' ], module.module )
+		! [ 'post-by-email', 'publicize' ].includes( module.module )
 	) {
 		return <span />;
 	}
@@ -54,17 +53,15 @@ export const SettingsGroup = inprops => {
 	}
 
 	return (
-		<div className={ clsx( 'jp-form-settings-group', props.className ) }>
-			<Card
-				className={ clsx( {
-					'jp-form-has-child': props.hasChild,
-					'jp-form-settings-disable': disableInOfflineMode || disableInSiteConnectionMode,
-				} ) }
-			>
-				{ displayFadeBlock && <div className="jp-form-block-fade" /> }
-				{ props.support.link && <SupportInfo module={ module } { ...props.support } /> }
-				{ props.children }
-			</Card>
+		<div
+			className={ clsx( 'jp-form-settings-group', props.className, {
+				'jp-form-has-child': props.hasChild,
+				'jp-form-settings-disable': disableInOfflineMode || disableInSiteConnectionMode,
+			} ) }
+		>
+			{ displayFadeBlock && <div className="jp-form-block-fade" /> }
+			{ props.support.link && <SupportInfo module={ module } { ...props.support } /> }
+			{ props.children }
 		</div>
 	);
 };

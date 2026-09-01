@@ -1,5 +1,9 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 new WPCOM_JSON_API_Get_Taxonomy_Endpoint(
 	array(
 		'description'                          => 'Get information about a single category.',
@@ -40,6 +44,8 @@ new WPCOM_JSON_API_Get_Taxonomy_Endpoint(
 
 /**
  * GET Taxonomy endpoint class.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class WPCOM_JSON_API_Get_Taxonomy_Endpoint extends WPCOM_JSON_API_Taxonomy_Endpoint {
 	/**

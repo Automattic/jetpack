@@ -4,6 +4,169 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## 3.4.1 - 2026-08-26
+### Added
+- Add a first-run welcome modal to the dashboard. [#51520]
+
+### Changed
+- General: Update minimum WordPress version to 7.0. [#51370]
+- My Jetpack: Show what Paid Stats actually adds — UTM tracking, device stats, and region & city locations — instead of commercial use. [#51410]
+- Redesign the video details page: group details into one card in a wider layout, move the player and settings into a side column, and add thumbnail tiles, collapsible sections, and an Add to content action. [#51480]
+- Tested up to WordPress 7.1. [#51370]
+
+### Removed
+- Updated PHP version requirements to PHP 7.4 or newer. [#51515]
+
+### Fixed
+- Charts: draw labels at the design system's font weight and size. [#51452]
+- Connection: Update wording for some connection error notices. [#51360]
+- Fix a timeout error when updating a video poster from the media library. [#51479]
+- Fix private video playback authorization for videos embedded through synced patterns and Video Playlist blocks, let private videos preview in the block editor canvas, load live metadata for private playlist entries for authorized viewers, and show a lock placeholder on playlist thumbnails of private videos the viewer cannot access. [#51569]
+- My Jetpack: always label the license activation link 'Activate a license'. It previously read 'Activate a new license' on sites with a plan, even when no licenses had been activated. [#51283]
+- My Jetpack: Stop the Stats dashboard from asking which plan you want again after Start for Free was already chosen. [#51413]
+
+## 3.4 - 2026-08-19
+### Changed
+- Update package dependencies. [#51399]
+
+### Fixed
+- Connection: Stop showing a duplicate account notice when your WordPress.com email differs from your site email only in letter case. [#51285]
+
+## 3.3 - 2026-08-13
+### Added
+- Add the Activity Log page to wp-admin, so it is available without the Jetpack plugin installed. [#51224]
+
+### Changed
+- Update dependencies. [#50473]
+- Update package dependencies. [#50510] [#50529] [#50751]
+
+## 3.2 - 2026-07-09
+### Added
+- Add a site-level setting to turn off auto-generated subtitles. [#50014]
+- Add presentation to the player iframe allow list to enable casting from embeds. [#50215]
+- Resumable video uploads are now verified as they arrive, instead of re-reading the whole file once the upload completes. [#50054]
+
+### Changed
+- Dashboard: Release modernized VideoPress dashboard. [#49023]
+- Remove unneeded development and documentation files from the published plugin. [#49014]
+- Update composer.lock files. [#48743] [#49415]
+- Update minimum WordPress version to 6.9. [#49021]
+- Update package dependencies. [#48735] [#49793] [#48405] [#49218] [#49273] [#49492] [#49631] [#49691] [#49757] [#49831] [#50097] [#50183]
+
+### Fixed
+- Fix admin page crash on video upload/delete when the free-plan upgrade nudge is shown. [#49340]
+- Fix fatal error on My Jetpack when the current stable Jetpack plugin is active. [#49994]
+- Fix the media library "Edit video details" link so it opens the modernized dashboard. Old links now redirect to the new location. [#50323]
+- Fix the post-connection redirect so the modernized dashboard returns users to the VideoPress page instead of a 404. [#49168]
+- Load VideoPress Overview stats even when the Jetpack Stats module is inactive. [#50326]
+
+## 3.1 - 2026-05-14
+### Changed
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+- Update package dependencies. [#48106]
+
+### Fixed
+- Prevent the "Add new video" button from disappearing on the admin dashboard after the first video is uploaded. [#48690]
+- VideoPress admin: Add padding around the Settings section, make the hero full width on medium screens, and remove an empty pagination placeholder below the video library. [#48131]
+
+## 3.0 - 2026-04-16
+### Changed
+- Tested up to WordPress 7.0. [#48114]
+- Update package dependencies. [#48064]
+
+## 2.9 - 2026-04-10
+### Changed
+- Dependencies: Update lock file to keep root requirements in sync. [#47418]
+- Remove header border-bottom from the admin page for a cleaner unified header appearance. [#47313]
+- Switch to Native TypeScript compiler based on Go. [#47375]
+- Update dependencies. [#47472]
+- Update design of the sidebar upsell. [#47909]
+- Update package dependencies. [#47002] [#47021] [#47099] [#47173] [#47285] [#47300] [#47371] [#47496] [#47505] [#47684] [#47825] [#47890] [#47998]
+
+### Fixed
+- Admin Page: Restore border on header component. [#47425]
+
+## 2.8 - 2026-02-04
+### Added
+- Adding Jetpack Protect details page for users without the dedicated Jetpack Protect plugin. [#46630]
+- IDC: Add revalidation for IDCs. [#46268]
+
+### Changed
+- My Jetpack: Check red bubble notification async when cache is not available. [#46396]
+
+### Removed
+- General: Update minimum WordPress version to 6.8. [#46801]
+
+### Fixed
+- Clarify error messages when video uploads fail due to plan limitations. [#46668]
+- Fix compatibility with Gutenberg 22.4 by removing invalid null timezone argument from dateI18n calls. [#46928]
+- Fix upgrade notice incorrectly showing for A4A (Automattic for Agencies) VideoPress customers by using dynamic features API instead of hardcoded plan slugs. [#46835]
+- Fix video query to only return VideoPress videos instead of all video types. [#46689]
+
+## 2.7 - 2025-11-21
+### Added
+- Tested up to WordPress 6.9. [#45571]
+
+### Changed
+- Update dependencies. [#45488]
+- Update package dependencies. [#45478] [#45652] [#45676] [#45756] [#45915]
+
+### Fixed
+- Jetpack: Remove getIconColor functions for block icons. [#45992]
+- My Jetpack: Fix expiring renewal prompt to show all products. [#45995]
+- My Jetpack: Fix visual compatibility issue with Hello Dolly plugin. [#45474]
+
+## 2.6 - 2025-10-10
+### Added
+- Add typecheck support for E2E tests. [#44788]
+
+### Changed
+- Remove CRM installation nudge for Complete plan users. [#45026]
+- My Jetpack: Fix multisite availability check for restricted products and modules. [#44710]
+- Update package dependencies. [#44677] [#44701] [#44725] [#45027] [#45096] [#45097] [#45173] [#45200] [#45229] [#45298] [#45299] [#45334]
+
+## 2.5 - 2025-08-05
+### Added
+- My Jetpack: Added analytics for empty product search results. [#44344]
+
+### Changed
+- Improve performance of WordPress.com comment likes by caching and minimizing API requests. [#44205]
+- My Jetpack: Enable access to My Jetpack on WP Multisite. [#44260]
+- My Jetpack: Unify the user connection flow with a unified screen. [#44469]
+- My Jetpack: Update Stats card to include a chart for better analytics. [#43870]
+- Sync: Ignore the ActivityPub Outbox CPT [#44222]
+- Update package dependencies. [#44020] [#44148] [#44151] [#44206] [#44356]
+
+### Fixed
+- JITM: Fix ineffective caching due to expired plugin sync transient. [#44117]
+- My Jetpack: Fix footer alignment for disconnected accounts. [#44468]
+- My Jetpack: Prevent expiration alerts for products covered by active bundles. [#44586]
+- My Jetpack: Restore plan purchase link. [#44535]
+- Update JITMs to remove jQuery dependency. [#43783]
+- Fix video row action button clickability by properly hiding stats on hover. [#44167]
+
+## 2.4 - 2025-06-10
+### Added
+- Add more error logging. [#42959]
+- Add My Jetpack tour. [#42880]
+
+### Changed
+- E2E Tests: Update config file encryption algorithm. [#43523]
+- My Jetpack: Hide backup failure notice when backups are deactivated. [#43568]
+- My Jetpack: Optimize the images for onboarding slider for faster page load. [#43473]
+- My Jetpack: Update the onboarding UI, changing it to a single button [#43203]
+- Update package dependencies. [#43071] [#43085] [#43326] [#43398] [#43400] [#43425] [#43578] [#43734] [#43839]
+
+### Removed
+- General: Update minimum WordPress version to 6.7. [#43192]
+
+### Fixed
+- Block editor: Fix layout issues with the Media Library modal buttons. [#43035]
+- My Jetpack: Fix Onboarding UI responsiveness at 600px. [#43533]
+- My Jetpack: Fix readability of license activation button on hover. [#43550]
+- My Jetpack: Prevent social login from getting stuck when email input is not empty. [#43158]
+- Update E2E tests. [#42956]
+
 ## 2.3 - 2025-04-07
 ### Added
 - Add Account Protection initialization. [#40925]

@@ -1,6 +1,6 @@
 import restApi from '@automattic/jetpack-api';
 import { __, _x } from '@wordpress/i18n';
-import React, { useState, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { connect } from 'react-redux';
 import Button from 'components/button';
 import {

@@ -1,5 +1,5 @@
-import { action } from '@storybook/addon-actions';
-import { useArgs } from '@storybook/preview-api';
+import { action } from 'storybook/actions';
+import { useArgs } from 'storybook/preview-api';
 import Pagination from '..';
 import type { StoryFn, Meta } from '@storybook/react';
 

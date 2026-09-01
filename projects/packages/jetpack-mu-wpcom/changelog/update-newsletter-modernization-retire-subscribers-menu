@@ -1,0 +1,3 @@
+Significance: patch
+Type: changed
+Comment: Gate the standalone "Jetpack > Subscribers" submenu retirement on the off-by-default `rsm_jetpack_ui_modernization_newsletter` filter; the submenu is only dropped (the Newsletter page owns the Subscribers tab) once modernization is enabled. No default behavior change.

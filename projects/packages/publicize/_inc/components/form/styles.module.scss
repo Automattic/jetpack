@@ -1,0 +1,99 @@
+@use "@automattic/jetpack-base-styles/root-variables";
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+
+.more-link {
+	display: inline-block;
+	margin-top: 6px;
+}
+
+.change-settings-button {
+	padding: 0;
+	height: auto;
+	margin-inline-start: 15px;
+}
+
+.enabled-connections-notice {
+	color: var(--jp-gray-50);
+	margin-bottom: 0.25rem;
+}
+
+.no-connections-text {
+	display: block;
+	margin-bottom: 1rem;
+}
+
+.broken-connection-btn {
+
+	&:global(.components-button.is-link.components-button.is-link) {
+		font-size: inherit;
+		font-weight: inherit;
+
+		&:hover {
+			text-decoration: none;
+		}
+	}
+}
+
+.broken-connection-service {
+
+	.broken-connection {
+		font-weight: 700;
+		font-style: italic;
+		overflow-wrap: break-word;
+	}
+}
+
+.settings-button.settings-button {
+	display: block;
+	margin-top: 1rem;
+}
+
+.unsupported-connections-list {
+	margin-inline-start: 1rem;
+	list-style-type: disc;
+}
+
+.connections-list-wrapper {
+	width: 100%;
+}
+
+.connections-list {
+	border-radius: 2px;
+	border: 1px solid gb.$gray-200;
+}
+
+.empty-state {
+
+	.connect-account-text {
+		text-align: center;
+	}
+
+	.connect-account-button {
+		width: 100%;
+
+		:global(.components-button) {
+			width: 100%;
+		}
+	}
+}
+
+.preview-posts-trigger {
+	width: 100%;
+	justify-content: center;
+	margin-block: 1rem;
+}
+
+.share-post-form {
+	display: flex;
+	flex-direction: column;
+	gap: 1.5rem;
+}
+
+.share-post-form-disabled {
+	opacity: 0.5;
+	pointer-events: none;
+}
+
+.per-network-customization-notice {
+	color: gb.$gray-700;
+}

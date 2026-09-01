@@ -2,6 +2,11 @@
 /**
  * Endpoint: /sites/%s/posts/restore
  */
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 new WPCOM_JSON_API_Bulk_Restore_Post_Endpoint(
 	array(
 		'description'          => 'Restore multiple posts.',
@@ -39,6 +44,8 @@ new WPCOM_JSON_API_Bulk_Restore_Post_Endpoint(
 
 /**
  * Bulk restore post endpoint class.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class WPCOM_JSON_API_Bulk_Restore_Post_Endpoint extends WPCOM_JSON_API_Update_Post_v1_1_Endpoint {
 	/**

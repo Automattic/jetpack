@@ -14,6 +14,8 @@ use Automattic\Jetpack\Assets;
 
 /**
  * Class Inline_Help.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Inline_Help {
 

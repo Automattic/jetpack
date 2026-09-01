@@ -31,7 +31,7 @@ class Note {
 		if ( ! self::enabled() ) {
 			return;
 		}
-		add_filter( 'allowed_block_types', array( $this, 'restrict_blocks_for_social_note' ), 10, 2 );
+		add_filter( 'allowed_block_types_all', array( $this, 'restrict_blocks_for_social_note' ), 10, 2 );
 
 		/*
 		 * The ActivityPub plugin has a block to set a Fediverse post that a new post is in reply to. This is perfect for Social Notes.
@@ -49,6 +49,19 @@ class Note {
 		self::register_cpt();
 		add_action( 'wp_insert_post_data', array( $this, 'set_empty_title' ), 10, 2 );
 		add_action( 'admin_init', array( $this, 'admin_init_actions' ) );
+
+		if (
+			/**
+			 * Filters whether to override the empty title for Social Notes on the frontend.
+			 *
+			 * @since 7.1.0
+			 *
+			 * @param bool $override_empty_title Whether to override the empty title for Social Notes on the frontend.
+			 */
+			apply_filters( 'jetpack_social_notes_override_empty_title', false )
+		) {
+			add_filter( 'the_title', array( $this, 'override_empty_title' ), 10, 2 );
+		}
 	}
 
 	/**
@@ -70,18 +83,6 @@ class Note {
 		}
 
 		add_filter( 'the_title', array( $this, 'override_empty_title' ), 10, 2 );
-		add_filter( 'jetpack_post_list_display_share_action', array( $this, 'show_share_action' ), 10, 2 );
-	}
-
-	/**
-	 * Used as a filter to determine if we should show the share action on the post list screen.
-	 *
-	 * @param bool   $show_share The current filter value.
-	 * @param string $post_type The current post type on the post list screen.
-	 * @return bool Whether to show the share action.
-	 */
-	public function show_share_action( $show_share, $post_type ) {
-		return self::JETPACK_SOCIAL_NOTE_CPT === $post_type || $show_share;
 	}
 
 	/**
@@ -150,12 +151,16 @@ class Note {
 	/**
 	 * Restrict the blocks for the Social Note CPT.
 	 *
-	 * @param array    $allowed_blocks The allowed blocks.
-	 * @param \WP_Post $post The post.
+	 * @param array                    $allowed_blocks The allowed blocks.
+	 * @param \WP_Block_Editor_Context $block_editor_context The current block editor context.
 	 * @return array The allowed blocks.
 	 */
-	public function restrict_blocks_for_social_note( $allowed_blocks, $post ) {
-		if ( 'jetpack-social-note' !== $post->post_type ) { // Let 'em pass.
+	public function restrict_blocks_for_social_note( $allowed_blocks, $block_editor_context ) {
+		if (
+			! isset( $block_editor_context->post )
+			|| ! $block_editor_context->post instanceof \WP_Post
+			|| 'jetpack-social-note' !== $block_editor_context->post->post_type
+		) {
 			return $allowed_blocks;
 		}
 
@@ -196,11 +201,44 @@ class Note {
 	 * @param array $post_id The Post ID.
 	 */
 	public function override_empty_title( $title, $post_id ) {
-		if ( get_post_type( $post_id ) === self::JETPACK_SOCIAL_NOTE_CPT ) {
-			return wp_trim_words( get_the_excerpt(), 10 );
+		$post = get_post( $post_id );
+
+		if (
+			$post instanceof \WP_Post &&
+			self::JETPACK_SOCIAL_NOTE_CPT === $post->post_type
+		) {
+			$publishing_date = new \DateTimeImmutable(
+				$post->post_date,
+				wp_timezone()
+			);
+
+			$datetime_format = sprintf(
+				/* Translators: %1$s is a formatted date, e.g. June 18, 2025. %2$s is a formatted time, e.g. 8:24 am. All other words/letters need to be escaped. */
+				__( '%1$s \a\t %2$s', 'jetpack-social' ),
+				get_option( 'date_format' ),
+				get_option( 'time_format' )
+			);
+
+			$title = sprintf(
+				/* Translators: placeholder is a fully-formatted date. */
+				__( 'Social note, %1$s', 'jetpack-social' ),
+				wp_date(
+					$datetime_format,
+					$publishing_date->getTimestamp()
+				)
+			);
+
+			/**
+			 * Filters the default title for a Social Note.
+			 *
+			 * @since 7.1.0
+			 *
+			 * @param string $title The default title.
+			 * @param \WP_Post $post The post.
+			 */
+			$title = apply_filters( 'jetpack_social_notes_default_title', $title, $post );
 		}
 
-		// Return the original title for other cases.
 		return $title;
 	}
 }

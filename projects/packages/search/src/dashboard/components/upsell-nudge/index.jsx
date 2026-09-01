@@ -1,5 +1,4 @@
 import { __ } from '@wordpress/i18n';
-import React from 'react';
 
 import './style.scss';
 
@@ -7,7 +6,7 @@ import './style.scss';
  * Upsell nudge component
  *
  * @param {object} props - Props
- * @return {React.Component} - Upsell nudge component.
+ * @return {import('react').Component} - Upsell nudge component.
  */
 export default function InstantSearchUpsellNudge( props = { upgrade: true } ) {
 	return (

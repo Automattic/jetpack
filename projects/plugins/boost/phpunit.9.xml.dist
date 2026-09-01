@@ -13,9 +13,29 @@
 		<testsuite name="unit">
 			<directory suffix="Test.php">tests/php</directory>
 			<exclude>tests/php/lib/critical-css/Display_Critical_CSS_Test.php</exclude>
+			<exclude>tests/php/lib/critical-css/Critical_CSS_Storage_Test.php</exclude>
+			<exclude>tests/php/modules/optimizations/critical-css/CSS_Proxy_Test.php</exclude>
+			<exclude>tests/php/Jetpack_Boost_Test.php</exclude>
+			<exclude>tests/php/lib/minify/Concatenate_Static_Cache_Urls_Test.php</exclude>
+			<exclude>tests/php/modules/optimizations/lcp/LCP_Storage_Test.php</exclude>
+			<exclude>tests/php/modules/optimizations/lcp/LCP_Optimize_Bg_Image_Test.php</exclude>
+			<exclude>tests/php/modules/optimizations/lcp/LCP_Optimize_Img_Tag_Test.php</exclude>
+			<exclude>tests/php/lib/Body_Close_Locator_Test.php</exclude>
+			<exclude>tests/php/modules/optimizations/render-blocking-js/Render_Blocking_JS_Insertion_Test.php</exclude>
+			<exclude>tests/php/abilities/Boost_Abilities_Test.php</exclude>
 		</testsuite>
-		<testsuite name="critical-css">
+		<testsuite name="with-wordpress">
+			<file>tests/php/Jetpack_Boost_Test.php</file>
+			<file>tests/php/lib/minify/Concatenate_Static_Cache_Urls_Test.php</file>
 			<file>tests/php/lib/critical-css/Display_Critical_CSS_Test.php</file>
+			<file>tests/php/lib/critical-css/Critical_CSS_Storage_Test.php</file>
+			<file>tests/php/modules/optimizations/critical-css/CSS_Proxy_Test.php</file>
+			<file>tests/php/modules/optimizations/lcp/LCP_Storage_Test.php</file>
+			<file>tests/php/modules/optimizations/lcp/LCP_Optimize_Bg_Image_Test.php</file>
+			<file>tests/php/modules/optimizations/lcp/LCP_Optimize_Img_Tag_Test.php</file>
+			<file>tests/php/lib/Body_Close_Locator_Test.php</file>
+			<file>tests/php/modules/optimizations/render-blocking-js/Render_Blocking_JS_Insertion_Test.php</file>
+			<file>tests/php/abilities/Boost_Abilities_Test.php</file>
 		</testsuite>
 	</testsuites>
 </phpunit>

@@ -5,8 +5,159 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## 4.0.0 - 2025-03-24
+## 6.1.0 - 2026-08-12
+### Added
+- Add the Activity Log page to wp-admin, so it is available without the Jetpack plugin installed. [#51157]
 
+## 6.0.0 - 2026-08-11
+### Added
+- Account Protection: Add additional context to "Verify your identity" page to reduce user confusion. [#50338]
+
+### Changed
+- Unify layout of Jetpack admin pages. [#48109]
+- Components: Use Link from `@wordpress/ui` instead of ExternalLink. [#48529]
+- Firewall: Add accessible names to the Brute force protection, Block IP addresses, and Trusted IP addresses toggles. [#48277]
+- General: Update minimum WordPress version to 6.9. [#49021]
+- Internal: Migrate Notice usages to @wordpress/ui. [#48173]
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+- Components: Migrate `ToggleControl` to @wordpress/components [#49694]
+- Protect: Normalize page tabs onto shared minimal variant. Bump @wordpress/ui to 0.13.0. [#48964]
+- Protect: Migrate Status indicator to @wordpress/ui Text. [#48711]
+- Protect: Remove translation wrappers from the "Protect" product name. [#48520]
+- Protect now reports its threat count to the central menu-badges registry instead of writing admin-menu markup directly. [#50190]
+- Remove Jetpack color overrides on core WordPress components. [#47317]
+- Replace deprecated jetpack-components Spinner with WordPress Core Spinner. [#47451]
+- Replace Gridicon with Icon and named icon exports from `@wordpress/icons`. [#48537]
+- Replace internal ContextualUpgradeTrigger upgrade prompts with @wordpress/ui Notice composition. Internal refactor with a Notice-style visual refresh. [#48909]
+- Tested up to WordPress 7.0. [#48114]
+- Update composer.lock files. [#49415]
+- Update package dependencies. [#48735] [#47907] [#48064] [#48106] [#48141] [#48404] [#48405] [#48683] [#49218] [#49272] [#49273] [#49379] [#49448] [#49492] [#49631] [#49638] [#49691] [#49757] [#49831] [#50097] [#50183] [#50436] [#50509] [#50510] [#50529] [#50582] [#50751] [#50753] [#50792] [#51008] [#51125]
+- Update WPDS design tokens to the @wordpress/theme 0.16/0.17 names. [#49272]
+
+### Fixed
+- Firewall: Fix "Enable Firewall" notice CTA missing loading/disabled state, which let users double-click and toggle the WAF back off. [#48389]
+- Firewall: Show 0 instead of NaN on the stat cards when there are no blocked requests. [#49282]
+- Fix fatal error on My Jetpack when the current stable Jetpack plugin is active. [#49994]
+- Protect: Fix route changes in Chrome when scroll APIs return promises. [#50465]
+- Switch to wp/ui Text for wrapping account protection settings [#49367]
+
+## 5.0.0 - 2026-04-11
+### Security
+- WAF: Fix issue that potentially allowed bypassing WAF rules. [#47692]
+
+### Added
+- Add `jetpack_account_protection_send_auth_email` filter to allow custom handling of the verification email. [#48003]
+- Add Jetpack Protect details page for users without the dedicated Jetpack Protect plugin. [#46630]
+- IDC: Add revalidation for IDCs. [#46268]
+
+### Changed
+- Dependencies: Update lock file to keep root requirements in sync. [#47418]
+- Migrate admin page header to use unified header pattern. [#47313]
+- My Jetpack: Check red bubble notification async when cache is not available. [#46396]
+- Remove translated product names from admin page headers and footers. [#47313]
+- Replace license activation link with a "Use license key" button in the header actions area. [#47434]
+- Switch to Native TypeScript compiler based on Go. [#47375]
+- Update composer.lock. [#46686]
+- Update dependencies. [#47472]
+- Update design of the sidebar upsell. [#47909]
+- Update package dependencies. [#46143] [#46430] [#46456] [#46512] [#46552] [#46647] [#46785] [#46854] [#47002] [#47021] [#47099] [#47173] [#47285] [#47300] [#47371] [#47496] [#47505] [#47684] [#47825] [#47890] [#47998]
+
+### Removed
+- General: Update minimum WordPress version to 6.8. [#46801]
+
+### Fixed
+- Admin Page: Restore border on header component. [#47425]
+- Constrain license activation link width on mobile to prevent header overflow. [#47431]
+- Ensure proper flags are used with `json_encode()`. [#46117]
+- Fix TypeScript errors detected by tsgo. [#47419] [#47409]
+
+## 4.4.1 - 2025-11-21
+### Added
+- Tested up to WordPress 6.9. [#45571]
+
+### Changed
+- Replace icons removed from @wordpress/icons with alternatives. [#45760]
+- Update dependencies. [#45488]
+- Update package dependencies. [#45478] [#45652] [#45676] [#45737] [#45756] [#45915] [#45932]
+
+### Fixed
+- Jetpack: remove getIconColor functions for block icons [#45992]
+- My Jetpack: Fix expiring renewal prompt to show all products [#45995]
+- My Jetpack page: fix visual compatibility issue with Hello Dolly plugin. [#45474]
+
+## 4.4.0 - 2025-10-10
+### Added
+- Add typecheck script. [#44787]
+- Add typecheck support for E2E tests. [#44788]
+
+### Changed
+- My Jetpack: Fix multisite availability check for restricted products and modules. [#44710]
+- My Jetpack: Unify the user connection flow with a unified screen. [#44469]
+- Remove CRM installation nudge for Complete plan users. [#45026]
+- Update package dependencies. [#44677] [#44701] [#44725] [#45027] [#45096] [#45097] [#45173] [#45200] [#45229] [#45298] [#45299] [#45334] [#45335]
+
+### Fixed
+- I18n: Improve context hints in comments for translators. [#44686]
+- My Jetpack: Prevent expiration alerts for products covered by active bundles. [#44586]
+
+## 4.3.0 - 2025-07-30
+### Added
+- Add UI confirmation via text box when deleting an extension via delete-fixer so that the user is fully aware that it may break their site. [#44521]
+- My Jetpack: Add analytics for empty product search results. [#44344]
+
+### Changed
+- E2E tests: remove redundant logic in test fixture and converted the fixture to Typscript [#44327]
+- Improve performance of wpcom comments liking by caching and minimizing API requests. [#44205]
+- My Jetpack: Enabled access to My Jetpack on WP Multisite. [#44260]
+- Sync: Ignore the ActivityPub Outbox CPT. [#44222]
+- Update package dependencies. [#44206]
+
+### Fixed
+- My Jetpack: Fix footer alignment for disconnected accounts. [#44468]
+- My Jetpack: Restore plan purchase link. [#44535]
+- Update JITMs to remove jQuery dependency. [#43783]
+
+## 4.2.0 - 2025-07-03
+### Added
+- WAF: Add account recovery flow for blocklisted IP addresses. [#43051]
+
+### Changed
+- My Jetpack: Update Stats card to include a chart for better analytics. [#43870]
+- Update package dependencies. [#44151]
+
+### Removed
+- Remove the need to add FTP/SSH credentials to run auto threat fixers. [#43935]
+
+### Fixed
+- JITM: Fix ineffective caching due to expired plugin sync transient. [#44117]
+- My Jetpack: Use compact number notation in the Protect card. [#43977]
+- WAF: Fix PHP warnings for Brute_Force_Protection->get_local_host(). [#44170]
+
+## 4.1.0 - 2025-06-05
+### Added
+- Scanner: Add functionality to correctly display database threats in the Protect UI. [#43663]
+- Account Protection: Add the Account Protection module toggle. [#40925]
+- My Jetpack: Add user tour. [#42880]
+- My Jetpack: Improve the onboarding experience of Jetpack guiding the users through a new onboarding process. [#42757]
+
+### Changed
+- Connection: Allow pre-selected login providers. [#42662]
+- General: Indicate compatibility with WordPress 6.8. [#42701]
+- My Jetpack: Optimize the images for onboarding slider for faster page load. [#43473]
+- My Jetpack: Update the onboarding UI, changing it to a single button. [#43203]
+- General: Update package dependencies. [#43766]
+
+### Removed
+- General: Update minimum WordPress version to 6.7. [#43192]
+
+### Fixed
+- JS Packages: Decrease CSS priority of global styles to prevent them from applying within the editor. [#43035]
+- My Jetpack: Fix Onboarding UI responsiveness at 600px. [#43533]
+- My Jetpack: Fix readability of license activation button on hover. [#43550]
+- My Jetpack: Prevent social login from getting stuck when email input is not empty. [#43158]
+- Readme: Clarify language in the plugin readme regarding malware and vulnerability scanning. [#43775]
+
+## 4.0.0 - 2025-03-24
 ### Changed
 - Scanner: Add threat count to tab. [#40056]
 - Scanner: Animate the "scan in progress" placeholder image. [#39825]

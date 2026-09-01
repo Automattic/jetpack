@@ -14,9 +14,9 @@ import './history-carousel.scss';
 /**
  * Types
  */
-import type React from 'react';
+import type { FC } from 'react';
 
-export const HistoryCarousel: React.FC = () => {
+export const HistoryCarousel: FC = () => {
 	const { tracks } = useAnalytics();
 	const { recordEvent: recordTracksEvent } = tracks;
 	const { logos, selectedLogo, setSelectedLogoIndex, context, isLoadingHistory } =

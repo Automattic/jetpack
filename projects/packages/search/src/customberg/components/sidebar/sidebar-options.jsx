@@ -15,7 +15,7 @@ import ColorControl from './color-control';
 import ExcludedPostTypesControl from './excluded-post-types-control';
 import ThemeControl from './theme-control';
 
-const { isFreePlan = false } = window[ SERVER_OBJECT_NAME ];
+const { isFreePlan = false, aiMasterEnabled = true } = window[ SERVER_OBJECT_NAME ];
 
 /**
  * Customization/configuration tab for the sidebar.
@@ -48,11 +48,28 @@ export default function SidebarOptions() {
 		trigger,
 		postDate = false,
 		setPostDate,
+		productPrice = true,
+		setProductPrice,
+		aiAnswersEnabled = false,
+		setAiAnswersEnabled,
+		searchSuggestionsEnabled = false,
+		setSearchSuggestionsEnabled,
 	} = useSearchOptions();
 
 	const { isSaving } = useEntityRecordState();
 	const { isLoading } = useSiteLoadingState();
 	const isDisabled = isSaving || isLoading;
+
+	const aiAnswersHelp = aiMasterEnabled
+		? __(
+				'Generate AI-powered answers to visitor queries using your site’s content.',
+				'jetpack-search-pkg'
+		  )
+		: __(
+				'Jetpack AI is turned off for this site. Your setting will apply again when AI is turned back on.',
+				'jetpack-search-pkg',
+				/* dummy arg to avoid bad minification */ 0
+		  );
 
 	const sortOptions = [
 		{ label: __( 'Relevance (recommended)', 'jetpack-search-pkg' ), value: 'relevance' },
@@ -152,6 +169,16 @@ export default function SidebarOptions() {
 					onChange={ setSortEnabled }
 					__nextHasNoMarginBottom={ true }
 				/>
+				{ RESULT_FORMAT_PRODUCT === resultFormat && (
+					<ToggleControl
+						className="jp-search-configure-product-price-toggle"
+						checked={ productPrice }
+						disabled={ isDisabled }
+						label={ __( 'Show price', 'jetpack-search-pkg' ) }
+						onChange={ setProductPrice }
+						__nextHasNoMarginBottom={ true }
+					/>
+				) }
 				<ToggleControl
 					className="jp-search-configure-infinite-scroll-toggle"
 					checked={ infiniteScroll }
@@ -177,6 +204,29 @@ export default function SidebarOptions() {
 						disabled={ isDisabled }
 						label={ __( 'Show "Powered by Jetpack"', 'jetpack-search-pkg' ) }
 						onChange={ setShowLogo }
+						__nextHasNoMarginBottom={ true }
+					/>
+				) }
+				<ToggleControl
+					className="jp-search-configure-search-suggestions-toggle"
+					checked={ searchSuggestionsEnabled }
+					disabled={ isDisabled }
+					label={ __( 'Enable search suggestions', 'jetpack-search-pkg' ) }
+					help={ __(
+						'Show autocomplete query suggestions as visitors type, instead of updating search results on every keystroke.',
+						'jetpack-search-pkg'
+					) }
+					onChange={ setSearchSuggestionsEnabled }
+					__nextHasNoMarginBottom={ true }
+				/>
+				{ ! isFreePlan && (
+					<ToggleControl
+						className="jp-search-configure-ai-answers-toggle"
+						checked={ aiAnswersEnabled }
+						disabled={ isDisabled || ! aiMasterEnabled }
+						label={ __( 'Enable AI Answers', 'jetpack-search-pkg' ) }
+						help={ aiAnswersHelp }
+						onChange={ setAiAnswersEnabled }
 						__nextHasNoMarginBottom={ true }
 					/>
 				) }

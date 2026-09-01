@@ -1,9 +1,6 @@
-/**
- * External dependencies
- */
-import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -13,7 +10,7 @@ import './style.scss';
  * Types
  */
 import type { MessageSeverityProp, MessageProps } from '.';
-import type React from 'react';
+import type { ReactElement } from 'react';
 
 export const ASSISTANT_STATE_INIT = 'init';
 export const ASSISTANT_STATE_READY_TO_GENERATE = 'ready-to-generate';
@@ -34,9 +31,9 @@ export type BlockMessageProps = MessageProps & {
  * React component to render a block message.
  *
  * @param {BlockMessageProps} props - Component props.
- * @return {React.ReactElement }    Banner component.
+ * @return {ReactElement }    Banner component.
  */
-export default function BlockMessage( props: BlockMessageProps ): React.ReactElement {
+export default function BlockMessage( props: BlockMessageProps ): ReactElement {
 	const { state } = props;
 	if ( ! state ) {
 		return null;
@@ -73,7 +70,13 @@ export default function BlockMessage( props: BlockMessageProps ): React.ReactEle
 					'jetpack'
 				),
 				{
-					link: <ExternalLink href="https://jetpack.com/redirect/?source=ai-guidelines" />,
+					link: (
+						<Link
+							openInNewTab
+							href="https://jetpack.com/redirect/?source=ai-guidelines"
+							children={ null }
+						/>
+					),
 				}
 			);
 			break;

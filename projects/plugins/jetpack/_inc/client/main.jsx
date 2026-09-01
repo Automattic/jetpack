@@ -4,12 +4,13 @@ import { ConnectScreen, CONNECTION_STORE_ID } from '@automattic/jetpack-connecti
 import { ActivationScreen } from '@automattic/jetpack-licensing';
 import ConnectScreenBody from '@automattic/jetpack-my-jetpack/components/connection-screen/body';
 import { PartnerCouponRedeem } from '@automattic/jetpack-partner-coupon';
+import { isWoASite } from '@automattic/jetpack-script-data';
 import { withDispatch } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
 import jQuery from 'jquery';
-import React from 'react';
+import { Component } from 'react';
 import { connect } from 'react-redux';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router';
 import AtAGlance from 'at-a-glance/index.jsx';
 import AdminNotices from 'components/admin-notices';
 import AppsCard from 'components/apps-card';
@@ -22,6 +23,8 @@ import Navigation from 'components/navigation';
 import NavigationSettings from 'components/navigation-settings';
 import NonAdminView from 'components/non-admin-view';
 import ReconnectModal from 'components/reconnect-modal';
+import SettingsAdminPage from 'components/settings-admin-page';
+import SettingsNavTabs from 'components/settings-nav-tabs';
 import SupportCard from 'components/support-card';
 import Tracker from 'components/tracker';
 import { imagePath } from 'constants/urls';
@@ -65,7 +68,6 @@ import {
 	getInitialRecommendationsStep,
 	getPluginBaseUrl,
 	getPartnerCoupon,
-	isWoASite,
 	showMyJetpack,
 	isWooCommerceActive,
 	userIsSubscriber,
@@ -142,12 +144,12 @@ const settingsRoutes = [
 	'/sharing',
 	'/discussion',
 	'/earn',
-	'/newsletter',
+	'/reader',
 	'/traffic',
 	'/privacy',
 ];
 
-class Main extends React.Component {
+class Main extends Component {
 	constructor( props ) {
 		super( props );
 		this.closeReconnectModal = this.closeReconnectModal.bind( this );
@@ -161,7 +163,7 @@ class Main extends React.Component {
 		this.initializeAnalytics();
 
 		// Handles refresh, closing and navigating away from Jetpack's Admin Page
-		// beforeunload can not handle confirm calls in most of the browsers, so just clean up the flag.
+		// beforeunload cannot handle confirm calls in most of the browsers, so just clean up the flag.
 		window.addEventListener( 'beforeunload', this.props.clearUnsavedSettingsFlag );
 
 		// Track initial page view
@@ -276,7 +278,7 @@ class Main extends React.Component {
 	 * Render the main navigation bar.
 	 *
 	 * @param {string} route - The current page route.
-	 * @return {React.ReactElement|null} - The navigation component or `null` if not available.
+	 * @return {import('react').ReactElement|null} - The navigation component or `null` if not available.
 	 */
 	renderMainNav = route => {
 		if ( this.shouldShowWooConnectionScreen() ) {
@@ -328,7 +330,7 @@ class Main extends React.Component {
 			case '/sharing':
 			case '/discussion':
 			case '/earn':
-			case '/newsletter':
+			case '/reader':
 			case '/traffic':
 			case '/privacy':
 				return (
@@ -434,7 +436,7 @@ class Main extends React.Component {
 					title={
 						this.props.connectingUserFeatureLabel &&
 						sprintf(
-							/* translators: placeholder is a feature label (e.g. SEO, Notifications) */
+							/* translators: %s: a feature label (e.g. SEO, Notifications) */
 							__( 'Unlock %s and more amazing features', 'jetpack' ),
 							this.props.connectingUserFeatureLabel
 						)
@@ -534,6 +536,9 @@ class Main extends React.Component {
 			case '/plans-prompt':
 				window.location.href = getRedirectUrl( 'jetpack-plans', { site: this.props.siteRawUrl } );
 				break;
+			case '/newsletter':
+				window.location.href = `${ this.props.siteAdminUrl }admin.php?page=jetpack-newsletter`;
+				break;
 			case '/settings':
 			case '/security':
 			case '/performance':
@@ -541,7 +546,7 @@ class Main extends React.Component {
 			case '/sharing':
 			case '/discussion':
 			case '/earn':
-			case '/newsletter':
+			case '/reader':
 			case '/traffic':
 			case '/privacy':
 				pageComponent = (
@@ -628,7 +633,7 @@ class Main extends React.Component {
 				break;
 		}
 
-		if ( this.props.isWoaSite && ! this.props.showMyJetpack ) {
+		if ( isWoASite() && ! this.props.showMyJetpack ) {
 			window.wpNavMenuClassChange( { dashboard: 1, settings: 1 } );
 		} else if ( ! this.props.isLinked && ! this.props.showMyJetpack ) {
 			window.wpNavMenuClassChange( { dashboard: 1, settings: 2 } );
@@ -675,7 +680,7 @@ class Main extends React.Component {
 			this.props.userCanConnectSite &&
 			site_count >= 2 &&
 			this.props.isSiteConnected &&
-			! this.props.isWoaSite &&
+			! isWoASite() &&
 			! this.shouldShowWooConnectionScreen() &&
 			dashboardRoutes.includes( this.props.location.pathname )
 		);
@@ -816,6 +821,10 @@ class Main extends React.Component {
 		this.props.fetchSettings();
 	}
 
+	isSettingsRoute() {
+		return settingsRoutes.includes( this.props.location.pathname );
+	}
+
 	render() {
 		const jpClasses = [ 'jp-lower' ];
 
@@ -831,7 +840,29 @@ class Main extends React.Component {
 			jpClasses.push( 'jp-licensing-screen' );
 		}
 
-		const mainNav = this.renderMainNav( this.props.location.pathname );
+		const pathname = this.props.location.pathname;
+		const mainNav = this.renderMainNav( pathname );
+
+		// Settings routes use the shared AdminPage component for header and footer.
+		if ( this.isSettingsRoute() ) {
+			return (
+				<div>
+					{ this.shouldShowReconnectModal() && (
+						<ReconnectModal show={ true } onHide={ this.closeReconnectModal } />
+					) }
+					<SettingsAdminPage location={ this.props.location } tabs={ <SettingsNavTabs /> }>
+						<div className={ jpClasses.join( ' ' ) }>
+							<AdminNotices />
+							<JetpackNotices />
+							{ this.shouldConnectUser() && this.connectUser() }
+							{ this.renderMainContent( pathname ) }
+						</div>
+					</SettingsAdminPage>
+					<Tracker analytics={ analytics } />
+				</div>
+			);
+		}
+
 		const showHeader = mainNav || this.shouldShowMasthead() || this.shouldShowRewindStatus();
 
 		return (
@@ -842,8 +873,8 @@ class Main extends React.Component {
 
 				{ showHeader && (
 					<div className="jp-top">
+						{ this.shouldShowMasthead() && <Masthead location={ this.props.location } /> }
 						<div className="jp-top-inside">
-							{ this.shouldShowMasthead() && <Masthead location={ this.props.location } /> }
 							{ this.shouldShowRewindStatus() && <QueryRewindStatus /> }
 							{ mainNav }
 						</div>
@@ -854,24 +885,15 @@ class Main extends React.Component {
 					<AdminNotices />
 					<JetpackNotices />
 					{ this.shouldConnectUser() && this.connectUser() }
-					{ /*
-					This component was removed as of react-router-dom v6: https://github.com/remix-run/react-router/issues/8139
-					It could probably be brought back with `unstable_usePrompt`, but that is broken with the hash router and normal links,
-					and is already not reliable cross-browser anyway.
-					<Prompt
-						when={ this.props.areThereUnsavedSettings }
-						message={ this.handleRouterWillLeave }
-					/>
-					*/ }
 
-					{ this.renderMainContent( this.props.location.pathname ) }
+					{ this.renderMainContent( pathname ) }
 					{ this.shouldShowJetpackManageBanner() && (
 						<JetpackManageBanner
-							path={ this.props.location.pathname }
+							path={ pathname }
 							isAgencyAccount={ this.props.jetpackManage.isAgencyAccount }
 						/>
 					) }
-					{ this.shouldShowSupportCard() && <SupportCard path={ this.props.location.pathname } /> }
+					{ this.shouldShowSupportCard() && <SupportCard path={ pathname } /> }
 					{ this.shouldShowAppsCard() && <AppsCard /> }
 				</div>
 				{ this.shouldShowFooter() && <Footer siteAdminUrl={ this.props.siteAdminUrl } /> }
@@ -912,7 +934,6 @@ export default connect(
 			connectUrl: getConnectUrl( state ),
 			connectingUserFeatureLabel: getConnectingUserFeatureLabel( state ),
 			connectingUserFrom: getConnectingUserFrom( state ),
-			isWoaSite: isWoASite( state ),
 			showMyJetpack: showMyJetpack( state ),
 			isWooCommerceActive: isWooCommerceActive( state ),
 			hasSeenWCConnectionModal: getHasSeenWCConnectionModal( state ),

@@ -9,13 +9,13 @@ import VideoCard from '../video-card';
 import VideoCardError from '../video-card/error';
 import styles from './style.module.scss';
 import { VideoGridProps } from './types';
-import type React from 'react';
+import type { ReactNode } from 'react';
 
 /**
  * Video Grid component
  *
  * @param {VideoGridProps} props - Component props.
- * @return {React.ReactNode} - VideoGrid react component.
+ * @return {ReactNode} - VideoGrid react component.
  */
 const VideoGrid = ( { videos, count = 6, onVideoDetailsClick, loading }: VideoGridProps ) => {
 	const gridVideos = videos.slice( 0, count );

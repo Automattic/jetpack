@@ -26,11 +26,16 @@
 		</testsuite>
 		<testsuite name="photon">
 			<directory suffix="Test.php">php/modules/photon</directory>
-			<file>php/Functions_OpenGraph_Test.php</file>
 		</testsuite>
 		<testsuite name="json-api">
 			<file>php/json-api/Jetpack_Json_Api_Endpoints_Test.php</file>
 			<file>php/json-api/Jetpack_Json_Api_Plugins_Endpoints_Test.php</file>
+			<!-- The capability guards in Jetpack_JSON_API_Endpoint close several fail-opens, most of
+			     which reach ordinary users on any site. One does not: core grants a network super admin
+			     any capability it cannot map to 'do_not_allow', so a declaration naming no real
+			     capability authorizes only there. Running this file single-site only left that variant
+			     covered by inspection rather than by execution. -->
+			<file>php/json-api/Jetpack_Json_Api_Endpoints_Accessibility_Test.php</file>
 		</testsuite>
 		<testsuite name="infinite-scroll">
 			<directory suffix="Test.php">php/modules/infinite-scroll</directory>
@@ -62,6 +67,9 @@
 		</testsuite>
 		<testsuite name="restapi">
 			<directory prefix="Jetpack_REST_API" suffix=".php">php/_inc/lib</directory>
+		</testsuite>
+		<testsuite name="opengraph">
+			<file>php/Functions_OpenGraph_Test.php</file>
 		</testsuite>
 		<testsuite name="autoloaded">
 			<directory suffix="Test.php">php/src</directory>

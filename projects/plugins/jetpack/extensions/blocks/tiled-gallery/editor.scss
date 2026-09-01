@@ -1,20 +1,16 @@
-@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
-@import './view';
-@import './variables';
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+@use "./variables" as vars;
+@use "./view";
 
 // inspired by from assets/shared/_animations loading-fade
 @keyframes tiled-gallery-img-placeholder {
 
 	0% {
-		background-color: var( --color-neutral-0 );
-	}
-
-	50% {
-		background-color: color-mix(in sRGB, var(--color-neutral-0) 50%, transparent);
+		background-color: rgb(from var(--color-neutral-0) r g b / 1);
 	}
 
 	100% {
-		background-color: var( --color-neutral-0 );
+		background-color: rgb(from var(--color-neutral-0) r g b / 0.5);
 	}
 }
 
@@ -26,7 +22,7 @@
 		.tiled-gallery__item.is-transient img {
 			// Transient images (no src attribute) occupy no vertical space.
 			// If on a row by themself, the row is hidden.
-			// By setting the bottom margin, ensure they occupy the correct vertical space.
+			// By setting bottom margin, ensure they occupy the correct vertical space.
 			margin-bottom: 100%;
 		}
 	}
@@ -35,21 +31,38 @@
 		// Ensure that selected image outlines are visibile
 		padding-left: 4px;
 		padding-right: 4px;
+
+		.tiled-gallery__gallery {
+			gap: vars.$tiled-gallery-gutter;
+		}
+
+		.tiled-gallery__row {
+			margin: 0;
+
+			.tiled-gallery__col {
+				margin: 0;
+				margin-right: vars.$tiled-gallery-gutter;
+
+				&:last-child {
+					margin-right: 0;
+				}
+			}
+		}
 	}
 
 	.tiled-gallery__item {
-		// Hide the focus outline that otherwise briefly appears when selecting a block.
+		// Hide focus outline that otherwise briefly appears when selecting a block.
 		> img:focus {
 			outline: none;
 		}
 
-		> img {
+		&.is-loading > img {
 			// Inspired by Calypso's placeholder mixin
-			animation: tiled-gallery-img-placeholder 1.6s ease-in-out infinite;
+			animation: tiled-gallery-img-placeholder 0.8s ease-in-out infinite alternate;
 		}
 
 		&.is-selected {
-			outline: 4px solid $tiled-gallery-selection;
+			outline: 4px solid vars.$tiled-gallery-selection;
 
 			// Disable filters when selected
 			filter: none;
@@ -114,7 +127,7 @@
 	}
 
 	.tiled-gallery__add-item {
-		margin-top: $tiled-gallery-gutter;
+		margin-top: vars.$tiled-gallery-gutter;
 		width: 100%;
 
 		.components-form-file-upload,
@@ -184,7 +197,7 @@
 		top: 50%;
 		left: 50%;
 		margin: 0;
-		transform: translate( -50%, -50% );
+		transform: translate(-50%, -50%);
 	}
 
 	// Hide upload buttons in style picker preview
@@ -210,3 +223,4 @@
 		box-shadow: 0 0 0 $active-item-outline-width gb.$gray-600 !important;
 	}
 }
+

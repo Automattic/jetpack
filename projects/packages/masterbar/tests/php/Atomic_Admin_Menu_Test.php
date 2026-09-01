@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Masterbar;
 
 use Automattic\Jetpack\Status;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Users as WorDBless_Users;
@@ -134,41 +135,6 @@ class Atomic_Admin_Menu_Test extends TestCase {
 	}
 
 	/**
-	 * Tests add_upgrades_menu
-	 */
-	public function test_add_upgrades_menu() {
-		global $submenu;
-
-		static::$admin_menu->add_upgrades_menu();
-
-		$this->assertSame( 'https://wordpress.com/plans/' . static::$domain, $submenu['paid-upgrades.php'][1][2] );
-		$this->assertSame( 'https://wordpress.com/domains/manage/' . static::$domain, $submenu['paid-upgrades.php'][2][2] );
-
-		/** This filter is already documented in modules/masterbar/admin-menu/class-atomic-admin-menu.php */
-		if ( apply_filters( 'jetpack_show_wpcom_upgrades_email_menu', false ) ) {
-			$this->assertSame( 'https://wordpress.com/email/' . static::$domain, $submenu['paid-upgrades.php'][3][2] );
-			$this->assertSame( 'https://wordpress.com/purchases/subscriptions/' . static::$domain, $submenu['paid-upgrades.php'][4][2] );
-		} else {
-			$this->assertSame( 'https://wordpress.com/purchases/subscriptions/' . static::$domain, $submenu['paid-upgrades.php'][3][2] );
-		}
-	}
-
-	/**
-	 * Tests add_options_menu
-	 */
-	public function test_add_options_menu() {
-		global $submenu;
-
-		static::$admin_menu->add_options_menu();
-
-		if ( function_exists( 'wpcom_site_has_feature' ) && wpcom_site_has_feature( \WPCOM_Features::ATOMIC ) ) {
-			$this->assertSame( 'https://wordpress.com/hosting-config/' . static::$domain, $submenu['options-general.php'][11][2] );
-		} else {
-			$this->assertSame( 'https://wordpress.com/hosting-features/' . static::$domain, $submenu['options-general.php'][11][2] );
-		}
-	}
-
-	/**
 	 * Tests add_users_menu
 	 */
 	public function test_add_users_menu() {
@@ -178,8 +144,6 @@ class Atomic_Admin_Menu_Test extends TestCase {
 		$this->assertSame( 'https://wordpress.com/people/team/' . static::$domain, $submenu['users.php'][0][2] );
 		$this->assertSame( 'user-new.php', $submenu['users.php'][2][2] );
 		$this->assertSame( 'profile.php', $submenu['users.php'][3][2] );
-		$this->assertSame( 'https://wordpress.com/subscribers/' . static::$domain, $submenu['users.php'][4][2] );
-		$this->assertSame( 'https://wordpress.com/me/account', $submenu['users.php'][5][2] );
 	}
 
 	/**
@@ -214,38 +178,119 @@ class Atomic_Admin_Menu_Test extends TestCase {
 	}
 
 	/**
-	 * Tests add_tools_menu
+	 * Adds a WooCommerce top-level menu item to the global menu fixture.
 	 */
-	public function test_add_site_monitoring_menu() {
-		global $submenu;
-
-		static::$admin_menu->add_tools_menu();
-		$menu_position = 7;
-
-		$this->assertSame( 'https://wordpress.com/site-monitoring/' . static::$domain, $submenu['tools.php'][ $menu_position ][2] );
+	private function add_woocommerce_menu_item() {
+		global $menu;
+		$menu[56] = array(
+			'WooCommerce',
+			'manage_woocommerce',
+			'woocommerce',
+			'WooCommerce',
+			'menu-top toplevel_page_woocommerce',
+			'toplevel_page_woocommerce',
+			'dashicons-store',
+		);
 	}
 
 	/**
-	 * Tests add_github_deployments_menu
+	 * Builds an Atomic_Admin_Menu whose site purchases are stubbed with the given plan slug.
+	 *
+	 * @param string $product_slug Product slug to expose as a site purchase.
+	 * @return Atomic_Admin_Menu
 	 */
-	public function test_add_github_deployments_menu() {
-		global $submenu;
+	private function admin_menu_with_purchase( $product_slug ) {
+		return new class( array( (object) array( 'product_slug' => $product_slug ) ) ) extends Atomic_Admin_Menu {
+			/**
+			 * Stubbed site purchases.
+			 *
+			 * @var array
+			 */
+			private $stub_purchases;
 
-		static::$admin_menu->add_tools_menu();
-		$links = wp_list_pluck( array_values( $submenu['tools.php'] ), 2 );
+			/**
+			 * @param array $stub_purchases Stubbed site purchases.
+			 */
+			public function __construct( array $stub_purchases ) {
+				$this->stub_purchases = $stub_purchases;
+			}
 
-		$this->assertContains( 'https://wordpress.com/github-deployments/' . static::$domain, $links );
+			/**
+			 * @return array
+			 */
+			protected function get_site_purchases() {
+				return $this->stub_purchases;
+			}
+		};
 	}
 
 	/**
-	 * Tests add_jetpack_scan_menu
+	 * Tests that the WooCommerce menu item is relabeled to "Store setup" on Commerce-plan sites.
+	 *
+	 * @dataProvider provide_ecommerce_plan_slugs
+	 *
+	 * @param string $product_slug A Commerce plan product slug.
 	 */
-	public function test_add_jetpack_scan_submenu() {
-		global $submenu;
+	#[DataProvider( 'provide_ecommerce_plan_slugs' )]
+	public function test_relabel_woocommerce_menu_on_commerce_plan( $product_slug ) {
+		global $menu;
 
-		static::$admin_menu->add_jetpack_menu();
-		$links = wp_list_pluck( array_values( $submenu['jetpack'] ), 2 );
+		$this->add_woocommerce_menu_item();
 
-		$this->assertContains( 'https://wordpress.com/scan/' . static::$domain, $links );
+		$this->admin_menu_with_purchase( $product_slug )->relabel_woocommerce_menu();
+
+		$this->assertSame( 'Store setup', $menu[56][0] );
+		// The slug is preserved so the menu still points at WooCommerce.
+		$this->assertSame( 'woocommerce', $menu[56][2] );
+		// Only the sidebar label changes; the page title is left untouched.
+		$this->assertSame( 'WooCommerce', $menu[56][3] );
+	}
+
+	/**
+	 * Tests that the WooCommerce menu item keeps its label on non-Commerce-plan sites.
+	 *
+	 * Legacy Woo Express plans are included here: those users keep the "WooCommerce" label.
+	 *
+	 * @dataProvider provide_non_commerce_plan_slugs
+	 *
+	 * @param string $product_slug A non-Commerce plan product slug.
+	 */
+	#[DataProvider( 'provide_non_commerce_plan_slugs' )]
+	public function test_relabel_woocommerce_menu_keeps_label_without_commerce_plan( $product_slug ) {
+		global $menu;
+
+		$this->add_woocommerce_menu_item();
+
+		$this->admin_menu_with_purchase( $product_slug )->relabel_woocommerce_menu();
+
+		$this->assertSame( 'WooCommerce', $menu[56][0] );
+	}
+
+	/**
+	 * Data provider for Commerce plan slugs.
+	 *
+	 * @return array<string, array{string}>
+	 */
+	public static function provide_ecommerce_plan_slugs() {
+		return array(
+			'Commerce'         => array( 'ecommerce-bundle' ),
+			'Commerce monthly' => array( 'ecommerce-bundle-monthly' ),
+			'Commerce 2y'      => array( 'ecommerce-bundle-2y' ),
+			'Commerce 3y'      => array( 'ecommerce-bundle-3y' ),
+			'Commerce trial'   => array( 'ecommerce-trial-bundle-monthly' ),
+		);
+	}
+
+	/**
+	 * Data provider for non-Commerce plan slugs that should keep the "WooCommerce" label.
+	 *
+	 * @return array<string, array{string}>
+	 */
+	public static function provide_non_commerce_plan_slugs() {
+		return array(
+			'Business'          => array( 'business-bundle' ),
+			'WooExpress small'  => array( 'wooexpress-small-bundle-yearly' ),
+			'WooExpress medium' => array( 'wooexpress-medium-bundle-monthly' ),
+		);
 	}
 }

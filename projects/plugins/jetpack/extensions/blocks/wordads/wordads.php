@@ -15,6 +15,10 @@ use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Status\Host;
 use Jetpack_Gutenberg;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Jetpack's Ads Block class.
  *
@@ -169,7 +173,6 @@ class WordAds {
 		// Remove linebreaks and sanitize.
 		$snippet = esc_js( str_replace( array( "\n", "\t", "\r" ), '', $ad_div ) );
 
-		// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped
 		$fallback_snippet = <<<HTML
 			<script>
 				var sas_fallback = sas_fallback || [];

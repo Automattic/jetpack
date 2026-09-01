@@ -9,13 +9,8 @@
  */
 return [
     // # Issue statistics:
-    // PhanTypeMismatchArgumentInternal : 3 occurrences
-    // PhanTypeMismatchArgumentNullableInternal : 3 occurrences
-    // PhanPluginDuplicateConditionalNullCoalescing : 2 occurrences
-    // PhanPluginSimplifyExpressionBool : 2 occurrences
     // PhanRedefineFunction : 2 occurrences
-    // PhanPluginRedundantAssignment : 1 occurrence
-    // PhanRedundantCondition : 1 occurrence
+    // PhanTypeMismatchArgumentNullableInternal : 2 occurrences
     // PhanTypeArraySuspicious : 1 occurrence
     // PhanTypeMismatchArgument : 1 occurrence
     // PhanTypeMismatchArgumentNullable : 1 occurrence
@@ -25,12 +20,10 @@ return [
 
     // Currently, file_suppressions and directory_suppressions are the only supported suppressions
     'file_suppressions' => [
-        'src/class-cookiestate.php' => ['PhanPluginDuplicateConditionalNullCoalescing', 'PhanPluginRedundantAssignment', 'PhanTypeMismatchArgumentInternal', 'PhanTypeMismatchArgumentNullableInternal'],
-        'src/class-errors.php' => ['PhanTypeMismatchArgumentInternal'],
+        'src/class-cookiestate.php' => ['PhanTypeMismatchArgumentNullableInternal'],
         'src/class-host.php' => ['PhanTypeMismatchArgumentNullable'],
-        'src/class-modules.php' => ['PhanPluginSimplifyExpressionBool', 'PhanTypeArraySuspicious', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal'],
-        'src/class-status.php' => ['PhanRedundantCondition', 'PhanUndeclaredFunction'],
-        'tests/php/Status_Test.php' => ['PhanTypeMismatchArgumentInternal'],
+        'src/class-modules.php' => ['PhanTypeArraySuspicious', 'PhanTypeMismatchArgument', 'PhanTypeMismatchArgumentProbablyReal'],
+        'src/class-status.php' => ['PhanUndeclaredFunction'],
         'tests/php/bootstrap.php' => ['PhanRedefineFunction', 'PhanTypeMismatchReturnProbablyReal'],
     ],
     // 'directory_suppressions' => ['src/directory_name' => ['PhanIssueName1', 'PhanIssueName2']] can be manually added if needed.

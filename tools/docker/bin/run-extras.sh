@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # This file is run in two cases:
 # 1. The container is being built, so it's included into the `docker/bin/run.sh`

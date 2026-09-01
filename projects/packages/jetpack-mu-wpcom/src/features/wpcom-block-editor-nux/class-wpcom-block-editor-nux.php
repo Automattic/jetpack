@@ -7,8 +7,6 @@
 
 namespace Automattic\Jetpack\Jetpack_Mu_Wpcom\NUX;
 
-use Automattic\Jetpack\Jetpack_Mu_Wpcom;
-
 require_once __DIR__ . '/../../utils.php';
 
 /**
@@ -47,7 +45,7 @@ class WPCOM_Block_Editor_NUX {
 	 */
 	public function enqueue_script_and_style() {
 		$handle = jetpack_mu_wpcom_enqueue_assets( 'wpcom-block-editor-nux', array( 'js', 'css' ) );
-		wp_set_script_translations( $handle, 'jetpack-mu-wpcom', Jetpack_Mu_Wpcom::PKG_DIR . 'languages' );
+		wp_set_script_translations( $handle, 'jetpack-mu-wpcom' );
 
 		/**
 		 * Enqueue the launchpad options.
@@ -58,7 +56,7 @@ class WPCOM_Block_Editor_NUX {
 				'siteUrlOption'         => get_option( 'siteurl' ),
 				'siteIntentOption'      => get_option( 'site_intent' ),
 			),
-			JSON_HEX_TAG | JSON_HEX_AMP
+			JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 		);
 
 		wp_add_inline_script(
@@ -78,7 +76,7 @@ class WPCOM_Block_Editor_NUX {
 				'isDismissed' => WP_REST_WPCOM_Block_Editor_Recommended_Tags_Modal_Controller::get_wpcom_recommended_tags_modal_dismissed(),
 				'isP2'        => $is_p2_site,
 			),
-			JSON_HEX_TAG | JSON_HEX_AMP
+			JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 		);
 
 		wp_add_inline_script(

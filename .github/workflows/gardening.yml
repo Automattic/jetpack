@@ -2,28 +2,44 @@ name: Gardening
 on:
   pull_request_target: # When a PR is opened, edited, updated, closed, or a label is added.
     types: [opened, reopened, synchronize, edited, labeled, closed ]
-  issues: # For auto-triage of issues.
-    types: [opened, reopened, labeled, edited, closed]
-  issue_comment: # To gather support references in issue comments.
-    types: [created]
   push:
     branches:
       - trunk # Every time a PR is merged to trunk.
+
+# On the workflow level, cancel any concurrent runs with the same type (e.g. "opened", "labeled") and branch.
+# Don't cancel any for other events, accomplished by grouping on the unique run_id.
+# Later, on the job level, we queue the job runs by branch to keep them from interfering with each other.
 concurrency:
-  # For pull_request_target, cancel any concurrent jobs with the same type (e.g. "opened", "labeled") and branch.
-  # Don't cancel any for other events, accomplished by grouping on the unique run_id.
-  group: gardening-${{ github.event_name }}-${{ github.event.action }}-${{ github.event_name == 'pull_request_target' && github.event.pull_request.head.ref || github.run_id }}
+  group: gardening-${{ github.event_name }}-${{ github.event.action }}-${{ case( github.event_name == 'pull_request_target', github.event.pull_request.head.ref, github.run_id ) }}
   cancel-in-progress: true
+
+permissions:
+  # actions/checkout
+  contents: read
+  # ./projects/github-actions/repo-gardening
+  #   read: octokit.rest.issues.listComments, octokit.rest.issues.get, octokit.rest.issues.listLabelsForRepo, octokit.rest.issues.listLabelsOnIssue, octokit.rest.issues.listMilestones
+  #   write: octokit.rest.issues.addAssignees, octokit.rest.issues.addLabels, octokit.rest.issues.createComment, octokit.rest.issues.removeLabel, octokit.rest.issues.update, octokit.rest.issues.updateComment
+  issues: write
+  # ./projects/github-actions/repo-gardening
+  #   read: octokit.rest.issues.listComments, octokit.rest.pulls.listFiles, octokit.rest.issues.listLabelsForRepo, octokit.rest.issues.listLabelsOnIssue, octokit.rest.issues.listMilestonesoctokit.rest.issues.listMilestones
+  #   write: octokit.rest.issues.addAssignees, octokit.rest.issues.addLabels, octokit.rest.issues.createComment, octokit.rest.issues.removeLabel, octokit.rest.issues.update, octokit.rest.issues.updateComment
+  pull-requests: write
 
 jobs:
   repo-gardening:
     name: "Manage labels and assignees"
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request_target' || github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name
-    timeout-minutes: 10  # 2021-03-12: Successful runs seem to take a few seconds, but can sometimes take a lot longer since we wait for previous runs to complete.
+    timeout-minutes: 5  # 2026-05-21: Successful runs take 1–2 minutes.
+
+    # See above.
+    concurrency:
+      group: gardening-xjobqueue-${{ github.head_ref || github.ref }}
+      queue: max
+
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Setup tools
         uses: ./.github/actions/tool-setup
@@ -39,32 +55,28 @@ jobs:
 
       - name: Check out the PR
         if: github.event_name == 'pull_request_target' && github.event.pull_request.state != 'closed'
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           ref: ${{ github.event.pull_request.head.ref }}
           repository: ${{ github.event.pull_request.head.repo.full_name }}
+          allow-unsafe-pr-checkout: true
           # DO NOT run any code in this checkout. Not even an `npm install`.
           path: ./pr-checkout
 
-      - name: Wait for prior instances of the workflow to finish
-        uses: ./.github/actions/turnstile
-        with:
-          # Split issues and issue_comment triggers from the rest. Otherwise a lot of issue work can result in pushes to trunk timing out.
-          events: ${{ ( github.event_name == 'issues' || github.event_name == 'issue_comment' ) && 'issues issue_comment' || '' }}
-          ignore-events: ${{ ( github.event_name != 'issues' && github.event_name != 'issue_comment' ) && 'issues issue_comment' || '' }}
-
-      - name: "Run the action (assign, manage milestones, for issues and PRs)"
+      - name: "Run the action (assign, manage milestones, for PRs)"
         uses: ./projects/github-actions/repo-gardening
         env:
-          PR_WORKSPACE: ${{ github.workspace }}${{ github.event_name == 'pull_request_target' && '/pr-checkout' || '' }}
+          PR_WORKSPACE: ${{ github.workspace }}${{ case( github.event_name == 'pull_request_target', '/pr-checkout', '' ) }}
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           slack_token: ${{ secrets.SLACK_TOKEN }}
-          slack_team_channel: ${{ secrets.SLACK_TEAM_CHANNEL }}
-          slack_design_channel: ${{ secrets.SLACK_DESIGN_CHANNEL }}
-          slack_editorial_channel: ${{ secrets.SLACK_EDITORIAL_CHANNEL }}
-          slack_he_triage_channel: ${{ secrets.SLACK_HE_TRIAGE_CHANNEL }}
-          slack_quality_channel: ${{ secrets.SLACK_QUALITY_CHANNEL }}
+          slack_team_channel: ${{ vars.SLACK_TEAM_CHANNEL }}
+          slack_design_channel: ${{ vars.SLACK_DESIGN_CHANNEL }}
+          slack_editorial_channel: ${{ vars.SLACK_EDITORIAL_CHANNEL }}
+          slack_he_triage_channel: ${{ vars.SLACK_HE_TRIAGE_CHANNEL }}
+          slack_quality_channel: ${{ vars.SLACK_QUALITY_CHANNEL }}
+          slack_product_ambassadors_channel: ${{ vars.SLACK_PRODUCT_AMBASSADORS_CHANNEL }}
           triage_projects_token: ${{ secrets.PROJECT_AUTOMATION_TOKEN }}
-          project_board_url: ${{ secrets.PROJECT_BOARD_URL }}
+          project_board_url: ${{ vars.PROJECT_BOARD_URL }}
           openai_api_key: ${{ secrets.OPENAI_API_KEY }}
+          slack_notify_on_customer_report: 'false'

@@ -29,15 +29,21 @@ The CLI commands can be run from anywhere, and the changes will be made in which
 ## Available Commands
 
 * `build` - Build a project in the monorepo.
-* `changelog` -  Manage changelog files for a project.
+* `changelog` - Manage changelog files for a project.
 * `clean` - Clean unwanted files in the monorepo.
 * `cli` - Manage global symlink for the CLI.
-* `completion` - Generate bash/zsh completions
+* `completion` - Generate bash/zsh completions.
+* `dependencies` - Analyze and display project dependencies.
 * `docker` - Manage docker containers.
+* `docs` - Parse PHPDoc documentation from a project and output it into a JSON file.
+* `draft` - Enable or disable draft mode for relaxed pre-commit/pre-push checks.
 * `generate` - Create a new project in the monorepo.
 * `install` - Install project dependencies.
-* `watch` - Watch a specific project.
+* `phan` - Run PHP static analysis using Phan.
+* `release` - Manage releases and versioning.
 * `rsync` - rsync projects/plugins to external destinations.
+* `test` - Run PHP, JavaScript, or E2E tests for a project.
+* `watch` - Watch a specific project and rebuild on changes.
 
 ## Examples
 
@@ -80,7 +86,7 @@ Lets you create a new project in the monorepo. Running the command with no argum
 
 **Install**: Install project dependencies.
 
-- Install dependencies for the Jetpack plugin project: `jetpack install projects/plugins`
+- Install dependencies for the Jetpack plugin project: `jetpack install plugins/jetpack`
 - Installs dependencies for all projects in the monorepo: `jetpack install --all`
 
 Lets you install project dependencies by selecting a project from a list, or providing one as an argument.

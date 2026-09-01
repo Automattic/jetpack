@@ -40,7 +40,7 @@ final class WafActivationTest extends WorDBless\BaseTestCase {
 		);
 
 		return array(
-			'body'     => wp_json_encode( $sample_response ),
+			'body'     => wp_json_encode( $sample_response, JSON_UNESCAPED_SLASHES ),
 			'response' => array(
 				'code'    => 200,
 				'message' => '',

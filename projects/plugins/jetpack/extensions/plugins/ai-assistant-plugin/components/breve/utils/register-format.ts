@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { getBlockContent } from '@wordpress/blocks';
+import { getBlockContent, type Block as WPBlock } from '@wordpress/blocks';
 import { dispatch, select } from '@wordpress/data';
 import { registerFormatType, removeFormat, RichTextValue } from '@wordpress/rich-text';
 import md5 from 'crypto-js/md5';
@@ -11,6 +11,7 @@ import md5 from 'crypto-js/md5';
 import features from '../features';
 import registerEvents from '../features/events';
 import highlight from '../highlight/highlight';
+import { store as breveStore } from '../store';
 import {
 	getBreveAvailability,
 	canWriteBriefBeEnabled,
@@ -21,8 +22,9 @@ import {
  */
 import type { BreveDispatch, BreveFeature, BreveSelect } from '../types';
 import type { Block } from '@automattic/jetpack-ai-client';
-import type { WPFormat } from '@wordpress/rich-text/build-types/register-format-type';
-import type { RichTextFormatList } from '@wordpress/rich-text/build-types/types';
+
+type RichTextFormatList = RichTextValue[ 'formats' ][ number ];
+type WPFormat = Parameters< typeof registerFormatType >[ 1 ];
 
 type CoreBlockEditorSelect = {
 	getBlock: ( clientId: string ) => Block;
@@ -44,6 +46,7 @@ export function registerBreveHighlight( feature: BreveFeature ) {
 	const settings = {
 		name: formatName,
 		interactive: false,
+		object: false,
 
 		edit: () => {},
 		...configSettings,
@@ -55,7 +58,7 @@ export function registerBreveHighlight( feature: BreveFeature ) {
 				isProofreadEnabled,
 				isFeatureDictionaryLoading,
 				getReloadFlag,
-			} = select( 'jetpack/ai-breve' ) as BreveSelect;
+			} = select( breveStore ) as unknown as BreveSelect;
 
 			const canBeEnabled = canWriteBriefBeEnabled();
 			const canFeatureBeEnabled = canWriteBriefFeatureBeEnabled( config.name );
@@ -75,7 +78,7 @@ export function registerBreveHighlight( feature: BreveFeature ) {
 		) {
 			return ( formats: Array< RichTextFormatList >, text: string ) => {
 				const { getBlock } = select( 'core/block-editor' ) as CoreBlockEditorSelect;
-				const { getBlockMd5 } = select( 'jetpack/ai-breve' ) as BreveSelect;
+				const { getBlockMd5 } = select( breveStore ) as unknown as BreveSelect;
 				const { invalidateSuggestions, setBlockMd5 } = dispatch(
 					'jetpack/ai-breve'
 				) as BreveDispatch;
@@ -96,7 +99,7 @@ export function registerBreveHighlight( feature: BreveFeature ) {
 
 					// Only use block content for complex blocks like tables
 					if ( richTextIdentifier !== 'content' && !! block ) {
-						blockContent = getBlockContent( block );
+						blockContent = getBlockContent( block as WPBlock );
 					}
 
 					const textMd5 = md5( blockContent ).toString();

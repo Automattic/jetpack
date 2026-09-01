@@ -10,6 +10,10 @@
 
 use Automattic\Jetpack\IP\Utils as IP_Utils;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 if ( isset( $_GET['updated'] ) && 'true' === $_GET['updated'] ) : // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	?>
 	<div class="updated"><p><?php esc_html_e( 'Jetpack Network Settings Updated!', 'jetpack' ); ?></p></div>
@@ -22,10 +26,7 @@ if ( isset( $_GET['error'] ) && 'jetpack_protect_whitelist' === $_GET['error'] )
 <?php endif; ?>
 
 <div class="wrap">
-	<h2><?php esc_html_e( 'Network Settings', 'jetpack' ); ?></h2>
 	<form action="edit.php?action=jetpack-network-settings" method="POST">
-		<h3><?php echo esc_html_x( 'Global', 'Affects all sites in a Multisite network.', 'jetpack' ); ?></h3>
-		<p><?php esc_html_e( 'These settings affect all sites on the network.', 'jetpack' ); ?></p>
 		<?php wp_nonce_field( 'jetpack-network-settings' ); ?>
 		<table class="form-table">
 			<tr valign="top">

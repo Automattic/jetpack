@@ -15,6 +15,7 @@
  * Load `WPCOM_Features` class.
  */
 require_once __DIR__ . '/class-wpcom-features.php';
+require_once __DIR__ . '/class-wpcom-site-purchase.php';
 
 /**
  * Internal function to retrieve the current WP.com blog ID depending on the environment.
@@ -70,7 +71,7 @@ function wpcom_site_has_feature( $feature, $blog_id = 0 ) {
 	/*
 	 * A8C override for internal P2s
 	 */
-	if ( $feature === WPCOM_Features::AI_ASSISTANT && wpcom_is_automattic_p2_site( $blog_id ) ) {
+	if ( $feature === WPCOM_Features::AI_ASSISTANT && ( function_exists( 'wpcom_is_automattic_p2_site' ) && wpcom_is_automattic_p2_site( $blog_id ) ) ) {
 		return true;
 	}
 
@@ -87,7 +88,47 @@ function wpcom_site_has_feature( $feature, $blog_id = 0 ) {
 		WPCOM_Features::add_free_plan_purchase( $purchases, $site_type, $blog->registered );
 	}
 
-	return WPCOM_Features::has_feature( $feature, $purchases, $site_type );
+	return WPCOM_Features::has_feature( $feature, $purchases, $site_type, $blog_id );
+}
+
+/**
+ * Find out if the site can upload video files.
+ *
+ * This checks if the site has either VideoPress or the general video upload capability.
+ * Sites with the UPLOAD_VIDEO_FILES feature can upload videos even without VideoPress
+ * (e.g. Premium plans with the gating-business-q1 sticker).
+ *
+ * @param int $blog_id Blog ID. Defaults to the current blog ID if none is passed.
+ * @return bool Whether the site can upload video files.
+ */
+function wpcom_site_can_upload_videos( $blog_id = 0 ) {
+	if ( ! $blog_id ) {
+		$blog_id = _wpcom_get_current_blog_id();
+	}
+
+	// VideoPress includes video upload capability.
+	// On WPCOM, use wpcom_site_has_videopress() to respect the filter.
+	// On WPCOMSH/Atomic, that function doesn't exist so use direct feature check.
+	if ( function_exists( 'wpcom_site_has_videopress' ) ) {
+		if ( wpcom_site_has_videopress( $blog_id ) ) {
+			return true;
+		}
+	} elseif ( wpcom_site_has_feature( WPCOM_Features::VIDEOPRESS, $blog_id ) ) {
+		return true;
+	}
+
+	// Check for the general video upload feature (Premium+ plans with gating-business-q1 sticker).
+	if ( wpcom_site_has_feature( WPCOM_Features::UPLOAD_VIDEO_FILES, $blog_id ) ) {
+		return true;
+	}
+
+	/**
+	 * Filters whether the site can upload video files.
+	 *
+	 * @param bool $can_upload_videos Whether the site can upload video files.
+	 * @param int  $blog_id Blog ID.
+	 */
+	return apply_filters( 'wpcom_site_can_upload_videos', false, $blog_id );
 }
 
 /**
@@ -100,7 +141,7 @@ function wpcom_site_has_feature( $feature, $blog_id = 0 ) {
  *
  * @param int $blog_id Optional. Blog ID. Defaults to current blog.
  *
- * @return array An array of product objects containing product_slug, product_id, subscribed_date, and expiry_date.
+ * @return array An array of WPCOM_Site_Purchase objects.
  */
 function wpcom_get_site_purchases( $blog_id = 0 ) {
 	if ( ! $blog_id ) {
@@ -117,17 +158,27 @@ function wpcom_get_site_purchases( $blog_id = 0 ) {
 		// Atomic site (WPCOMSH) purchases are stored in Atomic Persistent Data as a JSON encoded string.
 		$persistent_data = new Atomic_Persistent_Data();
 
-		if ( ! $persistent_data || ! $persistent_data->WPCOM_PURCHASES ) { // phpcs:ignore WordPress.NamingConventions
+		if ( ! $persistent_data->WPCOM_PURCHASES ) { // phpcs:ignore WordPress.NamingConventions
 			return array();
 		}
 
-		$purchases = (array) json_decode( $persistent_data->WPCOM_PURCHASES ); // phpcs:ignore WordPress.NamingConventions
+		// An entry that is not an object cannot be a purchase. Skipping keeps a payload of the
+		// wrong shape a degraded answer rather than a fatal on a near-universal code path.
+		$entries = array_filter( (array) json_decode( $persistent_data->WPCOM_PURCHASES ), 'is_object' ); // phpcs:ignore WordPress.NamingConventions
+
+		$purchases = array_map(
+			static fn ( $entry ) => WPCOM_Site_Purchase::from_synced_payload( $entry, $blog_id ),
+			array_values( $entries )
+		);
 
 	} else {
 		// Allow overriding the blog ID for feature checks.
 		$blog_id = apply_filters( 'wpcom_site_has_feature_blog_id', $blog_id );
 
-		$purchases = _wpcom_features_get_simple_site_purchases( $blog_id );
+		$purchases = array_map(
+			static fn ( $row ) => WPCOM_Site_Purchase::from_store_row( $row, $blog_id ),
+			_wpcom_features_get_simple_site_purchases( $blog_id )
+		);
 	}
 
 	return $purchases;
@@ -412,7 +463,7 @@ function wpcom_get_product_features( $product ) {
 		);
 		return array();
 	}
-
+	// @codeCoverageIgnoreStart
 	$purchase = _convert_product_to_purchase( $product );
 	if ( ! $purchase ) {
 		return array();
@@ -420,14 +471,33 @@ function wpcom_get_product_features( $product ) {
 
 	$cache_group = 'site_purchases';
 	$cache_found = false;
-	$cache_key   = $purchase->product_slug . filemtime( __DIR__ . '/class-wpcom-features.php' );
 
-	$features = wp_cache_get( $cache_key, $cache_group, false, $cache_found );
+	// Include sticker status in cache key only for Personal and Premium plans since they're affected by feature gating experiments.
+	$sticker_cache_suffix = '';
+	// @phan-suppress-next-line PhanRedundantCondition
+	if ( function_exists( 'has_blog_sticker' ) && $purchase ) {
+		// Use existing WPCOM_Store helper methods to check plan types
+		$is_personal_or_premium_plan = false;
+		if ( isset( $purchase->product_id ) ) {
+			$is_personal_or_premium_plan = WPCOM_Store::is_wpcom_personal_plan( $purchase->product_id ) || WPCOM_Store::is_wpcom_premium_plan( $purchase->product_id );
+		}
+
+		if ( $is_personal_or_premium_plan ) {
+			$current_blog_id = get_current_blog_id();
+			if ( has_blog_sticker( 'gating-business-q1', $current_blog_id ) ) {
+				$sticker_cache_suffix .= '_gatingbq1';
+			}
+		}
+	}
+
+	$cache_key = $purchase->product_slug . $sticker_cache_suffix . filemtime( __DIR__ . '/class-wpcom-features.php' );
+	$features  = wp_cache_get( $cache_key, $cache_group, false, $cache_found );
 
 	if ( false === $cache_found ) {
 		$features = array();
 
 		foreach ( WPCOM_Features::get_feature_slugs() as $feature ) {
+			// @phan-suppress-next-line PhanTypeMismatchArgumentNullable
 			if ( wpcom_purchase_has_feature( $purchase, $feature ) ) {
 				$features[] = $feature;
 			}
@@ -437,6 +507,7 @@ function wpcom_get_product_features( $product ) {
 	}
 
 	return $features;
+	// @codeCoverageIgnoreEnd
 }
 
 /**

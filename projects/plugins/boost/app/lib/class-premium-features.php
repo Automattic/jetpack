@@ -8,7 +8,6 @@ use Automattic\Jetpack\Boost_Core\Lib\Transient;
 class Premium_Features {
 
 	const CLOUD_CSS             = 'cloud-critical-css';
-	const IMAGE_SIZE_ANALYSIS   = 'image-size-analysis';
 	const PERFORMANCE_HISTORY   = 'performance-history';
 	const IMAGE_CDN_LIAR        = 'image-cdn-liar';
 	const IMAGE_CDN_QUALITY     = 'image-cdn-quality';
@@ -31,7 +30,6 @@ class Premium_Features {
 		$available_features = Transient::get( self::TRANSIENT_KEY, false );
 		$all_features       = array(
 			self::CLOUD_CSS,
-			self::IMAGE_SIZE_ANALYSIS,
 			self::IMAGE_CDN_LIAR,
 			self::IMAGE_CDN_QUALITY,
 			self::PERFORMANCE_HISTORY,

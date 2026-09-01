@@ -1,9 +1,15 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Jetpack log endpoint class.
  *
  * GET /sites/%s/jetpack-log
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Jetpack_JSON_API_Jetpack_Log_Endpoint extends Jetpack_JSON_API_Endpoint {
 	/**

@@ -19,7 +19,10 @@ class SecretsTest extends TestCase {
 	 */
 	public function call_private_secret_callable_method() {
 		$method = new \ReflectionMethod( 'Automattic\Jetpack\Connection\Secrets', 'secret_callable_method' );
-		$method->setAccessible( true );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
 		return $method->invoke( new Secrets() );
 	}
 

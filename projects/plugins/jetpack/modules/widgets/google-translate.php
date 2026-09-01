@@ -149,7 +149,7 @@ class Jetpack_Google_Translate_Widget extends WP_Widget {
 				'_wp_google_translate_widget',
 				array(
 					'lang'   => get_locale(),
-					'layout' => (int) $button_layout,
+					'layout' => $button_layout,
 				)
 			);
 			wp_enqueue_script( 'google-translate-init' );
@@ -185,7 +185,7 @@ class Jetpack_Google_Translate_Widget extends WP_Widget {
 	 * @return string|void
 	 */
 	public function form( $instance ) {
-		$title = isset( $instance['title'] ) ? $instance['title'] : false;
+		$title = $instance['title'] ?? false;
 		if ( false === $title ) {
 			$title = $this->default_title;
 		}

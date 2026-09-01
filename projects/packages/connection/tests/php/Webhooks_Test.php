@@ -90,7 +90,7 @@ class Webhooks_Test extends TestCase {
 	 * Testing the successful authorization.
 	 */
 	public function test_handle_authorize_success() {
-		$manager = $this->createMock( Manager::class );
+		$manager = $this->createStub( Manager::class );
 		$manager->method( 'authorize' )
 				->willReturn( 'authorized' );
 
@@ -155,6 +155,7 @@ class Webhooks_Test extends TestCase {
 			->setConstructorArgs( array( new Manager() ) )
 			->onlyMethods( array( 'do_exit' ) )
 			->getMock();
+		$webhooks->expects( $this->once() )->method( 'do_exit' );
 
 		Constants::set_constant( 'JETPACK__API_BASE', 'https://example.com/api/base.' );
 		Constants::set_constant( 'JETPACK__API_VERSION', '1' );

@@ -1,4 +1,6 @@
-import { getRedirectUrl, Notice, ToggleControl } from '@automattic/jetpack-components';
+import { getRedirectUrl } from '@automattic/jetpack-components';
+import { ToggleControl } from '@wordpress/components';
+import clsx from 'clsx';
 import { useEffect } from 'react';
 import { useSingleModuleState } from './lib/stores';
 import styles from './module.module.scss';
@@ -7,15 +9,17 @@ import { __ } from '@wordpress/i18n';
 import { isWoaHosting } from '$lib/utils/hosting';
 import { useNotices } from '$features/notice/context';
 import { createInterpolateElement } from '@wordpress/element';
-import { ExternalLink } from '@wordpress/components';
+import { Notice, Link } from '@wordpress/ui';
 import Pill from '$features/ui/pill/pill';
+import type { ReactNode } from 'react';
 
 type ModuleProps = {
-	title: React.ReactNode;
-	description: React.ReactNode;
-	children?: React.ReactNode;
+	title: ReactNode;
+	description: ReactNode;
+	children?: ReactNode;
 	slug: string;
 	toggle?: boolean;
+	worksOffline?: boolean;
 	onEnable?: () => void;
 	onBeforeToggle?: ( newStatus: boolean ) => void;
 	onDisable?: () => void;
@@ -28,11 +32,13 @@ const Module = ( {
 	children,
 	slug,
 	toggle = true,
+	worksOffline = true,
 	onEnable,
 	onBeforeToggle,
 	onDisable,
 	onMountEnable,
 }: ModuleProps ) => {
+	const { site } = Jetpack_Boost;
 	const { setNotice } = useNotices();
 	const [ status, setStatus ] = useSingleModuleState( slug, active => {
 		const activatedMessage = __( 'Module activated', 'jetpack-boost' );
@@ -54,6 +60,20 @@ const Module = ( {
 	// Page Cache is not available for WoA sites, but since WoA sites
 	// have their own caching, we want to show that Page Cache is active.
 	const isFakeActive = ! isModuleAvailable && isWoaHosting() && slug === 'page_cache';
+
+	const showOfflineMessage = ! site.online && ! worksOffline;
+	const offlineMessage = (
+		<Notice.Root intent="warning">
+			<Notice.Description>
+				<div className={ styles.offlineMessage }>
+					{ __(
+						'This module will not work while your website is not publicly available.',
+						'jetpack-boost'
+					) }
+				</div>
+			</Notice.Description>
+		</Notice.Root>
+	);
 
 	const handleToggle = () => {
 		const newState = ! isModuleActive;
@@ -89,11 +109,11 @@ const Module = ( {
 			<div className={ styles.toggle }>
 				{ toggle && (
 					<ToggleControl
-						className={ `jb-feature-toggle-${ slug }` }
-						size="small"
+						className={ clsx( `jb-feature-toggle-${ slug }`, styles.small ) }
 						checked={ isModuleActive || isFakeActive }
 						disabled={ ! isModuleAvailable }
 						onChange={ handleToggle }
+						__nextHasNoMarginBottom={ true }
 					/>
 				) }
 			</div>
@@ -108,7 +128,7 @@ const Module = ( {
 
 				<div className={ styles.description }>{ description }</div>
 
-				{ isModuleActive && children }
+				{ showOfflineMessage ? offlineMessage : isModuleActive && children }
 			</div>
 		</div>
 	);
@@ -123,28 +143,28 @@ export default ( props: ModuleProps ) => {
 						<h3>{ props.title }</h3>
 
 						<div className={ styles[ 'failed-module-notice' ] }>
-							<Notice
-								level="error"
-								hideCloseButton={ true }
-								title={ __( 'Failed to load module', 'jetpack-boost' ) }
-							>
-								<p>
-									{ createInterpolateElement(
-										__(
-											'We encountered an error while loading this module. Please refresh the page and try again. If the issue persists, <link>click here</link> to get help.',
-											'jetpack-boost'
-										),
-										{
-											link: (
-												<ExternalLink
-													href={ getRedirectUrl( 'jetpack-boost-help-module-load-failed' ) }
-												/>
+							<Notice.Root intent="error">
+								<Notice.Title>{ __( 'Failed to load module', 'jetpack-boost' ) }</Notice.Title>
+								<Notice.Description>
+									<p>
+										{ createInterpolateElement(
+											__(
+												'We encountered an error while loading this module. Please refresh the page and try again. If the issue persists, <link>click here</link> to get help.',
+												'jetpack-boost'
 											),
-										}
-									) }
-								</p>
-								<code>{ `${ error.constructor.name }: ${ error.message }` }</code>
-							</Notice>
+											{
+												link: (
+													<Link
+														openInNewTab
+														href={ getRedirectUrl( 'jetpack-boost-help-module-load-failed' ) }
+													/>
+												),
+											}
+										) }
+									</p>
+									<code>{ `${ error.constructor.name }: ${ error.message }` }</code>
+								</Notice.Description>
+							</Notice.Root>
 						</div>
 					</div>
 				</div>

@@ -10,6 +10,10 @@ const meta: Meta< typeof ProductPrice > = {
 			control: { type: 'select' },
 			options: Object.keys( CURRENCIES ),
 		},
+		variant: {
+			control: { type: 'select' },
+			options: [ 'default', 'simple' ],
+		},
 	},
 };
 
@@ -33,3 +37,23 @@ const DefaultArgs = {
 // Export Default story
 export const _default = Template.bind( {} );
 _default.args = DefaultArgs;
+
+export const SimpleVariant = Template.bind( {} );
+SimpleVariant.args = {
+	currency: '$',
+	price: 18,
+	offPrice: 9,
+	showNotOffPrice: true,
+	variant: 'simple',
+	legend: '/month, billed yearly',
+	promoLabel: '50% off the first year',
+};
+
+export const SimpleVariantNoDiscount = Template.bind( {} );
+SimpleVariantNoDiscount.args = {
+	currency: '$',
+	price: 9,
+	variant: 'simple',
+	legend: '/month, billed yearly',
+	showNotOffPrice: false,
+};

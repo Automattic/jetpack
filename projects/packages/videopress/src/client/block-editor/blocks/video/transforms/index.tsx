@@ -9,6 +9,7 @@ import clsx from 'clsx';
 /**
  * Internal dependencies
  */
+import { isVideoPressActive } from '../../../../lib/connection';
 import {
 	buildVideoPressURL,
 	isVideoPressUrl,
@@ -52,9 +53,14 @@ const transformFromCoreEmbed = {
 
 const transformFromFile = {
 	type: 'files',
-	// Check if the files array contains a video file.
+	// Check if the files array contains a video file and VideoPress is active.
 	isMatch: files => {
 		if ( ! files || ! files.length ) {
+			return false;
+		}
+
+		// When the module is disabled, let core/video handle the upload instead.
+		if ( ! isVideoPressActive() ) {
 			return false;
 		}
 
@@ -75,7 +81,9 @@ const transformFromFile = {
 			// Find a matching transform for non-video files.
 			const transformation = findTransform(
 				fromTransforms,
-				transform => transform.type === 'files' && transform.isMatch( [ file ] )
+				transform =>
+					transform.type === 'files' &&
+					transform.isMatch( [ file ] as unknown as Record< string, unknown >, undefined )
 			);
 
 			// If a transform exists, apply it; otherwise, return an empty array.

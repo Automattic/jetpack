@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Remove packages/forms dependency from jetpack-mu-wpcom-plugin, change submenu registration

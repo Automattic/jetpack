@@ -1,15 +1,7 @@
-# Files not needed to be distributed in the package.
-.gitattributes    export-ignore
-.github/          export-ignore
-package.json      export-ignore
-webpack.config.js export-ignore
-
 # Files to include in the mirror repo
 /build/**         production-include
 
 # Files to exclude from the mirror repo
-/changelog/**     production-exclude
-.gitignore        production-exclude
-.phpcs.dir.xml    production-exclude
+# (see also entries in the monorepo root .gitattributes)
 src/js/**         production-exclude
-tests/**          production-exclude
+src/css/**        production-exclude

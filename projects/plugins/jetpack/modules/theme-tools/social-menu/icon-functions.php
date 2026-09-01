@@ -5,6 +5,10 @@
  * @package automattic/jetpack
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 if ( ! function_exists( 'jetpack_social_menu_include_svg_icons' ) ) {
 	/**
 	 * Add SVG definitions to the footer.
@@ -65,7 +69,7 @@ if ( ! function_exists( 'jetpack_social_menu_get_svg' ) ) {
 		}
 
 		// Define an icon.
-		if ( false === array_key_exists( 'icon', $args ) ) {
+		if ( ! array_key_exists( 'icon', $args ) ) {
 			return esc_html__( 'Please define an SVG icon filename.', 'jetpack' );
 		}
 
@@ -194,7 +198,6 @@ if ( ! function_exists( 'jetpack_social_menu_social_links_icons' ) ) {
 			'nextdoor.com'      => 'nextdoor',
 			'patreon.com'       => 'patreon',
 			'pinterest.'        => 'pinterest',
-			'getpocket.com'     => 'pocket',
 			'ravelry.com'       => 'ravelry',
 			'reddit.com'        => 'reddit',
 			'slideshare.net'    => 'slideshare',

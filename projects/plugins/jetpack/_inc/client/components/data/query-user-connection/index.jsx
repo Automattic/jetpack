@@ -1,9 +1,9 @@
-import React from 'react';
+import { Component } from 'react';
 import { connect } from 'react-redux';
 import { fetchUserConnectionData, isFetchingUserData } from 'state/connection';
 import { userCanConnectAccount } from 'state/initial-state';
 
-export class QueryUserConnectionData extends React.Component {
+export class QueryUserConnectionData extends Component {
 	UNSAFE_componentWillMount() {
 		if ( this.props.isFetchingUserData || ! this.props.userCanConnectAccount ) {
 			return;

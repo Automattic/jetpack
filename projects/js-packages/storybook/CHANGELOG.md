@@ -5,6 +5,52 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.0.0 - 2026-04-13
+### Added
+- Add @wordpress/theme 0.6.0 design tokens for charts library Storybook previews. [#46846]
+
+### Changed
+- Change from `@storybook/test-runner` to `@storybook/addon-vitest`, which also requires switching from webpack to vite for building the storybook. [#47802]
+- Switch to Native TypeScript compiler based on Go. [#47375]
+- Update dependencies. [#47472]
+- Update legacy Node calls. [#47770]
+- Update package dependencies. [#46552] [#46647] [#46854] [#46905] [#47002] [#47043] [#47099] [#47101] [#47173] [#47285] [#47300] [#47309] [#47371] [#47496] [#47684] [#47693] [#47719] [#47799] [#47870] [#47890] [#47958]
+- Update story path for publicize components. [#46516]
+
+### Fixed
+- Add missing `await` in vitest config, which may be causing intermittent CI errors. [#48029]
+- Add NodePackageImporter to Vite SCSS config to support pkg: imports. [#47840]
+- Fix storybook build failure caused by postcss-import not resolving package.json exports for @wordpress/theme/design-tokens.css. [#46973]
+
+## 1.1.2 - 2026-01-12
+### Changed
+- Update package dependencies. [#45652] [#45737] [#45915] [#45958] [#46022] [#46143] [#46362] [#46363] [#46375] [#46456]
+
+## 1.1.1 - 2025-10-13
+### Changed
+- Update package dependencies. [#44677] [#44701] [#45027] [#45097] [#45127] [#45128] [#45173] [#45200] [#45229] [#45298] [#45299] [#45334] [#45335]
+
+## 1.1.0 - 2025-08-06
+### Added
+- Charts: Add custom ordering. [#44427]
+
+### Changed
+- Update package dependencies. [#43766] [#44020] [#44148] [#44151] [#44217] [#44218] [#44219] [#44356]
+
+## 1.0.0 - 2025-06-03
+### Added
+- Add Scan package to storybook. [#42806]
+
+### Changed
+- Code: First pass of style coding standards. [#42734]
+- Import built CSS for `@wordpress/*` packages instead of rebuilding from Sass sources. [#43670]
+- Remove extensionAliases from webpack config after enabling TypeScript's `rewriteRelativeImportExtensions` option. [#42990]
+- sass: `@use` rather than `@import` for `@wordpress/base-styles` where possible. [#43607]
+- Update package dependencies. [#43071] [#43326] [#43349] [#43398] [#43400] [#43516] [#43578] [#43718] [#43734]
+
+### Fixed
+- Linting: Format SCSS imports consistently. [#43018]
+
 ## 0.6.1 - 2025-04-02
 ### Added
 - Publicize Components: Add Storybook support [#42167]

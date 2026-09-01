@@ -2,7 +2,7 @@
 
 set -eo pipefail
 
-cd $(dirname "${BASH_SOURCE[0]}")/..
+cd "$(dirname "${BASH_SOURCE[0]}")"/..
 BASE=$PWD
 . "$BASE/tools/includes/check-osx-bash-version.sh"
 . "$BASE/tools/includes/chalk-lite.sh"
@@ -118,13 +118,14 @@ spin
 debug "Fetching PHP package versions"
 
 init_changelogger
+# shellcheck disable=SC2120
 function get_packages {
 	local PKGS
 	if [[ -z "$1" ]]; then
 		PACKAGES='{}'
 		PKGS=( "$BASE"/projects/packages/*/composer.json )
 	elif [[ "$1" == packages/* ]]; then
-		PKGS=( "$BASE"/projects/$1/composer.json )
+		PKGS=( "$BASE/projects/$1/composer.json" )
 	else
 		PKGS=()
 	fi
@@ -246,7 +247,7 @@ for SLUG in "${SLUGS[@]}"; do
 			{
 				debug "Updating $SLUG composer.lock (async)"
 				OLD="$(<composer.lock)"
-				"$BASE/tools/composer-update-monorepo.sh" --quiet --no-install --no-scripts --no-audit "$PROJECTFOLDER"
+				"$BASE/tools/composer-update-monorepo.sh" --quiet --no-install --no-scripts --no-audit "$PROJECTFOLDER" || die "Failed to update $SLUG composer.lock"
 				if [[ "$OLD" != "$(<composer.lock)" ]] && $DOCL; then
 					info "Creating changelog entry for $SLUG composer.lock update"
 					do_changelogger "$SLUG" '' 'Update composer.lock.'
@@ -301,7 +302,7 @@ while [[ ${#PIDS[@]} -gt 0 ]]; do
 	if ! wait -fn -p P "${!PIDS[@]}"; then
 		EXIT=1
 	fi
-	unset PIDS[$P]
+	unset "PIDS[$P]"
 done
 
 spinclear

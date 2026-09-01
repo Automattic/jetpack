@@ -7,6 +7,10 @@
  * @package automattic/jetpack-classic-theme-helper
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 $host = new Automattic\Jetpack\Status\Host();
 if ( ! function_exists( 'jetpack_breadcrumbs' ) && ! $host->is_wpcom_simple() ) {
 	/**

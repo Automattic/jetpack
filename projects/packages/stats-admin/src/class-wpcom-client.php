@@ -17,6 +17,13 @@ use WP_Error;
  */
 class WPCOM_Client {
 	/**
+	 * Transient prefix for caching REST API responses.
+	 *
+	 * @var string
+	 */
+	const CACHE_TRANSIENT_PREFIX = 'STATS_REST_RESP_';
+
+	/**
 	 * Query the WordPress.com REST API using the blog token cached.
 	 *
 	 * @param String $path The API endpoint relative path.
@@ -33,7 +40,7 @@ class WPCOM_Client {
 		$use_cache = $use_cache && ! ( isset( $args['method'] ) && strtoupper( $args['method'] ) !== 'GET' ) && ! static::should_bypass_cache();
 
 		// Arrays are serialized without considering the order of objects, but it's okay atm.
-		$cache_key = $cache_key !== null ? $cache_key : 'STATS_REST_RESP_' . md5( implode( '|', array( $path, $version, wp_json_encode( $args ), wp_json_encode( $body ), $base_api_path ) ) );
+		$cache_key ??= self::CACHE_TRANSIENT_PREFIX . md5( implode( '|', array( $path, $version, wp_json_encode( $args, JSON_UNESCAPED_SLASHES ), wp_json_encode( $body, JSON_UNESCAPED_SLASHES ), $base_api_path ) ) );
 
 		if ( $use_cache ) {
 			$response_body_content = get_transient( $cache_key );
@@ -49,7 +56,7 @@ class WPCOM_Client {
 		}
 
 		// Cache the response for 5 minutes.
-		set_transient( $cache_key, wp_json_encode( $response_body ), 5 * MINUTE_IN_SECONDS );
+		set_transient( $cache_key, wp_json_encode( $response_body, JSON_UNESCAPED_SLASHES ), 5 * MINUTE_IN_SECONDS );
 
 		return $response_body;
 	}
@@ -74,6 +81,18 @@ class WPCOM_Client {
 		);
 
 		if ( is_wp_error( $response ) ) {
+			// `Client` fails before sending anything when the site holds no blog token, and that
+			// error carries no status, which the REST API renders as a 500. Say what actually
+			// happened so callers can tell an unconnected site from a broken one. Newer connection
+			// packages name the reason (`no_possible_tokens`); older ones return `missing_token`.
+			if ( in_array( $response->get_error_code(), array( 'missing_token', 'no_possible_tokens' ), true ) ) {
+				return new WP_Error(
+					'site_not_connected',
+					__( 'This site is not connected to WordPress.com.', 'jetpack-stats-admin' ),
+					array( 'status' => 400 )
+				);
+			}
+
 			return $response;
 		}
 
@@ -109,7 +128,7 @@ class WPCOM_Client {
 		if ( $error_code !== null || $response_code !== 200 ) {
 			return new WP_Error(
 				$error_code,
-				isset( $response_body['message'] ) ? $response_body['message'] : 'unknown remote error',
+				$response_body['message'] ?? 'unknown remote error',
 				array( 'status' => $response_code )
 			);
 		}

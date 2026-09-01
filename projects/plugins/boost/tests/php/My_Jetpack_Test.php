@@ -28,7 +28,7 @@ class My_Jetpack_Test extends Base_TestCase {
 	}
 
 	public function test_is_correct_features_count() {
-		$total_features = 11;
+		$total_features = 10;
 		$this->assertCount( $total_features, $this->product['features_by_tier'], 'Expected ' . $total_features . ' features, got ' . count( $this->product['features_by_tier'] ) );
 	}
 

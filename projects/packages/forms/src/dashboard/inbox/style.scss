@@ -1,380 +1,115 @@
-@import '@wordpress/dataviews/build-style/style.css';
+@use "@wordpress/base-styles/variables";
+@use "../mixins";
+@use "../../blocks/shared/styles/empty_image_option" as *;
+@use "../design-tokens";
+@use "../response-field-columns";
+@import "@wordpress/dataviews/build-style/style.css";
 
-$tab-item-height: 40px;
-$tabs-height: $tab-item-height + 16px;
-$action-bar-height: 88px;
-
-.jp-forms__inbox {
-	// visual aid for focus, currently only export button
-	.button-primary.export-button:focus {
-		box-shadow: var( --jp-forms-focus-shadow );
-	}
-
-	.components-dropdown-menu {
-
-		.components-menu-item__button {
-			font-size: var(--jp-forms-font-size-regular);
-		}
-	}
-}
-
-.jp-forms__inbox-tabs {
-
-	.components-tab-panel__tabs {
-		margin: 0;
-		padding: 10px 48px 10px;
-		z-index: 1;
-		flex: 0 1 auto;
-
-		@media (max-width: 600px) {
-			top: 0;
-		}
-
-		@media (max-width: 520px) {
-			padding: 0 24px;
-		}
-	}
-}
-
-.jp-forms__inbox-tab-item {
-	font-size: var(--jp-forms-font-size-regular);
-	font-weight: 400;
-	height: $tab-item-height;
-	padding: 8px 16px;
-
-	&.active-tab {
-		font-weight: 600;
-	}
-}
-
-.jp-forms__inbox-tab-item-count {
-	align-items: center;
-	background: transparent;
-	border: 1px solid #dcdcde;
-	border-radius: 3px;
-	box-sizing: border-box;
-	color: #2C3338;
-	display: inline-flex;
-	font-size: 12px;
-	font-weight: 400;
-	height: 20px;
-	line-height: 18px;
-	margin-left: 10px;
-	padding: 0 6px;
-}
-
-@keyframes jp-forms__slide-in {
-
-	from {
-		transform: translateY(150px);
-	}
-}
-
-@keyframes jp-forms__fade-in {
-
-	from {
-		opacity: 0;
-	}
-
-	35% {
-		opacity: 1;
-	}
-}
-
-.jp-forms__inbox-response {
-	border: 1px solid #dcdcde;
-	border-radius: 8px;
-	box-sizing: border-box;
-	display: flex;
-	flex-direction: column;
-	min-height: 300px;
-	overflow: hidden;
-	background-color: #fff;
-	position: relative;
-
-	&::before {
-		background: linear-gradient(30deg, #eaeff5, #f2f3e3);
-		border-bottom: 1px solid #dcdcde;
-		box-sizing: border-box;
-		content: "";
-		display: flex;
-		padding-top: 24px;
-	}
-
-	&.exit-active {
-		display: none;
-	}
-
-	@media (min-width: 1025px) {
-
-		&.enter,
-		&.enter-active {
-			animation: jp-forms__slide-in .2s ease-out forwards, jp-forms__fade-in .2s ease-in forwards;
-
-			.jp-forms__inbox.is-response-animation-reverted & {
-				animation: none;
-			}
-		}
-
-		&.exit,
-		&.exit-active,
-		&.exit-done {
-			display: flex;
-			position: absolute;
-			top: 0 !important;
-			left: 0;
-			z-index: -1;
-
-			.jp-forms__inbox.is-response-animation-reverted & {
-				animation: jp-forms__slide-in .2s ease-out forwards reverse, jp-forms__fade-in .2s ease-in forwards reverse;
-				z-index: 1;
-			}
-		}
-	}
-
-	@media (min-width: 816px) {
-		margin: 20px 20px 20px 0;
-	}
-}
-
-.jp-forms__inbox-response-avatar {
-	background-color: #fff;
-	border: 3px solid #fff;
-	border-radius: 50%;
-	box-sizing: border-box;
-	display: none; //Hidden for now
-	height: 74px;
-	filter: drop-shadow(0 4px 44px rgba(0, 0, 0, 0.25));
-	overflow: hidden;
-	position: absolute;
-	left: 32px;
-	top: 32px;
-	width: 74px;
-	z-index: 100;
-}
-
-.jp-forms__inbox-response-title {
-	font-size: 24px;
-	font-weight: 700;
-	line-height: normal;
-	margin: 24px 0 0;
-	padding: 0 32px;
-
-	&.is-email,
-	&.is-ip {
-		font-size: 24px;
-		overflow: hidden;
-		text-overflow: ellipsis;
-		white-space: nowrap;
-	}
-}
-
-.jp-forms__inbox-response-subtitle {
-	align-items: center;
-	color: #646970;
-	display: flex;
-	flex-shrink: 0;
-	font-size: 16px;
-	font-weight: 500;
-	height: 40px;
-	line-height: 40px;
-	margin: 0;
-	position: relative;
-	overflow: hidden;
-	padding: 0 32px;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-
-	.components-button {
-		background-color: #fff;
-		display: inline-block;
-		height: 28px;
-		margin-left: auto;
-		padding: 4px 8px;
-		position: absolute;
-		top: 6px;
-		right: 32px;
-		z-index: 100;
-
-		@media (min-width: 1025px) {
-			display: none;
-		}
-	}
-
-	@media (min-width: 1025px) {
-
-		&:hover {
-			background-color: #f6f6f7;
-
-			.components-button {
-				background-color: #f6f6f7;
-				display: inline-block;
-			}
-		}
-	}
-}
-
-.jp-forms__inbox-response-meta {
-	color: #646970;
-	display: table;
-	flex-direction: column;
-	font-size: 12px;
-	font-weight: 400;
-	line-height: 20px;
-	row-gap: 4px;
-	padding: 12px 32px 24px;
-}
-
-.jp-forms__inbox-response-meta-label {
-	display: table-row;
-}
-
-.jp-forms__inbox-response-meta-key,
-.jp-forms__inbox-response-meta-value {
-	display: table-cell;
-	white-space: nowrap;
-}
-
-.jp-forms__inbox-response-meta-key {
-	padding-right: 8px;
-}
-
-.jp-forms__inbox-response-meta-value {
-	overflow: hidden;
-	text-overflow: ellipsis;
-	width: 80%;
-	max-width: 0;
-
-	.is-link {
-		text-decoration: none;
-		color: inherit;
-
-		&:hover {
-			text-decoration: underline;
-		}
-	}
-}
-
-.jp-forms__inbox-response-separator {
-	border-bottom: 1px solid var( --jp-forms-border-color );
+.jp-forms-dataviews-layout-container {
+	overflow-x: auto;
 	width: 100%;
-}
-
-.jp-forms__inbox-response-data {
+	flex-grow: 1;
 	display: flex;
-	font-size: var(--jp-forms-font-size-regular);
 	flex-direction: column;
-	line-height: 24px;
-	padding: 24px 32px;
-	row-gap: 24px;
+	background-color: var(--wpds-color-background-surface-neutral-strong);
 }
 
-.jp-forms__inbox-response-data-label {
-	font-weight: 600;
-}
-
-.jp-forms__inbox-response-data-value {
-	white-space: pre-wrap;
-}
-
-.jp-forms__inbox-response-data-value .file-field {
+/*
+ * DataViews custom spacing adjustments
+*/
+.dataviews-wrapper {
+	// Jetpack Forms specific
 	display: flex;
+	flex-direction: column;
+	flex-grow: 1;
+	min-height: 0;
+
+	.dataviews-footer,
+	.dataviews-view-grid,
+	.dataviews-view-list div[role="row"] .dataviews-view-list__item-wrapper {
+		padding-inline: variables.$grid-unit * 2.5;
+	}
+
+	.dataviews-footer {
+		padding-block: variables.$grid-unit-10;
+	}
+
+	.dataviews-view-grid {
+		gap: variables.$grid-unit * 2.5;
+		padding-block: variables.$grid-unit * 2.5;
+	}
+
+	.dataviews-view-table {
+
+		tr {
+
+			td,
+			th {
+
+				&:first-child {
+					padding-inline-start: variables.$grid-unit * 2.5;
+				}
+
+				&:last-child {
+					padding-inline-end: variables.$grid-unit * 2.5;
+				}
+			}
+		}
+	}
+
+	.dataviews-view-grid__group-header {
+		padding-inline: variables.$grid-unit * 2.5;
+	}
+}
+
+.jp-forms__inbox__author-field {
+	position: relative;
+
+	@include mixins.flex-center;
 	gap: 12px;
+	max-width: 100%;
 }
 
-.jp-forms__inbox-response-data-value .file-field svg {
-	min-width: 24px;
+.jp-forms__inbox__author-info-container {
+	overflow: hidden;
+
+	@include mixins.flex-column;
 }
 
-.jp-forms__header-subtext {
-	margin-bottom: 0;
+.jp-forms__inbox__author-info,
+.jp-forms__inbox__author-field__email {
+	text-overflow: ellipsis;
+	overflow: hidden;
 }
 
-.jp-forms__inbox__dataviews__container {
-	height: 100%;
-	box-sizing: border-box;
-	min-height: 400px;
+.jp-forms__inbox__author-field__email {
+	font-size: 11px;
+	filter: opacity(0.6);
 }
 
-.jp-forms__inbox__dataviews {
-	display: flex;
-	flex-direction: column;
-	height: 100%;
-	max-height: 100%;
-	flex: 1 1 50%;
-
-	.dataviews-wrapper {
-		background: #fff;
-		height: 300px;
-		flex-grow: 1;
-		overflow-y: visible;
-		overflow-x: auto;
-
-		@media (min-width: 782px) {
-			border-right: 1px solid var(--jp-gray-5);
-		}
-
-		.dataviews__view-actions {
-			align-items: center;
-
-			@media (max-width: 782px) {
-				flex-direction: column-reverse;
-			}
-
-			> div {
-
-				@media (max-width: 782px) {
-					width: 100%;
-					justify-content: space-between;
-				}
-
-				&:nth-of-type(2) {
-
-					@media (max-width: 782px) {
-						justify-content: flex-end;
-					}
-				}
-			}
-		}
-	}
-}
-
-.jp-forms__inbox__dataviews-response {
-	min-width: 300px !important;
-	height: 100%;
-	overflow: auto;
-	flex: 1 1 50%;
-}
-
-
-/* We need to make the available canvas 100% tall. Without this, no flex values will work, they will only use the available space. */
-body[class*="_page_jetpack-forms"],
-body.jetpack_page_jetpack-forms-admin {
-
-	#wpwrap,
-	#wpcontent,
-	#wpbody,
-	#wpbody-content {
-		height: 100%;
-	}
+.jp-forms__inbox__unread-indicator {
+	color: #d63638;
+	font-size: 8px;
+	position: absolute;
+	left: -12px;
+	cursor: pointer;
 }
 
 #jp-forms-dashboard {
-	height: 100%;
 	display: flex;
 	flex-direction: column;
-	width: 100%;
+	flex: 1 1 auto;
+	height: calc(100vh - var(--wp-admin-bar-height, 32px));
 
-	// This is the ThemeWrapper div, we need to keep it at 100% for the inner content to be full height.
+	// First child is the router wrapper
 	> div:first-child {
-		height: 100%;
+		display: flex;
+		flex-direction: column;
+		flex: 1 1 auto;
+		min-height: 0;
 	}
-
 }
 
-.jp-forms__inbox-tabs .components-tab-panel__tab-content {
-	flex: 1 1 auto;
-
-	/* Important to pair with flex-shrink */
-	min-height: 0;;
+.jp-forms__inbox__unread {
+	font-weight: 600;
 }

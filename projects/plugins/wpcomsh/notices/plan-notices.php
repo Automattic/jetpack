@@ -12,6 +12,23 @@
  * Simple Site Calypso: fbhepr%2Skers%2Sgehax%2Sjc%2Qpbagrag%2Syvo%2Subzr%2Sivrjf.cuc%3Se%3Q232480%23179-og
  */
 function wpcomsh_plan_notices() {
+	/*
+	 * This notice is being replaced by the expiry notices in jetpack-mu-wpcom,
+	 * which are going out to a share of sites at a time. Stand down for the
+	 * sites already on the new ones, and keep covering everyone else until the
+	 * rollout reaches them.
+	 *
+	 * Tested here rather than on the `add_action` because the gate is defined
+	 * in jetpack-mu-wpcom, which loads on `plugins_loaded` -- after this file
+	 * is required. When it is missing the new notices are missing too, since
+	 * they ship in the same file, so carrying on is the safe answer: it risks
+	 * an old notice where a new one was due, never two notices at once.
+	 */
+	if ( function_exists( 'wpcom_expiry_notices_is_enabled_for_site' )
+		&& wpcom_expiry_notices_is_enabled_for_site() ) {
+		return;
+	}
+
 	// phpcs:ignore WordPress.WP.Capabilities.RoleFound
 	if ( ! current_user_can( 'editor' ) && ! current_user_can( 'administrator' ) ) {
 		return;
@@ -19,7 +36,7 @@ function wpcomsh_plan_notices() {
 
 	$persistent_data = new Atomic_Persistent_Data();
 
-	if ( ! $persistent_data || ! $persistent_data->WPCOM_PURCHASES ) { // phpcs:ignore WordPress.NamingConventions
+	if ( ! $persistent_data->WPCOM_PURCHASES ) { // phpcs:ignore WordPress.NamingConventions
 		return;
 	}
 

@@ -1,8 +1,10 @@
-.many-items-table th, .many-items-table td {
+.many-items-table th,
+.many-items-table td {
 	width: 25%;
 }
 
-.many-items-table input, .many-items-table textarea {
+.many-items-table input,
+.many-items-table textarea {
 	width: 100%;
 }
 

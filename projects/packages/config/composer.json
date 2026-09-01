@@ -4,10 +4,9 @@
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"php": ">=7.2"
+		"php": ">=7.4"
 	},
 	"require-dev": {
-		"automattic/jetpack-changelogger": "@dev",
 		"automattic/jetpack-connection": "@dev",
 		"automattic/jetpack-import": "@dev",
 		"automattic/jetpack-jitm": "@dev",
@@ -20,7 +19,6 @@
 		"automattic/jetpack-videopress": "@dev",
 		"automattic/jetpack-account-protection": "@dev",
 		"automattic/jetpack-waf": "@dev",
-		"automattic/jetpack-wordads": "@dev",
 		"automattic/jetpack-yoast-promo": "@dev"
 	},
 	"suggest": {
@@ -50,23 +48,22 @@
 			"link-template": "https://github.com/Automattic/jetpack-config/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "3.1.x-dev"
+			"dev-trunk": "4.0.x-dev"
 		},
 		"dependencies": {
 			"test-only": [
+				"packages/account-protection",
 				"packages/connection",
 				"packages/import",
 				"packages/jitm",
 				"packages/post-list",
 				"packages/publicize",
 				"packages/search",
-				"packages/stats",
 				"packages/stats-admin",
+				"packages/stats",
 				"packages/sync",
 				"packages/videopress",
-				"packages/account-protection",
 				"packages/waf",
-				"packages/wordads",
 				"packages/yoast-promo"
 			]
 		}

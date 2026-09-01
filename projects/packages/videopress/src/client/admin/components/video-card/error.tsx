@@ -1,14 +1,8 @@
 /**
  * External dependencies
  */
-import {
-	Button,
-	Title,
-	useBreakpointMatch,
-	ActionPopover,
-	getRedirectUrl,
-	Text,
-} from '@automattic/jetpack-components';
+import { Button, Title, ActionPopover, getRedirectUrl, Text } from '@automattic/jetpack-components';
+import { useViewportMatch } from '@wordpress/compose';
 import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { Icon, chevronDown, chevronUp, trash } from '@wordpress/icons';
@@ -24,20 +18,20 @@ import { VideoCardProps } from './types';
 /**
  * Types
  */
-import type React from 'react';
+import type { ReactNode } from 'react';
 
 /**
  * Video Card Error component
  *
  * @param {VideoCardProps} props - Component props.
- * @return {React.ReactNode} - VideoCardError react component.
+ * @return {ReactNode} - VideoCardError react component.
  */
 export const VideoCardError = ( { title, id }: VideoCardProps ) => {
 	const { dismissErroredVideo } = useDispatch( STORE_ID );
 	const isBlank = ! title;
 
 	const [ anchor, setAnchor ] = useState( null );
-	const [ isSm ] = useBreakpointMatch( 'sm' );
+	const isSm = useViewportMatch( 'small', '<' );
 	const [ isOpen, setIsOpen ] = useState( false );
 	const [ showError, setShowError ] = useState( false );
 	const disabled = false;

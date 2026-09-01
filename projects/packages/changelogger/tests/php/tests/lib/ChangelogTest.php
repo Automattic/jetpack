@@ -104,7 +104,7 @@ class ChangelogTest extends TestCase {
 			$this->expectExceptionMessage( $changelog );
 			Changelog::jsonUnserialize( json_decode( $json ) );
 		} else {
-			$this->assertSame( $json, json_encode( $changelog ) );
+			$this->assertSame( $json, json_encode( $changelog, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) );
 			$this->assertEquals( $changelog, Changelog::jsonUnserialize( json_decode( $json ) ) );
 		}
 	}

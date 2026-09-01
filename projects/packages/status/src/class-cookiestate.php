@@ -25,7 +25,7 @@ class CookieState {
 	 */
 	public function state( $key = null, $value = null, $restate = false ) {
 		static $state = array();
-		static $path, $domain;
+		static $path, $domain; // this initializes values to null
 		if ( ! isset( $path ) ) {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 			$admin_url = ( new Paths() )->admin_url();
@@ -33,10 +33,7 @@ class CookieState {
 
 			if ( is_array( $bits ) ) {
 				$path   = ( isset( $bits['path'] ) ) ? dirname( $bits['path'] ) : null;
-				$domain = ( isset( $bits['host'] ) ) ? $bits['host'] : null;
-			} else {
-				$path   = null;
-				$domain = null;
+				$domain = $bits['host'] ?? null;
 			}
 		}
 
@@ -49,6 +46,7 @@ class CookieState {
 				if ( strlen( $v ) ) {
 					$state[ $k ] = $v;
 				}
+				// @phan-suppress-next-line PhanTypeMismatchArgumentInternal -- Setting cookie to false is valid and documented for deletion.
 				setcookie( "jetpackState[$k]", false, 0, $path, $domain, is_ssl(), true );
 			}
 		}
@@ -92,7 +90,7 @@ class CookieState {
 	 */
 	public function should_set_cookie( $key ) {
 		global $current_screen;
-		$page = isset( $current_screen->base ) ? $current_screen->base : null;
+		$page = $current_screen->base ?? null;
 
 		if ( 'toplevel_page_jetpack' === $page && 'display_update_modal' === $key ) {
 			return false;

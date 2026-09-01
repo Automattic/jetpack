@@ -1,4 +1,4 @@
-@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
 
 // Progress Footer
 
@@ -26,7 +26,7 @@
 
 	&__progress {
 		height: 8px;
-		background: #D2D2D2;
+		background: #d2d2d2;
 		width: 150px;
 		border-radius: 4px;
 		box-sizing: border-box;
@@ -48,7 +48,7 @@
 		justify-content: space-between;
 		align-items: center;
 	}
-	
+
 	&__error-actions {
 		gap: 16px;
 	}

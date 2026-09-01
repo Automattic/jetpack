@@ -1,0 +1,35 @@
+/* Frontend status notice for non-published forms (visible to editors only) */
+.jetpack-form-status-notice {
+	padding: 12px 16px;
+	margin-block-start: 16px;
+	margin-block-end: 8px;
+	font-size: 14px;
+	line-height: 1.5;
+
+	p {
+		margin: 0;
+	}
+
+	&__edit-link {
+		font-weight: 500;
+		white-space: nowrap;
+		color: #1e1e1e;
+
+		&:hover,
+		&:focus {
+			color: #000;
+		}
+	}
+
+	&--warning {
+		background-color: #fcf9e8;
+		border-inline-start: 4px solid #dba617;
+		color: #1e1e1e;
+	}
+
+	&--info {
+		background-color: #e7f5fe;
+		border-inline-start: 4px solid #0675c4;
+		color: #1e1e1e;
+	}
+}

@@ -1,4 +1,3 @@
-import { isUrl } from '@wordpress/url';
 import colorValidator from '../../../../shared/colorValidator';
 
 // Deprecated V1 of podcast-player.
@@ -9,7 +8,6 @@ import colorValidator from '../../../../shared/colorValidator';
 const attributes = {
 	url: {
 		type: 'string',
-		validator: isUrl,
 	},
 	itemsToShow: {
 		type: 'integer',

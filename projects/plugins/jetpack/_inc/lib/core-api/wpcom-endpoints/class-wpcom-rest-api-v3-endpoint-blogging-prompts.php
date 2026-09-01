@@ -7,6 +7,10 @@
 
 use Automattic\Jetpack\Connection\Traits\WPCOM_REST_API_Proxy_Request;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * REST API endpoint wpcom/v3/sites/%s/blogging-prompts.
  */
@@ -374,7 +378,7 @@ class WPCOM_REST_API_V3_Endpoint_Blogging_Prompts extends WP_REST_Posts_Controll
 		$date_obj  = date_create( $post_date );
 
 		if ( $this->force_year ) {
-			$date_obj->setDate( $this->force_year, $date_obj->format( 'm' ), $date_obj->format( 'd' ) );
+			$date_obj->setDate( $this->force_year, (int) $date_obj->format( 'n' ), (int) $date_obj->format( 'j' ) );
 
 			// If ascending by day of year, go to the next year when we pass the last day of the year.
 			if ( $date_obj->format( 'm-d' ) === '12-31' ) {

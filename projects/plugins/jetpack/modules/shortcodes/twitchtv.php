@@ -9,6 +9,10 @@
  * @package automattic/jetpack
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * (Live URL) https://www.twitch.tv/paperbat
  *
@@ -65,7 +69,6 @@ function wpcom_twitchtv_shortcode( $atts ) {
 	}
 
 	// See https://discuss.dev.twitch.tv/t/twitch-embedded-player-updates-in-2020/23956.
-	// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 	$url_args['parent'] = isset( $_SERVER['HTTP_HOST'] )
 		? rawurlencode( wp_unslash( $_SERVER['HTTP_HOST'] ) ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		: '';

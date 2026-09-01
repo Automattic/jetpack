@@ -2,14 +2,14 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import React from 'react';
 /**
  * Internal dependencies
  */
 import { ImageLoader } from './image-loader.tsx';
 import './first-load-screen.scss';
+import type { FC } from 'react';
 
-export const FirstLoadScreen: React.FC< {
+export const FirstLoadScreen: FC< {
 	state?: 'loadingFeature' | 'analyzing' | 'generating';
 } > = ( { state = 'loadingFeature' } ) => {
 	const loadingLabel = __( 'Loading…', 'jetpack-ai-client' );

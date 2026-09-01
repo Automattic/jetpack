@@ -87,7 +87,6 @@ $config->ensure(
 
 It's important to note that we consider a list of certain options required for Sync to properly function, therefore the following options will be synced no matter the configuration:
 
-- `jetpack_sync_active_modules`, // Sync related option
 - `jetpack_sync_non_blocking`, // Sync related option
 - `jetpack_sync_non_public_post_stati`, // Sync related option
 - `jetpack_sync_settings_comment_meta_whitelist`, // Sync related option
@@ -135,6 +134,21 @@ $config->ensure(
 ```
 
 **When it comes to configuring callables, you need to pass an associative array where the key is the name of your callable and the value the corresponding callback function.**
+
+**Callable values must be statically resolvable — never instantiate objects while registering the whitelist.** The whitelist is registered on every request (typically at `plugins_loaded`), but the callables are only invoked when Sync actually sends data. Any work done while building the array — object construction and, worse, option reads inside constructors — is paid on every request for nothing. Use one of:
+
+- a function name string: `'my_callable' => 'my_get_value_function'`
+- a static method reference: `'my_callable' => array( 'My_Plugin_Class', 'get_settings' )`
+- a closure, when the value can only be produced by an object instance, so construction is deferred to invocation time:
+
+```php
+'my_callable' => static function () {
+	return ( new My_Plugin_Settings() )->get();
+},
+```
+
+Also note that entries failing `is_callable()` (e.g. a typo in the method name, or a method removed later) are **silently skipped** — the callable is never synced and no error is logged — so make sure the reference actually resolves, ideally with a test invoking your whitelist entries.
+
 It's important to note that we consider a list of certain callables required for Sync to properly function, therefore the following callables will be synced no matter the configuration:
 
 - `site_url`               
@@ -149,6 +163,7 @@ It's important to note that we consider a list of certain callables required for
 - `wp_version`
 - `jetpack_connection_active_plugins` // Connection related callable
 - `jetpack_package_versions` // Connection related callable
+- `jetpack_sync_active_modules`
 
 Passing a list of callables will result in syncing those callables plus the required ones.
 

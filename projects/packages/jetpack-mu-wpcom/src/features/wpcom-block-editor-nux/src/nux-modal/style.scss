@@ -1,5 +1,5 @@
 @use "@wordpress/base-styles/mixins";
-@import "@automattic/typography/styles/variables";
+@use "@automattic/typography/styles/variables";
 
 .wpcom-block-editor-nux-modal {
 
@@ -45,7 +45,7 @@
 
 	.wpcom-block-editor-nux-modal__title {
 		margin: 34px 0 0;
-		font-size: $font-headline-small;
+		font-size: variables.$font-headline-small;
 		font-weight: 500;
 		line-height: 1.2;
 
@@ -57,11 +57,11 @@
 	.wpcom-block-editor-nux-modal__description {
 		max-width: 352px;
 		margin: 16px 0 0;
-		font-size: $font-body;
+		font-size: variables.$font-body;
 
 		@include mixins.break-mobile {
 			margin: 20px auto 0;
-			font-size: $font-body-large;
+			font-size: variables.$font-body-large;
 		}
 	}
 
@@ -76,7 +76,7 @@
 			height: 40px;
 			justify-content: center;
 			border-radius: 3px;
-			font-size: $font-body-small;
+			font-size: variables.$font-body-small;
 		}
 
 		.components-button + .components-button {

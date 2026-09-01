@@ -22,6 +22,19 @@ export interface NumberFormatParams {
 
 export interface CurrencyOverride {
 	symbol?: string;
+	/**
+	 * Smallest-unit exponent for this currency, used when the browser's ICU
+	 * `maximumFractionDigits` disagrees with the API's smallest-unit encoding,
+	 * or when this package's hard-coded fallback exponent (see
+	 * `SMALLEST_UNIT_EXPONENT_OVERRIDES` in `number-format-currency/index.ts`)
+	 * disagrees with the host application's source of truth.
+	 *
+	 * For example, modern browser ICU (Chrome / Node 24+) reports IDR as
+	 * 0-decimal, but this package's hard-coded fallback applies an exponent of
+	 * 2 for legacy compatibility. The WPCOM currencies endpoint can send
+	 * `{ "IDR": { "decimal": 0 } }` to override that hard-coded 2 back to 0.
+	 */
+	decimal?: number;
 }
 
 export interface NumberFormatCurrencyParams {
@@ -76,6 +89,17 @@ export interface NumberFormatCurrencyParams {
 	 * sign (eg: `+$35.00`). Has no effect on negative numbers or 0.
 	 */
 	signForPositive?: boolean;
+
+	/**
+	 * Dynamic currency overrides, typically supplied by the host application
+	 * (eg: from a remote endpoint) via `setCurrencyOverrides`.
+	 *
+	 * When provided, entries here take precedence over the hard-coded defaults
+	 * baked into the package on a per-field basis. Anything not specified in
+	 * this map falls back to the hard-coded defaults, so passing a partial map
+	 * is safe.
+	 */
+	currencyOverrides?: Record< string, CurrencyOverride >;
 }
 
 export interface CurrencyObject {
@@ -118,6 +142,17 @@ export interface CurrencyObject {
 	 * True if the formatted number has a non-0 decimal part.
 	 */
 	hasNonZeroFraction: boolean;
+
+	/**
+	 * The raw floating-point version of the number prepared for formatting,
+	 * after unit conversion and precision scaling.
+	 *
+	 * For non-decimal currencies (eg: JPY) this will actually be an integer.
+	 * Otherwise it will likely be a floating-point number. Be careful with this!
+	 * It should not be used for math if possible because of floating-point
+	 * rounding issues! Use the smallest unit instead.
+	 */
+	floatValue: number;
 }
 
 export type FormatNumber = (
@@ -130,7 +165,7 @@ export type FormatCurrency = (
 	currency: string,
 	options?: Omit<
 		NumberFormatCurrencyParams,
-		'number' | 'currency' | 'browserSafeLocale' | 'geoLocation'
+		'number' | 'currency' | 'browserSafeLocale' | 'geoLocation' | 'currencyOverrides'
 	>
 ) => string;
 
@@ -139,6 +174,6 @@ export type GetCurrencyObject = (
 	currency: string,
 	options?: Omit<
 		NumberFormatCurrencyParams,
-		'number' | 'currency' | 'browserSafeLocale' | 'geoLocation'
+		'number' | 'currency' | 'browserSafeLocale' | 'geoLocation' | 'currencyOverrides'
 	>
 ) => CurrencyObject;

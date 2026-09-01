@@ -1,7 +1,8 @@
 {
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
 	"name": "carousel",
 	"category": "newspack",
-	"apiVersion": 3,
 	"attributes": {
 		"className": {
 			"type": "string",
@@ -32,6 +33,14 @@
 		"includeSubcategories": {
 			"type": "boolean",
 			"default": true
+		},
+		"categoryJoinType": {
+			"type": "string",
+			"default": "or",
+			"enum": [
+				"or",
+				"all"
+			]
 		},
 		"tags": {
 			"type": "array"
@@ -107,6 +116,10 @@
 			"items": {
 				"type": "string"
 			}
+		},
+		"deduplicate": {
+			"type": "boolean",
+			"default": true
 		}
 	},
 	"textdomain": "jetpack-mu-wpcom"

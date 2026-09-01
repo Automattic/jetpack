@@ -1,5 +1,5 @@
-import { Text } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
+import { Text } from '@wordpress/ui';
 import clsx from 'clsx';
 import { PRODUCT_STATUSES } from '../../constants';
 import styles from './style.module.scss';
@@ -113,7 +113,7 @@ const Status: FC< StatusProps > = ( {
 	);
 
 	return (
-		<Text variant="label" className={ statusClassName }>
+		<Text variant="body-sm" className={ statusClassName }>
 			{ flagLabel }
 		</Text>
 	);

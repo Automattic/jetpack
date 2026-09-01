@@ -14,7 +14,6 @@ import {
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { chevronRight } from '@wordpress/icons';
-import React from 'react';
 /**
  * Internal dependencies
  */
@@ -123,7 +122,6 @@ export default function ToneToolbarDropdownMenu( {
 			popoverProps={ {
 				variant: 'toolbar',
 			} }
-			disabled={ disabled }
 			onToggle={ toggleHandler }
 		>
 			{ () => <ToneMenuGroup value={ value } onChange={ onChange } /> }

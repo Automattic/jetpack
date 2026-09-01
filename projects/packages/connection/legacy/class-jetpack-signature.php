@@ -46,8 +46,8 @@ class Jetpack_Signature {
 	/**
 	 * Constructor.
 	 *
-	 * @param array $access_token Access token.
-	 * @param int   $time_diff    Timezone difference (in seconds).
+	 * @param string $access_token Access token.
+	 * @param int    $time_diff    Timezone difference (in seconds).
 	 */
 	public function __construct( $access_token, $time_diff = 0 ) {
 		$secret = explode( '.', $access_token );
@@ -83,12 +83,12 @@ class Jetpack_Signature {
 		$port = $this->get_current_request_port();
 
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidatedNotSanitized -- Sniff misses the esc_url_raw wrapper.
-		$this->current_request_url = esc_url_raw( wp_unslash( "{$scheme}://{$_SERVER['HTTP_HOST']}:{$port}" . ( isset( $_SERVER['REQUEST_URI'] ) ? $_SERVER['REQUEST_URI'] : '' ) ) );
+		$this->current_request_url = esc_url_raw( wp_unslash( "{$scheme}://{$_SERVER['HTTP_HOST']}:{$port}" . ( $_SERVER['REQUEST_URI'] ?? '' ) ) );
 
 		if ( array_key_exists( 'body', $override ) && ! empty( $override['body'] ) ) {
 			$body = $override['body'];
 		} elseif ( isset( $_SERVER['REQUEST_METHOD'] ) && 'POST' === strtoupper( $_SERVER['REQUEST_METHOD'] ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- This is validating.
-			$body = isset( $GLOBALS['HTTP_RAW_POST_DATA'] ) ? $GLOBALS['HTTP_RAW_POST_DATA'] : null;
+			$body = $GLOBALS['HTTP_RAW_POST_DATA'] ?? null;
 
 			// Convert the $_POST to the body, if the body was empty. This is how arrays are hashed
 			// and encoded on the Jetpack side.
@@ -127,7 +127,7 @@ class Jetpack_Signature {
 			}
 		}
 
-		$method = isset( $override['method'] ) ? $override['method'] : ( isset( $_SERVER['REQUEST_METHOD'] ) ? filter_var( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) : null );
+		$method = $override['method'] ?? ( isset( $_SERVER['REQUEST_METHOD'] ) ? filter_var( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) : null );
 		return $this->sign_request( $a['token'], $a['timestamp'], $a['nonce'], $a['body-hash'], $method, $this->current_request_url, $body, true );
 	}
 
@@ -160,6 +160,10 @@ class Jetpack_Signature {
 
 		$signature_details = compact( 'token', 'timestamp', 'nonce', 'body_hash', 'method', 'url' );
 
+		// This path currently can't ever be true. Every caller (Client::build_signed_request,
+		// Manager::internal_verify_xml_rpc_signature, Authorize_Json_Api, Server_Sandbox)
+		// derives the token_key param from the same $token->secret used to construct the Jetpack_Signature object
+		// — so $this->token and the passed $token key can never actually differ in practice.
 		if ( ! str_starts_with( $token, "$this->token:" ) ) {
 			return new WP_Error( 'token_mismatch', 'Incorrect token', compact( 'signature_details' ) );
 		}
@@ -168,7 +172,10 @@ class Jetpack_Signature {
 		if ( is_array( $body ) ) {
 			if ( $body !== array() ) {
 				// phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode
-				$body = json_encode( $body );
+				$body = json_encode(
+					$body,
+					0 // phpcs:ignore Jetpack.Functions.JsonEncodeFlags.ZeroFound -- No `json_encode()` flags because this needs to match whatever is calculating the hash on the other end.
+				);
 
 			} else {
 				$body = '';
@@ -219,7 +226,7 @@ class Jetpack_Signature {
 			return new WP_Error( 'unknown_scheme_port', "The scheme's port is unknown", compact( 'signature_details' ) );
 		}
 
-		if ( ! ctype_digit( "$timestamp" ) || 10 < strlen( $timestamp ) ) { // If Jetpack is around in 275 years, you can blame mdawaffe for the bug.
+		if ( ! ctype_digit( "$timestamp" ) || 10 < strlen( (string) $timestamp ) ) { // If Jetpack is around in 275 years, you can blame mdawaffe for the bug.
 			return new WP_Error( 'invalid_signature', sprintf( 'The required "%s" parameter is malformed.', 'timestamp' ), compact( 'signature_details' ) );
 		}
 
@@ -244,7 +251,7 @@ class Jetpack_Signature {
 			// Normalized Query String.
 		);
 
-		$normalized_request_pieces      = array_merge( $normalized_request_pieces, $this->normalized_query_parameters( isset( $parsed['query'] ) ? $parsed['query'] : '' ) );
+		$normalized_request_pieces      = array_merge( $normalized_request_pieces, $this->normalized_query_parameters( $parsed['query'] ?? '' ) );
 		$flat_normalized_request_pieces = array();
 		foreach ( $normalized_request_pieces as $piece ) {
 			if ( is_array( $piece ) ) {

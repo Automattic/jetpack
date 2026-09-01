@@ -1,4 +1,4 @@
-import React from 'react';
+import { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import {
@@ -7,7 +7,7 @@ import {
 	dismissJetpackActionNotice,
 } from 'state/jetpack-notices';
 
-class DismissableNotices extends React.Component {
+class DismissableNotices extends Component {
 	static displayName = 'DismissableNotices';
 
 	dismissJetpackActionNotice = () => {

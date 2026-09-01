@@ -1,0 +1,52 @@
+@use "$css/main/mixins";
+@use "$css/main/variables";
+
+// TODO: This is a copy of the styles from the critical-css/status component.
+// We should move this to a shared location.
+
+.status {
+	margin-bottom: 16px;
+	font-size: 14px;
+	line-height: 22px;
+	display: flex;
+	flex-direction: row;
+	align-items: flex-start;
+
+	&:last-child {
+		margin-bottom: 0;
+	}
+
+	@include mixins.breakpoint( xs ) {
+		display: block;
+	}
+
+	.summary {
+		margin-right: 5px;
+		flex-grow: 1;
+		position: relative;
+
+		.successes,
+		.generating {
+			color: variables.$gray_40;
+
+			@include mixins.breakpoint( md ) {
+				margin-right: 115px;
+			}
+		}
+	}
+
+	button {
+
+		&:global(.components-button.has-icon) {
+			min-width: auto;
+		}
+	}
+
+	.optimize-button:global(.components-button) {
+
+		&:disabled {
+			background: transparent;
+			opacity: 0.5;
+		}
+	}
+}

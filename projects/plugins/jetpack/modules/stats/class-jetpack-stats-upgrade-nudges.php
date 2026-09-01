@@ -296,7 +296,7 @@ class Jetpack_Stats_Upgrade_Nudges {
 							method: 'post',
 							body: JSON.stringify( { collapse_nudges: collapseValue } ),
 							headers: {
-								'X-WP-Nonce': "<?php echo esc_js( wp_create_nonce( 'wp_rest' ) ); ?>",
+								'X-WP-Nonce': <?php echo wp_json_encode( wp_create_nonce( 'wp_rest' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>,
 								'Content-type': 'application/json' }
 						} );
 					};

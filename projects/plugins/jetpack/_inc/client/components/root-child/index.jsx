@@ -2,10 +2,10 @@
 
 import * as WPElement from '@wordpress/element';
 import PropTypes from 'prop-types';
-import React from 'react';
+import { Component } from 'react';
 import { ReactReduxContext, Provider as ReduxProvider } from 'react-redux';
 
-export default class RootChild extends React.Component {
+export default class RootChild extends Component {
 	static displayName = 'RootChild';
 
 	static propTypes = {

@@ -5,6 +5,10 @@
  * Endpoint: /sites/%s/media/new
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 new WPCOM_JSON_API_Upload_Media_Endpoint(
 	array(
 		'description'          => 'Upload a new media item.',
@@ -44,6 +48,8 @@ new WPCOM_JSON_API_Upload_Media_Endpoint(
 
 /**
  * Upload media item API class.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class WPCOM_JSON_API_Upload_Media_Endpoint extends WPCOM_JSON_API_Endpoint {
 	/**

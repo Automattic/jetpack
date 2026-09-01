@@ -1,9 +1,15 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Translations modify endpoint class.
  * POST /sites/%s/translation
  * POST /sites/%s/translations/update
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Jetpack_JSON_API_Translations_Modify_Endpoint extends Jetpack_JSON_API_Translations_Endpoint {
 

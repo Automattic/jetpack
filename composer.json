@@ -11,16 +11,16 @@
 		"automattic/jetpack-codesniffer": "@dev",
 		"automattic/jetpack-phan-plugins": "@dev",
 		"automattic/jetpack-phpcs-filter": "@dev",
-		"dealerdirect/phpcodesniffer-composer-installer": "1.0.0",
-		"phan/phan": "^5.4",
+		"dealerdirect/phpcodesniffer-composer-installer": "^1.0.0",
+		"phan/phan": "5.5.2",
 		"php-parallel-lint/php-parallel-lint": "^1.4.0",
-		"php-stubs/woocommerce-stubs": ">=8.7",
-		"php-stubs/wordpress-stubs": ">=6.7",
-		"php-stubs/wordpress-tests-stubs": ">=6.7",
-		"php-stubs/wp-cli-stubs": "^2.10",
+		"php-stubs/woocommerce-stubs": ">=7.0",
+		"php-stubs/wordpress-stubs": ">=7.0",
+		"php-stubs/wordpress-tests-stubs": ">=7.0",
+		"php-stubs/wp-cli-stubs": "^2.10 || dev-master",
 		"phpcompatibility/phpcompatibility-wp": "^2.1",
-		"sirbrillig/phpcs-changed": "^2.11.5",
-		"squizlabs/php_codesniffer": "^3.6.2"
+		"sirbrillig/phpcs-changed": "^3.0.0",
+		"squizlabs/php_codesniffer": "^3.6.2 || ^4.0.0"
 	},
 	"scripts": {
 		"php:lint": [
@@ -69,7 +69,8 @@
 			"@phpcs:lint:required"
 		],
 		"test-js": [
-			"cd tools/cli && pnpm test"
+			"cd tools/cli && pnpm test",
+			"cd tools/performance && pnpm test:unit"
 		],
 		"post-install-cmd": [
 			"cd tools/php-test-env && composer install"

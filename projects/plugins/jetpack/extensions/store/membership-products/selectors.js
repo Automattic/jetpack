@@ -30,12 +30,27 @@ export const isInvalidProduct = ( state, productId ) =>
 
 export const getSubscriberCounts = state => state.subscriberCounts;
 
+export const getTotalEmailsSentCount = state => state.totalEmailsSentCount;
+
 export const getNewsletterCategories = state => state.newsletterCategories.categories;
 
 export const getNewsletterCategoriesEnabled = state => state.newsletterCategories.enabled;
 
-export const getNewsletterCategoriesSubscriptionsCount = state =>
-	state.newsletterCategoriesSubscriptionsCount;
+const DEFAULT_POST_EMAIL_SENT_STATE = { email_sent_at: null, stats_on_send: null };
+export const getPostEmailSentState = ( state, postId ) => {
+	if ( ! postId ) {
+		return DEFAULT_POST_EMAIL_SENT_STATE;
+	}
+	return state.postEmailSentState?.[ postId ] ?? DEFAULT_POST_EMAIL_SENT_STATE;
+};
+
+export const getAlreadySentPostModifiedInSession = ( state, postId ) =>
+	!! ( state.alreadySentPostModifiedInSession && state.alreadySentPostModifiedInSession[ postId ] );
+
+export const getPublishedWithEmailEnabledInSession = ( state, postId ) =>
+	!! (
+		state.publishedWithEmailEnabledInSession && state.publishedWithEmailEnabledInSession[ postId ]
+	);
 
 export const hasInvalidProducts = ( state, selectedProductIds ) => {
 	return (

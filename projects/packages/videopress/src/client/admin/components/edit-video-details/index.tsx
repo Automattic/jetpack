@@ -1,32 +1,23 @@
-/**
- * External dependencies
- */
 import {
 	Text,
-	Button,
 	AdminPage,
 	AdminSection,
 	Container,
 	Col,
-	useBreakpointMatch,
-	JetpackVideoPressLogo,
 	LoadingPlaceholder,
 } from '@automattic/jetpack-components';
-import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
-import { SelectControl, RadioControl, CheckboxControl } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
 import {
-	Icon,
-	chevronRightSmall,
-	arrowLeft,
-	globe as siteDefaultPrivacyIcon,
-} from '@wordpress/icons';
+	Button,
+	SelectControl,
+	RadioControl,
+	CheckboxControl,
+	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+} from '@wordpress/components';
+import { __ } from '@wordpress/i18n';
+import { Icon, globe as siteDefaultPrivacyIcon } from '@wordpress/icons';
 import clsx from 'clsx';
 import { useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-/**
- * Internal dependencies
- */
+import { useNavigate } from 'react-router';
 import ChaptersLearnMoreHelper from '../../../components/chapters-learn-more-helper';
 import privatePrivacyIcon from '../../../components/icons/crossed-eye-icon';
 import publicPrivacyIcon from '../../../components/icons/uncrossed-eye-icon';
@@ -51,64 +42,10 @@ import VideoThumbnail from '../video-thumbnail';
 import VideoThumbnailSelectorModal from '../video-thumbnail-selector-modal';
 import styles from './style.module.scss';
 import useEditDetails from './use-edit-details';
+import type { JSX } from 'react';
 
 const noop = () => {
 	// noop
-};
-
-const Header = ( {
-	saveDisabled = true,
-	disabled = false,
-	onSaveChanges,
-	onDelete,
-	videoId,
-}: {
-	saveDisabled?: boolean;
-	disabled?: boolean;
-	onSaveChanges: () => void;
-	onDelete: () => void;
-	videoId: string | number;
-} ) => {
-	const [ isSm ] = useBreakpointMatch( 'sm' );
-	const navigate = useNavigate();
-
-	return (
-		<div className={ clsx( styles[ 'header-wrapper' ], { [ styles.small ]: isSm } ) }>
-			<button onClick={ () => navigate( '/' ) } className={ styles[ 'logo-button' ] }>
-				<JetpackVideoPressLogo />
-			</button>
-			<div className={ styles[ 'header-content' ] }>
-				<div className={ styles.breadcrumb }>
-					{ ! isSm && <Icon icon={ chevronRightSmall } /> }
-					<Text>{ __( 'Edit video details', 'jetpack-videopress-pkg' ) }</Text>
-				</div>
-				<div className={ styles.buttons }>
-					<Button
-						disabled={ saveDisabled || disabled }
-						onClick={ onSaveChanges }
-						isLoading={ disabled }
-					>
-						{ __( 'Save changes', 'jetpack-videopress-pkg' ) }
-					</Button>
-					<VideoDetailsActions videoId={ videoId } disabled={ disabled } onDelete={ onDelete } />
-				</div>
-			</div>
-		</div>
-	);
-};
-
-const GoBackLink = () => {
-	const { page } = useVideosQuery();
-	const to = page > 1 ? `/?page=${ page }` : '/';
-
-	return (
-		<div className={ styles[ 'back-link' ] }>
-			<Link to={ to } className={ styles.link }>
-				<Icon icon={ arrowLeft } className={ styles.icon } />
-				{ __( 'Go back', 'jetpack-videopress-pkg' ) }
-			</Link>
-		</div>
-	);
 };
 
 const Infos = ( {
@@ -118,6 +55,7 @@ const Infos = ( {
 	onChangeDescription,
 	loading = false,
 	disabled = false,
+	actions,
 }: {
 	title: string;
 	onChangeTitle: ( value: string ) => void;
@@ -125,6 +63,7 @@ const Infos = ( {
 	onChangeDescription: ( value: string ) => void;
 	loading: boolean;
 	disabled: boolean;
+	actions?: React.ReactNode | React.ReactNode[];
 } ) => {
 	const { hasIncompleteChapters } = useChaptersLiveParsing( description );
 
@@ -170,6 +109,7 @@ const Infos = ( {
 					</div>
 				</>
 			) }
+			{ ! loading && actions && <div className={ styles.actions }>{ actions }</div> }
 		</>
 	);
 };
@@ -233,8 +173,11 @@ const EditVideoDetails = () => {
 		'jetpack-videopress-pkg'
 	);
 
+	const hasUnsavedChanges = hasChanges && ! updated && ! deleted && canPerformAction;
+	const videoThumbnailUpdateInProgress = processing || isUpdatingPoster;
+
 	useUnloadPrevent( {
-		shouldPrevent: hasChanges && ! updated && ! deleted && canPerformAction,
+		shouldPrevent: hasUnsavedChanges || videoThumbnailUpdateInProgress,
 		message: unsavedChangesMessage,
 	} );
 
@@ -243,7 +186,7 @@ const EditVideoDetails = () => {
 
 	useEffect( () => {
 		if ( deleted === true ) {
-			const to = page > 1 ? `/?page=${ page }` : '/';
+			const to = Number( page ) > 1 ? `/?page=${ page }` : '/';
 			navigate( to );
 		}
 	}, [ deleted ] );
@@ -252,10 +195,10 @@ const EditVideoDetails = () => {
 		navigate( '/' );
 	}
 
-	let thumbnail: string | React.JSX.Element = posterImage;
+	let thumbnail: string | JSX.Element = posterImage;
 
 	if ( posterImageSource === 'video' && useVideoAsThumbnail ) {
-		thumbnail = <VideoPlayer src={ url } currentTime={ selectedTime } />;
+		thumbnail = <VideoPlayer src={ url } currentTime={ selectedTime } videoRef={ null } />;
 	} else if ( posterImageSource === 'upload' ) {
 		thumbnail = libraryAttachment.url;
 	}
@@ -267,12 +210,45 @@ const EditVideoDetails = () => {
 		height ? ` h=${ height }` : ''
 	}]`;
 
+	const backUrl = Number( page ) > 1 ? `#/?page=${ page }` : '#/';
+
+	const breadcrumbs = (
+		<nav
+			aria-label={ __( 'Breadcrumbs', 'jetpack-videopress-pkg' ) }
+			className={ styles.breadcrumbs }
+		>
+			<HStack
+				as="ul"
+				className="admin-ui-breadcrumbs__list"
+				spacing={ 0 }
+				justify="flex-start"
+				alignment="center"
+			>
+				<li>
+					<a href={ backUrl } className={ styles[ 'breadcrumb-link' ] }>
+						{ 'VideoPress' /** "VideoPress" is a product name, do not translate. */ }
+					</a>
+				</li>
+				<li>
+					<h1 className={ styles[ 'breadcrumb-current' ] }>
+						{ __( 'Edit', 'jetpack-videopress-pkg' ) }
+					</h1>
+				</li>
+			</HStack>
+		</nav>
+	);
+
+	const headerActions = [
+		<VideoDetailsActions
+			key="video-details-actions"
+			videoId={ id }
+			disabled={ isBusy || isFetchingData }
+			onDelete={ handleDelete }
+		/>,
+	];
+
 	return (
 		<>
-			{ /* This is no longer supported as of react-router-dom v6: https://github.com/remix-run/react-router/issues/8139
-				<Prompt when={ hasChanges && ! updated && ! deleted } message={ unsavedChangesMessage } />
-			*/ }
-
 			{ frameSelectorIsOpen && (
 				<VideoThumbnailSelectorModal
 					handleCloseSelectFrame={ handleCloseSelectFrame }
@@ -284,22 +260,15 @@ const EditVideoDetails = () => {
 			) }
 
 			<AdminPage
-				moduleName={ __( 'Jetpack VideoPress', 'jetpack-videopress-pkg' ) }
-				header={
-					<>
-						<div id="jp-admin-notices" className={ styles[ 'jetpack-videopress-jitm-card' ] } />
-						<GoBackLink />
-						<Header
-							onSaveChanges={ handleSaveChanges }
-							onDelete={ handleDelete }
-							saveDisabled={ ! hasChanges }
-							disabled={ isBusy || isFetchingData }
-							videoId={ id }
-						/>
-					</>
-				}
-				useInternalLinks={ shouldUseInternalLinks() }
+				breadcrumbs={ breadcrumbs }
+				subTitle={ __( 'Professional quality, ad-free video hosting.', 'jetpack-videopress-pkg' ) }
+				actions={ headerActions }
 			>
+				<Container horizontalSpacing={ 0 }>
+					<Col>
+						<div id="jp-admin-notices" className={ styles[ 'jetpack-videopress-jitm-card' ] } />
+					</Col>
+				</Container>
 				<AdminSection>
 					<Container horizontalSpacing={ 6 } horizontalGap={ 10 }>
 						<Col sm={ 4 } md={ 8 } lg={ 7 }>
@@ -310,6 +279,16 @@ const EditVideoDetails = () => {
 								onChangeDescription={ setDescription }
 								loading={ isFetchingData }
 								disabled={ isBusy }
+								actions={
+									<Button
+										variant="primary"
+										disabled={ ! hasChanges || isBusy || isFetchingData }
+										onClick={ handleSaveChanges }
+										isBusy={ isBusy || isFetchingData }
+									>
+										{ __( 'Save changes', 'jetpack-videopress-pkg' ) }
+									</Button>
+								}
 							/>
 						</Col>
 						<Col sm={ 4 } md={ 8 } lg={ { start: 9, end: 12 } }>
@@ -338,7 +317,7 @@ const EditVideoDetails = () => {
 								) : (
 									<SelectControl
 										className={ styles.field }
-										value={ privacySetting }
+										value={ privacySetting as 'private' | 'public' | 'site-default' }
 										label={ __( 'Privacy', 'jetpack-videopress-pkg' ) }
 										onChange={ value => setPrivacySetting( value ) }
 										disabled={ isBusy }

@@ -3,7 +3,7 @@
 // phpcs:disable Squiz.Commenting.ClassComment.Missing, Squiz.Commenting.FunctionComment.Missing
 // phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound
 // phpcs:disable Jetpack.PHPUnit.TestClassName.DoesNotMatchFileName
-// phpcs:disable Squiz.Strings.DoubleQuoteUsage.NotRequired, WordPress.Arrays.ArrayDeclarationSpacing, Universal.Arrays.DisallowShortArraySyntax, PHPCompatibility.Syntax.NewFlexibleHeredocNowdoc
+// phpcs:disable Squiz.Strings.DoubleQuoteUsage.NotRequired, WordPress.Arrays.ArrayDeclarationSpacing, Universal.Arrays.DisallowShortArraySyntax, PHPCompatibility.Syntax.NewFlexibleHeredocNowdoc, Generic.Strings.UnnecessaryHeredoc.Found
 
 
 use PHPUnit\Framework\Attributes\TestWith;
@@ -115,11 +115,11 @@ bar',
 	 *
 	 * @testWith [ "dummy" ]
 	 */
-	#[TestWith()]
+	#[TestWith]
 	#[TestWith( 42 )]
 	#[TestWith( array( 1, 2, "x" => 3 ) )]
 	#[TestWith( array( 1 2 3 ) )]
-	#[TestWithJson()]
+	#[TestWithJson]
 	#[TestWithJson( array() )]
 	#[TestWithJson( '42' )]
 	#[TestWithJson( 'XXX' )]
@@ -142,11 +142,11 @@ bar',
 	/**
 	 * Same as the above but with no annotation. All except the missing parameters should not produce errors.
 	 */
-	#[TestWith()]
+	#[TestWith]
 	#[TestWith( 42 )]
 	#[TestWith( array( 1, 2, "x" => 3 ) )]
 	#[TestWith( array( 1 2 3 ) )]
-	#[TestWithJson()]
+	#[TestWithJson]
 	#[TestWithJson( array() )]
 	#[TestWithJson( '42' )]
 	#[TestWithJson( 'XXX' )]

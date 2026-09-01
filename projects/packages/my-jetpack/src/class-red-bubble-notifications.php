@@ -43,6 +43,9 @@ class Red_Bubble_Notifications {
 							'type' => 'string',
 						),
 						'sanitize_callback' => function ( $param ) {
+							if ( ! is_array( $param ) ) {
+								return array();
+							}
 							return array_map( 'sanitize_text_field', $param );
 						},
 					),
@@ -73,6 +76,10 @@ class Red_Bubble_Notifications {
 		foreach ( Products::get_products_classes() as $slug => $product_class ) {
 			// Skip these- we don't show them in My Jetpack.
 			if ( in_array( $slug, Products::get_not_shown_products(), true ) ) {
+				continue;
+			}
+			// Skip CRM from installation requirements - e.g. don't enforce installation for Complete plan users
+			if ( $slug === 'crm' ) {
 				continue;
 			}
 			if ( ! $product_class::has_paid_plan_for_product() ) {
@@ -180,6 +187,10 @@ class Red_Bubble_Notifications {
 	 * @return array
 	 */
 	public static function alert_if_last_backup_failed( array $red_bubble_slugs ) {
+		// Backup is not supported on multisite installations.
+		if ( is_multisite() ) {
+			return $red_bubble_slugs;
+		}
 		// Make sure the Notice wasn't previously dismissed.
 		if ( ! empty( $_COOKIE['backup_failure_dismissed'] ) ) {
 			return $red_bubble_slugs;
@@ -213,6 +224,10 @@ class Red_Bubble_Notifications {
 	 * @return array
 	 */
 	public static function alert_if_protect_has_threats( array $red_bubble_slugs ) {
+		// Scan is not supported on multisite installations.
+		if ( is_multisite() ) {
+			return $red_bubble_slugs;
+		}
 		// Make sure the Notice hasn't been dismissed.
 		if ( ! empty( $_COOKIE['protect_threats_detected_dismissed'] ) ) {
 			return $red_bubble_slugs;
@@ -254,25 +269,44 @@ class Red_Bubble_Notifications {
 			if ( $product::has_paid_plan_for_product() ) {
 				$purchase = $product::get_paid_plan_purchase_for_product();
 				if ( $purchase ) {
-					$redbubble_notice_data = array(
-						'product_slug'   => $purchase->product_slug,
-						'product_name'   => $purchase->product_name,
-						'expiry_date'    => $purchase->expiry_date,
-						'expiry_message' => $purchase->expiry_message,
-						'manage_url'     => $product::get_manage_paid_plan_purchase_url(),
-					);
-
-					if ( $product::is_paid_plan_expired() && empty( $_COOKIE[ "$purchase->product_slug--plan_expired_dismissed" ] ) ) {
-						$red_bubble_slugs[ "$purchase->product_slug--plan_expired" ] = $redbubble_notice_data;
-						if ( ! $product::is_bundle_product() ) {
-							$products_included_in_expiring_plan[ "$purchase->product_slug--plan_expired" ][] = $product::get_name();
+					// Check if this product is covered by an active bundle plan
+					$is_covered_by_active_bundle = false;
+					if ( ! $product::is_bundle_product() ) {
+						foreach ( $product_classes as $bundle_product ) {
+							if ( $bundle_product::is_bundle_product() &&
+								$bundle_product::has_paid_plan_for_product() &&
+								! $bundle_product::is_paid_plan_expired() &&
+								! $bundle_product::is_paid_plan_expiring() &&
+								method_exists( $bundle_product, 'get_supported_products' ) &&
+								in_array( $key, $bundle_product::get_supported_products(), true ) ) {
+								$is_covered_by_active_bundle = true;
+								break;
+							}
 						}
 					}
-					if ( $product::is_paid_plan_expiring() && empty( $_COOKIE[ "$purchase->product_slug--plan_expiring_soon_dismissed" ] ) ) {
-						$red_bubble_slugs[ "$purchase->product_slug--plan_expiring_soon" ]               = $redbubble_notice_data;
-						$red_bubble_slugs[ "$purchase->product_slug--plan_expiring_soon" ]['manage_url'] = $product::get_renew_paid_plan_purchase_url();
-						if ( ! $product::is_bundle_product() ) {
-							$products_included_in_expiring_plan[ "$purchase->product_slug--plan_expiring_soon" ][] = $product::get_name();
+
+					// Only show expiration alerts if not covered by an active bundle
+					if ( ! $is_covered_by_active_bundle ) {
+						$redbubble_notice_data = array(
+							'product_slug'   => $purchase->product_slug,
+							'product_name'   => $purchase->product_name,
+							'expiry_date'    => $purchase->expiry_date,
+							'expiry_message' => $purchase->expiry_message,
+							'manage_url'     => $product::get_manage_paid_plan_purchase_url(),
+						);
+
+						if ( $product::is_paid_plan_expired() && empty( $_COOKIE[ "$purchase->product_slug--plan_expired_dismissed" ] ) ) {
+							$red_bubble_slugs[ "$purchase->product_slug--plan_expired" ] = $redbubble_notice_data;
+							if ( ! $product::is_bundle_product() ) {
+								$products_included_in_expiring_plan[ "$purchase->product_slug--plan_expired" ][] = $product::get_name();
+							}
+						}
+						if ( $product::is_paid_plan_expiring() && empty( $_COOKIE[ "$purchase->product_slug--plan_expiring_soon_dismissed" ] ) ) {
+							$red_bubble_slugs[ "$purchase->product_slug--plan_expiring_soon" ]               = $redbubble_notice_data;
+							$red_bubble_slugs[ "$purchase->product_slug--plan_expiring_soon" ]['manage_url'] = $product::get_renew_paid_plan_purchase_url();
+							if ( ! $product::is_bundle_product() ) {
+								$products_included_in_expiring_plan[ "$purchase->product_slug--plan_expiring_soon" ][] = $product::get_name();
+							}
 						}
 					}
 				}
@@ -340,6 +374,16 @@ class Red_Bubble_Notifications {
 				self::alert_if_paid_plan_requires_plugin_install_or_activation( $red_bubble_slugs )
 			);
 		}
+	}
+
+	/**
+	 * Get cached red bubble alerts without triggering expensive computation.
+	 * Returns the cached transient value or false if not cached.
+	 *
+	 * @return array|false Cached alerts or false if cache is empty.
+	 */
+	public static function get_cached_alerts() {
+		return get_transient( self::MY_JETPACK_RED_BUBBLE_TRANSIENT_KEY );
 	}
 
 	/**

@@ -1,9 +1,8 @@
 /** @ssr-ready **/
 
 import clsx from 'clsx';
-import { filter, find, findIndex, map, result } from 'lodash';
 import PropTypes from 'prop-types';
-import React from 'react';
+import { Component, Children, cloneElement, createRef } from 'react';
 import Count from 'components/count';
 import DropdownItem from 'components/select-dropdown/item';
 import DropdownLabel from 'components/select-dropdown/label';
@@ -14,7 +13,6 @@ import './style.scss';
 /**
  * Module variables
  */
-const { Component } = React;
 const noop = () => {};
 
 /**
@@ -23,7 +21,7 @@ const noop = () => {};
 
 class SelectDropdown extends Component {
 	itemRefs = {};
-	dropdownContainerRef = React.createRef();
+	dropdownContainerRef = createRef();
 
 	constructor( props ) {
 		super( props );
@@ -93,7 +91,7 @@ class SelectDropdown extends Component {
 			return;
 		}
 
-		const selectedItem = find( props.options, value => ! value.isLabel );
+		const selectedItem = props.options.find( value => ! value.isLabel );
 		return selectedItem && selectedItem.value;
 	}
 
@@ -103,7 +101,7 @@ class SelectDropdown extends Component {
 
 		if ( this.props.children ) {
 			// add keys and refs to children
-			return React.Children.map(
+			return Children.map(
 				this.props.children,
 				function ( child, index ) {
 					if ( ! child ) {
@@ -111,8 +109,8 @@ class SelectDropdown extends Component {
 					}
 
 					self.itemRefs[ 'item-' + refIndex ] =
-						child.type === DropdownItem ? React.createRef() : undefined;
-					const newChild = React.cloneElement( child, {
+						child.type === DropdownItem ? createRef() : undefined;
+					const newChild = cloneElement( child, {
 						ref: self.itemRefs[ 'item-' + refIndex ],
 						key: 'item-' + index,
 						onClick: function ( event ) {
@@ -148,7 +146,7 @@ class SelectDropdown extends Component {
 				);
 			}
 
-			self.itemRefs[ 'item-' + refIndex ] = React.createRef();
+			self.itemRefs[ 'item-' + refIndex ] = createRef();
 			const dropdownItem = (
 				<DropdownItem
 					key={ 'dropdown-item-' + this.state.instanceId + '-' + item.value }
@@ -185,7 +183,7 @@ class SelectDropdown extends Component {
 		const dropdownClassName = clsx( dropdownClasses );
 		const selectedText = this.props.selectedText
 			? this.props.selectedText
-			: result( find( this.props.options, { value: this.state.selected } ), 'label' );
+			: this.props.options.find( v => v.value === this.state.selected )?.label;
 
 		return (
 			<div style={ this.props.style } className={ dropdownClassName }>
@@ -324,26 +322,17 @@ class SelectDropdown extends Component {
 		}
 
 		if ( this.props.options.length ) {
-			items = map(
-				filter( this.props.options, item => {
-					return item && ! item.isLabel;
-				} ),
-				'value'
-			);
+			items = this.props.options.filter( item => item && ! item.isLabel ).map( v => v.value );
 
 			focusedIndex =
 				typeof this.focused === 'number' ? this.focused : items.indexOf( this.state.selected );
 		} else {
-			items = filter( this.props.children, function ( item ) {
-				return item.type === DropdownItem;
-			} );
+			items = Children.toArray( this.props.children ).filter( item => item.type === DropdownItem );
 
 			focusedIndex =
 				typeof this.focused === 'number'
 					? this.focused
-					: findIndex( items, function ( item ) {
-							return item.props.selected;
-					  } );
+					: items.findIndex( item => item.props.selected );
 		}
 
 		const increment = direction === 'previous' ? -1 : 1;

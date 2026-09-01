@@ -5,6 +5,619 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.85.1] - 2026-08-25
+### Changed
+- Only include social connection data in the script data for users who can access Publicize. [#51483]
+- Update dependencies. [#51456]
+
+## [0.85.0] - 2026-08-20
+### Added
+- Connections: Explain why an Instagram Business connection found no accounts to choose from. [#51282]
+
+### Changed
+- Update dependencies. [#51190]
+- Update package dependencies. [#51399]
+
+## [0.84.4] - 2026-08-10
+### Added
+- Add the platform-specific input step for the new connection flow. [#50804]
+
+### Changed
+- Update package dependencies. [#50509] [#51008]
+
+### Fixed
+- Fix the social sharing sidebar failing to load in the editor on WordPress 6.9. [#50509]
+- Prevent unrelated editor hyperlinks from appearing in custom social messages. [#50994]
+
+## [0.84.3] - 2026-08-03
+### Changed
+- Surface a visible error when fetching the keyring result fails during a connection, instead of failing silently. [#50822]
+
+### Fixed
+- Load JS translation catalogs and stamp the package text domain on the wp-build dashboard bundle. [#50762]
+- Social Image Generator: Share the current generated image after changing the template. [#50903]
+
+## [0.84.2] - 2026-07-27
+### Security
+- REST API: Require the `edit_others_posts` capability to create a shared connection, matching the update check. [#50722]
+
+### Added
+- Add a connection-flow state machine to the social store. [#50772]
+- Add the admin UI v2 feature flag. [#50733]
+- Add the connection-flow modal and open it from the Social dashboard behind the admin UI v2 flag. [#50775]
+- Add the platform picker step for the new connection flow. [#50773]
+
+### Changed
+- Update package dependencies. [#50683] [#50751] [#50753]
+- Use the same connection management UI in the block editor sidebar as on the Social admin page. [#50731]
+
+## [0.84.1] - 2026-07-20
+### Changed
+- Update package dependencies. [#50510] [#50529] [#50582]
+
+### Fixed
+- Prevent previews from showing raw message-template placeholders while rendering is pending. [#50164]
+
+## [0.84.0] - 2026-07-13
+### Changed
+- Social: Enable or disable the Social module directly from the Social dashboard, so it can be turned back on where Jetpack Settings is unreachable (e.g. WordPress.com Atomic sites). [#50376]
+- Social: Enable the modernized wp-admin dashboard for all sites by default. [#50092]
+- Update package dependencies. [#49272]
+- Update WPDS design tokens to the @wordpress/theme 0.16/0.17 names (see https://github.com/WordPress/gutenberg/blob/trunk/packages/theme/CHANGELOG.md#0160-2026-06-24 ). [#49272]
+
+### Fixed
+- Post-publish sharing panel: Add missing space between sentence and link. [#50399]
+- Social: Render message-template placeholders in the manual sharing buttons instead of leaking raw {title}/{excerpt}/{url}/{author} tokens. [#50290]
+
+## [0.83.5] - 2026-07-06
+### Added
+- Social Image Generator: Add new filter to allow disabling the text overlay in the feature. [#50029]
+
+### Changed
+- Remove the connection refresh on tab focus, which was legacy Calypso behavior no longer needed now that connection management lives in the editor. [#50118]
+- Update package dependencies. [#50097] [#50183] [#50212]
+
+### Removed
+- Remove unused store selector and utility functions. [#49528]
+
+### Fixed
+- Avoid the "This connection is added by a site administrator" fallback from flickering for editors while the current user record is still resolving. [#50162]
+- Fix a Base UI `nativeButton` console warning on the settings tab's "Create a note" button. [#50106]
+- Load Publicize connections via a store resolver so the modern admin page fetches them even when there are no connections, and avoid a duplicate request. [#50115]
+- Update REST API status schema to use `oneOf` for Gemini compatibility while preserving null support. [#50030]
+
+## [0.83.4] - 2026-06-29
+### Changed
+- Internal updates.
+
+## [0.83.3] - 2026-06-26
+### Changed
+- Update package dependencies. [#49271]
+
+## [0.83.2] - 2026-06-25
+### Changed
+- Internal updates.
+
+## [0.83.1] - 2026-06-24
+### Changed
+- Defer REST controller instantiation so the controller classes only load on REST API requests. [#49803]
+
+### Fixed
+- Fix the Social admin page rendering blank, and restore the editor sharing panel, on WordPress 6.9. [#49859]
+
+## [0.83.0] - 2026-06-23
+### Added
+- Crop Open Graph images around the selected image focal point. [#49746]
+
+### Changed
+- Connection management: Mark the `inert` attribute on the wrapper for the upcoming React 19 migration. [#49231]
+- Update package dependencies. [#49831]
+
+### Fixed
+- Align share-button, service-row and dashboard tab-panel props with the `@wordpress/ui` 0.15 API: render the share `Button` as an anchor (it is a link), match the `Collapsible.Trigger` ref type, and drop the unsupported `focusable` prop on `Tabs.Panel`. [#49798]
+- Fix Jetpack Social admin page rendering blank on WordPress 6.9.x. [#49654]
+- Social: Contain errors in the post-publish sharing status panel so they no longer crash the editor. [#49823]
+
+## [0.82.0] - 2026-06-22
+### Added
+- Add focal point data model and picker in the media section. [#49580]
+- Apply the stored image focal point to the social link previews. [#49687]
+
+### Changed
+- Social: Reconnect accounts in place instead of disconnecting and recreating them, retaining connection settings. [#49695]
+- Update package dependencies. [#49631] [#49691] [#49732] [#49757]
+
+### Fixed
+- Fix connecting Meta accounts (Facebook, Instagram, Threads) by returning the connection result through a same-origin BroadcastChannel instead of window.opener, which Meta severs via COOP. [#49615]
+- Honor a disabled connection when publishing a brand new post via the REST API, not only when updating an existing post. [#49784]
+- Social: Detect when the browser blocks the connection popup and notify the user. [#49688]
+- Social Previews: Remove the misleading URL from captions when it is not a part of it. [#49745]
+
+## [0.81.4] - 2026-06-15
+### Changed
+- Update package dependencies. [#49273] [#49492]
+
+### Removed
+- Remove the unused `getFailedConnections` selector in favor of its duplicate `getBrokenConnections`. [#49515]
+- Remove unused scheduled posts components left behind after the old social post modal was replaced by the unified modal. [#49516]
+
+### Fixed
+- Render content hyperlinks as clickable links in Bluesky and Tumblr social previews. [#49483]
+
+## [0.81.3] - 2026-06-08
+### Removed
+- Revert the Jetpack-side changes that re-enabled X (Twitter) sharing in Jetpack Social. [#49309]
+
+### Fixed
+- Include the routes directory in the TypeScript config so route files type-check correctly. [#49368]
+- Request a full width and height size for attached media images so WordPress core no longer reads an undefined array index, removing PHP "Undefined array key 1" warnings on posts shared with the no link option. [#49372]
+- Social: Refine connection card spacing and accessibility, add breathing room to the connection confirmation modal, and rename the Social Notes settings card. [#49313]
+- Social Image Generator: Pre-warm the generated image cache after publish so freshly published posts shared on X get a preview thumbnail without waiting on a cold render. [#49390]
+
+## [0.81.2] - 2026-06-01
+### Added
+- Settings tab on the modernized chassis with WPDS cards for the default share message, Social Notes, image generation, and link UTM parameters; gated behind the modernization flag. [#48860]
+- Track Overview/Settings tab switches on the Social dashboard via a `jetpack_social_tab_view` Tracks event. [#49240]
+
+### Changed
+- Social: Render connection and pricing gating inside the modernized dashboard (behind the rsm_jetpack_ui_modernization_social flag), so it no longer falls back to the legacy UI. [#49260]
+- Update package dependencies. [#48404] [#49152] [#49153]
+
+### Fixed
+- Publicize: Avoid flagging a non-post for publicize. [#49291]
+- Social: Surface an error notice when saving dashboard settings fails, and show the "first year" caveat on the upgrade screen's intro-offer price. [#49279]
+
+## [0.81.1] - 2026-05-25
+### Changed
+- Replace internal `ContextualUpgradeTrigger` upgrade prompts with `@wordpress/ui` `Notice` composition. [#48909]
+- Update package dependencies. [#48405] [#49012]
+
+### Fixed
+- Phan: Address `PhanPluginDuplicateConditionalNullCoalescing` violations. [#48887]
+- SIG: Prevent PHP warning when setting key doesn't exist. [#48873]
+
+## [0.81.0] - 2026-05-19
+### Added
+- Social: Expose the canonical message-template placeholder catalog via a REST endpoint. [#48769]
+
+### Changed
+- Social: Simplify preview render API by using the connection id as the source of truth. [#48827]
+- Update package dependencies. [#48695] [#48696] [#48910]
+
+### Fixed
+- Social Previews: Update template placeholders when editing the post title or content. [#48635]
+- Social: Avoid disabling connection rows while saving per-connection message templates. [#48641]
+- Social: Enable per-network customization by default when a custom connection template exists. [#48785]
+
+## [0.80.0] - 2026-05-11
+### Added
+- Social: Add a global message template editor to the Social admin page. [#48560]
+- Social: Add a per-connection message template editor in the connections list and the connection-confirmation modal. [#48564]
+- Social: Add support for global and per-connection message templates via REST API. [#48522]
+
+### Changed
+- Components: Use Link from `@wordpress/ui` instead of ExternalLink. [#48529]
+- Internal: Extract PlaceholdersHelp to a shared location and add a MessageTemplateEditor scaffold consumed by the upcoming template editor surfaces. [#48560]
+- Per-Network Customization: Replace forced attachment toggle with a Default media option that lets the post-level link preview decide. [#48573]
+- Social: Show a preview skeleton while message templates render. [#48576]
+- Social: Show per-connection template fallback help and prefill per-network editor messages from connection templates. [#48568]
+
+### Fixed
+- Social: Default the share-message post meta and per-connection message to the saved template on the server side. [#48634]
+- Social: Fall back to the site-wide social message template when no per-post share message is set, so the editor preview and customization field reflect the template configured on the Social admin page. [#48606]
+- Social: Honor per-connection message templates in the per-network preview pipeline and stop overwriting them when toggling per-network mode. [#48603]
+
+## [0.79.0] - 2026-05-04
+### Added
+- Custom message field: Surface available placeholders for Message Templates feature. [#48480]
+- Social preview: Render template-based messages in the block-editor preview when the `social-message-templates` feature is enabled. [#48294]
+
+### Changed
+- Components: migrate Tier 1 `jetpack-components` to `@wordpress/components` and `@wordpress/icons` (no user-facing change). [#48378]
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+- Remove Beta and New badges from the Social admin page. [#48174]
+- Social: Batch-render all enabled connection previews in a single request via the new /publicize/render-messages endpoint. [#48441]
+- Social preview: Drop the now-unused PREVIEW_BODY_CHAR_LIMITS map and per-network charLimit forwarded from the connection-preview hook. [#48413]
+- Social preview: Pass per-network char_limit to the render-message endpoint. [#48294]
+
+### Fixed
+- Social admin page: Prevent stacked content sections from collapsing when the page content overflows the scrollable area. [#48484]
+
+## [0.78.2] - 2026-04-27
+### Changed
+- Social: Only allow one X connection per post to comply with X Developer Policy. [#48203]
+- Update package dependencies. [#48302]
+
+## [0.78.1] - 2026-04-20
+### Changed
+- Adopt the shared Jetpack admin-page-layout mixin on the Social admin page: pinned header, scrolling middle, pinned footer, no window-level scroll. [#48109]
+- Make the sidebar X-connection toggle date-aware and block scheduling when the target month's quota is exceeded. [#48108]
+- Remove Jetpack color overrides on core toggle components. [#47317]
+- Update package dependencies. [#48106] [#48126] [#48141]
+
+### Removed
+- Admin page: Remove support section. [#48187]
+
+### Fixed
+- Social admin page: Render the JetpackFooter unconditionally for parity with every other Jetpack admin page (Newsletter, Search, Backup, Protect, VideoPress, Boost, Network Admin). [#48183]
+
+## [0.78.0] - 2026-04-15
+### Changed
+- Social: Move media section buttons below preview to be more apparent. [#47995]
+- Update package dependencies. [#47907]
+
+## [0.77.0] - 2026-04-13
+### Changed
+- Include platform name in social preview toggle labels and tab titles for clearer identification. [#47895]
+- Update package dependencies. [#47890] [#47998]
+
+### Fixed
+- Fix edit template modal not preselecting Default Image when a default image is configured. [#47948]
+- Fix Social Image Generator preview infinite spinner when the default background image has been deleted from the media library. [#47945]
+- Require a nonce before refreshing plan data from the Social admin page. [#47844]
+- Social: Fix independent scrolling in preview modal panels on mobile. [#48050]
+
+## [0.76.1] - 2026-04-06
+### Changed
+- Make link preview icons clickable to open the clicked service tab by default. [#47878]
+- Update admin page footer design. [#47840]
+- Update package dependencies. [#47870]
+
+### Removed
+- Remove UNIFIED_UI_V1 feature flag usage. [#47759]
+
+### Fixed
+- Fix edit template changes not saving when using the back arrow or close button. [#47896]
+- Fix useSelect warning for notesConfig on Social admin page. [#47740]
+
+## [0.76.0] - 2026-03-30
+### Added
+- Add notices for X usage in the connections modal. [#47677]
+- Add X usage UI in the editor sidebar. [#47687]
+- Expose X usage data via API. [#47604]
+
+### Changed
+- Update DataViews dependency. [#46973]
+- Update package dependencies. [#47799]
+
+### Removed
+- Remove unused components. [#47741]
+
+## [0.75.0] - 2026-03-23
+### Added
+- Google Search Preview: Wire up site icon to display the actual site favicon in the link preview. [#47551]
+
+### Changed
+- Move admin notices and JITMs below the page header instead of rendering inside it. [#47558]
+- Publicize: Update header action buttons to use compact size for consistent UI. [#47679]
+- Update package dependencies. [#47684] [#47719]
+
+### Removed
+- Remove post publish review prompt. [#47650]
+
+## [0.74.0] - 2026-03-16
+### Added
+- Add support for X connection. [#47538]
+
+### Changed
+- Clean up Twitter notices in classic editor. [#47550]
+- Update dependencies. [#47472]
+- Update media restrictions for all the networks. [#47576]
+
+### Removed
+- Clean up Twitter deprecation blocks. [#47574]
+
+## [0.73.2] - 2026-03-09
+### Changed
+- Convert hooks to TypeScript and fix JSDoc return types for `tsgo` compatibility. [#47404]
+- Migrate admin page header to use unified AdminHeader component. [#47313]
+- Replace license activation link with a "Use license key" button in the header actions area. [#47434]
+- Switch to Native TypeScript compiler based on Go. [#47375]
+- Update package dependencies. [#47496]
+
+### Fixed
+- Constrain license activation link width on mobile to prevent header overflow. [#47431]
+
+## [0.73.1] - 2026-03-02
+### Changed
+- Update dependencies. [#46383]
+
+## [0.73.0] - 2026-02-26
+### Added
+- Social: Add `jetpack.ai.imageGenerationHandler` filter to allow external plugins (e.g. Image Studio) to replace the built-in AI image generation flow for the "Generate image" entry point. [#47180]
+
+### Changed
+- Update package dependencies. [#47285] [#47288] [#47300] [#47309]
+
+### Fixed
+- Fix Threads social preview for posts with gallery. [#47322]
+- Social admin: Expand toggle sections width to fill container. [#47308]
+
+## [0.72.6] - 2026-02-23
+### Changed
+- Twitter Cards: Use `Automattic\Jetpack\Post_Media\Twitter_Cards` instead of `Jetpack_Twitter_Cards`. [#47169]
+
+## [0.72.5] - 2026-02-19
+### Added
+- Add visual dot to active connection in preview modal. [#47218]
+
+### Changed
+- Disable AI image option in the media UI for standalone plugin. [#47193]
+
+## [0.72.4] - 2026-02-18
+### Added
+- Add analytics tracking for per network customizations UI. [#47188]
+- Create reusable link previews modal and tabs component. [#47142]
+
+### Changed
+- Replace link previews in the panel with the unified one. [#47153]
+- Update package dependencies. [#47173]
+
+## [0.72.3] - 2026-02-16
+### Added
+- Add media validation notices to preview modal. [#47006]
+
+### Changed
+- Convert connection and illustration images from PNG to WebP. [#47084]
+- Replace form in the sidebar with message when using per-network customizations. [#47003]
+- Update package dependencies. [#47099]
+
+### Fixed
+- Compatibility: Clean up deprecated CSS. [#47067]
+- Fix connection sync on toggle for published posts. [#46966]
+- Fix Tumblr preview to prioritize custom message when it is set. [#47075]
+- Refresh plan features on post-checkout redirect. [#46961]
+
+## [0.72.2] - 2026-02-10
+### Changed
+- Improve the media selection UI in preview modal. [#46921]
+- Make pre-publish confirmation opt-in by default. [#46945]
+- Update package dependencies. [#46905] [#47002]
+- Update preview modal copy on pre-publish screen. [#47009]
+
+### Fixed
+- Fix customization form legend visibility and connection toggle margin. [#46947]
+- Preview Modal: Fix footer scroll on smaller screens. [#46925]
+
+## [0.72.1] - 2026-02-02
+### Added
+- Add "View" action to the scheduled post snackbar. [#46772]
+- Add "View scheduled" link in share preview modal. [#46776]
+- Gate per-network customization behind paid features. [#46740]
+- Sync media to connections for per network customizations. [#46744]
+
+### Changed
+- Adjust connection toggle UI and remove redundant "Preview" heading. [#46889]
+- Convert upgrade and demo buttons to links that open in new tab. [#46891]
+- Mark new connections as shared by default for privileged users. [#46796]
+- Preview Modal: Clarify disabled account state with icon and simple text. [#46885]
+- Social Preview: Retain previously selected preview tab on navigation. [#46886]
+- Update social post preview modal height. [#46882]
+- Update package dependencies. [#46430] [#46853] [#46854]
+
+### Fixed
+- Fix the social preview modal UX. [#46856]
+
+## [0.72.0] - 2026-01-26
+### Added
+- Add sharing activity modal with tabs for All shares, Shared, and Scheduled views. [#46633]
+- Add HMR support by wiring up webpack dev server. [#46686]
+- Unify shared and scheduled sharing activity in Dataviews table. [#46724]
+- Wire up media customization per network. [#46699]
+- Wire up per-network customization form. [#46678]
+
+### Changed
+- Refactor share status UI to use Notice component. [#46673]
+- Show a snackbar while sharing is in progress. [#46672]
+- Update the customization toggle and save the flag to post meta. [#46654]
+- Use fallback avatar for Jetpack Social connection icons. [#46677]
+
+## [0.71.0] - 2026-01-19
+### Added
+- Add per-network customization with global toggle and per-connection message/media overrides. [#46563]
+
+### Changed
+- Disable customization form when connection is disabled. [#46588]
+- Update package dependencies. [#46647]
+
+## [0.70.0] - 2026-01-14
+### Changed
+- Decouple `SharePostForm` component from the store by adding optional props for controlled mode. [#46545]
+- Move publicize-components into publicize package. [#46516]
+- Update package dependencies. [#46552]
+- Use tab panel for preview and customization in the preview modal. [#46584]
+
+## [0.69.2] - 2026-01-12
+### Changed
+- Update package dependencies. [#46456]
+
+### Removed
+- Remove the obsolete share limits logic. [#46468]
+
+## [0.69.1] - 2026-01-06
+### Removed
+- Remove the unused Dismissed_Notices class. [#46398]
+- Remove unused feature flag logic. [#46386]
+
+## [0.69.0] - 2025-12-22
+### Added
+- Added Share post action to the post list screen. Shows automatically for plans with republicize support, and supports the `jetpack_post_list_display_share_action` filter for custom overrides. [#46323]
+
+### Changed
+- Update dependencies. [#46381]
+
+## [0.68.1] - 2025-12-15
+### Changed
+- Replace use of confusing `esc_js` with `wp_json_encode`. [#46229]
+
+### Removed
+- Social: Remove the usage of useAdminUiV1 feature flag. [#46280]
+
+## [0.68.0] - 2025-12-08
+### Added
+- Added new media selector UI. [#46085]
+
+### Fixed
+- Ensure proper flags are used with `json_encode()`. [#46092]
+
+## [0.67.7] - 2025-12-01
+### Changed
+- Update package dependencies. [#46143]
+
+## [0.67.6] - 2025-11-24
+### Changed
+- Update dependencies. [#45745]
+
+## [0.67.5] - 2025-11-21
+### Fixed
+- Phan: Address PhanPossiblyUndeclaredVariable violations. [#45911]
+
+## [0.67.4] - 2025-11-19
+### Changed
+- Update dependencies. [#45745]
+
+## [0.67.3] - 2025-11-18
+### Changed
+- Update dependencies. [#45745]
+
+## [0.67.2] - 2025-11-17
+### Changed
+- Update package dependencies. [#45915]
+
+## [0.67.1] - 2025-11-10
+### Changed
+- Update package dependencies. [#45756]
+
+## [0.67.0] - 2025-11-03
+### Changed
+- Don't translate product names. [#43961]
+- Update dependencies. [#45664]
+
+## [0.66.19] - 2025-10-27
+### Changed
+- Update dependencies. [#44736]
+
+## [0.66.18] - 2025-10-20
+### Fixed
+- Sharing: Prevent PHP fatals when passed malformed data. [#45418]
+
+## [0.66.17] - 2025-10-10
+### Changed
+- Update dependencies. [#44736]
+
+## [0.66.16] - 2025-10-06
+### Changed
+- Update package dependencies. [#45334]
+
+## [0.66.15] - 2025-09-29
+### Changed
+- Update dependencies. [#44736]
+
+## [0.66.14] - 2025-09-22
+### Changed
+- Update dependencies. [#44736]
+
+## [0.66.13] - 2025-09-19
+### Changed
+- Update package dependencies. [#45173] [#45229]
+
+## [0.66.12] - 2025-09-15
+### Changed
+- Update package dependencies. [#45127] [#45128]
+
+## [0.66.11] - 2025-09-08
+### Changed
+- Update package dependencies. [#45027]
+
+## [0.66.10] - 2025-09-01
+### Fixed
+- Social: Allow default image to be cleared. [#44994]
+
+## [0.66.9] - 2025-08-25
+### Changed
+- Update package dependencies. [#44899]
+
+### Fixed
+- Code: Resolve `PhanImpossibleCondition` violations. [#44869]
+
+## [0.66.8] - 2025-08-18
+### Changed
+- Update dependencies. [#44736]
+
+## [0.66.7] - 2025-08-14
+### Changed
+- Update package dependencies. [#44701]
+
+## [0.66.6] - 2025-08-11
+### Changed
+- Update dependencies. [#44673]
+- Update package dependencies. [#44677]
+
+## [0.66.5] - 2025-08-05
+### Added
+- Social Image Generator: Add font option. [#44514] [#44634]
+
+### Changed
+- Social Image Generator: Ensure the feature can be used on WordPress.com Private sites. [#44624]
+
+## [0.66.4] - 2025-08-04
+### Changed
+- Internal updates.
+
+## [0.66.3] - 2025-07-28
+### Deprecated
+- Social Image Generator: Deprecate unused methods. [#44378]
+
+### Fixed
+- Social Image Generator: Do not use the latest post's Social Image as Open Graph Image tag on the home page. [#44377]
+- Social Image Generator: Ensure token generation is limited on WordPress.com Simple sites. [#44350]
+
+## [0.66.2] - 2025-07-21
+### Changed
+- Update package dependencies. [#44356]
+
+## [0.66.1] - 2025-07-14
+### Changed
+- Update dependencies. [#44229]
+
+## [0.66.0] - 2025-07-07
+### Changed
+- Scripts: Ensure host-related checks and functionality are only added via Assets. [#44133]
+- Social: Hide admin page in Jetpack plugin if site not connected. [#44168]
+- Update dependencies. [#44161]
+- Update package dependencies. [#44148] [#44151]
+
+### Fixed
+- get_current_screen(): Check for the existence before trying to call it [#44192]
+
+## [0.65.7] - 2025-06-30
+### Changed
+- Update dependencies. [#44061]
+
+## [0.65.6] - 2025-06-24
+### Changed
+- Update dependencies. [#44061]
+
+## [0.65.5] - 2025-06-23
+### Changed
+- Update dependencies. [#44002]
+- Update package dependencies. [#44020]
+
+## [0.65.4] - 2025-06-16
+### Changed
+- Update dependencies. [#42943]
+
+## [0.65.3] - 2025-06-05
+### Changed
+- Update package dependencies. [#43734]
+
+## [0.65.2] - 2025-06-02
+### Changed
+- Update package dependencies. [#43710]
+
+### Fixed
+- Social: Ensure images load in connections management when concatenating JS. [#43655]
+
 ## [0.65.1] - 2025-05-26
 ### Changed
 - Update package dependencies. [#43578]
@@ -1009,6 +1622,86 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update package.json metadata.
 
+[0.85.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.85.0...v0.85.1
+[0.85.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.84.4...v0.85.0
+[0.84.4]: https://github.com/Automattic/jetpack-publicize/compare/v0.84.3...v0.84.4
+[0.84.3]: https://github.com/Automattic/jetpack-publicize/compare/v0.84.2...v0.84.3
+[0.84.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.84.1...v0.84.2
+[0.84.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.84.0...v0.84.1
+[0.84.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.83.5...v0.84.0
+[0.83.5]: https://github.com/Automattic/jetpack-publicize/compare/v0.83.4...v0.83.5
+[0.83.4]: https://github.com/Automattic/jetpack-publicize/compare/v0.83.3...v0.83.4
+[0.83.3]: https://github.com/Automattic/jetpack-publicize/compare/v0.83.2...v0.83.3
+[0.83.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.83.1...v0.83.2
+[0.83.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.83.0...v0.83.1
+[0.83.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.82.0...v0.83.0
+[0.82.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.81.4...v0.82.0
+[0.81.4]: https://github.com/Automattic/jetpack-publicize/compare/v0.81.3...v0.81.4
+[0.81.3]: https://github.com/Automattic/jetpack-publicize/compare/v0.81.2...v0.81.3
+[0.81.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.81.1...v0.81.2
+[0.81.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.81.0...v0.81.1
+[0.81.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.80.0...v0.81.0
+[0.80.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.79.0...v0.80.0
+[0.79.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.78.2...v0.79.0
+[0.78.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.78.1...v0.78.2
+[0.78.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.78.0...v0.78.1
+[0.78.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.77.0...v0.78.0
+[0.77.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.76.1...v0.77.0
+[0.76.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.76.0...v0.76.1
+[0.76.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.75.0...v0.76.0
+[0.75.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.74.0...v0.75.0
+[0.74.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.73.2...v0.74.0
+[0.73.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.73.1...v0.73.2
+[0.73.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.73.0...v0.73.1
+[0.73.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.72.6...v0.73.0
+[0.72.6]: https://github.com/Automattic/jetpack-publicize/compare/v0.72.5...v0.72.6
+[0.72.5]: https://github.com/Automattic/jetpack-publicize/compare/v0.72.4...v0.72.5
+[0.72.4]: https://github.com/Automattic/jetpack-publicize/compare/v0.72.3...v0.72.4
+[0.72.3]: https://github.com/Automattic/jetpack-publicize/compare/v0.72.2...v0.72.3
+[0.72.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.72.1...v0.72.2
+[0.72.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.72.0...v0.72.1
+[0.72.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.71.0...v0.72.0
+[0.71.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.70.0...v0.71.0
+[0.70.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.69.2...v0.70.0
+[0.69.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.69.1...v0.69.2
+[0.69.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.69.0...v0.69.1
+[0.69.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.68.1...v0.69.0
+[0.68.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.68.0...v0.68.1
+[0.68.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.67.7...v0.68.0
+[0.67.7]: https://github.com/Automattic/jetpack-publicize/compare/v0.67.6...v0.67.7
+[0.67.6]: https://github.com/Automattic/jetpack-publicize/compare/v0.67.5...v0.67.6
+[0.67.5]: https://github.com/Automattic/jetpack-publicize/compare/v0.67.4...v0.67.5
+[0.67.4]: https://github.com/Automattic/jetpack-publicize/compare/v0.67.3...v0.67.4
+[0.67.3]: https://github.com/Automattic/jetpack-publicize/compare/v0.67.2...v0.67.3
+[0.67.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.67.1...v0.67.2
+[0.67.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.67.0...v0.67.1
+[0.67.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.66.19...v0.67.0
+[0.66.19]: https://github.com/Automattic/jetpack-publicize/compare/v0.66.18...v0.66.19
+[0.66.18]: https://github.com/Automattic/jetpack-publicize/compare/v0.66.17...v0.66.18
+[0.66.17]: https://github.com/Automattic/jetpack-publicize/compare/v0.66.16...v0.66.17
+[0.66.16]: https://github.com/Automattic/jetpack-publicize/compare/v0.66.15...v0.66.16
+[0.66.15]: https://github.com/Automattic/jetpack-publicize/compare/v0.66.14...v0.66.15
+[0.66.14]: https://github.com/Automattic/jetpack-publicize/compare/v0.66.13...v0.66.14
+[0.66.13]: https://github.com/Automattic/jetpack-publicize/compare/v0.66.12...v0.66.13
+[0.66.12]: https://github.com/Automattic/jetpack-publicize/compare/v0.66.11...v0.66.12
+[0.66.11]: https://github.com/Automattic/jetpack-publicize/compare/v0.66.10...v0.66.11
+[0.66.10]: https://github.com/Automattic/jetpack-publicize/compare/v0.66.9...v0.66.10
+[0.66.9]: https://github.com/Automattic/jetpack-publicize/compare/v0.66.8...v0.66.9
+[0.66.8]: https://github.com/Automattic/jetpack-publicize/compare/v0.66.7...v0.66.8
+[0.66.7]: https://github.com/Automattic/jetpack-publicize/compare/v0.66.6...v0.66.7
+[0.66.6]: https://github.com/Automattic/jetpack-publicize/compare/v0.66.5...v0.66.6
+[0.66.5]: https://github.com/Automattic/jetpack-publicize/compare/v0.66.4...v0.66.5
+[0.66.4]: https://github.com/Automattic/jetpack-publicize/compare/v0.66.3...v0.66.4
+[0.66.3]: https://github.com/Automattic/jetpack-publicize/compare/v0.66.2...v0.66.3
+[0.66.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.66.1...v0.66.2
+[0.66.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.66.0...v0.66.1
+[0.66.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.65.7...v0.66.0
+[0.65.7]: https://github.com/Automattic/jetpack-publicize/compare/v0.65.6...v0.65.7
+[0.65.6]: https://github.com/Automattic/jetpack-publicize/compare/v0.65.5...v0.65.6
+[0.65.5]: https://github.com/Automattic/jetpack-publicize/compare/v0.65.4...v0.65.5
+[0.65.4]: https://github.com/Automattic/jetpack-publicize/compare/v0.65.3...v0.65.4
+[0.65.3]: https://github.com/Automattic/jetpack-publicize/compare/v0.65.2...v0.65.3
+[0.65.2]: https://github.com/Automattic/jetpack-publicize/compare/v0.65.1...v0.65.2
 [0.65.1]: https://github.com/Automattic/jetpack-publicize/compare/v0.65.0...v0.65.1
 [0.65.0]: https://github.com/Automattic/jetpack-publicize/compare/v0.64.5...v0.65.0
 [0.64.5]: https://github.com/Automattic/jetpack-publicize/compare/v0.64.4...v0.64.5

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # The standard image does not chown the log directory.
 find /var/log/mysql \! -user mysql -exec chown mysql '{}' +

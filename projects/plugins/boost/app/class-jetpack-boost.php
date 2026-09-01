@@ -12,6 +12,7 @@
 
 namespace Automattic\Jetpack_Boost;
 
+use Automattic\Jetpack\Activity_Log\Jetpack_Activity_Log;
 use Automattic\Jetpack\Boost_Core\Lib\Transient;
 use Automattic\Jetpack\Boost_Speed_Score\Speed_Score_History;
 use Automattic\Jetpack\Config as Jetpack_Config;
@@ -34,6 +35,8 @@ use Automattic\Jetpack_Boost\Lib\Status;
 use Automattic\Jetpack_Boost\Lib\Super_Cache_Tracking;
 use Automattic\Jetpack_Boost\Modules\Module;
 use Automattic\Jetpack_Boost\Modules\Modules_Setup;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Lcp\LCP_State;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Lcp\LCP_Storage;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Cache_Preload;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Page_Cache;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Page_Cache\Page_Cache_Setup;
@@ -55,6 +58,8 @@ use Automattic\Jetpack_Boost\REST_API\REST_API;
  *
  * @since      1.0.0
  * @author     Automattic <support@jetpack.com>
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Jetpack_Boost {
 
@@ -112,26 +117,31 @@ class Jetpack_Boost {
 		$cornerstone_pages = new Cornerstone_Pages();
 		Setup::add( $cornerstone_pages );
 
+		// Initialize Jetpack packages (connection, sync, identity crisis).
+		$this->init_jetpack_config();
+
 		// Initialize the Admin experience.
 		$this->init_admin( $modules_setup );
-
-		// Initiate jetpack sync.
-		$this->init_sync();
 
 		add_action( 'admin_init', array( $this, 'schedule_version_change' ) );
 
 		add_action( 'init', array( $this, 'init_textdomain' ) );
+		add_action( 'init', array( $this, 'setup_cron_schedules' ) );
 
 		add_action( 'jetpack_boost_environment_changed', array( $this, 'handle_environment_change' ), 10, 2 );
 
 		add_action( 'jetpack_boost_handle_version_change_cron', array( $this, 'handle_version_change' ) );
 
-		add_filter( 'cron_schedules', array( $this, 'custom_cron_intervals' ) );
+		add_action( 'jetpack_boost_general_cleanup', array( Transient::class, 'delete_expired' ) );
 
 		// Fired when plugin ready.
 		do_action( 'jetpack_boost_loaded', $this );
 
 		My_Jetpack_Initializer::init();
+
+		// Activity Log. Idempotent, so it no-ops when the Jetpack plugin already
+		// initialized the package on this request.
+		Jetpack_Activity_Log::initialize();
 
 		Deactivation_Handler::init( $this->plugin_name, __DIR__ . '/admin/deactivation-dialog.php' );
 
@@ -142,6 +152,10 @@ class Jetpack_Boost {
 		Site_Health::init();
 
 		Super_Cache_Tracking::setup();
+
+		// Boost abilities (WP Abilities API). Gated by `jetpack_wp_abilities_enabled`;
+		// priority 20 leaves room for default-priority filter registrations to land first.
+		add_action( 'plugins_loaded', array( '\Automattic\Jetpack_Boost\Abilities\Boost_Abilities', 'init' ), 20 );
 	}
 
 	/**
@@ -170,6 +184,19 @@ class Jetpack_Boost {
 		// Remove this option to prevent the notice from showing up.
 		delete_site_option( 'jetpack_boost_static_minification' );
 
+		// Add upgrade check for Cornerstone Pages.
+		$pages = jetpack_boost_ds_get( 'cornerstone_pages_list' );
+		if ( is_array( $pages ) && in_array( home_url( '' ), $pages, true ) ) {
+			// Remove homepage (empty string) from the cornerstone pages list.
+			$pages = array_filter(
+				$pages,
+				function ( $page ) {
+					return $page !== home_url( '' );
+				}
+			);
+			jetpack_boost_ds_set( 'cornerstone_pages_list', $pages );
+		}
+
 		if ( jetpack_boost_minify_is_enabled() ) {
 			// We need to clear Minify scheduled events to ensure the latest scheduled jobs are only scheduled irrespective of scheduled arguments.
 			jetpack_boost_minify_clear_scheduled_events();
@@ -181,6 +208,18 @@ class Jetpack_Boost {
 			// Schedule the cronjob to preload the cache for Cornerstone Pages.
 			( new Cache_Preload() )->schedule_cornerstone_cronjob();
 		}
+
+		// Setup a cleanup job
+		if ( ! wp_next_scheduled( 'jetpack_boost_general_cleanup' ) ) {
+			wp_schedule_event( time(), 'daily', 'jetpack_boost_general_cleanup' );
+		}
+	}
+
+	/**
+	 * Adds the custom cron intervals to the schedules list.
+	 */
+	public function setup_cron_schedules() {
+		add_filter( 'cron_schedules', array( $this, 'custom_cron_intervals' ) );
 	}
 
 	/**
@@ -230,6 +269,11 @@ class Jetpack_Boost {
 
 		$modules_setup = new Modules_Setup();
 
+		// Setup a cleanup job
+		if ( ! wp_next_scheduled( 'jetpack_boost_general_cleanup' ) ) {
+			wp_schedule_event( time(), 'daily', 'jetpack_boost_general_cleanup' );
+		}
+
 		/*
 		 * Check what modules are already active (from a previous activation for example).
 		 * If there are active modules, we need to ensure each module-related event is triggered again.
@@ -251,12 +295,34 @@ class Jetpack_Boost {
 	public function deactivate() {
 		do_action( 'jetpack_boost_deactivate' );
 
+		wp_clear_scheduled_hook( 'jetpack_boost_general_cleanup' );
+
 		// Tell Minify JS/CSS to clean up.
 		jetpack_boost_page_optimize_deactivate();
 
 		Regenerate_Admin_Notice::dismiss();
 		Analytics::record_user_event( 'deactivate_plugin' );
 		Page_Cache_Setup::deactivate();
+
+		// Clean up Image Size Analysis data.
+		$this->cleanup_image_size_analysis_data();
+	}
+
+	/**
+	 * Clean up Image Size Analysis data from the database.
+	 *
+	 * @since 4.3.0
+	 */
+	private function cleanup_image_size_analysis_data() {
+		global $wpdb;
+
+		// Delete all post meta entries for Image Size Analysis fixes.
+		//phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		$wpdb->delete(
+			$wpdb->postmeta,
+			array( 'meta_key' => '_jb_image_fixes' ),
+			array( '%s' )
+		);
 	}
 
 	/**
@@ -268,24 +334,64 @@ class Jetpack_Boost {
 		REST_API::register( List_Cornerstone_Pages::class );
 		REST_API::register( List_LCP_Analysis::class );
 
-		$this->connection->ensure_connection();
 		( new Admin() )->init( $modules_setup );
 	}
 
-	public function init_sync() {
+	/**
+	 * Initialize Jetpack packages via the Config class.
+	 *
+	 * Consolidates connection, sync, and identity crisis initialization
+	 * into a single Config instance, matching the pattern used by other
+	 * standalone Jetpack plugins (Protect, Social, VideoPress, etc.).
+	 */
+	private function init_jetpack_config() {
 		$jetpack_config = new Jetpack_Config();
+
+		/**
+		 * Filter that fakes the connection to WordPress.com. Useful for testing.
+		 *
+		 * @param bool $connection Return true to fake the connection.
+		 *
+		 * @since 1.0.0
+		 */
+		if ( ! apply_filters( 'jetpack_boost_connection_bypass', false ) ) {
+			$jetpack_config->ensure(
+				'connection',
+				array(
+					'slug'     => JETPACK_BOOST_SLUG,
+					'name'     => 'Jetpack Boost',
+					'url_info' => '',
+				)
+			);
+		}
+
 		$jetpack_config->ensure(
 			'sync',
 			array(
+				// Closures defer construction (and option reads) to Sync invocation time.
 				'jetpack_sync_callable_whitelist' => array(
-					'boost_modules'                => array( new Modules_Setup(), 'get_status' ),
-					'boost_sub_modules_state'      => array( new Modules_Setup(), 'get_all_sub_modules_state' ),
-					'boost_latest_scores'          => array( new Speed_Score_History( get_home_url() ), 'latest' ),
-					'boost_latest_no_boost_scores' => array( new Speed_Score_History( add_query_arg( Module::DISABLE_MODULE_QUERY_VAR, 'all', get_home_url() ) ), 'latest' ),
-					'critical_css_state'           => array( new Critical_CSS_State(), 'get' ),
+					// boost_sub_modules_state was removed: it pointed at a method that never
+					// existed, so the callable never resolved and Sync never sent it.
+					'boost_modules'                => static function () {
+						return ( new Modules_Setup() )->get_status();
+					},
+					'boost_latest_scores'          => static function () {
+						return ( new Speed_Score_History( get_home_url() ) )->latest();
+					},
+					'boost_latest_no_boost_scores' => static function () {
+						return ( new Speed_Score_History( add_query_arg( Module::DISABLE_MODULE_QUERY_VAR, 'all', get_home_url() ) ) )->latest();
+					},
+					'critical_css_state'           => static function () {
+						return ( new Critical_CSS_State() )->get();
+					},
+					'lcp_state'                    => static function () {
+						return ( new LCP_State() )->get();
+					},
 				),
 			)
 		);
+
+		$jetpack_config->ensure( 'identity_crisis' );
 	}
 
 	/**
@@ -361,11 +467,12 @@ class Jetpack_Boost {
 		delete_site_option( 'jetpack_boost_404_tester_last_run' );
 		delete_site_option( 'jetpack_boost_minify_cron_cache_cleanup_last_run' );
 
-		// Delete stored Critical CSS.
+		// Delete stored Critical CSS and LCP data.
 		( new Critical_CSS_Storage() )->clear();
+		( new LCP_Storage() )->clear();
 
 		// Delete all transients created by boost.
-		Transient::delete_by_prefix( '' );
+		Transient::delete_bulk();
 
 		// Clear getting started value
 		( new Getting_Started_Entry() )->set( false );

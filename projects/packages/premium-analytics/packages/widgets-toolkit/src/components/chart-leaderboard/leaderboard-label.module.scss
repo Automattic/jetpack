@@ -1,0 +1,99 @@
+.container {
+	min-inline-size: 0;
+	max-inline-size: 100%;
+	overflow: hidden;
+}
+
+.label {
+	min-inline-size: 0;
+	overflow: hidden;
+	font-size: var(--wpds-typography-font-size-sm);
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
+
+.media {
+	flex: none;
+	width: var(--jpa-leaderboard-image-width);
+	height: var(--jpa-leaderboard-image-height);
+	vertical-align: middle;
+	border-radius: var(--jpa-leaderboard-image-radius);
+	object-fit: var(--jpa-leaderboard-image-fit);
+}
+
+.avatar {
+	--jpa-leaderboard-image-width: 20px;
+	--jpa-leaderboard-image-height: 20px;
+	--jpa-leaderboard-image-radius: 50%;
+	--jpa-leaderboard-image-fit: cover;
+}
+
+.favicon {
+	--jpa-leaderboard-image-width: 16px;
+	--jpa-leaderboard-image-height: 16px;
+	--jpa-leaderboard-image-radius: var(--wpds-border-radius-sm);
+	--jpa-leaderboard-image-fit: cover;
+}
+
+/* The dashboard boot shell applies img { height: auto } at higher specificity.
+ * Keep width as the sizing constraint so flags remain consistent there as
+ * well as in Storybook, while preserving each flag's aspect ratio. */
+.flag {
+	--jpa-leaderboard-image-width: 28px;
+	--jpa-leaderboard-image-height: auto;
+	--jpa-leaderboard-image-radius: var(--wpds-border-radius-sm);
+	--jpa-leaderboard-image-fit: contain;
+}
+
+.thumbnail {
+	--jpa-leaderboard-image-width: 28px;
+	--jpa-leaderboard-image-height: 28px;
+	--jpa-leaderboard-image-radius: var(--wpds-border-radius-md);
+	--jpa-leaderboard-image-fit: cover;
+}
+
+/* The chart insets its own `.label` in overlay mode, but an element label
+ * bypasses that rule — and the overlay bar takes its height from this row. */
+.row,
+.rowLink {
+	display: flex;
+	align-items: center;
+	box-sizing: border-box;
+	inline-size: 100%;
+	min-block-size: 36px;
+	min-inline-size: 0;
+	max-inline-size: 100%;
+	padding-inline: var(--wpds-dimension-padding-md);
+	overflow: hidden;
+	color: inherit;
+	text-decoration: none;
+	white-space: nowrap;
+}
+
+.rowLink {
+	gap: var(--wpds-dimension-gap-xs);
+}
+
+/* The design system renders the external-link arrow as a sibling of the
+   label, so the colour has to go on the anchor to reach it. */
+.rowLink:hover,
+.rowLink:focus {
+	color: var(--wpds-color-foreground-interactive-brand);
+}
+
+.rowLink:hover .label,
+.rowLink:focus .label {
+	text-decoration: underline;
+}
+
+/* DataViews picker cells stretch media images to 100%. Widget previews render
+ * inert, so keep each semantic media kind at its shared size. */
+:global([inert]) .container .media {
+	width: var(--jpa-leaderboard-image-width);
+	height: var(--jpa-leaderboard-image-height);
+	object-fit: var(--jpa-leaderboard-image-fit);
+}
+
+.icon {
+	flex: none;
+}

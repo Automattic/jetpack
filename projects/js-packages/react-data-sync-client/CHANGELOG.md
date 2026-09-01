@@ -5,6 +5,107 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] - 2026-08-14
+### Changed
+- Build with tsgo instead of webpack. The package no longer bundles its dependencies: react and zod are now peer dependencies, and @tanstack/react-query is a regular dependency. [#50526]
+- Update dependencies. [#50235]
+- Update package dependencies. [#50510]
+- Update package dependencies. [#50582]
+
+## [0.1.35] - 2026-06-26
+### Changed
+- Internal updates.
+
+## [0.1.34] - 2026-06-24
+### Changed
+- Update dependencies. [#49641]
+- Update package dependencies. [#49831]
+
+## [0.1.33] - 2026-06-10
+### Changed
+- Update dependencies. [#49488]
+
+## [0.1.32] - 2026-06-08
+### Changed
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+- Update dependencies. [#48210]
+- Update package dependencies. [#49012]
+
+### Fixed
+- Remove the React Query devtools from DataSyncProvider so the TanStack debugger no longer renders in consuming apps. [#49280]
+
+## [0.1.31] - 2026-04-13
+### Changed
+- Update dependencies. [#47600]
+- Update package dependencies. [#47799]
+
+## [0.1.30] - 2026-03-09
+### Changed
+- Switch to Native TypeScript compiler based on Go. [#47375]
+- Update package dependencies. [#47002] [#47173]
+
+## [0.1.29] - 2026-02-03
+### Changed
+- Update dependencies. [#46893]
+
+## [0.1.28] - 2026-01-26
+### Changed
+- Update dependencies. [#46662]
+
+## [0.1.27] - 2026-01-07
+### Changed
+- Update dependencies. [#46381]
+
+## [0.1.26] - 2025-12-11
+### Changed
+- Update dependencies. [#46157]
+
+## [0.1.25] - 2025-11-25
+### Changed
+- Update package dependencies. [#45932]
+- Update package dependencies. [#45958]
+
+## [0.1.24] - 2025-10-28
+### Changed
+- Update package dependencies. [#45652]
+
+## [0.1.23] - 2025-10-14
+### Changed
+- Update package dependencies. [#45173] [#45241]
+
+## [0.1.22] - 2025-09-17
+### Changed
+- Update package dependencies. [#44901]
+- Update package dependencies. [#45097]
+
+## [0.1.21] - 2025-08-21
+### Added
+- Add `typecheck` script to ensure that TypeScript files are type-checked. [#44795]
+
+### Changed
+- Update dependencies. [#44736]
+
+## [0.1.20] - 2025-08-05
+### Changed
+- Internal updates.
+
+## [0.1.19] - 2025-07-23
+### Changed
+- Update dependencies. [#44400]
+
+## [0.1.18] - 2025-07-08
+### Changed
+- Update dependencies. [#44142]
+- Update package dependencies. [#44217]
+
+## [0.1.17] - 2025-06-23
+### Changed
+- Internal updates.
+
+## [0.1.16] - 2025-06-11
+### Changed
+- Update package dependencies. [#43766]
+
 ## [0.1.15] - 2025-05-15
 ### Changed
 - Update package dependencies. [#43356]
@@ -97,6 +198,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Added default param for callbacks to prevent crashes when none provided [#34910]
 
+[0.2.0]: https://github.com/Automattic/jetpack-react-data-sync-client/compare/v0.1.35...v0.2.0
+[0.1.35]: https://github.com/Automattic/jetpack-react-data-sync-client/compare/v0.1.34...v0.1.35
+[0.1.34]: https://github.com/Automattic/jetpack-react-data-sync-client/compare/v0.1.33...v0.1.34
+[0.1.33]: https://github.com/Automattic/jetpack-react-data-sync-client/compare/v0.1.32...v0.1.33
+[0.1.32]: https://github.com/Automattic/jetpack-react-data-sync-client/compare/v0.1.31...v0.1.32
+[0.1.31]: https://github.com/Automattic/jetpack-react-data-sync-client/compare/v0.1.30...v0.1.31
+[0.1.30]: https://github.com/Automattic/jetpack-react-data-sync-client/compare/v0.1.29...v0.1.30
+[0.1.29]: https://github.com/Automattic/jetpack-react-data-sync-client/compare/v0.1.28...v0.1.29
+[0.1.28]: https://github.com/Automattic/jetpack-react-data-sync-client/compare/v0.1.27...v0.1.28
+[0.1.27]: https://github.com/Automattic/jetpack-react-data-sync-client/compare/v0.1.26...v0.1.27
+[0.1.26]: https://github.com/Automattic/jetpack-react-data-sync-client/compare/v0.1.25...v0.1.26
+[0.1.25]: https://github.com/Automattic/jetpack-react-data-sync-client/compare/v0.1.24...v0.1.25
+[0.1.24]: https://github.com/Automattic/jetpack-react-data-sync-client/compare/v0.1.23...v0.1.24
+[0.1.23]: https://github.com/Automattic/jetpack-react-data-sync-client/compare/v0.1.22...v0.1.23
+[0.1.22]: https://github.com/Automattic/jetpack-react-data-sync-client/compare/v0.1.21...v0.1.22
+[0.1.21]: https://github.com/Automattic/jetpack-react-data-sync-client/compare/v0.1.20...v0.1.21
+[0.1.20]: https://github.com/Automattic/jetpack-react-data-sync-client/compare/v0.1.19...v0.1.20
+[0.1.19]: https://github.com/Automattic/jetpack-react-data-sync-client/compare/v0.1.18...v0.1.19
+[0.1.18]: https://github.com/Automattic/jetpack-react-data-sync-client/compare/v0.1.17...v0.1.18
+[0.1.17]: https://github.com/Automattic/jetpack-react-data-sync-client/compare/v0.1.16...v0.1.17
+[0.1.16]: https://github.com/Automattic/jetpack-react-data-sync-client/compare/v0.1.15...v0.1.16
 [0.1.15]: https://github.com/Automattic/jetpack-react-data-sync-client/compare/v0.1.14...v0.1.15
 [0.1.14]: https://github.com/Automattic/jetpack-react-data-sync-client/compare/v0.1.13...v0.1.14
 [0.1.13]: https://github.com/Automattic/jetpack-react-data-sync-client/compare/v0.1.12...v0.1.13

@@ -9,7 +9,7 @@ class Type_String implements Parser {
 
 	public function parse( $value, $_context ) {
 
-		if ( ! is_scalar( $value ) || null === $value ) {
+		if ( ! is_scalar( $value ) ) {
 			throw new Schema_Error( 'Expected a string, received ' . gettype( $value ), $value );
 		}
 

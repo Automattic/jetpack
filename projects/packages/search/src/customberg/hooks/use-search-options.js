@@ -1,6 +1,6 @@
 import { useEntityProp } from '@wordpress/core-data';
-import { PRODUCT_SORT_OPTIONS, RELEVANCE_SORT_KEY } from 'instant-search/lib/constants';
 import { useMemo } from 'react';
+import { PRODUCT_SORT_OPTIONS, RELEVANCE_SORT_KEY } from 'instant-search/lib/constants';
 
 const VALID_POST_TYPES = window.JetpackInstantSearchOptions.postTypes;
 
@@ -43,6 +43,21 @@ export default function useSearchOptions() {
 		'root',
 		'site',
 		'jetpack_search_show_post_date'
+	);
+	const [ productPrice, setProductPrice ] = useEntityProp(
+		'root',
+		'site',
+		'jetpack_search_show_product_price'
+	);
+	const [ aiAnswersEnabled, setAiAnswersEnabled ] = useEntityProp(
+		'root',
+		'site',
+		'jetpack_search_ai_answers_enabled'
+	);
+	const [ searchSuggestionsEnabled, setSearchSuggestionsEnabled ] = useEntityProp(
+		'root',
+		'site',
+		'jetpack_search_suggestions_enabled'
 	);
 	const [ excludedPostTypesCsv, setExcludedPostTypesCsv ] = useEntityProp(
 		'root',
@@ -93,5 +108,11 @@ export default function useSearchOptions() {
 		trigger,
 		postDate,
 		setPostDate,
+		productPrice,
+		setProductPrice,
+		aiAnswersEnabled,
+		setAiAnswersEnabled,
+		searchSuggestionsEnabled,
+		setSearchSuggestionsEnabled,
 	};
 }

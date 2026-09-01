@@ -19,6 +19,7 @@ export interface IBlockHandler {
 	adjustPosition?: boolean;
 	startOpen?: boolean;
 	hideOnBlockFocus?: boolean;
+	supports?: Record< string, number >;
 }
 
 export type BlockEditorSelect = {

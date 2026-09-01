@@ -58,7 +58,6 @@ class WPCOM_Enqueue_Dynamic_Script {
 		}
 
 		if ( empty( $wp_scripts->registered[ $handle ] ) ) {
-			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			wp_trigger_error( 'WPCOM_Enqueue_Dynamic_Script::enqueue_script', "unknown script '{$handle}'.", E_USER_WARNING );
 			return false;
 		}
@@ -123,7 +122,6 @@ class WPCOM_Enqueue_Dynamic_Script {
 			$script = $wp_scripts->query( $handle, 'registered' );
 
 			if ( empty( $script ) ) {
-				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				wp_trigger_error( 'WPCOM_Enqueue_Dynamic_Script::get_ordered_scripts', "unknown script '{$handle}'.", E_USER_WARNING );
 				return;
 			}

@@ -1,8 +1,7 @@
 /**
  * External dependencies
  */
-import type { Button } from '@wordpress/components';
-import type React from 'react';
+import type { ReactNode } from 'react';
 
 export type PricingCardProps = {
 	/**
@@ -12,7 +11,7 @@ export type PricingCardProps = {
 	/**
 	 * The Icon.
 	 */
-	icon?: string | React.ReactNode;
+	icon?: string | ReactNode;
 	/**
 	 * Price before discount.
 	 */
@@ -36,17 +35,17 @@ export type PricingCardProps = {
 	/**
 	 * The CTA callback to be called on click.
 	 */
-	onCtaClick?: React.ComponentProps< typeof Button >[ 'onClick' ];
+	onCtaClick?: React.MouseEventHandler< HTMLButtonElement >;
 	/**
 	 * Optional informative text.
 	 */
-	infoText?: React.ReactNode;
+	infoText?: ReactNode;
 	/**
 	 * The TOS copy.
 	 */
-	tosText?: React.ReactNode;
+	tosText?: ReactNode;
 	/**
 	 * Optional Child nodes
 	 */
-	children?: React.ReactNode;
+	children?: ReactNode;
 };

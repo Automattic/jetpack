@@ -4,7 +4,7 @@ import './set-webpack-public-path';
 
 // NOTE: We directly import preact here since we don't expect this file to be used in a React context.
 import { render } from 'preact';
-import React from 'preact/compat';
+import * as React from 'preact/compat';
 import { Provider } from 'react-redux';
 import SearchApp from './components/search-app';
 import { buildFilterAggregations } from './lib/api';
@@ -21,7 +21,7 @@ const injectSearchApp = () => {
 					...window[ SERVER_OBJECT_NAME ].widgets,
 					...window[ SERVER_OBJECT_NAME ].widgetsOutsideOverlay,
 				] ) }
-				enableAnalytics
+				enableAnalytics={ ! window[ SERVER_OBJECT_NAME ].disableTracking }
 				hasOverlayWidgets={ !! window[ SERVER_OBJECT_NAME ].hasOverlayWidgets }
 				initialHref={ window.location.href }
 				// NOTE: initialIsVisible is only used in the customizer. See lib/customize.js.

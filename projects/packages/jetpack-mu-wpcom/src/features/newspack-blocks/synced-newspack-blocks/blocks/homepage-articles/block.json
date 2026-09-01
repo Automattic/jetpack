@@ -1,7 +1,8 @@
 {
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
 	"name": "homepage-articles",
 	"category": "newspack",
-	"apiVersion": 3,
 	"attributes": {
 		"className": {
 			"type": "string",
@@ -83,6 +84,10 @@
 			"type": "boolean",
 			"default": false
 		},
+		"showTagLabels": {
+			"type": "boolean",
+			"default": true
+		},
 		"postLayout": {
 			"type": "string",
 			"default": "list"
@@ -116,6 +121,14 @@
 			"items": {
 				"type": "integer"
 			}
+		},
+		"categoryJoinType": {
+			"type": "string",
+			"default": "or",
+			"enum": [
+				"or",
+				"all"
+			]
 		},
 		"includeSubcategories": {
 			"type": "boolean",
@@ -232,7 +245,7 @@
 		},
 		"textAlign": {
 			"type": "string",
-			"default": "left"
+			"default": ""
 		},
 		"includedPostStatuses": {
 			"type": "array",

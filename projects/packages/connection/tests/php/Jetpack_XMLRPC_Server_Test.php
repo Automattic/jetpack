@@ -3,8 +3,10 @@
  * Tests the Legacy Jetpack_XMLRPC_Server class.
  */
 
+use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Constants;
+use PHPUnit\Framework\Attributes\BeforeClass;
 use WorDBless\BaseTestCase;
 
 /**
@@ -18,6 +20,24 @@ class Jetpack_XMLRPC_Server_Test extends BaseTestCase {
 	 * @var integer
 	 */
 	protected $xmlrpc_admin = 0;
+
+	/**
+	 * Initialize the hooks to reset memoized connection properties.
+	 *
+	 * @beforeClass
+	 */
+	#[BeforeClass]
+	public static function set_up_before_class() {
+		// Use reflection to call the private method that sets up cache invalidation hooks.
+		$manager    = new Manager();
+		$reflection = new \ReflectionClass( $manager );
+		$method     = $reflection->getMethod( 'add_connection_status_invalidation_hooks' );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+		$method->invoke( $manager );
+	}
 
 	/**
 	 * Set up before each test
@@ -445,7 +465,7 @@ class Jetpack_XMLRPC_Server_Test extends BaseTestCase {
 
 		$xml->expects( $this->exactly( $query_called ? 1 : 0 ) )
 			->method( 'isError' )
-			->willReturn( empty( $error ) ? false : true );
+			->willReturn( ! empty( $error ) );
 
 		$xml->expects( $this->exactly( $error ? 0 : 1 ) )
 			->method( 'getResponse' )

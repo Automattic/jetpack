@@ -30,5 +30,5 @@ test( 'Atomic: author_must_fill_name_and_email', async ( { page } ) => {
 	await page.waitForLoadState( 'domcontentloaded' );
 	await expect( page.getByText( randomComment ) ).toBeVisible();
 	await expect( page.getByText( randomName ) ).toBeVisible();
-	await expect( page.getByText( randomEmail ) ).not.toBeVisible();
+	await expect( page.getByText( randomEmail ) ).toBeHidden();
 } );

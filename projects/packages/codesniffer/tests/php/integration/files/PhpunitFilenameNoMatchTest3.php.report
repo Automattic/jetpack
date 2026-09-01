@@ -1,0 +1,4 @@
+  1 | ERROR   | Filenames should be all lowercase with hyphens as word separators. Expected phpunitfilenamenomatchtest3.php, but found PhpunitFilenameNoMatchTest3.php. (WordPress.Files.FileName.NotHyphenatedLowercase)
+  1 | ERROR   | Class file names should be based on the class name with "class-" prepended. Expected class-phpunitfilename.php, but found PhpunitFilenameNoMatchTest3.php. (WordPress.Files.FileName.InvalidClassFileName)
+ 11 | WARNING | PHPUnit test class name 'PhpunitFilename' should end with 'Test'. (Jetpack.PHPUnit.TestClassName.DoesNotEndWithTest)
+ 11 | ERROR   | PHPUnit test class name 'PhpunitFilename' does not match filename 'PhpunitFilenameNoMatchTest3.php'. This mismatch was deprecated in PHPUnit 9 and fails in PHPUnit 10+. (Jetpack.PHPUnit.TestClassName.DoesNotMatchFileName)

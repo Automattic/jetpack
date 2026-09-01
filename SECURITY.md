@@ -13,7 +13,6 @@ Our HackerOne program covers the below plugin software, as well as a variety of 
 * [Jetpack](https://jetpack.com/)
 * Jetpack Backup
 * Jetpack Boost
-* Jetpack CRM
 * Jetpack Protect
 * Jetpack Search
 * Jetpack Social

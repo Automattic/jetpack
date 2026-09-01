@@ -1,6 +1,5 @@
 import { JetpackLogo } from '@automattic/jetpack-components';
 import clsx from 'clsx';
-import React from 'react';
 import ImageSlider from './image-slider';
 import type { Props as ConnectScreenProps } from '../basic';
 import type { WithRequired } from '../types';
@@ -19,10 +18,13 @@ type OwnProps = {
 
 export type Props = WithRequired< SharedProps, 'title' > & OwnProps;
 
-/*
+/**
  * The Connection Screen Layout component.
+ *
+ * @param {Props} props - The properties.
+ * @return {import('react').ReactNode} The Connection Screen Layout component.
  */
-const ConnectScreenLayout: React.FC< Props > = ( {
+function ConnectScreenLayout( {
 	title,
 	children,
 	className,
@@ -30,7 +32,7 @@ const ConnectScreenLayout: React.FC< Props > = ( {
 	images,
 	logo,
 	rna = false,
-} ) => {
+}: Props ) {
 	const showImageSlider = images?.length;
 
 	return (
@@ -64,6 +66,6 @@ const ConnectScreenLayout: React.FC< Props > = ( {
 			) : null }
 		</div>
 	);
-};
+}
 
 export default ConnectScreenLayout;

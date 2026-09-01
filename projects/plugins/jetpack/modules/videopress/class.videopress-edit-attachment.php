@@ -1,6 +1,11 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Status;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
 
 /**
  * VideoPress edit attachment screen
@@ -87,10 +92,10 @@ class VideoPress_Edit_Attachment {
 
 		$post_title      = isset( $_POST['post_title'] ) ? sanitize_text_field( wp_unslash( $_POST['post_title'] ) ) : null;
 		$post_excerpt    = isset( $_POST['post_excerpt'] ) ? sanitize_textarea_field( wp_unslash( $_POST['post_excerpt'] ) ) : null;
-		$rating          = isset( $attachment['rating'] ) ? $attachment['rating'] : null;
-		$display_embed   = isset( $attachment['display_embed'] ) ? $attachment['display_embed'] : 0;
-		$allow_download  = isset( $attachment['allow_download'] ) ? $attachment['allow_download'] : 0;
-		$privacy_setting = isset( $attachment['privacy_setting'] ) ? $attachment['privacy_setting'] : VIDEOPRESS_PRIVACY::SITE_DEFAULT;
+		$rating          = $attachment['rating'] ?? null;
+		$display_embed   = $attachment['display_embed'] ?? 0;
+		$allow_download  = $attachment['allow_download'] ?? 0;
+		$privacy_setting = $attachment['privacy_setting'] ?? VIDEOPRESS_PRIVACY::SITE_DEFAULT;
 
 		$result = Videopress_Attachment_Metadata::persist_metadata(
 			$post['ID'],
@@ -157,7 +162,7 @@ class VideoPress_Edit_Attachment {
 		}
 
 		$info          = (object) $meta['videopress'];
-		$file_statuses = isset( $meta['file_statuses'] ) ? $meta['file_statuses'] : array();
+		$file_statuses = $meta['file_statuses'] ?? array();
 
 		$guid = get_post_meta( $post_id, 'videopress_guid', true );
 
@@ -235,49 +240,85 @@ class VideoPress_Edit_Attachment {
 	 */
 	public function videopress_information_box( $post ) {
 		$post_id = absint( $post->ID );
-
-		$meta = wp_get_attachment_metadata( $post_id );
-		$guid = get_post_meta( $post_id, 'videopress_guid', true );
+		$guid    = get_post_meta( $post_id, 'videopress_guid', true );
 
 		// If this has not been processed by videopress, we can skip the rest.
-		if ( ! is_videopress_attachment( $post_id ) ) {
+		if ( ! is_videopress_attachment( $post_id ) || empty( $guid ) ) {
 			return;
 		}
 
+		$meta = wp_get_attachment_metadata( $post_id );
 		$info = (object) $meta['videopress'];
 
-		$embed = "[videopress {$guid}]";
+		$is_public = VIDEOPRESS_PRIVACY::IS_PUBLIC === $info->privacy_setting || ( VIDEOPRESS_PRIVACY::SITE_DEFAULT === $info->privacy_setting && ! ( new Status() )->is_private_site() );
+		/* Translators: %s is the video title */
+		$alt_text = sprintf( __( 'Poster image for video: %s', 'jetpack' ), get_the_title( $post_id ) );
+		?>
 
-		$shortcode = '<input type="text" id="plugin-embed" readonly="readonly" style="width:180px;" value="' . esc_attr( $embed ) . '" onclick="this.focus();this.select();" />';
+		<p class="post-attributes-label-wrapper">
+			<label class="post-attributes-label" for="videopress-shortcode"><?php esc_html_e( 'Shortcode', 'jetpack' ); ?></label>
+		</p>
+		<input type="text" class="widefat" id="videopress-shortcode" readonly="readonly" value="<?php echo esc_attr( "[videopress $guid]" ); ?>" onclick="this.focus();this.select();" />
 
-		$url = 'empty';
-		if ( ! empty( $guid ) ) {
-			$url = videopress_build_url( $guid );
-			$url = "<a href=\"{$url}\">{$url}</a>";
-		}
+		<p class="post-attributes-label-wrapper">
+			<label class="post-attributes-label"><?php esc_html_e( 'URL', 'jetpack' ); ?></label>
+		</p>
+		<?php printf( '<a href="%1$s">%1$s</a>', esc_url( videopress_build_url( $guid ) ) ); ?>
 
-		$poster = '<em>Still Processing</em>';
-		if ( ! empty( $info->poster ) ) {
-			$poster = "<br><img src=\"{$info->poster}\" width=\"175px\">";
-		}
+		<p class="post-attributes-label-wrapper">
+			<label class="post-attributes-label"><?php esc_html_e( 'Poster', 'jetpack' ); ?></label>
+		</p>
+		<?php if ( ! empty( $info->poster ) ) : ?>
+			<?php if ( $is_public ) : ?>
+				<img src="<?php echo esc_url( $info->poster ); ?>" width="100%" alt="<?php echo esc_attr( $alt_text ); ?>" />
+			<?php else : ?>
+				<img
+					id="videopress-poster-<?php echo esc_attr( $guid ); ?>"
+					data-poster="<?php echo esc_url( $info->poster ); ?>"
+					data-guid="<?php echo esc_attr( $guid ); ?>"
+					width="100%"
+					alt="<?php echo esc_attr( $alt_text ); ?>"
+					style="display:none;"
+					src=""
+				/>
+				<em class="videopress-poster-loading" data-error="<?php esc_attr_e( 'Poster unavailable.', 'jetpack' ); ?>"><?php esc_html_e( 'Loading…', 'jetpack' ); ?></em>
+				<script>
+				( function() {
+					var img = document.getElementById( 'videopress-poster-<?php echo esc_attr( $guid ); ?>' );
+					var loading = img ? img.nextElementSibling : null;
+					if ( ! img || ! loading || ! window.videopressAjax ) {
+						return;
+					}
 
-		$html = <<< HTML
-
-<div class="misc-pub-section misc-pub-shortcode">
-	<strong>Shortcode</strong><br>
-	{$shortcode}
-</div>
-<div class="misc-pub-section misc-pub-url">
-	<strong>Url</strong>
-	{$url}
-</div>
-<div class="misc-pub-section misc-pub-poster">
-	<strong>Poster</strong>
-	{$poster}
-</div>
-HTML;
-
-		echo $html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Variables built above.
+					fetch( window.videopressAjax.ajaxUrl, {
+						method: 'POST',
+						credentials: 'same-origin',
+						body: new URLSearchParams( {
+							action: 'videopress-get-playback-jwt',
+							guid: img.dataset.guid,
+							post_id: window.videopressAjax.post_id || 0
+						} )
+					} )
+					.then( function( response ) { return response.json(); } )
+					.then( function( data ) {
+						if ( data.success && data.data.jwt ) {
+							img.src = img.dataset.poster + '?metadata_token=' + data.data.jwt;
+							img.style.display = '';
+							loading.style.display = 'none';
+						} else {
+							loading.textContent = loading.dataset.error;
+						}
+					} )
+					.catch( function() {
+						loading.textContent = loading.dataset.error;
+					} );
+				} )();
+				</script>
+			<?php endif; ?>
+		<?php else : ?>
+			<em><?php esc_html_e( 'Processing…', 'jetpack' ); ?></em>
+			<?php
+		endif;
 	}
 
 	/**
@@ -310,7 +351,7 @@ HTML;
 			"attachments-{$info->post_id}-displayembed",
 			"attachments[{$info->post_id}][display_embed]",
 			__( 'Display share menu and allow viewers to copy a link or embed this video', 'jetpack' ),
-			isset( $info->display_embed ) ? $info->display_embed : 0
+			$info->display_embed ?? 0
 		);
 	}
 
@@ -343,12 +384,12 @@ HTML;
 			VIDEOPRESS_PRIVACY::IS_PRIVATE   => __( 'Private', 'jetpack' ),
 		);
 
-		$displayed_privacy_setting = intval( isset( $info->privacy_setting ) ? $info->privacy_setting : VIDEOPRESS_PRIVACY::SITE_DEFAULT );
+		$displayed_privacy_setting = intval( $info->privacy_setting ?? VIDEOPRESS_PRIVACY::SITE_DEFAULT );
 
 		$out = "<select name='attachments[{$info->post_id}][privacy_setting]'>";
 		foreach ( $privacy_settings as $r => $label ) {
 			$out .= "<option value=\"$r\"";
-			if ( intval( $r ) === $displayed_privacy_setting ) {
+			if ( $r === $displayed_privacy_setting ) {
 				$out .= ' selected';
 			}
 
@@ -375,7 +416,7 @@ HTML;
 			'R-17'  => 'R',
 		);
 
-		$displayed_rating = isset( $info->rating ) ? $info->rating : null;
+		$displayed_rating = $info->rating ?? null;
 
 		// X-18 was previously supported but is now removed to better comply with our TOS.
 		if ( 'X-18' === $displayed_rating ) {

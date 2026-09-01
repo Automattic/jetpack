@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { usePhoton } from '../lib/hooks/use-photon';
 
 const PhotonImage = props => {

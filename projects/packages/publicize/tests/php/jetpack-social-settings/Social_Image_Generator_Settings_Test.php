@@ -110,4 +110,19 @@ class Social_Image_Generator_Settings_Test extends BaseTestCase {
 
 		$this->assertEquals( 'example_template', $sig_settings['template'] );
 	}
+
+	/**
+	 * Test that default_image_id can be set and cleared with 0.
+	 */
+	public function test_default_image_id_can_be_cleared_with_zero() {
+		// First set a default image ID
+		$this->settings->update_social_image_generator_settings( array( 'default_image_id' => 123 ) );
+		$sig_settings = $this->settings->get_settings()['socialImageGeneratorSettings'];
+		$this->assertEquals( 123, $sig_settings['default_image_id'] );
+
+		// Now clear it with 0
+		$this->settings->update_social_image_generator_settings( array( 'default_image_id' => 0 ) );
+		$sig_settings = $this->settings->get_settings()['socialImageGeneratorSettings'];
+		$this->assertSame( 0, $sig_settings['default_image_id'] );
+	}
 }

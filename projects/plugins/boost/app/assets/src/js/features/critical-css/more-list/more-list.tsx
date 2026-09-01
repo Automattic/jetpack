@@ -2,13 +2,14 @@ import { useState } from 'react';
 import { sprintf, __ } from '@wordpress/i18n';
 import { FormattedURL } from '../error-description/types';
 import styles from './more-list.module.scss';
+import type { FC } from 'react';
 
 type MoreListTypes = {
 	entries: FormattedURL[];
 	showLimit?: number;
 };
 
-const MoreList: React.FC< MoreListTypes > = ( { entries = [], showLimit = 2 } ) => {
+const MoreList: FC< MoreListTypes > = ( { entries = [], showLimit = 2 } ) => {
 	const [ expanded, setExpanded ] = useState( false );
 	const listItems = expanded ? entries : entries.slice( 0, showLimit );
 	const showExpandButton = ! expanded && entries.length > showLimit;

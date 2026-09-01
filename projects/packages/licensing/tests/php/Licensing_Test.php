@@ -115,16 +115,17 @@ class Licensing_Test extends BaseTestCase {
 	 * Test attach_licenses() without an active Jetpack connection.
 	 */
 	public function test_attach_licenses__without_connection() {
-		$connection = $this->createMock( Connection_Manager::class );
+		$connection = $this->createStub( Connection_Manager::class );
 
 		$connection->method( 'has_connected_owner' )->willReturn( false );
 
 		$licensing = $this->createPartialMock(
 			Licensing::class,
-			array( 'connection' )
+			array( 'connection', 'attach_licenses_request' )
 		);
 
 		$licensing->method( 'connection' )->willReturn( $connection );
+		$licensing->expects( $this->never() )->method( 'attach_licenses_request' );
 
 		$result = $licensing->attach_licenses( array() );
 
@@ -136,16 +137,17 @@ class Licensing_Test extends BaseTestCase {
 	 * Test attach_licenses() with an empty input.
 	 */
 	public function test_attach_licenses__empty_input() {
-		$connection = $this->createMock( Connection_Manager::class );
+		$connection = $this->createStub( Connection_Manager::class );
 
 		$connection->method( 'has_connected_owner' )->willReturn( true );
 
 		$licensing = $this->createPartialMock(
 			Licensing::class,
-			array( 'connection' )
+			array( 'connection', 'attach_licenses_request' )
 		);
 
 		$licensing->method( 'connection' )->willReturn( $connection );
+		$licensing->expects( $this->never() )->method( 'attach_licenses_request' );
 
 		$this->assertSame( array(), $licensing->attach_licenses( array() ) );
 	}
@@ -156,7 +158,7 @@ class Licensing_Test extends BaseTestCase {
 	public function test_attach_licenses__request_failure() {
 		$licenses = array( 'foo', 'bar' );
 
-		$connection = $this->createMock( Connection_Manager::class );
+		$connection = $this->createStub( Connection_Manager::class );
 
 		$connection->method( 'has_connected_owner' )->willReturn( true );
 
@@ -169,7 +171,7 @@ class Licensing_Test extends BaseTestCase {
 			->method( 'connection' )
 			->willReturn( $connection );
 
-		$ixr_client = $this->createMock( Jetpack_IXR_ClientMulticall::class );
+		$ixr_client = $this->createStub( Jetpack_IXR_ClientMulticall::class );
 		$ixr_client->method( 'isError' )->willReturn( true );
 		$ixr_client->method( 'getErrorCode' )->willReturn( 1 );
 		$ixr_client->method( 'getErrorMessage' )->willReturn( 'Expected error message' );
@@ -192,7 +194,7 @@ class Licensing_Test extends BaseTestCase {
 	public function test_attach_licenses__multiple_licenses() {
 		$licenses = array( 'foo', 'bar' );
 
-		$connection = $this->createMock( Connection_Manager::class );
+		$connection = $this->createStub( Connection_Manager::class );
 
 		$connection->method( 'has_connected_owner' )->willReturn( true );
 
@@ -205,7 +207,7 @@ class Licensing_Test extends BaseTestCase {
 			->method( 'connection' )
 			->willReturn( $connection );
 
-		$ixr_client = $this->createMock( Jetpack_IXR_ClientMulticall::class );
+		$ixr_client = $this->createStub( Jetpack_IXR_ClientMulticall::class );
 		$ixr_client->method( 'isError' )
 			->willReturn( false );
 		$ixr_client->method( 'getResponse' )
@@ -239,7 +241,7 @@ class Licensing_Test extends BaseTestCase {
 	public function test_attach_licenses__returns_product_ids_on_success() {
 		$licenses = array( 'foo' );
 
-		$connection = $this->createMock( Connection_Manager::class );
+		$connection = $this->createStub( Connection_Manager::class );
 
 		$connection->method( 'has_connected_owner' )->willReturn( true );
 
@@ -252,7 +254,7 @@ class Licensing_Test extends BaseTestCase {
 			->method( 'connection' )
 			->willReturn( $connection );
 
-		$ixr_client = $this->createMock( Jetpack_IXR_ClientMulticall::class );
+		$ixr_client = $this->createStub( Jetpack_IXR_ClientMulticall::class );
 		$ixr_client->method( 'isError' )->willReturn( false );
 		$ixr_client->method( 'query' )->willReturn( null );
 		$ixr_client->method( 'getResponse' )->willReturn( array( array( 'activatedProductId' => 1 ) ) );
@@ -381,7 +383,7 @@ class Licensing_Test extends BaseTestCase {
 	 * Test attach_stored_licenses_on_connection() for the master user.
 	 */
 	public function test_attach_stored_licenses_on_connection__master_user() {
-		$connection = $this->createMock( Connection_Manager::class );
+		$connection = $this->createStub( Connection_Manager::class );
 
 		$connection->method( 'is_connection_owner' )->willReturn( true );
 
@@ -402,7 +404,7 @@ class Licensing_Test extends BaseTestCase {
 	 * Test attach_stored_licenses_on_connection() for a secondary user.
 	 */
 	public function test_attach_stored_licenses_on_connection__secondary_user() {
-		$connection = $this->createMock( Connection_Manager::class );
+		$connection = $this->createStub( Connection_Manager::class );
 
 		$connection->method( 'is_connection_owner' )->willReturn( false );
 

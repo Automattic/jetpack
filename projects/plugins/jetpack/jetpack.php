@@ -4,37 +4,43 @@
  * Plugin URI: https://jetpack.com
  * Description: Security, performance, and marketing tools made by WordPress experts. Jetpack keeps your site protected so you can focus on more important things.
  * Author: Automattic
- * Version: 14.7-a.7
+ * Version: 16.2-a.3
  * Author URI: https://jetpack.com
  * License: GPL2+
  * Text Domain: jetpack
- * Requires at least: 6.7
- * Requires PHP: 7.2
+ * Requires at least: 7.0
+ * Requires PHP: 7.4
  *
  * @package automattic/jetpack
  */
 
+/*
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, see <https://www.gnu.org/licenses/>.
+ */
+
 use Automattic\Jetpack\Image_CDN\Image_CDN_Core;
 
-/*
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-*/
-
-define( 'JETPACK__MINIMUM_WP_VERSION', '6.7' );
-define( 'JETPACK__MINIMUM_PHP_VERSION', '7.2' );
-define( 'JETPACK__VERSION', '14.7-a.7' );
+if ( ! defined( 'JETPACK__VERSION' ) ) {
+	// This breaks the project version checks when a one-liner.
+	define( 'JETPACK__VERSION', '16.2-a.3' );
+}
+defined( 'JETPACK__MINIMUM_WP_VERSION' ) || define( 'JETPACK__MINIMUM_WP_VERSION', '7.0' );
+defined( 'JETPACK__MINIMUM_PHP_VERSION' ) || define( 'JETPACK__MINIMUM_PHP_VERSION', '7.4' );
 
 /**
  * Constant used to fetch the connection owner token
@@ -42,13 +48,12 @@ define( 'JETPACK__VERSION', '14.7-a.7' );
  * @deprecated 9.0.0
  * @var boolean
  */
-define( 'JETPACK_MASTER_USER', true );
+defined( 'JETPACK_MASTER_USER' ) || define( 'JETPACK_MASTER_USER', true );
 
-define( 'JETPACK__API_VERSION', 1 );
-define( 'JETPACK__PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
-define( 'JETPACK__PLUGIN_FILE', __FILE__ );
+defined( 'JETPACK__API_VERSION' ) || define( 'JETPACK__API_VERSION', 1 );
+defined( 'JETPACK__PLUGIN_DIR' ) || define( 'JETPACK__PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
+defined( 'JETPACK__PLUGIN_FILE' ) || define( 'JETPACK__PLUGIN_FILE', __FILE__ );
 
-defined( 'JETPACK__RELEASE_POST_BLOG_SLUG' ) || define( 'JETPACK__RELEASE_POST_BLOG_SLUG', 'jetpackreleaseblog.wordpress.com' );
 defined( 'JETPACK_CLIENT__AUTH_LOCATION' ) || define( 'JETPACK_CLIENT__AUTH_LOCATION', 'header' );
 
 /**

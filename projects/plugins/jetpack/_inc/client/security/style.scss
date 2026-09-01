@@ -1,4 +1,4 @@
-@use '../scss/functions/rem';
+@use "../scss/functions/rem";
 
 .brute-force__current-ip {
 	margin-bottom: 16px;
@@ -9,7 +9,22 @@
 	display: flex;
 
 	.waf__standalone__mode {
+		align-items: center;
+		color: var(--wpds-color-foreground-content-success-weak, #008030);
+		display: inline-flex;
+		font-weight: 600;
+		line-height: 1.666;
 		margin-left: auto;
+		white-space: nowrap;
+
+		.waf__standalone__mode__indicator {
+			background-color: var(--wpds-color-foreground-content-success-weak, #008030);
+			border-radius: 50%;
+			flex-shrink: 0;
+			height: 0.666em;
+			margin-right: 4px;
+			width: 0.666em;
+		}
 	}
 
 }
@@ -50,7 +65,7 @@
 			justify-content: space-between;
 			align-items: flex-start;
 		}
-	
+
 		&__save-button {
 			margin-top: 0.5rem;
 			float: right;
@@ -72,7 +87,8 @@
 
 .waf__enhanced-protection {
 
-	&, &.dops-card.is-expanded {
+	&,
+	&.dops-card.is-expanded {
 		margin-bottom: 0;
 	}
 

@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: SEO Tools
- * Module Description: Better results on search engines and social media.
+ * Module Description: Optimize titles, meta descriptions, and social previews for better search results.
  * Sort Order: 35
  * Recommendation Order: 15
  * First Introduced: 4.4
@@ -10,10 +10,14 @@
  * Auto Activate: No
  * Module Tags: Social, Appearance
  * Feature: Traffic
- * Additional Search Queries: search engine optimization, social preview, meta description, custom title format
+ * Additional Search Queries: search engine optimization, social preview, meta description, custom title format, seo, sitemap, open graph, search engine, title tag
  *
  * @package automattic/jetpack
  */
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
 
 // Suppress SEO Tools output if any of the following plugins is active.
 $jetpack_seo_conflicting_plugins = array(
@@ -45,4 +49,7 @@ foreach ( $jetpack_seo_conflicting_plugins as $seo_plugin ) {
 if ( ! apply_filters( 'jetpack_disable_seo_tools', false ) ) {
 	require_once __DIR__ . '/seo-tools/class-jetpack-seo.php';
 	new Jetpack_SEO();
+
+	require_once __DIR__ . '/seo-tools/class-jetpack-seo-admin-columns.php';
+	Jetpack_SEO_Admin_Columns::init();
 }

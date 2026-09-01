@@ -71,6 +71,49 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 		parent::set_up();
 
 		WPCOM_JSON_API::init()->token_details = array( 'blog_id' => $blog_id );
+
+		// Mock available abilities (just names)
+		add_filter(
+			'jetpack_site_mcp_abilities',
+			function () {
+				return array(
+					'wpcom-mcp/posts-search',
+					'wpcom-mcp/user-sites',
+				);
+			}
+		);
+
+		// Mock ability metadata
+		add_filter(
+			'jetpack_site_mcp_ability_meta',
+			function ( $ability_meta, $ability_name ) {
+				$test_metadata = array(
+					'wpcom-mcp/posts-search' => array(
+						'title'       => 'Posts search',
+						'description' => 'Search posts',
+						'category'    => 'search',
+						'type'        => 'tool',
+						'enabled'     => true,
+					),
+					'wpcom-mcp/user-sites'   => array(
+						'title'       => 'User sites',
+						'description' => 'Access user sites',
+						'category'    => 'user',
+						'type'        => 'resource',
+						'enabled'     => false,
+					),
+				);
+				return $test_metadata[ $ability_name ] ?? array();
+			},
+			10,
+			2
+		);
+	}
+
+	public function tear_down() {
+		// Remove the filter to avoid affecting other tests
+		remove_all_filters( 'jetpack_mcp_abilities' );
+		parent::tear_down();
 	}
 
 	/**
@@ -107,6 +150,21 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * The GET response exposes a read-only `free_tier_description_rendered`
+	 * derived from the stored markdown source, rendered to safe HTML.
+	 */
+	public function test_get_settings_renders_free_tier_description() {
+		update_option( 'subscription_options', array( 'free_tier_description' => 'Hello **world**' ) );
+
+		$response = $this->make_get_request();
+		$settings = $response['settings'];
+
+		$this->assertStringContainsString( '<strong>world</strong>', $settings['free_tier_description_rendered'] );
+		// The rendered field is derived only; it must not leak into the writable option bag.
+		$this->assertArrayNotHasKey( 'free_tier_description_rendered', $settings['subscription_options'] );
+	}
+
+	/**
 	 * Test POST `sites/%s/settings` sets the correct value.
 	 *
 	 * @dataProvider setting_value_pairs_post_request
@@ -117,10 +175,248 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 	 */
 	#[DataProvider( 'setting_value_pairs_post_request' )]
 	public function test_post_settings_sets_key_values( $setting_name, $setting_value, $expected_value ) {
-		$setting  = wp_json_encode( array( $setting_name => $setting_value ) );
+		$setting  = wp_json_encode( array( $setting_name => $setting_value ), JSON_UNESCAPED_SLASHES );
 		$response = $this->make_post_request( $setting );
 		$updated  = $response['updated'];
 		$this->assertSame( $expected_value, $updated[ $setting_name ] );
+	}
+
+	/**
+	 * The free tier description is capped to 500 characters to match the
+	 * paid-tier description field.
+	 */
+	public function test_post_free_tier_description_is_length_capped() {
+		$setting  = wp_json_encode(
+			array( 'subscription_options' => array( 'free_tier_description' => str_repeat( 'a', 600 ) ) ),
+			JSON_UNESCAPED_SLASHES
+		);
+		$response = $this->make_post_request( $setting );
+		$updated  = $response['updated'];
+		$this->assertSame(
+			500,
+			strlen( $updated['subscription_options']['free_tier_description'] )
+		);
+	}
+
+	/**
+	 * A non-scalar `free_tier_description` (e.g. an array from a malformed JSON
+	 * payload) must be dropped rather than passed to wp_kses()/mb_substr(), which
+	 * would fatal on PHP 8+. A sibling valid key is included so the update still
+	 * proceeds and the dropped key can be asserted.
+	 */
+	public function test_post_free_tier_description_ignores_non_scalar() {
+		$setting  = wp_json_encode(
+			array(
+				'subscription_options' => array(
+					'free_tier_description'   => array( 'unexpected', 'array' ),
+					'subscribe_modal_heading' => 'Still saved',
+				),
+			),
+			JSON_UNESCAPED_SLASHES
+		);
+		$response = $this->make_post_request( $setting );
+		$updated  = $response['updated'];
+		$this->assertSame( 'Still saved', $updated['subscription_options']['subscribe_modal_heading'] );
+		$this->assertArrayNotHasKey( 'free_tier_description', $updated['subscription_options'] );
+	}
+
+	/**
+	 * Registers a `subscription_options` default that stands in for the one
+	 * `modules/subscriptions/views.php` adds, so these tests exercise the
+	 * endpoint's contract without depending on that module being loaded.
+	 *
+	 * @return array The defaults that `get_option( 'subscription_options' )` now returns.
+	 */
+	private function register_subscription_options_default() {
+		$defaults = array(
+			// The real `invitation` default writes its anchor with single-quoted
+			// attributes. Mirrored here because wp_kses() may rewrite that quoting, so
+			// this is what exercises the endpoint normalizing both sides of the change
+			// detection rather than comparing a raw default against a sanitized echo.
+			'invitation'     => "Default invitation to <a href='https://example.org'>example.org</a>",
+			'comment_follow' => 'Default comment follow',
+			'welcome'        => 'Default welcome',
+		);
+
+		add_filter(
+			'default_option_subscription_options',
+			static function ( $default_value, $option, $passed_default ) use ( $defaults ) {
+				return $passed_default ? $default_value : $defaults;
+			},
+			10,
+			3
+		);
+
+		return $defaults;
+	}
+
+	/**
+	 * A default carrying markup must survive the round trip unchanged.
+	 *
+	 * The posted value reaches the comparison already sanitized, and wp_kses() is not
+	 * byte-preserving — it rewrites attribute quoting, and not identically across
+	 * WordPress versions. So the endpoint has to normalize the current value the same
+	 * way before comparing. Without that, `invitation` — the one default containing
+	 * markup, and so the sub-key this guard most needs to catch — never compares equal
+	 * and is persisted on every save.
+	 */
+	public function test_post_subscription_options_ignores_unchanged_default_containing_markup() {
+		$defaults = $this->register_subscription_options_default();
+
+		$setting  = wp_json_encode(
+			array( 'subscription_options' => array( 'invitation' => $defaults['invitation'] ) ),
+			JSON_UNESCAPED_SLASHES
+		);
+		$response = $this->make_post_request( $setting );
+
+		$this->assertArrayNotHasKey( 'subscription_options', $response['updated'] );
+		$this->assertFalse( get_option( 'subscription_options', false ) );
+	}
+
+	/**
+	 * Clients that render the settings form post the whole `subscription_options`
+	 * bag back, defaults included. Re-sending values the user never edited must
+	 * not create the option row: those defaults are translated at read time, so
+	 * persisting them would freeze whichever locale the form was rendered in.
+	 */
+	public function test_post_subscription_options_ignores_unchanged_defaults() {
+		$defaults = $this->register_subscription_options_default();
+
+		$setting  = wp_json_encode( array( 'subscription_options' => $defaults ), JSON_UNESCAPED_SLASHES );
+		$response = $this->make_post_request( $setting );
+
+		$this->assertArrayNotHasKey( 'subscription_options', $response['updated'] );
+		$this->assertFalse( get_option( 'subscription_options', false ) );
+	}
+
+	/**
+	 * Only the sub-key the user actually edited is persisted; the untouched
+	 * defaults posted alongside it stay out of the stored row.
+	 */
+	public function test_post_subscription_options_persists_only_changed_sub_keys() {
+		$defaults = $this->register_subscription_options_default();
+
+		$setting  = wp_json_encode(
+			array( 'subscription_options' => array_merge( $defaults, array( 'welcome' => 'My own welcome' ) ) ),
+			JSON_UNESCAPED_SLASHES
+		);
+		$response = $this->make_post_request( $setting );
+
+		$this->assertSame( array( 'welcome' => 'My own welcome' ), $response['updated']['subscription_options'] );
+		$this->assertSame( array( 'welcome' => 'My own welcome' ), get_option( 'subscription_options' ) );
+	}
+
+	/**
+	 * Re-posting the stored value unchanged is also a no-op, so a save that only
+	 * touches other settings doesn't rewrite this option.
+	 */
+	public function test_post_subscription_options_ignores_unchanged_stored_value() {
+		update_option( 'subscription_options', array( 'welcome' => 'Stored welcome' ) );
+
+		$setting  = wp_json_encode(
+			array( 'subscription_options' => array( 'welcome' => 'Stored welcome' ) ),
+			JSON_UNESCAPED_SLASHES
+		);
+		$response = $this->make_post_request( $setting );
+
+		$this->assertArrayNotHasKey( 'subscription_options', $response['updated'] );
+		$this->assertSame( array( 'welcome' => 'Stored welcome' ), get_option( 'subscription_options' ) );
+	}
+
+	/**
+	 * Once any sub-key has been saved, the option row exists without the untouched
+	 * defaults — the `default_option_subscription_options` filter only fires for a
+	 * missing row. The GET response must still expose those defaults so the form
+	 * renders the translated welcome/invitation/comment_follow text rather than
+	 * blanks.
+	 */
+	public function test_get_settings_populates_defaults_after_partial_row_saved() {
+		$defaults = $this->register_subscription_options_default();
+
+		// A prior save of a non-default sub-key leaves the row partial.
+		update_option( 'subscription_options', array( 'subscribe_modal_heading' => 'My heading' ) );
+
+		$response = $this->make_get_request();
+		$settings = $response['settings'];
+
+		$this->assertSame( $defaults['invitation'], $settings['subscription_options']['invitation'] );
+		$this->assertSame( $defaults['welcome'], $settings['subscription_options']['welcome'] );
+		$this->assertSame( $defaults['comment_follow'], $settings['subscription_options']['comment_follow'] );
+		$this->assertSame( 'My heading', $settings['subscription_options']['subscribe_modal_heading'] );
+	}
+
+	/**
+	 * The same partial-row state must not break change detection on save: re-posting
+	 * the untouched defaults alongside the stored sub-key is still a no-op, so the
+	 * translated defaults aren't frozen into the row on the next save.
+	 */
+	public function test_post_subscription_options_ignores_defaults_after_partial_row_saved() {
+		$defaults = $this->register_subscription_options_default();
+
+		update_option( 'subscription_options', array( 'subscribe_modal_heading' => 'My heading' ) );
+
+		$setting  = wp_json_encode(
+			array( 'subscription_options' => $defaults ),
+			JSON_UNESCAPED_SLASHES
+		);
+		$response = $this->make_post_request( $setting );
+
+		$this->assertArrayNotHasKey( 'subscription_options', $response['updated'] );
+		$this->assertSame( array( 'subscribe_modal_heading' => 'My heading' ), get_option( 'subscription_options' ) );
+	}
+
+	/**
+	 * Data provider of falsy `hide_free_tier` representations.
+	 *
+	 * @return array<string,array{mixed}> [ $posted_value ]
+	 */
+	public static function falsy_hide_free_tier_values() {
+		return array(
+			'boolean false' => array( false ),
+			'string false'  => array( 'false' ),
+			'string zero'   => array( '0' ),
+		);
+	}
+
+	/**
+	 * An unset `hide_free_tier` and a false one mean the same thing everywhere the
+	 * option is read, so posting a falsy flag against an unset option is a no-op
+	 * rather than a reason to create the row.
+	 *
+	 * @param mixed $posted_value The falsy value to post.
+	 * @dataProvider falsy_hide_free_tier_values
+	 */
+	#[DataProvider( 'falsy_hide_free_tier_values' )]
+	public function test_post_subscription_options_falsy_hide_free_tier_is_noop_when_unset( $posted_value ) {
+		$setting  = wp_json_encode(
+			array( 'subscription_options' => array( 'hide_free_tier' => $posted_value ) ),
+			JSON_UNESCAPED_SLASHES
+		);
+		$response = $this->make_post_request( $setting );
+
+		$this->assertArrayNotHasKey( 'subscription_options', $response['updated'] );
+		$this->assertFalse( get_option( 'subscription_options', false ) );
+	}
+
+	/**
+	 * The flag can still be turned off once it has been turned on — the no-op
+	 * above applies to "never set", not to "set to true".
+	 *
+	 * @param mixed $posted_value The falsy value to post.
+	 * @dataProvider falsy_hide_free_tier_values
+	 */
+	#[DataProvider( 'falsy_hide_free_tier_values' )]
+	public function test_post_subscription_options_falsy_hide_free_tier_clears_stored_true( $posted_value ) {
+		update_option( 'subscription_options', array( 'hide_free_tier' => true ) );
+
+		$setting  = wp_json_encode(
+			array( 'subscription_options' => array( 'hide_free_tier' => $posted_value ) ),
+			JSON_UNESCAPED_SLASHES
+		);
+		$response = $this->make_post_request( $setting );
+
+		$this->assertSame( array( 'hide_free_tier' => false ), $response['updated']['subscription_options'] );
+		$this->assertSame( array( 'hide_free_tier' => false ), get_option( 'subscription_options' ) );
 	}
 
 	/**
@@ -158,6 +454,11 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 				'example_request'  => 'https://public-api.wordpress.com/rest/v1.4/sites/en.blog.wordpress.com/settings?pretty=1',
 			)
 		);
+
+		// The API object is a shared singleton, so a preceding POST test can leave the
+		// method set to 'POST'. Set it explicitly so the GET path is exercised regardless
+		// of test order.
+		$endpoint->api->method = 'GET';
 
 		return $endpoint->callback( '/sites/%s/settings', $blog_id );
 	}
@@ -271,7 +572,8 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 					'show_on_front'                        => '(string) Whether homepage should display related posts or a static page. The expected value is \'posts\' or \'page\'.',
 					'page_on_front'                        => '(string) The page ID of the page to use as the site\'s homepage. It will apply only if \'show_on_front\' is set to \'page\'.',
 					'page_for_posts'                       => '(string) The page ID of the page to use as the site\'s posts page. It will apply only if \'show_on_front\' is set to \'page\'.',
-					'subscription_options'                 => '(array) Array of two options used in subscription email templates: \'invitation\' and \'comment_follow\' strings.',
+					'subscription_options'                 => '(array) Array of options used in subscription email templates and the Subscribe block: \'invitation\', \'welcome\', \'comment_follow\' and \'subscribe_modal_heading\' strings.',
+					'mcp_abilities'                        => '(array) List of MCP Abilities',
 				),
 
 				'response_format' => array(
@@ -296,12 +598,37 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 	 */
 	public static function setting_default_key_values() {
 		return array(
-			'woocommerce_store_address'      => array( 'woocommerce_store_address', '' ),
-			'woocommerce_store_address_2'    => array( 'woocommerce_store_address_2', '' ),
-			'woocommerce_store_city'         => array( 'woocommerce_store_city', '' ),
-			'woocommerce_default_country'    => array( 'woocommerce_default_country', '' ),
-			'woocommerce_store_postcode'     => array( 'woocommerce_store_postcode', '' ),
-			'woocommerce_onboarding_profile' => array( 'woocommerce_onboarding_profile', array() ),
+			'woocommerce_store_address'        => array( 'woocommerce_store_address', '' ),
+			'woocommerce_store_address_2'      => array( 'woocommerce_store_address_2', '' ),
+			'woocommerce_store_city'           => array( 'woocommerce_store_city', '' ),
+			'woocommerce_default_country'      => array( 'woocommerce_default_country', '' ),
+			'woocommerce_store_postcode'       => array( 'woocommerce_store_postcode', '' ),
+			'woocommerce_onboarding_profile'   => array( 'woocommerce_onboarding_profile', array() ),
+			'supports_free_tier_customization' => array( 'supports_free_tier_customization', true ),
+			// With no free tier description set, the rendered value is an empty string.
+			'free_tier_description_rendered'   => array( 'free_tier_description_rendered', '' ),
+			// Add MCP settings default
+			'mcp_abilities'                    => array(
+				'mcp_abilities',
+				array(
+					'wpcom-mcp/posts-search' => array(
+						'name'        => 'wpcom-mcp/posts-search',
+						'title'       => 'Posts search',
+						'description' => 'Search posts',
+						'category'    => 'search',
+						'type'        => 'tool',
+						'enabled'     => true,
+					),
+					'wpcom-mcp/user-sites'   => array(
+						'name'        => 'wpcom-mcp/user-sites',
+						'title'       => 'User sites',
+						'description' => 'Access user sites',
+						'category'    => 'user',
+						'type'        => 'resource',
+						'enabled'     => false,
+					),
+				),
+			),
 		);
 	}
 
@@ -318,6 +645,29 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 			'woocommerce_default_country'    => array( 'woocommerce_default_country', 'woocommerce_default_country', 'US:NY' ),
 			'woocommerce_store_postcode'     => array( 'woocommerce_store_postcode', 'woocommerce_store_postcode', '98738' ),
 			'woocommerce_onboarding_profile' => array( 'woocommerce_onboarding_profile', 'woocommerce_onboarding_profile', array( 'test' => 'test value' ) ),
+			// Add MCP settings GET test
+			'mcp_abilities'                  => array(
+				'mcp_abilities',        // option name
+				'mcp_abilities',        // setting name
+				array(
+					'wpcom-mcp/posts-search' => array(
+						'name'        => 'wpcom-mcp/posts-search',
+						'title'       => 'Posts search',
+						'description' => 'Search posts',
+						'category'    => 'search',
+						'type'        => 'tool',
+						'enabled'     => true,
+					),
+					'wpcom-mcp/user-sites'   => array(
+						'name'        => 'wpcom-mcp/user-sites',
+						'title'       => 'User sites',
+						'description' => 'Access user sites',
+						'category'    => 'user',
+						'type'        => 'resource',
+						'enabled'     => true,
+					),
+				),
+			),
 		);
 	}
 
@@ -349,6 +699,84 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 				array(
 					'invitation'     => 'Test string <a href="#">link</a>',
 					'comment_follow' => "Test string 2\n\n Other line",
+				),
+			),
+			'subscription_options heading'              => array(
+				'subscription_options',
+				array(
+					'subscribe_modal_heading' => 'Join my newsletter <a href="#">today</a>!',
+				),
+				array(
+					'subscribe_modal_heading' => 'Join my newsletter <a href="#">today</a>!',
+				),
+			),
+			'subscription_options free description'     => array(
+				'subscription_options',
+				array(
+					'free_tier_description' => '<strong>Free</strong> taste <a href="#">link</a>',
+				),
+				array(
+					// The free tier description is stored as plain markdown source, so all HTML is stripped.
+					'free_tier_description' => 'Free taste link',
+				),
+			),
+			'subscription_options hide free tier true'  => array(
+				'subscription_options',
+				array(
+					'hide_free_tier' => true,
+				),
+				array(
+					'hide_free_tier' => true,
+				),
+			),
+			// Stringy booleans must be parsed by value via is_truthy(), not by
+			// truthiness — otherwise the non-empty string "false" would be stored
+			// as `true`. These guard the WPCOM JSON API write path against regressions.
+			// The falsy counterparts live in
+			// `test_post_subscription_options_falsy_hide_free_tier_*` below, because
+			// against an unset option they are a no-op rather than a write.
+			'subscription_options hide free tier string true' => array(
+				'subscription_options',
+				array(
+					'hide_free_tier' => 'true',
+				),
+				array(
+					'hide_free_tier' => true,
+				),
+			),
+			'subscription_options hide free tier string one' => array(
+				'subscription_options',
+				array(
+					'hide_free_tier' => '1',
+				),
+				array(
+					'hide_free_tier' => true,
+				),
+			),
+			// Add MCP settings POST tests
+			'mcp_abilities valid'                       => array(
+				'mcp_abilities',
+				array(
+					'wpcom-mcp/posts-search' => 1,
+					'wpcom-mcp/user-sites'   => 0,
+				),
+				array(
+					'wpcom-mcp/posts-search' => array(
+						'name'        => 'wpcom-mcp/posts-search',
+						'title'       => 'Posts search',
+						'description' => 'Search posts',
+						'category'    => 'search',
+						'type'        => 'tool',
+						'enabled'     => true,
+					),
+					'wpcom-mcp/user-sites'   => array(
+						'name'        => 'wpcom-mcp/user-sites',
+						'title'       => 'User sites',
+						'description' => 'Access user sites',
+						'category'    => 'user',
+						'type'        => 'resource',
+						'enabled'     => false,
+					),
 				),
 			),
 		);

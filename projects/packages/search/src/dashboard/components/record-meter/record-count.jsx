@@ -1,8 +1,7 @@
-import { Gridicon } from '@automattic/jetpack-components';
 import { formatNumber } from '@automattic/number-formatters';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import React from 'react';
+import { Icon, info } from '@wordpress/icons';
 
 import './record-count.scss';
 
@@ -12,7 +11,7 @@ const DOCS_URL = 'https://jetpack.com/support/search/jetpack-search-record-meter
  * Returns record count component showing current records indexed and max records available for tier.
  *
  * @param {object} props - current record count and plan record limit.
- * @return {React.Component} record count component.
+ * @return {import('react').Component} record count component.
  */
 export function RecordCount( props ) {
 	if ( ! props.recordCount ) {
@@ -66,11 +65,7 @@ export function RecordCount( props ) {
 						className="jp-search-record-count__info"
 						title={ __( 'More info', 'jetpack-search-pkg' ) }
 					>
-						<Gridicon
-							className="jp-search-record-count__info-icon"
-							icon={ 'info-outline' }
-							size={ 18 }
-						/>
+						<Icon className="jp-search-record-count__info-icon" icon={ info } size={ 18 } />
 						<span className="screen-reader-text">{ __( 'More info', 'jetpack-search-pkg' ) }</span>
 					</a>
 				) }

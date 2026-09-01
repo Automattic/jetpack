@@ -1,4 +1,4 @@
-import type React from 'react';
+import type { InputHTMLAttributes, ReactNode, TextareaHTMLAttributes } from 'react';
 
 type InputBaseProps = {
 	/**
@@ -14,7 +14,7 @@ type InputBaseProps = {
 	/**
 	 * Input label.
 	 */
-	label?: React.ReactNode;
+	label?: ReactNode;
 
 	/**
 	 * Whether the input is loading.
@@ -24,7 +24,7 @@ type InputBaseProps = {
 	/**
 	 * Append an adornment at the end of the input.
 	 */
-	endAdornment?: React.ReactNode;
+	endAdornment?: ReactNode;
 
 	/**
 	 * Callback to be invoked when the input value changes.
@@ -37,18 +37,18 @@ type InputBaseProps = {
 	onEnter?: ( value: string ) => unknown;
 };
 
-type Input = Omit< React.InputHTMLAttributes< HTMLInputElement >, 'size' | 'onChange' > & {
+type Input = Omit< InputHTMLAttributes< HTMLInputElement >, 'size' | 'onChange' > & {
 	/**
 	 * Optional icon.
 	 */
-	icon?: React.ReactNode;
+	icon?: ReactNode;
 	/**
 	 * Input types.
 	 */
 	type?: 'text' | 'password' | 'email' | 'number' | 'search' | 'tel' | 'url';
 } & InputBaseProps;
 
-type TextArea = Omit< React.TextareaHTMLAttributes< HTMLTextAreaElement >, 'onChange' > & {
+type TextArea = Omit< TextareaHTMLAttributes< HTMLTextAreaElement >, 'onChange' > & {
 	/**
 	 * No support for icon when using textarea.
 	 */

@@ -1,23 +1,27 @@
-/**
- * External dependencies
- */
 import { useCallback } from 'react';
-/**
- * Internal dependencies
- */
+import { useNavigate } from 'react-router';
 import { MyJetpackRoutes } from '../../constants';
 import useAnalytics from '../use-analytics';
-import useMyJetpackNavigate from '../use-my-jetpack-navigate';
+import type { MouseEvent } from 'react';
 
 /**
  * Custom React hook to handle back link click with analytics.
  *
- * @param {string} slug - My Jetpack product slug.
- * @return {object}      Object with back link click handler with analytics.
+ * @param options          - Options.
+ * @param options.slug     - Product slug, recorded with the analytics event.
+ * @param options.fallback - Fallback route to navigate to when no allowed referrer
+ *                         is in history. Defaults to the My Jetpack home (`/`).
+ * @return Object with back link click handler with analytics.
  */
-export function useGoBack( { slug }: { slug: string } ) {
+export function useGoBack( {
+	slug,
+	fallback = MyJetpackRoutes.Home,
+}: {
+	slug: string;
+	fallback?: string;
+} ) {
 	const { recordEvent } = useAnalytics();
-	const navigateToMyJetpackOverviewPage = useMyJetpackNavigate( MyJetpackRoutes.Home );
+	const navigate = useNavigate();
 
 	const onClickGoBack = useCallback(
 		( event: MouseEvent ) => {
@@ -25,13 +29,30 @@ export function useGoBack( { slug }: { slug: string } ) {
 				recordEvent( 'jetpack_myjetpack_product_interstitial_back_link_click', { product: slug } );
 			}
 
-			if ( document.referrer.includes( window.location.host ) ) {
-				// Prevent default here to minimize page change within the My Jetpack app.
-				event.preventDefault();
-				navigateToMyJetpackOverviewPage();
+			event.preventDefault();
+
+			// Check if referrer is from allowed sites (current site, wordpress.com, jetpack.com)
+			const allowedReferrers = [
+				window.location.host, // Current site (internal navigation)
+				'wordpress.com', // WordPress.com auth/management
+				'jetpack.com', // Jetpack.com documentation/links
+			];
+
+			let referrerHostname = '';
+			try {
+				referrerHostname = new URL( document.referrer ).hostname;
+			} catch {
+				// If referrer is not a valid URL, leave referrerHostname as an empty string
+			}
+
+			const isFromAllowedSite = allowedReferrers.includes( referrerHostname );
+			if ( isFromAllowedSite && window.history.length > 1 ) {
+				navigate( -1 );
+			} else {
+				navigate( fallback );
 			}
 		},
-		[ recordEvent, slug, navigateToMyJetpackOverviewPage ]
+		[ slug, recordEvent, navigate, fallback ]
 	);
 
 	return { onClickGoBack };

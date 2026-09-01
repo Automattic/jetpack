@@ -1,7 +1,7 @@
 import { Modal } from '@wordpress/components';
 import { useEffect, useRef } from '@wordpress/element';
 import clsx from 'clsx';
-import React from 'react';
+import type { FC, ReactElement } from 'react';
 import './style.scss';
 
 interface Props {
@@ -10,12 +10,12 @@ interface Props {
 	title: string;
 	description: string;
 	imageSrc: string;
-	actionButtons: React.ReactElement;
+	actionButtons: ReactElement;
 	onRequestClose: () => void;
 	onOpen?: () => void;
 }
 
-const NuxModal: React.FC< Props > = ( {
+const NuxModal: FC< Props > = ( {
 	isOpen,
 	className,
 	title,

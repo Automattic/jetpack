@@ -1,7 +1,7 @@
 import { Container, Col, Text } from '@automattic/jetpack-components';
 import { Icon, Flex, FlexItem, DropdownMenu, Button } from '@wordpress/components';
 import { __, _n } from '@wordpress/i18n';
-import { moreHorizontalMobile, chevronLeft, chevronRight } from '@wordpress/icons';
+import { moreHorizontal, chevronLeft, chevronRight } from '@wordpress/icons';
 import clsx from 'clsx';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import useEvaluationRecommendations from '../../data/evaluation-recommendations/use-evaluation-recommendations';
@@ -106,7 +106,7 @@ const EvaluationRecommendations: FC = () => {
 						<DropdownMenu
 							menuProps={ { className: styles[ 'dropdown-menu' ] } }
 							popoverProps={ { position: 'bottom left' } }
-							icon={ moreHorizontalMobile }
+							icon={ moreHorizontal }
 							label={ __( 'Recommendations menu', 'jetpack-my-jetpack' ) }
 							controls={ [
 								{

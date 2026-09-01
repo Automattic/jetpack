@@ -210,43 +210,50 @@ function wpcomsh_get_rest_methods_as_array( $method ) {
 }
 
 /**
- * If this site does NOT have the 'options-permalink' feature, remove the Settings > Permalinks submenu item.
+ * Restrict selectable files in the Media uploader by setting Plupload filters only.
+ * Minimal change: selection-only; no server-side mime policy changes.
+ *
+ * @param array $options Plupload options.
+ * @return array Plupload options with restricted mime types.
  */
-function wpcomsh_maybe_remove_permalinks_menu_item() {
-	if ( wpcom_site_has_feature( WPCOM_Features::OPTIONS_PERMALINK ) ) {
-		return;
-	}
-	remove_submenu_page( 'options-general.php', 'options-permalink.php' );
-}
-add_action( 'admin_menu', 'wpcomsh_maybe_remove_permalinks_menu_item' );
+function wpcomsh_plupload_file_restrictions( $options ) {
+	$mimes_map = get_allowed_mime_types();
 
-/**
- * If this site does NOT have the 'options-permalink' feature, disable the /wp-admin/options-permalink.php page.
- * But always allow proxied users to access the permalink options page.
- */
-function wpcomsh_maybe_disable_permalink_page() {
-	if ( wpcom_site_has_feature( WPCOM_Features::OPTIONS_PERMALINK ) ) {
-		return;
-	}
-	if ( ! ( defined( 'AT_PROXIED_REQUEST' ) && AT_PROXIED_REQUEST ) ) {
-		wp_die(
-			esc_html__( 'You do not have permission to access this page.', 'wpcomsh' ),
-			'',
-			array(
-				'back_link' => true,
-				'response'  => 403,
-			)
-		);
-	} else {
-		add_action(
-			'admin_notices',
-			function () {
-				echo '<div class="notice notice-warning"><p>' . esc_html__( 'Proxied only: You can see this because you are proxied. Do not use this if you don\'t know why you are here.', 'wpcomsh' ) . '</p></div>';
+	$allowed_extensions = array();
+	$allowed_mime_types = array();
+
+	foreach ( $mimes_map as $ext_pattern => $mime ) {
+		// Extract real file extensions (filter out 'x-' prefixed ones)
+		// This prevents issues with non-standard extensions like 'x-wav' that aren't real file extensions
+		$extensions = explode( '|', $ext_pattern );
+		foreach ( $extensions as $ext ) {
+			// Only include extensions that don't start with 'x-'
+			if ( ! str_starts_with( $ext, 'x-' ) ) {
+				$allowed_extensions[] = $ext;
 			}
-		);
+		}
+
+		$allowed_mime_types[] = $mime;
 	}
+
+	if ( empty( $allowed_extensions ) ) {
+		return $options;
+	}
+
+	if ( ! isset( $options['filters'] ) || ! is_array( $options['filters'] ) ) {
+		$options['filters'] = array();
+	}
+	$options['filters']['mime_types'] = array(
+		array( 'extensions' => implode( ',', $allowed_extensions ) ),
+	);
+
+	// Store MIME types for potential use in HTML file inputs
+	$options['allowed_mime_types'] = $allowed_mime_types;
+
+	return $options;
 }
-add_action( 'load-options-permalink.php', 'wpcomsh_maybe_disable_permalink_page' );
+
+add_action( 'plupload_init', 'wpcomsh_plupload_file_restrictions' );
 
 /**
  * Restricts the allowed mime types if the site have does NOT have access to the required feature.
@@ -262,11 +269,17 @@ function wpcomsh_maybe_restrict_mimetypes( $mimes ) {
 		$disallowed_mimes          = array_merge( $disallowed_mimes, explode( ' ', $upgraded_upload_filetypes ) );
 	}
 
-	if ( ! wpcom_site_has_feature( WPCOM_Features::VIDEOPRESS ) ) {
+	// Allow video uploads if site has either VIDEOPRESS or UPLOAD_VIDEO_FILES feature.
+	// Sites with UPLOAD_VIDEO_FILES can upload videos without VideoPress (e.g. Premium plans with gating-business-q1 sticker).
+	if ( ! wpcom_site_can_upload_videos() ) {
 		// Copied from WPCOM (see `WPCOM_UPLOAD_FILETYPES_FOR_VIDEOS` in `.config/wpcom-options.php`).
-		// The `ttml` extension is set by `wp-content/mu-plugins/videopress/subtitles.php`.
-		$video_upload_filetypes = 'ogv mp4 m4v mov wmv avi mpg 3gp 3g2 ttml';
+		$video_upload_filetypes = 'ogv mp4 m4v mov wmv avi mpg 3gp 3g2';
 		$disallowed_mimes       = array_merge( $disallowed_mimes, explode( ' ', $video_upload_filetypes ) );
+	}
+
+	// TTML subtitles require VideoPress specifically (not just video upload capability).
+	if ( ! wpcom_site_has_feature( WPCOM_Features::VIDEOPRESS ) ) {
+		$disallowed_mimes[] = 'ttml';
 	}
 
 	foreach ( $disallowed_mimes as $disallowed_mime ) {
@@ -321,6 +334,16 @@ function wpcomsh_gate_footer_credit_feature() {
 	return wpcom_site_has_feature( WPCOM_Features::NO_WPCOM_BRANDING );
 }
 add_filter( 'wpcom_better_footer_credit_can_customize', 'wpcomsh_gate_footer_credit_feature' );
+
+/**
+ * Controls whether Jetpack Forms integrations feature is enabled based on site plan.
+ *
+ * @return bool
+ */
+function wpcomsh_gate_jetpack_forms_integrations() {
+	return wpcom_site_has_feature( WPCOM_Features::FORM_INTEGRATIONS );
+}
+add_filter( 'jetpack_forms_is_integrations_enabled', 'wpcomsh_gate_jetpack_forms_integrations' );
 
 /**
  * Remove the Jetpack > Dashboard menu if the site doesn't have the required feature.

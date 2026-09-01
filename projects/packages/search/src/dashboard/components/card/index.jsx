@@ -1,14 +1,11 @@
-import { Gridicon } from '@automattic/jetpack-components';
+import { Icon, external as externalIcon, chevronRight } from '@wordpress/icons';
 import clsx from 'clsx';
-import assign from 'lodash/assign';
-import omit from 'lodash/omit';
 import PropTypes from 'prop-types';
-import React from 'react';
-/*eslint lodash/import-scope: [2, "method"]*/
+import { Component, createElement } from 'react';
 
 import './style.scss';
 
-class CardSection extends React.Component {
+class CardSection extends Component {
 	static propTypes = {
 		title: PropTypes.any,
 		vertical: PropTypes.any,
@@ -43,13 +40,13 @@ class CardSection extends React.Component {
 	};
 }
 
-class CardFooter extends React.Component {
+class CardFooter extends Component {
 	render() {
 		return <div className="dops-card-footer">{ this.props.children }</div>;
 	}
 }
 
-class Card extends React.Component {
+class Card extends Component {
 	static propTypes = {
 		meta: PropTypes.any,
 		icon: PropTypes.string,
@@ -84,9 +81,9 @@ class Card extends React.Component {
 		let linkIndicator;
 		if ( this.props.href ) {
 			linkIndicator = (
-				<Gridicon
+				<Icon
 					className="dops-card__link-indicator"
-					icon={ this.props.target ? 'external' : 'chevron-right' }
+					icon={ this.props.target ? externalIcon : chevronRight }
 				/>
 			);
 		} else {
@@ -104,9 +101,14 @@ class Card extends React.Component {
 			);
 		}
 
-		return React.createElement(
+		return createElement(
 			this.props.href ? 'a' : this.props.tagName,
-			assign( omit( this.props, omitProps ), { className } ),
+			{
+				...Object.fromEntries(
+					Object.entries( this.props ).filter( ( [ k ] ) => ! omitProps.includes( k ) )
+				),
+				className,
+			},
 			linkIndicator,
 			fancyTitle,
 			this.props.children
@@ -116,9 +118,6 @@ class Card extends React.Component {
 	_renderIcon = () => {
 		return (
 			<span className="dops-card-icon" style={ { color: this.props.iconColor } }>
-				{ this.props.icon && (
-					<Gridicon icon={ this.props.icon } style={ { backgroundColor: this.props.iconColor } } />
-				) }
 				{ this.props.iconLabel }
 			</span>
 		);

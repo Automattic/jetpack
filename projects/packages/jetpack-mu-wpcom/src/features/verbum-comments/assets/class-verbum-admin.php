@@ -11,6 +11,8 @@ namespace Automattic\Jetpack;
 
 /**
  * Verbum_Admin is responsible for additional admin settings for comments.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Verbum_Admin {
 

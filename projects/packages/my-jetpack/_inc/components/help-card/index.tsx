@@ -1,0 +1,46 @@
+import { Link } from '@wordpress/ui';
+import clsx from 'clsx';
+import styles from './styles.module.scss';
+import type { ReactNode } from 'react';
+
+export type HelpCardProps = {
+	title: string;
+	icon: ReactNode;
+	headingTag?: `h${ 1 | 2 | 3 | 4 | 5 | 6 }`;
+	description?: ReactNode;
+	link?: string;
+	className?: string;
+	onClick?: () => void;
+};
+
+/**
+ * The component for displaying a help card.
+ *
+ * @param {HelpCardProps} props - The component props.
+ * @return The rendered help card component.
+ */
+export function HelpCard( {
+	icon,
+	title,
+	headingTag: Heading = 'h3',
+	description,
+	link,
+	className,
+	onClick,
+}: HelpCardProps ) {
+	return (
+		<section className={ clsx( styles.wrapper, className ) }>
+			{ icon ? <div className={ styles.icon }>{ icon }</div> : null }
+			<Heading className={ styles.heading }>
+				{ link ? (
+					<Link openInNewTab href={ link } onClick={ onClick }>
+						{ title }
+					</Link>
+				) : (
+					title
+				) }
+			</Heading>
+			{ description ? <p className={ styles.description }>{ description }</p> : null }
+		</section>
+	);
+}

@@ -15,6 +15,10 @@ use Automattic\Jetpack\Status\Host;
 use Jetpack_Gutenberg;
 use WP_Block_Template;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 require_once __DIR__ . '/class-sharing-source-block.php';
 require_once __DIR__ . '/components/social-icons.php';
 
@@ -50,6 +54,11 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
  * @return string
  */
 function render_block( $attr, $content, $block ) {
+	$services = get_services();
+	if ( ! isset( $attr['service'] ) || ! array_key_exists( $attr['service'], $services ) ) {
+		return $content;
+	}
+
 	$service_name = $attr['service'];
 	$title        = $attr['label'] ?? $service_name;
 	$icon         = get_social_logo( $service_name );
@@ -60,11 +69,6 @@ function render_block( $attr, $content, $block ) {
 		$service_name,
 		$post_id
 	);
-
-	$services = get_services();
-	if ( ! array_key_exists( $service_name, $services ) ) {
-		return $content;
-	}
 
 	$service      = new $services[ $service_name ]( $service_name, array() );
 	$link_props   = $service->get_link(
@@ -81,7 +85,7 @@ function render_block( $attr, $content, $block ) {
 
 	$accessible_name = sprintf(
 		/* translators: %s refers to a string representation of sharing service, e.g. Facebook */
-		esc_html__( 'Click to share on %s', 'jetpack' ),
+		esc_html__( 'Share on %s', 'jetpack' ),
 		esc_html( $title )
 	);
 
@@ -166,7 +170,6 @@ function get_services() {
 		'twitter'   => Share_Twitter_Block::class,
 		'tumblr'    => Share_Tumblr_Block::class,
 		'pinterest' => Share_Pinterest_Block::class,
-		'pocket'    => Share_Pocket_Block::class,
 		'telegram'  => Share_Telegram_Block::class,
 		'threads'   => Share_Threads_Block::class,
 		'whatsapp'  => Jetpack_Share_WhatsApp_Block::class,
@@ -198,10 +201,8 @@ function sharing_process_requests() {
 			return;
 		}
 
-		$service = new $services[ ( $service_name ) ]( $service_name, array() ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( $service ) {
-			$service->process_request( $post, $_POST ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
-		}
+		$service = new $services[ ( $service_name ) ]( $service_name, array() );
+		$service->process_request( $post, $_POST ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
 	}
 }
 

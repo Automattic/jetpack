@@ -1,6 +1,7 @@
-import React, { useLayoutEffect, useRef } from 'react';
+import { useLayoutEffect, useRef } from 'react';
 import styles from './globals.module.scss';
 import { ThemeInstance, ThemeProviderProps } from './types.ts';
+import type { FC, ReactNode } from 'react';
 
 export const typography = {
 	// Headline
@@ -112,9 +113,9 @@ const setup = ( root: HTMLElement, id: string, withGlobalStyles?: boolean ) => {
  * ThemeProvider React component.
  *
  * @param {ThemeProviderProps} props - Component properties.
- * @return {React.ReactNode}        ThemeProvider component.
+ * @return {ReactNode}        ThemeProvider component.
  */
-const ThemeProvider: React.FC< ThemeProviderProps > = ( {
+const ThemeProvider: FC< ThemeProviderProps > = ( {
 	children = null,
 	targetDom,
 	id,

@@ -1,8 +1,14 @@
-import { Button, Gridicon, getProductCheckoutUrl } from '@automattic/jetpack-components';
-import { ExternalLink, Popover } from '@wordpress/components';
+import { getProductCheckoutUrl } from '@automattic/jetpack-components';
+import {
+	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	Button,
+	Popover,
+} from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { createInterpolateElement, useCallback, useRef, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
+import { closeSmall, info } from '@wordpress/icons';
+import { Link } from '@wordpress/ui';
 import useAnalytics from '../../../hooks/useAnalytics';
 import { STORE_ID } from '../../../store';
 import './style.scss';
@@ -45,27 +51,17 @@ const StorageHelpPopover = ( { className, forecastInDays } ) => {
 		true
 	);
 
-	const forecastStatement = sprintf(
-		/* translators: %d: is number of days of the forecast */
-		_n(
-			'Based on the current size of your site, Jetpack will save <strong>%d day of full backup</strong>.',
-			'Based on the current size of your site, Jetpack will save <strong>%d days of full backups</strong>.',
-			forecastInDays,
-			'jetpack-backup-pkg'
-		),
-		forecastInDays
-	);
 	return (
 		<span className={ className }>
 			<Button
-				size="small"
-				variant="tertiary"
-				className="backup-storage-space__toggle-popover"
+				__next40pxDefaultSize
+				icon={ info }
+				label={ __( 'Backup archive size', 'jetpack-backup-pkg' ) }
 				onClick={ toggleHelpPopover }
 				ref={ popover }
-			>
-				<Gridicon icon="info-outline" size={ 20 } />
-			</Button>
+				size="small"
+				className="backup-storage-space__help-popover"
+			/>
 			{ isPopoverVisible && (
 				<Popover
 					className="backup-storage-space__popover"
@@ -73,19 +69,30 @@ const StorageHelpPopover = ( { className, forecastInDays } ) => {
 					context={ popover.current }
 					noArrow={ false }
 				>
+					<Button
+						__next40pxDefaultSize
+						className="backup-storage-space__close-popover"
+						icon={ closeSmall }
+						onClick={ toggleHelpPopover }
+						label={ __( 'Close', 'jetpack-backup-pkg' ) }
+					/>
 					<h3> { __( 'Backup archive size', 'jetpack-backup-pkg' ) }</h3>
 					<p>
-						{ createInterpolateElement( forecastStatement, {
-							strong: <strong />,
-						} ) }
-						<Button
-							size="small"
-							variant="tertiary"
-							className="backup-storage-space__close-popover"
-							onClick={ toggleHelpPopover }
-						>
-							<Gridicon icon="cross" size={ 18 } />
-						</Button>
+						{ createInterpolateElement(
+							sprintf(
+								/* translators: %d: is number of days of the forecast */
+								_n(
+									'Based on the current size of your site, Jetpack will save <strong>%d day of full backup</strong>.',
+									'Based on the current size of your site, Jetpack will save <strong>%d days of full backups</strong>.',
+									forecastInDays,
+									'jetpack-backup-pkg'
+								),
+								forecastInDays
+							),
+							{
+								strong: <strong />,
+							}
+						) }
 					</p>
 					<p>
 						{ createInterpolateElement(
@@ -95,12 +102,15 @@ const StorageHelpPopover = ( { className, forecastInDays } ) => {
 							),
 							{
 								link: (
-									<ExternalLink href="https://jetpack.com/support/backup/jetpack-vaultpress-backup-storage-and-retention/#reduce-storage-size" />
+									<Link
+										openInNewTab
+										href="https://jetpack.com/support/backup/jetpack-vaultpress-backup-storage-and-retention/#reduce-storage-size"
+									/>
 								),
 							}
 						) }
 					</p>
-					<div className="backup-storage-space__button-section">
+					<HStack justify="flex-end" className="backup-storage-space__button-section">
 						<Button
 							variant="primary"
 							href={ storageUpgradeUrl }
@@ -108,7 +118,7 @@ const StorageHelpPopover = ( { className, forecastInDays } ) => {
 						>
 							{ __( 'Add more storage', 'jetpack-backup-pkg' ) }
 						</Button>
-					</div>
+					</HStack>
 				</Popover>
 			) }
 		</span>

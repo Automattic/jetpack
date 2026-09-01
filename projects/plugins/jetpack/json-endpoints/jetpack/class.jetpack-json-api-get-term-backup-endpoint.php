@@ -1,9 +1,15 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Get Term backup endpoint class.
  *
  * /sites/%s/terms/%d/backup      -> $blog_id, $term_id
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Jetpack_JSON_API_Get_Term_Backup_Endpoint extends Jetpack_JSON_API_Endpoint {
 

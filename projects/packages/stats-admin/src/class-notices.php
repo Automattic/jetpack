@@ -53,7 +53,8 @@ class Notices {
 					'id'            => $id,
 					'status'        => $status,
 					'postponed_for' => $postponed_for,
-				)
+				),
+				JSON_UNESCAPED_SLASHES
 			),
 			'wpcom'
 		);

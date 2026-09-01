@@ -15,10 +15,13 @@ use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
+use Automattic\Jetpack\Connection\REST_Jetpack_AI_JWT;
 use Automattic\Jetpack\Constants as Jetpack_Constants;
 use Automattic\Jetpack\ExPlat;
 use Automattic\Jetpack\JITMS\JITM;
 use Automattic\Jetpack\Licensing;
+use Automattic\Jetpack\Menu_Badges\Menu_Badges;
+use Automattic\Jetpack\Menu_Badges\Notification_Counts;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Plugins_Installer;
 use Automattic\Jetpack\Status;
@@ -26,6 +29,7 @@ use Automattic\Jetpack\Status\Host as Status_Host;
 use Automattic\Jetpack\Sync\Functions as Sync_Functions;
 use Automattic\Jetpack\Terms_Of_Service;
 use Automattic\Jetpack\Tracking;
+use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 use Jetpack;
 use WP_Error;
 
@@ -39,7 +43,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '5.14.5';
+	const PACKAGE_VERSION = '6.0.0';
 
 	/**
 	 * HTML container ID for the IDC screen on My Jetpack page.
@@ -95,17 +99,15 @@ class Initializer {
 		add_action( 'admin_menu', array( __CLASS__, 'add_my_jetpack_menu_item' ) );
 
 		add_action( 'admin_init', array( __CLASS__, 'setup_historically_active_jetpack_modules_sync' ) );
-		// This is later than the admin-ui package, which runs on 1000
-		add_action( 'admin_init', array( __CLASS__, 'maybe_show_red_bubble' ), 1001 );
+		// Registered on admin_menu (not admin_init) and well before priority 100000, so the
+		// counts it registers exist before the menu-badges renderer runs on admin_menu 100000.
+		add_action( 'admin_menu', array( __CLASS__, 'maybe_show_red_bubble' ), 30 );
 
 		// Set up the ExPlat package endpoints
 		ExPlat::init();
 
 		// Sets up JITMS.
 		JITM::configure();
-
-		// Add "Activity Log" menu item.
-		Activitylog::init();
 
 		// Add "Jetpack Manage" menu item.
 		Jetpack_Manage::init();
@@ -179,17 +181,21 @@ class Initializer {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- No nonce needed for redirect flow control
 		$step = isset( $_GET['step'] ) ? sanitize_text_field( wp_unslash( $_GET['step'] ) ) : '';
 
-		// If the user is not connected, redirect to the onboarding page
-		if ( ! $connection->is_connected() && $step !== 'onboarding' ) {
-			$admin_page = add_query_arg(
-				array(
-					'page' => 'my-jetpack',
-					'step' => 'onboarding',
-				),
-				admin_url( 'admin.php' )
-			);
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Checking for partner coupon redemption flow
+		$show_coupon_redemption = isset( $_GET['showCouponRedemption'] );
 
-			$location = wp_sanitize_redirect( $admin_page );
+		// Redirect to Jetpack dashboard for partner coupon redemption
+		if ( $show_coupon_redemption ) {
+			wp_safe_redirect( admin_url( 'admin.php?page=jetpack&showCouponRedemption=1#/dashboard' ) );
+			exit( 0 );
+		}
+
+		// Handle onboarding redirects based on connection status
+		$redirect_args = self::get_onboarding_redirect_args( $step, $connection->is_connected(), self::is_onboarding_available() );
+
+		if ( null !== $redirect_args ) {
+			$admin_page = add_query_arg( $redirect_args, admin_url( 'admin.php' ) );
+			$location   = wp_sanitize_redirect( $admin_page );
 
 			// Remove wp_get_referer filter applied in `fix_redirect` method of `Jetpack_Admin` class
 			remove_filter( 'wp_redirect', 'wp_get_referer' );
@@ -206,10 +212,48 @@ class Initializer {
 		self::$site_info = self::get_site_info();
 		add_filter( 'identity_crisis_container_id', array( static::class, 'get_idc_container_id' ) );
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_scripts' ) );
-		// Product statuses are constantly changing, so we never want to cache the page.
-		header( 'Cache-Control: no-cache, no-store, must-revalidate' );
-		header( 'Pragma: no-cache' );
-		header( 'Expires: 0' );
+	}
+
+	/**
+	 * Whether the My Jetpack onboarding flow is available on this site.
+	 *
+	 * WordPress.com Simple sites are connected by definition and don't manage their
+	 * connection through My Jetpack, so the onboarding flow (which asks the user to
+	 * connect) never applies there.
+	 *
+	 * @internal Not part of the package's public API.
+	 *
+	 * @return bool
+	 */
+	public static function is_onboarding_available() {
+		return ! ( new Status_Host() )->is_wpcom_simple();
+	}
+
+	/**
+	 * Decide whether the current My Jetpack request should redirect, and where to.
+	 *
+	 * @internal Not part of the package's public API.
+	 *
+	 * @param string $step                 The current `step` query param.
+	 * @param bool   $is_connected         Whether the site is connected to WordPress.com.
+	 * @param bool   $onboarding_available Whether the onboarding flow is available on this site.
+	 * @return array|null Query args for the redirect, or null to stay on the current page.
+	 */
+	public static function get_onboarding_redirect_args( $step, $is_connected, $onboarding_available ) {
+		if ( $onboarding_available && ! $is_connected && $step !== 'onboarding' ) {
+			// Redirect to onboarding if not connected
+			return array(
+				'page' => 'my-jetpack',
+				'step' => 'onboarding',
+			);
+		}
+
+		if ( $step === 'onboarding' && ( ! $onboarding_available || $is_connected ) ) {
+			// Redirect away from onboarding if already connected or onboarding is not available on this site
+			return array( 'page' => 'my-jetpack' );
+		}
+
+		return null;
 	}
 
 	/**
@@ -237,11 +281,41 @@ class Initializer {
 	}
 
 	/**
+	 * Register polyfills for the wp-notices / wp-private-apis / wp-rich-text / wp-theme
+	 * handles the My Jetpack app bundle depends on but WP < 7.0 does not ship (or ships
+	 * with an incomplete allowlist).
+	 *
+	 * `wp-rich-text` is needed because the bundle reaches `@wordpress/dataviews` (via
+	 * `@wordpress/ui`), whose dataform controls unlock rich-text's `privateApis` at module
+	 * scope. WP 6.9 exports none, so without the polyfill the bundle throws "Cannot unlock
+	 * an undefined object" and the page renders blank.
+	 *
+	 * @return void
+	 */
+	public static function register_wp_build_polyfills() {
+		if ( ! class_exists( WP_Build_Polyfills::class ) ) {
+			return;
+		}
+
+		WP_Build_Polyfills::register(
+			'my-jetpack',
+			array( 'wp-notices', 'wp-private-apis', 'wp-rich-text', 'wp-theme' )
+		);
+	}
+
+	/**
 	 * Enqueue admin page assets.
 	 *
 	 * @return void
 	 */
 	public static function enqueue_scripts() {
+		// Register the wp-build-polyfills shim before the extension hook below or
+		// the app script can enqueue against wp-theme / wp-private-apis / wp-notices.
+		// WP_Build_Polyfills registers synchronously on its first caller, so calling
+		// it after a hook consumer would leave our handles recorded but unregistered
+		// for this request.
+		self::register_wp_build_polyfills();
+
 		/**
 		 * Fires after the My Jetpack page is initialized.
 		 * Allows for enqueuing additional scripts only on the My Jetpack page.
@@ -249,6 +323,7 @@ class Initializer {
 		 * @since 4.35.7
 		 */
 		do_action( 'myjetpack_enqueue_scripts' );
+		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'add_script_data' ) );
 		Assets::register_script(
 			'my_jetpack_main_app',
 			'../build/index.js',
@@ -316,7 +391,9 @@ class Initializer {
 				'sandboxedDomain'        => $sandboxed_domain,
 				'isDevVersion'           => $is_dev_version,
 				'isAtomic'               => ( new Status_Host() )->is_woa_site(),
+				'isJetpackPluginActive'  => class_exists( 'Jetpack' ),
 				'latestBoostSpeedScores' => $latest_score,
+				'seoOptIn'               => self::get_seo_opt_in_state(),
 			)
 		);
 
@@ -339,6 +416,27 @@ class Initializer {
 	}
 
 	/**
+	 * Add My Jetpack data to the unified script data object.
+	 *
+	 * @param array $data The script data.
+	 * @return array
+	 */
+	public static function add_script_data( $data ) {
+		$block_availability = class_exists( '\Jetpack_Gutenberg' )
+			? \Jetpack_Gutenberg::get_cached_availability()
+			: array();
+
+		$data['myJetpack']['siteEditor'] = array(
+			'isBlockTheme'            => function_exists( 'wp_is_block_theme' ) && wp_is_block_theme(),
+			'isSharingBlockAvailable' => isset( $block_availability['sharing-buttons'] )
+				&& $block_availability['sharing-buttons']['available'],
+			'activeThemeStylesheet'   => get_stylesheet(),
+		);
+
+		return $data;
+	}
+
+	/**
 	 * Get installed Jetpack plugins
 	 *
 	 * @return array
@@ -348,9 +446,6 @@ class Initializer {
 		$plugin_slugs = array_map(
 			static function ( $slug ) {
 				$parts = explode( '/', $slug );
-				if ( empty( $parts ) ) {
-					return '';
-				}
 				// Return the last segment of the filepath without the PHP extension
 				return str_replace( '.php', '', $parts[ count( $parts ) - 1 ] );
 			},
@@ -405,9 +500,6 @@ class Initializer {
 		$plugin_slugs              = array_map(
 			static function ( $slug ) {
 				$parts = explode( '/', $slug );
-				if ( empty( $parts ) ) {
-					return '';
-				}
 				// Return the last segment of the filepath without the PHP extension
 				return str_replace( '.php', '', $parts[ count( $parts ) - 1 ] );
 			},
@@ -436,9 +528,56 @@ class Initializer {
 		$flags = array(
 			'videoPressStats'          => Jetpack_Constants::is_true( 'JETPACK_MY_JETPACK_VIDEOPRESS_STATS_ENABLED' ),
 			'showFullJetpackStatsCard' => class_exists( 'Jetpack' ),
+			// Only says which destination `manage_url` is: the legacy Stats page
+			// caches its report and wants a `force_refresh` hint the dashboard does not.
+			'premiumAnalyticsEnabled'  => Products\Stats::is_premium_analytics_enabled(),
+			// Pre-release gate: only internal testing environments get the AI
+			// card's module toggle. The helper lives in the Jetpack plugin, so
+			// standalone installs resolve to false. Remove when the AI settings
+			// page goes public.
+			'showAiModuleToggle'       => function_exists( 'jetpack_is_internal_testing_environment' ) && jetpack_is_internal_testing_environment(),
 		);
 
 		return $flags;
+	}
+
+	/**
+	 * Build the state the My Jetpack "try the new SEO experience" opt-in card hydrates from.
+	 *
+	 * The card invites an existing self-hosted install to switch over to the new Jetpack SEO
+	 * dashboard (JETPACK-1700). Gating lives server-side, where the signals actually are. The
+	 * card shows only when all of:
+	 *
+	 * - the new SEO product is available — the `rsm_jetpack_seo` feature filter is on (the SEO
+	 *   package autoloads regardless, so `class_exists()` alone isn't enough; the filter is the
+	 *   real availability switch and the same one the SEO package gates its own surface behind);
+	 * - the site is self-hosted — WordPress.com (Simple + Atomic) decides its own SEO surface, so
+	 *   the opt-in card is for self-hosted installs only;
+	 * - the install hasn't opted in yet — `jetpack_seo_surface_visible` is still false. On wpcom
+	 *   the SEO package's `is_seo_surface_visible()` short-circuits to `true`, so the
+	 *   "not visible yet" check also doubles as the self-hosted guard, but we check the platform
+	 *   explicitly for clarity.
+	 *
+	 * Referenced through `class_exists()` rather than a hard composer dependency: both packages
+	 * ship inside the Jetpack plugin and the SEO surface is feature-flagged, so a guarded read of
+	 * its public API keeps this from adding plumbing to consumers that don't load SEO.
+	 *
+	 * The on-success destination is computed by the opt-in endpoint itself; we only seed the card
+	 * with the same admin URL so the button has a sensible fallback before the request resolves.
+	 *
+	 * @return array{showCard: bool, redirect: string}
+	 */
+	public static function get_seo_opt_in_state() {
+		// Guard with method_exists rather than class_exists: an older bundled SEO package can ship
+		// the Initializer class without this method, and class_exists alone would still fatal.
+		$seo_initializer = 'Automattic\Jetpack\SEO\Initializer';
+		// @phan-suppress-next-line PhanUndeclaredClassReference -- optional SEO package, guarded by method_exists.
+		$show_card = method_exists( $seo_initializer, 'is_optin_available' ) && $seo_initializer::is_optin_available();
+
+		return array(
+			'showCard' => $show_card,
+			'redirect' => admin_url( 'admin.php?page=jetpack-seo' ),
+		);
 	}
 
 	/**
@@ -447,8 +586,12 @@ class Initializer {
 	 * @return void
 	 */
 	public static function admin_page() {
-		$step          = isset( $_GET['step'] ) ? sanitize_text_field( wp_unslash( $_GET['step'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$is_onboarding = $step === 'onboarding';
+		$step = isset( $_GET['step'] ) ? sanitize_text_field( wp_unslash( $_GET['step'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+
+		// No connection check needed here: admin_init() has already redirected connected users away from onboarding.
+		// Availability IS re-checked on purpose: this render can run even when that redirect did not,
+		// and the check below is what keeps the onboarding route off WordPress.com Simple sites.
+		$is_onboarding = $step === 'onboarding' && self::is_onboarding_available();
 
 		// Add data attribute for onboarding, otherwise render normal container
 		echo '<div id="my-jetpack-container" ' . ( $is_onboarding ? 'data-route="onboarding"' : '' ) . '></div>';
@@ -463,7 +606,7 @@ class Initializer {
 		new REST_Products();
 		new REST_Purchases();
 		new REST_Zendesk_Chat();
-		new REST_AI();
+		( new REST_Jetpack_AI_JWT() )->register_rest_route();
 		new REST_Recommendations_Evaluation();
 
 		Products::register_product_endpoints();
@@ -509,10 +652,6 @@ class Initializer {
 	 */
 	public static function should_initialize() {
 		$should = true;
-
-		if ( is_multisite() ) {
-			$should = false;
-		}
 
 		// All options presented in My Jetpack require a connection to WordPress.com.
 		if ( ( new Status() )->is_offline_mode() ) {
@@ -638,7 +777,7 @@ class Initializer {
 	}
 
 	/**
-	 * Returns true if the site has file write access to the plugins folder, false otherwise.
+	 * Returns "yes" if the site has file write access to the plugins folder, "no" otherwise.
 	 *
 	 * @return string
 	 **/
@@ -663,7 +802,7 @@ class Initializer {
 			$write_access = 'yes';
 		}
 
-		if ( ! $write_access ) {
+		if ( 'no' === $write_access ) {
 			ob_start();
 			$filesystem_credentials_are_stored = request_filesystem_credentials( self_admin_url() );
 			ob_end_clean();
@@ -688,40 +827,107 @@ class Initializer {
 	}
 
 	/**
-	 * Conditionally append the red bubble notification to the "Jetpack" menu item if there are alerts to show
+	 * Conditionally append the red bubble notification to the "Jetpack" menu item if there are alerts to show.
+	 *
+	 * On My Jetpack page: Uses blocking behavior to fetch fresh data.
+	 * On other admin pages: Uses cached data only to avoid blocking, with async JS fetch if cache is empty.
 	 *
 	 * @return void
 	 */
 	public static function maybe_show_red_bubble() {
-		global $menu;
+		global $pagenow;
 
 		// Don't show red bubble alerts for non-admin users
 		// These alerts are generally only actionable for admins
 		if ( ! current_user_can( 'manage_options' ) ) {
 			return;
 		}
-		$rbn = new Red_Bubble_Notifications();
 
-		// filters for the items in this file
-		add_filter( 'my_jetpack_red_bubble_notification_slugs', array( $rbn, 'add_red_bubble_alerts' ) );
+		// Don't show any red bubbles when Jetpack is disconnected
+		// Users can't act on most alerts without a connection
+		$connection = new Connection_Manager();
+		if ( ! $connection->is_connected() ) {
+			return;
+		}
+
+		// Check if we're on the My Jetpack page.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$page               = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '';
+		$is_my_jetpack_page = $pagenow === 'admin.php' && $page === 'my-jetpack';
+
+		if ( $is_my_jetpack_page ) {
+			// On My Jetpack page: use blocking behavior for fresh data.
+			add_filter( 'my_jetpack_red_bubble_notification_slugs', array( Red_Bubble_Notifications::class, 'add_red_bubble_alerts' ) );
+			$red_bubble_alerts = Red_Bubble_Notifications::get_red_bubble_alerts();
+		} else {
+			// On other pages: use cached data only to avoid blocking.
+			$cached_alerts = Red_Bubble_Notifications::get_cached_alerts();
+
+			if ( false === $cached_alerts ) {
+				// No cache: warm it asynchronously via JS. Register a hidden zero-count
+				// placeholder so Menu_Renderer emits a `my-jetpack` badge element the
+				// warmer can reveal (see async-notification-bubble.ts) without a reload.
+				Menu_Badges::init(); // idempotent; wires the renderer.
+				Notification_Counts::register(
+					'my-jetpack',
+					array(
+						'menu_slug' => 'my-jetpack',
+						'count'     => 0,
+						'type'      => 'count',
+					)
+				);
+				add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_red_bubble_script' ) );
+				return;
+			}
+
+			$red_bubble_alerts = $cached_alerts;
+		}
+
+		// Filter out silent alerts.
 		$red_bubble_alerts = array_filter(
-			$rbn::get_red_bubble_alerts(),
+			$red_bubble_alerts,
 			function ( $alert ) {
-				// We don't want to show the red bubble for silent alerts
 				return empty( $alert['is_silent'] );
 			}
 		);
 
-		// The Jetpack menu item should be on index 3
-		if (
-			! empty( $red_bubble_alerts ) &&
-			is_countable( $red_bubble_alerts ) &&
-			isset( $menu[3] ) &&
-			$menu[3][0] === 'Jetpack'
-		) {
-			// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-			$menu[3][0] .= sprintf( ' <span class="awaiting-mod">%d</span>', count( $red_bubble_alerts ) );
+		// Report each non-silent alert to the central menu-badges registry as an
+		// attention entry (count 1). The registry + renderer own the badge.
+		Menu_Badges::init(); // idempotent; wires the renderer.
+		foreach ( array_keys( $red_bubble_alerts ) as $slug ) {
+			// Protect reports its own count directly to the registry, but only when its
+			// standalone plugin is active (see class-jetpack-protect.php::admin_page_init()).
+			// If the standalone plugin isn't active, nobody else registers this count, so we
+			// must not skip it here or the alert silently disappears from the menu total.
+			if ( 'protect_has_threats' === $slug && Products\Protect::is_standalone_plugin_active() ) {
+				continue;
+			}
+			Notification_Counts::register(
+				'my-jetpack-' . $slug,
+				array(
+					'menu_slug' => 'my-jetpack',
+					'type'      => 'attention',
+				)
+			);
 		}
+	}
+
+	/**
+	 * Enqueue the notification bubble script.
+	 * Fetches fresh alert data via REST API without blocking page load.
+	 *
+	 * @return void
+	 */
+	public static function enqueue_red_bubble_script() {
+		Assets::register_script(
+			'my-jetpack-notification-bubble',
+			'../build/async-notification-bubble.js',
+			__FILE__,
+			array(
+				'enqueue'   => true,
+				'in_footer' => true,
+			)
+		);
 	}
 
 	/**

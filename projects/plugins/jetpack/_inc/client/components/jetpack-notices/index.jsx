@@ -2,9 +2,9 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
-import React from 'react';
+import { Component } from 'react';
 import { connect } from 'react-redux';
-import { useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router';
 import { SocialLogo } from 'social-logos';
 import ConnectionBanner from 'components/connection-banner';
 import NoticesList from 'components/global-notices';
@@ -22,7 +22,6 @@ import {
 	hasConnectedOwner,
 } from 'state/connection';
 import {
-	isWoASite,
 	isDevVersion,
 	userCanConnectAccount,
 	userCanConnectSite,
@@ -37,7 +36,7 @@ import JetpackConnectionErrors from './jetpack-connection-errors';
 import PlanConflictWarning from './plan-conflict-warning';
 import JetpackStateNotices from './state-notices';
 
-export class DevVersionNotice extends React.Component {
+export class DevVersionNotice extends Component {
 	static displayName = 'DevVersionNotice';
 
 	render() {
@@ -63,7 +62,7 @@ DevVersionNotice.propTypes = {
 	userIsSubscriber: PropTypes.bool.isRequired,
 };
 
-export class OfflineModeNotice extends React.Component {
+export class OfflineModeNotice extends Component {
 	static displayName = 'OfflineModeNotice';
 
 	render() {
@@ -72,12 +71,12 @@ export class OfflineModeNotice extends React.Component {
 				reasons = [];
 
 			if ( offlineMode.filter ) {
-				reasons.push( __( 'The jetpack_development_mode filter is active', 'jetpack' ) );
+				reasons.push( __( 'The jetpack_offline_mode filter is active', 'jetpack' ) );
 			}
 			if ( offlineMode.constant ) {
 				reasons.push(
 					sprintf(
-						/* translators: placeholder is a constant, such as WP_LOCAL_DEV. */
+						/* translators: %s: a PHP constant, such as WP_LOCAL_DEV. */
 						__( 'The %s constant is defined', 'jetpack' ),
 						'JETPACK_DEV_DEBUG'
 					)
@@ -86,7 +85,7 @@ export class OfflineModeNotice extends React.Component {
 			if ( offlineMode.wpLocalConstant ) {
 				reasons.push(
 					sprintf(
-						/* translators: placeholder is a constant, such as WP_LOCAL_DEV. */
+						/* translators: %s: a PHP constant, such as WP_LOCAL_DEV. */
 						__( 'The %s constant is defined', 'jetpack' ),
 						'WP_LOCAL_DEV'
 					)
@@ -143,7 +142,7 @@ OfflineModeNotice.propTypes = {
 	siteOfflineMode: PropTypes.oneOfType( [ PropTypes.bool, PropTypes.object ] ).isRequired,
 };
 
-export class UserUnlinked extends React.Component {
+export class UserUnlinked extends Component {
 	static displayName = 'UserUnlinked';
 
 	render() {
@@ -176,7 +175,7 @@ UserUnlinked.propTypes = {
 	siteConnected: PropTypes.bool.isRequired,
 };
 
-class JetpackNotices extends React.Component {
+class JetpackNotices extends Component {
 	static displayName = 'JetpackNotices';
 
 	dismissNotice = noticeKey => {
@@ -272,7 +271,6 @@ export default connect(
 			isConnectionOwner: isConnectionOwner( state ),
 			isLinked: isCurrentUserLinked( state ),
 			isDevVersion: isDevVersion( state ),
-			isWoASite: isWoASite( state ),
 			siteOfflineMode: getSiteOfflineMode( state ),
 			isInIdentityCrisis: isInIdentityCrisis( state ),
 			connectionErrors: getConnectionErrors( state ),

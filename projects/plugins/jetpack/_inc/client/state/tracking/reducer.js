@@ -1,4 +1,3 @@
-import { assign } from 'lodash';
 import { combineReducers } from 'redux';
 import {
 	USER_TRACKING_SETTINGS_FETCH,
@@ -17,10 +16,10 @@ export const initialRequestsState = {
 export const items = ( state = {}, action ) => {
 	switch ( action.type ) {
 		case USER_TRACKING_SETTINGS_FETCH_SUCCESS:
-			return assign( {}, state, action.settings );
+			return Object.assign( {}, state, action.settings );
 
 		case USER_TRACKING_SETTINGS_UPDATE_SUCCESS:
-			return assign( {}, state, action.updatedSettings );
+			return Object.assign( {}, state, action.updatedSettings );
 
 		default:
 			return state;
@@ -30,24 +29,24 @@ export const items = ( state = {}, action ) => {
 export const requests = ( state = initialRequestsState, action ) => {
 	switch ( action.type ) {
 		case USER_TRACKING_SETTINGS_FETCH:
-			return assign( {}, state, {
+			return Object.assign( {}, state, {
 				fetchingTrackingSettings: true,
 			} );
 
 		case USER_TRACKING_SETTINGS_FETCH_FAIL:
 		case USER_TRACKING_SETTINGS_FETCH_SUCCESS:
-			return assign( {}, state, {
+			return Object.assign( {}, state, {
 				fetchingTrackingSettings: false,
 			} );
 
 		case USER_TRACKING_SETTINGS_UPDATE:
-			return assign( {}, state, {
+			return Object.assign( {}, state, {
 				updatingTrackingSettings: true,
 			} );
 
 		case USER_TRACKING_SETTINGS_UPDATE_FAIL:
 		case USER_TRACKING_SETTINGS_UPDATE_SUCCESS:
-			return assign( {}, state, {
+			return Object.assign( {}, state, {
 				updatingTrackingSettings: false,
 			} );
 

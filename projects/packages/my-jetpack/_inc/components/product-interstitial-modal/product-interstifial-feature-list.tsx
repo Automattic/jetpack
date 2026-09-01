@@ -1,9 +1,9 @@
 import { Text } from '@automattic/jetpack-components';
 import { Icon, check } from '@wordpress/icons';
 import clsx from 'clsx';
-import { type FC } from 'react';
 import LoadingBlock from '../loading-block';
 import styles from './style.module.scss';
+import type { FC, ReactElement } from 'react';
 
 interface ProductInterstitialFeatureListProps {
 	/**
@@ -24,7 +24,7 @@ interface ProductInterstitialFeatureListProps {
  * Component that renders a list of features for the product interstitial
  *
  * @param {ProductInterstitialFeatureListProps} props - Component properties
- * @return {React.ReactElement} The rendered component
+ * @return {ReactElement} The rendered component
  */
 const ProductInterstitialFeatureList: FC< ProductInterstitialFeatureListProps > = ( {
 	features,

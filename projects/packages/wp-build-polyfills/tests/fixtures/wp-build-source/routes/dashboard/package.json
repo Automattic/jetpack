@@ -1,0 +1,9 @@
+{
+	"name": "@automattic/_strip-unminified-prod-fixture-dashboard-route",
+	"version": "0.0.0",
+	"private": true,
+	"route": {
+		"path": "/",
+		"page": "strip-fixture-page"
+	}
+}

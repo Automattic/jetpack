@@ -1,9 +1,8 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
-import { noop } from 'lodash';
 import PropTypes from 'prop-types';
-import React, { Component } from 'react';
+import { Component } from 'react';
 import { connect } from 'react-redux';
 import Button from 'components/button';
 import Card from 'components/card';
@@ -25,6 +24,8 @@ const SEARCH_DESCRIPTION = __(
 );
 const SEARCH_CUSTOMIZE_CTA = __( 'Customize your Search experience.', 'jetpack' );
 const SEARCH_SUPPORT = __( 'Search supports many customizations.', 'jetpack' );
+
+const noop = () => {};
 
 /**
  * Displays a card for Search based on the props given.

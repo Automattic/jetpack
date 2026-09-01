@@ -11,6 +11,10 @@ use Automattic\Jetpack\Partner_Coupon as Jetpack_Partner_Coupon;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Build the Jetpack admin menu as a whole.
  */
@@ -29,11 +33,6 @@ class Jetpack_Admin {
 	 * @return self
 	 */
 	public static function init() {
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		if ( isset( $_GET['page'] ) && 'jetpack' === $_GET['page'] ) {
-			add_filter( 'nocache_headers', array( 'Jetpack_Admin', 'add_no_store_header' ), 100 );
-		}
-
 		if ( self::$instance === null ) {
 			self::$instance = new Jetpack_Admin();
 		}
@@ -43,10 +42,12 @@ class Jetpack_Admin {
 	/**
 	 * Filter callback to add `no-store` to the `Cache-Control` header.
 	 *
+	 * @deprecated 14.9
 	 * @param array $headers Headers array.
 	 * @return array Modified headers array.
 	 */
 	public static function add_no_store_header( $headers ) {
+		_deprecated_function( __METHOD__, '14.9' );
 		$headers['Cache-Control'] .= ', no-store';
 		return $headers;
 	}
@@ -62,14 +63,17 @@ class Jetpack_Admin {
 		require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class-jetpack-about-page.php';
 		$jetpack_about = new Jetpack_About_Page();
 
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class-jetpack-ai-page.php';
+		$jetpack_ai = new Jetpack_AI_Page();
+
 		add_action( 'admin_init', array( $jetpack_react, 'react_redirects' ), 0 );
 		add_action( 'admin_menu', array( $jetpack_react, 'add_actions' ), 998 );
 		add_action( 'admin_menu', array( $jetpack_react, 'remove_jetpack_menu' ), 2000 );
-		add_action( 'jetpack_admin_menu', array( $jetpack_react, 'jetpack_add_dashboard_sub_nav_item' ) );
 		add_action( 'jetpack_admin_menu', array( $jetpack_react, 'jetpack_add_settings_sub_nav_item' ) );
 		add_action( 'jetpack_admin_menu', array( $this, 'admin_menu_debugger' ) );
 		add_action( 'jetpack_admin_menu', array( $fallback_page, 'add_actions' ) );
 		add_action( 'jetpack_admin_menu', array( $jetpack_about, 'add_actions' ) );
+		add_action( 'jetpack_admin_menu', array( $jetpack_ai, 'add_actions' ) );
 
 		// Add redirect to current page for activation/deactivation of modules.
 		add_action( 'jetpack_pre_activate_module', array( $this, 'fix_redirect' ), 10, 2 );
@@ -96,6 +100,13 @@ class Jetpack_Admin {
 				// Add an Anti-spam menu item for Jetpack. This is handled automatically by the Admin_Menu as long as it has been initialized.
 				Admin_Menu::init();
 			}
+
+			// Render the unified Jetpack header/footer chrome on Akismet's admin pages by
+			// consuming Akismet's `akismet_header` / `akismet_footer` action hooks. This does
+			// not modify the Akismet plugin; it only registers callbacks on its own hooks.
+			require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class-akismet-admin-chrome.php';
+			$akismet_admin_chrome = new Akismet_Admin_Chrome();
+			$akismet_admin_chrome->init_hooks();
 		}
 
 		// Ensure an Additional CSS menu item is added to the Appearance menu whenever Jetpack is connected.
@@ -105,6 +116,17 @@ class Jetpack_Admin {
 
 		// Register Jetpack partner coupon hooks.
 		Jetpack_Partner_Coupon::register_coupon_admin_hooks( 'jetpack', Jetpack::admin_url() );
+
+		// Remove default WordPress admin footer on Jetpack pages only.
+		add_filter( 'admin_footer_text', array( $this, 'maybe_remove_admin_footer_text' ) );
+		add_filter( 'update_footer', array( $this, 'maybe_remove_admin_footer_version' ), 11 );
+		add_filter( 'admin_body_class', array( $this, 'add_jetpack_admin_body_class' ) );
+		add_action( 'admin_head', array( $this, 'add_footer_removal_styles' ) );
+
+		// Make WPDS design tokens resolve at runtime on the legacy/wrap_ui Jetpack
+		// admin pages (Dashboard, Settings, Debugger) that don't ship their own
+		// `:root{--wpds-*}` source. Delegates to Admin_Menu's shared enqueue API.
+		add_action( 'admin_enqueue_scripts', array( $this, 'maybe_enqueue_design_tokens' ) );
 	}
 
 	/**
@@ -300,7 +322,7 @@ class Jetpack_Admin {
 				 *
 				 * @since 3.5.0
 				 *
-				 * @param string The search terms (comma separated).
+				 * @param string The search terms (comma-separated).
 				 */
 				echo apply_filters( 'jetpack_search_terms_' . $module, $module_array['additional_search_queries'] ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				$module_array['search_terms'] = ob_get_clean();
@@ -433,7 +455,7 @@ class Jetpack_Admin {
 		 */
 		if ( ( new Status() )->is_offline_mode() ) {
 			if ( $module['requires_connection'] || $module['requires_user_connection'] ) {
-				return __( 'Offline mode', 'jetpack' );
+				return __( 'Unavailable in Offline mode', 'jetpack' );
 			}
 		}
 
@@ -545,7 +567,13 @@ class Jetpack_Admin {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			die( '-1' );
 		}
-		Jetpack_Admin_Page::wrap_ui( array( $this, 'debugger_page' ), array( 'is-wide' => true ) );
+		Jetpack_Admin_Page::wrap_ui(
+			array( $this, 'debugger_page' ),
+			array(
+				'is-wide'  => true,
+				'show-nav' => false,
+			)
+		);
 	}
 
 	/**
@@ -579,6 +607,109 @@ class Jetpack_Admin {
 		}
 
 		return $value;
+	}
+
+	/**
+	 * Check if we're on a Jetpack admin page.
+	 *
+	 * Similar to how WooCommerce checks for its admin pages by comparing
+	 * against known screen ID patterns.
+	 *
+	 * @return bool True if on a Jetpack admin page, false otherwise.
+	 */
+	private function is_jetpack_admin_page() {
+		$screen = get_current_screen();
+		if ( ! $screen ) {
+			return false;
+		}
+
+		// Check for Jetpack admin pages:
+		// - toplevel_page_jetpack (main Jetpack menu page)
+		// - toplevel_page_jetpack-network (Jetpack Network Admin menu page)
+		// - jetpack_page_* (Jetpack submenu pages)
+		// - admin_page_jetpack* (legacy/special Jetpack pages)
+		// Or check if parent_base is 'jetpack' or 'jetpack-network' (submenu pages)
+		return (
+		$screen->id === 'toplevel_page_jetpack' ||
+		$screen->id === 'toplevel_page_jetpack-network' ||
+		str_starts_with( $screen->id, 'jetpack_page_' ) ||
+		str_starts_with( $screen->id, 'admin_page_jetpack' ) ||
+		$screen->parent_base === 'jetpack' ||
+		$screen->parent_base === 'jetpack-network'
+		);
+	}
+
+	/**
+	 * Add a body class to Jetpack admin pages.
+	 *
+	 * @param string $classes Space-separated list of CSS classes.
+	 * @return string Modified class list.
+	 */
+	public function add_jetpack_admin_body_class( $classes ) {
+		if ( $this->is_jetpack_admin_page() ) {
+			return trim( $classes ) . ' jetpack-admin-page ';
+		}
+		return $classes;
+	}
+
+	/**
+	 * Add inline styles to remove footer padding on Jetpack pages.
+	 *
+	 * This needs to be inline because jetpack-admin.css is not loaded on
+	 * React-powered admin pages (they use load_wrapper_styles instead).
+	 */
+	public function add_footer_removal_styles() {
+		if ( ! $this->is_jetpack_admin_page() ) {
+			return;
+		}
+		echo '<style>.jetpack-admin-page #wpbody-content { padding-bottom: 0; } .jetpack-admin-page #wpfooter { display: none; }</style>';
+	}
+
+	/**
+	 * Enqueues the shared WPDS design-tokens stylesheet on the legacy/wrap_ui pages.
+	 *
+	 * This is the admin_enqueue_scripts callback for the legacy Jetpack admin
+	 * pages. The admin-ui package owns the handle and enqueues it on the
+	 * modernized dashboards it registers; the legacy/wrap_ui pages (Dashboard,
+	 * Settings, Debugger) aren't registered through Admin_Menu, so we cover them
+	 * here via the central is_jetpack_admin_page() gate. The actual enqueue is
+	 * delegated to the reusable Admin_Menu::enqueue_design_tokens() API so there
+	 * is a single owner of the handle and no duplicated register/enqueue logic.
+	 *
+	 * @return void
+	 */
+	public function maybe_enqueue_design_tokens() {
+		if ( ! $this->is_jetpack_admin_page() ) {
+			return;
+		}
+
+		// Guard against an older admin-ui being loaded ahead of this one by the
+		// package autoloader's version-precedence resolution.
+		if ( ! method_exists( Admin_Menu::class, 'enqueue_design_tokens' ) ) {
+			return;
+		}
+
+		Admin_Menu::enqueue_design_tokens();
+	}
+
+	/**
+	 * Remove the admin footer text on Jetpack pages.
+	 *
+	 * @param string $content The default footer text.
+	 * @return string Empty string on Jetpack pages, original content otherwise.
+	 */
+	public function maybe_remove_admin_footer_text( $content ) {
+		return $this->is_jetpack_admin_page() ? '' : $content;
+	}
+
+	/**
+	 * Remove the admin footer version on Jetpack pages.
+	 *
+	 * @param string $content The default footer version text.
+	 * @return string Empty string on Jetpack pages, original content otherwise.
+	 */
+	public function maybe_remove_admin_footer_version( $content ) {
+		return $this->is_jetpack_admin_page() ? '' : $content;
 	}
 }
 Jetpack_Admin::init();

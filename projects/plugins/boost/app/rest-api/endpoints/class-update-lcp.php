@@ -63,22 +63,54 @@ class Update_LCP implements Endpoint {
 			return $api_successful;
 		}
 
-		// @TODO: handle bad payload coming from the Cloud.
-
-		// Update each page.
+		$update_errors = array();
+		$applied       = 0;
 		foreach ( $pages as $entry ) {
-			// Mark the page as successfully analyzed as we don't know what to do if mobile fails but desktop succeeds.
-			$state->set_page_success( $entry['key'] );
+			if ( $entry['success'] ) {
+				$result = $state->set_page_success( $entry['key'] );
+			} else {
+				$errors = array();
+				foreach ( $entry['reports'] as $report ) {
+					if ( isset( $report['success'] ) && false === $report['success'] && ! empty( $report['data'] ) ) {
+						$errors[] = $report['data'];
+					}
+				}
 
-			// Store the LCP data for this page.
+				$result = $state->set_page_errors( $entry['key'], $errors );
+			}
+
+			if ( is_wp_error( $result ) ) {
+				// Strip CR/LF from the cloud-controlled key so a malicious signed payload can't
+				// forge extra log lines (CWE-117).
+				$safe_key        = str_replace( array( "\r", "\n" ), ' ', (string) $entry['key'] );
+				$update_errors[] = $safe_key . ': ' . $result->get_error_message();
+				continue;
+			}
+
+			++$applied;
+
+			// Persist the raw LCP reports only for a key that actually applied to the state. Storing
+			// a rejected key (a page removed from the cornerstone list, or a late/duplicate callback
+			// after a reset) would orphan reports in jb_store_lcp that the render path later serves
+			// with no matching lcp_state entry to gate them.
 			$storage->store_lcp( $entry['key'], $entry['reports'] );
 
 			// Failures must have an array of urls.
 			// @TODO: figure out what to do with failures.
 		}
 
-		// Save the state changes.
-		$state->save();
+		if ( ! empty( $update_errors ) ) {
+			error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				'Jetpack Boost: LCP update could not apply results to the stored state: ' . implode( '; ', $update_errors )
+			);
+		}
+
+		// Only persist the aggregate state when at least one result actually applied. If every
+		// update failed (e.g. the stored state was reset to the not_analyzed fallback and has no
+		// matching pages), saving would just re-persist that empty state over the good data.
+		if ( $applied > 0 ) {
+			$state->save();
+		}
 
 		return $api_successful;
 	}

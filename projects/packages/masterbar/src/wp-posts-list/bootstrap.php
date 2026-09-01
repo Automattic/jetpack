@@ -7,6 +7,10 @@
 
 namespace Automattic\Jetpack\Masterbar;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Load the Posts_List_Notification.
  */

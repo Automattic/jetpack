@@ -1,0 +1,84 @@
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+
+.tab-panel {
+
+	max-width: var(--max-container-width);
+	margin: 0 auto;
+
+	:global(.components-tab-panel__tabs) {
+		position: relative;
+		z-index: 1;
+		padding-inline-start: 24px;
+		margin-block-end: -1px;
+
+		@media (max-width: gb.$break-medium ) {
+			padding-inline-start: 0.5rem;
+		}
+	}
+}
+
+.tab-content-wrapper {
+	padding-block-start: 2.5rem;
+	padding-inline: 3rem;
+
+	@media (max-width: gb.$break-medium ) {
+		padding-inline: 1.5rem;
+	}
+
+	h2 {
+
+		@include gb.heading-2x-large;
+		margin-top: 0;
+		margin-bottom: 0.5rem;
+	}
+}
+
+.full-width-separator {
+	border-top: 1px solid var(--jp-gray);
+}
+
+@mixin full-width-container {
+	max-width: var(--max-container-width);
+	margin: 0 auto;
+}
+
+// The content surface TabPanel renders inside its
+// `.components-tab-panel__tab-content`: an off-white band with the inner
+// content centered. Shared so the single-section path (rendered without
+// TabPanel) matches the tabbed layout exactly.
+@mixin tab-content-surface {
+	background-color: #fcfcfc;
+
+	.my-jetpack-tab-panel-inner {
+
+		@include full-width-container;
+	}
+}
+
+// Single-section view: rendered directly, without a TabPanel wrapper.
+.single-tab-content {
+
+	@include tab-content-surface;
+}
+
+.my-jetpack-tab-panel--full-width {
+
+	width: 100%;
+	max-width: none;
+	margin: 0;
+
+	:global(.components-tab-panel__tabs) {
+		// @TODO: remove this once we can keep tabs consistent looking with core
+		// colors.
+		--wp-admin-theme-color: var(--jp-black);
+		--wp-admin-theme-color-darker-10: var(--jp-black-80);
+		--wp-admin-theme-color-darker-20: var(--jp-black-80);
+
+		padding-inline-start: 24px;
+	}
+
+	:global(.components-tab-panel__tab-content) {
+
+		@include tab-content-surface;
+	}
+}

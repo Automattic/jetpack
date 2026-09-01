@@ -1,8 +1,8 @@
 import { ProgressBar } from '@automattic/jetpack-components';
-import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import React, { useEffect, useCallback, useMemo } from 'react';
+import { Link } from '@wordpress/ui';
+import { Fragment, useEffect, useCallback, useMemo } from 'react';
 import { connect } from 'react-redux';
 import Button from 'components/button';
 import analytics from 'lib/analytics';
@@ -28,7 +28,6 @@ import { PromptLayout } from '../prompt-layout';
  * Similar to Feature prompt, but a resource/ link is provided instead of a feature to enable.
  *
  * @param {object} props - Component props.
- * @function Object() { [native code] }
  * @return {Element} - A react component.
  */
 const ResourcePromptComponent = props => {
@@ -133,15 +132,13 @@ const ResourcePromptComponent = props => {
 					? createInterpolateElement( description, {
 							br: <br />,
 							strong: <strong />,
-							ExternalLink: (
-								<ExternalLink href={ descriptionLink } onClick={ onExternalLinkClick } />
-							),
+							Link: <Link openInNewTab href={ descriptionLink } onClick={ onExternalLinkClick } />,
 					  } )
 					: null
 			}
 			content={
 				descriptionList || descriptionSecondary ? (
-					<React.Fragment>
+					<Fragment>
 						{ descriptionList && (
 							<ul className="jp-recommendations-question__description-list">
 								{ descriptionList.map( ( item, index ) => (
@@ -152,7 +149,7 @@ const ResourcePromptComponent = props => {
 						{ descriptionSecondary && (
 							<p className="jp-recommendations-question__description">{ descriptionSecondary }</p>
 						) }
-					</React.Fragment>
+					</Fragment>
 				) : null
 			}
 			answer={
@@ -160,14 +157,15 @@ const ResourcePromptComponent = props => {
 					{ ! hasNoAction ? (
 						<>
 							{ ctaLinkIsExternal ? (
-								<ExternalLink
+								<Link
+									openInNewTab
 									type="button"
 									className="dops-button is-rna is-primary"
 									href={ ctaLink }
 									onClick={ onResourceLinkClick }
 								>
 									{ ctaText }
-								</ExternalLink>
+								</Link>
 							) : (
 								<Button rna primary href={ ctaLink } onClick={ onResourceLinkClick } va>
 									{ ctaText }

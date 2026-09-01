@@ -47,7 +47,7 @@ class Admin_Post_List_Column {
 	 */
 	public function __construct() {
 		// Add an icon to see stats in WordPress.com for a particular post.
-		add_action( 'admin_print_styles-edit.php', array( $this, 'stats_load_admin_css' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'stats_load_admin_css' ) );
 
 		add_filter( 'manage_posts_columns', array( $this, 'add_stats_post_table' ) );
 		add_filter( 'manage_pages_columns', array( $this, 'add_stats_post_table' ) );
@@ -60,16 +60,19 @@ class Admin_Post_List_Column {
 	 * Load CSS needed for Stats column width in WP-Admin area.
 	 *
 	 * @since 4.7.0
+	 * @since 0.33.0 Added the `$hook_suffix` parameter.
+	 *
+	 * @param string $hook_suffix The current admin page.
 	 */
-	public function stats_load_admin_css() {
-		?>
-		<style type="text/css">
-			.fixed .column-stats {
-				width: 5em;
-				white-space: nowrap;
-			}
-		</style>
-		<?php
+	public function stats_load_admin_css( $hook_suffix = '' ) {
+		if ( 'edit.php' !== $hook_suffix ) {
+			return;
+		}
+
+		wp_add_inline_style(
+			'common',
+			'.wp-list-table.fixed .column-stats { width: 9em; white-space: nowrap; }'
+		);
 	}
 
 	/**
@@ -123,6 +126,19 @@ class Admin_Post_List_Column {
 					);
 				}
 
+				/**
+				 * Filters where the post list table's views column links to.
+				 *
+				 * Lets a newer analytics dashboard claim the entry point without this
+				 * package knowing about it.
+				 *
+				 * @since 0.34.0
+				 *
+				 * @param string $stats_post_url Stats URL for the post.
+				 * @param int    $post_id        The post the row belongs to.
+				 */
+				$stats_post_url = apply_filters( 'jetpack_stats_post_list_column_url', $stats_post_url, $post_id );
+
 				static $post_views = null;
 
 				/**
@@ -166,6 +182,17 @@ class Admin_Post_List_Column {
 	 * @return mixed
 	 */
 	public function add_stats_post_table( $columns ) {
+		// Skip stats column for non-public post types when screen info is available.
+		if ( function_exists( 'get_current_screen' ) ) {
+			$screen = get_current_screen();
+			if ( $screen && $screen->post_type ) {
+				$post_type_object = get_post_type_object( $screen->post_type );
+				if ( $post_type_object && ! $post_type_object->public ) {
+					return $columns;
+				}
+			}
+		}
+
 		/**
 		 * The manage_options capability is a fallback for Simple.
 		 * This should be updated with a proper fix. Implemented based on this PR: https://github.com/Automattic/jetpack/pull/41549.
@@ -199,8 +226,16 @@ class Admin_Post_List_Column {
 			$pos = count( $columns );
 		}
 
+		// If comments position is 0, then prepend the element at the beginning of the array.
+		if ( 0 === $pos ) {
+			return array_merge(
+				array( 'stats' => esc_html__( 'Views: 30 days', 'jetpack-stats-admin' ) ),
+				$columns
+			);
+		}
+
 		$chunks             = array_chunk( $columns, $pos, true );
-		$chunks[0]['stats'] = esc_html__( 'Stats', 'jetpack-stats-admin' );
+		$chunks[0]['stats'] = esc_html__( 'Views: 30 days', 'jetpack-stats-admin' );
 
 		return call_user_func_array( 'array_merge', $chunks );
 	}
@@ -213,11 +248,13 @@ class Admin_Post_List_Column {
 	public function get_post_page_views_for_current_list(): array {
 		global $wp_query;
 
-		if ( ! $wp_query->posts ) {
+		if ( $wp_query->posts ) {
+			$post_ids = wp_list_pluck( $wp_query->posts, 'ID' );
+		} elseif ( wp_doing_ajax() && ! empty( $_POST['action'] ) && 'inline-save' === $_POST['action'] && ! empty( $_POST['post_ID'] ) && check_ajax_referer( 'inlineeditnonce', '_inline_edit' ) ) {
+			$post_ids = array( absint( wp_unslash( $_POST['post_ID'] ) ) );
+		} else {
 			return array();
 		}
-
-		$post_ids = wp_list_pluck( $wp_query->posts, 'ID' );
 
 		$wpcom_stats = $this->get_stats();
 		$post_views  = $wpcom_stats->get_total_post_views(

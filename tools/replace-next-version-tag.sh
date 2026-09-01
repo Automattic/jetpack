@@ -2,7 +2,7 @@
 
 set -eo pipefail
 
-BASE=$(cd $(dirname "${BASH_SOURCE[0]}")/.. && pwd)
+BASE=$(cd "$(dirname "${BASH_SOURCE[0]}")"/.. && pwd)
 . "$BASE/tools/includes/check-osx-bash-version.sh"
 . "$BASE/tools/includes/chalk-lite.sh"
 . "$BASE/tools/includes/proceed_p.sh"
@@ -21,6 +21,9 @@ function usage {
 		   Other WordPress deprecation functions also work. The call must be on one
 		   line, indented with tabs, and the '$$next-version$$' token must be in a
 		   single-quoted string.
+		 - `_doing_it_wrong( ..., ..., '$$next-version$$' )`
+		   The call must be on one line, indented with tabs, and the '$$next-version$$'
+		   token must be in a single-quoted string as the third parameter.
 	EOH
 	exit 1
 }
@@ -89,10 +92,12 @@ for FILE in $(git ls-files "projects/$SLUG/"); do
 	rm "$FILE.bak" # We need a backup file because macOS requires it.
 	sed -i.bak -E -e $'s!((do_action|apply_filters)_deprecated\\( .*, \'[^\']*)\\$\\$next-version\\$\\$\'!\\1'"$VE"$'\'!g' "$FILE"
 	rm "$FILE.bak" # We need a backup file because macOS requires it.
+	sed -i.bak -E -e $'s!(^\t*_doing_it_wrong\\( .*, .*, \'[^\']*)\\$\\$next-version\\$\\$\'!\\1'"$VE"$'\'!g' "$FILE"
+	rm "$FILE.bak" # We need a backup file because macOS requires it.
 
 	if grep -F -q '$$next-version$$' "$FILE"; then
 		EXIT=1
-		while IFS=':' read -r LINE DUMMY; do
+		while IFS=':' read -r LINE _; do
 			if [[ -n "$CI" ]]; then
 				echo "::error file=$FILE,line=$LINE::"'Unexpected `$$next-version$$` token.'
 			else

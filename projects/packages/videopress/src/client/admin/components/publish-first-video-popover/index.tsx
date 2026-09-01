@@ -16,13 +16,13 @@ import styles from './styles.module.scss';
  * Types
  */
 import { PublishFirstVideoPopoverProps } from './types';
-import type React from 'react';
+import type { ReactNode } from 'react';
 
 /**
  * Publish First Video Popover component
  *
  * @param {PublishFirstVideoPopoverProps} props - Component props.
- * @return {React.ReactNode} - PublishFirstVideoPopover react component.
+ * @return {ReactNode} - PublishFirstVideoPopover react component.
  */
 const PublishFirstVideoPopover = ( {
 	id,

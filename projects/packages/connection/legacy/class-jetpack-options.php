@@ -57,7 +57,7 @@ class Jetpack_Options {
 					'site_icon_url',               // (string) url to the full site icon
 					'site_icon_id',                // (int)    Attachment id of the site icon file
 					'dismissed_manage_banner',     // (bool) Dismiss Jetpack manage banner allows the user to dismiss the banner permanently
-					'unique_connection',           // (array)  A flag to determine a unique connection to wordpress.com two values "connected" and "disconnected" with values for how many times each has occured
+					'unique_connection',           // (array)  A flag to determine a unique connection to wordpress.com two values "connected" and "disconnected" with values for how many times each has occurred
 					'unique_registrations',        // (integer) A counter of how many times the site was registered
 					'protect_whitelist',           // (array) IP Address for the Protect module to ignore
 					'sync_error_idc',              // (bool|array) false or array containing the site's home and siteurl at time of IDC error
@@ -92,6 +92,7 @@ class Jetpack_Options {
 			'id',                                  // (int)    The Client ID/WP.com Blog ID of this site.
 			'publicize_connections',               // (array)  An array of Publicize connections from WordPress.com.
 			'master_user',                         // (int)    The local User ID of the user who connected this site to jetpack.wordpress.com.
+			'protected_owner',                     // (array)  Anchor identifying the locked connection owner. WordPress.com is authoritative; this is a local cache. Keys: wpcom_user_id, email, local_user_id, locked, confirmed_at, confirmed_by.
 			'version',                             // (string) Used during upgrade procedure to auto-activate new modules. version:time.
 			'old_version',                         // (string) Used to determine which modules are the most recently added. previous_version:time.
 			'fallback_no_verify_ssl_certs',        // (int)    Flag for determining if this host must skip SSL Certificate verification due to misconfigured SSL.
@@ -125,6 +126,7 @@ class Jetpack_Options {
 			'identity_crisis_url_secret',          // (array) The IDC URL secret and its expiration date.
 			'identity_crisis_ip_requester',        // (array) The IDC IP address and its expiration date.
 			'dismissed_welcome_banner',            // (bool) Determines if the welcome banner has been dismissed or not.
+			'dismissed_a4a_banner',                // (bool) Determines if the Automattic for Agencies banner has been dismissed or not.
 			'recommendations_evaluation',          // (object) Catalog of recommended modules with corresponding score following successful site evaluation in Welcome Banner.
 			'dismissed_recommendations',           // (bool) Determines if the recommendations have been dismissed or not.
 			'recommendations_first_run',           // (bool) Determines if the current recommendations are the initial default auto-loaded ones (without user input).
@@ -193,6 +195,17 @@ class Jetpack_Options {
 	 * @return mixed
 	 */
 	public static function get_option( $name, $default = false ) {
+		// Check if external storage should be used for this option
+		if ( self::should_use_external_storage( $name ) ) {
+			// Try external storage
+			if ( class_exists( 'Automattic\Jetpack\Connection\External_Storage' ) ) {
+				$external_value = \Automattic\Jetpack\Connection\External_Storage::get_value( $name );
+				if ( null !== $external_value ) {
+					return $external_value;
+				}
+			}
+		}
+
 		/**
 		 * Filter Jetpack Options.
 		 * Can be useful in environments when Jetpack is running with a different setup
@@ -204,6 +217,31 @@ class Jetpack_Options {
 		 * @return string $value, unless the filters modify it.
 		 */
 		return apply_filters( 'jetpack_options', self::get_option_from_database( $name, $default ), $name );
+	}
+
+	/**
+	 * Checks whether an option has a stored value, distinguishing an absent option from one stored
+	 * as a falsy value. Reads from the same storage as `get_option` (external storage or database)
+	 * but does not apply the `jetpack_options` filter, so a filter override is not mistaken for a
+	 * stored value.
+	 *
+	 * @since 8.11.0
+	 *
+	 * @param string $name Option name. It must come _without_ `jetpack_%` prefix.
+	 *
+	 * @return bool Whether the option is stored.
+	 */
+	public static function option_exists( $name ) {
+		if ( self::should_use_external_storage( $name )
+			&& class_exists( 'Automattic\Jetpack\Connection\External_Storage' )
+			&& null !== \Automattic\Jetpack\Connection\External_Storage::get_value( $name )
+		) {
+			return true;
+		}
+
+		// A value no caller would ever store, so getting it back means the option is absent.
+		$sentinel = '__jetpack_option_absent__';
+		return $sentinel !== self::get_option_from_database( $name, $sentinel );
 	}
 
 	/**
@@ -230,6 +268,34 @@ class Jetpack_Options {
 		}
 
 		return $default;
+	}
+
+	/**
+	 * Options that can be stored in external storage.
+	 *
+	 * @since 6.18.0
+	 *
+	 * @var array
+	 */
+	private static $external_storage_allowlist = array( 'blog_token', 'id', 'master_user', 'protected_owner', 'user_tokens' );
+
+	/**
+	 * Determines if external storage should be used for a given option.
+	 * Simple allowlist check with global killswitch.
+	 *
+	 * @since 6.17.0
+	 *
+	 * @param string $name Option name, _without_ `jetpack_%` prefix.
+	 * @return bool True if external storage should be checked for this option.
+	 */
+	private static function should_use_external_storage( $name ) {
+		// Check allowlist and global killswitch
+		if ( ! in_array( $name, self::$external_storage_allowlist, true ) ||
+			( defined( 'JETPACK_EXTERNAL_STORAGE_DISABLED' ) && constant( 'JETPACK_EXTERNAL_STORAGE_DISABLED' ) ) ) {
+			return false;
+		}
+
+		return true;
 	}
 
 	/**
@@ -296,8 +362,8 @@ class Jetpack_Options {
 		 * @since 1.1.2
 		 * @since-jetpack 3.0.0
 		 *
-		 * @param str $name The name of the option being updated.
-		 * @param mixed $value The new value of the option.
+		 * @param string $name The name of the option being updated.
+		 * @param mixed  $value The new value of the option.
 		 */
 		do_action( 'pre_update_jetpack_option_' . $name, $name, $value );
 		if ( self::is_valid( $name, 'non_compact' ) ) {
@@ -565,6 +631,7 @@ class Jetpack_Options {
 			$unsafe_options = array(
 				'id',                           // (int)    The Client ID/WP.com Blog ID of this site.
 				'master_user',                  // (int)    The local User ID of the user who connected this site to jetpack.wordpress.com.
+				'protected_owner',              // (array)  Anchor identifying the locked connection owner. Resetting it would unlock ownership while the connection survives.
 				'version',                      // (string) Used during upgrade procedure to auto-activate new modules. version:time
 
 				// non_compact.

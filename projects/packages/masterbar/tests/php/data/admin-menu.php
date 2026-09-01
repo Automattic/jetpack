@@ -451,12 +451,6 @@ function get_submenu_fixture() {
 		),
 		'jetpack'                              => array(
 			1 => array(
-				'Dashboard',
-				'jetpack_admin_page',
-				'jetpack#/dashboard',
-				'Dashboard',
-			),
-			2 => array(
 				'Settings',
 				'jetpack_admin_page',
 				'jetpack#/settings',

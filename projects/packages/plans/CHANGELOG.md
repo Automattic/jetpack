@@ -5,6 +5,69 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.13.0] - 2026-08-26
+### Removed
+- Minimum supported PHP version is now 7.4. [#51515]
+
+### Fixed
+- Stop deleting and rewriting the plan and product options when the stored value is unchanged. [#51146]
+
+## [0.12.0] - 2026-08-11
+### Added
+- Add update_from_site_record() to set the cached plan and products from a decoded site record. [#51057]
+
+## [0.11.9] - 2026-06-08
+### Changed
+- Internal updates.
+
+## [0.11.8] - 2026-06-05
+### Changed
+- Internal updates.
+
+## [0.11.7] - 2026-06-01
+### Changed
+- Revert Choose plan tier recognition added in #48806; the experiment is being rolled back. [#49276]
+
+## [0.11.6] - 2026-05-19
+### Changed
+- Internal updates.
+
+## [0.11.5] - 2026-05-14
+### Changed
+- Add "Choose" plan slugs to `PLAN_DATA`. [#48806]
+
+## [0.11.4] - 2026-05-04
+### Changed
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+
+## [0.11.3] - 2026-02-23
+### Changed
+- Update dependencies.
+
+## [0.11.2] - 2026-02-02
+### Changed
+- Update dependencies.
+
+## [0.11.1] - 2025-12-08
+### Fixed
+- Ensure proper flags are used with `json_encode()`. [#46092]
+
+## [0.11.0] - 2025-12-01
+### Changed
+- Add form-webhooks support on free Jetpack plans. [#46059]
+
+## [0.10.0] - 2025-08-06
+### Added
+- Plan features: add Social Image Generator [#44661]
+
+## [0.9.1] - 2025-08-04
+### Changed
+- Internal updates.
+
+## [0.9.0] - 2025-07-21
+### Added
+- Forms: Include multistep form in Jetpack and WordPress.com plans. [#44309]
+
 ## [0.8.0] - 2025-05-05
 ### Added
 - Forms: Add feature/block field-file support to Personal and Complete plans. [#43177]
@@ -210,6 +273,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Deprecated
 - Moved the options class into Connection. [#24095]
 
+[0.13.0]: https://github.com/Automattic/jetpack-plans/compare/v0.12.0...v0.13.0
+[0.12.0]: https://github.com/Automattic/jetpack-plans/compare/v0.11.9...v0.12.0
+[0.11.9]: https://github.com/Automattic/jetpack-plans/compare/v0.11.8...v0.11.9
+[0.11.8]: https://github.com/Automattic/jetpack-plans/compare/v0.11.7...v0.11.8
+[0.11.7]: https://github.com/Automattic/jetpack-plans/compare/v0.11.6...v0.11.7
+[0.11.6]: https://github.com/Automattic/jetpack-plans/compare/v0.11.5...v0.11.6
+[0.11.5]: https://github.com/Automattic/jetpack-plans/compare/v0.11.4...v0.11.5
+[0.11.4]: https://github.com/Automattic/jetpack-plans/compare/v0.11.3...v0.11.4
+[0.11.3]: https://github.com/Automattic/jetpack-plans/compare/v0.11.2...v0.11.3
+[0.11.2]: https://github.com/Automattic/jetpack-plans/compare/v0.11.1...v0.11.2
+[0.11.1]: https://github.com/Automattic/jetpack-plans/compare/v0.11.0...v0.11.1
+[0.11.0]: https://github.com/Automattic/jetpack-plans/compare/v0.10.0...v0.11.0
+[0.10.0]: https://github.com/Automattic/jetpack-plans/compare/v0.9.1...v0.10.0
+[0.9.1]: https://github.com/Automattic/jetpack-plans/compare/v0.9.0...v0.9.1
+[0.9.0]: https://github.com/Automattic/jetpack-plans/compare/v0.8.0...v0.9.0
 [0.8.0]: https://github.com/Automattic/jetpack-plans/compare/v0.7.1...v0.8.0
 [0.7.1]: https://github.com/Automattic/jetpack-plans/compare/v0.7.0...v0.7.1
 [0.7.0]: https://github.com/Automattic/jetpack-plans/compare/v0.6.1...v0.7.0

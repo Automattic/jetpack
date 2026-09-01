@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+RTC: add a jetpack_rtc_join Tracks event recording transport and contributors when a client joins a room

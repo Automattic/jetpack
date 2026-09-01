@@ -161,12 +161,12 @@ if ( ! class_exists( 'Tonesque' ) ) {
 			* Sample five points in the image
 			* based on rule of thirds and center.
 			*/
-			$topy    = round( $height / 3 );
-			$bottomy = round( ( $height / 3 ) * 2 );
-			$leftx   = round( $width / 3 );
-			$rightx  = round( ( $width / 3 ) * 2 );
-			$centery = round( $height / 2 );
-			$centerx = round( $width / 2 );
+			$topy    = (int) round( $height / 3 );
+			$bottomy = (int) round( ( $height / 3 ) * 2 );
+			$leftx   = (int) round( $width / 3 );
+			$rightx  = (int) round( ( $width / 3 ) * 2 );
+			$centery = (int) round( $height / 2 );
+			$centerx = (int) round( $width / 2 );
 
 			// Cast those colors into an array.
 			$points = array(

@@ -1,11 +1,10 @@
 === Jetpack VideoPress  ===
 Contributors: automattic, retrofox, oskosk, thehenridev, renatoagds, lhkowalski, nunyvega, leogermani, cgastrell
 Tags: video, video-hosting, video-player, cdn, video-streaming
-
-Requires at least: 6.7
-Tested up to: 6.8
-Stable tag: 1.5
-Requires PHP: 7.2
+Requires at least: 7.0
+Tested up to: 7.1
+Stable tag: 3.4.1
+Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 The finest video hosting for WordPress. Drag and drop videos through the WordPress editor and keep the focus on your content, not the ads.
@@ -84,28 +83,24 @@ The file size limit is 5 GB. However, on slower networks, there is a chance the 
 4. Edit your video details, cover image, and privacy from your VideoPress library.
 
 == Changelog ==
-### 2.3 - 2025-04-07
+### 3.4.1 - 2026-08-26
 #### Added
-- Add Account Protection initialization.
-- Add title to the attachment details view.
-- Connection: Disconnect all other users before disconnecting connection owner account.
-- Replace video embed with VideoPress block in Media & Text block.
-- Improve the onboarding experience of Jetpack guiding the users through a new onboarding process.
-- My Jetpack: Introduce a new onboarding screen to provide clear, step-by-step instructions for new users connecting to Jetpack.
+- Add a first-run welcome modal to the dashboard.
 
 #### Changed
-- Code: Use function-style `exit()` and `die()` with a default status code of 0.
-- Connection: Allow pre-selected login providers.
-- Connection: Display connection status on Users page independent of the SSO module.
-- External Media: Move GooglePhotosMedia, OpenverseMedia, and PexelsMedia to `@automattic/jetpack-shared-extension-utils`.
-- General: Indicate compatibility with WordPress 6.8.
-- Update composer.lock
-- Update package dependencies.
-- Update the unowned section from a product grid to a product list.
+- General: Update minimum WordPress version to 7.0.
+- My Jetpack: Show what Paid Stats actually adds — UTM tracking, device stats, and region & city locations — instead of commercial use.
+- Redesign the video details page: group details into one card in a wider layout, move the player and settings into a side column, and add thumbnail tiles, collapsible sections, and an Add to content action.
+- Tested up to WordPress 7.1.
+
+#### Removed
+- Updated PHP version requirements to PHP 7.4 or newer.
 
 #### Fixed
-- Components: Prevent deprecation notices by adding `__next40pxDefaultSize` to controls.
-- Ensure all files are uploaded when drag-and-dropped into editor.
-- Fix issue with VideoPress block with 0 height and width.
-- Ensure undo function works.
+- Charts: draw labels at the design system's font weight and size.
+- Connection: Update wording for some connection error notices.
+- Fix a timeout error when updating a video poster from the media library.
+- Fix private video playback authorization for videos embedded through synced patterns and Video Playlist blocks, let private videos preview in the block editor canvas, load live metadata for private playlist entries for authorized viewers, and show a lock placeholder on playlist thumbnails of private videos the viewer cannot access.
+- My Jetpack: always label the license activation link 'Activate a license'. It previously read 'Activate a new license' on sites with a plan, even when no licenses had been activated.
+- My Jetpack: Stop the Stats dashboard from asking which plan you want again after Start for Free was already chosen.
 

@@ -1,11 +1,11 @@
 [
-    {
-        "blockName": "jetpack/wordads",
-        "attrs": {
-            "format": "leaderboard"
-        },
-        "innerBlocks": [],
-        "innerHTML": "",
-        "innerContent": []
-    }
+	{
+		"blockName": "jetpack/wordads",
+		"attrs": {
+			"format": "leaderboard"
+		},
+		"innerBlocks": [],
+		"innerHTML": "",
+		"innerContent": []
+	}
 ]

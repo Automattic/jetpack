@@ -33,7 +33,7 @@ const useFairUsageNoticeMessage = (): Element => {
 
 	const getFairUsageNoticeMessage = resetDateString => {
 		const fairUsageMessage = __(
-			"You've reached this month's request limit, per our <link>fair usage policy</link>.",
+			"You've reached this month's request limit, per our <link><span>fair usage policy</span></link>.",
 			'jetpack-ai-client'
 		);
 
@@ -59,6 +59,7 @@ const useFairUsageNoticeMessage = (): Element => {
 
 	const fairUsageNoticeMessageElement = createInterpolateElement( fairUsageNoticeMessage, {
 		link: <a href={ upgradeInfoUrl } target="_blank" rel="noreferrer" />,
+		span: <span />,
 	} );
 
 	return fairUsageNoticeMessageElement;

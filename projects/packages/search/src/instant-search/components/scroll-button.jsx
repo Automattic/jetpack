@@ -1,9 +1,7 @@
 import { __ } from '@wordpress/i18n';
-// NOTE: We only import the debounce function here for reduced bundle size.
-//       Do not import the entire lodash library!
-// eslint-disable-next-line lodash/import-scope
-import debounce from 'lodash/debounce';
-import React, { Component } from 'react';
+import debounce from 'debounce';
+import * as React from 'react';
+import { Component } from 'react';
 import { SEARCH_RESULTS_CLASS_NAME, SEARCH_RESULTS_LOAD_MORE_OFFSET } from '../lib/constants';
 import './scroll-button.scss';
 

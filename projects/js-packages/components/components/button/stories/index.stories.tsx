@@ -93,11 +93,6 @@ export default {
 			options: [ 'none', ...Object.keys( icons ) ],
 		},
 	},
-	parameters: {
-		backgrounds: {
-			default: 'Jetpack Dashboard',
-		},
-	},
 };
 
 const DefaultTemplate = args => {

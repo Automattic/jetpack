@@ -1,7 +1,8 @@
-import { ProgressBar, ToggleControl, getRedirectUrl } from '@automattic/jetpack-components';
+import { getRedirectUrl } from '@automattic/jetpack-components';
+import { ProgressBar, ToggleControl } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
-import React from 'react';
+import { Component } from 'react';
 import { connect } from 'react-redux';
 import { FormLegend, FormFieldset } from 'components/forms';
 import JetpackBanner from 'components/jetpack-banner';
@@ -25,7 +26,7 @@ import {
 	isFetchingSitePurchases,
 } from 'state/site';
 
-class Media extends React.Component {
+class Media extends Component {
 	togglePrivacySetting = () => {
 		this.props.updateOptions( {
 			videopress_private_enabled_for_site: ! this.props.getOptionValue(
@@ -86,7 +87,7 @@ class Media extends React.Component {
 				</p>
 				{ shouldDisplayStorage && (
 					<div className="media__videopress-storage">
-						<ProgressBar progress={ videoPressStorageUsed / 1000000 } />
+						<ProgressBar value={ Math.min( ( videoPressStorageUsed / 1000000 ) * 100, 100 ) } />
 						<span>
 							{ createInterpolateElement(
 								sprintf(
@@ -103,9 +104,11 @@ class Media extends React.Component {
 					<>
 						<ModuleToggle
 							slug="videopress"
-							disabled={ this.props.isUnavailableInOfflineMode( 'videopress' ) }
+							disabled={
+								this.props.isUnavailableInOfflineMode( 'videopress' ) ||
+								this.props.isSavingAnyOption( 'videopress' )
+							}
 							activated={ this.props.getOptionValue( 'videopress' ) }
-							toggling={ this.props.isSavingAnyOption( 'videopress' ) }
 							toggleModule={ this.props.toggleModuleNow }
 						>
 							<span className="jp-form-toggle-explanation">
@@ -114,9 +117,12 @@ class Media extends React.Component {
 						</ModuleToggle>
 						<FormFieldset>
 							<ToggleControl
+								__nextHasNoMarginBottom
 								id="videopress-site-privacy"
-								disabled={ ! this.props.getOptionValue( 'videopress' ) }
-								toggling={ this.props.isSavingAnyOption( 'videopress_private_enabled_for_site' ) }
+								disabled={
+									! this.props.getOptionValue( 'videopress' ) ||
+									this.props.isSavingAnyOption( 'videopress_private_enabled_for_site' )
+								}
 								checked={ this.props.getOptionValue( 'videopress_private_enabled_for_site' ) }
 								onChange={ this.togglePrivacySetting }
 								label={

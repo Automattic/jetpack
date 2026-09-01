@@ -1,5 +1,9 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * List terms endpoint.
  */
@@ -43,6 +47,8 @@ new WPCOM_JSON_API_List_Terms_Endpoint(
  * List terms endpoint class.
  *
  * /sites/%s/taxonomies/%s/terms -> $blog_id, $taxonomy
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class WPCOM_JSON_API_List_Terms_Endpoint extends WPCOM_JSON_API_Endpoint {
 

@@ -36,6 +36,7 @@ class Differences extends PersistentList {
 			$moved                 = false;
 			$moved_with_empty_file = false;
 			$deprecated            = false;
+			$new_declaration       = false;
 			foreach ( $new_declarations->get() as $new_declaration ) {
 
 				if ( $prev_declaration->match( $new_declaration ) ) {
@@ -56,7 +57,7 @@ class Differences extends PersistentList {
 							$moved = true;
 						}
 					}
-					$matched = true;
+					$matched = $new_declaration;
 					break;
 				} elseif ( $prev_declaration->partial_match( $new_declaration ) ) {
 					// TODO this is to catch things like function args changed, method the same
@@ -69,7 +70,7 @@ class Differences extends PersistentList {
 			}
 
 			// Add differences for any detected deprecations.
-			if ( $deprecated ) {
+			if ( $deprecated && $matched ) {
 				switch ( $new_declaration->type() ) {
 					case 'method':
 						$this->add( new Differences\Class_Method_Deprecated( $prev_declaration ) );

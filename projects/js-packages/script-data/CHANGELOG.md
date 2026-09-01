@@ -5,6 +5,69 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.6] - 2026-07-20
+### Changed
+- Update package dependencies. [#50510]
+
+## [0.6.5] - 2026-07-06
+### Added
+- Add `edit_others_posts` to the `UserCapabilities` type. [#50162]
+
+## [0.6.4] - 2026-05-19
+### Changed
+- Internal updates.
+
+## [0.6.3] - 2026-05-04
+### Changed
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+
+## [0.6.2] - 2026-04-09
+### Changed
+- Use .indexOf instead of .includes for broader support without polyfills. [#48010]
+
+## [0.6.1] - 2026-03-09
+### Changed
+- Switch to Native TypeScript compiler based on Go. [#47375]
+
+## [0.6.0] - 2026-02-26
+### Added
+- Add `getSiteType()` utility for categorizing sites as 'simple', 'woa', or 'jetpack'. [#47259]
+
+### Changed
+- Use `isWoASite()` instead of `isWpcomPlatformSite()` in `getSiteType()` for more explicit WoA detection. [#47321]
+
+## [0.5.5] - 2026-02-18
+### Changed
+- Set `.repository.url` in `package.json` to the mirror repo rather than the monorepo. [#47149]
+
+## [0.5.4] - 2025-10-28
+### Changed
+- Update package dependencies. [#45652]
+
+## [0.5.3] - 2025-09-08
+### Changed
+- Update package dependencies. [#45097]
+
+## [0.5.2] - 2025-08-18
+### Added
+- Add `typecheck` script to ensure that TypeScript files are type-checked. [#44795]
+
+## [0.5.1] - 2025-08-04
+### Changed
+- Internal updates.
+
+## [0.5.0] - 2025-07-08
+### Removed
+- Utils: Remove unused isAtomicSite function. [#44224]
+
+## [0.4.4] - 2025-06-24
+### Fixed
+- Script Data: Ensure functions in utils.js allow for getScriptData being undefined. [#44070]
+
+## [0.4.3] - 2025-06-10
+### Fixed
+- Utils: Ensure isWoASite has a default if the site itself can't be found. [#43824]
+
 ## [0.4.2] - 2025-05-26
 ### Added
 - Janitorial: Ensure functionality related to WoA site checking is clearer. [#43481]
@@ -73,6 +136,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Added jetpack-script-data package to consolidate the logic for Jetpack Initial state [#38430]
 
+[0.6.6]: https://github.com/Automattic/jetpack-script-data/compare/v0.6.5...v0.6.6
+[0.6.5]: https://github.com/Automattic/jetpack-script-data/compare/v0.6.4...v0.6.5
+[0.6.4]: https://github.com/Automattic/jetpack-script-data/compare/v0.6.3...v0.6.4
+[0.6.3]: https://github.com/Automattic/jetpack-script-data/compare/v0.6.2...v0.6.3
+[0.6.2]: https://github.com/Automattic/jetpack-script-data/compare/v0.6.1...v0.6.2
+[0.6.1]: https://github.com/Automattic/jetpack-script-data/compare/v0.6.0...v0.6.1
+[0.6.0]: https://github.com/Automattic/jetpack-script-data/compare/v0.5.5...v0.6.0
+[0.5.5]: https://github.com/Automattic/jetpack-script-data/compare/v0.5.4...v0.5.5
+[0.5.4]: https://github.com/Automattic/jetpack-script-data/compare/v0.5.3...v0.5.4
+[0.5.3]: https://github.com/Automattic/jetpack-script-data/compare/v0.5.2...v0.5.3
+[0.5.2]: https://github.com/Automattic/jetpack-script-data/compare/v0.5.1...v0.5.2
+[0.5.1]: https://github.com/Automattic/jetpack-script-data/compare/v0.5.0...v0.5.1
+[0.5.0]: https://github.com/Automattic/jetpack-script-data/compare/v0.4.4...v0.5.0
+[0.4.4]: https://github.com/Automattic/jetpack-script-data/compare/v0.4.3...v0.4.4
+[0.4.3]: https://github.com/Automattic/jetpack-script-data/compare/v0.4.2...v0.4.3
 [0.4.2]: https://github.com/Automattic/jetpack-script-data/compare/v0.4.1...v0.4.2
 [0.4.1]: https://github.com/Automattic/jetpack-script-data/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/Automattic/jetpack-script-data/compare/v0.3.0...v0.4.0

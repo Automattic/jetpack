@@ -1,9 +1,15 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Get user Backup endpoint class.
  *
  * /sites/%s/users/%d/backup      -> $blog_id, $user_id
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Jetpack_JSON_API_Get_User_Backup_Endpoint extends Jetpack_JSON_API_Endpoint {
 

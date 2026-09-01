@@ -42,7 +42,7 @@ export default function useFixersQuery( {
 	const showBulkNotices = useCallback(
 		( failures: string[], successes: string[] ) => {
 			if ( failures.length > 0 ) {
-				// Translators: %d is the number of threats, and %s is a list of threat IDs.
+				// Translators: %d: the number of threats that could not be fixed.
 				const failureMessage = _n(
 					'A threat could not be fixed.',
 					'%d threats could not be fixed.',
@@ -51,7 +51,7 @@ export default function useFixersQuery( {
 				);
 				showErrorNotice( sprintf( failureMessage, failures.length ) );
 			} else if ( successes.length > 0 ) {
-				// Translators: %d is the number of threats, and %s is a list of threat IDs.
+				// Translators: %d: the number of threats fixed.
 				const successMessage = _n(
 					'Threat fixed successfully.',
 					'%d threats fixed successfully.',
@@ -65,6 +65,7 @@ export default function useFixersQuery( {
 	);
 
 	// Main query function to fetch fixer status
+	// eslint-disable-next-line @tanstack/query/exhaustive-deps -- Sticking `queryClient` and `showBulkNotices` in the key seems wrong, but what would be right?
 	const fixersQuery = useQuery( {
 		queryKey: [ QUERY_FIXERS_KEY, threatIds ],
 		queryFn: async () => {

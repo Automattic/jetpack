@@ -7,6 +7,7 @@ use Automattic\Jetpack_Boost\Contracts\Changes_Output_After_Activation;
 use Automattic\Jetpack_Boost\Contracts\Feature;
 use Automattic\Jetpack_Boost\Contracts\Has_Activate;
 use Automattic\Jetpack_Boost\Contracts\Needs_To_Be_Ready;
+use Automattic\Jetpack_Boost\Contracts\Needs_Website_To_Be_Public;
 use Automattic\Jetpack_Boost\Contracts\Optimization;
 use Automattic\Jetpack_Boost\Lib\Cornerstone\Cornerstone_Utils;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Admin_Bar_Compatibility;
@@ -21,7 +22,7 @@ use Automattic\Jetpack_Boost\Lib\Premium_Features;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Has_Always_Available_Endpoints;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\Update_Cloud_CSS;
 
-class Cloud_CSS implements Feature, Has_Activate, Has_Always_Available_Endpoints, Changes_Output_After_Activation, Optimization, Needs_To_Be_Ready {
+class Cloud_CSS implements Feature, Has_Activate, Has_Always_Available_Endpoints, Changes_Output_After_Activation, Optimization, Needs_To_Be_Ready, Needs_Website_To_Be_Public {
 
 	/** User has requested regeneration manually or through activating the module. */
 	const REGENERATE_REASON_USER_REQUEST = 'user_request';
@@ -171,7 +172,12 @@ class Cloud_CSS implements Feature, Has_Activate, Has_Always_Available_Endpoints
 			'providers'     => $grouped_urls,
 			'successRatios' => $grouped_ratios,
 		);
-		$payload['requestId'] = md5( wp_json_encode( $payload ) . time() );
+		$payload['requestId'] = md5(
+			wp_json_encode(
+				$payload,
+				0 // phpcs:ignore Jetpack.Functions.JsonEncodeFlags.ZeroFound -- No `json_encode()` flags because this needs to match whatever is calculating the hash on the other end.
+			) . time()
+		);
 		$payload['reason']    = $reason;
 		return Boost_API::post( 'cloud-css', $payload );
 	}
@@ -179,7 +185,7 @@ class Cloud_CSS implements Feature, Has_Activate, Has_Always_Available_Endpoints
 	/**
 	 * Handle regeneration of Cloud CSS when a post is saved.
 	 */
-	public function handle_save_post( $post_id, $post ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public function handle_save_post( $post_id, $post ) {
 		if ( ! $post || ! isset( $post->post_type ) || ! is_post_publicly_viewable( $post ) ) {
 			return;
 		}

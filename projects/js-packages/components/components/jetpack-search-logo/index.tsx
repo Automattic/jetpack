@@ -1,9 +1,9 @@
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import React from 'react';
 import { JetpackSearchLogoProps } from './types.ts';
+import type { FC } from 'react';
 
-const JetpackSearchLogo: React.FC< JetpackSearchLogoProps > = ( {
+const JetpackSearchLogo: FC< JetpackSearchLogoProps > = ( {
 	logoColor = '#069e08',
 	showText = true,
 	className,

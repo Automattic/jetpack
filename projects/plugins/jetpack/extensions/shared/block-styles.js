@@ -1,10 +1,9 @@
 import TokenList from '@wordpress/token-list';
-import { find } from 'lodash';
 
 /**
  * Returns the active style from the given className.
  *
- * From @link https://github.com/WordPress/gutenberg/blob/ddac4f3cf8fd311169c7e125411343a437bdbb5a/packages/editor/src/components/block-styles/index.js#L20-L42
+ * From {@link https://github.com/WordPress/gutenberg/blob/ddac4f3cf8fd311169c7e125411343a437bdbb5a/packages/editor/src/components/block-styles/index.js#L20-L42}
  *
  * @param {Array}  styles    - Block style variations.
  * @param {string} className - Class name
@@ -18,13 +17,13 @@ function getActiveStyle( styles, className ) {
 		}
 
 		const potentialStyleName = style.substring( 9 );
-		const activeStyle = find( styles, { name: potentialStyleName } );
+		const activeStyle = styles.find( v => v.name === potentialStyleName );
 		if ( activeStyle ) {
 			return activeStyle;
 		}
 	}
 
-	return find( styles, 'isDefault' );
+	return styles.find( v => v.isDefault );
 }
 
 export function getActiveStyleName( styles, className ) {

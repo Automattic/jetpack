@@ -1,6 +1,5 @@
-import { Button } from '@automattic/jetpack-components';
 import apiFetch from '@wordpress/api-fetch';
-import { Tooltip } from '@wordpress/components';
+import { Button, Tooltip } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
@@ -10,19 +9,13 @@ import useAnalytics from '../../hooks/useAnalytics';
 import useBackupsState from '../../hooks/useBackupsState.js';
 import { STORE_ID } from '../../store';
 
-export const BackupNowButton = ( {
-	children,
-	tooltipText,
-	tracksEventName,
-	variant = 'primary',
-	weight = 'regular',
-	onClick,
-} ) => {
+export const BackupNowButton = ( { children, tooltipText, tracksEventName, onClick } ) => {
 	const { tracks } = useAnalytics();
 	const [ buttonContent, setButtonContent ] = useState( children );
 	const [ currentTooltip, setCurrentTooltip ] = useState( tooltipText );
 	const [ isEnqueuing, setIsEnqueuing ] = useState( false );
 	const [ enqueued, setEnqueued ] = useState( false );
+	const [ enqueueFailed, setEnqueueFailed ] = useState( false );
 	const areBackupsStopped = useSelect( select => select( STORE_ID ).getBackupStoppedFlag() );
 	const { backupState, fetchBackupsState } = useBackupsState( enqueued );
 	const backupCurrentlyInProgress = backupState === BACKUP_STATE.IN_PROGRESS;
@@ -34,12 +27,22 @@ export const BackupNowButton = ( {
 			}
 
 			setIsEnqueuing( true );
+			setEnqueueFailed( false );
 
-			apiFetch( { method: 'POST', path: `/jetpack/v4/site/backup/enqueue` } ).then( () => {
-				setIsEnqueuing( false );
-				setEnqueued( true );
-				fetchBackupsState();
-			} );
+			apiFetch( { method: 'POST', path: `/jetpack/v4/site/backup/enqueue` } ).then(
+				() => {
+					setIsEnqueuing( false );
+					setEnqueued( true );
+					fetchBackupsState();
+				},
+				() => {
+					// The route reports an unreachable WordPress.com as an error rather
+					// than an empty success, so without this branch the click leaves the
+					// button busy for good, with no way to retry short of a page reload.
+					setIsEnqueuing( false );
+					setEnqueueFailed( true );
+				}
+			);
 
 			if ( onClick ) {
 				onClick( event );
@@ -75,6 +78,11 @@ export const BackupNowButton = ( {
 		} else if ( enqueued ) {
 			setButtonContent( statusLabels.QUEUED );
 			setCurrentTooltip( statusTooltipTexts.QUEUED );
+		} else if ( enqueueFailed ) {
+			setButtonContent( children );
+			setCurrentTooltip(
+				__( 'The backup could not be queued. Please try again.', 'jetpack-backup-pkg' )
+			);
 		} else {
 			setButtonContent( children );
 			setCurrentTooltip( tooltipText );
@@ -86,16 +94,18 @@ export const BackupNowButton = ( {
 		children,
 		areBackupsStopped,
 		isEnqueuing,
+		enqueueFailed,
 	] );
 
 	const button = (
 		<div>
 			<Button
-				variant={ variant }
-				onClick={ onClickHandler }
+				size="compact"
+				accessibleWhenDisabled
 				disabled={ disabled }
 				isBusy={ isEnqueuing || backupCurrentlyInProgress }
-				weight={ weight }
+				onClick={ onClickHandler }
+				variant="primary"
 			>
 				{ buttonContent }
 			</Button>
@@ -109,8 +119,6 @@ BackupNowButton.propTypes = {
 	children: PropTypes.node,
 	tooltipText: PropTypes.string,
 	tracksEventName: PropTypes.string,
-	variant: PropTypes.oneOf( [ 'primary', 'secondary', 'tertiary' ] ),
-	weight: PropTypes.oneOf( [ 'regular', 'bold' ] ),
 	onClick: PropTypes.func,
 };
 

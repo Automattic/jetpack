@@ -9,6 +9,8 @@ use Automattic\Jetpack\Connection\Error_Handler;
 
 /**
  * Class Broken_Token_Connection_Errors
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Broken_Token_Connection_Errors {
 
@@ -286,11 +288,14 @@ class Broken_Token_Connection_Errors {
 	 *
 	 * @param string $error_code The error code you want the error to have.
 	 * @param string $user_id The user id you want the token to have.
-	 * @param string $error_type The error type: 'xmlrpc' or 'rest'.
+	 * @param string $error_type The error type: one of the Error_Handler::ERROR_TYPE_* constants
+	 *                           ('xmlrpc', 'rest', or 'local_state').
+	 * @param string $error_direction The error direction: 'incoming' or 'outgoing'. Ignored for
+	 *                                'local_state' errors, which the factory stores without a direction.
 	 *
 	 * @return \WP_Error
 	 */
-	public function get_sample_error( $error_code, $user_id, $error_type = 'xmlrpc' ) {
+	public function get_sample_error( $error_code, $user_id, $error_type = 'xmlrpc', $error_direction = 'incoming' ) {
 		$signature_details = array(
 			'token'     => 'dhj938djh938d:1:' . $user_id,
 			'timestamp' => time(),
@@ -301,10 +306,18 @@ class Broken_Token_Connection_Errors {
 			'signature' => 'sdf234fe',
 		);
 
+		// Build the error data array by hand rather than through
+		// Error_Handler::build_connection_wp_error(): this plugin runs against whatever
+		// connection package the site ships, and the factory may not exist there yet.
+		// Older packages simply ignore the error_direction key.
 		return new \WP_Error(
 			$error_code,
 			'An error was triggered',
-			compact( 'signature_details', 'error_type' )
+			array(
+				'signature_details' => $signature_details,
+				'error_type'        => $error_type,
+				'error_direction'   => $error_direction,
+			)
 		);
 	}
 

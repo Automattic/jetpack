@@ -1,10 +1,10 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ConnectButton } from '@automattic/jetpack-connection';
-import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import clsx from 'clsx';
-import React, { useCallback, useState } from 'react';
+import { useCallback, useState } from 'react';
 import BrandedCard from '../branded-card';
 import CheckIcon from '../check-icon';
 import LeftArrow from '../left-arrow';
@@ -17,7 +17,7 @@ import styles from './styles.module.scss';
  * @param {object}   props                           - Component props
  * @param {Function} props.onShowSharingDetailsClick - Callback to show the sharing details.
  *
- * @return {React.Component} The `ConnectionContent` component.
+ * @return {import('react').Component} The `ConnectionContent` component.
  */
 function ConnectionContent( { onShowSharingDetailsClick } ) {
 	const { apiNonce, apiRoot, registrationNonce } = window.automatticForAgenciesClientInitialState;
@@ -67,7 +67,8 @@ function ConnectionContent( { onShowSharingDetailsClick } ) {
 						{
 							strong: <strong />,
 							tosLink: (
-								<ExternalLink
+								<Link
+									openInNewTab
 									className={ styles[ 'terms-of-service__link' ] }
 									href={ getRedirectUrl( 'wpcom-tos' ) }
 								/>
@@ -103,7 +104,7 @@ function ConnectionContent( { onShowSharingDetailsClick } ) {
  * @param {object}   props                            - Component props
  * @param {Function} props.onCloseSharingDetailsClick - Callback to close the sharing details.
  *
- * @return {React.Component} The `DetailSharingContent` component.
+ * @return {import('react').Component} The `DetailSharingContent` component.
  */
 function DetailSharingContent( { onCloseSharingDetailsClick } ) {
 	return (
@@ -200,7 +201,7 @@ function DetailSharingContent( { onCloseSharingDetailsClick } ) {
 /**
  * Connection Card component.
  *
- * @return {React.Component} The `ConnectionCard` component.
+ * @return {import('react').Component} The `ConnectionCard` component.
  */
 export default function ConnectionCard() {
 	// Toggle the card content between the default connection content and the sharing details content linked from the TOS.

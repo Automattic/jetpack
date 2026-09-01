@@ -1,10 +1,10 @@
 === Automattic For Agencies Client ===
 Contributors: automattic, jeherve, njweller, rcanepa
 Tags: agency, dashboard, management, sites, monitoring
-Requires at least: 6.7
-Requires PHP: 7.2
-Tested up to: 6.8
-Stable tag: 0.2.1
+Requires at least: 7.0
+Requires PHP: 7.4
+Tested up to: 7.1
+Stable tag: 0.9.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -44,17 +44,13 @@ Once connected, your site will display within Automattic for Agencies.
 1. Manage your connection to the agency dashboard from the Settings screen in your WordPress dashboard.
 
 == Changelog ==
-### 0.5.0 - 2025-04-03
-#### Added
-- Add Account Protection initialization.
-- Connection: Disconnect all other users before disconnecting connection owner account.
-- Components: Export the `getRedirectUrl` function with subpath.
-
+### 0.9.0 - 2026-08-14
 #### Changed
-- Code: Use function-style `exit()` and `die()` with a default status code of 0.
-- Connection: Allow pre-selected login providers.
-- Connection: Display connection status on Users page independent of the SSO module.
-- General: Indicate compatibility with WordPress 6.8.
-- Update dependencies.
+- Components: Use Link from `@wordpress/ui` instead of ExternalLink.
+- General: Update minimum WordPress version to 6.9.
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency.
+- Remove unneeded development and documentation files from the published plugin.
+- Replace deprecated jetpack-components Spinner with WordPress Core Spinner.
+- Tested up to WordPress 7.0.
 - Updated package dependencies.
 

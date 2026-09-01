@@ -1,4 +1,3 @@
-/* globals lodash */
 window.videoPressUploadPoster = function ( guid, data ) {
 	return new Promise( function ( resolve, reject ) {
 		wp.media.ajax( 'videopress-get-upload-token', { async: true } ).done( function ( response ) {
@@ -72,10 +71,10 @@ window.videoPressGetPoster = function ( guid ) {
 	} );
 };
 
-window.videoPressUploadTrack = function ( guid, kind, srcLang, label, vttFile ) {
+window.videoPressUploadTrack = function ( guid, kind, srcLang, label, tmpFile ) {
 	return new Promise( function ( resolve, reject ) {
 		wp.media
-			.ajax( 'videopress-get-upload-token', { async: true, data: { filename: vttFile.name } } ) // todo: maybe remove filename from here (not needed)
+			.ajax( 'videopress-get-upload-token', { async: true, data: { filename: tmpFile.name } } ) // todo: maybe remove filename from here (not needed)
 			.done( function ( response ) {
 				// Set auth header with upload token.
 				var headers = {},
@@ -97,7 +96,7 @@ window.videoPressUploadTrack = function ( guid, kind, srcLang, label, vttFile ) 
 				body.append( 'kind', kind );
 				body.append( 'srclang', srcLang );
 				body.append( 'label', label );
-				body.append( 'vtt', vttFile );
+				body.append( 'vtt', tmpFile );
 
 				options.body = body;
 
@@ -203,8 +202,8 @@ wp.apiFetch.use( function ( options, next ) {
 				return response; // if not a response object, then its our parsed body so return that
 			} )
 			.then( function ( data ) {
-				var wpcomMediaObject = lodash.get( data, 'media[0]' );
-				var id = lodash.get( wpcomMediaObject, 'ID' );
+				var wpcomMediaObject = data?.media?.[ 0 ];
+				var id = wpcomMediaObject?.ID;
 				var gutenbergMediaObject = wp.apiFetch( {
 					path: '/wp/v2/media/' + id,
 				} );

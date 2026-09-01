@@ -1,5 +1,9 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 new WPCOM_JSON_API_Render_Embed_Reversal_Endpoint(
 	array(
 		'description'          => 'Determines if the given embed code can be reversed into a single line embed or a shortcode, and if so returns the embed or shortcode. Note: The current user must have publishing access.',
@@ -38,6 +42,8 @@ new WPCOM_JSON_API_Render_Embed_Reversal_Endpoint(
  * Render embed reversal class.
  *
  * /sites/%s/embeds/reversal -> $blog_id
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class WPCOM_JSON_API_Render_Embed_Reversal_Endpoint extends WPCOM_JSON_API_Render_Endpoint {
 	/**

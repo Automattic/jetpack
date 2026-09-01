@@ -28,6 +28,7 @@ export function changelogDefine( yargs ) {
 		'Runs the changelogger wizard',
 		yarg => {
 			yarg
+				.strict( false )
 				.positional( 'cmd', {
 					describe: 'Command for changelog script to run',
 					type: 'string',
@@ -47,7 +48,7 @@ export function changelogDefine( yargs ) {
 								describe: 'Project in the form of type/name, e.g. plugins/jetpack',
 								type: 'string',
 							} )
-							.option( 'file', {
+							.option( 'filename', {
 								alias: 'f',
 								describe: 'Name of changelog file',
 								type: 'string',
@@ -311,7 +312,12 @@ async function getProjectChangeTypes( needChangelog ) {
  */
 async function changelogAdd( argv ) {
 	// If we already have all the information we need for a potentially-successful changelogger run, skip the prompts and just do it.
-	if ( argv.project && argv.s && argv.t && argv.e ) {
+	if (
+		argv.project &&
+		argv.s &&
+		argv.t &&
+		( argv.e || ( argv.e === '' && argv.s === 'patch' && argv.c !== undefined ) )
+	) {
 		await changelogArgs( argv );
 		return;
 	}
@@ -756,7 +762,7 @@ async function checkChangelogFiles( baseRef ) {
  *
  * @param {string} fileName      - what we want to name the file.
  * @param {Array}  needChangelog - projects that need changelog.
- * @return {argv}.
+ * @return {boolean} If any projects already have a changelog file by that name.
  */
 function doesFilenameExist( fileName, needChangelog ) {
 	let fileExists = false;

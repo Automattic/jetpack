@@ -10,7 +10,7 @@ import Banner from './';
 /**
  * Types
  */
-import type React from 'react';
+import type { ReactElement } from 'react';
 
 type ConnectBannerProps = {
 	isConnected: boolean;
@@ -23,26 +23,26 @@ type ConnectBannerProps = {
  * Connect Banner component
  *
  * @param {ConnectBannerProps} props - component props
- * @return {React.ReactElement}       Connect banner component.
+ * @return {ReactElement}       Connect banner component.
  */
 export default function ConnectBanner( {
 	onConnect,
 	isModuleActive,
 	isConnected,
 	isConnecting,
-}: ConnectBannerProps ): React.ReactElement {
+}: ConnectBannerProps ): ReactElement {
 	if ( isConnected && isModuleActive ) {
 		return null;
 	}
 
 	const needsActivation = isConnected && ! isModuleActive;
 
-	let connectButtonText = __( 'Connect Jetpack', 'jetpack-videopress-pkg' );
+	let connectButtonText: string = __( 'Connect Jetpack', 'jetpack-videopress-pkg' );
 	if ( isConnecting ) {
 		connectButtonText = __( 'Redirecting…', 'jetpack-videopress-pkg' );
 	}
 
-	let activateButtonText = __( 'Activate VideoPress', 'jetpack-videopress-pkg' );
+	let activateButtonText: string = __( 'Activate VideoPress', 'jetpack-videopress-pkg' );
 	if ( isConnecting ) {
 		activateButtonText = __( 'Activating…', 'jetpack-videopress-pkg' );
 	}

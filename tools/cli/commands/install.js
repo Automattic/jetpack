@@ -4,7 +4,12 @@ import { execa } from 'execa';
 import Listr from 'listr';
 import UpdateRenderer from 'listr-update-renderer';
 import VerboseRenderer from 'listr-verbose-renderer';
-import { needsPnpmInstall, getInstallArgs, projectDir } from '../helpers/install.js';
+import {
+	needsPnpmInstall,
+	getInstallArgs,
+	projectDir,
+	batchLockFileStatus,
+} from '../helpers/install.js';
 import { coerceConcurrency } from '../helpers/normalizeArgv.js';
 import { allProjects } from '../helpers/projectHelpers.js';
 import promptForProject from '../helpers/promptForProject.js';
@@ -34,6 +39,7 @@ export function builder( yargs ) {
 			type: 'boolean',
 			description: 'Installs everything',
 		} )
+		.option( 'pnpm-install', { type: 'boolean', hidden: true } )
 		.option( 'no-pnpm-install', {
 			type: 'boolean',
 			description: 'Skip execution of `pnpm install`.',
@@ -45,7 +51,7 @@ export function builder( yargs ) {
 		.option( 'concurrency', {
 			type: 'number',
 			description: 'Maximum number of install tasks to run at once. Ignored with `--verbose`.',
-			default: Infinity,
+			default: 20,
 			coerce: coerceConcurrency,
 		} );
 }
@@ -76,9 +82,16 @@ export async function handler( argv ) {
 		argv.project = [ argv.project ];
 	}
 
-	const stdio = argv.v ? [ 'ignore', 'inherit', 'inherit' ] : [ 'ignore', 'ignore', 'ignore' ];
+	/*
+	 * Verbose runs one task at a time, so a child can prompt on the terminal.
+	 * Concurrent runs keep stdin closed and pipe output instead.
+	 */
+	const verbose = !! argv.v;
+	const stdio = verbose ? [ 'inherit', 'inherit', 'inherit' ] : [ 'ignore', 'pipe', 'pipe' ];
 	const tasks = [];
 	let didPnpm = false;
+
+	const lockedProjects = await batchLockFileStatus( [ ...new Set( argv.project ) ] );
 
 	for ( const project of new Set( argv.project ) ) {
 		// Does the project even exist?
@@ -95,7 +108,7 @@ export async function handler( argv ) {
 			tasks.unshift( {
 				title: `Installing pnpm dependencies`,
 				task: async () =>
-					execa( 'pnpm', await getInstallArgs( 'monorepo', 'pnpm', argv ), {
+					execa( 'pnpm', await getInstallArgs( 'monorepo', 'pnpm', argv, lockedProjects ), {
 						cwd: process.cwd(),
 						stdio,
 					} ),
@@ -106,7 +119,7 @@ export async function handler( argv ) {
 		tasks.push( {
 			title: `Installing composer dependencies for ${ project }`,
 			task: async () =>
-				execa( 'composer', await getInstallArgs( project, 'composer', argv ), {
+				execa( 'composer', await getInstallArgs( project, 'composer', argv, lockedProjects ), {
 					cwd: projectDir( project ),
 					stdio,
 				} ),
@@ -114,16 +127,39 @@ export async function handler( argv ) {
 	}
 
 	const listr = new Listr( tasks, {
-		concurrent: argv.v ? false : argv.concurrency,
-		renderer: argv.v ? VerboseRenderer : UpdateRenderer,
+		concurrent: verbose ? false : argv.concurrency,
+		renderer: verbose ? VerboseRenderer : UpdateRenderer,
 	} );
 	await listr.run().catch( err => {
-		console.error( err );
-		if ( ! argv.v ) {
-			console.error(
-				chalk.yellow( 'You might try running with `-v` to get more information on the failure' )
-			);
+		/*
+		 * Print failures ourselves so they reach the terminal instead of being
+		 * swallowed by Listr, where a redirect would lose them.
+		 */
+		const commandFailed = typeof err?.shortMessage === 'string';
+		if ( verbose || ! commandFailed ) {
+			console.error( err );
+		} else {
+			console.error( err.message );
+
+			const advice = [];
+			// Answering a prompt takes a terminal to read it and one to type into.
+			if ( process.stdin.isTTY && process.stdout.isTTY ) {
+				advice.push( 'Run again with `-v` if the command was waiting on a prompt.' );
+			}
+			// Only when the purge is the failure at hand. It costs a full reinstall.
+			if (
+				err.command?.startsWith( 'pnpm' ) &&
+				err.message.includes( 'ERR_PNPM_ABORTED_REMOVE_MODULES_DIR' )
+			) {
+				advice.push(
+					'`pnpm` will not remove `node_modules` unless it can ask first. To tell it to go ahead ' +
+						'without being asked, run `jetpack pnpm install --config.confirm-modules-purge=false`.'
+				);
+			}
+			if ( advice.length > 0 ) {
+				console.error( chalk.yellow( `\n${ advice.join( '\n' ) }` ) );
+			}
 		}
-		process.exit( err.exitCode || 1 );
+		process.exit( err?.exitCode || 1 );
 	} );
 }

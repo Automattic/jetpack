@@ -1,6 +1,7 @@
-import { ContextualUpgradeTrigger, Text } from '@automattic/jetpack-components';
+import { Text } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
-import React, { useMemo, useContext } from 'react';
+import { Notice } from '@wordpress/ui';
+import { useMemo, useContext } from 'react';
 import { getFixerDescription } from '@automattic/jetpack-scan';
 import { ThreatModalContext } from './index.tsx';
 import styles from './styles.module.scss';
@@ -48,14 +49,16 @@ const ThreatFixDetails = (): JSX.Element => {
 			<Text variant="title-small">{ title }</Text>
 			<Text>{ fix }</Text>
 			{ handleUpgradeClick && (
-				<ContextualUpgradeTrigger
-					description={ __(
-						'Looking for advanced scan results and one-click fixes?',
-						'jetpack-scan'
-					) }
-					cta={ __( 'Upgrade Jetpack now', 'jetpack-scan' ) }
-					onClick={ handleUpgradeClick }
-				/>
+				<Notice.Root intent="info">
+					<Notice.Description>
+						{ __( 'Looking for advanced scan results and one-click fixes?', 'jetpack-scan' ) }
+					</Notice.Description>
+					<Notice.Actions>
+						<Notice.ActionButton onClick={ handleUpgradeClick }>
+							{ __( 'Upgrade Jetpack now', 'jetpack-scan' ) }
+						</Notice.ActionButton>
+					</Notice.Actions>
+				</Notice.Root>
 			) }
 		</div>
 	);

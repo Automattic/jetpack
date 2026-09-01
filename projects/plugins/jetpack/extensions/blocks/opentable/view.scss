@@ -10,7 +10,8 @@
 		margin: 0 auto;
 	}
 
-	> .is-style-standard, > .is-style-wide.is-style-mobile {
+	> .is-style-standard,
+	> .is-style-wide.is-style-mobile {
 		height: 301px;
 
 		&.is-multi {
@@ -49,7 +50,7 @@
 
 		&.alignright {
 			max-width: 840px;
-			left: calc( 100% - 840px - 2rem );
+			left: calc(100% - 840px - 2rem);
 		}
 	}
 

@@ -1,3 +1,4 @@
+import { mount } from 'svelte';
 import ImageGuideAnalytics from './analytics.ts';
 import { getMeasurableImages } from './find-image-elements.ts';
 import { guideState } from './stores/GuideState.ts';
@@ -40,7 +41,7 @@ function onWindowLoad() {
 		const measurableImages = await getMeasurableImages(
 			Array.from(
 				document.querySelectorAll(
-					'body *:not(.jetpack-boost-guide > *):not(.jetpack-boost-guide)'
+					'body *:not(.jetpack-boost-guide > *):not(.jetpack-boost-guide):not(#wpadminbar *)'
 				)
 			),
 			fetchFunction
@@ -259,8 +260,7 @@ export function attachGuides( measuredImages: MeasurableImage[] ) {
 	// Take the component configuration and create the Svelte components.
 	return Object.values( componentConfiguration )
 		.map( ( config: ImageGuideConfig ) => {
-			// eslint-disable-next-line no-new
-			new Main( config );
+			mount( Main, config );
 			return config.props.stores;
 		} )
 		.flat();

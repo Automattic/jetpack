@@ -1,4 +1,4 @@
-<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+<?php
 /**
  * The Image Sizes library.
  *
@@ -119,7 +119,6 @@ class Image_CDN_Image_Sizes {
 		// Compatibility fix: Ensure that Jetpack's inbuilt Photon does not get in the way.
 		// No need to re-enable this filter if present, as its functionality will be handled
 		// by the Image_CDN filter added below.
-		// @phan-suppress-next-line PhanUndeclaredClassInCallable -- Just removing this deprecated filter function. No point in stubbing it.
 		remove_filter(
 			'intermediate_image_sizes_advanced',
 			array( 'Jetpack_Photon', 'filter_photon_noresize_intermediate_sizes' )
@@ -172,13 +171,13 @@ class Image_CDN_Image_Sizes {
 
 			$size_data = $this->standardize_size_data( $size_data );
 
-			if ( true === empty( $size_data ) ) {
+			if ( empty( $size_data ) ) {
 				continue;
 			}
 
 			$resized_image = $this->resize( $size_data );
 
-			if ( true === is_array( $resized_image ) ) {
+			if ( is_array( $resized_image ) ) {
 				$metadata[ $size ] = $resized_image;
 			}
 		}

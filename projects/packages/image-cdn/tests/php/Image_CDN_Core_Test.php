@@ -451,6 +451,18 @@ class Image_CDN_Core_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Tests that the cdn_url method returns an empty string when the image URL is empty or invalid.
+	 *
+	 * @since 0.7.17
+	 */
+	public function test_cdn_url_empty_invalid_url() {
+		$this->assertSame( '', Image_CDN_Core::cdn_url( '' ) );
+		$this->assertSame( '', Image_CDN_Core::cdn_url( null ) );
+		$this->assertSame( '', Image_CDN_Core::cdn_url( 123 ) ); // @phan-suppress-current-line PhanTypeMismatchArgument
+		$this->assertSame( '', Image_CDN_Core::cdn_url( array() ) );
+	}
+
+	/**
 	 * Data provider for test_photon_banned_domains_banned
 	 */
 	public static function get_photon_domains() {
@@ -486,6 +498,10 @@ class Image_CDN_Core_Test extends BaseTestCase {
 			'Banned Amazon domain'       => array(
 				true,
 				'http://m.media-amazon.com/images/I/41YeeCMUwTL._SL300_.jpg',
+			),
+			'Banned Open Library domain' => array(
+				true,
+				'https://covers.openlibrary.org/b/id/10728667-L.jpg',
 			),
 		);
 	}

@@ -1,0 +1,110 @@
+.podcast__welcome-hero {
+	padding: 40px;
+	border-radius: 8px;
+	background: linear-gradient(135deg, #f0f6fc 0%, #fdf3fc 100%);
+}
+
+.podcast__welcome-title {
+	margin: 0;
+	font-size: 32px;
+	font-weight: 400;
+	line-height: 1.15;
+	letter-spacing: -0.01em;
+}
+
+.podcast__welcome-hero-copy {
+	max-width: 640px;
+}
+
+.podcast__welcome-benefit-icon {
+	display: inline-flex;
+	align-items: center;
+	color: #1e1e1e;
+
+	svg {
+		inline-size: 24px;
+		block-size: 24px;
+		fill: currentColor;
+	}
+}
+
+.podcast__welcome-steps {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr));
+	gap: 24px;
+}
+
+.podcast__welcome-step {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.podcast__welcome-step-circle {
+	display: grid;
+	place-items: center;
+	inline-size: 32px;
+	block-size: 32px;
+	border-radius: 50%;
+	background: #2c3338;
+	color: #fff;
+	font-size: 14px;
+	font-weight: 600;
+}
+
+.podcast__welcome-plans {
+	padding-inline: 0;
+}
+
+// `outline` instead of `border` so the highlight doesn't add 1px to the
+// premium card's box and offset it vs the Free card's default 1px Card border.
+.podcast__welcome-plan--premium {
+	outline: 2px solid #3858e9;
+	outline-offset: -2px;
+}
+
+.podcast__welcome-plan-check {
+	display: inline-flex;
+	align-items: center;
+	color: #008a20;
+
+	svg {
+		fill: currentColor;
+	}
+}
+
+.podcast__welcome-plan-badge {
+	display: inline-block;
+	padding: 2px 10px;
+	border-radius: 12px;
+	background: #3858e9;
+	color: #fff;
+	font-size: 12px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+}
+
+.podcast__welcome-plan-features {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+
+.podcast__welcome-plan-feature {
+	display: flex;
+	align-items: flex-start;
+	gap: 8px;
+
+	svg {
+		flex: 0 0 auto;
+		fill: #008a20;
+		margin-block-start: 2px;
+	}
+}

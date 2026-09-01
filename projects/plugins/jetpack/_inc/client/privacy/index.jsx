@@ -1,9 +1,9 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import PropTypes from 'prop-types';
-import React from 'react';
+import { Component } from 'react';
 import { connect } from 'react-redux';
 import CompactFormToggle from 'components/form/form-toggle/compact';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
@@ -36,7 +36,7 @@ const trackPrivacyCenterView = () =>
 		feature: 'privacy',
 	} );
 
-class Privacy extends React.Component {
+class Privacy extends Component {
 	static displayName = 'PrivacySettings';
 
 	static propTypes = {
@@ -120,7 +120,8 @@ class Privacy extends React.Component {
 										),
 										{
 											cookiePolicyLink: (
-												<ExternalLink
+												<Link
+													openInNewTab
 													href={ getRedirectUrl( 'a8c-cookies' ) }
 													onClick={ trackCookiePolicyView }
 													rel="noopener noreferrer"
@@ -138,7 +139,8 @@ class Privacy extends React.Component {
 									),
 									{
 										pp: (
-											<ExternalLink
+											<Link
+												openInNewTab
 												href={ getRedirectUrl( 'a8c-privacy' ) }
 												onClick={ trackPrivacyPolicyView }
 												rel="noopener noreferrer"
@@ -155,7 +157,8 @@ class Privacy extends React.Component {
 									),
 									{
 										cookiePolicyLink: (
-											<ExternalLink
+											<Link
+												openInNewTab
 												href={ getRedirectUrl( 'a8c-cookies' ) }
 												onClick={ trackCookiePolicyView }
 												rel="noopener noreferrer"
@@ -172,7 +175,8 @@ class Privacy extends React.Component {
 									),
 									{
 										privacyCenterLink: (
-											<ExternalLink
+											<Link
+												openInNewTab
 												href={ getRedirectUrl( 'jetpack-support-privacy' ) }
 												onClick={ trackPrivacyCenterView }
 												rel="noopener noreferrer"

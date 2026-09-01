@@ -3,13 +3,13 @@ import {
 	Button,
 	Title,
 	getRedirectUrl,
-	ContextualUpgradeTrigger,
 	Col,
 	Container,
 } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
-import React, { useCallback } from 'react';
+import { useCallback } from 'react';
 import SeventyFiveLayout from '../../components/seventy-five-layout';
+import UpgradeNotice from '../../components/upgrade-notice';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import usePlan from '../../hooks/use-plan';
 import useWafData from '../../hooks/use-waf-data';
@@ -55,7 +55,7 @@ const ProductPromotion = () => {
 				) }
 			</Text>
 
-			<ContextualUpgradeTrigger
+			<UpgradeNotice
 				description={ __(
 					'Looking for advanced scan results and one-click fixes?',
 					'jetpack-protect'
@@ -100,14 +100,14 @@ const FooterInfo = () => {
 		<div className={ styles[ 'info-section' ] }>
 			<Title>
 				{ sprintf(
-					// translators: placeholder is the number of total vulnerabilities i.e. "22,000".
+					// translators: %s: the number of total vulnerabilities listed (e.g. "22,000").
 					__( 'Over %s listed vulnerabilities', 'jetpack-protect' ),
 					totalVulnerabilitiesFormatted
 				) }
 			</Title>
 			<Text mb={ 3 }>
 				{ sprintf(
-					// translators: placeholder is the number of total vulnerabilities i.e. "22,000".
+					// translators: %s: the number of total vulnerabilities listed (e.g. "22,000").
 					__(
 						'Every day we check your plugin, theme, and WordPress versions against our %s listed vulnerabilities powered by WPScan, an Automattic brand.',
 						'jetpack-protect'

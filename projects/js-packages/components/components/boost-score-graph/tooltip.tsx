@@ -53,7 +53,7 @@ export const Tooltip: FunctionComponent = ( { period }: { period: Period } ) => 
 					<div className="jb-score-tooltip__column">
 						{ __( 'Largest Contentful Paint', 'jetpack-components' ) }
 					</div>
-					<div className="jb-score-tooltip__column">{ sprintf( '%0.2fs', desktop_lcp ) }</div>
+					<div className="jb-score-tooltip__column">{ sprintf( '%.2fs', desktop_lcp ) }</div>
 				</div>
 			) }
 			{ typeof desktop_tbt === 'number' && (
@@ -61,7 +61,7 @@ export const Tooltip: FunctionComponent = ( { period }: { period: Period } ) => 
 					<div className="jb-score-tooltip__column">
 						{ __( 'Total Blocking Time', 'jetpack-components' ) }
 					</div>
-					<div className="jb-score-tooltip__column">{ sprintf( '%0.2fs', desktop_tbt ) }</div>
+					<div className="jb-score-tooltip__column">{ sprintf( '%.2fs', desktop_tbt ) }</div>
 				</div>
 			) }
 			{ typeof desktop_cls === 'number' && (
@@ -69,7 +69,7 @@ export const Tooltip: FunctionComponent = ( { period }: { period: Period } ) => 
 					<div className="jb-score-tooltip__column">
 						{ __( 'Cumulative Layout Shift', 'jetpack-components' ) }
 					</div>
-					<div className="jb-score-tooltip__column">{ sprintf( '%0.2f', desktop_cls ) }</div>
+					<div className="jb-score-tooltip__column">{ sprintf( '%.2f', desktop_cls ) }</div>
 				</div>
 			) }
 			<hr />
@@ -89,7 +89,7 @@ export const Tooltip: FunctionComponent = ( { period }: { period: Period } ) => 
 					<div className="jb-score-tooltip__column">
 						{ __( 'Largest Contentful Paint', 'jetpack-components' ) }
 					</div>
-					<div className="jb-score-tooltip__column">{ sprintf( '%0.2fs', mobile_lcp ) }</div>
+					<div className="jb-score-tooltip__column">{ sprintf( '%.2fs', mobile_lcp ) }</div>
 				</div>
 			) }
 			{ typeof mobile_tbt === 'number' && (
@@ -97,7 +97,7 @@ export const Tooltip: FunctionComponent = ( { period }: { period: Period } ) => 
 					<div className="jb-score-tooltip__column">
 						{ __( 'Total Blocking Time', 'jetpack-components' ) }
 					</div>
-					<div className="jb-score-tooltip__column">{ sprintf( '%0.2fs', mobile_tbt ) }</div>
+					<div className="jb-score-tooltip__column">{ sprintf( '%.2fs', mobile_tbt ) }</div>
 				</div>
 			) }
 			{ typeof mobile_cls === 'number' && (
@@ -105,7 +105,7 @@ export const Tooltip: FunctionComponent = ( { period }: { period: Period } ) => 
 					<div className="jb-score-tooltip__column">
 						{ __( 'Cumulative Layout Shift', 'jetpack-components' ) }
 					</div>
-					<div className="jb-score-tooltip__column">{ sprintf( '%0.2f', mobile_cls ) }</div>
+					<div className="jb-score-tooltip__column">{ sprintf( '%.2f', mobile_cls ) }</div>
 				</div>
 			) }
 			<div className="jb-score-tooltip__pointer"></div>

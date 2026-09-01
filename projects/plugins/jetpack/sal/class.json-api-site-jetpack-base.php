@@ -9,6 +9,11 @@
  *
  * @package automattic/jetpack
  */
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 require_once __DIR__ . '/class.json-api-site-base.php';
 
 /**
@@ -176,7 +181,7 @@ abstract class Abstract_Jetpack_Site extends SAL_Site {
 
 		$main_network_site = $this->main_network_site();
 		if ( $main_network_site ) {
-			$options['main_network_site'] = (string) rtrim( $main_network_site, '/' );
+			$options['main_network_site'] = rtrim( $main_network_site, '/' );
 		}
 
 		$active_modules = Jetpack_Options::get_option( 'active_modules' );

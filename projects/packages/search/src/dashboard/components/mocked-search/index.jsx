@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import { Fragment } from 'react';
 import MockedInstantSearch from './mocked-instant-search';
 import MockedLegacySearch from './mocked-legacy-search';
 
@@ -8,7 +8,7 @@ import MockedLegacySearch from './mocked-legacy-search';
  * @param {object}  props                           - Component properties.
  * @param {boolean} props.supportsOnlyClassicSearch - true if site has plan that supports only Classic Search.
  * @param {boolean} props.supportsInstantSearch     - true if site has plan that supports Instant Search.
- * @return {React.Component} Mocked Search interface component.
+ * @return {import('react').Component} Mocked Search interface component.
  */
 export default function MockedSearch( {
 	supportsInstantSearch = true,

@@ -11,6 +11,10 @@ namespace Automattic\Jetpack\Extensions\Payments;
 
 use Jetpack_Gutenberg;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 const FEATURE_NAME = 'payments';
 
 // Populate the available extensions with our feature.
@@ -18,7 +22,7 @@ add_filter(
 	'jetpack_set_available_extensions',
 	function ( $extensions ) {
 		return array_merge(
-			$extensions,
+			(array) $extensions,
 			array(
 				FEATURE_NAME,
 			)

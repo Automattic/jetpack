@@ -1,13 +1,10 @@
-/**
- * WordPress dependencies
- */
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
+import { store as blockEditorStore } from '@wordpress/block-editor';
 import {
 	BaseControl,
 	PanelRow,
 	CheckboxControl,
 	ToggleControl,
-	Tooltip,
 	Card,
 	CardBody,
 	CardFooter,
@@ -15,22 +12,13 @@ import {
 import { compose, useDebounce } from '@wordpress/compose';
 import { useDispatch, useSelect, withSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import { Icon, help } from '@wordpress/icons';
-/**
- * External dependencies
- */
-import React, { useState, useEffect, useCallback } from 'react';
-/**
- * Internal dependencies
- */
+import { useState, useEffect, useCallback } from 'react';
 import features from './features';
+import { store as breveStore } from './store';
 import calculateFleschKincaid from './utils/flesch-kincaid-utils';
 import { canWriteBriefFeatureBeEnabled } from './utils/get-availability';
 import { getPostText } from './utils/get-post-text';
 import './breve.scss';
-/**
- * Types
- */
 import type { BreveSelect } from './types';
 
 export const useInit = init => {
@@ -107,10 +95,6 @@ const Controls = ( { blocks, disabledFeatures } ) => {
 
 	return (
 		<div className="jetpack-ai-proofread">
-			<p className="jetpack-ai-assistant__help-text">
-				{ __( 'Visualize issues and apply AI suggestions.', 'jetpack' ) }
-			</p>
-
 			<PanelRow>
 				<BaseControl __nextHasNoMarginBottom={ true }>
 					<ToggleControl
@@ -152,14 +136,9 @@ const Controls = ( { blocks, disabledFeatures } ) => {
 									{ __( 'Write to see your grade level.', 'jetpack' ) }
 								</p>
 							) : (
-								<>
-									<div className="jetpack-ai-proofread__grade-label">
-										{ gradeLevel } { __( 'Reading grade score', 'jetpack' ) }
-									</div>
-									<Tooltip text={ __( 'To make it easy to read, aim for level 8–12', 'jetpack' ) }>
-										<Icon icon={ help } size={ 20 } />
-									</Tooltip>
-								</>
+								<div className="jetpack-ai-proofread__grade-label">
+									{ gradeLevel } { __( 'Reading grade score', 'jetpack' ) }
+								</div>
 							) }
 						</CardFooter>
 					</Card>
@@ -171,7 +150,7 @@ const Controls = ( { blocks, disabledFeatures } ) => {
 
 export default compose(
 	withSelect( selectFn => ( {
-		blocks: selectFn( 'core/block-editor' ).getBlocks(),
-		disabledFeatures: selectFn( 'jetpack/ai-breve' ).getDisabledFeatures(),
+		blocks: selectFn( blockEditorStore ).getBlocks(),
+		disabledFeatures: ( selectFn( breveStore ) as unknown as BreveSelect ).getDisabledFeatures(),
 	} ) )
 )( Controls );

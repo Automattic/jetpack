@@ -1,12 +1,11 @@
-import React from 'react';
+import { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import Footer from 'components/footer';
-import LoadingPlaceholder from 'components/loading-placeholder';
 import Masthead from 'components/masthead';
 import { setInitialState } from 'state/initial-state';
 
-class StaticMain extends React.Component {
+class StaticMain extends Component {
 	UNSAFE_componentWillMount() {
 		this.props.setInitialState();
 	}
@@ -19,7 +18,9 @@ class StaticMain extends React.Component {
 						<Masthead { ...this.props } />
 					</div>
 				</div>
-				<LoadingPlaceholder { ...this.props } />
+				<div className="jp-loading-placeholder">
+					<span className="spinner is-active" style={ { float: 'none' } } />
+				</div>
 				<Footer { ...this.props } />
 				<style type="text/css">{ '.vp-deactivated{ display: none; }' }</style>
 			</div>

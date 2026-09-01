@@ -1,6 +1,7 @@
-import { ToggleControl, getRedirectUrl } from '@automattic/jetpack-components';
+import { getRedirectUrl } from '@automattic/jetpack-components';
+import { ToggleControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import React from 'react';
+import { Component } from 'react';
 import { FormFieldset, FormLabel, FormSelect } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
@@ -11,7 +12,7 @@ import TextInput from 'components/text-input';
 
 import './style.scss';
 
-class CommentsComponent extends React.Component {
+class CommentsComponent extends Component {
 	/**
 	 * If markdown module is inactive and this is toggling markdown for comments on, activate module.
 	 * If markdown for posts is off and this is toggling markdown for comments off, deactivate module.
@@ -83,9 +84,10 @@ class CommentsComponent extends React.Component {
 						<ModuleToggle
 							slug="comments"
 							compact
-							disabled={ commentsUnavailableInOfflineMode }
+							disabled={
+								commentsUnavailableInOfflineMode || this.props.isSavingAnyOption( 'comments' )
+							}
 							activated={ this.props.getOptionValue( 'comments' ) }
-							toggling={ this.props.isSavingAnyOption( 'comments' ) }
 							toggleModule={ this.props.toggleModuleNow }
 						>
 							<span className="jp-form-toggle-explanation">{ comments.description }</span>
@@ -139,8 +141,8 @@ class CommentsComponent extends React.Component {
 									<ModuleToggle
 										slug="gravatar-hovercards"
 										compact
+										disabled={ this.props.isSavingAnyOption( 'gravatar-hovercards' ) }
 										activated={ this.props.getOptionValue( 'gravatar-hovercards' ) }
-										toggling={ this.props.isSavingAnyOption( 'gravatar-hovercards' ) }
 										toggleModule={ this.props.toggleModuleNow }
 									>
 										<span className="jp-form-toggle-explanation">{ gravatar.description }</span>
@@ -167,15 +169,13 @@ class CommentsComponent extends React.Component {
 											this.props.isSavingAnyOption( [ 'markdown' ] ) ||
 											'inactive' === this.props.getModuleOverride( 'markdown' )
 										}
-										toggling={ this.props.isSavingAnyOption( [
-											'wpcom_publish_comments_with_markdown',
-										] ) }
 										onChange={ this.handleMarkdownCommentsToggle }
 										label={
 											<span className="jp-form-toggle-explanation">
 												{ __( 'Enable Markdown use for comments.', 'jetpack' ) }
 											</span>
 										}
+										__nextHasNoMarginBottom={ true }
 									/>
 								</FormFieldset>
 								<SupportInfo
@@ -191,9 +191,10 @@ class CommentsComponent extends React.Component {
 									<ModuleToggle
 										slug="comment-likes"
 										compact
-										disabled={ commentLikesUnavailable }
+										disabled={
+											commentLikesUnavailable || this.props.isSavingAnyOption( 'comment-likes' )
+										}
 										activated={ commentLikesActive }
-										toggling={ this.props.isSavingAnyOption( 'comment-likes' ) }
 										toggleModule={ this.props.toggleModuleNow }
 									>
 										<span className="jp-form-toggle-explanation">

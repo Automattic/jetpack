@@ -1,0 +1,56 @@
+/**
+ * External dependencies
+ */
+import {
+	OrderMetricWidget,
+	ReportCsvDownloadButton,
+	WidgetFooter,
+	WidgetRoot,
+	type ReportParamsFieldAttributes,
+} from '@jetpack-premium-analytics/widgets-toolkit';
+import { __ } from '@wordpress/i18n';
+/**
+ * Internal dependencies
+ */
+import styles from './style.module.css';
+import type { OrdersOverTimeAttributes } from './widget';
+import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+import type { ComponentProps } from 'react';
+
+// Report params are usually URL-driven (WidgetRoot's fallback), but callers may
+// also pass them via `attributes`. Compose the render-only shape to cover both.
+type OrdersOverTimeRenderAttributes = OrdersOverTimeAttributes &
+	Partial< ReportParamsFieldAttributes >;
+
+type OrdersOverTimeWidgetProps = WidgetRenderProps< OrdersOverTimeRenderAttributes > & {
+	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
+};
+
+/**
+ * Thin composition over the widgets-toolkit: WidgetRoot provides the query
+ * client, chart theme, and resolved report params; OrderMetricWidget fetches
+ * the orders report and renders the order count metric over time.
+ */
+export default function OrdersOverTimeRender( {
+	attributes = {},
+	setError,
+}: OrdersOverTimeWidgetProps ) {
+	return (
+		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
+			<div className={ styles.root }>
+				<OrderMetricWidget
+					metricKey="orders_no"
+					seriesLabel={ __( 'Orders', 'jetpack-premium-analytics-pkg' ) }
+					emptyStateText={ __( 'No orders in this period.', 'jetpack-premium-analytics-pkg' ) }
+					errorText={ __(
+						"We couldn't load orders. Please try again in a moment.",
+						'jetpack-premium-analytics-pkg'
+					) }
+				/>
+				<WidgetFooter>
+					<ReportCsvDownloadButton reportType="ordersovertime" />
+				</WidgetFooter>
+			</div>
+		</WidgetRoot>
+	);
+}

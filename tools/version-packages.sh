@@ -2,7 +2,7 @@
 
 set -eo pipefail
 
-BASE=$(cd $(dirname "${BASH_SOURCE[0]}")/.. && pwd)
+BASE=$(cd "$(dirname "${BASH_SOURCE[0]}")"/.. && pwd)
 . "$BASE/tools/includes/check-osx-bash-version.sh"
 . "$BASE/tools/includes/chalk-lite.sh"
 . "$BASE/tools/includes/changelogger.sh"
@@ -103,6 +103,7 @@ mapfile -t TO_UPDATE < <(jq -r --argjson packages "$RMPACKAGES" '.["require-dev"
 if [[ ${#TO_UPDATE[@]} -gt 0 ]]; then
 	info "Remove no-mirror dev packages: ${TO_UPDATE[*]}..."
 	composer remove "${COMPOSER_ARGS[@]}" --no-update --working-dir="$DIR" --dev -- "${TO_UPDATE[@]}"
+	composer config --working-dir="$DIR" 'extra.non-mirrored-require-dev' --json "$( jq -nc '$ARGS.positional' --args "${TO_UPDATE[@]}" )"
 fi
 TO_UPDATE=()
 mapfile -t TO_UPDATE < <(jq -r --argjson packages "$PACKAGES" '.["require-dev"] // {} | to_entries[] | select( ( .value | test( "^@dev$|\\.x-dev$" ) ) and $packages[.key] ) | "\(.key)=^\($packages[.key])"' "$DIR/composer.json")
@@ -117,9 +118,9 @@ fi
 # If there's a lock file, check that the locked versions are as expected too.
 EXIT=0
 if [[ -e "$DIR/composer.lock" ]]; then
-	TMP="$(composer info --locked --format=json --working-dir="$DIR" | jq -r --argjson packages "$PACKAGES" '.locked[] | select( $packages[.name] ) | [ .name, .version, $packages[.name] ] | @tsv')"
+	TMP="$(composer info --locked --format=json --working-dir="$DIR" | jq -r --argjson packages "$PACKAGES" '.locked?[] | select( $packages[.name] ) | [ .name, .version, $packages[.name] ] | @tsv')"
 	while IFS=$'\t' read -r PKG LOCKVER EXPECTVER; do
-		if ! pnpm semver -c --range ">=$EXPECTVER" "$LOCKVER" >/dev/null; then
+		if [[ -n "$PKG" ]] && ! pnpm semver -c --range ">=$EXPECTVER" "$LOCKVER" >/dev/null; then
 			EXIT=1
 			error "$PKG was not upgraded ($LOCKVER < $EXPECTVER)"
 		fi

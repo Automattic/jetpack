@@ -4,7 +4,6 @@ use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets\Logo;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
-use Automattic\Jetpack\Publicize\Publicize_Script_Data;
 use Automattic\Jetpack\Status;
 
 require_once __DIR__ . '/class.jetpack-admin-page.php';
@@ -100,26 +99,6 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	}
 
 	/**
-	 * Add Jetpack Dashboard sub-link and point it to AAG if the user can view stats, manage modules or if Protect is active.
-	 *
-	 * Works in Dev Mode or when user is connected.
-	 *
-	 * @since 4.3.0
-	 */
-	public function jetpack_add_dashboard_sub_nav_item() {
-		if ( ( new Status() )->is_offline_mode() || Jetpack::is_connection_ready() ) {
-			Admin_Menu::add_menu(
-				__( 'Dashboard', 'jetpack' ),
-				__( 'Dashboard', 'jetpack' ),
-				'jetpack_admin_page',
-				Jetpack::admin_url( array( 'page' => 'jetpack#/dashboard' ) ),
-				null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- See https://core.trac.wordpress.org/ticket/52539.
-				14
-			);
-		}
-	}
-
-	/**
 	 * Determine whether a user can access the Jetpack Settings page.
 	 *
 	 * Rules are:
@@ -176,7 +155,6 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			if (
 				! Jetpack::is_module_active( 'post-by-email' )
 					&& (
-						Publicize_Script_Data::has_feature_flag( 'admin-page' ) ||
 						! Jetpack::is_module_active( 'publicize' ) ||
 						! current_user_can( 'publish_posts' )
 					)
@@ -202,7 +180,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 				__( 'Settings', 'jetpack' ),
 				'jetpack_admin_page',
 				Jetpack::admin_url( array( 'page' => 'jetpack#/settings' ) ),
-				null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- See https://core.trac.wordpress.org/ticket/52539.
+				null,
 				13
 			);
 		}
@@ -333,7 +311,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 
 		// Add objects to be passed to the initial state of the app.
 		// Use wp_add_inline_script instead of wp_localize_script, see https://core.trac.wordpress.org/ticket/25280.
-		wp_add_inline_script( 'react-plugin', 'var Initial_State=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( Jetpack_Redux_State_Helper::get_initial_state() ) ) . '"));', 'before' );
+		wp_add_inline_script( 'react-plugin', 'var Initial_State=' . wp_json_encode( Jetpack_Redux_State_Helper::get_initial_state(), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';', 'before' );
 
 		// This will set the default URL of the jp_redirects lib.
 		wp_add_inline_script( 'react-plugin', 'var jetpack_redirects = { currentSiteRawUrl: "' . $site_suffix . '"' . $blog_id_prop . ' };', 'before' );

@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: JSON API
- * Module Description: Allow applications to securely access your content.
+ * Module Description: Access your site’s data remotely through the WordPress.com REST API.
  * Sort Order: 19
  * First Introduced: 1.9
  * Requires Connection: Yes

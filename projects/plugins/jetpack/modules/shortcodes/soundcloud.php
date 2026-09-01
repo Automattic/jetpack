@@ -20,6 +20,10 @@
  * @package automattic/jetpack
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * SoundCloud shortcode handler
  *
@@ -166,7 +170,7 @@ function soundcloud_shortcode( $atts, $content = null ) {
 		'<iframe width="%1$s" height="%2$d" scrolling="no" frameborder="no" src="%3$s"></iframe>',
 		esc_attr( $width ),
 		esc_attr( $height ),
-		$url
+		esc_url( $url )
 	);
 }
 add_shortcode( 'soundcloud', 'soundcloud_shortcode' );
@@ -261,4 +265,7 @@ function jetpack_soundcloud_embed_reversal( $content ) {
 
 	return $content;
 }
-add_filter( 'pre_kses', 'jetpack_soundcloud_embed_reversal' );
+
+if ( jetpack_shortcodes_should_hook_pre_kses() ) {
+	add_filter( 'pre_kses', 'jetpack_soundcloud_embed_reversal' );
+}

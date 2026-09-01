@@ -6,6 +6,10 @@
  * @since 14.0
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Jetpack_Subscribe_Floating_Button class.
  */
@@ -151,6 +155,11 @@ class Jetpack_Subscribe_Floating_Button {
 	public function should_user_see_floating_button() {
 		// Only show when viewing frontend.
 		if ( is_admin() ) {
+			return false;
+		}
+
+		// No content to subscribe to on 404 pages.
+		if ( is_404() ) {
 			return false;
 		}
 

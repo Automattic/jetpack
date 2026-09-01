@@ -104,7 +104,7 @@ class REST_Controller {
 		$cache_cleared = Scan_Status::delete_option();
 
 		if ( ! $cache_cleared ) {
-			return new WP_REST_Response( 'An error occured while attempting to clear the Jetpack Scan cache.', 500 );
+			return new WP_REST_Response( 'An error occurred while attempting to clear the Jetpack Scan cache.', 500 );
 		}
 
 		return new WP_REST_Response( 'Jetpack Scan cache cleared.' );

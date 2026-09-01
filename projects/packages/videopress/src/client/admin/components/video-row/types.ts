@@ -1,16 +1,12 @@
-import React from 'react';
 import { VideoPressVideo } from '../../types';
 import { VideoThumbnailProps } from '../video-thumbnail/types';
+import type { ReactNode } from 'react';
 
 type VideoRowBaseProps = {
 	/**
 	 * className to apply to the component
 	 */
 	className?: string;
-	/**
-	 * Mark row as checked or not
-	 */
-	checked?: boolean;
 	/**
 	 * Show action button
 	 */
@@ -19,10 +15,6 @@ type VideoRowBaseProps = {
 	 * Show quick actions section.
 	 */
 	showQuickActions?: boolean;
-	/**
-	 * Show checkbox.
-	 */
-	showCheckbox?: boolean;
 	/**
 	 * Loading mode.
 	 */
@@ -35,10 +27,6 @@ type VideoRowBaseProps = {
 	 * The video upload progress from 0 to 1.
 	 */
 	uploadProgress?: number;
-	/**
-	 * Callback to be invoked when clicking on the row.
-	 */
-	onSelect?: ( check: boolean ) => void;
 	/**
 	 * Callback to be invoked when clicking on action button.
 	 */
@@ -54,7 +42,7 @@ type VideoRowBaseProps = {
 	/**
 	 * Adornment to be showed after title.
 	 */
-	titleAdornment?: React.ReactNode;
+	titleAdornment?: ReactNode;
 	/**
 	 * Adornment to be showed after title.
 	 */

@@ -11,6 +11,8 @@ use Automattic\Jetpack\Waf\Waf_Runner;
 
 /**
  * Helps debug WAF
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Waf_Helper {
 
@@ -128,8 +130,8 @@ class Waf_Helper {
 		$updated = update_option(
 			self::STORED_OPTIONS_KEY,
 			array(
-				'break_file_system'    => isset( $_POST['break_file_system'] ) ? true : false,
-				'break_wpcom_requests' => isset( $_POST['break_wpcom_requests'] ) ? true : false,
+				'break_file_system'    => isset( $_POST['break_file_system'] ),
+				'break_wpcom_requests' => isset( $_POST['break_wpcom_requests'] ),
 			)
 		);
 

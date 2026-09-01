@@ -67,34 +67,36 @@ class Queue_Storage_Options {
 	 * Fetch items from the queue.
 	 *
 	 * @param int|null $item_count How many items to fetch from the queue.
-	 *                             The parameter is null-able, if no limit on the amount of items.
+	 *                             Null for no limit.
+	 * @param string   $order      Sort direction for the items. Accepts 'ASC' or 'DESC'.
+	 *                             Any other value will be treated as 'ASC'.
 	 *
-	 * @return array|object|\stdClass[]|null
+	 * @return array|object|null Array of result objects on success, or null on failure.
 	 */
-	public function fetch_items( $item_count ) {
+	public function fetch_items( $item_count, $order = 'ASC' ) {
 		global $wpdb;
 
-		// TODO make it more simple for the $item_count
+		$order = 'DESC' === $order ? 'DESC' : 'ASC';
+
+		$sql_order = "ORDER BY option_name {$order}";
+
+		$sql = "SELECT option_name AS id, option_value AS value
+				FROM $wpdb->options
+				WHERE option_name LIKE %s
+				{$sql_order}";
+
+		$params = array( "jpsq_{$this->queue_id}-%" );
+
 		if ( $item_count ) {
-			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.DirectQuery
-			$items = $wpdb->get_results(
-				$wpdb->prepare(
-					"SELECT option_name AS id, option_value AS value FROM $wpdb->options WHERE option_name LIKE %s ORDER BY option_name ASC LIMIT %d",
-					"jpsq_{$this->queue_id}-%",
-					$item_count
-				),
-				OBJECT
-			);
-		} else {
-			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.DirectQuery
-			$items = $wpdb->get_results(
-				$wpdb->prepare(
-					"SELECT option_name AS id, option_value AS value FROM $wpdb->options WHERE option_name LIKE %s ORDER BY option_name ASC",
-					"jpsq_{$this->queue_id}-%"
-				),
-				OBJECT
-			);
+			$sql     .= ' LIMIT %d';
+			$params[] = $item_count;
 		}
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$items = $wpdb->get_results(
+			$wpdb->prepare( $sql, $params ), // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+			OBJECT
+		);
 
 		return $items;
 	}

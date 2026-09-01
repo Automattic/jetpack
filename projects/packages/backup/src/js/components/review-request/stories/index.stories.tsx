@@ -1,4 +1,4 @@
-import { action } from '@storybook/addon-actions';
+import { action } from 'storybook/actions';
 import ReviewRequest from '../index';
 
 export default {
@@ -12,7 +12,6 @@ export const Default = Template.bind( {} );
 Default.args = {
 	cta: 'Text action line, asking for a review',
 	href: 'example-link.com',
-	onClick: action( 'onClick' ),
 	requestReason: 'What triggered the review request (i.e. restore)',
 	dismissedReview: false,
 	onClick: action( 'dismissMessage' ),

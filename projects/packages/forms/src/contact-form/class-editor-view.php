@@ -32,7 +32,6 @@ class Editor_View {
 	 * Admin header.
 	 */
 	public static function admin_head() {
-		remove_action( 'media_buttons', array( Admin::init(), 'grunion_media_button' ), 999 );
 		add_action( 'media_buttons', array( __CLASS__, 'grunion_media_button' ), 999 );
 	}
 
@@ -180,7 +179,7 @@ class Editor_View {
 <script type="text/html" id="tmpl-grunion-field-checkbox">
 	<div>
 		<label class='grunion-field-label checkbox'>
-			<input type='checkbox' name='{{ data.id }}' value='<?php esc_attr__( 'Yes', 'jetpack-forms' ); ?>' class="{{ data.class }}" <# if ( data.value ) print( 'checked="checked"' ) #> />
+			<input type='checkbox' name='{{ data.id }}' value='<?php esc_attr_e( 'Yes', 'jetpack-forms' ); ?>' class="{{ data.class }}" <# if ( data.value ) print( 'checked="checked"' ) #> />
 				<span>{{ data.label }}</span><# if ( data.required ) print( " <span>" + data.required + "</span>" ) #>
 		</label>
 		<div class='clear-form'></div>
@@ -259,7 +258,7 @@ class Editor_View {
 				<?php esc_html_e( 'Field Type', 'jetpack-forms' ); ?>
 				<select name="type">
 					<?php foreach ( $grunion_field_types as $type => $label ) : ?>
-					<option <# if ( '<?php echo esc_js( $type ); ?>' === data.type ) print( "selected='selected'" ) #> value="<?php echo esc_attr( $type ); ?>">
+					<option <# if ( <?php echo wp_json_encode( $type, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?> === data.type ) print( "selected='selected'" ) #> value="<?php echo esc_attr( $type ); ?>">
 						<?php echo esc_html( $label ); ?>
 					</option>
 					<?php endforeach; ?>
@@ -302,7 +301,7 @@ class Editor_View {
 				<label><?php esc_html_e( 'What would you like the subject of the email to be?', 'jetpack-forms' ); ?>
 					<input type="text" name="subject" value="{{ data.subject }}" />
 				</label>
-				<label><?php esc_html_e( 'Which email address should we send the submissions to?', 'jetpack-forms' ); ?>
+				<label><?php esc_html_e( 'Which email address should we send the responses to?', 'jetpack-forms' ); ?>
 					<input type="text" name="to" value="{{ data.to }}" />
 				</label>
 			</section>

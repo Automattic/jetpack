@@ -5,6 +5,10 @@
  * @package automattic/jetpack
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Hooked functions.
  */
@@ -70,14 +74,14 @@ function jetpack_mark_if_post_answers_blogging_prompt( $post_id, $post, $update,
 		return;
 	}
 
-	$post_type    = isset( $post->post_type ) ? $post->post_type : null;
-	$post_content = isset( $post->post_content ) ? $post->post_content : null;
+	$post_type    = $post->post_type ?? null;
+	$post_content = $post->post_content ?? null;
 
 	if ( 'post' !== $post_type || ! $post_content ) {
 		return;
 	}
 
-	$new_status = isset( $post->post_status ) ? $post->post_status : null;
+	$new_status = $post->post_status ?? null;
 	$old_status = $post_before && isset( $post_before->post_status ) ? $post_before->post_status : null;
 
 	// Make sure we are publishing a post, and it's not already published.
@@ -85,19 +89,45 @@ function jetpack_mark_if_post_answers_blogging_prompt( $post_id, $post, $update,
 		return;
 	}
 
-	$blocks = parse_blocks( $post->post_content );
-	foreach ( $blocks as $block ) {
-		if ( 'jetpack/blogging-prompt' === $block['blockName'] ) {
-			$prompt_id      = isset( $block['attrs']['promptId'] ) ? absint( $block['attrs']['promptId'] ) : null;
-			$has_prompt_tag = has_tag( 'dailyprompt', $post ) || ( $prompt_id && has_tag( "dailyprompt-{$prompt_id}", $post ) );
+	$scanner = \Automattic\Block_Scanner::create( $post->post_content );
+	if ( ! $scanner ) {
+		return;
+	}
 
-			if ( $prompt_id && $has_prompt_tag && count( $blocks ) > 1 ) {
-				update_post_meta( $post->ID, '_jetpack_blogging_prompt_key', $prompt_id );
+	$prompt_id          = null;
+	$total_blocks       = 0;
+	$found_prompt_block = false;
+
+	while ( $scanner->next_delimiter() ) {
+		if ( $scanner->opens_block() ) {
+			++$total_blocks;
+
+			if ( ! $found_prompt_block && $scanner->is_block_type( 'jetpack/blogging-prompt' ) ) {
+				$attributes = $scanner->allocate_and_return_parsed_attributes();
+				if ( $attributes && isset( $attributes['promptId'] ) ) {
+					$prompt_id = absint( $attributes['promptId'] );
+				}
+				$found_prompt_block = true;
 			}
 
-			break;
+			// Early exit: if we found the prompt and have >1 blocks, we have all info needed
+			if ( $found_prompt_block && $total_blocks > 1 ) {
+				break;
+			}
 		}
 	}
+
+	if ( ! $found_prompt_block || ! $prompt_id || $total_blocks <= 1 ) {
+		return;
+	}
+
+	$has_prompt_tag = has_tag( 'dailyprompt', $post ) || has_tag( "dailyprompt-{$prompt_id}", $post );
+
+	if ( ! $has_prompt_tag ) {
+		return;
+	}
+
+	update_post_meta( $post->ID, '_jetpack_blogging_prompt_key', $prompt_id );
 }
 
 add_action( 'wp_after_insert_post', 'jetpack_mark_if_post_answers_blogging_prompt', 10, 4 );
@@ -110,7 +140,7 @@ add_action( 'wp_after_insert_post', 'jetpack_mark_if_post_answers_blogging_promp
  * Retrieve a blogging prompt by prompt ID.
  *
  * @param int $prompt_id ID of the prompt fetch.
- * @return stdClass|null Prompt object or null.
+ * @return array|null Prompt object or null.
  */
 function jetpack_get_blogging_prompt_by_id( $prompt_id ) {
 	// Ensure the REST API endpoint we need is loaded.

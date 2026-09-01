@@ -34,13 +34,13 @@ export default function Upgrade( {
 	const requestLimit = currentTier?.value && currentTier?.value !== 1 ? currentTier.limit : 20;
 
 	const freeLimitUpgradePrompt = __(
-		'You have reached the limit of <strong>20 free</strong> requests. <button>Upgrade to continue generating feedback.</button>',
+		'You have reached the limit of <strong>20 free</strong> requests. <button><span>Upgrade to continue generating feedback.</span></button>',
 		'jetpack'
 	);
 	const tierLimitUpgradePrompt = sprintf(
-		/* translators: number is the request limit for the current tier/plan */
+		/* translators: %d: the request limit for the current tier/plan */
 		__(
-			'You have reached the limit of <strong>%d requests</strong>. <button>Upgrade to continue generating feedback.</button>',
+			'You have reached the limit of <strong>%d requests</strong>. <button><span>Upgrade to continue generating feedback.</span></button>',
 			'jetpack'
 		),
 		requestLimit
@@ -61,6 +61,7 @@ export default function Upgrade( {
 		{
 			strong: <strong />,
 			button: <Button variant="link" onClick={ handleClick } href={ upgradeUrl } target="_blank" />,
+			span: <span />,
 		}
 	);
 

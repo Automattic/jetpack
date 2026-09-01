@@ -1,0 +1,155 @@
+.jetpack-field.jetpack-field-phone,
+.jetpack-field.jetpack-field-telephone,
+.jetpack-contact-form .jetpack-field.jetpack-field-phone,
+.jetpack-contact-form .jetpack-field.jetpack-field-telephone {
+
+	&:has(.jetpack-combobox-open) {
+		// GB re-sets z-index every time the block is moved
+		// so we need to force it to 3 to stay on top of other
+		// blocks so the dropdown overlay stays on top of them.
+		z-index: 3 !important;
+	}
+
+	.jetpack-field__input,
+	.jetpack-field__textarea {
+		box-sizing: border-box;
+		border-color: var(--jetpack--contact-form--border-color, currentColor);
+		border-radius: var(--jetpack--contact-form--border-radius);
+		border-width: var(--jetpack--contact-form--border-size);
+		font-size: var(--jetpack--contact-form--font-size);
+		line-height: var(--jetpack--contact-form--line-height);
+		// defaulting to white, it's gutenberg's default background for inputs
+		background-color: var(--jetpack--contact-form--input-background);
+
+		// TODO: Doesn't work well with next version of Gutenberg, should be removed
+		&.is-selected,
+		&:focus-within {
+			border-color: #2271b1;
+			box-shadow: revert;
+			z-index: 1;
+		}
+
+		// these class is used to style input and textarea elements
+		.jetpack-field__input-element:not(.jetpack-field__input-prefix .jetpack-field__input-element) {
+			font: inherit;
+			line-height: inherit;
+			border: 0;
+			color: inherit;
+			outline: none;
+			background-color: transparent;
+			padding: 0;
+			letter-spacing: inherit;
+
+			flex: 1;
+			box-sizing: border-box;
+			resize: none;
+			min-height: unset;
+
+			&::before,
+			&::after {
+				box-sizing: inherit;
+			}
+
+			&:focus {
+				box-shadow: none;
+			}
+
+			&::placeholder {
+				opacity: 0.5;
+			}
+		}
+
+		// When field is 50% or less, or when using XXL font size,
+		// the input grows beyond the container.
+		// Adding this width: 1px fixes it. Weirdest hack I've seen.
+		input[type="text"].jetpack-field__input-element {
+			width: 1px;
+		}
+	}
+
+	.jetpack-field__input {
+		// this here while we work on wrapping the inputs
+		display: flex;
+		gap: 8px;
+
+		.jetpack-field__input-prefix {
+			font: inherit;
+			line-height: inherit;
+			border: 0;
+			color: inherit;
+			display: flex;
+			max-width: 40%;
+			background-color: inherit;
+			align-items: center;
+
+			// these class is used to style select elements
+			.jetpack-field__input-element {
+				font: inherit;
+				line-height: inherit;
+				border: 0;
+				color: inherit;
+				outline: none;
+				background-color: transparent;
+				padding: 0;
+				max-width: 100%;
+				text-overflow: ellipsis;
+				white-space: nowrap;
+				min-height: unset;
+
+				&:where(select) {
+					// compensate spacing for downarrow
+					// TODO: misbehaves with :focus, fixed on next version of Gutenberg
+					padding-right: 20px;
+				}
+
+				&:focus {
+					box-shadow: none;
+				}
+			}
+		}
+
+		.jetpack-field__input-element {
+			backdrop-filter: none;
+		}
+	}
+}
+
+.is-style-animated .jetpack-contact-form .jetpack-field.jetpack-field-phone,
+.is-style-animated .jetpack-contact-form .jetpack-field.jetpack-field-telephone {
+
+	&:not(.has-placeholder):not(.is-selected),
+	&:not(.has-placeholder):not(.has-child-selected) {
+
+		.jetpack-field__input-prefix {
+			visibility: hidden;
+		}
+	}
+
+	// Target input prefix when field is selected but label is not
+	&.is-selected:has(.animated-label__label.is-selected) {
+
+		.jetpack-field__input-prefix {
+			visibility: hidden;
+		}
+	}
+}
+
+.is-style-outlined .jetpack-contact-form .jetpack-field.jetpack-field-phone,
+.is-style-outlined .jetpack-contact-form .jetpack-field.jetpack-field-telephone {
+
+	.jetpack-field__input {
+
+		&.is-selected,
+		&:focus-within {
+			box-shadow: unset;
+		}
+	}
+
+	&:not(.has-placeholder):not(.is-selected),
+	&:not(.has-placeholder):not(.has-child-selected) {
+
+		.jetpack-field__input-prefix {
+			visibility: hidden;
+		}
+	}
+}

@@ -1,7 +1,6 @@
 import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import React from 'react';
 
 import './style.scss';
 
@@ -20,7 +19,7 @@ export const Nudge = ( {
 	target = '_top',
 } ) => {
 	const cssClasses = clsx( className, 'jetpack-upgrade-plan-banner', {
-		'wp-block': context === 'editor-canvas',
+		'jetpack-nudge-canvas': context === 'editor-canvas',
 		'block-editor-block-list__block': context === 'editor-canvas',
 		'jetpack-upgrade-plan__hidden': ! visible,
 	} );
@@ -36,7 +35,11 @@ export const Nudge = ( {
 					</strong>
 				) }
 				{ description && (
-					<span className={ `${ className }__description banner-description` }>
+					<span
+						className={ clsx( 'banner-description', {
+							[ `${ className }__description` ]: className,
+						} ) }
+					>
 						{ description }
 					</span>
 				) }
@@ -50,7 +53,7 @@ export const Nudge = ( {
 						} ) }
 						isBusy={ isRedirecting }
 					>
-						{ isRedirecting ? redirectingText : buttonText }
+						<span>{ isRedirecting ? redirectingText : buttonText }</span>
 					</Button>
 				) }
 			</div>

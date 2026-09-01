@@ -9,6 +9,8 @@
 
 /**
  * Helps debug Scan
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Scan_Helper {
 

@@ -1,8 +1,16 @@
 declare module '*.mdx';
+declare module '*.css';
+declare module '*.scss';
 declare module '*.module.scss' {
 	const classes: { [ key: string ]: string };
 	export default classes;
 }
+declare module '*.gif';
+declare module '*.jpeg';
+declare module '*.jpg';
+declare module '*.png';
+declare module '*.svg';
+declare module '*.webp';
 
 // Add the process declaration
 declare const process: {
@@ -27,6 +35,9 @@ interface Window {
 			'voice-to-content': AvailableBlockProps;
 		};
 		adminUrl: string;
+		jetpack?: {
+			can_send_test_email_to_others: boolean;
+		};
 		siteLocale: string;
 		'ai-assistant': {
 			'is-enabled': boolean;
@@ -52,6 +63,7 @@ interface Window {
 		tracksUserData?: {
 			userid: string;
 			username: string;
+			email: string;
 		};
 		siteFragment?: string;
 	};

@@ -11,6 +11,10 @@
  * Delete a tag:          /sites/%s/tags/slug:%s/delete
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 new WPCOM_JSON_API_Update_Taxonomy_Endpoint(
 	array(
 		'description'          => 'Create a new category.',
@@ -185,6 +189,8 @@ new WPCOM_JSON_API_Update_Taxonomy_Endpoint(
 
 /**
  * Update site taxonomy API class.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class WPCOM_JSON_API_Update_Taxonomy_Endpoint extends WPCOM_JSON_API_Taxonomy_Endpoint {
 	/**
@@ -326,7 +332,10 @@ class WPCOM_JSON_API_Update_Taxonomy_Endpoint extends WPCOM_JSON_API_Taxonomy_En
 			$update['name'] = addslashes( $input['name'] );
 		}
 
-		$data     = wp_update_term( $taxonomy->term_id, $taxonomy_type, $update );
+		$data = wp_update_term( $taxonomy->term_id, $taxonomy_type, $update );
+		if ( is_wp_error( $data ) ) {
+			return $data;
+		}
 		$taxonomy = get_term_by( 'id', $data['term_id'], $taxonomy_type );
 
 		$return = $this->get_taxonomy( $taxonomy->slug, $taxonomy_type, $args['context'] );

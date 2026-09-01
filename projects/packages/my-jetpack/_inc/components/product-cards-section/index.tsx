@@ -1,11 +1,10 @@
-import { Container, Col, Text, AdminSectionHero } from '@automattic/jetpack-components';
-import { __ } from '@wordpress/i18n';
-import { useMemo, useCallback, useState, useEffect } from 'react';
+import { Col, Container } from '@automattic/jetpack-components';
+import { PRODUCT_STATUSES } from '../../constants';
 import { PRODUCT_SLUGS } from '../../data/constants';
-import useProductsByOwnership from '../../data/products/use-products-by-ownership';
+import useProduct from '../../data/products/use-product';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
+import useFilteredProducts from '../../hooks/use-filtered-products';
 import LoadingBlock from '../loading-block';
-import ProductsTableView from '../products-table-view';
 import StatsSection from '../stats-section';
 import AiCard from './ai-card';
 import AntiSpamCard from './anti-spam-card';
@@ -34,10 +33,68 @@ type DisplayItemType = Record<
 	FC< { admin: boolean } >
 >;
 
+/**
+ * Determine whether the large "Views in the last 7 days" Stats card should be shown.
+ *
+ * It only appears when the feature flag is on, the user can view stats, AND the Stats module
+ * is active (`active` / `can_upgrade`). When the module is disabled the large card would render
+ * as an empty, non-actionable graph linking to an inaccessible page, so it is hidden in favour
+ * of the compact card below.
+ *
+ * @param {boolean}                 showFullJetpackStatsCard - Whether the full stats card flag is enabled.
+ * @param {boolean}                 canUserViewStats         - Whether the current user can view stats.
+ * @param {ProductStatus|undefined} statsStatus              - Current status of the Stats product.
+ * @return {boolean} Whether to render the large Stats card.
+ */
+export const shouldShowFullStatsCard = (
+	showFullJetpackStatsCard: boolean,
+	canUserViewStats: boolean,
+	statsStatus: ProductStatus | undefined
+): boolean =>
+	showFullJetpackStatsCard &&
+	canUserViewStats &&
+	( statsStatus === PRODUCT_STATUSES.ACTIVE || statsStatus === PRODUCT_STATUSES.CAN_UPGRADE );
+
+/**
+ * Determine whether the compact "Activate Stats" card should be shown in the grid.
+ *
+ * Shown whenever the Stats module is not active (disabled, needs connection, etc.) so the user
+ * always has an activation entry point in place of the large graph. A disabled Stats module is
+ * reported as "unowned", so this is driven off the Stats product status rather than the
+ * owned-products list — that keeps it stable and avoids a flicker while ownership data settles.
+ *
+ * @param {boolean}                 showFullJetpackStatsCard - Whether the full stats card flag is enabled.
+ * @param {boolean}                 canUserViewStats         - Whether the current user can view stats.
+ * @param {ProductStatus|undefined} statsStatus              - Current status of the Stats product (undefined while loading).
+ * @return {boolean} Whether to render the compact Stats card.
+ */
+export const shouldShowCompactStatsCard = (
+	showFullJetpackStatsCard: boolean,
+	canUserViewStats: boolean,
+	statsStatus: ProductStatus | undefined
+): boolean =>
+	showFullJetpackStatsCard &&
+	canUserViewStats &&
+	statsStatus !== undefined &&
+	! shouldShowFullStatsCard( showFullJetpackStatsCard, canUserViewStats, statsStatus );
+
 const DisplayItems: FC< DisplayItemsProps > = ( { slugs, isLoading } ) => {
 	const mockArrayOfProducts = [ ...Array( 9 ).keys() ];
 	const { showFullJetpackStatsCard = false } = getMyJetpackWindowInitialState( 'myJetpackFlags' );
-	const { userIsAdmin = false } = getMyJetpackWindowInitialState();
+	const { userIsAdmin = false, canUserViewStats = false } = getMyJetpackWindowInitialState();
+	const { detail: statsDetail } = useProduct( PRODUCT_SLUGS.STATS );
+	const statsStatus = statsDetail?.status;
+	const showFullStatsCard = shouldShowFullStatsCard(
+		showFullJetpackStatsCard,
+		canUserViewStats,
+		statsStatus
+	);
+	const showCompactStatsCard = shouldShowCompactStatsCard(
+		showFullJetpackStatsCard,
+		canUserViewStats,
+		statsStatus
+	);
+	const isAdmin = userIsAdmin === '1';
 
 	const items: DisplayItemType = {
 		backup: BackupCard,
@@ -46,14 +103,19 @@ const DisplayItems: FC< DisplayItemsProps > = ( { slugs, isLoading } ) => {
 		boost: BoostCard,
 		search: SearchCard,
 		videopress: VideopressCard,
-		stats: StatsCard,
+		stats: StatsCard, // Rendered explicitly when showFullJetpackStatsCard is on; otherwise via the grid loop below.
 		crm: CrmCard,
 		social: SocialCard,
 		'jetpack-ai': AiCard,
 	};
 
+	// When we render Stats explicitly (the large card above the grid, or the compact card prepended
+	// into it) remove it from the owned-products loop so it isn't rendered twice. When neither
+	// explicit card applies — e.g. the full-stats-card flag is off in a standalone plugin that
+	// doesn't bundle the main Jetpack plugin — leave it in the loop so it still renders as a grid card.
+	const statsRenderedExplicitly = showFullStatsCard || showCompactStatsCard;
 	const filteredSlugs = slugs.filter( slug => {
-		if ( slug === PRODUCT_SLUGS.STATS && showFullJetpackStatsCard ) {
+		if ( slug === PRODUCT_SLUGS.STATS && statsRenderedExplicitly ) {
 			return false;
 		}
 
@@ -71,7 +133,7 @@ const DisplayItems: FC< DisplayItemsProps > = ( { slugs, isLoading } ) => {
 					<LoadingBlock width="100%" height="350px" />
 				</Col>
 			) }
-			{ ! isLoading && slugs.includes( 'stats' ) && showFullJetpackStatsCard && (
+			{ ! isLoading && showFullStatsCard && (
 				<Col className={ styles.fullStatsCard }>
 					<StatsSection />
 				</Col>
@@ -84,112 +146,52 @@ const DisplayItems: FC< DisplayItemsProps > = ( { slugs, isLoading } ) => {
 				horizontalSpacing={ 0 }
 				horizontalGap={ 3 }
 			>
-				{ isLoading
-					? mockArrayOfProducts.map( ( _, index ) => (
-							<Col tagName="li" sm={ 4 } md={ 4 } lg={ 4 } key={ index }>
-								<LoadingBlock width="100%" height="200px" />
+				{ isLoading ? (
+					mockArrayOfProducts.map( ( _, index ) => (
+						<Col tagName="li" sm={ 4 } md={ 4 } lg={ 4 } key={ index }>
+							<LoadingBlock width="100%" height="200px" />
+						</Col>
+					) )
+				) : (
+					<>
+						{ showCompactStatsCard && (
+							<Col tagName="li" sm={ 4 } md={ 4 } lg={ 4 } key="stats">
+								<StatsCard admin={ isAdmin } />
 							</Col>
-					  ) )
-					: filteredSlugs.map( product => {
+						) }
+						{ filteredSlugs.map( product => {
 							const Item = items[ product ];
 
 							return (
 								<Col tagName="li" sm={ 4 } md={ 4 } lg={ 4 } key={ product }>
-									<Item admin={ userIsAdmin === '1' } />
+									<Item admin={ isAdmin } />
 								</Col>
 							);
-					  } ) }
+						} ) }
+					</>
+				) }
 			</Container>
 		</>
 	);
 };
 
 interface ProductCardsSectionProps {
-	noticeMessage: ReactNode;
+	noticeMessage?: ReactNode;
 }
 
 const ProductCardsSection: FC< ProductCardsSectionProps > = ( { noticeMessage } ) => {
-	const {
-		data: { ownedProducts, unownedProducts },
-		isLoading,
-	} = useProductsByOwnership();
-
-	const [ isLoadingProducts, setIsLoadingProducts ] = useState( true );
-
-	useEffect( () => {
-		if ( isLoading ) {
-			return;
-		}
-
-		// This adds a slight delay to the loading status change to prevent
-		// a brief moment in time where the section was not visible at all
-		// between the isLoading = true and isLoading = false states.
-		// This issue was causing a flicker effect.
-		requestAnimationFrame( () => setIsLoadingProducts( false ) );
-	} );
-
-	const { canUserViewStats, userIsAdmin } = getMyJetpackWindowInitialState();
-
-	const unownedSectionTitle = useMemo( () => {
-		return ownedProducts.length > 0
-			? __( 'Discover more', 'jetpack-my-jetpack' )
-			: __( 'Discover all Jetpack Products', 'jetpack-my-jetpack' );
-	}, [ ownedProducts.length ] );
-
-	const filterProducts = useCallback(
-		( products: JetpackModule[] ) => {
-			const productsWithNoCard = [
-				'extras',
-				'scan',
-				'security',
-				'ai',
-				'creator',
-				'growth',
-				'complete',
-				'site-accelerator',
-				'newsletter',
-				'related-posts',
-				'brute-force',
-			];
-
-			// If the user cannot view stats, filter out the stats card
-			if ( ! canUserViewStats ) {
-				productsWithNoCard.push( 'stats' );
-			}
-
-			return products.filter( product => {
-				return ! productsWithNoCard.includes( product );
-			} );
-		},
-		[ canUserViewStats ]
-	);
-
-	const filteredOwnedProducts = filterProducts( ownedProducts );
-	const filteredUnownedProducts = filterProducts( unownedProducts );
+	const { filteredOwnedProducts, isLoading } = useFilteredProducts();
 
 	return (
 		<>
-			{ ( isLoadingProducts || filteredOwnedProducts.length > 0 ) && (
-				<AdminSectionHero>
-					<Container horizontalSpacing={ 6 } horizontalGap={ noticeMessage ? 3 : 6 }>
-						<Col>
-							<Col sm={ 4 } md={ 8 } lg={ 12 } className={ styles.cardListTitle }>
-								<Text variant="headline-small">{ __( 'My products', 'jetpack-my-jetpack' ) }</Text>
-							</Col>
-
-							<DisplayItems isLoading={ isLoadingProducts } slugs={ filteredOwnedProducts } />
-						</Col>
-					</Container>
-				</AdminSectionHero>
-			) }
-
-			{ userIsAdmin && filteredUnownedProducts.length > 0 && (
-				<Container horizontalSpacing={ 6 } horizontalGap={ noticeMessage ? 3 : 6 }>
+			{ ( isLoading || filteredOwnedProducts.length > 0 ) && (
+				<Container
+					horizontalSpacing={ 0 }
+					horizontalGap={ noticeMessage ? 3 : 6 }
+					className={ styles[ 'products-container' ] }
+				>
 					<Col>
-						<Col sm={ 4 } md={ 8 } lg={ 12 } className={ styles.cardListTitle }>
-							<Text variant="headline-small">{ unownedSectionTitle }</Text>
-						</Col>
-						<ProductsTableView products={ filteredUnownedProducts } />
+						<DisplayItems isLoading={ isLoading } slugs={ filteredOwnedProducts } />
 					</Col>
 				</Container>
 			) }

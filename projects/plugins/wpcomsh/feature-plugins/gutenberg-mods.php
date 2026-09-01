@@ -8,8 +8,146 @@
  * @package wpcomsh
  */
 
+// Enable allowed experiments early so Gutenberg's load.php include-time check picks them up.
+// This runs at MU plugin load time, before Gutenberg (a regular plugin) is loaded.
+// Both filters are needed: default_option_ fires when the option doesn't exist in the DB,
+// option_ fires when it does.
+add_filter( 'default_option_gutenberg-experiments', 'wpcomsh_filter_gutenberg_experiments' );
+add_filter( 'option_gutenberg-experiments', 'wpcomsh_filter_gutenberg_experiments' );
+
+// Ignore the Gutenberg plugin when it is older than the version bundled in core, on beta-track sites.
+add_action( 'muplugins_loaded', 'wpcomsh_register_ignore_outdated_gutenberg_plugin' );
+
 /**
- * Disable all Gutenberg experiments.
+ * Minimum Gutenberg version bundled in each WordPress major release.
+ *
+ * @see https://developer.wordpress.org/block-editor/contributors/versions-in-wordpress/
+ */
+const WPCOMSH_CORE_BUNDLED_GUTENBERG_VERSIONS = array(
+	'7.1' => '23.6.0',
+);
+
+/**
+ * Attach the active-plugins filter only while core loads plugins, and only on the beta track.
+ *
+ * The filter is registered on `muplugins_loaded` and removed on `plugins_loaded`, so it only
+ * affects the read that core makes to load plugins. Outside that window the stored option is
+ * returned untouched, so the trimmed list can never be read and saved back to the database
+ * (which would deactivate the plugin permanently).
+ */
+function wpcomsh_register_ignore_outdated_gutenberg_plugin() {
+	if ( ! wpcomsh_is_wp_beta_version() ) {
+		return;
+	}
+
+	add_filter( 'option_active_plugins', 'wpcomsh_ignore_outdated_gutenberg_plugin' );
+	add_action(
+		'plugins_loaded',
+		static function () {
+			remove_filter( 'option_active_plugins', 'wpcomsh_ignore_outdated_gutenberg_plugin' );
+		},
+		0
+	);
+}
+
+/**
+ * Whether the site is running a pre-release (alpha/beta/RC) build of WordPress core.
+ *
+ * @return bool
+ */
+function wpcomsh_is_wp_beta_version() {
+	global $wp_version;
+
+	return is_string( $wp_version ) && (bool) preg_match( '/-(alpha|beta|RC)/i', $wp_version );
+}
+
+/**
+ * Returns the minimum Gutenberg version bundled in the running WordPress core, or null if unknown.
+ *
+ * @return string|null
+ */
+function wpcomsh_get_core_bundled_gutenberg_version() {
+	global $wp_version;
+
+	if ( ! is_string( $wp_version ) || ! preg_match( '/^(\d+\.\d+)/', $wp_version, $matches ) ) {
+		return null;
+	}
+
+	return WPCOMSH_CORE_BUNDLED_GUTENBERG_VERSIONS[ $matches[1] ] ?? null;
+}
+
+/**
+ * Returns the installed Gutenberg plugin version, or null if it can't be read.
+ *
+ * Reads the plugin header, as this runs before the plugin (and GUTENBERG_VERSION) loads.
+ *
+ * @return string|null
+ */
+function wpcomsh_get_installed_gutenberg_plugin_version() {
+	$plugin_file = WP_PLUGIN_DIR . '/gutenberg/gutenberg.php';
+
+	if ( ! is_readable( $plugin_file ) ) {
+		return null;
+	}
+
+	$data = get_file_data( $plugin_file, array( 'Version' => 'Version' ) );
+
+	return empty( $data['Version'] ) ? null : $data['Version'];
+}
+
+/**
+ * Whether the plugin should be ignored: the site is on the beta track and the installed
+ * plugin is older than core's bundle (both versions must be known).
+ *
+ * @param string|null $plugin_version      Installed Gutenberg plugin version.
+ * @param string|null $min_bundled_version Minimum Gutenberg version bundled in the running core.
+ * @return bool
+ */
+function wpcomsh_should_ignore_gutenberg_plugin( $plugin_version, $min_bundled_version ) {
+	if ( ! wpcomsh_is_wp_beta_version() || null === $plugin_version || null === $min_bundled_version ) {
+		return false;
+	}
+
+	return version_compare( $plugin_version, $min_bundled_version, '<' );
+}
+
+/**
+ * Whether the installed Gutenberg plugin is being ignored in favor of core's bundled Gutenberg.
+ *
+ * @return bool
+ */
+function wpcomsh_is_gutenberg_plugin_ignored() {
+	return wpcomsh_should_ignore_gutenberg_plugin(
+		wpcomsh_get_installed_gutenberg_plugin_version(),
+		wpcomsh_get_core_bundled_gutenberg_version()
+	);
+}
+
+/**
+ * Drop the Gutenberg plugin from the active plugins list when it is older than core's bundle.
+ *
+ * The stored option is left untouched, so the plugin returns once it is updated past the bundle.
+ *
+ * @param mixed $plugins Value of the active_plugins option.
+ * @return mixed
+ */
+function wpcomsh_ignore_outdated_gutenberg_plugin( $plugins ) {
+	if ( ! is_array( $plugins ) ) {
+		return $plugins;
+	}
+
+	$key = array_search( 'gutenberg/gutenberg.php', $plugins, true );
+	if ( false === $key || ! wpcomsh_is_gutenberg_plugin_ignored() ) {
+		return $plugins;
+	}
+
+	unset( $plugins[ $key ] );
+
+	return array_values( $plugins );
+}
+
+/**
+ * Disable all Gutenberg experiments except explicitly allowed ones.
  *
  * @see https://github.com/WordPress/gutenberg/blob/e6d8284b03799136915495654e821ca6212ae6d8/lib/load.php#L22
  */
@@ -26,13 +164,28 @@ function wpcomsh_remove_gutenberg_experiments() {
 	);
 
 	if ( in_array( $blog_id, $allowed_blogs, true ) ) {
+		// Undo the early filters for allowed blogs so they can still manage Gutenberg experiments.
+		remove_filter( 'default_option_gutenberg-experiments', 'wpcomsh_filter_gutenberg_experiments' );
+		remove_filter( 'option_gutenberg-experiments', 'wpcomsh_filter_gutenberg_experiments' );
 		return;
 	}
-
-	add_filter( 'option_gutenberg-experiments', '__return_false' );
 	add_action( 'admin_menu', 'wpcomsh_remove_gutenberg_experimental_menu' );
 }
 add_action( 'init', 'wpcomsh_remove_gutenberg_experiments' );
+
+/**
+ * Disable all Gutenberg experiments except explicitly allowed ones.
+ *
+ * Allowed experiments are always enabled regardless of the option value in the database.
+ *
+ * @return array List of the enabled experiments.
+ */
+function wpcomsh_filter_gutenberg_experiments() {
+	return array(
+		'gutenberg-content-guidelines' => true,
+		'gutenberg-guidelines'         => true,
+	);
+}
 
 /**
  * Remove Gutenberg's Experiments submenu item.
@@ -40,6 +193,42 @@ add_action( 'init', 'wpcomsh_remove_gutenberg_experiments' );
 function wpcomsh_remove_gutenberg_experimental_menu() {
 	remove_submenu_page( 'gutenberg', 'gutenberg-experiments' );
 }
+
+/**
+ * Enable wp-admin JS error reporting on sites participating in the `gutenberg-react-19`
+ * experiment, so that errors caused by the React 19 upgrade are captured.
+ *
+ * Reporting is enabled only for WP.com-connected users, who have accepted the WP.com
+ * terms of service and privacy policy. Local users have made no such agreement.
+ *
+ * @param bool $is_enabled Whether error reporting is enabled.
+ * @return bool
+ */
+function wpcomsh_enable_error_reporting_for_react_19( $is_enabled ) {
+	if ( $is_enabled ) {
+		return true;
+	}
+
+	if ( ! function_exists( 'is_user_connected' ) || ! is_user_connected( get_current_user_id() ) ) {
+		return false;
+	}
+
+	if ( function_exists( 'wpcomsh_is_site_sticker_active' ) && wpcomsh_is_site_sticker_active( 'gutenberg-react-19' ) ) {
+		return true;
+	}
+
+	$site_id = wpcomsh_get_atomic_site_id();
+	if ( ! $site_id ) {
+		return false;
+	}
+
+	$current_segment = 10; // Segment of sites that get error reporting, in %.
+	$site_segment    = $site_id % 100;
+
+	// Sites whose id ends in digits < $current_segment are in the segment.
+	return $site_segment < $current_segment;
+}
+add_filter( 'a8c_enable_error_reporting', 'wpcomsh_enable_error_reporting_for_react_19' );
 
 /**
  * Hotfix a Gutenberg bug that inadvertently loads wp-reset-editor-syles stylesheet in the
@@ -170,3 +359,40 @@ function wpcom_safecss_allow_additional_css_properties( $css_properties ) {
 	return $css_properties;
 }
 add_filter( 'safe_style_css', 'wpcom_safecss_allow_additional_css_properties', 10, 1 );
+
+/**
+ * Add guideline meta keys to the Jetpack sync post meta whitelist.
+ *
+ * @param array $whitelist Current post meta whitelist.
+ * @return array
+ */
+function wpcomsh_add_guideline_sync_meta_whitelist( $whitelist ) {
+	$guideline_meta_keys = array(
+		'_guideline_copy',
+		'_guideline_images',
+		'_guideline_site',
+		'_guideline_additional',
+		'_guideline_block_core_paragraph',
+		'_guideline_block_core_image',
+		'_guideline_block_core_heading',
+		'_guideline_block_core_list',
+		'_guideline_block_core_list_item',
+		'_guideline_block_core_quote',
+		'_guideline_block_core_code',
+		'_guideline_block_core_table',
+		'_guideline_block_core_video',
+		'_guideline_block_core_audio',
+		'_guideline_block_core_gallery',
+		'_guideline_block_core_cover',
+		'_guideline_block_core_pullquote',
+		'_guideline_block_core_preformatted',
+		'_guideline_block_core_verse',
+		'_guideline_block_core_button',
+		'_guideline_block_core_media_text',
+		'_guideline_block_core_freeform',
+		'_guideline_block_core_html',
+		'_guideline_block_core_embed',
+	);
+	return array_merge( $whitelist, $guideline_meta_keys );
+}
+add_filter( 'jetpack_sync_post_meta_whitelist', 'wpcomsh_add_guideline_sync_meta_whitelist' );

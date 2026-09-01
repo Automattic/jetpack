@@ -1,0 +1,69 @@
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+
+.wrapper {
+
+	:global(.dataviews-wrapper) {
+		border: 1px solid rgba(0, 0, 0, 0.1);
+		border-radius: 8px;
+		// Clip the inner layout container's square corners and the row
+		// dividers to the rounded border, otherwise they poke out at the corners.
+		overflow: hidden;
+		background-color: #{gb.$white};
+	}
+
+	:global(thead tr.dataviews-view-table__row) {
+		display: none;
+	}
+
+	:global(.dataviews__view-actions) {
+		display: none;
+	}
+
+	:global(.dataviews-view-table tr):first-child {
+		border-top: none;
+	}
+
+	:global(.dataviews-view-table__row td):not(:first-child) {
+
+		:global(.dataviews-view-table__cell-content-wrapper) {
+			justify-content: end;
+		}
+	}
+
+	:global(.dataviews-view-table td:last-child) {
+		padding-inline-end: 1.5rem;
+		width: auto;
+		white-space: nowrap;
+	}
+
+	:global(.dataviews-view-table td:first-child) {
+		padding-inline-start: 1.5rem;
+
+		:global(.dataviews-view-table__cell-content-wrapper) {
+			white-space: normal;
+		}
+	}
+
+	.toggle-wrap {
+		width: auto;
+	}
+}
+
+.module-title-wrapper {
+	display: flex;
+	flex-direction: column;
+	gap: 0.25rem;
+	min-width: 0; // Allow flex item to shrink below content size
+}
+
+.module-name {
+	font-weight: 500;
+}
+
+.module-description {
+
+	@include gb.body-small;
+	color: #{gb.$gray-700};
+	// Avoid a single word wrapping alone onto the last line (typographic orphan).
+	text-wrap: pretty;
+}

@@ -1,7 +1,7 @@
 <?php
 /**
- * Module Name: Account protection
- * Module Description: When enabled, users can only set passwords that meet strong security standards, helping protect their accounts and your site.
+ * Module Name: Account Protection
+ * Module Description: Shield your login page with rate‑limiting and secure authentication safeguards.
  * Sort Order: 4
  * First Introduced: 14.5
  * Requires Connection: Yes

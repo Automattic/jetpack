@@ -1,5 +1,6 @@
 import { __ } from '@wordpress/i18n';
-import React, { useEffect } from 'react';
+import * as React from 'react';
+import { useEffect } from 'react';
 import {
 	OVERLAY_CLASS_NAME,
 	OVERLAY_SEARCH_BOX_INPUT_CLASS_NAME,
@@ -97,9 +98,9 @@ const Overlay = props => {
 			].join( ' ' ) }
 			role="dialog"
 		>
-			<h1 id="jetpack-instant-search__overlay-title" className="screen-reader-text">
+			<h2 id="jetpack-instant-search__overlay-title" className="screen-reader-text">
 				{ __( 'Search results', 'jetpack-search-pkg' ) }
-			</h1>
+			</h2>
 			{ children }
 		</div>
 	);

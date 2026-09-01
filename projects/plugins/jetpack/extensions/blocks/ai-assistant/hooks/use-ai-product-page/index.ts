@@ -2,7 +2,11 @@
  * External dependencies
  */
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { getJetpackData, useAutosaveAndRedirect } from '@automattic/jetpack-shared-extension-utils';
+import { isSimpleSite, getMyJetpackUrl } from '@automattic/jetpack-script-data';
+import {
+	isMyJetpackAvailable,
+	useAutosaveAndRedirect,
+} from '@automattic/jetpack-shared-extension-utils';
 /*
  * Types
  */
@@ -14,11 +18,9 @@ export default function useAiProductPage(): {
 	productPageUrl: string;
 	isMyJetpackAvailable: boolean;
 } {
-	// TODO: use isMyJetpackAvailable from shared-extension-utils once PR is merged and package published:
-	// https://github.com/Automattic/jetpack/pull/38529
-	const isMyJetpackAvailable = getJetpackData()?.jetpack?.is_my_jetpack_available;
-	const productPageUrl = isMyJetpackAvailable
-		? `${ getJetpackData()?.adminUrl || '' }admin.php?page=my-jetpack#/jetpack-ai`
+	const isMyJetpackReallyAvailable = isMyJetpackAvailable() && ! isSimpleSite();
+	const productPageUrl = isMyJetpackReallyAvailable
+		? getMyJetpackUrl( '#/jetpack-ai' )
 		: getRedirectUrl( 'org-ai' );
 
 	const { autosaveAndRedirect, isRedirecting } = useAutosaveAndRedirect( productPageUrl );
@@ -27,6 +29,6 @@ export default function useAiProductPage(): {
 		productPageUrl,
 		autosaveAndRedirect,
 		isRedirecting,
-		isMyJetpackAvailable,
+		isMyJetpackAvailable: isMyJetpackReallyAvailable,
 	};
 }

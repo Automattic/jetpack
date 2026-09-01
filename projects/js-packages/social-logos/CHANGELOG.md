@@ -1,3 +1,131 @@
+## [3.3.18] - 2026-07-20
+### Changed
+- Update package dependencies. [#50510]
+
+## [3.3.17] - 2026-07-13
+### Changed
+- Update package dependencies. [#50375]
+
+## [3.3.16] - 2026-05-25
+### Added
+- Expose `social-logo-colors.css` via a `colors.css` sub-path export, and define the missing `--color-bluesky` brand variable. [#48829]
+
+## [3.3.15] - 2026-05-19
+### Changed
+- Internal updates.
+
+## [3.3.14] - 2026-05-04
+### Changed
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+
+## [3.3.13] - 2026-04-27
+### Changed
+- Internal updates.
+
+## [3.3.12] - 2026-03-30
+### Changed
+- Update package dependencies. [#47818]
+
+### Fixed
+- Build: Adjust CSS output to be compliant with Stylelint rules. [#47745]
+
+## [3.3.11] - 2026-03-09
+### Changed
+- Switch to Native TypeScript compiler based on Go. [#47375]
+
+## [3.3.10] - 2026-02-26
+### Changed
+- Update package dependencies. [#47285]
+
+## [3.3.9] - 2026-02-23
+### Removed
+- Remove Pocket logo as the service is being discontinued. Pocket Casts logo remains available. [#46879]
+
+## [3.3.8] - 2026-02-18
+### Changed
+- Set `.repository.url` in `package.json` to the mirror repo rather than the monorepo. [#47149]
+
+## [3.3.7] - 2026-02-16
+### Fixed
+- Compatibility: Clean up deprecated CSS. [#47067]
+
+## [3.3.6] - 2026-02-04
+### Changed
+- Update package dependencies. [#46936]
+
+## [3.3.5] - 2025-12-08
+### Fixed
+- Move `react` and `react-dom` to `devDependencies`. [#46167]
+
+## [3.3.4] - 2025-11-18
+### Changed
+- Update package dependencies. [#45961]
+
+## [3.3.3] - 2025-11-10
+### Changed
+- Update package dependencies. [#45737]
+
+## [3.3.2] - 2025-11-03
+### Changed
+- Update package dependencies. [#45678]
+
+## [3.3.1] - 2025-10-28
+### Changed
+- Update package dependencies. [#45652]
+
+## [3.3.0] - 2025-10-13
+### Added
+- Add a new Apple Podcasts logo. [#45436]
+- Add new Pocket Casts logo. [#45438] [#45485]
+
+### Changed
+- Reddit: Update logo to match new design. [#45437] [#45484]
+- Woo: Update logo to match recent redesign. [#45435]
+
+## [3.2.11] - 2025-10-02
+### Changed
+- Update package dependencies. [#45335]
+
+## [3.2.10] - 2025-09-08
+### Changed
+- Update package dependencies. [#45097]
+
+## [3.2.9] - 2025-08-18
+### Added
+- Add `typecheck` script to ensure that TypeScript files are type-checked. [#44795]
+
+## [3.2.8] - 2025-08-04
+### Changed
+- Internal updates.
+
+## [3.2.7] - 2025-07-23
+### Changed
+- Internal updates.
+
+## [3.2.6] - 2025-07-21
+### Changed
+- Internal updates.
+
+## [3.2.5] - 2025-07-01
+### Changed
+- Internal updates.
+
+## [3.2.4] - 2025-06-18
+### Changed
+- Internal updates.
+
+## [3.2.3] - 2025-06-16
+### Changed
+- Update package dependencies. [#43914]
+
+## [3.2.2] - 2025-06-04
+### Changed
+- Update package dependencies. [#43766]
+
+## [3.2.1] - 2025-06-03
+### Changed
+- Update package dependencies. [#43718]
+
 ## [3.2.0] - 2025-05-12
 ### Removed
 - Remove Skype since the service no longer exists. [#43375]
@@ -220,6 +348,36 @@
 
 - Build: Refactored (aligned build system with Gridicons).
 
+[3.3.18]: https://github.com/Automattic/social-logos/compare/v3.3.17...v3.3.18
+[3.3.17]: https://github.com/Automattic/social-logos/compare/v3.3.16...v3.3.17
+[3.3.16]: https://github.com/Automattic/social-logos/compare/v3.3.15...v3.3.16
+[3.3.15]: https://github.com/Automattic/social-logos/compare/v3.3.14...v3.3.15
+[3.3.14]: https://github.com/Automattic/social-logos/compare/v3.3.13...v3.3.14
+[3.3.13]: https://github.com/Automattic/social-logos/compare/v3.3.12...v3.3.13
+[3.3.12]: https://github.com/Automattic/social-logos/compare/v3.3.11...v3.3.12
+[3.3.11]: https://github.com/Automattic/social-logos/compare/v3.3.10...v3.3.11
+[3.3.10]: https://github.com/Automattic/social-logos/compare/v3.3.9...v3.3.10
+[3.3.9]: https://github.com/Automattic/social-logos/compare/v3.3.8...v3.3.9
+[3.3.8]: https://github.com/Automattic/social-logos/compare/v3.3.7...v3.3.8
+[3.3.7]: https://github.com/Automattic/social-logos/compare/v3.3.6...v3.3.7
+[3.3.6]: https://github.com/Automattic/social-logos/compare/v3.3.5...v3.3.6
+[3.3.5]: https://github.com/Automattic/social-logos/compare/v3.3.4...v3.3.5
+[3.3.4]: https://github.com/Automattic/social-logos/compare/v3.3.3...v3.3.4
+[3.3.3]: https://github.com/Automattic/social-logos/compare/v3.3.2...v3.3.3
+[3.3.2]: https://github.com/Automattic/social-logos/compare/v3.3.1...v3.3.2
+[3.3.1]: https://github.com/Automattic/social-logos/compare/v3.3.0...v3.3.1
+[3.3.0]: https://github.com/Automattic/social-logos/compare/v3.2.11...v3.3.0
+[3.2.11]: https://github.com/Automattic/social-logos/compare/v3.2.10...v3.2.11
+[3.2.10]: https://github.com/Automattic/social-logos/compare/v3.2.9...v3.2.10
+[3.2.9]: https://github.com/Automattic/social-logos/compare/v3.2.8...v3.2.9
+[3.2.8]: https://github.com/Automattic/social-logos/compare/v3.2.7...v3.2.8
+[3.2.7]: https://github.com/Automattic/social-logos/compare/v3.2.6...v3.2.7
+[3.2.6]: https://github.com/Automattic/social-logos/compare/v3.2.5...v3.2.6
+[3.2.5]: https://github.com/Automattic/social-logos/compare/v3.2.4...v3.2.5
+[3.2.4]: https://github.com/Automattic/social-logos/compare/v3.2.3...v3.2.4
+[3.2.3]: https://github.com/Automattic/social-logos/compare/v3.2.2...v3.2.3
+[3.2.2]: https://github.com/Automattic/social-logos/compare/v3.2.1...v3.2.2
+[3.2.1]: https://github.com/Automattic/social-logos/compare/v3.2.0...v3.2.1
 [3.2.0]: https://github.com/Automattic/social-logos/compare/v3.1.21...v3.2.0
 [3.1.21]: https://github.com/Automattic/social-logos/compare/v3.1.20...v3.1.21
 [3.1.20]: https://github.com/Automattic/social-logos/compare/v3.1.19...v3.1.20

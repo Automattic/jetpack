@@ -1,4 +1,4 @@
-<?php // phpcs:disable WordPress.PHP.DevelopmentFunctions.error_log_print_r
+<?php
 /**
  * Plugin Name: WPCOM API Request Tracker
  * Description: Displays the number of requests to WPCOM API endpoints for the current page request.
@@ -17,6 +17,8 @@ WPCOM_API_Request_Tracker::init();
 
 /**
  * Class WPCOM_API_Request_Tracker_Module
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class WPCOM_API_Request_Tracker_Module {
 	/**
@@ -41,8 +43,8 @@ class WPCOM_API_Request_Tracker_Module {
 	 * Enqueue scripts.
 	 */
 	public function enqueue_scripts() {
-		wp_enqueue_style( 'broken_token_style', plugin_dir_url( __FILE__ ) . 'inc/css/wpcom-api-request-tracker.css', array(), JETPACK_DEBUG_HELPER_VERSION );
-		wp_enqueue_script( 'broken_token_script', plugin_dir_url( __FILE__ ) . 'inc/js/wpcom-api-request-tracker.js', array( 'jquery' ), JETPACK_DEBUG_HELPER_VERSION, true );
+		wp_enqueue_style( 'broken_token_request_tracker_style', plugin_dir_url( __FILE__ ) . 'inc/css/wpcom-api-request-tracker.css', array(), JETPACK_DEBUG_HELPER_VERSION );
+		wp_enqueue_script( 'broken_token_request_tracker_script', plugin_dir_url( __FILE__ ) . 'inc/js/wpcom-api-request-tracker.js', array( 'jquery' ), JETPACK_DEBUG_HELPER_VERSION, true );
 	}
 
 	/**
@@ -67,7 +69,7 @@ class WPCOM_API_Request_Tracker_Module {
 		$requests = WPCOM_API_Request_Tracker::init()->get_requests();
 
 		?>
-		<script>var wpcom_api_request_tracker_count = <?php echo esc_js( array_sum( $requests ) ); ?>;</script>
+		<script>var wpcom_api_request_tracker_count = <?php echo intval( array_sum( $requests ) ); ?>;</script>
 		<div id='wpcom-api-request-tracker'>
 
 			<div id="wpcom-api-request-tracker-actions">
@@ -92,4 +94,3 @@ class WPCOM_API_Request_Tracker_Module {
 
 new WPCOM_API_Request_Tracker_Module();
 
-// phpcs:enable

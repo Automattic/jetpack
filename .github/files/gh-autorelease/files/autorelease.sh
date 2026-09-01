@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 set -eo pipefail
 
@@ -127,7 +127,7 @@ fi
 if [[ -n "$ROLLING_MODE" ]]; then
 	echo "::group::Deleting stale rolling release"
 
-	for R in $( gh release list --limit 100 --json tagName --jq '.[].tagName | select( contains( "+rolling" ) )' ); do
+	for R in $( gh release list --limit 1000000 --json tagName,publishedAt --jq '.[] | select( ( .tagName | contains( "+rolling" ) ) and ( .publishedAt | fromdateiso8601 < now - 86400 ) ) | .tagName' ); do
 		echo "Found $R, deleting"
 		gh release delete "$R" --cleanup-tag --yes
 	done

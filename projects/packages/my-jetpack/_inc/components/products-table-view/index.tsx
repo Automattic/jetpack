@@ -3,7 +3,7 @@ import { DataViews, filterSortAndPaginate } from '@wordpress/dataviews';
 import { __ } from '@wordpress/i18n';
 import { Icon, chevronRight } from '@wordpress/icons';
 import { useCallback, useState, useMemo, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { useAllProducts } from '../../data/products/use-all-products';
 import useAnalytics from '../../hooks/use-analytics';
 import ActionButton from '../action-button';
@@ -26,14 +26,7 @@ import StatsIcon from './icons/stats';
 import VideopressIcon from './icons/videopress';
 import type { ProductsTableViewProps, ProductData } from './types';
 import type { ProductCamelCase } from '../../data/types';
-import type {
-	ViewList,
-	SupportedLayouts,
-	SortDirection,
-	View,
-	Operator,
-	Option,
-} from '@wordpress/dataviews';
+import type { ViewList, SortDirection, View, Operator, Option } from '@wordpress/dataviews';
 import type { FC } from 'react';
 
 import './style.scss';
@@ -121,7 +114,7 @@ const ProductsTableView: FC< ProductsTableViewProps > = ( { products } ) => {
 		perPage: 10,
 	};
 
-	const defaultLayouts: SupportedLayouts = {
+	const defaultLayouts = {
 		list: {
 			...baseView,
 			fields: [ PRODUCT_TABLE_DESCRIPTION, PRODUCT_TABLE_STATUS ],

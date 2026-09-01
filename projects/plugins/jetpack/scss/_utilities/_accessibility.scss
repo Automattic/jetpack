@@ -4,7 +4,7 @@
 
 // Text meant only for screen readers
 .screen-reader-text {
-	clip: rect(1px, 1px, 1px, 1px);
+	clip-path: inset(50%);
 	position: absolute !important;
 
 	&:hover,
@@ -13,7 +13,7 @@
 		background-color: #f0f0f1;
 		border-radius: 3px;
 		box-shadow: 0 0 2px 2px rgba(0, 0, 0, 0.6);
-		clip: auto !important;
+		clip-path: none !important;
 		color: #21759b;
 		display: block;
 		font-size: 14px;

@@ -1,13 +1,14 @@
-import { Container, Col, useBreakpointMatch } from '@automattic/jetpack-components';
-import React from 'react';
+import { Container, Col } from '@automattic/jetpack-components';
+import { useViewportMatch } from '@wordpress/compose';
+import type { FC, ReactNode } from 'react';
 
 // Define the props interface for the SeventyFiveLayout component
 interface SeventyFiveLayoutProps {
 	spacing?: number;
 	gap?: number;
-	main: React.ReactNode;
+	main: ReactNode;
 	mainClassName?: string;
-	secondary: React.ReactNode;
+	secondary: ReactNode;
 	secondaryClassName?: string;
 	preserveSecondaryOnMobile?: boolean;
 	fluid?: boolean;
@@ -21,18 +22,18 @@ interface SeventyFiveLayoutProps {
  * for main and secondary sections respectively,
  * in large lg viewport size.
  *
- * @param {object}          props                           - Component props
- * @param {number}          props.spacing                   - Horizontal spacing
- * @param {number}          props.gap                       - Horizontal gap
- * @param {React.ReactNode} props.main                      - Main section component
- * @param {string}          props.mainClassName             - Main section class name
- * @param {React.ReactNode} props.secondary                 - Secondary section component
- * @param {string}          props.secondaryClassName        - Secondary section class name
- * @param {boolean}         props.preserveSecondaryOnMobile - Whether to show secondary section on mobile
- * @param {boolean}         props.fluid                     - Whether to use fluid layout
- * @return {React.ReactNode} - React meta-component
+ * @param {object}    props                           - Component props
+ * @param {number}    props.spacing                   - Horizontal spacing
+ * @param {number}    props.gap                       - Horizontal gap
+ * @param {ReactNode} props.main                      - Main section component
+ * @param {string}    props.mainClassName             - Main section class name
+ * @param {ReactNode} props.secondary                 - Secondary section component
+ * @param {string}    props.secondaryClassName        - Secondary section class name
+ * @param {boolean}   props.preserveSecondaryOnMobile - Whether to show secondary section on mobile
+ * @param {boolean}   props.fluid                     - Whether to use fluid layout
+ * @return {ReactNode} - React meta-component
  */
-const SeventyFiveLayout: React.FC< SeventyFiveLayoutProps > = ( {
+const SeventyFiveLayout: FC< SeventyFiveLayoutProps > = ( {
 	spacing = 0,
 	gap = 0,
 	main,
@@ -42,8 +43,8 @@ const SeventyFiveLayout: React.FC< SeventyFiveLayoutProps > = ( {
 	preserveSecondaryOnMobile = false,
 	fluid,
 } ) => {
-	// Ensure the correct typing for useBreakpointMatch
-	const [ isSmall, isLarge ] = useBreakpointMatch( [ 'sm', 'lg' ] );
+	const isSmall = useViewportMatch( 'small', '<' );
+	const isLarge = useViewportMatch( 'large' );
 
 	/*
 	 * By convention, secondary section is not shown when:

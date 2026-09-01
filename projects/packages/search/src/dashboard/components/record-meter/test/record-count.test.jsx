@@ -1,10 +1,5 @@
-/**
- * @jest-environment jsdom
- */
-
 import { render, screen } from '@testing-library/react';
 import { RecordCount } from 'components/record-meter/record-count';
-import React from 'react';
 
 describe( 'record count', () => {
 	test( 'outputs correct record counts', () => {

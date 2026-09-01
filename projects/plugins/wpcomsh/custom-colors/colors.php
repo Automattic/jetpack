@@ -61,13 +61,6 @@ class Colors_Manager_Common {
 	protected static $color_palettes = array();
 
 	/**
-	 * If we're using Gutenberg or not.
-	 *
-	 * @var boolean
-	 */
-	protected static $is_gutenberg = false;
-
-	/**
 	 * Themes that will never support Custom Colors.
 	 *
 	 * Criteria for not supporting:
@@ -148,63 +141,68 @@ class Colors_Manager_Common {
 	 * Initialize the object.
 	 */
 	public static function init() {
+		// COLOURLovers support has been discontinued, so we must stop requesting
+		// COLOURLovers-hosted assets. Atomic sites store background images on
+		// COLOURLovers' S3 bucket and emit those URLs straight into the page, so
+		// every visitor's browser requests them directly. Blank them at render time.
+		// Attached unconditionally (before the enable_custom_customizer guard) so the
+		// requests stop even where the rest of the custom-colors tool is disabled.
+		// No fallback: broken backgrounds are acceptable.
+		add_filter( 'theme_mod_background_image', array( __CLASS__, 'remove_colourlovers_background' ) );
+		add_filter( 'theme_mod_background_image_thumb', array( __CLASS__, 'remove_colourlovers_background' ) );
+
 		if ( ! apply_filters( 'enable_custom_customizer', true ) ) {
 			return;
 		}
 
-		if ( ! self::is_gutenberg() ) {
-			// Classic Background stats
-			add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_classic_stats' ) );
-			// always load ajax actions
-			add_action( 'wp_ajax_color_palettes', array( __CLASS__, 'ajax_color_palettes' ) );
-			add_action( 'wp_ajax_generate_palette', array( __CLASS__, 'ajax_generate_palette' ) );
-			add_action( 'wp_ajax_color_recommendations', array( __CLASS__, 'ajax_color_recommendations' ) );
-			add_action( 'wp_ajax_pattern_recommendations', array( __CLASS__, 'ajax_pattern_recommendations' ) );
+		// Customizer colors apply on the frontend, in the Customizer preview, and
+		// via the AJAX palette/pattern tools. We deliberately don't inject them
+		// into the block editor: Core doesn't either, and the site background is
+		// often not the post background, so injecting them leaks into the editor
+		// UI. The editor renders with default colors, matching Core.
 
-			// Notice in the core bg admin screen
-			add_action( 'admin_print_styles-appearance_page_custom-background', array( __CLASS__, 'core_bg_enqueue_styles' ) );
-			add_action( 'admin_notices', array( __CLASS__, 'core_bg_admin_notice' ) );
+		// Classic Background stats
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_classic_stats' ) );
+		// always load ajax actions
+		add_action( 'wp_ajax_color_palettes', array( __CLASS__, 'ajax_color_palettes' ) );
+		add_action( 'wp_ajax_generate_palette', array( __CLASS__, 'ajax_generate_palette' ) );
+		add_action( 'wp_ajax_color_recommendations', array( __CLASS__, 'ajax_color_recommendations' ) );
+		add_action( 'wp_ajax_pattern_recommendations', array( __CLASS__, 'ajax_pattern_recommendations' ) );
 
-			// Replace the Backgrounds link with a link to this plugin's section
-			add_action( 'admin_menu', array( __CLASS__, 'modify_admin_menu_links' ) );
+		// Notice in the core bg admin screen
+		add_action( 'admin_print_styles-appearance_page_custom-background', array( __CLASS__, 'core_bg_enqueue_styles' ) );
+		add_action( 'admin_notices', array( __CLASS__, 'core_bg_admin_notice' ) );
 
-			// Load the Colors API class for fetching palettes and patterns from WordPress.com.
-			require_once __DIR__ . '/colors-api.php';
+		// Replace the Backgrounds link with a link to this plugin's section
+		add_action( 'admin_menu', array( __CLASS__, 'modify_admin_menu_links' ) );
 
-			$current_theme = get_option( 'stylesheet' );
+		// Load the Colors API class for fetching palettes and patterns from WordPress.com.
+		require_once __DIR__ . '/colors-api.php';
 
-			// High priority so that no other code manages to modify our URL before we do.  The default URL
-			// saved for background_image isn't meant to ever be used as is.
-			add_filter( 'pre_update_option_theme_mods_' . $current_theme, array( __CLASS__, 'format_colourlovers_urls' ), 1, 2 );
-			add_action( 'update_option_theme_mods_' . $current_theme, array( __CLASS__, 'save_colourlovers_metadata' ), 10, 2 );
+		$current_theme = get_option( 'stylesheet' );
 
-			add_action( 'init', array( __CLASS__, 'register_scripts_and_styles' ), 20 );
+		// High priority so that no other code manages to modify our URL before we do.  The default URL
+		// saved for background_image isn't meant to ever be used as is.
+		add_filter( 'pre_update_option_theme_mods_' . $current_theme, array( __CLASS__, 'format_colourlovers_urls' ), 1, 2 );
+		add_action( 'update_option_theme_mods_' . $current_theme, array( __CLASS__, 'save_colourlovers_metadata' ), 10, 2 );
 
-			// stuff for the customizer - only load if there are annotations.
-			if ( self::has_annotations() ) {
-				add_action( 'customize_register', array( __CLASS__, 'in_customizer' ), 10 );
-				add_action( 'customize_register', array( __CLASS__, 'theme_colors_js' ) );
-				add_action( 'customize_controls_init', array( __CLASS__, 'spinner_scripts' ) );
-			}
+		add_action( 'init', array( __CLASS__, 'register_scripts_and_styles' ), 20 );
 
-			// CSS only to be printed if colors are set.
-			if ( self::theme_has_set_colors() ) {
-				self::override_themecolors();
-				add_filter( 'body_class', array( __CLASS__, 'body_class' ) );
-				add_action( 'wp_head', array( __CLASS__, 'print_theme_css' ), 20 );
-			}
-
-			add_filter( 'tonesque_image_url', array( __CLASS__, 'gravatar_image_url' ) );
+		// stuff for the customizer - only load if there are annotations.
+		if ( self::has_annotations() ) {
+			add_action( 'customize_register', array( __CLASS__, 'in_customizer' ), 10 );
+			add_action( 'customize_register', array( __CLASS__, 'theme_colors_js' ) );
+			add_action( 'customize_controls_init', array( __CLASS__, 'spinner_scripts' ) );
 		}
-	}
 
-	/**
-	 * Checks if we're in Gutenberg (Editor) mode.
-	 *
-	 * @see https://stackoverflow.com/a/14919877
-	 */
-	private static function is_gutenberg() {
-		return static::$is_gutenberg;
+		// CSS only to be printed if colors are set.
+		if ( self::theme_has_set_colors() ) {
+			self::override_themecolors();
+			add_filter( 'body_class', array( __CLASS__, 'body_class' ) );
+			add_action( 'wp_head', array( __CLASS__, 'print_theme_css' ), 20 );
+		}
+
+		add_filter( 'tonesque_image_url', array( __CLASS__, 'gravatar_image_url' ) );
 	}
 
 	/**
@@ -355,11 +353,11 @@ class Colors_Manager_Common {
 			'themeSupport'      => array( 'customBackground' => current_theme_supports( 'custom-background' ) ),
 			'defaultImage'      => get_theme_support( 'custom-background', 'default-image' ),
 			'topPatterns'       => self::get_patterns( array( 'limit' => 30 ) ),
-			'genPalette'        => esc_js( __( 'Generating...', 'wpcomsh' ) ),
-			'backgroundTitle'   => esc_js( __( 'Background', 'wpcomsh' ) ),
-			'colorsTitle'       => esc_js( __( 'Colors', 'wpcomsh' ) ),
-			'mediaTitle'        => esc_js( __( 'Select background image', 'wpcomsh' ) ),
-			'mediaSelectButton' => esc_js( __( 'Select', 'wpcomsh' ) ),
+			'genPalette'        => __( 'Generating...', 'wpcomsh' ),
+			'backgroundTitle'   => __( 'Background', 'wpcomsh' ),
+			'colorsTitle'       => __( 'Colors', 'wpcomsh' ),
+			'mediaTitle'        => __( 'Select background image', 'wpcomsh' ),
+			'mediaSelectButton' => __( 'Select', 'wpcomsh' ),
 		);
 
 		wp_localize_script( 'colors-tool', 'ColorsTool', $settings );
@@ -404,7 +402,7 @@ class Colors_Manager_Common {
 	 */
 	public static function get_colors() {
 		$opts   = get_theme_mod( 'colors_manager', array( 'colors' => false ) );
-		$colors = ( $opts['colors'] ) ? $opts['colors'] : self::$default_colors;
+		$colors = ! empty( $opts['colors'] ) ? $opts['colors'] : self::$default_colors;
 		unset( $colors['undefined'] );
 		return $colors;
 	}
@@ -560,8 +558,6 @@ class Colors_Manager_Common {
 					<input type="text" id="iris" />
 				</div>
 			</div>
-			<?php Colors_Manager::color_palettes(); ?>
-			<?php Colors_Manager::color_patterns(); ?>
 		</div>
 		<?php
 	}
@@ -602,8 +598,8 @@ class Colors_Manager_Common {
 		$response = array( 'palettes' => $palettes );
 
 		header( 'Content-Type: text/javascript' );
-		echo wp_json_encode( $response );
-		die( 0 );
+		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
+		wp_send_json( $response, null, JSON_UNESCAPED_SLASHES );
 	}
 
 	/**
@@ -614,8 +610,8 @@ class Colors_Manager_Common {
 	public static function ajax_generate_palette() {
 		$response = self::get_generated_palette( $_REQUEST );  // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- this is a GET request that doesn't change anything.
 		header( 'Content-Type: text/javascript' );
-		echo wp_json_encode( $response );
-		die( 0 );
+		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
+		wp_send_json( $response, null, JSON_UNESCAPED_SLASHES );
 	}
 
 	/**
@@ -629,8 +625,8 @@ class Colors_Manager_Common {
 		$response = array( 'colors' => $colors );
 
 		header( 'Content-Type: text/javascript' );
-		echo wp_json_encode( $response );
-		die( 0 );
+		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
+		wp_send_json( $response, null, JSON_UNESCAPED_SLASHES );
 	}
 
 	/**
@@ -644,8 +640,38 @@ class Colors_Manager_Common {
 		$response = array( 'patterns' => $patterns );
 
 		header( 'Content-Type: text/javascript' );
-		echo wp_json_encode( $response );
-		die( 0 );
+		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
+		wp_send_json( $response, null, JSON_UNESCAPED_SLASHES );
+	}
+
+	/**
+	 * Stop serving COLOURLovers background images.
+	 *
+	 * COLOURLovers support has been discontinued, so we must no longer make
+	 * requests to COLOURLovers-hosted infrastructure. Atomic sites store
+	 * background images on the legacy `colourlovers.com.s3.amazonaws.com` bucket
+	 * (and historically the `colourlovers-static-replica` bucket) and emit those
+	 * URLs straight into the page, so every visitor's browser requests them
+	 * directly. Blank any such value at render time. We intentionally provide no
+	 * fallback: broken backgrounds are acceptable.
+	 *
+	 * @param mixed $url The stored background image URL.
+	 * @return mixed Empty string for COLOURLovers-hosted images, otherwise the original value.
+	 */
+	public static function remove_colourlovers_background( $url ) {
+		// Match on the bucket host as a substring rather than parsing the URL host or
+		// reusing COLOURLOVERS_HOST: this also catches imgpress/Photon-proxied and
+		// http/https variants where the bucket appears in a `url=` param or path, which
+		// host parsing would miss. Over-blanking is the safe direction here — a missed
+		// match means we keep requesting COLOURLovers.
+		if ( is_string( $url ) && (
+			false !== stripos( $url, 'colourlovers.com.s3.amazonaws.com' )
+			|| false !== stripos( $url, 'colourlovers-static-replica.s3.amazonaws.com' )
+		) ) {
+			return '';
+		}
+
+		return $url;
 	}
 
 	/**
@@ -1258,42 +1284,6 @@ class Colors_Manager_Common {
 	}
 
 	/**
-	 * Renders the color palettes
-	 */
-	public static function color_palettes() {
-		?>
-		<div id="colourlovers-palettes-container">
-			<h3><?php esc_html_e( 'Choose a Palette', 'wpcomsh' ); ?></h3>
-			<div id="colourlovers-palettes"></div>
-			<div class="palette-buttons">
-				<a class="button next" id="more-palettes"><?php esc_html_e( 'More', 'wpcomsh' ); ?></a>
-				<a class="button previous" id="less-palettes" style="display: none;"><?php esc_html_e( 'Back', 'wpcomsh' ); ?></a>
-				<a class="button generate" id="generate-palette"><?php esc_html_e( 'Match header image', 'wpcomsh' ); ?></a>
-			</div>
-		</div>
-		<?php
-	}
-
-	/**
-	 * Renders the pattern grid
-	 */
-	public static function color_patterns() {
-		?>
-		<div class="the-pattern-picker" id="the-pattern-picker" style="display: none;">
-			<span class="customize-control-title">
-				<?php esc_html_e( 'Pick a Background Pattern', 'wpcomsh' ); ?>
-			</span>
-			<ul id="colourlovers-patterns"></ul>
-			<div class="pagination">
-				<a id="more-patterns" class="button"><?php esc_html_e( 'More', 'wpcomsh' ); ?></a>
-				<a id="less-patterns" class="button previous" style="display: none;"><?php esc_html_e( 'Back', 'wpcomsh' ); ?></a>
-			</div>
-			<p class="noresults" style="display: none;"><?php esc_html_e( "There aren't any patterns that match your chosen color scheme. It's just too unique!", 'wpcomsh' ); ?></p>
-		</div>
-		<?php
-	}
-
-	/**
 	 * Make this work inside the Customizer.
 	 *
 	 * @param WP_Customize_Manager $wp_customize the customizer manager instance.
@@ -1498,6 +1488,10 @@ class Colors_Manager_Common {
 	public static function css_rule( $rule, $color ) {
 		$css = '';
 
+		if ( ! isset( $rule[0] ) || ! isset( $rule[1] ) ) {
+			return $css;
+		}
+
 		if ( isset( $rule[2] ) ) {
 			// we'll need it in either case
 			if ( ! class_exists( 'Jetpack_color' ) ) {
@@ -1559,6 +1553,7 @@ class Colors_Manager_Common {
 				$color = $working_color->toCSS( 'rgba', intval( $number ) );
 			}
 		}
+
 		$css .= "{$rule[0]} { {$rule[1]}: {$color};}\n";
 		return $css;
 	}
@@ -1737,6 +1732,11 @@ class Colors_Manager_Common {
 				),
 			)
 		);
+
+		if ( ! $top_palette ) {
+			return array();
+		}
+
 		$top_palette = $top_palette[0];
 
 		$equivalent_color_hex = $top_palette['colors'][ $role ];
@@ -1744,7 +1744,8 @@ class Colors_Manager_Common {
 		foreach ( $top_palette['colors'] as $palette_role => $palette_color_hex ) {
 			$base_color_hex = $colors[ $palette_role ];
 			try {
-				// phpcs:ignore -- $base_color:$new_color :: $palette_color:$equivalent_color
+				// phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+				// $base_color:$new_color :: $palette_color:$equivalent_color
 				$base_color       = new Jetpack_Color( $base_color_hex );
 				$palette_color    = new Jetpack_Color( $palette_color_hex );
 				$equivalent_color = new Jetpack_Color( $equivalent_color_hex );
@@ -1781,7 +1782,8 @@ class Colors_Manager_Common {
 	public static function exception_mailer( $message = 'Needs a message' ) {
 		$message .= "\n\nblog: " . home_url() . "\n";
 		$message .= 'backtrace: ' . wp_debug_backtrace_summary() . "\n"; // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_wp_debug_backtrace_summary
-		// phpcs:ignore -- wp_mail( 'wiebe@automattic.com', 'Color Exception on WordPress.com', $message );
+		// phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+		// wp_mail( 'someone@example.com', 'Color Exception on WordPress.com', $message );
 	}
 	// phpcs:enable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 
@@ -1919,44 +1921,21 @@ function add_color_palette( $palette, $title = false ) {
 }
 
 /**
- * Gutenberg color manager.
- */
-class Colors_Manager_Gutenberg extends Colors_Manager_Common {
-
-	/**
-	 * Whether we're in Gutenberg.
-	 *
-	 * @var boolean
-	 */
-	protected static $is_gutenberg = true;
-
-	/**
-	 * Annotations file path.
-	 *
-	 * @var string
-	 */
-	protected static $annotations_file = 'wpcom-editor-colors.php';
-}
-
-/**
- * Load Gutenberg's color manager.
- */
-function colors_manager_gutenberg_load() {
-	if ( get_current_screen()->is_block_editor() ) {
-		Colors_Manager_Gutenberg::init(); // Gutenberg
-	}
-}
-
-/**
- * Load corresponding color manager.
+ * Load the color manager.
+ *
+ * Customizer colors apply on the frontend, in the Customizer preview, and via
+ * the AJAX palette/pattern tools. The block editor intentionally has no color
+ * manager: injecting Customizer colors leaked into the editor UI, so we leave
+ * those admin screens untouched and let the editor render with default colors,
+ * matching Core.
  */
 function load_corresponding_color_manager() {
 	global $pagenow;
 	if ( is_admin() && 'customize.php' !== $pagenow && ! defined( 'DOING_AJAX' ) ) {
-		add_action( 'current_screen', 'colors_manager_gutenberg_load' );
-	} else {
-		Colors_Manager::init();
+		return;
 	}
+
+	Colors_Manager::init();
 }
 
 add_action( 'init', 'load_corresponding_color_manager' );

@@ -41,7 +41,7 @@ All GitHub Actions configuration for the monorepo, including CI, lives in `.gith
 
 ## Compatibility
 
-All projects should be compatible with PHP versions WordPress supports. That's currently PHP 7.2 to 8.4.
+All projects should be compatible with PHP versions WordPress supports. That's currently PHP 7.4 to 8.5.
 
 ## First Time
 
@@ -60,20 +60,20 @@ Starting a new project? Great! Let the Jetpack Generate Wizard help jumpstart th
 
 * Make sure you're checked out to the branch you want.
 * Use the CLI command `jetpack generate` to start the process.
-* The wizard will walk you through the steps of starting a new package, plugin, or Github action.
+* The wizard will walk you through the steps of starting a new package, plugin, or GitHub action.
 
 ### Accepted Arguments
 
 The wizard accepts a few arguments to speed things up:
 
-* `[project type]` - Accepted values: `package`, `plugin`, `github-action`
+* `[project type]` - Accepted values: `package`, `js-package`, `plugin`, `github-action`
 * `--name`, `--n` - The name of your project (no spaces)
 
 Example: `jetpack generate plugin --name my_cool_plugin` will generate plugin files for a plugin called `my_cool_plugin` under `../jetpack/projects/plugins`
 
 ### What's Included
 
-The Jetpack Generate Wizard includes the following for each project: 
+The Jetpack Generate Wizard includes the following for each project:
 #### All Projects:
 
 - composer.json
@@ -96,7 +96,7 @@ The Jetpack Generate Wizard includes the following for each project:
 - readme.txt
 - A main plugin.php (plugin_name.php), with filled in header
 
-#### Github Actions
+#### GitHub Actions
 
 - action.yml
 
@@ -116,9 +116,12 @@ We use `composer.json` to hold metadata about projects. Much of our generic tool
 * `.repositories`: If you include a repository entry referencing monorepo packages, it must have `.options.monorepo` set to true. This allows the build tooling to recognize and remove it.
 * `.scripts.build-development`: If your project has a general build step, this must run the necessary commands. See [Building](#building) for details.
 * `.scripts.build-production`: If your project requires a production-specific build step, this must run the necessary commands. See [Building](#building) for details.
-* `.scripts.test-coverage`: If the package contains any tests, this must run the necessary commands to generate a coverage report. See [Code coverage](#code-coverage) for details.
-  * `.scripts.skip-test-coverage`: Run before `.scripts.test-coverage` in CI. If it exits with code 3, the test run will be skipped.
-* `.scripts.test-e2e`: If the package contains any E2E tests, this must run the necessary commands. See [E2E tests](#e2e-tests) for details.
+* `.scripts.watch`: If your project supports watch mode for development, this should run the necessary commands to watch for file changes and rebuild automatically.
+* `.scripts.watch-hot`: If your project supports HMR (Hot Module Replacement), this should run the necessary commands to enable hot reloading during development. Used by `jetpack watch --hot`.
+* `.scripts.test-php-coverage`: If the package contains any PHPUnit tests, this must run the necessary commands to generate a PHP coverage report. See [Code coverage](#code-coverage) for details.
+  * `.scripts.skip-test-php-coverage`: Run before `.scripts.test-php-coverage` in CI. If it exits with code 3, the test run will be skipped.
+* `.scripts.test-js-coverage`: If the package contains any JavaScript tests, this must run the necessary commands to generate a JS coverage report. See [Code coverage](#code-coverage) for details.
+  * `.scripts.skip-test-js-coverage`: Run before `.scripts.test-js-coverage` in CI. If it exits with code 3, the test run will be skipped.
 * `.scripts.test-js`: If the package contains any JavaScript tests, this must run the necessary commands. See [JavaScript tests](#javascript-tests) for details.
   * `.scripts.skip-test-js`: Run before `.scripts.test-js` in CI. If it exits with code 3, the test run will be skipped.
 * `.scripts.test-php`: If the package contains any PHPUnit tests, this must run the necessary commands. See [PHP tests](#php-tests) for details.
@@ -147,6 +150,9 @@ We use `composer.json` to hold metadata about projects. Much of our generic tool
 * `.extra.wp-plugin-slug`: This specifies the WordPress.org plugin slug, for use by scripts that deploy the plugin to WordPress.org.
   * `.extra.beta-plugin-slug`: This specifies the plugin slug for the Jetpack Beta Tester plugin, for cases where a plugin has not been published to WordPress.org but should still be offered by that plugin.
 * `.extra.wp-svn-autopublish`: Set truthy to enable automatic publishing of tagged versions to WordPress.org. See [Mirror repositories > WordPress.org SVN Auto-publisher](#wordpressorg-svn-auto-publisher) for details.
+
+There are a few things in `package.json` as well:
+* `.scripts.typecheck`: If the package contains TypeScript code, this should run tsgo to check types without building. See [TypeScript type checking](#typescript-type-checking) for details.
 
 Our mirroring tooling also uses `.gitattributes` to specify built files to include in the mirror and unnecessary files to exclude.
 
@@ -179,7 +185,7 @@ The test environment will be set up with appropriate tools, including node, pnpm
 
 All test commands must return a shell failure status when tests fail and a success status if tests pass or are skipped; usually your testing framework will already do this for you, but if you write custom shell scripts you'll need to make sure any failure is propagated.
 
-If your project has multiple logical groups of tests, feel free to make use of GitHub Actions's [grouping commands](https://docs.github.com/en/actions/reference/workflow-commands-for-github-actions#grouping-log-lines).
+If your project has multiple logical groups of tests, feel free to make use of GitHub Actions [grouping commands](https://docs.github.com/en/actions/reference/workflow-commands-for-github-actions#grouping-log-lines).
 
 The following environment variables are available for all tests:
 
@@ -210,7 +216,7 @@ On most Linux distributions, you can install the PHP ast extension using your pa
 
 - For Ubuntu/Debian-based systems:
   ```
-  sudo apt-get install php8.2-ast
+  sudo apt-get install php8.4-ast
   ```
 - For Arch Linux:
   Install the AUR package "php-ast" from https://aur.archlinux.org/packages/php-ast
@@ -223,15 +229,15 @@ Mac users have reported having trouble installing the PHP ast extension. See the
 
 <details><summary>Installing the PHP ast extension on Mac</summary>
 
-This assumes you have PHP installed via Homebrew, e.g. you've done `brew install php@8.2`.
+This assumes you have PHP installed via Homebrew, e.g. you've done `brew install php@8.4`.
 
 1. First, check whether ast is already installed by running `php --ri ast`. If it prints something like this, you should already be good (unless you need a newer version; see [Phan's README](https://github.com/phan/phan#getting-started) for version requirements):
    ```
    ast
 
    ast support => enabled
-   extension version => 1.1.1
-   AST version => Current version is 90. All versions (including experimental): {50, 60, 70, 80, 85, 90, 100}
+   extension version => 1.1.3
+   AST version => Current version is 120. All versions (including experimental): {50, 60, 70, 80, 85, 90, 100, 110, 120}
    ```
 2. You may need to `brew install pkg-config zlib` to install some necessary dependencies.
 3. Update the list of available extensions: `pecl channel-update pecl.php.net`
@@ -248,6 +254,14 @@ This assumes you have PHP installed via Homebrew, e.g. you've done `brew install
 
 Alternatives, if you can't install the ast extension, include running Phan with the `--allow-polyfill-parser` option (note this may cause false positives and cannot be used to update baseline files) or running Phan inside the [Docker development environment](../tools/docker/README.md).
 
+#### Referencing wpcom-only symbols
+
+Some Jetpack code calls classes or functions that exist only on WordPress.com, not in this repo. Phan flags these as `PhanUndeclared{Class,ClassMethod,Function}`. Rather than suppressing the error permanently, add the symbol to Phan's stub set:
+
+1. Add the class/method (or function) to the wpcom stub definitions at `bin/teamcity-builds/jetpack-stubs/stub-defs.php` in the wpcom repo — this is the source that the monorepo's `.phan/stubs/wpcom-stubs.php` is generated from. Do **not** hand-edit the generated `wpcom-stubs.php`; it will be overwritten.
+2. Trigger the *Jetpack Staging → Update WPCOM Stubs* TeamCity job, which opens a "phan: Update wpcom stubs" PR. Land that PR first, then rebase your feature PR on top so it picks up the new stubs.
+3. Remove any temporary inline `@phan-suppress-next-line <Rule> -- <reason>` you added at the call site as a bridge — once the stub exists, Phan passes without it.
+
 [^1]: In 2024 we evaluated Phan, Psalm, and PHPStan. Psalm was unable to produce a consistent baseline. PHPStan was confused about which constants were defined, and would have needed a bootstrapping file re-defining them all to work. Thus we settled on Phan. Details in pdWQjU-IH-p2.
 
 ### PHP tests
@@ -256,7 +270,7 @@ If a project contains PHP tests (typically PHPUnit), it must define `.scripts.te
 
 A MySQL database is available if needed; credentials may be found in `~/.my.cnf`. Note that the host must be specified as `127.0.0.1`, as when passed `localhost` PHP will try to connect via a Unix domain socket which is not available in the Actions environment.
 
-Tests are run with a variety of supported PHP versions from 7.2 to 8.4. If you have tests that only need to be run once, run them when `PHP_VERSION` matches that in `.github/versions.sh`.
+Tests are run with a variety of supported PHP versions from 7.4 to 8.5. If you have tests that only need to be run once, run them when `PHP_VERSION` matches that in `.github/versions.sh`.
 
 #### PHP tests for non-plugins
 
@@ -264,7 +278,7 @@ For all project types other than WordPress plugins, the necessary version of PHP
 
 We currently make use of the following packages in testing; it's encouraged to use these rather than introducing other tools that serve the same purpose.
 
-* [yoast/phpunit-polyfills](https://packagist.org/packages/yoast/phpunit-polyfills) supplies polyfills for compatibility with PHPUnit 8.5 to 9.6, to support PHP 7.2 to 8.4.
+* [yoast/phpunit-polyfills](https://packagist.org/packages/yoast/phpunit-polyfills) supplies polyfills for compatibility with PHPUnit 9.6 to 12.4, to support PHP 7.4 to 8.5.
 * [automattic/phpunit-select-config](https://packagist.org/packages/automattic/phpunit-select-config) allows for selecting a configuration file based on the version of PHPUnit in use, since configs are often not compatible across major versions since PHPUnit 9.
 * PHPUnit's built-in mocking is used for class mocks.
 * [brain/monkey](https://packagist.org/packages/brain/monkey) is used for mocking functions, and can also provide some functions for minimal WordPress compatibility.
@@ -289,25 +303,45 @@ If a project contains JavaScript tests, it must define `.scripts.test-js` in `co
 
 JavaScript tests should use `jest`, not `mocha`/`chai`/`sinon`. For React testing, use `@testing-library/react` rather than `enzyme`.
 
-### E2E tests
+JavaScript tests may alternatively use `node --test`, along with `c8` for coverage.
 
-**This is not implemented yet!**
+### TypeScript type checking
 
-If a project contains end-to-end tests, it must define `.scripts.test-e2e` in `composer.json` to run the tests. If a build step is required before running tests, the necessary commands for that should also be included.
+If a project contains TypeScript code, it should define `.scripts.typecheck` in `package.json` to run `tsgo` in a manner that will check types without building. The CI environment will run `pnpm install` beforehand, but if `composer install` or a build step is required before running tests the necessary commands for that should also be included in `.scripts.typecheck`.
+
+Note the ideal configuration for a TypeScript project using `tsgo` to build will have two tsconfig files:
+* `tsconfig.json` will be used for linting and type checking all code in the project. It will set `include` to reference all TS files and TS-containing subdirs
+* `tsconfig.build.json` will be used for the build (by passing `--project tsconfig.build.json` to `tsgo`). This will extend `tsconfig.json` to override `include` to specify only the entry point files.
 
 ### Code coverage
 
-If a project contains PHP or JavaScript tests, it should also define `.scripts.test-coverage` in `composer.json` to run the tests in a mode that will generate code coverage output. The CI environment will run `pnpm install` and `composer install` beforehand, but if a build step is required before running tests the necessary commands for that should also be included in `.scripts.test-coverage`.
+If a project contains PHP or JavaScript tests, it should define `.scripts.test-php-coverage` and/or `.scripts.test-js-coverage` in `composer.json` to run the tests in a mode that generates code coverage output. The CI environment runs `pnpm install` and `composer install` beforehand, but if a build step is required before running tests the necessary commands for that should also be included in the relevant script.
 
 Output should be written to the path specified via the `COVERAGE_DIR` environment variable. Subdirectories of that path may be used as desired.
 
 For PHP tests, you'll probably run PHPUnit as `php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php "$COVERAGE_DIR/php.cov"`. If you have multiple runs (e.g. unit and integration), be sure to write the `php.cov` files to separate subdirectories of `$COVERAGE_DIR`.
 
-For JS tests, you'll probably have a `test` script in package.json that runs `jest` with any needed options, and then a `test-coverage` script that does `pnpm run test --coverage`. If you have multiple runs (e.g. unit and integration), be sure each run writes to a different subdirectory of `$COVERAGE_DIR`.
+For JS tests, you'll probably have a `test` script in package.json that runs `jest` with any needed options, and then a `test-js-coverage` script that does `pnpm run test --coverage`. If you have multiple runs (e.g. unit and integration), be sure each run writes to a different subdirectory of `$COVERAGE_DIR`.
 
-There's no need to be concerned about collisions with other projects' coverage files, a separate directory is used per project. The coverage files are also automatically copied to `ARTIFACTS_DIR`.
+For JS tests using `node --test`, your `test-js-coverage` will likely look like `c8 --report-dir="$COVERAGE_DIR" --temp-directory="$ARTIFACTS_DIR/v8" pnpm run test`, along with a `.c8rc.json` like the following.
 
-If you want to generate coverage locally, e.g. with `jetpack test coverage`, note that generating PHP coverage requires the [pcov](https://pecl.php.net/package/pcov) or [xdebug](https://pecl.php.net/package/xdebug) extensions. We use `pcov` for the CI runs; results from `xdebug` may be slightly different.
+<details><summary>Sample `.c8rc.json`</summary>
+
+```json
+{
+	"reporter": [ "json" ],
+	"all": true,
+	"include": [ "src", "index.js" ]
+}
+```
+
+</details>
+
+If you're using any other JS test runner for some reason, you'll want to have the `test-js-coverage` command write reports to `$COVERAGE_DIR/**.json` in a format compatible with Istanbul's `json` reporter, in whatever manner that can be accomplished with your chosen test runner.
+
+There's no need to be concerned about collisions with other projects' coverage files, as a separate directory is used per project. The coverage files are also automatically copied to `ARTIFACTS_DIR`.
+
+If you want to generate coverage locally, this can be done with `jetpack test php-coverage` or `jetpack test js-coverage`. Note that generating PHP coverage requires the [pcov](https://pecl.php.net/package/pcov) or [xdebug](https://pecl.php.net/package/xdebug) extensions. We use `pcov` for the CI runs; results from `xdebug` may be slightly different.
 
 <details><summary>Installing the PHP pcov extension on Linux</summary>
 
@@ -315,7 +349,7 @@ On most Linux distributions, you can install the PHP pcov extension using your p
 
 - For Ubuntu/Debian-based systems:
   ```
-  sudo apt-get install php8.2-pcov
+  sudo apt-get install php8.4-pcov
   ```
 - For Arch Linux:
   Install the AUR package "php-pcov" from https://aur.archlinux.org/packages/php-pcov
@@ -328,7 +362,7 @@ Mac users have reported having trouble installing the PHP pcov extension. See th
 
 <details><summary>Installing the PHP pcov extension on Mac</summary>
 
-This assumes you have PHP installed via Homebrew, e.g. you've done `brew install php@8.2`.
+This assumes you have PHP installed via Homebrew, e.g. you've done `brew install php@8.4`.
 
 1. First, check whether pcov is already installed by running `php --ri pcov`. If it prints something like this, you should already be good:
    ```
@@ -359,16 +393,25 @@ This assumes you have PHP installed via Homebrew, e.g. you've done `brew install
 Most projects in the monorepo should have a mirror repository holding a built version of the project, ready for deployment. Follow these steps to create the mirror repo and configure the monorepo tooling to push to it.
 
 1. Create the mirror repo on GitHub. It will most likely be named like "<span>https://</span>github.com/Automattic/jetpack-_something_".
-   1. The repo's description should begin with `[READ ONLY]` and end with `This repository is a mirror, for issue tracking and development head to: https://github.com/automattic/jetpack`.
-   2. The default branch should be `trunk`, matching the monorepo.
-      * Note that you can't set the default branch until at least one branch is created in the repo.
-   3. In the repo's settings, turn off wikis, issues, projects, and so on.
-   4. Make sure that [matticbot](https://github.com/matticbot) can push to the repo. Usually no special configuration is needed for repos under the Automattic organization.
-   5. Make sure that Actions are enabled. The build process copies workflows from `.github/files/mirror-.github` into the mirror to do useful things like automatically close PRs with a reference back to the monorepo.
-   6. Create any secrets needed (e.g. for Autotagger or Npmjs-Autopublisher). See PCYsg-xsv-p2#mirror-repo-secrets for details.
-2. For a PHP package (or a plugin listed in Packagist) you also need to go to packagist.org and create the package there. This requires pushing a first commit with a valid `composer.json` to the repository. That can be done by copying the new package's `composer.json` from the PR that introduced it.
-   1. Be sure that `automattic` is added as a maintainer.
-   2. If creating the package with your own account, make sure to link your Github account to Packagist so that you can sync the new package.
+	1. Set the repo description:
+		* Begin with `[READ ONLY]`.
+		* Include a description of the project.
+		* End with `This repository is a mirror; for issue tracking and development head here: https://github.com/automattic/jetpack`.
+	2. In the repo settings, turn off wikis, PRs, issues, projects, discussions, and so on.
+	3. If the mirror repo is not under the Automattic organization, make sure that [matticbot](https://github.com/matticbot) can push to the repo.
+	4. Configure Actions settings:
+		* Set "Allow all actions and reusable workflows", click "Save" button. The build process may copy workflows from `.github/files/mirror-.github` and `.github/files/gh-*` into the mirror.
+		* Set "Approval for running fork pull request workflows from contributors" to "Require approval for all external contributors", click "Save" button.
+		* Set "Workflow permissions" to "Read repository contents and packages permissions".
+		* Disable "Allow GitHub Actions to create and approve pull requests", as PRs are created in the monorepo, click "Save" button.
+		* Double check all the setting above. If you only clicked save once, the options might not have been saved correctly.
+	5. Set up any secrets and configuration for [Autotagger](#autotagger) and [Autopublisher](#wordpressorg-svn-auto-publisher)) (if needed). See PCYsg-xsv-p2#mirror-repo-secrets the secret details.
+	6. The default branch should be `trunk`, matching the monorepo. Note that you can't set the default branch until at least one branch is created in the repo.
+2. If this is a PHP package that will be published on Packagist, do the following:
+	* Copy the new package's `composer.json` from the PR that introduced it into the new repo and commit/push it to `trunk`.
+	* Create the package in Packagist.
+	* Be sure that `automattic` is added as a maintainer.
+	* Configure a GitHub webhook to allow for auto-updates (see [Packagist docs](https://packagist.org/about#how-to-update-packages)).
 3. If your project requires building, configure `.scripts.build-production` in your project's `composer.json` to run the necessary commands.
 4. If there are any files included in the monorepo that should not be included in the mirror, use `.gitattributes` to tag them with "production-exclude".
 5. If there are any built files in `.gitignore` that should be included in the mirror, use `.gitattributes` to tag them with "production-include".
@@ -393,10 +436,10 @@ If `.extra.autorelease` is set to a truthy value in the project's `composer.json
 
 The body of the created release will be the entry from CHANGELOG.md for the tagged version. A zip file will be added to the release as an artifact. The zip file contains a single directory, which holds the output from `git archive`.
 
-If `.extra.autotagger` is set to an object, the following are recognized:
+If `.extra.autorelease` is set to an object, the following are recognized:
 
-* `.extra.autotagger.slug`: Base name for the zip file, and the name of the base directory inside. If this is omitted, `.extra.wp-plugin-slug` will be used. If that is also not set, the portion of `.name` after the `/` will be used.
-* `.extra.autotagger.titlefmt`: Format for the release title. Must contain a single `%s`, which will be replaced with the version tagged. If omitted, the release title will simply be the version number.
+* `.extra.autorelease.slug`: Base name for the zip file, and the name of the base directory inside. If this is omitted, `.extra.wp-plugin-slug` or `.extra.beta-plugin-slug` will be used. If that is also not set, the portion of `.name` after the `/` will be used.
+* `.extra.autorelease.titlefmt`: Format for the release title. Must contain a single `%s`, which will be replaced with the version tagged. If omitted, the release title will simply be the version number.
 
 Note the following will also be done by the build process:
 
@@ -406,8 +449,30 @@ Note the following will also be done by the build process:
 
 If `.extra.npmjs-autopublish` is set to a truthy value in the project's `composer.json`, a GitHub Action will be included in the mirror repo that will run `npm publish` when a version tag is created. This works with Autotagger. Versions must have a "v" prefix and have 3 components.
 
-Note that, for this to work, you'll need to create a secret `NPMJS_AUTOMATION_TOKEN` in the mirror repo. The value of the secret must be an npmjs.com automation token for an account with the ability to publish the package.
-See PCYsg-xsv-p2#mirror-repo-secrets for details.
+You'll also need to [configure the repo as a Trusted Provider](https://docs.npmjs.com/trusted-publishers) at npmjs.com. NOTE: If the package doesn't exist on npmjs.com yet, it seems (as of June 2026) that you first have to manually `npm publish` a (non-trusted) version in order to be able to configure trusted publising; see https://github.com/npm/documentation/issues/1926 for possible updates. This initial version may be a v0.0.0 that contains only `package.json` metadata.
+
+<details><summary>Example process for setting up a new package</summary>
+
+1. Tag the first release of your package. Find that it didn't get published to npmjs.com, with an error like this from the Npmjs Auto-publisher workflow run:
+   ```
+   npm notice Publishing to https://registry.npmjs.org/ with tag latest and public access
+   npm error code E404
+   npm error 404 Not Found - PUT https://registry.npmjs.org/@automattic%2fjetpack-whatever - Not found
+   npm error 404
+   npm error 404  The requested resource '@automattic/jetpack-whatever@0.1.0' could not be found or you do not have permission to access it.
+   npm error 404
+   ```
+2. Locally, create an empty directory.
+3. Copy the package's `package.json` into that empty directory.
+   * Delete any `scripts`, `dependencies`, and so on, just keep the metadata.
+   * Change the version to "0.0.0".
+4. `npm login --scope @automattic` if necessary (or whichever scope the package will be published into).
+5. `npm publish --access public` to publish the dummy version.
+6. May as well set up trusted publishing from the command line: `npm trust github @automattic/jetpack-whatever --repository Automattic/jetpack-whatever --file npmjs-autopublisher.yml --allow-publish`
+7. Re-run the failed Npmjs Auto-publisher workflow run to publish the real version.
+8. Optionally, `npm unpublish` to unpublish that dummy "0.0.0" version.
+
+</details>
 
 Note the following will also be done by the build process:
 
@@ -474,16 +539,16 @@ Comment: Update composer.lock, no need for a changelog entry
 
 The “Linting / Changelogger validity” GitHub Actions check will help in making sure that all these version numbers are in sync with the version inferred from the changelog and change files. You can also check this locally with `tools/changelogger-validate-all.sh`.
 
-Within a single project, changlogger’s `version next` command can tell you the next version, and the monorepo script `tools/project-version.sh` can be used to check and update the version numbers.
+Within a single project, changelogger’s `version next` command can tell you the next version, and the monorepo script `tools/project-version.sh` can be used to check and update the version numbers.
 
 ## New Projects
 
 To begin,
-* For Automatticians, drop us a line in #jetpack-crew to discuss your needs, just to be sure we don't have something already. For others, it would probably be best to open an issue to discuss it.
+* For Automatticians, drop us a line in #jetpack-developers to discuss your needs, just to be sure we don't have something already. For others, it would probably be best to open an issue to discuss it.
 * Use the `jetpack generate` command to create a skeleton project.
 * Create your project based on the skeleton and submit a PR as usual.
 
-Once we're sure that the project will be created and what its name will be, someone (you or the Crew team) does the following:
+Once we're sure that the project will be created and what its name will be, someone (you or the Monorepo team) does the following:
 * Create a GitHub repo in the Automattic repo to be the mirror repo for this project. The new repo follows the [mirror repo guidelines](#mirror-repositories).
 
 ### Creating a new Composer Package
@@ -548,11 +613,8 @@ If you need to update something in that package that is used by Jetpack, you sho
 
 - Make the necessary changes in the `wp-calypso` repository.
 - Use pnpm link to link the package in Jetpack to the local version in `wp-calypso`. Like this
-  - `cd wp-calypso/packages/social-previews`
-  - `pnpm link --global`
-- Then in Jetpack
   - `cd projects/js-packages/publicize-components`
-  - `pnpm link --global @automattic/social-previews`
+  - `pnpm link /path/to/wp-calypso/packages/social-previews`
   - Do the same for `projects/plugins/jetpack`
 - Test your changes
 - Create a branch/PR in `wp-calypso`
@@ -562,6 +624,7 @@ If you need to update something in that package that is used by Jetpack, you sho
   - `git push --tags`
   - `cd packages/social-previews`
   - `yarn npm publish`
+- Revert the changes in the Jetpack monorepo that `pnpm link` made.
 - Update the package version in Jetpack to the beta version.
 - Create a PR in Jetpack which should now have the beta version of the package.
 - Follow the instructions in Calypso to publish the package to npm after merging the PR to trunk

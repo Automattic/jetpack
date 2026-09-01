@@ -1,0 +1,40 @@
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+
+.social-post-preview-screen {
+
+	// Make the inner flex column fill the screen so header/body/footer
+	// can distribute height properly.
+	> :global(.components-flex) {
+		height: 100%;
+	}
+
+	:global(.jp-navigator-modal__body) {
+		flex: 1;
+		min-height: 0;
+		height: auto;
+	}
+
+	// On mobile, let the content scroll naturally so everything is accessible.
+	// On desktop, contain scroll within individual panels.
+	:global(.jp-navigator-modal__content) {
+		min-height: 0;
+		overflow: auto;
+
+		@include gb.break-medium() {
+			overflow: hidden;
+		}
+	}
+
+	&[data-plan="paid"] {
+
+		:global(.jp-navigator-modal__header) {
+			border-bottom: none;
+			padding-bottom: 0;
+			height: auto;
+		}
+
+		:global(.jp-navigator-modal__content) {
+			overflow: hidden;
+		}
+	}
+}

@@ -23,18 +23,18 @@ export type MutateCallback = UseMutateFunction<
  * an error notice if the mutation encounters an error.
  *
  * @template T The type of data expected to be returned by the mutation.
- * @param {object}                                params                - The parameters for executing the mutation.
- * @param {string}                                params.name           - A unique name for the mutation, used as part of the mutation key.
- * @param {APIFetchOptions}                       params.query          - The options to be passed to the API fetch function for the mutation.
- * @param {Pick<UseMutationOptions, 'onSuccess'>} [params.options]      - Optional. Mutation options from react-query, currently supports only the 'onSuccess' option.
- * @param {string}                                [params.errorMessage] - Optional. A custom error message that can be displayed if the mutation fails.
+ * @param {object}                                                     params                - The parameters for executing the mutation.
+ * @param {string}                                                     params.name           - A unique name for the mutation, used as part of the mutation key.
+ * @param {APIFetchOptions}                                            params.query          - The options to be passed to the API fetch function for the mutation.
+ * @param {Pick<UseMutationOptions, 'onSuccess'|'onMutate'|'onError'>} [params.options]      - Optional. Mutation options from react-query, currently supports the 'onSuccess', 'onMutate' and 'onError' options.
+ * @param {string}                                                     [params.errorMessage] - Optional. A custom error message that can be displayed if the mutation fails.
  * @return {import('@tanstack/react-query').UseMutationResult<T>} The result object from the useMutation hook, containing data and state information about the mutation (e.g., isPending, isError).
  */
 
 type QueryParams< T, E, V > = {
 	name: string;
-	query: APIFetchOptions;
-	options?: Pick< UseMutationOptions< T, E, V >, 'onSuccess' >;
+	query: APIFetchOptions< true >;
+	options?: Pick< UseMutationOptions< T, E, V >, 'onSuccess' | 'onMutate' | 'onError' >;
 	errorMessage?: string;
 };
 const useSimpleMutation = <
@@ -54,7 +54,11 @@ const useSimpleMutation = <
 
 			if ( variables && 'queryParams' in variables ) {
 				// Add query parameters to the path and remove it from query options
-				finalQuery.path = addQueryArgs( finalQuery.path, variables.queryParams );
+				finalQuery.path = addQueryArgs(
+					finalQuery.path,
+					// @ts-expect-error type of `queryParams` is unknown which addQueryArgs does not like
+					variables.queryParams
+				);
 				delete variables.queryParams;
 			}
 

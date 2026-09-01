@@ -1,0 +1,168 @@
+.wpcom-marketing-tools-description {
+	margin-top: 0;
+	font-size: 14px;
+	line-height: 20px;
+	margin-bottom: 24px;
+}
+
+.wpcom-marketing-tools-premium-plugins {
+	display: flex;
+	background-color: #fff;
+	border-radius: 4px;
+	margin-bottom: 40px;
+}
+
+.wpcom-marketing-tools-premium-plugins__info {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: flex-start;
+	padding: 32px 0 32px 32px;
+	gap: 16px;
+
+	@media (max-width: 1080px) {
+		padding: 24px 0 24px 24px;
+	}
+
+	@media (max-width: 600px) {
+		padding: 16px;
+	}
+
+	h2,
+	p {
+		margin: 0;
+		letter-spacing: -0.32px;
+		font-weight: 400;
+		text-wrap: pretty;
+	}
+
+	h2 {
+		font-family: Recoleta, serif;
+		font-size: 32px;
+		line-height: 40px;
+
+		@media (max-width: 1080px) {
+			font-size: 24px;
+			line-height: 32px;
+		}
+	}
+
+	p {
+		font-size: 16px;
+		line-height: 24px;
+		color: #787c82;
+	}
+
+	.button.button-primary {
+		display: flex;
+		align-items: center;
+		height: 40px;
+	}
+}
+
+.wpcom-marketing-tools-premium-plugins__image {
+	background-image:
+		linear-gradient(to left, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0) 75%, rgba(255, 255, 255, 1) 100%),
+		var(--premium-plugins-bg);
+	background-size: cover;
+	padding: 48px 64px 48px 96px;
+	flex-grow: 1;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	@media (max-width: 1080px) {
+		padding: 24px 32px 24px 48px;
+	}
+
+	@media (max-width: 600px) {
+		display: none;
+	}
+
+	img {
+		max-width: 350px;
+
+		@media (max-width: 1200px) {
+			max-width: 300px;
+		}
+	}
+}
+
+.wpcom-marketing-tools-features {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 24px;
+}
+
+.wpcom-marketing-tools-feature {
+	background-color: #fff;
+	border: 1px solid rgba(0, 0, 0, 0.1);
+	border-radius: 1px;
+	padding: 32px;
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+	width: calc(33.33% - 16px);
+	box-sizing: border-box;
+	align-items: flex-start;
+
+	@media (min-width: 1920px) {
+		width: calc(25% - 18px);
+	}
+
+	@media (max-width: 1200px) {
+		width: calc(50% - 12px);
+	}
+
+	@media (max-width: 1080px) {
+		padding: 24px;
+	}
+
+	@media (max-width: 600px) {
+		width: 100%;
+		padding: 16px;
+	}
+
+	img {
+		width: 24px;
+	}
+
+	h3,
+	p {
+		margin: 0;
+		text-wrap: pretty;
+	}
+
+	h3 {
+		font-size: 15px;
+		font-weight: 500;
+		line-height: 20px;
+	}
+
+	p {
+		line-height: 20px;
+		color: #757575;
+		flex-grow: 1;
+	}
+
+	a {
+		font-size: 13px;
+		line-height: 20px;
+		text-decoration: none;
+		display: flex;
+		gap: 4px;
+		align-items: center;
+
+		&.disabled,
+		&.disabled:focus {
+			pointer-events: none;
+			color: #aaa;
+			box-shadow: none;
+			outline: none;
+		}
+
+		.dashicons::before {
+			font-size: 18px;
+		}
+	}
+}

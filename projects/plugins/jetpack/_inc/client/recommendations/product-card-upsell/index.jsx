@@ -3,7 +3,7 @@ import { getCurrencyObject } from '@automattic/number-formatters';
 import { __, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
-import React, { useEffect, useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { connect } from 'react-redux';
 import Button from 'components/button';
 import { getIntroOffers, isFetchingIntroOffers } from 'state/intro-offers';

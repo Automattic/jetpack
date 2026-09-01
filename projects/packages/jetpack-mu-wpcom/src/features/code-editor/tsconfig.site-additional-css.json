@@ -1,0 +1,12 @@
+{
+	"$schema": "https://json.schemastore.org/tsconfig.json",
+	"extends": "./tsconfig.base.json",
+	"compilerOptions": {
+		"rootDir": "site-additional-css",
+		"paths": {
+			"@a8cCodeEditor/codemirror-bundle": [ "./codemirror/codemirror.ts" ]
+		}
+	},
+	"include": [ "site-additional-css" ],
+	"references": [ { "path": "./tsconfig.codemirror.json" } ]
+}

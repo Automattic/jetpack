@@ -17,7 +17,7 @@ function wpcom_better_footer_links_buffer( $page ) {
 	}
 
 	// Would like to only see footer content before wp_footer output.
-	$output = preg_split( '/wpcom_wp_footer/i', $page, 2 );
+	$output = explode( 'wpcom_wp_footer', $page, 2 );
 
 	// Run "better link" filters.
 	$footer = wpcom_better_footer_links( $output[0] );
@@ -25,7 +25,7 @@ function wpcom_better_footer_links_buffer( $page ) {
 	$remaining_content = $output[1] ?? '';
 
 	// Piece back together again.
-	$page = implode( array( $footer, 'wpcom_wp_footer' . $remaining_content ) );
+	$page = $footer . 'wpcom_wp_footer' . $remaining_content;
 
 	// If nothing to join, return empty string.
 	if ( 'wpcom_wp_footer' === $page ) {
@@ -33,7 +33,7 @@ function wpcom_better_footer_links_buffer( $page ) {
 	}
 
 	// Replace any dangling references of glue code.
-	$page = preg_replace( '/wpcom_wp_footer/i', '', $page );
+	$page = str_replace( 'wpcom_wp_footer', '', $page );
 
 	return $page;
 }

@@ -1,7 +1,9 @@
+@use "../../scss/mixins/breakpoints";
+
 .jp-footer {
 	--jp-white: #fff;
 
-	background-color: var( --jp-white );
+	background-color: var(--jp-white);
 	padding: 22px 0;
 	margin-top: 48px;
 }
@@ -16,20 +18,27 @@
 	--jp-black: #000;
 	--font-body-extra-small: 12px;
 
-	&, *, *::before, *::after {
+	border-top: 1px solid #e0e0e0;
+
+	&,
+	*,
+	*::before,
+	*::after {
 		box-sizing: border-box;
 	}
 
 	.jp-footer__container {
 		align-items: center;
-		color: var( --jp-black );
+		color: var(--jp-black);
 		display: flex;
 		flex-wrap: wrap;
-		font-size: var( --font-body-extra-small );
+		font-size: var(--font-body-extra-small);
 		line-height: 1.333;
+		max-width: none;
+		padding: 0 24px;
 		width: 100%;
 
-		@include breakpoint( '<960px' ) {
+		@include breakpoints.breakpoint( "<960px" ) {
 			flex-direction: column;
 			align-items: flex-start;
 		}
@@ -42,7 +51,7 @@
 		&:hover,
 		&:visited,
 		&:active {
-			color: var( --jp-black );
+			color: var(--jp-black);
 			text-decoration: none;
 		}
 	}
@@ -50,12 +59,12 @@
 	.jp-footer__logo {
 		margin-right: 32px;
 
-		@include breakpoint( '<960px' ) {
+		@include breakpoints.breakpoint( "<960px" ) {
 			margin-right: 0;
 			margin-bottom: 24px;
 		}
 
-		@include breakpoint( '<660px' ) {
+		@include breakpoints.breakpoint( "<660px" ) {
 			margin-bottom: 48px;
 		}
 	}
@@ -74,11 +83,11 @@
 	.jp-footer__menu {
 		display: flex;
 
-		@include breakpoint( '<960px' ) {
+		@include breakpoints.breakpoint( "<960px" ) {
 			margin-bottom: 24px;
 		}
 
-		@include breakpoint( '<660px' ) {
+		@include breakpoints.breakpoint( "<660px" ) {
 			flex-direction: column;
 			align-items: flex-start;
 			margin-bottom: 48px;
@@ -95,7 +104,7 @@
 
 		.jp-footer__menu-item {
 			position: relative;
-			color: var( --jp-black );
+			color: var(--jp-black);
 			margin-right: 16px;
 			text-decoration: none;
 
@@ -107,14 +116,14 @@
 				box-shadow: none;
 				outline-width: 0;
 			}
-		
+
 			&:focus-visible {
 				border-radius: 2px;
 				outline-offset: 3px;
-				outline: 1.5px solid var( --jp-black );
+				outline: 1.5px solid var(--jp-black);
 				box-shadow: none;
 			}
-		
+
 			&:hover {
 				text-decoration: underline;
 				text-decoration-thickness: 1.5px;
@@ -134,11 +143,11 @@
 		}
 	}
 
-.jp-footer__a8c-logo {
-	margin-left: auto;
+	.jp-footer__a8c-logo {
+		margin-left: auto;
 
-	@include breakpoint( '<960px' ) {
-		margin-left: 0;
+		@include breakpoints.breakpoint( "<960px" ) {
+			margin-left: 0;
+		}
 	}
-}
 }

@@ -4,6 +4,7 @@
  *
  */
 
+// @ts-expect-error deno handles the module import here.
 // eslint-disable-next-line
 import { serve } from 'https://deno.land/std@0.147.0/http/server.ts';
 

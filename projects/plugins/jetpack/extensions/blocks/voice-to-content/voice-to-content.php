@@ -10,7 +10,10 @@
 namespace Automattic\Jetpack\Extensions\Voice_To_Content;
 
 use Automattic\Jetpack\Blocks;
-use Jetpack_Gutenberg;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
 
 /**
  * Registers our block for use in Gutenberg
@@ -21,9 +24,9 @@ function register_block() {
 	/**
 	 * Register the block only if we are on an A8C P2 site.
 	 * TODO: when opening it to Jetpack sites, do the same checks
-	 * we do on the AI Assistant block: the jetpack_ai_enabled filter
+	 * we do on the AI Assistant block: the AI master gate
 	 * and the Jetpack connection:
-	 * - apply_filters( 'jetpack_ai_enabled', true )
+	 * - \Jetpack_AI_Settings::is_ai_enabled()
 	 * - ( new Host() )->is_wpcom_simple() || ! ( new Status() )->is_offline_mode()
 	 */
 	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
@@ -40,20 +43,15 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
 /**
  * "Voice to content" block registration/dependency declaration.
  *
+ * The render implementation lives in render.php and is only loaded when the
+ * block is actually rendered, keeping it out of the eager front-end path.
+ *
  * @param array  $attr    Array containing the "Voice to content" block attributes.
  * @param string $content String containing the "Voice to content" block content.
  *
  * @return string
  */
 function load_assets( $attr, $content ) {
-	/*
-	 * Enqueue necessary scripts and styles.
-	 */
-	Jetpack_Gutenberg::load_assets_as_required( __DIR__ );
-
-	return sprintf(
-		'<div class="%1$s">%2$s</div>',
-		esc_attr( Blocks::classes( Blocks::get_block_feature( __DIR__ ), $attr ) ),
-		$content
-	);
+	require_once __DIR__ . '/render.php';
+	return load_assets_implementation( $attr, $content );
 }

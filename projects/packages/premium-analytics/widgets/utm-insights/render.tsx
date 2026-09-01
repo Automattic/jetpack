@@ -1,0 +1,238 @@
+/**
+ * WordPress dependencies
+ */
+import { useEffect, useMemo } from '@wordpress/element';
+import { __, sprintf } from '@wordpress/i18n';
+import {
+	WIDGET_ROW_LIMIT,
+	calculateDelta,
+	describeError,
+	getCombinedPeriodMax,
+	LeaderboardChart,
+	LeaderboardSkeleton,
+	LeaderboardPostLabel,
+	ReportLink,
+	WidgetBackLink,
+	WidgetFooter,
+	WidgetRoot,
+	WidgetState,
+	buildLeaderboardRow,
+	resolveLeaderboardRowAction,
+	sharePercentage,
+	useWidgetDrillDown,
+	useWidgetRootContext,
+	type LeaderboardChartData,
+	type ReportParamsFieldAttributes,
+} from '@jetpack-premium-analytics/widgets-toolkit';
+import { megaphone } from '@jetpack-premium-analytics/icons';
+/**
+ * Internal dependencies
+ */
+import styles from './style.module.css';
+import useUtmInsights from './use-utm-insights';
+import { type UtmInsightsAttributes } from './widget';
+/**
+ * Types
+ */
+import type { StatsUtmParam } from '@jetpack-premium-analytics/data';
+import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+
+type UtmInsightsRenderAttributes = UtmInsightsAttributes & Partial< ReportParamsFieldAttributes >;
+type UtmInsightsWidgetProps = WidgetRenderProps< UtmInsightsRenderAttributes >;
+
+type UtmReportSection =
+	| 'source-medium'
+	| 'campaign-source-medium'
+	| 'source'
+	| 'medium'
+	| 'campaign';
+
+const DATA_FORMAT = { type: 'number' as const, options: { useMultipliers: true, decimals: 0 } };
+
+const DEFAULT_UTM_DIMENSION: StatsUtmParam = 'utm_source,utm_medium';
+
+type UtmInsightsInnerProps = {
+	/**
+	 * Active UTM dimension.
+	 */
+	utmDimension: StatsUtmParam;
+	/**
+	 * Whether to render the "View all" footer link.
+	 */
+	showReportLink: boolean;
+};
+
+/** Map a widget dimension to a section supported by the UTM report. */
+function getUtmReportSection( utmDimension: StatsUtmParam ): UtmReportSection {
+	switch ( utmDimension ) {
+		case 'utm_source,utm_medium':
+			return 'source-medium';
+		case 'utm_campaign,utm_source,utm_medium':
+			return 'campaign-source-medium';
+		case 'utm_source':
+			return 'source';
+		case 'utm_medium':
+			return 'medium';
+		case 'utm_campaign':
+			return 'campaign';
+	}
+}
+
+function UtmInsightsInner( { utmDimension, showReportLink }: UtmInsightsInnerProps ) {
+	const { reportParams } = useWidgetRootContext();
+	const {
+		drillDownItem: selectedUtmLabel,
+		drillDown: selectUtmLabel,
+		resetDrillDown: clearSelectedUtm,
+	} = useWidgetDrillDown< string >();
+
+	// The "UTM parameter" control lives in the widget host header (the
+	// `relevance: 'high'` attribute); changing it resets any drill-down.
+	useEffect( () => {
+		clearSelectedUtm();
+	}, [ clearSelectedUtm, utmDimension ] );
+
+	const { data, hasComparison, isLoading, isFetching, isError, error, refetch } = useUtmInsights( {
+		reportParams,
+		utmParam: utmDimension,
+		max: WIDGET_ROW_LIMIT,
+	} );
+
+	const selectedUtm = useMemo(
+		() => data.find( item => item.label === selectedUtmLabel ) ?? null,
+		[ data, selectedUtmLabel ]
+	);
+	const isDrillDown = !! selectedUtm?.children?.length;
+	const activeData = useMemo(
+		() => ( isDrillDown ? selectedUtm?.children ?? [] : data ),
+		[ data, isDrillDown, selectedUtm ]
+	);
+	const withComparison = isDrillDown ? !! selectedUtm?.childrenHaveComparison : hasComparison;
+
+	// Clear the stored selection only once data has settled without a drillable
+	// match, so it can't resurface on a later refetch (WOOA7S-1666) and a valid
+	// selection survives in-flight fetches and transient failures.
+	useEffect( () => {
+		if ( selectedUtmLabel && ! isDrillDown && ! isLoading && ! isFetching && ! isError ) {
+			clearSelectedUtm();
+		}
+	}, [ selectedUtmLabel, isDrillDown, isLoading, isFetching, isError, clearSelectedUtm ] );
+
+	const leaderboardData = useMemo< LeaderboardChartData >( () => {
+		const maxValue = getCombinedPeriodMax(
+			activeData.map( item => item.value ),
+			withComparison ? activeData.map( item => item.previousValue ) : []
+		);
+
+		return activeData.map( ( item, index ) => {
+			const previousValue = item.previousValue;
+			const postRow = 'postId' in item ? item : null;
+			const hasChildren = ! isDrillDown && 'children' in item && Boolean( item.children?.length );
+
+			return {
+				id: `${ index }-${ item.label }`,
+				...( postRow
+					? {
+							label: (
+								<LeaderboardPostLabel
+									id={ postRow.postId }
+									label={ postRow.label }
+									link={ postRow.href }
+								/>
+							),
+					  }
+					: buildLeaderboardRow( {
+							label: item.label,
+							media: { kind: 'none' },
+							action: resolveLeaderboardRowAction( {
+								hasChildren,
+								drillDown: {
+									onClick: () => selectUtmLabel( item.label ),
+									ariaLabel: sprintf(
+										/* translators: %s is the UTM value label. */
+										__( 'View posts for %s', 'jetpack-premium-analytics-pkg' ),
+										item.label
+									),
+								},
+							} ),
+					  } ) ),
+				currentValue: item.value,
+				currentShare: sharePercentage( item.value, maxValue ),
+				previousValue,
+				previousShare:
+					withComparison && previousValue !== undefined
+						? sharePercentage( previousValue, maxValue )
+						: undefined,
+				delta:
+					withComparison && previousValue !== undefined
+						? calculateDelta( item.value, previousValue )
+						: undefined,
+			};
+		} );
+	}, [ activeData, isDrillDown, selectUtmLabel, withComparison ] );
+
+	const backLink = isDrillDown ? (
+		<WidgetBackLink
+			label={ __( 'All UTM insights', 'jetpack-premium-analytics-pkg' ) }
+			ariaLabel={ __( 'View all UTM insights', 'jetpack-premium-analytics-pkg' ) }
+			onClick={ clearSelectedUtm }
+			className={ styles.backLink }
+		/>
+	) : null;
+	return (
+		<>
+			{ backLink }
+			<div className={ styles.content }>
+				<WidgetState
+					isLoading={ isLoading }
+					isFetching={ isFetching }
+					isError={ isError }
+					isEmpty={ data.length === 0 }
+					error={ describeError( error, {
+						retryDescription: __(
+							"We couldn't load UTM data. Please try again in a moment.",
+							'jetpack-premium-analytics-pkg'
+						),
+						onRetry: refetch,
+					} ) }
+					empty={ {
+						icon: megaphone,
+						description: __( 'No UTM data in this period.', 'jetpack-premium-analytics-pkg' ),
+					} }
+					renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
+				>
+					<LeaderboardChart
+						data={ leaderboardData }
+						withComparison={ withComparison }
+						withOverlayLabel
+						showLegend={ false }
+						dataFormat={ DATA_FORMAT }
+					/>
+				</WidgetState>
+			</div>
+			{ showReportLink && (
+				<WidgetFooter>
+					<ReportLink report="utm" section={ getUtmReportSection( utmDimension ) } />
+				</WidgetFooter>
+			) }
+		</>
+	);
+}
+
+/**
+ * Traffic breakdown by UTM parameter as a ranked leaderboard. The active
+ * dimension (source/medium, campaign, etc.) is the `utmDimension` attribute
+ * (`relevance: 'high'`), exposed as a control by the widget host.
+ */
+export default function UtmInsightsWidget( { attributes = {} }: UtmInsightsWidgetProps ) {
+	const utmDimension = attributes.utmDimension ?? DEFAULT_UTM_DIMENSION;
+	const showReportLink = attributes.showReportLink ?? true;
+
+	return (
+		<WidgetRoot attributes={ attributes }>
+			<div className={ styles.root }>
+				<UtmInsightsInner utmDimension={ utmDimension } showReportLink={ showReportLink } />
+			</div>
+		</WidgetRoot>
+	);
+}

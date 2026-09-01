@@ -16,6 +16,8 @@ require __DIR__ . '/inc/class-broken-token-connection-errors.php';
 
 /**
  * Class Broken_Token
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Broken_Token {
 	/**

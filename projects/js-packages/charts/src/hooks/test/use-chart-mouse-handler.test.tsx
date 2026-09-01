@@ -1,5 +1,6 @@
 import { renderHook, act } from '@testing-library/react';
-import useChartMouseHandler from '../use-chart-mouse-handler';
+import { useChartMouseHandler } from '../use-chart-mouse-handler';
+import type { MouseEvent } from 'react';
 
 jest.mock( '@visx/event', () => ( {
 	localPoint: () => ( { x: 100, y: 200 } ),
@@ -16,12 +17,10 @@ describe( 'useChartMouseHandler', () => {
 			} ),
 		},
 		target: document.createElement( 'svg' ),
-	} as unknown as React.MouseEvent< SVGElement >;
-
-	const margin = { margin: { left: 0, right: 0, top: 0, bottom: 0 }, withTooltips: true };
+	} as unknown as MouseEvent< SVGElement >;
 
 	test( 'initializes with default values', () => {
-		const { result } = renderHook( () => useChartMouseHandler( margin ) );
+		const { result } = renderHook( () => useChartMouseHandler( { withTooltips: true } ) );
 		expect( result.current.tooltipData ).toBeNull();
 		expect( result.current.tooltipOpen ).toBe( false );
 	} );
@@ -39,7 +38,7 @@ describe( 'useChartMouseHandler', () => {
 	} );
 
 	test( 'handles mouse leave', () => {
-		const { result } = renderHook( () => useChartMouseHandler( margin ) );
+		const { result } = renderHook( () => useChartMouseHandler( { withTooltips: true } ) );
 
 		act( () => {
 			result.current.onMouseMove( mockEvent, { value: 42, label: 'Test' } );

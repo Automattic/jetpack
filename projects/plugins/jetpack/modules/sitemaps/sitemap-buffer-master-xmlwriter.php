@@ -6,6 +6,10 @@
  * @package automattic/jetpack
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * A buffer for constructing master sitemap xml files using XMLWriter.
  *
@@ -14,7 +18,7 @@
 class Jetpack_Sitemap_Buffer_Master_XMLWriter extends Jetpack_Sitemap_Buffer_XMLWriter {
 
 	/**
-	 * Initialize the buffer with required headers and root element.
+	 * Initialize the buffer with required headers (no root element here).
 	 */
 	protected function initialize_buffer() {
 		// Add generator comment
@@ -26,8 +30,12 @@ class Jetpack_Sitemap_Buffer_Master_XMLWriter extends Jetpack_Sitemap_Buffer_XML
 			'xml-stylesheet',
 			'type="text/xsl" href="' . $this->finder->construct_sitemap_url( 'sitemap-index.xsl' ) . '"'
 		);
+	}
 
-		// Start root element with namespaces
+	/**
+	 * Start the root element and write its namespaces.
+	 */
+	protected function start_root() {
 		$this->writer->startElement( 'sitemapindex' );
 		$this->writer->writeAttribute( 'xmlns', 'http://www.sitemaps.org/schemas/sitemap/0.9' );
 	}
@@ -39,13 +47,7 @@ class Jetpack_Sitemap_Buffer_Master_XMLWriter extends Jetpack_Sitemap_Buffer_XML
 	 */
 	protected function append_item( $array ) {
 		if ( ! empty( $array['sitemap'] ) ) {
-			$this->writer->startElement( 'sitemap' );
-
-			foreach ( $array['sitemap'] as $tag => $value ) {
-				$this->writer->writeElement( $tag, strval( $value ) );
-			}
-
-			$this->writer->endElement(); // sitemap
+			$this->array_to_xml( $array );
 		}
 	}
 }

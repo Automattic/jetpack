@@ -3,9 +3,8 @@ import { formatNumber } from '@automattic/number-formatters';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x, _n, sprintf } from '@wordpress/i18n';
 import { info } from '@wordpress/icons';
-import { get, includes } from 'lodash';
 import PropTypes from 'prop-types';
-import React, { Component } from 'react';
+import { Component } from 'react';
 import { connect } from 'react-redux';
 import Banner from 'components/banner';
 import Card from 'components/card';
@@ -16,7 +15,7 @@ import SettingsGroup from 'components/settings-group';
 import analytics from 'lib/analytics';
 import { FEATURE_SECURITY_SCANNING_JETPACK } from 'lib/plans/constants';
 import { getVaultPressData, getVaultPressScanThreatCount } from 'state/at-a-glance';
-import { showBackups } from 'state/initial-state';
+import { showBackups, showScan } from 'state/initial-state';
 import { isModuleActivated } from 'state/modules';
 import { isFetchingRewindStatus } from 'state/rewind';
 import { siteHasFeature } from 'state/site';
@@ -152,12 +151,8 @@ export const BackupsScan = withModuleSettingsFormHelpers(
 				return __( 'Unavailable in Offline Mode.', 'jetpack' );
 			}
 
-			const backupsEnabled = get(
-					this.props.vaultPressData,
-					[ 'data', 'features', 'backups' ],
-					false
-				),
-				scanEnabled = get( this.props.vaultPressData, [ 'data', 'features', 'security' ], false );
+			const backupsEnabled = this.props.vaultPressData?.data?.features?.backups ?? false,
+				scanEnabled = this.props.vaultPressData?.data?.features?.security ?? false;
 
 			// We check if the features are active first, rather than the plan because it's possible the site is on a
 			// VP-only plan, purchased before Jetpack plans existed.
@@ -168,7 +163,7 @@ export const BackupsScan = withModuleSettingsFormHelpers(
 						<div>
 							<strong>
 								{ sprintf(
-									/* Translators: placeholder is a number (of threats). */
+									/* Translators: %s: the number of threats. */
 									_n( 'Uh oh, %s threat found.', 'Uh oh, %s threats found.', threats, 'jetpack' ),
 									formatNumber( threats )
 								) }
@@ -207,27 +202,23 @@ export const BackupsScan = withModuleSettingsFormHelpers(
 		}
 
 		render() {
-			if ( ! this.props.showBackups ) {
+			if ( ! this.props.showBackups || ! this.props.showScan ) {
 				return null;
 			}
 
-			const scanEnabled = get(
-				this.props.vaultPressData,
-				[ 'data', 'features', 'security' ],
-				false
-			);
-			const rewindState = get( this.props.rewindStatus, [ 'state' ], false );
+			const scanEnabled = this.props.vaultPressData?.data?.features?.security ?? false;
+			const rewindState = this.props.rewindStatus?.state ?? false;
 			const hasRewindData = false !== rewindState;
 			const hasVpData =
 				this.props.vaultPressData !== 'N/A' &&
-				false !== get( this.props.vaultPressData, [ 'data' ], false );
+				false !== ( this.props.vaultPressData?.data ?? false );
 
 			if ( ! hasRewindData && this.props.vaultPressActive && ! hasVpData ) {
 				return <LoadingCard />;
 			}
 
 			// Backup & Scan is working in this site.
-			if ( includes( [ 'provisioning', 'awaiting_credentials', 'active' ], rewindState ) ) {
+			if ( [ 'provisioning', 'awaiting_credentials', 'active' ].includes( rewindState ) ) {
 				return <BackupsScanRewind { ...this.props } rewindState={ rewindState } />;
 			}
 
@@ -277,6 +268,7 @@ export default connect( state => {
 		hasThreats: getVaultPressScanThreatCount( state ),
 		vaultPressActive: isModuleActivated( state, 'vaultpress' ),
 		showBackups: showBackups( state ),
+		showScan: showScan( state ),
 		isFetchingRewindStatus: isFetchingRewindStatus( state ),
 	};
 } )( BackupsScan );

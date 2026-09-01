@@ -27,7 +27,7 @@ class WPCOM_Admin_Bar extends \WP_Admin_Bar {
 		/**
 		 * +New menu
 		 */
-		'wp-admin/post-new.php' => '/wp-admin/post-new.php?post_type=post&calypsoify=1',
+		'wp-admin/post-new.php' => '/wp-admin/post-new.php?post_type=post',
 		'wp-admin/user-new.php' => 'https://wordpress.com/people/new/%home_url%',
 	);
 

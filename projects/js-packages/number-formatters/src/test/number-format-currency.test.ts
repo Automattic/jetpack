@@ -28,6 +28,7 @@ describe( 'getCurrencyObject() default export', () => {
 			fraction: '.57',
 			sign: '-',
 			hasNonZeroFraction: true,
+			floatValue: -1234.57,
 		} );
 	} );
 } );
@@ -417,7 +418,18 @@ describe( 'numberFormatCurrency()', () => {
 				browserSafeLocale: 'in-ID',
 				isSmallestUnit: true,
 			} );
-			expect( money ).toBe( 'Rp 1.072.800,00' );
+
+			expect( money ).toBe( 'Rp 1.072.800' );
+		} );
+		it( 'HUF in smallest unit', () => {
+			const money = numberFormatCurrency( {
+				number: 99900,
+				currency: 'HUF',
+				browserSafeLocale: 'hu-HU',
+				isSmallestUnit: true,
+			} );
+
+			expect( money ).toBe( '999 Ft' );
 		} );
 	} );
 } );
@@ -436,6 +448,7 @@ describe( 'getCurrencyObject()', () => {
 			fraction: '.00',
 			sign: '',
 			hasNonZeroFraction: false,
+			floatValue: 0,
 		} );
 	} );
 
@@ -452,6 +465,7 @@ describe( 'getCurrencyObject()', () => {
 			fraction: '.57',
 			sign: '-',
 			hasNonZeroFraction: true,
+			floatValue: -1234.57,
 		} );
 	} );
 
@@ -468,6 +482,7 @@ describe( 'getCurrencyObject()', () => {
 			fraction: '.00',
 			sign: '',
 			hasNonZeroFraction: false,
+			floatValue: 10,
 		} );
 	} );
 
@@ -484,6 +499,7 @@ describe( 'getCurrencyObject()', () => {
 			fraction: '.99',
 			sign: '',
 			hasNonZeroFraction: true,
+			floatValue: 9.99,
 		} );
 	} );
 
@@ -501,6 +517,25 @@ describe( 'getCurrencyObject()', () => {
 			fraction: '.32',
 			sign: '',
 			hasNonZeroFraction: true,
+			floatValue: 99.32,
+		} );
+	} );
+
+	it( 'handles IDR in smallest unit using ISO 4217 exponent', () => {
+		const money = getCurrencyObject( {
+			number: 24000000,
+			currency: 'IDR',
+			browserSafeLocale: 'in-ID',
+			isSmallestUnit: true,
+		} );
+		expect( money ).toEqual( {
+			symbol: 'Rp',
+			symbolPosition: 'before',
+			integer: '240.000',
+			fraction: '',
+			sign: '',
+			hasNonZeroFraction: false,
+			floatValue: 240000,
 		} );
 	} );
 
@@ -518,6 +553,7 @@ describe( 'getCurrencyObject()', () => {
 			fraction: '',
 			sign: '',
 			hasNonZeroFraction: false,
+			floatValue: 9932,
 		} );
 	} );
 
@@ -535,6 +571,7 @@ describe( 'getCurrencyObject()', () => {
 			fraction: '.32',
 			sign: '',
 			hasNonZeroFraction: true,
+			floatValue: 99.32,
 		} );
 	} );
 
@@ -552,6 +589,7 @@ describe( 'getCurrencyObject()', () => {
 				fraction: '.32',
 				sign: '',
 				hasNonZeroFraction: true,
+				floatValue: 9800900.32,
 			} );
 		} );
 
@@ -569,6 +607,7 @@ describe( 'getCurrencyObject()', () => {
 				fraction: '.32',
 				sign: '+',
 				hasNonZeroFraction: true,
+				floatValue: 9800900.32,
 			} );
 		} );
 
@@ -586,6 +625,7 @@ describe( 'getCurrencyObject()', () => {
 				fraction: '.32',
 				sign: '-',
 				hasNonZeroFraction: true,
+				floatValue: -9800900.32,
 			} );
 		} );
 
@@ -602,6 +642,7 @@ describe( 'getCurrencyObject()', () => {
 				fraction: '.32',
 				sign: '',
 				hasNonZeroFraction: true,
+				floatValue: 9800900.32,
 			} );
 		} );
 
@@ -618,6 +659,7 @@ describe( 'getCurrencyObject()', () => {
 				fraction: '.32',
 				sign: '',
 				hasNonZeroFraction: true,
+				floatValue: 9800900.32,
 			} );
 		} );
 
@@ -634,6 +676,7 @@ describe( 'getCurrencyObject()', () => {
 				fraction: '.32',
 				sign: '',
 				hasNonZeroFraction: true,
+				floatValue: 9800900.32,
 			} );
 		} );
 
@@ -650,6 +693,7 @@ describe( 'getCurrencyObject()', () => {
 				fraction: ',32',
 				sign: '',
 				hasNonZeroFraction: true,
+				floatValue: 9800900.32,
 			} );
 		} );
 
@@ -666,6 +710,7 @@ describe( 'getCurrencyObject()', () => {
 				fraction: '.32',
 				sign: '',
 				hasNonZeroFraction: true,
+				floatValue: 9800900.32,
 			} );
 		} );
 
@@ -682,6 +727,7 @@ describe( 'getCurrencyObject()', () => {
 				fraction: '',
 				sign: '',
 				hasNonZeroFraction: false,
+				floatValue: 9800900,
 			} );
 		} );
 
@@ -698,6 +744,7 @@ describe( 'getCurrencyObject()', () => {
 				fraction: ',32',
 				sign: '',
 				hasNonZeroFraction: true,
+				floatValue: 9800900.32,
 			} );
 		} );
 	} );

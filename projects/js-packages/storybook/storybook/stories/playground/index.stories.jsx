@@ -1,4 +1,3 @@
-/* eslint-disable jsdoc/no-undefined-types */
 import {
 	BlockEditorKeyboardShortcuts,
 	BlockEditorProvider,
@@ -18,7 +17,7 @@ import './style.scss';
 /**
  * Render our playground component
  *
- * @return {React.Component} - The App
+ * @return {import('react').Component} - The App
  */
 function App() {
 	const [ blocks, updateBlocks ] = useState( [] );
@@ -53,6 +52,7 @@ function App() {
 	);
 }
 
+// eslint-disable-next-line storybook/csf-component -- This is an integration story, not a component story.
 export default {
 	title: 'Playground/Block Editor',
 };

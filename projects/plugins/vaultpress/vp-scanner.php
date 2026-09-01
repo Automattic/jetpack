@@ -65,7 +65,7 @@ class VP_FileScan {
 				}
 				if ( count( $files ) >= $limit ) {
 					closedir( $handle );
-					return array( $_return_offset, $_return_dir );
+					return array( $_return_offset ?? 0, $_return_dir ?? null );
 				}
 			}
 			closedir( $handle );
@@ -111,7 +111,7 @@ function split_file_to_php_html( $file ) {
  * Uses the PHP tokenizer to split a string into 3 arrays: PHP code with no comments,
  * PHP code with comments, and HTML/JS code.
  *
- * @param string $file The file path to read and parse
+ * @param string $source The file path to read and parse.
  * @return array An array with 3 arrays of lines
  */
 function split_to_php_html( $source ) {
@@ -142,7 +142,7 @@ function split_to_php_html( $source ) {
 					// special case for lines like: "     // comment\n":
 					// if we're adding a comment with a newline, and the 'php' array current line
 					// has no trailing newline, add one
-					if ( substr_count( $text, "\n" ) >= 1 && isset( $ret['php'][ $current_line ] ) && 0 === substr_count( $ret['php'][ $current_line ], "\n" ) ) {
+					if ( substr_count( $text, "\n" ) >= 1 && ! empty( $ret['php'][ $current_line ] ) && 0 === substr_count( $ret['php'][ $current_line ], "\n" ) ) {
 						$ret['php'][ $current_line ] .= "\n";
 					}
 
@@ -179,10 +179,11 @@ function split_to_php_html( $source ) {
 
 /**
  * Helper function for split_file_to_php_html; adds a chunk of text to the arrays we'll return.
- * @param array $parsed The array containing all the languages we'll return
- * @param string $prefix The prefix for the languages we want to add this text to
- * @param int $line_number The line number that this text goes on
- * @param string $text The text to add
+ *
+ * @param array  $parsed The array containing all the languages we'll return.
+ * @param string $prefix The prefix for the languages we want to add this text to.
+ * @param int    $start_line_number The line number that this text goes on.
+ * @param string $all_text The text to add.
  */
 function add_text_to_parsed( &$parsed, $prefix, $start_line_number, $all_text ) {
 	$line_number = $start_line_number;

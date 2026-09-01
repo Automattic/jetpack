@@ -1,0 +1,4 @@
+/* Ensure equal width for paired controls in the slider field inspector */
+.jp-field-slider-inspector-row > div {
+	width: 50%;
+}

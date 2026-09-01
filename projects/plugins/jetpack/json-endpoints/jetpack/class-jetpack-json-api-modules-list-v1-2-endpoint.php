@@ -6,8 +6,15 @@
  */
 
 use Automattic\Jetpack\Status;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * List modules v1.2 endpoint.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Jetpack_JSON_API_Modules_List_V1_2_Endpoint extends Jetpack_JSON_API_Endpoint {
 

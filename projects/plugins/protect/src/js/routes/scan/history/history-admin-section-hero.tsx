@@ -1,16 +1,17 @@
-import { Status, Text } from '@automattic/jetpack-components';
+import { Text } from '@automattic/jetpack-components';
 import { dateI18n } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
 import { useMemo } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams } from 'react-router';
 import AdminSectionHero from '../../../components/admin-section-hero';
 import ErrorAdminSectionHero from '../../../components/error-admin-section-hero';
 import ScanNavigation from '../../../components/scan-navigation';
 import useThreatsList from '../../../components/threats-list/use-threats-list';
 import useProtectData from '../../../hooks/use-protect-data';
 import styles from './styles.module.scss';
+import type { FC } from 'react';
 
-const HistoryAdminSectionHero: React.FC = () => {
+const HistoryAdminSectionHero: FC = () => {
 	const { filter = 'all' } = useParams();
 	const { list } = useThreatsList( {
 		source: 'history',
@@ -18,7 +19,7 @@ const HistoryAdminSectionHero: React.FC = () => {
 	} );
 	const { counts, error } = useProtectData( {
 		sourceType: 'history',
-		filter: { status: filter },
+		filter: { status: filter, key: null },
 	} );
 	const { threats: numAllThreats } = counts.all;
 
@@ -48,13 +49,16 @@ const HistoryAdminSectionHero: React.FC = () => {
 		<AdminSectionHero
 			main={
 				<>
-					<Status status="active" label={ __( 'Active', 'jetpack-protect' ) } />
+					<AdminSectionHero.StatusIndicator
+						status="active"
+						label={ __( 'Active', 'jetpack-protect' ) }
+					/>
 					<AdminSectionHero.Heading showIcon>
 						{ numAllThreats > 0
 							? sprintf(
-									/* translators: %s: Total number of threats  */
+									/* translators: %1$s: Total number of threats, %2$s: singular or plural form of "threat" */
 									__( '%1$s previously active %2$s', 'jetpack-protect' ),
-									numAllThreats,
+									numAllThreats.toString(),
 									numAllThreats === 1 ? 'threat' : 'threats'
 							  )
 							: __( 'No previously active threats', 'jetpack-protect' ) }

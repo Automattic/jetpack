@@ -14,9 +14,10 @@ import SiteAcceleratorCard from './site-accelerator-card';
 import SocialCard from './social-card';
 import StatsCard from './stats-card';
 import VideopressCard from './videopress-card';
+import type { FC } from 'react';
 
 export const JetpackModuleToProductCard: {
-	[ key in JetpackModule ]: React.FC< { recommendation?: boolean; admin?: boolean } > | null;
+	[ key in JetpackModule ]: FC< { recommendation?: boolean; admin?: boolean } > | null;
 } = {
 	backup: BackupCard,
 	protect: ProtectCard,
@@ -37,8 +38,12 @@ export const JetpackModuleToProductCard: {
 	scan: null,
 	creator: null,
 	'brute-force': null,
+	// A real product, but shown as a tab-panel card; it has no homepage card component:
+	'jetpack-forms': null,
 	// Features:
 	newsletter: NewsletterCard,
 	'related-posts': RelatedPostsCard,
+	// Shown only as a module row under Growth; no product card.
+	podcast: null,
 	'site-accelerator': SiteAcceleratorCard,
 };

@@ -1,10 +1,10 @@
 === Jetpack Starter Plugin ===
 Contributors: automattic,
 Tags: jetpack, stuff
-Requires at least: 6.7
-Requires PHP: 7.2
-Tested up to: 6.8
-Stable tag: 0.1.0-alpha
+Requires at least: 7.0
+Requires PHP: 7.4
+Tested up to: 7.1
+Stable tag: 0.10.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -33,17 +33,26 @@ directory take precedence. For example, `/assets/screenshot-1.png` would win ove
 2. This is the second screen shot
 
 == Changelog ==
-### 0.6.0 - 2025-04-04
+### 0.10.0 - 2026-04-10
+#### Added
+- Add Jetpack Protect details page for users without the dedicated Jetpack Protect plugin.
 
 #### Changed
-- Code: Use function-style `exit()` and `die()` with a default status code of 0.
-- General: Indicate compatibility with WordPress 6.8.
-- Update composer.lock
+- Dependencies: Update lock file to keep root requirements in sync.
+- My Jetpack: Check red bubble notification async when cache is not available.
+- Remove header border-bottom from the admin page for a cleaner unified header appearance.
+- Switch to Native TypeScript compiler based on Go.
+- Update admin page footer design.
+- Update composer.lock.
+- Update dependencies.
+- Update design of the sidebar upsell.
 - Update package dependencies.
 
+#### Removed
+- General: Update minimum WordPress version to 6.8.
+
 #### Fixed
-- Code: Prevent dynamic class properties.
-- E2E Tests: Only install single browser used by Playwright.
+- Admin Page: Restore border on header component.
 
 == Arbitrary section ==
 

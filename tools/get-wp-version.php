@@ -13,7 +13,10 @@ curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
 
 // Get the response and close the channel.
 $response = curl_exec( $ch );
-curl_close( $ch );
+// todo: remove when we are PHP 8.0+, as curl_close() is noop in 8.0+ and deprecated in PHP 8.5+
+if ( PHP_VERSION_ID < 80000 ) {
+	curl_close( $ch ); // phpcs:ignore PHPCompatibility.FunctionUse.RemovedFunctions.curl_closeDeprecated
+}
 
 $versions = json_decode( $response );
 $versions = $versions->offers;

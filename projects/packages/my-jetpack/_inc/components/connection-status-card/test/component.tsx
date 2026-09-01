@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom';
 import { CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
-import { render, renderHook, screen, waitFor } from '@testing-library/react';
+import { render, renderHook, screen } from '@testing-library/react';
 import { useSelect } from '@wordpress/data';
 import Providers from '../../../providers';
 import ConnectionStatusCard from '../index';
@@ -62,6 +62,7 @@ const adminUserConnectionData = {
 			display_name: 'test',
 			email: 'email@example.com',
 		},
+		isMaster: false,
 	},
 };
 
@@ -92,9 +93,24 @@ const setConnectionStore = ( {
 	jest
 		.spyOn( storeSelect, 'getConnectionStatus' )
 		.mockReset()
-		.mockReturnValue( { isRegistered, isUserConnected, hasConnectedOwner, userConnectionData } );
+		.mockReturnValue( { isRegistered, isUserConnected, hasConnectedOwner } );
+	jest
+		.spyOn( storeSelect, 'getUserConnectionData' )
+		.mockReset()
+		.mockReturnValue( userConnectionData );
 };
-
+beforeAll( () => {
+	global.JetpackScriptData = {
+		user: {
+			current_user: {
+				capabilities: {},
+			},
+		},
+		site: {
+			host: 'standard',
+		},
+	};
+} );
 beforeEach( () => {
 	resetInitialState();
 	setConnectionStore();
@@ -119,16 +135,8 @@ describe( 'ConnectionStatusCard', () => {
 
 		it( 'renders the correct copy for the site connection line item', () => {
 			setup();
-			expect( screen.getByText( 'Start with Jetpack.' ) ).toBeInTheDocument();
-			expect(
-				screen.getByRole( 'button', { name: 'Connect your site with one click' } )
-			).toBeInTheDocument();
-		} );
-
-		it( 'does not render the user connection line item', () => {
-			setup();
-			expect( screen.queryByText( 'Unlock more of Jetpack' ) ).not.toBeInTheDocument();
-			expect( screen.queryByRole( 'button', { name: 'Sign in' } ) ).not.toBeInTheDocument();
+			expect( screen.getByText( 'Site not connected' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Connect your site with one click.' ) ).toBeInTheDocument();
 		} );
 	} );
 
@@ -146,16 +154,7 @@ describe( 'ConnectionStatusCard', () => {
 
 		it( 'renders the correct copy for the site connection line item', () => {
 			setup();
-			expect(
-				screen.getByText( 'Missing site connection to enable some features.' )
-			).toBeInTheDocument();
-			expect( screen.getByRole( 'button', { name: 'Connect' } ) ).toBeInTheDocument();
-		} );
-
-		it( 'does not render the user connection line item', () => {
-			setup();
-			expect( screen.queryByText( 'Unlock more of Jetpack' ) ).not.toBeInTheDocument();
-			expect( screen.queryByRole( 'button', { name: 'Sign in' } ) ).not.toBeInTheDocument();
+			expect( screen.getByText( 'Connect your site with one click.' ) ).toBeInTheDocument();
 		} );
 	} );
 
@@ -172,20 +171,7 @@ describe( 'ConnectionStatusCard', () => {
 
 			it( 'renders the correct site connection line item', () => {
 				setup();
-				expect( screen.getByText( 'Site connected.' ) ).toBeInTheDocument();
-				expect( screen.getByRole( 'button', { name: 'Manage' } ) ).toBeInTheDocument();
-			} );
-
-			it( 'renders the correct user connection line item', async () => {
-				setup();
-
-				// Wait for the specific text to appear, which indicates the data has been processed
-				await waitFor( () => {
-					return screen.queryByText( 'Some features require authentication.' ) !== null;
-				} );
-
-				expect( screen.getByText( 'Unlock more of Jetpack' ) ).toBeInTheDocument();
-				expect( screen.getByRole( 'button', { name: 'Sign in' } ) ).toBeInTheDocument();
+				expect( screen.getByText( 'Site connected' ) ).toBeInTheDocument();
 			} );
 		} );
 
@@ -202,8 +188,7 @@ describe( 'ConnectionStatusCard', () => {
 
 			it( 'renders the correct site connection line item', () => {
 				setup();
-				expect( screen.getByText( 'Site connected.' ) ).toBeInTheDocument();
-				expect( screen.getByRole( 'button', { name: 'Manage' } ) ).toBeInTheDocument();
+				expect( screen.getByText( 'Site connected' ) ).toBeInTheDocument();
 			} );
 
 			it( 'renders the correct user connection line item', () => {
@@ -231,16 +216,7 @@ describe( 'ConnectionStatusCard', () => {
 
 		it( 'renders the correct site connection line item', () => {
 			setup();
-			expect( screen.getByText( 'Site connected.' ) ).toBeInTheDocument();
-			expect( screen.getByRole( 'button', { name: 'Manage' } ) ).toBeInTheDocument();
-		} );
-
-		it( 'renders the correct user connection line item', () => {
-			setup();
-			expect(
-				screen.getByText( 'Missing authentication to enable all features.' )
-			).toBeInTheDocument();
-			expect( screen.getByRole( 'button', { name: 'Sign in' } ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Site connected' ) ).toBeInTheDocument();
 		} );
 	} );
 
@@ -256,17 +232,54 @@ describe( 'ConnectionStatusCard', () => {
 
 		it( 'renders the correct site connection line item', () => {
 			setup();
-			expect( screen.getByText( 'Site connected.' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Site and account connected' ) ).toBeInTheDocument();
 		} );
 
 		it( 'renders the correct user connection line item', () => {
 			setup();
 			expect( screen.getByText( /Connected as/ ) ).toBeInTheDocument();
 		} );
+	} );
 
-		it( 'renders one manage button', () => {
+	describe( 'When on WoA site and user is connection owner', () => {
+		const setup = () => {
+			global.JetpackScriptData.site.host = 'woa';
+
+			const woaOwnerConnectionData = {
+				currentUser: {
+					permissions: {
+						manage_options: true,
+					},
+					wpcomUser: {
+						display_name: 'test',
+						email: 'email@example.com',
+					},
+					isMaster: true,
+				},
+			};
+
+			setConnectionStore( {
+				isRegistered: true,
+				isUserConnected: true,
+				hasConnectedOwner: true,
+				userConnectionData: woaOwnerConnectionData,
+			} );
+
+			return render(
+				<Providers>
+					<ConnectionStatusCard { ...testProps } />
+				</Providers>
+			);
+		};
+
+		afterEach( () => {
+			global.JetpackScriptData.site.host = 'standard';
+		} );
+
+		it( 'disables the manage connection button for WoA connection owners', () => {
 			setup();
-			expect( screen.getAllByRole( 'button', { name: 'Manage' } ) ).toHaveLength( 1 );
+			const button = screen.getByRole( 'button', { name: /Site and account connected/ } );
+			expect( button ).toBeDisabled();
 		} );
 	} );
 
@@ -281,10 +294,11 @@ describe( 'ConnectionStatusCard', () => {
 						display_name: 'test',
 						email: 'email@example.com',
 					},
+					isMaster: false,
 					possibleAccountErrors: {
 						mismatch: {
 							type: 'mismatch',
-							message: 'Your WordPress.com email also used by another user account.',
+							message: 'Your WordPress.com email is also used by another user account.',
 							details: {
 								site_email: 'local@example.com',
 								wpcom_email: 'email@example.com',
@@ -351,8 +365,10 @@ describe( 'ConnectionStatusCard', () => {
 
 		it( 'renders prompt for this user to connect', () => {
 			setup();
-			expect( screen.getByText( 'Unlock more of Jetpack' ) ).toBeInTheDocument();
-			expect( screen.getByRole( 'button', { name: 'Sign in' } ) ).toBeInTheDocument();
+			expect(
+				screen.getByText( 'Connect your account to unlock all the features.' )
+			).toBeInTheDocument();
+			expect( screen.getByRole( 'button', { name: 'Connect my account' } ) ).toBeInTheDocument();
 		} );
 	} );
 
@@ -374,8 +390,101 @@ describe( 'ConnectionStatusCard', () => {
 		it( 'renders message about an admin needing to sign in first', () => {
 			setup();
 			expect(
-				screen.getByText( 'A site admin will need to connect before you are able to sign in' )
+				screen.getByText(
+					'A site admin will need to connect their account before you can connect yours.'
+				)
 			).toBeInTheDocument();
+		} );
+	} );
+
+	describe( 'When an admin is not connected but site is registered', () => {
+		const setup = () => {
+			global.JetpackScriptData.user.current_user.capabilities = { manage_options: true };
+
+			setConnectionStore( {
+				isRegistered: true,
+				isUserConnected: false,
+				hasConnectedOwner: false,
+				userConnectionData: adminUserConnectionData,
+			} );
+			return render(
+				<Providers>
+					<ConnectionStatusCard { ...testProps } />
+				</Providers>
+			);
+		};
+
+		afterEach( () => {
+			global.JetpackScriptData.user.current_user.capabilities = {};
+		} );
+
+		it( 'enables the manage connection button so admins can disconnect the site', () => {
+			setup();
+			const button = screen.getByRole( 'button', { name: /Site connected/ } );
+			expect( button ).toBeEnabled();
+		} );
+
+		it( 'still shows the connect account prompt', () => {
+			setup();
+			expect(
+				screen.getByText( 'Connect your account to unlock all the features.' )
+			).toBeInTheDocument();
+			expect( screen.getByRole( 'button', { name: 'Connect my account' } ) ).toBeInTheDocument();
+		} );
+	} );
+
+	describe( 'When a non-admin is not connected and site is registered', () => {
+		const setup = () => {
+			global.JetpackScriptData.user.current_user.capabilities = {};
+
+			setConnectionStore( {
+				isRegistered: true,
+				isUserConnected: false,
+				hasConnectedOwner: true,
+				userConnectionData: nonAdminUserConnectionData,
+			} );
+			return render(
+				<Providers>
+					<ConnectionStatusCard { ...testProps } />
+				</Providers>
+			);
+		};
+
+		it( 'disables the manage connection button for non-admins', () => {
+			setup();
+			const button = screen.getByRole( 'button', { name: /Site connected/ } );
+			expect( button ).toBeDisabled();
+		} );
+	} );
+
+	describe( 'When on WoA site and admin is not connected', () => {
+		const setup = () => {
+			global.JetpackScriptData.site.host = 'woa';
+			global.JetpackScriptData.user.current_user.capabilities = { manage_options: true };
+
+			setConnectionStore( {
+				isRegistered: true,
+				isUserConnected: false,
+				hasConnectedOwner: false,
+				userConnectionData: adminUserConnectionData,
+			} );
+
+			return render(
+				<Providers>
+					<ConnectionStatusCard { ...testProps } />
+				</Providers>
+			);
+		};
+
+		afterEach( () => {
+			global.JetpackScriptData.site.host = 'standard';
+			global.JetpackScriptData.user.current_user.capabilities = {};
+		} );
+
+		it( 'disables the manage connection button since WoA sites cannot be disconnected', () => {
+			setup();
+			const button = screen.getByRole( 'button', { name: /Site connected/ } );
+			expect( button ).toBeDisabled();
 		} );
 	} );
 } );

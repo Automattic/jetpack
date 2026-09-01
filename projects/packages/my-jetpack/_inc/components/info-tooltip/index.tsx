@@ -1,16 +1,16 @@
-import { Gridicon } from '@automattic/jetpack-components';
 import { Popover } from '@wordpress/components';
 import { useViewportMatch } from '@wordpress/compose';
+import { Icon, info as infoIcon } from '@wordpress/icons';
 import { useState, useCallback, useRef } from 'react';
 import useAnalytics from '../../hooks/use-analytics';
 import type { PopoverProps } from './types';
-import type { FC } from 'react';
+import type { ReactElement, FC } from 'react';
 
 import './style.scss';
 
 interface Props extends PopoverProps {
 	className?: string;
-	icon?: string;
+	icon?: ReactElement;
 	iconSize?: number;
 	tracksEventName?: string;
 	tracksEventProps?: Record< Lowercase< string >, unknown >;
@@ -19,7 +19,7 @@ interface Props extends PopoverProps {
 export const InfoTooltip: FC< Props > = ( {
 	children,
 	className,
-	icon = 'info-outline',
+	icon = infoIcon,
 	iconSize = 14,
 	tracksEventName,
 	tracksEventProps = {},
@@ -58,14 +58,14 @@ export const InfoTooltip: FC< Props > = ( {
 	return (
 		<span className={ className }>
 			<button className="info-tooltip__button" onClick={ toggleTooltip } ref={ useTooltipRef }>
-				<Gridicon icon={ icon } size={ iconSize } />
+				<Icon icon={ icon } size={ iconSize } />
 			</button>
 			{ isPopoverVisible && (
 				<Popover
 					placement={ isMobileViewport ? 'top-end' : 'right' }
 					noArrow={ false }
 					offset={ 10 }
-					focusOnMount={ 'container' }
+					focusOnMount="firstElement"
 					onClose={ hideTooltip }
 					{ ...rest }
 				>

@@ -14,21 +14,19 @@ import {
 	usePlanType,
 } from '@automattic/jetpack-shared-extension-utils';
 import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils/components';
-import { PanelBody, PanelRow, BaseControl, ExternalLink, Notice } from '@wordpress/components';
+import { PanelBody, PanelRow, BaseControl, Button, Notice } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
-import { useSelect } from '@wordpress/data';
+import { useSelect, useDispatch } from '@wordpress/data';
 import {
-	PluginPrePublishPanel as DeprecatedPluginPrePublishPanel,
-	PluginDocumentSettingPanel as DeprecatedPluginDocumentSettingPanel,
-} from '@wordpress/edit-post';
-import {
-	PluginPrePublishPanel as EditorPluginPrePublishPanel,
-	PluginDocumentSettingPanel as EditorPluginDocumentSettingPanel,
+	PluginPrePublishPanel,
+	PluginDocumentSettingPanel,
 	store as editorStore,
 } from '@wordpress/editor';
+import { applyFilters } from '@wordpress/hooks';
 import { __ } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import debugFactory from 'debug';
-import { ComponentType } from 'react';
+import { ComponentType, useCallback, useMemo } from 'react';
 /**
  * Internal dependencies
  */
@@ -40,11 +38,13 @@ import { getBreveAvailability, canWriteBriefBeEnabled } from '../breve/utils/get
 import Feedback from '../feedback';
 import TitleOptimization from '../title-optimization';
 import UsagePanel from '../usage-panel';
+import WordPressAgentNotice, { useWordPressAgentNotice } from '../wordpress-agent-notice';
 import {
 	PLACEMENT_DOCUMENT_SETTINGS,
 	PLACEMENT_JETPACK_SIDEBAR,
 	PLACEMENT_PRE_PUBLISH,
 } from './constants';
+import { useSidebarOpenFromUrl } from './open-sidebar-from-url';
 import Upgrade from './upgrade';
 import './style.scss';
 /**
@@ -52,11 +52,8 @@ import './style.scss';
  */
 import type { CoreSelect, JetpackSettingsContentProps, PanelProps } from './types';
 
-const BasePrePublishPanel = EditorPluginPrePublishPanel || DeprecatedPluginPrePublishPanel;
-const BaseDocumentPanel = EditorPluginDocumentSettingPanel || DeprecatedPluginDocumentSettingPanel;
-
-const PrePublishPanel = BasePrePublishPanel as ComponentType< PanelProps >;
-const DocumentPanel = BaseDocumentPanel as ComponentType< PanelProps >;
+const PrePublishPanel = PluginPrePublishPanel as ComponentType< PanelProps >;
+const DocumentPanel = PluginDocumentSettingPanel as ComponentType< PanelProps >;
 
 const debug = debugFactory( 'jetpack-ai-assistant-plugin:sidebar' );
 /**
@@ -90,6 +87,47 @@ const JetpackAndSettingsContent = ( {
 	const { productPageUrl } = useAiProductPage();
 	const isBreveAvailable = getBreveAvailability();
 	const isPostEmpty = useSelect( select => select( editorStore ).isEditedPostEmpty(), [] );
+	const { editPost } = useDispatch( editorStore );
+
+	const onImageSelect = useCallback(
+		( image: { id: number; url: string; mime?: string } ) => {
+			editPost( { featured_media: image.id } );
+		},
+		[ editPost ]
+	);
+
+	/**
+	 * Filters the image generation handler for AI-powered image creation entry points.
+	 *
+	 * Allows external plugins (e.g. Image Studio) to provide a custom handler that
+	 * replaces the default image generation UI. When a handler is returned, it is
+	 * called to open the external image generation flow instead of the built-in one.
+	 *
+	 * @param {Function|null} handler                 - The handler function, or null if no handler is registered.
+	 * @param {object}        options                 - Options describing the entry point context.
+	 * @param {string}        options.entryPoint      - Identifies the UI location (e.g. 'featured-image').
+	 * @param {Function}      options.onImageSelect   - Callback invoked with the selected image ({ id, url, mime? }).
+	 * @param {object}        options.extra           - Additional context for the handler.
+	 * @param {string}        options.extra.placement - The placement identifier for the entry point.
+	 * @param {boolean}       options.extra.disabled  - Whether the handler should be disabled (e.g. upgrade required).
+	 * @return {Function|null} A function to invoke the image generation flow, or null to use the default behavior.
+	 *
+	 * @example
+	 * // Register a custom image generation handler from an external plugin.
+	 * import { addFilter } from '@wordpress/hooks';
+	 *
+	 * addFilter( 'jetpack.ai.imageGenerationHandler', 'my-plugin/image-studio', ( handler, options ) => {
+	 *     return () => openImageStudio( options.entryPoint, options.onImageSelect );
+	 * } );
+	 */
+	const imageGenerationHandler = useMemo( () => {
+		const result = applyFilters( 'jetpack.ai.imageGenerationHandler', null, {
+			entryPoint: 'featured-image',
+			onImageSelect,
+			extra: { placement, disabled: requireUpgrade },
+		} );
+		return typeof result === 'function' ? ( result as () => void ) : null;
+	}, [ onImageSelect, placement, requireUpgrade ] );
 
 	const currentTitleOptimizationSectionLabel = __( 'Optimize Publishing', 'jetpack' );
 	const SEOTitleOptimizationSectionLabel = __( 'Optimize Title', 'jetpack' );
@@ -106,7 +144,6 @@ const JetpackAndSettingsContent = ( {
 					</BaseControl>
 				</PanelRow>
 			) }
-
 			{ isPostEmpty && (
 				<PanelRow className="jetpack-ai-sidebar__warning-content">
 					<Notice isDismissible={ false } status="warning">
@@ -114,7 +151,6 @@ const JetpackAndSettingsContent = ( {
 					</Notice>
 				</PanelRow>
 			) }
-
 			{ canWriteBriefBeEnabled() && isBreveAvailable && (
 				<PanelRow>
 					<BaseControl __nextHasNoMarginBottom={ true }>
@@ -125,7 +161,6 @@ const JetpackAndSettingsContent = ( {
 					</BaseControl>
 				</PanelRow>
 			) }
-
 			{ isAITitleOptimizationAvailable && (
 				<PanelRow className="jetpack-ai-sidebar__feature-section">
 					<BaseControl __nextHasNoMarginBottom={ true }>
@@ -134,25 +169,32 @@ const JetpackAndSettingsContent = ( {
 					</BaseControl>
 				</PanelRow>
 			) }
-
-			{ isAIFeaturedImageAvailable && (
+			{ ( imageGenerationHandler || isAIFeaturedImageAvailable ) && (
 				<PanelRow className="jetpack-ai-sidebar__feature-section">
 					<BaseControl __nextHasNoMarginBottom={ true }>
 						<BaseControl.VisualLabel>
 							{ __( 'Get Featured Image', 'jetpack' ) }
 						</BaseControl.VisualLabel>
-						<FeaturedImage busy={ false } disabled={ requireUpgrade } placement={ placement } />
+						{ imageGenerationHandler ? (
+							<Button
+								onClick={ imageGenerationHandler }
+								variant="secondary"
+								disabled={ requireUpgrade }
+							>
+								{ __( 'Generate image', 'jetpack' ) }
+							</Button>
+						) : (
+							<FeaturedImage busy={ false } disabled={ requireUpgrade } placement={ placement } />
+						) }
 					</BaseControl>
 				</PanelRow>
 			) }
-
 			<PanelRow className="jetpack-ai-sidebar__feature-section">
 				<BaseControl __nextHasNoMarginBottom={ true }>
 					<BaseControl.VisualLabel>{ __( 'Get Feedback', 'jetpack' ) }</BaseControl.VisualLabel>
 					<Feedback placement={ placement } busy={ false } disabled={ requireUpgrade } />
 				</BaseControl>
 			</PanelRow>
-
 			{ requireUpgrade && ! isUsagePanelAvailable && (
 				<PanelRow>
 					<Upgrade placement={ placement } type={ upgradeType } upgradeUrl={ checkoutUrl } />
@@ -163,24 +205,31 @@ const JetpackAndSettingsContent = ( {
 					<UsagePanel placement={ placement } />
 				</PanelRow>
 			) }
-
 			<PanelRow className="jetpack-ai-sidebar__external-link">
-				<ExternalLink href={ productPageUrl }>
+				<Link openInNewTab href={ productPageUrl }>
 					{ __( 'Learn more about Jetpack AI', 'jetpack' ) }
-				</ExternalLink>
+				</Link>
 			</PanelRow>
-
 			<PanelRow className="jetpack-ai-sidebar__external-link">
-				<ExternalLink href="https://jetpack.com/redirect/?source=jetpack-ai-feedback">
+				<Link openInNewTab href="https://jetpack.com/redirect/?source=jetpack-ai-feedback">
 					{ __( 'Give us feedback', 'jetpack' ) }
-				</ExternalLink>
+				</Link>
 			</PanelRow>
-
 			<PanelRow className="jetpack-ai-sidebar__external-link">
-				<ExternalLink href="https://jetpack.com/redirect/?source=ai-guidelines">
+				<Link openInNewTab href="https://jetpack.com/redirect/?source=ai-guidelines">
 					{ __( 'AI guidelines', 'jetpack' ) }
-				</ExternalLink>
+				</Link>
 			</PanelRow>
+			{ canWriteBriefBeEnabled() && ! isBreveAvailable && (
+				<PanelRow className="jetpack-ai-sidebar__external-link">
+					<Link
+						openInNewTab
+						href="https://jetpack.com/support/publish-better-content-with-write-brief-with-ai/"
+					>
+						{ __( 'Update on Write Brief (Beta)', 'jetpack' ) }
+					</Link>
+				</PanelRow>
+			) }
 		</>
 	);
 };
@@ -201,12 +250,27 @@ export default function AiAssistantPluginSidebar() {
 
 	const planType = usePlanType( currentTier );
 
+	const { isVisible: showAgentNotice, isDismissed: agentNoticeDismissed } =
+		useWordPressAgentNotice();
+
+	// A post-new.php?openSidebar=jetpack-ai-assistant URL asks for the sidebar to start open,
+	// but not once the notice is dismissed and there is nothing left to show.
+	const sidebarOpenRequested = useSidebarOpenFromUrl( ! agentNoticeDismissed );
+
 	// If the post type is not viewable, do not render my plugin.
 	if ( ! isViewable ) {
 		return null;
 	}
 
-	const title = __( 'AI Assistant', 'jetpack' );
+	const isBreveAvailable = getBreveAvailability();
+
+	// The panels close up rather than sit empty. Write Brief's highlights stay on,
+	// but its on/off control lived in the panel above and now has no home.
+	if ( agentNoticeDismissed ) {
+		return isBreveAvailable ? <Highlight /> : null;
+	}
+
+	const title = __( 'Improve with AI', 'jetpack' );
 
 	const panelToggleTracker = placement => {
 		debug( placement );
@@ -215,7 +279,6 @@ export default function AiAssistantPluginSidebar() {
 
 	const showUsagePanel = planType === PLAN_TYPE_FREE;
 	const showFairUsageNotice = planType === PLAN_TYPE_UNLIMITED && isOverLimit;
-	const isBreveAvailable = getBreveAvailability();
 
 	return (
 		<>
@@ -223,51 +286,67 @@ export default function AiAssistantPluginSidebar() {
 			<JetpackPluginSidebar>
 				<PanelBody
 					title={ title }
-					initialOpen={ false }
+					initialOpen={ showAgentNotice || sidebarOpenRequested }
 					onToggle={ isOpen => {
 						isOpen && panelToggleTracker( PLACEMENT_JETPACK_SIDEBAR );
 					} }
 					className="jetpack-ai-assistant-panel"
 				>
+					{ showAgentNotice ? (
+						<WordPressAgentNotice placement={ PLACEMENT_JETPACK_SIDEBAR } />
+					) : (
+						<JetpackAndSettingsContent
+							placement={ PLACEMENT_JETPACK_SIDEBAR }
+							requireUpgrade={ requireUpgrade }
+							upgradeType={ upgradeType }
+							showUsagePanel={ showUsagePanel }
+							showFairUsageNotice={ showFairUsageNotice }
+						/>
+					) }
+				</PanelBody>
+			</JetpackPluginSidebar>
+
+			<DocumentPanel
+				title={ title }
+				name="jetpack-ai-assistant"
+				icon={ <JetpackEditorPanelLogo /> }
+			>
+				{ showAgentNotice ? (
+					<WordPressAgentNotice placement={ PLACEMENT_DOCUMENT_SETTINGS } />
+				) : (
 					<JetpackAndSettingsContent
-						placement={ PLACEMENT_JETPACK_SIDEBAR }
+						placement={ PLACEMENT_DOCUMENT_SETTINGS }
 						requireUpgrade={ requireUpgrade }
 						upgradeType={ upgradeType }
 						showUsagePanel={ showUsagePanel }
 						showFairUsageNotice={ showFairUsageNotice }
 					/>
-				</PanelBody>
-			</JetpackPluginSidebar>
-
-			<DocumentPanel
-				icon={ <JetpackEditorPanelLogo /> }
-				title={ title }
-				name="jetpack-ai-assistant"
-			>
-				<JetpackAndSettingsContent
-					placement={ PLACEMENT_DOCUMENT_SETTINGS }
-					requireUpgrade={ requireUpgrade }
-					upgradeType={ upgradeType }
-					showUsagePanel={ showUsagePanel }
-					showFairUsageNotice={ showFairUsageNotice }
-				/>
+				) }
 			</DocumentPanel>
 
-			<PrePublishPanel title={ title } icon={ <JetpackEditorPanelLogo /> } initialOpen={ false }>
-				<>
-					{ isAITitleOptimizationAvailable && (
-						<TitleOptimization
+			<PrePublishPanel
+				title={ title }
+				icon={ <JetpackEditorPanelLogo /> }
+				initialOpen={ showAgentNotice }
+			>
+				{ showAgentNotice ? (
+					<WordPressAgentNotice placement={ PLACEMENT_PRE_PUBLISH } />
+				) : (
+					<>
+						{ isAITitleOptimizationAvailable && (
+							<TitleOptimization
+								placement={ PLACEMENT_PRE_PUBLISH }
+								busy={ false }
+								disabled={ requireUpgrade }
+							/>
+						) }
+						<Feedback
 							placement={ PLACEMENT_PRE_PUBLISH }
 							busy={ false }
 							disabled={ requireUpgrade }
 						/>
-					) }
-					<Feedback
-						placement={ PLACEMENT_PRE_PUBLISH }
-						busy={ false }
-						disabled={ requireUpgrade }
-					/>
-				</>
+					</>
+				) }
 			</PrePublishPanel>
 		</>
 	);

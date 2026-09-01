@@ -23,6 +23,8 @@ if ( ! class_exists( __NAMESPACE__ . '\Social_Links' ) ) {
 
 	/**
 	 * Social_Links main class.
+	 *
+	 * @phan-constructor-used-for-side-effects
 	 */
 	class Social_Links {
 

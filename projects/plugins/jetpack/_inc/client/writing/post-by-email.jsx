@@ -1,6 +1,6 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { __, _x } from '@wordpress/i18n';
-import React from 'react';
+import { Component } from 'react';
 import { connect } from 'react-redux';
 import Button from 'components/button';
 import ClipboardButtonInput from 'components/clipboard-button-input';
@@ -14,7 +14,7 @@ import { getModule } from 'state/modules';
 import { isModuleFound as _isModuleFound } from 'state/search';
 import { FEATURE_POST_BY_EMAIL } from '../lib/plans/constants';
 
-class PostByEmail extends React.Component {
+class PostByEmail extends Component {
 	regeneratePostByEmailAddress = event => {
 		analytics.tracks.recordJetpackClick( 'pbe-regenerage-email' );
 		event.preventDefault();
@@ -73,9 +73,8 @@ class PostByEmail extends React.Component {
 						<ModuleToggle
 							slug="post-by-email"
 							compact
-							disabled={ disabledControls }
+							disabled={ disabledControls || this.props.isSavingAnyOption( 'post-by-email' ) }
 							activated={ isPbeActive }
-							toggling={ this.props.isSavingAnyOption( 'post-by-email' ) }
 							toggleModule={ this.props.toggleModuleNow }
 						>
 							<span className="jp-form-toggle-explanation">

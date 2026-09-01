@@ -3,10 +3,11 @@ import { __ } from '@wordpress/i18n';
 import preventWidows from '../../utils/prevent-widows';
 import { Slide01Content } from './slide-01-content';
 import { Slide01Gradient } from './slide-01-gradient';
+import type { FC } from 'react';
 
 import './style.scss';
 
-const Testimonials: React.FC = () => {
+const Testimonials: FC = () => {
 	return (
 		<>
 			<DotPager rotateTime={ 5 } className="jetpack-onboarding-testimonials-pager">

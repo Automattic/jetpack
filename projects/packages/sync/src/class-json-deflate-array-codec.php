@@ -8,6 +8,10 @@
 
 namespace Automattic\Jetpack\Sync;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * An implementation of Automattic\Jetpack\Sync\Codec_Interface that uses gzip's DEFLATE
  * algorithm to compress objects serialized using json_encode
@@ -57,7 +61,7 @@ class JSON_Deflate_Array_Codec implements Codec_Interface {
 	 * @return false|string
 	 */
 	protected function json_serialize( $any ) {
-		return wp_json_encode( Functions::json_wrap( $any ) );
+		return wp_json_encode( Functions::json_wrap( $any ), JSON_UNESCAPED_SLASHES );
 	}
 
 	/**

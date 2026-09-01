@@ -1,5 +1,9 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Tiled gallery layout class.
  */
@@ -172,7 +176,7 @@ abstract class Jetpack_Tiled_Gallery_Layout {
 		if ( class_exists( 'Jetpack_Carousel' ) || in_array( 'carousel', Jetpack::get_active_modules(), true ) || 'carousel' === $this->link ) {
 			$extra_data = array(
 				'blog_id'       => $blog_id,
-				'permalink'     => get_permalink( isset( $post->ID ) ? $post->ID : 0 ),
+				'permalink'     => get_permalink( $post->ID ?? 0 ),
 				'likes_blog_id' => $likes_blog_id,
 			);
 		} else {

@@ -5,6 +5,10 @@
  * @package automattic/jetpack
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Checks if the code debug mode turned on, and returns false if it is. When Jetpack is in
  * code debug mode, it shouldn't use minified assets. Note that this filter is not being used
@@ -39,11 +43,12 @@ require_once JETPACK__PLUGIN_DIR . 'class.jetpack-autoupdate.php';
 require_once JETPACK__PLUGIN_DIR . 'class.frame-nonce-preview.php';
 require_once JETPACK__PLUGIN_DIR . 'modules/module-headings.php';
 require_once JETPACK__PLUGIN_DIR . 'class.jetpack-plan.php';
-// Used by the API endpoints.
+// Used by the API endpoints or used in an odd number of places.
 require_once JETPACK__PLUGIN_DIR . 'modules/seo-tools/class-jetpack-seo-utils.php';
 require_once JETPACK__PLUGIN_DIR . 'modules/seo-tools/class-jetpack-seo-titles.php';
 require_once JETPACK__PLUGIN_DIR . 'modules/seo-tools/class-jetpack-seo-posts.php';
 require_once JETPACK__PLUGIN_DIR . 'modules/verification-tools/verification-tools-utils.php';
+require_once JETPACK__PLUGIN_DIR . 'modules/shortcodes/shortcode-utils.php'; // Shortcodes are often referenced in other modules, so making it available early.
 
 require_once JETPACK__PLUGIN_DIR . 'class-jetpack-xmlrpc-methods.php';
 Jetpack_XMLRPC_Methods::init();
@@ -51,11 +56,26 @@ Jetpack_XMLRPC_Methods::init();
 require_once JETPACK__PLUGIN_DIR . 'class-jetpack-connection-status.php';
 Jetpack_Connection_Status::init();
 
+require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-application-password-extras.php';
+Jetpack_Application_Password_Extras::init();
+
+// Also required directly by the AI extension files because on WordPress.com
+// Simple this bootstrap never runs. The class self-initializes when loaded.
+require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-ai-settings.php';
+require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-ai-feature-flags.php';
+
 require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-recommendations.php';
 
 if ( is_admin() ) {
 	require_once JETPACK__PLUGIN_DIR . 'class.jetpack-admin.php';
 	require_once JETPACK__PLUGIN_DIR . '_inc/lib/debugger.php';
+
+	// Initialize Newsletter Settings (always-loaded so the settings page URL works even when module is inactive).
+	\Automattic\Jetpack\Newsletter\Settings::init();
+
+	\Automattic\Jetpack\Newsletter\Writing_Prompt_Widget::init();
+
+	\Automattic\Jetpack\Plugin\Jetpack_Script_Data::configure();
 }
 
 // Play nice with https://wp-cli.org/.
@@ -65,8 +85,16 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
 
 require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.core-rest-api-endpoints.php';
 require_once JETPACK__PLUGIN_DIR . '_inc/blogging-prompts.php';
+if ( is_admin() ) {
+	require_once JETPACK__PLUGIN_DIR . '_inc/content-guidelines-ai.php';
+}
 
-add_action( 'updating_jetpack_version', array( 'Jetpack', 'do_version_bump' ), 10, 2 );
+add_action( 'updating_jetpack_version', array( 'Jetpack', 'activate_subscriptions_module_for_existing_sites' ), 10, 2 );
+// Seed + keep in sync the durable Jetpack SEO module-state options while the legacy
+// Sitemaps / Canonical URLs modules still exist. Removed in the deferred post-convergence
+// follow-up that absorbs those modules into Jetpack SEO.
+Jetpack::register_seo_module_migration_hooks();
+add_action( 'updating_jetpack_version', array( 'Jetpack', 'seed_seo_visibility_cohort' ), 10, 2 );
 add_filter( 'is_jetpack_site', '__return_true' );
 
 require_once JETPACK__PLUGIN_DIR . '3rd-party/3rd-party.php';

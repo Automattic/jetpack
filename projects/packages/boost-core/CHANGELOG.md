@@ -5,6 +5,62 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] - 2026-08-26
+### Removed
+- Minimum supported PHP version is now 7.4. [#51515]
+
+## [0.4.8] - 2026-06-15
+### Changed
+- Internal updates.
+
+## [0.4.7] - 2026-06-08
+### Changed
+- Internal updates.
+
+## [0.4.6] - 2026-06-05
+### Changed
+- Internal updates.
+
+## [0.4.5] - 2026-05-19
+### Changed
+- Internal updates.
+
+## [0.4.4] - 2026-05-04
+### Changed
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+
+## [0.4.3] - 2026-02-23
+### Changed
+- Update dependencies.
+
+## [0.4.2] - 2026-02-02
+### Changed
+- Update dependencies.
+
+## [0.4.1] - 2025-12-08
+### Fixed
+- Ensure proper flags are used with `json_encode()`. [#46092]
+
+## [0.4.0] - 2025-11-17
+### Added
+- General: Add a daily cleanup of expired transients. [#45920]
+
+## [0.3.14] - 2025-10-20
+### Changed
+- Internal updates.
+
+## [0.3.13] - 2025-09-08
+### Changed
+- Internal updates.
+
+## [0.3.12] - 2025-08-04
+### Added
+- Add helper to clear all custom transients at the same time. [#44549]
+
+## [0.3.11] - 2025-06-23
+### Fixed
+- General: Ensure the correct home page is checked when sites are in a subfolder. [#44007]
+
 ## [0.3.10] - 2025-04-28
 ### Changed
 - Internal updates.
@@ -129,6 +185,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Introduce new package. [#31163]
 
+[0.5.0]: https://github.com/Automattic/jetpack-boost-core/compare/v0.4.8...v0.5.0
+[0.4.8]: https://github.com/Automattic/jetpack-boost-core/compare/v0.4.7...v0.4.8
+[0.4.7]: https://github.com/Automattic/jetpack-boost-core/compare/v0.4.6...v0.4.7
+[0.4.6]: https://github.com/Automattic/jetpack-boost-core/compare/v0.4.5...v0.4.6
+[0.4.5]: https://github.com/Automattic/jetpack-boost-core/compare/v0.4.4...v0.4.5
+[0.4.4]: https://github.com/Automattic/jetpack-boost-core/compare/v0.4.3...v0.4.4
+[0.4.3]: https://github.com/Automattic/jetpack-boost-core/compare/v0.4.2...v0.4.3
+[0.4.2]: https://github.com/Automattic/jetpack-boost-core/compare/v0.4.1...v0.4.2
+[0.4.1]: https://github.com/Automattic/jetpack-boost-core/compare/v0.4.0...v0.4.1
+[0.4.0]: https://github.com/Automattic/jetpack-boost-core/compare/v0.3.14...v0.4.0
+[0.3.14]: https://github.com/Automattic/jetpack-boost-core/compare/v0.3.13...v0.3.14
+[0.3.13]: https://github.com/Automattic/jetpack-boost-core/compare/v0.3.12...v0.3.13
+[0.3.12]: https://github.com/Automattic/jetpack-boost-core/compare/v0.3.11...v0.3.12
+[0.3.11]: https://github.com/Automattic/jetpack-boost-core/compare/v0.3.10...v0.3.11
 [0.3.10]: https://github.com/Automattic/jetpack-boost-core/compare/v0.3.9...v0.3.10
 [0.3.9]: https://github.com/Automattic/jetpack-boost-core/compare/v0.3.8...v0.3.9
 [0.3.8]: https://github.com/Automattic/jetpack-boost-core/compare/v0.3.7...v0.3.8

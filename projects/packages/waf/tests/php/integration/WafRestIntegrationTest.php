@@ -36,7 +36,7 @@ final class WafRestIntegrationTest extends WorDBless\BaseTestCase {
 		);
 
 		return array(
-			'body'     => wp_json_encode( $sample_response ),
+			'body'     => wp_json_encode( $sample_response, JSON_UNESCAPED_SLASHES ),
 			'response' => array(
 				'code'    => 200,
 				'message' => '',
@@ -139,7 +139,8 @@ final class WafRestIntegrationTest extends WorDBless\BaseTestCase {
 			wp_json_encode(
 				array(
 					Waf_Rules_Manager::AUTOMATIC_RULES_ENABLED_OPTION_NAME => true,
-				)
+				),
+				JSON_UNESCAPED_SLASHES
 			)
 		);
 
@@ -167,7 +168,8 @@ final class WafRestIntegrationTest extends WorDBless\BaseTestCase {
 			wp_json_encode(
 				array(
 					'jetpack_waf_automatic_rules_enabled' => true,
-				)
+				),
+				JSON_UNESCAPED_SLASHES
 			)
 		);
 

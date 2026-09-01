@@ -4,30 +4,26 @@ import CriticalCssMeta from '$features/critical-css/critical-css-meta/critical-c
 import { useRegenerateCriticalCssAction } from '$features/critical-css/lib/stores/critical-css-state';
 import { ImageCdnLiar, QualitySettings } from '$features/image-cdn';
 import ImageGuide from '$features/image-guide/image-guide';
-import { RecommendationsMeta } from '$features/image-size-analysis';
 import MinifyCss from '$features/minify-css/minify-css';
 import MinifyJs from '$features/minify-js/minify-js';
 import { useSingleModuleState } from '$features/module/lib/stores';
 import Module from '$features/module/module';
 import PageCacheModule from '$features/page-cache/page-cache';
+import RenderBlockingJsMeta from '$features/render-blocking-js/render-blocking-js-meta';
 import PremiumTooltip from '$features/premium-tooltip/premium-tooltip';
-import Pill from '$features/ui/pill/pill';
-import Upgraded from '$features/ui/upgraded/upgraded';
 import InterstitialModalCTA from '$features/upgrade-cta/interstitial-modal-cta';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import styles from './index.module.scss';
 import LcpModule from '$features/lcp/lcp';
-import { ExternalLink } from '@wordpress/components';
 
 const Index = () => {
 	const criticalCssLink = getRedirectUrl( 'jetpack-boost-critical-css' );
 	const deferJsLink = getRedirectUrl( 'jetpack-boost-defer-js' );
 
-	const [ isaState ] = useSingleModuleState( 'image_size_analysis' );
-	const [ imageCdn ] = useSingleModuleState( 'image_cdn' );
 	const regenerateCssAction = useRegenerateCriticalCssAction();
 
 	const requestRegenerateCriticalCss = () => {
@@ -59,7 +55,9 @@ const Index = () => {
 									'jetpack-boost'
 								),
 								{
-									link: <ExternalLink href={ criticalCssLink } onClick={ handleCriticalCssLink } />,
+									link: (
+										<Link openInNewTab href={ criticalCssLink } onClick={ handleCriticalCssLink } />
+									),
 								}
 							) }
 						</p>
@@ -92,12 +90,8 @@ const Index = () => {
 			</Module>
 			<Module
 				slug="cloud_css"
-				title={
-					<>
-						{ __( 'Automatically Optimize CSS Loading', 'jetpack-boost' ) }
-						<Upgraded />
-					</>
-				}
+				title={ __( 'Automatically Optimize CSS Loading', 'jetpack-boost' ) }
+				worksOffline={ false }
 				onEnable={ requestRegenerateCriticalCss }
 				description={
 					<>
@@ -108,7 +102,9 @@ const Index = () => {
 									'jetpack-boost'
 								),
 								{
-									link: <ExternalLink href={ criticalCssLink } onClick={ handleCriticalCssLink } />,
+									link: (
+										<Link openInNewTab href={ criticalCssLink } onClick={ handleCriticalCssLink } />
+									),
 								}
 							) }
 						</p>
@@ -142,7 +138,8 @@ const Index = () => {
 							),
 							{
 								link: (
-									<ExternalLink
+									<Link
+										openInNewTab
 										onClick={ () => recordBoostEvent( 'defer_js_link_clicked', {} ) }
 										href={ deferJsLink }
 									/>
@@ -151,17 +148,15 @@ const Index = () => {
 						) }
 					</p>
 				}
-			></Module>
+			>
+				<RenderBlockingJsMeta />
+			</Module>
 			<MinifyJs />
 			<MinifyCss />
 			<Module
 				slug="image_cdn"
-				title={
-					<>
-						{ __( 'Image CDN', 'jetpack-boost' ) }
-						{ hasPremiumCdnFeatures && <Upgraded /> }
-					</>
-				}
+				title={ __( 'Image CDN', 'jetpack-boost' ) }
+				worksOffline={ false }
 				description={
 					<p>
 						{ __(
@@ -183,30 +178,8 @@ const Index = () => {
 				<ImageCdnLiar isPremium={ imageCdnLiarState?.available ?? false } />
 				<QualitySettings isPremium={ imageCdnQualityState?.available ?? false } />
 			</Module>
-
 			<div className={ styles.settings }>
 				<ImageGuide />
-
-				<Module
-					slug="image_size_analysis"
-					toggle={ false }
-					title={
-						<>
-							{ __( 'Image Size Analysis', 'jetpack-boost' ) }
-							<Pill text={ __( 'Beta', 'jetpack-boost' ) } />
-						</>
-					}
-					description={
-						<p>
-							{ __(
-								`This tool will search your site for images that are too large and have an impact on your visitors' experience, page loading times, and search rankings. Once finished, it will give you a report of all improperly sized images with suggestions on how to fix them.`,
-								'jetpack-boost'
-							) }
-						</p>
-					}
-				>
-					{ isaState?.active && <RecommendationsMeta isCdnActive={ !! imageCdn?.active } /> }
-				</Module>
 			</div>
 		</div>
 	);

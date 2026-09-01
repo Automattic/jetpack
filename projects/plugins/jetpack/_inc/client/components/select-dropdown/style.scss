@@ -1,7 +1,7 @@
-@use 'sass:color';
-@use '../../scss/z-index';
-@import '../../scss/calypso-colors';
-@import '../../scss/mixin_icons';
+@use "sass:color";
+@use "../../scss/z-index";
+@use "../../scss/calypso-colors";
+@use "../../scss/mixins/icons";
 
 /**
  * Select Dropdown
@@ -15,10 +15,10 @@
 	}
 
 	&.is-disabled .dops-select-dropdown__header {
-		background: $gray-light;
-		border-color: color.adjust( $gray, $lightness: 30% );
-		color: color.adjust( $gray, $lightness: 10% );
-		-webkit-text-fill-color: color.adjust( $gray, $lightness: 10% );
+		background: calypso-colors.$gray-light;
+		border-color: color.adjust(calypso-colors.$gray, $lightness: 30%);
+		color: color.adjust(calypso-colors.$gray, $lightness: 10%);
+		-webkit-text-fill-color: color.adjust(calypso-colors.$gray, $lightness: 10%);
 	}
 }
 
@@ -30,16 +30,16 @@
 	max-width: 100%;
 
 	.dops-select-dropdown.is-open & {
-		z-index: z-index.z-index( 'root', '.dops-select-dropdown.is-open .dops-select-dropdown__container' );
+		z-index: z-index.z-index("root", ".dops-select-dropdown.is-open .dops-select-dropdown__container");
 	}
 
 	.dops-accessible-focus &:focus,
 	.dops-accessible-focus .dops-select-dropdown.is-open & {
-		z-index: z-index.z-index( 'root', '.dops-accessible-focus .dops-select-dropdown.is-open .dops-select-dropdown__container' );
-		box-shadow: 0 0 0 2px $blue-light;
+		z-index: z-index.z-index("root", ".dops-accessible-focus .dops-select-dropdown.is-open .dops-select-dropdown__container");
+		box-shadow: 0 0 0 2px calypso-colors.$blue-light;
 
 		.select-dropdown__header {
-			border-color: $blue-wordpress;
+			border-color: calypso-colors.$blue-wordpress;
 		}
 	}
 
@@ -55,25 +55,25 @@
 	box-sizing: content-box;
 	padding: 11px 44px 11px 16px; // 44 = padding (16) + arrow width (20) + arrow margin (8)
 	border-style: solid;
-	border-color: color.adjust( $gray, $lightness: 20% );
+	border-color: color.adjust(calypso-colors.$gray, $lightness: 20%);
 	border-width: 1px 1px 2px;
 	border-radius: 4px;
-	background-color: $white;
+	background-color: calypso-colors.$white;
 	font-size: 14px;
 	font-weight: 600;
 	line-height: 18px;
 	height: 18px;
-	color: $gray-dark;
+	color: calypso-colors.$gray-dark;
 	transition: background-color 0.2s ease;
 	cursor: pointer;
 
 	&::after {
 
-		@include dashicons;
-		content: '\f347';
+		@include icons.dashicons;
+		content: "\f347";
 		position: absolute;
-			right: 13px;
-			top: 12px;
+		right: 13px;
+		top: 12px;
 
 		.is-compact & {
 			right: 4px;
@@ -82,13 +82,13 @@
 
 		display: block;
 		line-height: 18px;
-		color: rgba( $gray, 0.5 );
+		color: rgba(calypso-colors.$gray, 0.5);
 	}
 
 
 	.is-compact & {
 		padding: 7px;
-		color: color.adjust( $gray, $lightness: -10% );
+		color: color.adjust(calypso-colors.$gray, $lightness: -10%);
 		font-size: 11px;
 		line-height: 1;
 		text-transform: uppercase;
@@ -103,12 +103,12 @@
 	.dops-select-dropdown.is-open & {
 		border-radius: 4px 4px 0 0;
 		box-shadow: none;
-		background-color: $gray-light;
+		background-color: calypso-colors.$gray-light;
 
 		&::after {
 
-			@include dashicons;
-			content: '\f343';
+			@include icons.dashicons;
+			content: "\f343";
 		}
 	}
 
@@ -131,14 +131,14 @@
 	padding: 0;
 	list-style: none;
 	margin: -2px 0 0 0; // account for border overlap with .select-dropdown__header
-	background-color: $white;
-	border: 1px solid color.adjust( $gray, $lightness: 20% );
+	background-color: calypso-colors.$white;
+	border: 1px solid color.adjust(calypso-colors.$gray, $lightness: 20%);
 	// $blue-wordpress for outer (with focus shadow), $gray for border with header
 	border-radius: 0 0 4px 4px;
 
 	.dops-accessible-focus & {
-		border: solid 1px $blue-wordpress;
-		border-top-color: color.adjust( $gray, $lightness: 20% );
+		border: solid 1px calypso-colors.$blue-wordpress;
+		border-top-color: color.adjust(calypso-colors.$gray, $lightness: 20%);
 	}
 
 	.dops-select-dropdown.is-open & {
@@ -165,42 +165,42 @@
 	font-size: 14px;
 	font-weight: 400;
 	line-height: 18px;
-	color: $gray-dark;
+	color: calypso-colors.$gray-dark;
 	white-space: nowrap;
 	text-overflow: ellipsis;
 	overflow: hidden;
 	cursor: pointer;
 
 	&::before {
-		content: attr( data-bold-text );
+		content: attr(data-bold-text);
 		font-weight: 700;
 		opacity: 0;
 	}
 
 	&:visited {
-		color: $gray-dark;
+		color: calypso-colors.$gray-dark;
 	}
 
 	&.is-selected {
-		background-color: $blue-medium;
-		color: $white;
+		background-color: calypso-colors.$blue-medium;
+		color: calypso-colors.$white;
 	}
 
 	&.is-disabled {
-		background-color: $white;
-		color: $gray;
+		background-color: calypso-colors.$white;
+		color: calypso-colors.$gray;
 		cursor: default;
-		opacity: .5;
+		opacity: 0.5;
 	}
 
 	.notouch & {
 		// Make sure :visited links stay blue
 		&:hover {
-			color: $blue-medium;
+			color: calypso-colors.$blue-medium;
 		}
 
 		&.is-selected:hover {
-			color: $white;
+			color: calypso-colors.$white;
 		}
 	}
 }
@@ -209,8 +209,8 @@
 	padding-right: 16px;
 	box-sizing: border-box;
 	position: absolute;
-		top: 0;
-		left: 0;
+	top: 0;
+	left: 0;
 
 	width: 100%;
 	white-space: nowrap;
@@ -227,14 +227,14 @@
 }
 
 .dops-select-dropdown__separator {
-	border-top: 1px solid color.adjust($gray, $lightness: 20% );
+	border-top: 1px solid color.adjust(calypso-colors.$gray, $lightness: 20%);
 	display: block;
 	margin: 8px 0;
 }
 
 .dops-select-dropdown__label {
 	display: block;
-	color: color.adjust($gray, $lightness: 10% );
+	color: color.adjust(calypso-colors.$gray, $lightness: 10%);
 	margin-top: 5px;
 	line-height: 20px;
 
@@ -251,17 +251,17 @@
 
 		.dops-accessible-focus &:focus,
 		.dops-accessible-focus .dops-select-dropdown.is-open & {
-			z-index: z-index.z-index( 'root', '.dops-accessible-focus .dops-select-dropdown.is-open .dops-select-dropdown__container' );
-			box-shadow: 0 0 0 2px var( --jp-green-30 );
+			z-index: z-index.z-index("root", ".dops-accessible-focus .dops-select-dropdown.is-open .dops-select-dropdown__container");
+			box-shadow: 0 0 0 2px var(--jp-green-30);
 
 			.select-dropdown__header {
-				border-color: var( --jp-green );
+				border-color: var(--jp-green);
 			}
 		}
 
 		.dops-accessible-focus &:focus {
 			border-color: transparent;
-			box-shadow: 0 0 0 2px var( --jp-white ), 0 0 0 4px var( --jp-green-50 );
+			box-shadow: 0 0 0 2px var(--jp-white), 0 0 0 4px var(--jp-green-50);
 			outline: 0;
 			border-radius: 4px;
 		}
@@ -269,17 +269,17 @@
 
 	.dops-select-dropdown__header {
 		border-width: 1px;
-		border-color: var( --jp-gray-5 );
+		border-color: var(--jp-gray-5);
 
 		&::after {
-			color: var( --jp-black-80 );
+			color: var(--jp-black-80);
 		}
 	}
 
 	.dops-select-dropdown__options {
 
 		.dops-accessible-focus & {
-			border-color: var( --jp-green );
+			border-color: var(--jp-green);
 		}
 	}
 
@@ -290,18 +290,18 @@
 	.dops-select-dropdown__item {
 
 		&.is-selected {
-			background-color: var( --jp-black );
-			color: var( --jp-white );
+			background-color: var(--jp-black);
+			color: var(--jp-white);
 		}
 
 		.notouch & {
 
 			&:hover {
-				color: var( --jp-green );
+				color: var(--jp-green);
 			}
 
 			&.is-selected:hover {
-				color: $white;
+				color: calypso-colors.$white;
 			}
 		}
 	}

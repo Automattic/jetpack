@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Plugin Conflicts Guardian: probe all selected plugins together in one loopback request pair so bulk activation cost no longer scales with the number of plugins.

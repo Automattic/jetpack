@@ -5,6 +5,10 @@
  * @package automattic/jetpack
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * The modules is loaded during the late_initialization action and it also hooks to the `after_setup_theme`.
  * See projects/plugins/jetpack/class.jetpack.php.

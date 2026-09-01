@@ -15,8 +15,14 @@ use WP_REST_Request;
 use WP_REST_Response;
 use WP_REST_Server;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Scheduled Actions Controller class.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Scheduled_Actions_Controller extends Base_Controller {
 

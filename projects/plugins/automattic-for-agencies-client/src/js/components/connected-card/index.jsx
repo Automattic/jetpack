@@ -1,7 +1,7 @@
 import { Button } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import React, { useCallback } from 'react';
+import { useCallback } from 'react';
 import BrandedCard from '../branded-card';
 import CheckCircleIcon from '../check-circle-icon';
 import styles from './styles.module.scss';
@@ -9,7 +9,7 @@ import styles from './styles.module.scss';
 /**
  * Connected Card component.
  *
- * @return {React.Component} The `ConnectionCard` component.
+ * @return {import('react').Component} The `ConnectionCard` component.
  */
 export default function ConnectedCard() {
 	const navigateToDashboard = useCallback( () => {

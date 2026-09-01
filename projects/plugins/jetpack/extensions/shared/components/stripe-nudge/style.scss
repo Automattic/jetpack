@@ -1,4 +1,4 @@
-@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
 
 .jetpack-stripe-nudge__banner .block-editor-warning__contents {
 	align-items: center;
@@ -6,7 +6,7 @@
 
 .jetpack-stripe-nudge__icon {
 	align-self: center;
-	background: var( --color-primary );
+	background: var(--color-primary);
 	border-radius: 50%;
 	box-sizing: content-box;
 	color: gb.$white;
@@ -17,5 +17,5 @@
 }
 
 .jetpack-stripe-nudge__banner span a.jetpack-stripe-nudge__link {
-	color: var( --color-primary );
+	color: var(--color-primary);
 }

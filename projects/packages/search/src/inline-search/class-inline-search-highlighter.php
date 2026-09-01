@@ -77,10 +77,19 @@ class Inline_Search_Highlighter {
 	 * @return string The filtered title.
 	 */
 	public function filter_highlighted_title( string $title, ?int $post_id = null ): string {
-		// o2 is currently rendering <mark> tags in post titles, so we need to return the original.
-		$body_class = get_body_class();
-		if ( is_array( $body_class ) && in_array( 'o2', $body_class, true ) ) {
-			return $title;
+		$incompatible_themes = array(
+			'blaskan', // Blaskan incorrectly uses wp_nav_menu() in body_class filter, causing infinite recursion.
+			'p2020',   // P2 loads o2 as a plugin, which calls the_title() filter incorrectly.
+		);
+
+		$theme          = wp_get_theme();
+		$theme_name     = strtolower( $theme->get( 'Name' ) );
+		$theme_template = strtolower( $theme->get_template() );
+
+		foreach ( $incompatible_themes as $incompatible_theme ) {
+			if ( $theme_name === $incompatible_theme || $theme_template === $incompatible_theme ) {
+				return $title;
+			}
 		}
 
 		if ( ! $this->is_search_result( $post_id ) ) {

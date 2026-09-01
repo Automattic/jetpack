@@ -1,4 +1,0 @@
-Significance: patch
-Type: compat
-
-Crowdsignal: Prevent warnings in error logs when viewing ratings via legacy shortcodes on archive pages.

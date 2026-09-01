@@ -9,9 +9,64 @@ import debugFactory from 'debug';
 import getMediaToken from '../../lib/get-media-token';
 import resumableFileUploader from '../../lib/resumable-file-uploader';
 import { VideoMediaProps } from '../../lib/resumable-file-uploader/types';
-import type React from 'react';
+import type { ChangeEvent } from 'react';
 
 const debug = debugFactory( 'videopress:use-resumable-uploader' );
+
+/**
+ * `code` carried by the error raised when the upload JWT can't be obtained.
+ */
+export const UPLOAD_TOKEN_ERROR_CODE = 'videopress_no_upload_token';
+
+/**
+ * A failure as it reaches `onError` and the returned `error`.
+ *
+ * Always an `Error`, but the extras depend on where it came from: `code` on
+ * failures raised here (see `UploadTokenError`), `originalResponse` on tus
+ * transport failures. Consumers branch on both, so they are declared optional
+ * rather than left off the type.
+ */
+export type ResumableUploadError = Error & {
+	code?: string;
+	originalResponse?: { getBody?: () => string };
+};
+
+/**
+ * The error raised when the upload JWT can't be obtained.
+ */
+export class UploadTokenError extends Error {
+	public readonly code = UPLOAD_TOKEN_ERROR_CODE;
+
+	/**
+	 * Build the error.
+	 *
+	 * The message is unchanged from the string this replaced: it is developer
+	 * text, and the dashboard describes the failure in its own words.
+	 */
+	constructor() {
+		super( 'No token provided' );
+		this.name = 'UploadTokenError';
+	}
+}
+
+/**
+ * Whether a failed upload may be blamed on the Jetpack connection.
+ *
+ * A missing token means the upload never reached WordPress.com, but not why; only
+ * a connection error alongside it justifies naming the connection. Both checks are
+ * needed, because each rules out a different mistake. Shared so the dashboard's
+ * `classifyUploadFailure()` and the block editor's `getErrorMessage()` cannot drift.
+ *
+ * @param {string}  errorCode          - The `code` carried by the failure, if it carried one.
+ * @param {boolean} hasConnectionError - Whether the connection store is reporting an error.
+ * @return {boolean} Whether the failure should be attributed to the connection.
+ */
+export function isConnectionAttributedFailure(
+	errorCode: string | undefined,
+	hasConnectionError: boolean
+): boolean {
+	return errorCode === UPLOAD_TOKEN_ERROR_CODE && hasConnectionError;
+}
 
 type UploadingStatusProp = 'idle' | 'resumed' | 'aborted' | 'uploading' | 'done' | 'error';
 
@@ -28,15 +83,25 @@ type ResumaHandlerProps = {
 };
 
 type UseResumableUploader = {
-	onUploadHandler: ( event: React.ChangeEvent< HTMLInputElement > ) => void;
+	onUploadHandler: ( event: ChangeEvent< HTMLInputElement > ) => void;
 	uploadHandler: ( file: File ) => void;
 	resumeHandler: ResumaHandlerProps;
 	uploadingData: UploadingDataProps;
 	media: VideoMediaProps;
-	error: string;
+	error: ResumableUploadError | null;
 };
 
-const useResumableUploader = ( { onProgress, onSuccess, onError } ): UseResumableUploader => {
+type UseResumableUploaderProps = {
+	onProgress: ( bytesSent: number, bytesTotal: number ) => void;
+	onSuccess: ( data: VideoMediaProps ) => void;
+	onError: ( error: ResumableUploadError ) => void;
+};
+
+const useResumableUploader = ( {
+	onProgress,
+	onSuccess,
+	onError,
+}: UseResumableUploaderProps ): UseResumableUploader => {
 	const [ uploadingData, setUploadingData ] = useState< UploadingDataProps >( {
 		bytesSent: 0,
 		bytesTotal: 0,
@@ -45,7 +110,7 @@ const useResumableUploader = ( { onProgress, onSuccess, onError } ): UseResumabl
 	} );
 
 	const [ media, setMedia ] = useState< VideoMediaProps >();
-	const [ error, setError ] = useState( null );
+	const [ error, setError ] = useState< ResumableUploadError | null >( null );
 	const [ resumeHandler, setResumeHandler ] = useState< ResumaHandlerProps >();
 
 	/**
@@ -57,7 +122,7 @@ const useResumableUploader = ( { onProgress, onSuccess, onError } ): UseResumabl
 	async function uploadHandler( file: File ) {
 		const tokenData = await getMediaToken( 'upload-jwt' );
 		if ( ! tokenData.token ) {
-			return onError( 'No token provided' );
+			return onError( new UploadTokenError() );
 		}
 
 		// The file starts to upload automatically, so we need to set the status to uploading
@@ -92,7 +157,7 @@ const useResumableUploader = ( { onProgress, onSuccess, onError } ): UseResumabl
 				setMedia( data );
 				onSuccess( data );
 			},
-			onError: ( err: Error ) => {
+			onError: ( err: ResumableUploadError ) => {
 				setUploadingData( prev => ( { ...prev, status: 'error' } ) );
 				setError( err );
 				onError( err );
@@ -116,9 +181,9 @@ const useResumableUploader = ( { onProgress, onSuccess, onError } ): UseResumabl
 	/**
 	 * Handler for the file upload
 	 *
-	 * @param {React.ChangeEvent< HTMLInputElement >} event - the event object
+	 * @param {ChangeEvent< HTMLInputElement >} event - the event object
 	 */
-	function onUploadHandler( event: React.ChangeEvent< HTMLInputElement > ) {
+	function onUploadHandler( event: ChangeEvent< HTMLInputElement > ) {
 		const file = event.target.files[ 0 ];
 		if ( ! file ) {
 			debug( 'No file selected. Bail early' );

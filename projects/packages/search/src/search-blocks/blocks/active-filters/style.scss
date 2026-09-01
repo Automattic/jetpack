@@ -1,0 +1,96 @@
+.wp-block-jetpack-search-active-filters {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	flex-wrap: wrap;
+
+	&[hidden] {
+		display: none;
+	}
+
+	.jetpack-search-active-filters__heading {
+		font-size: 0.8rem;
+		font-weight: 600;
+		// Inherit the theme's text color so the heading adapts to dark
+		// themes and the site palette.
+		color: inherit;
+		opacity: 0.8;
+	}
+
+	.jetpack-search-active-filters__pills {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.25rem;
+		list-style: none;
+		margin: 0;
+		padding: 0;
+	}
+
+	// Active-filter pills are selected-filter tokens, so they mirror the
+	// checkbox filter chips (`_chip.scss`): a `currentColor` outline that tracks
+	// the inherited theme ink. `currentColor` resolves to the page ink on the
+	// search page and to the overlay card's ink inside the blocks Overlay, so
+	// the pills stay readable and consistent on every theme and surface —
+	// without leaning on the core button palette, which on classic themes fell
+	// through to WordPress's `#32373c` default and rendered as a heavy solid
+	// pill (with a clashing theme-accent hover) against the light overlay card.
+	.jetpack-search-active-filters__pill {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.25rem;
+		border: 1px solid currentColor;
+		border-radius: 12px;
+		padding: 0.2rem 0.6rem;
+		// Reset the host theme's `button` typography (classic themes like Twenty
+		// Sixteen uppercase + letter-space + restyle the font of bare buttons) so
+		// the label reads in the inherited body font, mixed-case, like the
+		// surrounding Search UI rather than a theme CTA.
+		font: inherit;
+		font-size: 0.8rem;
+		line-height: 1.2;
+		text-transform: none;
+		letter-spacing: normal;
+		color: inherit;
+		background: transparent;
+		cursor: pointer;
+		transition:
+			background-color 0.2s ease,
+			border-color 0.2s ease,
+			box-shadow 0.2s ease;
+
+		@supports (border-color: color-mix(in sRGB, black 50%, white)) {
+			background: color-mix(in sRGB, currentColor 14%, transparent);
+			border-color: color-mix(in sRGB, currentColor 38%, transparent);
+		}
+
+		&:hover,
+		&:focus-visible {
+			background: transparent;
+			border-color: currentColor;
+
+			@supports (background: color-mix(in sRGB, black 50%, white)) {
+				background: color-mix(in sRGB, currentColor 24%, transparent);
+				border-color: color-mix(in sRGB, currentColor 52%, transparent);
+			}
+		}
+
+		// Keyboard focus ring, matching `_chip.scss`: a solid `currentColor` ring
+		// for UAs without color-mix, upgraded to a translucent one where
+		// supported. Replaces the native outline so the ring tracks the theme ink
+		// and stays consistent with the filter chips regardless of UA defaults.
+		&:focus-visible {
+			outline: none;
+			box-shadow: 0 0 0 2px currentColor;
+
+			@supports (box-shadow: 0 0 0 2px color-mix(in sRGB, black 50%, white)) {
+				box-shadow: 0 0 0 2px color-mix(in sRGB, currentColor 28%, transparent);
+			}
+		}
+	}
+
+	.jetpack-search-active-filters__pill-remove {
+		font-weight: 700;
+		line-height: 1;
+	}
+
+}

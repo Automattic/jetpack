@@ -1,0 +1,49 @@
+{
+	"name": "automattic/jetpack-wpcloud-sso",
+	"description": "Hack-n-slash plugin",
+	"type": "wordpress-plugin",
+	"license": "GPL-2.0-or-later",
+	"require": {
+		"automattic/jetpack-assets": "@dev",
+		"automattic/jetpack-autoloader": "@dev",
+		"automattic/jetpack-composer-plugin": "@dev",
+		"automattic/jetpack-config": "@dev",
+		"automattic/jetpack-connection": "@dev",
+		"automattic/jetpack-sync": "@dev"
+	},
+	"autoload": {
+		"classmap": [
+			"src/"
+		]
+	},
+	"scripts": {},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../../packages/*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	],
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"extra": {
+		"autorelease": true,
+		"autotagger": true,
+		"mirror-repo": "Automattic/jetpack-wpcloud-sso",
+		"release-branch-prefix": "jetpack-wpcloud-sso",
+		"changelogger": {
+			"versioning": "semver"
+		},
+		"wp-plugin-slug": "jetpack-wpcloud-sso"
+	},
+	"config": {
+		"allow-plugins": {
+			"roots/wordpress-core-installer": true,
+			"automattic/jetpack-autoloader": true,
+			"automattic/jetpack-composer-plugin": true
+		},
+		"autoloader-suffix": "c4802e05bbcf59fd3b6350e8d3e5482c_jetpack_wpcloud_ssoⓥ0_1_0_alpha"
+	}
+}

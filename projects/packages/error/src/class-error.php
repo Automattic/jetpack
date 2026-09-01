@@ -9,6 +9,10 @@
 
 namespace Automattic\Jetpack;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Class Automattic\Jetpack\Error
  */

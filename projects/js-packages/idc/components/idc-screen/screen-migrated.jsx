@@ -1,9 +1,8 @@
-import { Spinner } from '@automattic/jetpack-components';
-import { Button, Dashicon } from '@wordpress/components';
+import { Button, Dashicon, Spinner } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
-import React from 'react';
+import { Fragment } from 'react';
 import customContentShape from '../../tools/custom-content-shape';
 import extractHostname from '../../tools/extract-hostname';
 
@@ -11,7 +10,7 @@ import extractHostname from '../../tools/extract-hostname';
  * Retrieve the migrated screen body.
  *
  * @param {object} props - The properties.
- * @return {React.Component} The ScreenMigrated component.
+ * @return {import('react').Component} The ScreenMigrated component.
  */
 const ScreenMigrated = props => {
 	const { finishCallback = () => {}, isFinishing = false, customContent = {} } = props;
@@ -22,7 +21,7 @@ const ScreenMigrated = props => {
 	const buttonLabel = __( 'Got it, thanks', 'jetpack-idc' );
 
 	return (
-		<React.Fragment>
+		<Fragment>
 			<h2>
 				{ customContent.migratedTitle
 					? createInterpolateElement( customContent.migratedTitle, { em: <em /> } )
@@ -67,7 +66,7 @@ const ScreenMigrated = props => {
 			>
 				{ isFinishing ? <Spinner /> : buttonLabel }
 			</Button>
-		</React.Fragment>
+		</Fragment>
 	);
 };
 

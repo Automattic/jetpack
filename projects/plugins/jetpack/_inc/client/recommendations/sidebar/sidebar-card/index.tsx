@@ -1,16 +1,16 @@
 import clsx from 'clsx';
-import React from 'react';
+import type { FC, ReactNode } from 'react';
 
 import './style.scss';
 
 type Props = {
-	header: React.ReactNode;
-	children: React.ReactNode;
+	header: ReactNode;
+	children: ReactNode;
 	illustrationPath?: string;
 	compact?: boolean;
 	className?: string;
 };
-const SidebarCard: React.FC< Props > = props => {
+const SidebarCard: FC< Props > = props => {
 	const { header, children, illustrationPath, compact, className } = props;
 
 	return (

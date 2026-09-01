@@ -1,0 +1,249 @@
+@use "../lib/styles/helper";
+@use "@wordpress/base-styles/mixins" as wp-mixins;
+
+.jp-search-answers-panel {
+	background: helper.$color-modal-background;
+	border: 1px solid helper.$color-border;
+	border-radius: helper.$border-radius-panel;
+	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+	color: helper.$color-text;
+	margin: 0 helper.$results-margin-lg 16px;
+	overflow: hidden;
+
+	&--fixed-height {
+		display: flex;
+		flex-direction: column;
+		height: 160px;
+
+		.jp-search-answers-panel__content {
+			flex: 1;
+			max-height: none; // flex constrains height; max-height: 5em from --collapsed is overridden
+			min-height: 0;
+			overflow: hidden;
+		}
+
+		.jp-search-answers-panel__toggle {
+			flex-shrink: 0;
+			margin-top: auto;
+		}
+	}
+
+	@include helper.multiple-breaks-for-customberg( "<l", "<xl" ) {
+		margin-left: helper.$results-margin-md;
+		margin-right: helper.$results-margin-md;
+	}
+
+	@include wp-mixins.break-small() {
+		margin-left: helper.$results-margin-sm;
+		margin-right: helper.$results-margin-sm;
+	}
+}
+
+.jp-search-answers-panel__heading {
+	color: helper.$color-text-lighter;
+	font-size: 11px;
+	font-weight: 600;
+	letter-spacing: 0.08em;
+	margin: 0;
+	padding: 14px 18px 8px;
+	text-transform: uppercase;
+}
+
+.jp-search-answers-panel--error {
+	border-color: helper.$color-error-border;
+}
+
+.jp-search-answers-panel__error {
+	padding: 0 18px 14px;
+}
+
+.jp-search-answers-panel__error-message {
+	color: helper.$color-error;
+	font-size: 13px;
+	margin: 0 0 4px;
+}
+
+.jp-search-answers-panel__error-detail {
+	color: helper.$color-text-lighter;
+	font-size: 12px;
+	margin: 0;
+}
+
+.jp-search-answers-panel__loading {
+	align-items: center;
+	color: helper.$color-text-lighter;
+	display: flex;
+	font-size: 13px;
+	gap: 8px;
+	padding: 0 18px 14px;
+}
+
+.jp-search-answers-panel__loading-hint {
+	color: helper.$color-text-lighter;
+	font-size: 13px;
+	font-style: italic;
+	margin: 0;
+	padding: 0 18px 14px;
+}
+
+.jp-search-answers-panel__content {
+	padding: 0 18px 14px;
+
+	&--collapsed {
+		max-height: 5em;
+		overflow: hidden;
+		padding-bottom: 0;
+		position: relative;
+
+		&::after {
+			background: linear-gradient(transparent, helper.$color-modal-background);
+			bottom: 0;
+			content: "";
+			height: 2.5em;
+			left: 0;
+			pointer-events: none;
+			position: absolute;
+			right: 0;
+		}
+	}
+}
+
+.jp-search-answers-panel__text {
+	font-size: 13px;
+	line-height: 1.6;
+
+	h2,
+	h3,
+	h4 {
+		font-size: 1em;
+		font-weight: 700;
+		margin: 0.8em 0 0.3em;
+	}
+
+	p {
+		margin: 0 0 0.6em;
+	}
+
+	ul {
+		list-style: disc;
+		margin: 0 0 0.6em 1.2em;
+		padding: 0;
+	}
+
+	li {
+		margin-bottom: 0.2em;
+	}
+
+	strong {
+		font-weight: 700;
+	}
+
+	em {
+		font-style: italic;
+	}
+
+	a {
+		color: helper.$color-link;
+		text-decoration: underline;
+	}
+}
+
+.jp-search-answers-panel__toggle {
+	align-items: center;
+	background: none;
+	border: none;
+	border-top: 1px solid helper.$color-surface-alt;
+	color: helper.$color-link;
+	cursor: pointer;
+	display: flex;
+	font-size: 12px;
+	font-weight: 500;
+	gap: 6px;
+	justify-content: center;
+	padding: 9px 0;
+	width: 100%;
+
+	&:hover {
+		background: helper.$color-surface-alt;
+	}
+}
+
+.jp-search-answers-panel__toggle-icon {
+	border-bottom: 1.5px solid currentColor;
+	border-right: 1.5px solid currentColor;
+	display: inline-block;
+	height: 6px;
+	transform: rotate(45deg);
+	width: 6px;
+
+	.jp-search-answers-panel__toggle--expanded & {
+		transform: rotate(-135deg);
+		margin-top: 3px;
+	}
+}
+
+.jp-search-answers-panel__citations {
+	border-top: 1px solid helper.$color-surface-alt;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px 12px;
+	justify-content: flex-end;
+	list-style: none;
+	margin: 6px 0 0;
+	padding: 10px 0 0;
+
+	li {
+		font-size: 12px;
+		line-height: 1.5;
+	}
+
+	a {
+		align-items: center;
+		color: helper.$color-link;
+		display: inline-flex;
+		gap: 4px;
+		text-decoration: underline;
+	}
+}
+
+.jp-search-answers-panel__citation-icon {
+	flex-shrink: 0;
+}
+
+.jetpack-instant-search__overlay.jetpack-instant-search__overlay--dark {
+
+	.jp-search-answers-panel {
+		background: helper.$color-dark-modal-background;
+		border-color: helper.$color-dark-layout-borders;
+		box-shadow: none;
+		color: helper.$color-dark-text;
+	}
+
+	.jp-search-answers-panel--error {
+		border-color: helper.$color-error;
+	}
+
+	.jp-search-answers-panel__heading,
+	.jp-search-answers-panel__error-detail,
+	.jp-search-answers-panel__loading,
+	.jp-search-answers-panel__loading-hint {
+		color: helper.$color-dark-text-lighter;
+	}
+
+	.jp-search-answers-panel__content--collapsed::after {
+		background: linear-gradient(transparent, helper.$color-dark-modal-background);
+	}
+
+	.jp-search-answers-panel__toggle {
+		border-top-color: helper.$color-dark-layout-borders;
+		color: helper.$color-dark-link;
+
+		&:hover {
+			background: rgba(255, 255, 255, 0.08);
+		}
+	}
+
+	.jp-search-answers-panel__citations {
+		border-top-color: helper.$color-dark-layout-borders;
+	}
+}

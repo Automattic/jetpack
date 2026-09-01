@@ -1,8 +1,8 @@
 /**
  * External dependencies
  */
+import { isWoASite, isSimpleSite } from '@automattic/jetpack-script-data';
 import debugFactory from 'debug';
-import { isAtomicSite, isSimpleSite } from '../../site-type-utils';
 
 const initialState = window?.JP_CONNECTION_INITIAL_STATE;
 const debug = debugFactory( 'shared-extension-utils:connection' );
@@ -26,7 +26,7 @@ export function isUserConnected(): boolean {
 		return true;
 	}
 
-	if ( isAtomicSite() ) {
+	if ( isWoASite() ) {
 		debugOnce( 'Atomic site connected ✅' );
 		return true;
 	}

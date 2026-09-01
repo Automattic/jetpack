@@ -1,4 +1,5 @@
-import React, { Component, createRef } from 'react';
+import * as React from 'react';
+import { Component, createRef } from 'react';
 
 import './widget-area-container.scss';
 

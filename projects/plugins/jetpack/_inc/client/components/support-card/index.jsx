@@ -1,12 +1,13 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
+import { isWoASite } from '@automattic/jetpack-script-data';
+import { useDispatch } from '@wordpress/data';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
-import React from 'react';
+import { Component } from 'react';
 import { connect } from 'react-redux';
 import Button from 'components/button';
 import Card from 'components/card';
-import Gridicon from 'components/gridicon';
 import JetpackBanner from 'components/jetpack-banner';
 import analytics from 'lib/analytics';
 import {
@@ -20,10 +21,38 @@ import {
 	isConnectionOwner,
 	connectUser,
 } from 'state/connection';
-import { isWoASite, isDevVersion as _isDevVersion, getUpgradeUrl } from 'state/initial-state';
+import { isDevVersion as _isDevVersion, getUpgradeUrl } from 'state/initial-state';
 import { siteHasFeature, hasActiveProductPurchase, isFetchingSiteData } from 'state/site';
 
-class SupportCard extends React.Component {
+const HelpCenterButton = ( { onClick } ) => {
+	const helpCenterDispatch = useDispatch( 'automattic/help-center' );
+	const setShowHelpCenter = helpCenterDispatch?.setShowHelpCenter;
+
+	const text = __( 'Search our support site', 'jetpack' );
+
+	return setShowHelpCenter ? (
+		<Button
+			// eslint-disable-next-line react/jsx-no-bind
+			onClick={ () => {
+				onClick?.();
+
+				helpCenterDispatch?.setShowHelpCenter( true );
+			} }
+		>
+			{ text }
+		</Button>
+	) : (
+		<Button
+			onClick={ onClick }
+			href={ isWoASite() ? getRedirectUrl( 'calypso-help' ) : getRedirectUrl( 'jetpack-support' ) }
+			isExternalLink={ true }
+		>
+			{ text }
+		</Button>
+	);
+};
+
+class SupportCard extends Component {
 	static displayName = 'SupportCard';
 
 	static defaultProps = {
@@ -81,9 +110,9 @@ class SupportCard extends React.Component {
 						<p className="jp-support-card__description">
 							{ hasSupport
 								? sprintf(
-										/* translators: placeholder is either Jetpack or WordPress.com */
+										/* translators: %s: either Jetpack or WordPress.com */
 										__( 'Your paid plan gives you access to prioritized %s support.', 'jetpack' ),
-										this.props.isWoASite ? 'WordPress.com' : 'Jetpack'
+										isWoASite() ? 'WordPress.com' : 'Jetpack'
 								  )
 								: __(
 										'Jetpack offers support via community forums for any site without a paid product.',
@@ -91,26 +120,16 @@ class SupportCard extends React.Component {
 								  ) }
 						</p>
 						<p className="jp-support-card__description">
-							{ this.props.isWoASite || (
+							{ isWoASite() || (
 								<Button
 									onClick={ this.trackGettingStartedClick }
 									href={ getRedirectUrl( 'jetpack-support-getting-started' ) }
+									isExternalLink={ true }
 								>
 									{ __( 'Getting started with Jetpack', 'jetpack' ) }
-									<Gridicon className="dops-card__link-indicator" icon="external" />
 								</Button>
 							) }
-							<Button
-								onClick={ this.trackSearchClick }
-								href={
-									this.props.isWoASite
-										? getRedirectUrl( 'calypso-help' )
-										: getRedirectUrl( 'jetpack-support' )
-								}
-							>
-								{ __( 'Search our support site', 'jetpack' ) }
-								<Gridicon className="dops-card__link-indicator" icon="external" />
-							</Button>
+							<HelpCenterButton onClick={ this.trackSearchClick } />
 						</p>
 					</div>
 				</Card>
@@ -151,7 +170,6 @@ export default connect(
 		return {
 			siteConnectionStatus: getSiteConnectionStatus( state ),
 			isFetchingSiteData: isFetchingSiteData( state ),
-			isWoASite: isWoASite( state ),
 			isDevVersion: _isDevVersion( state ),
 			supportUpgradeUrl: getUpgradeUrl( state, 'support' ),
 			isCurrentUserLinked: isCurrentUserLinked( state ),

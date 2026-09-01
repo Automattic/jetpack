@@ -6,6 +6,7 @@ import path from 'path';
 import chalk from 'chalk';
 import { glob } from 'glob';
 import ignore from 'ignore';
+import { javascriptFiles, jsonFiles } from '../eslintrc/files.mjs';
 import loadIgnorePatterns from '../load-eslint-ignore.js';
 import isJetpackDraftMode from './jetpack-draft.mjs';
 
@@ -99,8 +100,9 @@ function phpcsFilesToFilter( file ) {
  * @return {boolean} If the file matches the requirelist.
  */
 function filterJsFiles( file ) {
-	return [ '.js', '.json', '.json5', '.jsx', '.cjs', '.mjs', '.ts', '.tsx', '.svelte' ].some(
-		extension => file.endsWith( extension )
+	return (
+		javascriptFiles.some( extension => file.endsWith( extension.replace( '**/*', '' ) ) ) ||
+		jsonFiles.some( extension => file.endsWith( extension.replace( '**/*', '' ) ) )
 	);
 }
 
@@ -111,11 +113,7 @@ function filterJsFiles( file ) {
  * @return {boolean} whether file needs to be linted
  */
 function filterEslintFiles( file ) {
-	return (
-		! file.endsWith( '.json' ) &&
-		! file.endsWith( '.json5' ) &&
-		-1 === loadEslintExcludeList().findIndex( filePath => file === filePath )
-	);
+	return -1 === loadEslintExcludeList().findIndex( filePath => file === filePath );
 }
 
 /**
@@ -126,6 +124,17 @@ function filterEslintFiles( file ) {
  */
 function filterCssFiles( file ) {
 	return [ '.css', '.scss' ].some( extension => file.endsWith( extension ) );
+}
+
+/**
+ * Provides filter to determine which files are shell scripts to run through shellcheck.
+ *
+ * @param {string} file - Name of file that was modified.
+ * @return {boolean} Whether the file should be linted.
+ */
+function filterShellFiles( file ) {
+	// Keeping it simple.
+	return file.endsWith( '.sh' );
 }
 
 /**
@@ -146,17 +155,6 @@ function checkFailed( before = 'The linter reported some problems. ', after = ''
 	exitCode = 1;
 }
 
-/**
- * Spawns `sort-package-json` for package.json sorting script.
- *
- * @param {Array} jsFiles - list of changed JS files
- */
-function sortPackageJson( jsFiles ) {
-	if ( jsFiles.includes( 'package.json' ) ) {
-		spawnSync( 'pnpm', [ 'sort-package-json' ], { stdio: 'inherit' } );
-	}
-}
-
 const gitFiles = parseGitDiffToPathArray( [ '--cached', '--diff-filter=ACMR' ] ).filter( Boolean );
 const dirtyFiles = parseGitDiffToPathArray( [ '--diff-filter=ACMR' ] ).filter( Boolean );
 const jsFiles = gitFiles.filter( filterJsFiles );
@@ -169,6 +167,7 @@ const phpFiles = gitFiles.filter(
 const phpcsFiles = phpFiles.filter( phpcsFilesToFilter );
 const phpcsChangedFiles = phpFiles.filter( file => ! phpcsFilesToFilter( file ) );
 const cssFiles = gitFiles.filter( filterCssFiles );
+const shellFiles = gitFiles.filter( filterShellFiles );
 
 /**
  * Filters out unstaged changes so we do not add an entire file without intention.
@@ -488,7 +487,36 @@ function runCssLint( cssFilesToLint ) {
 	}
 
 	if ( cssLintResult && cssLintResult.status && ! isJetpackDraftMode() ) {
-		checkFailed( 'CSS linting found issues that cannot be automatically fixed!\n' );
+		checkFailed( 'Stylelint found issues that cannot be automatically fixed!\n' );
+	}
+}
+
+/**
+ * Run shellcheck on shell scripts.
+ *
+ * @param {Array} shellFilesToLint - List of shell scripts to lint.
+ */
+function runShellcheck( shellFilesToLint ) {
+	if ( ! shellFilesToLint.length ) {
+		return;
+	}
+
+	const shellcheckResult = spawnSync( 'shellcheck', [ '--severity=warning', ...shellFilesToLint ], {
+		stdio: 'inherit',
+	} );
+
+	if ( shellcheckResult.error?.code === 'ENOENT' ) {
+		console.log(
+			chalk.yellow(
+				'Skipping shellcheck: not installed. See https://github.com/koalaman/shellcheck#installing for installation instructions'
+			)
+		);
+		return;
+	}
+
+	// Down the road we could consider implementing auto-fix with `-f diff`, but for now just report.
+	if ( shellcheckResult && shellcheckResult.status && ! isJetpackDraftMode() ) {
+		checkFailed( 'ShellCheck reported some problems.\n' );
 	}
 }
 
@@ -505,7 +533,6 @@ function exit( exitCodePassed ) {
 
 runCheckCopiedFiles();
 runCheckGitHubActionsYamlFiles();
-sortPackageJson( jsFiles );
 
 dirtyFiles.forEach( file =>
 	console.log(
@@ -515,15 +542,12 @@ dirtyFiles.forEach( file =>
 
 // Start JS work—linting, prettify, etc.
 
-const jsOnlyFiles = jsFiles.filter(
-	file => ! file.endsWith( '.json' ) && ! file.endsWith( '.json5' )
-);
-const eslintFiles = jsOnlyFiles.filter( filterEslintFiles );
+const eslintFiles = jsFiles.filter( filterEslintFiles );
 const eslintFixFiles = eslintFiles.filter( file => checkFileAgainstDirtyList( file, dirtyFiles ) );
 const eslintNoFixFiles = eslintFiles.filter(
 	file => ! checkFileAgainstDirtyList( file, dirtyFiles )
 );
-const eslintChangedFiles = jsOnlyFiles.filter( file => ! filterEslintFiles( file ) );
+const eslintChangedFiles = jsFiles.filter( file => ! filterEslintFiles( file ) );
 
 const toPrettify = jsFiles.filter( file => checkFileAgainstDirtyList( file, dirtyFiles ) );
 toPrettify.forEach( file => console.log( `Prettier formatting staged file: ${ file }` ) );
@@ -569,6 +593,19 @@ if ( phpcsChangedFiles.length > 0 ) {
 // Run CSS linting
 if ( cssFiles.length > 0 ) {
 	runCssLint( cssFiles );
+}
+
+// Run shellcheck
+if ( shellFiles.length > 0 ) {
+	runShellcheck( shellFiles );
+}
+
+// Check pnpm-lock.yaml for pnpm trying to manage the package manager, even though we don't want it to.
+// https://github.com/pnpm/pnpm/issues/12228
+if ( fs.readFileSync( __dirname + '/../../../pnpm-lock.yaml', 'utf8' ).includes( '@pnpm/exe' ) ) {
+	checkFailed(
+		'It appears pnpm-lock.yaml is being affected by https://github.com/pnpm/pnpm/issues/12228.\nTo clean this up, try running `git restore --staged pnpm-lock.yaml && git restore pnpm-lock.yaml && pnpm dedupe`.\n\n'
+	);
 }
 
 exit( exitCode );

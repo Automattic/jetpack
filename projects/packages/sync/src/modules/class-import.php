@@ -9,6 +9,10 @@ namespace Automattic\Jetpack\Sync\Modules;
 
 use Automattic\Jetpack\Sync\Settings;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Class to handle sync for imports.
  */
@@ -179,7 +183,7 @@ class Import extends Module {
 		}
 
 		$action    = current_filter();
-		$backtrace = debug_backtrace( false ); //phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_debug_backtrace
+		$backtrace = debug_backtrace( 0 ); //phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_debug_backtrace
 
 		$do_action_pos = -1;
 		$backtrace_len = count( $backtrace );

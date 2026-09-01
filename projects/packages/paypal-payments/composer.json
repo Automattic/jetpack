@@ -4,11 +4,15 @@
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
-		"php": ">=7.2"
+		"php": ">=7.4",
+		"automattic/jetpack-assets": "@dev",
+		"automattic/jetpack-plans": "@dev",
+		"automattic/jetpack-connection": "@dev",
+		"automattic/jetpack-blocks": "@dev",
+		"automattic/jetpack-status": "@dev"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "^4.0.0",
-		"automattic/jetpack-changelogger": "@dev",
 		"automattic/jetpack-test-environment": "@dev",
 		"automattic/phpunit-select-config": "@dev"
 	},
@@ -18,16 +22,22 @@
 		]
 	},
 	"scripts": {
-		"build-development": "echo 'Add your build step to composer.json, please!'",
-		"build-production": "echo 'Add your build step to composer.json, please!'",
+		"build-production": [
+			"pnpm run build-production"
+		],
+		"build-development": [
+			"pnpm run build"
+		],
 		"phpunit": [
 			"phpunit-select-config phpunit.#.xml.dist --colors=always"
 		],
-		"test-coverage": [
-			"php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
-		],
-		"test-php": [
-			"@composer phpunit"
+		"test-js": "pnpm run test:js",
+		"test-js-coverage": "pnpm run test:js --coverage",
+		"test-php": "@composer phpunit",
+		"test-php-coverage": "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\"",
+		"watch": [
+			"Composer\\Config::disableProcessTimeout",
+			"pnpm run watch"
 		]
 	},
 	"repositories": [
@@ -44,7 +54,7 @@
 	"extra": {
 		"autotagger": true,
 		"branch-alias": {
-			"dev-trunk": "0.1.x-dev"
+			"dev-trunk": "0.7.x-dev"
 		},
 		"changelogger": {
 			"link-template": "https://github.com/Automattic/jetpack-paypal-payments/compare/v${old}...v${new}"

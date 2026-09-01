@@ -1,9 +1,9 @@
 // Note we're using @testing-library/react/pure here to disable the automatic cleanup.
 // So be sure to call `cleanup()` for each `render()`.
 /* eslint-disable testing-library/no-render-in-lifecycle */
-/* eslint-disable testing-library/no-manual-cleanup */
 
 import { jest } from '@jest/globals';
+// @ts-expect-error /pure subpath apparently exists
 import { render, screen, cleanup } from '@testing-library/react/pure';
 import PricingCard from '../index.tsx';
 
@@ -39,14 +39,12 @@ describe( 'PricingCard', () => {
 		} );
 
 		it( 'renders the price before', () => {
-			// eslint-disable-next-line testing-library/no-node-access
 			const node = container.querySelector( '.jp-components__pricing-card__price-before' );
 			expect( node ).toBeInTheDocument();
 			expect( node ).toHaveTextContent( '$9' );
 		} );
 
 		it( 'renders the price after', () => {
-			// eslint-disable-next-line testing-library/no-node-access
 			const node = container.querySelector( '.jp-components__pricing-card__price-after' );
 			expect( node ).toBeInTheDocument();
 			expect( node ).toHaveTextContent( '$4.50' );
@@ -57,7 +55,6 @@ describe( 'PricingCard', () => {
 		} );
 
 		it( 'renders the info text', () => {
-			// eslint-disable-next-line testing-library/no-node-access
 			const node = container.querySelector( '.jp-components__pricing-card__info' );
 			expect( node ).toBeInTheDocument();
 			expect( node ).toHaveTextContent( 'Dummy Info Text' );
@@ -75,13 +72,11 @@ describe( 'PricingCard', () => {
 		} );
 
 		it( "doesn't render the price before", () => {
-			// eslint-disable-next-line testing-library/no-node-access
 			const node = container.querySelector( '.jp-components__pricing-card__price-before' );
 			expect( node ).not.toBeInTheDocument();
 		} );
 
 		it( 'renders the price after', () => {
-			// eslint-disable-next-line testing-library/no-node-access
 			const node = container.querySelector( '.jp-components__pricing-card__price-after' );
 			expect( node ).toBeInTheDocument();
 			expect( node ).toHaveTextContent( '$9' );

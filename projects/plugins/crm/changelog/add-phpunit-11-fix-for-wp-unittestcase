@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Add a `WP_UnitTestCase_Fix` trait to work around a bug in `WP_UnitTestCase` with PHPUnit 11.
-
-

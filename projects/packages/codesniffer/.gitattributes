@@ -1,11 +1,4 @@
-# Files not needed to be distributed in the package.
-.gitattributes   export-ignore
-.github/         export-ignore
-.gitignore       export-ignore
-
 # Files not needed in the production build.
-.phpcs.dir.xml             production-exclude
-/changelog/**              production-exclude
-/tests/**                  production-exclude
+# (see also entries in the monorepo root .gitattributes)
 /build-compat-rulesets.sh  production-exclude
 /check-docs.sh             production-exclude

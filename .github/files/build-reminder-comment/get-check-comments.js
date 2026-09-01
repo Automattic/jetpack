@@ -9,7 +9,7 @@ const cache = {};
  * @param {string} repo                 - Repository name.
  * @param {string} number               - Issue number.
  * @param {string} testCommentIndicator - A piece of text unique to all test reminder comments.
- * @param {core}   core                 - A reference to the @actions/core package
+ * @param {core}   core                 - A reference to the `@actions/core` package
  * @return {Promise<Array>} Promise resolving to an array of comment IDs.
  */
 async function getCheckComments( github, owner, repo, number, testCommentIndicator, core ) {

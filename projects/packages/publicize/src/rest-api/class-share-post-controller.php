@@ -14,8 +14,14 @@ use WP_REST_Request;
 use WP_REST_Response;
 use WP_REST_Server;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Publicize: Share post class.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Share_Post_Controller extends Base_Controller {
 
@@ -63,6 +69,13 @@ class Share_Post_Controller extends Base_Controller {
 						return is_array( $param );
 					},
 					'sanitize_callback' => function ( $param ) {
+						if ( ! is_array( $param ) ) {
+							return new WP_Error(
+								'rest_invalid_param',
+								esc_html__( 'The skipped_connections argument must be an array of connection IDs.', 'jetpack-publicize-pkg' ),
+								array( 'status' => 400 )
+							);
+						}
 						return array_map( 'absint', $param );
 					},
 				),

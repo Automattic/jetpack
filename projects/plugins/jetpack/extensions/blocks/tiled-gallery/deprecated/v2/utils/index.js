@@ -1,5 +1,4 @@
 import { isBlobURL } from '@wordpress/blob';
-import { range } from 'lodash';
 import photon from 'photon';
 import { PHOTON_MAX_RESIZE } from '../constants';
 
@@ -39,8 +38,10 @@ export function photonizedImgProps( img, galleryAtts = {} ) {
 	const { height, width } = img;
 	const { layoutStyle } = galleryAtts;
 
-	const photonImplementation =
-		isWpcomFilesUrl( url ) || true === isVIP() ? photonWpcomImage : photon;
+	// Deprecated versions have to keep producing the URLs they originally saved, or content saved
+	// under them stops validating, so they always use the external Photon domain — regardless of what
+	// the site's Photon-domain setting says. Only the current version follows that setting.
+	const photonImplementation = isWpcomFilesUrl( url ) ? photonWpcomImage : photon;
 
 	/**
 	 * Build the `src`
@@ -66,44 +67,37 @@ export function photonizedImgProps( img, galleryAtts = {} ) {
 	const step = 300;
 	const srcsetMinWith = 600;
 
-	let srcSet;
+	let srcSet = [];
 	if ( isSquareishLayout( layoutStyle ) ) {
 		const minWidth = Math.min( srcsetMinWith, width, height );
 		const maxWidth = Math.min( PHOTON_MAX_RESIZE, width, height );
 
-		srcSet = range( minWidth, maxWidth, step )
-			.map( srcsetWidth => {
-				const srcsetSrc = photonImplementation( url, {
-					resize: `${ srcsetWidth },${ srcsetWidth }`,
-					strip: 'info',
-				} );
-				return srcsetSrc ? `${ srcsetSrc } ${ srcsetWidth }w` : null;
-			} )
-			.filter( Boolean )
-			.join( ',' );
+		for ( let srcsetWidth = minWidth; srcsetWidth < maxWidth; srcsetWidth += step ) {
+			const srcsetSrc = photonImplementation( url, {
+				resize: `${ srcsetWidth },${ srcsetWidth }`,
+				strip: 'info',
+			} );
+			if ( srcsetSrc ) {
+				srcSet.push( `${ srcsetSrc } ${ srcsetWidth }w` );
+			}
+		}
 	} else {
 		const minWidth = Math.min( srcsetMinWith, width );
 		const maxWidth = Math.min( PHOTON_MAX_RESIZE, width );
 
-		srcSet = range( minWidth, maxWidth, step )
-			.map( srcsetWidth => {
-				const srcsetSrc = photonImplementation( url, {
-					strip: 'info',
-					width: srcsetWidth,
-				} );
-				return srcsetSrc ? `${ srcsetSrc } ${ srcsetWidth }w` : null;
-			} )
-			.filter( Boolean )
-			.join( ',' );
+		for ( let srcsetWidth = minWidth; srcsetWidth < maxWidth; srcsetWidth += step ) {
+			const srcsetSrc = photonImplementation( url, {
+				strip: 'info',
+				width: srcsetWidth,
+			} );
+			if ( srcsetSrc ) {
+				srcSet.push( `${ srcsetSrc } ${ srcsetWidth }w` );
+			}
+		}
 	}
+	srcSet = srcSet.join( ',' );
 
 	return Object.assign( { src }, srcSet && { srcSet } );
-}
-function isVIP() {
-	/*global jetpack_plan*/
-	if ( typeof jetpack_plan !== 'undefined' && jetpack_plan.data === 'vip' ) {
-		return true;
-	}
 }
 function isWpcomFilesUrl( url ) {
 	const { host } = new URL( url, window.location.href );

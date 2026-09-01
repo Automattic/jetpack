@@ -1,0 +1,22 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`WordAdsEdit matches snapshot: WordAdsEdit 1`] = `
+<div>
+  <div
+    aria-label="Block: "
+    class="block-editor-block-list__block wp-block"
+    id="block-undefined"
+    role="document"
+    tabindex="0"
+  >
+    <div
+      class="wp-block-jetpack-wordads jetpack-wordads-mrec"
+    >
+      <div
+        class="jetpack-wordads__ad"
+        style="width: 300px; height: 250px; background-image: url("example_300x250.png"); background-size: cover;"
+      />
+    </div>
+  </div>
+</div>
+`;

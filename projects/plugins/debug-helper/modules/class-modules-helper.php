@@ -9,6 +9,8 @@ use Automattic\Jetpack\Modules;
 
 /**
  * Helps debug modules
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Modules_Helper {
 

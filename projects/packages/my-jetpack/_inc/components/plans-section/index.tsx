@@ -1,16 +1,17 @@
-import { Text, H3, Title, Button } from '@automattic/jetpack-components';
-import { getDate, dateI18n } from '@wordpress/date';
-import { __, _n, sprintf } from '@wordpress/i18n';
+import { getUserConnectionUrl } from '@automattic/jetpack-connection';
+import { getMyJetpackUrl } from '@automattic/jetpack-script-data';
+import { dateI18n, getDate } from '@wordpress/date';
+import { __, _n, _x, sprintf } from '@wordpress/i18n';
+import { Link, Text } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback } from 'react';
-import { MyJetpackRoutes, PRODUCT_STATUSES } from '../../constants';
+import { PRODUCT_STATUSES } from '../../constants';
 import { QUERY_PURCHASES_KEY, REST_API_SITE_PURCHASES_ENDPOINT } from '../../data/constants';
 import useProduct from '../../data/products/use-product';
 import useSimpleQuery from '../../data/use-simple-query';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../hooks/use-analytics';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
-import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 import getManageYourPlanUrl from '../../utils/get-manage-your-plan-url';
 import getPurchasePlanUrl from '../../utils/get-purchase-plan-url';
 import { isLifetimePurchase } from '../../utils/is-lifetime-purchase';
@@ -29,10 +30,10 @@ interface PlanSectionHeaderAndFooterProps {
 const PlanSection: FC< PlanSectionProps > = ( { purchase } ) => {
 	const { product_name } = purchase;
 	return (
-		<div className={ styles[ 'plan-container' ] }>
-			<Title>{ product_name }</Title>
+		<section className={ styles[ 'plan-container' ] }>
+			<h4>{ product_name }</h4>
 			<PlanExpiry purchase={ purchase } />
-		</div>
+		</section>
 	);
 };
 
@@ -107,22 +108,22 @@ const PlanExpiry: FC< PlanSectionProps > = ( { purchase } ) => {
 
 		if ( isExpiringSoon ) {
 			return (
-				<Button href={ renewUrl } isExternalLink={ true } variant="link" weight="regular">
+				<Link href={ renewUrl } openInNewTab>
 					{ __( 'Renew subscription', 'jetpack-my-jetpack' ) }
-				</Button>
+				</Link>
 			);
 		}
 
 		return (
-			<Button href={ managePurchaseUrl } isExternalLink={ true } variant="link" weight="regular">
+			<Link href={ managePurchaseUrl } openInNewTab>
 				{ __( 'Resume subscription', 'jetpack-my-jetpack' ) }
-			</Button>
+			</Link>
 		);
 	}, [ isExpiringPurchase, isExpiringSoon, managePurchaseUrl, renewUrl ] );
 
 	if ( isLifetimePurchase( purchase ) ) {
 		return (
-			<Text variant="body" className={ styles[ 'expire-date' ] }>
+			<Text variant="body-md" className={ styles[ 'expire-date' ] }>
 				<span className={ styles[ 'expire-date--with-icon' ] }>
 					{ __( 'Never Expires', 'jetpack-my-jetpack' ) }
 				</span>
@@ -133,7 +134,7 @@ const PlanExpiry: FC< PlanSectionProps > = ( { purchase } ) => {
 
 	return (
 		<>
-			<Text variant="body" className={ clsx( styles[ 'expire-date' ], expiryMessageClassName ) }>
+			<Text variant="body-md" className={ clsx( styles[ 'expire-date' ], expiryMessageClassName ) }>
 				{ expiryMessage() }
 			</Text>
 			{ isExpiringPurchase && <Text>{ expiryAction() }</Text> }
@@ -144,10 +145,33 @@ const PlanExpiry: FC< PlanSectionProps > = ( { purchase } ) => {
 const PlanSectionHeader: FC< PlanSectionHeaderAndFooterProps > = ( { numberOfPurchases = 0 } ) => {
 	return (
 		<>
-			<H3>{ _n( 'Your plan', 'Your plans', numberOfPurchases, 'jetpack-my-jetpack' ) }</H3>
-			{ numberOfPurchases === 0 && (
-				<Text variant="body">{ __( 'Want to power up your Jetpack?', 'jetpack-my-jetpack' ) }</Text>
-			) }
+			<h3>
+				{ _n(
+					'Plan',
+					'Plans',
+					// Fallback to 1 if numberOfPurchases is 0 to ensure that it's "Plan".
+					numberOfPurchases || 1,
+					'jetpack-my-jetpack'
+				) }
+			</h3>
+			<div className={ styles.logo }>
+				<svg
+					width="24"
+					height="24"
+					viewBox="0 0 24 24"
+					fill="none"
+					xmlns="http://www.w3.org/2000/svg"
+				>
+					<path
+						d="M0 4C0 1.79086 1.79086 0 4 0H20C22.2091 0 24 1.79086 24 4V20C24 22.2091 22.2091 24 20 24H4C1.79086 24 0 22.2091 0 20V4Z"
+						fill="#003010"
+					/>
+					<path
+						d="M12 4C7.58779 4 4 7.58779 4 12C4 16.4122 7.58779 20 12 20C16.4122 20 20 16.4122 20 12C20 7.58779 16.4122 4 12 4ZM11.5878 13.3282H7.60305L11.5878 5.57252V13.3282ZM12.3969 18.4122V10.6565H16.3817L12.3969 18.4122Z"
+						fill="#0CED57"
+					/>
+				</svg>
+			</div>
 		</>
 	);
 };
@@ -171,69 +195,73 @@ const PlanSectionFooter: FC< PlanSectionHeaderAndFooterProps > = ( { numberOfPur
 		recordEvent( 'jetpack_myjetpack_plans_manage_click' );
 	}, [ recordEvent ] );
 
+	const viewIncludedFeaturesClickHandler = useCallback( () => {
+		recordEvent( 'jetpack_myjetpack_plans_view_included_features_click' );
+	}, [ recordEvent ] );
+
 	const planPurchaseClickHandler = useCallback( () => {
 		recordEvent( 'jetpack_myjetpack_plans_purchase_click' );
 	}, [ recordEvent ] );
 
-	const navigateToConnectionPage = useMyJetpackNavigate( MyJetpackRoutes.ConnectionSkipPricing );
 	const activateLicenseClickHandler = useCallback( () => {
 		recordEvent( 'jetpack_myjetpack_activate_license_click' );
-		if ( ! isUserConnected ) {
-			navigateToConnectionPage();
-		}
-	}, [ navigateToConnectionPage, isUserConnected, recordEvent ] );
+	}, [ recordEvent ] );
 
-	let activateLicenceDescription = __( 'Activate a license', 'jetpack-my-jetpack' );
+	/*
+	 * Avoid ternary as code minification will break translation function. :(
+	 * The unconditional initialiser is what keeps the two _x() calls separate. Collapsing
+	 * them fails the I18nCheckPlugin with "msgid argument is not a string literal", and
+	 * since that plugin only runs on production builds, it surfaces in CI rather than dev.
+	 */
+	let activateLicenceDescription: string = _x(
+		'Activate a license',
+		'Activate a license button text',
+		'jetpack-my-jetpack'
+	);
 	if ( ! isUserConnected ) {
-		activateLicenceDescription = __(
+		activateLicenceDescription = _x(
 			'Activate a license (requires a user connection)',
+			'Activate a license button text',
 			'jetpack-my-jetpack'
 		);
 	}
 
-	const { loadAddLicenseScreen = '', adminUrl = '' } = getMyJetpackWindowInitialState();
+	const { loadAddLicenseScreen = '' } = getMyJetpackWindowInitialState();
 
 	return (
-		<ul>
+		<ul className={ styles[ 'actions-list' ] }>
 			{ numberOfPurchases > 0 && (
 				<li className={ styles[ 'actions-list-item' ] }>
-					<Button
-						onClick={ planManageClickHandler }
-						href={ getManageYourPlanUrl() }
-						weight="regular"
-						variant="link"
-						isExternalLink={ true }
-					>
+					<Link openInNewTab onClick={ planManageClickHandler } href={ getManageYourPlanUrl() }>
 						{ planManageDescription }
-					</Button>
+					</Link>
+				</li>
+			) }
+			{ numberOfPurchases > 0 && (
+				<li className={ styles[ 'actions-list-item' ] }>
+					<Link
+						onClick={ viewIncludedFeaturesClickHandler }
+						href={ getMyJetpackUrl( '#/products?filter=included' ) }
+					>
+						{ __( 'View included features', 'jetpack-my-jetpack' ) }
+					</Link>
 				</li>
 			) }
 			{ ! hasComplete && (
 				<li className={ styles[ 'actions-list-item' ] }>
-					<Button
-						onClick={ planPurchaseClickHandler }
-						href={ getPurchasePlanUrl() }
-						weight="regular"
-						variant="link"
-						isExternalLink={ true }
-					>
+					<Link onClick={ planPurchaseClickHandler } href={ getPurchasePlanUrl() } openInNewTab>
 						{ planPurchaseDescription }
-					</Button>
+					</Link>
 				</li>
 			) }
-
 			{ ! hasComplete && loadAddLicenseScreen && (
 				<li className={ styles[ 'actions-list-item' ] }>
-					<Button
+					<Link
 						onClick={ activateLicenseClickHandler }
-						href={
-							isUserConnected ? `${ adminUrl }admin.php?page=my-jetpack#/add-license` : undefined
-						}
-						variant="link"
-						weight="regular"
+						href={ isUserConnected ? getMyJetpackUrl( '#/add-license' ) : getUserConnectionUrl() }
 					>
 						{ activateLicenceDescription }
-					</Button>
+					</Link>
 				</li>
 			) }
 		</ul>
@@ -256,17 +284,41 @@ const PlansSection: FC = () => {
 	const numberOfPurchases = isDataLoaded ? purchases.length : 0;
 
 	return (
-		<div className={ styles.container }>
+		<section className={ styles.container }>
 			<PlanSectionHeader numberOfPurchases={ numberOfPurchases } />
 
-			<div className={ styles.purchasesSection }>
+			<div className={ styles[ 'plans-wrapper' ] }>
 				{ isDataLoaded &&
-					purchases.map( purchase => (
-						<PlanSection key={ `purchase-${ purchase.product_name }` } purchase={ purchase } />
+					( numberOfPurchases ? (
+						purchases.map( purchase => (
+							<PlanSection key={ `purchase-${ purchase.product_name }` } purchase={ purchase } />
+						) )
+					) : (
+						<section className={ styles[ 'plan-container' ] }>
+							{ /* TODO: Convert this to link when the Products tab filtering is ready */ }
+							<h4>
+								{ __( 'Jetpack Essentials', 'jetpack-my-jetpack' ) }
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									width="24"
+									height="24"
+									viewBox="0 0 24 24"
+									role="presentation"
+								>
+									<path
+										d="M10.6004 6L9.40039 7L14.0004 12L9.40039 17L10.6004 18L16.0004 12L10.6004 6Z"
+										fill="black"
+									/>
+								</svg>
+							</h4>
+							<Text variant="body-md" className={ clsx( styles[ 'expire-date' ] ) }>
+								{ __( 'Free', 'jetpack-my-jetpack' ) }
+							</Text>
+						</section>
 					) ) }
 			</div>
 			{ userIsAdmin && <PlanSectionFooter numberOfPurchases={ numberOfPurchases } /> }
-		</div>
+		</section>
 	);
 };
 

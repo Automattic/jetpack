@@ -7,9 +7,10 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
-use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Connection\Urls;
 use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
+use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Status;
 
 // The $icon-color variable for admin color schemes.
@@ -30,32 +31,51 @@ const WPCOM_ADMIN_ICON_COLORS = array(
 /**
  * Adds the origin_site_id query parameter to a URL.
  *
+ * @deprecated 6.10.0 Use Automattic\Jetpack\Connection\Urls::maybe_add_origin_site_id instead.
+ *
  * @param string $url The URL to add the query param to.
- * @return string The URL with the origin_site_id query parameter mey be added.
+ * @return string The URL with the origin_site_id query parameter maybe added.
  */
 function maybe_add_origin_site_id_to_url( $url ) {
-	$site_id = Connection_Manager::get_site_id();
-	if ( is_wp_error( $site_id ) ) {
-		return $url;
-	}
+	_deprecated_function( __FUNCTION__, 'jetpack-mu-wpcom-6.10.0', 'Automattic\Jetpack\Connection\Urls::maybe_add_origin_site_id' );
+	return Urls::maybe_add_origin_site_id( $url );
+}
 
-	// Add query param to URL only for users who can access wp-admin.
-	if ( ! is_user_member_of_blog() ) {
-		return $url;
-	}
-
-	return add_query_arg( 'origin_site_id', $site_id, $url );
+/**
+ * Adds the origin_admin_bar query parameter to a URL.
+ * Calypso can use this parameter to know that the user is coming from wp-admin
+ * and to check whether it should do custom routing based on user preferences.
+ * E.g. redirecting to my.wordpress.com depending on their preference.
+ *
+ * @param string $url The URL to add the query param to.
+ * @return string The URL with the origin_admin_bar query parameter mey be added.
+ */
+function add_origin_admin_bar_to_url( $url ) {
+	return add_query_arg( 'origin_admin_bar', 'wpcom', $url );
 }
 
 /**
  * Enqueue assets needed by the WordPress.com admin bar.
  */
 function wpcom_enqueue_admin_bar_assets() {
+	$asset_file = include Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-admin-bar/wpcom-admin-bar.asset.php';
+
+	wp_enqueue_script(
+		'wpcom-admin-bar',
+		plugins_url( 'build/wpcom-admin-bar/wpcom-admin-bar.js', Jetpack_Mu_Wpcom::BASE_FILE ),
+		$asset_file['dependencies'] ?? array(),
+		$asset_file['version'] ?? filemtime( Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-admin-bar/wpcom-admin-bar.js' ),
+		array(
+			'strategy'  => 'defer',
+			'in_footer' => true,
+		)
+	);
+
 	wp_enqueue_style(
 		'wpcom-admin-bar',
 		plugins_url( 'build/wpcom-admin-bar/wpcom-admin-bar.css', Jetpack_Mu_Wpcom::BASE_FILE ),
 		array(),
-		Jetpack_Mu_Wpcom::PACKAGE_VERSION
+		$asset_file['version'] ?? filemtime( Jetpack_Mu_Wpcom::BASE_DIR . 'build/wpcom-admin-bar/wpcom-admin-bar.css' )
 	);
 
 	/**
@@ -64,7 +84,7 @@ function wpcom_enqueue_admin_bar_assets() {
 	if ( defined( 'AT_PROXIED_REQUEST' ) && AT_PROXIED_REQUEST ) {
 		wp_add_inline_style(
 			'wpcom-admin-bar',
-			<<<CSS
+			<<<'CSS'
 				#wpadminbar .quicklinks #wp-admin-bar-top-secondary {
 					display: flex;
 				}
@@ -143,41 +163,59 @@ function wpcom_replace_wp_logo_with_wpcom_logo_menu( $wp_admin_bar ) {
 	$wp_admin_bar->remove_node( 'wp-logo' );
 	$wp_admin_bar->add_node(
 		array(
-			'id'    => 'wpcom-logo',
+			'id'    => 'wp-logo',
 			'title' => '<span class="ab-icon" aria-hidden="true"></span><span class="screen-reader-text">' .
 						/* translators: Hidden accessibility text. */
-						__( 'All Sites', 'jetpack-mu-wpcom' ) .
+						'WordPress.com' .
 						'</span>',
-			'href'  => maybe_add_origin_site_id_to_url( 'https://wordpress.com/sites' ),
+			'href'  => add_origin_admin_bar_to_url( Urls::maybe_add_origin_site_id( 'https://wordpress.com/sites' ) ),
 			'meta'  => array(
-				'menu_title' => __( 'All Sites', 'jetpack-mu-wpcom' ),
+				'menu_title' => 'WordPress.com',
 			),
 		)
 	);
 
 	$wp_admin_bar->add_node(
 		array(
-			'parent' => 'wpcom-logo',
+			'parent' => 'wp-logo',
 			'id'     => 'wpcom-sites',
 			'title'  => __( 'Sites', 'jetpack-mu-wpcom' ),
-			'href'   => maybe_add_origin_site_id_to_url( 'https://wordpress.com/sites' ),
+			'href'   => Urls::maybe_add_origin_site_id( 'https://my.wordpress.com/sites' ),
 		)
 	);
 
 	$wp_admin_bar->add_node(
 		array(
-			'parent' => 'wpcom-logo',
+			'parent' => 'wp-logo',
 			'id'     => 'wpcom-domains',
 			'title'  => __( 'Domains', 'jetpack-mu-wpcom' ),
-			'href'   => maybe_add_origin_site_id_to_url( 'https://wordpress.com/domains/manage' ),
+			'href'   => Urls::maybe_add_origin_site_id( 'https://my.wordpress.com/domains' ),
+		)
+	);
+
+	$wp_admin_bar->add_node(
+		array(
+			'parent' => 'wp-logo',
+			'id'     => 'wpcom-emails',
+			'title'  => __( 'Emails', 'jetpack-mu-wpcom' ),
+			'href'   => Urls::maybe_add_origin_site_id( 'https://my.wordpress.com/emails' ),
+		)
+	);
+
+	$wp_admin_bar->add_node(
+		array(
+			'parent' => 'wp-logo',
+			'id'     => 'wpcom-plugins',
+			'title'  => __( 'Plugins', 'jetpack-mu-wpcom' ),
+			'href'   => Urls::maybe_add_origin_site_id( 'https://my.wordpress.com/plugins' ),
 		)
 	);
 
 	if ( ! ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
 		$wp_admin_bar->add_group(
 			array(
-				'parent' => 'wpcom-logo',
-				'id'     => 'wpcom-logo-external',
+				'parent' => 'wp-logo',
+				'id'     => 'wp-logo-external',
 				'meta'   => array(
 					'class' => 'ab-sub-secondary',
 				),
@@ -185,11 +223,11 @@ function wpcom_replace_wp_logo_with_wpcom_logo_menu( $wp_admin_bar ) {
 		);
 
 		if ( $about_node ) {
-			$about_node->parent = 'wpcom-logo-external';
+			$about_node->parent = 'wp-logo-external';
 			$wp_admin_bar->add_node( (array) $about_node );
 		}
 		if ( $contribute_node ) {
-			$contribute_node->parent = 'wpcom-logo-external';
+			$contribute_node->parent = 'wp-logo-external';
 			$wp_admin_bar->add_node( (array) $contribute_node );
 		}
 	}
@@ -255,27 +293,16 @@ function wpcom_add_shopping_cart( $wp_admin_bar ) {
 // Hook the cart icon to the admin bar menu, placing it before the reader icon (same as Calypso).
 add_action( 'admin_bar_menu', 'wpcom_add_shopping_cart', 11 );
 
-/**
- * Adds the Reader menu.
- *
- * @param WP_Admin_Bar $wp_admin_bar The WP_Admin_Bar core object.
- */
-function wpcom_add_reader_menu( $wp_admin_bar ) {
-	$wp_admin_bar->add_menu(
-		array(
-			'id'     => 'reader',
-			'title'  => '<span class="ab-icon" title="' . __( 'Read the blogs and topics you follow', 'jetpack-mu-wpcom' ) . '" aria-hidden="true"></span>' .
-						'<span class="ab-label">' . __( 'Reader', 'jetpack-mu-wpcom' ) . '</span>',
-			'href'   => maybe_add_origin_site_id_to_url( 'https://wordpress.com/reader' ),
-			'meta'   => array(
-				'class' => 'wp-admin-bar-reader',
-			),
-			'parent' => 'top-secondary',
-		)
-	);
-}
 // Add the reader icon to the admin bar before the help center icon.
-add_action( 'admin_bar_menu', 'wpcom_add_reader_menu', 11 );
+add_action(
+	'wp_loaded',
+	function () {
+		if ( class_exists( '\Automattic\Jetpack\Newsletter\Reader_Link' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredClassMethod -- class_exists guarded above; provided by sibling autoloader.
+			\Automattic\Jetpack\Newsletter\Reader_Link::init();
+		}
+	}
+);
 
 /**
  * Points the "Edit Profile" and "Howdy,..." to /me if the user is not member of the blog.
@@ -289,13 +316,13 @@ function wpcom_replace_edit_profile_menu_to_me( $wp_admin_bar ) {
 
 	$edit_profile_node = $wp_admin_bar->get_node( 'user-info' );
 	if ( $edit_profile_node ) {
-		$edit_profile_node->href  = maybe_add_origin_site_id_to_url( 'https://wordpress.com/me' );
+		$edit_profile_node->href  = add_origin_admin_bar_to_url( Urls::maybe_add_origin_site_id( 'https://wordpress.com/me' ) );
 		$edit_profile_node->title = preg_replace( "/(<span class='display-name edit-profile'>)(.*?)(<\/span>)/", '$1' . __( 'My Profile', 'jetpack-mu-wpcom' ) . '$3', $edit_profile_node->title );
 		$wp_admin_bar->add_node( (array) $edit_profile_node );
 	}
 	$my_account_node = $wp_admin_bar->get_node( 'my-account' );
 	if ( $my_account_node ) {
-		$my_account_node->href = maybe_add_origin_site_id_to_url( 'https://wordpress.com/me' );
+		$my_account_node->href = add_origin_admin_bar_to_url( Urls::maybe_add_origin_site_id( 'https://wordpress.com/me' ) );
 		$wp_admin_bar->add_node( (array) $my_account_node );
 	}
 }
@@ -326,7 +353,7 @@ function wpcom_add_my_wpcom_account_submenu( $wp_admin_bar ) {
 			'parent' => 'wpcom-account',
 			'id'     => 'my-wpcom-account',
 			'title'  => '<span class="button wpcom-button">' . $button_text . '</span>',
-			'href'   => maybe_add_origin_site_id_to_url( 'https://wordpress.com/me/account' ),
+			'href'   => add_origin_admin_bar_to_url( Urls::maybe_add_origin_site_id( 'https://wordpress.com/me/account' ) ),
 		)
 	);
 }
@@ -416,7 +443,7 @@ function wpcom_add_site_badges_and_plan( $wp_admin_bar ) {
 	if ( $badge_text ) {
 		$status_text = '<div class="wp-admin-bar__site-info">
 							<span class="wp-admin-bar__site-info-label">' . __( 'Status', 'jetpack-mu-wpcom' ) . '</span>
-							<div class="wp-admin-bar__info-badges">' . esc_html( $badge_text ) . '</div>
+							<span class="wp-admin-bar__info-badges">' . esc_html( $badge_text ) . '</span>
 						</div>';
 	}
 
@@ -430,42 +457,96 @@ function wpcom_add_site_badges_and_plan( $wp_admin_bar ) {
 			$current_plan = Current_Plan::get();
 		}
 		$plan_name = $current_plan['product_name_short'] ?? '';
+
 		if ( $plan_name ) {
-			$plan_text = '<div class="wp-admin-bar__site-info">
-							<span class="wp-admin-bar__site-info-label">' . __( 'Plan', 'jetpack-mu-wpcom' ) . '</span>
-							<div class="wp-admin-bar__info-badges">' . esc_html( $plan_name ) . '</div>
-						</div>';
+			// wpcom_get_site_slug() resolves the Calypso slug on both Simple and
+			// Atomic (where \WPCOM_Masterbar is absent), falling back to the site
+			// URL so the link still renders.
+			$site_slug = wpcom_get_site_slug();
+
+			if ( $site_slug ) {
+				$plan_text = '<a class="wp-admin-bar__site-info" href="https://wordpress.com/plans/' . esc_attr( $site_slug ) . '">
+								<span class="wp-admin-bar__site-info-label">' . __( 'Plan', 'jetpack-mu-wpcom' ) . '</span>
+								<span class="wp-admin-bar__info-badges">' . esc_html( $plan_name ) . '</span>
+							</a>';
+			} else {
+				$plan_text = '<div class="wp-admin-bar__site-info">
+								<span class="wp-admin-bar__site-info-label">' . __( 'Plan', 'jetpack-mu-wpcom' ) . '</span>
+								<span class="wp-admin-bar__info-badges">' . esc_html( $plan_name ) . '</span>
+							</div>';
+			}
 		}
 	}
 
-	if ( $status_text || $plan_text ) {
+	if ( $plan_text ) {
 		$wp_admin_bar->add_group(
 			array(
 				'parent' => 'site-name',
-				'id'     => 'site-badge',
+				'id'     => 'site-plan',
+			)
+		);
+		$wp_admin_bar->add_node(
+			array(
+				'parent' => 'site-plan',
+				'id'     => 'site-plan-badge',
+				'title'  => $plan_text,
+			)
+		);
+	}
+
+	if ( $status_text ) {
+		$wp_admin_bar->add_group(
+			array(
+				'parent' => 'site-name',
+				'id'     => 'site-status',
 				'meta'   => array(
 					'class' => 'ab-sub-secondary',
 				),
 			)
 		);
-		if ( $status_text ) {
-			$wp_admin_bar->add_node(
-				array(
-					'parent' => 'site-badge',
-					'id'     => 'site-badge-status',
-					'title'  => $status_text,
-				)
-			);
-		}
-		if ( $plan_text ) {
-			$wp_admin_bar->add_node(
-				array(
-					'parent' => 'site-badge',
-					'id'     => 'site-badge-plan',
-					'title'  => $plan_text,
-				)
-			);
-		}
+		$wp_admin_bar->add_node(
+			array(
+				'parent' => 'site-status',
+				'id'     => 'site-status-badge',
+				'title'  => $status_text,
+			)
+		);
 	}
 }
 add_action( 'admin_bar_menu', 'wpcom_add_site_badges_and_plan', 35 );
+
+/**
+ * Adds a "Stats" link to the site-name submenu, alongside "Dashboard"/"Visit Site" (STATS-287).
+ *
+ * Hooks `admin_bar_menu` at priority 40, after core's `wp_admin_bar_site_menu`
+ * (priority 30) has added the `site-name` node and either `dashboard` (front end)
+ * or `view-site` (wp-admin), so this shows in both contexts.
+ *
+ * `view_stats` is not a proxy for the module being on: the Stats package registers
+ * its `map_meta_cap` handler on any wp-admin request, so an administrator keeps the
+ * capability after the module is switched off, while `admin.php?page=stats` stops
+ * being registered. Linking there then renders "Sorry, you are not allowed to access
+ * this page", so check the module too. `is_active()` short-circuits to true on Simple,
+ * where the module can't be switched off; it only narrows anything on Atomic.
+ *
+ * @param WP_Admin_Bar $wp_admin_bar Admin bar instance.
+ */
+function wpcom_add_stats_to_site_menu( $wp_admin_bar ) {
+	if (
+		( ! $wp_admin_bar->get_node( 'dashboard' ) && ! $wp_admin_bar->get_node( 'view-site' ) )
+		|| ! current_user_can( 'view_stats' )
+		|| ! ( new Modules() )->is_active( 'stats' )
+	) {
+		return;
+	}
+
+	$wp_admin_bar->add_node(
+		array(
+			'parent' => 'site-name',
+			'id'     => 'wpcom-stats',
+			'title'  => __( 'Stats', 'jetpack-mu-wpcom' ),
+			'href'   => admin_url( 'admin.php?page=stats' ),
+		)
+	);
+}
+add_action( 'admin_bar_menu', 'wpcom_add_stats_to_site_menu', 40 );

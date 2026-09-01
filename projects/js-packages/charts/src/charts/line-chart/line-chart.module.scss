@@ -1,0 +1,121 @@
+.line-chart {
+	position: relative;
+
+	// Keep the collapsed state in `from` and never on the element: a dropped
+	// animation then fails visible. `both`, not `forwards`, for backwards fill.
+	&--animated {
+
+		path {
+			transform-origin: 0 95%;
+			animation:
+				rise var(--a8c-charts-motion-duration-entrance)
+				var(--a8c-charts-motion-easing-entrance) both;
+		}
+	}
+
+	svg {
+		overflow: visible;
+	}
+
+	&__tooltip,
+	&__annotation-label-popover {
+		background: var(--a8c-charts-color-surface);
+		color: var(--a8c-charts-color-label);
+		padding: var(--wpds-dimension-padding-sm, 8px);
+	}
+
+	&__tooltip-date {
+		font-weight: var(--wpds-typography-font-weight-emphasis, 600);
+		padding-bottom: var(--wpds-dimension-padding-md, 12px);
+	}
+
+	&__tooltip-row {
+		padding: var(--wpds-dimension-padding-xs, 4px) 0;
+	}
+
+	&__tooltip-label {
+		font-weight: var(--wpds-typography-font-weight-emphasis, 600);
+		padding-right: var(--wpds-dimension-padding-lg, 16px);
+	}
+
+	&__annotations-overlay {
+		position: absolute;
+		left: 0;
+		top: 0;
+		overflow: visible;
+		pointer-events: none;
+	}
+
+	&__annotation-label {
+		pointer-events: auto;
+	}
+
+	&__annotation-label-trigger-button {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		pointer-events: auto;
+		cursor: pointer;
+		border: none;
+		background: none;
+		padding: 0;
+	}
+
+	&__annotation-label-popover {
+		min-width: 125px;
+		border: none;
+		border-radius: var(--wpds-border-radius-md, 4px);
+		font-size: var(--wpds-typography-font-size-md, 13px);
+		box-shadow: var(--a8c-charts-elevation-sm, 0 1px 2px 0 #0000000d, 0 2px 3px 0 #0000000a, 0 6px 6px 0 #00000008, 0 8px 8px 0 #00000005);
+		position: fixed;
+		// Without margin set, the popover has margin:auto which upsets the
+		// positioning relative to the trigger button. A gap token is appropriate
+		// because it creates a gap to the trigger button.
+		margin: var(--wpds-dimension-gap-sm, 8px);
+		visibility: hidden;
+
+		&--visible {
+			visibility: visible;
+		}
+
+		&--safari {
+			position: initial;
+			margin: auto;
+		}
+	}
+
+	&__annotation-label-popover-content {
+		padding: var(--wpds-dimension-padding-sm, 8px);
+	}
+
+	&__annotation-label-popover-close-button {
+		background: none;
+		border: none;
+		cursor: pointer;
+		width: 44px;
+		height: 44px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		padding: 0;
+	}
+}
+
+:global(.visx-tooltip-glyph) {
+
+	svg {
+		width: 10px;
+		height: 10px;
+	}
+}
+
+@keyframes rise {
+
+	from {
+		transform: scaleY(0);
+	}
+
+	to {
+		transform: scaleY(1);
+	}
+}

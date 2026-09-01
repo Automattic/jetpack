@@ -53,7 +53,7 @@ class Jetpack_Provision {
 		if ( Identity_Crisis::validate_sync_error_idc_option() ) {
 			return new WP_Error(
 				'site_in_safe_mode',
-				__( 'Can not provision a plan while in safe mode. See: https://jetpack.com/support/safe-mode/', 'jetpack' )
+				__( 'Cannot provision a plan while in safe mode. See: https://jetpack.com/support/safe-mode/', 'jetpack' )
 			);
 		}
 
@@ -170,7 +170,7 @@ class Jetpack_Provision {
 			),
 			'timeout' => 60,
 			'method'  => 'POST',
-			'body'    => wp_json_encode( $request_body ),
+			'body'    => wp_json_encode( $request_body, JSON_UNESCAPED_SLASHES ),
 		);
 
 		$blog_id = Jetpack_Options::get_option( 'id' );
@@ -191,6 +191,7 @@ class Jetpack_Provision {
 			$url = add_query_arg( array( 'calypso_env' => $calypso_env ), $url );
 		}
 
+		// @phan-suppress-next-line PhanAccessMethodInternal -- Phan is correct, but the usage is intentional.
 		$result = Client::_wp_remote_request( $url, $request );
 
 		if ( is_wp_error( $result ) ) {
@@ -272,7 +273,8 @@ class Jetpack_Provision {
 			'body'    => '',
 		);
 
-		$url    = sprintf( '%s/rest/v1.3/jpphp/partner-keys/verify', self::get_api_host() );
+		$url = sprintf( '%s/rest/v1.3/jpphp/partner-keys/verify', self::get_api_host() );
+		// @phan-suppress-next-line PhanAccessMethodInternal -- Phan is correct, but the usage is intentional.
 		$result = Client::_wp_remote_request( $url, $request );
 
 		if ( is_wp_error( $result ) ) {

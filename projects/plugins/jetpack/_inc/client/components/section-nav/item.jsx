@@ -1,15 +1,13 @@
-/** @ssr-ready **/
-
-import { ExternalLink } from '@wordpress/components';
+import { Link } from '@wordpress/ui';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
-import React from 'react';
+import { PureComponent } from 'react';
 import Count from 'components/count';
 
 /**
  * Main
  */
-class NavItem extends React.PureComponent {
+class NavItem extends PureComponent {
 	static displayName = 'NavItem';
 
 	static propTypes = {
@@ -61,9 +59,9 @@ class NavItem extends React.PureComponent {
 						</span>
 					</a>
 				) }
-
 				{ this.props.isExternalLink && (
-					<ExternalLink
+					<Link
+						openInNewTab
 						href={ this.props.path }
 						target="_blank"
 						rel="external"
@@ -76,7 +74,7 @@ class NavItem extends React.PureComponent {
 							{ this.props.children }
 							{ 'number' === typeof this.props.count && <Count count={ this.props.count } /> }
 						</span>
-					</ExternalLink>
+					</Link>
 				) }
 			</li>
 		);

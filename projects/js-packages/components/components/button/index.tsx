@@ -1,14 +1,8 @@
-/**
- * External dependencies
- */
 import { Button as WPButton, Spinner, VisuallyHidden } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Icon, external } from '@wordpress/icons';
 import clsx from 'clsx';
-import React, { forwardRef } from 'react';
-/**
- * Internal dependencies
- */
+import { forwardRef } from 'react';
 import styles from './style.module.scss';
 import type { ButtonProps } from './types.ts';
 
@@ -16,9 +10,9 @@ import type { ButtonProps } from './types.ts';
  * Button component
  *
  * @param {ButtonProps} props - Component Props
- * @return {React.ReactNode} Rendered button
+ * @return {ReactNode} Rendered button
  */
-const Button = forwardRef< HTMLInputElement, ButtonProps >( ( props, ref ) => {
+const Button = forwardRef< HTMLElement, ButtonProps >( ( props, ref ) => {
 	const {
 		children,
 		variant = 'primary',
@@ -46,8 +40,6 @@ const Button = forwardRef< HTMLInputElement, ButtonProps >( ( props, ref ) => {
 		[ styles[ 'is-icon-button' ] ]: Boolean( icon ) && ! children,
 	} );
 
-	componentProps.ref = ref;
-
 	const externalIconSize = size === 'normal' ? 20 : 16;
 	const externalIcon = isExternalLink && (
 		<>
@@ -69,19 +61,23 @@ const Button = forwardRef< HTMLInputElement, ButtonProps >( ( props, ref ) => {
 		// Tooltip should not considered as a child
 		children?.[ 0 ]?.props?.className !== 'components-tooltip';
 
+	// Cast to work around WPButton's strict union type that can't be satisfied when spreading props
+	const wpButtonProps = {
+		ref,
+		target: externalTarget,
+		variant,
+		className: clsx( className, { 'has-text': !! icon && hasChildren } ),
+		icon: ! isExternalLink ? icon : undefined,
+		iconSize,
+		disabled,
+		'aria-disabled': disabled,
+		isDestructive,
+		text,
+		...componentProps,
+	} as React.ComponentProps< typeof WPButton >;
+
 	return (
-		<WPButton
-			target={ externalTarget }
-			variant={ variant }
-			className={ clsx( className, { 'has-text': !! icon && hasChildren } ) }
-			icon={ ! isExternalLink ? icon : undefined }
-			iconSize={ iconSize }
-			disabled={ disabled }
-			aria-disabled={ disabled }
-			isDestructive={ isDestructive }
-			text={ text }
-			{ ...componentProps }
-		>
+		<WPButton { ...wpButtonProps }>
 			{ isLoading && <Spinner /> }
 			<span>{ children }</span>
 			{ externalIcon }

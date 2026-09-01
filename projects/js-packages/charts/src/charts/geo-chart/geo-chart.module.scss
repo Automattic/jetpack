@@ -1,0 +1,11 @@
+.container {
+	position: relative;
+
+	// Google gives its HTML tooltip no width, so the box shrink-to-fits against
+	// whatever room is left beside the hovered feature. Near a map edge that
+	// breaks even a short label across lines. Sizing to content keeps each line
+	// whole and grows the box instead.
+	:global(.google-visualization-tooltip) {
+		white-space: nowrap;
+	}
+}

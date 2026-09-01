@@ -1,6 +1,6 @@
 import clsx from 'clsx';
-import React from 'react';
 import styles from './style.module.scss';
+import type { ReactNode } from 'react';
 
 const LoadingPlaceholder = ( {
 	children = null,
@@ -8,7 +8,7 @@ const LoadingPlaceholder = ( {
 	height = null,
 	className = '',
 }: {
-	children?: React.ReactNode;
+	children?: ReactNode;
 	width?: number | string;
 	height?: number;
 	className?: string;

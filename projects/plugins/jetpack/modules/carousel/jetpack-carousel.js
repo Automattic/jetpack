@@ -47,7 +47,7 @@
 			context.filter = 'blur(20px) ';
 			context.drawImage( imgEl, 0, 0 );
 			var url = canvas.toDataURL( 'image/png' );
-			canvas = null;
+			canvas = null; // eslint-disable-line no-useless-assignment -- Verify this isn't needed to free memory or something.
 
 			return url;
 		}
@@ -108,38 +108,47 @@
 			}
 		}
 
+		/**
+		 * CSS-transition fade (compositor). Duration + reduced-motion live in the
+		 * `.jp-carousel-fade` rule. A timer drives the finish, not `transitionend` -- that
+		 * event is skipped in background tabs / `transition: none` / zero duration, so the
+		 * timer is the reliable single source. `callback` fires once, after the fade.
+		 */
 		function fade( el, start, end, callback ) {
 			if ( ! el ) {
 				return callback();
 			}
 
-			// Prepare for transition.
-			// Ensure the item is in the render tree, in its initial state.
+			// A fade already running on this element must not deliver its callback any more.
+			if ( el.jpCarouselCancelFade ) {
+				el.jpCarouselCancelFade();
+			}
+
+			// Set + commit the start state before attaching the transition, or the fade is swallowed.
+			el.classList.remove( 'jp-carousel-fade' );
 			el.style.removeProperty( 'display' );
 			el.style.opacity = start;
 			el.style.pointerEvents = 'none';
 
-			var animate = function ( t0, duration ) {
-				var t = performance.now();
-				var diff = t - t0;
-				var ratio = diff / duration;
+			// Commit the starting opacity, otherwise the browser has nothing to animate from.
+			void el.offsetWidth;
 
-				if ( ratio < 1 ) {
-					el.style.opacity = start + ( end - start ) * ratio;
-					requestAnimationFrame( () => animate( t0, duration ) );
-				} else {
-					el.style.opacity = end;
-					el.style.removeProperty( 'pointer-events' );
-					callback();
-				}
+			el.classList.add( 'jp-carousel-fade' );
+			el.style.opacity = end;
+
+			// Read the duration back from the stylesheet so the timer always outlives the transition.
+			var duration = parseFloat( getComputedStyle( el ).transitionDuration ) * 1000 || 0;
+
+			var timer = setTimeout( function () {
+				el.jpCarouselCancelFade = null;
+				el.style.removeProperty( 'pointer-events' );
+				callback();
+			}, duration + 50 );
+
+			el.jpCarouselCancelFade = function () {
+				clearTimeout( timer );
+				el.jpCarouselCancelFade = null;
 			};
-
-			requestAnimationFrame( function () {
-				// Double rAF for browser compatibility.
-				requestAnimationFrame( function () {
-					animate( performance.now(), 200 );
-				} );
-			} );
 		}
 
 		function fadeIn( el, callback ) {
@@ -272,7 +281,9 @@
 		}
 
 		function stripHTML( text ) {
-			return text.replace( /<[^>]*>?/gm, '' );
+			var tmp = document.createElement( 'div' );
+			tmp.innerHTML = text.replace( /<[^>]*>?/gm, '' );
+			return tmp.textContent;
 		}
 
 		return {
@@ -777,7 +788,11 @@
 			var current = carousel.currentSlide;
 			var attachmentId = current.attrs.attachmentId;
 
+			// Load current image immediately
 			loadFullImage( carousel.slides[ index ] );
+
+			// Preload adjacent images in background
+			preloadAdjacentImages( index );
 
 			if (
 				Number( jetpackCarouselStrings.display_background_image ) === 1 &&
@@ -811,7 +826,7 @@
 			}
 
 			// Record pageview in WP Stats, for each new image loaded full-screen.
-			if ( jetpackCarouselStrings.stats ) {
+			if ( jetpackCarouselStrings.stats && carousel.isOpen ) {
 				new Image().src =
 					document.location.protocol +
 					'//pixel.wp.com/g.gif?' +
@@ -822,9 +837,12 @@
 					Math.random();
 			}
 
-			pageview( attachmentId );
+			if ( carousel.isOpen ) {
+				pageview( attachmentId );
+			}
 
-			window.location.hash = lastKnownLocationHash = '#jp-carousel-' + attachmentId;
+			lastKnownLocationHash = '#jp-carousel-' + attachmentId;
+			window.location.hash = lastKnownLocationHash;
 		}
 
 		function restoreScroll() {
@@ -841,8 +859,8 @@
 
 			domUtil.emitEvent( carousel.overlay, 'jp_carousel.beforeClose' );
 			restoreScroll();
-			swiper.destroy();
 			carousel.isOpen = false;
+			swiper.destroy();
 			// Clear slide data for DOM garbage collection.
 			carousel.slides = [];
 			carousel.currentSlide = undefined;
@@ -860,6 +878,41 @@
 			};
 		}
 
+		function sanitizePhotonUrl( url ) {
+			var urlObj;
+			try {
+				urlObj = new URL( url );
+				// eslint-disable-next-line no-unused-vars
+			} catch ( e ) {
+				return url;
+			}
+
+			var whitelistedPhotonArgs = [
+				'quality',
+				'ssl',
+				'filter',
+				'brightness',
+				'contrast',
+				'colorize',
+				'smooth',
+			];
+
+			// Get all search params
+			var searchParams = Array.from( urlObj.searchParams.entries() );
+
+			// Clear all existing params
+			urlObj.search = '';
+
+			// Only add back whitelisted params
+			searchParams.forEach( ( [ key, value ] ) => {
+				if ( whitelistedPhotonArgs.includes( key ) ) {
+					urlObj.searchParams.append( key, value );
+				}
+			} );
+
+			return urlObj;
+		}
+
 		function selectBestImageUrl( args ) {
 			if ( typeof args !== 'object' ) {
 				args = {};
@@ -873,7 +926,12 @@
 				return args.origFile;
 			}
 
-			if ( typeof args.mediumFile === 'undefined' || typeof args.largeFile === 'undefined' ) {
+			// When there's no large file to fall back on (e.g. images that weren't enriched with
+			// Jetpack's data-large-file attribute), use the original file. A missing attribute is
+			// read as an empty string, so we can't only guard against `undefined` here: otherwise a
+			// narrow (portrait, mobile) viewport would return that empty string as the image source,
+			// leaving the carousel with a blank slide.
+			if ( ! args.largeFile ) {
 				return args.origFile;
 			}
 
@@ -902,31 +960,28 @@
 				return args.largeFile;
 			}
 
-			var mediumSizeParts = getImageSizeParts( args.mediumFile, args.origWidth, isPhotonUrl );
-			var mediumWidth = parseInt( mediumSizeParts[ 0 ], 10 );
-			var mediumHeight = parseInt( mediumSizeParts[ 1 ], 10 );
-
-			if ( mediumWidth >= args.maxWidth || mediumHeight >= args.maxHeight ) {
-				return args.mediumFile;
-			}
-
 			if ( isPhotonUrl ) {
 				// args.origFile doesn't point to a Photon url, so in this case we use args.largeFile
 				// to return the photon url of the original image.
-				var largeFileIndex = args.largeFile.lastIndexOf( '?' );
-				var origPhotonUrl = args.largeFile;
-				if ( largeFileIndex !== -1 ) {
-					origPhotonUrl = args.largeFile.substring( 0, largeFileIndex );
-					// If we have a really large image load a smaller version
-					// that is closer to the viewable size
-					if ( args.origWidth > args.maxWidth || args.origHeight > args.maxHeight ) {
-						// @2x the max sizes so we get a high enough resolution for zooming.
-						args.origMaxWidth = args.maxWidth * 2;
-						args.origMaxHeight = args.maxHeight * 2;
-						origPhotonUrl += '?fit=' + args.origMaxWidth + '%2C' + args.origMaxHeight;
-					}
+				if ( args.largeFile.lastIndexOf( '?' ) === -1 ) {
+					return args.largeFile;
 				}
-				return origPhotonUrl;
+
+				// Sanitize the URL to remove non-cosmetic changes like resize, fit, etc.
+				var sanitizedUrl = sanitizePhotonUrl( args.largeFile );
+
+				// If we have a really large image load a smaller version
+				// that is closer to the viewable size
+				if ( args.origWidth > args.maxWidth || args.origHeight > args.maxHeight ) {
+					// @2x the max sizes so we get a high enough resolution for zooming.
+					args.origMaxWidth = args.maxWidth * 2;
+					args.origMaxHeight = args.maxHeight * 2;
+					// Add the fit arg to the list of Photon args.
+					sanitizedUrl.searchParams.set( 'fit', args.origMaxWidth + ',' + args.origMaxHeight );
+				}
+
+				// Return a Photon URL image that's better fitted for the viewport.
+				return sanitizedUrl.toString();
 			}
 
 			return args.origFile;
@@ -988,9 +1043,9 @@
 		}
 
 		function updateTitleCaptionAndDesc( data ) {
-			var caption = '';
-			var title = '';
-			var desc = '';
+			var caption;
+			var title;
+			var desc;
 			var captionMainElement;
 			var captionInfoExtraElement;
 			var titleElement;
@@ -1037,18 +1092,18 @@
 					domUtil.show( descriptionElement );
 
 					if ( ! title && ! caption ) {
-						captionMainElement.innerHTML = domUtil.stripHTML( desc );
+						captionMainElement.textContent = domUtil.stripHTML( desc );
 						domUtil.show( captionMainElement );
 					}
 				}
 
 				if ( title ) {
 					var plainTitle = domUtil.stripHTML( title );
-					titleElement.innerHTML = plainTitle;
+					titleElement.textContent = plainTitle;
 
 					if ( ! caption ) {
-						captionMainElement.innerHTML = plainTitle;
-						captionInfoExtraElement.innerHTML = plainTitle;
+						captionMainElement.textContent = plainTitle;
+						captionInfoExtraElement.textContent = plainTitle;
 
 						domUtil.show( captionMainElement );
 					}
@@ -1064,7 +1119,12 @@
 				return false;
 			}
 
-			var ul = carousel.info.querySelector( '.jp-carousel-image-meta ul.jp-carousel-image-exif' );
+			// Locate the parent container for the metadata.
+			var metaContainer = carousel.info.querySelector( '.jp-carousel-image-meta' );
+			if ( ! metaContainer ) {
+				return false;
+			}
+
 			var html = '';
 
 			for ( var key in meta ) {
@@ -1090,8 +1150,29 @@
 				html += '<li><h5>' + jetpackCarouselStrings[ key ] + '</h5>' + val + '</li>';
 			}
 
-			ul.innerHTML = html;
-			ul.style.removeProperty( 'display' );
+			// Handle the UL element dynamically to ensure valid markup.
+			var ul = metaContainer.querySelector( 'ul.jp-carousel-image-exif' );
+
+			if ( html !== '' ) {
+				// If there is data to display and the UL doesn't exist, create it.
+				if ( ! ul ) {
+					ul = document.createElement( 'ul' );
+					ul.className = 'jp-carousel-image-exif';
+
+					// Insert right after the title/caption container if it exists, otherwise prepend
+					var titleAndCaption = metaContainer.querySelector( '.jp-carousel-title-and-caption' );
+					if ( titleAndCaption && titleAndCaption.nextSibling ) {
+						metaContainer.insertBefore( ul, titleAndCaption.nextSibling );
+					} else {
+						metaContainer.insertBefore( ul, metaContainer.firstChild );
+					}
+				}
+				ul.innerHTML = html;
+				ul.style.removeProperty( 'display' );
+			} else if ( ul ) {
+				// If the data is empty but the UL exists in the DOM, remove it.
+				ul.parentNode.removeChild( ul );
+			}
 		}
 
 		// Update the contents of the jp-carousel-image-download link
@@ -1249,50 +1330,135 @@
 		}
 
 		function loadFullImage( slide ) {
-			var el = slide.el;
 			var attrs = slide.attrs;
-			var image = el.querySelector( 'img' );
+			var image = slide.el.querySelector( 'img' );
 
-			if ( ! image.hasAttribute( 'data-loaded' ) ) {
-				var hasPreview = !! attrs.previewImage;
-				var thumbSize = attrs.thumbSize;
-
-				if ( ! hasPreview || ( thumbSize && el.offsetWidth > thumbSize.width ) ) {
-					image.src = attrs.src;
-				} else {
-					image.src = attrs.previewImage;
-				}
-
-				image.setAttribute( 'itemprop', 'image' );
-				image.setAttribute( 'data-loaded', 1 );
-			}
-		}
-
-		function loadBackgroundImage( slide ) {
-			var currentSlide = slide.el;
-
-			if ( swiper && swiper.slides ) {
-				currentSlide = swiper.slides[ swiper.activeIndex ];
-			}
-
-			var image = slide.attrs.originalElement;
-			var isLoaded = image.complete && image.naturalHeight !== 0;
-
-			if ( isLoaded ) {
-				applyBackgroundImage( slide, currentSlide, image );
+			if ( image.hasAttribute( 'data-loaded' ) ) {
 				return;
 			}
 
-			image.onload = function () {
-				applyBackgroundImage( slide, currentSlide, image );
-			};
+			image.setAttribute( 'itemprop', 'image' );
+			image.setAttribute( 'data-loaded', 1 );
+
+			var hasPreview = attrs.previewImage && attrs.previewImage !== attrs.src;
+
+			if ( ! hasPreview ) {
+				// No usable in-page thumbnail (e.g. a lazy-loading plugin swapped the
+				// gallery src for a placeholder). Load the full-size image straight
+				// into the visible element so the slide is never left without a src.
+				image.src = attrs.src;
+				return;
+			}
+
+			// Show the thumbnail the browser has already decoded for this image in the
+			// post itself. Without it the slide stays empty until the full-size image
+			// arrives, which reads as a black screen whenever the reader moves through
+			// the gallery faster than the images can download.
+			image.src = attrs.previewImage;
+			// The thumbnail is much smaller than the slide, so soften the upscale
+			// until the full-size image replaces it.
+			image.style.filter = 'blur(8px)';
+
+			// Load the full-size image off-DOM, then swap it in over the preview. On
+			// error the (blurred) preview stays put rather than reverting to blank.
+			var fullImage = new window.Image();
+
+			fullImage.addEventListener(
+				'load',
+				function () {
+					// Cached by this point, so swapping it in is effectively instant.
+					image.src = attrs.src;
+					image.style.filter = '';
+				},
+				{ once: true }
+			);
+
+			fullImage.addEventListener(
+				'error',
+				function () {
+					image.style.filter = '';
+				},
+				{ once: true }
+			);
+
+			fullImage.src = attrs.src;
 		}
 
-		function applyBackgroundImage( slide, currentSlide, image ) {
+		function preloadAdjacentImages( currentIndex ) {
+			var indicesToPreload = [];
+			var totalSlides = carousel.slides.length;
+
+			// Only preload adjacent images if we have more than one slide (matching loop condition)
+			if ( totalSlides > 1 ) {
+				// Previous image (with loop handling)
+				var prevIndex = currentIndex > 0 ? currentIndex - 1 : totalSlides - 1;
+				indicesToPreload.push( prevIndex );
+
+				// Next image (with loop handling)
+				var nextIndex = currentIndex < totalSlides - 1 ? currentIndex + 1 : 0;
+				indicesToPreload.push( nextIndex );
+			}
+
+			indicesToPreload.forEach( function ( index ) {
+				var slide = carousel.slides[ index ];
+				if ( slide ) {
+					// Load in background without showing
+					loadFullImage( slide );
+
+					// Also load background image if enabled
+					if (
+						Number( jetpackCarouselStrings.display_background_image ) === 1 &&
+						! slide.backgroundImage
+					) {
+						loadBackgroundImage( slide );
+					}
+				}
+			} );
+		}
+
+		function loadBackgroundImage( slide ) {
+			var image = slide.attrs.originalElement;
+
+			if ( ! image ) {
+				return;
+			}
+
+			if ( image.complete && image.naturalHeight !== 0 ) {
+				applyBackgroundImage( slide, image );
+				return;
+			}
+
+			// The thumbnail in the post may still be loading, or may be lazy-loaded.
+			// Use an event listener rather than `onload`, which would overwrite any
+			// handler the page has already attached to its own image. Pair the load
+			// handler with an error handler so a thumbnail that never loads doesn't
+			// leave a listener (and its reference to the slide) attached for good.
+			var onLoad = function () {
+				image.removeEventListener( 'error', onError );
+				applyBackgroundImage( slide, image );
+			};
+			var onError = function () {
+				image.removeEventListener( 'load', onLoad );
+			};
+			image.addEventListener( 'load', onLoad, { once: true } );
+			image.addEventListener( 'error', onError, { once: true } );
+		}
+
+		function applyBackgroundImage( slide, image ) {
 			var url = util.getBackgroundImage( image );
+
+			if ( ! url ) {
+				return;
+			}
+
+			// Always paint onto the slide the image belongs to. Preloading runs this
+			// for the neighbouring slides too, so painting onto whichever slide happens
+			// to be active would put the wrong image behind it and leave the slide it
+			// was meant for with no placeholder at all.
 			slide.backgroundImage = url;
-			currentSlide.style.backgroundImage = 'url(' + url + ')';
-			currentSlide.style.backgroundSize = 'cover';
+			slide.el.style.backgroundImage = 'url(' + url + ')';
+			slide.el.style.backgroundSize = 'cover';
+			slide.el.style.backgroundPosition = 'center';
 		}
 
 		function clearCommentTextAreaValue() {
@@ -1326,8 +1492,6 @@
 				img.src = items[ startIndex ].getAttribute( 'data-gallery-src' );
 			}
 
-			var useInPageThumbnails = !! domUtil.closest( items[ 0 ], '.tiled-gallery.type-rectangular' );
-
 			// create the 'slide'
 			Array.prototype.forEach.call( items, function ( item, i ) {
 				var permalinkEl = domUtil.closest( item, 'a' );
@@ -1351,7 +1515,6 @@
 					imageMeta: domUtil.getJSONAttribute( item, 'data-image-meta' ) || {},
 					title: item.getAttribute( 'data-image-title' ) || '',
 					desc: item.getAttribute( 'data-image-description' ) || '',
-					mediumFile: item.getAttribute( 'data-medium-file' ) || '',
 					largeFile: item.getAttribute( 'data-large-file' ) || '',
 					origFile: origFile || '',
 					thumbSize: { width: item.naturalWidth, height: item.naturalHeight },
@@ -1382,7 +1545,6 @@
 						origHeight: attrs.origHeight,
 						maxWidth: max.width,
 						maxHeight: max.height,
-						mediumFile: attrs.mediumFile,
 						largeFile: attrs.largeFile,
 					} );
 				}
@@ -1398,7 +1560,6 @@
 					// Initially, the image is a 1x1 transparent gif.
 					// The preview is shown as a background image on the slide itself.
 					var image = new Image();
-					image.src = attrs.src;
 
 					var slideEl = document.createElement( 'div' );
 					slideEl.classList.add( 'swiper-slide' );
@@ -1416,10 +1577,10 @@
 					slideEl.setAttribute( 'data-permalink', attrs.permalink );
 					slideEl.setAttribute( 'data-orig-file', attrs.origFile );
 
-					if ( useInPageThumbnails ) {
-						// Use the image already loaded in the gallery as a preview.
-						attrs.previewImage = attrs.src;
-					}
+					// Reuse the thumbnail the browser has already decoded for this image
+					// in the post. It costs nothing to display and gives the slide
+					// something to show while the full-size image is downloading.
+					attrs.previewImage = item.currentSrc || item.getAttribute( 'src' ) || '';
 
 					var slide = { el: slideEl, attrs: attrs, index: i };
 					carousel.slides.push( slide );
@@ -1428,7 +1589,7 @@
 		}
 
 		function loadSwiper( gallery, options ) {
-			if ( ! window.Swiper670 ) {
+			if ( ! window.JetpackSwiper ) {
 				var loader = document.querySelector( '#jp-carousel-loading-overlay' );
 				domUtil.show( loader );
 				var jsScript = document.createElement( 'script' );
@@ -1505,7 +1666,7 @@
 
 			initCarouselSlides( images, settings.startIndex );
 
-			swiper = new window.Swiper670( '.jp-carousel-swiper-container', {
+			swiper = new window.JetpackSwiper( '.jp-carousel-swiper-container', {
 				centeredSlides: true,
 				zoom: true,
 				loop: carousel.slides.length > 1,
@@ -1532,19 +1693,10 @@
 			} );
 
 			swiper.on( 'slideChange', function ( swiper ) {
-				var index;
-				// Swiper indexes slides from 1, plus when looping to left last slide ends up
-				// as 0 and looping to right first slide as total slides + 1. These are adjusted
-				// here to match index of carousel.slides.
-				if ( swiper.activeIndex === 0 ) {
-					index = carousel.slides.length - 1;
-				} else if ( swiper.activeIndex === carousel.slides.length + 1 ) {
-					index = 0;
-				} else {
-					index = swiper.activeIndex - 1;
+				if ( ! carousel.isOpen ) {
+					return;
 				}
-				selectSlideAtIndex( index );
-
+				selectSlideAtIndex( swiper.realIndex );
 				carousel.overlay.classList.remove( 'jp-carousel-hide-controls' );
 			} );
 
@@ -1607,9 +1759,17 @@
 			}
 		}
 
+		function normalizeUrl( url ) {
+			return ( url || '' ).split( '?' )[ 0 ].replace( /\/$/, '' );
+		}
+
 		function shouldOpenModal( el ) {
+			if ( el.tagName === 'A' ) {
+				el = el.querySelector( 'img' ) || el;
+			}
+
 			var parent = el.parentElement;
-			var grandparent = parent.parentElement;
+			var grandparent = parent ? parent.parentElement : null;
 
 			// If Gallery is made up of individual Image blocks check for custom link before
 			// loading carousel. The custom link may be the parent or could be a descendant
@@ -1627,16 +1787,18 @@
 
 			// If the link does not point to the attachment or media file then assume Image has
 			// a custom link so don't load the carousel.
-			if (
-				parentHref &&
-				parentHref.split( '?' )[ 0 ] !== el.getAttribute( 'data-orig-file' ).split( '?' )[ 0 ] &&
-				parentHref !== el.getAttribute( 'data-permalink' )
-			) {
-				return false;
+			if ( parentHref ) {
+				var cleanHref = normalizeUrl( parentHref );
+				var cleanOrig = normalizeUrl( el.getAttribute( 'data-orig-file' ) );
+				var cleanPerm = normalizeUrl( el.getAttribute( 'data-permalink' ) );
+
+				if ( cleanHref !== cleanOrig && cleanHref !== cleanPerm ) {
+					return false;
+				}
 			}
 
 			// Do not open the modal if we are looking at a gallery caption from before WP5, which may contain a link.
-			if ( parent.classList.contains( 'gallery-caption' ) ) {
+			if ( parent && parent.classList.contains( 'gallery-caption' ) ) {
 				return false;
 			}
 

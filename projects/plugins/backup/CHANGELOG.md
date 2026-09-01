@@ -4,13 +4,106 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [3.9] - 2026-08-11
+### Added
+- Add the Activity Log page to wp-admin, so it is available without the Jetpack plugin installed. [#51154]
+
+### Changed
+- General: Update composer.lock files. [#48743]
+- General: Update minimum WordPress version to 6.9. [#49021]
+- Tested up to WordPress 7.0. [#48114]
+- Update composer.lock files. [#49415]
+- Updated package dependencies. [#48735] [#49793] [#48064] [#48329] [#48683] [#49448] [#50436]
+
+### Fixed
+- Fix fatal error on My Jetpack when the current stable Jetpack plugin is active. [#49994]
+
+## [3.8] - 2026-04-11
+### Added
+- Add Jetpack Protect details page for users without the dedicated Jetpack Protect plugin. [#46630]
+- IDC: Add revalidation for IDCs. [#46268]
+
+### Changed
+- Dependencies: Update lock file to keep root requirements in sync. [#47418]
+- My Jetpack: Check red bubble notification async when cache is not available. [#46396]
+- Remove header border-bottom from the admin page for a cleaner unified header appearance. [#47313]
+- Storage popover: use core components and remove custom CSS. [#47448]
+- Update composer.lock. [#46686]
+- Update design of the sidebar upsell. [#47909]
+- Update package dependencies. [#46785] [#47021] [#47505]
+
+### Removed
+- General: Update minimum WordPress version to 6.8. [#46801]
+
+### Fixed
+- Admin Page: Restore border on header component. [#47425]
+
+## [3.7.1] - 2025-11-20
+### Fixed
+- Jetpack: Remove getIconColor functions for block icons. [#45992]
+- My Jetpack: Fix expiring renewal prompt to show all products. [#45995]
+
+## [3.6] - 2025-11-12
+### Added
+- Tested up to WordPress 6.9. [#45571]
+
+### Changed
+- Update package dependencies. [#45478]
+
+### Fixed
+- My Jetpack page: Fix visual compatibility issue with Hello Dolly plugin. [#45474]
+
+## [3.5] - 2025-09-08
+### Added
+- My Jetpack: Add analytics for empty product search results. [#44344]
+
+### Changed
+- Remove CRM installation nudge for Complete plan users. [#45026]
+- My Jetpack: Enable access to My Jetpack on WP Multisite. [#44260]
+- My Jetpack: Fix multisite availability check for restricted products and modules. [#44710]
+- My Jetpack: Unify the user connection flow with a unified screen. [#44469]
+- My Jetpack: Update Stats card to include a chart for better analytics. [#43870]
+- Sync: Ignore the ActivityPub Outbox CPT. [#44222]
+- Update package dependencies. [#44206] [#44725] [#45096]
+
+### Fixed
+- JITM: Fix ineffective caching due to expired plugin sync transient/ [#44117]
+- My Jetpack: Fix footer alignment for disconnected accounts. [#44468]
+- My Jetpack: Prevent expiration alerts for products covered by active bundles. [#44586]
+- My Jetpack: Restore plan purchase link. [#44535]
+- JITM: Remove jQuery dependency. [#43783]
+
+## [3.4] - 2025-06-27
+### Changed
+- Internal updates.
+
+## [3.3] - 2025-06-09
+### Added
+- Add more error logging. [#42959]
+- Add My Jetpack tour. [#42880]
+
+### Changed
+- My Jetpack: Hide backup failure notice when backups are deactivated. [#43568]
+- My Jetpack: Optimize the images for onboarding slider for faster page load. [#43473]
+- My Jetpack: Update the onboarding UI, changing it to a single button. [#43203]
+- Update package dependencies. [#43085] [#43425] [#43839]
+
+### Removed
+- General: Update minimum WordPress version to 6.7. [#43192]
+
+### Fixed
+- Block editor: Fix layout issues with the Media Library modal buttons. [#43035]
+- My Jetpack: Fix Onboarding UI responsiveness at 600px. [#43533]
+- My Jetpack: Fix readability of license activation button on hover. [#43550]
+- My Jetpack: Ensure social login does not get stuck when email input is not empty. [#43158]
+
 ## [3.2] - 2025-04-03
 ### Added
-- Adds Account Protection initialization. [#40925]
-- Components: Export the getRedirectUrl function with subpath [#41078]
+- Add Account Protection initialization. [#40925]
+- Components: Export the getRedirectUrl function with subpath. [#41078]
 - Connection: Disconnect all other users before disconnecting connection owner account. [#41923]
 - Improve the onboarding experience of Jetpack guiding the users through a new onboarding process. [#42757]
-- My Jetpack: An onboarding screen has been implemented to provide clear, step-by-step instructions for new users connecting to Jetpack. [#42523]
+- My Jetpack: Introduce a new onboarding screen to provide clear, step-by-step instructions for new users connecting to Jetpack. [#42523]
 
 ### Changed
 - Code: Use function-style `exit()` and `die()` with a default status code of 0. [#41167]
@@ -283,6 +376,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Use `absoluteRuntime` in babel JS build to avoid module not found errors.
 
 [2.2-beta]: https://github.com/Automattic/jetpack-backup-plugin/compare/2.1...2.2-beta
+[3.9]: https://github.com/Automattic/jetpack-backup-plugin/compare/3.8...3.9
+[3.8]: https://github.com/Automattic/jetpack-backup-plugin/compare/3.7.1...3.8
+[3.7.1]: https://github.com/Automattic/jetpack-backup-plugin/compare/3.6...3.7.1
+[3.6]: https://github.com/Automattic/jetpack-backup-plugin/compare/3.5...3.6
+[3.5]: https://github.com/Automattic/jetpack-backup-plugin/compare/3.4...3.5
+[3.4]: https://github.com/Automattic/jetpack-backup-plugin/compare/3.3...3.4
+[3.3]: https://github.com/Automattic/jetpack-backup-plugin/compare/3.2...3.3
 [3.2]: https://github.com/Automattic/jetpack-backup-plugin/compare/3.1...3.2
 [3.1]: https://github.com/Automattic/jetpack-backup-plugin/compare/3.0...3.1
 [3.0]: https://github.com/Automattic/jetpack-backup-plugin/compare/2.9...3.0

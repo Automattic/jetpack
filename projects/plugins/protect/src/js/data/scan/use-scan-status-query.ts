@@ -65,7 +65,8 @@ export default function useScanStatusQuery( {
 		skipUserConnection: true,
 	} );
 
-	return useQuery( {
+	// eslint-disable-next-line @tanstack/query/exhaustive-deps -- Sticking `queryClient` in the key seems wrong, but what would be right?
+	return useQuery< ScanStatus >( {
 		queryKey: [ QUERY_SCAN_STATUS_KEY ],
 		queryFn: async () => {
 			// Fetch scan status data from the API

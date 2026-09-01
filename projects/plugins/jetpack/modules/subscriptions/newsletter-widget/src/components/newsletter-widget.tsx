@@ -10,7 +10,6 @@ import {
 	buildJPRedirectSource,
 	formatNumber,
 	getSubscriberStatsUrl,
-	getNewsletterSettingsUrl,
 	createTracksEventHandler,
 } from '../helpers';
 import { DashboardLink } from './dashboard-link';
@@ -21,31 +20,56 @@ export interface NewsletterWidgetProps {
 	site: string;
 	adminUrl: string;
 	isWpcomSite: boolean;
+	isStatsModuleActive?: boolean;
 	emailSubscribers?: number;
 	paidSubscribers?: number;
 	allSubscribers?: number;
 	subscriberTotalsByDate?: SubscriberTotalsByDate;
+	showHeader?: boolean;
+	showChart?: boolean;
+	newsletterSettingsUrl?: string;
 }
 
 export const NewsletterWidget = ( {
 	site,
 	adminUrl,
 	isWpcomSite,
+	isStatsModuleActive,
 	emailSubscribers = 0,
 	paidSubscribers = 0,
 	allSubscribers = 0,
 	subscriberTotalsByDate = {},
+	showHeader,
+	showChart,
+	newsletterSettingsUrl,
 }: NewsletterWidgetProps ) => {
-	const showHeader = allSubscribers > 0 || paidSubscribers > 0;
-	const showChart = Object.values( subscriberTotalsByDate ).some(
-		day => day?.all >= 5 || day?.paid > 0
-	);
-
 	const { tracks } = useAnalytics();
 
 	useEffect( () => {
 		tracks.recordEvent( `${ TRACKS_EVENT_NAME_PREFIX }_view` );
 	}, [ tracks ] );
+
+	// Null only where the dashboard is the analytics UI and this user cannot open
+	// it: the counts still render, just not as links.
+	const subscriberStatsUrl = getSubscriberStatsUrl( site, adminUrl );
+
+	const subscribersText = sprintf(
+		//translators: %1$s is the total number of subscribers, %2$s is the number of email subscribers
+		_n(
+			'%1$s subscriber (%2$s via email)',
+			'%1$s subscribers (%2$s via email)',
+			allSubscribers,
+			'jetpack'
+		),
+		formatNumber( allSubscribers ),
+		formatNumber( emailSubscribers )
+	);
+
+	const paidSubscribersText = sprintf(
+		//translators: %s is the number of paid subscribers
+		_n( '%s paid subscriber', '%s paid subscribers', paidSubscribers, 'jetpack' ),
+		formatNumber( paidSubscribers )
+	);
 
 	return (
 		<div className="newsletter-widget">
@@ -58,22 +82,14 @@ export const NewsletterWidget = ( {
 							</span>
 							<span className="newsletter-widget__stat-content">
 								<span className="newsletter-widget__stat-label">
-									<a
-										href={ getSubscriberStatsUrl( site, isWpcomSite, adminUrl ) }
-										onClick={ createTracksEventHandler( tracks, 'all_subscribers_click' ) }
-									>
-										{ sprintf(
-											//translators: %1$s is the total number of subscribers, %2$s is the number of email subscribers
-											_n(
-												'%1$s subscriber (%2$s via email)',
-												'%1$s subscribers (%2$s via email)',
-												allSubscribers,
-												'jetpack'
-											),
-											formatNumber( allSubscribers ),
-											formatNumber( emailSubscribers )
-										) }
-									</a>
+									{ subscriberStatsUrl
+										? DashboardLink(
+												true,
+												subscriberStatsUrl,
+												'all_subscribers_click',
+												subscribersText
+										  )
+										: subscribersText }
 								</span>
 							</span>
 						</span>
@@ -83,16 +99,14 @@ export const NewsletterWidget = ( {
 							</span>
 							<span className="newsletter-widget__stat-content">
 								<span className="newsletter-widget__stat-label">
-									<a
-										href={ getSubscriberStatsUrl( site, isWpcomSite, adminUrl ) }
-										onClick={ createTracksEventHandler( tracks, 'paid_subscribers_click' ) }
-									>
-										{ sprintf(
-											//translators: %s is the number of paid subscribers
-											_n( '%s paid subscriber', '%s paid subscribers', paidSubscribers, 'jetpack' ),
-											formatNumber( paidSubscribers )
-										) }
-									</a>
+									{ subscriberStatsUrl
+										? DashboardLink(
+												true,
+												subscriberStatsUrl,
+												'paid_subscribers_click',
+												paidSubscribersText
+										  )
+										: paidSubscribersText }
 								</span>
 							</span>
 						</span>
@@ -134,14 +148,16 @@ export const NewsletterWidget = ( {
 								{ __( 'Publish your next post', 'jetpack' ) }
 							</a>
 						</li>
-						<li>
-							{ DashboardLink(
-								true,
-								getSubscriberStatsUrl( site, isWpcomSite, adminUrl ),
-								'view_stats_click',
-								__( 'View subscriber stats', 'jetpack' )
-							) }
-						</li>
+						{ isStatsModuleActive && subscriberStatsUrl && (
+							<li>
+								{ DashboardLink(
+									true,
+									subscriberStatsUrl,
+									'view_stats_click',
+									__( 'View subscriber stats', 'jetpack' )
+								) }
+							</li>
+						) }
 						<li>
 							{ DashboardLink(
 								isWpcomSite,
@@ -173,14 +189,16 @@ export const NewsletterWidget = ( {
 								__( 'Monetize', 'jetpack' )
 							) }
 						</li>
-						<li>
-							{ DashboardLink(
-								true,
-								getNewsletterSettingsUrl( site, isWpcomSite, adminUrl ),
-								'newsletter_settings_click',
-								__( 'Newsletter settings', 'jetpack' )
-							) }
-						</li>
+						{ newsletterSettingsUrl && (
+							<li>
+								{ DashboardLink(
+									true,
+									newsletterSettingsUrl,
+									'newsletter_settings_click',
+									__( 'Newsletter settings', 'jetpack' )
+								) }
+							</li>
+						) }
 					</ul>
 				</div>
 			</div>

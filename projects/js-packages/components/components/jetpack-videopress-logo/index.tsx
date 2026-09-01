@@ -1,9 +1,9 @@
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import React from 'react';
 import { JetpackLogoProps } from './types.tsx';
+import type { FC } from 'react';
 
-const JetpackVideoPressLogo: React.FC< JetpackLogoProps > = ( {
+const JetpackVideoPressLogo: FC< JetpackLogoProps > = ( {
 	showText = true,
 	className,
 	height = 32,

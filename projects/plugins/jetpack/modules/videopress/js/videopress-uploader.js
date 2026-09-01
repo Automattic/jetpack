@@ -9,7 +9,11 @@ window.wp = window.wp || {};
 		 * This is the standard uploader response handler.
 		 */
 		handleStandardResponse: function ( response, file ) {
-			if ( ! _.isObject( response ) || _.isUndefined( response.success ) ) {
+			if (
+				response === null ||
+				typeof response !== 'object' ||
+				typeof response.success === 'undefined'
+			) {
 				return error( pluploadL10n.default_error, null, file );
 			} else if ( ! response.success ) {
 				return error( response.data && response.data.message, response.data, file );
@@ -134,21 +138,17 @@ window.wp = window.wp || {};
 						} );
 						cb( false );
 					} );
+			} else if ( typeof file.size !== 'undefined' && maxSize && file.size > maxSize ) {
+				// Invalid file size
+				this.trigger( 'Error', {
+					code: plupload.FILE_SIZE_ERROR,
+					message: plupload.translate( 'File size error.' ),
+					file: file,
+				} );
+				cb( false );
 			} else {
 				// Handles the normal max_file_size functionality.
-				var undef;
-
-				// Invalid file size
-				if ( file.size !== undef && maxSize && file.size > maxSize ) {
-					this.trigger( 'Error', {
-						code: plupload.FILE_SIZE_ERROR,
-						message: plupload.translate( 'File size error.' ),
-						file: file,
-					} );
-					cb( false );
-				} else {
-					cb( true );
-				}
+				cb( true );
 			}
 		} );
 	}

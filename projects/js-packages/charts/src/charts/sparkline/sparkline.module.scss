@@ -1,0 +1,18 @@
+.sparkline {
+	display: inline-block;
+	vertical-align: middle;
+	line-height: 1;
+
+	svg {
+		display: block;
+		overflow: visible;
+	}
+
+	path {
+		vector-effect: non-scaling-stroke;
+	}
+
+	&--empty {
+		display: inline-block;
+	}
+}

@@ -191,7 +191,7 @@ class Jetpack_Sync_Functions_Test extends Jetpack_Sync_TestBase {
 	}
 
 	public function assertCallableIsSynced( $name, $value ) {
-		$this->assertEqualsObject( $value, $this->server_replica_storage->get_callable( $name ), 'Function ' . $name . ' didn\'t have the expected value of ' . json_encode( $value ) );
+		$this->assertEqualsObject( $value, $this->server_replica_storage->get_callable( $name ), 'Function ' . $name . ' didn\'t have the expected value of ' . json_encode( $value, JSON_UNESCAPED_SLASHES ) );
 	}
 
 	public function test_white_listed_callables_doesnt_get_synced_twice() {
@@ -787,27 +787,22 @@ class Jetpack_Sync_Functions_Test extends Jetpack_Sync_TestBase {
 		}
 
 		global $wp_post_types;
-		$synced = Functions::get_post_types();
+
+		$synced_post_types  = Functions::get_post_types();
+		$keys_we_care_about = array_keys( Defaults::$default_post_type_attributes );
+
 		foreach ( $wp_post_types as $post_type => $post_type_object ) {
-			$post_type_object->rest_controller_class = false;
-			$post_type_object->rest_controller       = null;
-			if ( isset( $post_type_object->revisions_rest_controller_class ) ) {
-				$post_type_object->revisions_rest_controller_class = false;
-			}
-			if ( isset( $post_type_object->autosave_rest_controller_class ) ) {
-				$post_type_object->autosave_rest_controller_class = false;
-			}
-			if ( isset( $post_type_object->late_route_registration ) ) {
-				$post_type_object->late_route_registration = false;
-			}
-			if ( ! isset( $post_type_object->supports ) ) {
-				$post_type_object->supports = array();
-			}
-			$synced_post_type = Functions::expand_synced_post_type( $synced[ $post_type ], $post_type );
-			if ( isset( $synced_post_type->labels->template_name ) ) {
-				$post_type_object->labels->template_name = $synced_post_type->labels->template_name;
-			}
-			$this->assertEqualsObject( $post_type_object, $synced_post_type, 'POST TYPE :' . $post_type . ' not equal' );
+			// remove 'null' elements.
+			$post_type_arr    = array_filter(
+				(array) $post_type_object,
+				function ( $item ) {
+					return null !== $item;
+				}
+			);
+			$synced_post_type = (array) $synced_post_types[ $post_type ];
+			ksort( $post_type_arr );
+			ksort( $synced_post_type );
+			$this->assertArrayIsIdenticalToArrayOnlyConsideringListOfKeys( $post_type_arr, $synced_post_type, $keys_we_care_about );
 		}
 	}
 
@@ -923,10 +918,7 @@ class Jetpack_Sync_Functions_Test extends Jetpack_Sync_TestBase {
 			),
 		);
 
-		if (
-			! is_multisite()
-				&& ( ! defined( 'IS_ATOMIC' ) || ! IS_ATOMIC )
-		) {
+		if ( ! defined( 'IS_ATOMIC' ) || ! IS_ATOMIC ) {
 			$expected_array['jetpack/jetpack.php']['My Jetpack'] = admin_url( 'admin.php?page=my-jetpack' );
 		}
 
@@ -965,12 +957,12 @@ class Jetpack_Sync_Functions_Test extends Jetpack_Sync_TestBase {
 	public function extract_plugins_we_are_testing( $plugins_action_links ) {
 		$only_plugins_we_care_about = array();
 		if ( isset( $plugins_action_links['hello.php'] ) ) {
-			$only_plugins_we_care_about['hello.php'] = isset( $plugins_action_links['hello.php'] ) ? $plugins_action_links['hello.php'] : '';
+			$only_plugins_we_care_about['hello.php'] = $plugins_action_links['hello.php'] ?? '';
 		} else {
-			$only_plugins_we_care_about['hello.php'] = isset( $plugins_action_links['hello-dolly/hello.php'] ) ? $plugins_action_links['hello-dolly/hello.php'] : '';
+			$only_plugins_we_care_about['hello.php'] = $plugins_action_links['hello-dolly/hello.php'] ?? '';
 		}
 
-		$only_plugins_we_care_about['jetpack/jetpack.php'] = isset( $plugins_action_links['jetpack/jetpack.php'] ) ? $plugins_action_links['jetpack/jetpack.php'] : '';
+		$only_plugins_we_care_about['jetpack/jetpack.php'] = $plugins_action_links['jetpack/jetpack.php'] ?? '';
 		return $only_plugins_we_care_about;
 	}
 
@@ -1096,6 +1088,38 @@ class Jetpack_Sync_Functions_Test extends Jetpack_Sync_TestBase {
 			)
 		);
 		remove_filter( 'pre_http_request', array( 'Jetpack_Sync_TestBase', 'pre_http_request_wordpress_org_updates' ) );
+
+		$this->sender->do_sync();
+		$synced_value3           = $this->server_replica_storage->get_callable( 'jetpack_foo' );
+		Settings::$is_doing_cron = false;
+		$this->assertNotEmpty( $synced_value3, 'value is empty!' );
+	}
+
+	/**
+	 * Test that deleting a plugin forces a callable sync.
+	 *
+	 * Deleting an inactive plugin fires neither 'upgrader_process_complete' nor
+	 * 'update_option_active_plugins', so the 'deleted_plugin' action must unlock
+	 * callables on its own to keep the synced get_plugins list fresh.
+	 */
+	public function test_force_sync_callable_on_plugin_delete() {
+		// fake the cron so that we really prevent the callables from being called.
+		Settings::$is_doing_cron = true;
+
+		$this->callable_module->set_callable_whitelist( array( 'jetpack_foo' => 'jetpack_foo_is_callable_random' ) );
+		$this->sender->do_sync();
+		$this->server_replica_storage->get_callable( 'jetpack_foo' );
+
+		$this->server_replica_storage->reset();
+
+		$synced_value2 = $this->server_replica_storage->get_callable( 'jetpack_foo' );
+		$this->assertEmpty( $synced_value2 );
+
+		// WordPress fires 'delete_plugin' before 'deleted_plugin'; the former
+		// captures the plugin info that the latter reads, so fire both to mirror
+		// real deletion and avoid an "undefined array key" warning.
+		do_action( 'delete_plugin', 'the/the.php' );
+		do_action( 'deleted_plugin', 'the/the.php', true );
 
 		$this->sender->do_sync();
 		$synced_value3           = $this->server_replica_storage->get_callable( 'jetpack_foo' );
@@ -1318,7 +1342,7 @@ class Jetpack_Sync_Functions_Test extends Jetpack_Sync_TestBase {
 		 *
 		 * @return boolean
 		 */
-		function is_wpe() { // phpcs:ignore MediaWiki.Usage.NestedFunctions.NestedFunction
+		function is_wpe() { // phpcs:ignore Squiz.PHP.InnerFunctions.NotAllowed
 			return true;
 		}
 
@@ -1469,6 +1493,8 @@ function jetpack_foo_is_callable_random() {
 // phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound
 /**
  * Example Test Taxonomy
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class ABC_FOO_TEST_Taxonomy_Example {
 
@@ -1482,7 +1508,7 @@ class ABC_FOO_TEST_Taxonomy_Example {
 			'posts',
 			array(
 				'meta_box_cb'           => 'bob',
-				'update_count_callback' => array( $this, 'callback_update_count_callback_tags' ), // phpcs:ignore WordPress.Arrays.CommaAfterArrayItem.NoComma
+				'update_count_callback' => array( $this, 'callback_update_count_callback_tags' ),
 				'rest_controller_class' => 'tom',
 			)
 		);

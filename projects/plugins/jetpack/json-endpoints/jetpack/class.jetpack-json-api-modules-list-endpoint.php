@@ -1,9 +1,15 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileNames
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Modules list endpoint.
  *
  * GET /sites/%s/jetpack/modules
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Jetpack_JSON_API_Modules_List_Endpoint extends Jetpack_JSON_API_Modules_Endpoint {
 

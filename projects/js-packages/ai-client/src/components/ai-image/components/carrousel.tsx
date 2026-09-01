@@ -1,17 +1,12 @@
-/**
- * External dependencies
- */
 import { Spinner } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon, chevronLeft, chevronRight } from '@wordpress/icons';
 import clsx from 'clsx';
-/**
- * Internal dependencies
- */
 import AiFeedbackThumbs from '../../ai-feedback/index.tsx';
 import AiIcon from '../../ai-icon/index.tsx';
 import './carrousel.scss';
+import type { JSX, ReactElement, ReactNode } from 'react';
 
 export type CarrouselImageData = {
 	image?: string;
@@ -28,7 +23,7 @@ export type CarrouselImageData = {
 export type CarrouselImages = CarrouselImageData[];
 
 type BlankImageProps = {
-	children: React.ReactNode;
+	children: ReactNode;
 	isDotted?: boolean;
 	contentClassName?: string;
 };
@@ -36,7 +31,7 @@ type BlankImageProps = {
 /**
  * BlankImage component
  * @param {BlankImageProps} props - The component properties.
- * @return {React.ReactElement} - rendered component.
+ * @return {ReactElement} - rendered component.
  */
 function BlankImage( { children, isDotted = false, contentClassName = '' }: BlankImageProps ) {
 	const blankImage = (
@@ -66,13 +61,13 @@ type CarrouselProps = {
 	current: number;
 	handlePreviousImage: () => void;
 	handleNextImage: () => void;
-	actions?: React.JSX.Element;
+	actions?: JSX.Element;
 };
 
 /**
  * Carrousel component
  * @param {CarrouselProps} props - The component properties.
- * @return {React.ReactElement} - rendered component.
+ * @return {ReactElement} - rendered component.
  */
 export default function Carrousel( {
 	images,

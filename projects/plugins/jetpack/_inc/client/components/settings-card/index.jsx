@@ -1,11 +1,13 @@
+import { getUserConnectionUrl } from '@automattic/jetpack-connection';
+import { getSiteFragment } from '@automattic/jetpack-shared-extension-utils';
+import { Card, CardHeader, CardBody } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
-import { get, includes } from 'lodash';
+import { addQueryArgs } from '@wordpress/url';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Button from 'components/button';
 import JetpackBanner from 'components/jetpack-banner';
 import ModuleOverridenBanner from 'components/module-overridden-banner';
-import SectionHeader from 'components/section-header';
 import analytics from 'lib/analytics';
 import {
 	FEATURE_SECURITY_SCANNING_JETPACK,
@@ -24,6 +26,8 @@ import {
 	getJetpackProductUpsellByFeature,
 	FEATURE_JETPACK_BLAZE,
 	FEATURE_JETPACK_EARN,
+	FEATURE_ADVANCED_SEO,
+	PLAN_BUSINESS,
 } from 'lib/plans/constants';
 import ProStatus from 'pro-status';
 import {
@@ -34,7 +38,6 @@ import { isAkismetKeyValid, isCheckingAkismetKey, getVaultPressData } from 'stat
 import {
 	hasConnectedOwner as hasConnectedOwnerSelector,
 	isOfflineMode,
-	connectUser,
 	isUnavailableInOfflineMode,
 } from 'state/connection';
 import {
@@ -75,22 +78,22 @@ export const SettingsCard = inprops => {
 		} );
 	};
 
-	const handleConnectClick = ( feature, featureLabel ) => {
+	const handleConnectClick = feature => {
 		return () => {
 			trackConnectClick( feature );
-			props.doConnectUser( featureLabel );
+			window.location.href = getUserConnectionUrl();
 		};
 	};
 
 	const module = props.module ? props.getModule( props.module ) : false,
 		vpData = props.vaultPressData,
-		backupsEnabled = get( vpData, [ 'data', 'features', 'backups' ], false ),
-		scanEnabled = get( vpData, [ 'data', 'features', 'security' ], false );
+		backupsEnabled = vpData?.data?.features?.backups ?? false,
+		scanEnabled = vpData?.data?.features?.security ?? false;
 
 	// Non admin users only get Publicize and Post by Email settings.
 	if (
 		! props.userCanManageModules &&
-		! includes( [ 'post-by-email', 'publicize' ], props.module )
+		! [ 'post-by-email', 'publicize' ].includes( props.module )
 	) {
 		return <span />;
 	}
@@ -435,7 +438,7 @@ export const SettingsCard = inprops => {
 						) }
 						plan={ getJetpackProductUpsellByFeature( FEATURE_SIMPLE_PAYMENTS_JETPACK ) }
 						feature={ feature }
-						onclick={ props.doConnectUser }
+						onClick={ handleConnectClick( feature ) }
 						rna
 					/>
 				);
@@ -458,6 +461,27 @@ export const SettingsCard = inprops => {
 						rna
 					/>
 				);
+
+			case FEATURE_ADVANCED_SEO:
+				if ( props.hasAdvancedSeo || props.inOfflineMode || ! props.hasConnectedOwner ) {
+					return '';
+				}
+
+				return (
+					<JetpackBanner
+						title={ __(
+							'Optimize your site for search engines with advanced SEO tools and preview how your content will look on Google, Facebook, and Twitter.',
+							'jetpack'
+						) }
+						callToAction={ upgradeLabel() }
+						plan={ getJetpackProductUpsellByFeature( FEATURE_ADVANCED_SEO ) }
+						feature={ feature }
+						onClick={ handleClickForTracking( feature ) }
+						href={ props.seoUpgradeUrl }
+						rna
+					/>
+				);
+
 			default:
 				return '';
 		}
@@ -492,6 +516,13 @@ export const SettingsCard = inprops => {
 
 			case FEATURE_SPAM_AKISMET_PLUS:
 				if ( ! props.hasAntispam && ! props.isAkismetKeyValid && ! props.isCheckingAkismetKey ) {
+					return false;
+				}
+
+				break;
+
+			case FEATURE_ADVANCED_SEO:
+				if ( ! props.hasAdvancedSeo ) {
 					return false;
 				}
 
@@ -547,41 +578,47 @@ export const SettingsCard = inprops => {
 
 	return (
 		getGoogleAnalyticsOverridenBanner() || (
-			<form
-				{ ...( moduleId ? { id: moduleId } : null ) }
-				className={ `jp-form-settings-card` }
-				onSubmit={ ! isDisabled && ! isSaving ? props.onSubmit : undefined }
-			>
-				<SectionHeader label={ header }>
-					{ ! props.hideButton && (
-						<Button
-							primary
-							rna
-							compact
-							type="submit"
-							disabled={ isDisabled || isSaving || ! props.isDirty() }
-						>
-							{ isSaving
-								? _x( 'Saving…', 'Button caption', 'jetpack' )
-								: _x(
-										'Save settings',
-										'Button caption',
-										'jetpack',
-										/* dummy arg to avoid bad minification */ 0
-								  ) }
-						</Button>
-					) }
-					{ props.action && (
-						<ProStatus
-							proFeature={ props.action }
-							siteAdminUrl={ props.siteAdminUrl }
-							isCompact={ false }
-						/>
-					) }
-				</SectionHeader>
-				{ children }
-				{ banner }
-			</form>
+			<Card className="jp-form-settings-card">
+				<form
+					{ ...( moduleId ? { id: moduleId } : null ) }
+					onSubmit={ ! isDisabled && ! isSaving ? props.onSubmit : undefined }
+				>
+					<CardHeader className="jp-form-settings-card__header">
+						<span className="jp-form-settings-card__header-label">{ header }</span>
+						<div className="jp-form-settings-card__header-actions">
+							{ ! props.hideButton && (
+								<Button
+									primary
+									rna
+									compact
+									type="submit"
+									disabled={ isDisabled || isSaving || ! props.isDirty() }
+								>
+									{ isSaving
+										? _x( 'Saving…', 'Button caption', 'jetpack' )
+										: _x(
+												'Save settings',
+												'Button caption',
+												'jetpack',
+												/* dummy arg to avoid bad minification */ 0
+										  ) }
+								</Button>
+							) }
+							{ props.action && (
+								<ProStatus
+									proFeature={ props.action }
+									siteAdminUrl={ props.siteAdminUrl }
+									isCompact={ false }
+								/>
+							) }
+						</div>
+					</CardHeader>
+					<CardBody size="none">
+						{ children }
+						{ banner }
+					</CardBody>
+				</form>
+			</Card>
 		)
 	);
 };
@@ -592,40 +629,55 @@ SettingsCard.propTypes = {
 	isDisabled: PropTypes.bool,
 };
 
-export default connect(
-	state => {
-		return {
-			fetchingSiteData: isFetchingSiteData( state ),
-			siteAdminUrl: getSiteAdminUrl( state ),
-			userCanManageModules: userCanManageModules( state ),
-			isAkismetKeyValid: isAkismetKeyValid( state ),
-			isCheckingAkismetKey: isCheckingAkismetKey( state ),
-			vaultPressData: getVaultPressData( state ),
-			getModuleOverride: module_name => getModuleOverride( state, module_name ),
-			getModule: module_name => getModule( state, module_name ),
-			adsUpgradeUrl: getUpgradeUrl( state, 'jetpack-creator-cta' ),
-			securityUpgradeUrl: getProductDescriptionUrl( state, 'security' ),
-			scanUpgradeUrl: getProductDescriptionUrl( state, 'scan' ),
-			gaUpgradeUrl: getUpgradeUrl( state, 'settings-ga' ),
-			searchUpgradeUrl: getProductDescriptionUrl( state, 'search' ),
-			simplePaymentsUpgradeUrl: getUpgradeUrl( state, 'jetpack-creator-cta' ),
-			spamUpgradeUrl: getProductDescriptionUrl( state, 'akismet' ),
-			multisite: isMultisite( state ),
-			inOfflineMode: isOfflineMode( state ),
-			hasConnectedOwner: hasConnectedOwnerSelector( state ),
-			hasAntispam: siteHasFeature( state, 'antispam' ),
-			hasBackups: siteHasFeature( state, 'backups' ),
-			hasGoogleAnalytics: siteHasFeature( state, 'google-analytics' ),
-			hasInstantSearch: siteHasFeature( state, 'instant-search' ),
-			hasScan: siteHasFeature( state, 'scan' ),
-			hasSimplePayments: siteHasFeature( state, 'simple-payments' ),
-			hasVideoPress: siteHasFeature( state, 'videopress' ),
-			hasWordAds: siteHasFeature( state, 'wordads' ),
-			isUnavailableInOfflineMode: module_name => isUnavailableInOfflineMode( state, module_name ),
-			blazeAvailable: shouldInitializeBlaze( state ),
-		};
-	},
-	dispatch => ( {
-		doConnectUser: featureLabel => dispatch( connectUser( featureLabel ) ),
-	} )
-)( SettingsCard );
+/**
+ * Get the SEO upgrade URL, pointing to WordPress.com Business plan.
+ * Since ADVANCED_SEO is available on JETPACK_ALL_SITES, if the feature is unavailable,
+ * the user is on WordPress.com/Atomic and needs Business plan.
+ *
+ * @param {object} state - Redux state
+ * @return {string} Upgrade URL
+ */
+const getSeoUpgradeUrl = state => {
+	const siteFragment = getSiteFragment();
+	const redirectTo = addQueryArgs( getSiteAdminUrl( state ) + 'admin.php?page=jetpack#/traffic', {
+		feature: 'seo',
+	} );
+	return addQueryArgs( `https://wordpress.com/checkout/${ siteFragment }/${ PLAN_BUSINESS }`, {
+		redirect_to: redirectTo,
+	} );
+};
+
+export default connect( state => {
+	return {
+		fetchingSiteData: isFetchingSiteData( state ),
+		siteAdminUrl: getSiteAdminUrl( state ),
+		userCanManageModules: userCanManageModules( state ),
+		isAkismetKeyValid: isAkismetKeyValid( state ),
+		isCheckingAkismetKey: isCheckingAkismetKey( state ),
+		vaultPressData: getVaultPressData( state ),
+		getModuleOverride: module_name => getModuleOverride( state, module_name ),
+		getModule: module_name => getModule( state, module_name ),
+		adsUpgradeUrl: getUpgradeUrl( state, 'jetpack-creator-cta' ),
+		securityUpgradeUrl: getProductDescriptionUrl( state, 'security' ),
+		scanUpgradeUrl: getProductDescriptionUrl( state, 'scan' ),
+		gaUpgradeUrl: getUpgradeUrl( state, 'settings-ga' ),
+		searchUpgradeUrl: getProductDescriptionUrl( state, 'search' ),
+		simplePaymentsUpgradeUrl: getUpgradeUrl( state, 'jetpack-creator-cta' ),
+		spamUpgradeUrl: getProductDescriptionUrl( state, 'akismet' ),
+		seoUpgradeUrl: getSeoUpgradeUrl( state ),
+		multisite: isMultisite( state ),
+		inOfflineMode: isOfflineMode( state ),
+		hasConnectedOwner: hasConnectedOwnerSelector( state ),
+		hasAdvancedSeo: siteHasFeature( state, 'advanced-seo' ),
+		hasAntispam: siteHasFeature( state, 'antispam' ),
+		hasBackups: siteHasFeature( state, 'backups' ),
+		hasGoogleAnalytics: siteHasFeature( state, 'google-analytics' ),
+		hasInstantSearch: siteHasFeature( state, 'instant-search' ),
+		hasScan: siteHasFeature( state, 'scan' ),
+		hasSimplePayments: siteHasFeature( state, 'simple-payments' ),
+		hasVideoPress: siteHasFeature( state, 'videopress' ),
+		hasWordAds: siteHasFeature( state, 'wordads' ),
+		isUnavailableInOfflineMode: module_name => isUnavailableInOfflineMode( state, module_name ),
+		blazeAvailable: shouldInitializeBlaze( state ),
+	};
+} )( SettingsCard );

@@ -1,5 +1,3 @@
-import React from 'react';
-
 const TextRowPlaceHolder = props => {
 	const defaultStyles = {
 		display: 'inline-block',

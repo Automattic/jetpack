@@ -1,0 +1,236 @@
+@use "sass:meta";
+@use "@automattic/jetpack-base-styles/admin-page-layout" as *;
+
+// DataViews ships its structural table, toolbar, and row styles separately.
+// It is bundled with the AI Hub rather than enqueued by WordPress.
+@include meta.load-css("@wordpress/dataviews/build-style/style.css");
+
+body.jetpack_page_jetpack-ai {
+
+	@include jetpack-admin-page-layout;
+}
+
+.jetpack-ai-admin {
+	// Content wrapper inside AdminPage's fluid container.
+	// Use border-box so the 24px padding is included in the 100% width,
+	// preventing horizontal overflow from content-box sizing.
+	// max-width matches the Figma design constraint.
+	&__content {
+		box-sizing: border-box;
+		width: 100%;
+		max-width: 660px;
+		margin: 0 auto;
+		padding: 24px;
+
+		&--scheduled-tasks {
+			max-width: 1280px;
+		}
+	}
+
+	&__breadcrumbs {
+		// admin-ui sets list-style:none but no flex layout — add it here.
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		min-height: auto;
+		padding: 0;
+		margin: 0;
+
+		li {
+			display: flex;
+			align-items: center;
+			margin-bottom: 0;
+		}
+
+		// Render a "/" separator between adjacent breadcrumb items.
+		// Mirrors @wordpress/admin-ui's Breadcrumbs component, which we
+		// can't drop in directly because it requires @wordpress/route
+		// for navigation — we use hash-based routing here.
+		li + li::before {
+			content: "/";
+			margin: 0 8px;
+			color: var(--wpds-color-stroke-surface-neutral, #c3c4c7);
+		}
+	}
+
+	// Both pieces of the breadcrumb match the wpds `heading-lg` type token
+	// (the same one admin-ui's Page uses for the hub's "AI" h1 title), so
+	// the header on sub-views reads as "AI / Read" with the same size and
+	// weight as the hub heading.
+	&__breadcrumb-link,
+	&__breadcrumb-current {
+		font-family: var(--wpds-typography-font-family-heading, inherit);
+		font-size: var(--wpds-typography-font-size-lg, 15px);
+		font-weight: var(--wpds-typography-font-weight-emphasis, 500);
+		line-height: var(--wpds-typography-line-height-sm, 20px);
+	}
+
+	&__breadcrumb-link {
+		display: inline-flex;
+		align-items: center;
+		gap: 6px;
+		background: none;
+		border: none;
+		padding: 0;
+		cursor: pointer;
+		color: inherit;
+		text-decoration: none;
+
+		&:hover {
+			text-decoration: underline;
+		}
+	}
+
+	&__breadcrumb-current {
+		margin: 0;
+	}
+
+	&__loading {
+		display: flex;
+		justify-content: center;
+		padding: 48px 0;
+	}
+}
+
+.jetpack-ai-scheduled-tasks {
+
+	&__header {
+		display: flex;
+		align-items: flex-start;
+		justify-content: space-between;
+		gap: 24px;
+		margin-block-end: 24px;
+
+		h2,
+		p {
+			margin-block: 0 4px;
+		}
+	}
+
+	&__empty {
+		max-width: 520px;
+		margin: 96px auto;
+		text-align: center;
+
+		h2 {
+			margin-block-end: 8px;
+		}
+
+		p {
+			margin-block: 0 24px;
+			color: var(--wpds-color-foreground-content-neutral-weak, #50575e);
+		}
+	}
+
+	&__task-link {
+		padding: 0;
+		border: 0;
+		background: none;
+		color: var(--wp-admin-theme-color, #3858e9);
+		font: inherit;
+		font-weight: 500;
+		text-align: start;
+		cursor: pointer;
+	}
+
+	&__context-card {
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
+		overflow-wrap: anywhere;
+	}
+
+	&__summary {
+		white-space: normal;
+
+		> :first-child {
+			margin-block-start: 0;
+		}
+
+		> :last-child {
+			margin-block-end: 0;
+		}
+	}
+
+	&__confirm-actions {
+		display: flex;
+		justify-content: flex-end;
+		gap: 8px;
+		margin-block-start: 24px;
+	}
+}
+
+// Keeps the notice link on one line, so it does not wrap mid-phrase.
+.jetpack-ai-features__notice-link {
+	white-space: nowrap;
+}
+
+// Feature rows: the design aligns the action link with the label's text
+// column. ToggleControl already indents its own help text; only the link
+// (rendered outside the control) needs the matching offset — 40px, same as
+// .components-toggle-control__help (32px toggle track plus its 8px gap).
+.jetpack-ai-features__action {
+	margin-inline-start: 40px;
+}
+
+// The Agent capabilities card, values read off the Figma (AI-Settings
+// node 6021-4152): 20px card padding with 24px above the title. The
+// Card.FullBleed dividers inherit the same padding var for their
+// edge-to-edge negative margins, so they stay in sync.
+.jetpack-ai-features__card {
+	--wp-ui-card-padding: var(--wpds-dimension-padding-xl, 20px);
+}
+
+.jetpack-ai-features__card-content {
+	padding-block-start: var(--wpds-dimension-padding-2xl, 24px);
+}
+
+// Figma: Body SM in foreground/content/neutral-weak.
+.jetpack-ai-features__card-subtitle {
+	color: var(--wpds-color-foreground-content-neutral-weak, #707070);
+}
+
+// Section divider inside the Agent capabilities card. Card.FullBleed already
+// pulls the hr edge-to-edge past the card padding (margin-inline); this only
+// draws the rule and sets the vertical rhythm.
+.jetpack-ai-features__divider {
+	border: 0;
+	// Fallbacks match the token values — the theme token sheet is not loaded
+	// on this page, and two undefined vars would invalidate the whole
+	// shorthand (no rule drawn at all).
+	border-block-start:
+		var(--wpds-border-width-xs, 1px) solid
+		var(--wpds-color-stroke-surface-neutral, #dbdbdb);
+	// Figma rhythm: 20px after a section's rows, 16px before the next header;
+	// the first divider sits 16px under the card subtitle instead.
+	margin-block: var(--wpds-dimension-padding-xl, 20px) var(--wpds-dimension-padding-lg, 16px);
+
+	&:first-of-type {
+		margin-block-start: var(--wpds-dimension-padding-lg, 16px);
+	}
+}
+
+// Section header: title left, optional "Requires upgrade" badge right,
+// matching the Search group in the design.
+.jetpack-ai-features__section-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+
+// The badge doubles as a popover trigger — a real button, so keyboard focus
+// and screen readers reach the remedy copy. Strip the button chrome so only
+// the badge itself shows (same reset as the Forms "Not collecting" badge).
+.jetpack-ai-features__upgrade-badge {
+	display: inline-flex;
+	padding: 0;
+	border: 0;
+	background: none;
+	cursor: help;
+}
+
+// The tab badge sits inline after the tab label; the Tabs.Tab button provides
+// no gap between its children, so give the badge its own start margin.
+.jetpack-ai-admin__tab-badge {
+	margin-inline-start: 8px;
+}

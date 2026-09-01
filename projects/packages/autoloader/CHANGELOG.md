@@ -5,6 +5,74 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.0.0] - 2026-08-26
+### Removed
+- Minimum supported PHP version is now 7.4. [#51515]
+
+## [5.0.23] - 2026-08-11
+### Removed
+- Stop applying the root package's `exclude-from-classmap` autoload setting when generating the Jetpack class map. [#51179]
+
+## [5.0.22] - 2026-08-03
+### Fixed
+- Honor the root package's `exclude-from-classmap` autoload setting when generating the Jetpack class map, matching Composer's own behavior. It was previously parsed but never applied. [#50369]
+
+## [5.0.21] - 2026-07-13
+### Changed
+- Internal updates.
+
+## [5.0.20] - 2026-06-15
+### Changed
+- Internal updates.
+
+## [5.0.19] - 2026-06-08
+### Changed
+- Internal updates.
+
+## [5.0.18] - 2026-05-19
+### Changed
+- Internal updates.
+
+## [5.0.17] - 2026-05-04
+### Changed
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+
+## [5.0.16] - 2026-02-16
+### Changed
+- Internal updates.
+
+## [5.0.15] - 2025-12-15
+### Changed
+- Internal updates.
+
+## [5.0.14] - 2025-12-08
+### Fixed
+- Ensure proper flags are used with `json_encode()`. [#46092]
+
+## [5.0.13] - 2025-11-12
+### Changed
+- Internal updates.
+
+## [5.0.12] - 2025-11-10
+### Fixed
+- Tests: Improve compatibility with PHP 8.5. [#45771]
+
+## [5.0.11] - 2025-10-06
+### Fixed
+- Tests: Replace deprecated `RunClassInSeparateProcess` attribute with `RunTestsInSeparateProcesses`. [#45370]
+
+## [5.0.10] - 2025-09-15
+### Changed
+- Internal updates.
+
+## [5.0.9] - 2025-07-28
+### Changed
+- Exclude development files from production build of the package. [#44456]
+
+## [5.0.8] - 2025-06-23
+### Fixed
+- Autoloader: Prevent double slash in autoloader path. [#44030]
+
 ## [5.0.7] - 2025-04-28
 ### Changed
 - Internal updates.
@@ -426,6 +494,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add Custom Autoloader
 
+[6.0.0]: https://github.com/Automattic/jetpack-autoloader/compare/v5.0.23...v6.0.0
+[5.0.23]: https://github.com/Automattic/jetpack-autoloader/compare/v5.0.22...v5.0.23
+[5.0.22]: https://github.com/Automattic/jetpack-autoloader/compare/v5.0.21...v5.0.22
+[5.0.21]: https://github.com/Automattic/jetpack-autoloader/compare/v5.0.20...v5.0.21
+[5.0.20]: https://github.com/Automattic/jetpack-autoloader/compare/v5.0.19...v5.0.20
+[5.0.19]: https://github.com/Automattic/jetpack-autoloader/compare/v5.0.18...v5.0.19
+[5.0.18]: https://github.com/Automattic/jetpack-autoloader/compare/v5.0.17...v5.0.18
+[5.0.17]: https://github.com/Automattic/jetpack-autoloader/compare/v5.0.16...v5.0.17
+[5.0.16]: https://github.com/Automattic/jetpack-autoloader/compare/v5.0.15...v5.0.16
+[5.0.15]: https://github.com/Automattic/jetpack-autoloader/compare/v5.0.14...v5.0.15
+[5.0.14]: https://github.com/Automattic/jetpack-autoloader/compare/v5.0.13...v5.0.14
+[5.0.13]: https://github.com/Automattic/jetpack-autoloader/compare/v5.0.12...v5.0.13
+[5.0.12]: https://github.com/Automattic/jetpack-autoloader/compare/v5.0.11...v5.0.12
+[5.0.11]: https://github.com/Automattic/jetpack-autoloader/compare/v5.0.10...v5.0.11
+[5.0.10]: https://github.com/Automattic/jetpack-autoloader/compare/v5.0.9...v5.0.10
+[5.0.9]: https://github.com/Automattic/jetpack-autoloader/compare/v5.0.8...v5.0.9
+[5.0.8]: https://github.com/Automattic/jetpack-autoloader/compare/v5.0.7...v5.0.8
 [5.0.7]: https://github.com/Automattic/jetpack-autoloader/compare/v5.0.6...v5.0.7
 [5.0.6]: https://github.com/Automattic/jetpack-autoloader/compare/v5.0.5...v5.0.6
 [5.0.5]: https://github.com/Automattic/jetpack-autoloader/compare/v5.0.4...v5.0.5

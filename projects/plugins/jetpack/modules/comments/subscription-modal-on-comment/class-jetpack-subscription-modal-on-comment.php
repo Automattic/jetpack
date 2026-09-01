@@ -11,6 +11,10 @@ use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Abstract_
 use Automattic\Jetpack\Status\Host;
 use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Jetpack_Subscription_Modal_On_Comment class.
  */
@@ -183,6 +187,11 @@ HTML;
 
 		// Don't show if post is for subscribers only or has paywall block
 		global $post;
+
+		if ( ! $post instanceof WP_Post ) {
+			return false;
+		}
+
 		if ( defined( 'Automattic\\Jetpack\\Extensions\\Subscriptions\\META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS' ) ) {
 			$access_level = get_post_meta( $post->ID, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, true );
 		} else {

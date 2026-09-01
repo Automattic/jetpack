@@ -9,20 +9,20 @@ import {
 	useAiFeature,
 } from '@automattic/jetpack-ai-client';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
-import { BlockControls, useBlockProps } from '@wordpress/block-editor';
+import { BlockControls, store as blockEditorStore, useBlockProps } from '@wordpress/block-editor';
 import { createHigherOrderComponent } from '@wordpress/compose';
-import { useDispatch, useSelect } from '@wordpress/data';
+import { useDispatch, useRegistry, useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useState, useRef, useMemo } from '@wordpress/element';
-import { addFilter } from '@wordpress/hooks';
+import { addFilter, doAction } from '@wordpress/hooks';
 import clsx from 'clsx';
 import debugFactory from 'debug';
-import React from 'react';
 /*
  * Internal dependencies
  */
 import useAutoScroll from '../../hooks/use-auto-scroll';
 import useBlockModuleStatus from '../../hooks/use-block-module-status';
 import { mapInternalPromptTypeToBackendPromptType } from '../../lib/prompt/backend-prompt';
+import { isAiSidebarToolbarButtonEnabled } from '../lib/can-ai-assistant-be-enabled';
 import AiAssistantInput from './components/ai-assistant-input';
 import AiAssistantExtensionToolbarDropdown from './components/ai-assistant-toolbar-dropdown';
 import { getBlockHandler, InlineExtensionsContext } from './get-block-handler';
@@ -41,7 +41,9 @@ import type {
 	PromptItemProps,
 	RequestingStateProp,
 	AiModelTypeProp,
+	Block,
 } from '@automattic/jetpack-ai-client';
+import type { MutableRefObject } from 'react';
 
 const debug = debugFactory( 'jetpack-ai-assistant:extensions:with-ai-extension' );
 
@@ -69,6 +71,8 @@ type RequestOptions = {
 
 type CoreEditorDispatch = { undo: () => Promise< void > };
 type CoreEditorSelect = { getCurrentPostId: () => number };
+// Not part of the block editor store's published types, though it is a real selector.
+type BlockInsertionSelect = { wasBlockJustInserted: ( clientId: string ) => boolean };
 
 // HOC to populate the block's edit component with the AI Assistant control input and toolbar button.
 const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
@@ -76,14 +80,14 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 		// Block props. isSelectionEnabled is used to determine if the block is in the editor or in the preview.
 		const { clientId, isSelected, name: blockName, isSelectionEnabled } = props;
 		// Ref to the control wrapper, its height and its ResizeObserver, for positioning adjustments.
-		const controlRef: React.MutableRefObject< HTMLDivElement | null > = useRef( null );
+		const controlRef: MutableRefObject< HTMLDivElement | null > = useRef( null );
 		const controlHeight = useRef< number >( 0 );
 		const controlObserver = useRef< ResizeObserver | null >( null );
 		// Ref to the original block padding to reset it when the AI Control is closed.
 		const blockOriginalPaddingBottom = useRef< string >( '' );
 		// Ref to the input element to focus on it when the AI Control is displayed or when a request is done.
 		// Also used to determine the ownerDocument, as the editor can be in an iframe.
-		const inputRef: React.MutableRefObject< HTMLInputElement | null > = useRef( null );
+		const inputRef: MutableRefObject< HTMLInputElement | null > = useRef( null );
 		const ownerDocument = useRef< Document >( document );
 		// Ref to the chat history to keep track of the messages that were sent and the assistant responses.
 		const chatHistory = useRef< PromptMessagesProp >( [] );
@@ -97,7 +101,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 		const lastRequest = useRef< RequestOptions | null >( null );
 		// Ref to the requesting state to use it in the hideOnBlockFocus effect.
 		const requestingStateRef = useRef< RequestingStateProp | null >( null );
-
+		const timelapse = useRef( null );
 		// Data and functions from the editor.
 		const { undo } = useDispatch( 'core/editor' ) as CoreEditorDispatch;
 		const { postId } = useSelect( select => {
@@ -110,6 +114,8 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 		const { id, className } = useBlockProps( {
 			className: clsx( { [ blockName?.replace?.( '/', '-' ) ]: true } ),
 		} );
+
+		const registry = useRegistry();
 
 		// Jetpack AI Assistant feature functions.
 		const { increaseRequestsCount, dequeueAsyncRequest, requireUpgrade } = useAiFeature();
@@ -141,6 +147,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 			adjustPosition,
 			startOpen,
 			hideOnBlockFocus,
+			supports,
 		} = useMemo( () => getBlockHandler( blockName, clientId ), [ blockName, clientId ] );
 
 		const customPlaceholder = getExtensionInputPlaceholder();
@@ -177,11 +184,12 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 							tone: options?.tone,
 							language: options?.language,
 							is_follow_up: chatHistory.current.length > 0,
+							supports,
 						},
 					},
 				];
 			},
-			[ blockName, getContent ]
+			[ blockName, getContent, supports ]
 		);
 
 		const adjustBlockPadding = useCallback(
@@ -220,17 +228,17 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 
 		// Called after the last suggestion chunk is received.
 		const onDone = useCallback(
-			( suggestion: string, skipRequestCount?: boolean, modelUsed?: AiModelTypeProp ) => {
+			( suggestion: string, modelUsed?: AiModelTypeProp ) => {
 				disableAutoScroll();
 				onBlockDone( suggestion );
-				if ( ! skipRequestCount ) {
-					increaseRequestsCount();
-				}
+				increaseRequestsCount();
 				setAction( '' );
 
 				tracks.recordEvent( 'jetpack_ai_assistant_toolbar_extension_generate', {
 					prompt_type: lastPromptType.current,
 					model: modelUsed,
+					generation_time:
+						timelapse.current !== null ? window?.performance?.now?.() - timelapse.current : null,
 				} );
 
 				if ( lastRequest.current?.message ) {
@@ -270,6 +278,18 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 					}
 					focusInput();
 				}, 100 );
+
+				/**
+				 * Fires when AI generation completes for a block.
+				 * This allows cross-package communication - for example, the forms package
+				 * uses this to automatically create a synced form after AI generates form fields.
+				 *
+				 * @since 15.6.0
+				 *
+				 * @param {string} clientId  - The block client ID that received AI-generated content.
+				 * @param {string} blockName - The block type name (e.g., 'jetpack/contact-form').
+				 */
+				doAction( 'jetpack_ai_assistant_generation_complete', clientId, blockName );
 			},
 			[
 				disableAutoScroll,
@@ -281,6 +301,8 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 				adjustBlockPadding,
 				tracks,
 				lastPromptType,
+				clientId,
+				blockName,
 			]
 		);
 
@@ -358,7 +380,7 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 				dequeueAsyncRequest();
 
 				enableAutoScroll();
-
+				timelapse.current = window?.performance?.now?.() || null;
 				request( messages );
 			},
 			[ dequeueAsyncRequest, enableAutoScroll, getRequestMessages, request, requireUpgrade ]
@@ -428,6 +450,65 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 				focusInput();
 			}
 		}, [ showAiControl, focusInput, isSelectionEnabled ] );
+
+		// Scroll a newly inserted block into view along with the AI control below it. The control is
+		// sticky to the bottom of the viewport, so on a tall block it sits over the block's last
+		// content, and focusing it does not help — a pinned element already counts as visible.
+		//
+		// Mount only: wasBlockJustInserted() stays true until the next insertion.
+		useEffect( () => {
+			const control = controlRef.current;
+
+			// Blocks that pad their own bottom already leave room. Skip unselected ones too: a pattern
+			// marks every block it inserts as just inserted, including forms buried inside one.
+			if ( adjustPosition || ! control || ! isSelected ) {
+				return;
+			}
+
+			const blockEditor = registry.select( blockEditorStore );
+			const { wasBlockJustInserted } = blockEditor as unknown as BlockInsertionSelect;
+
+			// An empty form renders a variation picker, whose options start at the top.
+			if ( ! wasBlockJustInserted( clientId ) || blockEditor.getBlockCount( clientId ) === 0 ) {
+				return;
+			}
+
+			const block = control.ownerDocument.getElementById( id );
+			const view = control.ownerDocument.defaultView;
+
+			if ( ! block || ! view ) {
+				return;
+			}
+
+			// scrollIntoView( 'end' ) scrolls even when nothing is covered, so look for an overlap.
+			const controlRect = control.getBoundingClientRect();
+
+			if ( block.getBoundingClientRect().bottom <= controlRect.top ) {
+				return;
+			}
+
+			// A stuck element reports where it is held, not where it belongs, so scrolling to it does
+			// nothing. Unstick it and the browser places it against the block, spaced by their margin.
+			const scrollControlIntoPlace = () => {
+				const { bottom } = view.getComputedStyle( control );
+				const originalPosition = control.style.position;
+				const originalScrollMarginBottom = control.style.scrollMarginBottom;
+
+				control.style.position = 'static';
+				control.style.scrollMarginBottom = bottom;
+				control.scrollIntoView( { block: 'end' } );
+				control.style.position = originalPosition;
+				control.style.scrollMarginBottom = originalScrollMarginBottom;
+			};
+
+			// Once now, so that the editor's own scroll on selection finds the block already in view and
+			// leaves it where we put it. Once more next frame, by when the control has grown into its
+			// message and request count — without which sticky lifts the taller control back over the
+			// block, taking the gap with it.
+			scrollControlIntoPlace();
+			view.requestAnimationFrame( scrollControlIntoPlace );
+			// eslint-disable-next-line react-hooks/exhaustive-deps -- Runs on mount only.
+		}, [] );
 
 		// Adjusts the input position in the editor by increasing the block's bottom-padding
 		// and setting the control's margin-top, "wrapping" the input with the block.
@@ -544,14 +625,16 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 					/>
 				) }
 
-				<BlockControls { ...blockControlsProps }>
-					<AiAssistantExtensionToolbarDropdown
-						blockType={ blockName }
-						onAskAiAssistant={ handleAskAiAssistant }
-						onRequestSuggestion={ handleRequestSuggestion }
-						behavior={ behavior }
-					/>
-				</BlockControls>
+				{ ! isAiSidebarToolbarButtonEnabled && (
+					<BlockControls { ...blockControlsProps }>
+						<AiAssistantExtensionToolbarDropdown
+							blockType={ blockName }
+							onAskAiAssistant={ handleAskAiAssistant }
+							onRequestSuggestion={ handleRequestSuggestion }
+							behavior={ behavior }
+						/>
+					</BlockControls>
+				) }
 			</>
 		);
 
@@ -560,7 +643,9 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 		}
 
 		const ProviderProps = {
-			value: { [ blockName ]: { handleAskAiAssistant, handleRequestSuggestion } },
+			value: {
+				[ blockName ]: { handleAskAiAssistant, handleRequestSuggestion },
+			},
 		};
 
 		return (
@@ -570,8 +655,12 @@ const blockEditWithAiComponents = createHigherOrderComponent( BlockEdit => {
 		);
 	}
 
-	return props => {
+	return ( props: Block ) => {
 		const isRequiredModulePresent = useBlockModuleStatus( props.name );
+
+		if ( ! props.clientId || ! props.attributes ) {
+			return <BlockEdit { ...props } />;
+		}
 
 		// If the required module is not enabled, return the original block edit component early.
 		if ( ! isRequiredModulePresent ) {

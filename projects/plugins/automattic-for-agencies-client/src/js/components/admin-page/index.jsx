@@ -1,7 +1,7 @@
 import { Container, Col, ThemeProvider } from '@automattic/jetpack-components';
 import { CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
 import { useSelect } from '@wordpress/data';
-import React, { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import ConnectedCard from '../connected-card';
 import ConnectionCard from '../connection-card';
 import DisconnectSiteLink from '../disconnect-site-link';

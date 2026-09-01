@@ -95,8 +95,14 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	 * @deprecated 13.3
 	 */
 	public function remove_from_cart() {
-		$common_props = $this->render_properties_as_js(
-			$this->get_common_properties()
+		$common_props = wp_json_encode(
+			array_merge(
+				array(
+					'_en' => 'woocommerceanalytics_remove_from_cart',
+				),
+				$this->get_common_properties()
+			),
+			JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 		);
 
 		// We listen at div.woocommerce because the cart 'form' contents get forcibly
@@ -106,17 +112,11 @@ class Jetpack_WooCommerce_Analytics_Universal {
 			"jQuery( 'div.woocommerce' ).on( 'click', 'a.remove', function() {
 				var productID = jQuery( this ).data( 'product_id' );
 				var quantity = jQuery( this ).parent().parent().find( '.qty' ).val()
-				var productDetails = {
-					'id': productID,
-					'quantity': quantity ? quantity : '1',
-				};
-				_wca.push( {
-					'_en': 'woocommerceanalytics_remove_from_cart',
-					'pi': productDetails.id,
-					'pq': productDetails.quantity, " .
-					$common_props . '
-				} );
-			} );'
+				var common_props = $common_props;
+				common_props.pi = productID;
+				common_props.pq = quantity ? quantity : '1';
+				_wca.push( common_props );
+			} );"
 		);
 	}
 
@@ -354,16 +354,14 @@ class Jetpack_WooCommerce_Analytics_Universal {
 
 		$order_source = $order->get_created_via();
 		if ( 'store-api' === $order_source ) {
-			$checkout_page_contains_checkout_block     = '1';
-			$checkout_page_contains_checkout_shortcode = '0';
+			$checkout_page_contains_checkout_block = '1';
 		} elseif ( 'checkout' === $order_source ) {
-			$checkout_page_contains_checkout_block     = '0';
 			$checkout_page_contains_checkout_shortcode = '1';
 		}
 
 		// loop through products in the order and queue a purchase event.
 		foreach ( $order->get_items() as $order_item ) {
-			// @phan-suppress-next-line PhanUndeclaredMethodInCallable,PhanUndeclaredMethod -- Checked before being called. See also https://github.com/phan/phan/issues/1204.
+			// @phan-suppress-next-line PhanUndeclaredMethod -- Checked before being called. See also https://github.com/phan/phan/issues/1204.
 			$product_id = is_callable( array( $order_item, 'get_product_id' ) ) ? $order_item->get_product_id() : -1;
 
 			$order_items       = $order->get_items();
@@ -404,8 +402,14 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	 * @deprecated 13.3
 	 */
 	public function remove_from_cart_via_quantity() {
-		$common_props = $this->render_properties_as_js(
-			$this->get_common_properties()
+		$common_props = wp_json_encode(
+			array_merge(
+				array(
+					'_en' => 'woocommerceanalytics_remove_from_cart',
+				),
+				$this->get_common_properties()
+			),
+			JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 		);
 
 		wc_enqueue_js(
@@ -416,14 +420,12 @@ class Jetpack_WooCommerce_Analytics_Universal {
 					var qty = jQuery( this ).find( 'input.qty' );
 					if ( qty && qty.val() === '0' ) {
 						var productID = jQuery( this ).find( '.product-remove a' ).data( 'product_id' );
-						_wca.push( {
-							'_en': 'woocommerceanalytics_remove_from_cart',
-							'pi': productID, " .
-							$common_props . '
-						} );
+						var common_props = $common_props;
+						common_props.pi = productID;
+						_wca.push( common_props );
 					}
 				} );
-			} );'
+			} );"
 		);
 	}
 

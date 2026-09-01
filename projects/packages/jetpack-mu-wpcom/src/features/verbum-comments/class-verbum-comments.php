@@ -21,6 +21,8 @@ require_once __DIR__ . '/assets/class-verbum-block-utils.php';
  * Verbum Comments Experience
  *
  * This file loads the Verbum Comment user experience on WordPress.com and Jetpack sites.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Verbum_Comments {
 	/**
@@ -89,6 +91,9 @@ class Verbum_Comments {
 		) {
 			new \Verbum_Gutenberg_Editor();
 		}
+
+		// Filter to ensure JetpackScriptData.site.host and is_wpcom_platform is set, to ensure Jetpack blocks work as expected via Verbum Comments.
+		add_filter( 'jetpack_public_js_script_data', array( $this, 'add_jetpack_script_data' ), 10, 1 );
 	}
 
 	/**
@@ -96,7 +101,7 @@ class Verbum_Comments {
 	 */
 	public function get_form_action() {
 		return is_jetpack_comments() ?
-			wp_json_encode( esc_url_raw( http() . '://' . JETPACK_SERVER__DOMAIN . '/jetpack-comment/' ) ) : site_url( '/wp-comments-post.php' );
+			esc_url_raw( http() . '://' . JETPACK_SERVER__DOMAIN . '/jetpack-comment/' ) : site_url( '/wp-comments-post.php' );
 	}
 
 	/**
@@ -106,7 +111,7 @@ class Verbum_Comments {
 		$color_scheme = get_blog_option( $this->blog_id, 'jetpack_comment_form_color_scheme' );
 		$comment_url  = $this->get_form_action();
 
-		if ( ! $color_scheme || '' === $color_scheme ) {
+		if ( ! $color_scheme ) {
 			// Default to transparent because it is more adaptable than white or dark.
 			$color_scheme = 'transparent';
 		}
@@ -127,11 +132,7 @@ class Verbum_Comments {
 	 * Enqueue Assets
 	 */
 	public function enqueue_assets() {
-		if (
-			! ( is_singular() && comments_open() )
-			&& ! ( is_front_page() && is_page() && comments_open() )
-			&& ! $this->should_enqueue_assets
-		) {
+		if ( ! \Verbum_Block_Utils::should_show_verbum_comments() && ! $this->should_enqueue_assets ) {
 			return;
 		}
 
@@ -208,13 +209,14 @@ class Verbum_Comments {
 		$color_scheme     = get_blog_option( $this->blog_id, 'jetpack_comment_form_color_scheme' );
 
 		$hovercard_i18n = array(
-			'Edit your profile →'    => __( 'Edit your profile →', 'jetpack-mu-wpcom' ),
-			'View profile →'         => __( 'View profile →', 'jetpack-mu-wpcom' ),
-			'Contact'                => __( 'Contact', 'jetpack-mu-wpcom' ),
-			'Send money'             => __( 'Send money', 'jetpack-mu-wpcom' ),
-			'Profile not found.'     => __( 'Profile not found.', 'jetpack-mu-wpcom' ),
-			'Too Many Requests.'     => __( 'Too Many Requests.', 'jetpack-mu-wpcom' ),
-			'Internal Server Error.' => __( 'Internal Server Error.', 'jetpack-mu-wpcom' ),
+			'Edit your profile →'      => __( 'Edit your profile →', 'jetpack-mu-wpcom' ),
+			'View profile →'           => __( 'View profile →', 'jetpack-mu-wpcom' ),
+			'Contact'                  => __( 'Contact', 'jetpack-mu-wpcom' ),
+			'Send money'               => __( 'Send money', 'jetpack-mu-wpcom' ),
+			'Gravatar not found.'      => __( 'Gravatar not found.', 'jetpack-mu-wpcom' ),
+			'This profile is private.' => __( 'This profile is private.', 'jetpack-mu-wpcom' ),
+			'Too Many Requests.'       => __( 'Too Many Requests.', 'jetpack-mu-wpcom' ),
+			'Internal Server Error.'   => __( 'Internal Server Error.', 'jetpack-mu-wpcom' ),
 			'Sorry, we are unable to load this Gravatar profile.' => __( 'Sorry, we are unable to load this Gravatar profile.', 'jetpack-mu-wpcom' ),
 		);
 
@@ -235,6 +237,7 @@ class Verbum_Comments {
 					/* translators: %s is the name of the provider (WordPress, Facebook, Twitter) */
 					'Logged in via %s'                   => __( 'Logged in via %s', 'jetpack-mu-wpcom' ),
 					'Log out'                            => __( 'Log out', 'jetpack-mu-wpcom' ),
+					'Your browser is blocking the cookies needed to log in and comment here. Allow cookies in your privacy settings, then reload the page.' => __( 'Your browser is blocking the cookies needed to log in and comment here. Allow cookies in your privacy settings, then reload the page.', 'jetpack-mu-wpcom' ),
 					'Email'                              => __( 'Email', 'jetpack-mu-wpcom' ),
 					'(Address never made public)'        => __( '(Address never made public)', 'jetpack-mu-wpcom'), // phpcs:ignore PEAR.Functions.FunctionCallSignature.SpaceBeforeCloseBracket
 					'Instantly'                          => __( 'Instantly', 'jetpack-mu-wpcom' ),
@@ -291,7 +294,8 @@ class Verbum_Comments {
 					'vbeCacheBuster'                     => $vbe_cache_buster,
 					'iframeUniqueId'                     => $iframe_unique_id,
 					'colorScheme'                        => $color_scheme,
-				)
+				),
+				JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 			),
 			'before'
 		);
@@ -532,7 +536,7 @@ HTML;
 						'user_id'    => $current_user_id,
 						'host'       => sanitize_text_field( $headers['Host'] ?? '' ),
 						'comment_id' => $comment_id,
-						'extra'      => wp_json_encode( $data ),
+						'extra'      => wp_json_encode( $data, JSON_UNESCAPED_SLASHES ),
 					)
 				);
 			}
@@ -574,7 +578,7 @@ HTML;
 
 			case 'wordpress': // phpcs:ignore WordPress.WP.CapitalPDangit.MisspelledInText
 				if ( 'wpcom' === wpcom_blog_site_id_label() ) {
-					do_action( 'highlander_wpcom_post_comment_bump_stat', $comment_id ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound
+					do_action( 'highlander_wpcom_post_comment_bump_stat', $comment_id );
 				}
 				bump_stats_extras( 'verbum-comment-posted', 'wordpress' ); // phpcs:ignore WordPress.WP.CapitalPDangit.MisspelledInText
 				break;
@@ -682,5 +686,23 @@ HTML;
 			return 'hidden_disabled';
 		}
 		return '';
+	}
+
+	/**
+	 * Add Jetpack script data.
+	 *
+	 * @param array $data - The Jetpack script data.
+	 * @return array - The modified Jetpack script data.
+	 */
+	public function add_jetpack_script_data( $data ) {
+		if ( \Verbum_Block_Utils::should_show_verbum_comments() ) {
+			if ( ! isset( $data['site']['host'] ) ) {
+				$data['site']['host'] = ( new \Automattic\Jetpack\Status\Host() )->get_known_host_guess();
+			}
+			if ( ! isset( $data['site']['is_wpcom_platform'] ) ) {
+				$data['site']['is_wpcom_platform'] = ( new \Automattic\Jetpack\Status\Host() )->is_wpcom_platform();
+			}
+		}
+		return $data;
 	}
 }

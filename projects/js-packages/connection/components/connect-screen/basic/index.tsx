@@ -1,7 +1,7 @@
 import { __ } from '@wordpress/i18n';
-import React from 'react';
 import useConnection from '../../use-connection';
 import ConnectScreenVisual from './visual';
+import type { ReactNode } from 'react';
 
 export type Props = {
 	// API root
@@ -13,7 +13,7 @@ export type Props = {
 	// The redirect admin UR
 	redirectUri: string;
 	// Additional page elements to show before the call to action
-	children: React.ReactNode;
+	children?: ReactNode;
 	// The Title
 	title?: string;
 	// The Connect Button label
@@ -33,15 +33,18 @@ export type Props = {
 	// Whether to skip the pricing page after the connection screen
 	skipPricingPage?: boolean;
 	// Additional page elements to show after the call to action
-	footer?: React.ReactNode;
+	footer?: ReactNode;
 	// The logo to display at the top of the component
-	logo?: React.ReactNode;
+	logo?: ReactNode;
 };
 
-/*
+/**
  * The Connection Screen component.
+ *
+ * @param {Props} props - The properties.
+ * @return {import('react').ReactNode} The Connection Screen component.
  */
-const ConnectScreen: React.FC< Props > = ( {
+function ConnectScreen( {
 	title,
 	buttonLabel,
 	loadingLabel,
@@ -58,7 +61,7 @@ const ConnectScreen: React.FC< Props > = ( {
 	skipUserConnection,
 	skipPricingPage,
 	logo,
-} ) => {
+}: Props ) {
 	const {
 		handleRegisterSite,
 		siteIsRegistering,
@@ -78,7 +81,7 @@ const ConnectScreen: React.FC< Props > = ( {
 
 	const displayButtonError = Boolean( registrationError );
 	const buttonIsLoading = siteIsRegistering || userIsConnecting;
-	const errorCode = registrationError?.response?.code;
+	const errorCode = registrationError ? registrationError.response?.code : undefined;
 
 	return (
 		<ConnectScreenVisual
@@ -101,6 +104,6 @@ const ConnectScreen: React.FC< Props > = ( {
 			{ children }
 		</ConnectScreenVisual>
 	);
-};
+}
 
 export default ConnectScreen;

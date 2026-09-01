@@ -93,6 +93,7 @@ class Secrets {
 	 * @param String  $action  The action name.
 	 * @param Integer $user_id The user identifier.
 	 * @return string|array an array of secrets or an error string.
+	 * @phan-return string|array{secret_1:string,secret_2:string,exp:int}
 	 */
 	public function get( $action, $user_id ) {
 		$secret_name = 'jetpack_' . $action . '_' . $user_id;

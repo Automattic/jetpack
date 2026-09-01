@@ -1,6 +1,7 @@
-import { ExternalLink } from '@wordpress/components';
+import { WpcomSupportLink } from '@automattic/jetpack-shared-extension-utils/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { sprintf, __ } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import { useState } from 'react';
 import { wpcomTrackEvent } from '../../../common/tracks';
 import SitePreviewLink from '../site-preview-link';
@@ -59,13 +60,12 @@ const SiteVisibility = ( {
 			<p className="description">
 				{ __( 'Control who can view your site.', 'jetpack-mu-wpcom' ) }
 				&nbsp;
-				<a
-					href="https://wordpress.com/support/privacy-settings/"
-					target="_blank"
-					rel="noopener noreferrer"
+				<WpcomSupportLink
+					supportLink="https://wordpress.com/support/privacy-settings/"
+					supportPostId="1507"
 				>
 					{ __( 'Learn more', 'jetpack-mu-wpcom' ) }
-				</a>
+				</WpcomSupportLink>
 			</p>
 			<ul>
 				<li>
@@ -176,7 +176,8 @@ const SiteVisibility = ( {
 													strong: <strong />,
 													br: <br />,
 													link1: (
-														<ExternalLink
+														<Link
+															openInNewTab
 															href={ `https://wordpress.com/domains/add/${ host }?redirect_to=${ window.location.href }` }
 															target="_blank"
 															onClick={ () =>
@@ -185,7 +186,8 @@ const SiteVisibility = ( {
 														/>
 													),
 													link2: (
-														<ExternalLink
+														<Link
+															openInNewTab
 															href={ `https://wordpress.com/domains/manage/${ host }?source=${ window.location.pathname }` }
 															target="_blank"
 															onClick={ () =>
@@ -235,13 +237,12 @@ const SiteVisibility = ( {
 										'jetpack-mu-wpcom'
 									) }
 									&nbsp;
-									<a
-										href="https://wordpress.com/support/privacy-settings/make-your-website-public/#prevent-third-party-sharing"
-										target="_blank"
-										rel="noopener noreferrer"
+									<WpcomSupportLink
+										supportLink="https://wordpress.com/support/privacy-settings/make-your-website-public/#prevent-third-party-sharing"
+										supportPostId="390291"
 									>
 										{ __( 'Learn more', 'jetpack-mu-wpcom' ) }
-									</a>
+									</WpcomSupportLink>
 								</p>
 							</li>
 						</ul>
@@ -269,7 +270,7 @@ const SiteVisibility = ( {
 					</label>
 					<p className="description">
 						{ __(
-							'Your site is only visible to you and logged-in members you approve. Everyone else will see a log in screen.',
+							'Your site is only visible to you and to logged-in members you approve. Everyone else will see a login screen.',
 							'jetpack-mu-wpcom'
 						) }
 					</p>

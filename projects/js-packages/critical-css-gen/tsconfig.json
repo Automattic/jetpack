@@ -3,11 +3,11 @@
 	"include": [ "src/browser.ts", "src/playwright.ts" ],
 	"exclude": [ "node_modules/**/*" ],
 	"compilerOptions": {
+		"rootDir": "./src",
 		"outDir": "./build",
 		"target": "es2019",
 		"sourceMap": true,
 		"allowJs": false,
-		"allowSyntheticDefaultImports": true,
 		"typeRoots": [ "node_modules/@types" ],
 		"declaration": true
 	}

@@ -21,6 +21,8 @@ use WP_Error;
 
 /**
  * Brute Force Protection class.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Brute_Force_Protection {
 
@@ -147,7 +149,7 @@ class Brute_Force_Protection {
 		add_action( 'jp_purge_transients_cron', array( '\Automattic\Jetpack\Waf\Brute_Force_Protection\Brute_Force_Protection_Transient_Cleanup', 'jp_purge_transients' ) );
 
 		// Load math fallback after math page form submission.
-		if ( isset( $_POST['jetpack_protect_process_math_form'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- POST request just determines if we need to use Math for Authentication.
+		if ( isset( $_POST['jetpack_protect_process_math_form'] ) ) {
 
 			new Brute_Force_Protection_Math_Authenticate();
 		}
@@ -240,7 +242,11 @@ class Brute_Force_Protection {
 	public function maybe_get_protect_key() {
 		if ( get_site_option( 'jetpack_protect_activating', false ) && ! get_site_option( 'jetpack_protect_key', false ) ) {
 			$key = $this->get_protect_key();
-			delete_site_option( 'jetpack_protect_activating' );
+
+			if ( ! empty( $key ) ) {
+				delete_site_option( 'jetpack_protect_activating' );
+			}
+
 			return $key;
 		}
 
@@ -258,7 +264,7 @@ class Brute_Force_Protection {
 		$updated_recently = $this->get_transient( 'jpp_headers_updated_recently' );
 
 		if ( ! $force ) {
-			if ( isset( $_GET['protect_update_headers'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- this doesn't change anything, just forces the once-a-day check to run via force if set.
+			if ( isset( $_GET['protect_update_headers'] ) ) {
 				$force = true;
 			}
 		}
@@ -321,12 +327,14 @@ class Brute_Force_Protection {
 		check_ajax_referer( 'jetpack_protect_multisite_banner_opt_out' );
 
 		if ( ! current_user_can( 'manage_network' ) ) {
-			wp_send_json_error( new WP_Error( 'insufficient_permissions' ) );
+			// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
+			wp_send_json_error( new WP_Error( 'insufficient_permissions' ), null, JSON_UNESCAPED_SLASHES );
 		}
 
 		update_site_option( 'jetpack_dismissed_protect_multisite_banner', true );
 
-		wp_send_json_success();
+		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
+		wp_send_json_success( null, null, JSON_UNESCAPED_SLASHES );
 	}
 
 	/**
@@ -521,7 +529,7 @@ class Brute_Force_Protection {
 	 * @return void
 	 */
 	public function log_failed_attempt( $username, $error = null ) {
-		$username = $username ?? '';
+		$username ??= '';
 
 		// Skip if Account protection password validation error.
 		if ( is_object( $error ) && isset( $error->errors['password_detection_validation_error'] ) ) {
@@ -545,11 +553,16 @@ class Brute_Force_Protection {
 		if ( isset( $_COOKIE['jpp_math_pass'] ) ) {
 
 			$transient = $this->get_transient( 'jpp_math_pass_' . sanitize_key( $_COOKIE['jpp_math_pass'] ) );
-			--$transient;
+			if ( is_int( $transient ) ) {
+				--$transient;
+			}
 
-			if ( ! $transient || $transient < 1 ) {
+			if ( ! is_int( $transient ) || $transient < 1 ) {
 				$this->delete_transient( 'jpp_math_pass_' . sanitize_key( $_COOKIE['jpp_math_pass'] ) );
-				setcookie( 'jpp_math_pass', 0, time() - DAY_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN, false, true );
+				// This is a cop out for the tests on some PHP versions
+				if ( ! headers_sent() ) {
+					setcookie( 'jpp_math_pass', '0', time() - DAY_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN, false, true );
+				}
 			} else {
 				$this->set_transient( 'jpp_math_pass_' . sanitize_key( $_COOKIE['jpp_math_pass'] ), $transient, DAY_IN_SECONDS );
 			}
@@ -569,15 +582,16 @@ class Brute_Force_Protection {
 	 * a busy IP that has a lot of good logins along with some forgotten passwords. Also saves current user's ip
 	 * to the ip address allow list
 	 *
-	 * @param string $user_login - the user loggign in.
-	 * @param string $user - the user.
+	 * @param string   $user_login - the user logging in.
+	 * @param \WP_User $user - the user.
 	 */
 	public function log_successful_login( $user_login, $user = null ) {
 		if ( ! $user ) { // For do_action( 'wp_login' ) calls that lacked passing the 2nd arg.
 			$user = get_user_by( 'login', $user_login );
 		}
 
-		$this->protect_call( 'successful_login', array( 'roles' => $user->roles ) );
+		$roles = $user instanceof \WP_User ? $user->roles : array();
+		$this->protect_call( 'successful_login', array( 'roles' => $roles ) );
 	}
 
 	/**
@@ -898,7 +912,7 @@ class Brute_Force_Protection {
 			// translators: variable is the IP address that was flagged.
 			$die_string = sprintf( __( 'Your IP (%1$s) has been flagged for potential security violations.', 'jetpack-waf' ), str_replace( 'http://', '', esc_url( 'http://' . $ip ) ) );
 			wp_die(
-				$die_string, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- esc_url used when forming string.
+				$die_string,
 				esc_html__( 'Login Blocked by Jetpack', 'jetpack-waf' ),
 				array( 'response' => 403 )
 			);
@@ -1000,7 +1014,7 @@ class Brute_Force_Protection {
 		$request['action']            = $action;
 		$request['ip']                = IP_Utils::get_ip();
 		$request['host']              = $this->get_local_host();
-		$request['headers']           = wp_json_encode( $this->get_headers() );
+		$request['headers']           = wp_json_encode( $this->get_headers(), JSON_UNESCAPED_SLASHES );
 		$request['jetpack_version']   = null;
 		$request['wordpress_version'] = (string) $wp_version;
 		$request['api_key']           = $api_key;
@@ -1078,7 +1092,7 @@ class Brute_Force_Protection {
 	 */
 	public function get_transient_name() {
 		$headers     = $this->get_headers();
-		$header_hash = md5( wp_json_encode( $headers ) );
+		$header_hash = md5( wp_json_encode( $headers, JSON_UNESCAPED_SLASHES ) );
 
 		return 'jpp_li_' . $header_hash;
 	}
@@ -1165,9 +1179,11 @@ class Brute_Force_Protection {
 			$uri = network_home_url();
 		}
 
+		$domain  = '';
 		$uridata = wp_parse_url( $uri );
-
-		$domain = $uridata['host'];
+		if ( false !== $uridata ) {
+			$domain = $uridata['host'];
+		}
 
 		// If we still don't have the site_url, get it.
 		if ( ! $domain ) {

@@ -2,9 +2,9 @@ import { Container, Col, AdminSectionHero, getRedirectUrl } from '@automattic/je
 import { ConnectScreenRequiredPlan } from '@automattic/jetpack-connection';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
+import { useCallback } from 'react';
 import Loading from 'components/loading';
 import SearchPromotionBlock from 'components/search-promotion';
-import React, { useCallback } from 'react';
 import { STORE_ID } from 'store';
 
 import './connection-page.scss';
@@ -14,7 +14,7 @@ import './connection-page.scss';
  *
  * @param {object} props           - Component properties.
  * @param {string} props.isLoading - should page show Loading spinner.
- * @return {React.Component} ConnectionPage component.
+ * @return {import('react').Component} ConnectionPage component.
  */
 export default function ConnectionPage( { isLoading = false } ) {
 	useSelect( select => select( STORE_ID ).getSearchPricing(), [] );

@@ -250,7 +250,7 @@ function JetpackLikesMessageListener( event ) {
 					left: rect.left + win.pageXOffset,
 				};
 
-				let containerLeft = 0;
+				let containerLeft;
 				container.style.top = offset.top + data.position.top - 1 + 'px';
 
 				if ( isRtl ) {
@@ -262,15 +262,6 @@ function JetpackLikesMessageListener( event ) {
 					containerLeft = offset.left + data.position.left;
 				}
 				container.style.left = containerLeft + 'px';
-
-				// Container width - padding
-				const initContainerWidth = data.width - 20;
-				const rowLength = Math.floor( initContainerWidth / 37 );
-				// # of rows + (avatar + avatar padding) + text above + container padding
-				let height = Math.ceil( data.likers.length / rowLength ) * 37 + 17 + 22;
-				if ( height > 204 ) {
-					height = 204;
-				}
 
 				// If the popup overflows viewport width, we should show it on the next line.
 				// Push it offscreen to calculated rendered width.
@@ -343,6 +334,12 @@ function JetpackLikesWidgetQueueHandler() {
 	var wrapperID;
 
 	if ( ! jetpackLikesMasterReady ) {
+		// The master iframe emits `masterReady` a single time, when it finishes loading. On
+		// script-heavy pages it can finish loading — and emit — before this script attaches its
+		// message listener above, so that one event is missed and the queue never starts. Ping the
+		// master iframe while we wait so it re-emits `masterReady` once both it and our listener
+		// are ready.
+		JetpackLikesPostMessage( { event: 'queryMasterReady' }, window.frames[ 'likes-master' ] );
 		setTimeout( JetpackLikesWidgetQueueHandler, 500 );
 		return;
 	}

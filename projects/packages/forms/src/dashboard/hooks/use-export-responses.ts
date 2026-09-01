@@ -1,14 +1,18 @@
 /**
  * External dependencies
  */
+import jetpackAnalytics from '@automattic/jetpack-analytics';
+import { formatNumber } from '@automattic/number-formatters';
+import { useViewportMatch } from '@wordpress/compose';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { useState, useCallback, useEffect } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { config } from '..';
-import { store as dashboardStore } from '../store';
+import useConfigValue from '../../hooks/use-config-value.ts';
+import { store as dashboardStore } from '../store/index.js';
 
 type ExportHookReturn = {
 	showExportModal: boolean;
@@ -17,6 +21,9 @@ type ExportHookReturn = {
 	autoConnectGdrive: boolean;
 	userCanExport: boolean;
 	onExport: ( action: string, nonceName: string ) => Promise< Response >;
+	selectedResponsesCount: number;
+	currentStatus: string;
+	exportLabel: string;
 };
 
 /**
@@ -25,10 +32,40 @@ type ExportHookReturn = {
  * @return {ExportHookReturn} The export modal state and actions.
  */
 export default function useExportResponses(): ExportHookReturn {
+	const isSm = useViewportMatch( 'small', '<' );
 	const [ showExportModal, setShowExportModal ] = useState( false );
-	const openModal = useCallback( () => setShowExportModal( true ), [ setShowExportModal ] );
 	const closeModal = useCallback( () => setShowExportModal( false ), [ setShowExportModal ] );
 	const [ autoConnectGdrive, setAutoConnectGdrive ] = useState( false );
+	const { selectedResponsesCount, currentStatus } = useSelect(
+		select => ( {
+			selectedResponsesCount: select( dashboardStore ).getSelectedResponsesCount(),
+			currentStatus: select( dashboardStore ).getCurrentStatus(),
+		} ),
+		[]
+	);
+	const isSpam = currentStatus.includes( 'spam' );
+	const isTrash = currentStatus.includes( 'trash' );
+
+	let statusLabel: string = __( 'Export', 'jetpack-forms' );
+
+	if ( isSpam ) {
+		statusLabel = __( 'Export spam', 'jetpack-forms' );
+	} else if ( isTrash ) {
+		statusLabel = __( 'Export trash', 'jetpack-forms' );
+	}
+
+	const exportLabel =
+		selectedResponsesCount > 0
+			? `${ statusLabel } (${ formatNumber( selectedResponsesCount ) })`
+			: statusLabel;
+
+	const openModal = useCallback( () => {
+		setShowExportModal( true );
+
+		jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_export_responses_modal_open', {
+			viewport: isSm ? 'mobile' : 'desktop',
+		} );
+	}, [ isSm ] );
 
 	const userCanExport = useSelect(
 		select => select( coreStore ).canUser( 'update', 'settings' ),
@@ -41,15 +78,21 @@ export default function useExportResponses(): ExportHookReturn {
 		return { selected: getSelectedResponsesFromCurrentDataset(), currentQuery: getCurrentQuery() };
 	}, [] );
 
+	const exportNonce = useConfigValue( 'exportNonce' );
+
 	const onExport = useCallback(
 		( action: string, nonceName: string ) => {
 			const data = new FormData();
 			data.append( 'action', action );
-			data.append( nonceName, config( 'exportNonce' ) );
+			data.append( nonceName, exportNonce );
 			selected.forEach( ( id: string ) => data.append( 'selected[]', id ) );
 			data.append( 'post', currentQuery.parent || 'all' );
 			data.append( 'search', currentQuery.search || '' );
 			data.append( 'status', currentQuery.status );
+
+			if ( currentQuery.source ) {
+				data.append( 'source', currentQuery.source );
+			}
 
 			if ( currentQuery.before && currentQuery.after ) {
 				data.append( 'before', currentQuery.before );
@@ -58,7 +101,7 @@ export default function useExportResponses(): ExportHookReturn {
 
 			return fetch( window.ajaxurl, { method: 'POST', body: data } );
 		},
-		[ currentQuery, selected ]
+		[ currentQuery, selected, exportNonce ]
 	);
 
 	useEffect( () => {
@@ -81,5 +124,8 @@ export default function useExportResponses(): ExportHookReturn {
 		autoConnectGdrive,
 		userCanExport,
 		onExport,
+		selectedResponsesCount,
+		currentStatus,
+		exportLabel,
 	};
 }

@@ -7,8 +7,14 @@
 
 use Automattic\Jetpack\Assets;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Renders extra controls in the Gallery Settings section of the new media UI.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Jetpack_Gallery_Settings {
 	/**

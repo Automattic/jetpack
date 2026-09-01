@@ -183,7 +183,7 @@ const useMapkitZoom = ( zoom, setZoom ) => {
 };
 
 const useMapkitPoints = ( points, markerColor, callOutElement = null, onSelect = null ) => {
-	const { mapkit, map, loaded } = useMapkit();
+	const { mapkit, map, loaded, currentWindow } = useMapkit();
 
 	// avoid rerenders by making these refs
 	const callOutElementRef = useRef( callOutElement );
@@ -225,10 +225,13 @@ const useMapkitPoints = ( points, markerColor, callOutElement = null, onSelect =
 				return marker;
 			} );
 			if ( map.annotations.length !== annotations.length ) {
-				map.showItems( annotations );
+				// Rebuild the annotations array using currentWindow to avoid issues with
+				// "instanceof Array" checks on the array in the MapKit code in case this
+				// code is running in a different realm.
+				map.showItems( new currentWindow.Array( ...annotations ) );
 			}
 		}
-	}, [ points, loaded, map, mapkit, markerColor, callOutElementRef, onSelectRef ] );
+	}, [ points, loaded, map, mapkit, markerColor, callOutElementRef, onSelectRef, currentWindow ] );
 };
 
 const useMapkitOnMapLoad = onMapLoad => {

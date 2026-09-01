@@ -1,8 +1,8 @@
 import { RadioControl as WPRadioControl } from '@wordpress/components';
 import clsx from 'clsx';
-import styles from './styles.module.scss';
+import type { FC, ReactNode } from 'react';
 
-interface RadioControlProps {
+export interface RadioControlProps {
 	/** The current value. */
 	selected: string;
 
@@ -13,10 +13,10 @@ interface RadioControlProps {
 	disabled?: boolean;
 
 	/** Additional information to display below the radio control. */
-	help?: React.ReactNode;
+	help?: ReactNode;
 
 	/** The label for the radio control. */
-	label?: React.ReactNode;
+	label?: ReactNode;
 
 	/** If true, the label will only be visible to screen readers. */
 	hideLabelFromVision?: boolean;
@@ -28,7 +28,7 @@ interface RadioControlProps {
 	onChange: ( value: string ) => void;
 }
 
-const RadioControl: React.FC< RadioControlProps > = ( {
+const RadioControl: FC< RadioControlProps > = ( {
 	selected,
 	className,
 	disabled,
@@ -41,7 +41,7 @@ const RadioControl: React.FC< RadioControlProps > = ( {
 	return (
 		<WPRadioControl
 			selected={ selected }
-			className={ clsx( styles.radio, className ) }
+			className={ clsx( 'radio', className ) }
 			disabled={ disabled }
 			help={ help }
 			label={ label }

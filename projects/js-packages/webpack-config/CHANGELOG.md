@@ -5,6 +5,276 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 4.1.2 - 2026-08-06
+### Changed
+- Update dependencies.
+
+## 4.1.1 - 2026-07-31
+### Changed
+- Update dependencies.
+
+## 4.1.0 - 2026-07-27
+### Added
+- Add `PnpmDeterministicChunkIds` plugin. [#50758]
+
+### Changed
+- Update package dependencies. [#50751]
+
+## 4.0.1 - 2026-07-22
+### Changed
+- Update package dependencies. [#50683]
+
+## 4.0.0 - 2026-07-20
+### Changed
+- Update package dependencies. [#50529]
+
+### Removed
+- Remove ForkTSCheckerPlugin and the fork-ts-checker-webpack-plugin dependency. Use tsgo or tsdown to build TypeScript packages instead. [#50526]
+
+## 3.11.4 - 2026-07-15
+### Changed
+- Update package dependencies. [#50510]
+
+## 3.11.3 - 2026-07-13
+### Changed
+- Internal updates.
+
+## 3.11.2 - 2026-07-09
+### Changed
+- Update package dependencies. [#50236]
+
+## 3.11.1 - 2026-07-06
+### Changed
+- Update package dependencies. [#50097] [#50183]
+
+## 3.11.0 - 2026-06-26
+### Added
+- Add `/targets` entry point, which returns the configured browserslist targets, defaulting to `@wordpress/browserslist-config` rather than browserslist's own defaults. [#49977]
+
+### Changed
+- Update babel configurations in preparation for v8. The biggest visible change is that consumers should be sure to set `targets` at the top level of their config if not configuring `browserslist` already. [#49977]
+
+## 3.10.1 - 2026-06-23
+### Changed
+- Update package dependencies. [#49831]
+
+## 3.10.0 - 2026-06-22
+### Added
+- Add webpack cache setup function. [#49174]
+- Externalize the `jetpack-shared-stores` package so the shared data stores resolve to a single bundle. [#49494]
+
+### Changed
+- Update package dependencies. [#49691] [#49732] [#49757]
+
+## 3.9.4 - 2026-06-15
+### Changed
+- Update package dependencies. [#49631]
+
+## 3.9.3 - 2026-06-09
+### Changed
+- Update package dependencies. [#49273]
+
+## 3.9.2 - 2026-06-08
+### Changed
+- Update dependencies.
+
+## 3.9.1 - 2026-06-03
+### Changed
+- Update dependencies.
+
+## 3.9.0 - 2026-06-02
+### Changed
+- Remove use of `.npmrc` environment variable for setting condition names. The "jetpack:src" condition is now always added. [#49314]
+
+## 3.8.7 - 2026-05-21
+### Changed
+- Update package dependencies. [#48405]
+
+## 3.8.6 - 2026-05-19
+### Changed
+- Update package dependencies. [#48910]
+
+## 3.8.5 - 2026-05-13
+### Changed
+- Remove the generateI18nVariants helper from replace-textdomain Babel config. [#48355]
+
+## 3.8.4 - 2026-05-11
+### Changed
+- Build: Remove the @wordpress/admin-ui CSS bundle workaround from the default request map. [#48410]
+
+## 3.8.3 - 2026-05-04
+### Changed
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+
+## 3.8.2 - 2026-04-20
+### Changed
+- Update package dependencies. [#48106]
+
+## 3.8.1 - 2026-04-09
+### Changed
+- Update package dependencies. [#47890] [#47998]
+
+## 3.8.0 - 2026-04-06
+### Added
+- Add `BundledWpPkgsTranspileRules` to centralize the hacks needed for non-extracted `@wordpress/*` packages. [#47840]
+
+### Changed
+- Update package dependencies. [#47941]
+
+## 3.7.30 - 2026-03-30
+### Changed
+- Update dependencies.
+
+## 3.7.29 - 2026-03-23
+### Changed
+- Update package dependencies. [#47684]
+
+## 3.7.28 - 2026-03-16
+### Changed
+- Update dependencies. [#47472]
+
+## 3.7.27 - 2026-03-09
+### Changed
+- Centralize admin-ui CSS bundling: add subpath to defaultRequestMap and mark CSS imports as sideEffects to prevent incorrect externalization and tree-shaking. [#47313]
+- Switch to Native TypeScript compiler based on Go. [#47375]
+- Update package dependencies. [#47497] [#47500]
+
+## 3.7.26 - 2026-02-26
+### Changed
+- Update package dependencies. [#47300]
+
+## 3.7.25 - 2026-02-18
+### Changed
+- Add WebP to default file extensions handled by `FileRule`. [#47085]
+- Update package dependencies. [#47173]
+
+## 3.7.24 - 2026-02-16
+### Changed
+- Update package dependencies. [#47130]
+
+## 3.7.23 - 2026-02-12
+### Changed
+- Added WebP to default file extensions handled by FileRule. [#47082]
+- Update package dependencies. [#47095] [#47099] [#47101]
+
+## 3.7.22 - 2026-02-10
+### Changed
+- Update package dependencies. [#47002]
+
+## 3.7.21 - 2026-02-02
+### Changed
+- Update package dependencies. [#46854]
+
+## 3.7.20 - 2026-01-26
+### Added
+- Add HMR support by setting up dev server. [#46686]
+
+## 3.7.19 - 2026-01-19
+### Changed
+- Remove unused `wp-theme-slug` fallback. It can be added back (everywhere in monorepo tooling) if we ever do have themes in the monorepo. [#46601]
+- Use `beta-plugin-slug` as a fallback for plugin textdomains if `wp-plugin-slug` isn't set. [#46601]
+- Update package dependencies. [#46647]
+
+## 3.7.18 - 2026-01-07
+### Changed
+- Update package dependencies. [#46456]
+
+## 3.7.17 - 2025-12-22
+### Added
+- Add local name for css module classes for development for easier debugging. [#46300]
+
+## 3.7.16 - 2025-12-11
+### Changed
+- Update package dependencies. [#46246] [#46248]
+
+### Fixed
+- Pass correct targets to `@babel/helper-compilation-targets`. [#46248]
+
+## 3.7.15 - 2025-12-08
+### Changed
+- Internal updates.
+
+## 3.7.14 - 2025-12-01
+### Changed
+- Update package dependencies. [#46143]
+
+## 3.7.13 - 2025-11-17
+### Changed
+- Update package dependencies. [#45915]
+
+## 3.7.12 - 2025-10-28
+### Changed
+- Update package dependencies. [#45652]
+
+## 3.7.11 - 2025-10-02
+### Changed
+- Update package dependencies. [#45334]
+
+## 3.7.10 - 2025-09-22
+
+Add `watchOptions` to shared config. [#45235]
+
+## 3.7.9 - 2025-09-19
+### Changed
+- Update package dependencies. [#45240]
+
+## 3.7.8 - 2025-09-19
+### Changed
+- Update package dependencies. [#45173]
+- Update package dependencies. [#45229]
+
+## 3.7.7 - 2025-09-08
+### Changed
+- Update package dependencies. [#45027] [#45097]
+
+## 3.7.6 - 2025-08-13
+### Changed
+- Update package dependencies. [#44701]
+
+## 3.7.5 - 2025-08-11
+### Changed
+- Update package dependencies. [#44677]
+
+## 3.7.4 - 2025-08-01
+### Changed
+- Internal updates.
+
+## 3.7.3 - 2025-07-21
+### Changed
+- Update package dependencies. [#44356]
+
+## 3.7.2 - 2025-07-08
+### Changed
+- Update dependencies.
+
+## 3.7.1 - 2025-07-03
+### Changed
+- Update package dependencies. [#44151]
+
+## 3.7.0 - 2025-06-30
+### Changed
+- Default for babel preset `presetReact` option is now `{ runtime: 'automatic' }`. [#44128]
+
+## 3.6.19 - 2025-06-23
+### Changed
+- Update package dependencies. [#44020]
+
+## 3.6.18 - 2025-06-18
+### Changed
+- Internal updates.
+
+## 3.6.17 - 2025-06-04
+### Changed
+- Update package dependencies. [#43766]
+
+## 3.6.16 - 2025-06-03
+### Changed
+- Update package dependencies. [#43734]
+
+## 3.6.15 - 2025-06-02
+### Changed
+- Update package dependencies. [#43625]
+
 ## 3.6.14 - 2025-05-26
 ### Changed
 - Update package dependencies. [#43578]

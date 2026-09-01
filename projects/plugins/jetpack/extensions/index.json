@@ -13,6 +13,7 @@
 		"contact-info",
 		"donations",
 		"eventbrite",
+		"field-file",
 		"gif",
 		"google-calendar",
 		"image-compare",
@@ -25,6 +26,7 @@
 		"opentable",
 		"payments",
 		"pinterest",
+		"podcast-episode",
 		"podcast-player",
 		"premium-content",
 		"rating-star",
@@ -72,7 +74,12 @@
 		"ai-title-optimization-keywords-support",
 		"ai-response-feedback",
 		"ai-assistant-image-extension",
-		"ai-seo-enhancer"
+		"ai-sidebar-toolbar-button",
+		"ai-sidebar-agent-notice",
+		"ai-seo-enhancer",
+		"ai-correct-spelling",
+		"paypal-payment-buttons",
+		"image-studio"
 	],
 	"beta": [
 		"google-docs-embed",
@@ -80,9 +87,7 @@
 		"v6-video-frame-poster",
 		"videopress/video-chapters",
 		"ai-assistant-backend-prompts",
-		"ai-list-to-table-transform",
-		"ai-use-chrome-ai-sometimes",
-		"field-file"
+		"ai-list-to-table-transform"
 	],
 	"experimental": [],
 	"no-post-editor": [

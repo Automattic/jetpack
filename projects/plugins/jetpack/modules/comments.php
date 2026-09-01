@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: Comments
- * Module Description: Let visitors use a WordPress.com or Facebook account to comment
+ * Module Description: Replace the default comment form with a modern, feature‑rich alternative.
  * First Introduced: 1.4
  * Sort Order: 20
  * Requires Connection: Yes
@@ -14,18 +14,26 @@
  */
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Comments\Comments;
 
-Assets::add_resource_hint(
-	array(
-		'//jetpack.wordpress.com',
-		'//s0.wp.com',
-		'//public-api.wordpress.com',
-		'//0.gravatar.com',
-		'//1.gravatar.com',
-		'//2.gravatar.com',
-	),
-	'dns-prefetch'
-);
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
+// Guarded because the module file and the package can land in either order on a staged deploy.
+if ( class_exists( Comments::class ) && Comments::is_enabled() ) {
+	Comments::init();
+} else {
+	Assets::add_resource_hint(
+		array(
+			'//jetpack.wordpress.com',
+			'//s0.wp.com',
+			'//public-api.wordpress.com',
+			'//secure.gravatar.com',
+		),
+		'dns-prefetch'
+	);
+}
 
 /*
  * Add the main commenting system.

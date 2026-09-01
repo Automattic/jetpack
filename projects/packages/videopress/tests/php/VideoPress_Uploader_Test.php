@@ -146,7 +146,7 @@ class VideoPress_Uploader_Test extends BaseTestCase {
 	 * @return array
 	 */
 	public function return_valid_response() {
-		return array( 'body' => wp_json_encode( array( 'upload_token' => 'asd123qwe' ) ) );
+		return array( 'body' => wp_json_encode( array( 'upload_token' => 'asd123qwe' ), JSON_UNESCAPED_SLASHES ) );
 	}
 
 	/**
@@ -174,6 +174,8 @@ class VideoPress_Uploader_Test extends BaseTestCase {
 			$callback = array( $this, 'return_empty_response' );
 		} elseif ( 'error' === $response_from_server ) {
 			$callback = array( $this, 'return_wp_error' );
+		} else {
+			$this->fail( "Unsupported response '$response_from_server'" );
 		}
 		$u = new Uploader( $this->valid_attachment_id );
 		if ( $throw ) {
@@ -183,6 +185,80 @@ class VideoPress_Uploader_Test extends BaseTestCase {
 		$response = $u->get_upload_token();
 		remove_filter( 'pre_http_request', $callback );
 		$this->assertSame( $expected, $response );
+	}
+
+	/**
+	 * Tests that the upload attaches the attachment title, description and caption as tus
+	 * metadata, so VideoPress can reuse the Media Library values instead of the file name.
+	 */
+	public function test_upload_sends_attachment_meta_as_metadata() {
+		require_once __DIR__ . '/mocks/class-mock-tus-client.php';
+
+		wp_update_post(
+			array(
+				'ID'           => $this->valid_attachment_id,
+				'post_title'   => 'She said "hello"',
+				'post_content' => 'My video description',
+				'post_excerpt' => 'My video caption',
+			)
+		);
+
+		$uploader = new Uploader( $this->valid_attachment_id );
+
+		// Swap in a client double so the upload does not touch the network.
+		$mock_client = new Mock_Tus_Client();
+		$client_prop = new \ReflectionProperty( Uploader::class, 'client' );
+		// setAccessible() is required before PHP 8.1 and deprecated as a no-op from PHP 8.5.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$client_prop->setAccessible( true );
+		}
+		$client_prop->setValue( $uploader, $mock_client );
+
+		$uploader->upload();
+
+		$title = $mock_client->metadata['title'] ?? '';
+
+		/*
+		 * The raw stored title is sent verbatim. Reading it through get_the_title() would apply the
+		 * the_title display filters (wptexturize, convert_chars), turning the quote into an HTML
+		 * entity such as &#8221; that then leaks into the VideoPress video title.
+		 */
+		$this->assertStringContainsString( '"', $title );
+		$this->assertStringNotContainsString( '&#', $title );
+		$this->assertSame( 'My video description', $mock_client->metadata['description'] ?? null );
+		$this->assertSame( 'My video caption', $mock_client->metadata['caption'] ?? null );
+	}
+
+	/**
+	 * Tests that empty description and caption are not sent as tus metadata.
+	 */
+	public function test_upload_omits_empty_description_and_caption() {
+		require_once __DIR__ . '/mocks/class-mock-tus-client.php';
+
+		wp_update_post(
+			array(
+				'ID'           => $this->valid_attachment_id,
+				'post_title'   => 'My Edited Video Title',
+				'post_content' => '',
+				'post_excerpt' => '',
+			)
+		);
+
+		$uploader = new Uploader( $this->valid_attachment_id );
+
+		$mock_client = new Mock_Tus_Client();
+		$client_prop = new \ReflectionProperty( Uploader::class, 'client' );
+		// setAccessible() is required before PHP 8.1 and deprecated as a no-op from PHP 8.5.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$client_prop->setAccessible( true );
+		}
+		$client_prop->setValue( $uploader, $mock_client );
+
+		$uploader->upload();
+
+		$this->assertArrayHasKey( 'title', $mock_client->metadata );
+		$this->assertArrayNotHasKey( 'description', $mock_client->metadata );
+		$this->assertArrayNotHasKey( 'caption', $mock_client->metadata );
 	}
 
 	/**

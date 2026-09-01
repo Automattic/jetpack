@@ -51,15 +51,30 @@ if ( false !== getenv( 'WORDPRESS_DEVELOP_DIR' ) ) {
 }
 
 if ( ! isset( $test_root ) || ! file_exists( $test_root . '/includes/bootstrap.php' ) ) {
-	fprintf(
-		STDERR,
-		<<<'EOF'
+	if ( is_dir( '/tmp/wordpress-develop' ) && file_exists( '/var/scripts/ensure-php-version.sh' ) ) {
+		fprintf(
+			STDERR,
+			<<<'EOF'
+Looks like you're using the Jetpack Docker dev env, but the wordpress-develop checkout is incomplete.
+Try running `jetpack docker stop && jetpack docker up` to repopulate it.
+
+If that doesn't fix it, try (on the host) deleting `tools/docker/wordpress-develop/tests/` and then
+running `jetpack docker stop && jetpack docker up` again to repopulate it.
+
+EOF
+		);
+	} else {
+		fprintf(
+			STDERR,
+			<<<'EOF'
 Failed to automatically locate WordPress or wordpress-develop to run tests.
 
 Set the WORDPRESS_DEVELOP_DIR environment variable to point to a copy of WordPress
 or wordpress-develop.
+
 EOF
-	);
+		);
+	}
 	exit( 1 );
 }
 
@@ -101,6 +116,7 @@ if ( '1' !== getenv( 'JETPACK_TEST_WOOCOMMERCE' ) ) {
 }
 
 require __DIR__ . '/lib/mock-functions.php';
+require __DIR__ . '/lib/trait-activates-ai-module.php';
 require __DIR__ . '/lib/CallableMock.php';
 require __DIR__ . '/_inc/lib/mocks/simplepie.php';
 require $test_root . '/includes/functions.php';
@@ -115,14 +131,21 @@ tests_add_filter(
 );
 
 /** Activates this plugin in WordPress so it can be tested. */
-function _manually_load_plugin() {
-	if ( '1' === getenv( 'JETPACK_TEST_WOOCOMMERCE' ) ) {
-		require JETPACK_WOOCOMMERCE_INSTALL_DIR . '/woocommerce.php';
-	}
+if ( ! function_exists( '_manually_load_plugin' ) ) {
+	function _manually_load_plugin() {
+		if ( '1' === getenv( 'JETPACK_TEST_WOOCOMMERCE' ) ) {
+			require JETPACK_WOOCOMMERCE_INSTALL_DIR . '/woocommerce.php';
 
-	require __DIR__ . '/../../jetpack.php';
-	$jetpack = Jetpack::init();
-	$jetpack->configure();
+			// Action Scheduler is needed early on since 10.4.0.
+			$as_file = JETPACK_WOOCOMMERCE_INSTALL_DIR . '/packages/action-scheduler/action-scheduler.php';
+			require_once JETPACK_WOOCOMMERCE_INSTALL_DIR . '/packages/action-scheduler/classes/abstracts/ActionScheduler.php';
+			ActionScheduler::init( $as_file );
+		}
+
+		require __DIR__ . '/../../jetpack.php';
+		$jetpack = Jetpack::init();
+		$jetpack->configure();
+	}
 }
 
 function _manually_install_woocommerce() {
@@ -158,6 +181,25 @@ function _manually_load_muplugin() {
 	}
 }
 
+/**
+ * Drop the temporary Atomic fallback that reports the `ai` module active.
+ *
+ * These tests exercise the plugin's own module-as-master contract, where an
+ * inactive module means AI is off. Remove this alongside the fallback itself,
+ * once the release that introduced the module reaches Atomic.
+ *
+ * Jetpack_Mu_Wpcom::init() registers the filter at mu-plugin time, so removing
+ * it late on plugins_loaded is always after registration.
+ *
+ * @return void
+ */
+function _remove_ai_module_atomic_fallback() {
+	remove_filter(
+		'jetpack_active_modules',
+		'Automattic\\Jetpack\\Jetpack_Mu_Wpcom\\Jetpack_AI_Module\\keep_module_active'
+	);
+}
+
 // If we are running the uninstall tests don't load jetpack.
 if ( ! ( in_running_uninstall_group() ) ) {
 	tests_add_filter( 'plugins_loaded', '_manually_load_plugin', 1 );
@@ -165,6 +207,7 @@ if ( ! ( in_running_uninstall_group() ) ) {
 	if ( '1' === getenv( 'JETPACK_TEST_WPCOMSH' ) ) {
 		define( 'IS_ATOMIC', true );
 		tests_add_filter( 'muplugins_loaded', '_manually_load_muplugin' );
+		tests_add_filter( 'plugins_loaded', '_remove_ai_module_atomic_fallback', 100 );
 	}
 
 	if ( '1' === getenv( 'JETPACK_TEST_WOOCOMMERCE' ) ) {
@@ -203,6 +246,20 @@ if ( false !== getenv( 'WP_TESTS_CONFIG_FILE_PATH' ) ) {
 // Load trait for WP_UnitTestCase PHPUnit 10 compat.
 require_once __DIR__ . '/WP_UnitTestCase_Fix.php';
 
+// Suppress PHP 8.5 deprecation warnings from WordPress core.
+// See here: https://core.trac.wordpress.org/ticket/63061
+// @todo: Remove this when resolved in WP core.
+if ( PHP_VERSION_ID >= 80500 ) {
+	set_error_handler(
+		function ( $errno, $errstr, $errfile = '' ) {
+			return E_DEPRECATED === $errno
+				&& $errstr === 'Using null as an array offset is deprecated, use an empty string instead'
+				&& str_ends_with( $errfile, 'wp-includes/theme.php' );
+		},
+		E_ALL
+	);
+}
+
 require $test_root . '/includes/bootstrap.php';
 
 // Load the shortcodes module to test properly.
@@ -220,6 +277,9 @@ require __DIR__ . '/attachment_testcase.php';
 
 // Load WPCOM-shared helper functions.
 require __DIR__ . '/lib/class-wpcom-features.php';
+
+// Mock of the wpcom-only Email_Verification class, needed by endpoints that call it.
+require __DIR__ . '/lib/class-email-verification.php';
 
 function in_running_uninstall_group() {
 	global  $argv;

@@ -16,6 +16,8 @@ require_once __DIR__ . '/class-verbum-asset-loader.php';
  * This loads the isolated editor, and sets up the editor to be used for Verbum_Comments.
  *
  * @see https://github.com/Automattic/isolated-block-editor
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Verbum_Gutenberg_Editor {
 	/**
@@ -71,11 +73,7 @@ class Verbum_Gutenberg_Editor {
 	 * In case the page is singular and has comment closed or front page with comments closed we avoid the enqueueing
 	 */
 	public function enqueue_assets() {
-		if (
-			! ( is_singular() && comments_open() )
-			&& ! ( is_front_page() && is_page() && comments_open() )
-			&& ! $this->should_enqueue_assets
-		) {
+		if ( ! \Verbum_Block_Utils::should_show_verbum_comments() && ! $this->should_enqueue_assets ) {
 			return;
 		}
 

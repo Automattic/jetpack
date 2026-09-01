@@ -1,14 +1,15 @@
 import { Guide } from '@wordpress/components';
 import { createInterpolateElement, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import { FC, useCallback } from 'react';
 import WelcomeTourImage from './image';
-import TourImage1x2 from './images/jp_onboarding_tour_1-2x.png';
-import TourImage1 from './images/jp_onboarding_tour_1.png';
-import TourImage2x2 from './images/jp_onboarding_tour_2-2x.png';
-import TourImage2 from './images/jp_onboarding_tour_2.png';
-import TourImage4x2 from './images/jp_onboarding_tour_4-2x.png';
-import TourImage4 from './images/jp_onboarding_tour_4.png';
+import TourImage1x2 from './images/jp_onboarding_tour_1-2x.webp';
+import TourImage1 from './images/jp_onboarding_tour_1.webp';
+import TourImage2x2 from './images/jp_onboarding_tour_2-2x.webp';
+import TourImage2 from './images/jp_onboarding_tour_2.webp';
+import TourImage4x2 from './images/jp_onboarding_tour_4-2x.webp';
+import TourImage4 from './images/jp_onboarding_tour_4.webp';
 import './styles.scss';
 
 const removeQueryParam = ( paramName: string ) => {
@@ -100,11 +101,13 @@ const OnboardingTour: FC< { open?: boolean } > = ( { open = true } ) => {
 									<p className="myjetpack-onboarding-welcome-tour__text">
 										{ createInterpolateElement(
 											__(
-												'Install the Jetpack app for iOS or Android and stay connected to your site from anywhere!<br /><br />We sent you an email with the download link.',
+												'Install the <mobileLink>Jetpack app</mobileLink> for iOS or Android and stay connected to your site from anywhere!',
 												'jetpack-my-jetpack'
 											),
 											{
-												br: <br />,
+												mobileLink: (
+													<Link openInNewTab href="https://jetpack.com/mobile/" children={ null } />
+												),
 											}
 										) }
 									</p>

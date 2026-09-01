@@ -97,8 +97,8 @@ const SiteTypeQuestionComponent = props => {
 				/>
 			}
 			question={
-				/* translators: placeholder is the title of the site */
-				sprintf( __( 'Tell us more about %s?', 'jetpack' ), siteTitle )
+				/* translators: %s: the title of the site */
+				sprintf( __( 'Tell us more about %s.', 'jetpack' ), siteTitle )
 			}
 			description={ __(
 				'To help you get the most from Jetpack, tell us about your site. Check all that apply:',

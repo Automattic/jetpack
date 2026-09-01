@@ -110,6 +110,19 @@ class WPCOM_Stats {
 	}
 
 	/**
+	 * Get site's archive pages by views.
+	 *
+	 * @link https://developer.wordpress.com/docs/api/1.1/get/sites/%24site/stats/archives/
+	 * @param array $args Optional query parameters.
+	 * @return array|WP_Error
+	 */
+	public function get_archives( $args = array() ) {
+		$this->resource = 'archives';
+
+		return $this->fetch_stats( $args );
+	}
+
+	/**
 	 * Get the details of a single video.
 	 *
 	 * @link https://developer.wordpress.com/docs/api/1.1/get/sites/%24site/stats/video/%24post_id/
@@ -325,8 +338,8 @@ class WPCOM_Stats {
 	 */
 	public function get_total_post_views( $args = array() ) {
 		if ( $this->is_wpcom_simple ) {
-			$post_ids         = isset( $args['post_ids'] ) ? explode( ',', $args['post_ids'] ) : array();
-			$escaped_post_ids = implode( ',', array_map( 'esc_sql', $post_ids ) );
+			$post_ids         = isset( $args['post_ids'] ) ? array_map( 'absint', explode( ',', $args['post_ids'] ) ) : array();
+			$escaped_post_ids = implode( ',', $post_ids );
 
 			$number_of_days = isset( $args['num'] ) ? absint( $args['num'] ) : 1;
 			// It's the same function used in WPCOM simple.
@@ -412,6 +425,27 @@ class WPCOM_Stats {
 	}
 
 	/**
+	 * Get the expiration time, in seconds, for the stats cache.
+	 *
+	 * @return int
+	 */
+	public static function get_cache_expiration() {
+		/**
+		 * Filters the expiration time for the stats cache.
+		 *
+		 * @module stats
+		 *
+		 * @since 0.10.0
+		 *
+		 * @param int $expiration The expiration time in seconds.
+		 */
+		return apply_filters(
+			'jetpack_fetch_stats_cache_expiration',
+			self::STATS_CACHE_EXPIRATION_IN_MINUTES * MINUTE_IN_SECONDS
+		);
+	}
+
+	/**
 	 * Build WPCOM REST API endpoint.
 	 *
 	 * @return string
@@ -432,9 +466,9 @@ class WPCOM_Stats {
 	protected function fetch_stats( $args = array() ) {
 		$endpoint       = $this->build_endpoint();
 		$api_version    = self::STATS_REST_API_VERSION;
-		$cache_key      = md5( implode( '|', array( $endpoint, $api_version, wp_json_encode( $args ) ) ) );
+		$cache_key      = md5( implode( '|', array( $endpoint, $api_version, wp_json_encode( $args, JSON_UNESCAPED_SLASHES ) ) ) );
 		$transient_name = self::STATS_CACHE_TRANSIENT_PREFIX . $cache_key;
-		$stats_cache    = get_transient( $transient_name );
+		$stats_cache    = $this->should_bypass_cache() ? false : get_transient( $transient_name );
 
 		if ( $stats_cache ) {
 			$time = key( $stats_cache );
@@ -449,23 +483,22 @@ class WPCOM_Stats {
 
 		$wpcom_stats = $this->fetch_remote_stats( $endpoint, $args );
 
-		// To reduce size in storage: store with time as key, store JSON encoded data.
-		$cached_value = is_wp_error( $wpcom_stats ) ? $wpcom_stats : wp_json_encode( $wpcom_stats );
-
-		/**
-		 * Filters the expiration time for the stats cache.
+		/*
+		 * A site with no connection fails before a request leaves it, so remembering that failure
+		 * saves no remote call -- and the answer stops being true the moment the site connects.
+		 * Caching it left a freshly connected site staring at an empty dashboard until it expired.
 		 *
-		 * @module stats
-		 *
-		 * @since 0.10.0
-		 *
-		 * @param int $expiration The expiration time in minutes.
+		 * `no_possible_tokens` is what the connection package reports for a missing blog token
+		 * since it started naming the reason; `missing_token` is what older versions still return.
 		 */
-		$expiration = apply_filters(
-			'jetpack_fetch_stats_cache_expiration',
-			self::STATS_CACHE_EXPIRATION_IN_MINUTES * MINUTE_IN_SECONDS
-		);
-		set_transient( $transient_name, array( time() => $cached_value ), $expiration );
+		if ( is_wp_error( $wpcom_stats ) && in_array( $wpcom_stats->get_error_code(), array( 'missing_token', 'no_possible_tokens' ), true ) ) {
+			return $wpcom_stats;
+		}
+
+		// To reduce size in storage: store with time as key, store JSON encoded data.
+		$cached_value = is_wp_error( $wpcom_stats ) ? $wpcom_stats : wp_json_encode( $wpcom_stats, JSON_UNESCAPED_SLASHES );
+
+		set_transient( $transient_name, array( time() => $cached_value ), self::get_cache_expiration() );
 
 		return $wpcom_stats;
 	}
@@ -475,7 +508,11 @@ class WPCOM_Stats {
 	 *
 	 * Unlike the above function, this caches data in the post meta table. As such,
 	 * it prevents wp_options from blowing up when retrieving views for large numbers
-	 * of posts at the same time. However, the final response is the same as above.
+	 * of posts at the same time.
+	 *
+	 * This function returns valid arrays and WP_Error objects from cache if within the expiration period.
+	 * If the cached entry is malformed or invalid, a refresh is triggered regardless of cache time.
+	 * This self-healing behavior reduces API calls when remote fetch fails, but ensures data validity.
 	 *
 	 * @param array $args Query parameters.
 	 * @param int   $post_id Post ID to acquire stats for.
@@ -485,42 +522,99 @@ class WPCOM_Stats {
 	protected function fetch_post_stats( $args, $post_id ) {
 		$endpoint    = $this->build_endpoint();
 		$meta_name   = '_' . self::STATS_CACHE_TRANSIENT_PREFIX;
-		$stats_cache = get_post_meta( $post_id, $meta_name );
+		$stats_cache = get_post_meta( $post_id, $meta_name, false );
 
 		if ( $stats_cache ) {
 			$data = reset( $stats_cache );
 
-			if (
-				! is_array( $data )
-				|| empty( $data )
-				|| is_wp_error( $data )
-			) {
-				return $data;
-			}
+			// Check if we have a valid cache structure with a time key.
+			if ( is_array( $data ) && ! empty( $data ) ) {
+				$time = key( $data );
 
-			$time  = key( $data );
-			$views = $data[ $time ] ?? null;
+				// If we have a numeric time, check if cache is still valid.
+				if ( is_numeric( $time ) ) {
+					$expiration = self::get_cache_expiration();
 
-			// Bail if data is malformed.
-			if ( ! is_numeric( $time ) || ! is_array( $views ) ) {
-				return $data;
-			}
+					// If within cache period, return cached data after type validation.
+					if ( ( time() - $time ) < $expiration ) {
+						$cached_value = $data[ $time ];
 
-			/** This filter is already documented in projects/packages/stats/src/class-wpcom-stats.php */
-			$expiration = apply_filters(
-				'jetpack_fetch_stats_cache_expiration',
-				self::STATS_CACHE_EXPIRATION_IN_MINUTES * MINUTE_IN_SECONDS
-			);
+						// If it's an array or WP_Error, handle appropriately.
+						if ( is_wp_error( $cached_value ) ) {
+							return $cached_value;
+						}
+						if ( is_array( $cached_value ) ) {
+							return array_merge( array( 'cached_at' => $time ), $cached_value );
+						}
 
-			if ( ( time() - $time ) < $expiration ) {
-				return array_merge( array( 'cached_at' => $time ), $views );
+						// For any other unexpected type, treat as malformed cache.
+						// Fall through to refresh.
+					}
+				}
 			}
 		}
 
+		// Cache doesn't exist, is expired, or is malformed - refresh it.
+		return $this->refresh_post_stats_cache( $endpoint, $args, $post_id, $meta_name );
+	}
+
+	/**
+	 * Force fetch stats from WPCOM, and always update cache.
+	 *
+	 * This function will cache the result regardless of whether the fetch succeeds
+	 * or fails. This ensures that failed requests are also cached, reducing the
+	 * frequency of API calls when the remote service is experiencing issues.
+	 *
+	 * @param string $endpoint The stats endpoint.
+	 * @param array  $args The query arguments.
+	 * @param int    $post_id The post ID.
+	 * @param string $meta_name The meta name.
+	 *
+	 * @return array|WP_Error
+	 */
+	protected function refresh_post_stats_cache( $endpoint, $args, $post_id, $meta_name ) {
 		$wpcom_stats = $this->fetch_remote_stats( $endpoint, $args );
+
+		// Always cache the result, even if it's an error or empty.
 		update_post_meta( $post_id, $meta_name, array( time() => $wpcom_stats ) );
 
 		return $wpcom_stats;
+	}
+
+	/**
+	 * Whether the caller has asked for an answer newer than the cached one.
+	 *
+	 * A site that has just connected, or just bought a plan, carries answers from before it did
+	 * -- including failures, which are cached like any other answer. Both markers are the ones
+	 * `Stats_Admin\WPCOM_Client` already honours, so a page load clears every layer or none.
+	 *
+	 * The dashboard asks for its data over REST, and those requests carry none of the page's
+	 * query, so the marker has to be read from the page that sent them as well.
+	 *
+	 * Limited to users who can view stats: `fetch_stats()` also serves public widgets and
+	 * blocks, and those must not skip the cache because a visitor supplied a query arg or a
+	 * Referer that happens to contain one of the markers.
+	 *
+	 * @return bool
+	 */
+	protected function should_bypass_cache() {
+		if ( ! current_user_can( 'view_stats' ) ) {
+			return false;
+		}
+
+		foreach ( array( 'force_refresh', 'statsPurchaseSuccess' ) as $marker ) {
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			if ( isset( $_GET[ $marker ] ) ) {
+				return true;
+			}
+
+			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+			if ( isset( $_SERVER['HTTP_REFERER'] ) && false !== strpos( (string) $_SERVER['HTTP_REFERER'], $marker ) ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**
@@ -556,7 +650,7 @@ class WPCOM_Stats {
 	 * @return array
 	 */
 	protected function fetch_stats_on_wpcom_simple( $end_date, $number_of_days, $escaped_post_ids ) {
-		return stats_get_daily_history( null, get_current_blog_id(), 'postviews', 'post_id', $end_date, $number_of_days, " AND post_id IN ($escaped_post_ids)", 0, true );
+		return stats_get_daily_history( false, get_current_blog_id(), 'postviews', 'post_id', $end_date, $number_of_days, " AND post_id IN ($escaped_post_ids)", 0, true );
 	}
 
 	/**
@@ -572,7 +666,7 @@ class WPCOM_Stats {
 		if ( is_wp_error( $stats_array ) ) {
 			return $stats_array;
 		}
-		$encoded_array = wp_json_encode( $stats_array );
+		$encoded_array = wp_json_encode( $stats_array, JSON_UNESCAPED_SLASHES );
 		if ( ! $encoded_array ) {
 			return new WP_Error( 'stats_encoding_error', 'Failed to encode stats array' );
 		}

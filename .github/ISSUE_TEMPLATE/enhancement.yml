@@ -1,7 +1,7 @@
 name: Enhancement Request
 description: Suggest a change to a feature you like!
 title: "Enhancement:"
-labels: ["[Type] Enhancement"]
+labels: ["Enhancement"]
 type: 'Enhancement'
 body:
   - type: dropdown
@@ -13,17 +13,15 @@ body:
         - Jetpack
         - Backup
         - Boost
-        - Beta
-        - CRM
-        - Debug Helper
-        - Migration
-        - mu wpcom
         - Protect
         - Search
         - Social
-        - Super Cache
+        - Stats
         - VaultPress
         - VideoPress
+        - Beta
+        - Debug Helper
+        - Wpcomsh
         - None / Other
       multiple: true
     validations:

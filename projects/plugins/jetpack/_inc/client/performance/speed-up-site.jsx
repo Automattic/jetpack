@@ -1,6 +1,7 @@
-import { ToggleControl, getRedirectUrl } from '@automattic/jetpack-components';
+import { getRedirectUrl } from '@automattic/jetpack-components';
+import { ToggleControl } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
-import React, { Component } from 'react';
+import { Component } from 'react';
 import { connect } from 'react-redux';
 import { FormFieldset } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
@@ -58,7 +59,7 @@ const SpeedUpSite = withModuleSettingsFormHelpers(
 					success: __( 'Site accelerator is no longer speeding up your site!', 'jetpack' ),
 					error: error =>
 						sprintf(
-							/* translators: placeholder is an error code. */
+							/* translators: %s: an error code. */
 							__( 'Error disabling site accelerator. %s', 'jetpack' ),
 							error
 						),
@@ -87,7 +88,7 @@ const SpeedUpSite = withModuleSettingsFormHelpers(
 					success: __( 'Site accelerator is now speeding up your site!', 'jetpack' ),
 					error: error =>
 						sprintf(
-							/* translators: placeholder is an error code. */
+							/* translators: %s: an error code. */
 							__( 'Error enabling Site accelerator. %s', 'jetpack' ),
 							error
 						),
@@ -248,10 +249,10 @@ const SpeedUpSite = withModuleSettingsFormHelpers(
 								</p>
 								{ canAppearInSearch && (
 									<ToggleControl
+										__nextHasNoMarginBottom
 										checked={ siteAcceleratorStatus }
-										toggling={ togglingSiteAccelerator }
 										onChange={ this.handleSiteAcceleratorChange }
-										disabled={ ! canDisplaySiteAcceleratorSettings }
+										disabled={ ! canDisplaySiteAcceleratorSettings || togglingSiteAccelerator }
 										label={
 											<span className="jp-form-toggle-explanation">
 												{ __( 'Enable site accelerator', 'jetpack' ) }
@@ -263,9 +264,11 @@ const SpeedUpSite = withModuleSettingsFormHelpers(
 									{ foundPhoton && (
 										<ModuleToggle
 											slug="photon"
-											disabled={ this.props.isUnavailableInOfflineMode( 'photon' ) }
+											disabled={
+												this.props.isUnavailableInOfflineMode( 'photon' ) ||
+												this.props.isSavingAnyOption( 'photon' )
+											}
 											activated={ this.props.getOptionValue( 'photon' ) }
-											toggling={ this.props.isSavingAnyOption( 'photon' ) }
 											toggleModule={ this.toggleModule }
 										>
 											<span className="jp-form-toggle-explanation">
@@ -276,8 +279,8 @@ const SpeedUpSite = withModuleSettingsFormHelpers(
 									{ foundAssetCdn && (
 										<ModuleToggle
 											slug="photon-cdn"
+											disabled={ this.props.isSavingAnyOption( 'photon-cdn' ) }
 											activated={ this.props.getOptionValue( 'photon-cdn' ) }
-											toggling={ this.props.isSavingAnyOption( 'photon-cdn' ) }
 											toggleModule={ this.toggleModule }
 										>
 											<span className="jp-form-toggle-explanation">

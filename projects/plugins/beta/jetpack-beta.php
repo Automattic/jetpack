@@ -3,7 +3,7 @@
  * Plugin Name: Jetpack Beta Tester
  * Plugin URI: https://jetpack.com/beta/
  * Description: Use the Beta plugin to get a sneak peek at new features and test them on your site.
- * Version: 4.1.3
+ * Version: 4.3.0
  * Author: Automattic
  * Author URI: https://jetpack.com/
  * Update URI: https://jetpack.com/download-jetpack-beta/
@@ -25,8 +25,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+along with this program; if not, see <https://www.gnu.org/licenses/>.
 */
 
 // Check that the file is not accessed directly.
@@ -35,7 +34,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 define( 'JPBETA__PLUGIN_FOLDER', dirname( plugin_basename( __FILE__ ) ) );
-define( 'JPBETA_VERSION', '4.1.3' );
+define( 'JPBETA_VERSION', '4.3.0' );
 
 define( 'JETPACK_BETA_PLUGINS_URL', 'https://betadownload.jetpack.me/plugins.json' );
 
@@ -49,7 +48,7 @@ define( 'JETPACK_BETA_PLUGINS_URL', 'https://betadownload.jetpack.me/plugins.jso
  *   (We want to fail gracefully if `composer install` has not been executed yet, so we are checking for the autoloader.)
  * - If it succeeds, we continue.
  */
-$jetpack_beta_autoloader = plugin_dir_path( __FILE__ ) . '/vendor/autoload_packages.php';
+$jetpack_beta_autoloader = plugin_dir_path( __FILE__ ) . 'vendor/autoload_packages.php';
 if ( is_readable( $jetpack_beta_autoloader ) ) {
 	require $jetpack_beta_autoloader;
 } else {
@@ -124,6 +123,5 @@ add_action( 'init', array( Automattic\JetpackBeta\Hooks::class, 'instance' ) );
 add_action( 'muplugins_loaded', array( Automattic\JetpackBeta\Hooks::class, 'is_network_enabled' ) );
 
 if ( defined( 'WP_CLI' ) && WP_CLI ) {
-	// @phan-suppress-next-line PhanUndeclaredFunctionInCallable -- https://github.com/phan/phan/issues/4763
 	WP_CLI::add_command( 'jetpack-beta', Automattic\JetpackBeta\CliCommand::class );
 }

@@ -1,0 +1,24 @@
+{
+	"$schema": "https://json.schemastore.org/tsconfig.json",
+	"extends": [ "@tsconfig/strictest/tsconfig" ],
+	"compilerOptions": {
+		"allowImportingTsExtensions": true,
+		"allowJs": false,
+		"checkJs": false,
+		"jsx": "preserve",
+		"module": "ESNext",
+		"moduleResolution": "bundler",
+		"lib": [ "ES2022", "DOM", "DOM.Iterable" ],
+		"target": "ES2022",
+		"emitDeclarationOnly": true,
+		"composite": true,
+
+		"erasableSyntaxOnly": true,
+		"isolatedModules": true,
+
+		"typeRoots": [ "./types", "../../../../node_modules/@types" ],
+		"types": [ "global", "grammars" ]
+	},
+	"include": [],
+	"files": []
+}

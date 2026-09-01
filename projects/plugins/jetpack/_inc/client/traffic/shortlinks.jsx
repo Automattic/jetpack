@@ -1,6 +1,6 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { __, _x } from '@wordpress/i18n';
-import React, { Component } from 'react';
+import { Component } from 'react';
 import { connect } from 'react-redux';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
@@ -29,9 +29,8 @@ class Shortlinks extends Component {
 				>
 					<ModuleToggle
 						slug="shortlinks"
-						disabled={ ! isSiteConnected }
+						disabled={ ! isSiteConnected || this.props.isSavingAnyOption( 'shortlinks' ) }
 						activated={ this.props.shortlinksActive }
-						toggling={ this.props.isSavingAnyOption( 'shortlinks' ) }
 						toggleModule={ this.props.toggleModuleNow }
 					>
 						<span className="jp-form-toggle-explanation">

@@ -5,6 +5,10 @@
  * Endpoint: /sites/%s/homepage
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 new WPCOM_JSON_API_Update_Site_Homepage_Endpoint(
 	array(
 		'description'          => 'Set site homepage settings',
@@ -41,6 +45,8 @@ new WPCOM_JSON_API_Update_Site_Homepage_Endpoint(
 
 /**
  * Site homepage setting endpoint class.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class WPCOM_JSON_API_Update_Site_Homepage_Endpoint extends WPCOM_JSON_API_Endpoint {
 	/**

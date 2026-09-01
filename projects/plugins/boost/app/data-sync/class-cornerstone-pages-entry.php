@@ -23,7 +23,8 @@ class Cornerstone_Pages_Entry implements Entry_Can_Get, Entry_Can_Set {
 		}
 
 		/**
-		 * Filters the list of cornerstone pages.
+		 * Filters the list of cornerstone pages. This list only includes the custom pages.
+		 * If you want the full list, use `jetpack_boost_cornerstone_pages_list_complete` instead.
 		 *
 		 * @since 3.7.0
 		 *

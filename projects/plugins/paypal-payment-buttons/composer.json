@@ -1,0 +1,68 @@
+{
+	"name": "automattic/paypal-payment-buttons",
+	"description": "Add PayPal payment buttons to your WordPress site with ease.",
+	"type": "wordpress-plugin",
+	"license": "GPL-2.0-or-later",
+	"require": {
+		"automattic/jetpack-autoloader": "@dev",
+		"automattic/jetpack-assets": "@dev",
+		"automattic/jetpack-composer-plugin": "@dev",
+		"automattic/jetpack-paypal-payments": "@dev",
+		"automattic/jetpack-blocks": "@dev"
+	},
+	"require-dev": {
+		"yoast/phpunit-polyfills": "^4.0.0",
+		"automattic/jetpack-test-environment": "@dev",
+		"automattic/phpunit-select-config": "@dev"
+	},
+	"autoload": {
+		"classmap": [
+			"src/"
+		]
+	},
+	"scripts": {
+		"phpunit": [
+			"phpunit-select-config phpunit.#.xml.dist --colors=always"
+		],
+		"test-js": "pnpm run test",
+		"test-js-coverage": "pnpm run test-coverage",
+		"test-php": "@composer phpunit",
+		"test-php-coverage": "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\"",
+		"build-development": [
+			"pnpm run build"
+		],
+		"build-production": [
+			"pnpm run build-production-concurrently"
+		],
+		"watch": [
+			"Composer\\Config::disableProcessTimeout",
+			"pnpm run watch"
+		]
+	},
+	"repositories": [
+		{
+			"type": "path",
+			"url": "../../packages/*",
+			"options": {
+				"monorepo": true
+			}
+		}
+	],
+	"minimum-stability": "dev",
+	"prefer-stable": true,
+	"extra": {
+		"mirror-repo": "Automattic/paypal-payment-buttons",
+		"release-branch-prefix": "paypal-payment-buttons",
+		"autorelease": true,
+		"autotagger": true,
+		"wp-plugin-slug": "paypal-payment-buttons"
+	},
+	"config": {
+		"allow-plugins": {
+			"roots/wordpress-core-installer": true,
+			"automattic/jetpack-autoloader": true,
+			"automattic/jetpack-composer-plugin": true
+		},
+		"autoloader-suffix": "c4802e05bbcf59fd3b6350e8d3e5482c_paypal_payment_buttonsⓥ0_4_0"
+	}
+}

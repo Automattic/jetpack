@@ -1,5 +1,4 @@
 // make use of color studio variables for consistency across products
-@forward "@automattic/color-studio/dist/color-variables";
 @use "@automattic/color-studio/dist/color-variables" as studio;
 
 $highlight-color: #dd823b;

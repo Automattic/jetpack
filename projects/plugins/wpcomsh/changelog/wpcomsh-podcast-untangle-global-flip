@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Podcasting: flip jetpack_podcast_untangle globally on Atomic so every WoA site moves to the new jetpack-podcast package (parallel to the wpcom-side flip already live on Simple).

@@ -4,6 +4,7 @@ import { suggestion, footerComponent } from '../lib/describe-critical-css-recomm
 import { type InterpolateVars } from '$lib/utils/interplate-vars-types';
 import NumberedList from '../numbered-list/numbered-list';
 import styles from './suggestion.module.scss';
+import type { FC } from 'react';
 
 type SuggestionTypes = {
 	errorSet: ErrorSet;
@@ -19,7 +20,7 @@ type SuggestionTypes = {
  * @param props.interpolateVars      - Variables to interpolate into the suggestion.
  * @param props.showClosingParagraph - Whether to show the closing paragraph.
  */
-const Suggestion: React.FC< SuggestionTypes > = ( {
+const Suggestion: FC< SuggestionTypes > = ( {
 	errorSet,
 	interpolateVars,
 	showClosingParagraph,

@@ -1,13 +1,13 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName)
 /**
  * Module Name: Newsletter
- * Module Description: Let visitors subscribe to new posts and comments via email
+ * Module Description: Grow your subscriber list and deliver your content directly to their email inbox.
  * Sort Order: 9
  * Recommendation Order: 8
  * First Introduced: 1.2
  * Requires Connection: Yes
  * Requires User Connection: Yes
- * Auto Activate: No
+ * Auto Activate: Yes
  * Module Tags: Social
  * Feature: Engagement
  * Additional Search Queries: subscriptions, subscription, email, follow, followers, subscribers, signup, newsletter, creator
@@ -18,10 +18,14 @@
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\XMLRPC_Async_Call;
+use Automattic\Jetpack\Newsletter\Settings as Newsletter_Settings;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
-use Automattic\Jetpack\Subscribers_Dashboard\Dashboard as Subscribers_Dashboard;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
 
 add_action( 'jetpack_modules_loaded', 'jetpack_subscriptions_load' );
 
@@ -60,6 +64,8 @@ function jetpack_subscriptions_cherry_pick_server_data() {
 
 /**
  * Main class file for the Subscriptions module.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Jetpack_Subscriptions {
 	/**
@@ -131,6 +137,7 @@ class Jetpack_Subscriptions {
 		// Set "social_notifications_subscribe" option during the first-time activation.
 		add_action( 'jetpack_activate_module_subscriptions', array( $this, 'set_social_notifications_subscribe' ) );
 		add_action( 'jetpack_activate_module_subscriptions', array( $this, 'set_featured_image_in_email_default' ) );
+		add_action( 'jetpack_activate_module_subscriptions', array( $this, 'set_newsletter_send_default' ) );
 
 		// Hide subscription messaging in Publish panel for posts that were published in the past
 		add_action( 'init', array( $this, 'register_post_meta' ), 20 );
@@ -149,8 +156,9 @@ class Jetpack_Subscriptions {
 
 		// Track categories created through the category editor page
 		add_action( 'wp_ajax_add-tag', array( $this, 'track_newsletter_category_creation' ), 1 );
-		$subscribers_dashboard = new Subscribers_Dashboard();
-		$subscribers_dashboard::init();
+
+		$newsletter_settings = new Newsletter_Settings();
+		$newsletter_settings::init();
 	}
 
 	/**
@@ -560,6 +568,7 @@ class Jetpack_Subscriptions {
 			if ( $async ) {
 				XMLRPC_Async_Call::add_call( 'jetpack.subscribeToSite', 0, $email, $post_id, serialize( $extra_data ) ); //phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
 			} else {
+				// @phan-suppress-next-line PhanPossiblyUndeclaredVariable -- $xml is set when $async is false
 				$xml->addCall( 'jetpack.subscribeToSite', $email, $post_id, serialize( $extra_data ) ); //phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize
 			}
 		}
@@ -569,17 +578,22 @@ class Jetpack_Subscriptions {
 		}
 
 		// Call.
+		// @phan-suppress-next-line PhanPossiblyUndeclaredVariable -- $xml is set when $async is false, otherwise we return early
 		$xml->query();
 
+		// @phan-suppress-next-line PhanPossiblyUndeclaredVariable -- $xml is set when $async is false, otherwise we return early
 		if ( $xml->isError() ) {
+			// @phan-suppress-next-line PhanPossiblyUndeclaredVariable -- $xml is set when $async is false, otherwise we return early
 			return $xml->get_jetpack_error();
 		}
 
+		// @phan-suppress-next-line PhanPossiblyUndeclaredVariable -- $xml is set when $async is false
 		$responses = $xml->getResponse();
 
 		$r = array();
 		foreach ( (array) $responses as $response ) {
 			if ( isset( $response['faultCode'] ) || isset( $response['faultString'] ) ) {
+				// @phan-suppress-next-line PhanPossiblyUndeclaredVariable -- $xml is set when $async is false
 				$r[] = $xml->get_jetpack_error( $response['faultCode'], $response['faultString'] );
 				continue;
 			}
@@ -797,6 +811,17 @@ class Jetpack_Subscriptions {
 	 * @param string     $approved Comment status.
 	 */
 	public function comment_subscribe_submit( $comment_id, $approved ) {
+		/**
+		 * Filters whether to skip comment subscription processing.
+		 *
+		 * @since 15.5
+		 *
+		 * @param bool $skip Whether to skip comment subscription. Default false.
+		 */
+		if ( apply_filters( 'jetpack_subscription_comment_subscribe_skip', false ) ) {
+			return;
+		}
+
 		if ( 'spam' === $approved ) {
 			return;
 		}
@@ -861,7 +886,7 @@ class Jetpack_Subscriptions {
 		$post_id = (int) $post_id;
 
 		/** This filter is already documented in core/wp-includes/comment-functions.php */
-		$cookie_lifetime = apply_filters( 'comment_cookie_lifetime', 30000000 );
+		$cookie_lifetime = apply_filters( 'comment_cookie_lifetime', YEAR_IN_SECONDS );
 
 		/**
 		 * Filter the Jetpack Comment cookie path.
@@ -886,13 +911,13 @@ class Jetpack_Subscriptions {
 		$cookie_domain = apply_filters( 'jetpack_comment_cookie_domain', COOKIE_DOMAIN );
 
 		if ( $subscribe_to_post && $post_id >= 0 ) {
-			setcookie( 'jetpack_comments_subscribe_' . self::$hash . '_' . $post_id, 1, time() + $cookie_lifetime, $cookie_path, $cookie_domain, is_ssl(), true );
+			setcookie( 'jetpack_comments_subscribe_' . self::$hash . '_' . $post_id, '1', time() + $cookie_lifetime, $cookie_path, $cookie_domain, is_ssl(), true );
 		} else {
 			setcookie( 'jetpack_comments_subscribe_' . self::$hash . '_' . $post_id, '', time() - 3600, $cookie_path, $cookie_domain, is_ssl(), true );
 		}
 
 		if ( $subscribe_to_blog ) {
-			setcookie( 'jetpack_blog_subscribe_' . self::$hash, 1, time() + $cookie_lifetime, $cookie_path, $cookie_domain, is_ssl(), true );
+			setcookie( 'jetpack_blog_subscribe_' . self::$hash, '1', time() + $cookie_lifetime, $cookie_path, $cookie_domain, is_ssl(), true );
 		} else {
 			setcookie( 'jetpack_blog_subscribe_' . self::$hash, '', time() - 3600, $cookie_path, $cookie_domain, is_ssl(), true );
 		}
@@ -921,6 +946,15 @@ class Jetpack_Subscriptions {
 	}
 
 	/**
+	 * Set the email post to subscribers default option to `1` when the Subscriptions module is activated for the first time.
+	 *
+	 * @return void
+	 */
+	public function set_newsletter_send_default() {
+		add_option( 'wpcom_newsletter_send_default', 1 );
+	}
+
+	/**
 	 * Save a flag when a post was ever published.
 	 *
 	 * It saves the post meta when the post was published and becomes a draft.
@@ -931,6 +965,11 @@ class Jetpack_Subscriptions {
 	 * @param object $post obj The post object.
 	 */
 	public function maybe_set_first_published_status( $new_status, $old_status, $post ) {
+		// Subscriptions are only available for posts so far.
+		if ( ! $post instanceof \WP_Post || 'post' !== $post->post_type ) {
+			return;
+		}
+
 		$was_post_ever_published = get_post_meta( $post->ID, '_jetpack_post_was_ever_published', true );
 		if ( ! $was_post_ever_published && 'publish' === $old_status && 'draft' === $new_status ) {
 			update_post_meta( $post->ID, '_jetpack_post_was_ever_published', true );
@@ -938,21 +977,21 @@ class Jetpack_Subscriptions {
 	}
 
 	/**
-	 * Checks if the current user can publish posts.
+	 * Checks if the current user can edit posts.
 	 *
 	 * @return bool
 	 */
 	public function first_published_status_meta_auth_callback() {
 		/**
-		 * Filter the capability to view if a post was ever published in the Subscription Module.
+		 * Filter the capability required to edit the "was ever published" post meta.
 		 *
 		 * @module subscriptions
 		 *
 		 * @since 13.4
 		 *
-		 * @param string $capability User capability needed to view if a post was ever published. Default to publish_posts.
+		 * @param string $capability User capability needed to edit the "was ever published" meta. Default to edit_posts.
 		 */
-		$capability = apply_filters( 'jetpack_subscriptions_post_was_ever_published_capability', 'publish_posts' );
+		$capability = apply_filters( 'jetpack_subscriptions_post_was_ever_published_capability', 'edit_posts' );
 		if ( current_user_can( $capability ) ) {
 			return true;
 		}
@@ -964,14 +1003,15 @@ class Jetpack_Subscriptions {
 	 */
 	public function register_post_meta() {
 		$jetpack_post_was_ever_published = array(
-			'type'          => 'boolean',
-			'description'   => __( 'Whether the post was ever published.', 'jetpack' ),
-			'single'        => true,
-			'default'       => false,
-			'show_in_rest'  => array(
+			'type'           => 'boolean',
+			'description'    => __( 'Whether the post was ever published.', 'jetpack' ),
+			'single'         => true,
+			'default'        => false,
+			'show_in_rest'   => array(
 				'name' => 'jetpack_post_was_ever_published',
 			),
-			'auth_callback' => array( $this, 'first_published_status_meta_auth_callback' ),
+			'auth_callback'  => array( $this, 'first_published_status_meta_auth_callback' ),
+			'object_subtype' => 'post', // Subscriptions are only for the post post type so far, so we can limit this meta to posts only.
 		);
 
 		register_meta( 'post', '_jetpack_post_was_ever_published', $jetpack_post_was_ever_published );
@@ -982,18 +1022,40 @@ class Jetpack_Subscriptions {
 	 *
 	 * - It is not displayed on WordPress.com sites.
 	 * - It directs you to Calypso to the existing Subscribers page.
+	 * - Once the Newsletter modernization filter is on, the unified Newsletter
+	 *   page owns the Subscribers tab, so the Calypso shortcut is replaced by a
+	 *   transitional announcement page pointing there.
 	 *
 	 * @return void
 	 */
 	public function add_subscribers_menu() {
-		/**
-		 * Enables the new in development subscribers in wp-admin dashboard.
+		/*
+		 * Once the Newsletter modernization filter is on, the unified Newsletter
+		 * page owns the Subscribers tab and this standalone Calypso shortcut is
+		 * retired. In its place, a transitional announcement page tells people
+		 * where subscriber management moved and lets them remove the menu item.
 		 *
-		 * @since 9.5.0
+		 * This is evaluated first — before the WoA/Simple and connection guards
+		 * below — and returns, so the legacy Calypso shortcut is never added once
+		 * the filter is on.
 		 *
-		 * @param bool If the new dashboard is enabled. Default false.
+		 * The announcement page itself is registered here only on self-hosted
+		 * Jetpack. On WordPress.com (Simple and WoA) jetpack-mu-wpcom's
+		 * wpcom-admin-menu owns the Subscribers entry and registers the
+		 * announcement page there; doing it here as well would duplicate the menu
+		 * (and double the page-view tracking) on Atomic, where both run.
+		 *
+		 * Referenced as a string literal (mirrors Newsletter\Settings::MODERNIZATION_FILTER)
+		 * to keep this bootstrap path safe if the packaged Newsletter Settings class does
+		 * not expose the constant yet.
 		 */
-		if ( apply_filters( 'jetpack_wp_admin_subscriber_management_enabled', false ) ) {
+		if ( apply_filters( 'rsm_jetpack_ui_modernization_newsletter', true ) ) {
+			if (
+				! ( new Host() )->is_wpcom_platform()
+				&& class_exists( '\Automattic\Jetpack\Newsletter\Subscribers_Announcement' )
+			) {
+				\Automattic\Jetpack\Newsletter\Subscribers_Announcement::add_menu();
+			}
 			return;
 		}
 
@@ -1018,6 +1080,18 @@ class Jetpack_Subscriptions {
 			return;
 		}
 
+		/**
+		 * Enables the new in development subscribers in wp-admin dashboard.
+		 *
+		 * @since 9.5.0
+		 *
+		 * @param bool If the new dashboard is enabled. Defaults on for every site; hosts
+		 *             can opt out with this filter.
+		 */
+		if ( apply_filters( 'jetpack_wp_admin_subscriber_management_enabled', true ) ) {
+			return;
+		}
+
 		$blog_id = Connection_Manager::get_site_id( true );
 
 		$link = Redirect::get_url(
@@ -1027,11 +1101,11 @@ class Jetpack_Subscriptions {
 
 		Admin_Menu::add_menu(
 			__( 'Subscribers', 'jetpack' ),
-			__( 'Subscribers', 'jetpack' ) . ' <span class="dashicons dashicons-external"></span>',
+			__( 'Subscribers', 'jetpack' ) . ' <span aria-hidden="true">↗</span>',
 			'manage_options',
 			esc_url( $link ),
 			null,
-			11
+			15
 		);
 	}
 
@@ -1073,3 +1147,6 @@ require __DIR__ . '/subscriptions/subscribe-modal/class-jetpack-subscribe-modal.
 require __DIR__ . '/subscriptions/subscribe-overlay/class-jetpack-subscribe-overlay.php';
 require __DIR__ . '/subscriptions/subscribe-floating-button/class-jetpack-subscribe-floating-button.php';
 require __DIR__ . '/subscriptions/newsletter-widget/class-jetpack-newsletter-dashboard-widget.php';
+
+require_once __DIR__ . '/subscriptions/abilities/class-newsletter-abilities.php';
+\Automattic\Jetpack\Plugin\Abilities\Newsletter_Abilities::init();

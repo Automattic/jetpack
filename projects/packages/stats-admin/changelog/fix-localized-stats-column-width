@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fixed wrapping on the stats column heading in non-English languages

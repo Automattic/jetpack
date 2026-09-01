@@ -189,4 +189,28 @@ class Urls {
 	public static function main_network_site_url() {
 		return self::get_protocol_normalized_url( 'main_network_site_url', network_site_url() );
 	}
+
+	/**
+	 * Maybe add the origin_site_id query parameter to a URL.
+	 *
+	 * The parameter is only added for users who are members of the current blog.
+	 *
+	 * @since 7.1.0
+	 *
+	 * @param string $url The URL to add the query param to.
+	 * @return string The URL with the origin_site_id query parameter maybe added.
+	 */
+	public static function maybe_add_origin_site_id( $url ) {
+		$site_id = Manager::get_site_id();
+		if ( is_wp_error( $site_id ) ) {
+			return $url;
+		}
+
+		// Add query param to URL only for users who can access wp-admin.
+		if ( ! is_user_member_of_blog() ) {
+			return $url;
+		}
+
+		return add_query_arg( 'origin_site_id', $site_id, $url );
+	}
 }

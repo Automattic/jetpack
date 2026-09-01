@@ -61,7 +61,7 @@ export const fetchSiteConnectionTest = () => {
 					createNotice(
 						'is-error',
 						sprintf(
-							/* translators: placeholder is an error message. */
+							/* translators: %s: an error message. */
 							__( 'There was an error testing Jetpack. Error: %s', 'jetpack' ),
 							error.message
 						),
@@ -154,7 +154,7 @@ export const disconnectSite = ( reloadAfter = false ) => {
 					createNotice(
 						'is-error',
 						sprintf(
-							/* translators: placeholder is an error message. */
+							/* translators: %s: an error message. */
 							__( 'There was an error disconnecting Jetpack. Error: %s', 'jetpack' ),
 							error
 						),
@@ -201,7 +201,7 @@ export const unlinkUser = () => {
 					createNotice(
 						'is-error',
 						sprintf(
-							/* translators: placeholder is the error. */
+							/* translators: %s: the error. */
 							__( 'Error unlinking from WordPress.com. Error: %s', 'jetpack' ),
 							error
 						),

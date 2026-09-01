@@ -32,16 +32,6 @@ class WPCom_Themes_Service {
 	private WPCom_Themes_Merger $merger;
 
 	/**
-	 * Valid theme tiers for Atomic sites.
-	 */
-	private const VALID_THEME_TIERS = array(
-		'free',
-		'premium',
-		'personal',
-		'woocommerce',
-	);
-
-	/**
 	 * Class constructor.
 	 *
 	 * @param WPCom_Themes_Api    $api    The WordPress.com themes API.
@@ -113,9 +103,10 @@ class WPCom_Themes_Service {
 	 * @return bool True if the theme has a valid tier, false otherwise.
 	 */
 	protected function has_valid_theme_tier( stdClass $theme ): bool {
-		$tier = $theme->theme_tier->slug ?? false;
+		$tier               = $theme->theme_tier->slug ?? 'premium';
+		$theme_tier_feature = $tier . '-themes';
 
-		return in_array( $tier, self::VALID_THEME_TIERS, true );
+		return $tier !== 'partner' && ( $tier === 'free' || wpcom_site_has_feature( $theme_tier_feature ) );
 	}
 
 	/**

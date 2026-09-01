@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env sh
 
 echo "Waiting on db to be ready...";
 sh /usr/local/bin/wait-for db:3306 -t 30 || exit 1;
@@ -13,7 +13,7 @@ echo "Setting permalink format";
 wp rewrite structure "/%year%/%monthnum%/%postname%/";
 
 echo "Adding test content";
-POST_ID=`wp post create --post_title="this is a test post" --post_status="publish"`;
+wp post create --post_title="this is a test post" --post_status="publish";
 
 echo "Linking the wpcomsh-loader.php file into mu-plugins";
 ln -s /var/www/html/wp-content/mu-plugins/wpcomsh/wpcomsh-loader.php /var/www/html/wp-content/mu-plugins/wpcomsh-loader.php

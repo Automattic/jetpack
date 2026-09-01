@@ -2,7 +2,7 @@
 
 set -eo pipefail
 
-BASE=$(cd $(dirname "${BASH_SOURCE[0]}")/.. && pwd)
+BASE=$(cd "$(dirname "${BASH_SOURCE[0]}")"/.. && pwd)
 . "$BASE/tools/includes/check-osx-bash-version.sh"
 . "$BASE/tools/includes/chalk-lite.sh"
 . "$BASE/tools/includes/changelogger.sh"
@@ -95,11 +95,11 @@ for PLUGIN in "${PLUGINS[@]}"; do
 	done <<<"$TMP"
 
 	# Check lock file versions
-	TMP="$(composer info --locked --format=json --working-dir="$DIR" | jq -r --argjson packages "$PACKAGES" '.locked[] | select( $packages[.name] ) | [ .name, .version, $packages[.name].rel ] | @tsv')"
+	TMP="$(composer info --locked --format=json --working-dir="$DIR" | jq -r --argjson packages "$PACKAGES" '.locked?[] | select( $packages[.name] ) | [ .name, .version, $packages[.name].rel ] | @tsv')"
 	[[ -n "$TMP" ]] || continue
 	while IFS=$'\t' read -r PKG LOCKVER EXPECTVER; do
 		if [[ "$WHAT" == "dev" ]]; then
-			if [[ "$LOCKVER" != "dev-trunk" ]]; then
+			if [[ "$LOCKVER" != "dev-trunk "* ]]; then
 				err "projects/plugins/$PLUGIN/composer.lock" "$PLUGIN: $PKG should be at dev-trunk, not $LOCKVER"
 			fi
 		else

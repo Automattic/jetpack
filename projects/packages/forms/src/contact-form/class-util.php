@@ -14,13 +14,19 @@ namespace Automattic\Jetpack\Forms\ContactForm;
 class Util {
 
 	/**
+	 * Saved values of the block_template global while core/post-content blocks render.
+	 *
+	 * A stack so nested or sequential post-content renders (e.g. a query loop) restore
+	 * correctly. @see grunion_contact_form_suspend_block_template_id_in_post_content().
+	 *
+	 * @var array
+	 */
+	private static $block_template_id_suspended = array();
+
+	/**
 	 * Registers all relevant actions and filters for this class.
 	 */
 	public static function init() {
-		if ( is_admin() ) {
-			Admin::init();
-		}
-
 		add_filter( 'template_include', '\Automattic\Jetpack\Forms\ContactForm\Util::grunion_contact_form_set_block_template_attribute' );
 
 		add_action( 'render_block_core_template_part_post', '\Automattic\Jetpack\Forms\ContactForm\Util::grunion_contact_form_set_block_template_part_id_global' );
@@ -33,8 +39,22 @@ class Util {
 		add_filter( 'render_block', '\Automattic\Jetpack\Forms\ContactForm\Util::grunion_contact_form_unset_block_template_part_id_global', 10, 2 );
 		add_filter( 'widget_block_content', '\Automattic\Jetpack\Forms\ContactForm\Util::grunion_contact_form_filter_widget_block_content', 1, 3 );
 
+		// Suspend the block_template global while core/post-content renders, so forms in the post
+		// body are attributed to the post (and gated on the author), not to the template.
+		add_filter( 'pre_render_block', '\Automattic\Jetpack\Forms\ContactForm\Util::grunion_contact_form_suspend_block_template_id_in_post_content', 10, 2 );
+		add_filter( 'render_block', '\Automattic\Jetpack\Forms\ContactForm\Util::grunion_contact_form_restore_block_template_id_after_post_content', 10, 2 );
+
+		// Register the default for the `central-form-management` feature flag at bootstrap
+		// so that early callers of Contact_Form_Plugin::has_editor_feature_flag() — such as
+		// the Forms dashboard default-tab redirect, which runs before the `init` hook fires —
+		// see the correct value. Only the lightweight default is registered here; paid-plan
+		// flags stay in Contact_Form_Block::register_feature(), hooked later from
+		// Contact_Form_Block::register_block() on `init` priority 9.
+		add_filter( 'jetpack_block_editor_feature_flags', '\Automattic\Jetpack\Extensions\Contact_Form\Contact_Form_Block::register_central_form_management_default' );
+
 		add_action( 'init', '\Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin::init', 9 );
 		add_action( 'grunion_scheduled_delete', '\Automattic\Jetpack\Forms\ContactForm\Util::grunion_delete_old_spam' );
+		add_action( 'grunion_scheduled_delete_temp', '\Automattic\Jetpack\Forms\ContactForm\Util::grunion_delete_old_temp_feedback' );
 		add_action( 'grunion_pre_message_sent', '\Automattic\Jetpack\Forms\ContactForm\Util::jetpack_tracks_record_grunion_pre_message_sent', 12, 3 );
 	}
 
@@ -46,7 +66,7 @@ class Util {
 		register_block_pattern_category( $category_slug, array( 'label' => __( 'Forms', 'jetpack-forms' ) ) );
 
 		$patterns = array(
-			'contact-form'      => array(
+			'contact-form'         => array(
 				'title'      => __( 'Contact Form', 'jetpack-forms' ),
 				'blockTypes' => array( 'jetpack/contact-form' ),
 				'categories' => array( $category_slug ),
@@ -55,11 +75,13 @@ class Util {
                         <!-- wp:jetpack/field-name {"required":true} /-->
                         <!-- wp:jetpack/field-email {"required":true} /-->
                         <!-- wp:jetpack/field-textarea /-->
-                        <!-- wp:jetpack/button {"element":"button","text":"Contact Us","lock":{"remove":true}} /-->
+						<!-- wp:button {"tagName":"button","type":"submit"} -->
+							<div class="wp-block-button"><button type="submit" class="wp-block-button__link wp-element-button">Contact us</button></div>
+						<!-- /wp:button -->
                     </div>
                     <!-- /wp:jetpack/contact-form -->',
 			),
-			'newsletter-form'   => array(
+			'newsletter-form'      => array(
 				'title'      => __( 'Lead Capture Form', 'jetpack-forms' ),
 				'blockTypes' => array( 'jetpack/contact-form' ),
 				'categories' => array( $category_slug ),
@@ -68,11 +90,13 @@ class Util {
                         <!-- wp:jetpack/field-name {"required":true} /-->
                         <!-- wp:jetpack/field-email {"required":true} /-->
                         <!-- wp:jetpack/field-consent /-->
-                        <!-- wp:jetpack/button {"element":"button","text":"Subscribe","lock":{"remove":true}} /-->
+						<!-- wp:button {"tagName":"button","type":"submit"} -->
+							<div class="wp-block-button"><button type="submit" class="wp-block-button__link wp-element-button">Subscribe</button></div>
+						<!-- /wp:button -->
                     </div>
                     <!-- /wp:jetpack/contact-form -->',
 			),
-			'rsvp-form'         => array(
+			'rsvp-form'            => array(
 				'title'      => __( 'RSVP Form', 'jetpack-forms' ),
 				'blockTypes' => array( 'jetpack/contact-form' ),
 				'categories' => array( $category_slug ),
@@ -82,11 +106,13 @@ class Util {
                         <!-- wp:jetpack/field-email {"required":true} /-->
                         <!-- wp:jetpack/field-radio {"label":"Attending?","required":true,"options":["Yes","No"]} /-->
                         <!-- wp:jetpack/field-textarea {"label":"Other Details"} /-->
-                        <!-- wp:jetpack/button {"element":"button","text":"Send RSVP","lock":{"remove":true}} /-->
+						<!-- wp:button {"tagName":"button","type":"submit"} -->
+							<div class="wp-block-button"><button type="submit" class="wp-block-button__link wp-element-button">Send RSVP</button></div>
+						<!-- /wp:button -->
                     </div>
                     <!-- /wp:jetpack/contact-form -->',
 			),
-			'registration-form' => array(
+			'registration-form'    => array(
 				'title'      => __( 'Registration Form', 'jetpack-forms' ),
 				'blockTypes' => array( 'jetpack/contact-form' ),
 				'categories' => array( $category_slug ),
@@ -97,11 +123,13 @@ class Util {
                         <!-- wp:jetpack/field-telephone {"label":"Phone Number"} /-->
                         <!-- wp:jetpack/field-select {"label":"How did you hear about us?","options":["Search Engine","Social Media","TV","Radio","Friend or Family"]} /-->
                         <!-- wp:jetpack/field-textarea {"label":"Other Details"} /-->
-                        <!-- wp:jetpack/button {"element":"button","text":"Send","lock":{"remove":true}} /-->
+						<!-- wp:button {"tagName":"button","type":"submit"} -->
+							<div class="wp-block-button"><button type="submit" class="wp-block-button__link wp-element-button">Send</button></div>
+						<!-- /wp:button -->
                     </div>
                     <!-- /wp:jetpack/contact-form -->',
 			),
-			'appointment-form'  => array(
+			'appointment-form'     => array(
 				'title'      => __( 'Appointment Form', 'jetpack-forms' ),
 				'blockTypes' => array( 'jetpack/contact-form' ),
 				'categories' => array( $category_slug ),
@@ -113,11 +141,13 @@ class Util {
                         <!-- wp:jetpack/field-date {"label":"Date","required":true} /-->
                         <!-- wp:jetpack/field-radio {"label":"Time","required":true,"options":["Morning","Afternoon"]} /-->
                         <!-- wp:jetpack/field-textarea {"label":"Notes"} /-->
-                        <!-- wp:jetpack/button {"element":"button","text":"Book Appointment","lock":{"remove":true}} /-->
+						<!-- wp:button {"tagName":"button","type":"submit"} -->
+							<div class="wp-block-button"><button type="submit" class="wp-block-button__link wp-element-button">Book Appointment</button></div>
+						<!-- /wp:button -->
                     </div>
                     <!-- /wp:jetpack/contact-form -->',
 			),
-			'feedback-form'     => array(
+			'feedback-form'        => array(
 				'title'      => __( 'Feedback Form', 'jetpack-forms' ),
 				'blockTypes' => array( 'jetpack/contact-form' ),
 				'categories' => array( $category_slug ),
@@ -125,11 +155,34 @@ class Util {
                     <div class="wp-block-jetpack-contact-form">
                         <!-- wp:jetpack/field-name {"required":true} /-->
                         <!-- wp:jetpack/field-email {"required":true} /-->
-                        <!-- wp:jetpack/field-radio {"label":"Please rate our website","required":true,"options":["1 - Very Bad","2 - Poor","3 - Average","4 - Good","5 - Excellent"]} /-->
+                        <!-- wp:jetpack/field-rating {"required":true} -->
+							<div><!-- wp:jetpack/label {"label":"Please rate our website"} /-->
+						<!-- wp:jetpack/input-rating /--></div>
+						<!-- /wp:jetpack/field-rating -->
                         <!-- wp:jetpack/field-textarea {"label":"How could we improve?"} /-->
-                        <!-- wp:jetpack/button {"element":"button","text":"Send Feedback","lock":{"remove":true}} /-->
+						<!-- wp:button {"tagName":"button","type":"submit"} -->
+							<div class="wp-block-button"><button type="submit" class="wp-block-button__link wp-element-button">Send Feedback</button></div>
+						<!-- /wp:button -->
                     </div>
                     <!-- /wp:jetpack/contact-form -->',
+			),
+			'salesforce-lead-form' => array(
+				'title'      => __( 'Salesforce Lead Form', 'jetpack-forms' ),
+				'blockTypes' => array( 'jetpack/contact-form' ),
+				'categories' => array( $category_slug ),
+				'content'    => '<!-- wp:jetpack/contact-form {"formTitle":"Salesforce Lead Form"} -->
+					<div class="wp-block-jetpack-contact-form">
+						<!-- wp:jetpack/field-name {"label":"First Name","required":true,"id":"first_name"} /-->
+						<!-- wp:jetpack/field-name {"label":"Last Name","required":true,"id":"last_name"} /-->
+						<!-- wp:jetpack/field-email {"label":"Email","required":true,"id":"email"} /-->
+						<!-- wp:jetpack/field-telephone {"label":"Phone","id":"phone"} /-->
+						<!-- wp:jetpack/field-text {"label":"Company","id":"company"} /-->
+						<!-- wp:jetpack/field-text {"label":"Job Title","id":"title"} /-->
+						<!-- wp:button {"tagName":"button","type":"submit"} -->
+							<div class="wp-block-button"><button type="submit" class="wp-block-button__link wp-element-button">Submit</button></div>
+						<!-- /wp:button -->
+					</div>
+					<!-- /wp:jetpack/contact-form -->',
 			),
 		);
 
@@ -151,6 +204,10 @@ class Util {
 	 */
 	public static function grunion_contact_form_set_block_template_attribute( $template ) {
 		global $_wp_current_template_content;
+		if ( ! is_string( $template ) ) {
+			return $template;
+		}
+
 		if ( 'template-canvas.php' === basename( $template ) ) {
 			Contact_Form::style_on();
 			$_wp_current_template_content = self::grunion_contact_form_apply_block_attribute(
@@ -159,6 +216,14 @@ class Util {
 					'block_template' => 'canvas',
 				)
 			);
+
+			// Mark that we are rendering a block template, so forms in the template chrome are
+			// attributed to it. This global is the trusted signal Feedback_Source::get_current()
+			// uses for the block_template source type (the content attribute is not trusted). It
+			// is suspended while core/post-content renders so a form in the post body is not
+			// mistaken for a template-authored form.
+			global $_wp_current_template_id;
+			$GLOBALS['grunion_block_template_id'] = ! empty( $_wp_current_template_id ) ? $_wp_current_template_id : 'canvas';
 		}
 		return $template;
 	}
@@ -183,9 +248,54 @@ class Util {
 	 * @return string
 	 */
 	public static function grunion_contact_form_unset_block_template_part_id_global( $content, $block ) {
-		if ( 'core/template-part' === $block['blockName']
+		if ( isset( $block['blockName'] )
+			&& 'core/template-part' === $block['blockName']
 			&& isset( $GLOBALS['grunion_block_template_part_id'] ) ) {
 			unset( $GLOBALS['grunion_block_template_part_id'] );
+		}
+		return $content;
+	}
+
+	/**
+	 * Suspends the block_template global while a core/post-content block renders.
+	 *
+	 * The core/post-content block renders the post body, which may contain a contact form
+	 * authored by a user without edit_theme_options. Such a form must be attributed to the post
+	 * (and gated on the post author), not to the surrounding template, so the trusted
+	 * block_template signal is removed for the duration of the render and restored afterwards.
+	 *
+	 * Hooked on `pre_render_block`; returns its first argument unchanged so rendering proceeds.
+	 *
+	 * @param string|null $pre_render   The pre-rendered content. Default null.
+	 * @param array       $parsed_block The block being rendered.
+	 * @return string|null Unchanged $pre_render.
+	 */
+	public static function grunion_contact_form_suspend_block_template_id_in_post_content( $pre_render, $parsed_block ) {
+		if ( isset( $parsed_block['blockName'] ) && 'core/post-content' === $parsed_block['blockName'] ) {
+			self::$block_template_id_suspended[] = $GLOBALS['grunion_block_template_id'] ?? null;
+			unset( $GLOBALS['grunion_block_template_id'] );
+		}
+		return $pre_render;
+	}
+
+	/**
+	 * Restores the block_template global once a core/post-content block has finished rendering.
+	 *
+	 * Counterpart to grunion_contact_form_suspend_block_template_id_in_post_content(). Hooked on
+	 * `render_block`; returns the block content unchanged.
+	 *
+	 * @param string $content Rendered block content.
+	 * @param array  $block   The full block, including name and attributes.
+	 * @return string Unchanged $content.
+	 */
+	public static function grunion_contact_form_restore_block_template_id_after_post_content( $content, $block ) {
+		if ( isset( $block['blockName'] )
+			&& 'core/post-content' === $block['blockName']
+			&& ! empty( self::$block_template_id_suspended ) ) {
+			$restored = array_pop( self::$block_template_id_suspended );
+			if ( null !== $restored ) {
+				$GLOBALS['grunion_block_template_id'] = $restored;
+			}
 		}
 		return $content;
 	}
@@ -217,14 +327,16 @@ class Util {
 
 		$grunion_delete_limit = 100;
 
-		$now_gmt  = current_time( 'mysql', 1 );
+		$now_gmt = current_time( 'mysql', true );
+		// Use the spam status changed date if available, otherwise fall back to post_date_gmt for backward compatibility
 		$sql      = $wpdb->prepare(
 			"
-			SELECT `ID`
-			FROM $wpdb->posts
-			WHERE DATE_SUB( %s, INTERVAL 15 DAY ) > `post_date_gmt`
-				AND `post_type` = 'feedback'
-				AND `post_status` = 'spam'
+			SELECT p.`ID`
+			FROM $wpdb->posts p
+			LEFT JOIN $wpdb->postmeta pm ON p.`ID` = pm.`post_id` AND pm.`meta_key` = '_spam_status_changed_gmt'
+			WHERE DATE_SUB( %s, INTERVAL 15 DAY ) > COALESCE( pm.`meta_value`, p.`post_date_gmt` )
+				AND p.`post_type` = 'feedback'
+				AND p.`post_status` = 'spam'
 			LIMIT %d
 		",
 			$now_gmt,
@@ -256,6 +368,60 @@ class Util {
 		// if we hit the max then schedule another run
 		if ( count( $post_ids ) >= $grunion_delete_limit ) {
 			wp_schedule_single_event( time() + 700, 'grunion_scheduled_delete' );
+		}
+	}
+
+	/**
+	 * Deletes old temp feedback to keep the posts table size under control.
+	 *
+	 * @since 6.5.0
+	 */
+	public static function grunion_delete_old_temp_feedback() {
+		global $wpdb;
+
+		$grunion_delete_limit = 100;
+
+		$now_gmt = current_time( 'mysql', true );
+		$sql     = $wpdb->prepare(
+			"
+			SELECT `ID`
+			FROM $wpdb->posts
+			WHERE DATE_SUB( %s, INTERVAL 1 DAY ) > `post_date_gmt`
+				AND `post_type` = 'feedback'
+				AND `post_status` = 'jp-temp-feedback'
+			LIMIT %d
+		",
+			$now_gmt,
+			$grunion_delete_limit
+		);
+
+		// The SQL query is already prepared with $wpdb->prepare() above, and direct query is needed for performance-critical cleanup operation
+		$post_ids = $wpdb->get_col( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+
+		foreach ( (array) $post_ids as $post_id ) {
+			// force a full delete, skip the trash
+			wp_delete_post( $post_id, true );
+		}
+
+		if (
+			/**
+			 * Filter if the module run OPTIMIZE TABLE on the core WP tables.
+			 *
+			 * @module contact-form
+			 *
+			 * @since 6.5.0
+			 *
+			 * @param bool $filter Should Jetpack optimize the table, defaults to false.
+			 */
+			apply_filters( 'grunion_optimize_table', false )
+		) {
+			// OPTIMIZE TABLE is a MySQL-specific maintenance command that cannot be prepared and is only run when explicitly enabled via filter
+			$wpdb->query( "OPTIMIZE TABLE $wpdb->posts" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		}
+
+		// if we hit the max then schedule another run
+		if ( count( $post_ids ) >= $grunion_delete_limit ) {
+			wp_schedule_single_event( time() + 700, 'grunion_scheduled_delete_temp' );
 		}
 	}
 
@@ -309,34 +475,87 @@ class Util {
 	 * @return string
 	 */
 	public static function grunion_contact_form_apply_block_attribute( $content, $new_attr ) {
+		if ( ! is_string( $content ) ) {
+			// If the content is not a string, we cannot process it.
+			return $content;
+		}
+
 		if ( false === stripos( $content, 'wp:jetpack/contact-form' ) ) {
 			return $content;
 		}
-		return preg_replace_callback(
-			'/<!--\s+(?P<closer>\/)?wp:jetpack\/?contact-form\s+(?P<attrs>{(?:(?:[^}]+|}+(?=})|(?!}\s+\/?-->).)*+)?}\s+)?(?P<void>\/)?-->/s',
-			function ( $match ) use ( $new_attr ) {
-				// Ignore block closers.
-				if ( ! empty( $match['closer'] ) ) {
-					return $match[0];
-				}
-				// If block doesn't have attributes, add our own.
-				if ( empty( $match['attrs'] ) ) {
-					return str_replace(
-						'wp:jetpack/contact-form ',
-						'wp:jetpack/contact-form ' . wp_json_encode( $new_attr ) . ' ',
-						$match[0]
-					);
-				}
-				// $match['attrs'] includes trailing space: '{"customThankyou":"message"} '.
-				$attrs = json_decode( rtrim( $match['attrs'], ' ' ), true );
-				$attrs = array_merge( $attrs, $new_attr );
-				return str_replace(
-					$match['attrs'],
-					wp_json_encode( $attrs ) . ' ',
-					$match[0]
+
+		// Parse blocks using WordPress core function.
+		$blocks = parse_blocks( $content );
+
+		// Recursively modify contact form blocks.
+		$modified_blocks = self::modify_contact_form_blocks_recursive( $blocks, $new_attr );
+
+		// Serialize back to block markup.
+		return serialize_blocks( $modified_blocks );
+	}
+
+	/**
+	 * Recursively modifies contact form blocks to add new attributes.
+	 *
+	 * @param array $blocks    Array of parsed blocks.
+	 * @param array $new_attr  New attributes to add.
+	 * @return array Modified blocks array.
+	 */
+	private static function modify_contact_form_blocks_recursive( $blocks, $new_attr ) {
+		foreach ( $blocks as &$block ) {
+			// Check if this is a contact form block.
+			if ( 'jetpack/contact-form' === $block['blockName'] ) {
+				// Merge new attributes with existing ones.
+				$block['attrs'] = array_merge(
+					$block['attrs'] ?? array(),
+					$new_attr
 				);
-			},
-			$content
-		);
+			}
+
+			// Recursively process inner blocks.
+			if ( ! empty( $block['innerBlocks'] ) ) {
+				$block['innerBlocks'] = self::modify_contact_form_blocks_recursive(
+					$block['innerBlocks'],
+					$new_attr
+				);
+			}
+		}
+
+		return $blocks;
+	}
+
+	/**
+	 * Get a filename for export tasks
+	 *
+	 * @param string $source The filtered source for exported data.
+	 * @return string The filename without source nor date suffix.
+	 */
+	public static function get_export_filename( $source = '' ) {
+		return $source === ''
+			? sprintf(
+				/* translators: Site title, used to craft the export filename, eg "MySite - Jetpack Form Responses" */
+				__( '%s - Jetpack Form Responses', 'jetpack-forms' ),
+				sanitize_file_name( get_bloginfo( 'name' ) )
+			)
+			: sprintf(
+				/* translators: 1: Site title; 2: post title. Used to craft the export filename, eg "MySite - Jetpack Form Responses - Contact" */
+				__( '%1$s - Jetpack Form Responses - %2$s', 'jetpack-forms' ),
+				sanitize_file_name( get_bloginfo( 'name' ) ),
+				sanitize_file_name( html_entity_decode( $source, ENT_QUOTES | ENT_HTML5, 'UTF-8' ) )
+			);
+	}
+
+	/**
+	 * Ensures a field label ends with a colon, unless it ends with a question mark.
+	 *
+	 * @param string $label The field label.
+	 * @return string The formatted label.
+	 */
+	public static function maybe_add_colon_to_label( $label ) {
+		$formatted_label = $label ? $label : '';
+		// Special case for the Terms consent field block which a period after the label.
+		$formatted_label = str_ends_with( $formatted_label, '?' ) ? $formatted_label : rtrim( $formatted_label, ':.' ) . ':';
+
+		return $formatted_label;
 	}
 }

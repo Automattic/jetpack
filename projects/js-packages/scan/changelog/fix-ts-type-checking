@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fixed TS type checking in the monorepo

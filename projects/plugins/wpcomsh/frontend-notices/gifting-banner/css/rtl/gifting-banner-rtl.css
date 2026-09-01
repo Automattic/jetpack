@@ -1,6 +1,7 @@
 /* This file was automatically generated on Dec 23 2022 01:06:01 */
 
-/* NOTICE! This file exists in WPCOM & WPCOMSH. Updates need to be synced to both repos. */
+/* NOTICE! This file exists in WPCOM & WPCOMSH.
+ * Updates need to be synced to both repos. */
 
 .wpcom-coming-soon-body .wpcom-gifting-banner,
 .wpcom-coming-soon-private-default-body .wpcom-gifting-banner,
@@ -11,8 +12,16 @@
 .wpcom-gifting-banner {
 	background: #000;
 	color: #fff;
-	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu,
-	Cantarell, "Helvetica Neue", sans-serif;
+	font-family:
+		-apple-system,
+		BlinkMacSystemFont,
+		"Segoe UI",
+		Roboto,
+		Oxygen-Sans,
+		Ubuntu,
+		Cantarell,
+		"Helvetica Neue",
+		sans-serif;
 }
 
 .wpcom-gifting-banner__img {
@@ -89,7 +98,7 @@
 
 .wpcom-gifting-banner__more-info-button::before {
 	background: url(../../images/gridicons-help-outline.svg) no-repeat center;
-	content: '';
+	content: "";
 	height: 16px;
 	width: 16px;
 	position: absolute;

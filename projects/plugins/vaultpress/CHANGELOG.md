@@ -2,6 +2,42 @@
 
 All notable changes to this project will be documented in this file.
 
+## 4.0.7 - 2026-04-10
+### Changed
+- Update package dependencies. [#46785] [#47021] [#47505]
+
+### Fixed
+- Ensure proper flags are used with `json_encode()`. [#46117]
+- Avoid fatal error when receiving an error from the VaultPress service. [#46660]
+
+## 4.0.6 - 2025-11-21
+### Fixed
+- Phan: Address PhanPossiblyUndeclaredVariable violations. [#45911]
+
+## 4.0.4 - 2025-11-12
+### Added
+- Tested up to WordPress 6.9. [#45571]
+
+### Changed
+- Update package dependencies. [#45478]
+
+## 4.0.3 - 2025-09-09
+### Changed
+- Update package dependencies. [#44206] [#44725] [#45096]
+
+## 4.0.2 - 2025-06-09
+### Changed
+- Update package dependencies. [#43425] [#43839]
+
+### Fixed
+- Code: Update stylesheets to use hex instead of named colors. [#42920]
+- Code: Update stylesheets to use WordPress font styles. [#42928]
+- Linting: Clean up various Stylelint violations. [#43166]
+- Linting: Do additional stylesheet cleanup. [#43247]
+- Linting: Fix more Stylelint violations. [#43213]
+- Linting: Remove outdated vendor prefixes in stylesheets. [#43219]
+- Linting: Use double colon notation for pseudo-element selectors. [#43019]
+
 ## 4.0.1 - 2025-04-07
 ### Changed
 - Code: First pass of style coding standards. [#42734]

@@ -27,6 +27,12 @@
 	min-width: 36px;
 }
 
+// Render the smaller toggle variant (previously the jetpack-components
+// `size="small"` prop, which set `--base-width: 6px` on the form toggle).
+.small {
+	--base-width: 6px;
+}
+
 .content {
 	width: 100%;
 }
@@ -35,4 +41,8 @@
 	width: 100%;
 	margin-bottom: 2em;
 	margin-top: 1em;
+}
+
+.offlineMessage {
+	line-height: 1.5;
 }

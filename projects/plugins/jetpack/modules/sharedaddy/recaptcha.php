@@ -5,6 +5,10 @@
  * @package automattic/jetpack
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Class that handles reCAPTCHA.
  *
@@ -215,7 +219,7 @@ class Jetpack_ReCaptcha {
 		);
 
 		if ( ! $this->config['script_lazy'] ) {
-			$html = $html . sprintf(
+			$html .= sprintf(
 				// phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript
 				'<script src="%s"%s%s></script>
 				',

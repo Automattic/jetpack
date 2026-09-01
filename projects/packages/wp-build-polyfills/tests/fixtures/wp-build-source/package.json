@@ -1,0 +1,18 @@
+{
+	"name": "@automattic/_strip-unminified-prod-fixture",
+	"version": "0.0.0",
+	"private": true,
+	"description": "Minimal wp-build source tree used by strip-unminified-prod tests to exercise the bin against real wp-build output. Not a workspace member.",
+	"wpPlugin": {
+		"name": "strip_fixture",
+		"scriptGlobal": "stripFixture",
+		"packageNamespace": "strip-fixture",
+		"handlePrefix": "strip-fixture",
+		"pages": [
+			"strip-fixture-page"
+		]
+	},
+	"browserslist": [
+		"extends @wordpress/browserslist-config"
+	]
+}

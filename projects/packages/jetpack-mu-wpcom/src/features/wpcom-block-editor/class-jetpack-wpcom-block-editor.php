@@ -197,7 +197,7 @@ class Jetpack_WPCOM_Block_Editor {
 		<script type="application/javascript">
 			document.getElementById( 'loginform' ).addEventListener( 'submit' , function() {
 				document.getElementById( 'wp-submit' ).setAttribute( 'disabled', 'disabled' );
-				document.getElementById( 'wp-submit' ).value = '<?php echo esc_js( __( 'Logging In...', 'jetpack-mu-wpcom' ) ); ?>';
+				document.getElementById( 'wp-submit' ).value = <?php echo wp_json_encode( __( 'Logging In...', 'jetpack-mu-wpcom' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 			} );
 		</script>
 		<?php
@@ -328,19 +328,19 @@ class Jetpack_WPCOM_Block_Editor {
 		$debug   = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG;
 		$version = gmdate( 'Ymd' );
 
+		// Keep these dependencies in sync with the generated asset metadata from
+		// the Calypso wpcom-block-editor app.
 		wp_enqueue_script(
 			'wpcom-block-editor-default-editor-script',
 			$debug
 				? '//widgets.wp.com/wpcom-block-editor/default.editor.js?minify=false'
 				: '//widgets.wp.com/wpcom-block-editor/default.editor.min.js',
 			array(
-				'jquery',
-				'lodash',
-				'wp-annotations',
+				'react',
+				'wp-block-editor',
+				'wp-blocks',
 				'wp-compose',
 				'wp-data',
-				'wp-editor',
-				'wp-element',
 				'wp-rich-text',
 			),
 			$version,
@@ -367,10 +367,19 @@ class Jetpack_WPCOM_Block_Editor {
 				: '//widgets.wp.com/wpcom-block-editor/wpcom.editor.min.js',
 			array(
 				'lodash',
+				'react',
+				'wp-block-editor',
 				'wp-blocks',
+				'wp-components',
+				'wp-compose',
 				'wp-data',
 				'wp-dom-ready',
+				'wp-element',
+				'wp-hooks',
+				'wp-i18n',
 				'wp-plugins',
+				'wp-primitives',
+				'wp-url',
 			),
 			$version,
 			true
@@ -391,7 +400,6 @@ class Jetpack_WPCOM_Block_Editor {
 					? '//widgets.wp.com/wpcom-block-editor/calypso.editor.js?minify=false'
 					: '//widgets.wp.com/wpcom-block-editor/calypso.editor.min.js',
 				array(
-					'calypsoify_wpadminmods_js',
 					'jquery',
 					'lodash',
 					'react',

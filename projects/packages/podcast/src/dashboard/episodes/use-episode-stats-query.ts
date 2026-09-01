@@ -1,0 +1,108 @@
+import jetpackAnalytics from '@automattic/jetpack-analytics';
+import { getSiteData } from '@automattic/jetpack-script-data';
+import apiFetch from '@wordpress/api-fetch';
+import { useEffect, useMemo, useRef, useState } from '@wordpress/element';
+import { addQueryArgs } from '@wordpress/url';
+import type { EpisodeStats } from '../types';
+
+/**
+ * Read plays + duration for a set of episode post IDs. Custom wpcom endpoint
+ * (no core-data entity), so a thin `apiFetch` + `useState` wrapper. Server
+ * caches 5 minutes; refetching on remount is cheap.
+ *
+ * `premiumRequired` is `true` when the endpoint responds with a
+ * `podcast_premium_required` error code. The dashboard tab gate normally
+ * hides the stats UI before any request fires, so this is a defense-in-depth
+ * state for stale gate snapshots and grandfather-edge races.
+ *
+ * `isError` is `true` for any other request failure. Stats are display-only
+ * enrichment, so a failure degrades to empty data plus this flag rather than
+ * throwing — a throw here escapes into a detached promise, past React's error
+ * boundaries, as an unhandled rejection.
+ *
+ * @param postIds - Episode post IDs (from the visible page of the table).
+ * @return         `{ data, premiumRequired, isError }`.
+ */
+export function useEpisodeStatsQuery( postIds: number[] ): {
+	data: EpisodeStats[];
+	premiumRequired: boolean;
+	isError: boolean;
+} {
+	const [ data, setData ] = useState< EpisodeStats[] >( [] );
+	const [ premiumRequired, setPremiumRequired ] = useState( false );
+	const [ isError, setIsError ] = useState( false );
+	// Fire the fail-open divergence event at most once per mount so paging
+	// through a gated site doesn't inflate the count.
+	const premiumTracked = useRef( false );
+	// Sort so the effect dep is stable regardless of incoming order.
+	const key = useMemo( () => [ ...postIds ].sort( ( a, b ) => a - b ).join( ',' ), [ postIds ] );
+
+	useEffect( () => {
+		if ( ! key ) {
+			setData( [] );
+			setPremiumRequired( false );
+			setIsError( false );
+			return;
+		}
+		const ids = key.split( ',' ).map( Number );
+		let cancelled = false;
+		// Clear prior flags before refetching so a stale gate/error state can't
+		// outlive the request that set it.
+		setPremiumRequired( false );
+		setIsError( false );
+		( async () => {
+			const out: EpisodeStats[] = [];
+			// Chunked to 50 IDs to match the wpcom endpoint's max page size.
+			for ( let i = 0; i < ids.length; i += 50 ) {
+				if ( cancelled ) {
+					return;
+				}
+				const chunk = ids.slice( i, i + 50 );
+				try {
+					const result = ( await apiFetch( {
+						path: addQueryArgs( '/wpcom/v2/podcast-stats/episode-totals', {
+							post_ids: chunk.join( ',' ),
+						} ),
+						method: 'GET',
+					} ) ) as { episodes?: EpisodeStats[] } | EpisodeStats[];
+					if ( Array.isArray( result ) ) {
+						out.push( ...result );
+					} else if ( result.episodes ) {
+						out.push( ...result.episodes );
+					}
+				} catch ( error ) {
+					const err = error as { code?: string };
+					if ( ! cancelled ) {
+						setData( [] );
+						if ( err?.code === 'podcast_premium_required' ) {
+							setPremiumRequired( true );
+							// Client access gate is fail-open, so an unentitled user can
+							// reach this real request and get rejected server-side. Record
+							// the divergence so the stale/fail-open rate is visible rather
+							// than silent.
+							if ( ! premiumTracked.current ) {
+								premiumTracked.current = true;
+								jetpackAnalytics.tracks.recordEvent( 'jetpack_podcast_stats_premium_gate_hit', {
+									current_plan: getSiteData()?.plan?.product_slug ?? '',
+								} );
+							}
+						} else {
+							setIsError( true );
+						}
+					}
+					return;
+				}
+			}
+			if ( ! cancelled ) {
+				setData( out );
+				setPremiumRequired( false );
+				setIsError( false );
+			}
+		} )();
+		return () => {
+			cancelled = true;
+		};
+	}, [ key ] );
+
+	return { data, premiumRequired, isError };
+}

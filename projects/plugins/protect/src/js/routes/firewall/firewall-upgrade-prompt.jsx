@@ -1,5 +1,5 @@
-import { Button } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
+import { Button } from '@wordpress/ui';
 import { useCallback } from 'react';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import usePlan from '../../hooks/use-plan';

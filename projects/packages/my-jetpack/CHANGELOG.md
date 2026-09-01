@@ -5,6 +5,714 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.0.0] - 2026-08-26
+### Removed
+- Minimum supported PHP version is now 7.4. [#51515]
+
+## [5.44.1] - 2026-08-25
+### Changed
+- Stats: Replace the commercial-use row on the Add Stats screen with UTM tracking, device stats, and location detail. [#51410]
+
+### Fixed
+- Fix a PHP 8.5 deprecation notice raised for products that do not ship a standalone plugin. [#51162]
+- Plans section: Always label the license activation link "Activate a license", including on sites with a plan but no activated licenses. [#51283]
+- Stats: Tell the Stats dashboard when Start for Free was chosen, so it does not ask which plan you want a second time. [#51413]
+
+## [5.44.0] - 2026-08-20
+### Added
+- Error UI: Add a support link to broken-connection notices when reconnecting may not resolve the problem. [#51360]
+
+## [5.43.1] - 2026-08-19
+### Changed
+- Update package dependencies. [#51399]
+
+## [5.43.0] - 2026-08-13
+### Changed
+- Connection: Leave another user's broken token out of the connection error notice, since only that user can restore it. [#51034]
+- Connection: Show the scope and error code of each connection error in the notice, instead of only the first error's message. [#51034]
+
+## [5.42.3] - 2026-08-12
+### Changed
+- Protect: Test the site protection data endpoint against the real firewall configuration. [#51184]
+
+## [5.42.2] - 2026-08-11
+### Changed
+- Update dependencies. [#46951]
+
+## [5.42.1] - 2026-08-11
+### Changed
+- Update package dependencies. [#51125]
+
+## [5.42.0] - 2026-08-10
+### Security
+- Cache the support chat authentication token per user instead of site-wide.
+- Only expose the full firewall configuration and scan report to users who can manage site options.
+
+### Added
+- Jetpack AI: Drive the product card from the new AI module with an inline on/off toggle. [#50718]
+
+### Changed
+- Limit the AI card's module toggle to internal testing environments ahead of release. [#50718]
+- Stats: Point the product card at the Premium Analytics dashboard when it replaces the Stats page. [#50926]
+- Update package dependencies. [#50509] [#51008]
+
+### Fixed
+- Fix the My Jetpack page rendering blank on WordPress 6.9. [#50509]
+- Reload after toggling the AI card, so the toggle and every other surface reflect the new module state. [#50718]
+
+## [5.41.1] - 2026-08-03
+### Changed
+- Update dependencies. [#46951]
+
+## [5.41.0] - 2026-07-27
+### Changed
+- Force a full page reload after activating or deactivating VideoPress, so the WP Admin menu reflects the new activation state. [#50740]
+- Show only the Products section, without the tab bar, on WordPress.com Simple sites. [#50694]
+- Skip the connection onboarding flow on WordPress.com Simple sites, which are connected by definition. [#50693]
+- Update package dependencies. [#50751] [#50753] [#50792]
+
+### Fixed
+- Record the tab-click analytics event only on a real tab change, and rewrite a stale or invalid section hash to the section shown. [#50694]
+
+## [5.40.9] - 2026-07-22
+### Changed
+- Update package dependencies. [#50683]
+
+### Fixed
+- Hide the Modules footer link and the Help tab's Useful links section (All Jetpack modules, Debug information) on WordPress.com Simple sites, where the target admin pages do not exist. [#50675]
+
+## [5.40.8] - 2026-07-20
+### Changed
+- Allow pricing interstitials to limit container width. [#50567]
+- Update package dependencies. [#50510] [#50529] [#50582]
+
+### Fixed
+- Connection: Ensure My Jetpack Connection status card is compatible with TSX in Jetpack Connection package. [#50370]
+- Hide the large Stats graph when the Stats module is disabled, and show the compact Stats card with an activation CTA instead. [#50464]
+- Register a pricing-table config for Stats so the interstitial no longer renders an empty column. [#50535]
+- Reload the page after toggling a menu-registering module (Podcast, Newsletter, Reader) in My Jetpack so the wp-admin sidebar reflects the change, matching the Forms toggle behavior. [#50269]
+
+## [5.40.7] - 2026-07-13
+### Changed
+- Update package dependencies. [#50407]
+
+### Fixed
+- Fix route changes in Chrome when scroll APIs return promises. [#50465]
+- Show a Site Editor action for sharing buttons on block themes. [#50355]
+
+## [5.40.6] - 2026-07-09
+### Changed
+- My Jetpack now reports its red-bubble alerts to the central menu-badges registry instead of writing admin-menu markup directly; the Protect alert is skipped there since Protect reports its own count. [#50190]
+- Update package dependencies. [#49272]
+
+### Fixed
+- Fix the My Jetpack app failing to load on WordPress 6.9 installs without the Gutenberg plugin active, where the wp-theme script handle it depends on is otherwise unregistered. [#50291]
+
+## [5.40.5] - 2026-07-06
+### Changed
+- Consume the resolved actions from the Connection package instead of duplicating the action-resolution logic. [#50081]
+- Update package dependencies. [#50097] [#50183] [#50212]
+
+### Fixed
+- De-duplicate search results so a product no longer appears twice (e.g. Forms, VideoPress). [#50056]
+- Products: Keep product search result order stable while typing a category name. [#50058]
+
+## [5.40.4] - 2026-06-29
+### Changed
+- Update dependencies. [#46951]
+
+## [5.40.3] - 2026-06-26
+### Changed
+- Migrate ProductDetailCard typography from the in-house `@automattic/jetpack-components` Text to `@wordpress/ui` Text, adopting the closest design-system variants. [#49704]
+
+### Fixed
+- Fix fatal error when an older bundled SEO package is loaded: guard the SEO opt-in card with method_exists instead of class_exists. [#49988]
+
+## [5.40.2] - 2026-06-25
+### Changed
+- Internal updates.
+
+## [5.40.1] - 2026-06-24
+### Changed
+- Update dependencies. [#46951]
+
+## [5.40.0] - 2026-06-23
+### Changed
+- Rank product search results by relevance so direct title matches appear first. [#49804]
+- Update package dependencies. [#49831]
+
+### Fixed
+- Fix `@wordpress/ui` 0.15 type error: accept anchor click events on the secondary action button's `onClick` handler so it works when rendered as a Link. [#49800]
+
+## [5.39.0] - 2026-06-22
+### Added
+- List Jetpack Forms as a product card in the Growth section instead of a plain module list item. [#49665]
+- Add a card inviting existing self-hosted installs to try the new Jetpack SEO dashboard. [#49672]
+- Podcast: List the Podcast module under the Growth section. [#49790]
+
+### Changed
+- Import the Jetpack modules data store from the new `jetpack-shared-stores` package. [#49494]
+- Update package dependencies. [#49631] [#49638] [#49691] [#49732] [#49757]
+
+### Fixed
+- Modules list: Fix rounded corners so row dividers no longer poke past the border. [#49763]
+
+## [5.38.4] - 2026-06-15
+### Changed
+- Update dependencies. [#46951]
+
+## [5.38.3] - 2026-06-10
+### Changed
+- Only show the Help section's Useful links when the Jetpack plugin is active and the user can manage options. [#49277]
+- Update package dependencies. [#49273] [#49492]
+
+## [5.38.2] - 2026-06-08
+### Changed
+- Update dependencies. [#46951]
+
+## [5.38.1] - 2026-06-08
+### Changed
+- Internal updates.
+
+## [5.38.0] - 2026-06-05
+### Added
+- My Jetpack: Move the jetpack-ai-jwt REST endpoint to the Agents Manager package. [#49415]
+
+### Changed
+- Update package dependencies. [#49379]
+
+## [5.37.6] - 2026-06-01
+### Changed
+- My Jetpack: migrate the product card main CTA to @wordpress/ui Button and surface a spinner while an action is in progress. [#49239]
+
+## [5.37.5] - 2026-06-01
+### Changed
+- My Jetpack: Migrate link-variant Buttons in Plans section and product interstitial modal to @wordpress/ui Link. [#49109]
+- Update package dependencies. [#48404]
+
+### Fixed
+- Connection: Allow admins to access the disconnect dialog without connecting their account first. [#49162]
+- My Jetpack: Render the Overview and Help footers full-width and remove the gray gap below them. [#49278]
+- My Jetpack: Use @wordpress/ui Link and Text components in the Help tab footer for consistent typography. [#49238]
+
+## [5.37.4] - 2026-05-25
+### Changed
+- Internal updates.
+
+## [5.37.3] - 2026-05-21
+### Changed
+- Update package dependencies. [#48405]
+- Update package dependencies. [#49012]
+
+### Fixed
+- Phan: Address PhanPluginDuplicateConditionalNullCoalescing violations. [#48887]
+
+## [5.37.2] - 2026-05-19
+### Changed
+- Update package dependencies. [#48910]
+
+## [5.37.1] - 2026-05-14
+### Changed
+- Update package dependencies. [#48696]
+
+### Fixed
+- Prevent PHP deprecated notice when retrieving tier-based descriptions. [#48524]
+
+## [5.37.0] - 2026-05-11
+### Changed
+- Components: Replace Gridicon with Icon and named icon exports from `@wordpress/icons`. [#48537]
+- Components: Use Link from `@wordpress/ui` instead of ExternalLink. [#48529]
+- My Jetpack: Adopt the shared `jetpack-admin-page-layout` mixin on the main dashboard page so its layout matches the rest of the Jetpack admin pages. [#48503]
+- My Jetpack: Migrate interstitial Buttons from `@automattic/jetpack-components` and `@wordpress/components` to `@wordpress/ui`. [#48489]
+
+### Fixed
+- My Jetpack: Drop `overflow-x: hidden` on the `<AdminPage>` root so the page no longer becomes its own scroll container. [#48578]
+- My Jetpack: Fix `.jetpack-admin-full-screen` interstitial pages being constrained by the shared admin-page-layout mixin. [#48536]
+
+## [5.36.0] - 2026-05-04
+### Added
+- My Jetpack: Add Modules link to the footer for admins on connected sites running the main Jetpack plugin. [#48304]
+
+### Changed
+- Components: Migrate Tier 1 `jetpack-components` to `@wordpress/components` and `@wordpress/icons` (no user-facing change). [#48378]
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+- My Jetpack: Render product-interstitial back-link in the unified header's breadcrumbs slot, and move the "Use license key" CTA into the header actions slot. No new dependency or behavior change. [#48414]
+- Remove New badge style from the Jetpack AI product interstitial. [#48174]
+- Replace deprecated jetpack-components Spinner with WordPress Core Spinner. [#47451]
+
+### Removed
+- Drop the legacy Activity Log menu registration; the new activity-log package now owns that menu item. [#48244]
+
+## [5.35.0] - 2026-04-27
+### Changed
+- My Jetpack: Hide the Google Fonts module toggle unless the module is already active. [#48216]
+- Replace Badge from `@automattic/ui` with Badge from `@wordpress/ui`, and CheckmarkIcon with Icon from `@wordpress/icons`. [#48167]
+
+### Removed
+- Remove orphaned new-badge styles from Jetpack AI product interstitial. [#48162]
+
+### Fixed
+- Restore background on the "Supercharge my site" onboarding button by using the core Button's primary variant. [#48240]
+
+## [5.34.4] - 2026-04-20
+### Changed
+- Remove Jetpack color overrides on core WordPress components. [#47317]
+- Update package dependencies. [#48106] [#48126] [#48141]
+
+### Removed
+- Newsletter: remove jetpack_wp_admin_newsletter_settings_enabled filter check; the manage URL always points to the wp-admin newsletter settings page. [#48092]
+
+## [5.34.3] - 2026-04-15
+### Changed
+- Update package dependencies. [#47907]
+- Update purchases endpoint from v1.1 /sites/$site/purchases to v1.2 /upgrades?site=$site. [#48035]
+
+### Fixed
+- My Jetpack: Fix Hybrid products not deactivating when activated via the Jetpack-module path. [#48091]
+
+## [5.34.2] - 2026-04-10
+### Changed
+- Update package dependencies. [#47890] [#47998]
+
+## [5.34.1] - 2026-04-06
+### Changed
+- AI product page: Remove Write Brief (Breve) video showcase section. [#47914]
+- Reorder admin menu items so external links appear last. [#47418]
+- Update admin page footer design. [#47840]
+- Update package dependencies. [#47870]
+
+## [5.34.0] - 2026-03-30
+### Changed
+- Update DataViews dependency. [#46973]
+- Update Newsletter manage URL to default to new WP Admin settings page. [#47750]
+- Update package dependencies. [#47799]
+
+### Fixed
+- Suppress backup failure and scan threat notifications on multisite installations where these products are not supported. [#47284]
+
+## [5.33.0] - 2026-03-23
+### Added
+- Display MCP client actor attribution in My Jetpack backup card. [#47429]
+
+### Changed
+- Update package dependencies. [#47684] [#47719]
+
+### Fixed
+- Move admin notices and JITMs below the tab bar instead of rendering inside the page header. [#47558]
+
+## [5.32.0] - 2026-03-16
+### Added
+- Add Canonical URLs module to the Growth section in My Jetpack. [#47364]
+
+### Changed
+- Update dependencies. [#47472]
+
+## [5.31.9] - 2026-03-09
+### Changed
+- Migrate admin page header to use unified AdminHeader component. [#47313]
+- Newsletter: Update manage URL to redirect to new settings page when WP Admin newsletter settings are enabled. [#47347]
+- Reorder admin menu items so external links appear last. [#47417]
+- Switch to Native TypeScript compiler based on Go. [#47375]
+- Unified Header: Add border back to the header. [#47425]
+- Update package dependencies. [#47496]
+
+### Fixed
+- Fix Hello Dolly banner z-index to prevent overlap on the My Jetpack page. [#47313]
+- Fix TypeScript errors detected by tsgo. [#47409]
+
+## [5.31.8] - 2026-03-02
+### Fixed
+- Fix JS tests following the change in `useConnection`. [#47380]
+
+## [5.31.7] - 2026-02-26
+### Changed
+- Update package dependencies. [#47285] [#47300] [#47309]
+
+## [5.31.6] - 2026-02-23
+### Changed
+- Move `wpcom-reader` module from Other to Growth category in My Jetpack tab panel. [#47245]
+
+## [5.31.5] - 2026-02-19
+### Changed
+- Internal updates.
+
+## [5.31.4] - 2026-02-18
+### Changed
+- Update package dependencies. [#47173]
+
+## [5.31.3] - 2026-02-16
+### Changed
+- Convert product interstitial and onboarding images from PNG to WebP. [#47083]
+- Update external menu links in My Jetpack to use an external-link arrow indicator (↗) for improved clarity and modern appearance. [#47076]
+- Update package dependencies. [#47099]
+
+### Fixed
+- Compatibility: Clean up deprecated CSS. [#47067]
+
+## [5.31.2] - 2026-02-10
+### Changed
+- Update package dependencies. [#47002]
+
+## [5.31.1] - 2026-02-04
+### Changed
+- Update dependencies. [#46944]
+
+## [5.31.0] - 2026-02-03
+### Added
+- Modules: add new Reader module. [#46781]
+
+### Changed
+- Update package dependencies. [#46905]
+
+## [5.30.4] - 2026-02-02
+### Added
+- Adding Jetpack Protect details page for users without the dedicated Jetpack Protect plugin. [#46630]
+
+### Changed
+- Update package dependencies. [#46853] [#46854]
+
+## [5.30.3] - 2026-01-26
+### Changed
+- Update package dependencies. [#46430]
+
+## [5.30.2] - 2026-01-26
+### Added
+- Add HMR support by wiring up webpack dev server. [#46686]
+
+### Changed
+- Update dependencies. [#46697]
+
+## [5.30.1] - 2026-01-19
+### Changed
+- Check red bubble notifications async when cache is not available. [#46396]
+- Update package dependencies. [#46647]
+
+## [5.30.0] - 2026-01-14
+### Added
+- Add 'View included features' link to Plans section for quick access to plan features. [#46520]
+
+### Changed
+- Show module descriptions beneath titles instead of in tooltips for improved discoverability. [#46518]
+- Update package dependencies. [#46552]
+
+## [5.29.3] - 2026-01-12
+### Changed
+- Plans section: Update 'Activate a license' text to 'Activate a new license' when user already has active licenses, and add visual separation before actions list. [#46501]
+- Update package dependencies. [#46512]
+
+## [5.29.2] - 2026-01-07
+### Changed
+- Update package dependencies. [#46456]
+
+## [5.29.1] - 2026-01-06
+### Fixed
+- Fix false "backup failed" error for deactivated backups. [#46299]
+
+## [5.29.0] - 2025-12-22
+### Changed
+- Add benefit-driven success messages for module activation. [#46251]
+- Update package dependencies. [#46362] [#46363]
+
+## [5.28.11] - 2025-12-15
+### Changed
+- Update dependencies. [#46157]
+
+## [5.28.10] - 2025-12-11
+### Changed
+- Update package dependencies. [#46244]
+
+## [5.28.9] - 2025-12-08
+### Changed
+- Update package dependencies. [#45914]
+
+### Fixed
+- Ensure proper flags are used with `json_encode()`. [#46092]
+
+## [5.28.8] - 2025-12-01
+### Changed
+- Update dependencies. [#46116] [#46143]
+
+## [5.28.7] - 2025-11-24
+### Fixed
+- Fix false error for new sites during backup provisioning. [#46008]
+
+## [5.28.6] - 2025-11-20
+### Changed
+- Update package dependencies. [#46022]
+
+### Fixed
+- My Jetpack: Fix expiring renewal prompt to show all products. [#45995]
+- Redirect partner coupon redemption requests to Jetpack dashboard to ensure coupon can be redeemed. [#45994]
+
+## [5.28.5] - 2025-11-19
+### Changed
+- Update dependencies. [#45493]
+
+## [5.28.4] - 2025-11-18
+### Changed
+- Update dependencies. [#45493]
+
+## [5.28.3] - 2025-11-17
+### Changed
+- Update package dependencies. [#45915] [#45932] [#45958]
+
+### Fixed
+- My Jetpack: Add missing background color for products list. [#45893]
+
+## [5.28.2] - 2025-11-12
+### Changed
+- Update dependencies. [#45493]
+
+## [5.28.1] - 2025-11-10
+### Changed
+- Use number formatting in pricing/plan features. [#45794]
+- Update package dependencies. [#45735] [#45737] [#45756]
+
+### Fixed
+- Fix Protect card showing as active when Jetpack modules are disabled. [#45795]
+
+## [5.28.0] - 2025-11-03
+### Changed
+- Don't translate product names. [#43961]
+
+## [5.27.10] - 2025-10-28
+### Changed
+- Update package dependencies. [#45652]
+
+## [5.27.9] - 2025-10-27
+### Changed
+- Update package dependencies. [#45551]
+
+## [5.27.8] - 2025-10-21
+### Changed
+- Update dependencies. [#45493]
+
+## [5.27.7] - 2025-10-20
+### Fixed
+- Prevent PHP errors when notification data is malformed. [#45385]
+
+## [5.27.6] - 2025-10-14
+### Changed
+- Update dependencies. [#45488]
+
+### Fixed
+- My Jetpack page: fix visual compatibility issue with Hello Dolly plugin. [#45474]
+
+## [5.27.5] - 2025-10-13
+### Changed
+- Update dependencies. [#45466]
+
+## [5.27.4] - 2025-10-10
+### Changed
+- Update dependencies. [#45423]
+- Update package dependencies. [#45428]
+
+## [5.27.3] - 2025-10-06
+### Changed
+- Update package dependencies. [#45334] [#45335]
+
+## [5.27.2] - 2025-09-29
+### Changed
+- Update dependencies. [#45179]
+
+## [5.27.1] - 2025-09-22
+### Changed
+- Update dependencies. [#45179]
+
+## [5.27.0] - 2025-09-19
+### Changed
+- Update @wordpress/dataviews package from v7 to v9. [#45213]
+- Update package dependencies. [#45173] [#45229]
+
+## [5.26.3] - 2025-09-15
+### Changed
+- Update dependencies. [#45130]
+
+## [5.26.2] - 2025-09-09
+### Changed
+- Update dependencies. [#45113]
+
+## [5.26.1] - 2025-09-08
+### Changed
+- Update dependencies. [#45050]
+
+## [5.26.0] - 2025-09-08
+### Changed
+- Update @wordpress/dataviews package from v5.0.0 to v7.0.0. [#45012]
+- Update package dependencies. [#45027] [#45097]
+
+## [5.25.2] - 2025-09-03
+### Fixed
+- Prevent PHP error when using WP-CLI. [#45045]
+
+## [5.25.1] - 2025-09-02
+### Changed
+- Update dependencies. [#45044]
+
+## [5.25.0] - 2025-09-01
+### Added
+- Add product interstitials state management. [#44772]
+
+### Changed
+- Remove CRM installation nudge for Complete plan users. [#45026]
+
+## [5.24.0] - 2025-08-25
+### Changed
+- Use PricingTable component for product interstitials. [#44801]
+
+### Fixed
+- Resolve `PhanImpossibleCondition` violations. [#44869]
+
+## [5.23.2] - 2025-08-21
+### Changed
+- Lift the TypeScript types up from product tabs for reusability. [#44857]
+
+## [5.23.1] - 2025-08-18
+### Changed
+- Update dependencies. [#44736]
+
+## [5.23.0] - 2025-08-14
+### Added
+- Add new Interstitial component. [#44665]
+
+### Changed
+- My Jetpack: Fix multisite availability check for restricted products and modules. [#44710]
+- Update package dependencies. [#44701]
+
+## [5.22.1] - 2025-08-11
+### Changed
+- Update dependencies. [#44673]
+- Update package dependencies. [#44677] [#44703]
+
+### Fixed
+- I18n: Improve context hints in comments for translators. [#44686]
+
+## [5.22.0] - 2025-08-04
+### Changed
+- My Jetpack: Unify the user connection flow with a unified screen. [#44469]
+- Update @wordpress/dataviews to 5.0.0. [#44376]
+
+### Fixed
+- My Jetpack: Prevent expiration alerts for products covered by active bundles. [#44586]
+
+## [5.21.0] - 2025-07-30
+### Removed
+- Remove redundant sending on "nocache" headers on the My Jetpack admin screen, as these are already sent by WordPress. [#44322]
+
+### Fixed
+- My Jetpack: Restoring plan purchase link. [#44535]
+
+## [5.20.2] - 2025-07-28
+### Changed
+- Update dependencies. [#44463]
+
+### Fixed
+- Fix footer alignment for disconnected accounts. [#44468]
+
+## [5.20.1] - 2025-07-24
+### Removed
+- Admin: Remove references to deprecated feature.
+
+## [5.20.0] - 2025-07-23
+### Changed
+- Connection: Removed hard-coded custom errors and added support for dynamic errors. [#44281]
+- Replace static mobile app text with direct link to download page. [#44366]
+- Update dependencies. [#44407]
+
+### Removed
+- Remove old onboarding global notice. [#44392]
+
+## [5.19.0] - 2025-07-21
+### Changed
+- Enable My Jetpack access on WP Multisite. [#44260]
+- Show warning for products and modules not available for multisite. [#44260]
+- Update package dependencies. [#44356]
+
+## [5.18.0] - 2025-07-14
+### Added
+- Add project-level `CLAUDE.md`. [#44191]
+
+### Changed
+- Fix some issues with site disconnections. [#44196]
+- Update package dependencies. [#44219]
+
+## [5.17.4] - 2025-07-08
+### Changed
+- Update package dependencies. [#44217]
+
+## [5.17.3] - 2025-07-07
+### Changed
+- Update dependencies. [#38910]
+
+## [5.17.2] - 2025-07-03
+### Changed
+- Update package dependencies. [#44151]
+
+## [5.17.1] - 2025-07-01
+### Added
+- My Jetpack: Implemented analytics. [#44153]
+
+### Fixed
+- Products: Fix the alignment and responsiveness of product cards. [#44154]
+
+## [5.17.0] - 2025-06-30
+### Changed
+- Stats: Update card to include a chart and better align with Jetpack Stats. [#43870]
+- Onboarding: Improve product discovery. [#43870]
+- Update package dependencies. [#43870]
+
+## [5.16.8] - 2025-06-27
+### Changed
+- Internal updates.
+
+## [5.16.7] - 2025-06-24
+### Changed
+- Update dependencies. [#38910]
+
+## [5.16.6] - 2025-06-23
+### Changed
+- Update dependencies. [#38910]
+
+## [5.16.5] - 2025-06-23
+### Changed
+- Update package dependencies. [#44020]
+
+## [5.16.4] - 2025-06-18
+### Fixed
+- Use compact number notation in the Protect card. [#43977]
+
+## [5.16.3] - 2025-06-16
+### Changed
+- Update package dependencies. [#43892] [#43951]
+
+## [5.16.2] - 2025-06-10
+### Changed
+- Update dependencies. [#38910]
+
+## [5.16.1] - 2025-06-06
+### Changed
+- Internal updates.
+
+## [5.16.0] - 2025-06-05
+### Added
+- Connection: error handling for protected owner on WPcom. [#43593]
+
+### Changed
+- Connection: Display connection info on WoA sites. [#43777]
+- Update package dependencies. [#43718] [#43734] [#43766]
+
+## [5.15.0] - 2025-06-02
+### Added
+- My Jetpack: Add comprehensive analytics tracking for tab interactions including tab switching, page views with tab context, and help request tracking. [#43592]
+
+### Changed
+- Onboarding: Improved the My Jetpack screen to make it more useful by splitting it into tabs. [#43592]
+- Update package dependencies. [#43711] [#43712]
+
+### Fixed
+- Fix product dataview settings icon visibility on re-render. [#43722]
+- Styling: Prevent styling from leaking outside of the onboarding screen. [#43526]
+
 ## [5.14.5] - 2025-05-26
 ### Changed
 - Update package dependencies. [#43578]
@@ -18,7 +726,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Add missing variables to Tanstack queryKey. [#43359]
-- Fixed Onboarding UI responsiveness at 600px. [#43533]
+- Fix Onboarding UI responsiveness at 600px. [#43533]
 
 ## [5.14.3] - 2025-05-19
 ### Changed
@@ -2158,6 +2866,125 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[6.0.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.44.1...6.0.0
+[5.44.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.44.0...5.44.1
+[5.44.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.43.1...5.44.0
+[5.43.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.43.0...5.43.1
+[5.43.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.42.3...5.43.0
+[5.42.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.42.2...5.42.3
+[5.42.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.42.1...5.42.2
+[5.42.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.42.0...5.42.1
+[5.42.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.41.1...5.42.0
+[5.41.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.41.0...5.41.1
+[5.41.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.40.9...5.41.0
+[5.40.9]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.40.8...5.40.9
+[5.40.8]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.40.7...5.40.8
+[5.40.7]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.40.6...5.40.7
+[5.40.6]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.40.5...5.40.6
+[5.40.5]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.40.4...5.40.5
+[5.40.4]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.40.3...5.40.4
+[5.40.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.40.2...5.40.3
+[5.40.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.40.1...5.40.2
+[5.40.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.40.0...5.40.1
+[5.40.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.39.0...5.40.0
+[5.39.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.38.4...5.39.0
+[5.38.4]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.38.3...5.38.4
+[5.38.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.38.2...5.38.3
+[5.38.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.38.1...5.38.2
+[5.38.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.38.0...5.38.1
+[5.38.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.37.6...5.38.0
+[5.37.6]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.37.5...5.37.6
+[5.37.5]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.37.4...5.37.5
+[5.37.4]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.37.3...5.37.4
+[5.37.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.37.2...5.37.3
+[5.37.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.37.1...5.37.2
+[5.37.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.37.0...5.37.1
+[5.37.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.36.0...5.37.0
+[5.36.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.35.0...5.36.0
+[5.35.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.34.4...5.35.0
+[5.34.4]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.34.3...5.34.4
+[5.34.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.34.2...5.34.3
+[5.34.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.34.1...5.34.2
+[5.34.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.34.0...5.34.1
+[5.34.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.33.0...5.34.0
+[5.33.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.32.0...5.33.0
+[5.32.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.31.9...5.32.0
+[5.31.9]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.31.8...5.31.9
+[5.31.8]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.31.7...5.31.8
+[5.31.7]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.31.6...5.31.7
+[5.31.6]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.31.5...5.31.6
+[5.31.5]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.31.4...5.31.5
+[5.31.4]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.31.3...5.31.4
+[5.31.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.31.2...5.31.3
+[5.31.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.31.1...5.31.2
+[5.31.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.31.0...5.31.1
+[5.31.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.30.4...5.31.0
+[5.30.4]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.30.3...5.30.4
+[5.30.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.30.2...5.30.3
+[5.30.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.30.1...5.30.2
+[5.30.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.30.0...5.30.1
+[5.30.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.29.3...5.30.0
+[5.29.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.29.2...5.29.3
+[5.29.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.29.1...5.29.2
+[5.29.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.29.0...5.29.1
+[5.29.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.28.11...5.29.0
+[5.28.11]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.28.10...5.28.11
+[5.28.10]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.28.9...5.28.10
+[5.28.9]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.28.8...5.28.9
+[5.28.8]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.28.7...5.28.8
+[5.28.7]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.28.6...5.28.7
+[5.28.6]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.28.5...5.28.6
+[5.28.5]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.28.4...5.28.5
+[5.28.4]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.28.3...5.28.4
+[5.28.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.28.2...5.28.3
+[5.28.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.28.1...5.28.2
+[5.28.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.28.0...5.28.1
+[5.28.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.27.10...5.28.0
+[5.27.10]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.27.9...5.27.10
+[5.27.9]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.27.8...5.27.9
+[5.27.8]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.27.7...5.27.8
+[5.27.7]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.27.6...5.27.7
+[5.27.6]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.27.5...5.27.6
+[5.27.5]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.27.4...5.27.5
+[5.27.4]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.27.3...5.27.4
+[5.27.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.27.2...5.27.3
+[5.27.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.27.1...5.27.2
+[5.27.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.27.0...5.27.1
+[5.27.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.26.3...5.27.0
+[5.26.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.26.2...5.26.3
+[5.26.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.26.1...5.26.2
+[5.26.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.26.0...5.26.1
+[5.26.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.25.2...5.26.0
+[5.25.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.25.1...5.25.2
+[5.25.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.25.0...5.25.1
+[5.25.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.24.0...5.25.0
+[5.24.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.23.2...5.24.0
+[5.23.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.23.1...5.23.2
+[5.23.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.23.0...5.23.1
+[5.23.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.22.1...5.23.0
+[5.22.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.22.0...5.22.1
+[5.22.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.21.0...5.22.0
+[5.21.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.20.2...5.21.0
+[5.20.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.20.1...5.20.2
+[5.20.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.20.0...5.20.1
+[5.20.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.19.0...5.20.0
+[5.19.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.18.0...5.19.0
+[5.18.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.17.4...5.18.0
+[5.17.4]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.17.3...5.17.4
+[5.17.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.17.2...5.17.3
+[5.17.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.17.1...5.17.2
+[5.17.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.17.0...5.17.1
+[5.17.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.16.8...5.17.0
+[5.16.8]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.16.7...5.16.8
+[5.16.7]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.16.6...5.16.7
+[5.16.6]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.16.5...5.16.6
+[5.16.5]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.16.4...5.16.5
+[5.16.4]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.16.3...5.16.4
+[5.16.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.16.2...5.16.3
+[5.16.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.16.1...5.16.2
+[5.16.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.16.0...5.16.1
+[5.16.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.15.0...5.16.0
+[5.15.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.14.5...5.15.0
 [5.14.5]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.14.4...5.14.5
 [5.14.4]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.14.3...5.14.4
 [5.14.3]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.14.2...5.14.3

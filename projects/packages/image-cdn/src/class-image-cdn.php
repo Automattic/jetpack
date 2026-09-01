@@ -1,4 +1,4 @@
-<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+<?php
 /**
  * Class for photon functionality.
  *
@@ -12,7 +12,7 @@ namespace Automattic\Jetpack\Image_CDN;
  */
 final class Image_CDN {
 
-	const PACKAGE_VERSION = '0.7.12';
+	const PACKAGE_VERSION = '0.7.29';
 
 	/**
 	 * Singleton.
@@ -60,7 +60,7 @@ final class Image_CDN {
 	 * @return object
 	 */
 	public static function instance() {
-		if ( ! is_a( self::$instance, self::class ) ) {
+		if ( ! self::$instance instanceof self ) {
 			self::$instance = new self();
 			self::$instance->setup();
 			self::$is_enabled = true;
@@ -110,7 +110,7 @@ final class Image_CDN {
 
 		// Responsive image srcset substitution.
 		add_filter( 'wp_calculate_image_srcset', array( $this, 'filter_srcset_array' ), 10, 5 );
-		add_filter( 'wp_calculate_image_sizes', array( $this, 'filter_sizes' ), 1, 2 ); // Early so themes can still easily filter.
+		add_filter( 'wp_calculate_image_sizes', array( $this, 'filter_sizes' ), 1, 3 ); // Early so themes can still easily filter.
 
 		/**
 		 * Allow Photon to disable uploaded images resizing and use its own resize capabilities instead.
@@ -212,7 +212,7 @@ final class Image_CDN {
 	public static function filter_photon_noresize_thumbnail_urls( $sizes ) {
 		foreach ( $sizes as $size => $url ) {
 			$parts     = explode( '?', $url );
-			$arguments = isset( $parts[1] ) ? $parts[1] : array();
+			$arguments = $parts[1] ?? array();
 
 			$sizes[ $size ] = Image_CDN_Core::cdn_url( $url, wp_parse_args( $arguments ) );
 		}
@@ -234,10 +234,10 @@ final class Image_CDN {
 			return $data;
 		}
 		$sizes_already_exist = (
-			true === is_array( $data )
-			&& true === array_key_exists( 'sizes', $data )
-			&& true === is_array( $data['sizes'] )
-			&& false === empty( $data['sizes'] )
+			is_array( $data )
+			&& array_key_exists( 'sizes', $data )
+			&& is_array( $data['sizes'] )
+			&& ! empty( $data['sizes'] )
 		);
 		if ( $sizes_already_exist ) {
 			return $data;
@@ -325,14 +325,19 @@ final class Image_CDN {
 	/**
 	 * Identify images in post content, and if images are local (uploaded to the current site), pass through Photon.
 	 *
-	 * @param string $content The content.
+	 * @param string|mixed $content The content; should be a string but will convert to an empty string if not.
 	 *
 	 * @uses self::validate_image_url, apply_filters, Image_CDN_Core::cdn_url, esc_url
 	 * @filter the_content
 	 *
-	 * @return string
+	 * @return string The content.
 	 */
 	public static function filter_the_content( $content ) {
+		// Early return if content is empty or not a string.
+		if ( ! is_string( $content ) || '' === $content ) {
+			return '';
+		}
+
 		static $image_tags      = array( 'IMG', 'AMP-IMG', 'AMP-ANIM' );
 		$content_width          = null;
 		$image_sizes            = null;
@@ -358,8 +363,10 @@ final class Image_CDN {
 			}
 
 			// Identify image source.
-			$src_orig = $processor->get_attribute( 'src' );
-			$src      = $src_orig;
+			$src_orig             = $processor->get_attribute( 'src' );
+			$src                  = $src_orig;
+			$placeholder_src      = null;
+			$placeholder_src_orig = null;
 
 			/*
 			 * Only examine tags that are considered an image,
@@ -523,7 +530,7 @@ final class Image_CDN {
 
 					// Basic check on returned post object.
 					if ( is_object( $attachment ) && ! is_wp_error( $attachment ) && 'attachment' === $attachment->post_type ) {
-						$src_per_wp = wp_get_attachment_image_src( $attachment_id, isset( $size ) ? $size : 'full' );
+						$src_per_wp = wp_get_attachment_image_src( $attachment_id, $size ?? 'full' );
 
 						if ( self::validate_image_url( $src_per_wp[0] ) ) {
 							$src          = $src_per_wp[0];
@@ -643,14 +650,12 @@ final class Image_CDN {
 					$processor->set_attribute( 'src', $photon_url );
 
 					// If Lazy Load is in use, pass placeholder image through Photon.
-					if ( isset( $placeholder_src ) && self::validate_image_url( $placeholder_src ) ) {
+					if ( $placeholder_src !== null && self::validate_image_url( $placeholder_src ) ) {
 						$placeholder_src = Image_CDN_Core::cdn_url( $placeholder_src );
 
 						if ( $placeholder_src !== $placeholder_src_orig ) {
 							$processor->set_attribute( $source_type, $placeholder_src );
 						}
-
-						unset( $placeholder_src );
 					}
 
 					// If we are not transforming the image with resize, fit, or letterbox (lb), then we should remove
@@ -663,7 +668,7 @@ final class Image_CDN {
 						$processor->remove_attribute( 'width' );
 						$processor->remove_attribute( 'height' );
 					} else {
-						$resize_args = isset( $args['resize'] ) ? $args['resize'] : false;
+						$resize_args = $args['resize'] ?? false;
 						if ( false === $resize_args ) {
 							$resize_args = ( ! $resize_args && isset( $args['fit'] ) )
 								? $args['fit']
@@ -976,18 +981,23 @@ final class Image_CDN {
 	/**
 	 * Filters an array of image `srcset` values, replacing each URL with its Photon equivalent.
 	 *
-	 * @param array $sources An array of image urls and widths.
-	 * @param array $size_array The size array for srcset.
-	 * @param array $image_src The image srcs.
-	 * @param array $image_meta The image meta.
-	 * @param int   $attachment_id Attachment ID.
+	 * @param array  $sources An array of image urls and widths.
+	 * @param array  $size_array The size array for srcset.
+	 * @param string $image_src The image src attribute.
+	 * @param array  $image_meta The image meta.
+	 * @param int    $attachment_id Attachment ID.
 	 *
 	 * @uses self::validate_image_url, Image_CDN_Core::cdn_url
 	 * @uses Image_CDN::strip_image_dimensions_maybe, Image_CDN_Core::get_jetpack_content_width
 	 *
 	 * @return array An array of Photon image urls and widths.
 	 */
-	public function filter_srcset_array( $sources = array(), $size_array = array(), $image_src = array(), $image_meta = array(), $attachment_id = 0 ) {
+	public function filter_srcset_array( $sources = array(), $size_array = array(), $image_src = '', $image_meta = array(), $attachment_id = 0 ) {
+		// Check if we are supposed to skip the main image.
+		if ( $this->photon_should_skip_image( $image_src ) ) {
+			return $sources;
+		}
+
 		if ( ! is_array( $sources ) || array() === $sources ) {
 			return $sources;
 		}
@@ -1112,12 +1122,18 @@ final class Image_CDN {
 	/**
 	 * Filters an array of image `sizes` values, using $content_width instead of image's full size.
 	 *
-	 * @param array $sizes An array of media query breakpoints.
-	 * @param array $size  Width and height of the image.
+	 * @param array  $sizes An array of media query breakpoints.
+	 * @param array  $size  Width and height of the image.
+	 * @param string $image_url The image URL.
+	 *
 	 * @uses Jetpack::get_content_width
 	 * @return array An array of media query breakpoints.
 	 */
-	public function filter_sizes( $sizes, $size ) {
+	public function filter_sizes( $sizes, $size, $image_url ) {
+		if ( $this->photon_should_skip_image( $image_url ) ) {
+			return $sizes;
+		}
+
 		if ( ! doing_filter( 'the_content' ) ) {
 			return $sizes;
 		}
@@ -1131,6 +1147,17 @@ final class Image_CDN {
 		}
 
 		return sprintf( '(max-width: %1$dpx) 100vw, %1$dpx', $content_width );
+	}
+
+	/**
+	 * Whether to skip the image from being processed by Photon.
+	 *
+	 * @param string $image_url The image URL.
+	 *
+	 * @return bool Whether to skip the image.
+	 */
+	private function photon_should_skip_image( $image_url ) {
+		return apply_filters( 'jetpack_photon_skip_image', false, $image_url, null );
 	}
 
 	/**

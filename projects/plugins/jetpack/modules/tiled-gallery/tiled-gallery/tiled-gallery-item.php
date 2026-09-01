@@ -2,6 +2,10 @@
 
 use Automattic\Jetpack\Image_CDN\Image_CDN_Core;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Jetpack Tiled Gallery Item class.
  */
@@ -162,7 +166,7 @@ abstract class Jetpack_Tiled_Gallery_Item {
 	 */
 	public function medium_file() {
 		$medium_file_info = wp_get_attachment_image_src( $this->image->ID, 'medium' );
-		$medium_file      = isset( $medium_file_info[0] ) ? $medium_file_info[0] : '';
+		$medium_file      = $medium_file_info[0] ?? '';
 		return $medium_file;
 	}
 
@@ -173,7 +177,7 @@ abstract class Jetpack_Tiled_Gallery_Item {
 	 */
 	public function large_file() {
 		$large_file_info = wp_get_attachment_image_src( $this->image->ID, 'large' );
-		$large_file      = isset( $large_file_info[0] ) ? $large_file_info[0] : '';
+		$large_file      = $large_file_info[0] ?? '';
 		return $large_file;
 	}
 }

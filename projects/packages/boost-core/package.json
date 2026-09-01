@@ -1,7 +1,7 @@
 {
-	"private": true,
 	"name": "@automattic/jetpack-boost-core",
-	"version": "0.3.10",
+	"version": "0.5.0",
+	"private": true,
 	"description": "Core functionality for boost and relevant packages to depend on",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/boost-core/#readme",
 	"bugs": {
@@ -20,6 +20,5 @@
 		"build-production": "echo 'Not implemented.'",
 		"build-production-js": "echo 'Not implemented.'",
 		"clean": "true"
-	},
-	"devDependencies": {}
+	}
 }

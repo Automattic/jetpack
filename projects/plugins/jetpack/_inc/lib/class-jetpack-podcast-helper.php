@@ -10,6 +10,29 @@
  */
 class Jetpack_Podcast_Helper {
 	/**
+	 * How long to wait before retrying a feed that failed to load. Kept out of step with
+	 * the five minutes WordPress.com caches a feed at the edge, so retries don't keep
+	 * landing on a cold entry.
+	 *
+	 * @var int
+	 */
+	const ERROR_CACHE_TIMEOUT = 90;
+
+	/**
+	 * How long to keep the last successful response as a fallback.
+	 *
+	 * @var int
+	 */
+	const FALLBACK_CACHE_TIMEOUT = WEEK_IN_SECONDS;
+
+	/**
+	 * Feed errors that describe the feed's contents rather than our failure to reach it.
+	 *
+	 * @var string[]
+	 */
+	const AUTHORITATIVE_ERROR_CODES = array( 'no_tracks' );
+
+	/**
 	 * The RSS feed of the podcast.
 	 *
 	 * @var string
@@ -79,11 +102,16 @@ class Jetpack_Podcast_Helper {
 	 * Gets podcast data formatted to be used by the Podcast Player block in both server-side
 	 * block rendering and in API `WPCOM_REST_API_V2_Endpoint_Podcast_Player`.
 	 *
-	 * The result is cached for one hour.
+	 * A successful response is cached for one hour, and kept for a week as a fallback to serve
+	 * while the feed is unreachable. Callers that need the feed's true state can opt out of
+	 * both with the `report_errors` argument.
 	 *
 	 * @param array $args {
 	 *    Optional array of arguments.
-	 *    @type string|int $guid  The ID of a specific episode to return rather than a list.
+	 *    @type array $guids           The IDs of specific episodes to return rather than a list.
+	 *    @type bool  $episode-options Whether to include the episode list for the selection UI.
+	 *    @type bool  $report_errors   Whether to return feed errors as-is rather than falling
+	 *                                 back to the last successful response. Default false.
 	 * }
 	 *
 	 * @return array|WP_Error  The player data or a error object.
@@ -91,10 +119,16 @@ class Jetpack_Podcast_Helper {
 	public function get_player_data( $args = array() ) {
 		$guids           = isset( $args['guids'] ) && $args['guids'] ? $args['guids'] : array();
 		$episode_options = isset( $args['episode-options'] ) && $args['episode-options'];
+		$report_errors   = isset( $args['report_errors'] ) && $args['report_errors'];
 
 		// Try loading data from the cache.
 		$transient_key = 'jetpack_podcast_' . md5( $this->feed . implode( ',', $guids ) . "-$episode_options" );
 		$player_data   = get_transient( $transient_key );
+
+		// A remembered failure would outlive the fix it is asking the author to make.
+		if ( $report_errors && is_wp_error( $player_data ) ) {
+			$player_data = false;
+		}
 
 		// Fetch data if we don't have any cached.
 		if ( false === $player_data || ( defined( 'WP_DEBUG' ) && WP_DEBUG ) ) {
@@ -102,7 +136,7 @@ class Jetpack_Podcast_Helper {
 			$rss = $this->load_feed();
 
 			if ( is_wp_error( $rss ) ) {
-				return $rss;
+				return $this->handle_failure( $transient_key, $rss, $report_errors );
 			}
 
 			// Get a list of episodes by guid or all tracks in feed.
@@ -119,11 +153,15 @@ class Jetpack_Podcast_Helper {
 			}
 
 			if ( is_wp_error( $tracks ) ) {
-				return $tracks;
+				return $this->handle_failure( $transient_key, $tracks, $report_errors );
 			}
 
 			if ( empty( $tracks ) ) {
-				return new WP_Error( 'no_tracks', __( 'Your Podcast couldn\'t be embedded as it doesn\'t contain any tracks. Please double check your URL.', 'jetpack' ) );
+				return $this->handle_failure(
+					$transient_key,
+					new WP_Error( 'no_tracks', __( 'Your Podcast couldn\'t be embedded as it doesn\'t contain any tracks. Please double check your URL.', 'jetpack' ) ),
+					$report_errors
+				);
 			}
 
 			// Get podcast meta.
@@ -162,11 +200,112 @@ class Jetpack_Podcast_Helper {
 				}
 			}
 
-			// Cache for 1 hour.
 			set_transient( $transient_key, $player_data, HOUR_IN_SECONDS );
+
+			// Callers that asked for errors never read a fallback, so don't pay to write one.
+			if ( ! $report_errors ) {
+				$this->store_fallback( $transient_key, $player_data );
+			}
+
+			return $player_data;
+		}
+
+		// Only a remembered failure reaches here; a fresh one returns via handle_failure().
+		if ( is_wp_error( $player_data ) ) {
+			return $this->fallback_for( $transient_key, $player_data );
+		}
+
+		// A response cached before this feed had a fallback still deserves to cover the next
+		// outage, rather than leaving a gap until the cache next turns over.
+		if ( ! $report_errors ) {
+			$this->store_fallback( $transient_key, $player_data, true );
 		}
 
 		return $player_data;
+	}
+
+	/**
+	 * Keeps a successful response around to serve while the feed is unreachable.
+	 *
+	 * @param string $transient_key   Cache key for this feed/args combination.
+	 * @param array  $player_data     The response to keep.
+	 * @param bool   $only_if_missing Whether to leave an existing fallback in place.
+	 */
+	protected function store_fallback( $transient_key, $player_data, $only_if_missing = false ) {
+		$fallback_key = static::fallback_key( $transient_key );
+
+		if ( $only_if_missing && false !== get_transient( $fallback_key ) ) {
+			return;
+		}
+
+		set_transient( $fallback_key, $player_data, static::FALLBACK_CACHE_TIMEOUT );
+	}
+
+	/**
+	 * Decides what to serve for a failed fetch, and whether to remember the failure.
+	 *
+	 * @param string   $transient_key Cache key for this feed/args combination.
+	 * @param WP_Error $error         The error to fall back from.
+	 * @param bool     $report_errors Whether the caller asked for the error itself.
+	 * @return array|WP_Error The last successful response, or the error.
+	 */
+	protected function handle_failure( $transient_key, $error, $report_errors = false ) {
+		if ( $report_errors ) {
+			return $error;
+		}
+
+		$fallback = $this->fallback_for( $transient_key, $error );
+
+		// Remembering a failure we can't paper over only delays the retry that would earn us
+		// a fallback. An authoritative one is worth remembering either way.
+		if ( is_array( $fallback ) || static::is_authoritative( $error ) ) {
+			// The error, never the fallback: the editor shares this key and would take stale
+			// episodes as a working feed.
+			set_transient( $transient_key, $error, static::ERROR_CACHE_TIMEOUT );
+		}
+
+		return $fallback;
+	}
+
+	/**
+	 * What to serve for a failed fetch: the last successful response, or the error itself.
+	 *
+	 * @param string   $transient_key Cache key for this feed/args combination.
+	 * @param WP_Error $error         The error to fall back from.
+	 * @return array|WP_Error The last successful response, or the error.
+	 */
+	protected function fallback_for( $transient_key, $error ) {
+		// The feed's own answer, so stale episodes have no business standing in for it. They
+		// stay stored rather than being deleted: a feed can report itself empty mid-migration,
+		// and one such read shouldn't cost the week of cover only a success can restore.
+		if ( static::is_authoritative( $error ) ) {
+			return $error;
+		}
+
+		$fallback = get_transient( static::fallback_key( $transient_key ) );
+
+		return is_array( $fallback ) ? $fallback : $error;
+	}
+
+	/**
+	 * Whether the error reflects the feed's real contents rather than our failure to
+	 * reach it.
+	 *
+	 * @param WP_Error $error The error to classify.
+	 * @return bool
+	 */
+	protected static function is_authoritative( $error ) {
+		return in_array( $error->get_error_code(), static::AUTHORITATIVE_ERROR_CODES, true );
+	}
+
+	/**
+	 * Cache key holding the last successful response for a feed/args combination.
+	 *
+	 * @param string $transient_key The regular cache key.
+	 * @return string
+	 */
+	protected static function fallback_key( $transient_key ) {
+		return $transient_key . '_last';
 	}
 
 	/**
@@ -447,8 +586,8 @@ class Jetpack_Podcast_Helper {
 		$track = array(
 			'id'               => wp_unique_id( 'podcast-track-' ),
 			'link'             => esc_url( $episode->get_link() ),
-			'src'              => esc_url( $enclosure->link ),
-			'type'             => esc_attr( $enclosure->type ),
+			'src'              => esc_url( (string) $enclosure->link ),
+			'type'             => esc_attr( (string) $enclosure->type ),
 			'description'      => $this->get_plain_text( $episode->get_description() ),
 			'description_html' => $this->get_html_text( $episode->get_description() ),
 			'title'            => $this->get_plain_text( $episode->get_title() ),
@@ -462,7 +601,7 @@ class Jetpack_Podcast_Helper {
 		}
 
 		if ( ! empty( $enclosure->duration ) ) {
-			$track['duration'] = esc_html( $this->format_track_duration( $enclosure->duration ) );
+			$track['duration'] = esc_html( $this->format_track_duration( (int) $enclosure->duration ) );
 		}
 
 		return $track;
@@ -491,7 +630,7 @@ class Jetpack_Podcast_Helper {
 	 */
 	protected function get_audio_enclosure( SimplePie\Item $episode ) {
 		foreach ( (array) $episode->get_enclosures() as $enclosure ) {
-			if ( str_starts_with( $enclosure->type, 'audio/' ) ) {
+			if ( str_starts_with( $enclosure->type ?? '', 'audio/' ) ) {
 				return $enclosure;
 			}
 		}

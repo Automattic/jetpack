@@ -1,6 +1,6 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { __, _x } from '@wordpress/i18n';
-import React, { Component } from 'react';
+import { Component } from 'react';
 import { connect } from 'react-redux';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
@@ -35,8 +35,8 @@ class Widgets extends Component {
 					>
 						<ModuleToggle
 							slug="widgets"
+							disabled={ this.props.isSavingAnyOption( 'widgets' ) }
 							activated={ this.props.widgetsActive }
-							toggling={ this.props.isSavingAnyOption( 'widgets' ) }
 							toggleModule={ this.props.toggleModuleNow }
 						>
 							<span className="jp-form-toggle-explanation">
@@ -61,8 +61,8 @@ class Widgets extends Component {
 					>
 						<ModuleToggle
 							slug="widget-visibility"
+							disabled={ this.props.isSavingAnyOption( 'widget-visibility' ) }
 							activated={ this.props.widgetVisibilityActive }
-							toggling={ this.props.isSavingAnyOption( 'widget-visibility' ) }
 							toggleModule={ this.props.toggleModuleNow }
 						>
 							<span className="jp-form-toggle-explanation">

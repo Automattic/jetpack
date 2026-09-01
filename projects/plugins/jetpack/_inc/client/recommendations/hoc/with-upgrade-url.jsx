@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import { connect } from 'react-redux';
 import { getSiteAdminUrl, getSiteRawUrl, getSiteId } from 'state/initial-state';
 import { getSiteDiscount } from 'state/site/reducer';

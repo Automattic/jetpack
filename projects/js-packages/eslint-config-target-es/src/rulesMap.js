@@ -1,6 +1,41 @@
 // Map of eslint-plugin-es-x rules to MDN compat-data paths.
 // Values are either a path, an array of paths, true to always enable the rule, or false to always disable it.
 module.exports = {
+	// ES2027
+	'no-asyncdisposablestack': 'javascript.builtins.AsyncDisposableStack.AsyncDisposableStack',
+	'no-atomics-pause': 'javascript.builtins.Atomics.pause',
+	'no-date-prototype-totemporalinstant': 'javascript.builtins.Date.toTemporalInstant',
+	'no-disposablestack': 'javascript.builtins.DisposableStack.DisposableStack',
+	'no-iterator-zip': 'javascript.builtins.Iterator.zip',
+	'no-iterator-zipkeyed': 'javascript.builtins.Iterator.zipKeyed',
+	'no-suppressederror': 'javascript.builtins.SuppressedError.SuppressedError',
+	'no-symbol-asyncdispose': 'javascript.builtins.Symbol.asyncDispose',
+	'no-symbol-dispose': 'javascript.builtins.Symbol.dispose',
+	'no-temporal': 'javascript.builtins.Temporal',
+	'no-using-declarations': 'javascript.statements.using',
+
+	// ES2026
+	'no-array-fromasync': 'javascript.builtins.Array.fromAsync',
+	'no-error-iserror': 'javascript.builtins.Error.isError',
+	'no-intl-locale-prototype-firstdayofweek': false, // No compat data yet.
+	'no-intl-locale-prototype-getcalendars': 'javascript.builtins.Intl.Locale.getCalendars',
+	'no-intl-locale-prototype-getcollations': 'javascript.builtins.Intl.Locale.getCollations',
+	'no-intl-locale-prototype-gethourcycles': 'javascript.builtins.Intl.Locale.getHourCycles',
+	'no-intl-locale-prototype-getnumberingsystems':
+		'javascript.builtins.Intl.Locale.getNumberingSystems',
+	'no-intl-locale-prototype-gettextinfo': 'javascript.builtins.Intl.Locale.getTextInfo',
+	'no-intl-locale-prototype-gettimezones': 'javascript.builtins.Intl.Locale.getTimeZones',
+	'no-intl-locale-prototype-getweekinfo': 'javascript.builtins.Intl.Locale.getWeekInfo',
+	'no-iterator-concat': 'javascript.builtins.Iterator.concat',
+	'no-json-israwjson': 'javascript.builtins.JSON.isRawJSON',
+	'no-json-parse-reviver-context-parameter':
+		'javascript.builtins.JSON.parse.reviver_parameter_context_argument',
+	'no-json-rawjson': 'javascript.builtins.JSON.rawJSON',
+	'no-map-prototype-getorinsert': 'javascript.builtins.Map.getOrInsert',
+	'no-map-prototype-getorinsertcomputed': 'javascript.builtins.Map.getOrInsertComputed',
+	'no-weakmap-prototype-getorinsert': 'javascript.builtins.WeakMap.getOrInsert',
+	'no-weakmap-prototype-getorinsertcomputed': 'javascript.builtins.WeakMap.getOrInsertComputed',
+
 	// ES2025
 	'no-dataview-prototype-getfloat16-setfloat16': [
 		'javascript.builtins.DataView.getFloat16',
@@ -86,13 +121,13 @@ module.exports = {
 	'no-array-string-prototype-at': false, // Deprecated
 	'no-class-fields': false, // Deprecated
 	'no-class-instance-fields': [
-		'javascript.classes.public_class_fields',
 		'javascript.classes.private_class_fields',
+		'javascript.classes.public_class_fields',
 	],
 	'no-class-private-fields': 'javascript.classes.private_class_fields',
 	'no-class-private-methods': 'javascript.classes.private_class_methods',
-	'no-class-static-fields': 'javascript.classes.static_class_fields',
-	'no-class-static-block': 'javascript.classes.static_initialization_blocks',
+	'no-class-static-block': 'javascript.classes.static.initialization_blocks',
+	'no-class-static-fields': 'javascript.classes.static.class_fields',
 	'no-error-cause': [
 		'javascript.builtins.Error.Error.options_cause_parameter',
 		'javascript.builtins.Error.cause',
@@ -113,14 +148,14 @@ module.exports = {
 	'no-intl-listformat': 'javascript.builtins.Intl.ListFormat',
 	'no-logical-assignment-operators': [
 		'javascript.operators.logical_and_assignment',
-		'javascript.operators.nullish_coalescing_assignment',
 		'javascript.operators.logical_or_assignment',
+		'javascript.operators.nullish_coalescing_assignment',
 	],
 	'no-numeric-separators': 'javascript.grammar.numeric_separators',
 	'no-promise-any': [ 'javascript.builtins.AggregateError', 'javascript.builtins.Promise.any' ],
 	'no-regexp-unicode-property-escapes-2021': false, // No support data in MDN separate from no-regexp-unicode-property-escapes. https://github.com/mdn/browser-compat-data/issues/19631
 	'no-string-prototype-replaceall': 'javascript.builtins.String.replaceAll',
-	'no-weakrefs': [ 'javascript.builtins.WeakRef', 'javascript.builtins.FinalizationRegistry' ],
+	'no-weakrefs': [ 'javascript.builtins.FinalizationRegistry', 'javascript.builtins.WeakRef' ],
 
 	// ES2020
 	'no-bigint': [
@@ -139,6 +174,7 @@ module.exports = {
 	'no-promise-all-settled': 'javascript.builtins.Promise.allSettled',
 	'no-regexp-unicode-property-escapes-2020': false, // No support data in MDN separate from no-regexp-unicode-property-escapes. https://github.com/mdn/browser-compat-data/issues/19631
 	'no-string-prototype-matchall': 'javascript.builtins.String.matchAll',
+	'no-symbol-matchall': 'javascript.builtins.Symbol.matchAll',
 
 	// ES2019
 	'no-array-prototype-flat': [
@@ -193,13 +229,19 @@ module.exports = {
 		'javascript.builtins.String.padStart',
 	],
 	'no-trailing-function-commas': [
-		'javascript.grammar.trailing_commas.trailing_commas_in_functions',
 		'javascript.functions.arrow_functions.trailing_comma',
+		'javascript.grammar.trailing_commas.trailing_commas_in_functions',
 		'javascript.operators.function.trailing_comma',
 		'javascript.operators.generator_function.trailing_comma',
 		'javascript.statements.function.trailing_comma_in_parameters',
 		'javascript.statements.generator_function.trailing_comma_in_parameters',
 	],
+	'no-uint8array-frombase64': 'javascript.builtins.Uint8Array.fromBase64',
+	'no-uint8array-fromhex': 'javascript.builtins.Uint8Array.fromHex',
+	'no-uint8array-prototype-setfrombase64': 'javascript.builtins.Uint8Array.setFromBase64',
+	'no-uint8array-prototype-setfromhex': 'javascript.builtins.Uint8Array.setFromHex',
+	'no-uint8array-prototype-tobase64': 'javascript.builtins.Uint8Array.toBase64',
+	'no-uint8array-prototype-tohex': 'javascript.builtins.Uint8Array.toHex',
 
 	// ES2016
 	'no-array-prototype-includes': 'javascript.builtins.Array.includes',
@@ -212,8 +254,8 @@ module.exports = {
 	'no-array-prototype-copywithin': 'javascript.builtins.Array.copyWithin',
 	'no-array-prototype-entries': 'javascript.builtins.Array.entries',
 	'no-array-prototype-fill': 'javascript.builtins.Array.fill',
-	'no-array-prototype-find': 'javascript.builtins.Array.find',
 	'no-array-prototype-findindex': 'javascript.builtins.Array.findIndex',
+	'no-array-prototype-find': 'javascript.builtins.Array.find',
 	'no-array-prototype-keys': 'javascript.builtins.Array.keys',
 	'no-array-prototype-values': 'javascript.builtins.Array.values',
 	'no-arrow-functions': 'javascript.functions.arrow_functions',
@@ -222,10 +264,10 @@ module.exports = {
 	'no-block-scoped-variables': [ 'javascript.statements.const', 'javascript.statements.let' ],
 	'no-classes': 'javascript.classes',
 	'no-computed-properties': [
-		'javascript.operators.object_initializer.computed_property_names',
-		'javascript.operators.destructuring.computed_property_names',
 		'javascript.functions.get.computed_property_names',
 		'javascript.functions.set.computed_property_names',
+		'javascript.operators.destructuring.computed_property_names',
+		'javascript.operators.object_initializer.computed_property_names',
 	],
 	'no-default-parameters': 'javascript.functions.default_parameters',
 	'no-destructuring': 'javascript.operators.destructuring',
@@ -250,9 +292,10 @@ module.exports = {
 	'no-math-log2': 'javascript.builtins.Math.log2',
 	'no-math-sign': 'javascript.builtins.Math.sign',
 	'no-math-sinh': 'javascript.builtins.Math.sinh',
+	'no-math-sumprecise': 'javascript.builtins.Math.sumPrecise',
 	'no-math-tanh': 'javascript.builtins.Math.tanh',
 	'no-math-trunc': 'javascript.builtins.Math.trunc',
-	'no-modules': [ 'javascript.statements.import', 'javascript.statements.export' ],
+	'no-modules': [ 'javascript.statements.export', 'javascript.statements.import' ],
 	'no-new-target': 'javascript.operators.new_target',
 	'no-number-epsilon': 'javascript.builtins.Number.EPSILON',
 	'no-number-isfinite': 'javascript.builtins.Number.isFinite',
@@ -298,20 +341,20 @@ module.exports = {
 	'no-symbol': 'javascript.builtins.Symbol',
 	'no-template-literals': 'javascript.grammar.template_literals',
 	'no-typed-arrays': [
-		'javascript.builtins.Int8Array',
-		'javascript.builtins.Uint8Array',
-		'javascript.builtins.Uint8ClampedArray',
-		'javascript.builtins.Int16Array',
-		'javascript.builtins.Uint16Array',
-		'javascript.builtins.Int32Array',
-		'javascript.builtins.Uint32Array',
+		'javascript.builtins.DataView',
 		'javascript.builtins.Float32Array',
 		'javascript.builtins.Float64Array',
-		'javascript.builtins.DataView',
+		'javascript.builtins.Int16Array',
+		'javascript.builtins.Int32Array',
+		'javascript.builtins.Int8Array',
+		'javascript.builtins.Uint16Array',
+		'javascript.builtins.Uint32Array',
+		'javascript.builtins.Uint8Array',
+		'javascript.builtins.Uint8ClampedArray',
 	],
 	'no-unicode-codepoint-escapes': [
-		'javascript.grammar.unicode_point_escapes',
 		'javascript.builtins.String.unicode_code_point_escapes',
+		'javascript.grammar.unicode_point_escapes',
 	],
 	'no-weak-map': 'javascript.builtins.WeakMap',
 	'no-weak-set': 'javascript.builtins.WeakSet',
@@ -391,10 +434,12 @@ module.exports = {
 
 	// "No nonstandard properties" rules.
 	// No compat data for any of these, as far as I can tell.
-	'no-nonstandard-array-properties': false,
-	'no-nonstandard-array-prototype-properties': false,
 	'no-nonstandard-arraybuffer-properties': false,
 	'no-nonstandard-arraybuffer-prototype-properties': false,
+	'no-nonstandard-array-properties': false,
+	'no-nonstandard-array-prototype-properties': false,
+	'no-nonstandard-asyncdisposablestack-properties': false,
+	'no-nonstandard-asyncdisposablestack-prototype-properties': false,
 	'no-nonstandard-atomics-properties': false,
 	'no-nonstandard-bigint-properties': false,
 	'no-nonstandard-bigint-prototype-properties': false,
@@ -404,6 +449,9 @@ module.exports = {
 	'no-nonstandard-dataview-prototype-properties': false,
 	'no-nonstandard-date-properties': false,
 	'no-nonstandard-date-prototype-properties': false,
+	'no-nonstandard-disposablestack-properties': false,
+	'no-nonstandard-disposablestack-prototype-properties': false,
+	'no-nonstandard-error-properties': false,
 	'no-nonstandard-finalizationregistry-properties': false,
 	'no-nonstandard-finalizationregistry-prototype-properties': false,
 	'no-nonstandard-function-properties': false,
@@ -451,6 +499,24 @@ module.exports = {
 	'no-nonstandard-string-prototype-properties': false,
 	'no-nonstandard-symbol-properties': false,
 	'no-nonstandard-symbol-prototype-properties': false,
+	'no-nonstandard-temporal-duration-properties': false,
+	'no-nonstandard-temporal-duration-prototype-properties': false,
+	'no-nonstandard-temporal-instant-properties': false,
+	'no-nonstandard-temporal-instant-prototype-properties': false,
+	'no-nonstandard-temporal-now-properties': false,
+	'no-nonstandard-temporal-plaindate-properties': false,
+	'no-nonstandard-temporal-plaindate-prototype-properties': false,
+	'no-nonstandard-temporal-plaindatetime-properties': false,
+	'no-nonstandard-temporal-plaindatetime-prototype-properties': false,
+	'no-nonstandard-temporal-plainmonthday-properties': false,
+	'no-nonstandard-temporal-plainmonthday-prototype-properties': false,
+	'no-nonstandard-temporal-plaintime-properties': false,
+	'no-nonstandard-temporal-plaintime-prototype-properties': false,
+	'no-nonstandard-temporal-plainyearmonth-properties': false,
+	'no-nonstandard-temporal-plainyearmonth-prototype-properties': false,
+	'no-nonstandard-temporal-properties': false,
+	'no-nonstandard-temporal-zoneddatetime-properties': false,
+	'no-nonstandard-temporal-zoneddatetime-prototype-properties': false,
 	'no-nonstandard-typed-array-properties': false,
 	'no-nonstandard-typed-array-prototype-properties': false,
 	'no-nonstandard-weakmap-properties': false,

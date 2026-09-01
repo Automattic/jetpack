@@ -1,5 +1,9 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * List users endpoint.
  */
@@ -15,7 +19,7 @@ new WPCOM_JSON_API_List_Users_Endpoint(
 			'$site' => '(int|string) Site ID or domain',
 		),
 		'rest_route'           => '/users',
-		'rest_min_jp_version'  => '14.5-a.2',
+		'rest_min_jp_version'  => '15.9',
 
 		'query_parameters'     => array(
 			'number'          => '(int=20) Limit the total number of authors returned.',
@@ -40,7 +44,7 @@ new WPCOM_JSON_API_List_Users_Endpoint(
 			'search'          => '(string) Find matching users.',
 			'search_columns'  => "(array) Specify which columns to check for matching users. Can be any of 'ID', 'user_login', 'user_email', 'user_url', 'user_nicename', and 'display_name'. Only works when combined with `search` parameter.",
 			'role'            => '(string) Specify a specific user role to fetch.',
-			'capability'      => '(string) Specify a specific capability to fetch. You can specify multiple by comma separating them, in which case the user needs to match all capabilities provided.',
+			'capability'      => '(string) Specify a specific capability to fetch. You can specify multiple by comma-separating them, in which case the user needs to match all capabilities provided.',
 		),
 
 		'response_format'      => array(
@@ -84,6 +88,8 @@ new WPCOM_JSON_API_List_Users_Endpoint(
  * List users endpoint class.
  *
  * /sites/%s/users/ -> $blog_id
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class WPCOM_JSON_API_List_Users_Endpoint extends WPCOM_JSON_API_Endpoint {
 
@@ -178,7 +184,7 @@ class WPCOM_JSON_API_List_Users_Endpoint extends WPCOM_JSON_API_Endpoint {
 		remove_filter( 'user_search_columns', array( $this, 'api_user_override_search_columns' ) );
 
 		$is_wpcom        = defined( 'IS_WPCOM' ) && IS_WPCOM;
-		$include_viewers = (bool) isset( $args['include_viewers'] ) && $args['include_viewers'] && $is_wpcom;
+		$include_viewers = isset( $args['include_viewers'] ) && $args['include_viewers'] && $is_wpcom;
 
 		$page    = ( (int) ( $args['offset'] / $args['number'] ) ) + 1;
 		$viewers = $include_viewers ? get_private_blog_users(

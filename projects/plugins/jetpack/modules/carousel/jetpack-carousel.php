@@ -10,8 +10,14 @@ use Automattic\Jetpack\Stats\Options as Stats_Options;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Jetpack_Carousel class.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Jetpack_Carousel {
 	/**
@@ -380,7 +386,7 @@ class Jetpack_Carousel {
 
 		$this->enqueue_assets();
 
-		if ( ! isset( $post ) ) {
+		if ( ! $post instanceof WP_Post ) {
 			return $block_content;
 		}
 
@@ -413,7 +419,7 @@ class Jetpack_Carousel {
 			' ',
 			array_map(
 				function ( $data_key, $data_values ) {
-					return esc_attr( $data_key ) . "='" . wp_json_encode( $data_values ) . "'";
+					return esc_attr( $data_key ) . "='" . esc_attr( wp_json_encode( $data_values, JSON_UNESCAPED_SLASHES | JSON_HEX_AMP ) ) . "'";
 				},
 				array_keys( $extra_data ),
 				array_values( $extra_data )
@@ -446,10 +452,7 @@ class Jetpack_Carousel {
 			);
 
 			$swiper_library_path = array(
-				'url' => Assets::get_file_url_for_environment(
-					'_inc/build/carousel/swiper-bundle.min.js',
-					'modules/carousel/swiper-bundle.js'
-				),
+				'url' => plugins_url( '_inc/blocks/swiper.js', JETPACK__PLUGIN_FILE ),
 			);
 			wp_localize_script( 'jetpack-carousel', 'jetpackSwiperLibraryPath', $swiper_library_path );
 
@@ -539,10 +542,10 @@ class Jetpack_Carousel {
 			$localize_strings = apply_filters( 'jp_carousel_localize_strings', $localize_strings );
 			wp_localize_script( 'jetpack-carousel', 'jetpackCarouselStrings', $localize_strings );
 			wp_enqueue_style(
-				'jetpack-carousel-swiper-css',
-				plugins_url( 'swiper-bundle.css', __FILE__ ),
+				'jetpack-swiper-library',
+				plugins_url( '_inc/blocks/swiper.css', JETPACK__PLUGIN_FILE ),
 				array(),
-				$this->asset_version( JETPACK__VERSION )
+				JETPACK__VERSION
 			);
 			wp_enqueue_style( 'jetpack-carousel', plugins_url( 'jetpack-carousel.css', __FILE__ ), array(), $this->asset_version( JETPACK__VERSION ) );
 			wp_style_add_data( 'jetpack-carousel', 'rtl', 'replace' );
@@ -580,10 +583,11 @@ class Jetpack_Carousel {
 		$require_name_email = (int) get_option( 'require_name_email' );
 		/* translators: %s is replaced with a field name in the form, e.g. "Email" */
 		$required = ( $require_name_email ) ? __( '%s (Required)', 'jetpack' ) : '%s';
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-spinner.php';
 		?>
-		<div id="jp-carousel-loading-overlay">
+		<div id="jp-carousel-loading-overlay" style="display: none;">
 			<div id="jp-carousel-loading-wrapper">
-				<span id="jp-carousel-library-loading">&nbsp;</span>
+				<span id="jp-carousel-library-loading"><?php echo Jetpack_Spinner::render( 40 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG markup. ?></span>
 			</div>
 		</div>
 		<div class="jp-carousel-overlay<?php echo( $is_light ? ' jp-carousel-light' : '' ); ?>" style="display: none;">
@@ -591,7 +595,7 @@ class Jetpack_Carousel {
 		<div class="jp-carousel-container<?php echo( $is_light ? ' jp-carousel-light' : '' ); ?>">
 			<!-- The Carousel Swiper -->
 			<div
-				class="jp-carousel-wrap swiper-container jp-carousel-swiper-container jp-carousel-transitions"
+				class="jp-carousel-wrap swiper jp-carousel-swiper-container jp-carousel-transitions"
 				itemscope
 				itemtype="https://schema.org/ImageGallery">
 				<div class="jp-carousel swiper-wrapper"></div>
@@ -635,7 +639,7 @@ class Jetpack_Carousel {
 						<div class="jp-carousel-pagination"></div>
 					</div>
 					<div class="jp-carousel-photo-title-container">
-						<h2 class="jp-carousel-photo-caption"></h2>
+						<div class="jp-carousel-photo-caption"></div>
 					</div>
 					<div class="jp-carousel-photo-icons-container">
 						<a href="#" class="jp-carousel-icon-btn jp-carousel-icon-info" aria-label="<?php esc_attr_e( 'Toggle photo metadata visibility', 'jetpack' ); ?>">
@@ -671,7 +675,7 @@ class Jetpack_Carousel {
 				<div class="jp-carousel-info-extra">
 					<div class="jp-carousel-info-content-wrapper">
 						<div class="jp-carousel-photo-title-container">
-							<h2 class="jp-carousel-photo-title"></h2>
+							<div class="jp-carousel-photo-title"></div>
 						</div>
 						<div class="jp-carousel-comments-wrapper">
 							<?php if ( $localize_strings['display_comments'] ) : ?>
@@ -680,7 +684,7 @@ class Jetpack_Carousel {
 								</div>
 								<div class="jp-carousel-comments"></div>
 								<div id="jp-carousel-comment-form-container">
-									<span id="jp-carousel-comment-form-spinner">&nbsp;</span>
+									<span id="jp-carousel-comment-form-spinner"><?php echo Jetpack_Spinner::render( 20 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG markup. ?></span>
 									<div id="jp-carousel-comment-post-results"></div>
 									<?php if ( $use_local_comments ) : ?>
 										<?php if ( ! $localize_strings['is_logged_in'] && $localize_strings['comment_registration'] ) : ?>
@@ -751,13 +755,12 @@ class Jetpack_Carousel {
 						<div class="jp-carousel-image-meta">
 							<div class="jp-carousel-title-and-caption">
 								<div class="jp-carousel-photo-info">
-									<h3 class="jp-carousel-caption" itemprop="caption description"></h3>
+									<div class="jp-carousel-caption" itemprop="caption description"></div>
 								</div>
 
 								<div class="jp-carousel-photo-description"></div>
 							</div>
-							<ul class="jp-carousel-image-exif" style="display: none;"></ul>
-							<a class="jp-carousel-image-download" href="#" target="_blank" style="display: none;">
+							<a class="jp-carousel-image-download" href="#" aria-label="<?php esc_attr_e( 'Download image', 'jetpack' ); ?>" target="_blank" style="display: none;">
 								<svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 									<mask id="mask0" mask-type="alpha" maskUnits="userSpaceOnUse" x="3" y="3" width="19" height="18">
 										<path fill-rule="evenodd" clip-rule="evenodd" d="M5.84615 5V19H19.7775V12H21.7677V19C21.7677 20.1 20.8721 21 19.7775 21H5.84615C4.74159 21 3.85596 20.1 3.85596 19V5C3.85596 3.9 4.74159 3 5.84615 3H12.8118V5H5.84615ZM14.802 5V3H21.7677V10H19.7775V6.41L9.99569 16.24L8.59261 14.83L18.3744 5H14.802Z" fill="white"/>
@@ -825,9 +828,17 @@ class Jetpack_Carousel {
 		}
 		$selected_images = array();
 		foreach ( $matches[0] as $image_html ) {
+			// This image already carries the attributes this method adds, so adding
+			// them again would emit every one of them twice. Tiled Gallery output
+			// reaches this filter twice: once as 'jetpack_tiled_galleries_block_content'
+			// from inside the block's render callback, and again as 'the_content' when
+			// single image galleries are enabled. See JETPACK-1990.
+			if ( str_contains( $image_html, 'data-attachment-id=' ) ) {
+				continue;
+			}
 			if (
 				preg_match( '/(wp-image-|data-id=)\"?([0-9]+)\"?/i', $image_html, $class_id )
-				&& ! preg_match( '/wp-block-jetpack-slideshow_image/', $image_html )
+				&& ! str_contains( $image_html, 'wp-block-jetpack-slideshow_image' )
 			) {
 				/**
 				 * Allow filtering the attachment ID used to fetch and populate metadata about an image in a gallery.
@@ -939,11 +950,12 @@ class Jetpack_Carousel {
 
 		$attachment_id   = (int) $attachment->ID;
 		$orig_file       = wp_get_attachment_image_src( $attachment_id, 'full' );
-		$orig_file       = isset( $orig_file[0] ) ? $orig_file[0] : wp_get_attachment_url( $attachment_id );
+		$orig_file       = $orig_file[0] ?? wp_get_attachment_url( $attachment_id );
 		$meta            = wp_get_attachment_metadata( $attachment_id );
 		$size            = isset( $meta['width'] ) ? (int) $meta['width'] . ',' . (int) $meta['height'] : '';
 		$img_meta        = ( ! empty( $meta['image_meta'] ) ) ? (array) $meta['image_meta'] : array();
 		$comments_opened = (int) comments_open( $attachment_id );
+		$display_exif    = $this->test_1or0_option( Jetpack_Options::get_option_and_ensure_autoload( 'carousel_display_exif', true ) );
 
 		/**
 		 * Note: Cannot generate a filename from the width and height wp_get_attachment_image_src() returns because
@@ -960,34 +972,33 @@ class Jetpack_Carousel {
 		 * array(4) { [0]=> string(82) "http://vanillawpinstall.blah/wp-content/uploads/2012/06/IMG_3534-1024x764.jpg" [1]=> int(640) [2]=> int(477) [3]=> bool(true) }
 		 */
 
-		$medium_file_info = wp_get_attachment_image_src( $attachment_id, 'medium' );
-		$medium_file      = isset( $medium_file_info[0] ) ? $medium_file_info[0] : '';
-
 		$large_file_info = wp_get_attachment_image_src( $attachment_id, 'large' );
-		$large_file      = isset( $large_file_info[0] ) ? $large_file_info[0] : '';
+		$large_file      = $large_file_info[0] ?? '';
 
 		$attachment_title   = wptexturize( $attachment->post_title );
 		$attachment_desc    = wpautop( wptexturize( $attachment->post_content ) );
 		$attachment_caption = wpautop( wptexturize( $attachment->post_excerpt ) );
-
-		// See https://github.com/Automattic/jetpack/issues/2765.
-		if ( isset( $img_meta['keywords'] ) ) {
-			unset( $img_meta['keywords'] );
-		}
-
-		$img_meta = wp_json_encode( array_map( 'strval', array_filter( $img_meta, 'is_scalar' ) ) );
 
 		$attr['data-attachment-id']   = $attachment_id;
 		$attr['data-permalink']       = esc_attr( get_permalink( $attachment_id ) );
 		$attr['data-orig-file']       = esc_attr( $orig_file );
 		$attr['data-orig-size']       = $size;
 		$attr['data-comments-opened'] = $comments_opened;
-		$attr['data-image-meta']      = esc_attr( $img_meta );
+
+		if ( $display_exif ) {
+			// See https://github.com/Automattic/jetpack/issues/2765.
+			if ( isset( $img_meta['keywords'] ) ) {
+				unset( $img_meta['keywords'] );
+			}
+
+			$img_meta                = wp_json_encode( array_map( 'strval', array_filter( $img_meta, 'is_scalar' ) ), JSON_UNESCAPED_SLASHES | JSON_HEX_AMP );
+			$attr['data-image-meta'] = esc_attr( $img_meta );
+		}
+
 		// The lines below use `esc_attr( htmlspecialchars( ) )` because esc_attr tries to be too smart and won't double-encode, and we need that here.
 		$attr['data-image-title']       = esc_attr( htmlspecialchars( $attachment_title, ENT_COMPAT ) );
 		$attr['data-image-description'] = esc_attr( htmlspecialchars( $attachment_desc, ENT_COMPAT ) );
 		$attr['data-image-caption']     = esc_attr( htmlspecialchars( $attachment_caption, ENT_COMPAT ) );
-		$attr['data-medium-file']       = esc_attr( $medium_file );
 		$attr['data-large-file']        = esc_attr( $large_file );
 		return $attr;
 	}
@@ -1029,10 +1040,10 @@ class Jetpack_Carousel {
 			 */
 			$extra_data = apply_filters( 'jp_carousel_add_data_to_container', $extra_data );
 			foreach ( (array) $extra_data as $data_key => $data_values ) {
-				$html = str_replace( '<div ', '<div ' . esc_attr( $data_key ) . "='" . wp_json_encode( $data_values ) . "' ", $html );
-				$html = str_replace( '<ul class="wp-block-gallery', '<ul ' . esc_attr( $data_key ) . "='" . wp_json_encode( $data_values ) . "' class=\"wp-block-gallery", $html );
-				$html = str_replace( '<ul class="blocks-gallery-grid', '<ul ' . esc_attr( $data_key ) . "='" . wp_json_encode( $data_values ) . "' class=\"blocks-gallery-grid", $html );
-				$html = preg_replace( '/\<figure([^>]*)class="(wp-block-gallery[^"]*?has-nested-images.*?)"/', '<figure ' . esc_attr( $data_key ) . "='" . wp_json_encode( $data_values ) . "' $1 class=\"$2\"", $html );
+				$html = str_replace( '<div ', '<div ' . esc_attr( $data_key ) . "='" . esc_attr( wp_json_encode( $data_values, JSON_HEX_AMP | JSON_UNESCAPED_SLASHES ) ) . "' ", $html );
+				$html = str_replace( '<ul class="wp-block-gallery', '<ul ' . esc_attr( $data_key ) . "='" . esc_attr( wp_json_encode( $data_values, JSON_HEX_AMP | JSON_UNESCAPED_SLASHES ) ) . "' class=\"wp-block-gallery", $html );
+				$html = str_replace( '<ul class="blocks-gallery-grid', '<ul ' . esc_attr( $data_key ) . "='" . esc_attr( wp_json_encode( $data_values, JSON_HEX_AMP | JSON_UNESCAPED_SLASHES ) ) . "' class=\"blocks-gallery-grid", $html );
+				$html = preg_replace( '/\<figure([^>]*)class="(wp-block-gallery[^"]*?has-nested-images.*?)"/', '<figure ' . esc_attr( $data_key ) . "='" . esc_attr( wp_json_encode( $data_values, JSON_HEX_AMP | JSON_UNESCAPED_SLASHES ) ) . "' $1 class=\"$2\"", $html );
 			}
 		}
 
@@ -1079,7 +1090,7 @@ class Jetpack_Carousel {
 	/**
 	 * Retrieves comment information
 	 *
-	 * @return string
+	 * @return never
 	 */
 	public function get_attachment_comments() {
 		if ( ! headers_sent() ) {
@@ -1105,9 +1116,9 @@ class Jetpack_Carousel {
 		if ( ! $attachment_id ) {
 			wp_send_json_error(
 				__( 'Missing attachment ID.', 'jetpack' ),
-				403
+				403,
+				JSON_UNESCAPED_SLASHES
 			);
-			return;
 		}
 
 		$attachment_post = get_post( $attachment_id );
@@ -1115,18 +1126,18 @@ class Jetpack_Carousel {
 		if ( ! ( $attachment_post instanceof WP_Post ) ) {
 			wp_send_json_error(
 				__( 'Missing attachment info.', 'jetpack' ),
-				403
+				403,
+				JSON_UNESCAPED_SLASHES
 			);
-			return;
 		}
 
 		// This AJAX call should only be used to fetch comments of attachments.
 		if ( 'attachment' !== $attachment_post->post_type ) {
 			wp_send_json_error(
 				__( 'You aren’t authorized to do that.', 'jetpack' ),
-				403
+				403,
+				JSON_UNESCAPED_SLASHES
 			);
-			return;
 		}
 
 		$parent_post = get_post_parent( $attachment_id );
@@ -1146,9 +1157,9 @@ class Jetpack_Carousel {
 			if ( ! ( $current_user instanceof WP_User ) ) {
 				wp_send_json_error(
 					__( 'Missing user info.', 'jetpack' ),
-					403
+					403,
+					JSON_UNESCAPED_SLASHES
 				);
-				return;
 			}
 
 			/*
@@ -1162,9 +1173,9 @@ class Jetpack_Carousel {
 			) {
 				wp_send_json_error(
 					__( 'You aren’t authorized to do that.', 'jetpack' ),
-					403
+					403,
+					JSON_UNESCAPED_SLASHES
 				);
-				return;
 			}
 		}
 
@@ -1200,7 +1211,7 @@ class Jetpack_Carousel {
 			);
 		}
 
-		die( wp_json_encode( $out ) );
+		wp_send_json( $out, null, JSON_UNESCAPED_SLASHES );
 	}
 
 	/**
@@ -1214,7 +1225,7 @@ class Jetpack_Carousel {
 		}
 
 		if ( empty( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], 'carousel_nonce' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- WP Core doesn't unslash or sanitize nonces either
-			die( wp_json_encode( array( 'error' => __( 'Nonce verification failed.', 'jetpack' ) ) ) );
+			die( wp_json_encode( array( 'error' => __( 'Nonce verification failed.', 'jetpack' ) ), JSON_UNESCAPED_SLASHES ) );
 		}
 
 		$_blog_id = isset( $_POST['blog_id'] ) ? (int) $_POST['blog_id'] : 0;
@@ -1222,15 +1233,15 @@ class Jetpack_Carousel {
 		$comment  = isset( $_POST['comment'] ) ? filter_var( wp_unslash( $_POST['comment'] ) ) : null;
 
 		if ( empty( $_blog_id ) ) {
-			die( wp_json_encode( array( 'error' => __( 'Missing target blog ID.', 'jetpack' ) ) ) );
+			die( wp_json_encode( array( 'error' => __( 'Missing target blog ID.', 'jetpack' ) ), JSON_UNESCAPED_SLASHES ) );
 		}
 
 		if ( empty( $_post_id ) ) {
-			die( wp_json_encode( array( 'error' => __( 'Missing target post ID.', 'jetpack' ) ) ) );
+			die( wp_json_encode( array( 'error' => __( 'Missing target post ID.', 'jetpack' ) ), JSON_UNESCAPED_SLASHES ) );
 		}
 
 		if ( empty( $comment ) ) {
-			die( wp_json_encode( array( 'error' => __( 'No comment text was submitted.', 'jetpack' ) ) ) );
+			die( wp_json_encode( array( 'error' => __( 'No comment text was submitted.', 'jetpack' ) ), JSON_UNESCAPED_SLASHES ) );
 		}
 
 		// Used in context like NewDash.
@@ -1247,7 +1258,7 @@ class Jetpack_Carousel {
 			if ( $switched ) {
 				restore_current_blog();
 			}
-			die( wp_json_encode( array( 'error' => __( 'Comments on this post are closed.', 'jetpack' ) ) ) );
+			die( wp_json_encode( array( 'error' => __( 'Comments on this post are closed.', 'jetpack' ) ), JSON_UNESCAPED_SLASHES ) );
 		}
 
 		if ( is_user_logged_in() ) {
@@ -1261,34 +1272,37 @@ class Jetpack_Carousel {
 				if ( $switched ) {
 					restore_current_blog();
 				}
-				die( wp_json_encode( array( 'error' => __( 'Sorry, but we could not authenticate your request.', 'jetpack' ) ) ) );
+				die( wp_json_encode( array( 'error' => __( 'Sorry, but we could not authenticate your request.', 'jetpack' ) ), JSON_UNESCAPED_SLASHES ) );
 			}
 		} else {
 			$user_id      = 0;
 			$display_name = isset( $_POST['author'] ) ? sanitize_text_field( wp_unslash( $_POST['author'] ) ) : null;
-			$email        = isset( $_POST['email'] ) ? wp_unslash( $_POST['email'] ) : null; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Checked or sanitized below.
-			$url          = isset( $_POST['url'] ) ? esc_url_raw( wp_unslash( $_POST['url'] ) ) : null;
+			$email        = null;
+			if ( isset( $_POST['email'] ) && is_string( $_POST['email'] ) ) {
+				$email = wp_unslash( $_POST['email'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Checked or sanitized below.
+			}
+			$url = isset( $_POST['url'] ) && is_string( $_POST['url'] ) ? esc_url_raw( wp_unslash( $_POST['url'] ) ) : null;
 
 			if ( get_option( 'require_name_email' ) ) {
 				if ( empty( $display_name ) ) {
 					if ( $switched ) {
 						restore_current_blog();
 					}
-					die( wp_json_encode( array( 'error' => __( 'Please provide your name.', 'jetpack' ) ) ) );
+					die( wp_json_encode( array( 'error' => __( 'Please provide your name.', 'jetpack' ) ), JSON_UNESCAPED_SLASHES ) );
 				}
 
 				if ( empty( $email ) ) {
 					if ( $switched ) {
 						restore_current_blog();
 					}
-					die( wp_json_encode( array( 'error' => __( 'Please provide an email address.', 'jetpack' ) ) ) );
+					die( wp_json_encode( array( 'error' => __( 'Please provide an email address.', 'jetpack' ) ), JSON_UNESCAPED_SLASHES ) );
 				}
 
 				if ( ! is_email( $email ) ) {
 					if ( $switched ) {
 						restore_current_blog();
 					}
-					die( wp_json_encode( array( 'error' => __( 'Please provide a valid email address.', 'jetpack' ) ) ) );
+					die( wp_json_encode( array( 'error' => __( 'Please provide a valid email address.', 'jetpack' ) ), JSON_UNESCAPED_SLASHES ) );
 				}
 			} else {
 				$email = $email !== null ? sanitize_email( $email ) : null;
@@ -1331,7 +1345,8 @@ class Jetpack_Carousel {
 				array(
 					'comment_id'     => $comment_id,
 					'comment_status' => $comment_status,
-				)
+				),
+				JSON_UNESCAPED_SLASHES
 			)
 		);
 	}

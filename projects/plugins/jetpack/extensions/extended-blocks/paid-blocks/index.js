@@ -6,10 +6,9 @@ import {
 import domReady from '@wordpress/dom-ready';
 import { addFilter } from '@wordpress/hooks';
 import { __ } from '@wordpress/i18n';
-import { uniq } from 'lodash';
 import paidBlockMediaPlaceholder from './media-placeholder';
 import paidBlockMediaReplaceFlow from './media-replace-flow';
-import renderPaidIcon from './render-paid-icon.js';
+import renderPaidIcon from './render-paid-icon.jsx';
 import { blockEditWithUpgradeBanner } from './with-upgrade-banner';
 
 import './editor.scss';
@@ -23,7 +22,9 @@ const jetpackPaidBlock = ( settings, name ) => {
 		}
 
 		// Populate block keywords.
-		settings.keywords = uniq( [ ...settings.keywords, 'premium', __( 'premium', 'jetpack' ) ] );
+		settings.keywords = [
+			...new Set( [ ...settings.keywords, 'premium', __( 'premium', 'jetpack' ) ] ),
+		];
 
 		// Extend Icon for Paid blocks.
 		if ( ! isStillUsableWithFreePlan( name ) ) {

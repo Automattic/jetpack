@@ -1,0 +1,9 @@
+// A sibling of `.jpb-overview` rather than a child: that element is a
+// two-column grid at >= 961px, so a third child would be auto-placed into
+// it.
+.jpb-review-request {
+	// `Card.Root` ships no padding of its own; `.jpb-file-info-card` sets
+	// its own for the same reason.
+	padding: 12px 16px;
+	margin-block-end: 16px;
+}

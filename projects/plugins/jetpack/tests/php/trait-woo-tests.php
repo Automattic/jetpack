@@ -47,7 +47,6 @@ trait WooCommerceTestTrait {
 		// test cases
 		require_once $woo_tests_dir . '/legacy/includes/wp-http-testcase.php';
 		require_once $woo_tests_dir . '/legacy/framework/class-wc-unit-test-case.php';
-		require_once $woo_tests_dir . '/legacy/framework/class-wc-api-unit-test-case.php';
 		require_once $woo_tests_dir . '/legacy/framework/class-wc-rest-unit-test-case.php';
 
 		// Helpers
@@ -68,10 +67,5 @@ trait WooCommerceTestTrait {
 		// Traits.
 		require_once $woo_tests_dir . '/legacy/framework/traits/trait-wc-rest-api-complex-meta.php';
 		require_once $woo_tests_dir . '/php/helpers/HPOSToggleTrait.php';
-
-		// Action Scheduler.
-		$as_file = dirname( $woo_tests_dir ) . '/packages/action-scheduler/action-scheduler.php';
-		require_once dirname( $woo_tests_dir ) . '/packages/action-scheduler/classes/abstracts/ActionScheduler.php';
-		ActionScheduler::init( $as_file );
 	}
 }

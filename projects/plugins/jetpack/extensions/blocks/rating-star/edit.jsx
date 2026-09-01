@@ -1,0 +1,105 @@
+import {
+	AlignmentToolbar,
+	BlockControls,
+	InspectorControls,
+	PanelColorSettings,
+	useBlockProps,
+} from '@wordpress/block-editor';
+import { PanelBody, RangeControl } from '@wordpress/components';
+import { __ } from '@wordpress/i18n';
+
+export const Rating = ( { id, setRating, children } ) => {
+	const setNewRating = newRating => () => setRating( newRating );
+	const maybeSetNewRating =
+		newRating =>
+		( { code } ) =>
+			code === 'Enter' ? setRating( newRating ) : null;
+
+	return (
+		<span
+			className="jetpack-ratings-button"
+			tabIndex={ 0 }
+			role="button"
+			onKeyDown={ maybeSetNewRating( id ) }
+			onClick={ setNewRating( id ) }
+		>
+			{ children }
+		</span>
+	);
+};
+
+export default Symbol =>
+	function ( { setAttributes, attributes: { align, color, rating, maxRating } } ) {
+		const blockProps = useBlockProps();
+
+		const setNewMaxRating = newMaxRating => setAttributes( { maxRating: newMaxRating } );
+		const setNewColor = newColor => setAttributes( { color: newColor } );
+		const setNewRating = newRating => {
+			if ( newRating === rating ) {
+				// Same number clicked twice.
+				// Check if a half rating.
+				if ( Math.ceil( rating ) === rating ) {
+					// Whole number.
+					newRating = newRating - 0.5;
+				}
+			} else if ( rating === 0.5 && newRating === 1 ) {
+				// Clicking the 0.5 star updates to 0 stars.
+				newRating = 0;
+			}
+
+			setAttributes( { rating: newRating } );
+		};
+
+		return (
+			<div { ...blockProps }>
+				<BlockControls>
+					<AlignmentToolbar
+						value={ align }
+						onChange={ nextAlign => setAttributes( { align: nextAlign } ) }
+					/>
+				</BlockControls>
+				<div style={ { textAlign: align } }>
+					{ Array.from( Array( Math.ceil( maxRating ) ), ( _, i ) => i + 1 ).map( position => (
+						<Rating key={ position } id={ position } setRating={ setNewRating }>
+							<span>
+								<Symbol
+									className={ rating >= position - 0.5 ? null : 'is-rating-unfilled' }
+									color={ color }
+								/>
+							</span>
+							<span>
+								<Symbol
+									className={ rating >= position ? null : 'is-rating-unfilled' }
+									color={ color }
+								/>
+							</span>
+						</Rating>
+					) ) }
+				</div>
+				<InspectorControls>
+					<PanelBody title={ __( 'Settings', 'jetpack' ) }>
+						<RangeControl
+							label={ __( 'Highest rating', 'jetpack' ) }
+							value={ maxRating }
+							onChange={ setNewMaxRating }
+							min={ 2 }
+							max={ 10 }
+							__nextHasNoMarginBottom={ true }
+							__next40pxDefaultSize={ true }
+						/>
+					</PanelBody>
+					<PanelColorSettings
+						title={ __( 'Color', 'jetpack' ) }
+						initialOpen
+						colorSettings={ [
+							{
+								value: color,
+								onChange: setNewColor,
+								label: __( 'Color', 'jetpack' ),
+							},
+						] }
+					/>
+				</InspectorControls>
+			</div>
+		);
+	};

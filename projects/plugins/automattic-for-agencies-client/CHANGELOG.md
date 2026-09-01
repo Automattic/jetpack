@@ -5,6 +5,69 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.9.0 - 2026-08-14
+### Changed
+- Components: Use Link from `@wordpress/ui` instead of ExternalLink. [#48529]
+- General: Update minimum WordPress version to 6.9. [#49021]
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+- Remove unneeded development and documentation files from the published plugin. [#49014]
+- Replace deprecated jetpack-components Spinner with WordPress Core Spinner. [#47451]
+- Tested up to WordPress 7.0. [#48114]
+- Updated package dependencies. [#48735] [#48064] [#48106] [#48404] [#48405] [#48683] [#49012] [#49218] [#49272] [#49273] [#49448] [#49492] [#49631] [#49691] [#49757] [#49831] [#50097] [#50183] [#50436] [#50509] [#50529] [#50751]
+
+## 0.8.0 - 2026-04-11
+### Added
+- IDC: Add revalidation for IDCs. [#46268]
+
+### Changed
+- Dependencies: Update lock file to keep root requirements in sync. [#47418]
+- Remove header border-bottom from the admin page for a cleaner unified header appearance. [#47313]
+- Update dependencies. [#47472]
+- Update design of the sidebar upsell. [#47909]
+- Update package dependencies. [#46143] [#46456] [#46552] [#46647] [#46785] [#46854] [#47002] [#47021] [#47099] [#47173] [#47300] [#47371] [#47496] [#47505] [#47684] [#47799] [#47825] [#47890] [#47998]
+
+### Removed
+- General: Update minimum WordPress version to 6.8. [#46801]
+
+### Fixed
+- Admin Page: Restore border on header component. [#47425]
+- Ensure proper flags are used with `json_encode()`. [#46117]
+
+## 0.7.2 - 2025-11-20
+### Added
+- Tested up to WordPress 6.9. [#45571]
+
+### Changed
+- Update dependencies. [#45488]
+- Update package dependencies. [#45478] [#45676] [#45756] [#45915] [#45958]
+
+## 0.7.1 - 2025-10-09
+### Changed
+- Update package dependencies. [#44677] [#44701] [#44725] [#45027] [#45096] [#45173] [#45200] [#45229] [#45298] [#45299] [#45334]
+
+## 0.7.0 - 2025-08-06
+### Changed
+- My Jetpack: Unify the user connection flow with a unified screen. [#44469]
+- Sync: Ignore the ActivityPub Outbox CPT. [#44222]
+- Update dependencies. [#43796]
+- Update package dependencies. [#43839] [#44020] [#44148] [#44151] [#44206] [#44217] [#44356]
+
+## 0.6.0 - 2025-06-04
+### Changed
+- Code: First pass of style coding standards. [#42734]
+- Dashboard: Mark external link as external. [#43167]
+- E2E Tests: Update config file encryption algorithm. [#43523]
+- Update package dependencies. [#43071] [#43085] [#43320] [#43326] [#43398] [#43400] [#43425] [#43578] [#43734]
+
+### Removed
+- General: Update minimum WordPress version to 6.7. [#43192]
+
+### Fixed
+- Block editor: Fix layout issues with the Media Library modal buttons. [#43035]
+- Code: Update stylesheets to use hex instead of named colors. [#42920]
+- Linting: Do additional stylesheet cleanup. [#43247]
+- Resolve parsing error that was resulting in a blank page. [#43221]
+
 ## 0.5.0 - 2025-04-03
 ### Added
 - Add Account Protection initialization. [#40925]

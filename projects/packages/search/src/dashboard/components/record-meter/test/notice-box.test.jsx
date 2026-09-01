@@ -1,14 +1,14 @@
-/**
- * @jest-environment jsdom
- */
-
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import { NoticeBox } from 'components/record-meter/notice-box';
-import React from 'react';
 
+// `@wordpress/ui` Notice uses `@wordpress/a11y` to announce notice content
+// via live regions appended to `document.body` (`.a11y-speak-region`),
+// so the same text appears twice in the DOM. Scope text queries to the
+// rendered container to ignore the screen-reader announcement and match
+// only the visible Notice content.
 describe( 'with notices to display', () => {
 	test( 'unable to locate content notice is displayed when not yet indexed', () => {
-		render(
+		const { container } = render(
 			<NoticeBox
 				recordCount={ 20 }
 				tierMaximumRecords={ 100 }
@@ -17,11 +17,11 @@ describe( 'with notices to display', () => {
 				hasItems={ true }
 			></NoticeBox>
 		);
-		expect( screen.getByText( /gathering your usage data/i ) ).toBeVisible();
+		expect( within( container ).getByText( /gathering your usage data/i ) ).toBeVisible();
 	} );
 
 	test( 'unable to access data notice is displayed', () => {
-		render(
+		const { container } = render(
 			<NoticeBox
 				recordCount={ 20 }
 				tierMaximumRecords={ 100 }
@@ -31,11 +31,11 @@ describe( 'with notices to display', () => {
 			></NoticeBox>
 		);
 
-		expect( screen.getByText( /index your content/i ) ).toBeVisible();
+		expect( within( container ).getByText( /index your content/i ) ).toBeVisible();
 	} );
 
 	test( 'unable to locate content notice is displayed when there are no items', () => {
-		render(
+		const { container } = render(
 			<NoticeBox
 				recordCount={ 20 }
 				tierMaximumRecords={ 100 }
@@ -45,10 +45,10 @@ describe( 'with notices to display', () => {
 			></NoticeBox>
 		);
 
-		expect( screen.getByText( /gathering your usage data/i ) ).toBeVisible();
+		expect( within( container ).getByText( /gathering your usage data/i ) ).toBeVisible();
 	} );
 	test( 'getting close to record limit notice is displayed', () => {
-		render(
+		const { container } = render(
 			<NoticeBox
 				recordCount={ 95 }
 				tierMaximumRecords={ 100 }
@@ -58,7 +58,7 @@ describe( 'with notices to display', () => {
 			></NoticeBox>
 		);
 
-		expect( screen.getByText( /close to the maximum records/i ) ).toBeVisible();
+		expect( within( container ).getByText( /close to the maximum records/i ) ).toBeVisible();
 	} );
 } );
 

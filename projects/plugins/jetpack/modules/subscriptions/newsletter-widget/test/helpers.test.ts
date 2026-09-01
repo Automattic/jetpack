@@ -1,10 +1,9 @@
-import { getRedirectUrl } from '@automattic/jetpack-components';
+import { getAnalyticsUrl, hasAnalyticsDashboard } from '../../../../_inc/shared/analytics-url';
 import {
 	formatAxisTickDate,
 	formatDate,
 	getXAxisTickValues,
 	transformData,
-	getNewsletterSettingsUrl,
 	buildJPRedirectSource,
 	getSubscriberStatsUrl,
 	formatNumber,
@@ -12,24 +11,12 @@ import {
 } from '../src/helpers';
 import type { SubscriberTotalsByDate, ChartSubscriptionDataPoint } from '../src/types';
 
+jest.mock( '../../../../_inc/shared/analytics-url', () => ( {
+	getAnalyticsUrl: jest.fn( () => 'https://example.com/wp-admin/analytics' ),
+	hasAnalyticsDashboard: jest.fn( () => true ),
+} ) );
+
 describe( 'helpers', () => {
-	describe( 'getNewsletterSettingsUrl', () => {
-		const testSite = 'example.com';
-		const testAdminUrl = 'https://example.com/wp-admin/';
-
-		it( 'returns WordPress.com URL for WordPress.com sites', () => {
-			const url = getNewsletterSettingsUrl( testSite, true, testAdminUrl );
-			expect( url ).toBe(
-				getRedirectUrl( 'https://wordpress.com/settings/newsletter/' + testSite )
-			);
-		} );
-
-		it( 'returns WP-admin URL for self-hosted sites', () => {
-			const url = getNewsletterSettingsUrl( testSite, false, testAdminUrl );
-			expect( url ).toBe( `${ testAdminUrl }admin.php?page=jetpack#newsletter` );
-		} );
-	} );
-
 	describe( 'formatDate', () => {
 		const testDate = new Date( '2025-03-01' );
 
@@ -156,16 +143,37 @@ describe( 'helpers', () => {
 		const testSite = 'example.com';
 		const testAdminUrl = 'https://example.com/wp-admin/';
 
-		it( 'returns WordPress.com URL for WordPress.com sites', () => {
-			const url = getSubscriberStatsUrl( testSite, true, testAdminUrl );
-			expect( url ).toBe( getRedirectUrl( 'https://wordpress.com/stats/subscribers/' + testSite ) );
+		beforeEach( () => {
+			jest.mocked( getAnalyticsUrl ).mockClear();
+			jest.mocked( hasAnalyticsDashboard ).mockReturnValue( true );
 		} );
 
-		it( 'returns WP-admin URL for self-hosted sites', () => {
-			const url = getSubscriberStatsUrl( testSite, false, testAdminUrl );
-			expect( url ).toBe(
+		// Where the dashboard is the analytics UI, delegate to the shared helper —
+		// it owns that URL grammar, so this asserts the request, not the URL.
+		it( 'asks for the subscribers view of the analytics dashboard', () => {
+			const url = getSubscriberStatsUrl( testSite, testAdminUrl );
+
+			expect( getAnalyticsUrl ).toHaveBeenCalledWith( {
+				view: 'dashboard',
+				section: 'subscribers',
+			} );
+			expect( url ).toBe( 'https://example.com/wp-admin/analytics' );
+		} );
+
+		it( 'passes through null when the user cannot open the dashboard', () => {
+			jest.mocked( getAnalyticsUrl ).mockReturnValueOnce( null );
+
+			expect( getSubscriberStatsUrl( testSite, testAdminUrl ) ).toBeNull();
+		} );
+
+		// Everywhere else the existing Stats deep link is untouched.
+		it( 'returns the Stats deep link when the dashboard has not replaced it', () => {
+			jest.mocked( hasAnalyticsDashboard ).mockReturnValue( false );
+
+			expect( getSubscriberStatsUrl( testSite, testAdminUrl ) ).toBe(
 				`${ testAdminUrl }admin.php?page=stats#!/stats/subscribers/${ testSite }`
 			);
+			expect( getAnalyticsUrl ).not.toHaveBeenCalled();
 		} );
 	} );
 

@@ -5,6 +5,118 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.28.11] - 2026-07-13
+### Changed
+- Update dependencies. [#50360]
+
+## [0.28.10] - 2026-06-25
+### Changed
+- Defer WAF REST controller registration so the controller class only loads on REST API requests. [#49803]
+
+## [0.28.9] - 2026-06-22
+### Fixed
+- Retry key generation after transient activation failures. [#49768]
+
+## [0.28.8] - 2026-06-15
+### Fixed
+- Guard against malformed allowlist data. [#49481]
+- Skip rule evaluation when there is no HTTP request (e.g. server-side cron executed via a PHP CLI wrapper), preventing false-positive 403 blocks. [#49465]
+
+## [0.28.7] - 2026-06-08
+### Fixed
+- Brute Force Protection: Avoid a fatal error when rendering the login recovery form while an output buffer handler is active. [#49404]
+
+## [0.28.6] - 2026-06-01
+### Fixed
+- Brute Force Protection: Prevent PHP warning when username is invalid. [#49292]
+
+## [0.28.5] - 2026-05-25
+### Fixed
+- Phan: Address `PhanPluginDuplicateConditionalNullCoalescing` violations. [#48887]
+
+## [0.28.4] - 2026-05-19
+### Changed
+- Internal updates.
+
+## [0.28.3] - 2026-05-04
+### Changed
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+
+## [0.28.2] - 2026-03-23
+### Security
+- WAF: Fix issue that potentially allowed bypassing WAF rules. [#47692]
+
+## [0.28.1] - 2026-02-23
+### Changed
+- Update dependencies. [#39263]
+
+## [0.28.0] - 2026-02-16
+### Added
+- Enable support for ModSecurity's `MATCHED_VAR*` family of targets. [#47012]
+
+## [0.27.11] - 2026-02-10
+### Fixed
+- Fix mishandling of empty Content-Type headers. [#46986]
+
+## [0.27.10] - 2026-02-02
+### Changed
+- Update dependencies. [#39263]
+
+## [0.27.9] - 2025-12-15
+### Changed
+- Internal updates.
+
+## [0.27.8] - 2025-12-08
+### Fixed
+- Ensure proper flags are used with `json_encode()`. [#46092]
+
+## [0.27.7] - 2025-11-17
+### Changed
+- Internal updates.
+
+## [0.27.6] - 2025-11-03
+### Fixed
+- Phan: Address PhanRedundantCondition, PhanRedundantArrayValuesCall, and PhanPluginRedundantAssignment violations. [#45681]
+
+## [0.27.5] - 2025-10-20
+### Changed
+- Internal updates.
+
+## [0.27.4] - 2025-09-15
+### Changed
+- Internal updates.
+
+## [0.27.3] - 2025-09-08
+### Fixed
+- WAF: Prevent PHP warnings when the BFP transient is not set or when the hook data for the WAF update flag is not as expected. [#45088]
+
+## [0.27.2] - 2025-08-11
+### Changed
+- Internal updates.
+
+## [0.27.1] - 2025-07-21
+### Changed
+- Internal updates.
+
+## [0.27.0] - 2025-07-14
+### Changed
+- VIP: Change hosting check method. [#44223]
+
+## [0.26.0] - 2025-07-03
+### Added
+- Add account recovery flow for blocklisted IP addresses. [#43051]
+
+### Fixed
+- Fix PHP warnings for `Brute_Force_Protection->get_local_host()`. [#44170]
+
+## [0.25.0] - 2025-06-23
+### Changed
+- Tests: Modify environment check in tests to match new requirements. [#44059]
+
+## [0.24.4] - 2025-06-09
+### Fixed
+- Tests: Ensure method param count matches PHPUnit data providers. [#43815] [#43828]
+
 ## [0.24.3] - 2025-04-28
 ### Fixed
 - Linting: Fix more Stylelint violations. [#43213]
@@ -454,6 +566,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Core: do not ship .phpcs.dir.xml in production builds.
 
+[0.28.11]: https://github.com/Automattic/jetpack-waf/compare/v0.28.10...v0.28.11
+[0.28.10]: https://github.com/Automattic/jetpack-waf/compare/v0.28.9...v0.28.10
+[0.28.9]: https://github.com/Automattic/jetpack-waf/compare/v0.28.8...v0.28.9
+[0.28.8]: https://github.com/Automattic/jetpack-waf/compare/v0.28.7...v0.28.8
+[0.28.7]: https://github.com/Automattic/jetpack-waf/compare/v0.28.6...v0.28.7
+[0.28.6]: https://github.com/Automattic/jetpack-waf/compare/v0.28.5...v0.28.6
+[0.28.5]: https://github.com/Automattic/jetpack-waf/compare/v0.28.4...v0.28.5
+[0.28.4]: https://github.com/Automattic/jetpack-waf/compare/v0.28.3...v0.28.4
+[0.28.3]: https://github.com/Automattic/jetpack-waf/compare/v0.28.2...v0.28.3
+[0.28.2]: https://github.com/Automattic/jetpack-waf/compare/v0.28.1...v0.28.2
+[0.28.1]: https://github.com/Automattic/jetpack-waf/compare/v0.28.0...v0.28.1
+[0.28.0]: https://github.com/Automattic/jetpack-waf/compare/v0.27.11...v0.28.0
+[0.27.11]: https://github.com/Automattic/jetpack-waf/compare/v0.27.10...v0.27.11
+[0.27.10]: https://github.com/Automattic/jetpack-waf/compare/v0.27.9...v0.27.10
+[0.27.9]: https://github.com/Automattic/jetpack-waf/compare/v0.27.8...v0.27.9
+[0.27.8]: https://github.com/Automattic/jetpack-waf/compare/v0.27.7...v0.27.8
+[0.27.7]: https://github.com/Automattic/jetpack-waf/compare/v0.27.6...v0.27.7
+[0.27.6]: https://github.com/Automattic/jetpack-waf/compare/v0.27.5...v0.27.6
+[0.27.5]: https://github.com/Automattic/jetpack-waf/compare/v0.27.4...v0.27.5
+[0.27.4]: https://github.com/Automattic/jetpack-waf/compare/v0.27.3...v0.27.4
+[0.27.3]: https://github.com/Automattic/jetpack-waf/compare/v0.27.2...v0.27.3
+[0.27.2]: https://github.com/Automattic/jetpack-waf/compare/v0.27.1...v0.27.2
+[0.27.1]: https://github.com/Automattic/jetpack-waf/compare/v0.27.0...v0.27.1
+[0.27.0]: https://github.com/Automattic/jetpack-waf/compare/v0.26.0...v0.27.0
+[0.26.0]: https://github.com/Automattic/jetpack-waf/compare/v0.25.0...v0.26.0
+[0.25.0]: https://github.com/Automattic/jetpack-waf/compare/v0.24.4...v0.25.0
+[0.24.4]: https://github.com/Automattic/jetpack-waf/compare/v0.24.3...v0.24.4
 [0.24.3]: https://github.com/Automattic/jetpack-waf/compare/v0.24.2...v0.24.3
 [0.24.2]: https://github.com/Automattic/jetpack-waf/compare/v0.24.1...v0.24.2
 [0.24.1]: https://github.com/Automattic/jetpack-waf/compare/v0.24.0...v0.24.1

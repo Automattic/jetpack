@@ -1,0 +1,133 @@
+# `useStagedSearch` — staged UI + atomic URL commits
+
+Make the UI react instantly while the URL stays the source of truth. Edits are
+staged locally and then committed atomically to the URL (one navigation). Back/
+Forward stays smooth.
+
+This is `useStagedValue` bound to the URL. A control that saves somewhere else —
+a widget attribute, say — uses that hook directly and gets the same staging
+behavior.
+
+---
+
+## Concepts
+
+- **committed**: current URL state (`useSearch`).
+- **staged**: optimistic local edits (what the user is changing now).
+- **effective**: `staged` merged over `committed` (ignoring `undefined`).
+
+Atomic commit:
+
+- `commit()` writes all staged changes in one `navigate({ search })`.
+- On confirm, call `commit({ replace: false })` to push a history entry.
+
+---
+
+## API
+
+```ts
+type UseStagedSearchOptions< TFrom extends string > = {
+	from?: TFrom; // TanStack route id/path; omit to bind to the matched route
+};
+
+type UseStagedSearchReturn< TSearch > = {
+	committed: TSearch; // current URL state
+	staged: TSearch; // optimistic local snapshot
+	effective: TSearch; // staged over committed per key
+	isDirty: boolean; // staged differs from committed
+	stage( patch: Partial< TSearch > ): void;
+	commit( opts?: { replace?: boolean } ): void;
+	revert(): void;
+};
+```
+
+Notes:
+
+- Internally uses `useSearch( { from } )` and `useNavigate( { from } )`, or `useSearch( { strict: false } )` and `useNavigate()` when `from` is omitted.
+- No `to` is passed on commit, so the current route is preserved.
+
+---
+
+## Minimal usage
+
+```tsx
+import { useMemo, useCallback } from 'react';
+import { useStagedSearch, encodeDateToSearchParam } from '@jetpack-premium-analytics/routing';
+import { localTZDate } from '@jetpack-premium-analytics/data';
+import type { DateRange } from '@jetpack-premium-analytics/datetime';
+
+type Search = {
+	from?: string;
+	to?: string;
+	compare_preset?: string;
+	comp?: string;
+};
+
+export function DashboardHeader() {
+	const { effective, stage, commit } = useStagedSearch< Search, '/' >( { from: '/' } );
+
+	const range = useMemo(
+		() => ( {
+			from: effective.from ? localTZDate( effective.from ) : undefined,
+			to: effective.to ? localTZDate( effective.to ) : undefined,
+		} ),
+		[ effective.from, effective.to ]
+	);
+
+	const onRangeChange = useCallback(
+		( next: DateRange | undefined ) => {
+			if ( ! next ) {
+				return;
+			}
+			stage( {
+				from: encodeDateToSearchParam( next.from ),
+				to: encodeDateToSearchParam( next.to ),
+			} );
+			commit( { replace: false } );
+		},
+		[ stage, commit ]
+	);
+
+	// ...
+}
+```
+
+---
+
+## Best practices
+
+**What to use when**
+
+- Render and fetch: **`effective`**
+- Inputs being edited: **`staged`**
+- URL-driven side effects / analytics / share links: **`committed`**
+
+**Navigation and history**
+
+- Do not pass `to` on commit; update only `search` for SPA smoothness.
+- Explicit commit: `commit( { replace: false } )` pushes history.
+- Corrections the user did not ask for: `commit( { replace: true } )`.
+- The URL→UI mirror keeps Back/Forward fluid and flicker-free.
+
+**Data fetching**
+
+```ts
+const { effective } = useStagedSearch< Search >( { from: '/' } );
+
+const query = useQuery( {
+	queryKey: [ 'orders', effective ],
+	queryFn: () => fetchOrders( effective ),
+} );
+```
+
+**Removing params**
+
+- `effective` ignores `undefined` in `staged`. To remove a key, stage it as
+  `undefined` and commit; the updater omits the key in the URL.
+
+**Avoid**
+
+- Writing the URL from multiple components (breaks atomicity).
+- Mixing `useSearch()` reads in children that also depend on staging.
+
+---

@@ -2,7 +2,7 @@ import { compose, ifCondition } from '@wordpress/compose';
 import { withSelect, select, subscribe } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { registerFormatType, unregisterFormatType } from '@wordpress/rich-text';
-import icon from '../_inc/icon.js';
+import icon from '../_inc/icon.jsx';
 import deprecated from './deprecated';
 import edit from './edit';
 import save from './save';

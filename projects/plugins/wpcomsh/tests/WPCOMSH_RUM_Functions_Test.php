@@ -8,7 +8,6 @@
 /**
  * Class Test_WPCOMSH_RUM_Functions
  */
-// phpcs:disable Squiz.Commenting.FunctionComment.WrongStyle
 class WPCOMSH_RUM_Functions_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
@@ -44,5 +43,50 @@ class WPCOMSH_RUM_Functions_Test extends WP_UnitTestCase {
 		$this->assertStringContainsString( 'data-provider="wordpress.com"', $output );
 		$this->assertStringContainsString( 'data-service="atomic"', $output );
 		$this->assertStringContainsString( 'bilmur.min.js', $output );
+	}
+
+	/**
+	 * Test that the site v is omitted by default
+	 */
+	public function test_wpcomsh_footer_rum_js_omits_site_v_by_default() {
+		ob_start();
+		wpcomsh_footer_rum_js();
+		$output = ob_get_clean();
+
+		$this->assertStringNotContainsString( 'data-site-v', $output );
+	}
+
+	/**
+	 * Test that the site v is included when the filter is enabled
+	 */
+	public function test_wpcomsh_footer_rum_js_includes_site_v_when_enabled() {
+		add_filter( 'wpcomsh_bilmur_site_v', '__return_true' );
+
+		ob_start();
+		wpcomsh_footer_rum_js();
+		$output = ob_get_clean();
+
+		remove_filter( 'wpcomsh_bilmur_site_v', '__return_true' );
+
+		$expected = md5( (string) wp_parse_url( home_url(), PHP_URL_HOST ) );
+		$this->assertStringContainsString( 'data-site-v="' . $expected . '"', $output );
+	}
+
+	/**
+	 * Test that the site v is included when the filter is enabled
+	 */
+	public function test_wpcomsh_footer_rum_js_uses_custom_site_v_string() {
+		$callback = static function () {
+				return 'custom-value';
+		};
+		add_filter( 'wpcomsh_bilmur_site_v', $callback );
+
+		ob_start();
+		wpcomsh_footer_rum_js();
+		$output = ob_get_clean();
+
+		remove_filter( 'wpcomsh_bilmur_site_v', $callback );
+
+		$this->assertStringContainsString( 'data-site-v="custom-value"', $output );
 	}
 }

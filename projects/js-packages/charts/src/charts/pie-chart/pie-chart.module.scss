@@ -1,0 +1,10 @@
+.pie-chart {
+	overflow: hidden;
+
+	// Fill parent when no explicit width/height provided
+	&--responsive {
+		height: 100%;
+		width: 100%;
+	}
+
+}

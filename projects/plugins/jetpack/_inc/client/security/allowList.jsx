@@ -1,7 +1,6 @@
-import { ToggleControl } from '@automattic/jetpack-components';
+import { ToggleControl } from '@wordpress/components';
 import { __, _x, sprintf } from '@wordpress/i18n';
-import { includes } from 'lodash';
-import React, { Component } from 'react';
+import { Component } from 'react';
 import { connect } from 'react-redux';
 import Button from 'components/button';
 import { FormFieldset } from 'components/forms';
@@ -67,7 +66,7 @@ const AllowList = class extends Component {
 				this.props.createNotice(
 					'is-error',
 					sprintf(
-						/* translators: placeholder is an error code or an error message. */
+						/* translators: %s: an error code or an error message. */
 						__( 'Error updating settings. %s', 'jetpack' ),
 						error.message || error.code
 					),
@@ -99,7 +98,7 @@ const AllowList = class extends Component {
 
 	currentIpIsSafelisted = () => {
 		// get current IP allow list in textarea from this.state.ipAllowList;
-		return !! includes( this.state.ipAllowList, this.props.currentIp );
+		return !! this.state.ipAllowList?.includes( this.props.currentIp );
 	};
 
 	addToSafelist = () => {
@@ -145,11 +144,8 @@ const AllowList = class extends Component {
 					<FormFieldset>
 						<div className="waf__settings__toggle-setting">
 							<ToggleControl
+								__nextHasNoMarginBottom={ true }
 								checked={ this.props.settings?.ipAllowListEnabled }
-								toggling={
-									this.props.isUpdatingWafSettings &&
-									this.state.ipAllowListEnabled !== this.props.settings?.ipAllowListEnabled
-								}
 								disabled={ baseInputDisabledCase }
 								onChange={ this.toggleIpAllowList }
 								label={
@@ -181,7 +177,7 @@ const AllowList = class extends Component {
 										<div className="current-ip">
 											<div className="jp-form-label-wide">
 												{ sprintf(
-													/* translators: placeholder is an IP address. */
+													/* translators: %s: an IP address. */
 													__( 'Your current IP: %s', 'jetpack' ),
 													this.props.currentIp
 												) }

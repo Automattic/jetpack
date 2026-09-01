@@ -1,16 +1,15 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { getSiteFragment, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
-import { PanelRow, ExternalLink, Button } from '@wordpress/components';
+import { isSimpleSite } from '@automattic/jetpack-script-data';
+import { getSiteFragment } from '@automattic/jetpack-shared-extension-utils';
+import { PanelRow, Button } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
-import { PluginPrePublishPanel as DeprecatedPluginPrePublishPanel } from '@wordpress/edit-post';
-import { PluginPrePublishPanel as EditorPluginPrePublishPanel } from '@wordpress/editor';
+import { PluginPrePublishPanel } from '@wordpress/editor';
 import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import Gridicon from 'gridicons';
 import { JetpackYoastLogos } from './JetpackYoastLogos';
 import { createStore } from './utils';
-
-const PluginPrePublishPanel = EditorPluginPrePublishPanel || DeprecatedPluginPrePublishPanel;
 
 const PLUGIN_SLUG_YOAST_FREE = 'wordpress-seo/wp-seo';
 const PLUGIN_SLUG_YOAST_PREMIUM = 'wordpress-seo-premium/wp-seo-premium';
@@ -87,14 +86,15 @@ export const YoastPromoContentFree = () => (
 			) }
 		</PanelRow>
 		<PanelRow>
-			<ExternalLink
+			<Link
+				openInNewTab
 				className="is-bold jetpack-yoast-promo__external-link"
 				href={ getRedirectUrl( 'jetpack-boost-yoast-free', {
 					query: `domain=${ getSiteFragment() }`,
 				} ) }
 			>
 				{ __( 'Get Yoast SEO', 'jetpack-yoast-promo' ) }
-			</ExternalLink>
+			</Link>
 		</PanelRow>
 	</>
 );
@@ -114,14 +114,15 @@ const YoastPromoContentPremium = () => (
 			) }
 		</PanelRow>
 		<PanelRow>
-			<ExternalLink
+			<Link
+				openInNewTab
 				className="is-bold jetpack-yoast-promo__external-link"
 				href={ getRedirectUrl( 'jetpack-boost-yoast-upgrade', {
 					query: `domain=${ getSiteFragment() }`,
 				} ) }
 			>
 				{ __( 'Get Yoast SEO Premium', 'jetpack-yoast-promo' ) }
-			</ExternalLink>
+			</Link>
 		</PanelRow>
 	</>
 );

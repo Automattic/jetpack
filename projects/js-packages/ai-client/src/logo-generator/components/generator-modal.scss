@@ -1,4 +1,4 @@
-@use '@automattic/jetpack-base-styles/root-variables';
+@use "@automattic/jetpack-base-styles/root-variables";
 
 .jetpack-ai-logo-generator-modal {
 
@@ -50,7 +50,7 @@
 }
 
 .jetpack-ai-logo-generator-modal__notice-message {
-	font-size: var( --font-body-small );
+	font-size: var(--font-body-small);
 }
 
 .jetpack-ai-logo-generator-modal__notice-actions {

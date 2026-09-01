@@ -15,6 +15,10 @@
  * @package automattic/jetpack
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Transform embed to shortcode on save.
  *
@@ -38,7 +42,7 @@ function flickr_embed_to_shortcode( $content ) {
 
 /**
  * Transforms embed to shortcode on save when the photo param is used.
- * If embed content can not be transformed to a valid shortcode,
+ * If embed content cannot be transformed to a valid shortcode,
  * the embed content itself is returned.
  *
  * @param string $content Embed output.
@@ -64,7 +68,7 @@ function jetpack_flickr_photo_to_shortcode( $content ) {
 
 /**
  * Transforms embed to shortcode on save when the video param is used.
- * If embed content can not be transformed to a valid shortcode,
+ * If embed content cannot be transformed to a valid shortcode,
  * the embed content itself is returned.
  *
  * @param string $content Embed output.
@@ -101,7 +105,9 @@ function jetpack_flickr_video_to_shortcode( $content ) {
 	return '[flickr video="' . $video_src . '" ' . $width . ' ' . $height . ' controls="' . $controls . '" autoplay="' . $autoplay . '"]';
 }
 
-add_filter( 'pre_kses', 'flickr_embed_to_shortcode' );
+if ( jetpack_shortcodes_should_hook_pre_kses() ) {
+	add_filter( 'pre_kses', 'flickr_embed_to_shortcode' );
+}
 
 /**
  * Flickr Shortcode handler.
@@ -188,8 +194,7 @@ function flickr_shortcode_video_markup( $atts, $id, $video_param ) {
 			$video_url = $video_param;
 		} else {
 			// Get the URL of the video from the page of the video.
-			$video_page_content = wp_remote_get( "http://flickr.com/photo.gne?id=$video_param" );
-
+			$video_page_content = wp_remote_get( "https://flickr.com/photo.gne?id=$video_param" );
 			// Bail if we do not get any info from Flickr.
 			if ( is_wp_error( $video_page_content ) ) {
 				return '';
@@ -213,6 +218,9 @@ function flickr_shortcode_video_markup( $atts, $id, $video_param ) {
 		// Get the embed url.
 		preg_match( '/src=\"([^\"]+)\"/', $data['html'], $matches );
 
+		if ( empty( $matches[1] ) ) {
+			return '';
+		}
 		$embed_url = $matches[1];
 
 		$embed_page = wp_remote_get( $embed_url );
@@ -225,10 +233,10 @@ function flickr_shortcode_video_markup( $atts, $id, $video_param ) {
 		// Get the video url from embed html markup.
 
 		preg_match( '/video.+src=\"([^\"]+)\"/', $embed_page['body'], $matches );
-
-		$video_src = $matches[1];
-
-		set_transient( $transient_name, $video_src, 2592000 ); // 30 days transient.
+		if ( ! empty( $matches[1] ) ) {
+			$video_src = $matches[1];
+			set_transient( $transient_name, $video_src, 2592000 ); // 30 days transient.
+		}
 	}
 
 	$style = 'max-width: 100%;';
@@ -289,20 +297,20 @@ wp_embed_register_handler( 'flickr', '#https?://(www\.)?flickr\.com/.*#i', 'jetp
  *
  * @since 3.9
  *
- * @param array $matches Regex partial matches against the URL passed.
- * @param array $attr    Attributes received in embed response.
- * @param array $url     Requested URL to be embedded.
+ * @param array  $matches Regex partial matches against the URL passed.
+ * @param array  $attr    Attributes received in embed response.
+ * @param string $url     Requested URL to be embedded.
  *
  * @return string Return output of Vimeo shortcode with the proper markup.
  */
 function jetpack_flickr_oembed_handler( $matches, $attr, $url ) {
 	/*
 	 * Legacy slideshow embeds end with /show/
-	 * e.g. http://www.flickr.com/photos/yarnaholic/sets/72157615194738969/show/
+	 * e.g. https://www.flickr.com/photos/yarnaholic/sets/72157615194738969/show/
 	 */
 	if ( '/show/' !== substr( $url, -strlen( '/show/' ) ) ) {
 		// These lookups need cached, as they don't use WP_Embed (which caches).
-		$cache_key   = md5( $url . wp_json_encode( $attr ) );
+		$cache_key   = md5( $url . wp_json_encode( $attr, JSON_UNESCAPED_SLASHES ) );
 		$cache_group = 'oembed_flickr';
 
 		$html = wp_cache_get( $cache_key, $cache_group );

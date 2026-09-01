@@ -4,6 +4,7 @@
 import { Button, Text } from '@automattic/jetpack-components';
 import { Icon, chevronLeft, chevronRight } from '@wordpress/icons';
 import clsx from 'clsx';
+import { useEffect } from 'react';
 /**
  * Internal dependencies
  */
@@ -11,7 +12,7 @@ import { useSearchParams } from '../../hooks/use-search-params';
 import useVideos, { useLocalVideos } from '../../hooks/use-videos';
 import styles from './style.module.scss';
 import { PaginationProps } from './types';
-import type React from 'react';
+import type { FC, ReactNode } from 'react';
 
 const range = ( start, count ) => {
 	return [ ...Array( count ) ].map( ( _, index ) => index + start );
@@ -33,9 +34,9 @@ const Ellipsis = () => (
  * Pagination component
  *
  * @param {PaginationProps} props - Component props.
- * @return {React.ReactNode} - Pagination react component.
+ * @return {ReactNode} - Pagination react component.
  */
-const Pagination: React.FC< PaginationProps > = ( {
+const Pagination: FC< PaginationProps > = ( {
 	className,
 	currentPage = 1,
 	perPage,
@@ -162,9 +163,7 @@ export const ConnectPagination = ( props: { className: string; disabled?: boolea
 	};
 
 	const { page, itemsPerPage, total, isFetching } = useVideos();
-	return total <= itemsPerPage ? (
-		<div className={ clsx( props.className, styles[ 'pagination-placeholder' ] ) } />
-	) : (
+	return total <= itemsPerPage ? null : (
 		<Pagination
 			{ ...props }
 			perPage={ itemsPerPage }
@@ -179,9 +178,13 @@ export const ConnectPagination = ( props: { className: string; disabled?: boolea
 export const ConnectLocalPagination = ( props: { className?: string; disabled?: boolean } ) => {
 	const { setPage, page, itemsPerPage, total, isFetching } = useLocalVideos();
 
-	return total < itemsPerPage ? (
-		<div className={ clsx( props.className, styles[ 'pagination-placeholder' ] ) } />
-	) : (
+	useEffect( () => {
+		if ( total <= itemsPerPage && page > 1 ) {
+			setPage( 1 );
+		}
+	}, [ total, itemsPerPage, page, setPage ] );
+
+	return total <= itemsPerPage ? null : (
 		<Pagination
 			{ ...props }
 			perPage={ itemsPerPage }

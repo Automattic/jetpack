@@ -16,6 +16,8 @@ require_once __DIR__ . '/inc/mockers/interface-runner.php';
 
 /**
  * REST_API_Tester to test REST API endpoints.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Mocker {
 

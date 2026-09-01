@@ -1,22 +1,19 @@
 import { _x } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { isEmpty, forOwn, omit } from 'lodash';
-import React from 'react';
+import { isEmpty, forOwn } from 'lodash';
+import { Component, createRef } from 'react';
 import Button from 'components/button';
 import SelectDropdown from 'components/select-dropdown';
 
 export const FormFieldset = props => {
 	return (
-		<fieldset
-			{ ...omit( props, 'className' ) }
-			className={ clsx( props.className, 'jp-form-fieldset' ) }
-		>
+		<fieldset { ...props } className={ clsx( props.className, 'jp-form-fieldset' ) }>
 			{ props.children }
 		</fieldset>
 	);
 };
 
-export class FormLabel extends React.Component {
+export class FormLabel extends Component {
 	static displayName = 'FormLabel';
 
 	render() {
@@ -29,30 +26,25 @@ export class FormLabel extends React.Component {
 	}
 }
 
-export class FormLegend extends React.Component {
+export class FormLegend extends Component {
 	static displayName = 'FormLegend';
 
 	render() {
 		return (
-			<legend
-				{ ...omit( this.props, 'className' ) }
-				className={ clsx( this.props.className, 'jp-form-legend' ) }
-			>
+			<legend { ...this.props } className={ clsx( this.props.className, 'jp-form-legend' ) }>
 				{ this.props.children }
 			</legend>
 		);
 	}
 }
 
-export class FormCheckbox extends React.Component {
+export class FormCheckbox extends Component {
 	static displayName = 'FormInputCheckbox';
 
 	render() {
-		const otherProps = omit( this.props, [ 'className', 'type' ] );
-
 		return (
 			<input
-				{ ...otherProps }
+				{ ...this.props }
 				type="checkbox"
 				className={ clsx( this.props.className, 'jp-form-checkbox' ) }
 			/>
@@ -60,7 +52,7 @@ export class FormCheckbox extends React.Component {
 	}
 }
 
-export class FormTextInput extends React.Component {
+export class FormTextInput extends Component {
 	static displayName = 'FormTextInput';
 
 	static defaultProps = {
@@ -70,7 +62,7 @@ export class FormTextInput extends React.Component {
 		type: 'text',
 	};
 
-	textFieldRef = React.createRef();
+	textFieldRef = createRef();
 
 	focus = () => {
 		this.textFieldRef.current.focus();
@@ -107,30 +99,25 @@ export class FormTextInput extends React.Component {
 	};
 }
 
-export class FormTextarea extends React.Component {
+export class FormTextarea extends Component {
 	static displayName = 'FormTextarea';
 
 	render() {
 		return (
-			<textarea
-				{ ...omit( this.props, 'className' ) }
-				className={ clsx( this.props.className, 'jp-form-textarea' ) }
-			>
+			<textarea { ...this.props } className={ clsx( this.props.className, 'jp-form-textarea' ) }>
 				{ this.props.children }
 			</textarea>
 		);
 	}
 }
 
-export class FormRadio extends React.Component {
+export class FormRadio extends Component {
 	static displayName = 'FormRadio';
 
 	render() {
-		const otherProps = omit( this.props, [ 'className', 'type' ] );
-
 		return (
 			<input
-				{ ...otherProps }
+				{ ...this.props }
 				type="radio"
 				className={ clsx( this.props.className, 'jp-form-radio' ) }
 			/>
@@ -138,7 +125,7 @@ export class FormRadio extends React.Component {
 	}
 }
 
-export class FormButton extends React.Component {
+export class FormButton extends Component {
 	static displayName = 'FormsButton';
 
 	static defaultProps = {
@@ -165,7 +152,7 @@ export class FormButton extends React.Component {
 
 		return (
 			<Button
-				{ ...omit( this.props, 'className' ) }
+				{ ...this.props }
 				variant={ this.props.isPrimary ? 'primary' : undefined }
 				className={ clsx( this.props.className, buttonClasses ) }
 			>
@@ -175,7 +162,7 @@ export class FormButton extends React.Component {
 	}
 }
 
-export class FormSelect extends React.Component {
+export class FormSelect extends Component {
 	handleOnSelect = option => {
 		this.props.onOptionChange( {
 			target: {

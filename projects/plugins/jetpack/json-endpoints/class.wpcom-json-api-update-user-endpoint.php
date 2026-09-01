@@ -5,6 +5,10 @@
  * Endpoint: /sites/%s/users/%d/delete
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 new WPCOM_JSON_API_Update_User_Endpoint(
 	array(
 		'description'          => 'Deletes or removes a user of a site.',
@@ -42,6 +46,8 @@ new WPCOM_JSON_API_Update_User_Endpoint(
 
 /**
  * Update site users API class.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class WPCOM_JSON_API_Update_User_Endpoint extends WPCOM_JSON_API_Endpoint {
 	/**
@@ -59,7 +65,7 @@ class WPCOM_JSON_API_Update_User_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			if ( (int) wpcom_get_blog_owner( $blog_id ) === (int) $user_id ) {
-				return new WP_Error( 'forbidden', 'A site owner can not be removed through this endpoint.', 403 );
+				return new WP_Error( 'forbidden', 'A site owner cannot be removed through this endpoint.', 403 );
 			}
 		}
 
@@ -179,7 +185,7 @@ class WPCOM_JSON_API_Update_User_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 		if ( $reassign !== null ) {
 			if ( (int) $user_id === $reassign ) {
-				return new WP_Error( 'invalid_input', 'Can not reassign posts to user being deleted.', 400 );
+				return new WP_Error( 'invalid_input', 'Cannot reassign posts to user being deleted.', 400 );
 			}
 
 			if ( ! $this->user_exists( $reassign ) ) {

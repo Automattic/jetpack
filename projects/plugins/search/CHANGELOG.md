@@ -5,6 +5,145 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.1.0] - 2026-08-13
+### Added
+- Add the Activity Log page to wp-admin, so it is available without the Jetpack plugin installed. [#51222]
+- Search Blocks: Add a No Results block so empty states can contain links, images, buttons, and other blocks instead of plain text. Continue rendering existing Results List messages while deprecating their settings. [#51164]
+
+## [7.0.1] - 2026-07-22
+### Changed
+- Add a results-per-page setting to the Search Results block, falling back to the site's Reading setting when unset. [#50652]
+- Overlay/embedded templates: Keep the Collapsible Filters panel in sync with the sidebar Filters block, locking it read-only in the editor when both coexist. [#50653]
+- Overlay/embedded templates: Mark where a new filter belongs when adding it to the Filters (or Product Filters) block in the editor. [#50655]
+
+### Fixed
+- Fix fatal error on My Jetpack when the current stable Jetpack plugin is active. [#49994]
+
+## [7.0.0] - 2026-06-10
+### Added
+- Search 7.0: build full search pages from native blocks — a Search Input block with search-as-you-type, Filters blocks (checkbox, date, custom taxonomy) with sidebar or collapsible-popover layouts, and Results blocks with selectable layouts, sorting, and load-more — all theme-aware on both block and classic themes. [#48563]
+- Search 7.0: new Embedded search experience — a full-page search rendered inline in the theme at a real, bookmarkable URL with search-as-you-type, filters, sort, and load-more on the same page. [#48941]
+- Search 7.0: new blocks-powered Overlay experience (Beta) — the same search blocks delivered in a modal that opens over the current page, keeping visitors in context. [#49118]
+- Search 7.0 for WooCommerce: product search support — Filter by Product Attribute, Price, Rating, and Stock Status blocks, a Product Filters container, Product Category/Tag/Brand checkbox variations, a product results layout (image, title, price, rating), and Price/Rating sort options. [#48454]
+- Search: add fallback image capability in expanded search [#44657]
+- Search: Adding auto-complete search query feature [#48473]
+- Search Blocks Overlay: render product results and product filters from a dedicated product overlay template on WooCommerce product searches. [#49262]
+
+### Changed
+- General: Update minimum WordPress version to 6.9. [#49021]
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+- Remove unneeded development and documentation files from the published plugin. [#49014]
+- Search 7.0: result cards now honor the site's date_format option (F j, Y, Y-m-d, etc.) instead of a fixed Intl shape. [#48763]
+- Search Blocks: default the checkbox-filter Custom Taxonomy label to the taxonomy's display name instead of leaving it empty. [#49187]
+- Search Blocks: the product-search edit link now follows the active experience — "Edit the product Search overlay" for Overlay (blocks), "Edit the product search template" otherwise — and pairs with a Restore default that acts on the matching template. The product-search toggle and the Embedded experience are now marked Beta. [#49274]
+- Search Blocks: unify the three search-results templates' responsive layout under a shared `.jetpack-search-layout__*` class namespace, collapsing the duplicate sidebar-collapse rules from `block_template_overlay_inline_css()` and `search_page_inline_css()` into a single `search_layout_inline_css()` helper. Pure refactor — no behavior change. [#49183]
+- Search Blocks Overlay: collapse the filter sidebar below 992px and dock a `filters-popover` trigger next to Sort By, matching the legacy Instant Search overlay UX. [#49177]
+- Search Blocks Overlay: separate the modal card from the dim scrim on dark themes by tinting the resolved surface and painting a token-aware hairline border, so the card visibly layers above the page behind it. [#49207]
+- Tested up to WordPress 7.0. [#48114]
+- Update composer.lock files. [#49415]
+- Updated package dependencies. [#48735]
+- Update package dependencies. [#48064]
+- Update package dependencies. [#48683]
+- Update package dependencies. [#49218]
+- Update package dependencies. [#49448]
+
+### Fixed
+- Fix mobile overflow on the upsell/pricing page so cards no longer get clipped. [#48194]
+
+## [6.0.0] - 2026-04-10
+### Added
+- Add Jetpack Protect details page for users without the dedicated Jetpack Protect plugin. [#46630]
+- IDC: Add revalidation for IDCs. [#46268]
+
+### Changed
+- Dependencies: Update lock file to keep root requirements in sync. [#47418]
+- Instant Search: Show WooCommerce product filters in filter widget. [#46373]
+- My Jetpack: Check red bubble notification async when cache is not available. [#46396]
+- Remove header border-bottom from the admin page for a cleaner unified header appearance. [#47313]
+- Search: Use the core WordPress spinner component for the dashboard loading state. [#47467]
+- Switch to Native TypeScript compiler based on Go. [#47375]
+- Update composer.lock. [#46686]
+- Update design of the sidebar upsell. [#47909]
+- Update package dependencies. [#46785] [#47021] [#47285] [#47371] [#47505] [#47825]
+
+### Removed
+- General: Update minimum WordPress version to 6.8. [#46801]
+
+### Fixed
+- Admin Page: Restore border on header component. [#47425]
+- Fix TypeScript errors detected by tsgo. [#47426]
+- Update e2e test selector for renamed footer CSS class. [#47840]
+
+## [5.2.2] - 2025-11-21
+### Fixed
+- Jetpack: Remove getIconColor functions for block icons. [#45992]
+- My Jetpack: Fix expiring renewal prompt to show all products. [#45995]
+
+## [5.2.0] - 2025-11-12
+### Added
+- Instant Search: Add global WooCommerce Product Attributes as filter options. [#45416]
+- Tested up to WordPress 6.9. [#45571]
+
+### Changed
+- Instant Search: Fix issue where Safari's 'Use advanced tracking and fingerprinting protection' setting breaks Search. [#45588]
+- Update package dependencies. [#45200] [#45298] [#45299] [#45478] [#45652] [#45676]
+
+### Fixed
+- My Jetpack page: fix visual compatibility issue with Hello Dolly plugin. [#45474]
+
+## [5.1.0] - 2025-09-09
+### Added
+- Add archives endpoint support. [#44028]
+- Add typecheck support for E2E tests. [#44788]
+- My Jetpack: Add analytics for empty product search results. [#44344]
+
+### Changed
+- Remove CRM installation nudge for Complete plan users. [#45026]
+- E2E tests: Remove redundant logic in test fixture and convert the fixture to TypeScript. [#44327]
+- Improve performance of WordPress.com comment likes by caching and minimizing API requests. [#44205]
+- My Jetpack: Enable access to My Jetpack on WP Multisite. [#44260]
+- My Jetpack: Fix multisite availability check for restricted products and modules. [#44710]
+- My Jetpack: Unify the user connection flow with a unified screen. [#44469]
+- My Jetpack: Update Stats card to include a chart for better analytics. [#43870]
+- Sync: Ignore the ActivityPub Outbox CPT. [#44222]
+- Update package dependencies. [#44206] [#44725] [#45096] [#45097]
+
+### Fixed
+- Autoloader: Prevent double slash in autoloader path. [#44030]
+- JITM: Fix ineffective caching due to expired plugin sync transient. [#44117]
+- My Jetpack: Fix footer alignment for disconnected accounts. [#44468]
+- My Jetpack: Prevent expiration alerts for products covered by active bundles. [#44586]
+- My Jetpack: Restore plan purchase link. [#44535]
+- Search: Ensure images are loaded efficiently when on https sites. [#44851]
+- JITM: Remove jQuery dependency. [#43783]
+
+## [5.0.0] - 2025-06-10
+### Added
+- Add more error logging. [#42959]
+- Add My Jetpack tour. [#42880]
+- Highlight search terms in returned search results. [#43110]
+
+### Changed
+- E2E Tests: Update config file encryption algorithm. [#43523]
+- My Jetpack: Hide backup failure notice when backups are deactivated. [#43568]
+- My Jetpack: Optimize the images for onboarding slider for faster page load. [#43473]
+- My Jetpack: Update the onboarding UI, changing it to a single button. [#43203]
+- Update package dependencies. [#43071] [#43085] [#43425] [#43839]
+
+### Removed
+- Classic Themes: Replace the Core Search widget instead of adding a new widget to the main sidebar. [#43450]
+- General: Update minimum WordPress version to 6.7. [#43192]
+
+### Fixed
+- Address `body_class` filter fatal in older versions of the Blaskan theme. [#43797]
+- Block editor: Fix layout issues with the Media Library modal buttons. [#43035]
+- Linting: Fix more Stylelint violations. [#43213]
+- Mitigate bug with certain P2 themes. [#43503]
+- My Jetpack: Fix Onboarding UI responsiveness at 600px. [#43533]
+- My Jetpack: Fix readability of license activation button on hover. [#43550]
+- My Jetpack: Prevent social login from getting stuck when email input is not empty. [#43158]
+- Protect against improper calls to `the_title()` filter. [#43511]
+
 ## [4.1.0] - 2025-04-04
 ### Added
 - Add Account Protection initialization. [#40925]
@@ -193,6 +332,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 [1.1.0-beta]: https://github.com/Automattic/jetpack-search-plugin/compare/1.0.0...1.1.0-beta
 [1.2.0-beta]: https://github.com/Automattic/jetpack-search-plugin/compare/1.1.0...1.2.0-beta
+[7.1.0]: https://github.com/Automattic/jetpack-search-plugin/compare/7.0.1...7.1.0
+[7.0.1]: https://github.com/Automattic/jetpack-search-plugin/compare/7.0.0...7.0.1
+[7.0.0]: https://github.com/Automattic/jetpack-search-plugin/compare/6.0.0...7.0.0
+[6.0.0]: https://github.com/Automattic/jetpack-search-plugin/compare/5.2.2...6.0.0
+[5.2.2]: https://github.com/Automattic/jetpack-search-plugin/compare/5.2.0...5.2.2
+[5.2.0]: https://github.com/Automattic/jetpack-search-plugin/compare/5.1.0...5.2.0
+[5.1.0]: https://github.com/Automattic/jetpack-search-plugin/compare/5.0.0...5.1.0
+[5.0.0]: https://github.com/Automattic/jetpack-search-plugin/compare/4.1.0...5.0.0
 [4.1.0]: https://github.com/Automattic/jetpack-search-plugin/compare/4.0.0...4.1.0
 [4.0.0]: https://github.com/Automattic/jetpack-search-plugin/compare/3.0.1...4.0.0
 [3.0.1]: https://github.com/Automattic/jetpack-search-plugin/compare/3.0.0...3.0.1

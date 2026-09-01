@@ -5,6 +5,7 @@ import { type Threat } from '@automattic/jetpack-scan';
 import ThreatSeverityBadge from '../threat-severity-badge/index.tsx';
 import styles from './styles.module.scss';
 import ThreatFixConfirmation from './threat-fix-confirmation.tsx';
+import type { ComponentProps } from 'react';
 
 interface ThreatModalContextType {
 	closeModal: () => void;
@@ -69,21 +70,21 @@ export default function ThreatModal( {
 	handleFixThreatClick?: ( threats: Threat[] ) => void;
 	handleIgnoreThreatClick?: ( threats: Threat[] ) => void;
 	handleUnignoreThreatClick?: ( threats: Threat[] ) => void;
-} & React.ComponentProps< typeof Modal > ): JSX.Element {
+} & ComponentProps< typeof Modal > ): JSX.Element {
 	const userConnectionNeeded = ! isUserConnected || ! hasConnectedOwner;
 	const siteCredentialsNeeded = ! credentials || credentials.length === 0;
 
+	// Cast title to string
+	// TODO: This should not be done. If needed, we should render the modal with hideHeader={true} and then use our own header inside.
+	const modalTitle = (
+		<div className={ styles.title }>
+			<Text variant="title-small">{ threat.title }</Text>
+			{ !! threat.severity && <ThreatSeverityBadge severity={ threat.severity } /> }
+		</div>
+	 ) as unknown as string;
+
 	return (
-		<Modal
-			title={
-				<div className={ styles.title }>
-					<Text variant="title-small">{ threat.title }</Text>
-					{ !! threat.severity && <ThreatSeverityBadge severity={ threat.severity } /> }
-				</div>
-			}
-			size="large"
-			{ ...modalProps }
-		>
+		<Modal title={ modalTitle } size="large" { ...modalProps }>
 			<div className={ styles[ 'threat-details' ] }>
 				<ThreatModalContext.Provider
 					value={ {

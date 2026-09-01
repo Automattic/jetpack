@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+Comment: Tests: Split code coverage scripts from `test-coverage` to `test-js-coverage` and `test-php-coverage`.
+

@@ -87,7 +87,7 @@ class Model {
 		if ( $arr === null ) {
 			$arr = $this->content;
 		}
-		file_put_contents( $this->db_file, json_encode( $arr ) );
+		file_put_contents( $this->db_file, json_encode( $arr, JSON_UNESCAPED_SLASHES ) );
 	}
 
 	public function reset() {

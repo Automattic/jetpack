@@ -101,7 +101,7 @@ class Contact_Form_Shortcode {
 	 * @return mixed
 	 */
 	public function get_attribute( $key ) {
-		return isset( $this->attributes[ $key ] ) ? $this->attributes[ $key ] : null;
+		return $this->attributes[ $key ] ?? null;
 	}
 
 	/**
@@ -168,7 +168,6 @@ class Contact_Form_Shortcode {
 	 */
 	public function __toString() {
 		$r = "[{$this->shortcode_name} ";
-
 		foreach ( $this->attributes as $key => $value ) {
 			if ( ! $value ) {
 				continue;

@@ -1,5 +1,11 @@
-@use '@automattic/jetpack-base-styles/style' as jpbs;
-@import '../masthead/calypso-mixins';
+@use "@automattic/jetpack-base-styles/style" as jpbs;
+@use "@automattic/jetpack-base-styles/admin-page-layout" as *;
+@use "../masthead/calypso-mixins";
+
+body.jetpack_page_jetpack-backup {
+
+	@include jetpack-admin-page-layout;
+}
 
 .jp-header,
 .jp-footer {
@@ -112,7 +118,8 @@
 	}
 
 	ul.jp-product-promote li {
-		background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAMAAABg3Am1AAAANlBMVEVHcEwFnwUInggGnggGnggHnAcAnwUFnQcAnwcGnwkFnQgGnQgFnwcGnQYFnQcFnAcGnQkDnwdhiL0pAAAAEnRSTlMAMF//f2Aw7yBQ3+9gcIBgcED+HDbkAAAAZklEQVR4Ae3LNwICARDDQC0+cv7/Y8mwV9odSfWIcf/+VegnGkIvDaGXKvTTn/Gz+Uf5xTL0K1XotS7fs5H6GHvvaO8d7c3j7rdgHne/A/PYt/cO+R42oYdN6OEQetiFHo4A//6dAXqtBEkmtWutAAAAAElFTkSuQmCC)
+		background:
+			url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAMAAABg3Am1AAAANlBMVEVHcEwFnwUInggGnggGnggHnAcAnwUFnQcAnwcGnwkFnQgGnQgFnwcGnQYFnQcFnAcGnQkDnwdhiL0pAAAAEnRSTlMAMF//f2Aw7yBQ3+9gcIBgcED+HDbkAAAAZklEQVR4Ae3LNwICARDDQC0+cv7/Y8mwV9odSfWIcf/+VegnGkIvDaGXKvTTn/Gz+Uf5xTL0K1XotS7fs5H6GHvvaO8d7c3j7rdgHne/A/PYt/cO+R42oYdN6OEQetiFHo4A//6dAXqtBEkmtWutAAAAAElFTkSuQmCC)
 			no-repeat;
 		background-size: 24px;
 		padding-left: 30px;
@@ -127,7 +134,6 @@
 	background: var(--jp-white-off);
 
 	&.is-backup-performing {
-		// stylelint-disable-next-line function-url-quotes -- quotes are required here. Bug report: https://github.com/stylelint/stylelint/issues/8544
 		background-image: url("data:image/svg+xml,%3Csvg width='624' height='400' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M624 88.387C575.321 34.082 504.674 0 426 0 323.405 0 234.3 58.22 189.925 143.42 83.07 154.78 0 245.305 0 355c0 38.16 10.072 73.999 27.698 105H624V88.387z' fill='%23fff'/%3E%3C/svg%3E");
 		background-position: 100% 100%;
 		background-repeat: no-repeat;
@@ -150,9 +156,6 @@
 	}
 }
 
-.jp-dashboard-footer {
-	padding: 40px 0;
-}
 
 .jp-connection-status-card--status {
 	margin: 30px 0;
@@ -173,16 +176,4 @@
 
 .jetpack-connection-verified-error {
 	margin: 25px 0;
-}
-
-.jetpack-admin-page__header {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	flex-wrap: wrap;
-	gap: calc(var(--horizontal-spacing) * 3);
-
-	.jetpack-admin-page__logo {
-		flex-shrink: 0;
-	}
 }

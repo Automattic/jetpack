@@ -17,6 +17,10 @@ use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Status;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 	add_action( 'init', 'jetpack_instagram_enable_embeds' );
 } else {
@@ -58,7 +62,9 @@ function jetpack_instagram_enable_embeds() {
 	/**
 	 * Embed reversal: Convert an embed code from Instagram.com to an oEmbeddable URL.
 	 */
-	add_filter( 'pre_kses', 'jetpack_instagram_embed_reversal' );
+	if ( jetpack_shortcodes_should_hook_pre_kses() ) {
+		add_filter( 'pre_kses', 'jetpack_instagram_embed_reversal' );
+	}
 
 	/**
 	 * Add the shortcode.

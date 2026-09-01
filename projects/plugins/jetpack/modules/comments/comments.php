@@ -9,6 +9,10 @@ require __DIR__ . '/base.php';
 use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Status\Host;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Main Comments class
  *
@@ -85,7 +89,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	public function set_default_color_theme_based_on_theme_settings() {
 		if ( function_exists( 'twentyeleven_get_theme_options' ) ) {
 			$theme_options      = twentyeleven_get_theme_options();
-			$theme_color_scheme = isset( $theme_options['color_scheme'] ) ? $theme_options['color_scheme'] : 'transparent';
+			$theme_color_scheme = $theme_options['color_scheme'] ?? 'transparent';
 		} else {
 			$theme_color_scheme = get_theme_mod( 'color_scheme', 'transparent' );
 		}
@@ -121,11 +125,28 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	}
 
 	/**
+	 * Whether the rebuilt Jetpack Comments form has taken over from this one.
+	 *
+	 * Guarded because this file and the jetpack-comments package can land in
+	 * either order on a staged deploy.
+	 *
+	 * @return bool
+	 */
+	private static function new_comments_enabled() {
+		return class_exists( '\Automattic\Jetpack\Comments\Comments' )
+			&& \Automattic\Jetpack\Comments\Comments::is_enabled();
+	}
+
+	/**
 	 * Setup actions for methods in this class
 	 *
 	 * @since 1.4
 	 */
 	protected function setup_actions() {
+		if ( self::new_comments_enabled() ) {
+			return;
+		}
+
 		parent::setup_actions();
 
 		// Selfishly remove everything from the existing comment form.
@@ -149,6 +170,10 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	 * @since 1.6.2
 	 */
 	protected function setup_filters() {
+		if ( self::new_comments_enabled() ) {
+			return;
+		}
+
 		parent::setup_filters();
 
 		add_filter( 'comment_post_redirect', array( $this, 'capture_comment_post_redirect_to_reload_parent_frame' ), 100 );
@@ -162,6 +187,10 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	 * In order for comments to work properly for password-protected posts we need to set `wp-postpass` cookie to SameSite none.
 	 */
 	public function manage_post_cookie() {
+		if ( headers_sent() ) {
+			return;
+		}
+
 		$postpass_cookie_key = 'wp-postpass_' . COOKIEHASH;
 
 		if ( empty( $_COOKIE[ $postpass_cookie_key ] ) ) {
@@ -173,7 +202,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 		if ( empty( $_COOKIE['verbum-wp-postpass'] ) || ( $_COOKIE['verbum-wp-postpass'] !== $postpass_cookie_value ) ) {
 			$expire = apply_filters( 'post_password_expires', time() + 10 * DAY_IN_SECONDS );
 
-			jetpack_shim_setcookie(
+			setcookie(
 				$postpass_cookie_key,
 				$postpass_cookie_value,
 				array(
@@ -182,10 +211,11 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 					'path'     => '/',
 					'domain'   => COOKIE_DOMAIN,
 					'secure'   => is_ssl(),
+					'httponly' => false, // phpcs:ignore Jetpack.Functions.SetCookie.FoundNonHTTPOnlyFalse -- @todo Can this be set true?
 				)
 			);
 
-			jetpack_shim_setcookie(
+			setcookie(
 				'verbum-wp-postpass',
 				$postpass_cookie_value,
 				array(
@@ -194,6 +224,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 					'path'     => '/',
 					'domain'   => COOKIE_DOMAIN,
 					'secure'   => is_ssl(),
+					'httponly' => false, // phpcs:ignore Jetpack.Functions.SetCookie.FoundNonHTTPOnlyFalse -- @todo Can this be set true?
 				)
 			);
 		}
@@ -637,7 +668,7 @@ HTML;
 		$post_array = stripslashes_deep( $_POST );
 
 		// Bail if missing the Jetpack token.
-		if ( ! isset( $post_array['sig'] ) || ! isset( $post_array['token_key'] ) ) {
+		if ( ! isset( $post_array['sig'] ) || ! isset( $post_array['token_key'] ) || ! is_string( $post_array['sig'] ) ) {
 			unset( $_POST['hc_post_as'] );
 			return;
 		}
@@ -649,7 +680,7 @@ HTML;
 			wp_die( esc_html__( 'Nonce verification failed.', 'jetpack' ), 400 );
 		}
 
-		if ( str_contains( $post_array['hc_avatar'], '.gravatar.com' ) ) {
+		if ( is_string( $post_array['hc_avatar'] ) && str_contains( $post_array['hc_avatar'], '.gravatar.com' ) ) {
 			$post_array['hc_avatar'] = htmlentities( $post_array['hc_avatar'], ENT_COMPAT );
 		}
 
@@ -693,7 +724,6 @@ HTML;
 		<!DOCTYPE html>
 		<html>
 		<head>
-		<link rel="preload" as="image" href="https://jetpack.wordpress.com/wp-admin/images/spinner.gif"> <!-- Preload the spinner image -->
 		<meta charset="utf-8">
 		<title><?php echo esc_html__( 'Submitting Comment', 'jetpack' ); ?></title>
 		<style type="text/css">
@@ -707,10 +737,20 @@ HTML;
 				overflow: hidden;
 				color: #333;
 			}
+			.jetpack-comment-spinner {
+				display: table-cell;
+				vertical-align: middle;
+				text-align: center;
+			}
 		</style>
 		</head>
 		<body>
-		<img src="https://jetpack.wordpress.com/wp-admin/images/spinner.gif" >
+		<div class="jetpack-comment-spinner">
+			<?php
+			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-spinner.php';
+			echo Jetpack_Spinner::render( 28 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG markup.
+			?>
+		</div>
 		<form id="jetpack-remote-comment-post-form" action="<?php echo esc_url( get_site_url() ); ?>/wp-comments-post.php?for=jetpack&only_once=true" method="POST">
 			<?php foreach ( $comment_data as $key => $val ) : ?>
 				<input type="hidden" name="<?php echo esc_attr( $key ); ?>" value="<?php echo esc_attr( $val ); ?>" />
@@ -789,7 +829,7 @@ HTML;
 		}
 
 		// phpcs:disable WordPress.Security.NonceVerification.Missing
-		$is_current_user_subscribed = (bool) isset( $_POST['is_current_user_subscribed'] ) ? filter_var( wp_unslash( $_POST['is_current_user_subscribed'] ) ) : null;
+		$is_current_user_subscribed = isset( $_POST['is_current_user_subscribed'] ) ? filter_var( wp_unslash( $_POST['is_current_user_subscribed'] ) ) : null;
 
 		// Atomic sites with jetpack_verbum_subscription_modal option enabled
 		$modal_enabled = ( new Host() )->is_woa_site() && get_option( 'jetpack_verbum_subscription_modal', true );
@@ -830,7 +870,7 @@ HTML;
 		}
 
 		// phpcs:disable WordPress.Security.NonceVerification.Missing
-		$is_current_user_subscribed = (bool) isset( $_POST['is_current_user_subscribed'] ) ? filter_var( wp_unslash( $_POST['is_current_user_subscribed'] ) ) : null;
+		$is_current_user_subscribed = isset( $_POST['is_current_user_subscribed'] ) ? filter_var( wp_unslash( $_POST['is_current_user_subscribed'] ) ) : null;
 
 		if ( $is_current_user_subscribed ) {
 			$tracking_event = 'hidden_already_subscribed';
@@ -1029,10 +1069,10 @@ HTML;
 		</h3>
 		<script type="text/javascript">
 			try {
-				window.parent.location.href = <?php echo wp_json_encode( $url ); ?>;
+				window.parent.location.href = <?php echo wp_json_encode( $url, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 				window.parent.location.reload( true );
 			} catch (e) {
-				window.location.href = <?php echo wp_json_encode( $url ); ?>;
+				window.location.href = <?php echo wp_json_encode( $url, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 				window.location.reload( true );
 			}
 			ellipsis = document.getElementById('ellipsis');
@@ -1057,7 +1097,7 @@ HTML;
 				window.parent.postMessage(
 					{
 						type: 'subscriptionModalShow',
-						data: <?php echo wp_json_encode( $this->get_subscription_modal_data_to_parent( $url ) ); ?>,
+						data: <?php echo wp_json_encode( $this->get_subscription_modal_data_to_parent( $url ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>,
 					},
 					window.location.origin
 				);

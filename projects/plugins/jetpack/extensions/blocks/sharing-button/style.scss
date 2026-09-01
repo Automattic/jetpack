@@ -1,3 +1,5 @@
+@use "social-logos/colors.css";
+
 a.jetpack-sharing-button__button {
 	color: inherit;
 }
@@ -49,39 +51,69 @@ a.jetpack-sharing-button__button {
 		margin-bottom: 0;
 		color: #fff;
 
-		&.share-bluesky { background: var( --color-bluesky ); }
+		&.share-bluesky {
+			background: var(--jetpack-social-logo-color-bluesky);
+		}
 
-		&.share-x { background: #000; }
+		&.share-x {
+			background: var(--jetpack-social-logo-color-x);
+		}
 
-		&.share-print { background: #c5c2c2; }
+		&.share-reddit {
+			background: var(--jetpack-social-logo-color-reddit);
+		}
 
-		&.share-reddit { background: var( --color-reddit ); }
+		&.share-facebook {
+			background: var(--jetpack-social-logo-color-facebook);
+		}
 
-		&.share-facebook { background: var( --color-facebook ); }
+		&.share-linkedin {
+			background: var(--jetpack-social-logo-color-linkedin);
+		}
 
-		&.share-linkedin { background: var( --color-linkedin ); }
+		&.share-twitter {
+			background: var(--jetpack-social-logo-color-twitter);
+		}
 
-		&.share-mail { background: #c5c2c2; }
+		&.share-tumblr {
+			background: var(--jetpack-social-logo-color-tumblr);
+		}
 
-		&.share-twitter { background: var( --color-twitter ); }
+		&.share-pinterest {
+			background: var(--jetpack-social-logo-color-pinterest);
+		}
 
-		&.share-tumblr { background: var( --color-tumblr ); }
+		&.share-telegram {
+			background: var(--jetpack-social-logo-color-telegram);
+		}
 
-		&.share-pinterest { background: var( --color-pinterest ); }
+		&.share-threads {
+			background: var(--jetpack-social-logo-color-threads);
+		}
 
-		&.share-pocket { background: var( --color-pocket ); }
+		&.share-whatsapp {
+			background: var(--jetpack-social-logo-color-whatsapp);
+		}
 
-		&.share-telegram { background: var( --color-telegram ); }
+		&.share-mastodon {
+			background: var(--jetpack-social-logo-color-mastodon);
+		}
 
-		&.share-threads { background: var( --color-threads ); }
+		&.share-nextdoor {
+			background: var(--jetpack-social-logo-color-nextdoor);
+		}
 
-		&.share-whatsapp { background: var( --color-whatsapp ); }
+		&.share-print {
+			background: #c5c2c2;
+		}
 
-		&.share-mastodon { background: var( --color-mastodon ); }
+		&.share-mail {
+			background: #c5c2c2;
+		}
 
-		&.share-nextdoor { background: var( --color-nextdoor ); }
-
-		&.share-share { background: #000; }
+		&.share-share {
+			background: #000;
+		}
 	}
 
 	&.style-icon.is-custom {

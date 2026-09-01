@@ -9,6 +9,10 @@
 
 use Automattic\Jetpack\Device_Detection\User_Agent_Info;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Add theme support for infinite scroll
  */

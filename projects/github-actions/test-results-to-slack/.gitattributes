@@ -1,4 +1,2 @@
-/dist/**         production-include
-/changelog/**    production-exclude
-/.gitattributes  production-exclude
-/.gitignore      production-exclude
+/dist/**           production-include
+/tsdown.config.js  production-exclude

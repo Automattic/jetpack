@@ -9,17 +9,35 @@ namespace Automattic\Jetpack\Extensions\Contact_Form;
 
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Blocks;
+use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form;
+use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field;
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin;
-use Automattic\Jetpack\Forms\Dashboard\Dashboard_View_Switch;
+use Automattic\Jetpack\Forms\ContactForm\Form_Preview;
+use Automattic\Jetpack\Forms\Dashboard\Dashboard as Forms_Dashboard;
 use Automattic\Jetpack\Forms\Jetpack_Forms;
 use Automattic\Jetpack\Modules;
+use Automattic\Jetpack\Status\Request;
 use Jetpack;
 
 /**
  * Contact Form block render callback.
  */
 class Contact_Form_Block {
+	/**
+	 * Class on the Form block's own element, the one carrying its style supports.
+	 *
+	 * @var string
+	 */
+	const FORM_BLOCK_CLASS = 'wp-block-jetpack-contact-form';
+
+	/**
+	 * Class on the Step block's own element, the one carrying its style supports.
+	 *
+	 * @var string
+	 */
+	const STEP_BLOCK_CLASS = 'wp-block-jetpack-form-step';
+
 	/**
 	 * Register the Contact Form block.
 	 * We are core block dependent only on whether the jetpack contact form plugin
@@ -39,12 +57,180 @@ class Contact_Form_Block {
 		Blocks::jetpack_register_block(
 			'jetpack/contact-form',
 			array(
-				'render_callback' => array( __CLASS__, 'gutenblock_render_form' ),
+				'render_email_callback' => array( __CLASS__, 'render_email' ),
+				'render_callback'       => array( __CLASS__, 'gutenblock_render_form' ),
+				'supports'              => array(
+
+					/*
+					 * Deliberately not mirrored in block.json: serialization is skipped here so
+					 * self::apply_background_support() can put the image on the block's own
+					 * element, and skipping it in JS too would drop the editor preview.
+					 */
+					'background'           => array(
+						'backgroundImage'                 => true,
+						'backgroundSize'                  => true,
+						'__experimentalSkipSerialization' => true,
+						'__experimentalDefaultControls'   => array(
+							'backgroundImage' => true,
+						),
+					),
+					'layout'               => array(
+						'default'                => array(
+							'type'              => 'flex',
+							'flexWrap'          => 'wrap',
+							'orientation'       => 'horizontal',
+							'justifyContent'    => 'left',
+							'verticalAlignment' => 'top',
+						),
+						'allowSwitching'         => false,
+						'allowEditing'           => true,
+						'allowOrientation'       => true,
+						'allowVerticalAlignment' => true,
+						'allowJustification'     => true,
+						'allowWrap'              => false,
+					),
+					'__experimentalBorder' => array(
+						'color'                         => true,
+						'radius'                        => true,
+						'style'                         => true,
+						'width'                         => true,
+						'__experimentalDefaultControls' => array(
+							'color'  => true,
+							'radius' => true,
+							'style'  => true,
+							'width'  => true,
+						),
+					),
+					'listView'             => true,
+				),
+				'style_handles'         => array( 'jetpack-forms-layout' ),
 			)
 		);
 
 		add_filter( 'render_block_data', array( __CLASS__, 'find_nested_html_block' ), 10, 3 );
 		add_filter( 'render_block_core/html', array( __CLASS__, 'render_wrapped_html_block' ), 10, 2 );
+		add_filter( 'jetpack_block_editor_feature_flags', array( __CLASS__, 'register_feature' ) );
+		add_filter( 'pre_render_block', array( __CLASS__, 'pre_render_contact_form' ), 10, 3 );
+
+		add_filter( 'block_editor_rest_api_preload_paths', array( __CLASS__, 'preload_endpoints' ) );
+
+		// Load scripts for the editing interface
+		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'load_editor_scripts' ), 9 );
+
+		// Load AI integration after Jetpack_Gutenberg registers extensions (priority 10)
+		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'maybe_load_ai_integration' ), 11 );
+	}
+
+	/**
+	 * Disable the block "visibility" support on form field and input blocks.
+	 *
+	 * FORMS-694 (interim). The per-viewport "Hide on…" option is not honored in
+	 * the forms render pipeline — fields flatten to a shortcode and bypass core's
+	 * render_block class injection — and on a required field it cannot be made
+	 * safe (server- and client-side validation are both viewport-blind). "Hide
+	 * everywhere" does work for fields, but the control bundles both modes under
+	 * one boolean, so we disable it wholesale on fields, inputs, and choice/option
+	 * blocks as an interim. This mirrors the JS registration. The label is the
+	 * only block that keeps visibility support — it honors hiding (full-hide via
+	 * labelhiddenbyblockvisibility, per-viewport via wp-block-hidden-* classes)
+	 * and never affects validation or submission. Full field visibility is a
+	 * separate decision.
+	 *
+	 * @param array  $args       Block type registration args.
+	 * @param string $block_name Block name being registered.
+	 * @return array
+	 */
+	public static function disable_field_visibility_support( $args, $block_name ) {
+		// TODO: refactor into an array_merge'd shared supports array mirroring the JS defaultSettings, instead of this filter.
+		// Fields, incl. the deprecated field-option-* choice blocks.
+		$is_field = strpos( $block_name, 'jetpack/field-' ) === 0;
+		// All input variants: jetpack/input, input-range, input-rating,
+		// input-image-option, plus the differently-named phone-input and dropzone.
+		$is_input = strpos( $block_name, 'jetpack/input' ) === 0 || in_array( $block_name, array( 'jetpack/phone-input', 'jetpack/dropzone' ), true );
+		// Choice/option containers.
+		$is_option = in_array( $block_name, array( 'jetpack/option', 'jetpack/options', 'jetpack/fieldset-image-options' ), true );
+
+		if ( $is_input || $is_field || $is_option ) {
+			if ( ! isset( $args['supports'] ) || ! is_array( $args['supports'] ) ) {
+				$args['supports'] = array();
+			}
+			$args['supports']['visibility'] = false;
+		}
+
+		return $args;
+	}
+
+	/**
+	 * Drop a field that has been hidden everywhere via block visibility.
+	 *
+	 * FORMS-694. "Hide everywhere" (metadata.blockVisibility === false) must keep
+	 * working on fields even though we disable the visibility *support* on them
+	 * (see disable_field_visibility_support). We can't rely on core's render_block
+	 * visibility filter for this: on released WP it gates the full-hide branch
+	 * behind the support check, so once support is false the field would reappear
+	 * (the fix that reorders those — WordPress/gutenberg#78780 — is unreleased).
+	 *
+	 * Dropping the field's rendered output ('') before Contact_Form::parse() sees
+	 * it removes the [contact-field] shortcode entirely, so the field is never
+	 * parsed, rendered, or validated — which is what makes this required-safe (a
+	 * required hidden-everywhere field simply isn't in the form). This is a full
+	 * removal, not a CSS hide; the per-viewport "Hide on…" mode (which leaves the
+	 * field in place and only display:none's it) is intentionally not honored on
+	 * fields for exactly that reason.
+	 *
+	 * @param string $block_content Rendered block content.
+	 * @param array  $block         Parsed block.
+	 * @return string
+	 */
+	public static function drop_field_hidden_everywhere( $block_content, $block ) {
+		$block_name       = $block['blockName'] ?? '';
+		$block_visibility = $block['attrs']['metadata']['blockVisibility'] ?? null;
+
+		if ( false === $block_visibility && strpos( $block_name, 'jetpack/field-' ) === 0 ) {
+			return '';
+		}
+
+		return $block_content;
+	}
+
+	/**
+	 * Register the contact form block feature flag.
+	 *
+	 * @param array $features - the features array.
+	 *
+	 * @return array
+	 */
+	public static function register_feature( $features ) {
+		// Features that are only available to users with a paid plan.
+		$features['multistep-form'] = Current_Plan::supports( 'multistep-form' );
+		$features['form-webhooks']  = Current_Plan::supports( 'form-webhooks' );
+
+		// Bridges the jetpack-feature-flags registration to the editor, so JS `hasFeatureFlag()`
+		// and PHP `Feature_Flags::is_enabled()` answer from one source under one name.
+		$features[ Jetpack_Forms::CONDITIONAL_LOGIC_FLAG ] = Jetpack_Forms::is_conditional_logic_enabled();
+
+		return self::register_central_form_management_default( $features );
+	}
+
+	/**
+	 * Lightweight bootstrap default for the `central-form-management` feature flag.
+	 *
+	 * Registered from Util::init() so that early callers of
+	 * Contact_Form_Plugin::has_editor_feature_flag() — such as the Forms dashboard
+	 * default-tab redirect, which runs before the WP `init` hook fires — see the
+	 * correct flag value. Kept separate from register_feature() so the early-boot
+	 * code path avoids the Current_Plan::supports() calls used by the paid-plan flags.
+	 *
+	 * @param array $features - the features array.
+	 *
+	 * @return array
+	 */
+	public static function register_central_form_management_default( $features ) {
+		if ( ! isset( $features['central-form-management'] ) ) {
+			$features['central-form-management'] = true;
+		}
+
+		return $features;
 	}
 
 	/**
@@ -58,7 +244,7 @@ class Contact_Form_Block {
 	 *  @return array
 	 */
 	public static function find_nested_html_block( $parsed_block, $source_block, $parent_block ) {
-		if ( $parsed_block['blockName'] === 'core/html' && isset( $parent_block->parsed_block ) && $parent_block->parsed_block['blockName'] === 'jetpack/contact-form' ) {
+		if ( ! empty( $parsed_block['blockName'] ) && $parsed_block['blockName'] === 'core/html' && isset( $parent_block->parsed_block ) && $parent_block->parsed_block['blockName'] === 'jetpack/contact-form' ) {
 			$parsed_block['hasJPFormParent'] = true;
 		}
 		return $parsed_block;
@@ -92,53 +278,285 @@ class Contact_Form_Block {
 			return;
 		}
 
+		// Keep the PHP-registered "visibility" support in sync with the JS
+		// registration (src/blocks/shared/settings/index.js and
+		// src/blocks/input/index.js), which disables it on fields and inputs.
+		add_filter( 'register_block_type_args', array( __CLASS__, 'disable_field_visibility_support' ), 10, 2 );
+
+		// Honor "hide everywhere" on fields ourselves, independent of core's
+		// version-dependent visibility filter. See drop_field_hidden_everywhere().
+		add_filter( 'render_block', array( __CLASS__, 'drop_field_hidden_everywhere' ), 10, 2 );
+
+		// Field inner block types.
+		Blocks::jetpack_register_block(
+			'jetpack/input',
+			array(
+				'supports'     => array(
+					'__experimentalBorder' => array(
+						'color'  => true,
+						'radius' => true,
+						'style'  => true,
+						'width'  => true,
+					),
+					'color'                => array(
+						'text'       => true,
+						'background' => true,
+						'gradients'  => false,
+					),
+					'typography'           => array(
+						'fontSize'                     => true,
+						'lineHeight'                   => true,
+						'__experimentalFontFamily'     => true,
+						'__experimentalFontWeight'     => true,
+						'__experimentalFontStyle'      => true,
+						'__experimentalTextTransform'  => true,
+						'__experimentalTextDecoration' => true,
+						'__experimentalLetterSpacing'  => true,
+					),
+				),
+				'selectors'    => array(
+					'border' => '.wp-block-jetpack-input, .is-style-outlined .notched-label:has(+ .wp-block-jetpack-input) > *,.is-style-outlined .wp-block-jetpack-input + .notched-label > *, .is-style-outlined .wp-block-jetpack-field-select .notched-label > *',
+					'color'  => '.wp-block-jetpack-input, .is-style-outlined .notched-label:has(+ .wp-block-jetpack-input) > *,.is-style-outlined .wp-block-jetpack-input + .notched-label > *, .is-style-outlined .wp-block-jetpack-field-select .notched-label > *',
+				),
+				'uses_context' => array( 'jetpack/field-default-value' ),
+			)
+		);
+		Blocks::jetpack_register_block(
+			'jetpack/label',
+			array(
+				'supports'     => array(
+					'color'      => array(
+						'text'       => true,
+						'background' => false,
+						'gradients'  => false,
+					),
+					'typography' => array(
+						'fontSize'                     => true,
+						'lineHeight'                   => true,
+						'__experimentalFontFamily'     => true,
+						'__experimentalFontWeight'     => true,
+						'__experimentalFontStyle'      => true,
+						'__experimentalTextTransform'  => true,
+						'__experimentalTextDecoration' => true,
+						'__experimentalLetterSpacing'  => true,
+					),
+					// The real support key is `visibility`, not `blockVisibility`
+					// (that's the per-instance saved attribute). The label is the
+					// only forms block that keeps the control — see FORMS-694.
+					'visibility' => true,
+				),
+				'uses_context' => array(
+					'jetpack/field-required',
+				),
+			)
+		);
+		Blocks::jetpack_register_block(
+			'jetpack/options',
+			array(
+				'supports'         => array(
+					'__experimentalBorder' => array(
+						'color'  => true,
+						'radius' => true,
+						'style'  => true,
+						'width'  => true,
+					),
+					'color'                => array(
+						'text'       => false,
+						'background' => true,
+					),
+					'spacing'              => array(
+						'blockGap' => false,
+					),
+				),
+				'provides_context' => array(
+					'jetpack/field-options-type' => 'type',
+				),
+				'selectors'        => array(
+					'border' => '.wp-block-jetpack-options, .is-style-outlined .notched-label:has(+ .wp-block-jetpack-options) > *',
+					'color'  => '.wp-block-jetpack-options, .is-style-outlined .notched-label:has(+ .wp-block-jetpack-options) > *',
+				),
+			)
+		);
+		Blocks::jetpack_register_block(
+			'jetpack/option',
+			array(
+				'supports'     => array(
+					'color'      => array(
+						'text'       => true,
+						'background' => false,
+						'gradients'  => false,
+					),
+					'typography' => array(
+						'fontSize'                     => true,
+						'lineHeight'                   => true,
+						'__experimentalFontFamily'     => true,
+						'__experimentalFontWeight'     => true,
+						'__experimentalFontStyle'      => true,
+						'__experimentalTextTransform'  => true,
+						'__experimentalTextDecoration' => true,
+						'__experimentalLetterSpacing'  => true,
+					),
+				),
+				'uses_context' => array(
+					'jetpack/field-default-value',
+					'jetpack/field-options-type',
+					'jetpack/field-required',
+				),
+			)
+		);
+
+		Blocks::jetpack_register_block(
+			'jetpack/phone-input',
+			array(
+				'supports'     => array(
+					'__experimentalBorder' => array(
+						'color'  => true,
+						'radius' => true,
+						'style'  => true,
+						'width'  => true,
+					),
+					'color'                => array(
+						'text'       => true,
+						'background' => true,
+						'gradients'  => false,
+					),
+					'typography'           => array(
+						'fontSize'                     => true,
+						'lineHeight'                   => true,
+						'__experimentalFontFamily'     => true,
+						'__experimentalFontWeight'     => true,
+						'__experimentalFontStyle'      => true,
+						'__experimentalTextTransform'  => true,
+						'__experimentalTextDecoration' => true,
+						'__experimentalLetterSpacing'  => true,
+					),
+				),
+				'uses_context' => array(
+					'jetpack/field-share-attributes',
+					'jetpack/field-prefix-options',
+					'jetpack/field-prefix-default',
+					'jetpack/field-prefix-onChange',
+					'jetpack/field-phone-country-toggle',
+				),
+			)
+		);
+
+		Blocks::jetpack_register_block(
+			'jetpack/input-rating',
+			array(
+				'supports' => array(
+					'color'      => array(
+						'text'       => true,
+						'background' => false,
+					),
+					'typography' => array(
+						'fontSize' => true,
+					),
+				),
+			)
+		);
+
+		Blocks::jetpack_register_block(
+			'jetpack/input-range',
+			array(
+				'supports' => array(
+					'color'      => array(
+						'text'       => true,
+						'background' => false,
+					),
+					'typography' => array(
+						'fontSize'                     => true,
+						'__experimentalFontFamily'     => true,
+						'__experimentalFontWeight'     => true,
+						'__experimentalFontStyle'      => true,
+						'__experimentalTextTransform'  => true,
+						'__experimentalTextDecoration' => true,
+						'__experimentalLetterSpacing'  => true,
+					),
+				),
+			)
+		);
+
 		// Field render methods.
 		Blocks::jetpack_register_block(
 			'jetpack/field-text',
 			array(
-				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_field_text' ),
+				'render_callback'  => array( Contact_Form_Plugin::class, 'gutenblock_render_field_text' ),
+				'provides_context' => array( 'jetpack/field-required' => 'required' ),
 			)
 		);
 		Blocks::jetpack_register_block(
 			'jetpack/field-name',
 			array(
-				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_field_name' ),
+				'render_callback'  => array( Contact_Form_Plugin::class, 'gutenblock_render_field_name' ),
+				'provides_context' => array( 'jetpack/field-required' => 'required' ),
 			)
 		);
 		Blocks::jetpack_register_block(
 			'jetpack/field-email',
 			array(
-				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_field_email' ),
+				'render_callback'  => array( Contact_Form_Plugin::class, 'gutenblock_render_field_email' ),
+				'provides_context' => array( 'jetpack/field-required' => 'required' ),
 			)
 		);
 		Blocks::jetpack_register_block(
 			'jetpack/field-url',
 			array(
-				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_field_url' ),
+				'render_callback'  => array( Contact_Form_Plugin::class, 'gutenblock_render_field_url' ),
+				'provides_context' => array( 'jetpack/field-required' => 'required' ),
 			)
 		);
 		Blocks::jetpack_register_block(
 			'jetpack/field-date',
 			array(
-				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_field_date' ),
+				'render_callback'  => array( Contact_Form_Plugin::class, 'gutenblock_render_field_date' ),
+				'provides_context' => array( 'jetpack/field-required' => 'required' ),
 			)
 		);
 		Blocks::jetpack_register_block(
 			'jetpack/field-telephone',
 			array(
-				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_field_telephone' ),
+				'render_callback'  => array( Contact_Form_Plugin::class, 'gutenblock_render_field_telephone' ),
+				'attributes'       => array(
+					'showCountrySelector' => array(
+						'type' => 'boolean',
+					),
+					'default'             => array(
+						'type' => 'string',
+						'role' => 'content',
+					),
+					'searchPlaceholder'   => array(
+						'type' => 'string',
+						'role' => 'content',
+					),
+				),
+				'supports'         => array(
+					'interactivity' => true,
+				),
+				'provides_context' => array(
+					'jetpack/field-share-attributes'     => 'shareAttributes',
+					'jetpack/field-required'             => 'required',
+					'jetpack/field-prefix-default'       => 'default',
+					'jetpack/field-phone-country-toggle' => 'showCountrySelector',
+					'jetpack/field-phone-search-placeholder' => 'searchPlaceholder',
+				),
 			)
 		);
 		Blocks::jetpack_register_block(
 			'jetpack/field-textarea',
 			array(
-				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_field_textarea' ),
+				'render_callback'  => array( Contact_Form_Plugin::class, 'gutenblock_render_field_textarea' ),
+				'provides_context' => array( 'jetpack/field-required' => 'required' ),
 			)
 		);
 		Blocks::jetpack_register_block(
 			'jetpack/field-checkbox',
 			array(
-				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_field_checkbox' ),
+				'render_callback'  => array( Contact_Form_Plugin::class, 'gutenblock_render_field_checkbox' ),
+				'provides_context' => array(
+					'jetpack/field-required'      => 'required',
+					'jetpack/field-default-value' => 'defaultValue',
+				),
 			)
 		);
 		Blocks::jetpack_register_block(
@@ -147,18 +565,21 @@ class Contact_Form_Block {
 				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_field_checkbox_multiple' ),
 			)
 		);
+
 		Blocks::jetpack_register_block(
 			'jetpack/field-option-checkbox',
 			array(
 				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_field_option' ),
 			)
 		);
+
 		Blocks::jetpack_register_block(
 			'jetpack/field-radio',
 			array(
 				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_field_radio' ),
 			)
 		);
+
 		Blocks::jetpack_register_block(
 			'jetpack/field-option-radio',
 			array(
@@ -168,7 +589,8 @@ class Contact_Form_Block {
 		Blocks::jetpack_register_block(
 			'jetpack/field-select',
 			array(
-				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_field_select' ),
+				'render_callback'  => array( Contact_Form_Plugin::class, 'gutenblock_render_field_select' ),
+				'provides_context' => array( 'jetpack/field-required' => 'required' ),
 			)
 		);
 		Blocks::jetpack_register_block(
@@ -181,31 +603,220 @@ class Contact_Form_Block {
 		Blocks::jetpack_register_block(
 			'jetpack/field-number',
 			array(
-				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_field_number' ),
+				'render_callback'  => array( Contact_Form_Plugin::class, 'gutenblock_render_field_number' ),
+				'provides_context' => array( 'jetpack/field-required' => 'required' ),
 			)
 		);
 
-		$blocks_variation = apply_filters( 'jetpack_blocks_variation', \Automattic\Jetpack\Constants::get_constant( 'JETPACK_BLOCKS_VARIATION' ) );
-		if ( 'beta' === $blocks_variation ) {
-			self::register_beta_blocks();
-		}
-	}
-
-	/**
-	 * Register beta blocks
-	 */
-	private static function register_beta_blocks() {
 		Blocks::jetpack_register_block(
 			'jetpack/field-file',
 			array(
-				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_field_file' ),
-				'plan_check'      => apply_filters( 'jetpack_unauth_file_upload_plan_check', true ),
+				'render_callback'  => array( Contact_Form_Plugin::class, 'gutenblock_render_field_file' ),
+				'provides_context' => array( 'jetpack/field-required' => 'required' ),
+				'plan_check'       => apply_filters( 'jetpack_unauth_file_upload_plan_check', true ),
 			)
 		);
 
+		Blocks::jetpack_register_block(
+			'jetpack/dropzone',
+			array(
+				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_dropzone' ),
+			)
+		);
+
+		Blocks::jetpack_register_block(
+			'jetpack/field-hidden',
+			array(
+				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_field_hidden' ),
+			)
+		);
+
+		Blocks::jetpack_register_block(
+			'jetpack/field-rating',
+			array(
+				'render_callback'  => array( Contact_Form_Plugin::class, 'gutenblock_render_field_rating' ),
+				'provides_context' => array(
+					'jetpack/field-required' => 'required',
+				),
+			)
+		);
+
+		Blocks::jetpack_register_block(
+			'jetpack/field-slider',
+			array(
+				'render_callback'  => array( Contact_Form_Plugin::class, 'gutenblock_render_field_slider' ),
+				'provides_context' => array( 'jetpack/field-required' => 'required' ),
+			)
+		);
+
+		Blocks::jetpack_register_block(
+			'jetpack/field-time',
+			array(
+				'render_callback'  => array( Contact_Form_Plugin::class, 'gutenblock_render_field_time' ),
+				'provides_context' => array( 'jetpack/field-required' => 'required' ),
+			)
+		);
+
+		// Paid file field block
 		add_action(
 			'jetpack_register_gutenberg_extensions',
 			array( __CLASS__, 'set_file_field_extension_available' )
+		);
+
+		/**
+		 * The blocks 'jetpack/field-checkbox-multiple' and 'jetpack/field-radio' are wrapper blocks.
+		 * Styles must be registered so that they are available to be overridden by the theme or global styles.
+		 * Form field blocks define the block style via the settings in their index.js files.
+		 * A follow up issue is to update them to use block.json files, which can be reused
+		 * in both JS and PHP block registration.
+		 */
+		register_block_style(
+			array( 'jetpack/field-checkbox-multiple', 'jetpack/field-radio' ),
+			array(
+				'name'       => 'list',
+				'label'      => __( 'List', 'jetpack-forms' ),
+				'is_default' => true,
+			)
+		);
+
+		register_block_style(
+			array( 'jetpack/field-checkbox-multiple', 'jetpack/field-radio' ),
+			array(
+				'name'  => 'button',
+				'label' => __( 'Button', 'jetpack-forms' ),
+			)
+		);
+
+		Blocks::jetpack_register_block(
+			'jetpack/form-step',
+			array(
+				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_form_step' ),
+
+				/*
+				 * Deliberately not mirrored in the block's index.js: serialization is skipped
+				 * here so Contact_Form_Block::apply_background_support() can put the image on
+				 * the block's own element, and skipping it in JS too would drop the editor
+				 * preview.
+				 */
+				'supports'        => array(
+					'background' => array(
+						'backgroundImage'                 => true,
+						'backgroundSize'                  => true,
+						'__experimentalSkipSerialization' => true,
+						'__experimentalDefaultControls'   => array(
+							'backgroundImage' => true,
+						),
+					),
+				),
+			)
+		);
+
+		Blocks::jetpack_register_block(
+			'jetpack/form-step-navigation',
+			array(
+				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_form_step_navigation' ),
+			)
+		);
+
+		Blocks::jetpack_register_block(
+			'jetpack/form-progress-indicator',
+			array(
+				'render_callback' => array( Contact_Form_Plugin::class, 'gutenblock_render_form_progress_indicator' ),
+			)
+		);
+
+		Blocks::jetpack_register_block(
+			'jetpack/form-step-container'
+		);
+
+		Blocks::jetpack_register_block(
+			'jetpack/field-image-select',
+			array(
+				'render_callback'  => array( Contact_Form_Plugin::class, 'gutenblock_render_field_image_select' ),
+				'provides_context' => array(
+					'jetpack/field-required' => 'required',
+					'jetpack/field-image-select-show-labels' => 'showLabels',
+					'jetpack/field-image-select-is-supersized' => 'isSupersized',
+					'jetpack/field-image-select-is-multiple' => 'isMultiple',
+					'jetpack/field-image-select-randomize-options' => 'randomizeOptions',
+					'jetpack/field-image-select-show-other-option' => 'showOtherOption',
+				),
+			)
+		);
+
+		Blocks::jetpack_register_block(
+			'jetpack/fieldset-image-options',
+			array(
+				'uses_context'     => array(
+					'jetpack/field-image-select-is-supersized',
+					'jetpack/field-image-select-is-multiple',
+					'jetpack/field-share-attributes',
+				),
+				'provides_context' => array(
+					'jetpack/field-image-options-type' => 'type',
+				),
+			)
+		);
+
+		Blocks::jetpack_register_block(
+			'jetpack/input-image-option',
+			array(
+				'supports'         => array(
+					'color'                => array(
+						'background'                    => true,
+						'text'                          => true,
+						'gradients'                     => false,
+						'__experimentalDefaultControls' => array(
+							'background' => true,
+							'text'       => true,
+						),
+					),
+					'typography'           => array(
+						'fontSize'                      => true,
+						'lineHeight'                    => true,
+						'__experimentalFontFamily'      => true,
+						'__experimentalFontWeight'      => true,
+						'__experimentalFontStyle'       => true,
+						'__experimentalTextTransform'   => true,
+						'__experimentalTextDecoration'  => true,
+						'__experimentalLetterSpacing'   => true,
+						'__experimentalDefaultControls' => array(
+							'fontSize' => true,
+						),
+					),
+					'__experimentalBorder' => array(
+						'color'                         => true,
+						'radius'                        => true,
+						'style'                         => true,
+						'width'                         => true,
+						'__experimentalDefaultControls' => array(
+							'color'  => true,
+							'radius' => true,
+							'style'  => true,
+							'width'  => true,
+						),
+					),
+					'spacing'              => array(
+						'margin'                        => true,
+						'padding'                       => true,
+						'__experimentalDefaultControls' => array(
+							'margin'  => true,
+							'padding' => true,
+						),
+					),
+				),
+				'uses_context'     => array(
+					'jetpack/field-image-select-is-supersized',
+					'jetpack/field-image-select-show-labels',
+					'jetpack/field-image-options-type',
+					'jetpack/field-share-attributes',
+				),
+				'provides_context' => array(
+					'allowResize' => 'allowResize',
+					'imageCrop'   => 'imageCrop',
+					'fixedHeight' => 'fixedHeight',
+				),
+			)
 		);
 	}
 
@@ -226,50 +837,278 @@ class Contact_Form_Block {
 	 *
 	 * @return string
 	 */
+	/**
+	 * Static storage for form step count.
+	 *
+	 * @var int
+	 */
+	private static $form_step_count = 1;
+
+	/**
+	 * Hook into pre_render_block to count form steps before inner blocks render.
+	 *
+	 * @param string|null $pre_render   The pre-rendered content. Default null.
+	 * @param array       $parsed_block The block being rendered.
+	 * @return string|null
+	 */
+	public static function pre_render_contact_form( $pre_render, $parsed_block ) {
+		// Only process contact form blocks
+		if ( ! isset( $parsed_block['blockName'] ) || $parsed_block['blockName'] !== 'jetpack/contact-form' ) {
+			return $pre_render;
+		}
+
+		// Count and store form steps
+		self::$form_step_count = self::count_form_steps_in_block( $parsed_block );
+
+		if ( isset( $parsed_block['attrs']['ref'] ) || null === $pre_render ) {
+			// This happends only important for lagacy reasons and when code is programatically generated.
+			// Since it can include the previous jetpack button.
+			// Which by default renders as a link instead of a button resulting in the form not submitting.
+			add_filter( 'jetpack_button_default_element', array( __CLASS__, 'submit_button_element' ) );
+		}
+
+		// For ref (synced) forms, render here via pre_render_block to short-circuit
+		// render_block(). This prevents wp_render_layout_support_flag from adding
+		// layout classes to the outer ref block's container div. The synced form's
+		// inner jetpack/contact-form block renders through the normal pipeline and
+		// gets layout classes on the correct element (wp-block-jetpack-contact-form).
+		if ( isset( $parsed_block['attrs']['ref'] ) ) {
+			return self::gutenblock_render_form( $parsed_block['attrs'], '' );
+		}
+
+		return $pre_render; // Don't actually pre-render, let normal rendering continue
+	}
+
+	/**
+	 * Count form step blocks in a contact form block.
+	 *
+	 * @param array $block The contact form block.
+	 * @return int Number of form steps found.
+	 */
+	private static function count_form_steps_in_block( $block ) {
+		$step_count = 0;
+
+		if ( isset( $block['innerBlocks'] ) ) {
+			foreach ( $block['innerBlocks'] as $inner_block ) {
+				if ( $inner_block['blockName'] === 'jetpack/form-step' ) {
+					++$step_count;
+				}
+				// Also check nested blocks (like step containers)
+				$step_count += self::count_form_steps_in_block( $inner_block );
+			}
+		}
+
+		return $step_count;
+	}
+
+	/**
+	 * Get the step count for forms (used by progress indicator).
+	 *
+	 * @return int The step count.
+	 */
+	public static function get_form_step_count() {
+		return self::$form_step_count;
+	}
+
+	/**
+	 * Render fallback for non-interactive contexts (email, feed, API, etc.).
+	 *
+	 * @param array $atts - the block attributes.
+	 *
+	 * @return string
+	 */
+	private static function render_fallback( $atts ) {
+		return sprintf(
+			'<div class="%1$s"><a href="%2$s" target="_blank" rel="noopener noreferrer">%3$s</a></div>',
+			esc_attr( Blocks::classes( 'contact-form', $atts ) ),
+			esc_url( get_the_permalink() ),
+			esc_html__( 'Submit a form.', 'jetpack-forms' )
+		);
+	}
+
+	/**
+	 * Render the contact form block for email contexts.
+	 *
+	 * This method is called by WordPress/WooCommerce email rendering system when a form block
+	 * appears in email content. Forms are not interactive in email contexts, so we always return
+	 * a fallback link that directs recipients to the form on the website.
+	 *
+	 * Note: The $block_content and $rendering_context parameters are required by the
+	 * render_email_callback signature but are intentionally unused here. We only need the
+	 * block attributes from $parsed_block to generate the fallback HTML, and we don't need
+	 * to process the block content or use email-specific rendering context since we're
+	 * always returning a simple fallback.
+	 *
+	 * @param string $block_content     The original block HTML content. Unused - we always return a fallback.
+	 * @param array  $parsed_block      The parsed block data including attributes.
+	 * @param object $rendering_context Email rendering context. Unused - not needed for fallback rendering.
+	 *
+	 * @return string HTML fallback with link to submit the form on the website.
+	 */
+	public static function render_email( $block_content, array $parsed_block, $rendering_context ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		$atts = $parsed_block['attrs'] ?? array();
+
+		return self::render_fallback( $atts );
+	}
+
+	/**
+	 * The element a Button block inside a form falls back to when it doesn't set one.
+	 *
+	 * Filters `jetpack_button_default_element` for the duration of a form's render.
+	 *
+	 * @return string
+	 */
+	public static function submit_button_element() {
+		return 'button';
+	}
+
+	/**
+	 * Render the gutenblock form.
+	 *
+	 * @param array  $atts - the block attributes.
+	 * @param string $content - html content.
+	 *
+	 * @return string
+	 */
 	public static function gutenblock_render_form( $atts, $content ) {
+		$form = self::render_form( $atts, $content );
+
+		// The form and its buttons are rendered by now, so stop defaulting Button blocks
+		// to `button` — any further button on the page is not a submit button.
+		remove_filter( 'jetpack_button_default_element', array( __CLASS__, 'submit_button_element' ) );
+
+		return $form;
+	}
+
+	/**
+	 * Render the gutenblock form markup.
+	 *
+	 * @param array  $atts - the block attributes.
+	 * @param string $content - html content.
+	 *
+	 * @return string
+	 */
+	private static function render_form( $atts, $content ) {
 		// We should not render block if the module is disabled on a site using the Jetpack plugin.
-		if ( class_exists( 'Jetpack' ) && ! ( new Modules() )->is_active( 'contact-form' ) ) {
+		// Exception: allow rendering in preview mode so form previews work.
+		if ( class_exists( 'Jetpack' ) && ! ( new Modules() )->is_active( 'contact-form' ) && ! Form_Preview::is_preview_mode() ) {
 			return '';
 		}
 		// Render fallback in other contexts than frontend (i.e. feed, emails, API, etc.), unless the form is being submitted.
-		if ( ! jetpack_is_frontend() && ! isset( $_POST['contact-form-id'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
-			return sprintf(
-				'<div class="%1$s"><a href="%2$s" target="_blank" rel="noopener noreferrer">%3$s</a></div>',
-				esc_attr( Blocks::classes( 'contact-form', $atts ) ),
-				esc_url( get_the_permalink() ),
-				esc_html__( 'Submit a form.', 'jetpack-forms' )
-			);
+		// Exception: allow rendering in preview mode.
+		if ( ! Request::is_frontend() && ! isset( $_POST['contact-form-id'] ) && ! Form_Preview::is_preview_mode() ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing
+			return self::render_fallback( $atts );
 		}
 
 		self::load_view_scripts();
 
-		return Contact_Form::parse( $atts, do_blocks( $content ) );
+		// Handle ref attribute - load form from jetpack_form post
+		if ( isset( $atts['ref'] ) ) {
+			$ref_id = absint( $atts['ref'] );
+			if ( $ref_id > 0 ) {
+				return self::apply_background_support( Contact_Form::render_synced_form( $ref_id ), $atts, self::FORM_BLOCK_CLASS );
+			} else {
+				return ''; // Invalid ref ID.
+			}
+		}
+
+		return self::apply_background_support( Contact_Form::parse( $atts, do_blocks( $content ) ), $atts, self::FORM_BLOCK_CLASS );
+	}
+
+	/**
+	 * Apply a block's background image styles to the block's own element.
+	 *
+	 * Core's `wp_render_background_support()` targets the first tag of the rendered output.
+	 * Both form blocks wrap themselves at render time — the interactivity wrapper for a step,
+	 * the container div and any admin-only notices for a form — so the first tag is not the
+	 * element carrying the block's color, padding and radius, and for a synced form it varies
+	 * with who is viewing. Serialization is skipped in the block registration (PHP only: adding
+	 * it to block.json or index.js would kill the editor preview) and the styles are applied
+	 * here, on the element matching $target_class.
+	 *
+	 * Mirrors core's `wp_render_background_support()`, including its `cover` and `50% 50%`
+	 * defaults. Core 7.1 added gradient handling this does not implement, so `gradient` must
+	 * stay out of the JS supports until it is mirrored here too.
+	 *
+	 * @param string $html         Rendered HTML containing the block's own element.
+	 * @param array  $atts         Block attributes.
+	 * @param string $target_class Class of the element that should carry the background.
+	 *
+	 * @return string The HTML, with background styles applied when the block has an image.
+	 */
+	public static function apply_background_support( $html, $atts, $target_class ) {
+		$background = $atts['style']['background'] ?? null;
+
+		if ( ! is_array( $background ) || empty( $background['backgroundImage'] ) ) {
+			return $html;
+		}
+
+		$background_styles = array(
+			'backgroundImage'      => $background['backgroundImage'],
+			'backgroundSize'       => $background['backgroundSize'] ?? 'cover',
+			'backgroundPosition'   => $background['backgroundPosition'] ?? null,
+			'backgroundRepeat'     => $background['backgroundRepeat'] ?? null,
+			'backgroundAttachment' => $background['backgroundAttachment'] ?? null,
+		);
+
+		if ( 'contain' === $background_styles['backgroundSize'] && ! $background_styles['backgroundPosition'] ) {
+			$background_styles['backgroundPosition'] = '50% 50%';
+		}
+
+		// A step's styles are still ahead of the do_shortcode() pass in Contact_Form::parse(),
+		// so percent-encode the brackets that would otherwise make this URL look like a
+		// shortcode: unencoded they are stripped out of the attribute, taking the background
+		// with them, and the shortcode's side effects run.
+		if ( isset( $background_styles['backgroundImage']['url'] ) && is_string( $background_styles['backgroundImage']['url'] ) ) {
+			$background_styles['backgroundImage']['url'] = strtr(
+				$background_styles['backgroundImage']['url'],
+				array(
+					'[' => '%5B',
+					']' => '%5D',
+				)
+			);
+		}
+
+		$styles = wp_style_engine_get_styles( array( 'background' => $background_styles ) );
+
+		if ( empty( $styles['css'] ) ) {
+			return $html;
+		}
+
+		$tags = new \WP_HTML_Tag_Processor( $html );
+
+		if ( ! $tags->next_tag( array( 'class_name' => $target_class ) ) ) {
+			return $html;
+		}
+
+		$existing_style = $tags->get_attribute( 'style' );
+
+		if ( is_string( $existing_style ) && '' !== $existing_style ) {
+			$separator = str_ends_with( $existing_style, ';' ) ? '' : ';';
+			$tags->set_attribute( 'style', $existing_style . $separator . $styles['css'] );
+		} else {
+			$tags->set_attribute( 'style', $styles['css'] );
+		}
+
+		$tags->add_class( 'has-background' );
+
+		return $tags->get_updated_html();
 	}
 
 	/**
 	 * Load editor styles for the block.
-	 * These are loaded via enqueue_block_assets to ensure proper loading in the editor iframe context.
+	 *
+	 * @deprecated 7.5.0 This function is deprecated and will be removed in a future version.
 	 */
 	public static function load_editor_styles() {
-
-		$handle = 'jp-forms-blocks';
-
-		Assets::register_script(
-			$handle,
-			'../../../dist/blocks/editor.js',
-			__FILE__,
-			array(
-				'css_path'   => '../../../dist/blocks/editor.css',
-				'textdomain' => 'jetpack-forms',
-			)
-		);
-		wp_enqueue_style( 'jp-forms-blocks' );
+		_deprecated_function( __FUNCTION__, 'jetpack-7.5.0' );
 	}
 
 	/**
 	 * Loads scripts
 	 */
 	public static function load_editor_scripts() {
+		global $post;
 		// Bail early if the user cannot manage the block.
 		if ( ! self::can_manage_block() ) {
 			return;
@@ -277,41 +1116,111 @@ class Contact_Form_Block {
 
 		$handle = 'jp-forms-blocks';
 
+		// Ensure the jetpack-blocks-editor dependency exists. When the Blocks module
+		// is inactive, nothing registers it, but the Forms editor JS needs the
+		// Jetpack_Editor_Initial_State global (with availability data) it provides.
+		self::maybe_register_blocks_editor_script();
+
 		Assets::register_script(
 			$handle,
 			'../../../dist/blocks/editor.js',
 			__FILE__,
 			array(
-				'in_footer'  => true,
-				'textdomain' => 'jetpack-forms',
-				'enqueue'    => true,
-				// Editor styles are loaded separately, see load_editor_styles().
-				'css_path'   => null,
+				'dependencies' => array( 'jetpack-blocks-editor' ),
+				'in_footer'    => true,
+				'textdomain'   => 'jetpack-forms',
+				'enqueue'      => true,
+				'css_path'     => '../../../dist/blocks/editor.css',
 			)
 		);
 
 		// Create a Contact_Form instance to get the default values
-		$dashboard_view_switch   = new Dashboard_View_Switch();
-		$contact_form            = new Contact_Form( array() );
-		$defaults                = $contact_form->defaults;
-		$form_responses_url      = $dashboard_view_switch->get_forms_admin_url();
+		$form_responses_url      = Forms_Dashboard::get_forms_admin_url();
 		$akismet_active_with_key = Jetpack::is_akismet_active();
 		$akismet_key_url         = admin_url( 'admin.php?page=akismet-key-config' );
-		$preferred_view          = $dashboard_view_switch->get_preferred_view();
+
+		$default_recipient = Contact_Form::get_default_to_with_source( $post );
 
 		$data = array(
 			'defaults' => array(
-				'to'                   => $defaults['to'],
-				'subject'              => $defaults['subject'],
+				'to'                   => $default_recipient['to'],
+				'toSource'             => $default_recipient['source'],
+				// Decoded for display only: get_option( 'blogname' ) stores the site title HTML-encoded,
+				// which would otherwise surface raw entities such as &#039; in the editor's placeholder.
+				'subject'              => wp_specialchars_decode( Contact_Form::get_default_subject( array() ), ENT_QUOTES ),
 				'formsResponsesUrl'    => $form_responses_url,
 				'akismetActiveWithKey' => $akismet_active_with_key,
 				'akismetUrl'           => $akismet_key_url,
 				'assetsUrl'            => Jetpack_Forms::assets_url(),
-				'preferredView'        => $preferred_view,
+				'isMailPoetEnabled'    => Jetpack_Forms::is_mailpoet_enabled(),
+				// So the file field's "Maximum files" control offers exactly what the site will honour,
+				// including when a filter has raised the ceiling.
+				'maxFilesLimit'        => Contact_Form_Field::get_file_field_max_files_limit(),
 			),
 		);
 
-		wp_add_inline_script( $handle, 'window.jpFormsBlocks = ' . wp_json_encode( $data ) . ';', 'before' );
+		wp_add_inline_script( $handle, 'window.jpFormsBlocks = ' . wp_json_encode( $data, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';', 'before' );
+	}
+
+	/**
+	 * Conditionally loads the AI form generation integration script.
+	 *
+	 * This script is only loaded when:
+	 * 1. The AI Assistant extension is available (ai-assistant-form-support)
+	 * 2. The central-form-management feature flag is enabled
+	 *
+	 * By checking these conditions in PHP, we ensure no JavaScript is loaded
+	 * when either the AI extension is disabled or central form management is off.
+	 *
+	 * This is hooked at priority 11 on enqueue_block_editor_assets to ensure
+	 * it runs after Jetpack_Gutenberg registers extensions at priority 10.
+	 */
+	public static function maybe_load_ai_integration() {
+		// Bail if the user cannot manage the block — jp-forms-blocks won't be registered.
+		if ( ! self::can_manage_block() ) {
+			return;
+		}
+
+		// Check if central form management is enabled.
+		if ( ! Contact_Form_Plugin::has_editor_feature_flag( 'central-form-management' ) ) {
+			return;
+		}
+
+		// Check if AI Assistant form support is available.
+		// This extension is set as available when the AI Assistant block is registered.
+		if ( ! class_exists( 'Jetpack_Gutenberg' ) ) {
+			return;
+		}
+
+		// Ensure extensions are registered by calling get_cached_availability().
+		\Jetpack_Gutenberg::get_cached_availability();
+		if ( ! \Jetpack_Gutenberg::is_available( 'ai-assistant-form-support' ) ) {
+			return;
+		}
+
+		Assets::register_script(
+			'jp-forms-ai-plugin',
+			'../../../dist/blocks/ai-form-plugin.js',
+			__FILE__,
+			array(
+				'dependencies' => array( 'jp-forms-blocks' ),
+				'in_footer'    => true,
+				'textdomain'   => 'jetpack-forms',
+				'enqueue'      => true,
+			)
+		);
+	}
+
+	/**
+	 * Add REST API endpoints to the block editor preload list.
+	 *
+	 * @param array $paths Existing paths to preload.
+	 * @return array Updated paths to preload.
+	 */
+	public static function preload_endpoints( $paths ) {
+		$paths[] = array( '/wp/v2/feedback/config', 'GET' );
+		$paths[] = array( '/wp/v2/feedback/config?_locale=user', 'GET' );
+		return $paths;
 	}
 
 	/**
@@ -329,8 +1238,51 @@ class Contact_Form_Block {
 			__FILE__,
 			array(
 				'in_footer'  => true,
+				'strategy'   => 'defer',
 				'textdomain' => 'jetpack-forms',
 				'enqueue'    => true,
+			)
+		);
+	}
+
+	/**
+	 * Register a minimal jetpack-blocks-editor script when the Blocks module is inactive.
+	 *
+	 * The Forms editor JS depends on jetpack-blocks-editor for the
+	 * Jetpack_Editor_Initial_State global, which includes block availability data.
+	 * Normally the Blocks module registers this, but Forms needs to work independently.
+	 */
+	private static function maybe_register_blocks_editor_script() {
+		if ( wp_script_is( 'jetpack-blocks-editor', 'registered' ) ) {
+			return;
+		}
+
+		// When the Blocks module is active it will register the real script, so bail.
+		if ( class_exists( 'Jetpack' ) && ( new Modules() )->is_active( 'blocks' ) ) {
+			return;
+		}
+
+		// Register a minimal script to satisfy the dependency.
+		wp_register_script( 'jetpack-blocks-editor', '', array(), JETPACK__VERSION, true );
+		wp_register_style( 'jetpack-blocks-editor', false, array(), JETPACK__VERSION );
+
+		// Provide the initial state the Forms editor JS expects:
+		// - available_blocks: the JS block registration checks this before calling registerBlockType.
+		// - modules: the useModuleStatus hook reads this to decide whether to show the block
+		// or an "Activate Forms" placeholder.
+		// - feature_flags: hasFeatureFlag() reads this for central-form-management,
+		// form-webhooks, and multistep-form.
+		wp_localize_script(
+			'jetpack-blocks-editor',
+			'Jetpack_Editor_Initial_State',
+			array(
+				'available_blocks' => array(
+					'contact-form' => array( 'available' => true ),
+				),
+				'modules'          => array(
+					'contact-form' => array( 'activated' => true ),
+				),
+				'feature_flags'    => apply_filters( 'jetpack_block_editor_feature_flags', array() ),
 			)
 		);
 	}

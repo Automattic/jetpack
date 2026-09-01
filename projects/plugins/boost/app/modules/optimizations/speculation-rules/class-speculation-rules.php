@@ -32,8 +32,7 @@ class Speculation_Rules implements Feature, Changes_Output_On_Activation, Optimi
 	 * @return bool
 	 */
 	public static function is_available() {
-		global $wp_version;
-		return version_compare( $wp_version, '6.8-beta3', '>=' );
+		return true;
 	}
 
 	/**

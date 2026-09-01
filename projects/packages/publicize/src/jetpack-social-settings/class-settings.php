@@ -16,6 +16,8 @@ use Automattic\Jetpack\Publicize\Social_Image_Generator\Templates;
  *      - Social Image Generator
  *      - UTM Settings
  *      - Social Notes
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Settings {
 	/**
@@ -43,31 +45,22 @@ class Settings {
 		'append_link' => true,
 	);
 
+	const MESSAGE_TEMPLATE = 'message_template';
+
+	/**
+	 * Default global message template.
+	 */
+	const DEFAULT_MESSAGE_TEMPLATE = "{title}\n\n{excerpt}\n\n{url}";
+
+	/**
+	 * Storage cap for message templates, in characters. Real-world templates are a few hundred characters at most.
+	 */
+	const MESSAGE_TEMPLATE_MAX_LENGTH = 8000;
+
 	// Legacy named options.
 	const JETPACK_SOCIAL_NOTE_CPT_ENABLED   = 'jetpack-social-note';
 	const JETPACK_SOCIAL_SHOW_PRICING_PAGE  = 'jetpack-social_show_pricing_page';
 	const NOTES_FLUSH_REWRITE_RULES_FLUSHED = 'jetpack_social_rewrite_rules_flushed';
-
-	/**
-	 * Feature flags. Each item has 3 keys because of the naming conventions:
-	 * - flag_name: The name of the feature flag for the option check.
-	 * - feature_name: The name of the feature that enables the feature. Will be checked with Current_Plan.
-	 * - variable_name: The name of the variable that will be used in the front-end.
-	 *
-	 * @var array
-	 */
-	const FEATURE_FLAGS = array(
-		array(
-			'flag_name'     => 'editor_preview',
-			'feature_name'  => 'editor-preview',
-			'variable_name' => 'useEditorPreview',
-		),
-		array(
-			'flag_name'     => 'share_status',
-			'feature_name'  => 'share-status',
-			'variable_name' => 'useShareStatus',
-		),
-	);
 
 	/**
 	 * Whether the actions have been hooked into.
@@ -160,6 +153,9 @@ class Settings {
 							'template'         => array(
 								'type' => 'string',
 							),
+							'font'             => array(
+								'type' => 'string',
+							),
 							'default_image_id' => array(
 								'type' => 'number',
 							),
@@ -242,7 +238,43 @@ class Settings {
 			)
 		);
 
+		register_setting(
+			'jetpack_social',
+			self::OPTION_PREFIX . self::MESSAGE_TEMPLATE,
+			array(
+				'type'              => 'string',
+				'default'           => self::DEFAULT_MESSAGE_TEMPLATE,
+				'sanitize_callback' => array( __CLASS__, 'sanitize_message_template' ),
+				'show_in_rest'      => array(
+					'schema' => array(
+						'type'    => 'string',
+						'context' => array( 'view', 'edit' ),
+					),
+				),
+			)
+		);
+
 		add_filter( 'rest_pre_update_setting', array( $this, 'update_settings' ), 10, 3 );
+	}
+
+	/**
+	 * Sanitize a user-authored message template string.
+	 *
+	 * @param mixed $value The raw setting input. Non-string values coerce to ''.
+	 * @return string The sanitised template.
+	 */
+	public static function sanitize_message_template( $value ) {
+		if ( ! is_string( $value ) ) {
+			return '';
+		}
+
+		$value = sanitize_textarea_field( $value );
+
+		if ( mb_strlen( $value, 'UTF-8' ) > self::MESSAGE_TEMPLATE_MAX_LENGTH ) {
+			$value = mb_substr( $value, 0, self::MESSAGE_TEMPLATE_MAX_LENGTH, 'UTF-8' );
+		}
+
+		return $value;
 	}
 
 	/**
@@ -261,6 +293,15 @@ class Settings {
 	 */
 	public function get_utm_settings() {
 		return get_option( self::OPTION_PREFIX . self::UTM_SETTINGS, self::DEFAULT_UTM_SETTINGS );
+	}
+
+	/**
+	 * Get the global message template.
+	 *
+	 * @return string
+	 */
+	public function get_message_template() {
+		return (string) get_option( self::OPTION_PREFIX . self::MESSAGE_TEMPLATE, self::DEFAULT_MESSAGE_TEMPLATE );
 	}
 
 	/**
@@ -436,5 +477,20 @@ class Settings {
 		}
 
 		return 0;
+	}
+
+	/**
+	 * Get the default font.
+	 *
+	 * @return string
+	 */
+	public function sig_get_default_font() {
+		$this->migrate_old_option();
+		$sig_settings = get_option( self::OPTION_PREFIX . self::IMAGE_GENERATOR_SETTINGS );
+		if ( empty( $sig_settings ) || ! is_array( $sig_settings ) ) {
+			return '';
+		}
+
+		return $sig_settings['font'] ?? '';
 	}
 }

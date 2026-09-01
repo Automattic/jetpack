@@ -8,8 +8,13 @@
 // Constants.
 const WP_PLUGIN_DIR = __DIR__ . '/data/plugins';
 if ( ! file_exists( WP_PLUGIN_DIR ) ) {
-	mkdir( WP_PLUGIN_DIR, 0777, true ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_mkdir
+	mkdir( WP_PLUGIN_DIR, 0777, true );
 }
+
+/**
+ * Include mock functions before autoloader so they're available when classes are loaded.
+ */
+require_once __DIR__ . '/mock-functions.php';
 
 /**
  * Include the composer autoloader and dependencies.

@@ -1,42 +1,51 @@
 {
+	"name": "@automattic/_jetpack-e2e-commons",
 	"private": true,
-	"name": "_jetpack-e2e-commons",
 	"description": "Jetpack end-to-end tests commons",
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"type": "module",
-	"scripts": {
-		"distclean": "rm -rf node_modules",
-		"env:start": "./bin/e2e-env.sh start",
-		"env:stop": "./bin/e2e-env.sh stop",
-		"env:reset": "./bin/e2e-env.sh reset",
-		"env:clean": "./bin/e2e-env.sh clean",
-		"tunnel:on": "./bin/tunnel.sh up",
-		"tunnel:reset": "./bin/tunnel.sh reset",
-		"tunnel:off": "./bin/tunnel.sh down",
-		"config:decrypt": "openssl enc -md sha1 -aes-256-cbc -pbkdf2 -iter 100000 -pass env:CONFIG_KEY -d -in ./config/encrypted.enc -out config/local.cjs",
-		"config:encrypt": "openssl enc -md sha1 -aes-256-cbc -pbkdf2 -iter 100000 -pass env:CONFIG_KEY -in config/local.cjs -out ./config/encrypted.enc",
-		"jetpack-connect": "node bin/e2e-jetpack-connector.js"
+	"exports": {
+		"./*": "./*.ts",
+		"./config/*.cjs": "./config/*.cjs",
+		"./eslint.config.mjs": "./eslint.config.mjs",
+		"./tsconfig.json": "./tsconfig.json"
 	},
-	"devDependencies": {
-		"@playwright/test": "1.51.1",
-		"@slack/web-api": "7.9.1",
-		"@types/lodash-es": "4.17.12",
-		"@wordpress/e2e-test-utils-playwright": "1.24.0",
-		"allure-playwright": "2.9.2",
-		"axios": "1.8.2",
-		"chalk": "5.4.1",
-		"config": "3.3.12",
-		"localtunnel": "2.0.2",
-		"lodash-es": "4.17.21",
-		"shell-escape": "0.2.0",
-		"winston": "3.8.1",
-		"yargs": "17.6.2"
-	},
-	"browserslist": [],
 	"bin": {
 		"e2e-env": "./bin/e2e-env.sh",
-		"app-password": "./bin/app-password.sh",
 		"tunnel": "./bin/tunnel.sh"
+	},
+	"scripts": {
+		"config:decrypt": "openssl enc -md sha1 -aes-256-cbc -pbkdf2 -iter 100000 -pass env:CONFIG_KEY -d -in ./config/encrypted.enc -out config/local.cjs",
+		"config:encrypt": "openssl enc -md sha1 -aes-256-cbc -pbkdf2 -iter 100000 -pass env:CONFIG_KEY -in config/local.cjs -out ./config/encrypted.enc",
+		"distclean": "rm -rf node_modules",
+		"env:clean": "./bin/e2e-env.sh clean",
+		"env:reset": "./bin/e2e-env.sh reset",
+		"env:start": "./bin/e2e-env.sh start",
+		"env:stop": "./bin/e2e-env.sh stop",
+		"jetpack-connect": "node bin/e2e-jetpack-connector.js",
+		"tunnel:down": "./bin/tunnel.sh down",
+		"tunnel:reset": "./bin/tunnel.sh reset",
+		"tunnel:up": "./bin/tunnel.sh up",
+		"typecheck": "tsgo --noEmit"
+	},
+	"browserslist": [],
+	"devDependencies": {
+		"@playwright/test": "1.60.0",
+		"@slack/web-api": "7.15.1",
+		"@types/lodash-es": "4.17.12",
+		"@types/node": "^24.12.0",
+		"@typescript/native-preview": "7.0.0-dev.20260707.2",
+		"@wordpress/e2e-test-utils-playwright": "1.51.0",
+		"allure-playwright": "2.15.1",
+		"axios": "1.18.0",
+		"chalk": "5.6.2",
+		"config": "4.4.1",
+		"localtunnel": "2.0.2",
+		"lodash-es": "4.18.1",
+		"playwright-ctrf-json-reporter": "^0.0.26",
+		"shell-escape": "0.2.0",
+		"winston": "3.17.0",
+		"yargs": "18.0.0"
 	}
 }

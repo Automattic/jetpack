@@ -1,3 +1,5 @@
+@use "@automattic/jetpack-base-styles/admin-page-layout" as *;
+
 $gray-300: #ddd;
 $border-width: 1px;
 $header-height: 60px;
@@ -5,20 +7,26 @@ $grid-unit: 8px;
 $grid-unit-20: 2 * $grid-unit; // 16px
 
 :global {
-  // Supporting Gutenberg version (12.5.10) from latest WordPress release (6.0.2)
-  .jetpack_page_jetpack-videopress {
-    // https://github.com/WordPress/gutenberg/pull/40781
-    .components-modal__header {
-      border-bottom: $border-width solid transparent;
-      height: $header-height + $grid-unit-20;
 
-      .components-modal__header-heading {
-        font-size: 1.2rem;
-      }
+	body.jetpack_page_jetpack-videopress {
 
-      .components-modal__content.has-scrolled-content:not(.hide-header) & {
-        border-bottom-color: $gray-300;
-      }
-    }
-  }
+		@include jetpack-admin-page-layout;
+	}
+
+	// Supporting Gutenberg version (12.5.10) from latest WordPress release (6.0.2)
+	.jetpack_page_jetpack-videopress {
+		// https://github.com/WordPress/gutenberg/pull/40781
+		.components-modal__header {
+			border-bottom: $border-width solid transparent;
+			height: $header-height + $grid-unit-20;
+
+			.components-modal__header-heading {
+				font-size: 1.2rem;
+			}
+
+			.components-modal__content.has-scrolled-content:not(.hide-header) & {
+				border-bottom-color: $gray-300;
+			}
+		}
+	}
 }

@@ -1,7 +1,7 @@
 import { Col, TermsOfService, Text } from '@automattic/jetpack-components';
+import { getUserConnectionUrl } from '@automattic/jetpack-connection';
 import { __, sprintf } from '@wordpress/i18n';
 import { useContext, useEffect, useMemo } from 'react';
-import { MyJetpackRoutes } from '../../constants';
 import { NOTICE_PRIORITY_HIGH } from '../../context/constants';
 import { NoticeContext } from '../../context/notices/noticeContext';
 import { useAllProducts } from '../../data/products/use-all-products';
@@ -10,7 +10,6 @@ import getProductSlugsThatRequireUserConnection from '../../data/utils/get-produ
 import useAnalytics from '../use-analytics';
 import useConnectSite from '../use-connect-site';
 import useMyJetpackConnection from '../use-my-jetpack-connection';
-import useMyJetpackNavigate from '../use-my-jetpack-navigate';
 import type { NoticeHookType } from './types';
 import type { NoticeOptions } from '../../context/notices/types';
 import type { MouseEvent } from 'react';
@@ -22,7 +21,6 @@ const useSiteConnectionNotice: NoticeHookType = ( redBubbleAlerts, isLoading ) =
 		skipUserConnection: true,
 	} );
 	const { data: products, isLoading: isAllProductsLoading, isError } = useAllProducts();
-	const navToConnection = useMyJetpackNavigate( MyJetpackRoutes.ConnectionSkipPricing );
 	const redBubbleSlug = 'missing-connection';
 	const connectionError = redBubbleAlerts?.[ redBubbleSlug ];
 	const { connectSite } = useConnectSite( {
@@ -48,17 +46,17 @@ const useSiteConnectionNotice: NoticeHookType = ( redBubbleAlerts, isLoading ) =
 
 		const requiresUserConnection = connectionError.type === 'user';
 
-		const onActionButtonClick = ( { e }: { e: MouseEvent< HTMLButtonElement > } ) => {
+		const onActionButtonClick = ( e: MouseEvent< HTMLButtonElement > ) => {
 			if ( requiresUserConnection ) {
 				recordEvent( 'jetpack_my_jetpack_user_connection_notice_cta_click' );
-				navToConnection();
+				window.location.href = getUserConnectionUrl();
 			} else {
 				connectSite( e );
 			}
 		};
 
 		const oneProductMessage = sprintf(
-			/* translators: placeholder is product name. */
+			/* translators: %s: the product name. */
 			__(
 				'Jetpack %s needs a user connection to WordPress.com to be able to work.',
 				'jetpack-my-jetpack'
@@ -129,7 +127,6 @@ const useSiteConnectionNotice: NoticeHookType = ( redBubbleAlerts, isLoading ) =
 	}, [
 		isSiteConnected,
 		connectSite,
-		navToConnection,
 		products,
 		recordEvent,
 		redBubbleAlerts,

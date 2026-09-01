@@ -60,5 +60,11 @@ phpcs.xml
 *.code-workspace
 /.vscode/settings.json
 
+# Claude setting files
+.claude/settings.local.json
+
+# Cursor / Playwright MCP local logs and snapshots
+.playwright-mcp/
+
 .pnpm-debug.log
 .pnpm-error.log

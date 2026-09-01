@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Write editor: implement undo/redo history stack (Cmd+Z / Cmd+Shift+Z) with toolbar buttons

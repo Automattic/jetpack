@@ -9,6 +9,10 @@ namespace Automattic\Jetpack\Sync\Modules;
 
 use Automattic\Jetpack\Constants as Jetpack_Constants;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Class to handle sync for updates.
  */
@@ -393,10 +397,11 @@ class Updates extends Module {
 	 * @param array $config Full sync configuration for this sync module.
 	 * @param array $status This module Full Sync status.
 	 * @param int   $send_until The timestamp until the current request can send.
+	 * @param int   $started The timestamp when the full sync started.
 	 *
 	 * @return array This module Full Sync status.
 	 */
-	public function send_full_sync_actions( $config, $status, $send_until ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public function send_full_sync_actions( $config, $status, $send_until, $started ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		// we call this instead of do_action when sending immediately.
 		$result = $this->send_action( 'jetpack_full_sync_updates', array( true ) );
 
@@ -415,7 +420,7 @@ class Updates extends Module {
 	 * @access public
 	 *
 	 * @param array $config Full sync configuration for this sync module.
-	 * @return array Number of items yet to be enqueued.
+	 * @return int Number of items yet to be enqueued.
 	 */
 	public function estimate_full_sync_actions( $config ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		return 1;
@@ -509,12 +514,16 @@ class Updates extends Module {
 		}
 		if ( ! is_array( $args[0]->response ) ) {
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_trigger_error
-			trigger_error( 'Warning: Not an Array as expected but -> ' . wp_json_encode( $args[0]->response ) . ' instead', E_USER_WARNING );
+			trigger_error( 'Warning: Not an Array as expected but -> ' . wp_json_encode( $args[0]->response, JSON_UNESCAPED_SLASHES ) . ' instead', E_USER_WARNING );
 			return $args;
 		}
 		foreach ( $args[0]->response as $stylesheet => &$theme_data ) {
-			$theme              = wp_get_theme( $stylesheet );
-			$theme_data['name'] = $theme->name;
+			$theme_data = (array) $theme_data;
+			// Make sure the theme data array is not empty and has data that would indicate it is in the correct format.
+			if ( isset( $theme_data['theme'] ) ) {
+				$theme              = wp_get_theme( $stylesheet );
+				$theme_data['name'] = $theme->name;
+			}
 		}
 		return $args;
 	}

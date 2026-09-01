@@ -1,0 +1,329 @@
+/* Basic editor and frontend layout styles */
+.wp-block-code {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+
+	/* stylelint-disable @stylistic/max-line-length */
+
+	/*
+	 * Solarized color palette
+	 *
+	 * SOLARIZED HEX     16/8 TERMCOL  XTERM/HEX   L*A*B      sRGB        HSB
+	 * --------- ------- ---- -------  ----------- ---------- ----------- -----------
+	 * base03    #002b36  8/4 brblack  234 #1c1c1c 15 -12 -12   0  43  54 193 100  21
+	 * base02    #073642  0/4 black    235 #262626 20 -12 -12   7  54  66 192  90  26
+	 * base01    #586e75 10/7 brgreen  240 #4e4e4e 45 -07 -07  88 110 117 194  25  46
+	 * base00    #657b83 11/7 bryellow 241 #585858 50 -07 -07 101 123 131 195  23  51
+	 * base0     #839496 12/6 brblue   244 #808080 60 -06 -03 131 148 150 186  13  59
+	 * base1     #93a1a1 14/4 brcyan   245 #8a8a8a 65 -05 -02 147 161 161 180   9  63
+	 * base2     #eee8d5  7/7 white    254 #d7d7af 92 -00  10 238 232 213  44  11  93
+	 * base3     #fdf6e3 15/7 brwhite  230 #ffffd7 97  00  10 253 246 227  44  10  99
+	 * yellow    #b58900  3/3 yellow   136 #af8700 60  10  65 181 137   0  45 100  71
+	 * orange    #cb4b16  9/3 brred    166 #d75f00 50  50  55 203  75  22  18  89  80
+	 * red       #dc322f  1/1 red      160 #d70000 50  65  45 220  50  47   1  79  86
+	 * magenta   #d33682  5/5 magenta  125 #af005f 50  65 -05 211  54 130 331  74  83
+	 * violet    #6c71c4 13/5 brmagenta 61 #5f5faf 50  15 -45 108 113 196 237  45  77
+	 * blue      #268bd2  4/4 blue      33 #0087ff 55 -10 -45  38 139 210 205  82  82
+	 * cyan      #2aa198  6/6 cyan      37 #00afaf 60 -35 -05  42 161 152 175  74  63
+	 * green     #859900  2/2 green     64 #5f8700 60 -20  65 133 153   0  68 100  60
+	 */
+	/* stylelint-enable @stylistic/max-line-length */
+
+	/*
+	 * A theme.json file can provide defaults like this:
+	 *
+	 * {
+	 *   "settings": {
+	 *     "custom": {
+	 *       "core/code": {
+	 *         "comment": "red",
+	 *         "keyword": "#c0ffee",
+	 *         "boolean": "orange",
+	 *         "literal": "green",
+	 *         "string": "var:preset|color|accent-2",
+	 *         "specialString": "var:preset|color|accent-3",
+	 *         "macroName": "hotpink",
+	 *         "variableDefinition": "hotpink",
+	 *         "typeName": "hotpink",
+	 *         "className": "hotpink",
+	 *         "invalid": "hotpink"
+	 *       }
+	 *     },
+	 *   }
+	 * }
+	 */
+	--colorComment: var(--styledColorComment, var(--wp--custom--core-code--comment, #940));
+	--colorKeyword: var(--styledColorKeyword, var(--wp--custom--core-code--keyword, #708));
+	--colorBoolean: var(--styledColorBoolean, var(--wp--custom--core-code--boolean, #219));
+	--colorLiteral: var(--styledColorLiteral, var(--wp--custom--core-code--literal, #164));
+	--colorString: var(--styledColorString, var(--wp--custom--core-code--string, #a11));
+	--colorSpecialString: var(--styledColorSpecialString, var(--wp--custom--core-code--special-string, #e40));
+	--colorMacroName: var(--styledColorMacroName, var(--wp--custom--core-code--macro-name, #256));
+	--colorVariableDefinition: var(--styledColorVariableDefinition, var(--wp--custom--core-code--variable-definition, #00f));
+	--colorTypeName: var(--styledColorTypeName, var(--wp--custom--core-code--type-name, #085));
+	--colorClassName: var(--styledColorClassName, var(--wp--custom--core-code--class-name, #167));
+	--colorInvalid: var(--styledColorInvalid, var(--wp--custom--core-code--invalid, #f00));
+}
+
+.wp-block-code.show-line-numbers {
+	counter-set: code-line-number calc(var(--line-numbers-start-at, 1) - 1);
+}
+
+.wp-block-code.show-line-numbers code .cm-line {
+	margin-left: calc(var(--line-number-gutter-width, 2ch) + 32px);
+}
+
+/* Line number layout */
+.wp-block-code.show-line-numbers code .cm-line::before {
+	content: counter(code-line-number);
+	padding: 0 0.5ch 0 0.25ch;
+	color: oklch(from currentColor l c h / 0.6);
+	counter-increment: code-line-number;
+	text-align: right;
+	white-space: nowrap;
+	width: var(--line-number-gutter-width, 2ch);
+	display: inline-block;
+	position: absolute;
+	left: 0;
+	backdrop-filter: blur(1em);
+}
+
+.wp-block-code.loading {
+	cursor: wait;
+	filter: saturate(0.6) opacity(0.6);
+	overflow: hidden;
+}
+
+.wp-block-code .cm-editor {
+	overflow: hidden;
+	position: relative;
+	outline: none;
+}
+
+.wp-block-code .cm-scroller {
+	display: flex !important;
+	align-items: flex-start !important;
+	line-height: 1.4;
+	height: 100%;
+	overflow-x: auto;
+	z-index: 0;
+	overflow-anchor: none;
+	gap: 32px;
+}
+
+/* Essential layout and styling for PRE, CODE */
+.wp-block-code pre,
+.wp-block-code code {
+	max-width: none !important;
+	margin: 0 !important;
+	padding: 0 !important;
+	line-height: inherit !important;
+	background: transparent !important;
+	border: none !important;
+	border-radius: 0 !important;
+	color: inherit !important;
+	font-size: inherit !important;
+}
+
+.wp-block-code pre {
+	flex-grow: 2 !important;
+	flex-shrink: 0 !important;
+	display: block !important;
+	overflow-wrap: normal !important;
+	white-space: pre !important;
+}
+
+.wp-block-code code {
+	font-family: inherit !important;
+}
+
+.wp-block-code .cm-line::before {
+	box-sizing: content-box !important;
+}
+
+/* prevent empty lines from collapsing vertically in rendered views */
+.wp-block-code .cm-line:empty::after {
+	content: "\A0";
+}
+
+/* Match the editor */
+.wp-block-code .cm-line {
+	padding: 0 2px 0 6px;
+}
+
+.wp-block-code .tok-link {
+	text-decoration: underline;
+}
+
+.wp-block-code .tok-heading {
+	text-decoration: underline;
+	font-weight: 700;
+}
+
+.wp-block-code .tok-emphasis {
+	font-style: italic;
+}
+
+.wp-block-code .tok-strong {
+	font-weight: 700;
+}
+
+.wp-block-code .tok-strikethrough {
+	text-decoration: line-through;
+}
+
+.wp-block-code.is-style-solarized-light,
+.wp-block-code.is-style-solarized-dark {
+	--styledColorKeyword: lab(55 -10 -45); /* blue */
+	--styledColorBoolean: lab(50 65 -5); /* magenta */
+	--styledColorLiteral: lab(60 -20 65); /* green */
+	--styledColorString: lab(60 10 65); /* yellow */
+	--styledColorSpecialString: lab(50 65 45); /* red */
+	--styledColorMacroName: lab(50 50 55); /* orange */
+	--styledColorVariableDefinition: lab(60 -35 -5); /* cyan */
+	--styledColorTypeName: lab(50 15 -45); /* violet */
+	--styledColorClassName: lab(60 -20 65); /* green */
+	--styledColorInvalid: lab(50 65 45); /* red */
+}
+
+.wp-block-code.is-style-solarized-light {
+	--colorBackground: lab(97 00 10); /* base3 */
+	--colorText: lab(50 -7 -7); /* base00 */
+	background-color: var(--colorBackground);
+	color: var(--colorText);
+	--styledColorComment: lab(65 -5 -2); /* base1 */
+}
+
+.wp-block-code.is-style-solarized-dark {
+	--colorBackground: lab(15 -12 -12); /* base03 */
+	--colorText: lab(60 -6 -3); /* base0 */
+	background-color: var(--colorBackground);
+	color: var(--colorText);
+	--styledColorComment: lab(45 -7 -7); /* base01 */
+}
+
+.wp-block-code.is-style-no-highlight {
+	--styledColorComment: currentColor;
+	--styledColorKeyword: currentColor;
+	--styledColorBoolean: currentColor;
+	--styledColorLiteral: currentColor;
+	--styledColorString: currentColor;
+	--styledColorSpecialString: currentColor;
+	--styledColorMacroName: currentColor;
+	--styledColorVariableDefinition: currentColor;
+	--styledColorTypeName: currentColor;
+	--styledColorClassName: currentColor;
+	--styledColorInvalid: currentColor;
+}
+
+.wp-block-code.is-style-solarized-light .a8c\/code__btn-copy,
+.wp-block-code.is-style-solarized-dark .a8c\/code__btn-copy {
+	color: var(--colorBackground);
+	background-color: var(--colorText);
+}
+
+.wp-block-code.is-style-solarized-light .a8c\/code__btn-copy:hover,
+.wp-block-code.is-style-solarized-dark .a8c\/code__btn-copy:hover {
+	background-color: color-mix(in sRGB, var(--colorText) 85%, #000);
+}
+
+.wp-block-code.is-style-solarized-light .a8c\/code__btn-copy:focus,
+.wp-block-code.is-style-solarized-dark .a8c\/code__btn-copy:focus {
+	outline: 2px solid var(--colorText);
+}
+
+.wp-block-code.has-background .a8c\/code__btn-copy {
+	color: var(--colorBackground);
+}
+
+.wp-block-code.has-text-color .a8c\/code__btn-copy {
+	background-color: var(--colorText);
+}
+
+.wp-block-code.has-text-color .a8c\/code__btn-copy:hover {
+	background-color: color-mix(in sRGB, var(--colorText) 85%, #000);
+}
+
+.wp-block-code.has-text-color .a8c\/code__btn-copy:focus {
+	outline: 2px solid var(--colorText);
+}
+
+.wp-block-code .tok-keyword {
+	color: var(--colorKeyword);
+}
+
+.wp-block-code .tok-atom,
+.wp-block-code .tok-bool,
+.wp-block-code .tok-url,
+.wp-block-code .tok-contentSeparator,
+.wp-block-code .tok-labelName {
+	color: var(--colorBoolean);
+}
+
+.wp-block-code .tok-literal,
+.wp-block-code .tok-inserted {
+	color: var(--colorLiteral);
+}
+
+.wp-block-code .tok-string,
+.wp-block-code .tok-deleted {
+	color: var(--colorString);
+}
+
+/* regex, escape, special(string) */
+.wp-block-code .tok-string2 {
+	color: var(--colorSpecialString);
+}
+
+.wp-block-code .tok-variableName.tok-local,
+.wp-block-code .tok-variableName.tok-definition,
+.wp-block-code .tok-propertyName.tok-definition {
+	color: var(--colorVariableDefinition);
+}
+
+.wp-block-code .tok-typeName,
+.wp-block-code .tok-namespace {
+	color: var(--colorTypeName);
+}
+
+.wp-block-code .tok-className {
+	color: var(--colorClassName);
+}
+
+/* special(variableName) */
+.wp-block-code .tok-variableName2,
+.wp-block-code .tok-macroName {
+	color: var(--colorMacroName);
+}
+
+.wp-block-code .tok-comment {
+	color: var(--colorComment);
+}
+
+.wp-block-code .tok-invalid {
+	color: var(--colorInvalid);
+}
+
+.a8c\/code__header {
+	display: flex;
+	align-items: center;
+	gap: 16px;
+	align-self: stretch;
+	justify-content: flex-end;
+	font-size: 0.8em;
+	min-height: 40px;
+}
+
+.a8c\/code__header-right {
+	display: flex;
+	align-items: center;
+	gap: 16px;
+}
+
+.a8c\/code__filename {
+	flex: 1 0 0;
+	font-weight: 700;
+	line-height: 1.3;
+	overflow-wrap: break-word;
+}

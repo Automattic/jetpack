@@ -5,6 +5,10 @@
  * @package automattic/jetpack
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 add_action( 'woocommerce_init', 'jetpack_woocommerce_integration' );
 
 /**

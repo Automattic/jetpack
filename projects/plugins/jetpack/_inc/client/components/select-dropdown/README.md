@@ -17,7 +17,7 @@ A good example for this case is navigation. Sometimes the option that is selecte
 var SelectDropdown = require( 'components/select-dropdown' ),
 	DropdownItem = require( 'components/select-dropdown/item' );
 
-module.exports = React.createClass( {
+module.exports = createClass( {
 
 	// ...
 
@@ -96,7 +96,7 @@ var SelectDropdown = require( 'components/select-dropdown' ),
 	DropdownItem = require( 'components/select-dropdown/item' ),
 	DropdownSeparator = require( 'components/select-dropdown/separator' );
 
-module.exports = React.createClass( {
+module.exports = createClass( {
 
 	// ...
 
@@ -135,7 +135,7 @@ var options = [
 	{ value: 'trashed', label: 'Trashed' }
 ];
 
-module.exports = React.createClass( {
+module.exports = createClass( {
 
 	 // ...
 

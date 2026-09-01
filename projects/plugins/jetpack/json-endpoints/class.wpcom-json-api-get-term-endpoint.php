@@ -1,5 +1,9 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 new WPCOM_JSON_API_Get_Term_Endpoint(
 	array(
 		'description'                          => 'Get information about a single term.',
@@ -29,6 +33,8 @@ new WPCOM_JSON_API_Get_Term_Endpoint(
 
 /**
  * GET Term endpoint class.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class WPCOM_JSON_API_Get_Term_Endpoint extends WPCOM_JSON_API_Endpoint {
 	/**

@@ -1,0 +1,16 @@
+.pie-semi-circle-chart {
+	// Fill parent when no explicit width/height provided
+	&--responsive {
+		height: 100%;
+		width: 100%;
+	}
+
+	.label {
+		font-weight: var(--wpds-typography-font-weight-emphasis, 600);
+		font-size: var(--wpds-typography-font-size-lg, 15px);
+	}
+
+	.note {
+		font-size: var(--wpds-typography-font-size-md, 13px);
+	}
+}

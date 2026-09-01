@@ -1,5 +1,4 @@
 import { render, screen } from '@testing-library/react';
-import React from 'react';
 import ActivationScreenControls from '../index';
 
 describe( 'ActivationScreenControls', () => {
@@ -17,6 +16,12 @@ describe( 'ActivationScreenControls', () => {
 		it( 'correct license is shown', () => {
 			render( <ActivationScreenControls { ...testProps } /> );
 			expect( screen.getByLabelText( 'License key' ) ).toHaveValue( testProps.license );
+		} );
+
+		it( 'disables the Activate button while activating', () => {
+			render( <ActivationScreenControls { ...testProps } isActivating /> );
+			const button = screen.getByRole( 'button' );
+			expect( button.disabled || button.getAttribute( 'aria-disabled' ) === 'true' ).toBe( true );
 		} );
 	} );
 
@@ -46,8 +51,9 @@ describe( 'ActivationScreenControls', () => {
 			const node = screen.getByText( 'Invalid license.' );
 			expect( node ).toBeInTheDocument();
 			expect(
+				// The error now renders in a @wordpress/ui Notice (.activation-screen-error).
 				// eslint-disable-next-line testing-library/no-node-access
-				node.closest( '.activation-screen-error__message' )
+				node.closest( '.activation-screen-error' )
 			).toBeInTheDocument();
 		} );
 	} );
@@ -63,13 +69,12 @@ describe( 'ActivationScreenControls', () => {
 			siteUrl: 'jetpack.com',
 		};
 
-		it( 'Select componet is shown', () => {
+		it( 'Select component shows the selected license', () => {
 			render( <ActivationScreenControls { ...testProps } /> );
-			const input = screen.getByText( 'jetpack-complete - key' );
-			expect(
-				// eslint-disable-next-line testing-library/no-node-access
-				input.closest( 'select' )
-			).toBeInTheDocument();
+			// The @wordpress/ui SelectControl renders a dropdown trigger (not a
+			// native <select>). The selected license label shows in the trigger
+			// (and again in the portalled listbox), so assert at least one match.
+			expect( screen.getAllByText( 'jetpack-complete - key' ).length ).toBeGreaterThan( 0 );
 		} );
 	} );
 } );

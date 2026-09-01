@@ -5,6 +5,10 @@
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Redirect;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 
 	/**
@@ -127,7 +131,7 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 			if ( '' !== $instance['address'] ) {
 
 				$showmap = $instance['showmap'];
-				$goodmap = isset( $instance['goodmap'] ) ? $instance['goodmap'] : $this->has_good_map( $instance );
+				$goodmap = $instance['goodmap'] ?? $this->has_good_map( $instance );
 
 				if ( $showmap && true === $goodmap ) {
 					/**
@@ -156,11 +160,7 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 			}
 
 			if ( '' !== $instance['phone'] ) {
-				if ( wp_is_mobile() ) {
-					echo '<div class="confit-phone"><span itemprop="telephone"><a href="' . esc_url( 'tel:' . $instance['phone'] ) . '">' . esc_html( $instance['phone'] ) . '</a></span></div>';
-				} else {
-					echo '<div class="confit-phone"><span itemprop="telephone">' . esc_html( $instance['phone'] ) . '</span></div>';
-				}
+				echo '<div class="confit-phone"><span itemprop="telephone"><a href="' . esc_url( 'tel:' . $instance['phone'] ) . '">' . esc_html( $instance['phone'] ) . '</a></span></div>';
 			}
 
 			if (
@@ -214,7 +214,7 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 			$instance['phone']   = wp_kses( $new_instance['phone'], array() );
 			$instance['email']   = wp_kses( $new_instance['email'], array() );
 			$instance['hours']   = wp_kses( $new_instance['hours'], array() );
-			$instance['apikey']  = wp_kses( isset( $new_instance['apikey'] ) ? $new_instance['apikey'] : $old_instance['apikey'], array() );
+			$instance['apikey']  = wp_kses( $new_instance['apikey'] ?? $old_instance['apikey'], array() );
 
 			if ( ! isset( $new_instance['showmap'] ) ) {
 				$instance['showmap'] = 0;
@@ -491,7 +491,8 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 					$apikey                     = wp_kses( wp_unslash( $_POST['apikey'] ), array() );
 					$default_instance           = $this->defaults();
 					$default_instance['apikey'] = $apikey;
-					wp_send_json( array( 'result' => esc_html( $this->has_good_map( $default_instance ) ) ) );
+					// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
+					wp_send_json( array( 'result' => esc_html( $this->has_good_map( $default_instance ) ) ), null, JSON_UNESCAPED_SLASHES );
 				}
 			} else {
 				wp_die();

@@ -27,7 +27,6 @@ if ( ! function_exists( 'jetpack_site_icon_url' ) ) :
 		}
 		if ( ! $site_icon_id ) {
 			if ( false === $default && defined( 'SITE_ICON_DEFAULT_URL' ) ) {
-				// @phan-suppress-next-line PhanUndeclaredConstant -- Checked above. See also https://github.com/phan/phan/issues/1204.
 				$url = SITE_ICON_DEFAULT_URL;
 			} else {
 				$url = $default;

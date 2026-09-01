@@ -136,26 +136,6 @@ import './admin-menu.css';
 					);
 				}
 			} );
-
-			makeAjaxRequest(
-				'GET',
-				ajaxurl + '?action=upsell_nudge_jitm&_ajax_nonce=' + jetpackAdminMenu.upsellNudgeJitm,
-				undefined,
-				null,
-				function ( xhr ) {
-					try {
-						if ( xhr.readyState === XMLHttpRequest.DONE ) {
-							if ( xhr.status === 200 && xhr.responseText ) {
-								adminMenu
-									.querySelector( '#toplevel_page_site_card' )
-									.insertAdjacentHTML( 'afterend', xhr.responseText );
-							}
-						}
-					} catch {
-						// On failure, we just won't display an upsell nudge
-					}
-				}
-			);
 		}
 	}
 

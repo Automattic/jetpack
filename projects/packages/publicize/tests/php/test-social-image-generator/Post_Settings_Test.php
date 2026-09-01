@@ -33,7 +33,12 @@ class Post_Settings_Test extends BaseTestCase {
 	 * Initialize tests
 	 */
 	public function set_up() {
-		$publicize = $this->getMockBuilder( Publicize::class )->disableOriginalConstructor()->onlyMethods( array() )->getMock();
+		// Anonymous class to disable constructor.
+		// PHPUnit 12.5 whines about mocks without expectations, while getStubBuilder() (for partial mocks) doesn't exist until 12.5.
+		$publicize = new class() extends Publicize {
+			public function __construct() {
+			}
+		};
 		$publicize->register_post_meta();
 
 		$this->post_id       = wp_insert_post(
@@ -197,5 +202,16 @@ class Post_Settings_Test extends BaseTestCase {
 		$this->update_image_generator_settings( array( 'token' => $token ) );
 		$settings = new Post_Settings( $this->post_id );
 		$this->assertEquals( $settings->get_token(), $token );
+	}
+
+	/**
+	 * Test that the filter disables the text for generated image.
+	 */
+	public function test_filter_disables_text_for_generated_image() {
+		$settings = new Post_Settings( $this->post_id );
+		$this->assertEquals( 'hello', $settings->get_custom_text() );
+		add_filter( 'jetpack_social_image_generator_disable_text', '__return_true' );
+		$this->assertSame( '', $settings->get_custom_text() );
+		remove_filter( 'jetpack_social_image_generator_disable_text', '__return_true' );
 	}
 }

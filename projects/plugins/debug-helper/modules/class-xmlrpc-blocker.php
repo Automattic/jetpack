@@ -13,6 +13,8 @@ namespace Automattic\Jetpack\Debug_Helper;
  * Blocks all XML-RPC requests coming to the site.
  *
  * @package Automattic\Jetpack\Debug_Helper
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class XMLRPC_Blocker {
 	/**

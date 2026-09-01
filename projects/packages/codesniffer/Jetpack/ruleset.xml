@@ -3,7 +3,7 @@
 	<description>Jetpack coding standards. Based on the WordPress coding standards, with some additions.</description>
 
 	<rule ref="PHPCompatibilityWP" />
-	<rule ref="WordPress"/>
+	<rule ref="WordPress" />
 	<rule ref="VariableAnalysis" />
 
 	<!-- We only include some rules from mediawiki/mediawiki-codesniffer. -->
@@ -26,7 +26,7 @@
 	-->
 	<rule ref="MediaWiki.Usage.InArrayUsage" />
 	<rule ref="MediaWiki.Usage.MagicConstantClosure" />
-	<rule ref="MediaWiki.Usage.NestedFunctions" />
+	<rule ref="Squiz.PHP.InnerFunctions" /> <!-- Formerly MediaWiki.Usage.NestedFunctions -->
 	<rule ref="MediaWiki.Usage.PlusStringConcat" />
 	<rule ref="MediaWiki.Usage.ReferenceThis" />
 	<rule ref="MediaWiki.WhiteSpace.EmptyLinesBetweenUse" />
@@ -56,6 +56,10 @@
 				<element key="proc_open" value="proc_open" />
 				<element key="shell_exec" value="shell_exec" />
 				<element key="is_resource" value="is_resource" />
+
+				<!-- PHPCompatibility is already flagging these, no need for this to do it too. -->
+				<element key="curl_close" value="curl_close" />
+				<element key="finfo_close" value="finfo_close" />
 			</property>
 		</properties>
 	</rule>
@@ -78,7 +82,7 @@
 	<!-- Only include select VIP rules -->
 	<rule ref="WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath" />
 
-	<!-- Re-enable this rule that was disabled by WordPress-Extra now that we're on PHP 7.0+. -->
+	<!-- Re-enable this rule that was disabled by WordPress-Extra now that we're on PHP 7.4+. -->
 	<rule ref="Modernize.FunctionCalls.Dirname.Nested">
 		<severity>5</severity>
 	</rule>
@@ -120,7 +124,7 @@
 		<exclude name="WordPress.WP.CapitalPDangit" />
 	</rule>
 
-	<!-- Not useful until we can use PHP 8's named parameters. We're currently stuck on 7.0! -->
+	<!-- Not useful until we can use PHP 8's named parameters. We're still stuck on 7.4. -->
 	<rule ref="Universal.NamingConventions.NoReservedKeywordParameterNames">
 		<exclude name="Universal.NamingConventions.NoReservedKeywordParameterNames" />
 	</rule>

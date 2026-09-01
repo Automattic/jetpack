@@ -68,7 +68,7 @@ class Jetpack_Sitemap_Manager_Test extends WP_UnitTestCase {
 		delete_option( 'jetpack_sitemap_location' );
 
 		// Set the location.
-		function add_location( $string ) { // phpcs:ignore MediaWiki.Usage.NestedFunctions.NestedFunction,Squiz.Commenting.FunctionComment.WrongStyle
+		function add_location( $string ) { // phpcs:ignore Squiz.PHP.InnerFunctions.NotAllowed,Squiz.Commenting.FunctionComment.WrongStyle
 			$string .= '/blah';
 			return $string;
 		}

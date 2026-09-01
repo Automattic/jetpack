@@ -1,0 +1,28 @@
+import type { PodcastShowState, PodcatcherId } from '../../types';
+import type { ComponentType } from 'react';
+
+export interface PodcastApp {
+	id: PodcatcherId;
+	name: string;
+	Logo: ComponentType;
+	submitUrl: string;
+	learnMoreUrl?: string;
+	submission: 'automatic' | 'manual';
+	Row?: ComponentType< PodcastAppRowProps >;
+}
+
+export interface PodcastAppRowProps {
+	app: PodcastApp;
+	state: PodcastShowState;
+	blockedReason: string;
+	onFirstSave?: () => void;
+}
+
+export interface PodcastAppModalProps {
+	app: PodcastApp;
+	feedUrl: string;
+	onClose: () => void;
+	// Called once a save lands on the very first show URL stored across all
+	// directories. Used by Distribution to fire a confetti celebration.
+	onFirstSave?: () => void;
+}

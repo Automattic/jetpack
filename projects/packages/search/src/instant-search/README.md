@@ -15,7 +15,7 @@ It enables the user to quickly jump into a full-page search experience with filt
 5. Test your changes on the front-end of your test site.
 6. Open a PR, and a WordPress.com diff will be automatically generated with your changes.
 7. Test the WordPress.com diff.
-8. Once the code works well in both environments and has been approved by a Jetpack crew member, you can merge your branch!
+8. Once the code works well in both environments, you can merge your branch!
 
 ### Build Setup
 

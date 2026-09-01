@@ -64,6 +64,6 @@ class Initial_State {
 	public function render() {
 		add_action( 'jetpack_use_iframe_authorization_flow', '__return_true' );
 
-		return 'var JPBACKUP_INITIAL_STATE=JSON.parse(decodeURIComponent("' . rawurlencode( wp_json_encode( $this->get_data() ) ) . '"));';
+		return 'var JPBACKUP_INITIAL_STATE=' . wp_json_encode( $this->get_data(), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';';
 	}
 }

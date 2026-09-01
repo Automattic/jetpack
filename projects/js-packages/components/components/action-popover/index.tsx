@@ -2,10 +2,10 @@
  * External dependencies
  */
 import { Popover } from '@wordpress/components';
+import { useViewportMatch } from '@wordpress/compose';
 import { __, sprintf } from '@wordpress/i18n';
 import { close } from '@wordpress/icons';
 import Button from '../button/index.tsx';
-import useBreakpointMatch from '../layout/use-breakpoint-match/index.ts';
 import Text from '../text/index.tsx';
 /**
  * Internal dependencies
@@ -16,7 +16,6 @@ import styles from './styles.module.scss';
  * Types
  */
 import { ActionPopoverProps } from './types.ts';
-import type React from 'react';
 
 const ActionPopover = ( {
 	hideCloseButton = false,
@@ -33,7 +32,7 @@ const ActionPopover = ( {
 	onClick,
 	...otherPopoverProps
 }: ActionPopoverProps ) => {
-	const [ isSm ] = useBreakpointMatch( 'sm' );
+	const isSm = useViewportMatch( 'small', '<' );
 
 	if ( ! title || ! children || ! buttonContent ) {
 		return null;

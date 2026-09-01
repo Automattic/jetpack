@@ -5,6 +5,43 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.3.6] - 2026-08-03
+### Fixed
+- Calendly: Preserve block.json attribute schema for plan-gated block. [#49161]
+
+## [3.3.5] - 2026-06-09
+### Changed
+- Internal updates.
+
+## [3.3.4] - 2026-06-08
+### Changed
+- Internal updates.
+
+## [3.3.3] - 2026-05-25
+### Fixed
+- Phan: Address `PhanPluginDuplicateConditionalNullCoalescing` violations. [#48887]
+
+## [3.3.2] - 2026-05-19
+### Changed
+- Internal updates.
+
+## [3.3.1] - 2026-05-04
+### Changed
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+
+## [3.3.0] - 2026-01-12
+### Changed
+- Gate payment buttons block behind conditional features. [#46513]
+- Gate PayPal payment buttons block behind conditional features. [#46536]
+
+## [3.2.0] - 2026-01-09
+### Changed
+- Gate donations block behind conditional features. [#46499]
+
+## [3.1.1] - 2025-08-14
+### Added
+- Allow blocks to have their own JavaScript loading strategy. [#44734]
+
 ## [3.1.0] - 2025-04-28
 ### Added
 - Add `get_variation` method to blocks. [#43251]
@@ -247,6 +284,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Blocks: introduce new package for block management
 
+[3.3.6]: https://github.com/Automattic/jetpack-blocks/compare/v3.3.5...v3.3.6
+[3.3.5]: https://github.com/Automattic/jetpack-blocks/compare/v3.3.4...v3.3.5
+[3.3.4]: https://github.com/Automattic/jetpack-blocks/compare/v3.3.3...v3.3.4
+[3.3.3]: https://github.com/Automattic/jetpack-blocks/compare/v3.3.2...v3.3.3
+[3.3.2]: https://github.com/Automattic/jetpack-blocks/compare/v3.3.1...v3.3.2
+[3.3.1]: https://github.com/Automattic/jetpack-blocks/compare/v3.3.0...v3.3.1
+[3.3.0]: https://github.com/Automattic/jetpack-blocks/compare/v3.2.0...v3.3.0
+[3.2.0]: https://github.com/Automattic/jetpack-blocks/compare/v3.1.1...v3.2.0
+[3.1.1]: https://github.com/Automattic/jetpack-blocks/compare/v3.1.0...v3.1.1
 [3.1.0]: https://github.com/Automattic/jetpack-blocks/compare/v3.0.10...v3.1.0
 [3.0.10]: https://github.com/Automattic/jetpack-blocks/compare/v3.0.9...v3.0.10
 [3.0.9]: https://github.com/Automattic/jetpack-blocks/compare/v3.0.8...v3.0.9

@@ -1,18 +1,5 @@
-import photon from 'photon';
 import { useEffect, useState } from 'react';
-
-/**
- * Strips query string values from URLs; photon can't handle them.
- *
- * @param {string} url - Image URL
- * @return {string} - Image URL without any query strings.
- */
-function stripQueryString( url ) {
-	if ( ! url ) {
-		return '';
-	}
-	return url.split( '?', 1 )[ 0 ];
-}
+import { photonResize } from '../photon-resize';
 
 /**
  * Hook for returning a Photonized image URL given width and height parameters.
@@ -25,35 +12,10 @@ function stripQueryString( url ) {
  */
 export function usePhoton( initialSrc, width, height, isPhotonEnabled = true ) {
 	const [ src, setSrc ] = useState( null );
-	const initialSrcWithoutQueryString = stripQueryString( initialSrc );
-
-	// Photon only supports GIF, JPG, PNG and WebP images
-	// Photon also has partial support for HEIC which currently always
-	// reencodes as JPG regardless of advertised support from the browser
-	// @see https://developer.wordpress.com/docs/photon/
-	const supportedImageTypes = [ 'gif', 'jpg', 'jpeg', 'png', 'webp', 'heic' ];
-	const fileExtension = initialSrcWithoutQueryString
-		?.substring( initialSrcWithoutQueryString.lastIndexOf( '.' ) + 1 )
-		.toLowerCase();
-	const isSupportedImageType = supportedImageTypes.includes( fileExtension );
 
 	useEffect( () => {
-		if ( isPhotonEnabled && isSupportedImageType ) {
-			const photonSrc = photon( initialSrcWithoutQueryString, {
-				resize: `${ width },${ height }`,
-			} );
-			setSrc( photonSrc ? photonSrc : initialSrc );
-		} else {
-			setSrc( initialSrc );
-		}
-	}, [
-		initialSrc,
-		width,
-		height,
-		isPhotonEnabled,
-		initialSrcWithoutQueryString,
-		isSupportedImageType,
-	] );
+		setSrc( photonResize( initialSrc, width, height, isPhotonEnabled ) );
+	}, [ initialSrc, width, height, isPhotonEnabled ] );
 
 	return src;
 }

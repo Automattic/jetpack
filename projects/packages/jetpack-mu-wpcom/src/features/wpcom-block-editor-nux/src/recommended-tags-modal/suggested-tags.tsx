@@ -1,11 +1,10 @@
 import { useLocale } from '@automattic/i18n-utils';
 import { Button, FormTokenField } from '@wordpress/components';
-import { TokenItem } from '@wordpress/components/build-types/form-token-field/types';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useEffect, useState } from '@wordpress/element';
 import { __, _n } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
-import * as React from 'react';
+import { memo } from 'react';
 import { wpcomTrackEvent } from '../../../../common/tracks';
 import FormInputCheckbox from './form-checkbox';
 import FormLabel from './form-label';
@@ -50,7 +49,7 @@ function SuggestedTags( props: SuggestedTagsProps ): JSX.Element {
 	const origSuggestedTags = postMeta?.reader_suggested_tags
 		? JSON.parse( postMeta.reader_suggested_tags )
 		: [];
-	const [ selectedTags, setSelectedTags ] = React.useState( origSuggestedTags );
+	const [ selectedTags, setSelectedTags ] = useState( origSuggestedTags );
 	const onAddTagsButtonClick = ( numAddedTags: number ) => {
 		// Compare origSuggestedTags and selectedTags and determine the number of tags that are different
 		const numSuggestedTags = origSuggestedTags.length;
@@ -148,4 +147,4 @@ function SuggestedTags( props: SuggestedTagsProps ): JSX.Element {
 	);
 }
 
-export default React.memo( SuggestedTags );
+export default memo( SuggestedTags );

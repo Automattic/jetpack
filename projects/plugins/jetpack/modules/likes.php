@@ -1,7 +1,7 @@
 <?php //phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
  * Module Name: Likes
- * Module Description: Give visitors an easy way to show they appreciate your content.
+ * Module Description: Let readers like your posts to show appreciation and encourage interaction.
  * First Introduced: 2.2
  * Sort Order: 23
  * Requires Connection: Yes
@@ -23,15 +23,35 @@
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Status\Host;
 
-Assets::add_resource_hint(
-	array(
-		'//widgets.wp.com',
-		'//s0.wp.com',
-		'//0.gravatar.com',
-		'//1.gravatar.com',
-		'//2.gravatar.com',
-	),
-	'dns-prefetch'
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
+add_filter(
+	'wp_resource_hints',
+	function ( $hints, $relation_type ) {
+		if ( 'dns-prefetch' !== $relation_type ) {
+			return $hints;
+		}
+
+		// Only hint on pages where Likes can render.
+		if ( ! is_singular() && ! is_home() && ! is_front_page() && ! is_archive() && ! is_search() ) {
+			return $hints;
+		}
+
+		return array_merge(
+			$hints,
+			array(
+				'//widgets.wp.com',
+				'//s0.wp.com',
+				'//0.gravatar.com',
+				'//1.gravatar.com',
+				'//2.gravatar.com',
+			)
+		);
+	},
+	10,
+	2
 );
 
 require_once __DIR__ . '/likes/jetpack-likes-master-iframe.php';
@@ -88,7 +108,13 @@ class Jetpack_Likes {
 		$publicize_active  = Jetpack::is_module_active( 'publicize' );
 		$sharedaddy_active = Jetpack::is_module_active( 'sharedaddy' );
 
-		if ( $publicize_active && ! $sharedaddy_active ) {
+		if ( $this->settings->needs_own_sharing_menu( $sharedaddy_active ) ) {
+			/*
+			 * Sharedaddy is what registers Settings > Sharing, and it is off, so we
+			 * register that screen ourselves; our settings are displayed on it.
+			 */
+			add_action( 'admin_menu', array( $this->settings, 'sharing_menu' ) );
+		} elseif ( $publicize_active && ! $sharedaddy_active ) {
 			// we have a sharing page but not the global options area.
 			add_action( 'pre_admin_screen_sharing', array( $this->settings, 'sharing_block' ), 20 );
 			add_action( 'pre_admin_screen_sharing', array( $this->settings, 'updated_message' ), -10 );
@@ -156,7 +182,23 @@ class Jetpack_Likes {
 	 * Load scripts and styles for front end.
 	 */
 	public function load_styles_register_scripts() {
-		wp_enqueue_style( 'jetpack_likes', plugins_url( 'likes/style.css', __FILE__ ), array(), JETPACK__VERSION );
+		// Likes are only rendered on pages that display post content.
+		if ( ! is_singular() && ! is_home() && ! is_front_page() && ! is_archive() && ! is_search() ) {
+			return;
+		}
+
+		$style_url = Assets::get_file_url_for_environment(
+			'_inc/build/likes/style.min.css',
+			'modules/likes/style.css'
+		);
+		wp_enqueue_style( 'jetpack_likes', $style_url, array(), JETPACK__VERSION );
+		$style_path = plugin_dir_path( JETPACK__PLUGIN_FILE ) . (
+			/** This filter is documented in projects/plugins/jetpack/load-jetpack.php */
+			apply_filters( 'jetpack_should_use_minified_assets', true )
+				? '_inc/build/likes/style.min.css'
+				: 'modules/likes/style.css'
+		);
+		wp_style_add_data( 'jetpack_likes', 'path', $style_path );
 		wp_register_script(
 			'jetpack_likes_queuehandler',
 			Assets::get_file_url_for_environment(
@@ -343,7 +385,7 @@ class Jetpack_Likes {
 				),
 				array( 'jquery' ),
 				JETPACK__VERSION,
-				$in_footer = false
+				false
 			);
 			wp_enqueue_script(
 				'likes-post-count-jetpack',
@@ -353,7 +395,7 @@ class Jetpack_Likes {
 				),
 				array( 'jquery', 'likes-post-count' ),
 				JETPACK__VERSION,
-				$in_footer = false
+				false
 			);
 		}
 	}
@@ -451,7 +493,8 @@ class Jetpack_Likes {
 
 		$html  = "<div class='sharedaddy sd-block sd-like jetpack-likes-widget-wrapper jetpack-likes-widget-unloaded' id='$wrapper' data-src='$src' data-name='$name' data-title='$title'>";
 		$html .= $headline;
-		$html .= "<div class='likes-widget-placeholder post-likes-widget-placeholder' style='height: 55px;'><span class='button'><span>" . esc_html__( 'Like', 'jetpack' ) . '</span></span> <span class="loading">' . esc_html__( 'Loading...', 'jetpack' ) . '</span></div>';
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-spinner.php';
+		$html .= "<div class='likes-widget-placeholder post-likes-widget-placeholder' style='height: 55px;'><span class='button'><span>" . esc_html__( 'Like', 'jetpack' ) . '</span></span> <span class="loading">' . Jetpack_Spinner::render( 18 ) . '<span class="screen-reader-text">' . esc_html__( 'Loading…', 'jetpack' ) . '</span></span></div>';
 		$html .= "<span class='sd-text-color'></span><a class='sd-link-color'></a>";
 		$html .= '</div>';
 

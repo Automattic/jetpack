@@ -12,17 +12,19 @@ ENV LANG=en_US.UTF-8 \
     LC_ALL=en_US.UTF-8 \
     JETPACK_MONOREPO_ENV=1 \
     PNPM_HOME=/usr/local/pnpm \
-    PATH="/usr/local/pnpm:${PATH}" \
-    npm_config_update_notifier=false
+    PATH="/usr/local/pnpm/bin:${PATH}" \
+    pnpm_config_update_notifier=false
 
 WORKDIR /app
 
 # Combine all repository setup, package installation, and cleanup into one layer
 RUN --mount=type=cache,target=/var/lib/apt/lists/,sharing=private \
     # Setup repositories and keys
-    apt-get update && apt-get install -y curl gpg language-pack-en-base ca-certificates \
-        software-properties-common \
-    && add-apt-repository ppa:ondrej/php \
+    apt-get update && apt-get install -y curl gpg language-pack-en-base lsb-release ca-certificates \
+    && curl -fsSLo /tmp/debsuryorg-archive-keyring.deb https://packages.sury.org/debsuryorg-archive-keyring.deb \
+    && dpkg -i /tmp/debsuryorg-archive-keyring.deb \
+    && rm /tmp/debsuryorg-archive-keyring.deb \
+    && echo "deb [signed-by=/usr/share/keyrings/debsuryorg-archive-keyring.gpg] https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list \
     && curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg \
     # Add Docker's official GPG key
     && install -m 0755 -d /etc/apt/keyrings \
@@ -59,11 +61,13 @@ RUN --mount=type=cache,target=/var/lib/apt/lists/,sharing=private \
         "php${PHP_VERSION}-xml" \
         "php${PHP_VERSION}-zip" \
         rsync \
+        socat \
         locales \
+        libatomic1 \
         "nodejs$(apt-cache show nodejs | sed -n "/^Version: ${NODE_VERSION}-/ { s/^Version: /=/p; q }" )" \
     # Cleanup
     && apt-get remove --purge -y python3-apt \
-    && apt-get remove --purge --auto-remove -y gpg software-properties-common \
+    && apt-get remove --purge --auto-remove -y gpg \
     && find /var/ -name '*-old' -delete \
     && rm -rf /var/log/dpkg.log /var/log/alternatives.log /var/log/apt/ ~/.launchpadlib
 
@@ -76,10 +80,8 @@ RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" \
 RUN mkdir -p "${PNPM_HOME}" \
     && chmod 755 "${PNPM_HOME}"
 
-RUN npm install --global pnpm@$PNPM_VERSION \
-    && SHELL=/bin/bash pnpm setup
-
-WORKDIR /workspace
+RUN curl -fsSL https://get.pnpm.io/install.sh | SHELL=bash PNPM_VERSION=$PNPM_VERSION bash - \
+    && rm -rf ~/.cache
 
 # Set up locale
 RUN locale-gen en_US.UTF-8 \

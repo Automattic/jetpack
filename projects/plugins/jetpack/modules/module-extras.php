@@ -7,6 +7,10 @@
  * @package automattic/jetpack
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Features available all the time:
  *    - When in offline mode.
@@ -19,6 +23,7 @@ $tools = array(
 	// Theme Tools.
 	'theme-tools.php',
 	'theme-tools/social-links.php',
+	'theme-tools/random-redirect.php',
 	'theme-tools/featured-content.php',
 	'theme-tools/responsive-videos.php',
 	'theme-tools/site-logo.php',
@@ -34,7 +39,7 @@ $connected_tools = array(
 	'external-media/external-media.php',
 	'plugin-search.php',
 	'scan/scan.php', // Shows Jetpack Scan alerts in the admin bar if threats found.
-	'simple-payments/simple-payments.php',
+	'simple-payments.php',
 	'wpcom-tos/wpcom-tos.php',
 	// These oEmbed providers are available when connected to WordPress.com.
 	// Starting from 2020-10-24, they need an authentication token, and that token is stored on WordPress.com.

@@ -1,6 +1,3 @@
-/**
- * @jest-environment jsdom
- */
 import {
 	FILTER_KEYS,
 	getFilterKeys,
@@ -42,6 +39,32 @@ describe( 'getFilterKeys', () => {
 			'year_post_modified',
 			'year_post_modified_gmt',
 			'subject',
+		] );
+	} );
+
+	test( 'includes product attributes from widget configurations without duplicates', () => {
+		const widgets = [
+			{ filters: [ { type: 'product_attribute', attribute: 'pa_color' } ] },
+			{ filters: [ { type: 'product_attribute', attribute: 'pa_size' } ] },
+			{ filters: [ { type: 'product_attribute', attribute: 'pa_color' } ] },
+		];
+		expect( getFilterKeys( widgets, [] ) ).toEqual( [
+			'blog_ids',
+			'authors',
+			'post_types',
+			'category',
+			'post_format',
+			'post_tag',
+			'month_post_date',
+			'month_post_date_gmt',
+			'month_post_modified',
+			'month_post_modified_gmt',
+			'year_post_date',
+			'year_post_date_gmt',
+			'year_post_modified',
+			'year_post_modified_gmt',
+			'pa_color',
+			'pa_size',
 		] );
 	} );
 } );
@@ -172,6 +195,20 @@ describe( 'mapFilterKeyToFilter', () => {
 		expect( mapFilterKeyToFilter( 'arcade_reviews' ) ).toEqual( {
 			type: 'taxonomy',
 			taxonomy: 'arcade_reviews',
+		} );
+	} );
+	test( 'handles product attribute filter keys', () => {
+		expect( mapFilterKeyToFilter( 'pa_color' ) ).toEqual( {
+			type: 'product_attribute',
+			attribute: 'pa_color',
+		} );
+		expect( mapFilterKeyToFilter( 'pa_size' ) ).toEqual( {
+			type: 'product_attribute',
+			attribute: 'pa_size',
+		} );
+		expect( mapFilterKeyToFilter( 'pa_material' ) ).toEqual( {
+			type: 'product_attribute',
+			attribute: 'pa_material',
 		} );
 	} );
 } );

@@ -1,6 +1,6 @@
 import analytics from '@automattic/jetpack-analytics';
-import { getRedirectUrl } from '@automattic/jetpack-components';
 import { dateI18n } from '@wordpress/date';
+import { getAnalyticsUrl, hasAnalyticsDashboard } from '../../../../_inc/shared/analytics-url';
 import { SubscriberTotalsByDate, ChartSubscriptionDataPoint } from './types';
 
 /**
@@ -45,37 +45,20 @@ export const buildJPRedirectSource = ( url: string, isWpcomSite: boolean = true 
 /**
  * Generates the URL for subscriber statistics based on site context.
  *
- * @param {string}  site        - The site identifier
- * @param {boolean} isWpcomSite - Whether the site is on WordPress.com
- * @param {string}  adminUrl    - The admin URL for self-hosted sites
- * @returns {string} The appropriate subscriber stats URL
- */
-export const getSubscriberStatsUrl = (
-	site: string,
-	isWpcomSite: boolean,
-	adminUrl: string
-): string => {
-	return isWpcomSite
-		? getRedirectUrl( buildJPRedirectSource( `stats/subscribers/${ site }` ) )
-		: `${ adminUrl }admin.php?page=stats#!/stats/subscribers/${ site }`;
-};
-
-/**
- * Generates the URL for newsletter settings based on site context.
+ * Points at the Premium Analytics dashboard where that is the site's analytics
+ * UI, and at the Stats deep link everywhere else.
  *
- * @param {string}  site        - The site identifier
- * @param {boolean} isWpcomSite - Whether the site is on WordPress.com
- * @param {string}  adminUrl    - The admin URL for self-hosted sites
- * @returns {string} The appropriate newsletter settings URL
+ * @param {string} site     - The site identifier
+ * @param {string} adminUrl - The admin URL for self-hosted sites
+ * @returns {?string} The appropriate subscriber stats URL, or null when the
+ *                   dashboard is the analytics UI but this user cannot open it.
  */
-export const getNewsletterSettingsUrl = (
-	site: string,
-	isWpcomSite: boolean,
-	adminUrl: string
-): string => {
-	return isWpcomSite
-		? getRedirectUrl( buildJPRedirectSource( 'settings/newsletter/' + site ) )
-		: `${ adminUrl }admin.php?page=jetpack#newsletter`;
+export const getSubscriberStatsUrl = ( site: string, adminUrl: string ): string | null => {
+	if ( hasAnalyticsDashboard() ) {
+		return getAnalyticsUrl( { view: 'dashboard', section: 'subscribers' } );
+	}
+
+	return `${ adminUrl }admin.php?page=stats#!/stats/subscribers/${ site }`;
 };
 
 /**

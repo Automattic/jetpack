@@ -1,0 +1,23 @@
+<?php
+/**
+ * A dummy file to test the Jetpack.Functions.JsonEncodeFlags sniff.
+ *
+ * @package automattic/jetpack-codesniffer
+ */
+
+// phpcs:disable WordPress, VariableAnalysis.CodeAnalysis.VariableAnalysis.UndefinedVariable
+
+// Missing flags.
+json_encode( $data );
+wp_json_encode( $data );
+xxx_json_encode( $data, 'a', 'b' );
+
+// Has flags.
+json_encode( $data, JSON_UNESCAPED_SLASHES );
+wp_json_encode( $data, JSON_UNESCAPED_SLASHES );
+xxx_json_encode( $data, 'a', 'b', JSON_UNESCAPED_SLASHES );
+
+// Passing zero.
+json_encode( $data, 0 );
+wp_json_encode( $data, 0 );
+xxx_json_encode( $data, 'a', 'b', 0 );

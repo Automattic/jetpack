@@ -1,6 +1,6 @@
-import { Chip, getRedirectUrl } from '@automattic/jetpack-components';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 import { __, _x } from '@wordpress/i18n';
-import React from 'react';
+import { Component } from 'react';
 import { connect } from 'react-redux';
 import CompactCard from 'components/card/compact';
 import { FormFieldset } from 'components/forms';
@@ -12,7 +12,7 @@ import { showMyJetpack } from 'state/initial-state';
 import { getModule } from 'state/modules';
 import { isModuleFound as _isModuleFound } from 'state/search';
 
-export class Composing extends React.Component {
+export class Composing extends Component {
 	/**
 	 * If markdown module is inactive and this is toggling markdown for posts on, activate module.
 	 * If markdown for comments is off and this is toggling markdown for posts off, deactivate module.
@@ -78,8 +78,8 @@ export class Composing extends React.Component {
 					<FormFieldset>
 						<ModuleToggle
 							slug="copy-post"
+							disabled={ this.props.isSavingAnyOption( 'copy-post' ) }
 							activated={ !! this.props.getOptionValue( 'copy-post' ) }
-							toggling={ this.props.isSavingAnyOption( 'copy-post' ) }
 							toggleModule={ this.props.toggleModuleNow }
 						>
 							<span className="jp-form-toggle-explanation">{ copyPost.description }</span>
@@ -101,13 +101,13 @@ export class Composing extends React.Component {
 					<FormFieldset>
 						<ModuleToggle
 							slug="markdown"
-							activated={
-								!! this.props.getOptionValue( 'wpcom_publish_posts_with_markdown', 'markdown' )
-							}
-							toggling={ this.props.isSavingAnyOption( [
+							disabled={ this.props.isSavingAnyOption( [
 								'markdown',
 								'wpcom_publish_posts_with_markdown',
 							] ) }
+							activated={
+								!! this.props.getOptionValue( 'wpcom_publish_posts_with_markdown', 'markdown' )
+							}
 							toggleModule={ this.updateFormStateByMarkdown }
 						>
 							<span className="jp-form-toggle-explanation">{ markdown.description }</span>
@@ -129,8 +129,8 @@ export class Composing extends React.Component {
 					<FormFieldset>
 						<ModuleToggle
 							slug="latex"
+							disabled={ this.props.isSavingAnyOption( [ 'latex' ] ) }
 							activated={ !! this.props.getOptionValue( 'latex' ) }
-							toggling={ this.props.isSavingAnyOption( [ 'latex' ] ) }
 							toggleModule={ this.props.toggleModuleNow }
 						>
 							<span className="jp-form-toggle-explanation">{ latex.description }</span>
@@ -149,8 +149,8 @@ export class Composing extends React.Component {
 					<FormFieldset>
 						<ModuleToggle
 							slug="shortcodes"
+							disabled={ this.props.isSavingAnyOption( [ 'shortcodes' ] ) }
 							activated={ !! this.props.getOptionValue( 'shortcodes' ) }
-							toggling={ this.props.isSavingAnyOption( [ 'shortcodes' ] ) }
 							toggleModule={ this.props.toggleModuleNow }
 						>
 							<span className="jp-form-toggle-explanation">
@@ -175,8 +175,8 @@ export class Composing extends React.Component {
 						<FormFieldset>
 							<ModuleToggle
 								slug="blocks"
+								disabled={ this.props.isSavingAnyOption( [ 'blocks' ] ) }
 								activated={ !! this.props.getOptionValue( 'blocks' ) }
-								toggling={ this.props.isSavingAnyOption( [ 'blocks' ] ) }
 								toggleModule={ this.props.toggleModuleNow }
 							>
 								<span className="jp-form-toggle-explanation">
@@ -209,8 +209,6 @@ export class Composing extends React.Component {
 					<a href={ `${ this.props.siteAdminUrl }admin.php?page=my-jetpack#/jetpack-ai` }>
 						{ __( 'Learn more about all Jetpack AI features', 'jetpack' ) }
 					</a>
-					{ /* TODO: remove this Chip once it's not longer "new" */ }
-					<Chip type="new" text={ __( 'New', 'jetpack' ) } />
 				</CompactCard>
 			);
 

@@ -1,4 +1,5 @@
 import restApi from '@automattic/jetpack-api';
+import { Page } from '@wordpress/admin-ui';
 import { __, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useEffect, useCallback } from 'react';
@@ -8,7 +9,7 @@ import Col from '../layout/col/index.tsx';
 import Container from '../layout/container/index.tsx';
 import styles from './style.module.scss';
 import type { AdminPageProps } from './types.ts';
-import type React from 'react';
+import type { FC, ReactNode } from 'react';
 
 /**
  * This is the base structure for any admin page. It comes with Header and Footer.
@@ -16,29 +17,39 @@ import type React from 'react';
  * All content must be passed as children wrapped in as many <AdminSection> elements as needed.
  *
  * @param {AdminPageProps} props - Component properties.
- * @return {React.ReactNode} AdminPage component.
+ * @return {ReactNode} AdminPage component.
  */
-const AdminPage: React.FC< AdminPageProps > = ( {
+const AdminPage: FC< AdminPageProps > = ( {
 	children,
-	moduleName = __( 'Jetpack', 'jetpack-components' ),
-	moduleNameHref,
+	className,
 	showHeader = true,
 	showFooter = true,
-	useInternalLinks = false,
 	showBackground = true,
 	sandboxedDomain = '',
 	apiRoot = '',
 	apiNonce = '',
 	optionalMenuItems,
 	header,
+	title,
+	subTitle,
+	logo,
+	actions,
+	breadcrumbs,
+	tabs,
+	showBottomBorder = true,
+	unwrapped = false,
 } ) => {
 	useEffect( () => {
 		restApi.setApiRoot( apiRoot );
 		restApi.setApiNonce( apiNonce );
 	}, [ apiRoot, apiNonce ] );
 
-	const rootClassName = clsx( styles[ 'admin-page' ], {
+	// `jp-admin-page` is a stable, non-hashed hook for global stylesheets and
+	// shared SCSS mixins (notably `jetpack-admin-page-layout` in
+	// @automattic/jetpack-base-styles). Do not rename.
+	const rootClassName = clsx( styles[ 'admin-page' ], 'jp-admin-page', className, {
 		[ styles.background ]: showBackground,
+		[ styles[ 'without-bottom-border' ] ]: tabs || ! showBottomBorder,
 	} );
 
 	const testConnection = useCallback( async () => {
@@ -51,7 +62,7 @@ const AdminPage: React.FC< AdminPageProps > = ( {
 			// eslint-disable-next-line no-alert
 			window.alert(
 				sprintf(
-					/* translators: placeholder is an error message. */
+					/* translators: %s: an error message. */
 					__( 'There was an error testing Jetpack. Error: %s', 'jetpack-components' ),
 					error.message
 				)
@@ -59,6 +70,34 @@ const AdminPage: React.FC< AdminPageProps > = ( {
 		}
 	}, [] );
 
+	// When title or breadcrumbs are provided, use admin-ui Page for the full page layout.
+	if ( showHeader && ( title || breadcrumbs ) ) {
+		return (
+			<div className={ rootClassName }>
+				<Page
+					className="jp-admin-page__page"
+					visual={ logo || <JetpackLogo showText={ false } height={ 20 } /> }
+					breadcrumbs={ breadcrumbs }
+					title={ title }
+					subTitle={ subTitle }
+					actions={ actions }
+					showSidebarToggle={ false }
+				>
+					{ tabs }
+					{ unwrapped ? (
+						children
+					) : (
+						<Container fluid horizontalSpacing={ 0 }>
+							<Col>{ children }</Col>
+						</Container>
+					) }
+					{ showFooter && <JetpackFooter menu={ optionalMenuItems } /> }
+				</Page>
+			</div>
+		);
+	}
+
+	// Legacy path: no title provided, render the classic header.
 	return (
 		<div className={ rootClassName }>
 			{ showHeader && (
@@ -84,18 +123,7 @@ const AdminPage: React.FC< AdminPageProps > = ( {
 			<Container fluid horizontalSpacing={ 0 }>
 				<Col>{ children }</Col>
 			</Container>
-			{ showFooter && (
-				<Container horizontalSpacing={ 5 }>
-					<Col>
-						<JetpackFooter
-							moduleName={ moduleName }
-							moduleNameHref={ moduleNameHref }
-							menu={ optionalMenuItems }
-							useInternalLinks={ useInternalLinks }
-						/>
-					</Col>
-				</Container>
-			) }
+			{ showFooter && <JetpackFooter menu={ optionalMenuItems } /> }
 		</div>
 	);
 };

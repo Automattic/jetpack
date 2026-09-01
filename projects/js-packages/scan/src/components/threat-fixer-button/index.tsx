@@ -9,6 +9,7 @@ import {
 	getFixerDescription,
 } from '@automattic/jetpack-scan';
 import styles from './styles.module.scss';
+import type { MouseEvent } from 'react';
 
 /**
  * Threat Fixer Button component.
@@ -66,7 +67,7 @@ export default function ThreatFixerButton( {
 	}, [ threat, fixerState.error ] );
 
 	const handleClick = useCallback(
-		( event: React.MouseEvent ) => {
+		( event: MouseEvent ) => {
 			event.stopPropagation();
 			onClick( [ threat ] );
 		},

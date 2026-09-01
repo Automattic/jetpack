@@ -13,6 +13,10 @@ use Automattic\Jetpack\Sync\Defaults;
 use Automattic\Jetpack\Sync\Functions;
 use Automattic\Jetpack\Sync\Settings;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Class to handle sync for callables.
  */
@@ -160,6 +164,9 @@ class Callables extends Module {
 		// gets fired when new code gets installed, updates etc.
 		add_action( 'upgrader_process_complete', array( $this, 'unlock_plugin_action_link_and_callables' ) );
 		add_action( 'update_option_active_plugins', array( $this, 'unlock_plugin_action_link_and_callables' ) );
+		// Deleting an inactive plugin fires neither of the above, so without this the synced
+		// get_plugins callable stays stale until the periodic re-check happens to run.
+		add_action( 'deleted_plugin', array( $this, 'unlock_plugin_action_link_and_callables' ) );
 	}
 
 	/**
@@ -293,10 +300,11 @@ class Callables extends Module {
 	 * @param array $config Full sync configuration for this sync module.
 	 * @param array $status This Module Full Sync Status.
 	 * @param int   $send_until The timestamp until the current request can send.
+	 * @param int   $started The timestamp when the full sync started.
 	 *
 	 * @return array This Module Full Sync Status.
 	 */
-	public function send_full_sync_actions( $config, $status, $send_until ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public function send_full_sync_actions( $config, $status, $send_until, $started ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		// we call this instead of do_action when sending immediately.
 		$result = $this->send_action( 'jetpack_full_sync_callables', array( true ) );
 
@@ -315,7 +323,7 @@ class Callables extends Module {
 	 * @access public
 	 *
 	 * @param array $config Full sync configuration for this sync module.
-	 * @return array Number of items yet to be enqueued.
+	 * @return int Number of items yet to be enqueued.
 	 */
 	public function estimate_full_sync_actions( $config ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		return 1;
@@ -389,6 +397,9 @@ class Callables extends Module {
 			return;
 		}
 		$plugins = Functions::get_plugins();
+		if ( ! is_array( $plugins ) ) {
+			return;
+		}
 		foreach ( $plugins as $plugin_file => $plugin_data ) {
 			/**
 			 *  Plugins often like to unset things but things break if they are not able to.

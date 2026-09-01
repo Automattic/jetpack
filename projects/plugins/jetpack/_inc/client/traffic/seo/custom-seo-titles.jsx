@@ -1,5 +1,5 @@
 import { sprintf, __ } from '@wordpress/i18n';
-import React, { useState, useCallback } from 'react';
+import { createRef, useState, useCallback } from 'react';
 import Button from 'components/button';
 import { FormLabel } from 'components/forms';
 import TextInput from 'components/text-input';
@@ -222,11 +222,11 @@ const CustomSeoTitleInput = ( {
  */
 const CustomSeoTitles = props => {
 	const [ customSeoTitleInputRefs ] = useState( {
-		front_page: React.createRef(),
-		posts: React.createRef(),
-		pages: React.createRef(),
-		groups: React.createRef(),
-		archives: React.createRef(),
+		front_page: createRef(),
+		posts: createRef(),
+		pages: createRef(),
+		groups: createRef(),
+		archives: createRef(),
 	} );
 
 	const customSeoTitlesAsStrings = customSeoTitleFormats.pageTypes.reduce( ( acc, pageType ) => {

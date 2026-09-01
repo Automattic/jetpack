@@ -1,0 +1,30 @@
+.area-chart {
+	position: relative;
+
+	// Keep the collapsed state in `from` and never on the element: a dropped
+	// animation then fails visible. `both`, not `forwards`, for backwards fill.
+	&--animated {
+
+		path {
+			transform-origin: 0 95%;
+			animation:
+				rise var(--a8c-charts-motion-duration-entrance)
+				var(--a8c-charts-motion-easing-entrance) both;
+		}
+	}
+
+	svg {
+		overflow: visible;
+	}
+}
+
+@keyframes rise {
+
+	from {
+		transform: scaleY(0);
+	}
+
+	to {
+		transform: scaleY(1);
+	}
+}

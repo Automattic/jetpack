@@ -8,6 +8,10 @@
  * @package automattic/jetpack
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 if ( ! shortcode_exists( 'spotify' ) ) {
 	add_shortcode( 'spotify', 'jetpack_spotify_shortcode' );
 }

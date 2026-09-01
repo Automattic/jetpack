@@ -1,9 +1,8 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { get, includes } from 'lodash';
-import React from 'react';
+import { Link } from '@wordpress/ui';
+import { Component } from 'react';
 import { FormFieldset, FormLabel } from 'components/forms';
 import JetpackBanner from 'components/jetpack-banner';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
@@ -13,7 +12,7 @@ import SettingsGroup from 'components/settings-group';
 import TextInput from 'components/text-input';
 import GoogleVerificationService from './verification-services/google';
 
-class VerificationServicesComponent extends React.Component {
+class VerificationServicesComponent extends Component {
 	static serviceIds = {
 		google: 'google-site-verification',
 		bing: 'msvalidate.01',
@@ -32,16 +31,14 @@ class VerificationServicesComponent extends React.Component {
 			return content;
 		}
 
-		if ( includes( content, '<meta' ) ) {
+		if ( content.includes( '<meta' ) ) {
 			// We were passed a meta tag already!
 			return content;
 		}
 
-		return `<meta name="${ get(
-			VerificationServicesComponent.serviceIds,
-			serviceName,
-			''
-		) }" content="${ content }" />`;
+		return `<meta name="${
+			VerificationServicesComponent.serviceIds?.[ serviceName ] ?? ''
+		}" content="${ content }" />`;
 	}
 
 	getSiteVerificationValue( service ) {
@@ -63,7 +60,7 @@ class VerificationServicesComponent extends React.Component {
 					title={ verification.name }
 					icon="cog"
 					description={ sprintf(
-						/* translators: placeholder is a feature name. */
+						/* translators: %s: the feature name. */
 						__( '%s has been disabled by a site administrator.', 'jetpack' ),
 						verification.name
 					) }
@@ -98,7 +95,6 @@ class VerificationServicesComponent extends React.Component {
 					<ModuleToggle
 						slug={ verification.module }
 						activated={ isVerificationActive }
-						toggling={ this.props.isSavingAnyOption( [ verification.module ] ) }
 						disabled={ this.props.isSavingAnyOption( [ verification.module ] ) }
 						toggleModule={ this.props.toggleModuleNow }
 					>
@@ -117,28 +113,36 @@ class VerificationServicesComponent extends React.Component {
 								b: <strong />,
 								support: <a href={ getRedirectUrl( 'jetpack-support-site-verification-tools' ) } />,
 								google: (
-									<ExternalLink
+									<Link
+										openInNewTab
 										rel="noopener noreferrer"
 										href="https://www.google.com/webmasters/tools/"
 									/>
 								),
 								bing: (
-									<ExternalLink rel="noopener noreferrer" href="https://www.bing.com/webmaster/" />
+									<Link
+										openInNewTab
+										rel="noopener noreferrer"
+										href="https://www.bing.com/webmaster/"
+									/>
 								),
 								pinterest: (
-									<ExternalLink
+									<Link
+										openInNewTab
 										rel="noopener noreferrer"
 										href="https://pinterest.com/website/verify/"
 									/>
 								),
 								yandex: (
-									<ExternalLink
+									<Link
+										openInNewTab
 										rel="noopener noreferrer"
 										href="https://webmaster.yandex.com/sites/"
 									/>
 								),
 								facebook: (
-									<ExternalLink
+									<Link
+										openInNewTab
 										rel="noopener noreferrer"
 										href="https://business.facebook.com/settings/"
 									/>

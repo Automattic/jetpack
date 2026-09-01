@@ -1,6 +1,5 @@
 import { RecordMeterBar } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import React from 'react';
 import getRecordInfo from './lib/record-info';
 import { NoticeBox } from './notice-box';
 import { RecordCount } from './record-count';
@@ -16,7 +15,7 @@ import './style.scss';
  * @param {object} props.postTypes          - Post types  (post type label => post type slug)
  * @param {number} props.tierMaximumRecords - Max number of records allowed in user's current tier
  * @param {string} props.lastIndexedDate    - The date on which the site was last indexed in ISO 8601 format
- * @return {React.Component} RecordMeter React component
+ * @return {import('react').Component} RecordMeter React component
  */
 export default function RecordMeter( {
 	postCount,
@@ -30,8 +29,7 @@ export default function RecordMeter( {
 	return (
 		<div className="jp-search-record-meter jp-search-dashboard-wrap" data-testid="record-meter">
 			<div className="jp-search-dashboard-row">
-				<div className="lg-col-span-2 md-col-span-1 sm-col-span-0"></div>
-				<div className="jp-search-record-meter__content lg-col-span-8 md-col-span-6 sm-col-span-4">
+				<div className="jp-search-record-meter__content lg-col-span-12 md-col-span-8 sm-col-span-4">
 					<h2>
 						{
 							/* translators: 'Your search index' is a breakdown of the site's indexed post type content,
@@ -57,7 +55,6 @@ export default function RecordMeter( {
 						></NoticeBox>
 					</div>
 				</div>
-				<div className="lg-col-span-2 md-col-span-1 sm-col-span-0"></div>
 			</div>
 		</div>
 	);

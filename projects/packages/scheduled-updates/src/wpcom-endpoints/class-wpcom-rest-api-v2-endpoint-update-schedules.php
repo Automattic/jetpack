@@ -515,7 +515,7 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 	 */
 	public function validate_themes_param( $themes ) {
 		if ( ! empty( $themes ) ) {
-			return new WP_Error( 'rest_forbidden', __( 'Sorry, you can not schedule theme updates at this time.', 'jetpack-scheduled-updates' ), array( 'status' => 403 ) );
+			return new WP_Error( 'rest_forbidden', __( 'Sorry, you cannot schedule theme updates at this time.', 'jetpack-scheduled-updates' ), array( 'status' => 403 ) );
 		}
 
 		return true;
@@ -541,11 +541,11 @@ class WPCOM_REST_API_V2_Endpoint_Update_Schedules extends WP_REST_Controller {
 			}
 
 			if ( $request['schedule']['timestamp'] === $event->timestamp ) {
-				return new WP_Error( 'rest_forbidden', __( 'Sorry, you can not create a schedule with the same time as an existing schedule.', 'jetpack-scheduled-updates' ), array( 'status' => 403 ) );
+				return new WP_Error( 'rest_forbidden', __( 'Sorry, you cannot create a schedule with the same time as an existing schedule.', 'jetpack-scheduled-updates' ), array( 'status' => 403 ) );
 			}
 
 			if ( $event->args === $plugins ) {
-				return new WP_Error( 'rest_forbidden', __( 'Sorry, you can not create a schedule with the same plugins as an existing schedule.', 'jetpack-scheduled-updates' ), array( 'status' => 403 ) );
+				return new WP_Error( 'rest_forbidden', __( 'Sorry, you cannot create a schedule with the same plugins as an existing schedule.', 'jetpack-scheduled-updates' ), array( 'status' => 403 ) );
 			}
 		}
 

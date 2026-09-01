@@ -11,11 +11,15 @@
 // are installed, or in some other cases).
 namespace Automattic\Jetpack\Backup\V0005;
 
+use Automattic\Jetpack\Backup\V0005\REST\Wpcom_Request_Mock;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
+use Automattic\Jetpack\Connection\Utils as Connection_Utils;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Posts as WorDBless_Posts;
 use WorDBless\Users as WorDBless_Users;
+use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
 use WP_REST_Server;
@@ -29,7 +33,11 @@ use function wp_insert_user;
 use function wp_json_encode;
 use function wp_set_current_user;
 
+require_once __DIR__ . '/trait-wpcom-request-mock.php';
+
 class REST_Controller_Test extends TestCase {
+
+	use Wpcom_Request_Mock;
 
 	/**
 	 * REST Server object.
@@ -74,6 +82,7 @@ class REST_Controller_Test extends TestCase {
 	 */
 	public function tearDown(): void {
 		parent::tearDown();
+		$this->reset_wpcom_request_mock();
 		wp_set_current_user( 0 );
 
 		unset(
@@ -112,7 +121,7 @@ class REST_Controller_Test extends TestCase {
 		);
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/backup-helper-script' );
 		$request->set_header( 'content-type', 'application/json' );
-		$request->set_body( wp_json_encode( $body ) );
+		$request->set_body( wp_json_encode( $body, JSON_UNESCAPED_SLASHES ) );
 		$response = $this->server->dispatch( $request );
 		$this->assertEquals( 403, $response->get_status() );
 		$this->assertEquals( 'You are not allowed to perform this action.', $response->get_data()['message'] );
@@ -128,7 +137,7 @@ class REST_Controller_Test extends TestCase {
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/backup-helper-script' );
 		$request->set_header( 'content-type', 'application/json' );
-		$request->set_body( wp_json_encode( $body ) );
+		$request->set_body( wp_json_encode( $body, JSON_UNESCAPED_SLASHES ) );
 
 		$response      = $this->dispatch_request_signed_with_blog_token( $request );
 		$response_data = $response->get_data();
@@ -167,7 +176,7 @@ class REST_Controller_Test extends TestCase {
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/backup-helper-script' );
 		$request->set_header( 'content-type', 'application/json' );
-		$request->set_body( wp_json_encode( $body ) );
+		$request->set_body( wp_json_encode( $body, JSON_UNESCAPED_SLASHES ) );
 
 		$response = $this->dispatch_request_signed_with_blog_token( $request );
 		$this->assertEquals( 400, $response->get_status() );
@@ -196,7 +205,7 @@ class REST_Controller_Test extends TestCase {
 
 		$request = new WP_REST_Request( 'DELETE', '/jetpack/v4/backup-helper-script' );
 		$request->set_header( 'content-type', 'application/json' );
-		$request->set_body( wp_json_encode( $body ) );
+		$request->set_body( wp_json_encode( $body, JSON_UNESCAPED_SLASHES ) );
 		$response = $this->server->dispatch( $request );
 
 		$this->assertEquals( 403, $response->get_status() );
@@ -213,7 +222,7 @@ class REST_Controller_Test extends TestCase {
 
 		$request = new WP_REST_Request( 'DELETE', '/jetpack/v4/backup-helper-script' );
 		$request->set_header( 'content-type', 'application/json' );
-		$request->set_body( wp_json_encode( $body ) );
+		$request->set_body( wp_json_encode( $body, JSON_UNESCAPED_SLASHES ) );
 
 		$response = $this->dispatch_request_signed_with_blog_token( $request );
 		$this->assertEquals( 200, $response->get_status() );
@@ -232,7 +241,7 @@ class REST_Controller_Test extends TestCase {
 
 		$request = new WP_REST_Request( 'DELETE', '/jetpack/v4/backup-helper-script' );
 		$request->set_header( 'content-type', 'application/json' );
-		$request->set_body( wp_json_encode( $body ) );
+		$request->set_body( wp_json_encode( $body, JSON_UNESCAPED_SLASHES ) );
 
 		$response = $this->dispatch_request_signed_with_blog_token( $request );
 		$this->assertEquals( 500, $response->get_status() );
@@ -538,5 +547,129 @@ class REST_Controller_Test extends TestCase {
 		$response = $this->dispatch_request_signed_with_blog_token( $request );
 
 		$this->assertEquals( 403, $response->get_status() );
+	}
+
+	/**
+	 * Sign in and have WordPress.com answer, with the constants a signed
+	 * request needs already in place.
+	 *
+	 * `Client::validate_args_for_wpcom_json_api_request()` reads
+	 * `JETPACK__WPCOM_JSON_API_BASE` before `build_signed_request()` installs
+	 * the filter that supplies its default, so without this the first signed
+	 * request of the process is built against a host-less URL and refused
+	 * before the wire — which would make these tests pass or fail on where
+	 * they land in the run order. Plugins prime the constants at bootstrap;
+	 * tests have to do it themselves.
+	 *
+	 * @param string     $body   Raw body WordPress.com should answer with.
+	 * @param int|string $status HTTP status WordPress.com should answer with.
+	 */
+	private function arrange_signed_wpcom( $body, $status ) {
+		Connection_Utils::init_default_constants();
+		$this->arrange_wpcom_raw( $body, $status );
+	}
+
+	/**
+	 * Preflight reads a success code reported as a string.
+	 *
+	 * `wp_remote_retrieve_response_code()` hands back whatever the transport
+	 * put there, and this route was the one place in the package that then
+	 * forwarded the status it had just read straight into `data.status`.
+	 * Uncast, `'200'` failed the comparison and the error envelope was served
+	 * as HTTP 200 — `WP_HTTP_Response::set_status()` runs the value through
+	 * `absint()` — so `apiFetch` resolves, nothing throws, and a failure
+	 * arrives at the caller looking like a successful preflight.
+	 *
+	 * The decoded payload is asserted rather than the absence of an error,
+	 * and that is the point: the bug served a *success* status, so a test
+	 * that only checked for "not a failure status" would have passed on it.
+	 */
+	public function test_preflight_treats_a_string_status_as_its_number() {
+		$this->arrange_signed_wpcom( '{"ok":true,"score":42}', '200' );
+
+		$response = REST_Controller::get_site_backup_preflight();
+
+		$this->assertNotInstanceOf( WP_Error::class, $response );
+		$this->assertSame( 42, $response->get_data()['score'] );
+	}
+
+	/**
+	 * A real failure status still travels, which is what the route is for.
+	 *
+	 * Guards the clamp below from being "fixed" into a flat 500: the reason
+	 * this route forwards the status at all is that 403 and 503 mean
+	 * different things to whoever is reading. 403 rather than 500, because
+	 * 500 is also what the clamp falls back to.
+	 */
+	public function test_preflight_forwards_a_genuine_failure_status() {
+		$this->arrange_signed_wpcom( '{}', 403 );
+
+		$data = REST_Controller::get_site_backup_preflight()->get_error_data();
+
+		$this->assertSame( 403, $data['status'] );
+	}
+
+	/**
+	 * A status outside the failure range never reaches `data.status`.
+	 *
+	 * The cast alone does not make the forward safe. `(int)` is total, so an
+	 * absent code becomes `0` and `'2 Bad'` becomes `2`; `status_header()`
+	 * emits an invalid status line for either. A 3xx is servable and still
+	 * wrong — an error envelope under a redirect code, with no `Location`.
+	 *
+	 * @param string $label    What this response carries.
+	 * @param mixed  $upstream The status code the transport reports.
+	 * @dataProvider provide_preflight_statuses_that_are_not_failures
+	 */
+	#[DataProvider( 'provide_preflight_statuses_that_are_not_failures' )]
+	public function test_preflight_never_forwards_a_status_it_cannot_serve( $label, $upstream ) {
+		$this->arrange_signed_wpcom( '{}', $upstream );
+
+		$data = REST_Controller::get_site_backup_preflight()->get_error_data();
+
+		$this->assertSame( 500, $data['status'], $label );
+	}
+
+	/**
+	 * Statuses the preflight route must not forward as its own.
+	 *
+	 * @return array
+	 */
+	public static function provide_preflight_statuses_that_are_not_failures() {
+		return array(
+			'a 3xx'                    => array( 'a 3xx', 302 ),
+			'a status with a suffix'   => array( 'a status with a suffix', '2 Bad' ),
+			'no status at all'         => array( 'no status at all', '' ),
+			'a status above the range' => array( 'a status above the range', 600 ),
+		);
+	}
+
+	/**
+	 * The undo-event route reads a success code reported as a string.
+	 *
+	 * Uncast, a `'200'` discarded a perfectly good activity page and the
+	 * route answered `null` — which it also answers when the site genuinely
+	 * has nothing to undo, so the caller cannot tell the two apart.
+	 *
+	 * The fixture needs two rewindable events: the first that is not itself a
+	 * backup becomes `last_rewindable_event`, and the next one after it
+	 * supplies the `rewind_id` to undo to. With only one, the route returns
+	 * `null` for a reason that has nothing to do with the status.
+	 */
+	public function test_undo_event_treats_a_string_status_as_its_number() {
+		$this->arrange_signed_wpcom(
+			'{"current":{"orderedItems":['
+				. '{"name":"plugin__updated","is_rewindable":true,"rewind_id":"1786663613.94"},'
+				. '{"name":"rewind__backup_complete_full","is_rewindable":true,"rewind_id":"1786600000.11"}'
+				. ']}}',
+			'200'
+		);
+
+		$response = REST_Controller::get_site_backup_undo_event();
+
+		$this->assertNotNull( $response );
+		$data = $response->get_data();
+		$this->assertSame( 'plugin__updated', $data['last_rewindable_event']['name'] );
+		$this->assertSame( '1786600000.11', $data['undo_backup_id'] );
 	}
 }

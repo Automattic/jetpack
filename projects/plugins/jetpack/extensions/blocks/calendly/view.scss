@@ -1,4 +1,4 @@
-@import "../../shared/styles/align";
+@use "../../shared/styles/align";
 
 .admin-bar .calendly-overlay .calendly-popup-close {
 	top: 47px;
@@ -19,7 +19,7 @@
 
 .wp-block-jetpack-calendly .wp-block-jetpack-button {
 
-	@include align-block;
+	@include align.align-block;
 
 	color: #fff;
 }

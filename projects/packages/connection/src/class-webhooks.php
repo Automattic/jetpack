@@ -101,6 +101,14 @@ class Webhooks {
 	public function handle_authorize() {
 		if ( $this->connection->is_connected() && $this->connection->is_user_connected() ) {
 			$redirect_url = apply_filters( 'jetpack_client_authorize_already_authorized_url', admin_url() );
+
+			if ( ! empty( $_GET['redirect'] ) ) {
+				$explicit = esc_url_raw( wp_unslash( $_GET['redirect'] ) );
+				if ( wp_validate_redirect( $explicit ) ) {
+					$redirect_url = $explicit;
+				}
+			}
+
 			wp_safe_redirect( $redirect_url );
 
 			return;
@@ -176,6 +184,8 @@ class Webhooks {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- no site changes.
 		$from = ! empty( $_GET['from'] ) ? sanitize_text_field( wp_unslash( $_GET['from'] ) ) : 'iframe';
 
+		$skip_pricing = filter_input( INPUT_GET, 'skip_pricing', FILTER_VALIDATE_BOOLEAN );
+
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- no site changes, sanitization happens in get_authorization_url()
 		$redirect = ! empty( $_GET['redirect_after_auth'] ) ? wp_unslash( $_GET['redirect_after_auth'] ) : false;
 
@@ -187,6 +197,10 @@ class Webhooks {
 			}
 
 			$connect_url = add_query_arg( 'from', $from, $this->connection->get_authorization_url( null, $redirect ) );
+
+			if ( $skip_pricing ) {
+				$connect_url = add_query_arg( 'skip_pricing', '1', $connect_url );
+			}
 
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- no site changes.
 			if ( isset( $_GET['notes_iframe'] ) ) {

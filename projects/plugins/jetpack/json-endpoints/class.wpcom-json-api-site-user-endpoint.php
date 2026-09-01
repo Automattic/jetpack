@@ -1,5 +1,9 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 new WPCOM_JSON_API_Site_User_Endpoint(
 	array(
 		'description'          => 'Get details of a user of a site by ID.',
@@ -107,6 +111,8 @@ new WPCOM_JSON_API_Site_User_Endpoint(
  * Site user endpoint class.
  *
  * /sites/%s/users/%d -> $blog_id, $user_id
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class WPCOM_JSON_API_Site_User_Endpoint extends WPCOM_JSON_API_Endpoint {
 
@@ -211,7 +217,7 @@ class WPCOM_JSON_API_Site_User_Endpoint extends WPCOM_JSON_API_Endpoint {
 		}
 
 		if ( $is_wpcom && $user_id !== get_current_user_id() && (int) $user_id === wpcom_get_blog_owner( $blog_id ) ) {
-			return new WP_Error( 'unauthorized_edit_owner', 'Current user can not edit blog owner', 403 );
+			return new WP_Error( 'unauthorized_edit_owner', 'Current user cannot edit blog owner', 403 );
 		}
 
 		if ( ! $is_wpcom ) {

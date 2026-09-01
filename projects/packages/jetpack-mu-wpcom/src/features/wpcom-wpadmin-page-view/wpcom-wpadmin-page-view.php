@@ -40,12 +40,6 @@ function wpcom_nosara_track_admin_page_views() {
 			return;
 		}
 
-		$is_calypsoify_enabled = isset( $_GET['calypsoify'] ) && 1 === (int) $_GET['calypsoify']; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		// Calypsoified WP Admin pages should not count as WP Admin page views, since the user is actually in Calypso.
-		if ( $is_calypsoify_enabled ) {
-			return;
-		}
-
 		$blog_id    = $current_blog->blog_id;
 		$user_types = \WPCOM_User::get_types();
 	}
@@ -58,7 +52,7 @@ function wpcom_nosara_track_admin_page_views() {
 	<script type="text/javascript">
 		var _admin_pv_props = {
 			from_page: '<?php echo esc_js( $current_screen->id ); ?>',
-			is_block_editor: '<?php echo esc_js( $current_screen->is_block_editor ? 'true' : 'false' ); ?>',
+			is_block_editor: '<?php echo $current_screen->is_block_editor ? 'true' : 'false'; ?>',
 			source: 'wp-admin',
 			blog_id: '<?php echo esc_js( (string) $blog_id ); ?>',
 			user_type: '<?php echo esc_js( implode( ',', $user_types ) ); ?>'

@@ -1,18 +1,20 @@
 /**
  * External dependencies
  */
-import {
-	Text,
-	Button,
-	useBreakpointMatch,
-	LoadingPlaceholder,
-	ProgressBar,
-	ThemeProvider,
-} from '@automattic/jetpack-components';
-import { Dropdown } from '@wordpress/components';
+import { Text, Button, LoadingPlaceholder, ThemeProvider } from '@automattic/jetpack-components';
+import { Dropdown, ProgressBar } from '@wordpress/components';
+import { useViewportMatch } from '@wordpress/compose';
 import { gmdateI18n } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
-import { Icon, edit, cloud, image, media, video, warning } from '@wordpress/icons';
+import {
+	Icon,
+	pencil as edit,
+	cloud,
+	image,
+	media,
+	video,
+	cautionFilled as warning,
+} from '@wordpress/icons';
 import clsx from 'clsx';
 import { forwardRef } from 'react';
 /**
@@ -23,7 +25,7 @@ import styles from './style.module.scss';
  * Types
  */
 import type { VideoThumbnailDropdownProps, VideoThumbnailProps } from './types';
-import type React from 'react';
+import type { ReactNode } from 'react';
 
 export const VideoThumbnailDropdownButtons = ( {
 	onUseDefaultThumbnail,
@@ -125,7 +127,7 @@ const UploadingThumbnail = ( {
 
 	const uploadPercentage = `${ Math.floor( uploadProgress * 100 ) }%`;
 	const uploadingText = sprintf(
-		/* translators: placeholder is the upload percentage */
+		/* translators: %s: the upload percentage */
 		__( 'Uploading %s', 'jetpack-videopress-pkg' ),
 		uploadPercentage
 	);
@@ -133,11 +135,7 @@ const UploadingThumbnail = ( {
 
 	return (
 		<div className={ clsx( styles[ 'custom-thumbnail' ], { [ styles[ 'is-row' ] ]: isRow } ) }>
-			<ProgressBar
-				className={ styles[ 'progress-bar' ] }
-				size="small"
-				progress={ uploadProgress }
-			/>
+			<ProgressBar value={ Math.min( uploadProgress * 100, 100 ) } />
 			<Text variant={ isRow ? 'body-extra-small' : 'body' } className={ styles[ 'upload-text' ] }>
 				{ infoText }
 			</Text>
@@ -163,7 +161,7 @@ const ErrorThumbnail = ( { isRow } ) => (
  * React component to display video thumbnail.
  *
  * @param {VideoThumbnailProps} props - Component props.
- * @return {React.ReactNode} - VideoThumbnail react component.
+ * @return {ReactNode} - VideoThumbnail react component.
  */
 const VideoThumbnail = forwardRef< HTMLDivElement, VideoThumbnailProps >(
 	(
@@ -187,7 +185,7 @@ const VideoThumbnail = forwardRef< HTMLDivElement, VideoThumbnailProps >(
 		},
 		ref
 	) => {
-		const [ isSmall ] = useBreakpointMatch( 'sm' );
+		const isSmall = useViewportMatch( 'small', '<' );
 		const busy = loading || uploading || deleting || updating;
 
 		// Mapping thumbnail (Ordered by priority)

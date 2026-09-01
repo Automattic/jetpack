@@ -1,10 +1,10 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { DisconnectCard } from '@automattic/jetpack-connection';
-import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import PropTypes from 'prop-types';
-import React from 'react';
+import { Fragment } from 'react';
 import './style.scss';
 
 /**
@@ -13,15 +13,15 @@ import './style.scss';
  * @param {object} props              - The component props.
  * @param {Array}  props.siteBenefits - An array of site benefits.
  * @param {Array}  props.context      - Context in which the component will be used. disconnect or deactivate.
- * @return {React.Component} - The JetpackBenefits component.
+ * @return {import('react').Component} - The JetpackBenefits component.
  */
 const JetpackBenefits = props => {
 	const { siteBenefits, context = 'disconnect' } = props;
 
 	return (
-		<React.Fragment>
+		<Fragment>
 			{ siteBenefits.length > 0 && (
-				<React.Fragment>
+				<Fragment>
 					<div className="jp-connection__disconnect-dialog__step-copy">
 						<p className="jp-connection__disconnect-dialog__large-text">
 							{ context === 'disconnect'
@@ -46,7 +46,7 @@ const JetpackBenefits = props => {
 							/>
 						) ) }
 					</div>
-				</React.Fragment>
+				</Fragment>
 			) }
 			{ siteBenefits.length <= 2 && (
 				<div className="jetpack-benefits__general-benefits-section">
@@ -60,16 +60,17 @@ const JetpackBenefits = props => {
 						<li key="reason-cdn">
 							{ createInterpolateElement(
 								__(
-									'Speed up your site and provide mobile-ready images with <ExternalLink>our CDN</ExternalLink>',
+									'Speed up your site and provide mobile-ready images with <Link>our CDN</Link>',
 									'jetpack'
 								),
 								{
-									ExternalLink: (
-										<ExternalLink
+									Link: (
+										<Link
+											openInNewTab
 											href={ getRedirectUrl( 'jetpack-features-design-content-delivery-network' ) }
 											rel="noopener noreferrer"
 											target="_blank"
-										></ExternalLink>
+										></Link>
 									),
 								}
 							) }
@@ -77,16 +78,17 @@ const JetpackBenefits = props => {
 						<li key="reason-brute-force">
 							{ createInterpolateElement(
 								__(
-									'Block <ExternalLink>brute force attacks</ExternalLink> and get immediate notifications if your site is down',
+									'Block <Link>brute force attacks</Link> and get immediate notifications if your site is down',
 									'jetpack'
 								),
 								{
-									ExternalLink: (
-										<ExternalLink
+									Link: (
+										<Link
+											openInNewTab
 											href={ getRedirectUrl( 'jetpack-features-brute-force' ) }
 											rel="noopener noreferrer"
 											target="_blank"
-										></ExternalLink>
+										></Link>
 									),
 								}
 							) }
@@ -94,16 +96,17 @@ const JetpackBenefits = props => {
 						<li key="reason-social">
 							{ createInterpolateElement(
 								__(
-									'Grow your traffic with automated social <ExternalLink>publishing and sharing</ExternalLink>',
+									'Grow your traffic with automated social <Link>publishing and sharing</Link>',
 									'jetpack'
 								),
 								{
-									ExternalLink: (
-										<ExternalLink
+									Link: (
+										<Link
+											openInNewTab
 											href={ getRedirectUrl( 'jetpack-support-social' ) }
 											rel="noopener noreferrer"
 											target="_blank"
-										></ExternalLink>
+										></Link>
 									),
 								}
 							) }
@@ -111,7 +114,7 @@ const JetpackBenefits = props => {
 					</ul>
 				</div>
 			) }
-		</React.Fragment>
+		</Fragment>
 	);
 };
 

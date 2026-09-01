@@ -1,5 +1,9 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * These are helpers for the shortcode and embed render endpoints.
  */
@@ -21,7 +25,7 @@ abstract class WPCOM_JSON_API_Render_Endpoint extends WPCOM_JSON_API_Endpoint {
 	public function process_render( $callback, $callback_arg ) {
 		global $wp_scripts, $wp_styles;
 
-		if ( false === defined( 'STYLESHEETPATH' ) ) {
+		if ( ! defined( 'STYLESHEETPATH' ) ) {
 			wp_templating_constants();
 		}
 
@@ -111,7 +115,7 @@ abstract class WPCOM_JSON_API_Render_Endpoint extends WPCOM_JSON_API_Endpoint {
 				// is there a special media (print, screen, etc) for this? if not, default to 'all'
 				$media = 'all';
 				if ( isset( $wp_styles->registered[ $handle ]->args ) ) {
-					$media = esc_attr( $wp_styles->registered[ $handle ]->args );
+					$media = esc_attr( (string) $wp_styles->registered[ $handle ]->args );
 				}
 
 				// add to an array so we can return all this info

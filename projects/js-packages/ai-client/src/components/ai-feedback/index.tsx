@@ -17,7 +17,7 @@ import './style.scss';
 /**
  * Types
  */
-import type React from 'react';
+import type { ReactElement } from 'react';
 
 type AiFeedbackThumbsProps = {
 	disabled?: boolean;
@@ -48,7 +48,7 @@ function getFeatureAvailability( feature: string ): boolean {
  * AiFeedbackThumbs component.
  *
  * @param {AiFeedbackThumbsProps} props - component props.
- * @return {React.ReactElement} - rendered component.
+ * @return {ReactElement} - rendered component.
  */
 export default function AiFeedbackThumbs( {
 	disabled = false,
@@ -58,7 +58,7 @@ export default function AiFeedbackThumbs( {
 	savedRatings = {},
 	options = {},
 	onRate,
-}: AiFeedbackThumbsProps ): React.ReactElement {
+}: AiFeedbackThumbsProps ): ReactElement {
 	if ( ! getFeatureAvailability( 'ai-response-feedback' ) ) {
 		return null;
 	}

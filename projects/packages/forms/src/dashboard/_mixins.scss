@@ -1,0 +1,37 @@
+/**
+ * Shared mixins for the Forms dashboard
+ */
+
+@use "@wordpress/base-styles/breakpoints";
+
+/**
+ * DataViews footer spacing mixin
+ * Applies consistent bottom margin for elements that need to compensate
+ * for fixed footer.
+ * Mobile: 97px, Desktop (782px+): 57px
+ */
+@mixin dataviews-footer-spacing {
+	margin-bottom: 97px;
+
+	@media (min-width: #{ (breakpoints.$break-medium + 1) }) {
+		margin-bottom: 57px;
+	}
+}
+
+/**
+ * Flex column layout
+ * Commonly used pattern for vertical flex layouts
+ */
+@mixin flex-column {
+	display: flex;
+	flex-direction: column;
+}
+
+/**
+ * Flex row with center alignment
+ * Commonly used pattern for horizontally aligned items
+ */
+@mixin flex-center {
+	display: flex;
+	align-items: center;
+}

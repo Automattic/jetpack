@@ -5,6 +5,42 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.0.0] - 2026-08-26
+### Removed
+- Minimum supported PHP version is now 7.4. [#51515]
+
+## [3.0.15] - 2026-06-15
+### Changed
+- Internal updates.
+
+## [3.0.14] - 2026-06-08
+### Changed
+- Internal updates.
+
+## [3.0.13] - 2026-06-03
+### Changed
+- Internal updates.
+
+## [3.0.12] - 2026-05-21
+### Fixed
+- Phan: Address PhanPluginDuplicateConditionalNullCoalescing violations. [#48887]
+
+## [3.0.11] - 2026-05-19
+### Changed
+- Internal updates.
+
+## [3.0.10] - 2026-05-04
+### Changed
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+
+## [3.0.9] - 2025-08-25
+### Fixed
+- Code: Resolve PhanImpossibleCondition violations. [#44869]
+
+## [3.0.8] - 2025-07-21
+### Changed
+- Internal updates.
+
 ## [3.0.7] - 2025-04-28
 ### Changed
 - Internal updates.
@@ -245,6 +281,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Create Jetpack Redirect package
 
+[4.0.0]: https://github.com/Automattic/jetpack-redirect/compare/v3.0.15...v4.0.0
+[3.0.15]: https://github.com/Automattic/jetpack-redirect/compare/v3.0.14...v3.0.15
+[3.0.14]: https://github.com/Automattic/jetpack-redirect/compare/v3.0.13...v3.0.14
+[3.0.13]: https://github.com/Automattic/jetpack-redirect/compare/v3.0.12...v3.0.13
+[3.0.12]: https://github.com/Automattic/jetpack-redirect/compare/v3.0.11...v3.0.12
+[3.0.11]: https://github.com/Automattic/jetpack-redirect/compare/v3.0.10...v3.0.11
+[3.0.10]: https://github.com/Automattic/jetpack-redirect/compare/v3.0.9...v3.0.10
+[3.0.9]: https://github.com/Automattic/jetpack-redirect/compare/v3.0.8...v3.0.9
+[3.0.8]: https://github.com/Automattic/jetpack-redirect/compare/v3.0.7...v3.0.8
 [3.0.7]: https://github.com/Automattic/jetpack-redirect/compare/v3.0.6...v3.0.7
 [3.0.6]: https://github.com/Automattic/jetpack-redirect/compare/v3.0.5...v3.0.6
 [3.0.5]: https://github.com/Automattic/jetpack-redirect/compare/v3.0.4...v3.0.5

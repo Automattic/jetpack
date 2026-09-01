@@ -1,0 +1,310 @@
+import { Meta, Canvas, Story, Source } from '@storybook/addon-docs/blocks';
+import * as [FeatureName]Stories from './[feature-name].stories';
+
+<Meta title="JS Packages/Charts Library/[Category]/[Component]/[Feature]" of={ [FeatureName]Stories } />
+
+# [Component] [Feature Name]
+
+[Brief 1-2 sentence description of what this feature does and its primary use case.]
+
+<Canvas of={ [FeatureName]Stories.Default } />
+
+## Overview
+
+The [Component] component supports [feature description], providing [benefits and key capabilities]:
+
+<Source
+	language="tsx"
+	code={ `import { [Component] } from '@automattic/charts';
+
+		<[Component] data={ data }>
+			<[Component].[FeatureComponent]>
+				<[Component].[SubComponent]
+					[key-required-props]
+					[key-optional-props]
+				/>
+			</[Component].[FeatureComponent]>
+		</[Component]>
+	` }
+/>
+
+## API Reference
+
+For detailed information about component props, types, and method signatures, see the [[Component] [Feature Name] API Reference](./?path=/docs/js-packages-charts-library-[category]-[component]-[feature]-api-reference--docs).
+
+## Basic Usage
+
+### Basic [Feature Name]
+
+[Description of the simplest implementation and when to use it]:
+
+<Canvas of={ [FeatureName]Stories.Default } />
+
+<Source
+	language="tsx"
+	code={ `<[Component] data={ data }>
+			<[Component].[FeatureComponent]>
+				<[Component].[SubComponent]
+					[minimal-props-example]
+				/>
+			</[Component].[FeatureComponent]>
+		</[Component]>
+	` }
+/>
+
+### Required Props
+
+- **`[propName]`**: [Description of what this prop does and its purpose]
+- **`[anotherRequiredProp]`**: [Description]
+
+### Optional Props
+
+For detailed information about all optional props, see the [[Component] [Feature Name] API Reference](./?path=/docs/js-packages-charts-library-[category]-[component]-[feature]-api-reference--docs).
+
+## [Feature] Types
+
+### [Primary Type] (Default)
+
+[Description of the default/primary variation and when to use it]:
+
+<Canvas of={ [FeatureName]Stories.Default } />
+
+### [Variation Type]
+
+[Description and specific use case for this variation]:
+
+<Canvas of={ [FeatureName]Stories.[VariationName] } />
+
+<Source
+	language="tsx"
+	code={ `<[Component].[SubComponent]
+			[variation-specific-props]
+		/>
+	`}
+/>
+
+### [Another Variation Type]
+
+[Description and use case]:
+
+<Canvas of={ [FeatureName]Stories.[AnotherVariation] } />
+
+### [Mixed/Combined Usage]
+
+[If applicable, show how different variations work together]:
+
+<Canvas of={ [FeatureName]Stories.Mixed } />
+
+## Interactive Features
+
+[Only include this section if the chart supports interactive features such as tooltips or pointer events. Remove this section entirely if the chart has no interactive capabilities.]
+
+### Tooltips
+
+Enable interactive tooltips that display data information on hover:
+
+<Source
+	language="tsx"
+	code={ `<[Component]
+		data={ data }
+		withTooltips={ true }
+		renderTooltip={ ({ datum, color }) => (
+			<div>
+				<div>{ datum.label }: { datum.value }</div>
+			</div>
+		) }
+	/>` }
+/>
+
+### Keyboard Navigation
+
+Charts are fully keyboard accessible:
+- **Tab**: Focus the chart
+- **Arrow Keys**: Navigate between data points
+- **Enter/Space**: Activate tooltips
+- **Escape**: Close active tooltips
+
+## Legends
+
+[Only include this section if the chart supports legends. Remove this section entirely if the chart has no legend capabilities.]
+
+[Brief description of the legend for this chart type]:
+
+<Canvas of={ [FeatureName]Stories.WithCompositionLegend } />
+
+<Source
+	language="tsx"
+	code={ `<[Component] data={ data }>
+		<[Component].Legend />
+	</[Component]>` }
+/>
+
+For full legend configuration options — positioning, orientation, shapes, interactivity, and the composition API — see the [Legend component docs](./?path=/docs/js-packages-charts-library-components-legend--docs).
+
+## Styling and Customization
+
+### Custom [Styling Aspect]
+
+[Explanation of how to customize appearance with examples]:
+
+<Canvas of={ [FeatureName]Stories.Styled } />
+
+<Source
+	language="tsx"
+	code={ `<[Component].[SubComponent]
+			[props]
+			styles={ {
+				[styleCategory]: {
+					[property]: '[value]',
+				},
+			} }
+		/>
+	` }
+/>
+
+### Styling Options
+
+The `styles` prop accepts the following nested objects[, based on [external library reference if applicable]]:
+
+#### `[styleCategory]`
+
+Controls [what this category affects]:
+
+- `[property]`: [Description and possible values]
+- `[anotherProperty]`: [Description]
+
+#### `[anotherStyleCategory]`
+
+Controls [what this affects]:
+
+- `[property]`: [Description]
+
+## Theming Integration
+
+[Component]s integrate seamlessly with the chart theming system. The default theme has neutral colors and styling, and is automatically applied to all charts unless a custom theme is provided. A custom theme can be provided by wrapping your chart in `GlobalChartsProvider` and passing a custom theme object with the properties you want to override to the `theme` prop:
+
+<Source
+	language="tsx"
+	code={ `import { GlobalChartsProvider, [Component], type ChartTheme } from '@automattic/charts';
+
+	const customTheme: ChartTheme = {
+		colors: ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A'],
+		[otherThemeProperties]: [values],
+	};
+
+	<GlobalChartsProvider theme={customTheme}>
+		<[Component] data={data} />
+	</GlobalChartsProvider>` }
+/>
+
+## Responsive Behavior
+
+By default, charts **fill their parent container's dimensions**. The parent must have an explicit height:
+
+<Source
+	language="tsx"
+	code={ `// Fill parent container (default) - parent needs explicit height
+		<div style={{ width: '100%', height: '400px' }}>
+			<[Component] data={ data } />
+		</div>
+
+		// Use aspect ratio - height calculated from width
+		<div style={{ width: '100%' }}>
+			<[Component] data={ data } aspectRatio={ 0.5 } />
+		</div>
+
+		// Fixed dimensions
+		<[Component] data={ data } width={ 800 } height={ 400 } />` }
+/>
+
+For more details on responsive behavior, see the [Responsive Design section](./?path=/docs/js-packages-charts-library-introduction--docs#responsive-design) in the introduction.
+
+## Animation
+
+[Only include this section if the chart component supports animation. Remove this section entirely if animation is not supported.]
+
+The [Component] component supports an optional entry animation that creates a smooth reveal effect when the chart first renders:
+
+<Canvas of={ [FeatureName]Stories.Animation } />
+
+<Source
+	language="tsx"
+	code={ `<[Component]
+		data={ data }
+		animation={ true }
+	/>` }
+/>
+
+### Animation Behavior
+
+- **Opt-in**: Animation is disabled by default and must be explicitly enabled with the `animation` prop
+- **Accessibility**: Automatically respects the user's `prefers-reduced-motion` system setting - animation will not play for users who prefer reduced motion
+- **Effect**: Creates a [describe the animation effect, e.g., "radial wipe reveal effect" for pie charts, or the specific animation type for the chart]
+- **Duration**: [Animation duration in milliseconds, e.g., "1000ms (1 second)"]
+
+**Note**: The animation plays once when the chart initially renders and does not repeat.
+
+## Custom [Feature Name]
+
+### Custom [Aspect] Rendering
+
+[Explanation of custom rendering capabilities]:
+
+<Canvas of={ [FeatureName]Stories.Custom } />
+
+<Source
+	language="tsx"
+	code={`[custom-implementation-example]`}
+/>
+
+### Interactive [Feature Name]
+
+[If applicable, show interactive capabilities]:
+
+<Source
+	language="tsx"
+	code={ `[interactive-example]` }
+/>
+
+## Advanced Features
+
+### [Advanced Feature Name]
+
+[Explanation of complex functionality with practical examples].
+
+### [Another Advanced Feature]
+
+[More advanced usage patterns and edge cases].
+
+## Accessibility
+
+### Keyboard Navigation
+
+- [Key interactions and expected behaviors]
+- [Navigation patterns]
+
+### Screen Reader Support
+
+- [ARIA attributes and labels used]
+- [Any limitations or considerations for screen readers]
+
+### Focus Management
+
+- [Focus behavior and visual indicators]
+- [Focus trapping or restoration if applicable]
+
+## Migration from [Legacy API]
+
+[If applicable, provide migration examples]:
+
+<Source
+	language="tsx"
+	code={ `// Old API (deprecated)
+		[legacy-example]
+
+		// New API
+		[new-api-example]
+	` }
+/>
+
+[Brief explanation of benefits of the new approach and any breaking changes to be aware of].

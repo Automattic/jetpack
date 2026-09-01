@@ -8,6 +8,7 @@
 
 namespace Automattic\Jetpack\Connection;
 
+use Exception;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Depends;
 use PHPUnit\Framework\TestCase;
@@ -42,6 +43,18 @@ class Plugin_Test extends TestCase {
 		Plugin_Storage::configure();
 	}
 
+	protected function tearDown(): void {
+		parent::tearDown();
+
+		$reflection       = new \ReflectionClass( Plugin_Storage::class );
+		$plugins_property = $reflection->getProperty( 'plugins' );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$plugins_property->setAccessible( true );
+		}
+		$plugins_property->setValue( null, array() );
+	}
+
 	/**
 	 * Unit test for the `Plugin::add()` method.
 	 */
@@ -64,5 +77,67 @@ class Plugin_Test extends TestCase {
 		$plugin->remove();
 
 		$this->assertArrayNotHasKey( self::PLUGIN_SLUG, Plugin_Storage::get_all() );
+	}
+
+	/**
+	 * Unit test for the `Plugin::is_only()` method when no plugins exist.
+	 */
+	public function test_is_only_no_plugins() {
+		$plugin = new Plugin( self::PLUGIN_SLUG );
+
+		$this->assertTrue( $plugin->is_only() );
+	}
+
+	/**
+	 * Unit test for the `Plugin::is_only()` method when current plugin is the only one.
+	 */
+	public function test_is_only_single_plugin() {
+		$plugin = new Plugin( self::PLUGIN_SLUG );
+		$plugin->add( self::PLUGIN_NAME, $this->plugin_args );
+
+		$this->assertTrue( $plugin->is_only() );
+	}
+
+	/**
+	 * Unit test for the `Plugin::is_only()` method when multiple plugins exist.
+	 */
+	public function test_is_only_multiple_plugins() {
+		$plugin1 = new Plugin( self::PLUGIN_SLUG );
+		$plugin1->add( self::PLUGIN_NAME, $this->plugin_args );
+
+		$plugin2 = new Plugin( 'another-plugin' );
+		$plugin2->add( 'Another Plugin', array() );
+
+		$this->assertFalse( $plugin1->is_only() );
+	}
+
+	/**
+	 * Unit test for the `Plugin::is_only()` method when Plugin_Storage::get_all() returns WP_Error with 'too_early' code.
+	 */
+	public function test_is_only_too_early() {
+		$plugin = new Plugin( self::PLUGIN_SLUG );
+
+		// De-configuring the `Plugin_Storage` to trigger the error.
+		$reflection          = new \ReflectionClass( Plugin_Storage::class );
+		$configured_property = $reflection->getProperty( 'configured' );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$configured_property->setAccessible( true );
+		}
+		$configured_property->setValue( null, false );
+
+		set_error_handler(
+			// @phan-suppress-next-line PhanPluginNeverReturnFunction,PhanTypeMismatchArgumentInternal The complaints aren't compatible with PHP <8.0
+			static function ( int $errno, string $errstr ): void {
+				restore_error_handler();
+				throw new Exception( $errstr, $errno );
+			},
+			E_ALL
+		);
+
+		$this->expectException( Exception::class );
+		$this->expectExceptionMessage( 'too_early' );
+
+		$plugin->is_only();
 	}
 }

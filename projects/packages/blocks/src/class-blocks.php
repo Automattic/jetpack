@@ -75,11 +75,27 @@ class Blocks {
 		if ( ! self::is_standalone_block() ) {
 			// If the block is dynamic, and a Jetpack block, wrap the render_callback to check availability.
 			if ( ! empty( $args['plan_check'] ) ) {
+				$existing_attributes = array();
+				$gated_blocks        = array(
+					'jetpack/calendly',
+					'jetpack/donations',
+					'jetpack/payment-buttons',
+					'jetpack/paypal-payment-buttons',
+				);
+				if ( in_array( $slug, $gated_blocks, true ) &&
+					is_string( $block_type ) &&
+					file_exists( $block_type )
+				) {
+					$metadata            = self::get_block_metadata( $block_type );
+					$existing_attributes = $metadata['attributes'] ?? array();
+				}
+
 				// Set up attributes.
 				if ( ! isset( $args['attributes'] ) ) {
 					$args['attributes'] = array();
 				}
 				$args['attributes'] = array_merge(
+					$existing_attributes,
 					$args['attributes'],
 					array(
 						// Indicates that this block should display an upgrade nudge on the frontend when applicable.
@@ -109,6 +125,11 @@ class Blocks {
 			if ( ! isset( $args['editor_style'] ) ) {
 				$args['editor_style'] = 'jetpack-blocks-editor';
 			}
+
+			// Keep track of the JS loading strategy for any block that specifies it.
+			if ( isset( $args['js_loading_strategy'] ) ) {
+				Jetpack_Gutenberg::set_block_js_loading_strategy( $feature_name, $args['js_loading_strategy'] );
+			}
 		}
 
 		return register_block_type( $block_type, $args );
@@ -135,7 +156,7 @@ class Blocks {
 			}
 		}
 
-		return isset( $metadata ) ? $metadata : array();
+		return $metadata ?? array();
 	}
 
 	/**
@@ -450,8 +471,19 @@ class Blocks {
 	 */
 	public static function get_path_to_block_metadata( $block_src_dir, $package_dist_dir = '' ) {
 		$dir       = basename( $block_src_dir );
-		$dist_path = empty( $package_dist_dir ) ? dirname( Jetpack_Constants::get_constant( 'JETPACK__PLUGIN_FILE' ) ) . '/_inc/blocks' : $package_dist_dir;
-		$result    = realpath( "$dist_path/$dir" );
+		$dist_path = $package_dist_dir;
+
+		if ( empty( $dist_path ) ) {
+			$plugin_file = Jetpack_Constants::get_constant( 'JETPACK__PLUGIN_FILE' );
+			// Guard against strange situations where JETPACK__PLUGIN_FILE is undefined.
+			if ( empty( $plugin_file ) ) {
+				return $block_src_dir;
+			}
+
+			$dist_path = dirname( $plugin_file ) . '/_inc/blocks';
+		}
+
+		$result = realpath( "$dist_path/$dir" );
 
 		return false === $result ? $block_src_dir : $result;
 	}

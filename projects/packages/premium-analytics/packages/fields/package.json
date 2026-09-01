@@ -1,0 +1,35 @@
+{
+	"name": "@automattic/jetpack-premium-analytics-fields",
+	"version": "0.1.0",
+	"private": true,
+	"type": "module",
+	"main": "src/index.ts",
+	"sideEffects": [
+		"*.scss",
+		"*.module.css"
+	],
+	"module": "build-module/index.mjs",
+	"wpScriptModuleExports": "./build-module/index.mjs",
+	"types": "src/index.ts",
+	"dependencies": {
+		"@jetpack-premium-analytics/data": "workspace:*",
+		"@jetpack-premium-analytics/datetime": "workspace:*",
+		"@jetpack-premium-analytics/externals": "workspace:*",
+		"@jetpack-premium-analytics/routing": "workspace:*",
+		"@jetpack-premium-analytics/ui": "workspace:*",
+		"@wordpress/components": "37.0.0",
+		"@wordpress/element": "8.3.0",
+		"@wordpress/i18n": "^6.9.0",
+		"@wordpress/icons": "^15.0.0",
+		"@wordpress/private-apis": "1.53.0",
+		"@wordpress/widget-primitives": "0.5.0",
+		"date-fns": "4.1.0",
+		"react": "18.3.1"
+	},
+	"devDependencies": {
+		"@jetpack-premium-analytics/icons": "workspace:*",
+		"@storybook/react": "10.4.6",
+		"@testing-library/react": "16.3.2",
+		"@testing-library/user-event": "14.6.1"
+	}
+}

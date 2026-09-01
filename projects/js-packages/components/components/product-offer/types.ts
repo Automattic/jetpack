@@ -1,5 +1,6 @@
 import { ProductPriceProps } from '../product-price/types.ts';
 import type { JetpackIconSlug } from '../icons/index.tsx';
+import type { ReactNode } from 'react';
 
 export type ProductOfferProps = {
 	/**
@@ -90,7 +91,7 @@ export type ProductOfferProps = {
 	/**
 	 * Content displayed below the Add button.
 	 */
-	buttonDisclaimer?: React.ReactNode;
+	buttonDisclaimer?: ReactNode;
 
 	/**
 	 * Error message.

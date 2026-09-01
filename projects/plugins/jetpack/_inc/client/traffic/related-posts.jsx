@@ -1,7 +1,8 @@
-import { ToggleControl, getRedirectUrl } from '@automattic/jetpack-components';
+import { getRedirectUrl } from '@automattic/jetpack-components';
+import { ToggleControl } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
-import React from 'react';
+import { Component } from 'react';
 import Card from 'components/card';
 import { FormFieldset, FormLabel } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
@@ -10,7 +11,7 @@ import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import analytics from 'lib/analytics';
 
-class RelatedPostsComponent extends React.Component {
+class RelatedPostsComponent extends Component {
 	/**
 	 * Get options for initial state.
 	 *
@@ -125,9 +126,8 @@ class RelatedPostsComponent extends React.Component {
 					</p>
 					<ModuleToggle
 						slug="related-posts"
-						disabled={ unavailableInOfflineMode }
+						disabled={ unavailableInOfflineMode || this.props.isSavingAnyOption( 'related-posts' ) }
 						activated={ isRelatedPostsActive }
-						toggling={ this.props.isSavingAnyOption( 'related-posts' ) }
 						toggleModule={ this.props.toggleModuleNow }
 					>
 						<span className="jp-form-toggle-explanation">
@@ -136,13 +136,13 @@ class RelatedPostsComponent extends React.Component {
 					</ModuleToggle>
 					<FormFieldset>
 						<ToggleControl
+							__nextHasNoMarginBottom={ true }
 							checked={ this.props.getOptionValue( 'show_headline', 'related-posts' ) }
 							disabled={
 								! isRelatedPostsActive ||
 								unavailableInOfflineMode ||
 								this.props.isSavingAnyOption( [ 'related-posts' ] )
 							}
-							toggling={ this.props.isSavingAnyOption( [ 'show_headline' ] ) }
 							onChange={ this.handleShowHeadlineToggleChange }
 							label={
 								<span className="jp-form-toggle-explanation">
@@ -151,13 +151,13 @@ class RelatedPostsComponent extends React.Component {
 							}
 						/>
 						<ToggleControl
+							__nextHasNoMarginBottom={ true }
 							checked={ this.props.getOptionValue( 'show_thumbnails', 'related-posts' ) }
 							disabled={
 								! isRelatedPostsActive ||
 								unavailableInOfflineMode ||
 								this.props.isSavingAnyOption( [ 'related-posts' ] )
 							}
-							toggling={ this.props.isSavingAnyOption( [ 'show_thumbnails' ] ) }
 							onChange={ this.handleShowThumbnailsToggleChange }
 							label={
 								<span className="jp-form-toggle-explanation">

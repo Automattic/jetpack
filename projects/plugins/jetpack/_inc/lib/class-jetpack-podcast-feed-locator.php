@@ -5,19 +5,26 @@
  * @package automattic/jetpack
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Class Jetpack_Podcast_Feed_Locator
  */
 class Jetpack_Podcast_Feed_Locator extends SimplePie\Locator {
+
 	/**
 	 * Overrides the locator is_feed function to check for
 	 * appropriate podcast elements.
 	 *
-	 * @param SimplePie\File $file The file being checked.
-	 * @param boolean        $check_html Adds text/html to the mimetypes checked.
+	 * @param SimplePie\HTTP\Response $file The file being checked.
+	 * @param boolean                 $check_html Adds text/html to the mimetypes checked.
 	 */
 	public function is_feed( $file, $check_html = false ) {
-		return parent::is_feed( $file, $check_html ) && $this->is_podcast_feed( $file );
+		return parent::is_feed( $file, $check_html ) &&
+			$file instanceof SimplePie\File &&
+			$this->is_podcast_feed( $file );
 	}
 
 	/**
@@ -33,7 +40,13 @@ class Jetpack_Podcast_Feed_Locator extends SimplePie\Locator {
 			return true;
 		}
 
-		$feed_dom = $this->safely_load_xml( $file->body );
+		// @todo Drop is_callable check once WordPress.com Simple gets the SimplePie update that came with WordPress 6.9.
+		if ( is_callable( array( $file, 'get_body_content' ) ) ) {
+			$feed_dom = $this->safely_load_xml( $file->get_body_content() );
+		} else {
+			// @phan-suppress-next-line PhanDeprecatedProperty -- For compatibility only.
+			$feed_dom = $this->safely_load_xml( (string) $file->body );
+		}
 
 		// Do this as either/or but prioritise the itunes namespace. It's pretty likely
 		// that it's a podcast feed we've found if that namespace is present.
@@ -44,9 +57,13 @@ class Jetpack_Podcast_Feed_Locator extends SimplePie\Locator {
 	 * Safely loads an XML file
 	 *
 	 * @param string $xml A string of XML to load.
-	 * @return DOMDocument|false A restulting DOM document or `false` if there is an error.
+	 * @return DOMDocument|false A resulting DOM document or `false` if there is an error.
 	 */
 	private function safely_load_xml( $xml ) {
+		if ( empty( $xml ) ) {
+			return false;
+		}
+
 		$disable_entity_loader = PHP_VERSION_ID < 80000;
 
 		if ( $disable_entity_loader ) {

@@ -97,8 +97,9 @@ class Dashboard {
 
 		if ( $this->should_add_search_submenu() ) {
 			$page_suffix = Admin_Menu::add_menu(
-				__( 'Jetpack Search', 'jetpack-search-pkg' ),
-				_x( 'Search', 'product name shown in menu', 'jetpack-search-pkg' ),
+				/** "Search" is a product name, do not translate. */
+				'Jetpack Search',
+				'Search',
 				'manage_options',
 				'jetpack-search',
 				array( $this, 'render' ),
@@ -108,8 +109,9 @@ class Dashboard {
 			// always add the page, but hide it from the menu.
 			$page_suffix = add_submenu_page(
 				'',
-				__( 'Jetpack Search', 'jetpack-search-pkg' ),
-				_x( 'Search', 'product name shown in menu', 'jetpack-search-pkg' ),
+				/** "Search" is a product name, do not translate. */
+				'Jetpack Search',
+				'Search',
 				'manage_options',
 				'jetpack-search',
 				array( $this, 'render' )

@@ -10,6 +10,10 @@ namespace Automattic\Jetpack\Third_Party;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Status\Host;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Handles suppressing development version notices on Atomic-hosted sites.
  *

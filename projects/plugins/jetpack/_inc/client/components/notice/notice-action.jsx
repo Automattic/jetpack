@@ -1,10 +1,10 @@
 import PropTypes from 'prop-types';
-import React from 'react';
+import { Component } from 'react';
 import Gridicon from 'components/gridicon';
 
 import './style.scss';
 
-export default class NoticeAction extends React.Component {
+export default class NoticeAction extends Component {
 	static displayName = 'NoticeAction';
 
 	static propTypes = {
@@ -12,6 +12,7 @@ export default class NoticeAction extends React.Component {
 		onClick: PropTypes.func,
 		external: PropTypes.bool,
 		icon: PropTypes.string,
+		variant: PropTypes.oneOf( [ 'primary', 'secondary' ] ),
 	};
 
 	static defaultProps = {
@@ -19,8 +20,13 @@ export default class NoticeAction extends React.Component {
 	};
 
 	render() {
+		let className = 'dops-notice__action';
+		if ( this.props.variant === 'secondary' ) {
+			className += ' is-secondary';
+		}
+
 		const attributes = {
-			className: 'dops-notice__action',
+			className,
 			href: this.props.href,
 			onClick: this.props.onClick,
 		};

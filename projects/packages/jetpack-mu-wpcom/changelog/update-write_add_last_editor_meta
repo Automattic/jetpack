@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Write: Set _last_editor_used_jetpack meta for editor attribution and fire client-side publish tracking event.

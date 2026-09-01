@@ -1,11 +1,11 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 set -eo pipefail
 
 source "$GITHUB_WORKSPACE/trunk/.github/files/gh-funcs.sh"
 
-# Based on Automattic/pre-receive-hooks/blob/221f27e6/common/050-stop-underscores.sh
-IGNORE_UNDERSCORE_RULE_FOR='bin/wp-cli|bin/wp-cli-wpcom|wp-includes/sodium_compat|wp-content/plugins/glotpress|.phabricator-linter|wp-content/lib/nosara/ThriftSQL.src/ThriftGenerated/|wp-content/lib/aws/vendor/|wp-content/plugins/woocommerce/|wp-content/plugins/woocommerce-payments/|wp-content/plugins/woocommerce-subscriptions/|wp-content/plugins/p2(-wpcom)?|wp-content/lib/google/|wp-content/plugins/woo-gutenberg-products-block/vendor/|/autoload_|/vendor/composer/|wp-content/a8c-plugins/one-offs/a8cmaileditor/'
+# Based on Automattic/pre-receive-hooks/blob/b3ca8ab/main-pre-receive-hooks.sh (050_stop_underscores)
+IGNORE_UNDERSCORE_RULE_FOR='bin/wp-cli|bin/wp-cli-wpcom|wp-includes/sodium_compat|wp-content/plugins/glotpress|.phabricator-linter|wp-content/lib/nosara/ThriftSQL.src/ThriftGenerated/|wp-content/lib/aws/vendor/|wp-content/plugins/woocommerce/|wp-content/plugins/woocommerce-payments/|wp-content/plugins/woocommerce-subscriptions/|wp-content/plugins/p2(-wpcom)?|wp-content/lib/google/|wp-content/plugins/woo-gutenberg-products-block/vendor/|/autoload_|/vendor/composer/|wp-content/a8c-plugins/one-offs/a8cmaileditor/|docs/vendor/'
 function check_underscores {
 	local FILE="$1"
 	if echo "$PREFIX/$FILE" |
@@ -22,30 +22,18 @@ function check_underscores {
 	fi
 }
 
-# Based on Automattic/pre-receive-hooks/blob/221f27e6/common/120-stop-invalid-chars.sh
+# Based on Automattic/pre-receive-hooks/blob/a8ad6e0c/main-pre-receive-hooks.sh (120_stop_invalid_characters)
 function check_invalid_chars {
 	local FILE="$1"
-	local Z=$( LC_ALL=C grep -aP '[^a-zA-Z._0-9/-]' <<<"$FILE" || true )
+	local Z
+	Z=$( LC_ALL=C grep -aP '[^a-zA-Z._0-9/@\-,]' <<<"$FILE" || true )
 	if [[ -n "$Z" ]]; then
 		echo '  ❌ Filename contains disallowed characters!'
-		local snark=
-		if [[ "$FILE" =~ @ ]]; then
-			snark=$' Yes, it\'s silly `@` is not allowed when many such files already exist, but 🤷.'
-		fi
-		failed "$SLUG: Filename \`$FILE\` contains disallowed characters. "'Only a-z, A-Z, 0-9, `.`, `_`, `/`, and `-` are allowed.'"$snark"
+		failed "$SLUG: Filename \`$FILE\` contains disallowed characters. "'Only a-z, A-Z, 0-9, `.`, `_`, `/`, `@`, `-`, and `,` are allowed.'
 	fi
 }
 
-# Based on Automattic/pre-receive-hooks/blob/221f27e6/common/130-stop-executables.sh
-function check_executable {
-	local FILE="$1"
-	if [[ "$( git ls-files -s "${FILE}" | awk '{ print $1 }' )" == "100755" ]]; then
-		echo '  ❌ File cannot be executable!'
-		failed "$SLUG: File \`$FILE\` may not be executable"
-	fi
-}
-
-# Based on Automattic/pre-receive-hooks/blob/221f27e6/common/160-stop-symlinks.sh
+# Based on Automattic/pre-receive-hooks/blob/b3ca8ab/main-pre-receive-hooks.sh (160_stop_symlinks)
 function check_symlink {
 	local FILE="$1"
 	if [[ "$( git ls-files -s "${FILE}" | awk '{ print $1 }' )" == "120000" ]]; then
@@ -77,7 +65,6 @@ function failed {
 # Adapted from projects/github-actions/push-to-mirrors/push-to-mirrors.sh
 echo "::group::Fetching commits for Upstream-Ref matching"
 cd "$GITHUB_WORKSPACE/commit"
-git -c protocol.version=2 fetch --unshallow --filter=tree:0 --no-tags --progress --no-recurse-submodules origin HEAD
 # GitHub may not have an up-to-date git
 UPSTREAM_REF_SINCE=2024-04-10
 ARGS=()
@@ -127,7 +114,7 @@ function get_upstream_sha {
 	return 1
 }
 
-while IFS=$'\t' read -r SRC MIRROR SLUG; do
+while IFS=$'\t' read -r _ MIRROR SLUG; do
 	if [[ "$SLUG" == jetpack ]]; then
 		PREFIX=wp-content/mu-plugins/jetpack-plugin/sun
 	elif [[ "$SLUG" == jetpack-mu-wpcom-plugin ]]; then
@@ -139,9 +126,14 @@ while IFS=$'\t' read -r SRC MIRROR SLUG; do
 
 	cd "$GITHUB_WORKSPACE/build/$MIRROR"
 
+	if [[ -e .git ]]; then
+		failed "$SLUG: Artifact contains a \`.git\` dir. This is not allowed, aborting check."
+		continue
+	fi
+
 	echo "::group::Initializing $SLUG"
 	git init -b "tmp" .
-	git config --local gc.auto 0
+	git config --local maintenance.auto false
 	git remote add origin "${GITHUB_SERVER_URL}/${MIRROR}"
 	if ! UPSTREAM_SHA=$( get_upstream_sha ); then
 		echo "::endgroup::"
@@ -159,7 +151,6 @@ while IFS=$'\t' read -r SRC MIRROR SLUG; do
 		echo "- $FILE"
 		check_underscores "$FILE"
 		check_invalid_chars "$FILE"
-		# check_executable "$FILE" # Not enabled for wpcom?
 		check_symlink "$FILE"
 	done < <( git -c core.quotepath=off diff --cached --name-only --no-renames --diff-filter=A )
 
@@ -167,9 +158,8 @@ while IFS=$'\t' read -r SRC MIRROR SLUG; do
 	echo 'Modified files:'
 	while IFS= read -r FILE; do
 		echo "- $FILE"
-		# check_executable "$FILE" # Not enabled for wpcom?
 		check_symlink "$FILE"
-	done < <( git -c core.quotepath=off diff --cached --name-only --no-renames --diff-filter=M )
+	done < <( git -c core.quotepath=off diff --cached --name-only --no-renames --diff-filter=MT )
 
 	if [[ -z "$FAILED" ]]; then
 		OUTPUT+=( "✅ $SLUG: All good!" )

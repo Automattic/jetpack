@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 WP_DEBUG_LOG=/var/www/html/wp-content/debug.log
 

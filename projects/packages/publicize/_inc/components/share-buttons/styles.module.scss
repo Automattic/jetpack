@@ -1,0 +1,68 @@
+@use "social-logos/colors.css";
+
+.share-buttons {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.7rem;
+
+	a {
+		color: #fff;
+		border-radius: 4px;
+
+		&:hover {
+			color: #fff;
+		}
+	}
+
+	.icon-button {
+		--wp-ui-button-aspect-ratio: 1;
+		--wp-ui-button-padding-inline: 0;
+		--wp-ui-button-min-width: unset;
+		--wp-ui-button-border-color: transparent;
+		--wp-ui-button-border-color-active: transparent;
+
+		svg {
+			fill: currentColor;
+		}
+
+		&:hover,
+		&:focus {
+			background-color: var(--jp-gray-80);
+		}
+	}
+
+	.x {
+		background-color: var(--jp-black);
+	}
+
+	.whatsapp {
+		background-color: var(--jetpack-social-logo-color-whatsapp);
+	}
+
+	.facebook {
+		background-color: var(--jetpack-social-logo-color-facebook);
+		// I hate !important, but social icon has it, so it needs to be overriden
+		border-radius: var(--jp-border-radius) !important;
+	}
+
+	.clipboard {
+		background-color: #fff;
+		outline: 1px solid var(--jp-gray);
+		color: var(--jp-black);
+	}
+}
+
+.vertical {
+	flex-direction: column;
+}
+
+.container {
+	display: flex;
+}
+
+.label.label {
+	font-size: 13px;
+	font-weight: 400;
+	line-height: 24px;
+	margin-inline-start: var(--spacing-base);
+}

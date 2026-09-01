@@ -1,7 +1,8 @@
 /**
  * External dependencies
  */
-import { JETPACK_MODULES_STORE_ID, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
+import { isSimpleSite } from '@automattic/jetpack-script-data';
+import { store as modulesStore } from '@automattic/jetpack-shared-extension-utils';
 import { createReduxStore, register, select } from '@wordpress/data';
 /**
  * Internal dependencies
@@ -19,7 +20,7 @@ try {
 	// Will always be false on simple sites, as jetpack modules request will return 404
 	if ( ! isSimpleSite() ) {
 		const seoModuleSettings = (
-			select( JETPACK_MODULES_STORE_ID ) as JetpackModuleSelector
+			select( modulesStore ) as unknown as JetpackModuleSelector
 		 ).getJetpackModules()[ 'seo-tools' ];
 		const enhancerAvailable =
 			seoModuleSettings && 'ai_seo_enhancer_enabled' in seoModuleSettings.options;

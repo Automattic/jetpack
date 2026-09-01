@@ -1,15 +1,31 @@
 <?php
 
+use Automattic\Jetpack\Status\Cache as StatusCache;
 use PHPUnit\Framework\Attributes\CoversFunction;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Group;
 
 /**
  * Class with PHPUnit tests for Open Graph functions.
  *
  * @since 3.9.2
  * @covers ::jetpack_og_get_image
+ * @covers ::jetpack_og_get_description
+ * @covers ::jetpack_og_remove_query_blocks
+ * @covers ::jetpack_og_get_site_fallback_blank_image
+ * @covers ::jetpack_og_get_site_image
+ * @covers ::jetpack_og_generate_fallback_social_image
+ * @covers ::jetpack_og_get_fallback_social_image
+ * @group jetpack-opengraph
  */
 #[CoversFunction( 'jetpack_og_get_image' )]
+#[CoversFunction( 'jetpack_og_get_description' )]
+#[CoversFunction( 'jetpack_og_remove_query_blocks' )]
+#[CoversFunction( 'jetpack_og_get_site_fallback_blank_image' )]
+#[CoversFunction( 'jetpack_og_get_site_image' )]
+#[CoversFunction( 'jetpack_og_generate_fallback_social_image' )]
+#[CoversFunction( 'jetpack_og_get_fallback_social_image' )]
+#[Group( 'jetpack-opengraph' )]
 class Functions_OpenGraph_Test extends Jetpack_Attachment_TestCase {
 
 	private $icon_id;
@@ -81,6 +97,37 @@ class Functions_OpenGraph_Test extends Jetpack_Attachment_TestCase {
 		$this->assertEquals( $icon[0], $image_url['src'] );
 
 		delete_option( 'site_icon' );
+	}
+
+	/**
+	 * Test Core's custom logo fallback in jetpack_og_get_image.
+	 *
+	 * @since 14.9
+	 */
+	public function test_jetpack_og_get_image_core_custom_logo() {
+		$default_url = jetpack_og_get_image();
+
+		// Set up Core's custom logo
+		set_theme_mod( 'custom_logo', $this->icon_id );
+
+		// Test valid-sized Core's custom logo
+		$image_url      = jetpack_og_get_image( 200, 200 );
+		$custom_logo_id = get_theme_mod( 'custom_logo' );
+		$logo_details   = wp_get_attachment_image_src( $custom_logo_id, 'full' );
+		$this->assertEquals( $logo_details[0], $image_url['src'] );
+		$this->assertEquals( $logo_details[1], $image_url['width'] );
+		$this->assertEquals( $logo_details[2], $image_url['height'] );
+
+		// Test that alt text is included
+		$this->assertArrayHasKey( 'alt_text', $image_url );
+
+		// Test smaller/invalid Core's custom logo (should fall back to default)
+		$image_url = jetpack_og_get_image( 512, 512 );
+		$this->assertNotEquals( $logo_details[0], $image_url['src'] );
+		$this->assertEquals( $default_url['src'], $image_url['src'] );
+
+		// Clean up
+		remove_theme_mod( 'custom_logo' );
 	}
 
 	/**
@@ -284,5 +331,333 @@ class Functions_OpenGraph_Test extends Jetpack_Attachment_TestCase {
 		$image = jetpack_og_get_image();
 
 		$this->assertEquals( $image['alt_text'], $alt_text );
+	}
+
+	/**
+	 * Test jetpack_og_remove_query_blocks with various scenarios.
+	 *
+	 * @dataProvider jetpack_og_remove_query_blocks_data_provider
+	 *
+	 * @param string $description Input description with potential query blocks.
+	 * @param string $expected_result Expected cleaned description.
+	 */
+	#[DataProvider( 'jetpack_og_remove_query_blocks_data_provider' )]
+	public function test_jetpack_og_remove_query_blocks( $description, $expected_result ) {
+		$result = jetpack_og_remove_query_blocks( $description );
+		$this->assertEquals( $expected_result, $result );
+	}
+
+	/**
+	 * Data provider for jetpack_og_remove_query_blocks tests.
+	 */
+	public static function jetpack_og_remove_query_blocks_data_provider() {
+		return array(
+			'basic_query_block_removal' => array(
+				'Some text before. <!-- wp:query {"queryId":49} -->
+<div class="wp-block-query"><!-- wp:post-template -->
+<!-- wp:post-title /-->
+<!-- /wp:post-template --></div>
+<!-- /wp:query --> Some text after.',
+				'Some text before.  Some text after.',
+			),
+			'nested_query_blocks'       => array(
+				'Before. <!-- wp:query {"queryId":1} -->
+<div class="wp-block-query">
+<!-- wp:query {"queryId":2} -->
+<div class="wp-block-query">Nested content</div>
+<!-- /wp:query -->
+</div>
+<!-- /wp:query --> After.',
+				'Before.  After.',
+			),
+			'preserves_other_blocks'    => array(
+				'<!-- wp:paragraph -->
+<p>This paragraph should be preserved.</p>
+<!-- /wp:paragraph -->
+<!-- wp:query {"queryId":1} -->
+<div class="wp-block-query">This should be removed.</div>
+<!-- /wp:query -->
+<!-- wp:heading -->
+<h2>This heading should be preserved.</h2>
+<!-- /wp:heading -->',
+				'<!-- wp:paragraph -->
+<p>This paragraph should be preserved.</p>
+<!-- /wp:paragraph -->
+<!-- wp:heading -->
+<h2>This heading should be preserved.</h2>
+<!-- /wp:heading -->',
+			),
+			'void_query_blocks'         => array(
+				'Before. <!-- wp:query {"queryId":1} /--> After.',
+				'Before.  After.',
+			),
+			'no_query_blocks'           => array(
+				'<!-- wp:paragraph -->
+<p>This content has no query blocks.</p>
+<!-- /wp:paragraph -->',
+				'<!-- wp:paragraph -->
+<p>This content has no query blocks.</p>
+<!-- /wp:paragraph -->',
+			),
+			'empty_string'              => array(
+				'',
+				'',
+			),
+			'null_input'                => array(
+				null,
+				'',
+			),
+			'bool_input'                => array(
+				true,
+				'',
+			),
+			'array_input'               => array(
+				array(),
+				'',
+			),
+			'plain_text_no_blocks'      => array(
+				'This is just plain text with no blocks at all.',
+				'This is just plain text with no blocks at all.',
+			),
+		);
+	}
+
+	/**
+	 * Test if jetpack_og_get_description handles query blocks correctly.
+	 *
+	 * @author automattic
+	 * @since 14.9
+	 */
+	public function test_jetpack_og_get_description_with_query_blocks() {
+		$description_with_query = 'Some text before. <!-- wp:query {"queryId":1} --><div>Query content</div><!-- /wp:query --> Some text after.';
+
+		// The function should remove the query block and then process the remaining text.
+		$result = jetpack_og_get_description( $description_with_query );
+
+		// Should contain the text before and after, but not the query block content.
+		$this->assertStringContainsString( 'Some text before', $result );
+		$this->assertStringContainsString( 'Some text after', $result );
+		$this->assertStringNotContainsString( 'Query content', $result );
+	}
+
+	/**
+	 * Test jetpack_og_get_site_fallback_blank_image with different scenarios.
+	 *
+	 * @dataProvider jetpack_og_get_site_fallback_blank_image_data_provider
+	 *
+	 * @since 14.9
+	 *
+	 * @param string        $expected_url Expected image URL.
+	 * @param callable|null $filter_callback Optional filter callback to add.
+	 */
+	#[DataProvider( 'jetpack_og_get_site_fallback_blank_image_data_provider' )]
+	public function test_jetpack_og_get_site_fallback_blank_image( $expected_url, $filter_callback = null ) {
+		// Add filter if provided.
+		if ( $filter_callback ) {
+			add_filter( 'jetpack_open_graph_image_default', $filter_callback );
+		}
+
+		$image_url = jetpack_og_get_site_fallback_blank_image();
+
+		$this->assertIsString( $image_url );
+		$this->assertEquals( $expected_url, $image_url );
+
+		// Clean up the filter if it was added.
+		if ( $filter_callback ) {
+			remove_filter( 'jetpack_open_graph_image_default', $filter_callback );
+		}
+	}
+
+	/**
+	 * Data provider for jetpack_og_get_site_fallback_blank_image tests.
+	 */
+	public static function jetpack_og_get_site_fallback_blank_image_data_provider() {
+		return array(
+			'default_image' => array(
+				'https://s0.wp.com/i/blank.jpg',
+				null,
+			),
+			'custom_image'  => array(
+				'https://example.com/custom-image.jpg',
+				function () {
+					return 'https://example.com/custom-image.jpg';
+				},
+			),
+		);
+	}
+
+	/**
+	 * Test jetpack_og_get_site_image with different scenarios.
+	 *
+	 * @since 14.9
+	 */
+	public function test_jetpack_og_get_site_image() {
+		// Test blank fallback when no site images are set.
+		$result = jetpack_og_get_site_image( 200, 200 );
+		$this->assertIsArray( $result );
+		$this->assertArrayHasKey( 'src', $result );
+		$this->assertArrayHasKey( 'width', $result );
+		$this->assertArrayHasKey( 'height', $result );
+		$this->assertArrayHasKey( 'type', $result );
+		$this->assertEquals( 'blank', $result['type'] );
+		$this->assertEquals( 200, $result['width'] );
+		$this->assertEquals( 200, $result['height'] );
+		$this->assertEmpty( $result['src'] );
+
+		// Test site icon with valid size.
+		update_option( 'site_icon', $this->icon_id );
+		$result = jetpack_og_get_site_image( 200, 200 );
+		$this->assertEquals( 'site_icon', $result['type'] );
+		$this->assertNotEmpty( $result['src'] );
+
+		// Test site icon with invalid size (too small).
+		$result = jetpack_og_get_site_image( 1000, 1000 );
+		$this->assertEquals( 'blank', $result['type'] );
+		$this->assertEmpty( $result['src'] );
+
+		// Clean up.
+		delete_option( 'site_icon' );
+		delete_option( 'site_logo' );
+	}
+
+	/**
+	 * Test jetpack_og_generate_fallback_social_image with different scenarios.
+	 *
+	 * @dataProvider jetpack_og_generate_fallback_social_image_data_provider
+	 *
+	 * @since 14.9
+	 *
+	 * @param array         $representative_image The representative image array.
+	 * @param array         $expected_result Expected result array.
+	 * @param callable|null $filter_callback Optional filter callback to mock token generation.
+	 */
+	#[DataProvider( 'jetpack_og_generate_fallback_social_image_data_provider' )]
+	public function test_jetpack_og_generate_fallback_social_image( $representative_image, $expected_result, $filter_callback = null ) {
+		// Add filter if provided.
+		if ( $filter_callback ) {
+			add_filter( 'jetpack_og_get_social_image_token', $filter_callback );
+		}
+
+		$result = jetpack_og_generate_fallback_social_image( $representative_image, 'edge' );
+
+		$this->assertIsArray( $result );
+		$this->assertArrayHasKey( 'src', $result );
+		$this->assertArrayHasKey( 'width', $result );
+		$this->assertArrayHasKey( 'height', $result );
+		$this->assertEquals( $expected_result['src'], $result['src'] );
+		$this->assertEquals( $expected_result['width'], $result['width'] );
+		$this->assertEquals( $expected_result['height'], $result['height'] );
+
+		// Clean up the filter if it was added.
+		if ( $filter_callback ) {
+			remove_filter( 'jetpack_og_get_social_image_token', $filter_callback );
+		}
+	}
+
+	/**
+	 * Data provider for jetpack_og_generate_fallback_social_image tests.
+	 */
+	public static function jetpack_og_generate_fallback_social_image_data_provider() {
+		return array(
+			'fallback_when_social_image_generator_unavailable' => array(
+				array(
+					'src'    => 'https://example.com/image.jpg',
+					'width'  => 500,
+					'height' => 500,
+				),
+				array(
+					'src'    => 'https://example.com/image.jpg',
+					'width'  => 500,
+					'height' => 500,
+				),
+				null, // No filter, so it will fall back to representative image
+			),
+			'successful_generation_with_valid_token' => array(
+				array(
+					'src'    => 'https://example.com/image.jpg',
+					'width'  => 500,
+					'height' => 500,
+				),
+				array(
+					'src'    => 'https://s0.wp.com/_si/?t=test_token_12345',
+					'width'  => 1200,
+					'height' => 630,
+				),
+				function () {
+					return 'test_token_12345';
+				},
+			),
+			'wp_error_returns_fallback_image'        => array(
+				array(
+					'src'    => 'https://example.com/image.jpg',
+					'width'  => 500,
+					'height' => 500,
+				),
+				array(
+					'src'    => 'https://example.com/image.jpg',
+					'width'  => 500,
+					'height' => 500,
+				),
+				function () {
+					return new WP_Error( 'test_error', 'Test error message' );
+				},
+			),
+		);
+	}
+
+	/**
+	 * Test that jetpack_og_get_fallback_social_image returns early in offline mode.
+	 */
+	public function test_jetpack_og_get_fallback_social_image_returns_early_in_offline_mode() {
+		// Simulate offline mode.
+		add_filter( 'jetpack_offline_mode', '__return_true' );
+		StatusCache::clear();
+
+		$result = jetpack_og_get_fallback_social_image( 200, 200 );
+
+		$this->assertIsArray( $result );
+		$this->assertArrayHasKey( 'src', $result );
+		// In offline mode the function should return the site image directly,
+		// not a Social Image Generator URL.
+		$this->assertStringNotContainsString( 'https://s0.wp.com/_si/', $result['src'] );
+
+		// Clean up.
+		remove_filter( 'jetpack_offline_mode', '__return_true' );
+		StatusCache::clear();
+	}
+
+	/**
+	 * Test that jetpack_og_get_fallback_social_image skips dynamic image generation in offline mode
+	 * even when a social image token would be available.
+	 */
+	public function test_jetpack_og_get_fallback_social_image_skips_generation_in_offline_mode() {
+		// Simulate offline mode.
+		add_filter( 'jetpack_offline_mode', '__return_true' );
+		StatusCache::clear();
+
+		// Provide a token that would trigger SIG image generation if the function didn't bail early.
+		$token_filter = function () {
+			return 'test_token_should_not_be_used';
+		};
+		add_filter( 'jetpack_og_get_social_image_token', $token_filter );
+
+		// Set a site icon so we get a deterministic site image with a real src.
+		update_option( 'site_icon', $this->icon_id );
+
+		$result = jetpack_og_get_fallback_social_image( 200, 200 );
+
+		$this->assertIsArray( $result );
+		$this->assertArrayHasKey( 'src', $result );
+		// The token should never be used — the function should return before reaching generation.
+		$this->assertStringNotContainsString( 'test_token_should_not_be_used', $result['src'] );
+		$this->assertStringNotContainsString( 'https://s0.wp.com/_si/', $result['src'] );
+		// It should return the site icon image.
+		$this->assertEquals( 'site_icon', $result['type'] );
+
+		// Clean up.
+		remove_filter( 'jetpack_offline_mode', '__return_true' );
+		remove_filter( 'jetpack_og_get_social_image_token', $token_filter );
+		delete_option( 'site_icon' );
+		StatusCache::clear();
 	}
 }

@@ -1,6 +1,6 @@
-@import '../../mixin';
-@import '../../../scss/mixin_breakpoint';
-@import '../../../scss/variables/colors';
+@use "../../mixin";
+@use "../../../scss/mixins/breakpoints";
+@use "../../../scss/variables/colors";
 
 .jp-recommendations-question__content {
 	display: flex;
@@ -9,7 +9,7 @@
 
 .jp-recommendations-question__main--with-sidebar .jp-recommendations-question__content {
 
-	@include breakpoint( '>660px' ) {
+	@include breakpoints.breakpoint( ">660px" ) {
 		padding-right: 48px;
 	}
 }
@@ -29,36 +29,33 @@
 .jp-recommendations-question__progress-bar-wrap {
 	display: flex;
 	align-items: center;
+	gap: 1rem;
 	margin: 32px 32px 0 32px;
 
-	@include breakpoint( '<480px' ) {
+	@include breakpoints.breakpoint( "<480px" ) {
 		margin: 16px 16px 32px 16px;
-	}
-
-	.jp-recommendations__new-badge {
-		margin-right: 1rem;
 	}
 }
 
 .jp-recommendations-question__question {
-	color: var( --jp-gray-80 );
+	color: var(--jp-gray-80);
 
 	font-size: 1.5rem;
 	margin: 2.5rem 2.5rem 1rem 2.5rem;
 
-	@include breakpoint( '<480px' ) {
+	@include breakpoints.breakpoint( "<480px" ) {
 		margin: 0 1rem 2rem 1rem;
 	}
 }
 
 .jp-recommendations-question__description {
-	color: var( --jp-gray-100 );
+	color: var(--jp-gray-100);
 
 	font-size: 1rem;
 
 	margin: 1rem 2rem 2rem 2.5rem;
 
-	@include breakpoint( '<480px' ) {
+	@include breakpoints.breakpoint( "<480px" ) {
 		margin: 0 1rem 1rem 1rem;
 	}
 
@@ -76,7 +73,7 @@
 }
 
 .jp-recommendations-question__description-list {
-	color: var( --jp-gray-100 );
+	color: var(--jp-gray-100);
 	font-size: 1rem;
 	margin: 0 2rem 2rem 2.5rem;
 
@@ -90,12 +87,13 @@
 		margin-bottom: 0.5rem;
 	}
 
-	@include breakpoint( '<480px' ) {
+	@include breakpoints.breakpoint( "<480px" ) {
 		margin: 0 1rem 0 1rem;
 	}
 }
 
-// When a description section follows the list, remove the extra margin from the top of the description.
+// When a description section follows the list, remove
+// the extra margin from the top of the description.
 .jp-recommendations-question__description-list + .jp-recommendations-question__description {
 	margin-top: 0;
 }
@@ -103,7 +101,7 @@
 .jp-recommendations-question__main--with-sidebar .jp-recommendations-question__description {
 	margin-right: 0;
 
-	@include breakpoint( '<782px' ) {
+	@include breakpoints.breakpoint( "<782px" ) {
 		margin-right: 32px;
 	}
 }
@@ -122,16 +120,9 @@
 	width: 100%;
 	height: 100%;
 
-	@include breakpoint( '<1040px' ) {
+	@include breakpoints.breakpoint( "<1040px" ) {
 		display: none;
 	}
-}
-
-.jp-recommendations-question__illustration-picture {
-	display: flex;
-	justify-content: center;
-
-	width: 100%;
 }
 
 .jp-recommendations-question__sidebar-card {
@@ -158,7 +149,7 @@
 	margin-bottom: 16px;
 
 	.gridicons-checkmark-circle {
-		fill: $green-primary;
+		fill: colors.$green-primary;
 	}
 }
 
@@ -194,7 +185,7 @@
 			margin-bottom: 16px;
 			text-align: center;
 
-			@include breakpoint( '<480px' ) {
+			@include breakpoints.breakpoint( "<480px" ) {
 				width: 100%;
 			}
 		}
@@ -204,7 +195,7 @@
 		}
 	}
 
-	@include breakpoint( '<480px' ) {
+	@include breakpoints.breakpoint( "<480px" ) {
 		padding: 64px 16px 0 16px;
 	}
 }

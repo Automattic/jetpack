@@ -144,6 +144,9 @@ if ( ! class_exists( 'Jetpack_Flickr_Widget' ) ) {
 						case 'large':
 							$src = $photo->get_enclosure()->get_link();
 							break;
+						default:
+							$src = '';
+							break;
 					}
 
 					$photos .= '<a href="' . esc_url( $photo->get_permalink(), array( 'http', 'https' ) ) . '" ';

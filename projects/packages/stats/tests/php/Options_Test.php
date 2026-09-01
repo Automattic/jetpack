@@ -23,7 +23,10 @@ class Options_Test extends StatsBaseTestCase {
 	public function tear_down() {
 		$reflected_class    = new \ReflectionClass( 'Automattic\Jetpack\Stats\Options' );
 		$reflected_property = $reflected_class->getProperty( 'options' );
-		$reflected_property->setAccessible( true );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$reflected_property->setAccessible( true );
+		}
 		$reflected_property = $reflected_property->setValue( null, array() );
 
 		parent::tear_down();
@@ -48,6 +51,7 @@ class Options_Test extends StatsBaseTestCase {
 			'odyssey_stats_changed_at' => 0,
 			'notices'                  => array(),
 			'views'                    => 0,
+			'honor_cookie_consent'     => false,
 		);
 		$this->assertSame( $options_should_be, $options );
 	}
@@ -78,6 +82,7 @@ class Options_Test extends StatsBaseTestCase {
 			'odyssey_stats_changed_at' => 0,
 			'notices'                  => array(),
 			'views'                    => 0,
+			'honor_cookie_consent'     => false,
 		);
 		$this->assertSame( $options_should_be, $options );
 	}
@@ -160,6 +165,7 @@ class Options_Test extends StatsBaseTestCase {
 					'odyssey_stats_changed_at' => 0,
 					'notices'                  => array(),
 					'views'                    => 0,
+					'honor_cookie_consent'     => false,
 				),
 			),
 			'set version'          => array(
@@ -181,6 +187,7 @@ class Options_Test extends StatsBaseTestCase {
 					'odyssey_stats_changed_at' => 0,
 					'notices'                  => array(),
 					'views'                    => 0,
+					'honor_cookie_consent'     => false,
 				),
 			),
 			'set blog blog_id'     => array(
@@ -202,6 +209,7 @@ class Options_Test extends StatsBaseTestCase {
 					'odyssey_stats_changed_at' => 0,
 					'notices'                  => array(),
 					'views'                    => 0,
+					'honor_cookie_consent'     => false,
 				),
 			),
 			'multiple options'     => array(
@@ -234,6 +242,7 @@ class Options_Test extends StatsBaseTestCase {
 					'odyssey_stats_changed_at' => 0,
 					'notices'                  => array(),
 					'views'                    => 0,
+					'honor_cookie_consent'     => false,
 				),
 			),
 		);
@@ -294,6 +303,7 @@ class Options_Test extends StatsBaseTestCase {
 			'odyssey_stats_changed_at' => 0,
 			'notices'                  => array(),
 			'views'                    => 0,
+			'honor_cookie_consent'     => false,
 		);
 		$this->assertTrue( Options::set_options( $set_options ) );
 		$this->assertSame( $stored_options, get_option( 'stats_options' ) );
@@ -324,6 +334,7 @@ class Options_Test extends StatsBaseTestCase {
 					'odyssey_stats_changed_at' => 0,
 					'notices'                  => array(),
 					'views'                    => 0,
+					'honor_cookie_consent'     => false,
 				),
 			),
 			'Roles'        => array(
@@ -344,6 +355,7 @@ class Options_Test extends StatsBaseTestCase {
 					'odyssey_stats_changed_at' => 0,
 					'notices'                  => array(),
 					'views'                    => 0,
+					'honor_cookie_consent'     => false,
 				),
 			),
 			'Count Roles'  => array(
@@ -363,6 +375,7 @@ class Options_Test extends StatsBaseTestCase {
 					'odyssey_stats_changed_at' => 0,
 					'notices'                  => array(),
 					'views'                    => 0,
+					'honor_cookie_consent'     => false,
 				),
 			),
 			'Version'      => array(
@@ -382,6 +395,7 @@ class Options_Test extends StatsBaseTestCase {
 					'odyssey_stats_changed_at' => 0,
 					'notices'                  => array(),
 					'views'                    => 0,
+					'honor_cookie_consent'     => false,
 				),
 			),
 			'Honor DNT'    => array(
@@ -401,6 +415,7 @@ class Options_Test extends StatsBaseTestCase {
 					'odyssey_stats_changed_at' => 0,
 					'notices'                  => array(),
 					'views'                    => 0,
+					'honor_cookie_consent'     => false,
 				),
 			),
 			'Dummy option' => array(
@@ -420,6 +435,7 @@ class Options_Test extends StatsBaseTestCase {
 					'odyssey_stats_changed_at' => 0,
 					'notices'                  => array(),
 					'views'                    => 0,
+					'honor_cookie_consent'     => false,
 				),
 			),
 		);

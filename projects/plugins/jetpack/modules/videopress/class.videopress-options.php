@@ -7,6 +7,10 @@
 
 use Automattic\Jetpack\VideoPress\Options as Package_Options;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * VideoPress Options class.
  *

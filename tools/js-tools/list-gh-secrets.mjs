@@ -52,7 +52,6 @@ async function main() {
 		}
 	} else {
 		const cwd = fileURLToPath( new URL( '../..', import.meta.url ) );
-		repos = [];
 		repos = glob
 			.sync( 'projects/*/*/composer.json', { cwd } )
 			.flatMap( file => {

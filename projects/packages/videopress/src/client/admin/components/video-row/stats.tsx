@@ -1,6 +1,8 @@
-import { Text, useBreakpointMatch, LoadingPlaceholder } from '@automattic/jetpack-components';
+import { Text, LoadingPlaceholder } from '@automattic/jetpack-components';
+import { useViewportMatch } from '@wordpress/compose';
 import clsx from 'clsx';
 import styles from './style.module.scss';
+import type { ReactNode } from 'react';
 
 const Stats = ( {
 	privacy,
@@ -10,14 +12,14 @@ const Stats = ( {
 	loading = false,
 	className,
 }: {
-	privacy: React.ReactNode;
-	duration: React.ReactNode;
-	plays?: React.ReactNode;
-	upload?: React.ReactNode;
+	privacy: ReactNode;
+	duration: ReactNode;
+	plays?: ReactNode;
+	upload?: ReactNode;
 	loading?: boolean;
 	className?: string;
 } ) => {
-	const [ isSmall ] = useBreakpointMatch( 'sm' );
+	const isSmall = useViewportMatch( 'small', '<' );
 
 	return (
 		<div className={ clsx( className, styles.stats, { [ styles.small ]: isSmall } ) }>

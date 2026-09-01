@@ -2,6 +2,10 @@
 
 use Automattic\Jetpack\Image_CDN\Image_CDN_Core;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Base class for working with themes, has useful helper functions.
  */
@@ -151,7 +155,7 @@ abstract class Jetpack_JSON_API_Themes_Endpoint extends Jetpack_JSON_API_Endpoin
 		}
 
 		$update_themes             = get_site_transient( 'update_themes' );
-		$formatted_theme['update'] = ( isset( $update_themes->response[ $id ] ) ) ? $update_themes->response[ $id ] : null;
+		$formatted_theme['update'] = $update_themes->response[ $id ] ?? null;
 
 		$autoupdate                    = in_array( $id, Jetpack_Options::get_option( 'autoupdate_themes', array() ), true );
 		$formatted_theme['autoupdate'] = $autoupdate;

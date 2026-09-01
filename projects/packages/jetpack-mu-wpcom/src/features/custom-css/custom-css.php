@@ -10,6 +10,7 @@
  */
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Device_Detection;
 
 if ( ! class_exists( 'Jetpack_Custom_CSS_Enhancements' ) ) {
 	/**
@@ -345,8 +346,7 @@ if ( ! class_exists( 'Jetpack_Custom_CSS_Enhancements' ) ) {
 				'_jp_css_settings',
 				array(
 					/** This filter is documented in modules/custom-css/custom-css.php */
-					// @phan-suppress-next-line PhanUndeclaredFunction
-					'useRichEditor'        => ! jetpack_is_mobile() && apply_filters( 'safecss_use_ace', true ),
+					'useRichEditor'        => ! Device_Detection::is_phone() && apply_filters( 'safecss_use_ace', true ),
 					'areThereCssRevisions' => self::are_there_css_revisions(),
 					'revisionsUrl'         => self::get_revisions_url(),
 					'cssHelpUrl'           => '//en.support.wordpress.com/custom-design/editing-css/',
@@ -463,7 +463,6 @@ if ( ! class_exists( 'Jetpack_Custom_CSS_Enhancements' ) ) {
 					'dependencies' => array(
 						'jquery',
 						'customize-controls',
-						'underscore',
 					),
 					'in-footer'    => true,
 					'css_path'     => '../../build/customizer-control/customizer-control.css',
@@ -581,8 +580,6 @@ if ( ! class_exists( 'Jetpack_Custom_CSS_Enhancements' ) ) {
 
 		/**
 		 * Override $content_width in customizer previews.
-		 *
-		 * @suppress PhanNonClassMethodCall -- Phan doesn't know the type of wp_customize.
 		 */
 		public static function preview_content_width() {
 			global $wp_customize;
@@ -647,8 +644,6 @@ if ( ! class_exists( 'Jetpack_Custom_CSS_Enhancements' ) ) {
 		 * Runs on `safecss_skip_stylesheet` filter.
 		 *
 		 * @param bool $skip_value Should the stylesheet be skipped.
-		 *
-		 * @suppress PhanNonClassMethodCall -- Phan doesn't know the type of wp_customize.
 		 *
 		 * @return null|bool
 		 */
@@ -814,8 +809,6 @@ if ( ! class_exists( 'Jetpack_Custom_CSS_Enhancements' ) ) {
 		 *
 		 * @param mixed $css Value of the setting.
 		 *
-		 * @suppress PhanNonClassMethodCall -- Phan doesn't know the type of wp_customize.
-		 *
 		 * @return mixed|string
 		 */
 		public static function sanitize_css_callback( $css ) {
@@ -855,7 +848,6 @@ if ( ! class_exists( 'Jetpack_Custom_CSS_Enhancements' ) ) {
 		 *
 		 * @param string $css Custom CSS content.
 		 *
-		 * @suppress PhanNonClassMethodCall -- Phan doesn't know the type of wp_customize.
 		 * @return mixed
 		 */
 		public static function customize_preview_wp_get_custom_css( $css ) {
@@ -1229,7 +1221,7 @@ if ( ! function_exists( 'safecss_class' ) ) :
 			/**
 			 * Optimises $css after parsing.
 			 */
-			public function postparse() { // phpcs:ignore MediaWiki.Usage.NestedFunctions.NestedFunction
+			public function postparse() {
 
 				/** This action is documented in modules/custom-css/custom-css.php */
 				do_action( 'csstidy_optimize_postparse', $this );
@@ -1240,7 +1232,7 @@ if ( ! function_exists( 'safecss_class' ) ) :
 			/**
 			 * Optimises a sub-value.
 			 */
-			public function subvalue() { // phpcs:ignore MediaWiki.Usage.NestedFunctions.NestedFunction
+			public function subvalue() {
 
 				/** This action is documented in modules/custom-css/custom-css.php */
 				do_action( 'csstidy_optimize_subvalue', $this );

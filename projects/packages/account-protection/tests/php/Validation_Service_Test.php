@@ -1,4 +1,4 @@
-<?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
+<?php
 
 namespace Automattic\Jetpack\Account_Protection;
 
@@ -23,16 +23,12 @@ class Validation_Service_Test extends BaseTestCase {
 	}
 
 	private function get_connection_manager() {
-		$connection = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Manager' )
-			->disableOriginalConstructor()
-			->getMock();
-
+		$connection = $this->createStub( 'Automattic\Jetpack\Connection\Manager' );
 		return $connection;
 	}
 
 	private function get_connected_connection_manager() {
-		$connection = $this->get_connection_manager();
-
+		$connection = $this->createMock( 'Automattic\Jetpack\Connection\Manager' );
 		$connection->expects( $this->once() )
 			->method( 'is_connected' )
 			->willReturn( true );
@@ -208,6 +204,65 @@ class Validation_Service_Test extends BaseTestCase {
 		$this->assertTrue( $validation_service->is_invalid_length( $long_password ) );
 	}
 
+	public function test_min_length_is_filterable() {
+		$password           = 'abcdef';
+		$validation_service = new Validation_Service( $this->get_connection_manager() );
+		$this->assertSame( 6, $validation_service->get_min_length() );
+
+		$callback = function () {
+			return 16;
+		};
+		add_filter( 'jetpack_account_protection_validation_min_length', $callback );
+
+		$this->assertSame( 16, $validation_service->get_min_length() );
+		$this->assertTrue( $validation_service->is_invalid_length( $password ) );
+
+		remove_filter( 'jetpack_account_protection_validation_min_length', $callback );
+	}
+
+	public function test_min_length_cannot_be_filtered_below_default() {
+		$password = 'asdf';
+
+		$validation_service = new Validation_Service( $this->get_connection_manager() );
+
+		$callback = function () {
+			return 4;
+		};
+		add_filter( 'jetpack_account_protection_validation_min_length', $callback );
+		$this->assertSame( 6, $validation_service->get_min_length() );
+		$this->assertTrue( $validation_service->is_invalid_length( $password ) );
+		remove_filter( 'jetpack_account_protection_validation_min_length', $callback );
+	}
+
+	public function test_max_length_is_filterable() {
+		$password = str_repeat( 'a', 172 );
+
+		$validation_service = new Validation_Service( $this->get_connection_manager() );
+		$this->assertSame( 150, $validation_service->get_max_length() );
+
+		$callback = function () {
+			return 200;
+		};
+		add_filter( 'jetpack_account_protection_validation_max_length', $callback );
+		$this->assertSame( 200, $validation_service->get_max_length() );
+		$this->assertFalse( $validation_service->is_invalid_length( $password ) );
+		remove_filter( 'jetpack_account_protection_validation_max_length', $callback );
+	}
+
+	public function test_max_length_cannot_be_filtered_below_default() {
+		$password = str_repeat( 'a', 127 );
+
+		$validation_service = new Validation_Service( $this->get_connection_manager() );
+
+		$callback = function () {
+			return 100;
+		};
+		add_filter( 'jetpack_account_protection_validation_max_length', $callback );
+		$this->assertSame( 150, $validation_service->get_max_length() );
+		$this->assertFalse( $validation_service->is_invalid_length( $password ) );
+		remove_filter( 'jetpack_account_protection_validation_max_length', $callback );
+	}
+
 	public function test_returns_true_if_password_matches_user_data() {
 		$user             = new \WP_User();
 		$user->user_email = 'example@wordpress.com';
@@ -237,7 +292,8 @@ class Validation_Service_Test extends BaseTestCase {
 					'body'     => json_encode(
 						array(
 							'compromised' => array( 'c90fcfd699f0ddbdcb30c2c9183d2d933ea' ),
-						)
+						),
+						JSON_UNESCAPED_SLASHES
 					),
 				)
 			);
@@ -261,7 +317,8 @@ class Validation_Service_Test extends BaseTestCase {
 					'body'     => json_encode(
 						array(
 							'common' => array( 'c90fcfd699f0ddbdcb30c2c9183d2d933ea' ),
-						)
+						),
+						JSON_UNESCAPED_SLASHES
 					),
 				)
 			);
@@ -286,7 +343,8 @@ class Validation_Service_Test extends BaseTestCase {
 						array(
 							'compromised' => array( '1234' ),
 							'common'      => array(),
-						)
+						),
+						JSON_UNESCAPED_SLASHES
 					),
 				)
 			);

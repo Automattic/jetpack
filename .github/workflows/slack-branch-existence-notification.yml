@@ -3,21 +3,25 @@ on:
   create:
   delete:
 
+permissions:
+  # actions/checkout
+  contents: read
+
 jobs:
   notify:
     name: Notify
     runs-on: ubuntu-latest
-    timeout-minutes: 5  # 2022-11-22: Shouldn't take long.
+    timeout-minutes: 5 # 2025-11-20: Takes a few seconds.
     if: github.event.ref == 'prerelease'
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           ref: trunk
       - name: Generate message
         id: message
         env:
-          SLACK_RELEASES_CHANNEL: ${{ secrets.SLACK_RELEASES_CHANNEL }}
+          SLACK_RELEASES_CHANNEL: ${{ vars.SLACK_RELEASES_CHANNEL }}
         run: |
           source .github/files/gh-funcs.sh
 
@@ -61,7 +65,7 @@ jobs:
           fi
 
       - name: Send message to releases channel
-        uses: slackapi/slack-github-action@v2.1.0
+        uses: slackapi/slack-github-action@dcb1066f776dd043e64d0e8ba94ca15cc7e1875d # v4.0.0
         with:
           token: ${{ secrets.SLACK_TOKEN }}
           method: chat.postMessage

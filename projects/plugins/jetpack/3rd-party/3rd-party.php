@@ -10,6 +10,10 @@ namespace Automattic\Jetpack;
 
 use Automattic\Jetpack\Status\Host;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 add_action( 'plugins_loaded', __NAMESPACE__ . '\load_3rd_party_compat_filters', 11 );
 /**
  * Loads the individual 3rd-party compat functions.
@@ -17,6 +21,11 @@ add_action( 'plugins_loaded', __NAMESPACE__ . '\load_3rd_party_compat_filters', 
  * This is a refactor of load_3rd_party() to load the individual compat files only when needed instead of universally.
  */
 function load_3rd_party_compat_filters() {
+
+	// ActivityPub
+	if ( Constants::is_defined( 'ACTIVITYPUB_PLUGIN_VERSION' ) ) {
+		require_once JETPACK__PLUGIN_DIR . '/3rd-party/activitypub.php';
+	}
 
 	// bbPress
 	if ( function_exists( 'bbpress' ) ) {

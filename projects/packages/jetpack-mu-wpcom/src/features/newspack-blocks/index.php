@@ -11,9 +11,10 @@ use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 
 define( 'NEWSPACK_BLOCKS__BLOCKS_DIRECTORY', Jetpack_Mu_Wpcom::BASE_DIR . 'build/' );
 define( 'NEWSPACK_BLOCKS__PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
-define( 'NEWSPACK_BLOCKS__VERSION', 'v4.7.0' );
+define( 'NEWSPACK_BLOCKS__VERSION', 'v4.30.3' );
 
 require_once __DIR__ . '/../../utils.php';
+require_once __DIR__ . '/synced-newspack-blocks/shared/authors.php';
 require_once __DIR__ . '/synced-newspack-blocks/class-newspack-blocks.php';
 require_once __DIR__ . '/synced-newspack-blocks/class-newspack-blocks-api.php';
 require_once __DIR__ . '/synced-newspack-blocks/blocks/homepage-articles/class-wp-rest-newspack-articles-controller.php';
@@ -59,7 +60,8 @@ function enqueue_newspack_blocks_data( $handle ) {
 			// Define URL to core one to make autocomplete working for newspack-blocks installed via jetpack-mu-wpcom.
 			'authors_rest_url'        => rest_url() . 'wp/v2/users',
 			'custom_taxonomies'       => array(),
-		)
+		),
+		JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 	);
 
 	wp_add_inline_script(

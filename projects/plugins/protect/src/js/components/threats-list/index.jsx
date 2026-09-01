@@ -1,13 +1,7 @@
-import {
-	Container,
-	Col,
-	Title,
-	Button,
-	useBreakpointMatch,
-	Text,
-} from '@automattic/jetpack-components';
+import { Container, Col, Title, Button, Text } from '@automattic/jetpack-components';
+import { useViewportMatch } from '@wordpress/compose';
 import { __, sprintf } from '@wordpress/i18n';
-import React, { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import useScanStatusQuery, { isScanInProgress } from '../../data/scan/use-scan-status-query';
 import useFixers from '../../hooks/use-fixers';
 import useModal from '../../hooks/use-modal';
@@ -24,7 +18,7 @@ import useThreatsList from './use-threats-list';
 const ThreatsList = () => {
 	const { hasPlan } = usePlan();
 	const { item, list, selected, setSelected } = useThreatsList();
-	const [ isSm ] = useBreakpointMatch( 'sm' );
+	const isSm = useViewportMatch( 'small', '<' );
 	const { isThreatFixInProgress, isThreatFixStale } = useFixers();
 
 	const { data: status } = useScanStatusQuery();
@@ -66,34 +60,34 @@ const ThreatsList = () => {
 					return __( 'All threats', 'jetpack-protect' );
 				}
 				return sprintf(
-					/* translators: placeholder is the amount of threats found on the site. */
+					/* translators: %s: count of threats found on the site. */
 					__( 'All %s threats', 'jetpack-protect' ),
 					list.length
 				);
 			case 'core':
 				return sprintf(
-					/* translators: placeholder is the amount of WordPress threats found on the site. */
+					/* translators: %1$s: count of WordPress threats found on the site, %2$s: singular or plural of "threats". */
 					__( '%1$s WordPress %2$s', 'jetpack-protect' ),
 					list.length,
 					list.length === 1 ? 'threat' : 'threats'
 				);
 			case 'files':
 				return sprintf(
-					/* translators: placeholder is the amount of file threats found on the site. */
+					/* translators: %1$s: count of file threats found on the site, %2$s: singular or plural of "threats". */
 					__( '%1$s file %2$s', 'jetpack-protect' ),
 					list.length,
 					list.length === 1 ? 'threat' : 'threats'
 				);
 			case 'database':
 				return sprintf(
-					/* translators: placeholder is the amount of database threats found on the site. */
+					/* translators: %1$s: count of database threats found on the site, %2$s: singular or plural of "threats". */
 					__( '%1$s database %2$s', 'jetpack-protect' ),
 					list.length,
 					list.length === 1 ? 'threat' : 'threats'
 				);
 			default:
 				return sprintf(
-					/* translators: Translates to Update to. %1$s: Name. %2$s: Fixed version */
+					/* translators: %1$s: Count of threats, %2$s: singular or plural of "threats", %3$s: name, %4$s: version */
 					__( '%1$s %2$s in %3$s %4$s', 'jetpack-protect' ),
 					list.length,
 					list.length === 1 ? 'threat' : 'threats',
@@ -132,7 +126,7 @@ const ThreatsList = () => {
 												onClick={ handleShowAutoFixersClick( fixableList ) }
 											>
 												{ sprintf(
-													/* translators: Translates to Show auto fixers $s: Number of fixable threats. */
+													/* translators: Translates to Show auto fixers. %s: Number of fixable threats. */
 													__( 'Show auto fixers (%s)', 'jetpack-protect' ),
 													fixableList.length
 												) }

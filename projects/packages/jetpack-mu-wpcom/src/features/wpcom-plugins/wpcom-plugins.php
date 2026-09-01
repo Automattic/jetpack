@@ -31,7 +31,7 @@ function wpcom_plugins_show_banner() {
 	 * @param string $string The string to check.
 	 * @return bool True if the string has been translated, false otherwise.
 	 */
-	function should_use_new_translation( $string ) { // phpcs:ignore MediaWiki.Usage.NestedFunctions.NestedFunction
+	function should_use_new_translation( $string ) { // phpcs:ignore Squiz.PHP.InnerFunctions.NotAllowed
 		if ( function_exists( 'wpcom_launchpad_has_translation' ) ) {
 			return wpcom_launchpad_has_translation( $string, 'jetpack-mu-wpcom' );
 		}

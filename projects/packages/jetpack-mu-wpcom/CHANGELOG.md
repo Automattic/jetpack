@@ -5,6 +5,360 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.10.1] - 2026-04-10
+### Changed
+- RTC: Bump WebSocket gradual rollout to 100% on simple sites. [#48043]
+
+### Fixed
+- Post Notification Emails: handle Like-button clicks on Atomic/WoW sites by proxying to the new wpcom/v2/email-like endpoint, restoring parity with Simple sites. [#48021]
+
+## [6.10.0] - 2026-04-09
+### Added
+- Add AI assistant banner to the WordPress.com dashboard for Business/Commerce sites. [#47623]
+- Add Central Forms Management feature flags for percentage-based rollout on both Simple and Atomic sites. [#47757]
+- Add disable-central-forms-management blog sticker to opt out individual sites from CFM. [#47822]
+- Add the Help Center files to `/forums`. [#47028]
+- Add wpcom-dashboard feature with holdout experiment support. [#47548]
+- Agents Manager: Add agents_manager_agent_id filter to allow host applications to specify a custom workflow agent. [#47860]
+- Agents Manager: Add dedicated CIAB variant. CIAB environments always load Agents Manager regardless of the unified experience setting, using the new 'ciab' variant for connected sites and 'ciab-disconnected' for disconnected sites. [#47314]
+- Agents Manager: Add rel="noopener noreferrer" to admin bar links that open in a new tab. [#47780]
+- Agents Manager: Add user, site, and section data to agentsManagerData for standalone operation without Help Center. [#46763]
+- Agents Manager: Enqueue standalone agents manager app. [#46419]
+- Dashboard: Restrict layout to two responsive columns for holdout treatment group. [#47563]
+- Enable newsletter settings package for sites with the newsletter-package-202603 sticker. [#47509]
+- Gutenberg RTC: Add PingHub provider for real-time collaboration WebSocket connections. [#47421]
+- Gutenberg RTC: Add support for HTTP polling provider as an allowed real-time collaboration provider. [#47485]
+- Gutenberg RTC: Connect to PingHub WebSocket directly using a server-generated JWT token, replacing the iframe-based proxy and fixing real-time collaboration on custom-domain sites with third-party cookie restrictions. [#47556]
+- Gutenberg RTC: Enable Real-Time Collaboration feature for sites with the REAL_TIME_COLLABORATION feature. [#47512]
+- Help Center: Enqueue the Help Center for logged out users on support sites with the Odie answers feature enabled. [#46615]
+- Launch Site: Standardize launchpad widget launch task entry point with ExPlat experiment variations. [#47832]
+- Load the Help Center for logged-out users on `/support`. [#46953]
+- Reader: Require Jetpack Newsletter package. [#46783]
+- RTC: Add branded editor notices and room-limit enforcement for real-time collaboration. [#47681]
+- RTC: HTTP-polling ramp up for WoW sites. [#47718]
+- Support linking back to my.wordpress.com domain. [#46559]
+- Survicate: Add survey integration for wp-admin, block editor, and site editor. [#47107]
+- Unregister the Gutenberg RTC setting on the Writing page if there are no RTC providers. [#47403]
+- Verbum Editor: Allow logged-in users to get embed info. [#46824]
+
+### Changed
+- Abort load and log if required asset files are missing. [#46665]
+- Add AGENTS.md and CLAUDE.md for Agents Manager feature. [#47762]
+- Add dev mode to Agents Manager. [#46617]
+- Add Help Center backend documentation and testing steps. [#47562]
+- Add tracking for GS on Personal edge cases. [#46703]
+- Admin Bar: use Urls::maybe_add_origin_site_id from the Connection package, deprecate local maybe_add_origin_site_id_to_url function. [#46783]
+- Admin Menu: simplify Hosting menu to a single link, and centralize Upgrades menu registration for all admin interfaces. [#47146]
+- Agents Manager: Add lightweight help icon linking to the Help Center for disconnected Jetpack views when unified experience is enabled. [#47088]
+- Agents Manager: Make is_enabled() a public static method so consumers can check enablement without duplicating filter logic. [#47302]
+- Agents Manager: Make should_display_menu_panel() respect the agents_manager_use_unified_experience filter. [#47041]
+- Agents Manager: Replace unified-big-sky query string flag with a new agents_manager_enabled_in_block_editor filter, hooked by Big Sky, to enable Agents Manager in the block editor. [#47277]
+- Calypso Origins: Add my.woo.ai and my.woo.localhost to known origins. [#47181]
+- CelebrateLaunchModal: Update domain upsell CTA copy to "Get your domain" for free plan + free domain sites. [#47841]
+- Change the experiment name. [#47155]
+- Code Block: Disable contrast checker warning for enhanced Code block. [#46614]
+- Dotcom Dashboard: Redesign the celebrate launch modal with Core styles. [#47585]
+- Enable the enhanced code block by default.
+- Enable wp-admin newsletter settings for all wpcom sites instead of gating behind the newsletter-package-202603 sticker. [#47750]
+- Increase Central Forms Management rollout to 100% of WordPress.com sites. [#47811]
+- Increase Central Forms Management rollout to 50% of WordPress.com sites. [#47793]
+- Launch Site Masterbar Button: Reload page if launching from WP Admin. [#47986]
+- Launch Site Standardization: Update experiment name and variants. [#48018]
+- Launch Site: Implement direct site launch from the WP Admin masterbar button via an ExPlat experiment, with a shared mutation hook and celebration modal for use across launch entry points. [#47963]
+- Launchpad: Reorder build checklist tasks. [#46546]
+- LessCSS: Reduce time complexity. [#46743]
+- Move RTC notices feature to the jetpack-rtc package. [#47964]
+- Reading settings: Add standardized site launch options. [#47839]
+- Removed the RTC enabled check before loading the notices endpoint. [#47774]
+- RTC notices: Remove duplicated site editor and option checks, rely on RTC::is_enabled() instead. [#47867]
+- RTC: Bump WebSocket gradual rollout to 20% on Simple sites. [#47934]
+- RTC: Bump WebSocket gradual rollout to 50% on simple sites. [#47972]
+- RTC: Change visibility of welcome modal. [#47733]
+- RTC: Enable when WordPress 7.0+ is detected without the Gutenberg plugin. [#47926]
+- RTC: Gradual rollout – 100% of WoW sites and 5% of Simple sites. [#47831]
+- RTC: Increase HTTP polling rollout to 25% of WoW sites. [#47768]
+- RTC: Increase HTTP polling rollout to 5% of WoW sites. [#47747]
+- RTC: Increase HTTP polling rollout to 50% of WoW sites. [#47814]
+- RTC: Load feature for local users. [#47738]
+- RTC: Start gradual rollout via WS on 1% of Simple sites. [#47751]
+- Site Launch Button: Add wp-admin ref parameter for redirecting back from Calypso. [#47638]
+- Switch to Native TypeScript compiler based on Go. [#47375]
+- Tracking now knows when we're on forums vs support. [#47480]
+- Update dependencies. [#47472]
+- Update Help Center menu panel experiment name. [#46561]
+- Update package dependencies. [#46552] [#46647] [#46716] [#46854] [#47002] [#47099] [#47173] [#47247] [#47285] [#47300] [#47371] [#47496] [#47684] [#47686] [#47890] [#47899] [#47998]
+- Update the experiment that loads the Help Center for logged-out users on. [#47445]
+- Updated newsletter settings links in Launchpad and admin menu to use centralized URL utility from newsletter package. [#47347]
+- Use new Agents Manager state endpoint in Agents Manager. [#46937]
+- Use the Global Styles on Personal feature flag before checking experiment variation. [#46547]
+
+### Deprecated
+- Show a warning on the customizer for WPCom if the user is using a colourlovers background image. [#41538]
+
+### Removed
+- Remove obsolete hotfixes for WordPress 6.7. [#46843]
+- Remove the dotcom command palette. [#46579]
+- RTC: Move implementation to generic package. [#47713]
+
+### Fixed
+- Add cache breaking mechanism to fix React cache error. [#47766]
+- Agents Manager: Allow plugins to enable the agents manager unified experience via filter. [#47315]
+- Agents Manager: Fix JavaScript conflicts with WooCommerce checkout and other plugins by preventing unnecessary script loading on irrelevant screens. [#46721]
+- Agents Manager: Prevent loading in previews. [#46742]
+- AI Assistant Banner: Hide banner when the AI assistant is already enabled via big_sky_enable option. [#47915]
+- Block Description Links: Fix missing Help Center link for blocks with variations like core/heading. [#47077]
+- CIAB Editor: Ensure Help Center Gutenberg CSS can be loaded. [#47110]
+- Compatibility: Clean up deprecated CSS. [#47067]
+- Disable Real-Time Collaboration on the WordPress.com desktop app to prevent editing issues caused by an incompatibility. [#47797]
+- Enhance code block only when content attribute is registered. [#46544]
+- Exclude e2e test sites from Central Forms Management rollout. [#47801]
+- Fix AI assistant banner dismiss button not persisting or firing tracks event, and hide banner for AI Tips unsubscribers. [#47710]
+- Fix e2e test site exclusion from Central Forms Management on Atomic sites. [#47815]
+- Fix helpCenterFeatureFlags and helpCenterData redeclaration error in CIAB admin. [#47541]
+- Fix Newsletter menu on Simple sites to open in-admin settings when enabled instead of external URL. [#46787]
+- Fix TypeScript type errors in verbum-comments for tsgo compatibility. [#47408]
+- Global Styles: Load the feature on the customizer to fix access checks for additional CSS. [#46675]
+- Help Center now loads in the editor of /support. [#47661]
+- Image Studio: Revert PR to disable big-sky-plugin in Forno-229. [#47529]
+- Improve Code block loading performance. [#46589]
+- Launch button: Load celebration modal bundle CSS and wp-components on the front end so styling matches wp-admin. [#48012]
+- Remove CSS nesting to prevent warnings in some CSS processors. [#46658]
+- RTC Notices: Fix image URLs on Simple sites by importing public-path to set webpack publicPath correctly. [#47769]
+- RTC Notices: Restore Gutenberg's native "Too many editors connected" modal on sites where branded limit notices are disabled. Fix room limit enforcement for PingHub provider by using awareness join timestamps instead of unpopulated collaboratorInfo. [#47813]
+- RTC: Enforce peer limit per post instead of globally across all posts. [#47919]
+- Sidebar Notice: Fix passing JSON string instead of array to JITM get_messages(). [#46906]
+- Temporarily disable client-side media processing to prevent cross-origin isolation headers from breaking authenticated API requests. [#47416]
+- Translate the title of the Name profile section. [#47666]
+- Update misleading WordPress.com importer banner copy on WP-Admin Tools > Import page. [#47278]
+- Verbum Comments: fix backslashes being stripped from comments. [#47059]
+- Verbum comments: Fix incorrect hovercard i18n key for 'Gravatar not found' error; add translation string for private profile error state. [#47594]
+- Verbum Editor: Fix editor focus on edit comment screen. [#47184]
+
+## [6.9.0] - 2026-01-09
+### Security
+- Implemented a guard against non user objects when assigning an experiment variation [#45929]
+
+### Added
+- Initialize ExPlat Proxy in Jetpack Mu Wpcom. [#46066]
+- Add Agents Manager admin bar menu with icon support and menu panel integration. [#46343]
+- Add Agents Manager feature with REST API endpoints for managing agent state and preferences. [#46086]
+- Add block transform from core/html. [#45978]
+- Added global styles experiment group check for atomic sites. [#45797]
+- Added learn more links in the editor to a few blocks. [#46177]
+- Added query parameter to detect when Calypso navigation is coming from wpcom admin bar. [#46193]
+- Adds a new hook to get async loaded agent providers in the frontend. [#46176]
+- Add Tracks events to theme screens. [#45587]
+- Agents Manager: implement logic to toggle unified chat experience. [#46237]
+- A new variant of the Help Center specifically for CIAB admin. [#46327]
+- Code block: Fixes and improvements to the unreleased code block. [#46418]
+- Custom HTML Block: Add warning notice when using restricted HTML tags on WordPress.com Simple sites. [#45819]
+- Help Center: Add menu panel for experiment in wp-admin and editor. [#45699]
+- Help Center: Check for the new menu panel experiment. [#45899]
+- Holiday Snow: Add speed and hemisphere settings. [#46139]
+- Introduces setting for controlling the Attachment pages to media options in wp-admin. Controls the `wp_attachment_pages_enabled` option via checkbox. [#40590]
+- Unreleased code block: Add raw transform. [#45976]
+- Unreleased code block: Add transform to syntax highlighter. [#45982]
+- Untangling: Add Marketing Tools page to wp-admin. [#45216]
+
+### Changed
+- Add icons to the new Help Center menu panel. [#45728]
+- Adds caching to the experiment checking in the help center. [#45927]
+- Atomic sites: Display site visibility in wp-admin settings based on the privacy model instead of the 'blog_public' option value. [#45510]
+- Change the unreleased code block to enhance core/code instead of being an independent block. [#45389]
+- Code Block: Ensure Core Script Modules actions are safely removed and restored. [#45357]
+- Code block: Remove active line highlight when block is unselected. [#45828]
+- Code block: Remove experimental warning. [#45827]
+- Don't translate product names. [#43961]
+- Launch Celebration: Remove direct dependency on @automattic/components. [#45716]
+- Limit persisted Help Center history stack to 50 entries. [#45564]
+- My Home Suggestions Card: Update find other domains link to /setup/domain-and-plan flow. [#45507]
+- Replace use of confusing `esc_js` with `wp_json_encode`, or with nothing where it had no effect. [#46229]
+- The Help Center search endpoint is changing, we need to update the URL. [#46046]
+- Unreleased code block: General fixes and improvements. [#45996]
+- Updated experiment key for Global Styles A/B/C experiment. [#46019]
+- Updated the experiment name. [#46001]
+- Update limited Global Styles notices with easier style resetting options. [#46257]
+- Update package dependencies. [#45652] [#45750] [#45751] [#45752] [#45755] [#45757] [#45915] [#46066] [#46082] [#46143] [#46244] [#46456] [#46491]
+- We now include the experiment variation in the global styles status response. [#46025]
+
+### Fixed
+- Agents Manager: Add caching and proxy protection for unified experience preference check to avoid remote API calls on every page load. [#46368]
+- Code block (unreleased): Improve styling and layout reliability across for different themes. [#45898]
+- Ensure proper flags are used with `json_encode()`. [#46092]
+- Fix an issue with Firefox where `getComputedStyleMap()` causes an undefined function error. [#46174]
+- Fixed the set default behavior for newly added categories. [#45840]
+- Fixed wpcom_theme_switch tracking not working on Simple sites. [#45604]
+- Global Styles: Fix exempt logic for Summer Special blog sticker. [#45919]
+- Global styles Gating: Fixes a case where GS use was not detected in the editor. [#45943]
+- Gutenberg removed the feature used to render the improved code editor. Fix it by switching to an alternate implementation. [#46127]
+- Help Center: Add `bot_slug` flag to support interaction requests. [#45619]
+- Help Center: Allow underscores in botnames. [#45700]
+- Help Center: do not download external assets on boot. [#45718]
+- Help Center: Enqueue in CIAB admin. [#45768]
+- Help Center: fix accessing stored preferences of open state'. [#46388]
+- Help Center: pass the is_test_mode along to WPCOM. [#45603]
+- LESS: Clean up various issues in legacy library. [#46057]
+- Prevent warnings when constants are already defined. [#46058]
+- Suggestion widget: make sure the domain stays aligned in any screen resolution. [#45826]
+- Unreleased code block: Ensure PRE element does not break scroll behavior. [#46014]
+- Unreleased code block: Fix an issue where content generated by the regular code block would not be rendered with the enhanced code block enabled. [#45850]
+- Unreleased code block: Restore language- prefix to language class. [#46010]
+- Uploads of heic in the block editor. [#45426]
+- wpcom-imports: Load the JS translations. [#45686]
+
+## [6.8.1] - 2025-10-10
+### Changed
+- Enable Global Styles limited on Atomic sites. [#45459]
+
+### Fixed
+- Fix Launchpad free plan check warning. [#45451]
+
+## [6.8.0] - 2025-10-10
+### Added
+- Add Code block (experimental). [#45181]
+- Admin Menu: Add P2 menu overrides. [#45355]
+- Admin Menu: Register "Jetpack > Traffic" on Simple sites. [#44658]
+- Enqueue Help Center in next-admin. [#44304]
+- Newspack blocks: Load feature on agency sites. [#44906]
+- Add the Help Center to `/support` homepage. [#44556]
+
+### Changed
+- Add Medium, Squarespace, and Wix importers in WP Admin import page. [#44860] [#44909]
+- Admin Menu: Move "Hosting > Marketing" to "Tools > Marketing". [#44663]
+- Admin Menu: Move "Settings > Newsletter" to "Jetpack > Newsletter". [#44630]
+- Admin Menu: Register Jetpack > Activity Log on default interface. [#44733]
+- Change the Help Center to be runnable as a standalone plugin. [#45354]
+- Clean up the code for quick switcher after RDV. [#45353]
+- Disable the Calypso quick switcher on the import page. [#45017]
+- Global Styles: Move frontend notice from launch bar to admin bar. [#45417]
+- Improve description of "private site" feature. [#44905]
+- Launchpad: Link to domain-and-plan flow within domain_upsell task. [#45360]
+- Launchpad: Update social tasks to open Jetpack Social. [#45160]
+- Send JSON with built-in WordPress functions. [#45002]
+- Update dependencies. [#45096]
+- Update the TypeScript version to be the same as monorepo. [#44795]
+- Update package dependencies. [#44677] [#44701] [#44948] [#45027] [#45097] [#45173] [#45200] [#45229] [#45298] [#45334] [#45430]
+- Verbum Comments: Optimize block filtering performance using Block_Scanner for fast pre-filtering when all blocks are allowed. [#44996]
+
+### Removed
+- Admin Menu: Remove Hosting > Marketing. [#45041]
+- Calypsoify: Remove package. [#45356]
+
+### Fixed
+- Add plugin header to the Help Center plugin file. [#45401]
+- Admin Menu: Fix duplicate Jetpack submenus. [#45131]
+- Newsletter launchpad: Add import steps when goal is `import-subscribers`. [#44853]
+- Remove broken menu items for Atomic Personal/Premium sites. [#44699]
+- Settings -> General: use correct https scheme for site URLs in Simple sites. [#44991]
+- Update logos in banner used for Dotcom Marketplace. [#45073]
+
+## [6.7.0] - 2025-08-05
+### Added
+- Add a Callout page for Tools > Site Health on Simple Sites. [#44498]
+- Add support for new CSAT endpoint. [#44029]
+- Add tracking for launch flow. [#43859]
+- Admin Menu: Add "Dashboard > Updates" screen to Simple sites. [#44024]
+- Admin Menu: Add "Export/Erase Personal Data" menus to Simple sites. [#44430]
+- Admin Menu: Register "Jetpack > Monetize" menu on all sites. [#44216]
+- Code editors: Add advanced code and CSS editors. [#44232]
+- Proxy open state for the Help Center. [#44494]
+- Simple Payments block: Add support link for WP.com. [#43891]
+
+### Changed
+- Admin Menu: Consolidate "Dashboard" and "My Home" menus. [#43983]
+- Admin Menu: Register "Jetpack > Subscribers" menu on all sites. [#44302]
+- Admin Menu: Show "Jetpack > Podcasting" menu on all sites. [#44367]
+- Admin Menu: Show "Jetpack > Stats" to Calypso users. [#44090]
+- Improve performance of WordPress.com comment likes by caching and minimizing API requests. [#44205]
+- JITM: Improve caching and minimize multiple requests in sidebar. [#44130]
+- Launchpad: Update `plan_selected` to be the first item. [#43945]
+- Make the Plans sub-item of the WordPress.com admin bar clickable. [#44165]
+- Stats: Extend access to administrator, editor, author, contributor roles on WordPress.com. [#44194]
+- Post editor: Open WP.com support articles in Help Center. [#43883]
+- Script Data: Ensure we only add host information on the front-end for P2 and sites using Verbum Comments. [#44241]
+- Settings: Open support links in Help Center. [#43930]
+- Update Newspack Blocks to 4.13.1. [#44096]
+- Update package dependencies. [#44020] [#44148] [#44151] [#44356]
+- Open learn more link in the Help Center in WordPress.com. [#43949]
+- Change "Block guide" label to "Learn more". [#44221]
+
+### Removed
+- Remove Dashboard link from Jetpack admin menu. [#44565]
+- Remove unused language files after #42172, #42494, #42521, and #42550. [#44106]
+- Remove Core's help tab in WP Admin in favor of the Help Center in WordPress.com. [#44107]
+
+### Fixed
+- Accessibility: Update screen reader 'clip' property usage to 'clip-path'. [#44027]
+- Forms: Exclude Salesforce lead form on WordPress.com. [#43915]
+- Handle robots.txt when data passed to `robots_txt` filter is malformed. [#44529]
+- Phan: Clean up error due to errant file reference. [#44031]
+- Fix Odie message summaries. [#44352]
+
+## [6.6.0] - 2025-06-09
+### Added
+- Persist the Help Center Router state in user preferences. [#43826]
+
+## [6.5.0] - 2025-06-06
+### Changed
+- Update `Edit homepage` banner design and copy. [#43643]
+
+### Removed
+- Launchpad: Remove "Select a design" step from build task list. [#43820]
+
+### Fixed
+- Prevent disallowed blocks from being used inside inner comments. [#43573]
+
+## [6.4.0] - 2025-06-03
+### Added
+- Add a site badge and the site plan to the admin bar. [#42499]
+- Add Gravatar profiles to comments email field. [#42458]
+- Add Gravatar Quick Editor to the settings button when logged in. [#43284]
+- Enable Global Styles Additional CSS for users that purchased the Custom Design Addon. [#43554]
+- Forms: Add Jetpack submenu item for forms dashboard. [#43527]
+
+### Changed
+- Consolidate widget-related code from wpcom and wpcomsh into jetpack-mu-wpcom. [#42974]
+- Stop restricting manage subscribers task to importing goal for newsletter launchpads. [#43687]
+- Rename a variable used on the import page for clarity. [#42646]
+- Site Visibility: Disable search engine indexing for sites with wpcomstaging.com domain. [#42853]
+- Update package dependencies. [#43071] [#43326] [#43398] [#43400] [#43578] [#43711] [#43718] [#43734]
+- Update labels and order for newsletter launchpad tasks. [#43283]
+
+### Deprecated
+- Remove default pages (About and Contact) for legacy-fse themes. [#43032]
+- Remove `default_rendering_mode` hotfix. [#42984]
+
+### Removed
+- Remove remaining Jetpack RDV experiment code now that the reshare feature is live. [#43063]
+- Remove links to deprecated calypso views on the launchpad tasks. [#42923]
+- Subscriptions: Load dashboard widget directly from the Jetpack plugin instead of from mu-wpcom. [#42964]
+
+### Fixed
+- Check for classes and methods before call. [#43606]
+- Code: Remove unneeded `data:` URI components. [#43227]
+- Code: Update stylesheets to use hex instead of named colors. [#42920]
+- Code: Update stylesheets to use WordPress font styles. [#42928]
+- Fix misaligned cookie consent switch. [#42977]
+- Fix the style of the Gravatar hovercard. [#43207]
+- Fix wrong status showing as coming soon. [#43160]
+- Help Center: Update support for multiple statuses in endpoint. [#43538]
+- Hide launch button for blog_id 1. [#43228]
+- Launchpad checklists: Mark "migrate content" task complete when importing content. [#43344]
+- Linting: Address final rules in WordPress Stylelint config. [#43296]
+- Linting: Do additional stylesheet cleanup. [#43247]
+- Linting: Fix more Stylelint violations. [#43213]
+- Linting: Format SCSS imports consistently. [#43018]
+- Linting: Remove outdated vendor prefixes in stylesheets. [#43219]
+- Linting: Use double colon notation for pseudo-element selectors. [#43019]
+- Load translations for JS files in jetpack-mu-wpcom. [#43373]
+- Move "I Voted" widget from wpcomsh to jetpack-mu-wpcom. [#42924]
+- MU WPCOM: Fix PHP warning generated by the get_term_classes function in the newspack-blocks. [#43271]
+- Prevent import processes from marking the first post published tasks complete in launchpad. [#43303]
+- Remove packages/forms dependency from jetpack-mu-wpcom-plugin. [#43627]
+- Update incorrect Tracks events names. [#43329]
+- Update launchpad add_subscribe_block tasks completion criteria and Calypso url. [#43172]
+- Fix Verbum rendering in Homepage query loop. [#43087]
+
 ## [6.3.1] - 2025-04-07
 ### Added
 - MU plugin feature to add custom CSS for edge cases. [#42898]
@@ -1530,6 +1884,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Testing initial package release.
 
+[6.10.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v6.10.0...v6.10.1
+[6.10.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v6.9.0...v6.10.0
+[6.9.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v6.8.1...v6.9.0
+[6.8.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v6.8.0...v6.8.1
+[6.8.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v6.7.0...v6.8.0
+[6.7.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v6.6.0...v6.7.0
+[6.6.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v6.5.0...v6.6.0
+[6.5.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v6.4.0...v6.5.0
+[6.4.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v6.3.1...v6.4.0
 [6.3.1]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v6.3.0...v6.3.1
 [6.3.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v6.2.0...v6.3.0
 [6.2.0]: https://github.com/Automattic/jetpack-mu-wpcom/compare/v6.1.0...v6.2.0

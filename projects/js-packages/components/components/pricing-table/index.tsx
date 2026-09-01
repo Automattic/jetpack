@@ -1,7 +1,8 @@
+import { useViewportMatch } from '@wordpress/compose';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, check, closeSmall } from '@wordpress/icons';
 import clsx from 'clsx';
-import React, {
+import {
 	createContext,
 	useContext,
 	Children,
@@ -11,7 +12,6 @@ import React, {
 	CSSProperties,
 } from 'react';
 import IconTooltip from '../icon-tooltip/index.tsx';
-import useBreakpointMatch from '../layout/use-breakpoint-match/index.ts';
 import TermsOfService from '../terms-of-service/index.tsx';
 import Text from '../text/index.tsx';
 import styles from './styles.module.scss';
@@ -21,6 +21,7 @@ import {
 	PricingTableHeaderProps,
 	PricingTableItemProps,
 } from './types.ts';
+import type { FC } from 'react';
 
 const INCLUDED_TEXT = __( 'Included', 'jetpack-components' );
 const NOT_INCLUDED_TEXT = __( 'Not included', 'jetpack-components' );
@@ -32,7 +33,7 @@ const getItemLabels = ( isComingSoon, isIncluded, featureNameLabel ) => {
 	if ( isComingSoon ) {
 		return {
 			lg: COMING_SOON_TEXT,
-			// translators: Name of the current feature
+			// translators: %s: Name of the current feature
 			default: sprintf( __( '%s coming soon', 'jetpack-components' ), featureNameLabel ),
 		};
 	}
@@ -42,14 +43,14 @@ const getItemLabels = ( isComingSoon, isIncluded, featureNameLabel ) => {
 		default: isIncluded
 			? featureNameLabel
 			: sprintf(
-					/* translators: Name of the current feature */
+					/* translators: %s: Name of the current feature */
 					__( '%s not included', 'jetpack-components' ),
 					featureNameLabel
 			  ),
 	};
 };
 
-export const PricingTableItem: React.FC< PricingTableItemProps > = ( {
+export const PricingTableItem: FC< PricingTableItemProps > = ( {
 	isIncluded = false,
 	isComingSoon = false,
 	index = 0,
@@ -58,8 +59,9 @@ export const PricingTableItem: React.FC< PricingTableItemProps > = ( {
 	tooltipTitle,
 	tooltipClassName = '',
 } ) => {
-	const [ isLg ] = useBreakpointMatch( 'lg' );
-	const item = useContext( PricingTableContext )[ index ];
+	const { items, isLg } = useContext( PricingTableContext );
+	const item = items[ index ];
+	const isExplicitlyEmpty = label === '';
 	const showTick = isComingSoon || isIncluded;
 
 	const featureNameLabel = item.name;
@@ -71,6 +73,15 @@ export const PricingTableItem: React.FC< PricingTableItemProps > = ( {
 	const labels = getItemLabels( isComingSoon, isIncluded, featureNameLabel );
 
 	const defaultLabel = isLg ? labels.lg : labels.default;
+
+	// Handle explicitly empty items (when label is empty string)
+	if ( isExplicitlyEmpty ) {
+		return (
+			<div className={ clsx( styles.item, styles.value, styles.empty ) }>
+				{ /* No icon and no text for explicitly empty items */ }
+			</div>
+		);
+	}
 
 	return (
 		<div className={ clsx( styles.item, styles.value ) }>
@@ -92,6 +103,8 @@ export const PricingTableItem: React.FC< PricingTableItemProps > = ( {
 					iconSize={ 14 }
 					offset={ 4 }
 					wide={ Boolean( tooltipTitle && tooltipInfo ) }
+					inline={ false }
+					shift
 				>
 					<Text variant="body-small" component="div">
 						{ tooltipInfo || defaultTooltipInfo }
@@ -102,18 +115,26 @@ export const PricingTableItem: React.FC< PricingTableItemProps > = ( {
 	);
 };
 
-export const PricingTableHeader: React.FC< PricingTableHeaderProps > = ( { children } ) => (
-	<div className={ styles.header }>{ children }</div>
+export const PricingTableHeader: FC< PricingTableHeaderProps > = ( { title, children } ) => (
+	<div className={ styles.headerContainer }>
+		{ title && (
+			<Text variant="headline-small" className={ styles.title }>
+				{ title }
+			</Text>
+		) }
+		<div className={ styles.header }>{ children }</div>
+	</div>
 );
 
-export const PricingTableColumn: React.FC< PricingTableColumnProps > = ( {
+export const PricingTableColumn: FC< PricingTableColumnProps > = ( {
 	primary = false,
 	children,
+	className,
 } ) => {
 	let index = 0;
 
 	return (
-		<div className={ clsx( styles.card, { [ styles[ 'is-primary' ] ]: primary } ) }>
+		<div className={ clsx( styles.card, { [ styles[ 'is-primary' ] ]: primary }, className ) }>
 			{ Children.map( children, child => {
 				const item = child as ReactElement<
 					PropsWithChildren< PricingTableHeaderProps | PricingTableItemProps >
@@ -130,16 +151,18 @@ export const PricingTableColumn: React.FC< PricingTableColumnProps > = ( {
 	);
 };
 
-const PricingTable: React.FC< PricingTableProps > = ( {
+const PricingTable: FC< PricingTableProps > = ( {
 	title,
+	headerLogo,
 	items,
 	children,
 	showIntroOfferDisclaimer = false,
+	breakpoint = 'large',
 } ) => {
-	const [ isLg ] = useBreakpointMatch( 'lg' );
+	const isLg = useViewportMatch( breakpoint );
 
 	return (
-		<PricingTableContext.Provider value={ items }>
+		<PricingTableContext.Provider value={ { items, isLg } }>
 			<div
 				className={ clsx( styles.container, { [ styles[ 'is-viewport-large' ] ]: isLg } ) }
 				style={
@@ -150,33 +173,49 @@ const PricingTable: React.FC< PricingTableProps > = ( {
 				}
 			>
 				<div className={ styles.table }>
-					<Text variant="headline-small">{ title }</Text>
+					<div>
+						{ headerLogo && <div className={ styles[ 'header-logo' ] }>{ headerLogo }</div> }
+						<Text variant="headline-small" className={ styles.tableTitle }>
+							{ title }
+						</Text>
+					</div>
 					{ isLg &&
-						items.map( ( item, i ) => (
-							<div
-								className={ clsx( styles.item, {
-									[ styles[ 'last-feature' ] ]: i === items.length - 1,
-								} ) }
-								key={ i }
-							>
-								<Text variant="body-small">
-									<strong>{ item.name }</strong>
-								</Text>
-								{ item.tooltipInfo && (
-									<IconTooltip
-										title={ item.tooltipTitle }
-										iconClassName={ styles[ 'popover-icon' ] }
-										className={ styles.popover }
-										placement={ item.tooltipPlacement ? item.tooltipPlacement : 'bottom-end' }
-										iconSize={ 14 }
-										offset={ 4 }
-										wide={ Boolean( item.tooltipTitle && item.tooltipInfo ) }
-									>
-										<Text variant="body-small">{ item.tooltipInfo }</Text>
-									</IconTooltip>
-								) }
-							</div>
-						) ) }
+						items.map( ( item, i ) => {
+							// Skip rendering feature names that are empty
+							if ( ! item.name ) {
+								return (
+									<div key={ i } className={ clsx( styles.item, styles.feature, styles.empty ) } />
+								);
+							}
+
+							return (
+								<div
+									className={ clsx( styles.item, styles.feature, {
+										[ styles[ 'last-feature' ] ]: i === items.length - 1,
+									} ) }
+									key={ i }
+								>
+									<Text variant="body-small">
+										<strong>{ item.name }</strong>
+									</Text>
+									{ item.tooltipInfo && (
+										<IconTooltip
+											title={ item.tooltipTitle }
+											iconClassName={ styles[ 'popover-icon' ] }
+											className={ styles.popover }
+											placement={ item.tooltipPlacement ? item.tooltipPlacement : 'bottom-end' }
+											iconSize={ 14 }
+											offset={ 4 }
+											wide={ Boolean( item.tooltipTitle && item.tooltipInfo ) }
+											inline={ false }
+											shift
+										>
+											<Text variant="body-small">{ item.tooltipInfo }</Text>
+										</IconTooltip>
+									) }
+								</div>
+							);
+						} ) }
 					{ children }
 				</div>
 			</div>

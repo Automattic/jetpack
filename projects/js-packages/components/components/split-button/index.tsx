@@ -1,7 +1,7 @@
 import { Button, Flex, DropdownMenu } from '@wordpress/components';
 import styles from './style.module.scss';
 import { SplitButtonProps } from './types.ts';
-import type React from 'react';
+import type { FC } from 'react';
 
 const DownIcon = () => (
 	<svg width="15" height="9" fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="10 9 4 7">
@@ -13,7 +13,7 @@ const DownIcon = () => (
 	</svg>
 );
 
-const SplitButton: React.FC< SplitButtonProps > = ( {
+const SplitButton: FC< SplitButtonProps > = ( {
 	variant,
 	controls,
 	popoverProps,
@@ -21,10 +21,17 @@ const SplitButton: React.FC< SplitButtonProps > = ( {
 	label,
 	...buttonProps
 } ) => {
+	// Cast to work around WPButton's strict union type
+	const wpButtonProps = {
+		variant,
+		className: styles.button,
+		...buttonProps,
+	} as React.ComponentProps< typeof Button >;
+
 	return (
 		<Flex className={ styles[ 'split-button' ] }>
 			<div role="group" className="components-button-group">
-				<Button variant={ variant } { ...buttonProps } className={ styles.button } />
+				<Button { ...wpButtonProps } />
 				<DropdownMenu
 					toggleProps={ { variant, className: styles.button, ...toggleProps } }
 					popoverProps={ { noArrow: false, ...popoverProps } }

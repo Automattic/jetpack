@@ -112,6 +112,24 @@ class Products_Rest_Test extends TestCase {
 	}
 
 	/**
+	 * Test that My Jetpack registers the jetpack-ai-jwt endpoint from the Connection package.
+	 */
+	public function test_jetpack_ai_jwt_route_is_registered() {
+		$routes = rest_get_server()->get_routes();
+
+		$this->assertArrayHasKey( '/jetpack/v4/jetpack-ai-jwt', $routes );
+
+		$methods = array();
+		foreach ( $routes['/jetpack/v4/jetpack-ai-jwt'] as $endpoint ) {
+			if ( isset( $endpoint['methods'] ) ) {
+				$methods = array_merge( $methods, array_keys( $endpoint['methods'] ) );
+			}
+		}
+
+		$this->assertContains( 'POST', $methods );
+	}
+
+	/**
 	 * Test GET products
 	 */
 	public function test_get_products() {
@@ -201,7 +219,7 @@ class Products_Rest_Test extends TestCase {
 		// Activate.
 		$request = new WP_REST_Request( 'POST', '/my-jetpack/v1/site/products/activate' );
 		$request->set_header( 'content-type', 'application/json' );
-		$request->set_body( wp_json_encode( $body ) );
+		$request->set_body( wp_json_encode( $body, JSON_UNESCAPED_SLASHES ) );
 
 		$response = $this->server->dispatch( $request );
 
@@ -234,7 +252,7 @@ class Products_Rest_Test extends TestCase {
 		// Deactivate.
 		$request = new WP_REST_Request( 'DELETE', '/my-jetpack/v1/site/products/deactivate' );
 		$request->set_header( 'content-type', 'application/json' );
-		$request->set_body( wp_json_encode( $body ) );
+		$request->set_body( wp_json_encode( $body, JSON_UNESCAPED_SLASHES ) );
 
 		$response = $this->server->dispatch( $request );
 
@@ -268,7 +286,7 @@ class Products_Rest_Test extends TestCase {
 		// Activate.
 		$request = new WP_REST_Request( 'POST', '/my-jetpack/v1/site/products/activate' );
 		$request->set_header( 'content-type', 'application/json' );
-		$request->set_body( wp_json_encode( $body ) );
+		$request->set_body( wp_json_encode( $body, JSON_UNESCAPED_SLASHES ) );
 
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();

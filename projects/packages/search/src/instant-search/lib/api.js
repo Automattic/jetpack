@@ -83,6 +83,10 @@ function generateAggregation( filter ) {
 
 			return { terms: { field, size: filter.count } };
 		}
+		case 'product_attribute': {
+			const field = `taxonomy.${ filter.attribute }.slug_slash_name`;
+			return { terms: { field, size: filter.count } };
+		}
 		case 'post_type': {
 			return { terms: { field: filter.type, size: filter.count } };
 		}
@@ -249,7 +253,7 @@ function mapSortToApiValue( sort ) {
  * @param {object} options - Options object for the function
  * @return {string} The generated query string.
  */
-function generateApiQueryString( {
+export function generateApiQueryString( {
 	aggregations,
 	excludedPostTypes,
 	filter,
@@ -263,6 +267,8 @@ function generateApiQueryString( {
 	isInCustomizer = false,
 	additionalBlogIds = [],
 	highlightFields = [ 'title', 'content', 'comments' ],
+	highlightPhraseOnly = false,
+	highlightFilterStopwords = [],
 	customResults = [],
 } ) {
 	if ( query === null ) {
@@ -326,6 +332,15 @@ function generateApiQueryString( {
 		page_handle: pageHandle,
 		size: postsPerPage,
 	};
+
+	// Only highlight spans that match the full query phrase (not individual terms).
+	if ( highlightPhraseOnly ) {
+		params.highlight_phrase_only = true;
+	}
+
+	if ( Array.isArray( highlightFilterStopwords ) && highlightFilterStopwords.length > 0 ) {
+		params.highlight_filter_stopwords = highlightFilterStopwords;
+	}
 
 	// Support search through multiple blogs.
 	if ( additionalBlogIds?.length > 0 ) {

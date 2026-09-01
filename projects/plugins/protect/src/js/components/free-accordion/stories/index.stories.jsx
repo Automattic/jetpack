@@ -1,6 +1,5 @@
 import { Text } from '@automattic/jetpack-components';
 import { wordpress, plugins } from '@wordpress/icons';
-import React from 'react';
 import FreeAccordion, { FreeAccordionItem } from '..';
 
 export default {

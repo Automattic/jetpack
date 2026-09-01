@@ -2,6 +2,10 @@
 
 use Automattic\Jetpack\Constants;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 new Jetpack_JSON_API_Plugins_Modify_Endpoint(
 	array(
 		'description'             => 'Activate/Deactivate a Plugin on your Jetpack Site, or set automatic updates',
@@ -113,6 +117,8 @@ new Jetpack_JSON_API_Plugins_Modify_Endpoint(
  *
  * POST  /sites/%s/plugins/%s
  * POST  /sites/%s/plugins
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_Endpoint {
 

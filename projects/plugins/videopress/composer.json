@@ -4,6 +4,7 @@
 	"type": "wordpress-plugin",
 	"license": "GPL-2.0-or-later",
 	"require": {
+		"automattic/jetpack-activity-log": "@dev",
 		"automattic/jetpack-assets": "@dev",
 		"automattic/jetpack-autoloader": "@dev",
 		"automattic/jetpack-composer-plugin": "@dev",
@@ -13,9 +14,6 @@
 		"automattic/jetpack-sync": "@dev",
 		"automattic/jetpack-videopress": "@dev",
 		"automattic/jetpack-status": "@dev"
-	},
-	"require-dev": {
-		"automattic/jetpack-changelogger": "@dev"
 	},
 	"autoload": {
 		"classmap": [
@@ -44,7 +42,6 @@
 			"versioning": "wordpress"
 		},
 		"release-branch-prefix": "videopress",
-		"beta-plugin-slug": "jetpack-videopress",
 		"wp-plugin-slug": "jetpack-videopress",
 		"wp-svn-autopublish": true
 	},
@@ -54,6 +51,6 @@
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true
 		},
-		"autoloader-suffix": "c4802e05bbcf59fd3b6350e8d3e5482c_videopressⓥ2_3"
+		"autoloader-suffix": "c4802e05bbcf59fd3b6350e8d3e5482c_videopressⓥ3_4_1"
 	}
 }

@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.4] - 2026-01-09
+### Changed
+- Replace use of confusing `esc_js` with `wp_json_encode`. [#46229]
+
+### Fixed
+- Ensure proper flags are used with `json_encode()`. [#46092]
+- Provide fallback value when $woocommerce_loop global is not set. [#46055]
+
+## [0.3.3] - 2025-08-05
+### Changed
+- Internal updates.
+
+## [0.3.2] - 2025-06-03
+### Changed
+- Internal updates.
+
 ## [0.3.1] - 2025-04-02
 ### Changed
 - Internal updates.
@@ -43,6 +59,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Copy the code from the Jetpack module into the package. [#37184]
 - Migrate unit tests from the Jetpack module. [#37246]
 
+[0.3.4]: https://github.com/Automattic/jetpack-google-analytics/compare/v0.3.3...v0.3.4
+[0.3.3]: https://github.com/Automattic/jetpack-google-analytics/compare/v0.3.2...v0.3.3
+[0.3.2]: https://github.com/Automattic/jetpack-google-analytics/compare/v0.3.1...v0.3.2
 [0.3.1]: https://github.com/Automattic/jetpack-google-analytics/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/Automattic/jetpack-google-analytics/compare/v0.2.5...v0.3.0
 [0.2.5]: https://github.com/Automattic/jetpack-google-analytics/compare/v0.2.4...v0.2.5

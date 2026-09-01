@@ -2,6 +2,139 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [1.0.32] - 2026-07-20
+### Changed
+- Update package dependencies. [#50529]
+
+## [1.0.31] - 2026-07-06
+### Changed
+- Update package dependencies. [#50097] [#50183]
+
+## [1.0.30] - 2026-06-22
+### Changed
+- Update package dependencies. [#49691]
+
+## [1.0.29] - 2026-06-09
+### Changed
+- Update package dependencies. [#49273]
+
+## [1.0.28] - 2026-06-08
+### Changed
+- Internal updates.
+
+## [1.0.27] - 2026-06-03
+### Changed
+- Internal updates.
+
+## [1.0.26] - 2026-05-21
+### Changed
+- Update package dependencies. [#48405]
+- Update package dependencies. [#49012]
+
+## [1.0.25] - 2026-05-19
+### Changed
+- Internal updates.
+
+## [1.0.24] - 2026-05-04
+### Changed
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+
+## [1.0.23] - 2026-04-20
+### Changed
+- Update package dependencies. [#48106]
+
+## [1.0.22] - 2026-04-09
+### Changed
+- Update package dependencies. [#47890]
+
+## [1.0.21] - 2026-03-30
+### Changed
+- Update package dependencies. [#47799]
+
+## [1.0.20] - 2026-03-23
+### Changed
+- Update package dependencies. [#47684]
+
+## [1.0.19] - 2026-03-16
+### Changed
+- Update dependencies. [#47472]
+
+## [1.0.18] - 2026-02-26
+### Changed
+- Update package dependencies. [#47300]
+
+## [1.0.17] - 2026-02-18
+### Changed
+- Set `.repository.url` in `package.json` to the mirror repo rather than the monorepo. [#47149]
+
+## [1.0.16] - 2026-02-02
+### Changed
+- Update package dependencies. [#46854]
+
+## [1.0.15] - 2026-01-19
+### Changed
+- Update package dependencies. [#46647]
+
+## [1.0.14] - 2026-01-14
+### Changed
+- Internal updates.
+
+## [1.0.13] - 2026-01-07
+### Changed
+- Update package dependencies. [#46456]
+
+## [1.0.12] - 2025-12-01
+### Changed
+- Update package dependencies. [#46143]
+
+## [1.0.11] - 2025-11-17
+### Changed
+- Update package dependencies. [#45915] [#45958]
+
+## [1.0.10] - 2025-09-19
+### Changed
+- Update package dependencies. [#45229]
+
+## [1.0.9] - 2025-09-08
+### Changed
+- Update package dependencies. [#45027]
+
+## [1.0.8] - 2025-08-13
+### Changed
+- Update package dependencies. [#44701]
+
+## [1.0.7] - 2025-08-11
+### Changed
+- Update package dependencies. [#44677]
+
+## [1.0.6] - 2025-08-04
+### Changed
+- Internal updates.
+
+## [1.0.5] - 2025-07-08
+### Changed
+- Update package dependencies. [#44217]
+
+## [1.0.4] - 2025-07-03
+### Changed
+- Update package dependencies. [#44148]
+
+## [1.0.3] - 2025-07-01
+### Changed
+- Internal updates.
+
+## [1.0.2] - 2025-06-23
+### Changed
+- Update package dependencies. [#44020]
+
+## [1.0.1] - 2025-06-18
+### Changed
+- Internal updates.
+
+## [1.0.0] - 2025-06-03
+### Changed
+- Internal updates.
+
 ## [0.20.3] - 2025-05-26
 ### Changed
 - Update package dependencies. [#43578]
@@ -418,6 +551,39 @@
 - Add the API methods left behind by the previous PR.
 - Initial release of jetpack-api package
 
+[1.0.32]: https://github.com/Automattic/jetpack-api/compare/v1.0.31...v1.0.32
+[1.0.31]: https://github.com/Automattic/jetpack-api/compare/v1.0.30...v1.0.31
+[1.0.30]: https://github.com/Automattic/jetpack-api/compare/v1.0.29...v1.0.30
+[1.0.29]: https://github.com/Automattic/jetpack-api/compare/v1.0.28...v1.0.29
+[1.0.28]: https://github.com/Automattic/jetpack-api/compare/v1.0.27...v1.0.28
+[1.0.27]: https://github.com/Automattic/jetpack-api/compare/v1.0.26...v1.0.27
+[1.0.26]: https://github.com/Automattic/jetpack-api/compare/v1.0.25...v1.0.26
+[1.0.25]: https://github.com/Automattic/jetpack-api/compare/v1.0.24...v1.0.25
+[1.0.24]: https://github.com/Automattic/jetpack-api/compare/v1.0.23...v1.0.24
+[1.0.23]: https://github.com/Automattic/jetpack-api/compare/v1.0.22...v1.0.23
+[1.0.22]: https://github.com/Automattic/jetpack-api/compare/v1.0.21...v1.0.22
+[1.0.21]: https://github.com/Automattic/jetpack-api/compare/v1.0.20...v1.0.21
+[1.0.20]: https://github.com/Automattic/jetpack-api/compare/v1.0.19...v1.0.20
+[1.0.19]: https://github.com/Automattic/jetpack-api/compare/v1.0.18...v1.0.19
+[1.0.18]: https://github.com/Automattic/jetpack-api/compare/v1.0.17...v1.0.18
+[1.0.17]: https://github.com/Automattic/jetpack-api/compare/v1.0.16...v1.0.17
+[1.0.16]: https://github.com/Automattic/jetpack-api/compare/v1.0.15...v1.0.16
+[1.0.15]: https://github.com/Automattic/jetpack-api/compare/v1.0.14...v1.0.15
+[1.0.14]: https://github.com/Automattic/jetpack-api/compare/v1.0.13...v1.0.14
+[1.0.13]: https://github.com/Automattic/jetpack-api/compare/v1.0.12...v1.0.13
+[1.0.12]: https://github.com/Automattic/jetpack-api/compare/v1.0.11...v1.0.12
+[1.0.11]: https://github.com/Automattic/jetpack-api/compare/v1.0.10...v1.0.11
+[1.0.10]: https://github.com/Automattic/jetpack-api/compare/v1.0.9...v1.0.10
+[1.0.9]: https://github.com/Automattic/jetpack-api/compare/v1.0.8...v1.0.9
+[1.0.8]: https://github.com/Automattic/jetpack-api/compare/v1.0.7...v1.0.8
+[1.0.7]: https://github.com/Automattic/jetpack-api/compare/v1.0.6...v1.0.7
+[1.0.6]: https://github.com/Automattic/jetpack-api/compare/v1.0.5...v1.0.6
+[1.0.5]: https://github.com/Automattic/jetpack-api/compare/v1.0.4...v1.0.5
+[1.0.4]: https://github.com/Automattic/jetpack-api/compare/v1.0.3...v1.0.4
+[1.0.3]: https://github.com/Automattic/jetpack-api/compare/v1.0.2...v1.0.3
+[1.0.2]: https://github.com/Automattic/jetpack-api/compare/v1.0.1...v1.0.2
+[1.0.1]: https://github.com/Automattic/jetpack-api/compare/v1.0.0...v1.0.1
+[1.0.0]: https://github.com/Automattic/jetpack-api/compare/v0.20.3...v1.0.0
 [0.20.3]: https://github.com/Automattic/jetpack-api/compare/v0.20.2...v0.20.3
 [0.20.2]: https://github.com/Automattic/jetpack-api/compare/v0.20.1...v0.20.2
 [0.20.1]: https://github.com/Automattic/jetpack-api/compare/v0.20.0...v0.20.1

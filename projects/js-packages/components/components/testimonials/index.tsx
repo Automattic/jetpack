@@ -1,5 +1,5 @@
 import { useState, useCallback } from '@wordpress/element';
-import Gridicon from '../gridicon/index.tsx';
+import { Icon, chevronLeft, chevronRight } from '@wordpress/icons';
 import { Testimonial } from './testimonial.tsx';
 import { TestimonialsType } from './types.ts';
 
@@ -30,7 +30,7 @@ const Testimonials: TestimonialsType = ( { testimonials } ) => {
 					className="testimonials__left-arrow"
 					onClick={ decrementTestimonial }
 				>
-					<Gridicon icon="chevron-left" size={ 48 } />
+					<Icon icon={ chevronLeft } size={ 48 } />
 				</button>
 			) }
 
@@ -48,7 +48,7 @@ const Testimonials: TestimonialsType = ( { testimonials } ) => {
 					className="testimonials__right-arrow"
 					onClick={ incrementTestimonial }
 				>
-					<Gridicon icon="chevron-right" size={ 48 } />
+					<Icon icon={ chevronRight } size={ 48 } />
 				</button>
 			) }
 		</div>

@@ -5,6 +5,92 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 2.13.0 - 2026-04-10
+### Added
+- Add autoloader check to prevent fatal errors when plugin is activated before composer install. [#46489]
+- Gutenberg RTC: Add PingHub provider for real-time collaboration WebSocket connections. [#47421]
+- Gutenberg RTC: Connect to PingHub WebSocket directly using a server-generated JWT token, fixing real-time collaboration on custom-domain sites with third-party cookie restrictions. [#47556]
+- Gutenberg RTC: Enable Real-Time Collaboration feature for sites with the REAL_TIME_COLLABORATION feature. [#47512]
+- MU WPCOM: Support linking back to my.wordpress.com domain. [#46559]
+- MU WPCOM: Unregister the Gutenberg RTC setting on the Writing page if there are no RTC providers. [#47403]
+
+### Changed
+- Dependencies: Update lock file to keep root requirements in sync. [#47418]
+- Remove header border-bottom from the admin page for a cleaner unified header appearance. [#47313]
+- Update design of the sidebar upsell. [#47909]
+- Update package dependencies. [#46785] [#47021] [#47505]
+
+### Removed
+- Remove the dotcom command palette. [#46579]
+- RTC: Move implementation to generic package. [#47713]
+
+### Fixed
+- Admin Page: Restore border on header component. [#47425]
+- Newsletter: Fix Reading page notice URL and link to new settings page when the jetpack_wp_admin_newsletter_settings_enabled filter is enabled. [#47347]
+
+## 2.12.0 - 2026-01-09
+### Added
+- Holiday Snow: Add speed and hemisphere settings. [#46139]
+- IDC: Add revalidation for IDCs. [#46268]
+- Introduces Attachment pages setting in the media settings screen in wp-admin which controls the `wp_attachment_pages_enabled` option. [#40590]
+- Update scssphp/scssphp dependency. [#45757]
+
+### Changed
+- Code block: Remove active line highlight when block is unselected. [#45828]
+- Code block: Remove experimental warning. [#45827]
+- Custom post types: Ensure features remain available when theme support is added. [#45407]
+- Don't translate product names. [#43961]
+- Update package dependencies. [#45478] [#45771] [#46082]
+
+### Fixed
+- Jetpack: remove getIconColor functions for block icons. [#45992]
+
+## 2.11.0 - 2025-10-10
+### Added
+- Add Code block (experimental). [#45181]
+- Newspack blocks: Load feature on agency sites. [#44906]
+
+### Changed
+- Update package dependencies. [#44725] [#44948] [#45096]
+
+## 2.10.0 - 2025-08-05
+### Added
+- Add archives endpoint support. [#44028]
+- Settings: Add tracking for launch action. [#43859]
+- Code editors: Add advanced code and CSS editors. [#44232]
+
+### Changed
+- My Jetpack: Unify the user connection flow with a unified screen. [#44469]
+- Sync: Ignore the ActivityPub Outbox CPT [#44222]
+- Update package dependencies. [#43839] [#44206]
+
+### Fixed
+- JITM: Fix ineffective caching due to expired plugin sync transient. [#44117]
+- Update JITMs to remove jQuery dependency. [#43783]
+
+## 2.9.0 - 2025-06-06
+### Added
+- Featured Content: Add messaging to clarify that the tag name is case-sensitive. [#43165]
+
+### Changed
+- Admin Menu: Update WooCommerce icon. [#43029]
+- Site Visibility: Disable search engine indexing for `*.wpcomstaging.com` sites. [#42853]
+- Update package dependencies. [#43085] [#43425]
+
+### Deprecated
+- Remove `default_rendering_mode` hotfix. [#42984]
+
+### Removed
+- Color Scheme: Clean up *-rgb css variables. [#42960]
+- Remove links to deprecated Calypso views on the launchpad tasks. [#42923]
+
+### Fixed
+- Block editor: fix layout issues with the Media Library modal buttons.. [#43035]
+- Forms: Change submenu registration. [#43627]
+- Forms: Check for classes and methods before call. [#43606]
+- Fix wrapping on the stats column heading in non-English languages. [#43630]
+- My Jetpack: Fix readability of license activation button on hover. [#43550]
+
 ## 2.8.0 - 2025-04-04
 ### Added
 - Add newsletter widget to the dashboard. [#41807]

@@ -1,7 +1,8 @@
+import { isWoASite } from '@automattic/jetpack-script-data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf, _x } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
-import React, { Component } from 'react';
+import { Component } from 'react';
 import { connect } from 'react-redux';
 import ConnectButton from 'components/connect-button';
 import DashItem from 'components/dash-item';
@@ -50,7 +51,7 @@ export class DashConnections extends Component {
 					) }
 					<div className="jp-connection-settings__text">
 						{ __(
-							'Your site is in Offline Mode, so it can not be connected to WordPress.com.',
+							'Your site is in Offline Mode, so it cannot be connected to WordPress.com.',
 							'jetpack'
 						) }
 					</div>
@@ -81,7 +82,7 @@ export class DashConnections extends Component {
 							{ ! this.props.isConnectionOwner && this.props.isConnectionOwnerName && (
 								<span className="jp-connection-settings__is-owner">
 									{ sprintf(
-										/* translators: Placeholder is the WordPress user login name. */
+										/* translators: %s: the WordPress user login name. */
 										__( 'The connection owner is %s.', 'jetpack' ),
 										this.props.isConnectionOwnerName
 									) }
@@ -113,11 +114,11 @@ export class DashConnections extends Component {
 	 * @returns {string}
 	 */
 	userConnection() {
-		const maybeShowLinkUnlinkBtn = (
+		// Hide disconnect button for connection owners on WoA sites
+		const shouldShowDisconnectButton = ! ( isWoASite() && this.props.isConnectionOwner );
+		const LinkUnlinkBtn = (
 			<ConnectButton asBanner connectUser={ true } from="connection-settings" />
 		);
-
-		let cardContent = '';
 
 		if ( this.props.isOfflineMode ) {
 			// return nothing if this is an account connection card
@@ -136,7 +137,7 @@ export class DashConnections extends Component {
 					) }
 					<div className="jp-connection-settings__text">
 						{ __(
-							'The site is in Offline Mode, so you can not connect to WordPress.com.',
+							'The site is in Offline Mode, so you cannot connect to WordPress.com.',
 							'jetpack'
 						) }
 					</div>
@@ -144,8 +145,10 @@ export class DashConnections extends Component {
 			);
 		}
 
+		let cardContent;
+
 		if ( ! this.props.isLinked ) {
-			cardContent = <div className="jp-connection-settings__info">{ maybeShowLinkUnlinkBtn }</div>;
+			cardContent = <div className="jp-connection-settings__info">{ LinkUnlinkBtn }</div>;
 		} else if ( this.props.isFetchingUserData ) {
 			cardContent = __( 'Loading…', 'jetpack' );
 		} else if ( ! this.props.wpComConnectedUser?.email ) {
@@ -174,7 +177,7 @@ export class DashConnections extends Component {
 						<div className="jp-connection-settings__text">
 							{ createInterpolateElement(
 								sprintf(
-									/* translators: Placeholder is the WordPress user login name. */
+									/* translators: %s: the WordPress user login name. */
 									__( 'Connected as <span>%s</span>', 'jetpack' ),
 									this.props.wpComConnectedUser.login
 								),
@@ -187,7 +190,9 @@ export class DashConnections extends Component {
 							</div>
 						</div>
 					</div>
-					<div className="jp-connection-settings__actions">{ maybeShowLinkUnlinkBtn }</div>
+					{ shouldShowDisconnectButton && (
+						<div className="jp-connection-settings__actions">{ LinkUnlinkBtn }</div>
+					) }
 				</div>
 			);
 		}

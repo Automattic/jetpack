@@ -1,9 +1,9 @@
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
-import React from 'react';
+import { Component } from 'react';
 import analytics from 'lib/analytics';
 
-export class DashSectionHeader extends React.Component {
+export class DashSectionHeader extends Component {
 	static displayName = 'DashSectionHeader';
 
 	static propTypes = {

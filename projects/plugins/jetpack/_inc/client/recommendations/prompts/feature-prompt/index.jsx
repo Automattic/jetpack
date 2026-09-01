@@ -1,8 +1,8 @@
 import { ProgressBar } from '@automattic/jetpack-components';
-import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import React, { useCallback, useEffect, useMemo } from 'react';
+import { Link } from '@wordpress/ui';
+import { Fragment, useCallback, useEffect, useMemo } from 'react';
 import { connect } from 'react-redux';
 import Button from 'components/button';
 import Gridicon from 'components/gridicon';
@@ -170,11 +170,11 @@ const FeaturePromptComponent = props => {
 			description={ createInterpolateElement( description, {
 				br: <br />,
 				strong: <strong />,
-				ExternalLink: <ExternalLink href={ descriptionLink } onClick={ onExternalLinkClick } />,
+				Link: <Link openInNewTab href={ descriptionLink } onClick={ onExternalLinkClick } />,
 			} ) }
 			content={
 				descriptionList || descriptionSecondary ? (
-					<React.Fragment>
+					<Fragment>
 						{ descriptionList && (
 							<ul className="jp-recommendations-question__description-list">
 								{ descriptionList.map( ( item, index ) => (
@@ -185,7 +185,7 @@ const FeaturePromptComponent = props => {
 						{ descriptionSecondary && (
 							<p className="jp-recommendations-question__description">{ descriptionSecondary }</p>
 						) }
-					</React.Fragment>
+					</Fragment>
 				) : null
 			}
 			answer={
@@ -200,14 +200,15 @@ const FeaturePromptComponent = props => {
 							</div>
 							<div className="jp-recommendations-question__settings-button">
 								{ configLinkIsExternal ? (
-									<ExternalLink
+									<Link
+										openInNewTab
 										type="button"
 										className="dops-button is-rna"
 										href={ configLink }
 										onClick={ onConfigureClick }
 									>
 										{ configureButtonLabel }
-									</ExternalLink>
+									</Link>
 								) : (
 									<Button rna href={ configLink } onClick={ onConfigureClick }>
 										{ configureButtonLabel }

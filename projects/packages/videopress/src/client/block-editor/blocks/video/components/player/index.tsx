@@ -6,11 +6,30 @@ import { ResizableBox, SandBox } from '@wordpress/components';
 import { useCallback, useRef, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
+ * Internal dependencies
+ */
+import { isAllowedOrigin } from '../../../../../lib/videopress-allowed-origins';
+import useVideoPlayer, { getIframeWindowFromRef } from '../../../../hooks/use-video-player';
+/**
  * Types
  */
-import useVideoPlayer, { getIframeWindowFromRef } from '../../../../hooks/use-video-player';
 import type { PlayerProps } from './types';
-import type React from 'react';
+import type { ComponentProps, ComponentType, ReactElement } from 'react';
+
+/*
+ * `allowForms` adds `allow-forms` to the sandbox iframe, which the player needs
+ * so the birth date form of the age gate can be submitted. It was added to
+ * SandBox in WordPress/gutenberg#76471 and is not part of the
+ * `@wordpress/components` version this package builds against yet, so the
+ * component is widened locally to accept it. Versions without the prop ignore
+ * it, leaving the age gate as blocked as it is today.
+ *
+ * Pass `allowForms` directly to `SandBox` and delete this once the bundled
+ * `@wordpress/components` includes the prop.
+ */
+const SandBoxWithForms = SandBox as ComponentType<
+	ComponentProps< typeof SandBox > & { allowForms?: boolean }
+>;
 
 // Global scripts array to be run in the Sandbox context.
 const sandboxScripts = [];
@@ -43,7 +62,7 @@ if ( window?.videoPressEditorState?.playerBridgeUrl ) {
  * VideoPlayer react component
  *
  * @param {PlayerProps} props - Component props.
- * @return {React.ReactElement} Playback block sidebar panel
+ * @return {ReactElement} Playback block sidebar panel
  */
 export default function Player( {
 	showCaption,
@@ -53,7 +72,7 @@ export default function Player( {
 	setAttributes,
 	preview,
 	isRequestingEmbedPreview,
-}: PlayerProps ): React.ReactElement {
+}: PlayerProps ): ReactElement {
 	const mainWrapperRef = useRef< HTMLDivElement >();
 	const videoWrapperRef = useRef< HTMLDivElement >();
 
@@ -78,8 +97,12 @@ export default function Player( {
 	 * of the video player.
 	 */
 	function setVideoPlayerTemporaryHeight() {
+		const wrapper = videoWrapperRef.current;
+		if ( ! wrapper ) {
+			return;
+		}
 		setVideoPlayerTemporaryHeightState(
-			( videoWrapperRef.current.offsetWidth * videoRatio ) / 100 + temporaryHeighErrorCorrection
+			( wrapper.offsetWidth * videoRatio ) / 100 + temporaryHeighErrorCorrection
 		);
 	}
 
@@ -138,6 +161,10 @@ export default function Player( {
 	 * provided by the videopress player through the bridge.
 	 */
 	const videoPlayerEventsHandler = useCallback( ( ev: MessageEvent ) => {
+		if ( ! isAllowedOrigin( ev.origin ) ) {
+			return;
+		}
+
 		const { data: eventData } = ev || {};
 		const { event: eventName } = eventData;
 		if ( eventName === 'videopress_loading_state' ) {
@@ -264,10 +291,12 @@ export default function Player( {
 				>
 					<>
 						{ ! isRequestingEmbedPreview && (
-							<SandBox
+							<SandBoxWithForms
 								html={ html }
 								scripts={ sandboxScripts }
 								styles={ [ innerContainerStyle ] }
+								allowSameOrigin
+								allowForms
 							/>
 						) }
 

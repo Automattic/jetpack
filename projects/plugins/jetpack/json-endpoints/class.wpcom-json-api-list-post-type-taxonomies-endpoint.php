@@ -1,5 +1,9 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * List post type taxonomies endpoint.
  */
@@ -27,6 +31,8 @@ new WPCOM_JSON_API_List_Post_Type_Taxonomies_Endpoint(
  * List post type taxonomies endpoint class.
  *
  * /sites/%s/post-types/%s/taxonomies -> $blog_id, $post_type
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class WPCOM_JSON_API_List_Post_Type_Taxonomies_Endpoint extends WPCOM_JSON_API_Endpoint {
 

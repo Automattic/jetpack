@@ -1,0 +1,137 @@
+.conversion-funnel-chart {
+
+	&--loading {
+		opacity: 0.6;
+		pointer-events: none;
+	}
+}
+
+.main-metric {
+	height: 20px;
+}
+
+.main-rate {
+	overflow: hidden;
+	color: var(--a8c-charts-color-label);
+	text-overflow: ellipsis;
+	font-size: var(--wpds-typography-font-size-xl, 20px);
+	font-style: normal;
+	font-weight: var(--wpds-typography-font-weight-emphasis, 600);
+	line-height: var(--wpds-typography-line-height-sm, 20px);
+	margin: 0;
+}
+
+.change-indicator {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	font-size: var(--wpds-typography-font-size-md, 13px);
+	font-style: normal;
+	font-weight: var(--wpds-typography-font-weight-emphasis, 600);
+	line-height: var(--wpds-typography-line-height-sm, 20px);
+	margin: 0;
+}
+
+.funnel-container {
+	flex: 1;
+	min-height: 0;
+	width: 100%;
+}
+
+.funnel-step {
+	flex: 1 1 0;
+	min-width: 0;
+	height: 100%;
+
+	&--animated {
+		transition:
+			opacity var(--wpds-motion-duration-lg, 300ms)
+			var(--wpds-motion-easing-subtle, cubic-bezier(0.15, 0, 0.15, 1));
+	}
+
+	&--blurred {
+		opacity: 0.3;
+	}
+}
+
+.step-label {
+	color: var(--a8c-charts-color-label-secondary);
+	font-size: var(--wpds-typography-font-size-sm, 12px);
+	font-weight: var(--wpds-typography-font-weight-default, 400);
+	line-height: var(--wpds-typography-line-height-xs, 16px);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.step-rate {
+	color: var(--a8c-charts-color-label);
+	font-size: var(--wpds-typography-font-size-md, 13px);
+	font-weight: var(--wpds-typography-font-weight-emphasis, 600);
+	line-height: var(--wpds-typography-line-height-xs, 16px);
+}
+
+.bar-container {
+	flex: 1;
+	border-radius: var(--a8c-charts-border-radius-bar);
+	position: relative;
+	cursor: pointer;
+}
+
+.funnel-bar {
+	width: 100%;
+	min-height: 4px;
+	border-radius: var(--a8c-charts-border-radius-bar) var(--a8c-charts-border-radius-bar) 0 0;
+
+	// Keep the collapsed state in `from` and never on the element: a dropped
+	// animation then fails visible. `both`, not `forwards`, for backwards fill.
+	&--animated {
+		transform-origin: bottom;
+		transform-box: fill-box;
+		animation:
+			stretch var(--a8c-charts-motion-duration-entrance)
+			var(--a8c-charts-motion-easing-entrance) both;
+	}
+
+	@keyframes stretch {
+
+		from {
+			transform: scaleY(0);
+		}
+
+		to {
+			transform: scaleY(1);
+		}
+	}
+}
+
+.tooltip-wrapper {
+	background: var(--a8c-charts-color-surface);
+
+	// Override .visx-tooltip inline styles.
+	border-radius: var(--wpds-border-radius-md, 4px) !important;
+	padding: var(--wpds-dimension-padding-md, 12px) !important;
+	box-shadow: var(--a8c-charts-elevation-sm, 0 1px 2px 0 #0000000d, 0 2px 3px 0 #0000000a, 0 6px 6px 0 #00000008, 0 8px 8px 0 #00000005) !important;
+
+}
+
+.tooltip-title {
+	color: var(--a8c-charts-color-label);
+	font-size: var(--wpds-typography-font-size-sm, 12px);
+	font-style: normal;
+	font-weight: var(--wpds-typography-font-weight-default, 400);
+	line-height: var(--wpds-typography-line-height-xs, 16px);
+}
+
+.tooltip-content {
+	color: var(--a8c-charts-color-label);
+	font-size: var(--wpds-typography-font-size-md, 13px);
+	font-style: normal;
+	font-weight: var(--wpds-typography-font-weight-emphasis, 600);
+	line-height: var(--wpds-typography-line-height-sm, 20px);
+}
+
+.empty-state {
+	text-align: center;
+	color: var(--a8c-charts-color-label-secondary);
+	font-size: var(--wpds-typography-font-size-lg, 15px);
+}

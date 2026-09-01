@@ -1,6 +1,9 @@
 <?php
 namespace Automattic\Jetpack_Boost\Compatibility\Jetpack;
 
+use Automattic\Jetpack_Boost\Modules\Features_Index;
+use Automattic\Jetpack_Boost\Modules\Module;
+
 /**
  * Class that handles the sync of Jetpack module status to Boost module status.
  */
@@ -29,6 +32,7 @@ class Sync_Jetpack_Module_Status {
 		// Use Jetpack as the source of truth for the module status
 		add_filter( "default_option_jetpack_boost_status_{$this->boost_module_slug}", array( $this, 'get_jetpack_module_status' ) );
 		add_filter( "option_jetpack_boost_status_{$this->boost_module_slug}", array( $this, 'get_jetpack_module_status' ) );
+		add_filter( 'jetpack_get_available_modules', array( $this, 'alter_jetpack_available_modules' ) );
 
 		$this->add_sync_to_jetpack_action();
 		$this->add_sync_from_jetpack_action();
@@ -38,6 +42,27 @@ class Sync_Jetpack_Module_Status {
 		 * in case the options are out of sync when the page is loaded.
 		 */
 		add_action( 'load-jetpack_page_jetpack-boost', array( $this, 'sync_from_jetpack' ) );
+	}
+
+	/**
+	 * If a Boost module is not available, remove it from the Jetpack available modules as well.
+	 *
+	 * This is useful in situations like disabling a Boost module with URL parameter.
+	 */
+	public function alter_jetpack_available_modules( $jetpack_modules ) {
+		foreach ( Features_Index::FEATURES as $feature_class ) {
+			if ( str_replace( '_', '-', $feature_class::get_slug() ) !== $this->boost_module_slug ) {
+				continue;
+			}
+
+			$boost_module = new Module( new $feature_class() );
+			if ( ! $boost_module->is_available() ) {
+				unset( $jetpack_modules[ $this->jetpack_module_slug ] );
+				break;
+			}
+		}
+
+		return $jetpack_modules;
 	}
 
 	/**

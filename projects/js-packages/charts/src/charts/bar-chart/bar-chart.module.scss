@@ -1,0 +1,46 @@
+.bar-chart {
+
+	svg {
+		overflow: visible;
+	}
+
+	// Keep the collapsed state in `from` and never on the element: a dropped
+	// animation then fails visible. `both`, not `forwards`, for backwards fill.
+	&--animated rect {
+		transform-origin: bottom;
+		transform-box: fill-box;
+		animation:
+			rise var(--a8c-charts-motion-duration-entrance)
+			var(--a8c-charts-motion-easing-entrance) both;
+	}
+
+	@keyframes rise {
+
+		from {
+			transform: scaleY(0);
+		}
+
+		to {
+			transform: scaleY(1);
+		}
+	}
+
+	&--animated-horizontal rect {
+		transform-origin: left;
+		transform-box: fill-box;
+		animation:
+			stretch var(--a8c-charts-motion-duration-entrance)
+			var(--a8c-charts-motion-easing-entrance) both;
+	}
+
+	@keyframes stretch {
+
+		from {
+			transform: scaleX(0);
+		}
+
+		to {
+			transform: scaleX(1);
+		}
+	}
+}

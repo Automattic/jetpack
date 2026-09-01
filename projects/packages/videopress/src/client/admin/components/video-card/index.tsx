@@ -1,14 +1,9 @@
 /**
  * External dependencies
  */
-import {
-	Text,
-	Button,
-	Title,
-	useBreakpointMatch,
-	LoadingPlaceholder,
-} from '@automattic/jetpack-components';
+import { Text, Button, Title, LoadingPlaceholder } from '@automattic/jetpack-components';
 import { formatNumber } from '@automattic/number-formatters';
+import { useViewportMatch } from '@wordpress/compose';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, chartBar, chevronDown, chevronUp } from '@wordpress/icons';
 import clsx from 'clsx';
@@ -26,7 +21,7 @@ import { VideoCardProps } from './types';
 /**
  * Types
  */
-import type React from 'react';
+import type { ReactNode } from 'react';
 
 const QuickActions = ( {
 	id,
@@ -60,7 +55,7 @@ const QuickActions = ( {
  * Video Card component
  *
  * @param {VideoCardProps} props - Component props.
- * @return {React.ReactNode} - VideoCard react component.
+ * @return {ReactNode} - VideoCard react component.
  */
 export const VideoCard = ( {
 	title,
@@ -82,13 +77,13 @@ export const VideoCard = ( {
 	const hasPlays = typeof plays !== 'undefined';
 	const playsCount = hasPlays
 		? sprintf(
-				/* translators: placeholder is a number of plays */
+				/* translators: %s: the number of plays */
 				__( '%s plays', 'jetpack-videopress-pkg' ),
 				formatNumber( plays )
 		  )
 		: '';
 	const [ anchor, setAnchor ] = useState( null );
-	const [ isSm ] = useBreakpointMatch( 'sm' );
+	const isSm = useViewportMatch( 'small', '<' );
 	const [ isOpen, setIsOpen ] = useState( false );
 	const disabled = loading || uploading;
 
@@ -136,12 +131,7 @@ export const VideoCard = ( {
 					) : (
 						<>
 							{ hasPlays && (
-								<Text
-									weight="regular"
-									size="small"
-									component="div"
-									className={ styles[ 'video-card__video-plays-counter' ] }
-								>
+								<Text component="div" className={ styles[ 'video-card__video-plays-counter' ] }>
 									<Icon icon={ chartBar } />
 									{ playsCount }
 								</Text>

@@ -3,6 +3,9 @@
  * Tests for WPCOM_REST_API_V2_Endpoint_Send_Email_Preview.
  * To run this test by itself use the following command:
  * jetpack docker phpunit jetpack -- --filter=WPCOM_REST_API_V2_Endpoint_Send_Email_Preview_Test
+ *
+ * The wpcom-only Email_Verification class the endpoint calls is mocked from the
+ * test bootstrap (tests/php/lib/class-email-verification.php).
  */
 
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -13,116 +16,113 @@ require_once dirname( __DIR__, 2 ) . '/lib/Jetpack_REST_TestCase.php';
 /**
  * Class WPCOM_REST_API_V2_Endpoint_Send_Email_Preview_Test
  *
+ * Only the recipient-resolution branches that return before the wpcom-only
+ * subscriber/mailer classes are reached can run here; the successful-send path
+ * requires the wpcom runtime and is exercised end-to-end on wpcom.
+ *
  * @covers \WPCOM_REST_API_V2_Endpoint_Send_Email_Preview
  */
 #[CoversClass( WPCOM_REST_API_V2_Endpoint_Send_Email_Preview::class )]
 class WPCOM_REST_API_V2_Endpoint_Send_Email_Preview_Test extends Jetpack_REST_TestCase {
 
 	/**
-	 * Mock user ID with editor permissions.
+	 * Editor user whose own email is the default recipient.
 	 *
 	 * @var int
 	 */
 	private static $user_id_editor = 0;
 
 	/**
-	 * Mock user ID with subscriber permissions.
-	 *
-	 * @var int
-	 */
-	private static $user_id_subscriber = 0;
-
-	/**
-	 * Route to endpoint.
-	 *
-	 * @var string
-	 */
-	private static $path = '';
-
-	/**
-	 * Mock post ID.
+	 * Post to preview.
 	 *
 	 * @var int
 	 */
 	private static $post_id = 0;
 
 	/**
-	 * Create 2 mock blog users and a mock blog post.
+	 * Set up test fixtures.
 	 */
 	public function set_up() {
 		parent::set_up();
 
-		static::$user_id_editor     = self::factory()->user->create( array( 'role' => 'editor' ) );
-		static::$user_id_subscriber = self::factory()->user->create( array( 'role' => 'subscriber' ) );
-
-		static::$path = '/wpcom/v2/send-email-preview';
+		static::$user_id_editor = self::factory()->user->create(
+			array(
+				'role'       => 'editor',
+				'user_email' => 'author@example.com',
+			)
+		);
 
 		wp_set_current_user( static::$user_id_editor );
+
 		static::$post_id = self::factory()->post->create(
 			array(
 				'post_status' => 'published',
 				'post_author' => (string) static::$user_id_editor,
 			)
 		);
-
-		add_filter( 'pre_option_jetpack_private_options', array( $this, 'mock_jetpack_private_options' ) );
 	}
 
 	/**
-	 * Reset the environment to its original state after the test.
-	 */
-	public function tear_down() {
-		remove_filter( 'pre_option_jetpack_private_options', array( $this, 'mock_jetpack_private_options' ) );
-
-		parent::tear_down();
-	}
-
-	/**
-	 * Mock the user's tokens.
+	 * Invoke the handler directly. Dispatching via the server would hit the proxy
+	 * callback, since the test environment is not is_wpcom_simple().
 	 *
-	 * @return array
+	 * @param array $params Request params.
+	 * @return WP_REST_Response|WP_Error
 	 */
-	public function mock_jetpack_private_options() {
-		return array(
-			'user_tokens' => array(
-				static::$user_id_editor     => 'pretend_this_is_valid.secret.' . static::$user_id_editor,
-				static::$user_id_subscriber => 'pretend_this_is_valid.secret.' . static::$user_id_subscriber,
-			),
-		);
+	private function send( array $params ) {
+		$request = new WP_REST_Request( Requests::POST, '/wpcom/v2/send-email-preview' );
+		foreach ( $params as $key => $value ) {
+			$request->set_param( $key, $value );
+		}
+
+		$endpoint = new WPCOM_REST_API_V2_Endpoint_Send_Email_Preview();
+
+		return $endpoint->send_email_preview( $request );
 	}
 
 	/**
-	 * Test that a non wp.com connected user shouldn't be able to use the endpoint.
+	 * The optional email argument is registered on the route.
 	 */
-	public function test_email_preview_permissions_check_wrong_user() {
-		wp_set_current_user( 0 );
+	public function test_email_arg_is_registered() {
+		$routes = $this->server->get_routes();
 
-		$request = new WP_REST_Request( Requests::POST, static::$path );
-		$request->set_body_params(
-			array(
-				'id' => static::$post_id,
-			)
-		);
-		$response = $this->server->dispatch( $request );
+		$this->assertArrayHasKey( '/wpcom/v2/send-email-preview', $routes );
 
-		$this->assertErrorResponse( 'rest_cannot_send_email_preview', $response, 401 );
+		$args = $routes['/wpcom/v2/send-email-preview'][0]['args'];
+		$this->assertArrayHasKey( 'email', $args );
+		$this->assertSame( 'string', $args['email']['type'] );
 	}
 
 	/**
-	 * Test that a subscriber shouldn't be able to use the endpoint.
+	 * A malformed recipient address is rejected with a 400 before any send.
 	 */
-	public function test_email_preview_permissions_check_wrong_role() {
-		wp_set_current_user( static::$user_id_subscriber );
-
-		$request = new WP_REST_Request( Requests::POST, static::$path );
-		$request->set_body_params(
+	public function test_invalid_recipient_is_rejected() {
+		$result = $this->send(
 			array(
-				'id' => static::$post_id,
+				'id'    => static::$post_id,
+				'email' => 'not-an-email',
 			)
 		);
 
-		$response = $this->server->dispatch( $request );
+		$this->assertInstanceOf( 'WP_Error', $result );
+		$this->assertSame( 'invalid_email', $result->get_error_code() );
+		$this->assertSame( 400, $result->get_error_data()['status'] );
+	}
 
-		$this->assertErrorResponse( 'rest_forbidden_context', $response, 403 );
+	/**
+	 * A different (non-self) recipient is refused when the wpcom guard is not
+	 * available, rather than sending unguarded.
+	 */
+	public function test_non_self_recipient_without_guard_is_unavailable() {
+		$result = $this->send(
+			array(
+				'id'    => static::$post_id,
+				'email' => 'someone-else@example.com',
+			)
+		);
+
+		$this->assertInstanceOf( 'WP_Error', $result );
+		$this->assertSame( 'send_email_preview_guard_unavailable', $result->get_error_code() );
+		$this->assertSame( 503, $result->get_error_data()['status'] );
 	}
 }

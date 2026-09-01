@@ -339,50 +339,50 @@ describe( 'bin/eslint-changed.js', () => {
 		const usedDeprecatedRules = [
 			{
 				info: {
-					availableUntil: '10.0.0',
+					availableUntil: '11.0.0',
 					deprecatedSince: '8.53.0',
 					message: 'Formatting rules are being moved out of ESLint core.',
 					replacedBy: [
 						{
 							message: 'ESLint Stylistic now maintains deprecated stylistic core rules.',
 							plugin: {
-								name: '@stylistic/eslint-plugin-js',
-								url: 'https://eslint.style/packages/js',
+								name: '@stylistic/eslint-plugin',
+								url: 'https://eslint.style',
 							},
 							rule: {
 								name: 'quotes',
-								url: 'https://eslint.style/rules/js/quotes',
+								url: 'https://eslint.style/rules/quotes',
 							},
 							url: 'https://eslint.style/guide/migration',
 						},
 					],
 					url: 'https://eslint.org/blog/2023/10/deprecating-formatting-rules/',
 				},
-				replacedBy: [ '@stylistic/js/quotes' ],
+				replacedBy: [ '@stylistic/quotes' ],
 				ruleId: 'quotes',
 			},
 			{
 				info: {
-					availableUntil: '10.0.0',
+					availableUntil: '11.0.0',
 					deprecatedSince: '8.53.0',
 					message: 'Formatting rules are being moved out of ESLint core.',
 					replacedBy: [
 						{
 							message: 'ESLint Stylistic now maintains deprecated stylistic core rules.',
 							plugin: {
-								name: '@stylistic/eslint-plugin-js',
-								url: 'https://eslint.style/packages/js',
+								name: '@stylistic/eslint-plugin',
+								url: 'https://eslint.style',
 							},
 							rule: {
 								name: 'semi',
-								url: 'https://eslint.style/rules/js/semi',
+								url: 'https://eslint.style/rules/semi',
 							},
 							url: 'https://eslint.style/guide/migration',
 						},
 					],
 					url: 'https://eslint.org/blog/2023/10/deprecating-formatting-rules/',
 				},
-				replacedBy: [ '@stylistic/js/semi' ],
+				replacedBy: [ '@stylistic/semi' ],
 				ruleId: 'semi',
 			},
 		];
@@ -541,7 +541,6 @@ describe( 'bin/eslint-changed.js', () => {
 							message: 'Strings must use singlequote.',
 							line: 1,
 							column: 14,
-							nodeType: 'Literal',
 							messageId: 'wrongQuotes',
 							endLine: 1,
 							endColumn: 29,
@@ -585,7 +584,6 @@ describe( 'bin/eslint-changed.js', () => {
 							message: 'Strings must use singlequote.',
 							line: 1,
 							column: 14,
-							nodeType: 'Literal',
 							messageId: 'wrongQuotes',
 							endLine: 1,
 							endColumn: 29,
@@ -629,7 +627,6 @@ describe( 'bin/eslint-changed.js', () => {
 							message: 'Missing semicolon.',
 							line: 1,
 							column: 31,
-							nodeType: 'ExpressionStatement',
 							messageId: 'missingSemi',
 							endLine: 2,
 							endColumn: 1,
@@ -673,7 +670,6 @@ describe( 'bin/eslint-changed.js', () => {
 							message: "'x' is defined but never used.",
 							line: 1,
 							column: 5,
-							nodeType: 'Identifier',
 							messageId: 'unusedVar',
 							endLine: 1,
 							endColumn: 6,
@@ -740,7 +736,6 @@ describe( 'bin/eslint-changed.js', () => {
 							message: "'x' is assigned a value but never used.",
 							line: 1,
 							column: 5,
-							nodeType: 'Identifier',
 							messageId: 'unusedVar',
 							endLine: 1,
 							endColumn: 6,
@@ -777,7 +772,6 @@ describe( 'bin/eslint-changed.js', () => {
 							message: 'Strings must use singlequote.',
 							line: 2,
 							column: 6,
-							nodeType: 'Literal',
 							messageId: 'wrongQuotes',
 							endLine: 2,
 							endColumn: 16,
@@ -848,7 +842,6 @@ describe( 'bin/eslint-changed.js', () => {
 							message: "'y' is assigned a value but never used.",
 							line: 1,
 							column: 5,
-							nodeType: 'Identifier',
 							messageId: 'unusedVar',
 							endLine: 1,
 							endColumn: 6,
@@ -872,7 +865,6 @@ describe( 'bin/eslint-changed.js', () => {
 							message: "'x' is not defined.",
 							line: 13,
 							column: 14,
-							nodeType: 'Identifier',
 							messageId: 'undef',
 							endLine: 13,
 							endColumn: 15,
@@ -927,7 +919,6 @@ describe( 'bin/eslint-changed.js', () => {
 							message: "'y' is assigned a value but never used.",
 							line: 1,
 							column: 5,
-							nodeType: 'Identifier',
 							messageId: 'unusedVar',
 							endLine: 1,
 							endColumn: 6,
@@ -964,7 +955,6 @@ describe( 'bin/eslint-changed.js', () => {
 							message: "'y' is assigned a value but never used.",
 							line: 1,
 							column: 5,
-							nodeType: 'Identifier',
 							messageId: 'unusedVar',
 							endLine: 1,
 							endColumn: 6,
@@ -1035,7 +1025,362 @@ describe( 'bin/eslint-changed.js', () => {
 							message: "'y' is assigned a value but never used.",
 							line: 1,
 							column: 5,
-							nodeType: 'Identifier',
+							messageId: 'unusedVar',
+							endLine: 1,
+							endColumn: 6,
+							suggestions: [
+								{
+									data: {
+										varName: 'y',
+									},
+									desc: "Remove unused variable 'y'.",
+									fix: {
+										range: [ 0, 24 ],
+										text: '',
+									},
+									messageId: 'removeVar',
+								},
+							],
+						},
+					],
+					errorCount: 1,
+					fatalErrorCount: 0,
+					warningCount: 0,
+					fixableErrorCount: 0,
+					fixableWarningCount: 0,
+					source: "var y = 'Hello, world!';\n\n\n\n\n\n\n\n\n\n\n\nconsole.log( x )\n",
+					suppressedMessages: [],
+					usedDeprecatedRules,
+				},
+			];
+			expect( output ).toEqual( expectOutput );
+		} );
+
+		test( 'Works with --in-diff-only and filtered files with full paths', async () => {
+			await mktmpdirgit(
+				[
+					{
+						files: {
+							'eslint.config.mjs': eslintconfig,
+							'1.js': "var x = 'Hello, world!';\n\n\n\n\n\n\n\n\n\n\n\nconsole.log( x )\n",
+							'2.js': "var x = 'Hello, world!';\n\n\n\n\n\n\n\n\n\n\n\nconsole.log( x )\n",
+							'3.js': "var x = 'Hello, world!';\n\n\n\n\n\n\n\n\n\n\n\nconsole.log( x )\n",
+						},
+					},
+				],
+				{
+					'2.js': "var y = 'Hello, world!';\n\n\n\n\n\n\n\n\n\n\n\nconsole.log( x )\n",
+					'3.js': "var y = 'Hello, world!';\n\n\n\n\n\n\n\n\n\n\n\nconsole.log( x )\n",
+				}
+			);
+
+			const data = await runEslintChanged(
+				[
+					'--format=json',
+					'--git',
+					'--in-diff-only',
+					path.join( tmpdir, '1.js' ),
+					path.join( tmpdir, '2.js' ),
+				],
+				{
+					cwd: tmpdir,
+				}
+			);
+			expect( data.exitCode ).toBe( 1 );
+
+			expect( data.stdout ).toBeValidJSON();
+			const output = JSON.parse( data.stdout );
+			expect( output ).toBeInstanceOf( Array );
+			const expectOutput = [
+				{
+					filePath: path.join( tmpdir, '2.js' ),
+					messages: [
+						{
+							ruleId: 'no-unused-vars',
+							severity: 2,
+							message: "'y' is assigned a value but never used.",
+							line: 1,
+							column: 5,
+							messageId: 'unusedVar',
+							endLine: 1,
+							endColumn: 6,
+							suggestions: [
+								{
+									data: {
+										varName: 'y',
+									},
+									desc: "Remove unused variable 'y'.",
+									fix: {
+										range: [ 0, 24 ],
+										text: '',
+									},
+									messageId: 'removeVar',
+								},
+							],
+						},
+					],
+					errorCount: 1,
+					fatalErrorCount: 0,
+					warningCount: 0,
+					fixableErrorCount: 0,
+					fixableWarningCount: 0,
+					source: "var y = 'Hello, world!';\n\n\n\n\n\n\n\n\n\n\n\nconsole.log( x )\n",
+					suppressedMessages: [],
+					usedDeprecatedRules,
+				},
+			];
+			expect( output ).toEqual( expectOutput );
+		} );
+
+		test( 'Works when run from a subdirectory', async () => {
+			await mktmpdirgit(
+				[
+					{
+						files: {
+							'eslint.config.mjs': eslintconfig,
+							'a/1.js': "var x = 'Hello, world!';\n\n\n\n\n\n\n\n\n\n\n\nconsole.log( x )\n",
+							'a/2.js': "var x = 'Hello, world!';\n\n\n\n\n\n\n\n\n\n\n\nconsole.log( x )\n",
+							'b/3.js': "var x = 'Hello, world!';\n\n\n\n\n\n\n\n\n\n\n\nconsole.log( x )\n",
+						},
+					},
+				],
+				{
+					'a/2.js': "var y = 'Hello, world!';\n\n\n\n\n\n\n\n\n\n\n\nconsole.log( x )\n",
+					'b/3.js': "var y = 'Hello, world!';\n\n\n\n\n\n\n\n\n\n\n\nconsole.log( x )\n",
+				}
+			);
+
+			const data = await runEslintChanged( [ '--format=json', '--git' ], {
+				cwd: path.join( tmpdir, 'a' ),
+			} );
+			expect( data.exitCode ).toBe( 1 );
+
+			expect( data.stdout ).toBeValidJSON();
+			const output = JSON.parse( data.stdout );
+			expect( output ).toBeInstanceOf( Array );
+			const expectOutput = [
+				{
+					filePath: path.join( tmpdir, 'a/2.js' ),
+					messages: [
+						{
+							ruleId: 'no-unused-vars',
+							severity: 2,
+							message: "'y' is assigned a value but never used.",
+							line: 1,
+							column: 5,
+							messageId: 'unusedVar',
+							endLine: 1,
+							endColumn: 6,
+							suggestions: [
+								{
+									data: {
+										varName: 'y',
+									},
+									desc: "Remove unused variable 'y'.",
+									fix: {
+										range: [ 0, 24 ],
+										text: '',
+									},
+									messageId: 'removeVar',
+								},
+							],
+						},
+						{
+							ruleId: 'no-undef',
+							severity: 2,
+							message: "'x' is not defined.",
+							line: 13,
+							column: 14,
+							messageId: 'undef',
+							endLine: 13,
+							endColumn: 15,
+						},
+					],
+					errorCount: 2,
+					fatalErrorCount: 0,
+					warningCount: 0,
+					fixableErrorCount: 0,
+					fixableWarningCount: 0,
+					source: "var y = 'Hello, world!';\n\n\n\n\n\n\n\n\n\n\n\nconsole.log( x )\n",
+					suppressedMessages: [],
+					usedDeprecatedRules,
+				},
+			];
+			expect( output ).toEqual( expectOutput );
+		} );
+
+		test( 'Works when run from a subdirectory, naming relative files', async () => {
+			await mktmpdirgit(
+				[
+					{
+						files: {
+							'eslint.config.mjs': eslintconfig,
+							'x/1.js': "var x = 'Hello, world!';\n\n\n\n\n\n\n\n\n\n\n\nconsole.log( x )\n",
+							'x/2.js': "var x = 'Hello, world!';\n\n\n\n\n\n\n\n\n\n\n\nconsole.log( x )\n",
+							'x/3.js': "var x = 'Hello, world!';\n\n\n\n\n\n\n\n\n\n\n\nconsole.log( x )\n",
+						},
+					},
+				],
+				{
+					'x/2.js': "var y = 'Hello, world!';\n\n\n\n\n\n\n\n\n\n\n\nconsole.log( x )\n",
+					'x/3.js': "var y = 'Hello, world!';\n\n\n\n\n\n\n\n\n\n\n\nconsole.log( x )\n",
+				}
+			);
+			const data = await runEslintChanged( [ '--format=json', '--git', '1.js', '2.js' ], {
+				cwd: path.join( tmpdir, 'x' ),
+			} );
+			expect( data.exitCode ).toBe( 1 );
+
+			expect( data.stdout ).toBeValidJSON();
+			const output = JSON.parse( data.stdout );
+			expect( output ).toBeInstanceOf( Array );
+			const expectOutput = [
+				{
+					filePath: path.join( tmpdir, 'x/1.js' ),
+					messages: [],
+					errorCount: 0,
+					fatalErrorCount: 0,
+					warningCount: 0,
+					fixableErrorCount: 0,
+					fixableWarningCount: 0,
+					source: "var x = 'Hello, world!';\n\n\n\n\n\n\n\n\n\n\n\nconsole.log( x )\n",
+					suppressedMessages: [],
+					usedDeprecatedRules,
+				},
+				{
+					filePath: path.join( tmpdir, 'x/2.js' ),
+					messages: [
+						{
+							ruleId: 'no-unused-vars',
+							severity: 2,
+							message: "'y' is assigned a value but never used.",
+							line: 1,
+							column: 5,
+							messageId: 'unusedVar',
+							endLine: 1,
+							endColumn: 6,
+							suggestions: [
+								{
+									data: {
+										varName: 'y',
+									},
+									desc: "Remove unused variable 'y'.",
+									fix: {
+										range: [ 0, 24 ],
+										text: '',
+									},
+									messageId: 'removeVar',
+								},
+							],
+						},
+						{
+							ruleId: 'no-undef',
+							severity: 2,
+							message: "'x' is not defined.",
+							line: 13,
+							column: 14,
+							messageId: 'undef',
+							endLine: 13,
+							endColumn: 15,
+						},
+					],
+					errorCount: 2,
+					fatalErrorCount: 0,
+					warningCount: 0,
+					fixableErrorCount: 0,
+					fixableWarningCount: 0,
+					source: "var y = 'Hello, world!';\n\n\n\n\n\n\n\n\n\n\n\nconsole.log( x )\n",
+					suppressedMessages: [],
+					usedDeprecatedRules,
+				},
+			];
+			expect( output ).toEqual( expectOutput );
+		} );
+
+		test( 'Works with --in-diff-only when run from a subdirectory', async () => {
+			await mktmpdirgit(
+				[
+					{
+						files: {
+							'eslint.config.mjs': eslintconfig,
+							'x/1.js': "var x = 'Hello, world!';\n\n\n\n\n\n\n\n\n\n\n\nconsole.log( x )\n",
+							'x/2.js': "var x = 'Hello, world!';\n\n\n\n\n\n\n\n\n\n\n\nconsole.log( x )\n",
+							'x/3.js': "var x = 'Hello, world!';\n\n\n\n\n\n\n\n\n\n\n\nconsole.log( x )\n",
+							'x/4.js': "var x = 'Hello, world!';\n\n\n\n\n\n\n\n\n\n\n\nconsole.log( x )\n",
+						},
+					},
+				],
+				{
+					'x/2.js': "var y = 'Hello, world!';\n\n\n\n\n\n\n\n\n\n\n\nconsole.log( x )\n",
+					'x/3.js': "var y = 'Hello, world!';\n\n\n\n\n\n\n\n\n\n\n\nconsole.log( x )\n",
+					'x/4.js': "var y = 'Hello, world!';\n\n\n\n\n\n\n\n\n\n\n\nconsole.log( x )\n",
+				}
+			);
+
+			const data = await runEslintChanged(
+				[
+					'--format=json',
+					'--git',
+					'--in-diff-only',
+					'1.js',
+					'2.js',
+					path.join( tmpdir, 'x/4.js' ),
+				],
+				{
+					cwd: path.join( tmpdir, 'x' ),
+				}
+			);
+			expect( data.exitCode ).toBe( 1 );
+
+			expect( data.stdout ).toBeValidJSON();
+			const output = JSON.parse( data.stdout );
+			expect( output ).toBeInstanceOf( Array );
+			const expectOutput = [
+				{
+					filePath: path.join( tmpdir, 'x/2.js' ),
+					messages: [
+						{
+							ruleId: 'no-unused-vars',
+							severity: 2,
+							message: "'y' is assigned a value but never used.",
+							line: 1,
+							column: 5,
+							messageId: 'unusedVar',
+							endLine: 1,
+							endColumn: 6,
+							suggestions: [
+								{
+									data: {
+										varName: 'y',
+									},
+									desc: "Remove unused variable 'y'.",
+									fix: {
+										range: [ 0, 24 ],
+										text: '',
+									},
+									messageId: 'removeVar',
+								},
+							],
+						},
+					],
+					errorCount: 1,
+					fatalErrorCount: 0,
+					warningCount: 0,
+					fixableErrorCount: 0,
+					fixableWarningCount: 0,
+					source: "var y = 'Hello, world!';\n\n\n\n\n\n\n\n\n\n\n\nconsole.log( x )\n",
+					suppressedMessages: [],
+					usedDeprecatedRules,
+				},
+				{
+					filePath: path.join( tmpdir, 'x/4.js' ),
+					messages: [
+						{
+							ruleId: 'no-unused-vars',
+							severity: 2,
+							message: "'y' is assigned a value but never used.",
+							line: 1,
+							column: 5,
 							messageId: 'unusedVar',
 							endLine: 1,
 							endColumn: 6,
@@ -1092,7 +1437,6 @@ describe( 'bin/eslint-changed.js', () => {
 							message: "'y' is assigned a value but never used.",
 							line: 1,
 							column: 5,
-							nodeType: 'Identifier',
 							messageId: 'unusedVar',
 							endLine: 1,
 							endColumn: 6,
@@ -1172,100 +1516,6 @@ describe( 'bin/eslint-changed.js', () => {
 				expectOutput[ 0 ].filePath = path.join( tmpdir, '2.js' );
 				expect( output ).toEqual( expectOutput );
 			} );
-		} );
-
-		// If this starts failing in eslint 10+, delete or skip it.
-		test( 'Works with .eslintrc', async () => {
-			await mktmpdirgit(
-				[
-					{
-						name: 'base',
-						files: {
-							'.eslintrc': JSON.stringify( {
-								env: { node: true },
-								rules: {
-									'no-unused-vars': 'error',
-									'no-undef': 'error',
-									quotes: [ 'error', 'single' ],
-									semi: [ 'error', 'always' ],
-								},
-							} ),
-							'1.js': "console.log( 'Hello, world!' );\n",
-							'2.js': "console.log( 'Hello, world!' );\n",
-							'3.js': "console.log( 'Hello, world!' );\n",
-						},
-					},
-					{
-						name: 'trunk',
-						files: {
-							'1.js': "var x;\nconsole.log( 'Hello, world!' );\n",
-						},
-					},
-				],
-				{
-					'2.js': 'console.log( "Hello, world?" );\n',
-				},
-				{
-					'3.js': "console.log( '¡Hola, mundo!' )\n",
-				}
-			);
-
-			const oldEnv = process.env.ESLINT_USE_FLAT_CONFIG;
-			let data;
-			try {
-				process.env.ESLINT_USE_FLAT_CONFIG = 'false';
-				data = await runEslintChanged( [ '--format=json', '--git' ], {
-					cwd: tmpdir,
-					env: { ESLINT_USE_FLAT_CONFIG: 'false' },
-				} );
-			} finally {
-				process.env.ESLINT_USE_FLAT_CONFIG = oldEnv;
-			}
-			expect( data.exitCode ).toBe( 1 );
-
-			expect( data.stdout ).toBeValidJSON();
-			const output = JSON.parse( data.stdout );
-			expect( output ).toBeInstanceOf( Array );
-			const expectOutput = [
-				{
-					filePath: path.join( tmpdir, '2.js' ),
-					messages: [
-						{
-							ruleId: 'quotes',
-							severity: 2,
-							message: 'Strings must use singlequote.',
-							line: 1,
-							column: 14,
-							nodeType: 'Literal',
-							messageId: 'wrongQuotes',
-							endLine: 1,
-							endColumn: 29,
-							fix: {
-								range: [ 13, 28 ],
-								text: "'Hello, world?'",
-							},
-						},
-					],
-					errorCount: 1,
-					fatalErrorCount: 0,
-					warningCount: 0,
-					fixableErrorCount: 1,
-					fixableWarningCount: 0,
-					source: 'console.log( "Hello, world?" );\n',
-					suppressedMessages: [],
-					usedDeprecatedRules: [
-						{
-							replacedBy: [],
-							ruleId: 'quotes',
-						},
-						{
-							replacedBy: [],
-							ruleId: 'semi',
-						},
-					],
-				},
-			];
-			expect( output ).toEqual( expectOutput );
 		} );
 	} );
 } );

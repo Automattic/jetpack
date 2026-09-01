@@ -7,6 +7,10 @@
  * @package jetpack
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Add theme support for infinity scroll
  */

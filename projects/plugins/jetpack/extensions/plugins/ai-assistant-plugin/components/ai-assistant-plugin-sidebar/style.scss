@@ -2,7 +2,8 @@
 	margin-bottom: 2em;
 	display: block;
 
-	p, p > * {
+	p,
+	p > * {
 		text-wrap: pretty;
 	}
 
@@ -38,7 +39,7 @@
 	.icon {
 		width: 20px;
 		height: 20px;
-		color: var( --studio-gray-20 );
+		color: var(--studio-gray-20);
 		margin-left: 4px;
 	}
 }

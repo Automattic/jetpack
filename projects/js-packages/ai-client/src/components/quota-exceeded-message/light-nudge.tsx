@@ -28,7 +28,7 @@ export const LightNudge = ( {
 							variant="link"
 							target={ target }
 						>
-							{ isRedirecting ? redirectingText : buttonText }
+							<span>{ isRedirecting ? redirectingText : buttonText }</span>
 						</Button>
 					) }
 				</p>

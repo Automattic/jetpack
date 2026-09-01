@@ -1,13 +1,7 @@
-import {
-	DonutMeter,
-	Gridicon,
-	IconTooltip,
-	Button,
-	ThemeProvider,
-} from '@automattic/jetpack-components';
+import { DonutMeter, IconTooltip, Button, ThemeProvider } from '@automattic/jetpack-components';
 import { formatNumber as formatNumberImported } from '@automattic/number-formatters';
 import { __ } from '@wordpress/i18n';
-import React from 'react';
+import { Icon, info } from '@wordpress/icons';
 import './style.scss';
 
 const localizedUnlimited = __( 'Unlimited', 'jetpack-search-pkg' );
@@ -50,7 +44,7 @@ const usageInfoMessage = ( current, limit ) => {
  * @param {Function} props.iconClickedCallback - handler for click on "info" icon
  * @param {Function} props.linkClickedCallback - handler for click on "details" link
  * @param {object}   props.tooltip             - tooltip data
- * @return {React.Component} DonutMeterContainer component
+ * @return {import('react').Component} DonutMeterContainer component
  */
 const DonutMeterContainer = ( {
 	current = 0,
@@ -123,7 +117,7 @@ const InfoPrimary = ( { localizedMessage, iconClickedCallback } ) => {
 			{ localizedMessage }{ ' ' }
 			{ haveCallback && (
 				<a href="#" className="info-icon-wrapper" onClick={ onIconClicked }>
-					<Gridicon className="" icon="info-outline" size={ 16 } />
+					<Icon icon={ info } size={ 16 } />
 				</a>
 			) }
 		</div>

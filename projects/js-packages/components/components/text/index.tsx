@@ -1,14 +1,15 @@
 import clsx from 'clsx';
-import React, { forwardRef, useMemo } from 'react';
+import { forwardRef, useMemo } from 'react';
 import { BOX_MODEL_VALUES, VARIANTS_MAPPING } from './constants.ts';
 import styles from './style.module.scss';
 import type { H3Props, TextProps, TitleProps } from './types.ts';
+import type { FC, ReactElement } from 'react';
 
 /**
  * Text component.
  *
  * @param {TextProps} props - Component props.
- * @return {React.ReactElement} - JSX.Element
+ * @return {ReactElement} - JSX.Element
  */
 const Text = forwardRef< HTMLElement, TextProps >(
 	( { variant = 'body', children, component, className, ...componentProps }, ref ) => {
@@ -45,9 +46,9 @@ export default Text;
  * Heading component - Medium size.
  *
  * @param {TextProps} props - Component props.
- * @return {React.ReactElement} - JSX.Element
+ * @return {ReactElement} - JSX.Element
  */
-export const H2: React.FC< TextProps > = ( { children, ...componentProps } ) => (
+export const H2: FC< TextProps > = ( { children, ...componentProps } ) => (
 	<Text variant="headline-medium" mb={ 3 } { ...componentProps }>
 		{ children }
 	</Text>
@@ -57,9 +58,9 @@ export const H2: React.FC< TextProps > = ( { children, ...componentProps } ) => 
  * Heading component - Small size,
  *
  * @param {H3Props} props - Component props.
- * @return {React.ReactElement} - JSX.Element
+ * @return {ReactElement} - JSX.Element
  */
-export const H3: React.FC< H3Props > = ( { children, weight = 'bold', ...componentProps } ) => {
+export const H3: FC< H3Props > = ( { children, weight = 'bold', ...componentProps } ) => {
 	const variant = `headline-small${
 		weight === 'bold' ? '' : `-${ weight }`
 	}` as TextProps[ 'variant' ];
@@ -75,13 +76,9 @@ export const H3: React.FC< H3Props > = ( { children, weight = 'bold', ...compone
  * Title component, based on Text component.
  *
  * @param {TitleProps} props - Component props.
- * @return {React.ReactElement} - JSX.Element
+ * @return {ReactElement} - JSX.Element
  */
-export const Title: React.FC< TitleProps > = ( {
-	children,
-	size = 'medium',
-	...componentProps
-} ) => (
+export const Title: FC< TitleProps > = ( { children, size = 'medium', ...componentProps } ) => (
 	<Text variant={ `title-${ size }` } mb={ 1 } { ...componentProps }>
 		{ children }
 	</Text>

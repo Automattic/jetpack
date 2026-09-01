@@ -9,6 +9,10 @@
  * @package automattic/jetpack
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Conditionally require the Tonesque lib depending on theme support.
  */

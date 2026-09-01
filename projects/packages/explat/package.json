@@ -1,7 +1,7 @@
 {
-	"private": true,
 	"name": "@automattic/jetpack-explat",
-	"version": "0.2.21",
+	"version": "0.6.0",
+	"private": true,
 	"description": "A package for running A/B tests on the Experimentation Platform (ExPlat) in the plugin.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/explat/#readme",
 	"bugs": {
@@ -14,38 +14,28 @@
 	},
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
-	"scripts": {
-		"build": "pnpm run clean && pnpm run compile",
-		"compile": "webpack",
-		"clean": "rm -rf build/",
-		"test": "jest --config=tests/jest.config.cjs --passWithNoTests",
-		"test-coverage": "pnpm run test --coverage",
-		"watch": "pnpm run build --watch"
-	},
-	"devDependencies": {
-		"@automattic/jetpack-webpack-config": "workspace:*",
-		"@babel/core": "7.26.10",
-		"@types/node": "^20.4.2",
-		"@types/qs": "6.9.17",
-		"concurrently": "7.6.0",
-		"jest": "29.7.0",
-		"typescript": "5.8.2",
-		"webpack": "5.94.0",
-		"webpack-cli": "6.0.1"
-	},
 	"exports": {
 		".": {
-			"jetpack:src": "./src/client/index.ts",
-			"types": "./build/index.d.ts",
-			"default": "./build/index.js"
+			"jetpack:src": "./src/client/index.ts"
 		}
+	},
+	"scripts": {
+		"test": "jest --config=tests/jest.config.cjs --passWithNoTests",
+		"test-coverage": "pnpm run test --coverage",
+		"typecheck": "tsgo --noEmit"
 	},
 	"dependencies": {
 		"@automattic/explat-client": "0.1.0",
 		"@automattic/explat-client-react-helpers": "0.1.1",
-		"@wordpress/api-fetch": "7.24.0",
-		"@wordpress/url": "4.24.0",
+		"@wordpress/api-fetch": "7.51.0",
+		"@wordpress/url": "4.51.0",
 		"cookie": "1.0.2",
-		"qs": "6.12.1"
+		"debug": "4.4.3",
+		"wpcom-proxy-request": "^7.0.7"
+	},
+	"devDependencies": {
+		"@types/node": "^24.12.0",
+		"@typescript/native-preview": "7.0.0-dev.20260707.2",
+		"jest": "30.4.2"
 	}
 }

@@ -7,10 +7,11 @@
 
 use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Connection\Traits\WPCOM_REST_API_Proxy_Request;
-use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Abstract_Token_Subscription_Service;
 use Automattic\Jetpack\Status\Host;
 
-require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
 
 /**
  * Class WPCOM_REST_API_V2_Endpoint_Email_Preview
@@ -57,16 +58,12 @@ class WPCOM_REST_API_V2_Endpoint_Email_Preview extends WP_REST_Controller {
 				),
 				'access' => array(
 					'description'       => __( 'Access level.', 'jetpack' ),
-					'enum'              => array( Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY, Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_SUBSCRIBERS, Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS ),
-					'default'           => Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY,
+					'enum'              => array( 'everybody', 'subscribers', 'paid_subscribers' ),
+					'default'           => 'everybody',
 					'validate_callback' => function ( $param ) {
 						return in_array(
 							$param,
-							array(
-								Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY,
-								Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_SUBSCRIBERS,
-								Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_PAID_SUBSCRIBERS,
-							),
+							array( 'everybody', 'subscribers', 'paid_subscribers' ),
 							true
 						);
 					},

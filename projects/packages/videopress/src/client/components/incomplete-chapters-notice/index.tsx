@@ -13,9 +13,9 @@ import LearnHowModal from '../../block-editor/blocks/video/components/details-pa
 /**
  * Types
  */
-import type React from 'react';
+import type { ReactElement } from 'react';
 
-const IncompleteChaptersNotice = ( { className }: { className?: string } ): React.ReactElement => {
+const IncompleteChaptersNotice = ( { className }: { className?: string } ): ReactElement => {
 	const [ isModalOpen, setIsModalOpen ] = useState( false );
 
 	return (

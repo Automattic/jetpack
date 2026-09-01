@@ -5,6 +5,63 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.42] - 2026-07-27
+### Changed
+- Update package dependencies. [#50751]
+
+## [1.0.41] - 2026-06-25
+### Changed
+- Update package dependencies. [#49831]
+
+## [1.0.40] - 2026-06-08
+### Changed
+- Internal updates.
+
+## [1.0.39] - 2026-05-25
+### Changed
+- Update package dependencies. [#49012]
+
+## [1.0.38] - 2026-05-19
+### Changed
+- Internal updates.
+
+## [1.0.37] - 2026-05-04
+### Changed
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+
+## [1.0.36] - 2026-03-30
+### Changed
+- Update package dependencies. [#47799]
+
+## [1.0.35] - 2026-02-23
+### Changed
+- Set `.repository.url` in `package.json` to the mirror repo rather than the monorepo. Required for enabling provenance. [#47149]
+- Update package dependencies. [#47173]
+
+## [1.0.34] - 2026-02-10
+### Changed
+- Update package dependencies. [#47002]
+
+## [1.0.33] - 2025-11-17
+### Changed
+- Update package dependencies. [#45958]
+
+## [1.0.32] - 2025-09-19
+### Changed
+- Update package dependencies. [#45173]
+
+## [1.0.31] - 2025-08-04
+### Changed
+- Internal updates.
+
+## [1.0.30] - 2025-07-08
+### Changed
+- Update package dependencies. [#44217]
+
+## [1.0.29] - 2025-06-23
+### Changed
+- Internal updates.
+
 ## [1.0.28] - 2025-04-14
 ### Added
 - Add keywords in package.json for npm search. [#42948]
@@ -127,6 +184,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial release.
 
+[1.0.42]: https://github.com/Automattic/remove-asset-webpack-plugin/compare/v1.0.41...v1.0.42
+[1.0.41]: https://github.com/Automattic/remove-asset-webpack-plugin/compare/v1.0.40...v1.0.41
+[1.0.40]: https://github.com/Automattic/remove-asset-webpack-plugin/compare/v1.0.39...v1.0.40
+[1.0.39]: https://github.com/Automattic/remove-asset-webpack-plugin/compare/v1.0.38...v1.0.39
+[1.0.38]: https://github.com/Automattic/remove-asset-webpack-plugin/compare/v1.0.37...v1.0.38
+[1.0.37]: https://github.com/Automattic/remove-asset-webpack-plugin/compare/v1.0.36...v1.0.37
+[1.0.36]: https://github.com/Automattic/remove-asset-webpack-plugin/compare/v1.0.35...v1.0.36
+[1.0.35]: https://github.com/Automattic/remove-asset-webpack-plugin/compare/v1.0.34...v1.0.35
+[1.0.34]: https://github.com/Automattic/remove-asset-webpack-plugin/compare/v1.0.33...v1.0.34
+[1.0.33]: https://github.com/Automattic/remove-asset-webpack-plugin/compare/v1.0.32...v1.0.33
+[1.0.32]: https://github.com/Automattic/remove-asset-webpack-plugin/compare/v1.0.31...v1.0.32
+[1.0.31]: https://github.com/Automattic/remove-asset-webpack-plugin/compare/v1.0.30...v1.0.31
+[1.0.30]: https://github.com/Automattic/remove-asset-webpack-plugin/compare/v1.0.29...v1.0.30
+[1.0.29]: https://github.com/Automattic/remove-asset-webpack-plugin/compare/v1.0.28...v1.0.29
 [1.0.28]: https://github.com/Automattic/remove-asset-webpack-plugin/compare/v1.0.27...v1.0.28
 [1.0.27]: https://github.com/Automattic/remove-asset-webpack-plugin/compare/v1.0.26...v1.0.27
 [1.0.26]: https://github.com/Automattic/remove-asset-webpack-plugin/compare/v1.0.25...v1.0.26

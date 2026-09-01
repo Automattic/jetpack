@@ -1,7 +1,7 @@
-import { ExternalLink } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import PropTypes from 'prop-types';
-import React, { Component } from 'react';
+import { Component } from 'react';
 import InfoPopover from 'components/info-popover';
 import analytics from 'lib/analytics';
 
@@ -74,23 +74,25 @@ export default class SupportInfo extends Component {
 					{ text + ' ' }
 					{ link && (
 						<div className="jp-support-info__learn-more">
-							<ExternalLink
+							<Link
+								openInNewTab
 								href={ link }
 								onClick={ this.trackLearnMoreClick }
 								rel="noopener noreferrer"
 							>
 								{ __( 'Learn more', 'jetpack' ) }
-							</ExternalLink>
+							</Link>
 						</div>
 					) }
 					<span className="jp-support-info__privacy">
-						<ExternalLink
+						<Link
+							openInNewTab
 							href={ privacyLink }
 							onClick={ this.trackPrivacyInfoClick }
 							rel="noopener noreferrer"
 						>
 							{ __( 'Privacy information', 'jetpack' ) }
-						</ExternalLink>
+						</Link>
 					</span>
 				</InfoPopover>
 			</div>

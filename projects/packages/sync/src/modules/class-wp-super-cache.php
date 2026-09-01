@@ -7,6 +7,10 @@
 
 namespace Automattic\Jetpack\Sync\Modules;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Class to handle sync for WP_Super_Cache.
  */

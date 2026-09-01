@@ -1,0 +1,3 @@
+Significance: patch
+Type: changed
+Comment: Global Styles: remove the concluded Global Styles on Personal experiment scaffolding (revert-safety sticker/option + experiment assignment), and gate access directly on the GLOBAL_STYLES plan feature now that Personal grants it. No user-facing change.

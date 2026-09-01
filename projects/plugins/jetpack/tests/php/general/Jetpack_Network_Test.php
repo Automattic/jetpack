@@ -14,10 +14,8 @@ if ( is_multisite() ) :
 	 * Test class for the Jetpack_Network class.
 	 *
 	 * @covers \Jetpack_Network
-	 * @covers \Jetpack_Options
 	 */
 	#[CoversClass( Jetpack_Network::class )]
-	#[CoversClass( Jetpack_Options::class )]
 	class Jetpack_Network_Test extends WP_UnitTestCase {
 		use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 

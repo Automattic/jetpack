@@ -10,6 +10,10 @@
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Image_CDN\Image_CDN_Core;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Jetpack_Gallery_Widget main class.
  */
@@ -74,10 +78,10 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 
 		$this->enqueue_frontend_scripts();
 
-		$before_widget = isset( $args['before_widget'] ) ? $args['before_widget'] : '';
-		$before_title  = isset( $args['before_title'] ) ? $args['before_title'] : '';
-		$after_title   = isset( $args['after_title'] ) ? $args['after_title'] : '';
-		$after_widget  = isset( $args['after_widget'] ) ? $args['after_widget'] : '';
+		$before_widget = $args['before_widget'] ?? '';
+		$before_title  = $args['before_title'] ?? '';
+		$after_title   = $args['after_title'] ?? '';
+		$after_widget  = $args['after_widget'] ?? '';
 
 		$instance['attachments'] = $this->get_attachments( $instance );
 

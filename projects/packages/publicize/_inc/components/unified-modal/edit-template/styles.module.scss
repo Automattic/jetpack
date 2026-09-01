@@ -1,0 +1,87 @@
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+
+.sidebar {
+	padding: 1.5rem;
+	overflow-y: auto;
+}
+
+.section {
+	margin-bottom: 24px;
+
+	&:last-child {
+		margin-bottom: 0;
+	}
+}
+
+.sectionLabel {
+	font-size: 11px;
+	font-weight: 500;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	color: gb.$gray-700;
+	margin-bottom: 12px;
+}
+
+.content {
+	flex: 1;
+	background-color: gb.$gray-100;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 24px;
+	overflow: auto;
+	height: 100%;
+}
+
+// Preview container for the generated image
+.preview {
+	position: relative;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 100%;
+	max-width: 800px;
+	aspect-ratio: 1200 / 630; // SIG image aspect-ratio
+	background-color: gb.$white;
+}
+
+.previewImage {
+	max-width: 100%;
+	max-height: 100%;
+	width: auto;
+	height: auto;
+	object-fit: contain;
+}
+
+// Background Image Picker styles
+.backgroundPicker {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+
+.sourceLabel {
+	font-size: 13px;
+	color: gb.$gray-700;
+	margin: 0;
+}
+
+.selectDropdown {
+	width: 100%;
+}
+
+.selectButton {
+	width: 100%;
+	justify-content: center;
+}
+
+.notice {
+	margin: 0;
+}
+
+// Template picker grid - 2x2 layout in the modal sidebar
+// Uses !important to override the picker's default responsive grid
+.templateGrid {
+	grid-template-columns: repeat(2, 1fr) !important;
+	gap: 8px !important;
+}

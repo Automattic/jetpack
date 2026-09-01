@@ -7,7 +7,9 @@
 
 use Automattic\Jetpack\Assets;
 
-// phpcs:disable WordPress.WP.EnqueuedResources.NonEnqueuedScript
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
 
 require_once WORDADS_ROOT . '/php/class-wordads-array-utils.php';
 

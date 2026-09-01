@@ -1,4 +1,4 @@
-<?php // phpcs:disable WordPress.Files.FileName.InvalidClassFileName, Squiz.Commenting.InlineComment.WrongStyle
+<?php
 /**
  * Tests for Share Status.
  */
@@ -218,7 +218,8 @@ class Share_Status_Test extends TestCase {
 		$this->assertEquals(
 			get_post_meta(
 				static::$post_id,
-				Share_Status::SHARES_META_KEY
+				Share_Status::SHARES_META_KEY,
+				false
 			),
 			array(
 				$shares[0],

@@ -1,6 +1,6 @@
-import makeBaseConfig, { makeEnvConfig } from 'jetpack-js-tools/eslintrc/base.mjs';
+import { makeBaseConfig, makeEnvConfig, defineConfig } from 'jetpack-js-tools/eslintrc/base.mjs';
 
-export default [
-	...makeBaseConfig( import.meta.url ),
-	makeEnvConfig( 'node', [ 'tests/**', 'tools/**' ] ),
-];
+export default defineConfig(
+	makeBaseConfig( import.meta.url ),
+	makeEnvConfig( 'node', [ 'tests/**', 'tools/**' ] )
+);

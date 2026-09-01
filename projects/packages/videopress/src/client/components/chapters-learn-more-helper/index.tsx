@@ -12,9 +12,9 @@ import LearnHowModal from '../../block-editor/blocks/video/components/details-pa
 /**
  * Types
  */
-import type React from 'react';
+import type { ReactElement } from 'react';
 
-const chaptersLearnMoreHelper = (): React.ReactElement => {
+const chaptersLearnMoreHelper = (): ReactElement => {
 	const [ isModalOpen, setIsModalOpen ] = useState( false );
 
 	return (

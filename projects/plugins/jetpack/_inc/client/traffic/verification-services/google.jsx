@@ -1,8 +1,8 @@
-import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import PropTypes from 'prop-types';
-import React from 'react';
+import { Component } from 'react';
 import { connect } from 'react-redux';
 import Button from 'components/button';
 import { FormLabel } from 'components/forms';
@@ -26,7 +26,7 @@ import {
 	getGoogleSearchConsoleUrl,
 } from 'state/site-verify';
 
-class GoogleVerificationServiceComponent extends React.Component {
+class GoogleVerificationServiceComponent extends Component {
 	static propTypes = {
 		disabled: PropTypes.bool,
 	};
@@ -95,7 +95,7 @@ class GoogleVerificationServiceComponent extends React.Component {
 							this.props.createNotice(
 								'is-error',
 								sprintf(
-									/* translators: placeholder is an error message. */
+									/* translators: %s: an error message. */
 									__( 'Site failed to verify: %s', 'jetpack' ),
 									errorMessage
 								),
@@ -236,7 +236,6 @@ class GoogleVerificationServiceComponent extends React.Component {
 							{ __( 'Edit', 'jetpack' ) }
 						</Button>
 					</div>
-
 					{ this.props.isOwner && (
 						<div className="jp-form-input-with-prefix-bottom-message">
 							<div className="jp-form-setting-explanation">
@@ -248,7 +247,8 @@ class GoogleVerificationServiceComponent extends React.Component {
 										),
 										{
 											a: (
-												<ExternalLink
+												<Link
+													openInNewTab
 													rel="noopener noreferrer"
 													href={ this.props.googleSearchConsoleUrl }
 												/>
@@ -263,13 +263,15 @@ class GoogleVerificationServiceComponent extends React.Component {
 										),
 										{
 											a1: (
-												<ExternalLink
+												<Link
+													openInNewTab
 													rel="noopener noreferrer"
 													href={ 'https://developers.google.com/web/fundamentals/security/hacked/' }
 												/>
 											),
 											a2: (
-												<ExternalLink
+												<Link
+													openInNewTab
 													rel="noopener noreferrer"
 													href={
 														'https://www.google.com/insidesearch/howsearchworks/crawling-indexing.html'

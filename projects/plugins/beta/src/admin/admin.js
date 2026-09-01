@@ -23,7 +23,7 @@
 		hide( element );
 		element.querySelector( '.activate-branch' ).setAttribute( 'data-index', index );
 		pr_index[ index ] = {
-			header: element.querySelector( '.branch-card-header' ).textContent,
+			header: element.querySelector( '.branch-card-version' ).textContent,
 			key: element.getAttribute( 'data-pr' ),
 			element: element,
 		};
@@ -34,7 +34,7 @@
 		hide( element );
 		element.querySelector( '.activate-branch' ).setAttribute( 'data-index', index );
 		release_index[ index ] = {
-			header: element.querySelector( '.branch-card-header' ).textContent,
+			header: element.querySelector( '.branch-card-version' ).textContent,
 			key: element.getAttribute( 'data-release' ),
 			element: element,
 		};
@@ -93,9 +93,9 @@
 	function show_found( search_for, section, found ) {
 		const element = found.element;
 		const header_text = /^ *[0-9]+ *$/.test( search_for ) ? `${ found.key }` : found.header;
-		const class_selector = '.branch-card-header';
+		const class_selector = '.branch-card-version';
 
-		const found_position = header_text.indexOf( search_for );
+		const found_position = header_text.toLowerCase().indexOf( search_for.toLowerCase() );
 		if ( -1 === found_position ) {
 			hide( element );
 			return;
@@ -221,8 +221,14 @@
 	 * @return {string} Search result with span wrapping matching word (search input) for styling.
 	 */
 	function highlight_word( word, phrase ) {
-		const replace = '<span class="highlight">' + word + '</span>';
-		return phrase.replace( word, replace );
+		// Escape special regex characters in the search word
+		const escapedWord = word.replace( /[.*+?^${}()|[\]\\]/g, '\\$&' );
+		// Create a case-insensitive regex to find all occurrences in the phrase
+		const regex = new RegExp( escapedWord, 'gi' );
+		// Replace with the matched text (preserving original case) wrapped in a span
+		return phrase.replace( regex, function ( match ) {
+			return '<span class="highlight">' + match + '</span>';
+		} );
 	}
 
 	/**

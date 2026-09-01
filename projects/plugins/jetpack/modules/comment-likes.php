@@ -1,7 +1,7 @@
 <?php //phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 /**
  * Module Name: Comment Likes
- * Module Description: Increase visitor engagement by adding a Like button to comments.
+ * Module Description: Enable visitors to like individual comments and boost engagement.
  * Sort Order: 39
  * Recommendation Order: 17
  * First Introduced: 5.1
@@ -14,6 +14,10 @@
  */
 
 use Automattic\Jetpack\Assets;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
 
 Assets::add_resource_hint( '//widgets.wp.com', 'dns-prefetch' );
 
@@ -66,21 +70,34 @@ class Jetpack_Comment_Likes {
 		$this->settings = new Jetpack_Likes_Settings();
 		$this->blog_id  = Jetpack_Options::get_option( 'id' );
 		$url_parts      = wp_parse_url( home_url() );
-		$this->domain   = $url_parts['host'];
+
+		// Abort if domain can't be determined.
+		if ( ! $url_parts || ! isset( $url_parts['host'] ) ) {
+			return;
+		}
+		$this->domain = $url_parts['host'];
 
 		add_action( 'template_redirect', array( $this, 'frontend_init' ) );
 		add_action( 'admin_init', array( $this, 'admin_init' ) );
 
 		if ( ! Jetpack::is_module_active( 'likes' ) ) {
-			$active = Jetpack::get_active_modules();
+			$active            = Jetpack::get_active_modules();
+			$sharedaddy_active = in_array( 'sharedaddy', $active, true );
 
-			if ( in_array( 'publicize', $active, true ) && ! in_array( 'sharedaddy', $active, true ) ) {
+			if ( $this->settings->needs_own_sharing_menu( $sharedaddy_active ) ) {
+				/*
+				 * Sharedaddy is what registers Settings > Sharing, and it is off, so we
+				 * register that screen ourselves; the Likes settings that gate comment
+				 * likes are displayed on it.
+				 */
+				add_action( 'admin_menu', array( $this->settings, 'sharing_menu' ) );
+			} elseif ( in_array( 'publicize', $active, true ) && ! $sharedaddy_active ) {
 				// we have a sharing page but not the global options area.
 				add_action( 'pre_admin_screen_sharing', array( $this->settings, 'sharing_block' ), 20 );
 				add_action( 'pre_admin_screen_sharing', array( $this->settings, 'updated_message' ), -10 );
 			}
 
-			if ( ! in_array( 'sharedaddy', $active, true ) ) {
+			if ( ! $sharedaddy_active ) {
 				add_action( 'admin_init', array( $this->settings, 'process_update_requests_if_sharedaddy_not_loaded' ) );
 				add_action( 'sharing_global_options', array( $this->settings, 'admin_settings_showbuttonon_init' ), 19 );
 				add_action( 'sharing_admin_update', array( $this->settings, 'admin_settings_showbuttonon_callback' ), 19 );

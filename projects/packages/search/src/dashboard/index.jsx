@@ -1,8 +1,8 @@
 import { createReduxStore, register } from '@wordpress/data';
 import * as WPElement from '@wordpress/element';
-import React from 'react';
 import SearchDashboard from './components/dashboard/wrapped-dashboard';
 import { STORE_ID, storeConfig } from './store';
+import './scss/admin-layout.scss';
 
 const store = createReduxStore( STORE_ID, storeConfig );
 register( store );

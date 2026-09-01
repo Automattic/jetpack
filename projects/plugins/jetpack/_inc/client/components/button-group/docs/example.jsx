@@ -1,12 +1,12 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 
-import React from 'react';
+import { PureComponent } from 'react';
 import Button from 'components/button';
 import ButtonGroup from 'components/button-group';
 import Card from 'components/card';
 import Gridicon from 'components/gridicon';
 
-class Buttons extends React.PureComponent {
+class Buttons extends PureComponent {
 	static displayName = 'ButtonGroup';
 
 	state = {

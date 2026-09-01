@@ -3,6 +3,10 @@
  * Endpoint: /sites/%s/comment-counts
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 new WPCOM_JSON_API_GET_Comment_Counts_Endpoint(
 	array(
 		'description'      => 'Get comment counts for each available status',
@@ -34,6 +38,8 @@ new WPCOM_JSON_API_GET_Comment_Counts_Endpoint(
 
 /**
  * GET Comment Counts endpoint class.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class WPCOM_JSON_API_GET_Comment_Counts_Endpoint extends WPCOM_JSON_API_Endpoint {
 	/**

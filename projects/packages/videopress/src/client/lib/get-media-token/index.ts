@@ -80,11 +80,35 @@ const requestMediaToken = function (
 				break;
 		}
 
-		fetch( adminAjaxAPI, {
+		// Use apiFetch when running inside GutenbergKit (for app password auth
+		// middleware), but fall back to native fetch everywhere else — including
+		// the block editor, token-bridge.js, and the front-end — where
+		// wp.apiFetch may not be enqueued.
+		const useApiFetch =
+			!! window?.GBKit && typeof ( window.wp as WpGlobal | undefined )?.apiFetch === 'function';
+
+		const body = new URLSearchParams();
+		for ( const [ key, value ] of Object.entries( fetchData ) ) {
+			if ( value !== undefined ) {
+				body.append( key, String( value ) );
+			}
+		}
+
+		const fetchOptions: RequestInit = {
 			method: 'POST',
 			credentials: 'same-origin',
-			body: new URLSearchParams( fetchData ),
-		} )
+			body,
+		};
+
+		const fetchPromise: Promise< Response > = useApiFetch
+			? ( window.wp as Required< WpGlobal > ).apiFetch( {
+					url: adminAjaxAPI,
+					...fetchOptions,
+					parse: false,
+			  } )
+			: fetch( adminAjaxAPI, fetchOptions );
+
+		fetchPromise
 			.then( response => {
 				if ( ! response.ok ) {
 					throw new Error( 'Network response was not ok' );
@@ -111,8 +135,8 @@ const requestMediaToken = function (
 						break;
 				}
 			} )
-			.catch( () => {
-				console.warn( 'Token is not achievable' ); // eslint-disable-line no-console
+			.catch( error => {
+				debug( 'Token request failed: %o', error );
 				resolve( { token: null } );
 			} );
 	} );

@@ -13,6 +13,10 @@ use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Modules;
 use Jetpack_Gutenberg;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 const FEATURE_NAME   = 'videopress-block';
 const FEATURE_FOLDER = 'videopress';
 const BLOCK_NAME     = 'jetpack/' . FEATURE_NAME;

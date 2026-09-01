@@ -31,7 +31,9 @@ return array(
 	'files'   => array(
 		'plugins/woocommerce/src/Internal/DataStores/Orders/CustomOrdersTableController.php' => array(
 			'class' => array(
-				'Automattic\WooCommerce\Internal\DataStores\Orders\CustomOrdersTableController' => array(),
+				'Automattic\WooCommerce\Internal\DataStores\Orders\CustomOrdersTableController' => array(
+					'method' => array( 'custom_orders_table_usage_is_enabled' ),
+				),
 			),
 		),
 		'plugins/woocommerce/src/Internal/DataStores/Orders/OrdersTableDataStore.php' => array(

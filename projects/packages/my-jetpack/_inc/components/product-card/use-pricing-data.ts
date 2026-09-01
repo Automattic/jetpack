@@ -1,4 +1,4 @@
-import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
+import { getUserConnectionUrl, useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 import { __ } from '@wordpress/i18n';
 import { useCallback } from 'react';
 import { PRODUCT_STATUSES } from '../../constants';
@@ -71,7 +71,7 @@ const getFeaturePrimaryAction = (
 		case PRODUCT_STATUSES.ABSENT:
 			return { label: __( 'Install', 'jetpack-my-jetpack' ), onClick: onInstall };
 		case PRODUCT_STATUSES.USER_CONNECTION_ERROR:
-			return { label: __( 'Connect', 'jetpack-my-jetpack' ), href: '#/connection' };
+			return { label: __( 'Connect', 'jetpack-my-jetpack' ), href: getUserConnectionUrl() };
 		default:
 			return {
 				label: __( 'Manage', 'jetpack-my-jetpack' ),

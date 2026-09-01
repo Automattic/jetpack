@@ -13,7 +13,6 @@ import {
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Icon, chevronRight, globe } from '@wordpress/icons';
-import React from 'react';
 /*
  * Internal dependencies
  */

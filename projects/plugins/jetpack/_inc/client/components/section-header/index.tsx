@@ -1,14 +1,14 @@
 import clsx from 'clsx';
-import React from 'react';
 import Card from 'components/card';
+import type { ReactNode } from 'react';
 
 import './style.scss';
 
 interface SectionHeaderProps {
 	label: string;
-	children?: React.ReactNode;
+	children?: ReactNode;
 	className?: string;
-	cardBadge?: string | React.ReactNode;
+	cardBadge?: string | ReactNode;
 }
 
 const SectionHeader = ( { label, children, className }: SectionHeaderProps ) => {

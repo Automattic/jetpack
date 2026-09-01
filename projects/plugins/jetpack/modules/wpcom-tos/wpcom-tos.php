@@ -11,6 +11,10 @@ namespace Automattic\Jetpack\TOS;
 
 use Automattic\Jetpack\Connection\Client;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Makes a request to the WP.com legal endpoint to mark the Terms of Service as accepted.
  */
@@ -29,13 +33,12 @@ function accept_tos() {
 	);
 
 	if ( is_wp_error( $response ) ) {
-		wp_send_json_error( array( 'message' => __( 'Could not accept the Terms of Service. Please try again later.', 'jetpack' ) ) );
-		wp_die();
+		// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
+		wp_send_json_error( array( 'message' => __( 'Could not accept the Terms of Service. Please try again later.', 'jetpack' ) ), null, JSON_UNESCAPED_SLASHES );
 	}
 
-	wp_send_json_success( $response );
-
-	wp_die();
+	// @phan-suppress-next-line PhanTypeMismatchArgumentProbablyReal -- It takes null, but its phpdoc only says int.
+	wp_send_json_success( $response, null, JSON_UNESCAPED_SLASHES );
 }
 
 add_action( 'wp_ajax_jetpack_accept_tos', __NAMESPACE__ . '\accept_tos' );

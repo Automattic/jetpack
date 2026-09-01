@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Remove environment-dependent test for the protected owner error handler.
+
+

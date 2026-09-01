@@ -1,13 +1,11 @@
-import makeBaseConfig from 'jetpack-js-tools/eslintrc/base.mjs';
+import { makeBaseConfig, defineConfig, javascriptFiles } from 'jetpack-js-tools/eslintrc/base.mjs';
 
-export default [
-	...makeBaseConfig( import.meta.url ),
-	{
-		rules: {
-			'@typescript-eslint/no-unused-vars': [
-				'warn',
-				{ argsIgnorePattern: '^_', caughtErrors: 'none' },
-			],
-		},
+export default defineConfig( makeBaseConfig( import.meta.url ), {
+	files: javascriptFiles,
+	rules: {
+		'@typescript-eslint/no-unused-vars': [
+			'warn',
+			{ argsIgnorePattern: '^_', caughtErrors: 'none' },
+		],
 	},
-];
+} );

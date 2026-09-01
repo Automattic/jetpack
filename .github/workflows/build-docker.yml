@@ -15,6 +15,7 @@ on:
       - 'tools/docker/config/*'
       - '.github/versions.sh'
       - '.github/workflows/build-docker.yml'
+  workflow_dispatch:
 concurrency:
   group: build-docker-${{ github.event_name }}-${{ github.ref }}
   cancel-in-progress: true
@@ -25,7 +26,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-    timeout-minutes: 5  # 2025-03-04: Takes just a few seconds.
+    timeout-minutes: 5  # 2025-11-20: Takes just a few seconds.
     outputs:
       php-version: ${{ steps.buildargs.outputs.php-version }}
       composer-version: ${{ steps.buildargs.outputs.composer-version }}
@@ -36,7 +37,7 @@ jobs:
       images: ${{ steps.buildargs.outputs.images }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Fetch build args
         id: buildargs
@@ -62,6 +63,14 @@ jobs:
           elif [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
             gh_set_output tags "type=ref,event=pr"
             gh_set_output images "ghcr.io/automattic/jetpack-wordpress-dev"
+          elif [[ "$GITHUB_EVENT_NAME" == "workflow_dispatch" ]]; then
+            if [[ "$GITHUB_REF" == "refs/heads/trunk" ]]; then
+              gh_set_output tags "type=raw,latest"
+              gh_set_output images $'automattic/jetpack-wordpress-dev\nghcr.io/automattic/jetpack-wordpress-dev'
+            else
+              echo "Workflow dispatch for non-trunk ref $GITHUB_REF is not supported"
+              exit 1
+            fi
           else
             echo "Unknown GITHUB_EVENT_NAME $GITHUB_EVENT_NAME"
             exit 1
@@ -74,7 +83,7 @@ jobs:
     permissions:
       packages: write
       contents: read
-    timeout-minutes: 15  # 2025-03-04: Arm64 build takes about 5 minutes, amd64 build about 3.
+    timeout-minutes: 15  # 2025-11-20: Arm64 build takes about 6 minutes, amd64 build about 3.
     strategy:
       matrix:
         include:
@@ -84,19 +93,19 @@ jobs:
             platform: arm64
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4.2.0
 
       - name: Log in to Docker Hub
-        uses: docker/login-action@v3
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
         with:
           username: matticbot
           password: ${{ secrets.DOCKER_HUB_MATTICBOT_TOKEN }}
 
       - name: Log in to GitHub Packages
-        uses: docker/login-action@v3
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -104,7 +113,7 @@ jobs:
 
       - name: Extract Docker metadata
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
         with:
           flavor: latest=false
           images: ${{ needs.prepare.outputs.images }}
@@ -112,7 +121,7 @@ jobs:
 
       - name: Build and push by digest
         id: build
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7.3.0
         with:
           context: tools/docker
           platforms: linux/${{ matrix.platform }}
@@ -135,7 +144,7 @@ jobs:
           touch "$TEMP/digests/${DIGEST#sha256:}"
 
       - name: Upload digest
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: digests-linux-${{ matrix.platform }}
           path: ${{ runner.temp }}/digests/*
@@ -149,27 +158,27 @@ jobs:
     permissions:
       packages: write
       contents: read
-    timeout-minutes: 5  # 2025-03-04: Merge takes less than a minute.
+    timeout-minutes: 5  # 2025-11-20: Merge takes less than a minute.
 
     steps:
       - name: Download digests
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
           path: ${{ runner.temp }}/digests
           pattern: digests-*
           merge-multiple: true
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4.2.0
 
       - name: Log in to Docker Hub
-        uses: docker/login-action@v3
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
         with:
           username: matticbot
           password: ${{ secrets.DOCKER_HUB_MATTICBOT_TOKEN }}
 
       - name: Log in to GitHub Packages
-        uses: docker/login-action@v3
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -177,7 +186,7 @@ jobs:
 
       - name: Extract Docker metadata
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
         with:
           flavor: latest=false
           tags: ${{ needs.prepare.outputs.tags }}

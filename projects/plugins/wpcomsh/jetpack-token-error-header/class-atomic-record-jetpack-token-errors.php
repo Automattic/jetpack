@@ -10,14 +10,12 @@
  */
 class Atomic_Record_Jetpack_Token_Errors {
 	/**
-	 * $error is a WP_Error (always) and contains a "signature_details" data property with this structure:
-	 * The error_code has one of the following values:
-	 * - malformed_token
-	 * - malformed_user_id
-	 * - unknown_token
-	 * - could_not_sign
-	 * - invalid_nonce
-	 * - signature_mismatch
+	 * $error is a WP_Error (always) and contains a "signature_details" data property.
+	 * This is not limited to a fixed set of error codes: any Jetpack connection error
+	 * reported with signature_details — signing-time errors like malformed_token,
+	 * could_not_sign, invalid_nonce, or signature_mismatch, as well as token lookup
+	 * errors like no_valid_blog_token, no_valid_user_token, or token_malformed — is
+	 * logged here.
 	 *
 	 * @param WP_Error $error WP_Error instance.
 	 */
@@ -53,7 +51,7 @@ class Atomic_Record_Jetpack_Token_Errors {
 		header(
 			sprintf(
 				'X-Jetpack-Signature-Error-Details: %s',
-				base64_encode( wp_json_encode( $error_data['signature_details'] ) ) // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+				base64_encode( wp_json_encode( $error_data['signature_details'], JSON_UNESCAPED_SLASHES ) ) // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
 			)
 		);
 	}

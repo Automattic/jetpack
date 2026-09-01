@@ -1,6 +1,11 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
 // phpcs:disable Generic.Files.OneObjectStructurePerFile.MultipleFound
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Sharing button endpoint class.
  */
@@ -188,9 +193,9 @@ abstract class WPCOM_JSON_API_Sharing_Button_Endpoint extends WPCOM_JSON_API_End
 		if ( is_a( $all_buttons[ $button_id ], 'Share_Custom' ) ) {
 			// Replace options for existing custom button
 			$options         = $updated_service->get_options();
-			$name            = isset( $button['name'] ) ? $button['name'] : $options['name'];
-			$url             = isset( $button['URL'] ) ? $button['URL'] : $options['url'];
-			$icon            = isset( $button['icon'] ) ? $button['icon'] : $options['icon'];
+			$name            = $button['name'] ?? $options['name'];
+			$url             = $button['URL'] ?? $options['url'];
+			$icon            = $button['icon'] ?? $options['icon'];
 			$updated_service = new Share_Custom(
 				$service_id,
 				array(
@@ -284,6 +289,8 @@ new WPCOM_JSON_API_Get_Sharing_Buttons_Endpoint(
  * Get sharing buttons endpoint class.
  *
  * GET /sites/%s/sharing-buttons -> $blog_id
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class WPCOM_JSON_API_Get_Sharing_Buttons_Endpoint extends WPCOM_JSON_API_Sharing_Button_Endpoint {
 
@@ -390,6 +397,8 @@ new WPCOM_JSON_API_Get_Sharing_Button_Endpoint(
  * Get sharing button endpoint class.
  *
  * GET /sites/%s/sharing-buttons/%s -> $blog_id, $button_id
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class WPCOM_JSON_API_Get_Sharing_Button_Endpoint extends WPCOM_JSON_API_Sharing_Button_Endpoint {
 
@@ -475,6 +484,8 @@ new WPCOM_JSON_API_Update_Sharing_Buttons_Endpoint(
  * Update sharing buttons endpoint.
  *
  * POST /sites/%s/sharing-buttons -> $blog_id
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class WPCOM_JSON_API_Update_Sharing_Buttons_Endpoint extends WPCOM_JSON_API_Sharing_Button_Endpoint {
 
@@ -664,6 +675,8 @@ new WPCOM_JSON_API_Update_Sharing_Button_Endpoint(
  *
  * POST /sites/%s/sharing-buttons/new -> $blog_id
  * POST /sites/%s/sharing-buttons/%s -> $blog_id, $button_id
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class WPCOM_JSON_API_Update_Sharing_Button_Endpoint extends WPCOM_JSON_API_Sharing_Button_Endpoint {
 
@@ -743,6 +756,8 @@ new WPCOM_JSON_API_Delete_Sharing_Button_Endpoint(
  * Delete sharing button endpoint class.
  *
  * POST /sites/%s/sharing-buttons/%s/delete -> $blog_id, $button_id
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class WPCOM_JSON_API_Delete_Sharing_Button_Endpoint extends WPCOM_JSON_API_Sharing_Button_Endpoint {
 	/**

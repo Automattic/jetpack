@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useState } from 'react';
+import type { Dispatch, FC, ReactNode, SetStateAction } from 'react';
 
 interface ModalState {
 	type?: string;
@@ -7,12 +8,12 @@ interface ModalState {
 
 interface ModalContextValue {
 	modal: ModalState | null;
-	setModal: React.Dispatch< React.SetStateAction< ModalState | null > > | null;
+	setModal: Dispatch< SetStateAction< ModalState | null > > | null;
 }
 
 const ModalContext = createContext< ModalContextValue >( { modal: null, setModal: null } );
 
-export const ModalProvider: React.FC< { children: React.ReactNode } > = ( { children } ) => {
+export const ModalProvider: FC< { children: ReactNode } > = ( { children } ) => {
 	const [ modal, setModal ] = useState< ModalState | null >( {} );
 
 	return <ModalContext.Provider value={ { modal, setModal } }>{ children }</ModalContext.Provider>;

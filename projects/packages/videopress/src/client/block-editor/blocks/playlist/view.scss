@@ -1,0 +1,577 @@
+/**
+ * Video Playlist block — front-end styles.
+ *
+ * One markup structure, restyled per layout via the wrapper classes
+ * `is-layout-side-rail`, `is-layout-grid` and `is-layout-strip`, with an
+ * `is-dark` surface variant and `hide-*` classes for the display toggles.
+ */
+
+// Numeric/meta text stack, as specified by the design.
+$vpp-mono: ui-monospace, menlo, monospace;
+
+.videopress-playlist {
+	--vpp-text: #1e1e1e;
+	--vpp-muted: #6f6f6f;
+	--vpp-border: #e6e4df;
+	--vpp-border-soft: #f2f0eb;
+	--vpp-accent: #2a78d6;
+	--vpp-accent-tint: rgba(42, 120, 214, 0.08);
+	--vpp-thumb-bg: #e6e4df;
+	--vpp-list-fade: #fff;
+
+	margin: 0;
+	color: var(--vpp-text);
+
+	&.is-dark {
+		--vpp-text: #f2f1ee;
+		--vpp-muted: #8f8d88;
+		--vpp-border: #2a2a30;
+		--vpp-border-soft: #232329;
+		--vpp-accent-tint: rgba(42, 120, 214, 0.18);
+		--vpp-thumb-bg: #2c2c31;
+		--vpp-list-fade: #131315;
+
+		background: #131315;
+		border-radius: 8px;
+		padding: 24px;
+	}
+
+	/*
+	 * Count · total runtime meta line, "5 videos · 1 hr 13 min". It lives in
+	 * the list header and only the side rail shows it, to the right of the
+	 * "Up next" label; the separator lives on the runtime so the count stands
+	 * alone when the total runtime is toggled off.
+	 */
+
+	&__list-meta {
+		display: none;
+		color: var(--vpp-muted);
+		font-family: $vpp-mono;
+
+		/* 12px per the design's count · duration meta line. */
+		font-size: 0.75rem;
+		font-weight: 400;
+		letter-spacing: normal;
+		text-transform: none;
+	}
+
+	&__count + &__runtime::before {
+		content: " · ";
+
+		/* Keep the separator's spaces from collapsing. */
+		white-space: pre;
+	}
+
+	&__runtime,
+	&__now-runtime,
+	&__count {
+		color: var(--vpp-muted);
+	}
+
+	&.hide-runtime &__runtime,
+	&.hide-runtime &__now-runtime,
+	&.hide-runtime &__list-progress {
+		display: none;
+	}
+
+	/* Player stage */
+
+	&__player {
+		position: relative;
+		aspect-ratio: 16 / 9;
+		border-radius: 6px;
+		overflow: hidden;
+		background: #1c1c20;
+	}
+
+	&__iframe {
+		position: absolute;
+		inset: 0;
+		inline-size: 100%;
+		block-size: 100%;
+		border: 0;
+	}
+
+	/* The player renders its own title overlay; this row only carries the
+	   grid layout's playlist runtime line. */
+
+	&__now {
+		display: none;
+	}
+
+	&__now-runtime {
+		font-family: $vpp-mono;
+
+		/* 11.5px per the design's grid meta row. */
+		font-size: 0.71875rem;
+	}
+
+	/* Entry list */
+
+	&__list-header {
+		display: flex;
+		align-items: baseline;
+		justify-content: space-between;
+		gap: 12px;
+	}
+
+	&__list-label {
+		font-size: 0.6875rem;
+		font-weight: 600;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+		color: var(--vpp-muted);
+	}
+
+	&__list-progress {
+		color: var(--vpp-muted);
+		font-family: $vpp-mono;
+
+		/* 11.5px per the design's strip header counter. */
+		font-size: 0.71875rem;
+	}
+
+	&__entries {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+	}
+
+	&__entry {
+		margin: 0;
+	}
+
+	&__select {
+		appearance: none;
+		display: flex;
+		inline-size: 100%;
+		gap: 10px;
+		align-items: flex-start;
+		padding: 0;
+		border: 0;
+		background: none;
+		font: inherit;
+		color: inherit;
+		text-align: start;
+		cursor: pointer;
+	}
+
+	&__entry-number {
+		font-size: 0.65625rem;
+		font-variant-numeric: tabular-nums;
+		color: var(--vpp-muted);
+	}
+
+	&__entry-thumb {
+		position: relative;
+		flex: none;
+		aspect-ratio: 16 / 9;
+		border-radius: 4px;
+		overflow: hidden;
+		background: var(--vpp-thumb-bg);
+
+		img {
+			position: absolute;
+			inset: 0;
+			inline-size: 100%;
+			block-size: 100%;
+			object-fit: cover;
+		}
+	}
+
+	&.hide-thumbnails &__entry-thumb {
+		display: none;
+	}
+
+	// Placeholder shown when a private video's thumbnail can't be authorized
+	// for the viewer; hidden until the view script flags the entry. Sized for
+	// the side rail's 76px thumb; grid and strip scale it up below.
+	&__entry-lock {
+		position: absolute;
+		inset: 0;
+		display: none;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		padding: 2px;
+		overflow: hidden;
+		text-align: center;
+		color: var(--vpp-muted);
+
+		svg {
+			flex: none;
+			inline-size: 12px;
+			block-size: 12px;
+			fill: currentColor;
+		}
+	}
+
+	&__entry-lock-label {
+		max-inline-size: 100%;
+		overflow: hidden;
+		white-space: nowrap;
+		text-overflow: ellipsis;
+		font-size: 0.5rem;
+		line-height: 1.2;
+		font-weight: 600;
+		letter-spacing: 0.02em;
+	}
+
+	&__select.is-locked &__entry-lock {
+		display: flex;
+	}
+
+	&.is-layout-grid &__entry-lock,
+	&.is-layout-strip &__entry-lock {
+		gap: 2px;
+		padding: 4px;
+
+		svg {
+			inline-size: 24px;
+			block-size: 24px;
+		}
+	}
+
+	&.is-layout-grid &__entry-lock-label,
+	&.is-layout-strip &__entry-lock-label {
+		font-size: 0.6875rem;
+	}
+
+	&__entry-time {
+		position: absolute;
+		inset-inline-end: 4px;
+		inset-block-end: 4px;
+		padding: 1px 4px;
+		border-radius: 2px;
+		background: rgba(0, 0, 0, 0.7);
+		color: #fff;
+		font-size: 0.59375rem;
+		font-variant-numeric: tabular-nums;
+	}
+
+	&__entry-flag {
+		position: absolute;
+		inset-inline-start: 4px;
+		inset-block-start: 4px;
+		padding: 2px 4px;
+		border-radius: 2px;
+		background: var(--vpp-accent);
+		color: #fff;
+		font-size: 0.59375rem;
+		font-weight: 600;
+		letter-spacing: 0.06em;
+		text-transform: uppercase;
+		display: none;
+	}
+
+	&__entry-body {
+		min-inline-size: 0;
+		display: flex;
+		flex-direction: column;
+		gap: 3px;
+	}
+
+	&__entry-title {
+		font-size: 0.78125rem;
+		line-height: 1.3;
+		display: -webkit-box;
+		-webkit-line-clamp: 2;
+		-webkit-box-orient: vertical;
+		overflow: hidden;
+
+		/* User-selected theme font preset; inherits when none is chosen. */
+		font-family: var(--vpp-entry-title-font, inherit);
+	}
+
+	&.hide-titles &__entry-title {
+		display: none;
+	}
+
+	&__entry-meta {
+		font-size: 0.65625rem;
+		color: var(--vpp-muted);
+		font-variant-numeric: tabular-nums;
+	}
+
+	&__entry-resolution + &__entry-duration::before {
+		content: " · ";
+	}
+
+	&.hide-resolutions &__entry-resolution {
+		display: none;
+	}
+
+	&.hide-resolutions &__entry-resolution + &__entry-duration::before {
+		content: "";
+	}
+
+	&.hide-durations &__entry-duration,
+	&.hide-durations &__entry-time {
+		display: none;
+	}
+
+	&__select.is-current &__entry-title {
+		font-weight: 600;
+	}
+
+	/*
+	 * Side rail: player on the reading side, "Up next" rail beside it.
+	 */
+
+	&.is-layout-side-rail &__body {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) min(296px, 38%);
+		gap: 18px;
+		align-items: stretch;
+	}
+
+	&.is-layout-side-rail &__stage {
+		min-inline-size: 0;
+	}
+
+	/*
+	 * The rail never grows past the player column: zero natural height keeps
+	 * it out of the grid row sizing, min-block-size stretches it back to the
+	 * row, and the entry list scrolls the overflow.
+	 */
+
+	&.is-layout-side-rail &__list {
+		position: relative;
+		display: flex;
+		flex-direction: column;
+		block-size: 0;
+		min-block-size: 100%;
+		border: 1px solid var(--vpp-border);
+		border-radius: 6px;
+		overflow: hidden;
+	}
+
+	&.is-layout-side-rail &__entries {
+		flex: 1 1 auto;
+		min-block-size: 0;
+		overflow-y: auto;
+	}
+
+	/* Fades the list bottom while more entries hide below the scroll. */
+
+	&.is-layout-side-rail &__list::after {
+		content: "";
+		position: absolute;
+		inset-inline: 0;
+		inset-block-end: 0;
+		block-size: 52px;
+		background: linear-gradient(transparent, var(--vpp-list-fade));
+		opacity: 0;
+		transition: opacity 0.2s;
+		pointer-events: none;
+	}
+
+	&.is-layout-side-rail &__list.has-more-videos::after {
+		opacity: 1;
+	}
+
+	&.is-layout-side-rail &__list-header {
+		flex: none;
+		padding: 9px 12px;
+		border-block-end: 1px solid var(--vpp-border-soft);
+	}
+
+	&.is-layout-side-rail &__list-progress,
+	&.is-layout-side-rail &__list-label--strip {
+		display: none;
+	}
+
+	&.is-layout-side-rail &__list-meta {
+		display: inline;
+	}
+
+	&.is-layout-side-rail &__select {
+		padding: 10px 12px;
+		border-inline-start: 3px solid transparent;
+	}
+
+	&.is-layout-side-rail &__entry:not(:first-child) &__select {
+		border-block-start: 1px solid var(--vpp-border-soft);
+	}
+
+	&.is-layout-side-rail &__select.is-current {
+		background: var(--vpp-accent-tint);
+		border-inline-start-color: var(--vpp-accent);
+	}
+
+	&.is-layout-side-rail &__select.is-current &__entry-meta {
+		color: var(--vpp-accent);
+	}
+
+	&.is-layout-side-rail &__entry-thumb {
+		inline-size: 76px;
+	}
+
+	&.is-layout-side-rail &__entry-number {
+		align-self: center;
+	}
+
+	/*
+	 * Grid: player on top, meta row, thumbnails in a grid below.
+	 */
+
+	&.is-layout-grid &__list-header {
+		display: none;
+	}
+
+	&.is-layout-grid &__now {
+		display: flex;
+		justify-content: flex-end;
+		margin-block-start: 10px;
+		padding-block-end: 12px;
+		border-block-end: 1px solid var(--vpp-border);
+	}
+
+	&.is-layout-grid &__list {
+		margin-block-start: 16px;
+	}
+
+	&.is-layout-grid &__entries {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+		gap: 14px;
+	}
+
+	&.is-layout-grid &__select {
+		position: relative;
+		flex-direction: column;
+		gap: 7px;
+	}
+
+	&.is-layout-grid &__entry-thumb {
+		inline-size: 100%;
+	}
+
+	&.is-layout-grid &__select.is-current &__entry-thumb {
+		outline: 2px solid var(--vpp-accent);
+		outline-offset: -2px;
+	}
+
+	&.is-layout-grid &__select.is-current &__entry-flag {
+		display: block;
+	}
+
+	&.is-layout-grid &__entry-number {
+		position: absolute;
+		inset-inline-start: 4px;
+		inset-block-start: 4px;
+		z-index: 1;
+		padding: 1px 4px;
+		border-radius: 2px;
+		background: rgba(255, 255, 255, 0.85);
+		color: #1e1e1e;
+	}
+
+	/*
+	 * Strip: player on top, compact horizontal scroller below.
+	 */
+
+	&.is-layout-strip &__list {
+		margin-block-start: 16px;
+	}
+
+	&.is-layout-strip &__list-header {
+		margin-block-end: 10px;
+	}
+
+	&.is-layout-strip &__list-label--rail {
+		display: none;
+	}
+
+	&.is-layout-strip &__list {
+		position: relative;
+	}
+
+	&.is-layout-strip &__entries {
+		display: flex;
+		gap: 10px;
+		overflow-x: auto;
+		padding-block-end: 4px;
+	}
+
+	/*
+	 * Fades the strip's trailing edge while more entries hide beyond the
+	 * horizontal scroll position. Sticky keeps it pinned to the scrollport
+	 * edge; the negative margin keeps it out of the layout flow.
+	 */
+
+	&.is-layout-strip &__entries::after {
+		content: "";
+		position: sticky;
+		inset-inline-end: 0;
+		flex: none;
+		inline-size: 52px;
+		margin-inline-start: -52px;
+		background: linear-gradient(to right, transparent, var(--vpp-list-fade));
+		opacity: 0;
+		transition: opacity 0.2s;
+		pointer-events: none;
+	}
+
+	&.is-layout-strip &__list.has-more-videos &__entries::after {
+		opacity: 1;
+	}
+
+	&.is-layout-strip &__entry {
+		flex: none;
+		inline-size: 176px;
+	}
+
+	&.is-layout-strip &__select {
+		position: relative;
+		flex-direction: column;
+		gap: 6px;
+	}
+
+	&.is-layout-strip &__entry-thumb {
+		inline-size: 100%;
+	}
+
+	&.is-layout-strip &__select.is-current &__entry-thumb {
+		outline: 2px solid var(--vpp-accent);
+		outline-offset: -2px;
+	}
+
+	&.is-layout-strip &__select.is-current &__entry-flag {
+		display: block;
+	}
+
+	&.is-layout-strip &__entry-number {
+		position: absolute;
+		inset-inline-start: 4px;
+		inset-block-start: 4px;
+		z-index: 1;
+		padding: 1px 4px;
+		border-radius: 2px;
+		background: rgba(255, 255, 255, 0.85);
+		color: #1e1e1e;
+	}
+
+	/* The number/flag overlays only make sense with the thumbnail visible. */
+
+	&.hide-thumbnails.is-layout-grid &__entry-number,
+	&.hide-thumbnails.is-layout-strip &__entry-number {
+		position: static;
+		background: none;
+		color: var(--vpp-muted);
+	}
+
+	/* Narrow containers: the side rail stacks under the player. */
+
+	@media ( max-width: 599px ) {
+
+		&.is-layout-side-rail &__body {
+			grid-template-columns: 1fr;
+		}
+
+		&.is-layout-side-rail &__list {
+			block-size: auto;
+			min-block-size: 0;
+		}
+	}
+}

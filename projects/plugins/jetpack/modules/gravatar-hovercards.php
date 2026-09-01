@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: Gravatar Hovercards
- * Module Description: Enable pop-up business cards over commenters’ Gravatars.
+ * Module Description: Show a user’s Gravatar profile when visitors hover over their name or image.
  * Sort Order: 11
  * Recommendation Order: 13
  * First Introduced: 1.1
@@ -13,6 +13,10 @@
  *
  * @package automattic/jetpack
  */
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
 
 define( 'GROFILES__CACHE_BUSTER', gmdate( 'YW' ) );
 
@@ -208,10 +212,10 @@ function grofiles_get_avatar( $avatar, $author ) {
 					}
 				}
 
-				$profile      = isset( $response_body->entry[0] ) ? $response_body->entry[0] : null;
-				$display_name = isset( $profile->displayName ) ? $profile->displayName : ''; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-				$location     = isset( $profile->currentLocation ) ? $profile->currentLocation : ''; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
-				$description  = isset( $profile->aboutMe ) ? $profile->aboutMe : ''; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+				$profile      = $response_body->entry[0] ?? null;
+				$display_name = $profile->displayName ?? ''; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+				$location     = $profile->currentLocation ?? ''; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
+				$description  = $profile->aboutMe ?? ''; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase
 
 				$avatar = '
 					<figure data-amp-lightbox="true">
@@ -245,8 +249,6 @@ function grofiles_get_avatar( $avatar, $author ) {
 
 /**
  * Loads Gravatar Hovercard script.
- *
- * @todo is_singular() only?
  */
 function grofiles_attach_cards() {
 
@@ -257,6 +259,11 @@ function grofiles_attach_cards() {
 
 	// Is the display of Gravatar Hovercards disabled?
 	if ( 'disabled' === Jetpack_Options::get_option_and_ensure_autoload( 'gravatar_disable_hovercards', '0' ) ) {
+		return;
+	}
+
+	// Hovercards are only relevant on pages that render avatars.
+	if ( ! is_singular() && ! is_home() && ! is_front_page() && ! is_archive() && ! is_search() ) {
 		return;
 	}
 

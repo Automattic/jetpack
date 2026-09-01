@@ -1,9 +1,15 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * The Get comment backup endpoint class.
  *
  * /sites/%s/comments/%d/backup -> $blog_id, $comment_id
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Jetpack_JSON_API_Get_Comment_Backup_Endpoint extends Jetpack_JSON_API_Endpoint {
 

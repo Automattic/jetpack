@@ -1,9 +1,9 @@
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import React from 'react';
 import { JetpackLogoProps } from './types.ts';
+import type { FC } from 'react';
 
-const JetpackVaultPressBackupLogo: React.FC< JetpackLogoProps > = ( {
+const JetpackVaultPressBackupLogo: FC< JetpackLogoProps > = ( {
 	showText = true,
 	className,
 	height = 32,

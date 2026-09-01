@@ -26,6 +26,12 @@
 	flex-wrap: wrap;
 	justify-content: space-between;
 	gap: calc(var(--horizontal-spacing) * 2);
+	background-color: var(--jp-white);
+	border-bottom: 1px solid var(--jp-gray);
+	padding: 3rem 3rem 2.5rem;
+	// Negative margins to counteract container padding
+	margin-top: -1.5rem;
+	margin-inline: -3rem;
 }
 
 .product-interstitial__license-activation-link {
@@ -36,6 +42,34 @@
 	}
 }
 
+.pricing-column {
+
+	h2 {
+		font-size: 2rem;
+	}
+}
+
+.tier-cta {
+	width: 100%;
+	justify-content: center;
+}
+
 .not-strong {
 	font-weight: 400 !important;
+}
+
+.interstitialContainer {
+	// Product pricing interstitials are the intentional exception to the shared
+	// 1040px container cap: most hold 3 pricing offers, which 1040px cramps.
+	// 1280px matches the content width of the Figma onboarding mockups (MYJP-326).
+	--max-container-width: 1280px;
+	padding: 48px;
+	background: #fcfcfc;
+}
+
+.spinner.spinner {
+	margin: 25px auto;
+	width: 30px;
+	height: 30px;
+	align-self: center;
 }

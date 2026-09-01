@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import React, { useCallback, useMemo, useEffect } from 'react';
+import { useCallback, useMemo, useEffect } from 'react';
 import { connect } from 'react-redux';
 import Button from 'components/button';
 import { imagePath } from 'constants/urls';

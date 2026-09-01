@@ -11,6 +11,10 @@
 
 use Automattic\Jetpack\Status;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 new WPCOM_JSON_API_Update_Comment_Endpoint(
 	array(
 		'description'                          => 'Create a comment on a post.',
@@ -148,6 +152,8 @@ new WPCOM_JSON_API_Update_Comment_Endpoint(
 
 /**
  * Update comments endpoint class.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class WPCOM_JSON_API_Update_Comment_Endpoint extends WPCOM_JSON_API_Comment_Endpoint {
 	/**
@@ -309,6 +315,10 @@ class WPCOM_JSON_API_Update_Comment_Endpoint extends WPCOM_JSON_API_Comment_Endp
 			'comment_parent'       => $comment_parent_id,
 			'comment_type'         => 'comment',
 		);
+
+		if ( ! empty( $this->api->token_details['user']['user_ip'] ) && filter_var( $this->api->token_details['user']['user_ip'], FILTER_VALIDATE_IP ) ) {
+			$insert['comment_author_IP'] = $this->api->token_details['user']['user_ip'];
+		}
 
 		if ( $comment_parent_id ) {
 			if ( '0' === $comment_parent->comment_approved && current_user_can( 'edit_comment', $comment_parent->comment_ID ) ) {

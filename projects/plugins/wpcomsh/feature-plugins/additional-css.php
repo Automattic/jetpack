@@ -18,6 +18,11 @@ function wpcomsh_maybe_disable_custom_css() {
 		return;
 	}
 
+	// Global Styles are available on the Personal plan, so all Atomic sites have custom CSS enabled.
+	if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) {
+		return;
+	}
+
 	add_action( 'admin_menu', 'wpcomsh_custom_css_admin_menu' );
 	add_filter( 'jetpack_get_available_modules', 'wpcomsh_custom_css_remove_available_module' );
 	add_filter( 'jetpack_active_modules', 'wpcomsh_custom_css_remove_active_module' );

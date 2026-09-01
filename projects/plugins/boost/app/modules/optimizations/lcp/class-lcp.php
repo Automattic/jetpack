@@ -2,7 +2,6 @@
 
 namespace Automattic\Jetpack_Boost\Modules\Optimizations\Lcp;
 
-use Automattic\Jetpack\Boost\App\Contracts\Is_Dev_Feature;
 use Automattic\Jetpack\Schema\Schema;
 use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync;
 use Automattic\Jetpack_Boost\Contracts\Changes_Output_After_Activation;
@@ -10,12 +9,13 @@ use Automattic\Jetpack_Boost\Contracts\Feature;
 use Automattic\Jetpack_Boost\Contracts\Has_Activate;
 use Automattic\Jetpack_Boost\Contracts\Has_Data_Sync;
 use Automattic\Jetpack_Boost\Contracts\Needs_To_Be_Ready;
+use Automattic\Jetpack_Boost\Contracts\Needs_Website_To_Be_Public;
 use Automattic\Jetpack_Boost\Contracts\Optimization;
 use Automattic\Jetpack_Boost\Lib\Output_Filter;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Has_Always_Available_Endpoints;
 use Automattic\Jetpack_Boost\REST_API\Endpoints\Update_LCP;
 
-class Lcp implements Feature, Changes_Output_After_Activation, Optimization, Has_Activate, Needs_To_Be_Ready, Has_Data_Sync, Has_Always_Available_Endpoints, Is_Dev_Feature {
+class Lcp implements Feature, Changes_Output_After_Activation, Optimization, Has_Activate, Needs_To_Be_Ready, Has_Data_Sync, Has_Always_Available_Endpoints, Needs_Website_To_Be_Public {
 	/** LCP type for background images. */
 	const TYPE_BACKGROUND_IMAGE = 'background-image';
 
@@ -23,30 +23,25 @@ class Lcp implements Feature, Changes_Output_After_Activation, Optimization, Has
 	const TYPE_IMAGE = 'img';
 
 	/**
-	 * LCP storage class instance.
+	 * The LCP data of the current request.
 	 *
-	 * @var LCP_Storage
+	 * @var array|false
 	 */
-	private $storage;
-
-	/**
-	 * Output filter instance.
-	 *
-	 * @var Output_Filter
-	 */
-	private $output_filter;
+	private $lcp_data;
 
 	public function setup() {
-		$this->output_filter = new Output_Filter();
-		$this->storage       = new LCP_Storage();
-
+		add_action( 'wp', array( $this, 'on_wp_load' ), 1 );
 		add_action( 'template_redirect', array( $this, 'add_output_filter' ), -999999 );
+
 		add_action( 'jetpack_boost_lcp_invalidated', array( $this, 'handle_lcp_invalidated' ) );
 
-		// Initialize the optimizer for background images. Doing it late enough so wp can load, but before any output is sent.
-		add_action( 'wp', array( LCP_Optimize_Bg_Image::class, 'init' ) );
-
 		LCP_Invalidator::init();
+	}
+
+	public function on_wp_load() {
+		$this->lcp_data = ( new LCP_Storage() )->get_current_request_lcp();
+
+		LCP_Optimize_Bg_Image::init( $this->lcp_data );
 	}
 
 	public function add_output_filter() {
@@ -54,7 +49,8 @@ class Lcp implements Feature, Changes_Output_After_Activation, Optimization, Has
 			return;
 		}
 
-		$this->output_filter->add_callback( array( $this, 'optimize' ) );
+		$output_filter = new Output_Filter();
+		$output_filter->add_callback( array( $this, 'optimize_lcp_img_tag' ) );
 	}
 
 	/**
@@ -67,18 +63,16 @@ class Lcp implements Feature, Changes_Output_After_Activation, Optimization, Has
 	 *
 	 * @since 3.13.1
 	 */
-	public function optimize( $buffer_start, $buffer_end ) {
-		$lcp_storage = $this->storage->get_current_request_lcp();
-
-		if ( empty( $lcp_storage ) ) {
+	public function optimize_lcp_img_tag( $buffer_start, $buffer_end ) {
+		if ( empty( $this->lcp_data ) ) {
 			return array( $buffer_start, $buffer_end );
 		}
 
 		// Combine the buffers for processing
 		$combined_buffer = $buffer_start . $buffer_end;
 
-		foreach ( $lcp_storage as $lcp_data ) {
-			$optimizer = new LCP_Optimize_Img_Tag( $lcp_data );
+		foreach ( $this->lcp_data as $lcp_element ) {
+			$optimizer = new LCP_Optimize_Img_Tag( $lcp_element );
 
 			$combined_buffer = $optimizer->optimize_buffer( $combined_buffer );
 		}
@@ -158,6 +152,41 @@ class Lcp implements Feature, Changes_Output_After_Activation, Optimization, Has
 								'key'    => Schema::as_string(),
 								'url'    => Schema::as_string(),
 								'status' => Schema::as_string(),
+								'errors' => Schema::as_array(
+									Schema::as_assoc_array(
+										array(
+											'type' => Schema::as_string(),
+											// `meta` is nullable: a literal null (and, outside Schema
+											// debug mode, any non-assoc scalar) resolves through Type_Void
+											// instead of throwing and aborting the whole error item. An
+											// empty `[]`/`{}` parses to an empty assoc array, not null,
+											// since every declared key is optional and dropped when absent.
+											// The client tolerates both. Unknown keys are dropped.
+											'meta' => Schema::as_assoc_array(
+												array(
+													'code' => Schema::as_number()->nullable(),
+													'selector' => Schema::as_string()->nullable(),
+													// `page-navigated` errors from boost-cloud (BOOST-597) carry
+													// the redirect target here. Without this key it was stripped
+													// and stored as an empty `[]`, which broke the client parse.
+													'finalUrl' => Schema::as_string()->nullable(),
+												)
+											)->nullable(),
+										)
+									)->fallback(
+										// Isolate a single malformed error at the item boundary. Type_Array
+										// aborts the whole list on the first Schema_Error, and the list-level
+										// nullable() below would then null out `errors` entirely, discarding
+										// every valid sibling error (and its finalUrl) before the client parser
+										// ever sees them. Degrading only the bad item to a benign `unknown`
+										// error mirrors the client-side LcpErrorDetailsSchema.catch and keeps
+										// the good siblings intact.
+										array(
+											'type' => 'unknown',
+											'meta' => null,
+										)
+									)
+								)->nullable(),
 							)
 						)
 					),

@@ -1,7 +1,7 @@
 /**
  * Editor styles for Paywall
  */
-@use '@automattic/jetpack-base-styles/gutenberg-base-styles' as gb;
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
 
 .wp-block-jetpack-paywall-block {
 	display: flex;
@@ -17,7 +17,7 @@
 		padding: 0 8px;
 		white-space: nowrap;
 		text-align: center;
-		user-select: 'none';
+		user-select: "none";
 
 		svg {
 			vertical-align: text-top;

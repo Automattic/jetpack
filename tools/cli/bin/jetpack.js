@@ -14,14 +14,14 @@ async function guardedImport( path ) {
 	try {
 		return await import( path );
 	} catch ( error ) {
-		const bold =
+		let { bold, dim } =
 			( await import( 'chalk' ).then(
-				m => m.default?.stderr?.bold,
+				m => ( { bold: m.chalkStderr?.bold, dim: m.chalkStderr?.dim } ),
 				() => null
-			) ) || ( v => v );
+			) ) || {};
+		bold ||= v => v;
+		dim ||= v => `\n${ v.replace( /^/m, '  ' ) }`;
 
-		console.error( error );
-		console.error( '' );
 		if ( error.code === 'ERR_MODULE_NOT_FOUND' ) {
 			// if pnpm install hasn't been run, the import() will fail here.
 			console.error(
@@ -29,6 +29,7 @@ async function guardedImport( path ) {
 					'*** Something is missing from your install. Please run `pnpm install` and try again. ***'
 				)
 			);
+			console.error( dim( error.message ) );
 		} else if (
 			error.name === 'SyntaxError' &&
 			( error.stack.match(
@@ -41,7 +42,10 @@ async function guardedImport( path ) {
 					'*** Perhaps you have outdated dependencies. Please run `pnpm install` and try again. ***'
 				)
 			);
+			console.error( dim( error.message ) );
 		} else {
+			console.error( error );
+			console.error( '' );
 			console.error( bold( '*** Something unexpected happened. See error above. ***' ) );
 		}
 		process.exit( 1 );

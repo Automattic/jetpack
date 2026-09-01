@@ -9,6 +9,10 @@ use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Connection\Traits\WPCOM_REST_API_Proxy_Request;
 use Automattic\Jetpack\Status\Host;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Class WPCOM_REST_API_V2_Endpoint_Send_Email_Preview
  * Handles the sending of email previews via the WordPress.com REST API
@@ -47,9 +51,13 @@ class WPCOM_REST_API_V2_Endpoint_Send_Email_Preview extends WP_REST_Controller {
 			) : array( $this, 'proxy_request_to_wpcom_as_user' ),
 			'permission_callback' => array( $this, 'permissions_check' ),
 			'args'                => array(
-				'id' => array(
+				'id'    => array(
 					'description' => __( 'Unique identifier for the post.', 'jetpack' ),
 					'type'        => 'integer',
+				),
+				'email' => array(
+					'description' => __( 'Optional recipient address. Defaults to the current user. A different address is only accepted from users who may add subscribers, and is subject to the same abuse checks.', 'jetpack' ),
+					'type'        => 'string',
 				),
 			),
 		);
@@ -118,9 +126,48 @@ class WPCOM_REST_API_V2_Endpoint_Send_Email_Preview extends WP_REST_Controller {
 		}
 
 		$current_user = wp_get_current_user();
-		$email        = $current_user->user_email;
+		$self_email   = $current_user->user_email;
+		$email        = $self_email;
 
-		// Try to create a new subscriber with the user's email
+		// Resolve the recipient. The address defaults to the caller's own verified
+		// email; a caller-supplied address is only honored after it clears the same
+		// gates as adding that person as a subscriber. Self-sends keep their
+		// historical behavior and skip the guard entirely.
+		//
+		// The self-send fast path relies on the caller's own address matching
+		// $current_user->user_email. That holds because this callback only runs on
+		// wpcom (is_wpcom_simple(); Atomic/Jetpack requests are proxied to run as the
+		// wpcom user) — revisit this comparison if it ever runs in another context.
+		$requested = $request->get_param( 'email' );
+		if ( is_string( $requested ) && '' !== trim( $requested ) ) {
+			$requested = sanitize_email( $requested );
+
+			if ( ! is_email( $requested ) ) {
+				return new WP_Error( 'invalid_email', __( 'Please enter a valid email address.', 'jetpack' ), array( 'status' => 400 ) );
+			}
+
+			// Normalize both sides: comparing a sanitized address against the raw
+			// stored email could route a genuine self-send through the guard.
+			if ( 0 !== strcasecmp( $requested, sanitize_email( $self_email ) ) ) {
+				$guard = ABSPATH . 'wp-content/mu-plugins/email-subscriptions/email-preview-guard.php';
+				if ( ! class_exists( 'Email_Preview_Guard' ) && file_exists( $guard ) ) {
+					require_once $guard;
+				}
+
+				if ( ! class_exists( 'Email_Preview_Guard' ) ) {
+					return new WP_Error( 'send_email_preview_guard_unavailable', __( 'Test emails to another address are temporarily unavailable.', 'jetpack' ), array( 'status' => 503 ) );
+				}
+
+				$guarded = Email_Preview_Guard::check( $requested );
+				if ( is_wp_error( $guarded ) ) {
+					return $guarded;
+				}
+
+				$email = $requested;
+			}
+		}
+
+		// Try to create a new subscriber with the resolved email
 		$subscriber = Blog_Subscriber::create( $email );
 		if ( ! $subscriber ) {
 			return new WP_Error( 'unverified', __( 'Could not create subscriber.', 'jetpack' ), array( 'status' => rest_authorization_required_code() ) );
@@ -130,6 +177,25 @@ class WPCOM_REST_API_V2_Endpoint_Send_Email_Preview extends WP_REST_Controller {
 		require_once ABSPATH . 'wp-content/mu-plugins/email-subscriptions/subscription-mailer.php';
 		$mailer       = new Subscription_Mailer( $subscriber );
 		$subscription = $subscriber->get_subscription( get_current_blog_id() );
+
+		/**
+		 * Fires immediately before an email preview is dispatched to the current user.
+		 *
+		 * Useful for inspecting the post content with an external classifier (e.g. an
+		 * LLM-based content moderator) or for logging outbound previews. Fires after
+		 * the subscriber has been resolved, so handlers receive a post that is about
+		 * to be sent.
+		 *
+		 * @module subscriptions
+		 *
+		 * @since 15.8
+		 *
+		 * @param WP_Post                 $post         The post being previewed.
+		 * @param Blog_Subscriber         $subscriber   The subscriber receiving the preview.
+		 * @param Blog_Subscription|false $subscription The subscriber's subscription for the current blog, or false if none exists.
+		 */
+		do_action( 'jetpack_before_send_email_preview', $post, $subscriber, $subscription );
+
 		$mailer->send_post( $post, $subscription );
 
 		// Return a response

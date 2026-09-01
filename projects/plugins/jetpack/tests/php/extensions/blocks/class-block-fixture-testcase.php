@@ -39,11 +39,14 @@ abstract class Jetpack_Block_Fixture_TestCase extends WP_UnitTestCase {
 			$parsed_blocks   = parse_blocks( $block_markup );
 			$rendered_output = trim( render_block( $parsed_blocks[0] ) );
 
+			// Normalize output for version-agnostic comparison
+			$normalized_output = $this->normalize_block_output( $rendered_output );
+
 			$target_markup_filename = str_replace( '.serialized.html', $target_extension, $file );
 
 			// Create a server rendered fixture if one does not exist.
 			if ( ! file_exists( $target_markup_filename ) ) {
-				file_put_contents( $target_markup_filename, $rendered_output );
+				file_put_contents( $target_markup_filename, $normalized_output );
 				$fail_messages[] =
 					sprintf(
 						"No server rendered fixture could be found for the %s block's %s fixture\n" .
@@ -56,8 +59,8 @@ abstract class Jetpack_Block_Fixture_TestCase extends WP_UnitTestCase {
 
 			$server_rendered_fixture = file_get_contents( $target_markup_filename );
 			$this->assertEquals(
-				$rendered_output,
-				trim( $server_rendered_fixture ),
+				$normalized_output,
+				$this->normalize_block_output( trim( $server_rendered_fixture ) ),
 				sprintf(
 					'The results of render_block for %s called with serialized markup from %s do not match ' .
 					"the server-rendered fixture: %s\n",
@@ -75,5 +78,38 @@ abstract class Jetpack_Block_Fixture_TestCase extends WP_UnitTestCase {
 				"\nTry running this test again. Be sure to commit generated fixture files with any code changes."
 			);
 		}
+	}
+
+	/**
+	 * Normalize block HTML output for version-agnostic comparison.
+	 *
+	 * Both the live render and the stored fixture go through this, so one fixture
+	 * stays valid across every WordPress version CI runs against — currently the
+	 * minimum, the latest release, and trunk. Layout classes are the volatile part:
+	 * core generates them per block and has moved them around between releases.
+	 *
+	 * Stripped here:
+	 * - `is-layout-*` classes
+	 * - `wp-block-*-is-layout-*` classes
+	 * - `wp-block-paragraph`, which core adds as of WordPress 7.0 (Gutenberg 22.4)
+	 * - Leftover empty `class=""` attributes after stripping
+	 *
+	 * @param string $html The HTML content to normalize.
+	 * @return string The normalized HTML.
+	 */
+	private function normalize_block_output( $html ) {
+		// Remove wp-block-*-is-layout-* classes (must come before is-layout-* to avoid partial matches).
+		$html = preg_replace( '/\s*wp-block-[a-z-]+-is-layout-[a-z-]+/', '', $html );
+
+		// Remove is-layout-* classes.
+		$html = preg_replace( '/\s*is-layout-[a-z-]+/', '', $html );
+
+		// Remove wp-block-paragraph class.
+		$html = preg_replace( '/\s*wp-block-paragraph/', '', $html );
+
+		// Remove leftover empty class attributes.
+		$html = preg_replace( '/\s*class=""/', '', $html );
+
+		return $html;
 	}
 }

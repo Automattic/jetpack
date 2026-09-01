@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+strip-docs: Recognize additional tags: `@abstract`, `@extends`, `@inherits`, `@mixin`, `@no-named-arguments`, `@phan-closure-scope`, `@readonly`, `@seal-methods`, `@seal-properties`, `@unused-param`.

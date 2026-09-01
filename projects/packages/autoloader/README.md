@@ -33,7 +33,7 @@ Load the file in your plugin via main plugin file.
 
 In the main plugin you will also need to include the files like this.
 ```php
-require_once  plugin_dir_path( __FILE__ ) . '/vendor/autoload_packages.php';
+require_once plugin_dir_path( __FILE__ ) . 'vendor/autoload_packages.php';
 ```
 
 Working with Development Versions of Packages

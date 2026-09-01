@@ -1,12 +1,11 @@
 import { __ } from '@wordpress/i18n';
-import React from 'react';
 
 import './style.scss';
 
 /**
  * SearchPromotion component definition.
  *
- * @return {React.Component} SearchPromotion component.
+ * @return {import('react').Component} SearchPromotion component.
  */
 export default function SearchPromotion() {
 	return (

@@ -4,7 +4,7 @@ const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpac
 module.exports = [
 	{
 		entry: {
-			index: './src/js/index.js',
+			index: './src/js/index.jsx',
 		},
 		mode: jetpackWebpackConfig.mode,
 		devtool: jetpackWebpackConfig.devtool,
@@ -33,10 +33,23 @@ module.exports = [
 					includeNodeModules: [ '@automattic/jetpack-' ],
 				} ),
 
+				// Workarounds for non-extracted `@wordpress/*` packages.
+				...jetpackWebpackConfig.BundledWpPkgsTranspileRules(),
+
 				// Handle CSS.
 				jetpackWebpackConfig.CssRule( {
 					extensions: [ 'css', 'sass', 'scss' ],
-					extraLoaders: [ { loader: 'sass-loader', options: { api: 'modern-compiler' } } ],
+					extraLoaders: [
+						{
+							loader: 'postcss-loader',
+							options: {
+								postcssOptions: {
+									config: path.join( __dirname, 'postcss.config.js' ),
+								},
+							},
+						},
+						{ loader: 'sass-loader', options: { api: 'modern-compiler' } },
+					],
 				} ),
 
 				// Handle images.

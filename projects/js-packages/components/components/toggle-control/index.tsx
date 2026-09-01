@@ -2,8 +2,9 @@ import { ToggleControl as WPToggleControl } from '@wordpress/components';
 import clsx from 'clsx';
 import { useCallback } from 'react';
 import styles from './styles.module.scss';
+import type { FC, ReactNode } from 'react';
 
-interface ToggleControlProps {
+export interface ToggleControlProps {
 	/** Whether or not the toggle is currently enabled. */
 	checked?: boolean;
 
@@ -14,13 +15,16 @@ interface ToggleControlProps {
 	disabled?: boolean;
 
 	/** Additional information to display below the toggle. */
-	help?: React.ReactNode;
+	help?: ReactNode;
 
 	/** Whether or not the toggling is currently toggling. */
 	toggling?: boolean;
 
 	/** The label for the toggle. */
-	label?: React.ReactNode;
+	label?: ReactNode;
+
+	/** Accessible name for the underlying checkbox. Use when no visible `label` is rendered. */
+	'aria-label'?: string;
 
 	/** The size of the toggle. */
 	size?: 'small' | 'normal';
@@ -29,13 +33,14 @@ interface ToggleControlProps {
 	onChange: ( value: boolean ) => void;
 }
 
-const ToggleControl: React.FC< ToggleControlProps > = ( {
+const ToggleControl: FC< ToggleControlProps > = ( {
 	checked,
 	className,
 	disabled,
 	help,
 	toggling,
 	label,
+	'aria-label': ariaLabel,
 	size = 'normal',
 	onChange,
 } ) => {
@@ -66,6 +71,7 @@ const ToggleControl: React.FC< ToggleControlProps > = ( {
 			disabled={ disabled }
 			help={ help }
 			label={ label }
+			aria-label={ ariaLabel }
 			onChange={ handleOnChange }
 		/>
 	);

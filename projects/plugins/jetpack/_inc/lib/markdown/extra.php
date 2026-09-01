@@ -12,6 +12,9 @@
 #
 # Tweaked to remove WordPress interface
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
 
 define( 'MARKDOWN_VERSION',  "1.0.2" ); # 29 Nov 2013
 define( 'MARKDOWNEXTRA_VERSION',  "1.2.8" ); # 29 Nov 2013
@@ -3007,7 +3010,7 @@ class MarkdownExtra_Parser extends Markdown_Parser {
 				$footnote = preg_replace_callback('{F\x1Afn:(.*?)\x1A:}',
 					array(&$this, '_appendFootnotes_callback'), $footnote);
 
-				$attr = str_replace("%%", ++$num, $attr);
+				$attr = str_replace("%%", (string) ++$num, $attr);
 				$note_id = $this->encodeAttribute($note_id);
 
 				# Prepare backlink, multiple backlinks if multiple references

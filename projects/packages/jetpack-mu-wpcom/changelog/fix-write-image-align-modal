@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Write editor: Add image properties panel (alt text, size, alignment, featured image) opened by an Edit pencil on each image. Adds left, center, and right alignment, replaces the inline ALT and Size buttons, and fixes the stale "align left" toolbar indicator.

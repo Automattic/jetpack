@@ -5,6 +5,309 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.7.0] - 2026-08-17
+### Security
+- Critical CSS/LCP: Close REST API access to the cache storage, and refuse to load a stored cache entry that contains a PHP object.
+
+### Added
+- Add the Activity Log page to wp-admin, so it is available without the Jetpack plugin installed. [#51221]
+- Concatenate JS/CSS: Add a `jetpack_boost_minify_use_static_cache_urls` filter to override whether bundles are linked from the static cache. [#50962]
+
+### Changed
+- Boost now reports its problem count to the central menu-badges registry instead of writing admin-menu markup directly. [#50190]
+- Image CDN: update the image quality slider to use the WordPress RangeControl component. [#50289]
+- Performance: reduce the number of database reads performed on every page load by preparing Sync data only when it is actually sent to WordPress.com. [#50835]
+- Update @react-spring/web to v10 and remove the unused @react-spring/core dependency for React 19 compatibility. [#50288]
+- Update package dependencies. [#49272] [#50097] [#50183] [#50212] [#50436] [#50509] [#50510] [#50529] [#50751] [#50753] [#50792] [#51008] [#51125]
+
+### Fixed
+- Concatenate JS/CSS: Fix broken CSS and JS delivery on pages rendered after a site is migrated onto WP Cloud or WordPress.com. Pages already served from a cache keep the old URLs until the cache is purged or expires. [#50962]
+- Connection: Stop showing a duplicate account notice when your WordPress.com email differs from your site email only in letter case. [#51285]
+- Defer JS: Fix a regression where a literal closing body tag inside a script, textarea, comment, or attribute value could corrupt the page when deferred scripts were re-inserted. Previously corrupted copies of a page may persist in Boost's page cache (up to an hour by default) and in any host or CDN cache after updating; purge those caches to clear them immediately. [#51032]
+- Fix a blank Boost admin page on WordPress 6.9 installs without the Gutenberg plugin active, where the wp-theme script handle the embedded My Jetpack app depends on was otherwise unregistered. [#50291]
+- LCP: Preserve analysis results when a page reports an error or when the homepage is also configured as a cornerstone page. [#50728]
+- Modules: Batch the per-module status option reads into a single query to avoid redundant per-request database queries on sites without a persistent object cache. [#50993]
+
+## [4.6.3] - 2026-06-26
+### Changed
+- Update dependencies. [#49962]
+
+### Fixed
+- Fix fatal error on My Jetpack when the current stable Jetpack plugin is active. [#49994]
+
+## [4.6.2] - 2026-06-24
+### Added
+- Concatenate JS/CSS: allow administrators to test additional exclude handles per-request via jb-minify-js-excludes / jb-minify-css-excludes GET parameters, without changing saved settings. The parameters are ignored for non-administrators. [#49555]
+- Defer JS: add an exclusion list so specific pages can be excluded by URL pattern without disabling the feature site-wide. [#49556]
+
+### Changed
+- Migrate ToggleControl to @wordpress/components [#49694]
+- Update package dependencies. [#49631] [#49638] [#49691] [#49757] [#49831]
+
+### Fixed
+- Critical CSS: continue generating for remaining providers when one provider fails unexpectedly, instead of failing the whole run. [#49554]
+- Critical CSS: stop stripping inline SVG markup and double quotes from valid CSS values while still preventing style-tag breakout. [#49547]
+- Defer JS: keep position-dependent inline scripts (document.write) in place instead of moving them after the footer. [#49545]
+- Page Cache: more reliably remove the boost-cache directory on uninstall, and avoid cleanup hanging or timing out on very large caches. [#49546]
+
+## [4.6.1] - 2026-06-10
+### Changed
+- Update dependencies. [#49464]
+- Update package dependencies. [#49273] [#49448] [#49492]
+- My Jetpack: Fix fatal error being logged when My Jetpack page is loaded. [#49479]
+
+## [4.6.0] - 2026-06-09
+### Added
+- Concatenate JS: Add a `jetpack_boost_js_minify_fallback` action that fires when JS minification is skipped in favor of the original bundle, so logging plugins can observe how often (and why) the safety net engages. [#49399]
+- Register Jetpack Boost abilities via the WordPress Abilities API (modules read/toggle, latest speed score, and page cache flush) for AI agents on WordPress 6.9+. [#48328]
+
+### Changed
+- Adopt the shared Jetpack admin-page-layout mixin on the Boost admin pages. Drops inline JetpackFooter renders and `showFooter={false}` overrides so AdminPage's built-in footer lives inside the flex column that the mixin pins. [#48109]
+- Boost: Remove translation wrappers from the "Boost" product name. [#48520]
+- Componentry: align Boost UI with the WordPress admin color scheme to match the rest of Jetpack. [#48463]
+- Components: Use Link from `@wordpress/ui` instead of ExternalLink. [#48529]
+- General: Update minimum WordPress version to 6.9. [#49021]
+- Internal: migrate Notice component usages to @wordpress/ui. [#48171]
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+- Remove Beta label from the Optimize LCP Images module. [#48174]
+- Remove Jetpack color overrides on core components, allowing them to use native WordPress admin theme colors. [#47317]
+- Remove the per-page Hello Dolly rule; its content is now covered by the centralized normalize rule shipped with `@automattic/jetpack-components`'s AdminPage component. [#48472]
+- Remove unneeded development and documentation files from the published plugin. [#49014]
+- Replace deprecated jetpack-components Spinner with WordPress Core Spinner. [#47451]
+- Replace Gridicon with Icon and named icon exports from `@wordpress/icons`. [#48537]
+- Tested up to WordPress 7.0. [#48114]
+- Update composer.lock files. [#49415]
+- Updated package dependencies. [#48735] [#48064] [#48106] [#48126] [#48302] [#48404][#48405] [#48683] [#48695] [#48696] [#49012] [#49218] [#49379]
+
+### Fixed
+- Cache debug log: remove the duplicate Jetpack logo and restyle the header breadcrumbs to match the design system, and modernize the "Copy to clipboard" and "See Logs" links. The TanStack Query debugger no longer renders. [#49280]
+- Concatenate JS: Fix pages breaking with an "Unexpected end of input" error when Concatenate JS is enabled on sites that use modern JavaScript under specific conditions. [#49399]
+- Fix Critical CSS progress bar backward jumps and incomplete fill to 100%. [#49244]
+- Fixed a duplicate scrollbar on the Boost dashboard by removing an obsolete full-height override. [#49316]
+- Include blog_id in frontend Tracks events. [#48096]
+- LCP: Fix Cornerstone Page analysis errors on some sites. [#48871]
+- Phan: Address PhanPluginDuplicateConditionalNullCoalescing violations. [#48887]
+- Render Blocking JS: Fix is_opened_script() regex interpolation and counting asymmetry so unclosed scripts are correctly detected when ignored scripts are present. [#47847]
+
+## [4.5.9] - 2026-04-13
+### Changed
+- Update package dependencies. [#47505] [#47684] [#47719] [#47799] [#47825] [#47870] [#47890] [#47998]
+
+### Fixed
+- Image Guide: Fix script errors when JavaScript concatenation is enabled under certain conditions. [#47918]
+
+## [4.5.8-beta] - 2026-03-09
+### Changed
+- Remove header border-bottom from the admin page for a cleaner unified header appearance. [#47313]
+- Replace the large Jetpack Boost logo header with a compact unified header pattern (Jetpack icon + title + subtitle) for consistent product identity. [#47313]
+- Replace license activation link with a "Use license key" button in the header actions area. [#47434]
+- Switch to Native TypeScript compiler based on Go. [#47375]
+
+### Fixed
+- Admin Page: Restore border on header component. [#47425]
+- Compatibility: Clean up deprecated CSS. [#47067]
+- Fix Hello Dolly banner background color and clear floats in admin layout. [#47313]
+- Fix TS errors detected by tsgo. [#47426]
+- I18N: Fix translatable strings extraction. [#47432]
+
+## [4.5.7] - 2026-02-04
+### Added
+- Add Jetpack Protect details page for users without the dedicated Jetpack Protect plugin. [#46630]
+
+### Changed
+- Update package dependencies. [#46785] [#46854] [#46905]
+
+### Removed
+- General: Update minimum WordPress version to 6.8. [#46801]
+
+### Fixed
+- Compatibility: Disable JS concatenation in Beaver Builder editor to prevent script execution order issues. [#46827]
+
+## [4.5.6] - 2026-01-28
+### Changed
+- My Jetpack: Check red bubble notification async when cache is not available. [#46396]
+- Update composer.lock. [#46686]
+- Update package dependencies. [#46512] [#46552] [#46647]
+
+### Fixed
+- LCP: Skip image optimizations that would break responsive backgrounds or custom focal points under specific configurations. [#46683]
+
+## [4.5.5] - 2026-01-08
+### Added
+- Connection: Add revalidation for IDCs. [#46268]
+
+### Changed
+- Update package dependencies. [#46362] [#46363] [#46456]
+
+### Fixed
+- Critical CSS: Fix breaking stylesheets without media attributes. [#46455]
+
+## [4.5.4] - 2025-12-12
+### Changed
+- Image CDN: cache image quality settings per format to reduce repeated processing. [#46205]
+- Update package dependencies. [#46143]
+
+### Fixed
+- Ensure proper flags are used with `json_encode()`. [#46117]
+
+## [4.5.3] - 2025-11-27
+### Added
+- Compatibility: Add compatibility with divi builder and Deferred JS. [#45896]
+- General: Add a daily cleanup of expired transients. [#45920]
+
+### Changed
+- Update package dependencies. [#45915] [#45958] [#46022] [#46072]
+
+### Fixed
+- My Jetpack: Fix expiring renewal prompt to show all products [#45995]
+
+## [4.5.2] - 2025-11-12
+### Changed
+- Tests: Ensure PHP 8.5 compatibility. [#45769]
+- Update package dependencies. [#45676] [#45737] [#45756]
+
+### Fixed
+- LCP Optimization: Prevent requesting analysis for the same pages multiple times. [#45702]
+
+## [4.5.1] - 2025-10-29
+### Added
+- Tested up to WordPress 6.9 [#45571]
+
+### Changed
+- Update package dependencies. [#45652]
+
+### Fixed
+- Concatenate JS: Fix incompatibility with WooCommerce Analytics. [#45655]
+
+## [4.5.0] - 2025-10-15
+### Added
+- Defer JS: Exclude Slider Revolution scripts to avoid broken sliders. [#45408]
+
+### Changed
+- Update package dependencies. [#45173] [#45229] [#45241] [#45298] [#45299] [#45334] [#45335] [#45478]
+
+### Fixed
+- My Jetpack page: fix visual compatibility issue with Hello Dolly plugin. [#45474]
+
+## [4.4.0] - 2025-09-18
+### Added
+- Cornerstone Pages: Add filter to allow the full list of pages to be changed. [#44907]
+
+### Changed
+- Critical CSS: Updated UI to indicate when generated CSS is too much. [#44885]
+- Do not force CRM installation for Complete plan users [#45026]
+- LCP Optimization: Add User-facing notice for unstable LCP elements (carousels) [#44953]
+- Updated PNG import location after refactors in My Jetpack. [#44801]
+- Update package dependencies.
+
+### Fixed
+- Cornerstone Pages: Fix validation error preventing URLs with GET parameters from being added to the cornerstone pages list. [#45101]
+- E2E tests: improved connection flow [#44995]
+- General: Fix translation warning when activating Boost. [#45070]
+- Image CDN: Add support for images added via Breakdance blocks. [#45059]
+- Image CDN: gracefully handle an attempt to filter null. [#44874]
+- Page Cache: Fix fatal error when updating a page on multisite. [#45084]
+
+## [4.3.1] - 2025-08-25
+### Changed
+- Cornerstone Pages: Add tooltips to "Include default pages" button to better explain behavior. [#44845]
+- Cornerstone Pages: Improve behavior when running on WordPress MU installations. [#44824]
+- Cornerstone Pages: Update "Load default pages" to be called "Include default pages" and change the behavior to reflect the name. [#44845]
+- My Jetpack: Fix multisite availability check for restricted products and modules. [#44710]
+- Update package dependencies. [#44677] [#44701] [#44725]
+
+### Fixed
+- Critical CSS: Fix failing generation when a stylesheet had a more complex rel attribute. [#44753]
+
+## [4.3.0] - 2025-08-06
+### Added
+- Page Cache: Ignore Yandex parameters so those visitors are served from the cache. [#44618]
+
+### Changed
+- Image CDN: Ignore images from openlibrary.org. [#44627]
+- Misc: Speed up uninstall process. [#44549]
+- My Jetpack: Unify the user connection flow with a unified screen. [#44469]
+
+### Removed
+- Image Size Analysis: feature has been removed. Filter will no longer enable the ISA. [#44459]
+
+### Fixed
+- Cornerstone Pages: Fix default pages including cornerpages from Yoast, when Yoast was inactive. [#44633]
+- Cornerstone Pages: Fix refreshing speed scores after updating the list if Critical CSS was disabled. [#44445]
+- LCP Optimization: Ensure pending Optimization message appears immediately when enabling Optimize LCP Images [#44496]
+- My Jetpack: Fix footer alignment for disconnected accounts. [#44468]
+- My Jetpack: Prevent expiration alerts for products covered by active bundles [#44586]
+- My Jetpack: Restoring plan purchase link. [#44535]
+- Page Cache: Fix php warnings related to opcache calls when API is disabled. [#44629]
+
+## [4.2.1] - 2025-07-24
+### Removed
+- Admin: remove references to deprecated feature. [#44434]
+
+## [4.2.0] - 2025-07-23
+### Added
+- Critical CSS: Exclude post types of popular builder plugins from generation. [#44280]
+- General: Add WP filter (jetpack_boost_can_module_run) to allow more control over which modules can run their functionality. [#44246]
+- My Jetpack: Added analytics for empty product search results. [#44344]
+
+### Changed
+- Cornerstone Pages: Ensure Home URL is always a predefined Cornerstone Page [#44275]
+- E2E tests: remove redundant logic in test fixture and converted the fixture to Typscript [#44327]
+- Improves performance of wpcom comments liking by caching and minimizing API requests. [#44205]
+- My Jetpack: Enabled access to My Jetpack on WP Multisite. [#44260]
+- Update package dependencies. [#44219] [#44356]
+
+### Deprecated
+- Image Size Analysis: Hide UI by default, pending future removal of feature. Allow UI to be shown via a temporary filter. [#44287]
+
+### Fixed
+- General: Fix minor incompatibility with certain Boost labels and Gutenberg 21.2 [#44418]
+- Update JITMs to remove jQuery dependency [#43783]
+
+## [4.1.2] - 2025-07-08
+### Added
+- Concatenate JS/CSS: Add cleanup for expired options in the database. [#44134]
+
+### Changed
+- General: Update UI to show some features are unavailable if the website is offline. [#44171]
+- LCP Optimization: Show errors not in the list of known errors, in the UI. [#44091]
+- Concatenate JS/CSS: Cleanup static files when running garbage collection. [#44137]
+- My Jetpack: Updating Stats card to include a chart for better analytics. [#43870]
+- Update package dependencies. [#44148] [#44151] [#44206] [#44217]
+
+### Fixed
+- LCP Optimization: Ensure new error types unsupported by the plugin version show as Unknown [#44087]
+- Concatenate JS: Exclude scripts of type module from concatenation. [#44193]
+- JITM: Fix ineffective caching due to expired plugin sync transient [#44117]
+
+## [4.1.1] - 2025-06-23
+### Changed
+- Update package dependencies. [#43892] [#43951] [#44020] [#44040]
+
+### Fixed
+- Defer JS: Fix duplicating deferred scripts on the page when "Optimize LCP Images" is enabled. [#44041]
+- Image Guide: Fix reporting images in WordPress' admin bar. [#43964]
+
+## [4.1.0] - 2025-06-18
+### Added
+- LCP Optimization: New Largest Contentful Paint (LCP) optimization feature to improve loading performance of Cornerstone pages. [#43684]
+
+### Changed
+- Auto-Resize Lazy Images: Remove beta tag. [#43496]
+- E2E Tests: Update config file encryption algorithm. [#43523]
+- My Jetpack: Hide backup failure notice when backups are deactivated. [#43568]
+- My Jetpack: Optimize the images for onboarding slider for faster page load. [#43473]
+- Update package dependencies. [#43578] [#43718] [#43734] [#43766] [#43839]
+
+### Removed
+- Cornerstone Pages: Remove "Experimental" tag from UI. [#43492]
+
+### Fixed
+- General: Fix storage data persisting after clear. [#43852]
+- My Jetpack: Fix Onboarding UI responsiveness at 600px. [#43533]
+- My Jetpack: Fix readability of license activation button on hover. [#43550]
+- Speed Scores: Fix not waiting for Cloud CSS to finish generating before refreshing the scores. [#43764]
+
 ## [4.0.0] - 2025-05-19
 ### Changed
 - General: Run feature activation routines for active features when the plugin is deactivated, then reactivated. [#43168]
@@ -445,7 +748,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Critical CSS: Updated the regeneration notice to include more descriptive text, explaining the trigger. [#31101]
 - General: Updated checklist spacing and button font size and line height. [#31098]
 - Image Guide: Switch to loading an invisible pixel for tracking Image Guide results, avoiding unnecessary traffic to admin-ajax. [#30983]
-- Minify CSS: Moved the default URL base of minified CSS files to /_jb_static, and added a constant to override it. [#31631]
+- Minify CSS: Moved the default URL base of minified CSS files to /\_jb_static, and added a constant to override it. [#31631]
 - Critical CSS: Updated the regeneration notice to include more descriptive text, explaining the trigger. [#31101]
 - General: Updated checklist spacing and button font size and line height. [#31098]
 - Image Guide: Switch to loading an invisible pixel for tracking Image Guide results, avoiding unnecessary traffic to admin-ajax. [#30983]
@@ -704,6 +1007,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - First public alpha release
 
+[4.7.0]: https://github.com/Automattic/jetpack-boost-production/compare/4.6.3...4.7.0
+[4.6.3]: https://github.com/Automattic/jetpack-boost-production/compare/4.6.2...4.6.3
+[4.6.2]: https://github.com/Automattic/jetpack-boost-production/compare/4.6.1...4.6.2
+[4.6.1]: https://github.com/Automattic/jetpack-boost-production/compare/4.6.0...4.6.1
+[4.6.0]: https://github.com/Automattic/jetpack-boost-production/compare/4.5.9...4.6.0
+[4.5.9]: https://github.com/Automattic/jetpack-boost-production/compare/4.5.8-beta...4.5.9
+[4.5.8-beta]: https://github.com/Automattic/jetpack-boost-production/compare/4.5.7...4.5.8-beta
+[4.5.7]: https://github.com/Automattic/jetpack-boost-production/compare/4.5.6...4.5.7
+[4.5.6]: https://github.com/Automattic/jetpack-boost-production/compare/4.5.5...4.5.6
+[4.5.5]: https://github.com/Automattic/jetpack-boost-production/compare/4.5.4...4.5.5
+[4.5.4]: https://github.com/Automattic/jetpack-boost-production/compare/4.5.3...4.5.4
+[4.5.3]: https://github.com/Automattic/jetpack-boost-production/compare/4.5.2...4.5.3
+[4.5.2]: https://github.com/Automattic/jetpack-boost-production/compare/4.5.1...4.5.2
+[4.5.1]: https://github.com/Automattic/jetpack-boost-production/compare/4.5.0...4.5.1
+[4.5.0]: https://github.com/Automattic/jetpack-boost-production/compare/4.4.0...4.5.0
+[4.4.0]: https://github.com/Automattic/jetpack-boost-production/compare/4.3.1...4.4.0
+[4.3.1]: https://github.com/Automattic/jetpack-boost-production/compare/4.3.0...4.3.1
+[4.3.0]: https://github.com/Automattic/jetpack-boost-production/compare/4.2.1...4.3.0
+[4.2.1]: https://github.com/Automattic/jetpack-boost-production/compare/4.2.0...4.2.1
+[4.2.0]: https://github.com/Automattic/jetpack-boost-production/compare/4.1.2...4.2.0
+[4.1.2]: https://github.com/Automattic/jetpack-boost-production/compare/4.1.1...4.1.2
+[4.1.1]: https://github.com/Automattic/jetpack-boost-production/compare/4.1.0...4.1.1
+[4.1.0]: https://github.com/Automattic/jetpack-boost-production/compare/4.0.0...4.1.0
 [4.0.0]: https://github.com/Automattic/jetpack-boost-production/compare/3.13.1...4.0.0
 [3.13.1]: https://github.com/Automattic/jetpack-boost-production/compare/3.13.0...3.13.1
 [3.13.0]: https://github.com/Automattic/jetpack-boost-production/compare/3.12.1...3.13.0

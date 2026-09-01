@@ -171,7 +171,7 @@ class Jetpack_Recommendations {
 		);
 
 		$path_parts  = explode( '/', $plugin );
-		$plugin_file = $path_parts ? array_pop( $path_parts ) : $plugin;
+		$plugin_file = array_pop( $path_parts );
 
 		if ( ! in_array( $plugin_file, $plugin_whitelist, true ) ) {
 			$products = array_column( Jetpack_Plan::get_products(), 'product_slug' );
@@ -382,7 +382,7 @@ class Jetpack_Recommendations {
 	public static function get_new_conditional_recommendations() {
 		$conditional_recommendations = self::get_conditional_recommendations();
 		$recommendations_data        = Jetpack_Options::get_option( 'recommendations_data', array() );
-		$viewed_recommendations      = isset( $recommendations_data['viewedRecommendations'] ) ? $recommendations_data['viewedRecommendations'] : array();
+		$viewed_recommendations      = $recommendations_data['viewedRecommendations'] ?? array();
 
 		// array_diff returns a keyed array - reduce to unique values.
 		return array_unique( array_values( array_diff( $conditional_recommendations, $viewed_recommendations ) ) );

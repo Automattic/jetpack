@@ -1,0 +1,12 @@
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+
+.jetpack-form-hidden-field-inputs {
+	text-wrap: pretty;
+}
+
+@media (max-width: #{ (gb.$break-mobile) }) {
+
+	.jetpack-form-hidden-field-inputs {
+		flex-wrap: wrap;
+	}
+}

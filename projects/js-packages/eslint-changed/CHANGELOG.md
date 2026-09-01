@@ -5,6 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.6] - 2026-02-24
+### Changed
+- Make it explicit that this package has no JS exports by setting `exports` in package.json. [#47283]
+- Set `.repository.url` in `package.json` to the mirror repo rather than the monorepo. Required for enabling provenance. [#47149]
+
+## [2.1.5] - 2025-12-04
+### Fixed
+- Do the right thing for `--git --diff-only` and input paths not relative to the repo root. [#46180]
+- Try accounting for forward-slash vs backslash paths on Windows. [#46180]
+
+## [2.1.4] - 2025-11-25
+### Changed
+- Update package dependencies. [#45590] [#45958]
+
+### Fixed
+- Do the right thing when running with `--git` from a subdirectory of the repository. [#46064]
+
+## [2.1.3] - 2025-10-16
+### Changed
+- Update package dependencies. [#45001]
+
+## [2.1.2] - 2025-08-06
+### Changed
+- Update package dependencies. [#44217]
+
 ## [2.1.1] - 2025-05-13
 ### Added
 - Add keywords in package.json for npm search. [#42948]
@@ -99,6 +124,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Created as a tool within the monorepo.
 
+[2.1.6]: https://github.com/Automattic/eslint-changed/compare/2.1.5...2.1.6
+[2.1.5]: https://github.com/Automattic/eslint-changed/compare/2.1.4...2.1.5
+[2.1.4]: https://github.com/Automattic/eslint-changed/compare/2.1.3...2.1.4
+[2.1.3]: https://github.com/Automattic/eslint-changed/compare/2.1.2...2.1.3
+[2.1.2]: https://github.com/Automattic/eslint-changed/compare/2.1.1...2.1.2
 [2.1.1]: https://github.com/Automattic/eslint-changed/compare/2.1.0...2.1.1
 [2.1.0]: https://github.com/Automattic/eslint-changed/compare/2.0.9...2.1.0
 [2.0.9]: https://github.com/Automattic/eslint-changed/compare/2.0.8...2.0.9

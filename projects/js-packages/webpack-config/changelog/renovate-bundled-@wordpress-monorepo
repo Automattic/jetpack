@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Update @wordpress/dependency-extraction-webpack-plugin, which bundles @wordpress/kebab-case instead of externalizing it to a script handle WordPress does not register.

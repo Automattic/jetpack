@@ -1,6 +1,6 @@
 <?php
 /**
- * Module Name: Custom content types
+ * Module Name: Custom Content Types
  * Module Description: Display different types of content on your site with custom content types.
  * First Introduced: 3.1
  * Requires Connection: No
@@ -14,6 +14,10 @@
  */
 
 use Automattic\Jetpack\Redirect;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
 
 if ( ! function_exists( 'jetpack_load_custom_post_types' ) ) {
 	if ( class_exists( 'Automattic\Jetpack\Classic_Theme_Helper\Jetpack_Portfolio' ) ) {

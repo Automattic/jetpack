@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 set -eo pipefail
 
@@ -25,7 +25,7 @@ if [[ "$WP_BRANCH" == "trunk" ]]; then
 	echo "::endgroup::"
 fi
 
-if [[ "$WP_BRANCH" == "latest" && "$PHP_VERSION" == "7.2" ]]; then
+if [[ "$WP_BRANCH" == "latest" && "$PHP_VERSION" == "7.4" ]]; then
 	echo "::group::Jetpack Legacy Full Sync tests"
 	LEGACY_FULL_SYNC=1 phpunit-select-config 'phpunit.#.xml.dist' --group=legacy-full-sync
 	echo "::endgroup::"

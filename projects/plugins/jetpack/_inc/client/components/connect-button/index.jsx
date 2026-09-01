@@ -1,11 +1,12 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { DisconnectDialog } from '@automattic/jetpack-connection';
-import { ExternalLink } from '@wordpress/components';
+import { isWoASite } from '@automattic/jetpack-script-data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import { getFragment } from '@wordpress/url';
 import PropTypes from 'prop-types';
-import React from 'react';
+import { Component } from 'react';
 import { connect } from 'react-redux';
 import Button from 'components/button';
 import QuerySiteBenefits from 'components/data/query-site-benefits';
@@ -43,7 +44,7 @@ import JetpackBenefits from '../jetpack-benefits';
 import OwnerDisconnectDialog from '../owner-disconnect-dialog';
 import './style.scss';
 
-export class ConnectButton extends React.Component {
+export class ConnectButton extends Component {
 	static displayName = 'ConnectButton';
 
 	static propTypes = {
@@ -210,18 +211,22 @@ export class ConnectButton extends React.Component {
 		}
 
 		if ( this.props.isSiteConnected ) {
-			return (
-				<JetpackBanner
-					title={ __( 'Your site is connected to WordPress.com.', 'jetpack' ) }
-					noIcon
-					callToAction={ this.props.connectLegend || __( 'Manage', 'jetpack' ) }
-					onClick={ this.handleOpenModal }
-					eventFeature="manage-site-connection"
-					path="dashboard"
-					eventProps={ { type: 'manage' } }
-					isPromotion={ false }
-				/>
-			);
+			const bannerProps = {
+				title: __( 'Your site is connected to WordPress.com.', 'jetpack' ),
+				noIcon: true,
+				eventFeature: 'manage-site-connection',
+				path: 'dashboard',
+				eventProps: { type: 'manage' },
+				isPromotion: false,
+			};
+
+			// Don't show Manage button on WoA sites
+			if ( ! isWoASite() ) {
+				bannerProps.callToAction = this.props.connectLegend || __( 'Manage', 'jetpack' );
+				bannerProps.onClick = this.handleOpenModal;
+			}
+
+			return <JetpackBanner { ...bannerProps } />;
 		}
 
 		let connectUrl = this.props.connectUrl;
@@ -259,9 +264,10 @@ export class ConnectButton extends React.Component {
 								'jetpack'
 							),
 							{
-								tosLink: <ExternalLink href={ getRedirectUrl( 'wpcom-tos' ) } />,
+								tosLink: <Link openInNewTab href={ getRedirectUrl( 'wpcom-tos' ) } />,
 								shareDetailsLink: (
-									<ExternalLink
+									<Link
+										openInNewTab
 										href={ getRedirectUrl( 'jetpack-support-what-data-does-jetpack-sync' ) }
 									/>
 								),

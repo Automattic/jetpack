@@ -1,13 +1,19 @@
+@use "../_utilities/mixins/breakpoint";
+@use "../atoms/colors/colors";
+@use "../atoms/icons/automatticons";
+@use "../atoms/typography/functions" as typography-functions;
+@use "../atoms/typography/variables" as typography-variables;
+
 // ==========================================================================
 // Main Layout
 // ==========================================================================
-@use 'sass:color';
+@use "sass:color";
 
 .configure .frame.top.fixed {
 
-	@include breakpoint(tablet){
+	@include breakpoint.breakpoint(tablet) {
 		padding-left: 0;
-	};
+	}
 }
 
 // ==========================================================================
@@ -15,7 +21,7 @@
 // ==========================================================================
 
 .wrap.inner,
-.page-content  {
+.page-content {
 	max-width: 950px;
 	margin: 0 auto;
 
@@ -26,38 +32,38 @@
 
 .page-content {
 
-	@include breakpoint(large-phone){
+	@include breakpoint.breakpoint(large-phone) {
 		margin-top: 0;
-	};
+	}
 }
 
 .wrap.inner {
 
-	@include breakpoint(large-desktop) {
-		background: $clouds;
+	@include breakpoint.breakpoint(large-desktop) {
+		background: colors.$clouds;
 		padding: 15px;
-	};
+	}
 
-	@include breakpoint(large-phone) {
-		margin-top: em(24px);
-	};
+	@include breakpoint.breakpoint(large-phone) {
+		margin-top: typography-functions.em(24px);
+	}
 }
 
 .page-content.about {
 	position: relative;
 	z-index: 10;
 
-	@include breakpoint(large-desktop){
-		background: $clouds;
+	@include breakpoint.breakpoint(large-desktop) {
+		background: colors.$clouds;
 		padding: 15px;
-	};
+	}
 }
 
 .page-content.configure {
 
-	@include breakpoint(large-desktop){
-		background: $clouds;
-	};
+	@include breakpoint.breakpoint(large-desktop) {
+		background: colors.$clouds;
+	}
 }
 
 .footer nav {
@@ -73,7 +79,7 @@
 .header {
 	left: 0;
 	right: 0;
-	background: $green;
+	background: colors.$green;
 }
 
 .header-nav {
@@ -84,7 +90,7 @@
 	}
 
 	a {
-		padding: 0 em(10px);
+		padding: 0 typography-functions.em(10px);
 		line-height: 24px;
 	}
 
@@ -109,7 +115,7 @@
 
 			// needs to be cleaned up and removed - jeffgolenski
 			&::before {
-				content: '';
+				content: "";
 				position: absolute;
 				top: 0;
 				left: 0;
@@ -133,9 +139,9 @@
 		margin: 0;
 	}
 
-	@include breakpoint(desktop){
+	@include breakpoint.breakpoint(desktop) {
 		font-size: 13px;
-	};
+	}
 }
 
 // Help tab
@@ -149,7 +155,8 @@
 		z-index: 2;
 	}
 
-	#screen-options-link-wrap, #contextual-help-link-wrap {
+	#screen-options-link-wrap,
+	#contextual-help-link-wrap {
 		border: none;
 	}
 
@@ -189,11 +196,11 @@
 		position: absolute;
 		top: 0;
 		right: 0;
-		font: 300 em(24px) Genericons !important;
+		font: 300 typography-functions.em(24px) Genericons !important;
 		color: #777;
-		content: '\f405';
+		content: "\f405";
 		display: inline-block;
-		padding: em(4px) em(10px) em(6px);
+		padding: typography-functions.em(4px) typography-functions.em(10px) typography-functions.em(6px);
 		z-index: 5;
 
 		&:hover {
@@ -214,7 +221,7 @@
 		bottom: 0;
 		left: 0;
 		overflow: auto;
-		padding: em(30px, 14px);
+		padding: typography-functions.em(30px, 14px);
 	}
 
 	.content {
@@ -231,9 +238,9 @@
 		line-height: 32px;
 		text-shadow: 0 1px 1px #fff;
 
-		@include breakpoint(large-phone){
+		@include breakpoint.breakpoint(large-phone) {
 			font-size: 26px;
-		};
+		}
 	}
 
 	h5 {
@@ -241,7 +248,7 @@
 	}
 
 	p {
-		font-size: em(16px, 13px);
+		font-size: typography-functions.em(16px, 13px);
 	}
 
 	footer {
@@ -270,7 +277,7 @@
 		vertical-align: baseline;
 	}
 
-	@include breakpoint(desktop){
+	@include breakpoint.breakpoint(desktop) {
 		bottom: 5%;
 		margin-left: 36px;
 		font-size: 80%;
@@ -278,14 +285,14 @@
 		.content {
 			top: 38px;
 		}
-	};
+	}
 
-	@include breakpoint(tablet){
+	@include breakpoint.breakpoint(tablet) {
 		top: 66px;
 		margin-left: 0;
-	};
+	}
 
-	@include breakpoint(phablet){
+	@include breakpoint.breakpoint(phablet) {
 		top: 10px;
 		right: 10px;
 		bottom: 10px;
@@ -307,10 +314,10 @@
 		}
 	}
 
-	@include breakpoint(tablet){
+	@include breakpoint.breakpoint(tablet) {
 		float: none;
 		margin: 0 0 15px;
-	};
+	}
 }
 
 .content-container.modal-footer {
@@ -336,14 +343,14 @@
 
 // NOTE: .download-jetpack is in _buttons.scss
 .footer {
-	margin-top: em(20px);
+	margin-top: typography-functions.em(20px);
 	position: relative;
-	padding: em(140px) 0 em(60px);
+	padding: typography-functions.em(140px) 0 typography-functions.em(60px);
 	text-align: center;
 
 	&::before,
 	&::after {
-		content: '';
+		content: "";
 		position: absolute;
 		left: 0;
 		pointer-events: none;
@@ -364,11 +371,11 @@
 		margin-bottom: 33px;
 	}
 
-	@include minbreakpoint(large-desktop){
-			padding-bottom: 35px;
-	};
+	@include breakpoint.minbreakpoint(large-desktop) {
+		padding-bottom: 35px;
+	}
 
-	@include breakpoint(large-desktop) {
+	@include breakpoint.breakpoint(large-desktop) {
 		padding-top: 165px;
 		padding-bottom: 0;
 
@@ -380,27 +387,27 @@
 			float: none;
 			overflow: hidden; // Clears the float
 		}
-	};
+	}
 
-	@include breakpoint(desktop){
+	@include breakpoint.breakpoint(desktop) {
 		padding-top: 146px;
-	};
+	}
 
-	@include breakpoint(tablet){
+	@include breakpoint.breakpoint(tablet) {
 		margin-top: 0;
-	};
+	}
 
-	@include breakpoint(large-phone){
+	@include breakpoint.breakpoint(large-phone) {
 		margin-top: 0;
 		padding-top: 135px;
-	};
+	}
 
-	@include breakpoint(phone){
+	@include breakpoint.breakpoint(phone) {
 		padding-top: 76px;
-	};
+	}
 }
 
-// stylelint-disable-next-line no-duplicate-selectors -- This is part of the larger footer nav section.
+// -- This is part of the larger footer nav section.
 .footer nav {
 	max-width: 100%;
 
@@ -411,23 +418,23 @@
 
 		&:hover,
 		&:focus {
-			color: $green;
+			color: colors.$green;
 		}
 	}
 
-	@include breakpoint(large-desktop){
+	@include breakpoint.breakpoint(large-desktop) {
 
 		a,
 		a:visited {
 
 			&:hover,
 			&:focus {
-				color: $green;
+				color: colors.$green;
 			}
 		}
-	};
+	}
 
-	@include breakpoint(large-phone){
+	@include breakpoint.breakpoint(large-phone) {
 
 		li {
 			display: block;
@@ -441,7 +448,7 @@
 			padding: 0 16px;
 			line-height: 44px;
 		}
-	};
+	}
 }
 
 .primary {
@@ -456,22 +463,22 @@
 		margin-right: 5px;
 	}
 
-	@include minbreakpoint(tablet){
+	@include breakpoint.minbreakpoint(tablet) {
 		padding: 8px 15px 10px;
 		margin-bottom: 30px;
 		border-bottom: 1px solid #f0f0f1;
-	};
+	}
 
-	@include minbreakpoint(large-desktop){
-			margin-bottom: 0;
-	};
+	@include breakpoint.minbreakpoint(large-desktop) {
+		margin-bottom: 0;
+	}
 
-	@include breakpoint(tablet){
+	@include breakpoint.breakpoint(tablet) {
 		padding: 8px 15px 8px;
 		border-bottom: none;
-	};
+	}
 
-	@include breakpoint(large-phone){
+	@include breakpoint.breakpoint(large-phone) {
 		margin: 0;
 		padding: 0;
 		border: none;
@@ -480,15 +487,15 @@
 		a {
 			border-top: 1px solid #f0f0f1;
 		}
-	};
+	}
 }
 
 .footer .a8c-attribution {
 	margin: 0;
 	padding: 0 6px;
 	color: #bbb;
-	font-size: em(11px);
-	font-family: $gill;
+	font-size: typography-functions.em(11px);
+	font-family: typography-variables.$gill;
 	text-transform: uppercase;
 
 	a {
@@ -502,21 +509,21 @@
 		outline: 0;
 
 		&::after {
-			content: 'A';
+			content: "A";
 			position: absolute;
 			top: 2px;
 			right: -9999px;
 			height: 100%;
 			color: #999;
-			font-size: em(17px, 11px);
-			font-family: $automatticons;
+			font-size: typography-functions.em(17px, 11px);
+			font-family: automatticons.$automatticons;
 			text-align: center;
 		}
 
 		&:hover {
 
 			&::after {
-				animation: jetpack-candy .4s ease-in-out;
+				animation: jetpack-candy 0.4s ease-in-out;
 			}
 		}
 	}
@@ -524,15 +531,15 @@
 
 .secondary {
 
-		@include minbreakpoint(tablet){
-			padding: 0 15px 10px 15px;
-			border-bottom: 1px solid #f0f0f1;
-		}
+	@include breakpoint.minbreakpoint(tablet) {
+		padding: 0 15px 10px 15px;
+		border-bottom: 1px solid #f0f0f1;
+	}
 
-		@include minbreakpoint(large-desktop){
-			padding: 0 15px 10px 15px;
-			border-bottom: none;
-		}
+	@include breakpoint.minbreakpoint(large-desktop) {
+		padding: 0 15px 10px 15px;
+		border-bottom: none;
+	}
 }
 
 
@@ -541,8 +548,8 @@
 // ==========================================================================
 
 .jetpack-message {
-	background: color.adjust($green, $lightness: 5%);
-	border: 1px solid color.adjust($green, $lightness: -5%);
+	background: color.adjust(colors.$green, $lightness: 5%);
+	border: 1px solid color.adjust(colors.$green, $lightness: -5%);
 	margin: 33px auto 0;
 	max-width: 90%;
 	position: relative;
@@ -554,7 +561,7 @@
 		padding: 10px 15px;
 		background: #fff;
 		border: 0;
-		box-shadow: 0 1px 1px 0 rgba(0,0,0,.1);
+		box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.1);
 		font-size: 13px;
 		text-align: center;
 
@@ -598,7 +605,7 @@
 
 		&::before {
 			color: #fff;
-			content: '\f418';
+			content: "\f418";
 			font-family: Genericons;
 			font-size: 33px;
 			height: 33px;
@@ -606,14 +613,14 @@
 			opacity: 0.6;
 			position: absolute;
 			top: 23px;
-			top: calc( 50% - 22px );
+			top: calc(50% - 22px);
 		}
 
 		h2 {
 			font-size: 1em;
 		}
 
-		@include breakpoint(large-phone){
+		@include breakpoint.breakpoint(large-phone) {
 			padding: 23px;
 
 			&::before {
@@ -622,30 +629,30 @@
 		}
 
 		a {
-			color:#FFF;
-			border-bottom:1px solid #D5E4BD;
+			color: #fff;
+			border-bottom: 1px solid #d5e4bd;
 		}
 
- a:hover{
-			border-bottom:1px solid #F1F6E9;
+		a:hover {
+			border-bottom: 1px solid #f1f6e9;
 		}
 	}
 
 	&.error .squeezer::before,
 	&.jetpack-err .squeezer::before {
-		content: '\f414';
+		content: "\f414";
 	}
 }
 
 .configure-module .jetpack-message {
-	max-width:100%;
+	max-width: 100%;
 }
 
 // ==========================================================================
 // Uncategorized
 // ==========================================================================
 
-@include breakpoint(large-phone){
+@include breakpoint.breakpoint(large-phone) {
 
 	.wrap.inner.jp-support { // Used anywhere?
 		.jp-support-column-left {
@@ -661,7 +668,7 @@
 			width: 100%;
 		}
 	}
-};
+}
 
 // ==========================================================================
 // Custom Breakpoints
@@ -713,4 +720,10 @@
 #ie-legacy-notice .dops-notice__content {
 	display: inline-block;
 	margin-left: 10px;
+}
+
+.jp-loading-placeholder {
+	margin-top: 30vh;
+	margin-bottom: 25vh;
+	text-align: center;
 }

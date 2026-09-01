@@ -1,0 +1,10 @@
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+
+.panel {
+	position: relative;
+}
+
+.description:global(.components-text) {
+	color: gb.$gray-700;
+	font-size: 0.75rem;
+}

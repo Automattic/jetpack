@@ -10,6 +10,10 @@ namespace Automattic\Jetpack\My_Jetpack\Products;
 use Automattic\Jetpack\My_Jetpack\Module_Product;
 use WP_Error;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Class responsible for handling the Newsletter module.
  */
@@ -168,7 +172,7 @@ class Newsletter extends Module_Product {
 	 * @return ?string
 	 */
 	public static function get_manage_url() {
-		return admin_url( 'admin.php?page=jetpack#/settings?term=newsletter' );
+		return admin_url( 'admin.php?page=jetpack-newsletter' );
 	}
 
 	/**

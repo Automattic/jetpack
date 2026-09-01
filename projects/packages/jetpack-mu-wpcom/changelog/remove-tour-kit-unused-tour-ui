@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Tour Kit: remove the unused tour UI. `WpcomTourKit` and `usePrefetchTourAssets` are kept as deprecated no-op shims; the NUX hooks, contexts, and constants are retained.

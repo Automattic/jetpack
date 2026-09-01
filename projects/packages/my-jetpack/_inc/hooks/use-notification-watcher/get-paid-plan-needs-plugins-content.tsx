@@ -1,7 +1,7 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { ExternalLink } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import { useMemo } from 'react';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 
@@ -60,11 +60,13 @@ export const useGetPaidPlanNeedsPluginsContent = ( {
 			),
 			{
 				link: (
-					<ExternalLink
+					<Link
+						openInNewTab
 						href={ getRedirectUrl( 'jetpack-subscription-renew', {
 							site: siteSuffix,
 							path: planPurchaseId,
 						} ) }
+						children={ null }
 					/>
 				),
 			}
@@ -81,11 +83,13 @@ export const useGetPaidPlanNeedsPluginsContent = ( {
 			),
 			{
 				link: (
-					<ExternalLink
+					<Link
+						openInNewTab
 						href={ getRedirectUrl( 'jetpack-subscription-renew', {
 							site: siteSuffix,
 							path: planPurchaseId,
 						} ) }
+						children={ null }
 					/>
 				),
 			}
@@ -102,11 +106,13 @@ export const useGetPaidPlanNeedsPluginsContent = ( {
 			),
 			{
 				link: (
-					<ExternalLink
+					<Link
+						openInNewTab
 						href={ getRedirectUrl( 'jetpack-subscription-renew', {
 							site: siteSuffix,
 							path: planPurchaseId,
 						} ) }
+						children={ null }
 					/>
 				),
 			}

@@ -33,7 +33,7 @@ const useInstallPlugins = ( productSlugs: string | string[] ) => {
 			},
 		},
 		errorMessage: sprintf(
-			// translators: %s is the Jetpack plugin name or comma seperated list of multiple Jetpack plugin names.
+			// translators: %s is the Jetpack plugin name or comma-separated list of multiple Jetpack plugin names.
 			__( 'There was a problem installing and activating %s.', 'jetpack-my-jetpack' ),
 			products?.map( product => product?.name ).join( ', ' )
 		),

@@ -15,12 +15,12 @@ Require using `composer require automattic/jetpack-phpcs-filter`.
 
 Basic usage is to pass the filter to `phpcs` or `phpcbf` via the `--filter` command line option:
 ```
-vendor/bin/phpcs --filter=vendor/automattic/jetpack-phpcs-filter/src/PhpcsFilter.php .
+vendor/bin/phpcs --filter='Automattic\JetpackPhpcsFilter' .
 ```
 
 It may be more convenient to do so by adding the following to your `.phpcs.xml.dist`:
 ```xml
-<arg name="filter" value="vendor/automattic/jetpack-phpcs-filter/src/PhpcsFilter.php" />
+<arg name="filter" value="Automattic\JetpackPhpcsFilter" />
 ```
 
 If you make use of phpcs's `--stdinPath` option (e.g. with [phpcs-changed](https://packagist.org/packages/sirbrillig/phpcs-changed)),

@@ -1,0 +1,133 @@
+import { isValid, parseISO } from 'date-fns';
+import { decodeHtmlText } from '../../utils/text';
+import {
+	coerceStatsArray,
+	coerceStatsRecord,
+	createStatsListDataPoint,
+	limitStatsRows,
+	normalizeStatsSummary,
+} from './utils';
+import type {
+	StatsItemAction,
+	StatsNormalizedItemBase,
+	StatsNormalizedReport,
+	StatsRecord,
+} from './types';
+import type { StatsQueryParams } from '../../utils/stats-params';
+
+type StatsFollowersValue = {
+	type: 'relative-date';
+	value?: string;
+};
+
+type StatsFollowersFollowData = {
+	params?: unknown;
+};
+
+export type StatsFollowersRawItem = {
+	ID?: number;
+	label?: string;
+	display_name?: string;
+	name?: string;
+	email?: string;
+	avatar?: string | null;
+	url?: string | null;
+	follow_data?: StatsFollowersFollowData | null;
+	date_subscribed?: string;
+	email_subscription_id?: number;
+	subscription_id?: number;
+	wpcom_subscription_id?: number;
+};
+
+export type StatsFollowersRawResponse = {
+	page?: number;
+	pages?: number;
+	total?: number;
+	total_email?: number;
+	total_wpcom?: number;
+	is_owner_subscribed?: boolean;
+	subscribers?: StatsFollowersRawItem[];
+};
+
+export interface StatsFollowersItem extends StatsNormalizedItemBase< null > {
+	id?: number;
+	label: string;
+	value: StatsFollowersValue;
+	iconClassName: string;
+	icon: string | null;
+	link: string | null;
+	date_subscribed?: string;
+	subscription_id?: number;
+	actions: StatsItemAction[];
+}
+
+function parseAvatar( avatar?: string | null ) {
+	if ( ! avatar ) {
+		return null;
+	}
+
+	const [ avatarBaseUrl ] = avatar.split( '?' );
+
+	return `${ avatarBaseUrl }?d=mm`;
+}
+
+function getSubscriptionId( item: StatsFollowersRawItem ) {
+	return (
+		item.email_subscription_id || item.subscription_id || item.wpcom_subscription_id || item.ID
+	);
+}
+
+// `parseISO`, not `Date.parse`: the row's date label is parsed the same way, so
+// a string only one of them accepts would sort and render inconsistently.
+function subscribedAt( item: StatsFollowersRawItem ) {
+	const date = item.date_subscribed ? parseISO( item.date_subscribed ) : null;
+
+	return date && isValid( date ) ? date.getTime() : Number.MIN_SAFE_INTEGER;
+}
+
+export function sanitizeStatsFollowersResponse(
+	response: unknown,
+	query?: StatsQueryParams
+): StatsNormalizedReport< StatsFollowersItem > {
+	const payload = coerceStatsRecord( response ) as StatsFollowersRawResponse & StatsRecord;
+	// `type=all` answers with a block per subscriber type, so the raw order is not
+	// date order, and only the newest `max` of the merged blocks are newest overall.
+	const subscribers = limitStatsRows(
+		coerceStatsArray< StatsFollowersRawItem >( payload.subscribers )
+			.slice()
+			.sort( ( a, b ) => subscribedAt( b ) - subscribedAt( a ) ),
+		query?.max
+	);
+	const items = subscribers.map( item => ( {
+		id: getSubscriptionId( item ),
+		label: decodeHtmlText( item.label ?? item.display_name ?? item.name ?? item.email ?? '' ),
+		value: {
+			type: 'relative-date' as const,
+			value: item.date_subscribed,
+		},
+		iconClassName: 'avatar-user',
+		icon: parseAvatar( item.avatar ),
+		link: item.url ?? null,
+		date_subscribed: item.date_subscribed,
+		subscription_id: getSubscriptionId( item ),
+		actions: [
+			{
+				type: 'follow',
+				data: coerceStatsRecord( item.follow_data ).params ?? false,
+			},
+		],
+		children: null,
+	} ) );
+
+	return {
+		summary: normalizeStatsSummary( {
+			page: payload.page,
+			pages: payload.pages,
+			total: payload.total,
+			total_email: payload.total_email,
+			total_wpcom: payload.total_wpcom,
+			is_owner_subscribed: payload.is_owner_subscribed,
+		} ),
+		data: items.length ? [ createStatsListDataPoint( response, query, items ) ] : [],
+	};
+}

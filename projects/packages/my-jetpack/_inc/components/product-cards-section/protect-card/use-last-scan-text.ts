@@ -43,9 +43,9 @@ export const useLastScanText = ( data: ProtectData ) => {
 			'\xa0' + // `\xa0` is a non-breaking space.
 			sprintf(
 				/* translators: %d is the number of themes installed on the site. */
-				_n( '%d theme', '%d themes', themesCount, 'jetpack-my-jetpack' ).replace( ' ', '\xa0' ), // `\xa0` is a non-breaking space.
+				_n( '%d theme', '%d themes', themesCount, 'jetpack-my-jetpack' ),
 				themesCount
-			)
+			).replace( ' ', '\xa0' ) // `\xa0` is a non-breaking space.
 		);
 	}, [ isPluginActive, timeSinceLastScan, pluginsCount, themesCount ] );
 };

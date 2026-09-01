@@ -1,11 +1,11 @@
 import { getCurrencyObject } from '@automattic/number-formatters';
-import { Button } from '@wordpress/components';
 import { sprintf, __ } from '@wordpress/i18n';
-import { LoadingPlaceholder } from '@automattic/jetpack-components';
+import { Button } from '@wordpress/ui';
+import LoadingPlaceholder from '../loading-placeholder/index.tsx';
 import TermsOfService from '../terms-of-service/index.tsx';
 import type { PricingCardProps } from './types.ts';
 import type { CurrencyObject } from '@automattic/number-formatters';
-import type React from 'react';
+import type { FC, ReactNode } from 'react';
 
 import './style.scss';
 
@@ -25,9 +25,9 @@ const showPriceDecimals = ( currencyObject: CurrencyObject ): boolean => {
  * The Pricing card component.
  *
  * @param {PricingCardProps} props -- The component props.
- * @return {React.ReactNode} The rendered component.
+ * @return {ReactNode} The rendered component.
  */
-const PricingCard: React.FC< PricingCardProps > = ( {
+const PricingCard: FC< PricingCardProps > = ( {
 	currencyCode = 'USD',
 	priceDetails = __( '/month, paid yearly', 'jetpack-components' ),
 	...props
@@ -43,7 +43,7 @@ const PricingCard: React.FC< PricingCardProps > = ( {
 						<img
 							src={ props.icon }
 							alt={ sprintf(
-								/* translators: placeholder is a product name */
+								/* translators: %s: the product name */
 								__( 'Icon for the product %s', 'jetpack-components' ),
 								props.title
 							) }
@@ -113,8 +113,8 @@ const PricingCard: React.FC< PricingCardProps > = ( {
 					) }
 					<div className="jp-components__pricing-card__cta">
 						<Button
+							variant="solid"
 							className="jp-components__pricing-card__button"
-							label={ props.ctaText }
 							onClick={ props.onCtaClick }
 						>
 							{ props.ctaText }

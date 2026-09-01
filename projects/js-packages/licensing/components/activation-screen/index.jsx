@@ -1,9 +1,9 @@
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import restApi from '@automattic/jetpack-api';
-import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Card } from '@wordpress/ui';
 import PropTypes from 'prop-types';
-import React, { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import ActivationScreenControls from '../activation-screen-controls';
 import ActivationScreenIllustration from '../activation-screen-illustration';
 import ActivationScreenSuccessInfo from '../activation-screen-success-info';
@@ -18,7 +18,7 @@ import './style.scss';
  *
  * @param {(object|Array)} result -- the result from the attachLicenses request
  * @return {number} The activatedProductId from the result
- * @throws Errors either from the API response or from any issues parsing the response
+ * @throws {Error} either from the API response or from any issues parsing the response
  */
 const parseAttachLicensesResult = result => {
 	let currentResult = result;
@@ -55,7 +55,7 @@ const parseAttachLicensesResult = result => {
  * @param {string}    props.siteAdminUrl               -- URL of the Jetpack Site Admin
  * @param {string}    props.currentRecommendationsStep -- The current recommendation step.
  * @param {string}    props.currentUser                -- Current wpcom user info.
- * @return {React.Component} The `ActivationScreen` component.
+ * @return {import('react').Component} The `ActivationScreen` component.
  */
 const ActivationScreen = props => {
 	const {
@@ -74,11 +74,30 @@ const ActivationScreen = props => {
 	const [ isSaving, setIsSaving ] = useState( false );
 	const [ activatedProduct, setActivatedProduct ] = useState( null );
 
+	// Track the first available key we last selected. React Query hands back a
+	// new array reference on every refetch (and refetchOnReconnect is on by
+	// default), so keying off the array reference alone would re-run on unrelated
+	// background refetches. Comparing against the last selected key means we only
+	// react when the first available key genuinely changes.
+	const selectedLicenseKey = useRef( startingLicense ?? '' );
+
 	useEffect( () => {
-		if ( availableLicenses && availableLicenses[ 0 ] ) {
-			setLicense( availableLicenses[ 0 ].license_key );
+		const nextLicense = availableLicenses?.[ 0 ]?.license_key;
+		if ( nextLicense && nextLicense !== selectedLicenseKey.current ) {
+			selectedLicenseKey.current = nextLicense;
+			setLicense( nextLicense );
+			// setLicense bypasses the onLicenseChange path that normally clears the
+			// error, so clear the stale error left over from the previous key.
+			setLicenseError( null );
 		}
 	}, [ availableLicenses ] );
+
+	const onLicenseChange = useCallback( newLicense => {
+		setLicense( newLicense );
+		// Changing the license (via the select or the manual input) invalidates
+		// any prior activation error, so clear the stale notice.
+		setLicenseError( null );
+	}, [] );
 
 	const activateLicense = useCallback( () => {
 		if ( isSaving ) {
@@ -107,27 +126,6 @@ const ActivationScreen = props => {
 			} )
 			.catch( error => {
 				jetpackAnalytics.tracks.recordEvent( 'jetpack_wpa_license_activation_error' );
-
-				const cannotManageLicenses =
-					error.response?.code === 'invalid_permission_manage_user_licenses';
-				if ( cannotManageLicenses ) {
-					setLicenseError(
-						createInterpolateElement(
-							__(
-								'You either do not have permissions to perform this action or a user account needs to be connected. <connectLink>Click here to connect your user account</connectLink> or contact your administrator.',
-								'jetpack-licensing'
-							),
-							{
-								connectLink: (
-									<a href="admin.php?page=my-jetpack#/connection?returnTo=add-license" />
-								),
-							}
-						)
-					);
-
-					return;
-				}
-
 				setLicenseError( error.message );
 			} )
 			.finally( () => {
@@ -136,7 +134,7 @@ const ActivationScreen = props => {
 	}, [ isSaving, license, onActivationSuccess ] );
 
 	const renderActivationSuccess = () => (
-		<div className="jp-license-activation-screen">
+		<Card.Root className="jp-license-activation-screen">
 			<ActivationScreenSuccessInfo
 				siteRawUrl={ siteRawUrl }
 				productId={ activatedProduct }
@@ -144,11 +142,11 @@ const ActivationScreen = props => {
 				currentRecommendationsStep={ currentRecommendationsStep }
 			/>
 			<ActivationScreenIllustration imageUrl={ successImage } showSupportLink={ false } />
-		</div>
+		</Card.Root>
 	);
 
 	const renderActivationControl = () => (
-		<div className="jp-license-activation-screen">
+		<Card.Root className="jp-license-activation-screen">
 			<ActivationScreenControls
 				availableLicenses={ availableLicenses }
 				activateLicense={ activateLicense }
@@ -156,11 +154,11 @@ const ActivationScreen = props => {
 				isActivating={ isSaving }
 				license={ license }
 				licenseError={ licenseError }
-				onLicenseChange={ setLicense }
+				onLicenseChange={ onLicenseChange }
 				siteUrl={ siteRawUrl }
 			/>
 			<ActivationScreenIllustration imageUrl={ lockImage } showSupportLink />
-		</div>
+		</Card.Root>
 	);
 
 	const renderGoldenTokenModal = () => {

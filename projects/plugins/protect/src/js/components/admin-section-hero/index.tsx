@@ -3,20 +3,29 @@ import {
 	H3,
 	getIconBySlug,
 } from '@automattic/jetpack-components';
+import { Text as UIText } from '@wordpress/ui';
+import clsx from 'clsx';
 import SeventyFiveLayout from '../seventy-five-layout';
 import AdminSectionHeroNotices from './admin-section-hero-notices';
 import styles from './styles.module.scss';
+import type { FC, ReactNode } from 'react';
 
 interface AdminSectionHeroProps {
-	main: React.ReactNode;
-	secondary?: React.ReactNode;
+	main: ReactNode;
+	secondary?: ReactNode;
 	preserveSecondaryOnMobile?: boolean;
 	spacing?: number;
 }
 
-interface AdminSectionHeroComponent extends React.FC< AdminSectionHeroProps > {
-	Heading: React.FC< { children: React.ReactNode; showIcon?: boolean } >;
-	Subheading: React.FC< { children: React.ReactNode } >;
+interface StatusIndicatorProps {
+	status: 'active' | 'inactive';
+	label: ReactNode;
+}
+
+interface AdminSectionHeroComponent extends FC< AdminSectionHeroProps > {
+	Heading: FC< { children: ReactNode; showIcon?: boolean } >;
+	Subheading: FC< { children: ReactNode } >;
+	StatusIndicator: FC< StatusIndicatorProps >;
 }
 
 const AdminSectionHero: AdminSectionHeroComponent = ( {
@@ -46,7 +55,7 @@ AdminSectionHero.Heading = ( {
 	children,
 	showIcon = false,
 }: {
-	children: React.ReactNode;
+	children: ReactNode;
 	showIcon?: boolean;
 } ) => {
 	const Icon = getIconBySlug( 'protect' );
@@ -59,8 +68,17 @@ AdminSectionHero.Heading = ( {
 	);
 };
 
-AdminSectionHero.Subheading = ( { children }: { children: React.ReactNode } ) => {
+AdminSectionHero.Subheading = ( { children }: { children: ReactNode } ) => {
 	return <div className={ styles.subheading }>{ children }</div>;
+};
+
+AdminSectionHero.StatusIndicator = ( { status, label }: StatusIndicatorProps ) => {
+	return (
+		<UIText variant="body-sm" className={ clsx( styles.status, styles[ `is-${ status }` ] ) }>
+			<span className={ styles.indicator } />
+			<span>{ label }</span>
+		</UIText>
+	);
 };
 
 export default AdminSectionHero;

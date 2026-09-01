@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { isAtomicSite, isSimpleSite } from '@automattic/jetpack-shared-extension-utils';
+import { isWoASite, isSimpleSite } from '@automattic/jetpack-script-data';
 import debugFactory from 'debug';
 
 // Get connection initial state from the global window object.
@@ -24,7 +24,7 @@ export function isUserConnected(): boolean {
 		return true;
 	}
 
-	if ( isAtomicSite() ) {
+	if ( isWoASite() ) {
 		debug( 'Atomic site connected ✅' );
 		return true;
 	}
@@ -35,6 +35,29 @@ export function isUserConnected(): boolean {
 	}
 
 	debug( 'User is not connected ❌' );
+	return false;
+}
+
+/**
+ * Return whether the site is connected to Jetpack.
+ *
+ * This checks WPCOM simple/atomic shortcuts first, then falls back to the
+ * Jetpack connection status exposed in the initial state.
+ *
+ * @return {boolean} True if the site is connected, false otherwise.
+ */
+export function isSiteConnected(): boolean {
+	if ( isSimpleSite() || isWoASite() ) {
+		debug( 'Simple/Atomic site connected ✅' );
+		return true;
+	}
+
+	if ( initialState?.connectionStatus?.isRegistered || initialState?.connectionStatus?.isActive ) {
+		debug( 'Jetpack site is connected ✅' );
+		return true;
+	}
+
+	debug( 'Site is not connected ❌' );
 	return false;
 }
 
@@ -58,7 +81,7 @@ export function isVideoPressModuleActive(): boolean {
  * @return {boolean} True if the feature is active, false otherwise.
  */
 export function isVideoPressActive(): boolean {
-	if ( ! isUserConnected() ) {
+	if ( ! isSiteConnected() ) {
 		return false;
 	}
 

@@ -50,7 +50,10 @@ class Z_IJetpack_Sync_Replicastore_Test extends TestCase {
 
 		// this is a hack so that our setUp method can access the $store instance and call reset()
 		$prop = new ReflectionProperty( 'PHPUnit_Framework_TestCase', 'data' );
-		$prop->setAccessible( true );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$prop->setAccessible( true );
+		}
 		$test_data = $prop->getValue( $this );
 
 		if ( isset( $test_data[0] ) && $test_data[0] ) {
@@ -560,7 +563,7 @@ class Z_IJetpack_Sync_Replicastore_Test extends TestCase {
 	#[DataProvider( 'store_provider' )]
 	public function test_replica_update_option( $store ) {
 		$option_name  = 'blogdescription';
-		$option_value = (string) rand();
+		$option_value = (string) wp_rand();
 		$store->update_option( $option_name, $option_value );
 		$replica_option_value = $store->get_option( $option_name );
 
@@ -572,8 +575,8 @@ class Z_IJetpack_Sync_Replicastore_Test extends TestCase {
 	 */
 	#[DataProvider( 'store_provider' )]
 	public function test_replica_delete_option( $store ) {
-		$option_name  = 'test_replicastore_' . rand();
-		$option_value = (string) rand();
+		$option_name  = 'test_replicastore_' . wp_rand();
+		$option_value = (string) wp_rand();
 		$store->update_option( $option_name, $option_value );
 		$store->delete_option( $option_name );
 		$replica_option_value = $store->get_option( $option_name );
@@ -683,7 +686,7 @@ class Z_IJetpack_Sync_Replicastore_Test extends TestCase {
 		// the "current_theme_supports" API is only supposed to return "true" if there's a setting
 		foreach ( $theme_features as $theme_feature => $theme_feature_value ) {
 			$replica_theme_support_value = $store->current_theme_supports( $theme_feature );
-			$this->assertEquals( $theme_feature_value || false, $replica_theme_support_value );
+			$this->assertEquals( (bool) $theme_feature_value, $replica_theme_support_value );
 		}
 	}
 
@@ -729,6 +732,46 @@ class Z_IJetpack_Sync_Replicastore_Test extends TestCase {
 		$store->delete_metadata( 'post', 1, array( 3 ) );
 
 		$this->assertEquals( array(), $store->get_metadata( 'post', 1, 'foo' ) );
+	}
+
+	/**
+	 * @dataProvider store_provider
+	 */
+	#[DataProvider( 'store_provider' )]
+	public function test_replica_delete_meta_by_key_value( $store ) {
+		$store->upsert_post( self::$factory->post( 1 ) );
+		$store->upsert_post( self::$factory->post( 2 ) );
+
+		$store->upsert_metadata( 'post', 1, 'foo', 'delete', 3 );
+		$store->upsert_metadata( 'post', 1, 'foo', 'keep', 4 );
+		$store->upsert_metadata( 'post', 2, 'foo', 'delete', 5 );
+		$store->upsert_metadata( 'post', 2, 'bar', 'delete', 6 );
+
+		$store->delete_metadata_by_key_value( 'post', 'foo', 'delete' );
+
+		$this->assertEquals( array( 'keep' ), $store->get_metadata( 'post', 1, 'foo' ) );
+		$this->assertEquals( array(), $store->get_metadata( 'post', 2, 'foo' ) );
+		$this->assertEquals( array( 'delete' ), $store->get_metadata( 'post', 2, 'bar' ) );
+	}
+
+	/**
+	 * @dataProvider store_provider
+	 */
+	#[DataProvider( 'store_provider' )]
+	public function test_replica_delete_meta_by_key_value_requires_value( $store ) {
+		$store->upsert_post( self::$factory->post( 1 ) );
+		$store->upsert_post( self::$factory->post( 2 ) );
+
+		$store->upsert_metadata( 'post', 1, 'foo', 'delete', 3 );
+		$store->upsert_metadata( 'post', 1, 'foo', 'keep', 4 );
+		$store->upsert_metadata( 'post', 2, 'foo', 'delete', 5 );
+		$store->upsert_metadata( 'post', 2, 'bar', 'keep', 6 );
+
+		$store->delete_metadata_by_key_value( 'post', 'foo', '' );
+
+		$this->assertEquals( array( 'delete', 'keep' ), $store->get_metadata( 'post', 1, 'foo' ) );
+		$this->assertEquals( array( 'delete' ), $store->get_metadata( 'post', 2, 'foo' ) );
+		$this->assertEquals( array( 'keep' ), $store->get_metadata( 'post', 2, 'bar' ) );
 	}
 
 	/**

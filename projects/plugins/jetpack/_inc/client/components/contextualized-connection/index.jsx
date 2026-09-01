@@ -4,7 +4,7 @@ import { Button } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import PropTypes from 'prop-types';
-import React, { useEffect, useCallback } from 'react';
+import { useEffect, useCallback } from 'react';
 import analytics from 'lib/analytics';
 import './style.scss';
 
@@ -12,7 +12,7 @@ import './style.scss';
  * The Contextualized Connection component.
  *
  * @param {object} props -- The properties.
- * @return {React.Component} The `ContextualizedConnection` component.
+ * @return {import('react').Component} The `ContextualizedConnection` component.
  */
 const ContextualizedConnection = props => {
 	const {

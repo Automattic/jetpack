@@ -11,11 +11,11 @@ See p1HpG7-7ET-p2 for more details.
 ### How to use the `<MyPlanCard />`
 
 ```jsx
-import React from 'react';
+import { Component } from 'react';
 import MyPlanCard from 'components/my-plan-card';
 import Button from 'components/button';
 
-export default class extends React.Component {
+export default class extends Component {
 	render() {
 		return (
 			<MyPlanCard

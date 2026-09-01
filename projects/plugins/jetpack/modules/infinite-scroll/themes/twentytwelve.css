@@ -2,7 +2,7 @@
 -------------------------------------------------------------- */
 .infinite-scroll .site-content::after {
 	clear: both;
-	content: '';
+	content: "";
 	display: block;
 }
 

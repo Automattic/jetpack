@@ -13,6 +13,8 @@ require_once __DIR__ . '/class-verbum-asset-loader.php';
 
 /**
  * Verbum_Moderate is responsible for moderating Verbum comments in wp-admin.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class Verbum_Moderate {
 
@@ -79,7 +81,8 @@ class Verbum_Moderate {
 				array(
 					'embedNonce' => wp_create_nonce( 'embed_nonce' ),
 					'isRTL'      => is_rtl(),
-				)
+				),
+				JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 			),
 			'before'
 		);

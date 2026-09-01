@@ -1,0 +1,66 @@
+import { __, _x } from '@wordpress/i18n';
+import defaultSettings from '../shared/settings/index.js';
+import deprecated from './deprecated.js';
+import edit from './edit.jsx';
+import blockIcon from './icon.jsx';
+import save from './save.jsx';
+
+export const name = 'field-date';
+
+export const form_editor = {
+	category: 'advanced',
+};
+
+/**
+ * Conditional logic: how this field's value is compared.
+ *
+ * Declared per block so the rule builder can offer the right operators and value
+ * input. A block that omits this simply gets no conditional-logic support.
+ */
+export const conditional_logic = {
+	type: 'date',
+};
+
+export const settings = {
+	...defaultSettings,
+	title: __( 'Date picker', 'jetpack-forms' ),
+	keywords: [
+		__( 'Calendar', 'jetpack-forms' ),
+		_x( 'day month year', 'block search term', 'jetpack-forms' ),
+	],
+	description: __( 'Capture date information with a date picker.', 'jetpack-forms' ),
+	icon: blockIcon,
+	edit,
+	attributes: {
+		...defaultSettings.attributes,
+		dateFormat: {
+			type: 'string',
+			default: 'yy-mm-dd',
+		},
+	},
+	deprecated,
+	save,
+	example: {
+		innerBlocks: [
+			{
+				name: 'jetpack/label',
+				attributes: {
+					label: __( 'Date', 'jetpack-forms' ),
+				},
+			},
+			{
+				name: 'jetpack/input',
+				attributes: {
+					type: 'text',
+				},
+			},
+		],
+	},
+};
+
+export default {
+	name,
+	settings,
+	form_editor,
+	conditional_logic,
+};

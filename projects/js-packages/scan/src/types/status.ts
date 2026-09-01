@@ -1,5 +1,25 @@
 import { Threat } from './threats.ts';
 
+export type ExtensionStatus = {
+	/** The name of the extension. */
+	name: string;
+
+	/** The slug of the extension. */
+	slug: string;
+
+	/** The version of the extension. */
+	version: string;
+
+	/** The threats found in the extension. */
+	threats: Threat[];
+
+	/** The type of extension. */
+	type: 'plugins' | 'themes';
+
+	/** Whether the extension was checked in the latest scan. */
+	checked: boolean;
+};
+
 export type ScanStatus = {
 	/** The current status of the scanner. */
 	status: 'unavailable' | 'provisioning' | 'idle' | 'scanning' | 'scheduled';
@@ -30,4 +50,10 @@ export type ScanStatus = {
 
 	/** The detected threats. */
 	threats: Threat[];
+
+	core: ExtensionStatus | ExtensionStatus[];
+	plugins: ExtensionStatus[];
+	themes: ExtensionStatus[];
+	files: Threat[];
+	database: Threat[];
 };

@@ -1,6 +1,6 @@
 /* global verbumBlockEditor */
 import clsx from 'clsx';
-import { forwardRef, type TargetedEvent } from 'preact/compat';
+import { forwardRef, type TargetedEvent, type ForwardedRef } from 'preact/compat';
 import { useContext, useEffect, useState } from 'preact/hooks';
 import { translate } from '../i18n';
 import { VerbumSignals } from '../state';
@@ -32,17 +32,16 @@ const embedContentCallback = ( embedUrl: string ) => {
 };
 
 export const CommentInputField = forwardRef(
-	(
-		{ handleOnKeyUp }: CommentInputFieldProps,
-		ref: React.MutableRefObject< HTMLTextAreaElement | null >
-	) => {
+	( { handleOnKeyUp }: CommentInputFieldProps, ref: ForwardedRef< HTMLTextAreaElement > ) => {
 		const { commentParent, commentValue } = useContext( VerbumSignals );
-		const [ editorState, setEditorState ] = useState< 'LOADING' | 'LOADED' | 'ERROR' >( null );
+		const [ editorState, setEditorState ] = useState< 'LOADING' | 'LOADED' | 'ERROR' | null >(
+			null
+		);
 		const [ isGBEditorEnabled, setIsGBEditorEnabled ] = useState( false );
 
 		useEffect( () => {
 			setTimeout( () => {
-				setIsGBEditorEnabled( VerbumComments.enableBlocks && isFastConnection() );
+				setIsGBEditorEnabled( Boolean( VerbumComments.enableBlocks ) && isFastConnection() );
 			} );
 		}, [] );
 
@@ -65,16 +64,17 @@ export const CommentInputField = forwardRef(
 						VerbumComments.vbeCacheBuster
 				);
 				verbumBlockEditor.attachGutenberg(
-					ref.current,
+					( ref as { current: HTMLTextAreaElement | null } ).current!,
 					content => {
 						commentValue.value = content;
 						handleOnKeyUp();
 					},
 					VerbumComments.isRTL,
 					embedContentCallback,
-					VerbumComments.colorScheme === 'dark'
+					VerbumComments.colorScheme === 'dark',
+					true
 				);
-				// Wait fro the block editor to render.
+				// Wait for the block editor to render.
 				setTimeout( () => setEditorState( 'LOADED' ), 100 );
 			} catch {
 				// Switch to the textarea if the editor fails to load.

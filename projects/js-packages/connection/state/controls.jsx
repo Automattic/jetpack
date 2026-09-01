@@ -1,5 +1,6 @@
 import restApi from '@automattic/jetpack-api';
 import { createRegistryControl } from '@wordpress/data';
+import { assignLocation } from './assignLocation';
 import STORE_ID from './store-id';
 
 const REGISTER_SITE = ( { redirectUri, from } ) => restApi.registerSite( null, redirectUri, from );
@@ -11,7 +12,7 @@ const CONNECT_USER = createRegistryControl(
 				resolveSelect( STORE_ID )
 					.getAuthorizationUrl( redirectUri )
 					.then( authorizationUrl => {
-						const redirect = redirectFunc || ( url => window.location.assign( url ) );
+						const redirect = redirectFunc || ( url => assignLocation( url ) );
 
 						const url = new URL( authorizationUrl );
 

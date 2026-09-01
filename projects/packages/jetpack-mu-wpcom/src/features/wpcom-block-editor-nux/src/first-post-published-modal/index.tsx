@@ -3,11 +3,11 @@ import { useSelect } from '@wordpress/data';
 import { useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { isURL } from '@wordpress/url';
-import React from 'react';
 import postPublishedImage from '../../../../assets/images/post-published.svg';
 import { useSiteIntent, useShouldShowFirstPostPublishedModal } from '../../../../common/tour-kit';
 import { wpcomTrackEvent } from '../../../../common/tracks';
 import NuxModal from '../nux-modal';
+import type { FC, MouseEvent } from 'react';
 
 import './style.scss';
 
@@ -21,7 +21,7 @@ type CoreEditorPlaceholder = {
  * Show the first post publish modal
  * @return {JSX.Element | null} The modal component or null.
  */
-const FirstPostPublishedModalInner: React.FC = () => {
+const FirstPostPublishedModalInner: FC = () => {
 	const { link } = useSelect(
 		select => ( select( 'core/editor' ) as CoreEditorPlaceholder ).getCurrentPost(),
 		[]
@@ -75,12 +75,12 @@ const FirstPostPublishedModalInner: React.FC = () => {
 		}
 	}, [ postType, shouldShowFirstPostPublishedModal, isCurrentPostPublished ] );
 
-	const handleViewPostClick = ( event: React.MouseEvent ) => {
+	const handleViewPostClick = ( event: MouseEvent ) => {
 		event.preventDefault();
 		( window.top as Window ).location.href = link;
 	};
 
-	const handleNextStepsClick = ( event: React.MouseEvent ) => {
+	const handleNextStepsClick = ( event: MouseEvent ) => {
 		event.preventDefault();
 		const redirectUrl = `https://wordpress.com/setup/write/launchpad?siteSlug=${ siteUrl }`;
 

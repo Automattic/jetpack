@@ -6,7 +6,7 @@
  */
 
 // Type aliases used in a bunch of places in this file. Unfortunately Phan doesn't have a way to set these more globally than copy-pasting them into each file needing them.
-<<<PHAN
+<<<'PHAN'
 @phan-type Task = array{id:string, title?:string, get_title?:callable, id_map?:string, add_listener_callback?:callable, badge_text_callback?:callable, extra_data_callback?:callable, get_calypso_path?:callable, is_complete_callback?:callable, is_disabled_callback?:callable, isLaunchTask?:bool, is_visible_callback?:callable, target_repetitions?:int, repetition_count_callback?:callable, subtitle?:callable, completed?:bool}
 PHAN;
 
@@ -102,7 +102,7 @@ function wpcom_launchpad_get_task_definitions() {
 						return '/domains/manage/' . $data['site_slug_encoded'];
 				}
 
-				return '/setup/domain-upsell/domains?siteSlug=' . $data['site_slug_encoded'];
+				return '/setup/domain-and-plan/domains?siteSlug=' . $data['site_slug_encoded'];
 			},
 		),
 		'first_post_published'            => array(
@@ -120,7 +120,7 @@ function wpcom_launchpad_get_task_definitions() {
 
 				if ( is_int( $latest_draft_id ) ) {
 					// There is a draft post, redirect the user to the draft instead of making a fresh post.
-					return admin_url( 'post.php?action=edit&post=' . rawurlencode( $latest_draft_id ) );
+					return admin_url( 'post.php?action=edit&post=' . rawurlencode( (string) $latest_draft_id ) );
 				}
 
 				return admin_url( 'post-new.php' );
@@ -390,8 +390,9 @@ function wpcom_launchpad_get_task_definitions() {
 				return __( 'Drive traffic to your site', 'jetpack-mu-wpcom' );
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
-			'get_calypso_path'     => function ( $task, $default, $data ) {
-				return '/marketing/connections/' . $data['site_slug_encoded'];
+			'is_visible_callback'  => 'wpcom_launchpad_is_jetpack_social_available',
+			'get_calypso_path'     => function () {
+				return admin_url( 'admin.php?page=jetpack-social' );
 			},
 		),
 
@@ -471,24 +472,14 @@ function wpcom_launchpad_get_task_definitions() {
 				return __( 'Write a welcome message', 'jetpack-mu-wpcom' );
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
-			'get_calypso_path'     => function ( $task, $default, $data ) {
-				if ( wpcom_launchpad_should_use_wp_admin_link() ) {
-					return admin_url( 'admin.php?page=jetpack#/newsletter' );
-				}
-				return '/settings/newsletter/' . $data['site_slug_encoded'] . '#messages';
-			},
+			'get_calypso_path'     => 'wpcom_launchpad_get_newsletter_settings_url',
 		),
 		'enable_subscribers_modal'        => array(
 			'get_title'            => function () {
 				return __( 'Enable subscribers modal', 'jetpack-mu-wpcom' );
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
-			'get_calypso_path'     => function ( $task, $default, $data ) {
-				if ( wpcom_launchpad_should_use_wp_admin_link() ) {
-					return admin_url( 'admin.php?page=jetpack#/newsletter' );
-				}
-				return '/settings/newsletter/' . $data['site_slug_encoded'];
-			},
+			'get_calypso_path'     => 'wpcom_launchpad_get_newsletter_settings_url',
 		),
 		'add_10_email_subscribers'        => array(
 			'get_title'                 => function () {
@@ -517,7 +508,6 @@ function wpcom_launchpad_get_task_definitions() {
 				return __( 'Manage your subscribers', 'jetpack-mu-wpcom' );
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
-			'is_visible_callback'  => 'wpcom_launchpad_has_goal_import_subscribers',
 			'get_calypso_path'     => function ( $task, $default, $data ) {
 				return '/subscribers/' . $data['site_slug_encoded'];
 			},
@@ -641,9 +631,7 @@ function wpcom_launchpad_get_task_definitions() {
 			},
 			'is_complete_callback' => 'wpcom_launchpad_has_added_subscribe_block',
 			'is_visible_callback'  => 'wpcom_launchpad_is_add_subscribe_block_visible',
-			'get_calypso_path'     => function ( $task, $default, $data ) {
-				return '/settings/newsletter/' . $data['site_slug_encoded'];
-			},
+			'get_calypso_path'     => 'wpcom_launchpad_get_newsletter_settings_url',
 		),
 		'mobile_app_installed'            => array(
 			'get_title'            => function () {
@@ -659,8 +647,9 @@ function wpcom_launchpad_get_task_definitions() {
 				return __( 'Enable post sharing', 'jetpack-mu-wpcom' );
 			},
 			'is_complete_callback' => 'wpcom_launchpad_is_task_option_completed',
-			'get_calypso_path'     => function ( $task, $default, $data ) {
-				return '/marketing/connections/' . $data['site_slug_encoded'];
+			'is_visible_callback'  => 'wpcom_launchpad_is_jetpack_social_available',
+			'get_calypso_path'     => function () {
+				return admin_url( 'admin.php?page=jetpack-social' );
 			},
 		),
 		'front_page_updated'              => array(
@@ -776,7 +765,7 @@ function wpcom_launchpad_get_task_definitions() {
 			'is_complete_callback' => 'wpcom_launchpad_is_woocommerce_task_completed',
 			'is_visible_callback'  => 'wpcom_launchpad_is_woocommerce_setup_visible',
 			'get_calypso_path'     => function () {
-				return site_url( '/wp-admin/admin.php?page=wc-admin&task=launch_site' );
+				return site_url( '/wp-admin/admin.php?page=wc-admin&path=%2Flaunch-your-store' );
 			},
 		),
 		'migrating_site'                  => array(
@@ -1106,7 +1095,7 @@ function wpcom_launchpad_init_listeners( $task_definitions ) {
 						array(
 							'feature' => 'launchpad',
 							'message' => 'Launchpad failed to add listener callback.',
-							'extra'   => wp_json_encode( $data ),
+							'extra'   => wp_json_encode( $data, JSON_UNESCAPED_SLASHES ),
 						)
 					);
 				}
@@ -1517,12 +1506,6 @@ function wpcom_launchpad_request_user_attributes( $attributes, $client_wrapper =
 	}
 
 	$user_attributes = get_object_vars( $decoded_body->user_attributes );
-	if ( ! is_array( $user_attributes ) ) {
-		return new \WP_Error(
-			'failed_to_fetch_data',
-			esc_html__( 'Unable to fetch the requested data.', 'jetpack-mu-wpcom' )
-		);
-	}
 
 	$cached_attributes = array_merge( $cached_attributes, $user_attributes );
 
@@ -1725,6 +1708,21 @@ function wpcom_launchpad_get_write_3_posts_repetition_count( $task ) {
 }
 
 /**
+ * Resolve the Newsletter Settings page URL, falling back to the canonical wp-admin path
+ * if the Newsletter package isn't autoloaded (e.g. if the host plugin has been unloaded).
+ *
+ * @return string
+ */
+function wpcom_launchpad_get_newsletter_settings_url() {
+	if ( class_exists( '\Automattic\Jetpack\Newsletter\Urls' ) ) {
+		// @phan-suppress-next-line PhanUndeclaredClassMethod -- class_exists guarded above; provided by sibling autoloader.
+		return \Automattic\Jetpack\Newsletter\Urls::get_newsletter_settings_url();
+	}
+
+	return admin_url( 'admin.php?page=jetpack-newsletter' );
+}
+
+/**
  * Returns the option value for a task and false if no option exists.
  *
  * @param Task $task The task data.
@@ -1835,9 +1833,9 @@ function wpcom_track_site_launch_task() {
 	wpcom_launchpad_mark_launchpad_task_complete_if_active( 'videopress_launched' );
 	wpcom_launchpad_mark_launchpad_task_complete_if_active( 'blog_launched' );
 
-	// Remove site intent for blog onboarding flows and disable launchpad.
+	// Remove site intent for the blog onboarding flow and disable launchpad.
 	$site_intent = get_option( 'site_intent' );
-	if ( in_array( $site_intent, array( 'start-writing', 'design-first' ), true ) ) {
+	if ( 'design-first' === $site_intent ) {
 		update_option( 'site_intent', '' );
 		update_option( 'launchpad_screen', 'off' );
 	}
@@ -1994,15 +1992,6 @@ function wpcom_launchpad_is_blog_launched_task_disabled() {
 		if ( wpcom_is_checklist_task_complete( 'plan_completed' )
 			&& wpcom_is_checklist_task_complete( 'domain_upsell' )
 			&& wpcom_is_checklist_task_complete( 'setup_blog' ) ) {
-			return false;
-		}
-		return true;
-	}
-	if ( 'start-writing' === get_option( 'site_intent' ) ) {
-		if ( wpcom_is_checklist_task_complete( 'plan_completed' )
-			&& wpcom_is_checklist_task_complete( 'domain_upsell' )
-			&& wpcom_is_checklist_task_complete( 'setup_blog' )
-			&& wpcom_is_checklist_task_complete( 'first_post_published' ) ) {
 			return false;
 		}
 		return true;
@@ -2620,8 +2609,8 @@ add_action( 'add_option_subscription_options', 'wpcom_launchpad_mark_customize_w
  * Mark the WooCommerce setup task as complete the setup task list is in
  * the completed list or in the hidden list.
  *
- * @param string $old_value The old value of the option.
- * @param string $value The new value of the option.
+ * @param array $old_value The old value of the option.
+ * @param array $value The new value of the option.
  *
  * @return void
  */
@@ -2798,7 +2787,8 @@ add_action( 'activate_product', 'wpcom_launchpad_mark_domain_tasks_complete', 10
 function wpcom_launchpad_mark_plan_tasks_complete( $blog_id ) {
 	require_once WP_CONTENT_DIR . '/admin-plugins/wpcom-billing.php';
 	$current_plan = WPCOM_Store_API::get_current_plan( $blog_id );
-	if ( $current_plan['is_free'] ) {
+
+	if ( $current_plan['is_free'] ?? true ) {
 		return;
 	}
 
@@ -2820,7 +2810,7 @@ function wpcom_trigger_email_campaign() {
 		return;
 	}
 
-	if ( ! in_array( $site_intent, array( 'start-writing', 'design-first' ), true ) ) {
+	if ( 'design-first' !== $site_intent ) {
 		return;
 	}
 
@@ -2953,4 +2943,13 @@ function wpcom_launchpad_has_added_subscribe_block() {
 	}
 
 	return wpcom_launchpad_is_task_option_completed( array( 'id' => 'add_subscribe_block' ) );
+}
+
+/**
+ * Will return true if the user can set up social connections.
+ *
+ * @return bool
+ */
+function wpcom_launchpad_is_jetpack_social_available() {
+	return ! ( new Automattic\Jetpack\Status() )->is_private_site();
 }

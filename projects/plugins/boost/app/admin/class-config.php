@@ -32,7 +32,7 @@ class Config {
 			'site'                => array(
 				'url'      => get_home_url(),
 				'domain'   => ( new Status() )->get_site_suffix(),
-				'online'   => ! ( new Status() )->is_offline_mode() && ! ( new Status() )->is_private_site(),
+				'online'   => self::is_website_public(),
 				'host'     => $this->get_hosting_provider(),
 				'hasCache' => Cache_Compatibility::has_cache(),
 			),
@@ -97,6 +97,10 @@ class Config {
 	 * Retrieves the hosting provider.
 	 * We're only interested in 'atomic' or 'woa' for now.
 	 *
+	 * A new value here also changes CSS and JS delivery. See
+	 * jetpack_boost_minify_use_static_cache_urls(), which reads anything but 'other' as a host
+	 * that may answer wp-content 404s itself.
+	 *
 	 * @since 3.10.0
 	 *
 	 * @return string The hosting provider.
@@ -113,5 +117,14 @@ class Config {
 		}
 
 		return 'other';
+	}
+
+	/**
+	 * Checks if the website is publicly accessible.
+	 *
+	 * @return bool True if the website is public, false otherwise.
+	 */
+	public static function is_website_public() {
+		return ! ( new Status() )->is_offline_mode() && ! ( new Status() )->is_private_site();
 	}
 }

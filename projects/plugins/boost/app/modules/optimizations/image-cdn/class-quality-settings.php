@@ -91,26 +91,29 @@ class Quality_Settings implements Sub_Feature, Is_Always_On, Has_Data_Sync, Chan
 	 * Get the quality for an image based on the extension.
 	 */
 	private function get_quality_for_image( $image_url ) {
-		// Define an associative array to map extensions to image types
-		$extension_to_quality = array(
-			'jpg'  => $this->get_quality_for_type( 'jpg' ),
-			'jpeg' => $this->get_quality_for_type( 'jpg' ),
-			'webp' => $this->get_quality_for_type( 'webp' ),
-			'png'  => $this->get_quality_for_type( 'png' ),
-		);
+		static $quality_cache = array();
 
 		// Extract the file extension from the URL
-		$file_extension = pathinfo( $image_url, PATHINFO_EXTENSION );
+		$file_extension = strtolower( pathinfo( $image_url, PATHINFO_EXTENSION ) );
 
-		// Convert the extension to lowercase for case-insensitive comparison
-		$file_extension = strtolower( $file_extension );
+		static $extension_to_type = array(
+			'jpg'  => 'jpg',
+			'jpeg' => 'jpg',
+			'webp' => 'webp',
+			'png'  => 'png',
+		);
 
-		// Determine the image type based on the extension
-		if ( isset( $extension_to_quality[ $file_extension ] ) ) {
-			return $extension_to_quality[ $file_extension ];
+		if ( ! isset( $extension_to_type[ $file_extension ] ) ) {
+			return null;
 		}
 
-		return null;
+		$type = $extension_to_type[ $file_extension ];
+
+		if ( ! isset( $quality_cache[ $type ] ) ) {
+			$quality_cache[ $type ] = $this->get_quality_for_type( $type );
+		}
+
+		return $quality_cache[ $type ];
 	}
 
 	private function get_quality_for_type( $image_type ) {

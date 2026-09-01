@@ -1,0 +1,38 @@
+.jetpack-contact-form.is-previewing-step {
+
+	// jetpack/button: class is on inner element, use :has()
+	// core/button: class is on wrapper element, use direct selector
+	.wp-block-jetpack-button:has(.is-submit),
+	.wp-block-button.is-submit,
+	&.is-last-step .wp-block-jetpack-button:has(.is-next),
+	&.is-last-step .wp-block-button.is-next,
+	&.is-first-step .wp-block-jetpack-button:has(.is-previous),
+	&.is-first-step .wp-block-button.is-previous {
+		display: none;
+	}
+
+	&.is-last-step .wp-block-jetpack-button:has(.is-submit),
+	&.is-last-step .wp-block-button.is-submit {
+		display: inline-block;
+	}
+}
+
+// Legacy jetpack/button nav buttons only — see style.scss. The core/button
+// equivalents were removed (FORMS-576); these are kept so existing
+// jetpack/button forms render unchanged in the editor.
+.editor-styles-wrapper .wp-block-jetpack-form-step-navigation:has(.wp-block-jetpack-button[style*="width:"]) {
+	gap: var(--wp--style--block-gap, 1.5rem) 0;
+}
+
+.editor-styles-wrapper .wp-block-jetpack-form-step-navigation .wp-block-jetpack-button[style*="width:"] .wp-block-button__link {
+	width: calc(100% - var(--wp--style--block-gap, 1.5rem) / 2);
+}
+
+.editor-styles-wrapper .wp-block-jetpack-form-step-navigation .wp-block-jetpack-button[style*="width:"] .is-next,
+.editor-styles-wrapper .wp-block-jetpack-form-step-navigation .wp-block-jetpack-button[style*="width:"] .is-submit {
+	float: right;
+}
+
+.wp-block-jetpack-form-step-navigation__wrapper {
+	width: 100%;
+}

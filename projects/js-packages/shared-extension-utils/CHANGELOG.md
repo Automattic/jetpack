@@ -5,6 +5,414 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.17] - 2026-08-20
+### Changed
+- Update dependencies. [#51015]
+
+## [2.0.16] - 2026-08-19
+### Changed
+- Update dependencies. [#51015]
+
+## [2.0.15] - 2026-08-13
+### Changed
+- Update dependencies. [#51015]
+
+## [2.0.14] - 2026-08-11
+### Fixed
+- Upgrade nudge: stop emitting an `undefined__description` class when no class name is passed to the component. [#50873]
+
+## [2.0.13] - 2026-08-10
+### Changed
+- Add skipPhotonDomain to the typed Jetpack script data flags. [#50426]
+- Update package dependencies. [#50509]
+
+## [2.0.12] - 2026-08-03
+### Changed
+- Update dependencies. [#50824]
+
+## [2.0.11] - 2026-07-27
+### Changed
+- Update dependencies. [#49431]
+
+## [2.0.10] - 2026-07-22
+### Changed
+- Update dependencies. [#49431]
+
+## [2.0.9] - 2026-07-20
+### Changed
+- Update package dependencies. [#50510] [#50529]
+
+### Fixed
+- Upgrade nudge: Replace `.wp-block` CSS class with `.jetpack-nudge-canvas` to avoid Gutenberg iframe compatibility warnings in the block editor. [#50260]
+
+## [2.0.8] - 2026-07-13
+### Changed
+- Internal updates.
+
+## [2.0.7] - 2026-07-09
+### Changed
+- Update package dependencies. [#49272]
+
+## [2.0.6] - 2026-07-06
+### Changed
+- Use store objects instead of string IDs. [#49810]
+- Update package dependencies. [#50097] [#50183]
+
+## [2.0.5] - 2026-06-26
+### Changed
+- Internal updates.
+
+## [2.0.4] - 2026-06-25
+### Changed
+- Update dependencies. [#49431]
+
+## [2.0.3] - 2026-06-24
+### Changed
+- Update dependencies. [#49431]
+
+## [2.0.2] - 2026-06-23
+### Changed
+- Update dependencies. [#49431]
+
+## [2.0.1] - 2026-06-22
+### Changed
+- Move the WordPress.com plans and Jetpack modules data stores to the new `jetpack-shared-stores` package. [#49494]
+- Update package dependencies. [#49631] [#49691] [#49757]
+
+## [2.0.0] - 2026-06-15
+### Removed
+- Remove `react-native` export condition. [#49526]
+
+## [1.5.22] - 2026-06-09
+### Changed
+- Update package dependencies. [#49273]
+
+## [1.5.21] - 2026-06-08
+### Changed
+- Update dependencies. [#49431]
+
+## [1.5.20] - 2026-06-08
+### Changed
+- Internal updates.
+
+## [1.5.19] - 2026-06-05
+### Changed
+- Update dependencies. [#49354]
+
+## [1.5.18] - 2026-06-01
+### Changed
+- Update package dependencies. [#48404]
+
+## [1.5.17] - 2026-05-25
+### Changed
+- Update dependencies. [#46951]
+
+## [1.5.16] - 2026-05-21
+### Changed
+- Update package dependencies. [#48405]
+- Update package dependencies. [#49012]
+
+## [1.5.15] - 2026-05-19
+### Changed
+- Internal updates.
+
+## [1.5.14] - 2026-05-14
+### Changed
+- Internal updates.
+
+## [1.5.13] - 2026-05-11
+### Changed
+- Components: Use Link from `@wordpress/ui` instead of ExternalLink. [#48529]
+
+## [1.5.12] - 2026-05-04
+### Changed
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+
+## [1.5.11] - 2026-04-27
+### Changed
+- Update dependencies. [#46951]
+
+## [1.5.10] - 2026-04-20
+### Changed
+- Update package dependencies. [#48106]
+
+## [1.5.9] - 2026-04-15
+### Changed
+- Update dependencies. [#46951]
+
+## [1.5.8] - 2026-04-09
+### Changed
+- Update package dependencies. [#47890] [#47998]
+
+## [1.5.7] - 2026-04-06
+### Changed
+- Update dependencies. [#46951]
+
+## [1.5.6] - 2026-03-30
+### Changed
+- Update package dependencies. [#47799]
+
+## [1.5.5] - 2026-03-23
+### Changed
+- Update package dependencies. [#47684]
+
+## [1.5.4] - 2026-03-16
+### Changed
+- Update dependencies. [#47472]
+
+## [1.5.3] - 2026-03-09
+### Changed
+- Switch to Native TypeScript compiler based on Go. [#47375]
+
+### Fixed
+- Fix TS type errors detected by tsgo. [#47423]
+
+## [1.5.2] - 2026-03-02
+### Changed
+- Convert `useAutosaveAndRedirect` and `getJetpackExtensionAvailability` to TypeScript. [#47382]
+
+## [1.5.1] - 2026-02-26
+### Changed
+- Update package dependencies. [#47300]
+
+## [1.5.0] - 2026-02-23
+### Changed
+- Update `JetpackEditorPanelLogo` to respect the `jetpack_show_editor_panel_branding` PHP filter. [#47094]
+
+## [1.4.13] - 2026-02-18
+### Changed
+- Set `.repository.url` in `package.json` to the mirror repo rather than the monorepo. [#47149]
+
+## [1.4.12] - 2026-02-16
+### Changed
+- Update package dependencies. [#47099]
+
+## [1.4.11] - 2026-02-10
+### Added
+- Shared Extension Utils: Add separate site type utils export. [#46938]
+
+### Removed
+- Remove Chrome AI tokens type and mapping. [#46896]
+
+## [1.4.10] - 2026-02-04
+### Changed
+- Update dependencies. [#46944]
+
+## [1.4.9] - 2026-02-03
+### Changed
+- Update dependencies. [#46383]
+
+## [1.4.8] - 2026-02-02
+### Changed
+- Update package dependencies. [#46854]
+
+## [1.4.7] - 2026-01-26
+### Changed
+- Internal updates.
+
+## [1.4.6] - 2026-01-19
+### Changed
+- Update package dependencies. [#46647]
+
+## [1.4.5] - 2026-01-14
+### Changed
+- Internal updates.
+
+## [1.4.4] - 2026-01-07
+### Changed
+- Update package dependencies. [#46456]
+
+## [1.4.3] - 2025-12-22
+### Changed
+- Update dependencies. [#46381]
+
+## [1.4.2] - 2025-12-15
+### Fixed
+- Fix `className` being treated as required by TypeScript for `JetpackLogo`. [#46265]
+
+## [1.4.1] - 2025-12-11
+### Changed
+- Update package dependencies. [#46244]
+
+## [1.4.0] - 2025-12-08
+### Added
+- Jetpack Logo: Add support for customized title in shared component. [#46162]
+
+## [1.3.28] - 2025-12-01
+### Changed
+- Update package dependencies. [#46143]
+
+## [1.3.27] - 2025-11-20
+### Fixed
+- Jetpack: Remove getIconColor functions from block icons. [#45992]
+
+## [1.3.26] - 2025-11-18
+### Changed
+- Update dependencies. [#44940]
+
+## [1.3.25] - 2025-11-17
+### Changed
+- Update package dependencies. [#45915] [#45958]
+
+## [1.3.24] - 2025-11-10
+### Changed
+- Update dependencies. [#44940]
+
+## [1.3.23] - 2025-11-03
+### Changed
+- Update dependencies. [#44940]
+
+## [1.3.22] - 2025-10-28
+### Changed
+- Update package dependencies. [#45652]
+
+## [1.3.21] - 2025-10-13
+### Changed
+- Update dependencies. [#44940]
+
+## [1.3.20] - 2025-10-06
+### Changed
+- Update package dependencies. [#45334]
+
+## [1.3.19] - 2025-09-29
+### Changed
+- Wrap upgrade nudge with span due to an ongoing Gutenberg issue. [#45288]
+
+## [1.3.18] - 2025-09-22
+### Changed
+- Update dependencies. [#44940]
+
+## [1.3.17] - 2025-09-19
+### Changed
+- Update package dependencies. [#45229]
+
+## [1.3.16] - 2025-09-15
+### Changed
+- Update dependencies. [#44940]
+
+## [1.3.15] - 2025-09-08
+### Changed
+- Update package dependencies. [#45027] [#45097]
+
+## [1.3.14] - 2025-09-01
+### Changed
+- Update dependencies. [#44940]
+
+## [1.3.13] - 2025-08-25
+### Changed
+- Update dependencies. [#44934]
+
+## [1.3.12] - 2025-08-18
+### Added
+- Add `typecheck` script to ensure that TypeScript files are type-checked. [#44795]
+
+## [1.3.11] - 2025-08-14
+### Changed
+- Update package dependencies. [#44701]
+
+## [1.3.10] - 2025-08-11
+### Changed
+- Update package dependencies. [#44677]
+
+## [1.3.9] - 2025-08-04
+### Changed
+- Internal updates.
+
+## [1.3.8] - 2025-07-30
+### Changed
+- Update dependencies. [#43796]
+
+## [1.3.7] - 2025-07-28
+### Changed
+- Update dependencies. [#43796]
+
+## [1.3.6] - 2025-07-23
+### Changed
+- Internal updates.
+
+## [1.3.5] - 2025-07-21
+### Changed
+- Update package dependencies. [#44356]
+
+## [1.3.4] - 2025-07-14
+### Removed
+- Remove no-longer-needed dependency on `lodash`. [#44269]
+
+## [1.3.3] - 2025-07-10
+### Changed
+- Internal updates.
+
+## [1.3.2] - 2025-07-08
+### Changed
+- Internal updates.
+
+## [1.3.1] - 2025-07-08
+### Changed
+- Update package dependencies. [#44217]
+
+## [1.3.0] - 2025-07-07
+### Changed
+- Scripts: Ensure host-related checks and functionality are only added via Assets. [#44133]
+
+### Fixed
+- Handle 'react-native' as an export condition. [#44095]
+
+## [1.2.4] - 2025-07-03
+### Changed
+- Update package dependencies. [#44151]
+
+## [1.2.3] - 2025-07-01
+### Changed
+- Internal updates.
+
+## [1.2.2] - 2025-06-30
+### Changed
+- Data store: Expose the store object for better auto completion. [#43870]
+
+## [1.2.1] - 2025-06-24
+### Changed
+- Update dependencies. [#43796]
+
+## [1.2.0] - 2025-06-23
+### Added
+- Add `hasFeatureFlag` JS function that can be added via the `jetpack_block_editor_feature_flags` filter. [#43918]
+
+### Changed
+- Scripts: Change imports for hosting checks. [#43972]
+
+## [1.1.3] - 2025-06-23
+### Changed
+- Update package dependencies. [#44020]
+
+## [1.1.2] - 2025-06-19
+### Changed
+- Update dependencies. [#43796]
+
+## [1.1.1] - 2025-06-18
+### Changed
+- Internal updates.
+
+## [1.1.0] - 2025-06-16
+### Added
+- Components: Add reusable link to open support articles in Help Center. [#43883]
+
+## [1.0.2] - 2025-06-10
+### Changed
+- Update dependencies. [#43796]
+
+## [1.0.1] - 2025-06-05
+### Changed
+- Update dependencies. [#43785]
+
+## [1.0.0] - 2025-06-03
+### Changed
+- Update package dependencies. [#43734]
+
+## [0.20.3] - 2025-06-02
+### Changed
+- sass: `@use` rather than `@import` for `@automattic/jetpack-base-styles/gutenberg-base-styles`. [#43607]
+- Update package dependencies. [#43711]
+
 ## [0.20.2] - 2025-05-26
 ### Added
 - Janitorial: Ensure functionality related to WoA site checking is clearer. [#43481]
@@ -640,6 +1048,103 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Core: prepare utility for release
 
+[2.0.17]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/2.0.16...2.0.17
+[2.0.16]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/2.0.15...2.0.16
+[2.0.15]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/2.0.14...2.0.15
+[2.0.14]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/2.0.13...2.0.14
+[2.0.13]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/2.0.12...2.0.13
+[2.0.12]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/2.0.11...2.0.12
+[2.0.11]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/2.0.10...2.0.11
+[2.0.10]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/2.0.9...2.0.10
+[2.0.9]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/2.0.8...2.0.9
+[2.0.8]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/2.0.7...2.0.8
+[2.0.7]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/2.0.6...2.0.7
+[2.0.6]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/2.0.5...2.0.6
+[2.0.5]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/2.0.4...2.0.5
+[2.0.4]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/2.0.3...2.0.4
+[2.0.3]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/2.0.2...2.0.3
+[2.0.2]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/2.0.1...2.0.2
+[2.0.1]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/2.0.0...2.0.1
+[2.0.0]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.5.22...2.0.0
+[1.5.22]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.5.21...1.5.22
+[1.5.21]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.5.20...1.5.21
+[1.5.20]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.5.19...1.5.20
+[1.5.19]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.5.18...1.5.19
+[1.5.18]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.5.17...1.5.18
+[1.5.17]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.5.16...1.5.17
+[1.5.16]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.5.15...1.5.16
+[1.5.15]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.5.14...1.5.15
+[1.5.14]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.5.13...1.5.14
+[1.5.13]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.5.12...1.5.13
+[1.5.12]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.5.11...1.5.12
+[1.5.11]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.5.10...1.5.11
+[1.5.10]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.5.9...1.5.10
+[1.5.9]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.5.8...1.5.9
+[1.5.8]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.5.7...1.5.8
+[1.5.7]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.5.6...1.5.7
+[1.5.6]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.5.5...1.5.6
+[1.5.5]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.5.4...1.5.5
+[1.5.4]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.5.3...1.5.4
+[1.5.3]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.5.2...1.5.3
+[1.5.2]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.5.1...1.5.2
+[1.5.1]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.5.0...1.5.1
+[1.5.0]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.4.13...1.5.0
+[1.4.13]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.4.12...1.4.13
+[1.4.12]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.4.11...1.4.12
+[1.4.11]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.4.10...1.4.11
+[1.4.10]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.4.9...1.4.10
+[1.4.9]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.4.8...1.4.9
+[1.4.8]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.4.7...1.4.8
+[1.4.7]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.4.6...1.4.7
+[1.4.6]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.4.5...1.4.6
+[1.4.5]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.4.4...1.4.5
+[1.4.4]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.4.3...1.4.4
+[1.4.3]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.4.2...1.4.3
+[1.4.2]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.4.1...1.4.2
+[1.4.1]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.4.0...1.4.1
+[1.4.0]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.3.28...1.4.0
+[1.3.28]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.3.27...1.3.28
+[1.3.27]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.3.26...1.3.27
+[1.3.26]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.3.25...1.3.26
+[1.3.25]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.3.24...1.3.25
+[1.3.24]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.3.23...1.3.24
+[1.3.23]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.3.22...1.3.23
+[1.3.22]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.3.21...1.3.22
+[1.3.21]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.3.20...1.3.21
+[1.3.20]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.3.19...1.3.20
+[1.3.19]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.3.18...1.3.19
+[1.3.18]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.3.17...1.3.18
+[1.3.17]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.3.16...1.3.17
+[1.3.16]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.3.15...1.3.16
+[1.3.15]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.3.14...1.3.15
+[1.3.14]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.3.13...1.3.14
+[1.3.13]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.3.12...1.3.13
+[1.3.12]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.3.11...1.3.12
+[1.3.11]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.3.10...1.3.11
+[1.3.10]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.3.9...1.3.10
+[1.3.9]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.3.8...1.3.9
+[1.3.8]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.3.7...1.3.8
+[1.3.7]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.3.6...1.3.7
+[1.3.6]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.3.5...1.3.6
+[1.3.5]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.3.4...1.3.5
+[1.3.4]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.3.3...1.3.4
+[1.3.3]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.3.2...1.3.3
+[1.3.2]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.3.1...1.3.2
+[1.3.1]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.3.0...1.3.1
+[1.3.0]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.2.4...1.3.0
+[1.2.4]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.2.3...1.2.4
+[1.2.3]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.2.2...1.2.3
+[1.2.2]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.2.1...1.2.2
+[1.2.1]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.2.0...1.2.1
+[1.2.0]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.1.3...1.2.0
+[1.1.3]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.1.2...1.1.3
+[1.1.2]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.1.1...1.1.2
+[1.1.1]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.1.0...1.1.1
+[1.1.0]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.0.2...1.1.0
+[1.0.2]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.0.1...1.0.2
+[1.0.1]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/1.0.0...1.0.1
+[1.0.0]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.20.3...1.0.0
+[0.20.3]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.20.2...0.20.3
 [0.20.2]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.20.1...0.20.2
 [0.20.1]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.20.0...0.20.1
 [0.20.0]: https://github.com/Automattic/jetpack-shared-extension-utils/compare/0.19.3...0.20.0

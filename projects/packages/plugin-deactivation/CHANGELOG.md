@@ -5,10 +5,101 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.31] - 2026-08-14
+### Changed
+- Update dependencies. [#50235]
+- Update package dependencies. [#50510] [#50751]
+
+## [0.3.30] - 2026-06-26
+### Changed
+- Internal updates.
+
+## [0.3.29] - 2026-06-24
+### Changed
+- Update dependencies. [#49641]
+- Update package dependencies. [#49831]
+
+## [0.3.28] - 2026-06-10
+### Changed
+- Update dependencies. [#49488]
+
+## [0.3.27] - 2026-06-08
+### Changed
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+- Update dependencies. [#48210]
+
+## [0.3.26] - 2026-04-11
+### Changed
+- Update dependencies. [#47600]
+
+## [0.3.25] - 2026-03-09
+### Changed
+- Switch to Native TypeScript compiler based on Go. [#47375]
+- Update package dependencies. [#47002] [#47173] [#47496]
+
+## [0.3.24] - 2026-02-03
+### Changed
+- Update dependencies. [#46893]
+
+## [0.3.23] - 2026-01-26
+### Changed
+- Update package dependencies. [#46552]
+
+## [0.3.22] - 2026-01-07
+### Changed
+- Update dependencies. [#46381]
+
+## [0.3.21] - 2025-12-11
+### Changed
+- Update dependencies. [#46157]
+
+## [0.3.20] - 2025-11-20
+### Changed
+- Update dependencies. [#45964]
+
+## [0.3.19] - 2025-10-28
+### Changed
+- Update package dependencies. [#45652]
+
+## [0.3.18] - 2025-10-09
+### Changed
+- Update package dependencies. [#45173] [#45241]
+
+## [0.3.17] - 2025-09-17
+### Changed
+- Update package dependencies. [#45097]
+
+## [0.3.16] - 2025-08-21
+### Added
+- Add `typecheck` script to ensure that TypeScript files are type-checked. [#44795]
+
+### Changed
+- Update dependencies. [#44736]
+
+## [0.3.15] - 2025-08-05
+### Changed
+- Internal updates.
+
+## [0.3.14] - 2025-07-23
+### Changed
+- Internal updates.
+
+## [0.3.13] - 2025-07-08
+### Changed
+- Update dependencies. [#44142]
+
+## [0.3.12] - 2025-06-23
+### Changed
+- Update dependencies. [#44002]
+
+## [0.3.11] - 2025-06-04
+### Changed
+- Update dependencies. [#43569]
+- Update package dependencies. [#43766]
+
 ## [0.3.10] - 2025-05-15
 ### Changed
-- Update package dependencies. [#43398]
-- Update package dependencies. [#43400]
+- Update package dependencies. [#43398] [#43400]
 
 ## [0.3.9] - 2025-04-16
 ### Changed
@@ -104,6 +195,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Added package to intercept plugin deactivation [#27081]
 
+[0.3.31]: https://github.com/Automattic/jetpack-plugin-deactivation/compare/v0.3.30...v0.3.31
+[0.3.30]: https://github.com/Automattic/jetpack-plugin-deactivation/compare/v0.3.29...v0.3.30
+[0.3.29]: https://github.com/Automattic/jetpack-plugin-deactivation/compare/v0.3.28...v0.3.29
+[0.3.28]: https://github.com/Automattic/jetpack-plugin-deactivation/compare/v0.3.27...v0.3.28
+[0.3.27]: https://github.com/Automattic/jetpack-plugin-deactivation/compare/v0.3.26...v0.3.27
+[0.3.26]: https://github.com/Automattic/jetpack-plugin-deactivation/compare/v0.3.25...v0.3.26
+[0.3.25]: https://github.com/Automattic/jetpack-plugin-deactivation/compare/v0.3.24...v0.3.25
+[0.3.24]: https://github.com/Automattic/jetpack-plugin-deactivation/compare/v0.3.23...v0.3.24
+[0.3.23]: https://github.com/Automattic/jetpack-plugin-deactivation/compare/v0.3.22...v0.3.23
+[0.3.22]: https://github.com/Automattic/jetpack-plugin-deactivation/compare/v0.3.21...v0.3.22
+[0.3.21]: https://github.com/Automattic/jetpack-plugin-deactivation/compare/v0.3.20...v0.3.21
+[0.3.20]: https://github.com/Automattic/jetpack-plugin-deactivation/compare/v0.3.19...v0.3.20
+[0.3.19]: https://github.com/Automattic/jetpack-plugin-deactivation/compare/v0.3.18...v0.3.19
+[0.3.18]: https://github.com/Automattic/jetpack-plugin-deactivation/compare/v0.3.17...v0.3.18
+[0.3.17]: https://github.com/Automattic/jetpack-plugin-deactivation/compare/v0.3.16...v0.3.17
+[0.3.16]: https://github.com/Automattic/jetpack-plugin-deactivation/compare/v0.3.15...v0.3.16
+[0.3.15]: https://github.com/Automattic/jetpack-plugin-deactivation/compare/v0.3.14...v0.3.15
+[0.3.14]: https://github.com/Automattic/jetpack-plugin-deactivation/compare/v0.3.13...v0.3.14
+[0.3.13]: https://github.com/Automattic/jetpack-plugin-deactivation/compare/v0.3.12...v0.3.13
+[0.3.12]: https://github.com/Automattic/jetpack-plugin-deactivation/compare/v0.3.11...v0.3.12
+[0.3.11]: https://github.com/Automattic/jetpack-plugin-deactivation/compare/v0.3.10...v0.3.11
 [0.3.10]: https://github.com/Automattic/jetpack-plugin-deactivation/compare/v0.3.9...v0.3.10
 [0.3.9]: https://github.com/Automattic/jetpack-plugin-deactivation/compare/v0.3.8...v0.3.9
 [0.3.8]: https://github.com/Automattic/jetpack-plugin-deactivation/compare/v0.3.7...v0.3.8

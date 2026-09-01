@@ -73,6 +73,34 @@ class Transient {
 	}
 
 	/**
+	 * Delete all expired transients.
+	 *
+	 * @return int The number of deleted transients.
+	 */
+	public static function delete_expired() {
+		global $wpdb;
+
+		//phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		$option_names = $wpdb->get_col(
+			$wpdb->prepare(
+				"SELECT option_name FROM $wpdb->options WHERE option_name LIKE %s",
+				self::OPTION_PREFIX . '%'
+			)
+		);
+
+		$count = 0;
+		foreach ( $option_names as $option_name ) {
+			$value = get_option( $option_name );
+			if ( isset( $value['expire'] ) && $value['expire'] < time() ) {
+				delete_option( $option_name );
+				++$count;
+			}
+		}
+
+		return $count;
+	}
+
+	/**
 	 * Delete all `Transient` values with certain prefix from database.
 	 *
 	 * @param string $prefix Cache key prefix.
@@ -106,6 +134,33 @@ class Transient {
 		// Go through each option individually to ensure caches are handled properly.
 		foreach ( $option_names as $option_name ) {
 			delete_option( $option_name );
+		}
+	}
+
+	/**
+	 * Delete all `Transient` values from the database.
+	 *
+	 * @return void
+	 */
+	public static function delete_bulk() {
+		global $wpdb;
+
+		$prefix_search_pattern = $wpdb->esc_like( self::OPTION_PREFIX ) . '%';
+
+		//phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		$wpdb->query(
+			$wpdb->prepare(
+				"DELETE FROM $wpdb->options WHERE option_name LIKE %s",
+				$prefix_search_pattern
+			)
+		);
+
+		if (
+			function_exists( 'wp_cache_flush_group' ) &&
+			function_exists( 'wp_cache_supports' ) &&
+			wp_cache_supports( 'flush_group' )
+		) {
+			wp_cache_flush_group( 'options' );
 		}
 	}
 

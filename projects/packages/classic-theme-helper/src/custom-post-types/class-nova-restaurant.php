@@ -87,6 +87,17 @@ if ( ! class_exists( __NAMESPACE__ . '\Nova_Restaurant' ) ) {
 		protected $menu_item_loop_current_term = false;
 
 		/**
+		 * Whether the CPT and its utilities have already been registered for this request.
+		 *
+		 * The post type and taxonomies are registered globally and the hooks below are global too, so this is
+		 * shared by every instance: a second instance must not attach a duplicate set. Private so that a
+		 * subclass declaring a property of the same name doesn't hit a visibility fatal.
+		 *
+		 * @var bool
+		 */
+		private static $registered = false;
+
+		/**
 		 * Initialize class.
 		 *
 		 * @param array $menu_item_loop_markup Array of markup for the menu items.
@@ -112,9 +123,40 @@ if ( ! class_exists( __NAMESPACE__ . '\Nova_Restaurant' ) ) {
 		 * Hook into WordPress to create CPT and utilities if needed.
 		 */
 		public function __construct() {
+			/*
+			 * WordPress.com Simple does not load the theme before `init` on REST requests; it replays the
+			 * theme's `after_setup_theme` and `init` callbacks on the two hooks below instead. Theme support
+			 * is undeclared until then, so check again as each replay finishes.
+			 *
+			 * The replayed callbacks keep their own priority and are hooked after ours, hence the offsets:
+			 * last on the setup replay, and after a default-priority `init` but before post likes and sharing
+			 * enumerate the registered post types at 20.
+			 */
+			add_action( 'restapi_theme_after_setup_theme', array( $this, 'maybe_register_cpt' ), PHP_INT_MAX );
+			add_action( 'restapi_theme_init', array( $this, 'maybe_register_cpt' ), 15 );
+
+			$this->maybe_register_cpt();
+		}
+
+		/**
+		 * Register the CPT and its utilities, if the site supports them.
+		 */
+		public function maybe_register_cpt() {
 			if ( ! $this->site_supports_nova() ) {
 				return;
 			}
+
+			// Loop markup is per-instance state, so every instance needs it, registering or not. Registration
+			// can also run after `init()` has stored a caller's markup, so don't clobber that either.
+			if ( ! $this->menu_item_loop_markup ) {
+				$this->menu_item_loop_markup = $this->default_menu_item_loop_markup;
+			}
+
+			if ( self::$registered ) {
+				return;
+			}
+
+			self::$registered = true;
 
 			$this->register_taxonomies();
 			$this->register_post_types();
@@ -127,8 +169,6 @@ if ( ! class_exists( __NAMESPACE__ . '\Nova_Restaurant' ) ) {
 			add_filter( 'posts_results', array( $this, 'sort_menu_item_queries_by_menu_taxonomy' ), 10, 2 );
 
 			add_action( 'wp_insert_post', array( $this, 'add_post_meta' ) );
-
-			$this->menu_item_loop_markup = $this->default_menu_item_loop_markup;
 
 			// Only output our Menu Item Loop Markup on a real blog view.  Not feeds, XML-RPC, admin, etc.
 			add_filter( 'template_include', array( $this, 'setup_menu_item_loop_markup__in_filter' ) );
@@ -710,7 +750,7 @@ if ( ! class_exists( __NAMESPACE__ . '\Nova_Restaurant' ) ) {
 					$this->display_price( $post_id );
 					break;
 				case 'order':
-					$url = admin_url( $screen->parent_file );
+					$url = admin_url( (string) $screen->parent_file );
 
 					$up_url = add_query_arg(
 						array(
@@ -1078,7 +1118,7 @@ if ( ! class_exists( __NAMESPACE__ . '\Nova_Restaurant' ) ) {
 
 			$screen = get_current_screen();
 
-			$url = admin_url( $screen->parent_file );
+			$url = admin_url( (string) $screen->parent_file );
 
 			$up_url = add_query_arg(
 				array(
@@ -1254,7 +1294,7 @@ if ( ! class_exists( __NAMESPACE__ . '\Nova_Restaurant' ) ) {
 			<p>
 			<?php
 			echo wp_kses(
-				__( 'Use the <kbd>TAB</kbd> key on your keyboard to move between colums and the <kbd>ENTER</kbd> or <kbd>RETURN</kbd> key to save each row and move on to the next.', 'jetpack-classic-theme-helper' ),
+				__( 'Use the <kbd>TAB</kbd> key on your keyboard to move between columns and the <kbd>ENTER</kbd> or <kbd>RETURN</kbd> key to save each row and move on to the next.', 'jetpack-classic-theme-helper' ),
 				array(
 					'kbd' => array(),
 				)
@@ -1403,7 +1443,7 @@ if ( ! class_exists( __NAMESPACE__ . '\Nova_Restaurant' ) ) {
 			);
 			$args['taxonomy'] = self::MENU_TAX;
 
-			$terms = get_terms( $args ); // @phan-suppress-current-line PhanAccessMethodInternal
+			$terms = get_terms( $args );
 			if ( ! $terms || is_wp_error( $terms ) ) {
 				return array();
 			}

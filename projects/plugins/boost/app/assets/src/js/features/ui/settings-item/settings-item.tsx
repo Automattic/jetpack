@@ -1,9 +1,10 @@
 import styles from './settings-item.module.scss';
+import type { ReactNode } from 'react';
 
 type SettingsItemProps = {
-	title: React.ReactNode;
-	description: React.ReactNode;
-	children: React.ReactNode;
+	title: ReactNode;
+	description: ReactNode;
+	children: ReactNode;
 };
 
 const SettingsItem = ( { title, description, children }: SettingsItemProps ) => {

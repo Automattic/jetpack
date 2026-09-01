@@ -4,7 +4,7 @@
  * Plugin Name: Jetpack Search
  * Plugin URI: https://jetpack.com/search/
  * Description: Easily add cloud-powered instant search and filters to your website or WooCommerce store with advanced algorithms that boost your search results based on traffic to your site.
- * Version: 4.1.0
+ * Version: 7.1.0
  * Author: Automattic - Jetpack Search team
  * Author URI: https://jetpack.com/
  * License: GPLv2 or later
@@ -26,7 +26,7 @@ define( 'JETPACK_SEARCH_PLUGIN__DIR', plugin_dir_path( __FILE__ ) );
 define( 'JETPACK_SEARCH_PLUGIN__FILE', __FILE__ );
 define( 'JETPACK_SEARCH_PLUGIN__FILE_RELATIVE_PATH', plugin_basename( __FILE__ ) );
 define( 'JETPACK_SEARCH_PLUGIN__SLUG', 'jetpack-search' );
-define( 'JETPACK_SEARCH_PLUGIN__VERSION', '4.1.0' );
+define( 'JETPACK_SEARCH_PLUGIN__VERSION', '7.1.0' );
 defined( 'JETPACK_CLIENT__AUTH_LOCATION' ) || define( 'JETPACK_CLIENT__AUTH_LOCATION', 'header' );
 
 defined( 'JETPACK__API_BASE' ) || define( 'JETPACK__API_BASE', 'https://jetpack.wordpress.com/jetpack.' );
@@ -42,7 +42,7 @@ defined( 'JETPACK__SANDBOX_DOMAIN' ) || define( 'JETPACK__SANDBOX_DOMAIN', '' );
 defined( 'JETPACK_SIGNATURE__HTTP_PORT' ) || define( 'JETPACK_SIGNATURE__HTTP_PORT', 80 );
 defined( 'JETPACK_SIGNATURE__HTTPS_PORT' ) || define( 'JETPACK_SIGNATURE__HTTPS_PORT', 443 );
 
-$autoload_packages_path = JETPACK_SEARCH_PLUGIN__DIR . '/vendor/autoload_packages.php';
+$autoload_packages_path = JETPACK_SEARCH_PLUGIN__DIR . 'vendor/autoload_packages.php';
 if ( ! is_readable( $autoload_packages_path ) ) {
 	if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 		error_log( // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log

@@ -15,10 +15,7 @@ import { STORE_NAMESPACE } from './store';
  * Based global WP.com blog_public option, checks whether current blog is
  * private or not.
  */
-export const isBlogPrivate = (): boolean =>
-	typeof window === 'object' &&
-	window.wpcomGutenberg &&
-	Number( window.wpcomGutenberg.blogPublic ) === -1;
+export const isBlogPrivate = (): boolean => typeof window === 'object' && window.wpcomGutenberg && Number( window.wpcomGutenberg.blogPublic ) === -1;
 
 /**
  * Block attributes which influence posts query
@@ -28,6 +25,7 @@ const POST_QUERY_ATTRIBUTES = [
 	'authors',
 	'categories',
 	'includeSubcategories',
+	'categoryJoinType',
 	'excerptLength',
 	'tags',
 	'customTaxonomies',
@@ -51,14 +49,9 @@ const POST_QUERY_ATTRIBUTES = [
  * 2. The top-level blocks order changes. A Homepage Articles
  *    block might be nested somewhere.
  */
-export const shouldReflow = (
-	prevProps: HomepageArticlesProps,
-	props: HomepageArticlesProps
-): boolean =>
-	! isEqual(
-		pick( prevProps.attributes, POST_QUERY_ATTRIBUTES ),
-		pick( props.attributes, POST_QUERY_ATTRIBUTES )
-	) || ! isEqual( prevProps.topBlocksClientIdsInOrder, props.topBlocksClientIdsInOrder );
+export const shouldReflow = ( prevProps: HomepageArticlesProps, props: HomepageArticlesProps ): boolean =>
+	! isEqual( pick( prevProps.attributes, POST_QUERY_ATTRIBUTES ), pick( props.attributes, POST_QUERY_ATTRIBUTES ) ) ||
+	! isEqual( prevProps.topBlocksClientIdsInOrder, props.topBlocksClientIdsInOrder );
 
 /**
  * Builds query criteria from given attributes.
@@ -69,6 +62,7 @@ export const queryCriteriaFromAttributes = ( attributes: Block[ 'attributes' ] )
 		authors,
 		categories,
 		includeSubcategories,
+		categoryJoinType,
 		excerptLength,
 		postType,
 		showExcerpt,
@@ -89,22 +83,24 @@ export const queryCriteriaFromAttributes = ( attributes: Block[ 'attributes' ] )
 	const criteria: PostsQuery = pickBy(
 		isSpecificPostModeActive
 			? {
-				include: cleanPosts,
-				postsToShow: specificPosts.length,
-				postType,
-			} : {
-				postsToShow,
-				categories: validateAttributeCollection( categories ),
-				includeSubcategories,
-				authors: validateAttributeCollection( authors ),
-				tags: validateAttributeCollection( tags ),
-				tagExclusions: validateAttributeCollection( tagExclusions ),
-				categoryExclusions: validateAttributeCollection( categoryExclusions ),
-				customTaxonomyExclusions,
-				customTaxonomies,
-				postType,
-				includedPostStatuses,
-			},
+					include: cleanPosts,
+					postsToShow: specificPosts.length,
+					postType,
+			  }
+			: {
+					postsToShow,
+					categories: validateAttributeCollection( categories ),
+					includeSubcategories,
+					categoryJoinType,
+					authors: validateAttributeCollection( authors ),
+					tags: validateAttributeCollection( tags ),
+					tagExclusions: validateAttributeCollection( tagExclusions ),
+					categoryExclusions: validateAttributeCollection( categoryExclusions ),
+					customTaxonomyExclusions,
+					customTaxonomies,
+					postType,
+					includedPostStatuses,
+			  },
 		( value: unknown ) => ! isUndefined( value )
 	);
 	criteria.excerptLength = excerptLength;
@@ -126,10 +122,7 @@ export const validateAttributeCollection = ( attr: Array< number > ) =>
  * of {postsQuery, clientId} objects.
  * The eligible blocks are identified by block name, passed in the second argument.
  */
-export const getBlockQueries = (
-	blocks: Block[],
-	blockNames: Block[ 'name' ][]
-): { postsQuery: PostsQuery; clientId: Block[ 'clientId' ] }[] =>
+export const getBlockQueries = ( blocks: Block[], blockNames: Block[ 'name' ][] ): { postsQuery: PostsQuery; clientId: Block[ 'clientId' ] }[] =>
 	blocks.flatMap( ( block: Block ) => {
 		const homepageArticleBlocks = [];
 		if ( blockNames.indexOf( block.name ) >= 0 ) {
@@ -161,7 +154,7 @@ const generatePreviewPost = ( id: PostId ) => {
 		excerpt: {
 			rendered: '<p>' + __( 'The post excerpt.', 'jetpack-mu-wpcom' ) + '</p>',
 		},
-		full_content: __('Full post content.', 'jetpack-mu-wpcom'),
+		full_content: __( 'Full post content.', 'jetpack-mu-wpcom' ),
 		post_link: '/',
 		featured_media: '1',
 		id,
@@ -173,14 +166,13 @@ const generatePreviewPost = ( id: PostId ) => {
 			rendered: __( 'Post Title', 'jetpack-mu-wpcom' ),
 		},
 		newspack_article_classes: 'type-post',
-		newspack_author_info: [
-			{
-				display_name: __( 'Author Name', 'jetpack-mu-wpcom' ),
-				avatar: `<div style="background: #e8e8e8;width: 40px;height: 40px;display: block;overflow: hidden;border-radius: 50%; max-width: 100%; max-height: 100%;"></div>`,
-				id: 1,
-				author_link: '/',
-			},
-		],
+		newspack_post_avatars: `<div style="background: #e8e8e8;width: 40px;height: 40px;display: block;overflow: hidden;border-radius: 50%; max-width: 100%; max-height: 100%;" class="avatar"></div>`,
+		newspack_post_byline: `<span class="byline">
+			<span class="author-prefix">${ __( 'by', 'jetpack-mu-wpcom' ) }</span>
+			<span class="author vcard">
+				<a class="url fn n" href="/">Author Name</a>
+			</span>
+		</span>`,
 		newspack_category_info: __( 'Category', 'jetpack-mu-wpcom' ),
 		newspack_featured_image_caption: __( 'Featured image caption', 'jetpack-mu-wpcom' ),
 		newspack_featured_image_src: {
@@ -196,8 +188,7 @@ const generatePreviewPost = ( id: PostId ) => {
 	};
 };
 
-const getPreviewPosts = ( attributes: HomepageArticlesAttributes ) =>
-	times( attributes.postsToShow, generatePreviewPost );
+const getPreviewPosts = ( attributes: HomepageArticlesAttributes ) => times( attributes.postsToShow, generatePreviewPost );
 
 type Select = ( namespace: string ) => {
 	// core/blocks-editor
@@ -217,10 +208,7 @@ type Select = ( namespace: string ) => {
  */
 export const postsBlockSelector = (
 	select: Select,
-	{
-		clientId,
-		attributes,
-	}: { clientId: Block[ 'clientId' ]; attributes: HomepageArticlesAttributes }
+	{ clientId, attributes }: { clientId: Block[ 'clientId' ]; attributes: HomepageArticlesAttributes }
 ): HomepageArticlesPropsFromDataSelector => {
 	const { getBlocks } = select( 'core/block-editor' );
 	const { getEditedPostAttribute } = select( 'core/editor' );
@@ -242,8 +230,7 @@ export const postsBlockSelector = (
 	const isWidgetEditor = blocks.some( block => block.name === 'core/widget-area' );
 
 	// The block might be rendered in the block styles preview, not in the editor.
-	const isEditorBlock =
-		editorBlocksIds.length === 0 || editorBlocksIds.indexOf( clientId ) >= 0 || isWidgetEditor;
+	const isEditorBlock = editorBlocksIds.length === 0 || editorBlocksIds.indexOf( clientId ) >= 0 || isWidgetEditor;
 
 	const { getPosts, getError, isUIDisabled } = select( STORE_NAMESPACE );
 	const props = {
@@ -251,9 +238,7 @@ export const postsBlockSelector = (
 		isUIDisabled: isUIDisabled(),
 		error: getError( { clientId } ),
 		topBlocksClientIdsInOrder: blocks.map( block => block.clientId ),
-		latestPosts: isEditorBlock
-			? getPosts( { clientId } )
-			: getPreviewPosts( attributes ), // For block preview, display static content.
+		latestPosts: isEditorBlock ? getPosts( { clientId } ) : getPreviewPosts( attributes ), // For block preview, display static content.
 	};
 
 	return props;
@@ -262,10 +247,7 @@ export const postsBlockSelector = (
 /**
  * wordpress/data dispatch for blocks using this custom store.
  */
-export const postsBlockDispatch = (
-	dispatch: typeof wpDataDispatch,
-	{ isEditorBlock }: { isEditorBlock: boolean }
-) => {
+export const postsBlockDispatch = ( dispatch: typeof wpDataDispatch, { isEditorBlock }: { isEditorBlock: boolean } ) => {
 	return {
 		// Only editor blocks can trigger reflows.
 		// @ts-expect-error It's a string.
@@ -276,19 +258,13 @@ export const postsBlockDispatch = (
 // Ensure innerBlocks are populated for some blocks (e.g. `widget-area` and `post-content`).
 // See https://github.com/WordPress/gutenberg/issues/32607#issuecomment-890728216.
 // See https://github.com/Automattic/wp-calypso/issues/91839.
-export const recursivelyGetBlocks = (
-	getBlocks: ( clientId?: string ) => Block[],
-	blocks: Block[] = getBlocks()
-) => {
-	return blocks.map( ( block ) => {
-		let innerBlocks =
-			block.innerBlocks.length === 0
-				? getBlocks( block.clientId )
-				: block.innerBlocks;
+export const recursivelyGetBlocks = ( getBlocks: ( clientId?: string ) => Block[], blocks: Block[] = getBlocks() ) => {
+	return blocks.map( block => {
+		let innerBlocks = block.innerBlocks.length === 0 ? getBlocks( block.clientId ) : block.innerBlocks;
 		innerBlocks = recursivelyGetBlocks( getBlocks, innerBlocks );
 		return {
 			...block,
 			innerBlocks,
 		};
-	});
+	} );
 };

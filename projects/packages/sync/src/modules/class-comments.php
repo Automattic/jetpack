@@ -7,8 +7,13 @@
 
 namespace Automattic\Jetpack\Sync\Modules;
 
+use Automattic\Jetpack\Sync\Defaults;
 use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Settings;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
 
 /**
  * Class to handle sync for comments.
@@ -201,21 +206,10 @@ class Comments extends Module {
 	 *
 	 * @access public
 	 *
-	 * @return array Defaults to [ '', 'trackback', 'pingback' ].
+	 * @return array Defaults to [ '', 'comment', 'trackback', 'pingback', 'review', 'note' ].
 	 */
 	public function get_whitelisted_comment_types() {
-		/**
-		 * Comment types present in this list will sync their status changes to WordPress.com.
-		 *
-		 * @since 1.6.3
-		 * @since-jetpack 7.6.0
-		 *
-		 * @param array A list of comment types.
-		 */
-		return apply_filters(
-			'jetpack_sync_whitelisted_comment_types',
-			array( '', 'comment', 'trackback', 'pingback', 'review' )
-		);
+		return Defaults::get_comment_types_whitelist();
 	}
 
 	/**
@@ -238,20 +232,25 @@ class Comments extends Module {
 	 * @return bool or array $args Arguments passed to wp_insert_comment, deleted_comment, spammed_comment, etc.
 	 */
 	public function only_allow_white_listed_comment_types( $args ) {
+		if ( empty( $args ) ) {
+			return false;
+		}
+
 		$comment = false;
 
 		if ( isset( $args[1] ) ) {
 			// comment object is available.
 			$comment = $args[1];
-		} elseif ( is_numeric( $args[0] ) ) {
+		} elseif ( isset( $args[0] ) && is_numeric( $args[0] ) ) {
 			// comment_id is available.
 			$comment = get_comment( $args[0] );
 		}
 
-		if (
-			isset( $comment->comment_type )
-			&& ! in_array( $comment->comment_type, $this->get_whitelisted_comment_types(), true )
-		) {
+		if ( ! $comment instanceof \WP_Comment ) {
+			return false;
+		}
+
+		if ( ! in_array( $comment->comment_type, $this->get_whitelisted_comment_types(), true ) ) {
 			return false;
 		}
 
@@ -504,6 +503,9 @@ class Comments extends Module {
 	 * @return array|boolean False if not whitelisted, the original hook args otherwise.
 	 */
 	public function filter_meta( $args ) {
+		if ( ! is_array( $args ) || count( $args ) < 3 ) {
+			return false;
+		}
 		if ( $this->is_comment_type_allowed( $args[1] ) && $this->is_whitelisted_comment_meta( $args[2] ) ) {
 			return $args;
 		}

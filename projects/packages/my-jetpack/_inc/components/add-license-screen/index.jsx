@@ -3,8 +3,8 @@
  */
 import { AdminPage, Container, Col } from '@automattic/jetpack-components';
 import { ActivationScreen } from '@automattic/jetpack-licensing';
-import { shouldUseInternalLinks } from '@automattic/jetpack-shared-extension-utils';
-import React, { useCallback, useState, useMemo } from 'react';
+import { __ } from '@wordpress/i18n';
+import { useCallback, useState, useMemo } from 'react';
 /*
  * Internal dependencies
  */
@@ -55,14 +55,16 @@ export default function AddLicenseScreen() {
 
 	return (
 		<AdminPage
-			showHeader={ false }
 			showBackground={ false }
-			useInternalLinks={ shouldUseInternalLinks() }
+			breadcrumbs={
+				<GoBackLink
+					onClick={ onClickGoBack }
+					to={ hasActivatedLicense ? '/products?reload=true' : '/products' }
+					label={ __( 'My Jetpack', 'jetpack-my-jetpack' ) }
+				/>
+			}
 		>
 			<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
-				<Col>
-					<GoBackLink onClick={ onClickGoBack } reload={ hasActivatedLicense } />
-				</Col>
 				<Col>
 					<ActivationScreen
 						currentRecommendationsStep={ null }

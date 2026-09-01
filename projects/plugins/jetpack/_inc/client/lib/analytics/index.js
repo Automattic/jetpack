@@ -1,5 +1,5 @@
 /**
- * A thin wrapper for @automattic/jetpack-analytics
+ * A thin wrapper for `@automattic/jetpack-analytics`
  */
 
 import jetpackAnalytics from '@automattic/jetpack-analytics';

@@ -100,14 +100,20 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 		// static variable.
 		// l337 h4X0Ring required:
 		$instance = new ReflectionProperty( Image_CDN::class, 'instance' );
-		$instance->setAccessible( true );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$instance->setAccessible( true );
+		}
 		$instance->setValue( null, null );
 
 		/**
 		 * Reset the `image_sizes` property, as it persists between class instantiations, since it's static.
 		 */
 		$instance = new ReflectionProperty( Image_CDN::class, 'image_sizes' );
-		$instance->setAccessible( true );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$instance->setAccessible( true );
+		}
 		$instance->setValue( null, null );
 
 		self::delete_author();
@@ -137,10 +143,10 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 	 * @return int Post ID (attachment) of the image.
 	 */
 	protected function helper_get_image( $size = 'large', $meta = true ) {
-		if ( 'large' === $size ) { // 1600x1200
-			$filename = __DIR__ . '/sample-content/test-image-large.png';
-		} elseif ( 'medium' === $size ) { // 1024x768
+		if ( 'medium' === $size ) { // 1024x768
 			$filename = __DIR__ . '/sample-content/test-image-medium.png';
+		} else { // 1600x1200 - default to 'large'
+			$filename = __DIR__ . '/sample-content/test-image-large.png';
 		}
 		// Add sizes that exist before uploading the file.
 		add_image_size( 'jetpack_soft_defined', 700, 500, false ); // Intentionally not a 1.33333 ratio.
@@ -1097,6 +1103,36 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 	}
 
 	/**
+	 * Tests that filter_the_content returns original content when passed null.
+	 *
+	 * @since 0.7.18
+	 */
+	public function test_image_cdn_filter_the_content_returns_original_content_when_passed_null() {
+		$filtered_content = Image_CDN::filter_the_content( null );
+		$this->assertSame( '', $filtered_content );
+	}
+
+	/**
+	 * Tests that filter_the_content returns original content when passed empty string.
+	 *
+	 * @since 0.7.18
+	 */
+	public function test_image_cdn_filter_the_content_returns_original_content_when_passed_empty_string() {
+		$filtered_content = Image_CDN::filter_the_content( '' );
+		$this->assertSame( '', $filtered_content );
+	}
+
+	/**
+	 * Tests that filter_the_content returns original content when passed non-string input.
+	 *
+	 * @since 0.7.18
+	 */
+	public function test_image_cdn_filter_the_content_returns_original_content_when_passed_non_string() {
+		$filtered_content = Image_CDN::filter_the_content( 123 );
+		$this->assertSame( '', $filtered_content );
+	}
+
+	/**
 	 * Data provider for filtered attributes.
 	 *
 	 * @return array[]
@@ -1442,7 +1478,7 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 		// This verifies the file has uploaded. Just a bit of defensive testing.
 		$this->assertEquals( 201, $response->get_status() );
 
-		$large_url = isset( $data['media_details']['sizes']['large']['source_url'] ) ? $data['media_details']['sizes']['large']['source_url'] : false;
+		$large_url = $data['media_details']['sizes']['large']['source_url'] ?? false;
 
 		if ( ! $large_url ) {
 			$this->fail( 'REST API media upload failed to return the expected data.' );
@@ -1562,7 +1598,10 @@ class Image_CDN_Test extends Image_CDN_Attachment_TestCase {
 	public function test_image_cdn_validate_image_url_file_types( $url, $expected ) {
 		$testable                    = new ReflectionClass( Image_CDN::class );
 		$testable_validate_image_url = $testable->getMethod( 'validate_image_url' );
-		$testable_validate_image_url->setAccessible( true );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$testable_validate_image_url->setAccessible( true );
+		}
 		$this->assertEquals( $expected, $testable_validate_image_url->invoke( null, $url ) );
 	}
 

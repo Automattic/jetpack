@@ -3,7 +3,6 @@ import PopupMonitor from '@automattic/popup-monitor';
 import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { find } from 'lodash';
 import { NEW_INSTAGRAM_CONNECTION } from './constants';
 
 export default function useConnectInstagram( {
@@ -39,7 +38,7 @@ export default function useConnectInstagram( {
 	useEffect( () => {
 		if (
 			NEW_INSTAGRAM_CONNECTION !== selectedAccount &&
-			! find( userConnections, { token: selectedAccount } )
+			! userConnections.find( v => v.token === selectedAccount )
 		) {
 			setSelectedAccount( undefined );
 		}

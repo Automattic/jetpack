@@ -1,13 +1,18 @@
 import jetpackAnalytics from '@automattic/jetpack-analytics';
-import { JetpackLogo, Spinner } from '@automattic/jetpack-components';
-import { Button, TextControl, SelectControl } from '@wordpress/components';
+import { JetpackLogo } from '@automattic/jetpack-components';
 import { createInterpolateElement } from '@wordpress/element';
 import { sprintf, __ } from '@wordpress/i18n';
+import { Button, InputControl, SelectControl, Stack, Text } from '@wordpress/ui';
 import PropTypes from 'prop-types';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import ActivationScreenError from '../activation-screen-error';
 import { LICENSE_ERRORS } from '../activation-screen-error/constants';
 import './style.scss';
+
+// Sentinel value for the "add a license key manually" option so the SelectControl
+// shows that option (rather than the empty-value placeholder) while the manual
+// text input is displayed.
+const MANUAL_ENTRY = '__manual_entry__';
 
 /**
  * The Activation Screen Controls component.
@@ -17,19 +22,17 @@ import './style.scss';
  * @param {boolean}  props.disabled  -- determines if input control is disabled.
  * @param {string}   props.value     -- the license code to edit or submit
  * @param {Function} props.onChange  -- function to handle changes to the value.
- * @return {React.Component} The `ManualLicenseKeyInput` component.
+ * @return {import('react').Component} The `ManualLicenseKeyInput` component.
  */
 const ManualLicenseKeyInput = props => {
 	const { className, disabled, onChange, value } = props;
 
 	return (
-		<TextControl
-			__nextHasNoMarginBottom={ true }
-			__next40pxDefaultSize
+		<InputControl
 			className={ className }
 			label={ __( 'License key', 'jetpack-licensing' ) }
 			value={ value }
-			onChange={ onChange }
+			onValueChange={ onChange }
 			disabled={ disabled }
 		/>
 	);
@@ -44,7 +47,7 @@ const ManualLicenseKeyInput = props => {
  * @param {boolean}  props.disabled          -- determines if input control is disabled.
  * @param {string}   props.value             -- the license code to edit or submit
  * @param {Function} props.onChange          -- function to handle changes to the value.
- * @return {React.Component} The `SelectableLicenseKeyInput` component.
+ * @return {import('react').Component} The `SelectableLicenseKeyInput` component.
  */
 const SelectableLicenseKeyInput = props => {
 	const { className, availableLicenses, disabled, onChange, value } = props;
@@ -65,7 +68,7 @@ const SelectableLicenseKeyInput = props => {
 			...availableLicenses.map( ( { product, license_key } ) => {
 				return {
 					label: sprintf(
-						/* translators: placeholder is the product name and license key */
+						/* translators: %1$s: the product name, %2$s: the license key */
 						__( '%1$s - %2$s', 'jetpack-licensing' ),
 						product,
 						license_key
@@ -75,7 +78,7 @@ const SelectableLicenseKeyInput = props => {
 			} ),
 			{
 				label: __( 'I want to add a license key manually', 'jetpack-licensing' ),
-				value: '',
+				value: MANUAL_ENTRY,
 			},
 		];
 	}, [ availableLicenses, isFetching ] );
@@ -88,10 +91,21 @@ const SelectableLicenseKeyInput = props => {
 		}
 	}, [ options ] );
 
+	// The @wordpress/ui SelectControl is item-object based: `value` is the
+	// selected item and `onValueChange` receives the item, so map to/from the
+	// stored string value.
+	const activeItem = useMemo(
+		() => options.find( option => option.value === selectedOption ) ?? options[ 0 ],
+		[ options, selectedOption ]
+	);
+
 	const onSelectionChange = useCallback(
-		val => {
+		item => {
+			const val = item?.value ?? '';
 			setSelectedOption( val );
-			onChange( val );
+			// Manual entry has no key yet — clear the stored license so the button
+			// stays disabled until the user types one.
+			onChange( val === MANUAL_ENTRY ? '' : val );
 		},
 		[ onChange ]
 	);
@@ -99,24 +113,20 @@ const SelectableLicenseKeyInput = props => {
 	return (
 		<>
 			<SelectControl
-				__nextHasNoMarginBottom={ true }
-				__next40pxDefaultSize
 				className={ className }
 				disabled={ disabled }
 				label={ __( 'Select a license key', 'jetpack-licensing' ) }
-				value={ selectedOption }
-				options={ options }
-				onChange={ onSelectionChange }
+				value={ activeItem }
+				items={ options }
+				onValueChange={ onSelectionChange }
 			/>
 
-			{ ! isFetching && ! selectedOption && (
-				<TextControl
-					__nextHasNoMarginBottom={ true }
-					__next40pxDefaultSize
+			{ ! isFetching && selectedOption === MANUAL_ENTRY && (
+				<InputControl
 					className={ className }
 					label={ __( 'Input a license key', 'jetpack-licensing' ) }
 					value={ value }
-					onChange={ onChange }
+					onValueChange={ onChange }
 					disabled={ disabled }
 				/>
 			) }
@@ -127,16 +137,16 @@ const SelectableLicenseKeyInput = props => {
 /**
  * The Activation Screen Controls component.
  *
- * @param {object}   props                           -- The properties.
- * @param {Function} props.activateLicense           -- function to handle submitting a license
- * @param {Array}    props.availableLicenses         -- list of available license keys for activation.
- * @param {boolean}  props.fetchingAvailableLicenses -- status to determine if the screen is fetching available license keys.
- * @param {boolean}  props.isActivating              -- should the controls be disabled
- * @param {string}   props.license                   -- the license code to edit or submit
- * @param {?string}  props.licenseError              -- any error that occurred while activating a license
- * @param {Function} props.onLicenseChange           -- function to handle changes to license
- * @param {string}   props.siteUrl                   -- the url of the site
- * @return {React.Component} The `ActivationScreenControls` component.
+ * @param {object}                              props                           -- The properties.
+ * @param {Function}                            props.activateLicense           -- function to handle submitting a license
+ * @param {Array}                               props.availableLicenses         -- list of available license keys for activation.
+ * @param {boolean}                             props.fetchingAvailableLicenses -- status to determine if the screen is fetching available license keys.
+ * @param {boolean}                             props.isActivating              -- should the controls be disabled
+ * @param {string}                              props.license                   -- the license code to edit or submit
+ * @param {string|import('react').ReactElement} props.licenseError              -- any error that occurred while activating a license
+ * @param {Function}                            props.onLicenseChange           -- function to handle changes to license
+ * @param {string}                              props.siteUrl                   -- the url of the site
+ * @return {import('react').Component} The `ActivationScreenControls` component.
  */
 const ActivationScreenControls = props => {
 	const {
@@ -153,7 +163,8 @@ const ActivationScreenControls = props => {
 		jetpackAnalytics.tracks.recordEvent( 'jetpack_wpa_license_key_activation_view' );
 	}, [] );
 
-	const errorTypeMatch = licenseError?.match( /\[[a-z_]+\]/ );
+	const errorTypeMatch =
+		typeof licenseError === 'string' ? licenseError?.match( /\[[a-z_]+\]/ ) : null;
 	const errorType = errorTypeMatch && errorTypeMatch[ 0 ];
 
 	const { ACTIVE_ON_SAME_SITE } = LICENSE_ERRORS;
@@ -172,51 +183,65 @@ const ActivationScreenControls = props => {
 	const hasAvailableLicenseKey = availableLicenses && availableLicenses.length;
 
 	return (
-		<div className="jp-license-activation-screen-controls">
-			<div className="jp-license-activation-screen-controls--content">
-				<JetpackLogo showText={ false } height={ 48 } />
-				<h1>{ __( 'Add a license key', 'jetpack-licensing' ) }</h1>
-				<p>
-					{ createInterpolateElement(
-						__(
-							'<strong>Check your email</strong> for your license key. You should have received it after making your purchase.',
-							'jetpack-licensing'
-						),
-						{
-							strong: <strong></strong>,
-						}
+		<Stack
+			className="jp-license-activation-screen-controls"
+			direction="column"
+			justify="space-between"
+			gap="xl"
+		>
+			<Stack direction="column" gap="2xl">
+				<Stack direction="column" gap="2xl" align="flex-start">
+					<JetpackLogo showText={ false } height={ 48 } />
+					<Text render={ <h1 /> } variant="heading-2xl">
+						{ __( 'Add a license key', 'jetpack-licensing' ) }
+					</Text>
+				</Stack>
+				<Stack direction="column" gap="lg">
+					<Text variant="body-lg">
+						{ createInterpolateElement(
+							__(
+								'<strong>Purchased a plan?</strong><br />Check your email for your license key and paste it below.',
+								'jetpack-licensing'
+							),
+							{
+								strong: <strong />,
+								br: <br />,
+							}
+						) }
+					</Text>
+					{ fetchingAvailableLicenses || hasAvailableLicenseKey ? (
+						<SelectableLicenseKeyInput
+							className={ className }
+							disabled={ fetchingAvailableLicenses || isActivating }
+							onChange={ onLicenseChange }
+							availableLicenses={ fetchingAvailableLicenses ? null : availableLicenses }
+							value={ license }
+						/>
+					) : (
+						<ManualLicenseKeyInput
+							className={ className }
+							disabled={ isActivating }
+							onChange={ onLicenseChange }
+							value={ license }
+						/>
 					) }
-				</p>
-				{ fetchingAvailableLicenses || hasAvailableLicenseKey ? (
-					<SelectableLicenseKeyInput
-						className={ className }
-						disabled={ fetchingAvailableLicenses || isActivating }
-						onChange={ onLicenseChange }
-						availableLicenses={ fetchingAvailableLicenses ? null : availableLicenses }
-						value={ license }
-					/>
-				) : (
-					<ManualLicenseKeyInput
-						className={ className }
-						disabled={ isActivating }
-						onChange={ onLicenseChange }
-						value={ license }
-					/>
-				) }
-				{ licenseError && (
-					<ActivationScreenError licenseError={ licenseError } errorType={ errorType } />
-				) }
-			</div>
+					{ licenseError && (
+						<ActivationScreenError licenseError={ licenseError } errorType={ errorType } />
+					) }
+				</Stack>
+			</Stack>
 			<div>
 				<Button
 					className="jp-license-activation-screen-controls--button"
+					variant="solid"
+					loading={ isActivating }
 					onClick={ activateLicense }
-					disabled={ ! license }
+					disabled={ ! license || isActivating }
 				>
-					{ isActivating ? <Spinner /> : __( 'Activate', 'jetpack-licensing' ) }
+					{ __( 'Activate', 'jetpack-licensing' ) }
 				</Button>
 			</div>
-		</div>
+		</Stack>
 	);
 };
 
@@ -226,7 +251,7 @@ ActivationScreenControls.propTypes = {
 	fetchingAvailableLicenses: PropTypes.bool,
 	isActivating: PropTypes.bool.isRequired,
 	license: PropTypes.string.isRequired,
-	licenseError: PropTypes.string,
+	licenseError: PropTypes.oneOfType( [ PropTypes.string, PropTypes.element ] ),
 	onLicenseChange: PropTypes.func.isRequired,
 	siteUrl: PropTypes.string.isRequired,
 };

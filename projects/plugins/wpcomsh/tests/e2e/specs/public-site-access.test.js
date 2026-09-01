@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-const { get, head, isArray, isEmpty } = require( 'lodash' );
+const { isEmpty } = require( 'lodash' );
 
 /**
  * Internal dependencies
@@ -23,9 +23,9 @@ describe( 'Public Site -- Logged out Access', () => {
 	it( 'Should show REST API posts for logged out user', async () => {
 		const res = await fetchPath( '/wp-json/wp/v2/posts' );
 		const posts = await res.json();
-		expect( isArray( posts ) ).toBe( true );
+		expect( Array.isArray( posts ) ).toBe( true );
 		expect( isEmpty( posts ) ).toBe( false );
-		const slug = get( head( posts ), 'slug' );
+		const slug = posts[0]?.slug;
 		expect( slug ).toBe( 'this-is-a-test-post' );
 	} );
 
@@ -99,9 +99,9 @@ describe( 'Public Site -- Logged in Access', () => {
 		const res = await fetchPathLoggedIn( '/wp-json/wp/v2/posts' );
 		const posts = await res.json();
 
-		expect( isArray( posts ) ).toBe( true );
+		expect( Array.isArray( posts ) ).toBe( true );
 		expect( isEmpty( posts ) ).toBe( false );
-		const slug = get( head( posts ), 'slug' );
+		const slug = posts[0]?.slug;
 		expect( slug ).toBe( 'this-is-a-test-post' );
 	} );
 
@@ -123,9 +123,9 @@ describe( 'Public Site -- Logged in Access', () => {
 		const res = await fetchPathLoggedInWithRestApiNonce( '/wp-json/wp/v2/posts' );
 		const posts = await res.json();
 
-		expect( isArray( posts ) ).toBe( true );
+		expect( Array.isArray( posts ) ).toBe( true );
 		expect( isEmpty( posts ) ).toBe( false );
-		const slug = get( head( posts ), 'slug' );
+		const slug = posts[0]?.slug;
 		expect( slug ).toBe( 'this-is-a-test-post' );
 	} );
 

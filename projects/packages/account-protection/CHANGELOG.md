@@ -5,6 +5,70 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.7] - 2026-07-20
+### Fixed
+- Default the login form password detection callback's password argument to null so other plugins hooking into the authenticate filter without a password do not trigger a fatal error. [#50539]
+
+## [0.3.6] - 2026-07-13
+### Added
+- Add additional context to Verify your identity page to reduce user confusion. [#50338]
+
+## [0.3.5] - 2026-06-25
+### Changed
+- Defer loading the password feature classes until the Account Protection module is active, reducing the per-request PHP/opcache footprint. [#49806]
+
+## [0.3.4] - 2026-06-15
+### Added
+- Add `jetpack_account_protection_validation_min_length` and `jetpack_account_protection_validation_max_length` filters. [#49500]
+
+## [0.3.3] - 2026-06-08
+### Changed
+- Internal updates.
+
+## [0.3.2] - 2026-05-19
+### Changed
+- Internal updates.
+
+## [0.3.1] - 2026-05-04
+### Changed
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+
+## [0.3.0] - 2026-04-11
+### Added
+- Add `jetpack_account_protection_send_auth_email` filter to allow custom handling of the verification email. [#48003]
+
+## [0.2.12] - 2026-02-23
+### Changed
+- Update dependencies.
+
+## [0.2.11] - 2026-02-02
+### Changed
+- Update dependencies.
+
+## [0.2.10] - 2025-12-15
+### Changed
+- Internal updates.
+
+## [0.2.9] - 2025-12-08
+### Fixed
+- Ensure proper flags are used with `json_encode()`. [#46092]
+
+## [0.2.8] - 2025-11-10
+### Changed
+- Tests: Ensure PHP 8.5 compatibility. [#45769]
+
+## [0.2.7] - 2025-08-04
+### Changed
+- Internal updates.
+
+## [0.2.6] - 2025-07-28
+### Changed
+- Internal updates.
+
+## [0.2.5] - 2025-07-21
+### Changed
+- Internal updates.
+
 ## [0.2.4] - 2025-05-05
 ### Fixed
 - Linting: Do additional stylesheet cleanup. [#43247]
@@ -37,6 +101,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Use jetpack-config package for Account Protection initialization. [#40925]
 - Use jetpack-logo package for Account Protection logos. [#40925]
 
+[0.3.7]: https://github.com/Automattic/jetpack-account-protection/compare/v0.3.6...v0.3.7
+[0.3.6]: https://github.com/Automattic/jetpack-account-protection/compare/v0.3.5...v0.3.6
+[0.3.5]: https://github.com/Automattic/jetpack-account-protection/compare/v0.3.4...v0.3.5
+[0.3.4]: https://github.com/Automattic/jetpack-account-protection/compare/v0.3.3...v0.3.4
+[0.3.3]: https://github.com/Automattic/jetpack-account-protection/compare/v0.3.2...v0.3.3
+[0.3.2]: https://github.com/Automattic/jetpack-account-protection/compare/v0.3.1...v0.3.2
+[0.3.1]: https://github.com/Automattic/jetpack-account-protection/compare/v0.3.0...v0.3.1
+[0.3.0]: https://github.com/Automattic/jetpack-account-protection/compare/v0.2.12...v0.3.0
+[0.2.12]: https://github.com/Automattic/jetpack-account-protection/compare/v0.2.11...v0.2.12
+[0.2.11]: https://github.com/Automattic/jetpack-account-protection/compare/v0.2.10...v0.2.11
+[0.2.10]: https://github.com/Automattic/jetpack-account-protection/compare/v0.2.9...v0.2.10
+[0.2.9]: https://github.com/Automattic/jetpack-account-protection/compare/v0.2.8...v0.2.9
+[0.2.8]: https://github.com/Automattic/jetpack-account-protection/compare/v0.2.7...v0.2.8
+[0.2.7]: https://github.com/Automattic/jetpack-account-protection/compare/v0.2.6...v0.2.7
+[0.2.6]: https://github.com/Automattic/jetpack-account-protection/compare/v0.2.5...v0.2.6
+[0.2.5]: https://github.com/Automattic/jetpack-account-protection/compare/v0.2.4...v0.2.5
 [0.2.4]: https://github.com/Automattic/jetpack-account-protection/compare/v0.2.3...v0.2.4
 [0.2.3]: https://github.com/Automattic/jetpack-account-protection/compare/v0.2.2...v0.2.3
 [0.2.2]: https://github.com/Automattic/jetpack-account-protection/compare/v0.2.1...v0.2.2

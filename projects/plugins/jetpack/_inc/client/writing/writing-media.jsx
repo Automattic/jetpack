@@ -1,6 +1,6 @@
-import { ToggleControl, getRedirectUrl } from '@automattic/jetpack-components';
+import { getRedirectUrl } from '@automattic/jetpack-components';
+import { ToggleControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import React from 'react';
 import { connect } from 'react-redux';
 import { FormFieldset, FormLegend, FormLabel, FormSelect } from 'components/forms';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
@@ -46,9 +46,9 @@ function WritingMedia( props ) {
 	 */
 	const renderToggle = ( checked, optionName, onChangeHandler, label ) => (
 		<ToggleControl
+			__nextHasNoMarginBottom={ true }
 			checked={ checked }
 			disabled={ ! isCarouselActive || props.isSavingAnyOption( [ 'carousel' ] ) }
-			toggling={ props.isSavingAnyOption( [ optionName ] ) }
 			onChange={ onChangeHandler }
 			label={ label }
 		/>
@@ -77,8 +77,8 @@ function WritingMedia( props ) {
 				</p>
 				<ModuleToggle
 					slug="carousel"
+					disabled={ props.isSavingAnyOption( 'carousel' ) }
 					activated={ isCarouselActive }
-					toggling={ props.isSavingAnyOption( 'carousel' ) }
 					toggleModule={ props.toggleModuleNow }
 				>
 					<span className="jp-form-toggle-explanation">

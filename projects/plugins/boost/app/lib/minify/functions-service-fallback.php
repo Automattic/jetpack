@@ -98,7 +98,7 @@ function jetpack_boost_page_optimize_service_request() {
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
 		file_put_contents( $cache_file, $content );
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
-		file_put_contents( $cache_file_meta, wp_json_encode( array( 'headers' => $headers ) ) );
+		file_put_contents( $cache_file_meta, wp_json_encode( array( 'headers' => $headers ), JSON_UNESCAPED_SLASHES ) );
 	}
 
 	die( 0 );
@@ -261,14 +261,14 @@ function jetpack_boost_page_optimize_build_output() {
 			}
 
 			// If filename indicates it's already minified, don't minify it again.
-			if ( ! preg_match( '/\.min\.css$/', $fullpath ) ) {
+			if ( ! jetpack_boost_page_optimize_is_already_minified( $fullpath ) ) {
 				// Minify CSS.
 				$buf = Minify::css( $buf );
 			}
 			$output .= "$buf";
 		} else {
 			// If filename indicates it's already minified, don't minify it again.
-			if ( ! preg_match( '/\.min\.js$/', $fullpath ) ) {
+			if ( ! jetpack_boost_page_optimize_is_already_minified( $fullpath ) ) {
 				// Minify JS
 				$buf = Minify::js( $buf );
 			}
@@ -307,7 +307,7 @@ function jetpack_boost_page_optimize_get_file_paths( $args ) {
 			$args = @gzuncompress( base64_decode( substr( $args, 1 ) ) );
 		}
 
-		// It's an unencoded comma separated list of file paths.
+		// It's an unencoded comma-separated list of file paths.
 		// /foo/bar.css,/foo1/bar/baz.css?m=293847g
 		$version_string_pos = strpos( $args, '?' );
 		if ( false !== $version_string_pos ) {

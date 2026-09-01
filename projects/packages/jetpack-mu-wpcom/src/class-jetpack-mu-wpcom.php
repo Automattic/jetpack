@@ -9,15 +9,25 @@
 
 namespace Automattic\Jetpack;
 
+use Automattic\Jetpack\PremiumAnalytics\Analytics as Premium_Analytics;
+
 define( 'WPCOM_ADMIN_BAR_UNIFICATION', true );
 /**
  * Jetpack_Mu_Wpcom main class.
  */
 class Jetpack_Mu_Wpcom {
-	const PACKAGE_VERSION = '6.3.1';
+	const PACKAGE_VERSION = '6.10.1';
 	const PKG_DIR         = __DIR__ . '/../';
 	const BASE_DIR        = __DIR__ . '/';
 	const BASE_FILE       = __FILE__;
+
+	// Themes (by template slug) and plugins (by basename) known to break with React 19.
+	const REACT_19_INCOMPATIBLE_THEMES  = array( 'divi', 'woodmart' );
+	const REACT_19_INCOMPATIBLE_PLUGINS = array(
+		'wp-table-builder/wp-table-builder.php',
+		'ultimate-blocks/ultimate-blocks.php',
+		'beehive-analytics/beehive-analytics.php',
+	);
 
 	/**
 	 * Initialize the class.
@@ -29,7 +39,28 @@ class Jetpack_Mu_Wpcom {
 
 		// Shared code for src/features.
 		require_once self::PKG_DIR . 'src/common/index.php'; // phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
+		require_once __DIR__ . '/common/fatal-error-signature.php';
 		require_once __DIR__ . '/utils.php';
+
+		// Atomic only — Simple sites can't install plugins. The confirmation
+		// probe wires its `pre_option_active_plugins` filter at mu-plugin
+		// time, before WP loads active plugins.
+		if ( Constants::is_true( 'IS_ATOMIC' ) ) {
+			require_once __DIR__ . '/features/plugin-conflicts-guardian/probe-confirm-bootstrap.php';
+		}
+
+		/*
+		 * Feature flag overrides answer the jetpack-feature-flags resolution
+		 * filter, and a flag can be checked well before plugins_loaded, so this
+		 * is wired here at mu-plugin time rather than from load_features().
+		 * Registering the filter reads nothing — the option is only touched when
+		 * a flag is actually resolved.
+		 *
+		 * The overrides themselves are site-wide, but the screen that sets them
+		 * is Automatticians-only internal tooling and gates itself accordingly.
+		 */
+		require_once __DIR__ . '/features/wpcom-feature-flags/class-wpcom-feature-flags.php';
+		\Automattic\Jetpack\Jetpack_Mu_Wpcom\Wpcom_Feature_Flags::init();
 
 		// Load features that don't need any special loading considerations.
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_features' ) );
@@ -37,6 +68,9 @@ class Jetpack_Mu_Wpcom {
 		// Load features that only apply to WordPress.com-connected users.
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_user_features' ) );
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_etk_features' ) );
+
+		// Load features that only apply to WordPress.com sites, regardless of whether the users are connected.
+		add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_sites_features' ) );
 
 		// Load ETK features flag to turn off the features in the ETK plugin.
 		// It needs higher priority than the ETK plugin.
@@ -49,14 +83,18 @@ class Jetpack_Mu_Wpcom {
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_launchpad' ), 0 );
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_coming_soon' ) );
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_rest_api_endpoints' ) );
+		add_action( 'plugins_loaded', array( __CLASS__, 'load_newspack_blocks' ) );
 
 		// These features run only on simple sites.
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_simple_jetpack_ai' ) );
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_verbum_comments' ) );
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_verbum_moderate' ) );
 			add_action( 'wp_loaded', array( __CLASS__, 'load_verbum_comments_admin' ) );
+			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_simple_premium_analytics' ) );
 			add_action( 'admin_menu', array( __CLASS__, 'load_wpcom_simple_odyssey_stats' ) );
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_random_redirect' ) );
+			add_action( 'plugins_loaded', array( __CLASS__, 'load_podcast' ) );
 		}
 
 		// These features run only on atomic sites.
@@ -80,12 +118,40 @@ class Jetpack_Mu_Wpcom {
 		// Load the Social Links feature.
 		add_action( 'init', array( __CLASS__, 'load_social_links' ), 30 );
 
+		// Filter to ensure JetpackScriptData.site.host and is_wpcom_platform is set, to ensure Jetpack blocks work as expected via P2.
+		add_filter( 'jetpack_public_js_script_data', array( __CLASS__, 'add_jetpack_script_data_for_p2' ), 10, 1 );
+
+		// Filter to populate JetpackScriptData.site.wpcom.blog_id with the actual WP.com blog ID.
+		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'set_wpcom_blog_id_script_data' ), 10, 1 );
+
+		// Enable the `gutenberg-react-19` Gutenberg experiment on selected sites.
+		add_filter( 'option_gutenberg-experiments', array( __CLASS__, 'enable_gutenberg_react_19_experiment' ) );
+		add_filter( 'default_option_gutenberg-experiments', array( __CLASS__, 'enable_gutenberg_react_19_experiment' ) );
+
 		/**
 		 * Runs right after the Jetpack_Mu_Wpcom package is initialized.
 		 *
 		 * @since 0.1.2
 		 */
 		do_action( 'jetpack_mu_wpcom_initialized' );
+	}
+
+	/**
+	 * Load the Jetpack AI Hub integration on WordPress.com Simple sites.
+	 */
+	public static function load_wpcom_simple_jetpack_ai() {
+		/**
+		 * Filters whether WordPress.com Simple should register the Jetpack AI Hub.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param bool $load Whether to load the AI Hub integration.
+		 */
+		if ( ! apply_filters( 'jetpack_mu_wpcom_load_jetpack_ai_hub', false ) ) {
+			return;
+		}
+
+		require_once __DIR__ . '/features/jetpack-ai-hub/jetpack-ai-hub.php';
 	}
 
 	/**
@@ -136,7 +202,8 @@ class Jetpack_Mu_Wpcom {
 					array(
 						'locales' => $locales,
 						'plugins' => $plugins_request_data,
-					)
+					),
+					JSON_UNESCAPED_SLASHES
 				),
 				'headers' => array( 'Content-Type' => 'application/json' ),
 				'timeout' => 10,
@@ -255,42 +322,74 @@ class Jetpack_Mu_Wpcom {
 	 * Load features that don't need any special loading considerations.
 	 */
 	public static function load_features() {
+		\Automattic\Jetpack\ExPlat::init();
+
 		// Please keep the features in alphabetical order.
 		require_once __DIR__ . '/features/100-year-plan/enhanced-ownership.php';
 		require_once __DIR__ . '/features/100-year-plan/locked-mode.php';
 		require_once __DIR__ . '/features/admin-color-schemes/admin-color-schemes.php';
+		require_once __DIR__ . '/features/ai-launchpad/ai-launchpad.php';
 		require_once __DIR__ . '/features/block-patterns/block-patterns.php';
 		require_once __DIR__ . '/features/blog-privacy/blog-privacy.php';
 		require_once __DIR__ . '/features/cloudflare-analytics/cloudflare-analytics.php';
+		require_once __DIR__ . '/features/code-editor/class-code-editor.php';
+		require_once __DIR__ . '/features/wpcom-blocks/code/class-code-block.php';
 		require_once __DIR__ . '/features/css-monkey-patches/index.php';
 		require_once __DIR__ . '/features/error-reporting/error-reporting.php';
 		require_once __DIR__ . '/features/first-posts-stream/first-posts-stream-helpers.php';
 		require_once __DIR__ . '/features/font-smoothing-antialiased/font-smoothing-antialiased.php';
 		require_once __DIR__ . '/features/google-analytics/google-analytics.php';
 		require_once __DIR__ . '/features/holiday-snow/class-holiday-snow.php';
-		require_once __DIR__ . '/features/import-customizations/import-customizations.php';
 		require_once __DIR__ . '/features/launch-button/index.php';
+		require_once __DIR__ . '/features/layout-grid-usage-tracking/layout-grid-usage-tracking.php';
 		require_once __DIR__ . '/features/logo-tool/logo-tool.php';
 		require_once __DIR__ . '/features/marketplace-products-updater/class-marketplace-products-updater.php';
 		require_once __DIR__ . '/features/media/heif-support.php';
+		if ( Constants::is_true( 'IS_ATOMIC' ) ) {
+			require_once __DIR__ . '/features/plugin-conflicts-guardian/plugin-conflicts-guardian.php';
+		}
 		require_once __DIR__ . '/features/post-categories/quick-actions.php';
+		require_once __DIR__ . '/features/post-like-from-email/post-like-from-email.php';
 		require_once __DIR__ . '/features/site-editor-dashboard-link/site-editor-dashboard-link.php';
-		require_once __DIR__ . '/features/wpcom-admin-dashboard/wpcom-admin-dashboard.php';
+		require_once __DIR__ . '/features/wpcom-attachment-pages/wpcom-attachment-pages.php';
 		require_once __DIR__ . '/features/wpcom-block-editor/class-jetpack-wpcom-block-editor.php';
 		require_once __DIR__ . '/features/wpcom-block-editor/functions.editor-type.php';
-		require_once __DIR__ . '/features/wpcom-hotfixes/wpcom-hotfixes.php';
+		require_once __DIR__ . '/features/wpcom-dashboard/class-wpcom-dashboard.php';
 		require_once __DIR__ . '/features/wpcom-logout/wpcom-logout.php';
 		require_once __DIR__ . '/features/wpcom-themes/wpcom-theme-fixes.php';
 		require_once __DIR__ . '/features/wpcom-post-list/wpcom-post-types-tracking.php';
 		require_once __DIR__ . '/features/wpcom-widgets/wpcom-widgets.php';
 		require_once __DIR__ . '/features/wpcom-wpadmin-page-view/wpcom-wpadmin-page-view.php';
 
+		require_once __DIR__ . '/features/write/write.php';
+
+		/*
+		 * Temporarily disable client-side media processing.
+		 *
+		 * Client-side media processing enables cross-origin isolation (COEP/COOP headers)
+		 * which can break authenticated API requests. This should be removed once client-side
+		 * media processing is compatible with Dotcom's infrastructure.
+		 *
+		 * @see gutenberg_set_up_cross_origin_isolation() in Gutenberg's lib/media/load.php
+		 * @see https://a8c.slack.com/archives/CBTN58FTJ/p1771950744814189
+		 */
+		add_filter( 'wp_client_side_media_processing_enabled', '__return_false' );
+
 		// Initializers, if needed.
+		$activity_log_event_class = 'Automattic\\Jetpack\\Sync\\Activity_Log_Event';
+		if ( class_exists( $activity_log_event_class ) ) {
+			$activity_log_event_class::init();
+		}
+
 		\Marketplace_Products_Updater::init();
+		\Automattic\Jetpack\Code_Editor::setup();
+		\Automattic\Jetpack\Code_Block::setup();
 		\Automattic\Jetpack\Classic_Theme_Helper\Main::init();
 		\Automattic\Jetpack\Classic_Theme_Helper\Featured_Content::setup();
 
+		\Automattic\Jetpack\Jetpack_Mu_Wpcom\AI_Launchpad::init();
 		\Automattic\Jetpack\Jetpack_Mu_Wpcom\Holiday_Snow::init();
+		\Automattic\Jetpack\Jetpack_Mu_Wpcom\Wpcom_Dashboard::init();
 
 		// Gets autoloaded from the Scheduled_Updates package.
 		if ( class_exists( 'Automattic\Jetpack\Scheduled_Updates' ) ) {
@@ -299,27 +398,34 @@ class Jetpack_Mu_Wpcom {
 	}
 
 	/**
-	 * Load features that only apply to WordPress.com users.
+	 * Load features that only apply to WordPress.com-connected users.
 	 */
 	public static function load_wpcom_user_features() {
+		// To avoid potential collisions with ETK.
+		if ( ! class_exists( 'A8C\FSE\Help_Center' ) && class_exists( \Automattic\Jetpack\Help_Center\Help_Center::class ) ) {
+			add_action( 'init', array( \Automattic\Jetpack\Help_Center\Help_Center::class, 'init' ), 10, 0 );
+		}
+
 		if ( ! is_wpcom_user() ) {
 			require_once __DIR__ . '/features/replace-site-visibility/hide-site-visibility.php';
-
 			return;
 		}
-
-		// To avoid potential collisions with ETK.
-		if ( ! class_exists( 'A8C\FSE\Help_Center' ) ) {
-			require_once __DIR__ . '/features/help-center/class-help-center.php';
+		if ( ! class_exists( 'A8C\FSE\Survicate' ) ) {
+			require_once __DIR__ . '/features/survicate/class-survicate.php';
 		}
+		require_once __DIR__ . '/features/ai-assistant-banner/ai-assistant-banner.php';
+		require_once __DIR__ . '/features/expiry-notices/expiry-notices.php';
+		require_once __DIR__ . '/features/html-block-restricted-tags/html-block-restricted-tags.php';
+		require_once __DIR__ . '/features/marketing/marketing.php';
 		require_once __DIR__ . '/features/pages/pages.php';
 		require_once __DIR__ . '/features/replace-site-visibility/replace-site-visibility.php';
+		require_once __DIR__ . '/features/stats/stats.php';
 		require_once __DIR__ . '/features/wpcom-admin-bar/wpcom-admin-bar.php';
 		require_once __DIR__ . '/features/wpcom-admin-interface/wpcom-admin-interface.php';
 		require_once __DIR__ . '/features/wpcom-admin-menu/wpcom-admin-menu.php';
-		require_once __DIR__ . '/features/wpcom-command-palette/wpcom-command-palette.php';
 		require_once __DIR__ . '/features/wpcom-comments/wpcom-comments.php';
 		require_once __DIR__ . '/features/wpcom-dashboard-widgets/wpcom-dashboard-widgets.php';
+		require_once __DIR__ . '/features/wpcom-imports/wpcom-imports.php';
 		require_once __DIR__ . '/features/wpcom-locale/sync-locale-from-calypso-to-atomic.php';
 		require_once __DIR__ . '/features/wpcom-media/wpcom-media-url-upload.php';
 		require_once __DIR__ . '/features/wpcom-media/wpcom-export-media-files.php';
@@ -328,15 +434,63 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/wpcom-profile-settings/profile-settings-link-to-wpcom.php';
 		require_once __DIR__ . '/features/wpcom-profile-settings/profile-settings-notices.php';
 		require_once __DIR__ . '/features/wpcom-sidebar-notice/wpcom-sidebar-notice.php';
+		require_once __DIR__ . '/features/wpcom-content-research/class-wpcom-content-research.php';
+		require_once __DIR__ . '/features/wpcom-themes/wpcom-theme-tracking.php';
 		require_once __DIR__ . '/features/wpcom-themes/wpcom-themes.php';
 		require_once __DIR__ . '/features/wpcom-user-edit/wpcom-user-edit.php';
+		require_once __DIR__ . '/features/wpcom-videopress/wpcom-videopress.php';
 
-		// Only load the Calypsoify and Masterbar features on WoA sites.
+		// Initialize Newsletter Settings so hooks like the Reading page notice
+		// are registered on Simple sites (where load-jetpack.php doesn't run).
+		// Guarded with class_exists since mu-wpcom no longer composer-requires
+		// the jetpack-newsletter package: the class is provided by the standalone
+		// Jetpack plugin on Atomic, or by the wpcom platform's bundled Jetpack
+		// source on Simple.
+		if ( class_exists( '\Automattic\Jetpack\Newsletter\Settings' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredClassMethod -- class_exists guarded above; provided by sibling autoloader.
+			\Automattic\Jetpack\Newsletter\Settings::init();
+		}
+
+		// Register the Daily Writing Prompt dashboard widget, which now lives in
+		// the jetpack-newsletter package. Guarded with class_exists for the same
+		// reason as Settings above: mu-wpcom doesn't composer-require the package.
+		if ( class_exists( '\Automattic\Jetpack\Newsletter\Writing_Prompt_Widget' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredClassMethod -- class_exists guarded above; provided by sibling autoloader.
+			\Automattic\Jetpack\Newsletter\Writing_Prompt_Widget::init();
+		}
+
+		// Only load the Masterbar features on WoA sites.
 		if ( class_exists( '\Automattic\Jetpack\Status\Host' ) && ( new \Automattic\Jetpack\Status\Host() )->is_woa_site() ) {
-			\Automattic\Jetpack\Calypsoify\Jetpack_Calypsoify::get_instance();
 			// This is temporary. After we cleanup Masterbar on WPCOM we should load Masterbar for Simple sites too.
 			\Automattic\Jetpack\Masterbar\Main::init();
 		}
+
+		if ( class_exists( 'Automattic\Jetpack\Agents_Manager\Agents_Manager' ) ) {
+			\Automattic\Jetpack\Agents_Manager\Agents_Manager::init();
+		}
+	}
+
+	/**
+	 * Load features that only apply to WordPress.com sites, regardless of whether the users are connected.
+	 */
+	public static function load_wpcom_sites_features() {
+		if ( is_fully_managed_agency_site() ) {
+			return;
+		}
+
+		require_once __DIR__ . '/features/gutenberg-rtc/gutenberg-rtc.php';
+		require_once __DIR__ . '/features/wpcom-contact-form-flags/wpcom-contact-form-flags.php';
+	}
+
+	/**
+	 * Load the Podcast module on Simple sites.
+	 *
+	 * Atomic and self-hosted load Podcast through the Jetpack module system
+	 * (Jetpack::late_initialization). Simple doesn't boot that Jetpack class, so
+	 * initialize the module directly here.
+	 */
+	public static function load_podcast() {
+		\Automattic\Jetpack\Podcast\Podcast::init();
 	}
 
 	/**
@@ -361,7 +515,6 @@ class Jetpack_Mu_Wpcom {
 		define( 'MU_WPCOM_HOMEPAGE_TITLE_HIDDEN', true );
 		define( 'MU_WPCOM_JETPACK_GLOBAL_STYLES', true );
 		define( 'A8C_USE_FONT_SMOOTHING_ANTIALIASED', false );
-		define( 'MU_WPCOM_NEWSPACK_BLOCKS', true );
 		define( 'MU_WPCOM_MAILERLITE_WIDGET', true );
 		define( 'MU_WPCOM_OVERRIDE_PREVIEW_BUTTON_URL', true );
 		define( 'MU_WPCOM_PARAGRAPH_BLOCK', true );
@@ -401,10 +554,6 @@ class Jetpack_Mu_Wpcom {
 
 		/**
 		 * Load features for the editor and the frontend pages.
-		 *
-		 * This also avoid redeclaring the `Newspack_Blocks` class as follows
-		 * - The `Newspack_Blocks` class is declared by jetpack-mu-wpcom plugin by the `plugin_loaded` hook.
-		 * - When people try to activate the newspack blocks plugin, it will try to declare it again.
 		 */
 		global $pagenow;
 		$allowed_pages = array( 'post.php', 'post-new.php', 'site-editor.php' );
@@ -412,10 +561,6 @@ class Jetpack_Mu_Wpcom {
 			require_once __DIR__ . '/features/block-editor/custom-line-height.php';
 			require_once __DIR__ . '/features/block-inserter-modifications/block-inserter-modifications.php';
 			require_once __DIR__ . '/features/hide-homepage-title/hide-homepage-title.php';
-			// To avoid potential collisions with newspack-blocks plugin.
-			if ( ! class_exists( '\Newspack_Blocks', false ) ) {
-				require_once __DIR__ . '/features/newspack-blocks/index.php';
-			}
 			require_once __DIR__ . '/features/override-preview-button-url/override-preview-button-url.php';
 			require_once __DIR__ . '/features/paragraph-block-placeholder/paragraph-block-placeholder.php';
 			require_once __DIR__ . '/features/tags-education/tags-education.php';
@@ -427,6 +572,28 @@ class Jetpack_Mu_Wpcom {
 			require_once __DIR__ . '/features/wpcom-documentation-links/wpcom-documentation-links.php';
 			require_once __DIR__ . '/features/wpcom-global-styles/index.php';
 			require_once __DIR__ . '/features/wpcom-legacy-fse/wpcom-legacy-fse.php';
+		} elseif ( isset( $pagenow ) && 'customize.php' === $pagenow ) {
+			// Load wpcom-global-styles on the customizer so access to additional css can be checked there.
+			require_once __DIR__ . '/features/wpcom-global-styles/index.php';
+		}
+	}
+
+	/**
+	 * Load the newspack blocks feature for the editor and the frontend pages.
+	 */
+	public static function load_newspack_blocks() {
+		/**
+		 * Avoid potential collisions with newspack-blocks plugin.
+		 */
+		if ( class_exists( '\Newspack_Blocks', false ) ) {
+			return;
+		}
+
+		global $pagenow;
+		$allowed_pages = array( 'post.php', 'post-new.php', 'site-editor.php' );
+		if ( ( isset( $pagenow ) && in_array( $pagenow, $allowed_pages, true ) ) || ! is_admin() ) {
+			define( 'MU_WPCOM_NEWSPACK_BLOCKS', true );
+			require_once __DIR__ . '/features/newspack-blocks/index.php';
 		}
 	}
 
@@ -510,7 +677,8 @@ class Jetpack_Mu_Wpcom {
 		$data = wp_json_encode(
 			array(
 				'assetsUrl' => plugins_url( 'build/', self::BASE_FILE ),
-			)
+			),
+			JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 		);
 
 		wp_add_inline_script(
@@ -615,6 +783,12 @@ class Jetpack_Mu_Wpcom {
 			if ( self::should_disable_comment_experience( $blog_id ) ) {
 				return;
 			}
+
+			if ( class_exists( '\Automattic\Jetpack\Comments\Comments' ) && \Automattic\Jetpack\Comments\Comments::is_enabled() ) {
+				\Automattic\Jetpack\Comments\Comments::init();
+				return;
+			}
+
 			require_once __DIR__ . '/features/verbum-comments/class-verbum-comments.php';
 			new \Automattic\Jetpack\Verbum_Comments();
 		}
@@ -644,6 +818,43 @@ class Jetpack_Mu_Wpcom {
 	}
 
 	/**
+	 * Whether Premium Analytics should be loaded on WordPress.com Simple.
+	 *
+	 * @return bool True when the Simple rollout gate is enabled.
+	 */
+	public static function should_load_wpcom_simple_premium_analytics() {
+		$blog_id = (int) get_wpcom_blog_id();
+		$enabled = $blog_id > 0 && wpcom_has_blog_sticker( 'jetpack-premium-analytics', $blog_id );
+
+		/**
+		 * Filters whether Premium Analytics loads on WordPress.com Simple.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param bool $enabled Whether the Simple rollout gate is enabled.
+		 * @param int  $blog_id WPCOM blog ID.
+		 */
+		return (bool) apply_filters( 'jetpack_premium_analytics_wpcom_simple_enabled', $enabled, $blog_id );
+	}
+
+	/**
+	 * Load Premium Analytics on WordPress.com Simple sites behind the rollout gate.
+	 */
+	public static function load_wpcom_simple_premium_analytics() {
+		if ( ! self::should_load_wpcom_simple_premium_analytics() ) {
+			return;
+		}
+
+		Premium_Analytics::init_wpcom_simple(
+			array(
+				// A closure, not a string: we run on plugins_loaded, too early to translate.
+				// The package calls this back on admin_menu.
+				'menu_title' => fn () => __( 'Stats v2', 'jetpack-mu-wpcom' ),
+			)
+		);
+	}
+
+	/**
 	 * Load the Jetpack Custom CSS feature.
 	 */
 	public static function load_custom_css() {
@@ -665,5 +876,238 @@ class Jetpack_Mu_Wpcom {
 		if ( class_exists( 'Automattic\Jetpack\Classic_Theme_Helper\Social_Links' ) ) {
 			new \Automattic\Jetpack\Classic_Theme_Helper\Social_Links();
 		}
+	}
+
+	/**
+	 * Populate JetpackScriptData.site.wpcom.blog_id with the actual WP.com blog ID.
+	 *
+	 * @param array $data The script data.
+	 * @return array
+	 */
+	public static function set_wpcom_blog_id_script_data( $data ) {
+		$blog_id = get_wpcom_blog_id();
+		if ( $blog_id ) {
+			$data['site']['wpcom']['blog_id'] = $blog_id;
+		}
+		return $data;
+	}
+
+	/**
+	 * Add `gutenberg-react-19` to the list of enabled Gutenberg experiments.
+	 *
+	 * The `disable-gutenberg-react-19` blog sticker force-disables the experiment,
+	 * the `gutenberg-react-19` sticker opts the site in. With neither sticker,
+	 * the experiment is enabled on a certain percentage of Atomic sites,
+	 * known incompatible plugins and themes are excluded.
+	 *
+	 * @param mixed $experiments The current value of the gutenberg-experiments option.
+	 * @return mixed Original option value or the filtered experiments.
+	 */
+	public static function enable_gutenberg_react_19_experiment( $experiments ) {
+		$blog_id = get_wpcom_blog_id();
+
+		if ( wpcom_has_blog_sticker( 'disable-gutenberg-react-19', $blog_id ) ) {
+			return $experiments;
+		}
+
+		$is_enabled = wpcom_has_blog_sticker( 'gutenberg-react-19', $blog_id );
+
+		if ( ! $is_enabled && function_exists( 'wpcomsh_get_atomic_site_id' ) ) {
+			$site_id = wpcomsh_get_atomic_site_id();
+
+			// Don't enable if the site ID is unknown (zero).
+			if ( ! $site_id ) {
+				$is_enabled = false;
+			} elseif ( self::has_react_19_incompatible_extension() ) {
+				$is_enabled = false;
+			} else {
+				$current_segment = 10; // Segment of Atomic sites in the experiment, in %.
+				$site_segment    = $site_id % 100;
+
+				/*
+				 * Sites whose Atomic site ID ends in digits < $current_segment are in the segment.
+				 * Must stay in sync with the error reporting rollout in wpcomsh
+				 * (wpcomsh_enable_error_reporting_for_react_19), so that every site in
+				 * the experiment also reports JS errors.
+				 */
+				$is_enabled = $site_segment < $current_segment;
+			}
+		}
+
+		if ( ! $is_enabled ) {
+			return $experiments;
+		}
+
+		if ( ! is_array( $experiments ) ) {
+			$experiments = array();
+		}
+
+		$experiments['gutenberg-react-19'] = true;
+		return $experiments;
+	}
+
+	/**
+	 * Whether the site runs an extension that's known to break with React 19.
+	 *
+	 * @return bool
+	 */
+	private static function has_react_19_incompatible_extension() {
+		// Outside wp-admin the plugin check is unavailable, and the experiment isn't needed.
+		if ( ! function_exists( 'is_plugin_active' ) ) {
+			return true;
+		}
+
+		if ( in_array( strtolower( get_template() ), self::REACT_19_INCOMPATIBLE_THEMES, true ) ) {
+			return true;
+		}
+
+		foreach ( self::REACT_19_INCOMPATIBLE_PLUGINS as $plugin_file ) {
+			if ( is_plugin_active( $plugin_file ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Add Jetpack script data with host information on P2
+	 *
+	 * @param array $data - The Jetpack script data.
+	 * @return array - The modified Jetpack script data.
+	 */
+	public static function add_jetpack_script_data_for_p2( $data ) {
+		if (
+		str_contains( get_stylesheet(), 'pub/p2' ) ||
+		( function_exists( '\WPForTeams\is_wpforteams_site' ) && is_wpforteams_site( get_current_blog_id() ) )
+		) {
+			$host = new \Automattic\Jetpack\Status\Host();
+			if ( ! isset( $data['site']['host'] ) ) {
+				$data['site']['host'] = $host->get_known_host_guess();
+			}
+			if ( ! isset( $data['site']['is_wpcom_platform'] ) ) {
+				$data['site']['is_wpcom_platform'] = $host->is_wpcom_platform();
+			}
+		}
+		return $data;
+	}
+
+	/**
+	 * Emit an event to the wpcom logstash cluster.
+	 *
+	 * Uses the in-process `log2logstash()` on WP.com Simple, and falls back to
+	 * the public-api `/rest/v1.1/logstash` endpoint (fire-and-forget) on
+	 * Atomic, where `log2logstash()` isn't available.
+	 *
+	 * Best-effort: a logging failure must never escalate into a fatal for the caller.
+	 *
+	 * @param string $feature Logstash `feature` bucket; should start with the `atomic_` prefix (e.g. "atomic_plugin_conflicts_guardian").
+	 * @param string $message Event message slug.
+	 * @param array  $extra   Event-specific properties; JSON-encoded into the `extra` field.
+	 * @return void
+	 */
+	public static function log2logstash( $feature, $message, array $extra = array() ) {
+		// Resolve the dispatch path once per request — on upgrade flows this
+		// can be called several times in a row (one per plugin) and the path
+		// doesn't change mid-request.
+		static $dispatch = null;
+		if ( null === $dispatch ) {
+			try {
+				if ( ! function_exists( 'log2logstash' ) ) {
+					$log2logstash_path = WP_CONTENT_DIR . '/lib/log2logstash/log2logstash.php';
+					if ( is_readable( $log2logstash_path ) ) {
+						require_once $log2logstash_path;
+					}
+				}
+			} catch ( \Throwable $e ) { // require_once can still throw (parse error / top-level fatal in the included file); fall through to the HTTP dispatch.
+				unset( $e );
+			}
+			$dispatch = function_exists( 'log2logstash' ) ? 'native' : 'http';
+		}
+
+		try {
+			$payload = array(
+				'blog_id' => self::resolve_logstash_blog_id(),
+				'feature' => (string) $feature,
+				'message' => (string) $message,
+				'extra'   => wp_json_encode( $extra, JSON_UNESCAPED_SLASHES ),
+			);
+
+			if ( 'native' === $dispatch ) {
+				log2logstash( $payload );
+				return;
+			}
+
+			// Defer the HTTP POST to shutdown. Dispatching inline as a
+			// non-blocking request loses the event when the caller `exit`s
+			// or `wp_safe_redirect`s right after (e.g. the activation-guard
+			// block path), because the cURL handle is torn down before the
+			// TLS handshake completes. Draining at shutdown with a blocking
+			// POST guarantees delivery without adding latency to the
+			// user-visible response.
+			self::queue_logstash_http( $payload );
+		} catch ( \Throwable $e ) { // best-effort: a logging failure must never escalate into a fatal for the caller.
+			unset( $e );
+		}
+	}
+
+	/**
+	 * Resolve the WP.com blog ID for a logstash record.
+	 *
+	 * `get_wpcom_blog_id()` falls back to `get_current_blog_id()` on Atomic
+	 * when `jetpack_options['id']` isn't readable — that returns `1` on a
+	 * single-site install, which is a valid-looking but wrong WP.com blog ID
+	 * and makes log records impossible to attribute. Emit `0` instead when
+	 * the real WP.com blog ID is unknown, so the gap is obvious in Kibana.
+	 *
+	 * @return int WP.com blog ID, or 0 when it can't be determined.
+	 */
+	private static function resolve_logstash_blog_id() {
+		// WP.com Simple: the current blog ID *is* the WP.com blog ID.
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			return (int) get_current_blog_id();
+		}
+		// Atomic / connected Jetpack: the WP.com blog ID lives in the
+		// `jetpack_options` option. Read it directly (no `Jetpack_Options`
+		// dependency) and return 0 — never the local blog ID — when absent.
+		$jetpack_options = get_option( 'jetpack_options' );
+		if ( is_array( $jetpack_options ) && ! empty( $jetpack_options['id'] ) ) {
+			return (int) $jetpack_options['id'];
+		}
+		return 0;
+	}
+
+	/**
+	 * Append a logstash payload to the shutdown drain queue, registering
+	 * the drain hook on first enqueue. See `log2logstash()` for why
+	 * dispatch is deferred.
+	 *
+	 * @param array $payload Logstash record (`blog_id`, `feature`, `message`, `extra`).
+	 * @return void
+	 */
+	private static function queue_logstash_http( array $payload ) {
+		static $queue = null;
+		if ( null === $queue ) {
+			$queue = array();
+			register_shutdown_function(
+				static function () use ( &$queue ) {
+					foreach ( $queue as $entry ) {
+						try {
+							wp_remote_post(
+								'https://public-api.wordpress.com/rest/v1.1/logstash',
+								array(
+									'body'    => array( 'params' => wp_json_encode( $entry, JSON_UNESCAPED_SLASHES ) ),
+									'timeout' => 5,
+								)
+							);
+						} catch ( \Throwable $e ) { // best-effort: a logging failure must never escalate into a fatal at shutdown.
+							unset( $e );
+						}
+					}
+					$queue = array();
+				}
+			);
+		}
+		$queue[] = $payload;
 	}
 }

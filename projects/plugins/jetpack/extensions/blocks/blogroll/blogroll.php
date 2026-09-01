@@ -12,6 +12,7 @@ namespace Automattic\Jetpack\Extensions\Blogroll;
 require_once __DIR__ . '/blogroll-item/blogroll-item.php';
 
 use Automattic\Jetpack\Blocks;
+use Automattic\Jetpack\Status\Request;
 use Jetpack_Gutenberg;
 
 /**
@@ -59,7 +60,7 @@ function load_assets( $attr, $content ) {
 		</form>
 HTML;
 
-	$blogroll_content = $is_wpcom && jetpack_is_frontend() ? $form_content : $content;
+	$blogroll_content = $is_wpcom && Request::is_frontend() ? $form_content : $content;
 
 	return sprintf(
 		'<div class="%1$s">%2$s</div>',

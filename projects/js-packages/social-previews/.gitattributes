@@ -1,0 +1,8 @@
+# Files to include in the mirror repo, but excluded via gitignore
+# Remember to end all directories with `/**` to properly tag every file.
+/dist/**         production-include
+
+# Files to exclude from the mirror repo
+# (see also entries in the monorepo root .gitattributes)
+/src/**             production-exclude
+/tsdown.config.ts   production-exclude

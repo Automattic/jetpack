@@ -6,7 +6,6 @@
  */
 
 use Automattic\Jetpack\Masterbar\Admin_Menu;
-use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
 /**
@@ -139,6 +138,7 @@ const WPCOM_DUPLICATED_VIEW = array(
 	'options-reading.php',
 	'options-discussion.php',
 	'upload.php',
+	'import.php',
 );
 
 /**
@@ -220,21 +220,6 @@ add_action(
 	},
 	PHP_INT_MAX
 );
-/**
- * Hides the "View" switcher on WP Admin screens that have been untangled.
- */
-function wpcom_duplicate_views_hide_view_switcher() {
-	$admin_menu_class = wpcom_get_custom_admin_menu_class();
-	if ( $admin_menu_class ) {
-		$admin_menu = $admin_menu_class::get_instance();
-
-		$current_screen = wpcom_admin_get_current_screen();
-		if ( in_array( $current_screen, WPCOM_DUPLICATED_VIEW, true ) ) {
-			remove_filter( 'in_admin_header', array( $admin_menu, 'add_dashboard_switcher' ) );
-		}
-	}
-}
-add_action( 'admin_init', 'wpcom_duplicate_views_hide_view_switcher' );
 
 /**
  * Determines whether the admin interface has been recently changed by checking the presence of the `admin-interface-changed` query param.
@@ -294,47 +279,3 @@ function wpcom_get_custom_admin_menu_class() {
  * @return mixed|true
  */
 add_filter( 'jetpack_blaze_dashboard_enable', '__return_true' );
-
-/**
- * Make the Jetpack Stats page to point to the Calypso Stats Admin menu - temporary. This is needed because WP-Admin pages are rolled-out individually.
- *
- * This should be removed when the sites are fully untangled (or with the Jetpack Stats).
- *
- * This is enabled only for the stats page for users that are part of the remove duplicate views experiment.
- *
- * @param string $file The parent_file of the page.
- *
- * @return mixed
- */
-function wpcom_select_calypso_admin_menu_stats_for_jetpack_post_stats( $file ) {
-	global $_wp_real_parent_file, $pagenow;
-
-	$is_on_stats_page = 'admin.php' === $pagenow && isset( $_GET['page'] ) && 'stats' === $_GET['page'];
-
-	if ( ! $is_on_stats_page ) {
-		return $file;
-	}
-
-	remove_filter( 'pre_option_wpcom_admin_interface', 'wpcom_admin_interface_pre_get_option' );
-	$is_using_wp_admin = get_option( 'wpcom_admin_interface' ) === 'wp-admin';
-	if ( function_exists( 'wpcom_admin_interface_pre_get_option' ) ) {
-		add_filter( 'pre_option_wpcom_admin_interface', 'wpcom_admin_interface_pre_get_option' );
-	}
-
-	if ( $is_using_wp_admin ) {
-		return $file;
-	}
-
-	if ( ! wpcom_get_custom_admin_menu_class() ) {
-		return $file;
-	}
-
-	/**
-	 * Not ideal... We shouldn't be doing this.
-	 */
-	$_wp_real_parent_file['jetpack'] = 'https://wordpress.com/stats/day/' . ( new Status() )->get_site_suffix(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
-
-	return $file;
-}
-
-add_filter( 'parent_file', 'wpcom_select_calypso_admin_menu_stats_for_jetpack_post_stats' );

@@ -33,8 +33,7 @@ class Legacy {
 	 * @return string - Tracking URL
 	 */
 	private function get_url( $track ) {
-		// @phan-suppress-next-line PhanPluginDuplicateConditionalNullCoalescing
-		$site_url = ( is_ssl() ? 'https://' : 'http://' ) . sanitize_text_field( wp_unslash( isset( $_SERVER['HTTP_HOST'] ) ? $_SERVER['HTTP_HOST'] : '' ) );
+		$site_url = ( is_ssl() ? 'https://' : 'http://' ) . sanitize_text_field( wp_unslash( $_SERVER['HTTP_HOST'] ?? '' ) );
 		foreach ( $track as $k => $value ) {
 			if ( strpos( strtolower( $value ), strtolower( $site_url ) ) === 0 ) {
 				$track[ $k ] = substr( $track[ $k ], strlen( $site_url ) );
@@ -182,13 +181,29 @@ class Legacy {
 			window.dataLayer = window.dataLayer || [];
 			function gtag() { dataLayer.push( arguments ); }
 			gtag( 'js', new Date() );
-			gtag( 'config', <?php echo wp_json_encode( $tracking_id ); ?> );
+			gtag( 'config', <?php echo wp_json_encode( $tracking_id, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?> );
 			<?php
 			foreach ( $universal_commands as $command ) {
-				echo 'gtag( ' . implode( ', ', array_map( 'wp_json_encode', $command ) ) . " );\n";
+				echo 'gtag( ' . implode(
+					', ',
+					array_map( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped internally
+						function ( $c ) {
+							return wp_json_encode( $c, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP );
+						},
+						$command
+					)
+				) . " );\n";
 			}
 			foreach ( $custom_vars as $var ) {
-				echo 'gtag( ' . implode( ', ', array_map( 'wp_json_encode', $var ) ) . " );\n";
+				echo 'gtag( ' . implode(
+					', ',
+					array_map( // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped internally
+						function ( $v ) {
+							return wp_json_encode( $v, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP );
+						},
+						$var
+					)
+				) . " );\n";
 			}
 			?>
 		</script>
@@ -240,8 +255,7 @@ class Legacy {
 		$minimum_woocommerce_active = class_exists( 'WooCommerce' ) && version_compare( \WC_VERSION, '3.0', '>=' );
 		// @phan-suppress-next-line PhanUndeclaredFunction
 		if ( $minimum_woocommerce_active && \is_order_received_page() ) {
-			// @phan-suppress-next-line PhanPluginDuplicateConditionalNullCoalescing
-			$order_id = isset( $wp->query_vars['order-received'] ) ? $wp->query_vars['order-received'] : 0;
+			$order_id = $wp->query_vars['order-received'] ?? 0;
 			if ( 0 < $order_id && 1 !== (int) get_post_meta( $order_id, '_ga_tracked', true ) ) {
 				$order = new \WC_Order( $order_id );
 
@@ -263,7 +277,8 @@ class Legacy {
 								(string) $order->get_billing_city(),
 								(string) $order->get_billing_state(),
 								(string) $order->get_billing_country(),
-							)
+							),
+							JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 						)
 					)
 				);
@@ -287,7 +302,8 @@ class Legacy {
 										Utils::get_product_categories_concatenated( $product ),
 										(string) $order->get_item_total( $item ),
 										(string) $item['qty'],
-									)
+									),
+									JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 								)
 							)
 						);

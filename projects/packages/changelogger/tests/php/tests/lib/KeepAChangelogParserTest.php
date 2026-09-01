@@ -5,8 +5,6 @@
  * @package automattic/jetpack-changelogger
  */
 
-// phpcs:disable Squiz.Commenting.VariableComment.Missing
-
 namespace Automattic\Jetpack\Changelog\Tests;
 
 use Automattic\Jetpack\Changelog\KeepAChangelogParser;

@@ -9,6 +9,10 @@ namespace Automattic\Jetpack\Search;
 
 use Automattic\Jetpack\Constants;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Helpers for parsing the various Search options
  */
@@ -65,7 +69,7 @@ class Options {
 	 * @return bool
 	 */
 	public static function is_instant_enabled() {
-		return true === (bool) get_option( 'instant_search_enabled' );
+		return (bool) get_option( 'instant_search_enabled' );
 	}
 
 	/**

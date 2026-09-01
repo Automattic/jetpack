@@ -1,45 +1,34 @@
 {
 	"private": true,
 	"type": "module",
-	"description": "Security tools that keep your site safe and sound, from posts to plugins.",
-	"homepage": "https://jetpack.com",
-	"bugs": {
-		"url": "https://github.com/Automattic/jetpack/labels/[Plugin] Protect"
-	},
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/Automattic/jetpack.git",
-		"directory": "projects/plugins/protect"
-	},
-	"license": "GPL-2.0-or-later",
-	"author": "Automattic",
 	"scripts": {
-		"build": "pnpm jetpack build packages/assets packages/connection plugins/protect plugins/jetpack -v --no-pnpm-install --production",
+		"allure-report": "allure generate --clean --output ./output/allure-report ./output/allure-results && allure open ./output/allure-report",
+		"build": "pnpm jetpack build js-packages/social-logos packages/assets packages/connection plugins/protect plugins/jetpack -v --no-pnpm-install --production",
 		"clean": "rm -rf output",
-		"config:decrypt": "openssl enc -md sha1 -aes-256-cbc -pbkdf2 -iter 100000 -d -pass env:CONFIG_KEY -in ./node_modules/_jetpack-e2e-commons/config/encrypted.enc -out ./config/local.cjs",
+		"config:decrypt": "openssl enc -md sha1 -aes-256-cbc -pbkdf2 -iter 100000 -d -pass env:CONFIG_KEY -in ./node_modules/@automattic/_jetpack-e2e-commons/config/encrypted.enc -out ./config/local.cjs",
 		"distclean": "rm -rf node_modules",
-		"env:up": "e2e-env start --activate-plugins protect",
 		"env:down": "e2e-env stop",
-		"env:reset": "e2e-env reset --activate-plugins protect",
-		"tunnel:up": "tunnel up",
-		"tunnel:reset": "tunnel reset",
-		"tunnel:down": "tunnel down",
+		"env:reset": "e2e-env reset --activate-plugins jetpack-protect",
+		"env:up": "e2e-env start --activate-plugins jetpack-protect",
 		"pretest:run": "pnpm run clean",
-		"test:run": ". ./node_modules/_jetpack-e2e-commons/bin/app-password.sh && playwright install --with-deps chromium && NODE_CONFIG_DIR='./config' ALLURE_RESULTS_DIR=./output/allure-results NODE_PATH=\"$PWD/node_modules\" playwright test --config=./playwright.config.mjs"
-	},
-	"devDependencies": {
-		"@playwright/test": "1.51.1",
-		"allure-playwright": "2.9.2",
-		"config": "3.3.12",
-		"_jetpack-e2e-commons": "workspace:*"
+		"test:run": "playwright install chromium && NODE_CONFIG_DIR='./config' ALLURE_RESULTS_DIR=./output/allure-results NODE_PATH=\"$PWD/node_modules\" playwright test",
+		"tunnel:down": "tunnel down",
+		"tunnel:reset": "tunnel reset",
+		"tunnel:up": "tunnel up",
+		"typecheck": "tsgo --noEmit"
 	},
 	"browserslist": [],
+	"devDependencies": {
+		"@automattic/_jetpack-e2e-commons": "workspace:*",
+		"@playwright/test": "1.60.0",
+		"@types/node": "^24.12.0",
+		"@typescript/native-preview": "7.0.0-dev.20260707.2",
+		"allure-playwright": "2.15.1",
+		"config": "4.4.1",
+		"playwright-ctrf-json-reporter": "^0.0.26"
+	},
 	"ci": {
-		"targets": [
-			"plugins/protect",
-			"tools/e2e-commons"
-		],
-		"pluginSlug": "protect",
+		"pluginSlug": "jetpack-protect",
 		"mirrorName": "jetpack-protect-plugin"
 	}
 }

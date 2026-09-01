@@ -1,11 +1,7 @@
-const { filterItems } = require( '@babel/helper-compilation-targets' );
-const browserslist = require( 'browserslist' );
+const { filterItems, default: getTargets } = require( '@babel/helper-compilation-targets' );
 const TerserPlugin = require( 'terser-webpack-plugin' );
-
 // We want @wordpress/browserslist-config rather than browserslist's own defaults.
-const browsers = browserslist(
-	( browserslist.findConfig( '.' ) || {} ).defaults || require( '@wordpress/browserslist-config' )
-);
+const browsers = require( '../targets.js' );
 
 /**
  * Terser's function to decide which comments to preserve.
@@ -77,7 +73,7 @@ const babelPlugins = filterItems(
 	require( '@babel/compat-data/plugins' ),
 	new Set(),
 	new Set(),
-	browsers
+	getTargets( { browsers } )
 );
 if (
 	babelPlugins.has( 'transform-arrow-functions' ) ||
@@ -85,7 +81,10 @@ if (
 	babelPlugins.has( 'transform-unicode-escapes' )
 ) {
 	defaultOptions.terserOptions.ecma = 5;
-} else if ( babelPlugins.has( 'proposal-nullish-coalescing-operator' ) ) {
+} else if (
+	babelPlugins.has( 'proposal-nullish-coalescing-operator' ) ||
+	babelPlugins.has( 'transform-nullish-coalescing-operator' )
+) {
 	defaultOptions.terserOptions.ecma = 2019;
 } else {
 	defaultOptions.terserOptions.ecma = 2020;

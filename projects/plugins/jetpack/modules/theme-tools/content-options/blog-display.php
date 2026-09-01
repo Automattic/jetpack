@@ -5,6 +5,10 @@
  * @package automattic/jetpack
  */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * If the theme doesn't support 'jetpack-content-options', don't continue.
  */
@@ -81,8 +85,8 @@ if ( ! function_exists( 'jetpack_blog_display_custom_excerpt' ) ) {
 
 			if ( count( $words ) > $excerpt_length ) {
 				array_pop( $words );
-				$text = implode( $sep, $words );
-				$text = $text . $excerpt_more;
+				$text  = implode( $sep, $words );
+				$text .= $excerpt_more;
 			} else {
 				$text = implode( $sep, $words );
 			}

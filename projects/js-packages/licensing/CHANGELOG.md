@@ -5,6 +5,380 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.2.71 - 2026-08-20
+### Changed
+- Update dependencies. [#51015]
+
+## 1.2.70 - 2026-08-19
+### Changed
+- Update dependencies. [#51015]
+
+## 1.2.69 - 2026-08-13
+### Changed
+- Update dependencies. [#51015]
+
+## 1.2.68 - 2026-08-10
+### Changed
+- Update package dependencies. [#50509]
+
+## 1.2.67 - 2026-08-03
+### Changed
+- Update dependencies. [#50824]
+
+## 1.2.66 - 2026-07-27
+### Changed
+- Update dependencies. [#49431]
+
+## 1.2.65 - 2026-07-22
+### Changed
+- Update dependencies. [#49431]
+
+## 1.2.64 - 2026-07-20
+### Changed
+- Update package dependencies. [#50510] [#50529]
+
+## 1.2.63 - 2026-07-13
+### Changed
+- Migrate the license activation screen (button, inputs, and support link) to @wordpress/ui components. [#50348]
+
+## 1.2.62 - 2026-07-09
+### Changed
+- Update package dependencies. [#49272]
+
+## 1.2.61 - 2026-07-06
+### Changed
+- Update package dependencies. [#50097] [#50183]
+
+## 1.2.60 - 2026-06-26
+### Changed
+- Internal updates.
+
+## 1.2.59 - 2026-06-25
+### Changed
+- Update dependencies. [#49431]
+
+## 1.2.58 - 2026-06-24
+### Changed
+- Internal updates.
+
+## 1.2.57 - 2026-06-23
+### Changed
+- Update dependencies. [#49431]
+
+## 1.2.56 - 2026-06-22
+### Changed
+- Update package dependencies. [#49631] [#49691] [#49757]
+
+## 1.2.55 - 2026-06-15
+### Changed
+- Update dependencies. [#49431]
+
+## 1.2.54 - 2026-06-10
+### Changed
+- Update package dependencies. [#49273]
+
+## 1.2.53 - 2026-06-08
+### Changed
+- Update dependencies. [#49431]
+
+## 1.2.52 - 2026-06-08
+### Changed
+- Internal updates.
+
+## 1.2.51 - 2026-06-05
+### Changed
+- Update dependencies. [#49354]
+
+## 1.2.50 - 2026-06-01
+### Changed
+- Update package dependencies. [#48404]
+
+## 1.2.49 - 2026-05-25
+### Changed
+- Update dependencies. [#48834]
+
+## 1.2.48 - 2026-05-21
+### Changed
+- Update package dependencies. [#48405]
+- Update package dependencies. [#49012]
+
+## 1.2.47 - 2026-05-19
+### Changed
+- Internal updates.
+
+## 1.2.46 - 2026-05-14
+### Changed
+- Update dependencies. [#48778]
+
+## 1.2.45 - 2026-05-11
+### Changed
+- Components: Use Link from `@wordpress/ui` instead of ExternalLink. [#48529]
+
+## 1.2.44 - 2026-05-04
+### Changed
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+- Replace deprecated jetpack-components Spinner with WordPress Core Spinner. [#47451]
+
+## 1.2.43 - 2026-04-27
+### Changed
+- Update dependencies. [#46951]
+
+## 1.2.42 - 2026-04-20
+### Changed
+- Update package dependencies. [#48106] [#48141]
+
+## 1.2.41 - 2026-04-15
+### Changed
+- Update package dependencies. [#47907]
+
+## 1.2.40 - 2026-04-10
+### Changed
+- Update package dependencies. [#47890]
+
+## 1.2.39 - 2026-04-06
+### Changed
+- Update dependencies. [#46951]
+
+## 1.2.38 - 2026-03-30
+### Changed
+- Update package dependencies. [#47799]
+
+## 1.2.37 - 2026-03-23
+### Changed
+- Update package dependencies. [#47684]
+
+## 1.2.36 - 2026-03-16
+### Changed
+- Update dependencies. [#47472]
+
+## 1.2.35 - 2026-03-09
+### Changed
+- Switch to Native TypeScript compiler based on Go. [#47375]
+- Update license activation screen copy to be more concise. [#47434]
+
+### Fixed
+- Fix TypeScript errors detected by tsgo. [#47409]
+
+## 1.2.34 - 2026-03-02
+### Changed
+- Update dependencies. [#46951]
+
+## 1.2.33 - 2026-02-26
+### Changed
+- Update package dependencies. [#47285] [#47300]
+
+## 1.2.32 - 2026-02-23
+### Changed
+- Update dependencies. [#46951]
+
+## 1.2.31 - 2026-02-18
+### Changed
+- Update dependencies. [#46951]
+
+## 1.2.30 - 2026-02-16
+### Changed
+- Update package dependencies. [#47099]
+
+## 1.2.29 - 2026-02-10
+### Changed
+- Update dependencies. [#46951]
+
+## 1.2.28 - 2026-02-04
+### Changed
+- Update dependencies. [#46944]
+
+## 1.2.27 - 2026-02-03
+### Changed
+- Update dependencies. [#46758]
+
+## 1.2.26 - 2026-02-02
+### Changed
+- Update package dependencies. [#46854]
+
+## 1.2.25 - 2026-01-26
+### Changed
+- Update dependencies. [#46741]
+
+## 1.2.24 - 2026-01-19
+### Changed
+- Update package dependencies. [#46647]
+
+## 1.2.23 - 2026-01-14
+### Changed
+- Internal updates.
+
+## 1.2.22 - 2026-01-07
+### Changed
+- Update package dependencies. [#46456]
+
+## 1.2.21 - 2025-12-22
+### Changed
+- Update dependencies. [#46381]
+
+## 1.2.20 - 2025-12-15
+### Changed
+- Update dependencies. [#46039]
+
+## 1.2.19 - 2025-12-11
+### Changed
+- Update dependencies. [#46039]
+
+## 1.2.18 - 2025-12-08
+### Changed
+- Internal updates.
+
+## 1.2.17 - 2025-12-01
+### Changed
+- Update package dependencies. [#46143]
+
+## 1.2.16 - 2025-11-20
+### Changed
+- Update dependencies. [#46031]
+
+## 1.2.15 - 2025-11-18
+### Changed
+- Update dependencies. [#45493]
+
+## 1.2.14 - 2025-11-17
+### Changed
+- Update package dependencies. [#45915] [#45958]
+
+## 1.2.13 - 2025-11-10
+### Changed
+- Replace icons removed from @wordpress/icons with alternatives. [#45760]
+- Update package dependencies. [#45737]
+
+## 1.2.12 - 2025-11-03
+### Changed
+- Update dependencies. [#45493]
+
+## 1.2.11 - 2025-10-28
+### Changed
+- Update package dependencies. [#45652]
+
+## 1.2.10 - 2025-10-14
+### Changed
+- Update dependencies. [#45488]
+
+## 1.2.9 - 2025-10-06
+### Changed
+- Update package dependencies. [#45334] [#45335]
+
+## 1.2.8 - 2025-09-22
+### Changed
+- Update dependencies. [#44940]
+
+## 1.2.7 - 2025-09-19
+### Changed
+- Update package dependencies. [#45229]
+
+## 1.2.6 - 2025-09-15
+### Changed
+- Update dependencies. [#44940]
+
+## 1.2.5 - 2025-09-08
+### Changed
+- Update package dependencies. [#45027] [#45097]
+
+## 1.2.4 - 2025-09-01
+### Changed
+- Update dependencies. [#44940]
+
+## 1.2.3 - 2025-08-25
+### Changed
+- Update dependencies. [#44934]
+
+## 1.2.2 - 2025-08-18
+### Added
+- Add `typecheck` script to ensure that TypeScript files are type-checked. [#44795]
+
+## 1.2.1 - 2025-08-14
+### Changed
+- Update package dependencies. [#44701]
+
+## 1.2.0 - 2025-08-11
+### Changed
+- Update package dependencies. [#44677]
+
+### Removed
+- Remove unused code. [#44654]
+
+### Fixed
+- I18n: Improve context hints in comments for translators. [#44686]
+
+## 1.1.0 - 2025-08-04
+### Changed
+- My Jetpack: Unify the user connection flow with a unified screen. [#44469]
+- Prevent fatals when non-connection owner adds license. [#44613]
+
+## 1.0.15 - 2025-07-30
+### Changed
+- Update dependencies. [#44300]
+
+## 1.0.14 - 2025-07-23
+### Changed
+- Internal updates.
+
+## 1.0.13 - 2025-07-21
+### Changed
+- Update package dependencies. [#44356]
+
+## 1.0.12 - 2025-07-14
+### Changed
+- Update dependencies. [#44271]
+
+## 1.0.11 - 2025-07-08
+### Changed
+- Update package dependencies. [#44217]
+
+## 1.0.10 - 2025-07-07
+### Changed
+- Update dependencies. [#43796]
+
+## 1.0.9 - 2025-07-03
+### Changed
+- Update package dependencies. [#44151]
+
+## 1.0.8 - 2025-07-01
+### Changed
+- Internal updates.
+
+## 1.0.7 - 2025-06-30
+### Changed
+- Internal updates.
+
+## 1.0.6 - 2025-06-24
+### Changed
+- Update dependencies. [#43796]
+
+## 1.0.5 - 2025-06-23
+### Changed
+- Update package dependencies. [#44020]
+
+## 1.0.4 - 2025-06-18
+### Changed
+- Internal updates.
+
+## 1.0.3 - 2025-06-16
+### Changed
+- Update dependencies. [#43796]
+
+## 1.0.2 - 2025-06-10
+### Changed
+- Update dependencies. [#43796]
+
+## 1.0.1 - 2025-06-05
+### Changed
+- Update dependencies. [#43785]
+
+## 1.0.0 - 2025-06-03
+### Changed
+- Update package dependencies. [#43718] [#43734]
+
+## 0.14.30 - 2025-06-02
+### Changed
+- Internal updates.
+
 ## 0.14.29 - 2025-05-26
 ### Changed
 - Update package dependencies. [#43578]

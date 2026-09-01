@@ -3,10 +3,12 @@ import fs from 'fs/promises';
 import os from 'os';
 import path from 'path';
 import process from 'process';
+import { fileURLToPath } from 'url';
 import util from 'util';
 import chalk from 'chalk';
 import chokidar from 'chokidar';
 import Configstore from 'configstore';
+import { escapePath } from 'dot-prop';
 import enquirer from 'enquirer';
 import { execa } from 'execa';
 import pDebounce from 'p-debounce';
@@ -21,17 +23,6 @@ const rsyncConfigStore = new Configstore( 'automattic/jetpack-cli/rsync' );
 let isOpenrsync = false;
 
 /**
- * Escapes dots in a string. Useful when saving destination as key in Configstore. Otherwise it tries strings with dots
- * as nested objects.
- *
- * @param { string } key - String of the destination key.
- * @return { string } - Returns the key with escaped periods.
- */
-function escapeKey( key ) {
-	return key.replace( /\./g, '\\.' );
-}
-
-/**
  * Stores the destination in the configstore.
  * Takes an optional alias arg.
  *
@@ -40,7 +31,7 @@ function escapeKey( key ) {
  */
 function setRsyncDest( pluginDestPath, alias = false ) {
 	const key = alias || pluginDestPath;
-	rsyncConfigStore.set( escapeKey( key ), pluginDestPath );
+	rsyncConfigStore.set( escapePath( key ), pluginDestPath );
 }
 
 /**
@@ -152,6 +143,8 @@ export async function rsyncInit( argv ) {
 		}
 	}
 
+	const password = argv.password || null;
+
 	if ( argv.watch ) {
 		await tracks( 'rsync_watch' );
 		let watcher;
@@ -160,7 +153,7 @@ export async function rsyncInit( argv ) {
 				console.debug( `rsync due to event ${ event } for ${ eventfile }` );
 			}
 
-			const paths = await rsyncToDest( sourcePluginPath, finalDest );
+			const paths = await rsyncToDest( sourcePluginPath, finalDest, password );
 
 			// Warn but don't fail if file was intentionally not synced. We still want to sync
 			// if a change event occurs, as other change events could have been debounced.
@@ -195,6 +188,18 @@ export async function rsyncInit( argv ) {
 					disableGlobbing: true,
 					ignoreInitial: true,
 					depth: 0,
+					/*
+					 * On macOS, chokidar 4 (which no longer bundles fsevents) opens one fs.watch
+					 * kqueue descriptor per watched path. With the thousands of paths we watch, that
+					 * makes later child_process spawns fail with EBADF, which crashes the watch.
+					 * See https://github.com/paulmillr/chokidar/issues/1452. Polling avoids the
+					 * per-path descriptors; it's more expensive, so only use it where it's needed.
+					 */
+					...( process.platform === 'darwin' && {
+						usePolling: true,
+						interval: 500,
+						binaryInterval: 1000,
+					} ),
 				} );
 
 				// Always watch the plugin base dir.
@@ -247,7 +252,7 @@ export async function rsyncInit( argv ) {
 		};
 		await rsyncAndUpdateWatches( 'startup', 'jetpack rsync --watch' );
 	} else {
-		await rsyncToDest( sourcePluginPath, finalDest );
+		await rsyncToDest( sourcePluginPath, finalDest, password );
 
 		console.log( '\n' );
 		console.log(
@@ -301,7 +306,7 @@ async function promptToManageConfig() {
 				}
 			} );
 	};
-	const clearOne = key => rsyncConfigStore.delete( escapeKey( key ) );
+	const clearOne = key => rsyncConfigStore.delete( escapePath( key ) );
 	const configManage = await enquirer.prompt( {
 		type: 'select',
 		name: 'manageConfig',
@@ -453,7 +458,8 @@ async function addVendorFilesToPathSet( source, paths ) {
  * @return {object} As from `tmp.fileSync()`.
  */
 async function createFilterFile( paths ) {
-	const tmpFile = tmp.fileSync();
+	// Set `detachDescriptor` to let the WriteStream close the FD.
+	const tmpFile = tmp.fileSync( { detachDescriptor: true } );
 
 	// Wrap the tmpFile fd in a stream.
 	const tmpStream = createWriteStream( null, { fd: tmpFile.fd } );
@@ -572,19 +578,22 @@ async function getUntrackedFiles( pluginPath ) {
 /**
  * Function that does the actual work of rsync.
  *
- * @param {string} source - Source path.
- * @param {string} dest   - Final destination path, including plugin slug.
+ * @param {string}      source   - Source path.
+ * @param {string}      dest     - Final destination path, including plugin slug.
+ * @param {string|null} password - SSH password for the remote host, or null for interactive prompt.
  * @return {Promise<Set>} Synced path set.
  */
-async function rsyncToDest( source, dest ) {
+async function rsyncToDest( source, dest, password = null ) {
 	const paths = await collectPaths( source );
 	const tmpFile = await createFilterFile( paths );
+	let askpassFile = null;
 
 	try {
 		// Some versions of openrsync partially work with --copy-unsafe-links, so do that for them.
 		const copyLinksOpt = isOpenrsync ? '--copy-unsafe-links' : '--copy-links';
 
-		await runCommand( 'rsync', [
+		// Build rsync arguments
+		const rsyncArgs = [
 			'-azKPv',
 			'--prune-empty-dirs',
 			'--delete',
@@ -592,15 +601,44 @@ async function rsyncToDest( source, dest ) {
 			'--delete-excluded',
 			copyLinksOpt,
 			`--include-from=${ tmpFile.name }`,
-			source,
-			dest,
-		] );
-		tmpFile.removeCallback();
+		];
+
+		// When RSYNC_PROXY_SOCKET is set, use the rsh-proxy script to route SSH through the host
+		// This enables support for Secure Enclave SSH keys that can't be forwarded into Docker
+		if ( process.env.RSYNC_PROXY_SOCKET ) {
+			const rshProxy = fileURLToPath(
+				new URL( '../../docker/bin/rsync-rsh-proxy.sh', import.meta.url )
+			);
+			rsyncArgs.push( `--rsh=${ rshProxy }` );
+		}
+
+		rsyncArgs.push( source, dest );
+
+		// When a password is provided, use SSH_ASKPASS to feed it to SSH automatically.
+		const runOpts = { stdio: 'inherit' };
+		if ( password ) {
+			askpassFile = tmp.fileSync( { discardDescriptor: true, mode: 0o700, postfix: '.sh' } );
+			await fs.writeFile( askpassFile.name, '#!/bin/sh\nprintf \'%s\\n\' "$ASKPASS_PASSWORD"\n' );
+			runOpts.env = {
+				...process.env,
+				SSH_ASKPASS: askpassFile.name,
+				SSH_ASKPASS_REQUIRE: 'force',
+				ASKPASS_PASSWORD: password,
+			};
+			// Pipe stdin so SSH doesn't try to read the password from the terminal.
+			runOpts.stdio = [ 'pipe', 'inherit', 'inherit' ];
+		}
+
+		await runCommand( 'rsync', rsyncArgs, runOpts );
 	} catch ( e ) {
 		console.log( e );
 		console.error( chalk.red( 'Uh oh! ' + e.message ) );
-		tmpFile.removeCallback();
 		process.exit( 1 );
+	} finally {
+		tmpFile.removeCallback();
+		if ( askpassFile ) {
+			askpassFile.removeCallback();
+		}
 	}
 
 	return paths;
@@ -641,13 +679,13 @@ async function promptForSetAlias( pluginDestPath ) {
 		message: 'Enter an alias for easier reference? (Press enter to skip.)',
 	} );
 	const alias = aliasSetPrompt.alias || pluginDestPath;
-	if ( rsyncConfigStore.has( escapeKey( alias ) ) ) {
+	if ( rsyncConfigStore.has( escapePath( alias ) ) ) {
 		const alreadyFound = await enquirer.prompt( {
 			name: 'overwrite',
 			type: 'confirm',
 			initial: true,
 			// prettier-ignore
-			message: `This alias already exists for dest: ${ rsyncConfigStore.get( escapeKey( alias ) ) }. Overwrite it?`,
+			message: `This alias already exists for dest: ${ rsyncConfigStore.get( escapePath( alias ) ) }. Overwrite it?`,
 		} );
 		if ( ! alreadyFound.overwrite ) {
 			console.log( 'Okay!' );
@@ -666,9 +704,9 @@ async function promptForSetAlias( pluginDestPath ) {
  * @return {object} argv object with the project property.
  */
 async function maybePromptForDest( argv ) {
-	if ( rsyncConfigStore.has( argv.dest ) ) {
-		console.log( `Alias found, using dest: ${ rsyncConfigStore.get( argv.dest ) }` );
-		argv.dest = rsyncConfigStore.get( argv.dest );
+	if ( typeof argv.dest === 'string' && rsyncConfigStore.has( escapePath( argv.dest ) ) ) {
+		console.log( `Alias found, using dest: ${ rsyncConfigStore.get( escapePath( argv.dest ) ) }` );
+		argv.dest = rsyncConfigStore.get( escapePath( argv.dest ) );
 		return argv;
 	}
 	if ( argv.dest ) {
@@ -692,7 +730,7 @@ async function maybePromptForDest( argv ) {
 		if ( 'Create new' === response.dest ) {
 			argv.dest = await promptNewDest();
 		} else {
-			argv.dest = rsyncConfigStore.get( escapeKey( response.dest ) );
+			argv.dest = rsyncConfigStore.get( escapePath( response.dest ) );
 		}
 	}
 	return argv;
@@ -786,12 +824,17 @@ export function rsyncDefine( yargs ) {
 				} )
 				.option( 'watch', {
 					describe:
-						'Watch the plugin for changes and rsync on change. Note this will probably not be useful if rsync prompts for a password.',
+						'Watch the plugin for changes and rsync on change. Note this will probably not be useful if rsync prompts for a password, unless --password is also provided.',
 					type: 'boolean',
 				} )
 				.option( 'non-interactive', {
 					describe: 'Do not use interactive prompts. Ideal for CI runs.',
 					type: 'boolean',
+				} )
+				.option( 'password', {
+					describe:
+						'SSH password for the remote host. Passed via SSH_ASKPASS. Note: the password may be visible in process listings.',
+					type: 'string',
 				} );
 		},
 		async argv => {

@@ -1,5 +1,6 @@
 declare module '*.png';
 declare module '*.svg';
+declare module '*.webp';
 declare module '*.jpeg';
 declare module '*.jpg';
 declare module '*.scss';
@@ -41,6 +42,8 @@ type JetpackModule =
 	| 'site-accelerator'
 	| 'newsletter'
 	| 'related-posts'
+	| 'jetpack-forms'
+	| 'podcast'
 	| 'brute-force';
 
 type JetpackModuleWithCard =
@@ -55,30 +58,31 @@ type JetpackModuleWithCard =
 	| 'stats'
 	| 'videopress';
 
+// In ThreatItem and ScanItem, fields marked optional are only sent to users with `manage_options`.
 type ThreatItem = {
 	// Protect API properties (free plan)
-	id: string;
-	title: string;
-	fixed_in: string;
-	description: string | null;
-	source: string | null;
+	id?: string;
+	title?: string;
+	fixed_in?: string;
+	description?: string | null;
+	source?: string | null;
 	// Scan API properties (paid plan)
-	context: string | null;
-	filename: string | null;
-	first_detected: string | null;
-	fixable: boolean | null;
+	context?: string | null;
+	filename?: string | null;
+	first_detected?: string | null;
+	fixable?: boolean | null;
 	severity: number | null;
-	signature: string | null;
-	status: number | null;
+	signature?: string | null;
+	status?: number | null;
 };
 
 type ScanItem = {
-	checked: boolean;
-	name: string;
-	slug: string;
+	checked?: boolean;
+	name?: string;
+	slug?: string;
 	threats: ThreatItem[];
-	type: string;
-	version: string;
+	type?: string;
+	version?: string;
 };
 
 type RewindStatus =
@@ -335,28 +339,23 @@ type ProtectNeedsAttentionData = {
 };
 
 type Purchase = {
-	ID: string;
-	user_id: string;
-	blog_id: string;
-	product_id: string;
+	ID: number;
+	user_id: number;
+	blog_id: number;
+	product_id: number;
 	subscribed_date: string;
-	renew: string;
-	auto_renew: string;
 	renew_date: string;
-	inactive_date: string | null;
-	active: string;
-	meta: string | object;
-	ownership_id: string;
+	meta: string | null;
+	ownership_id: number;
 	most_recent_renew_date: string;
 	amount: number;
-	expiry_date: string;
-	expiry_message: string;
-	expiry_sub_message: string;
+	expiry_date: string | null;
 	expiry_status: string;
 	partner_name: string | null;
 	partner_slug: string | null;
-	partner_key_id: string | null;
+	partner_key_id: number | null;
 	subscription_status: string;
+	is_auto_renew_enabled: boolean;
 	product_name: string;
 	product_slug: string;
 	product_type: string;
@@ -364,15 +363,12 @@ type Purchase = {
 	blogname: string;
 	domain: string;
 	description: string;
-	attached_to_purchase_id: string | null;
+	attached_to_purchase_id: number | null;
 	included_domain: string;
 	included_domain_purchase_amount: number;
 	currency_code: string;
 	currency_symbol: string;
-	renewal_price_tier_slug: string | null;
 	renewal_price_tier_usage_quantity: number | null;
-	current_price_tier_slug: string | null;
-	current_price_tier_usage_quantity: number | null;
 	price_tier_list: Array< object >;
 	price_text: string;
 	bill_period_label: string;
@@ -392,7 +388,6 @@ type Purchase = {
 	refund_period_in_days: number;
 	is_renewable: boolean;
 	is_renewal: boolean;
-	has_private_registration: boolean;
 	refund_amount: number;
 	refund_integer: number;
 	refund_currency_symbol: string;
@@ -402,41 +397,44 @@ type Purchase = {
 	total_refund_integer: number;
 	total_refund_currency: string;
 	total_refund_text: string;
-	check_dns: boolean;
 };
 
 type ProtectData = {
+	// Fields marked optional are only sent to users with `manage_options`.
 	scanData: {
 		core: ScanItem;
 		current_progress?: string;
-		data_source: string;
+		data_source?: string;
 		database: string[];
-		error: boolean;
+		error?: boolean;
 		error_code?: string;
 		error_message?: string;
 		files: string[];
-		has_unchecked_items: boolean;
+		has_unchecked_items?: boolean;
 		last_checked: string;
 		num_plugins_threats: number;
 		num_themes_threats: number;
 		num_threats: number;
 		plugins: ScanItem[];
-		status: string;
+		status?: string;
 		themes: ScanItem[];
 		threats?: ThreatItem[];
 	};
+	// Fields marked optional are only sent to users with `manage_options`.
 	wafConfig: {
-		automatic_rules_available: boolean;
+		automatic_rules_available?: boolean;
 		blocked_logins: number;
-		bootstrap_path: string;
+		bootstrap_path?: string;
 		brute_force_protection: boolean;
 		jetpack_waf_automatic_rules: '1' | '';
-		jetpack_waf_ip_allow_list: '1' | '';
-		jetpack_waf_ip_block_list: boolean;
-		jetpack_waf_ip_list: boolean;
-		jetpack_waf_share_data: '1' | '';
-		jetpack_waf_share_debug_data: boolean;
-		standalone_mode: boolean;
+		jetpack_waf_ip_allow_list?: '1' | '';
+		jetpack_waf_ip_allow_list_enabled?: boolean;
+		jetpack_waf_ip_block_list?: boolean;
+		jetpack_waf_ip_block_list_enabled?: boolean;
+		jetpack_waf_ip_list?: boolean;
+		jetpack_waf_share_data?: '1' | '';
+		jetpack_waf_share_debug_data?: boolean;
+		standalone_mode?: boolean;
 		waf_supported: boolean;
 		waf_enabled: boolean;
 	};
@@ -490,6 +488,7 @@ interface Window {
 		loadAddLicenseScreen: string;
 		myJetpackCheckoutUri: string;
 		myJetpackFlags: {
+			showAiModuleToggle: boolean;
 			showFullJetpackStatsCard: boolean;
 			videoPressStats: boolean;
 		};
@@ -552,6 +551,7 @@ interface Window {
 					post_checkout_url?: string;
 					manage_paid_plan_purchase_url?: string;
 					renew_paid_plan_purchase_url?: string;
+					related_plan_slugs: Array< string >;
 					pricing_for_ui?: {
 						available: boolean;
 						wpcom_product_slug: string;
@@ -650,13 +650,22 @@ interface Window {
 		};
 		topJetpackMenuItemUrl: string;
 		isAtomic: boolean;
+		isJetpackPluginActive: boolean;
 		sandboxedDomain: string;
 		isDevVersion: boolean;
 		userIsAdmin: string;
 		isWelcomeTourActive: boolean;
+		seoOptIn: {
+			showCard: boolean;
+			redirect: string;
+		};
 	};
 	myJetpackRest?: {
 		apiRoot: string;
 		apiNonce: string;
+	};
+	/** Shared client for live-updating Jetpack admin-menu notification badges (automattic/jetpack-menu-badges). */
+	jetpackMenuBadges?: {
+		setCount: ( menuSlug: string, count: number ) => void;
 	};
 }

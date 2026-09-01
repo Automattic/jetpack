@@ -1,4 +1,3 @@
-import React from 'react';
 import ProductDetailButton from '../';
 
 export default {

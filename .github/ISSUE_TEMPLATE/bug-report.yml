@@ -1,6 +1,6 @@
 name: Bug Report
 description: Report issues with one of our products.
-labels: [ 'Needs triage', '[Type] Bug' ]
+labels: [ 'Needs triage', 'Bug' ]
 type: 'Bug'
 body:
   - type: markdown
@@ -26,17 +26,15 @@ body:
         - Jetpack
         - Backup
         - Boost
-        - Beta
-        - CRM
-        - Debug Helper
-        - Migration
-        - mu wpcom
         - Protect
         - Search
         - Social
-        - Super Cache
+        - Stats
         - VaultPress
         - VideoPress
+        - Beta
+        - Debug Helper
+        - Wpcomsh
         - None / Other
       multiple: true
     validations:

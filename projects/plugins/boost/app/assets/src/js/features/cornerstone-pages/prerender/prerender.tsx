@@ -1,12 +1,16 @@
 import { __ } from '@wordpress/i18n';
-import { ExternalLink, ToggleControl } from '@wordpress/components';
+import { ToggleControl } from '@wordpress/components';
 import styles from './prerender.module.scss';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import { createInterpolateElement, useState } from '@wordpress/element';
+
+import { Link } from '@wordpress/ui';
+
 import { getRedirectUrl, IconTooltip } from '@automattic/jetpack-components';
 import { useSingleModuleState } from '$features/module/lib/stores';
 import { useNotices } from '$features/notice/context';
 const unsafeSpeculationRulesLink = getRedirectUrl( 'jetpack-boost-unsafe-speculation-rules' );
+import type { ReactNode } from 'react';
 
 const Prerender = () => {
 	const { setNotice } = useNotices();
@@ -30,7 +34,7 @@ const Prerender = () => {
 
 	return (
 		<div className={ styles.wrapper }>
-			<div className={ styles.title }>
+			<div className={ styles.title } data-testid="prerender-cornerstone-pages-title">
 				<h4>{ __( 'Prerender Cornerstone Pages', 'jetpack-boost' ) }</h4>
 				<ToggleControl
 					className={ styles[ 'toggle-control' ] }
@@ -55,7 +59,7 @@ const Prerender = () => {
 };
 
 type BypassPatternsExampleProps = {
-	children?: React.ReactNode;
+	children?: ReactNode;
 };
 
 const PrerenderWarningMessage = ( { children }: BypassPatternsExampleProps ) => {
@@ -91,7 +95,7 @@ const PrerenderWarningMessage = ( { children }: BypassPatternsExampleProps ) => 
 					) }
 					<br />
 					{ createInterpolateElement( __( '<link>Learn more</link>', 'jetpack-boost' ), {
-						link: <ExternalLink href={ unsafeSpeculationRulesLink } />,
+						link: <Link openInNewTab href={ unsafeSpeculationRulesLink } />,
 					} ) }
 				</IconTooltip>
 			</div>

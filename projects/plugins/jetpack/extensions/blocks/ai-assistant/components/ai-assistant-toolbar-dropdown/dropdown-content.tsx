@@ -24,11 +24,11 @@ import { MenuItem, MenuGroup, Notice } from '@wordpress/components';
 import { select } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { post, postContent, postExcerpt, termDescription, blockTable } from '@wordpress/icons';
-import React from 'react';
 /**
  * Internal dependencies
  */
 import { EXTENDED_BLOCKS } from '../../extensions/text-blocks/constants';
+import { getFeatureAvailability } from '../../lib/utils/get-feature-availability';
 import { I18nMenuDropdown } from '../i18n-dropdown-control';
 import { ToneDropdownMenu } from '../tone-dropdown-control';
 import './style.scss';
@@ -207,6 +207,7 @@ export default function AiAssistantToolbarDropdownContent( {
 	onAskAiAssistant,
 	onRequestSuggestion,
 }: AiAssistantToolbarDropdownContentProps ): ReactElement {
+	const isCorrectSpellingAvailable = getFeatureAvailability( 'ai-correct-spelling' );
 	const blockQuickActions = quickActionsList[ blockType ] ?? [];
 
 	const { getBlockParents } = select( 'core/block-editor' ) as unknown as {
@@ -237,7 +238,11 @@ export default function AiAssistantToolbarDropdownContent( {
 
 				{ [ ...quickActionsList.default, ...blockQuickActions ]
 					.filter(
-						quickAction => ! ( quickAction.options?.rootParentOnly && blockParents.length > 0 )
+						quickAction =>
+							! ( quickAction.options?.rootParentOnly && blockParents.length > 0 ) &&
+							! (
+								quickAction.key === QUICK_EDIT_KEY_CORRECT_SPELLING && ! isCorrectSpellingAvailable
+							)
 					)
 					.map( quickAction => {
 						return (

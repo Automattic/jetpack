@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Endpoints: Prevent warnings in error logs due to undefined values

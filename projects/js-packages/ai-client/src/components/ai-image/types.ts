@@ -12,7 +12,11 @@ export interface EditorSelectors {
 }
 
 export interface CoreSelectors {
-	getMedia: ( mediaId: number ) => {
+	getEntityRecord: (
+		kind: string,
+		name: string,
+		key: number
+	) => {
 		id: number;
 		source_url: string;
 	} | null;

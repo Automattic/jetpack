@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: Jetpack Stats
- * Module Description: Collect valuable traffic stats and insights.
+ * Module Description: Clear, concise traffic insights right in your WordPress dashboard.
  * Sort Order: 1
  * Recommendation Order: 2
  * First Introduced: 1.1
@@ -27,6 +27,10 @@ use Automattic\Jetpack\Stats_Admin\Dashboard as Stats_Dashboard;
 use Automattic\Jetpack\Stats_Admin\Main as Stats_Main;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\Tracking;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
 
 if ( defined( 'STATS_DASHBOARD_SERVER' ) ) {
 	return;
@@ -61,6 +65,7 @@ function stats_load() {
 	Admin_Post_List_Column::register();
 
 	add_action( 'jetpack_admin_menu', 'stats_admin_menu' );
+	add_action( 'wp_before_admin_bar_render', 'stats_add_link_to_admin_bar_site_menu' );
 
 	add_filter( 'pre_option_db_version', 'stats_ignore_db_version' );
 
@@ -248,9 +253,7 @@ function stats_admin_menu() {
 		add_action( "load-$hook", 'stats_reports_load' );
 	} else {
 		// Enable the new Odyssey Stats experience.
-		$stats_dashboard = new Stats_Dashboard();
-		$hook            = Admin_Menu::add_menu( __( 'Stats', 'jetpack' ), __( 'Stats', 'jetpack' ), 'view_stats', 'stats', array( $stats_dashboard, 'render' ), 1 );
-		add_action( "load-$hook", array( $stats_dashboard, 'admin_init' ) );
+		Stats_Dashboard::init();
 	}
 }
 
@@ -312,8 +315,8 @@ function stats_script_dismiss_nudge_handler() {
 		// Send an AJAX request.
 		// Note we can provide a 'postponed_for' parameter to set the delay.
 		// Without a parameter it defaults to 30 days which is what we want here.
-		let nonce = <?php echo wp_json_encode( wp_create_nonce( 'wp_rest' ) ); ?>;
-		let url = <?php echo wp_json_encode( rest_url( '/jetpack/v4/stats-app/stats/notices' ) ); ?>;
+		let nonce = <?php echo wp_json_encode( wp_create_nonce( 'wp_rest' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
+		let url = <?php echo wp_json_encode( rest_url( '/jetpack/v4/stats-app/stats/notices' ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); ?>;
 		let data = {
 			id: 'opt_in_new_stats',
 			status: 'postponed',
@@ -358,7 +361,7 @@ function stats_js_remove_stnojs_cookie() {
 	?>
 <script type="text/javascript">
 /* <![CDATA[ */
-document.cookie = 'stnojs=0; expires=Wed, 9 Mar 2011 16:55:50 UTC; path=<?php echo esc_js( $parsed['path'] ); ?>';
+document.cookie = <?php echo wp_json_encode( 'stnojs=0; expires=Wed, 9 Mar 2011 16:55:50 UTC; path=' . $parsed['path'], JSON_UNESCAPED_SLASHES | JSON_HEX_TAG ); ?>;
 /* ]]> */
 </script>
 	<?php
@@ -494,7 +497,7 @@ function stats_reports_page( $main_chart_only = false ) {
 				?>
 				<a
 					style="font-size:13px;"
-					href="<?php echo esc_url( admin_url( 'admin.php?page=jetpack#/settings?term=' . rawurlencode( $i18n_headers['name'] ) ) ); ?>"
+					href="<?php echo esc_url( admin_url( 'admin.php?page=jetpack#/settings?term=' . rawurlencode( $i18n_headers['name'] ?? '' ) ) ); ?>"
 				>
 				<?php esc_html_e( 'Configure', 'jetpack' ); ?>
 				</a>
@@ -599,7 +602,7 @@ function stats_reports_page( $main_chart_only = false ) {
 
 	$get      = Client::remote_request( compact( 'url', 'method', 'timeout', 'user_id' ) );
 	$get_code = wp_remote_retrieve_response_code( $get );
-	if ( is_wp_error( $get ) || ( 2 !== (int) ( $get_code / 100 ) && 304 !== $get_code ) || empty( $get['body'] ) ) {
+	if ( is_wp_error( $get ) || $get_code === '' || ( 2 !== (int) ( $get_code / 100 ) && 304 !== $get_code ) || empty( $get['body'] ) ) {
 		stats_print_wp_remote_error( $get, $url );
 	} elseif ( ! empty( $get['headers']['content-type'] ) ) {
 		$type = $get['headers']['content-type'];
@@ -820,6 +823,34 @@ function stats_admin_bar_menu( &$wp_admin_bar ) {
 	);
 
 	$wp_admin_bar->add_menu( $menu );
+}
+
+/**
+ * Adds a Stats link to the site-name admin bar submenu, alongside Dashboard.
+ *
+ * @access public
+ * @return void
+ */
+function stats_add_link_to_admin_bar_site_menu() {
+	global $wp_admin_bar;
+
+	if (
+		! is_object( $wp_admin_bar ) ||
+		! $wp_admin_bar->get_node( 'dashboard' ) ||
+		! current_user_can( 'view_stats' ) ||
+		( new Host() )->is_wpcom_platform()
+	) {
+		return;
+	}
+
+	$wp_admin_bar->add_node(
+		array(
+			'parent' => 'site-name',
+			'id'     => 'jetpack-stats',
+			'title'  => __( 'Stats', 'jetpack' ),
+			'href'   => admin_url( 'admin.php?page=stats' ),
+		)
+	);
 }
 
 /**
@@ -1052,7 +1083,7 @@ function stats_dashboard_widget_content() {
 
 	$get      = Client::remote_request( compact( 'url', 'method', 'timeout', 'user_id' ) );
 	$get_code = wp_remote_retrieve_response_code( $get );
-	if ( is_wp_error( $get ) || ( 2 !== (int) ( $get_code / 100 ) && 304 !== $get_code ) || empty( $get['body'] ) ) {
+	if ( is_wp_error( $get ) || $get_code === '' || ( 2 !== (int) ( $get_code / 100 ) && 304 !== $get_code ) || empty( $get['body'] ) ) {
 		stats_print_wp_remote_error( $get, $url );
 	} else {
 		$body = stats_convert_post_titles( $get['body'] );
@@ -1171,7 +1202,7 @@ function stats_dashboard_widget_content() {
 function stats_print_wp_remote_error( $get, $url ) {
 	$state_name     = 'stats_remote_error_' . substr( md5( $url ), 0, 8 );
 	$previous_error = Jetpack::state( $state_name );
-	$error          = md5( wp_json_encode( compact( 'get', 'url' ) ) );
+	$error          = md5( wp_json_encode( compact( 'get', 'url' ), JSON_UNESCAPED_SLASHES ) );
 	Jetpack::state( $state_name, $error );
 	if ( $error !== $previous_error ) {
 		?>
@@ -1333,7 +1364,7 @@ function stats_get_remote_csv( $url ) {
 
 	$get      = Client::remote_request( compact( 'url', 'method', 'timeout', 'user_id' ) );
 	$get_code = wp_remote_retrieve_response_code( $get );
-	if ( is_wp_error( $get ) || ( 2 !== (int) ( $get_code / 100 ) && 304 !== $get_code ) || empty( $get['body'] ) ) {
+	if ( is_wp_error( $get ) || $get_code === '' || ( 2 !== (int) ( $get_code / 100 ) && 304 !== $get_code ) || empty( $get['body'] ) ) {
 		return array(); // @todo: return an error?
 	} else {
 		return stats_str_getcsv( $get['body'] );
@@ -1353,8 +1384,7 @@ function stats_str_getcsv( $csv ) {
 	$lines = explode( "\n", rtrim( $csv, "\n" ) );
 	return array_map(
 		function ( $line ) {
-			// @todo When we drop support for PHP <7.4, consider passing empty-string for `$escape` here for better spec compatibility.
-			return str_getcsv( $line, ',', '"', '\\' );
+			return str_getcsv( $line, ',', '"', '' );
 		},
 		$lines
 	);
@@ -1386,7 +1416,7 @@ function stats_get_from_restapi( $args = array(), $resource = '' ) {
 	$endpoint    = jetpack_stats_api_path( $resource );
 	$api_version = '1.1';
 	$args        = wp_parse_args( $args, array() );
-	$cache_key   = md5( implode( '|', array( $endpoint, $api_version, wp_json_encode( $args ) ) ) );
+	$cache_key   = md5( implode( '|', array( $endpoint, $api_version, wp_json_encode( $args, JSON_UNESCAPED_SLASHES ) ) ) );
 
 	$transient_name = "jetpack_restapi_stats_cache_{$cache_key}";
 

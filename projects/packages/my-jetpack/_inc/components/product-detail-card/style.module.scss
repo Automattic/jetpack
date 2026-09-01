@@ -1,7 +1,7 @@
 .card {
-	background-color: var( --jp-white );
+	background-color: var(--jp-white);
 	height: 100%;
-	padding: calc( var( --spacing-base ) * 8 );
+	padding: calc(var(--spacing-base) * 8);
 	position: relative;
 }
 
@@ -14,11 +14,11 @@
 .card-header {
 	display: flex;
 	align-items: center;
-	background: var( --jp-black );
-	color: var( --jp-white );
-	border-radius: var( --jp-border-radius ) var( --jp-border-radius ) 0 0;
-	padding: 0 var( --spacing-base );
-	height: calc( var( --spacing-base ) * 4 );
+	background: var(--jp-black);
+	color: var(--jp-white);
+	border-radius: var(--jp-border-radius) var(--jp-border-radius) 0 0;
+	padding: 0 var(--spacing-base);
+	height: calc(var(--spacing-base) * 4);
 	position: absolute;
 	top: 0;
 	left: 0;
@@ -26,16 +26,16 @@
 }
 
 .product-bundle-icon {
-	fill: var( --jp-white );
-	margin-right: var( --spacing-base );
+	fill: var(--jp-white);
+	margin-right: var(--spacing-base);
 }
 
 .product-bundle-icons,
 .product-icon {
 	display: flex;
 	align-items: center;
-	height: calc( var( --spacing-base ) * 4 );
-	margin-bottom: calc( var( --spacing-base ) * 4 );
+	height: calc(var(--spacing-base) * 4);
+	margin-bottom: calc(var(--spacing-base) * 4);
 }
 
 .plus-icon {
@@ -50,7 +50,7 @@
 	align-items: center;
 
 	svg {
-		margin-right: var( --spacing-base );
+		margin-right: var(--spacing-base);
 	}
 }
 
@@ -73,32 +73,32 @@
 	}
 
 	&:global(.is-secondary):hover:not(:disabled) {
-		background-color: var( --jp-black );
-		color: var( --jp-white );
+		background-color: var(--jp-black);
+		color: var(--jp-white);
 	}
 
 }
 
 .free-product-checkout-button {
-	margin-top: calc( var( --spacing-base ) * 2 );
+	margin-top: calc(var(--spacing-base) * 2);
 }
 
 .features {
 	margin: 0;
 	padding: 0;
 	flex-grow: 1;
-	margin-bottom: calc( var( --spacing-base ) * 2 );
+	margin-bottom: calc(var(--spacing-base) * 2);
 
 	li {
 		list-style: none;
 		display: flex;
 		align-items: flex-start;
-		margin-bottom: var( --spacing-base );
+		margin-bottom: var(--spacing-base);
 	}
 
 	svg {
-		fill: var( --jp-green-primary);
-		margin-right: var( --spacing-base );
+		fill: var(--jp-green-primary);
+		margin-right: var(--spacing-base);
 		flex-shrink: 0;
 	}
 }
@@ -111,30 +111,30 @@
 }
 
 .disclaimers {
-	margin-top: calc( var( --spacing-base ) * 2 );
+	margin-top: calc(var(--spacing-base) * 2);
 }
 
 .price-container {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: flex-end;
-	gap: calc( var( --spacing-base ) * 2 );
-	color: var( --jp-black );
+	gap: calc(var(--spacing-base) * 2);
+	color: var(--jp-black);
 }
 
 .price {
 	position: relative;
 
 	&.is-old {
-		color: var( --jp-gray-20 );
+		color: var(--jp-gray-20);
 
 		&::after {
 			content: " ";
 			display: block;
 			width: 100%;
 			height: 3px;
-			background: var( --jp-red);
-			border-radius: var( --jp-border-radius );
+			background: var(--jp-red);
+			border-radius: var(--jp-border-radius);
 			position: absolute;
 			top: 50%;
 			margin-top: -2px;
@@ -144,14 +144,14 @@
 }
 
 .price-description {
-	color: var( --jp-gray-40 );
-	margin-bottom: calc( var( --spacing-base ) * 3 );
+	color: var(--jp-gray-40);
+	margin-bottom: calc(var(--spacing-base) * 3);
 }
 
 .supporting-info {
-	margin-top: calc( var( --spacing-base ) * 5 );
+	margin-top: calc(var(--spacing-base) * 5);
 }
 
 .tos-container {
-	margin-bottom: calc( var( --spacing-base ) * 4 );
+	margin-bottom: calc(var(--spacing-base) * 4);
 }

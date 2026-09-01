@@ -1,8 +1,7 @@
-import { Spinner, getRedirectUrl } from '@automattic/jetpack-components';
-import { Button } from '@wordpress/components';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
+import { Button, LinkButton } from '@wordpress/ui';
 import PropTypes from 'prop-types';
-import React from 'react';
 import useActivePlugins from '../../../hooks/use-active-plugins';
 import { getProductGroup } from '../../activation-screen/utils';
 
@@ -24,15 +23,18 @@ const PrimaryLink = props => {
 
 	if ( isFetching ) {
 		return (
-			<Button className="jp-license-activation-screen-success-info--button">
-				<Spinner />
-			</Button>
+			<Button
+				className="jp-license-activation-screen-success-info--button"
+				loading
+				loadingAnnouncement={ __( 'Loading…', 'jetpack-licensing' ) }
+				aria-label={ __( 'Loading…', 'jetpack-licensing' ) }
+			/>
 		);
 	}
 
 	if ( isJetpackSocialProduct && ( isJetpackActive || isJetpackSocialActive ) ) {
 		return (
-			<Button
+			<LinkButton
 				className="jp-license-activation-screen-success-info--button"
 				href={
 					siteAdminUrl +
@@ -45,7 +47,7 @@ const PrimaryLink = props => {
 				}
 			>
 				{ __( 'Configure my site', 'jetpack-licensing' ) }
-			</Button>
+			</LinkButton>
 		);
 	}
 
@@ -54,31 +56,34 @@ const PrimaryLink = props => {
 			? siteAdminUrl + 'admin.php?page=jetpack-protect'
 			: getRedirectUrl( 'jetpack-license-activation-success-scan', { site: siteRawUrl } );
 		return (
-			<Button className="jp-license-activation-screen-success-info--button" href={ redirectSource }>
+			<LinkButton
+				className="jp-license-activation-screen-success-info--button"
+				href={ redirectSource }
+			>
 				{ __( 'View scan results', 'jetpack-licensing' ) }
-			</Button>
+			</LinkButton>
 		);
 	}
 
 	// If the user has not completed the first step of the Assistant, make the primary button link to it.
 	if ( currentRecommendationsStep === 'not-started' ) {
 		return (
-			<Button
+			<LinkButton
 				className="jp-license-activation-screen-success-info--button"
 				href={ siteAdminUrl + 'admin.php?page=jetpack#/recommendations' }
 			>
 				{ __( 'Configure my site', 'jetpack-licensing' ) }
-			</Button>
+			</LinkButton>
 		);
 	}
 
 	return (
-		<Button
+		<LinkButton
 			className="jp-license-activation-screen-success-info--button"
 			href={ getRedirectUrl( 'license-activation-view-my-plans', { site: siteRawUrl } ) }
 		>
 			{ __( 'View my plans', 'jetpack-licensing' ) }
-		</Button>
+		</LinkButton>
 	);
 };
 

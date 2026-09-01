@@ -17,7 +17,13 @@ use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 
-// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move the functions and such to some other file.
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
+// Required directly so the AI master-gate helper is available regardless of
+// which loader pulled this class in.
+require_once __DIR__ . '/_inc/lib/class-jetpack-ai-settings.php';
 
 /**
  * General Gutenberg editor specific functionality
@@ -65,6 +71,113 @@ class Jetpack_Gutenberg {
 	);
 
 	/**
+	 * Display-only blocks whose registration PHP can be deferred until the block
+	 * actually appears on a front-end page.
+	 *
+	 * Every block listed here has been verified to be "pure": the callback it hooks
+	 * to `init` does nothing but call Blocks::jetpack_register_block() (plus trivial
+	 * connection/module guards). It registers exactly one block type named
+	 * `jetpack/<dir>` (matching its directory), and any front-end hooks it adds (asset
+	 * enqueues, wp_footer, filters, …) live inside its render callback, so they only
+	 * run when the block is rendered.
+	 *
+	 * On plain front-end requests these blocks are NOT loaded on `init`. Instead they
+	 * are registered just-in-time the first time the block (or a block whose subtree
+	 * contains it) is encountered while rendering, via self::lazy_register_deferred_block()
+	 * on `pre_render_block`. On admin/REST/cron/CLI/XML-RPC (block-editor) requests they
+	 * keep loading eagerly so the editor, the block-types REST endpoint and server-side
+	 * rendering are unaffected.
+	 *
+	 * One class of front-end request is NOT safe to defer on: front-end block editors
+	 * (e.g. P2) render the inserter on a plain front-end page, so is_block_editor_context()
+	 * is false, yet the block must be registered at `init` for get_availability() to report
+	 * it as available. self::load_independent_blocks() therefore never defers a block that
+	 * ships in the `no-post-editor` preset (extensions/index.json) — those are exactly the
+	 * blocks available in editors other than the post editor. A block listed here that is
+	 * also in `no-post-editor` simply keeps loading eagerly.
+	 *
+	 * A block must NOT be added here if:
+	 *   - its `init` callback registers any other hook, post meta, REST route,
+	 *     shortcode, block pattern or hooked-block;
+	 *   - it registers more than one block type, or a block name that differs from its
+	 *     directory name (e.g. videopress registers `jetpack/videopress-block`); or
+	 *   - it uses `plan_check` (its availability is computed from the init-time
+	 *     `jetpack_register_gutenberg_extensions` hook, which lazy registration bypasses,
+	 *     so the front-end availability nudge/render could read a stale value); or
+	 *   - a front-end path reads its entry from get_cached_availability() before the
+	 *     block renders. Deferred blocks appear unavailable there until the lazy
+	 *     registration callback runs; or
+	 *   - its block file can be `require`d by another runtime code path after `init`
+	 *     (e.g. slideshow is included by modules/shortcodes/slideshow.php). The lazy
+	 *     loader registers a block by running the `init` callback its include adds; if
+	 *     the file was already included elsewhere, the include is a no-op and the
+	 *     callback would never run, so the block would silently fail to register; or
+	 *   - another runtime code path calls a function defined in its block file
+	 *     (e.g. button defines Button\render_email(), called by subscriptions and
+	 *     memberships for WooCommerce e-mail rendering). Deferring the file would leave
+	 *     that function undefined when the dependent path runs; or
+	 *   - it registers a `render_email_callback`. That callback is read off the
+	 *     registered block type by the WooCommerce e-mail editor — an out-of-band
+	 *     renderer that does not go through `pre_render_block`/`do_blocks` — so the block
+	 *     must already be registered when an e-mail containing it is rendered, which can
+	 *     happen on a front-end request (e.g. a transactional e-mail sent during checkout).
+	 *
+	 * When in doubt, leave it out: omitted blocks simply keep their current eager
+	 * behavior.
+	 *
+	 * @since 16.0
+	 * @var string[] Block feature names (directory names, without the `jetpack/` prefix).
+	 */
+	private static $lazy_blocks = array(
+		'blog-stats',
+		'blogging-prompt',
+		'business-hours',
+		'eventbrite',
+		'gif',
+		'goodreads',
+		'google-calendar',
+		'google-docs-embed',
+		'image-compare',
+		'like',
+		'markdown',
+		'nextdoor',
+		'payments-intro',
+		'pinterest',
+		'related-posts',
+		'repeat-visitor',
+		'sharing-buttons',
+		'story',
+		'tock',
+		'top-posts',
+		'voice-to-content',
+	);
+
+	/**
+	 * Blocks that were deferred on the current request and still need to be
+	 * registered just-in-time when first rendered. Keyed by block feature name.
+	 *
+	 * @since 16.0
+	 * @var array<string,bool>
+	 */
+	private static $deferred_blocks = array();
+
+	/**
+	 * Fallback minimum plan requirements for WordPress.com/Atomic sites.
+	 *
+	 * Used when features have conditional availability (e.g., sticker-based gating)
+	 * and don't appear in features_data['available']. This only affects the upsell
+	 * message shown to users.
+	 *
+	 * @since 15.5
+	 * @var array Feature slug => minimum WordPress.com plan slug.
+	 */
+	private static $wpcom_minimum_plan_fallbacks = array(
+		'donations'              => 'value_bundle',
+		'payment-buttons'        => 'value_bundle',
+		'paypal-payment-buttons' => 'value_bundle',
+	);
+
+	/**
 	 * Storing the contents of the preset file.
 	 *
 	 * Already been json_decode.
@@ -72,6 +185,15 @@ class Jetpack_Gutenberg {
 	 * @var null|object JSON decoded object after first usage.
 	 */
 	private static $preset_cache = null;
+
+	/**
+	 * Keep track of JS loading strategies for each block that needs it.
+	 *
+	 * @var array<string, array|bool>
+	 *
+	 * @since 15.0
+	 */
+	private static $block_js_loading_strategies = array();
 
 	/**
 	 * Check to see if a minimum version of Gutenberg is available. Because a Gutenberg version is not available in
@@ -231,9 +353,11 @@ class Jetpack_Gutenberg {
 	 * @return void
 	 */
 	public static function reset() {
-		self::$extensions          = null;
-		self::$availability        = array();
-		self::$cached_availability = null;
+		self::$extensions                  = null;
+		self::$availability                = array();
+		self::$cached_availability         = null;
+		self::$block_js_loading_strategies = array();
+		self::$deferred_blocks             = array();
 	}
 
 	/**
@@ -277,17 +401,24 @@ class Jetpack_Gutenberg {
 	 */
 	public static function get_preset( $deprecated = null ) {
 		if ( $deprecated ) {
-			_deprecated_argument( __METHOD__, '$$next-version', 'The $preset argument is no longer needed or used.' );
+			_deprecated_argument( __METHOD__, '14.3', 'The $preset argument is no longer needed or used.' );
 		}
 
 		if ( self::$preset_cache ) {
 			return self::$preset_cache;
 		}
 
-		self::$preset_cache = json_decode(
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
-			file_get_contents( JETPACK__PLUGIN_DIR . self::get_blocks_directory() . 'index.json' )
-		);
+		/*
+		 * The manifest is a build artifact and is absent in a source checkout (e.g. when
+		 * running the test suite). Return false — as documented — rather than calling
+		 * wp_json_file_decode() on a missing file, which triggers _doing_it_wrong().
+		 */
+		$preset_file = JETPACK__PLUGIN_DIR . self::get_blocks_directory() . 'index.json';
+		if ( ! file_exists( $preset_file ) ) {
+			return false;
+		}
+
+		self::$preset_cache = wp_json_file_decode( $preset_file );
 		return self::$preset_cache;
 	}
 
@@ -313,6 +444,11 @@ class Jetpack_Gutenberg {
 	public static function get_available_extensions( $allowed_extensions = null ) {
 		$exclusions         = get_option( 'jetpack_excluded_extensions', array() );
 		$allowed_extensions = $allowed_extensions === null ? self::get_jetpack_gutenberg_extensions_allowed_list() : $allowed_extensions;
+
+		// Avoid errors if option data is not as expected.
+		if ( ! is_array( $exclusions ) ) {
+			$exclusions = array();
+		}
 
 		return array_diff( $allowed_extensions, $exclusions );
 	}
@@ -411,6 +547,11 @@ class Jetpack_Gutenberg {
 			 * @param array
 			 */
 			self::$extensions = apply_filters( 'jetpack_set_available_extensions', self::get_available_extensions() );
+
+			if ( ! is_array( self::$extensions ) ) {
+				_doing_it_wrong( __METHOD__, esc_html__( 'The jetpack_set_available_extensions filter must return an array.', 'jetpack' ), '14.9' );
+				self::$extensions = array();
+			}
 		}
 
 		return self::$extensions;
@@ -594,9 +735,10 @@ class Jetpack_Gutenberg {
 			$script_version = self::get_asset_version( $script_relative_path );
 			$view_script    = plugins_url( $script_relative_path, JETPACK__PLUGIN_FILE );
 			$view_script    = add_query_arg( 'minify', 'false', $view_script );
+			$strategy       = self::get_block_js_loading_strategy( $type );
 
 			// Enqueue dependencies.
-			wp_enqueue_script( 'jetpack-block-' . $type, $view_script, $script_dependencies, $script_version, false );
+			wp_enqueue_script( 'jetpack-block-' . $type, $view_script, $script_dependencies, $script_version, $strategy );
 
 			// If this is a customizer preview, enqueue the dependencies and render the script directly to the preview after autosave.
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended
@@ -604,7 +746,7 @@ class Jetpack_Gutenberg {
 				// The Map block is dependent on wp-element, and it doesn't appear to to be possible to load
 				// this dynamically into the customizer iframe currently.
 				if ( 'map' === $type ) {
-					echo '<div>' . esc_html_e( 'No map preview available. Publish and refresh to see this widget.', 'jetpack' ) . '</div>';
+					echo '<div>' . esc_html__( 'No map preview available. Publish and refresh to see this widget.', 'jetpack' ) . '</div>';
 					echo '<script>';
 					echo 'Array.from(document.getElementsByClassName(\'wp-block-jetpack-map\')).forEach(function(element){element.style.display = \'none\';})';
 					echo '</script>';
@@ -649,6 +791,40 @@ class Jetpack_Gutenberg {
 	public static function enqueue_block_editor_assets() {
 		if ( ! self::should_load() ) {
 			return;
+		}
+
+		/*
+		 * When the user returns to the editor right after a successful plan
+		 * purchase (signalled by the `plan_upgraded` redirect argument), refresh
+		 * the locally cached plan from WordPress.com before block availability is
+		 * computed below. Otherwise `available_blocks` is derived from the stale
+		 * `jetpack_active_plan` option (only refreshed by the daily heartbeat) and
+		 * paid blocks keep showing their upgrade nudge even though the plan is now
+		 * active. Simple sites gate features live via `wpcom_site_has_feature()`,
+		 * so they neither need nor benefit from this.
+		 *
+		 * The refresh is a blocking WordPress.com request, so it is guarded to run
+		 * only on a connected, non-WPCOM site, throttled to once per minute (a
+		 * repeated or bookmarked `?plan_upgraded` URL cannot trigger a request on
+		 * every load), and time-boxed so a slow origin cannot hang the editor. The
+		 * client-side reload fallback covers a skipped or failed refresh. The value
+		 * is only used to trigger a cache refresh from an authoritative source, so
+		 * no nonce is required. See FORMS-712.
+		 */
+		if (
+			! empty( $_GET['plan_upgraded'] ) // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			&& ! ( defined( 'IS_WPCOM' ) && IS_WPCOM )
+			&& Jetpack::is_connection_ready()
+			&& ! get_transient( 'jetpack_plan_upgraded_refresh' )
+		) {
+			set_transient( 'jetpack_plan_upgraded_refresh', 1, MINUTE_IN_SECONDS );
+
+			$cap_plan_refresh_timeout = static function () {
+				return 5;
+			};
+			add_filter( 'http_request_timeout', $cap_plan_refresh_timeout, PHP_INT_MAX );
+			Jetpack_Plan::refresh_from_wpcom();
+			remove_filter( 'http_request_timeout', $cap_plan_refresh_timeout, PHP_INT_MAX );
 		}
 
 		$status = new Status();
@@ -723,7 +899,8 @@ class Jetpack_Gutenberg {
 		}
 		// AI Assistant
 		$ai_assistant_state = array(
-			'is-enabled' => apply_filters( 'jetpack_ai_enabled', true ),
+			'is-enabled'     => Jetpack_AI_Settings::is_ai_enabled(),
+			'is-seo-enabled' => Jetpack_AI_Settings::is_ai_seo_enabled(),
 		);
 
 		$screen_base = null;
@@ -752,6 +929,13 @@ class Jetpack_Gutenberg {
 				'is_coming_soon'                => $status->is_coming_soon(),
 				'is_offline_mode'               => $status->is_offline_mode(),
 				'is_newsletter_feature_enabled' => class_exists( '\Jetpack_Memberships' ),
+				// Whether the current user may send a newsletter test email to an
+				// address other than their own. The wpcom guard enforces this on send
+				// (also checking add_users and site stickers); this flag only controls
+				// whether the editor's recipient field is editable. Approximated with
+				// manage_options so editors, who can only test-send to themselves,
+				// aren't shown an editable field that would always be rejected.
+				'can_send_test_email_to_others' => current_user_can( 'manage_options' ),
 				// this is the equivalent of JP initial state siteData.showMyJetpack (class-jetpack-redux-state-helper)
 				// used to determine if we can link to My Jetpack from the block editor
 				'is_my_jetpack_available'       => My_Jetpack_Initializer::should_initialize(),
@@ -778,6 +962,16 @@ class Jetpack_Gutenberg {
 			'siteLocale'       => str_replace( '_', '-', get_locale() ),
 			'ai-assistant'     => $ai_assistant_state,
 			'screenBase'       => $screen_base,
+			/**
+			 * Add your own feature flags to the block editor.
+			 *
+			 * You can access the feature flags in the block editor via hasFeatureFlag( 'your-feature-flag' ) function.
+			 *
+			 * @since 14.8
+			 *
+			 * @param array true Enable the RePublicize UI in the block editor context. Defaults to true.
+			 */
+			'feature_flags'    => apply_filters( 'jetpack_block_editor_feature_flags', array() ),
 			'pluginBasePath'   => plugins_url( '', Constants::get_constant( 'JETPACK__PLUGIN_FILE' ) ),
 		);
 
@@ -792,11 +986,31 @@ class Jetpack_Gutenberg {
 	}
 
 	/**
+	 * Block feature names in the `no-post-editor` preset (extensions/index.json): blocks
+	 * whose editor bundle is usable outside the post editor, so they appear in front-end
+	 * block editors such as P2. These must never be deferred (see self::$lazy_blocks and
+	 * self::load_independent_blocks()).
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return string[] Feature names, or an empty array when the preset is unavailable.
+	 */
+	private static function get_no_post_editor_extensions() {
+		$preset = self::get_preset();
+		if ( is_object( $preset ) && isset( $preset->{'no-post-editor'} ) && is_array( $preset->{'no-post-editor'} ) ) {
+			return $preset->{'no-post-editor'};
+		}
+		return array();
+	}
+
+	/**
 	 * Some blocks do not depend on a specific module,
 	 * and can consequently be loaded outside of the usual modules.
 	 * We will look for such modules in the extensions/ directory.
 	 *
 	 * @since 7.1.0
+	 * @since 16.0 Pure display blocks are deferred on front-end requests and registered on first render.
+	 * @since $$next-version$$ Blocks in the `no-post-editor` preset are never deferred, so front-end editors (e.g. P2) keep them.
 	 * @see wp_common_block_scripts_and_styles()
 	 */
 	public static function load_independent_blocks() {
@@ -807,7 +1021,34 @@ class Jetpack_Gutenberg {
 			 */
 			$directories = array( 'blocks', 'plugins', 'extended-blocks' );
 
+			/*
+			 * On plain front-end requests, defer the registration PHP of pure display
+			 * blocks (see self::$lazy_blocks) until the block is actually encountered
+			 * while rendering. The block editor, the block-types REST endpoint and
+			 * server-side rendering all run in a "block-editor context" and keep loading
+			 * every block eagerly, so their behavior is unchanged.
+			 */
+			$defer = ! self::is_block_editor_context();
+
+			/*
+			 * Front-end block editors (e.g. P2) render the inserter on a plain front-end
+			 * request, so is_block_editor_context() is false there, yet a block must be
+			 * registered on `init` for get_availability() to report it and keep it in the
+			 * inserter. Never defer a block that ships in the `no-post-editor` preset —
+			 * those are precisely the blocks usable outside the post editor.
+			 */
+			$no_post_editor_blocks = $defer ? self::get_no_post_editor_extensions() : array();
+
 			foreach ( static::get_extensions() as $extension ) {
+				if (
+					$defer
+					&& in_array( $extension, self::$lazy_blocks, true )
+					&& ! in_array( $extension, $no_post_editor_blocks, true )
+				) {
+					self::$deferred_blocks[ $extension ] = true;
+					continue;
+				}
+
 				foreach ( $directories as $dirname ) {
 					$path = JETPACK__PLUGIN_DIR . "extensions/{$dirname}/{$extension}/{$extension}.php";
 
@@ -817,8 +1058,310 @@ class Jetpack_Gutenberg {
 					}
 				}
 			}
+
+			if ( ! empty( self::$deferred_blocks ) ) {
+				add_filter( 'pre_render_block', array( __CLASS__, 'lazy_register_deferred_block' ), 10, 3 );
+			}
 		}
 	}
+
+	/**
+	 * Register deferred blocks present in a top-level block's subtree before it renders.
+	 *
+	 * Hooked to `pre_render_block`. For a top-level block ($parent_block is null) the
+	 * filter fires before core builds the block's WP_Block object, so we walk the whole
+	 * parsed subtree and register every deferred Jetpack block it contains. This must
+	 * happen at the top level: core resolves an inner block's `block_type` when it
+	 * constructs that inner WP_Block, which is *before* the inner block's own
+	 * `pre_render_block` fires — so registering a deferred dynamic block only when its
+	 * own inner filter fires would be too late and its render_callback would be skipped.
+	 * Inner-block invocations (non-null $parent_block) are ignored because the top-level
+	 * walk has already handled the whole tree. Returns $pre_render untouched.
+	 *
+	 * @since 16.0
+	 *
+	 * @param string|null    $pre_render   The pre-rendered content. Default null.
+	 * @param array          $parsed_block The parsed block being rendered.
+	 * @param \WP_Block|null $parent_block Parent block, or null for a top-level block.
+	 *
+	 * @return string|null Unchanged $pre_render.
+	 */
+	public static function lazy_register_deferred_block( $pre_render, $parsed_block, $parent_block = null ) {
+		// Respect any earlier short-circuit, only act on top-level blocks, and stop
+		// once every deferred block on the page has been registered.
+		if ( null !== $pre_render || null !== $parent_block || empty( self::$deferred_blocks ) ) {
+			return $pre_render;
+		}
+
+		self::register_deferred_blocks_in_subtree( $parsed_block );
+
+		return $pre_render;
+	}
+
+	/**
+	 * Recursively register any deferred Jetpack blocks found in a parsed block subtree.
+	 *
+	 * @since 16.0
+	 *
+	 * @param array $parsed_block A parsed block (with optional `innerBlocks`).
+	 * @param array $seen_refs    Reusable-block IDs already visited, to guard against cycles.
+	 *
+	 * @return void
+	 */
+	private static function register_deferred_blocks_in_subtree( $parsed_block, &$seen_refs = array() ) {
+		if ( empty( self::$deferred_blocks ) ) {
+			return;
+		}
+
+		$block_name = $parsed_block['blockName'] ?? '';
+		if ( '' !== $block_name && str_starts_with( $block_name, 'jetpack/' ) ) {
+			$feature = substr( $block_name, strlen( 'jetpack/' ) );
+			if ( ! empty( self::$deferred_blocks[ $feature ] ) ) {
+				// Only attempt registration once per block, whether or not it succeeds
+				// (a block guarded by a connection/module check may intentionally not register).
+				unset( self::$deferred_blocks[ $feature ] );
+
+				if ( ! self::is_registered( $block_name ) ) {
+					self::load_and_register_deferred_block( $feature );
+				}
+			}
+		}
+
+		/*
+		 * A synced pattern / reusable block (core/block) keeps its content in a separate
+		 * wp_block post that core only parses at render time (render_block_core_block),
+		 * so it is absent from this parsed tree. Resolve the reference and recurse so a
+		 * deferred block inside the pattern is registered before core builds its WP_Block.
+		 *
+		 * core/navigation has the same ref-based hidden-content shape (a wp_navigation
+		 * post) but is intentionally not handled: none of the deferred blocks can be
+		 * inserted into a navigation menu through the editor, and resolving the ref would
+		 * add a get_post()/parse_blocks() on essentially every front-end page (menus are
+		 * near-ubiquitous) for a case that cannot occur without hand-authored markup.
+		 */
+		if ( 'core/block' === $block_name && ! empty( $parsed_block['attrs']['ref'] ) ) {
+			$ref = (int) $parsed_block['attrs']['ref'];
+			if ( ! isset( $seen_refs[ $ref ] ) ) {
+				$seen_refs[ $ref ] = true;
+				$reusable_block    = get_post( $ref );
+				if ( $reusable_block instanceof \WP_Post && 'wp_block' === $reusable_block->post_type ) {
+					foreach ( parse_blocks( $reusable_block->post_content ) as $inner_block ) {
+						self::register_deferred_blocks_in_subtree( $inner_block, $seen_refs );
+					}
+				}
+			}
+		}
+
+		if ( ! empty( $parsed_block['innerBlocks'] ) ) {
+			foreach ( $parsed_block['innerBlocks'] as $inner_block ) {
+				self::register_deferred_blocks_in_subtree( $inner_block, $seen_refs );
+			}
+		}
+	}
+
+	/**
+	 * Include a deferred block's registration PHP and run the `init` callback it
+	 * adds, immediately.
+	 *
+	 * The block files register themselves with `add_action( 'init', … )`. By render
+	 * time `init` has long since fired, so including the file is not enough on its
+	 * own: we capture the callback(s) the include adds to `init` and invoke them now.
+	 * Only blocks in self::$lazy_blocks reach this path, and each adds exactly its
+	 * own registration callback to `init`, so this runs that single registration.
+	 *
+	 * @since 16.0
+	 *
+	 * @param string $feature Block feature name (directory name without the `jetpack/` prefix).
+	 *
+	 * @return void
+	 */
+	private static function load_and_register_deferred_block( $feature ) {
+		$path = JETPACK__PLUGIN_DIR . "extensions/blocks/{$feature}/{$feature}.php";
+		if ( ! file_exists( $path ) ) {
+			self::warn_about_deferred_block_registration_failure( $feature, 'missing block registration file' );
+			return;
+		}
+
+		global $wp_filter;
+
+		$before = isset( $wp_filter['init'] ) ? $wp_filter['init']->callbacks : array();
+
+		include_once $path;
+
+		if ( ! isset( $wp_filter['init'] ) ) {
+			self::warn_about_deferred_block_registration_failure( $feature, 'block file did not add an init callback' );
+			return;
+		}
+
+		$registered_callback = false;
+
+		// Run (and then detach) any callback the include just added to `init`.
+		foreach ( $wp_filter['init']->callbacks as $priority => $callbacks ) {
+			foreach ( $callbacks as $id => $callback ) {
+				if ( isset( $before[ $priority ][ $id ] ) ) {
+					continue;
+				}
+				$registered_callback = true;
+				if ( is_callable( $callback['function'] ) ) {
+					call_user_func( $callback['function'] );
+				}
+				remove_action( 'init', $callback['function'], $priority );
+			}
+		}
+
+		if ( ! $registered_callback ) {
+			self::warn_about_deferred_block_registration_failure( $feature, 'block file did not add a new init callback' );
+		}
+	}
+
+	/**
+	 * Surface lazy-registration mistakes during debugging without adding front-end noise.
+	 *
+	 * @since 16.0
+	 *
+	 * @param string $feature Block feature name (directory name without the `jetpack/` prefix).
+	 * @param string $reason  Short reason for the failure.
+	 *
+	 * @return void
+	 */
+	private static function warn_about_deferred_block_registration_failure( $feature, $reason ) {
+		if ( ! ( defined( 'WP_DEBUG' ) && WP_DEBUG ) || ! function_exists( '_doing_it_wrong' ) ) {
+			return;
+		}
+
+		_doing_it_wrong(
+			__METHOD__,
+			sprintf(
+				/* translators: 1: Jetpack block feature name. 2: Failure reason. */
+				esc_html__( 'Lazy Jetpack block registration failed for "%1$s": %2$s.', 'jetpack' ),
+				esc_html( $feature ),
+				esc_html( $reason )
+			),
+			'16.0'
+		);
+	}
+
+	/**
+	 * Determine whether the current request is a block-editor context that needs
+	 * every Jetpack block loaded eagerly on `init`.
+	 *
+	 * Returns true for admin, REST, cron, WP-CLI and XML-RPC requests so the editor,
+	 * the `/wp/v2/block-types` endpoint and server-side rendering keep seeing the full
+	 * set of blocks. Returns false only for plain front-end web requests, where pure
+	 * display blocks are registered just-in-time as they render.
+	 *
+	 * This runs at module-load time (around after_setup_theme), before core defines
+	 * REST_REQUEST during parse_request, so self-hosted and Atomic REST requests are
+	 * detected from the request URL instead of the constant. That URL check cannot
+	 * work on WordPress.com Simple: its public API filters `rest_url_prefix` to an
+	 * empty string, so rest_get_url_prefix() returns '' and the REST roots computed
+	 * below collapse to '//', which no request path can match. Simple's requests are
+	 * detected via REST_API_REQUEST instead, which its API entry points define before
+	 * wp-load.php runs.
+	 *
+	 * @since 16.0
+	 *
+	 * @return bool True for block-editor (non-front-end) contexts, false for plain front-end requests.
+	 */
+	private static function is_block_editor_context() {
+		if ( is_admin() ) {
+			return true;
+		}
+
+		/*
+		 * Treat any non-front-end execution context as block-editor. These are not the
+		 * front-end hot path this gate optimizes, and some still render block content
+		 * (e.g. cron-generated subscription e-mails) that depends on full registration.
+		 *
+		 * Core defines REST_REQUEST during parse_request, after this runs, so it is
+		 * normally still unset here; it is checked anyway so the result stays correct
+		 * if this is ever called later in the request. REST_API_REQUEST is what catches
+		 * WordPress.com Simple, where the URL check below cannot work at all (see the
+		 * method docblock).
+		 */
+		if (
+			Constants::is_true( 'DOING_CRON' )
+			|| Constants::is_true( 'WP_CLI' )
+			|| Constants::is_true( 'XMLRPC_REQUEST' )
+			|| Constants::is_true( 'REST_REQUEST' )
+			|| Constants::is_true( 'REST_API_REQUEST' )
+		) {
+			return true;
+		}
+
+		/*
+		 * No request URI means a non-web execution context (WP-CLI without it, test
+		 * suites, etc.). A genuine front-end page request always carries one, so it
+		 * costs nothing on the hot path to treat the empty case as "load eagerly".
+		 */
+		$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '';
+		if ( '' === $request_uri ) {
+			return true;
+		}
+
+		/*
+		 * Anchor the REST root (home path + prefix) at the start of the request path,
+		 * so a front-end URL that merely carries the prefix in a query value or a
+		 * deeper path segment is not misread as a REST request. home_url() is used
+		 * rather than rest_url() so detection does not depend on permalink structure.
+		 * Both the rewritten `/wp-json/` form and the index-permalink
+		 * `/index.php/wp-json/` form (used when the site lacks pretty permalinks) are
+		 * matched.
+		 */
+		$path = (string) wp_parse_url( $request_uri, PHP_URL_PATH );
+		if ( '' !== $path ) {
+			$home_path   = trailingslashit( (string) wp_parse_url( home_url(), PHP_URL_PATH ) );
+			$rest_prefix = trailingslashit( rest_get_url_prefix() );
+			$rest_roots  = array(
+				$home_path . $rest_prefix,
+				$home_path . 'index.php/' . $rest_prefix,
+			);
+			foreach ( $rest_roots as $rest_root ) {
+				if ( str_starts_with( trailingslashit( $path ), $rest_root ) ) {
+					return true;
+				}
+			}
+		}
+
+		// Plain-permalink REST uses a `rest_route` query var; match the exact key.
+		$query = (string) wp_parse_url( $request_uri, PHP_URL_QUERY );
+		if ( '' !== $query ) {
+			parse_str( $query, $query_vars );
+			if ( ! empty( $query_vars['rest_route'] ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Editor-oriented extensions that nonetheless have front-end side effects and must
+	 * therefore keep loading on every request, even outside the block editor.
+	 *
+	 * Keyed by directory ('plugins' / 'extended-blocks') for an exact, intentional match.
+	 *
+	 * @since 16.0
+	 *
+	 * @var array
+	 */
+	private static $frontend_editor_extensions = array(
+		'plugins'         => array(
+			// Mounts the Reader Chat widget on the front end (wp_enqueue_scripts) and
+			// wires the AI sidebar/provider registration AI Assistant depends on.
+			'ai-assistant-plugin',
+			// Signals Big Sky via the jetpack_image_studio_enabled filter on `init`,
+			// which can run on the front end.
+			'image-studio',
+		),
+		'extended-blocks' => array(
+			// Registers the videopress/video block on `init`, required to render it on the front end.
+			'videopress-video',
+			// Registers the `premium-content/container` plan availability that the Premium Content
+			// block's front-end render reads via required_plan_checks(); skipping it breaks the paywall.
+			'premium-content-container',
+		),
+	);
 
 	/**
 	 * Loads PHP components of block editor extensions.
@@ -833,13 +1376,28 @@ class Jetpack_Gutenberg {
 				'plugins',
 			);
 
+			$is_editor_context = self::is_block_editor_context();
+
 			// Collect the extension paths.
 			foreach ( $extensions_to_load as $extension_to_load ) {
 				$extensions_folder = glob( JETPACK__PLUGIN_DIR . 'extensions/' . $extension_to_load . '/*' );
 
+				$frontend_allow_list = self::$frontend_editor_extensions[ $extension_to_load ] ?? array();
+
 				// Require each of the extension files, in case it exists.
 				foreach ( $extensions_folder as $extension_folder ) {
-					$name                = basename( $extension_folder );
+					$name = basename( $extension_folder );
+
+					/*
+					 * On plain front-end requests, only load extensions that have known
+					 * front-end side effects. Editor-only extensions are skipped here and
+					 * loaded on admin/REST (block-editor) requests instead, reducing the
+					 * per-front-end-request PHP/opcache footprint.
+					 */
+					if ( ! $is_editor_context && ! in_array( $name, $frontend_allow_list, true ) ) {
+						continue;
+					}
+
 					$extension_file_path = JETPACK__PLUGIN_DIR . 'extensions/' . $extension_to_load . '/' . $name . '/' . $name . '.php';
 
 					if ( file_exists( $extension_file_path ) ) {
@@ -1022,9 +1580,9 @@ class Jetpack_Gutenberg {
 		// Normalize URL.
 		$url = sprintf(
 			'%s://%s%s%s',
-			isset( $url_components['scheme'] ) ? $url_components['scheme'] : 'https',
+			$url_components['scheme'] ?? 'https',
 			$url_components['host'],
-			isset( $url_components['path'] ) ? $url_components['path'] : '/',
+			$url_components['path'] ?? '/',
 			isset( $url_components['query'] ) ? '?' . $url_components['query'] : ''
 		);
 
@@ -1214,6 +1772,10 @@ class Jetpack_Gutenberg {
 
 			if ( ! empty( $features_data['available'][ $slug ] ) ) {
 				$plan = $features_data['available'][ $slug ][0];
+			} elseif ( isset( self::$wpcom_minimum_plan_fallbacks[ $slug ] ) ) {
+				// Fallback for features with conditional availability (e.g., sticker-based gating)
+				// that don't appear in features_data['available'].
+				$plan = self::$wpcom_minimum_plan_fallbacks[ $slug ];
 			}
 		} else {
 			// Jetpack sites.
@@ -1242,13 +1804,13 @@ class Jetpack_Gutenberg {
 			$availability = self::get_cached_availability();
 			$bare_slug    = self::remove_extension_prefix( $slug );
 			if ( isset( $availability[ $bare_slug ] ) && $availability[ $bare_slug ]['available'] ) {
-				return call_user_func( $render_callback, $prepared_attributes, $block_content );
+				return call_user_func( $render_callback, $prepared_attributes, $block_content, $block );
 			}
 
 			// A preview of the block is rendered for admins on the frontend with an upgrade nudge.
 			if ( isset( $availability[ $bare_slug ] ) ) {
 				if ( self::should_show_frontend_preview( $availability[ $bare_slug ] ) ) {
-					$block_preview = call_user_func( $render_callback, $prepared_attributes, $block_content );
+					$block_preview = call_user_func( $render_callback, $prepared_attributes, $block_content, $block );
 
 					// If the upgrade nudge isn't already being displayed by a parent block, display the nudge.
 					if ( isset( $block->attributes['shouldDisplayFrontendBanner'] ) && $block->attributes['shouldDisplayFrontendBanner'] ) {
@@ -1276,7 +1838,7 @@ class Jetpack_Gutenberg {
 	 * @return string
 	 */
 	public static function display_deprecated_block_message( $block_content, $block ) {
-		if ( in_array( $block['blockName'], self::$deprecated_blocks, true ) ) {
+		if ( isset( $block['blockName'] ) && in_array( $block['blockName'], self::$deprecated_blocks, true ) ) {
 			if ( current_user_can( 'edit_posts' ) ) {
 				$block_content = self::notice(
 					__( 'This block is no longer supported. Its contents will no longer be displayed to your visitors and as such this block should be removed.', 'jetpack' ),
@@ -1292,39 +1854,12 @@ class Jetpack_Gutenberg {
 	}
 
 	/**
-	 * Temporarily bypasses _doing_it_wrong() notices for block metadata collection registration.
-	 *
-	 * WordPress 6.7 introduced block metadata collections (with strict path validation).
-	 * Any sites using symlinks for plugins will fail the validation which causes the metadata
-	 * collection to not be registered. However, the blocks will still fall back to the regular
-	 * registration and no functionality is affected.
-	 * While this validation is being discussed in WordPress Core (#62140),
-	 * this method allows registration to proceed by temporarily disabling
-	 * the relevant notice.
-	 *
-	 * @since 14.2
-	 *
-	 * @param bool   $trigger       Whether to trigger the error.
-	 * @param string $function      The function that was called.
-	 * @param string $message       A message explaining what was done incorrectly.
-	 * @param string $version       The version of WordPress where the message was added.
-	 * @return bool Whether to trigger the error.
-	 */
-	public static function bypass_block_metadata_doing_it_wrong( $trigger, $function, $message, $version ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		if ( $function === 'WP_Block_Metadata_Registry::register_collection' ) {
-			return false;
-		}
-		return $trigger;
-	}
-
-	/**
 	 * Register block metadata collection for Jetpack blocks.
 	 * This allows for more efficient block metadata loading by avoiding
 	 * individual block.json file reads at runtime.
 	 *
-	 * Uses wp_register_block_metadata_collection() if available (WordPress 6.7+)
-	 * and if the manifest file exists. The manifest file is auto-generated
-	 * during the build process.
+	 * Uses wp_register_block_metadata_collection() if the manifest file
+	 * exists. The manifest file is auto-generated during the build process.
 	 *
 	 * Runs on plugins_loaded to ensure registration happens before individual
 	 * blocks register themselves on init.
@@ -1335,17 +1870,46 @@ class Jetpack_Gutenberg {
 	 */
 	public static function register_block_metadata_collection() {
 		$meta_file_path = JETPACK__PLUGIN_DIR . '_inc/blocks/blocks-manifest.php';
-		if ( function_exists( 'wp_register_block_metadata_collection' ) && file_exists( $meta_file_path ) ) {
-			add_filter( 'doing_it_wrong_trigger_error', array( __CLASS__, 'bypass_block_metadata_doing_it_wrong' ), 10, 4 );
-
-			// @phan-suppress-next-line PhanUndeclaredFunction -- New in WP 6.7. We're checking if it exists first. @phan-suppress-current-line UnusedPluginSuppression
+		if ( file_exists( $meta_file_path ) ) {
 			wp_register_block_metadata_collection(
 				JETPACK__PLUGIN_DIR . '_inc/blocks/',
 				$meta_file_path
 			);
-
-			remove_filter( 'doing_it_wrong_trigger_error', array( __CLASS__, 'bypass_block_metadata_doing_it_wrong' ), 10 );
 		}
+	}
+
+	/**
+	 * Set the JS loading strategy for a block.
+	 *
+	 * @param string     $block_name The block name.
+	 * @param array|bool $strategy   The JS loading strategy.
+	 *
+	 * @since 15.0
+	 */
+	public static function set_block_js_loading_strategy( $block_name, $strategy ) {
+		self::$block_js_loading_strategies[ $block_name ] = $strategy;
+	}
+
+	/**
+	 * Get the JS loading strategy for a block.
+	 *
+	 * @param string $block_name The block name.
+	 *
+	 * @return array|bool The JS loading strategy for the block.
+	 *
+	 * @since 15.0
+	 */
+	public static function get_block_js_loading_strategy( $block_name ) {
+		$strategy = array(
+			'strategy'  => 'defer',
+			'in_footer' => true,
+		);
+
+		if ( isset( self::$block_js_loading_strategies[ $block_name ] ) ) {
+			$strategy = self::$block_js_loading_strategies[ $block_name ];
+		}
+
+		return $strategy;
 	}
 }
 

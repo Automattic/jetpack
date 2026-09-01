@@ -11,7 +11,6 @@ import { BaseControl } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
-import React from 'react';
 /**
  * Internal dependencies
  */
@@ -20,14 +19,15 @@ import './style.scss';
  * Types
  */
 import type { UsageBarProps, UsageControlProps } from './types';
+import type { JSX, ReactNode } from 'react';
 
 /**
  * UsageBar component
  *
  * @param {UsageBarProps} props - Component props.
- * @return {React.ReactNode}     UsageBar react component.
+ * @return {ReactNode}     UsageBar react component.
  */
-export const UsageBar = ( { usage }: UsageBarProps ): React.JSX.Element => {
+export const UsageBar = ( { usage }: UsageBarProps ): JSX.Element => {
 	if ( usage == null ) {
 		return null;
 	}
@@ -84,7 +84,7 @@ function UsageControl( {
 	if ( nextResetDate && planType === PLAN_TYPE_TIERED ) {
 		daysUntilResetMessage = createInterpolateElement(
 			sprintf(
-				// translators: %1$d: number of days until the next usage count reset
+				// translators: %1$d: number of days until the next usage count reset, %2$s: date of next reset
 				__( 'Requests will reset to <strong>%1$d</strong> on %2$s.', 'jetpack' ),
 				requestsLimit,
 				nextResetDate

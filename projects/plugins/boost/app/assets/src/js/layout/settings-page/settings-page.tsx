@@ -1,6 +1,5 @@
 import SpeedScore from '$features/speed-score/speed-score';
-import Footer from '$layout/footer/footer';
-import Header from '$layout/header/header';
+import BoostAdminPage from '$layout/boost-admin-page/boost-admin-page';
 import Support from './support/support';
 import Tips from './tips/tips';
 import clsx from 'clsx';
@@ -9,9 +8,10 @@ import { usePremiumFeatures } from '$lib/stores/premium-features';
 import CriticalCssProvider from '$features/critical-css/critical-css-context/critical-css-context-provider';
 import NoticeManager from '$features/notice/manager';
 import { NoticeProvider } from '$features/notice/context';
+import type { ReactNode } from 'react';
 
 type SettingsPageProps = {
-	children: React.ReactNode;
+	children: ReactNode;
 };
 
 const SettingsPage = ( { children }: SettingsPageProps ) => {
@@ -21,26 +21,25 @@ const SettingsPage = ( { children }: SettingsPageProps ) => {
 	return (
 		<NoticeProvider>
 			<CriticalCssProvider>
-				<div id="jb-dashboard" className="jb-dashboard jb-dashboard--main">
-					<Header />
-
-					<div className="jb-section jb-section--alt jb-section--scores">
-						<SpeedScore />
-					</div>
-
-					{ children && (
-						<div className={ clsx( 'jb-section jb-section--main', styles.section ) }>
-							{ children }
+				<BoostAdminPage>
+					<div id="jb-dashboard" className="jb-dashboard jb-dashboard--main">
+						<div className="jb-section jb-section--alt jb-section--scores">
+							<SpeedScore />
 						</div>
-					) }
 
-					<Tips />
+						{ children && (
+							<div className={ clsx( 'jb-section jb-section--main', styles.section ) }>
+								{ children }
+							</div>
+						) }
 
-					{ hasPrioritySupport && <Support /> }
+						<Tips />
 
-					<Footer />
-					<NoticeManager />
-				</div>
+						{ hasPrioritySupport && <Support /> }
+
+						<NoticeManager />
+					</div>
+				</BoostAdminPage>
 			</CriticalCssProvider>
 		</NoticeProvider>
 	);

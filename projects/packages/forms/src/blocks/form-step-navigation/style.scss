@@ -1,0 +1,80 @@
+.wp-block-jetpack-form-step-navigation__wrapper {
+	width: 100%;
+}
+
+.wp-block-jetpack-form-step-navigation {
+	flex: 0 0 100%;
+	display: flex;
+	box-sizing: border-box;
+	flex-wrap: inherit;
+}
+
+// Legacy jetpack/button nav buttons only. The equivalent core/button rules were
+// removed (FORMS-576) because the float + zeroed gap made width-driven wrapping
+// overlap. These are kept untouched so existing jetpack/button forms (which
+// migrate to core/button on next edit) render exactly as before.
+.wp-block-jetpack-form-step-navigation:has(.wp-block-jetpack-button[style*="width:"]) {
+	gap: 0;
+}
+
+.wp-block-jetpack-form-step-navigation .wp-block-jetpack-button[style*="width:"] .wp-block-button__link {
+	width: calc(100% - var(--wp--style--block-gap, 1.5rem) / 2);
+	white-space: nowrap;
+}
+
+.wp-block-jetpack-form-step-navigation .wp-block-jetpack-button[style*="width:"] .is-next,
+.wp-block-jetpack-form-step-navigation .wp-block-jetpack-button[style*="width:"] .is-submit {
+	float: right;
+}
+
+// Keep #44926 (no inner-text wrap) for width-set core/button nav buttons,
+// without the float / gap:0 / width-calc that caused the overlap (FORMS-576).
+.wp-block-jetpack-form-step-navigation .wp-block-button[style*="width:"] .wp-block-button__link {
+	white-space: nowrap;
+}
+
+.contact-form .wp-block-jetpack-form-step-navigation .wp-block-button__link {
+	width: 100%;
+}
+
+.is-content-justification-space-between .wp-block-jetpack-button:has(.is-next, .is-submit),
+.is-content-justification-space-between .wp-block-button.is-next,
+.is-content-justification-space-between .wp-block-button.is-submit {
+	margin-left: auto;
+}
+
+.wp-block-jetpack-form-step-navigation.is-vertical {
+	flex-direction: column;
+}
+
+.wp-block-jetpack-form-step-navigation.is-content-justification-space-between.is-vertical {
+	align-items: space-between;
+}
+
+.wp-block-jetpack-form-step-navigation.is-content-justification-right.is-vertical {
+	align-items: flex-end;
+}
+
+.wp-block-jetpack-form-step-navigation.is-content-justification-left.is-vertical {
+	align-items: flex-start;
+}
+
+.wp-block-jetpack-form-step-navigation.is-content-justification-center.is-vertical {
+	align-items: center;
+}
+
+.wp-block-jetpack-form-step-navigation.is-content-justification-space-between {
+	justify-content: space-between;
+}
+
+.wp-block-jetpack-form-step-navigation.is-content-justification-right {
+	justify-content: flex-end;
+}
+
+.wp-block-jetpack-form-step-navigation.is-content-justification-left {
+	justify-content: flex-start;
+}
+
+.wp-block-jetpack-form-step-navigation.is-content-justification-center {
+	justify-content: center;
+}

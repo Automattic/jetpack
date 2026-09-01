@@ -1,0 +1,20 @@
+/**
+ * The following styles get applied inside the editor only.
+ */
+@use "@wordpress/base-styles/variables" as *;
+@use "@wordpress/base-styles/breakpoints" as *;
+@use "@wordpress/base-styles/mixins" as *;
+
+.wp-block-jetpack-paypal-payment-buttons {
+
+	.block-editor-plain-text {
+
+		width: auto;
+
+		@include editor-input-reset();
+	}
+
+	.components-notice {
+		align-self: normal;
+	}
+}

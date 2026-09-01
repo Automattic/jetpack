@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: WooCommerce Analytics
- * Module Description: Enhanced analytics for WooCommerce and Jetpack users.
+ * Module Description: Get actionable insights on your store’s orders, revenue, and customers.
  * Sort Order: 13
  * First Introduced: 8.4
  * Requires Connection: Yes
@@ -14,6 +14,10 @@
  */
 
 use Automattic\Woocommerce_Analytics;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
 
 /**
  * Load module functionality from the package only if

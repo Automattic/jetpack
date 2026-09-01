@@ -1,9 +1,8 @@
 import clsx from 'clsx';
-import { memoize } from 'lodash';
 
 /**
  * Returns a class based on the context a color is being used and its slug.
- * Note: This helper function was copied from core @wordpress/block-editor lib,
+ * Note: This helper function was copied from core `@wordpress/block-editor` lib,
  * in order to avoid requiring not-needed dependencies to reduce the size of
  * compiled files used in the front-end.
  *
@@ -118,11 +117,16 @@ const generateColorsObject = ( {
 	};
 };
 
+const getColorsObjectCache = {};
+
 /**
  * Memoized version of generateColorsObject.
+ * @param {object} config - See generateColorsObject
+ * @return {object} with color details.
  * @see {@link generateColorsObject} for params and return type.
  */
-export const getColorsObject = memoize( generateColorsObject, config => {
+export const getColorsObject = config => {
 	// Cache key is a string with all arguments joined into one string.
-	return Object.values( config ).join();
-} );
+	const key = Object.values( config ).join();
+	return ( getColorsObjectCache[ key ] ??= generateColorsObject( config ) );
+};

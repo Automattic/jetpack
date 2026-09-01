@@ -63,12 +63,17 @@ function getImageRatio( img ) {
 }
 
 function applyRowRatio( row, [ ratio, weightedRatio ], width ) {
-	const rawHeight =
-		( 1 / ratio ) * ( width - GUTTER_WIDTH * ( row.childElementCount - 1 ) - weightedRatio );
+	// Reserve one gutter per gap between columns, matching the single gutter the
+	// DOM actually renders. Reserving more makes each layout pass narrower than
+	// the measured width, which spirals into an infinite resize loop when the
+	// block is a content-sized flex item (inside a Row/Stack). See JETPACK-1726.
+	const totalGutterSpace = GUTTER_WIDTH * ( row.childElementCount - 1 );
+	const availableWidth = width - totalGutterSpace;
+	const rawHeight = ( 1 / ratio ) * ( availableWidth - weightedRatio );
 
 	return applyColRatio( row, {
 		rawHeight,
-		rowWidth: width - GUTTER_WIDTH * ( row.childElementCount - 1 ),
+		rowWidth: availableWidth,
 	} );
 }
 

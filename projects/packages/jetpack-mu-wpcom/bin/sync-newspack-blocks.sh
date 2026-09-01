@@ -20,19 +20,16 @@ if [[ $1 =~ ^--release= ]]
 then
 	MODE=release
 	NAME=${key_value}
-	URL=https://github.com/Automattic/newspack-blocks/releases/download/$NAME/newspack-blocks.zip
+	# The workspace monorepo tags each plugin's releases as `<plugin>@<version>`.
+	URL=https://github.com/Automattic/newspack-workspace/releases/download/newspack-blocks@$NAME/newspack-blocks.zip
 elif [[ $1 =~ ^--branch= ]]
 then
 	MODE=branch
 	NAME=${key_value}
-	URL=https://github.com/Automattic/newspack-blocks/archive/$NAME.zip
+	URL=https://github.com/Automattic/newspack-workspace/archive/$NAME.zip
 elif [[ $1 =~ ^--path= ]]
 then
 	MODE=path
-elif [[ $1 =~ ^--nodemodules ]]
-# try whether user passed --nodemodules
-then
-	MODE=npm
 fi
 
 # print usage is no mode matched
@@ -41,25 +38,26 @@ then
     echo "Usage: pnpm run sync:newspack-blocks [arguments]"
     echo
     echo Possible arguments:
-    echo --branch=master
-    echo "--nodemodules (to use defined in package.json)"
-    echo "--path=/path/to/newspack-blocks"
-    echo --release=v4.0.0
+    echo --branch=main
+    echo "--path=/path/to/newspack-workspace/plugins/newspack-blocks"
+    echo --release=4.30.3
     echo
-    echo You can find the latest release ID on https://github.com/Automattic/newspack-blocks/releases/latest
+    echo "You can find the latest release on https://github.com/Automattic/newspack-workspace/releases?q=newspack-blocks"
     echo
     exit 1
 fi
 
-TARGET=./src/features/newspack-blocks/synced-newspack-blocks
+BASE=$(cd "$(dirname "${BASH_SOURCE[0]}")"/../../../.. && pwd)
+PKG_BASE=$(cd "$(dirname "${BASH_SOURCE[0]}")"/.. && pwd)
+TARGET="$PKG_BASE/src/features/newspack-blocks/synced-newspack-blocks"
 
-if [[ ( "$MODE" != "path" ) && ( "$MODE" != "npm" ) ]];
+if [[ "$MODE" != "path" ]];
 then
 	# return early if the version is the same
-	if [ -f $TARGET/version.txt ]; then
-		CURRENT_VERSION=$(< $TARGET/version.txt )
+	if [ -f "$TARGET"/version.txt ]; then
+		CURRENT_VERSION=$(< "$TARGET"/version.txt )
 
-		if [[ "$CURRENT_VERSION" == "$NAME" ]]; then
+		if [[ "$CURRENT_VERSION" == "v$NAME" ]]; then
 			echo "The current version $CURRENT_VERSION of the newspack-blocks is synced."
 			read -rp "Do you want to proceed anyway? (y/N): " proceed
 			if [[ ! "$proceed" =~ ^[Yy]$ ]]; then
@@ -108,9 +106,6 @@ then
 	fi
 elif [ "$MODE" = "path" ] ; then
 	CODE=${key_value}
-elif [ "$MODE" = "npm" ] ; then
-	# Way back to wp-calypso root:
-	CODE="../../node_modules/@automattic/newspack-blocks"
 fi
 
 if [ ! -d "$CODE" ] ; then
@@ -124,58 +119,56 @@ echo Syncing files to jetpack-mu-wpcom...
 rm -rf "$TARGET"
 
 # ensure target dirs exist
-mkdir -p $TARGET/blocks
-mkdir -p $TARGET/components
-mkdir -p $TARGET/shared
-mkdir -p $TARGET/types
+mkdir -p "$TARGET/blocks"
+mkdir -p "$TARGET/components"
+mkdir -p "$TARGET/shared"
+mkdir -p "$TARGET/types"
 
 # Update Newspack Blocks version number in the package.
 NEW_VERSION=v$(jq -r .version "$CODE"/package.json)
-echo "$NEW_VERSION" > $TARGET/version.txt
+echo "$NEW_VERSION" > "$TARGET/version.txt"
 sed -E -i.bak "s|^define\( 'NEWSPACK_BLOCKS__VERSION', '.*' \);$|define( 'NEWSPACK_BLOCKS__VERSION', '$NEW_VERSION' );|" "$TARGET"/../index.php
 rm "$TARGET"/../index.php.bak
 
 # copy files and directories
-cp "$CODE"/includes/class-newspack-blocks-api.php $TARGET/
-cp "$CODE"/includes/class-newspack-blocks.php $TARGET/
-cp -R "$CODE"/src/blocks/homepage-articles $TARGET/blocks/
-cp -R "$CODE"/src/blocks/carousel $TARGET/blocks/
-cp -R "$CODE"/src/shared $TARGET/
-cp -R "$CODE"/src/components $TARGET/
+cp "$CODE"/includes/class-newspack-blocks-api.php "$TARGET/"
+cp "$CODE"/includes/class-newspack-blocks.php "$TARGET/"
+cp -R "$CODE"/src/blocks/homepage-articles "$TARGET/blocks/"
+cp -R "$CODE"/src/blocks/carousel "$TARGET/blocks/"
+cp -R "$CODE"/src/shared "$TARGET/"
+cp -R "$CODE"/src/components "$TARGET/"
 
 # Get Typescript working by copying the main type defs over.
-cp "$CODE"/src/types/index.d.ts $TARGET/types/
+cp "$CODE"/src/types/index.d.ts "$TARGET"/types/
 # Function types need to be capitalized in our system. We only match " function"
 # beginning with a space to avoid matching it as a substring. (Not perfect, but
 # imperfections will be caught by CI with failing tsc, etc.)
 sed "${sedi[@]}" -e "s| function| Function|g" "$TARGET/types/index.d.ts"
 
-# Note: I would have used eslint-nibble, but it doesn't support autofixing via the CLI.
 echo "Changing JS textdomain to match jetpack-mu-wpcom..."
-BASE=$(cd "$(dirname "${BASH_SOURCE[0]}")"/../../../.. && pwd)
-FULLTARGET="$PWD/$TARGET"
 
 # Add a temporary single-rule eslint.config.mjs file.
 cat > "$TARGET/eslint.config.mjs" <<EOF
-import makeBaseConfig from 'jetpack-js-tools/eslintrc/base.mjs';
+import { makeBaseConfig, defineConfig, javascriptFiles } from 'jetpack-js-tools/eslintrc/base.mjs';
 
 // This directory is copy-pasted from elsewhere, but we still need to run this one rule over it.
-export default [
-	// Import base config, but no rules.
-	...makeBaseConfig( import.meta.url ).map( block => ( { ...block, rules: {} } ) ),
-	// Enable just this one rule.
-	{
-		rules: {
-			"@wordpress/i18n-text-domain": [ "error", { allowedTextDomain: "jetpack-mu-wpcom" } ],
-		}
-	},
-];
+export default defineConfig(
+    // Import base config, but no rules.
+    makeBaseConfig( import.meta.url ).map( block => ( { ...block, rules: {} } ) ),
+    // Enable just this one rule.
+    {
+        files: javascriptFiles,
+        rules: {
+            "@wordpress/i18n-text-domain": [ "error", { allowedTextDomain: "jetpack-mu-wpcom" } ],
+        }
+    }
+);
 EOF
-( cd "$BASE" && pnpm run lint-file --no-inline-config --no-ignore --fix "$FULLTARGET" )
+( cd "$BASE" && pnpm run lint-file --no-inline-config --no-ignore --fix "$TARGET" )
 rm "$TARGET/eslint.config.mjs"
 
 echo "Changing JS translation function call to avoid bad minification..."
-pnpm --package=jscodeshift dlx jscodeshift -t ./bin/sync-newspack-blocks-formatter.js --extensions=js $TARGET
+pnpm --package=jscodeshift dlx jscodeshift -s -t "$PKG_BASE/bin/sync-newspack-blocks-formatter.js" --extensions=js "$TARGET"
 
 # Add temporary PHPCS config file.
 PHPCSSTANDARDFILE="$TARGET/phpcs.tmp.xml"

@@ -1,0 +1,84 @@
+@use "@wordpress/base-styles/variables";
+@use "@wordpress/base-styles/mixins";
+
+// Stack component styles for layout
+.jp-forms-stack {
+	display: flex;
+	gap: var(--wp-ui-stack-gap);
+	align-items: var(--wp-ui-stack-align);
+	justify-content: var(--wp-ui-stack-justify);
+
+	&.jp-forms-stack--column {
+		flex-direction: column;
+	}
+
+	&.jp-forms-stack--wrap {
+		flex-wrap: wrap;
+	}
+}
+
+.admin-ui-page {
+	color: var(--wpds-color-foreground-content-neutral);
+	background: var(--wpds-color-background-surface-neutral-strong);
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+}
+
+.admin-ui-page .admin-ui-page__header {
+	padding: variables.$grid-unit-10 variables.$grid-unit * 2.5;
+	position: sticky;
+	top: 0;
+	background: var(--wpds-color-background-surface-neutral-strong);
+	transition: padding ease-out 0.1s;
+	flex-shrink: 0;
+	z-index: 10;
+	border-bottom: none;
+}
+
+.admin-ui-page__header-subtitle {
+	padding-block-end: variables.$grid-unit-10;
+	color: var(--wpds-color-foreground-content-neutral-weak);
+
+	@include mixins.body-medium();
+	margin: 0;
+}
+
+.admin-ui-page__content {
+	flex-grow: 1;
+	overflow: auto;
+	display: flex;
+	flex-direction: column;
+	gap: variables.$grid-unit-30;
+
+	&.has-padding {
+		padding: variables.$grid-unit-40 variables.$grid-unit * 2.5;
+
+		@container (max-width: 430px) {
+
+			padding: variables.$grid-unit-15 variables.$grid-unit-30;
+		}
+	}
+
+	&.has-border {
+		border-top: 1px solid var(--wpds-color-stroke-surface-neutral);
+	}
+
+	&.is-constrained {
+
+		> * {
+			max-width: 660px;
+			width: 100%;
+			margin: 0 auto;
+		}
+	}
+}
+
+.admin-ui-page__sidebar-toggle-slot {
+	display: flex;
+	align-items: center;
+
+	&:empty {
+		display: none;
+	}
+}

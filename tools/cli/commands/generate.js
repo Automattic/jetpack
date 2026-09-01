@@ -4,7 +4,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import chalk from 'chalk';
 import enquirer from 'enquirer';
-import yaml from 'js-yaml';
+import * as yaml from 'js-yaml';
 import pluralize from 'pluralize';
 import semver from 'semver';
 import { doesRepoExist } from '../helpers/github.js';
@@ -222,7 +222,7 @@ export function getQuestions( type ) {
 				},
 				{
 					message:
-						'This TypeScript package will contain pre-built code, built using tsc (no bundling or minification).',
+						'This TypeScript package will contain pre-built code, built using tsgo (no bundling or minification).',
 					value: 'ts-tsc',
 				},
 			],
@@ -277,6 +277,17 @@ export function getQuestions( type ) {
 					value: 'blank',
 				},
 			],
+		},
+		{
+			type: 'confirm',
+			name: 'pluginOnWporg',
+			message: 'Will this plugin be published to WordPress.org?',
+			initial() {
+				return this.state.answers.mirrorrepo;
+			},
+			skip() {
+				return ! this.state.answers.mirrorrepo;
+			},
 		},
 	];
 	const extensionQuestions = [];
@@ -454,11 +465,13 @@ async function generatePluginFromStarter( projDir, answers ) {
 	composerJson.extra ||= {};
 	composerJson.extra.changelogger ||= {};
 	composerJson.extra.changelogger.versioning = answers.versioningMethod;
-	// Add proposed WP.org slug and remove alternative beta slug if we've indicated this is a public plugin.
-	if ( answers.mirrorrepo ) {
+	// Add proposed WP.org slug and remove alternative beta slug if we've indicated this will be on wporg.
+	if ( answers.pluginOnWporg ) {
 		composerJson.extra[ 'wp-plugin-slug' ] = normalizeSlug( answers.name );
+		composerJson.extra[ 'wp-svn-autopublish' ] = true;
 		delete composerJson.extra[ 'beta-plugin-slug' ];
 	}
+	composerJson.extra = Object.fromEntries( Object.entries( composerJson.extra ).sort() );
 	writeComposerJson( answers.project, composerJson, answers.projDir );
 }
 
@@ -480,6 +493,19 @@ function generatePlugin( answers, pluginDir ) {
 	);
 	const readmeTxtData = fs.readFileSync( readmeTxtPath, 'utf8' );
 	writeToFile( pluginDir + '/README.txt', readmeTxtContent + readmeTxtData );
+
+	// Update composer.json
+	const composerJson = readComposerJson( answers.project );
+	composerJson.extra.autotagger ??= true;
+	composerJson.extra.autorelease ??= true;
+	if ( answers.pluginOnWporg ) {
+		composerJson.extra[ 'wp-plugin-slug' ] = normalizeSlug( answers.name );
+		composerJson.extra[ 'wp-svn-autopublish' ] = true;
+	} else {
+		composerJson.extra[ 'beta-plugin-slug' ] = normalizeSlug( answers.name );
+	}
+	composerJson.extra = Object.fromEntries( Object.entries( composerJson.extra ).sort() );
+	writeComposerJson( answers.project, composerJson, answers.projDir );
 }
 
 /**
@@ -514,7 +540,7 @@ function generateJsPackage( answers, pkgDir ) {
 	} else {
 		filename = 'jsconfig.json';
 		opts = {
-			jsx: 'react',
+			jsx: 'react-jsx',
 		};
 		xtends = '';
 	}
@@ -568,18 +594,9 @@ function generateJsPackage( answers, pkgDir ) {
 						jetpackWebpackConfig.FileRule(),
 					],
 				},
-				plugins: [${
-					ts
-						? `
-					...jetpackWebpackConfig.StandardPlugins( {
-						// Generate \`.d.ts\` files per tsconfig settings.
-						ForkTSCheckerPlugin: {},
-					} ),
-				`
-						: `
+				plugins: [
 					...jetpackWebpackConfig.StandardPlugins(),
-				`
-				}],
+				],
 			};
 			`.replace( /^\t\t\t/gm, '' )
 		);
@@ -661,6 +678,7 @@ function createPackageJson( packageJson, answers ) {
 			'test-coverage': 'pnpm run test --coverage',
 		};
 
+		packageJson.devDependencies ??= {};
 		packageJson.devDependencies.jest = findVersionFromPnpmLock( 'jest' );
 
 		if ( answers.typescript.endsWith( '-webpack' ) ) {
@@ -669,7 +687,10 @@ function createPackageJson( packageJson, answers ) {
 			packageJson.devDependencies[ 'webpack-cli' ] = findVersionFromPnpmLock( 'webpack-cli' );
 			packageJson.scripts = {
 				...packageJson.scripts,
-				build: 'pnpm run clean && pnpm exec webpack',
+				// For TS, generate `.d.ts` files with tsgo per tsconfig settings.
+				build: ts
+					? 'pnpm run clean && pnpm exec webpack && pnpm exec tsgo --pretty'
+					: 'pnpm run clean && pnpm exec webpack',
 				clean: 'rm -rf build/',
 			};
 			packageJson.exports = {
@@ -682,10 +703,15 @@ function createPackageJson( packageJson, answers ) {
 		}
 		if ( ts ) {
 			packageJson.devDependencies.typescript = findVersionFromPnpmLock( 'typescript' );
+			if ( ! answers.typescript.endsWith( '-src' ) ) {
+				packageJson.devDependencies[ '@typescript/native-preview' ] = findVersionFromPnpmLock(
+					'@typescript/native-preview'
+				);
+			}
 			if ( answers.typescript === 'ts-tsc' ) {
 				packageJson.scripts = {
 					...packageJson.scripts,
-					build: 'pnpm run clean && pnpm exec tsc --pretty',
+					build: 'pnpm run clean && pnpm exec tsgo --pretty',
 					clean: 'rm -rf build/',
 				};
 				packageJson.exports = {
@@ -750,7 +776,7 @@ async function createComposerJson( composerJson, answers ) {
 	switch ( answers.type ) {
 		case 'package':
 			composerJson.require = composerJson.require || {};
-			composerJson.require.php = '>=7.2';
+			composerJson.require.php = '>=7.4';
 			composerJson.extra = composerJson.extra || {};
 			composerJson.extra[ 'branch-alias' ] = composerJson.extra[ 'branch-alias' ] || {};
 			composerJson.extra[ 'branch-alias' ][ 'dev-trunk' ] = '0.1.x-dev';
@@ -774,7 +800,7 @@ async function createComposerJson( composerJson, answers ) {
 			delete composerJson[ 'require-dev' ][ 'yoast/phpunit-polyfills' ];
 			composerJson.scripts = {
 				'test-js': [ 'pnpm run test' ],
-				'test-coverage': [ 'pnpm run test-coverage' ],
+				'test-js-coverage': [ 'pnpm run test-coverage' ],
 			};
 			if ( ! answers.typescript.endsWith( '-src' ) ) {
 				composerJson.scripts = {
@@ -972,9 +998,9 @@ function createReadMeTxt( answers ) {
 		`=== Jetpack ${ answers.name } ===\n` +
 		'Contributors: automattic,\n' +
 		'Tags: jetpack, stuff\n' +
-		'Requires at least: 6.7\n' +
-		'Requires PHP: 7.2\n' +
-		'Tested up to: 6.8\n' +
+		'Requires at least: 7.0\n' +
+		'Requires PHP: 7.4\n' +
+		'Tested up to: 7.1\n' +
 		`Stable tag: ${ answers.version }\n` +
 		'License: GPLv2 or later\n' +
 		'License URI: http://www.gnu.org/licenses/gpl-2.0.html\n' +

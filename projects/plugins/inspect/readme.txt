@@ -1,10 +1,10 @@
 === Jetpack inspect ===
 Contributors: automattic,
 Tags: jetpack, stuff
-Requires at least: 6.7
-Requires PHP: 7.2
-Tested up to: 6.8
-Stable tag: 1.0.0-alpha
+Requires at least: 7.0
+Requires PHP: 7.4
+Tested up to: 7.1
+Stable tag: 2.0.0-a.11
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -33,13 +33,23 @@ directory take precedence. For example, `/assets/screenshot-1.png` would win ove
 2. This is the second screen shot
 
 == Changelog ==
-### 2.0.0-a.1 - 2025-04-04
-#### Added
-- Added an initial version of Jetpack Inspect to the Jetpack Monorepo.
-
+### 2.0.0-a.11 - 2026-04-10
 #### Changed
-- General: Update minimum PHP version to 7.2.
-- General: Indicate compatibility with WordPress 6.8.
+- Dependencies: Update lock file to keep root requirements in sync.
+- Remove baseUrl from tsconfig for tsgo migration.
+- Remove header border-bottom from the admin page for a cleaner unified header appearance.
+- Switch to Native TypeScript compiler based on Go.
+- Update dependencies.
+- Update design of the sidebar upsell.
+- Update package dependencies.
+
+#### Removed
+- General: Update minimum WordPress version to 6.8.
+
+#### Fixed
+- Admin Page: Restore border on header component.
+- Compatibility: Clean up deprecated CSS.
+
 == Arbitrary section ==
 
 You may provide arbitrary sections, in the same format as the ones above.  This may be of use for extremely complicated

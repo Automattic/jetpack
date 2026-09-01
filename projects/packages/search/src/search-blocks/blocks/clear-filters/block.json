@@ -1,0 +1,30 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "jetpack-search/clear-filters",
+	"version": "0.1.0",
+	"title": "Clear Filters",
+	"category": "jetpack-search",
+	"description": "A button that clears every active filter. Powered by Jetpack Search.",
+	"supports": {
+		"html": false,
+		"interactivity": true,
+		"spacing": {
+			"margin": [ "top", "bottom" ],
+			"padding": true
+		}
+	},
+	"styles": [
+		{ "name": "default", "label": "Default", "isDefault": true },
+		{ "name": "compact", "label": "Compact" }
+	],
+	"usesContext": [ "jetpack-search/inInteractiveScope" ],
+	"textdomain": "jetpack-search-pkg",
+	"attributes": {
+		"label": { "type": "string", "default": "" },
+		"hideWhenInactive": { "type": "boolean", "default": true }
+	},
+	"render": "file:./render.php",
+	"viewScriptModule": "file:../../../../build/search-blocks/clear-filters.js",
+	"style": "file:../../../../build/search-blocks/clear-filters.css"
+}

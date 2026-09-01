@@ -7,6 +7,10 @@
 
 use Automattic\Jetpack\Waf\Brute_Force_Protection\Brute_Force_Protection_Shared_Functions;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 new WPCOM_JSON_API_Site_Settings_Endpoint(
 	array(
 		'description'      => 'Get detailed settings information about a site.',
@@ -135,6 +139,7 @@ new WPCOM_JSON_API_Site_Settings_Endpoint(
 			'jetpack_waf_share_data'                    => '(bool) Whether the WAF should share basic data with Jetpack',
 			'jetpack_waf_share_debug_data'              => '(bool) Whether the WAF should share debug data with Jetpack',
 			'jetpack_waf_automatic_rules_last_updated_timestamp' => '(int) Timestamp of the last time the automatic rules were updated',
+			'mcp_abilities'                             => '(array) List of MCP Abilities',
 		),
 
 		'response_format'     => array(
@@ -147,6 +152,8 @@ new WPCOM_JSON_API_Site_Settings_Endpoint(
 
 /**
  * Manage Site settings endpoint.
+ *
+ * @phan-constructor-used-for-side-effects
  */
 class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 
@@ -328,10 +335,12 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					$response[ $key ] = $blog_id;
 					break;
 				case 'name':
-					$response[ $key ] = (string) htmlspecialchars_decode( get_bloginfo( 'name' ), ENT_QUOTES );
+					$name             = get_bloginfo( 'name' );
+					$response[ $key ] = is_string( $name ) ? htmlspecialchars_decode( $name, ENT_QUOTES ) : '';
 					break;
 				case 'description':
-					$response[ $key ] = (string) htmlspecialchars_decode( get_bloginfo( 'description' ), ENT_QUOTES );
+					$description      = get_bloginfo( 'description' );
+					$response[ $key ] = is_string( $description ) ? htmlspecialchars_decode( $description, ENT_QUOTES ) : '';
 					break;
 				case 'URL':
 					$response[ $key ] = (string) home_url();
@@ -372,15 +381,16 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						)
 					);
 
-					$newsletter_categories   = maybe_unserialize( get_option( 'wpcom_newsletter_categories', array() ) );
-					$newsletter_category_ids = array_map(
-						function ( $newsletter_category ) {
-							return $newsletter_category['term_id'];
-						},
-						$newsletter_categories
-					);
+					// Make sure we are returning a consistent type
+					if ( ! class_exists( 'Jetpack_Newsletter_Category_Helper' ) ) {
+						require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-newsletter-category-helper.php';
+					}
+					$newsletter_category_ids = Jetpack_Newsletter_Category_Helper::get_category_ids();
 
 					$api_cache = $site->is_jetpack() ? (bool) get_option( 'jetpack_api_cache_enabled' ) : true;
+
+					// Get Sites MCP settings
+					$mcp_abilities = $this->get_site_mcp_abilities();
 
 					$response[ $key ] = array(
 						// also exists as "options".
@@ -399,7 +409,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'jetpack_relatedposts_show_date'   => ! empty( $jetpack_relatedposts_options['show_date'] ),
 						'jetpack_relatedposts_show_headline' => ! empty( $jetpack_relatedposts_options['show_headline'] ),
 						'jetpack_relatedposts_show_thumbnails' => ! empty( $jetpack_relatedposts_options['show_thumbnails'] ),
-						'jetpack_search_enabled'           => (bool) $jetpack_search_active,
+						'jetpack_search_enabled'           => $jetpack_search_active,
 						'jetpack_search_supported'         => (bool) $jetpack_search_supported,
 						'default_category'                 => (int) get_option( 'default_category' ),
 						'post_categories'                  => (array) $post_categories,
@@ -462,6 +472,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'posts_per_rss'                    => (int) get_option( 'posts_per_rss' ),
 						'rss_use_excerpt'                  => (bool) get_option( 'rss_use_excerpt' ),
 						'launchpad_screen'                 => (string) get_option( 'launchpad_screen' ),
+						'wpcom_newsletter_send_default'    => (bool) get_option( 'wpcom_newsletter_send_default', true ),
 						'wpcom_featured_image_in_email'    => ( function () use ( $site ) {
 							if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 								$registered_date = method_exists( $site, 'get_registered_date' ) ? $site->get_registered_date() : '';
@@ -492,7 +503,8 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'show_on_front'                    => (string) get_option( 'show_on_front' ),
 						'page_on_front'                    => (string) get_option( 'page_on_front' ),
 						'page_for_posts'                   => (string) get_option( 'page_for_posts' ),
-						'subscription_options'             => (array) get_option( 'subscription_options' ),
+						'subscription_options'             => $this->get_subscription_options_in_user_locale(),
+						'supports_free_tier_customization' => true,
 						'jetpack_verbum_subscription_modal' => (bool) get_option( 'jetpack_verbum_subscription_modal', true ),
 						'enable_verbum_commenting'         => (bool) get_option( 'enable_verbum_commenting', true ),
 						'enable_blocks_comments'           => (bool) get_option( 'enable_blocks_comments', true ),
@@ -510,7 +522,20 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'jetpack_waf_automatic_rules_last_updated_timestamp' => (int) get_option( 'jetpack_waf_automatic_rules_last_updated_timestamp' ),
 						'is_fully_managed_agency_site'     => (bool) get_option( 'is_fully_managed_agency_site' ),
 						'wpcom_hide_action_bar'            => (bool) get_option( 'wpcom_hide_action_bar' ),
+						'mcp_abilities'                    => $mcp_abilities,
 					);
+
+					require_once JETPACK__PLUGIN_DIR . '/modules/memberships/class-jetpack-memberships.php';
+					if ( class_exists( 'Jetpack_Memberships' ) ) {
+						$response[ $key ]['newsletter_has_active_plan'] = count( Jetpack_Memberships::get_all_newsletter_plan_ids( false ) ) > 0;
+						// Read-only/derived: the free tier's markdown description rendered to
+						// safe HTML, colocated with subscription_options so it's
+						// read-after-write consistent. Not part of the writable
+						// subscription_options bag (which would round-trip and persist it).
+						$response[ $key ]['free_tier_description_rendered'] = Jetpack_Memberships::render_tier_description_html(
+							( (array) get_option( 'subscription_options' ) )['free_tier_description'] ?? ''
+						);
+					}
 
 					if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 						$response[ $key ]['wpcom_publish_posts_with_markdown']    = (bool) WPCom_Markdown::get_instance()->is_posting_enabled();
@@ -608,6 +633,156 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 	}
 
 	/**
+	 * Reads `subscription_options` with the current user's locale active, to
+	 * ensure that the defaults would be translated when displaying to the user
+	 * or comparing the options before saving.
+	 *
+	 * @return array The `subscription_options` value, defaults included.
+	 */
+	private function get_subscription_options_in_user_locale() {
+		$switched_locale = false;
+
+		if ( function_exists( 'wpcom_switch_to_user_locale' ) ) {
+			// Compare the locales before/after switch to decide if we should switch back
+			$locale_before = determine_locale();
+			// @phan-suppress-next-line PhanUndeclaredFunction -- Checked above. See also https://github.com/phan/phan/issues/1204.
+			wpcom_switch_to_user_locale();
+			$switched_locale = determine_locale() !== $locale_before;
+		}
+
+		// Resolve the defaults the same way get_option() does for a missing row (via the
+		// `default_option_*` filter with $passed_default = false), then let any stored
+		// sub-keys take precedence. Passing an array default keeps get_option() from
+		// re-populating the defaults, so a partial row stays partial before the merge.
+		$default_subscription_options = (array) apply_filters( 'default_option_subscription_options', array(), 'subscription_options', false );
+		$stored_subscription_options  = (array) get_option( 'subscription_options', array() );
+		$subscription_options         = array_merge( $default_subscription_options, $stored_subscription_options );
+
+		if ( $switched_locale ) {
+			restore_previous_locale();
+		}
+
+		return $subscription_options;
+	}
+
+	/**
+	 * Get list of all site level MCP abilities.
+	 *
+	 * @return array
+	 */
+	private function get_all_site_mcp_abilities(): array {
+		$all_abilities         = array();
+		$ability_registry_file = WP_CONTENT_DIR . '/mu-plugins/wpcom-mcp/includes/AbilitiesRegistry/Registry/AbilityRegistry.php';
+		if ( file_exists( $ability_registry_file ) ) {
+			require_once $ability_registry_file;
+			// @phan-suppress-next-line PhanUndeclaredClassMethod
+			$abilities_resources = Automattic\WpcomMcp\AbilitiesRegistry\Registry\AbilityRegistry::get_resources_for_server( 'site-level' );
+			// @phan-suppress-next-line PhanUndeclaredClassMethod
+			$abilities_tools = Automattic\WpcomMcp\AbilitiesRegistry\Registry\AbilityRegistry::get_tools_for_server( 'site-level' );
+			// @phan-suppress-next-line PhanUndeclaredClassMethod
+			$abilities_prompts = Automattic\WpcomMcp\AbilitiesRegistry\Registry\AbilityRegistry::get_prompts_for_server( 'site-level' );
+			$all_abilities     = array_merge( $abilities_resources, $abilities_tools, $abilities_prompts );
+		}
+		return apply_filters( 'jetpack_site_mcp_abilities', $all_abilities );
+	}
+
+	/**
+	 * Get ability meta from config.
+	 *
+	 * @param string $ability_name Ability name, i.e. wpcom-mcp/posts-search.
+	 *
+	 * @return array
+	 */
+	private function get_mcp_abilities_metadata( string $ability_name ): array {
+		$ability_meta          = array();
+		$ability_registry_file = WP_CONTENT_DIR . '/mu-plugins/wpcom-mcp/includes/AbilitiesRegistry/Registry/AbilityRegistry.php';
+		if ( file_exists( $ability_registry_file ) ) {
+			require_once $ability_registry_file;
+			// @phan-suppress-next-line PhanUndeclaredClassMethod
+			$ability_meta = Automattic\WpcomMcp\AbilitiesRegistry\Registry\AbilityRegistry::get_metadata( $ability_name );
+		}
+		return apply_filters( 'jetpack_site_mcp_ability_meta', $ability_meta, $ability_name );
+	}
+
+	/**
+	 * Get MCP abilities for the current site.
+	 *
+	 * @return array
+	 */
+	public function get_site_mcp_abilities(): array {
+		$current_mcp_abilities = get_option( 'mcp_abilities', array() );
+		if ( ! is_array( $current_mcp_abilities ) ) {
+			$current_mcp_abilities = array();
+		}
+
+		$all_abilities = $this->get_all_site_mcp_abilities();
+		if ( empty( $all_abilities ) ) {
+			return array();
+		}
+
+		$computed_abilities = array();
+		foreach ( $all_abilities as $ability_name ) {
+			// Get base metadata first
+			$ability_meta = $this->get_mcp_abilities_metadata( $ability_name );
+			if ( ! empty( $ability_meta ) ) {
+				// Use stored value or fall back to metadata default
+				$enabled = $current_mcp_abilities[ $ability_name ] ?? $ability_meta['enabled'] ?? false;
+
+				$computed_abilities[ $ability_name ] = array(
+					'name'        => $ability_name,
+					'title'       => $ability_meta['title'] ?? '',
+					'description' => $ability_meta['description'] ?? '',
+					'category'    => $ability_meta['category'] ?? '',
+					'type'        => $ability_meta['type'] ?? '',
+					'enabled'     => (bool) $enabled,
+				);
+			}
+		}
+		return $computed_abilities;
+	}
+
+	/**
+	 * Sets the MCP abilities for the current site.
+	 *
+	 * @param mixed $value MCP abilities array.
+	 *
+	 * @return true|WP_Error
+	 */
+	public function set_site_mcp_abilities( $value ) {
+		// Validate input format
+		if ( ! is_array( $value ) ) {
+			return new WP_Error( 'invalid_format', __( 'Site MCP abilities must be an array', 'jetpack' ) );
+		}
+
+		$all_abilities = $this->get_all_site_mcp_abilities();
+
+		// Filter ability names that don't exist
+		$value = array_filter(
+			$value,
+			function ( $ability_name ) use ( $all_abilities ) {
+				return in_array( $ability_name, $all_abilities, true );
+			},
+			ARRAY_FILTER_USE_KEY
+		);
+
+		// Validate each ability exists and value is boolean-like
+		foreach ( $value as $ability_name => $enabled ) {
+			if ( ! is_string( $ability_name ) || ( ! WPCOM_JSON_API::is_truthy( $enabled ) && ! WPCOM_JSON_API::is_falsy( $enabled ) ) ) {
+				$error_message = sprintf(
+					// Translators: %s is an MCP ability name
+					__( 'Invalid ability: %s', 'jetpack' ),
+					$ability_name
+				);
+				return new WP_Error( 'invalid_ability', $error_message );
+			}
+		}
+
+		update_option( 'mcp_abilities', $value );
+
+		return true;
+	}
+
+	/**
 	 * Get locale.
 	 *
 	 * @param string $key Language.
@@ -656,6 +831,10 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 		$jetpack_relatedposts_options = array();
 		$sharing_options              = array();
 		$updated                      = array();
+
+		if ( ! class_exists( 'Jetpack_Newsletter_Category_Helper' ) ) {
+			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-newsletter-category-helper.php';
+		}
 
 		foreach ( $input as $key => $value ) {
 
@@ -828,7 +1007,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						break;
 					}
 
-					$allowed_keys   = array( 'invitation', 'comment_follow', 'welcome' );
+					$allowed_keys   = array( 'invitation', 'comment_follow', 'welcome', 'subscribe_modal_heading', 'free_tier_description', 'hide_free_tier' );
 					$filtered_value = array_filter(
 						$value,
 						function ( $key ) use ( $allowed_keys ) {
@@ -840,6 +1019,14 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					if ( empty( $filtered_value ) ) {
 						break;
 					}
+
+					// `hide_free_tier` is a boolean flag, so pull it out before the HTML
+					// sanitization below (which expects strings). Parse it with is_truthy()
+					// so stringy booleans (e.g. "false", "0") are interpreted correctly
+					// rather than being treated as truthy by a plain `! empty()`.
+					$has_hide_free_tier = array_key_exists( 'hide_free_tier', $filtered_value );
+					$hide_free_tier     = $has_hide_free_tier && WPCOM_JSON_API::is_truthy( $filtered_value['hide_free_tier'] );
+					unset( $filtered_value['hide_free_tier'] );
 
 					array_walk_recursive(
 						$filtered_value,
@@ -855,11 +1042,87 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						}
 					);
 
-					$old_subscription_options = get_option( 'subscription_options' );
-					$new_subscription_options = array_merge( $old_subscription_options, $filtered_value );
+					// Normalize whitespace-only `subscribe_modal_heading` input to empty so
+					// the modal template's `empty()` fallback fires. PHP's `empty()` treats
+					// `"   "` as non-empty, which would otherwise render a blank heading.
+					if ( isset( $filtered_value['subscribe_modal_heading'] ) ) {
+						$filtered_value['subscribe_modal_heading'] = trim( $filtered_value['subscribe_modal_heading'] );
+					}
+
+					// The free tier description is stored as plain markdown source, so strip
+					// all HTML and cap its length to match the paid-tier description field.
+					// WordPress core guarantees mb_substr() (polyfilled in wp-includes/compat.php
+					// when the mbstring extension is unavailable), so it's safe to use directly.
+					// A JSON payload could supply a non-scalar (array/object) for this field,
+					// which would fatal in wp_kses()/mb_substr() on PHP 8+, so drop invalid values.
+					if ( isset( $filtered_value['free_tier_description'] ) ) {
+						if ( is_scalar( $filtered_value['free_tier_description'] ) ) {
+							$filtered_value['free_tier_description'] = mb_substr( wp_kses( (string) $filtered_value['free_tier_description'], array() ), 0, 500 );
+						} else {
+							unset( $filtered_value['free_tier_description'] );
+						}
+					}
+
+					if ( $has_hide_free_tier ) {
+						$filtered_value['hide_free_tier'] = $hide_free_tier;
+					}
+
+					// Clients that render the settings form tend to post the whole
+					// `subscription_options` bag back, including sub-keys the user never
+					// touched. This could result in a translated value inadvertently
+					// saved in the database.
+					// Get the value from db or the default options populated by filter.
+					$current_subscription_options = $this->get_subscription_options_in_user_locale();
+					$changed_subscription_options = array();
+
+					foreach ( $filtered_value as $subscription_option_key => $subscription_option_value ) {
+						$current_subscription_option = $current_subscription_options[ $subscription_option_key ] ?? null;
+
+						// The incoming value has already been through wp_kses() above, and
+						// wp_kses() is not guaranteed to be byte-preserving — it rewrites
+						// attribute quoting, and differently across WordPress versions. Put the
+						// current value through the same pass so the comparison reflects a real
+						// edit rather than a sanitizer rewrite; without this, a default carrying
+						// markup (`invitation`) never compares equal and is persisted on every
+						// save. Safe to apply to an already-sanitized value: the pass is
+						// idempotent.
+						if ( is_string( $current_subscription_option ) ) {
+							$current_subscription_option = wp_kses(
+								$current_subscription_option,
+								array(
+									'a' => array(
+										'href' => array(),
+									),
+								)
+							);
+						}
+
+						// A sub-key the site has never stored reads as unset everywhere this
+						// option is consumed, so an empty incoming value for it is not a change.
+						if (
+							null === $current_subscription_option
+							&& ( '' === $subscription_option_value || false === $subscription_option_value )
+						) {
+							continue;
+						}
+
+						if ( $current_subscription_option === $subscription_option_value ) {
+							continue;
+						}
+
+						$changed_subscription_options[ $subscription_option_key ] = $subscription_option_value;
+					}
+
+					if ( empty( $changed_subscription_options ) ) {
+						break;
+					}
+
+					// Get the value from the database or an empty array.
+					$old_subscription_options = get_option( 'subscription_options', array() );
+					$new_subscription_options = array_merge( $old_subscription_options, $changed_subscription_options );
 
 					if ( update_option( $key, $new_subscription_options ) ) {
-						$updated[ $key ] = $filtered_value;
+						$updated[ $key ] = $changed_subscription_options;
 					}
 					break;
 
@@ -1049,47 +1312,22 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					$updated[ $key ] = (int) $value;
 					break;
 
+				case 'wpcom_newsletter_send_default':
+					update_option( 'wpcom_newsletter_send_default', (int) (bool) $value );
+					$updated[ $key ] = (int) (bool) $value;
+					break;
+
 				case 'wpcom_featured_image_in_email':
 					update_option( 'wpcom_featured_image_in_email', (int) (bool) $value );
 					$updated[ $key ] = (int) (bool) $value;
 					break;
 
-				case 'wpcom_newsletter_categories':
-					$sanitized_category_ids = (array) $value;
-
-					array_walk_recursive(
-						$sanitized_category_ids,
-						function ( &$value ) {
-							if ( is_int( $value ) && $value > 0 ) {
-								return;
-							}
-
-							$value = (int) $value;
-							if ( $value <= 0 ) {
-								$value = null;
-							}
-						}
-					);
-
-					$sanitized_category_ids = array_unique(
-						array_filter(
-							$sanitized_category_ids,
-							function ( $category_id ) {
-								return $category_id !== null;
-							}
-						)
-					);
-
-					$new_value = array_map(
-						function ( $category_id ) {
-							return array( 'term_id' => $category_id );
-						},
-						$sanitized_category_ids
-					);
-
-					if ( update_option( $key, $new_value ) ) {
-						$updated[ $key ] = $sanitized_category_ids;
+				case Jetpack_Newsletter_Category_Helper::NEWSLETTER_CATEGORIES_OPTION:
+					$update_newsletter_categories = Jetpack_Newsletter_Category_Helper::save_category_ids( (array) $value );
+					if ( $update_newsletter_categories ) {
+						$updated[ $key ] = $update_newsletter_categories;
 					}
+
 					break;
 
 				case 'wpcom_newsletter_categories_enabled':
@@ -1201,6 +1439,14 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					if ( update_option( $key, $coerce_value ) ) {
 						$updated[ $key ] = (bool) $coerce_value;
 					}
+					break;
+
+				case 'mcp_abilities':
+					$result = $this->set_site_mcp_abilities( $value );
+					if ( is_wp_error( $result ) ) {
+						return $result;
+					}
+					$updated[ $key ] = $this->get_site_mcp_abilities();
 					break;
 
 				default:

@@ -90,7 +90,7 @@ class AddCommand extends Command {
 			->addOption( 'comment', 'c', InputOption::VALUE_REQUIRED, 'Optional comment to include in the file.' )
 			->addOption( 'entry', 'e', InputOption::VALUE_REQUIRED, 'Changelog entry. May be empty if the significance is "patch".' )
 			->setHelp(
-				<<<EOF
+				<<<'EOF'
 The <info>add</info> command adds a new change file to the changelog directory.
 
 By default this is an interactive process: the user will be queried for the necessary

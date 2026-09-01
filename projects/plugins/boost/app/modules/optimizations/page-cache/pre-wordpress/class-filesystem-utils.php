@@ -33,14 +33,38 @@ class Filesystem_Utils {
 			return $validation_error;
 		}
 
-		$iterator = new \RecursiveIteratorIterator(
-			new \RecursiveDirectoryIterator( $path, \RecursiveDirectoryIterator::SKIP_DOTS ),
-			\RecursiveIteratorIterator::CHILD_FIRST
-		);
-
 		$count = 0;
-		foreach ( $iterator as $file ) {
-			$count += $action->apply_to_path( new SplFileInfo( $file ) );
+
+		try {
+			// CATCH_GET_CHILD keeps the walk best-effort. A subdirectory can
+			// disappear or become unreadable between the moment its parent is
+			// listed and the moment the iterator descends into it - for example
+			// when a concurrent invalidation or garbage-collection pass (or this
+			// walk's own empty-directory cleanup) removes it first. Without this
+			// flag that surfaces as an uncaught UnexpectedValueException from
+			// RecursiveDirectoryIterator::__construct() ("Failed to open
+			// directory"), which aborts the triggering request - e.g. "Updating
+			// failed" when saving a template. With it, the missing entry is
+			// skipped and the rest of the tree is still processed.
+			$iterator = new \RecursiveIteratorIterator(
+				new \RecursiveDirectoryIterator( $path, \RecursiveDirectoryIterator::SKIP_DOTS ),
+				\RecursiveIteratorIterator::CHILD_FIRST,
+				\RecursiveIteratorIterator::CATCH_GET_CHILD
+			);
+
+			foreach ( $iterator as $file ) {
+				$count += $action->apply_to_path( new SplFileInfo( $file ) );
+			}
+		} catch ( \Throwable $e ) {
+			// CATCH_GET_CHILD already makes descending into children best-effort, so
+			// this catch is the backstop for the rest of the walk: the root iterator
+			// throwing if $path is removed between validation and construction, plus
+			// anything an action throws from inside the loop. Either way, fail with a
+			// controlled, logged error rather than a fatal so cache invalidation never
+			// breaks the request that triggered it. The log line keeps an otherwise
+			// silent partial walk diagnosable, since most callers discard the return.
+			Logger::debug( 'iterate_directory failed for ' . $path . ': ' . $e->getMessage() );
+			return new Boost_Cache_Error( 'could-not-iterate-directory', 'Could not iterate over directory: ' . $e->getMessage() );
 		}
 
 		$count += $action->apply_to_path( new SplFileInfo( $path ) );
@@ -66,7 +90,16 @@ class Filesystem_Utils {
 
 		$path = Boost_Cache_Utils::trailingslashit( $path );
 		// Files to delete are all files in the given directory, except index.html. index.html is used to prevent directory listing.
-		$files = array_diff( scandir( $path ), array( '.', '..', 'index.html' ) );
+		// scandir() returns false (and emits a warning) if the directory was removed
+		// between validation and this call - e.g. by a concurrent invalidation. Guard
+		// against it so we return a controlled error instead of a TypeError from
+		// array_diff( false, ... ).
+		$entries = @scandir( $path ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+		if ( false === $entries ) {
+			Logger::debug( 'iterate_files could not read directory: ' . $path );
+			return new Boost_Cache_Error( 'could-not-read-directory', 'Could not read directory: ' . $path );
+		}
+		$files = array_diff( $entries, array( '.', '..', 'index.html' ) );
 		$count = 0;
 		foreach ( $files as $file ) {
 			$fileinfo = new SplFileInfo( $path . $file );
@@ -74,6 +107,102 @@ class Filesystem_Utils {
 		}
 
 		return $count;
+	}
+
+	/**
+	 * Recursively delete a directory and everything in it, including cache files,
+	 * index.html placeholder files, subdirectories and the directory itself.
+	 *
+	 * Unlike iterate_directory() with a Simple_Delete action, this does not keep
+	 * index.html placeholder files, does not log each deletion, and removes each
+	 * entry as the iterator visits it instead of building a file list in memory,
+	 * so it stays time- and memory-efficient even for very large caches. Used to
+	 * completely remove the boost-cache directory when the plugin is uninstalled.
+	 *
+	 * @param string $path - The directory to delete.
+	 * @return bool|Boost_Cache_Error - True on success (or if the directory is already gone), Boost_Cache_Error on failure.
+	 */
+	public static function delete_directory( $path ) {
+		clearstatcache();
+
+		// Strip a trailing slash so the is_link() guard below sees the link itself.
+		// is_link( 'foo/' ) is false on POSIX, which would let a trailing-slash path
+		// slip past the symlink-root check; rtrim() closes that for this public,
+		// destructive primitive even though the current caller passes no slash.
+		$path = rtrim( $path, '/' );
+
+		// Refuse to follow a symlinked cache root. realpath() resolves a symlink
+		// to its target, so a boost-cache symlink pointing outside wp-content would
+		// resolve identically to $cache_root below and pass the containment check,
+		// causing the target tree to be deleted. Boost never creates boost-cache as
+		// a symlink, so a symlinked root is unexpected and we refuse it outright.
+		// This is checked on the literal $path, not the resolved target, and only
+		// guards the root itself; symlinks encountered inside the tree are unlinked
+		// (never followed) by the deletion loop below.
+		if ( is_link( $path ) ) {
+			return new Boost_Cache_Error( 'invalid-directory', 'Refusing to delete a symlinked directory: ' . $path );
+		}
+
+		$resolved = realpath( $path );
+		if ( false === $resolved ) {
+			// Nothing to delete if the directory is already gone.
+			return true;
+		}
+
+		// Strict containment check. is_boost_cache_directory() only does a substring
+		// match, which would also accept sibling paths like boost-cache-old; since
+		// this helper deletes whole trees during uninstall, only the cache root
+		// itself or paths inside it are accepted, compared on resolved paths.
+		$cache_root = realpath( WP_CONTENT_DIR . '/boost-cache' );
+		if ( false === $cache_root || ( $resolved !== $cache_root && strpos( $resolved, $cache_root . '/' ) !== 0 ) ) {
+			return new Boost_Cache_Error( 'invalid-directory', 'Invalid directory ' . $path );
+		}
+
+		if ( ! is_dir( $resolved ) ) {
+			return new Boost_Cache_Error( 'not-a-directory', 'Not a directory' );
+		}
+
+		// Deleting a large cache can take a while; try not to time out half-way through.
+		if ( function_exists( 'set_time_limit' ) ) {
+			@set_time_limit( 0 ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+		}
+
+		try {
+			// CATCH_GET_CHILD keeps the walk best-effort: an unreadable subdirectory
+			// is skipped instead of throwing and aborting the whole cleanup, so the
+			// rest of the tree is still deleted. Anything left behind is reported by
+			// the final is_dir() re-check below.
+			$iterator = new \RecursiveIteratorIterator(
+				new \RecursiveDirectoryIterator( $resolved, \RecursiveDirectoryIterator::SKIP_DOTS ),
+				\RecursiveIteratorIterator::CHILD_FIRST,
+				\RecursiveIteratorIterator::CATCH_GET_CHILD
+			);
+
+			// Errors for individual entries are suppressed so a single failure doesn't abort the cleanup.
+			foreach ( $iterator as $file ) {
+				if ( $file->isDir() && ! $file->isLink() ) {
+					@rmdir( $file->getPathname() ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir, WordPress.PHP.NoSilencedErrors.Discouraged
+				} else {
+					@unlink( $file->getPathname() ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink, WordPress.PHP.NoSilencedErrors.Discouraged
+				}
+			}
+		} catch ( \Throwable $e ) {
+			// The iterator itself can throw (e.g. an unreadable subdirectory).
+			// Uninstall cleanup must fail with a controlled error, not an
+			// uncaught exception.
+			return new Boost_Cache_Error( 'could-not-delete-directory', 'Could not completely delete directory: ' . $e->getMessage() );
+		}
+
+		@rmdir( $resolved ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir, WordPress.PHP.NoSilencedErrors.Discouraged
+
+		// Re-check against the filesystem, not a stale stat cache, so a successful
+		// removal is not misreported as a failure.
+		clearstatcache();
+		if ( is_dir( $resolved ) ) {
+			return new Boost_Cache_Error( 'could-not-delete-directory', 'Could not completely delete directory: ' . $path );
+		}
+
+		return true;
 	}
 
 	private static function validate_path( $path ) {
@@ -124,7 +253,12 @@ class Filesystem_Utils {
 		 */
 		$key_components = apply_filters_deprecated( 'boost_cache_key_components', array( $parameters ), '3.8.0', 'jetpack_boost_cache_parameters' );
 
-		return md5( json_encode( $key_components ) ) . '.html'; // phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode
+		return md5(
+			json_encode( // phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode
+				$key_components,
+				0 // phpcs:ignore Jetpack.Functions.JsonEncodeFlags.ZeroFound -- No `json_encode()` flags because this needs to match whatever is calculating the hash on the other end.
+			)
+		) . '.html';
 	}
 
 	/**

@@ -1,9 +1,8 @@
 import { useSelect, useDispatch } from '@wordpress/data';
 import { useEffect } from '@wordpress/element';
-import * as React from 'react';
-import { useContext } from 'react';
+import { createContext, useContext } from 'react';
 
-const ShouldShowFPPModalContext = React.createContext( false );
+const ShouldShowFPPModalContext = createContext( false );
 
 export const useShouldShowFirstPostPublishedModal = () => {
 	return useContext( ShouldShowFPPModalContext );

@@ -304,7 +304,8 @@ class Jetpack_XMLRPC_Server {
 		$nonce = sanitize_text_field( $request['nonce'] );
 		unset( $request['nonce'] );
 
-		$api_url  = $this->connection->api_url( 'partner_provision_nonce_check' );
+		$api_url = $this->connection->api_url( 'partner_provision_nonce_check' );
+		// @phan-suppress-next-line PhanAccessMethodInternal -- Phan is correct, but the usage is intentional.
 		$response = Client::_wp_remote_request(
 			esc_url_raw( add_query_arg( 'nonce', $nonce, $api_url ) ),
 			array( 'method' => 'GET' ),
@@ -587,9 +588,9 @@ class Jetpack_XMLRPC_Server {
 	 * @return \IXR_Error|string IXR_Error on failure, secret_2 on success.
 	 */
 	public function verify_action( $params ) {
-		$action        = isset( $params[0] ) ? $params[0] : '';
-		$verify_secret = isset( $params[1] ) ? $params[1] : '';
-		$state         = isset( $params[2] ) ? $params[2] : '';
+		$action        = $params[0] ?? '';
+		$verify_secret = $params[1] ?? '';
+		$state         = $params[2] ?? '';
 
 		$result = ( new Secrets() )->verify( $action, $verify_secret, $state );
 
@@ -715,11 +716,12 @@ class Jetpack_XMLRPC_Server {
 			'md5',
 			json_encode( // phpcs:ignore WordPress.WP.AlternativeFunctions.json_encode_json_encode
 				(object) array(
-					'client_id' => (int) $client_id,
-					'user_id'   => (int) $user_id,
-					'nonce'     => (string) $nonce,
+					'client_id' => $client_id,
+					'user_id'   => $user_id,
+					'nonce'     => $nonce,
 					'code'      => (string) $api_user_code,
-				)
+				),
+				0 // phpcs:ignore Jetpack.Functions.JsonEncodeFlags.ZeroFound -- No `json_encode()` flags because this needs to match whatever is calculating the hash on the other end.
 			),
 			$jetpack_token->secret
 		);

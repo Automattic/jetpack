@@ -1,22 +1,25 @@
 /**
  * Webpack configuration for building JavaScript/CSS modules.
  */
-const fs = require( 'fs' );
-const path = require( 'path' );
-const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
-const DependencyExtractionWebpackPlugin = require( '@wordpress/dependency-extraction-webpack-plugin' );
-const { glob } = require( 'glob' );
+import fs from 'fs';
+import path from 'path';
+import jetpackWebpackConfig from '@automattic/jetpack-webpack-config/webpack';
+import { glob } from 'glob';
+
+const __dirname = import.meta.dirname;
 
 const moduleSrcDir = path.join( __dirname, '../src/modules' );
+
+let moduleWebpackConfig;
 
 // Check if modules directory exists
 if ( ! fs.existsSync( moduleSrcDir ) ) {
 	console.warn( `Modules directory not found: ${ moduleSrcDir }` ); // eslint-disable-line no-console
 	// Return empty config if no modules directory
-	module.exports = {};
+	moduleWebpackConfig = {};
 } else {
-	// Find all JS files in the modules directory
-	const moduleFiles = glob.sync( path.join( moduleSrcDir, '**/*.js' ) );
+	// Find all JS and TS files in the modules directory
+	const moduleFiles = glob.sync( path.join( moduleSrcDir, '**/*.{js,ts}' ) );
 
 	// Create entry points
 	const entry = moduleFiles.reduce( ( acc, filepath ) => {
@@ -29,9 +32,9 @@ if ( ! fs.existsSync( moduleSrcDir ) ) {
 
 	if ( Object.keys( entry ).length === 0 ) {
 		console.warn( 'No module files found to build.' ); // eslint-disable-line no-console
-		module.exports = {};
+		moduleWebpackConfig = {};
 	} else {
-		const moduleWebpackConfig = {
+		moduleWebpackConfig = {
 			mode: jetpackWebpackConfig.mode,
 			devtool: jetpackWebpackConfig.devtool,
 			entry,
@@ -78,7 +81,9 @@ if ( ! fs.existsSync( moduleSrcDir ) ) {
 							{
 								loader: 'postcss-loader',
 								options: {
-									postcssOptions: { plugins: [ require( 'autoprefixer' ) ] },
+									postcssOptions: {
+										config: path.join( __dirname, '..', 'postcss.config.js' ),
+									},
 								},
 							},
 							{
@@ -93,10 +98,18 @@ if ( ! fs.existsSync( moduleSrcDir ) ) {
 						],
 					} ),
 
-					// Handle assets
+					// Allow importing .svg files as raw HTML strings via `?raw` query.
+					{
+						test: /\.svg$/i,
+						resourceQuery: /raw/,
+						type: 'asset/source',
+					},
+
+					// Handle assets (exclude ?raw SVG imports).
 					{
 						test: /\.(eot|ttf|woff|png|svg)$/i,
 						type: 'asset/resource',
+						resourceQuery: { not: [ /raw/ ] },
 						generator: {
 							emit: false,
 							filename: '[file]',
@@ -106,14 +119,16 @@ if ( ! fs.existsSync( moduleSrcDir ) ) {
 			},
 			plugins: [
 				...jetpackWebpackConfig.StandardPlugins( {
-					DependencyExtractionPlugin: false,
+					DependencyExtractionPlugin: true,
 					I18nLoaderPlugin: false,
 					I18nCheckPlugin: false,
 				} ),
-				new DependencyExtractionWebpackPlugin(),
 			],
+			watchOptions: {
+				...jetpackWebpackConfig.watchOptions,
+			},
 		};
-
-		module.exports = moduleWebpackConfig;
 	}
 }
+
+export default moduleWebpackConfig;

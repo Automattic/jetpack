@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Configure PHPUnit 11 to report and fail on deprecations.
-
-

@@ -5,6 +5,90 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.1] - 2026-08-06
+### Fixed
+- Build debug code frames only when debug output is enabled, which makes stamping text domains onto large bundles dramatically faster. [#51086]
+
+## [1.2.0] - 2026-07-31
+### Added
+- Add a `requireI18nSource` option to skip gettext-shaped calls whose callee provably comes from a module other than the i18n one — needed when the plugin runs over whole bundles rather than hand-written source.
+
+## [1.1.6] - 2026-06-22
+### Changed
+- Update package dependencies. [#49757]
+
+## [1.1.5] - 2026-06-15
+### Changed
+- Update package dependencies. [#49631]
+
+## [1.1.4] - 2026-06-08
+### Changed
+- Internal updates.
+
+## [1.1.3] - 2026-06-03
+### Changed
+- Internal updates.
+
+## [1.1.2] - 2026-05-21
+### Changed
+- Update package dependencies. [#49012]
+
+## [1.1.1] - 2026-05-19
+### Changed
+- Internal updates.
+
+## [1.1.0] - 2026-05-13
+### Added
+- Detect aliased imports from the i18n ESM module. [#48355]
+
+## [1.0.57] - 2026-05-04
+### Changed
+- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency. [#48225]
+
+## [1.0.56] - 2026-03-30
+### Changed
+- Update package dependencies. [#47799]
+
+## [1.0.55] - 2026-02-18
+### Changed
+- Set `.repository.url` in `package.json` to the mirror repo rather than the monorepo. [#47149]
+
+## [1.0.54] - 2026-02-12
+### Changed
+- Update package dependencies. [#47099]
+
+## [1.0.53] - 2025-11-17
+### Changed
+- Update package dependencies. [#45958]
+
+## [1.0.52] - 2025-10-02
+### Changed
+- Update package dependencies. [#45334]
+
+## [1.0.51] - 2025-08-01
+### Changed
+- Internal updates.
+
+## [1.0.50] - 2025-07-21
+### Changed
+- Update package dependencies. [#44356]
+
+## [1.0.49] - 2025-07-08
+### Changed
+- Update package dependencies. [#44217]
+
+## [1.0.48] - 2025-07-03
+### Changed
+- Update package dependencies. [#44151]
+
+## [1.0.47] - 2025-06-18
+### Changed
+- Internal updates.
+
+## [1.0.46] - 2025-06-03
+### Changed
+- Update package dependencies. [#43734]
+
 ## [1.0.45] - 2025-04-10
 ### Added
 - Add keywords in package.json for npm search. [#42948]
@@ -201,6 +285,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Initial release.
 - Replace missing domains too.
 
+[1.2.1]: https://github.com/Automattic/babel-plugin-replace-textdomain/compare/v1.2.0...v1.2.1
+[1.2.0]: https://github.com/Automattic/babel-plugin-replace-textdomain/compare/v1.1.6...v1.2.0
+[1.1.6]: https://github.com/Automattic/babel-plugin-replace-textdomain/compare/v1.1.5...v1.1.6
+[1.1.5]: https://github.com/Automattic/babel-plugin-replace-textdomain/compare/v1.1.4...v1.1.5
+[1.1.4]: https://github.com/Automattic/babel-plugin-replace-textdomain/compare/v1.1.3...v1.1.4
+[1.1.3]: https://github.com/Automattic/babel-plugin-replace-textdomain/compare/v1.1.2...v1.1.3
+[1.1.2]: https://github.com/Automattic/babel-plugin-replace-textdomain/compare/v1.1.1...v1.1.2
+[1.1.1]: https://github.com/Automattic/babel-plugin-replace-textdomain/compare/v1.1.0...v1.1.1
+[1.1.0]: https://github.com/Automattic/babel-plugin-replace-textdomain/compare/v1.0.57...v1.1.0
+[1.0.57]: https://github.com/Automattic/babel-plugin-replace-textdomain/compare/v1.0.56...v1.0.57
+[1.0.56]: https://github.com/Automattic/babel-plugin-replace-textdomain/compare/v1.0.55...v1.0.56
+[1.0.55]: https://github.com/Automattic/babel-plugin-replace-textdomain/compare/v1.0.54...v1.0.55
+[1.0.54]: https://github.com/Automattic/babel-plugin-replace-textdomain/compare/v1.0.53...v1.0.54
+[1.0.53]: https://github.com/Automattic/babel-plugin-replace-textdomain/compare/v1.0.52...v1.0.53
+[1.0.52]: https://github.com/Automattic/babel-plugin-replace-textdomain/compare/v1.0.51...v1.0.52
+[1.0.51]: https://github.com/Automattic/babel-plugin-replace-textdomain/compare/v1.0.50...v1.0.51
+[1.0.50]: https://github.com/Automattic/babel-plugin-replace-textdomain/compare/v1.0.49...v1.0.50
+[1.0.49]: https://github.com/Automattic/babel-plugin-replace-textdomain/compare/v1.0.48...v1.0.49
+[1.0.48]: https://github.com/Automattic/babel-plugin-replace-textdomain/compare/v1.0.47...v1.0.48
+[1.0.47]: https://github.com/Automattic/babel-plugin-replace-textdomain/compare/v1.0.46...v1.0.47
+[1.0.46]: https://github.com/Automattic/babel-plugin-replace-textdomain/compare/v1.0.45...v1.0.46
 [1.0.45]: https://github.com/Automattic/babel-plugin-replace-textdomain/compare/v1.0.44...v1.0.45
 [1.0.44]: https://github.com/Automattic/babel-plugin-replace-textdomain/compare/v1.0.43...v1.0.44
 [1.0.43]: https://github.com/Automattic/babel-plugin-replace-textdomain/compare/v1.0.42...v1.0.43
