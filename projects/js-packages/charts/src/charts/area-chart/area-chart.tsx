@@ -35,7 +35,7 @@ import { useChartChildren } from '../private/chart-composition';
 import { ChartInstanceContext, type ChartInstanceRef } from '../private/chart-instance-context';
 import { ChartLayout } from '../private/chart-layout';
 import { getAllHiddenMessage, SvgEmptyState } from '../private/svg-empty-state';
-import { getCurveType } from '../private/time-axis';
+import { getBucketInfo, getCurveType } from '../private/time-axis';
 import { buildTimeAxisOptions } from '../private/time-axis-options';
 import { withResponsive } from '../private/with-responsive';
 import { useXZoom, ZoomResetButton, ZoomSelectionRect, ZoomClip } from '../private/x-zoom';
@@ -242,6 +242,11 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 			};
 		}, [ options, dataSorted, width, stacked, fixedYDomain, zoom.domain, formatting ] );
 
+		const bucketInfo = useMemo(
+			() => getBucketInfo( dataSorted, options?.axis?.x?.tickResolution ),
+			[ dataSorted, options ]
+		);
+
 		const defaultMargin = useChartMargin( height, chartOptions, dataSorted, theme );
 
 		const error = validateData( dataSorted );
@@ -288,7 +293,9 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 		const filteredRenderTooltip = useCallback(
 			( params: Parameters< typeof renderTooltip >[ 0 ] ) => {
 				const datumByKey = params?.tooltipData?.datumByKey;
-				if ( ! datumByKey ) return renderTooltip( params );
+				if ( ! datumByKey ) {
+					return renderTooltip( { ...params, bucketInfo } );
+				}
 				const filtered = Object.fromEntries(
 					Object.entries( datumByKey ).filter( ( [ key ] ) => visibleLabels.has( key ) )
 				);
@@ -303,6 +310,7 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 						: { ...Object.values( filtered )[ 0 ], distance: nearestDatum?.distance ?? 0 };
 				return renderTooltip( {
 					...params,
+					bucketInfo,
 					tooltipData: {
 						...params.tooltipData,
 						datumByKey: filtered,
@@ -310,7 +318,7 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 					} as typeof params.tooltipData,
 				} );
 			},
-			[ renderTooltip, visibleLabels ]
+			[ renderTooltip, visibleLabels, bucketInfo ]
 		);
 
 		// Defaults that depend on stacked vs overlapping mode.

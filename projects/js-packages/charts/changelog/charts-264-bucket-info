@@ -1,0 +1,4 @@
+Significance: minor
+Type: fixed
+
+Name the hour in line and area chart tooltips on hourly data, and expose how a chart classified its date buckets.

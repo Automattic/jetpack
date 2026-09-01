@@ -38,14 +38,21 @@ import { ChartInstanceContext, type ChartInstanceRef } from '../private/chart-in
 import { ChartLayout } from '../private/chart-layout';
 import { DefaultGlyph } from '../private/default-glyph';
 import { getAllHiddenMessage, SvgEmptyState } from '../private/svg-empty-state';
-import { getCurveType } from '../private/time-axis';
+import { getBucketInfo, getCurveType } from '../private/time-axis';
 import { buildTimeAxisOptions } from '../private/time-axis-options';
 import { withResponsive } from '../private/with-responsive';
 import { useXZoom, ZoomResetButton, ZoomSelectionRect, ZoomClip } from '../private/x-zoom';
 import styles from './line-chart.module.scss';
 import { LineChartAnnotation, LineChartAnnotationsOverlay, LineChartGlyph } from './private';
 import type { RenderLineGlyphProps, LineChartProps, TooltipDatum } from './types';
-import type { DataPoint, DataPointDate, SeriesData, Optional } from '../../types';
+import type {
+	BucketInfo,
+	DataPoint,
+	DataPointDate,
+	SeriesData,
+	Optional,
+	TickResolution,
+} from '../../types';
 import type { RenderTooltipParams } from '../../visx/types';
 import type { ResponsiveConfig } from '../private/with-responsive';
 import type { TickFormatter } from '@visx/axis';
@@ -66,12 +73,30 @@ const toNumber = ( val?: number | string | null ): number | undefined => {
 // be told a locale and a zone.
 const TOOLTIP_DATE: Intl.DateTimeFormatOptions = {};
 
+// Hour reuses the same numeric date `TOOLTIP_DATE` renders and adds the hour,
+// so hourly and daily headings share a style and differ only in detail.
+const TOOLTIP_FORMAT_BY_RESOLUTION: Record<
+	Exclude< TickResolution, 'week' >,
+	Intl.DateTimeFormatOptions
+> = {
+	hour: { year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', hour12: true },
+	day: TOOLTIP_DATE,
+	month: { month: 'long', year: 'numeric' },
+	year: { year: 'numeric' },
+};
+
 // A component rather than a call, because `renderDefaultTooltip` is a plain
 // function a consumer may pass around: the context has to be read where the
 // heading renders, not where the tooltip is built.
-const TooltipDate: FC< { date?: Date } > = ( { date } ) => {
+const TooltipDate: FC< { date?: Date; displayResolution: Exclude< TickResolution, 'week' > } > = ( {
+	date,
+	displayResolution,
+} ) => {
 	const formatting = useChartFormatting();
-	const format = useMemo( () => createDateFormatter( TOOLTIP_DATE, formatting ), [ formatting ] );
+	const format = useMemo(
+		() => createDateFormatter( TOOLTIP_FORMAT_BY_RESOLUTION[ displayResolution ], formatting ),
+		[ displayResolution, formatting ]
+	);
 
 	return <>{ date ? format( date ) : null }</>;
 };
@@ -81,11 +106,13 @@ const TooltipDate: FC< { date?: Date } > = ( { date } ) => {
  * one row per visible series (label + formatted value), sorted descending by
  * value. Reused by AreaChart, which has the same multi-series shape.
  *
- * @param params - visx `RenderTooltipParams< DataPointDate >`.
+ * @param params - visx `RenderTooltipParams< DataPointDate >`, plus the chart's optional `bucketInfo`.
  * @return Tooltip JSX, or `null` when no datum is hovered.
  */
-export const renderDefaultTooltip = ( params: RenderTooltipParams< DataPointDate > ) => {
-	const { tooltipData } = params;
+export const renderDefaultTooltip = (
+	params: RenderTooltipParams< DataPointDate > & { bucketInfo?: BucketInfo }
+) => {
+	const { tooltipData, bucketInfo } = params;
 	const nearestDatum = tooltipData?.nearestDatum?.datum;
 	if ( ! nearestDatum ) return null;
 
@@ -99,7 +126,10 @@ export const renderDefaultTooltip = ( params: RenderTooltipParams< DataPointDate
 	return (
 		<div className={ styles[ 'line-chart__tooltip' ] }>
 			<div className={ styles[ 'line-chart__tooltip-date' ] }>
-				<TooltipDate date={ nearestDatum.date } />
+				<TooltipDate
+					date={ nearestDatum.date }
+					displayResolution={ bucketInfo?.displayResolution ?? 'day' }
+				/>
 			</div>
 			{ tooltipPoints.map( point => (
 				<Stack
@@ -358,6 +388,11 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 			};
 		}, [ options, dataSorted, width, zoom.domain, stableYDomain, formatting ] );
 
+		const bucketInfo = useMemo(
+			() => getBucketInfo( dataSorted, options?.axis?.x?.tickResolution ),
+			[ dataSorted, options ]
+		);
+
 		const tooltipRenderGlyph = useMemo( () => {
 			return ( props: GlyphProps< DataPointDate > ) => {
 				const seriesIndex = dataSorted.findIndex(
@@ -428,7 +463,14 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 			yAccessor: ( d: DataPointDate ) => d?.value,
 		};
 
-		// Create a custom renderTooltip that includes focus capability
+		// Augments every renderTooltip call with the chart's bucket classification,
+		// default or custom, so a heading keyed on it can't disagree with the axis.
+		const tooltipRenderer = useMemo(
+			() => ( params: RenderTooltipParams< DataPointDate > ) =>
+				renderTooltip( { ...params, bucketInfo } ),
+			[ renderTooltip, bucketInfo ]
+		);
+
 		if ( error ) {
 			return <div className={ clsx( 'line-chart', styles[ 'line-chart' ] ) }>{ error }</div>;
 		}
@@ -626,7 +668,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 													snapTooltipToDatumX
 													snapTooltipToDatumY
 													showSeriesGlyphs
-													renderTooltip={ renderTooltip }
+													renderTooltip={ tooltipRenderer }
 													renderGlyph={ tooltipRenderGlyph }
 													glyphStyle={ glyphStyle }
 													showVerticalCrosshair={ withTooltipCrosshairs?.showVertical }
