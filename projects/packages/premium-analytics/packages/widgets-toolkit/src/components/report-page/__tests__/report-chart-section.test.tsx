@@ -22,10 +22,18 @@ describe( 'ReportChartSection', () => {
 
 		expect( screen.queryByTestId( 'chart' ) ).not.toBeInTheDocument();
 		expect( screen.getByRole( 'heading', { name: 'Performance' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: 'Show chart' } ) ).toHaveAttribute(
+			'aria-expanded',
+			'false'
+		);
 
 		await userEvent.click( screen.getByRole( 'button', { name: 'Show chart' } ) );
 
 		expect( screen.getByTestId( 'chart' ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: 'Hide chart' } ) ).toHaveAttribute(
+			'aria-expanded',
+			'true'
+		);
 	} );
 
 	it( 'names the collapsed content when the caller says what it is', async () => {

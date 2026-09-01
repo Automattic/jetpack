@@ -6,6 +6,7 @@ import { useCallback, useMemo, useState } from 'react';
 /**
  * Internal dependencies
  */
+import { RESIZE_DEBOUNCE_MS } from '../../constants';
 import { buildLocationsGeoChart } from './build-geo-data';
 import type { LocationsGeoFocusCountry, LocationsGeoMode, LocationsGeoRow } from './build-geo-data';
 
@@ -48,7 +49,7 @@ export function LocationsGeoChart( {
 	rows,
 	mode,
 	focusCountry,
-	resizeDebounceTime,
+	resizeDebounceTime = RESIZE_DEBOUNCE_MS,
 }: LocationsGeoChartProps ) {
 	const [ unsupportedProvinceMapCountries, setUnsupportedProvinceMapCountries ] = useState<
 		Set< string >
@@ -58,12 +59,11 @@ export function LocationsGeoChart( {
 	const provinceMapSupported = focusCountryCode
 		? ! unsupportedProvinceMapCountries.has( focusCountryCode )
 		: true;
-	const useProvinceMap = mode === 'region' && !! focusCountryCode && provinceMapSupported;
-
 	const { data, region, resolution } = useMemo(
 		() => buildLocationsGeoChart( { rows, mode, focusCountry, provinceMapSupported } ),
 		[ focusCountry, mode, provinceMapSupported, rows ]
 	);
+	const useProvinceMap = resolution === 'provinces';
 
 	const handleError = useCallback(
 		( error: GeoChartError ) => {

@@ -122,9 +122,12 @@ function summarizeByCountry( rows: LocationsGeoRow[] ): [ string, CountrySummary
 export function buildLocationsGeoChart( {
 	rows,
 	mode,
-	focusCountry,
+	focusCountry: requestedFocusCountry,
 	provinceMapSupported = true,
 }: BuildLocationsGeoChartArgs ): LocationsGeoChartConfig {
+	// Country mode plots the countries themselves, so scoping the map to one of
+	// them would leave every other row with nowhere to sit.
+	const focusCountry = mode === 'country' ? undefined : requestedFocusCountry;
 	const useProvinceMap = mode === 'region' && !! focusCountry && provinceMapSupported;
 	// Recovery from a failed provinces draw leaves the country for the world map,
 	// as the Locations widget has always done.

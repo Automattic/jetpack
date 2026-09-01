@@ -120,6 +120,17 @@ describe( 'buildLocationsGeoChart', () => {
 		] );
 	} );
 
+	it( 'ignores a focused country in country mode', () => {
+		const { region, resolution } = buildLocationsGeoChart( {
+			rows: [ row( 'Germany', 'DE', 'Germany', 400 ) ],
+			mode: 'country',
+			focusCountry: { code: 'DE', name: 'Germany' },
+		} );
+
+		expect( region ).toBe( 'world' );
+		expect( resolution ).toBe( 'countries' );
+	} );
+
 	it( 'gives the city mode no tooltip column', () => {
 		const [ header, summaryRow ] = buildLocationsGeoChart( {
 			rows: [ row( 'Mumbai', 'IN', 'India', 900 ) ],
