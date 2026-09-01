@@ -3027,6 +3027,14 @@ p {
 	const AI_MASTER_OPTOUT_MIGRATED_OPTION = 'jetpack_ai_master_optout_migrated';
 
 	/**
+	 * Option flag that records the repair of emptied Jetpack AI feature options has
+	 * run, so it never runs twice.
+	 *
+	 * @var string
+	 */
+	const AI_EMPTY_OPTIONS_REPAIRED_OPTION = 'jetpack_ai_empty_options_repaired';
+
+	/**
 	 * Register the on-upgrade init hooks whose relative ORDER matters, extracted so
 	 * the ordering can be asserted in tests without invoking plugin_upgrade() (whose
 	 * guards make it unreliable to trigger under test). activate_new_modules()
@@ -3039,6 +3047,7 @@ p {
 	public static function register_upgrade_init_hooks() {
 		add_action( 'init', array( __CLASS__, 'activate_new_modules' ) );
 		add_action( 'init', array( __CLASS__, 'reconcile_ai_master_optout' ), 20 );
+		add_action( 'init', array( __CLASS__, 'repair_ai_empty_options' ), 20 );
 	}
 
 	/**
@@ -3084,6 +3093,43 @@ p {
 		}
 
 		update_option( self::AI_MASTER_OPTOUT_MIGRATED_OPTION, true );
+	}
+
+	/**
+	 * Deletes Jetpack AI feature option rows a Settings > General save emptied.
+	 *
+	 * An empty row reads as off, and deleting it restores the registered default where
+	 * writing 1 would record a choice nobody made. Simple is repaired by mu-wpcom.
+	 *
+	 * @return void
+	 */
+	public static function repair_ai_empty_options() {
+		if ( get_option( self::AI_EMPTY_OPTIONS_REPAIRED_OPTION ) ) {
+			return;
+		}
+
+		if ( ( new Host() )->is_wpcom_simple() ) {
+			return;
+		}
+
+		// The master option is excluded: off Simple it carries the legacy opt-out.
+		$options = array(
+			'jetpack_ai_writing_assistant_enabled',
+			'jetpack_ai_image_editor_enabled',
+			'jetpack_ai_feature_clip_enabled',
+			'jetpack_ai_seo_enabled',
+		);
+
+		foreach ( $options as $option ) {
+			$stored = get_option( $option, 'not-set' );
+
+			// Cast: a same-request write caches the sanitized false, not the stored ''.
+			if ( 'not-set' !== $stored && '' === (string) $stored ) {
+				delete_option( $option );
+			}
+		}
+
+		update_option( self::AI_EMPTY_OPTIONS_REPAIRED_OPTION, true );
 	}
 
 	/**
