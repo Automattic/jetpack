@@ -138,19 +138,56 @@ class Jetpack_Email_Design_Editor {
 		);
 		wp_set_script_translations( self::HANDLE, 'jetpack' );
 
+		// `wp-editor`, `wp-block-editor` and `wp-preferences` are what lay the editor's frame
+		// out; without them every region stacks into one narrow column. Keep the list to
+		// handles WordPress registers — an unregistered one drops this stylesheet silently,
+		// which is `wp-interface`'s trap.
 		wp_enqueue_style(
 			self::HANDLE,
 			plugins_url( '_inc/build/email-design-editor.css', JETPACK__PLUGIN_FILE ),
-			array( 'wp-edit-blocks' ),
+			array(
+				'wp-components',
+				'wp-block-editor',
+				'wp-editor',
+				'wp-edit-blocks',
+				'wp-preferences',
+				'wp-format-library',
+			),
 			$asset['version']
 		);
 		wp_style_add_data( self::HANDLE, 'rtl', 'replace' );
+		wp_add_inline_style( self::HANDLE, self::get_layout_css() );
 
 		wp_add_inline_script(
 			self::HANDLE,
 			'window.JetpackEmailDesignEditor = ' . wp_json_encode( self::get_screen_data(), self::JSON_FLAGS ) . ';',
 			'before'
 		);
+	}
+
+	/**
+	 * Fill the screen with the editor.
+	 *
+	 * The editor's frame expects a viewport, not the flow of an admin page: inside the usual
+	 * wp-admin content column it collapses to a fraction of the height and scrolls its own
+	 * regions. Woo avoids this by running on `post.php`, which is already fullscreen.
+	 *
+	 * @return string
+	 */
+	private static function get_layout_css() {
+		return '
+			#wpcontent { padding-inline-start: 0; }
+			#wpfooter { display: none; }
+			#' . self::HANDLE . ' {
+				position: fixed;
+				inset-block: var(--wp-admin--admin-bar--height, 32px) 0;
+				inset-inline: 160px 0;
+			}
+			body.folded #' . self::HANDLE . ' { inset-inline-start: 36px; }
+			@media screen and (max-width: 782px) {
+				#' . self::HANDLE . ' { inset-inline-start: 0; }
+			}
+		';
 	}
 
 	/**
