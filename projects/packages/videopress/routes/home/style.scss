@@ -1,0 +1,235 @@
+// Home — the returning-user landing screen.
+// Deliberately has no KPI row. The page leads with the videos themselves;
+// see routes/home/views-slot.ts for why no card is allowed to render a zero.
+.vp-home {
+	display: flex;
+	flex-direction: column;
+	gap: 24px;
+	box-sizing: border-box;
+	inline-size: 100%;
+	max-inline-size: 1344px;
+	margin-inline: auto;
+	padding-block: 24px;
+
+	// Matches the Analytics screen: the admin-page-layout mixin neutralizes
+	// `#wpcontent`'s padding, so without this the content touches the chrome.
+	padding-inline: 24px;
+
+	// `aria-disabled` rather than `disabled` so the button stays in the
+	// focus tree and the `@wordpress/components` Tooltip can fire on
+	// hover and focus. The onClick guard in stage.tsx short-circuits the
+	// file picker when at the free-tier limit.
+	&__upload-button[aria-disabled="true"] {
+		opacity: 0.5;
+		cursor: not-allowed;
+	}
+
+	&__section {
+		display: flex;
+		flex-direction: column;
+		gap: 16px;
+	}
+
+	&__section-head {
+		display: flex;
+		align-items: baseline;
+		justify-content: space-between;
+		gap: 16px;
+	}
+
+	&__section-title {
+		display: block;
+	}
+
+	&__rail {
+		display: grid;
+		grid-template-columns: repeat(4, 1fr);
+		gap: 16px;
+
+		&:empty {
+			display: none;
+		}
+
+		// Step down one column at a time. Going straight 4 -> 2 at 1200px made
+		// each card *grow* as the window shrank (294px wide at 1440, 396px at
+		// 1024), turning a recents rail into a photo grid with two cards above
+		// the fold. The 820px step is below wp-admin's 782px sidebar collapse,
+		// so the content box widens before the columns drop again.
+		@media ( max-width: 1200px ) {
+			grid-template-columns: repeat(3, 1fr);
+		}
+
+		@media ( max-width: 820px ) {
+			grid-template-columns: repeat(2, 1fr);
+		}
+
+		@media ( max-width: 600px ) {
+			grid-template-columns: 1fr;
+		}
+	}
+
+	&__card {
+		display: flex;
+		flex-direction: column;
+		overflow: hidden;
+	}
+
+	&__card-media {
+		position: relative;
+		aspect-ratio: 16 / 9;
+		background: var(--wpds-color-background-surface-neutral);
+		overflow: hidden;
+		// The picture is the thing people aim at, so it opens the video. The
+		// title below does the same and is the keyboard/AT path — see the note
+		// at the call site for why this isn't a second button.
+		cursor: var(--wpds-cursor-control);
+	}
+
+	&__card-thumb {
+		display: block;
+		inline-size: 100%;
+		block-size: 100%;
+		object-fit: cover;
+
+		&--placeholder {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			color: var(--wpds-color-foreground-content-neutral-weak);
+
+			svg {
+				fill: currentColor;
+			}
+		}
+	}
+
+	// Duration / processing chip over the bottom-right of the poster. Dark
+	// scrim rather than a design-system Badge: it sits on top of arbitrary
+	// video frames and needs its own contrast guarantee.
+	&__card-pill {
+		position: absolute;
+		inset-block-end: 8px;
+		inset-inline-end: 8px;
+		padding: 2px 6px;
+		border-radius: 2px;
+		// Literal, not a token: this pill carries its own dark scrim over the
+		// thumbnail, so its foreground must stay white in either theme.
+		background: rgba(0, 0, 0, 0.75);
+		color: #fff;
+		font-size: 12px;
+		line-height: 16px;
+		font-variant-numeric: tabular-nums;
+
+		&--processing {
+			background: rgba(0, 0, 0, 0.85);
+		}
+	}
+
+	&__card-body {
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
+		padding: 12px;
+	}
+
+	// The title is a Button (it navigates to the details screen) but must read
+	// as a heading, so the button chrome is stripped back to text.
+	&__card-title {
+		inline-size: 100%;
+		text-align: start;
+		font-size: var(--wpds-typography-font-size-md);
+		font-weight: var(--wpds-typography-font-weight-emphasis);
+		line-height: 20px;
+		color: inherit;
+		cursor: pointer;
+
+		// Two lines, then ellipsis, so a long title can't make one card in the
+		// rail taller than its neighbours. `min-block-size` reserves both lines
+		// even for a one-line title: clamping alone equalises the *maximum*, so
+		// without it the date and actions below sit 20px higher on short-titled
+		// cards and the rail stair-steps.
+		display: -webkit-box;
+		min-block-size: 40px;
+		-webkit-line-clamp: 2;
+		-webkit-box-orient: vertical;
+		overflow: hidden;
+
+		&:hover {
+			text-decoration: underline;
+		}
+	}
+
+	&__card-meta {
+		color: var(--wpds-color-foreground-content-neutral-weak);
+		flex-wrap: wrap;
+	}
+
+	&__card-date {
+		color: inherit;
+	}
+
+	// Reserved even when empty so cards in the rail stay aligned whether or not
+	// stats came back for a given video.
+	&__card-performance {
+		min-block-size: 20px;
+	}
+
+	&__card-views {
+		font-variant-numeric: tabular-nums;
+	}
+
+	&__card-no-plays {
+		color: var(--wpds-color-foreground-content-neutral-weak);
+	}
+
+	&__card-actions {
+		flex-wrap: wrap;
+		margin-block-start: 4px;
+	}
+
+	&__card--skeleton {
+
+		.vp-home__card-body {
+			gap: 10px;
+		}
+	}
+
+	&__skeleton-line {
+		display: block;
+		block-size: 1em;
+		inline-size: 80%;
+		border-radius: 2px;
+		background: var(--wpds-color-background-surface-neutral);
+
+		&--narrow {
+			inline-size: 45%;
+		}
+	}
+
+	// The emptied-library dropzone, alone on the screen now that the
+	// EmptyState shell above it is gone. Same 718px cap as the /upload card:
+	// at the full 1272px column a drop target reads as a void. Same card frame
+	// and 718px measure as /upload's dropzone — the two screens offer the same
+	// action and were reading as different components.
+	// On the empty screen the notice takes the same 660px measure as the
+	// dropzone beneath it, so the two read as one column. With the recents
+	// rail instead, it keeps the full width — a centered 660px bar over
+	// left-aligned cards looks like a mistake.
+	&__notice.is-narrow {
+		box-sizing: border-box;
+		inline-size: 100%;
+		max-inline-size: 660px;
+		margin-inline: auto;
+	}
+
+	&__empty-upload {
+		box-sizing: border-box;
+		inline-size: 100%;
+		max-inline-size: 660px;
+		margin-inline: auto;
+		margin-block-start: var(--wpds-dimension-gap-2xl);
+		border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
+		border-radius: var(--wpds-border-radius-lg);
+		background: var(--wpds-color-background-surface-neutral-strong);
+	}
+}

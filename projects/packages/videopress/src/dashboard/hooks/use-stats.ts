@@ -55,7 +55,11 @@ const REST_PATH = '/jetpack/v4/videopress/stats/video-plays';
 // rest/v1.1 middleware site-prefixes this path and unwraps the envelope,
 // landing on the same WPCOM endpoint the proxy targets.
 const SIMPLE_REST_PATH = '/rest/v1.1/stats/video-plays';
-const TOP_VIDEOS_LIMIT = 5;
+// How many per-video rows `stats.topVideos` is capped at. Exported because a
+// consumer that looks a specific video up in that list has to know the list is
+// truncated: a video that is absent from a FULL list may simply rank 6th, which
+// is not the same as having no views. See routes/home/views-slot.ts.
+export const TOP_VIDEOS_LIMIT = 5;
 const ZERO_SUMMARY: KpiSummary = { current: 0, previousPeriod: 0 };
 
 const EMPTY_STATS: OverviewStats = {

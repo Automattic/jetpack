@@ -675,10 +675,10 @@ describe( 'upload stage single-drop transition', () => {
 			expect( screen.getByLabelText( 'Share link' ) ).toHaveValue( 'https://example.com/one.mp4' );
 			expect( mockMarkFirstPublish ).toHaveBeenCalled();
 			// Nothing on this path navigates away on its own — the user leaves via
-			// "Go to Library".
+			// "Go to Home".
 			expect( mockNavigate ).not.toHaveBeenCalled();
-			await userEvent.click( screen.getByRole( 'button', { name: 'Go to Library' } ) );
-			expect( mockExitToLibrary ).toHaveBeenCalled();
+			await userEvent.click( screen.getByRole( 'button', { name: 'Go to Home' } ) );
+			expect( mockNavigate ).toHaveBeenCalledWith( { href: '/home' } );
 		} );
 
 		it( 'says the connection dropped when the request never lands', async () => {

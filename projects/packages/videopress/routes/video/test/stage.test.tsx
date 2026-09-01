@@ -494,7 +494,7 @@ describe( 'video stage', () => {
 			confirmSpy.mockRestore();
 		} );
 
-		it( 'lands on the Library when the deleted video was the last one', async () => {
+		it( 'lands on Home when the deleted video was the last one', async () => {
 			mockLibraryTotal = 1;
 			const confirmSpy = jest.spyOn( window, 'confirm' ).mockReturnValue( true );
 			await renderReadyStage();
@@ -502,8 +502,8 @@ describe( 'video stage', () => {
 			await chooseDelete();
 			await waitFor( () => expect( navigate ).toHaveBeenCalled() );
 
-			// The emptied Library's empty state is the upload flow.
-			expect( navigate ).toHaveBeenCalledWith( { href: '/' } );
+			// An emptied Library has no dropzone and nothing to do next.
+			expect( navigate ).toHaveBeenCalledWith( { href: '/home' } );
 			confirmSpy.mockRestore();
 		} );
 

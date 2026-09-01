@@ -8,6 +8,7 @@ import { Link, useNavigate, useParams } from '@wordpress/route';
 import { Stack, Text } from '@wordpress/ui';
 import CaptionManagerModal from '../../src/client/components/caption-manager-modal/lazy';
 import { getVideoInfoQueryKeyPrefix } from '../../src/client/components/caption-manager-modal/use-video-tracks';
+import { TAB_PATHS } from '../../src/dashboard/components/dashboard-tabs';
 import QueryClientWrapper from '../../src/dashboard/components/query-client-wrapper';
 import { UPLOAD_ONBOARDING_CONTEXT } from '../../src/dashboard/components/upload-dropzone/select-files';
 import UploadPill from '../../src/dashboard/components/upload-pill';
@@ -15,6 +16,7 @@ import Editor, {
 	getParentBreadcrumbItem,
 } from '../../src/dashboard/components/video-details/editor';
 import { useDeleteVideo } from '../../src/dashboard/hooks/use-delete-video';
+import { useLibrary } from '../../src/dashboard/hooks/use-library';
 import { useUpdateChapters } from '../../src/dashboard/hooks/use-update-chapters';
 import { useUpdateVideoMeta } from '../../src/dashboard/hooks/use-update-video-meta';
 import { useUpload } from '../../src/dashboard/hooks/use-upload';
@@ -26,6 +28,7 @@ import {
 import './style.scss';
 import type { UploadItem } from '../../src/dashboard/hooks/use-upload';
 import type { LibraryItem } from '../../src/dashboard/types/library';
+import type { View } from '@wordpress/dataviews';
 
 const isEditable = ( item: LibraryItem ): boolean =>
 	item.type === 'videopress' && item.upload.status !== 'failed';
@@ -77,6 +80,21 @@ type StageReadyProps = {
 	uploadRow?: UploadItem;
 };
 
+// "Was that the last video?" — the server total, deliberately NOT useFreeTier's
+// count: that one adds un-acknowledged queue rows, which on this page includes
+// the row for the very video being deleted. A perPage=1 read, and keyed
+// identically to the first-run count view so every other screen in the session
+// shares its cache entry.
+const LAST_VIDEO_COUNT_VIEW: View = {
+	type: 'table',
+	page: 1,
+	perPage: 1,
+	fields: [],
+	filters: [],
+	search: '',
+	sort: { field: 'date', direction: 'desc' },
+};
+
 // Per-video id so the settle notices replace the in-progress snackbar in
 // place (the notices store drops an existing notice with the same id on
 // create) instead of stacking a second notice next to it. Keyed by video id
@@ -95,6 +113,9 @@ const StageReady = ( { video, uploadRow }: StageReadyProps ) => {
 	const [ chaptersOpen, setChaptersOpen ] = useState( false );
 	const [ captionsOpen, setCaptionsOpen ] = useState( false );
 	const queryClient = useQueryClient();
+	const { paginationInfo } = useLibrary( LAST_VIDEO_COUNT_VIEW );
+	const libraryTotalRef = useRef( 0 );
+	libraryTotalRef.current = paginationInfo?.totalItems ?? 0;
 
 	// The upload's own screen. Arriving here from the /upload bridge (or from
 	// the pill's "Add details"), this page owns the tail of the upload: the
@@ -201,6 +222,8 @@ const StageReady = ( { video, uploadRow }: StageReadyProps ) => {
 					if ( ! confirmed ) {
 						return;
 					}
+					// Read before the delete: after it, the count has moved.
+					const wasLastVideo = libraryTotalRef.current <= 1;
 					// Deleting can take several seconds (the backend also removes the
 					// remote VideoPress copy); surface progress immediately so the
 					// action doesn't feel frozen. `explicitDismiss` keeps the snackbar
@@ -218,10 +241,9 @@ const StageReady = ( { video, uploadRow }: StageReadyProps ) => {
 								id: deletingNoticeId( video.id ),
 							} );
 							if ( isMountedRef.current ) {
-								// The Library: its empty state is the upload flow, so
-								// even deleting the last video lands somewhere with a
-								// next step.
-								navigate( { href: '/' } );
+								// An emptied Library is a dead end — no dropzone, no
+								// next step. Home has both.
+								navigate( { href: wasLastVideo ? TAB_PATHS.home : '/' } );
 							}
 						} )
 						.catch( () => {
