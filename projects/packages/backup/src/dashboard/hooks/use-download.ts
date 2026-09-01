@@ -36,10 +36,15 @@ const POLL_INTERVAL_MS = 1500;
  * The bridge derives `status` for us, because WPCOM's own payload has no
  * status field — it signals lifecycle by which keys are present.
  *
+ * Every read is gated on `enabled`, which the screen supplies from the gate
+ * verdict — see `useRestore` for why the gating lives here rather than below
+ * `<Gates>`.
+ *
  * @param rewindId - The backup's rewind id.
+ * @param enabled  - Whether this site may query WordPress.com at all.
  * @return state + submit + submitFiles + reset.
  */
-export function useDownload( rewindId: string ): Result {
+export function useDownload( rewindId: string, enabled = true ): Result {
 	const [ downloadId, setDownloadId ] = useState< number | null >( null );
 	const [ errorMessage, setErrorMessage ] = useState< string | null >( null );
 
@@ -65,8 +70,9 @@ export function useDownload( rewindId: string ): Result {
 	const statusQuery = useQuery( {
 		queryKey: keys.downloadStatus( rewindId, effectiveDownloadId ),
 		queryFn: () => fetchDownloadStatus( rewindId, effectiveDownloadId ),
-		enabled: downloadId !== null,
-		refetchInterval: query => ( query.state.data?.status === 'running' ? POLL_INTERVAL_MS : false ),
+		enabled: downloadId !== null && enabled,
+		refetchInterval: query =>
+			query.state.data?.status === 'running' && enabled ? POLL_INTERVAL_MS : false,
 	} );
 
 	const submit = useCallback(
