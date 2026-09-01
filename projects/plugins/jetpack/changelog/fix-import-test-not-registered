@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Register an existing test file with the PHPUnit suites so it actually runs. Test infrastructure only.
+
+
