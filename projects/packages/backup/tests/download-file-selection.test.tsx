@@ -1,9 +1,5 @@
 // The file browser's selection has to survive the trip to the Download screen,
-// and the screen has to act on it. What travels is the opaque per-entry `id`
-// from `/rewind/backup/ls`, comma-joined as one string, since an id can itself
-// contain a comma. The checklist is skipped when files are named because
-// upstream models `paths` as one *of* the six categories, not a filter across
-// them — so a request naming files cannot also name categories.
+// and the screen has to send it.
 
 const mockApiFetch = jest.fn();
 const mockSearch = jest.fn< Record< string, unknown >, [] >();
@@ -71,9 +67,9 @@ const ITEM: BackupActivityItem = {
 // mocked out here, so these do not exercise a URL round trip.
 const WP_CONFIG_ID = 'ZjU6L3dwLWNvbmZpZy5waHA=';
 const README_ID = 'ZjI6L3JlYWRtZS5odG1s';
-// A directory id, which is itself a comma-joined token pair (`base64("r2:")
-// + "," + base64("f2:/")`). It is why the include list is one comma-joined
-// string upstream flattens, rather than a list of discrete values.
+// A directory id, itself a comma-joined token pair (`base64("r2:") + "," +
+// base64("f2:/")`) — the comma is upstream's own separator, so this single
+// tree entry is two entries in the path list.
 const THEMES_DIR_ID = 'cjI6,ZjI6Lw==';
 
 /**
@@ -167,8 +163,19 @@ beforeEach( () => {
  */
 function postCalls() {
 	return mockApiFetch.mock.calls
-		.map( ( [ options ] ) => options as { method?: string; path?: string } | undefined )
+		.map(
+			( [ options ] ) => options as { method?: string; path?: string; data?: unknown } | undefined
+		)
 		.filter( options => options?.method === 'POST' );
+}
+
+/**
+ * The initiate POSTs, which the file browser's own `ls` calls are not.
+ *
+ * @return The matching apiFetch option objects, in call order.
+ */
+function initiateCalls() {
+	return postCalls().filter( options => options?.path?.includes( '/backups/download/' ) );
 }
 
 describe( 'Download link carrying the file selection', () => {
@@ -204,8 +211,6 @@ describe( 'Download link carrying the file selection', () => {
 		const link = await screen.findByRole( 'link', { name: /Download 2 selected items/ } );
 		const href = link.getAttribute( 'href' ) ?? '';
 		const query = new URLSearchParams( href.slice( href.indexOf( '?' ) ) );
-		// Comma-joined as one string, not repeated params: upstream flattens
-		// on comma, and an id can contain one.
 		expect( query.get( 'files' ) ).toBe( `${ WP_CONFIG_ID },${ README_ID }` );
 
 		// Restore is the outside witness. It sits beside Download and looks
@@ -359,6 +364,50 @@ describe( 'Download screen with a file selection', () => {
 		expect( posts[ 0 ]?.path ).toContain( '/backups/download/1786644531.123' );
 	} );
 
+	// The pairing the bridge guards and upstream does not.
+	it( 'names the paths type and the entries, and no other category', async () => {
+		render( <DownloadStage /> );
+
+		await expect(
+			screen.findByText( 'Preparing download…', undefined, SETTLE )
+		).resolves.toBeInTheDocument();
+
+		expect( initiateCalls()[ 0 ]?.data ).toEqual( {
+			types: { paths: true },
+			include_path_list: [ WP_CONFIG_ID, README_ID ],
+		} );
+	} );
+
+	it( 'retries with the file selection rather than the whole site', async () => {
+		let attempts = 0;
+		mockApiFetch.mockImplementation( ( o: { path?: string } ) => {
+			const path = o?.path ?? '';
+			if ( path.includes( '/site/capabilities' ) ) {
+				return Promise.resolve( { hasBackupPlan: true, hasScan: false } );
+			}
+			if ( path.includes( '/backups/download/' ) && path.includes( '/status' ) ) {
+				return Promise.resolve( downloadStatus );
+			}
+			if ( path.includes( '/backups/download/' ) ) {
+				attempts += 1;
+				return attempts === 1
+					? Promise.reject( { code: 'download_initiate_failed', message: 'No luck.' } )
+					: Promise.resolve( { id: 4242 } );
+			}
+			return Promise.resolve( {} );
+		} );
+
+		render( <DownloadStage /> );
+
+		await userEvent.click( await screen.findByRole( 'button', { name: /Try again/ }, SETTLE ) );
+
+		await waitFor( () => expect( initiateCalls() ).toHaveLength( 2 ), SETTLE );
+		expect( initiateCalls()[ 1 ]?.data ).toEqual( {
+			types: { paths: true },
+			include_path_list: [ WP_CONFIG_ID, README_ID ],
+		} );
+	} );
+
 	// StrictMode is load-bearing: its simulated unmount detaches React Query's
 	// mutation observer and never reattaches it, latching `isPending` true while
 	// `onSuccess` still lands the id. Drop the wrapper and this passes either way.
@@ -430,5 +479,46 @@ describe( 'Download screen with a file selection', () => {
 			screen.findByText( "This download link isn't valid.", undefined, SETTLE )
 		).resolves.toBeInTheDocument();
 		expect( postCalls() ).toHaveLength( 0 );
+	} );
+} );
+
+describe( 'From the file browser to the request', () => {
+	// The one place the label's list and the request's list are checked
+	// against each other, by carrying the real `?files=` between them.
+	it( 'sends the entries the detail pane counted', async () => {
+		lsContents = {
+			themes: { type: 'dir', has_children: true, id: THEMES_DIR_ID },
+			'wp-config.php': TWO_FILES[ 'wp-config.php' ],
+		};
+		const view = render(
+			<QueryClientProvider>
+				<BackupDetail item={ ITEM } />
+			</QueryClientProvider>
+		);
+		await expect(
+			screen.findByRole( 'button', { name: 'Folder: themes' }, SETTLE )
+		).resolves.toBeInTheDocument();
+
+		await userEvent.click( screen.getByRole( 'checkbox', { name: 'Select themes' } ) );
+		await userEvent.click( screen.getByRole( 'checkbox', { name: 'Select wp-config.php' } ) );
+
+		const link = await screen.findByRole( 'link', { name: /Download 2 selected items/ } );
+		const href = link.getAttribute( 'href' ) ?? '';
+		view.unmount();
+
+		mockSearch.mockReturnValue( {
+			files: new URLSearchParams( href.slice( href.indexOf( '?' ) ) ).get( 'files' ) ?? '',
+		} );
+		render( <DownloadStage /> );
+		await expect(
+			screen.findByText( 'Preparing download…', undefined, SETTLE )
+		).resolves.toBeInTheDocument();
+
+		// Three entries for two ticked rows: the folder's id is itself a
+		// comma-joined pair.
+		expect( initiateCalls()[ 0 ]?.data ).toEqual( {
+			types: { paths: true },
+			include_path_list: [ 'cjI6', 'ZjI6Lw==', WP_CONFIG_ID ],
+		} );
 	} );
 } );

@@ -71,14 +71,10 @@ export default function BackupDetail( { item }: Props ) {
 		);
 	}, [] );
 
-	// Comma-joined into one string rather than repeated params, because
-	// that is the form upstream's `include_path_list` takes — and it has
-	// to be a string: a single `ls` entry id can itself contain a comma,
-	// which works precisely because upstream flattens on comma.
-	//
-	// Absent when nothing is ticked, so a whole-backup download links
-	// exactly as it did before. JETPACK-2321 turns what arrives on the
-	// Download screen into the granular request.
+	// One comma-joined string rather than repeated params: the comma is
+	// upstream's own separator between `ls` entries, so an id may already
+	// carry one. Absent when nothing is ticked, so a whole-backup download
+	// links exactly as it did before.
 	const downloadSearch = useMemo(
 		() => ( selectedIds.length > 0 ? { files: selectedIds.join( ',' ) } : undefined ),
 		[ selectedIds ]

@@ -1,7 +1,7 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useCallback, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { fetchDownloadStatus, initiateDownload } from '../data/api/download';
+import { fetchDownloadStatus, initiateDownload, initiateFileDownload } from '../data/api/download';
 import { keys } from '../data/query-client';
 import type { RestoreItems } from '../types/restore';
 
@@ -12,9 +12,14 @@ type DownloadState =
 	| { phase: 'success'; downloadUrl: string; validUntil: string }
 	| { phase: 'error'; message: string };
 
+// A download is scoped by categories *or* by named files, never both:
+// upstream models `paths` as one of the six categories.
+type DownloadRequest = { items: RestoreItems } | { files: string };
+
 type Result = {
 	state: DownloadState;
 	submit: ( items: RestoreItems ) => void;
+	submitFiles: ( files: string ) => void;
 	reset: () => void;
 };
 
@@ -32,7 +37,7 @@ const POLL_INTERVAL_MS = 1500;
  * status field — it signals lifecycle by which keys are present.
  *
  * @param rewindId - The backup's rewind id.
- * @return state + submit + reset.
+ * @return state + submit + submitFiles + reset.
  */
 export function useDownload( rewindId: string ): Result {
 	const [ downloadId, setDownloadId ] = useState< number | null >( null );
@@ -43,7 +48,10 @@ export function useDownload( rewindId: string ): Result {
 		reset: resetMutation,
 		isPending: isInitiating,
 	} = useMutation( {
-		mutationFn: ( items: RestoreItems ) => initiateDownload( rewindId, items ),
+		mutationFn: ( request: DownloadRequest ) =>
+			'files' in request
+				? initiateFileDownload( rewindId, request.files )
+				: initiateDownload( rewindId, request.items ),
 		onSuccess: result => {
 			setDownloadId( result.id );
 			setErrorMessage( null );
@@ -62,7 +70,11 @@ export function useDownload( rewindId: string ): Result {
 	} );
 
 	const submit = useCallback(
-		( items: RestoreItems ) => mutateInitiate( items ),
+		( items: RestoreItems ) => mutateInitiate( { items } ),
+		[ mutateInitiate ]
+	);
+	const submitFiles = useCallback(
+		( files: string ) => mutateInitiate( { files } ),
 		[ mutateInitiate ]
 	);
 	const reset = useCallback( () => {
@@ -121,5 +133,5 @@ export function useDownload( rewindId: string ): Result {
 		state = { phase: 'submitting' };
 	}
 
-	return { state, submit, reset };
+	return { state, submit, submitFiles, reset };
 }
