@@ -73,6 +73,11 @@ class Jetpack_Forms {
 
 		// Initialize abilities registration for WordPress Abilities API (WP 6.9+)
 		\Automattic\Jetpack\Forms\Abilities\Forms_Abilities::init();
+
+		// Payments (prototype). Registers the confirmation endpoint; everything
+		// else hangs off the form's own `payments` attribute, so this is inert
+		// on any form that has not enabled it.
+		\Automattic\Jetpack\Forms\Payments\Payments::init();
 	}
 
 	/**
