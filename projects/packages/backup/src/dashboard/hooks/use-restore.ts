@@ -172,7 +172,11 @@ function deriveState( input: DeriveInput ): RestoreState {
 				message: data.message || __( 'Restore failed.', 'jetpack-backup-pkg' ),
 			};
 		case 'running':
-			return { phase: 'progress', percent: Math.round( data.progress ?? 0 ) };
+			return {
+				phase: 'progress',
+				percent: Math.round( data.progress ?? 0 ),
+				message: data.message,
+			};
 		default:
 			// `queued`, `unknown`, or nothing yet. All the same to the
 			// reader: accepted, nothing to show. Unless it has been that

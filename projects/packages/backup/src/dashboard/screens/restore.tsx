@@ -204,11 +204,32 @@ export default function RestoreScreen() {
 					) }
 					{ state.phase === 'progress' && (
 						<Stack direction="column" gap="sm">
-							<Text>{ __( 'Restoring…', 'jetpack-backup-pkg' ) }</Text>
+							{ /*
+							 * Scoped to this line, not the block: the percentage and message
+							 * below change on every 5s poll and would re-announce with it.
+							 */ }
+							<Text role="status">{ __( 'Restoring…', 'jetpack-backup-pkg' ) }</Text>
 							<ProgressBar
 								value={ state.percent }
 								aria-label={ __( 'Restoring your site', 'jetpack-backup-pkg' ) }
 							/>
+							<Text variant="body-sm" className="jpb-text-muted">
+								{ sprintf(
+									/* translators: %d is a completion percentage, e.g. "50% complete". */
+									__( '%d%% complete', 'jetpack-backup-pkg' ),
+									state.percent
+								) }
+							</Text>
+							{ /*
+							 * The message is the only sign of life while `percent` stays
+							 * pinned at 0 — VaultPress's file-check preflight can run for
+							 * minutes before it moves.
+							 */ }
+							{ state.message && (
+								<Text variant="body-sm" className="jpb-text-muted">
+									{ state.message }
+								</Text>
+							) }
 						</Stack>
 					) }
 					{ state.phase === 'success' && (
