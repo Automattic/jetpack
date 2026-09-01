@@ -73,8 +73,11 @@ export function DateRangeQuickPresets( {
 	 * pill picks its own form.
 	 */
 	const pillLabel = useCallback(
-		( preset: { label: string; shortLabel?: string } ) =>
-			labelMode === 'abbreviated' ? preset.shortLabel ?? preset.label : preset.label,
+		( preset: { label: string; pillLabel?: string; shortLabel?: string } ) => {
+			const fullForm = preset.pillLabel ?? preset.label;
+
+			return labelMode === 'abbreviated' ? preset.shortLabel ?? fullForm : fullForm;
+		},
 		[ labelMode ]
 	);
 
@@ -118,7 +121,9 @@ export function DateRangeQuickPresets( {
 							 * Abbreviated pills lose the wording that named the period, so
 							 * carry the full label for anyone not reading the glyphs.
 							 */
-							aria-label={ labelMode === 'abbreviated' ? preset.label : undefined }
+							aria-label={
+								labelMode === 'abbreviated' ? preset.pillLabel ?? preset.label : undefined
+							}
 							onClick={ () => selectPreset( preset.id ) }
 						/>
 					}

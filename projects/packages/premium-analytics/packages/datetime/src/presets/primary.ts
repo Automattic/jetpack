@@ -68,6 +68,11 @@ type PresetDefinition = {
 	id: SelectablePresetId;
 	getLabel: () => string;
 	/**
+	 * Compressed label for the surface pills, where the row cannot afford the
+	 * preset's full name. Only the quick surface presets carry one.
+	 */
+	getPillLabel?: () => string;
+	/**
 	 * Short label for the surface pills. Only the quick surface presets carry
 	 * one: they are the only presets rendered in a fixed-width row. Translated
 	 * separately rather than truncated, since the English forms are initials.
@@ -116,7 +121,8 @@ export const PRESET_DEFINITIONS: ReadonlyArray< PresetDefinition > = [
 	},
 	{
 		id: PRESET_LAST_7_DAYS,
-		getLabel: () =>
+		getLabel: () => __( 'Last 7 days', 'jetpack-premium-analytics-pkg' ),
+		getPillLabel: () =>
 			/* translators: Rolling date-range preset pill. The last 7 days; keep it short. */
 			__( '7 days', 'jetpack-premium-analytics-pkg' ),
 		getShortLabel: () =>
@@ -129,7 +135,8 @@ export const PRESET_DEFINITIONS: ReadonlyArray< PresetDefinition > = [
 	},
 	{
 		id: PRESET_LAST_30_DAYS,
-		getLabel: () =>
+		getLabel: () => __( 'Last 30 days', 'jetpack-premium-analytics-pkg' ),
+		getPillLabel: () =>
 			/* translators: Rolling date-range preset pill. The last 30 days; keep it short. */
 			__( '30 days', 'jetpack-premium-analytics-pkg' ),
 		getShortLabel: () =>
@@ -166,7 +173,8 @@ export const PRESET_DEFINITIONS: ReadonlyArray< PresetDefinition > = [
 	},
 	{
 		id: PRESET_LAST_12_MONTHS,
-		getLabel: () =>
+		getLabel: () => __( 'Last 12 months', 'jetpack-premium-analytics-pkg' ),
+		getPillLabel: () =>
 			/* translators: Rolling date-range preset pill. The last 12 months; keep it short. */
 			__( '12 months', 'jetpack-premium-analytics-pkg' ),
 		getShortLabel: () =>
@@ -269,6 +277,11 @@ export type DateRangePreset< TId extends ComputablePresetId = SelectablePresetId
 	id: TId;
 	label: string;
 	/**
+	 * The pill row's own form of the name, present only where the row cannot
+	 * afford the full one. A surface with room reads `label`.
+	 */
+	pillLabel?: string;
+	/**
 	 * Abbreviated label, present only on presets that render as surface pills.
 	 * Consumers that never run out of room can ignore it.
 	 */
@@ -350,9 +363,10 @@ function resolveAllTimeStart( options: AllTimeRangeOptions, ctx: DateContext ): 
 export function getDefaultDateRangePresets( timeZone: string ): DateRangePreset[] {
 	const ctx = buildDateContext( timeZone );
 
-	return PRESET_DEFINITIONS.map( ( { id, getLabel, getShortLabel, getRange } ) => ( {
+	return PRESET_DEFINITIONS.map( ( { id, getLabel, getPillLabel, getShortLabel, getRange } ) => ( {
 		id,
 		label: getLabel(),
+		pillLabel: getPillLabel?.(),
 		shortLabel: getShortLabel?.(),
 		range: getRange( ctx ),
 	} ) );
