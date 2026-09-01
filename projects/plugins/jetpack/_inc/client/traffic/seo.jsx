@@ -378,7 +378,9 @@ export const SEO = withModuleSettingsFormHelpers(
 								'Adds canonical URL tags to archive pages to prevent duplicate content in search engines.',
 								'jetpack'
 							),
-							link: getRedirectUrl( 'jetpack-support-canonical-urls' ),
+							link: getRedirectUrl( 'jetpack-support-canonical-urls', {
+								anchor: 'canonical-urls-for-archive-pages',
+							} ),
 						} }
 					>
 						<ModuleToggle
