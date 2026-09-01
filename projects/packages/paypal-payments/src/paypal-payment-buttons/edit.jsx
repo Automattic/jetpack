@@ -52,6 +52,24 @@ import {
 import VariantBuilder, { hasVariantPricing, validateVariants } from './variant-builder';
 
 /**
+ * The PayPal connection is stored per-site, not per-block, so connecting or
+ * disconnecting from one block changes the state of every other block in the
+ * editor. Each instance only learns that from its own `/connection` fetch on
+ * mount, so the block that made the change broadcasts it to its siblings.
+ */
+const CONNECTION_CHANGED_EVENT = 'jetpack-paypal-payments-connection-changed';
+
+/**
+ * Tell the other blocks on this page that the site-wide PayPal connection
+ * changed.
+ *
+ * @param {boolean} connected - The new connection state.
+ */
+function broadcastConnectionChange( connected ) {
+	window.dispatchEvent( new CustomEvent( CONNECTION_CHANGED_EVENT, { detail: { connected } } ) );
+}
+
+/**
  * Supported currencies for the currency selector.
  * Matches PayPal_Attribute_Mapper::SUPPORTED_CURRENCIES on the server.
  */
@@ -206,6 +224,8 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 	const helpQtyOff = __( 'Fixed at 1 unit per purchase.', 'jetpack-paypal-payments' );
 	const helpTaxOn = __( 'Tax will be added at PayPal checkout.', 'jetpack-paypal-payments' );
 	const helpTaxOff = __( 'No tax collected.', 'jetpack-paypal-payments' );
+	const labelConnected = __( 'PayPal Connected', 'jetpack-paypal-payments' );
+	const labelDisconnected = __( 'PayPal Disconnected', 'jetpack-paypal-payments' );
 	const labelPrice = __( 'Price', 'jetpack-paypal-payments' );
 	const labelPriceOptional = __( 'Price (not used)', 'jetpack-paypal-payments' );
 	const helpPriceFromOptions = __(
@@ -226,6 +246,11 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 	// Confirmation dialog state for destructive actions.
 	const [ showDeleteConfirm, setShowDeleteConfirm ] = useState( false );
 	const [ showDisconnectConfirm, setShowDisconnectConfirm ] = useState( false );
+
+	// Set when the merchant asks to reconnect from a block that still holds a
+	// button — that block keeps its attributes, so the wizard has to be opened
+	// explicitly rather than by the usual "no button yet" path.
+	const [ showReconnect, setShowReconnect ] = useState( false );
 
 	// Edit/preview mode toggle. Start in preview if button already exists.
 	const [ isEditing, setIsEditing ] = useState( ! ( isApiManaged && resourceId && paymentLink ) );
@@ -373,6 +398,25 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 	}, [] );
 
 	/**
+	 * Follow the site-wide connection state when another block changes it.
+	 *
+	 * Block attributes are deliberately left alone: the payment links they hold
+	 * keep working for buyers after a disconnect, they just can't be edited
+	 * until the merchant reconnects.
+	 */
+	useEffect( () => {
+		const handleConnectionChange = event => {
+			setIsConnected( !! event.detail?.connected );
+			if ( event.detail?.connected ) {
+				setShowReconnect( false );
+			}
+		};
+
+		window.addEventListener( CONNECTION_CHANGED_EVENT, handleConnectionChange );
+		return () => window.removeEventListener( CONNECTION_CHANGED_EVENT, handleConnectionChange );
+	}, [] );
+
+	/**
 	 * Handle Client ID paste — auto-trim whitespace.
 	 *
 	 * @param {string} value - Pasted or typed value.
@@ -437,7 +481,9 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 				setEnvironment( response.environment );
 				setClientId( '' );
 				setClientSecret( '' );
+				setShowReconnect( false );
 				setWizardStep( 'success' );
+				broadcastConnectionChange( response.connected );
 			} )
 			.catch( err => {
 				setConnectError( getUserFriendlyError( err ) );
@@ -461,7 +507,9 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 				if ( status.payments_receivable ) {
 					setIsConnected( true );
 					setEnvironment( status.environment || environment );
+					setShowReconnect( false );
 					setWizardStep( 'success' );
+					broadcastConnectionChange( true );
 				} else {
 					setConnectError(
 						__(
@@ -554,7 +602,9 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 				} )
 					.then( () => {
 						setIsConnected( true );
+						setShowReconnect( false );
 						setWizardStep( 'success' );
+						broadcastConnectionChange( true );
 					} )
 					.catch( err => {
 						setConnectError( getUserFriendlyError( err ) );
@@ -583,6 +633,8 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 		const doDisconnect = () => {
 			setIsConnected( false );
 			setWizardStep( 'welcome' );
+			setShowReconnect( false );
+			broadcastConnectionChange( false );
 			// Clear block attributes so the block shows the connect wizard.
 			setAttributes( {
 				isApiManaged: false,
@@ -958,12 +1010,24 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 		</svg>
 	);
 
-	// Not connected and no existing button — show guided connection wizard.
-	// Skip the wizard if the block already has a saved button (e.g. demo posts in Playground).
-	if ( ! isConnected && ! hasButton ) {
+	// Not connected — show the guided connection wizard. A block that already
+	// holds a saved button keeps showing its preview instead (e.g. demo posts in
+	// Playground, or a button created before the site was disconnected), unless
+	// the merchant explicitly asked to reconnect.
+	if ( ! isConnected && ( ! hasButton || showReconnect ) ) {
 		return (
 			<div { ...blockProps } data-color-scheme={ colorScheme || 'auto' }>
 				<div className="jetpack-paypal-payment-buttons__connect">
+					{ /* Reconnecting from a block that still holds a button — let the
+					     merchant back out to its preview without connecting. */ }
+					{ showReconnect && (
+						<div className="jetpack-paypal-payment-buttons__reconnect-header">
+							<Button variant="tertiary" onClick={ () => setShowReconnect( false ) }>
+								{ __( 'Cancel', 'jetpack-paypal-payments' ) }
+							</Button>
+						</div>
+					) }
+
 					{ /* Step indicator */ }
 					{ wizardStep !== 'welcome' && wizardStep !== 'success' && (
 						<div
@@ -1241,7 +1305,7 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 					icon="trash"
 					label={ __( 'Delete Payment Button', 'jetpack-paypal-payments' ) }
 					onClick={ handleDeleteButton }
-					disabled={ isCreating }
+					disabled={ isCreating || ! isConnected }
 					isDestructive
 				/>
 			</ToolbarGroup>
@@ -1316,13 +1380,19 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 							variant="secondary"
 							isDestructive
 							onClick={ handleDeleteButton }
-							disabled={ isCreating }
+							disabled={ isCreating || ! isConnected }
 						>
 							{ __( 'Delete Button', 'jetpack-paypal-payments' ) }
 						</Button>
-						<Button variant="secondary" isDestructive onClick={ handleDisconnect }>
-							{ __( 'Disconnect', 'jetpack-paypal-payments' ) }
-						</Button>
+						{ isConnected ? (
+							<Button variant="secondary" isDestructive onClick={ handleDisconnect }>
+								{ __( 'Disconnect', 'jetpack-paypal-payments' ) }
+							</Button>
+						) : (
+							<Button variant="secondary" onClick={ () => setShowReconnect( true ) }>
+								{ __( 'Reconnect', 'jetpack-paypal-payments' ) }
+							</Button>
+						) }
 					</div>
 				</PanelBody>
 			) }
@@ -1335,9 +1405,15 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 					<p>
 						{ __( 'Environment:', 'jetpack-paypal-payments' ) } <strong>{ environment }</strong>
 					</p>
-					<Button variant="secondary" isDestructive onClick={ handleDisconnect }>
-						{ __( 'Disconnect PayPal', 'jetpack-paypal-payments' ) }
-					</Button>
+					{ isConnected ? (
+						<Button variant="secondary" isDestructive onClick={ handleDisconnect }>
+							{ __( 'Disconnect PayPal', 'jetpack-paypal-payments' ) }
+						</Button>
+					) : (
+						<Button variant="secondary" onClick={ () => setShowReconnect( true ) }>
+							{ __( 'Reconnect PayPal', 'jetpack-paypal-payments' ) }
+						</Button>
+					) }
 				</PanelBody>
 			) }
 		</InspectorControls>
@@ -1367,7 +1443,7 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 					onCancel={ () => setShowDisconnectConfirm( false ) }
 				>
 					{ __(
-						'Disconnect your PayPal account? You will need to re-enter your credentials to create new buttons. Existing published buttons will continue to work.',
+						'Disconnect your PayPal account? This disconnects PayPal for the whole site, not just this block: every payment button here will need you to reconnect before it can be edited or deleted. Buttons already published keep working for buyers.',
 						'jetpack-paypal-payments'
 					) }
 				</ConfirmDialog>
@@ -1376,6 +1452,41 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 	);
 
 	const formatLabel = FORMAT_OPTIONS.find( o => o.value === activeFormat )?.label || activeFormat;
+
+	// The PayPal connection is site-wide, so a block can still hold a working
+	// button after the account was disconnected — from this post, another post,
+	// or the admin. The button keeps paying out; only editing it needs the
+	// connection back, so say so instead of failing on save.
+	const disconnectedNotice = ! isConnected ? (
+		<Notice
+			status="warning"
+			isDismissible={ false }
+			actions={ [
+				{
+					label: __( 'Reconnect PayPal', 'jetpack-paypal-payments' ),
+					onClick: () => setShowReconnect( true ),
+					variant: 'primary',
+				},
+			] }
+		>
+			{ __(
+				'Your PayPal account is disconnected. This payment link still works for buyers, but you need to reconnect before you can edit or delete it.',
+				'jetpack-paypal-payments'
+			) }
+		</Notice>
+	) : null;
+
+	const connectionStatus = (
+		<span
+			className={ `jetpack-paypal-payment-buttons__status-dot ${
+				isConnected
+					? 'jetpack-paypal-payment-buttons__status-dot--connected'
+					: 'jetpack-paypal-payment-buttons__status-dot--disconnected'
+			}` }
+		/>
+	);
+
+	const connectionLabel = isConnected ? labelConnected : labelDisconnected;
 
 	// Connected + has button + preview mode — show live button preview.
 	if ( hasButton && ! isEditing ) {
@@ -1386,8 +1497,8 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 
 				<div className="jetpack-paypal-payment-buttons__preview">
 					<div className="jetpack-paypal-payment-buttons__preview-status">
-						<span className="jetpack-paypal-payment-buttons__status-dot jetpack-paypal-payment-buttons__status-dot--connected" />
-						{ __( 'PayPal Connected', 'jetpack-paypal-payments' ) }
+						{ connectionStatus }
+						{ connectionLabel }
 						<span className="jetpack-paypal-payment-buttons__format-badge">
 							{ sprintf(
 								/* translators: %s: format label (Button, Link, or QR Code) */
@@ -1401,6 +1512,8 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 							</span>
 						) }
 					</div>
+
+					{ disconnectedNotice }
 
 					{ successMessage && (
 						<Notice status="success" isDismissible onDismiss={ () => setSuccessMessage( null ) }>
@@ -1439,14 +1552,16 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 
 			<div className="jetpack-paypal-payment-buttons__create-form">
 				<div className="jetpack-paypal-payment-buttons__preview-status">
-					<span className="jetpack-paypal-payment-buttons__status-dot jetpack-paypal-payment-buttons__status-dot--connected" />
-					{ __( 'PayPal Connected', 'jetpack-paypal-payments' ) }
+					{ connectionStatus }
+					{ connectionLabel }
 					{ environment === 'sandbox' && (
 						<span className="jetpack-paypal-payment-buttons__sandbox-badge">
 							{ __( 'Sandbox', 'jetpack-paypal-payments' ) }
 						</span>
 					) }
 				</div>
+
+				{ disconnectedNotice }
 
 				<h3>{ hasButton ? labelEditHeading : labelCreateHeading }</h3>
 				{ ! hasButton && (
@@ -1849,7 +1964,7 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 						variant="primary"
 						onClick={ hasButton ? handleUpdateButton : handleCreateButton }
 						isBusy={ isCreating }
-						disabled={ isCreating || ! isFormValid }
+						disabled={ isCreating || ! isFormValid || ! isConnected }
 					>
 						{ isCreating && __( 'Saving…', 'jetpack-paypal-payments' ) }
 						{ ! isCreating &&
