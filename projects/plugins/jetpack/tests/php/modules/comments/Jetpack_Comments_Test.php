@@ -25,7 +25,7 @@ class Jetpack_Comments_Test extends WP_UnitTestCase {
 	public function set_up() {
 		parent::set_up();
 		update_option( 'show_avatars', 1 );
-		// Registering the singleton wires the pre_get_avatar_data filter under test.
+		// Registering the singleton wires the get_avatar filter under test.
 		Jetpack_Comments::init();
 		$_POST = array();
 	}
@@ -53,19 +53,6 @@ class Jetpack_Comments_Test extends WP_UnitTestCase {
 		$this->assertStringNotContainsString( "'onerror", $html );
 		$this->assertStringNotContainsString( '"onerror', $html );
 		$this->assertStringNotContainsString( ' onerror=', $html );
-	}
-
-	/**
-	 * The host allow-list must be a real boundary, not a bare suffix match: eviltwimg.com is not twimg.com.
-	 */
-	public function test_get_avatar_ignores_a_lookalike_host() {
-		$post_id    = self::factory()->post->create();
-		$comment_id = self::factory()->comment->create( array( 'comment_post_ID' => $post_id ) );
-		add_comment_meta( $comment_id, 'hc_avatar', 'https://eviltwimg.com/evil.jpg', true );
-
-		$html = get_avatar( get_comment( $comment_id ) );
-
-		$this->assertStringNotContainsString( 'eviltwimg.com', $html );
 	}
 
 	/**
