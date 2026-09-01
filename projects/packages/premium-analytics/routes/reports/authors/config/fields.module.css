@@ -6,10 +6,6 @@
 	object-fit: cover;
 }
 
-.group {
-	min-inline-size: 0;
-}
-
 .name {
 	overflow: hidden;
 	white-space: nowrap;

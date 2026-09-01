@@ -23,10 +23,6 @@
 	object-fit: cover;
 }
 
-.group {
-	min-inline-size: 0;
-}
-
 .label {
 	overflow: hidden;
 	white-space: nowrap;

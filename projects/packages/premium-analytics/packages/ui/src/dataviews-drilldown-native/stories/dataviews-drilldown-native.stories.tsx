@@ -536,3 +536,25 @@ export const CollapsedByDefault: Story = {
 		},
 	},
 };
+
+export const LongGroupTitle: Story = {
+	args: {
+		...CollapsedByDefault.args,
+		data: rows.map( row =>
+			row.id === 'search'
+				? {
+						...row,
+						referrer: `${ row.referrer } and Aggregators, Syndication Partners and Every Other Long-Winded Category Name a Site Might Report`,
+				  }
+				: row
+		),
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'A group label wider than the title column. The title has to give way rather than carry the chevron out of the report card, which clips its overflow — a chevron pushed past that edge cannot be reached with a mouse at all, leaving the group unopenable.',
+			},
+		},
+	},
+};
