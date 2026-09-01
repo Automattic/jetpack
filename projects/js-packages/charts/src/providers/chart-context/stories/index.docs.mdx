@@ -59,7 +59,7 @@ them from whatever the host already knows — a WordPress site's user locale and
 site timezone, say — and pass plain strings; the library never reaches for a
 WordPress package to resolve them. `locale` must be a BCP-47 tag, so WordPress's
 `en_US` needs its underscore replaced; an unusable value falls back to the
-runtime's own and warns.
+runtime's own and warns in development.
 
 <Source
 	language="tsx"
@@ -78,11 +78,17 @@ them.
 
 `timeZone` re-dates the instants you supply rather than relabeling them, so a
 value that is really a calendar day moves under it: `new Date( '2026-08-02' )` is
-UTC midnight, which is Aug 1 in `America/Los_Angeles`. Supply true instants
-alongside a `timeZone`, or set only `locale` for day-bucketed data. `HeatmapChart`
-is the one chart neither prop reaches: `buildCalendarHeatmapData` is a plain
-function the host calls outside the provider, and its labels stay in English on
-the browser's calendar.
+UTC midnight, which is Aug 1 in `America/Los_Angeles`. A `dateString` point moves
+the same way but by a viewer-dependent amount, because `parseAsLocalDate` reads it
+as midnight in the browser's zone. Supply true instants alongside a `timeZone`, or
+set only `locale` for day-bucketed data.
+
+Two things neither prop reaches. `HeatmapChart` builds its labels in
+`buildCalendarHeatmapData`, a plain function the host calls outside the provider,
+so they stay in English on the browser's calendar. And the boundaries that promote
+a tick to its date or its year are read on the Gregorian calendar, so a
+non-Gregorian `locale` labels its own new year while the year tick still lands on
+January 1.
 
 ## Color Coordination
 

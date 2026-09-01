@@ -64,8 +64,8 @@ const getTooltipFormatter = (
 			);
 	}
 
-	// Fall back to the day format rather than `undefined` options, which would
-	// print a full locale date-time for an unrecognized `tickResolution`.
+	// Fall back to the day format rather than empty options, which would print a
+	// bare numeric date for an unrecognized `tickResolution`.
 	const format =
 		TOOLTIP_FORMAT_BY_RESOLUTION[ getBucketResolution( data, tickResolution ) ] ??
 		TOOLTIP_FORMAT_BY_RESOLUTION.day;

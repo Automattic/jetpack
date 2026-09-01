@@ -56,4 +56,32 @@ describe.each( charts )( '%s x axis', ( _name, chart, runtimeTick ) => {
 
 		expect( screen.getByText( runtimeTick ) ).toBeInTheDocument();
 	} );
+
+	it( 'relabels when the provider swaps time zone', () => {
+		const { rerender } = render(
+			<GlobalChartsProvider timeZone="Asia/Tokyo">{ chart }</GlobalChartsProvider>
+		);
+
+		expect( screen.getByText( 'Aug 3' ) ).toBeInTheDocument();
+
+		rerender( <GlobalChartsProvider timeZone="Pacific/Honolulu">{ chart }</GlobalChartsProvider> );
+
+		expect( screen.getByText( 'Aug 2' ) ).toBeInTheDocument();
+	} );
+} );
+
+// The values WordPress hands out: `get_locale()` is `en_US`, and `timezone_string`
+// is empty on a site set to a raw UTC offset. Unsanitized, `Intl` throws during
+// render and React unmounts the host tree rather than one chart.
+describe( 'a host locale and zone Intl cannot use', () => {
+	it( 'still renders, in the runtime zone, and warns', () => {
+		render(
+			<GlobalChartsProvider locale="en_US" timeZone="">
+				<BarChart { ...size } data={ data } />
+			</GlobalChartsProvider>
+		);
+
+		expect( screen.getByText( 'Aug 2' ) ).toBeInTheDocument();
+		expect( console ).toHaveWarned();
+	} );
 } );

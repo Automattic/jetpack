@@ -113,8 +113,9 @@ export const createDateFormatter = (
 };
 
 // Enough of the calendar to place a tick on a boundary, read in the host's zone
-// rather than the browser's. `en-US` only fixes the digits as Latin — nothing
-// here is shown to anyone.
+// rather than the browser's. `en-US` pins the digits as Latin and the calendar as
+// Gregorian: a non-Gregorian `locale` labels its own new year, but the boundary
+// still fires on January 1.
 const CLOCK_OPTIONS: Intl.DateTimeFormatOptions = {
 	month: 'numeric',
 	hour: 'numeric',

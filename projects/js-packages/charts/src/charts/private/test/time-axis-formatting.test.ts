@@ -44,8 +44,10 @@ describe( 'getFormatter with a host formatting context', () => {
 		expect( format( Date.parse( '2026-08-02T15:30:00Z' ) ) ).toBe( 'Aug 3' );
 	} );
 
+	// Aug 3 in UTC and Aug 2 in the pinned zone, so this fails without the
+	// environment rather than passing under the script's own `TZ=UTC`.
 	it( 'falls back to the runtime locale and zone when given no context', () => {
-		expect( getFormatter( daily )( Date.parse( '2026-08-02T15:30:00Z' ) ) ).toBe( 'Aug 2' );
+		expect( getFormatter( daily )( Date.parse( '2026-08-03T03:00:00Z' ) ) ).toBe( 'Aug 2' );
 	} );
 
 	it( 'anchors the date label to midnight in the supplied zone', () => {
