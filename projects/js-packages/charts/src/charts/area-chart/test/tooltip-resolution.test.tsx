@@ -1,15 +1,15 @@
+/**
+ * @jest-environment <rootDir>/tests/environment-los-angeles.mjs
+ */
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { GlobalChartsProvider } from '../../../providers';
-import { runTestsInTimeZone } from '../../../test-utils/runtime-time-zone';
 import AreaChart from '../area-chart';
 
 const mockRefCallback = jest.fn();
 jest.mock( '../../../hooks/use-element-size', () => ( {
 	useElementSize: () => [ mockRefCallback, 500, 300 ],
 } ) );
-
-runTestsInTimeZone( 'America/Los_Angeles' );
 
 // 09:30 on the Tokyo calendar day.
 const morning = new Date( '2026-08-02T00:30:00Z' );

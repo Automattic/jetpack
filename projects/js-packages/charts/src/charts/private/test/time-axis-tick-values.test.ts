@@ -1,12 +1,12 @@
-import { runTestsInTimeZone } from '../../../test-utils/runtime-time-zone';
+/**
+ * @jest-environment <rootDir>/tests/environment-los-angeles.mjs
+ */
 import { dailySeries, hourlySeries } from '../../../test-utils/series-fixtures';
 import { getFormatter, getMaxTicksForWidth, getTimeAxisTickValues } from '../time-axis';
 import type { SeriesData } from '../../../types';
 
 // The runtime zone deliberately differs from every zone under test, so a test
 // that passes only because the two agree cannot hide here.
-runTestsInTimeZone( 'America/Los_Angeles' );
-
 const TOKYO = { timeZone: 'Asia/Tokyo' };
 
 describe( 'getMaxTicksForWidth', () => {

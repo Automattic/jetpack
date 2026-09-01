@@ -1,7 +1,9 @@
+/**
+ * @jest-environment <rootDir>/tests/environment-los-angeles.mjs
+ */
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { GlobalChartsProvider } from '../../../providers';
-import { runTestsInTimeZone } from '../../../test-utils/runtime-time-zone';
 import LineChart, { renderDefaultTooltip } from '../line-chart';
 import type { BucketInfo, DataPointDate } from '../../../types';
 import type { RenderTooltipParams } from '../../../visx/types';
@@ -10,8 +12,6 @@ const mockRefCallback = jest.fn();
 jest.mock( '../../../hooks/use-element-size', () => ( {
 	useElementSize: () => [ mockRefCallback, 500, 300 ],
 } ) );
-
-runTestsInTimeZone( 'America/Los_Angeles' );
 
 const paramsFor = ( date: Date ) =>
 	( {

@@ -1,6 +1,8 @@
+/**
+ * @jest-environment <rootDir>/tests/environment-los-angeles.mjs
+ */
 import { render, screen } from '@testing-library/react';
 import { GlobalChartsProvider } from '../../../providers';
-import { runTestsInTimeZone } from '../../../test-utils/runtime-time-zone';
 import LineChart from '../line-chart';
 
 const mockRefCallback = jest.fn();
@@ -9,8 +11,6 @@ jest.mock( '../../../hooks/use-element-size', () => ( {
 } ) );
 
 // Each instant below is one day in Los Angeles and the next in Tokyo.
-runTestsInTimeZone( 'America/Los_Angeles' );
-
 const data = [
 	{
 		label: 'Series A',

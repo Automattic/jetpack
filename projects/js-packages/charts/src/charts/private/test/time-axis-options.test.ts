@@ -1,8 +1,8 @@
-import { runTestsInTimeZone } from '../../../test-utils/runtime-time-zone';
+/**
+ * @jest-environment <rootDir>/tests/environment-los-angeles.mjs
+ */
 import { dailySeries } from '../../../test-utils/series-fixtures';
 import { buildTimeAxisOptions } from '../time-axis-options';
-
-runTestsInTimeZone( 'America/Los_Angeles' );
 
 const TOKYO = { timeZone: 'Asia/Tokyo' };
 
