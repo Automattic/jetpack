@@ -1,8 +1,9 @@
 <?php
 /**
  * Widget type support shared by the registry and default layouts — hard availability only
- * (a feature the site has or doesn't); soft/request-dependent state belongs in the runtime
- * types filter. Persisted layouts keep missing types as removable ghost widgets.
+ * (a feature the site has or doesn't, or a type held back from release); soft/request-dependent
+ * state belongs in the runtime types filter. Persisted layouts keep missing types as removable
+ * ghost widgets.
  *
  * @package automattic/jetpack-premium-analytics
  */

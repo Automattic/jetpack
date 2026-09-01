@@ -267,6 +267,31 @@ class Widget_Availability_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Every held plan-usage type names a real manifest, so a renamed or moved widget
+	 * cannot lift the hold while the absence assertions above stay green.
+	 */
+	public function test_plan_usage_widget_types_match_the_manifest() {
+		$manifests = glob( __DIR__ . '/../../widgets/*/widget.json' );
+		$this->assertNotEmpty( $manifests, 'No widget manifests found — the glob path is wrong.' );
+
+		$names = array();
+		foreach ( $manifests as $manifest ) {
+			$raw = file_get_contents( $manifest ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+			$this->assertNotFalse( $raw, "Could not read $manifest" );
+
+			$widget = json_decode( $raw, true );
+			$this->assertIsArray( $widget, "Malformed manifest: $manifest" );
+			$this->assertArrayHasKey( 'name', $widget, "Manifest declares no name: $manifest" );
+
+			$names[] = $widget['name'];
+		}
+
+		foreach ( PLAN_USAGE_WIDGET_TYPES as $held ) {
+			$this->assertContains( $held, $names, "$held is held back but no manifest declares it." );
+		}
+	}
+
+	/**
 	 * The registry callback drops the video widgets when VideoPress is absent.
 	 */
 	public function test_registry_callback_removes_video_widgets_without_videopress() {
@@ -584,6 +609,7 @@ class Widget_Availability_Test extends BaseTestCase {
 
 		$this->assertContains( 'jpa/file-downloads', $names );
 		$this->assertContains( 'jpa/shares', $names );
+		$this->assertNotContains( 'jpa/plan-usage', $names, 'The plan-usage hold applies on Simple too.' );
 	}
 
 	/**
