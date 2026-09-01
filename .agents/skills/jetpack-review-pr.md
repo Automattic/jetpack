@@ -276,8 +276,9 @@ Get the candidate list, then judge each entry — the script decides nothing:
 gh pr diff <PR> | awk -f .agents/skills/jetpack-review-pr/scripts/comment-rot.awk
 ```
 
-Run this from the **monorepo root**, not from the thorough-depth `mktemp -d` worktree: it reads
-the diff from `gh`, so it needs no checkout of the PR, and the PR's head may predate the script.
+Run this from the **monorepo root** — it needs only the working directory, since the script path
+is repo-relative — not from the thorough-depth `mktemp -d` worktree: the diff comes from `gh`, so
+nothing needs checking out, and the PR head may predate the script.
 `awk -f <script> -v show_rules=1 </dev/null` prints the rot signals it matches on.
 
 *Repeated explanation* — the report groups identical comment lines and lists every site:
