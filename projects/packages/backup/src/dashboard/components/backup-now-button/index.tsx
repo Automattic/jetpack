@@ -10,23 +10,34 @@ import { useSiteSize } from '../../hooks/use-site-size';
 /**
  * Header action that asks WPCOM to back the site up now.
  *
- * Ports the legacy button's label and tooltip cycle
- * (`src/js/components/back-up-now/index.jsx`) onto the modernized data
- * layer, with two behavioural fixes.
- *
- * Failures are reported. The legacy click handler has no rejection
- * handler and discards the response body, so every outcome — including a
- * WPCOM refusal and a permissions error — shows "Backup enqueued".
- *
- * The button gates itself, on the same `useGateState` verdict `<Gates>` renders from: it
- * sits in `<Page>`'s header actions, above the gate, so an unconnected or unlicensed site
- * would otherwise be offered a control that cannot work.
+ * It sits in `<Page>`'s header actions, above `<Gates>`, so it gates itself on the same
+ * `useGateState` verdict — and does so before mounting `<BackupNow>`, since nothing else
+ * would stop that component's reads on a site with no plan.
  *
  * @return The rendered button, or null when the site can't use it.
  */
 export default function BackupNowButton() {
-	const { tracks } = useAnalytics();
 	const gate = useGateState();
+
+	if ( gate.status !== 'ready' ) {
+		return null;
+	}
+
+	return <BackupNow />;
+}
+
+/**
+ * The button itself, mounted only for a site that can press it.
+ *
+ * Ports the legacy label and tooltip cycle (`src/js/components/back-up-now/index.jsx`)
+ * onto the modernized data layer, with one behavioural fix: legacy's click handler has no
+ * rejection handler and discards the body, so every outcome — a WPCOM refusal, a
+ * permissions error — shows "Backup enqueued".
+ *
+ * @return The rendered button.
+ */
+function BackupNow() {
+	const { tracks } = useAnalytics();
 	const { backupsStopped } = useSiteSize();
 	const { state: enqueueState, errorMessage, enqueue, reset } = useEnqueueBackup();
 
@@ -55,10 +66,6 @@ export default function BackupNowButton() {
 		tracks.recordEvent( 'jetpack_backup_plugin_backup_now' );
 		enqueue();
 	}, [ tracks, enqueue ] );
-
-	if ( gate.status !== 'ready' ) {
-		return null;
-	}
 
 	const isEnqueuing = enqueueState === 'enqueuing';
 	const isEnqueued = enqueueState === 'enqueued';

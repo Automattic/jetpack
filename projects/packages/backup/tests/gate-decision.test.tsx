@@ -201,11 +201,11 @@ describe( 'Gate decision — what the gate and the header button each show', () 
 
 		const view = within( renderShell() );
 
-		// The other two queries are answered, so this separates "still starting up"
-		// from "held by capabilities".
+		// Nothing else in this tree fetches until capabilities answers, so its own
+		// request is what separates "still starting up" from "held by capabilities".
 		await waitFor( () =>
 			expect( mockApiFetch ).toHaveBeenCalledWith(
-				expect.objectContaining( { path: '/jetpack/v4/backups' } )
+				expect.objectContaining( { path: CAPABILITIES_PATH } )
 			)
 		);
 
@@ -288,13 +288,11 @@ describe( 'The header button on its own, with no gate above it', () => {
 
 		const { client, container } = renderButtonAlone();
 
-		// The button's other read is answered, so capabilities is all that is left.
+		// Capabilities is the button's only read until the verdict is `ready`, so a
+		// query in flight is what says the render got that far.
 		await waitFor( () =>
-			expect( mockApiFetch ).toHaveBeenCalledWith(
-				expect.objectContaining( { path: '/jetpack/v4/backups' } )
-			)
+			expect( client.getQueryState( keys.capabilities() )?.fetchStatus ).toBe( 'fetching' )
 		);
-		expect( client.getQueryState( keys.capabilities() )?.fetchStatus ).toBe( 'fetching' );
 		expect( container ).toBeEmptyDOMElement();
 
 		// And only that: releasing the read brings the button back, unchanged.

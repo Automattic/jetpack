@@ -73,11 +73,9 @@ export function resetPageViewForTesting(): void {
 /**
  * Overview screen for the modernized Backup dashboard.
  *
- * Renders the shared `<DashboardLayout>` chrome around a two-pane body: the
- * left pane is a paginated activity list; the right pane resolves the
- * selected row to a detail card. Selection is persisted in the URL via
- * `?selected=<id>` so a refresh preserves it; on first visit the newest
- * backup is preselected so the right pane mirrors Calypso's behaviour.
+ * Records the page view and mounts the shared `<DashboardLayout>` chrome; the body
+ * lives below `<Gates>`. The view is recorded above the gate, so a visit without a
+ * plan still counts — as it does in legacy.
  *
  * @return The rendered Overview screen.
  */
@@ -111,6 +109,23 @@ export default function OverviewScreen() {
 		tracks.recordEvent( 'jetpack_backup_admin_page_view' );
 	}, [ tracks ] );
 
+	return (
+		<DashboardLayout actions={ <BackupNowButton /> }>
+			<OverviewBody />
+		</DashboardLayout>
+	);
+}
+
+/**
+ * The Overview's body: a paginated activity list beside a detail pane for the row
+ * selected by `?selected=<id>`, defaulting to the newest backup.
+ *
+ * Mounted by `<Gates>`, not rendered above it: React runs a component's hooks before
+ * its children, so reads left in the screen fetched — and polled — behind the upsell.
+ *
+ * @return The rendered body.
+ */
+function OverviewBody() {
 	const search = useSearch( {
 		from: '/' as unknown as never,
 		strict: false,
@@ -180,15 +195,11 @@ export default function OverviewScreen() {
 			restorePointsLoading || restorePointsError || hasRestorePoints
 		)
 	) {
-		return (
-			<DashboardLayout actions={ <BackupNowButton /> }>
-				<BackupStatusPanel state={ backupsState } progress={ progress } />
-			</DashboardLayout>
-		);
+		return <BackupStatusPanel state={ backupsState } progress={ progress } />;
 	}
 
 	return (
-		<DashboardLayout actions={ <BackupNowButton /> }>
+		<>
 			{ /*
 			 * A backup running on a site that already has restore points is
 			 * reported alongside the list rather than in place of it. The
@@ -291,7 +302,7 @@ export default function OverviewScreen() {
 					sortOrder={ sortOrder }
 				/>
 			</div>
-		</DashboardLayout>
+		</>
 	);
 }
 
