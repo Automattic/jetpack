@@ -43,7 +43,3 @@
 	text-overflow: ellipsis;
 }
 
-/* A flex title row shrinks with the cell; its label carries the ellipsis. */
-.titleContent > * {
-	min-inline-size: 0;
-}
