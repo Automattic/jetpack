@@ -17,9 +17,9 @@ export const useXYChartTheme = ( data: SeriesData[] ) => {
 	);
 
 	return useMemo( () => {
-		// Three colors are resolved here. Two are read as strings rather than painted: the palette, which visx turns into its `colorScale` and our own code derives further colors from, and `backgroundColor`, which components read as a value — the glyph stroke, the area-chart band stroke, the line-chart gradient stops, the heatmap's contrast math. The third is painted, but outside the scope element that declares the catalog; see `htmlLabel` below. Resolving happens against the chart's own scope element, never :root, so it reads any override set inside the provider tree.
+		// Only what is read as a string is resolved here — the palette and `backgroundColor` — plus `htmlLabel.color` below, which is painted outside the scope. Resolving against the chart's own scope element, never :root, is what reads an override set inside the provider tree.
 		//
-		// One resolver per theme build, so all three share a single getComputedStyle call: this memo re-runs only when the scope element attaches or a series color changes.
+		// One resolver per theme build, so all three share a single getComputedStyle call.
 		const resolve = createCssVariableResolver( scopeElement );
 		const resolveColor = ( value?: string ): string | undefined =>
 			value ? resolve( value ) ?? value : value;
@@ -31,7 +31,7 @@ export const useXYChartTheme = ( data: SeriesData[] ) => {
 			.map( color => resolveColor( color ) )
 			.filter( ( color ): color is string => Boolean( color ) && ! color.includes( 'var(' ) );
 
-		// `htmlLabel.color` is the one label color visx paints outside the chart: `@visx/tooltip` appends the tooltip's portal container to `document.body`, where the catalog is not declared, so a chain there can only ever reach its own fallback. visx also string-concats this one into `box-shadow: 0 1px 2px ${color}55`, and a `var()` chain cannot take a suffix — token streams do not merge across a substitution boundary, which invalidates the whole declaration and drops the tooltip's shadow. Passing it explicitly leaves `svgLabelSmall.fill`, which visx derives it from, free to stay a chain for the tick labels inside the SVG. The crosshairs have the same problem and are resolved in `AccessibleTooltip`.
+		// The tooltip is painted in a portal outside the scope, and visx concatenates this color into a `box-shadow` where a chain cannot take a suffix; see TOKENS.md § The SVG bridge. Passing it explicitly leaves `svgLabelSmall.fill`, which visx derives it from, a chain for the SVG tick labels.
 		const htmlLabelColor = resolveColor( theme.svgLabelSmall?.fill );
 
 		// The grid, axis, tick and label colors are spread through untouched, and that is the whole mechanism: visx writes each one onto the element it paints — as an inline style for the grid, a presentation attribute elsewhere — and a `var()` chain resolves there natively. So the role is read at the painted element rather than snapshot at the provider wrapper, which is what makes an override on a chart's own class work, keeps a theme change live without a re-render, and leaves nothing to resolve during SSR. Resolving them here would freeze the color instead.

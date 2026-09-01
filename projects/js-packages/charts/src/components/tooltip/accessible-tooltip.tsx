@@ -56,11 +56,11 @@ export const AccessibleTooltip: React.FC< AccessibleTooltipProps > = ( {
 	const scopeElement = useChartScopeElement();
 	const gridStroke = useGlobalChartsTheme().gridStyles?.stroke;
 
-	// visx paints the crosshairs from `theme.gridStyles.stroke`, but renders them through `@visx/tooltip`, which appends each portal container to `document.body`. That is outside the scope element the catalog is declared on, so the grid role is unset there and the chain reaches only its own fallback — a hardcoded grey, whatever the gridlines it tracks are doing. Resolving it here is what keeps the two following the same override. The scope class cannot do the job instead: visx hardcodes the crosshair portals' `className`.
+	// The crosshair is painted in a portal outside the scope, so it needs a resolved color; see TOKENS.md § The SVG bridge.
 	const crosshairStroke = useMemo( () => {
 		const stroke = gridStroke ? resolveCssVariable( gridStroke, scopeElement ) : null;
 
-		// An undefined `stroke` would override visx's own value with nothing, and SVG's initial `stroke` is `none` — an unresolvable color has to leave the crosshair alone rather than erase it.
+		// Passing `stroke: undefined` would erase the crosshair: it overrides visx's own value, and SVG's initial `stroke` is `none`.
 		return stroke ? { stroke } : undefined;
 	}, [ gridStroke, scopeElement ] );
 
