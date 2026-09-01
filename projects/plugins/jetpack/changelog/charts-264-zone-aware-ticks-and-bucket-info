@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Charts: Place line and area chart date ticks on the site's time zone boundaries, and name the hour in tooltips on hourly data.

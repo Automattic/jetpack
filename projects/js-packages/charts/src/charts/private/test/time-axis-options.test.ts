@@ -1,7 +1,7 @@
 /**
  * @jest-environment <rootDir>/tests/environment-los-angeles.mjs
  */
-import { dailySeries } from '../../../test-utils/series-fixtures';
+import { dailySeries, hourlySeries } from '../../../test-utils/series-fixtures';
 import { buildTimeAxisOptions } from '../time-axis-options';
 
 const TOKYO = { timeZone: 'Asia/Tokyo' };
@@ -52,6 +52,7 @@ describe( 'buildTimeAxisOptions', () => {
 
 		const ticks = build( { scaleDomain, zoomDomain } ).tickValues as Date[];
 
+		expect( ticks.length ).toBeGreaterThan( 0 );
 		for ( const tick of ticks ) {
 			expect( tick.getTime() ).toBeLessThanOrEqual( zoomDomain[ 1 ].getTime() );
 		}
@@ -65,6 +66,7 @@ describe( 'buildTimeAxisOptions', () => {
 
 		const ticks = build( { scaleDomain } ).tickValues as Date[];
 
+		expect( ticks.length ).toBeGreaterThan( 0 );
 		for ( const tick of ticks ) {
 			expect( tick.getTime() ).toBeGreaterThanOrEqual( scaleDomain[ 0 ].getTime() );
 			expect( tick.getTime() ).toBeLessThanOrEqual( scaleDomain[ 1 ].getTime() );
@@ -167,5 +169,70 @@ describe( 'buildTimeAxisOptions', () => {
 		const axis = build( { formatting: {} } );
 
 		expect( axis.tickFormat?.( new Date( '2026-08-02T15:30:00Z' ), 0, [] ) ).toBe( 'Aug 2' );
+	} );
+	it( 'keeps its own selection when a caller passes tickValues as undefined', () => {
+		const axis = build( { axisOptions: { tickResolution: 'day', tickValues: undefined } } );
+
+		expect( ( axis.tickValues as Date[] ).length ).toBeGreaterThan( 1 );
+	} );
+
+	it( 'keeps its width-fitted count when a caller passes numTicks as undefined', () => {
+		const isoDay = ( value: unknown ) => new Date( Number( value ) ).toISOString().slice( 0, 10 );
+
+		const axis = build( {
+			width: 180,
+			axisOptions: { tickResolution: 'day', tickFormat: isoDay, numTicks: undefined },
+		} );
+
+		expect( axis.numTicks ).toBeLessThan( 10 );
+	} );
+
+	it( 'hands visx a width-fitted count rather than an empty selection', () => {
+		const axis = build( {
+			zoomDomain: [ new Date( '2027-01-01T00:00:00Z' ), new Date( '2027-01-02T00:00:00Z' ) ],
+		} );
+
+		expect( axis.tickValues ).toBeUndefined();
+		expect( typeof axis.numTicks ).toBe( 'number' );
+	} );
+
+	it( 'accepts a numeric scale domain', () => {
+		const axis = build( {
+			scaleDomain: [ Date.parse( '2026-08-05T15:00:00Z' ), Date.parse( '2026-08-08T15:00:00Z' ) ],
+		} );
+
+		const ticks = axis.tickValues as Date[];
+		expect( ticks.length ).toBeGreaterThan( 0 );
+		for ( const tick of ticks ) {
+			expect( tick.getTime() ).toBeGreaterThanOrEqual( Date.parse( '2026-08-05T15:00:00Z' ) );
+			expect( tick.getTime() ).toBeLessThanOrEqual( Date.parse( '2026-08-08T15:00:00Z' ) );
+		}
+	} );
+
+	it( "keeps a caller's orientation and display", () => {
+		const axis = build( {
+			axisOptions: { tickResolution: 'day', orientation: 'top', display: false },
+		} );
+
+		expect( axis.orientation ).toBe( 'top' );
+		expect( axis.display ).toBe( false );
+	} );
+
+	it( 'sends no numTicks when it selects the tick values itself', () => {
+		expect( 'numTicks' in build() ).toBe( false );
+	} );
+
+	it( 'reads the resolution from the series it renders, not the hidden ones', () => {
+		const dataSorted = [
+			{ ...hourlySeries( '2026-08-01T00:00:00Z', 48 )[ 0 ], label: 'hidden' },
+			{ ...dailySeries( '2026-08-01T15:00:00Z', 5 )[ 0 ], label: 'shown' },
+		];
+
+		const axis = build( { dataSorted, isSeriesRendered: series => series.label === 'shown' } );
+
+		// A daily label, not one of the hidden series' hours.
+		expect( axis.tickFormat?.( new Date( '2026-08-02T15:00:00Z' ), 0, [] ) ).not.toMatch(
+			/(AM|PM|Uhr)/
+		);
 	} );
 } );

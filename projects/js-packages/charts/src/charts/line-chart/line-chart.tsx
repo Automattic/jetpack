@@ -73,16 +73,17 @@ const toNumber = ( val?: number | string | null ): number | undefined => {
 // be told a locale and a zone.
 const TOOLTIP_DATE: Intl.DateTimeFormatOptions = {};
 
-// Hour reuses the same numeric date `TOOLTIP_DATE` renders and adds the hour,
-// so hourly and daily headings share a style and differ only in detail.
+// Only the hour case adds to the plain date heading. A coarser bucket keeps the
+// day: 'month' covers any spacing from 28 days up, so dropping it would give two
+// distinct points one heading.
 const TOOLTIP_FORMAT_BY_RESOLUTION: Record<
 	Exclude< TickResolution, 'week' >,
 	Intl.DateTimeFormatOptions
 > = {
-	hour: { year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', hour12: true },
+	hour: { year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric' },
 	day: TOOLTIP_DATE,
-	month: { month: 'long', year: 'numeric' },
-	year: { year: 'numeric' },
+	month: TOOLTIP_DATE,
+	year: TOOLTIP_DATE,
 };
 
 // A component rather than a call, because `renderDefaultTooltip` is a plain
@@ -361,8 +362,8 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 						dataSorted,
 						width,
 						axisOptions: options?.axis?.x,
-						scaleDomain: options?.xScale?.domain as [ Date, Date ] | undefined,
-						zoomDomain: zoom.domain as [ Date, Date ] | undefined,
+						scaleDomain: options?.xScale?.domain,
+						zoomDomain: zoom.domain,
 						formatting,
 						// A hidden line is unmounted, so visx scales to the rest.
 						isSeriesRendered: series => ! hiddenSeries.has( series.label ),

@@ -32,7 +32,7 @@ const TOOLTIP_FORMAT_BY_RESOLUTION: Record<
 	Exclude< TickResolution, 'week' >,
 	Intl.DateTimeFormatOptions
 > = {
-	hour: { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', hour12: true },
+	hour: { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric' },
 	day: { year: 'numeric', month: 'long', day: 'numeric' },
 	month: { year: 'numeric', month: 'long' },
 	year: { year: 'numeric' },

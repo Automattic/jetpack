@@ -29,19 +29,17 @@ const data = [
 
 const size = { width: 500, height: 300 };
 
-// The two fallback labels differ because the scales do: a band axis labels the
-// data's own buckets, while a time axis samples its own round-numbered ticks.
-const charts: [ string, ReactNode, string ][] = [
-	[ 'AreaChart', <AreaChart key="a" { ...size } data={ data } />, 'Aug 3' ],
-	[ 'BarChart', <BarChart key="b" { ...size } data={ data } />, 'Aug 2' ],
-	[
-		'LineChart',
-		<LineChart key="l" { ...size } data={ data } withGradientFill={ false } />,
-		'Aug 3',
-	],
+// Every axis labels the data's own buckets, so the fallback names the first
+// point's runtime-zone day rather than a round-numbered instant near it.
+const RUNTIME_TICK = 'Aug 2';
+
+const charts: [ string, ReactNode ][] = [
+	[ 'AreaChart', <AreaChart key="a" { ...size } data={ data } /> ],
+	[ 'BarChart', <BarChart key="b" { ...size } data={ data } /> ],
+	[ 'LineChart', <LineChart key="l" { ...size } data={ data } withGradientFill={ false } /> ],
 ];
 
-describe.each( charts )( '%s x axis', ( _name, chart, runtimeTick ) => {
+describe.each( charts )( '%s x axis', ( _name, chart ) => {
 	const renderIn = ( props: { locale?: string; timeZone?: string } ) =>
 		render( <GlobalChartsProvider { ...props }>{ chart }</GlobalChartsProvider> );
 
@@ -54,7 +52,7 @@ describe.each( charts )( '%s x axis', ( _name, chart, runtimeTick ) => {
 	it( 'falls back to the runtime locale and zone when the provider supplies none', () => {
 		renderIn( {} );
 
-		expect( screen.getByText( runtimeTick ) ).toBeInTheDocument();
+		expect( screen.getByText( RUNTIME_TICK ) ).toBeInTheDocument();
 	} );
 
 	it( 'relabels when the provider swaps time zone', () => {

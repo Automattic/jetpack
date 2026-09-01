@@ -526,23 +526,21 @@ needs no separate call and no cast.
 
 <Source
 	language="tsx"
-	code={ `import type { RenderTooltipParams, BucketInfo, DataPointDate } from '@automattic/charts';
-
-	const renderTooltip = (
-		params: RenderTooltipParams< DataPointDate > & { bucketInfo?: BucketInfo }
-	) => {
-		const heading =
-			params.bucketInfo?.bucket === 'week' ? 'Week of …' : 'Day of …';
-		return <span>{ heading }</span>;
-	};` }
+	code={ `<LineChart
+		data={ data }
+		renderTooltip={ params => {
+			const heading =
+				params.bucketInfo?.bucket === 'week' ? 'Week of …' : 'Day of …';
+			return <span>{ heading }</span>;
+		} }
+	/>` }
 />
 
 **Anywhere else — `tickFormat` above all — call `getBucketInfo` yourself.**
-visx fixes the `tickFormat` callback to a single `( timestamp: number ) =>
-string`, with no room for a second argument, so a chart cannot hand it
-`bucketInfo` the way it hands `renderTooltip`. Call `getBucketInfo` in the
-component body with the same data and `tickResolution` the chart receives,
-and close over the result:
+visx fixes the `tickFormat` signature to `( value, index, values ) => string`,
+so a chart has no channel to hand it `bucketInfo` the way it hands
+`renderTooltip`. Call `getBucketInfo` in the component body with the same data
+and `tickResolution` the chart receives, and close over the result:
 
 <Source
 	language="tsx"

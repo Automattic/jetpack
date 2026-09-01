@@ -36,7 +36,7 @@ export const getCurveType = ( type?: CurveType, smoothing?: boolean ): typeof cu
 
 const YEAR_TICK = { year: 'numeric' } as const;
 const DATE_TICK = { month: 'short', day: 'numeric' } as const;
-const HOUR_TICK = { hour: 'numeric', hour12: true } as const;
+const HOUR_TICK = { hour: 'numeric' } as const;
 const MONTH_TICK = { month: 'short' } as const;
 
 /**
@@ -367,9 +367,6 @@ export const getBandTickValues = (
 
 /**
  * The most x-axis ticks a chart of this width has room for.
- *
- * Extracted from `guessOptimalNumTicks`, which line and area charts no longer
- * need now that they select tick values rather than asking d3 for a count.
  *
  * @param chartWidth - Chart width in pixels.
  * @return A tick budget of at least one.

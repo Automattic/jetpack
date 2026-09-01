@@ -32,7 +32,7 @@ const datumA = { key: 'Series A', datum: { date: morning, value: 10 } as DataPoi
 const datumB = { key: 'Series B', datum: { date: morning, value: 5 } as DataPointDate, index: 0 };
 
 // Full de-DE/Asia/Tokyo heading for `morning`: pins the date style and the hour together.
-const EXPECTED_HEADING = '2.8.2026, 9 AM';
+const EXPECTED_HEADING = '2.8.2026, 09 Uhr';
 
 const renderHourlyChart = ( defaultHiddenSeries?: string[] ) =>
 	render(

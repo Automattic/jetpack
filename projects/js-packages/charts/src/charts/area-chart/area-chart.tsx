@@ -214,8 +214,8 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 						dataSorted,
 						width,
 						axisOptions: options?.axis?.x,
-						scaleDomain: options?.xScale?.domain as [ Date, Date ] | undefined,
-						zoomDomain: zoom.domain as [ Date, Date ] | undefined,
+						scaleDomain: options?.xScale?.domain,
+						zoomDomain: zoom.domain,
 						formatting,
 						// No `isSeriesRendered`: a hidden area stays mounted with a zeroed
 						// yAccessor, so it still contributes to the x domain.

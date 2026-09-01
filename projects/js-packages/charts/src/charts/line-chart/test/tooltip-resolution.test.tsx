@@ -23,6 +23,8 @@ const paramsFor = ( date: Date ) =>
 
 const HOURLY: BucketInfo = { bucket: 'hour', displayResolution: 'hour' };
 const DAILY: BucketInfo = { bucket: 'day', displayResolution: 'day' };
+const MONTHLY: BucketInfo = { bucket: 'month', displayResolution: 'month' };
+const YEARLY: BucketInfo = { bucket: 'year', displayResolution: 'year' };
 
 // 09:30 and 13:30 on the same Tokyo calendar day.
 const morning = new Date( '2026-08-02T00:30:00Z' );
@@ -46,7 +48,14 @@ describe( 'default tooltip at hourly resolution', () => {
 
 	it( 'names the hour in the host time zone', () => {
 		// Full de-DE/Asia/Tokyo heading: pins the date style and the hour together.
-		expect( headingFor( morning, HOURLY, 'de-DE' ) ).toContain( '2.8.2026, 9 AM' );
+		expect( headingFor( morning, HOURLY, 'de-DE' ) ).toContain( '2.8.2026, 09 Uhr' );
+	} );
+
+	it( 'keeps the day in the heading at month and year resolution', () => {
+		// 'month' covers any spacing from 28 days up, so a heading without a day
+		// would give two distinct points the same one.
+		expect( headingFor( morning, MONTHLY, 'de-DE' ) ).toContain( '2.8.2026' );
+		expect( headingFor( morning, YEARLY, 'de-DE' ) ).toContain( '2.8.2026' );
 	} );
 
 	it( 'names no hour at daily resolution', () => {
@@ -89,6 +98,6 @@ describe( 'default tooltip at hourly resolution', () => {
 		screen.getByRole( 'grid', { name: /line chart/i } ).focus();
 		await user.keyboard( '{ArrowRight}' );
 
-		expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveTextContent( '2.8.2026, 9 AM' );
+		expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveTextContent( '2.8.2026, 09 Uhr' );
 	} );
 } );
