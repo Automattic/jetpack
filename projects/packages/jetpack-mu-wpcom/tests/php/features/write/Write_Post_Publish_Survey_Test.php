@@ -389,6 +389,24 @@ class Write_Post_Publish_Survey_Test extends \WorDBless\BaseTestCase {
 	 * Every stored field is bounded, not just the free text: neither storage path
 	 * passes through the endpoint that enforces wpcom's response-size cap.
 	 */
+	/**
+	 * The stored row and the endpoint's capability check both key off `site_id`,
+	 * and Atomic's local blog ID is 1 — returning it would target the wrong blog.
+	 */
+	public function test_survey_blog_id_is_never_the_local_blog_id() {
+		$this->assertSame( 1, get_current_blog_id(), 'Fixture expects the local blog ID to be 1.' );
+		$this->assertSame( 0, wpcom_write_survey_blog_id() );
+	}
+
+	/**
+	 * Without a wpcom blog ID there is nothing safe to submit against, so the
+	 * response is dropped rather than filed under whatever ID happens to be handy.
+	 */
+	public function test_store_is_refused_without_a_wpcom_blog_id() {
+		$this->assertSame( 0, wpcom_write_survey_blog_id() );
+		$this->assertFalse( wpcom_write_store_survey_response( array( 'experience' => 'easier' ) ) );
+	}
+
 	public function test_response_payload_caps_the_entry_point() {
 		$payload = wpcom_write_build_survey_response( 'easier', '', '', str_repeat( 'a', 500 ), false );
 

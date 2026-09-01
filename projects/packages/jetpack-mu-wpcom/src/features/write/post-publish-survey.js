@@ -20,8 +20,13 @@
 	 * @param {object} [props] - Optional event properties.
 	 */
 	function recordEvent( event, props ) {
+		const payload = Object.assign( {}, props );
+		// Atomic front-end events carry no blogid column, so pass it as a property.
+		if ( config.blogId ) {
+			payload.blog_id = config.blogId;
+		}
 		window._tkq = window._tkq || [];
-		window._tkq.push( [ 'recordEvent', event, props || {} ] );
+		window._tkq.push( [ 'recordEvent', event, payload ] );
 	}
 
 	/**
@@ -125,24 +130,15 @@
 				return;
 			}
 
-			// The card still thanks the writer either way — a store we lost is not
-			// their problem. But a silently dropped response would otherwise be
-			// invisible, and the dataset's completeness depends on knowing the rate.
-			request
-				.then( function ( response ) {
-					if ( ! response.ok ) {
-						recordEvent( 'wpcom_write_first_publish_survey_store_failed', {
-							reason: String( response.status ),
-							response_id: config.responseId || '',
-						} );
-					}
-				} )
-				.catch( function () {
-					recordEvent( 'wpcom_write_first_publish_survey_store_failed', {
-						reason: 'network',
-						response_id: config.responseId || '',
-					} );
+			// Only the browser can see a request that never arrived; a request that
+			// arrived and failed to store is recorded server-side, which does not
+			// depend on this page still being open when the response lands.
+			request.catch( function () {
+				recordEvent( 'wpcom_write_first_publish_survey_store_failed', {
+					reason: 'network',
+					response_id: config.responseId || '',
 				} );
+			} );
 		}
 
 		/**
