@@ -13,8 +13,10 @@ import { DataViews } from '@wordpress/dataviews';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { useEffect, useMemo, useState, useCallback } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
+import { store as preferencesStore } from '@wordpress/preferences';
 import { useSearch, useNavigate } from '@wordpress/route';
 import { Badge, EmptyState, Stack, Tooltip } from '@wordpress/ui';
+import { useView } from '@wordpress/views';
 /**
  * Internal dependencies
  */
@@ -31,6 +33,7 @@ import {
 import useDeleteForm from '../../src/dashboard/hooks/use-delete-form.ts';
 import useFormStatusCounts from '../../src/dashboard/hooks/use-form-status-counts.ts';
 import useFormsData, { getFormsListQuery } from '../../src/dashboard/hooks/use-forms-data.ts';
+import { ensurePreferencesPersistence } from '../../src/dashboard/preferences-persistence.ts';
 import WpRouteDashboardSearchParamsProvider from '../../src/dashboard/router/wp-route-dashboard-search-params-provider.tsx';
 import { getFormEditUrl } from '../../src/dashboard/utils.ts';
 import DataViewsHeaderRow from '../../src/dashboard/wp-build/components/dataviews-header-row';
@@ -91,18 +94,39 @@ function StageInner() {
 	const showDashboardIntegrations = useConfigValue( 'showDashboardIntegrations' );
 	const hasClassicForms = useConfigValue( 'hasClassicForms' );
 
-	const [ view, setView ] = useState< View >( () => ( {
-		...DEFAULT_VIEW,
-		search: searchParams?.search || '',
-	} ) );
+	// Nothing else gives the preferences store `useView` writes to somewhere to persist.
+	const { setPersistenceLayer } = useDispatch( preferencesStore );
+	ensurePreferencesPersistence( setPersistenceLayer );
 
-	// Keep DataViews search in sync with the URL.
-	useEffect( () => {
-		const urlSearch = searchParams?.search || '';
-		if ( urlSearch !== view.search ) {
-			setView( previous => ( { ...previous, search: urlSearch } ) );
-		}
-	}, [ searchParams?.search ] ); // eslint-disable-line react-hooks/exhaustive-deps
+	// `page` has never been in the URL on this screen, so it is held here and handed to
+	// the view as a query param, the way the search term in the URL is.
+	const [ page, setPage ] = useState( 1 );
+
+	const onChangeQueryParams = useCallback(
+		( next: { page: number; search: string } ) => {
+			setPage( next.page );
+
+			if ( next.search !== ( searchParams?.search || '' ) ) {
+				navigate( {
+					search: {
+						...searchParams,
+						search: next.search || undefined,
+					},
+				} );
+			}
+		},
+		[ navigate, searchParams ]
+	);
+
+	const { view, updateView } = useView( {
+		kind: 'postType',
+		name: 'jetpack_form',
+		slug: 'all',
+		defaultView: DEFAULT_VIEW,
+		defaultLayouts,
+		queryParams: { page, search: searchParams?.search || '' },
+		onChangeQueryParams,
+	} );
 
 	const statusQuery = useMemo( () => {
 		const statusFilterValue = view.filters?.find( filter => filter.field === 'status' )?.value;
@@ -161,7 +185,7 @@ function StageInner() {
 		confirmPermanentDelete,
 	} = useDeleteForm( {
 		view,
-		setView,
+		setView: updateView,
 		recordsLength: records?.length ?? 0,
 		statusQuery,
 	} );
@@ -562,19 +586,11 @@ function StageInner() {
 
 	const onChangeView = useCallback(
 		( newView: View ) => {
-			setView( newView );
-
-			// Sync DataViews search to the URL.
-			if ( newView.search !== view.search ) {
-				navigate( {
-					search: {
-						...searchParams,
-						search: newView.search || undefined,
-					},
-				} );
-			}
+			// The search term reaches the URL through `onChangeQueryParams`, which
+			// `updateView` calls whenever it changes.
+			updateView( newView );
 		},
-		[ navigate, searchParams, view.search ]
+		[ updateView ]
 	);
 
 	const openIntegrationsModal = useCallback( () => {

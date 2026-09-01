@@ -23,9 +23,11 @@
 		"@wordpress/i18n": "6.24.0",
 		"@wordpress/icons": "15.4.0",
 		"@wordpress/notices": "5.51.0",
+		"@wordpress/preferences": "4.51.0",
 		"@wordpress/route": "0.19.0",
 		"@wordpress/theme": "1.2.0",
-		"@wordpress/ui": "0.20.0"
+		"@wordpress/ui": "0.20.0",
+		"@wordpress/views": "~1.20.0"
 	},
 	"route": {
 		"path": "/responses/$view",

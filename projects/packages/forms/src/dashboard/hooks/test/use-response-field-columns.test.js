@@ -1,11 +1,33 @@
 import { afterEach, describe, expect, it, jest } from '@jest/globals';
 import { renderHook } from '@testing-library/react';
-import { writeColumnPreference } from '../../response-column-preferences.ts';
-import useResponseFieldColumns from '../use-response-field-columns.ts';
 
-afterEach( () => window.localStorage.clear() );
+/**
+ * The answer columns each form has already offered, standing in for what the preferences
+ * store holds. The hook only ever reads this, so driving it directly keeps these tests
+ * about which columns get offered rather than about how the record is stored.
+ */
+const knownAnswerIdsByForm = new Map();
+
+await jest.unstable_mockModule( '../../response-column-preferences.ts', () => ( {
+	getColumnPreferenceKey: formId => `response-columns/${ formId ?? 'all' }`,
+	readKnownAnswerIds: formId => knownAnswerIdsByForm.get( formId ) ?? null,
+	writeKnownAnswerIds: ( formId, ids ) => knownAnswerIdsByForm.set( formId, ids ),
+} ) );
+
+const { default: useResponseFieldColumns } = await import( '../use-response-field-columns.ts' );
+
+afterEach( () => knownAnswerIdsByForm.clear() );
 
 const DEFAULT_FIELDS = [ 'date', 'source', 'ip' ];
+
+/**
+ * Records the answer columns a form had already offered when its view was last changed.
+ *
+ * @param {number|null} formId - The form the record belongs to.
+ * @param {string[]}    ids    - The columns already offered.
+ * @return {Map} The updated record map.
+ */
+const alreadyOffered = ( formId, ids ) => knownAnswerIdsByForm.set( formId, ids );
 
 /**
  * Builds a response carrying the given fields, tied to a form.
@@ -26,14 +48,15 @@ const response = ( formId, labels ) => ( {
 } );
 
 /**
- * Renders the hook with a view whose state persists across rerenders, the way a
- * real `useState` view does.
+ * Renders the hook with a view whose state persists across rerenders, the way the view
+ * `useView` hands back does.
  *
- * @param {object} initial - Initial props (`formId`, `records`).
+ * @param {object}   initial - Initial props (`formId`, `records`).
+ * @param {string[]} fields  - The visible columns to start from, as `useView` resolved them.
  * @return {object} The hook result plus `view()` and `rerender()` helpers.
  */
-const setup = initial => {
-	let view = { titleField: 'from', fields: [ ...DEFAULT_FIELDS ] };
+const setup = ( initial, fields = DEFAULT_FIELDS ) => {
+	let view = { titleField: 'from', fields: [ ...fields ] };
 	const setView = jest.fn( updater => {
 		view = typeof updater === 'function' ? updater( view ) : updater;
 	} );
@@ -140,112 +163,75 @@ describe( 'useResponseFieldColumns', () => {
 	} );
 
 	it( 'shows answers first when Date is not among the visible columns', () => {
-		let view = { titleField: 'from', fields: [ 'ip' ] };
-		const setView = jest.fn( updater => {
-			view = typeof updater === 'function' ? updater( view ) : updater;
-		} );
+		const { view } = setup( { formId: 5, records: [ response( 5, [ 'Name' ] ) ] }, [ 'ip' ] );
 
-		renderHook( () =>
-			useResponseFieldColumns( {
-				formId: 5,
-				records: [ response( 5, [ 'Name' ] ) ],
-				setView,
-			} )
-		);
-
-		expect( view.fields ).toEqual( [ 'field:1_Name', 'ip' ] );
+		expect( view().fields ).toEqual( [ 'field:1_Name', 'ip' ] );
 	} );
 } );
 
-describe( 'useResponseFieldColumns, restoring a saved choice', () => {
-	it( 'starts from the columns the user last chose on this form', () => {
-		writeColumnPreference( 5, {
-			fields: [ 'date', 'field:2_Email', 'ip' ],
-			knownAnswerIds: [ 'field:1_Name', 'field:2_Email' ],
-		} );
+describe( 'useResponseFieldColumns, against a view that was restored', () => {
+	it( 'leaves the restored columns alone rather than re-offering them', () => {
+		// `useView` restores which columns are shown; the record says both answer columns
+		// were already offered when that choice was made, so neither may be added back.
+		alreadyOffered( 5, [ 'field:1_Name', 'field:2_Email' ] );
 
-		const { view } = setup( { formId: 5, records: [ response( 5, [ 'Name', 'Email' ] ) ] } );
+		const { view } = setup( { formId: 5, records: [ response( 5, [ 'Name', 'Email' ] ) ] }, [
+			'date',
+			'field:2_Email',
+			'ip',
+		] );
 
-		// Name was hidden and Source removed; both stay that way, and neither column is
-		// re-offered just because the responses carrying them loaded again.
+		// Name stays hidden and Source stays removed.
 		expect( view().fields ).toEqual( [ 'date', 'field:2_Email', 'ip' ] );
 	} );
 
-	it( 'still shows a field added to the form since the choice was saved', () => {
-		writeColumnPreference( 5, {
-			fields: [ 'date', 'ip' ],
-			knownAnswerIds: [ 'field:1_Name' ],
-		} );
+	it( 'still shows a field added to the form since the choice was made', () => {
+		alreadyOffered( 5, [ 'field:1_Name' ] );
 
-		const { view } = setup( { formId: 5, records: [ response( 5, [ 'Name', 'Phone' ] ) ] } );
+		const { view } = setup( { formId: 5, records: [ response( 5, [ 'Name', 'Phone' ] ) ] }, [
+			'date',
+			'ip',
+		] );
 
-		// Name was on offer when the choice was saved and stays hidden. Phone was not, so
-		// it is genuinely new and appears after Date.
+		// Name was on offer at the time and stays hidden. Phone was not, so it is
+		// genuinely new and appears after Date.
 		expect( view().fields ).toEqual( [ 'date', 'field:2_Phone', 'ip' ] );
 	} );
 
-	it( 'restores each form its own choice when switching between them', () => {
-		writeColumnPreference( 5, { fields: [ 'date', 'ip' ], knownAnswerIds: [ 'field:1_Name' ] } );
-		writeColumnPreference( 30, {
-			fields: [ 'field:1_Reporter', 'date' ],
-			knownAnswerIds: [ 'field:1_Reporter' ],
-		} );
+	it( 'reads each form’s own record when switching between them', () => {
+		alreadyOffered( 5, [ 'field:1_Name' ] );
+		alreadyOffered( 30, [] );
 
-		const { rerender, view } = setup( { formId: 5, records: [ response( 5, [ 'Name' ] ) ] } );
+		const { rerender, view } = setup( { formId: 5, records: [ response( 5, [ 'Name' ] ) ] }, [
+			'date',
+			'ip',
+		] );
 
+		// Form 5 had already offered Name, so it is not added back.
 		expect( view().fields ).toEqual( [ 'date', 'ip' ] );
 
+		// Form 30 has offered nothing, so its own field is new and appears.
 		rerender( { formId: 30, records: [ response( 30, [ 'Reporter' ] ) ] } );
 
-		expect( view().fields ).toEqual( [ 'field:1_Reporter', 'date' ] );
+		expect( view().fields ).toEqual( [ 'date', 'field:1_Reporter', 'ip' ] );
 	} );
 
-	it( 'restores the every-form view too, which has no answer columns of its own', () => {
-		writeColumnPreference( null, { fields: [ 'date', 'read_status' ], knownAnswerIds: [] } );
-
-		const { result, view } = setup( { formId: null, records: [ response( 5, [ 'Name' ] ) ] } );
-
-		expect( result.current ).toEqual( [] );
-		expect( view().fields ).toEqual( [ 'date', 'read_status' ] );
-	} );
-
-	it( 'falls back to the default columns when nothing was ever saved', () => {
+	it( 'offers every column when the form has no record at all', () => {
 		const { view } = setup( { formId: 5, records: [ response( 5, [ 'Name' ] ) ] } );
 
 		expect( view().fields ).toEqual( [ 'date', 'field:1_Name', 'source', 'ip' ] );
 	} );
-} );
 
-/**
- * A response whose fields carry form field ids, as everything stored since they shipped does.
- *
- * @param {number}   formId - The jetpack_form post the response belongs to.
- * @param {string[]} labels - One field per label.
- * @return {object} A form response.
- */
-const identifiedResponse = ( formId, labels ) => ( {
-	id: `${ formId }-id-${ labels.join( '-' ) }`,
-	form_id: formId,
-	fields: labels.map( ( label, index ) => ( {
-		id: `g${ formId }-${ label.toLowerCase() }`,
-		key: `${ index + 1 }_${ label }`,
-		label,
-		value: 'x',
-		type: 'text',
-	} ) ),
-} );
-
-describe( 'useResponseFieldColumns, reconciling a restored choice', () => {
-	it( 'does not add a column the restored choice already names', () => {
-		// A choice can name a column the hook is only now discovering — when it was saved
-		// before the answer columns had loaded, so `knownAnswerIds` never recorded them.
-		// Adding it again would render the column twice.
-		writeColumnPreference( 5, {
-			fields: [ 'date', 'field:1_Name', 'source', 'ip' ],
-			knownAnswerIds: [],
-		} );
-
-		const { view } = setup( { formId: 5, records: [ response( 5, [ 'Name' ] ) ] } );
+	it( 'does not add a column the restored view already names', () => {
+		// A view can already name a column the hook is only now discovering — when it was
+		// saved before the answer columns had loaded, so nothing was ever recorded as
+		// offered. Adding it again would render the column twice.
+		const { view } = setup( { formId: 5, records: [ response( 5, [ 'Name' ] ) ] }, [
+			'date',
+			'field:1_Name',
+			'source',
+			'ip',
+		] );
 
 		expect( view().fields ).toEqual( [ 'date', 'field:1_Name', 'source', 'ip' ] );
 	} );
@@ -253,29 +239,39 @@ describe( 'useResponseFieldColumns, reconciling a restored choice', () => {
 	it( 'leaves a column for a field the form no longer has, for the view to withhold', () => {
 		// The hook cannot tell a deleted field from one whose responses are still loading,
 		// so it keeps the id and `getResponseTableView` declines to render it.
-		writeColumnPreference( 5, {
-			fields: [ 'date', 'field:1_Deleted', 'source' ],
-			knownAnswerIds: [ 'field:1_Deleted' ],
-		} );
+		alreadyOffered( 5, [ 'field:1_Deleted' ] );
 
-		const { result, view } = setup( { formId: 5, records: [ response( 5, [ 'Name' ] ) ] } );
+		const { result, view } = setup( { formId: 5, records: [ response( 5, [ 'Name' ] ) ] }, [
+			'date',
+			'field:1_Deleted',
+			'source',
+		] );
 
-		// Name was never on offer when the choice was saved, so it is new and appears;
-		// the deleted field's id is kept, and only the rendered view drops it.
+		// Name was never offered before, so it is new and appears; the deleted field's id
+		// is kept, and only the rendered view drops it.
 		expect( view().fields ).toEqual( [ 'date', 'field:1_Name', 'field:1_Deleted', 'source' ] );
 		expect( result.current.map( column => column.id ) ).toEqual( [ 'field:1_Name' ] );
 	} );
 
-	it( 'restores a choice made on responses that carry form field ids', () => {
-		writeColumnPreference( 5, {
-			fields: [ 'date', 'field:g5-email', 'ip' ],
-			knownAnswerIds: [ 'field:g5-name', 'field:g5-email' ],
+	it( 'works the same for responses that carry form field ids', () => {
+		alreadyOffered( 5, [ 'field:g5-name', 'field:g5-email' ] );
+
+		const identifiedResponse = ( formId, labels ) => ( {
+			id: `${ formId }-id-${ labels.join( '-' ) }`,
+			form_id: formId,
+			fields: labels.map( ( label, index ) => ( {
+				id: `g${ formId }-${ label.toLowerCase() }`,
+				key: `${ index + 1 }_${ label }`,
+				label,
+				value: 'x',
+				type: 'text',
+			} ) ),
 		} );
 
-		const { result, view } = setup( {
-			formId: 5,
-			records: [ identifiedResponse( 5, [ 'Name', 'Email' ] ) ],
-		} );
+		const { result, view } = setup(
+			{ formId: 5, records: [ identifiedResponse( 5, [ 'Name', 'Email' ] ) ] },
+			[ 'date', 'field:g5-email', 'ip' ]
+		);
 
 		expect( result.current.map( column => column.id ) ).toEqual( [
 			'field:g5-name',
