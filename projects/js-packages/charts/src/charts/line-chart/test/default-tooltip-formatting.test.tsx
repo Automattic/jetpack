@@ -1,7 +1,9 @@
+/**
+ * @jest-environment <rootDir>/tests/environment-los-angeles.mjs
+ */
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { GlobalChartsProvider } from '../../../providers';
-import { runTestsInTimeZone } from '../../../test-utils/runtime-time-zone';
 import LineChart, { renderDefaultTooltip } from '../line-chart';
 import type { DataPointDate } from '../../../types';
 import type { RenderTooltipParams } from '../../../visx/types';
@@ -13,7 +15,6 @@ jest.mock( '../../../hooks/use-element-size', () => ( {
 
 // The instant below is Aug 2 in Los Angeles and Aug 3 in Tokyo, so a tooltip
 // that reads the runtime zone prints a different day from the axis.
-runTestsInTimeZone( 'America/Los_Angeles' );
 
 const date = new Date( '2026-08-02T15:30:00Z' );
 

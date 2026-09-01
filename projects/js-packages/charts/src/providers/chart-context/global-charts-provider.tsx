@@ -21,6 +21,7 @@ import {
 	resolveCssVariable,
 	normalizeColorToHex,
 } from '../../utils';
+import { sanitizeFormatting } from '../../utils/date-formatting';
 // Imported from the module rather than the `chart-scope` barrel: the barrel also pulls `use-standalone-scope-class`, which imports `GlobalChartsContext` back from this file. That cycle resolves today only because the binding is read lazily inside the hook body.
 import { ChartScopeContext } from '../chart-scope/chart-scope-context';
 import { getChartColor, type ColorCache } from './private/get-chart-color';
@@ -374,7 +375,10 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 	);
 
 	// Held as one object so a chart's formatting memos key on a single stable reference.
-	const formatting = useMemo( () => ( { locale, timeZone } ), [ locale, timeZone ] );
+	const formatting = useMemo(
+		() => sanitizeFormatting( { locale, timeZone } ),
+		[ locale, timeZone ]
+	);
 
 	const value: GlobalChartsContextValue = useMemo(
 		() => ( {

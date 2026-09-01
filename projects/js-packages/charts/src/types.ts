@@ -576,14 +576,20 @@ export type CompleteChartTheme = Required< ChartTheme > & {
 export type TickResolution = 'hour' | 'day' | 'week' | 'month' | 'year';
 
 /**
- * The locale and time zone every date the library prints is rendered in, set
- * once by the host on `GlobalChartsProvider`.
+ * The locale and time zone the time axis and the built-in tooltips render dates
+ * in, set once by the host on `GlobalChartsProvider`.
  *
  * Both halves are plain strings the host resolves for itself, so a non-WordPress
  * consumer needs no WordPress package to supply them. Both are optional and
  * default to the JavaScript runtime's own — the viewer's browser locale and
  * browser time zone — which is what every version before this one used
  * unconditionally.
+ *
+ * `timeZone` re-dates the instants the host supplies, so a value that is really a
+ * calendar day shifts under it: `new Date( '2026-08-02' )` is UTC midnight and
+ * labels as Aug 1 in `America/Los_Angeles`. Supply true instants alongside a
+ * `timeZone`, or set only `locale` for day-bucketed data. `HeatmapChart`'s
+ * calendar labels take neither — see `buildCalendarHeatmapData`.
  */
 export type ChartFormatting = {
 	/** BCP-47 language tag, e.g. `de-DE`. Defaults to the runtime's locale. */

@@ -49,8 +49,8 @@ const TOOLTIP_FORMAT_BY_RESOLUTION: Record<
  */
 const getTooltipFormatter = (
 	data: SeriesData[],
-	tickResolution?: TickResolution,
-	formatting: ChartFormatting = {}
+	tickResolution: TickResolution | undefined,
+	formatting: ChartFormatting
 ) => {
 	// Only a declared 'week' reaches this branch: seven-day spacing is
 	// indistinguishable from sparse daily data, so inference reports 'day'.

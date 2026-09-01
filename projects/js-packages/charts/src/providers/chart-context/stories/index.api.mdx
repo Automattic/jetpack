@@ -22,7 +22,9 @@ The main provider component that enables chart context functionality.
 `locale` and `timeZone` are plain strings the host resolves for itself, so a
 non-WordPress consumer needs no WordPress package to supply them. Leave either
 out and that half falls back to the JavaScript runtime's own — the viewer's
-browser locale and browser time zone.
+browser locale and browser time zone, which is also where an unusable value
+lands. They reach the time axis and the built-in tooltips; `HeatmapChart`'s
+calendar labels are built outside the provider and take neither.
 
 ```tsx
 <GlobalChartsProvider locale="de-DE" timeZone="Asia/Tokyo">

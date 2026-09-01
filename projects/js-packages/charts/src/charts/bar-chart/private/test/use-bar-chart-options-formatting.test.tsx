@@ -1,13 +1,14 @@
+/**
+ * @jest-environment <rootDir>/tests/environment-los-angeles.mjs
+ */
 import { renderHook } from '@testing-library/react';
 import { GlobalChartsProvider } from '../../../../providers';
-import { runTestsInTimeZone } from '../../../../test-utils/runtime-time-zone';
 import { useBarChartOptions } from '../use-bar-chart-options';
 import type { SeriesData } from '../../../../types';
 import type { ReactNode } from 'react';
 
 // The runtime locale stays en-US: a bucket labeled in German, on Tokyo's
 // calendar day, can only come from the provider.
-runTestsInTimeZone( 'America/Los_Angeles' );
 
 // 15:30 UTC is Aug 2 in Los Angeles and Aug 3 in Tokyo.
 const START = new Date( '2026-08-02T15:30:00Z' );

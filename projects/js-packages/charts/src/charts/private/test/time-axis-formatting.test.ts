@@ -1,4 +1,6 @@
-import { runTestsInTimeZone } from '../../../test-utils/runtime-time-zone';
+/**
+ * @jest-environment <rootDir>/tests/environment-los-angeles.mjs
+ */
 import { getBandTickValues, getFormatter } from '../time-axis';
 import type { useChartDataTransform } from '../../../hooks';
 
@@ -25,7 +27,6 @@ const every = ( start: Date, count: number, hours: number ): Date[] =>
 // A formatter that ignores its context reads Los Angeles here, and the instants
 // below land on a different calendar day there than in Tokyo. The runtime locale
 // stays en-US, so a German label can only come from the supplied context.
-runTestsInTimeZone( 'America/Los_Angeles' );
 
 describe( 'getFormatter with a host formatting context', () => {
 	const daily = toSeries( every( new Date( '2026-08-02T12:00:00Z' ), 14, 24 ) );
@@ -56,6 +57,15 @@ describe( 'getFormatter with a host formatting context', () => {
 		expect( format( tokyoMidnight( 2026, 7, 2 ).getTime() ) ).toBe( 'Aug 2' );
 		// Midnight in the runtime zone, 16:00 in Tokyo.
 		expect( format( Date.parse( '2026-08-02T07:00:00Z' ) ) ).toBe( '4 PM' );
+	} );
+
+	// The boundary test runs before the label formatter, so its own guard is the
+	// only thing standing between a bad point and a throw out of `formatToParts`.
+	it( 'renders past an invalid date on a boundary format', () => {
+		const hourly = toSeries( every( tokyoMidnight( 2026, 7, 1 ), 72, 1 ) );
+		const format = getFormatter( hourly, undefined, { timeZone: 'Asia/Tokyo' } );
+
+		expect( format( NaN ) ).toBe( 'Invalid Date' );
 	} );
 
 	it( 'anchors the year label to January in the supplied zone', () => {

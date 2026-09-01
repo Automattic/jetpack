@@ -4,9 +4,6 @@ export { attachSubComponents } from './create-composition';
 // Date parsing utilities
 export { parseAsLocalDate } from './date-parsing';
 
-// Date formatting utilities
-export { createDateFormatter, createZonedClock } from './date-formatting';
-
 // Number and metric formatting utilities
 export { formatMetricValue } from './format-metric-value';
 export type { MetricValueType } from './format-metric-value';

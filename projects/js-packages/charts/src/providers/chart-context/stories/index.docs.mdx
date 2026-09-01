@@ -53,10 +53,13 @@ Wrap your application or chart components with `GlobalChartsProvider` to enable 
 
 ### Dates: locale and time zone
 
-Axis ticks and the built-in tooltips render every date through the provider's
-`locale` and `timeZone`. Set them from whatever the host already knows — a
-WordPress site's user locale and site timezone, say — and pass plain strings; the
-library never reaches for a WordPress package to resolve them.
+The time axis and the built-in tooltips of `LineChart`, `AreaChart` and
+`BarChart` render their dates through the provider's `locale` and `timeZone`. Set
+them from whatever the host already knows — a WordPress site's user locale and
+site timezone, say — and pass plain strings; the library never reaches for a
+WordPress package to resolve them. `locale` must be a BCP-47 tag, so WordPress's
+`en_US` needs its underscore replaced; an unusable value falls back to the
+runtime's own and warns.
 
 <Source
 	language="tsx"
@@ -70,6 +73,14 @@ viewer's browser locale and browser time zone. That is the default, so nothing
 changes for a consumer that sets neither, but it does mean two people viewing
 the same site from different countries see different axes until the host sets
 them.
+
+`timeZone` re-dates the instants you supply rather than relabeling them, so a
+value that is really a calendar day moves under it: `new Date( '2026-08-02' )` is
+UTC midnight, which is Aug 1 in `America/Los_Angeles`. Supply true instants
+alongside a `timeZone`, or set only `locale` for day-bucketed data. `HeatmapChart`
+is the one chart neither prop reaches: `buildCalendarHeatmapData` is a plain
+function the host calls outside the provider, and its labels stay in English on
+the browser's calendar.
 
 ## Color Coordination
 

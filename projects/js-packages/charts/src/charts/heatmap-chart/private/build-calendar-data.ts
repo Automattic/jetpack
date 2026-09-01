@@ -53,6 +53,9 @@ const toDate = ( point: DataPointDate ): Date | null => {
 	return null;
 };
 
+// Labels stay English on the browser's calendar, unlike the time axis: this is a
+// plain function the host calls outside the provider, so `GlobalChartsProvider`'s
+// `locale` and `timeZone` cannot reach it. CHARTS-264 has the detail.
 export const buildCalendarHeatmapData = (
 	series: DataPointDate[],
 	options: {
