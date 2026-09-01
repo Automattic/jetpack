@@ -54,9 +54,8 @@ beforeEach( () => {
 } );
 
 describe( 'preview integrity', () => {
-	// The bridge withholds bytes it could not read as text, because serving them
-	// puts a `?` where every invalid byte was and calls it the file's contents.
-	// Content is in the fixture anyway, so the verdict has to be what suppresses it.
+	// Content is in the fixture on purpose: the verdict, not an empty payload, has
+	// to be what keeps it off screen.
 	it( 'says a file is not text rather than showing bytes flagged unreadable', async () => {
 		await renderCard( { content: 'raw ? bytes', is_text: false, truncated: false } );
 
@@ -81,13 +80,29 @@ describe( 'preview integrity', () => {
 		expect( screen.queryByText( NOT_TEXT ) ).not.toBeInTheDocument();
 	} );
 
-	// Both verdicts default to the innocent answer, so a payload without them —
-	// a pending query, or a response from a site still running the old bridge —
-	// previews rather than accusing the file of being binary.
 	it( 'previews a payload carrying neither verdict', async () => {
 		await renderCard( { content: 'define( "X", 1 );' } );
 
 		await expect( screen.findByText( 'define( "X", 1 );' ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByText( NOT_TEXT ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( TRUNCATED ) ).not.toBeInTheDocument();
+	} );
+
+	// `manifestPath` is optional on an `/ls` row, so a previewable file can leave the
+	// query disabled — the state both verdicts default to the innocent answer for.
+	it( 'accuses nothing when the preview query never ran', async () => {
+		mockApiFetch.mockResolvedValue( {} );
+
+		render(
+			<QueryClientProvider>
+				<FileInfoCard file={ { ...FILE, manifestPath: undefined } } onClose={ noop } />
+			</QueryClientProvider>
+		);
+
+		// The `Type:` row witnesses that the extension is previewable, so an absent
+		// message here is the unresolved query and not the card refusing the file.
+		await expect( screen.findByText( 'Type:' ) ).resolves.toBeInTheDocument();
+		expect( mockApiFetch ).not.toHaveBeenCalled();
 		expect( screen.queryByText( NOT_TEXT ) ).not.toBeInTheDocument();
 		expect( screen.queryByText( TRUNCATED ) ).not.toBeInTheDocument();
 	} );
