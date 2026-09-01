@@ -11,6 +11,9 @@
 
 namespace Automattic\Jetpack\PaypalPayments;
 
+use Automattic\Jetpack\Connection\Manager;
+use Automattic\Jetpack\Status\Host;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -570,8 +573,11 @@ class PayPal_OAuth {
 	 * @return array {
 	 *     Connection status information.
 	 *
-	 *     @type bool   $connected   Whether credentials are stored.
-	 *     @type string $environment Current environment ('sandbox' or 'production').
+	 *     @type bool   $connected                   Whether credentials are stored.
+	 *     @type string $environment                 Current environment ('sandbox' or 'production').
+	 *     @type string $onboarding_method           How the merchant connected, when that is known.
+	 *     @type string $merchant_id                 The merchant's PayPal ID, when that is known.
+	 *     @type bool   $partner_referrals_available Whether this site can start onboarding through WordPress.com.
 	 * }
 	 */
 	public static function get_connection_status() {
@@ -591,11 +597,10 @@ class PayPal_OAuth {
 			$status['merchant_id'] = $merchant_id;
 		}
 
-		// Partner Referrals requires a partner_id AND platform credentials
-		// to generate the signup link. In standalone mode (no Jetpack.com backend),
-		// these won't exist and manual credential entry should be used instead.
-		$partner_id                            = PayPal_Partner_Onboarding::get_partner_id();
-		$status['partner_referrals_available'] = ! empty( $partner_id ) && self::has_credentials();
+		// Partner Referrals goes through WordPress.com: on WordPress.com the call is
+		// local, anywhere else it needs a Jetpack connection to authenticate it.
+		$status['partner_referrals_available'] = ( new Host() )->is_wpcom_simple()
+			|| ( new Manager() )->is_connected();
 
 		return $status;
 	}
