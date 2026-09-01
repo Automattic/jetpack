@@ -347,20 +347,29 @@ class PayPal_Payment_Links_List_Table extends \WP_List_Table {
 	 * @return string|null The payment link URL, or null.
 	 */
 	private function get_payment_link( $item ) {
+		$link = null;
+
 		// Top-level payment_link field.
 		if ( ! empty( $item['payment_link'] ) ) {
-			return $item['payment_link'];
+			$link = $item['payment_link'];
 		}
 
 		// HATEOAS links array.
-		if ( isset( $item['links'] ) && is_array( $item['links'] ) ) {
-			foreach ( $item['links'] as $link ) {
-				if ( isset( $link['rel'] ) && 'payment_link' === $link['rel'] && isset( $link['href'] ) ) {
-					return $link['href'];
+		if ( null === $link && isset( $item['links'] ) && is_array( $item['links'] ) ) {
+			foreach ( $item['links'] as $hateoas_link ) {
+				if ( isset( $hateoas_link['rel'] ) && 'payment_link' === $hateoas_link['rel'] && isset( $hateoas_link['href'] ) ) {
+					$link = $hateoas_link['href'];
+					break;
 				}
 			}
 		}
 
-		return null;
+		if ( null === $link ) {
+			return null;
+		}
+
+		// Merchants share this link straight out of the admin, so it has to
+		// carry the same attribution code as the rendered button.
+		return PayPal_Payment_Buttons::add_partner_attribution( $link );
 	}
 }

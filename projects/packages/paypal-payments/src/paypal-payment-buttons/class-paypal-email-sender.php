@@ -241,10 +241,12 @@ class PayPal_Email_Sender {
 	 */
 	private static function build_email_html( $site_name, $payment_link, $product_name, $price, $currency, $message ) {
 		$formatted_price = PayPal_Payment_Buttons::format_price( $price, $currency );
-		$escaped_link    = esc_url( $payment_link );
-		$escaped_name    = esc_html( $product_name );
-		$escaped_site    = esc_html( $site_name );
-		$escaped_price   = esc_html( $formatted_price );
+		// The emailed link goes straight to a buyer, so it carries the same
+		// attribution code as the rendered button.
+		$escaped_link  = esc_url( PayPal_Payment_Buttons::add_partner_attribution( $payment_link ) );
+		$escaped_name  = esc_html( $product_name );
+		$escaped_site  = esc_html( $site_name );
+		$escaped_price = esc_html( $formatted_price );
 
 		$message_html = '';
 		if ( ! empty( $message ) ) {

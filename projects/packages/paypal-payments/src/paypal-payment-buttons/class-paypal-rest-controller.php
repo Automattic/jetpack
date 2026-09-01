@@ -456,10 +456,13 @@ class PayPal_REST_Controller {
 	 * @return WP_REST_Response Response with connection status.
 	 */
 	public static function handle_connection_status( WP_REST_Request $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		return new WP_REST_Response(
-			PayPal_OAuth::get_connection_status(),
-			200
-		);
+		$status = PayPal_OAuth::get_connection_status();
+
+		// The editor appends this to payment links it copies to the clipboard,
+		// so those links are attributed the same way the rendered button is.
+		$status['partner_attribution_id'] = PayPal_Payment_Buttons::PAYPAL_PARTNER_ATTRIBUTION_ID;
+
+		return new WP_REST_Response( $status, 200 );
 	}
 
 	/**

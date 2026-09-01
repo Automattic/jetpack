@@ -77,6 +77,30 @@ class PayPal_Payment_Buttons {
 	}
 
 	/**
+	 * Append the partner attribution (BN) code to a PayPal payment URL.
+	 *
+	 * Every route a merchant can use to hand a payment link to a buyer — the
+	 * rendered button, the copy buttons in the editor and admin, the emailed
+	 * link — has to carry the same `at_code`, or the resulting sales aren't
+	 * attributed to us. `add_query_arg()` replaces an existing `at_code`, so
+	 * this is safe to apply to a URL that already has one.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $url A PayPal payment URL.
+	 * @return string The URL with the attribution code, or the original URL if it isn't a PayPal URL.
+	 */
+	public static function add_partner_attribution( $url ) {
+		$sanitized = self::sanitize_paypal_script_url( $url );
+
+		if ( false === $sanitized ) {
+			return $url;
+		}
+
+		return add_query_arg( 'at_code', self::PAYPAL_PARTNER_ATTRIBUTION_ID, $sanitized );
+	}
+
+	/**
 	 * Registers the block for use in Gutenberg
 	 * This is done via an action so that we can disable
 	 * registration if we need to.
@@ -236,9 +260,7 @@ class PayPal_Payment_Buttons {
 		}
 
 		// Append BN code for revenue attribution tracking.
-		$action_url = esc_url(
-			add_query_arg( 'at_code', self::PAYPAL_PARTNER_ATTRIBUTION_ID, $sanitized_payment_url )
-		);
+		$action_url = esc_url( self::add_partner_attribution( $sanitized_payment_url ) );
 
 		// ─── LINK format: plain anchor ───────────────────────────────────
 		if ( 'LINK' === $format ) {
