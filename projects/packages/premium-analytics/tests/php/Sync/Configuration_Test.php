@@ -59,7 +59,7 @@ class Configuration_Test extends TestCase {
 	 * WPCOM mirrors this checksum table config field-for-field in
 	 * `jetpack_wpcom_sync_checksum_allowed_tables()` (wpcom:
 	 * `wp-content/mu-plugins/jetpack/sync/class.jetpack-sync-shadow-replicastore.php`),
-	 * and a parity test there compares the vendored copy of this file against it.
+	 * and pins its side against the same map in JetpackSyncChecksumTableParityTest.
 	 * The two sides hash the same rows over their own field lists, so any drift makes
 	 * the affected table permanently fail its checksum audit for every syncing store.
 	 *
