@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Register the jetpack-ai-jwt REST route through the shared Connection controller so the route is only registered once.
