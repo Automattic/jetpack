@@ -201,6 +201,44 @@ const SCENARIOS = {
 			],
 		},
 	} ),
+	// The worst week the digest can render: every warning block, every verdict block, and more
+	// sustained regressions than MAX_LINES. Slack rejects a message over 50 blocks outright, so
+	// this is the shape that would silently lose the digest exactly when it matters most.
+	blockflood: () => {
+		const metrics = [];
+		const series = {};
+		// 45 metrics each holding a sustained spike: 45 confirmed, past the MAX_LINES cut.
+		for ( let i = 0; i < 45; i++ ) {
+			const id = 400 + i;
+			metrics.push( metricRow( id, `Flood ${ i }: LCP`, `flood-${ i }` ) );
+			series[ id ] = spikeSeries( false );
+		}
+		metrics.push( metricRow( 'x9', 'Bad: id', 'bad-id' ) ); // non-numeric id -> dropped
+		metrics.push( metricRow( 500, 'Gone: TTFB', 'gone-ttfb' ) ); // no series -> 404 -> read failure
+		metrics.push( metricRow( 501, 'Dead: TTFB', 'dead-ttfb' ) );
+		series[ 501 ] = steady( 30, 12, 100 ); // stale
+		metrics.push( metricRow( 502, 'Junk: TTFB', 'junk-ttfb' ) );
+		const junk = steady( 30, 0.5, 100, 'j' );
+		junk[ 10 ] = { ...junk[ 10 ], measuredAt: iso( NOW + 3 * D ) }; // malformed point
+		series[ 502 ] = junk;
+		metrics.push( metricRow( 503, 'Edge: TTFB', 'edge-ttfb' ) );
+		series[ 503 ] = [
+			...steady( 20, 0.4, 100, 'p' ),
+			pt( 0.3, 115, 'feedbf40', true, 15.0 ),
+			pt( 0.2, 116, 'pe1', false ),
+			pt( 0.1, 114, 'pe2', false ),
+		]; // pending
+		metrics.push( metricRow( 504, 'Blip: TTFB', 'blip-ttfb' ) );
+		series[ 504 ] = spikeSeries( true ); // reverted -> suppressed
+		metrics.push( metricRow( 505, 'Old: TTFB', 'old-ttfb' ) );
+		series[ 505 ] = [
+			...steady( 20, 20.1, 100, 'q' ),
+			pt( 20, 115, 'feedbf41', true, 15.0 ),
+			...seq( 8, 19.9, 114, 'ql' ),
+			...steady( 10, 0.5, 114, 'qt' ),
+		]; // late-confirmed
+		return { metrics, series };
+	},
 	// A regression lands, is reverted, then RE-LANDS within the pre window. The second flag's
 	// baseline is contaminated with the regressed level (pre ≈ post), so only the revert-anchor
 	// check (post vs the pre-flag commit) sees the regression is still live.
@@ -2040,6 +2078,14 @@ test( 'repo, branch, and chart base are env-driven and land encoded in every URL
 	assert.ok(
 		r.out.includes( 'https://vitals.example.com/public/Acme-Co/widgets.js/metrics?metric=' )
 	);
+	// The dashboard link shares the chart base: an override that re-targets only the charts
+	// leaves the header link pointing at the public host.
+	assert.ok(
+		r.out.includes(
+			'https://vitals.example.com/public/Acme-Co/widgets.js/metrics|Open the Widgets.js CodeVitals dashboard'
+		),
+		r.out
+	);
 } );
 
 // The repo value builds every commit link and the read path: reject shapes that could escape the
@@ -2077,6 +2123,63 @@ test( 'defaults: Automattic/jetpack on trunk with the public chart base', async 
 	);
 	assert.ok( r.out.includes( 'Jetpack CodeVitals weekly digest' ) );
 	assert.ok( r.out.includes( 'https://codevitals.run/public/Automattic/jetpack/metrics?metric=' ) );
+} );
+
+// A header block is plain_text only, so the dashboard link rides in a context block under it.
+// Asserted on a clean week as well as a regressing one: the clean digest carries no commit or
+// chart links, so this is the only way out of the message and the easiest one to lose.
+test( 'the dashboard link sits under the header, clean week included', async () => {
+	for ( const scenario of [ 'clean', 'confirmed' ] ) {
+		const r = await runDigest( scenario );
+		const payload = JSON.parse( r.out.slice( r.out.indexOf( '{' ) ) );
+		assert.strictEqual( payload.blocks[ 0 ].type, 'header', scenario );
+		const link = payload.blocks[ 1 ]?.elements?.[ 0 ];
+		assert.strictEqual( link?.type, 'mrkdwn', scenario );
+		assert.strictEqual(
+			link.text,
+			'📈 <https://codevitals.run/public/Automattic/jetpack/metrics|Open the Jetpack CodeVitals dashboard>',
+			scenario
+		);
+	}
+} );
+
+// Slack rejects a >50-block message outright, so the worst week is the one that loses the whole
+// digest. MAX_LINES is hand-audited against the wrapper blocks around it; this pins that
+// arithmetic by rendering every wrapper at once. Asserted as an exact count rather than a
+// ceiling, so that BOTH a new wrapper block and a raised MAX_LINES have to come back through
+// this test and re-count, not just the ones that happen to cross 50.
+test( 'the worst week stays inside the 50-block Slack ceiling', async () => {
+	const r = await runDigest( 'blockflood' );
+	assert.strictEqual( r.code, 1, r.err ); // degraded signal: read failure, dropped id, malformed, stale
+	const payload = JSON.parse( r.out.slice( r.out.indexOf( '{' ) ) );
+	const texts = payload.blocks.map( b =>
+		b.text ? b.text.text : b.elements.map( e => e.text ).join( ' ' )
+	);
+	// Every wrapper the budget accounts for must actually be in this render, or the count below
+	// passes while silently exercising fewer of them than the audit claims.
+	for ( const needle of [
+		'CodeVitals — weekly digest', // header
+		'Open the Jetpack CodeVitals dashboard',
+		'Could not read metric 500',
+		'did not look numeric',
+		'Skipped malformed data point',
+		'*Stale metric',
+		'sustained regressions* in the last',
+		'more — see the metric charts',
+		'late-confirmed regression',
+		'awaiting confirmation',
+		'suppressed (flag did not hold',
+	] ) {
+		assert.ok(
+			texts.some( t => t.includes( needle ) ),
+			`${ needle } missing from:\n${ texts.join( '\n' ) }`
+		);
+	}
+	// 35 regression lines + these 11 wrappers = 46, four blocks below Slack's hard 50. The
+	// headroom is deliberate: it is the margin a future wrapper block can be added into without
+	// the digest silently becoming unpostable in exactly the week it matters most.
+	assert.strictEqual( payload.blocks.length, 46, texts.join( '\n' ) );
+	assert.ok( payload.blocks.length <= 50, 'Slack rejects a message over 50 blocks' );
 } );
 
 // ---- direct invocation (child processes on purpose: the exit-code contract itself) ----
