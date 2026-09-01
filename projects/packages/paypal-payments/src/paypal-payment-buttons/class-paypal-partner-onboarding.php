@@ -107,14 +107,19 @@ class PayPal_Partner_Onboarding {
 	/**
 	 * Generate a seller nonce for the onboarding flow.
 	 *
-	 * Must be 43-128 bytes, alphanumeric with hyphens, underscores, and colons.
+	 * This is the PKCE code verifier. PayPal's schema requires 44-128 characters
+	 * matching `^[a-zA-Z0-9-_:]+$`. Note that the prose in PayPal's own field
+	 * description says "43-128", but `minLength` is 44 and the API rejects 43
+	 * with "Request is not well-formed, syntactically incorrect, or violates
+	 * schema." 32 random bytes base64url-encode to exactly 43 characters, which
+	 * is why every referral request failed. 48 bytes give exactly 64 characters,
+	 * with no padding to strip.
 	 *
 	 * @return string The generated nonce.
 	 */
 	private static function generate_seller_nonce() {
-		$bytes = random_bytes( 32 );
-		$nonce = rtrim( strtr( base64_encode( $bytes ), '+/', '-_' ), '=' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode -- Generating URL-safe nonce for PayPal Partner Referrals.
-		return substr( $nonce, 0, 64 );
+		$bytes = random_bytes( 48 );
+		return rtrim( strtr( base64_encode( $bytes ), '+/', '-_' ), '=' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode -- Generating URL-safe nonce for PayPal Partner Referrals.
 	}
 
 	/**
