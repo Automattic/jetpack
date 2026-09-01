@@ -14,6 +14,7 @@ namespace Automattic\Jetpack\Extensions\AiAssistantPlugin;
 
 use Automattic\Jetpack\Agents_Manager\Agents_Manager;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\SEO\Ai_Seo;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
@@ -450,8 +451,13 @@ class Jetpack_AI_Sidebar {
 		$features['blockTransformations'] = (bool) $features['blockTransformations'] && $writing_on;
 
 		return array(
-			'enabled'  => self::is_jetpack_ai_sidebar_preview_enabled(),
-			'features' => $features,
+			'enabled'                    => self::is_jetpack_ai_sidebar_preview_enabled(),
+			'features'                   => $features,
+			// Kept out of $features: that array is public and host-filterable
+			// (jetpack_ai_sidebar_preview_features), and this is neither — it is
+			// read only by the WordPress Agent notice, to decide whether its own
+			// action button has a working agent to open.
+			'agentNoticeActionAvailable' => self::is_agent_action_available(),
 		);
 	}
 
@@ -494,13 +500,49 @@ class Jetpack_AI_Sidebar {
 	/**
 	 * Whether the legacy AI panel should point people at the WordPress Agent.
 	 *
-	 * The notice replaces the panel, so it needs an agent to send people to. A
-	 * disconnected user gets the Agents Manager's reduced build, which has no chat.
+	 * True once the site can send people to a working agent (the existing gate), or,
+	 * ahead of that, once the site is eligible to turn the Agent on — the old panel is
+	 * on its way out either way. Eligible alone may have no agent to open yet, so the
+	 * notice's action button follows the narrower is_agent_action_available() instead.
 	 *
 	 * @return bool
 	 */
 	public static function is_agent_notice_enabled(): bool {
-		return self::should_expose_provider() && ! self::is_agents_manager_disconnected();
+		if ( self::is_agent_action_available() ) {
+			return true;
+		}
+
+		return self::is_wordpress_agent_eligible()
+			&& self::is_supported_provider_surface()
+			&& self::has_ai_features();
+	}
+
+	/**
+	 * Whether the site is eligible to turn the WordPress Agent on, whether or not
+	 * it has done so yet.
+	 *
+	 * On WordPress.com Simple this file runs inside the wpcom process, where the
+	 * Big Sky mu-plugin's own functions are always loaded and give the direct
+	 * answer, including WordPress.com's separate free-trial eligibility — not
+	 * otherwise visible to Jetpack. Atomic and self-hosted sites have no such
+	 * functions, so they fall back to the plan check alone, which cannot see the
+	 * free trial.
+	 *
+	 * @return bool
+	 */
+	private static function is_wordpress_agent_eligible(): bool {
+		$host = new Host();
+
+		if ( ! $host->is_wpcom_platform() || ! class_exists( 'Big_Sky' ) ) {
+			return false;
+		}
+
+		if ( function_exists( 'big_sky_is_available_for_site' ) && function_exists( 'big_sky_is_enabled' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredFunction -- Provided by WPCOM's Big Sky mu-plugin; guarded by function_exists() above.
+			return big_sky_is_available_for_site() || big_sky_is_enabled();
+		}
+
+		return Current_Plan::supports( 'big-sky' );
 	}
 
 	/**
@@ -519,6 +561,23 @@ class Jetpack_AI_Sidebar {
 		}
 
 		\Jetpack_Gutenberg::set_extension_available( AI_SIDEBAR_AGENT_NOTICE_EXTENSION );
+	}
+
+	/**
+	 * Whether the notice's action button has a working agent to send people to.
+	 *
+	 * The notice itself shows earlier, once the site is merely eligible for the
+	 * Agent — see is_agent_notice_enabled(). This is narrower: the original
+	 * enabled gate, so the button stays hidden rather than open a chat that
+	 * does not exist yet, or one under a different provider entirely. Reaches
+	 * the notice through get_jetpack_ai_sidebar_preview_config(), not a
+	 * registered extension — it is a single flag for one button, not a surface
+	 * with its own availability and reason.
+	 *
+	 * @return bool
+	 */
+	public static function is_agent_action_available(): bool {
+		return self::should_expose_provider() && ! self::is_agents_manager_disconnected();
 	}
 
 	/**

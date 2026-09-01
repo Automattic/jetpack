@@ -24,6 +24,7 @@ let mockPostType: string | undefined = 'post';
 let mockIsAgentReady = true;
 let mockIsChatOnScreen = false;
 let mockIsFeatureAvailable = true;
+let mockCanOpenAgent = true;
 
 jest.mock( '../../../../../blocks/ai-assistant/lib/utils/get-feature-availability', () => ( {
 	getFeatureAvailability: () => mockIsFeatureAvailable,
@@ -32,6 +33,7 @@ jest.mock( '../../../../../blocks/ai-assistant/lib/utils/get-feature-availabilit
 jest.mock( '../open-agent', () => ( {
 	setWordPressAgentChatOpen: jest.fn(),
 	resumeWordPressAgentChat: jest.fn(),
+	isAgentActionAvailable: () => mockCanOpenAgent,
 	useIsWordPressAgentReady: () => mockIsAgentReady,
 	useIsWordPressAgentChatVisible: () => mockIsChatOnScreen,
 } ) );
@@ -74,6 +76,7 @@ describe( 'WordPressAgentNotice', () => {
 		mockIsAgentReady = true;
 		mockIsChatOnScreen = false;
 		mockIsFeatureAvailable = true;
+		mockCanOpenAgent = true;
 		// The audience props read these server-injected globals for real.
 		delete ( globalThis as Record< string, unknown > ).agentsManagerData;
 		delete ( globalThis as Record< string, unknown > ).bigSkyInitialState;
@@ -163,6 +166,43 @@ describe( 'WordPressAgentNotice', () => {
 			render( <WordPressAgentNotice placement="document-settings" /> );
 
 			expect( screen.queryByRole( 'button', { name: 'WordPress Agent' } ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'can still be dismissed', async () => {
+			const user = userEvent.setup();
+			render( <WordPressAgentNotice placement="document-settings" /> );
+
+			await user.click( screen.getByRole( 'button', { name: 'Dismiss' } ) );
+
+			expect( isDismissed() ).toBe( true );
+		} );
+	} );
+
+	describe( 'before the site has turned the Agent on', () => {
+		beforeEach( () => {
+			mockCanOpenAgent = false;
+		} );
+
+		it( 'drops the pointer to a toolbar button that is not there', () => {
+			render( <WordPressAgentNotice placement="document-settings" /> );
+
+			expect(
+				screen.getByText( 'AI tools have moved to the WordPress Agent.' )
+			).toBeInTheDocument();
+			expect( screen.queryByText( /Look for the "Ask AI"/ ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'offers no action, even once the Agents Manager is ready', () => {
+			mockIsAgentReady = true;
+			render( <WordPressAgentNotice placement="document-settings" /> );
+
+			expect( screen.queryByRole( 'button', { name: 'WordPress Agent' } ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'keeps the documentation link', () => {
+			render( <WordPressAgentNotice placement="document-settings" /> );
+
+			expect( screen.getByRole( 'link', { name: /Learn more/ } ) ).toBeInTheDocument();
 		} );
 
 		it( 'can still be dismissed', async () => {
