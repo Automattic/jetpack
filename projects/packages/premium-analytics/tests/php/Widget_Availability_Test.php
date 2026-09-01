@@ -234,8 +234,8 @@ class Widget_Availability_Test extends BaseTestCase {
 	/**
 	 * Every widget type name declared by a `widgets/*` manifest.
 	 *
-	 * Asserts rather than skips a bad manifest: one silently dropped is absent from both sides
-	 * of a gate-vs-manifest comparison, so the guard would pass while the gate misses a type.
+	 * Asserts rather than skips a malformed manifest, so a dropped one can't quietly narrow
+	 * what the callers compare against.
 	 *
 	 * @return string[] Declared widget type names.
 	 */
@@ -267,13 +267,11 @@ class Widget_Availability_Test extends BaseTestCase {
 	 * "requires" field to key on instead — read that here if one is ever added.
 	 */
 	public function test_videopress_widget_types_match_the_manifest() {
-		$video_names = array_values(
-			array_filter(
-				$this->manifest_widget_names(),
-				static function ( $name ) {
-					return str_contains( $name, 'video' );
-				}
-			)
+		$video_names = array_filter(
+			$this->manifest_widget_names(),
+			static function ( $name ) {
+				return str_contains( $name, 'video' );
+			}
 		);
 
 		$gated = VIDEOPRESS_WIDGET_TYPES;
