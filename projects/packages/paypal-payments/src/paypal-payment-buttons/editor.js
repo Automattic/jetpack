@@ -1,12 +1,9 @@
 /**
- * Jetpack monorepo entry point for PayPal Payment Buttons.
+ * Entry point for the PayPal Payment Buttons block.
  *
- * This file is used when the block runs inside the Jetpack plugin in the
- * monorepo. It uses `registerJetpackBlockFromMetadata` with `save: () => null`
- * (dynamic/PHP rendering) and block.json as the manifest.
- *
- * For the standalone plugin entry point, see index.js (uses block-v2.json
- * with a static save component and deprecated handler).
+ * Registers the block with `registerJetpackBlockFromMetadata` using
+ * `save: () => null` — the frontend markup is rendered in PHP by
+ * PayPal_Payment_Buttons::render_block().
  */
 import { registerJetpackBlockFromMetadata } from '../block/register-jetpack-block';
 import metadata from './block.json';
