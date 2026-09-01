@@ -657,24 +657,23 @@ class Rest_Download_Bridge_Test extends TestCase {
 	}
 
 	/**
-	 * An include list that trims away to nothing is still an include list.
+	 * A path list that trims away to nothing is still a path list.
 	 *
 	 * `path_list()` drops blank entries before the guard sees them, so
 	 * gating on its result alone would let this through as a full download.
 	 *
-	 * @param string $label   Case description.
-	 * @param mixed  $include The `include_path_list` to send.
-	 * @dataProvider provide_include_lists_that_survive_into_nothing
+	 * @param string $label Case description.
+	 * @param string $key   The path-list parameter to send.
+	 * @param mixed  $list  The list sent under it.
+	 * @dataProvider provide_path_lists_that_survive_into_nothing
 	 */
-	#[DataProvider( 'provide_include_lists_that_survive_into_nothing' )]
-	public function test_initiate_refuses_a_blank_path_list_without_the_paths_type( $label, $include ) {
+	#[DataProvider( 'provide_path_lists_that_survive_into_nothing' )]
+	public function test_initiate_refuses_a_blank_path_list_without_the_paths_type( $label, $key, $list ) {
 		$this->arrange_wpcom( array( 'downloadId' => 1 ) );
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/backups/download/1786663613.9425' );
 		$request->set_header( 'content-type', 'application/json' );
-		$request->set_body(
-			wp_json_encode( array( 'include_path_list' => $include ), JSON_UNESCAPED_SLASHES )
-		);
+		$request->set_body( wp_json_encode( array( $key => $list ), JSON_UNESCAPED_SLASHES ) );
 
 		$response = $this->server->dispatch( $request );
 
@@ -684,14 +683,16 @@ class Rest_Download_Bridge_Test extends TestCase {
 	}
 
 	/**
-	 * Every include list that reaches the guard empty.
+	 * Every path list that reaches the guard empty, under both keys.
 	 *
-	 * @return array<string, array{0: string, 1: mixed}>
+	 * @return array<string, array{0: string, 1: string, 2: mixed}>
 	 */
-	public static function provide_include_lists_that_survive_into_nothing() {
+	public static function provide_path_lists_that_survive_into_nothing() {
 		return array(
-			'blank entries' => array( 'blank entries', array( '  ', '' ) ),
-			'empty list'    => array( 'empty list', array() ),
+			'include, blank entries' => array( 'include, blank entries', 'include_path_list', array( '  ', '' ) ),
+			'include, empty list'    => array( 'include, empty list', 'include_path_list', array() ),
+			'exclude, blank entries' => array( 'exclude, blank entries', 'exclude_path_list', array( '  ', '' ) ),
+			'exclude, empty list'    => array( 'exclude, empty list', 'exclude_path_list', array() ),
 		);
 	}
 

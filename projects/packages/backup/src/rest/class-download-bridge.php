@@ -122,9 +122,12 @@ class Download_Bridge {
 		// lists only for the `paths` type, so a list beside any other
 		// category answers 200 with a *full-site* archive.
 		//
-		// `has_param()` too: `path_list()` trims a blank list away, and a
-		// caller that named files must not fall through as one that named none.
-		if ( $include || $exclude || $request->has_param( 'include_path_list' ) ) {
+		// `has_param()` too, for both keys: `path_list()` trims a blank list
+		// away, and a caller that named files must not fall through as one
+		// that named none.
+		if ( $include || $exclude
+			|| $request->has_param( 'include_path_list' )
+			|| $request->has_param( 'exclude_path_list' ) ) {
 			if ( array( 'paths' ) !== array_keys( $named_types ) ) {
 				return new WP_Error(
 					'path_list_needs_paths_type',
