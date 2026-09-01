@@ -23,22 +23,16 @@ class Status_Controller_Test extends BaseTestCase {
 	const ROUTE = '/wpcom/v2/premium-analytics/status';
 
 	/**
-	 * Controller under test.
-	 *
-	 * @var Status_Controller
-	 */
-	private $controller;
-
-	/**
-	 * Set up the controller and a fresh REST server.
+	 * Set up a fresh REST server with the controller's routes.
 	 */
 	public function set_up() {
 		parent::set_up();
-		$this->controller = new Status_Controller();
+		self::set_rest_authentication( null, null );
+		self::set_analytics_initialized( false );
 
 		global $wp_rest_server;
 		$wp_rest_server = new WP_REST_Server();
-		add_action( 'rest_api_init', array( $this->controller, 'register_routes' ) );
+		Status_Controller::register();
 		do_action( 'rest_api_init' );
 	}
 
@@ -113,7 +107,7 @@ class Status_Controller_Test extends BaseTestCase {
 	}
 
 	public function test_permission_is_denied_without_a_user_or_a_blog_token() {
-		$this->assertInstanceOf( \WP_Error::class, $this->controller->check_permission() );
+		$this->assertInstanceOf( \WP_Error::class, Status_Controller::check_permission() );
 	}
 
 	public function test_permission_is_denied_for_a_user_who_cannot_manage_options() {
@@ -126,13 +120,13 @@ class Status_Controller_Test extends BaseTestCase {
 		);
 		wp_set_current_user( $user_id );
 
-		$this->assertInstanceOf( \WP_Error::class, $this->controller->check_permission() );
+		$this->assertInstanceOf( \WP_Error::class, Status_Controller::check_permission() );
 	}
 
 	public function test_permission_is_granted_to_an_administrator() {
 		$this->log_in_as_admin();
 
-		$this->assertTrue( $this->controller->check_permission() );
+		$this->assertTrue( Status_Controller::check_permission() );
 	}
 
 	/**
@@ -141,7 +135,7 @@ class Status_Controller_Test extends BaseTestCase {
 	public function test_permission_is_granted_to_a_blog_token_with_no_user() {
 		self::set_rest_authentication( true, 'blog' );
 
-		$this->assertTrue( $this->controller->check_permission() );
+		$this->assertTrue( Status_Controller::check_permission() );
 	}
 
 	/**
@@ -150,7 +144,7 @@ class Status_Controller_Test extends BaseTestCase {
 	public function test_permission_is_denied_for_a_user_token_without_the_capability() {
 		self::set_rest_authentication( true, 'user' );
 
-		$this->assertInstanceOf( \WP_Error::class, $this->controller->check_permission() );
+		$this->assertInstanceOf( \WP_Error::class, Status_Controller::check_permission() );
 	}
 
 	public function test_post_enables_the_dashboard_by_writing_the_option() {
@@ -187,22 +181,50 @@ class Status_Controller_Test extends BaseTestCase {
 		$this->assertSame( 400, $response->get_status() );
 	}
 
-	public function test_post_is_rejected_for_a_user_who_cannot_manage_options() {
+	public function test_post_is_rejected_for_an_anonymous_caller() {
 		$request = new WP_REST_Request( 'POST', self::ROUTE );
 		$request->set_param( 'enabled', true );
 		$response = rest_get_server()->dispatch( $request );
 
-		$this->assertSame( rest_authorization_required_code(), $response->get_status() );
+		$this->assertSame( 401, $response->get_status() );
+		$this->assertFalse( (bool) get_option( Analytics::ENABLED_OPTION ) );
+	}
+
+	public function test_post_is_rejected_for_a_logged_in_user_who_cannot_manage_options() {
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'pa-editor-post',
+				'user_pass'  => 'password',
+				'role'       => 'editor',
+			)
+		);
+		wp_set_current_user( $user_id );
+
+		$request = new WP_REST_Request( 'POST', self::ROUTE );
+		$request->set_param( 'enabled', true );
+		$response = rest_get_server()->dispatch( $request );
+
+		$this->assertSame( 403, $response->get_status() );
 		$this->assertFalse( (bool) get_option( Analytics::ENABLED_OPTION ) );
 	}
 
 	/**
-	 * A site switched on by the rollout sticker leaves the option untouched, so the read has to
-	 * follow the host's decision rather than the option.
+	 * Two hosts call register(), so a second call must not add a second callback - otherwise one
+	 * rest_api_init would register the route twice and double its handlers.
 	 */
-	public function test_get_reports_enabled_when_the_host_booted_the_dashboard() {
+	public function test_register_is_idempotent() {
+		Status_Controller::register();
+
+		global $wp_rest_server;
+		$wp_rest_server = new WP_REST_Server();
+		do_action( 'rest_api_init' );
+
+		$this->assertCount( 2, rest_get_server()->get_routes()[ self::ROUTE ] );
+	}
+
+	public function test_get_reports_the_stored_opt_in() {
 		$this->log_in_as_admin();
-		self::set_analytics_initialized( true );
+		update_option( Analytics::ENABLED_OPTION, 1 );
 
 		$response = rest_get_server()->dispatch( new WP_REST_Request( 'GET', self::ROUTE ) );
 
@@ -210,17 +232,25 @@ class Status_Controller_Test extends BaseTestCase {
 		$this->assertSame( array( 'enabled' => true ), $response->get_data() );
 	}
 
-	/**
-	 * The mirror case: the option is set but the host never booted the dashboard — the package was
-	 * missing, or the write landed after the flag had already been resolved for this request.
-	 */
-	public function test_get_reports_disabled_when_the_option_is_set_but_the_host_did_not_boot() {
+	public function test_get_reports_disabled_when_the_site_has_not_opted_in() {
 		$this->log_in_as_admin();
-		update_option( Analytics::ENABLED_OPTION, 1 );
 
 		$response = rest_get_server()->dispatch( new WP_REST_Request( 'GET', self::ROUTE ) );
 
 		$this->assertSame( 200, $response->get_status() );
+		$this->assertSame( array( 'enabled' => false ), $response->get_data() );
+	}
+
+	/**
+	 * The read must not depend on whether the package booted this request: on WordPress.com Simple
+	 * that answer is resolved before public-api switches to the target blog.
+	 */
+	public function test_get_ignores_whether_the_package_booted_this_request() {
+		$this->log_in_as_admin();
+		self::set_analytics_initialized( true );
+
+		$response = rest_get_server()->dispatch( new WP_REST_Request( 'GET', self::ROUTE ) );
+
 		$this->assertSame( array( 'enabled' => false ), $response->get_data() );
 	}
 

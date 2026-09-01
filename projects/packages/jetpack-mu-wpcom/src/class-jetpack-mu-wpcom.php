@@ -844,8 +844,14 @@ class Jetpack_Mu_Wpcom {
 	 *
 	 * Deliberately not behind should_load_wpcom_simple_premium_analytics(): this is the route that
 	 * flips that gate, so it has to answer while the dashboard is still off.
+	 *
+	 * @since $$next-version$$
 	 */
 	public static function load_wpcom_simple_premium_analytics_status_endpoint() {
+		if ( ! class_exists( Premium_Analytics_Status_Controller::class ) ) {
+			return;
+		}
+
 		Premium_Analytics_Status_Controller::register();
 	}
 

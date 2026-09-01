@@ -24,40 +24,55 @@ require_once __DIR__ . '/../rest-namespace.php';
  * package serves is registered by {@see \Automattic\Jetpack\PremiumAnalytics\Dashboard_Support_Routes},
  * which only boots once the dashboard is already on.
  *
- * Writing the option cannot take effect in the request that writes it: Jetpack resolves the flag
- * once, on `plugins_loaded`, long before a REST callback runs. Clients are expected to reload.
+ * The route reads and writes the site's own opt-in option, and nothing else. It deliberately does
+ * not try to report whether the dashboard is *effectively* on: a rollout sticker can force it on
+ * without touching the option, and on WordPress.com Simple the host resolves that gate on
+ * `plugins_loaded`, before public-api has switched to the target blog — so the boot-time answer
+ * belongs to the wrong site by the time a REST callback runs. Reading the option inside the
+ * callback is correct on every platform, because the blog switch has happened by then.
+ *
+ * Writing cannot take effect in the request that writes it: Jetpack resolves the flag once, on
+ * `plugins_loaded`. Clients are expected to reload.
+ *
+ * @since $$next-version$$
  */
 class Status_Controller {
 
 	/**
 	 * Hook the controller's routes onto rest_api_init.
 	 *
+	 * Safe to call more than once: the callback is static, so WordPress collapses repeat calls
+	 * rather than registering the routes twice.
+	 *
+	 * @since $$next-version$$
+	 *
 	 * @return void
 	 */
 	public static function register(): void {
-		$controller = new self();
-		add_action( 'rest_api_init', array( $controller, 'register_routes' ) );
+		add_action( 'rest_api_init', array( __CLASS__, 'register_routes' ) );
 	}
 
 	/**
 	 * Register the status route.
 	 *
+	 * @since $$next-version$$
+	 *
 	 * @return void
 	 */
-	public function register_routes(): void {
+	public static function register_routes(): void {
 		register_rest_route(
 			DASHBOARD_REST_NAMESPACE,
 			'/premium-analytics/status',
 			array(
 				array(
 					'methods'             => WP_REST_Server::READABLE,
-					'callback'            => array( $this, 'get_status' ),
-					'permission_callback' => array( $this, 'check_permission' ),
+					'callback'            => array( __CLASS__, 'get_status' ),
+					'permission_callback' => array( __CLASS__, 'check_permission' ),
 				),
 				array(
 					'methods'             => WP_REST_Server::EDITABLE,
-					'callback'            => array( $this, 'update_status' ),
-					'permission_callback' => array( $this, 'check_permission' ),
+					'callback'            => array( __CLASS__, 'update_status' ),
+					'permission_callback' => array( __CLASS__, 'check_permission' ),
 					'args'                => array(
 						'enabled' => array(
 							'required'    => true,
@@ -75,11 +90,13 @@ class Status_Controller {
 	 *
 	 * A blog token stands for WordPress.com acting on the site's behalf, which is how a rollout is
 	 * driven from our side. A user token has to belong to someone who administers the site: this
-	 * switches a whole admin surface on, so `view_stats` is not enough.
+	 * switches on a whole admin surface, so `view_stats` is not enough.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @return true|WP_Error True when allowed, WP_Error otherwise.
 	 */
-	public function check_permission() {
+	public static function check_permission() {
 		if ( Rest_Authentication::is_signed_with_blog_token() ) {
 			return true;
 		}
@@ -96,28 +113,40 @@ class Status_Controller {
 	}
 
 	/**
-	 * Report whether the dashboard is enabled for this site.
+	 * Report the site's stored opt-in.
 	 *
-	 * Reports what the host actually decided rather than re-reading the option, so a site switched
-	 * on by the rollout sticker reports as enabled too.
+	 * @since $$next-version$$
 	 *
 	 * @return \WP_REST_Response
 	 */
-	public function get_status() {
-		return rest_ensure_response( array( 'enabled' => Analytics::is_enabled() ) );
+	public static function get_status() {
+		return rest_ensure_response( array( 'enabled' => self::is_opted_in() ) );
 	}
 
 	/**
-	 * Turn the dashboard on or off for this site.
+	 * Store the site's opt-in.
+	 *
+	 * Reports the option back rather than echoing the request, so a caller can tell what was
+	 * actually stored. Note that a site carrying the rollout sticker keeps the dashboard whatever
+	 * this says — the sticker is a separate signal that the option cannot override.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @param WP_REST_Request $request Request object.
 	 * @return \WP_REST_Response
 	 */
-	public function update_status( WP_REST_Request $request ) {
-		$enabled = (bool) $request->get_param( 'enabled' );
+	public static function update_status( WP_REST_Request $request ) {
+		update_option( Analytics::ENABLED_OPTION, $request->get_param( 'enabled' ) ? 1 : 0 );
 
-		update_option( Analytics::ENABLED_OPTION, $enabled ? 1 : 0 );
+		return rest_ensure_response( array( 'enabled' => self::is_opted_in() ) );
+	}
 
-		return rest_ensure_response( array( 'enabled' => $enabled ) );
+	/**
+	 * Read the stored opt-in.
+	 *
+	 * @return bool
+	 */
+	private static function is_opted_in(): bool {
+		return (bool) get_option( Analytics::ENABLED_OPTION );
 	}
 }

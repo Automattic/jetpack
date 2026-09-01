@@ -26,10 +26,12 @@ class Analytics {
 	/**
 	 * Site option holding the customer's own opt-in to the dashboard.
 	 *
-	 * The hosts read this themselves — Jetpack::is_premium_analytics_enabled() on connected sites,
-	 * Jetpack_Mu_Wpcom::should_load_wpcom_simple_premium_analytics() on Simple — so the name is
-	 * duplicated in both. This constant is the copy the package writes through
+	 * Jetpack::is_premium_analytics_enabled() reads this on connected sites and spells the name
+	 * itself, since it has to answer before this package is known to be loadable. This constant is
+	 * the copy the package writes through
 	 * {@see \Automattic\Jetpack\PremiumAnalytics\REST\Status_Controller}.
+	 *
+	 * @since $$next-version$$
 	 */
 	const ENABLED_OPTION = 'jetpack_premium_analytics_enabled';
 
@@ -97,19 +99,6 @@ class Analytics {
 		self::boot_shared_services();
 		self::register_dashboard_support_routes();
 		self::load_dashboard_surface();
-	}
-
-	/**
-	 * Whether the dashboard is switched on for this site.
-	 *
-	 * Answers the question the hosts each answer their own way — option, rollout sticker, or
-	 * filter — by reporting what they decided: one of the init entry points ran, or none did.
-	 * Both run on `plugins_loaded`, so this is settled well before `rest_api_init`.
-	 *
-	 * @return bool
-	 */
-	public static function is_enabled(): bool {
-		return self::$initialized;
 	}
 
 	/**
