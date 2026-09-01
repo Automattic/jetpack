@@ -47,7 +47,7 @@ const openTooltip = async () => {
 };
 
 describe( 'AccessibleTooltip', () => {
-	// The crosshair is painted in a portal outside the scope element; see TOKENS.md § The SVG bridge.
+	// The crosshair is painted in a portal outside the scope element; see TOKENS.md#the-svg-bridge.
 	it( 'reads the grid role from the scope element', async () => {
 		const scope = document.createElement( 'div' );
 		scope.style.setProperty( '--a8c-charts-color-grid', 'rgb(1, 2, 3)' );
