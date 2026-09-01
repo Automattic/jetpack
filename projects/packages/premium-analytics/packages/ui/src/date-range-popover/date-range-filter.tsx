@@ -3,8 +3,8 @@
  */
 import { PRESET_CUSTOM, type PrimaryPresetId } from '@jetpack-premium-analytics/datetime';
 import { Button, DateRangeCalendar, Icon, Stack } from '@jetpack-premium-analytics/externals';
-import { formatDateRangeMinimal } from '@jetpack-premium-analytics/formatters';
-import { Composite, Dropdown } from '@wordpress/components';
+import { formatDateRange, formatDateRangeNatural } from '@jetpack-premium-analytics/formatters';
+import { Composite, Dropdown, Tooltip } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { chevronDown } from '@wordpress/icons';
 import clsx from 'clsx';
@@ -13,7 +13,11 @@ import { useState, useCallback, useRef } from 'react';
  * Internal dependencies
  */
 import { DateRangeInput } from '../date-range-input';
-import { getCustomTriggerLabel, getCustomTriggerState } from './get-custom-trigger-state';
+import {
+	getCustomTriggerLabel,
+	getCustomTriggerRange,
+	getCustomTriggerState,
+} from './get-custom-trigger-state';
 import './date-range-filter.scss';
 
 /**
@@ -241,8 +245,12 @@ export function DateRangePopover( {
 		range,
 		committedRange,
 		customLabel: __( 'Custom', 'jetpack-premium-analytics-pkg' ),
-		formatRange: formatDateRangeMinimal,
+		formatRange: formatDateRangeNatural,
 	} );
+
+	// The label names the period, so its dates need somewhere else to live: the
+	// section header subtitle that used to spell them out is gone (WOOA7S-2027).
+	const triggerRange = getCustomTriggerRange( { triggerState, range, committedRange } );
 
 	return (
 		<Dropdown
@@ -266,7 +274,13 @@ export function DateRangePopover( {
 					</Button>
 				);
 
-				return triggerAsCompositeItem ? <Composite.Item render={ trigger } /> : trigger;
+				const item = triggerAsCompositeItem ? <Composite.Item render={ trigger } /> : trigger;
+
+				return triggerRange ? (
+					<Tooltip text={ formatDateRange( triggerRange ) }>{ item }</Tooltip>
+				) : (
+					item
+				);
 			} }
 			renderContent={ ( { onClose } ) => (
 				<DateRangePopoverContent
