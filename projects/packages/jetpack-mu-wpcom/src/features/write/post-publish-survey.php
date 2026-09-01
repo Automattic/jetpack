@@ -401,11 +401,11 @@ function wpcom_write_neutralize_csv_formula( $text ) {
  */
 function wpcom_write_build_survey_response( $answer, $comment, $response_id, $source, $is_write_first ) {
 	$responses = array(
-		'experience' => $answer,
-		'variant'    => $is_write_first ? 'write_first' : 'returning',
-		'entryPoint' => substr( $source, 0, WPCOM_WRITE_SURVEY_MAX_SOURCE_LENGTH ),
+		'experience'  => $answer,
+		'variant'     => $is_write_first ? 'write_first' : 'returning',
+		'entry_point' => substr( $source, 0, WPCOM_WRITE_SURVEY_MAX_SOURCE_LENGTH ),
 		// Only ever a uuid4 we generated; anything else is discarded rather than stored.
-		'responseId' => wp_is_uuid( $response_id ) ? $response_id : '',
+		'response_id' => wp_is_uuid( $response_id ) ? $response_id : '',
 	);
 
 	$comment = mb_substr( $comment, 0, WPCOM_WRITE_SURVEY_MAX_COMMENT_LENGTH );

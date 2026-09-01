@@ -280,8 +280,8 @@ class Write_Post_Publish_Survey_Test extends \WorDBless\BaseTestCase {
 		$this->assertSame( 'harder', $payload['experience'] );
 		$this->assertSame( array( 'text' => 'The toolbar hid my text.' ), $payload['comment'] );
 		$this->assertSame( 'returning', $payload['variant'] );
-		$this->assertSame( 'dashboard', $payload['entryPoint'] );
-		$this->assertSame( $uuid, $payload['responseId'] );
+		$this->assertSame( 'dashboard', $payload['entry_point'] );
+		$this->assertSame( $uuid, $payload['response_id'] );
 	}
 
 	/**
@@ -377,12 +377,12 @@ class Write_Post_Publish_Survey_Test extends \WorDBless\BaseTestCase {
 	public function test_response_payload_discards_a_non_uuid_response_id() {
 		$payload = wpcom_write_build_survey_response( 'easier', '', 'not-a-uuid', '', false );
 
-		$this->assertSame( '', $payload['responseId'] );
+		$this->assertSame( '', $payload['response_id'] );
 
 		$uuid    = wp_generate_uuid4();
 		$payload = wpcom_write_build_survey_response( 'easier', '', $uuid, '', false );
 
-		$this->assertSame( $uuid, $payload['responseId'] );
+		$this->assertSame( $uuid, $payload['response_id'] );
 	}
 
 	/**
@@ -394,7 +394,7 @@ class Write_Post_Publish_Survey_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertSame(
 			WPCOM_WRITE_SURVEY_MAX_SOURCE_LENGTH,
-			strlen( $payload['entryPoint'] )
+			strlen( $payload['entry_point'] )
 		);
 	}
 
