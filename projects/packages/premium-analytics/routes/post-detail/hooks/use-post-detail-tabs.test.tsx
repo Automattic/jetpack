@@ -52,14 +52,20 @@ const POST_ID = 91;
  * Mock the opens rate summary that gates the email tabs.
  *
  * @param totalSends - The summary's `total_sends`; `undefined` mocks a query
- *                   with no data (loading or errored, per `isLoading`).
- * @param isLoading  - Whether the query is still on its first load.
+ *                   that has not answered yet, positioned by `state`.
+ * @param state      - Where an answerless query sits: fetching its first load,
+ *                   retrying with the retryer paused (a background tab or an
+ *                   offline blip, which drops `isLoading` without answering),
+ *                   or finally failed.
  */
-function mockEmailSends( totalSends?: number, isLoading = false ) {
+function mockEmailSends( totalSends?: number, state: 'loading' | 'paused' | 'error' = 'loading' ) {
+	const answered = totalSends !== undefined;
+
 	mockUseOpensBreakdown.mockReturnValue( {
-		data: totalSends === undefined ? undefined : { summary: { total_sends: totalSends } },
-		isLoading,
-		isSuccess: totalSends !== undefined,
+		data: answered ? { summary: { total_sends: totalSends } } : undefined,
+		isLoading: ! answered && state === 'loading',
+		isSuccess: answered,
+		isError: ! answered && state === 'error',
 	} as unknown as ReturnType< typeof useStatsEmailOpensBreakdown > );
 }
 
@@ -77,12 +83,10 @@ function mockSearch( section: string ) {
 		committed: { section },
 		staged: { section },
 		effective: { section },
-		isSyncing: false,
 		isDirty: false,
 		stage,
 		commit,
 		revert: jest.fn(),
-		cancelAutoCommit: jest.fn(),
 	} );
 
 	return { stage, commit };
@@ -137,7 +141,7 @@ describe( 'usePostDetailTabs', () => {
 		}
 	} );
 
-	it( 'exposes the email tabs and selects their fixed layouts', () => {
+	it( 'exposes the email tabs for a post sent to subscribers', () => {
 		const { stage, commit } = mockSearch( 'email-clicks' );
 
 		const { result } = renderHook( () => usePostDetailTabs( POST_ID ) );
@@ -148,9 +152,71 @@ describe( 'usePostDetailTabs', () => {
 			'email-clicks',
 		] );
 		expect( result.current.activeTab ).toBe( 'email-clicks' );
-		expect( result.current.layout ).toEqual( POST_DETAIL_TAB_LAYOUTS[ 'email-clicks' ] );
 		expect( stage ).not.toHaveBeenCalled();
 		expect( commit ).not.toHaveBeenCalled();
+	} );
+
+	it( 'pins the email tabs’ widgets to the given report params', () => {
+		mockSearch( 'email-opens' );
+		mockRouteSearch = { from: '2026-07-01', to: '2026-07-07', post_id: String( POST_ID ) };
+		const pinned = {
+			post_id: POST_ID,
+			preset: 'all-time' as const,
+			from: '2026-06-22',
+			to: '2026-08-28',
+			interval: 'week' as const,
+		};
+
+		const { result } = renderHook( () => usePostDetailTabs( POST_ID, pinned ) );
+
+		const fixed = POST_DETAIL_TAB_LAYOUTS[ 'email-opens' ];
+		expect( result.current.layout ).toHaveLength( fixed.length );
+		result.current.layout.forEach( ( widget, index ) => {
+			const attributes = fixed[ index ].attributes as Record< string, unknown > | undefined;
+			expect( widget ).toEqual( {
+				...fixed[ index ],
+				attributes: { ...attributes, reportParams: pinned },
+			} );
+		} );
+		// The fixed composition itself is left alone.
+		expect(
+			fixed.some( widget => 'reportParams' in ( ( widget.attributes as object ) ?? {} ) )
+		).toBe( false );
+	} );
+
+	it( 'mounts the fixed email layout when the pinned params can no longer resolve', () => {
+		mockSearch( 'email-clicks' );
+
+		const { result } = renderHook( () => usePostDetailTabs( POST_ID, undefined, true ) );
+
+		// The widgets mount and surface their own error states, instead of the
+		// tab staying permanently blank with no Retry (summary request failed).
+		expect( result.current.activeTab ).toBe( 'email-clicks' );
+		expect( result.current.layout ).toEqual( POST_DETAIL_TAB_LAYOUTS[ 'email-clicks' ] );
+	} );
+
+	it( 'gives an email tab no layout until its report params are known', () => {
+		mockSearch( 'email-clicks' );
+
+		const { result } = renderHook( () => usePostDetailTabs( POST_ID ) );
+
+		expect( result.current.activeTab ).toBe( 'email-clicks' );
+		expect( result.current.layout ).toEqual( [] );
+	} );
+
+	it( 'leaves the traffic layout untouched when email report params are given', () => {
+		mockSearch( 'post-traffic' );
+		const pinned = {
+			post_id: POST_ID,
+			preset: 'all-time' as const,
+			from: '2026-06-22',
+			to: '2026-08-28',
+			interval: 'week' as const,
+		};
+
+		const { result } = renderHook( () => usePostDetailTabs( POST_ID, pinned ) );
+
+		expect( result.current.layout ).toEqual( POST_DETAIL_TAB_LAYOUTS[ 'post-traffic' ] );
 	} );
 
 	it( 'hides the email tabs for a post never sent to subscribers', async () => {
@@ -170,7 +236,7 @@ describe( 'usePostDetailTabs', () => {
 	} );
 
 	it( 'keeps the email tabs hidden while the send summary is still loading', () => {
-		mockEmailSends( undefined, true );
+		mockEmailSends( undefined, 'loading' );
 		mockSearch( 'post-traffic' );
 
 		const { result } = renderHook( () => usePostDetailTabs( POST_ID ) );
@@ -178,22 +244,58 @@ describe( 'usePostDetailTabs', () => {
 		expect( result.current.tabs.map( tab => tab.id ) ).toEqual( [ 'post-traffic' ] );
 	} );
 
-	it( 'does not rewrite an email deep link while the send summary is loading', () => {
-		mockEmailSends( undefined, true );
+	it( 'shows the deep-linked email tab while the send summary is loading', () => {
+		mockEmailSends( undefined, 'loading' );
 		const { stage, commit } = mockSearch( 'email-opens' );
 
 		const { result } = renderHook( () => usePostDetailTabs( POST_ID ) );
 
-		// The visible fallback renders, but the URL keeps the deep link until
-		// the gate settles.
-		expect( result.current.activeTab ).toBe( 'post-traffic' );
+		// Falling back to Post traffic here would render a whole wrong page for
+		// the reader to watch swap out (WOOA7S-2059). The URL still waits.
+		expect( result.current.tabs.map( tab => tab.id ) ).toEqual( [
+			'post-traffic',
+			'email-opens',
+			'email-clicks',
+		] );
+		expect( result.current.activeTab ).toBe( 'email-opens' );
 		expect( stage ).not.toHaveBeenCalled();
 		expect( commit ).not.toHaveBeenCalled();
 	} );
 
+	it( 'keeps the deep-linked email tab while a retry is paused', () => {
+		// A background tab or an offline blip pauses the retryer, dropping
+		// `isLoading` with the gate still unanswered. Reading that as "answered"
+		// would swap the page to Post traffic and back on refocus (WOOA7S-2059).
+		mockEmailSends( undefined, 'paused' );
+		const { stage, commit } = mockSearch( 'email-opens' );
+
+		const { result } = renderHook( () => usePostDetailTabs( POST_ID ) );
+
+		expect( result.current.activeTab ).toBe( 'email-opens' );
+		expect( stage ).not.toHaveBeenCalled();
+		expect( commit ).not.toHaveBeenCalled();
+	} );
+
+	it( 'hides the deep-linked email tab once the gate reports no sends', async () => {
+		const { stage, commit } = mockSearch( 'email-opens' );
+		mockEmailSends( undefined, 'loading' );
+
+		const { result, rerender } = renderHook( () => usePostDetailTabs( POST_ID ) );
+		expect( result.current.activeTab ).toBe( 'email-opens' );
+
+		mockEmailSends( 0 );
+		rerender();
+
+		expect( result.current.tabs.map( tab => tab.id ) ).toEqual( [ 'post-traffic' ] );
+		expect( result.current.activeTab ).toBe( 'post-traffic' );
+		await waitFor( () => {
+			expect( stage ).toHaveBeenCalledWith( { section: 'post-traffic' } );
+			expect( commit ).toHaveBeenCalledWith( { replace: true } );
+		} );
+	} );
+
 	it( 'preserves an email deep link when the send summary request fails', () => {
-		// Errored: no data, not loading, not success.
-		mockEmailSends( undefined, false );
+		mockEmailSends( undefined, 'error' );
 		const { stage, commit } = mockSearch( 'email-opens' );
 
 		const { result } = renderHook( () => usePostDetailTabs( POST_ID ) );
@@ -212,6 +314,21 @@ describe( 'usePostDetailTabs', () => {
 		renderHook( () => usePostDetailTabs( 0 ) );
 
 		expect( mockUseOpensBreakdown ).toHaveBeenCalledWith( 0, 'rate', { enabled: false } );
+	} );
+
+	it( 'does not hold an email tab open on a scope whose gate never runs', async () => {
+		// The disabled query answers neither way, so only the post scope stops
+		// an email deep link from pinning the tabs open for good.
+		mockEmailSends( undefined, 'loading' );
+		const { stage, commit } = mockSearch( 'email-opens' );
+
+		const { result } = renderHook( () => usePostDetailTabs( 0 ) );
+
+		expect( result.current.tabs.map( tab => tab.id ) ).toEqual( [ 'post-traffic' ] );
+		await waitFor( () => {
+			expect( stage ).toHaveBeenCalledWith( { section: 'post-traffic' } );
+			expect( commit ).toHaveBeenCalledWith( { replace: true } );
+		} );
 	} );
 
 	it( 'does not navigate when the selected tab is visible', () => {

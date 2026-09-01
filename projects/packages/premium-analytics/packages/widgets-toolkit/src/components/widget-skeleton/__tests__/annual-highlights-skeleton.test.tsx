@@ -8,10 +8,10 @@ import { render, screen } from '@testing-library/react';
 import { AnnualHighlightsSkeleton } from '../annual-highlights-skeleton';
 
 describe( 'AnnualHighlightsSkeleton', () => {
-	it( "draws the design's four rows inside a status region", () => {
+	it( "draws the design's four rows", () => {
 		render( <AnnualHighlightsSkeleton /> );
 
-		expect( screen.getByRole( 'status' ) ).toBeInTheDocument();
+		expect( screen.getByTestId( 'widget-skeleton' ) ).toBeInTheDocument();
 		expect( screen.getAllByTestId( 'skeleton-row' ) ).toHaveLength( 4 );
 	} );
 
@@ -20,8 +20,8 @@ describe( 'AnnualHighlightsSkeleton', () => {
 		// would take a share of the row gap.
 		render( <AnnualHighlightsSkeleton /> );
 
-		const status = screen.getByRole( 'status' );
+		const root = screen.getByTestId( 'widget-skeleton' );
 		// eslint-disable-next-line testing-library/no-node-access -- the wrapper is the assertion: the rows must be one element beside the hidden label.
-		expect( status.children ).toHaveLength( 2 );
+		expect( root.children ).toHaveLength( 2 );
 	} );
 } );

@@ -81,10 +81,6 @@ patchedDependencies:
   # See also https://github.com/WordPress/gutenberg/issues/39619
   react-autosize-textarea: .pnpm-patches/react-autosize-textarea.patch
 
-  # uuid up to v11 had CommonJS files with ESM content too.
-  # No bug report, because it's already fixed in the latest versions.
-  "uuid@<11": .pnpm-patches/uuid.patch
-
   # The wp-admin page template delegates boot init modules to initSinglePage(),
   # but WordPress cores bundling an older @wordpress/boot (e.g. WP 7.0) ignore
   # the option, so init modules never run there. The patch runs them in the

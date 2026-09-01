@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Load messages from the jetpack/v4 route when wpcom/v3 is unavailable, fixing missing messages and a console error on sites without the Jetpack plugin.

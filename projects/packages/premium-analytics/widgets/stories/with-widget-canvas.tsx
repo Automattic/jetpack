@@ -23,7 +23,14 @@ function frameWidgetRoot( host: HTMLElement | null ) {
 
 // A white, widget-sized card that frames a story like the dashboard host frames a
 // widget in product, so every state reads as a real widget, not a bare fragment.
-export function WidgetCanvas( { children }: { children: ReactNode } ) {
+export function WidgetCanvas( {
+	children,
+	width = '380px',
+}: {
+	children: ReactNode;
+	/** Card width. Defaults to a one-column dashboard cell. */
+	width?: string;
+} ) {
 	const hostRef = useRef< HTMLDivElement >( null );
 	useLayoutEffect( () => {
 		frameWidgetRoot( hostRef.current );
@@ -32,7 +39,7 @@ export function WidgetCanvas( { children }: { children: ReactNode } ) {
 		<div
 			ref={ hostRef }
 			style={ {
-				width: '380px',
+				width,
 				height: '440px',
 				margin: '0 auto',
 				padding: '16px',

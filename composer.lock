@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2f5be28b601750a275a56095b4bae984",
+    "content-hash": "50b6778b12da4c83016e03fdc732edea",
     "packages": [],
     "packages-dev": [
         {
@@ -1117,16 +1117,16 @@
         },
         {
             "name": "php-stubs/wordpress-stubs",
-            "version": "v7.0.1",
+            "version": "v7.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-stubs/wordpress-stubs.git",
-                "reference": "4d0cc9d5c4efd2a46f8c53a40c38f1679a4194b6"
+                "reference": "394570301894799e69a4aa117c9c995427e3ba04"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-stubs/wordpress-stubs/zipball/4d0cc9d5c4efd2a46f8c53a40c38f1679a4194b6",
-                "reference": "4d0cc9d5c4efd2a46f8c53a40c38f1679a4194b6",
+                "url": "https://api.github.com/repos/php-stubs/wordpress-stubs/zipball/394570301894799e69a4aa117c9c995427e3ba04",
+                "reference": "394570301894799e69a4aa117c9c995427e3ba04",
                 "shasum": ""
             },
             "conflict": {
@@ -1138,11 +1138,11 @@
                 "php": "^7.4 || ^8.0",
                 "php-stubs/generator": "^0.9",
                 "phpdocumentor/reflection-docblock": "^6.0",
-                "phpstan/phpstan": "^2.1",
+                "phpstan/phpstan": "^2.2",
                 "phpunit/phpunit": "^9.5",
                 "symfony/polyfill-php80": "*",
-                "szepeviktor/phpcs-psr-12-neutron-hybrid-ruleset": "^1.1.1",
-                "wp-coding-standards/wpcs": "3.1.0 as 2.3.0"
+                "szepeviktor/phpcs-psr-12-neutron-hybrid-ruleset": "^1.2",
+                "wp-coding-standards/wpcs": "3.4.1 as 2.3.0"
             },
             "suggest": {
                 "paragonie/sodium_compat": "Pure PHP implementation of libsodium",
@@ -1163,9 +1163,9 @@
             ],
             "support": {
                 "issues": "https://github.com/php-stubs/wordpress-stubs/issues",
-                "source": "https://github.com/php-stubs/wordpress-stubs/tree/v7.0.1"
+                "source": "https://github.com/php-stubs/wordpress-stubs/tree/v7.1.0"
             },
-            "time": "2026-07-10T10:10:02+00:00"
+            "time": "2026-08-28T00:32:06+00:00"
         },
         {
             "name": "php-stubs/wordpress-tests-stubs",
@@ -2033,16 +2033,16 @@
         },
         {
             "name": "sirbrillig/phpcs-changed",
-            "version": "v2.13.0",
+            "version": "v3.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sirbrillig/phpcs-changed.git",
-                "reference": "a369fce181a5064b6150708c3b0a1045c518a248"
+                "reference": "5a7c2a58458b84a93444c724d232be8bb9e196ae"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sirbrillig/phpcs-changed/zipball/a369fce181a5064b6150708c3b0a1045c518a248",
-                "reference": "a369fce181a5064b6150708c3b0a1045c518a248",
+                "url": "https://api.github.com/repos/sirbrillig/phpcs-changed/zipball/5a7c2a58458b84a93444c724d232be8bb9e196ae",
+                "reference": "5a7c2a58458b84a93444c724d232be8bb9e196ae",
                 "shasum": ""
             },
             "require": {
@@ -2081,9 +2081,9 @@
             "description": "Run phpcs on files, but only report warnings/errors from lines which were changed.",
             "support": {
                 "issues": "https://github.com/sirbrillig/phpcs-changed/issues",
-                "source": "https://github.com/sirbrillig/phpcs-changed/tree/v2.13.0"
+                "source": "https://github.com/sirbrillig/phpcs-changed/tree/v3.0.1"
             },
-            "time": "2026-04-26T18:04:30+00:00"
+            "time": "2026-08-24T20:27:15+00:00"
         },
         {
             "name": "sirbrillig/phpcs-variable-analysis",

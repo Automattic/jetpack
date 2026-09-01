@@ -2,7 +2,6 @@
 
 import '../../packages/widgets-toolkit/src/components/metric-list/__tests__/metric-list.test';
 import '../../packages/widgets-toolkit/src/helpers/__tests__/chart-date.test';
-import '../../packages/widgets-toolkit/src/helpers/__tests__/default-period-for-interval.test';
 import '../../packages/widgets-toolkit/src/helpers/__tests__/describe-error.test';
 import '../../packages/widgets-toolkit/src/helpers/__tests__/format-legend-labels.test';
 import '../../packages/widgets-toolkit/src/helpers/__tests__/get-combined-period-max.test';

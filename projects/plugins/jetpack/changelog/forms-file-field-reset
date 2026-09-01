@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Forms: cancel in-flight uploads and release previews when a form containing a file upload field is reset.

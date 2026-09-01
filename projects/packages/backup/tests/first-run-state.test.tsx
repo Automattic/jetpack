@@ -19,9 +19,24 @@ import userEvent from '@testing-library/user-event';
 import BackupNowButton from '../src/dashboard/components/backup-now-button';
 import BackupStatusPanel, { replacesOverview } from '../src/dashboard/components/backup-status';
 import BackupStatusBanner from '../src/dashboard/components/backup-status/banner';
+import { keys } from '../src/dashboard/data/query-client';
 import type { ReactNode } from 'react';
 
 const CONNECTED = { isRegistered: true, hasConnectedOwner: true, isUserConnected: true };
+const SITE = 'example.wordpress.com';
+
+/**
+ * Override the site slug the connection global reports, for one test.
+ * The `beforeEach` restores `SITE` before the next one.
+ *
+ * @param siteSuffix - The slug, or undefined for a global that carries none.
+ */
+function setSiteSuffix( siteSuffix: string | undefined ) {
+	window.JP_CONNECTION_INITIAL_STATE = {
+		...window.JP_CONNECTION_INITIAL_STATE,
+		siteSuffix,
+	} as typeof window.JP_CONNECTION_INITIAL_STATE;
+}
 
 /**
  * Render inside an isolated QueryClient.
@@ -92,9 +107,13 @@ function entry( overrides: Record< string, unknown > = {} ) {
 beforeEach( () => {
 	mockApiFetch.mockReset();
 	mockEndpoints();
+	// `siteSuffix` is pinned here, not just where a test needs it: the
+	// spread carries the previous test's value forward, so the one test
+	// that clears it would otherwise leak `undefined` into every test below.
 	window.JP_CONNECTION_INITIAL_STATE = {
 		...window.JP_CONNECTION_INITIAL_STATE,
 		connectionStatus: CONNECTED,
+		siteSuffix: SITE,
 	} as typeof window.JP_CONNECTION_INITIAL_STATE;
 } );
 
@@ -185,6 +204,53 @@ describe( 'BackupStatusPanel', () => {
 		expect( screen.getByText( "We're having trouble backing up your site" ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'link', { name: /Get in touch with us/ } ) ).toBeInTheDocument();
 	} );
+
+	it( 'tells support which site is asking', () => {
+		setSiteSuffix( SITE );
+
+		render( <BackupStatusPanel state="no-good-backups" progress={ 0 } /> );
+
+		expect( screen.getByRole( 'link', { name: /Get in touch with us/ } ) ).toHaveAttribute(
+			'href',
+			`https://jetpack.com/redirect/?source=jetpack-contact-support&site=${ SITE }`
+		);
+	} );
+
+	it( 'omits the site entirely when the connection global carries no slug', () => {
+		// `getRedirectUrl` walks its args with `for…in`, so a present-but-undefined
+		// `site` is encoded as the literal string `undefined` *and* suppresses the
+		// helper's own site fallback — dropping the site in the one state where
+		// support most needs to know which one is asking.
+		setSiteSuffix( undefined );
+
+		render( <BackupStatusPanel state="no-good-backups" progress={ 0 } /> );
+
+		expect( screen.getByRole( 'link', { name: /Get in touch with us/ } ) ).toHaveAttribute(
+			'href',
+			'https://jetpack.com/redirect/?source=jetpack-contact-support'
+		);
+	} );
+
+	// JETPACK-2329. Legacy still closes on "…backup management on Jetpack.com",
+	// pointing at the screen this dashboard replaces; this stops it returning as
+	// missing parity.
+	it( 'sends a waiting site nowhere, having nothing to offer that this page does not', () => {
+		const { rerender } = render( <BackupStatusPanel state="no-backups" progress={ 0 } /> );
+
+		// Every state that shares this branch, and each one witnessed by its own
+		// copy: the absence has to be a link that is gone, not a panel that
+		// never rendered. The support link two tests up is the other half — it
+		// proves this file's link query finds one when there is one to find.
+		for ( const state of [ 'no-backups', 'in-progress', 'will-retry' ] as const ) {
+			rerender( <BackupStatusPanel state={ state } progress={ 0 } /> );
+			expect(
+				screen.getByText(
+					'The first backup usually takes a few minutes, so it will become available soon.'
+				)
+			).toBeInTheDocument();
+			expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
+		}
+	} );
 } );
 
 describe( 'BackupStatusBanner', () => {
@@ -211,14 +277,15 @@ describe( 'BackupNowButton', () => {
 	it( 'renders nothing on a site with no plan', async () => {
 		mockEndpoints( { hasBackupPlan: false } );
 
-		const { container } = renderWithClient( <BackupNowButton /> );
+		const { container, client } = renderWithClient( <BackupNowButton /> );
 
-		// Settle on the capabilities answer having arrived, rather than on
-		// a timer — then confirm the button stayed away.
+		// Settle on the capabilities answer reaching the cache, not on the
+		// request having been issued — then confirm the button stayed away.
+		// Waiting on the call returns while the query is still pending, and
+		// the button is empty then for the loading reason, so the no-plan
+		// state this test is named for would never be reached.
 		await waitFor( () =>
-			expect( mockApiFetch ).toHaveBeenCalledWith(
-				expect.objectContaining( { path: '/jetpack/v4/site/capabilities' } )
-			)
+			expect( client.getQueryState( keys.capabilities() )?.status ).toBe( 'success' )
 		);
 		expect( container ).toBeEmptyDOMElement();
 	} );

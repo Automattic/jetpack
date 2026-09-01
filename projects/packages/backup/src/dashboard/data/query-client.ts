@@ -1,4 +1,5 @@
 import { QueryClient } from '@tanstack/react-query';
+import type { ActivitySortOrder } from './api/activity-log';
 
 const STALE_TIME_DEFAULT_MS = 30_000;
 const GC_TIME_DEFAULT_MS = 5 * 60_000;
@@ -42,18 +43,26 @@ export const keys = {
 	// change rate — but the storage meter needs both, so the two are
 	// always read together.
 	sitePolicies: () => [ 'backup', 'site-policies' ] as const,
+	// The hour WordPress.com runs the site's daily backup. Its own key rather than a
+	// slice of `siteSize`: a different route, and a far longer stale time.
+	backupSchedule: () => [ 'backup', 'schedule' ] as const,
 	// The Backup product being promoted, for the no-plan screen's price.
 	// Not keyed on anything: WordPress.com picks the currency from the
 	// site, so one site only ever sees one answer.
 	promotedProduct: () => [ 'backup', 'promoted-product' ] as const,
+	// The storage add-on being offered. Keyed on both byte figures because the route
+	// derives its answer from both — the same pair that gates the query. Nulls appear
+	// in the key only while it is disabled, so no request is made under one.
+	storageAddonOffer: ( storageUsed: number | null, storageLimit: number | null ) =>
+		[ 'backup', 'storage-addon-offer', storageUsed, storageLimit ] as const,
 	// Family prefix for any rewindable-activity-log page. Use as a
 	// query-filter root to scan all cached pages (e.g. when looking up
 	// a row by id across pages).
 	activityLogRoot: () => [ 'backup', 'activity-log' ] as const,
-	// Per-page key. `(page, pageSize)` is the only thing that
-	// distinguishes one fetch from another, so both must be in the key.
-	activityLogPage: ( page: number, pageSize: number ) =>
-		[ 'backup', 'activity-log', { page, pageSize } ] as const,
+	// All three distinguish one fetch from another: page 1 ascending and page 1
+	// descending are different rows.
+	activityLogPage: ( page: number, pageSize: number, sortOrder: ActivitySortOrder ) =>
+		[ 'backup', 'activity-log', { page, pageSize, sortOrder } ] as const,
 	fileTree: ( rewindId: string, folderPath: string | null ) =>
 		[ 'backup', 'file-tree', rewindId, folderPath ] as const,
 	fileContents: ( rewindId: string, path: string ) =>
@@ -69,4 +78,9 @@ export const keys = {
 	// The site's recent restores, not one restore's status: read to
 	// recover an id WordPress.com accepted but did not return.
 	recentRestores: () => [ 'backup', 'recent-restores' ] as const,
+	// Whether one review prompt has been dismissed. Keyed on the reason
+	// because the two prompts are dismissed independently — declining to
+	// review after a restore must not also spend the backups prompt — and
+	// the server stores them under separate options for the same reason.
+	reviewDismissal: ( reason: string ) => [ 'backup', 'review-dismissal', reason ] as const,
 };

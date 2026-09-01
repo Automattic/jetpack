@@ -156,6 +156,7 @@
 		"@wordpress/escape-html": "3.54.0",
 		"@wordpress/keycodes": "4.54.0",
 		"@wordpress/notices": "5.54.0",
+		"@wordpress/preferences": "4.54.0",
 		"@wordpress/token-list": "3.54.0",
 		"autoprefixer": "10.4.20",
 		"babel-jest": "30.4.1",

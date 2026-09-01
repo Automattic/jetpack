@@ -3,16 +3,19 @@ import { __ } from '@wordpress/i18n';
 import { useNavigate, useSearch } from '@wordpress/route';
 import { Text } from '@wordpress/ui';
 import ActivityDetail from '../components/activity-detail';
-import ActivityList from '../components/activity-list';
+import ActivityList, { activityQueryArgs } from '../components/activity-list';
 import BackupDetail from '../components/backup-detail';
 import BackupNowButton from '../components/backup-now-button';
 import BackupStatusPanel, { replacesOverview } from '../components/backup-status';
 import BackupStatusBanner, { BackupTroubleBanner } from '../components/backup-status/banner';
 import DashboardLayout from '../components/dashboard-layout';
+import NextScheduledBackup from '../components/next-scheduled-backup';
 import QueryError from '../components/query-error';
+import ReviewRequest from '../components/review-request';
 import StorageSpace from '../components/storage-space';
 import {
 	ACTIVITY_LOG_DEFAULT_PER_PAGE,
+	ACTIVITY_LOG_NEWEST_FIRST,
 	useActivityById,
 	useDefaultBackupRewindId,
 	useHasRestorePoints,
@@ -21,15 +24,23 @@ import { useAnalytics } from '../hooks/use-analytics';
 import { useBackups } from '../hooks/use-backups';
 import { useRefreshActivityOnBackupComplete } from '../hooks/use-refresh-activity-on-backup-complete';
 import { isBackupItem } from '../types/activity';
+import type { ActivitySortOrder } from '../data/api/activity-log';
 import type { View } from '@wordpress/dataviews';
 
 type OverviewSearch = Record< string, unknown > & { selected?: string };
 
-const INITIAL_VIEW: View = {
+/**
+ * The list's starting view state, exported so tests can pin what a reader sees first.
+ */
+export const INITIAL_VIEW: View = {
 	type: 'list',
 	page: 1,
 	perPage: ACTIVITY_LOG_DEFAULT_PER_PAGE,
 	filters: [],
+	// Seeding `sort` is the fix for JETPACK-2298: left undefined, the cog's "Sort
+	// by" select shows its first option whatever the real order, and DataViews
+	// disables items-per-page until `view.sort.field` is set.
+	sort: { field: 'description', direction: ACTIVITY_LOG_NEWEST_FIRST },
 	titleField: 'title',
 	mediaField: 'icon',
 	descriptionField: 'description',
@@ -108,8 +119,9 @@ export default function OverviewScreen() {
 	// View state lives here so RightPane's `useActivityById` can
 	// subscribe to the same paginated query the list reads from.
 	const [ view, setView ] = useState< View >( INITIAL_VIEW );
-	const page = view.page ?? 1;
-	const perPage = view.perPage ?? ACTIVITY_LOG_DEFAULT_PER_PAGE;
+	// Same derivation `<ActivityList>` uses, so the right pane reads the cache
+	// entry the list filled rather than opening its own.
+	const { page, pageSize, sortOrder } = activityQueryArgs( view );
 	// Subscribe to page 1 of the activity log so the right pane
 	// reconciles to the newest backup the moment that page resolves.
 	// Until then, `defaultSelectedId` is null and the empty-state
@@ -228,6 +240,25 @@ export default function OverviewScreen() {
 			 */ }
 			{ ! restorePointsLoading && <BackupTroubleBanner state={ backupsState } /> }
 			{ /*
+			 * When the next one runs, above the storage section because that is the
+			 * order legacy reads in.
+			 *
+			 * Legacy's `COMPLETE` gate, widened to include `in-progress`: legacy takes
+			 * the line down for the length of every run, where reporting both facts
+			 * side by side is the call `summarizeBackups` already made.
+			 *
+			 * `replacesOverview` above is not enough to arrange this. Its veto is up
+			 * whenever restore points are loading or errored, not only when the site
+			 * has them, and it has no branch at all for `error` or `loading` — so
+			 * without this gate a site with an undecodable backups read promised a next
+			 * run directly under "We couldn't check your site's backup status."
+			 *
+			 * The component self-hides on the other half of legacy's gate.
+			 */ }
+			{ ( backupsState === 'complete' || backupsState === 'in-progress' ) && (
+				<NextScheduledBackup />
+			) }
+			{ /*
 			 * Above the list, and a sibling of the grid for the same
 			 * reason the banners are. It answers a question the list
 			 * cannot — a site whose backups have stopped because storage
@@ -239,6 +270,13 @@ export default function OverviewScreen() {
 			 * pair of requests and no layout.
 			 */ }
 			<StorageSpace />
+			{ /*
+			 * Only on this path, never beside the takeover panel: the restore
+			 * trigger can still fire on a site whose backups have since broken, and
+			 * that reader is the wrong one to ask. Below the storage section, which
+			 * a reader whose storage is full needs to read first.
+			 */ }
+			<ReviewRequest />
 			<div className="jpb-overview">
 				<ActivityList
 					selectedId={ selectedId }
@@ -246,7 +284,12 @@ export default function OverviewScreen() {
 					view={ view }
 					onChangeView={ setView }
 				/>
-				<RightPane selectedId={ selectedId } page={ page } pageSize={ perPage } />
+				<RightPane
+					selectedId={ selectedId }
+					page={ page }
+					pageSize={ pageSize }
+					sortOrder={ sortOrder }
+				/>
 			</div>
 		</DashboardLayout>
 	);
@@ -264,18 +307,22 @@ export default function OverviewScreen() {
  * @param props.selectedId - Currently selected row id, or null when nothing is selected.
  * @param props.page       - The page currently shown in the list.
  * @param props.pageSize   - The per-page setting currently shown in the list.
+ * @param props.sortOrder  - The sort direction currently shown in the list.
  * @return The rendered detail card or an empty-state placeholder.
  */
 function RightPane( {
 	selectedId,
 	page,
 	pageSize,
+	sortOrder,
 }: {
 	selectedId: string | null;
 	page: number;
 	pageSize: number;
+	sortOrder: ActivitySortOrder;
 } ) {
-	const item = useActivityById( selectedId, page, pageSize );
+	// All four must match the list's arguments — this reads its cache entry.
+	const item = useActivityById( selectedId, page, pageSize, sortOrder );
 	if ( ! selectedId ) {
 		return (
 			<div className="jpb-overview__detail jpb-overview__detail--empty">

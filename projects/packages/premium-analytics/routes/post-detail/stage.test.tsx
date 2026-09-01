@@ -1,6 +1,6 @@
 import { useReportScope } from '@jetpack-premium-analytics/data';
 import { render, screen, within } from '@testing-library/react';
-import { usePostSummary } from './hooks';
+import { usePostDetailTabs, usePostSummary } from './hooks';
 import { stage } from './stage';
 import type { ReactNode } from 'react';
 
@@ -129,21 +129,46 @@ jest.mock( '@wordpress/route', () => ( {
 
 jest.mock( './components', () => ( {
 	PostDetailTabs: ( { children }: { children: ReactNode } ) => <div>{ children }</div>,
-	PostSummaryCard: () => <div>Post summary</div>,
+	PostSummaryCard: ( { performanceRange }: { performanceRange?: { from?: Date; to?: Date } } ) => (
+		<div>
+			Post summary
+			<span data-testid="performance-from">
+				{ performanceRange?.from?.toISOString() ?? 'none' }
+			</span>
+		</div>
+	),
 } ) );
+
+let mockActiveTab = 'traffic';
+
+// The pinned email scope the stage hands to the tabs hook and the header.
+const mockEmailScope = {
+	range: { from: new Date( '2026-06-22T00:00:00Z' ), to: new Date( '2026-07-21T23:59:59Z' ) },
+	reportParams: {
+		post_id: 41,
+		from: '2026-06-22',
+		to: '2026-07-21',
+		interval: 'day',
+	},
+};
 
 jest.mock( './hooks', () => ( {
 	usePostSummary: jest.fn(),
-	usePostDetailTabs: () => ( {
-		// One tab, so the panel carrying the widget grid actually mounts.
-		tabs: [ { id: 'traffic', label: 'Traffic' } ],
-		activeTab: 'traffic',
+	useEmailTabScope: jest.fn( () => mockEmailScope ),
+	usePostDetailTabs: jest.fn( () => ( {
+		// The active tab mounts the panel carrying the widget grid.
+		tabs: [
+			{ id: 'traffic', label: 'Traffic' },
+			{ id: 'email-opens', label: 'Email opens' },
+		],
+		activeTab: mockActiveTab,
 		setActiveTab: jest.fn(),
 		layout: [],
-	} ),
+	} ) ),
 } ) );
 
 const mockUsePostSummary = usePostSummary as jest.Mock;
+const mockUsePostDetailTabs = usePostDetailTabs as jest.Mock;
 
 /**
  * Stub the post summary hook, defaulting to a resolved post with a public URL.
@@ -177,6 +202,39 @@ describe( 'post detail stage', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
 		mockSearch = { from: '2026-06-01', to: '2026-06-16', post_id: '41' };
+		mockActiveTab = 'traffic';
+	} );
+
+	it( 'shows the date filter on the traffic tab', () => {
+		mockSummary();
+
+		render( stage() );
+
+		expect( screen.getByText( 'Date filters' ) ).toBeInTheDocument();
+	} );
+
+	it( 'hides the date filter on the email tabs and pins them to the send window', () => {
+		mockActiveTab = 'email-opens';
+		mockSummary();
+
+		render( stage() );
+
+		expect( screen.queryByText( 'Date filters' ) ).not.toBeInTheDocument();
+		// The shared summary header still renders, over the pinned window.
+		expect( screen.getByText( 'Post summary' ) ).toBeInTheDocument();
+		expect( screen.getByTestId( 'performance-from' ) ).toHaveTextContent(
+			'2026-06-22T00:00:00.000Z'
+		);
+		// The tabs hook receives the pinned params for the email tabs' widgets.
+		expect( mockUsePostDetailTabs ).toHaveBeenCalledWith( 41, mockEmailScope.reportParams, false );
+	} );
+
+	it( 'reports the traffic tab over the applied URL range', () => {
+		mockSummary();
+
+		render( stage() );
+
+		expect( screen.getByTestId( 'performance-from' ) ).toHaveTextContent( 'none' );
 	} );
 
 	it( 'puts a View post action in the page header, opening the live post in a new tab', () => {
