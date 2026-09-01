@@ -257,6 +257,19 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			} );
 		}
 
+		afterEach( () => {
+			/*
+			 * The SDK tag and its callback are injected into whichever document
+			 * the connect link lives in, so they outlive the React tree and have
+			 * to be cleared between tests. Testing Library has no query for
+			 * "script tags in this document".
+			 */
+			// eslint-disable-next-line testing-library/no-node-access
+			document.querySelectorAll( 'script[data-paypal-partner-js]' ).forEach( el => el.remove() );
+			delete window.PAYPAL;
+			delete window.jetpackPayPalOnboardComplete;
+		} );
+
 		it( 'renders PayPal’s onboarding link in minibrowser mode', async () => {
 			mockPlatformMode( {
 				action_url:
@@ -316,6 +329,47 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 			delete window.PAYPAL;
 			open.mockRestore();
+		} );
+
+		it( 'loads the SDK into the document the connect link lives in', async () => {
+			mockPlatformMode( { action_url: 'https://www.sandbox.paypal.com/merchantsignup/x' } );
+
+			/*
+			 * The block is apiVersion 3, so the editor canvas is an iframe and the
+			 * connect link lives in that document while this code runs in the
+			 * parent. partner.js only scans its own document for the anchors it
+			 * binds to, so loading it anywhere else leaves the link untouched.
+			 */
+			const frame = document.createElement( 'iframe' );
+			document.body.appendChild( frame );
+			const frameRoot = frame.contentDocument.createElement( 'div' );
+			frame.contentDocument.body.appendChild( frameRoot );
+
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } />, {
+				container: frameRoot,
+			} );
+
+			/* eslint-disable testing-library/no-node-access -- Asserting *which*
+			   document each node lands in is the point of this test; Testing
+			   Library's queries are scoped to one and cannot express it. */
+			await waitFor( () =>
+				expect( frame.contentDocument.querySelector( 'a[data-paypal-button]' ) ).not.toBeNull()
+			);
+
+			await waitFor( () =>
+				expect(
+					frame.contentDocument.querySelector( 'script[data-paypal-partner-js]' )
+				).not.toBeNull()
+			);
+
+			// Not in the parent, where the SDK would never see the link.
+			expect( document.querySelector( 'script[data-paypal-partner-js]' ) ).toBeNull();
+			/* eslint-enable testing-library/no-node-access */
+
+			// The SDK resolves the callback against the realm it runs in.
+			expect( typeof frame.contentWindow.jetpackPayPalOnboardComplete ).toBe( 'function' );
+
+			frame.remove();
 		} );
 
 		it( 'exposes the completion callback for the SDK to call by name', async () => {
