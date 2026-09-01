@@ -73,9 +73,8 @@ export function resetPageViewForTesting(): void {
 /**
  * Overview screen for the modernized Backup dashboard.
  *
- * Records the page view and mounts the shared `<DashboardLayout>` chrome; the body
- * lives below `<Gates>`. The view is recorded above the gate, so a visit without a
- * plan still counts — as it does in legacy.
+ * Records the page view and mounts `<DashboardLayout>` around a body that lives below
+ * `<Gates>` — the view is recorded above the gate, so a plan-less visit still counts.
  *
  * @return The rendered Overview screen.
  */
@@ -120,8 +119,8 @@ export default function OverviewScreen() {
  * The Overview's body: a paginated activity list beside a detail pane for the row
  * selected by `?selected=<id>`, defaulting to the newest backup.
  *
- * Mounted by `<Gates>`, not rendered above it: React runs a component's hooks before
- * its children, so reads left in the screen fetched — and polled — behind the upsell.
+ * Mounted by `<Gates>`, not rendered above it: React runs a component's hooks before its
+ * children, so reads moved up into the screen would fetch — and poll — behind the upsell.
  *
  * @return The rendered body.
  */

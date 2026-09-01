@@ -189,9 +189,8 @@ type Result = BackupsSummary & {
  * and signed with the blog token, so unlike the modernized bridges it
  * needs no new PHP.
  *
- * Both consumers mount only behind a `ready` gate verdict, so this never fetches
- * — or polls — for a site that cannot use the answer. `useCanQueryWpcom` below is
- * the backstop for a future caller outside that arrangement.
+ * Every consumer mounts only behind a `ready` gate verdict, so this never fetches — or
+ * polls — for a site that cannot use the answer; `useCanQueryWpcom` is the backstop.
  *
  * @param args           - Hook args.
  * @param args.forcePoll - Poll regardless of derived state.

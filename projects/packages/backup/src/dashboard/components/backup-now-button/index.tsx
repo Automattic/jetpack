@@ -11,8 +11,7 @@ import { useSiteSize } from '../../hooks/use-site-size';
  * Header action that asks WPCOM to back the site up now.
  *
  * It sits in `<Page>`'s header actions, above `<Gates>`, so it gates itself on the same
- * `useGateState` verdict — and does so before mounting `<BackupNow>`, since nothing else
- * would stop that component's reads on a site with no plan.
+ * verdict — before mounting `<BackupNow>`, since nothing else stops that component's reads.
  *
  * @return The rendered button, or null when the site can't use it.
  */
@@ -29,10 +28,8 @@ export default function BackupNowButton() {
 /**
  * The button itself, mounted only for a site that can press it.
  *
- * Ports the legacy label and tooltip cycle (`src/js/components/back-up-now/index.jsx`)
- * onto the modernized data layer, with one behavioural fix: legacy's click handler has no
- * rejection handler and discards the body, so every outcome — a WPCOM refusal, a
- * permissions error — shows "Backup enqueued".
+ * Ports legacy's label and tooltip cycle (`src/js/components/back-up-now/index.jsx`) with
+ * one fix: legacy discards the response, so a WPCOM refusal also shows "Backup enqueued".
  *
  * @return The rendered button.
  */

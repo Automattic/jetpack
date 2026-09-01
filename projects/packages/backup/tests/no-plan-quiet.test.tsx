@@ -1,10 +1,7 @@
-// JETPACK-2322 — behind the no-plan upsell the Overview still read the
-// activity log, the backup list and the site size, and kept polling the
-// backup list. Nothing on that screen can act on any of it.
-//
-// Every assertion here is a call count on the `apiFetch` spy, paired with a
-// positive that proves the screen rendered: "no request was made" is also
-// true of a tree that threw before it reached the hook.
+// JETPACK-2322: behind the no-plan upsell the Overview kept reading — and polling —
+// WordPress.com for answers nothing there could act on. Each negative below is an
+// `apiFetch` call count paired with a positive that proves the screen rendered, since
+// "no request was made" is also true of a tree that threw first.
 
 const mockApiFetch = jest.fn();
 
@@ -38,9 +35,8 @@ const ACTIVITY_PATH = '/jetpack/v4/site/rewindable-activity';
 const SITE_SIZE_PATH = '/jetpack/v4/site/backup/size';
 
 /**
- * A backup still running, which is what makes `useBackups` want the poll.
- * Without it the polling negative below would hold on a site whose state
- * never asked for one.
+ * A backup still running, so `useBackups` wants the poll — without it the polling
+ * negative below would hold on a site that never asked for one.
  */
 const RUNNING_BACKUP = {
 	id: '1',
@@ -135,8 +131,7 @@ describe( 'A connected site with no Backup plan', () => {
 		await expect( screen.findByText( NO_PLAN, {}, SETTLE ) ).resolves.toBeInTheDocument();
 		await pollTicks( 1 );
 
-		// The gate's own read, which is what decided this screen — so the spy is
-		// wired and the tree did reach WordPress.com.
+		// The gate's own read: the positive that says this screen came from a real answer.
 		expect( asked( CAPABILITIES_PATH ) ).toBe( 1 );
 
 		// Reported together so a failure names every route still being read,
@@ -172,9 +167,8 @@ describe( 'A connected site with no Backup plan', () => {
 } );
 
 describe( 'The same site once it has a plan', () => {
-	// The control for all three negatives above: same fixtures, same timers,
-	// same tree — only the entitlement differs. Without it, a harness in which
-	// nothing ever fetches or no timer ever fires would pass this file.
+	// The control for the three negatives above: same fixtures, same timers, same tree,
+	// only the entitlement differs — without it a harness that never fetches would pass.
 	it( 'reads all three, and keeps polling the running backup', async () => {
 		hasBackupPlan = true;
 

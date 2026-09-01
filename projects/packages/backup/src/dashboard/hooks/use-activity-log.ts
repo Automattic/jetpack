@@ -52,9 +52,8 @@ export const ACTIVITY_LOG_NEWEST_FIRST: ActivitySortOrder = 'desc';
  * page's request is in flight — DataViews' pagination feels smooth
  * instead of flashing a spinner over the list on every page change.
  *
- * Every consumer mounts inside `<Gates>`, so `enabled` is the backstop for a
- * future one that does not — the bridge can only answer 403 without a
- * user-level WPCOM connection.
+ * Every consumer mounts inside `<Gates>`, so `enabled` is the backstop for a future
+ * one that does not: without a user-level WPCOM connection the bridge only 403s.
  *
  * WPCOM sorts the whole result set server-side, so `sortOrder` is part of the
  * cache key rather than something applied to the page after it arrives.
