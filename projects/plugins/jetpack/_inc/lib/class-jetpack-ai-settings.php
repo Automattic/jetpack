@@ -143,9 +143,12 @@ class Jetpack_AI_Settings {
 			self::FEATURE_OPTIONS['ai_seo']            => __( 'Whether the Jetpack AI SEO features are enabled.', 'jetpack' ),
 		);
 
+		// These settings do not belong to Settings > General. A separate group
+		// prevents options.php from clearing values whose fields are absent from
+		// the General form.
 		foreach ( $options as $option => $description ) {
 			register_setting(
-				'general',
+				'jetpack_ai',
 				$option,
 				array(
 					'type'              => 'boolean',

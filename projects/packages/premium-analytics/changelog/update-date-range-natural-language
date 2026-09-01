@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Date range control: name a custom range covering a whole month or year by that period, and spell the dates out in the button's tooltip.

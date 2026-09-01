@@ -48,16 +48,17 @@ export function DateComparisonDropdown( {
 	const additiveLabel = __( 'Compare', 'jetpack-premium-analytics-pkg' );
 	const compareToLabel = __( 'Compare to', 'jetpack-premium-analytics-pkg' );
 
+	// "No comparison" closes the menu as the way out, after the options.
 	const items = useMemo( (): ComparisonMenuItem[] => {
 		return [
-			{
-				value: NO_COMPARISON_VALUE,
-				label: noComparisonLabel,
-			},
 			...presets.map( preset => ( {
 				value: preset.id,
 				label: preset.label,
 			} ) ),
+			{
+				value: NO_COMPARISON_VALUE,
+				label: noComparisonLabel,
+			},
 		];
 	}, [ noComparisonLabel, presets ] );
 

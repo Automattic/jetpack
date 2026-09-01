@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Connection error reporting: make the gate direction-aware to avoid suppressing matching codes across directions.

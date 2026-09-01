@@ -142,6 +142,12 @@
 - Update lock file. [#50855]
 - Update package dependencies. [#50509] [#51008] [#51125] [#51331] [#51399]
 
+## 16.1.3 - 2026-09-01
+### Bug fixes
+- Import: Harden post meta handling so imported values are only restored as plain data.
+- Media API: Check permissions on the target post before attaching a media item to it.
+- Reader: Sanitize repost data taken from the URL before it is inserted into the editor.
+
 ## 16.1.2 - 2026-08-20
 ### Bug fixes
 - Newsletter: Fix a fatal error on the settings page caused by Gutenberg removing a private API that DataViews toggle and radio fields relied on. [#51363]

@@ -14,7 +14,7 @@ import {
 	type StepDirection,
 } from '@jetpack-premium-analytics/datetime';
 import { Stack } from '@jetpack-premium-analytics/externals';
-import { formatDateRangeMinimal } from '@jetpack-premium-analytics/formatters';
+import { formatDateRangeNatural } from '@jetpack-premium-analytics/formatters';
 import { BaseControl } from '@wordpress/components';
 import { useResizeObserver } from '@wordpress/compose';
 import { flushSync } from '@wordpress/element';
@@ -294,7 +294,7 @@ export function DateFiltersPanel( {
 			range,
 			committedRange,
 			customLabel: __( 'Custom', 'jetpack-premium-analytics-pkg' ),
-			formatRange: formatDateRangeMinimal,
+			formatRange: formatDateRangeNatural,
 		} );
 	}, [
 		appliedRange,

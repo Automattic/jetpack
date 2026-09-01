@@ -26,7 +26,7 @@
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
-		"@types/react": "18.3.28",
+		"@types/react": "18.3.31",
 		"@wordpress/a11y": "^4.40.0",
 		"@wordpress/admin-ui": "2.8.0",
 		"@wordpress/boot": "^0.20.0",

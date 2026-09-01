@@ -79,7 +79,7 @@
 		"@testing-library/user-event": "14.6.1",
 		"@types/jest": "30.0.0",
 		"@types/node": "^24.12.0",
-		"@types/react": "18.3.28",
+		"@types/react": "18.3.31",
 		"@typescript/native-preview": "7.0.0-dev.20260707.2",
 		"@wordpress/browserslist-config": "6.51.0",
 		"autoprefixer": "10.4.20",
