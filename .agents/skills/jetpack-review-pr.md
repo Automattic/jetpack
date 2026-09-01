@@ -258,11 +258,12 @@ gh pr diff <PR> | grep -nE '^\+.*@phan-(suppress|file-suppress)'
 
 #### Comment repetition and provenance rot (all depths — diff-visible, needs no file reading)
 
-`AGENTS.md` § Comments already names both shapes and is in your context. Apply it; do not restate
-it in the review. The one thing to hold on to here: **neither shape has anything to do with
-length.** A duplicated rationale and a "before this PR…" note are routinely one line, comfortably
-inside any budget. "It is only a line or two" is therefore never a reason to discharge one of
-these — judge the claim the comment makes, not the room it takes.
+`AGENTS.md` § Comments already covers both of these — "Provenance that rots" and "The same
+explanation in more than one place", the last two of its five bullets — and is in your context.
+Apply it; do not restate it in the review. The point to hold on to: **neither has anything to do
+with length.** A duplicated rationale and a "before this PR…" note are routinely one line,
+comfortably inside any budget. "It is only a line or two" is therefore never a reason to
+discharge one of these — judge the claim the comment makes, not the room it takes.
 
 - **The same explanation in more than one place.** N copies drift independently, so a reader
   cannot tell which one is current.

@@ -1,11 +1,12 @@
-# Candidates for the two AGENTS.md comment shapes a length budget cannot see:
-# the same explanation written twice, and provenance that rots.
+# Candidates for the two comment problems a length budget cannot see, both from
+# AGENTS.md § Comments: the same explanation written in more than one place, and
+# provenance that rots.
 #
-# Both shapes are length-independent — the offenders in the calibration corpus
-# are one or two lines each — so nothing here is gated on comment length. The
-# only size test is a substance floor (min_chars/min_words) that keeps
-# `// Arrange.` and `// See above.` out of the duplicate report; it rejects
-# boilerplate, never a real explanation.
+# Neither depends on length — the offenders in the calibration corpus are one or
+# two lines each — so nothing here is gated on comment length. The only size
+# test is a substance floor (min_chars/min_words) that keeps `// Arrange.` and
+# `// See above.` out of the duplicate report; it rejects boilerplate, never a
+# real explanation.
 #
 # Usage, from the monorepo root (needs no checkout of the PR, no build):
 #   gh pr diff <PR> | awk -f .agents/skills/jetpack-review-pr/scripts/comment-rot.awk
