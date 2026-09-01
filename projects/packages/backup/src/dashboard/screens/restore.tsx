@@ -8,6 +8,7 @@ import { Button, Card, Stack, Text } from '@wordpress/ui';
 import DashboardLayout from '../components/dashboard-layout';
 import InvalidRewindId from '../components/invalid-rewind-id';
 import RestoreItemsChecklist from '../components/restore-items-checklist';
+import { useGateState } from '../hooks/use-gate-state';
 import { useRestore } from '../hooks/use-restore';
 import { DEFAULT_RESTORE_ITEMS, hasSelectedItems } from '../types/restore';
 import { isValidRewindId, rewindIdToIso } from '../types/rewind-id';
@@ -30,8 +31,11 @@ const SELECTION_HINT_ID = 'jpb-restore__selection-hint';
  */
 export default function RestoreScreen() {
 	const { rewindId } = useParams( { from: '/restore/$rewindId' } );
+	const gate = useGateState();
 	const [ items, setItems ] = useState( DEFAULT_RESTORE_ITEMS );
-	const { state, submit, reset, adopted } = useRestore( rewindId );
+	// This screen's body renders below `<Gates>`, but its hooks run above it, so
+	// the reads need the verdict passed in rather than the tree to withhold them.
+	const { state, submit, reset, adopted } = useRestore( rewindId, gate.status === 'ready' );
 	const handleConfirm = useCallback( () => submit( items ), [ submit, items ] );
 	// An empty checklist would restore *everything* rather than nothing —
 	// see `hasSelectedItems`. On this screen that is unrecoverable.
