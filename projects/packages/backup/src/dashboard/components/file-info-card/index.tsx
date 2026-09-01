@@ -1,9 +1,10 @@
 import { Spinner, VisuallyHidden } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
-import { useEffect, useRef } from '@wordpress/element';
+import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { closeSmall } from '@wordpress/icons';
+import { Icon, closeSmall, unseen } from '@wordpress/icons';
 import { Button, Card, Stack, Text } from '@wordpress/ui';
+import { useAnalytics } from '../../hooks/use-analytics';
 import { useFileContents } from '../../hooks/use-file-contents';
 import { formatFileSize, usePathInfo } from '../../hooks/use-path-info';
 import './style.scss';
@@ -70,6 +71,30 @@ function mimeFromName( name: string ): string {
 	return typeof mime === 'string' ? mime : '';
 }
 
+/**
+ * The one file whose preview waits for a deliberate second click: the
+ * site's root `wp-config.php`, which carries `DB_PASSWORD` and the salts.
+ * Same single file Calypso hides, so the two surfaces agree.
+ */
+const SENSITIVE_PATH = '/wp-config.php';
+
+/**
+ * Whether the given manifest path names the file above.
+ *
+ * Compared after the volume prefix, and a path without one is compared
+ * whole: the `5` in `f5:` is VaultPress's data-type code rather than part
+ * of the file's identity, so matching on it would let the gate fail open.
+ *
+ * @param manifestPath - The volume-prefixed manifest path, e.g. `f5:/wp-config.php`.
+ * @return True when the preview needs a reveal.
+ */
+function isSensitivePath( manifestPath: string | undefined ): boolean {
+	if ( ! manifestPath ) {
+		return false;
+	}
+	return manifestPath.slice( manifestPath.indexOf( ':' ) + 1 ) === SENSITIVE_PATH;
+}
+
 type Props = {
 	file: FileNodeFile;
 	onClose: () => void;
@@ -90,16 +115,20 @@ type Props = {
  * (no nested ternaries) and to give the loading / error / empty branches
  * unique render paths the linter can reason about.
  *
- * @param props             - Component props.
- * @param props.showPreview - Whether the filename's extension is in the previewable map.
- * @param props.isLoading   - Whether the file-contents query is in flight.
- * @param props.content     - The fetched body, or null when not yet resolved.
- * @param props.isText      - Whether the bridge could read the fetched bytes as text.
- * @param props.truncated   - Whether the body stops at the bridge's preview cap.
- * @param props.error       - The fetch error, or null on success.
+ * @param props                - Component props.
+ * @param props.awaitingReveal - Whether the file holds secrets the reader has not asked for yet.
+ * @param props.onReveal       - Called when the reader asks for the hidden preview.
+ * @param props.showPreview    - Whether the filename's extension is in the previewable map.
+ * @param props.isLoading      - Whether the file-contents query is in flight.
+ * @param props.content        - The fetched body, or null when not yet resolved.
+ * @param props.isText         - Whether the bridge could read the fetched bytes as text.
+ * @param props.truncated      - Whether the body stops at the bridge's preview cap.
+ * @param props.error          - The fetch error, or null on success.
  * @return The preview body.
  */
 function PreviewBody( {
+	awaitingReveal,
+	onReveal,
 	showPreview,
 	isLoading,
 	content,
@@ -107,6 +136,8 @@ function PreviewBody( {
 	truncated,
 	error,
 }: {
+	awaitingReveal: boolean;
+	onReveal: () => void;
 	showPreview: boolean;
 	isLoading: boolean;
 	content: string | null;
@@ -114,6 +145,23 @@ function PreviewBody( {
 	truncated: boolean;
 	error: Error | null;
 } ) {
+	// Ahead of `showPreview`, which the gate holds false until the reveal.
+	if ( awaitingReveal ) {
+		return (
+			<Stack direction="column" align="center" gap="xs">
+				<Icon icon={ unseen } />
+				<Text variant="body-sm" render={ <p /> }>
+					{ __(
+						'This preview is hidden because it contains sensitive information.',
+						'jetpack-backup-pkg'
+					) }
+				</Text>
+				<Button variant="outline" size="compact" onClick={ onReveal }>
+					{ __( 'Show preview', 'jetpack-backup-pkg' ) }
+				</Button>
+			</Stack>
+		);
+	}
 	if ( ! showPreview ) {
 		return (
 			<Text variant="body-sm" className="jpb-text-muted">
@@ -200,7 +248,16 @@ function PreviewBody( {
  */
 export default function FileInfoCard( { file, onClose }: Props ) {
 	const mimeType = mimeFromName( file.name );
-	const showPreview = Boolean( mimeType );
+	const { tracks } = useAnalytics();
+	const [ revealed, setRevealed ] = useState( false );
+	// Withholding the fetch too, not just the `<pre>`: unrevealed secrets never
+	// reach the browser at all.
+	const awaitingReveal = Boolean( mimeType ) && isSensitivePath( file.manifestPath ) && ! revealed;
+	const showPreview = Boolean( mimeType ) && ! awaitingReveal;
+	const reveal = useCallback( () => {
+		setRevealed( true );
+		tracks.recordEvent( 'jetpack_backup_browser_preview_file_sensitive_click' );
+	}, [ tracks ] );
 	const {
 		content,
 		isText,
@@ -226,6 +283,9 @@ export default function FileInfoCard( { file, onClose }: Props ) {
 	// a re-render for any other reason does not steal focus back.
 	const previewRef = useRef< HTMLDivElement >( null );
 	useEffect( () => {
+		// Reset here too: the card is not remounted per file, so without this a
+		// return visit to `wp-config.php` would print it with no second click.
+		setRevealed( false );
 		previewRef.current?.focus();
 	}, [ file.manifestPath ] );
 
@@ -296,6 +356,8 @@ export default function FileInfoCard( { file, onClose }: Props ) {
 				) }
 			>
 				<PreviewBody
+					awaitingReveal={ awaitingReveal }
+					onReveal={ reveal }
 					showPreview={ showPreview }
 					isLoading={ contentsLoading }
 					content={ content }
