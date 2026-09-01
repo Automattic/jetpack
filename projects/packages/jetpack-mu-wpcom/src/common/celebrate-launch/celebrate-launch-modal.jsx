@@ -1,6 +1,7 @@
 import CelebrationModal from '@automattic/site-launch-modals/celebration-modal';
 import { useEffect } from 'react';
 import { wpcomTrackEvent } from '../tracks';
+import { isCustomDomain } from './celebrate-launch-domain';
 
 import './celebrate-launch-modal.scss';
 
@@ -30,6 +31,11 @@ export default function CelebrateLaunchModal( {
 	const isPaidPlan = !! sitePlan;
 	const isBilledMonthly = !! sitePlan?.product_slug?.includes( 'monthly' );
 
+	// The plan-feature flag misses sites already on a mapped custom domain, so
+	// also treat a non-default primary domain as custom to avoid upselling a
+	// domain to a site that has one.
+	const siteHasCustomDomain = hasCustomDomain || isCustomDomain( siteDomain );
+
 	useEffect( () => {
 		wpcomTrackEvent( 'calypso_launchpad_celebration_modal_view', {
 			product_slug: sitePlan?.product_slug,
@@ -40,7 +46,7 @@ export default function CelebrateLaunchModal( {
 		<CelebrationModal
 			siteDomain={ siteDomain }
 			siteUrl={ siteUrl }
-			hasCustomDomain={ hasCustomDomain }
+			hasCustomDomain={ siteHasCustomDomain }
 			isPaidPlan={ isPaidPlan }
 			isBilledMonthly={ isBilledMonthly }
 			upsellHref={ `https://wordpress.com/domains/add/${ siteDomain }` }

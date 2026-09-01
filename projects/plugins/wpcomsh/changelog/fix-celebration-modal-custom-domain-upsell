@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Launch: Do not show the domain upsell in the site launch celebration modal to sites that already use a custom domain.
