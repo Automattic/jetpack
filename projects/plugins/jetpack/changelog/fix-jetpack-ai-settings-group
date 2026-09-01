@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Jetpack AI: Prevent General Settings saves from resetting AI feature settings.
