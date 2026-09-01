@@ -87,6 +87,10 @@ class Widget_Availability_Test extends BaseTestCase {
 				'category' => 'traffic',
 			),
 			array(
+				'name'     => 'jpa/plan-usage',
+				'category' => 'stats',
+			),
+			array(
 				'name'     => 'jpa/hello-world',
 				'category' => 'demo',
 			),
@@ -177,6 +181,14 @@ class Widget_Availability_Test extends BaseTestCase {
 	 */
 	public function test_type_policy_keeps_file_downloads_on_simple() {
 		$this->assertContains( 'jpa/file-downloads', $this->available_names( true ) );
+	}
+
+	/**
+	 * Plan usage is held back regardless of host or features.
+	 */
+	public function test_type_policy_removes_plan_usage_everywhere() {
+		$this->assertNotContains( 'jpa/plan-usage', $this->available_names( false, false ) );
+		$this->assertNotContains( 'jpa/plan-usage', $this->available_names( true, true ) );
 	}
 
 	/**
