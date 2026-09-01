@@ -529,6 +529,8 @@ export type ChartTheme = {
 		/**
 		 * Color the cell scale interpolates toward at the highest value (prop > this >
 		 * palette `colors[0]`), fed to CSS `color-mix`. Omit to use the palette color.
+		 *
+		 * @deprecated Use the `primaryColor` prop on `HeatmapChart` for one chart, or set `--a8c-charts-color-series-1` to move the palette this falls back to. See `TOKENS.md`.
 		 */
 		primaryColor?: string;
 		/** Gap in px between cells in compact mode */
