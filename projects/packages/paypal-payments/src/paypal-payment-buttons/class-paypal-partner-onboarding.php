@@ -272,8 +272,29 @@ class PayPal_Partner_Onboarding {
 				}
 			}
 
+			if ( ! empty( $body['code'] ) ) {
+				$error_data['platform_error_code'] = $body['code'];
+			}
+
 			if ( ! empty( $body['message'] ) ) {
 				$error_data['paypal_message'] = $body['message'];
+			}
+
+			/*
+			 * A `platform_*` code means WordPress.com is missing or misconfigured
+			 * the PayPal platform credentials. Retrying will never clear that, so
+			 * telling the merchant to try again sends them in circles and hides
+			 * the one message that says what to fix. Pass it through instead.
+			 */
+			$is_platform_misconfiguration = ! empty( $body['code'] )
+				&& 0 === strpos( (string) $body['code'], 'platform_' );
+
+			if ( $is_platform_misconfiguration && ! empty( $body['message'] ) ) {
+				return new \WP_Error(
+					'paypal_referral_failed',
+					sanitize_text_field( $body['message'] ),
+					$error_data
+				);
 			}
 
 			return new \WP_Error(

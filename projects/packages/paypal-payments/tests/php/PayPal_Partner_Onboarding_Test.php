@@ -576,6 +576,69 @@ class PayPal_Partner_Onboarding_Test extends TestCase {
 	}
 
 	/**
+	 * Test that a platform misconfiguration is reported, not hidden.
+	 *
+	 * "Please try again" is wrong advice when WordPress.com is missing a
+	 * platform credential: retrying cannot clear it, and the generic message
+	 * buries the one line that names what to configure.
+	 */
+	public function test_generate_signup_link_surfaces_platform_misconfiguration() {
+		$this->set_up_connected_site();
+		$this->mock_wpcom_signup_link(
+			array(
+				'response' => array( 'code' => 500 ),
+				'body'     => wp_json_encode(
+					array(
+						'code'    => 'platform_partner_merchant_id_missing',
+						'message' => 'PayPal platform credentials for the sandbox environment are missing the partner merchant ID (PAYPAL_BUTTONS_SANDBOX_PARTNER_MERCHANT_ID).',
+						'data'    => array( 'status' => 500 ),
+					),
+					JSON_UNESCAPED_SLASHES
+				),
+			)
+		);
+
+		$result = PayPal_Partner_Onboarding::generate_signup_link( 'https://example.com/return', 'sandbox' );
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertStringContainsString(
+			'PAYPAL_BUTTONS_SANDBOX_PARTNER_MERCHANT_ID',
+			$result->get_error_message()
+		);
+		$this->assertSame(
+			'platform_partner_merchant_id_missing',
+			$result->get_error_data()['platform_error_code']
+		);
+	}
+
+	/**
+	 * Test that a PayPal-side failure keeps the friendly message.
+	 */
+	public function test_generate_signup_link_keeps_the_friendly_message_for_paypal_errors() {
+		$this->set_up_connected_site();
+		$this->mock_wpcom_signup_link(
+			array(
+				'response' => array( 'code' => 400 ),
+				'body'     => wp_json_encode(
+					array(
+						'code'    => 'paypal_referral_failed',
+						'message' => 'Request is not well-formed, syntactically incorrect, or violates schema.',
+						'data'    => array( 'status' => 400 ),
+					),
+					JSON_UNESCAPED_SLASHES
+				),
+			)
+		);
+
+		$result = PayPal_Partner_Onboarding::generate_signup_link( 'https://example.com/return', 'sandbox' );
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertStringContainsString( 'Could not create a PayPal onboarding link', $result->get_error_message() );
+		// The raw reason is still available to whoever is debugging.
+		$this->assertStringContainsString( 'violates schema', $result->get_error_data()['paypal_message'] );
+	}
+
+	/**
 	 * Test that the merchant ID falls back to PayPal's payer_id.
 	 *
 	 * PayPal puts `merchantIdInPayPal` on the return URL but sends `authCode`
