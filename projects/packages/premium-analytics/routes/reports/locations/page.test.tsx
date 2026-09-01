@@ -436,9 +436,10 @@ describe( 'LocationsReportPage', () => {
 			expect( lastMapProps().focusCountry ).toEqual( { code: 'DE', name: 'Germany' } );
 		} );
 
-		// Back changes the tab from the URL without the tab strip's change event,
-		// so the filter it left behind must not reach a tab that cannot be scoped.
-		it( 'ignores a filter left over on a tab that cannot be scoped', () => {
+		// Back and Forward move the tab from the URL, never through the tab strip's
+		// change event, and the table remounts without the chip either way — so a
+		// filter that outlived its tab would scope the report invisibly.
+		it( 'drops the picked country when the tab moves from the URL', () => {
 			mockTabState( 'regions' );
 			mockRecords();
 
@@ -446,12 +447,24 @@ describe( 'LocationsReportPage', () => {
 			pickCountry( 'DE' );
 			expect( lastMapProps().focusCountry ).toEqual( { code: 'DE', name: 'Germany' } );
 
+			// Back, onto a tab that has no country filter at all.
 			act( () => {
 				setTabFromUrl( 'countries' );
 			} );
 
-			// The filter itself survives — it is the map that has to ignore it.
-			expect( useRecordsMock ).toHaveBeenLastCalledWith( 'countries', expect.anything(), 'DE' );
+			expect( useRecordsMock ).toHaveBeenLastCalledWith(
+				'countries',
+				expect.anything(),
+				undefined
+			);
+			expect( lastMapProps().focusCountry ).toBeUndefined();
+
+			// Forward, back onto the tab the country was picked on.
+			act( () => {
+				setTabFromUrl( 'regions' );
+			} );
+
+			expect( useRecordsMock ).toHaveBeenLastCalledWith( 'regions', expect.anything(), undefined );
 			expect( lastMapProps().focusCountry ).toBeUndefined();
 		} );
 

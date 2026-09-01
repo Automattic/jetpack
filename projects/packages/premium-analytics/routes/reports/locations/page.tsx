@@ -64,6 +64,9 @@ const RECORDS_VIEW = {
 
 const COUNTRY_FILTER_FIELD = 'country';
 
+/** The country picked in the records table, and the tab it was picked on. */
+type PickedCountry = { tab: ReportLocationsTabId; code: string };
+
 // Match the table's own default order, so the file reads like the screen.
 const sortLocationCsvRows = ( a: LocationRow, b: LocationRow ) => b.views - a.views;
 
@@ -88,7 +91,18 @@ export default function LocationsReportPage(): JSX.Element {
 	const reportParams = useReportParams();
 	const tabs = useMemo( () => getReportLocationsTabs(), [] );
 	const [ activeTab, setActiveTab ] = useSectionTab( ROUTE_FROM, resolveSection );
-	const [ countryFilter, setCountryFilter ] = useState( '' );
+	// The tab lives on the URL, so Back and Forward move it without the tab strip's
+	// change event. Keying the picked country to the tab it was picked on clears it
+	// whichever way the tab moved, and resetting during render keeps the stale pair
+	// out of the request this render makes.
+	const [ pickedCountry, setPickedCountry ] = useState< PickedCountry >( {
+		tab: activeTab,
+		code: '',
+	} );
+	if ( pickedCountry.tab !== activeTab ) {
+		setPickedCountry( { tab: activeTab, code: '' } );
+	}
+	const countryFilter = pickedCountry.tab === activeTab ? pickedCountry.code : '';
 	const records = useLocationsReportRecords( activeTab, reportParams, countryFilter || undefined );
 	const retry = useReportRetry( records.refetch );
 	const fields = useMemo(
@@ -129,20 +143,17 @@ export default function LocationsReportPage(): JSX.Element {
 		sort: sortLocationCsvRows,
 	} );
 
-	// Country filter doesn't carry between tabs: Countries can't be scoped, and
-	// cities/regions vary per tab, so clear it on tab change.
-	const handleTabChange = useCallback(
-		( tab: ReportLocationsTabId ) => {
-			setCountryFilter( '' );
-			setActiveTab( tab );
-		},
-		[ setActiveTab ]
-	);
-
 	// The API scopes the rows, so the picked country has to reach the request.
-	const handleChangeView = useCallback( ( view: View ) => {
-		setCountryFilter( getCountryFilter( view ) );
-	}, [] );
+	const handleChangeView = useCallback(
+		( view: View ) => {
+			const code = getCountryFilter( view );
+
+			setPickedCountry( previous =>
+				previous.tab === activeTab && previous.code === code ? previous : { tab: activeTab, code }
+			);
+		},
+		[ activeTab ]
+	);
 
 	// The map plots the rows the table already fetched, so it costs no request
 	// of its own. Rows the API left without a country cannot be placed on it.
@@ -158,17 +169,15 @@ export default function LocationsReportPage(): JSX.Element {
 				} ) ),
 		[ records.table.rows ]
 	);
-	// Back moves the tab straight from the URL, without the change that clears the
-	// filter, so a tab that cannot be scoped must not scope the map either.
 	const focusCountry = useMemo( () => {
-		if ( ! countryFilter || ! supportsCountryFilter( activeTab ) ) {
+		if ( ! countryFilter ) {
 			return undefined;
 		}
 
 		const country = records.countries.options.find( option => option.code === countryFilter );
 
 		return { code: countryFilter, name: country?.label ?? countryFilter };
-	}, [ activeTab, countryFilter, records.countries.options ] );
+	}, [ countryFilter, records.countries.options ] );
 
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 	const tableIsLoading = records.table.isLoading || records.table.isFetching;
@@ -187,7 +196,7 @@ export default function LocationsReportPage(): JSX.Element {
 		>
 			<ReportPageLayout
 				title={ getTabTitle( activeTab ) }
-				tabs={ <ReportPageTabs tabs={ tabs } value={ activeTab } onChange={ handleTabChange } /> }
+				tabs={ <ReportPageTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab } /> }
 				dateFilters={ dateFilters }
 			>
 				{ records.isError ? (
