@@ -211,11 +211,9 @@ export default function FileInfoCard( { file, onClose }: Props ) {
 	const { size, hash, lastModified } = usePathInfo( file.period, file.manifestPath );
 	const modified = lastModified ?? file.lastModified;
 
-	// Opening a file mounts this card somewhere else entirely — it is the
-	// second column of a grid as tall as the tree, so on a scrolled tree it
-	// lands well above the row that was clicked. Without a focus move a
-	// keyboard reader has to tab through every remaining row to reach it,
-	// and a screen-reader reader is told nothing happened at all.
+	// Opening a file mounts this card in the tree's sibling column. Without a
+	// focus move a keyboard reader has to tab through every remaining row to
+	// reach it, and a screen-reader reader is told nothing happened at all.
 	//
 	// The preview region is the target rather than the card, because it is
 	// the content the reader asked for, it is already a tab stop, and it is

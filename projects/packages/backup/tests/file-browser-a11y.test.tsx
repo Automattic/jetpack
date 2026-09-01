@@ -116,8 +116,7 @@ describe( 'the preview pane', () => {
 	} );
 
 	// Without this the reader has to tab through every remaining tree row to
-	// reach content they just asked for, and on a scrolled tree the card
-	// renders off-screen entirely.
+	// reach content they just asked for.
 	it( 'takes focus when a file is opened', async () => {
 		await renderBrowser();
 		await userEvent.click( screen.getByRole( 'button', { name: 'File: wp-config.php' } ) );

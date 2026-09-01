@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Backup: keep the modernized dashboard's file preview beside the row you opened. It rendered at the top of a grid column as tall as the file tree, so on a scrolled tree it was off-screen, and the keyboard focus move then threw the list back to the top. No-op when the modernization filter is off.
+
+
