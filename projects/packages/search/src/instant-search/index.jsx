@@ -11,14 +11,8 @@ import { buildFilterAggregations } from './lib/api';
 import { SERVER_OBJECT_NAME } from './lib/constants';
 import { isInCustomizer } from './lib/customize';
 import { getThemeOptions } from './lib/dom';
+import { normalizeWidgets } from './lib/widgets';
 import store from './store';
-
-// Localized widget config should be an array of widget objects; guard against a
-// missing, malformed, or otherwise non-array value crashing the whole page on mount.
-const normalizeWidgets = value =>
-	Array.isArray( value )
-		? value.filter( widget => widget !== null && typeof widget === 'object' )
-		: [];
 
 const injectSearchApp = () => {
 	const serverObject = window[ SERVER_OBJECT_NAME ];
