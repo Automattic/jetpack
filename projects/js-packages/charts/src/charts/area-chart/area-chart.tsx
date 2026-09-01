@@ -246,7 +246,7 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 
 		const bucketInfo = useMemo(
 			() => getBucketInfo( dataSorted, options?.axis?.x?.tickResolution ),
-			[ dataSorted, options ]
+			[ dataSorted, options?.axis?.x?.tickResolution ]
 		);
 
 		const defaultMargin = useChartMargin( height, chartOptions, dataSorted, theme );

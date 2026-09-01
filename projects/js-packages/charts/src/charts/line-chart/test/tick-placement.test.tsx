@@ -22,8 +22,8 @@ const data = [
 	},
 ];
 
-// Twelve monthly points against three, so hiding the long series leaves visx a
-// domain a quarter the width of the one the whole dataset would give.
+// A long series and a short one, so hiding the long one leaves visx a much
+// narrower domain than the whole dataset would give.
 const monthly = ( label: string, count: number ) => ( {
 	label,
 	data: Array.from( { length: count }, ( _, index ) => ( {
@@ -41,7 +41,6 @@ describe( 'line chart tick placement', () => {
 			</GlobalChartsProvider>
 		);
 
-		// The 8 data points land on 8 consecutive Tokyo days, Aug 3 to Aug 10.
 		const ticks = screen.getAllByText( /^[A-Z][a-z]{2} \d{1,2}$/ );
 		expect( ticks.map( tick => tick.textContent ) ).toEqual( [
 			'Aug 3',

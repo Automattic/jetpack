@@ -508,8 +508,8 @@ same classification for a consumer building its own label:
 	// { bucket: 'day', displayResolution: 'day' }` }
 />
 
-It returns two fields because labelling and semantics diverge. A weekly
-series is labelled with calendar dates exactly as a daily one is, so
+It returns two fields because labeling and semantics diverge. A weekly
+series is labeled with calendar dates exactly as a daily one is, so
 `displayResolution` (`Exclude< TickResolution, 'week' >`) is what a date
 format keys on. But a consumer may still need to know the series is weekly —
 to write "Week of 5 Aug" rather than a bare date, say — and that is what

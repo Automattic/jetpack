@@ -366,7 +366,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 						zoomDomain: zoom.domain,
 						formatting,
 						// A hidden line is unmounted, so visx scales to the rest.
-						isSeriesRendered: series => ! hiddenSeries.has( series.label ),
+						isSeriesRendered: series => isSeriesVisible( series.label ),
 					} ),
 					y: {
 						orientation: 'left' as const,
@@ -389,11 +389,17 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 					...options?.yScale,
 				},
 			};
-		}, [ options, dataSorted, width, zoom.domain, stableYDomain, formatting, hiddenSeries ] );
+		}, [ options, dataSorted, width, zoom.domain, stableYDomain, formatting, isSeriesVisible ] );
 
+		// Classified from the rendered series, like the axis above: a hidden
+		// hourly line must not leave the tooltip naming an hour the axis dropped.
 		const bucketInfo = useMemo(
-			() => getBucketInfo( dataSorted, options?.axis?.x?.tickResolution ),
-			[ dataSorted, options ]
+			() =>
+				getBucketInfo(
+					dataSorted.filter( series => isSeriesVisible( series.label ) ),
+					options?.axis?.x?.tickResolution
+				),
+			[ dataSorted, isSeriesVisible, options?.axis?.x?.tickResolution ]
 		);
 
 		const tooltipRenderGlyph = useMemo( () => {

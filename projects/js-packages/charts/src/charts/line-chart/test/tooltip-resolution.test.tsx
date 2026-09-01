@@ -52,8 +52,6 @@ describe( 'default tooltip at hourly resolution', () => {
 	} );
 
 	it( 'keeps the day in the heading at month and year resolution', () => {
-		// 'month' covers any spacing from 28 days up, so a heading without a day
-		// would give two distinct points the same one.
 		expect( headingFor( morning, MONTHLY, 'de-DE' ) ).toContain( '2.8.2026' );
 		expect( headingFor( morning, YEARLY, 'de-DE' ) ).toContain( '2.8.2026' );
 	} );
@@ -99,5 +97,44 @@ describe( 'default tooltip at hourly resolution', () => {
 		await user.keyboard( '{ArrowRight}' );
 
 		expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveTextContent( '2.8.2026, 09 Uhr' );
+	} );
+
+	it( 'drops the hour once the hourly series is hidden, as the axis does', async () => {
+		const user = userEvent.setup();
+		render(
+			<GlobalChartsProvider locale="de-DE" timeZone="Asia/Tokyo">
+				<LineChart
+					width={ 500 }
+					height={ 300 }
+					withGradientFill={ false }
+					defaultHiddenSeries={ [ 'Hourly' ] }
+					data={ [
+						{
+							label: 'Hourly',
+							data: [
+								{ date: morning, value: 10 },
+								{ date: afternoon, value: 20 },
+							],
+							options: {},
+						},
+						{
+							label: 'Daily',
+							data: [
+								{ date: morning, value: 5 },
+								{ date: new Date( '2026-08-03T00:30:00Z' ), value: 6 },
+							],
+							options: {},
+						},
+					] }
+				/>
+			</GlobalChartsProvider>
+		);
+
+		screen.getByRole( 'grid', { name: /line chart/i } ).focus();
+		await user.keyboard( '{ArrowRight}' );
+
+		const tooltip = screen.getByTestId( 'chart-tooltip-0' );
+		expect( tooltip ).toHaveTextContent( '2.8.2026' );
+		expect( tooltip ).not.toHaveTextContent( 'Uhr' );
 	} );
 } );

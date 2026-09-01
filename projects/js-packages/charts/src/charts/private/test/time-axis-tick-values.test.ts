@@ -9,6 +9,16 @@ import type { SeriesData } from '../../../types';
 // that passes only because the two agree cannot hide here.
 const TOKYO = { timeZone: 'Asia/Tokyo' };
 
+const localTimes = ( ticks: Date[], timeZone: string ) =>
+	ticks.map( tick =>
+		new Intl.DateTimeFormat( 'en-US', {
+			timeZone,
+			hour: '2-digit',
+			minute: '2-digit',
+			hour12: false,
+		} ).format( tick )
+	);
+
 describe( 'getMaxTicksForWidth', () => {
 	it( 'scales with the width and never returns less than one', () => {
 		expect( getMaxTicksForWidth( 600 ) ).toBe( 10 );
@@ -87,7 +97,7 @@ describe( 'getTimeAxisTickValues', () => {
 
 	// Japan has no DST, so the Tokyo fixture cannot reach this. New York can.
 	// 2026-03-08 is spring forward: the local day is 23 hours long.
-	it( 'keeps hourly ticks on the host zone midnight across spring forward', () => {
+	it( 'names the first host zone midnights across spring forward, then drifts an hour', () => {
 		const zone = { timeZone: 'America/New_York' };
 		// 2026-03-07T05:00Z is midnight in New York; 72 hourly points spans the
 		// transition and two further local midnights.
@@ -95,26 +105,50 @@ describe( 'getTimeAxisTickValues', () => {
 		const formatter = getFormatter( data, 'hour', zone );
 
 		const ticks = getTimeAxisTickValues( data, undefined, formatter, 6 ) as Date[];
-		const midnightLabels = ticks
-			.map( tick => formatter( tick.getTime() ) )
-			.filter( label => /\d/.test( label ) && ! /(AM|PM)/.test( label ) );
 
-		// The date-naming ticks must be the local midnights, not 1 AM after the
-		// transition, so more than one of them survives the 23 hour day.
-		expect( midnightLabels.length ).toBeGreaterThan( 1 );
+		expect( ticks.map( tick => formatter( tick.getTime() ) ) ).toEqual( [
+			'Mar 7',
+			'12 PM',
+			'Mar 8',
+			'1 PM',
+			'1 AM',
+			'1 PM',
+		] );
+		// An even stride wins the density comparison over the midnight anchors,
+		// so once the 23 hour day shifts them the last date lands at 01:00.
+		expect( localTimes( ticks, zone.timeZone ) ).toEqual( [
+			'00:00',
+			'12:00',
+			'00:00',
+			'13:00',
+			'01:00',
+			'13:00',
+		] );
 	} );
 
 	// 2026-11-01 is fall back: the local day is 25 hours long.
-	it( 'keeps hourly ticks on the host zone midnight across fall back', () => {
+	it( 'names the first host zone midnights across fall back, then drifts an hour', () => {
 		const zone = { timeZone: 'America/New_York' };
 		const data = hourlySeries( '2026-10-31T04:00:00Z', 72 );
 		const formatter = getFormatter( data, 'hour', zone );
 
 		const ticks = getTimeAxisTickValues( data, undefined, formatter, 6 ) as Date[];
-		const midnightLabels = ticks
-			.map( tick => formatter( tick.getTime() ) )
-			.filter( label => /\d/.test( label ) && ! /(AM|PM)/.test( label ) );
 
-		expect( midnightLabels.length ).toBeGreaterThan( 1 );
+		expect( ticks.map( tick => formatter( tick.getTime() ) ) ).toEqual( [
+			'Oct 31',
+			'12 PM',
+			'Nov 1',
+			'11 AM',
+			'11 PM',
+			'11 AM',
+		] );
+		expect( localTimes( ticks, zone.timeZone ) ).toEqual( [
+			'00:00',
+			'12:00',
+			'00:00',
+			'11:00',
+			'23:00',
+			'11:00',
+		] );
 	} );
 } );

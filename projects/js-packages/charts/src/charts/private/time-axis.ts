@@ -3,7 +3,7 @@ import { scaleTime } from '@visx/scale';
 import { differenceInHours, differenceInYears } from 'date-fns';
 import { createDateFormatter, createZonedClock } from '../../utils/date-formatting';
 import type { useChartDataTransform } from '../../hooks';
-import type { BucketInfo, ChartFormatting, TickResolution } from '../../types';
+import type { BucketInfo, ChartFormatting, SeriesData, TickResolution } from '../../types';
 import type { CurveType } from '../line-chart/types';
 
 // Approximate min pixel width for an x-axis tick label.
@@ -110,22 +110,23 @@ const getSpan = ( sortedData: ReturnType< typeof useChartDataTransform > ) => {
 };
 
 // Smallest interval between consecutive points across all series, in hours.
-// Infinity when no series has two points.
+// Infinity when no series carries two distinct instants.
 const getPointSpacingInHours = ( sortedData: ReturnType< typeof useChartDataTransform > ) => {
-	return sortedData.reduce(
-		( spacing, datom ) =>
-			datom.data.reduce( ( seriesSpacing, point, index ) => {
-				const previous = datom.data[ index - 1 ];
-				if ( previous?.date === undefined || point?.date === undefined ) {
-					return seriesSpacing;
-				}
-				return Math.min(
-					seriesSpacing,
-					Math.abs( differenceInHours( point.date, previous.date ) )
-				);
-			}, spacing ),
-		Number.POSITIVE_INFINITY
-	);
+	return sortedData.reduce( ( spacing, datom ) => {
+		// Sorted and deduplicated rather than read in array order: `getBucketInfo`
+		// is public, and a repeated instant is padding, not a sub-daily gap.
+		const instants = [ ...new Set( datom.data.map( point => point?.date?.getTime() ) ) ]
+			.filter( ( time ): time is number => time !== undefined && Number.isFinite( time ) )
+			.sort( ( a, b ) => a - b );
+
+		return instants.reduce(
+			( seriesSpacing, time, index ) =>
+				index === 0
+					? seriesSpacing
+					: Math.min( seriesSpacing, Math.abs( differenceInHours( time, instants[ index - 1 ] ) ) ),
+			spacing
+		);
+	}, Number.POSITIVE_INFINITY );
 };
 
 // 23, not 24: a daily gap shrinks to 23 wall-clock hours across a
@@ -139,7 +140,7 @@ const MONTHLY_SPACING_HOURS = 28 * 24;
 // keyed on. Exported so consumers that label a single point — bar chart
 // tooltips — read the same classification the axis does instead of inferring
 // the resolution a second way. Weeks report as 'day': both are calendar-date
-// buckets as far as labelling goes.
+// buckets as far as labeling goes.
 export const getBucketResolution = (
 	sortedData: ReturnType< typeof useChartDataTransform >,
 	tickResolution?: TickResolution
@@ -165,16 +166,16 @@ export const getBucketResolution = (
 /**
  * How this data was classified, for consumers that render their own labels.
  *
- * @param sortedData     - Series as returned by `useChartDataTransform`.
+ * @param data           - The series the chart draws, in any order.
  * @param tickResolution - Caller-declared bucket resolution, when known.
  * @return The declared or inferred bucket, and the resolution formats key on.
  */
 export const getBucketInfo = (
-	sortedData: ReturnType< typeof useChartDataTransform >,
+	data: SeriesData[],
 	tickResolution?: TickResolution
 ): BucketInfo => ( {
-	bucket: tickResolution ?? getBucketResolution( sortedData ),
-	displayResolution: getBucketResolution( sortedData, tickResolution ),
+	bucket: tickResolution ?? getBucketResolution( data ),
+	displayResolution: getBucketResolution( data, tickResolution ),
 } );
 
 /**
@@ -382,7 +383,7 @@ export const getMaxTicksForWidth = ( chartWidth: number ): number =>
  *
  * @param sortedData    - Series as returned by `useChartDataTransform`.
  * @param domain        - The effective scale domain, or undefined for all data.
- * @param tickFormatter - The formatter the ticks will be labelled with.
+ * @param tickFormatter - The formatter the ticks will be labeled with.
  * @param maxTicks      - The most ticks the axis has room for.
  * @return Tick dates, or null when no series carries a usable date.
  */

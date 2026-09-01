@@ -41,9 +41,6 @@ const renderChart = ( defaultHiddenSeries?: string[] ) =>
 	);
 
 describe( 'area chart tick placement', () => {
-	// A hidden area stays mounted with a zeroed yAccessor, so it still sets the
-	// x domain. Selecting ticks from the rendered series only, as LineChart does,
-	// would leave the axis short of the domain it is drawn against.
 	it( 'keeps ticks spanning the full domain when a series is hidden', () => {
 		const shown = xAxisTickOffsets( renderChart().container );
 		const hidden = xAxisTickOffsets( renderChart( [ 'Long' ] ).container );

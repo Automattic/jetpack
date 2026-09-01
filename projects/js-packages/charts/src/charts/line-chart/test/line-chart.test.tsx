@@ -619,6 +619,8 @@ describe( 'LineChart', () => {
 			expect( ticks.length ).toBeLessThan( 6 ); // Not much space
 		} );
 
+		// One repeated instant carries no spacing, so the axis falls back to
+		// calendar dates rather than reading a zero gap as hourly buckets.
 		test( 'renders only one tick when all ticks are the same', () => {
 			renderWithTheme( {
 				width: 800,
@@ -634,7 +636,7 @@ describe( 'LineChart', () => {
 				],
 			} );
 
-			const ticks = screen.getAllByText( /\d+ [AP]M/ );
+			const ticks = screen.getAllByText( /^[A-Z][a-z]{2} \d{1,2}$/ );
 			expect( ticks ).toHaveLength( 1 );
 		} );
 	} );
