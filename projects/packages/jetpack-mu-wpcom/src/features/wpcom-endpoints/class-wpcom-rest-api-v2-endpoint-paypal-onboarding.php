@@ -228,10 +228,31 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding extends WP_REST_Controller {
 		$body        = json_decode( wp_remote_retrieve_body( $response ), true );
 
 		if ( 201 !== $status_code && 200 !== $status_code ) {
+			/*
+			 * PayPal's top-level message for a rejected referral is always the same
+			 * generic sentence ("Request is not well-formed, syntactically
+			 * incorrect, or violates schema."). Everything needed to act on it is
+			 * in `details`, which names the offending field and issue, and in
+			 * `debug_id`, which PayPal support needs to trace the call. Passing
+			 * only the message through left callers with nothing to go on, so
+			 * carry both. None of it is credential material.
+			 */
+			$error_data = array( 'status' => $status_code );
+
+			if ( ! empty( $body['name'] ) ) {
+				$error_data['paypal_error'] = $body['name'];
+			}
+			if ( ! empty( $body['details'] ) && is_array( $body['details'] ) ) {
+				$error_data['paypal_details'] = $body['details'];
+			}
+			if ( ! empty( $body['debug_id'] ) ) {
+				$error_data['paypal_debug_id'] = $body['debug_id'];
+			}
+
 			return new WP_Error(
 				'paypal_referral_failed',
 				$body['message'] ?? 'PayPal Partner Referrals API returned an error.',
-				array( 'status' => $status_code )
+				$error_data
 			);
 		}
 
@@ -288,6 +309,29 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding extends WP_REST_Controller {
 		}
 
 		if ( isset( $credentials['client_id'] ) && isset( $credentials['client_secret'] ) ) {
+			/*
+			 * The partner merchant ID is Automattic's own PayPal account ID, not
+			 * anything onboarding returns -- PayPal hands back the *seller's* ID.
+			 * Both are path segments in every call the site makes once onboarding
+			 * finishes (`/v1/customer/partners/{partner}/merchant-integrations/
+			 * {seller}`), so without it the referral link still opens and the
+			 * seller still completes the PayPal flow, and then credential
+			 * retrieval and every status check quietly fail. That surfaced far
+			 * from its cause, as "Merchant integration info not available", so
+			 * refuse to hand out a signup link that cannot be completed.
+			 */
+			if ( ! isset( $credentials['partner_merchant_id'] ) ) {
+				return new WP_Error(
+					'platform_partner_merchant_id_missing',
+					sprintf(
+						'PayPal platform credentials for the %1$s environment are missing the partner merchant ID (%2$s). Onboarding cannot be completed without it.',
+						$environment,
+						$constants['partner_merchant_id'] ?? 'partner merchant ID constant'
+					),
+					array( 'status' => 500 )
+				);
+			}
+
 			return $credentials;
 		}
 

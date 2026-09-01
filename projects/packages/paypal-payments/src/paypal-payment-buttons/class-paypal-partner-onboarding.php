@@ -258,10 +258,28 @@ class PayPal_Partner_Onboarding {
 		$body        = json_decode( wp_remote_retrieve_body( $response ), true );
 
 		if ( 201 !== $status_code && 200 !== $status_code ) {
+			/*
+			 * Keep the merchant-facing message actionable, but carry PayPal's own
+			 * diagnostics (the offending field, the issue code, and the debug ID
+			 * PayPal support traces on) through in the error data. Without them a
+			 * rejected referral is just a 400 with a generic sentence.
+			 */
+			$error_data = array( 'status' => $status_code );
+
+			foreach ( array( 'paypal_error', 'paypal_details', 'paypal_debug_id' ) as $key ) {
+				if ( isset( $body['data'][ $key ] ) ) {
+					$error_data[ $key ] = $body['data'][ $key ];
+				}
+			}
+
+			if ( ! empty( $body['message'] ) ) {
+				$error_data['paypal_message'] = $body['message'];
+			}
+
 			return new \WP_Error(
 				'paypal_referral_failed',
 				__( 'Could not create a PayPal onboarding link. Please try again or use the manual credentials option.', 'jetpack-paypal-payments' ),
-				array( 'status' => $status_code )
+				$error_data
 			);
 		}
 
@@ -476,9 +494,18 @@ class PayPal_Partner_Onboarding {
 		$merchant_id = self::get_merchant_id();
 
 		if ( empty( $partner_id ) || empty( $merchant_id ) ) {
+			// Name the missing half. These are stored at different points in the
+			// flow -- the partner ID when the signup link is created, the merchant
+			// ID when onboarding completes -- so which one is absent says where
+			// the flow broke.
 			return new \WP_Error(
 				'paypal_no_merchant_info',
-				__( 'Merchant integration info not available. Please reconnect your PayPal account.', 'jetpack-paypal-payments' )
+				__( 'Merchant integration info not available. Please reconnect your PayPal account.', 'jetpack-paypal-payments' ),
+				array(
+					'status'          => 400,
+					'has_partner_id'  => ! empty( $partner_id ),
+					'has_merchant_id' => ! empty( $merchant_id ),
+				)
 			);
 		}
 
