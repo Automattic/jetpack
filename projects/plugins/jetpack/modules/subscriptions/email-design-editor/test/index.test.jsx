@@ -34,6 +34,14 @@ jest.mock( '@woocommerce/email-editor', () => ( {
 	ExperimentalEmailEditor: MockEmailEditor,
 } ) );
 
+const mockCreateNotice = jest.fn();
+
+jest.mock( '@wordpress/data', () => ( {
+	dispatch: () => ( { createNotice: ( ...args ) => mockCreateNotice( ...args ) } ),
+} ) );
+
+jest.mock( '@wordpress/notices', () => ( { store: 'core/notices' } ) );
+
 const ELEMENT_ID = 'jetpack-email-design-editor';
 
 /**
@@ -151,6 +159,7 @@ describe( 'Email design editor entry point', () => {
 		mockRender.mockClear();
 		mockUse.mockClear();
 		mockCreatePreloadingMiddleware.mockClear();
+		mockCreateNotice.mockClear();
 		mockApiFetch.mockReset();
 		mockApiFetch.mockResolvedValue( bootstrapBundle() );
 		jest.spyOn( console, 'error' ).mockImplementation( () => {} );
@@ -708,6 +717,38 @@ describe( 'Email design editor entry point', () => {
 			);
 
 			expect( result.styles ).toEqual( { color: { background: '#ffffff' } } );
+		} );
+
+		it( 'tells the creator when the save kept nothing', async () => {
+			mockApiFetch.mockResolvedValueOnce( { blog_id: 1, design: null, discarded: true } );
+
+			await createDesignSaveMiddleware( ourId )(
+				{ path: `/wp/v2/global-styles/${ ourId }`, method: 'PUT', data: { styles: {} } },
+				jest.fn()
+			);
+
+			// Without this the panel goes clean and the creator is told it saved, while the stored
+			// design no longer holds what they set.
+			expect( mockCreateNotice ).toHaveBeenCalledWith(
+				'error',
+				expect.stringContaining( 'could not be saved' ),
+				expect.objectContaining( { type: 'snackbar' } )
+			);
+		} );
+
+		it( 'stays quiet when the design was kept', async () => {
+			mockApiFetch.mockResolvedValueOnce( {
+				blog_id: 1,
+				design: { styles: { color: { background: '#c0ffee' } }, settings: {} },
+				discarded: false,
+			} );
+
+			await createDesignSaveMiddleware( ourId )(
+				{ path: `/wp/v2/global-styles/${ ourId }`, method: 'PUT', data: {} },
+				jest.fn()
+			);
+
+			expect( mockCreateNotice ).not.toHaveBeenCalled();
 		} );
 
 		it( 'survives an envelope carrying no design', async () => {

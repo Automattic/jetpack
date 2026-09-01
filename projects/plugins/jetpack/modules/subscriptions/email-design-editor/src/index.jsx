@@ -13,8 +13,10 @@
 import { ExperimentalEmailEditor } from '@woocommerce/email-editor';
 import apiFetch from '@wordpress/api-fetch';
 import { Notice } from '@wordpress/components';
+import { dispatch } from '@wordpress/data';
 import { createRoot, StrictMode } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { store as noticesStore } from '@wordpress/notices';
 import { addQueryArgs } from '@wordpress/url';
 
 // Declared by the Jetpack plugin on every platform, answered by WordPress.com, so
@@ -312,6 +314,17 @@ export function createDesignSaveMiddleware( id ) {
 		// merging that record's `styles` and `settings` over the theme, so handing back the envelope
 		// leaves both undefined and the canvas snaps to its pre-edit design.
 		const design = saved?.design ?? {};
+
+		// `discarded` means the save succeeded and kept none of it: sanitizing drops whatever falls
+		// outside the theme.json schema. Without saying so, the panel goes clean and the creator is
+		// told their edit was saved when the stored design no longer contains it.
+		if ( saved?.discarded ) {
+			dispatch( noticesStore ).createNotice(
+				'error',
+				__( 'Those changes could not be saved to your email design.', 'jetpack' ),
+				{ type: 'snackbar', isDismissible: true }
+			);
+		}
 
 		return { id, settings: design.settings ?? {}, styles: design.styles ?? {} };
 	};
