@@ -81,9 +81,9 @@ const SENSITIVE_PATH = '/wp-config.php';
 /**
  * Whether the given manifest path names the file above.
  *
- * Compared after the volume prefix, and a path without one is compared
- * whole: the `5` in `f5:` is VaultPress's data-type code rather than part
- * of the file's identity, so matching on it would let the gate fail open.
+ * Compared after the volume prefix and lowercased: the `5` in `f5:` is a
+ * data-type code, not part of the file's identity, so matching it would let
+ * the gate fail open.
  *
  * @param manifestPath - The volume-prefixed manifest path, e.g. `f5:/wp-config.php`.
  * @return True when the preview needs a reveal.
@@ -92,7 +92,7 @@ function isSensitivePath( manifestPath: string | undefined ): boolean {
 	if ( ! manifestPath ) {
 		return false;
 	}
-	return manifestPath.slice( manifestPath.indexOf( ':' ) + 1 ) === SENSITIVE_PATH;
+	return manifestPath.slice( manifestPath.indexOf( ':' ) + 1 ).toLowerCase() === SENSITIVE_PATH;
 }
 
 type Props = {
@@ -248,6 +248,7 @@ function PreviewBody( {
  */
 export default function FileInfoCard( { file, onClose }: Props ) {
 	const mimeType = mimeFromName( file.name );
+	const previewRef = useRef< HTMLDivElement >( null );
 	const { tracks } = useAnalytics();
 	const [ revealed, setRevealed ] = useState( false );
 	// Withholding the fetch too, not just the `<pre>`: unrevealed secrets never
@@ -257,6 +258,9 @@ export default function FileInfoCard( { file, onClose }: Props ) {
 	const reveal = useCallback( () => {
 		setRevealed( true );
 		tracks.recordEvent( 'jetpack_backup_browser_preview_file_sensitive_click' );
+		// The click unmounts the button holding focus. Same contract the close
+		// button keeps in `file-browser/index.tsx`: move focus, hand it back.
+		previewRef.current?.focus();
 	}, [ tracks ] );
 	const {
 		content,
@@ -281,7 +285,6 @@ export default function FileInfoCard( { file, onClose }: Props ) {
 	//
 	// Keyed on `manifestPath` so switching between files re-announces, while
 	// a re-render for any other reason does not steal focus back.
-	const previewRef = useRef< HTMLDivElement >( null );
 	useEffect( () => {
 		// Reset here too: the card is not remounted per file, so without this a
 		// return visit to `wp-config.php` would print it with no second click.

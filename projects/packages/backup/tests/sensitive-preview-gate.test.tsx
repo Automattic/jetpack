@@ -20,7 +20,7 @@ jest.mock( '@wordpress/api-fetch', () => ( {
 } ) );
 
 // Imports must come after the jest.mock factories above.
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import FileInfoCard from '../src/dashboard/components/file-info-card';
 import { queryClient } from '../src/dashboard/data/query-client';
@@ -213,6 +213,30 @@ describe( 'sensitive preview gate', () => {
 		} );
 
 		await expect( screen.findByText( UNAVAILABLE ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByText( SECRET ) ).not.toBeInTheDocument();
+		expect( fetchedContent() ).toBe( false );
+	} );
+	it( 'hands focus to the preview it just revealed', async () => {
+		mockEndpoints( SECRET );
+		renderCard( WP_CONFIG );
+
+		await userEvent.click( await screen.findByRole( 'button', { name: SHOW } ) );
+
+		// The click unmounts the button holding focus, so without a handback the
+		// next Tab starts again at the top of the tree.
+		await waitFor( () =>
+			expect( screen.getByRole( 'region', { name: /Preview of wp-config.php/ } ) ).toHaveFocus()
+		);
+	} );
+
+	it( 'gates a differently-cased wp-config.php', async () => {
+		// `mimeFromName` lowercases the extension, so an uppercase name is still
+		// previewable — the gate has to match the same way or it fails open.
+		mockEndpoints( SECRET );
+
+		renderCard( { ...WP_CONFIG, name: 'WP-CONFIG.PHP', manifestPath: 'f5:/WP-CONFIG.PHP' } );
+
+		await expect( screen.findByText( HIDDEN ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByText( SECRET ) ).not.toBeInTheDocument();
 		expect( fetchedContent() ).toBe( false );
 	} );
