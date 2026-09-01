@@ -12,9 +12,13 @@
  */
 import { ExperimentalEmailEditor } from '@woocommerce/email-editor';
 import apiFetch from '@wordpress/api-fetch';
+import { useBlockProps } from '@wordpress/block-editor';
+import { getBlockType, registerBlockType } from '@wordpress/blocks';
 import { Notice } from '@wordpress/components';
+import { dispatch } from '@wordpress/data';
 import { createRoot, StrictMode } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { store as noticesStore } from '@wordpress/notices';
 import { addQueryArgs } from '@wordpress/url';
 
 // Declared by the Jetpack plugin on every platform, answered by WordPress.com, so
@@ -28,6 +32,9 @@ const TEMPLATE_POST_TYPE = 'wp_template';
 // The editor assigns these straight to `window.location.href`, so `javascript:`
 // and `data:` would execute rather than navigate.
 const NAVIGABLE_PROTOCOLS = [ 'http:', 'https:' ];
+
+// A save arrives as any of these, depending on whether core-data creates or updates.
+const WRITE_METHODS = [ 'POST', 'PUT', 'PATCH' ];
 
 /**
  * Check that a URL the editor will navigate to is one the browser can navigate to.
@@ -273,6 +280,116 @@ export function getTemplateId( bundle ) {
 }
 
 /**
+ * Register the email blocks this installation has no definition for.
+ *
+ * WordPress.com registers them in PHP, which does not run on Atomic or self-hosted, so without
+ * this the editor reports each one as an unsupported block. Anything already registered is left
+ * alone: the payload carries only blocks outside the `core/` namespace, but a site is still free
+ * to have registered one itself, and ours must not replace a real implementation.
+ *
+ * Dynamic blocks with no client-side edit, so the canvas shows a labelled placeholder. What the
+ * subscriber receives is rendered server-side and is unaffected.
+ *
+ * @param {object} bundle - The response from the bootstrap route.
+ * @return {void}
+ */
+export function registerEmailBlocks( bundle ) {
+	const blocks = Array.isArray( bundle?.blocks ) ? bundle.blocks : [];
+
+	blocks.forEach( block => {
+		if ( ! block?.name || getBlockType( block.name ) ) {
+			return;
+		}
+
+		// Falls back to the slug: a block that registered no title would otherwise draw an empty
+		// label rather than something identifiable.
+		const title = block.title || block.name;
+
+		// Named and capitalised so it reads as a component: `useBlockProps` is a hook, and an
+		// anonymous arrow here trips rules-of-hooks.
+		const EmailBlockPlaceholder = () => <div { ...useBlockProps() }>{ title }</div>;
+
+		registerBlockType( block.name, {
+			apiVersion: 3,
+			title,
+			description: block.description || '',
+			category: block.category || 'design',
+			attributes: block.attributes || {},
+
+			// Template furniture rather than blocks a creator adds by hand.
+			supports: { ...( block.supports || {} ), html: false, inserter: false },
+
+			edit: EmailBlockPlaceholder,
+			save: () => null,
+		} );
+	} );
+}
+
+/**
+ * Catch the Styles panel's save and send it to WordPress.com instead.
+ *
+ * The editor writes a core-data `globalStyles` entity, but the design is stored in a WordPress.com
+ * blog option rather than a post, so the write has to be re-addressed to the bootstrap route.
+ *
+ * Matched on this one record's exact path and nothing else. The editor also holds the *site's* own
+ * global-styles record, at edit context, so anything broader would push the site's design through
+ * the email endpoint — and would look correct while doing it on Simple, where the site and the
+ * shadow blog are the same database.
+ *
+ * @param {number} id - The global-styles id the bundle named.
+ * @return {Function} An `apiFetch` middleware.
+ */
+export function createDesignSaveMiddleware( id ) {
+	const target = `/wp/v2/global-styles/${ id }`;
+
+	return async ( options, next ) => {
+		const path = 'string' === typeof options.path ? options.path.split( '?' )[ 0 ] : '';
+		const method = ( options.method || 'GET' ).toUpperCase();
+
+		if ( target !== path || ! WRITE_METHODS.includes( method ) ) {
+			return next( options );
+		}
+
+		// Only the theme.json halves: core-data hands over its whole record, and its `id` is the
+		// sentinel that stands in for a post that does not exist. Sanitizing drops it either way,
+		// but sending it makes every save look like it lost a property to anything comparing what
+		// was sent against what was stored. `version` and `isGlobalStylesUserThemeJSON` are the
+		// store's to set, so they are not ours to send.
+		const { styles, settings } = options.data ?? {};
+		const submitted = {
+			...( undefined === styles ? {} : { styles } ),
+			...( undefined === settings ? {} : { settings } ),
+		};
+
+		const saved = await apiFetch( {
+			path: BOOTSTRAP_PATH,
+			method: 'POST',
+			data: { design: submitted },
+		} );
+
+		// The route answers with an envelope — `{ blog_id, design, discarded }` — around a read-back
+		// of what was stored, since sanitizing drops anything outside the theme.json schema. Unwrap
+		// it: core-data takes what comes back as the record itself, and the canvas is drawn by
+		// merging that record's `styles` and `settings` over the theme, so handing back the envelope
+		// leaves both undefined and the canvas snaps to its pre-edit design.
+		const design = saved?.design ?? {};
+
+		// `discarded` means the save succeeded and kept none of it: sanitizing drops whatever falls
+		// outside the theme.json schema. Without saying so, the panel goes clean and the creator is
+		// told their edit was saved when the stored design no longer contains it.
+		if ( saved?.discarded ) {
+			dispatch( noticesStore ).createNotice(
+				'error',
+				__( 'Those changes could not be saved to your email design.', 'jetpack' ),
+				{ type: 'snackbar', isDismissible: true }
+			);
+		}
+
+		return { id, settings: design.settings ?? {}, styles: design.styles ?? {} };
+	};
+}
+
+/**
  * What the screen shows when it could not load.
  *
  * The design lives on another site, so without this "nothing appeared" and "your
@@ -320,8 +437,18 @@ export async function mountEmailDesignEditor() {
 		} );
 
 		const config = buildEditorConfig( bundle, data );
+
+		// Before the render, not after: the template is parsed on first render and its blocks are
+		// resolved against the registry at that moment. Registering later leaves the same
+		// unsupported-block errors, which looks identical to this never running.
+		registerEmailBlocks( bundle );
+
 		const postId = getTemplateId( bundle );
 		const preload = buildPreloadMap( bundle, postId );
+
+		if ( config.globalStylesPostId ) {
+			apiFetch.use( createDesignSaveMiddleware( config.globalStylesPostId ) );
+		}
 
 		if ( preload ) {
 			// Registered last so it runs first: api-fetch applies middlewares right to
