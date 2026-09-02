@@ -770,9 +770,10 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Tests that `meta.icon` is the same markup wp-admin renders, so the two cannot drift.
+	 * Tests that `meta.icon` names the glyph wp-admin renders, so the two cannot drift.
 	 *
-	 * @param string $id Node ID.
+	 * @param string $id            Node ID.
+	 * @param string $expected_name Glyph name the node is expected to advertise.
 	 * @dataProvider provide_icon_bearing_node_ids
 	 */
 	#[DataProvider( 'provide_icon_bearing_node_ids' )]
@@ -789,10 +790,11 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		if ( PHP_VERSION_ID < 80100 ) {
 			$get_icon->setAccessible( true );
 		}
-		$this->assertStringContainsString(
-			$get_icon->invoke( Agents_Manager::get_instance(), $expected_name ),
-			$node->title
-		);
+		$markup = $get_icon->invoke( Agents_Manager::get_instance(), $expected_name );
+
+		// `get_icon()` returns '' for a name it does not know, which would make the check below vacuous.
+		$this->assertNotSame( '', $markup );
+		$this->assertStringContainsString( $markup, $node->title );
 	}
 
 	/**
