@@ -9,6 +9,10 @@ import AiFeatures from '../index';
 jest.mock( 'lib/analytics', () => ( { tracks: { recordEvent: jest.fn() } } ), { virtual: true } );
 
 describe( 'AiFeatures rendering', () => {
+	afterEach( () => {
+		delete window.jetpackAiSettings;
+	} );
+
 	const renderFeatures = ( overrides = {} ) =>
 		render(
 			<AiFeatures
@@ -207,6 +211,28 @@ describe( 'AiFeatures rendering', () => {
 		expect( toggle ).toBeDisabled();
 
 		expect( screen.queryByText( 'Learn more' ) ).not.toBeInTheDocument();
+	} );
+
+	test( 'host without My Jetpack: master-off notice renders without the manage link', () => {
+		// An explicit empty myJetpackUrl (WordPress.com Simple) means the page
+		// the link would open never registers there.
+		window.jetpackAiSettings = { myJetpackUrl: '' };
+		renderFeatures( { master_enabled: false } );
+
+		expect( screen.getByText( 'Jetpack AI is turned off for this site.' ) ).toBeInTheDocument();
+		expect(
+			screen.queryByRole( 'link', { name: 'Manage in My Jetpack' } )
+		).not.toBeInTheDocument();
+	} );
+
+	test( 'host without a Search dashboard: the AI Search row keeps its toggle, loses its link', () => {
+		window.jetpackAiSettings = { searchSettingsUrl: '' };
+		renderFeatures( { features: { ai_search: { enabled: true } } } );
+
+		expect( screen.getByRole( 'checkbox', { name: /AI Search/ } ) ).toBeInTheDocument();
+		expect(
+			screen.queryByRole( 'link', { name: 'Open Search Settings' } )
+		).not.toBeInTheDocument();
 	} );
 
 	test( 'not connected: connect notice, toggles keep saved values but disable, links and badge hidden', () => {

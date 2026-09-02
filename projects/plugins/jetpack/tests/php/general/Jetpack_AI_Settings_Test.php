@@ -508,15 +508,19 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * On WordPress.com Simple the owned features have no per-feature toggles,
-	 * so a stored off value cannot switch the SEO feature off there.
+	 * On WordPress.com Simple the owned toggles honor their stored values —
+	 * the feature-settings endpoint is the writable surface there — so a
+	 * stored off value switches the SEO feature off.
 	 */
-	public function test_seo_feature_forced_on_for_wpcom_simple() {
+	public function test_seo_feature_follows_its_option_on_wpcom_simple() {
 		Constants::set_constant( 'IS_WPCOM', true );
 		update_option( Jetpack_AI_Settings::MASTER_OPTION, 1 );
+
+		$this->assertTrue( Jetpack_AI_Settings::is_ai_seo_enabled(), 'Defaults on with the master on.' );
+
 		update_option( 'jetpack_ai_seo_enabled', 0 );
 
-		$this->assertTrue( Jetpack_AI_Settings::is_ai_seo_enabled() );
+		$this->assertFalse( Jetpack_AI_Settings::is_ai_seo_enabled() );
 	}
 
 	/**
@@ -531,19 +535,24 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * WordPress.com Simple has no per-feature toggles: the options Jetpack owns
-	 * are ignored there, so a stored `off` cannot switch a feature off. Simple
-	 * keeps the existing wp.com settings contract instead.
+	 * On WordPress.com Simple the owned toggles honor their stored values: the
+	 * feature-settings endpoint is the writable surface there, so a stored
+	 * `off` switches the feature off and the default keeps it on.
 	 */
-	public function test_owned_features_ignore_their_option_on_wpcom_simple() {
+	public function test_owned_features_follow_their_option_on_wpcom_simple() {
 		Constants::set_constant( 'IS_WPCOM', true );
 
 		foreach ( Jetpack_AI_Settings::OWNED_FEATURES as $feature ) {
-			update_option( Jetpack_AI_Settings::FEATURE_OPTIONS[ $feature ], 0 );
-
 			$this->assertTrue(
 				Jetpack_AI_Settings::is_feature_enabled( $feature ),
-				"$feature should stay on for WordPress.com Simple"
+				"$feature should default on for WordPress.com Simple"
+			);
+
+			update_option( Jetpack_AI_Settings::FEATURE_OPTIONS[ $feature ], 0 );
+
+			$this->assertFalse(
+				Jetpack_AI_Settings::is_feature_enabled( $feature ),
+				"$feature should honor a stored off on WordPress.com Simple"
 			);
 		}
 	}

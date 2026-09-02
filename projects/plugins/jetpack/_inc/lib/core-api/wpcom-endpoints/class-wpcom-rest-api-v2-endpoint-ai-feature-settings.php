@@ -12,11 +12,8 @@
  *
  * Unlike the MCP settings endpoint, nothing here proxies to WPCOM: the
  * settings are site-local wp_options, so the endpoint works the same on
- * Atomic and self-hosted sites. On WordPress.com Simple the route does not
- * register at all — Simple keeps the existing wp.com settings contract, and
- * with core settings REST also refusing these options there, the new
- * per-feature options stay unwritten on Simple while the reused SEO/Search
- * options keep their existing owning surfaces.
+ * every host. On WordPress.com Simple it is the only writable surface for
+ * these options — core settings REST refuses them there.
  *
  * @package automattic/jetpack
  */
@@ -65,15 +62,11 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings extends WP_REST_Controller 
 	/**
 	 * Register routes.
 	 *
-	 * Not on WordPress.com Simple: the per-feature toggles and their write
-	 * endpoint apply to Atomic and self-hosted sites only, while Simple keeps
-	 * the existing wp.com settings contract.
+	 * Registered on every host, WordPress.com Simple included: the Hub's
+	 * WordPress Agent view reads and writes through this route wherever the
+	 * page loads (see the file header for Simple).
 	 */
 	public function register_routes() {
-		if ( ( new Host() )->is_wpcom_simple() ) {
-			return;
-		}
-
 		register_rest_route(
 			$this->namespace,
 			'/' . $this->rest_base,
@@ -181,15 +174,35 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings extends WP_REST_Controller 
 	 * @return array
 	 */
 	private function build_settings_response() {
-		$search_plan = class_exists( Search_Plan::class ) ? new Search_Plan() : null;
+		if ( ( new Host() )->is_wpcom_simple() && function_exists( 'wpcom_site_has_feature' ) ) {
+			// Search\Plan's cache never populates on Simple (its refresh signs a
+			// blog-token request), so read the WordPress.com feature gates instead.
+			// AI Answers needs Instant Search: classic-search-only plans
+			// (Business and higher) still need the Search purchase.
+			$has_instant = (bool) wpcom_site_has_feature( 'instant-search' );
+			// The free Search tier grants instant-search but cannot run AI
+			// Answers; free and paid Search do not coexist on Simple.
+			$is_free_search_plan = function_exists( 'wpcom_get_site_purchases' )
+				&& (bool) wp_list_filter( wpcom_get_site_purchases(), array( 'product_slug' => 'jetpack_search_free' ) );
 
-		// Entitlement: the plan includes some Search product (Classic or Instant).
-		$supports_search = $search_plan && $search_plan->supports_search();
+			$supports_search            = $has_instant && ! $is_free_search_plan;
+			$ai_search_requires_upgrade = ! $supports_search;
+		} else {
+			$search_plan = class_exists( Search_Plan::class ) ? new Search_Plan() : null;
 
-		// AI Answers only runs with the paid Search product provisioned. Mirror
-		// the gate the Search dashboard's AI Answers tab uses for its upsell:
-		// gated when the plan is free or lacks Instant Search.
-		$ai_search_requires_upgrade = ! ( $search_plan && $search_plan->supports_instant_search() && ! $search_plan->is_free_plan() );
+			// Entitlement: the plan includes some Search product (Classic or Instant).
+			$supports_search = $search_plan && $search_plan->supports_search();
+
+			// AI Answers only runs with the paid Search product provisioned. Mirror
+			// the gate the Search dashboard's AI Answers tab uses for its upsell:
+			// gated when the plan is free or lacks Instant Search.
+			$ai_search_requires_upgrade = ! ( $search_plan && $search_plan->supports_instant_search() && ! $search_plan->is_free_plan() );
+
+			// The free Search tier reports supports_search too, but its remedy for
+			// the gated AI Search row is still an upgrade — the settings page needs
+			// this flag to pick the right badge copy.
+			$is_free_search_plan = $supports_search && $search_plan->is_free_plan();
+		}
 
 		$stored = array();
 		foreach ( Jetpack_AI_Settings::FEATURE_OPTIONS as $key => $option ) {
@@ -206,10 +219,7 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings extends WP_REST_Controller 
 			'plan'              => array(
 				'supports_ai'         => class_exists( Current_Plan::class ) && Current_Plan::supports( 'ai-assistant' ),
 				'supports_search'     => $supports_search,
-				// The free Search tier reports supports_search too, but its
-				// remedy for the gated AI Search row is still an upgrade — the
-				// settings page needs this flag to pick the right badge copy.
-				'is_free_search_plan' => $supports_search && $search_plan->is_free_plan(),
+				'is_free_search_plan' => $is_free_search_plan,
 			),
 			'master_enabled'    => Jetpack_AI_Settings::is_master_enabled(),
 			'features'          => array(

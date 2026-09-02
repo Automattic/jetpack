@@ -331,12 +331,10 @@ class Jetpack_AI_Settings {
 			return false;
 		}
 
-		// The toggles this class owns stay on wherever they do not apply: Simple keeps
-		// the existing wp.com settings contract, and elsewhere they are not publicly
-		// launched. The reused Search option ships today with its own settings
-		// surface, so it always honors its stored value.
-		if ( in_array( $feature, self::OWNED_FEATURES, true )
-			&& ( ( new Host() )->is_wpcom_simple() || ! self::should_enforce_ai_controls() ) ) {
+		// The owned toggles are not publicly launched, so off Simple they apply on
+		// internal testing environments only. On Simple they honor their stored
+		// values — the feature-settings endpoint is the writable surface there.
+		if ( in_array( $feature, self::OWNED_FEATURES, true ) && ! self::should_enforce_ai_controls() ) {
 			return true;
 		}
 

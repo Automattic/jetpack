@@ -16,6 +16,7 @@ return make_phan_config(
 		'+stubs'                          => array( 'full-site-editing', 'gutenberg', 'photon-opencv', 'wpcom' ),
 		'exclude_file_list'               => array(
 			'tests/lib/class-wpcom-features.php',
+			'tests/php/features/jetpack-ai-hub/fixtures/wpcom-store-fakes.php',
 		),
 		'exclude_file_regex'              => array(
 			'build/',

@@ -207,6 +207,8 @@ class Jetpack_AI_Page {
 			$script_version = $asset_manifest['version'];
 		}
 
+		$host        = new Host();
+		$is_simple   = $host->is_wpcom_simple();
 		$blog_id     = Connection_Manager::get_site_id( true );
 		$status      = new Status();
 		$site_suffix = $status->get_site_suffix();
@@ -215,8 +217,10 @@ class Jetpack_AI_Page {
 		// the approach used by jetpack-mu-wpcom for the sidebar Activity Log link.
 		$site_host         = wp_parse_url( home_url(), PHP_URL_HOST );
 		$activity_log_site = ( is_string( $site_host ) && '' !== $site_host ) ? $site_host : $site_suffix;
-		// On Atomic link to WPCOM activity log; on self-hosted link to the local wp-admin page.
-		$activity_log_url = ( new Host() )->is_woa_site()
+		// On WordPress.com (Simple and Atomic) link to the WPCOM activity log —
+		// matching the wpcom admin menu, which hides the local Jetpack Activity
+		// Log page there. On self-hosted link to the local wp-admin page.
+		$activity_log_url = $host->is_wpcom_platform()
 			? 'https://wordpress.com/activity-log/' . $activity_log_site
 			: admin_url( 'admin.php?page=jetpack-activity-log' );
 
@@ -231,7 +235,11 @@ class Jetpack_AI_Page {
 		$seo_settings_url          = admin_url( 'admin.php?page=jetpack#/traffic' );
 		$is_internal_test          = jetpack_is_internal_testing_environment();
 		$show_scheduled_tasks_view = self::is_scheduled_tasks_enabled();
-		if (
+		if ( $is_simple ) {
+			// Simple registers neither the Traffic card nor the SEO page; its SEO
+			// settings live on wordpress.com, same target as the wpcom admin menu's.
+			$seo_settings_url = 'https://wordpress.com/marketing/traffic/' . $activity_log_site;
+		} elseif (
 			// The exact-symbol guard matters: the autoloader can select an older
 			// jetpack-seo copy from another plugin that has the class but not
 			// this method, and class_exists alone would then fatal here.
@@ -276,62 +284,87 @@ class Jetpack_AI_Page {
 				// Pre-release gate for the Overview and Features views. When opening
 				// them to everyone, also drop the matching gate in My Jetpack's
 				// Jetpack_Ai::get_manage_url() so its links land here too.
-				'showGatedViews'  => $is_internal_test,
-				'isUserConnected' => ( new Connection_Manager() )->is_user_connected(),
-				'mcpSettingsApi'  => array(
+				'showGatedViews'    => $is_internal_test,
+				// Whether the gated views carry the internal-audience badge: on by
+				// default only when the internal gate is why they show, so a host
+				// that opens them (Simple) does not ship the badge to customers.
+				'gatedViewsBadge'   => $is_internal_test,
+				'isUserConnected'   => ( new Connection_Manager() )->is_user_connected(),
+				'mcpSettingsApi'    => array(
 					'path'   => '/wpcom/v2/jetpack-ai/mcp-settings',
 					'format' => 'jetpack',
 				),
+				// Link targets the Features view cannot compute host-aware itself.
+				// Empty means the surface does not exist here; the view hides the link.
+				'seoSettingsUrl'    => $seo_settings_url,
+				'searchSettingsUrl' => $is_simple ? '' : 'admin.php?page=jetpack-search#/ai-answers',
+				'myJetpackUrl'      => $is_simple ? '' : 'admin.php?page=my-jetpack#/products',
 			)
 		);
 
 		$show_gated_views = ! empty( $config['showGatedViews'] );
 
-		$plan_info = $show_gated_views ? self::get_ai_plan_info() : array(
+		$plan_info = array(
 			'name'       => '',
 			'renews_on'  => '',
 			'auto_renew' => true,
 		);
+		if ( $show_gated_views ) {
+			// A host may precompute the plan platform-natively (WordPress.com
+			// Simple's mu-wpcom configure() does — see its get_plan_info()).
+			$plan_info = isset( $config['planInfo'] ) && is_array( $config['planInfo'] )
+				? array_merge( $plan_info, $config['planInfo'] )
+				: self::get_ai_plan_info();
+
+			// The card shows the bare plan name ("Business"); trimming the store
+			// brands here keeps one trim site for every producer of the name.
+			$plan_info['name'] = (string) preg_replace( '/^(Jetpack|WordPress\.com) /', '', (string) $plan_info['name'] );
+		}
 
 		$settings = array(
-			'blogId'           => $blog_id ? (int) $blog_id : 0,
-			'activityLogUrl'   => $activity_log_url,
-			'seoSettingsUrl'   => $seo_settings_url,
-			'siteAdminUrl'     => admin_url(),
-			'apiRoot'          => esc_url_raw( rest_url() ),
-			'apiNonce'         => wp_create_nonce( 'wp_rest' ),
-			'pluginUrl'        => plugins_url( '', JETPACK__PLUGIN_FILE ),
+			'blogId'              => $blog_id ? (int) $blog_id : 0,
+			'activityLogUrl'      => $activity_log_url,
+			'seoSettingsUrl'      => (string) ( $config['seoSettingsUrl'] ?? '' ),
+			'siteAdminUrl'        => admin_url(),
+			'apiRoot'             => esc_url_raw( rest_url() ),
+			'apiNonce'            => wp_create_nonce( 'wp_rest' ),
+			'pluginUrl'           => plugins_url( '', JETPACK__PLUGIN_FILE ),
 			// The redirect entry bakes in the jetpack_ai_yearly product and
 			// a post-checkout return to this page, so both can be
 			// retargeted without shipping a code change.
-			'upgradeUrl'       => Redirect::get_url( 'jetpack-ai-hub-upgrade' ),
+			'upgradeUrl'          => Redirect::get_url( 'jetpack-ai-hub-upgrade' ),
 			// The purchase granting AI, for the Overview usage card — the
 			// usage endpoint cannot name it. Only looked up when a gated
 			// view can render it.
-			'planName'         => $plan_info['name'],
+			'planName'            => $plan_info['name'],
 			// The plan's own renewal date, matching My Jetpack — the
 			// usage-period rollover is a different, monthly date.
-			'planRenewsOn'     => $plan_info['renews_on'],
+			'planRenewsOn'        => $plan_info['renews_on'],
 			// The same date reads "Renews on" or "Expires on" depending on
 			// auto-renew, matching My Jetpack and the wpcom subscriptions page.
-			'planAutoRenew'    => $plan_info['auto_renew'],
-			'showFeaturesView' => $show_gated_views,
+			'planAutoRenew'       => $plan_info['auto_renew'],
+			'showFeaturesView'    => $show_gated_views,
+			// Label the gated tabs as internal-only wherever that is still why
+			// they show — a host that opened them keeps the badge off.
+			'showGatedViewsBadge' => $show_gated_views && ! empty( $config['gatedViewsBadge'] ),
+			'searchSettingsUrl'   => (string) ( $config['searchSettingsUrl'] ?? '' ),
+			'myJetpackUrl'        => (string) ( $config['myJetpackUrl'] ?? '' ),
 			// The tab and its Agents Manager sidebar ship disabled by default.
-			'featureFlags'     => array(
+			'featureFlags'        => array(
 				Jetpack_AI_Feature_Flags::SCHEDULED_TASKS => $show_scheduled_tasks_view,
 			),
 			// The usage endpoint proxies as the current user, which needs
 			// their own WordPress.com account linked — not just the site.
-			'isUserConnected'  => ! empty( $config['isUserConnected'] ),
+			'isUserConnected'     => ! empty( $config['isUserConnected'] ),
 			// Tracks audience properties for the jetpack_mcp_* events, per the
 			// Tracks standards for AI product events (AIINT-586). The client
 			// sends them as the strings 'true'/'false' (AIINT-576).
-			'isA11n'           => self::is_current_user_automattician(),
-			'isTest'           => $is_internal_test,
+			'isA11n'              => self::is_current_user_automattician(),
+			'isTest'              => $is_internal_test,
 			// Identity for Tracks; the lookup can call WordPress.com on a
 			// cache miss, so it shares the sender's guard.
-			'tracksUserData'   => $can_send_tracks ? self::get_tracks_user_data() : null,
-			'mcpSettingsApi'   => $config['mcpSettingsApi'],
+			'tracksUserData'      => $can_send_tracks ? self::get_tracks_user_data() : null,
+			'mcpSettingsApi'      => $config['mcpSettingsApi'],
 		);
 
 		wp_add_inline_script(
@@ -456,9 +489,8 @@ class Jetpack_AI_Page {
 
 		$info = $empty;
 		if ( $purchase && ! empty( $purchase->product_name ) && 'expired' !== ( $purchase->expiry_status ?? '' ) ) {
-			// The design shows the bare plan name ("Complete", "Business"), so
-			// trim the store names' brand prefixes; they are untranslated.
-			$info['name']      = (string) preg_replace( '/^(Jetpack|WordPress\.com) /', '', (string) $purchase->product_name );
+			// Raw store name; the caller trims the brand prefixes in one place.
+			$info['name']      = (string) $purchase->product_name;
 			$info['renews_on'] = (string) ( $purchase->expiry_date ?? '' );
 			// Absent means unknown, not off: only a purchase that positively
 			// reports auto-renew off should relabel the date as an expiry.

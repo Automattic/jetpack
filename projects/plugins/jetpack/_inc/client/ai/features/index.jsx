@@ -15,16 +15,22 @@ import { __ } from '@wordpress/i18n';
 import { Badge, Card, Link, Notice, Popover, Stack, Text, VisuallyHidden } from '@wordpress/ui';
 import { EVENTS, recordAiHubEvent } from '../tracks';
 
-// Server-computed target for the AI SEO row: the dedicated Jetpack SEO page
-// where it exists, the Traffic settings card otherwise. Falls back to Traffic
-// when jetpackAiSettings is unavailable (e.g. in tests).
-const { seoSettingsUrl } = window?.jetpackAiSettings ?? {};
+// Server-computed link targets, read at call time so the injected page data
+// is honoured wherever this mounts. Missing key = wp-admin default (tests,
+// older payloads); explicit '' = surface absent on this host, link hidden.
+const getLinkTargets = () => {
+	const {
+		seoSettingsUrl = 'admin.php?page=jetpack#/traffic',
+		searchSettingsUrl = 'admin.php?page=jetpack-search#/ai-answers',
+		myJetpackUrl = 'admin.php?page=my-jetpack#/products',
+	} = window?.jetpackAiSettings ?? {};
+	return { seoSettingsUrl, searchSettingsUrl, myJetpackUrl };
+};
 
 // Per the design, a row's action link depends on the toggle state: enabled
-// features invite you to try them (AI SEO opens its settings), disabled ones
-// link to documentation via registered Jetpack Redirects handlers. A row with
-// a single `action` shows that link in both states.
-const SECTIONS = [
+// features invite you to try them, disabled ones link to documentation. A
+// single `action` shows in both states; a missing enabledAction shows none.
+export const getSections = ( { seoSettingsUrl, searchSettingsUrl } ) => [
 	{
 		key: 'content',
 		title: __( 'Content', 'jetpack' ),
@@ -83,10 +89,12 @@ const SECTIONS = [
 					'AI recommendations to optimize titles, meta descriptions, and content for search engines.',
 					'jetpack'
 				),
-				enabledAction: {
-					label: __( 'Open SEO Settings', 'jetpack' ),
-					href: seoSettingsUrl || 'admin.php?page=jetpack#/traffic',
-				},
+				enabledAction: seoSettingsUrl
+					? {
+							label: __( 'Open SEO Settings', 'jetpack' ),
+							href: seoSettingsUrl,
+					  }
+					: undefined,
 				disabledAction: {
 					label: __( 'Learn more', 'jetpack' ),
 					href: getRedirectUrl( 'jetpack-ai-settings-seo-learn-more' ),
@@ -106,11 +114,14 @@ const SECTIONS = [
 					'Help visitors and AI agents find answers in your content, via Jetpack Search.',
 					'jetpack'
 				),
-				enabledAction: {
-					label: __( 'Open Search Settings', 'jetpack' ),
-					// The toggle lives on the Search dashboard's AI tab, not Overview.
-					href: 'admin.php?page=jetpack-search#/ai-answers',
-				},
+				// The toggle lives on the Search dashboard's AI tab — a page some
+				// hosts (WordPress.com Simple) never register.
+				enabledAction: searchSettingsUrl
+					? {
+							label: __( 'Open Search Settings', 'jetpack' ),
+							href: searchSettingsUrl,
+					  }
+					: undefined,
 				disabledAction: {
 					label: __( 'Learn more', 'jetpack' ),
 					href: getRedirectUrl( 'jetpack-ai-settings-search-learn-more' ),
@@ -246,7 +257,11 @@ export default function AiFeatures( { settings, savingKeys, onUpdate } ) {
 				/* dummy arg to avoid bad minification */ 0
 		  );
 
-	const sections = visibleSections( SECTIONS, features );
+	const { seoSettingsUrl, searchSettingsUrl, myJetpackUrl } = getLinkTargets();
+	const sections = visibleSections(
+		getSections( { seoSettingsUrl, searchSettingsUrl } ),
+		features
+	);
 
 	const handleToggle = useCallback(
 		( key, enabled ) => {
@@ -303,13 +318,16 @@ export default function AiFeatures( { settings, savingKeys, onUpdate } ) {
 						{ __(
 							'Your feature settings are saved and will apply again when AI is turned back on.',
 							'jetpack'
-						) }{ ' ' }
-						<Link
-							href="admin.php?page=my-jetpack#/products"
-							className="jetpack-ai-features__notice-link"
-						>
-							{ __( 'Manage in My Jetpack', 'jetpack' ) }
-						</Link>
+						) }
+						{ /* No remedy link on hosts without My Jetpack (Simple). */ }
+						{ myJetpackUrl && (
+							<>
+								{ ' ' }
+								<Link href={ myJetpackUrl } className="jetpack-ai-features__notice-link">
+									{ __( 'Manage in My Jetpack', 'jetpack' ) }
+								</Link>
+							</>
+						) }
 					</Notice.Description>
 				</Notice.Root>
 			) }
