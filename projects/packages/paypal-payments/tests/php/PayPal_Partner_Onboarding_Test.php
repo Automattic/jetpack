@@ -576,6 +576,54 @@ class PayPal_Partner_Onboarding_Test extends TestCase {
 	}
 
 	/**
+	 * Test that a 403 on the feature probe leaves nothing connected behind.
+	 *
+	 * The credentials are stored before they are validated, so without a
+	 * rollback the site reports itself connected while the editor shows the
+	 * failure -- and the merchant is told to reconnect an account every other
+	 * screen already treats as connected.
+	 */
+	public function test_complete_onboarding_discards_credentials_when_the_api_is_not_authorized() {
+		$this->set_up_partner_state();
+		set_transient(
+			PayPal_Partner_Onboarding::SELLER_NONCE_TRANSIENT_KEY,
+			PayPal_OAuth::encrypt( 'seller_nonce_value' ),
+			1800
+		);
+		$this->mock_http_routes(
+			array(
+				'/v1/oauth2/token'                    => $this->http_response(
+					200,
+					array(
+						'access_token' => 'seller_token',
+						'expires_in'   => 3600,
+					)
+				),
+				'/merchant-integrations/credentials/' => $this->http_response(
+					200,
+					array(
+						'client_id'     => 'merchant_client_id',
+						'client_secret' => 'merchant_client_secret',
+					)
+				),
+				'/v1/checkout/payment-resources'      => $this->http_response( 403, array() ),
+			)
+		);
+
+		$result = PayPal_Partner_Onboarding::complete_onboarding( 'auth_code', 'shared_id', 'MERCHANT1' );
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertSame( 'paypal_api_not_authorized', $result->get_error_code() );
+
+		$this->assertFalse(
+			PayPal_OAuth::has_credentials(),
+			'A failed onboarding must not leave the site looking connected.'
+		);
+		$this->assertEmpty( PayPal_Partner_Onboarding::get_merchant_id() );
+		$this->assertEmpty( get_option( PayPal_Partner_Onboarding::ONBOARDING_METHOD_OPTION_KEY ) );
+	}
+
+	/**
 	 * Test that a platform misconfiguration is reported, not hidden.
 	 *
 	 * "Please try again" is wrong advice when WordPress.com is missing a
