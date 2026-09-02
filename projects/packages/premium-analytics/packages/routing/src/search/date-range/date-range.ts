@@ -23,9 +23,8 @@ export function decodeDateSearchParam( value?: string, timezone?: string ): Date
 }
 
 /**
- * Serializes a Date into an ISO string with the site's timezone
- * (or returns an empty string if no date is provided).
- * Useful for writing dates to the URL and for API requests.
+ * Serialize a Date into an ISO string with the site's timezone, for writing
+ * to the URL or API requests.
  */
 export function encodeDateToSearchParam( date?: Date, timezone?: string ): string | undefined {
 	return date ? dateToISOStringWithLocalTZ( localTZDate( date, timezone ) ) : undefined;
@@ -45,14 +44,9 @@ type WriteDateRangeToSearchProps = {
 };
 
 /**
- * Writes a DateRange to the URL using navigate().
- *
- * - Centralizes the conversion from Date -> ISO(+offset) according to
- *   the site's timezone.
- * - If you need to preserve/propagate `interval` or other params,
- *   pass them in `search`.
- * - Note: whether other existing params are preserved depends on the
- *   router's navigate implementation. This helper sets an explicit object.
+ * Write a DateRange to the URL, converting each end to ISO+offset in the
+ * site's timezone. Pass `interval` or other params via `search` to keep them
+ * alongside `from`/`to`.
  */
 export function writeDateRangeToSearch( {
 	navigate,

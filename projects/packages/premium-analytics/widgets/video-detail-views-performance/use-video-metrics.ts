@@ -88,11 +88,9 @@ type BucketWindow = {
 };
 
 /**
- * Extract a `YYYY-MM-DD` window from ISO report params, or undefined when
- * either bound is missing/malformed (`toDay` also rejects calendar-invalid
- * days before they reach `parseISO()`/`each*OfInterval()`, which throw on
- * them). The endpoint's day keys are date-only, so comparing date prefixes
- * keeps the slice timezone-stable.
+ * Extracts a `YYYY-MM-DD` window from ISO report params, or undefined when a
+ * bound is missing/malformed — `toDay` rejects invalid days before they'd
+ * reach `parseISO()`/`each*OfInterval()`, which throw on them.
  */
 function toDayWindow( from?: string, to?: string ): DayWindow | undefined {
 	const fromDay = toDay( from );
@@ -142,10 +140,9 @@ function calendarBucketWindows(
 }
 
 /**
- * Sum a daily series into zero-filled bucket totals keyed by bucket date. The
- * endpoint returns a contiguous daily `{ period, value }` array for the
- * requested window, so bucketing only sums the returned days and zero-fills
- * whatever the response is missing.
+ * Sums a daily series into zero-filled bucket totals. The endpoint returns a
+ * contiguous daily array for the window, so this only sums returned days and
+ * zero-fills what's missing.
  */
 function bucketTotals(
 	points: StatsSingleVideoDataPoint[],
@@ -165,14 +162,9 @@ function bucketTotals(
 }
 
 /**
- * Turn bucket totals into chart points.
- *
- * The bucket keys are plain site-local calendar dates, and the chart lays
- * points out and labels the axis through the browser's timezone — so the keys
- * are read as wall clocks with `toChartDate`, and the widget declares
- * `pointsAreWallClocks` to the chart (rationale in `chart-date.ts`). A real
- * site-midnight instant here would shift the label a day for any viewer west
- * of the site.
+ * Turns bucket totals into chart points. Keys are wall clocks, not instants —
+ * read via `toChartDate` with `pointsAreWallClocks` declared to the chart
+ * (rationale in `chart-date.ts`); a real instant would shift labels by timezone.
  */
 function toBucketPoints(
 	buckets: BucketWindow[],
@@ -185,11 +177,9 @@ function toBucketPoints(
 }
 
 /**
- * Weight each day's retention rate by that day's plays, so a bucket's value is
- * the retention of its combined plays rather than a raw average of days. The
- * daily rates arrive as percentages; the returned fractions match the tab's
- * percentage format. A bucket with no plays has no measured retention — it
- * stays at 0.
+ * Weights each day's retention by that day's plays, so a bucket reflects the
+ * retention of its combined plays, not a raw average of days. Rates arrive as
+ * percentages; returned fractions match the tab's format. No plays → 0.
  */
 function playWeightedRetention(
 	rates: StatsSingleVideoDataPoint[],
@@ -217,17 +207,9 @@ function playWeightedRetention(
 }
 
 /**
- * Fetch the scoped video's metric tabs for the dashboard's report params. The
- * `stats/video/{id}` endpoint takes its window from `period`/`start_date`/
- * `date` (wpcom #229903); the request uses `statType=all` with the raw report
- * params so it stays one request for the whole page, and each returned metric
- * series becomes a chart tab. Headlines come from the response's canonical
- * whole-range `total`s — including the play-weighted retention rate the daily
- * series alone cannot reproduce — falling back to the bucketed sums when a
- * total is missing. The video detail design has no period-over-period
- * comparison, so comparison report params are ignored — they ride along in the
- * URL untouched so dashboard state survives the round trip, and every widget
- * on this page disregards them.
+ * Fetches metric tabs via one `stats/video/{id}` `statType=all` report,
+ * headlined by the response's canonical totals (falling back to bucketed
+ * sums). Comparison params are ignored but left in the URL for round-trip state.
  */
 export default function useVideoMetrics(
 	videoId: number,

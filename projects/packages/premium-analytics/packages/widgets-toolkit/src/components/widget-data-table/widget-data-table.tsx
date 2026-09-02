@@ -3,12 +3,12 @@
  */
 import {
 	DataViews,
-	filterSortAndPaginate,
 	type Field,
 	type SupportedLayouts,
 	type View,
 } from '@jetpack-premium-analytics/externals';
-import { useMemo, useState } from 'react';
+import { usePaginatedView } from '@jetpack-premium-analytics/ui';
+import { useState } from 'react';
 /**
  * Internal dependencies
  */
@@ -84,15 +84,16 @@ export function WidgetDataTable< Item >( {
 			} ) as View
 	);
 
-	const { data: pageItems, paginationInfo } = useMemo(
-		() => filterSortAndPaginate( data, view, fields ),
-		[ data, view, fields ]
-	);
+	const {
+		view: effectiveView,
+		data: pageItems,
+		paginationInfo,
+	} = usePaginatedView( data, view, fields, setView );
 
 	return (
 		<div className={ styles.root }>
 			<GenericDataViews< Item >
-				view={ view }
+				view={ effectiveView }
 				onChangeView={ setView }
 				fields={ fields }
 				data={ pageItems }

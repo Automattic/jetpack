@@ -55,12 +55,8 @@ type BuildTimeSeriesChartOptions< T extends TimeSeriesData > = {
 
 /**
  * Build a chart's current- and previous-period series from a time-series
- * response, reading one metric out of each point.
- *
- * Both series share a `group`, so the legend collapses them into the single
- * item the current period's label carries. Pass `label` when that item should
- * name the metric — the section header already names the dates, so a range
- * there says nothing the reader cannot already see.
+ * response, reading one metric out of each point. Both series share a `group`
+ * and collapse into one legend item; pass `label` to name it after the metric.
  *
  * @param options                   - The build options.
  * @param options.primary           - The current-period response.

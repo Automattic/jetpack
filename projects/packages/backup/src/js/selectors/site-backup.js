@@ -24,6 +24,10 @@ const siteBackupSelectors = {
 	getBackups: state => state.siteBackups.backups ?? [],
 	hasLoadedBackups: state => state.siteBackups.loaded,
 	isFetchingBackups: state => state.siteBackups.isFetching,
+	// Whether the last read failed. `getBackups` floors a missing list to
+	// `[]`, so without this a failed read is indistinguishable from a site
+	// that genuinely has no backups yet.
+	hasBackupsFetchFailed: state => state.siteBackups.fetchFailed ?? false,
 };
 
 export default siteBackupSelectors;

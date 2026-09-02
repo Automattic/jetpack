@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.0] - 2026-08-26
+### Removed
+- Minimum supported PHP version is now 7.4. [#51515]
+
 ## [0.5.0] - 2026-07-20
 ### Changed
 - Update package dependencies. [#50510] [#50529]
@@ -402,6 +406,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - ExPlat: add condition to prevent fetching the experiment assignment if there's not anon id (meaning that Tracks is likely disabled) [#38327]
 - Updated package dependencies. [#38132]
 
+[0.6.0]: https://github.com/Automattic/jetpack-explat/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/Automattic/jetpack-explat/compare/v0.4.36...v0.5.0
 [0.4.36]: https://github.com/Automattic/jetpack-explat/compare/v0.4.35...v0.4.36
 [0.4.35]: https://github.com/Automattic/jetpack-explat/compare/v0.4.34...v0.4.35

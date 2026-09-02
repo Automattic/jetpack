@@ -88,6 +88,14 @@ class Jetpack_Gutenberg {
 	 * keep loading eagerly so the editor, the block-types REST endpoint and server-side
 	 * rendering are unaffected.
 	 *
+	 * One class of front-end request is NOT safe to defer on: front-end block editors
+	 * (e.g. P2) render the inserter on a plain front-end page, so is_block_editor_context()
+	 * is false, yet the block must be registered at `init` for get_availability() to report
+	 * it as available. self::load_independent_blocks() therefore never defers a block that
+	 * ships in the `no-post-editor` preset (extensions/index.json) — those are exactly the
+	 * blocks available in editors other than the post editor. A block listed here that is
+	 * also in `no-post-editor` simply keeps loading eagerly.
+	 *
 	 * A block must NOT be added here if:
 	 *   - its `init` callback registers any other hook, post meta, REST route,
 	 *     shortcode, block pattern or hooked-block;
@@ -400,10 +408,17 @@ class Jetpack_Gutenberg {
 			return self::$preset_cache;
 		}
 
-		self::$preset_cache = json_decode(
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
-			file_get_contents( JETPACK__PLUGIN_DIR . self::get_blocks_directory() . 'index.json' )
-		);
+		/*
+		 * The manifest is a build artifact and is absent in a source checkout (e.g. when
+		 * running the test suite). Return false — as documented — rather than calling
+		 * wp_json_file_decode() on a missing file, which triggers _doing_it_wrong().
+		 */
+		$preset_file = JETPACK__PLUGIN_DIR . self::get_blocks_directory() . 'index.json';
+		if ( ! file_exists( $preset_file ) ) {
+			return false;
+		}
+
+		self::$preset_cache = wp_json_file_decode( $preset_file );
 		return self::$preset_cache;
 	}
 
@@ -884,7 +899,8 @@ class Jetpack_Gutenberg {
 		}
 		// AI Assistant
 		$ai_assistant_state = array(
-			'is-enabled' => Jetpack_AI_Settings::is_ai_enabled(),
+			'is-enabled'     => Jetpack_AI_Settings::is_ai_enabled(),
+			'is-seo-enabled' => Jetpack_AI_Settings::is_ai_seo_enabled(),
 		);
 
 		$screen_base = null;
@@ -970,12 +986,31 @@ class Jetpack_Gutenberg {
 	}
 
 	/**
+	 * Block feature names in the `no-post-editor` preset (extensions/index.json): blocks
+	 * whose editor bundle is usable outside the post editor, so they appear in front-end
+	 * block editors such as P2. These must never be deferred (see self::$lazy_blocks and
+	 * self::load_independent_blocks()).
+	 *
+	 * @since 16.2
+	 *
+	 * @return string[] Feature names, or an empty array when the preset is unavailable.
+	 */
+	private static function get_no_post_editor_extensions() {
+		$preset = self::get_preset();
+		if ( is_object( $preset ) && isset( $preset->{'no-post-editor'} ) && is_array( $preset->{'no-post-editor'} ) ) {
+			return $preset->{'no-post-editor'};
+		}
+		return array();
+	}
+
+	/**
 	 * Some blocks do not depend on a specific module,
 	 * and can consequently be loaded outside of the usual modules.
 	 * We will look for such modules in the extensions/ directory.
 	 *
 	 * @since 7.1.0
 	 * @since 16.0 Pure display blocks are deferred on front-end requests and registered on first render.
+	 * @since 16.2 Blocks in the `no-post-editor` preset are never deferred, so front-end editors (e.g. P2) keep them.
 	 * @see wp_common_block_scripts_and_styles()
 	 */
 	public static function load_independent_blocks() {
@@ -995,8 +1030,21 @@ class Jetpack_Gutenberg {
 			 */
 			$defer = ! self::is_block_editor_context();
 
+			/*
+			 * Front-end block editors (e.g. P2) render the inserter on a plain front-end
+			 * request, so is_block_editor_context() is false there, yet a block must be
+			 * registered on `init` for get_availability() to report it and keep it in the
+			 * inserter. Never defer a block that ships in the `no-post-editor` preset —
+			 * those are precisely the blocks usable outside the post editor.
+			 */
+			$no_post_editor_blocks = $defer ? self::get_no_post_editor_extensions() : array();
+
 			foreach ( static::get_extensions() as $extension ) {
-				if ( $defer && in_array( $extension, self::$lazy_blocks, true ) ) {
+				if (
+					$defer
+					&& in_array( $extension, self::$lazy_blocks, true )
+					&& ! in_array( $extension, $no_post_editor_blocks, true )
+				) {
 					self::$deferred_blocks[ $extension ] = true;
 					continue;
 				}

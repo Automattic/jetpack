@@ -1,0 +1,71 @@
+@use "../styles/menu-trigger";
+
+// A menu, not a form field, so it is built on `Dropdown`. The box and its
+// states come from the shared trigger mixin; what stays here is the trigger's
+// own layout, which carries a glyph, a label and a caret.
+.date-period-dropdown {
+
+	@include menu-trigger.container;
+
+	&__toggle {
+
+		@include menu-trigger.toggle;
+
+		gap: var(--wpds-dimension-size-5xs);
+		font-family: var(--wpds-typography-font-family-body);
+		// The input layout lifts small text to 16px on phones, so the control
+		// stays the size of its row-mates where the panel collapses.
+		font-size: max(var(--wpds-typography-font-size-md), 16px);
+		// The Button asks for an emphasis weight; a select trigger takes the
+		// weight of the text around it.
+		font-weight: inherit;
+
+		@media (min-width: 600px) {
+			font-size: var(--wpds-typography-font-size-md);
+		}
+	}
+
+	// The only part that gives when the trigger runs short.
+	&__label {
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	&__glyph,
+	&__caret {
+		flex: 0 0 auto;
+	}
+
+	// The calendar opens beside the list rather than replacing it, so the panel
+	// is the row holding both.
+	&__panel {
+		display: flex;
+		align-items: flex-start;
+	}
+
+	// Owned here rather than by the calendar: it is the seam between the
+	// panel's two halves, and the calendar has no other neighbour.
+	&__panel > .date-range-popover-content {
+		border-inline-start:
+			var(--wpds-border-width-xs) solid
+			var(--wpds-color-stroke-surface-neutral);
+	}
+
+	// The list stays put while the calendar arrives, so it opens from the seam
+	// rather than fading in place.
+	@media (prefers-reduced-motion: no-preference) {
+
+		.date-period-dropdown__panel > .date-range-popover-content {
+			animation: date-period-dropdown-reveal 120ms ease-out;
+		}
+	}
+}
+
+@keyframes date-period-dropdown-reveal {
+
+	from {
+		opacity: 0;
+		transform: translateX(calc(-1 * var(--wpds-dimension-size-5xs)));
+	}
+}

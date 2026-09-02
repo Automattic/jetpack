@@ -7,7 +7,6 @@
 			</property>
 		</properties>
 	</rule>
-	<rule ref="./.phpcs.dir.phpcompatibility.xml" />
 	<rule ref="WordPress.Files.FileName">
 		<exclude name="WordPress.Files.FileName.InvalidClassFileName"/>
 		<exclude name="WordPress.Files.FileName.NotHyphenatedLowercase"/>

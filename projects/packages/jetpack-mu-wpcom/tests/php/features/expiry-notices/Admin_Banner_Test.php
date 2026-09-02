@@ -62,7 +62,14 @@ class Admin_Banner_Test extends \WorDBless\BaseTestCase {
 			(object) array(
 				'product_slug'           => $slug,
 				'product_type'           => 'bundle',
-				'expiry_date'            => gmdate( 'c', time() + ( $days_until_expiry * DAY_IN_SECONDS ) ),
+				// Half a day of slack on top of the whole days: the banner
+				// computes `floor( ( expiry - now ) / DAY_IN_SECONDS )` at
+				// render time, so an expiry set to exactly N days collapses to
+				// N-1 the moment a single second elapses between this call and
+				// render() — which is a race this test loses on a slow runner.
+				// The cushion keeps every case in its intended day bucket for
+				// twelve hours instead of one second.
+				'expiry_date'            => gmdate( 'c', time() + ( $days_until_expiry * DAY_IN_SECONDS ) + ( 12 * HOUR_IN_SECONDS ) ),
 				'user_allows_auto_renew' => $auto_renew,
 			),
 		);

@@ -175,7 +175,6 @@ function register_default_dashboard_sections() {
 		'analytics/traffic'     => array(
 			'label'          => __( 'Traffic', 'jetpack-premium-analytics-pkg' ),
 			'title'          => __( 'Site traffic', 'jetpack-premium-analytics-pkg' ),
-			'description'    => __( 'Views, visitors, and where they came from.', 'jetpack-premium-analytics-pkg' ),
 			'order'          => 10,
 			'default_layout' => static function () {
 				return get_dashboard_default_layout_for( 'analytics/traffic' );
@@ -184,7 +183,6 @@ function register_default_dashboard_sections() {
 		'analytics/insights'    => array(
 			'label'               => __( 'Insights', 'jetpack-premium-analytics-pkg' ),
 			'title'               => __( 'Activity insights', 'jetpack-premium-analytics-pkg' ),
-			'description'         => __( 'Longer-term patterns in your content and audience.', 'jetpack-premium-analytics-pkg' ),
 			'order'               => 20,
 			// Insights reads whole history: all time and single years instead of
 			// the rolling picker, with nothing to compare them against.
@@ -199,7 +197,6 @@ function register_default_dashboard_sections() {
 		'analytics/subscribers' => array(
 			'label'          => __( 'Subscribers', 'jetpack-premium-analytics-pkg' ),
 			'title'          => __( 'Subscribers stats', 'jetpack-premium-analytics-pkg' ),
-			'description'    => __( 'How your subscriber list is growing, and how your emails land.', 'jetpack-premium-analytics-pkg' ),
 			'order'          => 30,
 			'is_available'   => __NAMESPACE__ . '\\is_subscribers_dashboard_section_available',
 			'default_layout' => static function () {
@@ -209,7 +206,6 @@ function register_default_dashboard_sections() {
 		// Store registers no heading of its own, so it falls back to the label.
 		'woocommerce/store'     => array(
 			'label'          => __( 'Store', 'jetpack-premium-analytics-pkg' ),
-			'description'    => __( 'Sales, orders, and what your customers are buying.', 'jetpack-premium-analytics-pkg' ),
 			'order'          => 40,
 			'is_available'   => __NAMESPACE__ . '\\is_woocommerce_dashboard_section_available_to_current_user',
 			// Nothing backfills historical orders to WordPress.com but the analytics
@@ -218,11 +214,16 @@ function register_default_dashboard_sections() {
 			'default_layout' => __NAMESPACE__ . '\\get_woocommerce_dashboard_section_default_layout',
 		),
 		'analytics/ads'         => array(
-			'label'          => __( 'Ads', 'jetpack-premium-analytics-pkg' ),
-			'description'    => __( 'How your ads are performing, and what they have earned you.', 'jetpack-premium-analytics-pkg' ),
-			'order'          => 50,
-			'is_available'   => __NAMESPACE__ . '\\is_ads_dashboard_section_available_to_current_user',
-			'default_layout' => static function () {
+			'label'               => __( 'Ads', 'jetpack-premium-analytics-pkg' ),
+			'order'               => 50,
+			'is_available'        => __NAMESPACE__ . '\\is_ads_dashboard_section_available_to_current_user',
+			// Only the chart supports dates, so it owns the control. No Ads widget
+			// supports comparison.
+			'date_filter_options' => array(
+				'with_date_comparison'     => false,
+				'with_header_date_control' => false,
+			),
+			'default_layout'      => static function () {
 				return get_dashboard_default_layout_for( 'analytics/ads' );
 			},
 		),
@@ -289,9 +290,7 @@ function get_available_dashboard_section_for_route( $dashboard_name, $section_id
 /**
  * REST schema for one dashboard section, as returned by the sections route.
  *
- * The dashboard's frontend mirrors this shape in
- * `routes/dashboard/config/sections.ts`, and WPCOM serves the same route for
- * Simple sites (see AGENTS.md), so both are consumers of this contract.
+ * Mirrored by the frontend's `sections.ts` and reused by WPCOM for Simple sites (see AGENTS.md).
  *
  * @since 0.2.0
  *
@@ -323,29 +322,29 @@ function get_dashboard_section_schema() {
 				'type'        => array( 'string', 'null' ),
 				'readonly'    => true,
 			),
-			'description'         => array(
-				'description' => __( 'Translated section description, shown as the page subtitle while the section is active.', 'jetpack-premium-analytics-pkg' ),
-				'type'        => array( 'string', 'null' ),
-				'readonly'    => true,
-			),
 			'order'               => array(
 				'description' => __( 'Sort order, ascending.', 'jetpack-premium-analytics-pkg' ),
 				'type'        => 'integer',
 				'readonly'    => true,
 			),
 			'date_filter'         => array(
-				'description' => __( 'Which date filter the section header offers: the rolling date range, or all time plus single years.', 'jetpack-premium-analytics-pkg' ),
+				'description' => __( 'Which shape the section date filter takes: the rolling date range, or all time plus single years.', 'jetpack-premium-analytics-pkg' ),
 				'type'        => 'string',
 				'enum'        => Dashboard_Section::DATE_FILTERS,
 				'default'     => Dashboard_Section::DATE_FILTER_RANGE,
 				'readonly'    => true,
 			),
 			'date_filter_options' => array(
-				'description' => __( 'Which optional controls the section date filter offers.', 'jetpack-premium-analytics-pkg' ),
+				'description' => __( 'What the section date filter supports, and where it renders.', 'jetpack-premium-analytics-pkg' ),
 				'type'        => 'object',
 				'properties'  => array(
-					'with_date_comparison' => array(
-						'description' => __( 'Whether the section header offers the period-over-period comparison control.', 'jetpack-premium-analytics-pkg' ),
+					'with_date_comparison'     => array(
+						'description' => __( 'Whether the section supports period-over-period comparison at all. When false, no widget in the section receives comparison parameters.', 'jetpack-premium-analytics-pkg' ),
+						'type'        => 'boolean',
+						'default'     => true,
+					),
+					'with_header_date_control' => array(
+						'description' => __( 'Whether the section header renders the date control. When false, the section widgets host their own.', 'jetpack-premium-analytics-pkg' ),
 						'type'        => 'boolean',
 						'default'     => true,
 					),
@@ -412,9 +411,7 @@ function register_dashboard_sections_rest_routes() {
 		'/dashboards/(?P<name>' . get_dashboard_name_pattern() . ')/sections',
 		array(
 			array(
-				// A route-level `schema` beside the numerically keyed endpoint list is
-				// register_rest_route()'s own signature, reading to Phan as a mixed array.
-				// @phan-suppress-next-line PhanPluginMixedKeyNoKey
+				// @phan-suppress-next-line PhanPluginMixedKeyNoKey -- register_rest_route()'s own signature mixes a numerically keyed endpoint list with a route-level `schema` key.
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => __NAMESPACE__ . '\\get_dashboard_sections_response',
 				'permission_callback' => __NAMESPACE__ . '\\check_dashboard_sections_permission',

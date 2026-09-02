@@ -187,6 +187,10 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	 * In order for comments to work properly for password-protected posts we need to set `wp-postpass` cookie to SameSite none.
 	 */
 	public function manage_post_cookie() {
+		if ( headers_sent() ) {
+			return;
+		}
+
 		$postpass_cookie_key = 'wp-postpass_' . COOKIEHASH;
 
 		if ( empty( $_COOKIE[ $postpass_cookie_key ] ) ) {
@@ -198,7 +202,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 		if ( empty( $_COOKIE['verbum-wp-postpass'] ) || ( $_COOKIE['verbum-wp-postpass'] !== $postpass_cookie_value ) ) {
 			$expire = apply_filters( 'post_password_expires', time() + 10 * DAY_IN_SECONDS );
 
-			jetpack_shim_setcookie(
+			setcookie(
 				$postpass_cookie_key,
 				$postpass_cookie_value,
 				array(
@@ -207,10 +211,11 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 					'path'     => '/',
 					'domain'   => COOKIE_DOMAIN,
 					'secure'   => is_ssl(),
+					'httponly' => false, // phpcs:ignore Jetpack.Functions.SetCookie.FoundNonHTTPOnlyFalse -- @todo Can this be set true?
 				)
 			);
 
-			jetpack_shim_setcookie(
+			setcookie(
 				'verbum-wp-postpass',
 				$postpass_cookie_value,
 				array(
@@ -219,6 +224,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 					'path'     => '/',
 					'domain'   => COOKIE_DOMAIN,
 					'secure'   => is_ssl(),
+					'httponly' => false, // phpcs:ignore Jetpack.Functions.SetCookie.FoundNonHTTPOnlyFalse -- @todo Can this be set true?
 				)
 			);
 		}
@@ -251,8 +257,16 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 			return $avatar;
 		}
 
-		// Return the Facebook or Twitter avatar.
-		return preg_replace( '#src=([\'"])[^\'"]+\\1#', 'src=\\1' . esc_url( set_url_scheme( $this->photon_avatar( $foreign_avatar, $size ), 'https' ) ) . '\\1', $avatar );
+		// Insert the escaped URL through a callback: a preg_replace() replacement string would expand a
+		// `$1` inside it into the captured quote, breaking out of the src attribute (stored-XSS vector).
+		$photon_url = esc_url( set_url_scheme( $this->photon_avatar( $foreign_avatar, $size ), 'https' ) );
+		return preg_replace_callback(
+			'#src=([\'"])[^\'"]+\\1#',
+			static function ( $matches ) use ( $photon_url ) {
+				return 'src=' . $matches[1] . $photon_url . $matches[1];
+			},
+			$avatar
+		);
 	}
 
 	/**
@@ -662,7 +676,7 @@ HTML;
 		$post_array = stripslashes_deep( $_POST );
 
 		// Bail if missing the Jetpack token.
-		if ( ! isset( $post_array['sig'] ) || ! isset( $post_array['token_key'] ) || ! is_string( $post_array['sig'] ) ) {
+		if ( ! isset( $post_array['sig'] ) || ! isset( $post_array['token_key'] ) || ! is_string( $post_array['sig'] ) || ! is_string( $post_array['token_key'] ) ) {
 			unset( $_POST['hc_post_as'] );
 			return;
 		}
@@ -674,7 +688,7 @@ HTML;
 			wp_die( esc_html__( 'Nonce verification failed.', 'jetpack' ), 400 );
 		}
 
-		if ( is_string( $post_array['hc_avatar'] ) && str_contains( $post_array['hc_avatar'], '.gravatar.com' ) ) {
+		if ( isset( $post_array['hc_avatar'] ) && is_string( $post_array['hc_avatar'] ) && str_contains( $post_array['hc_avatar'], '.gravatar.com' ) ) {
 			$post_array['hc_avatar'] = htmlentities( $post_array['hc_avatar'], ENT_COMPAT );
 		}
 
@@ -771,29 +785,49 @@ HTML;
 	 * @param int $comment_id The comment ID.
 	 */
 	public function add_comment_meta( $comment_id ) {
+		// phpcs:disable WordPress.Security.NonceVerification.Missing -- The hc_* fields are authenticated by the HMAC check below.
+		$post_array = stripslashes_deep( $_POST );
+
+		// The hc_* identity fields are only trustworthy on a signed request. pre_comment_on_post() checks
+		// that, but only on wp-comments-post.php, so re-check here for any other producer that reaches
+		// comment_post (e.g. Carousel's unauthenticated post_attachment_comment endpoint).
+		if ( ! isset( $post_array['sig'] ) || ! isset( $post_array['token_key'] ) || ! is_string( $post_array['sig'] ) || ! is_string( $post_array['token_key'] ) ) {
+			return;
+		}
+		if ( isset( $post_array['hc_avatar'] ) && is_string( $post_array['hc_avatar'] ) && str_contains( $post_array['hc_avatar'], '.gravatar.com' ) ) {
+			$post_array['hc_avatar'] = htmlentities( $post_array['hc_avatar'], ENT_COMPAT );
+		}
+		$blog_token = ( new Tokens() )->get_access_token( false, $post_array['token_key'] );
+		if ( ! $blog_token || is_wp_error( $blog_token ) ) {
+			return;
+		}
+		$check = self::sign_remote_comment_parameters( $post_array, $blog_token->secret );
+		if ( is_wp_error( $check ) || ! hash_equals( $check, $post_array['sig'] ) ) {
+			return;
+		}
+
 		$comment_meta = array();
 
-		// phpcs:disable WordPress.Security.NonceVerification.Missing
 		switch ( $this->is_highlander_comment_post() ) {
 			case 'facebook':
 				$comment_meta['hc_post_as']         = 'facebook';
-				$comment_meta['hc_avatar']          = isset( $_POST['hc_avatar'] ) ? filter_var( wp_unslash( $_POST['hc_avatar'] ) ) : null;
-				$comment_meta['hc_foreign_user_id'] = isset( $_POST['hc_userid'] ) ? filter_var( wp_unslash( $_POST['hc_userid'] ) ) : null;
+				$comment_meta['hc_avatar']          = isset( $_POST['hc_avatar'] ) ? esc_url_raw( wp_unslash( $_POST['hc_avatar'] ) ) : null;
+				$comment_meta['hc_foreign_user_id'] = isset( $_POST['hc_userid'] ) ? sanitize_text_field( wp_unslash( $_POST['hc_userid'] ) ) : null;
 				break;
 
 			// phpcs:ignore WordPress.WP.CapitalPDangit
 			case 'wordpress':
 				// phpcs:ignore WordPress.WP.CapitalPDangit
 				$comment_meta['hc_post_as']         = 'wordpress';
-				$comment_meta['hc_avatar']          = isset( $_POST['hc_avatar'] ) ? filter_var( wp_unslash( $_POST['hc_avatar'] ) ) : null;
-				$comment_meta['hc_foreign_user_id'] = isset( $_POST['hc_userid'] ) ? filter_var( wp_unslash( $_POST['hc_userid'] ) ) : null;
-				$comment_meta['hc_wpcom_id_sig']    = isset( $_POST['hc_wpcom_id_sig'] ) ? filter_var( wp_unslash( $_POST['hc_wpcom_id_sig'] ) ) : null; // since 1.9.
+				$comment_meta['hc_avatar']          = isset( $_POST['hc_avatar'] ) ? esc_url_raw( wp_unslash( $_POST['hc_avatar'] ) ) : null;
+				$comment_meta['hc_foreign_user_id'] = isset( $_POST['hc_userid'] ) ? sanitize_text_field( wp_unslash( $_POST['hc_userid'] ) ) : null;
+				$comment_meta['hc_wpcom_id_sig']    = isset( $_POST['hc_wpcom_id_sig'] ) ? sanitize_text_field( wp_unslash( $_POST['hc_wpcom_id_sig'] ) ) : null; // since 1.9.
 				break;
 
 			case 'jetpack':
 				$comment_meta['hc_post_as']         = 'jetpack';
-				$comment_meta['hc_avatar']          = isset( $_POST['hc_avatar'] ) ? filter_var( wp_unslash( $_POST['hc_avatar'] ) ) : null;
-				$comment_meta['hc_foreign_user_id'] = isset( $_POST['hc_userid'] ) ? filter_var( wp_unslash( $_POST['hc_userid'] ) ) : null;
+				$comment_meta['hc_avatar']          = isset( $_POST['hc_avatar'] ) ? esc_url_raw( wp_unslash( $_POST['hc_avatar'] ) ) : null;
+				$comment_meta['hc_foreign_user_id'] = isset( $_POST['hc_userid'] ) ? sanitize_text_field( wp_unslash( $_POST['hc_userid'] ) ) : null;
 				break;
 
 		}

@@ -68,12 +68,9 @@ export function buildRangePatch( {
 
 	if ( nextRange?.from && nextRange.to ) {
 		/*
-		 * Preset and exact ranges are authoritative: rolling windows end at
-		 * the current time, not at a day boundary. Calendar and manual edits
-		 * stage midnight `to` dates, so only those are adjusted to the end of
-		 * the day — the site's day, not the visitor's: date-fns' bare
-		 * `endOfDay` would use the browser's boundary and stretch the range
-		 * for visitors west of the site timezone.
+		 * Preset/exact ranges are authoritative and skip end-of-day adjustment;
+		 * calendar edits stage midnight `to`, adjusted to the *site's* end of day —
+		 * date-fns' bare `endOfDay` would use the browser's and stretch the range.
 		 */
 		const rangeFrom = encodeDateToSearchParam( nextRange.from );
 		const rangeTo = encodeDateToSearchParam(
@@ -84,11 +81,8 @@ export function buildRangePatch( {
 		patch.from = rangeFrom;
 		patch.to = rangeTo;
 
-		/*
-		 * The interval carries across the change and the new range's rules
-		 * decide: a bucket it still allows survives, one it does not coerces to
-		 * the finest allowed.
-		 */
+		// The interval carries across the change; the new range's rules decide
+		// whether it survives or coerces to the finest allowed.
 		patch.interval = resolveIntervalForRange(
 			nextPresetId,
 			rangeFrom,
@@ -102,6 +96,9 @@ export function buildRangePatch( {
 			if ( derived ) {
 				patch.compare_from = derived.compare_from;
 				patch.compare_to = derived.compare_to;
+				// May differ from the active preset: a preset the new range no
+				// longer offers falls back to the previous period.
+				patch.compare_preset = derived.compare_preset;
 			}
 		}
 	}

@@ -104,7 +104,7 @@ class Speed_Score_History {
 	 *
 	 * All speed score before this timestamp are considered stale.
 	 *
-	 * @return array
+	 * @return int
 	 */
 	public static function get_stale_timestamp() {
 		$last_stale_marker = Transient::get( static::STALE_TRANSIENT_KEY, 0 );
@@ -143,6 +143,26 @@ class Speed_Score_History {
 	public function push( $entry ) {
 		$this->entries[] = $entry;
 		$this->entries   = array_slice( $this->entries, - static::LIMIT );
+		update_option( $this->get_option_name(), $this->entries, false );
+	}
+
+	/**
+	 * Move the latest entry's timestamp to now without changing its scores.
+	 *
+	 * Used when a run completes with the same scores as before: no new entry is pushed, but
+	 * staleness is measured by the timestamp, so it has to move or repeating scores look stale
+	 * forever.
+	 *
+	 * @since $$next-version$$
+	 */
+	public function touch_latest() {
+		$index = $this->count() - 1;
+
+		if ( $index < 0 ) {
+			return;
+		}
+
+		$this->entries[ $index ]['timestamp'] = time();
 		update_option( $this->get_option_name(), $this->entries, false );
 	}
 }

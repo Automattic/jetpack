@@ -129,6 +129,20 @@ module.exports = async () => {
 						includeNodeModules: [ '@automattic/' ],
 					} ),
 
+					// newspack-icons ships untranspiled JSX in `.js` files, which our shared
+					// preset only applies `@babel/preset-react` to for `.jsx`/`.tsx`.
+					jetpackWebpackConfig.TranspileRule( {
+						includeNodeModules: [ 'newspack-icons/' ],
+						babelOpts: {
+							configFile: false,
+							targets: require( '@automattic/jetpack-webpack-config/targets' ),
+							presets: [
+								'@automattic/jetpack-webpack-config/babel/preset',
+								[ '@babel/preset-react', { runtime: 'automatic' } ],
+							],
+						},
+					} ),
+
 					// Workarounds for non-extracted `@wordpress/*` packages.
 					...jetpackWebpackConfig.BundledWpPkgsTranspileRules(),
 

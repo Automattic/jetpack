@@ -438,6 +438,11 @@
 		display: flex;
 		align-items: center;
 		justify-content: flex-start;
+		margin: unset; /* Override default margin on classic theme wp-block */
+
+		.wp-block {
+			margin: unset; /* Override default margin on classic theme wp-block */
+		}
 	}
 
 }
@@ -1183,7 +1188,13 @@
 .jetpack-contact-form__responses-storage-panel,
 .jetpack-contact-form__integrations-panel {
 
-	.components-button.is-secondary {
+	/*
+	 * `LinkButton` renders an anchor with @wordpress/ui classes rather than
+	 * `.components-button`, so it needs naming here to stay full-width alongside
+	 * the panel's other buttons.
+	 */
+	.components-button.is-secondary,
+	.jetpack-contact-form__view-responses-button {
 		width: 100%;
 		justify-content: center;
 	}

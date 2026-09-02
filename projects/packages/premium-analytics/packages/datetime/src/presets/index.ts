@@ -12,6 +12,8 @@ export {
 	PRESET_LAST_YEAR,
 	PRESET_CUSTOM,
 	PRESET_ALL_TIME,
+	MENU_SURFACE_PRESETS,
+	MENU_SURFACE_PRESET_GROUPS,
 	QUICK_SURFACE_PRESETS,
 	DETAIL_SURFACE_PRESETS,
 	YEAR_PRESET_PREFIX,
@@ -34,6 +36,7 @@ export {
 	DEFAULT_YEAR_SURFACE_COUNT,
 	getPresetLabel,
 	getDefaultDateRangePresets,
+	getMenuSurfacePresetGroups,
 	getQuickSurfacePresets,
 	getYearSurfacePresets,
 	computePrimaryRange,
@@ -43,4 +46,4 @@ export {
 	type QuickSurfaceOptions,
 } from './primary';
 
-export { getComparisonPresetLabel, getComparisonPresetConfigs } from './comparison';
+export { getComparisonOptions, type ComparisonOption } from './comparison';

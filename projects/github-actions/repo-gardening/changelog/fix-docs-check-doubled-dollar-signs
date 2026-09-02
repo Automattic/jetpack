@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Docs check: fix a stray literal dollar sign in log and notification messages.

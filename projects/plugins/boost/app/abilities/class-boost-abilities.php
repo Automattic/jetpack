@@ -155,7 +155,7 @@ class Boost_Abilities extends Registrar {
 
 			'jetpack-boost/get-speed-score'   => array(
 				'label'               => __( 'Get latest speed score', 'jetpack-boost' ),
-				'description'         => __( 'Return the most recent Jetpack Boost speed score for the home URL. Returns { mobile, desktop, timestamp, is_stale, has_history }. mobile/desktop are integers 0-100 (Google PageSpeed scale) or null when no score has been recorded. timestamp is a Unix epoch in seconds. is_stale=true means the latest score is older than 24 hours or invalidated by a site change; agents should request a refresh from the Boost UI before quoting it. has_history=false means no scores have been recorded yet.', 'jetpack-boost' ),
+				'description'         => __( 'Return the most recent Jetpack Boost speed score for the home URL. Returns { mobile, desktop, timestamp, is_stale, has_history }. mobile/desktop are integers 0-100 (Google PageSpeed scale) or null when no score has been recorded. timestamp is a Unix epoch in seconds marking when the score was last measured, not when it last changed. is_stale=true means the latest score is older than 24 hours or invalidated by a site change; agents should request a refresh from the Boost UI before quoting it. has_history=false means no scores have been recorded yet.', 'jetpack-boost' ),
 				'input_schema'        => array(
 					'type'                 => 'object',
 					'default'              => array(),
