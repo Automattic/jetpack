@@ -10,6 +10,8 @@ declare( strict_types = 1 );
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Notice_Dismiss;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/expiry-notices/expiry-notices.php';
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/expiry-notices/admin-modal.php';
@@ -59,7 +61,6 @@ class Admin_Modal_Test extends \WorDBless\BaseTestCase {
 	public function tear_down() {
 		unset( $GLOBALS['wpcom_get_site_purchases_test_value'] );
 		unset( $GLOBALS['wpcom_is_vip_test_value'] );
-		unset( $GLOBALS['wpcom_blog_stickers_test_value'] );
 		unset( $GLOBALS['wpcom_blog_details_domain_test_value'] );
 		delete_user_meta( $this->admin_id, Expiry_Notice_Dismiss::META_MODAL );
 		delete_user_meta( $this->admin_id, Expiry_Notice_Dismiss::META_MODAL_GRACE );
@@ -82,11 +83,18 @@ class Admin_Modal_Test extends \WorDBless\BaseTestCase {
 	/**
 	 * A site the revert has already moved back to Simple: no longer Atomic, and
 	 * carrying the sticker wpcom leaves behind.
+	 *
+	 * `has_blog_sticker` is declared here rather than in the shared bootstrap
+	 * because other suites in this package declare their own, and a definition
+	 * that is already in place makes theirs a fatal redeclare. Hence the separate
+	 * process on every test that calls this.
 	 */
 	private function pretend_reverted_to_simple(): void {
 		Constants::set_constant( 'IS_ATOMIC', false );
 		Constants::set_constant( 'IS_WPCOM', true );
-		$GLOBALS['wpcom_blog_stickers_test_value'] = array( 'blog-transfer-reverted' );
+		if ( ! function_exists( 'has_blog_sticker' ) ) {
+			eval( 'namespace { function has_blog_sticker( $sticker, $blog_id = 0 ) { return "blog-transfer-reverted" === $sticker; } }' ); // phpcs:ignore Squiz.PHP.Eval.Discouraged,MediaWiki.Usage.ForbiddenFunctions.eval
+		}
 	}
 
 	private function set_purchase( int $days_until_expiry, string $slug = 'business-bundle' ): void {
@@ -148,6 +156,12 @@ class Admin_Modal_Test extends \WorDBless\BaseTestCase {
 		}
 	}
 
+	/**
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
 	public function test_shows_after_grace_on_a_reverted_site(): void {
 		// The revert is what moves the site off Atomic, so by the time the
 		// post-grace copy is true the site is Simple. Gating on IS_ATOMIC alone
@@ -161,6 +175,12 @@ class Admin_Modal_Test extends \WorDBless\BaseTestCase {
 		$this->assertSame( 'Restore my site', $data['primary']['label'] );
 	}
 
+	/**
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
 	public function test_does_not_show_in_grace_on_a_reverted_site(): void {
 		// A site already reverted was reverted by an earlier lapse. This one has
 		// not reached the changes the pre-revert variant promises are coming.
@@ -170,6 +190,12 @@ class Admin_Modal_Test extends \WorDBless\BaseTestCase {
 		$this->assertNull( wpcom_expiry_notices_admin_modal_data() );
 	}
 
+	/**
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
 	public function test_shows_for_any_plan_that_could_have_carried_a_transfer(): void {
 		// WPCOM_Features::ATOMIC is granted to Personal and higher, so there is no
 		// paid tier whose lapse could not have produced this revert. Narrowing to
@@ -267,6 +293,12 @@ class Admin_Modal_Test extends \WorDBless\BaseTestCase {
 		}
 	}
 
+	/**
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
 	public function test_names_the_wpcom_address_a_reverted_site_now_serves_from(): void {
 		$this->pretend_reverted_to_simple();
 		// WorDBless serves example.org, so a blogs-table domain that matches is a
@@ -280,6 +312,12 @@ class Admin_Modal_Test extends \WorDBless\BaseTestCase {
 		$this->assertStringContainsString( 'switched to example.org', implode( "\n", $data['items'] ) );
 	}
 
+	/**
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
 	public function test_omits_the_domain_when_a_reverted_site_kept_its_own(): void {
 		// Serving from example.org while the blogs table says otherwise: the
 		// custom domain survived the revert, so nothing was switched.
