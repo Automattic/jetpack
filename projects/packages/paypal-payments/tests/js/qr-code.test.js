@@ -14,6 +14,21 @@ jest.mock( 'qrcode', () => ( { toCanvas: jest.fn() } ) );
 
 const PAYMENT_URL = 'https://www.paypal.com/ncp/payment/PLB-QR123?at_code=WooNCPS_Ecom_Wordpress';
 
+// jsdom has no clipboard. The copy button acts on the write promise resolving.
+Object.defineProperty( navigator, 'clipboard', {
+	value: { writeText: jest.fn( () => Promise.resolve() ) },
+	writable: true,
+} );
+
+/**
+ * Let the clipboard write promise settle so the button label updates.
+ *
+ * @return {Promise} Resolves once the pending microtasks have run.
+ */
+function flushClipboard() {
+	return Promise.resolve();
+}
+
 /**
  * Render the button panel markup and run the script against it.
  *
@@ -31,6 +46,7 @@ function setUpButtonPanel( qrUrl = PAYMENT_URL ) {
 							qrUrl ? ` data-qr-url="${ qrUrl }"` : ''
 						}></canvas>
 						<input type="text" readonly class="jetpack-paypal-button__qr-link-input" value="${ PAYMENT_URL }" />
+						<button type="button" class="jetpack-paypal-button__qr-copy" data-copy-label="Copy Link" data-copied-label="Copied!">Copy Link</button>
 						<button type="button" class="jetpack-paypal-button__qr-download">Download QR Code</button>
 					</div>
 				</div>
@@ -43,6 +59,7 @@ function setUpButtonPanel( qrUrl = PAYMENT_URL ) {
 describe( 'QR code frontend script', () => {
 	beforeEach( () => {
 		QRCode.toCanvas.mockClear();
+		navigator.clipboard.writeText.mockClear();
 	} );
 
 	afterEach( () => {
@@ -86,6 +103,39 @@ describe( 'QR code frontend script', () => {
 			const wrapper = document.querySelector( '.jetpack-paypal-button__qr-wrapper' );
 			expect( wrapper ).toHaveStyle( { display: 'block' } );
 			expect( QRCode.toCanvas ).not.toHaveBeenCalled();
+		} );
+
+		it( 'copies the payment link', async () => {
+			setUpButtonPanel();
+
+			document.querySelector( '.jetpack-paypal-button__qr-copy' ).click();
+			await flushClipboard();
+
+			expect( navigator.clipboard.writeText ).toHaveBeenCalledWith( PAYMENT_URL );
+		} );
+
+		it( 'confirms the copy on the button, then puts the label back', async () => {
+			jest.useFakeTimers();
+			setUpButtonPanel();
+			const copyBtn = document.querySelector( '.jetpack-paypal-button__qr-copy' );
+
+			copyBtn.click();
+			await flushClipboard();
+			expect( copyBtn ).toHaveTextContent( 'Copied!' );
+
+			jest.advanceTimersByTime( 2000 );
+			expect( copyBtn ).toHaveTextContent( 'Copy Link' );
+
+			jest.useRealTimers();
+		} );
+
+		it( 'leaves the copy button alone when the canvas has no URL', async () => {
+			setUpButtonPanel( '' );
+
+			document.querySelector( '.jetpack-paypal-button__qr-copy' ).click();
+			await flushClipboard();
+
+			expect( navigator.clipboard.writeText ).not.toHaveBeenCalled();
 		} );
 	} );
 
