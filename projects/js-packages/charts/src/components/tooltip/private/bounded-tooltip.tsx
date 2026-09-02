@@ -158,6 +158,7 @@ export const BoundedTooltip = ( {
 			ref={ nodeRef }
 			data-testid="bounded-tooltip"
 			style={ {
+				position: 'absolute',
 				left: 0,
 				top: 0,
 				transform: `translate(${ x }px, ${ y }px)`,

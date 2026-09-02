@@ -25,8 +25,10 @@ export type XyChartTooltipProps< Datum extends object > = {
 	horizontalCrosshairStyle?: SVGProps< SVGLineElement >;
 	glyphStyle?: SVGProps< SVGCircleElement >;
 	/**
-	 * Flip the tooltip box so it stays inside the chart wrapper. (It used to keep
-	 * a body-level portal inside the viewport.)
+	 * Flip and clamp the tooltip box so it stays inside the nearest ancestor
+	 * that clips its overflow, or the viewport when there is none. The box may
+	 * leave the chart wrapper. (It used to keep a body-level portal inside the
+	 * viewport.)
 	 * @default true
 	 */
 	detectBounds?: boolean;
