@@ -900,6 +900,24 @@ class Jetpack {
 	}
 
 	/**
+	 * Expose the setting that turns the Premium Analytics dashboard on and off.
+	 *
+	 * Deliberately not behind is_premium_analytics_enabled(): this is the setting that flips that
+	 * check, so it has to answer while the dashboard is still off.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public static function register_premium_analytics_enablement_setting() {
+		if ( ! class_exists( 'Automattic\Jetpack\PremiumAnalytics\Enablement_Setting' ) ) {
+			return;
+		}
+
+		\Automattic\Jetpack\PremiumAnalytics\Enablement_Setting::register();
+	}
+
+	/**
 	 * Before everything else starts getting initalized, we need to initialize Jetpack using the
 	 * Config object.
 	 */
@@ -1011,15 +1029,7 @@ class Jetpack {
 
 		// Outside the check above on purpose — see Enablement_Setting. Deferred like Stats, to keep
 		// the autoload off the front-end hot path.
-		add_action(
-			'rest_api_init',
-			static function () {
-				if ( class_exists( 'Automattic\Jetpack\PremiumAnalytics\Enablement_Setting' ) ) {
-					\Automattic\Jetpack\PremiumAnalytics\Enablement_Setting::register();
-				}
-			},
-			0
-		);
+		add_action( 'rest_api_init', array( __CLASS__, 'register_premium_analytics_enablement_setting' ), 0 );
 
 		$config->ensure(
 			'connection',

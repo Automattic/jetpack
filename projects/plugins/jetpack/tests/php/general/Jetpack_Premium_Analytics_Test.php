@@ -32,6 +32,8 @@ class Jetpack_Premium_Analytics_Test extends WP_UnitTestCase {
 	 */
 	public function tear_down() {
 		delete_option( 'jetpack_premium_analytics_enabled' );
+		unregister_setting( 'general', 'jetpack_premium_analytics_enabled' );
+		remove_all_filters( 'rest_pre_get_setting' );
 		self::reset_flag_cache();
 		remove_action( 'jetpack_admin_menu', 'stats_admin_menu' );
 		parent::tear_down();
@@ -245,5 +247,17 @@ class Jetpack_Premium_Analytics_Test extends WP_UnitTestCase {
 		stats_load();
 
 		$this->assertNotFalse( has_action( 'jetpack_admin_menu', 'stats_admin_menu' ) );
+	}
+
+	/**
+	 * The opt-in is exposed while the dashboard is still off — it is the setting that turns it on,
+	 * so registering it behind the flag would leave nothing able to flip it.
+	 */
+	public function test_enablement_setting_is_registered_while_the_dashboard_is_off() {
+		$this->assertFalse( Jetpack::is_premium_analytics_enabled() );
+
+		Jetpack::register_premium_analytics_enablement_setting();
+
+		$this->assertArrayHasKey( 'jetpack_premium_analytics_enabled', get_registered_settings() );
 	}
 }
