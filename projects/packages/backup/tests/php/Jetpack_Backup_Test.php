@@ -341,17 +341,18 @@ class Jetpack_Backup_Test extends TestCase {
 	 * @dataProvider provide_cacheable_unreadable_states
 	 */
 	#[DataProvider( 'provide_cacheable_unreadable_states' )]
-	public function test_has_backup_plan_does_not_cache_an_unreadable_200( $label, $body ) {
+	public function test_backup_plan_state_does_not_cache_an_unreadable_200( $label, $body ) {
 		$this->sign_in_as_connected_admin();
 		$this->wpcom_body = $body;
 		add_filter( 'pre_http_request', array( $this, 'mock_wpcom_response' ) );
 
-		$unreadable = Jetpack_Backup::has_backup_plan();
+		$unreadable = Jetpack_Backup::get_backup_plan_state();
 
 		$this->wpcom_body = '{"state":"active"}';
-		$recovered        = Jetpack_Backup::has_backup_plan();
+		$recovered        = Jetpack_Backup::get_backup_plan_state();
 
-		$this->assertFalse( $unreadable, $label );
+		$this->assertInstanceOf( WP_Error::class, $unreadable, $label );
+		$this->assertSame( 'rewind_state_unreadable', $unreadable->get_error_code(), $label );
 		$this->assertSame( 2, $this->http_requests, $label );
 		$this->assertTrue( $recovered, $label );
 	}
@@ -384,6 +385,107 @@ class Jetpack_Backup_Test extends TestCase {
 		Jetpack_Backup::has_backup_plan();
 
 		$this->assertSame( 5, $this->captured_timeout );
+	}
+
+	/**
+	 * A WordPress.com failure is reported as one, not as "no plan".
+	 *
+	 * That answer is acted on: `GET /jetpack/v4/has-backup-plan` backs the
+	 * connect screen's own-it-already check, so a blip sent a paying site's
+	 * owner to checkout to buy Backup again.
+	 */
+	public function test_backup_plan_state_forwards_a_non_200() {
+		$this->sign_in_as_connected_admin();
+		$this->wpcom_status = 503;
+		add_filter( 'pre_http_request', array( $this, 'mock_wpcom_response' ) );
+
+		$result = Jetpack_Backup::get_backup_plan_state();
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'failed_to_fetch_data', $result->get_error_code() );
+		$this->assertSame( 503, $result->get_error_data()['status'] );
+	}
+
+	/**
+	 * A request that never reaches WordPress.com has no status to forward, and
+	 * the 0 that casting produces is not one the REST layer can serve.
+	 *
+	 * This is the shape a timeout arrives in, which is the case the two plan
+	 * checks used to disagree about.
+	 */
+	public function test_backup_plan_state_reports_a_transport_failure_as_500() {
+		$this->sign_in_as_connected_admin();
+		add_filter( 'pre_http_request', array( $this, 'mock_wpcom_unreachable' ) );
+
+		$result = Jetpack_Backup::get_backup_plan_state();
+
+		$this->assertSame( 1, $this->http_requests );
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 500, $result->get_error_data()['status'] );
+	}
+
+	/**
+	 * The route serves the failure. It used to serve `false` as an HTTP 200,
+	 * which no caller can tell from "this site has no Backup plan".
+	 */
+	public function test_has_backup_plan_route_serves_a_failure_as_an_error() {
+		$this->sign_in_as_connected_admin();
+		$this->wpcom_status = 503;
+		add_filter( 'pre_http_request', array( $this, 'mock_wpcom_response' ) );
+
+		rest_get_server();
+		Jetpack_Backup::register_rest_routes();
+
+		$response = rest_do_request( new WP_REST_Request( 'GET', '/jetpack/v4/has-backup-plan' ) );
+
+		$this->assertTrue( $response->is_error() );
+		$this->assertSame( 503, $response->get_status() );
+	}
+
+	/**
+	 * A site that genuinely has no plan still answers a plain `false`. The
+	 * wrapper must not turn the legitimate negative into a positive.
+	 */
+	public function test_has_backup_plan_answers_false_for_an_unavailable_state() {
+		$this->sign_in_as_connected_admin();
+		$this->wpcom_body = '{"state":"unavailable"}';
+		add_filter( 'pre_http_request', array( $this, 'mock_wpcom_response' ) );
+
+		$result = Jetpack_Backup::has_backup_plan();
+
+		$this->assertFalse( $result );
+	}
+
+	/**
+	 * `has_backup_plan()` stays a `bool`. It is public in a versioned namespace,
+	 * and `WP_Error` is truthy — so a consumer written against `bool` would not
+	 * error on a widened return, it would answer the opposite question.
+	 */
+	public function test_has_backup_plan_stays_a_boolean_when_the_read_fails() {
+		$this->sign_in_as_connected_admin();
+		add_filter( 'pre_http_request', array( $this, 'mock_wpcom_unreachable' ) );
+
+		$result = Jetpack_Backup::has_backup_plan();
+
+		$this->assertFalse( $result );
+	}
+
+	/**
+	 * `jetpack_connection_user_has_license` is a boolean filter, so the error
+	 * must not reach it. An unknown plan is answered as absent on purpose: that
+	 * routes the reader to the licence they already own rather than to checkout.
+	 */
+	public function test_user_license_check_answers_a_boolean_when_the_plan_is_unknown() {
+		$this->sign_in_as_connected_admin();
+		add_filter( 'pre_http_request', array( $this, 'mock_wpcom_unreachable' ) );
+
+		$result = Jetpack_Backup::jetpack_check_user_licenses(
+			false,
+			array( (object) array( 'product_id' => 2112 ) ),
+			'jetpack-backup'
+		);
+
+		$this->assertTrue( $result );
 	}
 
 	public function test_list_backup_events_returns_response_and_pins_backup_actions_on_success() {

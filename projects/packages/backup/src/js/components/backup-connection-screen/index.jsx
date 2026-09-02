@@ -40,8 +40,11 @@ export const BackupConnectionScreen = () => {
 	const registrationNonce = useSelect( select => select( STORE_ID ).getRegistrationNonce(), [] );
 	const { price, priceAfter } = useBackupProductInfo();
 
+	// Two jobs: an unknown plan answers as no plan, and this also guards
+	// `useProductCheckoutWorkflow`, whose `handleAfterRegistration()` has no
+	// rejection path — a rejection there stalls the purchase button forever.
 	const checkSiteHasBackupProduct = useCallback(
-		() => apiFetch( { path: '/jetpack/v4/has-backup-plan' } ),
+		() => apiFetch( { path: '/jetpack/v4/has-backup-plan' } ).catch( () => false ),
 		[]
 	);
 
