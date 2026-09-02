@@ -254,29 +254,12 @@ $jp-breakpoint-mobile: 782px;
 	// fill their bounded slot. Form-style pages keep working: their
 	// children stay content-sized (default `flex: 0 1 auto`) and any
 	// overflow still falls back to Container's `overflow: auto`.
-	// The JITM slot is chrome, not the middle: excluded so it is not made the
-	// scrollable area, which would force its card into a column.
-	.jp-admin-page__page > :not(:first-child):not(.jetpack-footer):not(.jp-jitm-slot) {
-		flex: 1 1 auto;
-		min-height: 0;
-		min-width: 0;
-		overflow: auto;
-		display: flex;
-		flex-direction: column;
 
-		> * {
-			flex: 1 1 auto;
-			min-height: 0;
-			min-width: 0;
-			display: flex;
-			flex-direction: column;
-		}
-	}
-
-	// ── <AdminPage> without a title or breadcrumbs ───────────────────
-	// That path skips admin-ui's <Page>, so there is no `.jp-admin-page__page`.
-	// Its content wrapper carries `jp-admin-page__content` instead; make it
-	// the scrollable middle, or the fixed column clips everything below the fold.
+	// An <AdminPage> without a title or breadcrumbs skips admin-ui's <Page>,
+	// so there is no `.jp-admin-page__page`. Its content wrapper carries
+	// `jp-admin-page__content` instead and needs the same treatment, or the
+	// fixed column clips everything below the fold.
+	.jp-admin-page__page > :not(:first-child):not(.jetpack-footer):not(.jp-jitm-slot),
 	.jp-admin-page > .jp-admin-page__content {
 		flex: 1 1 auto;
 		min-height: 0;

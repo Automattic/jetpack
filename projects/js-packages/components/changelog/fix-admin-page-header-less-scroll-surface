@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-AdminPage: add a stable `jp-admin-page__content` class to the content wrapper of header-less pages so the shared admin page layout can make it scrollable.
+AdminPage: add a stable `jp-admin-page__content` class to the content wrapper of pages without a title or breadcrumbs so the shared admin page layout can make it scrollable.
