@@ -177,12 +177,12 @@ class Jetpack_Ai_Product_Test extends TestCase {
 	}
 
 	/**
-	 * In internal testing environments the manage URL points at the Jetpack AI
-	 * Hub, whose Overview tab is visible behind the same gate.
+	 * With the Jetpack plugin active the manage URL points at the Jetpack AI page
+	 * for everyone — no proxy, no internal testing hostname.
 	 */
-	public function test_manage_url_points_at_the_jetpack_ai_hub_in_internal_testing() {
+	public function test_manage_url_points_at_the_jetpack_ai_page_for_an_ordinary_visitor() {
 		activate_plugins( 'jetpack/jetpack.php' );
-		$GLOBALS['jetpack_mock_internal_testing_environment'] = true;
+		$GLOBALS['jetpack_mock_internal_testing_environment'] = false;
 
 		$manage_url = Jetpack_Ai::get_manage_url();
 
@@ -191,60 +191,29 @@ class Jetpack_Ai_Product_Test extends TestCase {
 	}
 
 	/**
-	 * Outside internal testing the Jetpack AI Hub shows only MCP Settings, so
-	 * the manage URL must keep landing on the My Jetpack product page.
+	 * Post-checkout landing is the Jetpack AI page for an ordinary visitor.
 	 */
-	public function test_manage_url_stays_on_the_my_jetpack_product_page_outside_internal_testing() {
+	public function test_post_checkout_lands_on_the_jetpack_ai_page_for_an_ordinary_visitor() {
 		activate_plugins( 'jetpack/jetpack.php' );
 		$GLOBALS['jetpack_mock_internal_testing_environment'] = false;
-
-		$this->assertSame( admin_url( 'admin.php?page=my-jetpack#/jetpack-ai' ), Jetpack_Ai::get_manage_url() );
-	}
-
-	/**
-	 * Post-checkout landing in internal testing environments is the Jetpack AI Hub.
-	 */
-	public function test_post_checkout_lands_on_the_jetpack_ai_hub_in_internal_testing() {
-		activate_plugins( 'jetpack/jetpack.php' );
-		$GLOBALS['jetpack_mock_internal_testing_environment'] = true;
 
 		$this->assertSame( admin_url( 'admin.php?page=jetpack-ai' ), Jetpack_Ai::get_post_checkout_url() );
 	}
 
 	/**
-	 * Post-checkout landing outside internal testing stays on the My Jetpack product page.
+	 * Post-activation landing is the Jetpack AI page for an ordinary visitor.
 	 */
-	public function test_post_checkout_stays_on_the_my_jetpack_product_page_outside_internal_testing() {
+	public function test_post_activation_lands_on_the_jetpack_ai_page_for_an_ordinary_visitor() {
 		activate_plugins( 'jetpack/jetpack.php' );
 		$GLOBALS['jetpack_mock_internal_testing_environment'] = false;
-
-		$this->assertSame( admin_url( 'admin.php?page=my-jetpack#/jetpack-ai' ), Jetpack_Ai::get_post_checkout_url() );
-	}
-
-	/**
-	 * Post-activation landing in internal testing environments is the Jetpack AI Hub.
-	 */
-	public function test_post_activation_lands_on_the_jetpack_ai_hub_in_internal_testing() {
-		activate_plugins( 'jetpack/jetpack.php' );
-		$GLOBALS['jetpack_mock_internal_testing_environment'] = true;
 
 		$this->assertSame( admin_url( 'admin.php?page=jetpack-ai' ), Jetpack_Ai::get_post_activation_url() );
 	}
 
 	/**
-	 * Post-activation landing outside internal testing stays on the My Jetpack product page.
-	 */
-	public function test_post_activation_stays_on_the_my_jetpack_product_page_outside_internal_testing() {
-		activate_plugins( 'jetpack/jetpack.php' );
-		$GLOBALS['jetpack_mock_internal_testing_environment'] = false;
-
-		$this->assertSame( admin_url( 'admin.php?page=my-jetpack#/jetpack-ai' ), Jetpack_Ai::get_post_activation_url() );
-	}
-
-	/**
-	 * Standalone plugins ship My Jetpack without the Jetpack plugin, so the gate
-	 * helper never exists and the manage URL must fall back to My Jetpack. Separate
-	 * process so no earlier activate_plugins() call has defined the helper.
+	 * Standalone plugins ship My Jetpack without the Jetpack plugin, which is what
+	 * registers the Jetpack AI page, so the manage URL must fall back to My Jetpack.
+	 * Separate process so no earlier activate_plugins() call leaks in.
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
@@ -252,7 +221,7 @@ class Jetpack_Ai_Product_Test extends TestCase {
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
 	public function test_manage_url_stays_on_the_my_jetpack_product_page_without_the_jetpack_plugin() {
-		$this->assertFalse( function_exists( 'jetpack_is_internal_testing_environment' ) );
+		$this->assertFalse( Jetpack_Ai::is_plugin_active(), 'Precondition: the Jetpack plugin is not active.' );
 		$this->assertSame( admin_url( 'admin.php?page=my-jetpack#/jetpack-ai' ), Jetpack_Ai::get_manage_url() );
 	}
 }
