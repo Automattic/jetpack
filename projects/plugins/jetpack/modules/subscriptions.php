@@ -1029,10 +1029,6 @@ class Jetpack_Subscriptions {
 	 */
 	public function add_subscribers_menu() {
 		/*
-		 * Once the Newsletter modernization filter is on, the unified Newsletter
-		 * page owns the Subscribers tab and this standalone Calypso shortcut is
-		 * retired. Evaluated before the guards below, which only gate the shortcut.
-		 *
 		 * Referenced as a string literal (mirrors Newsletter\Settings::MODERNIZATION_FILTER)
 		 * to keep this bootstrap path safe if the packaged Newsletter Settings class does
 		 * not expose the constant yet.

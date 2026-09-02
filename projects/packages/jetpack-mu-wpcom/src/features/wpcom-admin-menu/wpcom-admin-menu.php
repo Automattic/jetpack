@@ -436,11 +436,9 @@ function wpcom_add_jetpack_submenu() {
 	// Jetpack > Subscribers. Always hide the auto-added Calypso redirect link.
 	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'jetpack-menu-jetpack-manage-subscribers', array( 'site' => $blog_id ) ) ) );
 
-	// The unified Newsletter page now owns the Subscribers tab on every site, so the
-	// legacy Calypso "Subscribers" submenu is retired. (The wp-admin subscriber-management
-	// variant was removed with the subscribers-dashboard package and isn't restored.) Hosts
-	// (and a11ns who want the legacy view back) can still force the old submenu back
-	// with add_filter( 'rsm_jetpack_ui_modernization_newsletter', '__return_false' ).
+	// The unified Newsletter page owns the Subscribers tab on every site, so the legacy
+	// Calypso "Subscribers" submenu is retired. add_filter( 'rsm_jetpack_ui_modernization_newsletter',
+	// '__return_false' ) brings it back — the Calypso link only, not a wp-admin dashboard.
 	if ( ! apply_filters( 'rsm_jetpack_ui_modernization_newsletter', true ) ) {
 		add_submenu_page(
 			'jetpack',

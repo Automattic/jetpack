@@ -921,4 +921,74 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 			remove_filter( 'jetpack_is_connection_ready', '__return_true', 1000 );
 		}
 	}
+
+	/**
+	 * Collect the `load-jetpack_page_*` hooks currently registered, one per page.
+	 *
+	 * Admin_Menu::add_menu() defers add_submenu_page() to admin_menu but registers this
+	 * action synchronously, so it is the only trace a direct call leaves behind. It adds
+	 * a `-network` variant per page too, which is dropped here so one page counts once.
+	 *
+	 * @return array List of hook names.
+	 */
+	private function get_jetpack_page_load_hooks() {
+		return array_values(
+			array_filter(
+				array_keys( $GLOBALS['wp_filter'] ),
+				static function ( $hook ) {
+					return str_starts_with( $hook, 'load-jetpack_page_' ) && ! str_ends_with( $hook, '-network' );
+				}
+			)
+		);
+	}
+
+	/**
+	 * Put the site in the state the legacy Calypso shortcut requires: online, with a
+	 * connected user, and not a WordPress.com platform.
+	 */
+	private function set_up_connected_self_hosted_site() {
+		wp_set_current_user( $this->admin_user_id );
+		Jetpack_Options::update_option( 'id', 12345 );
+		Jetpack_Options::update_option( 'master_user', $this->admin_user_id );
+		Jetpack_Options::update_option( 'user_tokens', array( $this->admin_user_id => "dummy.usertoken.{$this->admin_user_id}" ) );
+
+		add_filter( 'jetpack_offline_mode', '__return_false', 99 );
+		\Automattic\Jetpack\Status\Cache::clear();
+	}
+
+	/**
+	 * The modernization filter defaults on, so the unified Newsletter page owns the
+	 * Subscribers tab and add_subscribers_menu() registers no page at all.
+	 */
+	public function test_subscribers_menu_registers_nothing_when_modernization_filter_on() {
+		$this->set_up_connected_self_hosted_site();
+
+		$before = $this->get_jetpack_page_load_hooks();
+		Jetpack_Subscriptions::init()->add_subscribers_menu();
+
+		$this->assertSame(
+			$before,
+			$this->get_jetpack_page_load_hooks(),
+			'No Subscribers page should be registered while the Newsletter modernization filter is on.'
+		);
+	}
+
+	/**
+	 * Witness for the assertion above: with the modernization filter off the same call
+	 * does register the legacy Calypso shortcut, so its absence there is the filter
+	 * taking effect rather than a harness that registers nothing either way.
+	 */
+	public function test_subscribers_menu_registers_legacy_link_when_modernization_filter_off() {
+		$this->set_up_connected_self_hosted_site();
+		add_filter( 'rsm_jetpack_ui_modernization_newsletter', '__return_false' );
+		// The Calypso shortcut sits below a second gate that also defaults on.
+		add_filter( 'jetpack_wp_admin_subscriber_management_enabled', '__return_false' );
+
+		$before = $this->get_jetpack_page_load_hooks();
+		Jetpack_Subscriptions::init()->add_subscribers_menu();
+		$new = array_values( array_diff( $this->get_jetpack_page_load_hooks(), $before ) );
+
+		$this->assertCount( 1, $new, 'The legacy Calypso Subscribers shortcut should be registered.' );
+		$this->assertStringContainsString( 'jetpack-menu-jetpack-manage-subscribers', $new[0] );
+	}
 }
