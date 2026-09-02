@@ -285,7 +285,6 @@ function ReportParamsControl( {
 		<Stack direction="column" gap="sm">
 			<DateFiltersPanel
 				range={ range }
-				presetId={ stagedReportParams.preset ?? reportParams.preset }
 				appliedPresetId={ appliedParams.preset }
 				appliedRange={ appliedRange }
 				comparisonPresetId={

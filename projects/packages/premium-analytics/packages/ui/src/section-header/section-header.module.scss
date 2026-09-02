@@ -187,13 +187,8 @@ $section-header-visual-stacked-max-inline-size: $section-header-stacked-max-inli
 		justify-content: flex-end;
 	}
 
-	/*
-	 * Sized from the panel's published full-labels width, so the column can
-	 * grow back after the presets abbreviate. The track's 0 minimum keeps the
-	 * squeeze unaffected.
-	 */
+	// Never wider than its column, whose 0 minimum keeps the squeeze unaffected.
 	:global(.date-filters-panel) {
-		inline-size: var(--date-filters-panel-full-row-width, auto);
 		max-inline-size: 100%;
 	}
 }

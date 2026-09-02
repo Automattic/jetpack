@@ -34,7 +34,7 @@ describe( 'quick surface presets', () => {
 			getQuickSurfacePresets( TIME_ZONE, { presetIds: DETAIL_SURFACE_PRESETS } ).map(
 				preset => preset.label
 			)
-		).toEqual( [ 'All time', 'Last 24 hours', '7 days', '30 days', '12 months' ] );
+		).toEqual( [ 'All time', 'Last 24 hours', 'Last 7 days', 'Last 30 days', 'Last 12 months' ] );
 	} );
 
 	it( 'gives the all-time pill a short label like the rolling windows', () => {

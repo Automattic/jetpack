@@ -309,9 +309,8 @@ export default function AiOverview( {
 						{ __( 'Your WordPress.com account isn’t connected.', 'jetpack' ) }
 					</Notice.Title>
 					<Notice.Description>
-						{ __( 'Connect your account to see your AI usage.', 'jetpack' ) }{ ' ' }
 						<Link href="admin.php?page=my-jetpack#/connection">
-							{ __( 'Connect account', 'jetpack' ) }
+							{ __( 'Connect your user account to see your AI usage.', 'jetpack' ) }
 						</Link>
 					</Notice.Description>
 				</Notice.Root>

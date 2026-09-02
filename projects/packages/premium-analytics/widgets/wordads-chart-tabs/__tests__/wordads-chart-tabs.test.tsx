@@ -297,19 +297,18 @@ describe( 'WordAdsChartTabsWidget date control', () => {
 			onChange,
 		} );
 
-		const toolbar = screen.getByRole( 'toolbar', { name: 'Date range' } );
+		await user.click( screen.getByRole( 'button', { name: 'Last 30 days' } ) );
+
+		const menu = screen.getByRole( 'menu', { name: 'Period' } );
 
 		expect(
-			within( toolbar )
-				.getAllByRole( 'button' )
-				.map( button => button.textContent )
-		).toEqual( [ '7 days', '30 days', '12 months', 'Custom' ] );
-		expect( screen.getByRole( 'button', { name: '30 days' } ) ).toHaveAttribute(
-			'aria-pressed',
-			'true'
-		);
+			within( menu )
+				.getAllByRole( 'menuitemradio' )
+				.map( item => item.textContent )
+		).toEqual( [ 'Last 7 days', 'Last 30 days', 'Last 12 months', 'Custom range' ] );
+		expect( screen.getByRole( 'menuitemradio', { name: 'Last 30 days' } ) ).toBeChecked();
 
-		await user.click( screen.getByRole( 'button', { name: '7 days' } ) );
+		await user.click( screen.getByRole( 'menuitemradio', { name: 'Last 7 days' } ) );
 
 		expect( onChange ).toHaveBeenCalledWith( {
 			reportParams: expect.objectContaining( { preset: 'last-7-days' } ),
