@@ -31,17 +31,12 @@ type DatePeriodDropdownProps = Parameters< typeof DatePeriodDropdown >[ 0 ];
 export type DateRange = DatePeriodDropdownProps[ 'range' ];
 
 export type DateFiltersPanelProps = {
-	/**
-	 * The current date range preset ID (e.g., 'last-7-days', 'last-30-days').
-	 */
-	presetId?: PrimaryPresetId;
-
 	range: DateRange;
 
 	/**
-	 * The applied (committed) preset ID. Used to label the picker's trigger
-	 * while the popover is closed, so a discarded draft shows the applied
-	 * preset. Falls back to `presetId` when omitted.
+	 * The applied (committed) preset ID, which names the picker's trigger. The
+	 * draft's own preset travels back out through `onChange` and never in: a
+	 * control naming it would rename itself to a range nothing has applied.
 	 */
 	appliedPresetId?: PrimaryPresetId;
 
@@ -135,7 +130,6 @@ export type DateFiltersPanelProps = {
  * owns the comparison state; children only render.
  */
 export function DateFiltersPanel( {
-	presetId,
 	range,
 	appliedPresetId,
 	appliedRange,
@@ -169,16 +163,8 @@ export function DateFiltersPanel( {
 	 */
 	const { offersComparison } = useReportScope();
 
-	// Unknown values (e.g. garbage from the URL) become undefined, which
-	// DateRangePopover reads as the custom preset.
-	const validatedPresetId = useMemo( () => {
-		if ( ! presetId ) {
-			return undefined;
-		}
-		return isPrimaryPreset( presetId ) ? presetId : undefined;
-	}, [ presetId ] );
-
-	// Same validation for the applied preset that labels the closed trigger.
+	// Unknown values (e.g. garbage from the URL) become undefined, which the
+	// dropdown reads as the custom preset.
 	const validatedAppliedPresetId = useMemo( () => {
 		if ( ! appliedPresetId ) {
 			return undefined;
@@ -291,7 +277,7 @@ export function DateFiltersPanel( {
 					help={ rangeControlProps.help }
 				>
 					<DatePeriodDropdown
-						presetId={ validatedAppliedPresetId ?? validatedPresetId }
+						appliedPresetId={ validatedAppliedPresetId }
 						appliedRange={ appliedRange ?? range }
 						range={ range }
 						onSelect={ ( nextRange, nextPresetId ) => {

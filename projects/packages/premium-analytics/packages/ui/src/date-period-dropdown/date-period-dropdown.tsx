@@ -25,8 +25,12 @@ import './date-period-dropdown.scss';
 type DatePeriodDropdownProps = {
 	/**
 	 * The applied preset, or undefined while a custom range drives the period.
+	 *
+	 * The committed one, never the draft: the calendar stages `custom` from the
+	 * first day clicked, and a trigger reading that would rename itself to a
+	 * range nothing has applied.
 	 */
-	presetId?: PrimaryPresetId;
+	appliedPresetId?: PrimaryPresetId;
 
 	/**
 	 * The applied range. Names the period on the trigger where no preset does,
@@ -101,7 +105,7 @@ type DatePeriodDropdownProps = {
  * menu of the common ones grouped by scale.
  */
 export function DatePeriodDropdown( {
-	presetId,
+	appliedPresetId,
 	appliedRange,
 	presetIds,
 	allTimeStart,
@@ -139,10 +143,10 @@ export function DatePeriodDropdown( {
 			closedByActionRef.current = false;
 			// Opened on an applied custom range, the menu lands on the calendar:
 			// nothing in the list names that range.
-			setIsEditingCustom( isOpen && withCustomRange && presetId === PRESET_CUSTOM );
+			setIsEditingCustom( isOpen && withCustomRange && appliedPresetId === PRESET_CUSTOM );
 			onOpenChange?.( isOpen );
 		},
-		[ onCancel, onOpenChange, presetId, withCustomRange ]
+		[ appliedPresetId, onCancel, onOpenChange, withCustomRange ]
 	);
 
 	/*
@@ -162,10 +166,10 @@ export function DatePeriodDropdown( {
 	// The preset names the period where one drives it; a hand-picked range is
 	// named by the period it covers, and falls back to its own dates.
 	const triggerLabel = useMemo( () => {
-		const applied = groups.flat().find( preset => preset.id === presetId );
+		const applied = groups.flat().find( preset => preset.id === appliedPresetId );
 
 		return applied?.label ?? formatDateRangeNatural( appliedRange );
-	}, [ appliedRange, groups, presetId ] );
+	}, [ appliedPresetId, appliedRange, groups ] );
 
 	return (
 		<Dropdown
@@ -201,7 +205,7 @@ export function DatePeriodDropdown( {
 						{ groups.map( group => (
 							<MenuGroup key={ group[ 0 ].id }>
 								{ group.map( preset => {
-									const isSelected = preset.id === presetId;
+									const isSelected = preset.id === appliedPresetId;
 
 									return (
 										<MenuItem
@@ -227,8 +231,8 @@ export function DatePeriodDropdown( {
 							<MenuGroup>
 								<MenuItem
 									role="menuitemradio"
-									isSelected={ presetId === PRESET_CUSTOM }
-									icon={ presetId === PRESET_CUSTOM ? check : undefined }
+									isSelected={ appliedPresetId === PRESET_CUSTOM }
+									icon={ appliedPresetId === PRESET_CUSTOM ? check : undefined }
 									onClick={ () => setIsEditingCustom( true ) }
 								>
 									{ __( 'Custom range', 'jetpack-premium-analytics-pkg' ) }

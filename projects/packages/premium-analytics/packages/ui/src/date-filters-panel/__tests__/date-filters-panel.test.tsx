@@ -13,7 +13,6 @@ const PRESET_RANGE = {
 function panel( props: Partial< ComponentProps< typeof DateFiltersPanel > > = {} ) {
 	return (
 		<DateFiltersPanel
-			presetId="last-30-days"
 			range={ PRESET_RANGE }
 			onChange={ jest.fn() }
 			onComparisonChange={ jest.fn() }
@@ -97,7 +96,6 @@ describe( 'DateFiltersPanel', () => {
 		};
 
 		const { rerender } = renderPanel( {
-			presetId: 'custom',
 			appliedPresetId: 'custom',
 			range: customRange,
 			appliedRange: customRange,
@@ -109,7 +107,6 @@ describe( 'DateFiltersPanel', () => {
 
 		rerender(
 			panel( {
-				presetId: 'last-30-days',
 				appliedPresetId: 'last-30-days',
 				appliedRange: PRESET_RANGE,
 				canApply: false,
@@ -124,7 +121,6 @@ describe( 'DateFiltersPanel', () => {
 		renderPanel( {
 			presetIds: DETAIL_SURFACE_PRESETS,
 			withCustomRange: false,
-			presetId: 'all-time',
 			appliedPresetId: 'all-time',
 		} );
 

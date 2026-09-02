@@ -121,9 +121,7 @@ export function DateRangeQuickPresets( {
 							 * Abbreviated pills lose the wording that named the period, so
 							 * carry the full label for anyone not reading the glyphs.
 							 */
-							aria-label={
-								labelMode === 'abbreviated' ? preset.pillLabel ?? preset.label : undefined
-							}
+							aria-label={ labelMode === 'abbreviated' ? preset.label : undefined }
 							onClick={ () => selectPreset( preset.id ) }
 						/>
 					}

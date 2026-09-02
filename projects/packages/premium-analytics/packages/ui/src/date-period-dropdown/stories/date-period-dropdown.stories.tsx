@@ -1,5 +1,4 @@
 import { DETAIL_SURFACE_PRESETS, computePrimaryRange } from '@jetpack-premium-analytics/datetime';
-import { startOfMonth, endOfMonth, subMonths } from 'date-fns';
 import { useState } from 'react';
 import { DatePeriodDropdown } from '../date-period-dropdown';
 import type { DateRange } from '../../date-range-popover';
@@ -33,11 +32,9 @@ type Story = StoryObj< typeof DatePeriodDropdown >;
 
 const TIME_ZONE = 'America/New_York';
 
-const lastMonth = subMonths( new Date(), 1 );
-const CUSTOM_RANGE: DateRange = {
-	from: startOfMonth( lastMonth ),
-	to: endOfMonth( lastMonth ),
-};
+// Built in the control's own timezone: the browser's would not be a whole
+// calendar month there, which is the point of the story.
+const CUSTOM_RANGE: DateRange = computePrimaryRange( 'last-month', TIME_ZONE )!;
 
 function DatePeriodDropdownWithState( {
 	initialPresetId = 'last-30-days',
@@ -50,15 +47,22 @@ function DatePeriodDropdownWithState( {
 	presetIds?: readonly QuickSurfacePresetId[];
 	allTimeStart?: Date;
 } ) {
-	const [ presetId, setPresetId ] = useState< PrimaryPresetId | undefined >( initialPresetId );
+	const [ appliedPresetId, setAppliedPresetId ] = useState< PrimaryPresetId | undefined >(
+		initialPresetId
+	);
 	const [ appliedRange, setAppliedRange ] = useState< DateRange >(
 		initialRange ?? computePrimaryRange( 'last-30-days', TIME_ZONE )!
 	);
 	const [ range, setRange ] = useState< DateRange >( appliedRange );
+	// The draft's own preset, held apart the way the dashboard holds it: the
+	// calendar stages `custom` on the first click, and nothing is applied yet.
+	const [ draftPresetId, setDraftPresetId ] = useState< PrimaryPresetId | undefined >(
+		initialPresetId
+	);
 
 	return (
 		<DatePeriodDropdown
-			presetId={ presetId }
+			appliedPresetId={ appliedPresetId }
 			appliedRange={ appliedRange }
 			range={ range }
 			presetIds={ presetIds }
@@ -66,7 +70,8 @@ function DatePeriodDropdownWithState( {
 			timeZone={ TIME_ZONE }
 			canApply={ range !== appliedRange }
 			onSelect={ ( nextRange, nextPresetId ) => {
-				setPresetId( nextPresetId );
+				setAppliedPresetId( nextPresetId );
+				setDraftPresetId( nextPresetId );
 				setAppliedRange( nextRange );
 				setRange( nextRange );
 			} }
@@ -74,10 +79,16 @@ function DatePeriodDropdownWithState( {
 				if ( nextRange ) {
 					setRange( nextRange );
 				}
-				setPresetId( nextPresetId );
+				setDraftPresetId( nextPresetId );
 			} }
-			onApply={ () => setAppliedRange( range ) }
-			onCancel={ () => setRange( appliedRange ) }
+			onApply={ () => {
+				setAppliedPresetId( draftPresetId );
+				setAppliedRange( range );
+			} }
+			onCancel={ () => {
+				setDraftPresetId( appliedPresetId );
+				setRange( appliedRange );
+			} }
 		/>
 	);
 }
