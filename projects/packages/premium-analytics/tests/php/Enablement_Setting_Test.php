@@ -206,6 +206,7 @@ class Enablement_Setting_Test extends BaseTestCase {
 	 */
 	public function test_register_is_idempotent() {
 		Enablement_Setting::register();
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Intentional: testing that a second call is a no-op.
 		Enablement_Setting::register();
 
 		$this->assertCount(
