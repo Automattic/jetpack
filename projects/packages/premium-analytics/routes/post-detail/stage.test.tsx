@@ -29,6 +29,7 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 // Avoid loading DataViews while keeping the real breadcrumbs for these assertions.
 jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 	DateFiltersPanel: () => <div>Date filters</div>,
+	SectionHeader: jest.requireActual( '../../packages/ui/src/section-header' ).SectionHeader,
 	SectionTabPanel: ( { children }: { children: ReactNode } ) => <div>{ children }</div>,
 	StatsBreadcrumbs: jest.requireActual( '../../packages/ui/src/stats-breadcrumbs' )
 		.StatsBreadcrumbs,
@@ -129,14 +130,18 @@ jest.mock( '@wordpress/route', () => ( {
 
 jest.mock( './components', () => ( {
 	PostDetailTabs: ( { children }: { children: ReactNode } ) => <div>{ children }</div>,
-	PostSummaryCard: ( { performanceRange }: { performanceRange?: { from?: Date; to?: Date } } ) => (
-		<div>
-			Post summary
+	postHeaderSlots: ( {
+		performanceRange,
+	}: {
+		performanceRange?: { from?: Date; to?: Date };
+	} ) => ( {
+		title: 'Post summary',
+		subTitle: (
 			<span data-testid="performance-from">
 				{ performanceRange?.from?.toISOString() ?? 'none' }
 			</span>
-		</div>
-	),
+		),
+	} ),
 } ) );
 
 let mockActiveTab = 'traffic';

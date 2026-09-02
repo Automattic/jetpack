@@ -6,6 +6,37 @@ $section-header-stacked-max-inline-size: 720px;
 // nothing. Tunable.
 $section-header-title-min-inline-size: 320px;
 
+// The visual's box and the space after it. Both come from the detail-page
+// mocks and sit off the wpds scales, which stop at 40px for a size and 40px
+// for a gap.
+$section-header-visual-size: 72px;
+$section-header-visual-gap: 20px;
+
+// The visual widens the row by its own box and gap, so the two halves stop
+// fitting that much sooner.
+$section-header-visual-stacked-max-inline-size: $section-header-stacked-max-inline-size + $section-header-visual-size + $section-header-visual-gap;
+
+// The controls drop below the title, reading from the same edge.
+@mixin section-header-stacked {
+
+	.controls {
+		justify-content: flex-start;
+		padding-block-start: var(--wpds-dimension-gap-sm);
+
+		:global(.date-filters-panel__row) {
+			justify-content: flex-start;
+		}
+	}
+
+	// A column of its own with nothing competing for it: the title wraps
+	// rather than spending lines it does not have to.
+	.title {
+		overflow: visible;
+		text-overflow: clip;
+		white-space: normal;
+	}
+}
+
 /*
  * Carries the query and nothing else: a container cannot answer a query about
  * its own size, so the grid it switches has to be a descendant. A container
@@ -28,18 +59,70 @@ $section-header-title-min-inline-size: 320px;
 	 * panel adapts internally.
 	 */
 	grid-template-columns: minmax($section-header-title-min-inline-size, 1fr) minmax(0, max-content);
+	grid-template-areas: "text controls";
 	align-items: center;
 
 	// Column gap only: in the stacked layout the controls row carries its
 	// spacing as its own padding.
 	column-gap: var(--wpds-dimension-gap-sm);
 	row-gap: 0;
+}
 
-	.title {
-		overflow: hidden;
-		text-overflow: ellipsis;
-		white-space: nowrap;
+.withVisual {
+	grid-template-columns: auto minmax($section-header-title-min-inline-size, 1fr) minmax(0, max-content);
+	grid-template-areas: "visual text controls";
+	column-gap: $section-header-visual-gap;
+}
+
+.visual {
+	grid-area: visual;
+	inline-size: $section-header-visual-size;
+	block-size: $section-header-visual-size;
+	border-radius: var(--wpds-border-radius-lg);
+	overflow: hidden;
+	// Centers a bare icon; an image is stretched to the box below. The neutral
+	// fill shows through only where an icon leaves it visible.
+	display: grid;
+	place-items: center;
+	background: var(--wpds-color-background-surface-neutral-weak);
+	color: var(--wpds-color-foreground-content-neutral-weak);
+
+	// The boot shell resets `.boot-layout img { height: auto; max-width: 100% }`
+	// with higher specificity than a class here, so the box is restored through
+	// the square aspect ratio rather than a specificity contest.
+	img {
+		inline-size: 100%;
+		block-size: 100%;
+		object-fit: cover;
+		aspect-ratio: 1;
 	}
+}
+
+.text {
+	grid-area: text;
+	display: flex;
+	flex-direction: column;
+	min-inline-size: 0;
+}
+
+.withVisual .text {
+	// Matches the visual's box: title against its top, subtitle against its
+	// bottom. A floor, not a height — the stacked layout lets the title wrap,
+	// and a fixed box would push the subtitle out from under it.
+	min-block-size: $section-header-visual-size;
+	justify-content: space-between;
+}
+
+// @todo Drop once `Text` truncates natively: https://github.com/WordPress/gutenberg/issues/77391
+.title,
+.subTitle {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.subTitle {
+	color: var(--wpds-color-foreground-content-neutral-weak);
 }
 
 /*
@@ -89,6 +172,7 @@ $section-header-title-min-inline-size: 320px;
 }
 
 .controls {
+	grid-area: controls;
 	min-inline-size: 0;
 	justify-content: flex-end;
 
@@ -115,26 +199,21 @@ $section-header-title-min-inline-size: 320px;
 
 @container (max-width: #{$section-header-stacked-max-inline-size}) {
 
-	.layout {
+	.layout:not(.withVisual) {
 		grid-template-columns: minmax(0, 1fr);
+		grid-template-areas: "text" "controls";
 
-		// A column of its own with nothing competing for it: the title wraps
-		// rather than spending lines it does not have to.
-		.title {
-			overflow: visible;
-			text-overflow: clip;
-			white-space: normal;
-		}
+		@include section-header-stacked;
 	}
+}
 
-	// A row of its own now, reading from the same edge as the title, so it
-	// carries its row spacing as padding.
-	.controls {
-		justify-content: flex-start;
-		padding-block-start: var(--wpds-dimension-gap-sm);
+@container (max-width: #{$section-header-visual-stacked-max-inline-size}) {
 
-		:global(.date-filters-panel__row) {
-			justify-content: flex-start;
-		}
+	// The visual stays beside the title; only the controls take their own row.
+	.withVisual {
+		grid-template-columns: auto minmax(0, 1fr);
+		grid-template-areas: "visual text" "controls controls";
+
+		@include section-header-stacked;
 	}
 }

@@ -1,5 +1,6 @@
+import { SectionHeader } from '@jetpack-premium-analytics/ui';
 import { render, screen } from '@testing-library/react';
-import { PostSummaryCard } from './post-summary-card';
+import { postHeaderSlots } from './post-header-slots';
 import type { PostSummary } from '../../hooks';
 
 const SUMMARY: PostSummary = {
@@ -12,17 +13,39 @@ const SUMMARY: PostSummary = {
 	isError: false,
 };
 
-describe( 'PostSummaryCard', () => {
-	it( 'shows the post identity by default: thumbnail and publish wording', () => {
-		render( <PostSummaryCard summary={ SUMMARY } /> );
+/**
+ * Renders the slots where they are consumed, since only the header places them.
+ *
+ * @param args - The slot inputs under test.
+ * @return The render result.
+ */
+function renderHeader( args: Parameters< typeof postHeaderSlots >[ 0 ] ) {
+	return render( <SectionHeader headingLevel={ 1 } { ...postHeaderSlots( args ) } /> );
+}
 
+describe( 'postHeaderSlots', () => {
+	it( 'shows the post identity by default: thumbnail and publish wording', () => {
+		renderHeader( { summary: SUMMARY } );
+
+		expect( screen.getByRole( 'heading', { level: 1 } ) ).toHaveTextContent( 'Hello world' );
 		expect( screen.getByText( /Post published on Jan 10, 2026\./ ) ).toBeInTheDocument();
 		expect( screen.getByTestId( 'post-summary-image' ) ).toBeInTheDocument();
 		expect( screen.queryByTestId( 'post-summary-email-tile' ) ).not.toBeInTheDocument();
 	} );
 
+	it( 'states the window the widgets below report over', () => {
+		renderHeader( {
+			summary: SUMMARY,
+			performanceRange: { from: new Date( 2026, 6, 9 ), to: new Date( 2026, 6, 15 ) },
+		} );
+
+		expect(
+			screen.getByText( /Performance from Jul 9, 2026 to Jul 15, 2026/ )
+		).toBeInTheDocument();
+	} );
+
 	it( 'shows the email identity on the email variant: envelope tile and sent wording', () => {
-		render( <PostSummaryCard summary={ SUMMARY } variant="email" /> );
+		renderHeader( { summary: SUMMARY, variant: 'email' } );
 
 		expect( screen.getByText( /Email sent on Jan 10, 2026\./ ) ).toBeInTheDocument();
 		// The envelope tile replaces the featured image even when one exists.
@@ -31,22 +54,19 @@ describe( 'PostSummaryCard', () => {
 	} );
 
 	it( 'holds the title and subtitle lines while the summary resolves', () => {
-		render( <PostSummaryCard summary={ { ...SUMMARY, title: undefined, isLoading: true } } /> );
+		renderHeader( { summary: { ...SUMMARY, title: undefined, isLoading: true } } );
 
 		expect( screen.getByText( 'Loading…' ) ).toBeInTheDocument();
-		expect( screen.queryByRole( 'heading', { level: 1 } ) ).not.toBeInTheDocument();
 		expect( screen.queryByText( /Post published on/ ) ).not.toBeInTheDocument();
 	} );
 
 	// The state an email-tab deep link opens on: the tab fixes the identity, so
 	// the envelope tile is already right while the title is still loading.
 	it( 'keeps the email identity while the summary resolves', () => {
-		render(
-			<PostSummaryCard
-				summary={ { ...SUMMARY, title: undefined, isLoading: true } }
-				variant="email"
-			/>
-		);
+		renderHeader( {
+			summary: { ...SUMMARY, title: undefined, isLoading: true },
+			variant: 'email',
+		} );
 
 		expect( screen.getByTestId( 'post-summary-email-tile' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Loading…' ) ).toBeInTheDocument();

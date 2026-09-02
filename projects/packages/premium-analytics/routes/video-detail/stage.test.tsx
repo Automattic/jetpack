@@ -29,6 +29,7 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 // Avoid loading DataViews while keeping the real breadcrumbs for these assertions.
 jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 	DateFiltersPanel: () => <div>Date filters</div>,
+	SectionHeader: jest.requireActual( '../../packages/ui/src/section-header' ).SectionHeader,
 	StatsBreadcrumbs: jest.requireActual( '../../packages/ui/src/stats-breadcrumbs' )
 		.StatsBreadcrumbs,
 	StatsPageIcon: () => null,
@@ -235,15 +236,15 @@ describe( 'video detail stage', () => {
 			posterUrl: 'https://i0.wp.com/videos.files.wordpress.com/abcd1234/launch-recap.jpg',
 		} );
 
-		// The placeholder is decorative (`aria-hidden`), so it has no role or
-		// text to query; find its glyph block structurally.
+		// The whole visual slot is decorative (`aria-hidden`), so both the poster
+		// and the placeholder live outside the accessibility tree.
 		const placeholderGlyph = () =>
 			// eslint-disable-next-line testing-library/no-node-access -- The aria-hidden placeholder has no accessible query target.
 			document.querySelector( 'div[aria-hidden="true"] svg' );
 
 		render( stage() );
 
-		const poster = screen.getByRole( 'presentation' );
+		const poster = screen.getByRole( 'presentation', { hidden: true } );
 		expect( poster ).toHaveAttribute(
 			'src',
 			'https://i0.wp.com/videos.files.wordpress.com/abcd1234/launch-recap.jpg'
@@ -253,7 +254,7 @@ describe( 'video detail stage', () => {
 		// A tokenless poster (private video) 404s; the broken image must swap
 		// itself for the video-glyph placeholder, keeping the image slot.
 		fireEvent.error( poster );
-		expect( screen.queryByRole( 'presentation' ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'presentation', { hidden: true } ) ).not.toBeInTheDocument();
 		expect( placeholderGlyph() ).toBeInTheDocument();
 		expect( getSummaryHeading( 'Launch recap' ) ).toBeInTheDocument();
 	} );
@@ -263,7 +264,7 @@ describe( 'video detail stage', () => {
 
 		render( stage() );
 
-		expect( screen.queryByRole( 'presentation' ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'presentation', { hidden: true } ) ).not.toBeInTheDocument();
 		expect(
 			// eslint-disable-next-line testing-library/no-node-access -- The aria-hidden placeholder has no accessible query target.
 			document.querySelector( 'div[aria-hidden="true"] svg' )

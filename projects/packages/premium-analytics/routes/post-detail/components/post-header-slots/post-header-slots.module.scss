@@ -1,0 +1,27 @@
+// The email tabs' envelope tile is brand-tinted per the design mocks: the
+// non-interactive brand surface behind the brand foreground. Fills the
+// header's visual box, replacing the neutral fill it supplies.
+.emailTile {
+	display: grid;
+	place-items: center;
+	inline-size: 100%;
+	block-size: 100%;
+	background: var(--wpds-color-background-surface-brand);
+	color: var(--wpds-color-foreground-interactive-brand);
+}
+
+// Sized to the title and subtitle lines they stand in for, so the pair reads as
+// text arriving rather than as two anonymous bars.
+.titlePlaceholder {
+	display: block;
+	block-size: 38px;
+	inline-size: min(100%, 320px);
+	border-radius: var(--wpds-border-radius-md);
+}
+
+.subTitlePlaceholder {
+	display: block;
+	block-size: 18px;
+	inline-size: min(100%, 260px);
+	border-radius: var(--wpds-border-radius-md);
+}

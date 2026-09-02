@@ -8,11 +8,15 @@ import {
 } from '@jetpack-premium-analytics/data';
 import { Button, Stack, Text } from '@jetpack-premium-analytics/externals';
 import { pickReportDateParams, useReportDateFilters } from '@jetpack-premium-analytics/routing';
-import { DateFiltersPanel, StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
+import {
+	DateFiltersPanel,
+	SectionHeader,
+	StatsBreadcrumbs,
+	StatsPageIcon,
+} from '@jetpack-premium-analytics/ui';
 import { Page } from '@wordpress/admin-ui';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
-import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Link, useParams, useSearch } from '@wordpress/route';
 import { DEFAULT_GRID, ROW_HEIGHT_PRESETS, WidgetDashboard } from '@wordpress/widget-dashboard';
@@ -23,7 +27,7 @@ import { type WidgetModuleRecord } from '@wordpress/widget-primitives';
 import { useDetailBreadcrumbs } from '../use-detail-breadcrumbs';
 import { useDetailDateControls } from '../use-detail-date-controls';
 import { resolveWidgetModuleWithI18n, useWidgetTypesWithI18n } from '../widget-module-i18n';
-import { VideoSummaryCard } from './components';
+import { videoHeaderSlots } from './components';
 import { VIDEO_DETAIL_LAYOUT } from './config';
 import { useVideoSummary } from './hooks';
 import { route } from './package.json';
@@ -39,13 +43,6 @@ const VIDEO_DETAIL_GRID = { ...DEFAULT_GRID, rowHeight: ROW_HEIGHT_PRESETS.small
 // The layout is fixed, so the change callback never fires; the dashboard
 // still requires one because it owns a staging copy internally.
 const noopLayoutChange = () => {};
-
-// The share of the header row the presets can never use: the summary's
-// `min-inline-size` floor plus the row gap (see `.summary` and `.header` in
-// stage.module.scss — keep them in sync), plus a buffer so the panel steps down
-// before the wrap threshold — wrapping is synchronous while the measured flip
-// lags a frame, so equal thresholds would flash a wrapped row at every boundary.
-const HEADER_RESERVED_INLINE_SIZE = 440;
 
 /**
  * Premium Analytics video detail page shell.
@@ -79,10 +76,6 @@ function VideoDetail(): JSX.Element {
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 	const dateControls = useDetailDateControls( summary.publishedDate, dateFilters );
 
-	// The header row hosts the panel in a shrink-to-fit slot, so the panel measures
-	// the row itself to pick its responsive layout; see the `containerElement` prop.
-	const [ headerElement, setHeaderElement ] = useState< HTMLElement | null >( null );
-
 	const search = useSearch( { strict: false } ) as Record< string, unknown > | undefined;
 	const reportSearch = pickReportDateParams( search );
 
@@ -97,12 +90,14 @@ function VideoDetail(): JSX.Element {
 	const resolvedSummary = { ...summary, title };
 	const breadcrumbs = useDetailBreadcrumbs( title );
 	const canRenderWidgets = ! summary.isLoading && ! summary.isError && ! summary.isNotFound;
-	let summaryContent: JSX.Element | null;
 
-	if ( summary.isLoading ) {
-		summaryContent = null;
-	} else if ( summary.isError ) {
-		summaryContent = (
+	// Without a resolved video there is no identity to head the page with, so
+	// the header keeps only its date controls and the reason goes below it,
+	// where the widgets would have been.
+	let notice: JSX.Element | null = null;
+
+	if ( summary.isError ) {
+		notice = (
 			<Stack direction="column" align="flex-start" gap="sm">
 				<Text>
 					{ __(
@@ -116,7 +111,7 @@ function VideoDetail(): JSX.Element {
 			</Stack>
 		);
 	} else if ( summary.isNotFound ) {
-		summaryContent = (
+		notice = (
 			<Stack direction="column" align="flex-start" gap="sm">
 				<Text>{ __( "We couldn't find this video.", 'jetpack-premium-analytics-pkg' ) }</Text>
 				<Link
@@ -128,11 +123,14 @@ function VideoDetail(): JSX.Element {
 				</Link>
 			</Stack>
 		);
-	} else {
-		summaryContent = (
-			<VideoSummaryCard summary={ resolvedSummary } performanceRange={ dateFilters.appliedRange } />
-		);
 	}
+
+	const headerSlots = canRenderWidgets
+		? videoHeaderSlots( {
+				summary: resolvedSummary,
+				performanceRange: dateFilters.appliedRange,
+		  } )
+		: {};
 
 	return (
 		<WidgetDashboard
@@ -153,27 +151,22 @@ function VideoDetail(): JSX.Element {
 					 * The presets render in every summary state, so the range stays
 					 * adjustable while the video loads or errors.
 					 */ }
-					<div ref={ setHeaderElement } className={ styles.header }>
-						{ summaryContent ? <div className={ styles.summary }>{ summaryContent }</div> : null }
-						<div className={ styles.dateFilters }>
+					<div className={ styles.header }>
+						<SectionHeader headingLevel={ 1 } { ...headerSlots }>
 							{ /*
 							 * The design has no comparison on this page. The panel reads that
 							 * from the scope the stage declares, which is the same declaration
 							 * that keeps the params away from the widgets.
 							 */ }
-							<DateFiltersPanel
-								{ ...dateFilters }
-								{ ...dateControls }
-								containerElement={ headerElement }
-								reservedInlineSize={ HEADER_RESERVED_INLINE_SIZE }
-							/>
-						</div>
+							<DateFiltersPanel { ...dateFilters } { ...dateControls } />
+						</SectionHeader>
 					</div>
 					{ canRenderWidgets ? (
 						<div className={ styles.content }>
 							<WidgetDashboard.Widgets className={ styles.widgets } />
 						</div>
 					) : null }
+					{ notice ? <div className={ styles.content }>{ notice }</div> : null }
 				</div>
 			</Page>
 		</WidgetDashboard>
