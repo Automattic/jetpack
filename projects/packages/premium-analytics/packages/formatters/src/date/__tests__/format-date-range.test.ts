@@ -16,6 +16,7 @@ import {
 	formatDateRange,
 	formatDateRangeCompact,
 	formatDateRangeMinimal,
+	formatDateRangeNatural,
 } from '../format-date-range';
 
 // The en dash between thin spaces that CLDR puts between the ends of a range.
@@ -361,5 +362,89 @@ describe( 'formatDateRangeMinimal', () => {
 				formatDateRangeMinimal( { from: utcDate( 2026, 7, 13 ), to: utcDate( 2026, 7, 26 ) } )
 			).toBe( `13/07${ FALLBACK_SEP }26/07` );
 		} );
+	} );
+} );
+
+describe( 'formatDateRangeNatural', () => {
+	beforeAll( () => jest.useFakeTimers().setSystemTime( utcDate( 2026, 8, 13 ) ) );
+	afterAll( () => jest.useRealTimers() );
+
+	describe( 'en_US site', () => {
+		beforeEach( () => setSettings( EN_US_SETTINGS ) );
+
+		it( 'names a whole calendar month', () => {
+			expect(
+				formatDateRangeNatural( { from: utcDate( 2025, 3, 1 ), to: utcDate( 2025, 3, 31 ) } )
+			).toBe( 'March 2025' );
+		} );
+
+		// The label is alone on the control, so the year is not redundant the way
+		// it is in a range with both ends on screen.
+		it( 'keeps the year on a whole month of the current year', () => {
+			expect(
+				formatDateRangeNatural( { from: utcDate( 2026, 3, 1 ), to: utcDate( 2026, 3, 31 ) } )
+			).toBe( 'March 2026' );
+		} );
+
+		it( 'names a whole calendar year', () => {
+			expect(
+				formatDateRangeNatural( { from: utcDate( 2025, 1, 1 ), to: utcDate( 2025, 12, 31 ) } )
+			).toBe( '2025' );
+		} );
+
+		it( 'measures the month by its own length', () => {
+			expect(
+				formatDateRangeNatural( { from: utcDate( 2024, 2, 1 ), to: utcDate( 2024, 2, 29 ) } )
+			).toBe( 'February 2024' );
+		} );
+
+		it( 'names the month whatever time of day the range ends at', () => {
+			expect(
+				formatDateRangeNatural( { from: utcDate( 2025, 3, 1 ), to: utcDate( 2025, 3, 31, 23 ) } )
+			).toBe( 'March 2025' );
+		} );
+
+		it( 'falls back on a range that stops short of the month', () => {
+			const range = { from: utcDate( 2026, 3, 1 ), to: utcDate( 2026, 3, 30 ) };
+
+			expect( formatDateRangeNatural( range ) ).toBe( formatDateRangeMinimal( range ) );
+		} );
+
+		it( 'falls back on February shortened to 28 days in a leap year', () => {
+			const range = { from: utcDate( 2024, 2, 1 ), to: utcDate( 2024, 2, 28 ) };
+
+			expect( formatDateRangeNatural( range ) ).toBe( formatDateRangeMinimal( range ) );
+		} );
+
+		// Two whole months name no single period, and the design asks for the
+		// shortest form rather than a made-up one.
+		it( 'falls back across two whole months', () => {
+			const range = { from: utcDate( 2026, 3, 1 ), to: utcDate( 2026, 4, 30 ) };
+
+			expect( formatDateRangeNatural( range ) ).toBe( formatDateRangeMinimal( range ) );
+		} );
+
+		it( 'falls back on a month-long window that sits between two months', () => {
+			const range = { from: utcDate( 2026, 3, 15 ), to: utcDate( 2026, 4, 14 ) };
+
+			expect( formatDateRangeNatural( range ) ).toBe( formatDateRangeMinimal( range ) );
+		} );
+	} );
+
+	describe( 'es_ES site', () => {
+		beforeEach( () => setSettings( ES_ES_SETTINGS ) );
+
+		it( 'names a whole month the way the site orders its dates', () => {
+			expect(
+				formatDateRangeNatural( { from: utcDate( 2025, 3, 1 ), to: utcDate( 2025, 3, 31 ) } )
+			).toBe( 'marzo de 2025' );
+		} );
+	} );
+
+	it( 'returns an empty string when an end is missing', () => {
+		setSettings( EN_US_SETTINGS );
+
+		expect( formatDateRangeNatural( { from: utcDate( 2025, 3, 1 ), to: undefined } ) ).toBe( '' );
+		expect( formatDateRangeNatural() ).toBe( '' );
 	} );
 } );

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Site purchases: Fix a fatal error when a cached purchase row arrives in an unexpected shape.

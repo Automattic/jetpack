@@ -58,6 +58,10 @@ const CATALOG_RESTORE_FOR_ROLE: Record<
 	'--a8c-charts-color-label-axis': theme => ( {
 		svgLabelSmall: { ...theme.svgLabelSmall, fill: defaultTheme.svgLabelSmall.fill },
 	} ),
+	'--a8c-charts-color-label-background': () => ( {
+		labelBackgroundColor: defaultTheme.labelBackgroundColor,
+	} ),
+	'--a8c-charts-color-label-on-fill': () => ( { labelTextColor: defaultTheme.labelTextColor } ),
 };
 
 /**

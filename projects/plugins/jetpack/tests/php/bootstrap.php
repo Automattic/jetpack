@@ -23,6 +23,10 @@ if ( getenv( 'DOCKER_PHPUNIT_BASE_DIR' ) ) {
  */
 define( 'TESTING_IN_JETPACK', true );
 
+// tools/build-block-manifest.php builds a manifest on include unless it can see it is
+// under test, which needs a built _inc/blocks that the test suite never produces.
+define( 'DOING_TESTS', true );
+
 // Support for:
 // 1. `WORDPRESS_DEVELOP_DIR` environment variable.
 // 2. Plugin installed inside of WordPress.org developer checkout.

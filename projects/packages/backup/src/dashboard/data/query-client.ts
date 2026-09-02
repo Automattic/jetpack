@@ -1,28 +1,45 @@
 import { QueryClient } from '@tanstack/react-query';
+import type { ActivitySortOrder } from './api/activity-log';
 
 const STALE_TIME_DEFAULT_MS = 30_000;
 const GC_TIME_DEFAULT_MS = 5 * 60_000;
 
+const CLIENT_KEY = '__jetpackBackupQueryClient' as const;
+
+declare global {
+	interface Window {
+		[ CLIENT_KEY ]?: QueryClient;
+	}
+}
+
 /**
- * Module-scope QueryClient for the modernized Backup dashboard.
+ * The one QueryClient every route of the modernized Backup dashboard renders against.
  *
- * Each wp-build route is its own JS bundle and ends up with its own
- * copy of this module, so the cache is per-route — it does NOT survive
- * Overview ↔ Restore ↔ Download navigation. The screens don't depend on
- * cross-route cache reuse today (each derives its rewindId from the
- * URL), so this is fine; revisit if a future screen needs to read cache
- * a sibling route populated.
+ * Parked on `window` because each wp-build route bundles its own copy of this module: a
+ * module-scope client left every route with its own cache, cold on first arrival.
+ *
+ * @return The shared client, created on first use.
  */
-export const queryClient = new QueryClient( {
-	defaultOptions: {
-		queries: {
-			staleTime: STALE_TIME_DEFAULT_MS,
-			gcTime: GC_TIME_DEFAULT_MS,
-			retry: 1,
-			refetchOnWindowFocus: false,
-		},
-	},
-} );
+function sharedClient(): QueryClient {
+	if ( ! window[ CLIENT_KEY ] ) {
+		window[ CLIENT_KEY ] = new QueryClient( {
+			defaultOptions: {
+				queries: {
+					staleTime: STALE_TIME_DEFAULT_MS,
+					gcTime: GC_TIME_DEFAULT_MS,
+					retry: 1,
+					refetchOnWindowFocus: false,
+				},
+			},
+		} );
+	}
+
+	return window[ CLIENT_KEY ];
+}
+
+// Each route also bundles its own react-query, so sentinels compared by identity —
+// `skipToken`, `isCancelledError` — never match against a client another route created.
+export const queryClient = sharedClient();
 
 /**
  * Stable cache keys for each query the dashboard issues.
@@ -58,10 +75,10 @@ export const keys = {
 	// query-filter root to scan all cached pages (e.g. when looking up
 	// a row by id across pages).
 	activityLogRoot: () => [ 'backup', 'activity-log' ] as const,
-	// Per-page key. `(page, pageSize)` is the only thing that
-	// distinguishes one fetch from another, so both must be in the key.
-	activityLogPage: ( page: number, pageSize: number ) =>
-		[ 'backup', 'activity-log', { page, pageSize } ] as const,
+	// All three distinguish one fetch from another: page 1 ascending and page 1
+	// descending are different rows.
+	activityLogPage: ( page: number, pageSize: number, sortOrder: ActivitySortOrder ) =>
+		[ 'backup', 'activity-log', { page, pageSize, sortOrder } ] as const,
 	fileTree: ( rewindId: string, folderPath: string | null ) =>
 		[ 'backup', 'file-tree', rewindId, folderPath ] as const,
 	fileContents: ( rewindId: string, path: string ) =>
@@ -77,4 +94,9 @@ export const keys = {
 	// The site's recent restores, not one restore's status: read to
 	// recover an id WordPress.com accepted but did not return.
 	recentRestores: () => [ 'backup', 'recent-restores' ] as const,
+	// Whether one review prompt has been dismissed. Keyed on the reason
+	// because the two prompts are dismissed independently — declining to
+	// review after a restore must not also spend the backups prompt — and
+	// the server stores them under separate options for the same reason.
+	reviewDismissal: ( reason: string ) => [ 'backup', 'review-dismissal', reason ] as const,
 };

@@ -20,7 +20,7 @@ class Agents_Manager {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '0.10.0';
+	const PACKAGE_VERSION = '0.11.0';
 
 	/**
 	 * Help Center URL for disconnected variants.
@@ -109,14 +109,14 @@ class Agents_Manager {
 			$menu_args['href'] = self::HELP_CENTER_URL;
 			$menu_args['meta'] = array(
 				'menu_title' => __( 'Help Center', 'jetpack-agents-manager' ),
-				'icon'       => $this->get_icon( 'help' ),
+				'icon'       => 'help',
 				'target'     => '_blank',
 				'rel'        => 'noopener noreferrer',
 			);
 		} else {
 			$menu_args['meta'] = array(
 				'menu_title' => __( 'Help Center', 'jetpack-agents-manager' ),
-				'icon'       => $this->get_icon( 'help' ),
+				'icon'       => 'help',
 				'class'      => 'menupop',
 			);
 		}
@@ -149,7 +149,7 @@ class Agents_Manager {
 				'title'  => $this->get_icon( 'comment' ) . '<span>' . __( 'Chat support', 'jetpack-agents-manager' ) . '</span>',
 				'meta'   => array(
 					'menu_title' => __( 'Chat support', 'jetpack-agents-manager' ),
-					'icon'       => $this->get_icon( 'comment' ),
+					'icon'       => 'comment',
 					'route'      => '/chat',
 				),
 			)
@@ -163,7 +163,7 @@ class Agents_Manager {
 				'title'  => $this->get_icon( 'backup' ) . '<span>' . __( 'Chat history', 'jetpack-agents-manager' ) . '</span>',
 				'meta'   => array(
 					'menu_title' => __( 'Chat history', 'jetpack-agents-manager' ),
-					'icon'       => $this->get_icon( 'backup' ),
+					'icon'       => 'backup',
 					'route'      => '/history',
 				),
 			)
@@ -188,7 +188,7 @@ class Agents_Manager {
 				'title'  => $this->get_icon( 'page' ) . '<span>' . __( 'Support guides', 'jetpack-agents-manager' ) . '</span>',
 				'meta'   => array(
 					'menu_title' => __( 'Support guides', 'jetpack-agents-manager' ),
-					'icon'       => $this->get_icon( 'page' ),
+					'icon'       => 'page',
 					'route'      => '/support-guides',
 				),
 			)
@@ -203,7 +203,7 @@ class Agents_Manager {
 				'href'   => 'https://wordpress.com/support/courses/',
 				'meta'   => array(
 					'menu_title' => __( 'Courses', 'jetpack-agents-manager' ),
-					'icon'       => $this->get_icon( 'video' ),
+					'icon'       => 'video',
 					'target'     => '_blank',
 					'rel'        => 'noopener noreferrer',
 				),
@@ -219,7 +219,7 @@ class Agents_Manager {
 				'href'   => 'https://wordpress.com/blog/category/product-features/',
 				'meta'   => array(
 					'menu_title' => __( 'Product updates', 'jetpack-agents-manager' ),
-					'icon'       => $this->get_icon( 'rss' ),
+					'icon'       => 'rss',
 					'target'     => '_blank',
 					'rel'        => 'noopener noreferrer',
 				),
@@ -240,7 +240,7 @@ class Agents_Manager {
 				'title'  => '<span title="' . esc_attr__( 'Ask AI', 'jetpack-agents-manager' ) . '">' . $this->get_icon( 'ask-ai' ) . '</span>',
 				'meta'   => array(
 					'menu_title' => __( 'Ask AI', 'jetpack-agents-manager' ),
-					'icon'       => $this->get_icon( 'ask-ai' ),
+					'icon'       => 'ask-ai',
 					// The wp-admin bundle mounts the chat into this div.
 					'html'       => '<div id="agents-manager-masterbar"></div>',
 				),

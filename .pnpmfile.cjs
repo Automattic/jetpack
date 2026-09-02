@@ -15,8 +15,6 @@ const wpPkgs = [
 	[ '@wordpress/components', 'uuid' ],
 	[ '@wordpress/components', '@wordpress/hooks' ],
 	[ '@wordpress/components', 'react-colorful' ],
-	[ '@wordpress/components', 'react-day-picker' ],
-	[ '@wordpress/element', 'react-dom' ],
 	[ '@wordpress/data', 'use-memo-one' ],
 	[ '@wordpress/ui', '@base-ui/react' ],
 	[ '@wordpress/ui', '@daypicker/react' ],

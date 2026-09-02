@@ -195,7 +195,6 @@ function DateFiltersPanelStory( {
 			} }
 		>
 			<DateFiltersPanel
-				presetId={ stagedPrimary.presetId }
 				range={ stagedPrimary.range }
 				appliedPresetId={ committedPrimary.presetId }
 				appliedRange={ committedPrimary.range }

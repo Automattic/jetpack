@@ -147,6 +147,29 @@ describe( 'AnnualHighlightsWidget', () => {
 		).resolves.toBeInTheDocument();
 	} );
 
+	it( 'links to the Annual insights report', async () => {
+		renderWidget();
+
+		await expect( screen.findByText( 'Posts' ) ).resolves.toBeInTheDocument();
+		expect( screen.getByRole( 'link', { name: 'View all' } ) ).toBeInTheDocument();
+	} );
+
+	it( 'keeps the report link in the empty state', async () => {
+		// The footer sits outside `WidgetState`, so a year with no row must still
+		// offer the only route to the full report.
+		mockApiFetch.mockResolvedValue( {
+			...INSIGHTS_PAYLOAD,
+			years: [ INSIGHTS_PAYLOAD.years[ 0 ] ],
+		} );
+
+		renderWidget();
+
+		await expect(
+			screen.findByText( 'No highlights for this year.' )
+		).resolves.toBeInTheDocument();
+		expect( screen.getByRole( 'link', { name: 'View all' } ) ).toBeInTheDocument();
+	} );
+
 	it( 'survives a payload the sanitizer rejects', async () => {
 		// The insights sanitizer returns a bare object for a shape it does not
 		// recognize, so `years` is absent entirely.

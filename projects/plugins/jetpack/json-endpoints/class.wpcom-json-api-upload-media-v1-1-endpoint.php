@@ -84,6 +84,50 @@ class WPCOM_JSON_API_Upload_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint 
 			return new WP_Error( 'invalid_input', 'No media provided in input.' );
 		}
 
+		/*
+		 * Attaching an upload to a post is an edit of that post, so a caller-supplied
+		 * `parent_id` takes `edit_post` on the target. `upload_files` above says only that
+		 * the caller may upload something, never where they may put it.
+		 *
+		 * Every target is checked here, before the first file is written. Refusing from
+		 * inside `handle_media_creation_v1_1()` would leave the items it already created
+		 * on disk and in the database, and a retry would upload them again.
+		 *
+		 * An upload-token request drops `parent_id` instead of being refused. Such a request
+		 * runs with no logged-in user by construction -- `is_authorized_with_upload_token()`
+		 * fails as soon as `get_current_user_id()` is non-zero -- so it can never
+		 * demonstrate `edit_post` on any target, and refusing would break any client that
+		 * pairs a token with `parent_id` for no security gain. Dropping lands the item at
+		 * `post_parent` 0, the same place `absint()` already puts unusable input. The token
+		 * is not treated as trusted here: it is an opaque bearer credential mintable by any
+		 * logged-in user via `/sites/%s/media/token`, so it must not buy an attach.
+		 *
+		 * Zero is exempt: it names no target, and `edit_post` fails closed on 0.
+		 */
+		if ( $this->api->is_authorized_with_upload_token() ) {
+			foreach ( $media_attrs as $i => $media_attr ) {
+				$media_attr = (array) $media_attr;
+				unset( $media_attr['parent_id'] );
+				$media_attrs[ $i ] = $media_attr;
+			}
+		} else {
+			foreach ( $media_attrs as $media_attr ) {
+				// An entry may arrive as an object or as something that is neither; casting
+				// keeps a string entry from being indexed as an array.
+				$media_attr = (array) $media_attr;
+
+				if ( empty( $media_attr['parent_id'] ) ) {
+					continue;
+				}
+
+				$parent_id = absint( $media_attr['parent_id'] );
+
+				if ( $parent_id && ! current_user_can( 'edit_post', $parent_id ) ) {
+					return new WP_Error( 'unauthorized', 'User cannot edit the parent post', 403 );
+				}
+			}
+		}
+
 		$jetpack_sync    = null;
 		$is_jetpack_site = false;
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {

@@ -1,6 +1,6 @@
 {
 	"name": "jpa/popular-post",
-	"title": "Most popular post in the last 12 months",
+	"title": "Popular post (12 months)",
 	"description": "Your most-viewed post of the last 12 months, with its all-time stats.",
 	"help": {
 		"content": "Your most viewed post of the last 12 months, with its all-time views, likes, and comments."
