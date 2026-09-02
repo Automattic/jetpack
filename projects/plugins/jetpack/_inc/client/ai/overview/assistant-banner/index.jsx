@@ -21,6 +21,23 @@ const PREFERENCE_SCOPE = 'jetpack/ai';
 const PREFERENCE_NAME = 'assistantBannerDismissed';
 
 /**
+ * New-post link that starts the user in the AI writing flow.
+ *
+ * With the page's nonce, use_ai_block makes My Jetpack's default_content
+ * filter drop an AI Assistant block into the empty post. Without it (e.g.
+ * stale page HTML), fall back to just pre-opening the sidebar AI panel.
+ *
+ * @return {string} href for the banner CTA.
+ */
+function getStartWritingUrl() {
+	const nonce = window?.jetpackAiSettings?.aiBlockNonce;
+	if ( nonce ) {
+		return `post-new.php?use_ai_block=1&_wpnonce=${ encodeURIComponent( nonce ) }`;
+	}
+	return 'post-new.php?openSidebar=jetpack-ai-assistant';
+}
+
+/**
  * Dismissible assistant announcement banner.
  *
  * @return {object|null} Component markup, or null once dismissed.
@@ -39,12 +56,8 @@ export default function AssistantBanner() {
 		recordAiHubEvent( 'jetpack_ai_hub_assistant_banner_dismiss' );
 	}, [ set ] );
 
-	const handleGenerateClick = useCallback( () => {
-		recordAiHubEvent( 'jetpack_ai_hub_assistant_banner_cta_click', { cta: 'generate-image' } );
-	}, [] );
-
-	const handleConnectClick = useCallback( () => {
-		recordAiHubEvent( 'jetpack_ai_hub_assistant_banner_cta_click', { cta: 'connect-agent' } );
+	const handleStartWritingClick = useCallback( () => {
+		recordAiHubEvent( 'jetpack_ai_hub_assistant_banner_cta_click', { cta: 'start-writing' } );
 	}, [] );
 
 	if ( dismissed ) {
@@ -53,33 +66,20 @@ export default function AssistantBanner() {
 
 	return (
 		<AiBanner
-			title={ __( 'Your site now has an assistant.', 'jetpack' ) }
+			title={ __( 'Do more on your site with AI.', 'jetpack' ) }
 			description={ __(
-				'Turn your ideas into ready-to-publish content at lightspeed. Make changes across your site using ChatGPT, Claude, Cursor, or right here.',
+				'Write, edit, and make changes across your whole site. Start in the editor, or connect ChatGPT or Claude and work from there.',
 				'jetpack'
 			) }
 			actions={
-				<>
-					<Button
-						className="jetpack-ai-banner__cta"
-						variant="primary"
-						// ai-assistant makes the Image Studio bundle open Generate
-						// mode on the Media Library — same link the Features tab's
-						// "Try it out" uses.
-						href="upload.php?ai-assistant"
-						onClick={ handleGenerateClick }
-					>
-						{ __( 'Generate an image', 'jetpack' ) }
-					</Button>
-					<Button
-						className="jetpack-ai-banner__secondary"
-						variant="tertiary"
-						href="#/mcp"
-						onClick={ handleConnectClick }
-					>
-						{ __( 'Connect ChatGPT or Claude', 'jetpack' ) }
-					</Button>
-				</>
+				<Button
+					className="jetpack-ai-banner__cta"
+					variant="primary"
+					href={ getStartWritingUrl() }
+					onClick={ handleStartWritingClick }
+				>
+					{ __( 'Start writing', 'jetpack' ) }
+				</Button>
 			}
 			onDismiss={ handleDismiss }
 			dismissLabel={ __( 'Dismiss', 'jetpack' ) }

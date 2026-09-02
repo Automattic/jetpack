@@ -29,8 +29,7 @@ const cancelNavigation = event => event.preventDefault();
 beforeEach( () => {
 	document.addEventListener( 'click', cancelNavigation );
 	// The assistant banner has its own suite; dismissing it here keeps its
-	// "Connect ChatGPT or Claude" link from colliding with the quick-start
-	// card queries.
+	// links from colliding with the quick-start card queries.
 	dispatch( preferencesStore ).set( 'jetpack/ai', 'assistantBannerDismissed', true );
 } );
 

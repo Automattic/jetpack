@@ -26,44 +26,40 @@ describe( 'AssistantBanner', () => {
 	test( 'renders the announcement with a dismiss control', () => {
 		render( <AssistantBanner /> );
 
-		expect( screen.getByText( 'Your site now has an assistant.' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Do more on your site with AI.' ) ).toBeInTheDocument();
 		expect(
 			screen.getByText(
-				'Turn your ideas into ready-to-publish content at lightspeed. Make changes across your site using ChatGPT, Claude, Cursor, or right here.'
+				'Write, edit, and make changes across your whole site. Start in the editor, or connect ChatGPT or Claude and work from there.'
 			)
 		).toBeInTheDocument();
 		expect( screen.getByRole( 'button', { name: 'Dismiss' } ) ).toBeInTheDocument();
 	} );
 
-	test( 'primary CTA opens Image Studio generate mode and records the click', async () => {
-		render( <AssistantBanner /> );
+	test( 'CTA opens the editor with the AI block and records the click', async () => {
+		window.jetpackAiSettings = { aiBlockNonce: 'abc123' };
+		try {
+			render( <AssistantBanner /> );
 
-		// Same deep link the Features tab's "Try it out" uses: the ai-assistant
-		// param makes the Image Studio bundle open Generate mode.
-		const cta = screen.getByRole( 'link', { name: 'Generate an image' } );
-		expect( cta ).toHaveAttribute( 'href', 'upload.php?ai-assistant' );
+			const cta = screen.getByRole( 'link', { name: 'Start writing' } );
+			expect( cta ).toHaveAttribute( 'href', 'post-new.php?use_ai_block=1&_wpnonce=abc123' );
 
-		await userEvent.click( cta );
-		expect( analytics.tracks.recordEvent ).toHaveBeenCalledWith(
-			'jetpack_ai_hub_assistant_banner_cta_click',
-			{ site_type: 'jetpack', is_a11n: 'false', is_test: 'false', cta: 'generate-image' }
-		);
-		// Trying the assistant is not a dismissal — the banner stays.
-		expect( screen.getByText( 'Your site now has an assistant.' ) ).toBeInTheDocument();
+			await userEvent.click( cta );
+			expect( analytics.tracks.recordEvent ).toHaveBeenCalledWith(
+				'jetpack_ai_hub_assistant_banner_cta_click',
+				{ site_type: 'jetpack', is_a11n: 'false', is_test: 'false', cta: 'start-writing' }
+			);
+			// Trying the assistant is not a dismissal — the banner stays.
+			expect( screen.getByText( 'Do more on your site with AI.' ) ).toBeInTheDocument();
+		} finally {
+			delete window.jetpackAiSettings;
+		}
 	} );
 
-	test( 'secondary CTA links to MCP settings and records the click', async () => {
+	test( 'CTA falls back to pre-opening the sidebar AI panel without a nonce', () => {
 		render( <AssistantBanner /> );
 
-		const connect = screen.getByRole( 'link', { name: 'Connect ChatGPT or Claude' } );
-		expect( connect ).toHaveAttribute( 'href', '#/mcp' );
-
-		await userEvent.click( connect );
-		expect( analytics.tracks.recordEvent ).toHaveBeenCalledWith(
-			'jetpack_ai_hub_assistant_banner_cta_click',
-			{ site_type: 'jetpack', is_a11n: 'false', is_test: 'false', cta: 'connect-agent' }
-		);
-		expect( screen.getByText( 'Your site now has an assistant.' ) ).toBeInTheDocument();
+		const cta = screen.getByRole( 'link', { name: 'Start writing' } );
+		expect( cta ).toHaveAttribute( 'href', 'post-new.php?openSidebar=jetpack-ai-assistant' );
 	} );
 
 	test( 'renders nothing when already dismissed', () => {
@@ -78,7 +74,7 @@ describe( 'AssistantBanner', () => {
 		render( <AssistantBanner /> );
 		await userEvent.click( screen.getByRole( 'button', { name: 'Dismiss' } ) );
 
-		expect( screen.queryByText( 'Your site now has an assistant.' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( 'Do more on your site with AI.' ) ).not.toBeInTheDocument();
 		expect( select( preferencesStore ).get( 'jetpack/ai', 'assistantBannerDismissed' ) ).toBe(
 			true
 		);
