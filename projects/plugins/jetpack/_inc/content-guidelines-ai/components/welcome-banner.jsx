@@ -41,7 +41,7 @@ export default function WelcomeBanner() {
 						{ __( 'Get started', 'jetpack' ) }
 					</Button>
 					<Button
-						className="jetpack-ai-banner__close-text"
+						className="jetpack-ai-banner__secondary"
 						variant="tertiary"
 						onClick={ handleDismiss }
 					>

@@ -9,7 +9,13 @@ import AssistantBanner from '../index';
 // resolve under jest — provide it virtually.
 jest.mock( 'lib/analytics', () => ( { tracks: { recordEvent: jest.fn() } } ), { virtual: true } );
 
+// jsdom does not implement navigation; cancel the anchors' default action so
+// clicks still reach React's handlers without a jsdom "not implemented" error.
+const cancelNavigation = event => event.preventDefault();
+beforeEach( () => document.addEventListener( 'click', cancelNavigation ) );
+
 afterEach( () => {
+	document.removeEventListener( 'click', cancelNavigation );
 	jest.resetAllMocks();
 	// The preferences store lives on the shared default registry, so state
 	// written by one test survives into the next — reset the flag each time.
@@ -29,29 +35,35 @@ describe( 'AssistantBanner', () => {
 		expect( screen.getByRole( 'button', { name: 'Dismiss' } ) ).toBeInTheDocument();
 	} );
 
-	test( 'CTA links to MCP settings and records the click', async () => {
+	test( 'primary CTA opens Image Studio generate mode and records the click', async () => {
 		render( <AssistantBanner /> );
 
-		const cta = screen.getByRole( 'link', { name: 'Connect your agent' } );
-		expect( cta ).toHaveAttribute( 'href', '#/mcp' );
+		// Same deep link the Features tab's "Try it out" uses: the ai-assistant
+		// param makes the Image Studio bundle open Generate mode.
+		const cta = screen.getByRole( 'link', { name: 'Generate an image' } );
+		expect( cta ).toHaveAttribute( 'href', 'upload.php?ai-assistant' );
 
 		await userEvent.click( cta );
 		expect( analytics.tracks.recordEvent ).toHaveBeenCalledWith(
 			'jetpack_ai_hub_assistant_banner_cta_click',
-			{ site_type: 'jetpack', is_a11n: 'false', is_test: 'false' }
+			{ site_type: 'jetpack', is_a11n: 'false', is_test: 'false', cta: 'generate-image' }
 		);
-		// Navigating to MCP settings is not a dismissal — the banner stays.
+		// Trying the assistant is not a dismissal — the banner stays.
 		expect( screen.getByText( 'Your site now has an assistant.' ) ).toBeInTheDocument();
 	} );
 
-	test( 'Close dismisses like the corner X', async () => {
+	test( 'secondary CTA links to MCP settings and records the click', async () => {
 		render( <AssistantBanner /> );
-		await userEvent.click( screen.getByRole( 'button', { name: 'Close' } ) );
 
-		expect( screen.queryByText( 'Your site now has an assistant.' ) ).not.toBeInTheDocument();
-		expect( select( preferencesStore ).get( 'jetpack/ai', 'assistantBannerDismissed' ) ).toBe(
-			true
+		const connect = screen.getByRole( 'link', { name: 'Connect ChatGPT or Claude' } );
+		expect( connect ).toHaveAttribute( 'href', '#/mcp' );
+
+		await userEvent.click( connect );
+		expect( analytics.tracks.recordEvent ).toHaveBeenCalledWith(
+			'jetpack_ai_hub_assistant_banner_cta_click',
+			{ site_type: 'jetpack', is_a11n: 'false', is_test: 'false', cta: 'connect-agent' }
 		);
+		expect( screen.getByText( 'Your site now has an assistant.' ) ).toBeInTheDocument();
 	} );
 
 	test( 'renders nothing when already dismissed', () => {

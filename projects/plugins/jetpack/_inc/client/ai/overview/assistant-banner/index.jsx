@@ -39,8 +39,12 @@ export default function AssistantBanner() {
 		recordAiHubEvent( 'jetpack_ai_hub_assistant_banner_dismiss' );
 	}, [ set ] );
 
-	const handleCtaClick = useCallback( () => {
-		recordAiHubEvent( 'jetpack_ai_hub_assistant_banner_cta_click' );
+	const handleGenerateClick = useCallback( () => {
+		recordAiHubEvent( 'jetpack_ai_hub_assistant_banner_cta_click', { cta: 'generate-image' } );
+	}, [] );
+
+	const handleConnectClick = useCallback( () => {
+		recordAiHubEvent( 'jetpack_ai_hub_assistant_banner_cta_click', { cta: 'connect-agent' } );
 	}, [] );
 
 	if ( dismissed ) {
@@ -59,17 +63,21 @@ export default function AssistantBanner() {
 					<Button
 						className="jetpack-ai-banner__cta"
 						variant="primary"
-						href="#/mcp"
-						onClick={ handleCtaClick }
+						// ai-assistant makes the Image Studio bundle open Generate
+						// mode on the Media Library — same link the Features tab's
+						// "Try it out" uses.
+						href="upload.php?ai-assistant"
+						onClick={ handleGenerateClick }
 					>
-						{ __( 'Connect your agent', 'jetpack' ) }
+						{ __( 'Generate an image', 'jetpack' ) }
 					</Button>
 					<Button
-						className="jetpack-ai-banner__close-text"
+						className="jetpack-ai-banner__secondary"
 						variant="tertiary"
-						onClick={ handleDismiss }
+						href="#/mcp"
+						onClick={ handleConnectClick }
 					>
-						{ __( 'Close', 'jetpack' ) }
+						{ __( 'Connect ChatGPT or Claude', 'jetpack' ) }
 					</Button>
 				</>
 			}

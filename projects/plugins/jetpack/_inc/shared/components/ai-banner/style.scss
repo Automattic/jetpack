@@ -64,7 +64,8 @@
 	}
 }
 
-.jetpack-ai-banner__close-text {
+// Secondary action beside the CTA: plain green text on the dark banner.
+.jetpack-ai-banner__secondary {
 	color: #48ff50 !important;
 
 	&:hover {
