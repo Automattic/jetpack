@@ -92,11 +92,6 @@ class PayPal_Partner_Onboarding {
 	/**
 	 * Products to request during onboarding.
 	 *
-	 * Neither EXPRESS_CHECKOUT nor PPCP grants the Payment Links & Buttons API:
-	 * sellers onboarded with either get an identical scope set with nothing
-	 * NCPS-shaped, and the API answers NOT_AUTHORIZED. Granting it needs
-	 * partner-side enablement or a referral value the public schema lacks.
-	 *
 	 * @var array
 	 */
 	const ONBOARDING_PRODUCTS = array( 'EXPRESS_CHECKOUT' );
@@ -104,9 +99,14 @@ class PayPal_Partner_Onboarding {
 	/**
 	 * Features to request during onboarding.
 	 *
+	 * PAYMENT_LINKS_AND_BUTTONS grants the onboarded seller's app access to
+	 * /v1/checkout/payment-resources - the endpoint every button here is created
+	 * through. Neither EXPRESS_CHECKOUT nor PPCP includes it, and PayPal does not
+	 * document the valid feature values, so it has to be requested by name.
+	 *
 	 * @var array
 	 */
-	const ONBOARDING_FEATURES = array( 'PAYMENT', 'REFUND', 'ACCESS_MERCHANT_INFORMATION' );
+	const ONBOARDING_FEATURES = array( 'PAYMENT', 'REFUND', 'ACCESS_MERCHANT_INFORMATION', 'PAYMENT_LINKS_AND_BUTTONS' );
 
 	/**
 	 * Generate a seller nonce for the onboarding flow.
