@@ -313,7 +313,20 @@ and should keep only its own local reason for the value it passes.
 - **`[blocker]`** — it has already rotted: the cited line, count, or behaviour is wrong at this
   SHA, so the comment now misleads.
 
-Known limitations — all three are silent failures, so keep reading the diff yourself:
+One rot shape the script cannot see, so read for it: **a present-tense contrast with an
+alternative that is not in the tree** — "Through `Constants` rather than `defined()` directly",
+"X instead of Y". Once merged, Y is nowhere a reader can reach, so the sentence describes code
+that does not exist. The tell is the comment conceding the difference does not matter
+("identical in production", "behaves the same"): that is a design note justifying the change,
+which belongs in the PR description. Keep only the half that stands on its own — usually a
+one-line gotcha: `// Constants:: so a test can override it.`
+
+What survives is a live constraint rather than a comparison. "Deep imports rather than the
+`../../utils` barrel, which pulls the social store in" names a consequence that still applies,
+to code a reader can still reach. Detection was measured and rejected: `rather than` alone fires
+on 17 of 25 merged PRs, mostly on comments like that one.
+
+Known limitations — every one is a silent failure, so keep reading the diff yourself:
 
 - **A paraphrase that shares no long phrase is invisible.** Matching is verbatim on a line, or an
   8-word run two comments reuse. Reworded with different words throughout, it scores about 0.2 on
