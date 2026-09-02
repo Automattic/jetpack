@@ -168,7 +168,6 @@ describe( 'WordPressAgentNotice', () => {
 			expect(
 				screen.queryByRole( 'button', { name: 'Open WordPress Agent' } )
 			).not.toBeInTheDocument();
-			// The Agent is on, so there is nothing to enable either.
 			expect(
 				screen.queryByRole( 'link', { name: 'Enable WordPress Agent' } )
 			).not.toBeInTheDocument();
@@ -218,8 +217,6 @@ describe( 'WordPressAgentNotice', () => {
 					'href',
 					'https://wordpress.com/sites/example.wordpress.com/settings/ai-tools'
 				);
-				// In place, so the editor's own unsaved-changes prompt guards the draft
-				// and the notice is fresh on the way back.
 				expect( link ).not.toHaveAttribute( 'target' );
 			}
 		);

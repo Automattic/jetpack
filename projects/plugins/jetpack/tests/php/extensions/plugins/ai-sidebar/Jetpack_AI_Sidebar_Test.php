@@ -533,8 +533,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * On Simple the Big_Sky class only loads once the Agent is switched on, so
-	 * eligibility must not depend on it. Runs before any test declares the stub.
+	 * Eligibility must not need the Big_Sky class. Runs before any test declares the stub.
 	 */
 	public function test_agent_notice_enabled_when_plan_eligible_without_big_sky_class() {
 		if ( class_exists( 'Big_Sky' ) ) {
@@ -1158,8 +1157,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * The old panel hides ahead of the Agent being turned on: a plan that
-	 * qualifies for it is enough, even with the sidebar itself still off.
+	 * An eligible plan is enough to hide the old panel, even with the sidebar off.
 	 */
 	public function test_agent_notice_enabled_when_plan_eligible_but_sidebar_off() {
 		$this->skip_when_wpcomsh_is_active();
@@ -1174,8 +1172,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Eligible alone has no working agent yet, so the notice's action button
-	 * must stay hidden — there is nothing for it to open.
+	 * Eligible alone has no agent to open, so the action stays hidden.
 	 */
 	public function test_agent_action_unavailable_when_plan_eligible_but_sidebar_off() {
 		$this->skip_when_wpcomsh_is_active();
@@ -1191,8 +1188,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * A site whose plan does not qualify for the Agent, and has not turned it
-	 * on either, keeps the legacy panel.
+	 * Neither eligible nor enabled keeps the legacy panel.
 	 */
 	public function test_agent_notice_disabled_when_plan_ineligible_and_sidebar_off() {
 		$this->skip_when_wpcomsh_is_active();
@@ -1206,8 +1202,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Plan eligibility only matters on the WordPress.com platform — a
-	 * self-hosted site is never eligible for the Agent, however its plan reads.
+	 * A self-hosted site is never eligible, whatever its plan says.
 	 */
 	public function test_agent_notice_eligibility_requires_wpcom_platform() {
 		$this->skip_when_wpcomsh_is_active();
@@ -1221,8 +1216,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Plan eligibility still needs a supported editor surface to show the
-	 * notice on — there is no panel to replace anywhere else.
+	 * Eligibility still needs an editor surface with a panel to replace.
 	 */
 	public function test_agent_notice_eligibility_requires_supported_surface() {
 		$this->skip_when_wpcomsh_is_active();
@@ -1285,8 +1279,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * The notice's action button reads its availability from this config field,
-	 * not a registered extension — see is_agent_action_available().
+	 * Test that the payload carries the agent notice action flag.
 	 */
 	public function test_add_agents_manager_data_exposes_agent_notice_action_available() {
 		$this->set_block_editor_screen();
@@ -1299,8 +1292,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * A disconnected user has no chat to open, so the field must say so even
-	 * though the rest of the payload — and the notice itself — still show.
+	 * A disconnected user has no chat to open, even though the payload still emits.
 	 */
 	public function test_add_agents_manager_data_agent_notice_action_unavailable_when_disconnected() {
 		$this->set_block_editor_screen();
