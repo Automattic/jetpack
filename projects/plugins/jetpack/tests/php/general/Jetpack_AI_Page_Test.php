@@ -2,8 +2,10 @@
 /**
  * Tests for the Jetpack AI admin page script data.
  *
- * The Overview and AI Features views are public on self-hosted sites, gated on
- * Atomic, and remain filterable by the host.
+ * The contract worth locking down: the pre-release a11n gate flag rides the
+ * jetpackAiSettings inline script and follows
+ * jetpack_is_internal_testing_environment(), so the Features view stays hidden
+ * outside internal testing environments while the MCP-only page keeps working.
  *
  * @package automattic/jetpack
  */
@@ -264,83 +266,35 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * The Overview and AI Features views render publicly on self-hosted sites.
+	 * Outside internal testing environments the Features view flag is off.
 	 */
-	public function test_features_view_flag_is_on_for_self_hosted_site() {
-		$this->given_woa( false );
-
+	public function test_features_view_flag_is_off_by_default() {
 		$settings = $this->get_injected_settings();
 
 		$this->assertArrayHasKey( 'showFeaturesView', $settings );
-		$this->assertTrue( $settings['showFeaturesView'] );
-		$this->assertFalse( $settings['showA12sBadge'] );
-		$this->assertFalse( $settings['isTest'] );
+		$this->assertFalse( $settings['showFeaturesView'] );
 		$this->assertArrayHasKey( 'featureFlags', $settings );
 		$this->assertFalse( $settings['featureFlags'][ Jetpack_AI_Feature_Flags::SCHEDULED_TASKS ] );
 	}
 
 	/**
-	 * Internal self-hosted requests still present the views as public UI.
+	 * A proxied a8c request marks an internal testing environment and turns
+	 * the Features view flag on.
 	 */
-	public function test_self_hosted_internal_request_has_no_a12s_badge() {
-		$this->given_woa( false );
+	public function test_features_view_flag_follows_internal_testing_environment() {
 		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
 
 		$settings = $this->get_injected_settings();
 
 		$this->assertTrue( $settings['showFeaturesView'] );
-		$this->assertFalse( $settings['showA12sBadge'] );
-		$this->assertTrue( $settings['isTest'] );
-	}
-
-	/**
-	 * The views remain hidden from an ordinary Atomic request.
-	 */
-	public function test_features_view_flag_is_off_for_ordinary_woa_site() {
-		$this->given_woa( true );
-
-		$settings = $this->get_injected_settings();
-
-		$this->assertFalse( $settings['showFeaturesView'] );
-		$this->assertFalse( $settings['showA12sBadge'] );
-		$this->assertFalse( $settings['isTest'] );
-	}
-
-	/**
-	 * The views remain hidden from Simple sites, including internal requests.
-	 */
-	public function test_features_view_flag_is_off_for_simple_site() {
-		Constants::set_constant( 'IS_WPCOM', true );
-		$this->given_woa( false );
-		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
-
-		$settings = $this->get_injected_settings();
-
-		$this->assertFalse( $settings['showFeaturesView'] );
-		$this->assertFalse( $settings['showA12sBadge'] );
-		$this->assertTrue( $settings['isTest'] );
-	}
-
-	/**
-	 * A proxied Atomic request retains access for internal testing.
-	 */
-	public function test_features_view_flag_is_on_for_proxied_woa_site() {
-		$this->given_woa( true );
-		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
-
-		$settings = $this->get_injected_settings();
-
-		$this->assertTrue( $settings['showFeaturesView'] );
-		$this->assertTrue( $settings['showA12sBadge'] );
-		$this->assertTrue( $settings['isTest'] );
 		$this->assertFalse( $settings['featureFlags'][ Jetpack_AI_Feature_Flags::SCHEDULED_TASKS ] );
 	}
 
 	/**
-	 * Hosts retain final control over the views.
+	 * Hosts can hide pre-release views even in an internal testing environment.
 	 */
 	public function test_features_view_flag_can_be_filtered_by_the_host() {
-		$this->given_woa( false );
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
 		add_filter(
 			'jetpack_ai_admin_config',
 			function ( $config ) {
@@ -746,6 +700,7 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 	 * Self-hosted sites keep the Jetpack purchase name, brand prefix trimmed.
 	 */
 	public function test_self_hosted_site_shows_the_jetpack_plan() {
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
 		$this->given_woa( false );
 		$this->given_site( array( $this->jetpack_ai_purchase() ) );
 
@@ -806,10 +761,11 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Atomic skips the plan lookup while the views remain gated.
+	 * The name is only looked up for the gated views, so an ungated page ships
+	 * an empty value rather than paying for the purchase lookup.
 	 */
-	public function test_plan_name_is_absent_on_ordinary_woa_site() {
-		$this->given_woa( true );
+	public function test_plan_name_is_absent_without_the_gate() {
+		$this->given_woa( false );
 		$this->given_site( array( $this->jetpack_ai_purchase() ) );
 
 		$settings = $this->get_injected_settings();

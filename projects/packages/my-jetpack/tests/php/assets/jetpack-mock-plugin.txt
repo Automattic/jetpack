@@ -27,7 +27,6 @@ function jetpack_is_internal_testing_environment() {
 class Jetpack {
 
 	static $active_modules = array();
-	static $available_modules = array( 'ai' );
 
 	static $return_false = false; // Force return false in action methods.
 
@@ -42,10 +41,6 @@ class Jetpack {
 
 	public static function is_module_active( $module_name ) {
 		return in_array( $module_name, self::$active_modules );
-	}
-
-	public static function is_module( $module_name ) {
-		return in_array( $module_name, self::$available_modules, true );
 	}
 
 	public static function activate_module( $module_name, $exit = true, $redirect = true ) {
@@ -72,12 +67,6 @@ class Jetpack {
 	}
 
 	public static function is_connection_ready() {
-		return true;
-	}
-}
-
-class Jetpack_AI_Settings {
-	public static function is_feature_enabled( $feature ) {
 		return true;
 	}
 }

@@ -239,9 +239,16 @@ class Initializer_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The AI card keeps its legacy action without a compatible Jetpack plugin.
+	 * The AI card's pre-release toggle flag follows the Jetpack plugin's
+	 * internal-testing helper.
 	 */
-	public function test_my_jetpack_flags_hide_the_ai_module_toggle_without_compatible_jetpack() {
+	public function test_my_jetpack_flags_gate_the_ai_module_toggle() {
+		$GLOBALS['jetpack_mock_internal_testing_environment'] = true;
+		$this->assertTrue( Initializer::get_my_jetpack_flags()['showAiModuleToggle'] );
+
+		$GLOBALS['jetpack_mock_internal_testing_environment'] = false;
 		$this->assertFalse( Initializer::get_my_jetpack_flags()['showAiModuleToggle'] );
+
+		unset( $GLOBALS['jetpack_mock_internal_testing_environment'] );
 	}
 }
