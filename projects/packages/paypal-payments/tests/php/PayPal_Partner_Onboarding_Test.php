@@ -995,5 +995,6 @@ class PayPal_Partner_Onboarding_Test extends TestCase {
 		$this->assertContains( 'PAYMENT', $features );
 		$this->assertContains( 'REFUND', $features );
 		$this->assertContains( 'ACCESS_MERCHANT_INFORMATION', $features );
+		$this->assertContains( 'PAYMENT_LINKS_AND_BUTTONS', $features );
 	}
 }
