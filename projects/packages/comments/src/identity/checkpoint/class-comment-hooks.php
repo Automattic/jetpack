@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Comments\Identity;
 
+use Automattic\Jetpack\Comments\Comment_Form;
+
 /**
  * On pre_comment_on_post, exchange a carried code (or read the Passport) and
  * lift core's registration gates; on preprocess_comment, attribute the comment;
@@ -40,7 +42,7 @@ class Comment_Hooks {
 	 * @return void
 	 */
 	public static function init() {
-		add_action( 'pre_comment_on_post', array( __CLASS__, 'admit' ), 20 );
+		add_action( 'pre_comment_on_post', array( __CLASS__, 'admit' ), 20, 1 );
 		add_filter( 'preprocess_comment', array( __CLASS__, 'apply_identity' ), 0 );
 		add_action( 'comment_post', array( __CLASS__, 'store' ), 10, 1 );
 	}
@@ -48,13 +50,15 @@ class Comment_Hooks {
 	/**
 	 * Establish who is commenting and treat them as registered.
 	 *
+	 * @param int $comment_post_id The post being commented on.
 	 * @return void
 	 */
-	public static function admit() {
+	public static function admit( $comment_post_id = 0 ) {
 		self::$identity  = null;
 		self::$from_code = false;
 
-		if ( is_user_logged_in() ) {
+		// The form's nonce check skips post types it is not drawn for, so this must too.
+		if ( is_user_logged_in() || ! Comment_Form::enabled_for_post_type( $comment_post_id ) ) {
 			return;
 		}
 
@@ -71,38 +75,33 @@ class Comment_Hooks {
 
 			$identity['exp'] = $identity['expires_at'];
 
-			// A code and a Passport for different people is a stale tab on a shared
-			// browser. The Passport is the later act, so it wins; the code is burned.
-			if ( false !== $passport && $passport['site_commenter_id'] !== $identity['site_commenter_id'] ) {
-				self::$identity = $passport;
-			} else {
-				self::$identity  = $identity;
-				self::$from_code = true;
-			}
+			// Over any Passport: the code is who this form said it was commenting as.
+			self::$from_code = true;
 		} elseif ( false !== $passport ) {
-			self::$identity = $passport;
+			$identity = $passport;
 		} else {
 			return;
 		}
 
+		self::$identity = $identity;
+
 		add_filter( 'pre_option_comment_registration', '__return_zero' );
-		add_filter( 'pre_option_require_name_email', '__return_zero' );
+
+		// A provider can withhold either (Facebook, email); the site's rule then stands.
+		if ( '' !== $identity['name'] && '' !== $identity['email'] ) {
+			add_filter( 'pre_option_require_name_email', '__return_zero' );
+		}
 	}
 
 	/**
-	 * Attribute the comment to the identity. Reads the Passport itself for
-	 * comments that skipped pre_comment_on_post, such as REST.
+	 * Attribute the comment to the identity admit() established.
 	 *
 	 * @param array $comment_data The comment being posted.
 	 * @return array
 	 */
 	public static function apply_identity( $comment_data ) {
-		if ( is_user_logged_in() ) {
-			return $comment_data;
-		}
-
-		$identity = null !== self::$identity ? self::$identity : Passport::read();
-		if ( false === $identity ) {
+		$identity = self::$identity;
+		if ( ! is_array( $identity ) ) {
 			return $comment_data;
 		}
 
@@ -114,8 +113,6 @@ class Comment_Hooks {
 		$comment_data['user_id']              = 0;
 		$comment_data['user_ID']              = 0;
 
-		self::$identity = $identity;
-
 		return $comment_data;
 	}
 
@@ -126,11 +123,11 @@ class Comment_Hooks {
 	 * @return void
 	 */
 	public static function store( $comment_id ) {
-		if ( null === self::$identity ) {
+		$identity = self::$identity;
+		if ( ! is_array( $identity ) ) {
 			return;
 		}
 
-		$identity        = self::$identity;
 		$from_code       = self::$from_code;
 		self::$identity  = null;
 		self::$from_code = false;
@@ -170,7 +167,7 @@ class Comment_Hooks {
 			esc_html( $message ),
 			esc_html__( 'Comment Submission Failure', 'jetpack-comments' ),
 			array(
-				'response'  => (int) $status,
+				'response'  => absint( $status ),
 				'back_link' => true,
 			)
 		);

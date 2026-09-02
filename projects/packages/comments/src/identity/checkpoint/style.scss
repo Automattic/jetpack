@@ -1,45 +1,88 @@
 /**
- * The provider sign-in buttons and the disclosure line, shown above the guest
- * fields and inside the log-in prompt.
+ * The round provider sign-in buttons, Verbum-style. Always rendered inside the
+ * identity block, between its prompt and what follows, so the block's own
+ * padding frames them.
  */
 
 .jetpack-comments__providers {
-	padding: 16px;
-	border-block-start: 1px solid var(--jetpack-comments-border-color);
+	margin-block-end: 16px;
 }
 
 .jetpack-comments__provider-buttons {
 	display: flex;
-	flex-direction: column;
-	gap: 8px;
+	align-items: center;
+	gap: 20px;
 }
 
 .jetpack-comments__provider {
 	all: unset;
-	display: block;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
 	box-sizing: border-box;
-	inline-size: 100%;
-	padding: 9px 16px;
-	border: 1px solid var(--jetpack-comments-border-color);
-	border-radius: 4px;
-	color: var(--jetpack-comments-font-color);
-	font-family: inherit;
-	font-size: 14px;
-	text-align: center;
+	inline-size: 36px;
+	block-size: 36px;
+	padding: 8px;
+	border-radius: 50%;
 	cursor: pointer;
 
-	&:hover:not([disabled]),
-	&:focus-visible {
-		border-color: var(--jetpack-comments-accent-color);
+	svg {
+		display: block;
+		inline-size: 20px;
+		block-size: 20px;
 	}
 
-	&[disabled] {
-		opacity: 0.6;
-		cursor: default;
+	&--wordpress {
+		background-color: #0675c4;
+	}
+
+	&--facebook {
+		background-color: #0f6fea;
+	}
+
+	// Google's mark stays multicolor on white; the border keeps the circle
+	// visible on white sites.
+	&--google {
+		background-color: #fff;
+		box-shadow: inset 0 0 0 1px var(--jetpack-comments-border-color);
+	}
+
+	&--mail {
+		background-color: #3c97ce;
+	}
+
+	&:focus-visible {
+		box-shadow: 0 0 0 2px var(--jetpack-comments-accent-color);
 	}
 
 	&[aria-busy="true"] {
 		cursor: progress;
+	}
+}
+
+// While one attempt runs, the row dims except the button that started it.
+.jetpack-comments__providers.is-connecting .jetpack-comments__provider {
+	opacity: 0.4;
+	cursor: default;
+
+	&[aria-busy="true"] {
+		opacity: 1;
+		cursor: progress;
+	}
+}
+
+// The guest fields the mail button reveals, sliding open the way Verbum's do.
+.jetpack-comments__guest-reveal {
+	display: grid;
+	grid-template-rows: 0fr;
+	transition: grid-template-rows 0.3s ease-in-out;
+
+	> div {
+		overflow: hidden;
+	}
+
+	&.is-open {
+		grid-template-rows: 1fr;
 	}
 }
 
@@ -54,22 +97,9 @@
 .jetpack-comments__disclosure {
 	all: unset;
 	display: block;
-	margin-block-start: 12px;
+	margin-block-start: 16px;
 	font-size: 12px;
 	line-height: 18px;
-	opacity: 0.8;
+	opacity: 0.7;
 	color: var(--jetpack-comments-font-color);
-}
-
-// Where the buttons sit directly above the guest fields, the fields draw the
-// dividing rule, so the buttons should not draw one too.
-.jetpack-comments__providers + .jetpack-comments__identity {
-	border-block-start: none;
-}
-
-// Inside the log-in prompt the buttons are already within a padded block.
-.jetpack-comments__identity .jetpack-comments__providers {
-	padding: 0;
-	border-block-start: none;
-	margin-block-end: 16px;
 }

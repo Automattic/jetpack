@@ -14,9 +14,16 @@ namespace Automattic\Jetpack\Comments\Identity;
  */
 class Checkpoint {
 
-	const PROVIDERS = array( 'google', 'facebook', 'wordpress' );
+	const PROVIDERS = array( 'wordpress', 'facebook', 'google' );
 
-	const COOKIE_NAME = 'jetpack_comment_passport';
+	/**
+	 * The wp_ prefix is load-bearing: Batcache, WP Super Cache and most host
+	 * caches bypass for cookies starting wp/wordpress/comment_author, which is
+	 * what keeps a recognised commenter off cached pages (stale nonce, stale
+	 * identity) and their identity out of the cache for everyone else. Core
+	 * names its commenter cookies comment_author_* for the same reason.
+	 */
+	const COOKIE_NAME = 'wp_jetpack_comment_passport';
 
 	/**
 	 * WordPress.com caps a signed request at 600s.
@@ -31,13 +38,6 @@ class Checkpoint {
 	const META_PROVIDER = 'jp_ci_provider';
 
 	const META_AVATAR = 'jp_ci_avatar';
-
-	/**
-	 * Highlander's keys, read as fallbacks for older comments.
-	 */
-	const OLD_META_PROVIDER = 'hc_post_as';
-
-	const OLD_META_AVATAR = 'hc_avatar';
 
 	/**
 	 * Register the checkpoint's hooks.
@@ -140,6 +140,10 @@ class Checkpoint {
 			'provider'  => $provider,
 		);
 
+		// The signature is over the sorted params; alphabetical order above is
+		// incidental, this is what WordPress.com verifies against.
+		ksort( $params );
+
 		$parts = array();
 		foreach ( $params as $key => $value ) {
 			$parts[] = $key . '=' . $value;
@@ -164,7 +168,7 @@ class Checkpoint {
 	 */
 	public static function connect_origin() {
 		$parts  = wp_parse_url( self::connect_url() );
-		$origin = ( isset( $parts['scheme'] ) ? $parts['scheme'] : 'https' ) . '://' . ( isset( $parts['host'] ) ? $parts['host'] : '' );
+		$origin = ( $parts['scheme'] ?? 'https' ) . '://' . ( $parts['host'] ?? '' );
 
 		if ( isset( $parts['port'] ) ) {
 			$origin .= ':' . $parts['port'];
@@ -222,17 +226,23 @@ class Checkpoint {
 			return array( 'enabled' => false );
 		}
 
-		$labels = array(
-			'google'    => __( 'Continue with Google', 'jetpack-comments' ),
-			'facebook'  => __( 'Continue with Facebook', 'jetpack-comments' ),
-			'wordpress' => __( 'Continue with WordPress.com', 'jetpack-comments' ),
+		// Brand names, not translated; the label around them is.
+		$names = array(
+			'google'    => 'Google',
+			'facebook'  => 'Facebook',
+			'wordpress' => 'WordPress.com',
 		);
 
 		$providers = array();
 		foreach ( self::providers() as $provider ) {
 			$providers[] = array(
 				'id'    => $provider,
-				'label' => $labels[ $provider ],
+				'name'  => $names[ $provider ],
+				'label' => sprintf(
+					/* translators: %s is the identity provider, e.g. Google. */
+					__( 'Continue with %s', 'jetpack-comments' ),
+					$names[ $provider ]
+				),
 			);
 		}
 

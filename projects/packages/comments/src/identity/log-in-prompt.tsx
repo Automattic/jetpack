@@ -1,6 +1,6 @@
 import { useContext } from 'preact/hooks';
 import { CommentSignals } from '../shared/state';
-import { ProviderButtons } from './checkpoint/provider-buttons';
+import { Disclosure, ProviderButtons } from './checkpoint/provider-buttons';
 
 import './style.scss';
 
@@ -21,6 +21,7 @@ export const LogInPrompt = () => {
 			<a className="jetpack-comments__login" href={ formSettings.loginUrl }>
 				{ strings.logIn }
 			</a>
+			<Disclosure />
 		</div>
 	);
 };

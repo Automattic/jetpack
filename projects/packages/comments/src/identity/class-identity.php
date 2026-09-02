@@ -31,7 +31,9 @@ class Identity {
 				'url'    => $commenter['comment_author_url'],
 			),
 			'user'       => null,
-			'checkpoint' => Checkpoint::settings(),
+			// class_exists: on a staged deploy this file and the checkpoint's can
+			// land in either order.
+			'checkpoint' => class_exists( Checkpoint::class ) ? Checkpoint::settings() : array( 'enabled' => false ),
 		);
 
 		if ( is_user_logged_in() ) {
@@ -46,6 +48,10 @@ class Identity {
 				'isPassport'   => false,
 			);
 
+			return $settings;
+		}
+
+		if ( ! class_exists( Passport::class ) ) {
 			return $settings;
 		}
 
@@ -74,6 +80,6 @@ class Identity {
 	 * @return bool
 	 */
 	public static function has_passport_identity() {
-		return ! is_user_logged_in() && false !== Passport::read();
+		return class_exists( Passport::class ) && ! is_user_logged_in() && false !== Passport::read();
 	}
 }

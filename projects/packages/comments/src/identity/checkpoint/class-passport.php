@@ -67,7 +67,13 @@ class Passport {
 	public static function write( array $identity, $expires_at ) {
 		$expires_at = (int) $expires_at;
 		$ceiling    = time() + 30 * DAY_IN_SECONDS;
-		if ( $expires_at <= time() || $expires_at > $ceiling ) {
+
+		// Missing or already past means WordPress.com did not vouch for a
+		// lifetime; refuse rather than mint 30 days out of nothing.
+		if ( $expires_at <= time() ) {
+			return;
+		}
+		if ( $expires_at > $ceiling ) {
 			$expires_at = $ceiling;
 		}
 

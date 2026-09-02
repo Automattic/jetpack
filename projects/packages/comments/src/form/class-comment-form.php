@@ -159,7 +159,7 @@ class Comment_Form {
 	 * @param int|null $post_id Post being commented on. Defaults to the current one.
 	 * @return bool
 	 */
-	private static function enabled_for_post_type( $post_id = null ) {
+	public static function enabled_for_post_type( $post_id = null ) {
 		$post_type = $post_id ? get_post_type( $post_id ) : get_post_type();
 
 		/** This filter is documented in projects/plugins/jetpack/modules/comments/comments.php */

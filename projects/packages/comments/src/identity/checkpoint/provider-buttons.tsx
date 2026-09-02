@@ -1,28 +1,14 @@
 import { useState } from 'preact/hooks';
 import { connect } from './connect';
+import { FacebookIcon, GoogleIcon, MailIcon, WordPressIcon } from './icons';
 import type { CheckpointProvider } from '../../shared/types';
 
 import './style.scss';
 
-/**
- * Returns before any hook runs when the checkpoint is off, so the inner
- * component's hooks stay unconditional.
- *
- * @return The buttons, or nothing when the checkpoint is off.
- */
-export const ProviderButtons = () => {
-	const { checkpoint } = JetpackComments;
-
-	if ( ! checkpoint.enabled || checkpoint.providers.length === 0 ) {
-		return null;
-	}
-
-	return <Buttons providers={ checkpoint.providers } disclosure={ checkpoint.disclosure } />;
-};
-
-type ButtonsProps = {
-	providers: CheckpointProvider[];
-	disclosure: string;
+const ICONS: Record< string, () => preact.JSX.Element > = {
+	google: GoogleIcon,
+	facebook: FacebookIcon,
+	wordpress: WordPressIcon,
 };
 
 /**
@@ -31,14 +17,63 @@ type ButtonsProps = {
 const SILENT = [ 'cancelled', 'access_denied' ];
 
 /**
- * connect() sets the identity on success, so onClick only handles failure.
+ * What signing in shares with the site. Rendered by the identity views at the
+ * foot of their block, away from the buttons it describes.
  *
- * @param props            - Component props.
- * @param props.providers  - The providers to offer.
- * @param props.disclosure - The line describing what is shared.
- * @return The buttons, the disclosure, and any error.
+ * @return The disclosure line, or nothing when the checkpoint is off.
  */
-const Buttons = ( { providers, disclosure }: ButtonsProps ) => {
+export const Disclosure = () => {
+	const { checkpoint } = JetpackComments;
+
+	if ( ! checkpoint.enabled || checkpoint.providers.length === 0 ) {
+		return null;
+	}
+
+	return <p className="jetpack-comments__disclosure">{ checkpoint.disclosure }</p>;
+};
+
+type ProviderButtonsProps = {
+	/** Whether the guest fields the mail button reveals are open. */
+	guestOpen?: boolean;
+	/** Toggles the guest fields; the mail button only renders when given. */
+	onGuestClick?: () => void;
+};
+
+/**
+ * Returns before any hook runs when the checkpoint is off, so the inner
+ * component's hooks stay unconditional.
+ *
+ * @param props - Component props, passed through to the row.
+ * @return The buttons, or nothing when the checkpoint is off.
+ */
+export const ProviderButtons = ( props: ProviderButtonsProps ) => {
+	const { checkpoint } = JetpackComments;
+
+	if ( ! checkpoint.enabled || checkpoint.providers.length === 0 ) {
+		return null;
+	}
+
+	return <Buttons providers={ checkpoint.providers } { ...props } />;
+};
+
+type ButtonsProps = ProviderButtonsProps & {
+	providers: CheckpointProvider[];
+};
+
+/**
+ * A row of round provider buttons, Verbum-style: the label rides in aria-label
+ * and title, the glyph carries the meaning visually. The guest fields hide
+ * behind a mail button at the end of the row, where the view offers them.
+ * connect() sets the page-global identity on success, so onClick only handles
+ * failure.
+ *
+ * @param props              - Component props.
+ * @param props.providers    - The providers to offer.
+ * @param props.guestOpen    - Whether the guest fields are open.
+ * @param props.onGuestClick - Toggles the guest fields.
+ * @return The buttons, and any error.
+ */
+const Buttons = ( { providers, guestOpen, onGuestClick }: ButtonsProps ) => {
 	const { strings } = JetpackComments;
 	const [ busy, setBusy ] = useState( '' );
 	const [ failed, setFailed ] = useState( false );
@@ -59,27 +94,45 @@ const Buttons = ( { providers, disclosure }: ButtonsProps ) => {
 	};
 
 	return (
-		<div className="jetpack-comments__providers">
+		<div className={ 'jetpack-comments__providers' + ( busy ? ' is-connecting' : '' ) }>
 			<div className="jetpack-comments__provider-buttons">
-				{ providers.map( provider => (
+				{ providers.map( provider => {
+					const Icon = ICONS[ provider.id ];
+
+					return (
+						<button
+							key={ provider.id }
+							type="button"
+							className={ `jetpack-comments__provider jetpack-comments__provider--${ provider.id }` }
+							disabled={ !! busy }
+							aria-busy={ busy === provider.id }
+							aria-label={ provider.label }
+							title={ provider.label }
+							onClick={ () => onClick( provider ) }
+						>
+							{ Icon ? <Icon /> : provider.label }
+						</button>
+					);
+				} ) }
+				{ onGuestClick && (
 					<button
-						key={ provider.id }
 						type="button"
-						className="jetpack-comments__provider"
+						className="jetpack-comments__provider jetpack-comments__provider--mail"
 						disabled={ !! busy }
-						aria-busy={ busy === provider.id }
-						onClick={ () => onClick( provider ) }
+						aria-expanded={ !! guestOpen }
+						aria-label={ strings.email }
+						title={ strings.email }
+						onClick={ onGuestClick }
 					>
-						{ provider.label }
+						<MailIcon />
 					</button>
-				) ) }
+				) }
 			</div>
 			{ failed && (
 				<p className="jetpack-comments__provider-error" role="alert">
 					{ strings.loginError }
 				</p>
 			) }
-			<p className="jetpack-comments__disclosure">{ disclosure }</p>
 		</div>
 	);
 };

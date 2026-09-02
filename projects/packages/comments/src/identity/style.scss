@@ -115,3 +115,18 @@
 	color: inherit;
 	font-size: 14px;
 }
+
+// The button variant, drawn to read like the link beside it would.
+button.jetpack-comments__logout {
+	all: unset;
+	color: inherit;
+	font-size: 14px;
+	font-family: inherit;
+	text-decoration: underline;
+	cursor: pointer;
+
+	&:focus-visible {
+		outline: 1px solid var(--jetpack-comments-accent-color);
+		outline-offset: 2px;
+	}
+}
