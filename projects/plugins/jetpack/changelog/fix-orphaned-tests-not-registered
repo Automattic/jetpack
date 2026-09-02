@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Register four orphaned test files with the PHPUnit suites so they run, and fix what running them surfaced. Test infrastructure plus one invisible whitespace fix in an admin body class.
+
+
