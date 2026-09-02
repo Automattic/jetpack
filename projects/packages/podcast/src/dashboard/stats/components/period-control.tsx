@@ -2,7 +2,7 @@ import { useViewportMatch } from '@wordpress/compose';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { calendar as calendarIcon } from '@wordpress/icons';
-import { Button, Popover, RangeCalendar, VisuallyHidden } from '@wordpress/ui';
+import { Button, Popover, RangeCalendar, Stack, VisuallyHidden } from '@wordpress/ui';
 import { localDateFromYmd, selectionFromDates } from '../range';
 import type { PodcastStatsSelection } from '../types';
 import type { MouseEvent } from 'react';
@@ -210,10 +210,10 @@ const PeriodControl = ( { value, onChange }: PeriodControlProps ) => {
 				<Button.Icon icon={ calendarIcon } />
 			</Popover.Trigger>
 			<Popover.Popup positioner={ <Popover.Positioner align="end" sideOffset={ 8 } /> }>
-				<VisuallyHidden>
-					<Popover.Title>{ __( 'Select a date range', 'jetpack-podcast' ) }</Popover.Title>
+				<VisuallyHidden render={ <Popover.Title /> }>
+					{ __( 'Select a date range', 'jetpack-podcast' ) }
 				</VisuallyHidden>
-				<div className="podcast-period-control__body">
+				<Stack direction={ isSmall ? 'column' : 'row' } gap="lg" align="start">
 					<ul
 						className="podcast-period-control__presets"
 						aria-label={ __( 'Date range presets', 'jetpack-podcast' ) }
@@ -250,7 +250,7 @@ const PeriodControl = ( { value, onChange }: PeriodControlProps ) => {
 							disabled={ [ { before: earliest }, { after: today } ] }
 						/>
 					</div>
-				</div>
+				</Stack>
 			</Popover.Popup>
 		</Popover.Root>
 	);

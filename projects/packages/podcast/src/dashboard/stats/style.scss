@@ -1,15 +1,5 @@
 @use "@automattic/charts/dist/index.css";
 
-.podcast-period-control__body {
-	display: flex;
-	gap: 16px;
-	align-items: flex-start;
-
-	@media (max-width: 782px) {
-		flex-direction: column;
-	}
-}
-
 .podcast-period-control__presets {
 	list-style: none;
 	margin: 0;
