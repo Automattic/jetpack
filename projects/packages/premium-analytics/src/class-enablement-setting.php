@@ -14,12 +14,10 @@ namespace Automattic\Jetpack\PremiumAnalytics;
  * register it outside their enablement checks. Everything else lives behind
  * {@see Dashboard_Support_Routes}, which only boots once the dashboard is already on.
  *
- * Reads and writes both address the stored opt-in, so this agrees with the other two places the
- * flag is exposed - WPCOM's `/sites/$site/option` and Sync, which read the option directly. A
- * client asking whether the dashboard actually booted wants `analytics.enabled` from script data
- * instead: an override such as our rollout sticker turns the dashboard on without touching the
- * opt-in, and this setting deliberately does not report it, because a setting that answers with
- * something other than what was written to it cannot be reasoned about.
+ * Reads and writes both address the stored opt-in, which is what WPCOM's `/sites/$site/option`
+ * and Sync report too. An override such as our rollout sticker turns the dashboard on without
+ * touching the opt-in and deliberately does not surface here: whether the dashboard actually
+ * booted is `analytics.enabled` in script data.
  *
  * Writing cannot take effect in the request that writes it: Jetpack resolves the flag once, on
  * `plugins_loaded`. Clients are expected to reload.
@@ -44,9 +42,8 @@ class Enablement_Setting {
 	 * Declare the setting so core's settings route exposes it.
 	 *
 	 * Call on `rest_api_init`: core builds the settings route from the registered settings at
-	 * priority 99, so anything later would leave the option off the route's write schema. Safe to
-	 * call more than once - both hosts may call it, and re-registering a setting just overwrites
-	 * the previous declaration.
+	 * priority 99, so anything later would leave the option off the route's write schema. Both
+	 * hosts may call this; a repeat call re-declares the same setting and is harmless.
 	 *
 	 * @since $$next-version$$
 	 *

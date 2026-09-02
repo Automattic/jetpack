@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Premium Analytics: expose the dashboard opt-in as a site setting, so administrators can turn the dashboard on and off through the site settings API.
+Premium Analytics: Expose the dashboard opt-in as a site setting, so administrators can turn the dashboard on and off through the site settings API.
