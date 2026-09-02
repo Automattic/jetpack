@@ -7,8 +7,6 @@ import './scroll-button.scss';
 
 class ScrollButton extends Component {
 	componentDidMount() {
-		// Resolved here rather than in a field initializer, which would run before React commits
-		// the results container to the document.
 		this.scrollElement = document.getElementsByClassName( SEARCH_RESULTS_CLASS_NAME )[ 0 ];
 		this.scrollElement?.addEventListener( 'scroll', this.checkScroll );
 	}
