@@ -287,6 +287,27 @@ $jp-breakpoint-mobile: 782px;
 		}
 	}
 
+	// ── <AdminPage> without a title or breadcrumbs ───────────────────
+	// That path skips admin-ui's <Page>, so there is no `.jp-admin-page__page`.
+	// Its content wrapper carries `jp-admin-page__content` instead; make it
+	// the scrollable middle, or the fixed column clips everything below the fold.
+	.jp-admin-page > .jp-admin-page__content {
+		flex: 1 1 auto;
+		min-height: 0;
+		min-width: 0;
+		overflow: auto;
+		display: flex;
+		flex-direction: column;
+
+		> * {
+			flex: 1 1 auto;
+			min-height: 0;
+			min-width: 0;
+			display: flex;
+			flex-direction: column;
+		}
+	}
+
 	// ── <JetpackFooter> pinned at the bottom ─────────────────────────
 	.jetpack-footer {
 		flex-shrink: 0;
