@@ -39,7 +39,6 @@ const VIDEO_DETAIL_GRID = { ...DEFAULT_GRID, rowHeight: ROW_HEIGHT_PRESETS.small
 // still requires one because it owns a staging copy internally.
 const noopLayoutChange = () => {};
 
-// The share of the header row the presets can never use: the summary's
 /**
  * Premium Analytics video detail page shell.
  *
@@ -71,9 +70,6 @@ function VideoDetail(): JSX.Element {
 	// The applied report date range lives in the URL search params.
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 	const dateControls = useDetailDateControls( summary.publishedDate, dateFilters );
-
-	// The header row hosts the panel in a shrink-to-fit slot, so the panel measures
-	// the row itself to pick its responsive layout; see the `containerElement` prop.
 
 	const search = useSearch( { strict: false } ) as Record< string, unknown > | undefined;
 	const reportSearch = pickReportDateParams( search );

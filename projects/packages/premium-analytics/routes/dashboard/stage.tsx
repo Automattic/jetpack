@@ -147,6 +147,10 @@ function Dashboard(): JSX.Element {
 		[ onDateChange, onDateApply ]
 	);
 
+	// The year surface still measures: its pills collapse into a select where the
+	// header row runs short, and the row is what it has to measure, not the body.
+	const [ headerElement, setHeaderElement ] = useState< HTMLDivElement | null >( null );
+
 	// WidgetDashboard treats a transiently-empty layout as "no widgets" and
 	// force-opens edit mode, so it must not mount before the sections resolve.
 	if ( ! hasResolvedSections ) {
@@ -179,6 +183,7 @@ function Dashboard(): JSX.Element {
 						value={ dateFilters.appliedPresetId }
 						onSelect={ selectYear }
 						timeZone={ dateFilters.timeZone }
+						containerElement={ headerElement }
 					/>
 
 					<DateIntervalDropdown
@@ -235,7 +240,7 @@ function Dashboard(): JSX.Element {
 								     condensing there. Measured, never seen. */ }
 									<div className={ styles.pinMarker } aria-hidden="true" />
 
-									<div className={ styles.sectionHeader }>
+									<div ref={ setHeaderElement } className={ styles.sectionHeader }>
 										<SectionHeader title={ resolveSectionHeading( section ) } condenseOnScroll>
 											{ dateControls }
 										</SectionHeader>

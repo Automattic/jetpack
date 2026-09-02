@@ -322,6 +322,42 @@ describe( 'report params field', () => {
 		expect( screen.getByRole( 'menuitemradio', { name: 'Last 30 days' } ) ).toBeChecked();
 	} );
 
+	it( 'commits a comparison range on selection', async () => {
+		const user = userEvent.setup();
+		const { latest } = renderField();
+
+		await user.click( screen.getByRole( 'button', { name: /compare/i } ) );
+		await user.click( await screen.findByRole( 'menuitemradio', { name: /^previous /i } ) );
+
+		expect( latest() ).toEqual(
+			expect.objectContaining( {
+				comp: '1',
+				compare_preset: 'previous-period',
+				compare_from: expect.any( String ),
+				compare_to: expect.any( String ),
+			} )
+		);
+	} );
+
+	// Re-picking the item that already has the checkmark changes nothing, so the
+	// widget must not save and Apply must stay greyed out (WOOA7S-2039).
+	it( 'saves nothing when No comparison is re-picked with none applied', async () => {
+		const user = userEvent.setup();
+		const { saved } = renderField();
+
+		await user.click( screen.getByRole( 'button', { name: /compare/i } ) );
+		await user.click( await screen.findByRole( 'menuitemradio', { name: 'No comparison' } ) );
+
+		expect( saved ).toHaveLength( 0 );
+
+		await openCustomRange( user );
+
+		await expect( screen.findByRole( 'button', { name: 'Apply' } ) ).resolves.toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
+	} );
+
 	it( 'realigns the draft when the params change from outside', async () => {
 		const user = userEvent.setup();
 		const { setFromOutside } = renderField( true );

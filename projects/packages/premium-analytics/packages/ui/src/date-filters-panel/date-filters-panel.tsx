@@ -52,20 +52,21 @@ export type DateFiltersPanelProps = {
 	comparisonPresetId?: ComparisonPresetId;
 
 	/**
-	 * The presets rendered as pills, in display order. Defaults to the rolling
-	 * windows; a detail page leads with all time (`DETAIL_SURFACE_PRESETS`).
+	 * The periods the menu offers. Defaults to every selectable preset; a detail
+	 * page adds all time (`DETAIL_SURFACE_PRESETS`). The menu keeps its own
+	 * order whatever order they arrive in, so its grouping by scale holds.
 	 */
 	presetIds?: readonly QuickSurfacePresetId[];
 
 	/**
-	 * Where the all-time pill starts, e.g. the resource's publish date. Only
-	 * read when `presetIds` includes all time.
+	 * Where all time starts, e.g. the resource's publish date. Only read when
+	 * `presetIds` includes it.
 	 */
 	allTimeStart?: Date;
 
 	/**
-	 * Whether to offer the custom-range popover after the pills. On by default;
-	 * the detail pages' design has presets only.
+	 * Whether to offer Custom range at the end of the menu. On by default; the
+	 * detail pages' design has common periods only.
 	 */
 	withCustomRange?: boolean;
 

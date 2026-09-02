@@ -114,9 +114,6 @@ function PostDetail(): JSX.Element {
 		return aliases.length ? [ ...widgetTypes, ...aliases ] : widgetTypes;
 	}, [ widgetTypes ] );
 
-	// The header row hosts the panel in a shrink-to-fit slot, so the panel measures
-	// the row itself to pick its responsive layout; see the `containerElement` prop.
-
 	const breadcrumbs = useDetailBreadcrumbs( summary.title );
 
 	return (
