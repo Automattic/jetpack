@@ -11,8 +11,9 @@
 # Usage, from the monorepo root (needs no checkout of the PR, no build):
 #   gh pr diff <PR> | awk -f .agents/skills/jetpack-review-pr/scripts/comment-rot.awk
 #
-# Knobs: -v min_chars=40 -v min_words=6   duplicate substance floor
-#        -v show_rules=1                  list the rot signals and exit
+# Knobs: -v min_chars=40 -v min_words=6                 verbatim substance floor
+#        -v min_phrase_words=8 -v min_phrase_chars=45   shared-phrase floor
+#        -v show_rules=1                                list the rot signals and exit
 #
 # Output is CANDIDATES, not findings. Every line needs a judgment call: which
 # copy owns the explanation, whether the provenance is actually load-bearing.
@@ -21,6 +22,8 @@
 BEGIN {
 	if ( min_chars == "" ) min_chars = 40
 	if ( min_words == "" ) min_words = 6
+	if ( min_phrase_words == "" ) min_phrase_words = 8
+	if ( min_phrase_chars == "" ) min_phrase_chars = 45
 
 	# Files we read comments out of. Everything else — .md, whose `*` bullets and
 	# `#` headings are not comments; .json; .snap; changelog entries — is skipped.
@@ -152,7 +155,70 @@ function flush_block(   i, low, sigs ) {
 		rot_sig[nrot] = sigs
 		rot_txt[nrot] = blk_text
 	}
+	nblk++
+	blk_at[nblk]  = blk_file ":" blk_start ( blk_end > blk_start ? "-" blk_end : "" )
+	blk_norm[nblk] = norm( blk_text )
 	blk_text = ""
+}
+
+function norm( t,   k ) {
+	k = tolower( t )
+	gsub( /[^a-z0-9']+/, " ", k )
+	sub( /^ +/, "", k ); sub( / +$/, "", k )
+	return k
+}
+
+# --- shared phrasing --------------------------------------------------------
+
+# Verbatim line matching cannot see an explanation reworded across different
+# line breaks, even when it reuses a whole distinctive clause. Index every
+# window of `min_phrase_words` consecutive words and report any window two
+# different comments share: a run that long is reuse, not coincidence.
+function shared_phrases(   i, j, k2, w, nw, key, ids, nid, sig, a, allsame ) {
+	for ( i = 1; i <= nblk; i++ ) {
+		nw = split( blk_norm[i], w, " " )
+		for ( j = 1; j + min_phrase_words - 1 <= nw; j++ ) {
+			key = w[j]
+			for ( k2 = 1; k2 < min_phrase_words; k2++ ) key = key " " w[j + k2]
+			if ( length( key ) < min_phrase_chars ) continue
+			if ( !( key in owners ) ) { owners[key] = i; continue }
+			if ( ( " " owners[key] " " ) !~ ( " " i " " ) ) owners[key] = owners[key] " " i
+		}
+	}
+	# One idea reworded across N comments produces many overlapping windows. Group
+	# by the set of comments a window spans and keep the longest window per set, so
+	# the report carries one entry per idea rather than one per window or per pair.
+	for ( key in owners ) {
+		nid = split( owners[key], ids, " " )
+		if ( nid < 2 ) continue
+		allsame = 1
+		for ( a = 2; a <= nid; a++ ) if ( blk_norm[ids[a]] != blk_norm[ids[1]] ) allsame = 0
+		if ( allsame ) continue   # identical blocks are already in the verbatim report
+		sig = owners[key]
+		if ( length( key ) > length( best[sig] ) ) best[sig] = key
+	}
+	nsig = 0
+	for ( sig in best ) sig_list[++nsig] = sig
+	# A shorter window often spans a subset of a longer one's comments. Reporting
+	# both says the same thing twice, so keep only the widest set.
+	npair = 0
+	for ( a = 1; a <= nsig; a++ ) {
+		if ( subsumed( sig_list[a], sig_list, nsig, a ) ) continue
+		npair++
+		pair_key[npair]   = best[sig_list[a]]
+		pair_sites[npair] = sig_list[a]
+	}
+}
+
+function subsumed( sig, list, n, self,   b, i, nid, ids, ok ) {
+	nid = split( sig, ids, " " )
+	for ( b = 1; b <= n; b++ ) {
+		if ( b == self || list[b] == sig ) continue
+		ok = 1
+		for ( i = 1; i <= nid; i++ ) if ( ( " " list[b] " " ) !~ ( " " ids[i] " " ) ) { ok = 0; break }
+		if ( ok ) return 1
+	}
+	return 0
 }
 
 # --- repeated explanations --------------------------------------------------
@@ -238,6 +304,16 @@ END {
 			( extra[k] ? " (+" extra[k] " continuation line(s), same sites)" : "" ), dup_txt[k]
 		n = split( dup_where[k], sites, "\n" )
 		for ( j = 1; j <= n; j++ ) print "   - " sites[j]
+	}
+
+	shared_phrases()
+	print ""
+	print "## Shared phrasing — " npair + 0 " candidate(s)"
+	if ( npair + 0 == 0 ) print "  none"
+	for ( i = 1; i <= npair; i++ ) {
+		n = split( pair_sites[i], sites, " " )
+		printf "\n%d. %d comments reuse \"…%s…\", reworded around it\n", i, n, pair_key[i]
+		for ( j = 1; j <= n; j++ ) print "   - " blk_at[sites[j]]
 	}
 
 	print ""

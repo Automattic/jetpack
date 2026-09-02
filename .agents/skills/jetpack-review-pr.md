@@ -282,7 +282,9 @@ is repo-relative — not from the thorough-depth `mktemp -d` worktree: the diff 
 nothing needs checking out, and the PR head may predate the script.
 `awk -f <script> -v show_rules=1 </dev/null` prints the rot signals it matches on.
 
-*Repeated explanation* — the report groups identical comment lines and lists every site:
+*Repeated explanation* — two reports. **Repeated explanation** groups identical comment lines;
+**Shared phrasing** catches the same idea reworded, by finding a distinctive run of words two
+comments reuse across different line breaks. Both are the same violation and triage the same way:
 
 - **Discard** — boilerplate that slipped past the substance floor, or two mirrors that genuinely
   have to be read independently (a TS type describing a payload its PHP producer also documents).
@@ -291,8 +293,14 @@ nothing needs checking out, and the PR head may predate the script.
   truth over its mirror, the shared helper over each of its callers. Say which copy stays, then
   say what the other sites get instead — usually nothing, occasionally a four-word pointer.
   "This is duplicated" with no proposed cut is not a finding.
-- **`[blocker]`** — the copies have already drifted and now contradict each other. One of them is
-  wrong about the code and a reader has no way to tell which.
+- **`[blocker]`** — the copies no longer say the same thing: they give different reasons, cite
+  different mechanisms, or one has been updated and the others not. At most one can be right, so
+  the rest are now wrong about the code and a reader cannot tell which.
+
+Most **Shared phrasing** hits pair an implementation with its own test, which is the tie-break's
+first case: the implementation owns the explanation and the test gets nothing. A parameter's
+docblock likewise owns what that parameter costs — a call site passing it repeats the mechanism
+and should keep only its own local reason for the value it passes.
 
 *Provenance that rots* — the report gives the whole comment, the signal that fired, and a range:
 
@@ -307,10 +315,10 @@ nothing needs checking out, and the PR head may predate the script.
 
 Known limitations — all three are silent failures, so keep reading the diff yourself:
 
-- **Verbatim only** (after normalising case, punctuation and whitespace). Paraphrase is not
-  detected, deliberately: the same mechanism explained once in a docblock and again at the call
-  site in different words scores about 0.2 on token overlap, and a near-duplicate threshold low
-  enough to catch it pairs up any two comments in the same subsystem.
+- **A paraphrase that shares no long phrase is invisible.** Matching is verbatim on a line, or an
+  8-word run two comments reuse. Reworded with different words throughout, it scores about 0.2 on
+  token overlap — and a near-duplicate threshold low enough to catch that pairs up any two
+  comments in the same subsystem, so it is deliberately not attempted.
 - **Added comments are only compared with each other.** A fresh copy of an explanation that
   already exists in the tree is invisible. At thorough depth, grep a distinctive fragment:
   `grep -rn "<six distinctive words>" projects/`.
