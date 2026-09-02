@@ -133,7 +133,7 @@ class Admin_Modal_Test extends \WorDBless\BaseTestCase {
 		$this->assertNotNull( $data );
 		$this->assertSame( Expiry_Notice_Dismiss::META_MODAL, $data['metaKey'] );
 		$this->assertStringContainsString( 'has been moved to the Free plan', $data['description'] );
-		$this->assertSame( 'Restore my site', $data['primary']['label'] );
+		$this->assertSame( 'Contact support', $data['primary']['label'] );
 		// Nothing left to compare once the site is already on Free.
 		$this->assertNull( $data['secondary'] );
 		$this->assertStringContainsString( 'what changed', $data['listIntro'] );
@@ -172,7 +172,7 @@ class Admin_Modal_Test extends \WorDBless\BaseTestCase {
 		$data = wpcom_expiry_notices_admin_modal_data();
 
 		$this->assertNotNull( $data );
-		$this->assertSame( 'Restore my site', $data['primary']['label'] );
+		$this->assertSame( 'Contact support', $data['primary']['label'] );
 	}
 
 	/**
@@ -329,5 +329,39 @@ class Admin_Modal_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertNotNull( $data );
 		$this->assertStringNotContainsString( 'primary domain', implode( "\n", $data['items'] ) );
+	}
+
+	public function test_the_support_cta_prefills_a_message(): void {
+		$this->set_purchase( -45 );
+		$data = wpcom_expiry_notices_admin_modal_data();
+
+		$this->assertNotNull( $data );
+		$this->assertStringContainsString( 'I need your help getting it restored', $data['primary']['message'] );
+		// A click the Help Center cannot answer still has to land somewhere.
+		$this->assertStringContainsString( 'wordpress.com/help', $data['primary']['url'] );
+	}
+
+	public function test_the_support_message_names_the_plan_when_it_is_known(): void {
+		// Plans::get_plan_short_name() does not resolve in this environment, so
+		// drive the two branches from the state directly.
+		$this->assertSame(
+			'My Business plan expired and I need your help getting it restored.',
+			wpcom_expiry_notices_support_cta( array( 'plan_name' => 'Business' ) )['message']
+		);
+		// A sentence with a hole in it is worse than one without the name.
+		$this->assertSame(
+			'My plan expired and I need your help getting it restored.',
+			wpcom_expiry_notices_support_cta( array( 'plan_name' => null ) )['message']
+		);
+	}
+
+	public function test_the_grace_cta_is_still_checkout(): void {
+		// Renewing still saves the site while the revert is ahead of it.
+		$this->set_purchase( -5 );
+		$data = wpcom_expiry_notices_admin_modal_data();
+
+		$this->assertNotNull( $data );
+		$this->assertStringContainsString( '/checkout/', $data['primary']['url'] );
+		$this->assertArrayNotHasKey( 'message', $data['primary'] );
 	}
 }

@@ -50,7 +50,7 @@ function wpcom_expiry_notices_admin_modal_data(): ?array {
 		'description' => wpcom_expiry_notices_modal_description( $is_grace ),
 		'listIntro'   => $is_grace ? '' : __( 'Here’s what changed:', 'jetpack-mu-wpcom' ),
 		'items'       => wpcom_expiry_notices_modal_items( $is_grace ),
-		'primary'     => wpcom_expiry_notices_modal_primary_cta( $urls, $is_grace ),
+		'primary'     => wpcom_expiry_notices_modal_primary_cta( $state, $urls, $is_grace ),
 		// Renewing is only one of two things to consider while the site is still
 		// recoverable by paying for the same plan. Once it has been reverted the
 		// only offer is to put it back, so there is nothing to compare.
@@ -140,19 +140,16 @@ function wpcom_expiry_notices_modal_items( bool $is_grace ): array {
 }
 
 /**
- * The primary CTA. Post-grace the ask is no longer to renew but to put the site
- * back, so the label changes while the checkout URL doesn't.
+ * The primary CTA: renew while that still saves the site, support once it
+ * doesn't.
  *
+ * @param array<string,mixed> $state    Expiry state.
  * @param array<string,array> $urls     CTA URLs from Expiry_Data::get_cta_urls().
  * @param bool                $is_grace Whether the site is still inside the grace period.
- * @return array{label:string,url:string}
+ * @return array<string,string>
  */
-function wpcom_expiry_notices_modal_primary_cta( array $urls, bool $is_grace ): array {
-	$primary = $urls['primary'];
-	if ( ! $is_grace ) {
-		$primary['label'] = __( 'Restore my site', 'jetpack-mu-wpcom' );
-	}
-	return $primary;
+function wpcom_expiry_notices_modal_primary_cta( array $state, array $urls, bool $is_grace ): array {
+	return $is_grace ? $urls['primary'] : wpcom_expiry_notices_support_cta( $state );
 }
 
 /**

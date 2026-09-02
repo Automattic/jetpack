@@ -161,8 +161,8 @@ class Admin_Banner_Test extends \WorDBless\BaseTestCase {
 		// Grace: the site is intact, so the ask is to renew before it isn't.
 		$this->assertStringContainsString( 'Renew now', $grace );
 		$this->assertStringNotContainsString( 'wpcom-expiry-banner__dismiss', $grace );
-		// Reverted: already on Free, so the ask is to restore — and it can be dismissed.
-		$this->assertStringContainsString( 'Restore site', $reverted );
+		// Reverted: renewing no longer undoes any of it, so the ask is support.
+		$this->assertStringContainsString( 'Contact support', $reverted );
 		$this->assertStringContainsString( 'wpcom-expiry-banner__dismiss', $reverted );
 	}
 
@@ -453,18 +453,33 @@ class Admin_Banner_Test extends \WorDBless\BaseTestCase {
 		$this->assertStringContainsString( '50 GB of storage', $body );
 	}
 
-	public function test_after_revert_the_cta_offers_to_restore_the_site(): void {
+	public function test_after_revert_the_cta_points_at_support(): void {
+		// Re-purchasing cannot bring back what the revert deleted, so checkout is
+		// the wrong destination once the site is on Free.
 		$this->set_purchase( -45 );
 		$out = $this->render();
-		$this->assertStringContainsString( 'Restore site', $out );
+		$this->assertStringContainsString( 'Contact support', $out );
 		$this->assertStringNotContainsString( 'Renew now', $out );
+		$this->assertStringNotContainsString( '/checkout/', $out );
+	}
+
+	public function test_the_support_cta_carries_the_message_and_a_fallback(): void {
+		// The Help Center has no URL that opens it in this state, so the message
+		// rides on the element and the href is what a click falls back to.
+		$this->set_purchase( -45 );
+		$out = $this->render();
+		// Plans::get_plan_short_name() is unavailable here, so this is the
+		// no-plan-name variant; wpcom_expiry_notices_support_cta() covers the other.
+		$this->assertStringContainsString( 'data-support-message="My plan expired', $out );
+		$this->assertStringContainsString( 'wordpress.com/help', $out );
 	}
 
 	public function test_before_revert_the_cta_still_asks_for_a_renewal(): void {
 		$this->set_purchase( -5 );
 		$out = $this->render();
 		$this->assertStringContainsString( 'Renew now', $out );
-		$this->assertStringNotContainsString( 'Restore site', $out );
+		$this->assertStringNotContainsString( 'Contact support', $out );
+		$this->assertStringNotContainsString( 'data-support-message', $out );
 	}
 
 	public function test_body_falls_back_to_additional_storage_for_unknown_slug(): void {

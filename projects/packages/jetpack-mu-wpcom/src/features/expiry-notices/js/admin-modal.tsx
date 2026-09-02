@@ -2,10 +2,15 @@ import apiFetch from '@wordpress/api-fetch';
 import { Button, Modal } from '@wordpress/components';
 import { createRoot, useState } from '@wordpress/element';
 import { wpcomTrackEvent } from '../../../common/tracks';
+import { openHelpCenterWithMessage } from './help-center.ts';
+import type { MouseEvent } from 'react';
 
 interface Cta {
 	label: string;
 	url: string;
+	// Present only on the reverted state's CTA, which opens the Help Center with
+	// this typed in rather than following its href.
+	message?: string;
 }
 
 interface ExpiryModalData {
@@ -63,14 +68,24 @@ const ExpiryModal = ( { data }: { data: ExpiryModalData } ) => {
 		}
 	};
 
-	// Acting on a CTA settles the modal too: someone on their way to checkout has
-	// answered it, and should not meet it again on the way back. Deliberately not
-	// awaited and the modal is left mounted, so neither delays the navigation the
-	// click has already started. The click is reported as a CTA rather than a
+	// Acting on a CTA settles the modal too: someone who has answered it should
+	// not meet it again on the way back. Reported as a CTA rather than a
 	// dismissal -- one event per thing the user actually did.
-	const onCtaClick = ( cta: string ) => {
-		wpcomTrackEvent( 'jetpack_expiry_modal_cta_click', { ...data.trackProps, cta } );
-		recordDismissal( true ).catch( () => {
+	const onCtaClick = ( cta: string, target: Cta, event: MouseEvent ) => {
+		// The support CTA opens the Help Center over this page rather than
+		// navigating, so the modal has to close itself; its href is only the
+		// fallback for a Help Center that never loaded.
+		const openedHere = target.message ? openHelpCenterWithMessage( target.message ) : false;
+		if ( openedHere ) {
+			event.preventDefault();
+			setIsOpen( false );
+		}
+
+		wpcomTrackEvent( 'jetpack_expiry_modal_cta_click', {
+			...data.trackProps,
+			cta: target.message ? 'support' : cta,
+		} );
+		recordDismissal( ! openedHere ).catch( () => {
 			// Nothing useful to do while the page is leaving; at worst the modal
 			// shows once more.
 		} );
@@ -108,7 +123,7 @@ const ExpiryModal = ( { data }: { data: ExpiryModalData } ) => {
 						<Button
 							variant="secondary"
 							href={ data.secondary.url }
-							onClick={ () => onCtaClick( 'secondary' ) }
+							onClick={ event => onCtaClick( 'secondary', data.secondary as Cta, event ) }
 						>
 							{ data.secondary.label }
 						</Button>
@@ -116,7 +131,7 @@ const ExpiryModal = ( { data }: { data: ExpiryModalData } ) => {
 					<Button
 						variant="primary"
 						href={ data.primary.url }
-						onClick={ () => onCtaClick( 'primary' ) }
+						onClick={ event => onCtaClick( 'primary', data.primary, event ) }
 					>
 						{ data.primary.label }
 					</Button>

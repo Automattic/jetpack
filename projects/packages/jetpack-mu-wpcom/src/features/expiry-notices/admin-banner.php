@@ -46,9 +46,8 @@ function wpcom_expiry_notices_admin_banner_data(): ?array {
 /**
  * CTA URLs for the banner.
  *
- * Once the site has been reverted the ask is no longer "renew" but "put the
- * site back", and wp-admin labels that button "Restore site" where the other
- * surfaces say "Restore my site".
+ * Once the site has been reverted, renewing no longer undoes anything the
+ * notice describes, so the ask becomes support instead.
  *
  * @param array<string,mixed> $state Expiry state.
  * @return array<string,array>
@@ -56,7 +55,7 @@ function wpcom_expiry_notices_admin_banner_data(): ?array {
 function wpcom_expiry_notices_admin_banner_urls( array $state ): array {
 	$urls = Expiry_Data::get_cta_urls( $state, wpcom_expiry_notices_current_admin_url() );
 	if ( Expiry_Data::STATE_EXPIRED === ( $state['state'] ?? '' ) ) {
-		$urls['primary']['label'] = __( 'Restore site', 'jetpack-mu-wpcom' );
+		$urls['primary'] = wpcom_expiry_notices_support_cta( $state );
 	}
 	return $urls;
 }
@@ -138,7 +137,14 @@ function wpcom_expiry_notices_render_admin_banner_html( array $state, array $url
 		<p><strong><?php echo esc_html( wpcom_expiry_notices_admin_banner_heading( $state ) ); ?></strong></p>
 		<p><?php echo esc_html( wpcom_expiry_notices_admin_banner_body( $state ) ); ?></p>
 		<p class="wpcom-expiry-banner__actions">
-			<a class="button button-primary" href="<?php echo esc_url( $urls['primary']['url'] ); ?>">
+			<?php // The message turns this into a Help Center opener; the href stays as what a click falls back to. ?>
+			<a
+				class="button button-primary"
+				href="<?php echo esc_url( $urls['primary']['url'] ); ?>"
+				<?php if ( isset( $urls['primary']['message'] ) ) : ?>
+					data-support-message="<?php echo esc_attr( $urls['primary']['message'] ); ?>"
+				<?php endif; ?>
+			>
 				<?php echo esc_html( $urls['primary']['label'] ); ?>
 			</a>
 			<?php if ( $is_grace ) : ?>

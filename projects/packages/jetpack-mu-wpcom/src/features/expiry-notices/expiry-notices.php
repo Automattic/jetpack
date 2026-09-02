@@ -126,6 +126,42 @@ function wpcom_expiry_notices_expired_heading( array $state ): string {
 }
 
 /**
+ * The CTA a reverted site gets, pointing at support rather than checkout.
+ *
+ * Buying the plan again does not undo the revert: the cleanup that follows it
+ * deletes the Atomic site outright -- container, tables and tokens -- and a
+ * re-transfer starts a fresh one. Plugins, themes and their data are gone, so
+ * only support can help with what the notice says was lost.
+ *
+ * `url` is the fallback for a click the Help Center could not answer; `message`
+ * is what its chat opens prefilled with.
+ *
+ * @param array<string,mixed> $state Expiry state.
+ * @return array{label:string,url:string,message:string}
+ */
+function wpcom_expiry_notices_support_cta( array $state ): array {
+	$plan = isset( $state['plan_name'] ) && is_string( $state['plan_name'] ) ? $state['plan_name'] : '';
+
+	if ( '' === $plan ) {
+		$message = __( 'My plan expired and I need your help getting it restored.', 'jetpack-mu-wpcom' );
+	} else {
+		$message = sprintf(
+			/* translators: %s is the plan name (e.g. Business). */
+			__( 'My %s plan expired and I need your help getting it restored.', 'jetpack-mu-wpcom' ),
+			$plan
+		);
+	}
+
+	return array(
+		'label'   => __( 'Contact support', 'jetpack-mu-wpcom' ),
+		// Where the Help Center package itself sends people when it cannot open
+		// in place, so a click still lands somewhere useful without its bundle.
+		'url'     => 'https://wordpress.com/help?help-center=home',
+		'message' => $message,
+	);
+}
+
+/**
  * Load the wp-admin banner and modal, unless something has held this site back.
  *
  * On `init` rather than at file load. This file is required on `plugins_loaded`,
