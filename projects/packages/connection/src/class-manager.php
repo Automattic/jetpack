@@ -219,6 +219,8 @@ class Manager {
 		// Force is_connected() to recompute after important actions.
 		add_action( 'jetpack_site_registered', array( $this, 'reset_connection_status' ) );
 		add_action( 'jetpack_site_disconnected', array( $this, 'reset_connection_status' ) );
+		// Deletion doesn't fire `pre_update_jetpack_option_*`; see the action's docblock in `Tokens::delete_all()`.
+		add_action( 'jetpack_connection_tokens_deleted', array( $this, 'reset_connection_status' ) );
 		add_action( 'jetpack_sync_register_user', array( $this, 'reset_connection_status' ) );
 		add_action( 'pre_update_jetpack_option_id', array( $this, 'reset_connection_status' ) );
 		add_action( 'pre_update_jetpack_option_blog_token', array( $this, 'reset_connection_status' ) );
