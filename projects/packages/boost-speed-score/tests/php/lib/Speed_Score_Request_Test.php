@@ -160,9 +160,7 @@ class Speed_Score_Request_Test extends Base_TestCase {
 	 * @return Boost_API_Client
 	 */
 	private function build_api_client() {
-		$test = $this;
-
-		return new class( $test ) implements Boost_API_Client {
+		return new class( $this ) implements Boost_API_Client {
 			/**
 			 * The test case holding the canned response.
 			 *
