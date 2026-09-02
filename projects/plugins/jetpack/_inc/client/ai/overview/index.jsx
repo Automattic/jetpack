@@ -7,8 +7,7 @@
 import { AiIcon, getRedirectUrl } from '@automattic/jetpack-components';
 import { speak } from '@wordpress/a11y';
 import { ExternalLink, ProgressBar, VisuallyHidden } from '@wordpress/components';
-import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
-import { createInterpolateElement, useEffect } from '@wordpress/element';
+import { useEffect } from '@wordpress/element';
 import { sprintf, __ } from '@wordpress/i18n';
 import { list } from '@wordpress/icons';
 import { Card, Link, LinkButton, Notice, Skeleton, Stack, Text } from '@wordpress/ui';
@@ -97,17 +96,12 @@ const DOC_LINKS = [
 /**
  * The one sentence that states usage in words. Screen readers get this instead
  * of the loose value/limit pair, and it is also what gets announced when the
- * fetch lands. Separate returns rather than a ternary: terser merges
- * `cond ? __( 'a' ) : __( 'b' )` into one call with a non-literal msgid, which
- * fails the i18n check at build time.
+ * fetch lands.
  *
  * @param {object} usage - Normalized usage from normalizeUsage().
  * @return {string} The summary, or '' when there are no numbers to state.
  */
 function usageSummary( usage ) {
-	if ( usage.unlimited ) {
-		return __( 'Unlimited requests', 'jetpack' );
-	}
 	if ( usage.requestsAvailable === null || ! ( usage.requestsLimit > 0 ) ) {
 		return '';
 	}
@@ -149,9 +143,9 @@ function UpsellSkeleton() {
 }
 
 /**
- * Placeholder for the standard two-cell layout: requests over the meter on the
- * left, plan on the right. Used whenever no upgrade can be offered, so those
- * sites do not watch a tall upsell-shaped card collapse into a short one.
+ * Placeholder for the standard layout: the requests readout over the meter.
+ * Used whenever no upgrade can be offered, so those sites do not watch a tall
+ * upsell-shaped card collapse into a short one.
  *
  * @return {object} Component markup.
  */
@@ -162,10 +156,6 @@ function UsageSkeleton() {
 				<Skeleton className="jetpack-ai-overview__skeleton-line jetpack-ai-overview__skeleton-line--eyebrow" />
 				<Skeleton className="jetpack-ai-overview__skeleton-line jetpack-ai-overview__skeleton-line--value" />
 				<Skeleton className="jetpack-ai-overview__skeleton-meter" />
-			</div>
-			<div className="jetpack-ai-overview__usage-cell jetpack-ai-overview__usage-cell--plan">
-				<Skeleton className="jetpack-ai-overview__skeleton-line jetpack-ai-overview__skeleton-line--eyebrow" />
-				<Skeleton className="jetpack-ai-overview__skeleton-line jetpack-ai-overview__skeleton-line--value" />
 			</div>
 		</div>
 	);
@@ -187,10 +177,7 @@ function RequestsMeter( { usage } ) {
 	const srSummary = usageSummary( usage );
 	// normalizeUsage floors availability at 0 and it can never exceed the
 	// limit, so the ratio needs no clamping here.
-	const showMeter = usage.unlimited || hasNumbers;
-	const meterValue = usage.unlimited
-		? 100
-		: ( usage.requestsAvailable / usage.requestsLimit ) * 100;
+	const meterValue = ( usage.requestsAvailable / usage.requestsLimit ) * 100;
 
 	return (
 		<>
@@ -208,32 +195,16 @@ function RequestsMeter( { usage } ) {
 				// and limit nodes would only be read as fragments.
 				aria-hidden={ srSummary ? 'true' : undefined }
 			>
-				{ usage.unlimited ? (
-					<Text
-						render={ <p /> }
-						variant="body-md"
-						className="jetpack-ai-overview__muted jetpack-ai-overview__unlimited"
-					>
-						{ __( 'Unlimited', 'jetpack' ) }
+				<Text render={ <p /> } variant="heading-xl" className="jetpack-ai-overview__requests-value">
+					{ hasNumbers ? usage.requestsAvailable : '—' }
+				</Text>
+				{ hasNumbers && (
+					<Text render={ <p /> } variant="body-md" className="jetpack-ai-overview__muted">
+						{ usage.requestsLimit }
 					</Text>
-				) : (
-					<>
-						<Text
-							render={ <p /> }
-							variant="heading-xl"
-							className="jetpack-ai-overview__requests-value"
-						>
-							{ hasNumbers ? usage.requestsAvailable : '—' }
-						</Text>
-						{ hasNumbers && (
-							<Text render={ <p /> } variant="body-md" className="jetpack-ai-overview__muted">
-								{ usage.requestsLimit }
-							</Text>
-						) }
-					</>
 				) }
 			</Stack>
-			{ showMeter && (
+			{ hasNumbers && (
 				// The bar only restates the visible numbers, so it is
 				// decorative — screen readers get "8 of 20" from the text
 				// (VoiceOver reads a named bar's label and percent again).
@@ -248,41 +219,32 @@ function RequestsMeter( { usage } ) {
 }
 
 /**
- * The requests/plan card. Whenever an upgrade can actually be offered the
- * card renders as an upsell: icon and pitch on the left, the requests readout
+ * The requests card. Whenever an upgrade can actually be offered the card
+ * renders as an upsell: icon and pitch on the left, the requests readout
  * with the Upgrade button on the right — with harder copy once every request
- * is used. Without an upgrade to offer it falls back to the i4 two-cell
- * layout: requests over a meter on the left, plan + renewal on the right.
- * Loading and error states stay inside the card so the rest of the Overview
- * renders immediately.
+ * is used. Without an upgrade to offer it falls back to the plain requests
+ * readout over its meter (plan details are My Jetpack's job). A legacy
+ * unlimited plan renders no card at all: there is nothing to meter and
+ * nothing to sell, and usage-based pricing is retiring the state. Loading
+ * and error states stay inside the card so the rest of the Overview renders
+ * immediately.
  *
- * @param {object}  props                 - Component props.
- * @param {string}  props.upgradeUrl      - Upgrade destination (shared with the MCP upsell).
- * @param {string}  [props.planName]      - Purchase name granting AI ("WordPress.com Business");
- *                                        preferred over the derived label when present.
- * @param {string}  [props.planRenewsOn]  - The purchase's own renewal date; preferred over
- *                                        the usage-period rollover, which is monthly.
- * @param {boolean} [props.planAutoRenew] - Whether the purchase auto-renews; decides
- *                                        whether the date reads Renews on or Expires on.
+ * @param {object} props            - Component props.
+ * @param {string} props.upgradeUrl - Upgrade destination (shared with the MCP upsell).
+ * @param {string} [props.planName] - Purchase name granting AI ("WordPress.com Business");
+ *                                  only steers the loading-shape guess below.
  * @return {object} Component markup.
  */
-function UsageCard( { upgradeUrl, planName, planRenewsOn, planAutoRenew } ) {
+function UsageCard( { upgradeUrl, planName } ) {
 	const { isLoading, data, error } = useAiUsage();
 	const usage = normalizeUsage( data );
-	// Only the purchase's own renewal belongs under "Renews on"; the usage
-	// period's rollover is a different date. Rendered in the site's timezone to
-	// match My Jetpack and the other purchase surfaces (review call).
-	const renewsOnDisplay = planRenewsOn && dateI18n( getDateSettings().formats.date, planRenewsOn );
-	// The purchase name only labels a paid state — the usage endpoint is
-	// authoritative for the tier, so an expired purchase cannot relabel Free.
-	const planLabel = ( ! usage.isFree && planName ) || usage.planLabel;
 	const hasNumbers = usage.requestsAvailable !== null && usage.requestsLimit > 0;
 	// The upsell copy is a pitch for the button, so it only shows when an
 	// upgrade can actually be offered; otherwise the plain two-cell card
 	// tells the story instead.
 	const showUpsell = usage.showUpgrade && !! upgradeUrl;
 	// Out of requests, the pitch hardens from "before you run out" to "you ran out".
-	const isDepleted = ! usage.unlimited && hasNumbers && usage.requestsAvailable === 0;
+	const isDepleted = hasNumbers && usage.requestsAvailable === 0;
 	// Which shape to hold while the fetch is in flight. showUpsell needs the
 	// response, so this is the best guess available before it: an upsell needs
 	// somewhere to upgrade to, and a site that already names a paid plan is
@@ -305,6 +267,12 @@ function UsageCard( { upgradeUrl, planName, planRenewsOn, planAutoRenew } ) {
 		}
 		speak( srSummary, 'polite' );
 	}, [ isLoading, error, srSummary ] );
+
+	// A legacy unlimited plan has nothing to meter and nothing to sell — a
+	// full bar and "Unlimited" would only take up the tab's first slot.
+	if ( ! isLoading && ! error && usage.unlimited ) {
+		return null;
+	}
 
 	return (
 		// The upsell breathes more than the standard card; the modifier widens
@@ -375,47 +343,6 @@ function UsageCard( { upgradeUrl, planName, planRenewsOn, planAutoRenew } ) {
 						<div className="jetpack-ai-overview__usage-cell">
 							<RequestsMeter usage={ usage } />
 						</div>
-
-						<div className="jetpack-ai-overview__usage-cell jetpack-ai-overview__usage-cell--plan">
-							<Text render={ <p /> } variant="heading-sm" className="jetpack-ai-overview__eyebrow">
-								{ __( 'Plan', 'jetpack' ) }
-							</Text>
-							<Stack direction="row" justify="space-between" align="flex-end" gap="lg">
-								{ planLabel && (
-									<Text
-										render={ <p /> }
-										// Long names wrap to two lines, where XL reads too
-										// heavy; the cutoff approximates the half-card column.
-										variant={ ( planLabel?.length ?? 0 ) > 16 ? 'heading-lg' : 'heading-xl' }
-										className="jetpack-ai-overview__plan-name"
-									>
-										{ planLabel }
-									</Text>
-								) }
-								{ ! usage.showUpgrade && renewsOnDisplay && (
-									<Text
-										render={ <p /> }
-										variant="body-sm"
-										className="jetpack-ai-overview__muted jetpack-ai-overview__renewal"
-									>
-										{ createInterpolateElement(
-											planAutoRenew !== false
-												? sprintf(
-														/* translators: %s: localized date the plan renews on. */
-														__( 'Renews on: <date>%s</date>', 'jetpack' ),
-														renewsOnDisplay
-												  )
-												: sprintf(
-														/* translators: %s: localized date the plan expires on. */
-														__( 'Expires on: <date>%s</date>', 'jetpack' ),
-														renewsOnDisplay
-												  ),
-											{ date: <span className="jetpack-ai-overview__renewal-date" /> }
-										) }
-									</Text>
-								) }
-							</Stack>
-						</div>
 					</div>
 				) }
 			</Card.Content>
@@ -431,8 +358,6 @@ function UsageCard( { upgradeUrl, planName, planRenewsOn, planAutoRenew } ) {
  * @param {string}  [props.activityLogUrl]  - URL for the site's activity log; row hidden without it.
  * @param {string}  [props.upgradeUrl]      - Upgrade destination for the usage card.
  * @param {string}  [props.planName]        - Purchase name granting AI, from the page data.
- * @param {string}  [props.planRenewsOn]    - The purchase's renewal date, from the page data.
- * @param {boolean} [props.planAutoRenew]   - Whether that purchase auto-renews, from the page data.
  * @param {boolean} [props.showActivityLog] - Whether the activity-log row applies: the row's
  *                                          copy promises AI-agent actions, which need MCP.
  * @param {boolean} [props.hostAllowsAi]    - The host's AI switch; when explicitly false, no
@@ -446,8 +371,6 @@ export default function AiOverview( {
 	activityLogUrl,
 	upgradeUrl,
 	planName,
-	planRenewsOn,
-	planAutoRenew,
 	showActivityLog,
 	hostAllowsAi,
 	isUserConnected,
@@ -485,12 +408,7 @@ export default function AiOverview( {
 					</Notice.Root>
 				) }
 				{ !! blogId && ! hostBlocked && ! userUnlinked && (
-					<UsageCard
-						upgradeUrl={ upgradeUrl }
-						planName={ planName }
-						planRenewsOn={ planRenewsOn }
-						planAutoRenew={ planAutoRenew }
-					/>
+					<UsageCard upgradeUrl={ upgradeUrl } planName={ planName } />
 				) }
 				{ ! blogId && (
 					// Disconnected: skip the fetch (it can only fail) and explain

@@ -184,8 +184,6 @@ export default function App() {
 		apiNonce,
 		upgradeUrl,
 		planName,
-		planRenewsOn,
-		planAutoRenew,
 		isUserConnected,
 		showFeaturesView = false,
 	} = window?.jetpackAiSettings ?? {};
@@ -474,8 +472,6 @@ export default function App() {
 						activityLogUrl={ activityLogUrl }
 						upgradeUrl={ upgradeUrl }
 						planName={ planName }
-						planRenewsOn={ planRenewsOn }
-						planAutoRenew={ planAutoRenew }
 						isUserConnected={ isUserConnected }
 						hostAllowsAi={ aiSettings?.host_allows_ai }
 						// Same preconditions the MCP hub applies to its copy of the

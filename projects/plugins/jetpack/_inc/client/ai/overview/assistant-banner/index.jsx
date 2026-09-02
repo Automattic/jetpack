@@ -51,7 +51,7 @@ export default function AssistantBanner() {
 		<AiBanner
 			title={ __( 'Your site now has an assistant.', 'jetpack' ) }
 			description={ __(
-				'Turn your ideas into ready-to-publish content at lightspeed. Make changes across your site using ChatGPT, Claude, Slack, or right here.',
+				'Turn your ideas into ready-to-publish content at lightspeed. Make changes across your site using ChatGPT, Claude, Cursor, or right here.',
 				'jetpack'
 			) }
 			actions={

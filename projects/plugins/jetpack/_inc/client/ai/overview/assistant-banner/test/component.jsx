@@ -23,7 +23,7 @@ describe( 'AssistantBanner', () => {
 		expect( screen.getByText( 'Your site now has an assistant.' ) ).toBeInTheDocument();
 		expect(
 			screen.getByText(
-				'Turn your ideas into ready-to-publish content at lightspeed. Make changes across your site using ChatGPT, Claude, Slack, or right here.'
+				'Turn your ideas into ready-to-publish content at lightspeed. Make changes across your site using ChatGPT, Claude, Cursor, or right here.'
 			)
 		).toBeInTheDocument();
 		expect( screen.getByRole( 'button', { name: 'Dismiss' } ) ).toBeInTheDocument();

@@ -1,8 +1,7 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitForElementToBeRemoved } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { speak } from '@wordpress/a11y';
 import apiFetch from '@wordpress/api-fetch';
-import { getSettings as getDateSettings, setSettings as setDateSettings } from '@wordpress/date';
 import analytics from 'lib/analytics';
 import AiOverview from '../index';
 import { depletedPayload, freePayload, tieredPayload, unlimitedPayload } from './fixtures';
@@ -47,11 +46,6 @@ const PROPS = {
 // region, so a bare text query matches twice. Ignore that region.
 const IGNORE_A11Y = { ignore: 'script, style, .a11y-speak-region' };
 
-// The renewal line renders the date in its own nowrap span (the frame breaks
-// after the label, never inside the date), so its text spans two nodes.
-const renewalLine = expected => ( _, el ) =>
-	el?.classList?.contains( 'jetpack-ai-overview__renewal' ) && el.textContent === expected;
-
 describe( 'AiOverview', () => {
 	test( 'free tier: renders remaining requests against the free limit', async () => {
 		apiFetch.mockResolvedValueOnce( freePayload() );
@@ -85,7 +79,7 @@ describe( 'AiOverview', () => {
 			'href',
 			'https://example.com/upgrade'
 		);
-		// The Plan cell yields to the pitch, as in the depleted state.
+		// No plan label anywhere — plan details live in My Jetpack.
 		expect( screen.queryByText( 'Free' ) ).not.toBeInTheDocument();
 	} );
 
@@ -127,7 +121,7 @@ describe( 'AiOverview', () => {
 			'href',
 			'https://example.com/upgrade'
 		);
-		// The Plan cell is gone — the upsell replaces the whole card.
+		// No plan label anywhere — plan details live in My Jetpack.
 		expect( screen.queryByText( 'Free' ) ).not.toBeInTheDocument();
 		// The depleted state keeps its own, harder pitch.
 		expect(
@@ -165,110 +159,55 @@ describe( 'AiOverview', () => {
 		expect( screen.getByRole( 'progressbar', { hidden: true } ) ).toBeInTheDocument();
 	} );
 
-	test( 'legacy unlimited: full meter, renewal date, no upgrade', async () => {
-		apiFetch.mockResolvedValueOnce( { ...tieredPayload(), 'current-tier': { value: 1 } } );
-
-		render( <AiOverview { ...PROPS } /> );
-
-		// The i4 paid card shows UNLIMITED over a full meter — once — and no
-		// Upgrade. Without a purchase date there is no renewal line: the usage
-		// period's rollover is a different date and must not stand in for it.
-		await expect( screen.findAllByText( 'Unlimited' ) ).resolves.toHaveLength( 1 );
-		expect( screen.getByRole( 'progressbar', { hidden: true } ) ).toBeInTheDocument();
-		expect( screen.queryByText( /Renews on/ ) ).not.toBeInTheDocument();
-		expect( screen.queryByRole( 'link', { name: 'Upgrade' } ) ).not.toBeInTheDocument();
-	} );
-
-	test( 'plan name: the purchase name labels a paid state', async () => {
+	test( 'legacy unlimited: no usage card at all', async () => {
 		apiFetch.mockResolvedValueOnce( unlimitedPayload() );
 
+		// planName holds the standard skeleton while the fetch is in flight,
+		// which is also the only queryable handle for "the fetch settled".
+		const { container } = render( <AiOverview { ...PROPS } planName="WordPress.com Business" /> );
+
+		// Nothing to meter and nothing to sell: once the fetch lands the card
+		// unmounts entirely (usage-based pricing is retiring this state).
+		/* eslint-disable testing-library/no-container, testing-library/no-node-access --
+		   The skeleton bars are decorative and aria-hidden, so Testing Library
+		   has no query that reaches them; the layout class is the only handle. */
+		await waitForElementToBeRemoved( () =>
+			container.querySelector( '.jetpack-ai-overview__usage' )
+		);
+		/* eslint-enable testing-library/no-container, testing-library/no-node-access */
+		expect( screen.queryByText( 'Unlimited' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( 'Available requests' ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'progressbar', { hidden: true } ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'link', { name: 'Upgrade' } ) ).not.toBeInTheDocument();
+		// The rest of the tab is unaffected.
+		expect( screen.getByRole( 'heading', { level: 2, name: 'Quick start' } ) ).toBeInTheDocument();
+	} );
+
+	test( 'standard card: shows only the requests readout, no plan details', async () => {
+		// Top tier, nothing to sell: the plain requests card renders.
+		apiFetch.mockResolvedValueOnce( {
+			...tieredPayload(),
+			'next-tier': null,
+			'site-require-upgrade': false,
+		} );
+
+		// Plan name and renewal live in My Jetpack; the card must not render
+		// them even when the page data names a purchase.
 		render( <AiOverview { ...PROPS } planName="WordPress.com Business" /> );
 
-		await expect( screen.findByText( 'WordPress.com Business' ) ).resolves.toBeInTheDocument();
+		await expect( screen.findByText( '160' ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByText( 'Plan' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( 'WordPress.com Business' ) ).not.toBeInTheDocument();
 	} );
 
-	test( 'plan name: a free tier stays Free even with a stale purchase name', async () => {
+	test( 'standard card: a free site without an upgrade URL shows no plan label either', async () => {
 		apiFetch.mockResolvedValueOnce( freePayload() );
 
-		// No upgradeUrl: the standard card (with its Plan cell) renders, which
-		// is where a stale purchase name could mislabel the tier.
 		render( <AiOverview { ...PROPS } upgradeUrl={ undefined } planName="Jetpack Complete" /> );
 
-		// The usage endpoint owns the tier; an expired purchase must not
-		// relabel a free site as paid.
-		await expect( screen.findByText( 'Free' ) ).resolves.toBeInTheDocument();
+		await expect( screen.findByText( '8' ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByText( 'Free' ) ).not.toBeInTheDocument();
 		expect( screen.queryByText( 'Jetpack Complete' ) ).not.toBeInTheDocument();
-	} );
-
-	test( 'plan renewal: the purchase date wins over the usage-period rollover', async () => {
-		// The payload's next-start is the monthly usage rollover; the Plan cell
-		// shows the purchase's own renewal, matching My Jetpack (design QA).
-		apiFetch.mockResolvedValueOnce( unlimitedPayload() );
-
-		render(
-			<AiOverview { ...PROPS } planName="Business" planRenewsOn="2026-12-23T00:00:00+00:00" />
-		);
-
-		await expect( screen.findByText( /December 23, 2026/ ) ).resolves.toBeInTheDocument();
-		expect( screen.queryByText( /September 1, 2026/ ) ).not.toBeInTheDocument();
-	} );
-
-	test( 'renewal date: reads as an expiry when the purchase does not auto-renew', async () => {
-		// Auto-renew off means the date is the last day of service, not a
-		// renewal — matching My Jetpack and the wpcom subscriptions page.
-		apiFetch.mockResolvedValueOnce( unlimitedPayload() );
-
-		render(
-			<AiOverview
-				{ ...PROPS }
-				planName="Business"
-				planRenewsOn="2026-12-23T00:00:00+00:00"
-				planAutoRenew={ false }
-			/>
-		);
-
-		await expect(
-			screen.findByText( renewalLine( 'Expires on: December 23, 2026' ) )
-		).resolves.toBeInTheDocument();
-		expect( screen.queryByText( /Renews on/ ) ).not.toBeInTheDocument();
-	} );
-
-	test( 'renewal date: an unknown auto-renew state keeps the renewal wording', async () => {
-		// The flag is absent on payloads that predate it; unknown must not be
-		// read as "off", which would mislabel every auto-renewing plan.
-		apiFetch.mockResolvedValueOnce( unlimitedPayload() );
-
-		render(
-			<AiOverview { ...PROPS } planName="Business" planRenewsOn="2026-12-23T00:00:00+00:00" />
-		);
-
-		await expect(
-			screen.findByText( renewalLine( 'Renews on: December 23, 2026' ) )
-		).resolves.toBeInTheDocument();
-	} );
-
-	test( 'renewal date: follows the site timezone, as the other purchase surfaces do', async () => {
-		// @wordpress/date defaults to offset 0 in jest, which would make the
-		// assertion vacuous; pin a UTC-7 site for this test only.
-		const saved = getDateSettings();
-		setDateSettings( {
-			...saved,
-			timezone: { ...saved.timezone, offset: -7, string: '' },
-		} );
-		try {
-			// A UTC-midnight purchase date is still the previous evening on a
-			// western site, and the card names that local day — matching My
-			// Jetpack rather than pinning the date to UTC.
-			apiFetch.mockResolvedValueOnce( unlimitedPayload() );
-			render(
-				<AiOverview { ...PROPS } planName="Business" planRenewsOn="2026-12-23T00:00:00+00:00" />
-			);
-			await expect(
-				screen.findByText( renewalLine( 'Renews on: December 22, 2026' ) )
-			).resolves.toBeInTheDocument();
-		} finally {
-			setDateSettings( saved );
-		}
 	} );
 
 	test( 'sections: headed at level two under the page title', async () => {

@@ -41,11 +41,9 @@ describe( 'normalizeUsage', () => {
 		const usage = normalizeUsage( freePayload() );
 
 		expect( usage.unlimited ).toBe( false );
-		expect( usage.planLabel ).toBe( 'Free' );
 		expect( usage.requestsCount ).toBe( 12 );
 		expect( usage.requestsLimit ).toBe( 20 );
 		expect( usage.requestsAvailable ).toBe( 8 );
-		expect( usage.planLabel ).toBe( 'Free' );
 		expect( usage.showUpgrade ).toBe( true );
 	} );
 
@@ -57,8 +55,6 @@ describe( 'normalizeUsage', () => {
 		expect( usage.requestsCount ).toBe( 340 );
 		expect( usage.requestsLimit ).toBe( 500 );
 		expect( usage.requestsAvailable ).toBe( 160 );
-		// The tier limit is not a plan name — it already shows on the meter.
-		expect( usage.planLabel ).toBeNull();
 	} );
 
 	test( 'over the limit: available never goes negative', () => {
@@ -67,16 +63,13 @@ describe( 'normalizeUsage', () => {
 		expect( usage.requestsAvailable ).toBe( 0 );
 	} );
 
-	test( 'unlimited: no numbers, no derived plan label, no upgrade', () => {
+	test( 'unlimited: no numbers, no upgrade', () => {
 		const usage = normalizeUsage( unlimitedPayload() );
 
 		expect( usage.unlimited ).toBe( true );
 		expect( usage.requestsCount ).toBeNull();
 		expect( usage.requestsLimit ).toBeNull();
 		expect( usage.requestsAvailable ).toBeNull();
-		// The plan name can only come from the purchase; "Unlimited" would
-		// just repeat the requests cell.
-		expect( usage.planLabel ).toBeNull();
 		expect( usage.showUpgrade ).toBe( false );
 	} );
 
@@ -116,7 +109,6 @@ describe( 'normalizeUsage', () => {
 			expect( usage.requestsAvailable ).toBeNull();
 			expect( usage.unlimited ).toBe( false );
 			expect( usage.showUpgrade ).toBe( false );
-			expect( usage.planLabel ).toBeNull();
 		}
 	} );
 } );

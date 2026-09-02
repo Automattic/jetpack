@@ -92,16 +92,10 @@
 		}
 	}
 
-	// The i4 usage card: two equal cells split by a hairline divider —
-	// available requests over the meter, plan beside upgrade/renewal.
+	// The usage card body: the available-requests readout over its meter.
 	&__usage {
 		display: flex;
 		align-items: stretch;
-
-		@media (max-width: 600px) {
-			flex-direction: column;
-			gap: var(--wpds-dimension-gap-lg, 16px);
-		}
 	}
 
 	&__usage-cell {
@@ -111,32 +105,10 @@
 		flex-direction: column;
 		gap: var(--wpds-dimension-gap-sm, 8px);
 
-		// Label stays at the top; value + meter (and plan name + renewal) drop to the
-		// bottom so both cells share a baseline — matches the Figma paid-plan card.
+		// Label stays at the top; the readout drops to the bottom so the cell
+		// shares a baseline with the upsell's right column.
 		.jetpack-ai-overview__eyebrow {
 			margin-block-end: auto;
-		}
-
-		&--plan {
-			// Same rgba as MCP Settings' @wordpress/components Card
-			// (CONFIG.surfaceBorderColor).
-			border-inline-start: 1px solid rgba(0, 0, 0, 0.1);
-			padding-inline-start: var(--wpds-dimension-gap-xl, 24px);
-			margin-inline-start: var(--wpds-dimension-gap-xl, 24px);
-			// Full-height divider: bleed through the card content's padding,
-			// then take the same space back (tracks the ui Card's own token).
-			margin-block: calc(-1 * var(--wp-ui-card-padding, 24px));
-			padding-block: var(--wp-ui-card-padding, 24px);
-
-			@media (max-width: 600px) {
-				// Stacked cells divide with a horizontal rule instead.
-				border-inline-start: none;
-				padding-inline-start: 0;
-				margin-inline-start: 0;
-				margin-block: 0;
-				border-block-start: 1px solid rgba(0, 0, 0, 0.1);
-				padding-block: var(--wpds-dimension-padding-lg, 16px) 0;
-			}
 		}
 	}
 
@@ -198,25 +170,7 @@
 		color: var(--wpds-color-foreground-content-neutral-weak, #707070);
 	}
 
-	// Basis auto, not 0: the name starts from its own width so the renewal
-	// date beside it yields and wraps, rather than squeezing the name.
-	&__plan-name {
-		flex: 1 1 auto;
-	}
-
-	// Capped as in the frame, but only beside a plan name: uncapped the date
-	// claims a full line and the name breaks, while alone it needs no cap.
-	&__plan-name + &__renewal {
-		max-inline-size: 118px;
-	}
-
-	// The frame breaks this line after the label, never inside the date
-	// (AI-Settings node 6021-3997), so the date is a single unbreakable run.
-	&__renewal-date {
-		white-space: nowrap;
-	}
-
-	// The frame gives the requests number a taller line box than the plan name,
+	// The frame gives the requests number a taller line box than body text,
 	// which one shared heading-xl variant cannot express. Two classes, because the
 	// variant's runtime-injected line-height rule outranks a lone class in order.
 	&__upsell &__requests-value,
@@ -288,13 +242,6 @@
 	// (the design system's eyebrow style); only the colour is ours.
 	&__eyebrow {
 		color: var(--wpds-color-foreground-content-neutral-weak, #707070);
-	}
-
-	// Two classes: the Text component's runtime-injected p reset (margin: 0)
-	// otherwise outranks the auto margin by order alone.
-	&__usage &__unlimited {
-		text-transform: uppercase;
-		margin-inline-start: auto;
 	}
 
 	// Doubled class beats the component's runtime-injected rules. ProgressBar

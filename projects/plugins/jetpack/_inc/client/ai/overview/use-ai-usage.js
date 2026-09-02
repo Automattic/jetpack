@@ -42,7 +42,7 @@ export function anchorDateToUtc( value ) {
  * AVAILABLE (limit − used), so that is derived here.
  *
  * @param {object} data - Raw endpoint payload (dash-cased keys).
- * @return {object} { unlimited, isFree, requestsCount, requestsLimit, requestsAvailable, planLabel, showUpgrade }
+ * @return {object} { unlimited, isFree, requestsCount, requestsLimit, requestsAvailable, showUpgrade }
  */
 export function normalizeUsage( data ) {
 	const currentTier = data?.[ 'current-tier' ] ?? null;
@@ -75,18 +75,12 @@ export function normalizeUsage( data ) {
 		! unlimited &&
 		( isFree || Boolean( data?.[ 'next-tier' ] ) || data?.[ 'site-require-upgrade' ] === true );
 
-	// Only a real plan name belongs here. "Free" is one; a tier's limit or
-	// "Unlimited" is not — both just repeat the requests cell — so a paid site
-	// with no purchase name to show leaves this empty.
-	const planLabel = isFree ? __( 'Free', 'jetpack' ) : null;
-
 	return {
 		unlimited,
 		isFree,
 		requestsCount,
 		requestsLimit,
 		requestsAvailable,
-		planLabel,
 		showUpgrade,
 	};
 }
