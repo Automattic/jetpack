@@ -2,22 +2,14 @@
  * External dependencies
  */
 import { PRESET_CUSTOM, type PrimaryPresetId } from '@jetpack-premium-analytics/datetime';
-import { Button, DateRangeCalendar, Icon, Stack } from '@jetpack-premium-analytics/externals';
-import { formatDateRange, formatDateRangeNatural } from '@jetpack-premium-analytics/formatters';
-import { Composite, Dropdown, Tooltip } from '@wordpress/components';
+import { Button, DateRangeCalendar, Stack } from '@jetpack-premium-analytics/externals';
 import { __ } from '@wordpress/i18n';
-import { chevronDown } from '@wordpress/icons';
 import clsx from 'clsx';
-import { useState, useCallback, useRef } from 'react';
+import { useState } from 'react';
 /**
  * Internal dependencies
  */
 import { DateRangeInput } from '../date-range-input';
-import {
-	getCustomTriggerLabel,
-	getCustomTriggerRange,
-	getCustomTriggerState,
-} from './get-custom-trigger-state';
 import './date-range-filter.scss';
 
 /**
@@ -162,145 +154,5 @@ export function DateRangePopoverContent( {
 				canApply={ effectiveCanApply }
 			/>
 		</div>
-	);
-}
-
-type DateRangePopoverProps = DateRangePopoverContentProps & {
-	presetId?: PrimaryPresetId;
-
-	/**
-	 * Applied (committed) range used to label the trigger while the popover is
-	 * closed. Defaults to `range`. Pass the committed range here so closing
-	 * without Apply shows the applied range while `range` keeps the draft.
-	 */
-	appliedRange?: DateRange;
-
-	/**
-	 * Applied (committed) preset used to label the trigger while the popover is
-	 * closed. Defaults to `presetId`.
-	 */
-	appliedPresetId?: PrimaryPresetId;
-
-	/**
-	 * Notifies the parent when the popover opens or closes, so it can mirror the
-	 * draft-while-open / applied-while-closed behavior for related controls
-	 * (e.g. the comparison label that follows the primary range).
-	 */
-	onOpenChange?: ( isOpen: boolean ) => void;
-
-	/**
-	 * Render the trigger as a `Composite.Item` so it joins the roving tabindex
-	 * of a surrounding `Composite` group (the date-filter surface). Leave unset
-	 * when the popover renders standalone.
-	 */
-	triggerAsCompositeItem?: boolean;
-};
-
-export function DateRangePopover( {
-	presetId,
-	range,
-	appliedRange,
-	appliedPresetId,
-	onChange,
-	onApply,
-	onCancel,
-	canApply,
-	timeZone,
-	onOpenChange,
-	isWideScreen = false,
-	triggerAsCompositeItem = false,
-}: DateRangePopoverProps ) {
-	const [ isOpen, setIsOpen ] = useState( false );
-
-	/*
-	 * Apply and Cancel close the popover themselves; every other close
-	 * (outside click, Esc, trigger toggle) must discard the draft like
-	 * Cancel does. The flag tells those closes apart in `onToggle`.
-	 */
-	const closedByActionRef = useRef( false );
-
-	const handleOpenToggle = useCallback(
-		( next: boolean ) => {
-			if ( ! next && ! closedByActionRef.current ) {
-				onCancel();
-			}
-
-			closedByActionRef.current = false;
-			setIsOpen( next );
-			onOpenChange?.( next );
-		},
-		[ onCancel, onOpenChange ]
-	);
-
-	const committedRange = appliedRange ?? range;
-	const triggerState = getCustomTriggerState( {
-		presetId,
-		appliedPresetId,
-		canApply,
-		isOpen,
-	} );
-
-	const triggerLabel = getCustomTriggerLabel( {
-		triggerState,
-		range,
-		committedRange,
-		customLabel: __( 'Custom', 'jetpack-premium-analytics-pkg' ),
-		formatRange: formatDateRangeNatural,
-	} );
-
-	// The label names the period, so its dates need somewhere else to live: the
-	// section header subtitle that used to spell them out is gone (WOOA7S-2027).
-	const triggerRange = getCustomTriggerRange( { triggerState, range, committedRange } );
-
-	return (
-		<Dropdown
-			popoverProps={ {
-				className: 'date-filters-panel__popover',
-			} }
-			onToggle={ handleOpenToggle }
-			renderToggle={ ( { onToggle } ) => {
-				const trigger = (
-					<Button
-						className="date-filters-panel-button"
-						variant="minimal"
-						tone="neutral"
-						onClick={ onToggle }
-						id="date-range-popover-button"
-						data-state={ triggerState }
-					>
-						{ /* Own element so a label too wide for the trigger can ellipsize. */ }
-						<span className="date-filters-panel-button__label">{ triggerLabel }</span>
-						<Icon className="date-filters-panel-button__caret" icon={ chevronDown } size={ 18 } />
-					</Button>
-				);
-
-				const item = triggerAsCompositeItem ? <Composite.Item render={ trigger } /> : trigger;
-
-				return triggerRange ? (
-					<Tooltip text={ formatDateRange( triggerRange ) }>{ item }</Tooltip>
-				) : (
-					item
-				);
-			} }
-			renderContent={ ( { onClose } ) => (
-				<DateRangePopoverContent
-					range={ range }
-					onChange={ onChange }
-					onApply={ () => {
-						closedByActionRef.current = true;
-						onApply();
-						onClose();
-					} }
-					onCancel={ () => {
-						closedByActionRef.current = true;
-						onCancel();
-						onClose();
-					} }
-					canApply={ canApply }
-					isWideScreen={ isWideScreen }
-					timeZone={ timeZone }
-				/>
-			) }
-		/>
 	);
 }
