@@ -91,11 +91,15 @@ class PayPal_Partner_Onboarding {
 
 	/**
 	 * Products to request during onboarding.
-	 * NCPS (Payment Links & Buttons) is bundled within PPCP_STANDARD / EXPRESS_CHECKOUT.
+	 *
+	 * EXPRESS_CHECKOUT demonstrably does NOT grant the Payment Links & Buttons
+	 * API: the scopes on a seller onboarded with it carry no NCPS scope and the
+	 * API answers NOT_AUTHORIZED. Trying PPCP_STANDARD, the other product the
+	 * original claim named.
 	 *
 	 * @var array
 	 */
-	const ONBOARDING_PRODUCTS = array( 'EXPRESS_CHECKOUT' );
+	const ONBOARDING_PRODUCTS = array( 'PPCP_STANDARD' );
 
 	/**
 	 * Features to request during onboarding.
