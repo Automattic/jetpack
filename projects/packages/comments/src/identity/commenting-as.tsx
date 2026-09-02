@@ -19,14 +19,7 @@ export const CommentingAs = () => {
 	const user = identityUser.value;
 	const held = heldCode.value;
 
-	const onLogOut = async ( event: Event ) => {
-		if ( ! user?.isPassport ) {
-			return; // Follow the href to the site's log-out URL.
-		}
-
-		event.preventDefault();
-		await disconnect();
-	};
+	const onLogOut = () => disconnect();
 
 	return user ? (
 		<div className="jetpack-comments__user">
@@ -46,13 +39,16 @@ export const CommentingAs = () => {
 				/>
 			) }
 			<span className="jetpack-comments__user-name">{ user.commentingAs }</span>
-			<a
-				className="jetpack-comments__logout"
-				href={ user.isPassport ? '#' : formSettings.logoutUrl }
-				onClick={ onLogOut }
-			>
-				{ strings.logOut }
-			</a>
+			{ user.isPassport ? (
+				// A button: clearing the cookie happens in place, nothing navigates.
+				<button type="button" className="jetpack-comments__logout" onClick={ onLogOut }>
+					{ strings.logOut }
+				</button>
+			) : (
+				<a className="jetpack-comments__logout" href={ formSettings.logoutUrl }>
+					{ strings.logOut }
+				</a>
+			) }
 		</div>
 	) : null;
 };

@@ -118,16 +118,17 @@ export function needsFreshCode( held: HeldCode ): boolean {
  */
 export function attribution( held: Pick< HeldCode, 'provider' | 'name' | 'avatar' > ): CurrentUser {
 	const { checkpoint, strings } = JetpackComments;
-	const providerLabel = checkpoint.enabled
-		? checkpoint.providers.find( p => p.id === held.provider )?.label
+	const providerName = checkpoint.enabled
+		? checkpoint.providers.find( p => p.id === held.provider )?.name
 		: undefined;
+
+	const name = held.name || providerName || held.provider;
 
 	return {
 		avatarUrl: held.avatar,
-		commentingAs: strings.commentingAs.replace(
-			/%(1\$)?s/,
-			held.name || providerLabel || held.provider
-		),
+		// A function replacement, so a name containing `$1` or `$&` is not
+		// treated as a replacement pattern.
+		commentingAs: strings.commentingAs.replace( /%(1\$)?s/, () => name ),
 		isPassport: true,
 	};
 }

@@ -47,6 +47,11 @@ class Comments {
 	public static function init() {
 		Comment_Form::init();
 		Avatars::init();
-		Checkpoint::init();
+
+		// Guarded like the module file guards this class: on a staged deploy this
+		// file and the checkpoint's can land in either order.
+		if ( class_exists( Checkpoint::class ) ) {
+			Checkpoint::init();
+		}
 	}
 }

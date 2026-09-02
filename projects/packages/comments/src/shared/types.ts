@@ -12,6 +12,8 @@ export type CurrentUser = {
 
 export type CheckpointProvider = {
 	id: string;
+	/** The provider's plain name, e.g. "Google". */
+	name: string;
 	label: string;
 };
 

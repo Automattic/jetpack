@@ -1,7 +1,8 @@
-import { useContext } from 'preact/hooks';
+import { useContext, useState } from 'preact/hooks';
 import { CommentSignals } from '../shared/state';
 import { EmailIcon, NameIcon, WebsiteIcon } from '../ui/icons';
 import { Toggle } from '../ui/toggle';
+import { Disclosure, ProviderButtons } from './checkpoint/provider-buttons';
 import type { Commenter } from '../shared/types';
 
 import '../ui/style.scss';
@@ -16,9 +17,16 @@ import './style.scss';
  */
 export const GuestFields = () => {
 	const { commenter } = useContext( CommentSignals );
-	const { requireNameEmail, showCookiesConsent, strings } = JetpackComments;
+	const { requireNameEmail, showCookiesConsent, strings, checkpoint } = JetpackComments;
 
 	const hasSavedDetails = !! JetpackComments.commenter.email;
+
+	// The fields sit behind the row's mail button, Verbum-style, except where
+	// they cannot: a site that requires name and email keeps them open (a
+	// collapsed required field would block native validation), and a site with
+	// no checkpoint has no row to hide them behind.
+	const hasProviderRow = checkpoint.enabled && checkpoint.providers.length > 0;
+	const [ guestOpen, setGuestOpen ] = useState( requireNameEmail || ! hasProviderRow );
 
 	const update = ( field: keyof Commenter, value: string ) => {
 		commenter.value = { ...commenter.value, [ field ]: value };
@@ -62,39 +70,48 @@ export const GuestFields = () => {
 			<p className="jetpack-comments__prompt">
 				{ requireNameEmail ? strings.guestPromptRequired : strings.guestPrompt }
 			</p>
-			<div className="jetpack-comments__guest">
-				{ fields.map( field => (
-					<label
-						key={ field.name }
-						className="jetpack-comments__guest-field"
-						htmlFor={ field.name }
-					>
-						{ field.icon }
-						<span className="jetpack-comments__visually-hidden">{ field.label }</span>
-						<input
-							id={ field.name }
-							name={ field.name }
-							type={ field.type }
-							autoComplete={ field.autoComplete }
-							required={ field.required }
-							value={ commenter.value[ field.field ] }
-							placeholder={ field.placeholder }
-							onInput={ event => update( field.field, event.currentTarget.value ) }
-						/>
-					</label>
-				) ) }
-				{ showCookiesConsent && (
-					<div className="jetpack-comments__options">
-						<Toggle
-							id="wp-comment-cookies-consent"
-							name="wp-comment-cookies-consent"
-							value="yes"
-							defaultChecked={ hasSavedDetails }
-							label={ strings.saveDetails }
-						/>
+			<ProviderButtons
+				guestOpen={ guestOpen }
+				onGuestClick={ requireNameEmail ? undefined : () => setGuestOpen( ! guestOpen ) }
+			/>
+			<div className={ 'jetpack-comments__guest-reveal' + ( guestOpen ? ' is-open' : '' ) }>
+				<div>
+					<div className="jetpack-comments__guest">
+						{ fields.map( field => (
+							<label
+								key={ field.name }
+								className="jetpack-comments__guest-field"
+								htmlFor={ field.name }
+							>
+								{ field.icon }
+								<span className="jetpack-comments__visually-hidden">{ field.label }</span>
+								<input
+									id={ field.name }
+									name={ field.name }
+									type={ field.type }
+									autoComplete={ field.autoComplete }
+									required={ field.required }
+									value={ commenter.value[ field.field ] }
+									placeholder={ field.placeholder }
+									onInput={ event => update( field.field, event.currentTarget.value ) }
+								/>
+							</label>
+						) ) }
+						{ showCookiesConsent && (
+							<div className="jetpack-comments__options">
+								<Toggle
+									id="wp-comment-cookies-consent"
+									name="wp-comment-cookies-consent"
+									value="yes"
+									defaultChecked={ hasSavedDetails }
+									label={ strings.saveDetails }
+								/>
+							</div>
+						) }
 					</div>
-				) }
+				</div>
 			</div>
+			<Disclosure />
 		</div>
 	);
 };
