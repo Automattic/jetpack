@@ -361,7 +361,7 @@ class Jetpack_Backup {
 			'/has-backup-plan',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => __CLASS__ . '::has_backup_plan',
+				'callback'            => __CLASS__ . '::get_backup_plan_state',
 				'permission_callback' => __CLASS__ . '::backups_permissions_callback',
 			)
 		);
@@ -582,13 +582,12 @@ class Jetpack_Backup {
 		$response = Client::wpcom_json_api_request_as_blog( sprintf( '/sites/%d/rewind', $site_id ) . '?force=wpcom', '2', array( 'timeout' => 5 ), null, 'wpcom' );
 
 		// Cast: `wp_remote_retrieve_response_code()` hands back whatever the
-		// transport put there, and a numeric-string `'200'` fails this
-		// strict comparison. `has_backup_plan()` answers false for a
-		// `WP_Error`, so a site that does have Backup would be told it does
-		// not — and that answer is acted on: it backs the `/has-backup-plan`
-		// route and the standalone-license upsell.
-		if ( 200 !== (int) wp_remote_retrieve_response_code( $response ) ) {
-			return new WP_Error( 'rewind_state_fetch_failed' );
+		// transport put there, and a numeric-string `'200'` fails this strict
+		// comparison.
+		$response_code = (int) wp_remote_retrieve_response_code( $response );
+
+		if ( 200 !== $response_code ) {
+			return self::get_failed_fetch_error( $response_code );
 		}
 
 		$state = json_decode( wp_remote_retrieve_body( $response ) );
@@ -597,7 +596,11 @@ class Jetpack_Backup {
 		// plan. Caching it would hold that answer for the rest of the request;
 		// refusing lets a later caller ask again and get a real one.
 		if ( ! is_object( $state ) || ! isset( $state->state ) ) {
-			return new WP_Error( 'rewind_state_unreadable' );
+			return new WP_Error(
+				'rewind_state_unreadable',
+				esc_html__( 'Unable to read the backup plan details for this site.', 'jetpack-backup-pkg' ),
+				array( 'status' => 500 )
+			);
 		}
 
 		self::$rewind_state = $state;
@@ -605,18 +608,34 @@ class Jetpack_Backup {
 	}
 
 	/**
-	 * Checks whether the current plan (or purchases) of the site already supports the product
+	 * Checks whether the site supports the product, reporting an unreadable answer as an error.
 	 *
-	 * @return boolean
+	 * @since $$next-version$$
+	 *
+	 * @return bool|WP_Error True when the site has Backup, or a WP_Error if WordPress.com could not be read.
 	 */
-	public static function has_backup_plan() {
+	public static function get_backup_plan_state() {
 		$rewind_data = static::get_rewind_state_from_wpcom();
 
 		if ( is_wp_error( $rewind_data ) ) {
-			return false;
+			return $rewind_data;
 		}
 
 		return 'unavailable' !== $rewind_data->state;
+	}
+
+	/**
+	 * Checks whether the current plan (or purchases) of the site already supports the product
+	 *
+	 * Answers a plan it could not read as absent, which is the one place that
+	 * decision is made for every `bool` caller.
+	 *
+	 * @return bool
+	 */
+	public static function has_backup_plan() {
+		$state = static::get_backup_plan_state();
+
+		return ! is_wp_error( $state ) && $state;
 	}
 
 	/**
