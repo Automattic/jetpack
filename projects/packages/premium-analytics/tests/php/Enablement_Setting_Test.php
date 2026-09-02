@@ -53,7 +53,6 @@ class Enablement_Setting_Test extends BaseTestCase {
 		delete_option( Enablement_Setting::ENABLED_OPTION );
 		unregister_setting( 'general', Enablement_Setting::ENABLED_OPTION );
 		remove_all_filters( 'jetpack_premium_analytics_enabled' );
-		remove_all_filters( 'rest_pre_get_setting' );
 		remove_action( 'rest_api_init', array( Enablement_Setting::class, 'register' ) );
 		remove_action( 'rest_api_init', array( $this, 'register_core_settings_route' ), 99 );
 		wp_set_current_user( 0 );
@@ -134,19 +133,17 @@ class Enablement_Setting_Test extends BaseTestCase {
 	}
 
 	/**
-	 * A sticker we set overrides the opt-in and turns the dashboard on without touching the option.
-	 * The hosts answer that through the filter, and the read has to report it - otherwise a client
-	 * invites someone to switch on what they already have.
+	 * An override such as our rollout sticker turns the dashboard on without touching the opt-in,
+	 * and the read stays with the opt-in - so this agrees with `/sites/$site/option` and Sync,
+	 * which read the option directly. Whether the dashboard actually booted is `analytics.enabled`
+	 * in script data, not this.
 	 */
-	public function test_get_reports_enabled_when_a_host_answers_the_filter() {
+	public function test_get_reports_the_opt_in_not_an_override() {
 		$this->log_in_as_admin();
 		add_filter( 'jetpack_premium_analytics_enabled', '__return_true' );
 
-		$this->assertTrue( $this->get_settings()->get_data()[ Enablement_Setting::ENABLED_OPTION ] );
-	}
-
-	public function test_the_filter_leaves_other_settings_alone() {
-		$this->assertSame( 'untouched', Enablement_Setting::report_effective_value( 'untouched', 'blogname' ) );
+		$this->assertFalse( $this->get_settings()->get_data()[ Enablement_Setting::ENABLED_OPTION ] );
+		$this->assertFalse( (bool) get_option( Enablement_Setting::ENABLED_OPTION ) );
 	}
 
 	public function test_post_enables_the_dashboard_by_writing_the_option() {
@@ -171,16 +168,16 @@ class Enablement_Setting_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The override only points one way: the option cannot switch off a site we have stickered on,
-	 * so the response has to report the dashboard is still up rather than echoing back the request.
+	 * Writing reports back what was written, even where an override is forcing the dashboard on -
+	 * the write addresses the opt-in, so the response has to describe the opt-in.
 	 */
-	public function test_post_reports_the_dashboard_is_still_on_when_a_host_forces_it() {
+	public function test_post_reports_what_it_wrote_under_an_override() {
 		$this->log_in_as_admin();
 		add_filter( 'jetpack_premium_analytics_enabled', '__return_true' );
 
 		$response = $this->post_enabled( false );
 
-		$this->assertTrue( $response->get_data()[ Enablement_Setting::ENABLED_OPTION ] );
+		$this->assertFalse( $response->get_data()[ Enablement_Setting::ENABLED_OPTION ] );
 		$this->assertFalse( (bool) get_option( Enablement_Setting::ENABLED_OPTION ) );
 	}
 
@@ -201,18 +198,17 @@ class Enablement_Setting_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Both hosts may register, so a second call must not leave a second copy of the read filter
-	 * behind - the value would still be right, but it would be resolved twice per read.
+	 * Both hosts may register, so a second call has to leave a single, unchanged declaration.
 	 */
 	public function test_register_is_idempotent() {
 		Enablement_Setting::register();
 		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Intentional: testing that a second call is a no-op.
 		Enablement_Setting::register();
 
-		$this->assertCount(
-			1,
-			$GLOBALS['wp_filter']['rest_pre_get_setting'][10],
-			'register() should collapse onto one rest_pre_get_setting callback.'
-		);
+		$registered = get_registered_settings();
+
+		$this->assertArrayHasKey( Enablement_Setting::ENABLED_OPTION, $registered );
+		$this->assertSame( 'boolean', $registered[ Enablement_Setting::ENABLED_OPTION ]['type'] );
+		$this->assertTrue( $registered[ Enablement_Setting::ENABLED_OPTION ]['show_in_rest'] );
 	}
 }

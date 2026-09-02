@@ -33,7 +33,6 @@ class Jetpack_Premium_Analytics_Test extends WP_UnitTestCase {
 	public function tear_down() {
 		delete_option( 'jetpack_premium_analytics_enabled' );
 		unregister_setting( 'general', 'jetpack_premium_analytics_enabled' );
-		remove_all_filters( 'rest_pre_get_setting' );
 		self::reset_flag_cache();
 		remove_action( 'jetpack_admin_menu', 'stats_admin_menu' );
 		parent::tear_down();

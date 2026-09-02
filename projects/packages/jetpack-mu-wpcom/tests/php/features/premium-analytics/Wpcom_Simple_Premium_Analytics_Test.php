@@ -20,7 +20,6 @@ class Wpcom_Simple_Premium_Analytics_Test extends \WorDBless\BaseTestCase {
 	public function tear_down() {
 		remove_all_filters( 'jetpack_premium_analytics_wpcom_simple_enabled' );
 		unregister_setting( 'general', 'jetpack_premium_analytics_enabled' );
-		remove_all_filters( 'rest_pre_get_setting' );
 		\Mockery::close();
 
 		parent::tear_down();
