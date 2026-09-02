@@ -1,0 +1,94 @@
+diff --git a/build-module/components/widgets/widgets.mjs b/build-module/components/widgets/widgets.mjs
+index cd6abf0ea9f1762b99e736019ebbf9534ad3df6f..052013030bc4ebe3b79a7348be8226bf20c5b948 100644
+--- a/build-module/components/widgets/widgets.mjs
++++ b/build-module/components/widgets/widgets.mjs
+@@ -149,7 +149,7 @@ function applyMasonryChange(widgets, masonryLayout) {
+ var Widgets = forwardRef(
+   function Widgets2({ className }, ref) {
+     const { layout, onLayoutChange, editMode, gridSettings, widgetTypes } = useDashboardInternalContext();
+-    const { containerRef, columnCount } = useDashboardContainerColumnCount(ref);
++    const { containerRef, columnCount } = useDashboardContainerColumnCount(ref, gridSettings.columns);
+     const isMasonry = gridSettings.model === "masonry";
+     const gridLayout = useMemo(
+       () => isMasonry ? toMasonryLayout(layout) : toGridLayout(layout),
+diff --git a/build-module/context/dashboard-context.mjs b/build-module/context/dashboard-context.mjs
+index 951f7974dc424ec1686b60d5a845b7ec1b71deee..f31369c9db7152ee259285a756f8cdc9be925235 100644
+--- a/build-module/context/dashboard-context.mjs
++++ b/build-module/context/dashboard-context.mjs
+@@ -12,13 +12,13 @@ import {
+ import { DEFAULT_GRID } from "../utils/default-grid/index.mjs";
+ import { normalizeGridSettings } from "../utils/normalize-grid-settings/index.mjs";
+ import { DEFAULT_ROW_HEIGHT } from "../utils/row-height-presets/index.mjs";
+-import { WIDGET_DASHBOARD_COLUMN_COUNT } from "../types.mjs";
++import { resolveDashboardColumnCap } from "../utils/resolve-dashboard-column-count/resolve-dashboard-column-count.mjs";
+ import { jsx } from "react/jsx-runtime";
+ function resolveGridSettings(settings) {
+   const normalized = normalizeGridSettings(settings, DEFAULT_ROW_HEIGHT);
+   return {
+     ...normalized,
+-    columns: WIDGET_DASHBOARD_COLUMN_COUNT
++    columns: resolveDashboardColumnCap(normalized.columns)
+   };
+ }
+ var DEFAULT_RESOLVE_WIDGET_MODULE = (moduleId) => import(
+diff --git a/build-module/hooks/use-dashboard-container-column-count.mjs b/build-module/hooks/use-dashboard-container-column-count.mjs
+index 59739ebc270b2f78288778ddb30c748c4ee9d760..9bc140770afa8160190d3ae9fadcf9c8b83b180c 100644
+--- a/build-module/hooks/use-dashboard-container-column-count.mjs
++++ b/build-module/hooks/use-dashboard-container-column-count.mjs
+@@ -6,7 +6,7 @@ import {
+   useState
+ } from "@wordpress/element";
+ import { resolveDashboardColumnCount } from "../utils/resolve-dashboard-column-count/resolve-dashboard-column-count.mjs";
+-function useDashboardContainerColumnCount(forwardedRef) {
++function useDashboardContainerColumnCount(forwardedRef, maxColumns) {
+   const [container, setContainer] = useState(
+     null
+   );
+@@ -29,8 +29,8 @@ function useDashboardContainerColumnCount(forwardedRef) {
+     }
+   }, [container]);
+   const columnCount = useMemo(
+-    () => resolveDashboardColumnCount(containerWidth),
+-    [containerWidth]
++    () => resolveDashboardColumnCount(containerWidth, maxColumns),
++    [containerWidth, maxColumns]
+   );
+   return { containerRef, columnCount };
+ }
+diff --git a/build-module/utils/resolve-dashboard-column-count/resolve-dashboard-column-count.mjs b/build-module/utils/resolve-dashboard-column-count/resolve-dashboard-column-count.mjs
+index 74d868f330fb8abe268a1ba9133c2a935423453e..87f4ab1dbb1e91cee0191113ae4b1393408de9e2 100644
+--- a/build-module/utils/resolve-dashboard-column-count/resolve-dashboard-column-count.mjs
++++ b/build-module/utils/resolve-dashboard-column-count/resolve-dashboard-column-count.mjs
+@@ -2,21 +2,28 @@
+ import { WIDGET_DASHBOARD_COLUMN_COUNT } from "../../types.mjs";
+ var WIDGET_DASHBOARD_CONTAINER_BREAKPOINT_ONE_COLUMN = 600;
+ var WIDGET_DASHBOARD_CONTAINER_BREAKPOINT_TWO_COLUMNS = 960;
+-function resolveDashboardColumnCount(containerWidth) {
+-  if (containerWidth <= 0) {
++function resolveDashboardColumnCap(columns) {
++  if (typeof columns !== "number" || !Number.isFinite(columns)) {
+     return WIDGET_DASHBOARD_COLUMN_COUNT;
+   }
++  return Math.max(1, Math.floor(columns));
++}
++function resolveDashboardColumnCount(containerWidth, maxColumns = WIDGET_DASHBOARD_COLUMN_COUNT) {
++  if (containerWidth <= 0) {
++    return maxColumns;
++  }
+   if (containerWidth < WIDGET_DASHBOARD_CONTAINER_BREAKPOINT_ONE_COLUMN) {
+     return 1;
+   }
+   if (containerWidth < WIDGET_DASHBOARD_CONTAINER_BREAKPOINT_TWO_COLUMNS) {
+-    return 2;
++    return Math.min(2, maxColumns);
+   }
+-  return WIDGET_DASHBOARD_COLUMN_COUNT;
++  return maxColumns;
+ }
+ export {
+   WIDGET_DASHBOARD_CONTAINER_BREAKPOINT_ONE_COLUMN,
+   WIDGET_DASHBOARD_CONTAINER_BREAKPOINT_TWO_COLUMNS,
++  resolveDashboardColumnCap,
+   resolveDashboardColumnCount
+ };
+ //# sourceMappingURL=resolve-dashboard-column-count.mjs.map

@@ -92,3 +92,4 @@ patchedDependencies:
   # which those older cores' Boot uses to size the page to the viewport; 0.22.0
   # dropped it and WordPress/gutenberg#82112 (unreleased) brings it back.
   "@wordpress/build": .pnpm-patches/@wordpress__build.patch
+  '@wordpress/widget-dashboard@0.6.0': patches/@wordpress__widget-dashboard@0.6.0.patch

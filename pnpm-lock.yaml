@@ -8,6 +8,7 @@ pnpmfileChecksum: sha256-VRvjPmGq26AU6Fidh+srJr4fdsSatw7il3tOD8w8tP8=
 
 patchedDependencies:
   '@wordpress/build': 6f3fbefb10df6ce84b2e3c307e3894b697d87a888315abc805b6ff67bf7de635
+  '@wordpress/widget-dashboard@0.6.0': ac05e49b4316ed6d22f0a0319db05c27e246b9415dcabf612465c13d6f917e8a
   react-autosize-textarea: 5c09e1dee59caaaba3871f9d722f93e56b41169db486b059597e8f8c788aa464
 
 importers:
@@ -4123,7 +4124,7 @@ importers:
         version: 4.54.0
       '@wordpress/widget-dashboard':
         specifier: 0.6.0
-        version: 0.6.0(@date-fns/tz@1.4.1)(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 0.6.0(patch_hash=ac05e49b4316ed6d22f0a0319db05c27e246b9415dcabf612465c13d6f917e8a)(@date-fns/tz@1.4.1)(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/widget-primitives':
         specifier: 0.6.0
         version: 0.6.0(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -31384,7 +31385,7 @@ snapshots:
 
   '@wordpress/warning@3.54.0': {}
 
-  '@wordpress/widget-dashboard@0.6.0(@date-fns/tz@1.4.1)(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@wordpress/widget-dashboard@0.6.0(patch_hash=ac05e49b4316ed6d22f0a0319db05c27e246b9415dcabf612465c13d6f917e8a)(@date-fns/tz@1.4.1)(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@wordpress/commands': 1.54.0(@date-fns/tz@1.4.1)(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/components': 40.0.0(@date-fns/tz@1.4.1)(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
