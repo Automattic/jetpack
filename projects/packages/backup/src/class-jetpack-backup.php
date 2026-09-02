@@ -133,9 +133,7 @@ class Jetpack_Backup {
 	/**
 	 * Rewind state read from WordPress.com, memoized for the request.
 	 *
-	 * A class property and not a function static so tests can clear it. Only a
-	 * readable response is stored, so nothing a later call could improve on
-	 * sticks for the rest of the request.
+	 * A class property and not a function static so tests can clear it.
 	 *
 	 * @var object|null
 	 */
@@ -569,9 +567,8 @@ class Jetpack_Backup {
 	/**
 	 * Hits the wpcom api to check rewind status.
 	 *
-	 * No timeout override. It used to be 2 seconds, roughly twice a healthy
-	 * round trip, so ordinary latency answered as a failed read; every other
-	 * WordPress.com call in this class takes the default.
+	 * Bounded well clear of a healthy round trip; `Client`'s 10s default is too
+	 * long for the synchronous `authorize_redirect` this sits on.
 	 *
 	 * @return object|WP_Error The decoded rewind state, or a WP_Error if WordPress.com could not be read.
 	 */
@@ -582,7 +579,7 @@ class Jetpack_Backup {
 
 		$site_id = Jetpack_Options::get_option( 'id' );
 
-		$response = Client::wpcom_json_api_request_as_blog( sprintf( '/sites/%d/rewind', $site_id ) . '?force=wpcom', '2', array(), null, 'wpcom' );
+		$response = Client::wpcom_json_api_request_as_blog( sprintf( '/sites/%d/rewind', $site_id ) . '?force=wpcom', '2', array( 'timeout' => 5 ), null, 'wpcom' );
 
 		// Cast: `wp_remote_retrieve_response_code()` hands back whatever the
 		// transport put there, and a numeric-string `'200'` fails this
@@ -609,10 +606,6 @@ class Jetpack_Backup {
 
 	/**
 	 * Checks whether the current plan (or purchases) of the site already supports the product
-	 *
-	 * Reads rewind *state* with a blog token rather than the capability list
-	 * `REST\Capabilities_Bridge` reads: `/rewind/capabilities` answers 401 to a
-	 * blog token, and every caller here asks before a user connection exists.
 	 *
 	 * @return boolean
 	 */

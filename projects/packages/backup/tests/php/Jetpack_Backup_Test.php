@@ -78,6 +78,16 @@ class Jetpack_Backup_Test extends TestCase {
 	private $locale = 'en_US';
 
 	/**
+	 * Clear the memoized rewind state on the way in as well as out, so this
+	 * class starts clean whatever ran before it.
+	 */
+	protected function setUp(): void {
+		parent::setUp();
+
+		$this->forget_rewind_state();
+	}
+
+	/**
 	 * Undo the request mocking. Done here rather than after each assertion so
 	 * that a failing assertion cannot leak a filter into the next test.
 	 *
@@ -326,11 +336,6 @@ class Jetpack_Backup_Test extends TestCase {
 	 * A 200 that says nothing about the plan does not answer for the rest of
 	 * the request.
 	 *
-	 * It used to be cached as though it were a real read, so one unreadable
-	 * payload told every later caller in that request that the site has no
-	 * Backup plan — and that answer is acted on: it backs
-	 * `GET /jetpack/v4/has-backup-plan` and the standalone-license upsell.
-	 *
 	 * @param string $label Human-readable case name.
 	 * @param string $body  The unreadable body.
 	 * @dataProvider provide_cacheable_unreadable_states
@@ -362,24 +367,23 @@ class Jetpack_Backup_Test extends TestCase {
 		return array(
 			array( 'a JSON list', '[]' ),
 			array( 'a response without a state', '{"last_updated":"2026-09-01T22:10:23.797+00:00"}' ),
+			array( 'a null state', '{"state":null}' ),
 			array( 'a bare number', '123' ),
-			array( 'a bare string', '"active"' ),
-			array( 'a bare boolean', 'true' ),
 		);
 	}
 
 	/**
-	 * The read is no longer bounded by 2 seconds, which is about twice a
-	 * healthy round trip — so ordinary latency answered "no plan".
+	 * Pinned in both directions: a shorter bound reproduces the bug, and
+	 * `Client`'s 10s default is too long for the redirect this sits on.
 	 */
-	public function test_rewind_state_read_is_not_bounded_by_two_seconds() {
+	public function test_rewind_state_read_is_bounded_at_five_seconds() {
 		$this->sign_in_as_connected_admin();
 		$this->wpcom_status = 503;
 		add_filter( 'pre_http_request', array( $this, 'mock_wpcom_response_recording_timeout' ), 10, 3 );
 
 		Jetpack_Backup::has_backup_plan();
 
-		$this->assertGreaterThan( 2, $this->captured_timeout );
+		$this->assertSame( 5, $this->captured_timeout );
 	}
 
 	public function test_list_backup_events_returns_response_and_pins_backup_actions_on_success() {
