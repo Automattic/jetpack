@@ -17,7 +17,6 @@ const setupFeatures = ( ...active ) => {
 	} );
 };
 
-// A WordPress.com Simple site without the paid features.
 const setupSimpleSite = () => {
 	mockScriptData( {
 		site: { host: 'wpcom', suffix: 'example.wordpress.com', plan: { features: { active: [] } } },

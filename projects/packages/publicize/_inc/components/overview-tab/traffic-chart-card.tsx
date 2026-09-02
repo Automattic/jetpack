@@ -97,8 +97,6 @@ export default function TrafficChartCard(): JSX.Element {
 			} );
 	}
 
-	// Only Simple sites know which plan they need; everywhere else the redirect
-	// service picks the product, so the copy stays plan-agnostic.
 	const planName = getUpgradePlanName();
 	const genericUpgradeText = __(
 		'Upgrade to see which social networks are driving visits to your site, day by day.',

@@ -37,8 +37,7 @@ export function hasAdminUiV2() {
 }
 
 /**
- * Get the plan a site needs to buy to unlock Social's paid features. Only Simple sites
- * get one; everywhere else the Jetpack redirect service resolves the product itself.
+ * Read the upgrade payload the server attaches for Simple sites.
  *
  * @return The upgrade details, or null when the site has no such upgrade path.
  */
@@ -47,7 +46,7 @@ function getSocialUpgrade(): SocialUpgrade | null {
 }
 
 /**
- * Get the short name ("Business") of the plan that unlocks Social's paid features.
+ * Get the short name of the plan that unlocks Social's paid features.
  *
  * @return The plan name, or null when it isn't known.
  */
@@ -58,9 +57,8 @@ export function getUpgradePlanName(): string | null {
 /**
  * Build the upgrade URL for a WordPress.com Simple site.
  *
- * Simple sites can't buy the standalone Jetpack Social plan — checkout rejects it as
- * incompatible — so they go to the WordPress.com plans page instead. Null everywhere
- * else, where the caller keeps using the Jetpack redirect service.
+ * WordPress.com checkout rejects the standalone Jetpack Social plan the redirect
+ * service points at, so Simple sites go to the plans page instead.
  *
  * @param feature    - Feature slug, tagged onto the URL so the upsell is attributable.
  * @param redirectTo - Absolute URL to return to once the upgrade is done.

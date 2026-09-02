@@ -12,8 +12,6 @@ import { getSimpleSiteUpgradeUrl, getUpgradePlanName } from '../../utils/script-
  * @return The UpgradeNotice component.
  */
 export function UpgradeNotice() {
-	// Simple sites can't buy the standalone Jetpack Social plan the redirect service
-	// points at, so they go to the WordPress.com plans page.
 	const redirectUrl =
 		getSimpleSiteUpgradeUrl( features.ENHANCED_PUBLISHING, window.location.href ) ??
 		getRedirectUrl( 'jetpack-social-basic-plan-block-editor', {

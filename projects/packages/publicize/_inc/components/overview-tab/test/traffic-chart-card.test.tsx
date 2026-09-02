@@ -43,22 +43,12 @@ function stubStore() {
 	);
 }
 
-/**
- * A WordPress.com Simple site without Social's paid features.
- *
- * @return The installed script data.
- */
 const setupSimpleSite = () =>
 	mockScriptData( {
 		site: { host: 'wpcom', suffix: 'example.wordpress.com', plan: { features: { active: [] } } },
 		social: { upgrade: { plan_slug: 'business-bundle', plan_name: 'Business' } },
 	} );
 
-/**
- * A self-hosted Jetpack site without Social's paid features.
- *
- * @return The installed script data.
- */
 const setupSelfHostedSite = () =>
 	mockScriptData( {
 		site: { host: 'unknown', suffix: 'example.com', plan: { features: { active: [] } } },

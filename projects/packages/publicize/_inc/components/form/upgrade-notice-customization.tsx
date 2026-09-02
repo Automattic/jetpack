@@ -19,8 +19,6 @@ export function UpgradeNoticeCustomization() {
 		recordEvent( 'jetpack_social_per_network_customization_upgrade_click' );
 	}, [ recordEvent ] );
 
-	// Simple sites can't buy the standalone Jetpack Social plan the redirect service
-	// points at, so they go to the WordPress.com plans page.
 	const redirectUrl =
 		getSimpleSiteUpgradeUrl( features.ENHANCED_PUBLISHING, window.location.href ) ??
 		getRedirectUrl( 'jetpack-social-basic-plan-block-editor', {

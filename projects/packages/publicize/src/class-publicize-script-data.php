@@ -154,13 +154,10 @@ class Publicize_Script_Data {
 	}
 
 	/**
-	 * Get the plan a WordPress.com Simple site needs to unlock Social's paid features.
+	 * Get the plan a site needs to unlock Social's paid features.
 	 *
-	 * Simple sites can't buy the standalone Jetpack Social plan the redirect service
-	 * points at, so the UI sends them to the WordPress.com plans page and names the plan
-	 * that does work. Null everywhere else, which also keeps the uncached
-	 * `Plans::get_plan_short_name()` lookup off a path the block editor runs on every
-	 * post edit.
+	 * Null off Simple, which keeps the uncached `Plans::get_plan_short_name()` lookup
+	 * away from a path the block editor runs on every post edit.
 	 *
 	 * @return array|null The plan slug and short name, or null when there's nothing to upsell.
 	 */
