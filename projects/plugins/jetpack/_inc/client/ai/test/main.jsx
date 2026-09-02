@@ -93,14 +93,12 @@ beforeEach( () => {
 	jest.spyOn( window, 'scrollTo' ).mockImplementation();
 	apiFetch.mockReset();
 	analytics.tracks.recordEvent.mockClear();
-	// The suite renders as an internal tester by default so the Features view
-	// is reachable; the a11n-gate tests below override this per test.
+	// The suite renders with the host-gated Features view available by default.
 	window.jetpackAiSettings = { showFeaturesView: true };
 	window.location.hash = '#/features';
 } );
 
 afterEach( () => {
-	// Tests that exercise the internal-testing flag set this global.
 	delete window.jetpackAiSettings;
 	delete window.__agentsManagerActions;
 	// The @wordpress/notices store is module-global: drain it so a snackbar
@@ -206,11 +204,7 @@ describe( 'AI admin page (main.jsx)', () => {
 	} );
 
 	test( 'internal-testing flag: every gated tab carries an A12s only badge', async () => {
-		// Overview and Features are both gated to internal testing environments;
-		// when the injected flag says we are in one, each tab must say so —
-		// Automatticians should not mistake either view for public UI. MCP
-		// Settings ships publicly, so it must not be labelled.
-		window.jetpackAiSettings = { showFeaturesView: true };
+		window.jetpackAiSettings = { showFeaturesView: true, showA12sBadge: true };
 		mockApiFetch();
 
 		render( <App /> );
@@ -247,20 +241,13 @@ describe( 'AI admin page (main.jsx)', () => {
 		delete window.__agentsManagerActions;
 	} );
 
-	test( 'no internal-testing flag: no A12s only badge renders', async () => {
-		// Without the flag the gate hides the Features view entirely (MCP-only
-		// shape), so the internal-testing label must not appear anywhere.
-		window.jetpackAiSettings = {};
+	test( 'public self-hosted views have no A12s only badge', async () => {
+		window.jetpackAiSettings = { showFeaturesView: true, showA12sBadge: false };
 		mockApiFetch();
 
 		render( <App /> );
 
-		await expect(
-			screen.findByText(
-				'This site is not connected to WordPress.com. Please connect Jetpack to manage MCP settings.',
-				IGNORE_A11Y
-			)
-		).resolves.toBeInTheDocument();
+		await expect( screen.findByText( 'Writing Assistant' ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByText( 'A12s only' ) ).not.toBeInTheDocument();
 	} );
 
@@ -442,7 +429,7 @@ describe( 'AI admin page (main.jsx)', () => {
 		expect( screen.queryByRole( 'button', { name: 'AI' } ) ).not.toBeInTheDocument();
 	} );
 
-	test( 'a11n gate: without showFeaturesView the page is MCP-only with no tab bar', async () => {
+	test( 'host gate: without showFeaturesView the page is MCP-only with no tab bar', async () => {
 		window.jetpackAiSettings = {};
 		window.location.hash = '';
 		mockApiFetch();
@@ -459,14 +446,14 @@ describe( 'AI admin page (main.jsx)', () => {
 		).resolves.toBeInTheDocument();
 
 		// No Features UI and no tab bar (a single tab renders no tabs at all).
-		expect( screen.queryByText( 'WordPress Agent' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( 'AI Features' ) ).not.toBeInTheDocument();
 		expect( screen.queryByText( 'MCP Settings' ) ).not.toBeInTheDocument();
 		expect(
 			screen.queryByRole( 'checkbox', { name: /Writing Assistant/ } )
 		).not.toBeInTheDocument();
 	} );
 
-	test( 'a11n gate: a #/features deep link falls back to the MCP view when gated', async () => {
+	test( 'host gate: a #/features deep link falls back to the MCP view when gated', async () => {
 		window.jetpackAiSettings = {};
 		window.location.hash = '#/features';
 		mockApiFetch();
@@ -484,7 +471,7 @@ describe( 'AI admin page (main.jsx)', () => {
 		).not.toBeInTheDocument();
 	} );
 
-	test( 'a11n gate: with showFeaturesView the tab bar shows and Overview is the default view', async () => {
+	test( 'host gate: with showFeaturesView the tab bar shows and Overview is the default view', async () => {
 		// Connected, so the Overview usage card renders rather than the
 		// not-connected notice.
 		window.jetpackAiSettings = { showFeaturesView: true, blogId: 1 };
@@ -499,7 +486,7 @@ describe( 'AI admin page (main.jsx)', () => {
 			screen.findByText( 'Available requests', IGNORE_A11Y )
 		).resolves.toBeInTheDocument();
 		expect( screen.getByText( 'Overview' ) ).toBeInTheDocument();
-		expect( screen.getByText( 'WordPress Agent' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'AI Features' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'MCP Settings' ) ).toBeInTheDocument();
 		expect(
 			screen.queryByRole( 'checkbox', { name: /Writing Assistant/ } )
