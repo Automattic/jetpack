@@ -3027,6 +3027,14 @@ p {
 	const AI_MASTER_OPTOUT_MIGRATED_OPTION = 'jetpack_ai_master_optout_migrated';
 
 	/**
+	 * Option flag that records the repair of an `ai` module a General settings save
+	 * switched off has run, so it never runs twice.
+	 *
+	 * @var string
+	 */
+	const AI_MODULE_WIPE_REPAIRED_OPTION = 'jetpack_ai_module_wipe_repaired';
+
+	/**
 	 * Register the on-upgrade init hooks whose relative ORDER matters, extracted so
 	 * the ordering can be asserted in tests without invoking plugin_upgrade() (whose
 	 * guards make it unreliable to trigger under test). activate_new_modules()
@@ -3039,6 +3047,7 @@ p {
 	public static function register_upgrade_init_hooks() {
 		add_action( 'init', array( __CLASS__, 'activate_new_modules' ) );
 		add_action( 'init', array( __CLASS__, 'reconcile_ai_master_optout' ), 20 );
+		add_action( 'init', array( __CLASS__, 'repair_ai_module_deactivated_by_wipe' ), 30 );
 	}
 
 	/**
@@ -3048,9 +3057,9 @@ p {
 	 * The `ai` module is "Auto Activate: Yes", so on upgrade {@see self::activate_new_modules()}
 	 * turns it on for connected sites — the desired default-on / auto-enable-on-connection
 	 * behavior, which this method deliberately leaves alone. The one case it corrects is a site
-	 * that had explicitly disabled Jetpack AI (the `jetpack_ai_enabled` option present and falsey)
-	 * before the module shipped: that opt-out must survive the module becoming the master, so the
-	 * module is deactivated for exactly those sites. An absent or truthy option is left untouched.
+	 * that had explicitly disabled Jetpack AI before the module shipped, which stores `jetpack_ai_enabled`
+	 * as '0': that opt-out must survive the module becoming the master, so the module is deactivated
+	 * for exactly those sites. An absent, truthy, or emptied option is left untouched.
 	 *
 	 * Ordering is the whole point. `activate_new_modules()` is hooked on `init` at priority 10 and
 	 * auto-activates the module there; this method is hooked on `init` at priority 20 (see
@@ -3077,13 +3086,64 @@ p {
 		}
 
 		// A sentinel default distinguishes an absent option (leave auto-activation alone) from one
-		// explicitly stored falsey (an opt-out to preserve).
+		// explicitly stored falsey (an opt-out to preserve). An empty string is neither: it is what
+		// a Settings > General save left behind while these options shared the General group.
 		$stored = get_option( 'jetpack_ai_enabled', 'not-set' );
-		if ( 'not-set' !== $stored && ! (bool) $stored ) {
+		if ( 'not-set' !== $stored && '' !== (string) $stored && ! (bool) $stored ) {
 			( new Modules() )->deactivate( 'ai' );
 		}
 
 		update_option( self::AI_MASTER_OPTOUT_MIGRATED_OPTION, true );
+	}
+
+	/**
+	 * Reactivates an `ai` module that {@see self::reconcile_ai_master_optout()} switched off
+	 * after a Settings > General save emptied the master option.
+	 *
+	 * Until the AI options moved to their own settings group, submitting Settings > General
+	 * wrote null over `jetpack_ai_enabled`, and null stores as an empty string. Off
+	 * WordPress.com Simple the reconciliation read that row as an explicit opt-out and
+	 * deactivated the module, leaving Jetpack AI off on sites that never chose it. The
+	 * reconciliation now ignores an empty row, so this repairs the sites it already reached.
+	 *
+	 * The fingerprint is deliberately narrow — an emptied row, the reconciliation already
+	 * spent on it, and no stored `ai` module. A real opt-out stores '0', never '', so it is
+	 * left alone. The stored module list is read directly rather than through
+	 * `Modules::is_active()`, because the Atomic shim filters `ai` into the reported list
+	 * without storing it and would hide exactly the sites that need repairing.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public static function repair_ai_module_deactivated_by_wipe() {
+		if ( get_option( self::AI_MODULE_WIPE_REPAIRED_OPTION ) ) {
+			return;
+		}
+
+		// Simple keeps the option as the master and runs no modules; jetpack-mu-wpcom repairs it.
+		if ( ( new Host() )->is_wpcom_simple() ) {
+			return;
+		}
+
+		// Cast: a same-request write caches the sanitized false, not the stored ''.
+		if ( '' !== (string) get_option( 'jetpack_ai_enabled', 'not-set' ) ) {
+			return;
+		}
+
+		// Without the reconciliation having run, the module is off for some other reason.
+		if ( ! get_option( self::AI_MASTER_OPTOUT_MIGRATED_OPTION ) ) {
+			return;
+		}
+
+		$stored = (array) Jetpack_Options::get_option( 'active_modules', array() );
+		if ( ! in_array( 'ai', $stored, true ) ) {
+			$stored[] = 'ai';
+			( new Modules() )->update_active( $stored );
+			delete_option( 'jetpack_ai_enabled' );
+		}
+
+		update_option( self::AI_MODULE_WIPE_REPAIRED_OPTION, true );
 	}
 
 	/**

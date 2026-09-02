@@ -6,7 +6,7 @@
  * Simple, it is "Auto Activate: Yes", so activate_new_modules() turns it on for
  * connected sites on upgrade — the desired default-on / auto-enable behavior.
  * The one thing that must not happen is silently re-enabling AI on a site that
- * had explicitly opted out (the jetpack_ai_enabled option present and falsey).
+ * had explicitly opted out (the jetpack_ai_enabled option stored as '0').
  * {@see Jetpack::reconcile_ai_master_optout()} runs at a later init priority than
  * the auto-activation and deactivates the module for exactly those sites.
  *
@@ -49,12 +49,25 @@ class Jetpack_AI_Master_Optout_Migration_Test extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * Store the opt-out the way a site made it before the option was registered: with no
+	 * sanitize callback in the way, a falsey write lands as '0'. Once the setting is
+	 * registered, rest_sanitize_boolean turns every falsey write into '' instead, so a test
+	 * that just called update_option() here would exercise the emptied-row path by mistake.
+	 */
+	private function store_legacy_optout() {
+		remove_all_filters( 'sanitize_option_jetpack_ai_enabled' );
+		update_option( 'jetpack_ai_enabled', 0 );
+		wp_cache_flush();
+		$this->assertSame( '0', get_option( 'jetpack_ai_enabled' ), 'Precondition: a legacy opt-out reads as "0".' );
+	}
+
+	/**
 	 * THE safety property: a site that explicitly opted out (option present and
 	 * falsey) ends with the module INACTIVE, even though auto-activation turned it
 	 * on first. Reconciliation runs after auto-activation and has the final word.
 	 */
 	public function test_explicit_optout_survives_auto_activation() {
-		update_option( 'jetpack_ai_enabled', 0 );
+		$this->store_legacy_optout();
 		$this->set_up_auto_activated_off_simple();
 
 		Jetpack::reconcile_ai_master_optout();
@@ -74,7 +87,7 @@ class Jetpack_AI_Master_Optout_Migration_Test extends \WP_UnitTestCase {
 	 */
 	public function test_explicit_optout_survives_auto_activation_via_module_hook() {
 		Constants::set_constant( 'IS_WPCOM', false );
-		update_option( 'jetpack_ai_enabled', 0 );
+		$this->store_legacy_optout();
 
 		// Auto-activation, the way the upgrade routine really does it.
 		( new Modules() )->update_active( array( 'ai' ) );
@@ -84,6 +97,23 @@ class Jetpack_AI_Master_Optout_Migration_Test extends \WP_UnitTestCase {
 		$this->assertFalse(
 			( new Modules() )->is_active( 'ai' ),
 			'An explicit opt-out must survive auto-activation run through the module hook.'
+		);
+	}
+
+	/**
+	 * A row holding an empty string is what a Settings > General save left behind, not a
+	 * choice anybody made, so it must not be honored as an opt-out.
+	 */
+	public function test_emptied_option_is_not_an_optout() {
+		update_option( 'jetpack_ai_enabled', null );
+		wp_cache_flush();
+		$this->set_up_auto_activated_off_simple();
+
+		Jetpack::reconcile_ai_master_optout();
+
+		$this->assertTrue(
+			( new Modules() )->is_active( 'ai' ),
+			'An emptied row is not an opt-out: auto-activation is preserved.'
 		);
 	}
 
@@ -118,7 +148,7 @@ class Jetpack_AI_Master_Optout_Migration_Test extends \WP_UnitTestCase {
 	 * blocks it, so a now-stale falsey option can't keep turning AI back off.
 	 */
 	public function test_migration_is_idempotent_and_guarded() {
-		update_option( 'jetpack_ai_enabled', 0 );
+		$this->store_legacy_optout();
 		$this->set_up_auto_activated_off_simple();
 
 		Jetpack::reconcile_ai_master_optout();
