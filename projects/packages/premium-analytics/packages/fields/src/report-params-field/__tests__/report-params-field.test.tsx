@@ -218,7 +218,7 @@ describe( 'report params field', () => {
 	} );
 
 	/*
-	 * `DateRangeFilter` calls `onChange` then `onApply` in the same tick; a
+	 * `DatePeriodDropdown` calls `onChange` then `onApply` in the same tick; a
 	 * commit reading staged state lands a click behind — the first click, on
 	 * the range it already had, left the previous range's buckets on offer.
 	 */
