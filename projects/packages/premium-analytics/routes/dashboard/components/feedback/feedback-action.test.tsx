@@ -110,7 +110,7 @@ describe( 'FeedbackAction', () => {
 		// Scoped to the dialog: `Notice` also mirrors the text into the a11y-speak live
 		// region on `body`, so an unscoped query matches twice.
 		expect(
-			within( screen.getByRole( 'dialog' ) ).getByText( 'Thank you — this helps.' )
+			within( screen.getByRole( 'dialog' ) ).getByText( 'Thank you. This helps.' )
 		).toBeInTheDocument();
 		expect( screen.queryByRole( 'radiogroup' ) ).not.toBeInTheDocument();
 

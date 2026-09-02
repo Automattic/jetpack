@@ -101,7 +101,7 @@ export function FeedbackModal( { onClose }: FeedbackModalProps ) {
 				<Stack direction="column" gap="lg">
 					<Notice.Root intent="success">
 						<Notice.Description>
-							{ __( 'Thank you — this helps.', 'jetpack-premium-analytics-pkg' ) }
+							{ __( 'Thank you. This helps.', 'jetpack-premium-analytics-pkg' ) }
 						</Notice.Description>
 					</Notice.Root>
 
