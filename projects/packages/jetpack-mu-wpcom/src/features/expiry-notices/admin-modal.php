@@ -2,9 +2,10 @@
 /**
  * Wp-admin modal for plans that have expired, in grace or after it.
  *
- * Atomic only: the copy describes what `woa_revert` does, and a Simple site is
- * not reverted. Copy lives here rather than in the React that renders it,
- * because this package extracts PHP strings for translation and not JS.
+ * For sites that carry an Atomic transfer, which is not the same as sites that
+ * are Atomic now -- see wpcom_expiry_notices_modal_applies_to_site(). Copy lives
+ * here rather than in the React that renders it, because this package extracts
+ * PHP strings for translation and not JS.
  *
  * @package automattic/jetpack-mu-wpcom
  */
@@ -21,15 +22,12 @@ use Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Notice_Dismiss;
  * @return array<string,mixed>|null
  */
 function wpcom_expiry_notices_admin_modal_data(): ?array {
-	// Before resolving any state: deriving it can reach the store, and on Simple
-	// -- where this never shows -- that would be a second such trip per admin
-	// pageview on top of the banner's, for an answer thrown away immediately.
-	if ( ! Constants::is_true( 'IS_ATOMIC' ) ) {
+	$state = wpcom_expiry_notices_eligible_state();
+	if ( null === $state ) {
 		return null;
 	}
 
-	$state = wpcom_expiry_notices_eligible_state();
-	if ( null === $state ) {
+	if ( ! wpcom_expiry_notices_modal_applies_to_site( $state ) ) {
 		return null;
 	}
 
@@ -59,6 +57,39 @@ function wpcom_expiry_notices_admin_modal_data(): ?array {
 		'secondary'   => $is_grace ? $urls['secondary'] : null,
 		'imageUrl'    => plugins_url( 'images/plan-expired.svg', __FILE__ ),
 	);
+}
+
+/**
+ * Whether this site is one the modal's copy is true of.
+ *
+ * The revert is the whole subject, so the audience is sites that carry a
+ * transfer -- but it cannot simply be "Atomic", because the revert itself is
+ * what ends that. A site is Atomic while the changes are still ahead of it and
+ * Simple once they have happened, which is exactly when the second variant is
+ * due. So Simple counts too, on the sticker wpcom leaves behind.
+ *
+ * @param array<string,mixed> $state Expiry state.
+ */
+function wpcom_expiry_notices_modal_applies_to_site( array $state ): bool {
+	if ( Constants::is_true( 'IS_ATOMIC' ) ) {
+		return true;
+	}
+
+	// Only after the grace period. Before it, a site that has been reverted was
+	// reverted by some earlier lapse, and this one has not reached the changes
+	// the pre-revert variant promises.
+	if ( Expiry_Data::STATE_EXPIRED !== ( $state['state'] ?? '' ) ) {
+		return false;
+	}
+
+	if ( ! wpcom_has_blog_sticker( 'blog-transfer-reverted', get_wpcom_blog_id() ) ) {
+		return false;
+	}
+
+	// The sticker outlives the lapse that earned it. A site reverted years ago
+	// can be lapsing a plan that never carried a transfer, and none of the copy
+	// would be true of that.
+	return Expiry_Data::is_atomic_capable_plan( isset( $state['product_slug'] ) ? (string) $state['product_slug'] : '' );
 }
 
 /**

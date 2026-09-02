@@ -59,6 +59,8 @@ class Admin_Modal_Test extends \WorDBless\BaseTestCase {
 	public function tear_down() {
 		unset( $GLOBALS['wpcom_get_site_purchases_test_value'] );
 		unset( $GLOBALS['wpcom_is_vip_test_value'] );
+		unset( $GLOBALS['wpcom_blog_stickers_test_value'] );
+		unset( $GLOBALS['wpcom_blog_details_domain_test_value'] );
 		delete_user_meta( $this->admin_id, Expiry_Notice_Dismiss::META_MODAL );
 		delete_user_meta( $this->admin_id, Expiry_Notice_Dismiss::META_MODAL_GRACE );
 		delete_transient( \Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Domain::CACHE_KEY );
@@ -75,6 +77,16 @@ class Admin_Modal_Test extends \WorDBless\BaseTestCase {
 			$domain ?? \Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Domain::NONE,
 			HOUR_IN_SECONDS
 		);
+	}
+
+	/**
+	 * A site the revert has already moved back to Simple: no longer Atomic, and
+	 * carrying the sticker wpcom leaves behind.
+	 */
+	private function pretend_reverted_to_simple(): void {
+		Constants::set_constant( 'IS_ATOMIC', false );
+		Constants::set_constant( 'IS_WPCOM', true );
+		$GLOBALS['wpcom_blog_stickers_test_value'] = array( 'blog-transfer-reverted' );
 	}
 
 	private function set_purchase( int $days_until_expiry, string $slug = 'business-bundle' ): void {
@@ -126,14 +138,46 @@ class Admin_Modal_Test extends \WorDBless\BaseTestCase {
 		}
 	}
 
-	public function test_does_not_show_on_simple_sites(): void {
-		// Every change the copy lists is something the Atomic revert does. A
-		// Simple site is not reverted, so none of it would be true of one.
+	public function test_does_not_show_on_a_simple_site_that_was_never_atomic(): void {
+		// Every change the copy lists is something the revert does, and a site
+		// that never carried a transfer is never reverted.
 		Constants::set_constant( 'IS_ATOMIC', false );
 		foreach ( array( -5, -45 ) as $days ) {
 			$this->set_purchase( $days );
 			$this->assertNull( wpcom_expiry_notices_admin_modal_data(), "expected no modal on a Simple site {$days} days past expiry" );
 		}
+	}
+
+	public function test_shows_after_grace_on_a_reverted_site(): void {
+		// The revert is what moves the site off Atomic, so by the time the
+		// post-grace copy is true the site is Simple. Gating on IS_ATOMIC alone
+		// would make this variant unreachable in production.
+		$this->pretend_reverted_to_simple();
+
+		$this->set_purchase( -45 );
+		$data = wpcom_expiry_notices_admin_modal_data();
+
+		$this->assertNotNull( $data );
+		$this->assertSame( 'Restore my site', $data['primary']['label'] );
+	}
+
+	public function test_does_not_show_in_grace_on_a_reverted_site(): void {
+		// A site already reverted was reverted by an earlier lapse. This one has
+		// not reached the changes the pre-revert variant promises are coming.
+		$this->pretend_reverted_to_simple();
+
+		$this->set_purchase( -5 );
+		$this->assertNull( wpcom_expiry_notices_admin_modal_data() );
+	}
+
+	public function test_does_not_show_for_a_plan_that_never_carried_a_transfer(): void {
+		// The sticker outlives the lapse that earned it: a site reverted long ago
+		// can be lapsing a Personal plan, which never made it Atomic and so never
+		// removed a plugin.
+		$this->pretend_reverted_to_simple();
+
+		$this->set_purchase( -45, 'personal-bundle' );
+		$this->assertNull( wpcom_expiry_notices_admin_modal_data() );
 	}
 
 	public function test_does_not_show_for_non_admins(): void {
@@ -219,5 +263,31 @@ class Admin_Modal_Test extends \WorDBless\BaseTestCase {
 			$this->assertCount( 3, $data['items'], "expected three items {$days} days past expiry" );
 			$this->assertStringNotContainsString( 'primary domain', implode( "\n", $data['items'] ) );
 		}
+	}
+
+	public function test_names_the_wpcom_address_a_reverted_site_now_serves_from(): void {
+		$this->pretend_reverted_to_simple();
+		// WorDBless serves example.org, so a blogs-table domain that matches is a
+		// site sitting on its own unmapped address -- the switch already happened.
+		$GLOBALS['wpcom_blog_details_domain_test_value'] = 'example.org';
+
+		$this->set_purchase( -45 );
+		$data = wpcom_expiry_notices_admin_modal_data();
+
+		$this->assertNotNull( $data );
+		$this->assertStringContainsString( 'switched to example.org', implode( "\n", $data['items'] ) );
+	}
+
+	public function test_omits_the_domain_when_a_reverted_site_kept_its_own(): void {
+		// Serving from example.org while the blogs table says otherwise: the
+		// custom domain survived the revert, so nothing was switched.
+		$this->pretend_reverted_to_simple();
+		$GLOBALS['wpcom_blog_details_domain_test_value'] = 'unused.wordpress.com';
+
+		$this->set_purchase( -45 );
+		$data = wpcom_expiry_notices_admin_modal_data();
+
+		$this->assertNotNull( $data );
+		$this->assertStringNotContainsString( 'primary domain', implode( "\n", $data['items'] ) );
 	}
 }

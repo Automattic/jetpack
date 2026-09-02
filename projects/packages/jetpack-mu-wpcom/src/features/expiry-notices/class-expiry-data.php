@@ -278,6 +278,19 @@ class Expiry_Data {
 	}
 
 	/**
+	 * Whether a lapse of this plan is what would have taken a site off Atomic.
+	 *
+	 * Only the plans that carry a transfer can be reverted by expiring. Lower
+	 * tiers leave a site Simple throughout, so a lapse of one never produced the
+	 * revert the expiry modal describes.
+	 *
+	 * @param string $slug Product slug.
+	 */
+	public static function is_atomic_capable_plan( string $slug ): bool {
+		return in_array( self::infer_plan_class_from_slug( $slug ), array( 'business', 'commerce', 'pro' ), true );
+	}
+
+	/**
 	 * True if the slug refers to a monthly cadence plan.
 	 *
 	 * @param string $slug Product slug.

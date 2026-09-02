@@ -10,6 +10,7 @@ declare( strict_types = 1 );
 namespace Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices;
 
 use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Constants;
 
 /**
  * Resolves the domain the expiry modal names, or null when it should say nothing.
@@ -38,6 +39,14 @@ class Expiry_Domain {
 	 * an answer for. Naming the wrong domain is worse than naming none.
 	 */
 	public static function get_revert_domain(): ?string {
+		// A reverted site is back on Simple, where the blogs table holds the
+		// unmapped address outright. Nothing to ask WordPress.com for -- and
+		// nothing that could ask it, since the blog token the endpoint accepts
+		// belongs to Jetpack-connected sites.
+		if ( Constants::is_true( 'IS_WPCOM' ) ) {
+			return self::simple_revert_domain();
+		}
+
 		$cached = get_transient( self::CACHE_KEY );
 		if ( is_string( $cached ) && '' !== $cached ) {
 			return self::NONE === $cached ? null : $cached;
@@ -53,6 +62,29 @@ class Expiry_Domain {
 		set_transient( self::CACHE_KEY, $domain ?? self::NONE, self::CACHE_TTL );
 
 		return $domain;
+	}
+
+	/**
+	 * The address a reverted Simple site is now on, or null if it kept its own.
+	 *
+	 * `wp_blogs.domain` is the unmapped address itself, so where the site is
+	 * serving from it, that is the switch the copy describes having happened. A
+	 * site still answering on a custom domain kept it through the revert, and
+	 * nothing was switched.
+	 */
+	private static function simple_revert_domain(): ?string {
+		if ( ! function_exists( 'get_blog_details' ) ) {
+			return null;
+		}
+
+		$details  = get_blog_details( get_current_blog_id() );
+		$unmapped = ( is_object( $details ) && ! empty( $details->domain ) ) ? (string) $details->domain : '';
+		if ( '' === $unmapped ) {
+			return null;
+		}
+
+		$serving = (string) wp_parse_url( home_url(), PHP_URL_HOST );
+		return $serving === $unmapped ? $unmapped : null;
 	}
 
 	/**
