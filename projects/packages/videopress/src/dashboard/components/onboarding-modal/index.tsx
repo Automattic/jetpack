@@ -152,6 +152,26 @@ function isWelcomeLoad(): boolean {
 	);
 }
 
+/**
+ * The band's ThemeProvider wrapper, guarded: the `wp-theme` bundled with core
+ * 7.0.x exposes only `privateApis`, so the public `ThemeProvider` import can
+ * resolve to undefined — and rendering it crashed the whole dashboard route,
+ * since this modal's tree is built on every mount. The band keeps its derived
+ * dark scheme where the provider exists and falls back to the stylesheet's
+ * colors where it doesn't.
+ *
+ * @param props          - Component props.
+ * @param props.children - The band's content.
+ * @return The children, re-themed when the environment allows it.
+ */
+function BandTheme( { children }: { children: ReactNode } ): ReactElement {
+	if ( ! ThemeProvider ) {
+		return <>{ children }</>;
+	}
+
+	return <ThemeProvider color={ { background: '#003010' } }>{ children }</ThemeProvider>;
+}
+
 type ValueCard = {
 	icon: ReactNode;
 	title: string;
@@ -355,13 +375,13 @@ export default function OnboardingModal(): ReactElement | null {
 					 * ThemeProvider renders `display: contents`, so the close
 					 * affordance still positions against the band itself.
 					 */ }
-					<ThemeProvider color={ { background: '#003010' } }>
+					<BandTheme>
 						<Dialog.CloseIcon
 							className="vp-onboarding-modal__close"
 							label={ __( 'Close', 'jetpack-videopress-pkg' ) }
 						/>
 						<IntroVideo />
-					</ThemeProvider>
+					</BandTheme>
 				</div>
 
 				<Dialog.Content className="vp-onboarding-modal__body">
