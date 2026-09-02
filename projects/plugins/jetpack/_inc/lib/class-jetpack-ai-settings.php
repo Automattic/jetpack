@@ -272,8 +272,8 @@ class Jetpack_AI_Settings {
 	 * WordPress.com Simple no Jetpack modules run, so the `jetpack_ai_enabled`
 	 * option is the master. Everywhere else (self-hosted and Atomic) the `ai`
 	 * module is the real master switch, toggled through the standard Jetpack
-	 * module machinery; there the option only carries the legacy pre-module
-	 * value the one-time opt-out migration reads, and is never written again.
+	 * module machinery; there the option only carries a legacy pre-module value
+	 * and is never written again.
 	 *
 	 * @return bool
 	 */
@@ -306,9 +306,7 @@ class Jetpack_AI_Settings {
 
 		// The module alone is the master off-Simple. The option is deliberately NOT
 		// written here: WordPress.com derives the master state from the synced
-		// `active_modules` callable, and the stored option must keep its legacy
-		// pre-module value so Jetpack::reconcile_ai_master_optout() can read an
-		// explicit opt-out on sites that upgrade later.
+		// `active_modules` callable, so writing it too would create a second, drifting store.
 		( new Modules() )->update_status( self::AI_MODULE, $enabled, false, false );
 	}
 
