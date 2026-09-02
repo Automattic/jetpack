@@ -719,6 +719,24 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			// the manual step instead of offering Connect with PayPal.
 			await expect( screen.findByText( /Get Your API Credentials/ ) ).resolves.toBeInTheDocument();
 		} );
+
+		it( 'sends the dashboard link to the environment being connected', async () => {
+			apiFetch.mockResolvedValue( {
+				connected: false,
+				environment: 'sandbox',
+				partner_referrals_available: false,
+			} );
+
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+
+			// Sandbox credentials only exist in the sandbox app list; the live
+			// dashboard shows a different set of apps.
+			const link = await screen.findByRole( 'button', { name: /Open PayPal Dashboard/ } );
+			expect( link ).toHaveAttribute(
+				'href',
+				'https://developer.paypal.com/dashboard/applications/sandbox'
+			);
+		} );
 	} );
 
 	describe( 'Connection Check', () => {

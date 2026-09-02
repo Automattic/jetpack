@@ -1337,7 +1337,9 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 							<div className="jetpack-paypal-wizard__actions">
 								<Button
 									variant="primary"
-									href="https://developer.paypal.com/dashboard/applications/"
+									href={ `https://developer.paypal.com/dashboard/applications/${
+										environment === 'sandbox' ? 'sandbox' : 'live'
+									}` }
 									target="_blank"
 									rel="noopener noreferrer"
 								>
