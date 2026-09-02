@@ -578,7 +578,6 @@ class PayPal_OAuth {
 	 *     @type string $onboarding_method           How the merchant connected, when that is known.
 	 *     @type string $merchant_id                 The merchant's PayPal ID, when that is known.
 	 *     @type bool   $partner_referrals_available Whether this site can start onboarding through WordPress.com.
-	 *     @type string $onboarding_popup_url        The same-origin page the editor opens PayPal's SDK in.
 	 * }
 	 */
 	public static function get_connection_status() {
@@ -602,8 +601,6 @@ class PayPal_OAuth {
 		// local, anywhere else it needs a Jetpack connection to authenticate it.
 		$status['partner_referrals_available'] = ( new Host() )->is_wpcom_simple()
 			|| ( new Manager() )->is_connected();
-
-		$status['onboarding_popup_url'] = PayPal_Onboarding_Popup::get_url();
 
 		return $status;
 	}
