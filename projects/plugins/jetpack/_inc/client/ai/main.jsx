@@ -15,9 +15,10 @@ import { AdminPage, GlobalNotices, useGlobalNotices } from '@automattic/jetpack-
 import { Spinner } from '@wordpress/components';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Badge, Link, Notice, Stack, Tabs } from '@wordpress/ui';
+import { Badge, Notice, Stack, Tabs } from '@wordpress/ui';
 import AiFeatures from './features/index';
 import { useFeatureSettings } from './features/use-feature-settings';
+import McpConnectCallout from './mcp/connect-callout';
 import McpHub from './mcp/index';
 import McpRead from './mcp/read';
 import McpSetup from './mcp/setup';
@@ -315,19 +316,7 @@ export default function App() {
 							</Notice.Root>
 						) }
 
-						{ showConnectNotice && (
-							<Notice.Root intent="warning">
-								<Notice.Title>
-									{ __( 'Your WordPress.com account isn’t connected.', 'jetpack' ) }
-								</Notice.Title>
-								<Notice.Description>
-									{ __( 'Connect your account to manage MCP settings.', 'jetpack' ) }{ ' ' }
-									<Link href="admin.php?page=my-jetpack#/connection">
-										{ __( 'Connect account', 'jetpack' ) }
-									</Link>
-								</Notice.Description>
-							</Notice.Root>
-						) }
+						{ showConnectNotice && <McpConnectCallout /> }
 
 						{ ! isLoading && ! error && !! blogId && ! userUnlinked && ! hasMcpAccess && (
 							<McpUpsell />
