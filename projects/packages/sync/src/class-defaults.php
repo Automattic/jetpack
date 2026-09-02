@@ -84,6 +84,7 @@ class Defaults {
 		'jetpack_options',
 		'jetpack_portfolio',
 		'jetpack_portfolio_posts_per_page',
+		'jetpack_premium_analytics_enabled',
 		'jetpack_protect_global_whitelist',
 		'jetpack_protect_key',
 		'jetpack_publicize_options',

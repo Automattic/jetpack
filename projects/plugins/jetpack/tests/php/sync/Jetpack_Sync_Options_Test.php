@@ -170,6 +170,7 @@ class Jetpack_Sync_Options_Test extends Jetpack_Sync_TestBase {
 			'jetpack_holiday_snow_enabled'                 => false,
 			'jetpack_portfolio'                            => 'pineapple',
 			'jetpack_portfolio_posts_per_page'             => 'pineapple',
+			'jetpack_premium_analytics_enabled'            => '1',
 			'jetpack_testimonial'                          => 'pineapple',
 			'jetpack_testimonial_posts_per_page'           => 'pineapple',
 			'tiled_galleries'                              => 'pineapple',
