@@ -63,6 +63,11 @@ class Reprint_Exporter {
 	 * and can then sign their own requests. Allowed by where the write came
 	 * from, not by who is logged in: the usual arbitrary-option-write bug is a
 	 * form missing its nonce, running in an administrator's own session.
+	 *
+	 * This only guards writes made after it runs, at after_setup_theme, and
+	 * module loading skips it entirely while Jetpack is inactive or
+	 * disconnected. discard_credentials() clears anything left from those last
+	 * two, but nothing catches a write made earlier in a normal request.
 	 */
 	public static function protect_options() {
 		foreach ( array( self::SECRET_OPTION, self::ENABLED_OPTION ) as $option ) {
@@ -133,21 +138,51 @@ class Reprint_Exporter {
 	}
 
 	/**
-	 * Discards any stored export credentials.
+	 * Reports an export event.
 	 *
-	 * Writes made while Jetpack is inactive or disconnected escape
-	 * protect_options(), so clear at each of those boundaries — activation and
-	 * both connection transitions — and anything planted during a gap is gone
-	 * before the gap closes. Costs a real client one rotation. Per-blog on
-	 * multisite, since each hook fires for one site.
+	 * @param string $event   Event name.
+	 * @param array  $context Details of the event.
 	 */
-	public static function discard_credentials() {
-		delete_option( self::SECRET_OPTION );
-		delete_option( self::ENABLED_OPTION );
+	public static function record_event( $event, array $context = array() ) {
+		/**
+		 * Fires when a Reprint export request ends in an export or an error.
+		 *
+		 * A request the handler ignores fires nothing, and no event carries the
+		 * secret or the signature. An export with no secret_rotated or
+		 * window_opened event before it used a secret this site did not create.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param string $event   Event name.
+		 * @param array  $context Details of the event.
+		 */
+		do_action( 'jetpack_reprint_export_event', $event, $context );
 	}
 
 	/**
-	 * Stores a freshly minted shared secret.
+	 * Discards any stored export credentials.
+	 *
+	 * Clears whatever was written while protect_options() was not in place. Runs
+	 * at plugin activation and when the site connects to or disconnects from
+	 * WordPress.com. It does not catch a write made before after_setup_theme
+	 * on a site that stays connected.
+	 */
+	public static function discard_credentials() {
+		$had_secret = delete_option( self::SECRET_OPTION );
+		$had_window = delete_option( self::ENABLED_OPTION );
+
+		if ( $had_secret || $had_window ) {
+			// current_filter() rather than a parameter: jetpack_site_registered
+			// passes a blog ID to its callbacks, which would land in one.
+			self::record_event(
+				'credentials_discarded',
+				array( 'boundary' => current_filter() )
+			);
+		}
+	}
+
+	/**
+	 * Stores a newly created shared secret.
 	 *
 	 * @param string $secret The new secret.
 	 * @return bool Whether the secret was stored.
@@ -224,7 +259,8 @@ class Reprint_Exporter {
 		// deployments we cannot know ahead of time, and origin is no boundary
 		// when every request needs the HMAC secret anyway. Preflights come
 		// before HMAC because browsers send them without credentials, and
-		// before the window check so a lapsed client can reach the 409 below.
+		// before the window check so a client whose window has closed can reach
+		// the 409 below.
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.ValidatedSanitizedInput.MissingUnslash
 		$request_method = isset( $_SERVER['REQUEST_METHOD'] ) ? strtoupper( $_SERVER['REQUEST_METHOD'] ) : '';
 		if ( 'OPTIONS' === $request_method ) {
@@ -275,7 +311,26 @@ class Reprint_Exporter {
 			$this->error( 400, $exception->getMessage() );
 			return;
 		}
+
+		self::record_event( 'export_served', array( 'endpoint' => $this->requested_endpoint() ) );
 		$this->terminate();
+	}
+
+	/**
+	 * The endpoint the client asked for, or 'unknown'.
+	 *
+	 * Matched against the set the export server accepts so an unexpected value
+	 * cannot travel into a consumer's log.
+	 *
+	 * @return string
+	 */
+	protected function requested_endpoint() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$endpoint = isset( $_GET['endpoint'] ) ? sanitize_key( wp_unslash( $_GET['endpoint'] ) ) : '';
+
+		$known = array( 'preflight', 'db_index', 'sql_chunk', 'file_index', 'file_fetch' );
+
+		return in_array( $endpoint, $known, true ) ? $endpoint : 'unknown';
 	}
 
 	/**
@@ -350,6 +405,14 @@ class Reprint_Exporter {
 	 * @param string $message Error description.
 	 */
 	protected function error( $code, $message ) {
+		self::record_event(
+			'export_refused',
+			array(
+				'code'   => $code,
+				'reason' => $message,
+			)
+		);
+
 		$this->send_cors_headers();
 		if ( ! headers_sent() ) {
 			http_response_code( $code );

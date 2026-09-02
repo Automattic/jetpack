@@ -63,19 +63,23 @@ class REST_Controller extends WP_REST_Controller {
 	}
 
 	/**
-	 * Opens the export window without rotating the secret, so a client holding
-	 * a valid one can re-arm a lapsed window.
+	 * Opens the export window without rotating the secret, so a client that
+	 * already has one can reopen a window that has closed.
 	 *
-	 * Registered only where the feature is available, so a 404 doubles as the
-	 * client's availability probe.
+	 * Registered only where the feature is available, so clients also use a 404
+	 * from here to tell whether the site supports export at all.
 	 *
 	 * @return WP_REST_Response The unix timestamp the window was opened at.
 	 */
 	public function enable_export() {
-		return new WP_REST_Response(
-			array( 'enabled_at' => Reprint_Exporter::open_export_window() ),
-			200
+		$enabled_at = Reprint_Exporter::open_export_window();
+
+		Reprint_Exporter::record_event(
+			'window_opened',
+			array( 'user_id' => get_current_user_id() )
 		);
+
+		return new WP_REST_Response( array( 'enabled_at' => $enabled_at ), 200 );
 	}
 
 	/**
@@ -98,6 +102,11 @@ class REST_Controller extends WP_REST_Controller {
 				500
 			);
 		}
+
+		Reprint_Exporter::record_event(
+			'secret_rotated',
+			array( 'user_id' => get_current_user_id() )
+		);
 
 		return new WP_REST_Response( array( 'secret' => $secret ), 200 );
 	}

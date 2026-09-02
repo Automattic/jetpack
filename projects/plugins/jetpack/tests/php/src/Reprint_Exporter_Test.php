@@ -36,6 +36,13 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 	const TEST_ROLE = 'reprint_test_manager';
 
 	/**
+	 * Events captured from jetpack_reprint_export_event during a test.
+	 *
+	 * @var array[]
+	 */
+	private $recorded_events = array();
+
+	/**
 	 * Test tear down.
 	 */
 	public function tear_down() {
@@ -48,7 +55,7 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 		remove_all_filters( 'jetpack_reprint_export_available' );
 		delete_option( Reprint_Exporter::SECRET_OPTION );
 		delete_option( Reprint_Exporter::ENABLED_OPTION );
-		unset( $_GET['reprint-api-jetpack'], $_SERVER['REQUEST_METHOD'] );
+		unset( $_GET['reprint-api-jetpack'], $_GET['endpoint'], $_SERVER['REQUEST_METHOD'] );
 		parent::tear_down();
 	}
 
@@ -476,6 +483,142 @@ class Reprint_Exporter_Test extends WP_UnitTestCase {
 
 		$this->assertFalse( get_option( Reprint_Exporter::SECRET_OPTION ) );
 		$this->assertFalse( Reprint_Exporter::is_export_window_open() );
+	}
+
+	// -- Event reporting ------------------------------------------------------
+
+	/**
+	 * Starts collecting jetpack_reprint_export_event payloads.
+	 *
+	 * Recorded into $recorded_events as array( event, context ).
+	 */
+	private function capture_events() {
+		$this->recorded_events = array();
+		add_action(
+			'jetpack_reprint_export_event',
+			function ( $event, $context ) {
+				$this->recorded_events[] = array( $event, $context );
+			},
+			10,
+			2
+		);
+	}
+
+	/**
+	 * A served export reports itself.
+	 */
+	public function test_served_export_reports_an_event() {
+		$this->capture_events();
+
+		$stub             = $this->make_ready_stub();
+		$_GET['endpoint'] = 'sql_chunk';
+		Reprint_Exporter::store_secret( 'a-secret' );
+		$this->run_handler( $stub, $this->make_wp( '' ) );
+
+		$this->assertTrue( $stub->served );
+
+		$served = array_values( array_filter( $this->recorded_events, fn( $e ) => 'export_served' === $e[0] ) );
+		$this->assertCount( 1, $served );
+		$this->assertSame( 'sql_chunk', $served[0][1]['endpoint'] );
+	}
+
+	/**
+	 * An endpoint the export server would not accept is not passed through.
+	 */
+	public function test_served_event_rejects_an_unknown_endpoint() {
+		$this->capture_events();
+
+		$stub             = $this->make_ready_stub();
+		$_GET['endpoint'] = 'something-else';
+		Reprint_Exporter::store_secret( 'a-secret' );
+		$this->run_handler( $stub, $this->make_wp( '' ) );
+
+		$served = array_values( array_filter( $this->recorded_events, fn( $e ) => 'export_served' === $e[0] ) );
+		$this->assertSame( 'unknown', $served[0][1]['endpoint'] );
+	}
+
+	/**
+	 * A refusal reports the status code and reason.
+	 */
+	public function test_refusal_reports_an_event() {
+		$this->capture_events();
+
+		$stub             = $this->make_ready_stub();
+		$stub->hmac_error = 'Invalid signature.';
+		Reprint_Exporter::store_secret( 'a-secret' );
+		$this->run_handler( $stub, $this->make_wp( '' ) );
+
+		$refusals = array_values( array_filter( $this->recorded_events, fn( $e ) => 'export_refused' === $e[0] ) );
+		$this->assertCount( 1, $refusals );
+		$this->assertSame( 403, $refusals[0][1]['code'] );
+	}
+
+	/**
+	 * A request that falls through to WordPress reports nothing.
+	 *
+	 * Otherwise an unarmed site would emit an event for every stray probe.
+	 */
+	public function test_silent_fall_through_reports_nothing() {
+		$this->capture_events();
+
+		Constants::set_constant( 'IS_PRESSABLE', true );
+		$_GET['reprint-api-jetpack'] = '1';
+		$_SERVER['REQUEST_METHOD']   = 'GET';
+		$stub                        = new Reprint_Exporter_Test_Stub();
+		$this->run_handler( $stub, $this->make_wp( '' ) );
+
+		$this->assertSame( array(), $this->recorded_events );
+	}
+
+	/**
+	 * Both control-plane routes report the acting user.
+	 */
+	public function test_control_plane_reports_the_acting_user() {
+		$this->capture_events();
+		$user_id = $this->factory()->user->create( array( 'role' => 'administrator' ) );
+		wp_set_current_user( $user_id );
+
+		( new REST_Controller() )->enable_export();
+		( new REST_Controller() )->rotate_secret();
+
+		$names = array_column( $this->recorded_events, 0 );
+		$this->assertContains( 'window_opened', $names );
+		$this->assertContains( 'secret_rotated', $names );
+		foreach ( $this->recorded_events as $event ) {
+			$this->assertSame( $user_id, $event[1]['user_id'] );
+		}
+	}
+
+	/**
+	 * Discarding reports only when it removed something, and says which boundary.
+	 */
+	public function test_discard_reports_only_when_it_removed_something() {
+		$this->capture_events();
+
+		Reprint_Exporter::discard_credentials();
+		$this->assertSame( array(), $this->recorded_events, 'Nothing stored, so nothing to report.' );
+
+		Reprint_Exporter::store_secret( 'a-secret' );
+		Reprint_Exporter::discard_credentials();
+
+		$discards = array_values( array_filter( $this->recorded_events, fn( $e ) => 'credentials_discarded' === $e[0] ) );
+		$this->assertCount( 1, $discards );
+		$this->assertArrayHasKey( 'boundary', $discards[0][1] );
+	}
+
+	/**
+	 * No event ever carries the secret.
+	 */
+	public function test_events_never_carry_the_secret() {
+		$this->capture_events();
+
+		$user_id = $this->factory()->user->create( array( 'role' => 'administrator' ) );
+		wp_set_current_user( $user_id );
+		$response = ( new REST_Controller() )->rotate_secret();
+		$secret   = $response->get_data()['secret'];
+
+		$this->assertNotEmpty( $this->recorded_events );
+		$this->assertStringNotContainsString( $secret, wp_json_encode( $this->recorded_events, JSON_UNESCAPED_SLASHES ) );
 	}
 
 	/**
