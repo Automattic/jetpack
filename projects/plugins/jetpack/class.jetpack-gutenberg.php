@@ -863,6 +863,7 @@ class Jetpack_Gutenberg {
 		if ( ! wp_should_load_block_editor_scripts_and_styles() ) {
 			wp_dequeue_script( 'jp-tracks' );
 			wp_dequeue_script( 'jetpack-blocks-editor' );
+			wp_dequeue_script( 'jetpack-blocks-editor-ai' );
 
 			return;
 		}
@@ -878,6 +879,28 @@ class Jetpack_Gutenberg {
 		wp_styles()->query( 'jetpack-blocks-editor', 'registered' )->deps = array();
 
 		Assets::enqueue_script( 'jetpack-blocks-editor' );
+
+		// The AI extensions ship in their own bundle so that disabling AI stops
+		// the load entirely instead of only hiding the UI. Registration itself
+		// sits behind the gate: built AI block.json files name this handle as
+		// their editorScript, and core auto-enqueues registered blocks' editor
+		// scripts — an unregistered handle keeps that a no-op. The bundle
+		// depends on the main editor bundle, where the shared editor setup
+		// (slot fills, stores, Jetpack_Editor_Initial_State) runs. Same
+		// predicate as the ai-assistant editor initial state below.
+		/** This filter is documented in _inc/lib/class-jetpack-ai-helper.php */
+		if ( apply_filters( 'jetpack_ai_enabled', true ) ) {
+			Assets::register_script(
+				'jetpack-blocks-editor-ai',
+				"{$blocks_dir}editor-ai{$blocks_env}.js",
+				JETPACK__PLUGIN_FILE,
+				array(
+					'textdomain'   => 'jetpack',
+					'dependencies' => array( 'jetpack-blocks-editor' ),
+				)
+			);
+			Assets::enqueue_script( 'jetpack-blocks-editor-ai' );
+		}
 
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			$user                      = wp_get_current_user();
