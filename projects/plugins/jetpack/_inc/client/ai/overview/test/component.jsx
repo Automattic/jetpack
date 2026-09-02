@@ -167,7 +167,7 @@ describe( 'AiOverview', () => {
 		const { container } = render( <AiOverview { ...PROPS } planName="WordPress.com Business" /> );
 
 		// Nothing to meter and nothing to sell: once the fetch lands the card
-		// unmounts entirely (usage-based pricing is retiring this state).
+		// unmounts entirely.
 		/* eslint-disable testing-library/no-container, testing-library/no-node-access --
 		   The skeleton bars are decorative and aria-hidden, so Testing Library
 		   has no query that reaches them; the layout class is the only handle. */

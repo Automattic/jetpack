@@ -225,9 +225,8 @@ function RequestsMeter( { usage } ) {
  * is used. Without an upgrade to offer it falls back to the plain requests
  * readout over its meter (plan details are My Jetpack's job). A legacy
  * unlimited plan renders no card at all: there is nothing to meter and
- * nothing to sell, and usage-based pricing is retiring the state. Loading
- * and error states stay inside the card so the rest of the Overview renders
- * immediately.
+ * nothing to sell. Loading and error states stay inside the card so the
+ * rest of the Overview renders immediately.
  *
  * @param {object} props            - Component props.
  * @param {string} props.upgradeUrl - Upgrade destination (shared with the MCP upsell).
