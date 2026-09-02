@@ -42,8 +42,7 @@ const openTooltip = async () => {
 	screen.getByRole( 'grid', { name: /line chart/i } ).focus();
 	await user.keyboard( '{ArrowRight}' );
 
-	// eslint-disable-next-line testing-library/no-node-access -- visx owns the crosshair and hardcodes its class name, so there is no attribute to reach it by.
-	return document.querySelector( '.visx-crosshair-vertical line' );
+	return screen.getByTestId( 'xy-chart-tooltip-crosshair-vertical' );
 };
 
 describe( 'AccessibleTooltip', () => {
