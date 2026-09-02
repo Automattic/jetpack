@@ -179,6 +179,16 @@ describe( 'Overview page view', () => {
 
 	beforeEach( async () => {
 		( await import( '../src/dashboard/screens/overview' ) ).resetPageViewForTesting();
+		// Declared, not incidental: these tests are what pin the page view firing on a
+		// plan-less visit, which is why the event sits above `<Gates>`. The bare
+		// `mockResolvedValue( null )` produced the same verdict, but silently.
+		mockApiFetch.mockImplementation( ( options: { path?: string } ) => {
+			const path = options?.path ?? '';
+			if ( path.includes( '/site/capabilities' ) ) {
+				return Promise.resolve( { hasBackupPlan: false, hasScan: false } );
+			}
+			return Promise.resolve( null );
+		} );
 	} );
 
 	it( 'records one page view per visit', async () => {

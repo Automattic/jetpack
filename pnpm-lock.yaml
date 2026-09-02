@@ -6862,7 +6862,7 @@ importers:
         version: 7.0.0-dev.20260707.2
       '@wordpress/eslint-plugin':
         specifier: 25.10.0
-        version: 25.10.0(@babel/core@7.29.7)(@wordpress/theme@2.0.0(postcss@8.5.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.14.1(typescript@6.0.3)))(eslint-config-prettier@10.1.8(eslint@10.9.1))(eslint-plugin-import@2.32.0)(eslint-plugin-jest@29.16.6(eslint@10.9.1)(jest@30.4.2)(typescript@6.0.3))(eslint-plugin-jsdoc@63.3.3(eslint@10.9.1))(eslint-plugin-jsx-a11y@6.10.2(eslint@10.9.1))(eslint-plugin-playwright@2.11.0(eslint@10.9.1))(eslint-plugin-prettier@5.5.6(eslint-config-prettier@10.1.8(eslint@10.9.1))(eslint@10.9.1)(wp-prettier@3.0.3))(eslint-plugin-react-hooks@7.1.1(eslint@10.9.1))(eslint-plugin-react@7.37.5(eslint@10.9.1))(eslint@10.9.1)(typescript@6.0.3)(wp-prettier@3.0.3)
+        version: 25.10.0(@babel/core@7.29.7)(@wordpress/theme@2.0.0(postcss@8.5.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.14.1(typescript@6.0.3)))(eslint-config-prettier@10.1.8(eslint@10.9.1))(eslint-plugin-import@2.32.0)(eslint-plugin-jest@29.16.6(eslint@10.9.1)(jest@30.4.2)(typescript@6.0.3))(eslint-plugin-jsdoc@64.3.2(eslint@10.9.1)(typescript@6.0.3))(eslint-plugin-jsx-a11y@6.10.2(eslint@10.9.1))(eslint-plugin-playwright@2.11.0(eslint@10.9.1))(eslint-plugin-prettier@5.5.6(eslint-config-prettier@10.1.8(eslint@10.9.1))(eslint@10.9.1)(wp-prettier@3.0.3))(eslint-plugin-react-hooks@7.1.1(eslint@10.9.1))(eslint-plugin-react@7.37.5(eslint@10.9.1))(eslint@10.9.1)(typescript@6.0.3)(wp-prettier@3.0.3)
       '@wordpress/jest-console':
         specifier: 9.2.0
         version: 9.2.0(jest@30.4.2)
@@ -6906,8 +6906,8 @@ importers:
         specifier: 5.10.1
         version: 5.10.1(@testing-library/dom@10.4.1)(eslint@10.9.1)
       eslint-plugin-jsdoc:
-        specifier: 63.3.3
-        version: 63.3.3(eslint@10.9.1)
+        specifier: 64.3.2
+        version: 64.3.2(eslint@10.9.1)(typescript@6.0.3)
       eslint-plugin-jsx-a11y:
         specifier: 6.10.2
         version: 6.10.2(eslint@10.9.1)
@@ -8237,9 +8237,9 @@ packages:
   '@emotion/weak-memoize@0.4.0':
     resolution: {integrity: sha512-snKqtPW01tN0ui7yu9rGv69aJXr/a/Ywvl11sUjNtEcRc+ng/mQriFL0wLXMef74iHa/EkftbDzU9F8iFbH+zg==}
 
-  '@es-joy/jsdoccomment@0.91.0':
-    resolution: {integrity: sha512-vgqlMGNNhZxwDYbUNIHj3Hskb4R28iqdXx90ufHyt/NeuTQkeqjTDslAs9I0/GCAfbxP5BpH5WsL1R1fht5Lxg==}
-    engines: {node: ^20.19.0 || ^22.13.0 || >=24}
+  '@es-joy/jsdoccomment@0.95.1':
+    resolution: {integrity: sha512-LO/RI08Fo9bhXwB7Od9G+1j3eSNq63+ZS5CQO8YLXHbDg6kx6S/DhTeY0+Fc9uZrjK1zZSyTx8Sg5gv5DIoCnA==}
+    engines: {node: ^22.22.2 || >=24.15.0}
 
   '@es-joy/resolve.exports@1.2.0':
     resolution: {integrity: sha512-Q9hjxWI5xBM+qW2enxfe8wDKdFWMfd0Z29k5ZJnuBqD/CasY5Zryj09aCA6owbGATWz+39p5uIdaHXpopOcG8g==}
@@ -12179,9 +12179,9 @@ packages:
   archy@1.0.0:
     resolution: {integrity: sha512-Xg+9RwCg/0p32teKdGMPTPnVXKD0w3DfHnFTficozsAgsvq2XenPJq/MYpzzQ/v8zrOyJn6Ds39VA4JIDwFfqw==}
 
-  are-docs-informative@0.0.2:
-    resolution: {integrity: sha512-ixiS0nLNNG5jNQzgZJNoUpBKdo9yTYZMGJ+QgT2jmjR7G7+QHRCc4v6LQ3NgE7EBJq+o0ams3waJwkrlBom8Ig==}
-    engines: {node: '>=14'}
+  are-docs-informative@0.1.1:
+    resolution: {integrity: sha512-sqRsNQBwbKLRX0jV5Cu5uzmtflf892n4Vukz7T659ebL4pz3mpOqCMU7lxMoBTFwnp10E3YB5ZcyHM41W5bcDA==}
+    engines: {node: '>=18'}
 
   argparse@2.0.1:
     resolution: {integrity: sha512-8+9WqebbFzpX9OR+Wa6O29asIogeRMzcGtAINdpMHHyAg10f05aSFVBbcEqGf/PXw1EjAZ+q2/bEBg3DvurK3Q==}
@@ -12731,8 +12731,8 @@ packages:
   commander@2.20.3:
     resolution: {integrity: sha512-GpVkmM8vF2vQUkj2LvZmD35JxeJOLCwJ9cUkugyk2nuhbv3+mJvpLYYt+0+USMxE+oj+ey/lJEnhZw75x/OMcQ==}
 
-  comment-parser@1.4.7:
-    resolution: {integrity: sha512-0h+uSNtQGW3D98eQt3jJ8L06Fves8hncB4V/PKdw/Qb8Hnk19VaKuTr55UNRYiSoVa7WwrFls+rh3ux9agmkeQ==}
+  comment-parser@1.4.8:
+    resolution: {integrity: sha512-rKZTGo4fzKYna8UcL0isTg5wkBNla7bxTypLwZQXjIdi++IdP1OJ41rI5Mti3/jltkPujbu4i9LIARYA+zpotQ==}
     engines: {node: '>= 12.0.0'}
 
   commenting@1.1.0:
@@ -13598,9 +13598,9 @@ packages:
       typescript:
         optional: true
 
-  eslint-plugin-jsdoc@63.3.3:
-    resolution: {integrity: sha512-xI4IeVRzRFA2DGHrPLIxF3U+oJHU3FE+P9Zb27fVs5dPHgfcpoAs0PyCbznVhK7pwR+9BPUztFeXSgpw/CL4Yg==}
-    engines: {node: ^22.13.0 || >=24}
+  eslint-plugin-jsdoc@64.3.2:
+    resolution: {integrity: sha512-9/j8KKTdLt5Gy7FbayPASLKabm9wcntcwkOJ+kidikNudqglqxjbsZBddkPwK9/6AeOyCwlwwAtuzHQzwTQP7A==}
+    engines: {node: ^22.22.2 || >=24.15.0}
     peerDependencies:
       eslint: ^7.0.0 || ^8.0.0 || ^9.0.0 || ^10.0.0
 
@@ -14899,9 +14899,9 @@ packages:
     resolution: {integrity: sha512-dayzUzKkJ1MkuUtZglSebU43utNXH0OWQByK9rKOOuYIO8M5TV1y+n8ALMdG0rdzBnfNkOmZEqrURepb0ejqBw==}
     hasBin: true
 
-  jsdoc-type-pratt-parser@8.0.0:
-    resolution: {integrity: sha512-uQu/fXVqVaMg6gM8/E5G5+eygVcZ1NV0Z51CvqhNa2bDWxvHMl484ETr6vph4oPyC+KUcbP/w2W2pewfCiR9aQ==}
-    engines: {node: '>=20.0.0'}
+  jsdoc-type-pratt-parser@9.1.2:
+    resolution: {integrity: sha512-9EXymowgk1mb9RY1VxuwKc+AhaxfBk2CV0dWxgGM+l5RURTtiUoAx7MlKwcsiVcEXK5HEPa7FeH/tsRpqjEPRg==}
+    engines: {node: ^22.22.2 || >=24.15.0}
 
   jsdom@30.0.1:
     resolution: {integrity: sha512-52v7mUVUfNQVYYqE1lcdaymWL0njO7lTLUog6ZvW2U5KsbiLk/GnZlVJ+qx0xfNJZ6Gn+KSpPNE52vurbxZwrA==}
@@ -20496,13 +20496,13 @@ snapshots:
 
   '@emotion/weak-memoize@0.4.0': {}
 
-  '@es-joy/jsdoccomment@0.91.0':
+  '@es-joy/jsdoccomment@0.95.1':
     dependencies:
       '@types/estree': 1.0.9
       '@typescript-eslint/types': 8.68.0
-      comment-parser: 1.4.7
+      comment-parser: 1.4.8
       esquery: 1.7.0
-      jsdoc-type-pratt-parser: 8.0.0
+      jsdoc-type-pratt-parser: 9.1.2
 
   '@es-joy/resolve.exports@1.2.0': {}
 
@@ -27258,7 +27258,7 @@ snapshots:
 
   '@wordpress/escape-html@3.54.0': {}
 
-  '@wordpress/eslint-plugin@25.10.0(@babel/core@7.29.7)(@wordpress/theme@2.0.0(postcss@8.5.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.14.1(typescript@6.0.3)))(eslint-config-prettier@10.1.8(eslint@10.9.1))(eslint-plugin-import@2.32.0)(eslint-plugin-jest@29.16.6(eslint@10.9.1)(jest@30.4.2)(typescript@6.0.3))(eslint-plugin-jsdoc@63.3.3(eslint@10.9.1))(eslint-plugin-jsx-a11y@6.10.2(eslint@10.9.1))(eslint-plugin-playwright@2.11.0(eslint@10.9.1))(eslint-plugin-prettier@5.5.6(eslint-config-prettier@10.1.8(eslint@10.9.1))(eslint@10.9.1)(wp-prettier@3.0.3))(eslint-plugin-react-hooks@7.1.1(eslint@10.9.1))(eslint-plugin-react@7.37.5(eslint@10.9.1))(eslint@10.9.1)(typescript@6.0.3)(wp-prettier@3.0.3)':
+  '@wordpress/eslint-plugin@25.10.0(@babel/core@7.29.7)(@wordpress/theme@2.0.0(postcss@8.5.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.14.1(typescript@6.0.3)))(eslint-config-prettier@10.1.8(eslint@10.9.1))(eslint-plugin-import@2.32.0)(eslint-plugin-jest@29.16.6(eslint@10.9.1)(jest@30.4.2)(typescript@6.0.3))(eslint-plugin-jsdoc@64.3.2(eslint@10.9.1)(typescript@6.0.3))(eslint-plugin-jsx-a11y@6.10.2(eslint@10.9.1))(eslint-plugin-playwright@2.11.0(eslint@10.9.1))(eslint-plugin-prettier@5.5.6(eslint-config-prettier@10.1.8(eslint@10.9.1))(eslint@10.9.1)(wp-prettier@3.0.3))(eslint-plugin-react-hooks@7.1.1(eslint@10.9.1))(eslint-plugin-react@7.37.5(eslint@10.9.1))(eslint@10.9.1)(typescript@6.0.3)(wp-prettier@3.0.3)':
     dependencies:
       '@babel/core': 7.29.7
       '@babel/eslint-parser': 7.29.7(@babel/core@7.29.7)(eslint@10.9.1)
@@ -27273,7 +27273,7 @@ snapshots:
       eslint-import-resolver-typescript: 4.4.5(eslint-plugin-import@2.32.0)(eslint@10.9.1)
       eslint-plugin-import: 2.32.0(eslint-import-resolver-typescript@4.4.5)(eslint@10.9.1)
       eslint-plugin-jest: 29.16.6(eslint@10.9.1)(jest@30.4.2)(typescript@6.0.3)
-      eslint-plugin-jsdoc: 63.3.3(eslint@10.9.1)
+      eslint-plugin-jsdoc: 64.3.2(eslint@10.9.1)(typescript@6.0.3)
       eslint-plugin-jsx-a11y: 6.10.2(eslint@10.9.1)
       eslint-plugin-playwright: 2.11.0(eslint@10.9.1)
       eslint-plugin-prettier: 5.5.6(eslint-config-prettier@10.1.8(eslint@10.9.1))(eslint@10.9.1)(wp-prettier@3.0.3)
@@ -31564,7 +31564,7 @@ snapshots:
 
   archy@1.0.0: {}
 
-  are-docs-informative@0.0.2: {}
+  are-docs-informative@0.1.1: {}
 
   argparse@2.0.1: {}
 
@@ -32245,7 +32245,7 @@ snapshots:
 
   commander@2.20.3: {}
 
-  comment-parser@1.4.7: {}
+  comment-parser@1.4.8: {}
 
   commenting@1.1.0: {}
 
@@ -33168,14 +33168,15 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-plugin-jsdoc@63.3.3(eslint@10.9.1):
+  eslint-plugin-jsdoc@64.3.2(eslint@10.9.1)(typescript@6.0.3):
     dependencies:
-      '@es-joy/jsdoccomment': 0.91.0
+      '@es-joy/jsdoccomment': 0.95.1
       '@es-joy/resolve.exports': 1.2.0
-      are-docs-informative: 0.0.2
-      comment-parser: 1.4.7
+      '@typescript-eslint/utils': 8.68.0(eslint@10.9.1)(typescript@6.0.3)
+      are-docs-informative: 0.1.1
+      comment-parser: 1.4.8
       debug: 4.4.3
-      escape-string-regexp: 4.0.0
+      escape-string-regexp: 5.0.0
       eslint: 10.9.1
       espree: 11.2.0
       esquery: 1.7.0
@@ -33187,6 +33188,7 @@ snapshots:
       to-valid-identifier: 1.0.0
     transitivePeerDependencies:
       - supports-color
+      - typescript
 
   eslint-plugin-jsx-a11y@6.10.2(eslint@10.9.1):
     dependencies:
@@ -34788,7 +34790,9 @@ snapshots:
     dependencies:
       argparse: 2.0.1
 
-  jsdoc-type-pratt-parser@8.0.0: {}
+  jsdoc-type-pratt-parser@9.1.2:
+    dependencies:
+      '@types/estree': 1.0.9
 
   jsdom@30.0.1:
     dependencies:

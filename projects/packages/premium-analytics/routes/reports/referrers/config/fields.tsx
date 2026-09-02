@@ -81,16 +81,19 @@ export function getReferrerFields(): Field< ReferrerRecord >[] {
 			getValue: ( { item } ) => item.label,
 			render: ( { item } ) => {
 				const safeUrl = safeHttpUrl( item.link );
+				// Only the group row sits in the clipped title cell, so only it
+				// carries the truncation; a leaf keeps the wrapping it had.
+				const isGroup = !! item.hasChildren;
 				const label = (
 					<Stack render={ <span /> } direction="row" gap="sm" align="center">
 						<ReferrerFavicon icon={ item.icon } />
-						<span>{ item.label }</span>
+						<span className={ isGroup ? styles.label : undefined }>{ item.label }</span>
 					</Stack>
 				);
 
 				// Group/source rows keep DataViews' title treatment and never link
 				// away; only leaf referrers use the drilldown leaf treatment.
-				if ( item.hasChildren ) {
+				if ( isGroup ) {
 					return label;
 				}
 

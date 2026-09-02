@@ -7,6 +7,7 @@ import {
 	getAllowedIntervalsForPreset,
 	getDefaultPreset,
 	getStoreInfo,
+	hasComparisonEnabled,
 	normalizeReportParams,
 	type StatsPeriod,
 } from '@jetpack-premium-analytics/data';
@@ -287,7 +288,9 @@ function ReportParamsControl( {
 				presetId={ stagedReportParams.preset ?? reportParams.preset }
 				appliedPresetId={ appliedParams.preset }
 				appliedRange={ appliedRange }
-				comparisonPresetId={ stagedReportParams.compare_preset }
+				comparisonPresetId={
+					hasComparisonEnabled( stagedReportParams ) ? stagedReportParams.compare_preset : undefined
+				}
 				onChange={ stageDateRange }
 				onComparisonChange={ changeComparisonRange }
 				onApply={ commit }

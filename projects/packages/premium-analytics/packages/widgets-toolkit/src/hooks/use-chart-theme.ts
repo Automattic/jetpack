@@ -3,17 +3,13 @@
  */
 import { useMemo } from 'react';
 import type { ChartTheme } from '@jetpack-premium-analytics/externals';
-
 /**
- * The `@automattic/charts` theme plus the analytics-specific properties.
+ * Internal dependencies
  */
-export type WooChartTheme = ChartTheme & {
-	leaderboardChart: ChartTheme[ 'leaderboardChart' ] & {
-		barBorderRadius: string;
-	};
-};
+// The dashboard's leaderboard spacing and bar radius. They are set in CSS, not on the theme below.
+import './chart-roles.scss';
 
-export function useChartTheme(): WooChartTheme {
+export function useChartTheme(): ChartTheme {
 	return useMemo( () => {
 		return {
 			backgroundColor: 'var(--wpds-color-background-surface-neutral-strong)',
@@ -58,10 +54,7 @@ export function useChartTheme(): WooChartTheme {
 				],
 			},
 			leaderboardChart: {
-				rowGap: 4,
-				columnGap: 4,
 				labelSpacing: 'xs',
-				barBorderRadius: 'var(--wpds-border-radius-lg)',
 				deltaColors: [
 					'var(--wpds-color-stroke-surface-error-strong)',
 					'var(--wpds-color-foreground-content-neutral-weak)',

@@ -151,8 +151,12 @@ The palette is resolved per provider, so one `ColorCache` and one group-to-color
 | `--a8c-charts-border-radius-bar` | `--wpds-border-radius-md` | `4px` |
 | `--a8c-charts-border-radius-cell` | `--wpds-border-radius-sm` | `2px` |
 | `--a8c-charts-border-radius-leaderboard-bar` | _(none — pill shape, no WPDS radius fits)_ | `9999px` |
+| `--a8c-charts-dimension-leaderboard-row-gap` | `--wpds-dimension-gap-md` | `12px` |
+| `--a8c-charts-dimension-leaderboard-column-gap` | `--wpds-dimension-gap-xs` | `4px` |
 | `--a8c-charts-elevation-xs` | _(none — `--wpds-elevation-*` removed in theme 1.0.0)_ | `0 1px 1px 0 #00000008, 0 1px 2px 0 #00000005, 0 3px 3px 0 #00000005, 0 4px 4px 0 #00000003` |
 | `--a8c-charts-elevation-sm` | _(none — `--wpds-elevation-*` removed in theme 1.0.0)_ | `0 1px 2px 0 #0000000d, 0 2px 3px 0 #0000000a, 0 6px 6px 0 #00000008, 0 8px 8px 0 #00000005` |
+
+`theme.leaderboardChart.rowGap` and `.columnGap` are the deprecated way into the two leaderboard gaps. Both still outrank the role where a consumer sets one, and both are removed in CHARTS-263. Neither carries a default any more — the role does — so both read as `undefined` off `defaultTheme` and `useGlobalChartsTheme()`.
 
 The motion pair carries the one-shot reveal a data mark plays on first paint, across all six charts that animate in. It deliberately does **not** cover interaction motion: hover and transition timings read `--wpds-motion-*` directly, as interface chrome rather than a chart role.
 
