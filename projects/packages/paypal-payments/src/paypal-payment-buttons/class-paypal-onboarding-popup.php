@@ -135,21 +135,22 @@ class PayPal_Onboarding_Popup {
 	<meta charset="<?php echo esc_attr( get_option( 'blog_charset' ) ); ?>" />
 	<title><?php esc_html_e( 'Connect with PayPal', 'jetpack-paypal-payments' ); ?></title>
 	<style>
-		body { margin: 0; display: flex; align-items: center; justify-content: center; min-height: 100vh; font-family: system-ui, sans-serif; color: #1e1e1e; }
+		body { margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; min-height: 100vh; font-family: system-ui, sans-serif; color: #1e1e1e; text-align: center; }
+		p { margin: 0; max-width: 34em; color: #50575e; }
+		#paypal-connect { display: inline-block; padding: 12px 28px; border-radius: 24px; background: #ffc439; color: #003087; font-size: 16px; font-weight: 600; text-decoration: none; }
 	</style>
 </head>
 <body>
 		<?php if ( $error ) : ?>
 		<p><?php echo esc_html( $error ); ?></p>
 	<?php elseif ( $action_url ) : ?>
-		<p><?php esc_html_e( 'Opening PayPal…', 'jetpack-paypal-payments' ); ?></p>
+		<p><?php esc_html_e( 'You will be taken to PayPal to authorise the connection. This window closes on its own once you are done.', 'jetpack-paypal-payments' ); ?></p>
 		<a
 			id="paypal-connect"
 			href="<?php echo esc_url( $action_url ); ?>"
 			data-paypal-button="true"
 			data-paypal-onboard-complete="jetpackPayPalOnboardComplete"
 			target="PPFrame"
-			hidden
 		><?php esc_html_e( 'Continue to PayPal', 'jetpack-paypal-payments' ); ?></a>
 	<?php else : ?>
 		<p><?php esc_html_e( 'You can close this window now.', 'jetpack-paypal-payments' ); ?></p>
@@ -192,10 +193,6 @@ class PayPal_Onboarding_Popup {
 				if ( window.PAYPAL && window.PAYPAL.apps && window.PAYPAL.apps.Signup ) {
 					window.PAYPAL.apps.Signup.render();
 				}
-				link.click();
-			};
-			script.onerror = function () {
-				link.hidden = false;
 			};
 			document.body.appendChild( script );
 		} )();
