@@ -187,7 +187,7 @@ WP_PORT=$(read_env PORT_WORDPRESS)
 
 > **`--name` is not the slug.** The seeder derives the instance name from git's worktree id, not from your task slug, so `NAME` is an opaque id. Record it in `.work-on/env.json` (below) — Mode 3 and every cleanup command read it from there.
 
-Bring the instance up. Pass **no `--name` or `--port*` flags**: `up` is the one subcommand that reads `tools/docker/.env` (`shouldManageParallelEnv` in `tools/cli/commands/docker.js`), and flags that disagree with `.env` only produce conflict warnings.
+Bring the instance up. Pass **no `--name` or `--port*` flags**: every `dev` subcommand reads `tools/docker/.env` (`shouldReadParallelEnv` in `tools/cli/commands/docker.js`), and flags that disagree with `.env` only produce conflict warnings on `up`.
 
 ```bash
 jp docker up -d

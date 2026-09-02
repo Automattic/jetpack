@@ -344,19 +344,43 @@ export const applyUpdateEnv = ( filePath, conflicts ) => {
 };
 
 /**
- * Whether the hybrid tools/docker/.env parallel-instance machinery (reading keys as a base
- * layer, conflict warnings, append-on-`up --name` persistence) applies to this invocation.
+ * Whether this invocation resolves its target instance from tools/docker/.env.
  *
- * Scoped to `up` on `type === 'dev'`. The e2e flow runs `docker --type e2e --name t1 up`,
- * which sets argv.name but manages its own fixed ports and project name — it must neither
- * read parallel keys from nor write them to the shared .env. Keeping the gate here (rather
- * than only inline at the call sites) mirrors resolveDevCloneSource being "correct on its
- * own terms" and makes the e2e exclusion unit-testable.
+ * Every dev subcommand does, so `stop`/`down`/`clean`/`wp` from a seeded worktree hit that
+ * worktree's containers rather than the shared jetpack_dev. The e2e flow is excluded: it runs
+ * `docker --type e2e --name t1 …` with its own fixed name and ports.
  *
  * @param {object} argv - Yargs argv.
- * @return {boolean} true when parallel-env reads/writes should run.
+ * @return {boolean} true when .env should be read as a base layer for argv.
  */
-export const shouldManageParallelEnv = argv => argv.type === 'dev' && argv._[ 1 ] === 'up';
+export const shouldReadParallelEnv = argv => argv.type === 'dev';
+
+/**
+ * Whether this invocation may write tools/docker/.env — conflict warnings, --update-env
+ * rewrites, and append-on-`up --name` persistence.
+ *
+ * Scoped to `up`, the only subcommand that takes the flags .env can disagree with.
+ *
+ * @param {object} argv - Yargs argv.
+ * @return {boolean} true when parallel-env writes should run.
+ */
+export const shouldWriteParallelEnv = argv => shouldReadParallelEnv( argv ) && argv._[ 1 ] === 'up';
+
+/**
+ * Fill argv's parallel-instance fields from tools/docker/.env so the command targets this
+ * worktree's instance. Flags already set win; safe to call more than once per invocation.
+ *
+ * @param {object} argv - Yargs argv (mutated in place).
+ * @return {object} Parsed .env, or {} when the read does not apply.
+ */
+export const applyParallelEnv = argv => {
+	if ( ! shouldReadParallelEnv( argv ) ) {
+		return {};
+	}
+	const fileEnv = readEnvFile();
+	augmentArgvFromEnvFile( argv, fileEnv );
+	return fileEnv;
+};
 
 /**
  * Decides which source instance to clone the DB from when bringing up a dev container, if any.
@@ -818,20 +842,16 @@ async function retry( action, { times, delay = 5000 } ) {
  *
  * @param {object} argv - Arguments passed.
  */
-const defaultDockerCmdHandler = async argv => {
+export const defaultDockerCmdHandler = async argv => {
 	printPreCmdMsg( argv );
 
-	// Hybrid .env handling for `up`: read .env as a base layer (flags still win),
-	// surface conflicts as warnings (or rewrite when --update-env is set), and persist
-	// parallel-instance keys after a successful `up --name`. See tools/docker/README.md
-	// § "Parallel development environments" for the full precedence + semantics.
-	// Scoped via shouldManageParallelEnv (`up` + `type === 'dev'`): the e2e flow runs with a
-	// fixed `--name t1` and manages its own ports, so it must neither read parallel keys from
-	// nor write them to the shared tools/docker/.env.
-	if ( shouldManageParallelEnv( argv ) ) {
-		const flagSnapshot = snapshotFlagArgv( argv );
-		const fileEnv = readEnvFile();
-		augmentArgvFromEnvFile( argv, fileEnv );
+	// Read .env as a base layer so every dev subcommand targets this worktree's instance, not
+	// the shared jetpack_dev; flags still win. Writing back (conflict warnings, --update-env)
+	// stays on `up`, the only subcommand taking flags .env can disagree with. See
+	// tools/docker/README.md § "Parallel development environments" for the full semantics.
+	const flagSnapshot = snapshotFlagArgv( argv );
+	const fileEnv = applyParallelEnv( argv );
+	if ( shouldWriteParallelEnv( argv ) ) {
 		const conflicts = detectEnvConflicts( flagSnapshot, fileEnv );
 		if ( conflicts.length ) {
 			if ( argv.updateEnv ) {
@@ -916,12 +936,11 @@ const defaultDockerCmdHandler = async argv => {
 		}
 	}
 
-	// Persist parallel-instance config to .env on `up --name`. Idempotent: only appends
-	// keys that aren't already in the file (Strategy B). Skipped for the primary
-	// `jetpack_dev` flow (no --name) so the main checkout's .env is never written to.
-	// Also skipped for non-dev types: the e2e flow always passes `--name t1`, but it
-	// must not write COMPOSE_PROJECT_NAME/PORT_* into the shared tools/docker/.env.
-	if ( shouldManageParallelEnv( argv ) && argv.name ) {
+	// Persist parallel-instance config to .env on `up --name`. Idempotent: only appends keys
+	// that aren't already in the file (Strategy B). Skipped without --name so the primary
+	// `jetpack_dev` flow never writes to the main checkout's .env, and skipped for e2e, which
+	// always passes `--name t1` but must not claim the shared file.
+	if ( shouldWriteParallelEnv( argv ) && argv.name ) {
 		const written = persistParallelEnv( envOpts );
 		if ( written.length ) {
 			console.log(
@@ -1061,9 +1080,10 @@ export const buildExecCmd = argv => {
  *
  * @param {object} argv - Yargs object
  */
-const execDockerCmdHandler = argv => {
+export const execDockerCmdHandler = argv => {
 	printPreCmdMsg( argv );
 
+	applyParallelEnv( argv );
 	const envOpts = buildEnv( argv );
 	const opts = buildExecCmd( argv );
 
@@ -1414,6 +1434,7 @@ export function dockerDefine( yargs ) {
 							array: true,
 						} ),
 					handler: argv => {
+						applyParallelEnv( argv );
 						// Get all the commands to run
 						const allCmds = buildExecCmd( argv );
 						let hasFailure = false;
