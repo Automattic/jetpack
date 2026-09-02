@@ -342,6 +342,7 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 	const [ isGeneratingSignupLink, setIsGeneratingSignupLink ] = useState( false );
 	const [ showOnboardingFrame, setShowOnboardingFrame ] = useState( false );
 	const onboardingFrameRef = useRef( null );
+	const onboardingLinkRef = useRef( null );
 
 	// Edit/preview mode toggle. Start in preview if button already exists.
 	const [ isEditing, setIsEditing ] = useState( ! ( isApiManaged && resourceId && paymentLink ) );
@@ -615,6 +616,7 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 				broadcastConnectionChange( true );
 			} )
 			.catch( err => {
+				setShowOnboardingFrame( false );
 				setConnectError( getUserFriendlyError( err ) );
 				setConnectErrorDismissed( false );
 			} )
@@ -641,35 +643,79 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 	 * The SDK turns the link itself into its button, so the link has to exist
 	 * before the merchant can open anything.
 	 */
-	const fetchSignupLink = useCallback( () => {
-		setConnectError( null );
-		setIsGeneratingSignupLink( true );
+	const fetchSignupLink = useCallback(
+		( { openWhenReady = false } = {} ) => {
+			setConnectError( null );
+			setIsGeneratingSignupLink( true );
 
-		apiFetch( {
-			path: `${ API_BASE }/onboarding/signup-link`,
-			method: 'POST',
-			data: {
-				return_url: window.location.href,
-				environment,
-			},
-		} )
-			.then( response => {
-				// `displayMode=minibrowser` is what makes PayPal render the flow in
-				// the SDK's lightbox and report the auth code back through the
-				// callback, rather than treating this as a plain redirect.
-				const url = new URL( response.action_url );
-				url.searchParams.set( 'displayMode', 'minibrowser' );
-				setSignupUrl( url.toString() );
-				setShowOnboardingFrame( true );
+			apiFetch( {
+				path: `${ API_BASE }/onboarding/signup-link`,
+				method: 'POST',
+				data: {
+					return_url: window.location.href,
+					environment,
+				},
 			} )
-			.catch( err => {
-				setConnectError( getUserFriendlyError( err ) );
-				setConnectErrorDismissed( false );
-			} )
-			.finally( () => {
-				setIsGeneratingSignupLink( false );
-			} );
+				.then( response => {
+					// `displayMode=minibrowser` is what makes PayPal render the flow in
+					// the SDK's lightbox and report the auth code back through the
+					// callback, rather than treating this as a plain redirect.
+					const url = new URL( response.action_url );
+					url.searchParams.set( 'displayMode', 'minibrowser' );
+					setSignupUrl( url.toString() );
+					if ( openWhenReady ) {
+						setShowOnboardingFrame( true );
+					}
+				} )
+				.catch( err => {
+					setConnectError( getUserFriendlyError( err ) );
+					setConnectErrorDismissed( false );
+				} )
+				.finally( () => {
+					setIsGeneratingSignupLink( false );
+				} );
+		},
+		[ environment ]
+	);
+
+	/**
+	 * A different environment needs a different referral link.
+	 */
+	useEffect( () => {
+		setSignupUrl( '' );
 	}, [ environment ] );
+
+	/**
+	 * Prepare the referral link as soon as the welcome step is on screen.
+	 *
+	 * connectError is a bail condition because a failed request clears
+	 * isGeneratingSignupLink on the way out, which runs this effect again.
+	 * Without it a failing signup-link request repeats forever.
+	 */
+	useEffect( () => {
+		if (
+			connectionLoading ||
+			isConnected ||
+			! partnerReferralsAvailable ||
+			wizardStep !== 'welcome' ||
+			signupUrl ||
+			connectError ||
+			isGeneratingSignupLink
+		) {
+			return;
+		}
+
+		fetchSignupLink();
+	}, [
+		connectionLoading,
+		isConnected,
+		partnerReferralsAvailable,
+		wizardStep,
+		signupUrl,
+		connectError,
+		isGeneratingSignupLink,
+		fetchSignupLink,
+	] );
 
 	/**
 	 * Run PayPal's lightbox in a frame the editor cannot be navigated out of.
@@ -680,7 +726,7 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 	 * the lightbox still paints over the editor at full size.
 	 */
 	useEffect( () => {
-		if ( ! showOnboardingFrame || ! signupUrl ) {
+		if ( ! signupUrl ) {
 			return;
 		}
 
@@ -713,6 +759,7 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 		link.setAttribute( 'data-paypal-button', 'true' );
 		link.setAttribute( 'data-paypal-onboard-complete', ONBOARD_CALLBACK_NAME );
 		frameDocument.getElementById( 'link' ).appendChild( link );
+		onboardingLinkRef.current = link;
 
 		loadPartnerScript( environment, frameDocument )
 			.then( () => {
@@ -723,7 +770,6 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 				// partner.js binds the anchors it finds as it runs, so the rescan
 				// has to happen after the link is in the document.
 				frameWindow.PAYPAL?.apps?.Signup?.render();
-				link.click();
 			} )
 			.catch( () => {
 				if ( cancelled ) {
@@ -742,41 +788,10 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 
 		return () => {
 			cancelled = true;
+			onboardingLinkRef.current = null;
 			delete frameWindow[ ONBOARD_CALLBACK_NAME ];
 		};
-	}, [ showOnboardingFrame, signupUrl, environment, completeOnboarding ] );
-
-	/**
-	 * Close the frame once the account is connected.
-	 *
-	 * Denying top navigation also denies PayPal the return URL it would land on,
-	 * so a callback that never fires would leave the frame up with no way to
-	 * know onboarding is done.
-	 */
-	useEffect( () => {
-		if ( ! showOnboardingFrame ) {
-			return;
-		}
-
-		const poll = setInterval( () => {
-			apiFetch( { path: `${ API_BASE }/connection` } )
-				.then( response => {
-					if ( ! response.connected ) {
-						return;
-					}
-
-					setSignupUrl( '' );
-					setShowOnboardingFrame( false );
-					setIsConnected( true );
-					setShowReconnect( false );
-					setWizardStep( 'success' );
-					broadcastConnectionChange( true );
-				} )
-				.catch( () => {} );
-		}, 3000 );
-
-		return () => clearInterval( poll );
-	}, [ showOnboardingFrame ] );
+	}, [ signupUrl, environment, completeOnboarding ] );
 
 	/**
 	 * Handle PayPal disconnect with confirmation.
@@ -1182,12 +1197,15 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 	 * the link and SDK into. Pointing src at about:blank navigates over that
 	 * write and leaves the frame empty.
 	 */
-	const onboardingFrame = showOnboardingFrame ? (
+	const onboardingFrame = signupUrl ? (
 		<iframe
 			ref={ onboardingFrameRef }
 			title={ __( 'PayPal onboarding', 'jetpack-paypal-payments' ) }
 			sandbox={ ONBOARDING_SANDBOX }
-			className="jetpack-paypal-onboarding-frame"
+			className={
+				'jetpack-paypal-onboarding-frame' +
+				( showOnboardingFrame ? ' jetpack-paypal-onboarding-frame--active' : '' )
+			}
 		/>
 	) : null;
 
@@ -1263,9 +1281,14 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 							<div className="jetpack-paypal-wizard__actions">
 								<Button
 									variant="primary"
-									onClick={ () =>
-										signupUrl ? setShowOnboardingFrame( true ) : fetchSignupLink()
-									}
+									onClick={ () => {
+										if ( ! signupUrl ) {
+											fetchSignupLink( { openWhenReady: true } );
+											return;
+										}
+										setShowOnboardingFrame( true );
+										onboardingLinkRef.current?.click();
+									} }
 									isBusy={ isGeneratingSignupLink || isCompletingOnboarding }
 									disabled={ isGeneratingSignupLink || isCompletingOnboarding }
 								>
