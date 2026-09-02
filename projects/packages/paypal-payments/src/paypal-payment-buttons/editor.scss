@@ -619,6 +619,16 @@
 	margin-top: 12px;
 }
 
+.jetpack-paypal-onboarding-frame {
+	position: fixed;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	border: 0;
+	background: transparent;
+	z-index: 100000;
+}
+
 .jetpack-paypal-payment-buttons__confirm-body {
 
 	p {
