@@ -44,6 +44,7 @@ export default function AssistantBanner() {
 
 	return (
 		<AiBanner
+			className="jetpack-ai-overview__assistant-banner"
 			title={ __( 'Do more on your site with AI.', 'jetpack' ) }
 			description={ __(
 				'Write, edit, and make changes across your whole site. Start in the editor, or connect ChatGPT or Claude and work from there.',
