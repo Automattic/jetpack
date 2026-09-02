@@ -86,10 +86,8 @@ const daysAgo = ( days: number ) => {
 	return date;
 };
 
-type Preset = { label: string; range: () => { start: Date; end: Date } };
-
 // "Last 12 months" is 365 days so it round-trips to the 'all' period.
-const getPresets = (): Preset[] => [
+const getPresets = () => [
 	{
 		label: __( 'Today', 'jetpack-podcast' ),
 		range: () => ( { start: startOfToday(), end: startOfToday() } ),
@@ -130,9 +128,6 @@ const getPresets = (): Preset[] => [
 	},
 ];
 
-const isSameRange = ( a: PodcastStatsSelection, b: PodcastStatsSelection ) =>
-	a.range.from === b.range.from && a.range.to === b.range.to;
-
 type PeriodControlProps = {
 	value: PodcastStatsSelection;
 	onChange: ( next: PodcastStatsSelection ) => void;
@@ -143,8 +138,8 @@ const PeriodControl = ( { value, onChange }: PeriodControlProps ) => {
 	const [ draft, setDraft ] = useState< DateRange | null >( null );
 	const isSmall = useViewportMatch( 'medium', '<' );
 
-	const start = localDateFromYmd( value.range.from );
 	const end = localDateFromYmd( value.range.to );
+	const label = formatLabel( localDateFromYmd( value.range.from ), end );
 	const today = startOfToday();
 	const earliest = daysAgo( MAX_RANGE_DAYS - 1 );
 
@@ -208,10 +203,10 @@ const PeriodControl = ( { value, onChange }: PeriodControlProps ) => {
 				aria-label={ sprintf(
 					/* translators: %s: selected date range */
 					__( 'Date range: %s. Activate to open calendar.', 'jetpack-podcast' ),
-					formatLabel( start, end )
+					label
 				) }
 			>
-				{ formatLabel( start, end ) }
+				{ label }
 				<Button.Icon icon={ calendarIcon } />
 			</Popover.Trigger>
 			<Popover.Popup positioner={ <Popover.Positioner align="end" sideOffset={ 8 } /> }>
@@ -225,7 +220,8 @@ const PeriodControl = ( { value, onChange }: PeriodControlProps ) => {
 					>
 						{ presets.map( ( preset, index ) => {
 							const { start: presetStart, end: presetEnd } = preset.range();
-							const isActive = isSameRange( selectionFromDates( presetStart, presetEnd ), value );
+							const { range } = selectionFromDates( presetStart, presetEnd );
+							const isActive = range.from === value.range.from && range.to === value.range.to;
 							return (
 								<li key={ preset.label }>
 									<Button
