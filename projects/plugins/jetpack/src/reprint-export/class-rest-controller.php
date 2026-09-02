@@ -81,7 +81,7 @@ class REST_Controller extends WP_REST_Controller {
 	/**
 	 * Rotates the shared secret and returns it.
 	 *
-	 * random_bytes() rather than wp_generate_password(). That helper is for
+	 * Uses random_bytes() rather than wp_generate_password(). That helper is for
 	 * passwords a person reads and types, and sites can filter it through
 	 * `random_password` to enforce their own policy — an extension point we do
 	 * not want on a credential. random_bytes() also throws rather than quietly
