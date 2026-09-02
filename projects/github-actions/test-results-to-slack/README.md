@@ -9,6 +9,7 @@ The action will send notifications with the workflow status grouped by a unique 
 For pull_request, the notifications will be grouped by PR number.
 For push, the notifications will be grouped by commit id.
 For schedule event there will be no grouping. Each new run will have its own main message. 
+For workflow_dispatch, the notifications will be grouped by the optional `sha` input. Without that input, each new run will have its own main message.
 
 If workflow failed and no main message exists, a main message is created and then a reply is sent with the failed run details.
 
@@ -160,6 +161,27 @@ Example:
 ```
 
 In the example, for runs with `suite_name` set to "Smoke tests", a notification will be sent to `CHANNEL_ID_1` and to the default channel.
+
+## Inputs for workflow_dispatch event
+
+If a workflow is triggered manually with a `workflow_dispatch` event, it can provide information about the commit being tested through optional workflow inputs:
+
+```yml
+on:
+  workflow_dispatch:
+    inputs:
+      sha:
+        description: 'Commit tested'
+        type: string
+      repository:
+        description: 'Repository tested'
+        type: string
+```
+
+- `sha`: the commit that triggered the workflow. Notifications with the same value will be grouped.
+- `repository`: the repository containing the commit. When supplied with `sha`, the notification will include a link to the commit.
+
+When `sha` is not supplied, each manual run will have its own main message. A `repository` value without `sha` is ignored.
 
 ## Client payload for repository_dispatch event
  If the workflow is triggered by a `repository_dispatch` event from another repository, you may want to include some additional information about the upstream repository in the notification. This can be included in the `client_payload` object of the repository dispatch event. The action will parse the `client_payload` object and use the use information in the notification. The following properties are supported:
