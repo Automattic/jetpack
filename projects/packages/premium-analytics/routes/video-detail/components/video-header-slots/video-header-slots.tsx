@@ -8,10 +8,11 @@ import { video } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
-import { formatPublishedDate, performanceSentence, type HeaderSlots } from '../../../detail-header';
+import { formatPublishedDate, performanceSentence } from '../../../detail-header';
 import placeholders from '../../../detail-header.module.scss';
 import type { VideoSummary } from '../../hooks';
 import type { DateRange } from '@jetpack-premium-analytics/datetime';
+import type { DetailPageHeaderSlots } from '@jetpack-premium-analytics/widgets-toolkit';
 
 type VideoHeaderSlotsArgs = {
 	summary: VideoSummary;
@@ -52,7 +53,7 @@ function VideoPoster( { posterUrl }: { posterUrl?: string } ) {
 export function videoHeaderSlots( {
 	summary,
 	performanceRange,
-}: VideoHeaderSlotsArgs ): HeaderSlots {
+}: VideoHeaderSlotsArgs ): DetailPageHeaderSlots {
 	const glyph = <Icon icon={ video } size={ 28 } />;
 
 	// The title lands on its own request, so the header would otherwise read as

@@ -8,13 +8,12 @@ import {
 } from '@jetpack-premium-analytics/data';
 import { Button, Stack, Text } from '@jetpack-premium-analytics/externals';
 import { pickReportDateParams, useReportDateFilters } from '@jetpack-premium-analytics/routing';
+import { DateFiltersPanel, StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
-	DateFiltersPanel,
-	SectionHeader,
-	StatsBreadcrumbs,
-	StatsPageIcon,
-} from '@jetpack-premium-analytics/ui';
-import { Page } from '@wordpress/admin-ui';
+	DetailPageLayout,
+	DetailPageSection,
+	DetailPageShell,
+} from '@jetpack-premium-analytics/widgets-toolkit';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
@@ -31,7 +30,6 @@ import { videoHeaderSlots } from './components';
 import { VIDEO_DETAIL_LAYOUT } from './config';
 import { useVideoSummary } from './hooks';
 import { route } from './package.json';
-import styles from './stage.module.scss';
 
 const ROUTE_FROM = route.path;
 
@@ -133,36 +131,27 @@ function VideoDetail(): JSX.Element {
 			onLayoutChange={ noopLayoutChange }
 			gridSettings={ VIDEO_DETAIL_GRID }
 		>
-			<Page
+			<DetailPageShell
 				visual={ <StatsPageIcon /> }
 				breadcrumbs={ <StatsBreadcrumbs items={ breadcrumbs } /> }
-				className={ styles.page }
 			>
-				<div className={ styles.scrollArea }>
-					<div className={ styles.header }>
-						<SectionHeader
-							headingLevel={ 1 }
-							{ ...videoHeaderSlots( {
-								summary,
-								performanceRange: dateFilters.appliedRange,
-							} ) }
-						>
-							{ /*
-							 * The design has no comparison on this page. The panel reads that
-							 * from the scope the stage declares, which is the same declaration
-							 * that keeps the params away from the widgets.
-							 */ }
-							<DateFiltersPanel { ...dateFilters } { ...dateControls } />
-						</SectionHeader>
-					</div>
+				<DetailPageLayout
+					header={ videoHeaderSlots( {
+						summary,
+						performanceRange: dateFilters.appliedRange,
+					} ) }
+					// The presets render in every summary state, so the range stays
+					// adjustable while the video loads or errors.
+					controls={ <DateFiltersPanel { ...dateFilters } { ...dateControls } /> }
+				>
 					{ canRenderWidgets ? (
-						<div className={ styles.content }>
-							<WidgetDashboard.Widgets className={ styles.widgets } />
-						</div>
+						<DetailPageSection>
+							<WidgetDashboard.Widgets />
+						</DetailPageSection>
 					) : null }
-					{ notice ? <div className={ styles.content }>{ notice }</div> : null }
-				</div>
-			</Page>
+					{ notice ? <DetailPageSection>{ notice }</DetailPageSection> : null }
+				</DetailPageLayout>
+			</DetailPageShell>
 		</WidgetDashboard>
 	);
 }

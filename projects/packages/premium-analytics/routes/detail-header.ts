@@ -9,12 +9,8 @@ import {
 	toLocalTZ,
 	type DateRange,
 } from '@jetpack-premium-analytics/datetime';
-import type { SectionHeaderProps } from '@jetpack-premium-analytics/ui';
 
 const DATE_FORMAT = 'MMM d, yyyy';
-
-/** What a detail page hands the shared header, owned by the header's own props. */
-export type HeaderSlots = Pick< SectionHeaderProps, 'visual' | 'title' | 'subTitle' | 'busy' >;
 
 /**
  * Formats a resource's publish date for the header, in the site timezone —

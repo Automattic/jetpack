@@ -7,11 +7,12 @@ import { envelope as envelopeIcon, page as pageIcon, post as postIcon } from '@w
 /**
  * Internal dependencies
  */
-import { formatPublishedDate, performanceSentence, type HeaderSlots } from '../../../detail-header';
+import { formatPublishedDate, performanceSentence } from '../../../detail-header';
 import placeholders from '../../../detail-header.module.scss';
 import styles from './post-header-slots.module.scss';
 import type { PostSummary } from '../../hooks';
 import type { DateRange } from '@jetpack-premium-analytics/datetime';
+import type { DetailPageHeaderSlots } from '@jetpack-premium-analytics/widgets-toolkit';
 
 type PostHeaderSlotsArgs = {
 	summary: PostSummary;
@@ -51,7 +52,7 @@ export function postHeaderSlots( {
 	summary,
 	variant = 'post',
 	performanceRange,
-}: PostHeaderSlotsArgs ): HeaderSlots {
+}: PostHeaderSlotsArgs ): DetailPageHeaderSlots {
 	const { title, type, publishedDate, imageUrl, isLoading } = summary;
 
 	const formattedDate = formatPublishedDate( publishedDate );

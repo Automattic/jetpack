@@ -30,6 +30,8 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 	DateFiltersPanel: () => <div>Date filters</div>,
 	SectionHeader: jest.requireActual( '../../packages/ui/src/section-header' ).SectionHeader,
+	// Unused here — the page has no tabs — but the shared detail-page layout imports it.
+	SectionTabPanel: ( { children }: { children: ReactNode } ) => <div>{ children }</div>,
 	StatsBreadcrumbs: jest.requireActual( '../../packages/ui/src/stats-breadcrumbs' )
 		.StatsBreadcrumbs,
 	StatsPageIcon: () => null,
@@ -280,8 +282,8 @@ describe( 'video detail stage', () => {
 
 	it( 'keeps a long unbroken title single-line-ready: full text in markup plus the hover attr', () => {
 		// Layout is out of jsdom's reach (the clip is CSS, `white-space: nowrap` +
-		// ellipsis, in stage.module.scss), so this guards the DOM contract it relies
-		// on: full text in the heading, mirrored in `title` for hover access.
+		// ellipsis, in `section-header.module.scss`), so this guards the DOM contract
+		// it relies on: full text in the heading, mirrored in `title` for hover access.
 		const longTitle = `VID_20260731_${ 'a'.repeat( 120 ) }.mp4`;
 		mockSummary( { title: longTitle } );
 
