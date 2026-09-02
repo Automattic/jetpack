@@ -14,6 +14,7 @@
  * @since 0.8.0
  */
 
+import PopupMonitor from '@automattic/popup-monitor';
 import apiFetch from '@wordpress/api-fetch'; // eslint-disable-line import/no-unresolved
 import {
 	BlockControls,
@@ -37,7 +38,7 @@ import {
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis -- Experimental API; stable ConfirmDialog not yet exported by @wordpress/components.
 	__experimentalConfirmDialog as ConfirmDialog,
 } from '@wordpress/components';
-import { useState, useEffect, useCallback, useMemo, useRef } from '@wordpress/element';
+import { useState, useEffect, useCallback, useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import metadata from './block.json';
 import PayPalButtonPreview from './paypal-button-preview';
@@ -60,72 +61,11 @@ import VariantBuilder, { hasVariantPricing, validateVariants } from './variant-b
 const CONNECTION_CHANGED_EVENT = 'jetpack-paypal-payments-connection-changed';
 
 /**
- * PayPal's onboarding SDK, per environment.
+ * The BroadcastChannel the onboarding popup returns PayPal's auth code on.
  *
- * The seller's `authCode` and `sharedId` are handed over in one place only:
- * the `data-paypal-onboard-complete` callback of a link rendered by this
- * script. They are not posted to an arbitrary window and they are not on the
- * return URL, which carries just `merchantIdInPayPal`, `permissionsGranted`
- * and friends. Opening the action URL ourselves therefore never yields an auth
- * code, and without one there is nothing to exchange for the seller's
- * credentials.
+ * Must match PayPal_Onboarding_Popup::CHANNEL.
  */
-const PARTNER_JS_URLS = {
-	production: 'https://www.paypal.com/webapps/merchantboarding/js/lib/lightbox/partner.js',
-	sandbox: 'https://www.sandbox.paypal.com/webapps/merchantboarding/js/lib/lightbox/partner.js',
-};
-
-/**
- * Name of the global PayPal invokes when onboarding completes.
- *
- * The SDK resolves it by name off `window`, so it cannot be a closure.
- */
-const ONBOARD_CALLBACK_NAME = 'jetpackPayPalOnboardComplete';
-
-/**
- * Load PayPal's onboarding SDK, reusing the tag if it is already on the page.
- *
- * The document matters. This block is apiVersion 3, so the editor canvas is an
- * iframe and the connect link lives in *that* document, while this module runs
- * in the parent. partner.js only scans its own document for the anchors it
- * binds to, so loading it into the parent leaves the link untouched and the
- * browser falls back to opening `target="PPFrame"` as a stray tab.
- *
- * @param {string}   environment - 'sandbox' or 'production'.
- * @param {Document} doc         - The document the connect link belongs to.
- * @return {Promise} Resolves once the SDK is ready.
- */
-function loadPartnerScript( environment, doc ) {
-	const src = PARTNER_JS_URLS[ environment ] || PARTNER_JS_URLS.production;
-	const existing = doc.querySelector( `script[data-paypal-partner-js="${ src }"]` );
-
-	if ( existing ) {
-		return existing.dataset.loaded === 'true'
-			? Promise.resolve()
-			: new Promise( ( resolve, reject ) => {
-					existing.addEventListener( 'load', resolve );
-					existing.addEventListener( 'error', reject );
-			  } );
-	}
-
-	return new Promise( ( resolve, reject ) => {
-		const script = doc.createElement( 'script' );
-		script.src = src;
-		script.async = true;
-		// PayPal's own snippets give the tag this id; some SDK builds look
-		// themselves up by it.
-		script.id = 'paypal-js';
-		script.dataset.paypalPartnerJs = src;
-		script.addEventListener( 'load', () => {
-			script.dataset.loaded = 'true';
-			resolve();
-		} );
-		script.addEventListener( 'error', () =>
-			reject( new Error( 'PayPal onboarding script failed to load.' ) )
-		);
-		doc.body.appendChild( script );
-	} );
-}
+const ONBOARDING_CHANNEL = 'jetpack-paypal-onboarding';
 
 /**
  * Tell the other blocks on this page that the site-wide PayPal connection
@@ -322,13 +262,8 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 	// explicitly rather than by the usual "no button yet" path.
 	const [ showReconnect, setShowReconnect ] = useState( false );
 
-	/*
-	 * The referral link PayPal's SDK opens, and the anchor it binds to. The
-	 * anchor has to exist in the DOM before the SDK's render() runs, so the URL
-	 * lives in state rather than in a local.
-	 */
-	const [ signupUrl, setSignupUrl ] = useState( '' );
-	const signupLinkRef = useRef( null );
+	// The same-origin page the onboarding popup loads, from the connection check.
+	const [ onboardingPopupUrl, setOnboardingPopupUrl ] = useState( '' );
 
 	// Edit/preview mode toggle. Start in preview if button already exists.
 	const [ isEditing, setIsEditing ] = useState( ! ( isApiManaged && resourceId && paymentLink ) );
@@ -341,16 +276,13 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 	const [ isConnecting, setIsConnecting ] = useState( false );
 
 	// Partner Referrals onboarding state.
-	const [ isGeneratingSignupLink, setIsGeneratingSignupLink ] = useState( false );
 	const [ isCompletingOnboarding, setIsCompletingOnboarding ] = useState( false );
 
 	// Pre-compute "Connect with PayPal" button label to avoid nested ternary.
 	const labelConnectWithPayPal = __( 'Connect with PayPal', 'jetpack-paypal-payments' );
 	const labelCompletingSetup = __( 'Completing setup\u2026', 'jetpack-paypal-payments' );
 	let connectWithPayPalLabel = labelConnectWithPayPal;
-	if ( isGeneratingSignupLink ) {
-		connectWithPayPalLabel = labelConnecting;
-	} else if ( isCompletingOnboarding ) {
+	if ( isCompletingOnboarding ) {
 		connectWithPayPalLabel = labelCompletingSetup;
 	}
 
@@ -463,6 +395,7 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 				setIsConnected( response.connected );
 				setEnvironment( response.environment );
 				setPartnerReferralsAvailable( !! response.partner_referrals_available );
+				setOnboardingPopupUrl( response.onboarding_popup_url || '' );
 				setPartnerAttributionId( response.partner_attribution_id || '' );
 				if ( ! response.connected && ! response.partner_referrals_available ) {
 					setWizardStep( 'dashboard' );
@@ -595,7 +528,6 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 			},
 		} )
 			.then( () => {
-				setSignupUrl( '' );
 				setIsConnected( true );
 				setShowReconnect( false );
 				setWizardStep( 'success' );
@@ -611,260 +543,52 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 	}, [] );
 
 	/**
-	 * Expose the completion callback for PayPal's SDK to call by name.
-	 */
-	useEffect( () => {
-		const callback = ( authCode, sharedId ) => completeOnboarding( authCode, sharedId );
-		window[ ONBOARD_CALLBACK_NAME ] = callback;
-
-		// The link's document may be the editor iframe; the effect that loads
-		// the SDK copies this across once that link exists.
-		const linkWindow = signupLinkRef.current?.ownerDocument?.defaultView;
-		if ( linkWindow && linkWindow !== window ) {
-			linkWindow[ ONBOARD_CALLBACK_NAME ] = callback;
-		}
-
-		return () => {
-			delete window[ ONBOARD_CALLBACK_NAME ];
-			if ( linkWindow && linkWindow !== window ) {
-				delete linkWindow[ ONBOARD_CALLBACK_NAME ];
-			}
-		};
-	}, [ completeOnboarding ] );
-
-	/**
-	 * Fetch the referral link.
+	 * Run PayPal's onboarding in a window of its own.
 	 *
-	 * Kept separate from any click handler: PayPal's SDK turns the link itself
-	 * into the button, so the link has to exist before the merchant clicks
-	 * anything. Their click then lands on the SDK's own handler as a real user
-	 * gesture, which is what reliably opens the lightbox.
+	 * The SDK redirects `window.top` to the return URL once the seller finishes,
+	 * which would reload the editor and lose an unsaved post. In a popup that
+	 * redirect lands on the popup, and the auth code -- the only thing the return
+	 * URL never carries -- comes back over a BroadcastChannel, the way Publicize
+	 * returns a keyring result.
 	 */
-	const fetchSignupLink = useCallback( () => {
-		setConnectError( null );
-		setIsGeneratingSignupLink( true );
-
-		const onboardingReturnUrl =
-			window.location.href.split( '?' )[ 0 ] + '?paypal_onboarding_return=1';
-
-		apiFetch( {
-			path: `${ API_BASE }/onboarding/signup-link`,
-			method: 'POST',
-			data: {
-				return_url: onboardingReturnUrl,
-				environment,
-			},
-		} )
-			.then( response => {
-				// `displayMode=minibrowser` is what makes PayPal render the flow
-				// in the SDK's lightbox and report the auth code back through the
-				// callback, rather than treating this as a plain redirect.
-				const url = new URL( response.action_url );
-				url.searchParams.set( 'displayMode', 'minibrowser' );
-				setSignupUrl( url.toString() );
-			} )
-			.catch( err => {
-				setConnectError( getUserFriendlyError( err ) );
-				setConnectErrorDismissed( false );
-			} )
-			.finally( () => {
-				setIsGeneratingSignupLink( false );
-			} );
-	}, [ environment ] );
-
-	/**
-	 * Prepare the referral link as soon as the welcome step is on screen.
-	 *
-	 * connectError is a bail condition because a failed request clears
-	 * isGeneratingSignupLink on the way out, which runs this effect again.
-	 * Without it a failing signup-link request repeats forever.
-	 */
-	useEffect( () => {
-		if (
-			connectionLoading ||
-			isConnected ||
-			! partnerReferralsAvailable ||
-			wizardStep !== 'welcome' ||
-			signupUrl ||
-			connectError ||
-			isGeneratingSignupLink
-		) {
+	const openOnboardingPopup = useCallback( () => {
+		if ( ! onboardingPopupUrl ) {
 			return;
 		}
 
-		fetchSignupLink();
-	}, [
-		connectionLoading,
-		isConnected,
-		partnerReferralsAvailable,
-		wizardStep,
-		signupUrl,
-		connectError,
-		isGeneratingSignupLink,
-		fetchSignupLink,
-	] );
+		setConnectError( null );
 
-	/**
-	 * Open the referral link in a sized window and close it on the way back.
-	 *
-	 * Only used when PayPal's SDK is not there to take the click. Without it the
-	 * link's `target="PPFrame"` -- which exists so the SDK can point it at the
-	 * lightbox it creates -- sends the merchant to a stray browser tab instead.
-	 */
-	const openSignupWindow = useCallback( url => {
-		const width = 600;
-		const height = 700;
-		const left = ( window.screen.width - width ) / 2;
-		const top = ( window.screen.height - height ) / 2;
-
-		const popup = window.open(
-			url,
-			'PPFrame',
-			`width=${ width },height=${ height },left=${ left },top=${ top },scrollbars=yes`
+		const popupMonitor = new PopupMonitor();
+		popupMonitor.open(
+			`${ onboardingPopupUrl }&environment=${ environment }`,
+			null,
+			'toolbar=0,location=0,status=0,menubar=0,' + popupMonitor.getScreenCenterSpecs( 780, 700 )
 		);
 
-		if ( ! popup ) {
+		if ( ! popupMonitor.windowInstance ) {
+			setConnectError(
+				__(
+					'Your browser blocked the PayPal window. Allow popups for this site and try again.',
+					'jetpack-paypal-payments'
+				)
+			);
+			setConnectErrorDismissed( false );
 			return;
 		}
 
-		const pollTimer = setInterval( () => {
-			if ( popup.closed ) {
-				clearInterval( pollTimer );
-				return;
-			}
+		const channel = new BroadcastChannel( ONBOARDING_CHANNEL );
 
-			/*
-			 * PayPal returns the merchant to our own origin when they finish,
-			 * which makes the window's location readable again. Close it there:
-			 * PayPal does not, and it would otherwise sit on a wp-admin screen.
-			 * Reading `location` while it is still on paypal.com throws.
-			 */
-			try {
-				if ( popup.location.host !== window.location.host ) {
-					return;
-				}
-
-				clearInterval( pollTimer );
-				popup.close();
-
-				/*
-				 * The seller finished at PayPal, but the auth code only ever
-				 * arrives through the SDK callback -- which is not running, or
-				 * this window would never have opened. Say so rather than
-				 * leaving the wizard looking like it is still working.
-				 */
-				setConnectError(
-					__(
-						'PayPal’s onboarding window could not be loaded, so the connection could not be completed automatically. Please enter your API credentials manually.',
-						'jetpack-paypal-payments'
-					)
-				);
-				setConnectErrorDismissed( false );
-			} catch {
-				// Still on a PayPal origin — its location is not readable yet.
-			}
-		}, 250 );
-	}, [] );
-
-	/**
-	 * Take the click only when PayPal's SDK has not.
-	 */
-	const handleSignupLinkClick = useCallback(
-		event => {
-			// Look where the SDK actually loaded: the editor iframe, not here.
-			const linkWindow = event.currentTarget.ownerDocument?.defaultView;
-
-			if ( linkWindow?.PAYPAL?.apps?.Signup || window.PAYPAL?.apps?.Signup ) {
-				// The SDK owns this link: let it open its lightbox.
-				return;
-			}
-
-			event.preventDefault();
-			openSignupWindow( signupUrl );
-		},
-		[ signupUrl, openSignupWindow ]
-	);
-
-	/**
-	 * Load PayPal's SDK once the link it binds to is on the page.
-	 *
-	 * partner.js scans for `[data-paypal-button]` as it runs, so it is appended
-	 * from an effect -- after the anchor has been committed to the DOM -- rather
-	 * than alongside it. `render()` covers the case where the script was already
-	 * loaded for an earlier attempt and will not rescan on its own.
-	 */
-	useEffect( () => {
-		if ( ! signupUrl ) {
-			return;
-		}
-
-		const link = signupLinkRef.current;
-		if ( ! link ) {
-			return;
-		}
-
-		/*
-		 * The connect link lives in the editor's iframe, so the SDK has to be
-		 * loaded into that document and the callback has to hang off that
-		 * window: the SDK resolves the name against whichever realm it runs in.
-		 */
-		const linkDocument = link.ownerDocument;
-		const linkWindow = linkDocument.defaultView;
-		let cancelled = false;
-
-		if ( linkWindow && linkWindow !== window ) {
-			linkWindow[ ONBOARD_CALLBACK_NAME ] = window[ ONBOARD_CALLBACK_NAME ];
-		}
-
-		loadPartnerScript( environment, linkDocument )
-			.then( () => {
-				if ( ! cancelled ) {
-					linkWindow?.PAYPAL?.apps?.Signup?.render();
-				}
-			} )
-			.catch( () => {
-				if ( ! cancelled ) {
-					setConnectError(
-						__(
-							'Could not load PayPal’s onboarding window. Please try again, or enter your API credentials manually.',
-							'jetpack-paypal-payments'
-						)
-					);
-					setConnectErrorDismissed( false );
-				}
-			} );
-
-		return () => {
-			cancelled = true;
-		};
-	}, [ signupUrl, environment ] );
-
-	/**
-	 * Listen for PayPal postMessage callback (older mini-browser integrations).
-	 */
-	useEffect( () => {
-		// PayPal's mini-browser onboarding flow posts messages from www.* origins.
-		// The api-m.* domains are API-only and do not send postMessages.
-		const PAYPAL_ORIGINS = [ 'https://www.paypal.com', 'https://www.sandbox.paypal.com' ];
-
-		const handleMessage = event => {
-			// Only accept messages from PayPal domains to prevent credential injection.
-			if ( ! PAYPAL_ORIGINS.includes( event.origin ) ) {
-				return;
-			}
-
-			if ( event.data && event.data.authCode && event.data.sharedId ) {
-				completeOnboarding(
-					event.data.authCode,
-					event.data.sharedId,
-					event.data.merchantIdInPayPal
-				);
+		channel.onmessage = event => {
+			if ( event.data?.type === 'paypal-onboarding-complete' ) {
+				completeOnboarding( event.data.authCode, event.data.sharedId );
+				channel.close();
 			}
 		};
 
-		window.addEventListener( 'message', handleMessage );
-		return () => window.removeEventListener( 'message', handleMessage );
-	}, [ completeOnboarding ] );
+		// The seller can also close the window, or come back without granting
+		// consent, in which case nothing is broadcast and there is nothing to do.
+		popupMonitor.once( 'close', () => channel.close() );
+	}, [ onboardingPopupUrl, environment, completeOnboarding ] );
 
 	/**
 	 * Handle PayPal disconnect with confirmation.
@@ -1335,35 +1059,14 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 								/>
 							</div>
 							<div className="jetpack-paypal-wizard__actions">
-								{ /*
-								 * Once the referral link exists this *is* the button:
-								 * PayPal's SDK binds its lightbox to the anchor by these
-								 * data attributes and reports the auth code back through
-								 * the named callback. The merchant's own click is what
-								 * opens it, so it stays a real user gesture.
-								 */ }
-								{ signupUrl ? (
-									<a
-										ref={ signupLinkRef }
-										href={ signupUrl }
-										data-paypal-button="true"
-										data-paypal-onboard-complete={ ONBOARD_CALLBACK_NAME }
-										target="PPFrame"
-										className="components-button is-primary"
-										onClick={ handleSignupLinkClick }
-									>
-										{ connectWithPayPalLabel }
-									</a>
-								) : (
-									<Button
-										variant="primary"
-										onClick={ fetchSignupLink }
-										isBusy={ isGeneratingSignupLink || isCompletingOnboarding }
-										disabled={ isGeneratingSignupLink || isCompletingOnboarding }
-									>
-										{ connectWithPayPalLabel }
-									</Button>
-								) }
+								<Button
+									variant="primary"
+									onClick={ openOnboardingPopup }
+									isBusy={ isCompletingOnboarding }
+									disabled={ isCompletingOnboarding }
+								>
+									{ connectWithPayPalLabel }
+								</Button>
 							</div>
 							{ connectError && ! connectErrorDismissed && (
 								<Notice
@@ -1724,10 +1427,28 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 					onConfirm={ executeDisconnect }
 					onCancel={ () => setShowDisconnectConfirm( false ) }
 				>
-					{ __(
-						'Disconnect your PayPal account? This disconnects PayPal for the whole site, not just this block: every payment button here will need you to reconnect before it can be edited or deleted. Buttons already published keep working for buyers.',
-						'jetpack-paypal-payments'
-					) }
+					<div className="jetpack-paypal-payment-buttons__confirm-body">
+						<p>
+							{ __(
+								'This disconnects PayPal for the whole site, not just this block.',
+								'jetpack-paypal-payments'
+							) }
+						</p>
+						<ul>
+							<li>
+								{ __(
+									'Every payment button on this site will need PayPal reconnected before it can be edited or deleted.',
+									'jetpack-paypal-payments'
+								) }
+							</li>
+							<li>
+								{ __(
+									'Buttons you have already published keep working for buyers.',
+									'jetpack-paypal-payments'
+								) }
+							</li>
+						</ul>
+					</div>
 				</ConfirmDialog>
 			) }
 		</>

@@ -8,6 +8,7 @@
  * @package
  */
 
+import PopupMonitor from '@automattic/popup-monitor';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import Edit from '../../../src/paypal-payment-buttons/edit';
@@ -49,6 +50,8 @@ jest.mock( '@wordpress/block-editor', () => ( {
 } ) );
 
 // Mock WordPress components with simple HTML equivalents.
+jest.mock( '@automattic/popup-monitor' );
+
 jest.mock( '@wordpress/components', () => ( {
 	Button: ( { children, onClick, disabled, variant, isBusy, ...rest } ) => (
 		<button
@@ -64,7 +67,7 @@ jest.mock( '@wordpress/components', () => ( {
 	ButtonGroup: ( { children } ) => <div data-testid="button-group">{ children }</div>,
 	__experimentalConfirmDialog: ( { children, title, confirmButtonText, onConfirm, onCancel } ) => (
 		<div data-testid="confirm-dialog" role="dialog" aria-label={ title }>
-			<p>{ children }</p>
+			<div>{ children }</div>
 			<button data-testid="confirm-dialog-confirm" onClick={ onConfirm }>
 				{ confirmButtonText || 'OK' }
 			</button>
@@ -235,229 +238,104 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 	} );
 
 	describe( 'Connect with PayPal (Partner Referrals)', () => {
+		const POPUP_URL =
+			'http://example.org/wp-admin/admin-post.php?action=jetpack_paypal_onboarding&_wpnonce=abc';
+
+		let popupOpen;
+		let popupWindow;
+		let channels;
+
 		/**
 		 * Reply to the connection check with platform mode, so the welcome step
 		 * with the "Connect with PayPal" flow renders.
-		 *
-		 * @param {object} signupResponse - What the signup-link route returns, or { reject } to fail it.
 		 */
-		function mockPlatformMode( signupResponse ) {
+		function mockPlatformMode() {
 			apiFetch.mockImplementation( ( { path } ) => {
 				if ( path.endsWith( '/connection' ) ) {
 					return Promise.resolve( {
 						connected: false,
 						environment: 'sandbox',
 						partner_referrals_available: true,
+						onboarding_popup_url: POPUP_URL,
 					} );
-				}
-				if ( path.endsWith( '/onboarding/signup-link' ) ) {
-					return signupResponse?.reject
-						? Promise.reject( signupResponse.reject )
-						: Promise.resolve( signupResponse );
 				}
 				return Promise.resolve( {} );
 			} );
 		}
 
-		afterEach( () => {
-			/*
-			 * The SDK tag and its callback are injected into whichever document
-			 * the connect link lives in, so they outlive the React tree and have
-			 * to be cleared between tests. Testing Library has no query for
-			 * "script tags in this document".
-			 */
-			// eslint-disable-next-line testing-library/no-node-access
-			document.querySelectorAll( 'script[data-paypal-partner-js]' ).forEach( el => el.remove() );
-			delete window.PAYPAL;
-			delete window.jetpackPayPalOnboardComplete;
-		} );
-
-		it( 'renders PayPal’s onboarding link in minibrowser mode', async () => {
-			mockPlatformMode( {
-				action_url:
-					'https://www.sandbox.paypal.com/merchantsignup/partner/onboardingentry?token=abc',
-			} );
-
-			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
-
-			const link = await screen.findByRole( 'link', { name: /Connect with PayPal/i } );
-
-			/*
-			 * PayPal hands over the auth code only through the SDK's callback,
-			 * and only when the link opts into the minibrowser display mode.
-			 * Both are what make onboarding completable at all.
-			 */
-			expect( link ).toHaveAttribute( 'data-paypal-button', 'true' );
-			expect( link ).toHaveAttribute(
-				'data-paypal-onboard-complete',
-				'jetpackPayPalOnboardComplete'
-			);
-			expect( link ).toHaveAttribute(
-				'href',
-				expect.stringContaining( 'displayMode=minibrowser' )
-			);
-			expect( link ).toHaveAttribute( 'href', expect.stringContaining( 'token=abc' ) );
-		} );
-
-		it( 'shows the failure and stops asking for the signup link', async () => {
-			mockPlatformMode( { reject: new Error( 'Could not create a PayPal onboarding link.' ) } );
-
-			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
-
-			/*
-			 * The failed request clears the busy flag, which re-runs the prefetch.
-			 * Without connectError to stop it the block asks again on a loop, and
-			 * each attempt wipes the error the merchant is meant to read.
-			 */
-			await expect(
-				screen.findByText( /Could not create a PayPal onboarding link/ )
-			).resolves.toBeInTheDocument();
-
-			const signupCalls = apiFetch.mock.calls.filter( ( [ { path } ] ) =>
-				path.endsWith( '/onboarding/signup-link' )
-			);
-			expect( signupCalls ).toHaveLength( 1 );
-		} );
-
-		it( 'dismissing the signup-link failure hides it and leaves the request count at one', async () => {
+		/**
+		 * Get onto the welcome step and click Connect.
+		 */
+		async function clickConnect() {
 			const user = userEvent.setup();
-			mockPlatformMode( {
-				reject: new Error( 'Could not create a PayPal onboarding link.' ),
-			} );
-
-			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
-
-			await expect(
-				screen.findByText( /Could not create a PayPal onboarding link/ )
-			).resolves.toBeInTheDocument();
-
-			await user.click( screen.getByTestId( 'dismiss-notice' ) );
-
-			// Dismissing must leave connectError set, or the prefetch runs again
-			// and puts the same notice straight back.
-			const signupCalls = () =>
-				apiFetch.mock.calls.filter( ( [ { path } ] ) =>
-					path.endsWith( '/onboarding/signup-link' )
-				);
-			await waitFor( () => expect( signupCalls() ).toHaveLength( 1 ) );
-
-			expect(
-				screen.queryByText( /Could not create a PayPal onboarding link/ )
-			).not.toBeInTheDocument();
-		} );
-
-		it( 'asks again when the merchant clicks Connect with PayPal after a failure', async () => {
-			const user = userEvent.setup();
-			mockPlatformMode( { reject: new Error( 'Could not create a PayPal onboarding link.' ) } );
-
 			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
 			await user.click( await screen.findByRole( 'button', { name: /Connect with PayPal/i } ) );
+		}
 
-			// fetchSignupLink clears connectError on entry, so a deliberate click
-			// gets past the bail condition that stops the automatic retry.
-			const signupCalls = apiFetch.mock.calls.filter( ( [ { path } ] ) =>
-				path.endsWith( '/onboarding/signup-link' )
-			);
-			expect( signupCalls ).toHaveLength( 2 );
+		beforeEach( () => {
+			popupOpen = jest.fn();
+			popupWindow = {};
+			channels = [];
+
+			PopupMonitor.mockImplementation( () => ( {
+				open: popupOpen,
+				once: jest.fn(),
+				getScreenCenterSpecs: () => 'width=780,height=700',
+				get windowInstance() {
+					return popupWindow;
+				},
+			} ) );
+
+			global.BroadcastChannel = class {
+				constructor( name ) {
+					this.name = name;
+					channels.push( this );
+				}
+				postMessage() {}
+				close() {}
+			};
 		} );
 
-		it( 'opens a sized window rather than a tab when the SDK is absent', async () => {
-			const user = userEvent.setup();
-			mockPlatformMode( { action_url: 'https://www.sandbox.paypal.com/merchantsignup/x' } );
-			const open = jest.spyOn( window, 'open' ).mockReturnValue( null );
-
-			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
-			await user.click( await screen.findByRole( 'link', { name: /Connect with PayPal/i } ) );
-
-			// target="PPFrame" exists for the SDK's lightbox; without the SDK it
-			// would send the merchant to a stray browser tab instead.
-			expect( open ).toHaveBeenCalledWith(
-				expect.stringContaining( 'merchantsignup' ),
-				'PPFrame',
-				expect.stringContaining( 'width=' )
-			);
-
-			open.mockRestore();
-		} );
-
-		it( 'leaves the click to PayPal’s SDK when it is present', async () => {
-			const user = userEvent.setup();
-			mockPlatformMode( { action_url: 'https://www.sandbox.paypal.com/merchantsignup/x' } );
-			const open = jest.spyOn( window, 'open' ).mockReturnValue( null );
-			window.PAYPAL = { apps: { Signup: { render: jest.fn() } } };
-
-			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
-			await user.click( await screen.findByRole( 'link', { name: /Connect with PayPal/i } ) );
-
-			expect( open ).not.toHaveBeenCalled();
-
-			delete window.PAYPAL;
-			open.mockRestore();
-		} );
-
-		it( 'loads the SDK into the document the connect link lives in', async () => {
-			mockPlatformMode( { action_url: 'https://www.sandbox.paypal.com/merchantsignup/x' } );
+		it( 'opens PayPal in a window of its own rather than navigating the editor', async () => {
+			mockPlatformMode();
+			await clickConnect();
 
 			/*
-			 * The block is apiVersion 3, so the editor canvas is an iframe and the
-			 * connect link lives in that document while this code runs in the
-			 * parent. partner.js only scans its own document for the anchors it
-			 * binds to, so loading it anywhere else leaves the link untouched.
+			 * A popup is a top-level browsing context of its own, so the SDK's
+			 * redirect to the return URL lands there rather than reloading the
+			 * editor and discarding an unsaved post.
 			 */
-			const frame = document.createElement( 'iframe' );
-			document.body.appendChild( frame );
-			const frameRoot = frame.contentDocument.createElement( 'div' );
-			frame.contentDocument.body.appendChild( frameRoot );
+			expect( popupOpen ).toHaveBeenCalledWith(
+				expect.stringContaining( 'action=jetpack_paypal_onboarding' ),
+				null,
+				expect.stringContaining( 'toolbar=0' )
+			);
+		} );
 
-			render( <Edit attributes={ {} } setAttributes={ setAttributes } />, {
-				container: frameRoot,
+		it( 'tells the popup which PayPal environment to use', async () => {
+			mockPlatformMode();
+			await clickConnect();
+
+			expect( popupOpen ).toHaveBeenCalledWith(
+				expect.stringContaining( 'environment=sandbox' ),
+				null,
+				expect.anything()
+			);
+		} );
+
+		it( 'exchanges the auth code the popup broadcasts', async () => {
+			mockPlatformMode();
+			await clickConnect();
+
+			// The auth code is the one thing the return URL never carries, so the
+			// broadcast from the popup is the only route it can arrive by.
+			channels[ 0 ].onmessage( {
+				data: {
+					type: 'paypal-onboarding-complete',
+					authCode: 'AUTH_CODE_1',
+					sharedId: 'SHARED_ID_1',
+				},
 			} );
-
-			/* eslint-disable testing-library/no-node-access -- Asserting *which*
-			   document each node lands in is the point of this test; Testing
-			   Library's queries are scoped to one and cannot express it. */
-			await waitFor( () =>
-				expect( frame.contentDocument.querySelector( 'a[data-paypal-button]' ) ).not.toBeNull()
-			);
-
-			await waitFor( () =>
-				expect(
-					frame.contentDocument.querySelector( 'script[data-paypal-partner-js]' )
-				).not.toBeNull()
-			);
-
-			// Not in the parent, where the SDK would never see the link.
-			expect( document.querySelector( 'script[data-paypal-partner-js]' ) ).toBeNull();
-			/* eslint-enable testing-library/no-node-access */
-
-			// The SDK resolves the callback against the realm it runs in.
-			expect( typeof frame.contentWindow.jetpackPayPalOnboardComplete ).toBe( 'function' );
-
-			frame.remove();
-		} );
-
-		it( 'exposes the completion callback for the SDK to call by name', async () => {
-			mockPlatformMode( { action_url: 'https://www.sandbox.paypal.com/merchantsignup/x' } );
-
-			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
-			await expect(
-				screen.findByRole( 'link', { name: /Connect with PayPal/i } )
-			).resolves.toBeVisible();
-
-			// The SDK resolves the callback off `window` by name, so it cannot
-			// be a closure passed to the script.
-			expect( typeof window.jetpackPayPalOnboardComplete ).toBe( 'function' );
-		} );
-
-		it( 'exchanges the auth code when the SDK reports completion', async () => {
-			mockPlatformMode( { action_url: 'https://www.sandbox.paypal.com/merchantsignup/x' } );
-
-			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
-			await expect(
-				screen.findByRole( 'link', { name: /Connect with PayPal/i } )
-			).resolves.toBeVisible();
-
-			window.jetpackPayPalOnboardComplete( 'AUTH_CODE_1', 'SHARED_ID_1' );
 
 			await waitFor( () =>
 				expect( apiFetch ).toHaveBeenCalledWith(
@@ -471,6 +349,29 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					} )
 				)
 			);
+		} );
+
+		it( 'ignores broadcasts that are not an onboarding result', async () => {
+			mockPlatformMode();
+			await clickConnect();
+
+			channels[ 0 ].onmessage( { data: { type: 'something-else' } } );
+
+			expect( apiFetch ).not.toHaveBeenCalledWith(
+				expect.objectContaining( {
+					path: expect.stringContaining( '/onboarding/complete' ),
+				} )
+			);
+		} );
+
+		it( 'says so when the browser blocks the popup', async () => {
+			mockPlatformMode();
+			popupWindow = null;
+			await clickConnect();
+
+			await expect(
+				screen.findByText( /browser blocked the PayPal window/i )
+			).resolves.toBeInTheDocument();
 		} );
 	} );
 
