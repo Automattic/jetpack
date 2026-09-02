@@ -24,8 +24,8 @@ BEGIN {
 
 	# Files we read comments out of. Everything else — .md, whose `*` bullets and
 	# `#` headings are not comments; .json; .snap; changelog entries — is skipped.
-	code_ext = "php|js|jsx|ts|tsx|mjs|cjs|scss|css|sass|py|sh|bash|rb|go|java|kt|swift|c|h|cpp|hpp"
-	hash_ext = "php|py|sh|bash|rb"
+	code_ext = "php|js|jsx|ts|tsx|mjs|cjs|scss|css|sass|py|sh|bash|rb|go|java|kt|swift|c|h|cpp|hpp|awk"
+	hash_ext = "php|py|sh|bash|rb|awk"
 
 	# Generated or vendored trees: comments there are not this PR's prose.
 	skip_path = "(^|/)(node_modules|vendor|jetpack_vendor|dist|build|coverage)/|\\.min\\.(js|css)$"
@@ -43,7 +43,7 @@ BEGIN {
 	rule( "rejected", "an alternative the tree does not have — describes code no reader can see", \
 		"caused (a|an|the|~|[0-9])|led to|resulted in|does ?n.t work|did ?n.t work|we could have|the (naive|obvious) (approach|version|fix)|first attempt|rejected because" )
 	rule( "citation", "an upstream file-and-line pointer — drifts on the next upstream edit", \
-		"[a-z0-9_./-]+\\.(php|js|jsx|ts|tsx|mjs|cjs|scss|css|py|rb|go|java|c|h|inc)(:| line |#l)[0-9]+|\\bline [0-9]+ (of|in)\\b|#l[0-9]+" )
+		"[a-z0-9_./-]+\\.(php|js|jsx|ts|tsx|mjs|cjs|scss|css|py|rb|go|java|c|h|inc)(:| line |#l)[0-9]+|line [0-9]+ (of|in)|#l[0-9]+" )
 	rule( "numbers", "a measurement or count — drifts the moment the thing it counts changes", \
 		"~ ?[0-9]|[0-9]+ ?x (faster|slower)|(about|roughly|approximately|around|takes|costs|saves) [0-9]|[0-9]+[km]\\+|[0-9,]+ (tests?|mutants?|callers?|call sites?|occurrences?|instances?|queries|round-?trips?)" )
 	rule( "pinned", "true at authoring time only — with no link to re-check it against", \
@@ -78,10 +78,11 @@ function rule( n, why, pat ) {
 /^@@ / {
 	# @@ -old,n +new,n @@ — only the post-image is numbered here.
 	flush_block()
-	h = $0
-	sub( /^.*\+/, "", h )
-	sub( /[ ,].*$/, "", h )
-	lineno = h + 0
+	# Match the +N field directly: git appends the enclosing declaration after the
+	# second @@, and a `+` in it (`.foo + .bar {`, `f( $a + $b )`) defeats a greedy
+	# strip. One short of the hunk's first line, because every consumer below
+	# increments before reading.
+	if ( match( $0, /\+[0-9]+/ ) ) lineno = substr( $0, RSTART + 1, RLENGTH - 1 ) + 0 - 1
 	next
 }
 
@@ -115,7 +116,7 @@ function comment_body( s,   t ) {
 	if ( substr( s, 1, 3 ) == "/**" )      t = substr( s, 4 )
 	else if ( substr( s, 1, 2 ) == "//" )  t = substr( s, 3 )
 	else if ( substr( s, 1, 2 ) == "/*" )  t = substr( s, 3 )
-	else if ( substr( s, 1, 1 ) == "*" )   t = substr( s, 2 )
+	else if ( substr( s, 1, 2 ) == "* " || s == "*" ) t = substr( s, 2 )
 	else if ( hashes && substr( s, 1, 1 ) == "#" ) t = substr( s, 2 )
 	else return ""
 
@@ -127,9 +128,9 @@ function comment_body( s,   t ) {
 
 # --- rot signals ------------------------------------------------------------
 
-# Rot is matched against the whole comment, not the line: the phrases that give
-# it away straddle line breaks ("…loop caused" / "~20 flushes per file…"), and a
-# reviewer cannot propose a shorter version from a fragment anyway.
+# Rot is matched against the whole comment, not the line: the give-away phrase
+# routinely straddles a line break, and a reviewer cannot propose a shorter
+# version from a fragment anyway.
 function add_to_block( text ) {
 	if ( blk_text != "" && blk_file == path && lineno == blk_end + 1 ) {
 		blk_text = blk_text " " text
