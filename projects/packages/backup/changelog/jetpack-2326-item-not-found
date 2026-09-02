@@ -1,5 +1,5 @@
 Significance: patch
 Type: fixed
-Comment: Modernized dashboard only, behind the rsm_jetpack_ui_modernization_backup filter: the Overview's detail pane now offers a Clear selection button once the activity log has answered and the chosen row is genuinely gone, so a stale ?selected= is no longer a dead end that survives a reload. A log still in flight or one that failed is reported as itself rather than as a missing row, so the button never discards a valid selection. No-op when the filter is off.
+Comment: Modernized dashboard only, behind the rsm_jetpack_ui_modernization_backup filter: the Overview's detail pane now offers a Clear selection button when the chosen row is not among the activity-log rows loaded, so a stale ?selected= is no longer a dead end that survives a reload. Only loaded pages are searched, so the pane says the row may be on another page rather than claiming it is gone, and clearing leaves a history entry so Back restores the selection. A log still in flight or one that failed is reported as itself. No-op when the filter is off.
 
 

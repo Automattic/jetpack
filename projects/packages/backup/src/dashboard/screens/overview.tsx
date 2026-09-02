@@ -191,8 +191,8 @@ function OverviewBody() {
 		[ navigate ]
 	);
 
-	// The stale id lives in the URL, so the dead end survives a reload without
-	// this; `replace` keeps the Back button from returning to it either.
+	// The stale id lives in the URL, so the dead end survives a reload without this.
+	// A new history entry, not a replacement: the selection may be fine, so Back must restore it.
 	const clearSelected = useCallback( () => {
 		overviewRef.current?.focus();
 		navigate( {
@@ -201,9 +201,8 @@ function OverviewBody() {
 				delete next.selected;
 				return next;
 			},
-			replace: true,
 			// A single assertion, not `as unknown as`: the updater form stays
-			// comparable, so a typo in `replace` is still a build error.
+			// comparable, so a typo in the key is still a build error.
 		} as Parameters< typeof navigate >[ 0 ] );
 	}, [ navigate ] );
 
@@ -342,8 +341,8 @@ function OverviewBody() {
  * Resolves the URL-driven `selectedId` to an activity item and renders the
  * matching detail card: `<BackupDetail>` for backup rows and `<ActivityDetail>`
  * for everything else. A selection that resolves to nothing is reported three
- * ways — the log failed, the log has not answered yet, or the row is gone — and
- * only the last of those offers to drop the selection.
+ * ways — the log failed, the log has not answered yet, or nothing loaded holds
+ * the row — and only the last of those offers to drop the selection.
  *
  * @param props                 - Component props.
  * @param props.selectedId      - Currently selected row id, or null when nothing is selected.
@@ -367,7 +366,7 @@ function RightPane( {
 	onClearSelected: () => void;
 } ) {
 	// All four must match the list's arguments — this reads its cache entry.
-	const { item, isResolved, error } = useActivityById( selectedId, page, pageSize, sortOrder );
+	const { item, hasAnswered, error } = useActivityById( selectedId, page, pageSize, sortOrder );
 	if ( ! selectedId ) {
 		return (
 			<div className="jpb-overview__detail jpb-overview__detail--empty">
@@ -387,7 +386,7 @@ function RightPane( {
 			</div>
 		);
 	}
-	if ( ! item && ! isResolved ) {
+	if ( ! item && ! hasAnswered ) {
 		return (
 			<div className="jpb-overview__detail jpb-overview__detail--empty">
 				{ /* `Spinner` is `role="presentation"` with no text, so on its own this branch is silent. */ }
@@ -400,7 +399,13 @@ function RightPane( {
 		return (
 			<div className="jpb-overview__detail jpb-overview__detail--empty">
 				<Stack direction="column" gap="sm" align="center">
-					<Text>{ __( 'That item is no longer in the activity log.', 'jetpack-backup-pkg' ) }</Text>
+					{ /* Only loaded pages were searched, so "gone" is not ours to claim. */ }
+					<Text>
+						{ __(
+							"That item isn't on this page of the activity log. It may be on another page, or no longer available.",
+							'jetpack-backup-pkg'
+						) }
+					</Text>
 					<Button variant="outline" onClick={ onClearSelected }>
 						{ __( 'Clear selection', 'jetpack-backup-pkg' ) }
 					</Button>
