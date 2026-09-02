@@ -337,6 +337,8 @@ To remove all docker images, all MySQL data, and all docker-related files from y
 jetpack docker clean
 ```
 
+`clean` first prints the compose project it resolved and every path it will delete, then asks you to confirm; the default answer is no. Add `--yes` to skip the prompt in a script. Without a terminal to confirm at, `clean` refuses unless `--yes` is passed, so it can never destroy an instance from a pipe or a CI job by default.
+
 **Note:** this command does not work in Windows.
 
 ### Using WP CLI

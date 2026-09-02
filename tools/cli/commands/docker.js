@@ -1,6 +1,7 @@
 import { spawn, spawnSync } from 'child_process';
 import fs from 'fs';
 import chalk from 'chalk';
+import enquirer from 'enquirer';
 import * as envfile from 'envfile';
 import { dockerFolder, setConfig } from '../helpers/docker-config.js';
 
@@ -1178,6 +1179,95 @@ async function generateConfig( argv ) {
 }
 
 /**
+ * Paths `docker clean` deletes for one instance. `wordpress/` and `wordpress-develop/` are
+ * shared by every instance rather than per-project, which is why the plan lists them.
+ *
+ * @param {string} project - Compose project name (e.g. 'jetpack_dev').
+ * @return {Array<string>} Paths, exactly as handed to `rm -rf`.
+ */
+export const buildCleanPaths = project => [
+	`${ dockerFolder }/wordpress/`,
+	`${ dockerFolder }/wordpress-develop/*`,
+	`${ dockerFolder }/logs/${ project }/`,
+	`${ dockerFolder }/data/${ project }_mysql/`,
+];
+
+/**
+ * Decide how `clean` may proceed. A non-TTY caller is refused rather than prompted, so a
+ * script or agent that cannot read the plan has to pass --yes to destroy anything.
+ *
+ * @param {object}  opts       - Options.
+ * @param {boolean} opts.yes   - Whether --yes was passed.
+ * @param {boolean} opts.isTty - Whether stdin and stdout are both TTYs.
+ * @return {string} 'proceed', 'prompt' or 'refuse'.
+ */
+export const resolveCleanConsent = ( { yes, isTty } ) => {
+	if ( yes ) {
+		return 'proceed';
+	}
+	return isTty ? 'prompt' : 'refuse';
+};
+
+/**
+ * Print what `clean` is about to destroy, before anything is destroyed.
+ *
+ * @param {string}        project - Compose project name.
+ * @param {Array<string>} paths   - Paths that will be removed.
+ */
+const printCleanPlan = ( project, paths ) => {
+	console.log( chalk.yellow( `\n'clean' will permanently destroy the '${ project }' instance:` ) );
+	console.log( chalk.yellow( '  - its containers and Docker volumes (`compose down -v`)' ) );
+	for ( const path of paths ) {
+		console.log( chalk.yellow( `  - ${ path }` ) );
+	}
+	console.log();
+};
+
+/**
+ * Handler for `docker clean`: announce the target, get consent, then tear it down.
+ *
+ * @param {object} argv - Yargs
+ */
+export const cleanCmdHandler = async argv => {
+	const project = getProjectName( argv );
+	const paths = buildCleanPaths( project );
+	printCleanPlan( project, paths );
+
+	const consent = resolveCleanConsent( {
+		yes: Boolean( argv.yes ),
+		isTty: Boolean( process.stdin.isTTY && process.stdout.isTTY ),
+	} );
+
+	if ( consent === 'refuse' ) {
+		console.error(
+			chalk.red(
+				`No terminal to confirm at, so '${ project }' was left alone. Pass --yes if you really mean to destroy it.`
+			)
+		);
+		process.exit( 1 );
+	}
+
+	if ( consent === 'prompt' ) {
+		const { confirmed } = await enquirer.prompt( {
+			type: 'confirm',
+			name: 'confirmed',
+			initial: false,
+			message: `Destroy '${ project }'?`,
+		} );
+		if ( ! confirmed ) {
+			console.log( chalk.green( 'Nothing was removed.' ) );
+			return;
+		}
+	}
+
+	await defaultDockerCmdHandler( argv );
+	const res = executor( argv, () =>
+		shellExecutor( argv, 'rm', [ '-rf', ...paths ], { shell: true } )
+	);
+	checkProcessResult( res );
+};
+
+/**
  * Definition for the Docker commands.
  *
  * @param {object} yargs - The Yargs dependency.
@@ -1217,26 +1307,14 @@ export function dockerDefine( yargs ) {
 				.command( {
 					command: 'clean',
 					description: 'Remove docker volumes, MySql and WordPress data and logs.',
-					builder: yargCmd => defaultOpts( yargCmd ),
-					handler: async argv => {
-						await defaultDockerCmdHandler( argv );
-						const project = getProjectName( argv );
-						const res = executor( argv, () =>
-							shellExecutor(
-								argv,
-								'rm',
-								[
-									'-rf',
-									`${ dockerFolder }/wordpress/`,
-									`${ dockerFolder }/wordpress-develop/*`,
-									`${ dockerFolder }/logs/${ project }/`,
-									`${ dockerFolder }/data/${ project }_mysql/`,
-								],
-								{ shell: true }
-							)
-						);
-						checkProcessResult( res );
-					},
+					builder: yargCmd =>
+						defaultOpts( yargCmd ).option( 'yes', {
+							alias: 'y',
+							type: 'boolean',
+							default: false,
+							describe: 'Skip the confirmation prompt. Required when there is no terminal.',
+						} ),
+					handler: async argv => await cleanCmdHandler( argv ),
 				} )
 				.command( {
 					command: 'build-image',

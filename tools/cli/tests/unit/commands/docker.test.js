@@ -25,6 +25,12 @@ jest.unstable_mockModule( 'child_process', () => ( {
 	...cpStub,
 } ) );
 
+const enquirerStub = { prompt: jest.fn() };
+jest.unstable_mockModule( 'enquirer', () => ( {
+	default: enquirerStub,
+	...enquirerStub,
+} ) );
+
 // setConfig parses the real docker config yaml, which the fs stub cannot serve.
 jest.unstable_mockModule( '../../../helpers/docker-config.js', () => ( {
 	dockerFolder: 'tools/docker',
@@ -50,6 +56,9 @@ const {
 	shouldWriteParallelEnv,
 	applyParallelEnv,
 	PARALLEL_ENV_KEYS,
+	buildCleanPaths,
+	resolveCleanConsent,
+	cleanCmdHandler,
 } = await import( '../../../commands/docker.js' );
 
 /**
@@ -808,5 +817,139 @@ describe( 'pipeDbDump', () => {
 		await expect( pipeDbDump( 'src-wp-1', 'tgt-wp-1', '/var/www/html' ) ).rejects.toThrow(
 			/source.*exit 1.*target.*exit 3/is
 		);
+	} );
+} );
+
+describe( 'buildCleanPaths', () => {
+	test( 'scopes the logs and mysql paths to the given project', () => {
+		expect( buildCleanPaths( 'jetpack_feature' ) ).toEqual( [
+			'tools/docker/wordpress/',
+			'tools/docker/wordpress-develop/*',
+			'tools/docker/logs/jetpack_feature/',
+			'tools/docker/data/jetpack_feature_mysql/',
+		] );
+	} );
+
+	test( 'never names another instance', () => {
+		expect( buildCleanPaths( 'jetpack_feature' ).join( '\n' ) ).not.toContain( 'jetpack_dev' );
+	} );
+} );
+
+describe( 'resolveCleanConsent', () => {
+	test( '--yes proceeds with or without a TTY', () => {
+		expect( resolveCleanConsent( { yes: true, isTty: true } ) ).toBe( 'proceed' );
+		expect( resolveCleanConsent( { yes: true, isTty: false } ) ).toBe( 'proceed' );
+	} );
+
+	test( 'prompts when a TTY is available', () => {
+		expect( resolveCleanConsent( { yes: false, isTty: true } ) ).toBe( 'prompt' );
+	} );
+
+	test( 'refuses without a TTY and without --yes', () => {
+		expect( resolveCleanConsent( { yes: false, isTty: false } ) ).toBe( 'refuse' );
+	} );
+} );
+
+describe( 'cleanCmdHandler', () => {
+	const rmCalls = () => cpStub.spawnSync.mock.calls.filter( call => call[ 0 ] === 'rm' );
+	const composeCalls = () =>
+		cpStub.spawnSync.mock.calls.filter(
+			call => call[ 0 ] === 'docker' && call[ 1 ]?.includes( 'down' )
+		);
+
+	let ttyBackup;
+	let exitSpy;
+	const silenced = [];
+
+	beforeEach( () => {
+		ttyBackup = { stdin: process.stdin.isTTY, stdout: process.stdout.isTTY };
+		enquirerStub.prompt.mockReset();
+		// process.exit() never returns in production, so the stub must not either.
+		exitSpy = jest.spyOn( process, 'exit' ).mockImplementation( code => {
+			throw new Error( `EXIT:${ code }` );
+		} );
+		silenced.push(
+			jest.spyOn( console, 'log' ).mockImplementation( () => {} ),
+			jest.spyOn( console, 'error' ).mockImplementation( () => {} )
+		);
+	} );
+
+	afterEach( () => {
+		process.stdin.isTTY = ttyBackup.stdin;
+		process.stdout.isTTY = ttyBackup.stdout;
+		exitSpy.mockRestore();
+		silenced.splice( 0 ).forEach( spy => spy.mockRestore() );
+	} );
+
+	test( 'removes the paths of the instance it just took down', async () => {
+		await cleanCmdHandler( { _: [ 'docker', 'clean' ], type: 'dev', name: 'feature', yes: true } );
+
+		expect( rmCalls() ).toHaveLength( 1 );
+		expect( rmCalls()[ 0 ][ 1 ] ).toEqual( [
+			'-rf',
+			'tools/docker/wordpress/',
+			'tools/docker/wordpress-develop/*',
+			'tools/docker/logs/jetpack_feature/',
+			'tools/docker/data/jetpack_feature_mysql/',
+		] );
+	} );
+
+	test( 'refuses and exits non-zero without a TTY and without --yes', async () => {
+		process.stdin.isTTY = false;
+		process.stdout.isTTY = false;
+
+		await expect(
+			cleanCmdHandler( { _: [ 'docker', 'clean' ], type: 'dev', yes: false } )
+		).rejects.toThrow( 'EXIT:1' );
+
+		expect( enquirerStub.prompt ).not.toHaveBeenCalled();
+		expect( composeCalls() ).toHaveLength( 0 );
+		expect( rmCalls() ).toHaveLength( 0 );
+	} );
+
+	test( 'destroys nothing when the prompt is declined', async () => {
+		process.stdin.isTTY = true;
+		process.stdout.isTTY = true;
+		enquirerStub.prompt.mockResolvedValue( { confirmed: false } );
+
+		await cleanCmdHandler( { _: [ 'docker', 'clean' ], type: 'dev', yes: false } );
+
+		expect( enquirerStub.prompt ).toHaveBeenCalled();
+		expect( composeCalls() ).toHaveLength( 0 );
+		expect( rmCalls() ).toHaveLength( 0 );
+	} );
+
+	test( 'defaults the prompt to no', async () => {
+		process.stdin.isTTY = true;
+		process.stdout.isTTY = true;
+		enquirerStub.prompt.mockResolvedValue( { confirmed: false } );
+
+		await cleanCmdHandler( { _: [ 'docker', 'clean' ], type: 'dev', yes: false } );
+
+		expect( enquirerStub.prompt ).toHaveBeenCalledWith(
+			expect.objectContaining( { type: 'confirm', initial: false } )
+		);
+	} );
+
+	test( 'proceeds when the prompt is accepted', async () => {
+		process.stdin.isTTY = true;
+		process.stdout.isTTY = true;
+		enquirerStub.prompt.mockResolvedValue( { confirmed: true } );
+
+		await cleanCmdHandler( { _: [ 'docker', 'clean' ], type: 'dev', yes: false } );
+
+		expect( rmCalls() ).toHaveLength( 1 );
+	} );
+
+	test( 'names the instance and its paths before asking', async () => {
+		process.stdin.isTTY = true;
+		process.stdout.isTTY = true;
+		enquirerStub.prompt.mockResolvedValue( { confirmed: false } );
+
+		await cleanCmdHandler( { _: [ 'docker', 'clean' ], type: 'dev', name: 'feature', yes: false } );
+
+		const printed = console.log.mock.calls.flat().join( '\n' );
+		expect( printed ).toContain( 'jetpack_feature' );
+		expect( printed ).toContain( 'tools/docker/data/jetpack_feature_mysql/' );
 	} );
 } );

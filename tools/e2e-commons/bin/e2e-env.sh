@@ -56,7 +56,8 @@ reset_env() {
 
 clean_env() {
 	$BASE_CMD uninstall || true
-	$BASE_CMD clean
+	# --yes: this env is disposable and the script is often run without a terminal to confirm at.
+	$BASE_CMD clean --yes
 }
 
 new_env() {
