@@ -303,7 +303,7 @@ Record the PR as soon as it exists — this is the checkpoint a coordinator wait
 - `jp docker stop --name "$NAME"` — stops the containers and frees ports. DB, uploads, and `node_modules` remain on disk for review follow-ups. `$NAME` comes from `.work-on/env.json`; omitting it stops the user's primary `jetpack_dev` instead.
 
 Do NOT run automatically — wait for PR merge or explicit user request:
-- `jp docker clean --name "$NAME"` (destroys that instance's DB).
+- `jp docker clean --yes` (destroys that instance's DB). It targets the instance named in the worktree's `tools/docker/.env`, so run it from the worktree and do not pass `--name`. Without `--yes` it refuses, because an agent has no terminal to confirm at.
 - `git worktree remove <path>` (removes the worktree + scratchpad, including its `tools/docker/.env`, which releases the seeded ports and instance name for reuse).
 
 **On failure** (any phase errors out):
