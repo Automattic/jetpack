@@ -109,6 +109,7 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 
 		$current_screen = convert_to_screen( 'post' );
 		$current_screen->is_block_editor( true );
+		Shared_Stores_Assets::register_assets();
 		wp_register_style( 'jetpack-blocks-editor', false, array(), JETPACK__VERSION );
 
 		Jetpack_Gutenberg::enqueue_block_editor_assets();
