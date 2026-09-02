@@ -20,6 +20,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { CURRENCY_SYMBOLS } from './currency-symbols';
 import { withPartnerAttribution } from './partner-attribution';
 import PayPalLogo from './paypal-logo';
+import { hasVariantPricing } from './variant-builder';
 
 /**
  * Format a price with currency symbol.
@@ -35,9 +36,6 @@ function formatPrice( priceValue, currencyCode ) {
 
 /**
  * Find the cheapest per-option price across the variant dimensions.
- *
- * When the options carry their own prices there is no product-level price to
- * show, so the preview falls back to the cheapest option.
  *
  * @param {object} variants - Variants data with dimensions.
  * @return {string|null} The lowest option price, or null when none are priced.
@@ -134,7 +132,11 @@ export default function PayPalButtonPreview( {
 	imageUrl,
 	partnerAttributionId,
 } ) {
-	const lowestVariantPrice = ! price && variantsEnabled ? getLowestVariantPrice( variants ) : null;
+	// Mirrors render_api_managed_button(): PayPal drops the product-level amount
+	// once the options have their own prices, but the block keeps what was typed.
+	const productPrice = hasVariantPricing( variantsEnabled, variants ) ? '' : price;
+	const lowestVariantPrice =
+		! productPrice && variantsEnabled ? getLowestVariantPrice( variants ) : null;
 
 	return (
 		<div className="jetpack-paypal-button-preview">
@@ -155,12 +157,12 @@ export default function PayPalButtonPreview( {
 						</span>
 					) }
 				</div>
-				{ price && (
+				{ productPrice && (
 					<span className="jetpack-paypal-button-preview__product-price">
-						{ formatPrice( price, currencyCode ) }
+						{ formatPrice( productPrice, currencyCode ) }
 					</span>
 				) }
-				{ ! price && lowestVariantPrice && (
+				{ ! productPrice && lowestVariantPrice && (
 					<span className="jetpack-paypal-button-preview__product-price">
 						{ sprintf(
 							/* translators: %s: formatted price, e.g. "$29.99" */
