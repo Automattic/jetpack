@@ -821,9 +821,9 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 			preg_match_all( '/add_action\s*\(\s*[\'"]init[\'"]/', $source ),
 			"Lazy block {$feature} must add exactly one init registration callback."
 		);
-		$this->assertSame(
-			0,
-			preg_match( '/jetpack_register_block\s*\(\s*[\'"](?!jetpack\/' . preg_quote( $feature, '/' ) . '[\'"])/', $source ),
+		$this->assertDoesNotMatchRegularExpression(
+			'/jetpack_register_block\s*\(\s*[\'"](?!jetpack\/' . preg_quote( $feature, '/' ) . '[\'"])/',
+			$source,
 			"Lazy block {$feature} must not explicitly register a differently named block."
 		);
 		$this->assertStringNotContainsString( 'render_email_callback', $source, "Lazy block {$feature} must not register an e-mail renderer." );
