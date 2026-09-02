@@ -273,10 +273,9 @@ class Jetpack_AI_Page {
 		$config = apply_filters(
 			'jetpack_ai_admin_config',
 			array(
-				// Pre-release gate for the Overview and Features views. When opening
-				// them to everyone, also drop the matching gate in My Jetpack's
-				// Jetpack_Ai::get_manage_url() so its links land here too.
-				'showGatedViews'  => $is_internal_test,
+				// Kept filterable after the views went public so a host can still
+				// close them: WordPress.com Simple serves the MCP view alone.
+				'showGatedViews'  => true,
 				'isUserConnected' => ( new Connection_Manager() )->is_user_connected(),
 				'mcpSettingsApi'  => array(
 					'path'   => '/wpcom/v2/jetpack-ai/mcp-settings',

@@ -157,19 +157,23 @@ class Jetpack_Ai_Product_Test extends TestCase {
 	}
 
 	/**
-	 * Pre-release gate: outside internal testing environments the product is not
-	 * module-backed at all, so an inactive module never surfaces — the status is
-	 * what it was before the module existed.
+	 * The real module state surfaces for an ordinary visitor: an inactive module
+	 * reports the product disabled rather than being masked as active.
 	 */
-	public function test_jetpack_ai_ignores_the_module_outside_internal_testing() {
+	public function test_jetpack_ai_follows_the_module_for_an_ordinary_visitor() {
 		$GLOBALS['jetpack_mock_internal_testing_environment'] = false;
 
+		// Mock a full connection so the module-disabled status is not masked by
+		// site/user connection errors in the parent get_status() flow.
+		( new Tokens() )->update_blog_token( 'test.test.1' );
+		( new Tokens() )->update_user_token( self::$user_id, 'test.test.' . self::$user_id, true );
 		Jetpack_Options::update_option( 'id', 123 );
+
 		activate_plugins( 'jetpack/jetpack.php' );
 		\Jetpack::deactivate_module( 'ai' );
 
-		$this->assertTrue( Jetpack_Ai::is_module_active() );
-		$this->assertNotSame( Products::STATUS_MODULE_DISABLED, Jetpack_Ai::get_status() );
+		$this->assertFalse( Jetpack_Ai::is_module_active() );
+		$this->assertSame( Products::STATUS_MODULE_DISABLED, Jetpack_Ai::get_status() );
 	}
 
 	/**

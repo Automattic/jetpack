@@ -205,17 +205,14 @@ describe( 'AI admin page (main.jsx)', () => {
 		).not.toBeInTheDocument();
 	} );
 
-	test( 'internal-testing flag: every gated tab carries an A12s only badge', async () => {
-		// Overview and Features are both gated to internal testing environments;
-		// when the injected flag says we are in one, each tab must say so —
-		// Automatticians should not mistake either view for public UI. MCP
-		// Settings ships publicly, so it must not be labelled.
+	test( 'public views: no tab carries an internal-audience badge', async () => {
 		window.jetpackAiSettings = { showFeaturesView: true };
 		mockApiFetch();
 
 		render( <App /> );
 
-		await expect( screen.findAllByText( 'A12s only' ) ).resolves.toHaveLength( 2 );
+		await expect( screen.findByText( 'Overview' ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByText( 'A12s only' ) ).not.toBeInTheDocument();
 	} );
 
 	test( 'scheduled tasks flag: exposes the gated hash route and Figma empty state', async () => {
@@ -247,9 +244,9 @@ describe( 'AI admin page (main.jsx)', () => {
 		delete window.__agentsManagerActions;
 	} );
 
-	test( 'no internal-testing flag: no A12s only badge renders', async () => {
-		// Without the flag the gate hides the Features view entirely (MCP-only
-		// shape), so the internal-testing label must not appear anywhere.
+	test( 'host closed the views: MCP-only shape, and still no badge', async () => {
+		// A host that closes the gated views (WordPress.com Simple) keeps the
+		// MCP-only shape.
 		window.jetpackAiSettings = {};
 		mockApiFetch();
 
@@ -442,7 +439,7 @@ describe( 'AI admin page (main.jsx)', () => {
 		expect( screen.queryByRole( 'button', { name: 'AI' } ) ).not.toBeInTheDocument();
 	} );
 
-	test( 'a11n gate: without showFeaturesView the page is MCP-only with no tab bar', async () => {
+	test( 'host gate: without showFeaturesView the page is MCP-only with no tab bar', async () => {
 		window.jetpackAiSettings = {};
 		window.location.hash = '';
 		mockApiFetch();
@@ -466,7 +463,7 @@ describe( 'AI admin page (main.jsx)', () => {
 		).not.toBeInTheDocument();
 	} );
 
-	test( 'a11n gate: a #/features deep link falls back to the MCP view when gated', async () => {
+	test( 'host gate: a #/features deep link falls back to the MCP view when closed', async () => {
 		window.jetpackAiSettings = {};
 		window.location.hash = '#/features';
 		mockApiFetch();
@@ -484,7 +481,7 @@ describe( 'AI admin page (main.jsx)', () => {
 		).not.toBeInTheDocument();
 	} );
 
-	test( 'a11n gate: with showFeaturesView the tab bar shows and Overview is the default view', async () => {
+	test( 'host gate: with showFeaturesView the tab bar shows and Overview is the default view', async () => {
 		// Connected, so the Overview usage card renders rather than the
 		// not-connected notice.
 		window.jetpackAiSettings = { showFeaturesView: true, blogId: 1 };

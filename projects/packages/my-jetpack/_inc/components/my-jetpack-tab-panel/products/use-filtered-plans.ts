@@ -5,7 +5,7 @@ import { useAllProducts } from '../../../data/products/use-all-products';
 import { WP_Error } from '../../../data/types';
 import useSimpleQuery from '../../../data/use-simple-query';
 import { JetpackProductWithCard } from '../../../types';
-import { getProductModules } from './mappings';
+import { PRODUCT_MODULES } from './mappings';
 import { ProductSection } from './types';
 import { useAllJetpackModules } from './use-all-jetpack-modules';
 import { filterAndSortModules, filterSections } from './utils';
@@ -50,7 +50,7 @@ export function useFilteredPlans( { search }: UseFilteredPlansOptions ): {
 			id: String( purchase.ID ),
 			title: purchase.product_name,
 			cards: $products.map( ( [ slug, product ] ) => {
-				const moduleSlug = getProductModules()[ slug ] || slug;
+				const moduleSlug = PRODUCT_MODULES[ slug ] || slug;
 
 				return {
 					product,

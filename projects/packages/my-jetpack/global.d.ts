@@ -488,7 +488,6 @@ interface Window {
 		loadAddLicenseScreen: string;
 		myJetpackCheckoutUri: string;
 		myJetpackFlags: {
-			showAiModuleToggle: boolean;
 			showFullJetpackStatsCard: boolean;
 			videoPressStats: boolean;
 		};

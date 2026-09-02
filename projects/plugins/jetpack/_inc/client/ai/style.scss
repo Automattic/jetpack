@@ -228,9 +228,3 @@ body.jetpack_page_jetpack-ai {
 	background: none;
 	cursor: help;
 }
-
-// The tab badge sits inline after the tab label; the Tabs.Tab button provides
-// no gap between its children, so give the badge its own start margin.
-.jetpack-ai-admin__tab-badge {
-	margin-inline-start: 8px;
-}

@@ -578,29 +578,6 @@ class Jetpack_Ai extends Module_Product {
 	}
 
 	/**
-	 * Whether the 'ai' module backs this product.
-	 *
-	 * Pre-release gate: the module-backed card is limited to internal testing
-	 * environments. Everywhere else this reports the module as active so the
-	 * product's status and every card built from it match the pre-module
-	 * behavior — the module state never surfaces in My Jetpack.
-	 *
-	 * Remove this override when the AI settings page goes public.
-	 *
-	 * @return bool
-	 */
-	public static function is_module_active() {
-		if (
-			! function_exists( 'jetpack_is_internal_testing_environment' ) ||
-			! jetpack_is_internal_testing_environment()
-		) {
-			return true;
-		}
-
-		return parent::is_module_active();
-	}
-
-	/**
 	 * Get data about the AI Assistant feature
 	 *
 	 * @return array

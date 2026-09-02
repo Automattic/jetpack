@@ -204,22 +204,7 @@ class Jetpack_AI_Settings {
 	public static function apply_master_gates( $enabled ) {
 		return (bool) $enabled
 			&& self::host_allows_ai()
-			&& ( ! self::should_enforce_ai_controls() || self::is_master_enabled() );
-	}
-
-	/**
-	 * Whether the AI controls — the master switch and the toggles this class owns
-	 * — take effect here. They are not publicly launched, so off Simple they apply
-	 * on internal testing environments only. Remove at public launch.
-	 *
-	 * @return bool
-	 */
-	private static function should_enforce_ai_controls() {
-		if ( ( new Host() )->is_wpcom_simple() ) {
-			return true;
-		}
-
-		return function_exists( 'jetpack_is_internal_testing_environment' ) && jetpack_is_internal_testing_environment();
+			&& self::is_master_enabled();
 	}
 
 	/**
@@ -331,12 +316,10 @@ class Jetpack_AI_Settings {
 			return false;
 		}
 
-		// The toggles this class owns stay on wherever they do not apply: Simple keeps
-		// the existing wp.com settings contract, and elsewhere they are not publicly
-		// launched. The reused Search option ships today with its own settings
-		// surface, so it always honors its stored value.
-		if ( in_array( $feature, self::OWNED_FEATURES, true )
-			&& ( ( new Host() )->is_wpcom_simple() || ! self::should_enforce_ai_controls() ) ) {
+		// The toggles this class owns stay on where they do not apply: Simple keeps the
+		// existing wp.com settings contract. The reused Search option ships with its
+		// own settings surface, so it always honors its stored value.
+		if ( in_array( $feature, self::OWNED_FEATURES, true ) && ( new Host() )->is_wpcom_simple() ) {
 			return true;
 		}
 

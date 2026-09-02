@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useAllProducts } from '../../../data/products/use-all-products';
-import { CATEGORY_CARDS_AND_MODULES, getProductModules } from './mappings';
+import { CATEGORY_CARDS_AND_MODULES, PRODUCT_MODULES } from './mappings';
 import { ProductFilter } from './types';
 import { useAllJetpackModules } from './use-all-jetpack-modules';
 import { buildCards, filterAndSortModules, getSectionTitle, searchAndRankItems } from './utils';
@@ -48,7 +48,7 @@ export function useFilteredProducts( { search, selectedFilter }: UseFilteredProd
 			ALL_CATEGORIES.map( ( [ category, { cards, modules } ] ) => ( {
 				id: category,
 				title: getSectionTitle( category ),
-				cards: buildCards( cards, allProducts, allModules, getProductModules() ),
+				cards: buildCards( cards, allProducts, allModules, PRODUCT_MODULES ),
 				modules: filterAndSortModules( modules.map( slug => allModules[ slug ] ) ),
 			} ) ),
 		[ allProducts, allModules ]

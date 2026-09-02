@@ -49,10 +49,8 @@ const formsModule = { available: true, activated: true } as unknown as MyJetpack
 describe( 'ProductCardAction', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
-		// The suite renders as an internal tester by default so the AI toggle is
-		// visible; the pre-release gate tests below override this per test.
 		window.myJetpackInitialState = {
-			myJetpackFlags: { showAiModuleToggle: true },
+			myJetpackFlags: {},
 		} as unknown as Window[ 'myJetpackInitialState' ];
 	} );
 
@@ -117,13 +115,7 @@ describe( 'ProductCardAction', () => {
 		expect( reloadPage ).toHaveBeenCalled();
 	} );
 
-	it( 'pre-release gate: hides the AI toggle without the showAiModuleToggle flag', () => {
-		// Outside internal testing environments the AI card keeps its standard
-		// action: an inactive free product falls through to "Learn more".
-		window.myJetpackInitialState = {
-			myJetpackFlags: {},
-		} as unknown as Window[ 'myJetpackInitialState' ];
-		// UpgradeAction navigates to the interstitial, so it needs a router.
+	it( 'renders the AI toggle for an ordinary visitor, with no proxy or flag', () => {
 		render(
 			<MemoryRouter>
 				<ProductCardAction
@@ -133,17 +125,11 @@ describe( 'ProductCardAction', () => {
 			</MemoryRouter>
 		);
 
-		expect( screen.getByRole( 'button', { name: /learn more/i } ) ).toBeInTheDocument();
-		expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
+		expect( screen.getByRole( 'checkbox' ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: /learn more/i } ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'pre-release gate: an AI card built without a module renders an inert toggle', () => {
-		// Gated cards are built with no module (see getProductModules), which is
-		// what the card looked like before AI became a module: the generic
-		// branch renders a toggle that cannot be flipped.
-		window.myJetpackInitialState = {
-			myJetpackFlags: {},
-		} as unknown as Window[ 'myJetpackInitialState' ];
+	it( 'renders an inert toggle for an AI card whose module data is missing', () => {
 		render(
 			<ProductCardAction
 				product={ buildProduct( {
@@ -156,15 +142,6 @@ describe( 'ProductCardAction', () => {
 		);
 
 		expect( screen.getByRole( 'checkbox' ) ).toBeDisabled();
-	} );
-
-	it( 'pre-release gate: the Forms toggle is unaffected by the flag', () => {
-		window.myJetpackInitialState = {
-			myJetpackFlags: {},
-		} as unknown as Window[ 'myJetpackInitialState' ];
-		render( <ProductCardAction product={ buildProduct() } module={ formsModule } /> );
-
-		expect( screen.getByRole( 'checkbox' ) ).toBeInTheDocument();
 	} );
 
 	it( 'disables the toggle when the Forms module is unavailable', () => {

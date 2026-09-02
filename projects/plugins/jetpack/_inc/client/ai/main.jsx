@@ -15,7 +15,7 @@ import { AdminPage, GlobalNotices, useGlobalNotices } from '@automattic/jetpack-
 import { Spinner } from '@wordpress/components';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Badge, Notice, Stack, Tabs } from '@wordpress/ui';
+import { Notice, Stack, Tabs } from '@wordpress/ui';
 import AiFeatures from './features/index';
 import { useFeatureSettings } from './features/use-feature-settings';
 import McpConnectCallout from './mcp/connect-callout';
@@ -34,10 +34,6 @@ import ScheduledTasks from './scheduled-tasks/index';
 const SETTINGS_REF = 'jetpack-ai-mcp-settings';
 
 const MCP_SUB_VIEWS = [ 'read', 'write', 'setup' ];
-
-// Views that only exist in internal testing environments. MCP Settings ships
-// publicly, so it is not in here.
-const GATED_VIEWS = [ 'overview', 'features' ];
 
 // Read at call time, not module scope, so the flag reflects the injected page data.
 const getTabViews = () => {
@@ -268,14 +264,6 @@ export default function App() {
 							{ tabViews.map( tab => (
 								<Tabs.Tab key={ tab } value={ tab }>
 									{ VIEW_TITLES[ tab ] }
-									{ /* Overview and Features ship behind the internal-testing gate;
-									     label them so Automatticians don't mistake them for public UI.
-									     Remove with the gate. */ }
-									{ GATED_VIEWS.includes( tab ) && (
-										<Badge intent="medium" className="jetpack-ai-admin__tab-badge">
-											{ __( 'A12s only', 'jetpack' ) }
-										</Badge>
-									) }
 								</Tabs.Tab>
 							) ) }
 						</Tabs.List>

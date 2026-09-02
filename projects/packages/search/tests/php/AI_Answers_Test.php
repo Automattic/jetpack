@@ -118,8 +118,7 @@ class AI_Answers_Test extends Search_TestCase {
 	}
 
 	public function test_should_enforce_master_holds_on_wpcom_simple_regardless_of_environment() {
-		// Simple keeps its option contract: enforcement applies there even
-		// outside internal testing environments (is_master_rollout_active()).
+		// Simple keeps its option contract, whatever the environment.
 		Constants::set_constant( 'IS_WPCOM', true );
 		$this->disable_simple_master();
 		$GLOBALS['jetpack_search_test_internal_env'] = false;
@@ -137,23 +136,21 @@ class AI_Answers_Test extends Search_TestCase {
 		$this->assertFalse( AI_Answers::should_enforce_master() );
 	}
 
-	public function test_should_enforce_master_is_true_outside_internal_testing_environments() {
-		// The master switch UI ships internal-only for now, so a public site must not be
-		// gated on a switch its owner cannot see. Module present but inactive, yet ungated.
+	public function test_should_enforce_master_follows_the_module_for_an_ordinary_visitor() {
+		// The master switch is public now, so an inactive module gates the feature
+		// on an ordinary site rather than being waived.
 		$this->turn_ai_module_off();
 		$GLOBALS['jetpack_search_test_internal_env'] = false;
 
-		$this->assertTrue( AI_Answers::should_enforce_master() );
+		$this->assertFalse( AI_Answers::should_enforce_master() );
 	}
 
-	public function test_is_enabled_ignores_the_module_outside_internal_testing_environments() {
-		// Module-only setup: pins that the package's own enforcement is env-scoped.
-		// (With the Jetpack plugin loaded, its filter gate still applies publicly.)
+	public function test_is_enabled_follows_the_module_for_an_ordinary_visitor() {
 		update_option( 'jetpack_search_ai_answers_enabled', true );
 		$this->turn_ai_module_off();
 		$GLOBALS['jetpack_search_test_internal_env'] = false;
 
-		$this->assertTrue( AI_Answers::is_enabled() );
+		$this->assertFalse( AI_Answers::is_enabled() );
 	}
 
 	public function test_is_enabled_is_false_when_the_master_is_off() {
@@ -209,19 +206,18 @@ class AI_Answers_Test extends Search_TestCase {
 		$this->assertTrue( AI_Answers::is_master_enabled() );
 	}
 
-	public function test_is_master_enabled_reports_on_outside_internal_testing_environments() {
-		// The master rollout is a12s-scoped: public sites report ungated even
-		// when the gate is registered, so no master-off UI leaks before the sweep.
+	public function test_is_master_enabled_reports_off_for_an_ordinary_visitor() {
+		// The master switch is public now, so a master-off site reports off
+		// rather than being waived.
 		$this->turn_ai_master_off();
 		$GLOBALS['jetpack_search_test_internal_env'] = false;
 
-		$this->assertTrue( AI_Answers::is_master_enabled() );
+		$this->assertFalse( AI_Answers::is_master_enabled() );
 	}
 
 	public function test_is_master_enabled_reports_the_gate_on_wpcom_simple_regardless_of_environment() {
-		// On Simple the option keeps its contract and the master enforces
-		// publicly (see the plugin's is_master_rollout_active()), so the
-		// reporting must follow it there even outside internal environments.
+		// On Simple the option keeps its contract, so reporting follows it there
+		// whatever the environment.
 		Constants::set_constant( 'IS_WPCOM', true );
 		$this->turn_ai_master_off();
 		$GLOBALS['jetpack_search_test_internal_env'] = false;
@@ -239,9 +235,8 @@ class AI_Answers_Test extends Search_TestCase {
 		$this->assertFalse( AI_Answers::is_master_enabled() );
 	}
 
-	public function test_is_enabled_still_gated_outside_internal_testing_environments() {
-		// Enforcement is the plugin's public filter — only the *reporting* is
-		// scoped. A public master-off site still reports the feature off.
+	public function test_is_enabled_still_gated_for_an_ordinary_visitor() {
+		// A master-off site reports the feature off.
 		update_option( 'jetpack_search_ai_answers_enabled', true );
 		$this->turn_ai_master_off();
 		$GLOBALS['jetpack_search_test_internal_env'] = false;

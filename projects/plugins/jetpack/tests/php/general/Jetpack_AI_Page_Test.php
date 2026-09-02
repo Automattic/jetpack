@@ -2,10 +2,10 @@
 /**
  * Tests for the Jetpack AI admin page script data.
  *
- * The contract worth locking down: the pre-release a11n gate flag rides the
- * jetpackAiSettings inline script and follows
- * jetpack_is_internal_testing_environment(), so the Features view stays hidden
- * outside internal testing environments while the MCP-only page keeps working.
+ * The contract worth locking down: the Overview and WordPress Agent views render
+ * for every administrator, a host can still close them through
+ * jetpack_ai_admin_config, and the Tracks audience properties keep following
+ * jetpack_is_internal_testing_environment() rather than visibility.
  *
  * @package automattic/jetpack
  */
@@ -266,35 +266,37 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Outside internal testing environments the Features view flag is off.
+	 * The Overview and WordPress Agent views render for everyone: no proxy, no
+	 * Automattician account, no internal testing hostname.
 	 */
-	public function test_features_view_flag_is_off_by_default() {
+	public function test_features_view_flag_is_on_for_an_ordinary_visitor() {
 		$settings = $this->get_injected_settings();
 
 		$this->assertArrayHasKey( 'showFeaturesView', $settings );
-		$this->assertFalse( $settings['showFeaturesView'] );
+		$this->assertTrue( $settings['showFeaturesView'] );
+		$this->assertFalse( $settings['isA11n'], 'Precondition: not an Automattician.' );
+		$this->assertFalse( $settings['isTest'], 'Precondition: not an internal testing environment.' );
 		$this->assertArrayHasKey( 'featureFlags', $settings );
 		$this->assertFalse( $settings['featureFlags'][ Jetpack_AI_Feature_Flags::SCHEDULED_TASKS ] );
 	}
 
 	/**
-	 * A proxied a8c request marks an internal testing environment and turns
-	 * the Features view flag on.
+	 * Visibility is decoupled from the internal-testing predicate, which now
+	 * feeds the Tracks property alone.
 	 */
-	public function test_features_view_flag_follows_internal_testing_environment() {
+	public function test_features_view_flag_no_longer_tracks_the_internal_testing_environment() {
 		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
 
 		$settings = $this->get_injected_settings();
 
 		$this->assertTrue( $settings['showFeaturesView'] );
-		$this->assertFalse( $settings['featureFlags'][ Jetpack_AI_Feature_Flags::SCHEDULED_TASKS ] );
+		$this->assertTrue( $settings['isTest'], 'The Tracks property still follows the predicate.' );
 	}
 
 	/**
-	 * Hosts can hide pre-release views even in an internal testing environment.
+	 * Hosts can still hide the views: WordPress.com Simple serves the MCP view alone.
 	 */
 	public function test_features_view_flag_can_be_filtered_by_the_host() {
-		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
 		add_filter(
 			'jetpack_ai_admin_config',
 			function ( $config ) {
@@ -761,15 +763,35 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * The name is only looked up for the gated views, so an ungated page ships
-	 * an empty value rather than paying for the purchase lookup.
+	 * The name is only looked up for the gated views, so a host that closes them
+	 * ships an empty value rather than paying for the purchase lookup.
 	 */
-	public function test_plan_name_is_absent_without_the_gate() {
+	public function test_plan_name_is_absent_when_a_host_closes_the_views() {
+		$this->given_woa( false );
+		$this->given_site( array( $this->jetpack_ai_purchase() ) );
+		add_filter(
+			'jetpack_ai_admin_config',
+			function ( $config ) {
+				$config['showGatedViews'] = false;
+
+				return $config;
+			}
+		);
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertSame( '', $settings['planName'] );
+	}
+
+	/**
+	 * And an ordinary visitor now gets it, because the views render for them.
+	 */
+	public function test_plan_name_is_looked_up_for_an_ordinary_visitor() {
 		$this->given_woa( false );
 		$this->given_site( array( $this->jetpack_ai_purchase() ) );
 
 		$settings = $this->get_injected_settings();
 
-		$this->assertSame( '', $settings['planName'] );
+		$this->assertNotSame( '', $settings['planName'] );
 	}
 }

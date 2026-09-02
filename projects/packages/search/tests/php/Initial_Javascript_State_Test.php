@@ -21,13 +21,13 @@ class Initial_Javascript_State_Test extends Search_TestCase {
 		parent::tearDown();
 	}
 
-	public function test_it_reports_the_master_as_on_outside_internal_testing_environments() {
+	public function test_it_reports_the_master_as_off_for_an_ordinary_visitor() {
 		$this->turn_ai_master_off();
 		$GLOBALS['jetpack_search_test_internal_env'] = false;
 
 		$state = Helper::generate_initial_javascript_state();
 
-		$this->assertTrue( $state['aiMasterEnabled'] );
+		$this->assertFalse( $state['aiMasterEnabled'] );
 	}
 
 	public function test_it_reports_the_ai_master_switch_as_off() {

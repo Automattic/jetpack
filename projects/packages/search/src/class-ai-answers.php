@@ -105,12 +105,6 @@ class AI_Answers {
 	 * @return bool
 	 */
 	public static function is_master_enabled() {
-		// Where enforcement hasn't rolled out, report ungated so no master-off
-		// UI shows before the switch itself does. Remove at public launch.
-		if ( ! self::is_master_rollout_active() ) {
-			return true;
-		}
-
 		// ANDed with the computed predicate so reporting can never be more
 		// permissive than enforcement — e.g. a Simple request where the plugin's
 		// filter never registered, or plugin/package version skew.
@@ -118,23 +112,8 @@ class AI_Answers {
 	}
 
 	/**
-	 * Whether master enforcement has rolled out here — mirrors the Jetpack
-	 * plugin's rollout scoping: Simple keeps its option contract; elsewhere
-	 * the rollout is internal-only for now.
-	 *
-	 * @return bool
-	 */
-	private static function is_master_rollout_active() {
-		if ( ( new Host() )->is_wpcom_simple() ) {
-			return true;
-		}
-
-		return function_exists( 'jetpack_is_internal_testing_environment' ) && jetpack_is_internal_testing_environment();
-	}
-
-	/**
-	 * Whether this package should enforce the master switch — the rollout-scoped
-	 * enforcement predicate behind the block gate.
+	 * Whether this package should enforce the master switch — the enforcement
+	 * predicate behind the block gate.
 	 *
 	 * Mirrors `Jetpack_AI_Settings::is_master_enabled()` in the Jetpack plugin —
 	 * the source of truth, unreferenceable from standalone installs. Computed
@@ -145,10 +124,6 @@ class AI_Answers {
 	 * @return bool True when Jetpack AI is on, or when the site has no master switch.
 	 */
 	public static function should_enforce_master() {
-		if ( ! self::is_master_rollout_active() ) {
-			return true;
-		}
-
 		if ( ( new Host() )->is_wpcom_simple() ) {
 			return (bool) get_option( self::AI_MASTER_OPTION, true );
 		}
