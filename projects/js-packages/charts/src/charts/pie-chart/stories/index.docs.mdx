@@ -231,8 +231,10 @@ const customTheme = {
 
 **Label Color Properties:**
 
-- **`labelTextColor`** - Controls the color of text displayed on pie chart segments. Defaults to `#FFFFFF` (white) to match original behavior.
-- **`labelBackgroundColor`** - Controls the background color of labels. Defaults to `transparent` (no background). When set to any color value, creates a rounded rectangle behind each label for enhanced readability. Supports any CSS color including transparency (e.g., `rgba(0, 0, 0, 0.7)`).
+Both props are deprecated in favor of the catalog roles they now point at. Declaring the role in CSS anywhere inside the provider tree beats either prop.
+
+- **`labelTextColor`** - Controls the color of text displayed on pie chart segments. Defaults to `var(--a8c-charts-color-label-on-fill, #FFFFFF)`, so labels are white until the role is declared.
+- **`labelBackgroundColor`** - Controls the background color of labels. Defaults to `var(--a8c-charts-color-label-background, transparent)`, so a label reads straight off the slice. Any color value creates a rounded rectangle behind each label for enhanced readability, transparency included (e.g., `rgba(0, 0, 0, 0.7)`).
 
 **Best Practices:**
 - Use high contrast between `labelTextColor` and `labelBackgroundColor` for optimal readability
@@ -243,19 +245,26 @@ const customTheme = {
 
 ## Theming Integration
 
-Pie Charts integrate seamlessly with the chart theming system. The default theme has neutral colors and styling, and is automatically applied to all charts unless a custom theme is provided. A custom theme can be provided by wrapping your chart in `GlobalChartsProvider` and passing a custom theme object with the properties you want to override to the `theme` prop:
+Pie Charts integrate seamlessly with the chart theming system. The default theme has neutral colors and styling, and is automatically applied to all charts unless a custom theme is provided.
+
+**Segment colors come from the palette custom properties, not the theme object.** Set as many of the five slots as you need; an unset slot is skipped, and charts generates accessible colors beyond whatever you set:
 
 <Source
-	language="tsx"
-	code={ `import { GlobalChartsProvider, PieChart, type ChartTheme } from '@automattic/charts';
+	language="css"
+	code={ `.a8c-charts-scope {
+		--a8c-charts-color-series-1: #FF6B6B;
+		--a8c-charts-color-series-2: #4ECDC4;
+		--a8c-charts-color-series-3: #45B7D1;
+	}` }
+/>
 
-	const customTheme: ChartTheme = {
-		colors: ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A'],
-	};
+Every other color works the same way — declare its catalog role. The closest declaration inside the provider tree wins, so scope the rule to one dashboard, or to `.a8c-charts-scope` to move every chart on the page:
 
-	<GlobalChartsProvider theme={customTheme}>
-		<PieChart data={data} />
-	</GlobalChartsProvider>` }
+<Source
+	language="css"
+	code={ `.my-dashboard {
+		--a8c-charts-color-background: #f5f5f5;
+	}` }
 />
 
 ## Responsive Behavior

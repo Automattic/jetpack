@@ -10,6 +10,7 @@ export {
 	REPORT_DATE_PARAM_KEYS,
 	omitComparisonReportParams,
 	pickReportDateParams,
+	hasPrimaryDateDraft,
 	buildDashboardLink,
 	buildReportLink,
 } from './search/report-params';
@@ -24,6 +25,7 @@ export {
 } from './search/report-origin';
 export {
 	useStagedSearch,
+	useStagedValue,
 	useReportDateFilters,
 	useSectionTab,
 	useDashboardLink,

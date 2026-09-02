@@ -1,4 +1,4 @@
-import { subDays, startOfDay, endOfDay } from 'date-fns';
+import { subDays, subMonths, startOfDay, startOfMonth, endOfDay, endOfMonth } from 'date-fns';
 import { useState } from 'react';
 import { DateRangePopover, DateRangePopoverContent } from '../date-range-filter';
 import type { DateRange } from '../date-range-filter';
@@ -99,6 +99,34 @@ function DateRangePopoverCustomPreset() {
  */
 export const CustomPreset: Story = {
 	render: () => <DateRangePopoverCustomPreset />,
+};
+
+function DateRangePopoverWholeMonth() {
+	const lastMonth = subMonths( today, 1 );
+	const [ range, setRange ] = useState< DateRange >( {
+		from: startOfMonth( lastMonth ),
+		to: endOfMonth( lastMonth ),
+	} );
+
+	return (
+		<DateRangePopover
+			presetId="custom"
+			range={ range }
+			onChange={ nextRange => nextRange && setRange( nextRange ) }
+			onApply={ () => {} }
+			onCancel={ () => {} }
+			canApply={ false }
+			timeZone={ STORYBOOK_TIMEZONE }
+		/>
+	);
+}
+
+/**
+ * A custom range covering a whole calendar month: the trigger names the month,
+ * and its tooltip carries the dates.
+ */
+export const CustomWholeMonth: Story = {
+	render: () => <DateRangePopoverWholeMonth />,
 };
 
 function DateRangePopoverTodayPreset() {

@@ -8,6 +8,11 @@ const APPLIED_RANGE: DateRange = {
 	to: new Date( 2026, 6, 9, 23, 59, 59, 999 ),
 };
 
+const JULY_2026: DateRange = {
+	from: new Date( 2026, 6, 1, 0, 0, 0, 0 ),
+	to: new Date( 2026, 6, 31, 23, 59, 59, 999 ),
+};
+
 function renderPopover( overrides: Partial< Parameters< typeof DateRangePopover >[ 0 ] > = {} ) {
 	const props = {
 		presetId: 'last-30-days' as const,
@@ -29,6 +34,15 @@ function renderPopover( overrides: Partial< Parameters< typeof DateRangePopover 
 
 function getTrigger() {
 	return screen.getByRole( 'button', { name: 'Custom' } );
+}
+
+function renderWholeMonth() {
+	return renderPopover( {
+		presetId: 'custom',
+		appliedPresetId: 'custom',
+		range: JULY_2026,
+		appliedRange: JULY_2026,
+	} );
 }
 
 describe( 'DateRangePopover', () => {
@@ -87,9 +101,26 @@ describe( 'DateRangePopover', () => {
 		expect( screen.getByRole( 'button', { name: 'Custom' } ) ).toBeInTheDocument();
 	} );
 
-	it( 'labels the trigger with the applied custom range', () => {
+	it( 'names the period a custom range covers', () => {
+		renderWholeMonth();
+
+		expect( screen.getByRole( 'button', { name: 'July 2026' } ) ).toBeInTheDocument();
+	} );
+
+	it( 'labels the trigger with the range itself where it names no period', () => {
 		renderPopover( { presetId: 'custom', appliedPresetId: 'custom' } );
 
 		expect( screen.queryByRole( 'button', { name: 'Custom' } ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'spells the exact dates out in the trigger tooltip', async () => {
+		const user = userEvent.setup();
+		renderWholeMonth();
+
+		await user.hover( screen.getByRole( 'button', { name: 'July 2026' } ) );
+
+		await expect(
+			screen.findByRole( 'tooltip', undefined, { timeout: 3000 } )
+		).resolves.toHaveTextContent( /July 1.+31, 2026/ );
 	} );
 } );

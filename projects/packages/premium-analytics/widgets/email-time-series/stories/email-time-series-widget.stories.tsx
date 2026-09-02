@@ -1,15 +1,7 @@
 /**
- * The stories mount the data-connected "Email performance" widget; a mocked
- * `stats/opens|clicks/emails/{id}?stats_fields=timeline` response from
- * `registerReportMocks` supplies daily buckets spanning the requested window.
- * `WidgetDashboardWithWidget` mounts the real dashboard so it renders exactly
- * as it does in product.
- *
- * The timeline is scoped to a single email via a mocked `reportParams.post_id`.
- * The post detail design has no period-over-period comparison, so the widget
- * maps no comparison rows; the dashboard story still passes comparison params
- * so the widget stays covered against crashing or inventing an overlay when a
- * host supplies them.
+ * The post detail design has no period-over-period comparison, so the widget maps
+ * no comparison rows; the dashboard story still passes comparison params so the
+ * widget stays covered against inventing an overlay when a host supplies them.
  */
 /**
  * External dependencies
@@ -55,10 +47,6 @@ const MOCK_EMAIL_ID = 1234;
 const METRIC_OPTIONS: EmailTimeSeriesMetric[] = [ 'opens', 'clicks' ];
 const INTERVAL_OPTIONS: StatsChartBucketPeriod[] = [ 'day', 'week', 'month' ];
 
-/**
- * Widget-specific controls: the opens/clicks metric and the page's chart
- * interval, which the widget buckets its daily timeline into.
- */
 interface EmailTimeSeriesStoryControls {
 	metric: EmailTimeSeriesMetric;
 	interval: StatsChartBucketPeriod;
@@ -66,8 +54,8 @@ interface EmailTimeSeriesStoryControls {
 }
 
 /**
- * Builds the widget attributes. Comparison stays a parameter so the dashboard
- * story can pass host comparison params without duplicating the scoping rule.
+ * Comparison stays a parameter so the dashboard story can pass host comparison
+ * params without duplicating the scoping rule.
  */
 function getEmailTimeSeriesAttributes(
 	{ metric, interval, chartType }: EmailTimeSeriesStoryControls,

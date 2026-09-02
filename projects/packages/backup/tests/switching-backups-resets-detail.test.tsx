@@ -17,11 +17,28 @@ jest.mock( '@wordpress/route', () => ( {
 	useSearch: () => mockSearch(),
 	useNavigate: () => mockNavigate,
 	useParams: () => ( {} ),
-	Link: ( { children, ...rest }: { children: React.ReactNode } ) => <a { ...rest }>{ children }</a>,
+	// `search` is folded into the href rather than spread onto the node: the
+	// Download action carries the file selection there now, and React would
+	// warn about an object-valued attribute on an `<a>` — which
+	// `@wordpress/jest-console` turns into a suite failure.
+	Link: ( {
+		children,
+		to,
+		search,
+		...rest
+	}: {
+		children: React.ReactNode;
+		to: string;
+		search?: Record< string, string >;
+	} ) => (
+		<a href={ search ? `${ to }?${ new URLSearchParams( search ).toString() }` : to } { ...rest }>
+			{ children }
+		</a>
+	),
 } ) );
 
 // Imports must come after the jest.mock factories above.
-import { render, screen, within } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { stage as OverviewStage } from '../routes/dashboard/stage';
 import { queryClient } from '../src/dashboard/data/query-client';
@@ -95,7 +112,14 @@ beforeEach( () => {
 			// Both backups carry the same root file — the same file
 			// surviving between backups is the ordinary case, not an edge
 			// one.
-			return Promise.resolve( { contents: { 'wp-config.php': { type: 'file', period: '123' } } } );
+			// `id` is what a granular download names the entry by. The
+			// Download label counts nameable entries, so without it the
+			// selection this suite tracks would be invisible.
+			return Promise.resolve( {
+				contents: {
+					'wp-config.php': { type: 'file', period: '123', id: 'ZjU6L3dwLWNvbmZpZy5waHA=' },
+				},
+			} );
 		}
 		return Promise.resolve( {} );
 	} );
@@ -111,39 +135,14 @@ beforeEach( () => {
 /**
  * The single root file's own checkbox.
  *
- * The row checkboxes carry `label=""` and no `aria-label`, so they cannot
- * be addressed by name. Rather than take one by index, exclude the only
- * checkbox that *does* have a name — the tree's own "N items selected"
- * summary — and require exactly one to remain.
- *
- * An index would keep passing for the wrong reason. The summary sits
- * inside `.jpb-file-browser` too, so anything that later rendered a
- * checkbox above the tree would slide the index onto it, and the summary
- * is unchecked in the buggy case as well: the reset assertion would stop
- * failing and nothing would say so. Excluding by identity and counting
- * what is left turns that into a loud failure instead.
+ * Addressed by name. Row checkboxes had no accessible name until #51616,
+ * which is why this used to exclude the tree's named summary checkbox and
+ * count what was left — the name is the better handle now that there is one.
  *
  * @return The file row's checkbox.
  */
 function fileRowCheckbox(): HTMLElement {
-	const browser = fileBrowser();
-	const summary = within( browser ).getByRole( 'checkbox', { name: /items? selected/ } );
-	const rows = within( browser )
-		.getAllByRole( 'checkbox' )
-		.filter( box => box !== summary );
-	if ( rows.length !== 1 ) {
-		throw new Error( `Expected one file row checkbox, found ${ rows.length }` );
-	}
-	return rows[ 0 ];
-}
-
-/**
- * The file browser pane.
- *
- * @return The file browser container.
- */
-function fileBrowser(): HTMLElement {
-	return document.querySelector( '.jpb-file-browser' ) as HTMLElement;
+	return screen.getByRole( 'checkbox', { name: 'Select wp-config.php' } );
 }
 
 describe( 'Switching between backups', () => {
@@ -159,16 +158,17 @@ describe( 'Switching between backups', () => {
 		).resolves.toBeInTheDocument();
 		await userEvent.click( fileRowCheckbox() );
 
-		// Selecting the file swaps both header actions off their defaults.
-		// The mocked `<Link>` renders a plain `<a>` with no `href` (the real
+		// Selecting the file swaps the Download action off its default. The
+		// mocked `<Link>` renders a plain `<a>` with no `href` (the real
 		// component takes `to`), so it carries no implicit `link` role here.
-		// Both are asserted because `BackupDetail` labels them from one
-		// `count`, and a reset that missed either would leave the reader a
-		// header that describes a selection they cannot see.
+		//
+		// Download is the only header action that moves. Restore is
+		// deliberately constant — a restore point is restored whole, so it
+		// never counts the selection — which makes it useless as a reset
+		// signal here. Its constancy is `restore-label-scope.test.tsx`.
 		await expect(
 			screen.findByText( 'Download 1 selected item', undefined, SETTLE )
 		).resolves.toBeInTheDocument();
-		expect( screen.getByText( 'Restore 1 selected item' ) ).toBeInTheDocument();
 
 		// Open the file's preview as well. A regression that cleared the
 		// selection but left `openFile` set would otherwise pass.
@@ -193,8 +193,6 @@ describe( 'Switching between backups', () => {
 		expect( fileRowCheckbox() ).not.toBeChecked();
 		expect( screen.getByText( 'Download backup' ) ).toBeInTheDocument();
 		expect( screen.queryByText( /Download \d+ selected item/ ) ).not.toBeInTheDocument();
-		expect( screen.getByText( 'Restore to this point' ) ).toBeInTheDocument();
-		expect( screen.queryByText( /Restore \d+ selected item/ ) ).not.toBeInTheDocument();
 	} );
 
 	// The other half of the invariant. Keying by `rewindId` makes the

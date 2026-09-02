@@ -5,8 +5,8 @@ import { apiCall, apiPath } from './_helpers';
  *
  * WordPress.com's own envelope, forwarded verbatim: `ok` reports whether
  * WordPress.com itself could answer, so a 200 with `ok: false` carries no
- * usable figures. Like the other legacy routes, a non-200 upstream
- * collapses to a `null` body served with HTTP 200.
+ * usable figures. Like the other legacy routes, an upstream answer it
+ * cannot decode collapses to a `null` body served with HTTP 200.
  *
  * The fields below are the ones legacy reads (`src/js/actions/index.js`).
  * `storage_limit_bytes` is deliberately **not** among them: this response

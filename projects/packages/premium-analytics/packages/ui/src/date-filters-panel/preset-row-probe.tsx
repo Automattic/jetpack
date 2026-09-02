@@ -10,8 +10,8 @@ import { memo, useCallback, useLayoutEffect, useRef, type ReactNode } from 'reac
 import './preset-row-probe.scss';
 
 export type PresetRowProbeProps = {
-	/** Pill labels in display order. */
-	presets: ReadonlyArray< { id: string; label: string } >;
+	/** The pills in display order, read for the form the row renders. */
+	presets: ReadonlyArray< { id: string; label: string; pillLabel?: string } >;
 
 	/**
 	 * The label the real trigger is showing. "Custom" versus a formatted range
@@ -43,18 +43,9 @@ export type PresetRowProbeProps = {
 };
 
 /**
- * Measures what the date-controls row needs with its labels spelled out.
- *
- * Measured in the DOM because the width depends on the font resolved for the
- * locale's script, the button padding tokens, and the group's borders.
- *
- * The presets render in their full form unconditionally: measuring the live row
- * oscillates, since shortening the labels shrinks it and the full labels then
- * look like they fit. The comparison control can be measured live because its
- * width follows the active preset rather than the label mode.
- *
- * Exported memoized: the panel re-renders on every step of a resize, and this
- * output only moves when the labels do.
+ * Measures the date-controls row with labels spelled out, in the DOM. Always
+ * full-length — measuring the live (possibly-abbreviated) row would oscillate.
+ * Memoized: the panel re-renders every resize step, this only moves with labels.
  */
 function PresetRowProbeComponent( {
 	presets,
@@ -129,7 +120,7 @@ function PresetRowProbeComponent( {
 							size="small"
 							tabIndex={ -1 }
 						>
-							{ preset.label }
+							{ preset.pillLabel ?? preset.label }
 						</Button>
 					) ) }
 					{ customTriggerLabel !== undefined && (

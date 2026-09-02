@@ -7,9 +7,8 @@ import { render, screen } from '@testing-library/react';
  */
 import { ChartTooltip } from '../chart-tooltip';
 
-// The swatches come from the charts library's own shape components, which need
-// a provider jsdom cannot lay out. Stand them in for elements that expose the
-// style they were handed.
+// The library's shape components need a provider jsdom cannot lay out, so stand
+// them in for elements that expose the style they were handed.
 jest.mock( '@jetpack-premium-analytics/externals', () => ( {
 	LineShape: ( { fill }: { fill: string } ) => <span data-testid="swatch" data-fill={ fill } />,
 	RectShape: ( { fill }: { fill: string } ) => <span data-testid="swatch" data-fill={ fill } />,

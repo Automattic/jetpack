@@ -12,10 +12,12 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 
 /**
- * Test class for Contact_Form
+ * Test class for Contact_Form_Field
  *
+ * @covers Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field
  * @covers Automattic\Jetpack\Forms\ContactForm\Contact_Form
  */
+#[CoversClass( Contact_Form_Field::class )]
 #[CoversClass( Contact_Form::class )]
 class Contact_Form_Field_Test extends BaseTestCase {
 
@@ -45,7 +47,9 @@ class Contact_Form_Field_Test extends BaseTestCase {
 		global $current_user, $user_identity;
 
 		// Clean up globals
-		unset( $_POST, $_GET, $current_user, $user_identity );
+		$_POST = array();
+		$_GET  = array();
+		unset( $current_user, $user_identity );
 	}
 
 	/**
@@ -644,18 +648,19 @@ class Contact_Form_Field_Test extends BaseTestCase {
 	 *
 	 * @dataProvider data_file_dropzone_aria_label
 	 *
-	 * @param array  $atts     Field attributes.
-	 * @param string $expected Expected dropzone accessible name.
+	 * @param array  $atts      Field attributes.
+	 * @param string $expected  Expected dropzone accessible name.
+	 * @param int    $max_files How many files the field accepts.
 	 */
 	#[DataProvider( 'data_file_dropzone_aria_label' )]
-	public function test_file_dropzone_aria_label( $atts, $expected ) {
+	public function test_file_dropzone_aria_label( $atts, $expected, $max_files = 1 ) {
 		$field  = $this->get_new_field_instance( array_merge( array( 'type' => 'file' ), $atts ) );
 		$method = new \ReflectionMethod( $field, 'get_file_dropzone_aria_label' );
 		if ( PHP_VERSION_ID < 80100 ) {
 			$method->setAccessible( true );
 		}
 
-		$this->assertSame( $expected, $method->invoke( $field ) );
+		$this->assertSame( $expected, $method->invoke( $field, $max_files ) );
 	}
 
 	/**
@@ -665,29 +670,392 @@ class Contact_Form_Field_Test extends BaseTestCase {
 	 */
 	public static function data_file_dropzone_aria_label() {
 		return array(
-			'visible label'          => array( array( 'label' => 'Resume' ), 'Select a file to upload.' ),
-			'full-hidden label'      => array(
+			'visible label'           => array( array( 'label' => 'Resume' ), 'Select a file to upload.' ),
+			'full-hidden label'       => array(
 				array(
 					'label'                        => 'Resume',
 					'labelhiddenbyblockvisibility' => true,
 				),
 				'Resume: Select a file to upload.',
 			),
-			'per-viewport hidden'    => array(
+			'per-viewport hidden'     => array(
 				array(
 					'label'        => 'Resume',
 					'labelclasses' => 'wp-block-hidden-mobile',
 				),
 				'Resume: Select a file to upload.',
 			),
-			'hidden but empty label' => array(
+			'hidden but empty label'  => array(
 				array(
 					'label'                        => '',
 					'labelhiddenbyblockvisibility' => true,
 				),
 				'Select a file to upload.',
 			),
+			// The visible dropzone text is an inner block the author writes, and it may well still
+			// read "a file" on a field that takes several — so the count has to be in the name.
+			'multi-file field'        => array(
+				array( 'label' => 'Attachments' ),
+				'Select up to 5 files to upload.',
+				5,
+			),
+			'multi-file hidden label' => array(
+				array(
+					'label'                        => 'Attachments',
+					'labelhiddenbyblockvisibility' => true,
+				),
+				'Attachments: Select up to 3 files to upload.',
+				3,
+			),
 		);
+	}
+
+	/**
+	 * `maxfiles` reaches PHP as author-supplied shortcode text, and both the rendered `multiple`
+	 * attribute and the submission-time count check are derived from it, so it is clamped rather
+	 * than trusted.
+	 *
+	 * @dataProvider data_file_field_max_files
+	 *
+	 * @param mixed $attribute The `maxfiles` attribute value.
+	 * @param int   $expected  The resolved number of files.
+	 */
+	#[DataProvider( 'data_file_field_max_files' )]
+	public function test_file_field_max_files_is_clamped( $attribute, $expected ) {
+		$field = $this->get_new_field_instance(
+			array(
+				'type'     => 'file',
+				'maxfiles' => $attribute,
+			)
+		);
+
+		$method = new \ReflectionMethod( $field, 'get_file_field_max_files' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+
+		$this->assertSame( $expected, $method->invoke( $field ) );
+	}
+
+	/**
+	 * Data provider for test_file_field_max_files_is_clamped.
+	 *
+	 * @return array
+	 */
+	public static function data_file_field_max_files() {
+		return array(
+			'unset'             => array( null, 1 ),
+			'a number'          => array( 5, 5 ),
+			// Shortcode attributes arrive as strings even when the block stored a number.
+			'a numeric string'  => array( '5', 5 ),
+			'at the ceiling'    => array( 10, 10 ),
+			'above the ceiling' => array( 99, 10 ),
+			'zero'              => array( 0, 1 ),
+			'negative'          => array( -3, 1 ),
+			'not a number'      => array( 'lots', 1 ),
+		);
+	}
+
+	/**
+	 * The per-file size limit is filterable, and the message the visitor is shown is built from the
+	 * same number — otherwise a site raising the limit would still be told 20 MB.
+	 */
+	public function test_file_field_max_upload_size_is_filterable() {
+		$filter = function () {
+			return 5 * 1024 * 1024;
+		};
+		add_filter( 'jetpack_forms_file_field_max_upload_size', $filter );
+
+		$method = new \ReflectionMethod( Contact_Form_Field::class, 'get_file_field_max_upload_size' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+		$filtered = $method->invoke( null );
+
+		remove_filter( 'jetpack_forms_file_field_max_upload_size', $filter );
+
+		$this->assertSame( 5 * 1024 * 1024, $filtered );
+	}
+
+	/**
+	 * The filter cannot raise the limit past what the endpoint will store. A larger value would
+	 * have the field accept a file, promise that size in the "file is too large" message, and then
+	 * fail the upload after the visitor had already waited for it.
+	 */
+	public function test_file_field_max_upload_size_filter_cannot_exceed_the_endpoint() {
+		$filter = function () {
+			return 2 * 1024 * 1024 * 1024;
+		};
+		add_filter( 'jetpack_forms_file_field_max_upload_size', $filter );
+
+		$method = new \ReflectionMethod( Contact_Form_Field::class, 'get_file_field_max_upload_size' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+		$filtered = $method->invoke( null );
+
+		remove_filter( 'jetpack_forms_file_field_max_upload_size', $filter );
+
+		$this->assertSame( Contact_Form_Field::FILE_FIELD_MAX_UPLOAD_SIZE, $filtered );
+	}
+
+	/**
+	 * The ceiling a filter may reach has to sit above the one an author may choose, or the filter
+	 * could only ever lower the limit and the two constants would be describing the same thing.
+	 */
+	public function test_the_filter_ceiling_is_above_the_author_ceiling() {
+		$this->assertGreaterThan(
+			Contact_Form_Field::FILE_FIELD_MAX_FILES_LIMIT,
+			Contact_Form_Field::FILE_FIELD_MAX_FILES_ABSOLUTE_LIMIT
+		);
+	}
+
+	/**
+	 * Unfiltered, the documented default.
+	 */
+	public function test_file_field_max_upload_size_defaults_to_the_constant() {
+		$method = new \ReflectionMethod( Contact_Form_Field::class, 'get_file_field_max_upload_size' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+
+		$this->assertSame( Contact_Form_Field::FILE_FIELD_MAX_UPLOAD_SIZE, $method->invoke( null ) );
+	}
+
+	/**
+	 * The filter raises the ceiling; it does not set the count. A field set to one file keeps
+	 * taking one file, which is the difference between offering room and overriding every author.
+	 */
+	public function test_the_limit_filter_leaves_each_field_on_its_own_choice() {
+		$filter = function () {
+			return 20;
+		};
+		add_filter( 'jetpack_forms_file_field_max_files_limit', $filter );
+
+		$resolved = array();
+		foreach ( array( 1, 9, 15 ) as $attribute ) {
+			$field  = $this->get_new_field_instance(
+				array(
+					'type'     => 'file',
+					'maxfiles' => $attribute,
+				)
+			);
+			$method = new \ReflectionMethod( $field, 'get_file_field_max_files' );
+			if ( PHP_VERSION_ID < 80100 ) {
+				$method->setAccessible( true );
+			}
+			$resolved[] = $method->invoke( $field );
+		}
+
+		remove_filter( 'jetpack_forms_file_field_max_files_limit', $filter );
+
+		// The one-file field is untouched; the 15 is now reachable because the ceiling allows it.
+		$this->assertSame( array( 1, 9, 15 ), $resolved );
+	}
+
+	/**
+	 * With the filter gone, a field still storing 15 falls back to the default ceiling rather than
+	 * keeping a number nothing enforces.
+	 */
+	public function test_a_field_above_the_ceiling_is_clamped_back_down() {
+		$field  = $this->get_new_field_instance(
+			array(
+				'type'     => 'file',
+				'maxfiles' => 15,
+			)
+		);
+		$method = new \ReflectionMethod( $field, 'get_file_field_max_files' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+
+		$this->assertSame( Contact_Form_Field::FILE_FIELD_MAX_FILES_LIMIT, $method->invoke( $field ) );
+	}
+
+	/**
+	 * A filter may reach past what the editor offers by default, but not without a ceiling —
+	 * nothing on the receiving end refuses a submission for holding too many files.
+	 */
+	public function test_the_limit_filter_cannot_exceed_the_absolute_limit() {
+		$filter = function () {
+			return 500;
+		};
+		add_filter( 'jetpack_forms_file_field_max_files_limit', $filter );
+
+		$limit = Contact_Form_Field::get_file_field_max_files_limit();
+
+		remove_filter( 'jetpack_forms_file_field_max_files_limit', $filter );
+
+		$this->assertSame( Contact_Form_Field::FILE_FIELD_MAX_FILES_ABSOLUTE_LIMIT, $limit );
+	}
+
+	/**
+	 * Unfiltered, the ceiling is the number the editor control offers by default.
+	 */
+	public function test_the_limit_defaults_to_the_author_ceiling() {
+		$this->assertSame(
+			Contact_Form_Field::FILE_FIELD_MAX_FILES_LIMIT,
+			Contact_Form_Field::get_file_field_max_files_limit()
+		);
+	}
+
+	/**
+	 * A file field authored before the setting existed carries no `maxfiles` at all, and has to
+	 * keep accepting exactly one file.
+	 */
+	public function test_file_field_without_max_files_accepts_one() {
+		$field  = $this->get_new_field_instance( array( 'type' => 'file' ) );
+		$method = new \ReflectionMethod( $field, 'get_file_field_max_files' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+
+		$this->assertSame( 1, $method->invoke( $field ) );
+	}
+
+	/**
+	 * The resolved count travels to the front end in `fieldExtra`, which is where the view module
+	 * reads it: the dropzone, the add-time capacity check and the picker all work from that value.
+	 */
+	public function test_file_field_extra_carries_the_resolved_max_files() {
+		$field = $this->get_new_field_instance(
+			array(
+				'type'     => 'file',
+				'maxfiles' => 4,
+			)
+		);
+
+		$method = new \ReflectionMethod( $field, 'get_field_extra' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+
+		$extra = $method->invoke( $field, 'file', array() );
+
+		$this->assertSame( 4, $extra['maxFiles'] );
+		$this->assertNotEmpty( $extra['allowedMimeTypes'] );
+	}
+
+	/**
+	 * The count was enforced only in the browser, so a submission assembled by hand could carry
+	 * as many uploaded file IDs as it liked and every one would be attached to the response.
+	 */
+	public function test_file_field_rejects_more_files_than_it_accepts() {
+		$field = $this->get_new_field_instance(
+			array(
+				'type'     => 'file',
+				'id'       => 'test_files',
+				'label'    => 'Attachments',
+				'maxfiles' => 2,
+				'required' => '1',
+			)
+		);
+
+		$_POST['test_files'] = array(
+			wp_json_encode( array( 'file_id' => 1 ), JSON_UNESCAPED_SLASHES ),
+			wp_json_encode( array( 'file_id' => 2 ), JSON_UNESCAPED_SLASHES ),
+			wp_json_encode( array( 'file_id' => 3 ), JSON_UNESCAPED_SLASHES ),
+		);
+
+		$field->validate();
+		unset( $_POST['test_files'] );
+
+		$this->assertTrue( $field->is_error(), 'A third file on a two-file field must be rejected.' );
+	}
+
+	/**
+	 * The limit has to hold for an optional field too. It reaches the count check by a different
+	 * route — the `! required && ! has_value()` early return — so a change to how has_value() reads
+	 * an array value could drop the check for optional fields without any test noticing.
+	 */
+	public function test_file_field_limit_applies_when_the_field_is_optional() {
+		$field = $this->get_new_field_instance(
+			array(
+				'type'     => 'file',
+				'id'       => 'test_files',
+				'label'    => 'Attachments',
+				'maxfiles' => 2,
+			)
+		);
+
+		$_POST['test_files'] = array(
+			wp_json_encode( array( 'file_id' => 1 ), JSON_UNESCAPED_SLASHES ),
+			wp_json_encode( array( 'file_id' => 2 ), JSON_UNESCAPED_SLASHES ),
+			wp_json_encode( array( 'file_id' => 3 ), JSON_UNESCAPED_SLASHES ),
+		);
+
+		$field->validate();
+		unset( $_POST['test_files'] );
+
+		$this->assertTrue( $field->is_error() );
+	}
+
+	/**
+	 * The shapes an attacker actually sends, rather than the one the field writes.
+	 *
+	 * @dataProvider data_malformed_file_field_values
+	 *
+	 * @param mixed $value The posted value.
+	 */
+	#[DataProvider( 'data_malformed_file_field_values' )]
+	public function test_file_field_handles_a_malformed_submission( $value ) {
+		$field = $this->get_new_field_instance(
+			array(
+				'type'     => 'file',
+				'id'       => 'test_files',
+				'label'    => 'Attachments',
+				'maxfiles' => 3,
+				'required' => '1',
+			)
+		);
+
+		$_POST['test_files'] = $value;
+
+		$field->validate();
+		unset( $_POST['test_files'] );
+
+		// Rejected rather than fatal, and never silently accepted.
+		$this->assertTrue( $field->is_error() );
+	}
+
+	/**
+	 * Data provider for test_file_field_handles_a_malformed_submission.
+	 *
+	 * @return array
+	 */
+	public static function data_malformed_file_field_values() {
+		return array(
+			'a scalar'            => array( 'not-an-array' ),
+			'an empty array'      => array( array() ),
+			'no zero index'       => array( array( 1 => '{"file_id":1}' ) ),
+			'a nested array'      => array( array( array( 'x' => 'y' ) ) ),
+			'an empty first slot' => array( array( '', '{"file_id":1}' ) ),
+		);
+	}
+
+	/**
+	 * The mirror case, so the check above cannot pass by rejecting everything.
+	 */
+	public function test_file_field_accepts_a_submission_within_its_limit() {
+		$field = $this->get_new_field_instance(
+			array(
+				'type'     => 'file',
+				'id'       => 'test_files',
+				'label'    => 'Attachments',
+				'maxfiles' => 2,
+				'required' => '1',
+			)
+		);
+
+		$_POST['test_files'] = array(
+			wp_json_encode( array( 'file_id' => 1 ), JSON_UNESCAPED_SLASHES ),
+			wp_json_encode( array( 'file_id' => 2 ), JSON_UNESCAPED_SLASHES ),
+		);
+
+		$field->validate();
+		unset( $_POST['test_files'] );
+
+		$this->assertFalse( $field->is_error() );
 	}
 
 	/**

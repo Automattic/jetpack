@@ -13,12 +13,10 @@ import { stage as Dashboard } from './stage';
 import type { SyncStatus } from '@jetpack-premium-analytics/site-sync';
 import type { ReactNode } from 'react';
 
-// Read inside the mocked functions, never at factory time: the factories run
-// while `./stage` is still being imported, when these are in the temporal dead
-// zone.
+// Read inside the mocked functions, never at factory time — the factories run
+// while `./stage` is still importing, so these are in the temporal dead zone.
 // Base UI's `Tabs.Panel` defaults to `keepMounted={false}`, so only the active
-// section is ever in the DOM. The mock below models that: without it, anything
-// the stage renders per section would silently multiply here but not in product.
+// section is ever in the DOM; the mock below models that.
 let mockActiveSectionSlug = 'insights';
 let mockSyncState: { data?: SyncStatus; error: Error | null; isComplete: boolean };
 let mockIsSyncFinished: boolean;
@@ -58,17 +56,11 @@ jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 	DateFiltersPanel: () => <MockHeaderScopeProbe />,
 	DateIntervalDropdown: () => null,
 	DateYearFilter: () => null,
-	SectionHeader: ( { subtitle, children }: { subtitle?: string; children: ReactNode } ) => (
-		<div>
-			{ subtitle ? <span>{ `subtitle: ${ subtitle }` }</span> : null }
-			{ children }
-		</div>
-	),
+	SectionHeader: ( { children }: { children: ReactNode } ) => <div>{ children }</div>,
 	SectionTabPanel: ( { value, children }: { value: string; children: ReactNode } ) =>
 		value === mockActiveSectionSlug ? <div>{ children }</div> : null,
 	StatsBreadcrumbs: () => null,
 	StatsPageIcon: () => null,
-	getSectionSubtitle: () => 'Jan 1 - Jan 30',
 } ) );
 
 jest.mock( '@wordpress/admin-ui', () => ( {
@@ -292,9 +284,8 @@ describe( 'Dashboard refresh-failure notice', () => {
 		const notices = screen.getAllByTestId( 'refresh-failure-notice' );
 		expect( notices ).toHaveLength( 1 );
 
-		// In the pinned band right after the header, not down among the widgets,
-		// so it stays reachable however far the reader has scrolled. Sibling order
-		// is the assertion, and Testing Library has no query for it.
+		// Pinned right after the header, not among the widgets, so it stays reachable
+		// however far scrolled; sibling order is the assertion Testing Library lacks.
 		// eslint-disable-next-line testing-library/no-node-access -- position in the header band is what this test is for.
 		expect( notices[ 0 ].previousElementSibling ).toContainElement(
 			screen.getByText( 'header offers comparison' )
@@ -383,13 +374,12 @@ describe( 'Dashboard header date control', () => {
 		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_RANGE );
 	} );
 
-	it( 'renders the control and announces the range by default', () => {
+	it( 'renders the control by default', () => {
 		mockSection( { date_filter: DATE_FILTER_RANGE } );
 
 		render( <Dashboard /> );
 
 		expect( screen.getByText( 'header offers comparison' ) ).toBeInTheDocument();
-		expect( screen.getByText( 'subtitle: Jan 1 - Jan 30' ) ).toBeInTheDocument();
 	} );
 
 	it( 'renders no control for a section that hands it to its widgets', () => {
@@ -402,18 +392,6 @@ describe( 'Dashboard header date control', () => {
 
 		// The probe `DateFiltersPanel` renders is how we see whether it mounted.
 		expect( screen.queryByText( /^header offers/ ) ).not.toBeInTheDocument();
-	} );
-
-	// The reader has no header control to change the range with.
-	it( 'announces no range for a section that hands the control to its widgets', () => {
-		mockSection( {
-			date_filter: DATE_FILTER_RANGE,
-			date_filter_options: { with_date_comparison: false, with_header_date_control: false },
-		} );
-
-		render( <Dashboard /> );
-
-		expect( screen.queryByText( /^subtitle:/ ) ).not.toBeInTheDocument();
 	} );
 
 	// Moving the control must not strip the params the widgets fetch with.
@@ -439,6 +417,5 @@ describe( 'Dashboard header date control', () => {
 		render( <Dashboard /> );
 
 		expect( screen.getByText( 'header offers comparison' ) ).toBeInTheDocument();
-		expect( screen.getByText( 'subtitle: Jan 1 - Jan 30' ) ).toBeInTheDocument();
 	} );
 } );

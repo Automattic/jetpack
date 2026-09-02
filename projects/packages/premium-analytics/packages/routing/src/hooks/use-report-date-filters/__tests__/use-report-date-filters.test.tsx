@@ -62,7 +62,12 @@ describe( 'useReportDateFilters', () => {
 			}: {
 				search: ( prev: Record< string, unknown > ) => Record< string, unknown >;
 			} ) => {
-				mockSearch = search( mockSearch );
+				// The URL drops `undefined` on the way out, so a patch that only
+				// clears absent params must round-trip back unchanged — keeping the
+				// keys would realign the draft where the router would not.
+				mockSearch = Object.fromEntries(
+					Object.entries( search( mockSearch ) ).filter( ( [ , value ] ) => value !== undefined )
+				);
 			}
 		);
 	} );
@@ -183,6 +188,7 @@ describe( 'useReportDateFilters', () => {
 			compare_from: '2026-06-01T00:00:00.000Z',
 			compare_to: '2026-06-30T23:59:59.999Z',
 		} );
+		expect( result.current.comparisonPresetId ).toBe( 'previous-period' );
 		expect( result.current.appliedComparisonPresetId ).toBe( 'previous-period' );
 		expect( result.current.appliedComparisonRange?.from?.toISOString() ).toBe(
 			'2026-06-01T00:00:00.000Z'
@@ -190,6 +196,33 @@ describe( 'useReportDateFilters', () => {
 		expect( result.current.appliedComparisonRange?.to?.toISOString() ).toBe(
 			'2026-06-30T23:59:59.999Z'
 		);
+	} );
+
+	it( 'offers the comparison preset a deep link carries with its window', () => {
+		const { result } = renderDateFilters( {
+			from: '2026-07-01T00:00:00.000Z',
+			to: '2026-07-30T23:59:59.999Z',
+			preset: 'last-30-days',
+			comp: '1',
+			compare_preset: 'previous-period',
+			compare_from: '2026-06-01T00:00:00.000Z',
+			compare_to: '2026-06-30T23:59:59.999Z',
+		} );
+
+		expect( result.current.comparisonPresetId ).toBe( 'previous-period' );
+	} );
+
+	// The widgets read the same condition, so a preset with no window behind it
+	// would paint the control active over numbers nothing is compared to.
+	it( 'offers no comparison preset where the window is missing', () => {
+		const { result } = renderDateFilters( {
+			from: '2026-07-01T00:00:00.000Z',
+			to: '2026-07-30T23:59:59.999Z',
+			preset: 'last-30-days',
+			compare_preset: 'previous-period',
+		} );
+
+		expect( result.current.comparisonPresetId ).toBeUndefined();
 	} );
 
 	it( 'carries no comparison window until one is applied', () => {
@@ -200,6 +233,67 @@ describe( 'useReportDateFilters', () => {
 		} );
 
 		expect( result.current.appliedComparisonRange ).toBeUndefined();
+	} );
+
+	// Re-picking "No comparison" with none applied clears params the URL does
+	// not carry: the commit would write the same URL and leave Apply on for
+	// good, since only a changed committed value empties the buffer.
+	it( 'stages nothing when the comparison is cleared with none applied', () => {
+		const { result, rerender } = renderDateFilters( {
+			from: '2026-07-01T00:00:00.000Z',
+			to: '2026-07-30T23:59:59.999Z',
+			preset: 'last-30-days',
+			interval: 'day',
+		} );
+
+		act( () => result.current.onComparisonChange( undefined, undefined ) );
+		rerender();
+
+		expect( mockNavigate ).not.toHaveBeenCalled();
+		expect( result.current.canApply ).toBe( false );
+	} );
+
+	// The same no-op reached the long way: a comparison picked and dropped again
+	// inside one draft leaves the params back where the URL already has them.
+	it( 'stops reading as dirty when a staged comparison is dropped again', () => {
+		const { result, rerender } = renderDateFilters( {
+			from: '2026-07-01T00:00:00.000Z',
+			to: '2026-07-30T23:59:59.999Z',
+			preset: 'custom',
+			interval: 'day',
+		} );
+
+		act( () =>
+			result.current.onChange(
+				{
+					from: new Date( '2026-07-10T00:00:00.000Z' ),
+					to: new Date( '2026-07-30T23:59:59.999Z' ),
+				},
+				'custom'
+			)
+		);
+		act( () =>
+			result.current.onComparisonChange(
+				{
+					from: new Date( '2026-06-01T00:00:00.000Z' ),
+					to: new Date( '2026-06-30T23:59:59.999Z' ),
+				},
+				'previous-period'
+			)
+		);
+		act( () => result.current.onComparisonChange( undefined, undefined ) );
+		act( () =>
+			result.current.onChange(
+				{
+					from: new Date( '2026-07-01T00:00:00.000Z' ),
+					to: new Date( '2026-07-30T23:59:59.999Z' ),
+				},
+				'custom'
+			)
+		);
+		rerender();
+
+		expect( result.current.canApply ).toBe( false );
 	} );
 
 	it( 'commits an interval change on its own', () => {
@@ -216,6 +310,39 @@ describe( 'useReportDateFilters', () => {
 		expect( mockNavigate ).toHaveBeenCalledTimes( 1 );
 		expect( mockSearch ).toMatchObject( { interval: 'week' } );
 		expect( result.current.appliedInterval ).toBe( 'week' );
+	} );
+
+	/*
+	 * Listing the applied range's buckets while a shorter range is drafted lets
+	 * the menu offer one the draft cannot hold; Apply then resolves the choice
+	 * away and the tick springs back. Same rule as the widget-owned control.
+	 */
+	it( 'lists the buckets the drafted range allows, not the applied one', () => {
+		const { result } = renderDateFilters( {
+			from: '2026-07-01T00:00:00.000Z',
+			to: '2026-07-30T23:59:59.999Z',
+			preset: 'last-30-days',
+			interval: 'day',
+		} );
+
+		expect( result.current.intervalOptions ).toEqual( [ 'day', 'week' ] );
+
+		act( () => {
+			result.current.onChange(
+				{
+					from: new Date( '2026-07-28T00:00:00.000Z' ),
+					to: new Date( '2026-07-30T23:59:59.999Z' ),
+				},
+				'custom'
+			);
+		} );
+
+		expect( mockNavigate ).not.toHaveBeenCalled();
+		expect( result.current.intervalOptions ).toEqual( [ 'day', 'hour' ] );
+		expect( result.current.interval ).toBe( 'day' );
+
+		// The applied window is still what the widgets drew, bucket included.
+		expect( result.current.appliedInterval ).toBe( 'day' );
 	} );
 
 	it( 'holds a comparison change while a primary edit is staged', () => {

@@ -32,10 +32,10 @@ export type RawBackupEntry = {
  * Fetch the site's ten most recent backup attempts.
  *
  * **`null` is a reachable, non-exceptional response.**
- * `Jetpack_Backup::get_recent_backups()` returns bare `null` on any
- * non-200 from WPCOM, which WordPress serves as HTTP 200 with a `null`
- * body — so `apiFetch` resolves rather than rejecting and no `ApiError`
- * is ever constructed. Callers must treat `null` as a failure to read
+ * `Jetpack_Backup::get_recent_backups()` returns bare `null` for a 200
+ * from WPCOM whose body will not decode, which WordPress serves as HTTP
+ * 200 with a `null` body — so `apiFetch` resolves rather than rejecting
+ * and no `ApiError` is ever constructed. Callers must treat `null` as a failure to read
  * the state, never as "this site has no backups": conflating the two
  * renders a WPCOM outage as the brand-new-customer screen.
  *
@@ -49,9 +49,9 @@ export async function fetchBackups(): Promise< RawBackupEntry[] | null > {
  * Response of `POST /jetpack/v4/site/backup/enqueue`.
  *
  * Two different failures are encoded in the body rather than the status
- * code: `null` for any non-200 WPCOM reply (same mechanism as
- * `fetchBackups`), and `{ success: false, error }` for a 200 that WPCOM
- * nonetheless refused. Only the second carries a reason.
+ * code: `null` for a WPCOM reply the route could not decode (same
+ * mechanism as `fetchBackups`), and `{ success: false, error }` for a
+ * 200 that WPCOM nonetheless refused. Only the second carries a reason.
  */
 export type EnqueueBackupResponse = {
 	success?: boolean;

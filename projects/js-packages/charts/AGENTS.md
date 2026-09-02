@@ -31,7 +31,13 @@ The package is migrating to WordPress UI and Theme as its defaults. When adding 
 - **Chart element styles.** Read chart element styles via `getElementStyles` from `GlobalChartsProvider`, not directly from `theme`. This is the supported path for color/style resolution across themes.
 - **Package CSS variables.** Package-owned custom properties follow `--a8c-charts-{category}-{name}`. `TOKENS.md` is the catalog; keep its tables in step with `src/styles/chart-scope.scss` (a test enforces this).
 - **One mapping point.** The catalog is emitted once on the `GlobalChartsProvider` wrapper by `chart-scope.scss`, and for anything that is a catalog role that stylesheet is the only place its `--wpds-*` mapping may be named. Values that are *not* chart roles — incidental typography and spacing, interaction motion — read their design-system token directly at the call site, as chrome that should track the host's theme rather than charts-level theming.
-- **JS token resolution is element-scoped.** Pass the element from `useChartScopeElement()` to `resolveCssVariable`; never resolve against `document.documentElement`. Resolving at the chart's scope element is what picks up an override set inside the provider tree. That element is the wrapper the chart renders into, not the element its `className` lands on, so an override set on the chart's own class reaches only CSS-painted colours — CHARTS-255 tracks closing that gap.
+- **`var()` resolves in an SVG *paint* presentation attribute — `fill`, `stroke`, `stroke-width`.** Verified across the supported range rather than only at the top of it: Blink 117, WebKit 17 and Gecko 117 each resolve a chain with a fallback, without one, and with a `transparent` fallback, in an attribute and in an inline style. That clears `@wordpress/browserslist-config`, whose low end is `chrome 118` and `ios_saf 18.5-18.7` (both from its `> 1%` query, so they drift with usage). WPT's `css/css-variables/variable-presentation-attribute.html` puts it back further — passing in Safari 11, Chrome 74 and Firefox 67 — and no engine tracker carries a substitution bug for these attributes. Much of this package's older commentary says the opposite; do not reintroduce a JS resolver on that basis.
+- **It is interoperable but not yet normatively specified.** SVG 2 §6.6 parses presentation attributes as CSS *values* rather than declarations, which on a strict reading leaves no room for substitution; the SVG WG resolved to allow it on 2025-11-20 (`w3c/svgwg#1031`) and the spec text is still to be written. So this rests on unanimous engine behavior, not on a citation.
+- **Do NOT use `var()` in an SVG *geometry* attribute — `width`, `height`, `r`, `cx`, `cy`, `x`, `y`.** Blink dropped those silently until Chrome 145 (`crbug 40801413`), so it fails across most of the supported range while working in Safari and Firefox — the shape of bug that a local check on a current browser will never catch. Nothing here does it today. Put the geometry in an inline `style` or a stylesheet instead, where substitution has always worked. Safari additionally accepts a *unitless* substituted length where Blink and Gecko reject it, so always carry the unit inside the custom property.
+- **A missed substitution is not a slightly-off color.** The attribute is invalid and ignored, so `stroke` falls back to its initial `none` — the x axis line and tick marks vanish — while `fill` on text falls back to black, which on a dark host means invisible axis labels.
+- **Never resolve a paint-only color — hand visx the pointer.** The grid, axis line, tick marks and tick labels keep their `var(--a8c-charts-color-*, …)` chain all the way to the element, where it resolves natively. That is what gives an override on a chart's own class effect, keeps a theme change live with no re-render, and works under SSR. Resolving one in `useXYChartTheme` freezes it and silently undoes all three; `use-xychart-theme.test.tsx` pins the chain surviving the theme build.
+- **Resolve only what is read as a *string*:** the palette (visx's `colorScale`, and `getChartColor` deriving further colors), `geoChart`'s Google Charts config, and colour math like `hexToRgba` or the heatmap's contrast decision. Those are parsed, not painted, so a `var()` chain is useless to them.
+- **JS token resolution is element-scoped.** Pass the element from `useChartScopeElement()` to `resolveCssVariable`; never resolve against `document.documentElement`. Resolving at the chart's scope element is what picks up an override set inside the provider tree. That element is the wrapper the chart renders into, not the element its `className` lands on, so an override set on the chart's own class reaches only CSS-painted colors — CHARTS-255 tracks closing that gap.
 - **Two consumption paths — this changes what a charts change can break.**
   `@wordpress/build` apps (premium-analytics, publicize, podcast, videopress)
   consume the Rolldown output in `dist/` and load it as a **WordPress Script
@@ -39,6 +45,14 @@ The package is migrating to WordPress UI and Theme as its defaults. When adding 
   (My Jetpack and friends) resolve source through the `jetpack:src` export
   condition instead. A change that only affects `dist/` can therefore break
   four packages this one does not import.
+- **Referencing `process.env` in `src` breaks a consumer's typecheck.** Webpack
+  consumers compile this package's source through `jetpack:src` under *their*
+  tsconfig, and several (videopress among them) have no `@types/node`, so a bare
+  `process.env.NODE_ENV` fails with `TS2591` in their build and not in ours.
+  `pnpm run typecheck` here will not catch it. Declare a local
+  `declare const process: { env: Record< string, string | undefined > };` in any
+  file that needs it — `bar-chart/private/comparison-bars.tsx` and
+  `providers/chart-context/private/theme-override-vars.ts` both do.
 - **Never `deps.alwaysBundle` a package that transitively requires an external.**
   Pre-bundling is safe only for dependencies that require nothing themselves —
   `fast-deep-equal` qualifies, which is why `tsdown.config.ts` still lists it.
@@ -71,6 +85,7 @@ The package is migrating to WordPress UI and Theme as its defaults. When adding 
 
 ## Conventions
 
+- **US English spelling everywhere** — comments, docs, story descriptions, test names, warning strings. `color`, not `colour`; `behavior`, `normalize`, `serialize`, `center`, `initialize`. The API is already US (`color`, `backgroundColor`, `labelTextColor`, `--a8c-charts-color-*`), so British spelling in a comment sits next to the US identifier it describes and reads as a typo. Older files still hold some; fix them where you are already editing, not as a sweep.
 - Preserve backward compatibility for existing public APIs unless a breaking change is explicitly requested.
 - Prefer extending existing chart components/patterns over introducing new surface area.
 - Reuse existing hooks/providers/utilities before adding new abstractions.

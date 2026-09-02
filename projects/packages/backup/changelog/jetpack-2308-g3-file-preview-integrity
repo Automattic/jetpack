@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Modernized dashboard only, behind the flag: the file browser's preview no longer serves a binary or non-UTF-8 file with its bytes silently replaced by "?", and now says when a preview stops at the 64 KB cap.
+
+

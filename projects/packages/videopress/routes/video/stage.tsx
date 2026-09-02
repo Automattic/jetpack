@@ -1,5 +1,8 @@
 import AdminPage from '@automattic/jetpack-components/admin-page';
 import { useGlobalNotices } from '@automattic/jetpack-components/global-notices';
+import useConnectionErrorNotice, {
+	ConnectionError,
+} from '@automattic/jetpack-connection/use-connection-error-notice';
 import { useQueryClient } from '@tanstack/react-query';
 import { Breadcrumbs } from '@wordpress/admin-ui';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
@@ -111,6 +114,7 @@ const Editor = ( {
 	setChaptersOpen,
 }: EditorProps ) => {
 	const { values, update, isDirty, reset } = useVideoDetailsForm( video );
+	const { hasConnectionError } = useConnectionErrorNotice();
 
 	// The sub-nav's only sibling tab is the Editor, whose route is stripped
 	// from the registry when the chapters editor is off — a one-tab strip
@@ -190,6 +194,11 @@ const Editor = ( {
 				/>
 			}
 		>
+			{ hasConnectionError && (
+				<Stack direction="column">
+					<ConnectionError />
+				</Stack>
+			) }
 			{ showVideoNav && (
 				<VideoNav
 					videoId={ video.id }

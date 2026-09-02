@@ -819,6 +819,7 @@ describe( 'pickLiveRestore', () => {
 		rewind_id: REWIND_ID,
 		when: '2026-08-20T10:00:00+00:00',
 		settled: false,
+		succeeded: false,
 		...over,
 	} );
 
@@ -1068,7 +1069,7 @@ describe( 'useRestore — a restore that starts after the screen loaded', () => 
 				return Promise.resolve( { id: 5, rewind_id: REWIND_ID } );
 			}
 			if ( ( options?.path ?? '' ).includes( '/restores' ) ) {
-				// The legacy route's non-200: a bare null, served as 200.
+				// The legacy route's undecodable body: a null, served as 200.
 				return Promise.resolve( null );
 			}
 			return Promise.resolve( statusPayload( { id: 5, status: 'running' } ) );

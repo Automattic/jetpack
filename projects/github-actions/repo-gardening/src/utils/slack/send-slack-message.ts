@@ -55,7 +55,9 @@ async function sendSlackMessage(
 					type: 'section',
 					text: {
 						type: 'mrkdwn',
-						text: `PR created by ${ user.login } in the <${ repository.html_url }|${ repository.full_name }> repo.`,
+						text: `PR created by ${ user?.login ?? '<unknown>' } in the <${ repository.html_url }|${
+							repository.full_name
+						}> repo.`,
 					},
 				},
 				{

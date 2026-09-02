@@ -6,8 +6,7 @@ import { DETAIL_SURFACE_PRESETS, PRESET_ALL_TIME, QUICK_SURFACE_PRESETS } from '
 import { dateToISOStringWithTZ } from '../tz';
 
 // A zone ahead of UTC, so a naive (UTC) day boundary would land on the wrong
-// day: 2026-07-08T10:29:35Z is already the 8th's evening in Taipei, and its
-// site-local day starts at 2026-07-08T00:00+08:00 = 2026-07-07T16:00Z.
+// day: 2026-07-08T10:29:35Z is already the 8th's evening in Taipei.
 const TIME_ZONE = 'Asia/Taipei';
 const PUBLISHED = new Date( '2026-07-08T10:29:35.000Z' );
 
@@ -35,7 +34,7 @@ describe( 'quick surface presets', () => {
 			getQuickSurfacePresets( TIME_ZONE, { presetIds: DETAIL_SURFACE_PRESETS } ).map(
 				preset => preset.label
 			)
-		).toEqual( [ 'All time', 'Last 24 hours', '7 days', '30 days', '12 months' ] );
+		).toEqual( [ 'All time', 'Last 24 hours', 'Last 7 days', 'Last 30 days', 'Last 12 months' ] );
 	} );
 
 	it( 'gives the all-time pill a short label like the rolling windows', () => {

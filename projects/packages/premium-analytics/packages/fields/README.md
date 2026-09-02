@@ -30,10 +30,17 @@ Export the control from `src/index.ts`. Controls implement dataviews'
 `DataFormControlProps< Item >` and are referenced from widget metadata as:
 
 ```ts
-const ReportParamsField = createReportParamsField( { withIntervalControl: true } );
-
-attributes: [ { id: 'reportParams', label: 'Range', Edit: ReportParamsField } ]
+attributes: [ reportParamsAttributeField( { withIntervalControl: true, grain: MY_GRAIN } ) ]
 ```
 
 A control that needs per-widget options is built by a factory called once at
-module scope, so the component identity is stable across renders.
+module scope, so the component identity is stable across renders. Options
+travel through the factory rather than through the field descriptor: dataviews
+rebuilds a normalized field from a fixed set of keys, and drops anything else a
+descriptor carries.
+
+`grain` is how fine the widget's report is. `presetIds` narrows the quick
+presets on offer, as the WordAds chart does for "Last 24 hours"; an instance
+already saved on a window the widget stops offering is migrated to an offered
+one. `periods` is the bucket sizes its chart draws, so the interval menu never
+lists one the chart would clamp away.

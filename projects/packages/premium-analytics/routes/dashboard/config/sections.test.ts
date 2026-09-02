@@ -11,7 +11,6 @@ const SECTIONS: DashboardSection[] = [
 		slug: 'traffic',
 		label: 'Traffic',
 		title: 'Site traffic',
-		description: 'Views, visitors, and where they came from.',
 		order: 10,
 		date_filter: 'range',
 		default_layout: [],
@@ -21,7 +20,6 @@ const SECTIONS: DashboardSection[] = [
 		slug: 'insights',
 		label: 'Insights',
 		title: 'Activity insights',
-		description: 'Longer-term patterns in your content and audience.',
 		order: 20,
 		date_filter: 'year',
 		default_layout: [],
@@ -33,7 +31,6 @@ const SECTIONS: DashboardSection[] = [
 		slug: 'subscribers',
 		label: 'Subscribers',
 		title: 'Subscribers stats',
-		description: 'How your subscriber list is growing, and how your emails land.',
 		order: 30,
 		default_layout: [],
 	},
@@ -45,7 +42,6 @@ const STORE: DashboardSection = {
 	slug: 'store',
 	label: 'Store',
 	title: null,
-	description: 'Sales, orders, and what your customers are buying.',
 	order: 40,
 	date_filter: 'range',
 	default_layout: [],
@@ -93,9 +89,8 @@ describe( 'resolveSectionHeading', () => {
 	} );
 
 	it( 'falls back to the label when the heading is an empty string', () => {
-		// The registry normalises `''` to null before it ever reaches here; this
-		// pins the client's own guard, since an empty heading would render an
-		// `<h2>` with no accessible name.
+		// The registry normalises `''` to null before this; this pins the client's
+		// own guard against an accessible-name-less `<h2>`.
 		expect( resolveSectionHeading( { ...STORE, title: '' } ) ).toBe( 'Store' );
 	} );
 } );

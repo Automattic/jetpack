@@ -20,12 +20,36 @@ type Figures = {
 	 * forever — which is what makes it safe to reserve layout on.
 	 */
 	isLoading: boolean;
+	/**
+	 * Days of backups WordPress.com is actually holding, or null when the
+	 * response did not carry the figure. Distinct from the plan's promised
+	 * retention: this is what survived the storage limit.
+	 *
+	 * Nullable on its own rather than folded into `hasUsableFigures`,
+	 * because it is genuinely independent of the two byte figures — a
+	 * response can describe storage perfectly well and omit this.
+	 */
+	daysOfBackupsSaved: number | null;
+	/**
+	 * Fewest days of backups the plan will ever keep. Never null where it is rendered:
+	 * only the `BackupsDiscarded` warning reads it, and that level is reached only from
+	 * a branch guarded on this being truthy.
+	 */
+	minDaysOfBackupsAllowed: number | null;
+	/**
+	 * Days of full backups the storage limit would hold at the size of
+	 * the last one, or null when the last backup's size is unknown.
+	 *
+	 * Legacy collapses "cannot compute" and "not even one fits" into the same `0`.
+	 * Separating them lets the help popover say nothing in the first case.
+	 */
+	forecastInDays: number | null;
+	/**
+	 * The retention the *plan* promises, which is not the retention in force. The help
+	 * popover's gate compares against the promise, as legacy's does.
+	 */
+	planRetentionDays: number | null;
 };
-
-// `last_backup_size` and the plan's own retention are read off these same
-// responses but deliberately not returned: nothing consumes them yet, and
-// the usage details that will are JETPACK-2330. Adding each back is one
-// line when there is a caller.
 
 /**
  * `hasUsableFigures` is a discriminant, not a convenience flag: it is the
@@ -49,8 +73,8 @@ type Result = Figures &
  * day-counts, and `/site/backup/policies` reports the limit. A meter
  * drawn from `/size` alone has no denominator.
  *
- * Both halves are read defensively for the same reason. Every legacy
- * bridge answers a non-200 from WordPress.com with a bare `null` body,
+ * Both halves are read defensively for the same reason. A route that
+ * cannot decode WordPress.com's answer still returns a bare `null` body,
  * which WordPress serves as HTTP 200 — so the request resolves, React
  * Query records a success, and the only evidence of failure is the shape
  * of the data. Anything unreadable therefore has to collapse to `null`
@@ -62,7 +86,7 @@ type Result = Figures &
  * response is discarded rather than half-read. Legacy does the same, by
  * dispatching its failure action.
  *
- * @return The two figures, the derived level, and whether to render.
+ * @return The figures, the derived level, and whether to render.
  */
 export function useStorageUsage(): Result {
 	const sizeQuery = useSiteSizeQuery();
@@ -85,20 +109,37 @@ export function useStorageUsage(): Result {
 	// planRetentionDays` at `backup-storage-space/index.jsx:33`, and the
 	// `||` is load-bearing: `retention_days` is `0` on a site with no
 	// retention policy, not absent.
-	const retentionDays = size?.retention_days || ( policies?.activity_log_limit_days ?? null );
+	const planRetentionDays = policies?.activity_log_limit_days ?? null;
+	const retentionDays = size?.retention_days || planRetentionDays;
+
+	const daysOfBackupsSaved = size?.days_of_backups_saved ?? null;
+	const minDaysOfBackupsAllowed = size?.min_days_of_backups_allowed ?? null;
+
+	// Both above zero or no forecast: `last_backup_size` may be omitted or reported as
+	// zero, and `Math.floor( limit / 0 )` is `Infinity`, which would render as a day
+	// count.
+	const lastBackupSize = size?.last_backup_size ?? null;
+	const forecastInDays =
+		storageLimit !== null && storageLimit > 0 && lastBackupSize !== null && lastBackupSize > 0
+			? Math.floor( storageLimit / lastBackupSize )
+			: null;
 
 	const usageLevel = getUsageLevel(
 		storageUsed,
 		storageLimit,
-		size?.min_days_of_backups_allowed ?? null,
+		minDaysOfBackupsAllowed,
 		size?.days_of_backups_allowed ?? null,
 		retentionDays,
-		size?.days_of_backups_saved ?? null
+		daysOfBackupsSaved
 	);
 
 	const figures: Figures = {
 		usageLevel,
 		isLoading: sizeQuery.isLoading || policiesQuery.isLoading,
+		daysOfBackupsSaved,
+		minDaysOfBackupsAllowed,
+		forecastInDays,
+		planRetentionDays,
 	};
 
 	// A limit of zero is not a limit anyone can be measured against, and a

@@ -87,12 +87,9 @@ describe( 'useReport', () => {
 	} );
 
 	it( 'awaits data when only the comparison window moves, leaving primary untouched', async () => {
-		// Deliberate: `isLoading` is the union of both queries, so moving the
-		// comparison window alone (previous period → previous year, or switching
-		// comparison on) takes the whole widget to a skeleton even though the
-		// primary numbers never went stale. The deltas on screen did, and a widget
-		// showing one comparison's deltas under another's label is the bug this
-		// flag exists to prevent.
+		// Deliberate: the whole widget skeletons even though the primary numbers
+		// never went stale, because the deltas on screen did — showing one
+		// comparison's deltas under another's label is the bug this prevents.
 		const queryFactory = (
 			params: ReportParams,
 			queryType: string
@@ -125,21 +122,17 @@ describe( 'useReport', () => {
 
 		rerender( { compare: [ '2025-06-01', '2025-06-07' ] } );
 
-		// The primary query key never changed, so its own numbers are still on
-		// screen — `hasData` proves the old `&& ! hasData` guard would have
-		// cancelled this skeleton.
+		// `hasData` proves the old `&& ! hasData` guard would have cancelled this
+		// skeleton.
 		expect( result.current.hasData ).toBe( true );
 		expect( result.current.isLoading ).toBe( true );
 
 		await waitFor( () => expect( result.current.isLoading ).toBe( false ) );
 	} );
 
-	// The stuck-skeleton bug (WOOA7S-1902): the Traffic chart switches its
-	// likes/comments request off at the hourly grain, and the same change moves
-	// that request's `period` — so `placeholderData` hands it the daily rows and
-	// React Query reports placeholder data forever, because a disabled query
-	// never fetches to replace them. Folded into the widget's own `isLoading`,
-	// that pinned the whole chart in its skeleton.
+	// The stuck-skeleton bug (WOOA7S-1902): the Traffic chart switches a request
+	// off and moves its `period` in the same change, so it is left on placeholder
+	// rows a disabled query never fetches to replace.
 	it( 'stops awaiting once a query is switched off mid-flight', async () => {
 		type Report = { summary: Record< string, unknown >; data: unknown[] };
 		const queryFactory = ( p: ReportParams, queryType: string ): UseQueryOptions< Report > => ( {
@@ -179,9 +172,7 @@ describe( 'useReport', () => {
 	} );
 
 	// React Query's own `refetch()` deliberately ignores `enabled`, so the
-	// combined refetch applies the gate itself. Without it, a widget's Retry
-	// would issue the one request it switched off — and widgets would each need
-	// their own guard around the retry action.
+	// combined refetch applies the gate itself.
 	it( 'leaves a switched-off query alone when the combined refetch runs', async () => {
 		const fetches: string[] = [];
 		const queryFactory = (
