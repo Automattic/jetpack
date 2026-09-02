@@ -606,7 +606,13 @@ class PayPal_Partner_Onboarding_Test extends TestCase {
 						'client_secret' => 'merchant_client_secret',
 					)
 				),
-				'/v1/checkout/payment-resources'      => $this->http_response( 403, array() ),
+				'/v1/checkout/payment-resources'      => $this->http_response(
+					403,
+					array(
+						'name'     => 'NOT_AUTHORIZED',
+						'debug_id' => 'debug123',
+					)
+				),
 			)
 		);
 
@@ -614,6 +620,13 @@ class PayPal_Partner_Onboarding_Test extends TestCase {
 
 		$this->assertInstanceOf( \WP_Error::class, $result );
 		$this->assertSame( 'paypal_api_not_authorized', $result->get_error_code() );
+
+		// "Your app" is ambiguous — the probe runs as the seller's own app, not
+		// the partner app a merchant would check — so the error must name it,
+		// along with PayPal's own diagnosis.
+		$this->assertStringContainsString( 'merchant…', $result->get_error_message() );
+		$this->assertStringContainsString( 'NOT_AUTHORIZED', $result->get_error_message() );
+		$this->assertStringContainsString( 'debug123', $result->get_error_message() );
 
 		$this->assertFalse(
 			PayPal_OAuth::has_credentials(),
