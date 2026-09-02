@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+PayPal Payment Buttons: break the disconnect confirmation into a short summary and a list, so its consequences are readable at a glance.

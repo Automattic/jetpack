@@ -619,6 +619,28 @@
 	margin-top: 12px;
 }
 
+.jetpack-paypal-payment-buttons__confirm-body {
+
+	p {
+		margin: 0 0 12px;
+	}
+
+	ul {
+		margin: 0;
+		padding-inline-start: 20px;
+		list-style: disc;
+	}
+
+	li {
+		margin-bottom: 6px;
+		color: #757575;
+
+		&:last-child {
+			margin-bottom: 0;
+		}
+	}
+}
+
 // Checkout options section (WOOPTP-170/171/172).
 .jetpack-paypal-payment-buttons__checkout-options {
 	margin: 16px 0;
