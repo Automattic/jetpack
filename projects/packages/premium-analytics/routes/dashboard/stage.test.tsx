@@ -113,6 +113,7 @@ jest.mock( '@wordpress/widget-dashboard', () => {
 
 jest.mock( './components', () => ( {
 	DashboardSections: ( { children }: { children: ReactNode } ) => <div>{ children }</div>,
+	FeedbackAction: () => null,
 	// A marker, not the real notice, which reads a query cache these tests do not
 	// stand up. Covered here: where the stage puts it.
 	RefreshFailureNotice: ( { className }: { className?: string } ) => (
