@@ -92,15 +92,14 @@ class PayPal_Partner_Onboarding {
 	/**
 	 * Products to request during onboarding.
 	 *
-	 * EXPRESS_CHECKOUT demonstrably does NOT grant the Payment Links & Buttons
-	 * API: the scopes on a seller onboarded with it carry no NCPS scope and the
-	 * API answers NOT_AUTHORIZED. PPCP is the referral enum for PayPal Complete
-	 * Payments ("PPCP_STANDARD" is the same product's name elsewhere, and the
-	 * referral schema rejects it).
+	 * Neither EXPRESS_CHECKOUT nor PPCP grants the Payment Links & Buttons API:
+	 * sellers onboarded with either get an identical scope set with nothing
+	 * NCPS-shaped, and the API answers NOT_AUTHORIZED. Granting it needs
+	 * partner-side enablement or a referral value the public schema lacks.
 	 *
 	 * @var array
 	 */
-	const ONBOARDING_PRODUCTS = array( 'PPCP' );
+	const ONBOARDING_PRODUCTS = array( 'EXPRESS_CHECKOUT' );
 
 	/**
 	 * Features to request during onboarding.
