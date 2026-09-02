@@ -224,10 +224,11 @@ class Status_Controller_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The hosts resolve enablement through this filter, so the route has to report it rather than
-	 * reading the option raw - otherwise it disagrees with the site it is describing.
+	 * A sticker we set overrides the opt-in and turns the dashboard on without touching the option.
+	 * The hosts answer that through the filter, and the route has to report it - otherwise a client
+	 * invites someone to switch on what they already have.
 	 */
-	public function test_get_reports_enabled_when_a_filter_answers_for_the_host() {
+	public function test_get_reports_enabled_when_a_host_answers_the_filter() {
 		$this->log_in_as_admin();
 		add_filter( 'jetpack_premium_analytics_enabled', '__return_true' );
 
@@ -237,10 +238,10 @@ class Status_Controller_Test extends BaseTestCase {
 	}
 
 	/**
-	 * A filter can veto the write, so the response reports where the site ended up rather than
-	 * echoing back the request.
+	 * The override only points one way: the option cannot switch off a site we have stickered on,
+	 * so the response has to report the dashboard is still up rather than echoing back the request.
 	 */
-	public function test_post_reports_the_dashboard_is_still_on_when_a_filter_vetoes_the_write() {
+	public function test_post_reports_the_dashboard_is_still_on_when_a_host_forces_it() {
 		$this->log_in_as_admin();
 		add_filter( 'jetpack_premium_analytics_enabled', '__return_true' );
 
