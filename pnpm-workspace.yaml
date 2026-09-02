@@ -88,4 +88,7 @@ patchedDependencies:
   # the option, so init modules never run there. The patch runs them in the
   # inline bootstrap instead. Remove once the template runs init modules itself
   # upstream (or Jetpack's WP floor ships a boot with initModules support).
+  # It also restores the `boot-layout-container` class on the mount element,
+  # which those older cores' Boot uses to size the page to the viewport; 0.22.0
+  # dropped it and WordPress/gutenberg#82112 (unreleased) brings it back.
   "@wordpress/build": .pnpm-patches/@wordpress__build.patch

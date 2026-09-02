@@ -32,8 +32,8 @@
 		"debug": "^4.3.2"
 	},
 	"devDependencies": {
-		"@wordpress/dependency-extraction-webpack-plugin": "6.53.0",
-		"@wordpress/i18n": "6.24.0",
+		"@wordpress/dependency-extraction-webpack-plugin": "6.54.0",
+		"@wordpress/i18n": "6.27.0",
 		"jest": "30.4.2",
 		"webpack": "5.107.2",
 		"webpack-cli": "7.2.1"
