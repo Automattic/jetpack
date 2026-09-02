@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Go straight to the API credentials step on a site with no WordPress.com connection, instead of offering Connect with PayPal.
