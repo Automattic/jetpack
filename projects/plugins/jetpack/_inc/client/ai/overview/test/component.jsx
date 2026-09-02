@@ -2,6 +2,8 @@ import { render, screen, waitForElementToBeRemoved } from '@testing-library/reac
 import userEvent from '@testing-library/user-event';
 import { speak } from '@wordpress/a11y';
 import apiFetch from '@wordpress/api-fetch';
+import { dispatch } from '@wordpress/data';
+import { store as preferencesStore } from '@wordpress/preferences';
 import analytics from 'lib/analytics';
 import AiOverview from '../index';
 import { depletedPayload, freePayload, tieredPayload, unlimitedPayload } from './fixtures';
@@ -24,7 +26,13 @@ const callsFor = eventName =>
 // jsdom does not implement navigation; cancel the anchors' default action so
 // clicks still reach React's handlers without a jsdom "not implemented" error.
 const cancelNavigation = event => event.preventDefault();
-beforeEach( () => document.addEventListener( 'click', cancelNavigation ) );
+beforeEach( () => {
+	document.addEventListener( 'click', cancelNavigation );
+	// The assistant banner has its own suite; dismissing it here keeps its
+	// "Connect ChatGPT or Claude" link from colliding with the quick-start
+	// card queries.
+	dispatch( preferencesStore ).set( 'jetpack/ai', 'assistantBannerDismissed', true );
+} );
 
 // The assistant banner imports the webpack-aliased 'lib/analytics', which
 // doesn't resolve under jest — provide it virtually.
@@ -33,6 +41,9 @@ jest.mock( 'lib/analytics', () => ( { tracks: { recordEvent: jest.fn() } } ), { 
 afterEach( () => {
 	jest.resetAllMocks();
 	document.removeEventListener( 'click', cancelNavigation );
+	// The preferences store lives on the shared default registry, so state
+	// written by one test survives into the next — reset the flag each time.
+	dispatch( preferencesStore ).set( 'jetpack/ai', 'assistantBannerDismissed', undefined );
 } );
 
 const PROPS = {
