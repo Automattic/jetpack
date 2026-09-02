@@ -27,6 +27,15 @@ describe( 'quick surface presets', () => {
 		] );
 	} );
 
+	it( 'names every period in full', () => {
+		expect( getQuickSurfacePresets( TIME_ZONE ).map( preset => preset.label ) ).toEqual( [
+			'Last 24 hours',
+			'Last 7 days',
+			'Last 30 days',
+			'Last 12 months',
+		] );
+	} );
+
 	it( 'leads the detail surface with all time, in the designed order', () => {
 		expect( DETAIL_SURFACE_PRESETS ).toEqual( [ PRESET_ALL_TIME, ...QUICK_SURFACE_PRESETS ] );
 
@@ -35,13 +44,6 @@ describe( 'quick surface presets', () => {
 				preset => preset.label
 			)
 		).toEqual( [ 'All time', 'Last 24 hours', 'Last 7 days', 'Last 30 days', 'Last 12 months' ] );
-	} );
-
-	it( 'gives the all-time pill a short label like the rolling windows', () => {
-		const [ allTime ] = getQuickSurfacePresets( TIME_ZONE, { presetIds: DETAIL_SURFACE_PRESETS } );
-
-		expect( allTime.shortLabel ).toBe( 'All' );
-		expect( allTime.shortLabel!.length ).toBeLessThan( allTime.label.length );
 	} );
 
 	it( 'anchors all time on the site-local start of the given day, through the end of today', () => {
