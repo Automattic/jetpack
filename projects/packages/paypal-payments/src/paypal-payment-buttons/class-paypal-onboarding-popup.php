@@ -76,21 +76,29 @@ class PayPal_Onboarding_Popup {
 
 		nocache_headers();
 
-		// PayPal returns the seller to this same page, inside the popup, where the
-		// redirect costs nothing. Nothing reads the marker: it exists so the return
-		// lands on the branch that closes the window instead of starting over.
+		// PayPal returns the seller here, inside the popup, where a redirect costs
+		// nothing. The auth code rides the return URL in this flow -- under
+		// displayMode=minibrowser it would go to partner.js's callback instead.
 		if ( isset( $_GET['paypal_done'] ) ) {
-			self::render( $environment, '' );
+			// phpcs:disable WordPress.Security.NonceVerification.Recommended -- PayPal sets these on its own redirect; the nonce was checked above.
+			$auth_code = isset( $_GET['authCode'] ) ? sanitize_text_field( wp_unslash( $_GET['authCode'] ) ) : '';
+			$shared_id = isset( $_GET['sharedId'] ) ? sanitize_text_field( wp_unslash( $_GET['sharedId'] ) ) : '';
+			$returned  = array_keys( $_GET );
+			// phpcs:enable WordPress.Security.NonceVerification.Recommended
+
+			self::render_return( $auth_code, $shared_id, $returned );
 		}
 
 		$signup_link = PayPal_Partner_Onboarding::generate_signup_link( self::return_url(), $environment );
 		if ( is_wp_error( $signup_link ) ) {
-			self::render( $environment, '', $signup_link->get_error_message() );
+			self::render_error( $signup_link->get_error_message() );
 		}
 
-		$action_url = add_query_arg( 'displayMode', 'minibrowser', $signup_link['action_url'] );
-
-		self::render( $environment, $action_url );
+		// Straight to PayPal, so the seller's click in the editor is the only one
+		// the flow needs. partner.js is not involved: its minibrowser opens a
+		// window, which needs a user activation this popup does not carry.
+		wp_redirect( $signup_link['action_url'] ); // phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect -- PayPal's own onboarding URL, off-site by definition.
+		exit;
 	}
 
 	/**
@@ -103,31 +111,65 @@ class PayPal_Onboarding_Popup {
 	}
 
 	/**
-	 * PayPal's onboarding SDK, per environment.
+	 * Report the result of onboarding to the editor and close the window.
 	 *
-	 * @param string $environment 'sandbox' or 'production'.
-	 * @return string
+	 * @param string   $auth_code The seller auth code, when PayPal returned one.
+	 * @param string   $shared_id The shared ID that goes with it.
+	 * @param string[] $returned  Names of the parameters PayPal sent back.
+	 * @return never
 	 */
-	private static function partner_js_url( $environment ) {
-		return 'sandbox' === $environment
-			? 'https://www.sandbox.paypal.com/webapps/merchantboarding/js/lib/lightbox/partner.js'
-			: 'https://www.paypal.com/webapps/merchantboarding/js/lib/lightbox/partner.js';
+	private static function render_return( $auth_code, $shared_id, $returned ) {
+		$message = $auth_code && $shared_id
+			? __( 'Connecting your account…', 'jetpack-paypal-payments' )
+			: __( 'PayPal did not return the credentials needed to finish connecting.', 'jetpack-paypal-payments' );
+
+		$payload = $auth_code && $shared_id
+			? array(
+				'type'     => 'paypal-onboarding-complete',
+				'authCode' => $auth_code,
+				'sharedId' => $shared_id,
+			)
+			: array(
+				'type'     => 'paypal-onboarding-incomplete',
+				// Names only, never values: enough to tell what PayPal sent without
+				// putting an auth code in a console log.
+				'returned' => $returned,
+			);
+
+		self::render_document( $message, $payload, (bool) $auth_code );
+	}
+
+	/**
+	 * Report a failure to generate the referral link.
+	 *
+	 * @param string $message The error to show.
+	 * @return never
+	 */
+	private static function render_error( $message ) {
+		self::render_document(
+			$message,
+			array(
+				'type'    => 'paypal-onboarding-incomplete',
+				'message' => $message,
+			),
+			false
+		);
 	}
 
 	/**
 	 * Output the popup document and stop.
 	 *
-	 * @param string $environment 'sandbox' or 'production'.
-	 * @param string $action_url  PayPal's referral URL, or '' to just close the window.
-	 * @param string $error       A message to show instead of the connect link.
+	 * @param string $message What the seller sees while the window is up.
+	 * @param array  $payload What to broadcast to the editor.
+	 * @param bool   $close   Whether to close the window once the message is sent.
 	 * @return never
 	 */
-	private static function render( $environment, $action_url, $error = '' ) {
+	private static function render_document( $message, $payload, $close ) {
 		if ( ! headers_sent() ) {
 			header( 'Content-Type: text/html; charset=' . get_option( 'blog_charset' ) );
 		}
 
-		$channel = wp_json_encode( self::CHANNEL, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP );
+		$json_flags = JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP;
 		?>
 <!DOCTYPE html>
 <html <?php language_attributes(); ?>>
@@ -135,66 +177,24 @@ class PayPal_Onboarding_Popup {
 	<meta charset="<?php echo esc_attr( get_option( 'blog_charset' ) ); ?>" />
 	<title><?php esc_html_e( 'Connect with PayPal', 'jetpack-paypal-payments' ); ?></title>
 	<style>
-		body { margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; min-height: 100vh; font-family: system-ui, sans-serif; color: #1e1e1e; text-align: center; }
-		p { margin: 0; max-width: 34em; color: #50575e; }
-		#paypal-connect { display: inline-block; padding: 12px 28px; border-radius: 24px; background: #ffc439; color: #003087; font-size: 16px; font-weight: 600; text-decoration: none; }
+		body { margin: 0; display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 24px; font-family: system-ui, sans-serif; color: #1e1e1e; text-align: center; }
 	</style>
 </head>
 <body>
-		<?php if ( $error ) : ?>
-		<p><?php echo esc_html( $error ); ?></p>
-	<?php elseif ( $action_url ) : ?>
-		<p><?php esc_html_e( 'You will be taken to PayPal to authorise the connection. This window closes on its own once you are done.', 'jetpack-paypal-payments' ); ?></p>
-		<a
-			id="paypal-connect"
-			href="<?php echo esc_url( $action_url ); ?>"
-			data-paypal-button="true"
-			data-paypal-onboard-complete="jetpackPayPalOnboardComplete"
-			target="PPFrame"
-		><?php esc_html_e( 'Continue to PayPal', 'jetpack-paypal-payments' ); ?></a>
-	<?php else : ?>
-		<p><?php esc_html_e( 'You can close this window now.', 'jetpack-paypal-payments' ); ?></p>
-	<?php endif; ?>
+	<p><?php echo esc_html( $message ); ?></p>
 	<script>
 		( function () {
-			var channel;
 			try {
-				channel = new BroadcastChannel( <?php echo $channel; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- wp_json_encode with JSON_HEX_TAG. ?> );
+				var channel = new BroadcastChannel( <?php echo wp_json_encode( self::CHANNEL, $json_flags ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- wp_json_encode with JSON_HEX_TAG. ?> );
+				channel.postMessage( <?php echo wp_json_encode( $payload, $json_flags ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- wp_json_encode with JSON_HEX_TAG. ?> );
+				channel.close();
 			} catch ( e ) {}
 
-			/*
-			 * PayPal calls this by name, in this realm, with the only auth code the
-			 * flow ever produces -- the return URL carries a merchant ID and consent
-			 * flags but never this.
-			 */
-			window.jetpackPayPalOnboardComplete = function ( authCode, sharedId ) {
-				if ( channel ) {
-					channel.postMessage( { type: 'paypal-onboarding-complete', authCode: authCode, sharedId: sharedId } );
-				}
-			};
-
-			var link = document.getElementById( 'paypal-connect' );
-			if ( ! link ) {
-				if ( channel ) {
-					channel.postMessage( { type: 'paypal-onboarding-returned' } );
-					channel.close();
-				}
-				window.setTimeout( function () {
-					window.close();
-				}, 50 );
-				return;
-			}
-
-			// partner.js binds the anchors it finds as it runs, so it is added after
-			// the link rather than alongside it.
-			var script = document.createElement( 'script' );
-			script.src = <?php echo wp_json_encode( self::partner_js_url( $environment ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- wp_json_encode with JSON_HEX_TAG. ?>;
-			script.onload = function () {
-				if ( window.PAYPAL && window.PAYPAL.apps && window.PAYPAL.apps.Signup ) {
-					window.PAYPAL.apps.Signup.render();
-				}
-			};
-			document.body.appendChild( script );
+			<?php if ( $close ) : ?>
+			window.setTimeout( function () {
+				window.close();
+			}, 50 );
+			<?php endif; ?>
 		} )();
 	</script>
 </body>
