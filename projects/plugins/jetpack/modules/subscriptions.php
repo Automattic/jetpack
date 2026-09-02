@@ -1022,9 +1022,8 @@ class Jetpack_Subscriptions {
 	 *
 	 * - It is not displayed on WordPress.com sites.
 	 * - It directs you to Calypso to the existing Subscribers page.
-	 * - Once the Newsletter modernization filter is on, the unified Newsletter
-	 *   page owns the Subscribers tab, so the Calypso shortcut is replaced by a
-	 *   transitional announcement page pointing there.
+	 * - It is retired once the Newsletter modernization filter is on, since the
+	 *   unified Newsletter page then owns the Subscribers tab.
 	 *
 	 * @return void
 	 */
@@ -1032,30 +1031,13 @@ class Jetpack_Subscriptions {
 		/*
 		 * Once the Newsletter modernization filter is on, the unified Newsletter
 		 * page owns the Subscribers tab and this standalone Calypso shortcut is
-		 * retired. In its place, a transitional announcement page tells people
-		 * where subscriber management moved and lets them remove the menu item.
-		 *
-		 * This is evaluated first — before the WoA/Simple and connection guards
-		 * below — and returns, so the legacy Calypso shortcut is never added once
-		 * the filter is on.
-		 *
-		 * The announcement page itself is registered here only on self-hosted
-		 * Jetpack. On WordPress.com (Simple and WoA) jetpack-mu-wpcom's
-		 * wpcom-admin-menu owns the Subscribers entry and registers the
-		 * announcement page there; doing it here as well would duplicate the menu
-		 * (and double the page-view tracking) on Atomic, where both run.
+		 * retired. Evaluated before the guards below, which only gate the shortcut.
 		 *
 		 * Referenced as a string literal (mirrors Newsletter\Settings::MODERNIZATION_FILTER)
 		 * to keep this bootstrap path safe if the packaged Newsletter Settings class does
 		 * not expose the constant yet.
 		 */
 		if ( apply_filters( 'rsm_jetpack_ui_modernization_newsletter', true ) ) {
-			if (
-				! ( new Host() )->is_wpcom_platform()
-				&& class_exists( '\Automattic\Jetpack\Newsletter\Subscribers_Announcement' )
-			) {
-				\Automattic\Jetpack\Newsletter\Subscribers_Announcement::add_menu();
-			}
 			return;
 		}
 

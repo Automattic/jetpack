@@ -83,16 +83,6 @@ class Settings {
 	 * Subscribe to necessary hooks.
 	 */
 	public function init_hooks() {
-		// Transitional Subscribers announcement page (active only while the
-		// modernization filter is on): registers its AJAX/admin-post handlers
-		// and wp-build loading here so they exist on admin-ajax.php and
-		// admin-post.php requests. The menu itself is added by the Jetpack
-		// plugin's subscriptions module, which owns the Subscribers placement.
-		// init() self-gates on Subscribers_Announcement::is_enabled(), which is
-		// also what the menu-registration entry points consult, so the handlers
-		// and the menu can never disagree about whether the feature is on.
-		Subscribers_Announcement::init();
-
 		// Add the Reading settings notice as long as subscriptions are active.
 		if ( $this->is_subscriptions_active() ) {
 			add_action( 'admin_init', array( $this, 'add_reading_page_notice' ) );
