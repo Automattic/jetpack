@@ -34,7 +34,8 @@
 		// layout sideways. Most noticeable on Firefox / platforms with classic
 		// (space-consuming) scrollbars; a no-op where unsupported. The selector
 		// mirrors the "scrollable middle" defined by jetpack-admin-page-layout.
-		.jp-admin-page__page > :not(:first-child):not(.jetpack-footer) {
+		.jp-admin-page__page > :not(:first-child):not(.jetpack-footer),
+		.jp-admin-page > .jp-admin-page__content {
 			scrollbar-gutter: stable;
 		}
 	}

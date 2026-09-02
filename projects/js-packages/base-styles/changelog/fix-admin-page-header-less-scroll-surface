@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Admin page layout: make the content of header-less AdminPage screens scroll instead of being clipped by the fixed content column.
+Admin page layout: make the content of AdminPage screens without a title or breadcrumbs scroll instead of being clipped by the fixed content column.
