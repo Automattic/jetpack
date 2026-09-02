@@ -120,13 +120,13 @@ const DashBoost = ( {
 		}
 	};
 
-	const hasDecided = useRef( false );
+	const hasChosenScoreSource = useRef( false );
 
 	useEffect( () => {
-		if ( hasDecided.current || ! hasFetchedPluginsData || fetchingPluginsData ) {
+		if ( hasChosenScoreSource.current || ! hasFetchedPluginsData || fetchingPluginsData ) {
 			return;
 		}
-		hasDecided.current = true;
+		hasChosenScoreSource.current = true;
 
 		// Use cache scores if they are less than 21 days old.
 		if ( latestSpeedScores && calculateDaysSince( latestSpeedScores.timestamp * 1000 ) < 21 ) {
