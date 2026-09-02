@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Status: stop treating publicly routable IPv6 sites as local; only the loopback (::1) and all-interfaces (::) addresses are local.

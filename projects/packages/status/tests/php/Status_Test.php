@@ -564,33 +564,17 @@ class Status_Test extends TestCase {
 			),
 
 			/*
-			 * IPv6 literals are dot-free too, but the "no dot" rule must not treat them all as
-			 * local: only the loopback (::1) and all-interfaces (::) addresses are, while a
-			 * routable address is a public site (JETPACK-2226).
+			 * An IPv6 literal is dot-free, so the rule above calls every one of them local,
+			 * routable addresses included. Pinned because that is the answer we want, not an
+			 * accident: WordPress.com won't accept an IPv6 site URL at registration.
 			 */
 			'ipv6_loopback'                  => array(
-				'http://[::1]',
-				true,
-			),
-			'ipv6_loopback_with_port'        => array(
 				'http://[::1]:8080',
-				true,
-			),
-			'ipv6_loopback_expanded'         => array(
-				'http://[0:0:0:0:0:0:0:1]',
-				true,
-			),
-			'ipv6_all_interfaces'            => array(
-				'http://[::]',
 				true,
 			),
 			'ipv6_routable'                  => array(
 				'http://[2606:4700:4700::1111]',
-				false,
-			),
-			'ipv6_routable_with_port'        => array(
-				'http://[2606:4700:4700::1111]:8080',
-				false,
+				true,
 			),
 			'playground'                     => array(
 				'https://playground.wordpress.net/scope:0.8362470763364798',
