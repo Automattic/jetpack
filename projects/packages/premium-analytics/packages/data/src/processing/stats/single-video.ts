@@ -1,4 +1,5 @@
 import { safeParseFloat } from '../../utils/parsing';
+import { decodeHtmlText } from '../../utils/text';
 import {
 	coerceStatsArray,
 	coerceStatsRecord,
@@ -54,7 +55,9 @@ function sanitizeSingleVideoPost( value: unknown ): StatsSingleVideoPost | null 
 		id > 0
 			? { id }
 			: {} ),
-		...( typeof value.post_title === 'string' ? { title: value.post_title } : {} ),
+		...( typeof value.post_title === 'string'
+			? { title: decodeHtmlText( value.post_title ) }
+			: {} ),
 		...( typeof value.post_date === 'string' ? { date: value.post_date } : {} ),
 		...( typeof value.post_mime_type === 'string' ? { mimeType: value.post_mime_type } : {} ),
 		...( typeof value.poster === 'string' && value.poster !== '' ? { poster: value.poster } : {} ),
@@ -63,9 +66,8 @@ function sanitizeSingleVideoPost( value: unknown ): StatsSingleVideoPost | null 
 
 export function sanitizeStatsSingleVideoResponse( response: unknown ): StatsSingleVideoReport {
 	const payload = coerceStatsRecord( response );
-	// When the requested window has no rows at all, the endpoint returns a
-	// single `{ date, p }` object instead of the usual tuples; `coerceStatsArray`
-	// and the per-row tuple filter both guard against that.
+	// An empty window comes back as a single `{ date, p }` object rather than the
+	// usual tuples, which both guards below reject.
 	const tuples = coerceStatsArray< unknown >( payload.data ).filter(
 		( row ): row is [ string, ...unknown[] ] =>
 			Array.isArray( row ) && row.length >= 2 && typeof row[ 0 ] === 'string'
@@ -96,10 +98,8 @@ export function sanitizeStatsSingleVideoResponse( response: unknown ): StatsSing
 		  )
 		: null;
 
-	// Range queries also return canonical totals over the window, keyed by
-	// metric name. A non-numeric cell is unknown, not a measured zero — drop it
-	// (same guard as `normalizeStatsSummary`) so consumers see the metric as
-	// missing instead of a fabricated 0.
+	// A non-numeric cell is unknown, not a measured zero — drop it (same guard as
+	// `normalizeStatsSummary`) so the metric reads as missing, not a fabricated 0.
 	const total = isStatsRecord( payload.total )
 		? Object.fromEntries(
 				Object.entries( payload.total )

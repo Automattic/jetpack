@@ -1,10 +1,7 @@
 /**
- * Pin the site timezone to UTC so day-bound math is deterministic regardless
- * of the machine timezone running the tests. `siteTimeZone()` is the leaf
- * every timezone read resolves through, so stubbing it alone pins paths a
- * barrel stub cannot reach (the interval rules get `localTZDate` through a
- * relative import, not the `data` barrel) while keeping the real range and
- * interval implementations under test.
+ * Pin the site timezone to UTC for deterministic day-bound math. Stubs
+ * `siteTimeZone()` directly rather than the `datetime` barrel: the interval
+ * rules import `localTZDate` via a relative path a barrel stub can't reach.
  */
 jest.mock( '@jetpack-premium-analytics/datetime', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/datetime' ),
@@ -193,6 +190,26 @@ describe( 'buildRangePatch', () => {
 		expect( patch ).toMatchObject( {
 			compare_from: '2026-07-08T14:29:59.999+00:00',
 			compare_to: '2026-07-09T14:29:59.999+00:00',
+			compare_preset: 'previous-period',
+		} );
+	} );
+
+	// The menu derives from the range, so a preset the new range no longer
+	// offers is staged as the previous period rather than left stranded.
+	it( 'falls back to the previous period when the new range drops the preset', () => {
+		const patch = buildRangePatch( {
+			nextRange: {
+				from: new Date( '2026-08-01T00:00:00.000+00:00' ),
+				to: new Date( '2026-08-30T23:59:59.999+00:00' ),
+			},
+			nextPresetId: 'last-30-days',
+			effective: { comp: '1', compare_preset: 'previous-month' },
+		} );
+
+		expect( patch ).toMatchObject( {
+			compare_from: '2026-07-02T00:00:00.000+00:00',
+			compare_to: '2026-07-31T23:59:59.999+00:00',
+			compare_preset: 'previous-period',
 		} );
 	} );
 

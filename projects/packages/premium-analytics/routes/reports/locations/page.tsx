@@ -126,9 +126,8 @@ export default function LocationsReportPage(): JSX.Element {
 		sort: sortLocationCsvRows,
 	} );
 
-	// A country picked on one tab does not carry to the next: the Countries tab
-	// cannot be scoped at all, and a country with regions may have no cities.
-	// The table remounts per tab, so its own filter clears alongside this.
+	// Country filter doesn't carry between tabs: Countries can't be scoped, and
+	// cities/regions vary per tab, so clear it on tab change.
 	const handleTabChange = useCallback(
 		( tab: ReportLocationsTabId ) => {
 			setCountryFilter( '' );

@@ -101,8 +101,8 @@ export const WithComparison: Story = {
  * First load: the fetch is in flight, so the widget shows its loading state. The
  * mock is forced to never resolve for the duration of this story.
  *
- * Forced through `forceStatsMockState`: `stats/clicks` is answered by the legacy
- * stats mocks before the shared `setReportMockState` override can intercept it.
+ * Uses `forceStatsMockState`: the legacy stats mocks answer `stats/clicks`
+ * before `setReportMockState` can intercept it.
  */
 export const Loading: Story = {
 	render: () => renderClicksOnPreset( 'last-90-days' ),

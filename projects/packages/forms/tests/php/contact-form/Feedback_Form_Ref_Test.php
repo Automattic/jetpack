@@ -44,8 +44,22 @@ class Feedback_Form_Ref_Test extends BaseTestCase {
 		);
 
 		// Mock $_POST data for form submission
-		$_POST['contact-form-id'] = $this->parent_post_id;
-		$_POST['_wpnonce']        = wp_create_nonce( 'contact-form_' . $this->parent_post_id );
+		$_POST = array(
+			'contact-form-id' => $this->parent_post_id,
+			'_wpnonce'        => wp_create_nonce( 'contact-form_' . $this->parent_post_id ),
+		);
+	}
+
+	/**
+	 * Drop the staged submission.
+	 *
+	 * Nothing else clears `$_POST`, and a stale contact-form-id decides which
+	 * form the next test's Contact_Form believes it is, which changes the field
+	 * IDs it generates.
+	 */
+	public function tear_down() {
+		$_POST = array();
+		parent::tear_down();
 	}
 
 	/**

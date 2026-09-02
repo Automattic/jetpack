@@ -6,7 +6,7 @@ import { setSettings } from '@wordpress/date';
  * Internal dependencies
  */
 import { EN_US_SETTINGS, ES_ES_SETTINGS, settingsFor } from '../__fixtures__/wp-date-settings';
-import { formatDate, formatWeekday } from '../format-date';
+import { formatDate, formatMondayFirstWeekday, formatWeekday } from '../format-date';
 
 // Midnight UTC, matching the fixtures' timezone, so no day shift is in play.
 const JUNE_21 = new Date( '2025-06-21T00:00:00+00:00' );
@@ -27,6 +27,10 @@ describe( 'formatDate', () => {
 
 		it( 'formats "short" as the site format without its year', () => {
 			expect( formatDate( JUNE_21, 'short' ) ).toBe( 'June 21' );
+		} );
+
+		it( 'formats "monthYear" as the site format without its day', () => {
+			expect( formatDate( JUNE_21, 'monthYear' ) ).toBe( 'June 2025' );
 		} );
 
 		it( 'formats "year"', () => {
@@ -59,6 +63,10 @@ describe( 'formatDate', () => {
 			expect( formatDate( JUNE_21, 'short' ) ).toBe( '21 de junio' );
 		} );
 
+		it( 'drops the leading "<day> de" for "monthYear"', () => {
+			expect( formatDate( JUNE_21, 'monthYear' ) ).toBe( 'junio de 2025' );
+		} );
+
 		it( 'keeps "iso" untranslated so it stays machine-readable', () => {
 			expect( formatDate( JUNE_21, 'iso' ) ).toBe( '2025-06-21' );
 		} );
@@ -74,6 +82,12 @@ describe( 'formatDate', () => {
 		expect( formatDate( JUNE_21, 'short' ) ).toBe( '2025' );
 	} );
 
+	it( 'falls back to the site format when removing the day leaves nothing', () => {
+		setSettings( settingsFor( 'day-only-test', 'j' ) );
+
+		expect( formatDate( JUNE_21, 'monthYear' ) ).toBe( '21' );
+	} );
+
 	it( 'does not add a second weekday when the site format already names one', () => {
 		setSettings( settingsFor( 'weekday-format-test', 'l, F j, Y' ) );
 
@@ -84,5 +98,14 @@ describe( 'formatDate', () => {
 		setSettings( EN_US_SETTINGS );
 
 		expect( formatDate( JUNE_21, 'dateTime' ) ).toBe( 'June 21, 2025 12:00 am' );
+	} );
+} );
+
+describe( 'formatMondayFirstWeekday', () => {
+	it( 'reads index 0 as Monday and 6 as Sunday', () => {
+		// The offset is the whole point of the helper: a missing or reversed one
+		// still yields a real weekday name, so both ends are pinned.
+		expect( formatMondayFirstWeekday( 0 ) ).toBe( 'Monday' );
+		expect( formatMondayFirstWeekday( 6 ) ).toBe( 'Sunday' );
 	} );
 } );

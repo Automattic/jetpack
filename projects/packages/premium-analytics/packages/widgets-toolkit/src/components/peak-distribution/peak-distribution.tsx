@@ -33,9 +33,8 @@ export function PeakDistribution( {
 	valueUnit = 'views',
 }: PeakDistributionProps ) {
 	const plainViewsOptions = { ...PLAIN_VIEWS_OPTIONS, decimals: valueDecimals };
-	// A positive figure can still round to zero at the shown precision: one view
-	// a month is 0.03 a day. A named peak sitting over "0 views per day" reads as
-	// no data, so report the smallest figure the precision can carry instead.
+	// A positive figure can round to zero at the shown precision (one view a month is
+	// 0.03 a day), and a named peak over "0 views per day" reads as no data.
 	const isBelowPrecision = value > 0 && Number( value.toFixed( valueDecimals ) ) === 0;
 	const shownValue = isBelowPrecision ? 10 ** -valueDecimals : value;
 	const exactViews = formatMetricValue( shownValue, 'number', plainViewsOptions );

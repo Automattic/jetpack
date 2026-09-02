@@ -5,6 +5,36 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.49.0] - 2026-09-01
+### Added
+- Dashboard: Give the empty Library an upload dropzone empty state. [#51717]
+- Enable the chapters editor on all sites. [#51296]
+
+### Changed
+- Update package dependencies. [#51303] [#51802]
+
+### Fixed
+- Dashboard: Say when an upload failed because of a Jetpack connection problem, instead of only "Upload failed". [#51541]
+- Dashboard: Show the Jetpack connection error notice on the modernized dashboard. [#51541]
+- Video block: Say when an upload failed because of a Jetpack connection problem, instead of only "Failed to upload your video". [#51541]
+
+## [0.48.0] - 2026-08-26
+### Added
+- Dashboard: Add a first-run onboarding modal. [#51520]
+- Dashboard: Switch between the first-run and returning-user tab order from a single first-run state. [#51520]
+
+### Changed
+- Dashboard: Align the welcome modal with the design system: derive the media band's control colors from a ThemeProvider seed, use the dialog's own type scale, and the Jetpack brand token for the card icons. [#51567]
+- Dashboard: Rebuild the welcome modal around the brand artwork band, replacing the two-tab layout. [#51520]
+
+### Removed
+- Minimum supported PHP version is now 7.4. [#51515]
+
+### Fixed
+- Dashboard: stop greeting people who already have videos as new when they arrive on a video link in a fresh browser. [#51520]
+- Fix private video playback authorization for videos embedded through synced patterns and Video Playlist blocks, let private videos preview in the block editor canvas, load live metadata for private playlist entries for authorized viewers, and show a lock placeholder on playlist thumbnails of private videos the viewer cannot access. [#51569]
+- Welcome modal: load the artwork behind the intro film instead of falling back to a flat colour. [#51520]
+
 ## [0.47.2] - 2026-08-25
 ### Added
 - Video details: Move the add-to-content action into the page header, where it can now create a new page as well as a new post. [#51480]
@@ -2177,6 +2207,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.49.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.48.0...v0.49.0
+[0.48.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.47.2...v0.48.0
 [0.47.2]: https://github.com/Automattic/jetpack-videopress/compare/v0.47.1...v0.47.2
 [0.47.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.47.0...v0.47.1
 [0.47.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.46.0...v0.47.0

@@ -1,6 +1,15 @@
+import { SERIES_SLOT_COUNT, seriesRole } from './series-palette';
 import type { ChartTheme } from '../../../types';
 
+/*
+ * `process.env.NODE_ENV` is replaced by the bundler at build time. Declare a
+ * minimal `process` locally so this file type-checks as source under `jetpack:src`.
+ */
+declare const process: { env: Record< string, string | undefined > };
+
 // The consumer theme fields that correspond to an emitted catalog role, and the role each one overrides. Each role must be read by exactly the elements its field controlled before the role existed: `svgLabelSmall.fill` maps to the narrow `--a8c-charts-color-label-axis` rather than `--a8c-charts-color-label`, because the broad role is also read by legend labels, heatmap cell values, funnel labels and the line-chart tooltip, which that field never moved.
+//
+// `theme.colors` is the one field mapped by position rather than by name: entry N publishes slot N+1, which is what makes it sugar over the five slots rather than a second palette with its own precedence.
 const ROLE_FOR_FIELD: Array< [ string, ( theme: Partial< ChartTheme > ) => string | undefined ] > =
 	[
 		[ '--a8c-charts-color-background', theme => theme.backgroundColor ],
@@ -8,7 +17,36 @@ const ROLE_FOR_FIELD: Array< [ string, ( theme: Partial< ChartTheme > ) => strin
 		[ '--a8c-charts-color-axis', theme => theme.xAxisLineStyles?.stroke ],
 		[ '--a8c-charts-color-tick', theme => theme.xTickLineStyles?.stroke ],
 		[ '--a8c-charts-color-label-axis', theme => theme.svgLabelSmall?.fill ],
+		[ '--a8c-charts-color-label-background', theme => theme.labelBackgroundColor ],
+		[ '--a8c-charts-color-label-on-fill', theme => theme.labelTextColor ],
+		...Array.from(
+			{ length: SERIES_SLOT_COUNT },
+			( _, index ): [ string, ( theme: Partial< ChartTheme > ) => string | undefined ] => [
+				seriesRole( index + 1 ),
+				theme => theme.colors?.[ index ],
+			]
+		),
 	];
+
+let warnedAboutExtraColors = false;
+
+/**
+ * Warns once when a consumer passes more colors than there are slots to publish them into.
+ *
+ * @param count - How many entries `theme.colors` holds.
+ */
+function warnOnceAboutExtraColors( count: number ): void {
+	if ( warnedAboutExtraColors || process.env.NODE_ENV === 'production' ) {
+		return;
+	}
+
+	warnedAboutExtraColors = true;
+	// eslint-disable-next-line no-console
+	console.warn(
+		`[Charts] theme.colors holds ${ count } colors and the palette has ${ SERIES_SLOT_COUNT } slots, so entries past the ${ SERIES_SLOT_COUNT }th are ignored. ` +
+			'Set a per-series color with `options.stroke` instead.'
+	);
+}
 
 /**
  * The variable a `theme` prop override is published as, one layer outside the role itself.
@@ -26,7 +64,7 @@ export const THEME_LAYERED_ROLES: readonly string[] = ROLE_FOR_FIELD.map( ( [ ro
 /**
  * Whether a value reads the role it is being published for, which would make the catalog entry depend on itself.
  *
- * The dependency runs `<role>: var(<role>-theme, …)`, so a value naming `<role>` closes a cycle through the catalog entry. CSS marks every custom property in a cycle invalid at computed-value time — the role's own fallback is *not* used, so the token resolves to nothing and every chart loses that colour. Verified in Chrome: `--role-theme: var(--role, blue); --role: var(--role-theme, green)` leaves `--role` empty, not `green`.
+ * The dependency runs `<role>: var(<role>-theme, …)`, so a value naming `<role>` closes a cycle through the catalog entry. CSS marks every custom property in a cycle invalid at computed-value time — the role's own fallback is *not* used, so the token resolves to nothing and every chart loses that color. Verified in Chrome: `--role-theme: var(--role, blue); --role: var(--role-theme, green)` leaves `--role` empty, not `green`.
  *
  * Three things this has to get right, none of which a plain substring test gets:
  *
@@ -54,9 +92,11 @@ export type ThemeOverrides = {
 };
 
 /**
- * Maps a sparse consumer theme onto the theme-layer variables its overridden catalog roles read, so CSS-painted and JS-resolved colours read one source.
+ * Maps a sparse consumer theme onto the theme-layer variables its overridden catalog roles read, so CSS-painted and JS-resolved colors read one source.
  *
  * A value that reads the role it would override is left unpublished — that is the default theme's own pointer surviving `mergeThemes`, and publishing it would invalidate the role. The role is still reported in `roles`: `withCatalogPointers` restores its theme field to the catalog pointer either way, so CSS and visx agree on the catalog default rather than visx painting a literal CSS never sees.
+ *
+ * `theme.colors` publishes through the same mechanism, one slot per entry, so a CSS declaration of `--a8c-charts-color-series-N` still beats it and a short array leaves the later slots unset rather than blank.
  *
  * @param theme - The consumer's `theme` prop, before merging with the default theme.
  * @return The wrapper's custom properties, and the roles the consumer overrode.
@@ -64,6 +104,10 @@ export type ThemeOverrides = {
 export const themeOverrideVars = ( theme?: Partial< ChartTheme > ): ThemeOverrides => {
 	if ( ! theme ) {
 		return { vars: {}, roles: [] };
+	}
+
+	if ( Array.isArray( theme.colors ) && theme.colors.length > SERIES_SLOT_COUNT ) {
+		warnOnceAboutExtraColors( theme.colors.length );
 	}
 
 	const vars: Record< string, string > = {};

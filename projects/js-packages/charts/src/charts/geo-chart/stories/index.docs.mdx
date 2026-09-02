@@ -289,35 +289,30 @@ Add custom styles using the `className` prop:
 
 ## Theming Integration
 
-Geo Charts integrate seamlessly with the chart theming system. The default theme has neutral colors and styling, and is automatically applied to all charts unless a custom theme is provided. A custom theme can be provided by wrapping your chart in `GlobalChartsProvider` and passing a custom theme object with the properties you want to override to the `theme` prop:
+Geo Charts integrate seamlessly with the chart theming system. The default theme has neutral colors and styling, and is automatically applied to all charts unless a custom theme is provided.
+
+**The color axis range comes from the first palette custom property, not the theme object:**
 
 <Source
-	language="tsx"
-	code={ `import { GlobalChartsProvider, GeoChart, type ChartTheme } from '@automattic/charts';
-
-	const customTheme: ChartTheme = {
-		colors: ['#FF6B6B', '#4ECDC4', '#45B7D1'],
-		backgroundColor: '#f5f5f5',
-		geoChart: {
-			featureFillColor: '#e0e0e0',
-		},
-	};
-
-	<GlobalChartsProvider theme={customTheme}>
-		<GeoChart
-			data={ ordersByCountry }
-			width={ 800 }
-			height={ 500 }
-		/>
-	</GlobalChartsProvider>` }
-
+	language="css"
+	code={ `.a8c-charts-scope {
+		--a8c-charts-color-series-1: #FF6B6B;
+	}` }
 />
 
-The chart uses the following theme properties:
+Every other color works the same way — declare its catalog role. The closest declaration inside the provider tree wins, so scope the rule to one dashboard, or to `.a8c-charts-scope` to move every chart on the page:
 
-- **`colors[0]`**: Primary color for data visualization (used for color axis range)
-- **`backgroundColor`**: Background color for the map
-- **`geoChart.featureFillColor`**: Fill color for countries without data
+<Source
+	language="css"
+	code={ `.my-dashboard {
+		/* Behind the map: */
+		--a8c-charts-color-background: #f5f5f5;
+		/* Countries with no data: */
+		--a8c-charts-color-surface-secondary: #e0e0e0;
+	}` }
+/>
+
+Google Charts takes a resolved hex rather than a `var()` chain, so `GeoChart` reads both roles at render and does not repaint on a theme change until it re-renders. Every other chart follows the cascade live.
 
 ## Responsive Behavior
 

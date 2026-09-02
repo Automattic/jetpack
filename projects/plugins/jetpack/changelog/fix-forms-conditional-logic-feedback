@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Forms: Name a checkbox by its own label when building conditional logic, keep a value typed before the field was chosen, and show an unticked checkbox as "No" rather than a blank.

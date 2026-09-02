@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.2.0] - 2026-09-01
+### Added
+- Bar and line charts: Report a click through the pointer event handlers and Enter or Space through an activation callback, so a chart can open the point under the pointer or the keyboard selection. [#51544]
+
+### Changed
+- Follow the WordPress admin color scheme for series colors, and move the palette to five --a8c-charts-color-series-* custom properties. theme.colors is deprecated. [#51535]
+- Stop resolving the grid, axis, tick and label colors in JavaScript and let their `--a8c-charts-color-*` chain reach the element instead, so an override set on a chart's own element applies to it and a theme change repaints with no re-render. Add `--a8c-charts-color-label-background` for the plate behind a pie-slice label.
+  
+  Deprecate every color field on the chart theme — each one now has a `--a8c-charts-color-*` role, a component prop, or both. They all still work. Where a field mixes a color with something else, only the color member is deprecated: `gridStyles.strokeWidth`, `svgLabelSmall.fontFamily` and the annotation geometry are unaffected. [#51687]
+- Update package dependencies. [#51303] [#51665] [#51802]
+
+## [3.1.1] - 2026-08-26
+### Fixed
+- LineChart, AreaChart, BarChart: Keep the derived date tick labels when a consumer passes an undefined tickFormat. [#51531]
+
 ## [3.1.0] - 2026-08-25
 ### Added
 - Add `defaultHiddenSeries` to seed a series hidden on load, plus absolute visibility setters. Keep the keyboard tooltip open when the chart re-renders under it. [#51458]
@@ -1003,6 +1018,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed lints following ESLint rule changes for TS [#40584]
 - Fixing a bug in Chart storybook data. [#40640]
 
+[3.2.0]: https://github.com/Automattic/charts/compare/v3.1.1...v3.2.0
+[3.1.1]: https://github.com/Automattic/charts/compare/v3.1.0...v3.1.1
 [3.1.0]: https://github.com/Automattic/charts/compare/v3.0.0...v3.1.0
 [3.0.0]: https://github.com/Automattic/charts/compare/v2.0.1...v3.0.0
 [2.0.1]: https://github.com/Automattic/charts/compare/v2.0.0...v2.0.1

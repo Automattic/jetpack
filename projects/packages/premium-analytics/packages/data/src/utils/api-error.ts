@@ -69,6 +69,25 @@ export function getApiErrorCode( error: unknown ): string | null {
 }
 
 /**
+ * Whether the failure means this user or session may not read the data.
+ *
+ * The proxy's `no_connection` 403 is not one: it flags a broken Jetpack
+ * connection, which says nothing about permissions and can heal.
+ */
+export function isAccessDenied( error: unknown ): boolean {
+	return getApiErrorStatus( error ) === 403 && getApiErrorCode( error ) !== 'no_connection';
+}
+
+/**
+ * Whether offering the reader a Retry can plausibly help — distinct from
+ * `shouldRetryApiError`'s automatic policy: a 401/404 is worth a manual retry
+ * even though auto-retrying it three times unprompted is not.
+ */
+export function isUserRetryableError( error: unknown ): boolean {
+	return ! ( error instanceof StatsResponseShapeError ) && ! isAccessDenied( error );
+}
+
+/**
  * Determine whether a failed API query should be retried.
  *
  * Authentication, authorization and not-found failures are deterministic for the

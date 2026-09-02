@@ -10,13 +10,6 @@ module.exports = {
 			require.resolve
 		),
 	},
-	moduleNameMapper: {
-		...baseConfig.moduleNameMapper,
-		// Map @automattic/ui CSS imports to stub to prevent Jest parsing errors
-		'@automattic/ui/style\\.css$': require.resolve(
-			'jetpack-js-tools/jest/jest-extensions-asset-stub.js'
-		),
-	},
 	collectCoverageFrom: [
 		'<rootDir>/_inc/**/*.{js,mjs,cjs,jsx,ts,tsx,mts,cts}',
 		...baseConfig.collectCoverageFrom,

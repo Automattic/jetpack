@@ -8,6 +8,8 @@ import {
 const stylesheet = readFileSync( join( __dirname, '..', 'chart-scope.scss' ), 'utf8' );
 const tokensDoc = readFileSync( join( __dirname, '..', '..', '..', 'TOKENS.md' ), 'utf8' );
 
+const normalize = ( value: string ): string => value.replace( /\s+/g, ' ' ).trim();
+
 type Entry = {
 	/** The custom property this one reads, or null when the value is a literal. */
 	reads: string | null;
@@ -15,21 +17,22 @@ type Entry = {
 	fallback: string | null;
 };
 
-const normalize = ( value: string ): string => value.replace( /\s+/g, ' ' ).trim();
-
 /**
- * Unwraps the theme layer a `theme`-prop-overridable role carries, so the tables in `TOKENS.md` keep documenting what a role ultimately resolves to — its `--wpds-*` token and spec fallback — rather than restating the override plumbing in every row. Which roles carry the layer is pinned separately below.
+ * Unwraps the theme layer a `theme`-prop-overridable role carries, so the tables in `TOKENS.md` keep documenting what a role ultimately resolves to rather than restating the override plumbing in every row. Which roles carry the layer is pinned separately below.
+ *
+ * A role with no catalog default reads its layer with no fallback at all — the empty series-palette slots — and unwraps to nothing, which is what it resolves to until a consumer sets it.
  *
  * @param name  - The declared property name.
  * @param value - Its normalized value.
- * @return The value with a leading `var(<name>-theme, … )` wrapper removed.
+ * @return The value with a leading `var(<name>-theme, … )` wrapper removed, or the empty string where that wrapper carried no fallback.
  */
 function stripThemeLayer( name: string, value: string ): string {
-	const layered = new RegExp( `^var\\(\\s*${ themeLayerVar( name ) }\\s*,\\s*(.*)\\)$`, 's' ).exec(
-		value
-	);
+	const layered = new RegExp(
+		`^var\\(\\s*${ themeLayerVar( name ) }\\s*(?:,\\s*(.*))?\\)$`,
+		's'
+	).exec( value );
 
-	return layered ? layered[ 1 ].trim() : value;
+	return layered ? ( layered[ 1 ] ?? '' ).trim() : value;
 }
 
 /**
@@ -55,6 +58,13 @@ function parseStylesheet(): Map< string, Entry > {
 
 		const name = declaration.slice( 0, separator ).trim();
 		const value = stripThemeLayer( name, normalize( declaration.slice( separator + 1 ) ) );
+
+		// A role that unwrapped to nothing maps to nothing and falls back to nothing.
+		if ( value === '' ) {
+			entries.set( name, { reads: null, fallback: null } );
+			continue;
+		}
+
 		const wrapped = /^var\(\s*(.*)\)$/s.exec( value );
 
 		if ( ! wrapped ) {
@@ -112,10 +122,13 @@ function parseTokensDoc(): Map< string, Entry > {
 		// "no mapping" before looking for a token name inside it.
 		const unmapped = mapping.startsWith( '_(none' );
 		const derives = /derives from (--[\w-]+)/.exec( mapping );
-		const wpds = /(--wpds-[\w-]+)/.exec( mapping );
+		// `--wp-*` rather than `--wpds-*`: the series palette maps to WordPress's own
+		// `--wp-admin-theme-color`, since the design system's brand token is a static
+		// hex on every admin screen and cannot carry the admin color scheme.
+		const token = /(--wp[\w-]+)/.exec( mapping );
 
 		entries.set( role, {
-			reads: unmapped ? null : derives?.[ 1 ] ?? wpds?.[ 1 ] ?? null,
+			reads: unmapped ? null : derives?.[ 1 ] ?? token?.[ 1 ] ?? null,
 			fallback: fallback === '—' ? null : normalize( fallback ),
 		} );
 	}
@@ -132,21 +145,36 @@ describe( 'chart scope catalog', () => {
 	} );
 
 	// The tables in TOKENS.md restate the stylesheet for consumers who only have the
-	// published package. This is the check that stops the two drifting apart.
-	it.each( [ ...declared.keys() ] )( 'documents %s with the value it is declared with', token => {
-		expect( documented.get( token ) ).toEqual( declared.get( token ) );
+	// published package. Mapping (what a role reads) must match the source. The
+	// Fallback column for `--wpds-*` mappings is injected at build time, so only
+	// literals and `--a8c-charts-*` derivations are compared as fallbacks.
+	it.each( [ ...declared.keys() ] )( 'documents %s with the mapping it is declared with', token => {
+		expect( documented.get( token )?.reads ).toEqual( declared.get( token )?.reads );
+	} );
+
+	it.each(
+		[ ...declared.keys() ].filter( token => {
+			const entry = declared.get( token );
+
+			return (
+				entry?.reads?.startsWith( '--wpds-' ) !== true &&
+				entry?.fallback?.includes( '--wpds-' ) !== true
+			);
+		} )
+	)( 'documents %s with the fallback it is declared with', token => {
+		expect( documented.get( token )?.fallback ).toEqual( declared.get( token )?.fallback );
 	} );
 
 	// The layer is what keeps a `theme` prop override from being able to take its role down with it: an override that is invalid at computed-value time only invalidates `<role>-theme`, and the role's own fallback still resolves the mapped token. Drop the layer from a role and that role's overrides go back to blanking every read site.
 	it.each( THEME_LAYERED_ROLES )( 'declares %s reading its theme layer first', role => {
 		expect( stylesheet ).toMatch(
-			new RegExp( `${ role }:\\s*var\\(\\s*${ themeLayerVar( role ) }\\s*,` )
+			new RegExp( `${ role }:\\s*var\\(\\s*${ themeLayerVar( role ) }\\s*[,)]` )
 		);
 	} );
 
 	it( 'gives a theme layer to the overridable roles and to nothing else', () => {
 		const layered = [ ...declared.keys() ].filter( role =>
-			new RegExp( `${ role }:\\s*var\\(\\s*${ themeLayerVar( role ) }\\s*,` ).test( stylesheet )
+			new RegExp( `${ role }:\\s*var\\(\\s*${ themeLayerVar( role ) }\\s*[,)]` ).test( stylesheet )
 		);
 
 		expect( layered.sort() ).toEqual( [ ...THEME_LAYERED_ROLES ].sort() );

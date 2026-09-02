@@ -79,13 +79,13 @@ describe( 'DateRangeQuickPresets', () => {
 
 	/*
 	 * The abbreviations drop the wording that named the period, so the accessible
-	 * name has to keep it. Querying by the full name is the assertion: it only
+	 * name carries the canonical one. Querying by it is the assertion: it only
 	 * resolves through the aria-label, since the visible text is "7D".
 	 */
-	it( 'keeps the full label as the accessible name when abbreviated', () => {
+	it( 'names the period in full when the pill abbreviates it', () => {
 		renderPresets( { labelMode: 'abbreviated', value: 'last-7-days' } );
 
-		expect( screen.getByRole( 'button', { name: '7 days' } ) ).toHaveAttribute(
+		expect( screen.getByRole( 'button', { name: 'Last 7 days' } ) ).toHaveAttribute(
 			'aria-pressed',
 			'true'
 		);
