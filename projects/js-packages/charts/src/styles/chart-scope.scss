@@ -97,6 +97,6 @@
 	// Pill shape; no WPDS radius reaches it.
 	--a8c-charts-border-radius-leaderboard-bar: 9999px;
 
-	--a8c-charts-dimension-leaderboard-row-gap: var(--wpds-dimension-gap-md, 12px);
-	--a8c-charts-dimension-leaderboard-column-gap: var(--wpds-dimension-gap-xs, 4px);
+	--a8c-charts-dimension-leaderboard-row-gap: var(--wpds-dimension-gap-md);
+	--a8c-charts-dimension-leaderboard-column-gap: var(--wpds-dimension-gap-xs);
 }
