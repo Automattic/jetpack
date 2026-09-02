@@ -6,17 +6,10 @@ import type { ChartTheme } from '@jetpack-premium-analytics/externals';
 /**
  * Internal dependencies
  */
-// The dashboard's leaderboard spacing. It is set in CSS, not on the theme below.
+// The dashboard's leaderboard spacing and bar radius. They are set in CSS, not on the theme below.
 import './chart-roles.scss';
 
-/**
- * The `@automattic/charts` theme plus the analytics-specific properties.
- */
-export type WooChartTheme = ChartTheme & {
-	leaderboardChart: ChartTheme[ 'leaderboardChart' ] & {
-		barBorderRadius: string;
-	};
-};
+export type WooChartTheme = ChartTheme;
 
 export function useChartTheme(): WooChartTheme {
 	return useMemo( () => {
@@ -64,7 +57,6 @@ export function useChartTheme(): WooChartTheme {
 			},
 			leaderboardChart: {
 				labelSpacing: 'xs',
-				barBorderRadius: 'var(--wpds-border-radius-lg)',
 				deltaColors: [
 					'var(--wpds-color-stroke-surface-error-strong)',
 					'var(--wpds-color-foreground-content-neutral-weak)',
