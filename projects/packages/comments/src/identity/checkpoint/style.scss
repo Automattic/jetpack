@@ -75,7 +75,9 @@
 .jetpack-comments__guest-reveal {
 	display: grid;
 	grid-template-rows: 0fr;
-	transition: grid-template-rows 0.3s ease-in-out;
+	// Hidden after the collapse, so the fields leave the tab order too.
+	visibility: hidden;
+	transition: grid-template-rows 0.3s ease-in-out, visibility 0s 0.3s;
 
 	> div {
 		overflow: hidden;
@@ -83,6 +85,8 @@
 
 	&.is-open {
 		grid-template-rows: 1fr;
+		visibility: visible;
+		transition-delay: 0s;
 	}
 }
 
