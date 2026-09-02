@@ -1,6 +1,6 @@
 import { DataViews } from '@wordpress/dataviews';
 import { dateI18n } from '@wordpress/date';
-import { useCallback, useMemo } from '@wordpress/element';
+import { useCallback, useEffect, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon, cloud, image, post, plugins as pluginsIcon, color, info } from '@wordpress/icons';
 import { Card, Stack, Text } from '@wordpress/ui';
@@ -140,6 +140,17 @@ export default function ActivityList( { selectedId, onSelect, view, onChangeView
 		},
 		[ onChangeView, sortOrder ]
 	);
+
+	// A remembered page can outlive the log that had it, and DataViews hides its
+	// footer entirely at one page — so nothing on screen would offer a way back.
+	// Read off `totalPages`, which falls back to a count derived from the rows in
+	// hand, where `totalItems` falls back to their number — zero on the out-of-range
+	// page this exists for. `>= 1` still blocks clamping to page 0 on an empty log.
+	useEffect( () => {
+		if ( ! isLoading && totalPages >= 1 && page > totalPages ) {
+			onChangeView( { ...view, page: totalPages } );
+		}
+	}, [ isLoading, totalPages, page, view, onChangeView ] );
 
 	// DataViews shows its own "No results" whenever `data` is empty, and a
 	// failed request leaves it empty — so without this a 5xx tells the
