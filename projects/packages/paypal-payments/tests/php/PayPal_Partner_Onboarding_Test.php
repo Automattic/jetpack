@@ -345,6 +345,12 @@ class PayPal_Partner_Onboarding_Test extends TestCase {
 		$this->assertSame( 'abc123def456', $data['paypal_debug_id'] );
 		$this->assertSame( 'INVALID_STRING_LENGTH', $data['paypal_details'][0]['issue'] );
 		$this->assertStringContainsString( 'seller_nonce', $data['paypal_details'][0]['field'] );
+
+		// The same diagnostics belong in the visible message: the error data
+		// never reaches a merchant reading the editor notice.
+		$this->assertStringContainsString( 'INVALID_STRING_LENGTH', $result->get_error_message() );
+		$this->assertStringContainsString( 'seller_nonce', $result->get_error_message() );
+		$this->assertStringContainsString( 'abc123def456', $result->get_error_message() );
 	}
 
 	/**
