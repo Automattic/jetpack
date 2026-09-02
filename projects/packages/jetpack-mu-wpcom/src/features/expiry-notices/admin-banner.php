@@ -15,19 +15,8 @@ use Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Notice_Dismiss;
  * @return array{state:array,is_early_warning:bool,is_dismissible:bool,urls:array}|null
  */
 function wpcom_expiry_notices_admin_banner_data(): ?array {
-	if ( ! current_user_can( 'manage_options' ) ) {
-		return null;
-	}
-
-	// The Simple notice this replaces excluded VIP sites, and swapping the
-	// notices was never meant to change who sees one. Guarded because
-	// wpcom_is_vip() only exists on wpcom.
-	if ( function_exists( 'wpcom_is_vip' ) && wpcom_is_vip() ) {
-		return null;
-	}
-
-	$state = Expiry_Data::get_expiry_state();
-	if ( null === $state || Expiry_Data::STATE_ACTIVE === $state['state'] ) {
+	$state = wpcom_expiry_notices_eligible_state();
+	if ( null === $state ) {
 		return null;
 	}
 
@@ -98,6 +87,10 @@ function wpcom_expiry_notices_enqueue_admin_banner_assets() {
 	}
 
 	$asset_handle = jetpack_mu_wpcom_enqueue_assets( 'expiry-notices-admin-banner', array( 'js', 'css' ) );
+	// Without this the banner's events are recorded on Simple and dropped on
+	// Atomic, where nothing else in wp-admin loads the Tracks transport and
+	// `window._tkq` stays an ordinary array.
+	\Automattic\Jetpack\Jetpack_Mu_Wpcom\Common\wpcom_enqueue_tracking_scripts( $asset_handle );
 	wp_localize_script(
 		$asset_handle,
 		'wpcomExpiryBanner',
@@ -183,14 +176,7 @@ function wpcom_expiry_notices_admin_banner_heading( array $state ): string {
 	);
 
 	if ( $has_expired ) {
-		if ( '' === $plan ) {
-			return __( 'Your plan has expired', 'jetpack-mu-wpcom' );
-		}
-		return sprintf(
-			/* translators: %s is the plan name (e.g. Business). */
-			__( 'Your %s plan has expired', 'jetpack-mu-wpcom' ),
-			$plan
-		);
+		return wpcom_expiry_notices_expired_heading( $state );
 	}
 
 	// A plan that is still expected to renew hasn't failed yet, so it gets a
@@ -382,20 +368,4 @@ function wpcom_expiry_notices_admin_banner_body( array $state ): string {
 		$expiry_date,
 		$storage_gb
 	);
-}
-
-/**
- * Build the full URL of the current admin page so checkout can redirect back.
- * Strips transient query args (`settings-updated`, `_wpnonce`, etc.) so the
- * redirected user doesn't re-trigger one-shot admin notices or hit stale
- * nonces on return.
- */
-function wpcom_expiry_notices_current_admin_url(): string {
-	$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated
-	if ( '' === $request_uri ) {
-		return admin_url();
-	}
-	$request_uri = remove_query_arg( wp_removable_query_args(), $request_uri );
-	$admin_path  = preg_replace( '#^/?wp-admin/?#', '', $request_uri );
-	return admin_url( ltrim( $admin_path, '/' ) );
 }

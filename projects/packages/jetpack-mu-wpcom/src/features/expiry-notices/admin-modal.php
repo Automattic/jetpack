@@ -1,0 +1,180 @@
+<?php
+/**
+ * Wp-admin modal for plans that have expired, in grace or after it.
+ *
+ * Atomic only. Every change the copy lists -- the revert to Free, the themes and
+ * plugins going away, the site turning private -- is what `woa_revert` does to a
+ * transferred site. A Simple site on a lapsed plan loses features, but it is not
+ * reverted and does not go private, so none of this would be true of it.
+ *
+ * All copy lives here rather than in the React that renders it: this package
+ * extracts PHP strings for translation and does not extract JS.
+ *
+ * @package automattic/jetpack-mu-wpcom
+ */
+
+use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Data;
+use Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Domain;
+use Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Notice_Dismiss;
+
+/**
+ * Resolve the data the modal renders from, or null if it shouldn't show.
+ * Shared by the enqueue and render hooks.
+ *
+ * @return array<string,mixed>|null
+ */
+function wpcom_expiry_notices_admin_modal_data(): ?array {
+	// Before resolving any state: deriving it can reach the store, and on Simple
+	// -- where this never shows -- that would be a second such trip per admin
+	// pageview on top of the banner's, for an answer thrown away immediately.
+	if ( ! Constants::is_true( 'IS_ATOMIC' ) ) {
+		return null;
+	}
+
+	$state = wpcom_expiry_notices_eligible_state();
+	if ( null === $state ) {
+		return null;
+	}
+
+	if ( ! Expiry_Notice_Dismiss::should_show_modal( $state ) ) {
+		return null;
+	}
+
+	$meta_key = Expiry_Notice_Dismiss::modal_meta_key( $state );
+	if ( null === $meta_key ) {
+		return null;
+	}
+
+	$is_grace = Expiry_Data::STATE_EXPIRED_GRACE === $state['state'];
+	$urls     = Expiry_Data::get_cta_urls( $state, wpcom_expiry_notices_current_admin_url() );
+
+	return array(
+		'state'       => $state,
+		'metaKey'     => $meta_key,
+		'title'       => wpcom_expiry_notices_expired_heading( $state ),
+		'description' => wpcom_expiry_notices_modal_description( $is_grace ),
+		'listIntro'   => $is_grace ? '' : __( 'Here’s what changed:', 'jetpack-mu-wpcom' ),
+		'items'       => wpcom_expiry_notices_modal_items( $is_grace ),
+		'primary'     => wpcom_expiry_notices_modal_primary_cta( $urls, $is_grace ),
+		// Renewing is only one of two things to consider while the site is still
+		// recoverable by paying for the same plan. Once it has been reverted the
+		// only offer is to put it back, so there is nothing to compare.
+		'secondary'   => $is_grace ? $urls['secondary'] : null,
+		'imageUrl'    => plugins_url( 'images/plan-expired.svg', __FILE__ ),
+	);
+}
+
+/**
+ * The paragraph under the title.
+ *
+ * @param bool $is_grace Whether the site is still inside the grace period.
+ */
+function wpcom_expiry_notices_modal_description( bool $is_grace ): string {
+	if ( $is_grace ) {
+		return __( 'Your site will be moved to the Free plan. We will also make these changes to your site:', 'jetpack-mu-wpcom' );
+	}
+	return __( 'Your site has been moved to the Free plan and set to private. Upgrade your plan to restore your site.', 'jetpack-mu-wpcom' );
+}
+
+/**
+ * The listed changes, in the tense the site's state calls for.
+ *
+ * @param bool $is_grace Whether the site is still inside the grace period.
+ * @return array<int,string>
+ */
+function wpcom_expiry_notices_modal_items( bool $is_grace ): array {
+	$domain = Expiry_Domain::get_revert_domain();
+
+	if ( $is_grace ) {
+		$items = array();
+		if ( null !== $domain ) {
+			$items[] = sprintf(
+				/* translators: %s is a WordPress.com domain name (e.g. example.wordpress.com). */
+				__( 'Use %s as your primary domain.', 'jetpack-mu-wpcom' ),
+				$domain
+			);
+		}
+		$items[] = __( 'Remove your installed themes, plugins, and their data.', 'jetpack-mu-wpcom' );
+		$items[] = __( 'Switch to the settings and theme you had before you upgraded.', 'jetpack-mu-wpcom' );
+		$items[] = __( 'Your site will be set to private.', 'jetpack-mu-wpcom' );
+		return $items;
+	}
+
+	$items = array( __( 'Your site is now private.', 'jetpack-mu-wpcom' ) );
+	if ( null !== $domain ) {
+		$items[] = sprintf(
+			/* translators: %s is a WordPress.com domain name (e.g. example.wordpress.com). */
+			__( 'Your primary domain was switched to %s.', 'jetpack-mu-wpcom' ),
+			$domain
+		);
+	}
+	$items[] = __( 'Your installed themes, plugins, and their data were removed from your site.', 'jetpack-mu-wpcom' );
+	$items[] = __( 'Your settings and theme reverted to what you had before upgrading.', 'jetpack-mu-wpcom' );
+	return $items;
+}
+
+/**
+ * The primary CTA. Post-grace the ask is no longer to renew but to put the site
+ * back, so the label changes while the checkout URL doesn't.
+ *
+ * @param array<string,array> $urls     CTA URLs from Expiry_Data::get_cta_urls().
+ * @param bool                $is_grace Whether the site is still inside the grace period.
+ * @return array{label:string,url:string}
+ */
+function wpcom_expiry_notices_modal_primary_cta( array $urls, bool $is_grace ): array {
+	$primary = $urls['primary'];
+	if ( ! $is_grace ) {
+		$primary['label'] = __( 'Restore my site', 'jetpack-mu-wpcom' );
+	}
+	return $primary;
+}
+
+/**
+ * Enqueue + localize the modal's JS/CSS.
+ */
+function wpcom_expiry_notices_enqueue_admin_modal_assets() {
+	$data = wpcom_expiry_notices_admin_modal_data();
+	if ( null === $data ) {
+		return;
+	}
+
+	$asset_handle = jetpack_mu_wpcom_enqueue_assets( 'expiry-notices-admin-modal', array( 'js', 'css' ) );
+	// Atomic wp-admin loads no Tracks transport of its own, so without this the
+	// modal's events would accumulate in a plain array and be dropped on unload.
+	\Automattic\Jetpack\Jetpack_Mu_Wpcom\Common\wpcom_enqueue_tracking_scripts( $asset_handle );
+
+	$state = $data['state'];
+	unset( $data['state'] );
+
+	wp_localize_script(
+		$asset_handle,
+		'wpcomExpiryModal',
+		array_merge(
+			$data,
+			array(
+				'trackProps' => array(
+					'state'          => $state['state'],
+					'days_remaining' => isset( $state['days_remaining'] ) ? (int) $state['days_remaining'] : 0,
+					'product_slug'   => isset( $state['product_slug'] ) ? (string) $state['product_slug'] : '',
+				),
+			)
+		)
+	);
+}
+add_action( 'admin_enqueue_scripts', 'wpcom_expiry_notices_enqueue_admin_modal_assets' );
+
+/**
+ * Render the element the modal mounts into.
+ *
+ * In the footer because the modal is an overlay: it belongs to the page rather
+ * than to any position in it, and mounting late keeps it out of the way of the
+ * admin notice area the banner uses.
+ */
+function wpcom_expiry_notices_render_admin_modal_root() {
+	if ( null === wpcom_expiry_notices_admin_modal_data() ) {
+		return;
+	}
+	echo '<div id="wpcom-expiry-modal-root"></div>';
+}
+add_action( 'admin_footer', 'wpcom_expiry_notices_render_admin_modal_root' );

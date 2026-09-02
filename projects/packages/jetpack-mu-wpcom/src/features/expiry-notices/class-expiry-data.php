@@ -9,6 +9,8 @@ declare( strict_types = 1 );
 
 namespace Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices;
 
+use Automattic\Jetpack\Constants;
+
 /**
  * Reads purchases and computes a normalized expiry state for the primary plan.
  */
@@ -112,7 +114,7 @@ class Expiry_Data {
 		// is the effective answer, but it is null until a site is serving the
 		// declared purchase shape, so fall back to the flag there.
 		$raw_auto_renew = ! empty( $purchase->user_allows_auto_renew ?? $purchase->auto_renew ?? null );
-		$is_atomic      = defined( 'IS_ATOMIC' ) && IS_ATOMIC;
+		$is_atomic      = Constants::is_true( 'IS_ATOMIC' );
 
 		// Neither the effective renewal state nor the attempt schedule is a
 		// free read: on a Simple site each one queries the store and pulls in
