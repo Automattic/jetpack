@@ -488,6 +488,66 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 			expect( screen.queryByTitle( 'PayPal onboarding' ) ).not.toBeInTheDocument();
 		} );
+
+		it( 'shows the failure and stops asking for the signup link', async () => {
+			mockPlatformMode( { reject: new Error( 'Could not create a PayPal onboarding link.' ) } );
+
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+
+			/*
+			 * The failed request clears the busy flag, which re-runs the prefetch.
+			 * Without connectError to stop it the block asks again on a loop, and
+			 * each attempt wipes the error the merchant is meant to read.
+			 */
+			await expect(
+				screen.findByText( /Could not create a PayPal onboarding link/ )
+			).resolves.toBeInTheDocument();
+
+			const signupCalls = apiFetch.mock.calls.filter( ( [ { path } ] ) =>
+				path.endsWith( '/onboarding/signup-link' )
+			);
+			expect( signupCalls ).toHaveLength( 1 );
+		} );
+
+		it( 'dismissing the signup-link failure hides it and leaves the request count at one', async () => {
+			const user = userEvent.setup();
+			mockPlatformMode( { reject: new Error( 'Could not create a PayPal onboarding link.' ) } );
+
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+
+			await expect(
+				screen.findByText( /Could not create a PayPal onboarding link/ )
+			).resolves.toBeInTheDocument();
+
+			await user.click( screen.getByTestId( 'dismiss-notice' ) );
+
+			// Dismissing must leave connectError set, or the prefetch runs again
+			// and puts the same notice straight back.
+			const signupCalls = () =>
+				apiFetch.mock.calls.filter( ( [ { path } ] ) =>
+					path.endsWith( '/onboarding/signup-link' )
+				);
+			await waitFor( () => expect( signupCalls() ).toHaveLength( 1 ) );
+
+			expect(
+				screen.queryByText( /Could not create a PayPal onboarding link/ )
+			).not.toBeInTheDocument();
+		} );
+
+		it( 'asks again when the merchant clicks Connect with PayPal after a failure', async () => {
+			const user = userEvent.setup();
+			mockPlatformMode( { reject: new Error( 'Could not create a PayPal onboarding link.' ) } );
+
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+			await user.click( await screen.findByRole( 'button', { name: /Connect with PayPal/i } ) );
+
+			// fetchSignupLink clears connectError on entry, so a deliberate click
+			// gets past the bail condition that stops the automatic retry.
+			const signupCalls = apiFetch.mock.calls.filter( ( [ { path } ] ) =>
+				path.endsWith( '/onboarding/signup-link' )
+			);
+			expect( signupCalls ).toHaveLength( 2 );
+		} );
 	} );
 
 	describe( 'Legacy Block', () => {
