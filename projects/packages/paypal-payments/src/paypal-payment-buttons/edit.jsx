@@ -582,6 +582,19 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 			if ( event.data?.type === 'paypal-onboarding-complete' ) {
 				completeOnboarding( event.data.authCode, event.data.sharedId );
 				channel.close();
+				return;
+			}
+
+			if ( event.data?.type === 'paypal-onboarding-incomplete' ) {
+				setConnectError(
+					event.data.message ||
+						__(
+							'PayPal did not return the credentials needed to finish connecting. Please try again, or enter your API credentials manually.',
+							'jetpack-paypal-payments'
+						)
+				);
+				setConnectErrorDismissed( false );
+				channel.close();
 			}
 		};
 
