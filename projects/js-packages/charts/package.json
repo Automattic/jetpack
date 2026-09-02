@@ -91,7 +91,7 @@
 		"@visx/xychart": "^4.0.0",
 		"@wordpress/i18n": "^6.0.0",
 		"@wordpress/icons": "^15.0.0",
-		"@wordpress/theme": "2.0.0",
+		"@wordpress/theme": "2.1.1-next.v.202608281122.0",
 		"@wordpress/ui": "0.21.0",
 		"clsx": "2.1.1",
 		"date-fns": "^4.1.0",
