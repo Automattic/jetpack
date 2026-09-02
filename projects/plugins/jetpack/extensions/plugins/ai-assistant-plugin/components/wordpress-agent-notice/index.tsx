@@ -6,12 +6,11 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { getMyJetpackUrl, getSiteType } from '@automattic/jetpack-script-data';
 import { getSiteFragment, useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { speak } from '@wordpress/a11y';
-import { Button, Icon } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as preferencesStore } from '@wordpress/preferences';
-import { Notice } from '@wordpress/ui';
+import { Button, Icon, LinkButton, Notice } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -46,26 +45,23 @@ const DOCS_URL = getRedirectUrl( 'jetpack-ai-docs-wordpress-agent' );
 // it as a side effect.
 const EDITOR_STORE = 'core/editor';
 
+// Notice.Actions lets its buttons shrink, which breaks a label mid-phrase in a
+// narrow sidebar. Not shrinking sends the docs link to the next line instead.
+const ACTION_BUTTON_STYLE = { flexShrink: 0 } as const;
+
 /**
  * Where a site turns the WordPress Agent on: the WordPress.com AI tools settings
  * for Simple and Atomic, matching the dashboard banner, and My Jetpack elsewhere.
  *
- * @return {{href: string, isExternal: boolean}} The settings URL, and whether it leaves this admin.
+ * @return {string} The settings URL.
  */
-function getEnableAgentLink(): { href: string; isExternal: boolean } {
+function getEnableAgentUrl(): string {
 	if ( getSiteType() === 'jetpack' ) {
-		return { href: getMyJetpackUrl( '#/overview' ), isExternal: false };
+		return getMyJetpackUrl( '#/overview' );
 	}
 
-	return {
-		href: `https://wordpress.com/sites/${ getSiteFragment() }/settings/ai-tools`,
-		isExternal: true,
-	};
+	return `https://wordpress.com/sites/${ getSiteFragment() }/settings/ai-tools`;
 }
-
-// Secondary buttons set `white-space: nowrap` and a fixed height, so a long
-// translation cannot fit a narrow sidebar. Wrapping suits any label.
-const ACTION_BUTTON_STYLE = { whiteSpace: 'normal', height: 'auto', minHeight: '36px' } as const;
 
 function useEventProperties(
 	placement: WordPressAgentNoticePlacement
@@ -135,7 +131,6 @@ export default function WordPressAgentNotice( { placement }: WordPressAgentNotic
 	const canOpenAgent = isAgentActionAvailable();
 	const isAgentReady = useIsWordPressAgentReady();
 	const isChatOnScreen = useIsWordPressAgentChatVisible();
-	const enableLink = getEnableAgentLink();
 
 	const openAgent = () => {
 		tracks.recordEvent( 'jetpack_big_sky_agent_notice_click', {
@@ -197,15 +192,13 @@ export default function WordPressAgentNotice( { placement }: WordPressAgentNotic
 			<Notice.Actions>
 				{ canOpenAgent && isAgentReady && (
 					<Button
-						variant="secondary"
+						variant="outline"
+						style={ ACTION_BUTTON_STYLE }
 						onClick={ openAgent }
 						disabled={ isChatOnScreen }
-						accessibleWhenDisabled
-						showTooltip={ isChatOnScreen }
-						style={ ACTION_BUTTON_STYLE }
-						// This prop replaces the accessible name, so it says what the button
-						// opens as well as why it is disabled.
-						label={
+						// Replaces the accessible name, so it says what the button opens as
+						// well as why it is disabled.
+						aria-label={
 							isChatOnScreen ? __( 'WordPress Agent is already open', 'jetpack' ) : undefined
 						}
 					>
@@ -215,17 +208,17 @@ export default function WordPressAgentNotice( { placement }: WordPressAgentNotic
 				) }
 
 				{ ! canOpenAgent && (
-					<Button
-						variant="secondary"
-						href={ enableLink.href }
-						target={ enableLink.isExternal ? '_blank' : undefined }
-						rel={ enableLink.isExternal ? 'noopener noreferrer' : undefined }
-						onClick={ recordEnableClick }
+					<LinkButton
+						variant="outline"
 						style={ ACTION_BUTTON_STYLE }
+						// Same tab on purpose: the editor's unsaved-changes prompt guards the
+						// draft, and a fresh load on the way back shows the enabled state.
+						href={ getEnableAgentUrl() }
+						onClick={ recordEnableClick }
 					>
 						{ /* translators: Button that leads to the settings page where the WordPress Agent is turned on. "WordPress Agent" is a product name. */ }
 						{ __( 'Enable WordPress Agent', 'jetpack' ) }
-					</Button>
+					</LinkButton>
 				) }
 
 				<Notice.ActionLink href={ DOCS_URL } openInNewTab>

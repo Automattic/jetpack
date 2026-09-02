@@ -220,9 +220,9 @@ describe( 'WordPressAgentNotice', () => {
 					'href',
 					'https://wordpress.com/sites/example.wordpress.com/settings/ai-tools'
 				);
-				// WordPress.com is another site, so it opens in a new tab like the docs link.
-				expect( link ).toHaveAttribute( 'target', '_blank' );
-				expect( link ).toHaveAttribute( 'rel', expect.stringContaining( 'noopener' ) );
+				// In place, so the editor's own unsaved-changes prompt guards the draft
+				// and the notice is fresh on the way back.
+				expect( link ).not.toHaveAttribute( 'target' );
 			}
 		);
 
@@ -235,7 +235,6 @@ describe( 'WordPressAgentNotice', () => {
 				'href',
 				'https://example.com/wp-admin/admin.php?page=my-jetpack#/overview'
 			);
-			// My Jetpack is part of the same admin, so it opens in place.
 			expect( link ).not.toHaveAttribute( 'target' );
 		} );
 

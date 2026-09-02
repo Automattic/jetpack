@@ -173,6 +173,7 @@ jest.mock( '@wordpress/components', () => ( {
 } ) );
 
 jest.mock( '@wordpress/ui', () => ( {
+	Icon: () => <span data-testid="agent-icon" />,
 	Button: Object.assign(
 		( { children, onClick }: { children: React.ReactNode; onClick?: () => void } ) => (
 			<button onClick={ onClick }>{ children }</button>
@@ -180,6 +181,9 @@ jest.mock( '@wordpress/ui', () => ( {
 		{ Icon: () => <span data-testid="button-icon" /> }
 	),
 	Link: ( { children, href }: { children: React.ReactNode; href: string } ) => (
+		<a href={ href }>{ children }</a>
+	),
+	LinkButton: ( { children, href }: { children: React.ReactNode; href: string } ) => (
 		<a href={ href }>{ children }</a>
 	),
 	Notice: {
