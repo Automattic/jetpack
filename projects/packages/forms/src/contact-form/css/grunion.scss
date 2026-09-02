@@ -1055,9 +1055,23 @@ on production builds, the attributes are being reordered, causing side-effects
 }
 
 .is-style-outlined :where(.wp-block-jetpack-label),
-.contact-form :where(.is-style-outlined .grunion-field-wrap .notched-label .notched-label__label),
-.contact-form :where(.is-style-outlined .grunion-field-wrap legend.grunion-field-label) {
+.contact-form :where(.is-style-outlined .grunion-field-wrap .notched-label .notched-label__label) {
 	font-weight: 300;
+}
+
+/* A grouped field's label is a <legend>, which the Global Styles `label`
+ * element cannot reach, so Forms mirrors those styles onto it instead. Font
+ * weight is the one property this variation owns: the notch is sized to its
+ * label, and every other label in the form is 300. Kept above zero specificity
+ * so that mirror does not leave the legend the only heavy label in the form. */
+.contact-form .is-style-outlined .grunion-field-wrap legend.grunion-field-label {
+	font-weight: 300;
+}
+
+/* Animated sets no weight of its own; its labels fall through to the 700 set
+ * above. The legend needs the same guard to stay consistent with them. */
+.contact-form .is-style-animated .grunion-field-wrap legend.grunion-field-label {
+	font-weight: 700;
 }
 
 .contact-form .is-style-outlined .grunion-field-textarea-wrap .notched-label .notched-label__label {
