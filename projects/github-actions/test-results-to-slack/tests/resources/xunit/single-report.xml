@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="Calculator" tests="3" failures="1" skipped="1">
+	<testcase classname="Calculator" name="adds numbers" time="0.001" />
+	<testcase classname="Calculator" name="subtracts numbers" time="0.002">
+		<failure message="Expected 3 but received 4"><![CDATA[AssertionError: expected 4 to equal 3]]></failure>
+	</testcase>
+	<testcase classname="Calculator" name="multiplies numbers" time="0">
+		<skipped />
+	</testcase>
+</testsuite>
