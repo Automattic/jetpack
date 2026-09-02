@@ -4286,7 +4286,7 @@ p {
 					if ( is_wp_error( $registered ) ) {
 						$error = $registered->get_error_code();
 						self::state( 'error', $error );
-						self::state( 'error', $registered->get_error_message() );
+						self::state( 'error_description', $registered->get_error_message() );
 
 						/**
 						 * Jetpack registration Error.

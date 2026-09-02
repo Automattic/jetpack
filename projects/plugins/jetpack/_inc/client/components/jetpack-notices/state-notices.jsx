@@ -25,6 +25,27 @@ class JetpackStateNotices extends Component {
 		this.setState( { showNotice: false } );
 	};
 
+	/**
+	 * Generic copy for error codes that have no message of their own.
+	 *
+	 * @param {string} key - The error code.
+	 * @return {object} Message element.
+	 */
+	getGenericErrorMessage = key =>
+		createInterpolateElement(
+			sprintf(
+				/* translators: %s: an error code and message. */
+				__(
+					'<s>Your Jetpack has a glitch.</s> We’re sorry for the inconvenience. Please try again later, if the issue continues please contact support with this message: %s',
+					'jetpack'
+				),
+				key
+			),
+			{
+				s: <strong />,
+			}
+		);
+
 	getErrorFromKey = key => {
 		const errorDesc = this.props.jetpackStateNoticesErrorDescription || false;
 		let message;
@@ -150,23 +171,14 @@ class JetpackStateNotices extends Component {
 			case 'verify_secret_1_malformed':
 			case 'verify_secrets_missing':
 			case 'verify_secrets_mismatch':
-				message = createInterpolateElement(
-					sprintf(
-						/* translators: %s: an error code and message. */
-						__(
-							'<s>Your Jetpack has a glitch.</s> We’re sorry for the inconvenience. Please try again later, if the issue continues please contact support with this message: %s',
-							'jetpack'
-						),
-						key
-					),
-					{
-						s: <strong />,
-					}
-				);
+				message = this.getGenericErrorMessage( key );
 				break;
 
 			default:
-				message = key;
+				// Codes with no case of their own. When a description was supplied it
+				// carries the detail, so frame the code rather than presenting it as
+				// Jetpack's own message. With no description, show the key unchanged.
+				message = errorDesc ? this.getGenericErrorMessage( key ) : key;
 		}
 
 		if ( errorDesc ) {
