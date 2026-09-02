@@ -62,7 +62,10 @@ class Publicize_Script_Data_Upgrade_Test extends BaseTestCase {
 	 */
 	private function reset_plan_cache() {
 		$cache = new ReflectionProperty( Current_Plan::class, 'active_plan_cache' );
-		$cache->setAccessible( true );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$cache->setAccessible( true );
+		}
 		$cache->setValue( null, null );
 	}
 
