@@ -9,9 +9,7 @@ import type { ChartTheme } from '@jetpack-premium-analytics/externals';
 // The dashboard's leaderboard spacing and bar radius. They are set in CSS, not on the theme below.
 import './chart-roles.scss';
 
-export type WooChartTheme = ChartTheme;
-
-export function useChartTheme(): WooChartTheme {
+export function useChartTheme(): ChartTheme {
 	return useMemo( () => {
 		return {
 			backgroundColor: 'var(--wpds-color-background-surface-neutral-strong)',
