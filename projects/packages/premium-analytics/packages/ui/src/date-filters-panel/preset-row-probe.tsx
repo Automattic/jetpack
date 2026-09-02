@@ -10,8 +10,8 @@ import { memo, useCallback, useLayoutEffect, useRef, type ReactNode } from 'reac
 import './preset-row-probe.scss';
 
 export type PresetRowProbeProps = {
-	/** Pill labels in display order. */
-	presets: ReadonlyArray< { id: string; label: string } >;
+	/** The pills in display order, read for the form the row renders. */
+	presets: ReadonlyArray< { id: string; label: string; pillLabel?: string } >;
 
 	/**
 	 * The label the real trigger is showing. "Custom" versus a formatted range
@@ -120,7 +120,7 @@ function PresetRowProbeComponent( {
 							size="small"
 							tabIndex={ -1 }
 						>
-							{ preset.label }
+							{ preset.pillLabel ?? preset.label }
 						</Button>
 					) ) }
 					{ customTriggerLabel !== undefined && (

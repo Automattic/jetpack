@@ -8,6 +8,7 @@ export {
 } from './dataviews-drilldown-native';
 export { DateFiltersPanel } from './date-filters-panel';
 export { DateIntervalDropdown } from './date-interval-dropdown';
+export { DatePeriodDropdown } from './date-period-dropdown';
 export { DatePeriodNavigation } from './date-period-navigation';
 export { DateYearFilter, type DateYearFilterProps } from './date-year-filter';
 export { safeHttpUrl } from './utils/safe-http-url';
