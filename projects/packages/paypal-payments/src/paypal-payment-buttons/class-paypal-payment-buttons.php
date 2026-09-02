@@ -419,7 +419,7 @@ class PayPal_Payment_Buttons {
 				. '<button type="button" class="jetpack-paypal-button__qr-toggle" data-show-label="' . $qr_show . '" data-hide-label="' . $qr_hide . '" aria-expanded="false">' . $qr_show . '</button>'
 				. '<div class="jetpack-paypal-button__qr-wrapper" style="display:none;">'
 				. '<div class="jetpack-paypal-button__qr-content">'
-				. '<canvas class="jetpack-paypal-button__qr-canvas"></canvas>'
+				. '<canvas class="jetpack-paypal-button__qr-canvas" data-qr-url="' . esc_attr( $action_url ) . '"></canvas>'
 				. '<div class="jetpack-paypal-button__qr-link">'
 				. '<input type="text" readonly class="jetpack-paypal-button__qr-link-input" value="' . esc_attr( $action_url ) . '" />'
 				. '<button type="button" class="jetpack-paypal-button__qr-copy" data-copy-label="' . $copy_label . '" data-copied-label="' . esc_attr__( 'Copied!', 'jetpack-paypal-payments' ) . '">' . $copy_label . '</button>'
