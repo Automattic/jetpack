@@ -852,7 +852,24 @@ class Jetpack_Mu_Wpcom {
 			return;
 		}
 
+		// Lets the route report a stickered site as enabled, the way wpcomsh already does for
+		// Atomic. Answered lazily, so it resolves against the target blog rather than the
+		// public-api one the boot-time gate saw.
+		add_filter( 'jetpack_premium_analytics_enabled', array( __CLASS__, 'report_wpcom_simple_premium_analytics_enabled' ) );
+
 		Premium_Analytics_Status_Controller::register();
+	}
+
+	/**
+	 * Whether Premium Analytics is on for this Simple site, for callers asking mid-request.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param bool $enabled Whether the dashboard is already known to be enabled.
+	 * @return bool
+	 */
+	public static function report_wpcom_simple_premium_analytics_enabled( $enabled ) {
+		return $enabled || self::should_load_wpcom_simple_premium_analytics();
 	}
 
 	/**

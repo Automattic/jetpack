@@ -24,12 +24,13 @@ require_once __DIR__ . '/../rest-namespace.php';
  * package serves is registered by {@see \Automattic\Jetpack\PremiumAnalytics\Dashboard_Support_Routes},
  * which only boots once the dashboard is already on.
  *
- * The route reads and writes the site's own opt-in option, and nothing else. It deliberately does
- * not try to report whether the dashboard is *effectively* on: a rollout sticker can force it on
- * without touching the option, and on WordPress.com Simple the host resolves that gate on
- * `plugins_loaded`, before public-api has switched to the target blog — so the boot-time answer
- * belongs to the wrong site by the time a REST callback runs. Reading the option inside the
- * callback is correct on every platform, because the blog switch has happened by then.
+ * Writes the site's own opt-in option, and reports whether the dashboard is on by any route in —
+ * a rollout sticker turns it on without ever touching that option, so the two questions have
+ * different answers and clients care about the second one.
+ *
+ * Both are resolved inside the request rather than reused from boot. On WordPress.com Simple the
+ * host settles its gate on `plugins_loaded`, before public-api has switched to the target blog, so
+ * the boot-time answer belongs to the wrong site by the time a REST callback runs.
  *
  * Writing cannot take effect in the request that writes it: Jetpack resolves the flag once, on
  * `plugins_loaded`. Clients are expected to reload.
@@ -113,22 +114,22 @@ class Status_Controller {
 	}
 
 	/**
-	 * Report the site's stored opt-in.
+	 * Report whether the dashboard is on for this site.
 	 *
 	 * @since $$next-version$$
 	 *
 	 * @return \WP_REST_Response
 	 */
 	public static function get_status() {
-		return rest_ensure_response( array( 'enabled' => self::is_opted_in() ) );
+		return rest_ensure_response( array( 'enabled' => self::is_enabled() ) );
 	}
 
 	/**
 	 * Store the site's opt-in.
 	 *
-	 * Reports the option back rather than echoing the request, so a caller can tell what was
-	 * actually stored. Note that a site carrying the rollout sticker keeps the dashboard whatever
-	 * this says — the sticker is a separate signal that the option cannot override.
+	 * Reports where the site actually ends up rather than echoing the request: a site carrying the
+	 * rollout sticker keeps the dashboard whatever the option says, so a caller switching it off
+	 * needs to be told the dashboard is still on rather than being handed back its own `false`.
 	 *
 	 * @since $$next-version$$
 	 *
@@ -138,15 +139,26 @@ class Status_Controller {
 	public static function update_status( WP_REST_Request $request ) {
 		update_option( Analytics::ENABLED_OPTION, $request->get_param( 'enabled' ) ? 1 : 0 );
 
-		return rest_ensure_response( array( 'enabled' => self::is_opted_in() ) );
+		return rest_ensure_response( array( 'enabled' => self::is_enabled() ) );
 	}
 
 	/**
-	 * Read the stored opt-in.
+	 * Whether the dashboard is on for this site, by any route in.
+	 *
+	 * The stored opt-in is only one of the ways a site gets the dashboard — a rollout sticker turns
+	 * it on without ever touching the option — so reading the option alone would tell a client the
+	 * dashboard is off while the site is plainly running it, and invite someone to switch on what
+	 * they already have. The hosts each answer this filter for their own platform, and this runs it
+	 * inside the request rather than reusing the boot-time answer, which on WordPress.com Simple
+	 * was resolved before public-api switched to the target blog.
 	 *
 	 * @return bool
 	 */
-	private static function is_opted_in(): bool {
-		return (bool) get_option( Analytics::ENABLED_OPTION );
+	private static function is_enabled(): bool {
+		/** This filter is documented in projects/plugins/jetpack/class.jetpack.php */
+		return (bool) apply_filters(
+			'jetpack_premium_analytics_enabled',
+			(bool) get_option( Analytics::ENABLED_OPTION )
+		);
 	}
 }

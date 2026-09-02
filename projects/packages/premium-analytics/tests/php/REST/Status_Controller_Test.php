@@ -41,6 +41,7 @@ class Status_Controller_Test extends BaseTestCase {
 	 */
 	public function tear_down() {
 		delete_option( Analytics::ENABLED_OPTION );
+		remove_all_filters( 'jetpack_premium_analytics_enabled' );
 		self::set_rest_authentication( null, null );
 		self::set_analytics_initialized( false );
 		wp_set_current_user( 0 );
@@ -220,6 +221,36 @@ class Status_Controller_Test extends BaseTestCase {
 		do_action( 'rest_api_init' );
 
 		$this->assertCount( 2, rest_get_server()->get_routes()[ self::ROUTE ] );
+	}
+
+	/**
+	 * A rollout sticker turns the dashboard on without touching the option. The hosts answer that
+	 * through the filter, and the route has to report it - otherwise a client invites someone to
+	 * switch on what they already have.
+	 */
+	public function test_get_reports_enabled_when_a_host_answers_the_filter() {
+		$this->log_in_as_admin();
+		add_filter( 'jetpack_premium_analytics_enabled', '__return_true' );
+
+		$response = rest_get_server()->dispatch( new WP_REST_Request( 'GET', self::ROUTE ) );
+
+		$this->assertSame( array( 'enabled' => true ), $response->get_data() );
+	}
+
+	/**
+	 * The option cannot override a host that forces the dashboard on, so switching it off has to
+	 * report that the dashboard is still up rather than echoing back the request.
+	 */
+	public function test_post_reports_the_dashboard_is_still_on_when_a_host_forces_it() {
+		$this->log_in_as_admin();
+		add_filter( 'jetpack_premium_analytics_enabled', '__return_true' );
+
+		$request = new WP_REST_Request( 'POST', self::ROUTE );
+		$request->set_param( 'enabled', false );
+		$response = rest_get_server()->dispatch( $request );
+
+		$this->assertSame( array( 'enabled' => true ), $response->get_data() );
+		$this->assertFalse( (bool) get_option( Analytics::ENABLED_OPTION ) );
 	}
 
 	public function test_get_reports_the_stored_opt_in() {
