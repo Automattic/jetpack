@@ -322,9 +322,6 @@ class Jetpack_AI_Page {
 			// cache miss, so it shares the sender's guard.
 			'tracksUserData'   => $can_send_tracks ? self::get_tracks_user_data() : null,
 			'mcpSettingsApi'   => $config['mcpSettingsApi'],
-			// For the banner's post-new.php?use_ai_block link; the nonce action
-			// is checked by My_Jetpack's Jetpack_AI::add_ai_block filter.
-			'aiBlockNonce'     => wp_create_nonce( 'ai-assistant-content-nonce' ),
 		);
 
 		wp_add_inline_script(

@@ -7,7 +7,8 @@ import { useEffect, useMemo } from 'react';
 
 // post-new.php with this arg opens the editor with the AI panel already open.
 // The arg name follows the openSidebar=global-styles convention; the value names
-// us as the target. The AI hub's assistant banner CTA links here.
+// us as the target. The AI settings page does not link here for now (its
+// Writing Assistant row points at the docs), but the handler stays for when it does.
 const OPEN_SIDEBAR_QUERY_VALUE = 'jetpack-ai-assistant';
 
 // The AI panel lives in the shared Jetpack sidebar (a JetpackPluginSidebar

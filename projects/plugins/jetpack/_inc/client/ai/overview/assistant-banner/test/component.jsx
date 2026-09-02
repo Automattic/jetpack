@@ -35,31 +35,10 @@ describe( 'AssistantBanner', () => {
 		expect( screen.getByRole( 'button', { name: 'Dismiss' } ) ).toBeInTheDocument();
 	} );
 
-	test( 'CTA opens the editor with the AI block and records the click', async () => {
-		window.jetpackAiSettings = { aiBlockNonce: 'abc123' };
-		try {
-			render( <AssistantBanner /> );
-
-			const cta = screen.getByRole( 'link', { name: 'Start writing' } );
-			expect( cta ).toHaveAttribute( 'href', 'post-new.php?use_ai_block=1&_wpnonce=abc123' );
-
-			await userEvent.click( cta );
-			expect( analytics.tracks.recordEvent ).toHaveBeenCalledWith(
-				'jetpack_ai_hub_assistant_banner_cta_click',
-				{ site_type: 'jetpack', is_a11n: 'false', is_test: 'false', cta: 'start-writing' }
-			);
-			// Trying the assistant is not a dismissal — the banner stays.
-			expect( screen.getByText( 'Do more on your site with AI.' ) ).toBeInTheDocument();
-		} finally {
-			delete window.jetpackAiSettings;
-		}
-	} );
-
-	test( 'CTA falls back to pre-opening the sidebar AI panel without a nonce', () => {
+	test( 'renders no action links', () => {
 		render( <AssistantBanner /> );
 
-		const cta = screen.getByRole( 'link', { name: 'Start writing' } );
-		expect( cta ).toHaveAttribute( 'href', 'post-new.php?openSidebar=jetpack-ai-assistant' );
+		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
 	} );
 
 	test( 'renders nothing when already dismissed', () => {
