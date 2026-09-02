@@ -1,7 +1,8 @@
+/// <reference types="node" />
 /* eslint-disable testing-library/no-node-access -- these tests check class hooks
    that the `jetpack-admin-page-layout` mixin selects on. */
-import { readFileSync } from 'fs';
-import { fileURLToPath } from 'url';
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { render, screen } from '@testing-library/react';
 import AdminPage from '../index.tsx';
 
