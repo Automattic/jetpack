@@ -1,5 +1,21 @@
 import { differenceInHours } from 'date-fns';
-import type { BucketInfo, SeriesData, TickResolution } from '../types';
+import { parseAsLocalDate } from './date-parsing';
+import type { BucketInfo, DataPoint, DataPointDate, SeriesData, TickResolution } from '../types';
+
+// `dateString` is parsed here too: `getBucketInfo` is public, and hosts call it
+// with the raw series, before `useChartDataTransform` has dated the points.
+const getInstant = ( point?: DataPointDate | DataPoint ): number | undefined => {
+	if ( ! point ) {
+		return undefined;
+	}
+	if ( 'date' in point && point.date ) {
+		return point.date.getTime();
+	}
+	if ( 'dateString' in point && point.dateString ) {
+		return parseAsLocalDate( point.dateString ).getTime();
+	}
+	return undefined;
+};
 
 // Smallest interval between consecutive points across all series, in hours.
 // Infinity when no series carries two distinct instants.
@@ -7,7 +23,7 @@ const getPointSpacingInHours = ( data: SeriesData[] ) => {
 	return data.reduce( ( spacing, datom ) => {
 		// Sorted and deduplicated rather than read in array order: `getBucketInfo`
 		// is public, and a repeated instant is padding, not a sub-daily gap.
-		const instants = [ ...new Set( datom.data.map( point => point?.date?.getTime() ) ) ]
+		const instants = [ ...new Set( datom.data.map( point => getInstant( point ) ) ) ]
 			.filter( ( time ): time is number => time !== undefined && Number.isFinite( time ) )
 			.sort( ( a, b ) => a - b );
 
@@ -58,7 +74,7 @@ export const getBucketResolution = (
 /**
  * How this data was classified, for consumers that render their own labels.
  *
- * @param data           - The series the chart draws, in any order.
+ * @param data           - The series the chart draws, in any order, dated by `date` or `dateString`.
  * @param tickResolution - Caller-declared bucket resolution, when known.
  * @return The declared or inferred bucket, and the resolution formats key on.
  */

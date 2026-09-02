@@ -14,6 +14,28 @@ const seriesOf = ( offsetsInHours: number[] ): SeriesData[] => [
 const seriesSpacedHours = ( hours: number, count: number ): SeriesData[] =>
 	seriesOf( Array.from( { length: count }, ( _, index ) => index * hours ) );
 
+const pad = ( value: number ) => String( value ).padStart( 2, '0' );
+
+// Built from local components so it round-trips through `parseAsLocalDate`,
+// which reads a `dateString` as wall-clock time in the runtime's own zone.
+const seriesOfStrings = ( offsetsInHours: number[] ): SeriesData[] => [
+	{
+		label: 'views',
+		data: offsetsInHours.map( ( offset, index ) => {
+			const date = at( offset );
+			return {
+				dateString: `${ date.getFullYear() }-${ pad( date.getMonth() + 1 ) }-${ pad(
+					date.getDate()
+				) }T${ pad( date.getHours() ) }:${ pad( date.getMinutes() ) }:00`,
+				value: index,
+			};
+		} ),
+	},
+];
+
+const stringSeriesSpacedHours = ( hours: number, count: number ): SeriesData[] =>
+	seriesOfStrings( Array.from( { length: count }, ( _, index ) => index * hours ) );
+
 const hourlyDates = ( start: Date, hours: number ): Date[] =>
 	Array.from( { length: hours }, ( _, i ) => new Date( start.getTime() + i * 60 * 60 * 1000 ) );
 
@@ -55,6 +77,25 @@ describe( 'getBucketInfo', () => {
 			bucket: 'day',
 			displayResolution: 'day',
 		} );
+	} );
+
+	it( 'infers from dateString points, which the chart parses before it draws them', () => {
+		expect( getBucketInfo( stringSeriesSpacedHours( 1, 6 ) ) ).toEqual( {
+			bucket: 'hour',
+			displayResolution: 'hour',
+		} );
+		expect( getBucketInfo( stringSeriesSpacedHours( 24, 6 ) ) ).toEqual( {
+			bucket: 'day',
+			displayResolution: 'day',
+		} );
+	} );
+
+	it( 'reads a series the same whichever date field carries it', () => {
+		const offsets = [ 0, 1, 2, 3 ];
+
+		expect( getBucketInfo( seriesOfStrings( offsets ) ) ).toEqual(
+			getBucketInfo( seriesOf( offsets ) )
+		);
 	} );
 
 	it( 'never infers week, only reports it when declared', () => {
