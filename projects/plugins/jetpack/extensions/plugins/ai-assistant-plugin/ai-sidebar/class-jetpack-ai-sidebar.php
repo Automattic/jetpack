@@ -46,6 +46,10 @@ class Jetpack_AI_Sidebar {
 	 * @return void
 	 */
 	public static function init(): void {
+		// The notice shows on sites merely eligible for the Agent, where the
+		// sidebar gate below is still closed, so it hooks ahead of that gate.
+		add_action( 'jetpack_register_gutenberg_extensions', array( __CLASS__, 'register_agent_notice_extension' ), 99 );
+
 		// Gate the whole sidebar entrypoint on the preview surface, which is
 		// itself overridable via the jetpack_ai_sidebar_enabled filter.
 		if ( ! self::is_jetpack_ai_sidebar_preview_enabled() ) {
@@ -82,9 +86,6 @@ class Jetpack_AI_Sidebar {
 
 		// Let editor JS know when the Jetpack AI Sidebar toolbar button replaces the legacy AI toolbar.
 		add_action( 'jetpack_register_gutenberg_extensions', array( __CLASS__, 'register_toolbar_button_extension' ), 99 );
-
-		// Let editor JS know when the legacy AI panel can point people at the WordPress Agent.
-		add_action( 'jetpack_register_gutenberg_extensions', array( __CLASS__, 'register_agent_notice_extension' ), 99 );
 	}
 
 	// ──────────────────────────────────────────────────
@@ -528,12 +529,15 @@ class Jetpack_AI_Sidebar {
 	 * functions, so they fall back to the plan check alone, which cannot see the
 	 * free trial.
 	 *
+	 * Deliberately not gated on the Big_Sky class: on Simple it only loads once
+	 * the Agent is switched on, which is after the point this check is for.
+	 *
 	 * @return bool
 	 */
 	private static function is_wordpress_agent_eligible(): bool {
 		$host = new Host();
 
-		if ( ! $host->is_wpcom_platform() || ! class_exists( 'Big_Sky' ) ) {
+		if ( ! $host->is_wpcom_platform() ) {
 			return false;
 		}
 
