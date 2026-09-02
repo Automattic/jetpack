@@ -8,10 +8,6 @@
  * @package
  */
 
-jest.mock( '@wordpress/i18n', () => ( {
-	__: str => str,
-} ) );
-
 import { render, screen } from '@testing-library/react';
 import PayPalButtonPreview from '../../src/paypal-payment-buttons/paypal-button-preview';
 
@@ -93,5 +89,73 @@ describe( 'PayPalButtonPreview', () => {
 		render( <PayPalButtonPreview { ...defaultProps } /> );
 		const imageContainer = document.querySelector( '.jetpack-paypal-button-preview__image' );
 		expect( imageContainer ).not.toBeInTheDocument();
+	} );
+
+	it( 'ignores a leftover product price when the options have their own', () => {
+		render(
+			<PayPalButtonPreview
+				{ ...defaultProps }
+				price="9.99"
+				variantsEnabled
+				variants={ {
+					dimensions: [
+						{
+							name: 'Size',
+							primary: true,
+							options: [
+								{ label: 'Small', unit_amount: { currency_code: 'USD', value: '12.50' } },
+							],
+						},
+					],
+				} }
+			/>
+		);
+		expect( screen.getByText( 'From $12.50' ) ).toBeInTheDocument();
+		expect( screen.queryByText( '$9.99' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'shows the cheapest option price when there is no product price', () => {
+		// A blank product price with priced options is a legal save.
+		render(
+			<PayPalButtonPreview
+				{ ...defaultProps }
+				price=""
+				variantsEnabled
+				variants={ {
+					dimensions: [
+						{
+							name: 'Size',
+							primary: true,
+							options: [
+								{ label: 'Large', unit_amount: { currency_code: 'USD', value: '20.00' } },
+								{ label: 'Small', unit_amount: { currency_code: 'USD', value: '12.50' } },
+							],
+						},
+					],
+				} }
+			/>
+		);
+		expect( screen.getByText( 'From $12.50' ) ).toBeInTheDocument();
+	} );
+
+	it( 'keeps the product price when no option is priced', () => {
+		// Options can exist without prices, so the product price stays.
+		render(
+			<PayPalButtonPreview
+				{ ...defaultProps }
+				price="9.99"
+				variantsEnabled
+				variants={ {
+					dimensions: [
+						{
+							name: 'Size',
+							primary: true,
+							options: [ { label: 'Small' }, { label: 'Large' } ],
+						},
+					],
+				} }
+			/>
+		);
+		expect( screen.getByText( '$9.99' ) ).toBeInTheDocument();
 	} );
 } );

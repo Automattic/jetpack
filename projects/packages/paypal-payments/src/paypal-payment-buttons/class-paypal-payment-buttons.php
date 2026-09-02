@@ -337,8 +337,13 @@ class PayPal_Payment_Buttons {
 			);
 		}
 
-		// When the product options carry their own prices, there is no
-		// product-level price to show — fall back to the cheapest option.
+		// PayPal drops the product-level amount once the options have their own
+		// prices, but the block keeps whatever the merchant typed. Ignore it.
+		if ( $variants_enabled && PayPal_Attribute_Mapper::variants_have_pricing( $variants ) ) {
+			$price = '';
+		}
+
+		// Headline price: the product price, or the cheapest option when there is none.
 		$price_html = '';
 		if ( ! empty( $price ) ) {
 			$price_html = sprintf(
@@ -378,7 +383,7 @@ class PayPal_Payment_Buttons {
 						continue;
 					}
 
-					// Show per-option price if different from base price.
+					// Show the option's price, unless it repeats the product price above.
 					$option_price = '';
 					if ( ! empty( $option['unit_amount']['value'] ) && $option['unit_amount']['value'] !== $price ) {
 						$option_price = ' <span class="jetpack-paypal-button__variant-price">'
