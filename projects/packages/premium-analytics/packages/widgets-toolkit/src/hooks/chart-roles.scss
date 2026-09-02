@@ -1,0 +1,9 @@
+// On the scope element itself: its own declaration beats an inherited one.
+.a8c-charts-scope {
+
+	// The dashboard packs leaderboard rows tighter than the package default.
+	--a8c-charts-dimension-leaderboard-row-gap: var(--wpds-dimension-gap-xs);
+
+	// Rounded rather than the package's pill shape.
+	--a8c-charts-border-radius-leaderboard-bar: var(--wpds-border-radius-lg);
+}

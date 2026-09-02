@@ -61,9 +61,8 @@ describe( 'toLocalTZ', () => {
 	} );
 
 	describe( 'daylight-saving wall times', () => {
-		// Where DST starts at midnight, a date-only value names a wall time that
-		// does not exist. It normalizes forward to 01:00, and the round-trip
-		// guard has to accept that rather than read it as an impossible date.
+		// Where DST starts at midnight a date-only value names a wall time that does
+		// not exist; it normalizes forward to 01:00 and the guard must accept that.
 		it.each( [
 			[ 'America/Santiago', '2026-09-06' ],
 			[ 'America/Havana', '2026-03-08' ],

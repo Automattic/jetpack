@@ -37,13 +37,7 @@ setSettings( {
 	timezone: { string: 'UTC', offset: 0, offsetFormatted: '0', abbr: 'UTC' },
 } );
 
-/*
- * Pin "now" to 2026-02-19 12:00:00 UTC for deterministic results.
- *
- * Expected dates are computed in UTC. Since TZ is mocked to +00:00,
- * computePrimaryRange runs in UTC and dateToISOStringWithLocalTZ
- * normalizes to Z-format via the mock.
- */
+// Pin "now" to 2026-02-19 12:00:00 UTC for deterministic, timezone-independent results.
 const NOW = new Date( '2026-02-19T12:00:00.000Z' );
 const UTC = tz( '+00:00' );
 

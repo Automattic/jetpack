@@ -5,6 +5,7 @@ export { ReportScopeProvider, useReportScope, type ReportScope } from './provide
 export * from './hooks';
 export { latestPostQuery, postContentQuery } from './queries/latest-post-query';
 export type { LatestPost, LatestPostResponse } from './processing/latest-post';
+export { statsInsightsQuery } from './queries/stats-insights-query';
 export { type StatsVideoPlaysSummaryParams } from './queries/stats-video-plays-summary-query';
 export {
 	aggregateStatsDrilldownRows,
@@ -14,7 +15,6 @@ export {
 	getStatsReportItems,
 	selectStatsCommentsRows,
 	STATS_CHART_BUCKET_PERIODS,
-	sliceWordAdsStatsReport,
 } from './processing/stats';
 export type { FlattenStatsLeavesContext, FlattenStatsLeavesOptions } from './processing/stats';
 export type {
@@ -44,6 +44,8 @@ export {
 	computeDateRangeFromPreset,
 	getApiErrorCode,
 	getApiErrorStatus,
+	isAccessDenied,
+	isUserRetryableError,
 	saveBlob,
 	shouldRetryApiError,
 	StatsResponseShapeError,
@@ -63,7 +65,14 @@ export {
 	resolveIntervalForRange,
 } from './utils/interval';
 export type { IntervalType } from './utils/interval';
-export { getDefaultPreset, getDefaultQueryParams } from './defaults';
+export { chartInterval, defaultPeriodForInterval, drawableIntervals } from './utils/periods';
+export {
+	getDefaultPreset,
+	getDefaultQueryParams,
+	getDefaultReportParams,
+	getStoreInfo,
+	type StoreInfo,
+} from './defaults';
 export { downloadReport, exportReport, fetchStatsProxy, getStatsProxyPath } from './api';
 export type {
 	DownloadReportParams,

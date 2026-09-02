@@ -476,7 +476,7 @@ class Jetpack_Network {
 
 		$network = get_network();
 
-		switch_to_blog( $network->blog_id );
+		switch_to_blog( (int) $network->blog_id );
 		// The blog id on WordPress.com of the primary network site.
 		$network_wpcom_blog_id = Jetpack_Options::get_option( 'id' );
 		restore_current_blog();

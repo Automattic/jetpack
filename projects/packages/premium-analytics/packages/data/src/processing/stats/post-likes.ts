@@ -1,4 +1,5 @@
 import { safeParseFloat } from '../../utils/parsing';
+import { decodeHtmlText } from '../../utils/text';
 import { coerceStatsArray, coerceStatsRecord, isStatsRecord } from './utils';
 
 /**
@@ -38,7 +39,7 @@ function normalizeStatsPostLike( value: unknown ): StatsPostLike[] {
 
 	const like = coerceStatsRecord( value );
 	const id = safeParseFloat( like.ID );
-	const name = typeof like.name === 'string' ? like.name.trim() : '';
+	const name = decodeHtmlText( like.name, '' ).trim();
 	const login = typeof like.login === 'string' ? like.login.trim() : '';
 
 	if ( ! id || ( ! name && ! login ) ) {

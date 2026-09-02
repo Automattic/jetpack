@@ -51,6 +51,7 @@ export {
 	buildCsv,
 	buildCsvDateRangeFilename,
 	saveCsv,
+	withComparisonColumns,
 	type CsvColumn,
 	type CsvDateRange,
 } from './build-csv';
@@ -60,7 +61,7 @@ export { getVideoKey, getVideoLabel } from './video-plays';
 export { describeError } from './describe-error';
 export { summaryCount } from './summary-count';
 export { toDay } from './to-day';
-export { defaultPeriodForInterval } from './default-period-for-interval';
+export { defaultPeriodForInterval } from '@jetpack-premium-analytics/data';
 export { buildMetricTab, type MetricReport, type BuildMetricTabOptions } from './build-metric-tab';
 export { fromChartDate, toChartDate } from './chart-date';
 export { dateFormatForResolution } from './tick-resolution-date-format';

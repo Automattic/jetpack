@@ -16,7 +16,7 @@ use Automattic\Jetpack\Status\Host;
  */
 class External_Connections {
 
-	const PACKAGE_VERSION = '0.1.39';
+	const PACKAGE_VERSION = '0.2.0';
 	const BASE_FILE       = __FILE__;
 
 	/**

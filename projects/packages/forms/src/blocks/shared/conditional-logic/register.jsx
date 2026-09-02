@@ -2,6 +2,7 @@ import { hasFeatureFlag } from '@automattic/jetpack-shared-extension-utils';
 import { createHigherOrderComponent } from '@wordpress/compose';
 import { lazy, Suspense } from '@wordpress/element';
 import { addFilter, hasFilter } from '@wordpress/hooks';
+import { FIELD_BLOCK_PREFIX } from '../util/constants.js';
 import { getTypeKeyForBlockName } from './util/block-types.js';
 
 /**
@@ -16,8 +17,6 @@ import { getTypeKeyForBlockName } from './util/block-types.js';
  * regardless of the flag.
  */
 const ConditionalLogicPanel = lazy( () => import( './components/panel.jsx' ) );
-
-const FIELD_BLOCK_PREFIX = 'jetpack/field-';
 
 export const FILTER_NAMESPACE = 'jetpack/forms-conditional-logic';
 

@@ -6,7 +6,6 @@
 	"require": {
 		"php": ">=7.4",
 		"automattic/jetpack-admin-ui": "@dev",
-		"automattic/jetpack-agents-manager": "@dev",
 		"automattic/jetpack-assets": "@dev",
 		"automattic/jetpack-boost-speed-score": "@dev",
 		"automattic/jetpack-connection": "@dev",
@@ -86,7 +85,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-my-jetpack/compare/${old}...${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "5.44.x-dev"
+			"dev-trunk": "6.1.x-dev"
 		},
 		"version-constants": {
 			"::PACKAGE_VERSION": "src/class-initializer.php"

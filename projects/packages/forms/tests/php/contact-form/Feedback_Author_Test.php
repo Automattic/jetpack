@@ -9,6 +9,8 @@
 
 namespace Automattic\Jetpack\Forms\ContactForm;
 
+require_once __DIR__ . '/class-utility.php';
+
 use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
 

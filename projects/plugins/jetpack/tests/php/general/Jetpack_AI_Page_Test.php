@@ -10,16 +10,21 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Status\Cache as Status_Cache;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
 require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class-jetpack-ai-page.php';
 
 /**
  * Class Jetpack_AI_Page_Test
  *
+ * @covers \Jetpack_AI_Feature_Flags
  * @covers \Jetpack_AI_Page
  */
+#[CoversClass( Jetpack_AI_Feature_Flags::class )]
 #[CoversClass( Jetpack_AI_Page::class )]
 class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
@@ -32,6 +37,22 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 		unset( $GLOBALS['wp_scripts'] );
 		delete_transient( 'jetpack_ai_overview_plan_info' );
 		Status_Cache::clear();
+		remove_all_filters( 'agents_manager_should_load' );
+		remove_all_filters( 'agents_manager_agent_id' );
+		remove_all_filters( 'agents_manager_agent_providers' );
+		remove_all_filters( 'jetpack_ai_sidebar_agents_manager_data' );
+		remove_all_filters( 'jetpack_ai_admin_config' );
+		remove_all_filters( 'jetpack_feature_flag_enabled_ai-hub-scheduled-tasks' );
+		remove_all_filters( 'jetpack_is_connection_ready' );
+		remove_all_filters( 'jetpack_offline_mode' );
+		Jetpack_Options::delete_option( 'tos_agreed' );
+		Jetpack_Options::delete_option( 'user_tokens' );
+		wp_set_current_user( 0 );
+		remove_all_actions( 'admin_print_scripts-jetpack_page_jetpack-ai' );
+		remove_all_actions( 'admin_print_styles-jetpack_page_jetpack-ai' );
+		remove_all_actions( 'load-jetpack_page_jetpack-ai' );
+		unset( $GLOBALS['wp_styles'] );
+		Constants::clear_constants();
 
 		parent::tear_down();
 	}
@@ -121,6 +142,130 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * Create a page whose menu registration has already returned its hook.
+	 *
+	 * @return Jetpack_AI_Page
+	 */
+	private function get_page_with_registered_hook() {
+		return new class() extends Jetpack_AI_Page {
+			/**
+			 * Return the hook assigned to the Jetpack AI menu page.
+			 *
+			 * @return string
+			 */
+			public function get_page_hook() {
+				return 'jetpack_page_jetpack-ai';
+			}
+		};
+	}
+
+	/**
+	 * The standalone page registers through the shared Jetpack admin menu.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_get_page_hook_registers_jetpack_ai_menu() {
+		$this->assertSame( 'jetpack_page_jetpack-ai', ( new Jetpack_AI_Page() )->get_page_hook() );
+	}
+
+	/**
+	 * The standalone controller registers scripts, styles, and the page loader.
+	 */
+	public function test_add_actions_registers_standalone_page_hooks() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
+		add_filter( 'jetpack_is_connection_ready', '__return_true', PHP_INT_MAX );
+
+		$page = $this->get_page_with_registered_hook();
+		$page->add_actions();
+
+		$this->assertNotFalse( has_action( 'admin_print_scripts-jetpack_page_jetpack-ai', array( $page, 'page_admin_scripts' ) ) );
+		$this->assertNotFalse( has_action( 'admin_print_styles-jetpack_page_jetpack-ai', array( $page, 'admin_styles' ) ) );
+		$this->assertNotFalse( has_action( 'load-jetpack_page_jetpack-ai', array( $page, 'load_agents_manager' ) ) );
+	}
+
+	/**
+	 * Simple sites keep the Hub's own layout without the standalone base stylesheet.
+	 */
+	public function test_add_actions_skips_standalone_styles_on_simple() {
+		Constants::set_constant( 'IS_WPCOM', true );
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
+		add_filter( 'jetpack_is_connection_ready', '__return_true', PHP_INT_MAX );
+
+		$page = $this->get_page_with_registered_hook();
+		$page->add_actions();
+
+		$this->assertNotFalse( has_action( 'admin_print_scripts-jetpack_page_jetpack-ai', array( $page, 'page_admin_scripts' ) ) );
+		$this->assertFalse( has_action( 'admin_print_styles-jetpack_page_jetpack-ai', array( $page, 'admin_styles' ) ) );
+	}
+
+	/**
+	 * A disconnected site does not expose the page outside offline mode.
+	 */
+	public function test_add_actions_skips_disconnected_site() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
+		add_filter( 'jetpack_is_connection_ready', '__return_false', PHP_INT_MAX );
+		add_filter( 'jetpack_offline_mode', '__return_false' );
+
+		$page = new Jetpack_AI_Page();
+		$page->add_actions();
+
+		$this->assertFalse( has_action( 'admin_print_scripts-jetpack_page_jetpack-ai', array( $page, 'page_admin_scripts' ) ) );
+	}
+
+	/**
+	 * Offline mode does not expose the page to users without admin access.
+	 */
+	public function test_add_actions_skips_non_admin_in_offline_mode() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'subscriber' ) ) );
+		add_filter( 'jetpack_offline_mode', '__return_true' );
+
+		$page = new Jetpack_AI_Page();
+		$page->add_actions();
+
+		$this->assertFalse( has_action( 'admin_print_scripts-jetpack_page_jetpack-ai', array( $page, 'page_admin_scripts' ) ) );
+	}
+
+	/**
+	 * A host that cannot register the menu does not attach page-specific hooks.
+	 */
+	public function test_add_actions_stops_when_menu_registration_fails() {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
+		add_filter( 'jetpack_is_connection_ready', '__return_true', PHP_INT_MAX );
+
+		$page = new class() extends Jetpack_AI_Page {
+			/**
+			 * Simulate a host declining to register the menu.
+			 *
+			 * @return false
+			 */
+			public function get_page_hook() {
+				return false;
+			}
+		};
+		$page->add_actions();
+
+		$this->assertFalse( has_action( 'admin_print_scripts-jetpack_page_jetpack-ai', array( $page, 'page_admin_scripts' ) ) );
+	}
+
+	/**
+	 * The standalone stylesheet keeps the legacy Jetpack style metadata.
+	 */
+	public function test_admin_styles_enqueues_legacy_jetpack_stylesheet() {
+		( new Jetpack_AI_Page() )->admin_styles();
+
+		$style = wp_styles()->registered['jetpack-admin'];
+		$min   = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
+
+		$this->assertTrue( wp_style_is( 'jetpack-admin', 'enqueued' ) );
+		$this->assertStringEndsWith( "css/jetpack-admin{$min}.css", $style->src );
+		$this->assertSame( 'replace', $style->extra['rtl'] );
+		$this->assertSame( $min, $style->extra['suffix'] );
+	}
+
+	/**
 	 * Outside internal testing environments the Features view flag is off.
 	 */
 	public function test_features_view_flag_is_off_by_default() {
@@ -128,6 +273,8 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 
 		$this->assertArrayHasKey( 'showFeaturesView', $settings );
 		$this->assertFalse( $settings['showFeaturesView'] );
+		$this->assertArrayHasKey( 'featureFlags', $settings );
+		$this->assertFalse( $settings['featureFlags'][ Jetpack_AI_Feature_Flags::SCHEDULED_TASKS ] );
 	}
 
 	/**
@@ -140,6 +287,126 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 		$settings = $this->get_injected_settings();
 
 		$this->assertTrue( $settings['showFeaturesView'] );
+		$this->assertFalse( $settings['featureFlags'][ Jetpack_AI_Feature_Flags::SCHEDULED_TASKS ] );
+	}
+
+	/**
+	 * Hosts can hide pre-release views even in an internal testing environment.
+	 */
+	public function test_features_view_flag_can_be_filtered_by_the_host() {
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+		add_filter(
+			'jetpack_ai_admin_config',
+			function ( $config ) {
+				$config['showGatedViews'] = false;
+
+				return $config;
+			}
+		);
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertFalse( $settings['showFeaturesView'] );
+		$this->assertSame( '', $settings['planName'] );
+	}
+
+	/**
+	 * Hosts can replace the MCP endpoint contract without copying the page.
+	 */
+	public function test_admin_settings_can_be_filtered_by_the_host() {
+		add_filter(
+			'jetpack_ai_admin_config',
+			function ( $config ) {
+				$config['mcpSettingsApi'] = array(
+					'path'   => '/wpcom/v2/sites/123/mcp-abilities',
+					'format' => 'wpcom',
+				);
+
+				return $config;
+			}
+		);
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertSame(
+			array(
+				'path'   => '/wpcom/v2/sites/123/mcp-abilities',
+				'format' => 'wpcom',
+			),
+			$settings['mcpSettingsApi']
+		);
+	}
+
+	/**
+	 * The Scheduled tasks experience is registered as a default-off feature flag.
+	 */
+	public function test_scheduled_tasks_feature_flag_is_registered() {
+		Jetpack_AI_Feature_Flags::register();
+
+		$this->assertSame(
+			array(
+				'default'     => false,
+				'description' => 'Enable the Scheduled tasks tab and Agents Manager sidebar in AI Hub.',
+				'owner'       => 'jetpack-ai',
+				'name'        => 'ai-hub-scheduled-tasks',
+			),
+			\Automattic\Jetpack\Feature_Flags\Feature_Flags::get( Jetpack_AI_Feature_Flags::SCHEDULED_TASKS )
+		);
+	}
+
+	/**
+	 * WordPress.com can enable the Scheduled tasks experience through the feature flag filter.
+	 */
+	public function test_scheduled_tasks_view_can_be_enabled_by_feature_flag() {
+		add_filter( 'jetpack_feature_flag_enabled_ai-hub-scheduled-tasks', '__return_true' );
+
+		( new Jetpack_AI_Page() )->page_admin_scripts();
+		$settings = $this->get_injected_settings();
+
+		$this->assertTrue( $settings['featureFlags'][ Jetpack_AI_Feature_Flags::SCHEDULED_TASKS ] );
+	}
+
+	/**
+	 * The AI Hub page loads the Agents Manager shell with its admin page.
+	 */
+	public function test_add_page_actions_loads_agents_manager() {
+		$page = new Jetpack_AI_Page();
+		$page->add_page_actions( 'jetpack_page_jetpack-ai' );
+
+		$this->assertNotFalse(
+			has_action( 'load-jetpack_page_jetpack-ai', array( $page, 'load_agents_manager' ) )
+		);
+	}
+
+	/**
+	 * The Agents Manager shell stays dormant while Scheduled tasks are disabled.
+	 */
+	public function test_agents_manager_shell_is_disabled_by_default() {
+		$page = new Jetpack_AI_Page();
+		$page->load_agents_manager();
+
+		$this->assertFalse( apply_filters( 'agents_manager_should_load', false ) );
+		$this->assertSame( array(), apply_filters( 'agents_manager_agent_providers', array() ) );
+		$this->assertSame( array(), apply_filters( 'jetpack_ai_sidebar_agents_manager_data', array() ) );
+	}
+
+	/**
+	 * The AI Hub page requests the generic Agents Manager shell.
+	 */
+	public function test_agents_manager_shell_uses_wp_orchestrator() {
+		add_filter( 'jetpack_feature_flag_enabled_ai-hub-scheduled-tasks', '__return_true' );
+
+		$page = new Jetpack_AI_Page();
+		$page->load_agents_manager();
+
+		$agents_manager = \Automattic\Jetpack\Agents_Manager\Agents_Manager::get_instance();
+
+		$this->assertInstanceOf( \Automattic\Jetpack\Agents_Manager\Agents_Manager::class, $agents_manager );
+		$this->assertNotFalse(
+			has_action( 'admin_enqueue_scripts', array( $agents_manager, 'enqueue_scripts' ) )
+		);
+		$this->assertTrue( apply_filters( 'agents_manager_should_load', false ) );
+		$this->assertSame( 'wp-orchestrator', apply_filters( 'agents_manager_agent_id', null ) );
 	}
 
 	/**
@@ -169,6 +436,192 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * The AI Hub Agents Manager includes the scheduled task starter prompts.
+	 */
+	public function test_agents_manager_uses_scheduled_task_empty_view() {
+		add_filter( 'jetpack_feature_flag_enabled_ai-hub-scheduled-tasks', '__return_true' );
+
+		$user_id = self::factory()->user->create(
+			array(
+				'display_name' => 'Sanja',
+			)
+		);
+		wp_set_current_user( $user_id );
+
+		$page = new Jetpack_AI_Page();
+		$page->load_agents_manager();
+
+		$providers = apply_filters( 'agents_manager_agent_providers', array() );
+		$this->assertContains(
+			add_query_arg(
+				'ver',
+				JETPACK__VERSION,
+				plugins_url( '_inc/jetpack-ai-scheduled-tasks-provider.js', JETPACK__PLUGIN_FILE )
+			),
+			$providers
+		);
+
+		$data = apply_filters( 'jetpack_ai_sidebar_agents_manager_data', array() );
+		$this->assertSame( 'Howdy Sanja! Let’s schedule a task.', $data['emptyViewHeading'] );
+		$this->assertSame( 'Got a different request? Ask away.', $data['emptyViewHelp'] );
+		$this->assertSame(
+			array(
+				array(
+					'id'         => 'create-daily-reminder',
+					'label'      => 'Create a daily reminder',
+					'prompt'     => 'Create a daily reminder',
+					'autoSubmit' => true,
+				),
+				array(
+					'id'         => 'draft-weekly-post',
+					'label'      => 'Draft a weekly post',
+					'prompt'     => 'Draft a weekly post',
+					'autoSubmit' => true,
+				),
+				array(
+					'id'         => 'schedule-monthly-report',
+					'label'      => 'Schedule a monthly report',
+					'prompt'     => 'Schedule a monthly report',
+					'autoSubmit' => true,
+				),
+			),
+			$data['scheduledTaskEmptyViewSuggestions']
+		);
+	}
+
+	/**
+	 * The Agents Manager JWT client receives the connection state it needs.
+	 */
+	public function test_connection_initial_state_is_injected() {
+		unset( $GLOBALS['wp_scripts'] );
+		add_filter( 'jetpack_feature_flag_enabled_ai-hub-scheduled-tasks', '__return_true' );
+
+		( new Jetpack_AI_Page() )->page_admin_scripts();
+
+		$inline = implode( "\n", array_filter( (array) wp_scripts()->get_data( 'jetpack-ai-admin', 'before' ) ) );
+		$this->assertStringContainsString( 'JP_CONNECTION_INITIAL_STATE', $inline );
+	}
+
+	/**
+	 * The Agents Manager connection state stays dormant with Scheduled tasks.
+	 */
+	public function test_connection_initial_state_is_not_injected_by_default() {
+		unset( $GLOBALS['wp_scripts'] );
+
+		( new Jetpack_AI_Page() )->page_admin_scripts();
+
+		$inline = implode( "\n", array_filter( (array) wp_scripts()->get_data( 'jetpack-ai-admin', 'before' ) ) );
+		$this->assertStringNotContainsString( 'JP_CONNECTION_INITIAL_STATE', $inline );
+	}
+
+	/**
+	 * The Tracks sender is enqueued once tracking is consented to.
+	 */
+	public function test_tracks_script_is_enqueued_with_tracking_consent() {
+		delete_option( 'jetpack_offline_mode' );
+		Jetpack_Options::update_option( 'tos_agreed', true );
+		add_filter( 'jetpack_offline_mode', '__return_false' );
+
+		( new Jetpack_AI_Page() )->page_admin_scripts();
+
+		$this->assertTrue( wp_script_is( 'jp-tracks', 'registered' ) );
+		$this->assertTrue( wp_script_is( 'jp-tracks-functions', 'enqueued' ) );
+	}
+
+	/**
+	 * The sender stays out without tracking consent.
+	 */
+	public function test_tracks_script_stays_out_without_tracking_consent() {
+		Jetpack_Options::update_option( 'tos_agreed', false );
+		add_filter( 'jetpack_offline_mode', '__return_false' );
+
+		( new Jetpack_AI_Page() )->page_admin_scripts();
+
+		$this->assertFalse( wp_script_is( 'jp-tracks', 'registered' ) );
+		$this->assertFalse( wp_script_is( 'jp-tracks-functions', 'enqueued' ) );
+	}
+
+	/**
+	 * Offline mode never talks to WordPress.com, consented or not.
+	 */
+	public function test_tracks_script_is_not_enqueued_in_offline_mode() {
+		Jetpack_Options::update_option( 'tos_agreed', true );
+		add_filter( 'jetpack_offline_mode', '__return_true' );
+
+		( new Jetpack_AI_Page() )->page_admin_scripts();
+
+		$this->assertFalse( wp_script_is( 'jp-tracks', 'registered' ) );
+		$this->assertFalse( wp_script_is( 'jp-tracks-functions', 'enqueued' ) );
+	}
+
+	/**
+	 * The tracksUserData slot is null without a linked WordPress.com account,
+	 * even when consent lets the identity lookup actually run.
+	 */
+	public function test_tracks_user_data_is_null_without_a_linked_account() {
+		delete_option( 'jetpack_offline_mode' );
+		Jetpack_Options::update_option( 'tos_agreed', true );
+		add_filter( 'jetpack_offline_mode', '__return_false' );
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertArrayHasKey( 'tracksUserData', $settings );
+		$this->assertNull( $settings['tracksUserData'] );
+	}
+
+	/**
+	 * The tracksUserData slot is null in offline mode — the lookup could call WordPress.com.
+	 */
+	public function test_tracks_user_data_is_null_in_offline_mode() {
+		Jetpack_Options::update_option( 'tos_agreed', true );
+		add_filter( 'jetpack_offline_mode', '__return_true' );
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertNull( $settings['tracksUserData'] );
+	}
+
+	/**
+	 * The tracksUserData slot names the linked WordPress.com account.
+	 */
+	public function test_tracks_user_data_names_the_linked_account() {
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'tracks_identity_user',
+				'user_pass'  => 'password',
+				'role'       => 'administrator',
+			)
+		);
+		wp_set_current_user( $user_id );
+		delete_option( 'jetpack_offline_mode' );
+		add_filter( 'jetpack_offline_mode', '__return_false' );
+		Jetpack_Options::update_option( 'user_tokens', array( $user_id => "dummy.usertoken.$user_id" ) );
+		set_transient(
+			"jetpack_connected_user_data_$user_id",
+			array(
+				'ID'          => 777,
+				'login'       => 'wpcomuser',
+				'email'       => 'wpcomuser@example.com',
+				'user_locale' => 'en',
+			)
+		);
+
+		try {
+			$settings = $this->get_injected_settings();
+
+			$this->assertSame(
+				array(
+					'userid'   => 777,
+					'username' => 'wpcomuser',
+				),
+				$settings['tracksUserData']
+			);
+		} finally {
+			delete_transient( "jetpack_connected_user_data_$user_id" );
+		}
+	}
+
+	/**
 	 * The Tracks audience properties ride the same payload (AIINT-586): isTest
 	 * is the environment flag, isA11n the identity flag. The test environment
 	 * defines no is_automattician() and connects no user, so isA11n is false.
@@ -180,17 +633,6 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 		$this->assertArrayHasKey( 'isTest', $settings );
 		$this->assertFalse( $settings['isA11n'] );
 		$this->assertFalse( $settings['isTest'] );
-	}
-
-	/**
-	 * The video row only belongs on WordPress.com-hosted sites (i4 thread), and
-	 * the test environment is self-hosted, so the flag rides along as false.
-	 */
-	public function test_video_row_flag_is_false_off_wpcom() {
-		$settings = $this->get_injected_settings();
-
-		$this->assertArrayHasKey( 'isWpcomHosted', $settings );
-		$this->assertFalse( $settings['isWpcomHosted'] );
 	}
 
 	/**

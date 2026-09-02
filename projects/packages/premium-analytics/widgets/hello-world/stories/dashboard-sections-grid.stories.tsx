@@ -93,7 +93,6 @@ const storySections = [
 		id: 'analytics/traffic',
 		slug: 'traffic',
 		label: 'Traffic',
-		description: 'Views, visitors, and where they came from.',
 		order: 10,
 		default_layout: [],
 	},
@@ -101,7 +100,6 @@ const storySections = [
 		id: 'analytics/insights',
 		slug: 'insights',
 		label: 'Insights',
-		description: 'Longer-term patterns in your content and audience.',
 		order: 20,
 		default_layout: [],
 	},
@@ -109,7 +107,6 @@ const storySections = [
 		id: 'analytics/subscribers',
 		slug: 'subscribers',
 		label: 'Subscribers',
-		description: 'How your subscriber list is growing, and how your emails land.',
 		order: 30,
 		default_layout: [],
 	},
@@ -117,7 +114,6 @@ const storySections = [
 		id: 'woocommerce/store',
 		slug: 'store',
 		label: 'Store',
-		description: 'Sales, orders, and what your customers are buying.',
 		order: 40,
 		default_layout: [],
 	},
@@ -131,16 +127,10 @@ function DashboardSectionsGridStory() {
 	const [ activeSection, setActiveSection ] = useState( sections[ 0 ].slug );
 	const [ layout, setLayout ] = useState< DashboardWidget[] >( initialLayout );
 
-	const activeSectionRecord = sections.find( section => section.slug === activeSection );
-
 	return (
 		// The page title comes from the breadcrumbs in product; the story passes it
 		// directly so it needs no router.
-		<Page
-			title="Stats"
-			subTitle={ activeSectionRecord?.description }
-			className={ styles.dashboard }
-		>
+		<Page title="Stats" className={ styles.dashboard }>
 			<DashboardSections
 				sections={ sections }
 				value={ activeSection }

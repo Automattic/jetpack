@@ -27,7 +27,7 @@ use UnexpectedValueException;
  */
 class JWT {
 
-	const PACKAGE_VERSION = '0.2.5';
+	const PACKAGE_VERSION = '0.3.0';
 	/**
 	 * When checking nbf, iat or expiration times,
 	 * we want to provide some extra leeway time to

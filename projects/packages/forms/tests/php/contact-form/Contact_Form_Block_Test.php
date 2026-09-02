@@ -745,6 +745,10 @@ class Contact_Form_Block_Test extends BaseTestCase {
 	 * Contact_Form::parse() adds rather than with the block's own element.
 	 */
 	public function test_form_background_lands_on_the_blocks_own_div() {
+		// The form block renders its "Submit a form." fallback unless the request
+		// looks like a frontend one. See tests/php/bootstrap.php.
+		add_filter( 'wp_doing_ajax', '__return_false' );
+
 		Contact_Form_Block::register_block();
 		Contact_Form_Block::register_child_blocks();
 

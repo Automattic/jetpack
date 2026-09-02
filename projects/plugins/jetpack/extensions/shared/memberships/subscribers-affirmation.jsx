@@ -1,5 +1,5 @@
 import { getAdminUrl } from '@automattic/jetpack-script-data';
-import { isComingSoon } from '@automattic/jetpack-shared-extension-utils';
+import { isComingSoon, useModuleStatus } from '@automattic/jetpack-shared-extension-utils';
 import { Animate } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
@@ -188,47 +188,80 @@ export function shouldShowWontResendMessage( {
 /**
  * Build "was sent", "is being sent", or "will be sent" copy for access + categories.
  *
- * @param {object} opts               - Options object.
- * @param {string} opts.accessLabel   - "all subscribers" or "paid subscribers" (may be empty for date-only case).
- * @param {string} opts.categoryNames - Formatted category list (or empty).
- * @param {string} opts.tense         - 'past' | 'present' | 'future'.
- * @param {string} opts.dateStr       - For past tense only.
+ * Each linked variant has a link-free twin used when there is no reachable stats
+ * destination (the Stats module is off, or the analytics dashboard cannot be
+ * opened). Dropping the whole "View delivery details" clause beats leaving dead
+ * link text behind.
+ *
+ * @param {object}  opts               - Options object.
+ * @param {string}  opts.accessLabel   - "all subscribers" or "paid subscribers" (may be empty for date-only case).
+ * @param {string}  opts.categoryNames - Formatted category list (or empty).
+ * @param {string}  opts.tense         - 'past' | 'present' | 'future'.
+ * @param {string}  opts.dateStr       - For past tense only.
+ * @param {boolean} opts.hasStatsLink  - Whether a working stats link exists; when false, the link clause is omitted.
  * @return {string} Formatted sentence for "was sent", "is being sent", or "will be sent" copy.
  */
-export function getSentCopyLine( { accessLabel, categoryNames, tense, dateStr } ) {
+export function getSentCopyLine( {
+	accessLabel,
+	categoryNames,
+	tense,
+	dateStr,
+	hasStatsLink = true,
+} ) {
 	const isPast = tense === 'past';
 	const isFuture = tense === 'future';
 
 	if ( isPast && dateStr && ! accessLabel ) {
-		return sprintf(
-			/* translators: %s: formatted date */
-			__( 'This post was emailed on %s. View <link>delivery details</link>.', 'jetpack' ),
-			dateStr
-		);
+		return hasStatsLink
+			? sprintf(
+					/* translators: %s: formatted date */
+					__( 'This post was emailed on %s. View <link>delivery details</link>.', 'jetpack' ),
+					dateStr
+			  )
+			: sprintf(
+					/* translators: %s: formatted date */
+					__( 'This post was emailed on %s.', 'jetpack' ),
+					dateStr
+			  );
 	}
 	if ( categoryNames ) {
 		if ( isPast ) {
 			if ( dateStr ) {
-				return sprintf(
-					/* translators: %1$s: access (e.g. "all subscribers"), %2$s: category list, %3$s: date */
-					__(
-						'This post was emailed to %1$s of %2$s on %3$s. View <link>delivery details</link>.',
-						'jetpack'
-					),
-					accessLabel,
-					categoryNames,
-					dateStr
-				);
+				return hasStatsLink
+					? sprintf(
+							/* translators: %1$s: access (e.g. "all subscribers"), %2$s: category list, %3$s: date */
+							__(
+								'This post was emailed to %1$s of %2$s on %3$s. View <link>delivery details</link>.',
+								'jetpack'
+							),
+							accessLabel,
+							categoryNames,
+							dateStr
+					  )
+					: sprintf(
+							/* translators: %1$s: access (e.g. "all subscribers"), %2$s: category list, %3$s: date */
+							__( 'This post was emailed to %1$s of %2$s on %3$s.', 'jetpack' ),
+							accessLabel,
+							categoryNames,
+							dateStr
+					  );
 			}
-			return sprintf(
-				/* translators: %1$s: access (e.g. "all subscribers"), %2$s: category list */
-				__(
-					'This post was emailed to %1$s of %2$s. View <link>delivery details</link>.',
-					'jetpack'
-				),
-				accessLabel,
-				categoryNames
-			);
+			return hasStatsLink
+				? sprintf(
+						/* translators: %1$s: access (e.g. "all subscribers"), %2$s: category list */
+						__(
+							'This post was emailed to %1$s of %2$s. View <link>delivery details</link>.',
+							'jetpack'
+						),
+						accessLabel,
+						categoryNames
+				  )
+				: sprintf(
+						/* translators: %1$s: access (e.g. "all subscribers"), %2$s: category list */
+						__( 'This post was emailed to %1$s of %2$s.', 'jetpack' ),
+						accessLabel,
+						categoryNames
+				  );
 		}
 		if ( isFuture ) {
 			return sprintf(
@@ -238,33 +271,53 @@ export function getSentCopyLine( { accessLabel, categoryNames, tense, dateStr } 
 				categoryNames
 			);
 		}
-		return sprintf(
-			/* translators: %1$s: access, %2$s: category list */
-			__(
-				'This post is being emailed to %1$s of %2$s. <link>Delivery details</link> will be available shortly.',
-				'jetpack'
-			),
-			accessLabel,
-			categoryNames
-		);
+		return hasStatsLink
+			? sprintf(
+					/* translators: %1$s: access, %2$s: category list */
+					__(
+						'This post is being emailed to %1$s of %2$s. <link>Delivery details</link> will be available shortly.',
+						'jetpack'
+					),
+					accessLabel,
+					categoryNames
+			  )
+			: sprintf(
+					/* translators: %1$s: access, %2$s: category list */
+					__( 'This post is being emailed to %1$s of %2$s.', 'jetpack' ),
+					accessLabel,
+					categoryNames
+			  );
 	}
 	if ( isPast ) {
 		if ( dateStr ) {
-			return sprintf(
-				/* translators: %1$s: access, %2$s: date */
-				__(
-					'This post was emailed to %1$s on %2$s. View <link>delivery details</link>.',
-					'jetpack'
-				),
-				accessLabel,
-				dateStr
-			);
+			return hasStatsLink
+				? sprintf(
+						/* translators: %1$s: access, %2$s: date */
+						__(
+							'This post was emailed to %1$s on %2$s. View <link>delivery details</link>.',
+							'jetpack'
+						),
+						accessLabel,
+						dateStr
+				  )
+				: sprintf(
+						/* translators: %1$s: access, %2$s: date */
+						__( 'This post was emailed to %1$s on %2$s.', 'jetpack' ),
+						accessLabel,
+						dateStr
+				  );
 		}
-		return sprintf(
-			/* translators: %s: access */
-			__( 'This post was emailed to %s. View <link>delivery details</link>.', 'jetpack' ),
-			accessLabel
-		);
+		return hasStatsLink
+			? sprintf(
+					/* translators: %s: access */
+					__( 'This post was emailed to %s. View <link>delivery details</link>.', 'jetpack' ),
+					accessLabel
+			  )
+			: sprintf(
+					/* translators: %s: access */
+					__( 'This post was emailed to %s.', 'jetpack' ),
+					accessLabel
+			  );
 	}
 	if ( isFuture ) {
 		return sprintf(
@@ -273,20 +326,31 @@ export function getSentCopyLine( { accessLabel, categoryNames, tense, dateStr } 
 			accessLabel
 		);
 	}
-	return sprintf(
-		/* translators: %s: access level */
-		__(
-			'This post is being emailed to %s. Delivery details can be seen on <link>your email stats page</link> shortly.',
-			'jetpack'
-		),
-		accessLabel
-	);
+	return hasStatsLink
+		? sprintf(
+				/* translators: %s: access level */
+				__(
+					'This post is being emailed to %s. Delivery details can be seen on <link>your email stats page</link> shortly.',
+					'jetpack'
+				),
+				accessLabel
+		  )
+		: sprintf(
+				/* translators: %s: access level */
+				__( 'This post is being emailed to %s.', 'jetpack' ),
+				accessLabel
+		  );
 }
 
 /*
  * Determines copy to show in pre/post-publish panels to confirm number and type of subscribers receiving the post as email.
  */
 function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
+	// The Stats deep link the affirmation copy points at (admin.php?page=stats)
+	// only exists while the Stats module is active. Track it so we can drop the
+	// link when it would lead nowhere. Simple sites always report it as active.
+	const { isModuleActive: isStatsModuleActive } = useModuleStatus( 'stats' );
+
 	const postHasPaywallBlock = useSelect( select =>
 		select( 'core/block-editor' )
 			.getBlocks()
@@ -434,6 +498,13 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 	const isPublishedWithoutEmail =
 		status === 'publish' && emailSentAt == null && ! isSendingInProgress;
 
+	// Resolve the stats destination up front: the copy needs to know whether a
+	// working link exists so it can pick the linked or link-free wording. It is
+	// null when the Stats module is off, or when the analytics dashboard is the
+	// UI here but this user cannot open it.
+	const emailStatsLink = getJetpackEmailStatsLink( blogId, postId, isStatsModuleActive );
+	const hasStatsLink = !! emailStatsLink;
+
 	let text;
 	let showWontResendMessage = false;
 
@@ -443,6 +514,7 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 			categoryNames: sentCategoryNames,
 			tense: 'past',
 			dateStr,
+			hasStatsLink,
 		} );
 
 		if ( isSendEmailEnabled() && emailSentAt !== null ) {
@@ -457,10 +529,18 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 			} );
 		}
 	} else if ( isStatsOnlyFallback ) {
-		text = __(
-			'This post was emailed to subscribers. View <link>delivery details</link>.',
-			'jetpack'
-		);
+		// A ternary (or if/else) that picks between two otherwise-identical __() calls
+		// gets optimized into a single __() with a ternary msgid, which breaks i18n
+		// string extraction. Keep each __() as its own literal-argument call inside an
+		// object and select via a dynamic key so the optimizer can't merge them.
+		const statsOnlyText = {
+			withLink: __(
+				'This post was emailed to subscribers. View <link>delivery details</link>.',
+				'jetpack'
+			),
+			withoutLink: __( 'This post was emailed to subscribers.', 'jetpack' ),
+		};
+		text = statsOnlyText[ hasStatsLink ? 'withLink' : 'withoutLink' ];
 	} else if ( isComingSoon() ) {
 		text = __(
 			'Your site is in Coming Soon mode. Emails are sent only when your site is public. <visibilityLink>Update your site visibility</visibilityLink>.',
@@ -472,6 +552,7 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 			categoryNames: categoryNamesFromSettings,
 			tense: 'present',
 			dateStr: '',
+			hasStatsLink,
 		} );
 	} else if ( isPublishedWithoutEmail ) {
 		text = __(
@@ -487,18 +568,17 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 			categoryNames: categoryNamesFromSettings,
 			tense: isPrepublishOrScheduled ? 'future' : 'present',
 			dateStr: '',
+			hasStatsLink,
 		} );
 	}
-
-	// An anchor with no href renders styled but non-actionable, so fall back to
-	// plain text when there is nowhere to link.
-	const emailStatsLink = getJetpackEmailStatsLink( blogId, postId );
 
 	return (
 		<>
 			<p>
 				{ createInterpolateElement( text, {
 					strong: <strong />,
+					// Link-free copy carries no <link> token, so this maps nothing in
+					// that case; the <span /> is a guard against a stray token.
 					link: emailStatsLink ? <a href={ emailStatsLink } /> : <span />,
 					visibilityLink: <a href={ getSiteVisibilitySettingsLink() } />,
 				} ) }
@@ -524,14 +604,22 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
  * Points at the Premium Analytics dashboard where that is the site's analytics
  * UI, and at the Stats deep link everywhere else.
  *
- * @param {number} blogId - The ID of the blog.
- * @param {number} postId - The ID of the post.
+ * @param {number}  blogId              - The ID of the blog.
+ * @param {number}  postId              - The ID of the post.
+ * @param {boolean} isStatsModuleActive - Whether the Stats module is active. Only gates the Stats deep link, not the dashboard.
  *
- * @return {?string} - The link, or null when the dashboard is the analytics UI but this user cannot open it.
+ * @return {?string} - The link, or null when the dashboard is the analytics UI but this user cannot open it, or the Stats module backing the deep link is off.
  */
-export function getJetpackEmailStatsLink( blogId, postId ) {
+export function getJetpackEmailStatsLink( blogId, postId, isStatsModuleActive = true ) {
 	if ( hasAnalyticsDashboard() ) {
 		return getAnalyticsUrl( { view: 'post', id: postId, section: 'email-opens' } );
+	}
+
+	// The Stats deep link resolves to admin.php?page=stats, a screen the Stats
+	// module registers. With the module off, that page does not exist, so there
+	// is no link to offer.
+	if ( ! isStatsModuleActive ) {
+		return null;
 	}
 
 	return getAdminUrl( `admin.php?page=stats#!/stats/email/opens/day/${ postId }/${ blogId }` );

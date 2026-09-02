@@ -9,15 +9,14 @@ import App from '../main';
 // main.jsx imports the webpack-aliased 'lib/analytics', which doesn't resolve
 // under jest — provide it virtually. (jest.mock is hoisted above the imports.)
 jest.mock( 'lib/analytics', () => ( { tracks: { recordEvent: jest.fn() } } ), { virtual: true } );
+jest.mock( '@automattic/jetpack-ai-client', () => ( { requestJwt: jest.fn() } ) );
 
 // Both settings hooks fetch through @wordpress/api-fetch; stub it so nothing
 // hits the network and each test controls the GET/POST responses.
 jest.mock( '@wordpress/api-fetch' );
 
-// main.jsx uses Tabs as nav-only (no Tabs.Panel), which trips the design
-// system's async a11y validation — a console.error the shared jest-console
-// setup treats as a test failure. Swap only Tabs for inert passthroughs; the
-// real Notice/Stack are kept because the assertions below rely on them.
+// Swap Tabs for inert passthroughs; the real Notice/Stack are kept because
+// the assertions below rely on them.
 jest.mock( '@wordpress/ui', () => {
 	const actual = jest.requireActual( '@wordpress/ui' );
 	const { createElement } = require( 'react' );
@@ -27,7 +26,12 @@ jest.mock( '@wordpress/ui', () => {
 			createElement( tag, null, children );
 	return {
 		...actual,
-		Tabs: { Root: passthrough( 'div' ), List: passthrough( 'div' ), Tab: passthrough( 'button' ) },
+		Tabs: {
+			Root: passthrough( 'div' ),
+			List: passthrough( 'div' ),
+			Tab: passthrough( 'button' ),
+			Panel: passthrough( 'div' ),
+		},
 	};
 } );
 
@@ -98,6 +102,7 @@ beforeEach( () => {
 afterEach( () => {
 	// Tests that exercise the internal-testing flag set this global.
 	delete window.jetpackAiSettings;
+	delete window.__agentsManagerActions;
 	// The @wordpress/notices store is module-global: drain it so a snackbar
 	// created in one test cannot re-animate into the next test's render.
 	select( noticesStore )
@@ -123,7 +128,6 @@ describe( 'AI admin page (main.jsx)', () => {
 		// AiFeatures never mounts: no feature toggle, no upgrade badge, no action link.
 		expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
 		expect( screen.queryByText( 'Requires upgrade' ) ).not.toBeInTheDocument();
-		expect( screen.queryByText( 'Try it out in the editor' ) ).not.toBeInTheDocument();
 		expect( screen.queryByText( 'Learn more' ) ).not.toBeInTheDocument();
 	} );
 
@@ -214,6 +218,35 @@ describe( 'AI admin page (main.jsx)', () => {
 		await expect( screen.findAllByText( 'A12s only' ) ).resolves.toHaveLength( 2 );
 	} );
 
+	test( 'scheduled tasks flag: exposes the gated hash route and Figma empty state', async () => {
+		window.jetpackAiSettings = {
+			featureFlags: { 'ai-hub-scheduled-tasks': true },
+		};
+		window.location.hash = '#/scheduled-tasks';
+		window.__agentsManagerActions = {
+			// The sandbox's agents manager currently exposes readiness as a boolean.
+			isReady: true,
+			chatNavigate: jest.fn(),
+			setChatDocked: jest.fn(),
+			setChatOpen: jest.fn(),
+		};
+		mockApiFetch();
+
+		render( <App /> );
+
+		await expect(
+			screen.findByText( 'Schedule tasks for repeated work' )
+		).resolves.toBeInTheDocument();
+		expect( screen.getByText( 'Scheduled tasks' ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'A12s only' ) ).not.toBeInTheDocument();
+
+		await userEvent.click( screen.getByRole( 'button', { name: 'Create a task' } ) );
+		expect( window.__agentsManagerActions.chatNavigate ).toHaveBeenCalledWith( '/' );
+		expect( window.__agentsManagerActions.setChatDocked ).not.toHaveBeenCalled();
+		expect( window.__agentsManagerActions.setChatOpen ).toHaveBeenCalledWith( true );
+		delete window.__agentsManagerActions;
+	} );
+
 	test( 'no internal-testing flag: no A12s only badge renders', async () => {
 		// Without the flag the gate hides the Features view entirely (MCP-only
 		// shape), so the internal-testing label must not appear anywhere.
@@ -232,6 +265,9 @@ describe( 'AI admin page (main.jsx)', () => {
 	} );
 
 	test( 'MCP view tracking: fires once on the MCP tab, never on Features, and latches per mount', async () => {
+		// A successful settings payload implies a connected site, so the fixture
+		// carries the blogId (the fetch is skipped entirely without one).
+		window.jetpackAiSettings = { showFeaturesView: true, blogId: 1 };
 		mockApiFetch( {
 			mcpGet: { has_mcp_access: true, mcp_abilities: { account: { some_tool: {} }, sites: [] } },
 		} );
@@ -263,6 +299,147 @@ describe( 'AI admin page (main.jsx)', () => {
 		} );
 
 		await waitFor( () => expect( mcpViewCount() ).toBe( 1 ) );
+	} );
+
+	describe( 'MCP view: connect card', () => {
+		const CONNECT_CARD_TEXT = 'A user connection lets agents securely act on your behalf.';
+		const UPSELL_CTA = 'Upgrade plan';
+
+		beforeEach( () => {
+			window.location.hash = '#/mcp';
+		} );
+
+		test( 'site connected, no plan: shows the connect card instead of the upsell', async () => {
+			window.jetpackAiSettings = { showFeaturesView: true, blogId: 1, isUserConnected: false };
+			mockApiFetch( { mcpGet: { has_mcp_access: false, mcp_abilities: {} } } );
+
+			render( <App /> );
+
+			await expect(
+				screen.findByText( CONNECT_CARD_TEXT, IGNORE_A11Y )
+			).resolves.toBeInTheDocument();
+			expect(
+				screen.getByRole( 'heading', { name: 'Connect AI agents to your site' } )
+			).toBeInTheDocument();
+			expect( screen.getByRole( 'link', { name: 'Connect your user account' } ) ).toHaveAttribute(
+				'href',
+				'admin.php?page=my-jetpack#/connection'
+			);
+			expect(
+				screen.queryByText( 'Upgrade your plan to give external AI agents access to your site.' )
+			).not.toBeInTheDocument();
+			expect( screen.queryByText( UPSELL_CTA ) ).not.toBeInTheDocument();
+			// The settings fetch is skipped: without a user token it can only fail.
+			expect( apiFetch ).not.toHaveBeenCalledWith(
+				expect.objectContaining( { path: expect.stringContaining( 'mcp-settings' ) } )
+			);
+		} );
+
+		test( 'site connected, has plan: shows the connect card and not the hub', async () => {
+			window.jetpackAiSettings = { showFeaturesView: true, blogId: 1, isUserConnected: false };
+			mockApiFetch( { mcpGet: connectedMcpGet() } );
+
+			render( <App /> );
+
+			await expect(
+				screen.findByText( CONNECT_CARD_TEXT, IGNORE_A11Y )
+			).resolves.toBeInTheDocument();
+			// The skipped fetch keeps hasMcpAccess null, so the hub cannot render.
+			expect(
+				screen.queryByText( 'External AI agent access', IGNORE_A11Y )
+			).not.toBeInTheDocument();
+			expect( screen.queryByLabelText( 'Enable MCP access' ) ).not.toBeInTheDocument();
+		} );
+
+		test( 'unlinked user: no settings request escapes and no error notice appears', async () => {
+			// The fetch is skipped for unlinked users: the rejecting mock proves no request escapes.
+			window.jetpackAiSettings = { showFeaturesView: true, blogId: 1, isUserConnected: false };
+			apiFetch.mockImplementation( ( { path } = {} ) =>
+				path?.includes( 'mcp-settings' )
+					? Promise.reject( new Error( 'No token for user 2' ) )
+					: Promise.resolve( enabledSettings() )
+			);
+
+			render( <App /> );
+
+			await expect(
+				screen.findByText( CONNECT_CARD_TEXT, IGNORE_A11Y )
+			).resolves.toBeInTheDocument();
+			expect( screen.queryByText( 'No token for user 2', IGNORE_A11Y ) ).not.toBeInTheDocument();
+			expect( apiFetch ).not.toHaveBeenCalledWith(
+				expect.objectContaining( { path: expect.stringContaining( 'mcp-settings' ) } )
+			);
+		} );
+
+		test( 'linked user, settings request fails: the load error still shows', async () => {
+			// The error branch must stay live for everyone the connect notice does
+			// not cover.
+			window.jetpackAiSettings = { showFeaturesView: true, blogId: 1, isUserConnected: true };
+			apiFetch.mockImplementation( ( { path } = {} ) =>
+				path?.includes( 'mcp-settings' )
+					? Promise.reject( new Error( 'Something went wrong.' ) )
+					: Promise.resolve( enabledSettings() )
+			);
+
+			render( <App /> );
+
+			await expect(
+				screen.findByText( 'Something went wrong.', IGNORE_A11Y )
+			).resolves.toBeInTheDocument();
+			expect( screen.queryByText( CONNECT_CARD_TEXT, IGNORE_A11Y ) ).not.toBeInTheDocument();
+		} );
+
+		test( 'isUserConnected undefined: behaviour unchanged, the upsell still shows', async () => {
+			window.jetpackAiSettings = { showFeaturesView: true, blogId: 1 };
+			mockApiFetch( { mcpGet: { has_mcp_access: false, mcp_abilities: {} } } );
+
+			render( <App /> );
+
+			await expect( screen.findByText( UPSELL_CTA ) ).resolves.toBeInTheDocument();
+			expect( screen.queryByText( CONNECT_CARD_TEXT, IGNORE_A11Y ) ).not.toBeInTheDocument();
+		} );
+
+		test( 'site not connected: the site notice still comes first', async () => {
+			// On a disconnected site the settings request could only reject (the
+			// proxy has no site ID), so the fetch is skipped and the friendly
+			// notice must show instead of that raw error.
+			window.jetpackAiSettings = { showFeaturesView: true, isUserConnected: false };
+			apiFetch.mockImplementation( ( { path } = {} ) =>
+				path?.includes( 'mcp-settings' )
+					? Promise.reject( new Error( 'Sorry, something is wrong with your Jetpack connection.' ) )
+					: Promise.resolve( enabledSettings() )
+			);
+
+			render( <App /> );
+
+			await expect(
+				screen.findByText(
+					'This site is not connected to WordPress.com. Please connect Jetpack to manage MCP settings.',
+					IGNORE_A11Y
+				)
+			).resolves.toBeInTheDocument();
+			expect(
+				screen.queryByText( 'Sorry, something is wrong with your Jetpack connection.', IGNORE_A11Y )
+			).not.toBeInTheDocument();
+			expect( screen.queryByText( CONNECT_CARD_TEXT, IGNORE_A11Y ) ).not.toBeInTheDocument();
+			expect( apiFetch ).not.toHaveBeenCalledWith(
+				expect.objectContaining( { path: expect.stringContaining( 'mcp-settings' ) } )
+			);
+		} );
+	} );
+
+	test( 'MCP sub-views: the breadcrumb root reads Jetpack AI', async () => {
+		mockApiFetch( {
+			mcpGet: { has_mcp_access: true, mcp_abilities: { account: { some_tool: {} }, sites: [] } },
+		} );
+
+		window.location.hash = '#/read';
+		render( <App /> );
+
+		await expect(
+			screen.findByRole( 'button', { name: 'Jetpack AI' } )
+		).resolves.toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: 'AI' } ) ).not.toBeInTheDocument();
 	} );
 
 	test( 'a11n gate: without showFeaturesView the page is MCP-only with no tab bar', async () => {
@@ -342,7 +519,11 @@ describe( 'AI admin page (main.jsx)', () => {
 		render( <App /> );
 
 		// Landing view is Overview; the row renders there and nowhere else.
-		const rows = await screen.findAllByRole( 'link', { name: /Activity log/ } );
+		// Wait on the cheap text query: polling a role+name query re-computes
+		// accessible names on every mutation and starves the 1s budget on a
+		// loaded CI runner.
+		await expect( screen.findByText( 'Activity log', IGNORE_A11Y ) ).resolves.toBeInTheDocument();
+		const rows = screen.getAllByRole( 'link', { name: /Activity log/ } );
 		expect( rows ).toHaveLength( 1 );
 		expect( rows[ 0 ] ).toHaveAttribute( 'href', 'https://example.com/activity' );
 
@@ -404,6 +585,9 @@ describe( 'AI admin page (main.jsx)', () => {
 	} );
 
 	test( 'MCP view tracking: does not fire on the Features tab', async () => {
+		// blogId keeps the settings fetch live so hasMcpAccess resolves; the
+		// isMcpContext guard is then the only thing holding the event back.
+		window.jetpackAiSettings = { showFeaturesView: true, blogId: 1 };
 		mockApiFetch( {
 			mcpGet: { has_mcp_access: true, mcp_abilities: { account: { some_tool: {} }, sites: [] } },
 		} );
@@ -422,7 +606,7 @@ describe( 'AI admin page (main.jsx)', () => {
 		// The audience properties are computed server-side and ride the
 		// jetpackAiSettings global; the event must send the strings
 		// 'true'/'false', not booleans (AIINT-576 encoding).
-		window.jetpackAiSettings = { showFeaturesView: true, isA11n: true, isTest: true };
+		window.jetpackAiSettings = { showFeaturesView: true, blogId: 1, isA11n: true, isTest: true };
 		mockApiFetch( {
 			mcpGet: { has_mcp_access: true, mcp_abilities: { account: { some_tool: {} }, sites: [] } },
 		} );

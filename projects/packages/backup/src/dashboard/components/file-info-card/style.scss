@@ -39,6 +39,11 @@
 		word-break: break-all;
 	}
 
+	&__preview-note {
+		margin-block: 0 8px;
+		margin-inline: 0;
+	}
+
 	&__preview {
 		max-height: 320px;
 		overflow: auto;
@@ -54,10 +59,5 @@
 			white-space: pre;
 			color: var(--wp-components-color-foreground, #1e1e1e);
 		}
-	}
-
-	&__actions {
-		padding-top: 8px;
-		border-top: 1px solid var(--wp-components-color-gray-200, #e0e0e0);
 	}
 }

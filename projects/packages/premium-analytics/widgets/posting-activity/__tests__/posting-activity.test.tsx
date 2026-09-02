@@ -227,8 +227,7 @@ describe( 'PostingActivityWidget', () => {
 				restoreTileSize();
 			}
 
-			// The regression this guards (WOOA7S-1963): the grid ran on to a December
-			// that had not happened, so a tile too small for all 53 columns kept the
+			// Regression guard (WOOA7S-1963): a tile too small for all 53 columns kept
 			// empty future weeks and trimmed the year's own posts away.
 			expect( chartDayValues() ).toContain( 'Mon, Aug 10, 2026:4' );
 		} );

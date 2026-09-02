@@ -51,13 +51,8 @@ function toPoints( report: StatsSubscribersResponse | undefined ): SubscribersCh
 }
 
 /**
- * Fetch the subscribers time series for the dashboard's date range at the
- * given bucket size, together with the dashboard comparison window.
- *
- * The dashboard drives all three: the range, the previous-period overlay via
- * its comparison state, and `period` via its chart interval control. Both
- * windows are fetched by `useStatsSubscribersReport`, which layers the
- * comparison range on top of `reportParams`.
+ * Fetches the subscribers time series for the dashboard's date range and
+ * bucket size, including the comparison window when the dashboard requests it.
  */
 export default function useSubscribersChart(
 	reportParams: ReportParams,
@@ -75,11 +70,8 @@ export default function useSubscribersChart(
 		hasPaid: current.some( point => point.paid > 0 ),
 		isLoading: report.isLoading,
 		isFetching: report.isFetching,
-		// The Stats queries carry `placeholderData: previousData => previousData`, so a
-		// failed range change keeps the prior period's points in `current` while
-		// `isError` flips true. Only surface the error when there's nothing to show,
-		// so a transient refetch failure doesn't replace a populated chart with the
-		// error state.
+		// `placeholderData` keeps stale points in `current` after a failed refetch; only
+		// surface the error once there is nothing on screen to show.
 		isError: current.length === 0 && report.isError,
 		refetch: report.refetch,
 	};

@@ -1,7 +1,10 @@
-import { Modal, SelectControl } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
+import { Modal, Notice, SelectControl } from '@wordpress/components';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import { Stack, Text } from '@wordpress/ui';
 import FieldValueControl from '../controls/field-value/edit.jsx';
+
+// Shared empty set, so a caller that omits the prop does not hand every render a new one.
+const NO_DUPLICATE_IDS = new Set();
 
 const ACTION_OPTIONS = [
 	{ value: 'show', label: __( 'Show this field', 'jetpack-forms' ) },
@@ -24,16 +27,17 @@ const MATCH_OPTIONS = [
  * there is no draft state and no Save button. Undo is the editor's own. That matches the
  * integrations modal in this package and keeps one source of truth for the rules.
  *
- * @param {object}   props                - Component props.
- * @param {boolean}  props.isOpen         - Whether the dialog is open.
- * @param {Function} props.onClose        - Called when the dialog is dismissed.
- * @param {object}   props.logic          - The normalized conditional-logic attribute.
- * @param {object}   props.group          - The group being edited.
- * @param {Array}    props.fields         - Fields available as rule subjects.
- * @param {string}   props.ownFieldId     - Id of the field the panel belongs to.
- * @param {Function} props.onActionChange - Called with the next show/hide action.
- * @param {Function} props.onMatchChange  - Called with the next any/all operator.
- * @param {Function} props.onRulesChange  - Called with the group's next rules.
+ * @param {object}   props                   - Component props.
+ * @param {boolean}  props.isOpen            - Whether the dialog is open.
+ * @param {Function} props.onClose           - Called when the dialog is dismissed.
+ * @param {object}   props.logic             - The normalized conditional-logic attribute.
+ * @param {object}   props.group             - The group being edited.
+ * @param {Array}    props.fields            - Fields available as rule subjects.
+ * @param {Set}      props.duplicateFieldIds - Ids claimed by more than one field in the form.
+ * @param {Function} props.onFixDuplicateIds - Called with ids to make unique.
+ * @param {Function} props.onActionChange    - Called with the next show/hide action.
+ * @param {Function} props.onMatchChange     - Called with the next any/all operator.
+ * @param {Function} props.onRulesChange     - Called with the group's next rules.
  * @return {object|null} The dialog, or null when closed.
  */
 const ConditionalLogicModal = ( {
@@ -42,7 +46,8 @@ const ConditionalLogicModal = ( {
 	logic,
 	group,
 	fields,
-	ownFieldId,
+	duplicateFieldIds = NO_DUPLICATE_IDS,
+	onFixDuplicateIds,
 	onActionChange,
 	onMatchChange,
 	onRulesChange,
@@ -105,10 +110,45 @@ const ConditionalLogicModal = ( {
 						  ) }
 				</Text>
 
+				{ /* Named rather than merely counted, because fixing this means finding the
+				     fields in question, and the Name/ID is what the author will see on each
+				     one. Not dismissible: the affected fields stay unavailable until it is
+				     acted on, so hiding the explanation would leave them looking broken. */ }
+				{ duplicateFieldIds.size > 0 && (
+					<Notice
+						status="warning"
+						isDismissible={ false }
+						actions={ [
+							{
+								label: _n(
+									'Make it unique',
+									'Make them unique',
+									duplicateFieldIds.size,
+									'jetpack-forms'
+								),
+								onClick: () => onFixDuplicateIds( [ ...duplicateFieldIds ] ),
+								variant: 'link',
+							},
+						] }
+					>
+						{ sprintf(
+							/* translators: %s: comma-separated list of field names/IDs used by more than one field. */
+							_n(
+								"Some fields are unavailable because their Name/ID isn't unique: %s. Give each field its own under Advanced → Name/ID.",
+								"Some fields are unavailable because their Name/IDs aren't unique: %s. Give each field its own under Advanced → Name/ID.",
+								duplicateFieldIds.size,
+								'jetpack-forms'
+							),
+							[ ...duplicateFieldIds ].join( ', ' )
+						) }
+					</Notice>
+				) }
+
 				<FieldValueControl
 					rules={ group.rules }
 					fields={ fields }
-					ownFieldId={ ownFieldId }
+					duplicateFieldIds={ duplicateFieldIds }
+					onFixDuplicateIds={ onFixDuplicateIds }
 					onChange={ onRulesChange }
 				/>
 			</Stack>

@@ -9,6 +9,11 @@ const APPLIED_RANGE: DateRange = {
 	to: new Date( 2026, 6, 9, 23, 59, 59, 999 ),
 };
 
+const JULY_2026: DateRange = {
+	from: new Date( 2026, 6, 1, 0, 0, 0, 0 ),
+	to: new Date( 2026, 6, 31, 23, 59, 59, 999 ),
+};
+
 function renderFilter( overrides: Partial< Parameters< typeof DateRangeFilter >[ 0 ] > = {} ) {
 	const props = {
 		presetId: 'last-7-days' as const,
@@ -60,6 +65,24 @@ describe( 'DateRangeFilter', () => {
 
 		await user.keyboard( '{ArrowLeft}' );
 		expect( screen.getByRole( 'button', { name: '12 months' } ) ).toHaveFocus();
+	} );
+
+	// A trigger holding a range is wrapped in its tooltip, and the composite item
+	// inside it still has to answer to the toolbar's arrow keys.
+	it( 'moves focus to the custom trigger once it names a period', async () => {
+		const user = userEvent.setup();
+		renderFilter( {
+			presetId: 'custom',
+			appliedPresetId: 'custom',
+			range: JULY_2026,
+			appliedRange: JULY_2026,
+		} );
+		await flushCompositeItems();
+
+		await user.tab();
+		await user.keyboard( '{End}' );
+
+		expect( screen.getByRole( 'button', { name: 'July 2026' } ) ).toHaveFocus();
 	} );
 
 	it( 'applies a preset immediately on click', async () => {

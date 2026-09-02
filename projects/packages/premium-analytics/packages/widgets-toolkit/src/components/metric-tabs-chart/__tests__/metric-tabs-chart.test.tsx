@@ -12,10 +12,8 @@ import { MetricTabsChart } from '../metric-tabs-chart';
 import type { ComparativeLineChartSeries } from '../../chart-comparative-line/types';
 import type { MetricTab } from '../metric-tabs-chart';
 
-// The charts themselves render SVG through a provider that jsdom cannot lay
-// out. Standing them in for prop recorders keeps this test on what this
-// component decides: which chart renders, and how the comparison series is
-// shaped for it.
+// The charts render SVG through a provider jsdom cannot lay out, so stand them in
+// for prop recorders.
 const mockLineSpy = jest.fn();
 const mockBarSpy = jest.fn();
 
@@ -42,6 +40,14 @@ type ChartProps = {
 	chartId?: string;
 	defaultHiddenSeries?: readonly string[];
 	legendInteractive?: boolean;
+	onPointerDown?: ( params: PointerParams ) => void;
+	onPointerUp?: ( params: PointerParams ) => void;
+	onDatumActivate?: ( params: { datum: unknown } ) => void;
+};
+
+type PointerParams = {
+	datum?: unknown;
+	svgPoint?: { x: number; y: number };
 };
 
 const DATA_FORMAT = { type: 'number' as const, options: { decimals: 0 } };
@@ -79,12 +85,7 @@ const VISITORS: MetricTab = {
 	counterpartKey: 'views',
 };
 
-/**
- * The props the most recent chart render received.
- *
- * @param spy - The chart stand-in to read.
- * @return The recorded props.
- */
+/** The props the most recent chart render received. */
 function recordedProps( spy: jest.Mock ): ChartProps {
 	// Without this, a chart that never rendered yields `undefined` and the
 	// assertions below fail as a TypeError that names the wrong cause.
@@ -103,24 +104,23 @@ const WALL_CLOCK_METRIC: MetricTab = {
 	previous: undefined,
 };
 
-/**
- * The series the most recent chart render received.
- *
- * @param spy - The chart stand-in to read.
- * @return The recorded series.
- */
+/** The series the most recent chart render received. */
 function recordedSeries( spy: jest.Mock ): ComparativeLineChartSeries[] {
 	return recordedProps( spy ).series;
+}
+
+/** Play a press and release over a datum, optionally moving between them. */
+function pressAndRelease( spy: jest.Mock, datum: unknown, distance = 0 ) {
+	const { onPointerDown, onPointerUp } = recordedProps( spy );
+
+	onPointerDown?.( { datum, svgPoint: { x: 10, y: 10 } } );
+	onPointerUp?.( { datum, svgPoint: { x: 10 + distance, y: 10 } } );
 }
 
 /**
  * The props of the render that drew `label` as its active metric. During a tab
  * switch, the outgoing panel may render again before the incoming panel mounts,
  * so the most recent call is not necessarily the metric under test.
- *
- * @param spy   - The chart stand-in to read.
- * @param label - The active metric's label, which is also its first series'.
- * @return The recorded props.
  */
 function recordedPropsFor( spy: jest.Mock, label: string ): ChartProps {
 	const call = spy.mock.calls
@@ -130,12 +130,7 @@ function recordedPropsFor( spy: jest.Mock, label: string ): ChartProps {
 	return call[ 0 ];
 }
 
-/**
- * The tooltip date formatter the most recent chart render received.
- *
- * @param spy - The chart stand-in to read.
- * @return The recorded formatter.
- */
+/** The tooltip date formatter the most recent chart render received. */
 function recordedTooltipDateFormatter(
 	spy: jest.Mock
 ): ( date: Date, format: DateFormatName ) => string {
@@ -226,12 +221,8 @@ describe( 'MetricTabsChart', () => {
 		expect( screen.queryByText( '300' ) ).not.toBeInTheDocument();
 	} );
 
-	// Only the Stats widgets build wall clocks; the post and video charts hand
-	// over real instants (`parseSiteDateTime`), which re-anchoring would shift
-	// (see `chart-date.ts`) — so the reading has to stay opt-in. Asserted against
-	// the formatter rather than a literal, and over two site zones, so the check
-	// cannot come out vacuous on whichever timezone the machine running it
-	// happens to be in.
+	// Only Stats widgets build wall clocks; post/video instants would shift if
+	// re-anchored (see `chart-date.ts`). Two zones keep this check non-vacuous.
 	it.each( [ 'Asia/Tokyo', 'America/Los_Angeles' ] )(
 		'reads a point as the instant it is unless the producer says otherwise, on a site in %s',
 		siteZone => {
@@ -307,9 +298,8 @@ describe( 'MetricTabsChart', () => {
 
 		const { series } = recordedPropsFor( mockLineSpy, 'Views' );
 
-		// The current period carries the bare metric name, which is what the
-		// collapsed legend item shows. Comparison labels remain distinct and stable
-		// when the selected dashboard range changes.
+		// The current period carries the bare metric name, which is what the collapsed
+		// legend item shows.
 		expect( series[ 0 ].label ).toBe( 'Views' );
 		expect( series[ 2 ].label ).toBe( 'Visitors' );
 		expect( new Set( series.map( item => item.label ) ).size ).toBe( series.length );
@@ -398,9 +388,8 @@ describe( 'MetricTabsChart', () => {
 		expect( recordedProps( mockLineSpy ).legendInteractive ).toBe( false );
 	} );
 
-	// The Traffic summary pairs Views with Visitors, but the hourly grain serves
-	// Views alone. Drawing the pair there would offer the legend a series the
-	// request never asked for, which reveals as a flat zero line.
+	// The Traffic summary pairs Views with Visitors, but the hourly grain serves Views
+	// alone, so drawing the pair there offers the legend a flat zero line.
 	it( 'ignores a counterpart with nothing to report at this bucket size', () => {
 		const unavailableVisitors = { ...VISITORS, unavailable: "Hourly data isn't available." };
 
@@ -440,10 +429,8 @@ describe( 'MetricTabsChart', () => {
 	} );
 
 	it( 'keeps the same chart ID across a chart-type switch', () => {
-		// The line and bar charts are different components, so switching between
-		// them remounts. The provider only carries a reveal over that remount if
-		// both mounts name the same chart, so this is what keeps a revealed
-		// counterpart revealed when the reader flips the chart type.
+		// Switching chart type remounts a different component, and the provider only
+		// carries a revealed counterpart over that remount under the same chart ID.
 		const { rerender } = render(
 			<MetricTabsChart metrics={ [ VIEWS, VISITORS ] } dataFormat={ DATA_FORMAT } />
 		);
@@ -457,5 +444,145 @@ describe( 'MetricTabsChart', () => {
 		);
 
 		expect( recordedPropsFor( mockBarSpy, 'Views' ).chartId ).toBe( lineChartId );
+	} );
+
+	describe( 'onDatumClick', () => {
+		const CLICKED = new Date( '2026-07-02T00:00:00Z' );
+
+		it.each( [
+			[ 'line', mockLineSpy, undefined ],
+			[ 'bar', mockBarSpy, 'bar' ],
+		] as const )( 'reports a click on the %s chart', ( _name, spy, chartType ) => {
+			const onDatumClick = jest.fn();
+
+			render(
+				<MetricTabsChart
+					metrics={ [ METRIC ] }
+					dataFormat={ DATA_FORMAT }
+					chartType={ chartType }
+					onDatumClick={ onDatumClick }
+				/>
+			);
+
+			pressAndRelease( spy, { date: CLICKED, value: 200 } );
+
+			expect( onDatumClick ).toHaveBeenCalledWith( CLICKED );
+		} );
+
+		/*
+		 * A wall-clock point names a bucket, not an instant: re-anchor the date in
+		 * the site's zone first, or an hourly bucket opens the browser's day, not the site's.
+		 */
+		it.each( [
+			[ 'America/Los_Angeles', '2026-07-21T20:00:00.000Z' ],
+			[ 'Asia/Tokyo', '2026-07-21T04:00:00.000Z' ],
+		] )( 'reads a wall-clock point in the site zone, on a site in %s', ( zone, expected ) => {
+			setSettings( siteSettingsIn( zone ) );
+
+			const onDatumClick = jest.fn();
+
+			render(
+				<MetricTabsChart
+					metrics={ [ WALL_CLOCK_METRIC ] }
+					dataFormat={ DATA_FORMAT }
+					onDatumClick={ onDatumClick }
+					pointsAreWallClocks
+				/>
+			);
+
+			pressAndRelease( mockLineSpy, { date: new Date( '2026-07-21T13:00:00.000Z' ), value: 200 } );
+
+			expect( onDatumClick.mock.calls[ 0 ][ 0 ].getTime() ).toBe( Date.parse( expected ) );
+		} );
+
+		// Literal on purpose. Importing the component's tolerance would move both
+		// sides with it, leaving the threshold unpinned.
+		it.each( [
+			[ 6, true ],
+			[ 7, false ],
+		] )( 'travelling %ipx reports a click: %s', ( distance, reports ) => {
+			const onDatumClick = jest.fn();
+
+			render(
+				<MetricTabsChart
+					metrics={ [ METRIC ] }
+					dataFormat={ DATA_FORMAT }
+					onDatumClick={ onDatumClick }
+				/>
+			);
+
+			pressAndRelease( mockLineSpy, { date: CLICKED, value: 200 }, distance );
+
+			expect( onDatumClick ).toHaveBeenCalledTimes( reports ? 1 : 0 );
+		} );
+
+		/*
+		 * A release the chart never saw a press for started off the plot, so it
+		 * must not open a date the pointer only happened to end over.
+		 */
+		it( 'ignores a release with no press behind it', () => {
+			const onDatumClick = jest.fn();
+
+			render(
+				<MetricTabsChart
+					metrics={ [ METRIC ] }
+					dataFormat={ DATA_FORMAT }
+					onDatumClick={ onDatumClick }
+				/>
+			);
+
+			recordedProps( mockLineSpy ).onPointerUp?.( {
+				datum: { date: CLICKED, value: 200 },
+				svgPoint: { x: 10, y: 10 },
+			} );
+
+			expect( onDatumClick ).not.toHaveBeenCalled();
+		} );
+
+		it( 'ignores a release over nothing datable', () => {
+			const onDatumClick = jest.fn();
+
+			render(
+				<MetricTabsChart
+					metrics={ [ METRIC ] }
+					dataFormat={ DATA_FORMAT }
+					onDatumClick={ onDatumClick }
+				/>
+			);
+
+			pressAndRelease( mockLineSpy, { value: 200 } );
+
+			expect( onDatumClick ).not.toHaveBeenCalled();
+		} );
+
+		// The keyboard counterpart of the click: Enter on the point navigation
+		// selected reports the same date a pointer release over it would.
+		it.each( [
+			[ 'line', mockLineSpy, undefined ],
+			[ 'bar', mockBarSpy, 'bar' ],
+		] as const )( 'reports a keyboard activation on the %s chart', ( _name, spy, chartType ) => {
+			const onDatumClick = jest.fn();
+
+			render(
+				<MetricTabsChart
+					metrics={ [ METRIC ] }
+					dataFormat={ DATA_FORMAT }
+					chartType={ chartType }
+					onDatumClick={ onDatumClick }
+				/>
+			);
+
+			recordedProps( spy ).onDatumActivate?.( { datum: { date: CLICKED, value: 200 } } );
+
+			expect( onDatumClick ).toHaveBeenCalledWith( CLICKED );
+		} );
+
+		it( 'leaves the chart without pointer or keyboard handlers when nothing listens', () => {
+			render( <MetricTabsChart metrics={ [ METRIC ] } dataFormat={ DATA_FORMAT } /> );
+
+			expect( recordedProps( mockLineSpy ).onPointerUp ).toBeUndefined();
+			expect( recordedProps( mockLineSpy ).onPointerDown ).toBeUndefined();
+			expect( recordedProps( mockLineSpy ).onDatumActivate ).toBeUndefined();
+		} );
 	} );
 } );
