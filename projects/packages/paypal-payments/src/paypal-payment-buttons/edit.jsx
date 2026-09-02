@@ -671,6 +671,10 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 
 	/**
 	 * Prepare the referral link as soon as the welcome step is on screen.
+	 *
+	 * connectError is a bail condition because a failed request clears
+	 * isGeneratingSignupLink on the way out, which runs this effect again.
+	 * Without it a failing signup-link request repeats forever.
 	 */
 	useEffect( () => {
 		if (
@@ -679,6 +683,7 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 			! partnerReferralsAvailable ||
 			wizardStep !== 'welcome' ||
 			signupUrl ||
+			connectError ||
 			isGeneratingSignupLink
 		) {
 			return;
@@ -691,6 +696,7 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 		partnerReferralsAvailable,
 		wizardStep,
 		signupUrl,
+		connectError,
 		isGeneratingSignupLink,
 		fetchSignupLink,
 	] );
