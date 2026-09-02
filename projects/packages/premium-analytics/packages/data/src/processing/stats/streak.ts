@@ -13,9 +13,8 @@ export type StatsStreakRawResponse = {
 
 export function sanitizeStatsStreakResponse( response: unknown ): StatsStreakResponse {
 	const data = coerceStatsRecord( coerceStatsRecord( response ).data );
-	// Alone among the Stats payloads this one keys by instant, not by day, so the
-	// calendar day has to be resolved here. A named zone rather than the site's
-	// numeric offset, so posts either side of a DST change land on the right day.
+	// Keyed by instant, not by day, so the calendar day is resolved here. By zone
+	// rather than by offset: a fixed offset is a day out either side of a DST change.
 	const zone = tz( siteTimeZone() );
 	const streak: StatsStreakResponse = {};
 

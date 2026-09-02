@@ -1,14 +1,7 @@
-/**
- * External dependencies
- */
 import { getSettings, setSettings } from '@wordpress/date';
-/**
- * Internal dependencies
- */
 import { sanitizeStatsStreakResponse } from '..';
 import { streakFixture } from '../__fixtures__/streak';
 
-/** The package defaults before tests override them. */
 const DEFAULTS = getSettings();
 
 const withTimezone = ( timezone: { offset: number; string: string } ) =>
@@ -18,6 +11,9 @@ const withTimezone = ( timezone: { offset: number; string: string } ) =>
 	} );
 
 describe( 'Stats streak normalizer', () => {
+	// Group members share one module registry, so neither inherit a previous
+	// suite's settings nor leave ours installed for the next one.
+	beforeEach( () => setSettings( DEFAULTS ) );
 	afterEach( () => setSettings( DEFAULTS ) );
 
 	it( 'normalizes timestamp counts into date buckets', () => {
@@ -67,15 +63,23 @@ describe( 'Stats streak normalizer', () => {
 	} );
 
 	it( 'follows the zone across a DST change', () => {
-		// Both timestamps are 04:30 UTC. New York is a day apart on them only because
-		// one is EDT and the other EST, which a fixed offset cannot express.
+		// New York is a day behind UTC on both, under EDT for the first and EST for
+		// the second: the reported -4 offset puts the second on 2016-01-01.
 		withTimezone( { offset: -4, string: 'America/New_York' } );
 
-		expect( sanitizeStatsStreakResponse( { data: { 1467347400: 1 } } ) ).toEqual( {
-			'2016-07-01': 1,
+		expect( sanitizeStatsStreakResponse( { data: { 1467343800: 1 } } ) ).toEqual( {
+			'2016-06-30': 1,
 		} );
 		expect( sanitizeStatsStreakResponse( { data: { 1451622600: 1 } } ) ).toEqual( {
 			'2015-12-31': 1,
+		} );
+	} );
+
+	it( 'skips keys that are not timestamps', () => {
+		withTimezone( { offset: 0, string: 'UTC' } );
+
+		expect( sanitizeStatsStreakResponse( { data: { total: 5, 1461889800: 1 } } ) ).toEqual( {
+			'2016-04-29': 1,
 		} );
 	} );
 
