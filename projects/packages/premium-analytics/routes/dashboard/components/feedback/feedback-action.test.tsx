@@ -1,37 +1,46 @@
 /**
  * External dependencies
  */
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 /**
  * Internal dependencies
  */
+import { resetTracksIdentityForTesting } from '../../hooks/use-track-event';
 import { FeedbackAction } from './feedback-action';
 
-const mockInitialize = jest.fn();
+const mockSetUser = jest.fn();
+const mockIdentifyUser = jest.fn();
+const mockAssignSuperProps = jest.fn();
 const mockRecordEvent = jest.fn();
 
 jest.mock( '@automattic/jetpack-analytics', () => ( {
 	__esModule: true,
 	default: {
-		initialize: ( ...args: unknown[] ) => mockInitialize( ...args ),
+		setUser: ( ...args: unknown[] ) => mockSetUser( ...args ),
+		identifyUser: () => mockIdentifyUser(),
+		assignSuperProps: ( ...args: unknown[] ) => mockAssignSuperProps( ...args ),
 		tracks: { recordEvent: ( ...args: unknown[] ) => mockRecordEvent( ...args ) },
 	},
 } ) );
 
+const mockGetScriptData = jest.fn();
+
 jest.mock( '@automattic/jetpack-script-data', () => ( {
-	getScriptData: () => ( {
-		site: { wpcom: { blog_id: 42 } },
-		user: { current_user: { wpcom: { ID: 7, login: 'reader' } } },
-	} ),
+	getScriptData: () => mockGetScriptData(),
 } ) );
 
 beforeEach( () => {
 	jest.clearAllMocks();
+	resetTracksIdentityForTesting();
+	mockGetScriptData.mockReturnValue( {
+		site: { wpcom: { blog_id: 42 } },
+		user: { current_user: { wpcom: { ID: 7, login: 'reader' } } },
+	} );
 } );
 
 /**
- * Renders the action and opens the modal, the way every case here starts.
+ * Renders the action and opens the modal, the way most cases here start.
  *
  * @return The `userEvent` session, for the rest of the interaction.
  */
@@ -43,22 +52,32 @@ async function openModal() {
 }
 
 describe( 'FeedbackAction', () => {
-	it( 'records who is answering before the first event', async () => {
+	it( 'stays out of the way until the reader asks for it', () => {
+		render( <FeedbackAction /> );
+
+		expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
+		expect( mockRecordEvent ).not.toHaveBeenCalled();
+	} );
+
+	it( 'reports the opening as its own event', async () => {
 		await openModal();
 
-		expect( mockInitialize ).toHaveBeenCalledWith( 7, 'reader' );
+		expect( mockRecordEvent ).toHaveBeenCalledWith(
+			'jetpack_premium_analytics_feedback_open',
+			undefined
+		);
 	} );
 
 	it( 'reports the rating and comment as one event', async () => {
 		const user = await openModal();
 
-		await user.click( screen.getByRole( 'button', { name: '4' } ) );
+		await user.click( screen.getByRole( 'radio', { name: '4' } ) );
 		await user.type( screen.getByRole( 'textbox' ), '  Needs a date picker  ' );
 		await user.click( screen.getByRole( 'button', { name: 'Send feedback' } ) );
 
 		expect( mockRecordEvent ).toHaveBeenLastCalledWith(
 			'jetpack_premium_analytics_feedback_submit',
-			{ blog_id: 42, rating: 4, comment: 'Needs a date picker' }
+			{ rating: 4, comment: 'Needs a date picker' }
 		);
 	} );
 
@@ -73,19 +92,37 @@ describe( 'FeedbackAction', () => {
 			expect.anything()
 		);
 
-		await user.click( screen.getByRole( 'button', { name: '1' } ) );
+		await user.click( screen.getByRole( 'radio', { name: '1' } ) );
 		await user.click( submit );
 
 		expect( mockRecordEvent ).toHaveBeenLastCalledWith(
 			'jetpack_premium_analytics_feedback_submit',
-			{ blog_id: 42, rating: 1, comment: '' }
+			{ rating: 1, comment: '' }
 		);
+	} );
+
+	it( 'confirms the send rather than just closing', async () => {
+		const user = await openModal();
+
+		await user.click( screen.getByRole( 'radio', { name: '3' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Send feedback' } ) );
+
+		// Scoped to the dialog: `Notice` also mirrors the text into the a11y-speak live
+		// region on `body`, so an unscoped query matches twice.
+		expect(
+			within( screen.getByRole( 'dialog' ) ).getByText( 'Thanks — your feedback is on its way.' )
+		).toBeInTheDocument();
+		expect( screen.queryByRole( 'radiogroup' ) ).not.toBeInTheDocument();
+
+		await user.click( screen.getByRole( 'button', { name: 'Done' } ) );
+
+		expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'sends nothing when the reader backs out', async () => {
 		const user = await openModal();
 
-		await user.click( screen.getByRole( 'button', { name: '5' } ) );
+		await user.click( screen.getByRole( 'radio', { name: '5' } ) );
 		await user.click( screen.getByRole( 'button', { name: 'Cancel' } ) );
 
 		expect( mockRecordEvent ).not.toHaveBeenCalledWith(
@@ -93,5 +130,98 @@ describe( 'FeedbackAction', () => {
 			expect.anything()
 		);
 		expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'caps the comment at the length Tracks will carry', async () => {
+		await openModal();
+
+		expect( screen.getByRole( 'textbox' ) ).toHaveAttribute( 'maxlength', '1000' );
+	} );
+} );
+
+describe( 'the rating scale', () => {
+	it( 'offers the whole scale as one radio group with one tab stop', async () => {
+		await openModal();
+
+		expect( screen.getByRole( 'radiogroup' ) ).toHaveAccessibleName(
+			'How easy is the new Stats to use?'
+		);
+		expect( screen.getByRole( 'radio', { name: '1' } ) ).toHaveAttribute( 'tabindex', '0' );
+		expect( screen.getByRole( 'radio', { name: '2' } ) ).toHaveAttribute( 'tabindex', '-1' );
+	} );
+
+	it( 'moves the answer with the arrow keys', async () => {
+		const user = await openModal();
+
+		await user.click( screen.getByRole( 'radio', { name: '2' } ) );
+		await user.keyboard( '{ArrowRight}' );
+
+		expect( screen.getByRole( 'radio', { name: '3' } ) ).toBeChecked();
+		expect( screen.getByRole( 'radio', { name: '3' } ) ).toHaveFocus();
+
+		await user.click( screen.getByRole( 'button', { name: 'Send feedback' } ) );
+
+		expect( mockRecordEvent ).toHaveBeenLastCalledWith(
+			'jetpack_premium_analytics_feedback_submit',
+			{ rating: 3, comment: '' }
+		);
+	} );
+
+	it( 'wraps from the first answer round to the last', async () => {
+		const user = await openModal();
+
+		await user.click( screen.getByRole( 'radio', { name: '1' } ) );
+		await user.keyboard( '{ArrowLeft}' );
+
+		expect( screen.getByRole( 'radio', { name: '5' } ) ).toBeChecked();
+	} );
+} );
+
+describe( 'the Tracks identity', () => {
+	it( 'identifies the reader and pins blog_id once, not per event', async () => {
+		const user = await openModal();
+
+		await user.click( screen.getByRole( 'radio', { name: '3' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Send feedback' } ) );
+
+		expect( mockRecordEvent ).toHaveBeenCalledTimes( 2 );
+		expect( mockSetUser ).toHaveBeenCalledTimes( 1 );
+		expect( mockSetUser ).toHaveBeenCalledWith( 7, 'reader' );
+		expect( mockIdentifyUser ).toHaveBeenCalledTimes( 1 );
+		expect( mockAssignSuperProps ).toHaveBeenCalledTimes( 1 );
+		expect( mockAssignSuperProps ).toHaveBeenCalledWith( { blog_id: 42 } );
+	} );
+
+	it( 'identifies before the first event reaches Tracks', async () => {
+		await openModal();
+
+		expect( mockIdentifyUser.mock.invocationCallOrder[ 0 ] ).toBeLessThan(
+			mockRecordEvent.mock.invocationCallOrder[ 0 ]
+		);
+	} );
+
+	it( 'still records when the site carries no WPCOM identity', async () => {
+		mockGetScriptData.mockReturnValue( {} );
+
+		await openModal();
+
+		expect( mockSetUser ).not.toHaveBeenCalled();
+		expect( mockIdentifyUser ).not.toHaveBeenCalled();
+		expect( mockAssignSuperProps ).not.toHaveBeenCalled();
+		expect( mockRecordEvent ).toHaveBeenCalledWith(
+			'jetpack_premium_analytics_feedback_open',
+			undefined
+		);
+	} );
+
+	it( 'skips the blog_id super prop when the site is not connected', async () => {
+		mockGetScriptData.mockReturnValue( {
+			user: { current_user: { wpcom: { ID: 7, login: 'reader' } } },
+		} );
+
+		await openModal();
+
+		expect( mockSetUser ).toHaveBeenCalledWith( 7, 'reader' );
+		expect( mockAssignSuperProps ).not.toHaveBeenCalled();
 	} );
 } );

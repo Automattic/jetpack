@@ -1056,4 +1056,26 @@ class Analytics_Test extends TestCase {
 			'Simple still publishes the VideoPress availability flag.'
 		);
 	}
+	/**
+	 * Without the Tracks transport the dashboard's `@automattic/jetpack-analytics` events
+	 * only pile up in `window._tkq`, so every feedback submission is silently lost.
+	 */
+	public function test_dashboard_enqueues_the_tracks_transport() {
+		Analytics::enqueue_tracks_transport();
+
+		$this->assertTrue( wp_script_is( 'jp-tracks', 'enqueued' ) );
+
+		wp_dequeue_script( 'jp-tracks' );
+		wp_deregister_script( 'jp-tracks' );
+	}
+
+	/**
+	 * The identity filter has to survive a site with no connected user: the dashboard
+	 * still records events there, just anonymously.
+	 */
+	public function test_tracks_identity_is_left_alone_without_a_connected_user() {
+		$data = array( 'user' => array( 'current_user' => array( 'id' => 1 ) ) );
+
+		$this->assertSame( $data, Analytics::add_tracks_identity_script_data( $data ) );
+	}
 }

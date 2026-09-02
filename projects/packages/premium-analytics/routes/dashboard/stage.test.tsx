@@ -64,7 +64,12 @@ jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 } ) );
 
 jest.mock( '@wordpress/admin-ui', () => ( {
-	Page: ( { children }: { children: ReactNode } ) => <div>{ children }</div>,
+	Page: ( { actions, children }: { actions?: ReactNode; children: ReactNode } ) => (
+		<div>
+			<div data-testid="page-actions">{ actions }</div>
+			{ children }
+		</div>
+	),
 } ) );
 
 jest.mock( '@wordpress/components', () => ( {
@@ -103,7 +108,7 @@ function MockScopeProbe() {
 
 jest.mock( '@wordpress/widget-dashboard', () => {
 	const WidgetDashboard = ( { children }: { children: ReactNode } ) => <div>{ children }</div>;
-	WidgetDashboard.Actions = () => null;
+	WidgetDashboard.Actions = () => <div data-testid="widget-dashboard-actions" />;
 	WidgetDashboard.NoWidgetsState = () => null;
 	WidgetDashboard.Widgets = () => <MockScopeProbe />;
 	WidgetDashboard.Commands = () => null;
@@ -113,7 +118,7 @@ jest.mock( '@wordpress/widget-dashboard', () => {
 
 jest.mock( './components', () => ( {
 	DashboardSections: ( { children }: { children: ReactNode } ) => <div>{ children }</div>,
-	FeedbackAction: () => null,
+	FeedbackAction: () => <div data-testid="feedback-action" />,
 	// A marker, not the real notice, which reads a query cache these tests do not
 	// stand up. Covered here: where the stage puts it.
 	RefreshFailureNotice: ( { className }: { className?: string } ) => (
@@ -291,6 +296,24 @@ describe( 'Dashboard refresh-failure notice', () => {
 		expect( notices[ 0 ].previousElementSibling ).toContainElement(
 			screen.getByText( 'header offers comparison' )
 		);
+	} );
+} );
+
+describe( 'Dashboard feedback action', () => {
+	beforeEach( () => {
+		jest.clearAllMocks();
+		useActiveSectionMock.mockReturnValue( [ 'traffic', jest.fn() ] );
+		mockActiveSectionSlug = 'traffic';
+		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_RANGE );
+	} );
+
+	it( "sits in the page actions, ahead of the dashboard's own", () => {
+		render( <Dashboard /> );
+
+		const feedback = screen.getByTestId( 'feedback-action' );
+
+		// eslint-disable-next-line testing-library/no-node-access -- order within the actions slot is what this test is for.
+		expect( feedback.nextElementSibling ).toBe( screen.getByTestId( 'widget-dashboard-actions' ) );
 	} );
 } );
 

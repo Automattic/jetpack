@@ -5,36 +5,48 @@ import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { getScriptData } from '@automattic/jetpack-script-data';
 import { useCallback } from '@wordpress/element';
 
-// The tracker is a module singleton, so identify it once per identity rather than
-// on every consumer's mount.
-let identifiedFor: string | null = null;
+// The tracker is a page-wide singleton: identify once per page load, not per event
+// and not on every consumer's mount.
+let hasIdentified = false;
 
 /**
- * Attaches the connected WPCOM identity to the tracker, at most once per identity.
+ * Reset the identify latch. Test-only.
+ *
+ * Module state outlives a render/unmount cycle by design, which is the point of the latch,
+ * but it would otherwise leave every test after the first observing nothing.
  */
-function identifyOnce() {
-	const wpcomUser = getScriptData()?.user?.current_user?.wpcom;
-
-	if ( ! wpcomUser?.ID || ! wpcomUser?.login ) {
-		return;
-	}
-
-	const key = `${ wpcomUser.ID }:${ wpcomUser.login }`;
-
-	if ( identifiedFor === key ) {
-		return;
-	}
-
-	jetpackAnalytics.initialize( wpcomUser.ID, wpcomUser.login );
-	identifiedFor = key;
+export function resetTracksIdentityForTesting() {
+	hasIdentified = false;
 }
 
 /**
- * Returns a stable callback for emitting `jetpack_premium_analytics_*` Tracks events,
- * matching the wrapper Scan and Activity Log use over `@automattic/jetpack-analytics`.
- *
- * Events still fire before the WPCOM identity resolves; identifying only fills in
- * who they belong to.
+ * Identify the reader and pin `blog_id` onto every event from this page load.
+ */
+function identifyOnce() {
+	if ( hasIdentified ) {
+		return;
+	}
+	hasIdentified = true;
+
+	const scriptData = getScriptData();
+	const wpcomUser = scriptData?.user?.current_user?.wpcom;
+
+	// Not `initialize()`: it routes through `setSuperProps`, which replaces rather than
+	// merges, so it would wipe whatever another consumer on this page already pinned.
+	if ( wpcomUser?.ID && wpcomUser?.login ) {
+		jetpackAnalytics.setUser( wpcomUser.ID, wpcomUser.login );
+		jetpackAnalytics.identifyUser();
+	}
+
+	const blogId = scriptData?.site?.wpcom?.blog_id;
+
+	if ( blogId ) {
+		jetpackAnalytics.assignSuperProps( { blog_id: blogId } );
+	}
+}
+
+/**
+ * Returns a stable callback for emitting `jetpack_premium_analytics_*` Tracks events.
  *
  * @return Callback recording a Tracks event by name, with optional properties.
  */
@@ -42,11 +54,6 @@ export function useTrackEvent() {
 	return useCallback( ( eventName: string, properties?: Record< string, unknown > ) => {
 		identifyOnce();
 
-		const blogId = getScriptData()?.site?.wpcom?.blog_id;
-
-		jetpackAnalytics.tracks.recordEvent( eventName, {
-			...( blogId ? { blog_id: blogId } : {} ),
-			...properties,
-		} );
+		jetpackAnalytics.tracks.recordEvent( eventName, properties );
 	}, [] );
 }
