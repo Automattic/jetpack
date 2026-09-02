@@ -97,6 +97,15 @@ class PayPal_Payment_Buttons {
 	 * empty stub to satisfy the dependency chain.
 	 */
 	public function register_standalone_script_stubs() {
+		/*
+		 * The Jetpack plugin registers the real handle from Script_Data on wp_loaded,
+		 * which fires after init. Registering a stub first therefore wins, and the
+		 * editor is left without window.JetpackScriptData.
+		 */
+		if ( class_exists( 'Jetpack' ) ) {
+			return;
+		}
+
 		if ( ! wp_script_is( 'jetpack-script-data', 'registered' ) ) {
 			wp_register_script( 'jetpack-script-data', false, array(), '1.0.0', false );
 

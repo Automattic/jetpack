@@ -239,7 +239,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		 * Reply to the connection check with platform mode, so the welcome step
 		 * with the "Connect with PayPal" flow renders.
 		 *
-		 * @param {object} signupResponse - What the signup-link route returns.
+		 * @param {object} signupResponse - What the signup-link route returns, or { reject } to fail it.
 		 */
 		function mockPlatformMode( signupResponse ) {
 			apiFetch.mockImplementation( ( { path } ) => {
@@ -251,7 +251,9 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					} );
 				}
 				if ( path.endsWith( '/onboarding/signup-link' ) ) {
-					return Promise.resolve( signupResponse );
+					return signupResponse?.reject
+						? Promise.reject( signupResponse.reject )
+						: Promise.resolve( signupResponse );
 				}
 				return Promise.resolve( {} );
 			} );
@@ -295,6 +297,68 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				expect.stringContaining( 'displayMode=minibrowser' )
 			);
 			expect( link ).toHaveAttribute( 'href', expect.stringContaining( 'token=abc' ) );
+		} );
+
+		it( 'shows the failure and stops asking for the signup link', async () => {
+			mockPlatformMode( { reject: new Error( 'Could not create a PayPal onboarding link.' ) } );
+
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+
+			/*
+			 * The failed request clears the busy flag, which re-runs the prefetch.
+			 * Without connectError to stop it the block asks again on a loop, and
+			 * each attempt wipes the error the merchant is meant to read.
+			 */
+			await expect(
+				screen.findByText( /Could not create a PayPal onboarding link/ )
+			).resolves.toBeInTheDocument();
+
+			const signupCalls = apiFetch.mock.calls.filter( ( [ { path } ] ) =>
+				path.endsWith( '/onboarding/signup-link' )
+			);
+			expect( signupCalls ).toHaveLength( 1 );
+		} );
+
+		it( 'dismissing the signup-link failure hides it and leaves the request count at one', async () => {
+			const user = userEvent.setup();
+			mockPlatformMode( {
+				reject: new Error( 'Could not create a PayPal onboarding link.' ),
+			} );
+
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+
+			await expect(
+				screen.findByText( /Could not create a PayPal onboarding link/ )
+			).resolves.toBeInTheDocument();
+
+			await user.click( screen.getByTestId( 'dismiss-notice' ) );
+
+			// Dismissing must leave connectError set, or the prefetch runs again
+			// and puts the same notice straight back.
+			const signupCalls = () =>
+				apiFetch.mock.calls.filter( ( [ { path } ] ) =>
+					path.endsWith( '/onboarding/signup-link' )
+				);
+			await waitFor( () => expect( signupCalls() ).toHaveLength( 1 ) );
+
+			expect(
+				screen.queryByText( /Could not create a PayPal onboarding link/ )
+			).not.toBeInTheDocument();
+		} );
+
+		it( 'asks again when the merchant clicks Connect with PayPal after a failure', async () => {
+			const user = userEvent.setup();
+			mockPlatformMode( { reject: new Error( 'Could not create a PayPal onboarding link.' ) } );
+
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+			await user.click( await screen.findByRole( 'button', { name: /Connect with PayPal/i } ) );
+
+			// fetchSignupLink clears connectError on entry, so a deliberate click
+			// gets past the bail condition that stops the automatic retry.
+			const signupCalls = apiFetch.mock.calls.filter( ( [ { path } ] ) =>
+				path.endsWith( '/onboarding/signup-link' )
+			);
+			expect( signupCalls ).toHaveLength( 2 );
 		} );
 
 		it( 'opens a sized window rather than a tab when the SDK is absent', async () => {
@@ -630,15 +694,14 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 	} );
 
 	describe( 'API Error Handling', () => {
-		it( 'shows connection form when connection check fails', async () => {
+		it( 'shows the API credentials instructions step when the connection check fails', async () => {
 			apiFetch.mockRejectedValue( new Error( 'Network error' ) );
 
 			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
 
-			// Should fall back to not-connected state.
-			await expect( screen.findAllByText( 'Connect PayPal' ) ).resolves.toEqual(
-				expect.any( Array )
-			);
+			// A failed check leaves partner referrals off, so the wizard opens on
+			// the manual step instead of offering Connect with PayPal.
+			await expect( screen.findByText( /Get Your API Credentials/ ) ).resolves.toBeInTheDocument();
 		} );
 	} );
 

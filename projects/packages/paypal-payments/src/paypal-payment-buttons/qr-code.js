@@ -2,10 +2,11 @@
  * PayPal Payment Buttons — QR Code Frontend Script.
  *
  * Generates a QR code for the PayPal payment link on pages containing
- * a PayPal payment button. Falls back to the current page URL for
- * legacy (V1) blocks without a payment link.
+ * a PayPal payment button. The BUTTON toggle panel and the standalone QR
+ * format both read the link from the canvas `data-qr-url` attribute.
  *
- * Enqueued only on relevant pages via has_block() check in PHP.
+ * Enqueued from the block's render callback, so it only loads on pages
+ * that actually render the block.
  * Uses the qrcode npm package (MIT, ~10KB) for canvas-based generation.
  * No external API calls — everything runs client-side.
  *
@@ -51,10 +52,10 @@ function wireDownloadButton( downloadBtn, canvas ) {
  * Wire a copy-link button to copy the given URL to the clipboard.
  *
  * @param {HTMLButtonElement|null} copyBtn - The copy button, or null to no-op.
- * @param {string}                 url     - The URL to copy.
+ * @param {string}                 url     - The URL to copy. Empty leaves the button alone.
  */
 function wireCopyButton( copyBtn, url ) {
-	if ( ! copyBtn ) {
+	if ( ! copyBtn || ! url ) {
 		return;
 	}
 	copyBtn.addEventListener( 'click', () => {
@@ -88,7 +89,9 @@ function initQRToggles() {
 			return;
 		}
 
+		const qrUrl = canvas.dataset.qrUrl;
 		const downloadBtn = container.querySelector( '.jetpack-paypal-button__qr-download' );
+		const copyBtn = container.querySelector( '.jetpack-paypal-button__qr-copy' );
 		let generated = false;
 
 		toggle.addEventListener( 'click', () => {
@@ -101,13 +104,9 @@ function initQRToggles() {
 				return;
 			}
 
-			// Generate QR on first open.
-			if ( ! generated ) {
-				// Use PayPal payment link if available (V2 API-managed blocks),
-				// fall back to page URL for legacy V1 blocks.
-				const paymentLink = container.querySelector( '.jetpack-paypal-button__paypal-link' );
-				const qrUrl = ( paymentLink && paymentLink.href ) || window.location.href;
-
+			// Generate QR on first open. The render callback always writes the URL, so a
+			// missing one means stale markup — open the panel anyway, the link is still in it.
+			if ( ! generated && qrUrl ) {
 				QRCode.toCanvas( canvas, qrUrl, QR_OPTIONS );
 				generated = true;
 			}
@@ -118,6 +117,7 @@ function initQRToggles() {
 		} );
 
 		wireDownloadButton( downloadBtn, canvas );
+		wireCopyButton( copyBtn, qrUrl );
 	} );
 }
 

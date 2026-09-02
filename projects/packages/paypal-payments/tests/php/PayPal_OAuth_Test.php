@@ -7,6 +7,9 @@
 
 namespace Automattic\Jetpack\PaypalPayments;
 
+use Automattic\Jetpack\Connection\Manager;
+use Automattic\Jetpack\Connection\Tokens;
+use Automattic\Jetpack\Constants;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -31,6 +34,22 @@ class PayPal_OAuth_Test extends TestCase {
 		// credentials cache, which otherwise leaks between tests in the same
 		// process and makes has_credentials() report a stale true.
 		PayPal_OAuth::disconnect();
+		// The partner id lives on another class's option, which disconnect() leaves alone.
+		delete_option( PayPal_Partner_Onboarding::PARTNER_ID_OPTION_KEY );
+
+		// The blog connection is per-test; leaving it set makes later tests that
+		// expect a disconnected site pass or fail depending on test order.
+		delete_option( 'jetpack_private_options' );
+		\Jetpack_Options::delete_option( 'id' );
+		Constants::clear_constants();
+	}
+
+	/**
+	 * Put the site in a state where it can talk to WordPress.com as a blog.
+	 */
+	private function set_up_connected_site() {
+		( new Tokens() )->update_blog_token( 'test.blogtoken' );
+		\Jetpack_Options::update_option( 'id', 1234 );
 	}
 
 	/**
@@ -287,6 +306,46 @@ class PayPal_OAuth_Test extends TestCase {
 		$this->assertIsArray( $status );
 		$this->assertTrue( $status['connected'] );
 		$this->assertEquals( 'production', $status['environment'] );
+	}
+
+	/**
+	 * Test Partner Referrals is unavailable off WordPress.com, even with credentials
+	 * and a partner ID stored.
+	 */
+	public function test_connection_status_partner_referrals_ignores_credentials_and_partner_id() {
+		$this->assertFalse( ( new Manager() )->is_connected(), 'This case needs a disconnected site.' );
+
+		PayPal_Partner_Onboarding::set_partner_id( 'TEST_PARTNER_123' );
+		PayPal_OAuth::store_credentials( 'test_client_id', 'test_client_secret' );
+
+		$status = PayPal_OAuth::get_connection_status();
+
+		$this->assertTrue( $status['connected'] );
+		$this->assertFalse( $status['partner_referrals_available'] );
+	}
+
+	/**
+	 * Test Partner Referrals is available on a site connected to WordPress.com.
+	 */
+	public function test_connection_status_partner_referrals_available_when_connected() {
+		$this->set_up_connected_site();
+
+		$status = PayPal_OAuth::get_connection_status();
+
+		$this->assertFalse( $status['connected'] );
+		$this->assertTrue( $status['partner_referrals_available'] );
+	}
+
+	/**
+	 * Test Partner Referrals is available on WordPress.com Simple.
+	 */
+	public function test_connection_status_partner_referrals_available_on_wpcom_simple() {
+		Constants::set_constant( 'IS_WPCOM', true );
+
+		$status = PayPal_OAuth::get_connection_status();
+
+		$this->assertFalse( $status['connected'] );
+		$this->assertTrue( $status['partner_referrals_available'] );
 	}
 
 	/**

@@ -337,6 +337,7 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 	const [ clientId, setClientId ] = useState( '' );
 	const [ clientSecret, setClientSecret ] = useState( '' );
 	const [ connectError, setConnectError ] = useState( null );
+	const [ connectErrorDismissed, setConnectErrorDismissed ] = useState( false );
 	const [ isConnecting, setIsConnecting ] = useState( false );
 
 	// Partner Referrals onboarding state.
@@ -453,7 +454,7 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 	 * Check PayPal connection status on mount.
 	 */
 	// Track whether Partner Referrals (Connect with PayPal button) is available.
-	// Requires platform-level credentials — not available in standalone mode.
+	// Requires the site to be on WordPress.com or connected to it.
 	const [ partnerReferralsAvailable, setPartnerReferralsAvailable ] = useState( false );
 
 	useEffect( () => {
@@ -463,7 +464,6 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 				setEnvironment( response.environment );
 				setPartnerReferralsAvailable( !! response.partner_referrals_available );
 				setPartnerAttributionId( response.partner_attribution_id || '' );
-				// In standalone mode, skip the welcome step and go straight to manual credentials.
 				if ( ! response.connected && ! response.partner_referrals_available ) {
 					setWizardStep( 'dashboard' );
 				}
@@ -566,6 +566,7 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 			} )
 			.catch( err => {
 				setConnectError( getUserFriendlyError( err ) );
+				setConnectErrorDismissed( false );
 			} )
 			.finally( () => {
 				setIsConnecting( false );
@@ -602,6 +603,7 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 			} )
 			.catch( err => {
 				setConnectError( getUserFriendlyError( err ) );
+				setConnectErrorDismissed( false );
 			} )
 			.finally( () => {
 				setIsCompletingOnboarding( false );
@@ -663,6 +665,7 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 			} )
 			.catch( err => {
 				setConnectError( getUserFriendlyError( err ) );
+				setConnectErrorDismissed( false );
 			} )
 			.finally( () => {
 				setIsGeneratingSignupLink( false );
@@ -671,6 +674,10 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 
 	/**
 	 * Prepare the referral link as soon as the welcome step is on screen.
+	 *
+	 * connectError is a bail condition because a failed request clears
+	 * isGeneratingSignupLink on the way out, which runs this effect again.
+	 * Without it a failing signup-link request repeats forever.
 	 */
 	useEffect( () => {
 		if (
@@ -679,6 +686,7 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 			! partnerReferralsAvailable ||
 			wizardStep !== 'welcome' ||
 			signupUrl ||
+			connectError ||
 			isGeneratingSignupLink
 		) {
 			return;
@@ -691,6 +699,7 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 		partnerReferralsAvailable,
 		wizardStep,
 		signupUrl,
+		connectError,
 		isGeneratingSignupLink,
 		fetchSignupLink,
 	] );
@@ -750,6 +759,7 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 						'jetpack-paypal-payments'
 					)
 				);
+				setConnectErrorDismissed( false );
 			} catch {
 				// Still on a PayPal origin — its location is not readable yet.
 			}
@@ -820,6 +830,7 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 							'jetpack-paypal-payments'
 						)
 					);
+					setConnectErrorDismissed( false );
 				}
 			} );
 
@@ -1152,6 +1163,11 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 	 */
 	const hasButton = isApiManaged && resourceId && paymentLink;
 
+	// The welcome step is all Partner Referrals, and wizardStep can still say
+	// 'welcome' after a failed connection check or a disconnect.
+	const visibleStep =
+		wizardStep === 'welcome' && ! partnerReferralsAvailable ? 'dashboard' : wizardStep;
+
 	// Loading state while checking connection.
 	if ( connectionLoading ) {
 		return (
@@ -1268,7 +1284,7 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 					) }
 
 					{ /* Step indicator */ }
-					{ wizardStep !== 'welcome' && wizardStep !== 'success' && (
+					{ visibleStep !== 'welcome' && visibleStep !== 'success' && (
 						<div
 							className="jetpack-paypal-wizard__step-indicator"
 							role="list"
@@ -1276,9 +1292,9 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 						>
 							<span
 								role="listitem"
-								aria-current={ wizardStep === 'dashboard' ? 'step' : undefined }
+								aria-current={ visibleStep === 'dashboard' ? 'step' : undefined }
 								className={ `jetpack-paypal-wizard__step ${
-									wizardStep === 'dashboard' || wizardStep === 'credentials' ? 'is-active' : ''
+									visibleStep === 'dashboard' || visibleStep === 'credentials' ? 'is-active' : ''
 								}` }
 							>
 								{ '1' }
@@ -1286,9 +1302,9 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 							<span className="jetpack-paypal-wizard__step-line" aria-hidden="true" />
 							<span
 								role="listitem"
-								aria-current={ wizardStep === 'credentials' ? 'step' : undefined }
+								aria-current={ visibleStep === 'credentials' ? 'step' : undefined }
 								className={ `jetpack-paypal-wizard__step ${
-									wizardStep === 'credentials' ? 'is-active' : ''
+									visibleStep === 'credentials' ? 'is-active' : ''
 								}` }
 							>
 								{ '2' }
@@ -1301,7 +1317,7 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 					) }
 
 					{ /* Step 1: Welcome — Partner Referrals primary, manual credentials secondary */ }
-					{ wizardStep === 'welcome' && (
+					{ visibleStep === 'welcome' && (
 						<div className="jetpack-paypal-wizard__welcome">
 							{ paypalLogoSvg }
 							<h3>{ __( 'Connect PayPal', 'jetpack-paypal-payments' ) }</h3>
@@ -1349,8 +1365,12 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 									</Button>
 								) }
 							</div>
-							{ connectError && (
-								<Notice status="error" isDismissible onDismiss={ () => setConnectError( null ) }>
+							{ connectError && ! connectErrorDismissed && (
+								<Notice
+									status="error"
+									isDismissible
+									onDismiss={ () => setConnectErrorDismissed( true ) }
+								>
 									{ connectError }
 								</Notice>
 							) }
@@ -1363,7 +1383,7 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 					) }
 
 					{ /* Step 2: Open PayPal Dashboard */ }
-					{ wizardStep === 'dashboard' && (
+					{ visibleStep === 'dashboard' && (
 						<div className="jetpack-paypal-wizard__dashboard">
 							<h3>{ __( 'Step 1 of 3: Get Your API Credentials', 'jetpack-paypal-payments' ) }</h3>
 							<ol className="jetpack-paypal-wizard__instructions">
@@ -1405,16 +1425,18 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 									{ __( 'I have my credentials — Next', 'jetpack-paypal-payments' ) }
 								</Button>
 							</div>
-							<div className="jetpack-paypal-wizard__nav">
-								<Button variant="link" onClick={ () => setWizardStep( 'welcome' ) }>
-									{ __( '← Back', 'jetpack-paypal-payments' ) }
-								</Button>
-							</div>
+							{ partnerReferralsAvailable && (
+								<div className="jetpack-paypal-wizard__nav">
+									<Button variant="link" onClick={ () => setWizardStep( 'welcome' ) }>
+										{ __( '← Back', 'jetpack-paypal-payments' ) }
+									</Button>
+								</div>
+							) }
 						</div>
 					) }
 
 					{ /* Step 3: Enter Credentials */ }
-					{ wizardStep === 'credentials' && (
+					{ visibleStep === 'credentials' && (
 						<div className="jetpack-paypal-wizard__credentials">
 							<h3>{ __( 'Step 2 of 3: Enter Credentials', 'jetpack-paypal-payments' ) }</h3>
 							<p className="jetpack-paypal-wizard__subtitle">
@@ -1521,7 +1543,7 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 					) }
 
 					{ /* Step 4: Success */ }
-					{ wizardStep === 'success' && (
+					{ visibleStep === 'success' && (
 						<div className="jetpack-paypal-wizard__success">
 							<div className="jetpack-paypal-wizard__success-icon" aria-hidden="true">
 								<span>&#10003;</span>

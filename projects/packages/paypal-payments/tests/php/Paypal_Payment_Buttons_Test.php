@@ -369,6 +369,81 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 		$this->assertStringNotContainsString( 'jetpack-paypal-button__product-image', $result );
 	}
 
+	// --- QR code ---
+
+	/**
+	 * Test that render_block puts the attributed payment link on the button panel's QR canvas.
+	 */
+	public function test_render_block_button_qr_canvas_carries_payment_link() {
+		$attributes = array(
+			'isApiManaged' => true,
+			'resourceId'   => 'PLB-QR123',
+			'paymentLink'  => 'https://www.paypal.com/ncp/payment/PLB-QR123',
+			'productName'  => 'Widget',
+			'price'        => '10.00',
+			'currencyCode' => 'USD',
+			'format'       => 'BUTTON',
+			'showQrCode'   => true,
+		);
+
+		$this->set_up_block_render_context( $attributes );
+
+		$result = PayPal_Payment_Buttons::render_block( $attributes, '' );
+
+		$this->assertStringContainsString(
+			'data-qr-url="https://www.paypal.com/ncp/payment/PLB-QR123?at_code=' . PayPal_Payment_Buttons::PAYPAL_PARTNER_ATTRIBUTION_ID . '"',
+			$result,
+			'The QR canvas should carry the payment link with the attribution code'
+		);
+	}
+
+	/**
+	 * Test that render_block puts the same link on the standalone QR canvas.
+	 */
+	public function test_render_block_standalone_qr_canvas_carries_payment_link() {
+		$attributes = array(
+			'isApiManaged' => true,
+			'resourceId'   => 'PLB-QR456',
+			'paymentLink'  => 'https://www.paypal.com/ncp/payment/PLB-QR456',
+			'productName'  => 'Widget',
+			'price'        => '10.00',
+			'currencyCode' => 'USD',
+			'format'       => 'QR',
+		);
+
+		$this->set_up_block_render_context( $attributes );
+
+		$result = PayPal_Payment_Buttons::render_block( $attributes, '' );
+
+		$this->assertStringContainsString(
+			'data-qr-url="https://www.paypal.com/ncp/payment/PLB-QR456?at_code=' . PayPal_Payment_Buttons::PAYPAL_PARTNER_ATTRIBUTION_ID . '"',
+			$result,
+			'The standalone QR canvas should carry the payment link with the attribution code'
+		);
+	}
+
+	/**
+	 * Test that render_block omits the QR section when showQrCode is off.
+	 */
+	public function test_render_block_omits_qr_canvas_when_disabled() {
+		$attributes = array(
+			'isApiManaged' => true,
+			'resourceId'   => 'PLB-QR789',
+			'paymentLink'  => 'https://www.paypal.com/ncp/payment/PLB-QR789',
+			'productName'  => 'Widget',
+			'price'        => '10.00',
+			'currencyCode' => 'USD',
+			'format'       => 'BUTTON',
+			'showQrCode'   => false,
+		);
+
+		$this->set_up_block_render_context( $attributes );
+
+		$result = PayPal_Payment_Buttons::render_block( $attributes, '' );
+
+		$this->assertStringNotContainsString( 'jetpack-paypal-button__qr-canvas', $result );
+	}
+
 	// --- Partner attribution ---
 
 	/**

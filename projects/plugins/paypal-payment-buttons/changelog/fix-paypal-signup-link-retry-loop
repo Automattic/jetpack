@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Stop the block retrying the PayPal onboarding link forever when the request fails.
