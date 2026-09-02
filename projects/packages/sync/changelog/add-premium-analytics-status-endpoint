@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Premium Analytics: allow the dashboard enablement option to be read and written through the JSON API options endpoint.
