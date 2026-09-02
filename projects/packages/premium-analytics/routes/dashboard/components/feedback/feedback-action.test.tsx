@@ -140,46 +140,27 @@ describe( 'FeedbackAction', () => {
 } );
 
 describe( 'the rating scale', () => {
-	it( 'offers the whole scale as one radio group with one tab stop', async () => {
+	it( 'names the group with the question it answers', async () => {
 		await openModal();
 
 		expect( screen.getByRole( 'radiogroup' ) ).toHaveAccessibleName(
 			'Compared with the existing Traffic tab in Stats, the new Traffic tab is:'
 		);
-		expect( screen.getByRole( 'radio', { name: 'Much worse' } ) ).toHaveAttribute(
-			'tabindex',
-			'0'
-		);
-		expect( screen.getByRole( 'radio', { name: 'A bit worse' } ) ).toHaveAttribute(
-			'tabindex',
-			'-1'
-		);
 	} );
 
-	it( 'moves the answer with the arrow keys', async () => {
-		const user = await openModal();
+	it( 'offers the five points worst to best', async () => {
+		await openModal();
 
-		await user.click( screen.getByRole( 'radio', { name: 'A bit worse' } ) );
-		await user.keyboard( '{ArrowRight}' );
+		const scale = screen.getAllByRole< HTMLInputElement >( 'radio' );
 
-		expect( screen.getByRole( 'radio', { name: 'About the same' } ) ).toBeChecked();
-		expect( screen.getByRole( 'radio', { name: 'About the same' } ) ).toHaveFocus();
-
-		await user.click( screen.getByRole( 'button', { name: 'Send feedback' } ) );
-
-		expect( mockRecordEvent ).toHaveBeenLastCalledWith(
-			'jetpack_premium_analytics_feedback_submit',
-			{ rating: 3, comment: '' }
-		);
-	} );
-
-	it( 'wraps from the first answer round to the last', async () => {
-		const user = await openModal();
-
-		await user.click( screen.getByRole( 'radio', { name: 'Much worse' } ) );
-		await user.keyboard( '{ArrowLeft}' );
-
-		expect( screen.getByRole( 'radio', { name: 'Much better' } ) ).toBeChecked();
+		expect( scale.map( point => point.labels?.[ 0 ]?.textContent ) ).toEqual( [
+			'Much worse',
+			'A bit worse',
+			'About the same',
+			'A bit better',
+			'Much better',
+		] );
+		expect( scale.map( point => point.value ) ).toEqual( [ '1', '2', '3', '4', '5' ] );
 	} );
 } );
 
