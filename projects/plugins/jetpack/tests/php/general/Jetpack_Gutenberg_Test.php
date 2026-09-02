@@ -5,6 +5,8 @@ use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Constants;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
 /**
  * @covers \Jetpack_Gutenberg
@@ -103,12 +105,17 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 	/**
 	 * The modules store initializes immediately, so its state must be localized on
 	 * the shared-store handle rather than on a later editor script.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
 	public function test_editor_initial_state_is_localized_on_shared_modules_store() {
 		global $current_screen;
 
 		$previous_screen = $current_screen;
-		$current_screen = convert_to_screen( 'post' );
+		$current_screen  = convert_to_screen( 'post' );
 		$current_screen->is_block_editor( true );
 		Shared_Stores_Assets::register_assets();
 		wp_register_style( 'jetpack-blocks-editor', false, array(), JETPACK__VERSION );
