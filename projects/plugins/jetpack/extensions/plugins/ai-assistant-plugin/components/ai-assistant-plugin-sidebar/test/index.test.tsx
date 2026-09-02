@@ -283,8 +283,6 @@ describe( 'AiAssistantPluginSidebar', () => {
 			jest
 				.mocked( getFeatureAvailability )
 				.mockImplementation( feature => feature === AGENT_NOTICE_FEATURE );
-			// The notice reads this to decide whether its action button has a
-			// working agent to open, the way production's server payload does.
 			( window as unknown as { agentsManagerData?: unknown } ).agentsManagerData = {
 				jetpackAiSidebar: { agentNoticeActionAvailable: true },
 			};

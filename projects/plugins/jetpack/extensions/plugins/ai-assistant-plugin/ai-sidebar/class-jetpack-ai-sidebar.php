@@ -46,8 +46,7 @@ class Jetpack_AI_Sidebar {
 	 * @return void
 	 */
 	public static function init(): void {
-		// The notice shows on sites merely eligible for the Agent, where the
-		// sidebar gate below is still closed, so it hooks ahead of that gate.
+		// Ahead of the sidebar gate: the notice also shows on sites merely eligible for the Agent.
 		add_action( 'jetpack_register_gutenberg_extensions', array( __CLASS__, 'register_agent_notice_extension' ), 99 );
 
 		// Gate the whole sidebar entrypoint on the preview surface, which is
@@ -454,10 +453,7 @@ class Jetpack_AI_Sidebar {
 		return array(
 			'enabled'                    => self::is_jetpack_ai_sidebar_preview_enabled(),
 			'features'                   => $features,
-			// Kept out of $features: that array is public and host-filterable
-			// (jetpack_ai_sidebar_preview_features), and this is neither — it is
-			// read only by the WordPress Agent notice, to decide whether its own
-			// action button has a working agent to open.
+			// Not in $features, which is public and host-filterable.
 			'agentNoticeActionAvailable' => self::is_agent_action_available(),
 		);
 	}
@@ -501,10 +497,8 @@ class Jetpack_AI_Sidebar {
 	/**
 	 * Whether the legacy AI panel should point people at the WordPress Agent.
 	 *
-	 * True once the site can send people to a working agent (the existing gate), or,
-	 * ahead of that, once the site is eligible to turn the Agent on — the old panel is
-	 * on its way out either way. Eligible alone may have no agent to open yet, so the
-	 * notice's action button follows the narrower is_agent_action_available() instead.
+	 * True once there is a working agent to open, or earlier, once the site is
+	 * eligible to turn one on.
 	 *
 	 * @return bool
 	 */
@@ -522,15 +516,9 @@ class Jetpack_AI_Sidebar {
 	 * Whether the site is eligible to turn the WordPress Agent on, whether or not
 	 * it has done so yet.
 	 *
-	 * On WordPress.com Simple this file runs inside the wpcom process, where the
-	 * Big Sky mu-plugin's own functions are always loaded and give the direct
-	 * answer, including WordPress.com's separate free-trial eligibility — not
-	 * otherwise visible to Jetpack. Atomic and self-hosted sites have no such
-	 * functions, so they fall back to the plan check alone, which cannot see the
-	 * free trial.
-	 *
-	 * Deliberately not gated on the Big_Sky class: on Simple it only loads once
-	 * the Agent is switched on, which is after the point this check is for.
+	 * Prefers the wpcom mu-plugin functions: the plan check cannot see the free
+	 * trial. Not gated on the Big_Sky class, which on Simple only loads once the
+	 * Agent is on.
 	 *
 	 * @return bool
 	 */
@@ -570,13 +558,8 @@ class Jetpack_AI_Sidebar {
 	/**
 	 * Whether the notice's action button has a working agent to send people to.
 	 *
-	 * The notice itself shows earlier, once the site is merely eligible for the
-	 * Agent — see is_agent_notice_enabled(). This is narrower: the original
-	 * enabled gate, so the button stays hidden rather than open a chat that
-	 * does not exist yet, or one under a different provider entirely. Reaches
-	 * the notice through get_jetpack_ai_sidebar_preview_config(), not a
-	 * registered extension — it is a single flag for one button, not a surface
-	 * with its own availability and reason.
+	 * Narrower than is_agent_notice_enabled(): an eligible site shows the notice,
+	 * but only an enabled one has a chat to open.
 	 *
 	 * @return bool
 	 */

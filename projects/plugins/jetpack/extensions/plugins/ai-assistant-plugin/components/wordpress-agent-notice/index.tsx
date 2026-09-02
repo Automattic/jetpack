@@ -45,13 +45,11 @@ const DOCS_URL = getRedirectUrl( 'jetpack-ai-docs-wordpress-agent' );
 // it as a side effect.
 const EDITOR_STORE = 'core/editor';
 
-// Notice.Actions lets its buttons shrink, which breaks a label mid-phrase in a
-// narrow sidebar. Not shrinking sends the docs link to the next line instead.
+// Keeps a label on one line in a narrow sidebar; the docs link wraps instead.
 const ACTION_BUTTON_STYLE = { flexShrink: 0 } as const;
 
 /**
- * Where a site turns the WordPress Agent on: the WordPress.com AI tools settings
- * for Simple and Atomic, matching the dashboard banner, and My Jetpack elsewhere.
+ * Where a site turns the WordPress Agent on, matching the wpcom dashboard banner.
  *
  * @return {string} The settings URL.
  */
@@ -125,9 +123,8 @@ export default function WordPressAgentNotice( { placement }: WordPressAgentNotic
 	const { tracks } = useAnalytics();
 	const { set } = useDispatch( preferencesStore );
 	const eventProperties = useEventProperties( placement );
-	// The setup supports opening a chat (server-side) and one has actually mounted
-	// (client-side) — both are needed, since eligible-but-not-yet-enabled sites hit
-	// this component too, and a chat mounted for a different provider is not this one.
+	// Both needed: eligible-only sites reach here with no chat, and a mounted
+	// chat may belong to another provider.
 	const canOpenAgent = isAgentActionAvailable();
 	const isAgentReady = useIsWordPressAgentReady();
 	const isChatOnScreen = useIsWordPressAgentChatVisible();
@@ -196,8 +193,7 @@ export default function WordPressAgentNotice( { placement }: WordPressAgentNotic
 						style={ ACTION_BUTTON_STYLE }
 						onClick={ openAgent }
 						disabled={ isChatOnScreen }
-						// Replaces the accessible name, so it says what the button opens as
-						// well as why it is disabled.
+						// Replaces the visible label, so it must still name the button.
 						aria-label={
 							isChatOnScreen ? __( 'WordPress Agent is already open', 'jetpack' ) : undefined
 						}
@@ -211,8 +207,7 @@ export default function WordPressAgentNotice( { placement }: WordPressAgentNotic
 					<LinkButton
 						variant="outline"
 						style={ ACTION_BUTTON_STYLE }
-						// Same tab on purpose: the editor's unsaved-changes prompt guards the
-						// draft, and a fresh load on the way back shows the enabled state.
+						// Same tab: the editor's unsaved-changes prompt guards the draft.
 						href={ getEnableAgentUrl() }
 						onClick={ recordEnableClick }
 					>
