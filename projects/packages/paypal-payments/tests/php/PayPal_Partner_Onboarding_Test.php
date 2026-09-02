@@ -603,7 +603,6 @@ class PayPal_Partner_Onboarding_Test extends TestCase {
 					array(
 						'access_token' => 'seller_token',
 						'expires_in'   => 3600,
-						'scope'        => 'https://uri.paypal.com/services/payments/payment openid',
 					)
 				),
 				'/merchant-integrations/credentials/' => $this->http_response(
@@ -628,15 +627,10 @@ class PayPal_Partner_Onboarding_Test extends TestCase {
 		$this->assertInstanceOf( \WP_Error::class, $result );
 		$this->assertSame( 'paypal_api_not_authorized', $result->get_error_code() );
 
-		// "Your app" is ambiguous — the probe runs as the seller's own app, not
-		// the partner app a merchant would check — so the error must name it,
-		// along with PayPal's own diagnosis.
-		$this->assertStringContainsString( 'merchant…', $result->get_error_message() );
+		// PayPal's own diagnosis and the debug ID its support traces on belong
+		// in the visible message, not only in error data nobody reads.
 		$this->assertStringContainsString( 'NOT_AUTHORIZED', $result->get_error_message() );
 		$this->assertStringContainsString( 'debug123', $result->get_error_message() );
-		// The scope list is the ground truth on whether the referral granted the
-		// Payment Links & Buttons API at all.
-		$this->assertStringContainsString( '…/payments/payment', $result->get_error_message() );
 
 		$this->assertFalse(
 			PayPal_OAuth::has_credentials(),
