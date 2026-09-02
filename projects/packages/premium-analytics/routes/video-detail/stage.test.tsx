@@ -187,12 +187,16 @@ describe( 'video detail stage', () => {
 			'href',
 			'/reports/videos?from=2026-06-01&to=2026-06-16'
 		);
-		expect( screen.queryByRole( 'heading', { level: 1 } ) ).not.toBeInTheDocument();
+		expect( getSummaryHeading( 'Video not found' ) ).toBeInTheDocument();
 	} );
 
-	it.each( [ { isLoading: true }, { isError: true }, { isNotFound: true } ] )(
-		'shows only the Stats crumb and does not mount widgets while no video is available',
-		summary => {
+	it.each( [
+		{ summary: { isLoading: true }, heading: 'Loading…' },
+		{ summary: { isError: true }, heading: 'Video unavailable' },
+		{ summary: { isNotFound: true }, heading: 'Video not found' },
+	] )(
+		'names the page and keeps its date controls while no video is available',
+		( { summary, heading } ) => {
 			mockSummary( summary );
 
 			render( stage() );
@@ -206,18 +210,21 @@ describe( 'video detail stage', () => {
 				'href',
 				'/?from=2026-06-01&to=2026-06-16'
 			);
-			expect( screen.queryByRole( 'heading', { level: 1 } ) ).not.toBeInTheDocument();
+			expect( getSummaryHeading( heading ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Date filters' ) ).toBeInTheDocument();
+			// No window is worth stating without a video behind it.
+			expect( screen.queryByText( /Performance from/ ) ).not.toBeInTheDocument();
 			expect( screen.queryByText( 'Video widgets' ) ).not.toBeInTheDocument();
 		}
 	);
 
 	/**
-	 * Find the summary card's `h1` while skipping the breadcrumb title crumb —
-	 * admin-ui renders the current crumb as an `h1` too, so an unscoped heading
-	 * query matches both.
+	 * Find the page heading while skipping the breadcrumb title crumb — admin-ui
+	 * renders the current crumb as an `h1` too, so an unscoped heading query
+	 * matches both.
 	 *
 	 * @param name - The accessible heading name.
-	 * @return The summary card heading.
+	 * @return The page heading.
 	 */
 	function getSummaryHeading( name: string ): HTMLElement {
 		const nav = screen.getByRole( 'navigation', { name: 'Breadcrumbs' } );
@@ -225,7 +232,7 @@ describe( 'video detail stage', () => {
 			.getAllByRole( 'heading', { level: 1, name } )
 			.find( node => ! nav.contains( node ) );
 		if ( ! heading ) {
-			throw new Error( `No summary heading named "${ name }" outside the breadcrumbs.` );
+			throw new Error( `No page heading named "${ name }" outside the breadcrumbs.` );
 		}
 		return heading;
 	}

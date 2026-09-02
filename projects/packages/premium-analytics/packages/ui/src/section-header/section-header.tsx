@@ -3,9 +3,9 @@ import clsx from 'clsx';
 import { ReactNode } from 'react';
 import styles from './section-header.module.scss';
 
-type SectionHeaderProps = {
-	/** Left out along with the subtitle, the text cell is not rendered at all. */
-	title?: ReactNode;
+export type SectionHeaderProps = {
+	/** Required: a surface that cannot name itself has no heading for the page. */
+	title: ReactNode;
 
 	/**
 	 * The heading element the title renders as. Detail pages name their
@@ -25,6 +25,9 @@ type SectionHeaderProps = {
 	/** A line under the title: what the resource is, what window it reports over. */
 	subTitle?: ReactNode;
 
+	/** Marks the text cell as updating while the surface resolves its title. */
+	busy?: boolean;
+
 	/**
 	 * Condenses into a compact bar once it pins: the title drops a type-scale
 	 * step. Requires the surface to publish a `--section-header-pin` view
@@ -41,9 +44,8 @@ type SectionHeaderProps = {
 
 /**
  * Header for an analytics surface: an optional visual, the title and its
- * subtitle, and the date controls share one row (the title truncates, the
- * controls keep their natural width). Below a container-query width the two
- * halves stack and the title wraps.
+ * subtitle, and the date controls share one row. Below a container-query width
+ * the controls take their own row and the title wraps.
  *
  * @param {SectionHeaderProps} props - The props for the SectionHeader component.
  * @return The section header element.
@@ -53,6 +55,7 @@ export function SectionHeader( {
 	headingLevel = 2,
 	visual,
 	subTitle,
+	busy = false,
 	condenseOnScroll = false,
 	children,
 }: SectionHeaderProps ) {
@@ -67,29 +70,25 @@ export function SectionHeader( {
 					</div>
 				) : null }
 
-				{ title || subTitle ? (
-					<div className={ styles.text }>
-						{ /* The `title` attribute is the only way back to a name the
-						     ellipsis cut off, and only a string can supply one. */ }
-						{ title ? (
-							<Text
-								className={ styles.title }
-								variant="heading-2xl"
-								render={ <HeadingTag title={ typeof title === 'string' ? title : undefined } /> }
-							>
-								{ title }
-							</Text>
-						) : null }
+				<div className={ styles.text } aria-busy={ busy || undefined }>
+					{ /* The `title` attribute is the only way back to a name the
+					     ellipsis cut off, and only a string can supply one. */ }
+					<Text
+						className={ styles.title }
+						variant="heading-2xl"
+						render={ <HeadingTag title={ typeof title === 'string' ? title : undefined } /> }
+					>
+						{ title }
+					</Text>
 
-						{ /* A div, not a p: the slot takes whatever the surface has, including
-						     the block-level skeleton it shows while the resource resolves. */ }
-						{ subTitle ? (
-							<Text className={ styles.subTitle } variant="body-sm" render={ <div /> }>
-								{ subTitle }
-							</Text>
-						) : null }
-					</div>
-				) : null }
+					{ /* A div, not a p: the slot takes whatever the surface has, including
+					     the block-level skeleton it shows while the resource resolves. */ }
+					{ subTitle ? (
+						<Text className={ styles.subTitle } variant="body-sm" render={ <div /> }>
+							{ subTitle }
+						</Text>
+					) : null }
+				</div>
 
 				{ children ? (
 					<Stack direction="row" align="center" className={ styles.controls }>

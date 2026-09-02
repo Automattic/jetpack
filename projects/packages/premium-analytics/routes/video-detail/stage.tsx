@@ -81,19 +81,18 @@ function VideoDetail(): JSX.Element {
 
 	const layout = VIDEO_DETAIL_LAYOUT;
 
-	// Error and not-found responses have no trustworthy title, so only resolved
-	// videos add the title crumb or render the heading.
-	const title =
-		summary.isLoading || summary.isError || summary.isNotFound
-			? undefined
-			: summary.title?.trim() || __( 'Untitled video', 'jetpack-premium-analytics-pkg' );
-	const resolvedSummary = { ...summary, title };
-	const breadcrumbs = useDetailBreadcrumbs( title );
 	const canRenderWidgets = ! summary.isLoading && ! summary.isError && ! summary.isNotFound;
 
-	// Without a resolved video there is no identity to head the page with, so
-	// the header keeps only its date controls and the reason goes below it,
-	// where the widgets would have been.
+	// Error and not-found responses have no trustworthy title, so only a
+	// resolved video adds the title crumb.
+	const breadcrumbs = useDetailBreadcrumbs(
+		canRenderWidgets
+			? summary.title?.trim() || __( 'Untitled video', 'jetpack-premium-analytics-pkg' )
+			: undefined
+	);
+
+	// The reason a video is missing goes below the header, where the widgets
+	// would have been.
 	let notice: JSX.Element | null = null;
 
 	if ( summary.isError ) {
@@ -125,13 +124,6 @@ function VideoDetail(): JSX.Element {
 		);
 	}
 
-	const headerSlots = canRenderWidgets
-		? videoHeaderSlots( {
-				summary: resolvedSummary,
-				performanceRange: dateFilters.appliedRange,
-		  } )
-		: {};
-
 	return (
 		<WidgetDashboard
 			widgetTypes={ widgetTypes }
@@ -147,12 +139,14 @@ function VideoDetail(): JSX.Element {
 				className={ styles.page }
 			>
 				<div className={ styles.scrollArea }>
-					{ /*
-					 * The presets render in every summary state, so the range stays
-					 * adjustable while the video loads or errors.
-					 */ }
 					<div className={ styles.header }>
-						<SectionHeader headingLevel={ 1 } { ...headerSlots }>
+						<SectionHeader
+							headingLevel={ 1 }
+							{ ...videoHeaderSlots( {
+								summary,
+								performanceRange: dateFilters.appliedRange,
+							} ) }
+						>
 							{ /*
 							 * The design has no comparison on this page. The panel reads that
 							 * from the scope the stage declares, which is the same declaration

@@ -7,10 +7,11 @@ import { envelope as envelopeIcon, page as pageIcon, post as postIcon } from '@w
 /**
  * Internal dependencies
  */
-import { formatPublishedDate, performanceSentence } from '../../../detail-header-text';
+import { formatPublishedDate, performanceSentence, type HeaderSlots } from '../../../detail-header';
+import placeholders from '../../../detail-header.module.scss';
 import styles from './post-header-slots.module.scss';
 import type { PostSummary } from '../../hooks';
-import type { ReactNode } from 'react';
+import type { DateRange } from '@jetpack-premium-analytics/datetime';
 
 type PostHeaderSlotsArgs = {
 	summary: PostSummary;
@@ -20,13 +21,7 @@ type PostHeaderSlotsArgs = {
 	 */
 	variant?: 'post' | 'email';
 	/** The committed report date range, stated as the performance window. */
-	performanceRange?: { from: Date | undefined; to: Date | undefined };
-};
-
-type HeaderSlots = {
-	visual: ReactNode;
-	title: ReactNode;
-	subTitle: ReactNode;
+	performanceRange?: DateRange;
 };
 
 /**
@@ -104,15 +99,23 @@ export function postHeaderSlots( {
 	if ( isLoading ) {
 		return {
 			visual,
+			busy: true,
 			title: (
 				<>
 					<VisuallyHidden>{ __( 'Loading…', 'jetpack-premium-analytics-pkg' ) }</VisuallyHidden>
-					<Skeleton className={ styles.titlePlaceholder } />
+					<Skeleton className={ placeholders.titlePlaceholder } />
 				</>
 			),
-			subTitle: <Skeleton className={ styles.subTitlePlaceholder } />,
+			subTitle: <Skeleton className={ placeholders.subTitlePlaceholder } />,
 		};
 	}
 
-	return { visual, title, subTitle: subtitle || undefined };
+	// A failed summary reaches here with no title, and the page still owes the
+	// reader an `h1`.
+	const fallbackTitle =
+		type === 'page'
+			? __( 'Untitled page', 'jetpack-premium-analytics-pkg' )
+			: __( 'Untitled post', 'jetpack-premium-analytics-pkg' );
+
+	return { visual, title: title?.trim() || fallbackTitle, subTitle: subtitle || undefined };
 }

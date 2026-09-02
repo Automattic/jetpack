@@ -14,7 +14,7 @@
 		"storybook": "cd ../../js-packages/storybook && pnpm run storybook:dev",
 		"test": "PA_TEST_GROUPS=1 TZ=UTC jest --config=tests/jest.config.cjs",
 		"test-coverage": "pnpm run test --coverage",
-		"test-tz": "for tz in America/Los_Angeles Asia/Tokyo; do TZ=$tz jest --config=tests/jest.config.cjs packages/datetime packages/routing/src/hooks/use-report-date-filters packages/widgets-toolkit/src/components/post-highlight-card || exit 1; done",
+		"test-tz": "for tz in America/Los_Angeles Asia/Tokyo; do TZ=$tz jest --config=tests/jest.config.cjs packages/datetime packages/routing/src/hooks/use-report-date-filters packages/widgets-toolkit/src/components/post-highlight-card routes/detail-header || exit 1; done",
 		"typecheck": "tsgo --noEmit",
 		"validate": "pnpm exec validate-es --no-error-on-unmatched-pattern build/",
 		"watch": "wp-build --watch"

@@ -158,12 +158,8 @@ function PostDetail(): JSX.Element {
 					<PostDetailTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab }>
 						<div className={ styles.scrollArea }>
 							{ /*
-							 * The header is shared by every tab (same post, same date range), so
-							 * it renders once above the per-tab widget grid and scrolls away with
-							 * it.
-							 *
-							 * The email tabs give it an email identity and report over the send
-							 * window; the title stays the post's.
+							 * The header is shared by every tab, so it renders once above the
+							 * per-tab widget grid and scrolls away with it.
 							 */ }
 							<div className={ styles.header }>
 								<SectionHeader

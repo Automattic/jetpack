@@ -18,7 +18,7 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/routing' ),
 	useDashboardLink: () => '/?from=2026-06-01&to=2026-06-16',
 	useReportDateFilters: () => ( {
-		appliedRange: {},
+		appliedRange: { from: new Date( 2026, 5, 1 ), to: new Date( 2026, 5, 16 ) },
 		replaceRange: () => {},
 		timeZone: 'UTC',
 		interval: 'day',
@@ -131,15 +131,20 @@ jest.mock( '@wordpress/route', () => ( {
 jest.mock( './components', () => ( {
 	PostDetailTabs: ( { children }: { children: ReactNode } ) => <div>{ children }</div>,
 	postHeaderSlots: ( {
+		variant,
 		performanceRange,
 	}: {
+		variant?: string;
 		performanceRange?: { from?: Date; to?: Date };
 	} ) => ( {
 		title: 'Post summary',
 		subTitle: (
-			<span data-testid="performance-from">
-				{ performanceRange?.from?.toISOString() ?? 'none' }
-			</span>
+			<>
+				<span data-testid="header-variant">{ variant }</span>
+				<span data-testid="performance-from">
+					{ performanceRange?.from?.toISOString() ?? 'none' }
+				</span>
+			</>
 		),
 	} ),
 } ) );
@@ -225,8 +230,10 @@ describe( 'post detail stage', () => {
 		render( stage() );
 
 		expect( screen.queryByText( 'Date filters' ) ).not.toBeInTheDocument();
-		// The shared summary header still renders, over the pinned window.
+		// The shared summary header still renders, in its email identity and over
+		// the pinned window.
 		expect( screen.getByText( 'Post summary' ) ).toBeInTheDocument();
+		expect( screen.getByTestId( 'header-variant' ) ).toHaveTextContent( 'email' );
 		expect( screen.getByTestId( 'performance-from' ) ).toHaveTextContent(
 			'2026-06-22T00:00:00.000Z'
 		);
@@ -239,7 +246,10 @@ describe( 'post detail stage', () => {
 
 		render( stage() );
 
-		expect( screen.getByTestId( 'performance-from' ) ).toHaveTextContent( 'none' );
+		expect( screen.getByTestId( 'header-variant' ) ).toHaveTextContent( 'post' );
+		expect( screen.getByTestId( 'performance-from' ) ).toHaveTextContent(
+			new Date( 2026, 5, 1 ).toISOString()
+		);
 	} );
 
 	it( 'puts a View post action in the page header, opening the live post in a new tab', () => {

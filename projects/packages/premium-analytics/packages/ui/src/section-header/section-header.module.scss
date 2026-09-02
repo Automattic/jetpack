@@ -6,9 +6,8 @@ $section-header-stacked-max-inline-size: 720px;
 // nothing. Tunable.
 $section-header-title-min-inline-size: 320px;
 
-// The visual's box and the space after it. Both come from the detail-page
-// mocks and sit off the wpds scales, which stop at 40px for a size and 40px
-// for a gap.
+// The visual's box and the space after it, from the detail-page mocks: no wpds
+// size or gap step reaches them.
 $section-header-visual-size: 72px;
 $section-header-visual-gap: 20px;
 
@@ -28,8 +27,8 @@ $section-header-visual-stacked-max-inline-size: $section-header-stacked-max-inli
 		}
 	}
 
-	// A column of its own with nothing competing for it: the title wraps
-	// rather than spending lines it does not have to.
+	// A row it no longer shares with the controls, so the title wraps rather
+	// than spending lines it does not have to.
 	.title {
 		overflow: visible;
 		text-overflow: clip;
@@ -71,7 +70,6 @@ $section-header-visual-stacked-max-inline-size: $section-header-stacked-max-inli
 .withVisual {
 	grid-template-columns: auto minmax($section-header-title-min-inline-size, 1fr) minmax(0, max-content);
 	grid-template-areas: "visual text controls";
-	column-gap: $section-header-visual-gap;
 }
 
 .visual {
@@ -80,6 +78,9 @@ $section-header-visual-stacked-max-inline-size: $section-header-stacked-max-inli
 	block-size: $section-header-visual-size;
 	border-radius: var(--wpds-border-radius-lg);
 	overflow: hidden;
+	// The mocks' gap, less the column gap the grid already applies, so the
+	// visual adds exactly its own box plus that gap to the row.
+	margin-inline-end: calc(#{$section-header-visual-gap} - var(--wpds-dimension-gap-sm));
 	// Centers a bare icon; an image is stretched to the box below. The neutral
 	// fill shows through only where an icon leaves it visible.
 	display: grid;
@@ -87,9 +88,9 @@ $section-header-visual-stacked-max-inline-size: $section-header-stacked-max-inli
 	background: var(--wpds-color-background-surface-neutral-weak);
 	color: var(--wpds-color-foreground-content-neutral-weak);
 
-	// The boot shell resets `.boot-layout img { height: auto; max-width: 100% }`
-	// with higher specificity than a class here, so the box is restored through
-	// the square aspect ratio rather than a specificity contest.
+	// The boot shell's `.boot-layout-container .boot-layout img` reset outranks
+	// a class here, so the box comes back through the square aspect ratio
+	// rather than a specificity contest.
 	img {
 		inline-size: 100%;
 		block-size: 100%;

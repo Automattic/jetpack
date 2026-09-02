@@ -332,8 +332,8 @@ export const WithoutControls: Story = {
 
 /**
  * The **detail-page** instance: a resource names the page, so the title is its
- * `h1`, a thumbnail sits before it, and a subtitle states what the widgets
- * below report on.
+ * `h1`, its mark (here the type icon, a thumbnail when the post has one) sits
+ * before it, and a subtitle states what the widgets below report on.
  *
  * The visual slot owns its box, so a consumer passes only the image or the
  * glyph. It is decorative by contract — the title already names the resource.
@@ -362,6 +362,7 @@ export const LoadingResource: Story = {
 	render: () => (
 		<SectionHeader
 			headingLevel={ 1 }
+			busy
 			title={ <Skeleton style={ { display: 'block', blockSize: 38, inlineSize: 320 } } /> }
 			visual={ <Icon icon={ post } size={ 28 } /> }
 			subTitle={ <Skeleton style={ { display: 'block', blockSize: 18, inlineSize: 260 } } /> }

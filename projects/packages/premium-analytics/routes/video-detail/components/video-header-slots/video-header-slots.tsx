@@ -1,27 +1,22 @@
 /**
  * External dependencies
  */
-import { Icon } from '@jetpack-premium-analytics/externals';
+import { Icon, Skeleton, VisuallyHidden } from '@jetpack-premium-analytics/externals';
 import { useCallback, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { video } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
-import { formatPublishedDate, performanceSentence } from '../../../detail-header-text';
+import { formatPublishedDate, performanceSentence, type HeaderSlots } from '../../../detail-header';
+import placeholders from '../../../detail-header.module.scss';
 import type { VideoSummary } from '../../hooks';
-import type { ReactNode } from 'react';
+import type { DateRange } from '@jetpack-premium-analytics/datetime';
 
 type VideoHeaderSlotsArgs = {
 	summary: VideoSummary;
 	/** The committed report date range, stated as the performance window. */
-	performanceRange?: { from: Date | undefined; to: Date | undefined };
-};
-
-type HeaderSlots = {
-	visual: ReactNode;
-	title: ReactNode;
-	subTitle: ReactNode;
+	performanceRange?: DateRange;
 };
 
 /**
@@ -45,10 +40,12 @@ function VideoPoster( { posterUrl }: { posterUrl?: string } ) {
 
 /**
  * The video identity for the page header: poster (or placeholder), title, and
- * one line stating the upload date and the applied performance window.
+ * one line stating the upload date and the applied performance window. Every
+ * summary state names the page, so the header keeps its `h1` and its box while
+ * the video resolves or fails.
  *
  * @param args                  - The slot inputs.
- * @param args.summary          - The resolved video summary.
+ * @param args.summary          - The video summary, in any state.
  * @param args.performanceRange - The committed report date range.
  * @return The `SectionHeader` slots for this video.
  */
@@ -56,6 +53,35 @@ export function videoHeaderSlots( {
 	summary,
 	performanceRange,
 }: VideoHeaderSlotsArgs ): HeaderSlots {
+	const glyph = <Icon icon={ video } size={ 28 } />;
+
+	// The title lands on its own request, so the header would otherwise read as
+	// blank until well after the grid has drawn (WOOA7S-2059).
+	if ( summary.isLoading ) {
+		return {
+			visual: glyph,
+			busy: true,
+			title: (
+				<>
+					<VisuallyHidden>{ __( 'Loading…', 'jetpack-premium-analytics-pkg' ) }</VisuallyHidden>
+					<Skeleton className={ placeholders.titlePlaceholder } />
+				</>
+			),
+			subTitle: <Skeleton className={ placeholders.subTitlePlaceholder } />,
+		};
+	}
+
+	// A failed or missing video has no trustworthy title, and no window worth
+	// stating; the notice below the header carries the reason and the way out.
+	if ( summary.isError || summary.isNotFound ) {
+		return {
+			visual: glyph,
+			title: summary.isNotFound
+				? __( 'Video not found', 'jetpack-premium-analytics-pkg' )
+				: __( 'Video unavailable', 'jetpack-premium-analytics-pkg' ),
+		};
+	}
+
 	const formattedDate = formatPublishedDate( summary.publishedDate );
 
 	const publishedSentence = formattedDate
@@ -72,7 +98,7 @@ export function videoHeaderSlots( {
 
 	return {
 		visual: <VideoPoster posterUrl={ summary.posterUrl } />,
-		title: summary.title,
+		title: summary.title?.trim() || __( 'Untitled video', 'jetpack-premium-analytics-pkg' ),
 		subTitle: subtitle || undefined,
 	};
 }

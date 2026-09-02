@@ -60,6 +60,34 @@ describe( 'postHeaderSlots', () => {
 		expect( screen.queryByText( /Post published on/ ) ).not.toBeInTheDocument();
 	} );
 
+	it.each( [
+		[ 'post', 'Untitled post' ],
+		[ 'page', 'Untitled page' ],
+	] )( 'names an unresolved %s so the page keeps its heading', ( type, heading ) => {
+		renderHeader( { summary: { ...SUMMARY, type, title: undefined, isError: true } } );
+
+		expect( screen.getByRole( 'heading', { level: 1 } ) ).toHaveTextContent( heading );
+	} );
+
+	it( 'marks the text cell busy only while the summary resolves', () => {
+		const { rerender } = renderHeader( {
+			summary: { ...SUMMARY, title: undefined, isLoading: true },
+		} );
+
+		// eslint-disable-next-line testing-library/no-node-access -- The text cell the slot fills has no accessible query target.
+		expect( screen.getByRole( 'heading', { level: 1 } ).parentElement ).toHaveAttribute(
+			'aria-busy',
+			'true'
+		);
+
+		rerender( <SectionHeader headingLevel={ 1 } { ...postHeaderSlots( { summary: SUMMARY } ) } /> );
+
+		// eslint-disable-next-line testing-library/no-node-access -- The text cell the slot fills has no accessible query target.
+		expect( screen.getByRole( 'heading', { level: 1 } ).parentElement ).not.toHaveAttribute(
+			'aria-busy'
+		);
+	} );
+
 	// The state an email-tab deep link opens on: the tab fixes the identity, so
 	// the envelope tile is already right while the title is still loading.
 	it( 'keeps the email identity while the summary resolves', () => {
