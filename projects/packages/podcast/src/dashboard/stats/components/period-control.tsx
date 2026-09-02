@@ -210,7 +210,10 @@ const PeriodControl = ( { value, onChange }: PeriodControlProps ) => {
 				{ formatLabel( start, end ) }
 				<Button.Icon icon={ calendarIcon } />
 			</Popover.Trigger>
-			<Popover.Popup className="podcast-period-control__popup">
+			<Popover.Popup
+				className="podcast-period-control__popup"
+				positioner={ <Popover.Positioner align="end" sideOffset={ 8 } /> }
+			>
 				<div className="podcast-period-control__body">
 					<ul
 						className="podcast-period-control__presets"
@@ -222,8 +225,8 @@ const PeriodControl = ( { value, onChange }: PeriodControlProps ) => {
 							return (
 								<li key={ preset.label }>
 									<Button
-										variant="minimal"
-										tone="neutral"
+										variant={ isActive ? 'solid' : 'minimal' }
+										tone={ isActive ? 'brand' : 'neutral' }
 										aria-pressed={ isActive }
 										className="podcast-period-control__preset"
 										data-index={ index }

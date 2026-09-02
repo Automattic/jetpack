@@ -22,6 +22,32 @@
 	justify-content: flex-start;
 }
 
+// The design system calendar paints selection in neutral tokens and ships no
+// tone prop, so recolor it with the brand ones to match the active preset.
+// Its class names are hashed with a stable `__name` suffix, and its styles live
+// in a cascade layer, so these unlayered rules win without specificity games.
+.podcast-period-control__calendar {
+
+	[class*="__selected"]:not([class*="__range-middle"]) {
+
+		&:has([class*="__day-button"]) {
+			color: var(--wpds-color-foreground-interactive-brand-strong);
+		}
+
+		[class*="__day-button"]::before {
+			background-color: var(--wpds-color-background-interactive-brand-strong);
+		}
+
+		[class*="__day-button"]:hover:not(:disabled)::before {
+			background-color: var(--wpds-color-background-interactive-brand-strong-active);
+		}
+	}
+
+	[class*="__range-middle"] [class*="__day-button"]::before {
+		background-color: var(--wpds-color-background-interactive-brand-weak);
+	}
+}
+
 $text: #1e1e1e;
 $muted: #757575;
 
