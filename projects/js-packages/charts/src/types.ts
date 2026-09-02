@@ -452,13 +452,13 @@ export type ChartTheme = {
 	/** LeaderboardChart specific settings */
 	leaderboardChart?: {
 		/**
-		 * @deprecated Set `--a8c-charts-dimension-leaderboard-row-gap` in CSS. Reading this
-		 * stopped in CHARTS-267; the field is removed in CHARTS-263.
+		 * @deprecated Declare `--a8c-charts-dimension-leaderboard-row-gap` in CSS instead. This
+		 * still wins where it is set, and is removed in the next major.
 		 */
 		rowGap?: number;
 		/**
-		 * @deprecated Set `--a8c-charts-dimension-leaderboard-column-gap` in CSS. Reading this
-		 * stopped in CHARTS-267; the field is removed in CHARTS-263.
+		 * @deprecated Declare `--a8c-charts-dimension-leaderboard-column-gap` in CSS instead. This
+		 * still wins where it is set, and is removed in the next major.
 		 */
 		columnGap?: number;
 		/** Spacing between label and progress bars */
