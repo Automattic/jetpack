@@ -443,9 +443,9 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 			has_action( 'jetpack_register_gutenberg_extensions', array( Jetpack_AI_Sidebar::class, 'register_toolbar_button_extension' ) ),
 			'register_toolbar_button_extension should not be hooked when filter is false.'
 		);
-		$this->assertFalse(
+		$this->assertNotFalse(
 			has_action( 'jetpack_register_gutenberg_extensions', array( Jetpack_AI_Sidebar::class, 'register_agent_notice_extension' ) ),
-			'register_agent_notice_extension should not be hooked when filter is false.'
+			'register_agent_notice_extension should be hooked even when filter is false: the notice decides its own availability.'
 		);
 	}
 
@@ -469,9 +469,9 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 			has_action( 'jetpack_register_gutenberg_extensions', array( Jetpack_AI_Sidebar::class, 'register_toolbar_button_extension' ) ),
 			'register_toolbar_button_extension should not be hooked when the preview gate is false.'
 		);
-		$this->assertFalse(
+		$this->assertNotFalse(
 			has_action( 'jetpack_register_gutenberg_extensions', array( Jetpack_AI_Sidebar::class, 'register_agent_notice_extension' ) ),
-			'register_agent_notice_extension should not be hooked when the preview gate is false.'
+			'register_agent_notice_extension should be hooked even when the preview gate is false.'
 		);
 	}
 
@@ -530,6 +530,23 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		$this->simulate_wpcom_simple();
 
 		$this->assertFalse( $this->gate_open() );
+	}
+
+	/**
+	 * On Simple the Big_Sky class only loads once the Agent is switched on, so
+	 * eligibility must not depend on it. Runs before any test declares the stub.
+	 */
+	public function test_agent_notice_enabled_when_plan_eligible_without_big_sky_class() {
+		if ( class_exists( 'Big_Sky' ) ) {
+			$this->markTestSkipped( 'Big_Sky was declared by an earlier test in this process and cannot be undeclared.' );
+		}
+		$this->skip_when_wpcomsh_is_active();
+		$this->set_block_editor_screen();
+		$this->simulate_wpcom_platform();
+		$this->simulate_big_sky_eligible_plan();
+		remove_all_filters( 'jetpack_ai_sidebar_enabled' );
+
+		$this->assertTrue( Jetpack_AI_Sidebar::is_agent_notice_enabled() );
 	}
 
 	/**
@@ -826,9 +843,9 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 			has_action( 'jetpack_register_gutenberg_extensions', array( Jetpack_AI_Sidebar::class, 'register_toolbar_button_extension' ) ),
 			'register_toolbar_button_extension should not be hooked when master is off.'
 		);
-		$this->assertFalse(
+		$this->assertNotFalse(
 			has_action( 'jetpack_register_gutenberg_extensions', array( Jetpack_AI_Sidebar::class, 'register_agent_notice_extension' ) ),
-			'register_agent_notice_extension should not be hooked when master is off.'
+			'register_agent_notice_extension should be hooked even when master is off; it checks the master itself.'
 		);
 	}
 
@@ -869,9 +886,9 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 			has_action( 'jetpack_register_gutenberg_extensions', array( Jetpack_AI_Sidebar::class, 'register_toolbar_button_extension' ) ),
 			'register_toolbar_button_extension should not be hooked when both sidebar features are off.'
 		);
-		$this->assertFalse(
+		$this->assertNotFalse(
 			has_action( 'jetpack_register_gutenberg_extensions', array( Jetpack_AI_Sidebar::class, 'register_agent_notice_extension' ) ),
-			'register_agent_notice_extension should not be hooked when both sidebar features are off.'
+			'register_agent_notice_extension should be hooked even when both sidebar features are off.'
 		);
 	}
 
