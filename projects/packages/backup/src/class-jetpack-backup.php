@@ -78,6 +78,26 @@ class Jetpack_Backup {
 	const JETPACK_BACKUP_PROMOTED_PRODUCT = 'jetpack_backup_t1_yearly';
 
 	/**
+	 * Transient key prefix for the cached promoted product.
+	 *
+	 * Suffixed with the locale: it is a query arg on the catalogue request, so
+	 * one shared key would serve one reader's language to another.
+	 *
+	 * @var string
+	 */
+	const PROMOTED_PRODUCT_TRANSIENT_PREFIX = 'jetpack_backup_promoted_product_';
+
+	/**
+	 * How long a fetched promoted product stays cached.
+	 *
+	 * The catalogue turns over on a marketing schedule rather than a
+	 * session's, so half a day bounds how stale a price can get.
+	 *
+	 * @var int
+	 */
+	const PROMOTED_PRODUCT_CACHE_TTL = 12 * HOUR_IN_SECONDS;
+
+	/**
 	 * Licenses product ID.
 	 *
 	 * @var string
@@ -171,15 +191,15 @@ class Jetpack_Backup {
 	 * The page to be added to submenu
 	 */
 	public static function add_wp_admin_submenu() {
-		$is_modernized = self::is_modernized();
-		$callback      = $is_modernized && function_exists( 'jetpack_backup_jetpack_backup_dashboard_wp_admin_render_page' )
+		$wp_build_active = self::is_wp_build_dashboard_active();
+		$callback        = $wp_build_active
 			? 'jetpack_backup_jetpack_backup_dashboard_wp_admin_render_page'
 			: array( __CLASS__, 'plugin_settings_page' );
 
-		// Gate the "VaultPress Backup" relabel behind the modernization
-		// filter so the flag-off path stays byte-identical to trunk.
-		$page_title = $is_modernized ? 'Jetpack VaultPress Backup' : 'Jetpack Backup';
-		$menu_title = $is_modernized ? 'VaultPress Backup' : 'Backup'; // Product name, do not translate.
+		// The relabel rides the modernized dashboard rather than the filter alone,
+		// so a fallback to the legacy page also falls back to the legacy title.
+		$page_title = $wp_build_active ? 'Jetpack VaultPress Backup' : 'Jetpack Backup';
+		$menu_title = $wp_build_active ? 'VaultPress Backup' : 'Backup'; // Product name, do not translate.
 
 		$page_suffix = Admin_Menu::add_menu(
 			$page_title,
@@ -201,7 +221,7 @@ class Jetpack_Backup {
 	public static function admin_init() {
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_admin_scripts' ) );
 
-		if ( self::is_modernized() ) {
+		if ( self::is_wp_build_dashboard_active() ) {
 			// The modernized Backup overview is a focused, full-screen product
 			// surface. Suppress JITMs and other core/plugin admin notices so they
 			// don't reflow on top of the dual-pane layout. Mirrors how Jetpack
@@ -241,7 +261,7 @@ class Jetpack_Backup {
 	public static function enqueue_admin_scripts() {
 		// This callback is registered via `load-{$page_suffix}` in `add_wp_admin_submenu()`,
 		// so it only fires on the Backup admin page — no need to re-check the page here.
-		if ( self::is_modernized() ) {
+		if ( self::is_wp_build_dashboard_active() ) {
 			// The i18n loader is registered on every admin page by jetpack-assets but
 			// only enqueued when depended on; the esbuild bundles don't pull it in.
 			// Enqueue it here, before the early return, so the wp-build dashboard's
@@ -384,6 +404,13 @@ class Jetpack_Backup {
 					'option_name'    => array(
 						'required' => true,
 						'type'     => 'string',
+						// The two names `Jetpack_Options` recognises. Anything else
+						// falls through its allowlist to a `trigger_error()` and is
+						// stored nowhere, so an unlisted reason would dismiss
+						// nothing while answering as though it had — and on a site
+						// with `display_errors` on, the warning is printed ahead of
+						// the JSON and the response no longer parses.
+						'enum'     => array( 'restore', 'backups' ),
 					),
 					'should_dismiss' => array(
 						'required' => true,
@@ -706,10 +733,20 @@ class Jetpack_Backup {
 	/**
 	 * Gets information about the currently promoted backup product.
 	 *
+	 * Answers from a per-locale transient when one is warm; failures are not cached.
+	 *
 	 * @return object|WP_Error The promoted product, or a WP_Error if it could not be read.
 	 */
 	public static function get_backup_promoted_product_info() {
-		$request_url   = 'https://public-api.wordpress.com/rest/v1.1/products?locale=' . get_user_locale() . '&type=jetpack';
+		$locale        = get_user_locale();
+		$transient_key = self::PROMOTED_PRODUCT_TRANSIENT_PREFIX . sanitize_key( $locale );
+		$cached        = get_transient( $transient_key );
+
+		if ( false !== $cached ) {
+			return $cached;
+		}
+
+		$request_url   = 'https://public-api.wordpress.com/rest/v1.1/products?locale=' . $locale . '&type=jetpack';
 		$wpcom_request = wp_remote_get( esc_url_raw( $request_url ) );
 		// Cast: the transport may report the status as a numeric string, which
 		// a strict comparison against 200 sends down the failure path.
@@ -745,7 +782,13 @@ class Jetpack_Backup {
 			);
 		}
 
-		return $products->{ self::JETPACK_BACKUP_PROMOTED_PRODUCT };
+		$product = $products->{ self::JETPACK_BACKUP_PROMOTED_PRODUCT };
+
+		// Must stay below both guards: a cached failure would leave the no-plan
+		// screen without a price for the whole TTL after WordPress.com recovered.
+		set_transient( $transient_key, $product, self::PROMOTED_PRODUCT_CACHE_TTL );
+
+		return $product;
 	}
 
 	/**
@@ -1128,6 +1171,24 @@ class Jetpack_Backup {
 	 */
 	public static function is_modernized() {
 		return (bool) apply_filters( self::MODERNIZATION_FILTER, false );
+	}
+
+	/**
+	 * Returns true when the modernization filter is on AND the wp-build dashboard loaded.
+	 *
+	 * `build/` is gitignored, so the render function is absent in any unbuilt checkout
+	 * and in any release whose wp-build step failed. Every consumer of the modernized
+	 * surface has to agree on this, or the menu falls back to the legacy page while the
+	 * enqueue path skips the legacy script — an empty div with no JS.
+	 *
+	 * Only meaningful once `maybe_load_wp_build()` has run. It is hooked on `admin_menu`
+	 * at the same priority as `add_wp_admin_submenu()`, so registration order — not
+	 * priority — is what keeps it first. Do not reorder those two `add_action()` calls.
+	 *
+	 * @return bool
+	 */
+	private static function is_wp_build_dashboard_active() {
+		return self::is_modernized() && function_exists( 'jetpack_backup_jetpack_backup_dashboard_wp_admin_render_page' );
 	}
 
 	/**

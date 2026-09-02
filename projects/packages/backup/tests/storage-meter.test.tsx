@@ -387,14 +387,15 @@ describe( 'landmarks', () => {
 		).resolves.toBeInTheDocument();
 	} );
 
-	it( 'puts the heading at level 3, level with its siblings', async () => {
-		// Deliberately not legacy's `h2`. The backup and activity detail
-		// cards are `h3` and are visual siblings of this section, so an
-		// `h2` here would read as though they were nested inside cloud
-		// storage.
+	it( 'puts the heading at level 2, level with its siblings', async () => {
+		// The page's `h1` comes from the `<Page>` chassis and this section
+		// renders inside it, so `h2` is the first in-body level. The backup
+		// and activity detail cards are `h2` as well, so the three read as
+		// siblings rather than as cards nested inside cloud storage — which
+		// is what kept this at `h3` until the outline was fixed.
 		renderWithClient( <StorageSpace /> );
 		await expect(
-			screen.findByRole( 'heading', { level: 3, name: 'Cloud storage space' } )
+			screen.findByRole( 'heading', { level: 2, name: 'Cloud storage space' } )
 		).resolves.toBeInTheDocument();
 	} );
 } );

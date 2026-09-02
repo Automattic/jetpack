@@ -93,7 +93,7 @@ describe( 'EmailTimeSeriesWidget', () => {
 		);
 
 		const chart = await screen.findByTestId( 'metric-tabs-chart' );
-		expect( chart ).toHaveAttribute( 'data-metric-label', 'Total opens' );
+		expect( chart ).toHaveAttribute( 'data-metric-label', 'Opens' );
 		expect( chart ).toHaveAttribute( 'data-values', '10,5,7' );
 		expect( chart ).toHaveAttribute( 'data-metric-total', '22' );
 		expect( chart ).toHaveAttribute( 'data-chart-type', 'line' );
@@ -156,7 +156,7 @@ describe( 'EmailTimeSeriesWidget', () => {
 		);
 
 		const chart = await screen.findByTestId( 'metric-tabs-chart' );
-		expect( chart ).toHaveAttribute( 'data-metric-label', 'Total clicks' );
+		expect( chart ).toHaveAttribute( 'data-metric-label', 'Clicks' );
 		expect( chart ).toHaveAttribute( 'data-values', '3' );
 
 		const requestedPath = mockApiFetch.mock.calls[ 0 ][ 0 ].path as string;
@@ -374,8 +374,8 @@ describe( 'EmailTimeSeriesWidget', () => {
 		} );
 
 		// The previous range's "no activity" is not an answer about this one, so
-		// it gives way to an announced skeleton.
-		expect( screen.getByRole( 'status' ) ).toBeInTheDocument();
+		// it gives way to the skeleton.
+		expect( screen.getByTestId( 'widget-skeleton' ) ).toBeInTheDocument();
 		expect(
 			screen.queryByText( 'No activity for this email in this period.' )
 		).not.toBeInTheDocument();

@@ -10,7 +10,15 @@ import './style.scss';
 import type { FileNodeFile } from '../../types/file-tree';
 
 /**
- * Heuristic mime-type lookup by file extension.
+ * File extensions this card can render as text, and the mime type it
+ * labels each one with.
+ *
+ * Membership is the whole previewability rule — an extension in this map
+ * previews, one outside it does not. Adding a binary format here to get
+ * a `Type:` row would therefore also send its bytes to the `<pre>`, so
+ * keep binaries out. `.svg` earns its place because the card shows the
+ * source rather than rendering the image, which also keeps a hostile SVG
+ * out of the DOM.
  *
  * Deliberately not replaced by `path-info`'s `data_type`: that field is
  * a small integer type code — the manifest path's second character —
@@ -19,7 +27,7 @@ import type { FileNodeFile } from '../../types/file-tree';
  * own extension map for exactly this decision, using `data_type` only
  * to drive granular download.
  */
-const EXT_TO_MIME: Record< string, string > = {
+const PREVIEWABLE_TEXT_TYPES: Record< string, string > = {
 	css: 'text/css',
 	csv: 'text/csv',
 	htm: 'text/html',
@@ -53,7 +61,13 @@ function mimeFromName( name: string ): string {
 		return '';
 	}
 	const ext = name.slice( idx + 1 ).toLowerCase();
-	return EXT_TO_MIME[ ext ] ?? '';
+	// Not `?? ''`: the map is an object literal, so `a.__proto__` and
+	// `a.constructor` resolve through the prototype chain to values that are
+	// neither null nor undefined. They would preview, and the non-string would
+	// reach `<dd>{ mimeType }</dd>` and throw "Objects are not valid as a React
+	// child", taking the panel down instead of showing "Preview unavailable".
+	const mime = PREVIEWABLE_TEXT_TYPES[ ext ];
+	return typeof mime === 'string' ? mime : '';
 }
 
 type Props = {
@@ -63,9 +77,7 @@ type Props = {
 
 /**
  * Renders the preview slot's body: a spinner while loading, the file
- * contents in a `<pre>` when available, a muted line when the fetch
- * failed, or a generic "preview unavailable" muted line for non-text
- * mime types.
+ * contents in a `<pre>`, or a muted line when there is nothing to show.
  *
  * The error branch says nothing about *why*, on purpose. It used to
  * blame blob storage having outlived the manifest entry, which was
@@ -79,9 +91,11 @@ type Props = {
  * unique render paths the linter can reason about.
  *
  * @param props             - Component props.
- * @param props.showPreview - Whether the file's mime type is renderable as text.
+ * @param props.showPreview - Whether the filename's extension is in the previewable map.
  * @param props.isLoading   - Whether the file-contents query is in flight.
  * @param props.content     - The fetched body, or null when not yet resolved.
+ * @param props.isText      - Whether the bridge could read the fetched bytes as text.
+ * @param props.truncated   - Whether the body stops at the bridge's preview cap.
  * @param props.error       - The fetch error, or null on success.
  * @return The preview body.
  */
@@ -89,11 +103,15 @@ function PreviewBody( {
 	showPreview,
 	isLoading,
 	content,
+	isText,
+	truncated,
 	error,
 }: {
 	showPreview: boolean;
 	isLoading: boolean;
 	content: string | null;
+	isText: boolean;
+	truncated: boolean;
 	error: Error | null;
 } ) {
 	if ( ! showPreview ) {
@@ -122,6 +140,15 @@ function PreviewBody( {
 			</Text>
 		);
 	}
+	// Deliberately not the unpreviewable-extension wording: the extension said
+	// this file was previewable, and the bytes turned out not to be text.
+	if ( ! isText ) {
+		return (
+			<Text variant="body-sm" className="jpb-text-muted">
+				{ __( 'This file is not text and cannot be previewed.', 'jetpack-backup-pkg' ) }
+			</Text>
+		);
+	}
 	if ( content === null ) {
 		return (
 			<Text variant="body-sm" className="jpb-text-muted">
@@ -129,21 +156,24 @@ function PreviewBody( {
 			</Text>
 		);
 	}
-	return <pre>{ content }</pre>;
-}
-
-/**
- * Returns true when the given mime type is renderable as plain text.
- *
- * @param mime - Mime type string.
- * @return Whether the type is textual.
- */
-function isTextual( mime: string ): boolean {
 	return (
-		mime.startsWith( 'text/' ) ||
-		mime === 'application/x-php' ||
-		mime === 'application/sql' ||
-		mime === 'application/json'
+		<>
+			{ /* Above the `<pre>`, not after: the panel is the scroll container, so
+			     a note below is reachable only past the content it warns about. */ }
+			{ truncated && (
+				<Text
+					variant="body-sm"
+					className="jpb-text-muted jpb-file-info-card__preview-note"
+					render={ <p /> }
+				>
+					{ __(
+						'Preview truncated: this file is too large to show in full.',
+						'jetpack-backup-pkg'
+					) }
+				</Text>
+			) }
+			<pre>{ content }</pre>
+		</>
 	);
 }
 
@@ -170,9 +200,11 @@ function isTextual( mime: string ): boolean {
  */
 export default function FileInfoCard( { file, onClose }: Props ) {
 	const mimeType = mimeFromName( file.name );
-	const showPreview = mimeType ? isTextual( mimeType ) : false;
+	const showPreview = Boolean( mimeType );
 	const {
 		content,
+		isText,
+		truncated,
 		isLoading: contentsLoading,
 		error: contentsError,
 	} = useFileContents( file.period, file.manifestPath, showPreview );
@@ -205,7 +237,7 @@ export default function FileInfoCard( { file, onClose }: Props ) {
 				justify="space-between"
 				className="jpb-file-info-card__header"
 			>
-				<Text variant="heading-sm" render={ <h4 /> }>
+				<Text variant="heading-sm" render={ <h3 /> }>
 					{ file.name }
 				</Text>
 				<Button
@@ -267,6 +299,8 @@ export default function FileInfoCard( { file, onClose }: Props ) {
 					showPreview={ showPreview }
 					isLoading={ contentsLoading }
 					content={ content }
+					isText={ isText }
+					truncated={ truncated }
 					error={ contentsError }
 				/>
 			</div>

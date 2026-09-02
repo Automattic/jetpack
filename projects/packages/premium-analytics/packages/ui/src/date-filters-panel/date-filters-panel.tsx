@@ -14,7 +14,7 @@ import {
 	type StepDirection,
 } from '@jetpack-premium-analytics/datetime';
 import { Stack } from '@jetpack-premium-analytics/externals';
-import { formatDateRangeMinimal } from '@jetpack-premium-analytics/formatters';
+import { formatDateRangeNatural } from '@jetpack-premium-analytics/formatters';
 import { BaseControl } from '@wordpress/components';
 import { useResizeObserver } from '@wordpress/compose';
 import { flushSync } from '@wordpress/element';
@@ -90,13 +90,14 @@ export type DateFiltersPanelProps = {
 	withIntervalControl?: boolean;
 
 	/**
-	 * The chart interval every widget on the page draws.
+	 * The chart interval the control shows as checked. Resolved against the range
+	 * being edited, so an open draft can move it off the applied one.
 	 */
 	interval?: IntervalType;
 
 	/**
-	 * The intervals the active range allows, finest first. Derived upstream from
-	 * the range, so the menu never offers a bucket the range would coerce away.
+	 * The buckets to list, finest first. Derived upstream from the range and, for
+	 * a widget that owns its control, from what its chart draws.
 	 */
 	intervalOptions?: readonly IntervalType[];
 
@@ -293,7 +294,7 @@ export function DateFiltersPanel( {
 			range,
 			committedRange,
 			customLabel: __( 'Custom', 'jetpack-premium-analytics-pkg' ),
-			formatRange: formatDateRangeMinimal,
+			formatRange: formatDateRangeNatural,
 		} );
 	}, [
 		appliedRange,

@@ -15,7 +15,7 @@ import { AdminPage, GlobalNotices, useGlobalNotices } from '@automattic/jetpack-
 import { Spinner } from '@wordpress/components';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Badge, Notice, Stack, Tabs } from '@wordpress/ui';
+import { Badge, Link, Notice, Stack, Tabs } from '@wordpress/ui';
 import AiFeatures from './features/index';
 import { useFeatureSettings } from './features/use-feature-settings';
 import McpHub from './mcp/index';
@@ -141,6 +141,7 @@ export default function App() {
 		planRenewsOn,
 		planAutoRenew,
 		isUserConnected,
+		showFeaturesView = false,
 	} = window?.jetpackAiSettings ?? {};
 	const [ view, setView ] = useState( getViewFromHash );
 	// Save feedback goes through the shared GlobalNotices snackbars (the
@@ -148,15 +149,21 @@ export default function App() {
 	// auto-dismissing, no page-level styling needed.
 	const { createSuccessNotice, createErrorNotice } = useGlobalNotices();
 	const mcpViewedRecorded = useRef( false );
+	// Strict false: older page data (undefined) must not read as unlinked.
+	const userUnlinked = isUserConnected === false;
+	// MCP settings ride the site's and the user's own WordPress.com connections,
+	// so with either one missing the MCP body gives way to a connection notice —
+	// and the settings fetch is skipped, since it could only fail.
+	const showConnectNotice = !! blogId && userUnlinked;
 	const { isLoading, savingToolIds, mcpAbilities, hasMcpAccess, error, updateMcpAbilities } =
-		useMcpSettings();
+		useMcpSettings( { skip: showConnectNotice || ! blogId } );
 	const {
 		isLoading: isAiSettingsLoading,
 		savingKeys: aiSavingKeys,
 		settings: aiSettings,
 		error: aiSettingsError,
 		updateSettings: updateAiSettings,
-	} = useFeatureSettings();
+	} = useFeatureSettings( showFeaturesView );
 
 	// The hash is the single source of truth for the current view: popstate
 	// covers back/forward, hashchange covers direct hash edits and links.
@@ -295,9 +302,9 @@ export default function App() {
 							</div>
 						) }
 
-						{ ! isLoading && error && <LoadErrorNotice message={ error } /> }
+						{ ! isLoading && error && ! showConnectNotice && <LoadErrorNotice message={ error } /> }
 
-						{ ! isLoading && ! error && ! blogId && (
+						{ ! blogId && (
 							<Notice.Root intent="warning">
 								<Notice.Description>
 									{ __(
@@ -308,9 +315,25 @@ export default function App() {
 							</Notice.Root>
 						) }
 
-						{ ! isLoading && ! error && !! blogId && ! hasMcpAccess && <McpUpsell /> }
+						{ showConnectNotice && (
+							<Notice.Root intent="warning">
+								<Notice.Title>
+									{ __( 'Your WordPress.com account isn’t connected.', 'jetpack' ) }
+								</Notice.Title>
+								<Notice.Description>
+									{ __( 'Connect your account to manage MCP settings.', 'jetpack' ) }{ ' ' }
+									<Link href="admin.php?page=my-jetpack#/connection">
+										{ __( 'Connect account', 'jetpack' ) }
+									</Link>
+								</Notice.Description>
+							</Notice.Root>
+						) }
 
-						{ ! isLoading && ! error && !! blogId && hasMcpAccess && (
+						{ ! isLoading && ! error && !! blogId && ! userUnlinked && ! hasMcpAccess && (
+							<McpUpsell />
+						) }
+
+						{ ! isLoading && ! error && !! blogId && ! userUnlinked && hasMcpAccess && (
 							<Stack direction="column" gap="md">
 								{ view === 'mcp' && (
 									<McpHub

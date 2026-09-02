@@ -16,7 +16,6 @@ import {
 	safeHttpUrl,
 	sharePercentage,
 	useWidgetDrillDown,
-	useWidgetRootContext,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -71,9 +70,7 @@ function TagGroupMembers( { members }: TagGroupMembersProps ) {
 }
 
 function TagsInner() {
-	const { reportParams } = useWidgetRootContext();
 	const { data, isLoading, isFetching, isError, refetch } = useTagViews( {
-		reportParams,
 		max: WIDGET_ROW_LIMIT,
 	} );
 
@@ -171,9 +168,13 @@ function TagsInner() {
 							data={ leaderboardData }
 							withOverlayLabel
 							showLegend={ false }
+							// Exact counts, not the leaderboards' usual compact form: this
+							// widget is read beside the same module in Jetpack Stats, where
+							// 1,240 views reads "1,240". Compacted to "1K" it looks like a
+							// data mismatch rather than like rounding.
 							dataFormat={ {
 								type: 'number',
-								options: { useMultipliers: true, decimals: 0 },
+								options: { useMultipliers: false, decimals: 0 },
 							} }
 						/>
 					) }

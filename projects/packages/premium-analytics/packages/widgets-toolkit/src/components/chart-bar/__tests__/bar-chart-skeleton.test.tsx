@@ -8,10 +8,10 @@ import { render, screen } from '@testing-library/react';
 import { BarChartSkeleton } from '../bar-chart-skeleton';
 
 describe( 'BarChartSkeleton', () => {
-	it( 'draws the columns the widget asked for, inside a status region', () => {
+	it( 'draws the columns the widget asked for', () => {
 		render( <BarChartSkeleton columns={ 2 } /> );
 
-		expect( screen.getByRole( 'status' ) ).toBeInTheDocument();
+		expect( screen.getByTestId( 'widget-skeleton' ) ).toBeInTheDocument();
 		expect( screen.getAllByTestId( 'skeleton-bar-column' ) ).toHaveLength( 2 );
 	} );
 
@@ -23,7 +23,7 @@ describe( 'BarChartSkeleton', () => {
 		expect( screen.getAllByTestId( 'skeleton-bar-column' ) ).toHaveLength( 4 );
 	} );
 
-	it( "keeps the columns out of the status region's direct children", () => {
+	it( "keeps the columns out of the skeleton root's direct children", () => {
 		// The heights are written with `:nth-child()`, which would count
 		// `SkeletonRoot`'s visually hidden label and shift every column.
 		render( <BarChartSkeleton /> );
@@ -31,6 +31,6 @@ describe( 'BarChartSkeleton', () => {
 		const [ firstColumn ] = screen.getAllByTestId( 'skeleton-bar-column' );
 
 		// eslint-disable-next-line testing-library/no-node-access -- the assertion is about which element the columns are indexed within.
-		expect( firstColumn.parentElement ).not.toHaveAttribute( 'role', 'status' );
+		expect( firstColumn.parentElement ).not.toHaveAttribute( 'data-testid', 'widget-skeleton' );
 	} );
 } );

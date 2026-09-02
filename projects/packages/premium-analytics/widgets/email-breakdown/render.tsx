@@ -43,7 +43,7 @@ const DATA_FORMAT = { type: 'number' as const, options: { useMultipliers: true, 
 // Mirrors the 720px container query in `style.module.css`, where the map is
 // `display: none`: mounting `GeoChart` below it would pay the Google Charts load
 // for a chart that can never be seen. This gates only the mount, not the visuals.
-const MAP_MIN_WIDTH = 720;
+export const MAP_MIN_WIDTH = 720;
 
 function buildEmailGeoData( rows: EmailBreakdownRow[], metric: EmailBreakdownMetric ): GeoData {
 	return [

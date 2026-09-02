@@ -240,6 +240,8 @@ describe( 'AiOverview', () => {
 		render( <AiOverview { ...PROPS } /> );
 
 		const row = await screen.findByRole( 'link', { name: /Activity log/ } );
+		// Same-site row: no new tab, unlike the external Quick start cards.
+		expect( row ).not.toHaveAttribute( 'target' );
 		expect( row ).toHaveAttribute( 'href', 'https://example.com/activity' );
 	} );
 
@@ -438,5 +440,66 @@ describe( 'AiOverview', () => {
 				link: 'jetpack-ai-hub-overview-video-connect-claude',
 			},
 		] );
+	} );
+
+	test( 'tracks: a quick start card click records the connector slug', async () => {
+		apiFetch.mockResolvedValueOnce( freePayload() );
+
+		render( <AiOverview { ...PROPS } /> );
+		await expect( screen.findByText( 'Available requests' ) ).resolves.toBeInTheDocument();
+
+		await userEvent.click( screen.getByRole( 'link', { name: /Connect ChatGPT/ } ) );
+		expect( callsFor( 'jetpack_ai_hub_link_click' ) ).toEqual( [
+			{
+				site_type: 'jetpack',
+				is_a11n: 'false',
+				is_test: 'false',
+				link_type: 'quick_start',
+				link: 'jetpack-ai-hub-overview-quick-start-chatgpt',
+			},
+		] );
+	} );
+
+	test( 'quick start: renders the two connector cards through the redirect service', async () => {
+		apiFetch.mockResolvedValueOnce( freePayload() );
+
+		render( <AiOverview { ...PROPS } /> );
+
+		// Settle the usage fetch so it cannot update state after the test body.
+		await expect( screen.findByText( 'Available requests' ) ).resolves.toBeInTheDocument();
+		expect( screen.getByRole( 'heading', { level: 2, name: 'Quick start' } ) ).toBeInTheDocument();
+
+		// The frame's Quick start row: Connect Claude / Connect ChatGPT, each a
+		// nav row whose destination lives in the redirect service.
+		const slugByName = {
+			'Connect Claude': 'jetpack-ai-hub-overview-quick-start-claude',
+			'Connect ChatGPT': 'jetpack-ai-hub-overview-quick-start-chatgpt',
+		};
+		for ( const [ name, slug ] of Object.entries( slugByName ) ) {
+			const card = screen.getByRole( 'link', { name: new RegExp( name ) } );
+			expect( card ).toHaveAttribute( 'href', expect.stringContaining( slug ) );
+		}
+		expect(
+			screen.getByText( 'Give Claude access to your site by installing the connector.' )
+		).toBeInTheDocument();
+		expect(
+			screen.getByText( 'Give ChatGPT access to your site by installing the connector.' )
+		).toBeInTheDocument();
+	} );
+
+	test( 'quick start: each card opens in a new tab and says so', async () => {
+		apiFetch.mockResolvedValueOnce( freePayload() );
+
+		render( <AiOverview { ...PROPS } /> );
+
+		await expect( screen.findByText( 'Available requests' ) ).resolves.toBeInTheDocument();
+
+		for ( const title of [ 'Connect Claude', 'Connect ChatGPT' ] ) {
+			const card = screen.getByRole( 'link', {
+				name: new RegExp( `${ title }.*\\(opens in a new tab\\)` ),
+			} );
+			expect( card ).toHaveAttribute( 'target', '_blank' );
+			expect( card ).toHaveAttribute( 'rel', 'noopener noreferrer' );
+		}
 	} );
 } );

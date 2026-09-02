@@ -5,6 +5,45 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [8.0.0] - 2026-09-01
+### Added
+- Add help text to form fields, and show the date field's expected format below the input instead of in its label. Preserve help text across field transformations and form details, and fix field descriptions for inset-label styles. [#51122]
+- File upload field: Allow a field to accept more than one file. [#51551]
+- Form editor: Record when the welcome guide is shown, stepped through, and dismissed. [#51668]
+- Form editor: Replace the generic block editor welcome modal with a guide to the form editor. [#51039]
+- Responses: Remember which columns are shown, and their order, for each form. [#51615]
+
+### Changed
+- CSV export will now handle `\"` sequences per RFC 4180. [#51572]
+- Dashboard: Rewrite the missing forms modal to reassure people that forms already on their pages keep working, and spell out the steps to add them to the list. [#47568]
+- File upload field: Rebuild the field on the same foundation as the other form fields, so it behaves consistently with them. Markup cached from an earlier release keeps working for one release. [#51183]
+- Make form navigation actions real links so they can be opened in a new tab. [#51563]
+- Update package dependencies. [#51303] [#51802]
+
+### Removed
+- Minimum supported PHP version is now 7.4. [#51515]
+
+### Fixed
+- Conditional logic: Explain when fields share a Name/ID rather than offering them as conditions that cannot be told apart. [#51617]
+- Conditional logic: Fix the rules dialog not opening from the block toolbar while the settings sidebar is closed. [#51617]
+- Conditional logic: Name a checkbox by its own label in the conditions dropdown, keep a value typed before the field was chosen, and show an unticked checkbox as "No" rather than a blank. [#51417]
+- Contact Form: Bind the posted form id to the signed form when validating a token-authenticated submission. [#51510]
+- Date field: Let screen readers announce the field's own label instead of the date picker instructions. [#51406]
+- File upload field: Cancel in-flight uploads and release previews when the form is reset. [#51183]
+- File upload field: Fix several problems with adding more than one file at once, and with uploads that stall or fail. [#51549]
+- File upload field: Keep the remaining files when a folder or dragged text is included in a multi-file drop. [#51183]
+- File upload field: Remove a file from the form immediately instead of waiting for the server, so a slow connection no longer leaves the field looking stuck. [#51183]
+- File upload field: Stop uploading a file that was removed while its upload was still being prepared. [#51183]
+- Fix checkbox and consent field alignment in the editor on classic themes. [#51560]
+- Form editor: Fix the welcome guide artwork not loading on WordPress.com Simple sites. [#51682]
+- Inbox: Space out the files listed on a response and line their download buttons up on one edge. [#51734]
+- Keep an option's label when switching it to the "Other" option. [#51628]
+- Keep prev/next working on a single response after marking it as spam or trash, open responses instantly from the list, and add keyboard shortcuts for triaging responses. [#51670]
+- Phone field: Validate a required field with a default country against what the input actually shows, so it can no longer be submitted empty. [#51183]
+- Prevent a new choice option from inheriting the previous option's label when pressing Enter. [#51628]
+- Responses: Keep one column per form field when a field is moved, and read every answer from the field it belongs to. [#51615]
+- Restore the Integrations button in the Form block toolbar when the settings sidebar is closed. [#51630]
+
 ## [7.26.0] - 2026-08-25
 ### Added
 - Responses: Show each form field as a column when viewing a single form's responses. [#51448]
@@ -23,6 +62,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [7.25.0] - 2026-08-20
 ### Added
 - Add a Print action to form responses, which opens the response on its own page and prints just the response. [#51368]
+- Add conditional logic to form fields, so any field can be shown or hidden based on another field's answer. Disabled by default while in testing; enable it with the forms-conditional-logic feature flag. [#50938]
 - Contact Form: Add background image support to the Form and Step blocks. [#50975]
 - Feedback author avatars: Pick a stable Color Studio background color per email for initials identity avatars via `bg_color`. [#50578]
 
@@ -2665,6 +2705,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a new jetpack/forms package [#28409]
 - Added a public load_contact_form method for initializing the contact form module. [#28416]
 
+[8.0.0]: https://github.com/automattic/jetpack-forms/compare/v7.26.0...v8.0.0
 [7.26.0]: https://github.com/automattic/jetpack-forms/compare/v7.25.0...v7.26.0
 [7.25.0]: https://github.com/automattic/jetpack-forms/compare/v7.24.0...v7.25.0
 [7.24.0]: https://github.com/automattic/jetpack-forms/compare/v7.23.4...v7.24.0

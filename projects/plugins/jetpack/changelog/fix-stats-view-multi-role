@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Stats: Fix access for users whose allowed role is not their first assigned role.

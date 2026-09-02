@@ -196,7 +196,6 @@ function ComposedReportPage( { withComparison, isLoading }: ReportPageStoryContr
 	return (
 		<ReportPageShell
 			breadcrumbs={ <StoryBreadcrumbs /> }
-			subTitle="All your posts and archive pages."
 			actions={ <Button variant="secondary">Download</Button> }
 		>
 			<ReportPageLayout title="Posts & Pages" dateFilters={ STORY_DATE_FILTERS }>
@@ -255,7 +254,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'The shared report-page framework: `ReportPageShell` (the page header — breadcrumbs, description, actions), `ReportPageLayout` (optional tabs, the `SectionHeader` carrying the report title and its date controls, and the stacked sections), `ReportPerformanceChart` (multi-metric visits chart with metric show/hide and interval control), and `ReportRecordsTable` (Core DataViews table with client-side search/sort/pagination). Module report pages compose these with their own data hook and field config.',
+					'The shared report-page framework: `ReportPageShell` (the page header — breadcrumbs and actions), `ReportPageLayout` (optional tabs, the `SectionHeader` carrying the report title and its date controls, and the stacked sections), `ReportPerformanceChart` (multi-metric visits chart with metric show/hide and interval control), and `ReportRecordsTable` (Core DataViews table with client-side search/sort/pagination). Module report pages compose these with their own data hook and field config.',
 			},
 		},
 	},

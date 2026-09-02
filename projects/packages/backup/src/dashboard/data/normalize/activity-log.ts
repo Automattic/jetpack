@@ -56,8 +56,6 @@ export function normalizeEntry( entry: WpcomActivityEntry ): ActivityItem {
 			// stringified JSON blob, not a friendly string — rendering
 			// it verbatim dumps raw JSON into the UI.
 			stats: entry.content?.text ?? '',
-			isComplete:
-				entry.name === 'rewind__backup_complete_full' || entry.name === 'rewind__backup_complete',
 		};
 	}
 

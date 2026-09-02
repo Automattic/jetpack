@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-seo",
-	"version": "0.8.3",
+	"version": "0.9.0",
 	"private": true,
 	"description": "Jetpack SEO — the visibility command center for WordPress sites in the agentic web.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/seo/#readme",
@@ -64,7 +64,7 @@
 		"@testing-library/react": "16.3.2",
 		"@types/jest": "30.0.0",
 		"@types/node": "^24.12.0",
-		"@types/react": "18.3.28",
+		"@types/react": "18.3.31",
 		"@types/react-dom": "18.3.7",
 		"@typescript/native-preview": "7.0.0-dev.20260707.2",
 		"@wordpress/base-styles": "11.0.0",

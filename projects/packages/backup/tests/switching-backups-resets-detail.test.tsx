@@ -17,7 +17,24 @@ jest.mock( '@wordpress/route', () => ( {
 	useSearch: () => mockSearch(),
 	useNavigate: () => mockNavigate,
 	useParams: () => ( {} ),
-	Link: ( { children, ...rest }: { children: React.ReactNode } ) => <a { ...rest }>{ children }</a>,
+	// `search` is folded into the href rather than spread onto the node: the
+	// Download action carries the file selection there now, and React would
+	// warn about an object-valued attribute on an `<a>` — which
+	// `@wordpress/jest-console` turns into a suite failure.
+	Link: ( {
+		children,
+		to,
+		search,
+		...rest
+	}: {
+		children: React.ReactNode;
+		to: string;
+		search?: Record< string, string >;
+	} ) => (
+		<a href={ search ? `${ to }?${ new URLSearchParams( search ).toString() }` : to } { ...rest }>
+			{ children }
+		</a>
+	),
 } ) );
 
 // Imports must come after the jest.mock factories above.
@@ -95,7 +112,14 @@ beforeEach( () => {
 			// Both backups carry the same root file — the same file
 			// surviving between backups is the ordinary case, not an edge
 			// one.
-			return Promise.resolve( { contents: { 'wp-config.php': { type: 'file', period: '123' } } } );
+			// `id` is what a granular download names the entry by. The
+			// Download label counts nameable entries, so without it the
+			// selection this suite tracks would be invisible.
+			return Promise.resolve( {
+				contents: {
+					'wp-config.php': { type: 'file', period: '123', id: 'ZjU6L3dwLWNvbmZpZy5waHA=' },
+				},
+			} );
 		}
 		return Promise.resolve( {} );
 	} );
@@ -134,16 +158,17 @@ describe( 'Switching between backups', () => {
 		).resolves.toBeInTheDocument();
 		await userEvent.click( fileRowCheckbox() );
 
-		// Selecting the file swaps both header actions off their defaults.
-		// The mocked `<Link>` renders a plain `<a>` with no `href` (the real
+		// Selecting the file swaps the Download action off its default. The
+		// mocked `<Link>` renders a plain `<a>` with no `href` (the real
 		// component takes `to`), so it carries no implicit `link` role here.
-		// Both are asserted because `BackupDetail` labels them from one
-		// `count`, and a reset that missed either would leave the reader a
-		// header that describes a selection they cannot see.
+		//
+		// Download is the only header action that moves. Restore is
+		// deliberately constant — a restore point is restored whole, so it
+		// never counts the selection — which makes it useless as a reset
+		// signal here. Its constancy is `restore-label-scope.test.tsx`.
 		await expect(
 			screen.findByText( 'Download 1 selected item', undefined, SETTLE )
 		).resolves.toBeInTheDocument();
-		expect( screen.getByText( 'Restore 1 selected item' ) ).toBeInTheDocument();
 
 		// Open the file's preview as well. A regression that cleared the
 		// selection but left `openFile` set would otherwise pass.
@@ -168,8 +193,6 @@ describe( 'Switching between backups', () => {
 		expect( fileRowCheckbox() ).not.toBeChecked();
 		expect( screen.getByText( 'Download backup' ) ).toBeInTheDocument();
 		expect( screen.queryByText( /Download \d+ selected item/ ) ).not.toBeInTheDocument();
-		expect( screen.getByText( 'Restore to this point' ) ).toBeInTheDocument();
-		expect( screen.queryByText( /Restore \d+ selected item/ ) ).not.toBeInTheDocument();
 	} );
 
 	// The other half of the invariant. Keying by `rewindId` makes the

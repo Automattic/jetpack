@@ -190,6 +190,26 @@ describe( 'buildRangePatch', () => {
 		expect( patch ).toMatchObject( {
 			compare_from: '2026-07-08T14:29:59.999+00:00',
 			compare_to: '2026-07-09T14:29:59.999+00:00',
+			compare_preset: 'previous-period',
+		} );
+	} );
+
+	// The menu derives from the range, so a preset the new range no longer
+	// offers is staged as the previous period rather than left stranded.
+	it( 'falls back to the previous period when the new range drops the preset', () => {
+		const patch = buildRangePatch( {
+			nextRange: {
+				from: new Date( '2026-08-01T00:00:00.000+00:00' ),
+				to: new Date( '2026-08-30T23:59:59.999+00:00' ),
+			},
+			nextPresetId: 'last-30-days',
+			effective: { comp: '1', compare_preset: 'previous-month' },
+		} );
+
+		expect( patch ).toMatchObject( {
+			compare_from: '2026-07-02T00:00:00.000+00:00',
+			compare_to: '2026-07-31T23:59:59.999+00:00',
+			compare_preset: 'previous-period',
 		} );
 	} );
 

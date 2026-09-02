@@ -145,8 +145,8 @@
 @supports (animation-timeline: --section-header-pin) {
 
 	.sectionHeader {
-		// Tightens the padding on the subtitle's own timeline: once pinned
-		// there are no tabs left to clear, and the band should cost the
+		// Tightens the padding on the timeline the header condenses on: once
+		// pinned there are no tabs left to clear, and the band should cost the
 		// widgets as little height as it can.
 		animation: condense-section-header linear both;
 		animation-timeline: --section-header-pin;

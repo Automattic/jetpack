@@ -4,6 +4,10 @@ Make the UI react instantly while the URL stays the source of truth. Edits are
 staged locally and then committed atomically to the URL (one navigation). Back/
 Forward stays smooth.
 
+This is `useStagedValue` bound to the URL. A control that saves somewhere else —
+a widget attribute, say — uses that hook directly and gets the same staging
+behavior.
+
 ---
 
 ## Concepts
@@ -15,7 +19,6 @@ Forward stays smooth.
 Atomic commit:
 
 - `commit()` writes all staged changes in one `navigate({ search })`.
-- Optional debounced auto-commit uses `replace: true` to avoid dirty history.
 - On confirm, call `commit({ replace: false })` to push a history entry.
 
 ---
@@ -25,19 +28,16 @@ Atomic commit:
 ```ts
 type UseStagedSearchOptions< TFrom extends string > = {
 	from?: TFrom; // TanStack route id/path; omit to bind to the matched route
-	autoCommitDebounceMs?: number; // optional debounce in ms
 };
 
 type UseStagedSearchReturn< TSearch > = {
 	committed: TSearch; // current URL state
 	staged: TSearch; // optimistic local snapshot
 	effective: TSearch; // staged over committed per key
-	isSyncing: boolean; // true while committing
 	isDirty: boolean; // staged differs from committed
 	stage( patch: Partial< TSearch > ): void;
 	commit( opts?: { replace?: boolean } ): void;
 	revert(): void;
-	cancelAutoCommit(): void;
 };
 ```
 
@@ -64,10 +64,7 @@ type Search = {
 };
 
 export function DashboardHeader() {
-	const { effective, stage, commit } = useStagedSearch< Search, '/' >( {
-		from: '/',
-		// autoCommitDebounceMs: 250,
-	} );
+	const { effective, stage, commit } = useStagedSearch< Search, '/' >( { from: '/' } );
 
 	const range = useMemo(
 		() => ( {
@@ -109,28 +106,19 @@ export function DashboardHeader() {
 
 - Do not pass `to` on commit; update only `search` for SPA smoothness.
 - Explicit commit: `commit( { replace: false } )` pushes history.
-- Auto-commit (debounce): `replace: true` during continuous edits.
+- Corrections the user did not ask for: `commit( { replace: true } )`.
 - The URL→UI mirror keeps Back/Forward fluid and flicker-free.
 
 **Data fetching**
 
 ```ts
-const { effective, isSyncing } = useStagedSearch< Search >( {
-	from: '/',
-} );
+const { effective } = useStagedSearch< Search >( { from: '/' } );
 
 const query = useQuery( {
 	queryKey: [ 'orders', effective ],
-	enabled: ! isSyncing,
 	queryFn: () => fetchOrders( effective ),
 } );
 ```
-
-**Debounce guidance**
-
-- `autoCommitDebounceMs`: 200–300 ms works well for date pickers.
-- During edits → debounced replace-commits.
-- On confirm (Apply/close) → `commit( { replace: false } )`.
 
 **Removing params**
 
@@ -141,6 +129,5 @@ const query = useQuery( {
 
 - Writing the URL from multiple components (breaks atomicity).
 - Mixing `useSearch()` reads in children that also depend on staging.
-- Always using `replace: true` on explicit commits.
 
 ---

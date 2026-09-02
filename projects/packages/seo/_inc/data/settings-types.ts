@@ -33,6 +33,10 @@ export interface SettingsResponse {
 		facebook: string;
 	};
 	search_engines_visible: boolean;
+	// WordPress.com records a private or coming-soon site as a negative `blog_public`.
+	// Indexing is off for such a site because it isn't published at all, which no SEO
+	// setting here can change — so the toggle is disabled rather than silently inert.
+	site_is_private: boolean;
 	sitemap_active: boolean;
 	// Read-only: the reachable sitemap URL, or '' until it's been generated and is
 	// serveable. Not editable, so it's never sent back in a save payload.

@@ -5,7 +5,7 @@
 		"@automattic/jetpack-analytics": "workspace:*",
 		"@automattic/jetpack-components": "workspace:*",
 		"@automattic/jetpack-script-data": "workspace:*",
-		"@types/react": "18.3.28",
+		"@types/react": "18.3.31",
 		"@wordpress/api-fetch": "7.51.0",
 		"@wordpress/components": "37.0.0",
 		"@wordpress/compose": "8.6.0",
