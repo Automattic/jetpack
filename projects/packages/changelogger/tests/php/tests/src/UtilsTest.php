@@ -29,7 +29,6 @@ use Symfony\Component\Process\Process;
 #[CoversClass( Utils::class )]
 class UtilsTest extends TestCase {
 	use \Yoast\PHPUnitPolyfills\Polyfills\AssertObjectProperty;
-	use \Yoast\PHPUnitPolyfills\Polyfills\AssertionRenames;
 
 	/**
 	 * Test runCommand.
