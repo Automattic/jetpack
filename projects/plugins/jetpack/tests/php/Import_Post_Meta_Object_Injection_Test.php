@@ -73,7 +73,7 @@ class Import_Post_Meta_Object_Injection_Test extends WP_UnitTestCase {
 
 		$this->assertNotInstanceOf( stdClass::class, $stored );
 		$this->assertNotInstanceOf( '__PHP_Incomplete_Class', $stored, 'Disallowing classes alone still yields an object.' );
-		$this->assertFalse( is_object( $stored ), 'Imported meta was restored as a live PHP object.' );
+		$this->assertIsNotObject( $stored, 'Imported meta was restored as a live PHP object.' );
 	}
 
 	/**
