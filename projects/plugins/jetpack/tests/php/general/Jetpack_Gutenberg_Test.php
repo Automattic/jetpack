@@ -107,19 +107,24 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 	public function test_editor_initial_state_is_localized_on_shared_modules_store() {
 		global $current_screen;
 
+		$previous_screen = $current_screen;
 		$current_screen = convert_to_screen( 'post' );
 		$current_screen->is_block_editor( true );
 		Shared_Stores_Assets::register_assets();
 		wp_register_style( 'jetpack-blocks-editor', false, array(), JETPACK__VERSION );
 
-		Jetpack_Gutenberg::enqueue_block_editor_assets();
+		try {
+			Jetpack_Gutenberg::enqueue_block_editor_assets();
 
-		$scripts = wp_scripts();
-		$this->assertStringContainsString(
-			'Jetpack_Editor_Initial_State',
-			(string) $scripts->get_data( Shared_Stores_Assets::SCRIPT_HANDLE, 'data' )
-		);
-		$this->assertEmpty( $scripts->get_data( 'jetpack-blocks-editor', 'data' ) );
+			$scripts = wp_scripts();
+			$this->assertStringContainsString(
+				'Jetpack_Editor_Initial_State',
+				(string) $scripts->get_data( Shared_Stores_Assets::SCRIPT_HANDLE, 'data' )
+			);
+			$this->assertEmpty( $scripts->get_data( 'jetpack-blocks-editor', 'data' ) );
+		} finally {
+			$current_screen = $previous_screen;
+		}
 	}
 
 	/**
