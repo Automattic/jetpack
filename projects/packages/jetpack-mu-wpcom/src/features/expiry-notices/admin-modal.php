@@ -78,18 +78,16 @@ function wpcom_expiry_notices_modal_applies_to_site( array $state ): bool {
 	// Only after the grace period. Before it, a site that has been reverted was
 	// reverted by some earlier lapse, and this one has not reached the changes
 	// the pre-revert variant promises.
+	//
+	// Not narrowed by plan: Personal and higher carry a transfer, so there is no
+	// tier whose lapse could not have produced this revert. The window does the
+	// narrowing instead -- a state only exists for 60 days past an expiry, and
+	// the revert lands 30 days into it.
 	if ( Expiry_Data::STATE_EXPIRED !== ( $state['state'] ?? '' ) ) {
 		return false;
 	}
 
-	if ( ! wpcom_has_blog_sticker( 'blog-transfer-reverted', get_wpcom_blog_id() ) ) {
-		return false;
-	}
-
-	// The sticker outlives the lapse that earned it. A site reverted years ago
-	// can be lapsing a plan that never carried a transfer, and none of the copy
-	// would be true of that.
-	return Expiry_Data::is_atomic_capable_plan( isset( $state['product_slug'] ) ? (string) $state['product_slug'] : '' );
+	return wpcom_has_blog_sticker( 'blog-transfer-reverted', get_wpcom_blog_id() );
 }
 
 /**

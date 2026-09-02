@@ -170,14 +170,16 @@ class Admin_Modal_Test extends \WorDBless\BaseTestCase {
 		$this->assertNull( wpcom_expiry_notices_admin_modal_data() );
 	}
 
-	public function test_does_not_show_for_a_plan_that_never_carried_a_transfer(): void {
-		// The sticker outlives the lapse that earned it: a site reverted long ago
-		// can be lapsing a Personal plan, which never made it Atomic and so never
-		// removed a plugin.
+	public function test_shows_for_any_plan_that_could_have_carried_a_transfer(): void {
+		// WPCOM_Features::ATOMIC is granted to Personal and higher, so there is no
+		// paid tier whose lapse could not have produced this revert. Narrowing to
+		// Business would hide the modal from most of the sites it is meant for.
 		$this->pretend_reverted_to_simple();
 
-		$this->set_purchase( -45, 'personal-bundle' );
-		$this->assertNull( wpcom_expiry_notices_admin_modal_data() );
+		foreach ( array( 'personal-bundle', 'value_bundle', 'business-bundle' ) as $slug ) {
+			$this->set_purchase( -45, $slug );
+			$this->assertNotNull( wpcom_expiry_notices_admin_modal_data(), "expected a modal for {$slug}" );
+		}
 	}
 
 	public function test_does_not_show_for_non_admins(): void {
