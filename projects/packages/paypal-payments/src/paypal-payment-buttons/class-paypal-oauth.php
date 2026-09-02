@@ -553,12 +553,43 @@ class PayPal_OAuth {
 
 		// 403 — the app lacks Payment Links & Buttons access.
 		if ( 403 === $status_code ) {
+			$message = __(
+				'Your PayPal app does not have access to Payment Links & Buttons. In the PayPal Developer Dashboard, open your app settings and enable the "Payment Links & Buttons" feature, then try connecting again.',
+				'jetpack-paypal-payments'
+			);
+
+			/*
+			 * Name the app the probe ran as: onboarding stores the seller's own
+			 * app credentials, not the partner app a merchant is likely to check,
+			 * so "your app" is otherwise ambiguous. A client ID is public — it
+			 * ships in SDK URLs — so a prefix identifies the app leaking nothing.
+			 */
+			$credentials = self::get_credentials();
+			if ( false !== $credentials && ! empty( $credentials['client_id'] ) ) {
+				$message .= ' ' . sprintf(
+					/* translators: %s: the first characters of the PayPal REST app client ID. */
+					__( 'The connected app’s Client ID starts with "%s".', 'jetpack-paypal-payments' ),
+					substr( $credentials['client_id'], 0, 8 ) . '…'
+				);
+			}
+
+			// PayPal's own diagnosis beats our guess; the debug_id is what their
+			// support and status tooling resolve.
+			$body     = json_decode( wp_remote_retrieve_body( $response ), true );
+			$name     = isset( $body['name'] ) ? sanitize_text_field( $body['name'] ) : '';
+			$debug_id = isset( $body['debug_id'] ) ? sanitize_text_field( $body['debug_id'] ) : '';
+			if ( $name || $debug_id ) {
+				$message .= ' ' . sprintf(
+					/* translators: 1: PayPal's error name, 2: PayPal's debug ID. */
+					__( 'PayPal reported: %1$s (debug ID %2$s).', 'jetpack-paypal-payments' ),
+					$name ? $name : __( 'unknown error', 'jetpack-paypal-payments' ),
+					$debug_id ? $debug_id : '—'
+				);
+			}
+
 			return new \WP_Error(
 				'paypal_api_not_authorized',
-				__(
-					'Your PayPal app does not have access to Payment Links & Buttons. In the PayPal Developer Dashboard, open your app settings and enable the "Payment Links & Buttons" feature, then try connecting again.',
-					'jetpack-paypal-payments'
-				),
+				$message,
 				array( 'status' => 403 )
 			);
 		}
