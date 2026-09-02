@@ -1,3 +1,4 @@
+const { execFileSync } = require( 'child_process' );
 const fs = require( 'fs' );
 const path = require( 'path' );
 const debugload = require( 'debug' )( 'load-eslint-ignore:load' );
@@ -10,27 +11,28 @@ const rootdir = path.resolve( __dirname, '../..' ) + '/';
 /**
  * Locate `info/exclude` for the repository rooted at `dir`.
  *
- * `.git` is a directory in a normal checkout and a pointer file in a linked worktree. `info/exclude`
- * lives in the common dir shared by every worktree, so follow `commondir` when there is one.
+ * Ask git rather than reading `.git` ourselves: it resolves linked worktrees and submodules, and
+ * honours the GIT_DIR and GIT_COMMON_DIR overrides.
  *
  * @param {string} dir - Repository root.
  * @return {string} Path to the exclude file. Not guaranteed to exist.
  */
 function findGitInfoExclude( dir ) {
-	const dotgit = path.join( dir, '.git' );
-	let gitdir = dotgit;
+	let gitdir = path.join( dir, '.git' );
 
-	if ( fs.existsSync( dotgit ) && fs.statSync( dotgit ).isFile() ) {
-		const m = /^gitdir:\s*(.+)$/m.exec( fs.readFileSync( dotgit, 'utf8' ) );
-		if ( ! m ) {
-			return path.join( dotgit, 'info', 'exclude' ); // Won't exist; addIgnoreFile skips it.
+	try {
+		// Relative when it points at `<dir>/.git`, absolute from a linked worktree; resolve both.
+		const commondir = execFileSync( 'git', [ 'rev-parse', '--git-common-dir' ], {
+			cwd: dir,
+			encoding: 'utf8',
+			stdio: [ 'ignore', 'pipe', 'ignore' ],
+		} ).trim();
+		if ( commondir ) {
+			gitdir = path.resolve( dir, commondir );
 		}
-		gitdir = path.resolve( dir, m[ 1 ].trim() );
-
-		const commondir = path.join( gitdir, 'commondir' );
-		if ( fs.existsSync( commondir ) ) {
-			gitdir = path.resolve( gitdir, fs.readFileSync( commondir, 'utf8' ).trim() );
-		}
+	} catch {
+		// No git, or not a repository. The fallback path simply won't exist.
+		debugload( ' -> `git rev-parse --git-common-dir` failed, assuming `.git`' );
 	}
 
 	return path.join( gitdir, 'info', 'exclude' );
