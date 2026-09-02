@@ -3,6 +3,11 @@
  */
 import { useMemo } from 'react';
 import type { ChartTheme } from '@jetpack-premium-analytics/externals';
+/**
+ * Internal dependencies
+ */
+// The dashboard's leaderboard spacing. It is set in CSS, not on the theme below.
+import './chart-roles.scss';
 
 /**
  * The `@automattic/charts` theme plus the analytics-specific properties.
@@ -58,8 +63,6 @@ export function useChartTheme(): WooChartTheme {
 				],
 			},
 			leaderboardChart: {
-				rowGap: 4,
-				columnGap: 4,
 				labelSpacing: 'xs',
 				barBorderRadius: 'var(--wpds-border-radius-lg)',
 				deltaColors: [

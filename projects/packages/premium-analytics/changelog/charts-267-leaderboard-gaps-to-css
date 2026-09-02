@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Set the dashboard's leaderboard row spacing in CSS rather than on the chart theme. No visible change.

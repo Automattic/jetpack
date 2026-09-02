@@ -26,6 +26,12 @@ import styles from './leaderboard-chart.module.scss';
 import type { LeaderboardChartProps } from './types';
 import type { LeaderboardEntry } from '../../types';
 
+// Handed to `Grid` as a chain rather than set in this component's stylesheet: `Grid` writes
+// its own gaps through an Emotion class, which a module class of equal specificity would not
+// reliably outrank. The chain lands on the element and resolves there.
+const ROW_GAP = 'var(--a8c-charts-dimension-leaderboard-row-gap, 12px)';
+const COLUMN_GAP = 'var(--a8c-charts-dimension-leaderboard-column-gap, 4px)';
+
 /**
  * Default value formatter using formatMetricValue
  *
@@ -200,8 +206,6 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 	const { legendChildren, nonLegendChildren } = useChartChildren( children, 'LeaderboardChart' );
 	const {
 		labelSpacing,
-		rowGap,
-		columnGap,
 		primaryColor: settingsPrimaryColor,
 		secondaryColor: settingsSecondaryColor,
 		deltaColors,
@@ -372,8 +376,8 @@ const LeaderboardChartInternal: FC< LeaderboardChartProps > = ( {
 					) : (
 						<Grid
 							templateColumns="minmax(0, 1fr) auto"
-							rowGap={ rowGap }
-							columnGap={ columnGap }
+							rowGap={ ROW_GAP }
+							columnGap={ COLUMN_GAP }
 							data-leaderboard-grid
 						>
 							{ data.map( ( entry, rowIndex ) => {

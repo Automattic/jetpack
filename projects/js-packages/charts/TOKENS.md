@@ -151,6 +151,8 @@ The palette is resolved per provider, so one `ColorCache` and one group-to-color
 | `--a8c-charts-border-radius-bar` | `--wpds-border-radius-md` | `4px` |
 | `--a8c-charts-border-radius-cell` | `--wpds-border-radius-sm` | `2px` |
 | `--a8c-charts-border-radius-leaderboard-bar` | _(none — pill shape, no WPDS radius fits)_ | `9999px` |
+| `--a8c-charts-dimension-leaderboard-row-gap` | `--wpds-dimension-gap-md` | `12px` |
+| `--a8c-charts-dimension-leaderboard-column-gap` | `--wpds-dimension-gap-xs` | `4px` |
 | `--a8c-charts-elevation-xs` | _(none — `--wpds-elevation-*` removed in theme 1.0.0)_ | `0 1px 1px 0 #00000008, 0 1px 2px 0 #00000005, 0 3px 3px 0 #00000005, 0 4px 4px 0 #00000003` |
 | `--a8c-charts-elevation-sm` | _(none — `--wpds-elevation-*` removed in theme 1.0.0)_ | `0 1px 2px 0 #0000000d, 0 2px 3px 0 #0000000a, 0 6px 6px 0 #00000008, 0 8px 8px 0 #00000005` |
 
