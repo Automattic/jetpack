@@ -309,9 +309,46 @@ class PayPal_Partner_Onboarding {
 				);
 			}
 
+			$message = __( 'Could not create a PayPal onboarding link. Please try again or use the manual credentials option.', 'jetpack-paypal-payments' );
+
+			// PayPal's generic top-level sentence never says what was rejected;
+			// its `details` entries name the field and issue, so show those.
+			$issues = array();
+			if ( ! empty( $error_data['paypal_details'] ) && is_array( $error_data['paypal_details'] ) ) {
+				foreach ( $error_data['paypal_details'] as $detail ) {
+					if ( ! is_array( $detail ) ) {
+						continue;
+					}
+					$issue = trim(
+						implode(
+							' ',
+							array_filter(
+								array(
+									isset( $detail['field'] ) ? sanitize_text_field( $detail['field'] ) : '',
+									isset( $detail['issue'] ) ? sanitize_text_field( $detail['issue'] ) : '',
+									isset( $detail['description'] ) ? sanitize_text_field( $detail['description'] ) : '',
+								)
+							)
+						)
+					);
+					if ( '' !== $issue ) {
+						$issues[] = $issue;
+					}
+				}
+			}
+
+			if ( $issues || ! empty( $error_data['paypal_debug_id'] ) ) {
+				$message .= ' ' . sprintf(
+					/* translators: 1: what PayPal rejected, 2: PayPal's debug ID. */
+					__( 'PayPal reported: %1$s (debug ID %2$s).', 'jetpack-paypal-payments' ),
+					$issues ? implode( '; ', $issues ) : __( 'unknown error', 'jetpack-paypal-payments' ),
+					! empty( $error_data['paypal_debug_id'] ) ? sanitize_text_field( $error_data['paypal_debug_id'] ) : '—'
+				);
+			}
+
 			return new \WP_Error(
 				'paypal_referral_failed',
-				__( 'Could not create a PayPal onboarding link. Please try again or use the manual credentials option.', 'jetpack-paypal-payments' ),
+				$message,
 				$error_data
 			);
 		}
