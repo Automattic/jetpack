@@ -41,7 +41,7 @@ class Speed_Score_Request extends Cacheable {
 	/**
 	 * When the Speed Scores request was created, in seconds since epoch.
 	 *
-	 * @var float $created Speed Scores request creation timestamp.
+	 * @var int|float $created Speed Scores request creation timestamp.
 	 */
 	private $created;
 
