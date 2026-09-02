@@ -69,11 +69,21 @@ function loadWithQueryArgs( queryArgs ) {
 const getQuoteBlocks = blocks => blocks.filter( block => block.name === 'core/quote' );
 const getEmbedBlock = blocks => blocks.find( block => block.name === 'core/embed' );
 
-/** Every block in the tree, so an assertion cannot miss a payload parked in an inner block. */
+/**
+ * Flattens a block tree, so an assertion cannot miss a payload parked in an inner block.
+ *
+ * @param {Array} blocks - Blocks to flatten.
+ * @return {Array} Every block in the tree, parents before children.
+ */
 const flattenBlocks = blocks =>
 	blocks.flatMap( block => [ block, ...flattenBlocks( block.innerBlocks ) ] );
 
-/** The content of each paragraph making up a quote's body, in order. */
+/**
+ * Reads the content of each paragraph making up a quote's body.
+ *
+ * @param {object} quote - A `core/quote` block.
+ * @return {string[]} Paragraph contents, in order.
+ */
 const getParagraphContents = quote =>
 	quote.innerBlocks.map( ( { name, attributes } ) => {
 		expect( name ).toBe( 'core/paragraph' );
