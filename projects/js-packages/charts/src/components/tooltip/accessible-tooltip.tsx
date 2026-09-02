@@ -56,7 +56,7 @@ export const AccessibleTooltip: React.FC< AccessibleTooltipProps > = ( {
 	const scopeElement = useChartScopeElement();
 	const gridStroke = useGlobalChartsTheme().gridStyles?.stroke;
 
-	// The crosshair is painted in a portal outside the scope, so it needs a resolved color; see TOKENS.md#the-svg-bridge.
+	// The stroke is read at the scope element, which a consumer can set outside the chart's own ancestors; see TOKENS.md#the-svg-bridge.
 	const crosshairStroke = useMemo( () => {
 		const stroke = gridStroke ? resolveCssVariable( gridStroke, scopeElement ) : null;
 
