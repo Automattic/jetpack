@@ -483,10 +483,12 @@ class PayPal_Partner_Onboarding {
 		}
 
 		if ( '' === $merchant_id ) {
-			return new \WP_Error(
-				'paypal_onboarding_no_merchant_id',
-				__( 'PayPal did not return a merchant ID for this account. Please try connecting again.', 'jetpack-paypal-payments' ),
-				array( 'status' => 502 )
+			return self::abandon_onboarding(
+				new \WP_Error(
+					'paypal_onboarding_no_merchant_id',
+					__( 'PayPal did not return a merchant ID for this account. Please try connecting again.', 'jetpack-paypal-payments' ),
+					array( 'status' => 502 )
+				)
 			);
 		}
 
@@ -500,15 +502,34 @@ class PayPal_Partner_Onboarding {
 		// Step 4: Validate that the credentials work and the API is accessible.
 		$validation = PayPal_OAuth::validate_credentials();
 		if ( is_wp_error( $validation ) ) {
-			return $validation;
+			return self::abandon_onboarding( $validation );
 		}
 
 		$api_access = PayPal_OAuth::validate_api_access();
 		if ( is_wp_error( $api_access ) ) {
-			return $api_access;
+			return self::abandon_onboarding( $api_access );
 		}
 
 		return true;
+	}
+
+	/**
+	 * Discard a half-finished connection and hand back the reason it failed.
+	 *
+	 * The credentials are stored before they are validated, so a failure past
+	 * that point would otherwise leave the site connected while the editor
+	 * reports an error -- and the merchant is told to reconnect an account that
+	 * every other screen already treats as connected.
+	 *
+	 * @param \WP_Error $error Why onboarding was abandoned.
+	 * @return \WP_Error The same error, once the partial state is gone.
+	 */
+	private static function abandon_onboarding( $error ) {
+		PayPal_OAuth::delete_credentials();
+		delete_option( self::MERCHANT_ID_OPTION_KEY );
+		delete_option( self::ONBOARDING_METHOD_OPTION_KEY );
+
+		return $error;
 	}
 
 	/**
