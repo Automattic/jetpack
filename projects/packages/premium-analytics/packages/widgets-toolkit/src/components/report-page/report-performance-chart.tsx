@@ -1,8 +1,7 @@
 /**
  * External dependencies
  */
-import { Text } from '@jetpack-premium-analytics/externals';
-import { Button, DropdownMenu, MenuGroup, MenuItem, SelectControl } from '@wordpress/components';
+import { DropdownMenu, MenuGroup, MenuItem, SelectControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { check, moreVertical } from '@wordpress/icons';
 import { useMemo, useState } from 'react';
@@ -12,7 +11,7 @@ import { useMemo, useState } from 'react';
 import { useSeriesStyles } from '../../hooks';
 import { ComparativeLineChart } from '../chart-comparative-line';
 import { WidgetLoadingOverlay } from '../widget-loading-overlay';
-import { ReportPageSection } from './report-page-layout';
+import { ReportChartSection } from './report-chart-section';
 import styles from './report-performance-chart.module.scss';
 import { buildReportMetricSeries } from './utils/build-report-metric-series';
 import type { ReportChartMetric } from './types';
@@ -92,7 +91,6 @@ export function ReportPerformanceChart( {
 }: ReportPerformanceChartProps ) {
 	const allMetrics = useMemo( () => metrics ?? getDefaultMetrics(), [ metrics ] );
 	const [ hiddenMetricKeys, setHiddenMetricKeys ] = useState< string[] >( [] );
-	const [ isChartHidden, setIsChartHidden ] = useState( false );
 
 	const visibleMetrics = useMemo(
 		() => allMetrics.filter( metric => ! hiddenMetricKeys.includes( metric.key ) ),
@@ -124,12 +122,10 @@ export function ReportPerformanceChart( {
 	} ) );
 
 	return (
-		<ReportPageSection className={ styles.root }>
-			<div className={ styles.header }>
-				<Text variant="heading-md" render={ <h3 /> }>
-					{ title }
-				</Text>
-				<div className={ styles.controls }>
+		<ReportChartSection
+			title={ title }
+			controls={
+				<>
 					{ controls }
 					<SelectControl
 						__next40pxDefaultSize
@@ -164,31 +160,19 @@ export function ReportPerformanceChart( {
 							</MenuGroup>
 						) }
 					</DropdownMenu>
-				</div>
+				</>
+			}
+		>
+			<div className={ styles.chart }>
+				{ ( ! isLoading || series.length > 0 ) && (
+					<ComparativeLineChart
+						series={ series }
+						styles={ seriesStyles }
+						dataFormat={ dataFormat }
+					/>
+				) }
+				{ isLoading && <WidgetLoadingOverlay /> }
 			</div>
-			{ ! isChartHidden && (
-				<div className={ styles.chart }>
-					{ ( ! isLoading || series.length > 0 ) && (
-						<ComparativeLineChart
-							series={ series }
-							styles={ seriesStyles }
-							dataFormat={ dataFormat }
-						/>
-					) }
-					{ isLoading && <WidgetLoadingOverlay /> }
-				</div>
-			) }
-			<div className={ styles.footer }>
-				<Button
-					variant="tertiary"
-					size="compact"
-					onClick={ () => setIsChartHidden( current => ! current ) }
-				>
-					{ isChartHidden
-						? __( 'Show chart', 'jetpack-premium-analytics-pkg' )
-						: __( 'Hide chart', 'jetpack-premium-analytics-pkg' ) }
-				</Button>
-			</div>
-		</ReportPageSection>
+		</ReportChartSection>
 	);
 }

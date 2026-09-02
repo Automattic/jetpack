@@ -81,6 +81,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => {
 		ReportCsvAction: jest.fn( () => null ),
 		ReportDrilldownTable: () => null,
 		ReportErrorState: () => null,
+		ReportLocationsMap: () => null,
 		ReportPageLayout: Container,
 		ReportPageSection: Container,
 		ReportPageShell: Container,
@@ -170,6 +171,7 @@ jest.mock( './emails/config', () => ( {
 } ) );
 
 jest.mock( './locations/config', () => ( {
+	GEO_MODES: jest.requireActual( './locations/config' ).GEO_MODES,
 	getLocationFields: () => [],
 	getReportLocationsTabs: () => [ { id: 'countries', label: 'Countries' } ],
 	getTabTitle: ( id: string ) => ( id === 'countries' ? 'Countries' : id ),
