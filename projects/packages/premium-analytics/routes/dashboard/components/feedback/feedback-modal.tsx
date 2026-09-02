@@ -29,24 +29,41 @@ const ARROW_STEPS: Record< string, number | undefined > = {
 	ArrowDown: 1,
 };
 
+/**
+ * Label for every point of the scale, so nobody has to guess what a number means.
+ *
+ * @return The labels, keyed by rating.
+ */
+function ratingLabels(): Record< Rating, string > {
+	return {
+		1: __( 'Much worse', 'jetpack-premium-analytics-pkg' ),
+		2: __( 'A bit worse', 'jetpack-premium-analytics-pkg' ),
+		3: __( 'About the same', 'jetpack-premium-analytics-pkg' ),
+		4: __( 'A bit better', 'jetpack-premium-analytics-pkg' ),
+		5: __( 'Much better', 'jetpack-premium-analytics-pkg' ),
+	};
+}
+
 type RatingButtonProps = {
 	value: Rating;
+	label: string;
 	isSelected: boolean;
 	isTabStop: boolean;
 	onSelect: ( value: Rating ) => void;
 };
 
 /**
- * One point on the ease-of-use scale.
+ * One point on the comparison scale.
  *
  * @param {RatingButtonProps} props            - Component props.
  * @param {number}            props.value      - The score this button records.
+ * @param {string}            props.label      - What the score means, as the reader reads it.
  * @param {boolean}           props.isSelected - Whether it is the current answer.
  * @param {boolean}           props.isTabStop  - Whether it carries the scale's single tab stop.
  * @param {Function}          props.onSelect   - Called with `value` when pressed.
  * @return The button.
  */
-function RatingButton( { value, isSelected, isTabStop, onSelect }: RatingButtonProps ) {
+function RatingButton( { value, label, isSelected, isTabStop, onSelect }: RatingButtonProps ) {
 	const select = useCallback( () => onSelect( value ), [ onSelect, value ] );
 
 	return (
@@ -58,7 +75,7 @@ function RatingButton( { value, isSelected, isTabStop, onSelect }: RatingButtonP
 			size="compact"
 			onClick={ select }
 		>
-			{ value }
+			{ label }
 		</Button>
 	);
 }
@@ -70,7 +87,7 @@ type RatingScaleProps = {
 };
 
 /**
- * The 1-5 scale, as a radio group rather than five toggle buttons.
+ * The five-point scale, as a radio group rather than five toggle buttons.
  *
  * @param {RatingScaleProps} props          - Component props.
  * @param {string}           props.labelId  - Id of the element naming the group.
@@ -79,6 +96,8 @@ type RatingScaleProps = {
  * @return The scale.
  */
 function RatingScale( { labelId, value, onChange }: RatingScaleProps ) {
+	const labels = ratingLabels();
+
 	// Arrow keys move selection and focus together, which is what a radio group owes its
 	// keyboard users; the roving tabindex keeps the whole scale to one tab stop.
 	const onKeyDown = useCallback(
@@ -102,18 +121,22 @@ function RatingScale( { labelId, value, onChange }: RatingScaleProps ) {
 		[ onChange, value ]
 	);
 
+	// Stacked rather than in a row: the labels are too long to sit side by side in the modal.
 	return (
 		<Stack
-			direction="row"
+			direction="column"
+			align="stretch"
 			gap="sm"
 			role="radiogroup"
 			aria-labelledby={ labelId }
+			aria-orientation="vertical"
 			onKeyDown={ onKeyDown }
 		>
 			{ RATINGS.map( ( score, index ) => (
 				<RatingButton
 					key={ score }
 					value={ score }
+					label={ labels[ score ] }
 					isSelected={ value === score }
 					isTabStop={ value === null ? index === 0 : value === score }
 					onSelect={ onChange }
@@ -128,7 +151,7 @@ type FeedbackModalProps = {
 };
 
 /**
- * Ease-of-use rating with an optional comment, recorded as a single Tracks event.
+ * Comparison rating with an optional comment, recorded as a single Tracks event.
  *
  * @param {FeedbackModalProps} props         - Component props.
  * @param {Function}           props.onClose - Called once the reader dismisses the modal.
@@ -178,17 +201,20 @@ export function FeedbackModal( { onClose }: FeedbackModalProps ) {
 				<Stack direction="column" gap="lg">
 					<Fieldset.Root>
 						<Fieldset.Legend id={ legendId }>
-							{ __( 'How easy is the new Stats to use?', 'jetpack-premium-analytics-pkg' ) }
+							{ __(
+								'Compared with the existing Traffic tab in Stats, the new Traffic tab is:',
+								'jetpack-premium-analytics-pkg'
+							) }
 						</Fieldset.Legend>
-						<Fieldset.Description>
-							{ __( '1 is very hard, 5 is very easy.', 'jetpack-premium-analytics-pkg' ) }
-						</Fieldset.Description>
 
 						<RatingScale labelId={ legendId } value={ rating } onChange={ setRating } />
 					</Fieldset.Root>
 
 					<TextareaControl
-						label={ __( 'What would you change?', 'jetpack-premium-analytics-pkg' ) }
+						label={ __(
+							"What's the one thing we'd need to fix before this replaces the old Stats?",
+							'jetpack-premium-analytics-pkg'
+						) }
 						value={ comment }
 						maxLength={ COMMENT_MAX_LENGTH }
 						onChange={ setComment }

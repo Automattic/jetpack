@@ -71,7 +71,7 @@ describe( 'FeedbackAction', () => {
 	it( 'reports the rating and comment as one event', async () => {
 		const user = await openModal();
 
-		await user.click( screen.getByRole( 'radio', { name: '4' } ) );
+		await user.click( screen.getByRole( 'radio', { name: 'A bit better' } ) );
 		await user.type( screen.getByRole( 'textbox' ), '  Needs a date picker  ' );
 		await user.click( screen.getByRole( 'button', { name: 'Send feedback' } ) );
 
@@ -92,7 +92,7 @@ describe( 'FeedbackAction', () => {
 			expect.anything()
 		);
 
-		await user.click( screen.getByRole( 'radio', { name: '1' } ) );
+		await user.click( screen.getByRole( 'radio', { name: 'Much worse' } ) );
 		await user.click( submit );
 
 		expect( mockRecordEvent ).toHaveBeenLastCalledWith(
@@ -104,7 +104,7 @@ describe( 'FeedbackAction', () => {
 	it( 'confirms the send rather than just closing', async () => {
 		const user = await openModal();
 
-		await user.click( screen.getByRole( 'radio', { name: '3' } ) );
+		await user.click( screen.getByRole( 'radio', { name: 'About the same' } ) );
 		await user.click( screen.getByRole( 'button', { name: 'Send feedback' } ) );
 
 		// Scoped to the dialog: `Notice` also mirrors the text into the a11y-speak live
@@ -122,7 +122,7 @@ describe( 'FeedbackAction', () => {
 	it( 'sends nothing when the reader backs out', async () => {
 		const user = await openModal();
 
-		await user.click( screen.getByRole( 'radio', { name: '5' } ) );
+		await user.click( screen.getByRole( 'radio', { name: 'Much better' } ) );
 		await user.click( screen.getByRole( 'button', { name: 'Cancel' } ) );
 
 		expect( mockRecordEvent ).not.toHaveBeenCalledWith(
@@ -144,20 +144,26 @@ describe( 'the rating scale', () => {
 		await openModal();
 
 		expect( screen.getByRole( 'radiogroup' ) ).toHaveAccessibleName(
-			'How easy is the new Stats to use?'
+			'Compared with the existing Traffic tab in Stats, the new Traffic tab is:'
 		);
-		expect( screen.getByRole( 'radio', { name: '1' } ) ).toHaveAttribute( 'tabindex', '0' );
-		expect( screen.getByRole( 'radio', { name: '2' } ) ).toHaveAttribute( 'tabindex', '-1' );
+		expect( screen.getByRole( 'radio', { name: 'Much worse' } ) ).toHaveAttribute(
+			'tabindex',
+			'0'
+		);
+		expect( screen.getByRole( 'radio', { name: 'A bit worse' } ) ).toHaveAttribute(
+			'tabindex',
+			'-1'
+		);
 	} );
 
 	it( 'moves the answer with the arrow keys', async () => {
 		const user = await openModal();
 
-		await user.click( screen.getByRole( 'radio', { name: '2' } ) );
+		await user.click( screen.getByRole( 'radio', { name: 'A bit worse' } ) );
 		await user.keyboard( '{ArrowRight}' );
 
-		expect( screen.getByRole( 'radio', { name: '3' } ) ).toBeChecked();
-		expect( screen.getByRole( 'radio', { name: '3' } ) ).toHaveFocus();
+		expect( screen.getByRole( 'radio', { name: 'About the same' } ) ).toBeChecked();
+		expect( screen.getByRole( 'radio', { name: 'About the same' } ) ).toHaveFocus();
 
 		await user.click( screen.getByRole( 'button', { name: 'Send feedback' } ) );
 
@@ -170,10 +176,10 @@ describe( 'the rating scale', () => {
 	it( 'wraps from the first answer round to the last', async () => {
 		const user = await openModal();
 
-		await user.click( screen.getByRole( 'radio', { name: '1' } ) );
+		await user.click( screen.getByRole( 'radio', { name: 'Much worse' } ) );
 		await user.keyboard( '{ArrowLeft}' );
 
-		expect( screen.getByRole( 'radio', { name: '5' } ) ).toBeChecked();
+		expect( screen.getByRole( 'radio', { name: 'Much better' } ) ).toBeChecked();
 	} );
 } );
 
@@ -181,7 +187,7 @@ describe( 'the Tracks identity', () => {
 	it( 'identifies the reader and pins blog_id once, not per event', async () => {
 		const user = await openModal();
 
-		await user.click( screen.getByRole( 'radio', { name: '3' } ) );
+		await user.click( screen.getByRole( 'radio', { name: 'About the same' } ) );
 		await user.click( screen.getByRole( 'button', { name: 'Send feedback' } ) );
 
 		expect( mockRecordEvent ).toHaveBeenCalledTimes( 2 );
