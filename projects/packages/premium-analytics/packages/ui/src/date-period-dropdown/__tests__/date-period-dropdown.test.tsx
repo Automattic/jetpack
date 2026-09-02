@@ -15,7 +15,7 @@ const JULY_2026 = {
 
 function renderDropdown( overrides: Partial< Parameters< typeof DatePeriodDropdown >[ 0 ] > = {} ) {
 	const props = {
-		presetId: 'last-30-days' as const,
+		appliedPresetId: 'last-30-days' as const,
 		appliedRange: JULY_2026,
 		range: JULY_2026,
 		timeZone: 'UTC',
@@ -44,7 +44,7 @@ describe( 'DatePeriodDropdown', () => {
 
 	// A hand-picked range has no preset to name it, so the formatter does.
 	it( 'names the period a preset-less range covers', () => {
-		renderDropdown( { presetId: undefined } );
+		renderDropdown( { appliedPresetId: undefined } );
 
 		expect( screen.getByRole( 'button', { name: 'July 2026' } ) ).toBeInTheDocument();
 	} );
@@ -97,7 +97,7 @@ describe( 'DatePeriodDropdown', () => {
 
 	it( 'offers only what the surface asks for', async () => {
 		const user = userEvent.setup();
-		renderDropdown( { presetIds: [ 'today', 'last-7-days' ], presetId: 'today' } );
+		renderDropdown( { presetIds: [ 'today', 'last-7-days' ], appliedPresetId: 'today' } );
 		await openMenu( user, 'Today' );
 
 		// Custom range is the menu's own, so it survives any narrowing.
@@ -140,11 +140,29 @@ describe( 'DatePeriodDropdown custom range', () => {
 	// to land on it rather than on a list with nothing checked.
 	it( 'lands on the calendar when the applied period is custom', async () => {
 		const user = userEvent.setup();
-		renderDropdown( { presetId: 'custom' } );
+		renderDropdown( { appliedPresetId: 'custom' } );
 
 		await openMenu( user, 'July 2026' );
 
 		expect( screen.getByRole( 'button', { name: 'Apply' } ) ).toBeInTheDocument();
+	} );
+
+	// The calendar stages `custom` from the moment a range is picked, and the
+	// trigger names what is applied, so it must not follow the draft.
+	it( 'keeps naming the applied period while the calendar stages a draft', async () => {
+		const user = userEvent.setup();
+		const { onChange } = renderDropdown();
+
+		await openCustom( user );
+
+		const days = within( screen.getByRole( 'grid' ) )
+			.getAllByRole( 'button' )
+			.filter( day => ! day.hasAttribute( 'disabled' ) );
+		await user.click( days[ 0 ] );
+		await user.click( days[ 4 ] );
+
+		expect( onChange ).toHaveBeenCalledWith( expect.anything(), 'custom' );
+		expect( screen.getByRole( 'button', { name: 'Last 30 days' } ) ).toBeInTheDocument();
 	} );
 
 	it( 'commits the draft on Apply', async () => {
@@ -199,7 +217,7 @@ describe( 'DatePeriodDropdown calendar width', () => {
 
 	it( 'draws one month where the window has no room for two', async () => {
 		const user = userEvent.setup();
-		renderDropdown( { presetId: 'custom' } );
+		renderDropdown( { appliedPresetId: 'custom' } );
 
 		await openMenu( user, 'July 2026' );
 
@@ -209,7 +227,7 @@ describe( 'DatePeriodDropdown calendar width', () => {
 	it( 'draws two months where the window has room', async () => {
 		jest.mocked( useMediaQuery ).mockReturnValue( true );
 		const user = userEvent.setup();
-		renderDropdown( { presetId: 'custom' } );
+		renderDropdown( { appliedPresetId: 'custom' } );
 
 		await openMenu( user, 'July 2026' );
 
