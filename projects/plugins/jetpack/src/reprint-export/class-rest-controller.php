@@ -81,8 +81,10 @@ class REST_Controller extends WP_REST_Controller {
 	/**
 	 * Rotates the shared secret and returns it.
 	 *
-	 * Raw CSPRNG bytes rather than wp_generate_password(), which is filterable
-	 * and falls back to a non-CSPRNG path. This is an HMAC key, not a password.
+	 * random_bytes() rather than wp_generate_password(): this is an HMAC key, so
+	 * it has to be unguessable. random_bytes() either returns bytes from the
+	 * operating system's random source or throws, while wp_generate_password()
+	 * is filterable and falls back to a weaker source if it has to.
 	 *
 	 * @return WP_REST_Response The new secret on success, or a 500 error.
 	 */
