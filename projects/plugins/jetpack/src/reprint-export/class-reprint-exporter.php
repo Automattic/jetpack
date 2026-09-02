@@ -336,11 +336,13 @@ class Reprint_Exporter {
 	/**
 	 * Whether the current export window is open.
 	 *
+	 * @param int|null $now Unix time to compare against, or null for the
+	 *                      current time. Tests pass a fixed time.
 	 * @return bool
 	 */
-	public static function is_export_window_open() {
+	public static function is_export_window_open( $now = null ) {
 		$enabled_at = (int) get_option( self::ENABLED_OPTION, 0 );
-		$now        = time();
+		$now        = null === $now ? time() : (int) $now;
 		return $enabled_at > 0
 			&& $enabled_at <= $now + self::HMAC_CLOCK_SKEW
 			&& ( $now - $enabled_at ) <= HOUR_IN_SECONDS;
