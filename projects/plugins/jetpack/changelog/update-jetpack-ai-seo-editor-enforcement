@@ -1,4 +1,0 @@
-Significance: minor
-Type: enhancement
-
-Jetpack AI: Make the editor and the automatic-generation toggles follow the AI SEO control — switching it off stops metadata generation and disables its controls, with saved choices returning when it is switched back on.

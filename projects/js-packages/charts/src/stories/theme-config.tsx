@@ -18,6 +18,9 @@ export const DEFAULT_ACCENT_COLOR = '#4a19ab';
  * through the `--wpds-*` ramp it also emits. So setting `adminColorScheme` to anything but
  * `none` publishes a closer `--wp-admin-theme-color` and the accent control stops driving the
  * palette. That is the documented cascade, not a bug.
+ *
+ * The color fields below are deprecated, and stay here because the control has to exercise the
+ * `theme` route for as long as it exists. Do not copy this shape into docs — see `TOKENS.md`.
  */
 export const customTheme: ChartTheme = {
 	seriesLineStyles: [
@@ -41,6 +44,9 @@ export const customTheme: ChartTheme = {
  *
  * One color per format, and exactly as many as there are palette slots: a sixth entry would
  * be dropped with a console warning without covering a format the first five miss.
+ *
+ * Deliberately the densest use of the deprecated `theme` color fields in the package: the
+ * normalization it tests runs on that route. Not a recommended theme shape.
  */
 export const mixedColorFormatsTheme: ChartTheme = {
 	colors: [

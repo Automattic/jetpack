@@ -96,9 +96,34 @@ The `$$next-version$$` placeholder is automatically replaced with the correct ve
 
 One sentence, at most two lines — the summary rule the WordPress documentation standards
 already impose on our PHP, applied to JavaScript too. Anything past it must carry a why, a
-gotcha, or provenance. Omit what the signature already says, and prefer a clearer name over a
-comment explaining a bad one. If reading the comment costs as much as reading the code, delete
-it. Never invent rationale: a comment that contradicts the code is worse than no comment.
+gotcha, or a durable pointer (an issue or upstream bug link), **and must fit in two more
+lines**. The budget is per comment, not per file: three separate traps in one function get three
+short comments, not one essay. "It is all rationale" does not buy more room, because the
+comments worth cutting are always all rationale. Omit what the signature already says, and
+prefer a clearer name over a comment explaining a bad one. If reading the comment costs as much
+as reading the code, delete it. Never invent rationale: a comment that contradicts the code is
+worse than no comment.
+
+The same budget applies to test files, where it is most often missed: no file-header essays, and
+no per-test narration the test name already carries.
+
+Five shapes exceed the budget however well they explain themselves:
+
+- **Design essays** — the alternative you rejected, the paragraph arguing why the code is shaped
+  this way, what a trade-off costs. That is PR-description or issue material, not code. A
+  one-line warning is a gotcha and stays: `// Do not reorder: bar() reads what foo() sets.`
+- **A mechanic explained on one member of a list** whose siblings share it. Say it once above the
+  list, or not at all.
+- **A block that would survive copy-paste verbatim into another file.** That is domain
+  background, not a comment.
+- **Provenance that rots** — upstream file-and-line citations, "before this PR…", benchmark
+  numbers, mutation-testing counts. A stable link survives; a line number does not.
+- **The same explanation in more than one place.** Put it in the file that owns the thing,
+  nowhere else. N copies drift independently, so a reader cannot tell which is current.
+
+Keep every functional annotation regardless: `@param`, `@return`, `@covers`, `translators:`,
+`phpcs:ignore`, `eslint-disable`, `@ts-expect-error`. Those are required tooling or load-bearing
+code, not prose.
 
 ## Testing
 
@@ -160,7 +185,7 @@ Run from the monorepo root:
 ```bash
 pnpm run lint-changed             # ESLint, changed files only (fastest)
 pnpm run lint                     # ESLint, everything
-pnpm run lint-style               # Stylelint (CSS/SCSS)
+pnpm run lint-style               # Stylelint (CSS/SCSS) — needs an explicit path
 pnpm run typecheck                # TypeScript, every project that defines it
 composer phpcs:changed            # PHPCS on changed files
 composer phpcs:lint               # PHPCS, everything
@@ -185,20 +210,39 @@ Two gates enforce this, both running `tools/check-changelogger-use.php`: the pre
 
 An entry only lands in the CHANGELOG of the project it was added to. A PR confined to a shared project — a PHP package under `projects/packages/`, a JS package under `projects/js-packages/`, or any other non-plugin project — therefore reaches that project's CHANGELOG and nowhere else: the plugins that bundle it get, at most, the generic "Update package dependencies." line the release tooling files under "Other changes", which is never copied to `readme.txt`. Users, release posts, and support documentation read the plugin changelog, so the change is invisible to them.
 
-**When a change to a package or js-package is user-facing — a new block, new or changed UI, a behavior change, a bug fix someone would notice — add a changelog entry to every plugin that ships it, on top of the project's own entry.** Write each one from that plugin's user's perspective; the wording rarely needs to be identical.
+**When a change to a package or js-package is user-facing — a new block, new or changed UI, a behavior change, a bug fix someone would notice — add an entry to each plugin whose own users would notice it, on top of the project's own entry.** That is usually a subset of the plugins that bundle the project, sometimes just one — though a change to something a shared dashboard renders can legitimately reach most of them. Write each one from that plugin's user's perspective; the wording rarely needs to be identical.
+
+Over-reporting is not free: it puts a line about a product the plugin does not ship into a changelog and `readme.txt` that its users do read.
 
 Prefix each plugin's entry with the product the shared project backs — `Premium Analytics:` for `packages/premium-analytics`, `Search:` for `packages/search` — so readers of a plugin changelog that bundles many products can place the change. The exception is a plugin named for that same product (`plugins/premium-analytics`, `plugins/search`): there the prefix would only repeat the plugin's own name, so leave it off (or use a narrower component prefix), as in the example below.
 
-List the plugins that ship a project (works the same for `packages/…` and `js-packages/…`):
+Start from the plugins that bundle the project (works the same for `packages/…` and `js-packages/…`):
 
 ```bash
 jp dependencies list packages/search --add-dependents --extra build --no-dev | grep '^plugins/'
 jp dependencies list js-packages/components --add-dependents --extra build --no-dev | grep '^plugins/'
 ```
 
-A widely-shared js-package can list a dozen plugins. Add entries to the ones where the change is actually reachable by that plugin's users, not to every dependent by reflex.
+Then narrow that list. A widely-shared js-package can list well over a dozen plugins; add an entry for one only when a user of *that plugin* could notice the change. Skip it when:
 
-Then add one entry per plugin. Each project defines its own types — `plugins/jetpack` uses `major` | `enhancement` | `compat` | `bugfix` | `other`:
+- **The change belongs to another product and this plugin only contains it via a My Jetpack product card.** A change to a My Jetpack product card belongs in the changelogs of the plugins that ship that product. Every other plugin renders the card only for someone who already has that product, and they read about it in that product's changelog. Check that the card really is the only route, though: `js-packages/boost-score-api` sits behind the Boost card, but `plugins/jetpack` also calls it straight from At a Glance, so a change there reaches Jetpack plugin users too.
+- **The plugin never reaches the changed code.** `js-packages/components` is a build dependency of nearly every plugin in the monorepo, but `DiffViewer` reaches only `plugins/protect`.
+- **It is reachable only under conditions the plugin never creates** — a module it does not register, a plan or product it does not sell, or a host it does not run on. Check the gate rather than the dependency, because the same code can qualify for one plugin and not another: the WordPress.com-only paths in `packages/masterbar` never run on a self-hosted site, but they are the whole reason `plugins/wpcomsh` bundles the package.
+- **The plugin's changelog is not a product record.** `starter-plugin` is a scaffolding template, and `mu-wpcom-plugin` is the wrapper that exists so `packages/jetpack-mu-wpcom` can be deployed to WordPress.com Simple at all (it doubles as a test plugin for the package). Nobody installs either one, so nobody reads either changelog to find out what changed on their site — what a Simple site owner would notice belongs in the package's own entry. Keep this one narrow: it is about those two, not about any plugin you have not heard of.
+
+To settle the reachability case, work backwards from the code rather than forwards from the plugin. Grepping `projects/plugins/<plugin>/` alone misses a plugin that is little more than a loader for a package, and grepping its whole dependency closure always matches, since the project that defines the symbol is in every dependent's closure. Find the projects that import it, then ask which plugins bundle *those* — every one except the project that defines the symbol, which is in the grep output too and would hand back its full set of dependents. Run one `jp dependencies list` per lead rather than passing every lead to a single command: it is the lead a plugin arrives on that you then have to argue with, and merging them hides which lead carried which plugin.
+
+```bash
+git grep -l DiffViewer -- projects/ ':!*/CHANGELOG.md'
+jp dependencies list js-packages/scan --add-dependents --extra build --no-dev | grep '^plugins/'
+jp dependencies list plugins/protect --add-dependents --extra build --no-dev | grep '^plugins/'
+```
+
+Use `git grep`, not `grep -r`. A checkout you have built or run `composer install` in carries the symbol in webpack caches and in `vendor/composer/*classmap.php`, and those classmaps name every class in a plugin's whole dependency closure — so `grep -r` on a PHP symbol hands back every dependent plugin, which is the answer this section exists to talk you out of. Exclude `CHANGELOG.md` while you are there: a changelog naming the symbol is a record that a project once touched it, not a lead that it still does.
+
+What that gives you is a shortlist, not an answer. Bundling a project is not the same as rendering its code, which is the distinction the whole section turns on, so finish the job by hand, one lead at a time. `DiffViewer` is the cautionary case. The `js-packages/scan` lead offers `plugins/protect` and `plugins/jetpack` and settles neither: that package touches `DiffViewer` only inside `ThreatModal`, which is barrel-exported and then rendered by nothing outside its own story — `packages/scan`, the Jetpack plugin's only route to the package, imports `ThreatsDataViews` and `ThreatSeverityBadge` and never `ThreatModal`. `plugins/protect` survives on the other lead entirely, where it imports `DiffViewer` from `@automattic/jetpack-components` itself. So a `DiffViewer` change is noticeable in `plugins/protect` alone — but not by the route the dependency graph suggested, which is why the leads are worth keeping apart.
+
+Then add one entry per plugin that survives. Each project defines its own types — `plugins/jetpack` uses `major` | `enhancement` | `compat` | `bugfix` | `other`:
 
 ```bash
 jp changelog add packages/search -s minor -t added       -e "Add a Search Results block."
@@ -207,6 +251,8 @@ jp changelog add plugins/jetpack -s minor -t enhancement -e "Search: Add a Searc
 ```
 
 **The non-interactive form never prompts for this.** Naming a project (`jp changelog add <project> -s … -t … -e …`) disables the indirect-plugin check, so dependent plugins are silently skipped; only bare `jp changelog add` offers to write those entries for you. Using the non-interactive form means adding the plugin entries yourself — or running `jp changelog add --check-indirect-plugins` afterwards to be asked.
+
+**And the prompt it does show is all-or-nothing.** It lists every indirectly-affected plugin at once and asks a single yes/no. A `yes` hands the whole list to the same prompts the main run uses, which choose between one shared entry and individual wording — never between plugins. When only some of the list qualifies, answer `no` and add those entries yourself with the non-interactive form.
 
 The project's own entry alone is correct only when nothing is observable to a site owner: internal refactors, tests, tooling, type fixes.
 
@@ -282,7 +328,7 @@ The exception is the **WordPress.com Tests** check (the TeamCity `JetpackPreFlig
 
 When reviewing code, check for:
 - Adherence to `docs/coding-guidelines.md`
-- User-facing changes in a package or js-package missing changelog entries in the plugins that ship it (see "User-Facing Changes Outside a Plugin Also Need Plugin Entries" above) — CI only checks the directly-touched project, so this gap is reviewer-only
+- Changelog entries in the wrong set of plugins — a user-facing package change missing an entry in a plugin that surfaces it, or an entry added to plugins that cannot reach the change at all (see "User-Facing Changes Outside a Plugin Also Need Plugin Entries" above). CI only checks the directly-touched project, so both directions are reviewer-only
 - Missing documentation for public APIs, or missing explanations for non-obvious logic
 - Typos in user-facing strings, comments, and docs — PHPCS and ESLint check naming and formatting, not spelling, so this needs human eyes
 - Performance hazards that no sniff catches: uncached `wp_remote_*` calls, queries inside loops, `meta_query`/`tax_query`/`orderby => rand` on large tables, and newly autoloaded options. `WordPress.DB.SlowDBQuery` is excluded from the Jetpack ruleset as too noisy, so this is reviewer-only

@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Restore screen: show the upstream message and a numeric percent while a restore runs, so the file-check preflight that pins the bar at 0% for minutes no longer reads as a hang, and announce the running phase to screen readers on both the restore and download screens. No-op when the modernization filter is off.
+
+

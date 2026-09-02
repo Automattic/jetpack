@@ -2,6 +2,9 @@
 @use "@wordpress/base-styles/colors";
 
 .jp-forms__inbox-response-field-file {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
 	margin-top: 4px;
 }
 
@@ -9,6 +12,10 @@
 	display: flex;
 	justify-content: space-between;
 	gap: 12px;
+}
+
+.jp-forms__inbox-response-file__item-actions {
+	flex-shrink: 0;
 }
 
 .jp-forms__inbox-response-file__icon {
@@ -83,4 +90,18 @@
 .jp-forms__inbox-response-file__info {
 	display: flex;
 	gap: 12px;
+
+	// Lets a long name wrap instead of pushing the download button past the edge.
+	min-width: 0;
+}
+
+.jp-forms__inbox-response-file__name {
+
+	/*
+	 * A file name arrives as one unbroken word as often as not, and a flex item
+	 * refuses to shrink below that word's width unless told to. Without both of
+	 * these the name runs under the download button rather than wrapping.
+	 */
+	min-width: 0;
+	overflow-wrap: anywhere;
 }

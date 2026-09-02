@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Video block: Say when an upload failed because of a Jetpack connection problem, instead of only "Failed to upload your video".

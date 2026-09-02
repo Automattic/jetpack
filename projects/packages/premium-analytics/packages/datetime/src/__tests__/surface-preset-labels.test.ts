@@ -7,13 +7,21 @@ import { QUICK_SURFACE_PRESETS } from '../presets/types';
 const TIME_ZONE = 'America/New_York';
 
 describe( 'surface preset short labels', () => {
-	it( 'uses the designed full labels', () => {
+	it( 'names every preset in full', () => {
 		expect( getQuickSurfacePresets( TIME_ZONE ).map( preset => preset.label ) ).toEqual( [
 			'Last 24 hours',
-			'7 days',
-			'30 days',
-			'12 months',
+			'Last 7 days',
+			'Last 30 days',
+			'Last 12 months',
 		] );
+	} );
+
+	// The row cannot afford "Last 30 days" beside three siblings; a surface with
+	// room reads `label`.
+	it( 'compresses the labels the pill row cannot fit', () => {
+		expect(
+			getQuickSurfacePresets( TIME_ZONE ).map( preset => preset.pillLabel ?? preset.label )
+		).toEqual( [ 'Last 24 hours', '7 days', '30 days', '12 months' ] );
 	} );
 
 	it( 'gives every quick surface preset a short label', () => {
@@ -26,9 +34,9 @@ describe( 'surface preset short labels', () => {
 		}
 	} );
 
-	it( 'keeps the short label shorter than the full one', () => {
-		for ( const { label, shortLabel } of getQuickSurfacePresets( TIME_ZONE ) ) {
-			expect( shortLabel!.length ).toBeLessThan( label.length );
+	it( 'keeps the short label shorter than the one it replaces', () => {
+		for ( const { label, pillLabel, shortLabel } of getQuickSurfacePresets( TIME_ZONE ) ) {
+			expect( shortLabel!.length ).toBeLessThan( ( pillLabel ?? label ).length );
 		}
 	} );
 

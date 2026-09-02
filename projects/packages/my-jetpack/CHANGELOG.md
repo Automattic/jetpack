@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.1.0] - 2026-09-01
+### Added
+- Allow the Automattic for Agencies banner to be dismissed. [#51441]
+
+### Changed
+- Jetpack AI: Land the card's View link, post-checkout, and post-activation on the Jetpack AI Hub. [#51756]
+- Prefix the transient that flags a historically active modules refresh. [#51315]
+- Register the `jetpack/v4/jetpack-ai-jwt` route from the Connection package and drop the Agents Manager dependency. [#51629]
+- Roll back the Automattic for Agencies banner dismissal if the request fails. [#51441]
+- Update package dependencies. [#51303] [#51727] [#51802]
+
+### Fixed
+- Cache the Automattic for Agencies partner lookup for sites that have no partner. [#51441]
+- Keep the Automattic for Agencies banner hidden when switching back to the Overview tab after dismissing it. [#51441]
+
 ## [6.0.0] - 2026-08-26
 ### Removed
 - Minimum supported PHP version is now 7.4. [#51515]
@@ -2866,6 +2881,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[6.1.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.0.0...6.1.0
 [6.0.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.44.1...6.0.0
 [5.44.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.44.0...5.44.1
 [5.44.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.43.1...5.44.0

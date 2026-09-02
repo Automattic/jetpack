@@ -1,7 +1,7 @@
 @use "../../styles/widget-container" as *;
 
 /* Placeholder treatment from the design prototype's highlights skeleton: flat
- * label and value stand-ins, without the loaded tile's border or type scale.
+ * label and value stand-ins, without the loaded tile's dividers or type scale.
  *
  * The prototype only draws the wide arrangement. The narrow one below mirrors
  * `metric-tile-grid.module.scss` instead, which stacks full-width rows until
@@ -35,13 +35,18 @@ $tile-value-inline-size: 70%;
 	min-block-size: 0;
 }
 
-/* Narrow: one full-width row per metric, as the loaded grid's single column. */
+/* Narrow: one full-width row per metric, as the loaded grid's single column.
+ * The loaded grid runs flush and gives a row its height with the tile's own
+ * block padding, so the stand-ins do the same rather than carrying a gap
+ * instead. That matches a row's height, not its position: the loaded grid
+ * stretches its rows over the whole body and this stays a centred block, so in
+ * a cell with slack the two still sit at different heights. */
 .tiles {
 	display: flex;
 	flex: 1 1 auto;
 	flex-direction: column;
 	justify-content: safe center;
-	gap: var(--wpds-dimension-gap-sm);
+	gap: 0;
 	min-block-size: 0;
 	overflow: hidden;
 }
@@ -52,6 +57,7 @@ $tile-value-inline-size: 70%;
 	align-items: center;
 	justify-content: space-between;
 	gap: var(--wpds-dimension-gap-md);
+	padding-block: var(--wpds-dimension-padding-sm);
 }
 
 .label {
@@ -75,15 +81,19 @@ $tile-value-inline-size: 70%;
 	.tiles {
 		flex-flow: row wrap;
 		align-content: safe center;
-		gap: var(--wpds-dimension-gap-xl);
 	}
 
+	/* Same swap as the narrow rows: the loaded tiles sit flush and hold each
+	 * other off with inline padding, so a stand-in column lines up with the
+	 * column it replaces. */
 	.tile {
 		flex: 1 1 0;
 		flex-direction: column;
 		justify-content: unset;
 		gap: 0;
 		min-inline-size: $tile-min-inline-size;
+		padding-block: var(--wpds-dimension-padding-md);
+		padding-inline: var(--wpds-dimension-padding-md);
 	}
 
 	.label {

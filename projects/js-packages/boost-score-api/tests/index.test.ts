@@ -1,4 +1,4 @@
-import { jest } from '@jest/globals';
+import { afterEach, beforeEach, describe, expect, it, jest } from '@jest/globals';
 import api from '../src/api';
 import {
 	requestSpeedScores,
@@ -25,8 +25,10 @@ const mockData = {
 };
 
 describe( 'requestSpeedScores', () => {
+	let post: jest.SpiedFunction< typeof api.post >;
+
 	beforeEach( () => {
-		jest.spyOn( api, 'post' );
+		post = jest.spyOn( api, 'post' );
 	} );
 
 	afterEach( () => {
@@ -35,7 +37,7 @@ describe( 'requestSpeedScores', () => {
 	} );
 
 	it( 'should return speed scores', async () => {
-		api.post.mockResolvedValue( mockData );
+		post.mockResolvedValue( mockData );
 
 		const scores = await requestSpeedScores(
 			false,
@@ -44,17 +46,39 @@ describe( 'requestSpeedScores', () => {
 			'nonce'
 		);
 		expect( scores ).toEqual( mockData.scores );
-		expect( api.post ).toHaveBeenCalledWith(
+		// Asserted through mock.calls rather than toHaveBeenCalledWith: the api.post
+		// signature takes a JSONObject, which is recursive, and matching against it
+		// pushes the checker past its instantiation limit.
+		expect( post.mock.calls[ 0 ] ).toEqual( [
 			'https://example.com/wp-json/',
 			'/speed-scores',
 			{ url: 'https://example.com' },
+			'nonce',
+		] );
+	} );
+
+	it( 'asks for a fresh measurement when forced', async () => {
+		post.mockResolvedValue( mockData );
+
+		const scores = await requestSpeedScores(
+			true,
+			'https://example.com/wp-json/',
+			'https://example.com',
 			'nonce'
 		);
+
+		expect( scores ).toEqual( mockData.scores );
+		expect( post.mock.calls[ 0 ] ).toEqual( [
+			'https://example.com/wp-json/',
+			'/speed-scores/refresh',
+			{ url: 'https://example.com' },
+			'nonce',
+		] );
 	} );
 
 	it( 'waits 240 seconds before giving up on a pending score', async () => {
 		jest.useFakeTimers();
-		api.post.mockResolvedValue( { status: 'pending' } );
+		post.mockResolvedValue( { status: 'pending' } );
 
 		let settled = false;
 		const request = requestSpeedScores(
@@ -123,6 +147,7 @@ describe( 'getScoreMovementPercentage', () => {
 				desktop: 90,
 				mobile: 80,
 			},
+			isStale: true,
 		};
 		changedMockData.scores = newScores;
 

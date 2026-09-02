@@ -36,6 +36,11 @@ type Result = {
  * we surface it as `lastModified` so the FileInfoCard can render the
  * date without a separate path-info call.
  *
+ * `id` is copied through untouched. It is the only value a granular
+ * download can name an entry by, so dropping it here — which is what
+ * this transform used to do — makes the file selection unsendable
+ * however carefully the tree tracks it.
+ *
  * Exported for tests: it's a pure transform of one untrusted WPCOM entry,
  * and the timestamp guard below is worth asserting directly.
  *
@@ -53,6 +58,7 @@ export function toFileNode( name: string, raw: WpcomFileNode, parentPath: string
 			type: 'folder',
 			name,
 			path: fullPath,
+			id: raw.id,
 		};
 	}
 
@@ -81,6 +87,7 @@ export function toFileNode( name: string, raw: WpcomFileNode, parentPath: string
 		type: 'file',
 		name,
 		path: fullPath,
+		id: raw.id,
 		lastModified,
 		period: raw.period,
 		manifestPath: raw.manifest_path,

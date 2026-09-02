@@ -158,9 +158,11 @@ export function useReportDateFilters< TFrom extends string >( from?: TFrom ): Re
 		[ stage, effective ]
 	);
 
+	// Gated like the applied pair below: a link carrying `compare_preset` with no
+	// window compares nothing, and must not paint the control active.
 	const comparisonPresetId = useMemo(
-		() => effective.compare_preset ?? undefined,
-		[ effective.compare_preset ]
+		() => ( hasComparisonEnabled( effective ) ? effective.compare_preset ?? undefined : undefined ),
+		[ effective ]
 	);
 
 	/*

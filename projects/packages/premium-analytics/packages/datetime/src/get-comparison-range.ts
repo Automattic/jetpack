@@ -2,23 +2,29 @@
  * External dependencies
  */
 import {
+	addDays,
+	addMonths,
+	differenceInCalendarMonths,
 	differenceInDays,
 	differenceInMilliseconds,
 	endOfDay,
 	endOfMonth,
 	isFirstDayOfMonth,
 	isLastDayOfMonth,
+	isSameDay,
 	startOfDay,
 	startOfMonth,
 	subDays,
 	subMilliseconds,
 	subMonths,
+	subWeeks,
 	subYears,
 } from 'date-fns';
 
 export type DateRange = { from?: Date; to?: Date };
 
 export const COMPARISON_PREVIOUS_PERIOD = 'previous-period' as const;
+export const COMPARISON_PREVIOUS_WEEK = 'previous-week' as const;
 export const COMPARISON_PREVIOUS_MONTH = 'previous-month' as const;
 export const COMPARISON_PREVIOUS_YEAR = 'previous-year' as const;
 
@@ -27,6 +33,7 @@ export const COMPARISON_PREVIOUS_YEAR = 'previous-year' as const;
  */
 export const COMPARISON_PRESETS = [
 	COMPARISON_PREVIOUS_PERIOD,
+	COMPARISON_PREVIOUS_WEEK,
 	COMPARISON_PREVIOUS_MONTH,
 	COMPARISON_PREVIOUS_YEAR,
 ] as const;
@@ -52,6 +59,35 @@ export function isComparisonPresetId( value: unknown ): value is ComparisonPrese
  */
 function getInclusiveDayCount( from: Date, to: Date ): number {
 	return differenceInDays( to, from ) + 1;
+}
+
+/**
+ * Whole calendar months a day-aligned range covers, or null when it is not a
+ * whole number of months. Detected by round trip against the day after the
+ * range ends, so a clamped month end (Oct 31 plus a month is Nov 30) still
+ * counts. Shared by the previous-period shift and its label, so both take the
+ * same branch; unlike `getDateRangeSpan`, a single month counts.
+ *
+ * @param from - Range start.
+ * @param to   - Range end.
+ * @return The month count, or null.
+ */
+export function getWholeMonthCount( from: Date, to: Date ): number | null {
+	const isDayAligned =
+		from.getTime() === startOfDay( from ).getTime() && to.getTime() === endOfDay( to ).getTime();
+
+	if ( ! isDayAligned ) {
+		return null;
+	}
+
+	const dayAfterTo = startOfDay( addDays( to, 1 ) );
+	const months = differenceInCalendarMonths( dayAfterTo, from );
+
+	if ( months < 1 ) {
+		return null;
+	}
+
+	return isSameDay( addMonths( from, months ), dayAfterTo ) ? months : null;
 }
 
 /**
@@ -91,6 +127,8 @@ export function getComparisonRangeFromPreset(
 			// Both ends are inclusive, so the window lasts `windowMs + 1`; shifting
 			// by `windowMs` alone lands `to` inside the reference window.
 			to = subMilliseconds( refTo, windowMs + 1 );
+		} else if ( presetId === COMPARISON_PREVIOUS_WEEK ) {
+			to = subWeeks( refTo, 1 );
 		} else if ( presetId === COMPARISON_PREVIOUS_MONTH ) {
 			to = subMonths( refTo, 1 );
 		} else if ( presetId === COMPARISON_PREVIOUS_YEAR ) {
@@ -109,10 +147,30 @@ export function getComparisonRangeFromPreset(
 		bound === 1 ? endOfDay( startOfDay( date ) ) : startOfDay( date );
 
 	if ( presetId === COMPARISON_PREVIOUS_PERIOD ) {
+		// A whole-months window steps back by its month count — Last month lands
+		// on the previous calendar month, Last year on the previous calendar
+		// year — where a day-count shift would skew across unequal month and
+		// year lengths (365-day 2025 against 366-day 2024).
+		const wholeMonths = getWholeMonthCount( refFrom, refTo );
+		if ( wholeMonths ) {
+			const dayAfterTo = startOfDay( addDays( refTo, 1 ) );
+			return {
+				from: clampDayBound( subMonths( refFrom, wholeMonths ), 0 ),
+				to: clampDayBound( subDays( subMonths( dayAfterTo, wholeMonths ), 1 ), 1 ),
+			};
+		}
+
 		const daysInclusive = getInclusiveDayCount( refFrom, refTo );
 		return {
 			from: clampDayBound( subDays( refFrom, daysInclusive ), 0 ),
 			to: clampDayBound( subDays( refTo, daysInclusive ), 1 ),
+		};
+	}
+
+	if ( presetId === COMPARISON_PREVIOUS_WEEK ) {
+		return {
+			from: clampDayBound( subWeeks( refFrom, 1 ), 0 ),
+			to: clampDayBound( subWeeks( refTo, 1 ), 1 ),
 		};
 	}
 

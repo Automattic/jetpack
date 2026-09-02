@@ -38,6 +38,8 @@ import {
 	isYearSurfacePresetId,
 	toYearPresetId,
 	type ComputablePresetId,
+	MENU_SURFACE_PRESETS,
+	MENU_SURFACE_PRESET_GROUPS,
 	type QuickSurfacePresetId,
 	type SelectablePresetId,
 	type PrimaryPresetId,
@@ -67,6 +69,11 @@ export const DEFAULT_YEAR_SURFACE_COUNT = 6;
 type PresetDefinition = {
 	id: SelectablePresetId;
 	getLabel: () => string;
+	/**
+	 * Compressed label for the surface pills, where the row cannot afford the
+	 * preset's full name. Only the quick surface presets carry one.
+	 */
+	getPillLabel?: () => string;
 	/**
 	 * Short label for the surface pills. Only the quick surface presets carry
 	 * one: they are the only presets rendered in a fixed-width row. Translated
@@ -116,7 +123,8 @@ export const PRESET_DEFINITIONS: ReadonlyArray< PresetDefinition > = [
 	},
 	{
 		id: PRESET_LAST_7_DAYS,
-		getLabel: () =>
+		getLabel: () => __( 'Last 7 days', 'jetpack-premium-analytics-pkg' ),
+		getPillLabel: () =>
 			/* translators: Rolling date-range preset pill. The last 7 days; keep it short. */
 			__( '7 days', 'jetpack-premium-analytics-pkg' ),
 		getShortLabel: () =>
@@ -129,7 +137,8 @@ export const PRESET_DEFINITIONS: ReadonlyArray< PresetDefinition > = [
 	},
 	{
 		id: PRESET_LAST_30_DAYS,
-		getLabel: () =>
+		getLabel: () => __( 'Last 30 days', 'jetpack-premium-analytics-pkg' ),
+		getPillLabel: () =>
 			/* translators: Rolling date-range preset pill. The last 30 days; keep it short. */
 			__( '30 days', 'jetpack-premium-analytics-pkg' ),
 		getShortLabel: () =>
@@ -166,7 +175,8 @@ export const PRESET_DEFINITIONS: ReadonlyArray< PresetDefinition > = [
 	},
 	{
 		id: PRESET_LAST_12_MONTHS,
-		getLabel: () =>
+		getLabel: () => __( 'Last 12 months', 'jetpack-premium-analytics-pkg' ),
+		getPillLabel: () =>
 			/* translators: Rolling date-range preset pill. The last 12 months; keep it short. */
 			__( '12 months', 'jetpack-premium-analytics-pkg' ),
 		getShortLabel: () =>
@@ -269,6 +279,11 @@ export type DateRangePreset< TId extends ComputablePresetId = SelectablePresetId
 	id: TId;
 	label: string;
 	/**
+	 * The pill row's own form of the name, present only where the row cannot
+	 * afford the full one. A surface with room reads `label`.
+	 */
+	pillLabel?: string;
+	/**
 	 * Abbreviated label, present only on presets that render as surface pills.
 	 * Consumers that never run out of room can ignore it.
 	 */
@@ -350,9 +365,10 @@ function resolveAllTimeStart( options: AllTimeRangeOptions, ctx: DateContext ): 
 export function getDefaultDateRangePresets( timeZone: string ): DateRangePreset[] {
 	const ctx = buildDateContext( timeZone );
 
-	return PRESET_DEFINITIONS.map( ( { id, getLabel, getShortLabel, getRange } ) => ( {
+	return PRESET_DEFINITIONS.map( ( { id, getLabel, getPillLabel, getShortLabel, getRange } ) => ( {
 		id,
 		label: getLabel(),
+		pillLabel: getPillLabel?.(),
 		shortLabel: getShortLabel?.(),
 		range: getRange( ctx ),
 	} ) );
@@ -459,6 +475,49 @@ export function getYearSurfacePresets(
 		},
 		...years,
 	];
+}
+
+/**
+ * Options of the period menu: which periods it offers, and where its all-time
+ * entry starts.
+ */
+export type MenuSurfaceOptions = AllTimeRangeOptions & {
+	/**
+	 * The presets to offer, filtered against the menu's own order. Defaults to
+	 * every selectable preset; a surface that can anchor one adds all time.
+	 */
+	presetIds?: readonly QuickSurfacePresetId[];
+};
+
+/**
+ * Presets for the period menu, grouped by scale.
+ *
+ * The grouping is the menu's, not the caller's: `presetIds` only says what is
+ * offered, and a group left with nothing is dropped rather than rendered empty.
+ *
+ * @param timeZone - IANA timezone string (e.g., 'America/New_York')
+ * @param options  - Which presets to offer, and the all-time anchor.
+ * @return The groups in display order, each in the menu's own order.
+ */
+export function getMenuSurfacePresetGroups(
+	timeZone: string,
+	options: MenuSurfaceOptions = {}
+): DateRangePreset< QuickSurfacePresetId >[][] {
+	const offered = new Set< string >( options.presetIds ?? MENU_SURFACE_PRESETS );
+	const presetsById = new Map< string, DateRangePreset< QuickSurfacePresetId > >(
+		getQuickSurfacePresets( timeZone, {
+			...options,
+			presetIds: [ ...offered ] as readonly QuickSurfacePresetId[],
+		} ).map( preset => [ preset.id, preset ] )
+	);
+
+	return MENU_SURFACE_PRESET_GROUPS.map( group =>
+		group
+			.map( id => presetsById.get( id ) )
+			.filter(
+				( preset ): preset is DateRangePreset< QuickSurfacePresetId > => preset !== undefined
+			)
+	).filter( group => group.length > 0 );
 }
 
 /**

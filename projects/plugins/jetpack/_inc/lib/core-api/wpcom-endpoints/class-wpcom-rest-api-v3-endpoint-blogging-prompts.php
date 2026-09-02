@@ -116,11 +116,14 @@ class WPCOM_REST_API_V3_Endpoint_Blogging_Prompts extends WP_REST_Posts_Controll
 
 		switch_to_blog( self::TEMPLATE_BLOG_ID );
 		add_action( 'pre_get_posts', array( $this, 'modify_query' ) );
-		add_filter( 'posts_clauses', array( $this, 'filter_sql' ) );
+		add_filter( 'posts_clauses', array( $this, 'filter_sql' ), 10, 2 );
 		$items = parent::get_items( $request );
 		remove_filter( 'posts_clauses', array( $this, 'filter_sql' ) );
 		remove_action( 'pre_get_posts', array( $this, 'modify_query' ) );
 		restore_current_blog();
+
+		// Reset so a later query in the same request can never inherit this state.
+		$this->day_of_year_query = 0;
 
 		return $items;
 	}
@@ -153,11 +156,19 @@ class WPCOM_REST_API_V3_Endpoint_Blogging_Prompts extends WP_REST_Posts_Controll
 	 * @param WP_Query $wp_query The WP_Query instance (passed by reference).
 	 */
 	public function modify_query( &$wp_query ) {
-		if ( is_array( $wp_query->query_vars['date_query'] ) ) {
-			$wp_query->query_vars['date_query'] = array_map(
-				array( $this, 'map_date_query' ),
-				$wp_query->query_vars['date_query']
-			);
+		// parent::get_items() renders each prompt while this hook is still attached,
+		// and rendering can spawn nested WP_Querys (e.g. Gutenberg's wp_global_styles
+		// lookup), so only ever touch the prompts query itself.
+		if ( $this->post_type !== $wp_query->get( 'post_type' ) ) {
+			return;
+		}
+
+		$date_query = $wp_query->get( 'date_query' );
+
+		if ( is_array( $date_query ) ) {
+			$wp_query->set( 'date_query', array_map( array( $this, 'map_date_query' ), $date_query ) );
+			// Mark the query so filter_sql() only modifies this one.
+			$wp_query->set( 'jetpack_blogging_prompts', true );
 		}
 	}
 
@@ -195,11 +206,15 @@ class WPCOM_REST_API_V3_Endpoint_Blogging_Prompts extends WP_REST_Posts_Controll
 	/**
 	 * Modify post sql for custom date ordering using the {@see 'posts_clauses'} hook.
 	 *
-	 * @param array $clauses SQL clauses for the current query.
-	 * @return array         Modified SQL clauses.
+	 * @param array         $clauses SQL clauses for the current query.
+	 * @param WP_Query|null $query   The WP_Query instance being filtered.
+	 * @return array                 Modified SQL clauses.
 	 */
-	public function filter_sql( $clauses ) {
+	public function filter_sql( $clauses, $query = null ) {
 		global $wpdb;
+		if ( ! $query instanceof WP_Query || ! $query->get( 'jetpack_blogging_prompts' ) ) {
+			return $clauses;
+		}
 		if ( $this->day_of_year_query > 0 ) {
 			$day  = $this->day_of_year_query;
 			$year = $this->force_year ? $this->force_year : wp_date( 'Y' );
