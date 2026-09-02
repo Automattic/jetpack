@@ -3,7 +3,7 @@ import {
 	GlobalErrorProvider,
 	ReportScopeProvider,
 } from '@jetpack-premium-analytics/data';
-import { LinkButton } from '@jetpack-premium-analytics/externals';
+import { Button, IconButton, LinkButton, Stack } from '@jetpack-premium-analytics/externals';
 import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
 import {
 	DateFiltersPanel,
@@ -13,19 +13,31 @@ import {
 	StatsPageIcon,
 } from '@jetpack-premium-analytics/ui';
 import { Page } from '@wordpress/admin-ui';
+import { DropdownMenu, MenuGroup, MenuItem } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
-import { useMemo, useState } from '@wordpress/element';
+import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { backup, moreVertical, pencil } from '@wordpress/icons';
 import { useParams } from '@wordpress/route';
-import { DEFAULT_GRID, ROW_HEIGHT_PRESETS, WidgetDashboard } from '@wordpress/widget-dashboard';
+import {
+	DEFAULT_GRID,
+	ROW_HEIGHT_PRESETS,
+	WidgetDashboard,
+	type DashboardWidget,
+} from '@wordpress/widget-dashboard';
 import { type WidgetModuleRecord } from '@wordpress/widget-primitives';
 import { useDetailBreadcrumbs } from '../use-detail-breadcrumbs';
 import { useDetailDateControls } from '../use-detail-date-controls';
 import { resolveWidgetModuleWithI18n, useWidgetTypesWithI18n } from '../widget-module-i18n';
 import { PostDetailTabs, PostSummaryCard } from './components';
 import { EMAIL_TAB_IDS, POST_DETAIL_WIDGET_TYPE_ALIASES } from './config';
-import { useEmailTabScope, usePostDetailTabs, usePostSummary } from './hooks';
+import {
+	useEmailTabScope,
+	usePostDetailTabLayout,
+	usePostDetailTabs,
+	usePostSummary,
+} from './hooks';
 import { route } from './package.json';
 import styles from './stage.module.scss';
 
@@ -34,10 +46,6 @@ const ROUTE_FROM = route.path;
 // Fixed composition (WOOA7S-1622): grid stays independent from the
 // customizable main-dashboard preference so it can't be stretched.
 const POST_DETAIL_GRID = { ...DEFAULT_GRID, rowHeight: ROW_HEIGHT_PRESETS.small };
-
-// The layout is fixed, so the change callback never fires; the dashboard
-// still requires one because it owns a staging copy internally.
-const noopLayoutChange = () => {};
 
 // = summary's min-inline-size + row gap (keep in sync with stage.module.scss)
 // + a buffer, so the panel steps down before CSS wrap — wrap is synchronous
@@ -73,10 +81,78 @@ function PostDetail(): JSX.Element {
 	// tabs mount their fixed layout and let each widget surface its own error.
 	const emailScopeBlocked = ! emailScope && ! summary.isLoading && summary.isError;
 
-	const { tabs, activeTab, setActiveTab, layout } = usePostDetailTabs(
-		postId,
-		emailScope?.reportParams,
-		emailScopeBlocked
+	const {
+		tabs,
+		activeTab,
+		setActiveTab,
+		layout: fixedLayout,
+	} = usePostDetailTabs( postId, emailScope?.reportParams, emailScopeBlocked );
+
+	// The stored per-tab arrangement, layered over the fixed composition.
+	const { layout, setLayout, resetLayout, hasCustomLayout } = usePostDetailTabLayout(
+		activeTab,
+		fixedLayout
+	);
+
+	const [ isCustomizing, setIsCustomizing ] = useState( false );
+
+	/*
+	 * Customize edits are staged here and written to preferences only on Save,
+	 * so Cancel is a real cancel. The dashboard's own auto-save commits through
+	 * `onLayoutChange` while editing, which lands in this draft, not in storage.
+	 * `draftIsReset` marks a draft produced by Reset: saving it deletes the
+	 * stored entry instead of writing a copy of the fixed composition, so a
+	 * reset tab keeps following the composition as it evolves.
+	 */
+	const [ draft, setDraft ] = useState< DashboardWidget[] | null >( null );
+	const [ draftIsReset, setDraftIsReset ] = useState( false );
+
+	// Entering customize swaps the header actions, which unmounts the menu and
+	// closes its popover; no explicit onClose needed.
+	const startCustomizing = useCallback( () => {
+		setDraft( null );
+		setDraftIsReset( false );
+		setIsCustomizing( true );
+	}, [] );
+
+	const stageDraft = useCallback( ( nextLayout: DashboardWidget[] ) => {
+		setDraft( nextLayout );
+		setDraftIsReset( false );
+	}, [] );
+
+	const resetDraft = useCallback( () => {
+		setDraft( fixedLayout );
+		setDraftIsReset( true );
+	}, [ fixedLayout ] );
+
+	const cancelCustomizing = useCallback( () => {
+		setDraft( null );
+		setDraftIsReset( false );
+		setIsCustomizing( false );
+	}, [] );
+
+	const saveCustomizing = useCallback( () => {
+		if ( draftIsReset ) {
+			resetLayout();
+		} else if ( draft ) {
+			setLayout( draft );
+		}
+		setDraft( null );
+		setDraftIsReset( false );
+		setIsCustomizing( false );
+	}, [ draft, draftIsReset, resetLayout, setLayout ] );
+
+	const onEditChange = useCallback(
+		( nextEditMode: boolean ) => {
+			// An empty layout makes the dashboard request edit mode on its own (its
+			// empty state invites customization); a detail tab is only empty while
+			// the email gate resolves, so that request is ignored here.
+			if ( nextEditMode && layout.length === 0 ) {
+				return;
+			}
+			setIsCustomizing( nextEditMode );
+		},
+		[ layout ]
 	);
 	const isEmailTab = EMAIL_TAB_IDS.includes( activeTab );
 
@@ -131,27 +207,84 @@ function PostDetail(): JSX.Element {
 				widgetTypes={ pageWidgetTypes }
 				isResolvingWidgetTypes={ isResolvingWidgetTypes }
 				resolveWidgetModule={ resolveWidgetModuleWithI18n }
-				layout={ layout }
-				onLayoutChange={ noopLayoutChange }
+				layout={ isCustomizing && draft ? draft : layout }
+				onLayoutChange={ stageDraft }
 				gridSettings={ POST_DETAIL_GRID }
+				editMode={ isCustomizing }
+				onEditChange={ onEditChange }
 			>
 				<Page
 					visual={ <StatsPageIcon /> }
-					breadcrumbs={ <StatsBreadcrumbs items={ breadcrumbs } /> }
+					breadcrumbs={
+						isCustomizing ? (
+							<Stack direction="row" align="center" gap="sm">
+								<StatsBreadcrumbs items={ breadcrumbs } />
+								<span className={ styles.customizingBadge }>
+									{ __( 'Customizing', 'jetpack-premium-analytics-pkg' ) }
+								</span>
+							</Stack>
+						) : (
+							<StatsBreadcrumbs items={ breadcrumbs } />
+						)
+					}
 					actions={
-						publicUrl ? (
-							<LinkButton
-								variant="solid"
-								tone="neutral"
-								size="compact"
-								href={ publicUrl }
-								openInNewTab
-							>
-								{ summary.type === 'page'
-									? __( 'View page', 'jetpack-premium-analytics-pkg' )
-									: __( 'View post', 'jetpack-premium-analytics-pkg' ) }
-							</LinkButton>
-						) : undefined
+						isCustomizing ? (
+							<Stack direction="row" align="center" gap="sm">
+								<IconButton
+									icon={ backup }
+									label={ __( 'Reset to default', 'jetpack-premium-analytics-pkg' ) }
+									variant="minimal"
+									tone="neutral"
+									size="compact"
+									disabled={ ! hasCustomLayout && draft === null }
+									onClick={ resetDraft }
+								/>
+								<Button variant="minimal" size="compact" onClick={ cancelCustomizing }>
+									{ __( 'Cancel', 'jetpack-premium-analytics-pkg' ) }
+								</Button>
+								<Button
+									variant="solid"
+									size="compact"
+									disabled={ draft === null }
+									onClick={ saveCustomizing }
+								>
+									{ __( 'Save', 'jetpack-premium-analytics-pkg' ) }
+								</Button>
+							</Stack>
+						) : (
+							<Stack direction="row" align="center" gap="sm">
+								{ publicUrl ? (
+									<LinkButton
+										variant="solid"
+										tone="neutral"
+										size="compact"
+										href={ publicUrl }
+										openInNewTab
+									>
+										{ summary.type === 'page'
+											? __( 'View page', 'jetpack-premium-analytics-pkg' )
+											: __( 'View post', 'jetpack-premium-analytics-pkg' ) }
+									</LinkButton>
+								) : null }
+								{ /* The page's configurations menu (STATS-428): Customize lives here
+								     rather than as a standalone button, per the design's single menu.
+								     Usage/Settings/Feedback join it when the dashboard adopts the
+								     same menu. */ }
+								<DropdownMenu
+									icon={ moreVertical }
+									label={ __( 'Page options', 'jetpack-premium-analytics-pkg' ) }
+									popoverProps={ { placement: 'bottom-end' } }
+								>
+									{ () => (
+										<MenuGroup>
+											<MenuItem icon={ pencil } iconPosition="left" onClick={ startCustomizing }>
+												{ __( 'Customize', 'jetpack-premium-analytics-pkg' ) }
+											</MenuItem>
+										</MenuGroup>
+									) }
+								</DropdownMenu>
+							</Stack>
+						)
 					}
 					className={ styles.page }
 				>

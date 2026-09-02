@@ -1,10 +1,18 @@
 import { useReportScope } from '@jetpack-premium-analytics/data';
-import { render, screen, within } from '@testing-library/react';
-import { usePostDetailTabs, usePostSummary } from './hooks';
+import { act, render, screen, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { usePostDetailTabLayout, usePostDetailTabs, usePostSummary } from './hooks';
 import { stage } from './stage';
 import type { ReactNode } from 'react';
 
 let mockSearch: Record< string, unknown > = {};
+
+// The dashboard props the stage handed to the (mocked) WidgetDashboard.
+let mockDashboardProps: {
+	editMode?: boolean;
+	onEditChange?: ( next: boolean ) => void;
+	onLayoutChange?: ( next: unknown ) => void;
+} = {};
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/data' ),
@@ -69,7 +77,20 @@ function MockScopeProbe() {
 }
 
 jest.mock( '@wordpress/widget-dashboard', () => {
-	const WidgetDashboard = ( { children }: { children: ReactNode } ) => <>{ children }</>;
+	const WidgetDashboard = ( {
+		children,
+		editMode,
+		onEditChange,
+		onLayoutChange,
+	}: {
+		children: ReactNode;
+		editMode?: boolean;
+		onEditChange?: ( next: boolean ) => void;
+		onLayoutChange?: ( next: unknown ) => void;
+	} ) => {
+		mockDashboardProps = { editMode, onEditChange, onLayoutChange };
+		return <>{ children }</>;
+	};
 	WidgetDashboard.Widgets = () => <MockScopeProbe />;
 
 	return {
@@ -154,6 +175,12 @@ const mockEmailScope = {
 
 jest.mock( './hooks', () => ( {
 	usePostSummary: jest.fn(),
+	usePostDetailTabLayout: jest.fn( () => ( {
+		layout: [ { uuid: 'card', type: 'jpa/card' } ],
+		setLayout: () => {},
+		resetLayout: () => {},
+		hasCustomLayout: false,
+	} ) ),
 	useEmailTabScope: jest.fn( () => mockEmailScope ),
 	usePostDetailTabs: jest.fn( () => ( {
 		// The active tab mounts the panel carrying the widget grid.
@@ -169,6 +196,7 @@ jest.mock( './hooks', () => ( {
 
 const mockUsePostSummary = usePostSummary as jest.Mock;
 const mockUsePostDetailTabs = usePostDetailTabs as jest.Mock;
+const mockUseTabLayout = usePostDetailTabLayout as jest.Mock;
 
 /**
  * Stub the post summary hook, defaulting to a resolved post with a public URL.
@@ -235,6 +263,131 @@ describe( 'post detail stage', () => {
 		render( stage() );
 
 		expect( screen.getByTestId( 'performance-from' ) ).toHaveTextContent( 'none' );
+	} );
+
+	it( 'offers Customize in a page options menu and enters customize mode', async () => {
+		const user = userEvent.setup();
+		mockSummary();
+
+		render( stage() );
+
+		await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
+		await user.click( await screen.findByRole( 'menuitem', { name: 'Customize' } ) );
+
+		// The header swaps to the customize actions and the dashboard is editing.
+		expect( screen.getByText( 'Customizing' ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: 'Cancel' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: 'Reset to default' } ) ).toBeInTheDocument();
+		// Nothing changed yet, so there is nothing to save.
+		// @wordpress/ui buttons disable via aria-disabled, not the HTML attribute.
+		expect( screen.getByRole( 'button', { name: 'Save' } ) ).toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
+		expect( screen.queryByRole( 'link', { name: /^View post/ } ) ).not.toBeInTheDocument();
+		expect( mockDashboardProps.editMode ).toBe( true );
+
+		await user.click( screen.getByRole( 'button', { name: 'Cancel' } ) );
+		expect( screen.queryByRole( 'button', { name: 'Save' } ) ).not.toBeInTheDocument();
+		expect( screen.getByRole( 'link', { name: /^View post/ } ) ).toBeInTheDocument();
+		expect( mockDashboardProps.editMode ).toBe( false );
+	} );
+
+	it( 'stages edits and writes them only on Save', async () => {
+		const user = userEvent.setup();
+		const setLayout = jest.fn();
+		mockUseTabLayout.mockReturnValue( {
+			layout: [ { uuid: 'card', type: 'jpa/card' } ],
+			setLayout,
+			resetLayout: () => {},
+			hasCustomLayout: false,
+		} );
+		mockSummary();
+
+		render( stage() );
+
+		await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
+		await user.click( await screen.findByRole( 'menuitem', { name: 'Customize' } ) );
+
+		const rearranged = [ { uuid: 'card', type: 'jpa/card', placement: { order: 2 } } ];
+		// The dashboard reports layout edits through onLayoutChange (its own
+		// auto-save); they must stage locally, not hit storage.
+		act( () => mockDashboardProps.onLayoutChange?.( rearranged ) );
+		expect( setLayout ).not.toHaveBeenCalled();
+
+		await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
+		expect( setLayout ).toHaveBeenCalledWith( rearranged );
+		expect( mockDashboardProps.editMode ).toBe( false );
+	} );
+
+	it( 'discards staged edits on Cancel', async () => {
+		const user = userEvent.setup();
+		const setLayout = jest.fn();
+		mockUseTabLayout.mockReturnValue( {
+			layout: [ { uuid: 'card', type: 'jpa/card' } ],
+			setLayout,
+			resetLayout: () => {},
+			hasCustomLayout: false,
+		} );
+		mockSummary();
+
+		render( stage() );
+
+		await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
+		await user.click( await screen.findByRole( 'menuitem', { name: 'Customize' } ) );
+		act(
+			() =>
+				mockDashboardProps.onLayoutChange?.( [
+					{ uuid: 'card', type: 'jpa/card', placement: { order: 2 } },
+				] )
+		);
+
+		await user.click( screen.getByRole( 'button', { name: 'Cancel' } ) );
+		expect( setLayout ).not.toHaveBeenCalled();
+	} );
+
+	it( 'saves a reset as a deleted arrangement, not a stored copy', async () => {
+		const user = userEvent.setup();
+		const setLayout = jest.fn();
+		const resetLayout = jest.fn();
+		mockUseTabLayout.mockReturnValue( {
+			layout: [ { uuid: 'card', type: 'jpa/card' } ],
+			setLayout,
+			resetLayout,
+			hasCustomLayout: true,
+		} );
+		mockSummary();
+
+		render( stage() );
+
+		await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
+		await user.click( await screen.findByRole( 'menuitem', { name: 'Customize' } ) );
+
+		await user.click( screen.getByRole( 'button', { name: 'Reset to default' } ) );
+		// Reset stages the fixed composition, so Save has something to write.
+		await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
+
+		expect( resetLayout ).toHaveBeenCalled();
+		expect( setLayout ).not.toHaveBeenCalled();
+	} );
+
+	it( 'ignores the dashboard\u2019s empty-layout edit request while a tab has no layout', () => {
+		mockUseTabLayout.mockReturnValue( {
+			layout: [],
+			setLayout: () => {},
+			resetLayout: () => {},
+			hasCustomLayout: false,
+		} );
+		mockSummary();
+
+		render( stage() );
+
+		// An empty layout makes the real dashboard request edit mode (its empty
+		// state invites customization); the stage must not let a pending email
+		// gate open the customize chrome.
+		act( () => mockDashboardProps.onEditChange?.( true ) );
+
+		expect( screen.queryByRole( 'button', { name: 'Done' } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'puts a View post action in the page header, opening the live post in a new tab', () => {

@@ -95,3 +95,19 @@
 	flex: 0 0 auto;
 	margin-inline-start: auto;
 }
+
+/* The "Customizing" pill beside the page title while edit mode is on. Plain
+ * neutral tokens; retheme here if the design system grows a Badge. */
+.customizingBadge {
+	display: inline-flex;
+	align-items: center;
+	align-self: center;
+	padding-block: 2px;
+	padding-inline: 8px;
+	border-radius: 4px;
+	background: rgba(56, 88, 233, 0.08);
+	color: #3b3f63;
+	font-size: 12px;
+	font-weight: 500;
+	white-space: nowrap;
+}
