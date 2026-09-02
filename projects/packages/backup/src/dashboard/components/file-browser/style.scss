@@ -19,6 +19,18 @@
 		&:has(> .jpb-file-info-card) {
 			grid-template-columns: minmax(0, 1fr) minmax(0, 280px);
 		}
+
+		// `align-self` is load-bearing: grid stretches the card to its row's
+		// height — the tree's — and a stretched card has nowhere to travel.
+		// Silently unsticks if `Card.Root` ever becomes `overflow: hidden`:
+		// that makes `.jpb-backup-detail` the scrollport, not `.jpb-dashboard-body`.
+		> .jpb-file-info-card {
+			position: sticky;
+			align-self: start;
+			// Zero because the scrollport is `.jpb-dashboard-body`; the admin
+			// bar and the sticky `Page` header sit outside it, above its top.
+			inset-block-start: 0;
+		}
 	}
 
 	&__row {
