@@ -238,16 +238,18 @@ const PeriodControl = ( { value, onChange }: PeriodControlProps ) => {
 							);
 						} ) }
 					</ul>
-					<RangeCalendar
-						value={ draft }
-						onValueChange={ handleCalendarChange }
-						locale={ getLocale() }
-						numberOfMonths={ isSmall ? 1 : 2 }
-						defaultMonth={ defaultMonth }
-						startMonth={ earliest }
-						endMonth={ today }
-						disabled={ [ { before: earliest }, { after: today } ] }
-					/>
+					<div className="podcast-period-control__calendar">
+						<RangeCalendar
+							value={ draft }
+							onValueChange={ handleCalendarChange }
+							locale={ getLocale() }
+							numberOfMonths={ isSmall ? 1 : 2 }
+							defaultMonth={ defaultMonth }
+							startMonth={ earliest }
+							endMonth={ today }
+							disabled={ [ { before: earliest }, { after: today } ] }
+						/>
+					</div>
 				</div>
 			</Popover.Popup>
 		</Popover.Root>
