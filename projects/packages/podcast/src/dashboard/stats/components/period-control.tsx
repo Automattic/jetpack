@@ -2,7 +2,7 @@ import { useViewportMatch } from '@wordpress/compose';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { calendar as calendarIcon } from '@wordpress/icons';
-import { Button, Popover, RangeCalendar } from '@wordpress/ui';
+import { Button, Popover, RangeCalendar, VisuallyHidden } from '@wordpress/ui';
 import { localDateFromYmd, selectionFromDates } from '../range';
 import type { PodcastStatsSelection } from '../types';
 import type { MouseEvent } from 'react';
@@ -158,10 +158,14 @@ const PeriodControl = ( { value, onChange }: PeriodControlProps ) => {
 
 	const handleOpenChange = useCallback(
 		( open: boolean ) => {
-			setDraft( open ? { from: start, to: end } : null );
+			setDraft(
+				open
+					? { from: localDateFromYmd( value.range.from ), to: localDateFromYmd( value.range.to ) }
+					: null
+			);
 			setIsOpen( open );
 		},
-		[ start, end ]
+		[ value.range.from, value.range.to ]
 	);
 
 	// First click after a complete range starts over; the second click applies.
@@ -210,10 +214,10 @@ const PeriodControl = ( { value, onChange }: PeriodControlProps ) => {
 				{ formatLabel( start, end ) }
 				<Button.Icon icon={ calendarIcon } />
 			</Popover.Trigger>
-			<Popover.Popup
-				className="podcast-period-control__popup"
-				positioner={ <Popover.Positioner align="end" sideOffset={ 8 } /> }
-			>
+			<Popover.Popup positioner={ <Popover.Positioner align="end" sideOffset={ 8 } /> }>
+				<VisuallyHidden>
+					<Popover.Title>{ __( 'Select a date range', 'jetpack-podcast' ) }</Popover.Title>
+				</VisuallyHidden>
 				<div className="podcast-period-control__body">
 					<ul
 						className="podcast-period-control__presets"
