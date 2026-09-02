@@ -50,8 +50,8 @@ class Enablement_Setting_Test extends BaseTestCase {
 	 * Drop the option and everything the test hooked up.
 	 */
 	public function tear_down() {
-		delete_option( Analytics::ENABLED_OPTION );
-		unregister_setting( 'general', Analytics::ENABLED_OPTION );
+		delete_option( Enablement_Setting::ENABLED_OPTION );
+		unregister_setting( 'general', Enablement_Setting::ENABLED_OPTION );
 		remove_all_filters( 'jetpack_premium_analytics_enabled' );
 		remove_all_filters( 'rest_pre_get_setting' );
 		remove_action( 'rest_api_init', array( Enablement_Setting::class, 'register' ) );
@@ -106,7 +106,7 @@ class Enablement_Setting_Test extends BaseTestCase {
 	 */
 	private function post_enabled( bool $enabled ) {
 		$request = new WP_REST_Request( 'POST', self::ROUTE );
-		$request->set_param( Analytics::ENABLED_OPTION, $enabled );
+		$request->set_param( Enablement_Setting::ENABLED_OPTION, $enabled );
 
 		return rest_get_server()->dispatch( $request );
 	}
@@ -117,20 +117,20 @@ class Enablement_Setting_Test extends BaseTestCase {
 		$response = $this->get_settings();
 
 		$this->assertSame( 200, $response->get_status() );
-		$this->assertArrayHasKey( Analytics::ENABLED_OPTION, $response->get_data() );
+		$this->assertArrayHasKey( Enablement_Setting::ENABLED_OPTION, $response->get_data() );
 	}
 
 	public function test_get_reports_disabled_when_the_site_has_not_opted_in() {
 		$this->log_in_as_admin();
 
-		$this->assertFalse( $this->get_settings()->get_data()[ Analytics::ENABLED_OPTION ] );
+		$this->assertFalse( $this->get_settings()->get_data()[ Enablement_Setting::ENABLED_OPTION ] );
 	}
 
 	public function test_get_reports_the_stored_opt_in() {
 		$this->log_in_as_admin();
-		update_option( Analytics::ENABLED_OPTION, 1 );
+		update_option( Enablement_Setting::ENABLED_OPTION, 1 );
 
-		$this->assertTrue( $this->get_settings()->get_data()[ Analytics::ENABLED_OPTION ] );
+		$this->assertTrue( $this->get_settings()->get_data()[ Enablement_Setting::ENABLED_OPTION ] );
 	}
 
 	/**
@@ -142,7 +142,7 @@ class Enablement_Setting_Test extends BaseTestCase {
 		$this->log_in_as_admin();
 		add_filter( 'jetpack_premium_analytics_enabled', '__return_true' );
 
-		$this->assertTrue( $this->get_settings()->get_data()[ Analytics::ENABLED_OPTION ] );
+		$this->assertTrue( $this->get_settings()->get_data()[ Enablement_Setting::ENABLED_OPTION ] );
 	}
 
 	public function test_the_filter_leaves_other_settings_alone() {
@@ -155,19 +155,19 @@ class Enablement_Setting_Test extends BaseTestCase {
 		$response = $this->post_enabled( true );
 
 		$this->assertSame( 200, $response->get_status() );
-		$this->assertTrue( $response->get_data()[ Analytics::ENABLED_OPTION ] );
-		$this->assertTrue( (bool) get_option( Analytics::ENABLED_OPTION ) );
+		$this->assertTrue( $response->get_data()[ Enablement_Setting::ENABLED_OPTION ] );
+		$this->assertTrue( (bool) get_option( Enablement_Setting::ENABLED_OPTION ) );
 	}
 
 	public function test_post_disables_the_dashboard_by_writing_the_option() {
 		$this->log_in_as_admin();
-		update_option( Analytics::ENABLED_OPTION, 1 );
+		update_option( Enablement_Setting::ENABLED_OPTION, 1 );
 
 		$response = $this->post_enabled( false );
 
 		$this->assertSame( 200, $response->get_status() );
-		$this->assertFalse( $response->get_data()[ Analytics::ENABLED_OPTION ] );
-		$this->assertFalse( (bool) get_option( Analytics::ENABLED_OPTION ) );
+		$this->assertFalse( $response->get_data()[ Enablement_Setting::ENABLED_OPTION ] );
+		$this->assertFalse( (bool) get_option( Enablement_Setting::ENABLED_OPTION ) );
 	}
 
 	/**
@@ -180,8 +180,8 @@ class Enablement_Setting_Test extends BaseTestCase {
 
 		$response = $this->post_enabled( false );
 
-		$this->assertTrue( $response->get_data()[ Analytics::ENABLED_OPTION ] );
-		$this->assertFalse( (bool) get_option( Analytics::ENABLED_OPTION ) );
+		$this->assertTrue( $response->get_data()[ Enablement_Setting::ENABLED_OPTION ] );
+		$this->assertFalse( (bool) get_option( Enablement_Setting::ENABLED_OPTION ) );
 	}
 
 	public function test_reads_are_rejected_for_an_anonymous_caller() {
@@ -190,14 +190,14 @@ class Enablement_Setting_Test extends BaseTestCase {
 
 	public function test_writes_are_rejected_for_an_anonymous_caller() {
 		$this->assertSame( 401, $this->post_enabled( true )->get_status() );
-		$this->assertFalse( (bool) get_option( Analytics::ENABLED_OPTION ) );
+		$this->assertFalse( (bool) get_option( Enablement_Setting::ENABLED_OPTION ) );
 	}
 
 	public function test_writes_are_rejected_for_a_user_who_cannot_manage_options() {
 		$this->log_in_as( 'editor' );
 
 		$this->assertSame( 403, $this->post_enabled( true )->get_status() );
-		$this->assertFalse( (bool) get_option( Analytics::ENABLED_OPTION ) );
+		$this->assertFalse( (bool) get_option( Enablement_Setting::ENABLED_OPTION ) );
 	}
 
 	/**

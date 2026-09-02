@@ -910,11 +910,9 @@ class Jetpack {
 	 * @return void
 	 */
 	public static function register_premium_analytics_enablement_setting() {
-		if ( ! class_exists( 'Automattic\Jetpack\PremiumAnalytics\Enablement_Setting' ) ) {
-			return;
+		if ( class_exists( 'Automattic\Jetpack\PremiumAnalytics\Enablement_Setting' ) ) {
+			\Automattic\Jetpack\PremiumAnalytics\Enablement_Setting::register();
 		}
-
-		\Automattic\Jetpack\PremiumAnalytics\Enablement_Setting::register();
 	}
 
 	/**

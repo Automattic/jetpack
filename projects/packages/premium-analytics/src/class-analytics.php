@@ -24,17 +24,6 @@ class Analytics {
 	const PACKAGE_VERSION = '0.5.0';
 
 	/**
-	 * Site option holding the customer's own opt-in to the dashboard.
-	 *
-	 * Jetpack::is_premium_analytics_enabled() reads this on connected sites and spells the name
-	 * itself, since it has to answer before this package is known to be loadable. This constant is
-	 * the copy the package exposes through {@see Enablement_Setting}.
-	 *
-	 * @since $$next-version$$
-	 */
-	const ENABLED_OPTION = 'jetpack_premium_analytics_enabled';
-
-	/**
 	 * Whether the class has been initialized.
 	 *
 	 * @var bool

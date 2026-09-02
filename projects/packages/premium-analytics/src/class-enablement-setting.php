@@ -27,6 +27,18 @@ namespace Automattic\Jetpack\PremiumAnalytics;
 class Enablement_Setting {
 
 	/**
+	 * Site option holding the customer's own opt-in to the dashboard.
+	 *
+	 * Lives here rather than on {@see Analytics} so that registering the setting does not pull the
+	 * whole dashboard class in behind it: this runs on REST requests of every kind, including ones
+	 * with the dashboard switched off. Jetpack::is_premium_analytics_enabled() spells the name a
+	 * third time, since it has to answer before this package is known to be loadable at all.
+	 *
+	 * @since $$next-version$$
+	 */
+	const ENABLED_OPTION = 'jetpack_premium_analytics_enabled';
+
+	/**
 	 * Declare the setting, and the filter that answers reads with the effective value.
 	 *
 	 * Call on `rest_api_init`: core builds the settings route from the registered settings at
@@ -41,7 +53,7 @@ class Enablement_Setting {
 	public static function register() {
 		register_setting(
 			'general',
-			Analytics::ENABLED_OPTION,
+			self::ENABLED_OPTION,
 			array(
 				'type'         => 'boolean',
 				'default'      => false,
@@ -67,14 +79,14 @@ class Enablement_Setting {
 	 * @return mixed
 	 */
 	public static function report_effective_value( $value, $name ) {
-		if ( Analytics::ENABLED_OPTION !== $name ) {
+		if ( self::ENABLED_OPTION !== $name ) {
 			return $value;
 		}
 
 		/** This filter is documented in projects/plugins/jetpack/class.jetpack.php */
 		return (bool) apply_filters(
 			'jetpack_premium_analytics_enabled',
-			(bool) get_option( Analytics::ENABLED_OPTION )
+			(bool) get_option( self::ENABLED_OPTION )
 		);
 	}
 }

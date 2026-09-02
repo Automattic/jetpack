@@ -848,11 +848,9 @@ class Jetpack_Mu_Wpcom {
 	 * @since $$next-version$$
 	 */
 	public static function load_wpcom_simple_premium_analytics_enablement_setting() {
-		if ( ! class_exists( Premium_Analytics_Enablement_Setting::class ) ) {
-			return;
+		if ( class_exists( Premium_Analytics_Enablement_Setting::class ) ) {
+			Premium_Analytics_Enablement_Setting::register();
 		}
-
-		Premium_Analytics_Enablement_Setting::register();
 	}
 
 	/**
