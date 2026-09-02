@@ -1,5 +1,6 @@
 <?php
 
+use Automattic\Jetpack\Assets\Shared_Stores_Assets;
 use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Constants;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -97,6 +98,26 @@ class Jetpack_Gutenberg_Test extends WP_UnitTestCase {
 			'potato',
 			'tomato',
 		);
+	}
+
+	/**
+	 * The modules store initializes immediately, so its state must be localized on
+	 * the shared-store handle rather than on a later editor script.
+	 */
+	public function test_editor_initial_state_is_localized_on_shared_modules_store() {
+		global $current_screen;
+
+		$current_screen = convert_to_screen( 'post' );
+		$current_screen->is_block_editor( true );
+
+		Jetpack_Gutenberg::enqueue_block_editor_assets();
+
+		$scripts = wp_scripts();
+		$this->assertStringContainsString(
+			'Jetpack_Editor_Initial_State',
+			(string) $scripts->get_data( Shared_Stores_Assets::SCRIPT_HANDLE, 'data' )
+		);
+		$this->assertEmpty( $scripts->get_data( 'jetpack-blocks-editor', 'data' ) );
 	}
 
 	/**

@@ -7,6 +7,7 @@
  */
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Assets\Shared_Stores_Assets;
 use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
@@ -976,7 +977,7 @@ class Jetpack_Gutenberg {
 		);
 
 		wp_localize_script(
-			'jetpack-blocks-editor',
+			Shared_Stores_Assets::SCRIPT_HANDLE,
 			'Jetpack_Editor_Initial_State',
 			$initial_state
 		);

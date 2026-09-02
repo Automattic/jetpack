@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\Extensions\Contact_Form;
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Assets\Shared_Stores_Assets;
 use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form;
@@ -1273,7 +1274,7 @@ class Contact_Form_Block {
 		// - feature_flags: hasFeatureFlag() reads this for central-form-management,
 		// form-webhooks, and multistep-form.
 		wp_localize_script(
-			'jetpack-blocks-editor',
+			Shared_Stores_Assets::SCRIPT_HANDLE,
 			'Jetpack_Editor_Initial_State',
 			array(
 				'available_blocks' => array(
