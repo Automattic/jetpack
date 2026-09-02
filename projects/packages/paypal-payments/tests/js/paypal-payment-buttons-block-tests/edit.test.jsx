@@ -8,7 +8,7 @@
  * @package
  */
 
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import Edit from '../../../src/paypal-payment-buttons/edit';
 // apiFetch mock — controls what the component receives from the REST API.
@@ -379,14 +379,28 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			open.mockRestore();
 		} );
 
-		it( 'closes the frame once the account reports connected', async () => {
-			jest.useFakeTimers( { advanceTimers: true } );
+		it( 'closes the frame when the SDK reports completion', async () => {
+			mockPlatformMode( { action_url: 'https://www.sandbox.paypal.com/merchantsignup/x' } );
 
-			let connected = false;
-			apiFetch.mockImplementation( ( { path } ) => {
+			await openOnboardingFrame();
+			await waitFor( () =>
+				expect( typeof window.jetpackPayPalOnboardComplete ).toBe( 'function' )
+			);
+
+			await act( async () => {
+				window.jetpackPayPalOnboardComplete( 'AUTH_CODE_1', 'SHARED_ID_1' );
+			} );
+
+			await waitFor( () =>
+				expect( screen.queryByTitle( 'PayPal onboarding' ) ).not.toBeInTheDocument()
+			);
+		} );
+
+		it( 'closes the frame when the exchange fails, so the error is not hidden behind it', async () => {
+			apiFetch.mockImplementation( ( { path, method } ) => {
 				if ( path.endsWith( '/connection' ) ) {
 					return Promise.resolve( {
-						connected,
+						connected: false,
 						environment: 'sandbox',
 						partner_referrals_available: true,
 					} );
@@ -396,21 +410,32 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 						action_url: 'https://www.sandbox.paypal.com/merchantsignup/x',
 					} );
 				}
+				if ( path.endsWith( '/onboarding/complete' ) && 'POST' === method ) {
+					return Promise.reject( new Error( 'PayPal token exchange failed.' ) );
+				}
 				return Promise.resolve( {} );
 			} );
 
 			await openOnboardingFrame();
-
-			// Denying top navigation also denies PayPal the return URL, so the
-			// poll is the only thing left to notice a completed onboarding.
-			connected = true;
-			jest.advanceTimersByTime( 3000 );
-
 			await waitFor( () =>
-				expect( screen.queryByTitle( 'PayPal onboarding' ) ).not.toBeInTheDocument()
+				expect( typeof window.jetpackPayPalOnboardComplete ).toBe( 'function' )
 			);
 
-			jest.useRealTimers();
+			await act( async () => {
+				window.jetpackPayPalOnboardComplete( 'AUTH_CODE_1', 'SHARED_ID_1' );
+			} );
+
+			// The error notice renders on the welcome step, which the overlay
+			// would otherwise cover with an open lightbox. The frame itself stays
+			// mounted, hidden, so a retry keeps its click-activation path.
+			await waitFor( () =>
+				expect( screen.getByTitle( 'PayPal onboarding' ) ).not.toHaveClass(
+					'jetpack-paypal-onboarding-frame--active'
+				)
+			);
+			await expect(
+				screen.findByText( /PayPal token exchange failed/ )
+			).resolves.toBeInTheDocument();
 		} );
 
 		it( 'exposes the completion callback for the SDK to call by name', async () => {

@@ -627,6 +627,15 @@
 	border: 0;
 	background: transparent;
 	z-index: 100000;
+
+	// Mounted before it is shown, so a click's user activation can reach it.
+	visibility: hidden;
+	pointer-events: none;
+
+	&--active {
+		visibility: visible;
+		pointer-events: auto;
+	}
 }
 
 .jetpack-paypal-payment-buttons__confirm-body {
