@@ -355,6 +355,9 @@ describe( 'AiFeatures rendering', () => {
 		await userEvent.click( screen.getByRole( 'checkbox', { name: /Writing Assistant/ } ) );
 
 		expect( analytics.tracks.recordEvent ).toHaveBeenCalledWith( 'jetpack_ai_feature_toggled', {
+			site_type: 'jetpack',
+			is_a11n: 'false',
+			is_test: 'false',
 			feature: 'writing_assistant',
 			enabled: false,
 		} );
