@@ -52,11 +52,8 @@ export const ACTIVITY_LOG_NEWEST_FIRST: ActivitySortOrder = 'desc';
  * page's request is in flight — DataViews' pagination feels smooth
  * instead of flashing a spinner over the list on every page change.
  *
- * `useDefaultBackupRewindId` mounts in the Overview screen's own body,
- * which React renders before `<Gates>` — so this query has to decide for
- * itself whether the bridge can answer, rather than relying on the gate
- * to not render it. Consumers inside the gated body get `enabled: true`
- * for free, since they only mount once the connection checks pass.
+ * Every consumer mounts inside `<Gates>`, so `enabled` is the backstop for a future
+ * one that does not: without a user-level WPCOM connection the bridge only 403s.
  *
  * WPCOM sorts the whole result set server-side, so `sortOrder` is part of the
  * cache key rather than something applied to the page after it arrives.

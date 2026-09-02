@@ -1,4 +1,0 @@
-Significance: patch
-Type: enhancement
-
-Sitemaps: speed up sitemap generation and reduce its memory use on sites with many posts and images.

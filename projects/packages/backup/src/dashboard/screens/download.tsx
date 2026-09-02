@@ -1,6 +1,6 @@
 import { Notice, ProgressBar, Spinner } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
-import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
+import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, cloud, download as downloadIcon, arrowLeft } from '@wordpress/icons';
 import { Link, useParams, useSearch } from '@wordpress/route';
@@ -8,7 +8,9 @@ import { Button, Card, Stack, Text } from '@wordpress/ui';
 import DashboardLayout from '../components/dashboard-layout';
 import InvalidRewindId from '../components/invalid-rewind-id';
 import RestoreItemsChecklist from '../components/restore-items-checklist';
+import { splitFileSelection } from '../data/api/download';
 import { useDownload } from '../hooks/use-download';
+import { useGateState } from '../hooks/use-gate-state';
 import { DEFAULT_RESTORE_ITEMS, hasSelectedItems } from '../types/restore';
 import { isValidRewindId, rewindIdToIso } from '../types/rewind-id';
 
@@ -21,8 +23,7 @@ const SELECTION_HINT_ID = 'jpb-download__selection-hint';
  * The Download route's own search params.
  *
  * `files` carries the file browser's selection as the comma-joined `ls`
- * entry ids the detail pane built — the same string upstream's
- * `include_path_list` takes.
+ * entry ids the detail pane built.
  */
 type DownloadSearch = Record< string, unknown > & { files?: string };
 
@@ -41,34 +42,40 @@ type DownloadSearch = Record< string, unknown > & { files?: string };
  */
 export default function DownloadScreen() {
 	const { rewindId } = useParams( { from: '/download/$rewindId' } );
+	const gate = useGateState();
 	// `strict: false` is the unvalidated read, and it is the whole option:
 	// passing `from` as well would send it down the route-id lookup that
 	// throws on a mismatch, which is the opposite of what is wanted for a
 	// param no route declares.
 	const search = useSearch( { strict: false } ) as DownloadSearch;
 	const [ items, setItems ] = useState( DEFAULT_RESTORE_ITEMS );
-	const { state, submit, reset } = useDownload( rewindId );
+	const isGateReady = gate.status === 'ready';
+	const { state, submit, submitFiles, reset } = useDownload( rewindId, isGateReady );
 	const handleGenerate = useCallback( () => submit( items ), [ submit, items ] );
 	// An empty checklist would ask WPCOM for the *whole* archive, not for
 	// nothing — see `hasSelectedItems`.
 	const hasSelection = hasSelectedItems( items );
 
-	// Kept as one string: it is already the `include_path_list` value
-	// JETPACK-2321 forwards, and a single `ls` entry id can contain a comma, so
-	// the pieces between commas are not entries.
+	// Kept as the one string the link carried, so the request is built from
+	// exactly what the detail pane counted.
 	const files = typeof search.files === 'string' ? search.files : '';
-	const hasFileSelection = files.replace( /,/g, '' ) !== '';
+	const hasFileSelection = useMemo( () => splitFileSelection( files ).length > 0, [ files ] );
 
 	// A ref, not Overview's module latch: a second mount here means the reader
 	// came back for a second archive. This only stops StrictMode asking twice.
 	const hasAutoStarted = useRef( false );
 	useEffect( () => {
-		if ( ! hasFileSelection || hasAutoStarted.current || ! isValidRewindId( rewindId ) ) {
+		if (
+			! isGateReady ||
+			! hasFileSelection ||
+			hasAutoStarted.current ||
+			! isValidRewindId( rewindId )
+		) {
 			return;
 		}
 		hasAutoStarted.current = true;
-		submit( items );
-	}, [ hasFileSelection, rewindId, submit, items ] );
+		submitFiles( files );
+	}, [ isGateReady, hasFileSelection, rewindId, submitFiles, files ] );
 
 	// With a file selection there is no checklist to send the reader back
 	// to, so a failed attempt has to re-submit rather than return to a
@@ -76,8 +83,8 @@ export default function DownloadScreen() {
 	// until something succeeds.
 	const handleRetry = useCallback( () => {
 		reset();
-		submit( items );
-	}, [ reset, submit, items ] );
+		submitFiles( files );
+	}, [ reset, submitFiles, files ] );
 
 	// A file selection has no form stage: the screen is waiting from the
 	// moment it mounts, before the mutation has even been sent.
@@ -182,7 +189,7 @@ export default function DownloadScreen() {
 					 */ }
 					{ isPreparing && (
 						<Stack direction="column" gap="sm">
-							<Text>{ __( 'Preparing download…', 'jetpack-backup-pkg' ) }</Text>
+							<Text role="status">{ __( 'Preparing download…', 'jetpack-backup-pkg' ) }</Text>
 							{ state.phase === 'progress' ? (
 								<ProgressBar
 									value={ state.percent }

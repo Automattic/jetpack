@@ -339,6 +339,16 @@ describe( 'report params field', () => {
 		);
 	} );
 
+	// A widget can carry a preset with no window behind it, and it compares
+	// nothing, so the control has to stay in its additive state.
+	it( 'ignores a saved comparison preset with no window', () => {
+		renderField( undefined, undefined, {
+			reportParams: { preset: 'last-30-days', interval: 'day', compare_preset: 'previous-period' },
+		} );
+
+		expect( screen.getByRole( 'button', { name: 'Compare' } ) ).toBeVisible();
+	} );
+
 	// Re-picking the item that already has the checkmark changes nothing, so the
 	// widget must not save and Apply must stay greyed out (WOOA7S-2039).
 	it( 'saves nothing when No comparison is re-picked with none applied', async () => {

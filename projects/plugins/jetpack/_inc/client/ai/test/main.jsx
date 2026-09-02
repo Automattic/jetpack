@@ -301,25 +301,33 @@ describe( 'AI admin page (main.jsx)', () => {
 		await waitFor( () => expect( mcpViewCount() ).toBe( 1 ) );
 	} );
 
-	describe( 'MCP view: connection notices', () => {
-		const CONNECT_TITLE = 'Your WordPress.com account isn’t connected.';
+	describe( 'MCP view: connect card', () => {
+		const CONNECT_CARD_TEXT = 'A user connection lets agents securely act on your behalf.';
 		const UPSELL_CTA = 'Upgrade plan';
 
 		beforeEach( () => {
 			window.location.hash = '#/mcp';
 		} );
 
-		test( 'site connected, no plan: shows the connect notice instead of the upsell', async () => {
+		test( 'site connected, no plan: shows the connect card instead of the upsell', async () => {
 			window.jetpackAiSettings = { showFeaturesView: true, blogId: 1, isUserConnected: false };
 			mockApiFetch( { mcpGet: { has_mcp_access: false, mcp_abilities: {} } } );
 
 			render( <App /> );
 
-			await expect( screen.findByText( CONNECT_TITLE, IGNORE_A11Y ) ).resolves.toBeInTheDocument();
-			expect( screen.getByRole( 'link', { name: 'Connect account' } ) ).toHaveAttribute(
+			await expect(
+				screen.findByText( CONNECT_CARD_TEXT, IGNORE_A11Y )
+			).resolves.toBeInTheDocument();
+			expect(
+				screen.getByRole( 'heading', { name: 'Connect AI agents to your site' } )
+			).toBeInTheDocument();
+			expect( screen.getByRole( 'link', { name: 'Connect your user account' } ) ).toHaveAttribute(
 				'href',
 				'admin.php?page=my-jetpack#/connection'
 			);
+			expect(
+				screen.queryByText( 'Upgrade your plan to give external AI agents access to your site.' )
+			).not.toBeInTheDocument();
 			expect( screen.queryByText( UPSELL_CTA ) ).not.toBeInTheDocument();
 			// The settings fetch is skipped: without a user token it can only fail.
 			expect( apiFetch ).not.toHaveBeenCalledWith(
@@ -327,13 +335,15 @@ describe( 'AI admin page (main.jsx)', () => {
 			);
 		} );
 
-		test( 'site connected, has plan: shows the connect notice and not the hub', async () => {
+		test( 'site connected, has plan: shows the connect card and not the hub', async () => {
 			window.jetpackAiSettings = { showFeaturesView: true, blogId: 1, isUserConnected: false };
 			mockApiFetch( { mcpGet: connectedMcpGet() } );
 
 			render( <App /> );
 
-			await expect( screen.findByText( CONNECT_TITLE, IGNORE_A11Y ) ).resolves.toBeInTheDocument();
+			await expect(
+				screen.findByText( CONNECT_CARD_TEXT, IGNORE_A11Y )
+			).resolves.toBeInTheDocument();
 			// The skipped fetch keeps hasMcpAccess null, so the hub cannot render.
 			expect(
 				screen.queryByText( 'External AI agent access', IGNORE_A11Y )
@@ -352,7 +362,9 @@ describe( 'AI admin page (main.jsx)', () => {
 
 			render( <App /> );
 
-			await expect( screen.findByText( CONNECT_TITLE, IGNORE_A11Y ) ).resolves.toBeInTheDocument();
+			await expect(
+				screen.findByText( CONNECT_CARD_TEXT, IGNORE_A11Y )
+			).resolves.toBeInTheDocument();
 			expect( screen.queryByText( 'No token for user 2', IGNORE_A11Y ) ).not.toBeInTheDocument();
 			expect( apiFetch ).not.toHaveBeenCalledWith(
 				expect.objectContaining( { path: expect.stringContaining( 'mcp-settings' ) } )
@@ -374,7 +386,7 @@ describe( 'AI admin page (main.jsx)', () => {
 			await expect(
 				screen.findByText( 'Something went wrong.', IGNORE_A11Y )
 			).resolves.toBeInTheDocument();
-			expect( screen.queryByText( CONNECT_TITLE, IGNORE_A11Y ) ).not.toBeInTheDocument();
+			expect( screen.queryByText( CONNECT_CARD_TEXT, IGNORE_A11Y ) ).not.toBeInTheDocument();
 		} );
 
 		test( 'isUserConnected undefined: behaviour unchanged, the upsell still shows', async () => {
@@ -384,7 +396,7 @@ describe( 'AI admin page (main.jsx)', () => {
 			render( <App /> );
 
 			await expect( screen.findByText( UPSELL_CTA ) ).resolves.toBeInTheDocument();
-			expect( screen.queryByText( CONNECT_TITLE, IGNORE_A11Y ) ).not.toBeInTheDocument();
+			expect( screen.queryByText( CONNECT_CARD_TEXT, IGNORE_A11Y ) ).not.toBeInTheDocument();
 		} );
 
 		test( 'site not connected: the site notice still comes first', async () => {
@@ -409,7 +421,7 @@ describe( 'AI admin page (main.jsx)', () => {
 			expect(
 				screen.queryByText( 'Sorry, something is wrong with your Jetpack connection.', IGNORE_A11Y )
 			).not.toBeInTheDocument();
-			expect( screen.queryByText( CONNECT_TITLE, IGNORE_A11Y ) ).not.toBeInTheDocument();
+			expect( screen.queryByText( CONNECT_CARD_TEXT, IGNORE_A11Y ) ).not.toBeInTheDocument();
 			expect( apiFetch ).not.toHaveBeenCalledWith(
 				expect.objectContaining( { path: expect.stringContaining( 'mcp-settings' ) } )
 			);

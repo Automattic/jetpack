@@ -451,9 +451,15 @@ export type ChartTheme = {
 	};
 	/** LeaderboardChart specific settings */
 	leaderboardChart?: {
-		/** Gap between rows in the leaderboard grid */
+		/**
+		 * @deprecated Declare `--a8c-charts-dimension-leaderboard-row-gap` in CSS instead. This
+		 * still wins where it is set, and is removed in the next major.
+		 */
 		rowGap?: number;
-		/** Gap between columns in the leaderboard grid */
+		/**
+		 * @deprecated Declare `--a8c-charts-dimension-leaderboard-column-gap` in CSS instead. This
+		 * still wins where it is set, and is removed in the next major.
+		 */
 		columnGap?: number;
 		/** Spacing between label and progress bars */
 		labelSpacing?: GapSize;
@@ -547,9 +553,12 @@ export type ChartTheme = {
 export type CompleteChartTheme = Required< ChartTheme > & {
 	leaderboardChart: Omit<
 		Required< NonNullable< ChartTheme[ 'leaderboardChart' ] > >,
-		'primaryColor' | 'secondaryColor'
+		'primaryColor' | 'secondaryColor' | 'rowGap' | 'columnGap'
 	> &
-		Pick< NonNullable< ChartTheme[ 'leaderboardChart' ] >, 'primaryColor' | 'secondaryColor' >;
+		Pick<
+			NonNullable< ChartTheme[ 'leaderboardChart' ] >,
+			'primaryColor' | 'secondaryColor' | 'rowGap' | 'columnGap'
+		>;
 	conversionFunnelChart: Omit<
 		Required< NonNullable< ChartTheme[ 'conversionFunnelChart' ] > >,
 		'primaryColor'

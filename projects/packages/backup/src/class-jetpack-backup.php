@@ -78,6 +78,26 @@ class Jetpack_Backup {
 	const JETPACK_BACKUP_PROMOTED_PRODUCT = 'jetpack_backup_t1_yearly';
 
 	/**
+	 * Transient key prefix for the cached promoted product.
+	 *
+	 * Suffixed with the locale: it is a query arg on the catalogue request, so
+	 * one shared key would serve one reader's language to another.
+	 *
+	 * @var string
+	 */
+	const PROMOTED_PRODUCT_TRANSIENT_PREFIX = 'jetpack_backup_promoted_product_';
+
+	/**
+	 * How long a fetched promoted product stays cached.
+	 *
+	 * The catalogue turns over on a marketing schedule rather than a
+	 * session's, so half a day bounds how stale a price can get.
+	 *
+	 * @var int
+	 */
+	const PROMOTED_PRODUCT_CACHE_TTL = 12 * HOUR_IN_SECONDS;
+
+	/**
 	 * Licenses product ID.
 	 *
 	 * @var string
@@ -713,10 +733,20 @@ class Jetpack_Backup {
 	/**
 	 * Gets information about the currently promoted backup product.
 	 *
+	 * Answers from a per-locale transient when one is warm; failures are not cached.
+	 *
 	 * @return object|WP_Error The promoted product, or a WP_Error if it could not be read.
 	 */
 	public static function get_backup_promoted_product_info() {
-		$request_url   = 'https://public-api.wordpress.com/rest/v1.1/products?locale=' . get_user_locale() . '&type=jetpack';
+		$locale        = get_user_locale();
+		$transient_key = self::PROMOTED_PRODUCT_TRANSIENT_PREFIX . sanitize_key( $locale );
+		$cached        = get_transient( $transient_key );
+
+		if ( false !== $cached ) {
+			return $cached;
+		}
+
+		$request_url   = 'https://public-api.wordpress.com/rest/v1.1/products?locale=' . $locale . '&type=jetpack';
 		$wpcom_request = wp_remote_get( esc_url_raw( $request_url ) );
 		// Cast: the transport may report the status as a numeric string, which
 		// a strict comparison against 200 sends down the failure path.
@@ -752,7 +782,13 @@ class Jetpack_Backup {
 			);
 		}
 
-		return $products->{ self::JETPACK_BACKUP_PROMOTED_PRODUCT };
+		$product = $products->{ self::JETPACK_BACKUP_PROMOTED_PRODUCT };
+
+		// Must stay below both guards: a cached failure would leave the no-plan
+		// screen without a price for the whole TTL after WordPress.com recovered.
+		set_transient( $transient_key, $product, self::PROMOTED_PRODUCT_CACHE_TTL );
+
+		return $product;
 	}
 
 	/**

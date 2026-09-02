@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Conditional logic: Fix the rules dialog not opening from the block toolbar while the settings sidebar is closed.
