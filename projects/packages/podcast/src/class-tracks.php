@@ -517,7 +517,8 @@ class Tracks {
 
 			$stats = new A8c_Mc_Stats();
 			$stats->do_server_side_stat( $stats->build_stats_url( array( "x_{$group}" => $bin ) ) );
-		} catch ( Throwable $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+		} catch ( Throwable $e ) {
+			unset( $e );
 		}
 	}
 

@@ -1,5 +1,3 @@
 Significance: patch
-Type: changed
-Comment: Update composer.lock.
-
-
+Type: other
+Comment: Podcast: update composer.lock.
