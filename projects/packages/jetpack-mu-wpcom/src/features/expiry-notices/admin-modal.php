@@ -2,13 +2,9 @@
 /**
  * Wp-admin modal for plans that have expired, in grace or after it.
  *
- * Atomic only. Every change the copy lists -- the revert to Free, the themes and
- * plugins going away, the site turning private -- is what `woa_revert` does to a
- * transferred site. A Simple site on a lapsed plan loses features, but it is not
- * reverted and does not go private, so none of this would be true of it.
- *
- * All copy lives here rather than in the React that renders it: this package
- * extracts PHP strings for translation and does not extract JS.
+ * Atomic only: the copy describes what `woa_revert` does, and a Simple site is
+ * not reverted. Copy lives here rather than in the React that renders it,
+ * because this package extracts PHP strings for translation and not JS.
  *
  * @package automattic/jetpack-mu-wpcom
  */

@@ -62,29 +62,46 @@ function wpcom_expiry_notices_is_enabled_for_site(): bool {
 /**
  * The expiry state this user should be shown something about, or null.
  *
- * The audience test the banner and the modal share: someone who could act on
- * the notice, on a site that is in the flow at all. VIP is excluded because the
- * Simple notice this replaces excluded it, and swapping the notices was never
- * meant to change who sees one; the guard exists because `wpcom_is_vip()` is
- * only defined on wpcom.
+ * The audience test the banner and the modal share. Memoized because four hooks
+ * reach it per admin pageview -- each surface enqueues and renders -- and
+ * nothing can change the answer mid-request.
  *
+ * @param bool $flush Drop the memo. For tests, which move the purchase fixture
+ *                    under a process that has already answered once.
  * @return array<string,mixed>|null
  */
-function wpcom_expiry_notices_eligible_state(): ?array {
-	if ( ! current_user_can( 'manage_options' ) ) {
+function wpcom_expiry_notices_eligible_state( bool $flush = false ): ?array {
+	// Distinct from null, which is a real answer worth remembering.
+	static $memo = false;
+
+	if ( $flush ) {
+		$memo = false;
 		return null;
 	}
 
+	if ( false !== $memo ) {
+		return $memo;
+	}
+
+	$memo = null;
+
+	if ( ! current_user_can( 'manage_options' ) ) {
+		return $memo;
+	}
+
+	// Excluded to match the Simple notice this replaces. Guarded because
+	// `wpcom_is_vip()` only exists on wpcom.
 	if ( function_exists( 'wpcom_is_vip' ) && wpcom_is_vip() ) {
-		return null;
+		return $memo;
 	}
 
 	$state = \Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Data::get_expiry_state();
 	if ( null === $state || \Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Data::STATE_ACTIVE === $state['state'] ) {
-		return null;
+		return $memo;
 	}
 
-	return $state;
+	$memo = $state;
+	return $memo;
 }
 
 /**

@@ -47,6 +47,7 @@ class Admin_Banner_Test extends \WorDBless\BaseTestCase {
 			)
 		);
 		wp_set_current_user( $this->admin_id );
+		wpcom_expiry_notices_eligible_state( true );
 		set_current_screen( 'dashboard' );
 	}
 
@@ -73,6 +74,8 @@ class Admin_Banner_Test extends \WorDBless\BaseTestCase {
 				'user_allows_auto_renew' => $auto_renew,
 			),
 		);
+		// The eligible-state memo has already answered for the previous fixture.
+		wpcom_expiry_notices_eligible_state( true );
 	}
 
 	private function render(): string {

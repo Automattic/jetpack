@@ -41,14 +41,10 @@ class Expiry_Notice_Dismiss {
 	const FINAL_WINDOW_DAYS = 7;
 
 	/**
-	 * How long a grace-period modal stays dismissed.
-	 *
-	 * The design asks for "the current browser session, on both wp-admin and
-	 * Calypso". Those are two origins, so no browser-side store can answer for
-	 * both and the dismissal has to live on the server -- where there is no
-	 * session to scope it to. A day is the stand-in: long enough not to nag
-	 * someone working through their site, short enough that the modal keeps
-	 * coming back while the site still has something to lose.
+	 * Stands in for the "browser session" the design asks this modal to be
+	 * dismissed for: wp-admin and Calypso are two origins, so no browser store
+	 * answers for both and the dismissal lives server-side, where there is no
+	 * session to scope it to.
 	 */
 	const MODAL_GRACE_DISMISS_TTL = DAY_IN_SECONDS;
 

@@ -47,6 +47,7 @@ class Admin_Modal_Test extends \WorDBless\BaseTestCase {
 			)
 		);
 		wp_set_current_user( $this->admin_id );
+		wpcom_expiry_notices_eligible_state( true );
 		set_current_screen( 'dashboard' );
 		Constants::set_constant( 'IS_ATOMIC', true );
 		// The modal names the domain the site reverts to; resolving it is an HTTP
@@ -88,6 +89,8 @@ class Admin_Modal_Test extends \WorDBless\BaseTestCase {
 				'user_allows_auto_renew' => false,
 			),
 		);
+		// The eligible-state memo has already answered for the previous fixture.
+		wpcom_expiry_notices_eligible_state( true );
 	}
 
 	public function test_shows_in_grace_with_the_pre_revert_copy(): void {
