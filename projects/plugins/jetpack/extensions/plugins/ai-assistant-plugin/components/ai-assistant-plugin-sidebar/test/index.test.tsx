@@ -315,7 +315,7 @@ describe( 'AiAssistantPluginSidebar', () => {
 
 			expect(
 				within( screen.getByTestId( 'document-panel' ) ).getByRole( 'button', {
-					name: 'WordPress Agent',
+					name: 'Open WordPress Agent',
 				} )
 			).toBeInTheDocument();
 		} );
@@ -330,7 +330,7 @@ describe( 'AiAssistantPluginSidebar', () => {
 
 			await user.click(
 				within( screen.getByTestId( testId ) ).getByRole( 'button', {
-					name: 'WordPress Agent',
+					name: 'Open WordPress Agent',
 				} )
 			);
 
@@ -355,7 +355,7 @@ describe( 'AiAssistantPluginSidebar', () => {
 			expect( screen.queryByText( 'Get Feedback' ) ).not.toBeInTheDocument();
 			expect(
 				within( screen.getByTestId( 'document-panel' ) ).queryByRole( 'button', {
-					name: 'WordPress Agent',
+					name: 'Open WordPress Agent',
 				} )
 			).not.toBeInTheDocument();
 		} );
