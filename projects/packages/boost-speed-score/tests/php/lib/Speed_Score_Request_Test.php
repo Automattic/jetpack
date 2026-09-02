@@ -240,17 +240,31 @@ class Speed_Score_Request_Test extends Base_TestCase {
 	}
 
 	/**
+	 * Raise the stale marker the way a site change does.
+	 *
+	 * @param int $timestamp When the site changed.
+	 */
+	private function mark_stale_at( $timestamp ) {
+		// Keep the expiry ahead of now: reading an expired marker calls the unstubbed delete_option().
+		$this->options[ Transient::key( Speed_Score_History::STALE_TRANSIENT_KEY ) ] = array(
+			'expire' => time() + DAY_IN_SECONDS,
+			'data'   => $timestamp,
+		);
+	}
+
+	/**
 	 * Poll a request for self::URL, with the API returning a successful run.
 	 *
-	 * @param array $scores The scores the run came back with.
+	 * @param array          $scores  The scores the run came back with.
+	 * @param int|float|null $created When the run was dispatched, or null for now.
 	 */
-	private function poll_with_scores( array $scores ) {
+	private function poll_with_scores( array $scores, $created = null ) {
 		$this->api_response = array(
 			'status' => 'success',
 			'scores' => $scores,
 		);
 
-		$request = new Speed_Score_Request( self::URL );
+		$request = new Speed_Score_Request( self::URL, array(), $created );
 		$this->assertTrue( $request->poll_update() );
 	}
 
@@ -491,22 +505,41 @@ class Speed_Score_Request_Test extends Base_TestCase {
 		$this->seed_history( array( $this->entry( $scores, time() - 3 * DAY_IN_SECONDS ) ) );
 
 		// The run was dispatched five minutes ago; the site changed one minute ago.
-		$this->options[ Transient::key( Speed_Score_History::STALE_TRANSIENT_KEY ) ] = array(
-			'expire' => time() + DAY_IN_SECONDS,
-			'data'   => time() - 60,
-		);
+		$this->mark_stale_at( time() - 60 );
 
-		$this->api_response = array(
-			'status' => 'success',
-			'scores' => $scores,
-		);
-
-		$request = new Speed_Score_Request( self::URL, array(), time() - 300 );
-		$this->assertTrue( $request->poll_update() );
+		$this->poll_with_scores( $scores, microtime( true ) - 300 );
 
 		$history = $this->stored_history();
 
 		$this->assertSame( 1, $history->count(), 'No entry should have been added.' );
+		$this->assertTrue( $history->is_stale(), 'Scores measured before the site change must stay stale.' );
+	}
+
+	/**
+	 * A run predates a mid-run site change whether or not its scores moved, so a changed score
+	 * must not clear the marker either.
+	 */
+	public function test_a_stale_marker_raised_mid_run_survives_changed_scores() {
+		$old_scores    = array(
+			'mobile'  => 50,
+			'desktop' => 70,
+		);
+		$new_scores    = array(
+			'mobile'  => 55,
+			'desktop' => 70,
+		);
+		$dispatched_at = microtime( true ) - 300;
+
+		$this->seed_history( array( $this->entry( $old_scores, time() - 3 * DAY_IN_SECONDS ) ) );
+		$this->mark_stale_at( time() - 60 );
+
+		$this->poll_with_scores( $new_scores, $dispatched_at );
+
+		$history = $this->stored_history();
+
+		$this->assertSame( 2, $history->count(), 'The measurement should still be recorded.' );
+		$this->assertSame( $new_scores, $history->latest_scores() );
+		$this->assertSame( (int) $dispatched_at, $this->entry_at( $history )['timestamp'], 'The entry should be dated to the dispatch, not the response.' );
 		$this->assertTrue( $history->is_stale(), 'Scores measured before the site change must stay stale.' );
 	}
 

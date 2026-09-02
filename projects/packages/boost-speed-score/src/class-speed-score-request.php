@@ -314,18 +314,20 @@ class Speed_Score_Request extends Cacheable {
 		$last_theme    = $last_history['theme'] ?? null; // Entries saved before the theme was recorded have no theme key.
 		$current_theme = wp_get_theme()->get( 'Name' );
 
+		// Scores describe the site as it stood when the run was dispatched, so judge staleness
+		// against that instant.
+		$measured_current_site = $this->created >= Speed_Score_History::get_stale_timestamp();
+
 		// Only change if there is a difference from last score or the theme changed.
 		if ( $last_scores !== $response['scores'] || $current_theme !== $last_theme ) {
 			$history->push(
 				array(
-					'timestamp' => time(),
+					'timestamp' => $measured_current_site ? time() : (int) $this->created,
 					'scores'    => $response['scores'],
 					'theme'     => $current_theme,
 				)
 			);
-		} elseif ( $this->created >= Speed_Score_History::get_stale_timestamp() ) {
-			// A run that completed with unchanged scores still counts as a fresh measurement,
-			// unless the site changed after it was dispatched — those scores predate the change.
+		} elseif ( $measured_current_site ) {
 			$history->touch_latest();
 		}
 	}
