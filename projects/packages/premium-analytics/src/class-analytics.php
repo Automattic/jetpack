@@ -28,8 +28,7 @@ class Analytics {
 	 *
 	 * Jetpack::is_premium_analytics_enabled() reads this on connected sites and spells the name
 	 * itself, since it has to answer before this package is known to be loadable. This constant is
-	 * the copy the package writes through
-	 * {@see \Automattic\Jetpack\PremiumAnalytics\REST\Status_Controller}.
+	 * the copy the package exposes through {@see Enablement_Setting}.
 	 *
 	 * @since $$next-version$$
 	 */

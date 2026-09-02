@@ -1019,15 +1019,15 @@ class Jetpack {
 		}
 
 		/*
-		 * Deliberately outside the check above: this is the route that turns the flag on, so it
+		 * Deliberately outside the check above: this is the setting that turns the flag on, so it
 		 * has to answer while the dashboard is still off. Deferred to rest_api_init so the
 		 * class_exists() autoload stays off the front-end hot path.
 		 */
 		add_action(
 			'rest_api_init',
 			static function () {
-				if ( class_exists( 'Automattic\Jetpack\PremiumAnalytics\REST\Status_Controller' ) ) {
-					\Automattic\Jetpack\PremiumAnalytics\REST\Status_Controller::register_routes();
+				if ( class_exists( 'Automattic\Jetpack\PremiumAnalytics\Enablement_Setting' ) ) {
+					\Automattic\Jetpack\PremiumAnalytics\Enablement_Setting::register();
 				}
 			},
 			0

@@ -10,7 +10,7 @@
 namespace Automattic\Jetpack;
 
 use Automattic\Jetpack\PremiumAnalytics\Analytics as Premium_Analytics;
-use Automattic\Jetpack\PremiumAnalytics\REST\Status_Controller as Premium_Analytics_Status_Controller;
+use Automattic\Jetpack\PremiumAnalytics\Enablement_Setting as Premium_Analytics_Enablement_Setting;
 
 define( 'WPCOM_ADMIN_BAR_UNIFICATION', true );
 /**
@@ -93,7 +93,7 @@ class Jetpack_Mu_Wpcom {
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_verbum_moderate' ) );
 			add_action( 'wp_loaded', array( __CLASS__, 'load_verbum_comments_admin' ) );
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_simple_premium_analytics' ) );
-			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_simple_premium_analytics_status_endpoint' ) );
+			add_action( 'rest_api_init', array( __CLASS__, 'load_wpcom_simple_premium_analytics_enablement_setting' ) );
 			add_action( 'admin_menu', array( __CLASS__, 'load_wpcom_simple_odyssey_stats' ) );
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_random_redirect' ) );
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_podcast' ) );
@@ -840,19 +840,19 @@ class Jetpack_Mu_Wpcom {
 	}
 
 	/**
-	 * Register the route that turns Premium Analytics on and off for a Simple site.
+	 * Expose the setting that turns Premium Analytics on and off for a Simple site.
 	 *
-	 * Deliberately not behind should_load_wpcom_simple_premium_analytics(): this is the route that
-	 * flips that gate, so it has to answer while the dashboard is still off.
+	 * Deliberately not behind should_load_wpcom_simple_premium_analytics(): this is the setting
+	 * that flips that gate, so it has to answer while the dashboard is still off.
 	 *
 	 * @since $$next-version$$
 	 */
-	public static function load_wpcom_simple_premium_analytics_status_endpoint() {
-		if ( ! class_exists( Premium_Analytics_Status_Controller::class ) ) {
+	public static function load_wpcom_simple_premium_analytics_enablement_setting() {
+		if ( ! class_exists( Premium_Analytics_Enablement_Setting::class ) ) {
 			return;
 		}
 
-		Premium_Analytics_Status_Controller::register();
+		Premium_Analytics_Enablement_Setting::register();
 	}
 
 	/**
