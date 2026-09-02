@@ -5917,9 +5917,6 @@ importers:
       '@wordpress/plugins':
         specifier: 7.51.0
         version: 7.51.0(@date-fns/tz@1.4.1)(@types/react@18.3.28)(postcss@8.5.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@wordpress/preferences':
-        specifier: 4.51.0
-        version: 4.51.0(@date-fns/tz@1.4.1)(@types/react@18.3.28)(postcss@8.5.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/primitives':
         specifier: 4.51.0
         version: 4.51.0(@types/react@18.3.28)(react@18.3.1)
