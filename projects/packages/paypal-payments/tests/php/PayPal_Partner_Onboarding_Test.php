@@ -597,6 +597,7 @@ class PayPal_Partner_Onboarding_Test extends TestCase {
 					array(
 						'access_token' => 'seller_token',
 						'expires_in'   => 3600,
+						'scope'        => 'https://uri.paypal.com/services/payments/payment openid',
 					)
 				),
 				'/merchant-integrations/credentials/' => $this->http_response(
@@ -627,6 +628,9 @@ class PayPal_Partner_Onboarding_Test extends TestCase {
 		$this->assertStringContainsString( 'merchant…', $result->get_error_message() );
 		$this->assertStringContainsString( 'NOT_AUTHORIZED', $result->get_error_message() );
 		$this->assertStringContainsString( 'debug123', $result->get_error_message() );
+		// The scope list is the ground truth on whether the referral granted the
+		// Payment Links & Buttons API at all.
+		$this->assertStringContainsString( '…/payments/payment', $result->get_error_message() );
 
 		$this->assertFalse(
 			PayPal_OAuth::has_credentials(),

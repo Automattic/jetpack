@@ -28,6 +28,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 class PayPal_OAuth {
 
 	/**
+	 * OAuth scopes granted with the last token this request fetched.
+	 *
+	 * @var string
+	 */
+	private static $last_token_scope = '';
+
+	/**
 	 * Request-scoped cache for decrypted credentials.
 	 * Prevents redundant sodium_crypto_secretbox_open calls within a single request.
 	 *
@@ -461,7 +468,12 @@ class PayPal_OAuth {
 
 		// Use trim() to preserve valid OAuth token characters that sanitize_text_field() may strip.
 		$access_token = trim( $data['access_token'] );
-		$expires_in   = isset( $data['expires_in'] ) ? absint( $data['expires_in'] ) : 0;
+
+		// Kept for diagnostics: the scope list is the ground truth on what the
+		// connected app may call, which no dashboard shows for an app PayPal
+		// auto-provisions during onboarding.
+		self::$last_token_scope = isset( $data['scope'] ) ? sanitize_text_field( $data['scope'] ) : '';
+		$expires_in             = isset( $data['expires_in'] ) ? absint( $data['expires_in'] ) : 0;
 
 		// Cache the token encrypted with a buffer before expiry.
 		if ( $expires_in > self::TOKEN_EXPIRY_BUFFER ) {
@@ -570,6 +582,14 @@ class PayPal_OAuth {
 					/* translators: %s: the first characters of the PayPal REST app client ID. */
 					__( 'The connected app’s Client ID starts with "%s".', 'jetpack-paypal-payments' ),
 					substr( $credentials['client_id'], 0, 8 ) . '…'
+				);
+			}
+
+			if ( '' !== self::$last_token_scope ) {
+				$message .= ' ' . sprintf(
+					/* translators: %s: space-separated list of OAuth scope URLs. */
+					__( 'Scopes granted to it: %s.', 'jetpack-paypal-payments' ),
+					str_replace( 'https://uri.paypal.com/services/', '…/', self::$last_token_scope )
 				);
 			}
 
