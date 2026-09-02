@@ -46,6 +46,27 @@ class Settings_Test extends Search_TestCase {
 		$this->assertTrue( $setting['default'] );
 	}
 
+	/**
+	 * SEARCH-342: closes the /wp/v2/settings bypass via sanitize_option().
+	 */
+	public function test_sanitize_ai_answers_enabled_rejects_true_without_paid_plan() {
+		Search_Blocks::set_supports_paid_search_for_testing( false );
+		$this->assertFalse( Settings::sanitize_ai_answers_enabled( true ) );
+		Search_Blocks::reset_supports_paid_search_cache();
+	}
+
+	public function test_sanitize_ai_answers_enabled_allows_true_with_paid_plan() {
+		Search_Blocks::set_supports_paid_search_for_testing( true );
+		$this->assertTrue( Settings::sanitize_ai_answers_enabled( true ) );
+		Search_Blocks::reset_supports_paid_search_cache();
+	}
+
+	public function test_sanitize_ai_answers_enabled_allows_false_without_paid_plan() {
+		Search_Blocks::set_supports_paid_search_for_testing( false );
+		$this->assertFalse( Settings::sanitize_ai_answers_enabled( false ) );
+		Search_Blocks::reset_supports_paid_search_cache();
+	}
+
 	public function test_settings_register_all_settings_have_show_in_rest() {
 		$registered    = get_registered_settings();
 		$prefix        = Options::OPTION_PREFIX;

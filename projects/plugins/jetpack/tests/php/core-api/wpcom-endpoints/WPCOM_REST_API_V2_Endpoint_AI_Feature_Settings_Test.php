@@ -593,6 +593,20 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings_Test extends Jetpack_REST_T
 	}
 
 	/**
+	 * An explicit `{ enabled: null }` is a present value (sanitizes to false),
+	 * not an absent key — it must still write, not be skipped as absent.
+	 */
+	public function test_post_enabled_null_writes_false() {
+		wp_set_current_user( self::$admin_id );
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+		update_option( Jetpack_AI_Settings::FEATURE_OPTIONS['writing_assistant'], true );
+
+		$this->dispatch( 'POST', array( 'features' => array( 'writing_assistant' => array( 'enabled' => null ) ) ) );
+
+		$this->assertFalse( Jetpack_AI_Settings::is_feature_enabled( 'writing_assistant' ) );
+	}
+
+	/**
 	 * Turning the master switch off through the endpoint flips the
 	 * jetpack_ai_enabled filter every load point consults.
 	 */

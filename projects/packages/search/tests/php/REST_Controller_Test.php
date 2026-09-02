@@ -51,6 +51,9 @@ class REST_Controller_Test extends Search_TestCase {
 		add_action( 'rest_api_init', array( $this->rest_controller, 'register_rest_routes' ) );
 
 		do_action( 'rest_api_init' );
+
+		// Default to a paid plan; tests exercising the gate override this.
+		Search_Blocks::set_supports_paid_search_for_testing( true );
 	}
 
 	/**
@@ -62,6 +65,7 @@ class REST_Controller_Test extends Search_TestCase {
 			unregister_setting( 'general', 'reader_chat' );
 		}
 		delete_option( 'reader_chat' );
+		Search_Blocks::reset_supports_paid_search_cache();
 		parent::tearDown();
 	}
 
@@ -643,6 +647,56 @@ class REST_Controller_Test extends Search_TestCase {
 		$this->assertEquals( 200, $response->get_status() );
 		$data = $response->get_data();
 		$this->assertFalse( $data['ai_answers_enabled'] );
+	}
+
+	/**
+	 * A JSON string `"false"` must sanitize to false, not `(bool) "false"` (true).
+	 */
+	public function test_update_settings_ai_answers_enabled_rejects_string_false() {
+		wp_set_current_user( $this->admin_id );
+		update_option( 'jetpack_search_ai_answers_enabled', true );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body( wp_json_encode( array( 'ai_answers_enabled' => 'false' ), JSON_UNESCAPED_SLASHES ) );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertFalse( $response->get_data()['ai_answers_enabled'] );
+	}
+
+	/**
+	 * SEARCH-342: reject the write outright without a paid Search plan.
+	 */
+	public function test_update_settings_ai_answers_enabled_rejected_without_paid_plan() {
+		wp_set_current_user( $this->admin_id );
+		Search_Blocks::set_supports_paid_search_for_testing( false );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body( wp_json_encode( array( 'ai_answers_enabled' => true ), JSON_UNESCAPED_SLASHES ) );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 403, $response->get_status() );
+		$this->assertFalse( (bool) get_option( 'jetpack_search_ai_answers_enabled', false ) );
+	}
+
+	/**
+	 * Turning AI Answers off must stay allowed even without a paid plan — the
+	 * gate only ever blocks turning the feature on.
+	 */
+	public function test_update_settings_ai_answers_enabled_false_allowed_without_paid_plan() {
+		wp_set_current_user( $this->admin_id );
+		update_option( 'jetpack_search_ai_answers_enabled', true );
+		Search_Blocks::set_supports_paid_search_for_testing( false );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body( wp_json_encode( array( 'ai_answers_enabled' => false ), JSON_UNESCAPED_SLASHES ) );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertFalse( $response->get_data()['ai_answers_enabled'] );
 	}
 
 	/**

@@ -86,11 +86,15 @@ class AI_Answers {
 
 	/**
 	 * Whether AI Answers is enabled for the current site.
+	 *
+	 * The option is writable from several surfaces that don't all check the
+	 * plan, so the plan check here is ANDed in after the filter chain.
 	 */
 	public static function is_enabled() {
-		return (bool) apply_filters(
+		$enabled = (bool) apply_filters(
 			'jetpack_search_ai_answers_enabled',
 			(bool) get_option( 'jetpack_search_ai_answers_enabled', false )
 		);
+		return $enabled && Search_Blocks::supports_paid_search();
 	}
 }
