@@ -35,6 +35,7 @@ jest.mock( '@wordpress/route', () => ( {
 } ) );
 
 // Imports must come after the jest.mock factories above.
+import { onlineManager } from '@tanstack/react-query';
 import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { stage as OverviewStage } from '../routes/dashboard/stage';
@@ -45,7 +46,6 @@ import { resetListStateForTesting } from '../src/dashboard/screens/overview';
 
 const CONNECTED = { isRegistered: true, hasConnectedOwner: true, isUserConnected: true };
 const SETTLE = { timeout: 10000 };
-const NOT_FOUND = 'That item is no longer in the activity log.';
 
 // jsdom implements no scrolling, and DataViews' list layout calls
 // `scrollIntoView` on the selected row.
@@ -155,6 +155,25 @@ function prunedToOnePage( { withTotals }: { withTotals: boolean } ) {
 }
 
 /**
+ * The page and size of every rewindable-activity request made so far.
+ *
+ * The list's own query is the only one that moves: `useDefaultBackupRewindId` and
+ * `useHasRestorePoints` pin page 1 at the default size, so a non-default size
+ * tells the two apart.
+ *
+ * @return `page/size` strings, in call order.
+ */
+function activityRequests(): string[] {
+	return mockApiFetch.mock.calls
+		.map( ( [ options ] ) => String( ( options as { path?: string } )?.path ?? '' ) )
+		.filter( path => path.includes( '/site/rewindable-activity' ) )
+		.map( path => {
+			const args = new URLSearchParams( path.split( '?' )[ 1 ] ?? '' );
+			return `${ args.get( 'page' ) ?? '1' }/${ args.get( 'number' ) ?? '10' }`;
+		} );
+}
+
+/**
  * Point every route the Overview reads at a fixed set of answers.
  *
  * @param options          - Fixture options.
@@ -230,6 +249,10 @@ beforeEach( () => {
 		...window.JP_CONNECTION_INITIAL_STATE,
 		connectionStatus: CONNECTED,
 	} as typeof window.JP_CONNECTION_INITIAL_STATE;
+} );
+
+afterEach( () => {
+	onlineManager.setOnline( true );
 } );
 
 describe( 'The trip out to Download and back', () => {
@@ -397,6 +420,148 @@ describe( 'A remembered place that no longer exists', () => {
 		).resolves.toBeInTheDocument();
 		expect( screen.queryByText( 'No results' ) ).not.toBeInTheDocument();
 	} );
+
+	// `0 ?? fallback` is `0`, so a literal zero in the envelope outlives the fallback
+	// that would otherwise floor it at 1 — and page 0 is not a page anyone can ask for.
+	it( 'never asks for page 0 when the log reports no pages at all', async () => {
+		const overview = await openOverview( 1, 10 );
+		await userEvent.click( screen.getByRole( 'button', { name: 'View options' } ) );
+		await userEvent.click( screen.getByRole( 'radio', { name: '20' } ) );
+		await expect(
+			screen.findByRole( 'button', { name: rowTitle( 1, 20 ) }, SETTLE )
+		).resolves.toBeInTheDocument();
+		await userEvent.click( screen.getByRole( 'button', { name: 'Next page' } ) );
+		await expect(
+			screen.findByRole( 'button', { name: rowTitle( 2, 20 ) }, SETTLE )
+		).resolves.toBeInTheDocument();
+
+		overview.unmount();
+		await roundTripVia( DownloadStage );
+
+		// Only the list's own page size answers zero. The pinned page-1 lookups keep
+		// their rows, or the first-run takeover replaces the body before the list mounts.
+		mockEndpoints( {
+			activity: ( page, number ) =>
+				number === 20
+					? { current: { orderedItems: [] }, totalItems: 0, totalPages: 0 }
+					: activityPage( page, number ),
+		} );
+		queryClient.clear();
+		mockApiFetch.mockClear();
+
+		const view = render( <OverviewStage /> );
+
+		await expect( screen.findByText( 'No results', {}, SETTLE ) ).resolves.toBeInTheDocument();
+		expect( activityRequests() ).not.toContain( '0/20' );
+
+		view.unmount();
+	} );
+} );
+
+describe( 'A remembered place the log cannot answer for', () => {
+	// The clamp reads `totalPages`, which falls back to 1 when the envelope is
+	// missing — and a failed request has no envelope either. Clamping there both
+	// moves the reader off the page they asked for and overwrites the memory of it,
+	// and the fresh page-1 query hides the list's own error report.
+	it( 'reports the failure on the page they asked for, and still remembers it', async () => {
+		const overview = await openOverview( 1, 10 );
+
+		// A non-default page size, so the list's request is distinguishable from the
+		// pinned page-1 lookups every mount makes.
+		await userEvent.click( screen.getByRole( 'button', { name: 'View options' } ) );
+		await userEvent.click( screen.getByRole( 'radio', { name: '20' } ) );
+		await expect(
+			screen.findByRole( 'button', { name: rowTitle( 1, 20 ) }, SETTLE )
+		).resolves.toBeInTheDocument();
+		await userEvent.click( screen.getByRole( 'button', { name: 'Next page' } ) );
+		await expect(
+			screen.findByRole( 'button', { name: rowTitle( 2, 20 ) }, SETTLE )
+		).resolves.toBeInTheDocument();
+
+		overview.unmount();
+		await roundTripVia( DownloadStage );
+
+		// The log is unreachable by the time they come back.
+		let activityFails = true;
+		mockEndpoints( {
+			activity: ( page, number ) =>
+				activityFails
+					? Promise.reject( new Error( 'The activity log is unavailable.' ) )
+					: activityPage( page, number ),
+		} );
+		queryClient.clear();
+		mockApiFetch.mockClear();
+
+		const view = render( <OverviewStage /> );
+
+		// The reason, where DataViews would otherwise say "No results".
+		await expect(
+			screen.findByRole( 'button', { name: 'Try again' }, SETTLE )
+		).resolves.toBeInTheDocument();
+		expect( screen.getByText( 'The activity log is unavailable.' ) ).toBeInTheDocument();
+
+		// Page 1 at this size is where a clamp would send them, and nothing asked for it.
+		await waitFor( () => expect( activityRequests() ).toContain( '2/20' ) );
+		expect( activityRequests() ).not.toContain( '1/20' );
+
+		// The retry is the only way out with the footer hidden, and it proves the
+		// memory survived: page 2 is what comes back.
+		activityFails = false;
+		await userEvent.click( screen.getByRole( 'button', { name: 'Try again' } ) );
+		await expect(
+			screen.findByRole( 'button', { name: rowTitle( 2, 20 ) }, SETTLE )
+		).resolves.toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: rowTitle( 1, 20 ) } ) ).not.toBeInTheDocument();
+
+		view.unmount();
+	} );
+} );
+
+describe( 'A remembered place asked for with no connection', () => {
+	// Offline, React Query parks the request rather than sending it: `fetchStatus`
+	// is `paused`, so `isFetching` is false and no error is ever reported. Nothing
+	// has answered, and `totalPages` still falls back to 1.
+	it( 'waits for the connection instead of moving the reader', async () => {
+		const overview = await openOverview( 1, 10 );
+
+		await userEvent.click( screen.getByRole( 'button', { name: 'View options' } ) );
+		await userEvent.click( screen.getByRole( 'radio', { name: '20' } ) );
+		await expect(
+			screen.findByRole( 'button', { name: rowTitle( 1, 20 ) }, SETTLE )
+		).resolves.toBeInTheDocument();
+		await userEvent.click( screen.getByRole( 'button', { name: 'Next page' } ) );
+		await expect(
+			screen.findByRole( 'button', { name: rowTitle( 2, 20 ) }, SETTLE )
+		).resolves.toBeInTheDocument();
+
+		overview.unmount();
+		await roundTripVia( DownloadStage );
+
+		// Only the entry the list needs is dropped. `<Gates>` spins offline without its
+		// cached verdict, and `useHasRestorePoints` reads the pinned page-1 query — a
+		// paused one reports no rows and hands the body to the first-run takeover.
+		queryClient.removeQueries( { queryKey: keys.activityLogPage( 2, 20, 'desc' ) } );
+		mockApiFetch.mockClear();
+		onlineManager.setOnline( false );
+
+		const view = render( <OverviewStage /> );
+
+		// The premise: paused, not failing. Nothing is sent, so nothing is learned.
+		await expect(
+			screen.findByRole( 'group', { name: 'Backup activity' }, SETTLE )
+		).resolves.toBeInTheDocument();
+		expect( activityRequests() ).toEqual( [] );
+
+		onlineManager.setOnline( true );
+
+		// Page 2 is what resumes, so nothing moved the reader while they were offline.
+		await expect(
+			screen.findByRole( 'button', { name: rowTitle( 2, 20 ) }, SETTLE )
+		).resolves.toBeInTheDocument();
+		expect( activityRequests() ).not.toContain( '1/20' );
+
+		view.unmount();
+	} );
 } );
 
 describe( 'Clearing a selection that came from memory', () => {
@@ -429,12 +594,17 @@ describe( 'Clearing a selection that came from memory', () => {
 		render( <OverviewStage /> );
 		// The address carries nothing, so only the memory can be putting them here.
 		expect( routerSearch.selected ).toBeUndefined();
-		await expect( screen.findByText( NOT_FOUND, {}, SETTLE ) ).resolves.toBeInTheDocument();
+		// The pane's own affordance stands in for its copy, which has changed once already.
+		await expect(
+			screen.findByRole( 'button', { name: 'Clear selection' }, SETTLE )
+		).resolves.toBeInTheDocument();
 
 		await userEvent.click( screen.getByRole( 'button', { name: 'Clear selection' } ) );
 
 		// Without state behind the memory the navigate is a no-op, so the pane never
 		// re-renders and the dead end stays on screen.
-		await waitFor( () => expect( screen.queryByText( NOT_FOUND ) ).not.toBeInTheDocument() );
+		await waitFor( () =>
+			expect( screen.queryByRole( 'button', { name: 'Clear selection' } ) ).not.toBeInTheDocument()
+		);
 	} );
 } );

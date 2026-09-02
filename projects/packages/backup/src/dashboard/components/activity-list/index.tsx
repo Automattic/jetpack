@@ -124,11 +124,12 @@ function DescriptionCell( { item }: { item: ActivityItem } ) {
  */
 export default function ActivityList( { selectedId, onSelect, view, onChangeView }: Props ) {
 	const { page, pageSize, sortOrder } = activityQueryArgs( view );
-	const { items, totalItems, totalPages, isLoading, isFetching, error, refetch } = useActivityLog( {
-		page,
-		pageSize,
-		sortOrder,
-	} );
+	const { items, totalItems, totalPages, isLoading, isFetching, isPaused, error, refetch } =
+		useActivityLog( {
+			page,
+			pageSize,
+			sortOrder,
+		} );
 
 	// DataViews' `SortDirectionControl` spreads `...view` and replaces only
 	// `sort`, so without this a reorder strands the reader on page 3 of an
@@ -143,14 +144,13 @@ export default function ActivityList( { selectedId, onSelect, view, onChangeView
 
 	// A remembered page can outlive the log that had it, and DataViews hides its
 	// footer entirely at one page — so nothing on screen would offer a way back.
-	// Read off `totalPages`, which falls back to a count derived from the rows in
-	// hand, where `totalItems` falls back to their number — zero on the out-of-range
-	// page this exists for. `>= 1` still blocks clamping to page 0 on an empty log.
+	// `totalPages` falls back to 1, so a request that is in flight, paused offline
+	// or failed reads as a one-page log; `>= 1` rejects a literal `totalPages: 0`.
 	useEffect( () => {
-		if ( ! isLoading && totalPages >= 1 && page > totalPages ) {
+		if ( ! isFetching && ! isPaused && ! error && totalPages >= 1 && page > totalPages ) {
 			onChangeView( { ...view, page: totalPages } );
 		}
-	}, [ isLoading, totalPages, page, view, onChangeView ] );
+	}, [ isFetching, isPaused, error, totalPages, page, view, onChangeView ] );
 
 	// DataViews shows its own "No results" whenever `data` is empty, and a
 	// failed request leaves it empty — so without this a 5xx tells the

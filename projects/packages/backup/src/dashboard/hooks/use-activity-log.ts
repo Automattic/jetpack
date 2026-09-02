@@ -30,6 +30,13 @@ type Result = {
 	 * whole duration of a retry.
 	 */
 	isFetching: boolean;
+	/**
+	 * True when React Query parked the request instead of sending it, which
+	 * `networkMode: 'online'` does for an offline browser. Neither fetching nor
+	 * errored, and holding no data — so callers that read an absence as an
+	 * answer need this to tell "nothing there" from "never asked".
+	 */
+	isPaused: boolean;
 	error: Error | null;
 	refetch: () => void;
 };
@@ -85,7 +92,7 @@ function useActivityPageQuery( page: number, pageSize: number, sortOrder: Activi
  * @param args.page      - 1-indexed page number.
  * @param args.pageSize  - Items per page.
  * @param args.sortOrder - Sort direction, from the list's Order control.
- * @return Items, total items, total pages, loading, error, refetch.
+ * @return Items, total items, total pages, loading, paused, error, refetch.
  */
 export function useActivityLog( { page, pageSize, sortOrder }: Args ): Result {
 	const query = useActivityPageQuery( page, pageSize, sortOrder );
@@ -112,6 +119,7 @@ export function useActivityLog( { page, pageSize, sortOrder }: Args ): Result {
 		totalPages: query.data?.totalPages ?? Math.max( 1, Math.ceil( items.length / pageSize ) ),
 		isLoading: query.isLoading,
 		isFetching: query.isFetching,
+		isPaused: query.isPaused,
 		error,
 		refetch: retry,
 	};
