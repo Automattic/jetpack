@@ -3670,9 +3670,6 @@ importers:
       '@automattic/jetpack-webpack-config':
         specifier: workspace:*
         version: link:../../js-packages/webpack-config
-      '@automattic/popup-monitor':
-        specifier: 1.0.2
-        version: 1.0.2
       '@automattic/remove-asset-webpack-plugin':
         specifier: workspace:*
         version: link:../../js-packages/remove-asset-webpack-plugin
