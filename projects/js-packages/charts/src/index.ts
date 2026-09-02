@@ -128,6 +128,7 @@ export type { SparklineProps, GradientConfig, SparklineDataPoint } from './chart
 
 // Utilities
 export {
+	getBucketInfo,
 	parseAsLocalDate,
 	formatMetricValue,
 	formatPercentage,
@@ -136,5 +137,4 @@ export {
 } from './utils';
 export * from './utils/color-utils';
 export type { MetricValueType } from './utils';
-export { getBucketInfo } from './charts/private/time-axis';
 export type { BucketInfo } from './types';

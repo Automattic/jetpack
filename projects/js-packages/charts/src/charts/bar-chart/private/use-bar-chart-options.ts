@@ -3,8 +3,9 @@ import { __, sprintf } from '@wordpress/i18n';
 import { useMemo } from 'react';
 import { useDeepMemo } from '../../../hooks';
 import { useChartFormatting } from '../../../providers';
+import { getBucketResolution } from '../../../utils/bucket-info';
 import { createDateFormatter } from '../../../utils/date-formatting';
-import { getBandTickValues, getBucketResolution, getFormatter } from '../../private/time-axis';
+import { getBandTickValues, getFormatter } from '../../private/time-axis';
 import { TruncatedXTickComponent, TruncatedYTickComponent } from './truncated-tick-component';
 import type { EnhancedDataPoint } from '../../../hooks/use-zero-value-display';
 import type {
