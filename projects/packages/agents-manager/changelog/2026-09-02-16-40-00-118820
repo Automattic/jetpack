@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Admin bar nodes: `meta.icon` now carries the icon name instead of SVG markup.
