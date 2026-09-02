@@ -67,6 +67,7 @@
 		"@visx/responsive": "4.0.0",
 		"@visx/scale": "^4.0.0",
 		"@visx/xychart": "4.0.0",
+		"@woocommerce/email-editor": "2.4.0",
 		"@wordpress/a11y": "4.53.0",
 		"@wordpress/base-styles": "11.0.0",
 		"@wordpress/block-editor": "16.0.0",
@@ -132,6 +133,7 @@
 		"webpack-cli": "7.2.1"
 	},
 	"devDependencies": {
+		"@automattic/babel-plugin-replace-textdomain": "workspace:*",
 		"@automattic/color-studio": "4.1.0",
 		"@automattic/jetpack-base-styles": "workspace:*",
 		"@automattic/jetpack-webpack-config": "workspace:*",

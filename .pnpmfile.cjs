@@ -61,7 +61,7 @@ const addWpPkgDep = async ( pkg, fromPkg, ver, deplist ) => {
  */
 async function fixDeps( pkg ) {
 	// Deps tend to get outdated due to a slow release cycle.
-	// So change `^` to `>=` and hope any breaking changes will not really break.
+	// So change `^` to `>=` to avoid many duplicate packages (most are dependency-extracted in the build anyway), and hope any breaking changes will not really break.
 	if (
 		pkg.name === '@automattic/api-core' ||
 		pkg.name === '@automattic/components' ||
@@ -70,6 +70,20 @@ async function fixDeps( pkg ) {
 		pkg.name === '@automattic/launchpad' ||
 		pkg.name === '@automattic/ui'
 	) {
+		for ( const [ dep, ver ] of Object.entries( pkg.dependencies ) ) {
+			if ( dep.startsWith( '@wordpress/' ) ) {
+				if ( ver.startsWith( '^' ) ) {
+					pkg.dependencies[ dep ] = '>=' + ver.substring( 1 );
+				} else if ( ver.match( /^\d/ ) ) {
+					pkg.dependencies[ dep ] = '>=' + ver;
+				}
+			}
+		}
+	}
+
+	// WooCommerce packages pin `@wordpress/*` deps to versions from the lowest Core version the plugin supports.
+	// Change to `>=` to avoid many duplicate packages (most are dependency-extracted in the build anyway), and hope any breaking changes will not really break.
+	if ( pkg.name === '@woocommerce/email-editor' ) {
 		for ( const [ dep, ver ] of Object.entries( pkg.dependencies ) ) {
 			if ( dep.startsWith( '@wordpress/' ) ) {
 				if ( ver.startsWith( '^' ) ) {
