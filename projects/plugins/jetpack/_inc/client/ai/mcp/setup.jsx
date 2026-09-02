@@ -26,6 +26,7 @@ const CLAUDE_SETTINGS_CONNECTOR_REDIRECT_SOURCE = 'jetpack-ai-claude-settings-co
 const CLIENT_OPTIONS = [
 	{ label: 'Claude', value: 'claude' },
 	{ label: 'Claude Code', value: 'claude-code' },
+	{ label: 'ChatGPT/Codex', value: 'chatgpt' },
 	{ label: 'Cursor', value: 'cursor' },
 	{ label: 'VS Code', value: 'vscode' },
 	{ label: 'Continue', value: 'continue' },
@@ -100,7 +101,7 @@ export default function McpSetup() {
 		}
 	}, [ configText ] );
 
-	const quickSetupClients = [ 'claude', 'claude-code', 'cursor' ];
+	const quickSetupClients = [ 'claude', 'claude-code', 'chatgpt', 'cursor' ];
 	const showQuickSetup = quickSetupClients.includes( selectedClient );
 
 	return (
@@ -211,6 +212,32 @@ export default function McpSetup() {
 								</Stack>
 							) }
 
+							{ selectedClient === 'chatgpt' && (
+								<ol className="jetpack-ai-mcp-setup__steps">
+									<li>
+										<Text as="p" variant="muted">
+											{ createInterpolateElement( __( 'Open <ChatGptSettings/>.', 'jetpack' ), {
+												ChatGptSettings: (
+													<Link href="https://chatgpt.com/plugins" openInNewTab>
+														{ __( 'ChatGPT plugins settings', 'jetpack' ) }
+													</Link>
+												),
+											} ) }
+										</Text>
+									</li>
+									<li>
+										<Text as="p" variant="muted">
+											{ __( 'Search for WordPress.com.', 'jetpack' ) }
+										</Text>
+									</li>
+									<li>
+										<Text as="p" variant="muted">
+											{ __( 'Click "Install plugin".', 'jetpack' ) }
+										</Text>
+									</li>
+								</ol>
+							) }
+
 							{ selectedClient === 'cursor' && (
 								<Stack direction="column" gap="md">
 									<Text as="p" variant="muted">
@@ -239,41 +266,44 @@ export default function McpSetup() {
 				</Card>
 			) }
 
-			<Card>
-				<CardBody>
-					<Stack direction="column" gap="sm">
-						<Stack direction="row" justify="space-between" align="center">
-							<Text as="h3" weight={ 600 }>
-								{ __( 'Manual setup', 'jetpack' ) }
+			{ /* ChatGPT connects through its own plugins UI, so there is no config to copy. */ }
+			{ selectedClient !== 'chatgpt' && (
+				<Card>
+					<CardBody>
+						<Stack direction="column" gap="sm">
+							<Stack direction="row" justify="space-between" align="center">
+								<Text as="h3" weight={ 600 }>
+									{ __( 'Manual setup', 'jetpack' ) }
+								</Text>
+								<Button
+									variant="minimal"
+									tone="neutral"
+									size="compact"
+									onClick={ copyToClipboard }
+									aria-label={ __( 'Copy configuration to clipboard', 'jetpack' ) }
+								>
+									<Icon icon={ copyStatus === 'success' ? check : copy } size={ 18 } />
+								</Button>
+							</Stack>
+							<Text as="p" variant="muted">
+								{ __( 'Copy this configuration into your client\u2019s MCP settings.', 'jetpack' ) }
 							</Text>
-							<Button
-								variant="minimal"
-								tone="neutral"
-								size="compact"
-								onClick={ copyToClipboard }
-								aria-label={ __( 'Copy configuration to clipboard', 'jetpack' ) }
-							>
-								<Icon icon={ copyStatus === 'success' ? check : copy } size={ 18 } />
-							</Button>
+							<TextareaControl
+								className="jetpack-ai-mcp-setup__config-textarea"
+								__nextHasNoMarginBottom
+								value={ configText }
+								onChange={ handleConfigChange }
+								readOnly
+							/>
+							{ CLIENT_DOCS_SOURCES[ selectedClient ] && (
+								<Link href={ getRedirectUrl( CLIENT_DOCS_SOURCES[ selectedClient ] ) } openInNewTab>
+									{ CLIENT_DOCS_LABELS[ selectedClient ] }
+								</Link>
+							) }
 						</Stack>
-						<Text as="p" variant="muted">
-							{ __( 'Copy this configuration into your client\u2019s MCP settings.', 'jetpack' ) }
-						</Text>
-						<TextareaControl
-							className="jetpack-ai-mcp-setup__config-textarea"
-							__nextHasNoMarginBottom
-							value={ configText }
-							onChange={ handleConfigChange }
-							readOnly
-						/>
-						{ CLIENT_DOCS_SOURCES[ selectedClient ] && (
-							<Link href={ getRedirectUrl( CLIENT_DOCS_SOURCES[ selectedClient ] ) } openInNewTab>
-								{ CLIENT_DOCS_LABELS[ selectedClient ] }
-							</Link>
-						) }
-					</Stack>
-				</CardBody>
-			</Card>
+					</CardBody>
+				</Card>
+			) }
 		</Stack>
 	);
 }
