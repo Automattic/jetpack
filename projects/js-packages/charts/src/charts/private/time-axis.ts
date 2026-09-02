@@ -74,16 +74,10 @@ const tickFormats = ( formatting: ChartFormatting ) => {
 	return {
 		year,
 		date,
-		// Hour ticks with the date at midnight boundaries, so multi-day spans of
-		// sub-daily data keep their days identifiable.
-		dateOrHour: boundaryFormat(
-			value => {
-				const { hour: hours, minute } = clock( value );
-				return hours === 0 && minute === 0;
-			},
-			date,
-			hour
-		),
+		// Hour ticks with the date on the day's first bucket, so multi-day spans of
+		// sub-daily data keep their days identifiable. The hour alone rather than an
+		// exact midnight: on a half-hour zone no UTC-aligned bucket ever reads :00.
+		dateOrHour: boundaryFormat( value => clock( value ).hour === 0, date, hour ),
 		hour,
 		// Month ticks with the year at January boundaries, for month-or-coarser
 		// buckets where a full "Sep 1" date would misread as a daily point.

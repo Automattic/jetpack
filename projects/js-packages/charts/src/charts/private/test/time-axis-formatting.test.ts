@@ -50,8 +50,7 @@ describe( 'getFormatter with a host formatting context', () => {
 		expect( getFormatter( daily )( Date.parse( '2026-08-03T03:00:00Z' ) ) ).toBe( 'Aug 2' );
 	} );
 
-	it( 'anchors the date label to midnight in the supplied zone', () => {
-		// Three days of hourly buckets: hour ticks, dated at midnight.
+	it( "anchors the date label to the supplied zone's first hour of the day", () => {
 		const hourly = toSeries( every( tokyoMidnight( 2026, 7, 1 ), 72, 1 ) );
 		const format = getFormatter( hourly, undefined, { timeZone: 'Asia/Tokyo' } );
 
@@ -83,6 +82,17 @@ describe( 'getFormatter with a host formatting context', () => {
 } );
 
 describe( 'getBandTickValues with a host formatting context', () => {
+	// The shape the Stats payload arrives in: buckets aligned to UTC, which a
+	// half-hour zone reads at :30, so none of them is ever an exact midnight.
+	it( 'dates the day on a half-hour zone, where no bucket reads midnight', () => {
+		const domain = every( new Date( '2026-08-01T00:00:00Z' ), 72, 1 );
+		const format = getFormatter( toSeries( domain ), undefined, { timeZone: 'Asia/Kolkata' } );
+
+		const labels = getBandTickValues( domain, format, 4 ).map( date => format( date.getTime() ) );
+
+		expect( labels ).toEqual( [ 'Aug 2', 'Aug 3', 'Aug 4' ] );
+	} );
+
 	it( "puts the year tick on the supplied zone's January bucket", () => {
 		const domain = Array.from( { length: 12 }, ( _, i ) => tokyoMidnight( 2025, 7 + i ) );
 		const format = getFormatter( toSeries( domain ), undefined, {

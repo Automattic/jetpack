@@ -28,7 +28,6 @@ describe( 'createZonedClock', () => {
 		expect( createZonedClock( 'Asia/Tokyo' )( new Date( '2026-08-02T15:30:00Z' ) ) ).toEqual( {
 			month: 8,
 			hour: 0,
-			minute: 30,
 		} );
 	} );
 
@@ -39,7 +38,6 @@ describe( 'createZonedClock', () => {
 		expect( createZonedClock( timeZone )( new Date( 'nope' ) ) ).toEqual( {
 			month: NaN,
 			hour: NaN,
-			minute: NaN,
 		} );
 	} );
 } );
@@ -58,8 +56,15 @@ describe( 'sanitizeFormatting', () => {
 		} );
 	} );
 
-	it( 'drops a WordPress locale Intl cannot parse, keeping the zone', () => {
+	it( 'repairs the underscored locale WordPress reports', () => {
 		expect( sanitizeFormatting( { locale: 'en_US', timeZone: 'Asia/Tokyo' } ) ).toEqual( {
+			locale: 'en-US',
+			timeZone: 'Asia/Tokyo',
+		} );
+	} );
+
+	it( 'drops a locale no underscore swap can rescue, keeping the zone', () => {
+		expect( sanitizeFormatting( { locale: 'nope!', timeZone: 'Asia/Tokyo' } ) ).toEqual( {
 			locale: undefined,
 			timeZone: 'Asia/Tokyo',
 		} );
