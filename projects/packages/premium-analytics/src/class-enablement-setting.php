@@ -14,10 +14,10 @@ namespace Automattic\Jetpack\PremiumAnalytics;
  * register it outside their enablement checks. Everything else lives behind
  * {@see Dashboard_Support_Routes}, which only boots once the dashboard is already on.
  *
- * Reads and writes both address the stored opt-in, which is what WPCOM's `/sites/$site/option`
- * and Sync report too. An override such as our rollout sticker turns the dashboard on without
- * touching the opt-in and deliberately does not surface here: whether the dashboard actually
- * booted is `analytics.enabled` in script data.
+ * Reads and writes both address the stored opt-in, so this route reports the same value as any
+ * other reader of the option. An override such as our rollout sticker turns the dashboard on
+ * without touching the opt-in and deliberately does not surface here: whether the dashboard
+ * actually booted is `analytics.enabled` in script data.
  *
  * Writing cannot take effect in the request that writes it: Jetpack resolves the flag once, on
  * `plugins_loaded`. Clients are expected to reload.
@@ -54,11 +54,29 @@ class Enablement_Setting {
 			'general',
 			self::ENABLED_OPTION,
 			array(
-				'type'         => 'boolean',
-				'default'      => false,
-				'show_in_rest' => true,
-				'description'  => __( 'Whether the Premium Analytics dashboard is enabled for this site.', 'jetpack-premium-analytics-pkg' ),
+				'type'              => 'boolean',
+				'default'           => false,
+				'show_in_rest'      => true,
+				'sanitize_callback' => array( __CLASS__, 'sanitize_enabled' ),
+				'description'       => __( 'Whether the Premium Analytics dashboard is enabled for this site.', 'jetpack-premium-analytics-pkg' ),
 			)
 		);
+	}
+
+	/**
+	 * Store the opt-in as 0 or 1.
+	 *
+	 * Without this, switching the dashboard off stores `''`: core's settings controller hands
+	 * `update_option()` a bare `false`, which reaches the options table as an empty string. The
+	 * REST schema does not accept that as a boolean, so the next read reports `null` rather than
+	 * `false`, and a later `null` write answers 500 `rest_invalid_stored_value`.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param mixed $value Value being written.
+	 * @return int
+	 */
+	public static function sanitize_enabled( $value ) {
+		return (int) rest_sanitize_boolean( $value );
 	}
 }

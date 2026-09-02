@@ -133,10 +133,9 @@ class Enablement_Setting_Test extends BaseTestCase {
 	}
 
 	/**
-	 * An override such as our rollout sticker turns the dashboard on without touching the opt-in,
-	 * and the read stays with the opt-in - so this agrees with `/sites/$site/option` and Sync,
-	 * which read the option directly. Whether the dashboard actually booted is `analytics.enabled`
-	 * in script data, not this.
+	 * Guards against reinstating the effective-value read this route used to do. The filter is the
+	 * host's, and nothing in this package consults it, so the assertion only fails if someone
+	 * teaches the setting to answer with an override again.
 	 */
 	public function test_get_reports_the_opt_in_not_an_override() {
 		$this->log_in_as_admin();
@@ -168,8 +167,8 @@ class Enablement_Setting_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Writing reports back what was written, even where an override is forcing the dashboard on -
-	 * the write addresses the opt-in, so the response has to describe the opt-in.
+	 * The same guard on the write path, which core answers by re-reading the setting: the response
+	 * has to describe the opt-in that was just written, not an override sitting over it.
 	 */
 	public function test_post_reports_what_it_wrote_under_an_override() {
 		$this->log_in_as_admin();
@@ -179,6 +178,17 @@ class Enablement_Setting_Test extends BaseTestCase {
 
 		$this->assertFalse( $response->get_data()[ Enablement_Setting::ENABLED_OPTION ] );
 		$this->assertFalse( (bool) get_option( Enablement_Setting::ENABLED_OPTION ) );
+	}
+
+	/**
+	 * Switching off must not store `''`: the REST schema rejects it as a boolean, so a disabled
+	 * site would read back as `null`. WorDBless keeps PHP types through the options table where
+	 * MySQL does not, so this pins the sanitiser rather than the round trip.
+	 */
+	public function test_the_opt_in_is_stored_as_an_integer() {
+		$this->assertSame( 1, Enablement_Setting::sanitize_enabled( true ) );
+		$this->assertSame( 0, Enablement_Setting::sanitize_enabled( false ) );
+		$this->assertSame( 0, Enablement_Setting::sanitize_enabled( 'false' ) );
 	}
 
 	public function test_reads_are_rejected_for_an_anonymous_caller() {
