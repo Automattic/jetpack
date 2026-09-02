@@ -337,6 +337,7 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 	const [ clientId, setClientId ] = useState( '' );
 	const [ clientSecret, setClientSecret ] = useState( '' );
 	const [ connectError, setConnectError ] = useState( null );
+	const [ connectErrorDismissed, setConnectErrorDismissed ] = useState( false );
 	const [ isConnecting, setIsConnecting ] = useState( false );
 
 	// Partner Referrals onboarding state.
@@ -565,6 +566,7 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 			} )
 			.catch( err => {
 				setConnectError( getUserFriendlyError( err ) );
+				setConnectErrorDismissed( false );
 			} )
 			.finally( () => {
 				setIsConnecting( false );
@@ -601,6 +603,7 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 			} )
 			.catch( err => {
 				setConnectError( getUserFriendlyError( err ) );
+				setConnectErrorDismissed( false );
 			} )
 			.finally( () => {
 				setIsCompletingOnboarding( false );
@@ -662,6 +665,7 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 			} )
 			.catch( err => {
 				setConnectError( getUserFriendlyError( err ) );
+				setConnectErrorDismissed( false );
 			} )
 			.finally( () => {
 				setIsGeneratingSignupLink( false );
@@ -755,6 +759,7 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 						'jetpack-paypal-payments'
 					)
 				);
+				setConnectErrorDismissed( false );
 			} catch {
 				// Still on a PayPal origin — its location is not readable yet.
 			}
@@ -825,6 +830,7 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 							'jetpack-paypal-payments'
 						)
 					);
+					setConnectErrorDismissed( false );
 				}
 			} );
 
@@ -1359,8 +1365,12 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 									</Button>
 								) }
 							</div>
-							{ connectError && (
-								<Notice status="error" isDismissible onDismiss={ () => setConnectError( null ) }>
+							{ connectError && ! connectErrorDismissed && (
+								<Notice
+									status="error"
+									isDismissible
+									onDismiss={ () => setConnectErrorDismissed( true ) }
+								>
 									{ connectError }
 								</Notice>
 							) }
