@@ -177,6 +177,14 @@ class PayPal_Partner_Onboarding {
 			);
 		}
 
+		/*
+		 * complete_onboarding() exchanges the auth code against whichever base URL
+		 * the stored environment names, so it has to be the one the referral was
+		 * created for. Without this a sandbox referral is exchanged against
+		 * production and PayPal answers "Client Authentication failed".
+		 */
+		PayPal_OAuth::set_environment( $environment );
+
 		// Generate and store an encrypted seller nonce for the auth code exchange.
 		// Uses a 30-minute transient so abandoned onboarding flows auto-expire.
 		$seller_nonce    = self::generate_seller_nonce();
