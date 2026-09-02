@@ -187,6 +187,20 @@ describe( 'buildTimeAxisOptions', () => {
 		expect( axis.numTicks ).toBeLessThan( 10 );
 	} );
 
+	it( 'keeps its defaults when a caller passes orientation and display as undefined', () => {
+		const axis = build( { axisOptions: { orientation: undefined, display: undefined } } );
+
+		expect( axis.orientation ).toBe( 'bottom' );
+		expect( axis.display ).toBe( true );
+	} );
+
+	it( 'still lets a caller set orientation and display', () => {
+		const axis = build( { axisOptions: { orientation: 'top', display: false } } );
+
+		expect( axis.orientation ).toBe( 'top' );
+		expect( axis.display ).toBe( false );
+	} );
+
 	it( 'hands visx a width-fitted count rather than an empty selection', () => {
 		const axis = build( {
 			zoomDomain: [ new Date( '2027-01-01T00:00:00Z' ), new Date( '2027-01-02T00:00:00Z' ) ],

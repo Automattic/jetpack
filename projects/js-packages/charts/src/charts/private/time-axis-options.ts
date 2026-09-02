@@ -56,6 +56,8 @@ export const buildTimeAxisOptions = ( {
 		tickFormat,
 		tickValues: callerTickValues,
 		numTicks: callerNumTicks,
+		orientation: callerOrientation,
+		display: callerDisplay,
 		...rest
 	} = axisOptions ?? {};
 
@@ -92,9 +94,9 @@ export const buildTimeAxisOptions = ( {
 		( tickValues ? undefined : guessOptimalNumTicks( rendered, width, formatter ) );
 
 	return {
-		orientation: 'bottom',
+		orientation: callerOrientation ?? 'bottom',
 		tickFormat: formatter,
-		display: true,
+		display: callerDisplay ?? true,
 		...rest,
 		...( tickValues ? { tickValues } : {} ),
 		...( numTicks === undefined ? {} : { numTicks } ),
