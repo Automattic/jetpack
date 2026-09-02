@@ -224,9 +224,9 @@ class Status_Controller_Test extends BaseTestCase {
 	}
 
 	/**
-	 * A rollout sticker turns the dashboard on without touching the option. The hosts answer that
-	 * through the filter, and the route has to report it - otherwise a client invites someone to
-	 * switch on what they already have.
+	 * A sticker we set overrides the opt-in and turns the dashboard on without touching the option.
+	 * The hosts answer that through the filter, and the route has to report it - otherwise a client
+	 * invites someone to switch on what they already have.
 	 */
 	public function test_get_reports_enabled_when_a_host_answers_the_filter() {
 		$this->log_in_as_admin();
@@ -238,8 +238,8 @@ class Status_Controller_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The option cannot override a host that forces the dashboard on, so switching it off has to
-	 * report that the dashboard is still up rather than echoing back the request.
+	 * The override only points one way: the option cannot switch off a site we have stickered on,
+	 * so the response has to report the dashboard is still up rather than echoing back the request.
 	 */
 	public function test_post_reports_the_dashboard_is_still_on_when_a_host_forces_it() {
 		$this->log_in_as_admin();

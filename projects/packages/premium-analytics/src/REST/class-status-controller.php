@@ -24,9 +24,9 @@ require_once __DIR__ . '/../rest-namespace.php';
  * package serves is registered by {@see \Automattic\Jetpack\PremiumAnalytics\Dashboard_Support_Routes},
  * which only boots once the dashboard is already on.
  *
- * Writes the site's own opt-in option, and reports whether the dashboard is on by any route in —
- * a rollout sticker turns it on without ever touching that option, so the two questions have
- * different answers and clients care about the second one.
+ * Writes the site's own opt-in option, and reports whether the dashboard is on. Those are two
+ * different questions: a sticker we set can override the opt-in and turn the dashboard on without
+ * ever touching the option. Clients care about the second one.
  *
  * Both are resolved inside the request rather than reused from boot. On WordPress.com Simple the
  * host settles its gate on `plugins_loaded`, before public-api has switched to the target blog, so
@@ -127,9 +127,10 @@ class Status_Controller {
 	/**
 	 * Store the site's opt-in.
 	 *
-	 * Reports where the site actually ends up rather than echoing the request: a site carrying the
-	 * rollout sticker keeps the dashboard whatever the option says, so a caller switching it off
-	 * needs to be told the dashboard is still on rather than being handed back its own `false`.
+	 * Reports where the site actually ends up rather than echoing the request. The override only
+	 * points one way — a site we have stickered keeps the dashboard whatever the option says — so a
+	 * caller switching it off needs to be told the dashboard is still on rather than being handed
+	 * back its own `false`.
 	 *
 	 * @since $$next-version$$
 	 *
@@ -145,12 +146,12 @@ class Status_Controller {
 	/**
 	 * Whether the dashboard is on for this site, by any route in.
 	 *
-	 * The stored opt-in is only one of the ways a site gets the dashboard — a rollout sticker turns
-	 * it on without ever touching the option — so reading the option alone would tell a client the
-	 * dashboard is off while the site is plainly running it, and invite someone to switch on what
-	 * they already have. The hosts each answer this filter for their own platform, and this runs it
-	 * inside the request rather than reusing the boot-time answer, which on WordPress.com Simple
-	 * was resolved before public-api switched to the target blog.
+	 * The stored opt-in is not the whole answer — a sticker we set overrides it and turns the
+	 * dashboard on without touching the option — so reading the option alone would tell a client
+	 * the dashboard is off while the site is plainly running it, and invite someone to switch on
+	 * what they already have. The hosts each answer this filter for their own platform, and this
+	 * runs it inside the request rather than reusing the boot-time answer, which on WordPress.com
+	 * Simple was resolved before public-api switched to the target blog.
 	 *
 	 * @return bool
 	 */
