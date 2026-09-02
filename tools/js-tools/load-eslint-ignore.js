@@ -152,10 +152,8 @@ function loadIgnorePatterns( basedir ) {
 	const stack = [ rootdir ];
 	while ( stack.length > 0 ) {
 		const dir = stack.pop();
+		// Note ordering is important: .git/info/exclude, then .gitignore, then .eslintignore, then subdirs.
 		if ( dir === rootdir ) {
-			// Lowest precedence of the three per gitignore(5), and later rules win, so load it
-			// first: a committed `.gitignore` has to be able to override a personal exclude.
-			// Git anchors these at the repo root rather than at `.git/info/`, hence the dir.
 			addIgnoreFile( findGitInfoExclude( dir ), dir );
 		}
 
