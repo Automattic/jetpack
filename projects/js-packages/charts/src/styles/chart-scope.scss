@@ -60,7 +60,10 @@
 	--a8c-charts-color-label-inverse: var(--wpds-color-foreground-interactive-neutral-strong, #f0f0f0);
 	// White label text sits on arbitrary series colors, so it has no WPDS
 	// content-foreground equivalent.
-	--a8c-charts-color-label-on-fill: #fff;
+	--a8c-charts-color-label-on-fill: var(--a8c-charts-color-label-on-fill-theme, #fff);
+	// The plate behind a pie-slice label. Transparent by default, so a label
+	// reads straight off the slice; there is no WPDS token for "no surface".
+	--a8c-charts-color-label-background: var(--a8c-charts-color-label-background-theme, transparent);
 	// The SVG axis and tick labels. `svgLabelSmall.fill` publishes THIS role, so
 	// deriving from --a8c-charts-color-label is safe and wanted: the theme field
 	// moves only these labels, while setting the broad role in CSS still moves
@@ -105,4 +108,7 @@
 	--a8c-charts-border-radius-cell: var(--wpds-border-radius-sm, 2px);
 	// Pill shape; no WPDS radius reaches it.
 	--a8c-charts-border-radius-leaderboard-bar: 9999px;
+
+	--a8c-charts-dimension-leaderboard-row-gap: var(--wpds-dimension-gap-md, 12px);
+	--a8c-charts-dimension-leaderboard-column-gap: var(--wpds-dimension-gap-xs, 4px);
 }

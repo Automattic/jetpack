@@ -15,7 +15,7 @@ import {
 import { Page } from '@wordpress/admin-ui';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
-import { useMemo, useState } from '@wordpress/element';
+import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useParams } from '@wordpress/route';
 import { DEFAULT_GRID, ROW_HEIGHT_PRESETS, WidgetDashboard } from '@wordpress/widget-dashboard';
@@ -38,11 +38,6 @@ const POST_DETAIL_GRID = { ...DEFAULT_GRID, rowHeight: ROW_HEIGHT_PRESETS.small 
 // The layout is fixed, so the change callback never fires; the dashboard
 // still requires one because it owns a staging copy internally.
 const noopLayoutChange = () => {};
-
-// = summary's min-inline-size + row gap (keep in sync with stage.module.scss)
-// + a buffer, so the panel steps down before CSS wrap — wrap is synchronous
-// but the measured flip lags a frame, so equal thresholds would flash.
-const HEADER_RESERVED_INLINE_SIZE = 440;
 
 /**
  * Premium Analytics post/page detail page stage component.
@@ -119,10 +114,6 @@ function PostDetail(): JSX.Element {
 		return aliases.length ? [ ...widgetTypes, ...aliases ] : widgetTypes;
 	}, [ widgetTypes ] );
 
-	// The header row hosts the panel in a shrink-to-fit slot, so the panel measures
-	// the row itself to pick its responsive layout; see the `containerElement` prop.
-	const [ headerElement, setHeaderElement ] = useState< HTMLElement | null >( null );
-
 	const breadcrumbs = useDetailBreadcrumbs( summary.title );
 
 	return (
@@ -162,7 +153,7 @@ function PostDetail(): JSX.Element {
 							 * tab (same post, same date range), so they render once above the
 							 * per-tab widget grid and scroll away with it.
 							 */ }
-							<div ref={ setHeaderElement } className={ styles.header }>
+							<div className={ styles.header }>
 								<div className={ styles.summary }>
 									{ /* The email tabs give the header an email identity and report over
 									     the send window; the title stays the post's. */ }
@@ -182,12 +173,7 @@ function PostDetail(): JSX.Element {
 										 * that from the scope the stage declares; the params themselves
 										 * stay in the URL so the breadcrumb carries them back out.
 										 */ }
-										<DateFiltersPanel
-											{ ...dateFilters }
-											{ ...dateControls }
-											containerElement={ headerElement }
-											reservedInlineSize={ HEADER_RESERVED_INLINE_SIZE }
-										/>
+										<DateFiltersPanel { ...dateFilters } { ...dateControls } />
 									</div>
 								) }
 							</div>

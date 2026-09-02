@@ -136,7 +136,6 @@ function RollingDateControls() {
 
 	return (
 		<DateFiltersPanel
-			presetId={ staged.presetId }
 			range={ staged.range }
 			appliedPresetId={ committed.presetId }
 			appliedRange={ committed.range }

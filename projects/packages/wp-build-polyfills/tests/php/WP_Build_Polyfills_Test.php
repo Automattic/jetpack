@@ -784,6 +784,58 @@ class WP_Build_Polyfills_Test extends BaseTestCase {
 	}
 
 	/**
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_register_modules_force_replaces_widget_primitives_with_old_gutenberg() {
+		define( 'GUTENBERG_VERSION', '23.8.0' );
+
+		$GLOBALS['wp_script_modules'] = new \WP_Script_Modules();
+		wp_register_script_module( '@wordpress/widget-primitives', 'https://example.com/old-gutenberg-widget-primitives.js', array(), '1.0.0-gutenberg' );
+
+		$this->create_asset_file(
+			'modules/widget-primitives/index.asset.php',
+			array(),
+			'9.9.9',
+			array( 'module_dependencies' => array() )
+		);
+
+		$this->invoke_register_modules();
+
+		$module = $this->get_module_data( '@wordpress/widget-primitives' );
+		$this->assertNotNull( $module );
+		$this->assertSame( '9.9.9', $module['version'] );
+	}
+
+	/**
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_register_modules_does_not_replace_widget_primitives_with_supported_gutenberg() {
+		define( 'GUTENBERG_VERSION', '23.9.0' );
+
+		$GLOBALS['wp_script_modules'] = new \WP_Script_Modules();
+		wp_register_script_module( '@wordpress/widget-primitives', 'https://example.com/gutenberg-widget-primitives.js', array(), '1.0.0-gutenberg' );
+
+		$this->create_asset_file(
+			'modules/widget-primitives/index.asset.php',
+			array(),
+			'9.9.9',
+			array( 'module_dependencies' => array() )
+		);
+
+		$this->invoke_register_modules();
+
+		$module = $this->get_module_data( '@wordpress/widget-primitives' );
+		$this->assertNotNull( $module );
+		$this->assertSame( '1.0.0-gutenberg', $module['version'] );
+	}
+
+	/**
 	 * Test that register() hooks into wp_default_scripts at priority 20.
 	 */
 	public function test_register_hooks_into_wp_default_scripts() {

@@ -43,11 +43,13 @@ export function openJetpackSidebar(): void {
  * from the sidebar plugin's own mount means the editor is necessarily up and
  * the plugin registered — with no request, or outside the editor, nothing happens.
  *
+ * @param {boolean} enabled - Whether the caller still has an AI panel to show.
+ *                          Pass false to leave the sidebar alone, rather than open an empty one.
  * @return {boolean} Whether the pre-open was requested, so the caller can
  * start its AI panel expanded.
  */
-export function useSidebarOpenFromUrl(): boolean {
-	const requested = useMemo( isSidebarOpenRequested, [] );
+export function useSidebarOpenFromUrl( enabled: boolean = true ): boolean {
+	const requested = useMemo( isSidebarOpenRequested, [] ) && enabled;
 
 	useEffect( () => {
 		if ( ! requested ) {

@@ -34,7 +34,7 @@ Highest first:
 
 A CSS declaration of a role therefore beats a `theme` prop override *anywhere* it is set, the wrapper included — the prop writes a variable the role reads, not the role itself, and a role declared in CSS never reads it.
 
-An override set **above** `GlobalChartsProvider` does not apply: the provider's own declaration on its wrapper beats a value merely inherited from an ancestor. Set overrides inside the provider tree, or target the scope class itself — `.a8c-charts-scope { --a8c-charts-color-grid: #e0e0e0; }` matches every provider wrapper on the page, including the one a bare chart mounts for itself and the one a portal tooltip carries, and outranks the zero-specificity catalog default. That rule is the replacement for a page-level `:root` override. The same rule limits `@wordpress/theme`'s `ThemeProvider` to *above* the charts provider: the catalog substitutes its `--wpds-*` tokens at the wrapper, so a `ThemeProvider` mounted between the wrapper and a chart is never consulted and CSS-painted colors keep their light-mode spec fallbacks. The JS-painted ones do not — `getElementStyles` resolves at the chart element — so that nesting shows up as a chart whose SVG marks retint while its gridlines and surfaces do not.
+An override set **above** `GlobalChartsProvider` does not apply: the provider's own declaration on its wrapper beats a value merely inherited from an ancestor. Set overrides inside the provider tree, or target the scope class itself — `.a8c-charts-scope { --a8c-charts-color-grid: #e0e0e0; }` matches every provider wrapper on the page, including the one a bare chart mounts for itself and the one a portal tooltip carries, and outranks the zero-specificity catalog default. That rule is the replacement for a page-level `:root` override. The same rule limits `@wordpress/theme`'s `ThemeProvider` to *above* the charts provider: the catalog substitutes its `--wpds-*` tokens at the wrapper, so a `ThemeProvider` mounted between the wrapper and a chart is never consulted and CSS-painted colors keep their light-mode spec fallbacks. The JS-consumed ones do not — `getElementStyles` resolves at the chart element — so that nesting shows up as a chart whose series marks retint while its gridlines, axis and surfaces do not.
 
 #### The theme layer
 
@@ -67,13 +67,25 @@ It doesn't, because a mapped field publishes a role read by exactly the elements
 
 The consequence: `--a8c-charts-color-label` moves every label, but no single role repaints the chart background and the floating surfaces together.
 
-`gridStyles.stroke`, `xAxisLineStyles.stroke` and `xTickLineStyles.stroke` need no narrow role — nothing outside the element each names reads their role.
+`gridStyles.stroke`, `xAxisLineStyles.stroke`, `xTickLineStyles.stroke`, `labelBackgroundColor` and `labelTextColor` need no narrow role — nothing outside the element each names reads their role.
 
 ### The SVG bridge
 
-visx and Google Charts apply colors as SVG presentation attributes, where `var()` does not resolve. Those colors are resolved in JS through `getComputedStyle` against the chart's own scope element — never `document.documentElement` — so both delivery paths obey the same cascade. The JS theme in `themes.ts` therefore holds a bare catalog pointer with a terminal literal (`var(--a8c-charts-color-grid, #dbdbdb)`); the literal is the last resort for SSR and jsdom, where `getComputedStyle` resolves nothing.
+**A color that is only painted is not resolved at all.** The grid, axis line, tick marks and tick labels keep their `var(--a8c-charts-color-*, …)` chain the whole way: `useXYChartTheme` spreads them through untouched, `buildChartTheme` passes them on, and visx writes the chain onto the element it paints — an inline style for the grid, a presentation attribute elsewhere. A presentation attribute is mapped to a CSS declaration, so the chain resolves there natively, in Blink, WebKit and Gecko alike.
 
-The scope element is the wrapper a chart is rendered into, which sits **above** the element the chart's own `className` lands on. A role declared on that inner element is therefore invisible to this bridge: `.line-chart { --a8c-charts-color-grid: red }` recolors what the chart paints in CSS and leaves the gridlines, axis lines and tick labels at the inherited value, because the SVG carries a value already resolved higher up. Scope such a rule to a wrapper around the chart, not to the chart itself. CHARTS-255 tracks closing this.
+That is what makes the role read **at the painted element** rather than snapshot at the provider wrapper: an override on a chart's own class reaches it, a theme change repaints with no re-render, and SSR emits the chain for the client to resolve on paint. Resolving such a color in JS would freeze it and undo all three, which is why nothing does.
+
+There is no stylesheet and no class involved. In particular the axes need neither: `xAxisLineStyles` and `xTickLineStyles` are x-axis-only fields, so visx paints the x axis and leaves the y axis unstroked without anything having to distinguish them.
+
+What else crosses in JS is what something reads as a *value*: the series palette, which visx turns into its `colorScale`, and the background, which the default glyph, the area-chart band, the line-chart gradient stops, the heatmap's contrast math and `GeoChart` each consume as a concrete string.
+
+**The tooltip is the one painted exception, because visx paints it outside the scope.** `@visx/tooltip` appends each portal container straight to `document.body`, where the catalog is not declared, so a chain handed to one reaches only its own hardcoded fallback — never the role, never a consumer's override. Two colors take that route and are therefore resolved before visx sees them: `htmlLabel.color`, in `useXYChartTheme`, and the crosshair stroke, in `AccessibleTooltip`. `htmlLabel.color` has a second reason: visx builds the tooltip's shadow as `` `0 1px 2px ${color}55` ``, and a `var()` chain cannot take a suffix — token streams do not merge across a substitution boundary, so the whole declaration is invalid and the tooltip renders flat. Giving the portal the scope class instead would fix neither: visx hardcodes the crosshair portals' `className`.
+
+Being resolved in JS, both then carry the bridge's limitations rather than the CSS path's: they read at the scope element, so a role declared on the chart's own class moves the gridlines but leaves the crosshair at the catalog value, and neither repaints on a theme change until something re-renders.
+
+Being JS-consumed is not a reason for a field to survive, though — where a value is *consumed* and where it is *set* are separate questions. `withCatalogPointers` parks a consumer's `theme` value in the catalog role and restores the pointer, so `theme.backgroundColor` and `theme.colors` are only ever carriers for their roles. Both are deprecated; set `--a8c-charts-color-background` and `--a8c-charts-color-series-*` instead. Those resolve through `getComputedStyle` against the chart's own scope element — never `document.documentElement` — so both delivery paths obey the same cascade. The JS theme in `themes.ts` holds a bare catalog pointer with a terminal literal (`var(--a8c-charts-color-background, #fff)`); the literal is the last resort for SSR and jsdom, where `getComputedStyle` resolves nothing.
+
+The scope element is the wrapper a chart is rendered into, which sits **above** the element the chart's own `className` lands on, so a role declared on that inner element is invisible to the JS bridge. `.line-chart { --a8c-charts-color-background: red }` therefore does not reach the glyph strokes, while `.line-chart { --a8c-charts-color-grid: red }` does reach the gridlines — the CSS-painted roles read at the painted element, so any ancestor of it will do. Scope a rule for a JS-resolved role to a wrapper around the chart rather than to the chart itself. CHARTS-255 tracks closing the remainder.
 
 `GeoChart` (Google Charts) takes a resolved-hex snapshot at render, so it does not live-update on a theme change without a re-render.
 
@@ -95,6 +107,7 @@ The scope element is the wrapper a chart is rendered into, which sits **above** 
 | `--a8c-charts-color-label-secondary` | `--wpds-color-foreground-content-neutral-weak` | `#707070` |
 | `--a8c-charts-color-label-inverse` | `--wpds-color-foreground-interactive-neutral-strong` | `#f0f0f0` |
 | `--a8c-charts-color-label-on-fill` | _(none — white-on-series-fill, no WPDS fit)_ | `#fff` |
+| `--a8c-charts-color-label-background` | _(none — transparent by default, no WPDS fit)_ | `transparent` |
 | `--a8c-charts-color-label-axis` | _(derives from `--a8c-charts-color-label`)_ | — |
 | `--a8c-charts-color-annotation` | `--wpds-color-foreground-content-neutral` | `#1e1e1e` |
 | `--a8c-charts-color-trend-up` | `--wpds-color-foreground-content-success-weak` | `#008030` |
@@ -127,7 +140,7 @@ Precedence for a series color, highest first:
 
 The palette is resolved per provider, so one `ColorCache` and one group-to-color map serve every chart under it and siblings agree on what a group is colored. The consequence is that a slot set on a *chart's own* element does not apply — the palette was resolved at the provider wrapper before that element existed. Use `options.stroke` for a per-chart color.
 
-`theme.colors` is deprecated sugar over the slots: entry N publishes slot N's theme layer through the same mechanism as every other mapped field, so a CSS declaration still outranks it and a short array leaves the later slots unset rather than blank. Entries past the fifth are ignored, with a one-time console warning. It is removed in CHARTS-227.
+`theme.colors` is deprecated sugar over the slots: entry N publishes slot N's theme layer through the same mechanism as every other mapped field, so a CSS declaration still outranks it and a short array leaves the later slots unset rather than blank. Entries past the fifth are ignored, with a one-time console warning. It is removed in CHARTS-263.
 
 ## Non-color roles
 
@@ -138,8 +151,12 @@ The palette is resolved per provider, so one `ColorCache` and one group-to-color
 | `--a8c-charts-border-radius-bar` | `--wpds-border-radius-md` | `4px` |
 | `--a8c-charts-border-radius-cell` | `--wpds-border-radius-sm` | `2px` |
 | `--a8c-charts-border-radius-leaderboard-bar` | _(none — pill shape, no WPDS radius fits)_ | `9999px` |
+| `--a8c-charts-dimension-leaderboard-row-gap` | `--wpds-dimension-gap-md` | `12px` |
+| `--a8c-charts-dimension-leaderboard-column-gap` | `--wpds-dimension-gap-xs` | `4px` |
 | `--a8c-charts-elevation-xs` | _(none — `--wpds-elevation-*` removed in theme 1.0.0)_ | `0 1px 1px 0 #00000008, 0 1px 2px 0 #00000005, 0 3px 3px 0 #00000005, 0 4px 4px 0 #00000003` |
 | `--a8c-charts-elevation-sm` | _(none — `--wpds-elevation-*` removed in theme 1.0.0)_ | `0 1px 2px 0 #0000000d, 0 2px 3px 0 #0000000a, 0 6px 6px 0 #00000008, 0 8px 8px 0 #00000005` |
+
+`theme.leaderboardChart.rowGap` and `.columnGap` are the deprecated way into the two leaderboard gaps. Both still outrank the role where a consumer sets one, and both are removed in CHARTS-263. Neither carries a default any more — the role does — so both read as `undefined` off `defaultTheme` and `useGlobalChartsTheme()`.
 
 The motion pair carries the one-shot reveal a data mark plays on first paint, across all six charts that animate in. It deliberately does **not** cover interaction motion: hover and transition timings read `--wpds-motion-*` directly, as interface chrome rather than a chart role.
 

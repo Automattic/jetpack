@@ -16,6 +16,8 @@ use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
+use Automattic\Jetpack\Terms_Of_Service;
+use Automattic\Jetpack\Tracking;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
@@ -183,7 +185,7 @@ class Jetpack_AI_Page {
 	/**
 	 * Whether the Scheduled tasks tab and its Agents Manager sidebar are enabled.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.2
 	 *
 	 * @return bool
 	 */
@@ -206,7 +208,8 @@ class Jetpack_AI_Page {
 		}
 
 		$blog_id     = Connection_Manager::get_site_id( true );
-		$site_suffix = ( new Status() )->get_site_suffix();
+		$status      = new Status();
+		$site_suffix = $status->get_site_suffix();
 		// Use the plain hostname for the Atomic activity log URL — get_site_suffix() can
 		// include '::' for subdirectory installs, which would break the URL. This matches
 		// the approach used by jetpack-mu-wpcom for the sidebar Activity Log link.
@@ -248,6 +251,14 @@ class Jetpack_AI_Page {
 		);
 
 		wp_set_script_translations( 'jetpack-ai-admin', 'jetpack' );
+
+		// The Tracks sender (w.js); without it, queued events never leave the
+		// browser. Consent-gated like the other surfaces that load it.
+		$can_send_tracks = ( new Tracking( 'jetpack', new Connection_Manager() ) )->should_enable_tracking( new Terms_Of_Service(), $status );
+		if ( $can_send_tracks ) {
+			Tracking::register_tracks_functions_scripts( true );
+		}
+
 		if ( $show_scheduled_tasks_view ) {
 			Connection_Initial_State::render_script( 'jetpack-ai-admin' );
 		}
@@ -255,7 +266,7 @@ class Jetpack_AI_Page {
 		/**
 		 * Filters the host-specific AI Hub configuration.
 		 *
-		 * @since $$next-version$$
+		 * @since 16.2
 		 *
 		 * @param array $config AI Hub host configuration.
 		 */
@@ -317,6 +328,9 @@ class Jetpack_AI_Page {
 			// sends them as the strings 'true'/'false' (AIINT-576).
 			'isA11n'           => self::is_current_user_automattician(),
 			'isTest'           => $is_internal_test,
+			// Identity for Tracks; the lookup can call WordPress.com on a
+			// cache miss, so it shares the sender's guard.
+			'tracksUserData'   => $can_send_tracks ? self::get_tracks_user_data() : null,
 			'mcpSettingsApi'   => $config['mcpSettingsApi'],
 		);
 
@@ -350,6 +364,24 @@ class Jetpack_AI_Page {
 			plugins_url( '_inc/build/jetpack-ai-admin.css', JETPACK__PLUGIN_FILE ),
 			array( 'wp-components' ),
 			$script_version
+		);
+	}
+
+	/**
+	 * Connected-user identity for Tracks; null when no WordPress.com account is
+	 * linked. Two keys only, so email and locale stay out of the page HTML.
+	 *
+	 * @return array{userid:int, username:string}|null
+	 */
+	private static function get_tracks_user_data() {
+		$identity = \Jetpack_Tracks_Client::get_connected_user_tracks_identity();
+		if ( ! is_array( $identity ) || ! isset( $identity['userid'] ) || ! isset( $identity['username'] ) ) {
+			return null;
+		}
+
+		return array(
+			'userid'   => (int) $identity['userid'],
+			'username' => (string) $identity['username'],
 		);
 	}
 

@@ -1,6 +1,7 @@
 <?php
 /**
- * Capabilities REST bridge — proxies WPCOM's site rewind state.
+ * Capabilities REST bridge — WPCOM's site rewind state, plus the local
+ * facts the dashboard needs in the same breath.
  *
  * @package automattic/jetpack-backup-plugin
  */
@@ -16,8 +17,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Returns the site's backup capabilities (plan slug, hasBackupPlan,
- * hasScan). Backs the `<Gates>` decision tree.
+ * Returns what the modernized dashboard is allowed to show.
+ *
+ * Two halves kept apart by the response shape: the top level projects
+ * WordPress.com's answer into the flags `<Gates>` reads, while everything under
+ * `local` was decided on the site. They ride together because this is the one
+ * request every screen makes before rendering a body. Add locally-derived
+ * values under `local`, never beside the projections.
  */
 class Capabilities_Bridge {
 
@@ -48,6 +54,10 @@ class Capabilities_Bridge {
 	 * a capabilities list, and on some plan shapes (e.g. Jetpack Complete)
 	 * the `capabilities` key is missing entirely, which produced a false
 	 * "no plan" gate for plans that do include Backup.
+	 *
+	 * The `local` branch rides along on the same response and is decided
+	 * here rather than upstream; the class docblock says why it lives on
+	 * this route and why it is nested.
 	 *
 	 * @return \WP_REST_Response|WP_Error The decoded capabilities, or WP_Error on failure.
 	 */
@@ -131,7 +141,27 @@ class Capabilities_Bridge {
 			array(
 				'hasBackupPlan' => in_array( 'backup', $capabilities, true ),
 				'hasScan'       => in_array( 'scan', $capabilities, true ),
+				// Decided here, not upstream. See the class docblock for why
+				// these live in their own branch.
+				'local'         => array(
+					'isStandalonePluginActive' => self::is_standalone_plugin_active(),
+				),
 			)
 		);
+	}
+
+	/**
+	 * Whether the standalone Jetpack VaultPress Backup plugin is active.
+	 *
+	 * Answered on the server: the modernized page emits no backup-specific global
+	 * to read, and a gate the client never decides cannot be bypassed from it.
+	 * `JETPACK_BACKUP_PLUGIN_DIR` tracks *plugin* activation, unlike the
+	 * `jetpack-backup` slug in `connectedPlugins`, which the package registers
+	 * and so would report the plugin present on the one site that lacks it.
+	 *
+	 * @return bool True when the standalone Backup plugin is active.
+	 */
+	private static function is_standalone_plugin_active() {
+		return defined( 'JETPACK_BACKUP_PLUGIN_DIR' );
 	}
 }

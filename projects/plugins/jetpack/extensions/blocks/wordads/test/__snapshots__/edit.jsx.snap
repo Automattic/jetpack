@@ -3,7 +3,7 @@
 exports[`WordAdsEdit matches snapshot: WordAdsEdit 1`] = `
 <div>
   <div
-    aria-label="Block: "
+    aria-label="Add default block"
     class="block-editor-block-list__block wp-block"
     id="block-undefined"
     role="document"

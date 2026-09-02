@@ -44,13 +44,19 @@ function sameValue( a: unknown, b: unknown ) {
 	);
 }
 
+function definedKeys( o: AnyObject ) {
+	return Object.keys( o ).filter( k => o[ k ] !== undefined );
+}
+
+// A key held as `undefined` is counted out: the URL binding serializes it away,
+// so a draft that cleared one equals a store that never carried it (WOOA7S-2039).
 function sameValues( a: AnyObject, b: AnyObject ) {
 	if ( a === b ) {
 		return true;
 	}
 
-	const ak = Object.keys( a );
-	if ( ak.length !== Object.keys( b ).length ) {
+	const ak = definedKeys( a );
+	if ( ak.length !== definedKeys( b ).length ) {
 		return false;
 	}
 
@@ -94,9 +100,24 @@ export function useStagedValue< TValue extends AnyObject, TCommitOptions = void 
 		setStaged( committed );
 	}
 
+	/*
+	 * A patch that only clears keys the draft does not carry changes nothing, so
+	 * dropping it here keeps `commit` from pushing a history entry for a no-op.
+	 */
 	const stage = useCallback( ( patch: Partial< TValue > ) => {
-		stagedRef.current = { ...stagedRef.current, ...patch };
-		patchRef.current = { ...patchRef.current, ...patch };
+		const changes = Object.fromEntries(
+			Object.entries( patch ).filter(
+				( [ key, value ] ) =>
+					value !== undefined || ( stagedRef.current as AnyObject )[ key ] !== undefined
+			)
+		) as Partial< TValue >;
+
+		if ( Object.keys( changes ).length === 0 ) {
+			return;
+		}
+
+		stagedRef.current = { ...stagedRef.current, ...changes };
+		patchRef.current = { ...patchRef.current, ...changes };
 		setStaged( stagedRef.current );
 	}, [] );
 

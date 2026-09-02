@@ -382,10 +382,9 @@ describe( 'AiOverview', () => {
 		expect(
 			screen.getByText( 'Your WordPress.com account isn’t connected.', IGNORE_A11Y )
 		).toBeInTheDocument();
-		expect( screen.getByRole( 'link', { name: 'Connect account' } ) ).toHaveAttribute(
-			'href',
-			'admin.php?page=my-jetpack#/connection'
-		);
+		expect(
+			screen.getByRole( 'link', { name: 'Connect your user account to see your AI usage.' } )
+		).toHaveAttribute( 'href', 'admin.php?page=my-jetpack#/connection' );
 		expect( screen.queryByText( 'Available requests' ) ).not.toBeInTheDocument();
 		expect( apiFetch ).not.toHaveBeenCalled();
 	} );

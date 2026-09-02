@@ -38,6 +38,7 @@ import { getBreveAvailability, canWriteBriefBeEnabled } from '../breve/utils/get
 import Feedback from '../feedback';
 import TitleOptimization from '../title-optimization';
 import UsagePanel from '../usage-panel';
+import WordPressAgentNotice, { useWordPressAgentNotice } from '../wordpress-agent-notice';
 import {
 	PLACEMENT_DOCUMENT_SETTINGS,
 	PLACEMENT_JETPACK_SIDEBAR,
@@ -249,12 +250,24 @@ export default function AiAssistantPluginSidebar() {
 
 	const planType = usePlanType( currentTier );
 
-	// A post-new.php?openSidebar=jetpack-ai-assistant URL asks for the sidebar to start open.
-	const sidebarOpenRequested = useSidebarOpenFromUrl();
+	const { isVisible: showAgentNotice, isDismissed: agentNoticeDismissed } =
+		useWordPressAgentNotice();
+
+	// A post-new.php?openSidebar=jetpack-ai-assistant URL asks for the sidebar to start open,
+	// but not once the notice is dismissed and there is nothing left to show.
+	const sidebarOpenRequested = useSidebarOpenFromUrl( ! agentNoticeDismissed );
 
 	// If the post type is not viewable, do not render my plugin.
 	if ( ! isViewable ) {
 		return null;
+	}
+
+	const isBreveAvailable = getBreveAvailability();
+
+	// The panels close up rather than sit empty. Write Brief's highlights stay on,
+	// but its on/off control lived in the panel above and now has no home.
+	if ( agentNoticeDismissed ) {
+		return isBreveAvailable ? <Highlight /> : null;
 	}
 
 	const title = __( 'Improve with AI', 'jetpack' );
@@ -266,7 +279,6 @@ export default function AiAssistantPluginSidebar() {
 
 	const showUsagePanel = planType === PLAN_TYPE_FREE;
 	const showFairUsageNotice = planType === PLAN_TYPE_UNLIMITED && isOverLimit;
-	const isBreveAvailable = getBreveAvailability();
 
 	return (
 		<>
@@ -274,19 +286,23 @@ export default function AiAssistantPluginSidebar() {
 			<JetpackPluginSidebar>
 				<PanelBody
 					title={ title }
-					initialOpen={ sidebarOpenRequested }
+					initialOpen={ showAgentNotice || sidebarOpenRequested }
 					onToggle={ isOpen => {
 						isOpen && panelToggleTracker( PLACEMENT_JETPACK_SIDEBAR );
 					} }
 					className="jetpack-ai-assistant-panel"
 				>
-					<JetpackAndSettingsContent
-						placement={ PLACEMENT_JETPACK_SIDEBAR }
-						requireUpgrade={ requireUpgrade }
-						upgradeType={ upgradeType }
-						showUsagePanel={ showUsagePanel }
-						showFairUsageNotice={ showFairUsageNotice }
-					/>
+					{ showAgentNotice ? (
+						<WordPressAgentNotice placement={ PLACEMENT_JETPACK_SIDEBAR } />
+					) : (
+						<JetpackAndSettingsContent
+							placement={ PLACEMENT_JETPACK_SIDEBAR }
+							requireUpgrade={ requireUpgrade }
+							upgradeType={ upgradeType }
+							showUsagePanel={ showUsagePanel }
+							showFairUsageNotice={ showFairUsageNotice }
+						/>
+					) }
 				</PanelBody>
 			</JetpackPluginSidebar>
 
@@ -295,30 +311,42 @@ export default function AiAssistantPluginSidebar() {
 				name="jetpack-ai-assistant"
 				icon={ <JetpackEditorPanelLogo /> }
 			>
-				<JetpackAndSettingsContent
-					placement={ PLACEMENT_DOCUMENT_SETTINGS }
-					requireUpgrade={ requireUpgrade }
-					upgradeType={ upgradeType }
-					showUsagePanel={ showUsagePanel }
-					showFairUsageNotice={ showFairUsageNotice }
-				/>
+				{ showAgentNotice ? (
+					<WordPressAgentNotice placement={ PLACEMENT_DOCUMENT_SETTINGS } />
+				) : (
+					<JetpackAndSettingsContent
+						placement={ PLACEMENT_DOCUMENT_SETTINGS }
+						requireUpgrade={ requireUpgrade }
+						upgradeType={ upgradeType }
+						showUsagePanel={ showUsagePanel }
+						showFairUsageNotice={ showFairUsageNotice }
+					/>
+				) }
 			</DocumentPanel>
 
-			<PrePublishPanel title={ title } icon={ <JetpackEditorPanelLogo /> } initialOpen={ false }>
-				<>
-					{ isAITitleOptimizationAvailable && (
-						<TitleOptimization
+			<PrePublishPanel
+				title={ title }
+				icon={ <JetpackEditorPanelLogo /> }
+				initialOpen={ showAgentNotice }
+			>
+				{ showAgentNotice ? (
+					<WordPressAgentNotice placement={ PLACEMENT_PRE_PUBLISH } />
+				) : (
+					<>
+						{ isAITitleOptimizationAvailable && (
+							<TitleOptimization
+								placement={ PLACEMENT_PRE_PUBLISH }
+								busy={ false }
+								disabled={ requireUpgrade }
+							/>
+						) }
+						<Feedback
 							placement={ PLACEMENT_PRE_PUBLISH }
 							busy={ false }
 							disabled={ requireUpgrade }
 						/>
-					) }
-					<Feedback
-						placement={ PLACEMENT_PRE_PUBLISH }
-						busy={ false }
-						disabled={ requireUpgrade }
-					/>
-				</>
+					</>
+				) }
 			</PrePublishPanel>
 		</>
 	);

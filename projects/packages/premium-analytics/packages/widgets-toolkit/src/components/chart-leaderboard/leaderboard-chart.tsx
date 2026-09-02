@@ -18,7 +18,6 @@ import { useMemo } from 'react';
  */
 import { ChartEmptyState } from '../chart-empty-state';
 import styles from './leaderboard-chart.module.scss';
-import type { WooChartTheme } from '../../hooks/use-chart-theme';
 import type { DataFormat } from '../../types';
 import type { ComponentProps, ReactNode } from 'react';
 
@@ -88,7 +87,7 @@ export function LeaderboardChart( {
 	style,
 	fitRows = true,
 }: LeaderboardChartProps ) {
-	const { getElementStyles, theme } = useGlobalChartsContext();
+	const { getElementStyles } = useGlobalChartsContext();
 
 	const valueFormatter = useMemo(
 		() => ( value: number ) => formatMetricValue( value, dataFormat.type, dataFormat.options ),
@@ -104,19 +103,6 @@ export function LeaderboardChart( {
 		const { color: primaryColor } = getElementStyles( { index: 0 } );
 		return lightenHexColor( normalizeColorToHex( primaryColor ), 0.92 );
 	}, [ withOverlayLabel, getElementStyles ] );
-
-	// The `style` prop wins over the theme's bar radius, for per-widget overrides.
-	const chartStyle = useMemo( () => {
-		const wooTheme = theme as WooChartTheme | undefined;
-		const barBorderRadius = wooTheme?.leaderboardChart?.barBorderRadius;
-		if ( ! barBorderRadius && ! style ) {
-			return undefined;
-		}
-		return {
-			'--a8c-charts-border-radius-leaderboard-bar': barBorderRadius,
-			...style,
-		} as React.CSSProperties;
-	}, [ theme, style ] );
 
 	const isEmptyData = ! data || data.length === 0;
 
@@ -141,7 +127,7 @@ export function LeaderboardChart( {
 				withOverlayLabel={ withOverlayLabel }
 				showLegend={ false }
 				fitRows={ fitRows }
-				style={ chartStyle }
+				style={ style }
 				className={ styles.chart }
 			>
 				{ showLegend && (

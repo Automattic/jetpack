@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Admin dashboards: Keep the page header and content in view when the wp-admin menu is taller than the window.

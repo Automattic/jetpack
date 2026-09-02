@@ -77,9 +77,7 @@ type Props = {
 
 /**
  * Renders the preview slot's body: a spinner while loading, the file
- * contents in a `<pre>` when available, a muted line when the fetch
- * failed, or a generic "preview unavailable" muted line when the
- * filename's extension is not one this card can render.
+ * contents in a `<pre>`, or a muted line when there is nothing to show.
  *
  * The error branch says nothing about *why*, on purpose. It used to
  * blame blob storage having outlived the manifest entry, which was
@@ -96,6 +94,8 @@ type Props = {
  * @param props.showPreview - Whether the filename's extension is in the previewable map.
  * @param props.isLoading   - Whether the file-contents query is in flight.
  * @param props.content     - The fetched body, or null when not yet resolved.
+ * @param props.isText      - Whether the bridge could read the fetched bytes as text.
+ * @param props.truncated   - Whether the body stops at the bridge's preview cap.
  * @param props.error       - The fetch error, or null on success.
  * @return The preview body.
  */
@@ -103,11 +103,15 @@ function PreviewBody( {
 	showPreview,
 	isLoading,
 	content,
+	isText,
+	truncated,
 	error,
 }: {
 	showPreview: boolean;
 	isLoading: boolean;
 	content: string | null;
+	isText: boolean;
+	truncated: boolean;
 	error: Error | null;
 } ) {
 	if ( ! showPreview ) {
@@ -136,6 +140,15 @@ function PreviewBody( {
 			</Text>
 		);
 	}
+	// Deliberately not the unpreviewable-extension wording: the extension said
+	// this file was previewable, and the bytes turned out not to be text.
+	if ( ! isText ) {
+		return (
+			<Text variant="body-sm" className="jpb-text-muted">
+				{ __( 'This file is not text and cannot be previewed.', 'jetpack-backup-pkg' ) }
+			</Text>
+		);
+	}
 	if ( content === null ) {
 		return (
 			<Text variant="body-sm" className="jpb-text-muted">
@@ -143,7 +156,25 @@ function PreviewBody( {
 			</Text>
 		);
 	}
-	return <pre>{ content }</pre>;
+	return (
+		<>
+			{ /* Above the `<pre>`, not after: the panel is the scroll container, so
+			     a note below is reachable only past the content it warns about. */ }
+			{ truncated && (
+				<Text
+					variant="body-sm"
+					className="jpb-text-muted jpb-file-info-card__preview-note"
+					render={ <p /> }
+				>
+					{ __(
+						'Preview truncated: this file is too large to show in full.',
+						'jetpack-backup-pkg'
+					) }
+				</Text>
+			) }
+			<pre>{ content }</pre>
+		</>
+	);
 }
 
 /**
@@ -172,6 +203,8 @@ export default function FileInfoCard( { file, onClose }: Props ) {
 	const showPreview = Boolean( mimeType );
 	const {
 		content,
+		isText,
+		truncated,
 		isLoading: contentsLoading,
 		error: contentsError,
 	} = useFileContents( file.period, file.manifestPath, showPreview );
@@ -266,6 +299,8 @@ export default function FileInfoCard( { file, onClose }: Props ) {
 					showPreview={ showPreview }
 					isLoading={ contentsLoading }
 					content={ content }
+					isText={ isText }
+					truncated={ truncated }
 					error={ contentsError }
 				/>
 			</div>
