@@ -129,7 +129,7 @@ describe( 'AiFeatures rendering', () => {
 		renderFeatures();
 
 		expect( screen.getByText( 'Requires upgrade' ) ).toBeInTheDocument();
-		const toggle = screen.getByRole( 'checkbox', { name: /AI Search/ } );
+		const toggle = screen.getByRole( 'checkbox', { name: /AI Answers/ } );
 		expect( toggle ).toBeDisabled();
 		expect( toggle ).not.toBeChecked();
 		const searchGroup = screen.getByRole( 'region', { name: 'Search' } );
@@ -156,7 +156,7 @@ describe( 'AiFeatures rendering', () => {
 	} );
 
 	test( 'free Search plan: the remedy is an upgrade, not setup', async () => {
-		// The free tier reports supports_search, but AI Search needs the paid
+		// The free tier reports supports_search, but AI Answers needs the paid
 		// product — the setup copy would send the user down the wrong path.
 		renderFeatures( {
 			plan: { supports_ai: true, supports_search: true, is_free_search_plan: true },
@@ -282,9 +282,9 @@ describe( 'AiFeatures rendering', () => {
 		renderFeatures( { is_connected: true, plan: { supports_ai: false } } );
 
 		// The per-feature requires_upgrade path is the only upgrade surface —
-		// AI Search stays gated while the free-tier rows work.
+		// AI Answers stays gated while the free-tier rows work.
 		expect( screen.getByText( 'Requires upgrade' ) ).toBeInTheDocument();
-		expect( screen.getByRole( 'checkbox', { name: /AI Search/ } ) ).toBeDisabled();
+		expect( screen.getByRole( 'checkbox', { name: /AI Answers/ } ) ).toBeDisabled();
 	} );
 
 	test( 'free plan AND master off: the master-off notice shows', () => {
@@ -453,7 +453,7 @@ describe( 'AiFeatures rendering', () => {
 			'upload.php?ai-assistant'
 		);
 
-		// AI Search opens the Search dashboard on its AI tab, not Overview.
+		// AI Answers opens the Search dashboard on its AI tab, not Overview.
 		expect( screen.getByRole( 'link', { name: 'Open Search Settings' } ) ).toHaveAttribute(
 			'href',
 			'admin.php?page=jetpack-search#/ai-answers'
