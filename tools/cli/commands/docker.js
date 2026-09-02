@@ -1229,6 +1229,11 @@ const printCleanPlan = ( project, paths ) => {
  * @param {object} argv - Yargs
  */
 export const cleanCmdHandler = async argv => {
+	// Resolve the target before announcing it. defaultDockerCmdHandler does this too, but only
+	// once the plan is already printed, which would have `clean` name one instance and delete
+	// another's paths. Idempotent, so the second call is a no-op.
+	applyParallelEnv( argv );
+
 	const project = getProjectName( argv );
 	const paths = buildCleanPaths( project );
 	printCleanPlan( project, paths );

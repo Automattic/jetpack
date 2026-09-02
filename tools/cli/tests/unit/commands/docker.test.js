@@ -894,6 +894,35 @@ describe( 'cleanCmdHandler', () => {
 		] );
 	} );
 
+	// The two halves of this PR meet here: targeting resolves .env inside
+	// defaultDockerCmdHandler, which runs after the plan is printed. Resolve it first, or
+	// `clean` in a seeded worktree announces jetpack_dev, stops the worktree and deletes the
+	// primary's data.
+	test( 'announces, takes down and removes one and the same instance', async () => {
+		const isEnvPath = path => String( path ).endsWith( '/.env' );
+		fsStub.existsSync.mockImplementation( isEnvPath );
+		fsStub.readFileSync.mockImplementation( path =>
+			isEnvPath( path ) ? 'COMPOSE_PROJECT_NAME=jetpack_wtfix\nPORT_WORDPRESS=8080' : ''
+		);
+
+		await cleanCmdHandler( { _: [ 'docker', 'clean' ], type: 'dev', yes: true } );
+
+		const announced = console.log.mock.calls.flat().join( '\n' );
+		expect( announced ).toContain( 'jetpack_wtfix' );
+		expect( announced ).not.toContain( 'jetpack_dev' );
+
+		expect( composeCalls() ).toHaveLength( 1 );
+		expect( composeCalls()[ 0 ][ 2 ].env.COMPOSE_PROJECT_NAME ).toBe( 'jetpack_wtfix' );
+
+		expect( rmCalls()[ 0 ][ 1 ] ).toEqual( [
+			'-rf',
+			'tools/docker/wordpress/',
+			'tools/docker/wordpress-develop/*',
+			'tools/docker/logs/jetpack_wtfix/',
+			'tools/docker/data/jetpack_wtfix_mysql/',
+		] );
+	} );
+
 	test( 'refuses and exits non-zero without a TTY and without --yes', async () => {
 		process.stdin.isTTY = false;
 		process.stdout.isTTY = false;
