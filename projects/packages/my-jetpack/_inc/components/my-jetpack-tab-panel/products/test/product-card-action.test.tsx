@@ -1,7 +1,7 @@
 import '@testing-library/jest-dom';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { MemoryRouter } from 'react-router';
+import { MemoryRouter, Route, Routes } from 'react-router';
 import { ProductCamelCase } from '../../../../data/types';
 import { MyJetpackModule } from '../../../../types';
 import { setPendingSuccessNotice } from '../pending-notice';
@@ -154,6 +154,66 @@ describe( 'ProductCardAction', () => {
 		);
 
 		expect( screen.getByRole( 'checkbox' ) ).toBeDisabled();
+	} );
+
+	it( 'routes a product with no paid plan to its Learn more interstitial', async () => {
+		render(
+			<MemoryRouter>
+				<Routes>
+					<Route
+						path="/"
+						element={
+							<ProductCardAction
+								product={ buildProduct( { slug: 'search', name: 'Search', status: 'active' } ) }
+							/>
+						}
+					/>
+					<Route path="/add-search" element={ <div>Search interstitial</div> } />
+				</Routes>
+			</MemoryRouter>
+		);
+
+		await userEvent.click( screen.getByRole( 'button', { name: /learn more/i } ) );
+
+		expect( screen.getByText( 'Search interstitial' ) ).toBeInTheDocument();
+	} );
+
+	it( 'renders a Learn more link for an inactive product that already has a paid plan', () => {
+		render(
+			<MemoryRouter>
+				<ProductCardAction
+					product={ buildProduct( {
+						slug: 'search',
+						name: 'Search',
+						status: 'inactive',
+						hasPaidPlanForProduct: true,
+					} ) }
+				/>
+			</MemoryRouter>
+		);
+
+		expect( screen.getByRole( 'button', { name: /learn more/i } ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'renders the activation toggle for a product whose standalone plugin is installed', () => {
+		// An inactive status would otherwise reach the "Learn more" branch below.
+		render(
+			<MemoryRouter>
+				<ProductCardAction
+					product={ buildProduct( {
+						slug: 'boost',
+						name: 'Boost',
+						status: 'inactive',
+						hasPaidPlanForProduct: true,
+						standalonePluginInfo: { isStandaloneInstalled: true, isStandaloneActive: true },
+					} ) }
+				/>
+			</MemoryRouter>
+		);
+
+		expect( screen.getByRole( 'checkbox' ) ).toBeChecked();
+		expect( screen.queryByRole( 'button', { name: /learn more/i } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'reloads the page after deactivating Forms so the admin sidebar updates', async () => {
