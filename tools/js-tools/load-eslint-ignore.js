@@ -8,6 +8,35 @@ const makeIgnore = require( 'ignore' );
 const rootdir = path.resolve( __dirname, '../..' ) + '/';
 
 /**
+ * Locate `info/exclude` for the repository rooted at `dir`.
+ *
+ * `.git` is a directory in a normal checkout and a pointer file in a linked worktree. `info/exclude`
+ * lives in the common dir shared by every worktree, so follow `commondir` when there is one.
+ *
+ * @param {string} dir - Repository root.
+ * @return {string} Path to the exclude file. Not guaranteed to exist.
+ */
+function findGitInfoExclude( dir ) {
+	const dotgit = path.join( dir, '.git' );
+	let gitdir = dotgit;
+
+	if ( fs.existsSync( dotgit ) && fs.statSync( dotgit ).isFile() ) {
+		const m = /^gitdir:\s*(.+)$/m.exec( fs.readFileSync( dotgit, 'utf8' ) );
+		if ( ! m ) {
+			return path.join( dotgit, 'info', 'exclude' ); // Won't exist; addIgnoreFile skips it.
+		}
+		gitdir = path.resolve( dir, m[ 1 ].trim() );
+
+		const commondir = path.join( gitdir, 'commondir' );
+		if ( fs.existsSync( commondir ) ) {
+			gitdir = path.resolve( gitdir, fs.readFileSync( commondir, 'utf8' ).trim() );
+		}
+	}
+
+	return path.join( gitdir, 'info', 'exclude' );
+}
+
+/**
  * Load `.gitignore` and `.eslintignore` recursively.
  *
  * @param {string} basedir - Base directory to start from.
@@ -23,8 +52,9 @@ function loadIgnorePatterns( basedir ) {
 	 * Load patterns from a gitignore-style file.
 	 *
 	 * @param {string} file - File to load from.
+	 * @param {string} dir  - Directory the patterns are relative to. Defaults to the file's own.
 	 */
-	function addIgnoreFile( file ) {
+	function addIgnoreFile( file, dir = path.dirname( file ) ) {
 		if ( ! fs.existsSync( file ) ) {
 			return;
 		}
@@ -32,7 +62,6 @@ function loadIgnorePatterns( basedir ) {
 		debugload( ` -> Loading ${ path.relative( rootdir, file ) }` );
 
 		// Escape various pattern characters in case someone has a weird directory name.
-		const dir = path.dirname( file );
 		const ignorePrefix = path.relative( rootdir, dir ).replace( /[*?[\\]/g, '\\$&' ) + '/';
 		let rulesPrefix = path.relative( basedir, dir ).replace( /^[!#]|[*?[\\]/g, '\\$&' ) + '/';
 		let reverseRulesPrefix = null;
@@ -124,6 +153,8 @@ function loadIgnorePatterns( basedir ) {
 		addIgnoreFile( path.join( dir, '.gitignore' ) );
 		if ( dir === rootdir ) {
 			addIgnoreFile( path.join( dir, '.eslintignore.root' ) );
+			// Git applies these from the repo root, not from `.git/info/`, hence the explicit dir.
+			addIgnoreFile( findGitInfoExclude( dir ), dir );
 		} else {
 			addIgnoreFile( path.join( dir, '.eslintignore' ) );
 		}
@@ -132,6 +163,7 @@ function loadIgnorePatterns( basedir ) {
 			const subdir = path.join( dir, d.name ) + '/';
 			if (
 				d.isDirectory() &&
+				d.name !== '.git' &&
 				! ignore.ignores( path.relative( rootdir, subdir ) + '/' ) &&
 				( subdir.startsWith( basedir ) || basedir.startsWith( subdir ) )
 			) {
