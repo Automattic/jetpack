@@ -741,7 +741,9 @@ class Jetpack_Sync_Sender_Test extends Jetpack_Sync_TestBase {
 		self::factory()->post->create();
 
 		add_filter( 'pre_http_request', array( $this, 'pre_http_sync_request_spawned' ), 10, 3 );
+		$before_sync = microtime( true );
 		$this->sender->do_sync();
+		$after_sync = microtime( true );
 		remove_filter( 'pre_http_request', array( $this, 'pre_http_sync_request_spawned' ) );
 
 		$this->assertTrue( $this->dedicated_sync_request_spawned );
@@ -749,9 +751,7 @@ class Jetpack_Sync_Sender_Test extends Jetpack_Sync_TestBase {
 		$lock_option_name = Dedicated_Sender::DEDICATED_SYNC_REQUEST_LOCK_OPTION_NAME;
 		$this->assertNotFalse( \Jetpack_Options::get_raw_option( $lock_option_name ) );
 
-		$lock_expires_name  = $lock_option_name . '_expires';
-		$lock_expires_value = \Jetpack_Options::get_raw_option( $lock_expires_name );
-		$this->assertEqualsWithDelta( microtime( true ) + Dedicated_Sender::DEDICATED_SYNC_REQUEST_LOCK_TIMEOUT, $lock_expires_value, 0.02 );
+		$this->assert_lock_expiry_was_set_between( $before_sync, $after_sync );
 	}
 
 	/**
@@ -790,15 +790,16 @@ class Jetpack_Sync_Sender_Test extends Jetpack_Sync_TestBase {
 		self::factory()->post->create();
 
 		add_filter( 'pre_http_request', array( $this, 'pre_http_sync_request_spawned' ), 10, 3 );
+		$before_sync = microtime( true );
 		$this->sender->do_sync();
+		$after_sync = microtime( true );
 		remove_filter( 'pre_http_request', array( $this, 'pre_http_sync_request_spawned' ) );
 
 		$this->assertTrue( $this->dedicated_sync_request_spawned );
 		$this->assertNotSame( 'dummy', \Jetpack_Options::get_raw_option( $lock_option_name ) );
 		$this->assertNotEmpty( \Jetpack_Options::get_raw_option( $lock_option_name ) );
 
-		$lock_expires_value = (float) \Jetpack_Options::get_raw_option( $lock_expires_name );
-		$this->assertEqualsWithDelta( microtime( true ) + Dedicated_Sender::DEDICATED_SYNC_REQUEST_LOCK_TIMEOUT, $lock_expires_value, 0.02 );
+		$this->assert_lock_expiry_was_set_between( $before_sync, $after_sync );
 	}
 
 	/**
@@ -809,19 +810,19 @@ class Jetpack_Sync_Sender_Test extends Jetpack_Sync_TestBase {
 		Settings::update_settings( array( 'dedicated_sync_enabled' => 1 ) );
 		$lock_option_name = Dedicated_Sender::DEDICATED_SYNC_REQUEST_LOCK_OPTION_NAME;
 		\Jetpack_Options::update_raw_option( $lock_option_name, 'dummy' );
-		$lock_expires_name = $lock_option_name . '_expires';
 		self::factory()->post->create();
 
 		add_filter( 'pre_http_request', array( $this, 'pre_http_sync_request_spawned' ), 10, 3 );
+		$before_sync = microtime( true );
 		$this->sender->do_sync();
+		$after_sync = microtime( true );
 		remove_filter( 'pre_http_request', array( $this, 'pre_http_sync_request_spawned' ) );
 
 		$this->assertTrue( $this->dedicated_sync_request_spawned );
 		$this->assertNotSame( 'dummy', \Jetpack_Options::get_raw_option( $lock_option_name ) );
 		$this->assertNotEmpty( \Jetpack_Options::get_raw_option( $lock_option_name ) );
 
-		$lock_expires_value = (float) \Jetpack_Options::get_raw_option( $lock_expires_name );
-		$this->assertEqualsWithDelta( microtime( true ) + Dedicated_Sender::DEDICATED_SYNC_REQUEST_LOCK_TIMEOUT, $lock_expires_value, 0.02 );
+		$this->assert_lock_expiry_was_set_between( $before_sync, $after_sync );
 	}
 
 	/**
@@ -979,5 +980,25 @@ class Jetpack_Sync_Sender_Test extends Jetpack_Sync_TestBase {
 			'status_code' => 200,
 			'body'        => Dedicated_Sender::DEDICATED_SYNC_VALIDATION_STRING,
 		);
+	}
+
+	/**
+	 * Assert the spawn lock's expiry was written from a clock read during the given window.
+	 *
+	 * The lock stores `microtime( true ) + TTL` when it is acquired, so bracketing the call pins the
+	 * value however slow the run is - an absolute delta has to out-guess the call's own duration,
+	 * which is what made this flaky. The padding covers the options table holding the float as a
+	 * string formatted at PHP's `precision` ini, which drops a ~1e-5 tail off a timestamp.
+	 *
+	 * @param float $before Clock reading taken immediately before the lock is acquired.
+	 * @param float $after  Clock reading taken immediately after.
+	 */
+	private function assert_lock_expiry_was_set_between( float $before, float $after ) {
+		$stored_float_tolerance = 0.001;
+		$ttl                    = Dedicated_Sender::DEDICATED_SYNC_REQUEST_LOCK_TIMEOUT;
+		$expires                = (float) \Jetpack_Options::get_raw_option( Dedicated_Sender::DEDICATED_SYNC_REQUEST_LOCK_OPTION_NAME . '_expires' );
+
+		$this->assertGreaterThanOrEqual( $before + $ttl - $stored_float_tolerance, $expires );
+		$this->assertLessThanOrEqual( $after + $ttl + $stored_float_tolerance, $expires );
 	}
 }
