@@ -990,7 +990,7 @@ class PayPal_Partner_Onboarding_Test extends TestCase {
 	 * Test onboarding products constant.
 	 */
 	public function test_onboarding_products() {
-		$this->assertContains( 'PPCP_STANDARD', PayPal_Partner_Onboarding::ONBOARDING_PRODUCTS );
+		$this->assertContains( 'PPCP', PayPal_Partner_Onboarding::ONBOARDING_PRODUCTS );
 	}
 
 	/**
