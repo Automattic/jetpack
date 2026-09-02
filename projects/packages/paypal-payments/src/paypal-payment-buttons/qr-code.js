@@ -52,10 +52,10 @@ function wireDownloadButton( downloadBtn, canvas ) {
  * Wire a copy-link button to copy the given URL to the clipboard.
  *
  * @param {HTMLButtonElement|null} copyBtn - The copy button, or null to no-op.
- * @param {string}                 url     - The URL to copy.
+ * @param {string}                 url     - The URL to copy. Empty leaves the button alone.
  */
 function wireCopyButton( copyBtn, url ) {
-	if ( ! copyBtn ) {
+	if ( ! copyBtn || ! url ) {
 		return;
 	}
 	copyBtn.addEventListener( 'click', () => {
@@ -91,6 +91,7 @@ function initQRToggles() {
 
 		const qrUrl = canvas.dataset.qrUrl;
 		const downloadBtn = container.querySelector( '.jetpack-paypal-button__qr-download' );
+		const copyBtn = container.querySelector( '.jetpack-paypal-button__qr-copy' );
 		let generated = false;
 
 		toggle.addEventListener( 'click', () => {
@@ -116,6 +117,7 @@ function initQRToggles() {
 		} );
 
 		wireDownloadButton( downloadBtn, canvas );
+		wireCopyButton( copyBtn, qrUrl );
 	} );
 }
 

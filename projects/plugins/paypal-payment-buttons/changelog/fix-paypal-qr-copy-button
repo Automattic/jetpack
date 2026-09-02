@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Make the Copy Link button work in the payment button's QR code panel, where clicking it previously did nothing.
