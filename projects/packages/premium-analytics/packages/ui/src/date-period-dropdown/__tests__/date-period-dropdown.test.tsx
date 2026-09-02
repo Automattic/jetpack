@@ -234,3 +234,30 @@ describe( 'DatePeriodDropdown calendar width', () => {
 		expect( screen.getAllByRole( 'grid' ) ).toHaveLength( 2 );
 	} );
 } );
+
+describe( 'DatePeriodDropdown surface options', () => {
+	it( 'leaves Custom range off a surface that offers common periods only', async () => {
+		const user = userEvent.setup();
+		renderDropdown( { withCustomRange: false } );
+
+		await openMenu( user, 'Last 30 days' );
+
+		expect(
+			screen.queryByRole( 'menuitemradio', { name: 'Custom range' } )
+		).not.toBeInTheDocument();
+	} );
+
+	// The comparison label follows the range being edited, so the panel has to
+	// know when a draft is in flight.
+	it( 'reports the menu opening and closing', async () => {
+		const user = userEvent.setup();
+		const onOpenChange = jest.fn();
+		renderDropdown( { onOpenChange } );
+
+		await openMenu( user, 'Last 30 days' );
+		expect( onOpenChange ).toHaveBeenLastCalledWith( true );
+
+		await user.click( screen.getByRole( 'button', { name: 'Last 30 days' } ) );
+		expect( onOpenChange ).toHaveBeenLastCalledWith( false );
+	} );
+} );
