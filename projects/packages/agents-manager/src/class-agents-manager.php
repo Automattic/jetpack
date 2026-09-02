@@ -233,27 +233,17 @@ class Agents_Manager {
 	 * @param \WP_Admin_Bar $wp_admin_bar The WP_Admin_Bar instance.
 	 */
 	public function add_ai_chat_button( $wp_admin_bar ) {
-		$meta = array(
-			'menu_title' => __( 'Ask AI', 'jetpack-agents-manager' ),
-			'icon'       => $this->get_icon( 'ask-ai' ),
-			// The wp-admin bundle mounts the chat into this div.
-			'html'       => '<div id="agents-manager-masterbar"></div>',
-		);
-
-		// The deployed build version, so REST consumers can report the same
-		// `agent_manager_version` as the app itself.
-		$variant = self::get_active_variant();
-		$version = null !== $variant ? self::get_deployed_version( $variant ) : null;
-		if ( null !== $version ) {
-			$meta['version'] = $version;
-		}
-
 		$wp_admin_bar->add_menu(
 			array(
 				'id'     => 'agents-manager-ai-chat',
 				'parent' => 'top-secondary',
 				'title'  => '<span title="' . esc_attr__( 'Ask AI', 'jetpack-agents-manager' ) . '">' . $this->get_icon( 'ask-ai' ) . '</span>',
-				'meta'   => $meta,
+				'meta'   => array(
+					'menu_title' => __( 'Ask AI', 'jetpack-agents-manager' ),
+					'icon'       => $this->get_icon( 'ask-ai' ),
+					// The wp-admin bundle mounts the chat into this div.
+					'html'       => '<div id="agents-manager-masterbar"></div>',
+				),
 			)
 		);
 	}
@@ -386,9 +376,7 @@ class Agents_Manager {
 		 */
 		$agent_id = apply_filters( 'agents_manager_agent_id', null );
 
-		$this->enqueue_script( $variant );
-
-		$version = self::get_deployed_version( $variant );
+		$script_version = $this->enqueue_script( $variant );
 
 		$inline_data = array(
 			'agentProviders'       => $agent_providers,
@@ -402,8 +390,8 @@ class Agents_Manager {
 			'helpCenterUrl'        => self::HELP_CENTER_URL,
 		);
 
-		if ( null !== $version ) {
-			$inline_data['version'] = $version;
+		if ( null !== $script_version ) {
+			$inline_data['version'] = $variant . ':' . $script_version;
 		}
 
 		if ( $agent_id ) {
@@ -602,12 +590,12 @@ class Agents_Manager {
 	}
 
 	/**
-	 * The cached asset metadata for a variant, or null when unavailable.
+	 * Enqueue Agents Manager script based on context.
 	 *
 	 * @param string $variant The variant of the asset file to get.
-	 * @return array|null
+	 * @return string|null The deployed build version from the asset file, or null when unavailable.
 	 */
-	private static function get_asset_file( $variant ) {
+	private function enqueue_script( $variant ) {
 		$cache_key  = 'agents-manager-asset-' . $variant . '.asset.json';
 		$asset_file = get_transient( $cache_key );
 
@@ -617,32 +605,6 @@ class Agents_Manager {
 				return null;
 			}
 			set_transient( $cache_key, $asset_file, HOUR_IN_SECONDS );
-		}
-
-		return $asset_file;
-	}
-
-	/**
-	 * The deployed build version for a variant, as `{variant}:{version}`, or null when unavailable.
-	 *
-	 * @param string $variant The variant of the asset file to get.
-	 * @return string|null
-	 */
-	private static function get_deployed_version( $variant ) {
-		$asset_file = self::get_asset_file( $variant );
-
-		return $asset_file ? $variant . ':' . (string) $asset_file['version'] : null;
-	}
-
-	/**
-	 * Enqueue Agents Manager script based on context.
-	 *
-	 * @param string $variant The variant of the asset file to get.
-	 */
-	private function enqueue_script( $variant ) {
-		$asset_file = self::get_asset_file( $variant );
-		if ( ! $asset_file ) {
-			return;
 		}
 
 		// When the request is dev mode, use a random cache buster as the version for easier debugging.
@@ -691,6 +653,8 @@ class Agents_Manager {
 				$version
 			);
 		}
+
+		return (string) $asset_file['version'];
 	}
 
 	/**
