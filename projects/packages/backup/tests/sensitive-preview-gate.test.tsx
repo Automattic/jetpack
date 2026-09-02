@@ -42,6 +42,14 @@ const WP_CONFIG: FileNodeFile = {
 	manifestPath: 'f5:/wp-config.php',
 };
 
+const STAGING_WP_CONFIG: FileNodeFile = {
+	name: 'wp-config.php',
+	path: '/staging/wp-config.php',
+	type: 'file',
+	period: '1786644531',
+	manifestPath: 'f5:/staging/wp-config.php',
+};
+
 const README: FileNodeFile = {
 	name: 'readme.txt',
 	path: '/readme.txt',
@@ -70,16 +78,25 @@ function mockEndpoints( content: string ): void {
 }
 
 /**
- * Whether the preview fetch has gone out at all.
+ * How many preview fetches have gone out.
  *
- * `/path-info` runs regardless, so "no request" is the wrong assertion.
+ * `/path-info` runs regardless, so counting every request is the wrong measure.
+ *
+ * @return The number of `/file-content` requests.
+ */
+function contentFetches(): number {
+	return mockApiFetch.mock.calls.filter( ( [ opts ] ) =>
+		String( opts?.path ?? '' ).includes( '/file-content' )
+	).length;
+}
+
+/**
+ * Whether the preview fetch has gone out at all.
  *
  * @return True when `/file-content` was requested.
  */
 function fetchedContent(): boolean {
-	return mockApiFetch.mock.calls.some( ( [ opts ] ) =>
-		String( opts?.path ?? '' ).includes( '/file-content' )
-	);
+	return contentFetches() > 0;
 }
 
 /**
@@ -147,8 +164,9 @@ describe( 'sensitive preview gate', () => {
 		expect( mockRecordEvent ).toHaveBeenCalledTimes( 1 );
 	} );
 
-	// The card is not remounted per file, so the reveal has to be per-file state
-	// rather than a latch that outlives the file it was granted for.
+	// The gate is per visit, not per file. Deriving the flag from file identity
+	// alone would leave the reveal sticky for the card's lifetime, because the
+	// identity is unchanged on the way back.
 	it( 'hides it again after a detour to another file', async () => {
 		mockEndpoints( SECRET );
 		const { rerender } = renderCard( WP_CONFIG );
@@ -181,6 +199,56 @@ describe( 'sensitive preview gate', () => {
 
 		await expect( screen.findByText( HIDDEN ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByText( SECRET ) ).not.toBeInTheDocument();
+	} );
+
+	// A second install under the backed-up root — `/staging/`, `/blog/`, a
+	// migration leftover — holds live credentials for a live database.
+	it( 'hides a wp-config.php below the manifest root', async () => {
+		mockEndpoints( SECRET );
+
+		renderCard( STAGING_WP_CONFIG );
+
+		await expect( screen.findByText( HIDDEN ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByText( SECRET ) ).not.toBeInTheDocument();
+		expect( fetchedContent() ).toBe( false );
+	} );
+
+	// The leading `/` in the compare is what stops the basename match
+	// swallowing every name that merely ends in the same letters.
+	it( 'leaves a file whose name only ends in wp-config.php alone', async () => {
+		mockEndpoints( PLAIN );
+
+		renderCard( {
+			name: 'mywp-config.php',
+			path: '/wp-content/mywp-config.php',
+			type: 'file',
+			period: '1786644531',
+			manifestPath: 'f5:/wp-content/mywp-config.php',
+		} );
+
+		await expect( screen.findByText( PLAIN ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByText( HIDDEN ) ).not.toBeInTheDocument();
+	} );
+
+	// Two gated files in one tree is what makes the stale-reveal render
+	// reachable: the card is not remounted, so on the render that swaps the
+	// prop the old `revealed` is still true and the query commits enabled.
+	it( 'does not carry a reveal from one wp-config.php to another', async () => {
+		mockEndpoints( SECRET );
+		const { rerender } = renderCard( WP_CONFIG );
+
+		await userEvent.click( await screen.findByRole( 'button', { name: SHOW } ) );
+		await expect( screen.findByText( SECRET ) ).resolves.toBeInTheDocument();
+		expect( contentFetches() ).toBe( 1 );
+
+		rerender(
+			<QueryClientProvider>
+				<FileInfoCard file={ STAGING_WP_CONFIG } onClose={ noop } />
+			</QueryClientProvider>
+		);
+
+		await expect( screen.findByText( HIDDEN ) ).resolves.toBeInTheDocument();
+		expect( contentFetches() ).toBe( 1 );
 	} );
 
 	it( 'leaves an ordinary text file alone', async () => {

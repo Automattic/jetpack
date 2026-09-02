@@ -72,18 +72,19 @@ function mimeFromName( name: string ): string {
 }
 
 /**
- * The one file whose preview waits for a deliberate second click: the
- * site's root `wp-config.php`, which carries `DB_PASSWORD` and the salts.
- * Same single file Calypso hides, so the two surfaces agree.
+ * The one filename whose preview waits for a deliberate second click:
+ * `wp-config.php`, which carries `DB_PASSWORD` and the salts. Same single
+ * file Calypso hides, so the two surfaces agree.
  */
-const SENSITIVE_PATH = '/wp-config.php';
+const SENSITIVE_NAME = 'wp-config.php';
 
 /**
- * Whether the given manifest path names the file above.
+ * Whether the given manifest path names the file above, at any depth.
  *
- * Compared after the volume prefix and lowercased: the `5` in `f5:` is a
- * data-type code, not part of the file's identity, so matching it would let
- * the gate fail open.
+ * Three ways to fail open, all closed: the volume prefix is dropped (the `5`
+ * in `f5:` is a data-type code, not identity), the compare is lowercased, and
+ * the name matches at any depth, so a second install under `/staging/` is
+ * covered. The `/` in the suffix keeps `mywp-config.php` out.
  *
  * @param manifestPath - The volume-prefixed manifest path, e.g. `f5:/wp-config.php`.
  * @return True when the preview needs a reveal.
@@ -92,7 +93,8 @@ function isSensitivePath( manifestPath: string | undefined ): boolean {
 	if ( ! manifestPath ) {
 		return false;
 	}
-	return manifestPath.slice( manifestPath.indexOf( ':' ) + 1 ).toLowerCase() === SENSITIVE_PATH;
+	const path = manifestPath.slice( manifestPath.indexOf( ':' ) + 1 ).toLowerCase();
+	return path === SENSITIVE_NAME || path.endsWith( `/${ SENSITIVE_NAME }` );
 }
 
 type Props = {
@@ -250,18 +252,28 @@ export default function FileInfoCard( { file, onClose }: Props ) {
 	const mimeType = mimeFromName( file.name );
 	const previewRef = useRef< HTMLDivElement >( null );
 	const { tracks } = useAnalytics();
-	const [ revealed, setRevealed ] = useState( false );
+	const previewId = `${ file.period }:${ file.manifestPath }`;
+	const [ revealedFor, setRevealedFor ] = useState< string | null >( null );
+	const [ lastPreviewId, setLastPreviewId ] = useState( previewId );
+	// Cleared during render, not in an effect: `useFileContents` below commits
+	// its query on this same render, so a reveal left over from the previous
+	// file would have fetched the next one's bytes before an effect could run.
+	if ( lastPreviewId !== previewId ) {
+		setLastPreviewId( previewId );
+		setRevealedFor( null );
+	}
+	const revealed = revealedFor === previewId;
 	// Withholding the fetch too, not just the `<pre>`: unrevealed secrets never
 	// reach the browser at all.
 	const awaitingReveal = Boolean( mimeType ) && isSensitivePath( file.manifestPath ) && ! revealed;
 	const showPreview = Boolean( mimeType ) && ! awaitingReveal;
 	const reveal = useCallback( () => {
-		setRevealed( true );
+		setRevealedFor( previewId );
 		tracks.recordEvent( 'jetpack_backup_browser_preview_file_sensitive_click' );
 		// The click unmounts the button holding focus. Same contract the close
 		// button keeps in `file-browser/index.tsx`: move focus, hand it back.
 		previewRef.current?.focus();
-	}, [ tracks ] );
+	}, [ previewId, tracks ] );
 	const {
 		content,
 		isText,
@@ -286,9 +298,6 @@ export default function FileInfoCard( { file, onClose }: Props ) {
 	// Keyed on `manifestPath` so switching between files re-announces, while
 	// a re-render for any other reason does not steal focus back.
 	useEffect( () => {
-		// Reset here too: the card is not remounted per file, so without this a
-		// return visit to `wp-config.php` would print it with no second click.
-		setRevealed( false );
 		previewRef.current?.focus();
 	}, [ file.manifestPath ] );
 
