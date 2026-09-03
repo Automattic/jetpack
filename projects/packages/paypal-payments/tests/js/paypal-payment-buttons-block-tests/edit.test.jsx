@@ -8,7 +8,7 @@
  * @package
  */
 
-import { act, render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import Edit from '../../../src/paypal-payment-buttons/edit';
 // apiFetch mock — controls what the component receives from the REST API.
@@ -271,14 +271,171 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			return screen.findByTitle( 'PayPal onboarding' );
 		}
 
+		/**
+		 * The connect anchor, once the effect has written it into the frame.
+		 *
+		 * @param {HTMLIFrameElement} frame - The frame PayPal's SDK runs in.
+		 * @return {Promise<HTMLAnchorElement>} PayPal's connect anchor.
+		 */
+		async function findConnectLink( frame ) {
+			// The link is built for PayPal's SDK inside another document, so the
+			// query has to be scoped to that document rather than the screen.
+			return within( frame.contentDocument.body ).findByRole( 'link', {
+				name: 'Continue to PayPal',
+			} );
+		}
+
+		/**
+		 * Fire partner.js's load event, with the SDK attached the way it attaches.
+		 *
+		 * jsdom never fetches the tag, so its load event has to be fired by hand.
+		 *
+		 * @param {HTMLIFrameElement} frame          - The frame PayPal's SDK runs in.
+		 * @param {object}            options        - Options.
+		 * @param {string}            options.result - 'load' or 'error'.
+		 * @param {boolean}           options.sdk    - Whether the SDK attaches.
+		 * @param {boolean}           options.binds  - Whether it binds the anchor.
+		 * @param {boolean}           options.sync   - Bind during render() rather than after it.
+		 * @return {Promise<jest.Mock>} The SDK's render(), which binds the anchor.
+		 */
+		async function settlePartnerScript(
+			frame,
+			{ result = 'load', sdk = true, binds = true, sync = false } = {}
+		) {
+			/* eslint-disable testing-library/no-node-access -- The tag is injected
+			   into the frame's document, out of reach of screen queries. */
+			await waitFor( () =>
+				expect(
+					frame.contentDocument.querySelector( 'script[data-paypal-partner-js]' )
+				).not.toBeNull()
+			);
+			const script = frame.contentDocument.querySelector( 'script[data-paypal-partner-js]' );
+			/* eslint-enable testing-library/no-node-access */
+
+			// PayPal marks an anchor bound by taking its target away, and it does
+			// that after render() has already returned.
+			const renderSpy = jest.fn( () => {
+				if ( ! binds ) {
+					return;
+				}
+				if ( sync ) {
+					/* eslint-disable testing-library/no-node-access -- The anchor is
+					   in the frame's document, out of reach of screen queries, and
+					   this branch has to be synchronous. */
+					frame.contentDocument
+						.querySelector( 'a[data-paypal-button]' )
+						.removeAttribute( 'target' );
+					/* eslint-enable testing-library/no-node-access */
+					return;
+				}
+				within( frame.contentDocument.body )
+					.findByRole( 'link', { name: 'Continue to PayPal' } )
+					.then( link => link.removeAttribute( 'target' ) );
+			} );
+
+			if ( sdk ) {
+				frame.contentWindow.PAYPAL = { apps: { Signup: { render: renderSpy } } };
+			} else {
+				delete frame.contentWindow.PAYPAL;
+			}
+
+			await act( async () => {
+				script.dispatchEvent( new Event( result ) );
+			} );
+
+			// Only the load-with-SDK path calls render(), so it is the only one
+			// where the target comes off.
+			if ( binds && sdk && 'load' === result ) {
+				/* eslint-disable testing-library/no-node-access -- The anchor is in
+				   the frame's document, out of reach of screen queries. */
+				await waitFor( () =>
+					expect(
+						frame.contentDocument.querySelector( 'a[data-paypal-button]' )
+					).not.toHaveAttribute( 'target' )
+				);
+				/* eslint-enable testing-library/no-node-access */
+			}
+
+			return renderSpy;
+		}
+
+		/**
+		 * Open the overlay, and check it opened.
+		 *
+		 * A closed-overlay assertion means nothing unless the overlay was open
+		 * first, so this checks it was down, then up. Waiting for the referral
+		 * first takes the cached branch every time; 'buys the referral on a click
+		 * that has none' covers the other one.
+		 *
+		 * @return {Promise<HTMLIFrameElement>} The frame, with the overlay up.
+		 */
+		async function openActiveOverlay() {
+			const user = userEvent.setup();
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+			const frame = await screen.findByTitle( 'PayPal onboarding' );
+			await settlePartnerScript( frame );
+			const click = jest.spyOn( await findConnectLink( frame ), 'click' );
+
+			expect( frame ).not.toHaveClass( 'jetpack-paypal-onboarding-frame--active' );
+			await user.click( screen.getByRole( 'button', { name: /Connect with PayPal/i } ) );
+
+			// The class is the overlay's chrome; the click is what opens PayPal
+			// inside it, which is the half a merchant would notice missing.
+			expect( frame ).toHaveClass( 'jetpack-paypal-onboarding-frame--active' );
+			expect( click ).toHaveBeenCalled();
+
+			return frame;
+		}
+
+		/**
+		 * Watch every click on the connect anchor, from before it exists.
+		 *
+		 * The effect builds a new anchor every time the frame remounts, so a spy
+		 * taken off one anchor stops seeing clicks after the next remount.
+		 * Patching the frame realm's prototype through the contentWindow getter
+		 * covers every anchor the effect builds, in every frame.
+		 *
+		 * Watches link.click(), which is how the source clicks it, rather than a
+		 * dispatched MouseEvent.
+		 *
+		 * @return {jest.Mock} Called whenever the connect anchor is clicked.
+		 */
+		function watchAnchorClicks() {
+			const click = jest.fn();
+			const realGetter = Object.getOwnPropertyDescriptor(
+				window.HTMLIFrameElement.prototype,
+				'contentWindow'
+			).get;
+
+			jest
+				.spyOn( window.HTMLIFrameElement.prototype, 'contentWindow', 'get' )
+				.mockImplementation( function () {
+					const frameWindow = realGetter.call( this );
+					if ( frameWindow ) {
+						frameWindow.HTMLAnchorElement.prototype.click = click;
+					}
+					return frameWindow;
+				} );
+
+			return click;
+		}
+
+		/**
+		 * Every signup-link request the block has sent.
+		 *
+		 * @return {Array} The matching apiFetch calls.
+		 */
+		function signupLinkCalls() {
+			return apiFetch.mock.calls.filter( ( [ { path } ] ) =>
+				path.endsWith( '/onboarding/signup-link' )
+			);
+		}
+
 		afterEach( () => {
-			/*
-			 * The SDK tag and its callback are injected into whichever document
-			 * the connect link lives in, so they outlive the React tree and have
-			 * to be cleared between tests.
-			 */
-			// eslint-disable-next-line testing-library/no-node-access
-			document.querySelectorAll( 'script[data-paypal-partner-js]' ).forEach( el => el.remove() );
+			// clearAllMocks does not undo a spy, so one failure before a manual
+			// restore would leave window.open stubbed, or the contentWindow getter
+			// patched, for every later test.
+			jest.restoreAllMocks();
 			delete window.PAYPAL;
 			delete window.jetpackPayPalOnboardComplete;
 		} );
@@ -288,10 +445,31 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 			const frame = await openOnboardingFrame();
 
-			// PayPal's SDK redirects window.top to the return URL when the seller
-			// finishes; withholding this flag is what keeps the editor loaded.
-			expect( frame.getAttribute( 'sandbox' ) ).not.toContain( 'allow-top-navigation' );
-			expect( frame ).toHaveAttribute( 'sandbox', expect.stringContaining( 'allow-scripts' ) );
+			/*
+			 * The whole set, not a subset: sandbox tokens overlap as substrings,
+			 * so a looser check lets a real permission through —
+			 * 'allow-top-navigation-by-user-activation' permits the redirect this
+			 * test blocks. PayPal's SDK sends window.top to the return URL when
+			 * the seller finishes, which would take the editor and the unsaved
+			 * post with it.
+			 */
+			const grants = [
+				...new Set(
+					( frame.getAttribute( 'sandbox' ) || '' ).toLowerCase().split( /\s+/ ).filter( Boolean )
+				),
+			].sort();
+
+			expect( grants ).toEqual(
+				[
+					// The effect writes the frame document.
+					'allow-same-origin',
+					// The SDK's lightbox opens in a named window.
+					'allow-popups',
+					'allow-popups-to-escape-sandbox',
+					'allow-forms',
+					'allow-scripts',
+				].sort()
+			);
 		} );
 
 		it( 'renders PayPal’s onboarding link in minibrowser mode', async () => {
@@ -320,11 +498,12 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				'data-paypal-onboard-complete',
 				'jetpackPayPalOnboardComplete'
 			);
-			expect( link ).toHaveAttribute(
-				'href',
-				expect.stringContaining( 'displayMode=minibrowser' )
-			);
-			expect( link ).toHaveAttribute( 'href', expect.stringContaining( 'token=abc' ) );
+			// Values, not substrings: displayMode=minibrowserANYTHING contains the
+			// string and means nothing to PayPal.
+			const href = new URL( link.href );
+
+			expect( href.searchParams.get( 'displayMode' ) ).toBe( 'minibrowser' );
+			expect( href.searchParams.get( 'token' ) ).toBe( 'abc' );
 		} );
 
 		it( 'leaves the connect link visible so the SDK will bind it', async () => {
@@ -332,14 +511,20 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 			const frame = await openOnboardingFrame();
 
-			/* eslint-disable testing-library/no-node-access -- The link lives in
-			   another document, which screen queries cannot reach. */
+			const link = await findConnectLink( frame );
+
 			// render() skips hidden elements, so a hidden anchor is never bound as
 			// a PayPal button and the click that opens the lightbox does nothing.
-			await waitFor( () =>
-				expect( frame.contentDocument.querySelector( 'a[data-paypal-button]' ) ).not.toBeNull()
-			);
-			expect( frame.contentDocument.querySelector( 'a[data-paypal-button][hidden]' ) ).toBeNull();
+			// display does not inherit, so the anchor alone is not enough to look
+			// at — a container set to none hides it while it still computes inline.
+			expect( link.hidden ).toBe( false );
+			expect( frame.contentWindow.getComputedStyle( link ).visibility ).not.toBe( 'hidden' );
+
+			/* eslint-disable testing-library/no-node-access -- walking the anchor's
+			   ancestors is the point; screen queries cannot reach that document. */
+			for ( let node = link; node; node = node.parentElement ) {
+				expect( frame.contentWindow.getComputedStyle( node ).display ).not.toBe( 'none' );
+			}
 			/* eslint-enable testing-library/no-node-access */
 		} );
 
@@ -370,30 +555,267 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			mockPlatformMode( { action_url: 'https://www.sandbox.paypal.com/merchantsignup/x' } );
 			const open = jest.spyOn( window, 'open' ).mockReturnValue( null );
 
-			await openOnboardingFrame();
+			// Open the overlay: the click that opens PayPal is where a popup
+			// would come from.
+			await openActiveOverlay();
 
 			// The whole point of the frame: no popup, no new window, nothing for
 			// the merchant to lose track of behind the editor.
 			expect( open ).not.toHaveBeenCalled();
-
-			open.mockRestore();
 		} );
 
-		it( 'closes the frame when the SDK reports completion', async () => {
+		it( 'points the connect link at the frame rather than a new tab', async () => {
 			mockPlatformMode( { action_url: 'https://www.sandbox.paypal.com/merchantsignup/x' } );
 
-			await openOnboardingFrame();
-			await waitFor( () =>
-				expect( typeof window.jetpackPayPalOnboardComplete ).toBe( 'function' )
+			const frame = await openOnboardingFrame();
+			const link = await findConnectLink( frame );
+
+			// PPFrame is the window PayPal's SDK opens its lightbox in. Without
+			// the target the same click loads PayPal over the frame document.
+			expect( link ).toHaveAttribute( 'target', 'PPFrame' );
+		} );
+
+		it( 'buys the referral on a click that has none, and opens on the next click', async () => {
+			const user = userEvent.setup();
+			// Before render: the watcher patches each frame realm as the frame
+			// mounts, and this path remounts the frame after the failed fetch.
+			const click = watchAnchorClicks();
+			let attempt = 0;
+			apiFetch.mockImplementation( ( { path } ) => {
+				if ( path.endsWith( '/connection' ) ) {
+					return Promise.resolve( {
+						connected: false,
+						environment: 'sandbox',
+						partner_referrals_available: true,
+					} );
+				}
+				if ( path.endsWith( '/onboarding/signup-link' ) ) {
+					attempt += 1;
+					// The first attempt fails, which is one way the merchant
+					// reaches an enabled Connect button with no referral in hand.
+					return 1 === attempt
+						? Promise.reject( new Error( 'Could not create a PayPal onboarding link.' ) )
+						: Promise.resolve( {
+								action_url: 'https://www.sandbox.paypal.com/merchantsignup/x',
+						  } );
+				}
+				return Promise.resolve( {} );
+			} );
+
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+			await expect(
+				screen.findByText( /Could not create a PayPal onboarding link/ )
+			).resolves.toBeInTheDocument();
+
+			// No referral means no frame either, and PayPal's window.open from a
+			// frame built after the click is popup-blocked. So this click buys
+			// the referral and stops.
+			await user.click( screen.getByRole( 'button', { name: /Connect with PayPal/i } ) );
+
+			const frame = await screen.findByTitle( 'PayPal onboarding' );
+			await settlePartnerScript( frame );
+
+			expect( signupLinkCalls() ).toHaveLength( 2 );
+			expect( click ).not.toHaveBeenCalled();
+			expect( frame ).not.toHaveClass( 'jetpack-paypal-onboarding-frame--active' );
+
+			// The frame is there now, so it is in the set of same-origin frames
+			// this click stamps its user activation on.
+			await user.click( screen.getByRole( 'button', { name: /Connect with PayPal/i } ) );
+
+			expect( click ).toHaveBeenCalledTimes( 1 );
+			expect( frame ).toHaveClass( 'jetpack-paypal-onboarding-frame--active' );
+		} );
+
+		it( 'does not open PayPal when the script loads without the SDK', async () => {
+			const user = userEvent.setup();
+			const click = watchAnchorClicks();
+			mockPlatformMode( { action_url: 'https://www.sandbox.paypal.com/merchantsignup/x' } );
+
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+			const frame = await screen.findByTitle( 'PayPal onboarding' );
+			await user.click( screen.getByRole( 'button', { name: /Connect with PayPal/i } ) );
+
+			// The tag loads but PAYPAL never attaches, so the anchor stays an
+			// ordinary link. Clicking it would open a browser tab.
+			await settlePartnerScript( frame, { sdk: false } );
+
+			expect( click ).not.toHaveBeenCalled();
+			await expect(
+				screen.findByText( /Could not load PayPal’s onboarding window/ )
+			).resolves.toBeInTheDocument();
+		} );
+
+		it( 'opens PayPal on the retry after its script fails to load', async () => {
+			const user = userEvent.setup();
+			const click = watchAnchorClicks();
+			mockPlatformMode( { action_url: 'https://www.sandbox.paypal.com/merchantsignup/x' } );
+
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+			await settlePartnerScript( await screen.findByTitle( 'PayPal onboarding' ), {
+				result: 'error',
+			} );
+			await expect(
+				screen.findByText( /Could not load PayPal’s onboarding window/ )
+			).resolves.toBeInTheDocument();
+
+			// The failure dropped the referral with the frame, so the retry starts
+			// from nothing: this click rebuilds both and stops.
+			await user.click( screen.getByRole( 'button', { name: /Connect with PayPal/i } ) );
+			await settlePartnerScript( await screen.findByTitle( 'PayPal onboarding' ) );
+
+			expect( click ).not.toHaveBeenCalled();
+
+			// The next one opens PayPal, which is what the notice promised.
+			await user.click( screen.getByRole( 'button', { name: /Connect with PayPal/i } ) );
+
+			expect( click ).toHaveBeenCalledTimes( 1 );
+		} );
+
+		it( 'drops the request when the merchant leaves the welcome step', async () => {
+			const user = userEvent.setup();
+			const click = watchAnchorClicks();
+			mockPlatformMode( { action_url: 'https://www.sandbox.paypal.com/merchantsignup/x' } );
+
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+			const frame = await screen.findByTitle( 'PayPal onboarding' );
+			await user.click( screen.getByRole( 'button', { name: /Connect with PayPal/i } ) );
+
+			// Second thoughts, while PayPal's script is still loading.
+			await user.click(
+				screen.getByRole( 'button', { name: /enter your API credentials manually/i } )
 			);
+			await settlePartnerScript( frame );
+
+			// The frame is rendered outside the step conditionals, so a request
+			// left standing would open PayPal over the credentials form.
+			expect( click ).not.toHaveBeenCalled();
+			expect( frame ).not.toHaveClass( 'jetpack-paypal-onboarding-frame--active' );
+		} );
+
+		it( 'waits for PayPal to bind the link before clicking it', async () => {
+			const user = userEvent.setup();
+			const click = watchAnchorClicks();
+			mockPlatformMode( { action_url: 'https://www.sandbox.paypal.com/merchantsignup/x' } );
+
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+			const frame = await screen.findByTitle( 'PayPal onboarding' );
+			await user.click( screen.getByRole( 'button', { name: /Connect with PayPal/i } ) );
+
+			// render() returns before PayPal has bound the anchor. Until it takes
+			// the target away the anchor is an ordinary link, and clicking it
+			// opens a browser tab instead of the lightbox.
+			const renderSpy = await settlePartnerScript( frame, { binds: false } );
+
+			expect( renderSpy ).toHaveBeenCalled();
+			expect( click ).not.toHaveBeenCalled();
+			expect( frame ).not.toHaveClass( 'jetpack-paypal-onboarding-frame--active' );
+
+			// The merchant clicked and nothing has opened yet, so the button has
+			// to show it heard them.
+			const connect = screen.getByRole( 'button', { name: /Connecting/i } );
+			expect( connect ).toBeDisabled();
+			expect( connect ).toHaveAttribute( 'data-busy', 'true' );
+		} );
+
+		it( 'drops the request when the environment changes', async () => {
+			const user = userEvent.setup();
+			const click = watchAnchorClicks();
+			mockPlatformMode( { action_url: 'https://www.sandbox.paypal.com/merchantsignup/x' } );
+
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+			await expect( screen.findByTitle( 'PayPal onboarding' ) ).resolves.toBeInTheDocument();
+			await user.click( screen.getByRole( 'button', { name: /Connect with PayPal/i } ) );
+
+			// Second thoughts, before PayPal's script has bound anything.
+			await user.click( screen.getByLabelText( 'Use sandbox (testing)' ) );
+			await waitFor( () => expect( signupLinkCalls() ).toHaveLength( 2 ) );
+			await settlePartnerScript( await screen.findByTitle( 'PayPal onboarding' ) );
+
+			// The refetched referral must not launch PayPal off the toggle.
+			expect( click ).not.toHaveBeenCalled();
+		} );
+
+		it( 'asks PayPal to rescan once its script is loaded', async () => {
+			mockPlatformMode( { action_url: 'https://www.sandbox.paypal.com/merchantsignup/x' } );
+
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+			const frame = await screen.findByTitle( 'PayPal onboarding' );
+			const renderSpy = await settlePartnerScript( frame );
+
+			// Without the rescan the anchor is never turned into a PayPal button
+			// and the click that opens the lightbox does nothing.
+			expect( renderSpy ).toHaveBeenCalled();
+		} );
+
+		it( 'swaps the wizard for the connected view when the SDK reports completion', async () => {
+			mockPlatformMode( { action_url: 'https://www.sandbox.paypal.com/merchantsignup/x' } );
+
+			await openActiveOverlay();
 
 			await act( async () => {
 				window.jetpackPayPalOnboardComplete( 'AUTH_CODE_1', 'SHARED_ID_1' );
 			} );
 
-			await waitFor( () =>
-				expect( screen.queryByTitle( 'PayPal onboarding' ) ).not.toBeInTheDocument()
-			);
+			// The frame going away means little on its own: clearing the referral
+			// and flipping to connected each remove it. Check for the connected
+			// view itself.
+			await expect(
+				screen.findByText( /Create PayPal Payment Button/ )
+			).resolves.toBeInTheDocument();
+			expect( screen.queryByTitle( 'PayPal onboarding' ) ).not.toBeInTheDocument();
+		} );
+
+		/**
+		 * Onboard, then disconnect — the only route back to the wizard once the
+		 * SDK has reported completion. Disconnect leaves signupUrl and the
+		 * overlay flag alone, so whatever completion left behind is what the
+		 * merchant comes back to.
+		 *
+		 * @param {object} user - userEvent instance.
+		 */
+		async function onboardThenDisconnect( user ) {
+			await openActiveOverlay();
+
+			await act( async () => {
+				window.jetpackPayPalOnboardComplete( 'AUTH_CODE_1', 'SHARED_ID_1' );
+			} );
+
+			await expect(
+				screen.findByText( /Create PayPal Payment Button/ )
+			).resolves.toBeInTheDocument();
+
+			await user.click( screen.getByRole( 'button', { name: /Disconnect PayPal/i } ) );
+			await user.click( screen.getByTestId( 'confirm-dialog-confirm' ) );
+
+			await expect(
+				screen.findByRole( 'button', { name: /Connect with PayPal/i } )
+			).resolves.toBeVisible();
+		}
+
+		it( 'drops the spent referral link when onboarding completes', async () => {
+			const user = userEvent.setup();
+			mockPlatformMode( { action_url: 'https://www.sandbox.paypal.com/merchantsignup/x' } );
+
+			await onboardThenDisconnect( user );
+
+			// A referral that has been through onboarding cannot be reopened, and
+			// only an empty signupUrl lets the prefetch ask for a fresh one. Wait
+			// for the second request, then check there was only the one extra.
+			await waitFor( () => expect( signupLinkCalls().length ).toBeGreaterThan( 1 ) );
+			expect( signupLinkCalls() ).toHaveLength( 2 );
+		} );
+
+		it( 'leaves the overlay down when the wizard comes back', async () => {
+			const user = userEvent.setup();
+			mockPlatformMode( { action_url: 'https://www.sandbox.paypal.com/merchantsignup/x' } );
+
+			await onboardThenDisconnect( user );
+
+			// The prefetch remounts the frame. It must come back closed rather
+			// than covering the welcome step with nothing in it.
+			const frame = await screen.findByTitle( 'PayPal onboarding' );
+			expect( frame ).not.toHaveClass( 'jetpack-paypal-onboarding-frame--active' );
 		} );
 
 		it( 'closes the frame when the exchange fails, so the error is not hidden behind it', async () => {
@@ -416,26 +838,74 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				return Promise.resolve( {} );
 			} );
 
-			await openOnboardingFrame();
-			await waitFor( () =>
-				expect( typeof window.jetpackPayPalOnboardComplete ).toBe( 'function' )
-			);
+			// Taking the overlay down only means something if it went up.
+			const frame = await openActiveOverlay();
 
 			await act( async () => {
 				window.jetpackPayPalOnboardComplete( 'AUTH_CODE_1', 'SHARED_ID_1' );
 			} );
 
 			// The error notice renders on the welcome step, which the overlay
-			// would otherwise cover with an open lightbox. The frame itself stays
-			// mounted, hidden, so a retry keeps its click-activation path.
-			await waitFor( () =>
-				expect( screen.getByTitle( 'PayPal onboarding' ) ).not.toHaveClass(
-					'jetpack-paypal-onboarding-frame--active'
-				)
-			);
+			// would otherwise cover. The referral has been through PayPal by now,
+			// so it goes too and the prefetch builds a fresh frame for the retry.
+			await waitFor( () => expect( frame ).not.toBeInTheDocument() );
 			await expect(
 				screen.findByText( /PayPal token exchange failed/ )
 			).resolves.toBeInTheDocument();
+		} );
+
+		it( 'opens PayPal when the anchor is already bound before we start watching', async () => {
+			const user = userEvent.setup();
+			const click = watchAnchorClicks();
+			mockPlatformMode( { action_url: 'https://www.sandbox.paypal.com/merchantsignup/x' } );
+
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+			const frame = await screen.findByTitle( 'PayPal onboarding' );
+
+			// PayPal normally takes the target away after render() returns, so we
+			// watch for it. Nothing promises that ordering: bind inside render()
+			// and the change has already happened before anything is watching.
+			await settlePartnerScript( frame, { sync: true } );
+
+			await user.click( screen.getByRole( 'button', { name: /Connect with PayPal/i } ) );
+
+			expect( click ).toHaveBeenCalledTimes( 1 );
+			expect( frame ).toHaveClass( 'jetpack-paypal-onboarding-frame--active' );
+		} );
+
+		it( 'exchanges the auth code the SDK hands to the frame realm', async () => {
+			mockPlatformMode( { action_url: 'https://www.sandbox.paypal.com/merchantsignup/x' } );
+
+			const frame = await openActiveOverlay();
+
+			/*
+			 * The SDK resolves the callback by name against the realm it runs in,
+			 * and it runs in the frame. Every other completion test calls the copy
+			 * on the top window, so this is the only one on the path PayPal
+			 * actually takes.
+			 */
+			await act( async () => {
+				frame.contentWindow.jetpackPayPalOnboardComplete( 'AUTH_CODE_2', 'SHARED_ID_2' );
+			} );
+
+			await waitFor( () =>
+				expect( apiFetch ).toHaveBeenCalledWith(
+					expect.objectContaining( {
+						path: expect.stringContaining( '/onboarding/complete' ),
+						method: 'POST',
+						data: expect.objectContaining( {
+							auth_code: 'AUTH_CODE_2',
+							shared_id: 'SHARED_ID_2',
+						} ),
+					} )
+				)
+			);
+
+			// Then the wizard gives way to the connected view.
+			await expect(
+				screen.findByText( /Create PayPal Payment Button/ )
+			).resolves.toBeInTheDocument();
+			expect( screen.queryByTitle( 'PayPal onboarding' ) ).not.toBeInTheDocument();
 		} );
 
 		it( 'exposes the completion callback for the SDK to call by name', async () => {
@@ -459,7 +929,9 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				screen.findByRole( 'button', { name: /Connect with PayPal/i } )
 			).resolves.toBeVisible();
 
-			window.jetpackPayPalOnboardComplete( 'AUTH_CODE_1', 'SHARED_ID_1' );
+			await act( async () => {
+				window.jetpackPayPalOnboardComplete( 'AUTH_CODE_1', 'SHARED_ID_1' );
+			} );
 
 			await waitFor( () =>
 				expect( apiFetch ).toHaveBeenCalledWith(
@@ -503,10 +975,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				screen.findByText( /Could not create a PayPal onboarding link/ )
 			).resolves.toBeInTheDocument();
 
-			const signupCalls = apiFetch.mock.calls.filter( ( [ { path } ] ) =>
-				path.endsWith( '/onboarding/signup-link' )
-			);
-			expect( signupCalls ).toHaveLength( 1 );
+			expect( signupLinkCalls() ).toHaveLength( 1 );
 		} );
 
 		it( 'dismissing the signup-link failure hides it and leaves the request count at one', async () => {
@@ -521,17 +990,17 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 			await user.click( screen.getByTestId( 'dismiss-notice' ) );
 
+			// Wait for the dismissal before counting, or the count is taken
+			// before the prefetch could run.
+			await waitFor( () =>
+				expect(
+					screen.queryByText( /Could not create a PayPal onboarding link/ )
+				).not.toBeInTheDocument()
+			);
+
 			// Dismissing must leave connectError set, or the prefetch runs again
 			// and puts the same notice straight back.
-			const signupCalls = () =>
-				apiFetch.mock.calls.filter( ( [ { path } ] ) =>
-					path.endsWith( '/onboarding/signup-link' )
-				);
-			await waitFor( () => expect( signupCalls() ).toHaveLength( 1 ) );
-
-			expect(
-				screen.queryByText( /Could not create a PayPal onboarding link/ )
-			).not.toBeInTheDocument();
+			expect( signupLinkCalls() ).toHaveLength( 1 );
 		} );
 
 		it( 'asks again when the merchant clicks Connect with PayPal after a failure', async () => {
@@ -543,10 +1012,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 			// fetchSignupLink clears connectError on entry, so a deliberate click
 			// gets past the bail condition that stops the automatic retry.
-			const signupCalls = apiFetch.mock.calls.filter( ( [ { path } ] ) =>
-				path.endsWith( '/onboarding/signup-link' )
-			);
-			expect( signupCalls ).toHaveLength( 2 );
+			expect( signupLinkCalls() ).toHaveLength( 2 );
 		} );
 	} );
 
