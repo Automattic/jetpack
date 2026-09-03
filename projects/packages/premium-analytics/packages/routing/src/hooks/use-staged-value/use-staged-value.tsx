@@ -79,25 +79,28 @@ export function useStagedValue< TValue extends AnyObject, TCommitOptions = void 
 ): UseStagedValueReturn< TValue, TCommitOptions > {
 	/*
 	 * The draft is a patch over the store, never a copy of it: a `revert` queued
-	 * before a commit lands would write the pre-commit value back over the
-	 * realign below, which only fires while `committed` changes (WOOA7S-2064).
+	 * before a commit lands must not write the pre-commit value back (WOOA7S-2064).
 	 */
 	const [ patch, setPatch ] = useState< Partial< TValue > >( {} );
 
 	/*
 	 * A control can stage and commit in the same tick — `DatePeriodDropdown` does
-	 * that to apply a quick preset — so `commit` reads these refs, not the state
-	 * React has only queued, which would leave the store a click behind.
+	 * that to apply a quick preset — so `stage` and `commit` read the patch from a
+	 * ref, not the state React has only queued, which would leave the store a
+	 * click behind.
 	 */
-	const patchRef = useRef< Partial< TValue > >( patch );
+	const patchRef = useRef< Partial< TValue > >( {} );
+
+	// Those callbacks hold no `committed` dep, so they read it here. Writing this
+	// during render is safe: the realign below never reads it.
 	const committedRef = useRef< TValue >( committed );
 	committedRef.current = committed;
 
 	/*
-	 * Drop the draft when a committed value arrives from outside, or the next
-	 * commit puts it back over the change. Held in state, not a ref: React may
-	 * run this render twice and throw the first away, and a ref written during
-	 * the discarded pass would swallow the realign it just decided on.
+	 * Realign when a committed value arrives from outside; otherwise the next
+	 * commit puts the stale draft back over it. Held in state, not a ref: React
+	 * may run this render twice and throw the first away, and a ref written
+	 * during the discarded pass would swallow the realign it just decided on.
 	 */
 	const [ lastCommitted, setLastCommitted ] = useState< TValue >( committed );
 	if ( ! sameValues( lastCommitted, committed ) ) {

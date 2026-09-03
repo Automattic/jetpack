@@ -639,14 +639,12 @@ describe( 'useReportDateFilters', () => {
 				interval: 'day',
 			} );
 
-			// The popover's queued close calls the handler from before the drill.
 			const cancelBeforeDrill = result.current.onCancel;
 
 			act( () => result.current.drillDown( new Date( '2026-07-21T13:45:00.000Z' ) ) );
 			rerender();
 
 			act( () => cancelBeforeDrill() );
-			rerender();
 
 			expect( result.current.range.from?.toISOString() ).toBe( '2026-07-21T00:00:00.000Z' );
 			expect( result.current.range.to?.toISOString() ).toBe( '2026-07-21T23:59:59.999Z' );

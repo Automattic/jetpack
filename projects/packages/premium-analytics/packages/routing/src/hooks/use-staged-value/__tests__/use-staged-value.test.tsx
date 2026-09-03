@@ -195,6 +195,17 @@ describe( 'useStagedValue', () => {
 		expect( result.current.staged ).toBe( before );
 	} );
 
+	// The same rule on the path the picker takes most: it cancels on every close,
+	// staged or not, and a draft rebuilt each time would re-render every widget.
+	it( 'leaves the draft alone when reverting with nothing staged', () => {
+		const { result } = renderStagedValue();
+		const before = result.current.staged;
+
+		act( () => result.current.revert() );
+
+		expect( result.current.staged ).toBe( before );
+	} );
+
 	// Clearing a key staged earlier in the same draft is the same no-op reached
 	// the long way round: the draft is back to the committed value, so Apply
 	// must go back to disabled rather than commit an unchanged URL.
