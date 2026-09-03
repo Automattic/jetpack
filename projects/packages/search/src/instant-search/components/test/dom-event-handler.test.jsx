@@ -98,3 +98,25 @@ describe( 'DomEventHandler.handleSubmit', () => {
 		expect( showResults ).not.toHaveBeenCalled();
 	} );
 } );
+
+describe( 'DomEventHandler store writes', () => {
+	it( 'does not dispatch while constructing', () => {
+		// The store is seeded at the mount site instead, so nothing writes to it
+		// during the render phase. See ../../../../AGENTS.md.
+		const initializeQueryValues = jest.fn();
+
+		const handler = new DomEventHandler( { ...defaultProps, initializeQueryValues } );
+
+		expect( handler ).toBeInstanceOf( DomEventHandler );
+		expect( initializeQueryValues ).not.toHaveBeenCalled();
+	} );
+
+	it( 'still re-reads the query string on history navigation', () => {
+		const initializeQueryValues = jest.fn();
+		const handler = new DomEventHandler( { ...defaultProps, initializeQueryValues } );
+
+		handler.handleHistoryNavigation();
+
+		expect( initializeQueryValues ).toHaveBeenCalledWith( { isHistoryNavigation: true } );
+	} );
+} );

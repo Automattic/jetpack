@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Instant Search: initialize the store before mounting instead of from component constructors.
