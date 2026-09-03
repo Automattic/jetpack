@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Tooltip: Keep the drop shadow when `--a8c-charts-color-label-axis` resolves to something other than a 6-digit hex. visx appends an alpha suffix to that color to build the shadow, which only parses after a hex, so an `rgb()` or `hsl()` value silently dropped the shadow entirely.

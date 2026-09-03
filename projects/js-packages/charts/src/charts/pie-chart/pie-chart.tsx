@@ -435,23 +435,21 @@ const PieChartInternal = ( {
 															<path { ...pathProps } />
 															{ showLabels && hasSpaceForLabel && (
 																<g>
-																	{ providerTheme.labelBackgroundColor && (
-																		<rect
-																			x={ centroidX - backgroundWidth / 2 }
-																			y={ centroidY - backgroundHeight / 2 }
-																			width={ backgroundWidth }
-																			height={ backgroundHeight }
-																			fill={ providerTheme.labelBackgroundColor }
-																			rx={ 4 }
-																			ry={ 4 }
-																			pointerEvents="none"
-																		/>
-																	) }
+																	<rect
+																		className={ styles[ 'pie-chart__label-plate' ] }
+																		x={ centroidX - backgroundWidth / 2 }
+																		y={ centroidY - backgroundHeight / 2 }
+																		width={ backgroundWidth }
+																		height={ backgroundHeight }
+																		rx={ 4 }
+																		ry={ 4 }
+																		pointerEvents="none"
+																	/>
 																	<text
+																		className={ styles[ 'pie-chart__label-text' ] }
 																		x={ centroidX }
 																		y={ centroidY }
 																		dy=".33em"
-																		fill={ providerTheme.labelTextColor || '#333' }
 																		fontSize={ fontSize }
 																		textAnchor="middle"
 																		pointerEvents="none"
