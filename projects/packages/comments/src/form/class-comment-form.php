@@ -159,7 +159,7 @@ class Comment_Form {
 	 * @param int|null $post_id Post being commented on. Defaults to the current one.
 	 * @return bool
 	 */
-	private static function enabled_for_post_type( $post_id = null ) {
+	public static function enabled_for_post_type( $post_id = null ) {
 		$post_type = $post_id ? get_post_type( $post_id ) : get_post_type();
 
 		/** This filter is documented in projects/plugins/jetpack/modules/comments/comments.php */
@@ -356,7 +356,7 @@ class Comment_Form {
 			array(
 				'requireNameEmail'   => (bool) get_option( 'require_name_email' ),
 				'showCookiesConsent' => (bool) get_option( 'show_comments_cookies_opt_in' ),
-				'mustLogIn'          => (bool) get_option( 'comment_registration' ) && ! is_user_logged_in(),
+				'mustLogIn'          => (bool) get_option( 'comment_registration' ) && ! is_user_logged_in() && ! Identity::has_passport_identity(),
 				'maxLength'          => isset( $lengths['comment_content'] ) ? (int) $lengths['comment_content'] : 65525,
 				'strings'            => self::strings( $args ),
 			),
@@ -415,6 +415,9 @@ class Comment_Form {
 			'guestPromptRequired' => __( 'Provide your name and email to leave a comment.', 'jetpack-comments' ),
 			'saveDetails'         => __( 'Save my name, email, and website in this browser for the next time I comment.', 'jetpack-comments' ),
 			'logOut'              => __( 'Log out', 'jetpack-comments' ),
+			/* translators: %s is the name the commenter signed in with. */
+			'commentingAs'        => __( 'Commenting as %s', 'jetpack-comments' ),
+			'loginError'          => __( 'Sorry, that sign-in did not work. Please try again.', 'jetpack-comments' ),
 		);
 
 		/**
