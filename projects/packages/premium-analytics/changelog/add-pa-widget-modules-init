@@ -1,0 +1,3 @@
+Significance: patch
+Type: changed
+Comment: Internal refactor: register the dashboard entities in the init module instead of on each route load. No user-facing change.

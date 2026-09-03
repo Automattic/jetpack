@@ -1,4 +1,4 @@
-import { ensureDashboardEntities } from './dashboard-entities';
+import { ensureDashboardEntities } from '../dashboard-entities';
 
 const mockGetEntityConfig = jest.fn();
 const mockAddEntities = jest.fn();
