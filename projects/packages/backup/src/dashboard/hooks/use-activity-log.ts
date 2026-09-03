@@ -221,8 +221,8 @@ export function useDefaultBackupRewindId(): string | null {
  *
  * `isError` and `isPaused` are reported separately from `isLoading`
  * because callers must treat all three the same way and React Query does
- * not. A query that failed, and one parked because the browser is offline,
- * are both not loading and hold no rows, so `hasRestorePoints` comes back a
+ * not. A query that failed, and a first read parked because the browser is
+ * offline, are both not loading and hold no rows, so `hasRestorePoints` comes back a
  * confident `false` for a question that was never actually answered —
  * which is indistinguishable, to a caller reading only the first two
  * values, from a site that genuinely has no restore points.
@@ -247,7 +247,9 @@ export function useHasRestorePoints(): {
 		hasRestorePoints,
 		isLoading: query.isLoading,
 		isError: query.isError,
-		isPaused: query.isPaused,
+		// `isPending` too: a parked *refetch* still holds its rows, and reporting
+		// that as unanswered would pull the first-run panel off a genuinely empty site.
+		isPaused: query.isPending && query.isPaused,
 	};
 }
 

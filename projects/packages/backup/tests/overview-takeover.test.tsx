@@ -24,7 +24,7 @@ jest.mock( '@wordpress/route', () => ( {
 
 // Imports must come after the jest.mock factories above.
 import { onlineManager } from '@tanstack/react-query';
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import { stage as OverviewStage } from '../routes/dashboard/stage';
 import { keys, queryClient } from '../src/dashboard/data/query-client';
 
@@ -185,6 +185,30 @@ describe( 'Overview takeover', () => {
 			screen.queryByText( 'Your first cloud backup will be ready soon' )
 		).not.toBeInTheDocument();
 		expect( screen.getByRole( 'group', { name: 'Backup activity' } ) ).toBeInTheDocument();
+	} );
+
+	// The other half of JETPACK-2491: a parked *refetch* still holds its rows, so
+	// reporting it as unanswered would pull the panel off a site that really is empty.
+	it( 'still takes over when a refetch parks on an already-empty site', async () => {
+		mockEndpoints( { backups: [], activity: [] } );
+
+		render( <OverviewStage /> );
+		await expect(
+			screen.findByText( 'Your first cloud backup will be ready soon' )
+		).resolves.toBeInTheDocument();
+
+		// Offline after the answer landed, then something asks again.
+		onlineManager.setOnline( false );
+		await act( async () => {
+			await queryClient.invalidateQueries( { queryKey: keys.activityLogRoot() } );
+		} );
+		// The parked state reaches the observer a tick after the invalidation
+		// settles, so asserting straight away would pass without looking.
+		await act( async () => {
+			await new Promise( resolve => setTimeout( resolve, 50 ) );
+		} );
+
+		expect( screen.getByText( 'Your first cloud backup will be ready soon' ) ).toBeInTheDocument();
 	} );
 
 	it( 'still takes over when the activity log holds no backup rows', async () => {
