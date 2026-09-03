@@ -1,4 +1,3 @@
 Significance: patch
 Type: changed
-
-Register the dashboard core-data entities once at app boot instead of on every route load.
+Comment: Internal refactor: register the dashboard entities in the init module instead of on each route load. No user-facing change.
