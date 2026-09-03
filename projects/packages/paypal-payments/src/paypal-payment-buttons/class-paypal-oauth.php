@@ -280,7 +280,9 @@ class PayPal_OAuth {
 		$client_secret = self::decrypt( $credentials['encrypted_client_secret'] );
 
 		if ( false === $client_id || false === $client_secret ) {
-			// Decryption failed — likely AUTH_KEY changed or data corrupted.
+			// Decryption failed — likely AUTH_KEY changed or data corrupted. Deleting
+			// is by design (WOOPTP-189); the log is the only trace it ever happened.
+			error_log( 'PayPal Payment Buttons: stored credentials could not be decrypted; deleting them. AUTH_KEY may have changed.' ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			self::delete_credentials();
 			return false;
 		}

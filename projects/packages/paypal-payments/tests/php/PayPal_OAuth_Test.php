@@ -24,10 +24,27 @@ use PHPUnit\Framework\TestCase;
 class PayPal_OAuth_Test extends TestCase {
 
 	/**
+	 * The error_log destination before the test changed it.
+	 *
+	 * @var string|false
+	 */
+	private $previous_error_log;
+
+	/**
+	 * Remember where error_log went, so tests that redirect it can be undone.
+	 */
+	protected function setUp(): void {
+		parent::setUp();
+		$this->previous_error_log = ini_get( 'error_log' );
+	}
+
+	/**
 	 * Clean up after each test.
 	 */
 	protected function tearDown(): void {
 		parent::tearDown();
+
+		ini_set( 'error_log', $this->previous_error_log ); // phpcs:ignore WordPress.PHP.IniSet.Risky
 
 		// Clean up all options and transients. disconnect() is used rather than
 		// deleting options directly because it also resets the request-scoped
@@ -186,11 +203,39 @@ class PayPal_OAuth_Test extends TestCase {
 		update_option( PayPal_OAuth::CREDENTIALS_OPTION_KEY, $credentials );
 
 		// Authenticated encryption should detect tampering and return false.
+		ini_set( 'error_log', '/dev/null' ); // phpcs:ignore WordPress.PHP.IniSet.Risky
 		$result = PayPal_OAuth::get_credentials();
 		$this->assertFalse( $result );
 
 		// Should also clean up the corrupted data.
 		$this->assertFalse( PayPal_OAuth::has_credentials() );
+	}
+
+	/**
+	 * Test that a failed decrypt is logged before the credentials are deleted.
+	 *
+	 * The ciphertext is re-encrypted under a different key, which is what a
+	 * salt rotation leaves behind.
+	 */
+	public function test_undecryptable_credentials_are_logged() {
+		PayPal_OAuth::store_credentials( 'test_client_id', 'test_client_secret' );
+
+		$key   = sodium_crypto_generichash( 'some-other-auth-key', '', SODIUM_CRYPTO_SECRETBOX_KEYBYTES );
+		$nonce = random_bytes( SODIUM_CRYPTO_SECRETBOX_NONCEBYTES );
+
+		$credentials                        = get_option( PayPal_OAuth::CREDENTIALS_OPTION_KEY );
+		$credentials['encrypted_client_id'] = base64_encode( $nonce . sodium_crypto_secretbox( 'test_client_id', $nonce, $key ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
+		update_option( PayPal_OAuth::CREDENTIALS_OPTION_KEY, $credentials );
+
+		$log_file = tempnam( sys_get_temp_dir(), 'paypal-oauth-log' );
+		ini_set( 'error_log', $log_file ); // phpcs:ignore WordPress.PHP.IniSet.Risky
+
+		$this->assertFalse( PayPal_OAuth::get_credentials() );
+
+		$logged = file_get_contents( $log_file ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+		unlink( $log_file ); // phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink
+
+		$this->assertStringContainsString( 'stored credentials could not be decrypted', $logged );
 	}
 
 	/**
@@ -204,6 +249,7 @@ class PayPal_OAuth_Test extends TestCase {
 		$credentials['encrypted_client_id'] = base64_encode( 'short' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode
 		update_option( PayPal_OAuth::CREDENTIALS_OPTION_KEY, $credentials );
 
+		ini_set( 'error_log', '/dev/null' ); // phpcs:ignore WordPress.PHP.IniSet.Risky
 		$result = PayPal_OAuth::get_credentials();
 		$this->assertFalse( $result );
 	}
