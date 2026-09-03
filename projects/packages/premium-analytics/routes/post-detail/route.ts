@@ -11,7 +11,6 @@ import { redirect } from '@wordpress/route';
 /**
  * Internal dependencies
  */
-import { ensureDashboardEntities } from '../dashboard-entities';
 import { isPremiumAnalyticsSiteConnected } from '../site-readiness';
 import { resolveTabId } from './config';
 
@@ -32,8 +31,7 @@ function isValidPostId( value: string | undefined ): value is string {
  * Route lifecycle for the post/page detail page.
  *
  * `post_id` is seeded from the route param so every widget on the page is scoped
- * to this single resource. The widget-modules entity is registered here too, so
- * a direct deep link resolves widget types without visiting the dashboard first.
+ * to this single resource.
  */
 export const route = {
 	beforeLoad: async ( {
@@ -102,7 +100,5 @@ export const route = {
 				search: seeded as unknown as never,
 			} );
 		}
-
-		ensureDashboardEntities();
 	},
 };

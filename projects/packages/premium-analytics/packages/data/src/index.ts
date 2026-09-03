@@ -3,6 +3,7 @@ export { GlobalErrorProvider, useGlobalError } from './providers/global-error-co
 export { globalErrorManager, type GlobalErrorType } from './providers/global-error-manager';
 export { ReportScopeProvider, useReportScope, type ReportScope } from './providers/report-scope';
 export * from './hooks';
+export { ensureDashboardEntities } from './entities/dashboard-entities';
 export { latestPostQuery, postContentQuery } from './queries/latest-post-query';
 export type { LatestPost, LatestPostResponse } from './processing/latest-post';
 export { statsInsightsQuery } from './queries/stats-insights-query';
