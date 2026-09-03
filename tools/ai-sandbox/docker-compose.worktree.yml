@@ -1,0 +1,19 @@
+# Compose override applied automatically by wp-verify.sh when invoked from
+# inside a git worktree (i.e. `$JETPACK_HOST_PATH/.git` is a file, not a
+# directory).
+#
+# A worktree's `.git` file contains an absolute host path pointing at the
+# main repo's `.git/worktrees/<name>/` — e.g.
+# `gitdir: /Users/foo/jetpack/.git/worktrees/feature-x`. Without an extra
+# mount, that absolute path does not exist inside the sandbox container and
+# every `git` call inside the sandbox fails to resolve the gitdir.
+#
+# This override bind-mounts the main repo's `.git/` (computed via
+# `git rev-parse --git-common-dir` on the host and exported as
+# JETPACK_GIT_COMMON_DIR_HOST) at the *same absolute path* inside the
+# container, so the `.git` file's pointer resolves transparently.
+
+services:
+  jetpack-ai:
+    volumes:
+      - ${JETPACK_GIT_COMMON_DIR_HOST:?JETPACK_GIT_COMMON_DIR_HOST not set — wp-verify.sh sets this when in a worktree}:${JETPACK_GIT_COMMON_DIR_HOST:?}
