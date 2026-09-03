@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Top Posts: only fetch fallback thumbnails and prime the post cache for the posts that will actually be returned, instead of for every over-fetched candidate.

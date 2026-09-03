@@ -425,6 +425,27 @@ class WPCOM_Stats {
 	}
 
 	/**
+	 * Get the expiration time, in seconds, for the stats cache.
+	 *
+	 * @return int
+	 */
+	public static function get_cache_expiration() {
+		/**
+		 * Filters the expiration time for the stats cache.
+		 *
+		 * @module stats
+		 *
+		 * @since 0.10.0
+		 *
+		 * @param int $expiration The expiration time in seconds.
+		 */
+		return apply_filters(
+			'jetpack_fetch_stats_cache_expiration',
+			self::STATS_CACHE_EXPIRATION_IN_MINUTES * MINUTE_IN_SECONDS
+		);
+	}
+
+	/**
 	 * Build WPCOM REST API endpoint.
 	 *
 	 * @return string
@@ -477,20 +498,7 @@ class WPCOM_Stats {
 		// To reduce size in storage: store with time as key, store JSON encoded data.
 		$cached_value = is_wp_error( $wpcom_stats ) ? $wpcom_stats : wp_json_encode( $wpcom_stats, JSON_UNESCAPED_SLASHES );
 
-		/**
-		 * Filters the expiration time for the stats cache.
-		 *
-		 * @module stats
-		 *
-		 * @since 0.10.0
-		 *
-		 * @param int $expiration The expiration time in minutes.
-		 */
-		$expiration = apply_filters(
-			'jetpack_fetch_stats_cache_expiration',
-			self::STATS_CACHE_EXPIRATION_IN_MINUTES * MINUTE_IN_SECONDS
-		);
-		set_transient( $transient_name, array( time() => $cached_value ), $expiration );
+		set_transient( $transient_name, array( time() => $cached_value ), self::get_cache_expiration() );
 
 		return $wpcom_stats;
 	}
@@ -525,11 +533,7 @@ class WPCOM_Stats {
 
 				// If we have a numeric time, check if cache is still valid.
 				if ( is_numeric( $time ) ) {
-					/** This filter is already documented in projects/packages/stats/src/class-wpcom-stats.php */
-					$expiration = apply_filters(
-						'jetpack_fetch_stats_cache_expiration',
-						self::STATS_CACHE_EXPIRATION_IN_MINUTES * MINUTE_IN_SECONDS
-					);
+					$expiration = self::get_cache_expiration();
 
 					// If within cache period, return cached data after type validation.
 					if ( ( time() - $time ) < $expiration ) {
