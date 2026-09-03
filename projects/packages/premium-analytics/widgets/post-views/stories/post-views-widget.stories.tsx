@@ -19,6 +19,11 @@ import {
 import { createStoryWidgetType } from '../../stories/create-story-widget-type';
 import { presetForStoryInterval } from '../../stories/preset-for-story-interval';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
+import {
+	siteTimeZoneArgTypes,
+	withSiteTimeZone,
+	type SiteTimeZoneControls,
+} from '../../stories/with-site-time-zone';
 import PostViewsRender from '../render';
 import widgetDefinition, { type PostViewsChartType } from '../widget';
 import type { StatsChartBucketPeriod } from '@jetpack-premium-analytics/data';
@@ -35,7 +40,7 @@ const MOCK_POST_ID = 779;
 
 const POST_VIEWS_RENDER_MODULE = 'storybook/post-views';
 
-interface PostViewsStoryControls {
+interface PostViewsStoryControls extends SiteTimeZoneControls {
 	hasPostScope: boolean;
 	interval: StatsChartBucketPeriod;
 	chartType: PostViewsChartType;
@@ -67,7 +72,9 @@ const meta = {
 	title: 'Packages/Premium Analytics/Widgets/PostViews',
 	component: PostViewsRender,
 	tags: [ 'autodocs' ],
+	decorators: [ withSiteTimeZone ],
 	argTypes: {
+		...siteTimeZoneArgTypes,
 		hasPostScope: {
 			control: 'boolean',
 			description: 'Include the `post_id` report param the post detail page seeds from its URL.',

@@ -1607,7 +1607,6 @@ describe( 'Stats query factories', () => {
 			from: '2026-06-01',
 			to: '2026-06-30',
 			interval: 'day',
-			gmtOffset: 12,
 			max: 3000,
 		} );
 
@@ -1621,7 +1620,6 @@ describe( 'Stats query factories', () => {
 			{
 				startDate: '2026-06-01',
 				endDate: '2026-06-30',
-				gmtOffset: 12,
 				max: 3000,
 			},
 			undefined,

@@ -15,6 +15,7 @@ import { useMemo, type ReactNode } from 'react';
 /**
  * Internal dependencies
  */
+import { siteChartFormatting } from '../../helpers';
 import { useChartTheme } from '../../hooks';
 import { WidgetRootContext } from './context';
 import styles from './widget-root.module.scss';
@@ -87,7 +88,7 @@ export function WidgetRoot( { attributes, children, setError }: WidgetRootProps 
 
 	return (
 		<AnalyticsQueryClientProvider>
-			<GlobalChartsProvider theme={ chartTheme }>
+			<GlobalChartsProvider theme={ chartTheme } { ...siteChartFormatting() }>
 				<WidgetRootContext.Provider value={ contextValue }>
 					<div className={ styles.root }>{ children }</div>
 				</WidgetRootContext.Provider>

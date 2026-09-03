@@ -363,42 +363,39 @@ WordPress site settings:
 
 ### `localTZDate( value?, timezone? )`
 
-Creates a timezone-aware date using the site's configured timezone by
-default.
+Creates a timezone-aware date in the reporting timezone by default.
 
 ```typescript
 import { localTZDate } from '@jetpack-premium-analytics/data';
 
-const now = localTZDate(); // Current time in site timezone
+const now = localTZDate(); // Current time in the reporting timezone
 const custom = localTZDate( '2024-01-15', 'America/New_York' );
 ```
 
 **Parameters:**
 
 - `value` (optional): `number | string | Date` - Date value to convert
-- `timezone` (optional): `string` - Target timezone (defaults to site
-  timezone)
+- `timezone` (optional): `string` - Target timezone (defaults to the
+  reporting timezone)
 
 **Returns:** `TZDate` - Timezone-aware date object
 
-### `dateToISOStringWithLocalTZ( date, timezone? )`
+### `dateToISOStringWithLocalTZ( date )`
 
-Converts a date to ISO string with the site's timezone offset applied.
+Converts a date to ISO string with the reporting timezone's offset applied.
 
 ```typescript
 const withTZ = dateToISOStringWithLocalTZ( new Date() );
-// Returns: "2024-01-15T14:30:00.000-05:00" (with site timezone offset)
+// Returns: "2024-01-15T14:30:00.000-05:00" (with the reporting timezone's offset)
 ```
 
 **Parameters:**
 
 - `date`: `Date` - Date to convert
-- `timezone` (optional): `string` - Target timezone (defaults to site
-  timezone)
 
 **Returns:** `string` - ISO string with timezone offset
 
-**Note:** The site timezone comes from `siteTimeZone()` in
+**Note:** The reporting timezone comes from `reportingTimeZone()` in
 `@jetpack-premium-analytics/datetime`, which reads the WordPress date
 settings that ship with the page. It needs no await.
 

@@ -475,6 +475,11 @@ Add contextual information to highlight specific data points or events. For comp
 
 Enable rich interactive tooltips with optional crosshair guides:
 
+The built-in tooltip names the bucket at its own granularity, down to the hour on
+hourly data. A custom `renderTooltip` is handed the same classification as
+`bucketInfo`, so it can label the bucket the way the chart's own axis does. See
+[Date Bucket Classification](?path=/docs/js-packages-charts-library-global-context--docs).
+
 <Source
 	language="jsx"
 	code={ `<LineChart
@@ -492,6 +497,8 @@ Enable rich interactive tooltips with optional crosshair guides:
 		)}
 	/>` }
 />
+
+Tooltips render inside the chart's own wrapper, not in a `document.body` portal, so they stack with the page like any other element and a sticky or fixed header paints over them. `detectBounds` keeps the box inside the nearest ancestor that clips its overflow (`overflow: hidden`, `clip`, `auto` or `scroll`), or inside the viewport when nothing clips, flipping and then clamping it; it may reach past the chart wrapper into that ancestor. Only an ancestor smaller than the box itself can still cut it off.
 
 ### Pointer Events
 

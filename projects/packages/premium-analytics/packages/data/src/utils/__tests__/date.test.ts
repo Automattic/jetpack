@@ -6,7 +6,7 @@ import { format } from 'date-fns';
 /**
  * Internal dependencies
  */
-import { dateToISOStringWithLocalTZ, formatToTimezoneNaiveString, localTZDate } from '../date';
+import { dateToISOStringWithLocalTZ, localTZDate } from '../date';
 
 const DEFAULTS = getSettings();
 
@@ -44,14 +44,6 @@ describe( 'localTZDate', () => {
 
 		expect( localTZDate( '2026-06-29', '+00:00' ).toISOString() ).toBe(
 			'2026-06-29T00:00:00.000Z'
-		);
-	} );
-
-	it( 'formats a naive string in the site zone', () => {
-		siteOn( 'America/New_York', -4 );
-
-		expect( formatToTimezoneNaiveString( localTZDate( '2026-06-29T13:30:00Z' ) ) ).toBe(
-			'2026-06-29T09:30:00.000'
 		);
 	} );
 } );

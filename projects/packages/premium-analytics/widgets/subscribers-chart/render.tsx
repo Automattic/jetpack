@@ -155,7 +155,6 @@ function SubscribersChartInner( { chartType }: SubscribersChartInnerProps ) {
 					dataFormat={ DATA_FORMAT }
 					chartType={ chartType }
 					groupLabel={ groupLabel }
-					pointsAreWallClocks
 				/>
 			</WidgetState>
 		</div>

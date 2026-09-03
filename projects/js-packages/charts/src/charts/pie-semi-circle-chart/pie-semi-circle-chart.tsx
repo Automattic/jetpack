@@ -1,11 +1,12 @@
 import { Group } from '@visx/group';
 import { Pie } from '@visx/shape';
 import { Text } from '@visx/text';
-import { useTooltip, useTooltipInPortal } from '@visx/tooltip';
+import { useTooltip } from '@visx/tooltip';
 import clsx from 'clsx';
-import { useCallback, useContext, useMemo } from 'react';
+import { useCallback, useContext, useMemo, useRef } from 'react';
 import { Legend, useChartLegendItems } from '../../components/legend';
 import { BaseTooltip } from '../../components/tooltip';
+import { BoundedTooltip } from '../../components/tooltip/private/bounded-tooltip';
 import {
 	useDataWithPercentages,
 	useLegendVisibilityData,
@@ -18,7 +19,7 @@ import {
 	useGlobalChartsContext,
 	GlobalChartsContext,
 } from '../../providers';
-import { CHART_SCOPE_CLASS } from '../../styles/chart-scope-class';
+import { useStandaloneScopeClass } from '../../providers/chart-scope';
 import { attachSubComponents } from '../../utils';
 import { Center } from '../private/center';
 import { ChartSVG, ChartHTML, useChartChildren } from '../private/chart-composition';
@@ -189,42 +190,25 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 	const chartId = useChartId( providedChartId );
 	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, hideTooltip, showTooltip } =
 		useTooltip< DataPointPercentageCalculated >();
+	const standaloneScopeClass = useStandaloneScopeClass();
 
-	// Set up portal tooltip for better z-index handling
-	// We get containerBounds to cancel out stale offsets in the position calculation
-	const { containerRef, TooltipInPortal, containerBounds } = useTooltipInPortal( {
-		detectBounds: true,
-		scroll: true,
-		debounce: 0,
-	} );
+	// The tooltip renders inside this element, so pointer coordinates are taken relative to it.
+	const containerRef = useRef< HTMLDivElement >( null );
 
 	const handleMouseMove = useCallback(
 		( event: MouseEvent< SVGElement >, arc: ArcData ) => {
-			// Don't show tooltip until container bounds are measured
-			if ( containerBounds.width === 0 || containerBounds.height === 0 ) {
+			const bounds = containerRef.current?.getBoundingClientRect();
+			if ( ! bounds ) {
 				return;
 			}
 
-			// Use clientX/Y and subtract containerBounds to cancel out any stale offset.
-			// TooltipInPortal calculates: tooltipLeft + containerBounds.left + scrollX
-			// By passing (clientX - containerBounds.left), we get:
-			// (clientX - containerBounds.left) + containerBounds.left + scrollX = clientX + scrollX
-			// This gives correct page coordinates regardless of stale bounds.
 			showTooltip( {
 				tooltipData: arc.data,
-				tooltipLeft: event.clientX - containerBounds.left + tooltipOffsetX,
-				tooltipTop: event.clientY - containerBounds.top + tooltipOffsetY,
+				tooltipLeft: event.clientX - bounds.left + tooltipOffsetX,
+				tooltipTop: event.clientY - bounds.top + tooltipOffsetY,
 			} );
 		},
-		[
-			containerBounds.width,
-			containerBounds.height,
-			containerBounds.left,
-			containerBounds.top,
-			showTooltip,
-			tooltipOffsetX,
-			tooltipOffsetY,
-		]
+		[ showTooltip, tooltipOffsetX, tooltipOffsetY ]
 	);
 
 	const handleMouseLeave = useCallback( () => {
@@ -372,13 +356,6 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 				data-testid="pie-chart-container"
 				trailingContent={
 					<>
-						{ withTooltips && tooltipOpen && tooltipData && (
-							<TooltipInPortal top={ tooltipTop || 0 } left={ tooltipLeft || 0 }>
-								<div className={ CHART_SCOPE_CLASS } role="tooltip">
-									{ renderTooltip( { tooltipData } ) }
-								</div>
-							</TooltipInPortal>
-						) }
 						{ htmlChildren }
 						{ otherChildren }
 					</>
@@ -398,7 +375,7 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 					const innerRadius = radius * ( 1 - thickness );
 
 					return (
-						<Center ref={ containerRef }>
+						<Center ref={ containerRef } className={ styles[ 'pie-semi-circle-chart__plot' ] }>
 							<svg
 								width={ width }
 								height={ height }
@@ -484,6 +461,13 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 									) }
 								</Group>
 							</svg>
+							{ withTooltips && tooltipOpen && tooltipData && (
+								<BoundedTooltip top={ tooltipTop || 0 } left={ tooltipLeft || 0 }>
+									<div className={ standaloneScopeClass } role="tooltip">
+										{ renderTooltip( { tooltipData } ) }
+									</div>
+								</BoundedTooltip>
+							) }
 						</Center>
 					);
 				} }

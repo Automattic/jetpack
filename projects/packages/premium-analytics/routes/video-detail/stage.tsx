@@ -9,7 +9,11 @@ import {
 import { Button, Stack, Text } from '@jetpack-premium-analytics/externals';
 import { pickReportDateParams, useReportDateFilters } from '@jetpack-premium-analytics/routing';
 import { DateFiltersPanel, StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
-import { Page } from '@wordpress/admin-ui';
+import {
+	DetailPageLayout,
+	DetailPageSection,
+	DetailPageShell,
+} from '@jetpack-premium-analytics/widgets-toolkit';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
@@ -22,11 +26,10 @@ import { type WidgetModuleRecord } from '@wordpress/widget-primitives';
 import { useDetailBreadcrumbs } from '../use-detail-breadcrumbs';
 import { useDetailDateControls } from '../use-detail-date-controls';
 import { resolveWidgetModuleWithI18n, useWidgetTypesWithI18n } from '../widget-module-i18n';
-import { VideoSummaryCard } from './components';
+import { videoHeaderSlots } from './components';
 import { VIDEO_DETAIL_LAYOUT } from './config';
 import { useVideoSummary } from './hooks';
 import { route } from './package.json';
-import styles from './stage.module.scss';
 
 const ROUTE_FROM = route.path;
 
@@ -76,21 +79,22 @@ function VideoDetail(): JSX.Element {
 
 	const layout = VIDEO_DETAIL_LAYOUT;
 
-	// Error and not-found responses have no trustworthy title, so only resolved
-	// videos add the title crumb or render the heading.
-	const title =
-		summary.isLoading || summary.isError || summary.isNotFound
-			? undefined
-			: summary.title?.trim() || __( 'Untitled video', 'jetpack-premium-analytics-pkg' );
-	const resolvedSummary = { ...summary, title };
-	const breadcrumbs = useDetailBreadcrumbs( title );
 	const canRenderWidgets = ! summary.isLoading && ! summary.isError && ! summary.isNotFound;
-	let summaryContent: JSX.Element | null;
 
-	if ( summary.isLoading ) {
-		summaryContent = null;
-	} else if ( summary.isError ) {
-		summaryContent = (
+	// Error and not-found responses have no trustworthy title, so only a
+	// resolved video adds the title crumb.
+	const breadcrumbs = useDetailBreadcrumbs(
+		canRenderWidgets
+			? summary.title?.trim() || __( 'Untitled video', 'jetpack-premium-analytics-pkg' )
+			: undefined
+	);
+
+	// The reason a video is missing goes below the header, where the widgets
+	// would have been.
+	let notice: JSX.Element | null = null;
+
+	if ( summary.isError ) {
+		notice = (
 			<Stack direction="column" align="flex-start" gap="sm">
 				<Text>
 					{ __(
@@ -104,7 +108,7 @@ function VideoDetail(): JSX.Element {
 			</Stack>
 		);
 	} else if ( summary.isNotFound ) {
-		summaryContent = (
+		notice = (
 			<Stack direction="column" align="flex-start" gap="sm">
 				<Text>{ __( "We couldn't find this video.", 'jetpack-premium-analytics-pkg' ) }</Text>
 				<Link
@@ -115,10 +119,6 @@ function VideoDetail(): JSX.Element {
 					{ __( 'Back to Videos', 'jetpack-premium-analytics-pkg' ) }
 				</Link>
 			</Stack>
-		);
-	} else {
-		summaryContent = (
-			<VideoSummaryCard summary={ resolvedSummary } performanceRange={ dateFilters.appliedRange } />
 		);
 	}
 
@@ -131,34 +131,27 @@ function VideoDetail(): JSX.Element {
 			onLayoutChange={ noopLayoutChange }
 			gridSettings={ VIDEO_DETAIL_GRID }
 		>
-			<Page
+			<DetailPageShell
 				visual={ <StatsPageIcon /> }
 				breadcrumbs={ <StatsBreadcrumbs items={ breadcrumbs } /> }
-				className={ styles.page }
 			>
-				<div className={ styles.scrollArea }>
-					{ /*
-					 * The presets render in every summary state, so the range stays
-					 * adjustable while the video loads or errors.
-					 */ }
-					<div className={ styles.header }>
-						{ summaryContent ? <div className={ styles.summary }>{ summaryContent }</div> : null }
-						<div className={ styles.dateFilters }>
-							{ /*
-							 * The design has no comparison on this page. The panel reads that
-							 * from the scope the stage declares, which is the same declaration
-							 * that keeps the params away from the widgets.
-							 */ }
-							<DateFiltersPanel { ...dateFilters } { ...dateControls } />
-						</div>
-					</div>
+				<DetailPageLayout
+					header={ videoHeaderSlots( {
+						summary,
+						performanceRange: dateFilters.appliedRange,
+					} ) }
+					// The presets render in every summary state, so the range stays
+					// adjustable while the video loads or errors.
+					controls={ <DateFiltersPanel { ...dateFilters } { ...dateControls } /> }
+				>
 					{ canRenderWidgets ? (
-						<div className={ styles.content }>
-							<WidgetDashboard.Widgets className={ styles.widgets } />
-						</div>
+						<DetailPageSection>
+							<WidgetDashboard.Widgets />
+						</DetailPageSection>
 					) : null }
-				</div>
-			</Page>
+					{ notice ? <DetailPageSection>{ notice }</DetailPageSection> : null }
+				</DetailPageLayout>
+			</DetailPageShell>
 		</WidgetDashboard>
 	);
 }

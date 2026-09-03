@@ -1,5 +1,8 @@
 .pie-chart {
-	overflow: hidden;
+	// Anchors the tooltip, which renders next to the SVG in here.
+	&__plot {
+		position: relative;
+	}
 
 	// Fill parent when no explicit width/height provided
 	&--responsive {
