@@ -1,5 +1,6 @@
 import apiFetch from '@wordpress/api-fetch';
 import { wpcomTrackEvent } from '../../../common/tracks';
+import { openHelpCenterWithMessage } from './help-center.ts';
 
 interface ExpiryBannerData {
 	metaKey: string;
@@ -51,9 +52,19 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		safeSessionSet( impressionKey, '1' );
 	}
 
-	const primaryCta = banner.querySelector( '.button-primary' );
-	primaryCta?.addEventListener( 'click', () => {
-		wpcomTrackEvent( 'jetpack_expiry_banner_cta_click', trackProps );
+	const primaryCta = banner.querySelector< HTMLAnchorElement >( '.button-primary' );
+	primaryCta?.addEventListener( 'click', ( e: Event ) => {
+		const supportMessage = primaryCta.dataset.supportMessage;
+		// Only the reverted state asks for support; everything else is a plain link.
+		const openedHere = supportMessage ? openHelpCenterWithMessage( supportMessage ) : false;
+		if ( openedHere ) {
+			e.preventDefault();
+		}
+
+		wpcomTrackEvent( 'jetpack_expiry_banner_cta_click', {
+			...trackProps,
+			cta: supportMessage ? 'support' : 'renew',
+		} );
 	} );
 
 	const dismissBtn = banner.querySelector( '.wpcom-expiry-banner__dismiss' );
