@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Register the dashboard core-data entities once at app boot instead of on every route load.

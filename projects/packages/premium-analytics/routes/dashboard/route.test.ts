@@ -39,15 +39,6 @@ jest.mock( '@wordpress/route', () => ( {
 	redirect: jest.fn( ( options: object ) => ( { isRedirect: true, ...options } ) ),
 } ) );
 
-const mockGetEntityConfig = jest.fn();
-const mockAddEntities = jest.fn();
-jest.mock( '@wordpress/data', () => ( {
-	select: () => ( { getEntityConfig: mockGetEntityConfig } ),
-	dispatch: () => ( { addEntities: mockAddEntities } ),
-} ) );
-
-jest.mock( '@wordpress/core-data', () => ( { store: {} } ) );
-
 // A search that needs no seeding: the seed check is mocked false.
 const settledSearch = {
 	from: '2026-06-01T00:00:00',
@@ -58,21 +49,9 @@ const settledSearch = {
 const beforeLoad = ( search?: object ) =>
 	route.beforeLoad( { search } as Parameters< typeof route.beforeLoad >[ 0 ] );
 
-/**
- * The names registered across all `addEntities` calls.
- *
- * @return The registered entity names.
- */
-function registeredNames(): string[] {
-	return mockAddEntities.mock.calls.flatMap( ( [ entities ] ) =>
-		( entities as { name: string }[] ).map( entity => entity.name )
-	);
-}
-
 describe( 'dashboard route.beforeLoad', () => {
 	afterEach( () => {
 		jest.clearAllMocks();
-		mockGetEntityConfig.mockReset();
 	} );
 
 	it( 'redirects to /connect when the site is not connected', async () => {
@@ -139,33 +118,5 @@ describe( 'dashboard route.beforeLoad', () => {
 		} );
 
 		expect( search ).toMatchObject( { comp: '1', compare_preset: 'previous-period' } );
-	} );
-
-	it( 'registers both dashboard entities on a fresh store', async () => {
-		mockGetEntityConfig.mockReturnValue( undefined );
-
-		await beforeLoad( settledSearch );
-
-		expect( registeredNames() ).toEqual( [ 'widgetModule', 'dashboardSection' ] );
-	} );
-
-	it( 'registers dashboardSection even when a detail-page entry already registered widgetModule', async () => {
-		// Regression: reloading on a detail page had registered `widgetModule` alone,
-		// so the old guard skipped `dashboardSection`, force-opening an empty canvas.
-		mockGetEntityConfig.mockImplementation( ( _kind: string, name: string ) =>
-			name === 'widgetModule' ? {} : undefined
-		);
-
-		await beforeLoad( settledSearch );
-
-		expect( registeredNames() ).toEqual( [ 'dashboardSection' ] );
-	} );
-
-	it( 'does not re-register entities that already exist', async () => {
-		mockGetEntityConfig.mockReturnValue( {} );
-
-		await beforeLoad( settledSearch );
-
-		expect( mockAddEntities ).not.toHaveBeenCalled();
 	} );
 } );
