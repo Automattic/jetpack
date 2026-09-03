@@ -19,26 +19,6 @@ const reducedMotionList = {
 	removeEventListener: () => {},
 };
 
-beforeAll( () => {
-	window.matchMedia = ( ( query: string ) =>
-		query === '(prefers-reduced-motion: reduce)'
-			? reducedMotionList
-			: { ...reducedMotionList, matches: false } ) as unknown as typeof window.matchMedia;
-} );
-
-beforeEach( () => {
-	jest.useFakeTimers();
-} );
-
-afterEach( () => {
-	reducedMotionList.matches = false;
-	jest.useRealTimers();
-} );
-
-afterAll( () => {
-	delete ( window as { matchMedia?: unknown } ).matchMedia;
-} );
-
 function canvas( container: HTMLElement ): HTMLElement {
 	return container.firstElementChild as HTMLElement;
 }
@@ -62,6 +42,28 @@ function advance( ms: number, ticks = 1 ) {
 }
 
 describe( 'WidgetGridAnimation', () => {
+	// Scoped to this describe: a group file shares one test file across suites,
+	// so top-level hooks would fake the timers under every other member too.
+	beforeAll( () => {
+		window.matchMedia = ( ( query: string ) =>
+			query === '(prefers-reduced-motion: reduce)'
+				? reducedMotionList
+				: { ...reducedMotionList, matches: false } ) as unknown as typeof window.matchMedia;
+	} );
+
+	beforeEach( () => {
+		jest.useFakeTimers();
+	} );
+
+	afterEach( () => {
+		reducedMotionList.matches = false;
+		jest.useRealTimers();
+	} );
+
+	afterAll( () => {
+		delete ( window as { matchMedia?: unknown } ).matchMedia;
+	} );
+
 	it( 'starts on the first keyframe, placing tiles from the canvas geometry', () => {
 		const { container } = render( <WidgetGridAnimation /> );
 
