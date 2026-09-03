@@ -168,6 +168,8 @@ export default function App() {
 		updateSettings: updateAiSettings,
 	} = useFeatureSettings( showFeaturesView );
 
+	const masterEnabled = aiSettings?.master_enabled !== false;
+
 	// The hash is the single source of truth for the current view: popstate
 	// covers back/forward, hashchange covers direct hash edits and links.
 	useEffect( () => {
@@ -295,7 +297,9 @@ export default function App() {
 			>
 				<GlobalNotices />
 
-				<MasterOffNotice settings={ aiSettings } />
+				{ ! masterEnabled &&
+					aiSettings?.is_connected !== false &&
+					aiSettings?.host_allows_ai !== false && <MasterOffNotice /> }
 
 				{ isMcpContext && (
 					<>
@@ -334,6 +338,7 @@ export default function App() {
 										savingToolIds={ savingToolIds }
 										onNavigate={ handleMcpNavigate }
 										onUpdate={ handleUpdate }
+										masterEnabled={ masterEnabled }
 										// The activity log has exactly one home: Overview owns the
 										// row whenever the Overview tab exists; the MCP hub keeps
 										// it in the ungated MCP-only shape.

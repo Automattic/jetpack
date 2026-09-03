@@ -4,26 +4,9 @@ import { Link, Notice } from '@wordpress/ui';
 /**
  * Site-wide notice shown on every AI Hub view while the master switch is off.
  *
- * @param {object} props          - Component props.
- * @param {object} props.settings - Settings shape from the feature-settings endpoint; null while loading.
- * @return {object|null} Component markup, or null while the switch is on or another gate is the blocker.
+ * @return {object} Component markup.
  */
-export default function MasterOffNotice( { settings } ) {
-	// Jetpack is not connected.
-	if ( settings?.is_connected === false ) {
-		return null;
-	}
-
-	// The host doesn't allow AI. 
-	if ( settings?.host_allows_ai === false ) {
-		return null;
-	}
-
-	// The master switch is on.
-	if ( settings?.master_enabled !== false ) {
-		return null;
-	}
-
+export default function MasterOffNotice() {
 	return (
 		<Notice.Root intent="warning" className="jetpack-ai-admin__page-notice">
 			<Notice.Title>{ __( 'Jetpack AI is turned off for this site.', 'jetpack' ) }</Notice.Title>

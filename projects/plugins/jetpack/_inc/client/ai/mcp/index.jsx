@@ -100,18 +100,20 @@ function BadgeWithIcon( { badge } ) {
  * A tappable row that navigates to a sub-view, visually similar to calypso's
  * RouterLinkSummaryButton.
  *
- * @param {object}                            props         - Component props.
- * @param {*}                                 props.icon    - WordPress icon.
- * @param {string}                            props.title   - Row label.
- * @param {{ text: string, intent?: string }} props.badge   - Optional badge.
- * @param {Function}                          props.onClick - Click handler.
+ * @param {object}                            props          - Component props.
+ * @param {*}                                 props.icon     - WordPress icon.
+ * @param {string}                            props.title    - Row label.
+ * @param {{ text: string, intent?: string }} props.badge    - Optional badge.
+ * @param {Function}                          props.onClick  - Click handler.
+ * @param {boolean}                           props.disabled - Whether the row is inert.
  * @return {object} Component markup.
  */
-function SummaryRow( { icon, title, badge, onClick } ) {
+function SummaryRow( { icon, title, badge, onClick, disabled } ) {
 	return (
 		<Button
 			className="jetpack-ai-mcp__summary-row"
-			onClick={ onClick }
+			onClick={ disabled ? undefined : onClick }
+			disabled={ disabled }
 			variant="minimal"
 			tone="neutral"
 		>
@@ -121,7 +123,7 @@ function SummaryRow( { icon, title, badge, onClick } ) {
 					<Text>{ title }</Text>
 				</Stack>
 				<Stack direction="row" gap="sm" align="center" justify="flex-end">
-					{ badge && <BadgeWithIcon badge={ badge } /> }
+					{ ! disabled && badge && <BadgeWithIcon badge={ badge } /> }
 					<Icon icon={ chevronRight } size={ 20 } />
 				</Stack>
 			</Stack>
@@ -169,6 +171,7 @@ function ConnectRow( { title, description, onClick } ) {
  * @param {Set}      props.savingToolIds     - Set of toolIds currently being saved.
  * @param {Function} props.onNavigate        - Called with 'read' | 'write' | 'setup'.
  * @param {Function} props.onUpdate          - Called with partial mcp_abilities update.
+ * @param {boolean}  [props.masterEnabled]   - Whether the site-wide AI master switch is on.
  * @param {boolean}  [props.showActivityLog] - Whether this view owns the activity log row
  *                                           (false when the Overview tab renders it instead).
  * @return {object} Component markup.
@@ -180,6 +183,7 @@ export default function McpHub( {
 	savingToolIds,
 	onNavigate,
 	onUpdate,
+	masterEnabled = true,
 	showActivityLog = true,
 } ) {
 	const accountAbilities = getAccountMcpAbilities( mcpAbilities ?? {} );
@@ -238,6 +242,11 @@ export default function McpHub( {
 	const navigateToWrite = useCallback( () => onNavigate( 'write' ), [ onNavigate ] );
 	const navigateToSetup = useCallback( () => onNavigate( 'setup' ), [ onNavigate ] );
 
+	// Saved MCP access stays visible while master is off; the toggle is inert
+	// until AI is turned back on (same pattern as the Features rows).
+	const controlsDisabled = ! masterEnabled;
+	const isToggleDisabled = savingToolIds.has( '__site_level__' ) || controlsDisabled;
+
 	return (
 		<>
 			<Card className="jetpack-ai-mcp__access-card">
@@ -254,7 +263,7 @@ export default function McpHub( {
 						<ToggleControl
 							__nextHasNoMarginBottom
 							checked={ isMcpEnabled }
-							disabled={ savingToolIds.has( '__site_level__' ) }
+							disabled={ isToggleDisabled }
 							label={ __( 'Enable MCP access', 'jetpack' ) }
 							onChange={ handleMcpToggle }
 						/>
@@ -269,6 +278,7 @@ export default function McpHub( {
 							title={ __( 'Read', 'jetpack' ) }
 							badge={ readBadge }
 							onClick={ navigateToRead }
+							disabled={ controlsDisabled }
 						/>
 						<CardDivider />
 						<SummaryRow
@@ -276,12 +286,13 @@ export default function McpHub( {
 							title={ __( 'Write', 'jetpack' ) }
 							badge={ writeBadge }
 							onClick={ navigateToWrite }
+							disabled={ controlsDisabled }
 						/>
 					</>
 				) }
 			</Card>
 
-			{ isMcpEnabled && (
+			{ isMcpEnabled && masterEnabled && (
 				<Card className="jetpack-ai-mcp__action-card">
 					<ConnectRow
 						title={ __( 'Connect external AI agent', 'jetpack' ) }
@@ -294,7 +305,7 @@ export default function McpHub( {
 				</Card>
 			) }
 
-			{ showActivityLog && isMcpEnabled && activityLogUrl && (
+			{ showActivityLog && isMcpEnabled && activityLogUrl && masterEnabled && (
 				<Card className="jetpack-ai-mcp__action-card">
 					<a className="jetpack-ai-mcp__connect-row" href={ activityLogUrl }>
 						<span className="jetpack-ai-mcp__connect-row-icon">
