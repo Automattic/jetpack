@@ -3832,9 +3832,6 @@ importers:
       '@automattic/charts':
         specifier: workspace:*
         version: link:../../js-packages/charts
-      '@automattic/date-range-picker':
-        specifier: 1.0.2
-        version: 1.0.2(@types/react@18.3.31)(@wordpress/components@40.0.0(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/compose@8.7.0(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/date@5.54.0)(@wordpress/i18n@6.27.0)(@wordpress/icons@15.5.0(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@automattic/jetpack-analytics':
         specifier: workspace:*
         version: link:../../js-packages/analytics
@@ -3853,9 +3850,6 @@ importers:
       '@automattic/number-formatters':
         specifier: workspace:*
         version: link:../../js-packages/number-formatters
-      '@automattic/ui':
-        specifier: 1.0.2
-        version: 1.0.2(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/api-fetch':
         specifier: 7.54.0
         version: 7.54.0
@@ -7153,17 +7147,6 @@ packages:
     resolution: {integrity: sha512-WXQiHSGLnwHGBGv5l7edluYILlY9dwgiDpFzl7aG1XNTZhDDcQfXQiEnNSmN9761VxEgwMbAiz0sICpNgu5p8w==}
     peerDependencies:
       '@wordpress/data': ^10.23.0
-      react: ^18.3.1
-      react-dom: ^18.3.1
-
-  '@automattic/date-range-picker@1.0.2':
-    resolution: {integrity: sha512-uK6xrI7v6pmj5TLcmBV9BERuPwqiAeG+pdC7gPZDoKJXMsFaWm1hfzYnPGGRk4R3ZwL28FYF8ZAZUoEUTgGf0w==}
-    peerDependencies:
-      '@wordpress/components': '>=32.1.0'
-      '@wordpress/compose': '>=7.23.0'
-      '@wordpress/date': '>=5.23.0'
-      '@wordpress/i18n': '>=5.23.0'
-      '@wordpress/icons': '>=10.23.0'
       react: ^18.3.1
       react-dom: ^18.3.1
 
@@ -19004,21 +18987,6 @@ snapshots:
       - stylelint
       - supports-color
       - vite
-
-  '@automattic/date-range-picker@1.0.2(@types/react@18.3.31)(@wordpress/components@40.0.0(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/compose@8.7.0(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/date@5.54.0)(@wordpress/i18n@6.27.0)(@wordpress/icons@15.5.0(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
-    dependencies:
-      '@automattic/ui': 1.0.2(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@wordpress/components': 40.0.0(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@wordpress/compose': 8.7.0(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@wordpress/date': 5.54.0
-      '@wordpress/i18n': 6.27.0
-      '@wordpress/icons': 15.5.0(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      date-fns: 4.1.0
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
-    transitivePeerDependencies:
-      - '@types/react'
-      - '@types/react-dom'
 
   '@automattic/explat-client-react-helpers@0.1.1':
     dependencies:

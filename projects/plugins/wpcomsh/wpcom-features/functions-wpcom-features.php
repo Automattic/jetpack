@@ -82,6 +82,22 @@ function wpcom_site_has_feature( $feature, $blog_id = 0 ) {
 		return true;
 	}
 
+	/*
+	 * Sites carrying the 'wordads-free-access' sticker have WordAds regardless of plan.
+	 * The wpcom features list honours that sticker separately, but Jetpack gates module
+	 * activation through its plan check, which defers here, so without this the sticker
+	 * has no effect on Atomic.
+	 */
+	if ( in_array( $feature, array( WPCOM_Features::WORDADS, WPCOM_Features::WORDADS_JETPACK ), true ) ) {
+		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC && function_exists( 'wpcomsh_is_site_sticker_active' ) ) {
+			if ( wpcomsh_is_site_sticker_active( 'wordads-free-access' ) ) {
+				return true;
+			}
+		} elseif ( function_exists( 'has_blog_sticker' ) && has_blog_sticker( 'wordads-free-access', $blog_id ) ) {
+			return true;
+		}
+	}
+
 	$purchases = wpcom_get_site_purchases( $blog_id );
 
 	if ( isset( $blog->registered ) ) {
