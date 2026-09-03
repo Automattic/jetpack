@@ -165,8 +165,13 @@ describe( 'AiOverview', () => {
 		);
 
 		await expect( screen.findByText( 'Business' ) ).resolves.toBeInTheDocument();
-		expect( screen.getByText( renewalLine( 'Expired on: August 27, 2026' ) ) ).toBeInTheDocument();
+		const line = screen.getByText( renewalLine( 'Expired on: August 27, 2026' ) );
+		expect( line ).toBeInTheDocument();
 		expect( screen.queryByText( /Renews on/ ) ).not.toBeInTheDocument();
+		// Both classes set a color, so the muted one has to be gone rather
+		// than merely outranked.
+		expect( line ).toHaveClass( 'jetpack-ai-overview__renewal--expired' );
+		expect( line ).not.toHaveClass( 'jetpack-ai-overview__muted' );
 	} );
 
 	test( 'renewal date: an expired plan on a free tier reads Free, not the lapsed name', async () => {

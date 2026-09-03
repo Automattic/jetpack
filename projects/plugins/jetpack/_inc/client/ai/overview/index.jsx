@@ -248,7 +248,13 @@ function UsageCard( { upgradeUrl, planName, planRenewsOn, planAutoRenew, planExp
 									<Text
 										render={ <p /> }
 										variant="body-sm"
-										className="jetpack-ai-overview__muted jetpack-ai-overview__renewal"
+										// Exclusive, not additive: both classes set a color, and
+										// equal specificity would leave source order to decide.
+										className={ `jetpack-ai-overview__renewal ${
+											planExpired
+												? 'jetpack-ai-overview__renewal--expired'
+												: 'jetpack-ai-overview__muted'
+										}` }
 									>
 										{ createInterpolateElement( renewalLine, {
 											date: <span className="jetpack-ai-overview__renewal-date" />,

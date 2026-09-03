@@ -74,6 +74,11 @@
 		white-space: nowrap;
 	}
 
+	// Matches how My Jetpack colours a lapsed purchase in its Plans section.
+	&__renewal--expired {
+		color: var(--wpds-color-foreground-content-error-weak, #cc1818);
+	}
+
 	// The frame gives the requests number a taller line box than the plan name,
 	// which one shared heading-xl variant cannot express. Two classes, because the
 	// variant's runtime-injected line-height rule outranks a lone class in order.
