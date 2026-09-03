@@ -1,0 +1,5 @@
+Significance: patch
+Type: added
+Comment: Report finished and failed restores as rows in the dashboard's activity list. No-op when the modernization filter is off.
+
+
