@@ -53,7 +53,8 @@ type FeedbackModalProps = {
 };
 
 /**
- * Comparison rating with an optional comment, recorded as a single Tracks event.
+ * Comparison rating with an optional comment. Both reach Tracks as one event; a non-empty
+ * comment also goes to the Stats feedback endpoint.
  *
  * @param {FeedbackModalProps} props         - Component props.
  * @param {Function}           props.onClose - Called once the reader dismisses the modal.

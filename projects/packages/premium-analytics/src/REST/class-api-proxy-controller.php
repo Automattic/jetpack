@@ -455,8 +455,8 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	 *
 	 * Mirrors what stats-admin's own `post_user_feedback()` does: the request is signed with the
 	 * blog token, so WPCOM sees no user and would attribute the submission to whichever
-	 * administrator it finds first. A body that is not a JSON object is returned untouched rather
-	 * than replaced, so a malformed request still fails at WPCOM's own validation.
+	 * administrator it finds first. A body that is neither empty nor a JSON object is returned
+	 * untouched rather than replaced, so a malformed request still fails at WPCOM's own validation.
 	 *
 	 * @param string               $body The request body to forward.
 	 * @param array<string, mixed> $opts The matched prefix config.
