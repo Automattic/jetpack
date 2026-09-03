@@ -16,20 +16,14 @@
 
 import apiFetch from '@wordpress/api-fetch'; // eslint-disable-line import/no-unresolved
 import { BlockControls, store as blockEditorStore, useBlockProps } from '@wordpress/block-editor';
-import {
-	Notice,
-	Spinner,
-	ToolbarButton,
-	ToolbarGroup,
-	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis -- Experimental API; stable ConfirmDialog not yet exported by @wordpress/components.
-	__experimentalConfirmDialog as ConfirmDialog,
-} from '@wordpress/components';
+import { Notice, Spinner, ToolbarButton, ToolbarGroup } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { useState, useCallback, useMemo } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { API_BASE } from './api-base';
 import BlockInspector from './block-inspector';
 import metadata from './block.json';
+import ConfirmDialogs from './confirm-dialogs';
 import ConnectionWizard from './connection-wizard';
 import { VALID_CURRENCY_CODES } from './currencies';
 import { FORMAT_OPTIONS } from './format-switcher';
@@ -402,52 +396,14 @@ export default function PayPalPaymentButtonsEdit( {
 
 	// Shared confirmation dialogs — extracted so they render regardless of which return branch is active.
 	const confirmDialogs = (
-		<>
-			{ showDeleteConfirm && (
-				<ConfirmDialog
-					title={ __( 'Delete Payment Button', 'jetpack-paypal-payments' ) }
-					confirmButtonText={ __( 'Delete Permanently', 'jetpack-paypal-payments' ) }
-					onConfirm={ executeDeleteButton }
-					onCancel={ () => setShowDeleteConfirm( false ) }
-				>
-					{ __(
-						'This will permanently delete your payment button. Any links, QR codes, or embedded buttons using this payment will stop working and cannot be recovered.',
-						'jetpack-paypal-payments'
-					) }
-				</ConfirmDialog>
-			) }
-			{ showDisconnectConfirm && (
-				<ConfirmDialog
-					title={ __( 'Disconnect PayPal Account', 'jetpack-paypal-payments' ) }
-					confirmButtonText={ __( 'Disconnect', 'jetpack-paypal-payments' ) }
-					onConfirm={ executeDisconnect }
-					onCancel={ () => setShowDisconnectConfirm( false ) }
-				>
-					<div className="jetpack-paypal-payment-buttons__confirm-body">
-						<p>
-							{ __(
-								'This disconnects PayPal for the whole site, not just this block.',
-								'jetpack-paypal-payments'
-							) }
-						</p>
-						<ul>
-							<li>
-								{ __(
-									'Every payment button on this site will need PayPal reconnected before it can be edited or deleted.',
-									'jetpack-paypal-payments'
-								) }
-							</li>
-							<li>
-								{ __(
-									'Buttons you have already published keep working for buyers.',
-									'jetpack-paypal-payments'
-								) }
-							</li>
-						</ul>
-					</div>
-				</ConfirmDialog>
-			) }
-		</>
+		<ConfirmDialogs
+			showDeleteConfirm={ showDeleteConfirm }
+			setShowDeleteConfirm={ setShowDeleteConfirm }
+			showDisconnectConfirm={ showDisconnectConfirm }
+			setShowDisconnectConfirm={ setShowDisconnectConfirm }
+			executeDeleteButton={ executeDeleteButton }
+			executeDisconnect={ executeDisconnect }
+		/>
 	);
 
 	const formatLabel = FORMAT_OPTIONS.find( o => o.value === activeFormat )?.label || activeFormat;
