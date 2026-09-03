@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Dashboard: Explain a refused drop instead of silently discarding the file, both at the free plan's video limit and for files that aren't videos.

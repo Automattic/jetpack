@@ -4,6 +4,7 @@ import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
 import { copy } from '@wordpress/icons';
 import { Card, Field, IconButton, InputControl, Stack, Text } from '@wordpress/ui';
+import { resolveShareLink } from '../../utils/video-links';
 import type { LibraryItem } from '../../types/library';
 import type { ReactElement } from 'react';
 
@@ -12,11 +13,6 @@ type Props = {
 };
 
 const dateSettings = getDateSettings();
-
-const linkForVideo = ( video: LibraryItem ): string => {
-	const host = video.isPrivate ? 'video.wordpress.com' : 'videopress.com';
-	return `https://${ host }/v/${ video.guid || video.id }`;
-};
 
 /**
  * Icon-only button that copies its `text` prop to the clipboard. Uses
@@ -52,7 +48,14 @@ const CopyIconButton = ( {
 	return (
 		<IconButton
 			ref={ ref }
-			label={ __( 'Copy', 'jetpack-videopress-pkg' ) }
+			// Named after what it copies: the card renders two of these, and
+			// "Copy" twice gives a screen-reader user no way to tell the link
+			// button from the shortcode one. Same shape Home's cards use.
+			label={ sprintf(
+				/* translators: %s: name of the field being copied, e.g. "Link to video". */
+				__( 'Copy %s', 'jetpack-videopress-pkg' ),
+				fieldLabel
+			) }
 			icon={ copy }
 			variant="minimal"
 		/>
@@ -80,38 +83,45 @@ const CopyIconButton = ( {
  * @return The card element.
  */
 export default function VideoInfoCard( { video }: Props ): ReactElement {
-	const link = linkForVideo( video );
+	// Shared with Home's cards, and honest: null rather than a link built from
+	// the attachment id, which produced a videopress.com URL that 404s behind
+	// a Copy button that cheerfully copied it.
+	const link = resolveShareLink( video );
 
 	return (
 		<Card.Root>
 			<Card.Header>
-				<Card.Title>{ __( 'Video info', 'jetpack-videopress-pkg' ) }</Card.Title>
+				<Card.Title render={ <h2 /> }>{ __( 'Video info', 'jetpack-videopress-pkg' ) }</Card.Title>
 			</Card.Header>
 			<Card.Content>
 				<Stack direction="column" gap="md">
-					<InputControl
-						label={ __( 'Link to video', 'jetpack-videopress-pkg' ) }
-						value={ link }
-						readOnly
-						suffix={
-							<CopyIconButton
-								text={ link }
-								fieldLabel={ __( 'Link to video', 'jetpack-videopress-pkg' ) }
-							/>
-						}
-					/>
+					{ link && (
+						<InputControl
+							label={ __( 'Link to video', 'jetpack-videopress-pkg' ) }
+							value={ link }
+							readOnly
+							suffix={
+								<CopyIconButton
+									text={ link }
+									fieldLabel={ __( 'Link to video', 'jetpack-videopress-pkg' ) }
+								/>
+							}
+						/>
+					) }
 
-					<InputControl
-						label={ __( 'Shortcode', 'jetpack-videopress-pkg' ) }
-						value={ video.shortcode }
-						readOnly
-						suffix={
-							<CopyIconButton
-								text={ video.shortcode }
-								fieldLabel={ __( 'Shortcode', 'jetpack-videopress-pkg' ) }
-							/>
-						}
-					/>
+					{ video.shortcode && (
+						<InputControl
+							label={ __( 'Shortcode', 'jetpack-videopress-pkg' ) }
+							value={ video.shortcode }
+							readOnly
+							suffix={
+								<CopyIconButton
+									text={ video.shortcode }
+									fieldLabel={ __( 'Shortcode', 'jetpack-videopress-pkg' ) }
+								/>
+							}
+						/>
+					) }
 
 					{ /*
 					 * Read-outs, not controls, so `nativeLabel={ false }` and a

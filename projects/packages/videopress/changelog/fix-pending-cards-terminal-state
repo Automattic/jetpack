@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Dashboard: Stop the Thumbnail and Subtitles placeholders loading forever when a video never finishes processing.

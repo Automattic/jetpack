@@ -4,19 +4,25 @@ import { DropZone, Spinner, Tooltip } from '@wordpress/components';
 import { DataViews } from '@wordpress/dataviews';
 import { useCallback, useMemo, useRef, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { useNavigate } from '@wordpress/route';
-import { Button, Card, VisuallyHidden } from '@wordpress/ui';
+import { useNavigate, useSearch } from '@wordpress/route';
+import { Button, VisuallyHidden } from '@wordpress/ui';
 import CaptionManagerModal from '../../src/client/components/caption-manager-modal/lazy';
 import DashboardLayout from '../../src/dashboard/components/dashboard-layout';
 import FetchErrorNotice from '../../src/dashboard/components/fetch-error-notice';
 import FreeTierNotice, {
 	FREE_TIER_AT_LIMIT_MESSAGE,
+	FREE_TIER_AT_LIMIT_NOTICE_ID,
 } from '../../src/dashboard/components/free-tier-notice';
 import { buildLibraryActions } from '../../src/dashboard/components/library/actions';
 import { libraryFields } from '../../src/dashboard/components/library/fields';
 import { UploadActionsProvider } from '../../src/dashboard/components/library/upload-actions-context';
 import QueryClientWrapper from '../../src/dashboard/components/query-client-wrapper';
-import UploadDropzone from '../../src/dashboard/components/upload-dropzone';
+import {
+	describeRefusal,
+	INVALID_FILE_NOTICE_ID,
+	videoFileAccept,
+} from '../../src/dashboard/components/upload-dropzone/video-files';
+import UploadOnboarding, { UPLOAD_CONTEXT } from '../../src/dashboard/components/upload-onboarding';
 import { DeleteVideosError, useDeleteVideo } from '../../src/dashboard/hooks/use-delete-video';
 import { useFreeTier } from '../../src/dashboard/hooks/use-free-tier';
 import { useLibrary } from '../../src/dashboard/hooks/use-library';
@@ -70,9 +76,8 @@ const defaultLayouts: SupportedLayouts = {
 };
 
 // The whole library, unfiltered — `paginationInfo` on the user's own view is
-// scoped to their filters and search, so it cannot answer "is there anything
-// at all". A perPage=1 read keeps it cheap, and the shape is stable so the
-// query caches across screens.
+// scoped to their filters and search, so it cannot answer "is anything left".
+// Identical shape to the first-run count view, so the two share one query.
 const TOTAL_COUNT_VIEW: View = {
 	type: 'table',
 	page: 1,
@@ -83,9 +88,37 @@ const TOTAL_COUNT_VIEW: View = {
 	sort: { field: 'date', direction: 'desc' },
 };
 
+/**
+ * Shape the Library's initial view from the route's search params.
+ *
+ * The welcome modal's "Move N videos over" button deep-links here with
+ * `?type=local` so the user lands on exactly the videos that can move.
+ * Seed-once only: the param shapes the INITIAL view (beating the persisted
+ * one, which deliberately never stores filters), and normal filter
+ * interaction owns the state from then on — the URL is not synced.
+ *
+ * @param initialView - The persisted-or-default view.
+ * @param search      - Decoded route search params.
+ * @return The view the Library should mount with.
+ */
+export function seedViewFromSearch( initialView: View, search: Record< string, unknown > ): View {
+	if ( search?.type !== 'local' ) {
+		return initialView;
+	}
+
+	return {
+		...initialView,
+		filters: [ { field: 'type', value: 'local', operator: 'is' } ],
+	};
+}
+
 const StageInner = () => {
 	const [ initialView, persistView ] = usePersistedView( DEFAULT_VIEW );
-	const [ view, setView ] = useState< View >( initialView );
+	// Read through the router, not window.location: inside wp-admin the app's
+	// path (and its search) travels encoded in the `p` query param, so only
+	// the router knows the decoded app-level search params.
+	const search = useSearch( { strict: false } ) as Record< string, unknown >;
+	const [ view, setView ] = useState< View >( () => seedViewFromSearch( initialView, search ) );
 	const [ selection, setSelection ] = useState< string[] >( [] );
 	const [ captionVideo, setCaptionVideo ] = useState< LibraryItem | null >( null );
 	// Local IDs currently being promoted from local-storage to VideoPress,
@@ -108,16 +141,53 @@ const StageInner = () => {
 		error: libraryError,
 		refetch,
 	} = useLibrary( view );
+	const { paginationInfo: totalPagination, isLoading: isTotalLoading } =
+		useLibrary( TOTAL_COUNT_VIEW );
+	const libraryTotalRef = useRef( 0 );
+	libraryTotalRef.current = totalPagination?.totalItems ?? 0;
 	const { uploadQueue, startUpload, retryUpload } = useUpload();
 	// Read the store's existing errors so a failed row can name the cause; the
 	// notice this dashboard already renders carries the diagnosis and the
 	// reconnect button, so the row only has to point at it.
 	const { hasConnectionError } = useConnectionErrorNotice();
-	const { paginationInfo: totalPagination } = useLibrary( TOTAL_COUNT_VIEW );
+
+	// Whether this mount shows the upload onboarding flow instead of the
+	// listing: the user has no videos, so upload *is* the page. Decided ONCE
+	// per mount when the unfiltered count settles — the same freeze
+	// DashboardLayout applies to the tab order, and for the same reason: the
+	// first upload flips the count mid-flow, and an unfrozen check would yank
+	// the flow out from under the user the moment their upload succeeds. A
+	// strict `=== 0` (not `?? 0`) so a failed count request reads as "show the
+	// listing", never as an empty library.
+	//
+	// A queue holding anything but this flow's own single-upload session means
+	// the listing owns the surface already (a batch's in-flight rows render
+	// there); the flow's own rows are adopted by the flow on mount instead.
+	const showOnboardingRef = useRef< boolean | null >( null );
+	if ( showOnboardingRef.current === null && ! isTotalLoading ) {
+		showOnboardingRef.current =
+			totalPagination?.totalItems === 0 &&
+			! uploadQueue.some( item => item.context !== UPLOAD_CONTEXT );
+	}
+	// The flow's own exit: a multi-file batch has no surface in the flow, so it
+	// hands the page back to the listing and the in-flight rows take over.
+	const [ onboardingDismissed, setOnboardingDismissed ] = useState( false );
+	const exitOnboarding = useCallback( () => setOnboardingDismissed( true ), [] );
+	const showOnboarding = ! onboardingDismissed && showOnboardingRef.current === true;
+	// The listing owns the header action, the at-limit notice, and the page
+	// dropzone only once it is actually the surface being shown.
+	const listingOwnsSurface = onboardingDismissed || showOnboardingRef.current === false;
 	const { mutateAsync: deleteVideo } = useDeleteVideo();
 	const { mutateAsync: setPrivacyAsync } = useSetPrivacy();
 	const { mutateAsync: uploadFromLibrary } = useUploadFromLibrary();
-	const { isAtLimit, isFree, isUnlimited, videoCount, limit } = useFreeTier();
+	const {
+		isAtLimit,
+		isFree,
+		isUnlimited,
+		videoCount,
+		limit,
+		isSettled: isPlanSettled,
+	} = useFreeTier();
 	const runUpgrade = useVideoPressUpgrade();
 
 	const onChangeView = useCallback(
@@ -160,21 +230,30 @@ const StageInner = () => {
 	// "Upload video" file picker. Enforces the free-tier cap up front so
 	// neither path can sneak past the limit the picker button guards.
 	const handleFilesSelected = useCallback(
-		( files: File[] ) => {
-			const decision = planVideoDrop( files, {
+		async ( files: File[] ) => {
+			const decision = await planVideoDrop( files, {
 				isFree,
 				isUnlimited,
 				limit,
 				videoCount,
 			} );
 
+			// Both refusals carry a stable id so repeated blocked attempts
+			// refresh one snackbar instead of stacking a column of identical
+			// ones — the same technique the delete notices below use.
 			if ( decision.kind === 'no-videos' ) {
-				createErrorNotice( __( 'Only video files can be uploaded.', 'jetpack-videopress-pkg' ) );
+				// Derived from the files, not a fixed string: a genuine `.webm` is a
+				// video this backend can't take, and telling its owner "Only video
+				// files can be uploaded" is false.
+				createErrorNotice( await describeRefusal( files ), {
+					id: INVALID_FILE_NOTICE_ID,
+				} );
 				return;
 			}
 
 			if ( decision.kind === 'at-limit' ) {
 				createErrorNotice( FREE_TIER_AT_LIMIT_MESSAGE, {
+					id: FREE_TIER_AT_LIMIT_NOTICE_ID,
 					actions: [ { label: __( 'Upgrade', 'jetpack-videopress-pkg' ), onClick: runUpgrade } ],
 				} );
 				return;
@@ -204,10 +283,19 @@ const StageInner = () => {
 		( event: ChangeEvent< HTMLInputElement > ) => {
 			const files = Array.from( event.target.files ?? [] );
 			if ( files.length > 0 ) {
-				handleFilesSelected( files );
+				// `void`: the decision settles a microtask later (the filter reads
+				// each file's header); clearing the input must not wait on it, or
+				// picking the same file twice would fire no second change event.
+				void handleFilesSelected( files );
 			}
 			event.target.value = '';
 		},
+		[ handleFilesSelected ]
+	);
+
+	// DropZone hands files to a void callback; the decision is asynchronous.
+	const onFilesDrop = useCallback(
+		( files: File[] ) => void handleFilesSelected( files ),
 		[ handleFilesSelected ]
 	);
 
@@ -239,6 +327,29 @@ const StageInner = () => {
 					setCaptionVideo( item );
 				},
 				deleteItems: async ( ids: string[] ) => {
+					// DELETE …?force=true — permanent, no trash. One prompt per
+					// batch rather than per row: DataViews hands the whole
+					// selection to this callback at once, and a prompt per video
+					// would be the same question five times.
+					const confirmed =
+						// eslint-disable-next-line no-alert -- deliberate synchronous guard on an irreversible action.
+						window.confirm(
+							sprintf(
+								/* translators: %d: number of videos to delete. */
+								_n(
+									'Permanently delete %d video?',
+									'Permanently delete %d videos?',
+									ids.length,
+									'jetpack-videopress-pkg'
+								),
+								ids.length
+							)
+						);
+					if ( ! confirmed ) {
+						return;
+					}
+					// Read before the delete: after it, the count has moved.
+					const wasWholeLibrary = libraryTotalRef.current <= ids.length;
 					setDeletingIds( prev => new Set( [ ...prev, ...ids ] ) );
 					// The row overlay/pill is purely visual; this notice is what
 					// announces the in-flight state to screen readers. Per-batch id
@@ -312,6 +423,13 @@ const StageInner = () => {
 					// failure the failed rows survive and stay selected.
 					const requested = new Set( ids );
 					setSelection( prev => prev.filter( id => ! requested.has( id ) || failedIds.has( id ) ) );
+					// An emptied Library is not a dead end: its empty state is
+					// the upload onboarding flow, so swap it back in rather than
+					// leaving a "no results" grid with nothing to do next.
+					if ( wasWholeLibrary && failedIds.size === 0 ) {
+						showOnboardingRef.current = true;
+						setOnboardingDismissed( false );
+					}
 				},
 				setPrivacy: ( ids: string[], privacy: LibraryItemPrivacy ) => {
 					// Batch through useSetPrivacy: each id is POSTed individually so one
@@ -390,7 +508,9 @@ const StageInner = () => {
 				filename: u.file.name,
 				thumbnailUrl: null,
 				durationSeconds: 0,
-				uploadDate: new Date().toISOString(),
+				// The enqueue time, not now: a date rebuilt on every render walks
+				// forward while the row is on screen, and this listing sorts by it.
+				uploadDate: u.enqueuedAt,
 				privacy: 'site-default' as LibraryItemPrivacy,
 				isPrivate: false,
 				fileSizeBytes: u.file.size,
@@ -428,26 +548,12 @@ const StageInner = () => {
 
 	const getItemId = useCallback( ( item: LibraryItem ) => item.id, [] );
 
-	const renderDataViews = () => (
-		<DataViews< LibraryItem >
-			data={ renderedItems }
-			fields={ libraryFields }
-			actions={ actions }
-			view={ view }
-			onChangeView={ onChangeView }
-			selection={ selection }
-			onChangeSelection={ setSelection }
-			getItemId={ getItemId }
-			paginationInfo={ paginationInfo }
-			isLoading={ isLoading }
-			defaultLayouts={ defaultLayouts }
-		/>
-	);
+	const onCaptionTracksChange = useCallback( () => {
+		void refetch();
+	}, [ refetch ] );
 
-	// The viewport's four mutually exclusive surfaces, flattened out of
-	// nested ternaries so each branch can say why it exists. Order matters:
-	// error first, then anything already listable, then the undecided wait,
-	// then the empty-vs-listing verdict.
+	// The viewport's four mutually exclusive surfaces, flattened out of nested
+	// ternaries so each branch can say why it exists.
 	const renderViewport = () => {
 		// A failed listing request would otherwise render as DataViews'
 		// "No results" — indistinguishable from an empty library. Surface
@@ -470,19 +576,11 @@ const StageInner = () => {
 			);
 		}
 
-		// Anything to list — fetched rows or in-flight uploads being spliced
-		// in — and the listing owns the surface, whatever the count says.
-		if ( items.length > 0 || uploadQueue.length > 0 ) {
-			return renderDataViews();
-		}
-
-		// The initial state: the unfiltered count hasn't answered yet, so
-		// whether this library is empty is genuinely unknown. Painting the
-		// grid skeleton and then swapping in the dropzone (or vice versa)
-		// reads as the page loading twice; an explicit wait reads as loading
-		// once. `undefined` rather than `isLoading` so a background refetch
-		// of a settled count never re-shows the wait.
-		if ( totalPagination === undefined ) {
+		// The empty-vs-listing decision is pending (the unfiltered count hasn't
+		// settled). Painting the grid skeleton and then swapping in the
+		// onboarding flow reads as the page loading twice, so hold the surface
+		// with an explicit wait instead.
+		if ( showOnboardingRef.current === null ) {
 			return (
 				<div className="vp-library__deciding" role="status">
 					<Spinner />
@@ -491,89 +589,101 @@ const StageInner = () => {
 			);
 		}
 
-		// An empty library gets an upload dropzone instead of DataViews'
-		// "No results" — a first-video invitation rather than a failed
-		// search. Dropping or picking files lands in the same
-		// `handleFilesSelected` pipeline as the page-wide DropZone and the
-		// header button, so the listing (with its spliced in-flight rows)
-		// takes over the moment anything enters the queue.
-		if ( totalPagination.totalItems === 0 ) {
-			return (
-				<div className="vp-library__empty-state">
-					<Card.Root className="vp-library__empty-card">
-						<Card.Header>
-							<Card.Title render={ <h2 /> }>
-								{ __( 'Upload your first video', 'jetpack-videopress-pkg' ) }
-							</Card.Title>
-						</Card.Header>
-						<Card.Content>
-							<UploadDropzone
-								onFiles={ handleFilesSelected }
-								disabled={ isAtLimit }
-								allowMultiple={ ! isFree || isUnlimited }
-							/>
-						</Card.Content>
-					</Card.Root>
-				</div>
-			);
+		if ( showOnboarding ) {
+			return <UploadOnboarding onExitToLibrary={ exitOnboarding } />;
 		}
 
-		// A non-empty library whose current view matched nothing is a filter
-		// story, and DataViews' own "No results" tells it.
-		return renderDataViews();
+		return (
+			<DataViews< LibraryItem >
+				data={ renderedItems }
+				fields={ libraryFields }
+				actions={ actions }
+				view={ view }
+				onChangeView={ onChangeView }
+				selection={ selection }
+				onChangeSelection={ setSelection }
+				getItemId={ getItemId }
+				paginationInfo={ paginationInfo }
+				isLoading={ isLoading }
+				defaultLayouts={ defaultLayouts }
+			/>
+		);
 	};
-
-	const onCaptionTracksChange = useCallback( () => {
-		void refetch();
-	}, [ refetch ] );
 
 	return (
 		<DashboardLayout
 			activeTab="library"
 			hideFooter
+			// While the onboarding flow is the page, its single-upload edit
+			// session's player slot is the progress surface, so the shared
+			// upload pill stands down for the flow's own queue items — the
+			// same suppression the old /upload route passed.
+			uploadPillSuppressContext={ showOnboarding ? UPLOAD_CONTEXT : undefined }
+			// `isAtLimit` is false until the plan count lands, so a button
+			// painted before then reads `aria-disabled=false` on a site that is
+			// at its limit — briefly live, and refusing the click it invited.
+			// Home already holds its copy of this button back until it has
+			// something true to say; this one waits for the count that decides
+			// its state, and arrives alongside the grid it sits above.
+			// `listingOwnsSurface`: while the onboarding flow is the page, its
+			// dropzone is the one upload affordance — a second one in the
+			// header would race it.
 			actions={
-				<>
-					<input
-						ref={ filePickerRef }
-						type="file"
-						accept="video/*"
-						// The capped free tier can only ever host `limit` videos, so
-						// multi-select there would only produce skipped-file notices;
-						// paid and grandfathered-unlimited plans get bulk selection.
-						multiple={ ! isFree || isUnlimited }
-						style={ { display: 'none' } }
-						onChange={ onFilePicked }
-					/>
-					<Tooltip
-						text={
-							isAtLimit
-								? FREE_TIER_AT_LIMIT_MESSAGE
-								: __( 'Upload a new video', 'jetpack-videopress-pkg' )
-						}
-					>
-						<Button
-							className="vp-library__upload-button"
-							size="compact"
-							onClick={ onClickHeaderUpload }
-							aria-disabled={ isAtLimit }
+				isPlanSettled && listingOwnsSurface ? (
+					<>
+						<input
+							ref={ filePickerRef }
+							type="file"
+							// The allow-list, not `video/*`, which offered `.webm`
+							// and `.mkv` — real videos this backend refuses — and
+							// then had to turn them away after the user had picked
+							// one. Same attribute, same reason, as the shared
+							// dropzone's input.
+							accept={ videoFileAccept() }
+							// The capped free tier can only ever host `limit` videos, so
+							// multi-select there would only produce skipped-file notices;
+							// paid and grandfathered-unlimited plans get bulk selection.
+							multiple={ ! isFree || isUnlimited }
+							style={ { display: 'none' } }
+							onChange={ onFilePicked }
+						/>
+						<Tooltip
+							text={
+								isAtLimit
+									? FREE_TIER_AT_LIMIT_MESSAGE
+									: __( 'Upload a new video', 'jetpack-videopress-pkg' )
+							}
 						>
-							{ __( 'Upload video', 'jetpack-videopress-pkg' ) }
-						</Button>
-					</Tooltip>
-				</>
+							<Button
+								className="vp-library__upload-button"
+								size="compact"
+								onClick={ onClickHeaderUpload }
+								aria-disabled={ isAtLimit }
+							>
+								{ __( 'Upload video', 'jetpack-videopress-pkg' ) }
+							</Button>
+						</Tooltip>
+					</>
+				) : undefined
 			}
 		>
-			{ isAtLimit && (
+			{ /* The flow's UploadCard renders its own at-limit notice, so the
+			     listing's copy stands down while the flow is the page. */ }
+			{ isAtLimit && listingOwnsSurface && (
 				<div className="vp-library__notice">
-					<FreeTierNotice message={ FREE_TIER_AT_LIMIT_MESSAGE } />
+					<FreeTierNotice />
 				</div>
 			) }
 			<UploadActionsProvider value={ { promoteLocal, retryUpload, openVideoDetails } }>
 				<div className={ `vp-library__viewport vp-library__viewport--${ view.type }` }>
-					<DropZone
-						label={ __( 'Drop videos to upload', 'jetpack-videopress-pkg' ) }
-						onFilesDrop={ handleFilesSelected }
-					/>
+					{ /* The flow brings its own dropzone; two drop targets on one
+					     page would fight over the same files. */ }
+					{ listingOwnsSurface && (
+						<DropZone
+							label={ __( 'Drop videos to upload', 'jetpack-videopress-pkg' ) }
+							onFilesDrop={ onFilesDrop }
+						/>
+					) }
 					{ renderViewport() }
 				</div>
 			</UploadActionsProvider>

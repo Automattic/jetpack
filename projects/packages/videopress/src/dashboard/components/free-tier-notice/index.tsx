@@ -13,26 +13,28 @@ const FREE_PLAN_MESSAGE = __(
 	'jetpack-videopress-pkg'
 );
 
-// The at-limit copy is shared with the Library's disabled-upload tooltip and
-// its at-limit drop notice, so every surface describes the cap identically.
+// Short form of the same fact, for places a full sentence does not fit: the
+// disabled-upload tooltips and the rejected-drop toast. The persistent notice
+// always uses the long copy above.
 export const FREE_TIER_AT_LIMIT_MESSAGE = __(
 	'You’ve reached the free plan’s 1-video limit. Upgrade to upload more.',
 	'jetpack-videopress-pkg'
 );
 
-// Stable id for the at-limit toast, so a user who keeps dropping files at the
+// Stable id for the toast form above, so a user who keeps dropping files at the
 // limit refreshes one notice instead of stacking a column of identical black
 // bars: the notices store drops an existing notice with the same id on create.
-// Shared across surfaces on purpose — the plan is one fact, and only one of
-// these surfaces is on screen at a time.
+// Same technique as the delete notices in routes/video/stage.tsx and
+// routes/library/stage.tsx. Shared across surfaces on purpose — the plan is one
+// fact, and only one of these surfaces is on screen at a time.
 export const FREE_TIER_AT_LIMIT_NOTICE_ID = 'vp-upload-at-limit';
 
 /**
- * Permanent (non-dismissible) free-plan upgrade Notice. The Overview tab
- * renders it for every free-tier user with the default free-plan copy; the
- * Library and Settings tabs render it once the free upload is used, with the
- * at-limit copy, so the disabled upload path always comes with a visible
- * upgrade path (VIDP-311). The `@wordpress/ui` Notice compound API expresses
+ * Permanent (non-dismissible) free-plan upgrade Notice, rendered wherever a
+ * free-tier user needs a visible upgrade path (VIDP-311). Every surface says
+ * the same sentence: the notice used to switch to a shorter at-limit line on
+ * some tabs, which meant the same banner read differently depending on where
+ * you happened to be standing. The `@wordpress/ui` Notice compound API expresses
  * non-dismissibility by omitting `<Notice.CloseIcon>` rather than via a
  * boolean prop.
  *
@@ -64,8 +66,15 @@ export default function FreeTierNotice( {
 		[ runUpgrade ]
 	);
 
+	/*
+	 * `Notice.Root` speaks its children on mount unless `spokenMessage` says
+	 * otherwise. This notice renders on all five screens, so the default
+	 * re-announced a permanent plan state on every navigation. An empty string
+	 * short-circuits the `speak()` call entirely; the notice is still read
+	 * normally when the user reaches it.
+	 */
 	return (
-		<Notice.Root intent="info">
+		<Notice.Root intent="info" spokenMessage="">
 			<Notice.Description>{ message }</Notice.Description>
 			<Notice.Actions>
 				<Notice.ActionLink href="#" onClick={ handleUpgradeClick }>

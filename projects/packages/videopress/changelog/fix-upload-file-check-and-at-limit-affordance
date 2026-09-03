@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Dashboard: Reject files that are not really videos before they are uploaded, dim the upload button at the free plan's limit, and stop repeated blocked drops stacking duplicate notices.

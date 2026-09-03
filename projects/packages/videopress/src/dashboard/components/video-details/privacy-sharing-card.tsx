@@ -52,7 +52,9 @@ export default function PrivacySharingCard( {
 		<CollapsibleCard.Root>
 			<CollapsibleCard.Header>
 				<Stack direction="row" gap="sm" align="center" justify="space-between">
-					<Card.Title>{ __( 'Privacy & sharing', 'jetpack-videopress-pkg' ) }</Card.Title>
+					<Card.Title render={ <h2 /> }>
+						{ __( 'Privacy & sharing', 'jetpack-videopress-pkg' ) }
+					</Card.Title>
 					<CollapsibleCard.HeaderDescription>
 						<Text className="vp-video-details__summary">{ currentPrivacyLabel }</Text>
 					</CollapsibleCard.HeaderDescription>

@@ -70,7 +70,7 @@ function SubtitlesCardContent( { video, onManageSubtitles }: Props ): ReactEleme
 	return (
 		<Card.Root>
 			<Card.Header>
-				<Card.Title>{ __( 'Subtitles', 'jetpack-videopress-pkg' ) }</Card.Title>
+				<Card.Title render={ <h2 /> }>{ __( 'Subtitles', 'jetpack-videopress-pkg' ) }</Card.Title>
 			</Card.Header>
 			<Card.Content>
 				{ /*
