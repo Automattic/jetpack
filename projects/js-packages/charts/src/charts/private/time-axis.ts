@@ -43,9 +43,9 @@ const MONTH_TICK = { month: 'short' } as const;
 /**
  * A tick format, carrying the boundary test that decides its coarser label.
  *
- * A band scale samples by index, so `getBandTickValues` has to steer ticks onto
- * the boundaries a format prints the date or the year at. Hanging the test off
- * the format that branches on it keeps the two from drifting apart.
+ * Tick selection steers onto the boundaries a format prints the date or the year
+ * at. Hanging the test off the format that branches on it keeps the two from
+ * drifting apart.
  */
 export type TickFormat = ( ( timestamp: number ) => string ) & {
 	isAnchor?: ( date: Date ) => boolean;
@@ -238,17 +238,17 @@ const getCandidateSteps = ( length: number, maxTicks: number, anchorSpacing: num
 };
 
 /**
- * Tick values for a band time axis.
+ * Tick values sampled by index, for the bar chart's band axis and for evenly
+ * spaced points on a continuous one.
  *
- * visx samples a band domain by index from offset zero, blind to which labels
- * carry a boundary and without collapsing repeats — so the tick that prints the
- * year or the date often isn't sampled at all, and a long series can show the
- * same label twice. Choose the values instead: sweep the evenly spaced
- * candidates, including those that step from anchor to anchor, and keep the one
- * that reaches the most anchors without thinning the axis or putting two
- * identical labels side by side.
+ * visx samples by index from offset zero, blind to which labels carry a boundary
+ * and without collapsing repeats — so the tick that prints the year or the date
+ * often isn't sampled at all, and a long series can show the same label twice.
+ * Choose the values instead: sweep the evenly spaced candidates, including those
+ * that step from anchor to anchor, and keep the one that reaches the most anchors
+ * without thinning the axis or putting two identical labels side by side.
  *
- * @param domain        - Band domain, in axis order.
+ * @param domain        - Buckets in axis order.
  * @param tickFormatter - Formatter the axis will render these values with.
  * @param maxTicks      - Most ticks the axis should carry.
  * @return Values to hand the axis as `tickValues`.
@@ -297,9 +297,8 @@ export const getBandTickValues = (
 	// uneven number of buckets apart are still all reachable — a wall-clock day
 	// is 23 buckets of hourly data across a spring-forward DST transition, and a
 	// fixed stride drifts off midnight for the rest of the span.
-	// From the sparsest stride that could still overflow the axis: anything
-	// denser is rejected below, and every point opening a new label is an anchor,
-	// so the list is as long as the domain on daily data.
+	// Denser strides than this exceed `maxTicks` and `consider` drops them, which
+	// matters because on daily data every bucket opens a label and anchors.
 	const minStride = Math.max( 1, Math.ceil( anchorIndices.length / maxTicks ) );
 	for ( let stride = minStride; stride <= anchorIndices.length; stride++ ) {
 		const stepped: number[] = [];
@@ -313,9 +312,7 @@ export const getBandTickValues = (
 		return [ domain[ 0 ] ];
 	}
 
-	// An anchor is worth at most one tick. Ranking anchors above density outright
-	// collapsed ordinary monthly axes to two ticks — worse than sampling by index,
-	// which at least stayed dense — while ignoring anchors leaves the year unnamed.
+	// An anchor is worth at most one tick, so density wins ties.
 	const densest = candidates.reduce( ( most, indices ) => Math.max( most, indices.length ), 0 );
 	// Re-reading `isAnchor` here would run a time-zone-aware clock once per index
 	// per candidate; the indices it would answer for are already known.
@@ -342,8 +339,8 @@ export const getBandTickValues = (
 export const getMaxTicksForWidth = ( chartWidth: number ): number =>
 	Math.max( 1, Math.floor( chartWidth / X_TICK_WIDTH ) );
 
-// How much of a label's own width two ticks may share before they collide.
-const OVERLAP_RATIO = 0.9;
+// The smallest gap two ticks may keep, as a fraction of one label's width.
+const MIN_GAP_IN_LABELS = 0.9;
 
 // Closest value in a sorted list.
 const nearestValue = ( sorted: number[], target: number ) => {
@@ -384,7 +381,7 @@ const getPositionTickValues = (
 	const labels = points.map( point => tickFormatter( point.getTime() ) );
 	// The same width `isIndexSamplingUnusable` rejects a selection for, so the
 	// fallback cannot emit the overlap it was reached to avoid.
-	const minGap = ( ( last - first ) / maxTicks ) * OVERLAP_RATIO;
+	const minGap = ( ( last - first ) / maxTicks ) * MIN_GAP_IN_LABELS;
 	const anchors = getAnchorIndices( points, tickFormatter, labels ).map( index => times[ index ] );
 
 	const chosen: number[] = [];
@@ -441,7 +438,7 @@ const isIndexSamplingUnusable = ( ticks: Date[], points: Date[], maxTicks: numbe
 		);
 
 	return (
-		closest < ( span / maxTicks ) * OVERLAP_RATIO ||
+		closest < ( span / maxTicks ) * MIN_GAP_IN_LABELS ||
 		ticks.length < Math.min( maxTicks, points.length ) / 3
 	);
 };

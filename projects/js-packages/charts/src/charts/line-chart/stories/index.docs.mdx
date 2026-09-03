@@ -475,6 +475,11 @@ Add contextual information to highlight specific data points or events. For comp
 
 Enable rich interactive tooltips with optional crosshair guides:
 
+The built-in tooltip names the bucket at its own granularity, down to the hour on
+hourly data. A custom `renderTooltip` is handed the same classification as
+`bucketInfo`, so it can label the bucket the way the chart's own axis does. See
+[Date Bucket Classification](?path=/docs/js-packages-charts-library-global-context--docs).
+
 <Source
 	language="jsx"
 	code={ `<LineChart
