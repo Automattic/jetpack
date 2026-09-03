@@ -186,6 +186,7 @@ class Admin_Page_Test extends BaseTestCase {
 			),
 			$data['podcast']['upgrade']
 		);
+		$this->assertTrue( $data['podcast']['credit_forced'] );
 	}
 
 	/**
@@ -206,6 +207,7 @@ class Admin_Page_Test extends BaseTestCase {
 			$data['podcast']['upgrade']
 		);
 		$this->assertTrue( $data['podcast']['has_product_access'] );
+		$this->assertFalse( $data['podcast']['credit_forced'] );
 	}
 
 	/**

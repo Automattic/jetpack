@@ -10,6 +10,7 @@ import {
 	SelectControl,
 	TextControl,
 	TextareaControl,
+	ToggleControl,
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
 	__experimentalHStack as HStack,
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
@@ -18,10 +19,11 @@ import {
 	__experimentalVStack as VStack,
 } from '@wordpress/components';
 import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import CategoryPicker from '../category-picker';
 import { usePodcastSettings, useUpdatePodcastSettings } from '../hooks/use-podcast-settings';
 import { getValidationIssues } from '../hooks/use-validation-issues';
+import { getUpgradePlanName } from '../upgrade';
 import CoverImageControl from './cover-image-control';
 import './style.scss';
 import { TOPICS } from './topics';
@@ -34,6 +36,9 @@ const EXPLICIT_OPTIONS: Array< { label: string; value: string } > = [
 ];
 
 const feedLimitMax = getScriptData()?.podcast?.feed_limit_max;
+
+// WordPress.com sites without podcast plan access always carry the feed credit.
+const isCreditForced = getScriptData()?.podcast?.credit_forced === true;
 
 // Flatten the Apple Podcasts topic tree into one searchable token list for
 // `FormTokenField`. Display strings use `Primary » Subtopic` (matching
@@ -245,6 +250,10 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 	);
 	const handleExplicitChange = useCallback(
 		( value: string ) => commit( { podcasting_explicit: value === 'yes' } ),
+		[ commit ]
+	);
+	const handleCreditChange = useCallback(
+		( value: boolean ) => commit( { podcasting_credit: value } ),
 		[ commit ]
 	);
 	const handleCoverSelect = useCallback(
@@ -505,6 +514,28 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 							) }
 							disabled={ isLocked }
 							{ ...feedLimitField }
+						/>
+						<ToggleControl
+							__nextHasNoMarginBottom
+							label={ __( 'Credit Jetpack Podcast in your feed', 'jetpack-podcast' ) }
+							help={
+								isCreditForced
+									? sprintf(
+											/* translators: %s: plan name, e.g. Premium */
+											__(
+												'Adds a "Made with Jetpack Podcast" line, with a link to your site, to your show description and every episode. Your plan includes this credit; upgrade to %s to turn it off.',
+												'jetpack-podcast'
+											),
+											getUpgradePlanName()
+									  )
+									: __(
+											'Adds a "Made with Jetpack Podcast" line, with a link to your site, to your show description and every episode.',
+											'jetpack-podcast'
+									  )
+							}
+							checked={ isCreditForced || draft.podcasting_credit }
+							onChange={ handleCreditChange }
+							disabled={ isLocked || isCreditForced }
 						/>
 					</VStack>
 				</CardBody>

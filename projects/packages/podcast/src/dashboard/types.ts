@@ -29,6 +29,7 @@ export interface PodcastSettings {
 	podcasting_show_urls: PodcastShowUrls;
 	podcasting_show_states: PodcastShowStates;
 	podcasting_feed_limit: number;
+	podcasting_credit: boolean;
 	// Read-only: canonical category feed URL derived server-side via
 	// get_term_feed_link(). Never sent back in an update.
 	podcasting_feed_url: string;

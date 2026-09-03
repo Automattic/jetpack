@@ -58,6 +58,7 @@ const PODCAST_KEYS: Array< keyof PodcastSettings > = [
 	'podcasting_show_urls',
 	'podcasting_show_states',
 	'podcasting_feed_limit',
+	'podcasting_credit',
 	'podcasting_feed_url',
 ];
 
@@ -112,7 +113,7 @@ const pickPodcastFields = ( raw: Record< string, unknown > ): PodcastSettings =>
 		const value = raw[ key ];
 		if ( numericKey( key ) ) {
 			out[ key ] = typeof value === 'number' ? value : Number( value ?? 0 ) || 0;
-		} else if ( key === 'podcasting_explicit' ) {
+		} else if ( key === 'podcasting_explicit' || key === 'podcasting_credit' ) {
 			out[ key ] = Boolean( value );
 		} else if ( key === 'podcasting_show_urls' ) {
 			out[ key ] = normalizeShowUrls( value );

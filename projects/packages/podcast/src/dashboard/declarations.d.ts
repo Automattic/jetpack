@@ -2,6 +2,7 @@ declare module '@automattic/jetpack-script-data' {
 	interface JetpackScriptData {
 		podcast?: {
 			has_product_access?: boolean;
+			credit_forced?: boolean;
 			is_connected?: boolean;
 			show_url_hosts?: Record< string, readonly string[] >;
 			show_url_max_length?: number;
