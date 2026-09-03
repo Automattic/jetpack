@@ -51,6 +51,11 @@ function useAnchorRect( anchor: Element | null ): DOMRect | null {
 			return undefined;
 		}
 
+		// jsdom has no scrollIntoView.
+		if ( typeof anchor.scrollIntoView === 'function' ) {
+			anchor.scrollIntoView( { block: 'nearest' } );
+		}
+
 		const update = () => setRect( anchor.getBoundingClientRect() );
 		update();
 
