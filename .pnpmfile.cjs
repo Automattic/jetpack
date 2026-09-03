@@ -79,6 +79,13 @@ async function fixDeps( pkg ) {
 		}
 	}
 
+	// lock()/unlock() pair through a module-scoped registry, so the dev-release
+	// widget-dashboard's prerelease range would resolve a second copy and throw.
+	// Remove with the prerelease pins in premium-analytics.
+	if ( pkg.dependencies?.[ '@wordpress/private-apis' ] ) {
+		pkg.dependencies[ '@wordpress/private-apis' ] = '1.54.2-next.v.202609031004.0';
+	}
+
 	// Unused, vulnerable dep.
 	if (
 		pkg.name === '@automattic/components' &&
