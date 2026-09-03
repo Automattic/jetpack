@@ -27,3 +27,9 @@ export const DASHBOARD_GRID_SETTINGS_KEY = 'dashboardGridSettings';
 
 /** REST namespace that exposes Premium Analytics dashboard endpoints. */
 export const DASHBOARD_REST_NAMESPACE = 'wpcom/v2';
+
+/** Preferences key holding when the reader completed or dismissed the onboarding, as an ISO date. */
+export const DASHBOARD_ONBOARDING_KEY = 'onboardingCompletedAt';
+
+/** Query argument that reopens the onboarding regardless of the stored preference, for QA. */
+export const ONBOARDING_FORCE_QUERY_ARG = 'jetpack_premium_analytics_onboarding';

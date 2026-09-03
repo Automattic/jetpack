@@ -10,6 +10,7 @@ import {
 	DateFiltersPanel,
 	DateIntervalDropdown,
 	DateYearFilter,
+	OnboardingWelcomeModal,
 	SectionHeader,
 	SectionTabPanel,
 	StatsBreadcrumbs,
@@ -35,12 +36,14 @@ import {
 	isSectionAwaitingSync,
 	offersDateComparison,
 	resolveSectionHeading,
+	resolveSectionId,
 } from './config';
 import {
 	useActiveSection,
 	useDashboardGridSettings,
 	useDashboardSectionLayout,
 	useDashboardSections,
+	useOnboarding,
 	useSectionDateFilter,
 } from './hooks';
 import styles from './stage.module.scss';
@@ -107,6 +110,15 @@ function Dashboard(): JSX.Element {
 	);
 
 	const [ editMode, setEditMode ] = useState( false );
+
+	// The journey introduces the default section at rest: not another tab, and
+	// not while the reader is already customizing.
+	const onboarding = useOnboarding( {
+		enabled:
+			hasResolvedSections &&
+			! editMode &&
+			activeSection === resolveSectionId( undefined, sections ),
+	} );
 
 	// Only the widgets this section renders need metadata at boot; the full registry
 	// waits for edit mode. `null` until sections resolve, since the layout is empty until then.
@@ -279,6 +291,12 @@ function Dashboard(): JSX.Element {
 						</DashboardSections>
 
 						<WidgetDashboard.Commands />
+
+						<OnboardingWelcomeModal
+							open={ onboarding.phase === 'modal' }
+							onStart={ onboarding.start }
+							onDismiss={ onboarding.dismiss }
+						/>
 					</Page>
 				</WidgetDashboard>
 			</ReportScopeProvider>
