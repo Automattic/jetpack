@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { SpotlightStep, type SpotlightStepProps } from '@jetpack-premium-analytics/ui';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 export type OnboardingTourStep = Pick<
 	SpotlightStepProps,
@@ -37,11 +37,15 @@ export function OnboardingTour( { steps, current, onNext, onDismiss }: Onboardin
 	const step = steps[ current ];
 	const anchor = step?.anchor ?? null;
 
+	// Skip a step at most once: the parent re-renders before it moves on, and a
+	// second call would advance past the next step too.
+	const skippedRef = useRef< number | null >( null );
 	useEffect( () => {
-		if ( step && ! anchor ) {
+		if ( step && ! anchor && skippedRef.current !== current ) {
+			skippedRef.current = current;
 			onNext();
 		}
-	}, [ step, anchor, onNext ] );
+	}, [ step, anchor, current, onNext ] );
 
 	if ( ! step || ! anchor ) {
 		return null;
