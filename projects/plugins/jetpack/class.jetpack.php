@@ -2377,7 +2377,7 @@ class Jetpack {
 		// Don't activate SSO if they never completed activating WPCC.
 		if ( self::is_module_active( 'wpcc' ) ) {
 			$wpcc_options = Jetpack_Options::get_option( 'wpcc_options' );
-			if ( empty( $wpcc_options ) || empty( $wpcc_options['client_id'] ) || empty( $wpcc_options['client_id'] ) ) {
+			if ( empty( $wpcc_options ) || empty( $wpcc_options['client_id'] ) ) {
 				$deprecated_modules['wpcc'] = null;
 			}
 		}
