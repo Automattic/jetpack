@@ -9,7 +9,7 @@ import {
 import { MenuGroup, MenuItem, PanelBody, ToolbarDropdownMenu } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { useEffect, useState } from '@wordpress/element';
+import { useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { arrowDown, Icon, people, check } from '@wordpress/icons';
 import ConnectBanner from '../../shared/components/connect-banner';
@@ -27,14 +27,17 @@ function PaywallEdit( { clientId } ) {
 	const setAccess = useSetAccess();
 	const { getBlock } = useSelect( blockEditorStore );
 
-	// Reset access level to "everybody" when the paywall block is removed.
+	// useSetAccess returns a new function every render; the ref keeps the cleanup on unmount only.
+	const setAccessRef = useRef( setAccess );
+	setAccessRef.current = setAccess;
 	useEffect( () => {
+		// Reset access level to "everybody" when the paywall block is removed.
 		return () => {
 			if ( ! getBlock( clientId ) ) {
-				setAccess( accessOptions.everybody.key );
+				setAccessRef.current( accessOptions.everybody.key );
 			}
 		};
-	}, [ clientId, getBlock, setAccess ] );
+	}, [ clientId, getBlock ] );
 
 	const { stripeConnectUrl, hasTierPlans } = useSelect( select => {
 		const { getNewsletterTierProducts, getConnectUrl } = select( 'jetpack/membership-products' );
