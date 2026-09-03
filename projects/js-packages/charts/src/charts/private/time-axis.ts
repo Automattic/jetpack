@@ -334,6 +334,9 @@ export const getBandTickValues = (
 export const getMaxTicksForWidth = ( chartWidth: number ): number =>
 	Math.max( 1, Math.floor( chartWidth / X_TICK_WIDTH ) );
 
+// How much of a label's own width two ticks may share before they collide.
+const OVERLAP_RATIO = 0.9;
+
 // Closest value in a sorted list.
 const nearestValue = ( sorted: number[], target: number ) => {
 	let low = 0;
@@ -370,6 +373,9 @@ const getPositionTickValues = (
 
 	const count = Math.min( maxTicks, times.length );
 	const step = ( last - first ) / ( count - 1 );
+	// The same width `isIndexSamplingUnusable` rejects a selection for, so the
+	// fallback cannot emit the overlap it was reached to avoid.
+	const minGap = ( ( last - first ) / maxTicks ) * OVERLAP_RATIO;
 	const { isAnchor } = tickFormatter;
 	const anchors = isAnchor ? times.filter( ( _, index ) => isAnchor( points[ index ] ) ) : [];
 
@@ -386,10 +392,10 @@ const getPositionTickValues = (
 			tick = Math.abs( point - target ) <= step / 2 ? point : target;
 		}
 
-		// Two targets can reach for the same anchor, and a snap can land back
-		// behind the tick before it.
+		// Two targets can reach for the same anchor, and snapping can pull a pair
+		// close enough to collide even though their targets were a step apart.
 		const previous = chosen[ chosen.length - 1 ];
-		if ( previous !== undefined && ( tick <= previous || tick - previous < step * 0.6 ) ) {
+		if ( previous !== undefined && ( tick <= previous || tick - previous < minGap ) ) {
 			continue;
 		}
 
@@ -427,7 +433,8 @@ const isIndexSamplingUnusable = ( ticks: Date[], points: Date[], maxTicks: numbe
 		);
 
 	return (
-		closest < ( span / maxTicks ) * 0.9 || ticks.length < Math.min( maxTicks, points.length ) / 3
+		closest < ( span / maxTicks ) * OVERLAP_RATIO ||
+		ticks.length < Math.min( maxTicks, points.length ) / 3
 	);
 };
 
