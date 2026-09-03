@@ -86,12 +86,18 @@ describe( 'time axis tick invariants', () => {
 				),
 			].sort( ( a, b ) => a - b );
 
-			// Half the runs read a zoom window rather than the whole extent.
+			// Half the runs read a domain rather than the whole extent, and some of
+			// those reach well past the data, which is what a brush dragged over a
+			// sparse stretch hands the axis.
 			let domain: [ Date, Date ] | undefined;
 			if ( random() < 0.5 && points.length > 1 ) {
 				const one = points[ Math.floor( random() * points.length ) ];
 				const other = points[ Math.floor( random() * points.length ) ];
-				domain = [ new Date( Math.min( one, other ) ), new Date( Math.max( one, other ) ) ];
+				const padding = random() < 0.5 ? Math.floor( random() * 2000 ) * HOUR : 0;
+				domain = [
+					new Date( Math.min( one, other ) - padding ),
+					new Date( Math.max( one, other ) + padding ),
+				];
 			}
 
 			const ticks = getTimeAxisTickValues( data, domain, formatter, maxTicks );
@@ -108,8 +114,9 @@ describe( 'time axis tick invariants', () => {
 
 			const times = ticks.map( tick => tick.getTime() );
 			const labels = ticks.map( tick => formatter( tick.getTime() ) );
-			const first = visible[ 0 ];
-			const last = visible[ visible.length - 1 ];
+			// Ticks answer to the scale, which spans the domain when there is one.
+			const first = domain ? domain[ 0 ].getTime() : visible[ 0 ];
+			const last = domain ? domain[ 1 ].getTime() : visible[ visible.length - 1 ];
 			const note = ( why: string ) =>
 				failures.push(
 					`run ${ run }: ${ why } (points ${ visible.length }, maxTicks ${ maxTicks }, ${ timeZone }, resolution ${ resolution })`

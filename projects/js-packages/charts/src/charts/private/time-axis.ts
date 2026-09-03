@@ -366,18 +366,19 @@ const nearestValue = ( sorted: number[], target: number ) => {
 const getPositionTickValues = (
 	points: Date[],
 	tickFormatter: TickFormat,
-	maxTicks: number
+	maxTicks: number,
+	axis: { first: number; last: number }
 ): Date[] => {
 	const times = points.map( point => point.getTime() );
-	const first = times[ 0 ];
-	const last = times[ times.length - 1 ];
+	const { first, last } = axis;
 
 	if ( maxTicks <= 1 || times.length === 1 || first === last ) {
 		return [ points[ 0 ] ];
 	}
 
-	const count = Math.min( maxTicks, times.length );
-	const step = ( last - first ) / ( count - 1 );
+	// One target per label the axis has room for. Repeats and targets that land
+	// too close are dropped below, so a short series cannot over-tick itself.
+	const step = ( last - first ) / ( maxTicks - 1 );
 	const labels = points.map( point => tickFormatter( point.getTime() ) );
 	// The same width `isIndexSamplingUnusable` rejects a selection for, so the
 	// fallback cannot emit the overlap it was reached to avoid.
@@ -387,7 +388,7 @@ const getPositionTickValues = (
 	const chosen: number[] = [];
 	let lastLabel: string | null = null;
 
-	for ( let index = 0; index < count; index++ ) {
+	for ( let index = 0; index < maxTicks; index++ ) {
 		const target = first + index * step;
 		const anchor = anchors.length ? nearestValue( anchors, target ) : null;
 		let tick = anchor !== null && Math.abs( anchor - target ) <= step / 2 ? anchor : null;
@@ -420,12 +421,19 @@ const getPositionTickValues = (
 // `span / maxTicks` is one label's worth of axis, so a closer pair overlaps, and
 // a selection this much thinner than the axis has room for means the
 // duplicate-label veto in `getBandTickValues` ate every stride.
-const isIndexSamplingUnusable = ( ticks: Date[], points: Date[], maxTicks: number ) => {
+const isIndexSamplingUnusable = (
+	ticks: Date[],
+	points: Date[],
+	maxTicks: number,
+	axis: { first: number; last: number }
+) => {
 	if ( ticks.length < 2 || points.length < 2 ) {
 		return false;
 	}
 
-	const span = points[ points.length - 1 ].getTime() - points[ 0 ].getTime();
+	// The axis, not the data: a domain far wider than the points inside it turns
+	// a comfortable-looking selection into a pile-up in one corner of the scale.
+	const span = axis.last - axis.first;
 	if ( ! span ) {
 		return false;
 	}
@@ -491,10 +499,17 @@ export const getTimeAxisTickValues = (
 		)
 		.map( timestamp => byTimestamp.get( timestamp ) as Date );
 
+	// The scale spans the domain when it has one, and the ticks have to reach
+	// across all of it, not only across the stretch that carries points.
+	const axis = {
+		first: min ?? visible[ 0 ].getTime(),
+		last: max ?? visible[ visible.length - 1 ].getTime(),
+	};
+
 	const ticks = getBandTickValues( visible, tickFormatter, maxTicks );
 
-	return isIndexSamplingUnusable( ticks, visible, maxTicks )
-		? getPositionTickValues( visible, tickFormatter, maxTicks )
+	return isIndexSamplingUnusable( ticks, visible, maxTicks, axis )
+		? getPositionTickValues( visible, tickFormatter, maxTicks, axis )
 		: ticks;
 };
 

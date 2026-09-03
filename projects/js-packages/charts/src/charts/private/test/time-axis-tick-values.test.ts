@@ -199,6 +199,28 @@ describe( 'getTimeAxisTickValues', () => {
 		}
 	} );
 
+	// A brush over a sparse stretch, or a caller's own wide xScale.domain: the
+	// ticks answer to the scale, so they have to reach across all of it rather
+	// than pile into the sliver that carries points.
+	it( 'spreads ticks over a domain far wider than the data inside it', () => {
+		const data = dailySeries( '2026-01-05T00:00:00Z', 6 );
+		const domain: [ Date, Date ] = [
+			new Date( '2026-01-05T00:00:00Z' ),
+			new Date( '2026-03-05T00:00:00Z' ),
+		];
+		const formatter = getFormatter( data, 'day', TOKYO, domain );
+		const maxTicks = getMaxTicksForWidth( 700 );
+		const span = domain[ 1 ].getTime() - domain[ 0 ].getTime();
+
+		const ticks = getTimeAxisTickValues( data, domain, formatter, maxTicks ) as Date[];
+
+		expect( ticks.length ).toBeGreaterThan( maxTicks / 2 );
+		expect( ticks[ ticks.length - 1 ].getTime() ).toBeGreaterThan(
+			domain[ 0 ].getTime() + span * 0.9
+		);
+		expect( closestGap( ticks ) ).toBeGreaterThanOrEqual( ( span / maxTicks ) * 0.9 );
+	} );
+
 	// Japan has no DST, so the Tokyo fixture cannot reach this. New York can.
 	// 2026-03-08 is spring forward: the local day is 23 hours long.
 	it( 'names the first host zone midnights across spring forward, then drifts an hour', () => {
