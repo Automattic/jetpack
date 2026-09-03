@@ -15,3 +15,10 @@
 	inset-block-start: var(--wpds-dimension-padding-xs);
 	inset-inline-end: var(--wpds-dimension-padding-xs);
 }
+
+@media (max-width: 900px) and (orientation: landscape) {
+
+	.stage {
+		display: none;
+	}
+}
