@@ -23,9 +23,10 @@ jest.mock( '@wordpress/route', () => ( {
 } ) );
 
 // Imports must come after the jest.mock factories above.
+import { onlineManager } from '@tanstack/react-query';
 import { render, screen } from '@testing-library/react';
 import { stage as OverviewStage } from '../routes/dashboard/stage';
-import { queryClient } from '../src/dashboard/data/query-client';
+import { keys, queryClient } from '../src/dashboard/data/query-client';
 
 const CONNECTED = { isRegistered: true, hasConnectedOwner: true, isUserConnected: true };
 
@@ -122,6 +123,12 @@ beforeEach( () => {
 	} as typeof window.JP_CONNECTION_INITIAL_STATE;
 } );
 
+afterEach( () => {
+	// `onlineManager` is a module singleton, so an offline test leaves every
+	// later one in this file parking its requests.
+	onlineManager.setOnline( true );
+} );
+
 describe( 'Overview takeover', () => {
 	it( 'replaces the body on a genuinely empty site', async () => {
 		mockEndpoints( { backups: [], activity: [] } );
@@ -152,6 +159,32 @@ describe( 'Overview takeover', () => {
 		expect(
 			screen.queryByText( 'Your first cloud backup will be ready soon' )
 		).not.toBeInTheDocument();
+	} );
+
+	// JETPACK-2491 — `networkMode: 'online'` parks the activity read for an
+	// offline browser rather than failing it, so it is neither loading nor
+	// errored and holds no rows. The veto lifted on a question nobody asked,
+	// and an established site was told its first backup was on its way.
+	it( 'does not take over when the activity request was parked, not answered', async () => {
+		mockEndpoints( { backups: [] } );
+		// Warmed so the gate and the backup state both have an answer, leaving
+		// the activity log as the only read the offline browser parks.
+		queryClient.setQueryData( keys.capabilities(), { hasBackupPlan: true, hasScan: false } );
+		queryClient.setQueryData( keys.backups(), [] );
+		onlineManager.setOnline( false );
+
+		render( <OverviewStage /> );
+
+		// The header renders above the body either way, so waiting on it
+		// settles the render without deciding what this test asserts.
+		await expect(
+			screen.findByRole( 'button', { name: 'Back up now' } )
+		).resolves.toBeInTheDocument();
+
+		expect(
+			screen.queryByText( 'Your first cloud backup will be ready soon' )
+		).not.toBeInTheDocument();
+		expect( screen.getByRole( 'group', { name: 'Backup activity' } ) ).toBeInTheDocument();
 	} );
 
 	it( 'still takes over when the activity log holds no backup rows', async () => {

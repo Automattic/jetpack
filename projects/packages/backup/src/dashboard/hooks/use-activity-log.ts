@@ -219,19 +219,21 @@ export function useDefaultBackupRewindId(): string | null {
  * is paginated over the full retention window and does not have that
  * blind spot.
  *
- * `isError` is reported separately from `isLoading` because callers must
- * treat the two the same way and React Query does not. A failed query is
- * not loading and holds no rows, so `hasRestorePoints` comes back a
+ * `isError` and `isPaused` are reported separately from `isLoading`
+ * because callers must treat all three the same way and React Query does
+ * not. A query that failed, and one parked because the browser is offline,
+ * are both not loading and hold no rows, so `hasRestorePoints` comes back a
  * confident `false` for a question that was never actually answered —
  * which is indistinguishable, to a caller reading only the first two
  * values, from a site that genuinely has no restore points.
  *
- * @return Whether a restore point is visible, whether the answer has loaded, and whether asking failed.
+ * @return Whether a restore point is visible, whether the answer has loaded, and whether asking failed or was parked.
  */
 export function useHasRestorePoints(): {
 	hasRestorePoints: boolean;
 	isLoading: boolean;
 	isError: boolean;
+	isPaused: boolean;
 } {
 	const query = useActivityPageQuery( 1, ACTIVITY_LOG_DEFAULT_PER_PAGE, ACTIVITY_LOG_NEWEST_FIRST );
 	const hasRestorePoints = useMemo(
@@ -241,7 +243,12 @@ export function useHasRestorePoints(): {
 			),
 		[ query.data ]
 	);
-	return { hasRestorePoints, isLoading: query.isLoading, isError: query.isError };
+	return {
+		hasRestorePoints,
+		isLoading: query.isLoading,
+		isError: query.isError,
+		isPaused: query.isPaused,
+	};
 }
 
 /**
