@@ -173,6 +173,32 @@ describe( 'getTimeAxisTickValues', () => {
 		expect( localTimes( ticks, TOKYO.timeZone ) ).toEqual( ticks.map( () => '00:00' ) );
 	} );
 
+	// Both tick paths have to honour the same anchors: the fallback used to read
+	// only the boundary-test kind, so a date tick could sit hours into its day.
+	it( 'opens the day on unevenly sampled hourly data, where ticks come from position', () => {
+		const dates = Array.from( { length: 10 * 24 }, ( _, index ) => index )
+			.filter( index => index % 7 !== 3 && index % 11 !== 5 )
+			.map( index => new Date( Date.UTC( 2026, 7, 1, 15 + index ) ) );
+		const data: SeriesData[] = [
+			{ label: 'views', data: dates.map( ( date, index ) => ( { date, value: index } ) ) },
+		];
+		const formatter = getFormatter( data, 'hour', TOKYO );
+
+		const ticks = getTimeAxisTickValues(
+			data,
+			undefined,
+			formatter,
+			getMaxTicksForWidth( 700 )
+		) as Date[];
+
+		expect( ticks.length ).toBeGreaterThan( 4 );
+		for ( const tick of ticks ) {
+			const label = formatter( tick.getTime() );
+			const opensTheDay = dates.find( date => formatter( date.getTime() ) === label );
+			expect( tick.getTime() ).toBe( opensTheDay?.getTime() );
+		}
+	} );
+
 	// Japan has no DST, so the Tokyo fixture cannot reach this. New York can.
 	// 2026-03-08 is spring forward: the local day is 23 hours long.
 	it( 'names the first host zone midnights across spring forward, then drifts an hour', () => {

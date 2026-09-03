@@ -236,6 +236,21 @@ describe( 'buildTimeAxisOptions', () => {
 		expect( 'numTicks' in build() ).toBe( false );
 	} );
 
+	// A date the host could not parse arrives as `new Date( NaN )`. Left in the
+	// span it turns the domain, the formatter and the tick count into NaN, and
+	// visx reads the resulting `numTicks: 0` as "label nothing".
+	it( 'still labels the axis when a series ends on an unparsable date', () => {
+		const [ series ] = dailySeries( '2026-08-01T15:00:00Z', 4 );
+		const withBadDate = [
+			{ ...series, data: [ ...series.data, { date: new Date( NaN ), value: 5 } ] },
+		];
+
+		const options = build( { dataSorted: withBadDate } );
+
+		expect( options.tickValues?.length ).toBeGreaterThan( 0 );
+		expect( options.numTicks ?? 1 ).toBeGreaterThan( 0 );
+	} );
+
 	it( 'reads the resolution from the series it renders, not the hidden ones', () => {
 		const dataSorted = [
 			{ ...hourlySeries( '2026-08-01T00:00:00Z', 48 )[ 0 ], label: 'hidden' },

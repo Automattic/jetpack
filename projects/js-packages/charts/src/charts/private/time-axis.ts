@@ -99,9 +99,14 @@ const tickFormats = ( formatting: ChartFormatting ) => {
 // than folded in: an empty comparison series is legitimate, and one undefined
 // bound would turn the whole span into NaN. Null when nothing is dated.
 const getSpan = ( sortedData: ReturnType< typeof useChartDataTransform > ) => {
+	// An unparsable date arrives as `new Date( NaN )`, and one of those at either
+	// end would carry NaN through the span into the domain, the formatter and the
+	// tick count, leaving the axis silently unlabelled.
 	const bounds = sortedData
 		.map( datom => [ datom.data.at( 0 )?.date, datom.data.at( -1 )?.date ] )
-		.filter( ( [ first, last ] ) => first !== undefined && last !== undefined );
+		.filter(
+			( [ first, last ] ) => Number.isFinite( Number( first ) ) && Number.isFinite( Number( last ) )
+		);
 
 	if ( ! bounds.length ) {
 		return null;
@@ -152,7 +157,10 @@ export const getFormatter = (
 
 	const diffInHours = Math.abs( differenceInHours( span.maxX, span.minX ) );
 	if ( resolution === 'hour' ) {
-		if ( diffInHours <= 24 ) {
+		// Under a day, not up to one: a span of exactly 24 hours starts and ends on
+		// the same clock time, so bare hours would print one label twice and leave
+		// the second day unnamed.
+		if ( diffInHours < 24 ) {
 			return format.hour;
 		}
 		if ( diffInHours <= 24 * 7 ) {
@@ -178,14 +186,31 @@ export const getSeriesExtent = (
 	return span ? [ new Date( span.minX ), new Date( span.maxX ) ] : undefined;
 };
 
-// Indices of the buckets whose label carries the coarser unit.
-const getAnchorIndices = ( domain: Date[], isAnchor: ( date: Date ) => boolean ) =>
-	domain.reduce< number[] >( ( indices, date, index ) => {
+// Indices of the buckets whose label carries the coarser unit, by whichever
+// anchor the format declares. Both callers steer ticks onto these, so a format
+// that gains one must not have to be taught to each of them separately.
+const getAnchorIndices = ( domain: Date[], tickFormatter: TickFormat, labels: string[] ) => {
+	if ( tickFormatter.anchorsAtLabelChange ) {
+		return labels.reduce< number[] >( ( indices, label, index ) => {
+			if ( index === 0 || label !== labels[ index - 1 ] ) {
+				indices.push( index );
+			}
+			return indices;
+		}, [] );
+	}
+
+	const { isAnchor } = tickFormatter;
+	if ( ! isAnchor ) {
+		return [];
+	}
+
+	return domain.reduce< number[] >( ( indices, date, index ) => {
 		if ( isAnchor( date ) ) {
 			indices.push( index );
 		}
 		return indices;
 	}, [] );
+};
 
 // Index strides worth sampling the domain at. Both roundings of each tick count
 // are needed: flooring alone skips the stride that fits a mid-series anchor on
@@ -241,18 +266,7 @@ export const getBandTickValues = (
 	// the same labels back for every step and offset.
 	const domainLabels = domain.map( date => tickFormatter( date.getTime() ) );
 
-	const { isAnchor } = tickFormatter;
-	let anchorIndices: number[] = [];
-	if ( tickFormatter.anchorsAtLabelChange ) {
-		anchorIndices = domainLabels.reduce< number[] >( ( indices, label, index ) => {
-			if ( index === 0 || label !== domainLabels[ index - 1 ] ) {
-				indices.push( index );
-			}
-			return indices;
-		}, [] );
-	} else if ( isAnchor ) {
-		anchorIndices = getAnchorIndices( domain, isAnchor );
-	}
+	const anchorIndices = getAnchorIndices( domain, tickFormatter, domainLabels );
 
 	const candidates: number[][] = [];
 	const consider = ( indices: number[] ) => {
@@ -367,11 +381,11 @@ const getPositionTickValues = (
 
 	const count = Math.min( maxTicks, times.length );
 	const step = ( last - first ) / ( count - 1 );
+	const labels = points.map( point => tickFormatter( point.getTime() ) );
 	// The same width `isIndexSamplingUnusable` rejects a selection for, so the
 	// fallback cannot emit the overlap it was reached to avoid.
 	const minGap = ( ( last - first ) / maxTicks ) * OVERLAP_RATIO;
-	const { isAnchor } = tickFormatter;
-	const anchors = isAnchor ? times.filter( ( _, index ) => isAnchor( points[ index ] ) ) : [];
+	const anchors = getAnchorIndices( points, tickFormatter, labels ).map( index => times[ index ] );
 
 	const chosen: number[] = [];
 	let lastLabel: string | null = null;
@@ -526,5 +540,5 @@ export const guessOptimalNumTicks = (
 		return ticks.length;
 	}
 
-	return secondBestGuess;
+	return Math.max( 1, secondBestGuess );
 };

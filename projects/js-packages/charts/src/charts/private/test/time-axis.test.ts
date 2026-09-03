@@ -36,6 +36,14 @@ describe( 'getFormatter', () => {
 		expect( formatter( new Date( '2026-08-02T13:00:00' ).getTime() ) ).toMatch( /1\sPM/ );
 	} );
 
+	it( 'dates the ticks when sub-daily data spans exactly a day', () => {
+		const formatter = getFormatter(
+			toSeries( hourlyDates( new Date( '2026-08-02T00:00:00' ), 25 ) )
+		);
+
+		expect( formatter( new Date( '2026-08-03T00:00:00' ).getTime() ) ).toMatch( /Aug 3/ );
+	} );
+
 	it( 'keeps hour ticks up to a full week of sub-daily data', () => {
 		const formatter = getFormatter(
 			toSeries( hourlyDates( new Date( '2026-08-02T00:00:00' ), 24 * 7 + 1 ) )

@@ -459,7 +459,9 @@ describe( 'LineChart', () => {
 			expect( ticks.length ).toBeGreaterThan( 1 );
 		} );
 
-		test( 'known limitation: collapses to one tick when every visible point shares a label', () => {
+		// Exactly 24 hours apart: bare hours would print "12 AM" twice and leave the
+		// second day unnamed, so the span reads as multi-day and dates its ticks.
+		test( 'names both days when two sub-daily points sit a full day apart', () => {
 			renderWithTheme( {
 				width: 800,
 				options: { axis: { x: { tickResolution: 'hour' } } },
@@ -474,8 +476,8 @@ describe( 'LineChart', () => {
 				],
 			} );
 
-			const ticks = screen.getAllByText( /\d+\s(AM|PM)/ );
-			expect( ticks ).toHaveLength( 1 );
+			expect( screen.getByText( 'Jan 1' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Jan 2' ) ).toBeInTheDocument();
 		} );
 
 		test( 'renders ticks in short date format.', () => {
