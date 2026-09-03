@@ -281,22 +281,22 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings extends WP_REST_Controller 
 	}
 
 	/**
-	 * Whether the AI SEO row is available, so the settings page can hide it.
-	 * The row governs user-initiated suggestions as well as automatic
-	 * generation, so it follows the package's shared AI SEO gate.
+	 * Whether the AI SEO row is available, so the settings page can hide it. The
+	 * row is offered only where a surface it governs can run: the sidebar's
+	 * suggestions or the editor's generation.
 	 *
-	 * Guarded with class_exists: the autoloader can pick an older jetpack-seo
-	 * copy from another plugin, predating this class. Without the gate's verdict
-	 * the row is hidden rather than offered.
+	 * Guarded with is_callable: the autoloader can pick an older jetpack-seo copy
+	 * from another plugin, predating this gate. Without its verdict the row is
+	 * hidden rather than offered.
 	 *
 	 * @return bool
 	 */
 	private function is_ai_seo_available() {
-		if ( ! class_exists( Ai_Seo::class ) ) {
+		if ( ! is_callable( array( Ai_Seo::class, 'has_reachable_surface' ) ) ) {
 			return false;
 		}
 
-		return Ai_Seo::is_available();
+		return Ai_Seo::has_reachable_surface();
 	}
 
 	/**
