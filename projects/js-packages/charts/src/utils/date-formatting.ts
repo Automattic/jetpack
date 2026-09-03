@@ -49,31 +49,37 @@ const isUsable = ( formatting: ChartFormatting ): boolean => {
 	}
 };
 
+// WordPress underscores its locales, where BCP-47 wants a hyphen: `get_locale()`
+// returns `en_US` for what Intl knows as `en-US`.
+const toBcp47 = ( locale?: string ) => locale?.replace( /_/g, '-' );
+
 /**
- * Drops a locale or time zone `Intl` cannot use, falling back to the runtime's own.
+ * Repairs a host locale for `Intl`, dropping either half it still cannot use.
  *
  * Every formatter below is built during render, so an unusable string would throw
  * where React unmounts the whole host tree rather than one chart. WordPress hands
- * out both of the likeliest ones: `get_locale()` returns `en_US`, not `en-US`, and
- * `timezone_string` is `''` on a site set to a raw UTC offset.
+ * out the likeliest one either way: `timezone_string` is `''` on a site set to a
+ * raw UTC offset, and has no repair.
  *
  * @param formatting - Locale and time zone as the host supplied them.
  * @return The usable halves, each `undefined` where the host's value was not.
  */
 export const sanitizeFormatting = ( formatting: ChartFormatting ): ChartFormatting => {
-	if ( isUsable( formatting ) ) {
-		return formatting;
+	const repaired = { ...formatting, locale: toBcp47( formatting.locale ) };
+
+	if ( isUsable( repaired ) ) {
+		return repaired;
 	}
 
-	const locale = isUsable( { locale: formatting.locale } ) ? formatting.locale : undefined;
-	const timeZone = isUsable( { timeZone: formatting.timeZone } ) ? formatting.timeZone : undefined;
+	const locale = isUsable( { locale: repaired.locale } ) ? repaired.locale : undefined;
+	const timeZone = isUsable( { timeZone: repaired.timeZone } ) ? repaired.timeZone : undefined;
 
 	if ( locale === undefined && formatting.locale !== undefined ) {
 		warnOnce(
 			`locale:${ formatting.locale }`,
 			`locale ${ JSON.stringify(
 				formatting.locale
-			) } is not a BCP-47 tag Intl accepts, so dates render in the browser's locale. WordPress locales need their underscore replaced: en_US is en-US.`
+			) } is not a BCP-47 tag Intl accepts, so dates render in the browser's locale.`
 		);
 	}
 
@@ -119,7 +125,6 @@ export const createDateFormatter = (
 const CLOCK_OPTIONS: Intl.DateTimeFormatOptions = {
 	month: 'numeric',
 	hour: 'numeric',
-	minute: 'numeric',
 	hourCycle: 'h23',
 };
 
@@ -128,12 +133,11 @@ export type ZonedFields = {
 	month: number;
 	/** 0-23. */
 	hour: number;
-	minute: number;
 };
 
 // What the `Date` getters answer for an invalid date, so a bad point leaves every
 // boundary untriggered rather than throwing out of `formatToParts`.
-const NO_FIELDS: ZonedFields = { month: NaN, hour: NaN, minute: NaN };
+const NO_FIELDS: ZonedFields = { month: NaN, hour: NaN };
 
 /**
  * A clock reading calendar fields in the host's time zone.
@@ -151,7 +155,6 @@ export const createZonedClock = ( timeZone?: string ) => {
 		return ( date: Date ): ZonedFields => ( {
 			month: date.getMonth() + 1,
 			hour: date.getHours(),
-			minute: date.getMinutes(),
 		} );
 	}
 
@@ -166,6 +169,6 @@ export const createZonedClock = ( timeZone?: string ) => {
 		const read = ( type: Intl.DateTimeFormatPartTypes ) =>
 			Number( parts.find( part => part.type === type )?.value );
 
-		return { month: read( 'month' ), hour: read( 'hour' ), minute: read( 'minute' ) };
+		return { month: read( 'month' ), hour: read( 'hour' ) };
 	};
 };
