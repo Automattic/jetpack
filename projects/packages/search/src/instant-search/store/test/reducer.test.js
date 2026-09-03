@@ -333,7 +333,7 @@ describe( 'staticFilters Reducer', () => {
 } );
 
 describe( 'serverOptions Reducer', () => {
-	test( 'defaults to an empty object when the server object is missing', () => {
+	test( 'normalizes a missing server object into empty widget arrays', () => {
 		try {
 			delete window[ SERVER_OBJECT_NAME ];
 			const state = serverOptions( undefined, {} );
