@@ -60,6 +60,7 @@ class Settings_Test extends BaseTestCase {
 		( new Connection_Manager() )->reset_connection_status();
 
 		unset( $_GET['page'] );
+		wp_set_current_user( 0 );
 		remove_all_filters( Settings::MODERNIZATION_FILTER );
 		remove_all_filters( 'site_url' );
 		remove_all_filters( 'home_url' );
@@ -499,5 +500,102 @@ class Settings_Test extends BaseTestCase {
 		Settings::alias_screen_id_for_wp_build( 'not-a-screen' );
 
 		$this->expectNotToPerformAssertions();
+	}
+
+	/**
+	 * Capture where redirect_retired_subscribers_page() sends the request.
+	 *
+	 * The method ends in `wp_safe_redirect()` + `exit`, so the redirect is intercepted
+	 * at the `wp_redirect` filter and aborted with an exception before either headers
+	 * or the exit are reached.
+	 *
+	 * @return string|null The redirect target, or null if no redirect happened.
+	 */
+	private function capture_retired_subscribers_redirect() {
+		$redirect = null;
+
+		$capture = /** @return never */ function ( $location ) use ( &$redirect ) {
+			$redirect = $location;
+			throw new \RuntimeException( 'redirected' );
+		};
+
+		add_filter( 'wp_redirect', $capture );
+
+		try {
+			Settings::redirect_retired_subscribers_page();
+		} catch ( \RuntimeException $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+			// Expected — stands in for the `exit` after the redirect.
+		} finally {
+			remove_filter( 'wp_redirect', $capture );
+		}
+
+		return $redirect;
+	}
+
+	/**
+	 * Give the current user the capability the retired page required.
+	 *
+	 * @return void
+	 */
+	private function set_up_admin_user() {
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'newsletter_settings_admin_' . wp_rand(),
+				'user_pass'  => 'password',
+				'user_email' => 'newsletter-settings-admin-' . wp_rand() . '@example.com',
+				'role'       => 'administrator',
+			)
+		);
+		if ( is_wp_error( $user_id ) ) {
+			$this->fail( $user_id->get_error_message() );
+		}
+		wp_set_current_user( $user_id );
+	}
+
+	/**
+	 * A bookmark for the retired Subscribers page lands on Newsletter.
+	 */
+	public function test_retired_subscribers_page_redirects_to_newsletter() {
+		$this->set_up_admin_user();
+		$_GET['page'] = Settings::RETIRED_SUBSCRIBERS_PAGE_SLUG;
+
+		$this->assertSame(
+			admin_url( 'admin.php?page=' . Settings::ADMIN_PAGE_SLUG ),
+			$this->capture_retired_subscribers_redirect()
+		);
+	}
+
+	/**
+	 * Witness for the assertion above: the capture harness returns null when nothing
+	 * redirects, so an asserted null is the slug check and not a blind spot.
+	 */
+	public function test_other_pages_are_not_redirected() {
+		$this->set_up_admin_user();
+		$_GET['page'] = Settings::ADMIN_PAGE_SLUG;
+
+		$this->assertNull( $this->capture_retired_subscribers_redirect() );
+	}
+
+	/**
+	 * Nobody without `manage_options` could open the retired page, so they keep
+	 * WordPress's own denial instead of being bounced to a page they also cannot see.
+	 */
+	public function test_retired_subscribers_page_is_not_redirected_without_the_capability() {
+		wp_set_current_user( 0 );
+		$_GET['page'] = Settings::RETIRED_SUBSCRIBERS_PAGE_SLUG;
+
+		$this->assertNull( $this->capture_retired_subscribers_redirect() );
+	}
+
+	/**
+	 * The redirect has to be wired up, not just callable.
+	 */
+	public function test_init_hooks_registers_the_retired_subscribers_redirect() {
+		( new Settings() )->init_hooks();
+
+		$this->assertSame(
+			1,
+			has_action( 'admin_menu', array( Settings::class, 'redirect_retired_subscribers_page' ) )
+		);
 	}
 }

@@ -47,6 +47,9 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 		remove_all_filters( 'jetpack_is_connection_ready' );
 		remove_all_filters( 'pre_http_request' );
 
+		// Status\Cache is a process-wide static that WP_UnitTestCase does not reset.
+		\Automattic\Jetpack\Status\Cache::clear();
+
 		parent::tear_down();
 	}
 

@@ -26,6 +26,11 @@ class Settings {
 	const ADMIN_PAGE_SLUG = 'jetpack-newsletter';
 
 	/**
+	 * Slug of the retired Subscribers page, kept only to redirect stale bookmarks.
+	 */
+	const RETIRED_SUBSCRIBERS_PAGE_SLUG = 'jetpack-subscribers';
+
+	/**
 	 * Filter name that gates the wp-build–based dashboard.
 	 *
 	 * When this filter returns true, "Jetpack > Newsletter" renders the new
@@ -83,6 +88,9 @@ class Settings {
 	 * Subscribe to necessary hooks.
 	 */
 	public function init_hooks() {
+		// Priority 1 so this runs before the menu is built and the request is denied.
+		add_action( 'admin_menu', array( __CLASS__, 'redirect_retired_subscribers_page' ), 1 );
+
 		// Add the Reading settings notice as long as subscriptions are active.
 		if ( $this->is_subscriptions_active() ) {
 			add_action( 'admin_init', array( $this, 'add_reading_page_notice' ) );
@@ -122,6 +130,27 @@ class Settings {
 		// Use priority 999 to ensure menu items are queued BEFORE Admin_Menu::admin_menu_hook_callback
 		// runs at priority 1000 to process all queued items.
 		add_action( 'admin_menu', array( $this, 'add_wp_admin_menu' ), 999 );
+	}
+
+	/**
+	 * Send the retired Subscribers page to Newsletter, which absorbed it.
+	 *
+	 * The slug was live for about three months, so it is still in browser histories,
+	 * where it would otherwise hit WordPress's generic "not allowed to access this
+	 * page" and read as a permissions error rather than a move.
+	 *
+	 * @return void
+	 */
+	public static function redirect_retired_subscribers_page() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$page = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '';
+
+		if ( self::RETIRED_SUBSCRIBERS_PAGE_SLUG !== $page || ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+
+		wp_safe_redirect( admin_url( 'admin.php?page=' . self::ADMIN_PAGE_SLUG ) );
+		exit( 0 );
 	}
 
 	/**
