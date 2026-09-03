@@ -33,9 +33,8 @@ type Result = {
 	/**
 	 * True when React Query parked the request instead of sending it, which
 	 * `networkMode: 'online'` does for an offline browser. Neither fetching nor
-	 * errored, and any data already cached for the query is kept, not cleared —
-	 * so callers that read an absence as an answer need this to tell "nothing
-	 * there" from "never asked".
+	 * errored — so callers that read an absence as an answer need this to tell
+	 * "nothing there" from "never asked".
 	 */
 	isPaused: boolean;
 	error: Error | null;

@@ -185,8 +185,6 @@ function OverviewBody() {
 	// `clearSelected` below always has a real change to make: without one, TanStack
 	// treats its navigate as a no-op and pushes no history entry, leaving Back with
 	// nowhere on the Overview to land. `replace`: this is not its own stop.
-	// Not only the return trip — Back onto a bare address rewrites it too, so a Back
-	// that would land on "nothing selected" lands on the remembered row instead.
 	useEffect( () => {
 		if ( urlSelectedId || ! lastSelectedId ) {
 			return;

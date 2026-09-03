@@ -212,6 +212,31 @@ async function roundTripVia( Stage: () => React.JSX.Element ): Promise< void > {
 	view.unmount();
 }
 
+/**
+ * Put the list on page 2 at 20 per page, then leave the Overview and come back.
+ *
+ * The size is deliberately not the default: it is what makes the list's own request
+ * distinguishable from the pinned page-1 lookups every mount makes.
+ *
+ * @param Stage - The route stage to visit on the way out.
+ */
+async function roundTripFromPage2Of20( Stage: () => React.JSX.Element ): Promise< void > {
+	const overview = await openOverview( 1, 10 );
+
+	await userEvent.click( screen.getByRole( 'button', { name: 'View options' } ) );
+	await userEvent.click( screen.getByRole( 'radio', { name: '20' } ) );
+	await expect(
+		screen.findByRole( 'button', { name: rowTitle( 1, 20 ) }, SETTLE )
+	).resolves.toBeInTheDocument();
+	await userEvent.click( screen.getByRole( 'button', { name: 'Next page' } ) );
+	await expect(
+		screen.findByRole( 'button', { name: rowTitle( 2, 20 ) }, SETTLE )
+	).resolves.toBeInTheDocument();
+
+	overview.unmount();
+	await roundTripVia( Stage );
+}
+
 beforeEach( () => {
 	queryClient.clear();
 	queryClient.setDefaultOptions( { queries: { retry: false } } );
@@ -417,19 +442,7 @@ describe( 'A remembered place that no longer exists', () => {
 	// `0 ?? fallback` is `0`, so a literal zero in the envelope outlives the fallback
 	// that would otherwise floor it at 1 — and page 0 is not a page anyone can ask for.
 	it( 'never asks for page 0 when the log reports no pages at all', async () => {
-		const overview = await openOverview( 1, 10 );
-		await userEvent.click( screen.getByRole( 'button', { name: 'View options' } ) );
-		await userEvent.click( screen.getByRole( 'radio', { name: '20' } ) );
-		await expect(
-			screen.findByRole( 'button', { name: rowTitle( 1, 20 ) }, SETTLE )
-		).resolves.toBeInTheDocument();
-		await userEvent.click( screen.getByRole( 'button', { name: 'Next page' } ) );
-		await expect(
-			screen.findByRole( 'button', { name: rowTitle( 2, 20 ) }, SETTLE )
-		).resolves.toBeInTheDocument();
-
-		overview.unmount();
-		await roundTripVia( DownloadStage );
+		await roundTripFromPage2Of20( DownloadStage );
 
 		// Only the list's own page size answers zero. The pinned page-1 lookups keep
 		// their rows, or the first-run takeover replaces the body before the list mounts.
@@ -457,22 +470,7 @@ describe( 'A remembered place the log cannot answer for', () => {
 	// moves the reader off the page they asked for and overwrites the memory of it,
 	// and the fresh page-1 query hides the list's own error report.
 	it( 'reports the failure on the page they asked for, and still remembers it', async () => {
-		const overview = await openOverview( 1, 10 );
-
-		// A non-default page size, so the list's request is distinguishable from the
-		// pinned page-1 lookups every mount makes.
-		await userEvent.click( screen.getByRole( 'button', { name: 'View options' } ) );
-		await userEvent.click( screen.getByRole( 'radio', { name: '20' } ) );
-		await expect(
-			screen.findByRole( 'button', { name: rowTitle( 1, 20 ) }, SETTLE )
-		).resolves.toBeInTheDocument();
-		await userEvent.click( screen.getByRole( 'button', { name: 'Next page' } ) );
-		await expect(
-			screen.findByRole( 'button', { name: rowTitle( 2, 20 ) }, SETTLE )
-		).resolves.toBeInTheDocument();
-
-		overview.unmount();
-		await roundTripVia( DownloadStage );
+		await roundTripFromPage2Of20( DownloadStage );
 
 		// The log is unreachable by the time they come back.
 		let activityFails = true;
@@ -515,20 +513,7 @@ describe( 'A remembered place asked for with no connection', () => {
 	// is `paused`, so `isFetching` is false and no error is ever reported. Nothing
 	// has answered, and `totalPages` still falls back to 1.
 	it( 'waits for the connection instead of moving the reader', async () => {
-		const overview = await openOverview( 1, 10 );
-
-		await userEvent.click( screen.getByRole( 'button', { name: 'View options' } ) );
-		await userEvent.click( screen.getByRole( 'radio', { name: '20' } ) );
-		await expect(
-			screen.findByRole( 'button', { name: rowTitle( 1, 20 ) }, SETTLE )
-		).resolves.toBeInTheDocument();
-		await userEvent.click( screen.getByRole( 'button', { name: 'Next page' } ) );
-		await expect(
-			screen.findByRole( 'button', { name: rowTitle( 2, 20 ) }, SETTLE )
-		).resolves.toBeInTheDocument();
-
-		overview.unmount();
-		await roundTripVia( DownloadStage );
+		await roundTripFromPage2Of20( DownloadStage );
 
 		// Only the entry the list needs is dropped. `<Gates>` spins offline without its
 		// cached verdict, and `useHasRestorePoints` reads the pinned page-1 query — a
