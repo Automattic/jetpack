@@ -214,8 +214,10 @@ const PeriodControl = ( { value, onChange }: PeriodControlProps ) => {
 					{ __( 'Select a date range', 'jetpack-podcast' ) }
 				</VisuallyHidden>
 				<Stack direction={ isSmall ? 'column' : 'row' } gap="lg" align="start">
-					<ul
-						className="podcast-period-control__presets"
+					<Stack
+						direction="column"
+						align="stretch"
+						role="group"
 						aria-label={ __( 'Date range presets', 'jetpack-podcast' ) }
 					>
 						{ presets.map( ( preset, index ) => {
@@ -223,21 +225,19 @@ const PeriodControl = ( { value, onChange }: PeriodControlProps ) => {
 							const { range } = selectionFromDates( presetStart, presetEnd );
 							const isActive = range.from === value.range.from && range.to === value.range.to;
 							return (
-								<li key={ preset.label }>
-									<Button
-										variant="minimal"
-										tone="neutral"
-										aria-pressed={ isActive }
-										className="podcast-period-control__preset"
-										data-index={ index }
-										onClick={ handlePresetClick }
-									>
-										{ preset.label }
-									</Button>
-								</li>
+								<Button
+									key={ preset.label }
+									variant="minimal"
+									tone="neutral"
+									aria-pressed={ isActive }
+									data-index={ index }
+									onClick={ handlePresetClick }
+								>
+									{ preset.label }
+								</Button>
 							);
 						} ) }
-					</ul>
+					</Stack>
 					<RangeCalendar
 						value={ draft }
 						onValueChange={ handleCalendarChange }

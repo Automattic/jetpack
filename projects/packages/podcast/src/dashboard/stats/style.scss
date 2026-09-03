@@ -1,17 +1,5 @@
 @use "@automattic/charts/dist/index.css";
 
-.podcast-period-control__presets {
-	list-style: none;
-	margin: 0;
-	padding: 0;
-	min-inline-size: 160px;
-}
-
-.podcast-period-control__preset {
-	inline-size: 100%;
-	justify-content: flex-start;
-}
-
 $text: #1e1e1e;
 $muted: #757575;
 
