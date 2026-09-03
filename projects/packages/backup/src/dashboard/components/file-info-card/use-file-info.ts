@@ -68,19 +68,18 @@ function mimeFromName( name: string ): string {
 }
 
 /**
- * Files whose preview waits for a deliberate second click, matched against
- * the lowercased manifest path once its volume prefix is dropped.
+ * Files whose preview waits for a deliberate second click: anything that can
+ * hold credentials, plus any hand-made copy of one that still previews.
  *
- * A family rather than the single `wp-config.php` Calypso names, so a
- * hand-made copy that still previews is gated too; `(^|\/)` is what keeps
- * `mywp-config.php` out.
+ * Matched against the lowercased manifest path once its volume prefix is
+ * dropped, and `[^/]*$` confines every pattern to the file's own name.
  */
 const SENSITIVE_PATH_PATTERNS: readonly RegExp[] = [
 	/(^|\/)wp-config[^/]*$/,
-	/(^|\/)\.env[^/]*$/,
-	/(^|\/)config\/application\.php$/,
+	/(^|\/)config\/application[^/]*$/,
+	/\.env[^/]*$/,
+	/\.log[^/]*$/,
 	/\.sql[^/]*$/,
-	/debug\.log[^/]*$/,
 ];
 
 /**

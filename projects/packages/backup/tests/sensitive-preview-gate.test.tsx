@@ -229,12 +229,14 @@ describe( 'sensitive preview gate', () => {
 		expect( fetchedContent() ).toBe( false );
 	} );
 
-	// Each pattern is anchored to the start of a path segment, so a name that
-	// merely ends in — or merely contains — the same letters is not swallowed.
+	// Near-misses on all five: the two name-anchored patterns need a segment to
+	// start with the name, and the three extension patterns need the dot.
 	it.each( [
 		[ '/wp-content/mywp-config.php' ],
-		[ '/wp-content/env.php' ],
 		[ '/config/app.php' ],
+		[ '/wp-content/env.php' ],
+		[ '/changelog.txt' ],
+		[ '/wp-content/uploads/mysql.txt' ],
 	] )( 'leaves %s alone', async path => {
 		mockEndpoints( PLAIN );
 
@@ -249,10 +251,15 @@ describe( 'sensitive preview gate', () => {
 		[ '/wp-config-backup.php' ],
 		[ '/wp-config.old.php' ],
 		[ '/wp-config.php.txt' ],
-		[ '/.env.txt' ],
 		[ '/config/application.php' ],
+		[ '/config/application.old.php' ],
+		[ '/config/application.php.txt' ],
+		[ '/.env.txt' ],
+		[ '/production.env.txt' ],
 		[ '/dump.sql.txt' ],
+		[ '/wp-content/uploads/db-backup.sql.txt' ],
 		[ '/wp-content/debug.log.txt' ],
+		[ '/wp-content/error.log.txt' ],
 	] )( 'hides %s and never fetches it', async path => {
 		mockEndpoints( SECRET );
 
