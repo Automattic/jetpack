@@ -129,6 +129,108 @@ describe( 'AI admin page (main.jsx)', () => {
 		expect( screen.queryByText( 'Learn more' ) ).not.toBeInTheDocument();
 	} );
 
+	describe( 'master-off notice', () => {
+		const MASTER_OFF_TITLE = 'Jetpack AI is turned off for this site.';
+		const masterOffSettings = () => ( { ...enabledSettings(), master_enabled: false } );
+
+		test( 'features tab: notice with the My Jetpack link, rendered exactly once', async () => {
+			mockApiFetch( { featureGet: masterOffSettings() } );
+
+			render( <App /> );
+
+			await expect(
+				screen.findByText( MASTER_OFF_TITLE, IGNORE_A11Y )
+			).resolves.toBeInTheDocument();
+			expect( screen.getByRole( 'link', { name: 'Manage in My Jetpack' } ) ).toHaveAttribute(
+				'href',
+				'admin.php?page=my-jetpack#/products'
+			);
+			// One page-level notice — AiFeatures must not render a second copy.
+			expect( screen.getAllByText( MASTER_OFF_TITLE, IGNORE_A11Y ) ).toHaveLength( 1 );
+			expect( screen.getByRole( 'checkbox', { name: /Writing Assistant/ } ) ).toBeDisabled();
+		} );
+
+		test( 'overview tab: the notice shows', async () => {
+			window.jetpackAiSettings = { showFeaturesView: true, blogId: 1 };
+			window.location.hash = '#/overview';
+			mockApiFetch( { featureGet: masterOffSettings() } );
+
+			render( <App /> );
+
+			await expect(
+				screen.findByText( MASTER_OFF_TITLE, IGNORE_A11Y )
+			).resolves.toBeInTheDocument();
+		} );
+
+		test( 'MCP tab: the notice shows', async () => {
+			window.jetpackAiSettings = { showFeaturesView: true, blogId: 1 };
+			window.location.hash = '#/mcp';
+			mockApiFetch( { featureGet: masterOffSettings(), mcpGet: connectedMcpGet() } );
+
+			render( <App /> );
+
+			await expect(
+				screen.findByText( MASTER_OFF_TITLE, IGNORE_A11Y )
+			).resolves.toBeInTheDocument();
+		} );
+
+		test( 'scheduled tasks tab: the notice shows', async () => {
+			window.jetpackAiSettings = {
+				showFeaturesView: true,
+				blogId: 1,
+				featureFlags: { 'ai-hub-scheduled-tasks': true },
+			};
+			window.location.hash = '#/scheduled-tasks';
+			window.__agentsManagerActions = {
+				isReady: true,
+				chatNavigate: jest.fn(),
+				setChatDocked: jest.fn(),
+				setChatOpen: jest.fn(),
+			};
+			mockApiFetch( { featureGet: masterOffSettings() } );
+
+			render( <App /> );
+
+			await expect(
+				screen.findByText( MASTER_OFF_TITLE, IGNORE_A11Y )
+			).resolves.toBeInTheDocument();
+		} );
+
+		test( 'not connected: the connect ask wins over the master-off notice', async () => {
+			mockApiFetch( { featureGet: { ...masterOffSettings(), is_connected: false } } );
+
+			render( <App /> );
+
+			await expect(
+				screen.findByText( 'Jetpack is not connected to WordPress.com.', IGNORE_A11Y )
+			).resolves.toBeInTheDocument();
+			expect( screen.queryByText( MASTER_OFF_TITLE, IGNORE_A11Y ) ).not.toBeInTheDocument();
+		} );
+
+		test( 'host off: only the host notice shows', async () => {
+			mockApiFetch( { featureGet: { ...masterOffSettings(), host_allows_ai: false } } );
+
+			render( <App /> );
+
+			await expect(
+				screen.findByText( 'AI has been turned off for this site.', IGNORE_A11Y )
+			).resolves.toBeInTheDocument();
+			expect( screen.queryByText( MASTER_OFF_TITLE, IGNORE_A11Y ) ).not.toBeInTheDocument();
+		} );
+
+		test( 'MCP sub-view: the notice shows there too', async () => {
+			window.location.hash = '#/read';
+			mockApiFetch( { featureGet: masterOffSettings(), mcpGet: connectedMcpGet() } );
+
+			render( <App /> );
+
+			await expect(
+				screen.findByRole( 'button', { name: 'Jetpack AI' } )
+			).resolves.toBeInTheDocument();
+			expect( screen.getByText( MASTER_OFF_TITLE, IGNORE_A11Y ) ).toBeInTheDocument();
+		} );
+	} );
+
 	test( 'save-confirmation: a successful AI-settings save shows a success snackbar', async () => {
 		mockApiFetch( { featurePost: () => Promise.resolve( enabledSettings() ) } );
 

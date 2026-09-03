@@ -16,6 +16,7 @@ import { Spinner } from '@wordpress/components';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Badge, Notice, Stack, Tabs } from '@wordpress/ui';
+import MasterOffNotice from './components/master-off-notice';
 import AiFeatures from './features/index';
 import { useFeatureSettings } from './features/use-feature-settings';
 import McpConnectCallout from './mcp/connect-callout';
@@ -293,6 +294,8 @@ export default function App() {
 				}` }
 			>
 				<GlobalNotices />
+
+				<MasterOffNotice settings={ aiSettings } />
 
 				{ isMcpContext && (
 					<>
