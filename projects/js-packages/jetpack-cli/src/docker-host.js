@@ -93,17 +93,21 @@ export const buildCleanupPaths = ( monorepoRoot, projectName ) => {
 };
 
 /**
- * Find the first `jetpack docker` flag in `args` that `docker compose` does not accept.
+ * Find the first instance-selecting `jetpack docker` flag in `args`.
  *
- * `up`, `down`, `stop` and `clean` run compose directly on the host, so their arguments are
- * forwarded verbatim. `--name` belongs to the container-side CLI; compose rejects it with
- * `unknown flag`, after the host path has already announced the wrong instance.
+ * `up`, `down`, `stop` and `clean` run compose directly on the host and forward their arguments
+ * verbatim, so every `jetpack docker` flag fails there. These two are refused rather than
+ * forwarded because they choose which instance the command acts on: a seeded `.env` wins over
+ * both, so `clean` would name one instance in its confirmation prompt and the user another.
+ *
+ * `-t` is deliberately absent — `jetpack docker` reads it as `--type`, but `docker compose`
+ * defines it as `--timeout`, so refusing it would break `jp docker down -t 30`.
  *
  * @param {Array} args - Raw CLI arguments.
  * @return {string|null} The offending flag, or null when there is none.
  */
 export const findUnsupportedHostFlag = args => {
-	const match = args.find( arg => arg === '--name' || arg === '-n' || arg.startsWith( '--name=' ) );
+	const match = args.find( arg => [ '--name', '-n', '--type' ].includes( arg.split( '=' )[ 0 ] ) );
 	return match ? match.split( '=' )[ 0 ] : null;
 };
 

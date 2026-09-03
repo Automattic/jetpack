@@ -647,11 +647,11 @@ const main = async () => {
 			const hostCommands = [ 'up', 'down', 'stop', 'clean' ];
 			if ( hostCommands.includes( args[ 1 ] ) ) {
 				// Before anything announces or destroys an instance: these subcommands forward their
-				// arguments straight to `docker compose`, which has no --name.
+				// arguments straight to `docker compose`, which has neither flag.
 				const unsupportedFlag = findUnsupportedHostFlag( args );
 				if ( unsupportedFlag ) {
 					throw new Error(
-						`\`jp docker ${ args[ 1 ] }\` runs \`docker compose\` directly, which has no ${ unsupportedFlag }. Set COMPOSE_PROJECT_NAME in this checkout's tools/docker/.env instead — \`tools/docker/bin/seed-worktree-env.sh\` writes it for you.`
+						`\`jp docker ${ args[ 1 ] }\` runs \`docker compose\` directly, which has no ${ unsupportedFlag }. These subcommands take their instance from tools/docker/.env, which \`tools/docker/bin/seed-worktree-env.sh\` writes for you. Use \`jetpack docker\` if you need ${ unsupportedFlag }.`
 					);
 				}
 

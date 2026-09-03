@@ -119,16 +119,24 @@ describe( 'resolveCleanConsent', () => {
 } );
 
 describe( 'findUnsupportedHostFlag', () => {
-	test.each( [ '--name', '-n' ] )( 'catches %s, which docker compose rejects', flag => {
+	test.each( [ '--name', '-n', '--type' ] )( 'catches %s, which docker compose rejects', flag => {
 		expect( findUnsupportedHostFlag( [ 'docker', 'clean', flag, 'foo' ] ) ).toBe( flag );
 	} );
 
-	test( 'reports the flag, not the value, for the --name=value form', () => {
-		expect( findUnsupportedHostFlag( [ 'docker', 'up', '--name=foo' ] ) ).toBe( '--name' );
+	test.each( [ '--name=foo', '--type=e2e' ] )( 'reports %s as the flag, not the value', arg => {
+		expect( findUnsupportedHostFlag( [ 'docker', 'up', arg ] ) ).toBe( arg.split( '=' )[ 0 ] );
 	} );
 
-	test( 'passes flags compose does accept', () => {
-		expect( findUnsupportedHostFlag( [ 'docker', 'up', '-d', '--type=e2e' ] ) ).toBeNull();
+	// A seeded .env outranks both flags in resolveDockerEnv, so `clean --type=e2e` from a
+	// worktree would prompt to destroy the dev instance the user did not name.
+	test( 'catches --type, which selects an instance just as --name does', () => {
+		expect( findUnsupportedHostFlag( [ 'docker', 'clean', '--type=e2e' ] ) ).toBe( '--type' );
+	} );
+
+	// `docker compose down -t 30` is a timeout, not `jetpack docker`'s --type.
+	test( 'passes flags compose does accept, including -t', () => {
+		expect( findUnsupportedHostFlag( [ 'docker', 'down', '-v', '-t', '30' ] ) ).toBeNull();
+		expect( findUnsupportedHostFlag( [ 'docker', 'up', '-d' ] ) ).toBeNull();
 	} );
 } );
 
