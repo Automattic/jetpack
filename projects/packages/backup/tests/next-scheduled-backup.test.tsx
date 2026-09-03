@@ -42,13 +42,6 @@ const SITE = 'example.wordpress.com';
 // taken well over Testing Library's 1s default on a loaded runner.
 const SETTLE = { timeout: 10000 };
 
-// jsdom implements no scrolling, and DataViews calls `scrollIntoView`. Defined rather
-// than spied on: `jest.spyOn` needs the property to already exist.
-Object.defineProperty( window.HTMLElement.prototype, 'scrollIntoView', {
-	value: () => {},
-	writable: true,
-} );
-
 // Everything Jest's fake timers can replace *except* `Date`. Faking the timer functions
 // too would take Testing Library's polling with it — `waitFor` switches implementation
 // the moment it sees a mocked `setTimeout` — and the suite would hang on the first

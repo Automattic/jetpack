@@ -113,13 +113,6 @@ let hasBackupPlan = false;
 /** Flipped per test; whether the site has a restore for the Restore screen to adopt. */
 let restoreRunning = false;
 
-// jsdom implements no scrolling, and DataViews' list layout calls
-// `scrollIntoView` on the selected row.
-Object.defineProperty( window.HTMLElement.prototype, 'scrollIntoView', {
-	value: () => {},
-	writable: true,
-} );
-
 /**
  * How many times `apiFetch` has been asked for a route, ignoring query args.
  *
