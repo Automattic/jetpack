@@ -29,14 +29,14 @@ class JetpackStateNotices extends Component {
 	 * Generic copy for error codes that have no message of their own.
 	 *
 	 * @param {string} key - The error code.
-	 * @return {object} Message element.
+	 * @return {Element} Message element.
 	 */
 	getGenericErrorMessage = key =>
 		createInterpolateElement(
 			sprintf(
-				/* translators: %s: an error code and message. */
+				/* translators: %s: an error code. */
 				__(
-					'<s>Your Jetpack has a glitch.</s> We’re sorry for the inconvenience. Please try again later, if the issue continues please contact support with this message: %s',
+					"<s>Your Jetpack has a glitch.</s> We're sorry for the inconvenience. Please try again later, if the issue continues please contact support with this message: %s",
 					'jetpack'
 				),
 				key
@@ -142,6 +142,8 @@ class JetpackStateNotices extends Component {
 				break;
 			case 'no_role':
 			case 'no_cap':
+			case 'cannot_save_secrets':
+			case 'jetpack_id':
 			case 'no_code':
 			case 'no_state':
 			case 'invalid_state':
