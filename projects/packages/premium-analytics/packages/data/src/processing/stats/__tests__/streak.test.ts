@@ -11,9 +11,6 @@ const withTimezone = ( timezone: { offset: number; string: string } ) =>
 	} );
 
 describe( 'Stats streak normalizer', () => {
-	// Group members share one module registry, so neither inherit a previous
-	// suite's settings nor leave ours installed for the next one.
-	beforeEach( () => setSettings( DEFAULTS ) );
 	afterEach( () => setSettings( DEFAULTS ) );
 
 	it( 'normalizes timestamp counts into date buckets', () => {
