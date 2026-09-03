@@ -22,8 +22,6 @@ import {
 	useBlockProps,
 } from '@wordpress/block-editor';
 import {
-	Button,
-	ButtonGroup,
 	Notice,
 	PanelBody,
 	Spinner,
@@ -37,10 +35,11 @@ import { useSelect } from '@wordpress/data';
 import { useState, useCallback, useMemo } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { API_BASE } from './api-base';
+import BlockInspector from './block-inspector';
 import metadata from './block.json';
 import ConnectionWizard from './connection-wizard';
 import { VALID_CURRENCY_CODES } from './currencies';
-import FormatSwitcher, { FORMAT_OPTIONS } from './format-switcher';
+import { FORMAT_OPTIONS } from './format-switcher';
 import PayPalButtonPreview from './paypal-button-preview';
 import ProductForm from './product-form';
 import { broadcastConnectionChange, usePayPalConnection } from './use-paypal-connection';
@@ -408,109 +407,19 @@ export default function PayPalPaymentButtonsEdit( {
 
 	// Inspector sidebar — format switcher, Style preset, and connection info.
 	const inspectorControls = (
-		<InspectorControls>
-			{ /* Style preset: Light / Auto / Dark — overrides the OS/theme auto-detect */ }
-			<PanelBody title={ __( 'Style', 'jetpack-paypal-payments' ) } initialOpen={ true }>
-				<p className="jetpack-paypal-payment-buttons__scheme-label">
-					{ __(
-						'Choose how the button adapts to your site theme. "Auto" follows the visitor\'s OS preference.',
-						'jetpack-paypal-payments'
-					) }
-				</p>
-				<ButtonGroup className="jetpack-paypal-payment-buttons__scheme-toggle">
-					<Button
-						variant={ colorScheme === 'light' ? 'primary' : 'secondary' }
-						aria-pressed={ colorScheme === 'light' }
-						onClick={ () => setAttributes( { colorScheme: 'light' } ) }
-					>
-						{ __( 'Light', 'jetpack-paypal-payments' ) }
-					</Button>
-					<Button
-						variant={ colorScheme === 'auto' || ! colorScheme ? 'primary' : 'secondary' }
-						aria-pressed={ colorScheme === 'auto' || ! colorScheme }
-						onClick={ () => setAttributes( { colorScheme: 'auto' } ) }
-					>
-						{ __( 'Auto', 'jetpack-paypal-payments' ) }
-					</Button>
-					<Button
-						variant={ colorScheme === 'dark' ? 'primary' : 'secondary' }
-						aria-pressed={ colorScheme === 'dark' }
-						onClick={ () => setAttributes( { colorScheme: 'dark' } ) }
-					>
-						{ __( 'Dark', 'jetpack-paypal-payments' ) }
-					</Button>
-				</ButtonGroup>
-				<p className="jetpack-paypal-payment-buttons__scheme-hint">
-					{ __(
-						'For advanced styling, target .wp-block-jetpack-paypal-payment-buttons or use data-color-scheme="light|dark|auto" in custom CSS.',
-						'jetpack-paypal-payments'
-					) }
-				</p>
-			</PanelBody>
-
-			{ hasButton && (
-				<PanelBody title={ __( 'Display Format', 'jetpack-paypal-payments' ) } initialOpen={ true }>
-					<FormatSwitcher
-						value={ activeFormat }
-						onChange={ value => setAttributes( { format: value } ) }
-						disabled={ isCreating }
-					/>
-				</PanelBody>
-			) }
-
-			{ hasButton && (
-				<PanelBody
-					title={ __( 'PayPal Connection', 'jetpack-paypal-payments' ) }
-					initialOpen={ false }
-				>
-					<p>
-						{ __( 'Resource ID:', 'jetpack-paypal-payments' ) } <code>{ resourceId }</code>
-					</p>
-					<p>
-						{ __( 'Environment:', 'jetpack-paypal-payments' ) } <strong>{ environment }</strong>
-					</p>
-					<div className="jetpack-paypal-payment-buttons__destructive-actions">
-						<Button
-							variant="secondary"
-							isDestructive
-							onClick={ handleDeleteButton }
-							disabled={ isCreating || ! isConnected }
-						>
-							{ __( 'Delete Button', 'jetpack-paypal-payments' ) }
-						</Button>
-						{ isConnected ? (
-							<Button variant="secondary" isDestructive onClick={ handleDisconnect }>
-								{ __( 'Disconnect', 'jetpack-paypal-payments' ) }
-							</Button>
-						) : (
-							<Button variant="secondary" onClick={ () => setShowReconnect( true ) }>
-								{ __( 'Reconnect', 'jetpack-paypal-payments' ) }
-							</Button>
-						) }
-					</div>
-				</PanelBody>
-			) }
-
-			{ ! hasButton && (
-				<PanelBody
-					title={ __( 'PayPal Connection', 'jetpack-paypal-payments' ) }
-					initialOpen={ false }
-				>
-					<p>
-						{ __( 'Environment:', 'jetpack-paypal-payments' ) } <strong>{ environment }</strong>
-					</p>
-					{ isConnected ? (
-						<Button variant="secondary" isDestructive onClick={ handleDisconnect }>
-							{ __( 'Disconnect PayPal', 'jetpack-paypal-payments' ) }
-						</Button>
-					) : (
-						<Button variant="secondary" onClick={ () => setShowReconnect( true ) }>
-							{ __( 'Reconnect PayPal', 'jetpack-paypal-payments' ) }
-						</Button>
-					) }
-				</PanelBody>
-			) }
-		</InspectorControls>
+		<BlockInspector
+			setAttributes={ setAttributes }
+			colorScheme={ colorScheme }
+			resourceId={ resourceId }
+			activeFormat={ activeFormat }
+			isConnected={ isConnected }
+			environment={ environment }
+			setShowReconnect={ setShowReconnect }
+			isCreating={ isCreating }
+			handleDeleteButton={ handleDeleteButton }
+			handleDisconnect={ handleDisconnect }
+			hasButton={ hasButton }
+		/>
 	);
 
 	// Shared confirmation dialogs — extracted so they render regardless of which return branch is active.
