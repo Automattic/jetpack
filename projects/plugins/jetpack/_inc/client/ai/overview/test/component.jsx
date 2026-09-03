@@ -150,6 +150,44 @@ describe( 'AiOverview', () => {
 		expect( screen.queryByText( /Renews on/ ) ).not.toBeInTheDocument();
 	} );
 
+	test( 'renewal date: reads as already expired while the plan is in its grace period', async () => {
+		// The tier still reports paid after a plan lapses, so the cell has to
+		// name the plan and say it expired rather than render empty.
+		apiFetch.mockResolvedValueOnce( unlimitedPayload() );
+
+		render(
+			<AiOverview
+				{ ...PROPS }
+				planName="Business"
+				planRenewsOn="2026-08-27T00:00:00+00:00"
+				planExpired
+			/>
+		);
+
+		await expect( screen.findByText( 'Business' ) ).resolves.toBeInTheDocument();
+		expect( screen.getByText( renewalLine( 'Expired on: August 27, 2026' ) ) ).toBeInTheDocument();
+		expect( screen.queryByText( /Renews on/ ) ).not.toBeInTheDocument();
+	} );
+
+	test( 'renewal date: an expired plan on a free tier reads Free, not the lapsed name', async () => {
+		// Once the grace period ends the tier drops to free, and the usage
+		// endpoint — not the purchase — owns what the cell says.
+		apiFetch.mockResolvedValueOnce( freePayload() );
+
+		render(
+			<AiOverview
+				{ ...PROPS }
+				planName="Business"
+				planRenewsOn="2026-08-27T00:00:00+00:00"
+				planExpired
+			/>
+		);
+
+		await expect( screen.findByText( 'Free' ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByText( 'Business' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( /Expired on/ ) ).not.toBeInTheDocument();
+	} );
+
 	test( 'renewal date: an unknown auto-renew state keeps the renewal wording', async () => {
 		// The flag is absent on payloads that predate it; unknown must not be
 		// read as "off", which would mislabel every auto-renewing plan.
