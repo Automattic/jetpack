@@ -1,6 +1,7 @@
 /**
  * WordPress dependencies
  */
+import { submitStatsUserFeedback } from '@jetpack-premium-analytics/data';
 import { Button, Notice, Stack, Text } from '@jetpack-premium-analytics/externals';
 import { Modal, RadioControl, TextareaControl } from '@wordpress/components';
 import { useCallback, useState } from '@wordpress/element';
@@ -83,10 +84,19 @@ export function FeedbackModal( { onClose }: FeedbackModalProps ) {
 			return;
 		}
 
-		trackEvent( 'jetpack_premium_analytics_feedback_submit', {
-			rating,
-			comment: comment.trim(),
-		} );
+		const message = comment.trim();
+
+		trackEvent( 'jetpack_premium_analytics_feedback_submit', { rating, comment: message } );
+
+		// Second channel, deliberately not awaited: Tracks is a pixel and ad blockers drop it
+		// silently, so the message also goes to Happiness where delivery is not the reader's
+		// browser's decision. A rating alone would only open an empty ticket.
+		if ( message ) {
+			submitStatsUserFeedback( { rating, comment: message } ).catch( () => {
+				// The reader has already been thanked and Tracks may well have the submission;
+				// a second, contradictory message would cost more than the lost email.
+			} );
+		}
 
 		setHasSubmitted( true );
 	}, [ comment, rating, trackEvent ] );
