@@ -1,11 +1,11 @@
 /**
  * Root component for the Jetpack AI admin page.
  *
- * Four top-level tabs (Overview | WordPress Agent | Scheduled tasks | MCP Settings) with hash-based
+ * Four top-level tabs (Overview | AI Features | Scheduled tasks | MCP Settings) with hash-based
  * routing. The MCP tab owns the read | write | setup sub-views, which render
  * with breadcrumbs in place of the tab bar.
  *
- * Overview and WordPress Agent share an internal-testing gate. Scheduled tasks
+ * Overview and AI Features share an internal-testing gate. Scheduled tasks
  * is controlled independently by the ai-hub-scheduled-tasks server-side feature
  * flag. Without either flag the page keeps its original MCP-only shape, with the
  * MCP hub as the landing view and no tab bar.
@@ -62,8 +62,7 @@ const getViewFromHash = () => {
 
 const VIEW_TITLES = {
 	overview: __( 'Overview', 'jetpack' ),
-	// "WordPress Agent" is a product name and should not be translated.
-	features: 'WordPress Agent',
+	features: __( 'AI Features', 'jetpack' ),
 	'scheduled-tasks': __( 'Scheduled tasks', 'jetpack' ),
 	mcp: __( 'MCP Settings', 'jetpack' ),
 	read: __( 'Read', 'jetpack' ),

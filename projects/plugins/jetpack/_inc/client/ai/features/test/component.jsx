@@ -39,20 +39,17 @@ describe( 'AiFeatures rendering', () => {
 		);
 	} );
 
-	test( 'renders one Agent capabilities card with title and subtitle', () => {
+	test( 'renders one card, described by its lead line and no heading of its own', () => {
 		renderFeatures();
 
 		expect(
-			screen.getByRole( 'heading', { level: 2, name: 'Agent capabilities' } )
-		).toBeInTheDocument();
-		expect(
-			screen.getByText( 'Choose what your WordPress Agent can help with across your site.' )
+			screen.getByText( 'Choose what AI can help with across your site.' )
 		).toBeInTheDocument();
 	} );
 
 	// One divider per visible section — the first doubles as the header rule
-	// per the Figma — and the group headers are real h3s, one level below the
-	// card's h2 (the page title "AI" is the h1 above both).
+	// per the Figma — and the group headers are real h2s, one level below the
+	// page title "AI"; the card itself carries no heading.
 	test.each( [
 		[ 'one section', { writing_assistant: { enabled: true } }, [ 'Content' ] ],
 		[ 'two sections', null, [ 'Content', 'Search' ] ],
@@ -65,11 +62,11 @@ describe( 'AiFeatures rendering', () => {
 			},
 			[ 'Content', 'Media', 'Search' ],
 		],
-	] )( '%s: one divider per section, h3 group headers in order', ( _label, features, titles ) => {
+	] )( '%s: one divider per section, h2 group headers in order', ( _label, features, titles ) => {
 		renderFeatures( features ? { features } : {} );
 
 		expect( screen.getAllByRole( 'separator' ) ).toHaveLength( titles.length );
-		const headings = screen.getAllByRole( 'heading', { level: 3 } );
+		const headings = screen.getAllByRole( 'heading', { level: 2 } );
 		expect( headings.map( heading => heading.textContent ) ).toEqual( titles );
 	} );
 
@@ -78,11 +75,9 @@ describe( 'AiFeatures rendering', () => {
 		renderFeatures( { features: {} } );
 
 		expect(
-			screen.queryByRole( 'heading', { name: 'Agent capabilities' } )
+			screen.queryByText( 'Choose what AI can help with across your site.' )
 		).not.toBeInTheDocument();
-		expect(
-			screen.queryByText( 'Choose what your WordPress Agent can help with across your site.' )
-		).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'separator' ) ).not.toBeInTheDocument();
 	} );
 
 	test( 'the page notices survive the card disappearing', () => {
@@ -91,7 +86,7 @@ describe( 'AiFeatures rendering', () => {
 		// The notices live outside the card and must not go down with it.
 		expect( screen.getByText( 'Jetpack AI is turned off for this site.' ) ).toBeInTheDocument();
 		expect(
-			screen.queryByRole( 'heading', { name: 'Agent capabilities' } )
+			screen.queryByText( 'Choose what AI can help with across your site.' )
 		).not.toBeInTheDocument();
 	} );
 
@@ -112,7 +107,7 @@ describe( 'AiFeatures rendering', () => {
 	test( 'the upgrade badge sits inside the Search group', () => {
 		renderFeatures();
 
-		// Each group is a region named by its h3, so the badge's placement is
+		// Each group is a region named by its heading, so the badge's placement is
 		// part of the accessibility tree, not just visual layout.
 		const searchGroup = screen.getByRole( 'region', { name: 'Search' } );
 		expect(
