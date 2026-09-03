@@ -1,4 +1,4 @@
-import { Icon } from '@jetpack-premium-analytics/externals';
+import { Icon, Skeleton, Stack } from '@jetpack-premium-analytics/externals';
 import { useReducedMotion } from '@wordpress/compose';
 import { pages, people, trendingUp } from '@wordpress/icons';
 import clsx from 'clsx';
@@ -23,7 +23,7 @@ const TILE_ICONS: Record< WidgetGridTileId, JSX.Element > = {
 
 const DEFAULT_HOLD = 1200;
 const DEFAULT_DURATION = 600;
-const DEFAULT_EASING = 'cubic-bezier(0.4, 0, 0.2, 1)';
+const DEFAULT_EASING = 'var(--wpds-motion-easing-balanced)';
 
 export type WidgetGridAnimationProps = {
 	/** Played in order, then looping back to the first with the same tween. */
@@ -138,15 +138,17 @@ export function WidgetGridAnimation( {
 							className={ clsx( styles.chart, content === 'chart' && styles.chartVisible ) }
 						/>
 						<div className={ clsx( styles.donut, content === 'donut' && styles.donutVisible ) } />
-						<div
+						<Stack
+							direction="column"
+							gap="sm"
 							className={ clsx(
 								styles.rows,
 								( content === 'rows' || content === 'donut' ) && styles.rowsVisible
 							) }
 						>
-							<div className={ styles.row } />
-							<div className={ styles.row } />
-						</div>
+							<Skeleton className={ styles.row } />
+							<Skeleton className={ styles.row } />
+						</Stack>
 					</div>
 				);
 			} ) }

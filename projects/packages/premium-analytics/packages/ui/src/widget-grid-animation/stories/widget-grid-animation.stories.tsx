@@ -39,7 +39,13 @@ const meta: Meta< typeof WidgetGridAnimation > = {
 	decorators: [
 		Story => (
 			// The modal's width, with the same rounded top corners.
-			<div style={ { width: 400, borderRadius: '8px 8px 0 0', overflow: 'hidden' } }>
+			<div
+				style={ {
+					width: 400,
+					borderRadius: 'var(--wpds-border-radius-lg) var(--wpds-border-radius-lg) 0 0',
+					overflow: 'hidden',
+				} }
+			>
 				<Story />
 			</div>
 		),

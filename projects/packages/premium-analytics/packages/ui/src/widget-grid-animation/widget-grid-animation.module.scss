@@ -1,24 +1,10 @@
-// Illustration palette from the Figma "animation flow" frames. The stage is a
-// fixed dark green, so nothing here follows the admin color scheme.
+// Illustration constants from the Figma "animation flow" frames: the greens
+// have no WPDS token, and the chart inset and donut size are export geometry.
 $widget-grid-stage-color: #003010;
 $widget-grid-tile-gradient: linear-gradient(180deg, #fff 0%, #eaf1e7 100%);
-$widget-grid-tile-radius: 8px;
-$widget-grid-tile-padding: 16px;
-
-// The chart's blue, faint: the tint of the row and donut placeholders in the
-// prototype video.
-$widget-grid-placeholder-color: rgba(56, 88, 233, 0.16);
-
-// Where the chart sits inside its tile: under the icon row, inset like the
-// Figma export.
-$widget-grid-chart-inset: 18px 8px 16px;
-
-// Two list rows pinned to the tile's bottom padding, and a donut centered in
-// the tile, both measured off the prototype video.
-$widget-grid-row-height: 8px;
-$widget-grid-row-gap: 8px;
+$widget-grid-chart-inset:
+	18px var(--wpds-dimension-padding-sm) var(--wpds-dimension-padding-lg);
 $widget-grid-donut-size: 76px;
-$widget-grid-donut-thickness: 16px;
 
 .canvas {
 	position: relative;
@@ -35,8 +21,8 @@ $widget-grid-donut-thickness: 16px;
 	box-sizing: border-box;
 	inline-size: var(--wga-width);
 	block-size: var(--wga-height);
-	padding: $widget-grid-tile-padding;
-	border-radius: $widget-grid-tile-radius;
+	padding: var(--wpds-dimension-padding-lg);
+	border-radius: var(--wpds-border-radius-lg);
 	background: $widget-grid-tile-gradient;
 	color: $widget-grid-stage-color;
 	transition-property: inset-inline-start, inset-block-start, inline-size, block-size;
@@ -72,13 +58,11 @@ $widget-grid-donut-thickness: 16px;
 	clip-path: inset(0 0 0 0);
 }
 
+// The Stack pins to the tile's bottom padding; the gap between rows is its own.
 .rows {
 	position: absolute;
-	inset-inline: $widget-grid-tile-padding;
-	inset-block-end: $widget-grid-tile-padding;
-	display: flex;
-	flex-direction: column;
-	gap: $widget-grid-row-gap;
+	inset-inline: var(--wpds-dimension-padding-lg);
+	inset-block-end: var(--wpds-dimension-padding-lg);
 	opacity: 0;
 	transition: opacity var(--wga-duration) var(--wga-easing);
 }
@@ -87,10 +71,13 @@ $widget-grid-donut-thickness: 16px;
 	opacity: 1;
 }
 
+// A Skeleton tinted with the brand surface and held still: the tiles already
+// move.
 .row {
-	block-size: $widget-grid-row-height;
-	border-radius: calc($widget-grid-row-height / 2);
-	background: $widget-grid-placeholder-color;
+	block-size: var(--wpds-dimension-size-4xs);
+	border-radius: var(--wpds-dimension-size-4xs);
+	background-color: var(--wpds-color-background-surface-brand);
+	animation: none;
 
 	// A full line, then a short one, as a list placeholder reads.
 	&:last-child {
@@ -105,7 +92,7 @@ $widget-grid-donut-thickness: 16px;
 	box-sizing: border-box;
 	inline-size: $widget-grid-donut-size;
 	block-size: $widget-grid-donut-size;
-	border: $widget-grid-donut-thickness solid $widget-grid-placeholder-color;
+	border: var(--wpds-dimension-size-2xs) solid var(--wpds-color-background-surface-brand);
 	border-radius: 50%;
 	translate: -50% -50%;
 	opacity: 0;
