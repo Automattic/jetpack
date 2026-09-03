@@ -24,9 +24,10 @@ jest.mock( '@wordpress/route', () => ( {
 
 // Imports must come after the jest.mock factories above.
 import { onlineManager } from '@tanstack/react-query';
-import { act, render, screen } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import { stage as OverviewStage } from '../routes/dashboard/stage';
 import { keys, queryClient } from '../src/dashboard/data/query-client';
+import { ACTIVITY_LOG_DEFAULT_PER_PAGE } from '../src/dashboard/hooks/use-activity-log';
 
 const CONNECTED = { isRegistered: true, hasConnectedOwner: true, isUserConnected: true };
 
@@ -202,11 +203,16 @@ describe( 'Overview takeover', () => {
 		await act( async () => {
 			await queryClient.invalidateQueries( { queryKey: keys.activityLogRoot() } );
 		} );
-		// The parked state reaches the observer a tick after the invalidation
-		// settles, so asserting straight away would pass without looking.
-		await act( async () => {
-			await new Promise( resolve => setTimeout( resolve, 50 ) );
-		} );
+		// The parked state reaches the observer after the invalidation settles, so
+		// asserting straight away passes without looking. Wait on the state itself,
+		// not a delay: this file's SETTLE exists because CI blows past fixed windows.
+		await waitFor( () =>
+			expect(
+				queryClient.getQueryState(
+					keys.activityLogPage( 1, ACTIVITY_LOG_DEFAULT_PER_PAGE, 'desc' )
+				)?.fetchStatus
+			).toBe( 'paused' )
+		);
 
 		expect( screen.getByText( 'Your first cloud backup will be ready soon' ) ).toBeInTheDocument();
 	} );
