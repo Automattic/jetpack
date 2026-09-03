@@ -308,6 +308,8 @@ describe( 'Dashboard feedback action', () => {
 	} );
 
 	it( "sits in the page actions, ahead of the dashboard's own", () => {
+		mockSection( { slug: 'traffic', date_filter: DATE_FILTER_RANGE } );
+
 		render( <Dashboard /> );
 
 		const feedback = screen.getByTestId( 'feedback-action' );
