@@ -19,6 +19,7 @@ class Wpcom_Simple_Premium_Analytics_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function tear_down() {
 		remove_all_filters( 'jetpack_premium_analytics_wpcom_simple_enabled' );
+		unregister_setting( 'general', 'jetpack_premium_analytics_enabled' );
 		\Mockery::close();
 
 		parent::tear_down();
@@ -96,5 +97,17 @@ class Wpcom_Simple_Premium_Analytics_Test extends \WorDBless\BaseTestCase {
 		eval( 'function has_blog_sticker( $sticker, $blog_id ) { return $sticker === "jetpack-premium-analytics" && $blog_id > 0; }' ); // phpcs:ignore Squiz.PHP.Eval.Discouraged,MediaWiki.Usage.ForbiddenFunctions.eval
 
 		$this->assertTrue( Jetpack_Mu_Wpcom::should_load_wpcom_simple_premium_analytics() );
+	}
+
+	/**
+	 * The opt-in is exposed with the rollout gate off — it is one of the things that opens that
+	 * gate, so registering it behind the gate would leave nothing able to open it.
+	 */
+	public function test_wpcom_simple_premium_analytics_enablement_setting_is_registered_when_gate_is_disabled() {
+		$this->assertFalse( Jetpack_Mu_Wpcom::should_load_wpcom_simple_premium_analytics() );
+
+		Jetpack_Mu_Wpcom::load_wpcom_simple_premium_analytics_enablement_setting();
+
+		$this->assertArrayHasKey( 'jetpack_premium_analytics_enabled', get_registered_settings() );
 	}
 }

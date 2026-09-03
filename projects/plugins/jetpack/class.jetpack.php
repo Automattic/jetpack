@@ -900,6 +900,22 @@ class Jetpack {
 	}
 
 	/**
+	 * Expose the setting that turns the Premium Analytics dashboard on and off.
+	 *
+	 * Deliberately not behind is_premium_analytics_enabled(): this is the setting that flips that
+	 * check, so it has to answer while the dashboard is still off.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public static function register_premium_analytics_enablement_setting() {
+		if ( class_exists( 'Automattic\Jetpack\PremiumAnalytics\Enablement_Setting' ) ) {
+			\Automattic\Jetpack\PremiumAnalytics\Enablement_Setting::register();
+		}
+	}
+
+	/**
 	 * Before everything else starts getting initalized, we need to initialize Jetpack using the
 	 * Config object.
 	 */
@@ -1003,20 +1019,15 @@ class Jetpack {
 			);
 		}
 
-		/*
-		 * Stats v2 (WOOA7S-1595): bundled behind a flag while it rolls out.
-		 * Unlike Stats above it must initialize on every request when enabled:
-		 * its WooCommerce store-event tracker listens on the front end and its
-		 * REST surfaces self-gate on rest_api_init. It adds its own admin menu
-		 * alongside the existing Stats UI (see modules/stats.php) rather than
-		 * replacing it.
-		 */
+		// Stats v2 (WOOA7S-1595). Unlike Stats above it cannot be deferred when enabled — see
+		// Analytics::init() for why, and for why it takes no menu_title here.
 		if ( self::is_premium_analytics_enabled() ) {
-			// No menu_title here: the package labels its own menu on admin_menu.
-			// Translating at this point would load the textdomain before
-			// after_setup_theme, which core flags as too early.
 			\Automattic\Jetpack\PremiumAnalytics\Analytics::init();
 		}
+
+		// Outside the check above on purpose — see Enablement_Setting. Deferred like Stats, to keep
+		// the autoload off the front-end hot path.
+		add_action( 'rest_api_init', array( __CLASS__, 'register_premium_analytics_enablement_setting' ), 0 );
 
 		$config->ensure(
 			'connection',
