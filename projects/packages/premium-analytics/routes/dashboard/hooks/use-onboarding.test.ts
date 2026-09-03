@@ -7,11 +7,7 @@ import { store as preferencesStore } from '@wordpress/preferences';
 /**
  * Internal dependencies
  */
-import {
-	DASHBOARD_ONBOARDING_KEY,
-	DASHBOARD_PREFERENCES_SCOPE,
-	ONBOARDING_FORCE_QUERY_ARG,
-} from './constants';
+import { DASHBOARD_ONBOARDING_KEY, DASHBOARD_PREFERENCES_SCOPE } from './constants';
 import { resetOnboardingForTesting, useOnboarding } from './use-onboarding';
 import { resetTracksIdentityForTesting } from './use-track-event';
 
@@ -84,13 +80,13 @@ describe( 'useOnboarding', () => {
 		// The preferences store registers on the shared default registry, so
 		// clear the key between tests.
 		setStoredCompletion( null );
-		window.history.replaceState( {}, '', '/' );
 	} );
 
-	it( 'opens the modal on the first visit and records the view', () => {
+	it( 'opens the modal on the first visit, marks it as seen and records the view', () => {
 		const { result } = renderHook( () => useOnboarding( { enabled: true } ) );
 
 		expect( result.current.phase ).toBe( 'modal' );
+		expect( storedCompletion() ).toEqual( expect.any( String ) );
 		expect( eventNames() ).toEqual( [ 'jetpack_premium_analytics_onboarding_view' ] );
 	} );
 
@@ -101,15 +97,6 @@ describe( 'useOnboarding', () => {
 
 		expect( result.current.phase ).toBe( 'closed' );
 		expect( mockRecordEvent ).not.toHaveBeenCalled();
-	} );
-
-	it( 'opens anyway when the force query argument is set', () => {
-		setStoredCompletion( '2026-09-01T10:00:00.000Z' );
-		window.history.replaceState( {}, '', `/?p=/&${ ONBOARDING_FORCE_QUERY_ARG }=1` );
-
-		const { result } = renderHook( () => useOnboarding( { enabled: true } ) );
-
-		expect( result.current.phase ).toBe( 'modal' );
 	} );
 
 	it( 'waits until the surface is ready', () => {
@@ -123,13 +110,12 @@ describe( 'useOnboarding', () => {
 		expect( result.current.phase ).toBe( 'modal' );
 	} );
 
-	it( 'finishes at Get started when there is no tour, and persists', () => {
+	it( 'finishes at Get started when there is no tour', () => {
 		const { result } = renderHook( () => useOnboarding( { enabled: true } ) );
 
 		act( () => result.current.start() );
 
 		expect( result.current.phase ).toBe( 'closed' );
-		expect( storedCompletion() ).toEqual( expect.any( String ) );
 		expect( eventNames() ).toEqual( [
 			'jetpack_premium_analytics_onboarding_view',
 			'jetpack_premium_analytics_onboarding_start',
@@ -151,7 +137,6 @@ describe( 'useOnboarding', () => {
 
 		act( () => result.current.next() );
 		expect( result.current.phase ).toBe( 'closed' );
-		expect( storedCompletion() ).toEqual( expect.any( String ) );
 		expect( mockRecordEvent ).toHaveBeenCalledWith(
 			'jetpack_premium_analytics_onboarding_step_view',
 			{ step: 3 }
@@ -159,7 +144,7 @@ describe( 'useOnboarding', () => {
 		expect( eventNames().at( -1 ) ).toBe( 'jetpack_premium_analytics_onboarding_finish' );
 	} );
 
-	it( 'records a dismissal with where the reader was, and persists', () => {
+	it( 'records a dismissal with where the reader was', () => {
 		const { result } = renderHook( () => useOnboarding( { enabled: true, stepCount: 3 } ) );
 
 		act( () => result.current.start() );
@@ -167,20 +152,20 @@ describe( 'useOnboarding', () => {
 		act( () => result.current.dismiss() );
 
 		expect( result.current.phase ).toBe( 'closed' );
-		expect( storedCompletion() ).toEqual( expect.any( String ) );
 		expect( mockRecordEvent ).toHaveBeenCalledWith(
 			'jetpack_premium_analytics_onboarding_dismiss',
 			{ phase: 'tour', step: 2 }
 		);
 	} );
 
-	it( 'does not reopen when the dashboard remounts within the same page load', () => {
-		window.history.replaceState( {}, '', `/?p=/&${ ONBOARDING_FORCE_QUERY_ARG }=1` );
+	it( 'does not reopen when the dashboard remounts before the preference lands', () => {
 		const { result, unmount } = renderHook( () => useOnboarding( { enabled: true } ) );
 		expect( result.current.phase ).toBe( 'modal' );
 
 		act( () => result.current.dismiss() );
 		unmount();
+		// The remount sees no preference yet, the way a slow save would look.
+		setStoredCompletion( null );
 
 		const { result: remounted } = renderHook( () => useOnboarding( { enabled: true } ) );
 		expect( remounted.current.phase ).toBe( 'closed' );

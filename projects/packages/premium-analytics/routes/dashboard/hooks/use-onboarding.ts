@@ -7,11 +7,7 @@ import { store as preferencesStore } from '@wordpress/preferences';
 /**
  * Internal dependencies
  */
-import {
-	DASHBOARD_ONBOARDING_KEY,
-	DASHBOARD_PREFERENCES_SCOPE,
-	ONBOARDING_FORCE_QUERY_ARG,
-} from './constants';
+import { DASHBOARD_ONBOARDING_KEY, DASHBOARD_PREFERENCES_SCOPE } from './constants';
 import { useTrackEvent } from './use-track-event';
 
 export type OnboardingPhase = 'closed' | 'modal' | 'tour';
@@ -49,7 +45,7 @@ type PreferencesActions = {
 };
 
 // Once per page load, not per mount: the dashboard stage remounts on the way
-// back from a report, and the force argument survives that navigation.
+// back from a report, before the persisted preference has necessarily landed.
 let hasOpenedThisLoad = false;
 
 /**
@@ -60,23 +56,9 @@ export function resetOnboardingForTesting() {
 }
 
 /**
- * Whether the URL carries the force argument, read once: the SPA keeps foreign
- * search params in place, so it survives in-app navigation.
- *
- * @return Whether the onboarding is forced open.
- */
-function isForcedByQueryArg(): boolean {
-	if ( typeof window === 'undefined' ) {
-		return false;
-	}
-
-	return new URLSearchParams( window.location.search ).get( ONBOARDING_FORCE_QUERY_ARG ) === '1';
-}
-
-/**
  * Owns the onboarding journey: modal, then tour, then done. It opens once per
- * reader per site the first time the surface is ready, persists the outcome in
- * the dashboard preferences, and records each move to Tracks.
+ * reader per site the first time the surface is ready, marking the preference
+ * as it opens so the journey never comes back, and records each move to Tracks.
  *
  * @param options           - Journey options.
  * @param options.enabled   - Whether the surface the journey introduces is ready.
@@ -99,27 +81,21 @@ export function useOnboarding( { enabled, stepCount = 0 }: OnboardingOptions ): 
 	const [ phase, setPhase ] = useState< OnboardingPhase >( 'closed' );
 	const [ step, setStep ] = useState( 0 );
 
-	const [ isForced ] = useState( isForcedByQueryArg );
-
 	useEffect( () => {
-		if ( ! enabled || hasOpenedThisLoad ) {
-			return;
-		}
-
-		if ( ! isForced && completedAt ) {
+		if ( ! enabled || hasOpenedThisLoad || completedAt ) {
 			return;
 		}
 
 		hasOpenedThisLoad = true;
 		setPhase( 'modal' );
+		void set( DASHBOARD_PREFERENCES_SCOPE, DASHBOARD_ONBOARDING_KEY, new Date().toISOString() );
 		trackEvent( 'jetpack_premium_analytics_onboarding_view' );
-	}, [ enabled, completedAt, isForced, trackEvent ] );
+	}, [ enabled, completedAt, set, trackEvent ] );
 
 	const complete = useCallback( () => {
 		setPhase( 'closed' );
 		setStep( 0 );
-		void set( DASHBOARD_PREFERENCES_SCOPE, DASHBOARD_ONBOARDING_KEY, new Date().toISOString() );
-	}, [ set ] );
+	}, [] );
 
 	const start = useCallback( () => {
 		trackEvent( 'jetpack_premium_analytics_onboarding_start' );
