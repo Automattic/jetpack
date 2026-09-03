@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+Comment: AI Hub: rename the "MCP Settings" tab to "MCP and Connectors". The tab has not shipped in a stable release, so there is nothing for users to be told about.
+
