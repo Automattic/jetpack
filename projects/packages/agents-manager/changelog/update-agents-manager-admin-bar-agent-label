@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Agents Manager: name the admin bar's AI chat button “Agent”, render an “Agent” label beside its icon while the chat is hidden, and rename its `meta.icon` key from `ask-ai` to `sparkle`.
