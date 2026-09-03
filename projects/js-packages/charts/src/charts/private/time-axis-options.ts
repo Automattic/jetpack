@@ -73,15 +73,17 @@ export const buildTimeAxisOptions = ( {
 	const formatter = tickFormat || ownFormatter;
 
 	// Only for our own formatter: a caller's tickFormat wasn't written for
-	// these values. Mirrors the guard in `use-bar-chart-options.ts`.
-	const ownTickValues = tickFormat
-		? null
-		: getTimeAxisTickValues(
-				rendered,
-				effectiveDomain,
-				ownFormatter,
-				callerNumTicks ?? getMaxTicksForWidth( width )
-		  );
+	// these values. Mirrors the guard in `use-bar-chart-options.ts`. A caller's
+	// own tickValues win below, so selecting ours would be work thrown away.
+	const ownTickValues =
+		tickFormat || callerTickValues
+			? null
+			: getTimeAxisTickValues(
+					rendered,
+					effectiveDomain,
+					ownFormatter,
+					callerNumTicks ?? getMaxTicksForWidth( width )
+			  );
 
 	// An empty selection means the domain holds no point to tick, not that the
 	// axis wants no ticks: visx reads `[]` as the latter and labels nothing.
