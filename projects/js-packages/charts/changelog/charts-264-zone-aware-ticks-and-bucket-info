@@ -1,4 +1,4 @@
 Significance: minor
 Type: fixed
 
-Place line and area chart date ticks on the host time zone's calendar boundaries, name the hour in tooltips on hourly data, and hand a custom tooltip the chart's date bucket classification.
+Place line and area chart date ticks on the host time zone's calendar boundaries, name the hour in tooltips on hourly data, let the locale rather than a forced 12-hour clock choose how every chart's hour labels read, and hand a custom tooltip the chart's date bucket classification.

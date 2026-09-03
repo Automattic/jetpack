@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-Charts: Place line and area chart date ticks on the site's time zone boundaries, and name the hour in tooltips on hourly data.
+Charts: Place line and area chart date ticks on the site's time zone boundaries, name the hour in tooltips on hourly data, and read hour labels in the site's own locale rather than a forced 12-hour clock.
