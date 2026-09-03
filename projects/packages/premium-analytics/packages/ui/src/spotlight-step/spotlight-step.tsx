@@ -27,7 +27,8 @@ export type SpotlightStepProps = {
 	side?: 'top' | 'bottom' | 'left' | 'right' | 'inline-start' | 'inline-end';
 };
 
-// One above the overlay, which shares its container: level with wp-admin's bar.
+// One above the overlay: without a @wordpress/ui overlay slot, the card lands
+// in the body beside it. Level with wp-admin's bar.
 const STACK_LEVEL = 99999;
 
 // Room the halo leaves around the anchor.
@@ -120,7 +121,7 @@ export function SpotlightStep( {
 
 	return (
 		<>
-			{ /* Portaled next to the card: inside the admin page, itself a stacking
+			{ /* Portaled to the body: inside the admin page, itself a stacking
 			     context, no z-index could lift the dim over wp-admin's menu. */ }
 			{ createPortal(
 				<div className={ styles.overlay } aria-hidden="true">

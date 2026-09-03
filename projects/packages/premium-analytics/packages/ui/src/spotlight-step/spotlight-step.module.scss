@@ -6,9 +6,9 @@ $spotlight-dim-color: rgba(0, 0, 0, 0.5);
 .overlay {
 	position: fixed;
 	inset: 0;
-	// Above wp-admin's menu (9990) and just under its bar (99999), where the
-	// card stacks; both are portaled to the body, where those values apply.
-	// WPDS has no z-index token.
+	// Portaled to the body: above wp-admin's menu (9990), just under its bar
+	// (99999). The card lands higher, in the body or in the @wordpress/ui
+	// overlay slot. WPDS has no z-index token.
 	z-index: 99998;
 }
 
