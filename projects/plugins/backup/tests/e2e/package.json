@@ -28,5 +28,9 @@
 		"allure-playwright": "2.15.1",
 		"config": "4.4.1",
 		"playwright-ctrf-json-reporter": "^0.0.26"
+	},
+	"ci": {
+		"pluginSlug": "jetpack-backup",
+		"mirrorName": "jetpack-backup-plugin"
 	}
 }
