@@ -9,6 +9,8 @@ module.exports = {
 	},
 	// Override testMatch to look in our tests directory
 	testMatch: [ '<rootDir>/tests/**/?(*.)+(spec|test).[jt]s?(x)' ],
+	// tests/preact needs the preact/compat aliases, so it runs under jest.preact.config.js.
+	testPathIgnorePatterns: [ '<rootDir>/tests/preact/' ],
 	// Keep other settings from base config
 	transform: {
 		...baseConfig.transform,

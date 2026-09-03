@@ -12,8 +12,13 @@ import { SERVER_OBJECT_NAME } from './lib/constants';
 import { isInCustomizer } from './lib/customize';
 import { getThemeOptions } from './lib/dom';
 import store from './store';
+import { initializeQueryValues } from './store/actions';
 
 const injectSearchApp = () => {
+	// Seed the store from the URL before the first render, so no component
+	// dispatches during the render phase. See ../../AGENTS.md.
+	store.dispatch( initializeQueryValues() );
+
 	render(
 		<Provider store={ store }>
 			<SearchApp
