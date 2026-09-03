@@ -30,6 +30,16 @@ use WP_User;
  */
 class Manager {
 	/**
+	 * Prefix of the transient holding the cached WordPress.com site record. The blog ID is
+	 * appended so a reconnect to a different site cannot read the previous site's record.
+	 *
+	 * @since 9.0.0
+	 *
+	 * @var string
+	 */
+	const SITE_DATA_TRANSIENT_PREFIX = 'jetpack_site_data_';
+
+	/**
 	 * A copy of the raw POST data for signature verification purposes.
 	 *
 	 * @var string
@@ -209,6 +219,8 @@ class Manager {
 		// Force is_connected() to recompute after important actions.
 		add_action( 'jetpack_site_registered', array( $this, 'reset_connection_status' ) );
 		add_action( 'jetpack_site_disconnected', array( $this, 'reset_connection_status' ) );
+		// Deletion doesn't fire `pre_update_jetpack_option_*`; see the action's docblock in `Tokens::delete_all()`.
+		add_action( 'jetpack_connection_tokens_deleted', array( $this, 'reset_connection_status' ) );
 		add_action( 'jetpack_sync_register_user', array( $this, 'reset_connection_status' ) );
 		add_action( 'pre_update_jetpack_option_id', array( $this, 'reset_connection_status' ) );
 		add_action( 'pre_update_jetpack_option_blog_token', array( $this, 'reset_connection_status' ) );
@@ -477,7 +489,12 @@ class Manager {
 			'signature' => isset( $_GET['signature'] ) ? wp_unslash( $_GET['signature'] ) : '',
 		);
 
-		$error_type = 'xmlrpc';
+		// Transport of the incoming request being verified. This signature-verification path
+		// serves both XML-RPC requests and signed REST requests (REST_Authentication funnels
+		// REST authentication into verify_xml_rpc_signature()), so the stored error type is
+		// derived from the actual request context rather than hardcoded.
+		$error_type      = $this->get_current_request_transport();
+		$error_direction = 'incoming'; // Matches Error_Handler::DIRECTION_INCOMING — see build_connection_error_data() for why the constant is not referenced.
 
 		// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
 		@list( $token_key, $version, $user_id ) = explode( ':', wp_unslash( $_GET['token'] ) );
@@ -490,7 +507,7 @@ class Manager {
 				|| empty( $version )
 				|| (string) $jetpack_api_version !== $version
 		) {
-			return new \WP_Error( 'malformed_token', 'Malformed token in request', compact( 'signature_details', 'error_type' ) );
+			return new \WP_Error( 'malformed_token', 'Malformed token in request', $this->build_connection_error_data( $signature_details, $error_type, $error_direction ) );
 		}
 
 		if ( '0' === $user_id ) {
@@ -502,7 +519,7 @@ class Manager {
 				return new \WP_Error(
 					'malformed_user_id',
 					'Malformed user_id in request',
-					compact( 'signature_details', 'error_type' )
+					$this->build_connection_error_data( $signature_details, $error_type, $error_direction )
 				);
 			}
 			$user_id = (int) $user_id;
@@ -512,20 +529,23 @@ class Manager {
 				return new \WP_Error(
 					'unknown_user',
 					sprintf( 'User %d does not exist', $user_id ),
-					compact( 'signature_details', 'error_type' )
+					$this->build_connection_error_data( $signature_details, $error_type, $error_direction )
 				);
 			}
 		}
 
 		$token = $this->get_tokens()->get_access_token( $user_id, $token_key, false );
 		if ( is_wp_error( $token ) ) {
-			$token->add_data( compact( 'signature_details', 'error_type' ) );
+			$token->add_data( $this->build_connection_error_data( $signature_details, $error_type, $error_direction ) );
 			return $token;
 		} elseif ( ! $token ) {
+			// `get_access_token()` explains itself for every case but one: it returns a bare
+			// `false` when the tokens are locked (Tokens::is_locked()). The lock is
+			// one-shot and self-healing.
 			return new \WP_Error(
-				'unknown_token',
-				sprintf( 'Token %s:%s:%d does not exist', $token_key, $version, $user_id ),
-				compact( 'signature_details', 'error_type' )
+				'tokens_locked',
+				sprintf( 'Tokens are locked; %s:%s:%d could not be verified', $token_key, $version, $user_id ),
+				$this->build_connection_error_data( $signature_details, $error_type, $error_direction )
 			);
 		}
 
@@ -563,13 +583,23 @@ class Manager {
 
 		$signature_details['url'] = $jetpack_signature->current_request_url;
 
+		// This path currently can't ever be true, unless a new path is added resulting
+		// in $signature 'false', null or an empty string. Leaving for additional security.
 		if ( ! $signature ) {
 			return new \WP_Error(
 				'could_not_sign',
 				'Unknown signature error',
-				compact( 'signature_details', 'error_type' )
+				$this->build_connection_error_data( $signature_details, $error_type, $error_direction )
 			);
 		} elseif ( is_wp_error( $signature ) ) {
+			// Jetpack_Signature errors carry their own signature_details (or, for some codes,
+			// no data at all) but never a type or direction; normalize them into the standard
+			// error data shape so Error_Handler can attribute and store them.
+			$signature_error_data = $signature->get_error_data();
+			if ( isset( $signature_error_data['signature_details'] ) && is_array( $signature_error_data['signature_details'] ) ) {
+				$signature_details = array_merge( $signature_details, $signature_error_data['signature_details'] );
+			}
+			$signature->add_data( $this->build_connection_error_data( $signature_details, $error_type, $error_direction ) );
 			return $signature;
 		}
 
@@ -583,7 +613,7 @@ class Manager {
 			return new \WP_Error(
 				'invalid_nonce',
 				'Could not add nonce',
-				compact( 'signature_details', 'error_type' )
+				$this->build_connection_error_data( $signature_details, $error_type, $error_direction )
 			);
 		}
 
@@ -597,7 +627,7 @@ class Manager {
 			return new \WP_Error(
 				'signature_mismatch',
 				'Signature mismatch',
-				compact( 'signature_details', 'error_type' )
+				$this->build_connection_error_data( $signature_details, $error_type, $error_direction )
 			);
 		}
 
@@ -620,6 +650,64 @@ class Manager {
 			$token,
 			$this->raw_post_data
 		);
+	}
+
+	/**
+	 * Determines the transport of the incoming request currently being verified.
+	 *
+	 * @since 8.9.0
+	 *
+	 * @return string Error_Handler::ERROR_TYPE_XMLRPC or Error_Handler::ERROR_TYPE_REST.
+	 */
+	private function get_current_request_transport() {
+		$is_xmlrpc = defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST;
+
+		// XMLRPC_REQUEST covers both /xmlrpc.php and the alternate XML-RPC endpoint, which
+		// defines the constant itself (see setup_xmlrpc_handlers). Outside those, signed REST
+		// requests are detected via the REST dispatch state. Anything else (e.g. signed
+		// requests verified on the 'authenticate' filter for regular URLs) keeps the historic
+		// XML-RPC label rather than guessing at a transport.
+		$is_rest = ! $is_xmlrpc && ( function_exists( 'wp_is_rest_endpoint' ) ? wp_is_rest_endpoint() : ( defined( 'REST_REQUEST' ) && REST_REQUEST ) );
+
+		// Signature verification can run before REST dispatch is set up: REST_Authentication
+		// hooks `determine_current_user`, which any plugin can trigger early (e.g. by calling
+		// wp_get_current_user() on plugins_loaded), before the REST_REQUEST constant exists.
+		// In that window, recognize REST requests by their URL: the REST prefix in the path,
+		// or the rest_route query argument used by sites without pretty permalinks.
+		if ( ! $is_xmlrpc && ! $is_rest ) {
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only used to classify the request transport.
+			$has_rest_route_arg = isset( $_GET['rest_route'] );
+			$request_path       = (string) wp_parse_url( isset( $_SERVER['REQUEST_URI'] ) ? wp_unslash( $_SERVER['REQUEST_URI'] ) : '', PHP_URL_PATH ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Parsed for path comparison only.
+			$is_rest            = $has_rest_route_arg || false !== strpos( $request_path, '/' . rest_get_url_prefix() . '/' );
+		}
+
+		// The literals match Error_Handler::ERROR_TYPE_REST / ERROR_TYPE_XMLRPC — see
+		// build_connection_error_data() for why the constants are not referenced.
+		return $is_rest ? 'rest' : 'xmlrpc';
+	}
+
+	/**
+	 * Builds the standardized connection error data attached to signature-verification errors.
+	 *
+	 * Wraps `Error_Handler::build_connection_error_data()`, falling back to the legacy
+	 * error-data shape when the loaded Error_Handler predates that method: during a plugin
+	 * update, an older version of the class can already be in memory while this file is the
+	 * new one, and a mid-update request must never fatal. For the same reason, code in this
+	 * class must not reference Error_Handler constants introduced along with that method
+	 * ('xmlrpc', 'rest', 'local_state', 'incoming', 'outgoing') — use the literal values.
+	 *
+	 * @since 8.10.0
+	 *
+	 * @param array  $signature_details Details of the request signature being verified.
+	 * @param string $error_type        The transport of the request: 'xmlrpc' or 'rest'.
+	 * @param string $error_direction   The direction of the request: 'incoming' or 'outgoing'.
+	 * @return array Error data for `WP_Error`.
+	 */
+	private function build_connection_error_data( $signature_details, $error_type, $error_direction ) {
+		if ( ! method_exists( Error_Handler::class, 'build_connection_error_data' ) ) {
+			return compact( 'signature_details', 'error_type' );
+		}
+		return Error_Handler::build_connection_error_data( $signature_details, $error_type, $error_direction );
 	}
 
 	/**
@@ -850,7 +938,12 @@ class Manager {
 	/**
 	 * Get the wpcom user data of the current|specified connected user.
 	 *
-	 * @todo Refactor to properly load the XMLRPC client independently.
+	 * Fetches the data from the WordPress.com `jetpack-wpcom-user-data` REST endpoint
+	 * with a signed request as the connected user. Routing this through
+	 * Client::remote_request() (rather than the legacy `wpcom.getUser` XML-RPC method)
+	 * ensures any connection errors are captured by the Error_Handler.
+	 *
+	 * @since 8.8.1 Fetch the data over REST instead of the `wpcom.getUser` XML-RPC method.
 	 *
 	 * @param int|null $user_id the user identifier.
 	 * @return bool|array An array with the WPCOM user data on success, false otherwise.
@@ -868,24 +961,206 @@ class Manager {
 		$transient_key    = "jetpack_connected_user_data_$user_id";
 		$cached_user_data = get_transient( $transient_key );
 
+		if ( 'error' === $cached_user_data ) {
+			return false;
+		}
+
 		if ( $cached_user_data ) {
 			return $cached_user_data;
 		}
 
-		$xml = new Jetpack_IXR_Client(
-			array(
-				'user_id' => $user_id,
-			)
-		);
-		$xml->query( 'wpcom.getUser' );
+		$blog_id = (int) \Jetpack_Options::get_option( 'id' );
 
-		if ( ! $xml->isError() ) {
-			$user_data = $xml->getResponse();
-			set_transient( $transient_key, $xml->getResponse(), DAY_IN_SECONDS );
-			return $user_data;
+		// Build a signed request as the connected user. We can't use
+		// Client::wpcom_json_api_request_as_user() because it always signs as the
+		// current user, whereas this method may be called for an arbitrary $user_id.
+		$args            = Client::validate_args_for_wpcom_json_api_request(
+			"/sites/{$blog_id}/jetpack-wpcom-user-data",
+			'2',
+			array( 'method' => 'GET' )
+		);
+		$args['user_id'] = $user_id;
+
+		$response = Client::remote_request( $args );
+
+		if ( is_wp_error( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
+			// Cache errors briefly so a failing remote request doesn't result in
+			// a blocking request on every call, e.g. on each admin page
+			// load via Initial_State::set_connection_script_data().
+			set_transient( $transient_key, 'error', 5 * MINUTE_IN_SECONDS );
+
+			return false;
 		}
 
-		return false;
+		$user_data = json_decode( wp_remote_retrieve_body( $response ), true );
+
+		if ( ! is_array( $user_data ) || empty( $user_data ) ) {
+			set_transient( $transient_key, 'error', 5 * MINUTE_IN_SECONDS );
+
+			return false;
+		}
+
+		set_transient( $transient_key, $user_data, DAY_IN_SECONDS );
+
+		return $user_data;
+	}
+
+	/**
+	 * Drop the cached WordPress.com site record.
+	 *
+	 * A caller that fetched the record by another route holds something newer than the cache can,
+	 * and `jetpack_site_data_fetched` fires on a cached read too. The cached copy has to go, or it
+	 * keeps announcing the older record and undoes what that caller stored.
+	 *
+	 * @since 9.0.0
+	 *
+	 * @return void
+	 */
+	public static function delete_cached_site_data() {
+		$site_id = \Jetpack_Options::get_option( 'id' );
+
+		if ( $site_id ) {
+			delete_transient( self::SITE_DATA_TRANSIENT_PREFIX . $site_id );
+		}
+	}
+
+	/**
+	 * Fetch the site's own record from the WordPress.com `/sites/%d` endpoint.
+	 *
+	 * The result is cached briefly. Every plugin that bundles this package serves this route, and
+	 * the Jetpack dashboard requests it on mount, so an uncached read means a blocking round trip
+	 * per render.
+	 *
+	 * @since 8.10.0
+	 *
+	 * @return object|WP_Error The decoded site record, or an error describing the failure.
+	 */
+	public function get_connected_site_data() {
+		$site_id = \Jetpack_Options::get_option( 'id' );
+
+		if ( ! $site_id ) {
+			return new WP_Error( 'site_id_missing', '', array( 'api_error_code' => 'site_id_missing' ) );
+		}
+
+		$sandbox_secret = null;
+
+		// An array cookie (`store_sandbox[]=`) carries no secret to send, and `filter_var()` turns
+		// it into `false`.
+		if ( isset( $_COOKIE['store_sandbox'] ) && is_string( $_COOKIE['store_sandbox'] ) ) {
+			// Keep only RFC 6265 cookie-octets so the value cannot break out of the Cookie header.
+			$sandbox_secret = preg_replace( '/[^\x21-\x7E]|[";,\\\\]/', '', filter_var( wp_unslash( $_COOKIE['store_sandbox'] ) ) );
+
+			// An empty cookie, or one the sanitizer strips to nothing, is not a sandbox secret.
+			// Counting it as one opts the request out of the cache with no sandbox to reach.
+			if ( '' === $sandbox_secret ) {
+				$sandbox_secret = null;
+			}
+		}
+
+		// A sandboxed request must neither read the shared cache nor seed it with sandbox data.
+		$sandboxed     = null !== $sandbox_secret;
+		$transient_key = self::SITE_DATA_TRANSIENT_PREFIX . $site_id;
+
+		// WordPress.com itself requests this route right after a purchase, for the side effect of
+		// the `jetpack_site_data_fetched` consumers storing the new plan. Those requests arrive
+		// signed with a connection token, which no browser request carries. A cached read would
+		// hand that refresh the pre-purchase record and turn it into a no-op, so a signed request
+		// always reads from WordPress.com and replaces the cache with the record it fetched.
+		$signed = Rest_Authentication::is_signed_with_blog_token() || Rest_Authentication::is_signed_with_user_token();
+
+		$result = ( $sandboxed || $signed ) ? false : get_transient( $transient_key );
+
+		// Only the array shape stored below can be served. A `pre_transient_*` filter or a damaged
+		// object cache entry can hand back anything, and a non-array would throw on
+		// `$result['body']` for every request until the entry expired, so it reads as a miss.
+		if ( ! is_array( $result ) ) {
+			$result = $this->fetch_connected_site_data( $site_id, $sandbox_secret );
+
+			// A signed read that failed must not replace a still-usable cached record with the failure.
+			if ( ! $sandboxed && ! ( $signed && isset( $result['error'] ) ) ) {
+				// Failures expire sooner so an outage recovers without waiting out a full success window.
+				set_transient(
+					$transient_key,
+					$result,
+					isset( $result['error'] ) ? 2 * MINUTE_IN_SECONDS : 5 * MINUTE_IN_SECONDS
+				);
+			}
+		}
+
+		if ( isset( $result['error'] ) ) {
+			return new WP_Error( 'site_data_fetch_failed', '', $result['error'] );
+		}
+
+		/**
+		 * Fires after the site record was served, whether it was fetched or read from the cache.
+		 *
+		 * Consumers that cache anything derived from the record, such as the current plan,
+		 * can refresh it here.
+		 *
+		 * This fires on a cached read too, so a consumer stays in step with every request that
+		 * serves the record rather than only the ones that reached WordPress.com.
+		 *
+		 * The record is passed as an array rather than the object this method returns, so that a
+		 * listener cannot mutate the instance that becomes the REST response.
+		 *
+		 * @since 9.0.0
+		 *
+		 * @param array $record The decoded site record from the WordPress.com `/sites/%d` endpoint.
+		 */
+		do_action( 'jetpack_site_data_fetched', json_decode( $result['body'], true ) );
+
+		return json_decode( $result['body'] );
+	}
+
+	/**
+	 * Request the site record from WordPress.com.
+	 *
+	 * Returns a cacheable array rather than the decoded record so that both outcomes survive a
+	 * round trip through a transient.
+	 *
+	 * @since 9.0.0
+	 *
+	 * @param int         $site_id        The WordPress.com blog ID.
+	 * @param string|null $sandbox_secret Sanitized store sandbox cookie value, or null when not sandboxed.
+	 * @return array Either `array( 'body' => string )` or `array( 'error' => array )`.
+	 */
+	private function fetch_connected_site_data( $site_id, $sandbox_secret ) {
+		$args = array( 'headers' => array() );
+
+		// Allow use a store sandbox. Internal ref: PCYsg-IA-p2.
+		if ( null !== $sandbox_secret ) {
+			$args['headers']['Cookie'] = "store_sandbox=$sandbox_secret;";
+		}
+
+		$response = Client::wpcom_json_api_request_as_blog( sprintf( '/sites/%d', $site_id ) . '?force=wpcom', '1.1', $args );
+		$body     = wp_remote_retrieve_body( $response );
+		$data     = $body ? json_decode( $body ) : null;
+
+		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
+			$error_info = array(
+				'api_error_code' => null,
+				'api_http_code'  => wp_remote_retrieve_response_code( $response ),
+			);
+
+			if ( is_wp_error( $response ) ) {
+				$error_info['api_error_code'] = $response->get_error_code() ? wp_strip_all_tags( $response->get_error_code() ) : null;
+			} elseif ( $data && ! empty( $data->error ) ) {
+				$error_info['api_error_code'] = is_string( $data->error ) ? wp_strip_all_tags( $data->error ) : null;
+			}
+
+			return array( 'error' => $error_info );
+		}
+
+		if ( ! is_object( $data ) ) {
+			return array(
+				'error' => array(
+					'api_error_code' => 'invalid_body',
+					'api_http_code'  => 200,
+				),
+			);
+		}
+
+		return array( 'body' => $body );
 	}
 
 	/**
@@ -908,18 +1183,19 @@ class Manager {
 			$connection_owner = get_userdata( $user_token->external_user_id );
 		}
 
-		if ( $connection_owner === false ) {
+		// Reporting is best-effort and must never fatal a request running mid-plugin-update:
+		// skip it when the already-loaded Error_Handler is a stale version predating the factory.
+		if ( $connection_owner === false && method_exists( Error_Handler::class, 'build_connection_wp_error' ) ) {
 			Error_Handler::get_instance()->report_error(
-				new WP_Error(
+				Error_Handler::build_connection_wp_error(
 					'invalid_connection_owner',
 					'Invalid connection owner',
+					array( 'token' => '' ),
+					'local_state', // Error_Handler::ERROR_TYPE_LOCAL_STATE.
+					'', // Local-state errors describe the site's database, not a request, so they have no direction.
 					array(
-						'user_id'           => $user_id,
-						'has_user_token'    => (bool) $user_token,
-						'error_type'        => 'connection',
-						'signature_details' => array(
-							'token' => '',
-						),
+						'user_id'        => $user_id,
+						'has_user_token' => (bool) $user_token,
 					)
 				),
 				false,
@@ -1866,9 +2142,13 @@ class Manager {
 			return false;
 		}
 
+		// The protected owner anchor is a local cache of a record WordPress.com owns. Dropping it
+		// here keeps a disconnected site from carrying a lock that names a user who no longer holds
+		// a token; the anchor is re-established from WordPress.com when the owner reconnects.
 		\Jetpack_Options::delete_option(
 			array(
 				'master_user',
+				'protected_owner',
 				'time_diff',
 				'fallback_no_verify_ssl_certs',
 			)
@@ -1883,6 +2163,9 @@ class Manager {
 		// Delete cached connected user data.
 		$transient_key = 'jetpack_connected_user_data_' . get_current_user_id();
 		delete_transient( $transient_key );
+
+		// Delete the cached site record, which a later connection must not serve.
+		self::delete_cached_site_data();
 
 		// Delete all XML-RPC errors.
 		Error_Handler::get_instance()->delete_all_errors();
@@ -2270,6 +2553,10 @@ class Manager {
 		$is_connection_owner = ! $this->has_connected_owner();
 
 		$this->get_tokens()->update_user_token( $current_user_id, sprintf( '%s.%d', $token, $current_user_id ), $is_connection_owner );
+
+		// Delete cached connected user data, so a cached failure from the
+		// previous (broken) token doesn't linger after reconnecting.
+		delete_transient( "jetpack_connected_user_data_$current_user_id" );
 
 		/**
 		 * Fires after user has successfully received an auth token.

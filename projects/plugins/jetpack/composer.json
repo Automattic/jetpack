@@ -24,6 +24,7 @@
 		"automattic/jetpack-blocks": "@dev",
 		"automattic/jetpack-boost-speed-score": "@dev",
 		"automattic/jetpack-classic-theme-helper": "@dev",
+		"automattic/jetpack-comments": "@dev",
 		"automattic/jetpack-compat": "@dev",
 		"automattic/jetpack-composer-plugin": "@dev",
 		"automattic/jetpack-config": "@dev",
@@ -33,6 +34,7 @@
 		"automattic/jetpack-error": "@dev",
 		"automattic/jetpack-external-connections": "@dev",
 		"automattic/jetpack-external-media": "@dev",
+		"automattic/jetpack-feature-flags": "@dev",
 		"automattic/jetpack-forms": "@dev",
 		"automattic/jetpack-image-cdn": "@dev",
 		"automattic/jetpack-import": "@dev",
@@ -63,7 +65,8 @@
 		"automattic/jetpack-videopress": "@dev",
 		"automattic/jetpack-waf": "@dev",
 		"automattic/jetpack-wp-abilities": "@dev",
-		"automattic/woocommerce-analytics": "^0.16"
+		"automattic/woocommerce-analytics": "^0.17",
+		"wp-php-toolkit/reprint-server": "0.10.6"
 	},
 	"require-dev": {
 		"antecedent/patchwork": "^2.2",
@@ -117,7 +120,7 @@
 		"platform": {
 			"ext-intl": "0.0.0"
 		},
-		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ16_1_a_5",
+		"autoloader-suffix": "f11009ded9fc4592b6a05b61ce272b3c_jetpackⓥ16_2_a_5",
 		"allow-plugins": {
 			"automattic/jetpack-autoloader": true,
 			"automattic/jetpack-composer-plugin": true

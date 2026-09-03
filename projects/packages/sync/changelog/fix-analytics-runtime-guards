@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+WooCommerce Analytics: Guard optional WooCommerce symbols to avoid fatals on older versions and missing parent orders.

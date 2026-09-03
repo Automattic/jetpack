@@ -3,6 +3,7 @@
  */
 import {
 	MetricTabsChart,
+	MetricTabsChartSkeleton,
 	WidgetRoot,
 	WidgetState,
 	useWidgetRootContext,
@@ -10,17 +11,16 @@ import {
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { reports } from '@jetpack-premium-analytics/icons';
+import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
 import { __ } from '@wordpress/i18n';
+import { useCallback } from 'react';
 /**
  * Internal dependencies
  */
 import styles from './style.module.css';
-import useTrafficChart, { type TrafficPeriod } from './use-traffic-chart';
-import type {
-	TrafficChartAttributes,
-	TrafficChartGranularity,
-	TrafficChartMetricId,
-} from './widget';
+import useTrafficChart from './use-traffic-chart';
+import { TRAFFIC_PERIODS } from './widget';
+import type { TrafficChartAttributes, TrafficChartGranularity, TrafficChartType } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps } from 'react';
 
@@ -37,40 +37,33 @@ const DATA_FORMAT = {
 	options: { useMultipliers: true, decimals: 0 },
 };
 
-// Ordered finest to coarsest, as `defaultPeriodForInterval` requires.
-const TRAFFIC_PERIODS = [ 'day', 'week', 'month' ] as const satisfies readonly TrafficPeriod[];
-
 type TrafficChartInnerProps = {
 	/**
-	 * Selected granularity; `auto` follows the dashboard range.
+	 * How to draw the selected metric. `MetricTabsChart` owns the default.
 	 */
-	granularity: TrafficChartGranularity;
-	/**
-	 * Selected metric tab ids; defaults to every metric.
-	 */
-	metrics?: TrafficChartMetricId[];
+	chartType?: TrafficChartType;
 };
 
 /**
- * Traffic chart inner component. Reads the dashboard date range + comparison
- * state from `useWidgetRootContext()` and hands the selected metric tabs to the
- * shared `MetricTabsChart`. The "Group by" control is the `granularity`
- * attribute and the tab selection is the `metrics` attribute (both
- * `relevance: 'high'`), rendered by the widget host.
- *
- * @param {TrafficChartInnerProps} props - The component props.
- * @return The widget body.
+ * The bucket size follows the dashboard's chart interval control, clamped to what
+ * this chart supports; which metric is plotted is the chart's own tab selection.
  */
-function TrafficChartInner( { granularity, metrics }: TrafficChartInnerProps ) {
+function TrafficChartInner( { chartType }: TrafficChartInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
-	// `auto` means "follow the dashboard range"; an explicit value sticks
-	// across range changes, so a wide range doesn't stay stuck on `day`
-	// granularity (and blow up the bucket count) while the user hasn't picked
-	// a granularity themselves.
-	const period: TrafficPeriod =
-		granularity === 'auto'
-			? defaultPeriodForInterval( reportParams.interval, TRAFFIC_PERIODS )
-			: granularity;
+	const period: TrafficChartGranularity = defaultPeriodForInterval(
+		reportParams.interval,
+		TRAFFIC_PERIODS
+	);
+
+	// Bound to whichever route hosts the widget, the same way `reportParams` are.
+	const { drillDown } = useReportDateFilters();
+
+	// Names the bucket size drawn, not the page interval: a year page interval
+	// clamps to months here, and the click must open the bar it hit.
+	const openBucket = useCallback(
+		( date: Date ) => drillDown( date, period ),
+		[ drillDown, period ]
+	);
 
 	const {
 		metrics: metricTabs,
@@ -78,32 +71,25 @@ function TrafficChartInner( { granularity, metrics }: TrafficChartInnerProps ) {
 		isFetching,
 		isError,
 		refetch,
-	} = useTrafficChart( reportParams, period, metrics );
+	} = useTrafficChart( reportParams, period );
 	const groupLabel = __( 'Traffic metric', 'jetpack-premium-analytics-pkg' );
-
-	if ( ! metricTabs.length ) {
-		return (
-			<div className={ styles.emptyState }>
-				{ __(
-					'No metric selected. Please select a metric from the metrics list.',
-					'jetpack-premium-analytics-pkg'
-				) }
-			</div>
-		);
-	}
+	// A metric the endpoint can't serve at this bucket size carries its own
+	// explanation, so it must not count toward emptiness and hide that message.
+	const servedMetrics = metricTabs.filter( metric => ! metric.unavailable );
 
 	return (
 		<div className={ styles.root }>
 			<WidgetState
 				isLoading={ isLoading }
-				// `isFetching` is deliberately not passed: the chart renders its own
-				// scoped overlay below, so WidgetState's full-widget one would double
-				// up and cover the metric tabs.
-				//
+				isFetching={ isFetching }
 				// `useTrafficChart` already gates `isError` per query on that query
 				// having no rows, so a transient refetch failure keeps the chart.
 				isError={ isError }
-				isEmpty={ metricTabs.every( metric => metric.current.length === 0 ) }
+				// `[].every()` is true, so the length check keeps an all-unavailable chart
+				// out of the empty state, which would replace those explanations with "no data".
+				isEmpty={
+					servedMetrics.length > 0 && servedMetrics.every( metric => metric.current.length === 0 )
+				}
 				error={ {
 					description: __(
 						"We couldn't load traffic data. Please try again in a moment.",
@@ -115,47 +101,25 @@ function TrafficChartInner( { granularity, metrics }: TrafficChartInnerProps ) {
 					icon: reports,
 					description: __( 'No traffic data in this period.', 'jetpack-premium-analytics-pkg' ),
 				} }
-				// First load keeps the widget's chart-shaped skeleton (the metric tabs
-				// over the chart's own loading overlay) instead of the default overlay.
-				renderLoading={
-					<MetricTabsChart
-						metrics={ metricTabs }
-						dataFormat={ DATA_FORMAT }
-						loading
-						groupLabel={ groupLabel }
-					/>
-				}
+				renderLoading={ <MetricTabsChartSkeleton /> }
 			>
-				{ /* Background refetches keep the overlay scoped to the chart area so
-				     the metric tabs stay usable, matching the pre-WidgetState behavior. */ }
 				<MetricTabsChart
 					metrics={ metricTabs }
 					dataFormat={ DATA_FORMAT }
-					loading={ isFetching }
+					chartType={ chartType }
 					groupLabel={ groupLabel }
+					tickResolution={ period }
+					onDatumClick={ openBucket }
 				/>
 			</WidgetState>
 		</div>
 	);
 }
 
-/**
- * Widget render entry point.
- *
- * `WidgetRoot` provides the analytics query client and resolves the dashboard's
- * `reportParams`; the inner component reads that range/comparison state. The
- * granularity is the `granularity` attribute (`relevance: 'high'`), exposed as
- * a control by the widget host.
- *
- * @param {TrafficChartWidgetProps} props - The widget render props.
- * @return The rendered widget.
- */
 export default function TrafficChart( { attributes = {}, setError }: TrafficChartWidgetProps ) {
-	const granularity = attributes.granularity ?? 'auto';
-
 	return (
 		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
-			<TrafficChartInner granularity={ granularity } metrics={ attributes.metrics } />
+			<TrafficChartInner chartType={ attributes.chartType } />
 		</WidgetRoot>
 	);
 }

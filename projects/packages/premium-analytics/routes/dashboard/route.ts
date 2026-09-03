@@ -1,50 +1,27 @@
 /**
  * External dependencies
  */
-import { ensureCoreSettingsReady, normalizeReportParams } from '@jetpack-premium-analytics/data';
-import { store as coreStore } from '@wordpress/core-data';
-import { dispatch, select } from '@wordpress/data';
-import { __ } from '@wordpress/i18n';
+import {
+	ensureCoreSettingsReady,
+	hasComparisonEnabled,
+	needsReportDateParamsSeed,
+	normalizeReportParams,
+	withoutComparison,
+} from '@jetpack-premium-analytics/data';
 import { redirect } from '@wordpress/route';
 /**
  * Internal dependencies
  */
-import {
-	isPremiumAnalyticsInitialSyncFinished,
-	isPremiumAnalyticsSiteConnected,
-} from '../site-readiness';
-import { DASHBOARD_NAME, DASHBOARD_REST_NAMESPACE } from './hooks/constants';
+import { ensureDashboardEntities } from '../dashboard-entities';
+import { isPremiumAnalyticsSiteConnected } from '../site-readiness';
 
 type DashboardSearch = Record< string, string | undefined >;
 
 /**
- * Route lifecycle for the dashboard.
- *
- * Guard:
- * - Not connected → /connect
- * - Connected but sync pending → /syncing
- *
- * Seed the default date range into the URL on first visit so the date picker
- * and the widgets share a populated search state. Defaults to the last 30 days
- * with a previous-period comparison, resolved from the shared analytics
- * defaults (`getDefaultQueryParams`). The seed runs after
- * `ensureCoreSettingsReady()` so the dates are encoded in the site timezone;
- * otherwise `getDefaultQueryParams` would fall back to the browser timezone
- * (core `site` settings not loaded yet) and the seeded `to` boundary would
- * land on a different instant than a later Apply writes.
- *
- * Then register the widget-modules discovery entity before the stage renders,
- * so the stage's `getEntityRecords` read resolves and feeds the records to
- * `useWidgetTypes`. Premium Analytics serves the records from its own namespace
- * (see `src/widget-modules.php`), independent of core's `wp/v2` endpoint.
- * The route is registered under `wpcom/v2` so WPCOM can expose it through the
- * site-scoped public-api path for Simple sites.
- * Guarded for idempotency: beforeLoad re-runs on every navigation and preload.
- *
- * That registration is one-time bootstrap setup that could move to the page's
- * `init` module (`packages/init`) now that `@wordpress/build` supports it —
- * registering once at boot instead of on every beforeLoad run. Left here for
- * now (idempotency-guarded); tracked as a follow-up.
+ * Route lifecycle for the dashboard. The initial analytics sync is not a guard
+ * — only the store section waits on it and shows progress meanwhile (see
+ * `stage.tsx`). Widget-module registration is idempotent for repeat visits; it
+ * could move to `packages/init` and run once at boot — tracked as a follow-up.
  */
 export const route = {
 	beforeLoad: async ( { search }: { search?: DashboardSearch } = {} ) => {
@@ -52,18 +29,11 @@ export const route = {
 			throw redirect( { to: '/connect' } );
 		}
 
-		if ( ! isPremiumAnalyticsInitialSyncFinished() ) {
-			throw redirect( { to: '/syncing' } );
-		}
-
 		const params = ( search ?? {} ) as DashboardSearch;
-		if ( ! params.from || ! params.to || ! params.interval ) {
+		if ( needsReportDateParamsSeed( params ) ) {
 			/*
-			 * Seed dates in the site timezone, not the browser's, by waiting for
-			 * core `site` settings. A rejection here (network/auth) shouldn't
-			 * error the whole page, so fall back to the default seed — matching
-			 * upstream's loader behavior. The only cost is the timezone briefly
-			 * falling back to the browser's until settings resolve.
+			 * Warm the core `site` record for `useSiteHomeUrl()`; a rejection should
+			 * not error the page since the seed's own dates don't depend on it.
 			 */
 			try {
 				await ensureCoreSettingsReady();
@@ -71,65 +41,32 @@ export const route = {
 				// Proceed with the default seed below.
 			}
 
+			const normalized = normalizeReportParams(
+				params as Parameters< typeof normalizeReportParams >[ 0 ]
+			);
+
 			/*
-			 * Resolve the date params through `normalizeReportParams` — the same
-			 * resolver the widgets use — so the URL and the widgets agree on
-			 * dates, interval, preset, and comparison. A raw default spread would
-			 * force `comp: '1'` onto a custom `from`/`to` deep-link the user never
-			 * asked to compare; normalizeReportParams only applies the default
-			 * comparison on a genuinely fresh load (no `from`/`to`).
-			 *
-			 * Overlay the resolved report params onto the original search so
-			 * non-report params that may be deep-linked (e.g. `section`) survive
-			 * the seed redirect.
+			 * Overlay `normalizeReportParams` onto `params`, not replace it, so
+			 * passthrough params like `section` survive the seed. Comparison keys
+			 * only survive when normalize returned a complete comparison: a
+			 * hand-edited bare `comp=1` must not outlive the seed.
 			 */
-			const seeded: Record< string, unknown > = {
-				...params,
-				...normalizeReportParams( params as Parameters< typeof normalizeReportParams >[ 0 ] ),
-			};
+			const merged = { ...params, ...normalized };
+			const seeded: Record< string, unknown > = hasComparisonEnabled( normalized )
+				? merged
+				: withoutComparison( merged );
 
 			throw redirect( {
 				to: '/',
 				replace: true,
 				/*
-				 * The router is built dynamically, so the '/' route has no
-				 * statically-typed search schema (tanstack widens it to
-				 * `never`). Cast the seeded params the same way the routing
-				 * package does when it writes the URL.
+				 * The router is built dynamically, so '/' has no typed search schema
+				 * (TanStack widens it to `never`); cast as the routing package does.
 				 */
 				search: seeded as unknown as never,
 			} );
 		}
 
-		const coreSelect = select( coreStore ) as unknown as {
-			getEntityConfig: ( kind: string, name: string ) => unknown;
-		};
-		if ( coreSelect.getEntityConfig( 'root', 'widgetModule' ) ) {
-			return;
-		}
-
-		const coreDispatch = dispatch( coreStore ) as unknown as {
-			addEntities: ( entities: object[] ) => void;
-		};
-		coreDispatch.addEntities( [
-			{
-				name: 'widgetModule',
-				kind: 'root',
-				key: 'name',
-				baseURL: `/${ DASHBOARD_REST_NAMESPACE }/widget-modules`,
-				plural: 'widgetModules',
-				label: __( 'Widget modules', 'jetpack-premium-analytics-pkg' ),
-				supportsPagination: false,
-			},
-			{
-				name: 'dashboardSection',
-				kind: 'root',
-				key: 'slug',
-				baseURL: `/${ DASHBOARD_REST_NAMESPACE }/dashboards/${ DASHBOARD_NAME }/sections`,
-				plural: 'dashboardSections',
-				label: __( 'Dashboard sections', 'jetpack-premium-analytics-pkg' ),
-				supportsPagination: false,
-			},
-		] );
+		ensureDashboardEntities();
 	},
 };

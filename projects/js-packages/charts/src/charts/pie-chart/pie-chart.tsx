@@ -1,14 +1,14 @@
 import { Group } from '@visx/group';
 import { Pie } from '@visx/shape';
-import { useTooltip, useTooltipInPortal } from '@visx/tooltip';
-import { __ } from '@wordpress/i18n';
+import { useTooltip } from '@visx/tooltip';
 import clsx from 'clsx';
-import { useCallback, useContext, useMemo } from 'react';
+import { useCallback, useContext, useMemo, useRef } from 'react';
 import { Legend, useChartLegendItems } from '../../components/legend';
 import { BaseTooltip } from '../../components/tooltip';
+import { BoundedTooltip } from '../../components/tooltip/private/bounded-tooltip';
 import {
 	useDataWithPercentages,
-	useInteractiveLegendData,
+	useLegendVisibilityData,
 	usePrefersReducedMotion,
 } from '../../hooks';
 import {
@@ -19,14 +19,15 @@ import {
 	useGlobalChartsTheme,
 	GlobalChartsContext,
 } from '../../providers';
+import { useStandaloneScopeClass } from '../../providers/chart-scope';
 import { attachSubComponents, resolveFontSize } from '../../utils';
 import { getStringWidth } from '../../visx/text';
 import { Center } from '../private/center';
 import { ChartSVG, ChartHTML, useChartChildren } from '../private/chart-composition';
+import { ChartInstanceContext } from '../private/chart-instance-context';
 import { ChartLayout } from '../private/chart-layout';
 import { RadialWipeAnimation } from '../private/radial-wipe-animation/';
-import { SingleChartContext } from '../private/single-chart-context';
-import { SvgEmptyState } from '../private/svg-empty-state';
+import { getAllHiddenMessage, SvgEmptyState } from '../private/svg-empty-state';
 import { withResponsive, ResponsiveConfig } from '../private/with-responsive';
 import styles from './pie-chart.module.scss';
 import type { LegendValueDisplay } from '../../components/legend';
@@ -196,14 +197,10 @@ const PieChartInternal = ( {
 	const chartId = useChartId( providedChartId );
 	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, hideTooltip, showTooltip } =
 		useTooltip< DataPointPercentageCalculated >();
+	const standaloneScopeClass = useStandaloneScopeClass();
 
-	// Set up portal tooltip for better z-index handling
-	// We get containerBounds to cancel out stale offsets in the position calculation
-	const { containerRef, TooltipInPortal, containerBounds } = useTooltipInPortal( {
-		detectBounds: true,
-		scroll: true,
-		debounce: 0,
-	} );
+	// The tooltip renders inside this element, so pointer coordinates are taken relative to it.
+	const containerRef = useRef< HTMLDivElement >( null );
 
 	const onMouseLeave = useCallback( () => {
 		if ( ! withTooltips ) {
@@ -217,11 +214,10 @@ const PieChartInternal = ( {
 	// Calculate percentages from values (single source of truth)
 	const dataWithPercentages = useDataWithPercentages( data );
 
-	// Filter and recalculate data for interactive legends
-	const { visibleData, allSegmentsHidden, legendData } = useInteractiveLegendData( {
+	// Filter and recalculate data from the shared legend visibility state.
+	const { visibleData, allSegmentsHidden, legendData } = useLegendVisibilityData( {
 		data: dataWithPercentages,
 		chartId,
-		legendInteractive,
 		isSeriesVisible,
 	} );
 
@@ -307,7 +303,7 @@ const PieChartInternal = ( {
 	);
 
 	return (
-		<SingleChartContext.Provider value={ { chartId } }>
+		<ChartInstanceContext.Provider value={ { chartId } }>
 			<ChartLayout
 				legendPosition={ legendPosition }
 				legendElement={ legendElement }
@@ -326,11 +322,6 @@ const PieChartInternal = ( {
 				} }
 				trailingContent={
 					<>
-						{ withTooltips && tooltipOpen && tooltipData && (
-							<TooltipInPortal top={ tooltipTop || 0 } left={ tooltipLeft || 0 }>
-								<div role="tooltip">{ renderTooltip( { tooltipData } ) }</div>
-							</TooltipInPortal>
-						) }
 						{ htmlChildren }
 						{ otherChildren }
 					</>
@@ -358,7 +349,7 @@ const PieChartInternal = ( {
 						: 0;
 
 					return (
-						<Center ref={ containerRef }>
+						<Center ref={ containerRef } className={ styles[ 'pie-chart__plot' ] }>
 							<svg
 								viewBox={ `0 0 ${ width } ${ height }` }
 								preserveAspectRatio="xMidYMid meet"
@@ -382,10 +373,7 @@ const PieChartInternal = ( {
 								>
 									{ allSegmentsHidden ? (
 										<SvgEmptyState x={ 0 } y={ 0 } width={ width } height={ height }>
-											{ __(
-												'All segments are hidden. Click legend items to show data.',
-												'jetpack-charts'
-											) }
+											{ getAllHiddenMessage( legendInteractive, 'segments' ) }
 										</SvgEmptyState>
 									) : (
 										<Pie< DataPointPercentageCalculated & { index: number } >
@@ -405,20 +393,15 @@ const PieChartInternal = ( {
 															return;
 														}
 
-														// Don't show tooltip until container bounds are measured
-														if ( containerBounds.width === 0 || containerBounds.height === 0 ) {
+														const bounds = containerRef.current?.getBoundingClientRect();
+														if ( ! bounds ) {
 															return;
 														}
 
-														// Use clientX/Y and subtract containerBounds to cancel out any stale offset.
-														// TooltipInPortal calculates: tooltipLeft + containerBounds.left + scrollX
-														// By passing (clientX - containerBounds.left), we get:
-														// (clientX - containerBounds.left) + containerBounds.left + scrollX = clientX + scrollX
-														// This gives correct page coordinates regardless of stale bounds.
 														showTooltip( {
 															tooltipData: arc.data,
-															tooltipLeft: event.clientX - containerBounds.left + tooltipOffsetX,
-															tooltipTop: event.clientY - containerBounds.top + tooltipOffsetY,
+															tooltipLeft: event.clientX - bounds.left + tooltipOffsetX,
+															tooltipTop: event.clientY - bounds.top + tooltipOffsetY,
 														} );
 													};
 
@@ -488,11 +471,18 @@ const PieChartInternal = ( {
 									{ ! allSegmentsHidden && svgChildren }
 								</Group>
 							</svg>
+							{ withTooltips && tooltipOpen && tooltipData && (
+								<BoundedTooltip top={ tooltipTop || 0 } left={ tooltipLeft || 0 }>
+									<div className={ standaloneScopeClass } role="tooltip">
+										{ renderTooltip( { tooltipData } ) }
+									</div>
+								</BoundedTooltip>
+							) }
 						</Center>
 					);
 				} }
 			</ChartLayout>
-		</SingleChartContext.Provider>
+		</ChartInstanceContext.Provider>
 	);
 };
 

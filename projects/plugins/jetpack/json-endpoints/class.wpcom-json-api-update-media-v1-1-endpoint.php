@@ -84,6 +84,49 @@ new WPCOM_JSON_API_Update_Media_v1_1_Endpoint(
  */
 class WPCOM_JSON_API_Update_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint {
 	/**
+	 * Whether the current user may edit the given media item.
+	 *
+	 * `upload_files` is a primitive capability and ignores any object passed to it,
+	 * so it only tells us the caller may upload something, never that they may edit
+	 * this particular item. A missing item is passed through so the caller receives
+	 * the endpoint's own 404 rather than a 403. A userless request gets no exemption:
+	 * `edit_post` fails closed for user 0 like any other caller.
+	 *
+	 * Non-attachments are refused outright. `get_post()` resolves any post type, so
+	 * without this test a media endpoint edits ordinary posts, pages and revisions.
+	 * The post-type test must stay below the missing-post passthrough: that branch
+	 * returns true, so testing there would skip `edit_post` for ordinary posts.
+	 *
+	 * A non-attachment yields 403, not the 404 a missing item gets. This is a boolean
+	 * gate, and `get_media_item*()` resolves any post type, so a passthrough would
+	 * return 200 rather than 404. Revisit if clients conflate it with an auth failure.
+	 *
+	 * Do not move this into a trait: this file instantiates the endpoint above the
+	 * class declaration, and `use Trait;` disables PHP early binding, which makes the
+	 * file fatal with "Class not found".
+	 *
+	 * @param int $media_id Media post ID.
+	 * @return bool
+	 */
+	protected function current_user_can_edit_media_item( $media_id ) {
+		if ( ! current_user_can( 'upload_files' ) ) {
+			return false;
+		}
+
+		$post = get_post( $media_id );
+
+		if ( ! $post ) {
+			return true;
+		}
+
+		if ( 'attachment' !== $post->post_type ) {
+			return false;
+		}
+
+		return current_user_can( 'edit_post', $media_id );
+	}
+
+	/**
 	 * Update media item info API v1.1 callback.
 	 *
 	 * @param string $path API path.
@@ -98,8 +141,8 @@ class WPCOM_JSON_API_Update_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint 
 			return $blog_id;
 		}
 
-		if ( ! current_user_can( 'upload_files', $media_id ) ) {
-			return new WP_Error( 'unauthorized', 'User cannot view media', 403 );
+		if ( ! $this->current_user_can_edit_media_item( $media_id ) ) {
+			return new WP_Error( 'unauthorized', 'User cannot edit media', 403 );
 		}
 
 		$item = $this->get_media_item_v1_1( $media_id );
@@ -124,7 +167,21 @@ class WPCOM_JSON_API_Update_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint 
 		}
 
 		if ( isset( $input['parent_id'] ) ) {
-			$insert['post_parent'] = $input['parent_id'];
+			$parent_id = (int) $input['parent_id'];
+
+			/*
+			 * Attaching media to a post is an edit of that post, so it takes `edit_post` on
+			 * the target, as core's WP_REST_Attachments_Controller does for the same field.
+			 * Without this a caller attaches their own media to any post on the site.
+			 *
+			 * Zero is exempt: it detaches the item rather than naming a target, and
+			 * `edit_post` fails closed on 0, which would make detaching impossible.
+			 */
+			if ( $parent_id && ! current_user_can( 'edit_post', $parent_id ) ) {
+				return new WP_Error( 'unauthorized', 'User cannot edit the parent post', 403 );
+			}
+
+			$insert['post_parent'] = $parent_id;
 		}
 
 		if ( isset( $input['alt'] ) ) {

@@ -20,7 +20,7 @@ use WP_Error;
 /**
  * CSV Generator class for creating CSV files from report data.
  *
- * @since $$next-version$$
+ * @since 0.1.0
  */
 class Report_Csv_Generator {
 
@@ -46,18 +46,15 @@ class Report_Csv_Generator {
 	 */
 	public function generate( array $data, array $columns, callable $formatter, string $filename = '' ) {
 		try {
-			// Generate filename if not provided.
 			if ( empty( $filename ) ) {
 				$filename = 'report-export-' . gmdate( 'Y-m-d-His' );
 			}
 
-			// Create temp file.
 			$file_path = $this->create_temp_file( $filename );
 			if ( is_wp_error( $file_path ) ) {
 				return $file_path;
 			}
 
-			// Open file for writing.
 			$handle = fopen( $file_path, 'w' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen
 			if ( false === $handle ) {
 				$this->logger->log_error( 'Failed to open CSV file for writing: ' . $file_path, __METHOD__ );
@@ -71,22 +68,20 @@ class Report_Csv_Generator {
 
 			// Use try/finally so the file handle is always closed, even if the formatter throws.
 			try {
-				// Write BOM for UTF-8 (helps Excel recognize encoding).
+				// Helps Excel recognize the UTF-8 encoding.
 				$this->write_bom( $handle );
 
-				// Write header row (labels are our own strings, but escape for consistency).
+				// Labels are our own strings, but escape them for consistency.
 				$this->write_csv_row( $handle, array_map( array( self::class, 'escape_csv_value' ), array_values( $columns ) ) );
 
-				// Write data rows.
 				foreach ( $rows as $row ) {
 					$formatted_row = call_user_func( $formatter, $row );
 
-					// Skip empty rows (when formatter returns empty array).
+					// An empty array is the formatter's skip signal.
 					if ( empty( $formatted_row ) ) {
 						continue;
 					}
 
-					// Extract values in the same order as columns, neutralizing CSV formula injection.
 					$csv_row = array();
 					foreach ( array_keys( $columns ) as $column_key ) {
 						$csv_row[] = self::escape_csv_value( $formatted_row[ $column_key ] ?? '' );
@@ -124,9 +119,8 @@ class Report_Csv_Generator {
 	/**
 	 * Neutralize CSV formula injection.
 	 *
-	 * Spreadsheet apps execute a cell whose value begins with =, +, -, @, tab, or CR.
-	 * Prefixing with a single quote renders it as literal text. Exported values (e.g.
-	 * product names) are store data and must not be trusted.
+	 * Spreadsheet apps execute a cell starting with =, +, -, @, tab, or CR; a leading single
+	 * quote renders it as literal text. Exported values (e.g. product names) are untrusted store data.
 	 *
 	 * @param mixed $value The cell value.
 	 * @return string The escaped value.
@@ -168,7 +162,7 @@ class Report_Csv_Generator {
 	 * @throws \RuntimeException When the row cannot be written.
 	 */
 	private function write_csv_row( $handle, array $row ): void {
-		$bytes_written = fputcsv( $handle, $row, ',', '"', '\\' );
+		$bytes_written = fputcsv( $handle, $row, ',', '"', '' );
 
 		if ( false === $bytes_written || 0 === $bytes_written ) {
 			throw new \RuntimeException( 'Failed to write CSV row.' );
@@ -182,7 +176,6 @@ class Report_Csv_Generator {
 	 * @return string|WP_Error File path on success, WP_Error on failure.
 	 */
 	private function create_temp_file( string $filename ) {
-		// Use WordPress upload directory.
 		$upload_dir = wp_upload_dir();
 
 		if ( ! empty( $upload_dir['error'] ) ) {
@@ -193,14 +186,12 @@ class Report_Csv_Generator {
 			);
 		}
 
-		// Create exports subdirectory.
 		$export_dir = trailingslashit( $upload_dir['basedir'] ) . 'jetpack-premium-analytics-exports';
 
 		if ( ! file_exists( $export_dir ) ) {
 			wp_mkdir_p( $export_dir );
 		}
 
-		// Ensure we can write to the directory.
 		if ( ! wp_is_writable( $export_dir ) ) {
 			$this->logger->log_error( 'Export directory is not writable: ' . $export_dir, __METHOD__ );
 			return new WP_Error(
@@ -212,8 +203,8 @@ class Report_Csv_Generator {
 		// Drop directory-listing/access protection so exports are not enumerable or web-served.
 		$this->protect_export_dir( $export_dir );
 
-		// Sanitize filename, add an unguessable suffix, and add extension. Files are delivered as
-		// email attachments; the random suffix is defense-in-depth against URL guessing.
+		// Files are delivered as email attachments; the random suffix is defense-in-depth
+		// against URL guessing.
 		$safe_filename = sanitize_file_name( $filename ) . '-' . wp_generate_password( 12, false ) . '.csv';
 
 		return trailingslashit( $export_dir ) . $safe_filename;
@@ -278,13 +269,11 @@ class Report_Csv_Generator {
 			$filename = basename( $file_path );
 		}
 
-		// Check if headers have already been sent.
 		if ( headers_sent() ) {
 			$this->logger->log_error( 'Headers already sent, cannot stream file', __METHOD__ );
 			return false;
 		}
 
-		// Set headers for file download.
 		header( 'Content-Type: text/csv; charset=utf-8' );
 		header( 'X-Content-Type-Options: nosniff' );
 		// Strip path + CR/LF/quotes so the filename cannot inject additional headers.
@@ -294,7 +283,6 @@ class Report_Csv_Generator {
 		header( 'Pragma: no-cache' );
 		header( 'Expires: 0' );
 
-		// Output file contents.
 		readfile( $file_path ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_readfile
 
 		return true;

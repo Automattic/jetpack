@@ -141,8 +141,13 @@ class Block_Manifest_Test extends WP_UnitTestCase {
 		);
 		$this->cleanup_paths[] = $block2_json;
 
-		// Generate manifest.
+		// Generate manifest. The builder reports progress on stdout, which the suite's strict
+		// output check counts against the test, so capture it and assert on it instead.
+		ob_start();
 		$result = build_block_manifest( $this->test_dir );
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( 'Found 2 blocks', $output );
 		$this->assertTrue( $result );
 
 		// Track manifest file for cleanup.

@@ -9,12 +9,10 @@ declare module '@automattic/jetpack-script-data' {
 	interface JetpackScriptData {
 		premium_analytics?: {
 			initial_full_sync_finished: number;
-			// Whether the site has store data to sync (WooCommerce active). When
-			// false the dashboard waits on Jetpack's generic initial full sync
-			// instead of the woocommerce_analytics module.
-			has_store_data: boolean;
-			// Whether experimental CSV export controls should render.
+			// Whether CSV export controls should render. Defaults to true server-side.
 			csv_exports_enabled?: boolean;
+			// Whether the site runs VideoPress, which gates the video surfaces.
+			has_videopress?: boolean;
 		};
 	}
 }

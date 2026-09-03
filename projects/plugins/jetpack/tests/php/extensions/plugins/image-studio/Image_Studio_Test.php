@@ -18,6 +18,7 @@ require_once JETPACK__PLUGIN_DIR . '/extensions/plugins/ai-assistant-plugin/ai-a
  */
 class Image_Studio_Test extends \WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
+	use \Activates_Ai_Module;
 
 	/**
 	 * Get the AI image extensions list from the source function.
@@ -63,6 +64,11 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	 */
 	public function set_up() {
 		parent::set_up();
+		// The AI controls only take effect on internal testing environments while
+		// they are unlaunched. These tests are about what the toggles do, so put
+		// the suite where they apply; the scoping itself is pinned in
+		// Jetpack_AI_Settings_Test.
+		$this->force_master_enforcement_for_test();
 		delete_transient( ImageStudio\ASSET_TRANSIENT );
 		$this->saved_wp_scripts = $GLOBALS['wp_scripts'] ?? null;
 		$this->saved_wp_styles  = $GLOBALS['wp_styles'] ?? null;
@@ -70,6 +76,9 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 		$GLOBALS['wp_styles']   = new WP_Styles();
 		$this->reset_availability();
 		$this->simulate_connected_owner();
+		// Off-Simple the `ai` module is the AI master switch, so activate it to put
+		// the master on. The PHPUnit env never runs activate_default_modules().
+		$this->activate_ai_module_for_test();
 		// Ensure Big Sky is disabled by default so tests aren't affected by the
 		// Big_Sky class persisting across tests once simulate_big_sky_class() runs.
 		update_option( 'big_sky_enable', '0' );
@@ -81,12 +90,16 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	 * Tear down after each test.
 	 */
 	public function tear_down() {
+		unset( $_SERVER['A8C_PROXIED_REQUEST'] );
+		$this->deactivate_ai_module_for_test();
+		unset( $_SERVER['A8C_PROXIED_REQUEST'] );
 		delete_transient( ImageStudio\ASSET_TRANSIENT );
 		remove_all_filters( 'jetpack_image_studio_enabled' );
 		remove_all_filters( 'jetpack_image_studio_can_generate_video_clips' );
 		remove_all_filters( 'pre_http_request' );
 		remove_all_filters( 'locale' );
 		remove_all_filters( 'jetpack_ai_enabled' );
+		delete_option( 'jetpack_ai_enabled' );
 		( new \Automattic\Jetpack\Connection\Manager( 'jetpack' ) )->reset_connection_status();
 		\Jetpack_Options::delete_option( array( 'id', 'blog_token' ) );
 		delete_option( 'big_sky_enable' );
@@ -496,6 +509,100 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * Test that the image editor toggle from the AI settings page wins over every
+	 * environment-based enable: off must mean off even when Big Sky would turn
+	 * Image Studio on.
+	 */
+	public function test_image_editor_toggle_off_disables_image_studio() {
+		$this->enable_big_sky();
+		update_option( 'jetpack_ai_image_editor_enabled', 0 );
+
+		$this->assertFalse( ImageStudio\is_image_studio_enabled() );
+
+		ImageStudio\register_plugin();
+		$this->assertFalse( \Jetpack_Gutenberg::is_available( ImageStudio\FEATURE_NAME ) );
+
+		delete_option( 'jetpack_ai_image_editor_enabled' );
+	}
+
+	/**
+	 * Test that the AI master switch option disables Image Studio outside
+	 * Big Sky/CIAB environments (it flows through the jetpack_ai_enabled filter).
+	 */
+	public function test_master_option_off_disables_image_studio() {
+		// Off-Simple the master is the `ai` module; turn it off there.
+		$this->force_master_enforcement_for_test();
+		$this->deactivate_ai_module_for_test();
+
+		$this->assertFalse( ImageStudio\is_image_studio_enabled() );
+	}
+
+	/**
+	 * Test that the AI master switch also wins over Big Sky's environment gate.
+	 */
+	public function test_master_option_off_disables_image_studio_in_big_sky() {
+		$this->enable_big_sky();
+		$this->assertTrue( ImageStudio\is_image_studio_enabled() );
+
+		// Off-Simple the master is the `ai` module; turn it off there.
+		$this->force_master_enforcement_for_test();
+		$this->deactivate_ai_module_for_test();
+		$this->set_block_editor_screen();
+		ImageStudio\register_plugin();
+		set_transient(
+			ImageStudio\ASSET_TRANSIENT,
+			array(
+				'version'      => '1.0.0',
+				'dependencies' => array(),
+			),
+			HOUR_IN_SECONDS
+		);
+		ImageStudio\enqueue_image_studio();
+
+		$this->assertFalse( ImageStudio\is_image_studio_enabled() );
+		$this->assertFalse( \Jetpack_Gutenberg::is_available( ImageStudio\FEATURE_NAME ) );
+		$this->assertFalse( wp_script_is( ImageStudio\FEATURE_NAME, 'enqueued' ) );
+		$this->assertFalse( wp_style_is( ImageStudio\FEATURE_NAME . '-style', 'enqueued' ) );
+		$this->assertFalse( ImageStudio\image_studio_can_generate_video_clips() );
+	}
+
+	/**
+	 * Test that a later jetpack_ai_enabled filter cannot re-enable Image Studio
+	 * once the master switch is off — the contract's "off must stay off" state
+	 * test. This is why the environment gate calls apply_master_gates() directly
+	 * instead of re-applying the filter: apply_filters() would let any
+	 * later-priority callback overturn the master switch.
+	 */
+	public function test_master_off_cannot_be_reenabled_by_late_filter() {
+		$this->enable_big_sky();
+		// Off-Simple the master is the `ai` module; turn it off there.
+		$this->force_master_enforcement_for_test();
+		$this->deactivate_ai_module_for_test();
+		add_filter( 'jetpack_ai_enabled', '__return_true', 99 );
+
+		$this->assertFalse( ImageStudio\is_image_studio_environment_available() );
+		$this->assertFalse( ImageStudio\is_image_studio_enabled() );
+		$this->assertFalse( ImageStudio\image_studio_can_generate_video_clips() );
+	}
+
+	/**
+	 * Test that a jetpack_ai_enabled kill-switch filter does not take Image
+	 * Studio down in Big Sky/CIAB environments. The environment enable predates
+	 * the master gates and never consulted the filter chain there — on
+	 * WordPress.com, Big Sky's free-trial __return_false callback targets the
+	 * AI Assistant sidebar only, while Image Studio stays offered so Jetpack
+	 * keeps signalling Big Sky to defer its own copy. Only the host gate, the
+	 * master option, and the per-feature toggles may turn it off.
+	 */
+	public function test_ai_enabled_filter_does_not_gate_big_sky_environment() {
+		$this->enable_big_sky();
+		add_filter( 'jetpack_ai_enabled', '__return_false' );
+
+		$this->assertTrue( ImageStudio\is_image_studio_environment_available() );
+		$this->assertTrue( ImageStudio\is_image_studio_enabled() );
+	}
+
+	/**
 	 * Test that register_plugin registers unconditionally regardless of screen.
 	 *
 	 * Screen-level gating happens at enqueue time, not registration.
@@ -623,6 +730,42 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 		$this->assertSame( 'jetpack', $data['siteType'] );
 		$this->assertFalse( $data['isA11n'] );
 		$this->assertArrayHasKey( 'isDevMode', $data );
+	}
+
+	/**
+	 * Test that exact employee identity is sufficient for the tracking signal.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_tracking_automattician_for_employee_identity() {
+		if ( function_exists( 'is_automattician' ) ) {
+			$this->markTestSkipped( 'is_automattician already defined; cannot stub.' );
+		}
+
+		eval( 'function is_automattician() { return true; }' ); // @codingStandardsIgnoreLine — process-isolated stub.
+
+		$this->assertTrue( ImageStudio\is_tracking_automattician() );
+	}
+
+	/**
+	 * Test that a WordPress.com proxy is sufficient for the tracking signal.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_tracking_automattician_for_wpcom_proxy() {
+		if ( function_exists( 'wpcom_is_proxied_request' ) ) {
+			$this->markTestSkipped( 'wpcom_is_proxied_request already defined; cannot stub.' );
+		}
+
+		eval( 'function wpcom_is_proxied_request() { return true; }' ); // @codingStandardsIgnoreLine — process-isolated stub.
+
+		$this->assertTrue( ImageStudio\is_tracking_automattician() );
 	}
 
 	/**
@@ -771,10 +914,10 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Test that the helper returns false when Image Studio itself is not
-	 * enabled, regardless of the underlying video-upload capability. Ensures
-	 * video clip generation is only surfaced on plans/environments that
-	 * already support Image Studio.
+	 * Test that the helper returns false when the shared Image Studio
+	 * environment is unavailable, regardless of the underlying video-upload
+	 * capability. Ensures video clip generation is only surfaced on
+	 * plans/environments that support Image Studio at all.
 	 */
 	public function test_can_generate_video_clips_false_when_image_studio_disabled() {
 		$this->disable_ai_features();
@@ -783,10 +926,27 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * Test that Feature Clip is nested under the image editor: switching the
+	 * image editor off must turn clip generation off too. The image editor gate
+	 * short-circuits before the wpcom video-upload capability check, so clip
+	 * generation is unconditionally false here — the assertion holds in every
+	 * environment, including the wpcomsh job.
+	 */
+	public function test_can_generate_video_clips_requires_image_editor_toggle() {
+		$this->enable_big_sky();
+
+		update_option( 'jetpack_ai_image_editor_enabled', 0 );
+
+		$this->assertFalse( ImageStudio\is_image_studio_enabled() );
+		$this->assertFalse( ImageStudio\image_studio_can_generate_video_clips() );
+
+		delete_option( 'jetpack_ai_image_editor_enabled' );
+	}
+
+	/**
 	 * Test that a stray __return_true on the override filter cannot bypass the
-	 * Image Studio enablement gate. The is_image_studio_enabled() check runs
-	 * before the filter so accidental usage on unsupported environments still
-	 * reports false.
+	 * shared environment gate. The environment check runs before the filter so
+	 * accidental usage on unsupported environments still reports false.
 	 */
 	public function test_can_generate_video_clips_filter_cannot_override_disabled_image_studio() {
 		$this->disable_ai_features();
@@ -2089,6 +2249,37 @@ class Image_Studio_Test extends \WP_UnitTestCase {
 
 		remove_filter( 'jetpack_ai_enabled', '__return_false' );
 
+		// Restore for any later tests that depend on the meta being present.
+		ImageStudio\register_feature_clip_post_meta();
+	}
+
+	/**
+	 * Test the nesting split: Feature Clip *generation* is gated on the image
+	 * editor, but a post's existing clip *meta* must stay readable when the
+	 * image editor is off. The meta registration follows the shared environment
+	 * and the clips toggle only — never the image editor — so a post that
+	 * already carries a clip keeps its meta even while generation is turned off.
+	 */
+	public function test_feature_clip_meta_stays_readable_when_image_editor_off() {
+		$this->enable_big_sky();
+		update_option( 'jetpack_ai_image_editor_enabled', 0 );
+
+		// Registration deliberately ignores the image editor toggle.
+		unregister_post_meta( 'post', ImageStudio\FEATURE_CLIP_META_KEY );
+		ImageStudio\register_feature_clip_post_meta();
+
+		$registered = get_registered_meta_keys( 'post', 'post' );
+		$this->assertArrayHasKey(
+			ImageStudio\FEATURE_CLIP_META_KEY,
+			$registered,
+			'Clip meta must stay registered/readable with the image editor off.'
+		);
+
+		// Generation, on the other hand, is gated on the image editor and is off.
+		$this->assertFalse( ImageStudio\is_image_studio_enabled() );
+		$this->assertFalse( ImageStudio\image_studio_can_generate_video_clips() );
+
+		delete_option( 'jetpack_ai_image_editor_enabled' );
 		// Restore for any later tests that depend on the meta being present.
 		ImageStudio\register_feature_clip_post_meta();
 	}

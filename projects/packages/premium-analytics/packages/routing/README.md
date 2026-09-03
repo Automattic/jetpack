@@ -104,6 +104,18 @@ Writes comparison parameters to the URL for period-over-period analysis.
 - `compare_preset` – Preset identifier
 - `comp` – '1' when comparison enabled, undefined when disabled
 
+### `decodeDateSearchParam( value?, timezone? )`
+
+Parses a stored report date for the date picker, returning undefined when the
+value is missing or malformed.
+
+**Parameters:**
+
+- **`value?`** – Date string to decode
+- **`timezone?`** – Timezone in which to read an offset-less value
+
+**Returns:** A timezone-aware Date or undefined
+
 ### `encodeDateToSearchParam( date?, timezone? )`
 
 Low-level function to convert a Date to an ISO string with timezone.

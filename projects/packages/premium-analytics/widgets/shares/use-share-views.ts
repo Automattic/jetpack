@@ -12,13 +12,9 @@ export interface ShareView {
 	 * Service slug (e.g. `facebook`), taken from the `shares_<service>` key.
 	 */
 	service: string;
-	/**
-	 * Human-readable network name.
-	 */
+	/** Human-readable network name. */
 	label: string;
-	/**
-	 * Number of times content was shared to this network.
-	 */
+	/** Number of times content was shared to this network. */
 	value: number;
 }
 
@@ -39,7 +35,8 @@ interface ShareViewsState {
 
 const SHARES_PREFIX = 'shares_';
 
-// Display names for the known sharing services. Unlisted services fall back to a
+// Display names for the known sharing services. Brand names stay untranslated; the
+// generic sharing destinations are translatable. Unlisted services fall back to a
 // humanized slug, so a new network still renders a sensible label.
 const SERVICE_LABELS: Record< string, string > = {
 	facebook: 'Facebook',
@@ -53,9 +50,9 @@ const SERVICE_LABELS: Record< string, string > = {
 	whatsapp: 'WhatsApp',
 	skype: 'Skype',
 	google_plus: 'Google+',
-	print: 'Print',
-	email: 'Email',
-	press_this: 'Press This',
+	print: __( 'Print', 'jetpack-premium-analytics-pkg' ),
+	email: __( 'Email', 'jetpack-premium-analytics-pkg' ),
+	press_this: __( 'Press This', 'jetpack-premium-analytics-pkg' ),
 	custom: __( 'Custom share buttons', 'jetpack-premium-analytics-pkg' ),
 };
 
@@ -122,9 +119,6 @@ export function buildShareViews( summary: Record< string, unknown >, max: number
  * The counts live on the site summary (`stats` endpoint) as `shares_<service>`
  * fields, so this delegates to `useStatsSite`. The summary is all-time and has no
  * comparison period; rows are sorted by share count and trimmed to `max`.
- *
- * @param {UseShareViewsArgs} args - Hook arguments.
- * @return The current data/loading/error state.
  */
 export default function useShareViews( { max }: UseShareViewsArgs ): ShareViewsState {
 	const { data, isLoading, isFetching, isError, refetch } = useStatsSite();

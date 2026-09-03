@@ -6,8 +6,19 @@ import { useCallback } from '@wordpress/element';
  * Internal dependencies
  */
 import useConfigValue from '../../hooks/use-config-value.ts';
+import { getNewFormEditorUrl } from '../utils.ts';
 
-const openFormLink = ( url: string ) => {
+/**
+ * Navigate the page to a form URL.
+ *
+ * Returns a promise that never settles. The page is on its way out, so there is no "done" to report:
+ * resolving would tell callers the work finished and let them tear down the progress they are showing
+ * while the browser is still loading the editor.
+ *
+ * @param url - The form URL to navigate to.
+ * @return A promise that never settles.
+ */
+const openFormLink = ( url: string ): Promise< never > => {
 	/*
 	 * We are using a temporary link click to navigate. Using window.open() does not work reliably due
 	 * to Safari's popup blocker, especially after async work.
@@ -19,6 +30,8 @@ const openFormLink = ( url: string ) => {
 	document.body.appendChild( link );
 	link.click();
 	document.body.removeChild( link );
+
+	return new Promise< never >( () => {} );
 };
 
 type ClickHandlerProps = {
@@ -29,8 +42,16 @@ type ClickHandlerProps = {
 };
 
 type CreateFormReturn = {
-	createForm: ( pattern: string ) => Promise< string >;
-	openNewForm: ( props: ClickHandlerProps ) => Promise< void >;
+	createForm: ( pattern: string, formTitle?: string ) => Promise< string | undefined >;
+
+	/**
+	 * Create a form and open it in the editor.
+	 *
+	 * Rejects if the form could not be created. Otherwise it never settles: success means the browser
+	 * is navigating away, so there is no "done" to report and nothing after an `await` of this will
+	 * run. Callers can rely on that to hold a busy state until the next page takes over.
+	 */
+	openNewForm: ( props: ClickHandlerProps ) => Promise< never >;
 };
 
 /**
@@ -44,7 +65,7 @@ export default function useCreateForm(): CreateFormReturn {
 	const adminUrl = useConfigValue( 'adminUrl' );
 	const ajaxUrl = useConfigValue( 'ajaxUrl' );
 	const createForm = useCallback(
-		async ( formPattern: string ) => {
+		async ( formPattern: string, formTitle?: string ) => {
 			const data = new FormData();
 
 			data.append( 'action', 'create_new_form' );
@@ -52,6 +73,16 @@ export default function useCreateForm(): CreateFormReturn {
 
 			if ( formPattern ) {
 				data.append( 'pattern', formPattern );
+			}
+
+			/*
+			 * The naming modal is shared by every create entry point, so a title can arrive here even
+			 * though this path is only taken while the config that selects it is still loading. Send it
+			 * rather than dropping it, so the post is not created untitled behind the user's back.
+			 */
+			const trimmedFormTitle = formTitle?.trim();
+			if ( trimmedFormTitle ) {
+				data.append( 'formTitle', trimmedFormTitle );
 			}
 
 			// Fall back to window.ajaxurl for backwards compatibility.
@@ -81,27 +112,30 @@ export default function useCreateForm(): CreateFormReturn {
 				if ( isCentralFormManagementEnabled === true ) {
 					analyticsEvent?.( { formPattern: formPattern ?? '' } );
 					// Use config adminUrl to build full URL for external admin contexts.
-					let url = `${ adminUrl || '' }post-new.php?post_type=jetpack_form`;
-					const trimmedFormTitle = formTitle?.trim();
-					if ( trimmedFormTitle ) {
-						url += `&post_title=${ encodeURIComponent( trimmedFormTitle ) }`;
-					}
-					openFormLink( url );
-					return;
+					return await openFormLink( getNewFormEditorUrl( formTitle, adminUrl ) );
 				}
 
-				const postUrl = await createForm( formPattern );
+				const postUrl = await createForm( formPattern, formTitle );
 
-				if ( postUrl ) {
-					analyticsEvent?.( { formPattern } );
-
-					const url = `${ postUrl }${
-						showPatterns && ! formPattern ? '&showJetpackFormsPatterns' : ''
-					}`;
-					openFormLink( url );
+				if ( ! postUrl ) {
+					// Resolving here would look like success to callers that are waiting to hand off to a
+					// page load, leaving them stuck showing progress for a navigation that never starts.
+					throw new Error( 'Creating the form did not return an editor URL.' );
 				}
+
+				analyticsEvent?.( { formPattern } );
+
+				const url = `${ postUrl }${
+					showPatterns && ! formPattern ? '&showJetpackFormsPatterns' : ''
+				}`;
+				return await openFormLink( url );
 			} catch ( error ) {
-				console.error( error.message ); // eslint-disable-line no-console
+				// Log the error itself, not just its message: this is the only diagnostic the failing
+				// entry points leave behind, and the stack is what makes it actionable.
+				console.error( error ); // eslint-disable-line no-console
+				// Re-throw so callers can tell a started navigation from a failed creation, and keep
+				// their own UI (a busy button, an open modal) in the right state.
+				throw error;
 			}
 		},
 		[ createForm, isCentralFormManagementEnabled, adminUrl ]

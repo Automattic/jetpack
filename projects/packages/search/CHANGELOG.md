@@ -5,6 +5,48 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [8.0.0] - 2026-09-01
+### Changed
+- AI Answers: Follow the Jetpack AI master switch in the search overlay and the AI Answer block — live on WordPress.com Simple, internal testing environments elsewhere ahead of release. [#50884]
+- AI Answers: Report the saved choice and the site-wide AI state in settings, disable the controls while AI is off, and honor the host AI opt-out in the AI Answer block. Require Instant Search to enable AI Answers. The master-state reporting follows the rollout: live on WordPress.com Simple, internal testing environments elsewhere. [#51538]
+- Update package dependencies. [#51303] [#51802]
+
+### Removed
+- Minimum supported PHP version is now 7.4. [#51515]
+
+### Fixed
+- Only load the Jetpack plugin compatibility layer when the Jetpack plugin is actually present. [#49066]
+
+## [7.4.1] - 2026-08-20
+### Changed
+- Update package dependencies. [#51399]
+
+### Fixed
+- Classic Search: Don't override a query already restricted by `post__in` once its search term has been cleared. [#51284]
+- Input block: Fix the editor settings panel not being translated. [#51322]
+
+## [7.4.0] - 2026-08-13
+### Added
+- Search Blocks: Add a No Results block so empty states can contain links, images, buttons, and other blocks instead of plain text. Continue rendering existing Results List messages while deprecating their settings. [#51164]
+
+### Changed
+- Update package dependencies. [#50509] [#51008]
+
+### Fixed
+- Search: Avoid a brief "No results found" flash before a search starts. [#50925]
+- Search: Apply highlighting, query filtering, custom results, and cross-site search settings consistently across Embedded, Overlay Blocks, and Theme search experiences. [#50920]
+
+## [7.3.3] - 2026-08-03
+### Changed
+- Rename the Reader Chat setting to Site Chat, and describe it as answering visitor questions about the site. [#50854]
+
+### Fixed
+- Blocks: Avoid parsing post content for filter blocks when none are present, preventing out-of-memory errors on large posts. [#50895]
+- Blocks: Fix `is_search()` being called before the main query runs during block render, which caused a `_doing_it_wrong()` notice. [#51001]
+- Check supports_instant_search, not the Atomic-unreliable supports_search, when deciding whether a site already has the Search product -- fixes Start for free/Get Search silently skipping checkout on Atomic sites that have a bundled classic-search entitlement. [#50843]
+- Inline Search: Insert the corrected-query notice as text so search terms are not parsed as HTML. [#51001]
+- Stop printing the theme-token-sampler script once the Search module is disabled. [#50896]
+
 ## [7.3.2] - 2026-07-27
 ### Added
 - Add highlightPhraseOnly and highlightFilterStopwords Instant Search options for highlight API params. [#50738]
@@ -1854,6 +1896,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
 
+[8.0.0]: https://github.com/Automattic/jetpack-search/compare/v7.4.1...v8.0.0
+[7.4.1]: https://github.com/Automattic/jetpack-search/compare/v7.4.0...v7.4.1
+[7.4.0]: https://github.com/Automattic/jetpack-search/compare/v7.3.3...v7.4.0
+[7.3.3]: https://github.com/Automattic/jetpack-search/compare/v7.3.2...v7.3.3
 [7.3.2]: https://github.com/Automattic/jetpack-search/compare/v7.3.1...v7.3.2
 [7.3.1]: https://github.com/Automattic/jetpack-search/compare/v7.3.0...v7.3.1
 [7.3.0]: https://github.com/Automattic/jetpack-search/compare/v7.2.8...v7.3.0

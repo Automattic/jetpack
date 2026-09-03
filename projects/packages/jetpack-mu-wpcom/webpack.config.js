@@ -19,6 +19,14 @@ module.exports = async () => {
 					'./src/features/custom-css/custom-css/js/core-customizer-css-preview.js',
 				'customizer-control': './src/features/custom-css/custom-css/css/customizer-control.css',
 				'error-reporting': './src/features/error-reporting/index.js',
+				'expiry-notices-admin-banner': [
+					'./src/features/expiry-notices/js/admin-banner.ts',
+					'./src/features/expiry-notices/css/admin-banner.scss',
+				],
+				'expiry-notices-admin-modal': [
+					'./src/features/expiry-notices/js/admin-modal.tsx',
+					'./src/features/expiry-notices/css/admin-modal.scss',
+				],
 				'holiday-snow': './src/features/holiday-snow/holiday-snow.scss',
 				'html-block-restricted-tags':
 					'./src/features/html-block-restricted-tags/html-block-restricted-tags.tsx',
@@ -123,6 +131,20 @@ module.exports = async () => {
 					// Transpile @automattic/* in node_modules too.
 					jetpackWebpackConfig.TranspileRule( {
 						includeNodeModules: [ '@automattic/' ],
+					} ),
+
+					// newspack-icons ships untranspiled JSX in `.js` files, which our shared
+					// preset only applies `@babel/preset-react` to for `.jsx`/`.tsx`.
+					jetpackWebpackConfig.TranspileRule( {
+						includeNodeModules: [ 'newspack-icons/' ],
+						babelOpts: {
+							configFile: false,
+							targets: require( '@automattic/jetpack-webpack-config/targets' ),
+							presets: [
+								'@automattic/jetpack-webpack-config/babel/preset',
+								[ '@babel/preset-react', { runtime: 'automatic' } ],
+							],
+						},
 					} ),
 
 					// Workarounds for non-extracted `@wordpress/*` packages.

@@ -18,6 +18,10 @@ directly from a widget: that inlines the entire charting stack (charts, visx, re
 into the widget's render bundle. If a chart component isn't exposed yet, re-export it from
 the toolkit's "Charts passthrough" section.
 
+Design-system components (`@wordpress/ui`, `@wordpress/dataviews`, `@automattic/ui`) come
+from `@jetpack-premium-analytics/externals`, the passthrough script module, for the same
+reason. ESLint enforces both rules; see `packages/externals/README.md`.
+
 The render component is bound by `WidgetRenderProps<Item>` from
 `@wordpress/widget-primitives`: it receives only `{ attributes, setAttributes }`.
 `attributes` may arrive empty — default it (`= {}`).
@@ -74,10 +78,25 @@ function MyWidgetInner() {
 
 `useWidgetRootContext()` must be called inside a `<WidgetRoot>` — calling it in the
 outer component throws. `reportParams` always comes from context; the dashboard date
-picker owns it. Never read date range from `attributes`.
+picker owns it. Never read date range from `attributes` — except in the one case below.
 
 The outer component must still pass host `attributes` into `<WidgetRoot>`. Do not
-drop them just because the inner component only needs one widget setting like `max`;
+drop them just because the inner component needs none of the widget's own settings;
 otherwise host-provided `reportParams` and comparison controls are discarded.
+
+**A widget that hosts its own date control.** A section can set
+`date_filter_options.with_header_date_control` to `false`, which renders no header date
+control and hands it to that section's widgets. Such a widget declares a `reportParams`
+attribute built by `reportParamsAttributeField( … )` from
+`@jetpack-premium-analytics/fields`, and the host renders that control in the widget's
+own header. Pass it the widget's `grain` — the windows its report can fill and the
+buckets its chart draws — so the control offers neither one the widget would drop.
+
+`WidgetRoot` prefers `attributes.reportParams` over the URL, but an instance saved
+without them still falls back to it — the section date state this widget no longer
+follows. So the outer component defaults the attribute
+(`attributes.reportParams ?? DEFAULT_REPORT_PARAMS`) and wraps `WidgetRoot` in the scope
+its body supports (`<ReportScopeProvider offersComparison={ false }>` for a report with
+no comparison). `widgets/wordads-chart-tabs/` is the reference.
 
 <!-- TODO: link to the canonical widget API declaration (contract types). -->

@@ -12,6 +12,41 @@
 		cursor: not-allowed;
 	}
 
+	// At-limit upgrade notice rendered above the listing. The tabpanel is a
+	// column flex (see dashboard-layout/style.scss), so the notice stacks on
+	// top of the flex-growing viewport; the margin matches the Overview
+	// tab's 24px gutter.
+	&__notice {
+		margin: 24px 24px 0;
+	}
+
+	// Stands in for the whole viewport while the empty-vs-listing decision is
+	// pending (the unfiltered count hasn't answered yet), so the initial
+	// state reads as loading rather than a page that loaded empty.
+	&__deciding {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		min-block-size: 240px;
+	}
+
+	// The empty library's upload invitation: one centered card, sized to the
+	// Settings tab's content measure so adjacent screens share a width. The
+	// viewport's `> *` flex rule stretches it; `overflow-y` keeps the card
+	// reachable on short windows.
+	&__empty-state {
+		display: flex;
+		justify-content: center;
+		align-items: flex-start;
+		padding: 24px;
+		overflow-y: auto;
+	}
+
+	&__empty-card {
+		inline-size: 100%;
+		max-inline-size: 718px;
+	}
+
 	&__viewport {
 		display: flex;
 		flex-direction: column;
@@ -186,6 +221,8 @@
 		inset: 0;
 		background: rgba(204, 24, 24, 0.85);
 		color: #fff;
+		padding-inline: 8px;
+		text-align: center;
 	}
 
 	&__filename {

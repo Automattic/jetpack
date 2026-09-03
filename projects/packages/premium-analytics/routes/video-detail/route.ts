@@ -1,19 +1,18 @@
 /**
  * External dependencies
  */
-import { ensureCoreSettingsReady, normalizeReportParams } from '@jetpack-premium-analytics/data';
-import { store as coreStore } from '@wordpress/core-data';
-import { dispatch, select } from '@wordpress/data';
-import { __ } from '@wordpress/i18n';
+import {
+	ensureCoreSettingsReady,
+	needsReportDateParamsSeed,
+	normalizeReportParams,
+} from '@jetpack-premium-analytics/data';
+import { pickReportOriginParams } from '@jetpack-premium-analytics/routing';
 import { redirect } from '@wordpress/route';
 /**
  * Internal dependencies
  */
-import { DASHBOARD_REST_NAMESPACE } from '../dashboard/hooks/constants';
-import {
-	isPremiumAnalyticsInitialSyncFinished,
-	isPremiumAnalyticsSiteConnected,
-} from '../site-readiness';
+import { ensureDashboardEntities } from '../dashboard-entities';
+import { isPremiumAnalyticsSiteConnected, isVideoPressAvailable } from '../site-readiness';
 
 type VideoDetailParams = { videoId?: string };
 type VideoDetailSearch = Record< string, string | undefined >;
@@ -31,8 +30,8 @@ function isValidVideoId( value: string | undefined ): value is string {
 /**
  * Route lifecycle for the video detail page.
  *
- * The page is available only to connected sites after the initial analytics
- * sync, and only for positive integer attachment IDs.
+ * The page is available only to connected sites running VideoPress, and only
+ * for positive integer attachment IDs.
  */
 export const route = {
 	beforeLoad: async ( {
@@ -43,8 +42,10 @@ export const route = {
 			throw redirect( { to: '/connect' } );
 		}
 
-		if ( ! isPremiumAnalyticsInitialSyncFinished() ) {
-			throw redirect( { to: '/syncing' } );
+		// Kept apart from the id check below: an unsupported site and a malformed id
+		// are different events, even though both currently land on the dashboard.
+		if ( ! isVideoPressAvailable() ) {
+			throw redirect( { to: '/' } );
 		}
 
 		const videoId = params?.videoId;
@@ -53,14 +54,14 @@ export const route = {
 		}
 
 		const currentSearch = ( search ?? {} ) as VideoDetailSearch;
-		const needsDateSeed = ! currentSearch.from || ! currentSearch.to || ! currentSearch.interval;
+		const needsDateSeed = needsReportDateParamsSeed( currentSearch );
 		const needsPostSeed = currentSearch.post_id !== videoId;
 
 		if ( needsDateSeed || needsPostSeed ) {
 			/*
-			 * Seed dates in the site timezone, not the browser's, by waiting for
-			 * core `site` settings. A rejection here shouldn't error the whole
-			 * page, so fall back to the default seed.
+			 * Warm the core `site` record for `useSiteHomeUrl()`. A rejection
+			 * shouldn't error the whole page, and the seed's own dates don't
+			 * depend on it, so fall through.
 			 */
 			try {
 				await ensureCoreSettingsReady();
@@ -68,20 +69,28 @@ export const route = {
 				// Proceed with the default seed below.
 			}
 
+			// The report origin joins the allowlist below so the breadcrumb keeps
+			// its link back to the referring report across this seed.
 			const seeded: Record< string, unknown > = {
 				...normalizeReportParams(
 					currentSearch as Parameters< typeof normalizeReportParams >[ 0 ]
 				),
+				...pickReportOriginParams( currentSearch ),
 				post_id: videoId,
 			};
+
+			/*
+			 * Comparison params ride along untouched: this page renders no
+			 * comparison, but the dashboard link and "Back to Videos" carry the URL
+			 * state back out, so stripping them would lose the setting on a round trip.
+			 */
 
 			throw redirect( {
 				to: '/video/$videoId',
 				/*
 				 * The router is built dynamically, so `/video/$videoId` has no
 				 * statically-typed params/search schema (tanstack widens them to
-				 * `never`). Cast the same way the routing package does when it
-				 * writes the URL.
+				 * `never`); cast as the routing package does when it writes the URL.
 				 */
 				params: { videoId } as unknown as never,
 				replace: true,
@@ -89,26 +98,6 @@ export const route = {
 			} );
 		}
 
-		const coreSelect = select( coreStore ) as unknown as {
-			getEntityConfig: ( kind: string, name: string ) => unknown;
-		};
-		if ( coreSelect.getEntityConfig( 'root', 'widgetModule' ) ) {
-			return;
-		}
-
-		const coreDispatch = dispatch( coreStore ) as unknown as {
-			addEntities: ( entities: object[] ) => void;
-		};
-		coreDispatch.addEntities( [
-			{
-				name: 'widgetModule',
-				kind: 'root',
-				key: 'name',
-				baseURL: `/${ DASHBOARD_REST_NAMESPACE }/widget-modules`,
-				plural: 'widgetModules',
-				label: __( 'Widget modules', 'jetpack-premium-analytics-pkg' ),
-				supportsPagination: false,
-			},
-		] );
+		ensureDashboardEntities();
 	},
 };

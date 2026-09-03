@@ -35,13 +35,13 @@ require_once ABSPATH . 'wp-admin/includes/file.php';
  *
  * ## Cross-user attachment-deletion guard
  *
- * `Jetpack_JSON_API_Themes_New_Endpoint::validate_call` deletes the referenced
- * attachment on capability-check failure without verifying the caller owns it.
- * This Replace endpoint overrides `validate_call` to run the ownership check
- * first, so a low-privilege caller cannot use it to hard-delete another user's
- * attachment as a side-effect of the cap check failing. The parent's behavior
- * is unchanged for the legitimate case (caller's own attachment is cleaned up
- * when their cap check fails).
+ * `Jetpack_JSON_API_Themes_New_Endpoint::validate_call` cleans up the referenced
+ * attachment on capability-check failure, and now guards that cleanup with an
+ * ownership check of its own. This Replace endpoint additionally overrides
+ * `validate_call` to run the ownership check *before* delegating to the parent,
+ * so an unowned attachment is rejected with `attachment_not_owned` rather than
+ * the capability error. Both paths leave the legitimate case unchanged: the
+ * caller's own attachment is cleaned up when their cap check fails.
  *
  * @phan-constructor-used-for-side-effects
  */
@@ -182,8 +182,8 @@ class Jetpack_JSON_API_Themes_Replace_Endpoint extends Jetpack_JSON_API_Themes_N
 
 	/**
 	 * See class docblock — runs the attachment-ownership check before delegating
-	 * to the parent's validate_call(), which deletes the referenced attachment
-	 * on capability-check failure without verifying ownership.
+	 * to the parent's validate_call(), so an unowned attachment is rejected with
+	 * attachment_not_owned rather than the capability error.
 	 *
 	 * @param int    $_blog_id            Blog ID.
 	 * @param string $capability          Capability.

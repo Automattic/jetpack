@@ -4,11 +4,13 @@
 import {
 	normalizeReportParams,
 	dateToISOStringWithLocalTZ,
-	getSiteTimezone,
 	localTZDate,
 } from '@jetpack-premium-analytics/data';
 import {
-	getComparisonRangeFromPreset,
+	getComparisonOptions,
+	isComparisonPresetId,
+	isPrimaryPreset,
+	reportingTimeZone,
 	type ComparisonPresetId,
 } from '@jetpack-premium-analytics/datetime';
 
@@ -22,78 +24,68 @@ type ReportParams = NonNullable< Parameters< typeof normalizeReportParams >[ 0 ]
  * @return Canonical ComparisonPresetId or undefined if invalid
  */
 const toComparisonPresetId = ( value?: string ): ComparisonPresetId | undefined => {
-	switch ( value ) {
-		case 'previous-period':
-		case 'previous_period':
-			return 'previous-period';
-		case 'previous-week':
-		case 'previous_week':
-			return 'previous-week';
-		case 'previous-month':
-		case 'previous_month':
-			return 'previous-month';
-		case 'previous-year':
-		case 'previous_year':
-			return 'previous-year';
-		default:
-			return undefined;
-	}
+	const normalized = value?.replace( /_/g, '-' );
+	return isComparisonPresetId( normalized ) ? normalized : undefined;
 };
 
 /**
- * Derive compare_from/compare_to from the main range + preset,
- * honoring the site's timezone via existing data utils.
+ * Resolve the comparison params for the main range, in the site timezone: the
+ * active preset where the range still offers it, else the previous period, so
+ * a range change never strands a comparison the picker cannot name. The primary
+ * preset travels along, so a to-date preset's previous period is its previous
+ * whole period rather than a day count. Returns ISO strings with the site
+ * offset, plus the preset they came from.
  *
- * Rules:
- * - Only derive when comparison is enabled (comp === "1") AND a preset is present.
- * - The main range is interpreted in the site timezone; day-aligned ranges get
- *   day-aligned comparisons, sub-day rolling windows are mirrored exactly.
- * - Return ISO strings WITH site offset (same format you write to the URL).
+ * @param opts - Report params carrying the main range and comparison state.
+ * @return The comparison params, or undefined when comparison is off or the range unreadable.
  */
 export function deriveComparisonRange( opts: ReportParams ):
 	| {
 			compare_from: string;
 			compare_to: string;
+			compare_preset: ComparisonPresetId;
 	  }
 	| undefined {
-	// Require comparison enabled + preset
-	const presetId = toComparisonPresetId( opts.compare_preset );
-	if ( opts.comp !== '1' || ! presetId ) {
-		return undefined;
-	}
-
-	// Need valid main range
-	if ( ! opts.from || ! opts.to ) {
-		return undefined;
-	}
-
-	// Parse URL params (ISO+offset) to instants
-	const fromInstant = new Date( opts.from );
-	const toInstant = new Date( opts.to );
-	if ( isNaN( fromInstant.getTime() ) || isNaN( toInstant.getTime() ) ) {
+	// Loose `comp` check: the router JSON-parses search values, so an unquoted
+	// URL delivers number 1 instead of the string '1'.
+	if ( String( opts.comp ) !== '1' || ! opts.from || ! opts.to ) {
 		return undefined;
 	}
 
 	/*
-	 * Interpret the instants in the site timezone so day boundaries resolve
-	 * site-locally. Day-aligned ranges keep day-aligned comparisons; rolling
-	 * windows (e.g. last-24-hours) mirror the exact window.
+	 * Same reader the picker uses, so an offset-less `from`/`to` anchors to the
+	 * site zone here too — a raw instant would put a date-only deep link on UTC
+	 * midnight, a different calendar day than the picker shows.
 	 */
-	const timezone = getSiteTimezone();
+	const timezone = reportingTimeZone();
 	const reference = {
-		from: localTZDate( fromInstant.getTime(), timezone ),
-		to: localTZDate( toInstant.getTime(), timezone ),
+		from: localTZDate( opts.from, timezone ),
+		to: localTZDate( opts.to, timezone ),
 	};
 
-	// Compute comparison range (Dates)
-	const cmp = getComparisonRangeFromPreset( reference, presetId );
-	if ( ! cmp?.from || ! cmp?.to ) {
+	if ( isNaN( reference.from.getTime() ) || isNaN( reference.to.getTime() ) ) {
 		return undefined;
 	}
 
-	// Serialize back to ISO with site offset (string-to-string stable)
+	const options = getComparisonOptions( reference, {
+		primaryPresetId: isPrimaryPreset( opts.preset ) ? opts.preset : undefined,
+	} );
+	const presetId = toComparisonPresetId( opts.compare_preset );
+
+	// A preset the range doesn't offer — or an id from an old link — falls back
+	// to the previous period, which every range offers, so the comparison
+	// intent survives a range change.
+	const option =
+		options.find( candidate => candidate.id === presetId ) ??
+		options.find( candidate => candidate.id === 'previous-period' );
+
+	if ( ! option ) {
+		return undefined;
+	}
+
 	return {
-		compare_from: dateToISOStringWithLocalTZ( cmp.from ),
-		compare_to: dateToISOStringWithLocalTZ( cmp.to ),
+		compare_from: dateToISOStringWithLocalTZ( option.range.from ),
+		compare_to: dateToISOStringWithLocalTZ( option.range.to ),
+		compare_preset: option.id,
 	};
 }

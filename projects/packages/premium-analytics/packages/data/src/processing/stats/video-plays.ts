@@ -1,4 +1,5 @@
 import { safeParseFloat } from '../../utils/parsing';
+import { decodeHtmlText } from '../../utils/text';
 import {
 	createStatsSummaryDataPoint,
 	getStatsArrayFromKeys,
@@ -33,6 +34,7 @@ export type StatsVideoPlaysItem = StatsNormalizedItemBase & {
 
 export type StatsVideoPlaysComparisonItem = StatsVideoPlaysItem & {
 	previousPlays?: number;
+	previousImpressions?: number;
 };
 
 // Returns null when the video has no stable identifier at all, so unrelated
@@ -56,7 +58,7 @@ export function sanitizeStatsVideoPlaysResponse(
 	const videoDataKeys = query?.complete_stats ? [ 'data', 'plays' ] : [ 'plays', 'data' ];
 	const parse = ( item: StatsRecord ): StatsVideoPlaysItem => ( {
 		id: item.post_id as string | number | undefined,
-		label: item.title,
+		label: decodeHtmlText( item.title ),
 		// Complete-stats summary rows use `views` for the play count.
 		plays: safeParseFloat( item.views ?? item.plays ),
 		impressions: safeParseFloat( item.impressions ),
@@ -116,9 +118,10 @@ export function mergeStatsVideoPlaysComparisonRows(
 		getPrimaryKey: getVideoKey,
 		getComparisonKey: getVideoKey,
 		getComparisonValue: video => video.plays,
-		mapRow: ( video, { previousValue } ) => ( {
+		mapRow: ( video, { previousValue, comparisonItem } ) => ( {
 			...video,
 			previousPlays: previousValue,
+			previousImpressions: comparisonItem?.impressions,
 		} ),
 	} );
 }

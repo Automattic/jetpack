@@ -1,52 +1,103 @@
 /**
  * Root component for the Jetpack AI admin page.
  *
- * Manages the view stack (hub → read | write | setup) and owns the MCP settings state.
+ * Four top-level tabs (Overview | AI Features | Scheduled tasks | MCP and Connectors)
+ * with hash-based routing. The MCP tab owns the read | write | setup sub-views,
+ * which render with breadcrumbs in place of the tab bar.
+ *
+ * Overview and AI Features share an internal-testing gate. Scheduled tasks
+ * is controlled independently by the ai-hub-scheduled-tasks server-side feature
+ * flag. Without either flag the page keeps its original MCP-only shape, with the
+ * MCP hub as the landing view and no tab bar.
  */
 
-import { AdminPage } from '@automattic/jetpack-components';
+import { AdminPage, GlobalNotices, useGlobalNotices } from '@automattic/jetpack-components';
 import { Spinner } from '@wordpress/components';
-import { useCallback, useEffect, useState } from '@wordpress/element';
+import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Notice, Stack } from '@wordpress/ui';
-import analytics from 'lib/analytics';
+import { Badge, Notice, Stack, Tabs } from '@wordpress/ui';
+import AiFeatures from './features/index';
+import { useFeatureSettings } from './features/use-feature-settings';
+import McpConnectCallout from './mcp/connect-callout';
 import McpHub from './mcp/index';
 import McpRead from './mcp/read';
 import McpSetup from './mcp/setup';
+import { recordMcpTracksEvent } from './mcp/tracks';
 import McpUpsell from './mcp/upsell';
 import { useMcpSettings } from './mcp/use-mcp-settings';
+import { getSiteLevelEnabled } from './mcp/utils';
 import McpWrite from './mcp/write';
+import AiOverview from './overview';
+import ScheduledTasks from './scheduled-tasks/index';
 
-const { blogId, activityLogUrl, apiRoot, apiNonce } = window?.jetpackAiSettings ?? {};
+// Matches the `ref` value convention used by the MCP upsell events.
+const SETTINGS_REF = 'jetpack-ai-mcp-settings';
 
-const VALID_VIEWS = [ 'read', 'write', 'setup' ];
+const MCP_SUB_VIEWS = [ 'read', 'write', 'setup' ];
 
+// Views that only exist in internal testing environments. MCP and Connectors ships
+// publicly, so it is not in here.
+const GATED_VIEWS = [ 'overview', 'features' ];
+
+// Read at call time, not module scope, so the flag reflects the injected page data.
+const getTabViews = () => {
+	const views = [];
+	if ( window?.jetpackAiSettings?.showFeaturesView ) {
+		views.push( 'overview', 'features' );
+	}
+	if ( window?.jetpackAiSettings?.featureFlags?.[ 'ai-hub-scheduled-tasks' ] ) {
+		views.push( 'scheduled-tasks' );
+	}
+	views.push( 'mcp' );
+	return views;
+};
+
+// The first tab is the default: Overview when visible (matching the design),
+// otherwise the MCP hub. A hash pointing at a hidden view falls back too.
 const getViewFromHash = () => {
+	const tabViews = getTabViews();
 	const hash = window.location.hash.replace( /^#\//, '' );
-	return VALID_VIEWS.includes( hash ) ? hash : 'hub';
+	return [ ...tabViews, ...MCP_SUB_VIEWS ].includes( hash ) ? hash : tabViews[ 0 ];
 };
 
 const VIEW_TITLES = {
-	hub: 'AI', // "AI" is a product name and should not be translated.
+	overview: __( 'Overview', 'jetpack' ),
+	features: __( 'AI Features', 'jetpack' ),
+	'scheduled-tasks': __( 'Scheduled tasks', 'jetpack' ),
+	mcp: __( 'MCP and Connectors', 'jetpack' ),
 	read: __( 'Read', 'jetpack' ),
 	write: __( 'Write', 'jetpack' ),
 	setup: __( 'Connect external AI agent', 'jetpack' ),
 };
 
-const VIEW_DESCRIPTIONS = {
-	hub: __( 'Control how AI agents interact with your site.', 'jetpack' ),
-	read: __( 'View your site\u2019s content.', 'jetpack' ),
+const SUB_VIEW_DESCRIPTIONS = {
+	read: __( 'View your site’s content.', 'jetpack' ),
 	write: __( 'Create, update, and manage content on your site.', 'jetpack' ),
 	setup: __( 'Get instructions for connecting your external AI assistant.', 'jetpack' ),
 };
 
 /**
- * Breadcrumb nav shown on sub-views: "AI / Read", "AI / Write", etc.
+ * Error notice for a failed settings load.
+ *
+ * @param {object} props         - Component props.
+ * @param {string} props.message - The error message to show.
+ * @return {object} Component markup.
+ */
+function LoadErrorNotice( { message } ) {
+	return (
+		<Notice.Root intent="error">
+			<Notice.Description>{ message }</Notice.Description>
+		</Notice.Root>
+	);
+}
+
+/**
+ * Breadcrumb nav shown on MCP sub-views: "AI / Read", "AI / Write", etc.
  * Replaces both the page title and the ← Back button.
  *
  * @param {object}   props            - Component props.
  * @param {string}   props.view       - Current sub-view key.
- * @param {Function} props.onNavigate - Called with no args to go back to hub.
+ * @param {Function} props.onNavigate - Called with no args to go back to the MCP tab.
  * @return {object} Component markup.
  */
 function Breadcrumbs( { view, onNavigate } ) {
@@ -59,8 +110,8 @@ function Breadcrumbs( { view, onNavigate } ) {
 						className="jetpack-ai-admin__breadcrumb-link"
 						onClick={ onNavigate }
 					>
-						{ /** "AI" is a product name and should not be translated. */ }
-						AI
+						{ /** "Jetpack AI" is a product name and should not be translated. */ }
+						Jetpack AI
 					</button>
 				</li>
 				<li>
@@ -77,121 +128,292 @@ function Breadcrumbs( { view, onNavigate } ) {
  * @return {object} Component markup.
  */
 export default function App() {
+	// Read at render time, not module scope, so the injected page data is
+	// honoured wherever App mounts (the inline script always runs first in
+	// production; tests inject per-case).
+	const {
+		blogId,
+		activityLogUrl,
+		apiRoot,
+		apiNonce,
+		upgradeUrl,
+		planName,
+		planRenewsOn,
+		planAutoRenew,
+		isUserConnected,
+		showFeaturesView = false,
+	} = window?.jetpackAiSettings ?? {};
 	const [ view, setView ] = useState( getViewFromHash );
-	const [ saveError, setSaveError ] = useState( null );
+	// Save feedback goes through the shared GlobalNotices snackbars (the
+	// design-system SnackbarList behind @wordpress/notices): transient,
+	// auto-dismissing, no page-level styling needed.
+	const { createSuccessNotice, createErrorNotice } = useGlobalNotices();
+	const mcpViewedRecorded = useRef( false );
+	// Strict false: older page data (undefined) must not read as unlinked.
+	const userUnlinked = isUserConnected === false;
+	// MCP settings ride the site's and the user's own WordPress.com connections,
+	// so with either one missing the MCP body gives way to a connection notice —
+	// and the settings fetch is skipped, since it could only fail.
+	const showConnectNotice = !! blogId && userUnlinked;
 	const { isLoading, savingToolIds, mcpAbilities, hasMcpAccess, error, updateMcpAbilities } =
-		useMcpSettings();
+		useMcpSettings( { skip: showConnectNotice || ! blogId } );
+	const {
+		isLoading: isAiSettingsLoading,
+		savingKeys: aiSavingKeys,
+		settings: aiSettings,
+		error: aiSettingsError,
+		updateSettings: updateAiSettings,
+	} = useFeatureSettings( showFeaturesView );
 
+	// The hash is the single source of truth for the current view: popstate
+	// covers back/forward, hashchange covers direct hash edits and links.
 	useEffect( () => {
-		// Tag the initial history entry so the popstate handler can restore the hub view.
-		window.history.replaceState( { view: getViewFromHash() }, '' );
-		const handlePopState = event => setView( event.state?.view ?? 'hub' );
-		window.addEventListener( 'popstate', handlePopState );
-		return () => window.removeEventListener( 'popstate', handlePopState );
+		const syncViewFromHash = () => setView( getViewFromHash() );
+		window.addEventListener( 'popstate', syncViewFromHash );
+		window.addEventListener( 'hashchange', syncViewFromHash );
+		return () => {
+			window.removeEventListener( 'popstate', syncViewFromHash );
+			window.removeEventListener( 'hashchange', syncViewFromHash );
+		};
 	}, [] );
 
+	const tabViews = getTabViews();
+	const isSubView = MCP_SUB_VIEWS.includes( view );
+	const isMcpContext = view === 'mcp' || isSubView;
+
 	useEffect( () => {
-		if ( ! isLoading && hasMcpAccess ) {
-			analytics.tracks.recordEvent( 'jetpack_mcp_settings_viewed' );
+		if ( ! isLoading && hasMcpAccess && isMcpContext && ! mcpViewedRecorded.current ) {
+			mcpViewedRecorded.current = true;
+			// blog_id is attached automatically by the analytics library from
+			// window.jpTracksContext, which the page sets via an inline script.
+			recordMcpTracksEvent( 'jetpack_mcp_settings_viewed', {
+				ref: SETTINGS_REF,
+			} );
 		}
-	}, [ isLoading, hasMcpAccess ] );
+	}, [ isLoading, hasMcpAccess, isMcpContext ] );
 
 	const handleUpdate = useCallback(
 		update => {
-			setSaveError( null );
 			return updateMcpAbilities( update ).catch( () => {
-				setSaveError( __( 'Failed to save MCP settings. Please try again.', 'jetpack' ) );
+				// Errors must not auto-vanish before they're read. The fixed id
+				// makes the store replace the previous outcome for this surface,
+				// so retries never show stale results alongside fresh ones.
+				createErrorNotice( __( 'Failed to save MCP settings. Please try again.', 'jetpack' ), {
+					id: 'jetpack-mcp-save-status',
+					explicitDismiss: true,
+				} );
 			} );
 		},
-		[ updateMcpAbilities ]
+		[ updateMcpAbilities, createErrorNotice ]
 	);
 
-	const dismissSaveError = useCallback( () => setSaveError( null ), [] );
+	const handleAiSettingsUpdate = useCallback(
+		update => {
+			// Resolve a boolean rather than letting the rejection escape: the
+			// Features view records analytics only for saves that landed.
+			return updateAiSettings( update ).then(
+				() => {
+					// The shared id keeps this surface last-outcome-wins: a
+					// success replaces a sticky error from an earlier attempt.
+					createSuccessNotice( __( 'Your AI settings have been saved.', 'jetpack' ), {
+						id: 'jetpack-ai-save-status',
+					} );
+					return true;
+				},
+				() => {
+					// Errors must not auto-vanish before they're read.
+					createErrorNotice( __( 'Failed to save AI settings. Please try again.', 'jetpack' ), {
+						id: 'jetpack-ai-save-status',
+						explicitDismiss: true,
+					} );
+					return false;
+				}
+			);
+		},
+		[ updateAiSettings, createSuccessNotice, createErrorNotice ]
+	);
 
 	const navigateToView = useCallback( newView => {
-		window.history.pushState( { view: newView }, '', '#/' + newView );
+		window.history.pushState( null, '', '#/' + newView );
 		setView( newView );
 	}, [] );
 
 	// The breadcrumb back link mirrors the browser Back button so the history
-	// entry for the sub-view is popped rather than a new hub entry being pushed.
+	// entry for the sub-view is popped rather than a new entry being pushed.
 	const navigateBack = useCallback( () => window.history.back(), [] );
 
-	const isSubView = view !== 'hub';
+	// MCP navigation targets are sub-views; McpHub calls this with their keys.
+	const handleMcpNavigate = useCallback( subView => navigateToView( subView ), [ navigateToView ] );
 
 	return (
 		<AdminPage
-			title={ isSubView ? undefined : VIEW_TITLES.hub }
-			subTitle={ VIEW_DESCRIPTIONS[ view ] }
+			title={ isSubView ? undefined : 'Jetpack AI' /* Product name, not translated. */ }
+			subTitle={
+				isSubView
+					? SUB_VIEW_DESCRIPTIONS[ view ]
+					: __( 'Create, connect, and automate with Jetpack AI.', 'jetpack' )
+			}
 			breadcrumbs={
 				isSubView ? <Breadcrumbs view={ view } onNavigate={ navigateBack } /> : undefined
 			}
+			showBottomBorder={ isSubView }
 			apiRoot={ apiRoot }
 			apiNonce={ apiNonce }
 		>
-			<div className="jetpack-ai-admin__content">
-				{ isLoading && (
-					<div className="jetpack-ai-admin__loading">
-						<Spinner />
-					</div>
-				) }
+			{ ! isSubView && tabViews.length > 1 && (
+				<div className="jp-admin-page-tabs jp-admin-page-tabs--minimal">
+					<Tabs.Root value={ view } onValueChange={ navigateToView }>
+						<Tabs.List variant="minimal" aria-label={ __( 'AI sections', 'jetpack' ) }>
+							{ tabViews.map( tab => (
+								<Tabs.Tab key={ tab } value={ tab }>
+									{ VIEW_TITLES[ tab ] }
+									{ /* Overview and Features ship behind the internal-testing gate;
+									     label them so Automatticians don't mistake them for public UI.
+									     Remove with the gate. */ }
+									{ GATED_VIEWS.includes( tab ) && (
+										<Badge intent="medium" className="jetpack-ai-admin__tab-badge">
+											{ __( 'A12s only', 'jetpack' ) }
+										</Badge>
+									) }
+								</Tabs.Tab>
+							) ) }
+						</Tabs.List>
+						{ /* These tabs navigate between sibling views rather than rendering
+						     their content inside the tab root. Keep empty panels so the
+						     design-system Tabs validator can pair every tab with a panel. */ }
+						{ tabViews.map( tab => (
+							<Tabs.Panel key={ tab } value={ tab } />
+						) ) }
+					</Tabs.Root>
+				</div>
+			) }
+			<div
+				className={ `jetpack-ai-admin__content${
+					view === 'scheduled-tasks' ? ' jetpack-ai-admin__content--scheduled-tasks' : ''
+				}` }
+			>
+				<GlobalNotices />
 
-				{ ! isLoading && error && (
-					<Notice.Root intent="error">
-						<Notice.Description>{ error }</Notice.Description>
-					</Notice.Root>
-				) }
-
-				{ ! isLoading && saveError && (
-					<Notice.Root intent="error">
-						<Notice.Description>{ saveError }</Notice.Description>
-						<Notice.CloseIcon label={ __( 'Dismiss', 'jetpack' ) } onClick={ dismissSaveError } />
-					</Notice.Root>
-				) }
-
-				{ ! isLoading && ! error && ! blogId && (
-					<Notice.Root intent="warning">
-						<Notice.Description>
-							{ __(
-								'This site is not connected to WordPress.com. Please connect Jetpack to manage MCP settings.',
-								'jetpack'
-							) }
-						</Notice.Description>
-					</Notice.Root>
-				) }
-
-				{ ! isLoading && ! error && !! blogId && ! hasMcpAccess && <McpUpsell /> }
-
-				{ ! isLoading && ! error && !! blogId && hasMcpAccess && (
-					<Stack direction="column" gap="md">
-						{ view === 'hub' && (
-							<McpHub
-								mcpAbilities={ mcpAbilities }
-								blogId={ blogId }
-								activityLogUrl={ activityLogUrl }
-								savingToolIds={ savingToolIds }
-								onNavigate={ navigateToView }
-								onUpdate={ handleUpdate }
-							/>
+				{ isMcpContext && (
+					<>
+						{ isLoading && (
+							<div className="jetpack-ai-admin__loading">
+								<Spinner />
+							</div>
 						) }
-						{ view === 'read' && (
-							<McpRead
-								mcpAbilities={ mcpAbilities }
-								blogId={ blogId }
-								savingToolIds={ savingToolIds }
-								onUpdate={ handleUpdate }
-							/>
+
+						{ ! isLoading && error && ! showConnectNotice && <LoadErrorNotice message={ error } /> }
+
+						{ ! blogId && (
+							<Notice.Root intent="warning">
+								<Notice.Description>
+									{ __(
+										'This site is not connected to WordPress.com. Please connect Jetpack to manage MCP settings.',
+										'jetpack'
+									) }
+								</Notice.Description>
+							</Notice.Root>
 						) }
-						{ view === 'write' && (
-							<McpWrite
-								mcpAbilities={ mcpAbilities }
-								blogId={ blogId }
-								savingToolIds={ savingToolIds }
-								onUpdate={ handleUpdate }
-							/>
+
+						{ showConnectNotice && <McpConnectCallout /> }
+
+						{ ! isLoading && ! error && !! blogId && ! userUnlinked && ! hasMcpAccess && (
+							<McpUpsell />
 						) }
-						{ view === 'setup' && <McpSetup /> }
-					</Stack>
+
+						{ ! isLoading && ! error && !! blogId && ! userUnlinked && hasMcpAccess && (
+							<Stack direction="column" gap="md">
+								{ view === 'mcp' && (
+									<McpHub
+										mcpAbilities={ mcpAbilities }
+										blogId={ blogId }
+										activityLogUrl={ activityLogUrl }
+										savingToolIds={ savingToolIds }
+										onNavigate={ handleMcpNavigate }
+										onUpdate={ handleUpdate }
+										// The activity log has exactly one home: Overview owns the
+										// row whenever the Overview tab exists; the MCP hub keeps
+										// it in the ungated MCP-only shape.
+										showActivityLog={ ! tabViews.includes( 'overview' ) }
+									/>
+								) }
+								{ view === 'read' && (
+									<McpRead
+										mcpAbilities={ mcpAbilities }
+										blogId={ blogId }
+										savingToolIds={ savingToolIds }
+										onUpdate={ handleUpdate }
+									/>
+								) }
+								{ view === 'write' && (
+									<McpWrite
+										mcpAbilities={ mcpAbilities }
+										blogId={ blogId }
+										savingToolIds={ savingToolIds }
+										onUpdate={ handleUpdate }
+									/>
+								) }
+								{ view === 'setup' && <McpSetup /> }
+							</Stack>
+						) }
+					</>
+				) }
+
+				{ view === 'overview' && (
+					<AiOverview
+						blogId={ blogId }
+						activityLogUrl={ activityLogUrl }
+						upgradeUrl={ upgradeUrl }
+						planName={ planName }
+						planRenewsOn={ planRenewsOn }
+						planAutoRenew={ planAutoRenew }
+						isUserConnected={ isUserConnected }
+						hostAllowsAi={ aiSettings?.host_allows_ai }
+						// Same preconditions the MCP hub applies to its copy of the
+						// row: the copy promises AI-agent actions, which need MCP.
+						showActivityLog={
+							!! blogId && hasMcpAccess && getSiteLevelEnabled( mcpAbilities ?? {}, blogId )
+						}
+					/>
+				) }
+
+				{ view === 'features' && (
+					<>
+						{ isAiSettingsLoading && (
+							<div className="jetpack-ai-admin__loading">
+								<Spinner />
+							</div>
+						) }
+
+						{ ! isAiSettingsLoading && aiSettingsError && (
+							<LoadErrorNotice message={ aiSettingsError } />
+						) }
+
+						{ ! isAiSettingsLoading &&
+							! aiSettingsError &&
+							( aiSettings?.host_allows_ai === false ? (
+								<Notice.Root intent="warning">
+									<Notice.Description>
+										{ __( 'AI has been turned off for this site.', 'jetpack' ) }
+									</Notice.Description>
+								</Notice.Root>
+							) : (
+								<AiFeatures
+									settings={ aiSettings }
+									savingKeys={ aiSavingKeys }
+									onUpdate={ handleAiSettingsUpdate }
+								/>
+							) ) }
+					</>
+				) }
+
+				{ view === 'scheduled-tasks' && (
+					<ScheduledTasks
+						blogId={ blogId }
+						apiNonce={ apiNonce }
+						createSuccessNotice={ createSuccessNotice }
+						createErrorNotice={ createErrorNotice }
+					/>
 				) }
 			</div>
 		</AdminPage>

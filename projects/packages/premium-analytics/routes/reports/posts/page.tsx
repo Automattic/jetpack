@@ -1,16 +1,9 @@
 /**
  * External dependencies
  */
-import {
-	normalizeReportParams,
-	type StatsTopPostsComparisonItem,
-} from '@jetpack-premium-analytics/data';
-import {
-	useDashboardLink,
-	useReportDateFilters,
-	useSectionTab,
-} from '@jetpack-premium-analytics/routing';
-import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
+import { type StatsTopPostsComparisonItem } from '@jetpack-premium-analytics/data';
+import { useReportDateFilters, useSectionTab } from '@jetpack-premium-analytics/routing';
+import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
 	ReportErrorState,
 	ReportPageLayout,
@@ -18,32 +11,32 @@ import {
 	ReportPageTabs,
 	ReportDrilldownTable,
 	ReportRecordsTable,
-	RowsCsvDownloadButton,
+	ReportCsvAction,
 	useReportCsvExport,
 	useReportRetry,
 	type CsvColumn,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { Breadcrumbs } from '@wordpress/admin-ui';
-import { useMemo, useState } from '@wordpress/element';
+import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { useSearch } from '@wordpress/route';
 /**
  * Internal dependencies
  */
 import { route } from '../package.json';
+import { REPORTS } from '../registry';
+import { useReportParams } from '../use-report-params';
 import {
 	buildArchiveCsvRows,
 	getArchivesFields,
 	getPostsFields,
 	getReportPostsTabs,
+	getTabTitle,
 	resolveTabId,
 	usePostsReportRecords,
 	type ArchiveRow,
 } from './config';
 
-// Every report is served by the single dynamic route, so route-level hooks read
-// from the shared `/reports/$report` path and navigations target it with the
-// `posts` param.
+// Every report shares the single dynamic route, so route-level hooks and
+// navigations target this path with the `posts` param.
 const ROUTE_FROM = route.path;
 
 type ReportCsvRow = StatsTopPostsComparisonItem | ArchiveRow;
@@ -82,10 +75,8 @@ function getArchiveRowParentId( item: ArchiveRow ): string | undefined {
 }
 
 /**
- * Shared initial view for both tabs' records tables: sorted by views, with the
- * title absorbing all spare width so the metric columns shrink to their
- * content and read right-aligned — table-layout auto otherwise stretches an
- * arbitrary column to fill the table.
+ * Shared initial view for both tabs: sorted by views, title absorbs spare width so
+ * metric columns shrink to content instead of table-layout auto stretching them.
  */
 const RECORDS_VIEW = {
 	sort: { field: 'views', direction: 'desc' as const },
@@ -98,25 +89,15 @@ const RECORDS_VIEW = {
 };
 
 /**
- * Premium Analytics Posts & Pages report page component.
- *
- * The second-level "view all" report for the Posts & Pages traffic module,
- * composed on the shared report-page framework: breadcrumb header, internal
- * Posts & Pages / Archives tabs, the shared date-range + comparison picker,
- * and a Core DataViews table of the active tab's records by views for the
- * selected range. Post titles drill into the post/page detail route.
+ * Second-level "view all" report for the Posts & Pages traffic module. Post titles
+ * drill into the post/page detail route.
  *
  * @return {JSX.Element} The Posts & Pages report page.
  */
 function PostsReport(): JSX.Element {
-	// The route guard guarantees the report window params are seeded, so the
-	// URL search is the single source of truth for dates, interval, and
-	// comparison — resolve it with the same normalizer the widgets use.
-	const search = useSearch( { from: ROUTE_FROM } ) as Record< string, string | undefined >;
-	const reportParams = useMemo(
-		() => normalizeReportParams( search as Parameters< typeof normalizeReportParams >[ 0 ] ),
-		[ search ]
-	);
+	// The route guard guarantees the window params are seeded, so URL search is the
+	// single source of truth — resolve it with the same normalizer the widgets use.
+	const reportParams = useReportParams();
 
 	const tabs = useMemo( () => getReportPostsTabs(), [] );
 	const [ activeTab, setActiveTab ] = useSectionTab( ROUTE_FROM, resolveTabId );
@@ -125,8 +106,8 @@ function PostsReport(): JSX.Element {
 	const retry = useReportRetry( records.refetch );
 
 	const postsFields = useMemo(
-		() => getPostsFields( records.posts.hasComparison ),
-		[ records.posts.hasComparison ]
+		() => getPostsFields( records.posts.hasComparison, activeTab ),
+		[ activeTab, records.posts.hasComparison ]
 	);
 	const archivesFields = useMemo(
 		() => getArchivesFields( records.archives.hasComparison ),
@@ -171,13 +152,6 @@ function PostsReport(): JSX.Element {
 	// the shared date-filter controller — same model as the dashboard.
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 
-	// The breadcrumb's "Stats" crumb links back to the dashboard, carrying the
-	// current date range and comparison so returning restores the same view.
-	const dashboardLink = useDashboardLink();
-
-	// Container element for the date filters panel responsive layout.
-	const [ containerElement, setContainerElement ] = useState< HTMLDivElement | null >( null );
-
 	/*
 	 * Keyed by tab so the table's internal view state (sort, search, page)
 	 * resets when the records set changes.
@@ -207,38 +181,23 @@ function PostsReport(): JSX.Element {
 			/>
 		);
 
+	const { getLabel } = REPORTS.posts;
+
 	return (
 		<ReportPageShell
 			tabbed
-			breadcrumbs={
-				<Breadcrumbs
-					items={ [
-						{ label: __( 'Stats', 'jetpack-premium-analytics-pkg' ), to: dashboardLink },
-						{ label: __( 'Posts & Pages', 'jetpack-premium-analytics-pkg' ) },
-					] }
-				/>
-			}
-			subTitle={ __( 'All your posts and archive pages.', 'jetpack-premium-analytics-pkg' ) }
+			visual={ <StatsPageIcon /> }
+			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={
 				canExport ? (
-					<RowsCsvDownloadButton
-						label={ __( 'Download', 'jetpack-premium-analytics-pkg' ) }
-						variant="solid"
-						showIcon={ false }
-						columns={ csvColumns }
-						rows={ csvRows }
-						filename={ csvFilename }
-					/>
+					<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
 				) : undefined
 			}
 		>
 			<ReportPageLayout
+				title={ getTabTitle( activeTab ) }
 				tabs={ <ReportPageTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab } /> }
-				filters={
-					<div ref={ setContainerElement }>
-						<DateFiltersPanel { ...dateFilters } containerElement={ containerElement } />
-					</div>
-				}
+				dateFilters={ dateFilters }
 			>
 				{ records.isError ? (
 					<ReportErrorState
@@ -254,11 +213,8 @@ function PostsReport(): JSX.Element {
 }
 
 /**
- * Posts & Pages report page (default export for the report registry).
- *
- * React Query and global errors are provided by the `/reports/$report` stage,
- * which renders this lazily via the registry's `load` — the page mounts no
- * providers of its own.
+ * Registry entry point; React Query and error handling come from the
+ * `/reports/$report` stage that renders this lazily.
  *
  * @return {JSX.Element} The Posts & Pages report page.
  */

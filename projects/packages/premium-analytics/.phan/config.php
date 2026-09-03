@@ -13,9 +13,9 @@ require __DIR__ . '/../../../../.phan/config.base.php';
 return make_phan_config(
 	dirname( __DIR__ ),
 	array(
-		// WooCommerce stubs for the TEMPORARY interim sync module port (WOOA7S-1550).
-		// WooCommerce is a runtime, not composer, dependency; these let Phan resolve WC symbols.
-		'+stubs'             => array( 'woocommerce', 'woocommerce-internal' ),
+		// WC stubs resolve WooCommerce symbols for this TEMPORARY interim sync port (WOOA7S-1550);
+		// 'wpcom' also pulls in wpcom_site_has_feature(), defined in wpcomsh's wpcom-features files.
+		'+stubs'             => array( 'woocommerce', 'woocommerce-internal', 'wpcom' ),
 		'exclude_file_regex' => array(
 			'build/',
 			// Test WooCommerce stubs would redefine the WC symbols the +stubs above provide.

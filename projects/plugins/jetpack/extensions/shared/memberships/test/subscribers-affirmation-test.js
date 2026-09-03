@@ -1,4 +1,5 @@
 import { getAdminUrl } from '@automattic/jetpack-script-data';
+import { getAnalyticsUrl, hasAnalyticsDashboard } from '../../../../_inc/shared/analytics-url';
 import { META_NAME_FOR_POST_TIER_ID_SETTINGS, accessOptions } from '../constants';
 import {
 	getFormattedCategories,
@@ -13,6 +14,11 @@ import {
 
 jest.mock( '@automattic/jetpack-script-data', () => ( {
 	getAdminUrl: jest.fn( path => `https://admin.example.com/${ path }` ),
+} ) );
+
+jest.mock( '../../../../_inc/shared/analytics-url', () => ( {
+	getAnalyticsUrl: jest.fn( () => 'https://admin.example.com/analytics' ),
+	hasAnalyticsDashboard: jest.fn( () => true ),
 } ) );
 
 describe( 'getFormattedCategories', () => {
@@ -357,14 +363,159 @@ describe( 'getSentCopyLine', () => {
 		expect( result ).toContain( 'will be emailed' );
 		expect( result ).toContain( 'all subscribers' );
 	} );
+
+	// When no stats link exists (Stats module off, or dashboard unreachable), the
+	// copy keeps the same "who / when" facts but drops the delivery-details clause
+	// rather than leaving dead link text behind.
+	describe( 'hasStatsLink: false drops the delivery-details clause', () => {
+		test( 'date-only past keeps the date but drops the link', () => {
+			const result = getSentCopyLine( {
+				accessLabel: '',
+				categoryNames: '',
+				tense: 'past',
+				dateStr: 'Jan 15, 2024',
+				hasStatsLink: false,
+			} );
+			expect( result ).toContain( 'emailed on' );
+			expect( result ).toContain( 'Jan 15, 2024' );
+			expect( result ).not.toContain( 'delivery details' );
+			expect( result ).not.toContain( '<link>' );
+		} );
+
+		test( 'past with categories and date drops the link', () => {
+			const result = getSentCopyLine( {
+				accessLabel: 'all subscribers',
+				categoryNames: 'Tech',
+				tense: 'past',
+				dateStr: 'Jan 15, 2024',
+				hasStatsLink: false,
+			} );
+			expect( result ).toContain( 'all subscribers' );
+			expect( result ).toContain( 'Tech' );
+			expect( result ).toContain( 'Jan 15, 2024' );
+			expect( result ).not.toContain( 'delivery details' );
+			expect( result ).not.toContain( '<link>' );
+		} );
+
+		test( 'past with categories, no date drops the link', () => {
+			const result = getSentCopyLine( {
+				accessLabel: 'all subscribers',
+				categoryNames: 'Tech',
+				tense: 'past',
+				dateStr: '',
+				hasStatsLink: false,
+			} );
+			expect( result ).toContain( 'all subscribers' );
+			expect( result ).toContain( 'Tech' );
+			expect( result ).not.toContain( 'delivery details' );
+			expect( result ).not.toContain( '<link>' );
+		} );
+
+		test( 'present with categories drops the "delivery details will be available" link', () => {
+			const result = getSentCopyLine( {
+				accessLabel: 'all subscribers',
+				categoryNames: 'Tech',
+				tense: 'present',
+				dateStr: '',
+				hasStatsLink: false,
+			} );
+			expect( result ).toContain( 'is being emailed' );
+			expect( result ).toContain( 'Tech' );
+			expect( result ).not.toContain( 'Delivery details' );
+			expect( result ).not.toContain( '<link>' );
+		} );
+
+		test( 'past with accessLabel and date drops the link', () => {
+			const result = getSentCopyLine( {
+				accessLabel: 'all subscribers',
+				categoryNames: '',
+				tense: 'past',
+				dateStr: 'Jan 15, 2024',
+				hasStatsLink: false,
+			} );
+			expect( result ).toContain( 'all subscribers' );
+			expect( result ).toContain( 'Jan 15, 2024' );
+			expect( result ).not.toContain( 'delivery details' );
+			expect( result ).not.toContain( '<link>' );
+		} );
+
+		test( 'past with accessLabel only drops the link', () => {
+			const result = getSentCopyLine( {
+				accessLabel: 'all subscribers',
+				categoryNames: '',
+				tense: 'past',
+				dateStr: '',
+				hasStatsLink: false,
+			} );
+			expect( result ).toContain( 'all subscribers' );
+			expect( result ).not.toContain( 'delivery details' );
+			expect( result ).not.toContain( '<link>' );
+		} );
+
+		test( 'present with accessLabel only drops the "email stats page" link', () => {
+			const result = getSentCopyLine( {
+				accessLabel: 'all subscribers',
+				categoryNames: '',
+				tense: 'present',
+				dateStr: '',
+				hasStatsLink: false,
+			} );
+			expect( result ).toContain( 'is being emailed' );
+			expect( result ).toContain( 'all subscribers' );
+			expect( result ).not.toContain( 'email stats page' );
+			expect( result ).not.toContain( '<link>' );
+		} );
+
+		test( 'future copy is unchanged (never carried a link)', () => {
+			const withFlag = getSentCopyLine( {
+				accessLabel: 'all subscribers',
+				categoryNames: 'Tech',
+				tense: 'future',
+				dateStr: '',
+				hasStatsLink: false,
+			} );
+			const withoutFlag = getSentCopyLine( {
+				accessLabel: 'all subscribers',
+				categoryNames: 'Tech',
+				tense: 'future',
+				dateStr: '',
+			} );
+			expect( withFlag ).toBe( withoutFlag );
+			expect( withFlag ).toContain( 'will be emailed' );
+		} );
+	} );
 } );
 
 describe( 'getJetpackEmailStatsLink', () => {
 	beforeEach( () => {
 		getAdminUrl.mockClear();
+		getAnalyticsUrl.mockClear();
+		hasAnalyticsDashboard.mockReturnValue( true );
 	} );
 
-	test( 'calls getAdminUrl with correct path and returns result', () => {
+	// Where the dashboard is the analytics UI, delegate to the shared helper — it
+	// owns that URL grammar, so this asserts the request, not the URL.
+	test( 'asks for the post email-opens view and returns what the helper builds', () => {
+		const result = getJetpackEmailStatsLink( 123, 456 );
+
+		expect( getAnalyticsUrl ).toHaveBeenCalledWith( {
+			view: 'post',
+			id: 456,
+			section: 'email-opens',
+		} );
+		expect( result ).toBe( 'https://admin.example.com/analytics' );
+	} );
+
+	test( 'passes through null when the user cannot open the dashboard', () => {
+		getAnalyticsUrl.mockReturnValueOnce( null );
+
+		expect( getJetpackEmailStatsLink( 123, 456 ) ).toBeNull();
+	} );
+
+	// Everywhere else the existing Stats deep link is untouched.
+	test( 'returns the Stats deep link when the dashboard has not replaced it', () => {
+		hasAnalyticsDashboard.mockReturnValue( false );
+
 		const result = getJetpackEmailStatsLink( 123, 456 );
 
 		expect( getAdminUrl ).toHaveBeenCalledWith(
@@ -373,6 +524,27 @@ describe( 'getJetpackEmailStatsLink', () => {
 		expect( result ).toBe(
 			'https://admin.example.com/admin.php?page=stats#!/stats/email/opens/day/456/123'
 		);
+		expect( getAnalyticsUrl ).not.toHaveBeenCalled();
+	} );
+
+	// The Stats deep link points at admin.php?page=stats, which only exists while
+	// the Stats module is active.
+	test( 'returns null for the Stats deep link when the Stats module is off', () => {
+		hasAnalyticsDashboard.mockReturnValue( false );
+
+		const result = getJetpackEmailStatsLink( 123, 456, false );
+
+		expect( result ).toBeNull();
+		expect( getAdminUrl ).not.toHaveBeenCalled();
+	} );
+
+	// The module only gates the deep link; the dashboard URL is independent of it.
+	test( 'still returns the dashboard URL when the Stats module is off', () => {
+		hasAnalyticsDashboard.mockReturnValue( true );
+
+		const result = getJetpackEmailStatsLink( 123, 456, false );
+
+		expect( result ).toBe( 'https://admin.example.com/analytics' );
 	} );
 } );
 

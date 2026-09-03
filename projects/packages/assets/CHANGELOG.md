@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.0.1] - 2026-09-01
+### Changed
+- Update dependencies. [#50674]
+
+## [5.0.0] - 2026-08-26
+### Removed
+- Minimum supported PHP version is now 7.4. [#51515]
+
+## [4.4.11] - 2026-08-19
+### Changed
+- Update package dependencies. [#51399]
+
+## [4.4.10] - 2026-08-06
+### Fixed
+- Script Data: Decode HTML entities in the shared site title to avoid consumers seeing the encoded entities. [#50991]
+
+## [4.4.9] - 2026-07-31
+### Fixed
+- Don't honor a textdomain self-alias: aliasing a domain to itself made the gettext filter recurse infinitely on any untranslated string in that domain. The package's path is still recorded, since JavaScript translation files are located by it whether or not the domain is aliased.
+
 ## [4.4.8] - 2026-07-27
 ### Changed
 - Update package dependencies. [#50751]
@@ -908,6 +928,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Statically access asset tools
 
+[5.0.1]: https://github.com/Automattic/jetpack-assets/compare/v5.0.0...v5.0.1
+[5.0.0]: https://github.com/Automattic/jetpack-assets/compare/v4.4.11...v5.0.0
+[4.4.11]: https://github.com/Automattic/jetpack-assets/compare/v4.4.10...v4.4.11
+[4.4.10]: https://github.com/Automattic/jetpack-assets/compare/v4.4.9...v4.4.10
+[4.4.9]: https://github.com/Automattic/jetpack-assets/compare/v4.4.8...v4.4.9
 [4.4.8]: https://github.com/Automattic/jetpack-assets/compare/v4.4.7...v4.4.8
 [4.4.7]: https://github.com/Automattic/jetpack-assets/compare/v4.4.6...v4.4.7
 [4.4.6]: https://github.com/Automattic/jetpack-assets/compare/v4.4.5...v4.4.6

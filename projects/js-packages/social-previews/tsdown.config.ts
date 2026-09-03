@@ -1,3 +1,4 @@
+import lightningcssDsTokenFallbacks from '@wordpress/theme/lightningcss-plugins/lightningcss-ds-token-fallbacks';
 import { defineConfig } from 'tsdown';
 
 export default defineConfig( {
@@ -9,5 +10,9 @@ export default defineConfig( {
 	outDir: 'dist',
 	css: {
 		fileName: 'style.css',
+		// Lightning CSS injects official `--wpds-*` fallbacks into SCSS/CSS.
+		lightningcss: {
+			visitor: lightningcssDsTokenFallbacks,
+		},
 	},
 } );

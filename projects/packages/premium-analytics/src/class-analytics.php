@@ -7,22 +7,23 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics;
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Export;
 use Automattic\Jetpack\PremiumAnalytics\REST\Api_Proxy_Controller;
 use Automattic\Jetpack\PremiumAnalytics\REST\Notices_Controller;
 use Automattic\Jetpack\PremiumAnalytics\Sync\Configuration as Sync_Configuration;
 use Automattic\Jetpack\PremiumAnalytics\Sync\Sync_Status_Tracker;
+use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 
 /**
  * Main Analytics class.
  *
- * Loads the wp-build output and registers an admin page.
- * The build interceptor handles full-page rendering via admin_init.
+ * Loads the wp-build output and registers the dashboard's admin page.
  */
 class Analytics {
 
-	const PACKAGE_VERSION = '0.1.0-alpha';
+	const PACKAGE_VERSION = '0.5.0';
 
 	/**
 	 * Whether the class has been initialized.
@@ -32,10 +33,8 @@ class Analytics {
 	private static $initialized = false;
 
 	/**
-	 * Menu title override for the admin page. Null falls back to the package's
-	 * own translated label, resolved on admin_menu — callers init far too early
-	 * to translate anything themselves. A closure is resolved there too, which is
-	 * how a caller supplies a label in its own textdomain.
+	 * Menu title override for the admin page. Null falls back to the package's own
+	 * translated label, resolved on admin_menu — init runs far too early to translate.
 	 *
 	 * @var string|\Closure|null
 	 */
@@ -51,10 +50,24 @@ class Analytics {
 	private static $resolved_menu_title = null;
 
 	/**
+	 * Path to the wp-build entry point. Null uses the generated build.
+	 *
+	 * A test seam: `build/` is gitignored and test-php runs no build step, so tests redirect this
+	 * instead. Private, so — unlike the widget manifest's path — it needs no filter to stay out of reach.
+	 *
+	 * @var string|null
+	 */
+	private static $build_entry = null;
+
+	/**
 	 * Initialize the Analytics app on a connected Jetpack site.
 	 *
 	 * Registers the full local surface: the site serves the WPCOM data proxy,
 	 * notices, sync bootstrap, and the dashboard support routes itself.
+	 *
+	 * Hosts call this on every request once the flag is on, never only on admin ones: the
+	 * store-event tracker listens on the front end. {@see self::load_dashboard_surface()} is what
+	 * keeps the admin-only work off those requests.
 	 *
 	 * @param array $options Optional configuration options.
 	 *                       Supported keys:
@@ -79,16 +92,50 @@ class Analytics {
 
 		self::boot_shared_services();
 		self::register_dashboard_support_routes();
+		self::load_dashboard_surface();
+	}
+
+	/**
+	 * Load the dashboard render surface, on the requests that can render it.
+	 *
+	 * With the rollout flag on, init() runs on every request — including every WPCOM public-api
+	 * request on Simple — so this stays gated for visitors who never use it (REST excluded; see load_build()).
+	 *
+	 * @return void
+	 */
+	private static function load_dashboard_surface() {
+		if ( ! self::renders_admin_chrome() ) {
+			return;
+		}
+
+		self::load_dashboard_components();
 		self::load_build();
+		self::remove_full_page_interceptor();
 		self::register_admin_page();
+	}
+
+	/**
+	 * Whether this request can render an admin screen.
+	 *
+	 * Core also sets is_admin() on admin-ajax.php and admin-post.php, which render no dashboard
+	 * and get no handlers from this package, so neither needs the build parsed.
+	 *
+	 * @return bool
+	 */
+	private static function renders_admin_chrome() {
+		if ( ! is_admin() || wp_doing_ajax() ) {
+			return false;
+		}
+
+		// wp-includes/vars.php sets $pagenow before plugins load.
+		return 'admin-post.php' !== ( $GLOBALS['pagenow'] ?? '' );
 	}
 
 	/**
 	 * Initialize the Analytics app on WordPress.com Simple.
 	 *
-	 * Simple reaches public-api.wordpress.com directly via WPCOM's apiFetch
-	 * bridge, so it registers no local REST surface: no proxy, notices, sync
-	 * bootstrap, or dashboard support routes. WPCOM registers those separately.
+	 * Simple reaches public-api.wordpress.com directly via WPCOM's apiFetch bridge, registering
+	 * no local REST surface (no proxy, notices, sync bootstrap, or dashboard routes) — WPCOM handles those.
 	 *
 	 * @param array $options Optional configuration options.
 	 *                       Supported keys:
@@ -106,8 +153,7 @@ class Analytics {
 		self::apply_options( $options );
 
 		self::boot_shared_services();
-		self::load_build();
-		self::register_admin_page();
+		self::load_dashboard_surface();
 	}
 
 	/**
@@ -124,12 +170,15 @@ class Analytics {
 	}
 
 	/**
-	 * Boot the services and registries every platform needs, regardless of
-	 * whether the site serves the dashboard support routes itself.
+	 * Boot the services every platform needs, whether or not the site serves the
+	 * dashboard support routes itself.
 	 *
 	 * @return void
 	 */
 	private static function boot_shared_services() {
+		// Must be hooked before admin_menu and rest_api_init check the capability.
+		Capabilities::register();
+
 		// Emit WooCommerce store events into the Woo pipeline (ClickHouse + proxy).
 		WooCommerce_Analytics_Tracker::configure();
 
@@ -137,7 +186,85 @@ class Analytics {
 		// register on all requests. Self-gates on WooCommerce + Jetpack connection.
 		Export::configure();
 
-		self::load_dashboard_components();
+		self::register_script_data();
+
+		// The posts and pages list tables link their views column here.
+		Post_List_Link::register();
+	}
+
+	/**
+	 * URL of a dashboard route on this site.
+	 *
+	 * The SPA path travels in `p`, encoded here since add_query_arg() leaves values alone and a
+	 * raw `?` inside it would read as an outer query param.
+	 *
+	 * @since 0.4.0
+	 *
+	 * @param string $path Route path, e.g. `/post/123`.
+	 * @return string
+	 */
+	public static function dashboard_url( $path = '/' ) {
+		return admin_url( 'admin.php?page=' . self::MENU_PAGE_SLUG . '&p=' . rawurlencode( $path ) );
+	}
+
+	/**
+	 * Announce to Jetpack's other surfaces that this dashboard is the site's analytics UI,
+	 * so they link here instead of the Stats page.
+	 *
+	 * @return void
+	 */
+	private static function register_script_data() {
+		add_filter( 'jetpack_admin_js_script_data', array( static::class, 'add_script_data' ) );
+	}
+
+	/**
+	 * Runs on nearly every admin page load, so the payload stays to two strings,
+	 * a bool, and one capability check.
+	 *
+	 * @param array $data The script data.
+	 * @return array The script data with the analytics key added.
+	 */
+	public static function add_script_data( $data ) {
+		$data['analytics'] = array(
+			'enabled'   => true,
+			'page_slug' => self::MENU_PAGE_SLUG,
+			'can_view'  => current_user_can( Capabilities::VIEW_ANALYTICS ),
+			'timezone'  => self::site_timezone(),
+		);
+
+		return $data;
+	}
+
+	/**
+	 * Prefers `timezone_string` over `gmt_offset`, matching the dashboard's own `siteTimeZone()`:
+	 * analytics links point at past dates, so a fixed offset applied to the far side of a
+	 * daylight-saving transition shifts the day.
+	 *
+	 * @return string An IANA timezone name, or a `+HH:MM` UTC offset.
+	 */
+	private static function site_timezone() {
+		$timezone_string = get_option( 'timezone_string' );
+
+		if ( is_string( $timezone_string ) && $timezone_string !== '' ) {
+			return $timezone_string;
+		}
+
+		return self::format_gmt_offset( (float) get_option( 'gmt_offset' ) );
+	}
+
+	/**
+	 * Format a GMT offset in hours as `+HH:MM`.
+	 *
+	 * @param float $offset The offset in hours, e.g. 5.5 or -8.
+	 * @return string The formatted offset.
+	 */
+	private static function format_gmt_offset( $offset ) {
+		$sign     = $offset < 0 ? '-' : '+';
+		$absolute = abs( $offset );
+		$hours    = (int) floor( $absolute );
+		$minutes  = (int) round( ( $absolute - $hours ) * 60 );
+
+		return sprintf( '%s%02d:%02d', $sign, $hours, $minutes );
 	}
 
 	/**
@@ -171,21 +298,53 @@ class Analytics {
 	/**
 	 * Load the dashboard components every platform renders with.
 	 *
+	 * Admin-only, via load_dashboard_surface(); boot_routes() requires these
+	 * again for REST.
+	 *
 	 * @return void
 	 */
 	private static function load_dashboard_components() {
+		/*
+		 * Every include below is guarded on a symbol the target file declares.
+		 *
+		 * Two copies of this package can be loaded in one request — WPCOM Simple ships
+		 * one under jetpack-plugin and another under jetpack-mu-wpcom-plugin. The
+		 * autoloader dedupes classes by version, but these files declare functions and
+		 * constants at file scope, so they are absent from the classmap entirely and
+		 * reach us through `require_once`, which dedupes by path and not by symbol.
+		 * Once a class from one copy and a class from the other both run their
+		 * includes, PHP fatals on the redeclared functions. The guards make the second
+		 * copy's include a no-op, which also keeps the files' file-scope side effects
+		 * (add_filter() calls, registry bootstrapping) from running twice.
+		 */
+
 		// Widget modules for the client's dynamic import() map.
-		require_once __DIR__ . '/widget-modules.php';
+		if ( ! function_exists( __NAMESPACE__ . '\\register_widget_modules_rest_route' ) ) {
+			require_once __DIR__ . '/widget-modules.php';
+		}
 
 		// Default layout's first-load preference injection.
-		require_once __DIR__ . '/dashboard-layout.php';
+		if ( ! function_exists( __NAMESPACE__ . '\\register_dashboard_default_layout_route' ) ) {
+			require_once __DIR__ . '/dashboard-layout.php';
+		}
 
 		// Dashboard sections and their default layout seeding.
-		require_once __DIR__ . '/dashboard-sections.php';
+		if ( ! function_exists( __NAMESPACE__ . '\\register_dashboard_section' ) ) {
+			require_once __DIR__ . '/dashboard-sections.php';
+		}
 
-		// Opt-in CSV export settings.
-		require_once __DIR__ . '/csv-exports.php';
+		// Default-on CSV export settings and server-side disable filter.
+		if ( ! function_exists( __NAMESPACE__ . '\\configure_csv_exports' ) ) {
+			require_once __DIR__ . '/csv-exports.php';
+		}
 		configure_csv_exports();
+
+		// VideoPress availability for the client's video routes. The widget layer
+		// reads the same signal through widget-type-support.php.
+		if ( ! function_exists( __NAMESPACE__ . '\\configure_videopress_availability' ) ) {
+			require_once __DIR__ . '/videopress-availability.php';
+		}
+		configure_videopress_availability();
 	}
 
 	/**
@@ -201,17 +360,61 @@ class Analytics {
 	/**
 	 * Load the wp-build output (interceptor, modules, routes, page render).
 	 *
-	 * Must run before the is_admin() gate: the registry serves REST requests
-	 * too (is_admin() false there). Render pieces self-gate on admin_init, so
-	 * this is inert off the dashboard.
+	 * Admin-only, via load_dashboard_surface(). REST does not need it:
+	 * boot_routes() and ensure_widget_registry_ready() load what they use.
 	 *
 	 * @return void
 	 */
 	private static function load_build() {
-		$build_entry = __DIR__ . '/../build/build.php';
+		$build_entry = self::$build_entry ?? __DIR__ . '/../build/build.php';
 		if ( file_exists( $build_entry ) ) {
 			require_once $build_entry;
 		}
+	}
+
+	/**
+	 * Unhook wp-build's full-page render interceptor — security-relevant: it renders
+	 * `?page=jetpack-premium-analytics` from admin_init with no capability check, and only
+	 * renders_admin_chrome() gates the admin-post.php/admin-ajax.php paths that reach admin_init
+	 * without Core's own slug check.
+	 *
+	 * Because remove_action() no-ops on a callback name it can't find, a wp-build rename would
+	 * silently restore this entry point — hence the _doing_it_wrong() below when that happens.
+	 *
+	 * @return void
+	 */
+	private static function remove_full_page_interceptor() {
+		if ( remove_action( 'admin_init', 'jpa_jetpack_premium_analytics_intercept_render' ) ) {
+			return;
+		}
+
+		if ( function_exists( 'jpa_jetpack_premium_analytics_intercept_render' ) ) {
+			_doing_it_wrong(
+				__METHOD__,
+				'The Premium Analytics full-page interceptor could not be unhooked: wp-build changed the generated callback name or its admin_init priority.',
+				''
+			);
+		}
+	}
+
+	/**
+	 * Absolute path to the generated widget manifest.
+	 *
+	 * On the class, not beside its readers in widget-modules.php: two copies of this package can
+	 * load in one request, and only classes get the autoloader's version dedupe (see load_dashboard_components()).
+	 *
+	 * @return string
+	 */
+	public static function widget_manifest_path() {
+		/**
+		 * Filters the path to the generated widget manifest.
+		 *
+		 * @param string $path Absolute path to the generated widget manifest.
+		 */
+		return apply_filters(
+			'jetpack_premium_analytics_widgets_manifest_path',
+			__DIR__ . '/../build/widgets.php'
+		);
 	}
 
 	/**
@@ -220,10 +423,6 @@ class Analytics {
 	 * @return void
 	 */
 	private static function register_admin_page() {
-		if ( ! is_admin() ) {
-			return;
-		}
-
 		// Polyfills force-replace core handles (wp-private-apis) on wp_default_scripts;
 		// scope to the dashboard page so no other admin page (e.g. block editor) is hit.
 		if ( self::is_dashboard_request() ) {
@@ -235,36 +434,27 @@ class Analytics {
 				)
 			);
 
-			// Enqueue the i18n loader so the init module can download its JS
-			// translation catalogs. admin_enqueue_scripts covers the wp-admin
-			// integrated variant; the full-page interceptor variant does not fire
-			// it (see ensure_script_data()), so also hook the page init action.
 			add_action( 'admin_enqueue_scripts', array( static::class, 'enqueue_i18n_loader' ) );
-			add_action( 'jetpack-premium-analytics_init', array( static::class, 'enqueue_i18n_loader' ) );
+			add_action( 'admin_enqueue_scripts', array( static::class, 'enqueue_tracks_transport' ) );
+			add_filter( 'jetpack_admin_js_script_data', array( static::class, 'add_tracks_identity_script_data' ), 20 );
 		}
 
 		add_action( 'admin_menu', array( static::class, 'register_admin_menu' ) );
-		add_action( 'jetpack-premium-analytics_init', array( static::class, 'register_sidebar_items' ) );
-		add_action( 'jetpack-premium-analytics_init', array( static::class, 'ensure_script_data' ) );
 	}
 
 	/**
-	 * Admin page slugs that render the Premium Analytics dashboard.
-	 *
-	 * Mirrors the slugs the wp-build interceptor renders (full-page and the
-	 * wp-admin integrated variant).
+	 * The admin page slug the dashboard menu registers. Published in script data
+	 * so no caller has to hard-code it.
 	 */
-	const DASHBOARD_PAGE_SLUGS = array( 'jetpack-premium-analytics', 'jetpack-premium-analytics-wp-admin' );
+	const MENU_PAGE_SLUG = 'jetpack-premium-analytics-wp-admin';
 
 	/**
-	 * Whether the current request is rendering a Premium Analytics dashboard page.
+	 * Whether the current request is rendering the Premium Analytics dashboard.
 	 *
-	 * Used to scope the wp-build polyfill registration (which force-replaces core
-	 * script handles) to this dashboard, so it never affects other admin pages.
-	 * Must be cheap and safe to call at plugin-load time, before current_screen
-	 * exists, so it reads the menu page slug directly like the build interceptor does.
+	 * Scopes the wp-build polyfill registration (which force-replaces core script handles) to
+	 * this dashboard; reads the menu slug directly, not current_screen, to stay safe at plugin-load time.
 	 *
-	 * @return bool True when serving a dashboard page in wp-admin.
+	 * @return bool True when serving the dashboard page in wp-admin.
 	 */
 	public static function is_dashboard_request() {
 		if ( ! is_admin() ) {
@@ -274,34 +464,44 @@ class Analytics {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reading the menu page slug to scope asset loading; no state is changed.
 		$page = isset( $_GET['page'] ) ? sanitize_key( wp_unslash( $_GET['page'] ) ) : '';
 
-		return in_array( $page, self::DASHBOARD_PAGE_SLUGS, true );
+		return self::MENU_PAGE_SLUG === $page;
 	}
 
 	/**
 	 * Register the admin menu page.
 	 *
-	 * Uses the wp-build "wp-admin integrated" variant (`-wp-admin` slug) so the
-	 * dashboard renders inside the native wp-admin shell, not the full-page
-	 * variant that takes over the screen via admin_init. The render callback
-	 * comes from the generated build; when that is missing we say so rather
-	 * than render an empty page, since the two look identical from the outside.
+	 * Uses wp-build's `-wp-admin` variant so Core applies the menu capability check. Reports the
+	 * page and widget artifacts independently since the build loader includes each conditionally.
 	 *
 	 * @return void
 	 */
 	public static function register_admin_menu() {
-		$has_build = function_exists( 'jpa_jetpack_premium_analytics_wp_admin_render_page' );
+		$can_render          = function_exists( 'jpa_jetpack_premium_analytics_wp_admin_render_page' );
+		$has_widget_manifest = file_exists( self::widget_manifest_path() );
 
-		if ( ! $has_build ) {
+		$missing = array();
+		if ( ! $can_render ) {
+			// Named by symbol, not by file: build/pages.php is only a loader, and the
+			// callback can also go missing to a renamed page slug or an absent build entry.
+			$missing[] = 'the jpa_jetpack_premium_analytics_wp_admin_render_page() callback, generated under build/pages/';
+		}
+		if ( ! $has_widget_manifest ) {
+			$missing[] = 'build/widgets.php (the widget manifest)';
+		}
+
+		if ( $missing ) {
 			// Surfaced here rather than only on the page itself, so a partial deploy shows up on
 			// the first admin request instead of waiting for someone to open the dashboard.
 			_doing_it_wrong(
 				__METHOD__,
-				'The Premium Analytics build output is missing, so the dashboard cannot render. The package build did not run for this deploy.',
+				// esc_html() only to satisfy WordPress.Security.EscapeOutput, which treats
+				// this argument as output; every entry is a literal from just above.
+				'The Premium Analytics build output is incomplete: ' . esc_html( implode( ', ', $missing ) ) . '. The package build did not run, or ran only partially, for this deploy.',
 				''
 			);
 		}
 
-		$render_callback = $has_build
+		$render_callback = $can_render
 			? 'jpa_jetpack_premium_analytics_wp_admin_render_page'
 			: array( __CLASS__, 'render_missing_build_notice' );
 
@@ -310,8 +510,8 @@ class Analytics {
 		add_menu_page(
 			esc_html( $menu_title ),
 			esc_html( $menu_title ),
-			'manage_options',
-			'jetpack-premium-analytics-wp-admin',
+			Capabilities::VIEW_ANALYTICS,
+			self::MENU_PAGE_SLUG,
 			$render_callback,
 			'dashicons-chart-bar',
 			2
@@ -337,13 +537,9 @@ class Analytics {
 	/**
 	 * The caller's menu label override, or the package's own translated label.
 	 *
-	 * Only call once translations can load — admin_menu or later. Memoized, so every
-	 * call site in a request shows the same label.
-	 *
-	 * Closures are resolved here rather than at init time, so a caller can hand us
-	 * `__()` in its own textdomain without translating too early. Deliberately not
-	 * is_callable(): PHP function names are case-insensitive, so a plain label like
-	 * "Analytics" would match a stray analytics() function and get called.
+	 * Call only once translations can load — admin_menu or later — and memoize so every call site
+	 * agrees. Deliberately not is_callable(): PHP function names are case-insensitive, so a plain
+	 * label like "Analytics" could match a stray analytics() function and get called.
 	 *
 	 * @return string
 	 */
@@ -356,55 +552,13 @@ class Analytics {
 			? ( self::$menu_title )()
 			: self::$menu_title;
 
-		// A positive check rather than a null coalesce: a closure is free to return an
-		// empty string, or something that isn't a string at all, and either would reach
-		// esc_html() as a broken label instead of falling back here.
+		// A positive check rather than a null coalesce: a closure may return an empty string, or
+		// something that isn't a string at all, and either would reach esc_html() as a broken label.
 		self::$resolved_menu_title = is_string( $title ) && '' !== $title
 			? $title
-			: __( 'Analytics', 'jetpack-premium-analytics-pkg' );
+			: __( 'Stats v2', 'jetpack-premium-analytics-pkg' );
 
 		return self::$resolved_menu_title;
-	}
-
-	/**
-	 * Register sidebar menu items for the full-page app.
-	 *
-	 * @return void
-	 */
-	public static function register_sidebar_items() {
-		if ( ! function_exists( 'jpa_register_jetpack_premium_analytics_menu_item' ) ) {
-			return;
-		}
-
-		// @phan-suppress-next-line PhanUndeclaredFunction -- Guarded by function_exists() above.
-		jpa_register_jetpack_premium_analytics_menu_item(
-			'dashboard',
-			__( 'Dashboard', 'jetpack-premium-analytics-pkg' ),
-			'/'
-		);
-	}
-
-	/**
-	 * Emit window.JetpackScriptData on the boot-rendered admin page.
-	 *
-	 * The wp-build interceptor that renders this page (its page.php template)
-	 * reproduces wp-admin/admin-header.php but does not fire the
-	 * `admin_print_scripts` action. The jetpack-assets Script_Data class hooks
-	 * that action to print `window.JetpackScriptData` — which carries the
-	 * connection data the route guards read — so without help the global is
-	 * never emitted and the guards cannot tell whether the site is connected.
-	 *
-	 * Hooked on the page's own init action, this runs only for this page, in
-	 * time for the footer scripts to print. Script_Data guards against rendering
-	 * twice, so it is a no-op wherever `admin_print_scripts` fires normally.
-	 *
-	 * @return void
-	 */
-	public static function ensure_script_data() {
-		$script_data = 'Automattic\Jetpack\Assets\Script_Data';
-		if ( is_callable( array( $script_data, 'render_script_data' ) ) ) {
-			$script_data::render_script_data();
-		}
 	}
 
 	/**
@@ -418,5 +572,61 @@ class Analytics {
 		if ( wp_script_is( 'wp-jp-i18n-loader', 'registered' ) ) {
 			wp_enqueue_script( 'wp-jp-i18n-loader' );
 		}
+	}
+
+	/**
+	 * Load the Tracks transport for the dashboard.
+	 *
+	 * `@automattic/jetpack-analytics` only queues events into `window._tkq` — its own w.js
+	 * loader is disabled — so without this handle no `jetpack_premium_analytics_*` event
+	 * ever flushes. Simple is skipped because stats.php already prints the same script.
+	 *
+	 * @return void
+	 */
+	public static function enqueue_tracks_transport() {
+		if ( ( new Host() )->is_wpcom_simple() ) {
+			return;
+		}
+
+		wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
+	}
+
+	/**
+	 * Publish the WPCOM identity the dashboard attributes its Tracks events to.
+	 *
+	 * Core's script data carries only the local user. Publicize is the one package that fills
+	 * `current_user.wpcom` in, and the standalone plugin does not bundle it, so without this
+	 * every event would land anonymous there.
+	 *
+	 * @param array $data The script data.
+	 * @return array The script data with the WPCOM identity added.
+	 */
+	public static function add_tracks_identity_script_data( $data ) {
+		if ( ( new Host() )->is_wpcom_simple() ) {
+			$wpcom_user = array(
+				'ID'    => get_current_user_id(),
+				'login' => wp_get_current_user()->user_login,
+			);
+		} else {
+			$connected = ( new Connection_Manager() )->get_connected_user_data();
+
+			if ( empty( $connected['ID'] ) || empty( $connected['login'] ) ) {
+				return $data;
+			}
+
+			// Only the two fields `identifyUser` needs: the rest of the connected-user payload
+			// is profile data the dashboard never reads.
+			$wpcom_user = array(
+				'ID'    => $connected['ID'],
+				'login' => $connected['login'],
+			);
+		}
+
+		$data['user']['current_user']['wpcom'] = array_merge(
+			$data['user']['current_user']['wpcom'] ?? array(),
+			$wpcom_user
+		);
+
+		return $data;
 	}
 }

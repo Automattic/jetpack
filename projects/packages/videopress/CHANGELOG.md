@@ -5,6 +5,103 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.49.0] - 2026-09-01
+### Added
+- Dashboard: Give the empty Library an upload dropzone empty state. [#51717]
+- Enable the chapters editor on all sites. [#51296]
+
+### Changed
+- Update package dependencies. [#51303] [#51802]
+
+### Fixed
+- Dashboard: Say when an upload failed because of a Jetpack connection problem, instead of only "Upload failed". [#51541]
+- Dashboard: Show the Jetpack connection error notice on the modernized dashboard. [#51541]
+- Video block: Say when an upload failed because of a Jetpack connection problem, instead of only "Failed to upload your video". [#51541]
+
+## [0.48.0] - 2026-08-26
+### Added
+- Dashboard: Add a first-run onboarding modal. [#51520]
+- Dashboard: Switch between the first-run and returning-user tab order from a single first-run state. [#51520]
+
+### Changed
+- Dashboard: Align the welcome modal with the design system: derive the media band's control colors from a ThemeProvider seed, use the dialog's own type scale, and the Jetpack brand token for the card icons. [#51567]
+- Dashboard: Rebuild the welcome modal around the brand artwork band, replacing the two-tab layout. [#51520]
+
+### Removed
+- Minimum supported PHP version is now 7.4. [#51515]
+
+### Fixed
+- Dashboard: stop greeting people who already have videos as new when they arrive on a video link in a fresh browser. [#51520]
+- Fix private video playback authorization for videos embedded through synced patterns and Video Playlist blocks, let private videos preview in the block editor canvas, load live metadata for private playlist entries for authorized viewers, and show a lock placeholder on playlist thumbnails of private videos the viewer cannot access. [#51569]
+- Welcome modal: load the artwork behind the intro film instead of falling back to a flat colour. [#51520]
+
+## [0.47.2] - 2026-08-25
+### Added
+- Video details: Move the add-to-content action into the page header, where it can now create a new page as well as a new post. [#51480]
+
+### Changed
+- Update dependencies. [#51456]
+- Video details: Group the title, description and chapters into a single card, and show the title in the page heading as you type it. [#51480]
+- Video details: Show the current thumbnail beside the control that replaces it, and give subtitles a section of their own. [#51480]
+- Video details: Widen the screen and show the video's settings beside a preview of the video rather than below it. [#51480]
+
+### Fixed
+- Fix a timeout error when updating a video poster from the media library. [#51479]
+
+## [0.47.1] - 2026-08-20
+### Changed
+- Update dependencies. [#49464]
+
+## [0.47.0] - 2026-08-19
+### Added
+- Add a Video Playlist block. [#51332]
+
+### Changed
+- Chapters editor: move the chapter list into a side panel beside the preview and timeline. [#51147]
+- Update package dependencies. [#51399]
+
+### Fixed
+- Fix: Private VideoPress videos in synced patterns intermittently fail authorization by caching GUID lists at render time for fast O(1) lookup during token requests. [#51398]
+
+## [0.46.0] - 2026-08-13
+### Added
+- Show the free-plan upgrade notice on the Library and Settings tabs once the free video upload has been used. [#51186]
+
+### Changed
+- Update package dependencies. [#51125]
+
+## [0.45.0] - 2026-08-10
+### Security
+- Improve escaping of block attributes rendered into inline styles.
+- Restrict the site information endpoint to administrators.
+- Verify per-attachment permissions when uploading or promoting a video.
+- Verify per-video access before issuing a playback token via the REST endpoint.
+- Verify per-video permissions on the poster endpoint.
+- Verify per-video permissions when updating video metadata.
+
+### Added
+- Chapters: Add an Editor tab with a Chapters tool to the video dashboard and a chapter manager modal in the block editor, behind a feature flag that is off by default. [#50986]
+
+### Changed
+- Dashboard: Update the admin page subtitle copy. [#51062]
+- Update package dependencies. [#50509] [#51008]
+
+### Fixed
+- Dashboard: Fix the blank Library page on right-to-left locales caused by a missing RTL stylesheet. [#51111]
+- Dashboard: Prevent a fatal error on the VideoPress page when the WordPress.com pricing request fails on a disconnected site. [#50986]
+- Editor: Fix the age gate so the birth date can be submitted and lowering a video's rating removes the gate. [#51069]
+
+## [0.44.0] - 2026-08-03
+### Added
+- Library: Allow selecting multiple video files from the Upload video button for bulk uploading. [#50794]
+
+### Fixed
+- Block: Fix selecting an existing local video from the media library on WordPress.com Simple (promote in place instead of the unreachable videopress/v1 upload), and stop the error screen's Retry from crashing when there is no file to restart. [#50844]
+- Dashboard: Fix cramped spacing in the Chapters help modal and let long dialog content scroll. [#50968]
+- Library: Allow multi-selecting local videos; Upload to VideoPress works as a bulk action and Delete covers local rows. [#50840]
+- Load JS translation catalogs and stamp the package text domain on the wp-build dashboard bundles. [#50762]
+- Video block: Keep preview-on-hover poster and title customization in sync with the player API. [#50702]
+
 ## [0.43.0] - 2026-07-27
 ### Added
 - Admin menu: Keep the VideoPress item under the Jetpack menu when VideoPress is not active, linking to the My Jetpack page to activate it. [#50740]
@@ -2110,6 +2207,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.49.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.48.0...v0.49.0
+[0.48.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.47.2...v0.48.0
+[0.47.2]: https://github.com/Automattic/jetpack-videopress/compare/v0.47.1...v0.47.2
+[0.47.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.47.0...v0.47.1
+[0.47.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.46.0...v0.47.0
+[0.46.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.45.0...v0.46.0
+[0.45.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.44.0...v0.45.0
+[0.44.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.43.0...v0.44.0
 [0.43.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.42.0...v0.43.0
 [0.42.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.41.0...v0.42.0
 [0.41.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.40.0...v0.41.0

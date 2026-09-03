@@ -1,76 +1,41 @@
 /**
  * WordPress dependencies
  */
-import { __ } from '@wordpress/i18n';
-import { calendar } from '@wordpress/icons';
+import { _x } from '@wordpress/i18n';
+import { pin } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
  * Internal dependencies
  */
-import { ArrayCheckboxField } from '@jetpack-premium-analytics/fields';
+import { SelectField } from '@jetpack-premium-analytics/fields';
+import { getYearElements } from './years';
+import type { YearPresetId } from '@jetpack-premium-analytics/datetime';
 
 /**
- * Metric tiles the Annual highlights widget can show.
- */
-export type AnnualHighlightMetric = 'posts' | 'words' | 'likes' | 'comments';
-
-/**
- * Configurable attributes for the Annual highlights widget. The widget has no
- * date range — the insights endpoint is not period-scoped.
+ * No date range: the insights endpoint is not period-scoped, and `year` picks a
+ * row out of the single payload it returns.
  */
 export type AnnualHighlightsAttributes = {
-	/**
-	 * Metric tiles to show in the widget body.
-	 */
-	metrics?: AnnualHighlightMetric[];
+	/** Year preset ID, e.g. `year-2026`. */
+	year?: YearPresetId;
 };
 
-export const DEFAULT_HIGHLIGHT_METRICS: AnnualHighlightMetric[] = [
-	'posts',
-	'words',
-	'likes',
-	'comments',
-];
-
 /**
- * Widget type definition.
- *
- * `example.attributes` doubles as the defaults applied to new instances: every
- * metric enabled.
+ * The type keeps the `annual-highlights` name because saved layouts reference it;
+ * widget.json titles it "Year in review". No `example` year: the years on offer
+ * depend on the site's own data, so a new instance starts on the current year.
  */
 export default {
-	icon: calendar,
+	icon: pin,
 	attributes: [
 		{
-			id: 'metrics',
-			label: __( 'Metrics', 'jetpack-premium-analytics-pkg' ),
-			type: 'array',
+			id: 'year',
+			label: _x( 'Year', 'label for the year selector', 'jetpack-premium-analytics-pkg' ),
+			type: 'text',
 			relevance: 'high',
-			Edit: ArrayCheckboxField,
-			elements: [
-				{
-					value: 'posts',
-					label: __( 'Posts', 'jetpack-premium-analytics-pkg' ),
-				},
-				{
-					value: 'words',
-					label: __( 'Words', 'jetpack-premium-analytics-pkg' ),
-				},
-				{
-					value: 'likes',
-					label: __( 'Likes', 'jetpack-premium-analytics-pkg' ),
-				},
-				{
-					value: 'comments',
-					label: __( 'Comments', 'jetpack-premium-analytics-pkg' ),
-				},
-			],
+			Edit: SelectField,
+			getElements: getYearElements,
 		},
 	] as WidgetAttributeField< AnnualHighlightsAttributes >[],
-	example: {
-		attributes: {
-			metrics: DEFAULT_HIGHLIGHT_METRICS,
-		},
-	},
 };

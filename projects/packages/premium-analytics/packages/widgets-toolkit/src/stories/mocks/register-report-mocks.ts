@@ -1,17 +1,8 @@
 /**
- * Storybook report-data mocking via a `@wordpress/api-fetch` middleware.
- *
- * The shared Jetpack Storybook config cannot be modified, and there is no
- * analytics backend in Storybook, so report requests have nothing to resolve
- * against.
- *
- * To mock report data we register an `apiFetch` middleware that intercepts the
- * proxy report paths and returns generated mock data. The data package fetches
- * every report through `fetchReport()`, which builds the same base path, so a
- * single middleware covers all widget stories.
- *
- * The middleware is registered exactly once (guarded by a module-level flag) and
- * is triggered automatically when `with-widget-root.tsx` is imported.
+ * Storybook report-data mocking via a `@wordpress/api-fetch` middleware: since
+ * Storybook has no analytics backend, this middleware intercepts proxy report
+ * paths (matching `fetchReport()`'s base path) and returns generated mock data.
+ * Registered once, triggered when `with-widget-root.tsx` is imported.
  */
 /**
  * External dependencies
@@ -69,6 +60,7 @@ import {
 	mockEmailClientBreakdown,
 	mockEmailInternalLinkBreakdown,
 	mockEmailUserContentLinkBreakdown,
+	buildPostContentResponse,
 } from './data';
 import { getMockParamsFromPreset } from './presets';
 import type { APIFetchMiddleware, APIFetchOptions } from '@wordpress/api-fetch';
@@ -84,6 +76,8 @@ const STATS_SUBSCRIBERS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/s
 // is matched on its own rather than through routeStatsReport().
 const STATS_SUBSCRIBERS_COUNTS_PATH = '/jetpack-premium-analytics/v1/proxy/v2/subscribers/counts';
 const STATS_VISITS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/visits';
+const STATS_VIEWS_BY_HOUR_PATH =
+	'/jetpack-premium-analytics/v1/proxy/v1.1/stats/views-by/hour-of-day';
 const STATS_EMAIL_SUMMARY_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/emails/summary';
 const STATS_VIDEO_PLAYS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/video-plays';
 // Plan usage is served off the v2 base (not under /v1.1/stats), so it needs its
@@ -99,6 +93,9 @@ const POST_LIKES_PATH_PATTERN =
 const POST_COMMENTS_PATH_PATTERN =
 	/^\/jetpack-premium-analytics\/v1\/proxy\/v1\.1\/posts\/\d+\/replies(?:\?|$)/;
 const WP_SETTINGS_PATH = '/wp/v2/settings';
+// Core posts endpoint: single-post highlight widgets read post content (title,
+// permalink, image) from core since Stats rows lack it; only `include=` is handled here.
+const WP_POSTS_PATH = '/wp/v2/posts';
 
 const coreSettingsMock = {
 	timezone: 'UTC',
@@ -118,7 +115,8 @@ const STATS_API_BASE = '/jetpack-premium-analytics/v1/proxy/v1.1/stats';
  * Days of mock data to generate (covering past requests).
  */
 const SPECTRUM_DAYS = 90;
-const DAY_MS = 24 * 60 * 60 * 1000;
+const HOUR_MS = 60 * 60 * 1000;
+const DAY_MS = 24 * HOUR_MS;
 
 /**
  * Parameters for dynamic mock data generation.
@@ -156,22 +154,28 @@ const requestCounters: Record< string, number > = {};
 
 /**
  * Forced response state for a request path fragment, so stories can exercise a
- * widget's loading, error, and empty UI. `error` rejects the request with a
- * permission-gated 403; `error-retryable` rejects it with the proxy's
- * `no_connection` 403, which widgets on `describeError` render with a Retry
- * action; `loading` returns a promise that never settles; `empty` resolves with
- * a valid response that has no rows.
+ * widget's loading, error, and empty UI. `error` is a permission-gated 403;
+ * `error-retryable` is the proxy's `no_connection` 403 (which `describeError`
+ * renders with Retry); `loading` never settles; `empty` resolves with no rows.
  */
-type ReportMockState = 'error' | 'error-retryable' | 'loading' | 'empty';
+export type ReportMockState = 'error' | 'error-retryable' | 'loading' | 'empty';
 
 const mockStateOverrides = new Map< string, ReportMockState >();
 
 /**
+ * Clear cached queries after a forced mock override changes.
+ *
+ * Forced-state stories are excluded from autodocs, so clearing the shared cache
+ * is safe and avoids coupling mocks to widget query keys.
+ */
+export function resetForcedStateQueries(): void {
+	queryClient.clear();
+}
+
+/**
  * Force every request whose path contains `pathFragment` into a loading or error
- * state, or clear the override with `null`. Intended for a story's `beforeEach`
- * (set on enter, clear on cleanup). Because the override is keyed by path, scope
- * stories that use it out of the shared autodocs page (`tags: [ '!autodocs' ]`)
- * so it cannot bleed into sibling stories rendered alongside it.
+ * state (or clear it with `null`), for a story's `beforeEach`. Keyed by path, so
+ * scope stories that use it out of autodocs (`tags: [ '!autodocs' ]`) to avoid bleeding into siblings.
  *
  * @param pathFragment - Substring matched against the request path (e.g. `stats/search-terms`).
  * @param state        - The forced state, or `null` to clear.
@@ -182,20 +186,14 @@ export function setReportMockState( pathFragment: string, state: ReportMockState
 	} else {
 		mockStateOverrides.set( pathFragment, state );
 	}
+	resetForcedStateQueries();
 }
 
 /**
  * Story `beforeEach` that forces the shared `wordads/earnings` request into a
- * loading, error, or empty state and drops its cached query on both enter and
- * cleanup. Shared by every WordAds earnings widget story (highlights and the
- * three history tables) so the cache-reset cannot drift between them.
- *
- * The earnings endpoint takes no params, so its query key is static and every
- * WordAds story shares one cache entry (a distinct date preset can't separate
- * them). Resetting on both edges gives each forced-state story a fresh fetch and
- * clears a never-settling `loading` fetch before the next story reuses the key.
- * Because the override is keyed by path, keep such stories off the shared
- * autodocs page (`tags: [ '!autodocs' ]`).
+ * loading, error, or empty state, resetting its cache on both enter and cleanup.
+ * The endpoint takes no params, so every WordAds story shares one static query
+ * key — the reset avoids drift and clears a never-settling `loading` fetch before reuse.
  *
  * @param state - The forced mock state.
  * @return A Storybook `beforeEach` implementation returning its cleanup.
@@ -211,16 +209,32 @@ export function forceWordAdsEarningsState( state: ReportMockState ) {
 	};
 }
 
+/**
+ * Story `beforeEach` that forces the shared `stats/comments` request into a
+ * loading, error, or empty state, resetting its cache on both enter and cleanup.
+ * The endpoint is all-time, so every comment-widget story shares one static
+ * query key — the reset avoids drift and clears a never-settling `loading` fetch before reuse.
+ *
+ * @param state - The forced mock state.
+ * @return A Storybook `beforeEach` implementation returning its cleanup.
+ */
+export function forceStatsCommentsState( state: ReportMockState ) {
+	return () => {
+		setReportMockState( 'stats/comments', state );
+		queryClient.removeQueries( { queryKey: [ 'stats', 'comments' ] } );
+		return () => {
+			setReportMockState( 'stats/comments', null );
+			queryClient.removeQueries( { queryKey: [ 'stats', 'comments' ] } );
+		};
+	};
+}
+
 const mockResponseOverrides = new Map< string, unknown >();
 
 /**
  * Force every request whose path contains `pathFragment` to resolve with a
- * specific payload, or clear the override with `null`. Unlike
- * `setReportMockState`, which forces a widget's loading/error/empty UI, this
- * swaps the successful response body — for exercising a data-driven variant (an
- * over-limit reading, a specific row shape) the default fixture doesn't cover.
- * Same scoping caveat: keyed by path, so scope such stories out of the shared
- * autodocs page (`tags: [ '!autodocs' ]`) and clear the override on cleanup.
+ * specific payload (or clear with `null`) — unlike `setReportMockState`, this
+ * swaps the response body for data-driven variants the default fixture doesn't cover. Same autodocs-scoping caveat applies.
  *
  * @param pathFragment - Substring matched against the request path.
  * @param response     - The response body to resolve with, or `null` to clear.
@@ -231,6 +245,7 @@ export function setReportMockResponse( pathFragment: string, response: unknown |
 	} else {
 		mockResponseOverrides.set( pathFragment, response );
 	}
+	resetForcedStateQueries();
 }
 
 /**
@@ -263,11 +278,6 @@ function getMockParams(): MockDataParams {
 	return { ...getMockParamsFromPreset( 'default' ), ...fromGlobal };
 }
 
-/**
- * Gets the end date for the mock data spectrum (end of today).
- *
- * @return Date set to the end of today (23:59:59.999).
- */
 function getSpectrumToday(): Date {
 	const today = new Date();
 	today.setHours( 23, 59, 59, 999 );
@@ -728,48 +738,59 @@ function routeReport( subPath: string, query: URLSearchParams ): unknown {
 }
 
 /**
- * Builds a mock Stats "followers" (subscribers) response with a realistic spread
- * of recent subscription times so the Latest Subscribers widget renders
- * populated in Storybook. The shape matches what `sanitizeStatsFollowersResponse`
- * expects (`{ subscribers, total, … }`); `total` exceeds the shown rows so the
- * "N more" footer appears.
+ * Builds a mock Stats "followers" (subscribers) response for the Latest
+ * Subscribers widget. Rows arrive grouped by subscriber type rather than in
+ * date order, and `total` exceeds them so the "N more" footer appears.
  *
+ * @param max - Rows per type; `0` or a missing param returns every row.
  * @return Raw followers response.
  */
-function buildFollowersResponse() {
+function buildFollowersResponse( max: number ) {
 	const now = Date.now();
 	const MINUTE = 60 * 1000;
 	const HOUR = 60 * MINUTE;
 	const DAY = 24 * HOUR;
-	const people = [
-		{ name: 'Diego Morales', offset: 20 * 1000 },
-		{ name: 'Olivia Park', offset: 12 * MINUTE },
-		{ name: 'Hiroshi Tanaka', offset: HOUR },
-		{ name: 'Emma Rossi', offset: 3 * HOUR },
-		{ name: 'Aarav Patel', offset: 5 * HOUR },
-		{ name: 'Sofia Nguyen', offset: DAY },
+	const emailPeople = [
+		{ label: 'subscriber-one@example.com', offset: 120 * DAY },
+		{ label: 'subscriber-two@example.com', offset: 240 * DAY },
+		{ label: 'subscriber-three@example.com', offset: 300 * DAY },
+		{ label: 'subscriber-four@example.com', offset: 330 * DAY },
+		{ label: 'subscriber-five@example.com', offset: 400 * DAY },
+		{ label: 'subscriber-six@example.com', offset: 430 * DAY },
 	];
-	const subscribers = people.map( ( person, index ) => ( {
-		ID: 1000 + index,
-		subscription_id: 1000 + index,
-		display_name: person.name,
-		avatar: `https://i.pravatar.cc/64?img=${ 10 + index }`,
-		url: 'https://example.com',
-		date_subscribed: new Date( now - person.offset ).toISOString(),
-	} ) );
+	const wpcomPeople = [
+		{ label: 'Diego Morales', offset: 20 * 1000 },
+		{ label: 'Olivia Park', offset: 12 * MINUTE },
+		{ label: 'Hiroshi Tanaka', offset: HOUR },
+		{ label: 'Emma Rossi', offset: 3 * HOUR },
+		{ label: 'Aarav Patel', offset: 5 * HOUR },
+		{ label: 'Sofia Nguyen', offset: DAY },
+		{ label: 'Chloe Dubois', offset: 2 * DAY },
+		{ label: 'Liam Carter', offset: 3 * DAY },
+		{ label: 'Mia Andersson', offset: 4 * DAY },
+		{ label: 'Noah Bergström', offset: 5 * DAY },
+		{ label: 'Priya Sharma', offset: 6 * DAY },
+		{ label: 'Tomás Silva', offset: 8 * DAY },
+	];
+	const page = ( people: typeof emailPeople ) => people.slice( 0, max > 0 ? max : undefined );
+	const subscribers = [ ...page( emailPeople ), ...page( wpcomPeople ) ].map(
+		( person, index ) => ( {
+			ID: 1000 + index,
+			subscription_id: 1000 + index,
+			label: person.label,
+			avatar: `https://i.pravatar.cc/64?img=${ 10 + index }`,
+			url: 'https://example.com',
+			date_subscribed: new Date( now - person.offset ).toISOString(),
+		} )
+	);
 	return { subscribers, total: 30, total_email: 18, total_wpcom: 12, page: 1, pages: 5 };
 }
 
 /**
- * Builds the stats/subscribers time-series response.
- *
- * Honours the `unit`, `quantity`, and `date` query params so the subscribers
- * chart's two requests (current window and the immediately preceding window)
- * return continuous data: values are anchored to each bucket's absolute date,
- * so the current window trends above the previous one and the headline shows a
- * positive period-over-period delta. The series is wavy (not flat) so the
- * dashed previous-period overlay reads clearly against the solid current line.
- * Paid subscribers are always present so both chart lines are exercised.
+ * Builds the stats/subscribers time-series response. Values are anchored to each
+ * bucket's absolute date so the current window trends above the previous one
+ * (continuous across both windows, wavy so the comparison overlay reads clearly);
+ * paid subscribers are always present so both chart lines are exercised.
  *
  * @param query - Parsed query params (`unit`, `quantity`, `date`).
  * @return Raw subscribers response in the WPCOM matrix shape.
@@ -808,9 +829,8 @@ function buildSubscribersResponse( query: URLSearchParams ) {
 		}
 
 		const absDay = Math.floor( bucket.getTime() / DAY_MS );
-		// Upward trend plus a wave whose period (~44 days) does not align with a
-		// 30-day window, so the index-aligned previous-period series stays out of
-		// phase and its dashed line diverges visibly from the current solid line.
+		// Upward trend plus a ~44-day wave that doesn't align with a 30-day window, so
+		// the previous-period series stays out of phase and its dashed line diverges visibly.
 		const trend = ( absDay - anchorDay ) * 9;
 		const wave = 420 * Math.sin( absDay / 7 ) + 180 * Math.cos( absDay / 11 );
 		const subscribers = Math.max( 0, Math.round( 900 + trend + wave ) );
@@ -823,7 +843,9 @@ function buildSubscribersResponse( query: URLSearchParams ) {
 		date: endDate.toISOString().slice( 0, 10 ),
 		unit,
 		fields: [ 'period', 'subscribers', 'subscribers_paid' ],
-		data: rows,
+		// Newest first, as the live endpoint returns them. An oldest-first mock here
+		// hid WOOA7S-1907.
+		data: rows.reverse(),
 	};
 }
 
@@ -833,15 +855,93 @@ function buildSubscribersResponse( query: URLSearchParams ) {
 const VISITS_STEP_DAYS: Record< string, number > = { day: 1, week: 7, month: 30, year: 365 };
 
 /**
- * Builds the stats/visits time-series response for the traffic chart.
+ * Build an hour-of-day response over the requested date range.
+ */
+function buildHourOfDayResponse( query: URLSearchParams ) {
+	const endDate = parseDateParam( query.get( 'date' ), new Date() );
+	const requestedDays = Number.parseInt( query.get( 'days' ) ?? '', 10 );
+	const fallbackDays = Number.isInteger( requestedDays ) && requestedDays > 0 ? requestedDays : 30;
+	const startDate = parseDateParam(
+		query.get( 'start_date' ),
+		new Date( endDate.getTime() - ( fallbackDays - 1 ) * DAY_MS )
+	);
+	const days = Math.max(
+		1,
+		Math.round( ( endDate.getTime() - startDate.getTime() ) / DAY_MS ) + 1
+	);
+
+	// Two peaks make the distribution easier to read in Storybook.
+	const data = Array.from( { length: 24 }, ( _, hour ) => {
+		const evening = 900 * Math.exp( -( ( hour - 19 ) ** 2 ) / 6 );
+		const morning = 420 * Math.exp( -( ( hour - 10 ) ** 2 ) / 8 );
+
+		return [ String( hour ).padStart( 2, '0' ), Math.round( ( 60 + evening + morning ) * days ) ];
+	} );
+
+	return {
+		date: endDate.toISOString().slice( 0, 10 ),
+		start_date: startDate.toISOString().slice( 0, 10 ),
+		days,
+		dimension: 'hour-of-day',
+		utc_offset: '+00:00',
+		fields: [ 'period', 'views' ],
+		data,
+	};
+}
+
+/**
+ * The hourly slice of `stats/visits`: mirrors the real endpoint by packing date
+ * and hour into a single `period` string (not split columns), with only Views
+ * carrying a number — every other requested field comes back `null`.
  *
- * Honours the `unit`, `date`, `start_date`, and `stat_fields` query params, and
- * returns only the requested fields (the traffic chart fetches views/visitors
- * and likes/comments as two separate requests). Values are anchored to each
- * bucket's absolute date so the current window trends above the comparison
- * window and each metric shows a positive period-over-period delta; the series
- * is wavy so the dashed previous-period overlay reads clearly against the solid
- * current line.
+ * @param query   - Parsed query params (`start_date`, `quantity`, `stat_fields`).
+ * @param fields  - The requested stat fields, in order.
+ * @param endDate - The last bucket's instant.
+ * @return Raw hourly visits response in the WPCOM matrix shape.
+ */
+function buildHourlyVisitsResponse( query: URLSearchParams, fields: string[], endDate: Date ) {
+	// Counted from the range, as the endpoint does, not `quantity` — a range-bounded
+	// request carries none, so reading it would peg every story to 24 buckets. `quantity` is the range-less fallback.
+	const startDate = query.get( 'start_date' )
+		? parseDateParam( query.get( 'start_date' ), endDate )
+		: null;
+	const spanHours = startDate
+		? Math.floor( ( endDate.getTime() - startDate.getTime() ) / HOUR_MS ) + 1
+		: Number( query.get( 'quantity' ) ) || 24;
+	const count = Math.max( 1, Math.min( 400, spanHours ) );
+
+	const rows = Array.from( { length: count }, ( _, index ) => {
+		const bucket = new Date( endDate );
+		bucket.setUTCHours( bucket.getUTCHours() - ( count - 1 - index ), 0, 0, 0 );
+
+		const hour = bucket.getUTCHours();
+		const period = `${ bucket.toISOString().slice( 0, 10 ) } ${ String( hour ).padStart(
+			2,
+			'0'
+		) }:00:00`;
+		// A daily rhythm — quiet overnight, busiest mid-afternoon — so the shape
+		// reads as hourly traffic rather than noise.
+		const views = Math.max(
+			0,
+			Math.round( 70 + 55 * Math.sin( ( ( hour - 4 ) / 24 ) * 2 * Math.PI ) + 8 * Math.cos( hour ) )
+		);
+
+		return [ period, ...fields.map( field => ( field === 'views' ? views : null ) ) ];
+	} );
+
+	return {
+		date: endDate.toISOString().slice( 0, 10 ),
+		unit: 'hour',
+		fields: [ 'period', ...fields ],
+		data: rows,
+	};
+}
+
+/**
+ * Builds the stats/visits time-series response for the traffic chart, honouring
+ * `unit`/`date`/`start_date`/`stat_fields` and returning only the requested
+ * fields (views/visitors and likes/comments are separate requests). Values are
+ * anchored to each bucket's absolute date so the window trends above the comparison and the wavy series reads clearly.
  *
  * @param query - Parsed query params (`unit`, `date`, `start_date`, `stat_fields`).
  * @return Raw visits response in the WPCOM matrix shape.
@@ -851,6 +951,11 @@ function buildVisitsResponse( query: URLSearchParams ) {
 	const stepDays = VISITS_STEP_DAYS[ unit ] ?? 1;
 	const fields = ( query.get( 'stat_fields' ) || 'views,visitors' ).split( ',' );
 	const endDate = parseDateParam( query.get( 'date' ), new Date() );
+
+	if ( unit === 'hour' ) {
+		return buildHourlyVisitsResponse( query, fields, endDate );
+	}
+
 	const startDate = parseDateParam(
 		query.get( 'start_date' ),
 		new Date( endDate.getTime() - 29 * stepDays * DAY_MS )
@@ -906,10 +1011,9 @@ function buildVisitsResponse( query: URLSearchParams ) {
 }
 
 /**
- * Builds a mock Stats "email summary" response so the Emails widget renders
- * populated in Storybook. The shape matches what `sanitizeStatsEmailSummaryResponse`
- * expects (`{ posts: [ { title, opens_rate, clicks_rate, … } ] }`); rates are
- * 0–100 percentages and the rows are newest-first to mirror the live endpoint.
+ * Builds a mock Stats "email summary" response matching what
+ * `sanitizeStatsEmailSummaryResponse` expects (`{ posts: [...] }`); rates are
+ * 0–100 percentages, rows are newest-first, and one subject carries HTML entities to mirror the live endpoint's encoding.
  *
  * @return Raw email-summary response.
  */
@@ -923,7 +1027,11 @@ function buildEmailSummaryResponse() {
 			opens_rate: 52.4,
 			clicks_rate: 8.93,
 		},
-		{ title: 'WordCamp Europe 2026: What to Expect', opens_rate: 47.9, clicks_rate: 10.25 },
+		{
+			title: 'WordCamp Europe 2026: Talks &amp; Workshops You Shouldn&#8217;t Miss',
+			opens_rate: 47.9,
+			clicks_rate: 10.25,
+		},
 		{
 			title: 'Click, Comment, Done: A Better Way to Collaborate',
 			opens_rate: 44.3,
@@ -948,23 +1056,26 @@ function buildEmailSummaryResponse() {
 
 /**
  * Builds a mock email breakdown response for the "Email breakdown" widget. The
- * request path ends with the breakdown dimension
- * (`.../stats/opens|clicks/emails/{id}/{breakdown}`), so the trailing segment
- * selects the matching fieldless fixture. The endpoints have no comparison period.
+ * trailing path segment (`.../emails/{id}/{breakdown}`) selects the matching
+ * fixture; the endpoints have no comparison period.
  *
  * @param requestPath - The request path, used to read the breakdown dimension.
  * @return Raw email breakdown response.
  */
 function buildEmailBreakdownResponse( requestPath: string ): unknown {
-	const breakdown = requestPath.split( '?' )[ 0 ].split( '/' ).pop() ?? '';
+	const path = requestPath.split( '?' )[ 0 ];
+	const breakdown = path.split( '/' ).pop() ?? '';
+	const isClicks = /\/clicks\/emails\//.test( path );
 
 	switch ( breakdown ) {
 		case 'country':
-			return mockEmailCountryBreakdown;
+			return isClicks
+				? scaleEmailBreakdown( mockEmailCountryBreakdown )
+				: mockEmailCountryBreakdown;
 		case 'device':
-			return mockEmailDeviceBreakdown;
+			return isClicks ? scaleEmailBreakdown( mockEmailDeviceBreakdown ) : mockEmailDeviceBreakdown;
 		case 'client':
-			return mockEmailClientBreakdown;
+			return isClicks ? scaleEmailBreakdown( mockEmailClientBreakdown ) : mockEmailClientBreakdown;
 		case 'link':
 			return mockEmailInternalLinkBreakdown;
 		case 'user-content-link':
@@ -972,6 +1083,34 @@ function buildEmailBreakdownResponse( requestPath: string ): unknown {
 		default:
 			return {};
 	}
+}
+
+// Clicks are a fraction of opens, so the clicks breakdowns reuse the opens
+// fixtures scaled down rather than carrying a second fixture per dimension.
+const EMAIL_CLICKS_RATIO = 0.3;
+
+function scaleEmailBreakdown< Fixture extends Record< string, unknown > >(
+	fixture: Fixture
+): Fixture {
+	return Object.fromEntries(
+		Object.entries( fixture ).map( ( [ key, section ] ) => {
+			const data = ( section as { data?: unknown } )?.data;
+			if ( ! Array.isArray( data ) ) {
+				return [ key, section ];
+			}
+			return [
+				key,
+				{
+					...( section as object ),
+					data: data.map( row =>
+						Array.isArray( row ) && typeof row[ 1 ] === 'number'
+							? [ row[ 0 ], Math.round( row[ 1 ] * EMAIL_CLICKS_RATIO ) ]
+							: row
+					),
+				},
+			];
+		} )
+	) as Fixture;
 }
 
 /**
@@ -982,10 +1121,14 @@ function buildEmailBreakdownResponse( requestPath: string ): unknown {
  * @return The mock response body, or `null` if no specific handler matched.
  */
 function routeStatsReport( subPath: string, requestPath: string ): unknown {
-	// Single-post detail — `stats/post/{id}`. Any post ID resolves to the
-	// shared fixture so post-scoped widgets render real values.
-	if ( subPath.startsWith( '/post/' ) ) {
-		return mockStatsPostData;
+	// Single-post detail — `stats/post/{id}`. Any ID resolves to the shared fixture,
+	// but must echo the requested ID: widgets skeleton on a mismatch.
+	const statsPost = subPath.match( /^\/post\/(\d+)/ );
+	if ( statsPost ) {
+		return {
+			...mockStatsPostData,
+			post: { ...mockStatsPostData.post, ID: Number( statsPost[ 1 ] ) },
+		};
 	}
 
 	// Single-video detail: `/video/{postId}` (drives video detail widgets).
@@ -1057,16 +1200,66 @@ function getQueryParam( requestPath: string, key: string ): string | undefined {
 }
 
 /**
- * Builds a single-video response for the requested metric while preserving the
- * shared post and embed-page fixture.
+ * Parse the query string of a (possibly relative) apiFetch request path.
  *
- * @param requestPath - The request path, used to read `statType`.
+ * @param requestPath - The request path, with or without a query string.
+ * @return The parsed params, empty when the path carries none.
+ */
+function queryParamsOf( requestPath: string ): URLSearchParams {
+	return new URLSearchParams( requestPath.split( '?' )[ 1 ] ?? '' );
+}
+
+/**
+ * Builds a single-video response for the requested metric and window. Requests
+ * with an explicit `start_date`/`date` window get fixture days inside it; others
+ * (the embeds widget's default `period=month`) keep the default trailing 31-day
+ * window. `statType=all` mirrors wpcom #229903: four-metric tuples plus range totals (retention play-weighted, not averaged).
+ *
+ * @param requestPath - The request path, used to read `statType` and the window.
  * @return Raw single-video response.
  */
 function buildSingleVideoResponse( requestPath: string ) {
 	const statType = getQueryParam( requestPath, 'statType' );
-	let factor = 1;
+	const startDate = getQueryParam( requestPath, 'start_date' );
+	const endDate = getQueryParam( requestPath, 'date' ) ?? getQueryParam( requestPath, 'end_date' );
+	const windowDays =
+		startDate && endDate
+			? mockSingleVideoData.data.filter( ( [ day ] ) => day >= startDate && day <= endDate )
+			: mockSingleVideoData.data.slice( -31 );
 
+	if ( statType === 'all' ) {
+		const rows = windowDays.map( ( [ period, value ], index ) => {
+			const plays = Number( value );
+
+			return [
+				period,
+				plays,
+				Math.round( plays * 1.8 ),
+				Number( ( plays * 0.05 ).toFixed( 1 ) ),
+				Number( ( 52 + ( index % 7 ) * 2 ).toFixed( 1 ) ),
+			] as [ string, number, number, number, number ];
+		} );
+		const totalPlays = rows.reduce( ( sum, row ) => sum + row[ 1 ], 0 );
+		const total = {
+			plays: totalPlays,
+			impressions: rows.reduce( ( sum, row ) => sum + row[ 2 ], 0 ),
+			watch_time: Number( rows.reduce( ( sum, row ) => sum + row[ 3 ], 0 ).toFixed( 1 ) ),
+			retention_rate: Number(
+				(
+					rows.reduce( ( sum, row ) => sum + row[ 4 ] * row[ 1 ], 0 ) / ( totalPlays || 1 )
+				).toFixed( 1 )
+			),
+		};
+
+		return {
+			...mockSingleVideoData,
+			fields: [ 'period', 'plays', 'impressions', 'watch_time', 'retention_rate' ],
+			data: rows,
+			total,
+		};
+	}
+
+	let factor = 1;
 	if ( statType === 'impressions' ) {
 		factor = 2;
 	} else if ( statType === 'watch_time' ) {
@@ -1075,7 +1268,7 @@ function buildSingleVideoResponse( requestPath: string ) {
 
 	return {
 		...mockSingleVideoData,
-		data: mockSingleVideoData.data.map( ( [ period, value ] ) => [
+		data: windowDays.map( ( [ period, value ] ) => [
 			period,
 			Number( ( Number( value ) * factor ).toFixed( 1 ) ),
 		] ),
@@ -1083,10 +1276,9 @@ function buildSingleVideoResponse( requestPath: string ) {
 }
 
 /**
- * Scale factor for play counts based on how recent the requested window ends,
- * so the primary (recent) period reads higher than the comparison (earlier)
- * period and the widget shows period-over-period growth. Recent windows return
- * the full count; windows ~30+ days back taper to ~70%.
+ * Scale factor for play counts based on how recent the window ends, so the
+ * primary (recent) period reads higher than the comparison and the widget shows
+ * growth. Recent windows return the full count; ~30+ days back tapers to ~70%.
  *
  * @param endDate - The window's end date (YYYY-MM-DD), or undefined for "today".
  * @return A multiplier in the range [0.7, 1].
@@ -1102,20 +1294,17 @@ function playsFactorForWindow( endDate: string | undefined ): number {
 		return 1;
 	}
 
-	// `differenceInCalendarDays` counts whole calendar days between the two
-	// dates, so the scaling (and the mocked counts) stay stable regardless of
-	// the machine's timezone.
+	// `differenceInCalendarDays` counts whole calendar days, so the scaling (and
+	// mocked counts) stay stable regardless of the machine's timezone.
 	const daysAgo = Math.max( 0, differenceInCalendarDays( new Date(), end ) );
 
 	return 1 - Math.min( daysAgo / 30, 1 ) * 0.3;
 }
 
 /**
- * Builds a mock Stats "video-plays" response so the Videos widget renders a
- * populated leaderboard in Storybook. The shape matches what
- * `sanitizeStatsVideoPlaysResponse` reads (`days.<date>.plays[]`), and play
- * metrics scale by how recent the requested window is so the comparison period
- * reads lower than the primary one, including complete-stats highlight rows.
+ * Builds a mock Stats "video-plays" response matching what
+ * `sanitizeStatsVideoPlaysResponse` reads (`days.<date>.plays[]`); play metrics
+ * scale by window recency so the comparison period reads lower than the primary.
  *
  * @param requestPath - The request path, used to read the window's end date.
  * @return Raw video-plays response.
@@ -1162,14 +1351,10 @@ function buildVideoPlaysResponse( requestPath: string ) {
 }
 
 /**
- * Builds the wordads/stats time-series response for the WordAds chart tabs.
- *
- * Honours the `unit`, `date`, and `quantity` query params and returns the raw
- * WPCOM matrix shape (`fields: [ 'period', 'impressions', 'revenue', 'cpm' ]`).
- * Impressions are anchored to each bucket's absolute date so the current window
- * trends above the comparison window (a positive period-over-period delta), and
- * revenue is derived from impressions and a wavy CPM so all three metrics move
- * together and read clearly against the dashed previous-period overlay.
+ * Builds the wordads/stats time-series response for the WordAds chart tabs,
+ * honouring `unit`/`date`/`quantity` and returning the raw WPCOM matrix shape.
+ * Impressions anchor to each bucket's date so the window trends above the
+ * comparison; revenue derives from impressions and a wavy CPM so all three metrics move together.
  *
  * @param query - Parsed query params (`unit`, `date`, `quantity`).
  * @return Raw wordads/stats response in the WPCOM matrix shape.
@@ -1207,6 +1392,11 @@ function buildWordAdsStatsResponse( query: URLSearchParams ) {
 			period = bucket.toISOString().slice( 0, 10 );
 		}
 
+		// A day bucket for today has no figures until the nightly WordAds run lands.
+		if ( unit === 'day' && period >= new Date().toISOString().slice( 0, 10 ) ) {
+			return [ period, 0, 0, 0 ];
+		}
+
 		const absDay = Math.floor( bucket.getTime() / DAY_MS );
 		const trend = ( absDay - anchorDay ) * 3;
 		const wave = 200 * Math.sin( absDay / 9 ) + 80 * Math.cos( absDay / 13 );
@@ -1226,14 +1416,9 @@ function buildWordAdsStatsResponse( query: URLSearchParams ) {
 }
 
 /**
- * Builds the wordads/earnings response for the WordAds earnings widgets.
- *
- * The earnings module reports all-time totals (not period-scoped), so this
- * returns a fixed raw WPCOM payload: `total_earnings` and `total_amount_owed`
- * feed the widget's Earnings / Paid / Outstanding cards (paid = earnings −
- * owed). All three per-period breakdowns are populated so the three history
- * widgets render their primary table state by default. Together the rows cover
- * every known payment status for visual review.
+ * Builds the wordads/earnings response. All-time totals (not period-scoped):
+ * `total_earnings`/`total_amount_owed` feed the Earnings/Paid/Outstanding cards
+ * (paid = earnings − owed), and all three breakdowns are populated, covering every payment status, so the history tables render fully by default.
  *
  * @return Raw wordads/earnings response in the WPCOM shape.
  */
@@ -1280,24 +1465,33 @@ const reportMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOptio
 			return new Promise< never >( () => {} );
 		}
 		if ( state === 'empty' ) {
+			if ( requestPath.startsWith( STATS_VIEWS_BY_HOUR_PATH ) ) {
+				// `sanitizeStatsHourOfDayResponse` throws on any other `dimension`, so the
+				// generic empty payload below would render the error state here instead.
+				return {
+					date: '2026-01-01',
+					start_date: '2025-12-03',
+					days: 30,
+					dimension: 'hour-of-day',
+					fields: [ 'period', 'views' ],
+					data: [],
+				};
+			}
 			// A valid response with no rows across the shapes report sanitizers read
 			// (`summary` / `days` / `data`), so the widget resolves to its empty state.
 			return { date: '2026-01-01', period: 'day', summary: {}, days: {}, data: [] };
 		}
 		if ( state === 'error-retryable' ) {
-			// The local proxy's `no_connection` shape. Still a 403, so the error UI
-			// shows at once, but `describeError` keeps it retryable: a broken Jetpack
-			// connection can heal, unlike a permission gate.
+			// The local proxy's `no_connection` shape: still a 403, so the error UI shows
+			// at once, but `describeError` keeps it retryable since a broken connection can heal.
 			return Promise.reject( {
 				code: 'no_connection',
 				message: 'Mocked connection failure for Storybook.',
 				data: { status: 403 },
 			} );
 		}
-		// The WPCOM pass-through error envelope, with the status attached the way
-		// the fetch layer attaches it. A 403 is not retried by `shouldRetryApiError`,
-		// so the error UI shows at once instead of after the query's retry backoff.
-		// Widgets on `describeError` read it as a permission gate and drop Retry.
+		// The WPCOM pass-through error envelope. A 403 isn't retried by
+		// `shouldRetryApiError`, so the error UI shows at once; `describeError` reads it as a permission gate and drops Retry.
 		return Promise.reject( {
 			error: 'unauthorized',
 			message: 'Mocked error response for Storybook.',
@@ -1309,8 +1503,22 @@ const reportMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOptio
 		return coreSettingsMock;
 	}
 
+	if ( requestPath.startsWith( WP_POSTS_PATH ) ) {
+		const includeParam = getQueryParam( requestPath, 'include' );
+
+		if ( includeParam ) {
+			return buildPostContentResponse( includeParam );
+		}
+
+		return next( options );
+	}
+
 	if ( requestPath.startsWith( STATS_FOLLOWERS_PATH ) ) {
-		return buildFollowersResponse();
+		const queryIndex = requestPath.indexOf( '?' );
+		const query = new URLSearchParams(
+			queryIndex === -1 ? '' : requestPath.slice( queryIndex + 1 )
+		);
+		return buildFollowersResponse( Number( query.get( 'max' ) ) );
 	}
 
 	if ( requestPath.startsWith( STATS_SUBSCRIBERS_COUNTS_PATH ) ) {
@@ -1324,11 +1532,12 @@ const reportMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOptio
 		);
 	}
 
+	if ( requestPath.startsWith( STATS_VIEWS_BY_HOUR_PATH ) ) {
+		return buildHourOfDayResponse( queryParamsOf( requestPath ) );
+	}
+
 	if ( requestPath.startsWith( STATS_VISITS_PATH ) ) {
-		const queryIndex = requestPath.indexOf( '?' );
-		return buildVisitsResponse(
-			new URLSearchParams( queryIndex === -1 ? '' : requestPath.slice( queryIndex + 1 ) )
-		);
+		return buildVisitsResponse( queryParamsOf( requestPath ) );
 	}
 
 	if ( requestPath.startsWith( STATS_EMAIL_SUMMARY_PATH ) ) {
@@ -1366,8 +1575,7 @@ const reportMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOptio
 		const subPath = requestPath.slice( STATS_API_BASE.length ).split( '?' )[ 0 ];
 
 		// Per-post email timelines — `/opens|clicks/emails/<postId>` with
-		// `stats_fields=timeline`. Matched here rather than in routeStatsReport()
-		// because the generated buckets read period/quantity/date off the query.
+		// `stats_fields=timeline`. Matched here, not in routeStatsReport(), since buckets read period/quantity/date off the query.
 		const emailTimeline = subPath.match( /^\/(opens|clicks)\/emails\/\d+$/ );
 		if ( emailTimeline && getQueryParam( requestPath, 'stats_fields' ) === 'timeline' ) {
 			return buildEmailTimelineResponse( emailTimeline[ 1 ] as 'opens' | 'clicks', requestPath );
@@ -1379,9 +1587,8 @@ const reportMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOptio
 			return response;
 		}
 
-		// Stats endpoints this middleware doesn't route may be owned by the
-		// legacy stats mocks (register-stats-mocks.ts). Fall through so
-		// middleware registration order doesn't decide whether they load.
+		// Unrouted Stats endpoints may be owned by the legacy mocks (register-stats-mocks.ts);
+		// fall through so middleware registration order doesn't decide whether they load.
 		return next( options );
 	}
 

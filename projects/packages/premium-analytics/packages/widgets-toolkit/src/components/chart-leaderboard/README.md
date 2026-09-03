@@ -117,7 +117,53 @@ An explicit drill-down `ariaLabel` replaces the accessible name otherwise comput
 the media alt text and visible label, which can cause a screen reader to announce the label
 twice.
 
-`LeaderboardRowMedia` provides five semantic media variants. The variant owns its size,
+For a post, page, or email with a detail page inside the dashboard, use the `postLink` action.
+`PostTitleLink` chooses the destination: the internal detail route when the row carries a post
+ID, the public URL when it does not, and plain text when neither is usable.
+
+```tsx
+const row = {
+	id: 'post-41',
+	...buildLeaderboardRow( {
+		label: 'Hello world',
+		media: { kind: 'none' },
+		action: {
+			kind: 'postLink',
+			id: 41,
+			href: 'https://example.com/hello-world/',
+			search: { from: '2026-03-01', to: '2026-03-10' },
+		},
+	} ),
+	currentValue: 100,
+	currentShare: 100,
+};
+```
+
+A `postLink` row carries no media, and never becomes a chart button: a chart row that is a
+button cannot nest an anchor.
+
+Video rows use `videoLink`, which delegates to `VideoTitleLink` so the row reaches the video
+detail route instead of the post one. Same constraints: no media, never a chart button.
+
+```tsx
+action: { kind: 'videoLink', id: 9, search: { from: '2026-03-01', to: '2026-03-10' } },
+```
+
+Inside a widget, use `LeaderboardPostLabel` instead of building a post action by hand. It reads
+the report window from `WidgetRootContext` and passes it as `search`, so the detail page opens on
+the range the row was read against:
+
+```tsx
+<LeaderboardPostLabel id={ row.postId } label={ row.label } link={ row.link } />
+```
+
+Pass `section` to `LeaderboardPostLabel` to open a named tab on the detail page, such as
+`email-opens`.
+
+There is no `LeaderboardVideoLabel`, so a widget building a `videoLink` action takes that same
+window from `useWidgetNavigationSearch()` and passes it as `search`.
+
+`LeaderboardRowMedia` provides six semantic media variants. The variant owns its size,
 fallback, and default alt-text policy:
 
 | Kind        | Size      | Missing or failed image behavior |
@@ -126,14 +172,18 @@ fallback, and default alt-text policy:
 | `favicon`   | 16 × 16px | Hidden; always decorative        |
 | `flag`      | 28px wide | Placeholder; proportional height |
 | `thumbnail` | 28 × 28px | Placeholder                      |
+| `icon`      | 20 × 20px | No image; takes a glyph          |
 | `none`      | No media  | Renders text only                |
+
+`icon` takes a `@wordpress/icons` glyph rather than a URL: `media: { kind: 'icon', icon: category }`.
 
 Use `resolveLeaderboardRowAction` when raw data can contain both an external URL and children.
 It applies the shared precedence: drill-down for rows with children, external links for
 childless rows, and static content otherwise.
 
 Use `LeaderboardLabel` directly for media plus truncating text outside chart rows, such as a
-DataViews table cell. It deliberately does not add the chart row's 36px minimum block size.
+DataViews table cell. It deliberately does not add the chart row's 36px minimum block size or its
+inline padding.
 
 ## Props
 

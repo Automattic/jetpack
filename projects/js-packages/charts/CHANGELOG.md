@@ -5,6 +5,79 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.2.0] - 2026-09-01
+### Added
+- Bar and line charts: Report a click through the pointer event handlers and Enter or Space through an activation callback, so a chart can open the point under the pointer or the keyboard selection. [#51544]
+
+### Changed
+- Follow the WordPress admin color scheme for series colors, and move the palette to five --a8c-charts-color-series-* custom properties. theme.colors is deprecated. [#51535]
+- Stop resolving the grid, axis, tick and label colors in JavaScript and let their `--a8c-charts-color-*` chain reach the element instead, so an override set on a chart's own element applies to it and a theme change repaints with no re-render. Add `--a8c-charts-color-label-background` for the plate behind a pie-slice label.
+  
+  Deprecate every color field on the chart theme — each one now has a `--a8c-charts-color-*` role, a component prop, or both. They all still work. Where a field mixes a color with something else, only the color member is deprecated: `gridStyles.strokeWidth`, `svgLabelSmall.fontFamily` and the annotation geometry are unaffected. [#51687]
+- Update package dependencies. [#51303] [#51665] [#51802]
+
+## [3.1.1] - 2026-08-26
+### Fixed
+- LineChart, AreaChart, BarChart: Keep the derived date tick labels when a consumer passes an undefined tickFormat. [#51531]
+
+## [3.1.0] - 2026-08-25
+### Added
+- Add `defaultHiddenSeries` to seed a series hidden on load, plus absolute visibility setters. Keep the keyboard tooltip open when the chart re-renders under it. [#51458]
+- Export `GoogleDataTableColumnRoleType` as a value, so a consumer can build a GeoChart tooltip column. [#51312]
+- Let a calendar heatmap draw a grid wider than its data, filling the extra weeks with cells that report nothing rather than claiming there was no activity on them. [#51385]
+
+### Fixed
+- Draw labels at the design system's font weight and size, and follow the WordPress admin color scheme for the zoom selection. [#51452]
+- GeoChart: Stop an HTML tooltip breaking its lines when it opens near a map edge. [#51312]
+- Honor series visibility set programmatically, not only through the interactive legend. [#51457]
+- Keep a series revealed from the legend revealed when the chart remounts, instead of re-applying `defaultHiddenSeries`. [#51468]
+
+## [3.0.0] - 2026-08-21
+### Changed
+- Emit the `--a8c-charts-*` token catalog on the charts provider, so any token can be overridden in CSS anywhere inside it or through the `theme` prop, and resolve tokens against the chart element so CSS-painted and SVG-painted colors honour the same override. A `theme`-prop override keeps the reach of the field it was set from: `svgLabelSmall.fill` moves the SVG axis labels without touching legend labels or heatmap cell values, and `backgroundColor` repaints the chart background without touching tooltips, the annotation label or the zoom-reset control.
+  
+  `useChartRegistration` and `useChartScopeElement` are now exported from the package root. Both were documented with a `@automattic/charts` import that did not resolve.
+  
+  Breaking changes:
+  
+  - An override set above `GlobalChartsProvider` — on `:root`, on `body`, or on any other ancestor — no longer applies, because the provider declares the role on its own wrapper and a declaration beats a value inherited from further up the tree. Replace `:root { --a8c-charts-… }` with `.a8c-charts-scope { --a8c-charts-… }`, which themes the whole page as before: it matches every provider wrapper, including the one a bare chart mounts for itself and the one a portal-rendered tooltip carries.
+  - `@wordpress/theme`'s `ThemeProvider` must sit above the charts provider rather than between it and a chart, or CSS-painted colors keep their light-mode defaults.
+  - The override names that predate the `--a8c-charts-{category}-{name}` convention are removed. Set `--a8c-charts-color-trend-up`, `--a8c-charts-color-trend-down` and `--a8c-charts-color-trend-neutral` in place of `--charts-trend-up-color`, `--charts-trend-down-color` and `--charts-trend-neutral-color`, and `--a8c-charts-border-radius-leaderboard-bar` in place of `--a8c--charts--leaderboard--bar--border-radius`.
+  - `--a8c-charts-color-focus` is removed. Focus and selection rings follow `--wpds-color-stroke-focus`, so override that token instead.
+  - The `GridProps` type is removed. It described a grid component that was never exported and is no longer part of the package; gridlines are drawn and coloured by the chart itself.
+  - `resolveThemeColor` is removed from the value returned by `useGlobalChartsContext`. It resolved against the `GlobalChartsProvider` wrapper, so it could not see an override set closer to a single chart — the reason every chart that needed a resolved color stopped calling it. Call `normalizeColorToHex( value, useChartScopeElement(), resolveCssVariable )` instead, which resolves at the scope the same override paints CSS at. `resolveCssVariable` is now exported for this. [#51308]
+
+## [2.0.1] - 2026-08-19
+### Changed
+- Charts: adapt bar chart time-axis tick labels to the data's bucket resolution and time span, support the `tickResolution` hint, and name each bar's bucket in its tooltip. [#51274]
+- Resolve an XY chart theme's color roles from a single computed-style snapshot, and rebuild the theme only when a series color changes rather than on every render. [#51342]
+
+### Fixed
+- Charts: keep a bar chart's time axis on the buckets it actually draws, so a labelled bar, a comparison series, or a series hidden from the legend can no longer strand a tick at the axis origin, and label such a bar by its label in both the axis and the tooltip. [#51343]
+- Charts: keep the year and the day on a bar chart's time axis, which could previously skip the tick that named them, and stop the same label falling on two ticks in a row. [#51339]
+- Charts: measure a horizontal chart's left margin from the labels it will actually draw, so a caller's tick formatter is applied exactly once and time-of-day labels stop reserving room for the string "Invalid Date". [#51272]
+- Charts: stop a bar chart's time axis dropping to a couple of ticks when it reaches for the year, and speed up how it picks them. [#51339]
+
+## [2.0.0] - 2026-08-10
+### Added
+- Time axis: Accept a tickResolution hint on the x-axis options so callers that know the data's bucket size can set tick formats directly instead of relying on inference. [#51017]
+
+### Changed
+- Time axis: Pick tick formats by bucket resolution as well as span — hour ticks (with the date at midnight boundaries) for sub-daily series spanning up to a week, and month ticks (with the year at January) instead of full dates for month-or-coarser buckets. [#51010]
+- Update package dependencies. [#50509]
+- Zoom: Expose the reset button's shadow as `--a8c-charts-elevation-xs`, replacing the `--wpds-elevation-xs` token removed in `@wordpress/theme` 1.0.0. [#50509]
+- Zoom: Restore the accessible tooltip on the reset control. `@wordpress/ui` is no longer bundled into the package output, so each consumer's bundler now resolves it. It remains a dependency and resolves from node_modules by default, but a bundler that externalizes `@wordpress/*` to `window.wp.*` must bundle `@wordpress/ui` instead — `window.wp.ui` does not exist. [#51016]
+
+### Fixed
+- Time axis: Show date ticks rather than hour ticks for a daily-bucket pair spanning exactly one day. [#51013]
+
+## [1.12.0] - 2026-08-03
+### Added
+- New `legend.collapseGroups` option folds series that share a `group` into a single legend item, labelled by the group's primary series; with `legend.interactive` that item toggles the whole group in one click. Off by default, so legends keep one item per series unless you opt in. Available on the bar, line and area charts. The line chart gains a `rescaleYOnVisibilityChange` prop (matching the area chart) to pin the value axis to the full data range while series are hidden; and when every series is hidden, the grid and axes are dropped so the empty state stands on its own. The area chart's `rescaleYOnLegendToggle` prop is deprecated in favour of `rescaleYOnVisibilityChange` (still honoured as an alias). [#50194]
+
+### Changed
+- Zoom: Render the reset control with the WordPress UI Button, fix keyboard activation, expose the selection rectangle's colors as `--a8c-charts-color-zoom-selection` and `--a8c-charts-color-zoom-selection-stroke`, and document the `zoomable` prop for the line and area charts. [#50796]
+
 ## [1.11.0] - 2026-07-27
 ### Added
 - Add a `fitRows` prop to LeaderboardChart so a chart in a fixed-height container shows only the rows that fit instead of scrolling. [#50688]
@@ -945,6 +1018,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed lints following ESLint rule changes for TS [#40584]
 - Fixing a bug in Chart storybook data. [#40640]
 
+[3.2.0]: https://github.com/Automattic/charts/compare/v3.1.1...v3.2.0
+[3.1.1]: https://github.com/Automattic/charts/compare/v3.1.0...v3.1.1
+[3.1.0]: https://github.com/Automattic/charts/compare/v3.0.0...v3.1.0
+[3.0.0]: https://github.com/Automattic/charts/compare/v2.0.1...v3.0.0
+[2.0.1]: https://github.com/Automattic/charts/compare/v2.0.0...v2.0.1
+[2.0.0]: https://github.com/Automattic/charts/compare/v1.12.0...v2.0.0
+[1.12.0]: https://github.com/Automattic/charts/compare/v1.11.0...v1.12.0
 [1.11.0]: https://github.com/Automattic/charts/compare/v1.10.3...v1.11.0
 [1.10.3]: https://github.com/Automattic/charts/compare/v1.10.2...v1.10.3
 [1.10.2]: https://github.com/Automattic/charts/compare/v1.10.1...v1.10.2

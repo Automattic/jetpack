@@ -108,13 +108,31 @@ export type ChartType =
 
 export type OrientationType = ValueOf< typeof Orientation >;
 
+/**
+ * Annotation styling.
+ *
+ * Each color member is deprecated on its own rather than the field it sits in: `radius`, `stroke` widths and the label geometry alongside them have no catalog role behind them and still apply.
+ */
 export type AnnotationStyles = {
-	circleSubject?: Omit< CircleSubjectProps, 'x' | 'y' > & { fill?: string };
+	circleSubject?: Omit< CircleSubjectProps, 'x' | 'y' | 'fill' > & {
+		/** @deprecated Set the `--a8c-charts-color-annotation` custom property inside the provider tree instead. See `TOKENS.md`. */
+		fill?: string;
+	};
 	lineSubject?: Omit< LineSubjectProps, 'x' | 'y' >;
-	connector?: Omit< ConnectorProps, 'x' | 'y' | 'dx' | 'dy' >;
-	label?: Omit< LabelProps, 'title' | 'subtitle' | 'x' | 'y' > & {
+	connector?: Omit< ConnectorProps, 'x' | 'y' | 'dx' | 'dy' | 'stroke' > & {
+		/** @deprecated Set the `--a8c-charts-color-annotation` custom property inside the provider tree instead. See `TOKENS.md`. */
+		stroke?: ConnectorProps[ 'stroke' ];
+	};
+	label?: Omit<
+		LabelProps,
+		'title' | 'subtitle' | 'x' | 'y' | 'anchorLineStroke' | 'backgroundFill'
+	> & {
 		x?: number | 'start' | 'end';
 		y?: number | 'start' | 'end';
+		/** @deprecated Set the `--a8c-charts-color-annotation` custom property inside the provider tree instead. See `TOKENS.md`. */
+		anchorLineStroke?: LabelProps[ 'anchorLineStroke' ];
+		/** @deprecated Set the `--a8c-charts-color-surface` custom property inside the provider tree instead. See `TOKENS.md`. */
+		backgroundFill?: LabelProps[ 'backgroundFill' ];
 	};
 };
 
@@ -305,7 +323,7 @@ export type DataPointPercentage = {
 	 */
 	valueDisplay?: string;
 	/**
-	 * Color code for the segment, by default colours are taken from the theme but this property can overrides it
+	 * Color code for the segment, by default colors are taken from the theme but this property can overrides it
 	 */
 	color?: string;
 	/**
@@ -329,26 +347,67 @@ export type DataPointPercentageCalculated = DataPointPercentage & {
  * Base theme configuration for chart components with optional properties
  */
 export type ChartTheme = {
-	/** Background color for chart components */
-	backgroundColor: string;
-	/** Background color for labels */
+	/**
+	 * Background color for chart components.
+	 *
+	 * Still resolved in JS — gradient stops, the glyph stroke and `GeoChart`'s Google Charts config each need a concrete string — but that is about where the value is *consumed*, not where it is *set*. `withCatalogPointers` parks a consumer's value in the catalog role and restores the pointer, so the field is only ever a carrier for `--a8c-charts-color-background`, and setting the role directly does the same job.
+	 *
+	 * Optional so the deprecation is actionable: a consumer writing a full theme literal can now stop setting it. `CompleteChartTheme` is `Required< ChartTheme >`, so `defaultTheme` must still carry one.
+	 *
+	 * @deprecated Set the `--a8c-charts-color-background` custom property inside the provider tree instead. See `TOKENS.md`.
+	 */
+	backgroundColor?: string;
+	/**
+	 * Background color for labels.
+	 *
+	 * @deprecated Set the `--a8c-charts-color-label-background` custom property inside the provider tree instead. See `TOKENS.md`.
+	 */
 	labelBackgroundColor?: string;
-	/** Text color for labels */
+	/**
+	 * Text color for labels.
+	 *
+	 * @deprecated Set the `--a8c-charts-color-label-on-fill` custom property inside the provider tree instead. See `TOKENS.md`.
+	 */
 	labelTextColor?: string;
-	/** Array of colors used for data visualization */
-	colors: string[];
-	/** Optional CSS styles for grid lines */
-	gridStyles?: GridStyles;
+	/**
+	 * Series palette seeds. Entry N publishes `--a8c-charts-color-series-{N+1}`; entries past the fifth are ignored.
+	 *
+	 * Optional so the deprecation is actionable: a consumer writing a full theme literal can now stop setting it. `CompleteChartTheme` is `Required< ChartTheme >`, so `defaultTheme` must still carry one.
+	 *
+	 * @deprecated Set the `--a8c-charts-color-series-1` … `-5` custom properties inside the provider tree instead, or `options.stroke` on a series for a single one. See `TOKENS.md`.
+	 */
+	colors?: string[];
+	/**
+	 * Optional CSS styles for grid lines.
+	 *
+	 * `stroke` is deprecated on its own, not the whole field: `strokeWidth` has no CSS role behind it and still applies. The same shape is used for the other fields whose color moved to CSS — annotating the field itself would strike through the half that stays.
+	 */
+	gridStyles?: Omit< GridStyles, 'stroke' > & {
+		/** @deprecated Set the `--a8c-charts-color-grid` custom property inside the provider tree instead. See `TOKENS.md`. */
+		stroke?: GridStyles[ 'stroke' ];
+	};
 	/** Length of axis ticks in pixels */
 	tickLength: number;
-	/** Color of the grid lines */
-	gridColor: string;
-	/** Color of the grid lines in dark mode */
-	gridColorDark: string;
+	/**
+	 * Set `--a8c-charts-color-grid` for the gridlines.
+	 *
+	 * @deprecated Do not drop this field without replacing it. Nothing in this package consults it, but `buildChartTheme` seeds `y.left/right.axisLine.stroke` and `y.*.tickLine.stroke` from it, and `defaultTheme`'s empty string is the only thing leaving the y axis unpainted — deleting the field hands those a black `#222` instead. CHARTS-263 replaces it with visx's own `yAxisLineStyles`/`yTickLineStyles` and a pair of catalog roles.
+	 */
+	gridColor?: string;
+	/**
+	 * @deprecated Paints nothing, and unlike `gridColor` is safe to delete: `buildChartTheme` seeds `x.*.axisLine.stroke` from it, but spreads `xAxisLineStyles` over the top and `defaultTheme` always carries that stroke. Charts follow the host's theme through the catalog rather than a dark-mode field of their own.
+	 */
+	gridColorDark?: string;
 	/** Styles for x-axis tick lines */
-	xTickLineStyles?: LineStyles;
+	xTickLineStyles?: Omit< LineStyles, 'stroke' > & {
+		/** @deprecated Set the `--a8c-charts-color-tick` custom property inside the provider tree instead. See `TOKENS.md`. */
+		stroke?: LineStyles[ 'stroke' ];
+	};
 	/** Styles for x-axis line */
-	xAxisLineStyles?: LineStyles;
+	xAxisLineStyles?: Omit< LineStyles, 'stroke' > & {
+		/** @deprecated Set the `--a8c-charts-color-axis` custom property inside the provider tree instead. See `TOKENS.md`. */
+		stroke?: LineStyles[ 'stroke' ];
+	};
 	/** Styles for series lines */
 	seriesLineStyles?: LineStyles[];
 	/** Array of render functions for glyphs */
@@ -357,45 +416,97 @@ export type ChartTheme = {
 	legend?: {
 		/** Styles for legend shapes */
 		shapeStyles?: Record< string, unknown >[];
-		/** Styles for legend labels */
-		labelStyles?: CSSProperties;
+		/**
+		 * Styles for legend labels.
+		 *
+		 * `color` is deprecated on its own, not the whole field: everything else a consumer sets here — font size, weight, spacing — has no catalog role behind it and still applies.
+		 */
+		labelStyles?: Omit< CSSProperties, 'color' > & {
+			/** @deprecated Set the `--a8c-charts-color-label` custom property inside the provider tree instead. See `TOKENS.md`. */
+			color?: CSSProperties[ 'color' ];
+		};
 		/** Styles for legend container */
 		containerStyles?: CSSProperties;
 	};
-	/** Styles for small SVG text (eg. axis tick labels), passed through to the XYChart theme. */
-	svgLabelSmall?: TextProps;
+	/**
+	 * Styles for small SVG text (eg. axis tick labels), passed through to the XYChart theme.
+	 *
+	 * `fontFamily: 'inherit'` is load-bearing here — it overrides the font stack `buildChartTheme` injects inline on SVG `<text>` — so only `fill` is deprecated.
+	 */
+	svgLabelSmall?: Omit< TextProps, 'fill' > & {
+		/** @deprecated Set the `--a8c-charts-color-label-axis` custom property inside the provider tree instead, or `--a8c-charts-color-label` to move every label at once. See `TOKENS.md`. */
+		fill?: TextProps[ 'fill' ];
+	};
 	/** Styles for large SVG text (eg. axis titles), passed through to the XYChart theme. */
 	svgLabelBig?: TextProps;
 	annotationStyles?: AnnotationStyles;
 	/** GeoChart specific settings */
 	geoChart?: {
-		/** Default fill color for a geo chart feature (e.g. country) with no data */
+		/**
+		 * Default fill color for a geo chart feature (e.g. country) with no data.
+		 *
+		 * @deprecated Set the `--a8c-charts-color-surface-secondary` custom property inside the provider tree instead. Google Charts still takes a resolved hex, but the value is read from the role. See `TOKENS.md`.
+		 */
 		featureFillColor?: string;
 	};
 	/** LeaderboardChart specific settings */
 	leaderboardChart?: {
-		/** Gap between rows in the leaderboard grid */
+		/**
+		 * @deprecated Declare `--a8c-charts-dimension-leaderboard-row-gap` in CSS instead. This
+		 * still wins where it is set, and is removed in the next major.
+		 */
 		rowGap?: number;
-		/** Gap between columns in the leaderboard grid */
+		/**
+		 * @deprecated Declare `--a8c-charts-dimension-leaderboard-column-gap` in CSS instead. This
+		 * still wins where it is set, and is removed in the next major.
+		 */
 		columnGap?: number;
 		/** Spacing between label and progress bars */
 		labelSpacing?: GapSize;
-		/** Primary color for current period bars */
+		/**
+		 * Primary color for current period bars.
+		 *
+		 * @deprecated Use the `primaryColor` prop on `LeaderboardChart` for one chart, or set `--a8c-charts-color-series-1` to move the palette this falls back to. See `TOKENS.md`.
+		 */
 		primaryColor?: string;
-		/** Secondary color for comparison period bars */
+		/**
+		 * Secondary color for comparison period bars.
+		 *
+		 * @deprecated Use the `secondaryColor` prop on `LeaderboardChart` for one chart, or set `--a8c-charts-color-series-2` to move the palette this falls back to. See `TOKENS.md`.
+		 */
 		secondaryColor?: string;
-		/** Delta colors: [negative, neutral, positive] */
+		/**
+		 * Delta colors: [negative, neutral, positive].
+		 *
+		 * @deprecated Set the `--a8c-charts-color-trend-down`, `-trend-neutral` and `-trend-up` custom properties inside the provider tree instead. See `TOKENS.md`.
+		 */
 		deltaColors?: [ string, string, string ];
 	};
 	/** ConversionFunnelChart specific settings */
 	conversionFunnelChart?: {
-		/** Primary color for funnel bars */
+		/**
+		 * Primary color for funnel bars.
+		 *
+		 * @deprecated Set `--a8c-charts-color-series-1` to move the palette this falls back to. See `TOKENS.md`.
+		 */
 		primaryColor?: string;
-		/** Background color for chart container */
+		/**
+		 * Background color for chart container.
+		 *
+		 * @deprecated Set the `--a8c-charts-color-surface-secondary` custom property inside the provider tree instead. See `TOKENS.md`.
+		 */
 		backgroundColor?: string;
-		/** Color for positive change indicators */
+		/**
+		 * Color for positive change indicators.
+		 *
+		 * @deprecated Set the `--a8c-charts-color-trend-up` custom property inside the provider tree instead. See `TOKENS.md`.
+		 */
 		positiveChangeColor?: string;
-		/** Color for negative change indicators */
+		/**
+		 * Color for negative change indicators.
+		 *
+		 * @deprecated Set the `--a8c-charts-color-trend-down` custom property inside the provider tree instead. See `TOKENS.md`.
+		 */
 		negativeChangeColor?: string;
 	};
 	lineChart?: {
@@ -424,6 +535,8 @@ export type ChartTheme = {
 		/**
 		 * Color the cell scale interpolates toward at the highest value (prop > this >
 		 * palette `colors[0]`), fed to CSS `color-mix`. Omit to use the palette color.
+		 *
+		 * @deprecated Use the `primaryColor` prop on `HeatmapChart` for one chart, or set `--a8c-charts-color-series-1` to move the palette this falls back to. See `TOKENS.md`.
 		 */
 		primaryColor?: string;
 		/** Gap in px between cells in compact mode */
@@ -440,9 +553,12 @@ export type ChartTheme = {
 export type CompleteChartTheme = Required< ChartTheme > & {
 	leaderboardChart: Omit<
 		Required< NonNullable< ChartTheme[ 'leaderboardChart' ] > >,
-		'primaryColor' | 'secondaryColor'
+		'primaryColor' | 'secondaryColor' | 'rowGap' | 'columnGap'
 	> &
-		Pick< NonNullable< ChartTheme[ 'leaderboardChart' ] >, 'primaryColor' | 'secondaryColor' >;
+		Pick<
+			NonNullable< ChartTheme[ 'leaderboardChart' ] >,
+			'primaryColor' | 'secondaryColor' | 'rowGap' | 'columnGap'
+		>;
 	conversionFunnelChart: Omit<
 		Required< NonNullable< ChartTheme[ 'conversionFunnelChart' ] > >,
 		'primaryColor'
@@ -462,6 +578,48 @@ export type CompleteChartTheme = Required< ChartTheme > & {
 		Pick< NonNullable< ChartTheme[ 'heatmapChart' ] >, 'primaryColor' >;
 };
 
+/**
+ * Bucket resolution of time-series data, as known by the caller (e.g. a
+ * granularity selector), for consumers that don't need to infer it.
+ */
+export type TickResolution = 'hour' | 'day' | 'week' | 'month' | 'year';
+
+/**
+ * How a chart classified the buckets of the data it's drawing.
+ */
+export type BucketInfo = {
+	/**
+	 * The bucket the series has. Only reports `'week'` when declared: seven-day
+	 * spacing is indistinguishable from sparse daily data.
+	 */
+	bucket: TickResolution;
+	/** The classification tick formats are keyed on. `'week'` reads as `'day'`. */
+	displayResolution: Exclude< TickResolution, 'week' >;
+};
+
+/**
+ * The locale and time zone the time axis and the built-in tooltips render dates
+ * in, set once by the host on `GlobalChartsProvider`.
+ *
+ * Both halves are plain strings the host resolves for itself, so a non-WordPress
+ * consumer needs no WordPress package to supply them. Both are optional and
+ * default to the JavaScript runtime's own — the viewer's browser locale and
+ * browser time zone — which is what every version before this one used
+ * unconditionally.
+ *
+ * `timeZone` re-dates the instants the host supplies, so a value that is really a
+ * calendar day shifts under it: `new Date( '2026-08-02' )` is UTC midnight and
+ * labels as Aug 1 in `America/Los_Angeles`. Supply true instants alongside a
+ * `timeZone`, or set only `locale` for day-bucketed data. `HeatmapChart`'s
+ * calendar labels take neither — see `buildCalendarHeatmapData`.
+ */
+export type ChartFormatting = {
+	/** BCP-47 language tag, e.g. `de-DE`. Defaults to the runtime's locale. */
+	locale?: string;
+	/** IANA time zone name, e.g. `Asia/Tokyo`. Defaults to the runtime's zone. */
+	timeZone?: string;
+};
+
 export type AxisOptions = {
 	orientation?: OrientationType;
 	numTicks?: number;
@@ -475,6 +633,15 @@ export type AxisOptions = {
 	labelClassName?: string;
 	tickClassName?: string;
 	tickFormat?: TickFormatter< ScaleInput< AxisScale > >;
+	/**
+	 * Bucket resolution of the data, set on whichever axis carries the dates.
+	 * When set, the automatic tick formatter derives tick formats from it
+	 * directly instead of inferring the resolution from point spacing. For
+	 * daily-or-finer buckets the overall time span still constrains the choice —
+	 * e.g. hourly buckets spanning more than a week get date ticks, since hour
+	 * ticks would be unreadable at that span. Ignored when `tickFormat` is set.
+	 */
+	tickResolution?: TickResolution;
 	/**
 	 * Whether to display this axis. Defaults to true.
 	 */
@@ -609,6 +776,34 @@ export type ChartLegendConfig< T = DataPoint | DataPointDate | LeaderboardEntry 
 };
 
 /**
+ * Legend config for charts built from `SeriesData` (line, bar, area). Adds `collapseGroups` on top
+ * of the shared config. It is intentionally absent from the base `ChartLegendConfig` so point-based
+ * charts (pie, semi-circle pie) — whose data points carry `group` only to coordinate colors — can't
+ * set it.
+ */
+export type SeriesChartLegendConfig = ChartLegendConfig< SeriesData[] > & {
+	/**
+	 * Collapse series that share a `group` into a single legend item, labelled by the group's
+	 * primary series (its first non-comparison member). Off by default, so every series keeps its
+	 * own item. Combines with `interactive`: a collapsed item toggles every series in its group, an
+	 * uncollapsed one toggles only its own.
+	 */
+	collapseGroups?: boolean;
+};
+
+/**
+ * Initial visibility options for charts built from labelled series.
+ */
+export interface SeriesVisibilityProps {
+	/**
+	 * Series labels to hide from the first defined value. User changes persist until
+	 * the chart remounts or its ID changes; later values for the same ID are ignored.
+	 * Omit to retain the provider's existing visibility for the chart ID.
+	 */
+	defaultHiddenSeries?: readonly string[];
+}
+
+/**
  * Base properties shared across all chart components
  */
 export type BaseChartProps< T = DataPoint | DataPointDate | LeaderboardEntry > = {
@@ -664,6 +859,16 @@ export type BaseChartProps< T = DataPoint | DataPointDate | LeaderboardEntry > =
 	 */
 	onPointerOut?: ( event: PointerEvent< Element > ) => void;
 	/**
+	 * Callback for Enter or Space on the point keyboard navigation has selected:
+	 * the keyboard counterpart of a click. `index` is the point's position in its
+	 * series and `key` the series label.
+	 */
+	onDatumActivate?: ( params: {
+		datum: DataPoint | DataPointDate;
+		index: number;
+		key: string;
+	} ) => void;
+	/**
 	 * Whether to show tooltips on hover. False by default.
 	 */
 	withTooltips?: boolean;
@@ -703,40 +908,6 @@ export type BaseChartProps< T = DataPoint | DataPointDate | LeaderboardEntry > =
 			y?: AxisOptions;
 		};
 	};
-};
-
-/**
- * Properties for grid components
- */
-export type GridProps = {
-	/**
-	 * Width of the grid in pixels
-	 */
-	width: number;
-	/**
-	 * Height of the grid in pixels
-	 */
-	height: number;
-	/**
-	 * Grid visibility. x is default.
-	 */
-	gridVisibility?: 'x' | 'y' | 'xy' | 'none';
-	/**
-	 * X-axis scale for the grid
-	 * TODO: Fix any type after resolving visx scale type issues
-	 */
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	xScale: any;
-	/**
-	 * Y-axis scale for the grid
-	 * TODO: Fix any type after resolving visx scale type issues
-	 */
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	yScale: any;
-	/**
-	 * Top offset for the grid
-	 */
-	top?: number;
 };
 
 /**

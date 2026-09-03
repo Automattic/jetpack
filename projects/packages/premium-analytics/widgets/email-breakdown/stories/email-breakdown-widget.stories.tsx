@@ -27,12 +27,12 @@ import {
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
 import { createStoryWidgetType } from '../../stories/create-story-widget-type';
-import { withWidgetCanvas } from '../../stories/with-widget-canvas';
-import EmailBreakdownRender from '../render';
+import { WidgetCanvas, withWidgetCanvas } from '../../stories/with-widget-canvas';
+import EmailBreakdownRender, { MAP_MIN_WIDTH } from '../render';
 import widgetDefinition from '../widget';
 import widgetManifest from '../widget.json';
 import type { EmailBreakdownMetric, EmailBreakdownView } from '../widget';
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Decorator, Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
 
@@ -43,25 +43,12 @@ const EMAIL_BREAKDOWN_RENDER_MODULE = 'storybook/email-breakdown';
 // A representative email whose breakdown the mocks return data for.
 const MOCK_EMAIL_ID = 1234;
 
-/**
- * Read an attribute's declared element values off the widget definition, so the
- * story controls always mirror the schema (a newly added view or metric shows
- * up as a control option without touching this file).
- *
- * @param id - The attribute id on the widget definition.
- * @return The attribute's element values.
- */
-function attributeElementValues< Value extends string >( id: string ): Value[] {
-	return (
-		widgetDefinition.attributes
-			.find( attribute => attribute.id === id )
-			?.elements?.map( element => element.value as Value ) ?? []
-	);
-}
-
-const VIEW_OPTIONS: EmailBreakdownView[] = attributeElementValues< EmailBreakdownView >( 'view' );
-const METRIC_OPTIONS: EmailBreakdownMetric[] =
-	attributeElementValues< EmailBreakdownMetric >( 'metric' );
+// The widget declares no editable attributes (the post detail page pins `view`
+// and `metric` per card), so the control options are listed here rather than
+// read off the definition. Keep in sync with the `EmailBreakdownView` and
+// `EmailBreakdownMetric` unions in `../widget.ts`.
+const VIEW_OPTIONS: EmailBreakdownView[] = [ 'countries', 'devices', 'clients', 'links' ];
+const METRIC_OPTIONS: EmailBreakdownMetric[] = [ 'opens', 'clicks' ];
 
 /**
  * Widget-specific controls: the breakdown view and opens/clicks metric for the
@@ -72,6 +59,18 @@ interface EmailBreakdownStoryControls {
 	metric: EmailBreakdownMetric;
 	showMap: boolean;
 }
+
+// The card must clear the widget's map floor after its own 16px padding and 1px
+// border on each side, with a little headroom so the map isn't rendered at the edge.
+const MAP_CANVAS_WIDTH = `${ MAP_MIN_WIDTH + 2 * ( 16 + 1 ) + 48 }px`;
+
+// Widens the canvas under the same condition the widget mounts its map, so the
+// `showMap` control actually shows it instead of doing nothing in a one-column card.
+const withMapAwareWidgetCanvas: Decorator< EmailBreakdownStoryControls > = ( Story, { args } ) => (
+	<WidgetCanvas width={ args.showMap && args.view === 'countries' ? MAP_CANVAS_WIDTH : undefined }>
+		<Story />
+	</WidgetCanvas>
+);
 
 function renderEmailBreakdown( { view, metric, showMap }: EmailBreakdownStoryControls ) {
 	return (
@@ -116,7 +115,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'The "Email breakdown" widget. Breaks a single sent email down by countries, devices, email clients, or clicked links, rendered as a leaderboard. The `view` attribute (`relevance: \'high\'`) is exposed as a control by the widget host; the `metric` attribute picks the opens or clicks breakdown for the dimension views, while `links` always reads the clicks breakdown (merging internal link types with clicked user-content links, like the Calypso links module). Scoped to one email via a mocked `reportParams.post_id`. The email breakdown endpoints have no comparison period, so the widget renders without deltas.',
+					'The "Email breakdown" widget. Breaks a single sent email down by countries, devices, email clients, or clicked links, rendered as a leaderboard. Neither `view` nor `metric` is user-editable — the post detail page pins both per card, so the host renders no settings affordance. The `metric` attribute picks the opens or clicks breakdown for the dimension views, while `links` always reads the clicks breakdown (merging internal link types with clicked user-content links, like the Calypso links module). Scoped to one email via a mocked `reportParams.post_id`. The email breakdown endpoints have no comparison period, so the widget renders without deltas.',
 			},
 		},
 	},
@@ -133,16 +132,19 @@ type Story = StoryObj< EmailBreakdownStoryControls >;
 export const Default: Story = {
 	render: renderEmailBreakdown,
 	args: { view: 'countries', metric: 'opens', showMap: false },
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withMapAwareWidgetCanvas ],
 };
 
 /**
- * The wide Location clicks card used by the fixed Email clicks composition.
+ * The country map beside the countries leaderboard, as the two-column
+ * "Locations" card on the post detail Email clicks tab renders it. The
+ * widget only mounts the map at container widths of 720px and up, so the canvas
+ * widens to a two-column card while `showMap` is on for the countries view.
  */
 export const LocationClicksWithMap: Story = {
 	render: renderEmailBreakdown,
 	args: { view: 'countries', metric: 'clicks', showMap: true },
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withMapAwareWidgetCanvas ],
 };
 
 /**

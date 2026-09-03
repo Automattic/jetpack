@@ -47,7 +47,7 @@
 		margin: 0;
 		font-family: var(--wpds-typography-font-family-heading);
 		font-size: var(--wpds-typography-font-size-lg);
-		font-weight: var(--wpds-typography-font-weight-medium);
+		font-weight: var(--wpds-typography-font-weight-emphasis);
 		line-height: var(--wpds-typography-line-height-sm);
 		// Match the page-title color used on the other dashboard headers.
 		color: var(--wpds-color-foreground-content-neutral);
@@ -113,5 +113,131 @@
 
 	.jp-forms__single-response-actions .jp-forms-response-navigation {
 		display: none;
+	}
+}
+
+// ── Printing a response ───────────────────────────────────────────────────
+// The dashboard is laid out as a viewport-pinned flex column, which prints as a
+// single clipped page. These rules put it back into normal document flow so a
+// long response paginates, and drop the admin chrome. `!important` throughout
+// because the rules being undone are ID-scoped and arrive from a shared bundle.
+@media print {
+
+	#wpadminbar,
+	#adminmenumain,
+	#adminmenuback,
+	#adminmenuwrap,
+	#wpfooter,
+	#screen-meta,
+	#screen-meta-links,
+	.notice,
+	.update-nag,
+	.jetpack-footer {
+		display: none !important;
+	}
+
+	html.wp-toolbar {
+		padding-top: 0 !important;
+	}
+
+	#wpcontent,
+	#wpbody,
+	#wpbody-content {
+		position: static !important;
+		inset: auto !important;
+		display: block !important;
+		width: auto !important;
+		height: auto !important;
+		margin: 0 !important;
+		padding: 0 !important;
+		overflow: visible !important;
+	}
+
+	// The page header. Anchored structurally: admin-ui ships its internals as CSS
+	// modules with no stable class hook — same anchor the layout mixin uses.
+	.jp-admin-page__page > :first-child {
+		display: none !important;
+	}
+
+	// `@wordpress/boot`'s stage is a second scroll container above
+	// `.jp-admin-page`, so unwind it too and let the document grow with it.
+	html.wp-toolbar,
+	body.wp-admin,
+	#wpwrap,
+	.boot-layout,
+	.boot-layout__surfaces,
+	.boot-layout__stage,
+	.jp-admin-page,
+	.jp-admin-page__page,
+	.jp-admin-page__page > :not(:first-child):not(.jetpack-footer),
+	.jp-admin-page__page > :not(:first-child):not(.jetpack-footer) > * {
+		// `position` matters as much as `overflow`: `.boot-layout` is absolute, and
+		// browsers print only the first page of an out-of-flow subtree.
+		position: static !important;
+		inset: auto !important;
+		display: block !important;
+		flex: none !important;
+		height: auto !important;
+		max-height: none !important;
+		min-height: 0 !important;
+		overflow: visible !important;
+	}
+
+	// Belt and braces: hiding chrome by id misses portal-rendered menus.
+	body *:not(:has(.jp-forms__single-response)):not(.jp-forms__single-response):not(.jp-forms__single-response *) {
+		display: none !important;
+	}
+
+	// The paper margin lives here so the content can run the full printable width.
+	@page {
+		margin: 12mm;
+	}
+
+	// The sheet already provides the measure, so the column cap and centering go.
+	.jp-forms__single-response {
+		width: 100% !important;
+		max-width: none !important;
+		margin: 0 !important;
+		padding: 0 !important;
+	}
+
+	.jp-forms__single-response-card {
+		border: none;
+		border-radius: 0;
+		overflow: visible;
+
+		// With the card frame gone the gutter just narrows the text.
+		.jp-forms__inbox-response-meta,
+		.jp-forms__inbox-response-data {
+			padding-inline: 0;
+		}
+	}
+
+	// Controls do nothing on paper.
+	.jp-forms__copy-clipboard-button,
+	.jp-forms__single-response-card button {
+		display: none !important;
+	}
+
+	// Fields run continuously: holding a long answer whole pushes it to the next
+	// sheet and leaves most of a page blank. Only the label must not be stranded.
+	.jp-forms__field-preview {
+		break-inside: auto;
+	}
+
+	.jp-forms__field-preview-label {
+		break-after: avoid;
+		break-inside: avoid;
+	}
+
+	// No single marooned lines either side of a break.
+	.jp-forms__field-preview-value {
+		orphans: 3;
+		widows: 3;
+	}
+
+	// Compact enough to keep whole.
+	.jp-forms__inbox-response-meta {
+		break-inside: avoid;
 	}
 }

@@ -14,6 +14,7 @@ use WP_REST_Server;
  * @package automattic/jetpack-search
  */
 class REST_Controller_Test extends Search_TestCase {
+	use Toggles_Ai_Master;
 
 	/**
 	 * REST Server object.
@@ -51,6 +52,9 @@ class REST_Controller_Test extends Search_TestCase {
 		add_action( 'rest_api_init', array( $this->rest_controller, 'register_rest_routes' ) );
 
 		do_action( 'rest_api_init' );
+
+		// Default to a paid plan; tests exercising the gate override this.
+		Search_Blocks::set_supports_paid_search_for_testing( true );
 	}
 
 	/**
@@ -62,6 +66,9 @@ class REST_Controller_Test extends Search_TestCase {
 			unregister_setting( 'general', 'reader_chat' );
 		}
 		delete_option( 'reader_chat' );
+		$this->remove_ai_master_filters();
+		unset( $GLOBALS['jetpack_search_test_internal_env'] );
+		Search_Blocks::reset_supports_paid_search_cache();
 		parent::tearDown();
 	}
 
@@ -145,6 +152,8 @@ class REST_Controller_Test extends Search_TestCase {
 				'experience'                           => 'overlay',
 				'search_suggestions_enabled'           => false,
 				'override_woocommerce_search_template' => false,
+				'ai_answers_saved'                     => false,
+				'ai_master_enabled'                    => true,
 			)
 		);
 
@@ -205,6 +214,8 @@ class REST_Controller_Test extends Search_TestCase {
 				'experience'                           => 'off',
 				'search_suggestions_enabled'           => false,
 				'override_woocommerce_search_template' => false,
+				'ai_answers_saved'                     => false,
+				'ai_master_enabled'                    => true,
 			)
 		);
 
@@ -232,6 +243,8 @@ class REST_Controller_Test extends Search_TestCase {
 			'ai_answers_enabled'                   => false,
 			'search_suggestions_enabled'           => false,
 			'override_woocommerce_search_template' => false,
+			'ai_answers_saved'                     => false,
+			'ai_master_enabled'                    => true,
 		);
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
@@ -258,6 +271,8 @@ class REST_Controller_Test extends Search_TestCase {
 			'ai_answers_enabled'                   => false,
 			'search_suggestions_enabled'           => false,
 			'override_woocommerce_search_template' => false,
+			'ai_answers_saved'                     => false,
+			'ai_master_enabled'                    => true,
 		);
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
@@ -284,6 +299,8 @@ class REST_Controller_Test extends Search_TestCase {
 			'ai_answers_enabled'                   => false,
 			'search_suggestions_enabled'           => false,
 			'override_woocommerce_search_template' => false,
+			'ai_answers_saved'                     => false,
+			'ai_master_enabled'                    => true,
 		);
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
@@ -310,6 +327,8 @@ class REST_Controller_Test extends Search_TestCase {
 			'ai_answers_enabled'                   => false,
 			'search_suggestions_enabled'           => false,
 			'override_woocommerce_search_template' => false,
+			'ai_answers_saved'                     => false,
+			'ai_master_enabled'                    => true,
 		);
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
@@ -617,6 +636,7 @@ class REST_Controller_Test extends Search_TestCase {
 	 */
 	public function test_update_settings_ai_answers_enabled_true() {
 		wp_set_current_user( $this->admin_id );
+		$this->enable_instant_search();
 
 		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
 		$request->set_header( 'content-type', 'application/json' );
@@ -643,6 +663,254 @@ class REST_Controller_Test extends Search_TestCase {
 		$this->assertEquals( 200, $response->get_status() );
 		$data = $response->get_data();
 		$this->assertFalse( $data['ai_answers_enabled'] );
+	}
+
+	/**
+	 * Turn Instant Search on through the settings endpoint, the way the
+	 * dashboard does, so AI Answers' Instant Search precondition is met.
+	 */
+	private function enable_instant_search() {
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body(
+			wp_json_encode(
+				array(
+					'module_active'          => true,
+					'instant_search_enabled' => true,
+				),
+				JSON_UNESCAPED_SLASHES
+			)
+		);
+		$this->assertEquals( 200, $this->server->dispatch( $request )->get_status() );
+	}
+
+	/**
+	 * Testing that ai_answers_enabled cannot be enabled while Instant Search is
+	 * off — AI Answers only runs inside Instant Search, so the precondition is
+	 * validated server-side, not just in the dashboard UI.
+	 */
+	public function test_update_settings_cannot_enable_ai_answers_without_instant_search() {
+		wp_set_current_user( $this->admin_id );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body( wp_json_encode( array( 'ai_answers_enabled' => true ), JSON_UNESCAPED_SLASHES ) );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 400, $response->get_status() );
+		$this->assertFalse( (bool) get_option( 'jetpack_search_ai_answers_enabled', false ) );
+	}
+
+	/**
+	 * Testing that ai_answers_enabled can be enabled once Instant Search is on.
+	 */
+	public function test_update_settings_can_enable_ai_answers_with_instant_search_on() {
+		wp_set_current_user( $this->admin_id );
+		$this->enable_instant_search();
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body( wp_json_encode( array( 'ai_answers_enabled' => true ), JSON_UNESCAPED_SLASHES ) );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertTrue( (bool) get_option( 'jetpack_search_ai_answers_enabled', false ) );
+	}
+
+	/**
+	 * A JSON string `"false"` must sanitize to false, not `(bool) "false"` (true).
+	 */
+	public function test_update_settings_ai_answers_enabled_rejects_string_false() {
+		wp_set_current_user( $this->admin_id );
+		update_option( 'jetpack_search_ai_answers_enabled', true );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body( wp_json_encode( array( 'ai_answers_enabled' => 'false' ), JSON_UNESCAPED_SLASHES ) );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertFalse( $response->get_data()['ai_answers_enabled'] );
+	}
+
+	/**
+	 * SEARCH-342: reject the write outright without a paid Search plan.
+	 */
+	public function test_update_settings_ai_answers_enabled_rejected_without_paid_plan() {
+		wp_set_current_user( $this->admin_id );
+		$this->enable_instant_search();
+		Search_Blocks::set_supports_paid_search_for_testing( false );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body( wp_json_encode( array( 'ai_answers_enabled' => true ), JSON_UNESCAPED_SLASHES ) );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 403, $response->get_status() );
+		$this->assertFalse( (bool) get_option( 'jetpack_search_ai_answers_enabled', false ) );
+	}
+
+	/**
+	 * Turning AI Answers off must stay allowed even without a paid plan.
+	 */
+	public function test_update_settings_ai_answers_enabled_false_allowed_without_paid_plan() {
+		wp_set_current_user( $this->admin_id );
+		update_option( 'jetpack_search_ai_answers_enabled', true );
+		Search_Blocks::set_supports_paid_search_for_testing( false );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body( wp_json_encode( array( 'ai_answers_enabled' => false ), JSON_UNESCAPED_SLASHES ) );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertFalse( (bool) get_option( 'jetpack_search_ai_answers_enabled', false ) );
+	}
+
+	/**
+	 * Testing that one request may turn Instant Search and AI Answers on together.
+	 */
+	public function test_update_settings_can_enable_ai_answers_and_instant_search_together() {
+		wp_set_current_user( $this->admin_id );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body(
+			wp_json_encode(
+				array(
+					'module_active'          => true,
+					'instant_search_enabled' => true,
+					'ai_answers_enabled'     => true,
+				),
+				JSON_UNESCAPED_SLASHES
+			)
+		);
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertTrue( (bool) get_option( 'jetpack_search_ai_answers_enabled', false ) );
+	}
+
+	/**
+	 * Testing that ai_answers_enabled can still be turned off while Instant
+	 * Search is off — only enabling carries the precondition.
+	 */
+	public function test_update_settings_can_disable_ai_answers_without_instant_search() {
+		wp_set_current_user( $this->admin_id );
+		update_option( 'jetpack_search_ai_answers_enabled', true );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body( wp_json_encode( array( 'ai_answers_enabled' => false ), JSON_UNESCAPED_SLASHES ) );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertFalse( (bool) get_option( 'jetpack_search_ai_answers_enabled', false ) );
+	}
+
+	/**
+	 * Testing that ai_answers_enabled cannot be enabled while the site-wide
+	 * Jetpack AI master switch is off.
+	 */
+	public function test_update_settings_cannot_enable_ai_answers_when_ai_master_is_off() {
+		wp_set_current_user( $this->admin_id );
+		$this->turn_ai_master_off();
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body( wp_json_encode( array( 'ai_answers_enabled' => true ), JSON_UNESCAPED_SLASHES ) );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 400, $response->get_status() );
+		$this->assertFalse( (bool) get_option( 'jetpack_search_ai_answers_enabled', false ) );
+	}
+
+	/**
+	 * Testing that ai_answers_enabled can still be turned off while the site-wide
+	 * Jetpack AI master switch is off.
+	 */
+	public function test_update_settings_can_disable_ai_answers_when_ai_master_is_off() {
+		wp_set_current_user( $this->admin_id );
+		update_option( 'jetpack_search_ai_answers_enabled', true );
+		$this->turn_ai_master_off();
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body( wp_json_encode( array( 'ai_answers_enabled' => false ), JSON_UNESCAPED_SLASHES ) );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertFalse( (bool) get_option( 'jetpack_search_ai_answers_enabled', false ) );
+	}
+
+	/**
+	 * Testing that the settings payload reports the master switch state, so the
+	 * dashboard can explain why the toggle is unavailable.
+	 */
+	public function test_get_settings_reports_the_ai_master_state() {
+		wp_set_current_user( $this->admin_id );
+		$this->turn_ai_master_off();
+
+		$request  = new WP_REST_Request( 'GET', '/jetpack/v4/search/settings' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertFalse( $response->get_data()['ai_master_enabled'] );
+	}
+
+	/**
+	 * Testing that the settings payload reports the saved choice separately from
+	 * the effective one, so the dashboard can show it while the master is off.
+	 */
+	public function test_get_settings_reports_the_saved_ai_answers_choice() {
+		wp_set_current_user( $this->admin_id );
+		update_option( 'jetpack_search_ai_answers_enabled', true );
+		$this->turn_ai_master_off();
+
+		$request  = new WP_REST_Request( 'GET', '/jetpack/v4/search/settings' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$data = $response->get_data();
+		$this->assertFalse( $data['ai_answers_enabled'] );
+		$this->assertTrue( $data['ai_answers_saved'] );
+	}
+
+	/**
+	 * Outside internal testing environments the payload reports the master as
+	 * on and enabling stays allowed — the rollout must not leak publicly.
+	 */
+	public function test_master_reporting_is_scoped_to_internal_testing_environments() {
+		wp_set_current_user( $this->admin_id );
+		$this->enable_instant_search();
+		$this->turn_ai_master_off();
+		$GLOBALS['jetpack_search_test_internal_env'] = false;
+
+		$get = new WP_REST_Request( 'GET', '/jetpack/v4/search/settings' );
+		$this->assertTrue( $this->server->dispatch( $get )->get_data()['ai_master_enabled'] );
+
+		$post = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
+		$post->set_header( 'content-type', 'application/json' );
+		$post->set_body( wp_json_encode( array( 'ai_answers_enabled' => true ), JSON_UNESCAPED_SLASHES ) );
+		$response = $this->server->dispatch( $post );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertTrue( (bool) get_option( 'jetpack_search_ai_answers_enabled', false ) );
+
+		unset( $GLOBALS['jetpack_search_test_internal_env'] );
+	}
+
+	/**
+	 * The reported master state is true on a site that has no master switch.
+	 */
+	public function test_get_settings_reports_the_ai_master_on_without_a_master_switch() {
+		wp_set_current_user( $this->admin_id );
+
+		$request  = new WP_REST_Request( 'GET', '/jetpack/v4/search/settings' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertTrue( $response->get_data()['ai_master_enabled'] );
 	}
 
 	/**

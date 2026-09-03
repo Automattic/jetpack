@@ -9,8 +9,8 @@ use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication;
 use Automattic\Jetpack\Connection\REST_Connector;
+use Automattic\Jetpack\Connection\REST_Jetpack_AI_JWT;
 use Automattic\Jetpack\Connection\SSO;
-use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\Jetpack_CRM_Data;
 use Automattic\Jetpack\Plugins_Installer;
 use Automattic\Jetpack\Stats\Options as Stats_Options;
@@ -73,21 +73,8 @@ class Jetpack_Core_Json_Api_Endpoints {
 		$site_endpoint          = new Jetpack_Core_API_Site_Endpoint();
 		$widget_endpoint        = new Jetpack_Core_API_Widget_Endpoint();
 
-		/**
-		 * TODO: Move me somewhere that makes more sense.
-		 * Also give me permissions that aren't awful.
-		 */
-		register_rest_route(
-			'jetpack/v4',
-			'jetpack-ai-jwt',
-			array(
-				'methods'             => WP_REST_Server::EDITABLE,
-				'callback'            => __CLASS__ . '::get_openai_jwt',
-				'permission_callback' => function () {
-					return ( new Connection_Manager( 'jetpack' ) )->is_user_connected() && current_user_can( 'edit_posts' );
-				},
-			)
-		);
+		// My Jetpack and Agents Manager register the same controller; its guard keeps the route registered once.
+		( new REST_Jetpack_AI_JWT() )->register_rest_route();
 
 		register_rest_route(
 			'jetpack/v4',
@@ -175,18 +162,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			)
 		);
 
-		// Get current site data.
-		register_rest_route(
-			'jetpack/v4',
-			'/site',
-			array(
-				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => __CLASS__ . '::get_site_data',
-				'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
-			)
-		);
-
-		// Get current site data.
+		// Get current site features.
 		register_rest_route(
 			'jetpack/v4',
 			'/site/features',
@@ -790,36 +766,23 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 	/**
 	 * Ask WPCOM for a JWT token to use for OpenAI conversations.
-	 * TODO: Clean me up. This is ugly hack code.
+	 *
+	 * @deprecated since 16.2
+	 * @see Automattic\Jetpack\Connection\REST_Jetpack_AI_JWT::get_jwt()
+	 *
+	 * @return array|WP_Error The token and blog ID, or the error from WPCOM.
 	 */
 	public static function get_openai_jwt() {
-		$blog_id = \Jetpack_Options::get_option( 'id' );
+		_deprecated_function( __METHOD__, 'jetpack-16.2', '\Automattic\Jetpack\Connection\REST_Jetpack_AI_JWT::get_jwt' );
 
-		$response = \Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_user(
-			"/sites/$blog_id/jetpack-openai-query/jwt",
-			'2',
-			array(
-				'method'  => 'POST',
-				'headers' => array( 'Content-Type' => 'application/json; charset=utf-8' ),
-			),
-			wp_json_encode( array(), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ),
-			'wpcom'
-		);
+		$response = ( new REST_Jetpack_AI_JWT() )->get_jwt();
 
 		if ( is_wp_error( $response ) ) {
 			return $response;
 		}
 
-		$json = json_decode( wp_remote_retrieve_body( $response ) );
-
-		if ( ! isset( $json->token ) ) {
-			return new WP_Error( 'no-token', 'No token returned from WPCOM' );
-		}
-
-		return array(
-			'token'   => $json->token,
-			'blog_id' => $blog_id,
-		);
+		// Pre-deprecation callers expect the raw array, not a WP_REST_Response.
+		return $response->get_data();
 	}
 
 	/**
@@ -832,13 +795,22 @@ class Jetpack_Core_Json_Api_Endpoints {
 	public static function set_subscriber_cookie_and_redirect( $request ) {
 		require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
 		$subscription_service = \Automattic\Jetpack\Extensions\Premium_Content\subscription_service();
-		$token                = $subscription_service->get_and_set_token_from_request();
-		$payload              = $subscription_service->decode_token( $token );
-		$is_valid_token       = ! empty( $payload );
-		if ( $is_valid_token ) {
-			return new WP_REST_Response( null, 302, array( 'location' => $request['redirect_url'] ) );
+		// Note: get_and_set_token_from_request() sets the subscriber cookie as a side effect.
+		// The cookie is set regardless of the redirect target below; only the redirect is gated.
+		$token          = $subscription_service->get_and_set_token_from_request();
+		$payload        = $subscription_service->decode_token( $token );
+		$is_valid_token = ! empty( $payload );
+		if ( ! $is_valid_token ) {
+			return new WP_Error( 'invalid-token', 'Invalid Token', array( 'status' => 403 ) );
 		}
-		return new WP_Error( 'invalid-token', 'Invalid Token' );
+
+		// Only redirect to the current site, not to an arbitrary host.
+		$redirect_url = wp_validate_redirect( $request['redirect_url'], '' );
+		if ( ! $redirect_url ) {
+			return new WP_Error( 'invalid-redirect', 'Invalid Redirect URL', array( 'status' => 400 ) );
+		}
+
+		return new WP_REST_Response( null, 302, array( 'location' => $redirect_url ) );
 	}
 
 	/**
@@ -1782,91 +1754,28 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * Fetch site data from .com including the site's current plan and the site's products.
 	 *
 	 * @since 5.5.0
+	 * @deprecated 16.2 Use Automattic\Jetpack\Connection\Manager::get_connected_site_data().
 	 *
 	 * @return stdClass|WP_Error
 	 */
 	public static function site_data() {
-		$site_id = Jetpack_Options::get_option( 'id' );
+		_deprecated_function( __METHOD__, 'jetpack-16.2', 'Automattic\Jetpack\Connection\Manager::get_connected_site_data' );
 
-		if ( ! $site_id ) {
-			return new WP_Error( 'site_id_missing', '', array( 'api_error_code' => __( 'site_id_missing', 'jetpack' ) ) );
-		}
-
-		$args = array( 'headers' => array() );
-
-		// Allow use a store sandbox. Internal ref: PCYsg-IA-p2.
-		if ( isset( $_COOKIE ) && isset( $_COOKIE['store_sandbox'] ) ) {
-			$secret                    = filter_var( wp_unslash( $_COOKIE['store_sandbox'] ) );
-			$args['headers']['Cookie'] = "store_sandbox=$secret;";
-		}
-
-		$response = Client::wpcom_json_api_request_as_blog( sprintf( '/sites/%d', $site_id ) . '?force=wpcom', '1.1', $args );
-		$body     = wp_remote_retrieve_body( $response );
-		$data     = $body ? json_decode( $body ) : null;
-
-		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
-			$error_info = array(
-				'api_error_code' => null,
-				'api_http_code'  => wp_remote_retrieve_response_code( $response ),
-			);
-
-			if ( is_wp_error( $response ) ) {
-				$error_info['api_error_code'] = $response->get_error_code() ? wp_strip_all_tags( $response->get_error_code() ) : null;
-			} elseif ( $data && ! empty( $data->error ) ) {
-				$error_info['api_error_code'] = $data->error;
-			}
-
-			return new WP_Error( 'site_data_fetch_failed', '', $error_info );
-		}
-
-		Jetpack_Plan::update_from_sites_response( $response );
-
-		return $data;
+		return ( new Connection_Manager() )->get_connected_site_data();
 	}
+
 	/**
 	 * Get site data, including for example, the site's current plan.
 	 *
-	 * @return WP_Error|WP_HTTP_Response|WP_REST_Response
 	 * @since 4.3.0
+	 * @deprecated 16.2 Use Automattic\Jetpack\Connection\REST_Connector::site_data_response().
+	 *
+	 * @return WP_Error|WP_HTTP_Response|WP_REST_Response
 	 */
 	public static function get_site_data() {
-		$site_data = self::site_data();
+		_deprecated_function( __METHOD__, 'jetpack-16.2', 'Automattic\Jetpack\Connection\REST_Connector::site_data_response' );
 
-		if ( ! is_wp_error( $site_data ) ) {
-
-			/**
-			 * Fires when the site data was successfully returned from the /sites/%d wpcom endpoint.
-			 *
-			 * @since 8.7.0
-			 */
-			do_action( 'jetpack_get_site_data_success' );
-			return rest_ensure_response(
-				array(
-					'code'    => 'success',
-					'message' => esc_html__( 'Site data correctly received.', 'jetpack' ),
-					'data'    => wp_json_encode( $site_data, JSON_UNESCAPED_SLASHES ),
-				)
-			);
-		}
-
-		$error_data = $site_data->get_error_data();
-
-		if ( empty( $error_data['api_error_code'] ) ) {
-			$error_message = esc_html__( 'Failed fetching site data from WordPress.com. If the problem persists, try reconnecting Jetpack.', 'jetpack' );
-		} else {
-			/* translators: %s is an error code (e.g. `token_mismatch`) */
-			$error_message = sprintf( esc_html__( 'Failed fetching site data from WordPress.com (%s). If the problem persists, try reconnecting Jetpack.', 'jetpack' ), $error_data['api_error_code'] );
-		}
-
-		return new WP_Error(
-			$site_data->get_error_code(),
-			$error_message,
-			array(
-				'status'         => 400,
-				'api_error_code' => empty( $error_data['api_error_code'] ) ? null : $error_data['api_error_code'],
-				'api_http_code'  => empty( $error_data['api_http_code'] ) ? null : $error_data['api_http_code'],
-			)
-		);
+		return REST_Connector::site_data_response();
 	}
 
 	/**
@@ -3758,6 +3667,38 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	/**
+	 * Remove options the current user cannot read.
+	 *
+	 * Covers every `jetpack_waf_*` option, plus the two Protect options that expose the
+	 * same data under a different name: `jetpack_protect_global_whitelist` is populated
+	 * from `jetpack_waf_ip_allow_list`, and `jetpack_protect_key` is a shared secret.
+	 *
+	 * @since 16.2
+	 *
+	 * @param array $options Option definitions keyed by option name.
+	 * @return array
+	 */
+	public static function filter_options_for_response( $options ) {
+		if ( current_user_can( 'manage_options' ) ) {
+			return $options;
+		}
+
+		$restricted = array(
+			'jetpack_protect_key',
+			'jetpack_protect_global_whitelist',
+		);
+
+		return array_filter(
+			$options,
+			static function ( $option_name ) use ( $restricted ) {
+				return 0 !== strpos( $option_name, 'jetpack_waf_' )
+					&& ! in_array( $option_name, $restricted, true );
+			},
+			ARRAY_FILTER_USE_KEY
+		);
+	}
+
+	/**
 	 * Remove 'validate_callback' item from options available for module.
 	 * Fetch current option value and add to array of module options.
 	 * Prepare values of module options that need special handling, like those saved in wpcom.
@@ -3852,7 +3793,10 @@ class Jetpack_Core_Json_Api_Endpoints {
 				$options[ $key ]['current_value'] = self::cast_value( $default_value, $options[ $key ] );
 			}
 		}
-		return $options;
+
+		// Filter last: the switch above assigns current_value by key without isset(),
+		// so filtering earlier would let those assignments re-add a removed option.
+		return self::filter_options_for_response( $options );
 	}
 
 	/**

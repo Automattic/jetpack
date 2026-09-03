@@ -2,6 +2,41 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## [2.4.0] - 2026-09-01
+### Changed
+- Type the connection script data's `wpcomUser` with the fields WordPress.com actually returns, including `ID` and `login`. [#51673]
+- Update package dependencies. [#51303] [#51802]
+
+## [2.3.2] - 2026-08-20
+### Changed
+- Internal updates. [#51360]
+
+## [2.3.1] - 2026-08-19
+### Changed
+- Update dependencies.
+
+## [2.3.0] - 2026-08-13
+### Added
+- Connection: Expose the connection owner's identity so consumers can name the owner when their token is broken. [#51034]
+- Connection: Report whose account a connection error names as a single answer, so an error that cannot be placed is never treated as another user's. [#51034]
+
+### Fixed
+- Connection: Never take the connection error notice's CTA from another user's broken token, which reconnecting would not restore. [#51034]
+- Connection: Take the connection error notice's message and CTA from an error the viewer can resolve, so an informational error no longer hides a working button. [#51034]
+
+## [2.2.3] - 2026-08-06
+### Changed
+- Modernise the disconnect-confirm and thank-you step components. [#50864]
+- Update package dependencies. [#50509]
+
+## [2.2.2] - 2026-08-03
+### Changed
+- Update dependencies.
+
+## [2.2.1] - 2026-07-31
+### Changed
+- Connection UI: Make the disconnect survey a real radio group, drop the decorative arrow the options no longer need, and build the option cards on the shared Card component.
+
 ## [2.2.0] - 2026-07-27
 ### Added
 - Add a `./state/store-id` subpath export so `CONNECTION_STORE_ID` can be imported without pulling the package barrel. [#50714]
@@ -1440,6 +1475,13 @@
 - `Main` and `ConnectUser` components added.
 - `JetpackRestApiClient` API client added.
 
+[2.4.0]: https://github.com/Automattic/jetpack-connection-js/compare/v2.3.2...v2.4.0
+[2.3.2]: https://github.com/Automattic/jetpack-connection-js/compare/v2.3.1...v2.3.2
+[2.3.1]: https://github.com/Automattic/jetpack-connection-js/compare/v2.3.0...v2.3.1
+[2.3.0]: https://github.com/Automattic/jetpack-connection-js/compare/v2.2.3...v2.3.0
+[2.2.3]: https://github.com/Automattic/jetpack-connection-js/compare/v2.2.2...v2.2.3
+[2.2.2]: https://github.com/Automattic/jetpack-connection-js/compare/v2.2.1...v2.2.2
+[2.2.1]: https://github.com/Automattic/jetpack-connection-js/compare/v2.2.0...v2.2.1
 [2.2.0]: https://github.com/Automattic/jetpack-connection-js/compare/v2.1.0...v2.2.0
 [2.1.0]: https://github.com/Automattic/jetpack-connection-js/compare/v2.0.2...v2.1.0
 [2.0.2]: https://github.com/Automattic/jetpack-connection-js/compare/v2.0.1...v2.0.2

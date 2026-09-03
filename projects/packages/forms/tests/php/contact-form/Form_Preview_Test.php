@@ -45,6 +45,14 @@ class Form_Preview_Test extends BaseTestCase {
 	protected function setUp(): void {
 		parent::setUp();
 
+		/*
+		 * Form_Preview::generate_preview_url() runs its argument through
+		 * get_post(), which falls back to the `$post` global for an ID of 0.
+		 * A REST request in an earlier test class leaves a jetpack_form post
+		 * there, which is enough to make an invalid ID look valid.
+		 */
+		$GLOBALS['post'] = null;
+
 		// Register the form post type.
 		if ( ! post_type_exists( Contact_Form::POST_TYPE ) ) {
 			register_post_type(
@@ -227,6 +235,75 @@ class Form_Preview_Test extends BaseTestCase {
 		$template = '/path/to/template.php';
 
 		$this->assertEquals( $template, Form_Preview::maybe_render_preview( $template ) );
+	}
+
+	/**
+	 * Build a WP_Admin_Bar carrying an `edit` node shaped like the one core adds.
+	 *
+	 * @return \WP_Admin_Bar
+	 */
+	private function make_admin_bar_with_edit_node() {
+		require_once ABSPATH . WPINC . '/class-wp-admin-bar.php';
+
+		$admin_bar = new \WP_Admin_Bar();
+		$admin_bar->add_node(
+			array(
+				'id'     => 'edit',
+				'title'  => 'Edit Page',
+				'parent' => 'top-secondary',
+				'href'   => 'https://example.org/wp-admin/post.php?post=1&action=edit',
+				'meta'   => array( 'class' => 'edit-node' ),
+			)
+		);
+
+		return $admin_bar;
+	}
+
+	/**
+	 * Test relabel_admin_bar_edit_link() retitles the node without disturbing the link.
+	 */
+	public function test_relabel_admin_bar_edit_link_retitles_node() {
+		global $wp_admin_bar;
+
+		$wp_admin_bar = $this->make_admin_bar_with_edit_node(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- Test fixture.
+
+		Form_Preview::relabel_admin_bar_edit_link();
+
+		$node = $wp_admin_bar->get_node( 'edit' );
+
+		$this->assertSame( 'Edit Form', $node->title );
+
+		// add_node() merges into the existing node, so everything else survives.
+		$this->assertSame( 'https://example.org/wp-admin/post.php?post=1&action=edit', $node->href );
+		$this->assertSame( 'top-secondary', $node->parent );
+		$this->assertSame( array( 'class' => 'edit-node' ), $node->meta );
+	}
+
+	/**
+	 * Test relabel_admin_bar_edit_link() never creates an edit node core did not add.
+	 */
+	public function test_relabel_admin_bar_edit_link_ignores_missing_node() {
+		global $wp_admin_bar;
+
+		require_once ABSPATH . WPINC . '/class-wp-admin-bar.php';
+		$wp_admin_bar = new \WP_Admin_Bar(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- Test fixture.
+
+		Form_Preview::relabel_admin_bar_edit_link();
+
+		$this->assertNull( $wp_admin_bar->get_node( 'edit' ) );
+	}
+
+	/**
+	 * Test relabel_admin_bar_edit_link() tolerates an uninitialized admin bar.
+	 */
+	public function test_relabel_admin_bar_edit_link_without_admin_bar() {
+		global $wp_admin_bar;
+
+		$wp_admin_bar = null; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- Test fixture.
+
+		Form_Preview::relabel_admin_bar_edit_link();
+
+		$this->assertNull( $wp_admin_bar );
 	}
 
 	/**

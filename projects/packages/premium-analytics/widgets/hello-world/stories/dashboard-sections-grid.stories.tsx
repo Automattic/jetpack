@@ -1,5 +1,6 @@
 import { useState } from '@wordpress/element';
-import { Tabs } from '@wordpress/ui';
+import { Page } from '@wordpress/admin-ui';
+import { Tabs } from '@jetpack-premium-analytics/externals';
 import { WidgetDashboard, type DashboardWidget } from '@wordpress/widget-dashboard';
 import { DashboardSections } from '../../../routes/dashboard/components';
 import styles from '../../../routes/dashboard/stage.module.scss';
@@ -58,12 +59,6 @@ const initialLayout: DashboardWidget[] = [
 	},
 ];
 
-/**
- * Story-only widget renderer.
- *
- * @param {StoryWidgetProps} props - Widget render props.
- * @return Rendered story widget.
- */
 function StoryWidget( { attributes }: StoryWidgetProps ) {
 	return (
 		<div
@@ -94,8 +89,20 @@ const resolveWidgetModule: ResolveWidgetModule = moduleId =>
 // In product the section list is server-driven (the dashboardSection entity);
 // the story pins a static list mirroring that response shape.
 const storySections = [
-	{ id: 'analytics/traffic', slug: 'traffic', label: 'Traffic', order: 10, default_layout: [] },
-	{ id: 'analytics/insights', slug: 'insights', label: 'Insights', order: 20, default_layout: [] },
+	{
+		id: 'analytics/traffic',
+		slug: 'traffic',
+		label: 'Traffic',
+		order: 10,
+		default_layout: [],
+	},
+	{
+		id: 'analytics/insights',
+		slug: 'insights',
+		label: 'Insights',
+		order: 20,
+		default_layout: [],
+	},
 	{
 		id: 'analytics/subscribers',
 		slug: 'subscribers',
@@ -103,13 +110,17 @@ const storySections = [
 		order: 30,
 		default_layout: [],
 	},
-	{ id: 'woocommerce/store', slug: 'store', label: 'Store', order: 40, default_layout: [] },
+	{
+		id: 'woocommerce/store',
+		slug: 'store',
+		label: 'Store',
+		order: 40,
+		default_layout: [],
+	},
 ];
 
 /**
  * Story showing the dashboard section panel scroll surface around a widget grid.
- *
- * @return Story component.
  */
 function DashboardSectionsGridStory() {
 	const sections = storySections;
@@ -117,28 +128,9 @@ function DashboardSectionsGridStory() {
 	const [ layout, setLayout ] = useState< DashboardWidget[] >( initialLayout );
 
 	return (
-		<section
-			className={ styles.dashboard }
-			style={ {
-				blockSize: '100%',
-				boxSizing: 'border-box',
-				display: 'flex',
-				flexDirection: 'column',
-				padding: '24px',
-			} }
-		>
-			<header
-				style={ {
-					flex: '0 0 auto',
-					marginBlockEnd: '24px',
-				} }
-			>
-				<h1 style={ { fontSize: '32px', lineHeight: 1.2, margin: 0 } }>Analytics</h1>
-				<p style={ { color: '#50575e', margin: '8px 0 0' } }>
-					Track your site performance and visitor insights.
-				</p>
-			</header>
-
+		// The page title comes from the breadcrumbs in product; the story passes it
+		// directly so it needs no router.
+		<Page title="Stats" className={ styles.dashboard }>
 			<DashboardSections
 				sections={ sections }
 				value={ activeSection }
@@ -155,13 +147,13 @@ function DashboardSectionsGridStory() {
 								editMode
 							>
 								<WidgetDashboard.NoWidgetsState />
-								<WidgetDashboard.Widgets />
+								<WidgetDashboard.Widgets className={ styles.widgets } />
 							</WidgetDashboard>
 						) : null }
 					</Tabs.Panel>
 				) ) }
 			</DashboardSections>
-		</section>
+		</Page>
 	);
 }
 

@@ -2,40 +2,19 @@
  * External dependencies
  */
 import { useMemo } from 'react';
-import { WOO_COLORS } from '../constants';
-import { useColorPreference } from './use-color-preference';
-import type { ChartTheme } from '@automattic/charts';
-
+import type { ChartTheme } from '@jetpack-premium-analytics/externals';
 /**
  * Internal dependencies
  */
+// The dashboard's leaderboard spacing and bar radius. They are set in CSS, not on the theme below.
+import './chart-roles.scss';
 
-/**
- * Extended chart theme with analytics-specific properties.
- * Extends the base ChartTheme from @automattic/charts.
- */
-export type WooChartTheme = ChartTheme & {
-	leaderboardChart: ChartTheme[ 'leaderboardChart' ] & {
-		barBorderRadius: string;
-	};
-};
-
-export function useChartTheme(): WooChartTheme {
-	const { preferences } = useColorPreference();
-
+export function useChartTheme(): ChartTheme {
 	return useMemo( () => {
-		// If the user is using a custom color theme, use colors generated from the design system accent
-		// color token, otherwise use the default analytics theme colors.
-		const colors =
-			preferences.interfaceTheme === 'custom'
-				? [ '--wpds-color-foreground-interactive-brand' ]
-				: WOO_COLORS;
-
 		return {
 			backgroundColor: 'var(--wpds-color-background-surface-neutral-strong)',
 			labelBackgroundColor: 'var(--wpds-color-background-interactive-neutral-weak)',
 			labelTextColor: 'var(--wpds-color-foreground-interactive-neutral-strong)',
-			colors,
 			gridStyles: {
 				stroke: 'var(--wpds-color-stroke-surface-neutral)',
 				strokeWidth: 1,
@@ -43,8 +22,11 @@ export function useChartTheme(): WooChartTheme {
 			tickLength: 4,
 			gridColor: '',
 			gridColorDark: '',
+			// `fontSize` is load-bearing: it must stay a plain number, since resolveFontSize()
+			// rejects var() — without it visx falls back to 11 and margin/pie-label sizing break.
 			svgLabelSmall: {
-				fill: 'var(--wpds-color-foreground-content-neutral-weak)',
+				fill: 'var(--wpds-color-foreground-content-neutral)',
+				fontSize: 12,
 			},
 			xTickLineStyles: { stroke: '' },
 			xAxisLineStyles: {
@@ -72,10 +54,7 @@ export function useChartTheme(): WooChartTheme {
 				],
 			},
 			leaderboardChart: {
-				rowGap: 12,
-				columnGap: 4,
 				labelSpacing: 'xs',
-				barBorderRadius: 'var(--wpds-border-radius-md)',
 				deltaColors: [
 					'var(--wpds-color-stroke-surface-error-strong)',
 					'var(--wpds-color-foreground-content-neutral-weak)',
@@ -110,5 +89,5 @@ export function useChartTheme(): WooChartTheme {
 				},
 			],
 		};
-	}, [ preferences.interfaceTheme ] );
+	}, [] );
 }

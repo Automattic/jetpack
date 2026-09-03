@@ -1,13 +1,14 @@
 // Shared look of the date preset surfaces: a segmented group of flush pills
-// framed as a single control. Included by every surface (rolling presets,
-// all-time and years) so they stay one visual system instead of drifting apart.
+// framed as a single control, used by the rolling presets and the year surface.
 
-// Composite group presented as one control. The frame copies the
-// @wordpress/ui input-layout tokens (same stroke and radius) so the group
-// reads as a sibling of the comparison select.
+// The frame copies the @wordpress/ui input-layout tokens, so the group reads as
+// a sibling of the comparison trigger.
 @mixin group {
 	display: flex;
-	flex-wrap: wrap;
+	// One row, always: the dividers below are drawn with `> * + *`, which knows
+	// nothing about row breaks, so a wrapped row's first item paints over the
+	// group's own frame. Holds only with the `flex-shrink: 0` in `pill`.
+	flex-wrap: nowrap;
 	align-items: center;
 	gap: 0;
 	width: fit-content;
@@ -19,31 +20,32 @@
 		border-inline-start: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
 	}
 
-	// Raise the focused item above its flush siblings, whose fill or divider
-	// would otherwise paint over the focus ring. No z-index token exists in
-	// WPDS; flex items honor z-index without a position. `:focus-within`
-	// (rather than `:focus-visible`) also matches a dropdown trigger, which
-	// is wrapped in the Dropdown container.
+	// Lift the focused item over the fill and divider of its flush siblings,
+	// which would otherwise paint on its focus ring. WPDS has no z-index token.
+	// `:focus-within` so it also matches a dropdown trigger, which sits inside
+	// its Dropdown container.
 	> :focus-within {
 		z-index: 1;
 	}
 }
 
 @mixin pill {
-	// Hovered/focused pill: same brand-tinted highlight the select-control
-	// popup gives its items.
+	// Same brand-tinted highlight the select-control popup gives its items.
 	--wp-ui-button-background-color-active: var(--wpds-color-background-interactive-brand-weak-active);
 
+	// The Button sets an explicit `min-width`, which suppresses the flex
+	// automatic minimum, so a shrinkable pill compresses past its own label.
+	flex-shrink: 0;
 	white-space: nowrap;
 
-	// Selected pill: soft fill instead of the stock pressed-minimal strong
-	// mapping. Override the button custom-prop API (instead of the painted
-	// properties) so hover, focus, and the bg-colored border follow the fill.
+	// Selected: brand text on the soft brand fill, per the segmented control in
+	// the design, instead of the stock pressed-minimal strong mapping. Through
+	// the custom-prop API, so hover, focus and the border follow it.
 	&[aria-pressed="true"] {
-		--wp-ui-button-background-color: var(--wpds-color-background-interactive-neutral-weak-active);
-		--wp-ui-button-background-color-active: var(--wpds-color-background-interactive-neutral-weak-active);
-		--wp-ui-button-foreground-color: var(--wpds-color-foreground-content-neutral);
-		--wp-ui-button-foreground-color-active: var(--wpds-color-foreground-content-neutral);
+		--wp-ui-button-background-color: var(--wpds-color-background-interactive-brand-weak-active);
+		--wp-ui-button-background-color-active: var(--wpds-color-background-interactive-brand-weak-active);
+		--wp-ui-button-foreground-color: var(--wpds-color-foreground-interactive-brand);
+		--wp-ui-button-foreground-color-active: var(--wpds-color-foreground-interactive-brand);
 		outline-offset: 1px;
 	}
 }

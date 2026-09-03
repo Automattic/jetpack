@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Granular download paths reach WordPress.com; behind the modernization flag, which is off by default.
+
+

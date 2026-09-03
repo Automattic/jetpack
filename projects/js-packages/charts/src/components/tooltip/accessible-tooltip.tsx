@@ -1,5 +1,10 @@
-import { Tooltip, TooltipContext } from '@visx/xychart';
-import { useContext, useEffect, useCallback, useMemo } from 'react';
+import { TooltipContext } from '@visx/xychart';
+import clsx from 'clsx';
+import { useContext, useEffect, useCallback, useMemo, useRef } from 'react';
+import { useGlobalChartsTheme } from '../../providers';
+import { useChartScopeElement, useStandaloneScopeClass } from '../../providers/chart-scope';
+import { resolveCssVariable } from '../../utils';
+import { XyChartTooltip } from './xy-chart-tooltip';
 import type { SeriesData, DataPointDate } from '../../types';
 import type { RenderTooltipParams, XyChartTooltipProps } from '../../visx/types';
 import type { ReactNode } from 'react';
@@ -43,9 +48,23 @@ export const AccessibleTooltip: React.FC< AccessibleTooltipProps > = ( {
 	keyboardFocusedClassName,
 	series = [],
 	mode = 'group',
+	verticalCrosshairStyle,
+	horizontalCrosshairStyle,
 	...props
 } ) => {
 	const tooltipContext = useContext( TooltipContext );
+	const scopeElement = useChartScopeElement();
+	const gridStroke = useGlobalChartsTheme().gridStyles?.stroke;
+
+	// The stroke is read at the scope element, which a consumer can set outside the chart's own ancestors; see TOKENS.md#the-svg-bridge.
+	const crosshairStroke = useMemo( () => {
+		const stroke = gridStroke ? resolveCssVariable( gridStroke, scopeElement ) : null;
+
+		// Passing `stroke: undefined` would erase the crosshair: it overrides visx's own value, and SVG's initial `stroke` is `none`.
+		return stroke ? { stroke } : undefined;
+	}, [ gridStroke, scopeElement ] );
+
+	const standaloneScopeClass = useStandaloneScopeClass();
 
 	const tooltipData = useMemo( () => {
 		if ( mode !== 'individual' ) return [];
@@ -77,12 +96,23 @@ export const AccessibleTooltip: React.FC< AccessibleTooltipProps > = ( {
 		return flattened;
 	}, [ series, mode ] );
 
+	// Tracks whether this effect opened a tooltip, so it only closes its own.
+	const hasKeyboardSelection = useRef( false );
+
 	// Handle tooltip highlighting for keyboard navigation
 	useEffect( () => {
 		if ( selectedIndex === undefined ) {
-			tooltipContext?.hideTooltip();
+			// visx debounces the hide and cancels only the most recently scheduled one,
+			// so hiding on every run leaves earlier hides pending. One of those lands
+			// mid-navigation and closes the tooltip the user is reading.
+			if ( hasKeyboardSelection.current ) {
+				hasKeyboardSelection.current = false;
+				tooltipContext?.hideTooltip();
+			}
 			return;
 		}
+
+		hasKeyboardSelection.current = true;
 
 		if ( mode === 'group' ) {
 			// Show all series at the selected data point index in single tooltip.
@@ -128,7 +158,7 @@ export const AccessibleTooltip: React.FC< AccessibleTooltipProps > = ( {
 						tabIndex={ -1 }
 						role="tooltip"
 						aria-atomic="true"
-						className={ keyboardFocusedClassName }
+						className={ clsx( standaloneScopeClass, keyboardFocusedClassName ) }
 						data-testid={ `chart-tooltip-${ selectedIndex }` }
 						key={ `chart-tooltip-${ selectedIndex }` }
 					>
@@ -138,14 +168,21 @@ export const AccessibleTooltip: React.FC< AccessibleTooltipProps > = ( {
 			}
 
 			return (
-				<div role="tooltip" aria-live="polite">
+				<div className={ standaloneScopeClass } role="tooltip" aria-live="polite">
 					{ tooltipContent }
 				</div>
 			);
 		};
-	}, [ renderTooltip, selectedIndex, tooltipRef, keyboardFocusedClassName ] );
+	}, [ renderTooltip, selectedIndex, tooltipRef, keyboardFocusedClassName, standaloneScopeClass ] );
 
-	return <Tooltip { ...props } renderTooltip={ focusableRenderTooltip } />;
+	return (
+		<XyChartTooltip
+			{ ...props }
+			verticalCrosshairStyle={ { ...crosshairStroke, ...verticalCrosshairStyle } }
+			horizontalCrosshairStyle={ { ...crosshairStroke, ...horizontalCrosshairStyle } }
+			renderTooltip={ focusableRenderTooltip }
+		/>
+	);
 };
 
 // Keyboard navigation hook for charts
@@ -159,6 +196,11 @@ interface UseKeyboardNavigationProps {
 	 * Total number of navigation points (length of tooltip data array)
 	 */
 	totalPoints: number;
+	/**
+	 * Called with the selected index on Enter or Space, so a chart can treat the
+	 * keyboard selection the way it treats a click.
+	 */
+	onActivate?: ( index: number ) => void;
 }
 
 export const useKeyboardNavigation = ( {
@@ -168,6 +210,7 @@ export const useKeyboardNavigation = ( {
 	setIsNavigating,
 	chartRef,
 	totalPoints,
+	onActivate,
 }: UseKeyboardNavigationProps ) => {
 	// Focus the tooltip as soon as it is rendered
 	const tooltipRef = useCallback(
@@ -224,9 +267,11 @@ export const useKeyboardNavigation = ( {
 				setSelectedIndex( undefined );
 				setIsNavigating( false );
 				chartRef.current?.focus();
+			} else if ( ( event.key === 'Enter' || event.key === ' ' ) && selectedIndex !== undefined ) {
+				onActivate?.( selectedIndex );
 			}
 		},
-		[ totalPoints, selectedIndex, setSelectedIndex, setIsNavigating, chartRef ]
+		[ totalPoints, selectedIndex, setSelectedIndex, setIsNavigating, chartRef, onActivate ]
 	);
 
 	return {
@@ -236,6 +281,3 @@ export const useKeyboardNavigation = ( {
 		onChartKeyDown,
 	};
 };
-
-// Re-export the base Tooltip for backwards compatibility
-export { Tooltip };

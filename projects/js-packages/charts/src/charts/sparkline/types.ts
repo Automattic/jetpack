@@ -47,7 +47,7 @@ export interface SparklineProps {
 
 	/**
 	 * Color for the line stroke (hex or CSS color)
-	 * @default Theme color (first color in theme.colors array)
+	 * @default The first series palette color (`--a8c-charts-color-series-1`)
 	 */
 	color?: string;
 

@@ -3,15 +3,20 @@
 	"private": true,
 	"dependencies": {
 		"@automattic/jetpack-components": "workspace:*",
+		"@automattic/jetpack-connection": "workspace:*",
 		"@tanstack/react-query": "5.101.2",
-		"@types/react": "18.3.28",
-		"@wordpress/api-fetch": "7.51.0",
-		"@wordpress/components": "37.0.0",
-		"@wordpress/dataviews": "17.1.0",
-		"@wordpress/element": "8.3.0",
-		"@wordpress/i18n": "6.24.0",
-		"@wordpress/route": "0.17.0",
-		"@wordpress/ui": "0.17.0"
+		"@types/react": "18.3.31",
+		"@wordpress/api-fetch": "7.54.0",
+		"@wordpress/components": "40.0.0",
+		"@wordpress/dataviews": "18.1.0",
+		"@wordpress/element": "8.6.0",
+		"@wordpress/i18n": "6.27.0",
+		"@wordpress/route": "0.20.0",
+		"@wordpress/ui": "0.21.0"
+	},
+	"devDependencies": {
+		"@testing-library/react": "16.3.2",
+		"@testing-library/user-event": "^14.5.2"
 	},
 	"route": {
 		"path": "/",

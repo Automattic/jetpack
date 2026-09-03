@@ -234,25 +234,50 @@ Normalizes and validates report parameters, providing defaults when needed.
 
 **Validation:** Ensures required fields are present for API calls
 
-### `getDefaultIntervalForPeriod( period, from, to )`
+### `getDefaultIntervalForPeriod( preset, from, to )`
 
-Returns the optimal default interval for a given time period.
+Returns the default (finest allowed) interval for a preset / date range.
 
 **Parameters:**
 
-- `period`: `string` - Period identifier (e.g., 'today', 'last-7-days', 'last-30-days')
+- `preset`: `PrimaryPresetId | undefined` - Primary date-range preset, when known
 - `from`: `string` - Start date
 - `to`: `string` - End date
 
-**Returns:** `IntervalType` - Optimal interval ('hour', 'day', 'week', 'month', 'quarter', 'year')
+**Returns:** `IntervalType` - `'hour' | 'day' | 'week' | 'month' | 'year'`
 
 **Example:**
 
 ```tsx
 import { getDefaultIntervalForPeriod } from '@jetpack-premium-analytics/data';
 
-const interval = getDefaultIntervalForPeriod( 'last-7-days', from, to ); // Returns 'day'
+const interval = getDefaultIntervalForPeriod( 'last-7-days', from, to ); // 'day'
 ```
+
+### `resolveIntervalForRange( preset, from, to, current? )`
+
+Returns a valid interval for a date range. Keeps `current` when it is still
+allowed; otherwise returns the range default.
+
+**Parameters:**
+
+- `preset`: `PrimaryPresetId | undefined`
+- `from`: `string`
+- `to`: `string`
+- `current`: `string | undefined` - Candidate interval to keep when still allowed
+
+**Returns:** `IntervalType`
+
+### `needsReportDateParamsSeed( search? )`
+
+Returns whether report date params are incomplete or the interval is invalid
+for the range (`from` / `to` / `interval` missing, or `interval` not allowed).
+
+**Parameters:**
+
+- `search`: date-window fields from unnormalized report params (`from`, `to`, `interval`, `preset`)
+
+**Returns:** `boolean`
 
 ### `ORDER_ATTRIBUTION_VIEWS`
 
@@ -338,65 +363,51 @@ WordPress site settings:
 
 ### `localTZDate( value?, timezone? )`
 
-Creates a timezone-aware date using the site's configured timezone by
-default.
+Creates a timezone-aware date in the reporting timezone by default.
 
 ```typescript
 import { localTZDate } from '@jetpack-premium-analytics/data';
 
-const now = localTZDate(); // Current time in site timezone
+const now = localTZDate(); // Current time in the reporting timezone
 const custom = localTZDate( '2024-01-15', 'America/New_York' );
 ```
 
 **Parameters:**
 
 - `value` (optional): `number | string | Date` - Date value to convert
-- `timezone` (optional): `string` - Target timezone (defaults to site
-  timezone)
+- `timezone` (optional): `string` - Target timezone (defaults to the
+  reporting timezone)
 
 **Returns:** `TZDate` - Timezone-aware date object
 
-### `dateToISOStringWithLocalTZ( date, timezone? )`
+### `dateToISOStringWithLocalTZ( date )`
 
-Converts a date to ISO string with the site's timezone offset applied.
+Converts a date to ISO string with the reporting timezone's offset applied.
 
 ```typescript
 const withTZ = dateToISOStringWithLocalTZ( new Date() );
-// Returns: "2024-01-15T14:30:00.000-05:00" (with site timezone offset)
+// Returns: "2024-01-15T14:30:00.000-05:00" (with the reporting timezone's offset)
 ```
 
 **Parameters:**
 
 - `date`: `Date` - Date to convert
-- `timezone` (optional): `string` - Target timezone (defaults to site
-  timezone)
 
 **Returns:** `string` - ISO string with timezone offset
 
-### `getSiteTimezone()`
-
-Returns the WordPress site's configured timezone string.
-
-```typescript
-const timezone = getSiteTimezone();
-// Returns: "America/New_York" or "+05:30" (offset format)
-```
-
-**Returns:** `string` - Site timezone from WordPress settings
-
-**Note:** This function will throw an error if called before core settings
-are loaded. Use `ensureCoreSettingsReady()` in route loaders to prevent
-this.
+**Note:** The reporting timezone comes from `reportingTimeZone()` in
+`@jetpack-premium-analytics/datetime`, which reads the WordPress date
+settings that ship with the page. It needs no await.
 
 ### `ensureCoreSettingsReady()`
 
-Ensures WordPress core settings (site and general settings) are loaded
-before accessing timezone-dependent functions.
+Ensures the WordPress core `site` and `general settings` records are
+resolved, so components reading them (e.g. `useSiteHomeUrl`) render with a
+warm cache.
 
 ```typescript
 // In route loaders or beforeLoad hooks
 await ensureCoreSettingsReady();
-// Now getSiteTimezone() can be safely called
 ```
 
 **Returns:** `Promise<void>` - Resolves when settings are loaded
@@ -430,14 +441,15 @@ This package exports the following public API:
 
 - `prefetchReport` - Prefetch data for routes
 - `normalizeReportParams` - Normalize and validate parameters
-- `getDefaultIntervalForPeriod` - Get optimal interval for time period
+- `getDefaultIntervalForPeriod` - Default (finest) interval for a preset / range
+- `resolveIntervalForRange` - Keep a still-valid candidate interval, else the range default
+- `needsReportDateParamsSeed` - Whether report date params are incomplete or the interval is invalid for the range
 
 ### Date Utilities
 
 - `localTZDate` - Create timezone-aware dates
 - `dateToISOStringWithLocalTZ` - Convert to ISO with timezone
-- `getSiteTimezone` - Get WordPress site timezone
-- `ensureCoreSettingsReady` - Ensure settings are loaded
+- `ensureCoreSettingsReady` - Ensure core settings records are resolved
 
 ### Constants
 

@@ -23,12 +23,14 @@ Main chart component with responsive behavior by default.
 | `zoomable` | `boolean?` | `false` | Enable drag-to-zoom on the X axis. Dragging horizontally rescales the X axis to the selected range; a "Reset zoom" button appears in the top-right while zoomed |
 | `animation` | `boolean` | `false` | Enable entry animation on initial render. Creates a rising effect where lines scale up from the bottom. Automatically respects user's `prefers-reduced-motion` system setting |
 | `showLegend` | `boolean` | `false` | Display chart legend |
-| `legend` | `ChartLegendConfig` | `undefined` | Legend configuration object. See [ChartLegendConfig](#chartlegendconfig-type) |
+| `legend` | `SeriesChartLegendConfig` | `undefined` | Legend configuration object. See [SeriesChartLegendConfig](#serieschartlegendconfig-type) |
+| `defaultHiddenSeries` | `readonly string[]` | — | Series labels to hide the first time the provider sees this `chartId`. User changes persist across remounts, and reset only on a `chartId` change; later values for the same ID are ignored. |
+| `rescaleYOnVisibilityChange` | `boolean?` | `true` | Whether the value axis rescales to the visible series when the visible set changes. Set `false` to pin it to the full data range so the baseline doesn't move as series are hidden |
 | `withStartGlyphs` | `boolean?` | `false` | Show markers at the first data point of each series |
 | `withLegendGlyph` | `boolean?` | `false` | Use custom glyphs in legend |
 | `renderGlyph` | `(props: GlyphProps) => ReactNode?` | - | Custom glyph render function |
 | `glyphStyle` | `SVGProps<SVGCircleElement>?` | `{}` | Styling for chart glyphs |
-| `renderTooltip` | `(params: RenderTooltipParams) => ReactNode?` | - | Custom tooltip render function |
+| `renderTooltip` | `(params: RenderTooltipParams<DataPointDate> & { bucketInfo?: BucketInfo }) => ReactNode?` | - | Custom tooltip render function. `bucketInfo` carries the chart's date bucket classification |
 | `margin` | `{ top?: number; right?: number; bottom?: number; left?: number }?` | calculated | Chart margins |
 | `options` | `ChartOptions?` | `{}` | Advanced axis and scale configuration |
 | `onPointerDown` | `(event: EventHandlerParams) => void?` | - | Pointer down event handler |
@@ -169,6 +171,11 @@ type ChartOptions = {
 			orientation?: 'top' | 'bottom';
 			numTicks?: number;
 			tickFormat?: (value: any) => string;
+			// Declared bucket resolution of the data; the automatic tick
+			// formatter uses it instead of inferring from point spacing.
+			// The time span still constrains the choice; ignored when
+			// tickFormat is set.
+			tickResolution?: 'hour' | 'day' | 'week' | 'month' | 'year';
 		};
 		y?: {
 			orientation?: 'left' | 'right';
@@ -179,15 +186,17 @@ type ChartOptions = {
 };
 ```
 
-## ChartLegendConfig Type
+## SeriesChartLegendConfig Type
 
 ```typescript
-type ChartLegendConfig = {
+type SeriesChartLegendConfig = {
 	orientation?: 'horizontal' | 'vertical';
 	position?: 'top' | 'bottom';
 	alignment?: 'start' | 'center' | 'end';
 	shape?: LegendShape;
 	interactive?: boolean;
+	// Collapse series sharing a `group` into one item (line, bar, area charts only).
+	collapseGroups?: boolean;
 	itemClassName?: string;
 	itemStyles?: LegendItemStyles;
 	labelStyles?: LegendLabelStyles;

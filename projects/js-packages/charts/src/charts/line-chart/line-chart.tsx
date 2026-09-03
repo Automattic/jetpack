@@ -24,24 +24,37 @@ import {
 import {
 	GlobalChartsProvider,
 	GlobalChartsContext,
+	useChartFormatting,
 	useChartId,
 	useChartRegistration,
 	useGlobalChartsContext,
 	useGlobalChartsTheme,
 } from '../../providers';
-import { attachSubComponents, resolveCssVariable } from '../../utils';
+import { useDefaultHiddenSeries } from '../../providers/chart-context/hooks/use-default-hidden-series';
+import { attachSubComponents } from '../../utils';
+import { getBucketInfo } from '../../utils/bucket-info';
+import { createDateFormatter } from '../../utils/date-formatting';
 import { useChartChildren } from '../private/chart-composition';
+import { ChartInstanceContext, type ChartInstanceRef } from '../private/chart-instance-context';
 import { ChartLayout } from '../private/chart-layout';
 import { DefaultGlyph } from '../private/default-glyph';
-import { SingleChartContext, type SingleChartRef } from '../private/single-chart-context';
-import { SvgEmptyState } from '../private/svg-empty-state';
-import { getCurveType, getFormatter, guessOptimalNumTicks } from '../private/time-axis';
+import { getAllHiddenMessage, SvgEmptyState } from '../private/svg-empty-state';
+import { getCurveType } from '../private/time-axis';
+import { buildTimeAxisOptions } from '../private/time-axis-options';
 import { withResponsive } from '../private/with-responsive';
 import { useXZoom, ZoomResetButton, ZoomSelectionRect, ZoomClip } from '../private/x-zoom';
+import plotStyles from '../private/xy-plot/xy-plot.module.scss';
 import styles from './line-chart.module.scss';
 import { LineChartAnnotation, LineChartAnnotationsOverlay, LineChartGlyph } from './private';
 import type { RenderLineGlyphProps, LineChartProps, TooltipDatum } from './types';
-import type { DataPoint, DataPointDate, SeriesData, Optional } from '../../types';
+import type {
+	BucketInfo,
+	DataPoint,
+	DataPointDate,
+	SeriesData,
+	Optional,
+	TickResolution,
+} from '../../types';
 import type { RenderTooltipParams } from '../../visx/types';
 import type { ResponsiveConfig } from '../private/with-responsive';
 import type { TickFormatter } from '@visx/axis';
@@ -57,16 +70,52 @@ const toNumber = ( val?: number | string | null ): number | undefined => {
 	return isNaN( num ) ? undefined : num;
 };
 
+// No date-part options, which is what `Intl` defaults to a numeric date for —
+// the heading the tooltip printed with `toLocaleDateString()` before it could
+// be told a locale and a zone.
+const TOOLTIP_DATE: Intl.DateTimeFormatOptions = {};
+
+// Only the hour case adds to the plain date heading. A coarser bucket keeps the
+// day: 'month' covers any spacing from 28 days up, so dropping it would give two
+// distinct points one heading.
+const TOOLTIP_FORMAT_BY_RESOLUTION: Record<
+	Exclude< TickResolution, 'week' >,
+	Intl.DateTimeFormatOptions
+> = {
+	hour: { year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric' },
+	day: TOOLTIP_DATE,
+	month: TOOLTIP_DATE,
+	year: TOOLTIP_DATE,
+};
+
+// A component rather than a call, because `renderDefaultTooltip` is a plain
+// function a consumer may pass around: the context has to be read where the
+// heading renders, not where the tooltip is built.
+const TooltipDate: FC< { date?: Date; displayResolution: Exclude< TickResolution, 'week' > } > = ( {
+	date,
+	displayResolution,
+} ) => {
+	const formatting = useChartFormatting();
+	const format = useMemo(
+		() => createDateFormatter( TOOLTIP_FORMAT_BY_RESOLUTION[ displayResolution ], formatting ),
+		[ displayResolution, formatting ]
+	);
+
+	return <>{ date ? format( date ) : null }</>;
+};
+
 /**
  * Default visx-tooltip render that prints the hovered date as a heading and
  * one row per visible series (label + formatted value), sorted descending by
  * value. Reused by AreaChart, which has the same multi-series shape.
  *
- * @param params - visx `RenderTooltipParams< DataPointDate >`.
+ * @param params - visx `RenderTooltipParams< DataPointDate >`, plus the chart's optional `bucketInfo`.
  * @return Tooltip JSX, or `null` when no datum is hovered.
  */
-export const renderDefaultTooltip = ( params: RenderTooltipParams< DataPointDate > ) => {
-	const { tooltipData } = params;
+export const renderDefaultTooltip = (
+	params: RenderTooltipParams< DataPointDate > & { bucketInfo?: BucketInfo }
+) => {
+	const { tooltipData, bucketInfo } = params;
 	const nearestDatum = tooltipData?.nearestDatum?.datum;
 	if ( ! nearestDatum ) return null;
 
@@ -80,7 +129,10 @@ export const renderDefaultTooltip = ( params: RenderTooltipParams< DataPointDate
 	return (
 		<div className={ styles[ 'line-chart__tooltip' ] }>
 			<div className={ styles[ 'line-chart__tooltip-date' ] }>
-				{ nearestDatum.date?.toLocaleDateString() }
+				<TooltipDate
+					date={ nearestDatum.date }
+					displayResolution={ bucketInfo?.displayResolution ?? 'day' }
+				/>
 			</div>
 			{ tooltipPoints.map( point => (
 				<Stack
@@ -119,7 +171,7 @@ const validateData = ( data: SeriesData[] ) => {
 
 // Inner component to access DataContext and provide scale data to ref
 const LineChartScalesRef: FC< {
-	chartRef?: Ref< SingleChartRef >;
+	chartRef?: Ref< ChartInstanceRef >;
 	width: number;
 	height: number;
 	margin?: { top?: number; right?: number; bottom?: number; left?: number };
@@ -150,7 +202,7 @@ const LineChartScalesRef: FC< {
 	return null; // This component only provides the ref interface
 };
 
-const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
+const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 	(
 		{
 			data,
@@ -178,7 +230,10 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 			onPointerUp = undefined,
 			onPointerMove = undefined,
 			onPointerOut = undefined,
+			onDatumActivate = undefined,
 			zoomable = false,
+			rescaleYOnVisibilityChange = true,
+			defaultHiddenSeries,
 			children,
 			gridVisibility,
 			gap = 'md',
@@ -186,20 +241,25 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 		ref
 	) => {
 		const legendInteractive = legend.interactive ?? false;
+		const legendCollapseGroups = legend.collapseGroups ?? false;
 		const legendShape = legend.shape ?? 'line';
 		const legendPosition = legend.position ?? 'bottom';
 
 		const providerTheme = useGlobalChartsTheme();
-		// Gradient stops apply this as an SVG attribute, where CSS var() cannot
-		// resolve, so resolve the WPDS token to a concrete value first.
-		const resolvedBackgroundColor =
-			resolveCssVariable( providerTheme.backgroundColor ) ?? providerTheme.backgroundColor;
+		const formatting = useChartFormatting();
 		const theme = useXYChartTheme( data );
+		// Gradient stops apply this as an SVG attribute, where CSS var() cannot resolve. useXYChartTheme has already resolved the same role inside its memo, against the chart's scope element, so read it back rather than paying another getComputedStyle on every render.
+		const resolvedBackgroundColor = theme.backgroundColor ?? providerTheme.backgroundColor;
 		const chartId = useChartId( providedChartId );
+		const hiddenSeries = useDefaultHiddenSeries( chartId, defaultHiddenSeries );
+		const isSeriesVisible = useCallback(
+			( seriesLabel: string ) => ! hiddenSeries.has( seriesLabel ),
+			[ hiddenSeries ]
+		);
 		const chartRef = useRef< HTMLDivElement >( null );
 		const [ selectedIndex, setSelectedIndex ] = useState< number | undefined >( undefined );
 		const [ isNavigating, setIsNavigating ] = useState( false );
-		const internalChartRef = useRef< SingleChartRef >( null );
+		const internalChartRef = useRef< ChartInstanceRef >( null );
 
 		const zoom = useXZoom< Date >( {
 			enabled: zoomable,
@@ -233,26 +293,60 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 		);
 
 		const dataSorted = useChartDataTransform( data );
-		const { getElementStyles, isSeriesVisible } = useGlobalChartsContext();
+		const { getElementStyles } = useGlobalChartsContext();
 
-		// Add visibility information to series when using interactive legends
+		// Series visibility is owned by the provider, so it applies whether it changed
+		// through the interactive legend or programmatically.
 		const seriesWithVisibility = useMemo( () => {
-			if ( ! chartId || ! legendInteractive ) {
-				return dataSorted.map( ( series, index ) => ( { series, index, isVisible: true } ) );
-			}
 			return dataSorted.map( ( series, index ) => ( {
 				series,
 				index,
-				isVisible: isSeriesVisible( chartId, series.label ),
+				isVisible: ! hiddenSeries.has( series.label ),
 			} ) );
-		}, [ dataSorted, chartId, isSeriesVisible, legendInteractive ] );
+		}, [ dataSorted, hiddenSeries ] );
 
 		// Check if all series are hidden
 		const allSeriesHidden = useMemo( () => {
 			return seriesWithVisibility.every( ( { isVisible } ) => ! isVisible );
 		}, [ seriesWithVisibility ] );
 
-		// Use the keyboard navigation hook
+		// When series visibility changes — via the interactive legend or programmatically —
+		// and rescaling is opted out, pin the value axis to the full data range so it stays
+		// put instead of visx rescaling the domain to whatever is currently visible and
+		// making the axis jump. Default is to rescale, matching the pre-existing behaviour
+		// and AreaChart's `rescaleYOnVisibilityChange`.
+		const stableYDomain = useMemo< [ number, number ] | undefined >( () => {
+			if ( rescaleYOnVisibilityChange ) {
+				return undefined;
+			}
+			let min = Infinity;
+			let max = -Infinity;
+			for ( const series of dataSorted ) {
+				for ( const point of series.data ?? [] ) {
+					const value = point?.value;
+					if ( typeof value === 'number' && Number.isFinite( value ) ) {
+						min = Math.min( min, value );
+						max = Math.max( max, value );
+					}
+				}
+			}
+			return min < max ? [ min, max ] : undefined;
+		}, [ rescaleYOnVisibilityChange, dataSorted ] );
+
+		// Keyboard navigation steps through x positions, and the grouped tooltip
+		// reads every series at that position; the first series names the point.
+		const activateSelectedPoint = useCallback(
+			( index: number ) => {
+				const series = dataSorted[ 0 ];
+				const datum = series?.data[ index ];
+
+				if ( series && datum ) {
+					onDatumActivate?.( { datum, index, key: series.label } );
+				}
+			},
+			[ dataSorted, onDatumActivate ]
+		);
+
 		const { tooltipRef, onChartFocus, onChartBlur, onChartKeyDown } = useKeyboardNavigation( {
 			selectedIndex,
 			setSelectedIndex,
@@ -260,20 +354,22 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 			setIsNavigating,
 			chartRef,
 			totalPoints: dataSorted[ 0 ]?.data.length || 0,
+			onActivate: activateSelectedPoint,
 		} );
 
 		const chartOptions = useMemo( () => {
-			const formatter = options?.axis?.x?.tickFormat || getFormatter( dataSorted );
-
 			return {
 				axis: {
-					x: {
-						orientation: 'bottom' as const,
-						numTicks: guessOptimalNumTicks( dataSorted, width, formatter ),
-						tickFormat: formatter,
-						display: true,
-						...options?.axis?.x,
-					},
+					x: buildTimeAxisOptions( {
+						dataSorted,
+						width,
+						axisOptions: options?.axis?.x,
+						scaleDomain: options?.xScale?.domain,
+						zoomDomain: zoom.domain,
+						formatting,
+						// A hidden line is unmounted, so visx scales to the rest.
+						isSeriesRendered: series => isSeriesVisible( series.label ),
+					} ),
 					y: {
 						orientation: 'left' as const,
 						numTicks: 4,
@@ -291,10 +387,22 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 					type: 'linear' as const,
 					nice: true,
 					zero: false,
+					...( stableYDomain ? { domain: stableYDomain } : {} ),
 					...options?.yScale,
 				},
 			};
-		}, [ options, dataSorted, width, zoom.domain ] );
+		}, [ options, dataSorted, width, zoom.domain, stableYDomain, formatting, isSeriesVisible ] );
+
+		// Classified from the rendered series, like the axis above: a hidden
+		// hourly line must not leave the tooltip naming an hour the axis dropped.
+		const bucketInfo = useMemo(
+			() =>
+				getBucketInfo(
+					dataSorted.filter( series => isSeriesVisible( series.label ) ),
+					options?.axis?.x?.tickResolution
+				),
+			[ dataSorted, isSeriesVisible, options?.axis?.x?.tickResolution ]
+		);
 
 		const tooltipRenderGlyph = useMemo( () => {
 			return ( props: GlyphProps< DataPointDate > ) => {
@@ -328,9 +436,10 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 			() => ( {
 				withGlyph: withLegendGlyph,
 				glyphSize: Math.max( 0, toNumber( glyphStyle?.radius ) ?? 4 ),
+				collapseGroups: legendCollapseGroups,
 				renderGlyph,
 			} ),
-			[ withLegendGlyph, glyphStyle?.radius, renderGlyph ]
+			[ withLegendGlyph, glyphStyle?.radius, legendCollapseGroups, renderGlyph ]
 		);
 
 		// Create legend items using the reusable hook
@@ -365,7 +474,14 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 			yAccessor: ( d: DataPointDate ) => d?.value,
 		};
 
-		// Create a custom renderTooltip that includes focus capability
+		// Augments every renderTooltip call with the chart's bucket classification,
+		// default or custom, so a heading keyed on it can't disagree with the axis.
+		const tooltipRenderer = useMemo(
+			() => ( params: RenderTooltipParams< DataPointDate > ) =>
+				renderTooltip( { ...params, bucketInfo } ),
+			[ renderTooltip, bucketInfo ]
+		);
+
 		if ( error ) {
 			return <div className={ clsx( 'line-chart', styles[ 'line-chart' ] ) }>{ error }</div>;
 		}
@@ -387,10 +503,11 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 		);
 
 		return (
-			<SingleChartContext.Provider
+			<ChartInstanceContext.Provider
 				value={ {
 					chartId,
 					chartRef: internalChartRef,
+					isSeriesVisible,
 					chartWidth: width,
 					chartHeight: measuredChartHeight || 0,
 				} }
@@ -425,7 +542,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 								onBlur={ onChartBlur }
 							>
 								{ chartHeight > 0 && (
-									<div ref={ chartRef } style={ { position: 'relative' } }>
+									<div ref={ chartRef } className={ plotStyles[ 'xy-plot' ] }>
 										{ zoomable && zoom.domain && <ZoomResetButton onClick={ zoom.reset } /> }
 										<XYChart
 											theme={ theme }
@@ -444,9 +561,18 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 											onPointerOut={ onPointerOut }
 											pointerEventsDataKey="nearest"
 										>
-											{ gridVisibility !== 'none' && <Grid columns={ false } numTicks={ 4 } /> }
-											{ chartOptions.axis.x.display && <Axis { ...chartOptions.axis.x } /> }
-											{ chartOptions.axis.y.display && <Axis { ...chartOptions.axis.y } /> }
+											{ /* With every series hidden there is no data to scale against, so the grid and
+											     axes are dropped while the empty state stands in — otherwise they render
+											     squished at the top. */ }
+											{ ! allSeriesHidden && gridVisibility !== 'none' && (
+												<Grid columns={ false } numTicks={ 4 } />
+											) }
+											{ ! allSeriesHidden && chartOptions.axis.x.display && (
+												<Axis { ...chartOptions.axis.x } />
+											) }
+											{ ! allSeriesHidden && chartOptions.axis.y.display && (
+												<Axis { ...chartOptions.axis.y } />
+											) }
 
 											{ allSeriesHidden ? (
 												<SvgEmptyState
@@ -455,10 +581,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 													width={ width }
 													height={ chartHeight }
 												>
-													{ __(
-														'All series are hidden. Click legend items to show data.',
-														'jetpack-charts'
-													) }
+													{ getAllHiddenMessage( legendInteractive, 'series' ) }
 												</SvgEmptyState>
 											) : null }
 
@@ -556,7 +679,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 													snapTooltipToDatumX
 													snapTooltipToDatumY
 													showSeriesGlyphs
-													renderTooltip={ renderTooltip }
+													renderTooltip={ tooltipRenderer }
 													renderGlyph={ tooltipRenderGlyph }
 													glyphStyle={ glyphStyle }
 													showVerticalCrosshair={ withTooltipCrosshairs?.showVertical }
@@ -585,7 +708,7 @@ const LineChartInternal = forwardRef< SingleChartRef, LineChartProps >(
 						);
 					} }
 				</ChartLayout>
-			</SingleChartContext.Provider>
+			</ChartInstanceContext.Provider>
 		);
 	}
 );
@@ -600,16 +723,16 @@ type LineChartAnnotationComponents = {
 type LineChartBaseProps = Optional< LineChartProps, 'width' | 'height' | 'size' >;
 
 type LineChartComponent = React.ForwardRefExoticComponent<
-	LineChartBaseProps & React.RefAttributes< SingleChartRef >
+	LineChartBaseProps & React.RefAttributes< ChartInstanceRef >
 > &
 	LineChartAnnotationComponents;
 
 type LineChartResponsiveComponent = React.ForwardRefExoticComponent<
-	LineChartBaseProps & ResponsiveConfig & React.RefAttributes< SingleChartRef >
+	LineChartBaseProps & ResponsiveConfig & React.RefAttributes< ChartInstanceRef >
 > &
 	LineChartAnnotationComponents;
 
-const LineChartWithProvider = forwardRef< SingleChartRef, LineChartProps >( ( props, ref ) => {
+const LineChartWithProvider = forwardRef< ChartInstanceRef, LineChartProps >( ( props, ref ) => {
 	const existingContext = useContext( GlobalChartsContext );
 
 	// If we're already in a GlobalChartsProvider context, render the core component directly

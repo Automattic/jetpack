@@ -455,7 +455,7 @@ class Jetpack_Admin {
 		 */
 		if ( ( new Status() )->is_offline_mode() ) {
 			if ( $module['requires_connection'] || $module['requires_user_connection'] ) {
-				return __( 'Offline mode', 'jetpack' );
+				return __( 'Unavailable in Offline mode', 'jetpack' );
 			}
 		}
 
@@ -647,7 +647,7 @@ class Jetpack_Admin {
 	 */
 	public function add_jetpack_admin_body_class( $classes ) {
 		if ( $this->is_jetpack_admin_page() ) {
-			return trim( $classes ) . ' jetpack-admin-page ';
+			return ltrim( trim( $classes ) . ' jetpack-admin-page ' );
 		}
 		return $classes;
 	}

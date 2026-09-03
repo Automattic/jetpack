@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Package Provenance: describe when the polyfills replace an already registered script module.

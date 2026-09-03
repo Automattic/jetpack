@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { Stack, Text } from '@wordpress/ui';
+import { Stack, Text } from '@jetpack-premium-analytics/externals';
 /**
  * Internal dependencies
  */
@@ -12,12 +12,6 @@ import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
 type HelloWorldWidgetProps = WidgetRenderProps< HelloWorldAttributes >;
 
-/**
- * Renders the Hello World widget.
- *
- * @param {HelloWorldWidgetProps} props - The widget render props.
- * @return The rendered widget.
- */
 export default function HelloWorld( { attributes = {} }: HelloWorldWidgetProps ) {
 	return (
 		<Stack align="center" justify="center" className={ styles.root }>

@@ -179,10 +179,7 @@ const LocalBusinessFields: FC< Props > = ( { form } ) => {
 		<Stack direction="column" gap="lg">
 			{ storedAddressEmpty && defaultAddressEmpty && (
 				<Text variant="body-sm" className={ styles.muted }>
-					{ __(
-						'Add your business address — Google requires it before LocalBusiness info is shown.',
-						'jetpack-seo'
-					) }
+					{ __( 'Google requires an address before showing LocalBusiness info.', 'jetpack-seo' ) }
 				</Text>
 			) }
 
@@ -255,10 +252,7 @@ const LocalBusinessFields: FC< Props > = ( { form } ) => {
 						help={
 							! isPriceRange( localBusiness.priceRange )
 								? PRICE_RANGE_ERROR
-								: __(
-										'Use a numerical range (for example $10–$20) or a relative price level (for example $$).',
-										'jetpack-seo'
-								  )
+								: __( 'A range like $10–$20, or a level like $$.', 'jetpack-seo' )
 						}
 						value={ localBusiness.priceRange }
 						onChange={ next => setLocalBusinessField( { priceRange: next } ) }

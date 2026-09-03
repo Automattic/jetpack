@@ -10,9 +10,7 @@
 namespace Automattic\Jetpack\SEO;
 
 use Automattic\Jetpack\Modules;
-use Jetpack_SEO_Titles;
 use Jetpack_SEO_Utils;
-use Jetpack_Sitemap_Librarian;
 
 /**
  * Registers the dashboard's read routes and builds their payloads.
@@ -104,6 +102,55 @@ class Dashboard_Data {
 				'default'      => 1,
 			)
 		);
+
+		// Refuse an indexing write that would publish a private site. Scoped to core's
+		// settings route rather than attached as `blog_public`'s sanitizer, because a
+		// `register_setting()` sanitizer applies to every writer of the option for the
+		// rest of the request — including the site's own visibility control, which must
+		// stay able to change it.
+		add_filter( 'rest_pre_update_setting', array( __CLASS__, 'block_publishing_a_private_site' ), 10, 3 );
+	}
+
+	/**
+	 * Whether the site is private or still in coming-soon, which WordPress.com records
+	 * as a negative `blog_public`. Always false on self-hosted, where the option is a
+	 * plain 0/1.
+	 *
+	 * @return bool
+	 */
+	private static function is_site_private() {
+		return (int) get_option( 'blog_public', 1 ) < 0;
+	}
+
+	/**
+	 * Keep a WordPress.com site's private or coming-soon state out of reach of an SEO
+	 * toggle.
+	 *
+	 * `blog_public` is a plain 0/1 on self-hosted, but WordPress.com also stores `-1`
+	 * for a private site and `-2` for one still in coming-soon. This dashboard only
+	 * offers "allow search engines to index this site", which writes 1 or 0 — so
+	 * without this, the owner of an unfinished site who flipped that toggle on
+	 * published it. Publishing a site is not a search-engine setting and isn't a
+	 * decision this surface asks for, so a negative stored value is left alone.
+	 *
+	 * The site's own visibility control is what changes it — and still can, because
+	 * this hangs off core's settings route rather than the option's sanitizer.
+	 * {@see self::get_settings_data()} reports `site_is_private` so the toggle can say
+	 * why it's disabled rather than silently doing nothing.
+	 *
+	 * @param bool   $handled Whether another handler already wrote the setting.
+	 * @param string $name    Setting name.
+	 * @param mixed  $value   Submitted value.
+	 * @return bool True to report the write as handled, which skips it.
+	 */
+	public static function block_publishing_a_private_site( $handled, $name, $value ) {
+		if ( $handled || 'blog_public' !== $name ) {
+			return $handled;
+		}
+
+		// Leave a write that keeps the site unpublished alone; only a move to a public
+		// value is refused.
+		return self::is_site_private() && (int) $value >= 0;
 	}
 
 	/**
@@ -124,6 +171,7 @@ class Dashboard_Data {
 		return array(
 			'site_visibility'   => array(
 				'search_engines_visible' => (int) get_option( 'blog_public', 1 ) === 1,
+				'site_is_private'        => self::is_site_private(),
 				// Read the durable SEO option (seeded/synced from the `sitemaps` module
 				// by the Jetpack plugin) so the state survives the module's removal. The
 				// reachable sitemap URL + "View" link live on the Settings tab.
@@ -160,8 +208,15 @@ class Dashboard_Data {
 	public static function get_settings_data() {
 		$modules = new Modules();
 
-		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Jetpack_SEO_Titles lives in plugins/jetpack and is guarded by class_exists.
-		$title_formats = class_exists( 'Jetpack_SEO_Titles' ) ? Jetpack_SEO_Titles::get_custom_title_formats() : array();
+		// Read the stored values directly: Jetpack_SEO_Titles::get_custom_title_formats()
+		// intentionally hides them while another SEO plugin controls output, but the
+		// dashboard must still show the saved values without allowing edits.
+		$title_formats = get_option( 'advanced_seo_title_formats', array() );
+		if ( ! is_array( $title_formats ) ) {
+			$title_formats = array();
+		}
+		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Jetpack_SEO_Utils lives in plugins/jetpack and is guarded by class_exists.
+		$title_formats_editable = class_exists( 'Jetpack_SEO_Utils' ) && Jetpack_SEO_Utils::is_enabled_jetpack_seo();
 		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Jetpack_SEO_Utils lives in plugins/jetpack and is guarded by class_exists.
 		$front_page_desc = class_exists( 'Jetpack_SEO_Utils' ) ? Jetpack_SEO_Utils::get_front_page_meta_description() : '';
 
@@ -181,19 +236,30 @@ class Dashboard_Data {
 
 		return array(
 			'search_engines_visible'     => (int) get_option( 'blog_public', 1 ) === 1,
+			// A private or coming-soon WordPress.com site isn't hidden from search by an
+			// SEO setting and can't be unhidden by one — see {@see self::block_publishing_a_private_site()}.
+			'site_is_private'            => self::is_site_private(),
 			// Read the durable SEO option (seeded/synced from the `sitemaps` module
 			// by the Jetpack plugin) so the state survives the module's removal.
 			'sitemap_active'             => $sitemap_active,
-			// Empty until the sitemap is genuinely reachable, so the Settings tab can
-			// link to it only once it won't 404 (it's built by cron after activation).
+			// The reachable sitemap URL (Jetpack serves a valid sitemap here as soon as
+			// it's on + the site is public), or '' when sitemaps are off, so the Settings
+			// tab shows the "View sitemap" link exactly when there's a sitemap to view.
 			'sitemap_url'                => self::get_reachable_sitemap_url( $sitemap_active ),
 			// Read the durable SEO option (seeded/synced from the `canonical-urls` module
 			// by the Jetpack plugin) so the state survives the module's removal.
 			'canonical_active'           => self::is_canonical_enabled( $modules ),
 			// Cast to object so an empty format set serializes as `{}`, not `[]`.
 			'title_formats'              => (object) $title_formats,
+			// Separator WordPress joins default document-title parts with. A page type
+			// with no stored format keeps the default title: `get_custom_title()` returns
+			// the incoming value untouched, so core composes the title itself and the
+			// Settings tab replays that composition to preview it.
+			'title_separator'            => self::get_default_title_separator(),
+			'title_formats_editable'     => $title_formats_editable,
 			'front_page_description'     => (string) $front_page_desc,
 			'has_legacy_front_page_meta' => $has_legacy_front_page_meta,
+			'verification_tools_active'  => $modules->is_active( 'verification-tools' ),
 			'verification'               => array(
 				'google'    => isset( $codes['google'] ) ? (string) $codes['google'] : '',
 				'bing'      => isset( $codes['bing'] ) ? (string) $codes['bing'] : '',
@@ -244,16 +310,27 @@ class Dashboard_Data {
 	 *
 	 * The AI SEO Enhancer auto-generates SEO titles/descriptions/alt-text in the
 	 * editor (the generation itself is wpcom/AI-Assistant side); this exposes only
-	 * its persisted on/off toggle and whether it's available. Availability mirrors
-	 * the legacy Traffic page: the `ai_seo_enhancer_enabled` feature filter must be
-	 * on (it still depends on AI being available) AND the site's plan must support
-	 * the `ai-seo-enhancer` feature. The toggle writes through the existing
-	 * `/jetpack/v4/settings` endpoint (`ai_seo_enhancer_enabled`).
+	 * its persisted on/off toggle, whether it's available, and whether the AI SEO
+	 * control it sits under is on. Availability mirrors the legacy Traffic page:
+	 * the `ai_seo_enhancer_enabled` feature filter must be on (it still depends on
+	 * AI being available) AND the site's plan must support the `ai-seo-enhancer`
+	 * feature. The toggle writes through the existing `/jetpack/v4/settings`
+	 * endpoint (`ai_seo_enhancer_enabled`).
+	 *
+	 * `aiSeoEnabled` is reported separately rather than folded into availability:
+	 * with the control off the card is disabled, not hidden, so the saved choice
+	 * stays visible — the same treatment the Traffic page gives it.
 	 *
 	 * @return array
 	 */
 	public static function get_ai_data() {
 		$filter_on = (bool) apply_filters( 'ai_seo_enhancer_enabled', true );
+
+		// Jetpack_AI_Settings lives in plugins/jetpack, which bundles this package; guarded
+		// like the other host-plugin classes here. Without the method the AI SEO control
+		// does not exist, so the enhancer keeps its pre-control behavior.
+		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Jetpack_AI_Settings lives in plugins/jetpack and is guarded by is_callable.
+		$ai_seo_on = ! is_callable( array( 'Jetpack_AI_Settings', 'is_ai_seo_enabled' ) ) || \Jetpack_AI_Settings::is_ai_seo_enabled();
 
 		// Current_Plan comes from the jetpack-plans package (a dependency of this
 		// package since the plan-gating work), so it's always available here; the
@@ -263,8 +340,9 @@ class Dashboard_Data {
 
 		return array(
 			'enhancer' => array(
-				'available' => $filter_on && $plan_supports,
-				'enabled'   => (bool) get_option( 'ai_seo_enhancer_enabled', false ),
+				'available'    => $filter_on && $plan_supports,
+				'enabled'      => (bool) get_option( 'ai_seo_enhancer_enabled', false ),
+				'aiSeoEnabled' => $ai_seo_on,
 			),
 			'llmsTxt'  => array(
 				'enabled'  => Llms_Txt::is_enabled(),
@@ -299,13 +377,19 @@ class Dashboard_Data {
 
 		$logo_id  = (int) get_theme_mod( 'custom_logo' );
 		$logo_url = $logo_id ? (string) wp_get_attachment_image_url( $logo_id, 'full' ) : '';
+		if ( class_exists( 'Jetpack_Redux_State_Helper' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredClassMethod -- Jetpack_Redux_State_Helper lives in plugins/jetpack and is guarded by class_exists.
+			$image_url = (string) \Jetpack_Redux_State_Helper::get_site_image();
+		} else {
+			$image_url = $logo_url ? $logo_url : $icon_url;
+		}
 
 		return array(
 			'title'   => (string) get_bloginfo( 'name' ),
 			'tagline' => (string) get_bloginfo( 'description' ),
 			'url'     => (string) home_url(),
 			'icon'    => $icon_url,
-			'image'   => $logo_url ? $logo_url : $icon_url,
+			'image'   => $image_url,
 		);
 	}
 
@@ -358,20 +442,50 @@ class Dashboard_Data {
 	}
 
 	/**
-	 * The public URL of the generated XML sitemap, or an empty string when none
-	 * is currently reachable.
+	 * The separator, as rendered, that WordPress joins default document-title parts
+	 * with — for previewing the title a page type with no stored format produces.
 	 *
-	 * A sitemap is only reachable when generation is enabled, the site is public
-	 * (Jetpack does not load the Sitemaps module on sites that discourage search
-	 * engines), and the master sitemap has actually been generated — the Jetpack
-	 * plugin builds it via cron 1–15 minutes after activation, so the URL 404s
-	 * until then. Callers treat an empty string as "not yet reachable" and skip
-	 * linking to it.
+	 * `document_title_separator` alone is not what a visitor sees. `wp_get_document_title()`
+	 * composes the parts, then passes the whole title through the `document_title`
+	 * filter, which WordPress texturizes by default — turning the default spaced
+	 * hyphen into an en dash. Previewing the raw filter value would show `-` on a site
+	 * that renders `–`, which is every site running core's defaults.
 	 *
-	 * {@see Jetpack_Sitemap_Librarian} and jetpack_sitemap_uri() live in the
-	 * Jetpack plugin's Sitemaps module (loaded only for an active module on a
-	 * public site), so both are guarded; in the package-only context they are
-	 * absent and the sitemap is reported as not reachable.
+	 * This applies only to the default title. A stored format short-circuits
+	 * `pre_get_document_title`, which returns before the `document_title` filter, so a
+	 * custom format keeps the separator the user typed verbatim — the front end renders
+	 * `Site - MARKER - Page` for a custom format while producing `Page – Site` for the
+	 * default one.
+	 *
+	 * @return string The rendered separator.
+	 */
+	private static function get_default_title_separator() {
+		$separator = (string) apply_filters( 'document_title_separator', '-' );
+
+		// Only texturize when the title itself would be: a site that unhooks
+		// `wptexturize` renders the raw separator, and the preview should match.
+		if ( has_filter( 'document_title', 'wptexturize' ) ) {
+			$separator = trim(
+				html_entity_decode( wptexturize( ' ' . $separator . ' ' ), ENT_QUOTES, 'UTF-8' )
+			);
+		}
+
+		return $separator;
+	}
+
+	/**
+	 * The public URL of the XML sitemap, or an empty string when none is reachable.
+	 *
+	 * A sitemap is reachable as soon as generation is enabled and the site is public:
+	 * Jetpack serves a valid (empty-until-built) sitemap at a stable URL — never a 404 —
+	 * so the link is safe to surface immediately, without waiting on (or gating against)
+	 * the cron build. A prior gate looked the master sitemap up by a mis-built filename
+	 * and so never matched, which is what left the Settings tab stuck on "Generating…".
+	 *
+	 * `jetpack_sitemap_uri()` / `jp_sitemap_filename()` and the JP_MASTER_SITEMAP_TYPE
+	 * constant live in the Jetpack plugin's Sitemaps module (loaded only for an active
+	 * module on a public site), so they are guarded; in the package-only context they
+	 * are absent and the sitemap is reported as not reachable.
 	 *
 	 * @param bool $sitemap_active Whether sitemap generation is enabled.
 	 * @return string The sitemap URL, or '' when not reachable.
@@ -382,33 +496,33 @@ class Dashboard_Data {
 			return '';
 		}
 
-		// The Sitemaps module (the librarian class, the `JP_MASTER_SITEMAP_TYPE`
-		// constant, and the `jp_sitemap_filename()` / `jetpack_sitemap_uri()`
-		// helpers) all live together in plugins/jetpack and load as a unit, so this
-		// single guard covers every symbol used below.
+		// The `JP_MASTER_SITEMAP_TYPE` constant and the `jp_sitemap_filename()` /
+		// `jetpack_sitemap_uri()` helpers all live together in plugins/jetpack and load
+		// as a unit, so this single guard covers every symbol used below.
 		if (
-			! class_exists( 'Jetpack_Sitemap_Librarian' )
-			|| ! defined( 'JP_MASTER_SITEMAP_TYPE' )
+			! defined( 'JP_MASTER_SITEMAP_TYPE' )
 			|| ! function_exists( 'jp_sitemap_filename' )
 			|| ! function_exists( 'jetpack_sitemap_uri' )
 		) {
 			return '';
 		}
 
-		// The master sitemap is stored as a post once the cron generation run
-		// completes; until then there is nothing to link to.
-		// `jp_sitemap_filename( JP_MASTER_SITEMAP_TYPE )` is the master file name
-		// ('sitemap.xml'); inlined so this stays one (untestable-in-package) line.
-		// @phan-suppress-next-line PhanUndeclaredFunction,PhanUndeclaredClassMethod -- guarded above; symbols live in plugins/jetpack.
-		$master = ( new Jetpack_Sitemap_Librarian() )->read_sitemap_data( jp_sitemap_filename( JP_MASTER_SITEMAP_TYPE ), JP_MASTER_SITEMAP_TYPE );
-		if ( null === $master ) {
+		// `jp_sitemap_filename()` returns an error string ("error-not-int-…") unless a
+		// non-null number is passed; the master ignores the number, so pass 0 (matching
+		// Jetpack's own call sites). Fail safe: the master file is always 'sitemap.xml',
+		// so if a bundled Jetpack ever returns something else, report not-reachable
+		// rather than surface a broken URL — the exact failure this method shipped with
+		// before (the missing number silently produced an "error-not-int-…" link).
+		// @phan-suppress-next-line PhanUndeclaredFunction -- guarded above; symbols live in plugins/jetpack.
+		$filename = (string) jp_sitemap_filename( JP_MASTER_SITEMAP_TYPE, 0 );
+		if ( 'sitemap.xml' !== $filename ) {
 			return '';
 		}
 
-		// esc_url_raw (not esc_url): the value is transported via script data and
-		// rendered by React, so it must not be HTML-entity-encoded (e.g. the
-		// plain-permalink `?jetpack-sitemap=` form keeps its raw `&`).
-		// @phan-suppress-next-line PhanUndeclaredFunction -- jp_sitemap_filename()/jetpack_sitemap_uri() live in plugins/jetpack, guarded by function_exists.
-		return esc_url_raw( (string) jetpack_sitemap_uri( jp_sitemap_filename( JP_MASTER_SITEMAP_TYPE ) ) );
+		// esc_url_raw (not esc_url): transported via script data and rendered by React,
+		// so it must not be HTML-entity-encoded (e.g. the plain-permalink
+		// `?jetpack-sitemap=` form keeps its raw `&`).
+		// @phan-suppress-next-line PhanUndeclaredFunction -- guarded above; symbols live in plugins/jetpack.
+		return esc_url_raw( (string) jetpack_sitemap_uri( $filename ) );
 	}
 }

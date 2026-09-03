@@ -28,6 +28,15 @@ export const SELECTABLE_PRESETS = [
 	PRESET_LAST_YEAR,
 ] as const;
 
+export type SelectablePresetId = ( typeof SELECTABLE_PRESETS )[ number ];
+
+/**
+ * The all-time marker. On the year surface it covers every year the surface
+ * lists; on a detail page's quick surface it runs from the resource's own start
+ * (its publish date) through today.
+ */
+export const PRESET_ALL_TIME = 'all-time' as const;
+
 /**
  * Quick presets shown as surface pills in the date-range filter.
  */
@@ -39,14 +48,44 @@ export const QUICK_SURFACE_PRESETS = [
 ] as const;
 
 /**
- * Union of the selectable preset identifiers.
+ * Quick presets of a resource detail page (post, video): the rolling windows
+ * led by all time, per the detail-page design.
  */
-export type SelectablePresetId = ( typeof SELECTABLE_PRESETS )[ number ];
+export const DETAIL_SURFACE_PRESETS = [ PRESET_ALL_TIME, ...QUICK_SURFACE_PRESETS ] as const;
 
 /**
- * The all-time marker: one range covering every year the year surface lists.
+ * Every preset a quick surface can render as a pill: the rolling windows, plus
+ * all time where the surface opts into it.
  */
-export const PRESET_ALL_TIME = 'all-time' as const;
+export type QuickSurfacePresetId = SelectablePresetId | typeof PRESET_ALL_TIME;
+
+/**
+ * The period menu in display order, grouped by the scale each window measures.
+ * Each group renders as a separated block, narrowest scale first.
+ *
+ * All time sits in its own group rather than with the years: it is not one, and
+ * only some surfaces offer it.
+ */
+export const MENU_SURFACE_PRESET_GROUPS = [
+	[
+		PRESET_TODAY,
+		PRESET_YESTERDAY,
+		PRESET_LAST_24_HOURS,
+		PRESET_LAST_7_DAYS,
+		PRESET_LAST_30_DAYS,
+		PRESET_LAST_90_DAYS,
+		PRESET_LAST_365_DAYS,
+	],
+	[ PRESET_LAST_MONTH ],
+	[ PRESET_LAST_12_MONTHS, PRESET_LAST_YEAR ],
+	[ PRESET_ALL_TIME ],
+] as const;
+
+/**
+ * What the period menu offers unless a surface says otherwise. All time is left
+ * out: only a surface with a start date to anchor it can offer one.
+ */
+export const MENU_SURFACE_PRESETS = SELECTABLE_PRESETS;
 
 /**
  * Prefix of the per-year preset IDs, e.g. `year-2024`.
@@ -77,9 +116,6 @@ export type ComputablePresetId = SelectablePresetId | YearSurfacePresetId;
  */
 export const PRESET_CUSTOM = 'custom' as const;
 
-/**
- * Primary preset: any computable preset, or 'custom'.
- */
 export type PrimaryPresetId = ComputablePresetId | typeof PRESET_CUSTOM;
 
 /**

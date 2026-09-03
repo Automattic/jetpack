@@ -42,9 +42,6 @@ export type VideoPlaysRow = {
  * Maps merged video-plays rows from the Stats data layer onto normalized rows
  * ready for the leaderboard. Comparison matching already happened in the data
  * layer; this only resolves the display key, label, and link.
- *
- * @param videos - Merged video-plays rows from the Stats data layer.
- * @return Normalized rows ready for the leaderboard.
  */
 export function toVideoPlaysRows( videos: StatsVideoPlaysComparisonItem[] = [] ): VideoPlaysRow[] {
 	return videos.map( video => {

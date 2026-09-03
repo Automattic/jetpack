@@ -2,115 +2,81 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { chartBar } from '@wordpress/icons';
+import type { StatsPeriod } from '@jetpack-premium-analytics/data';
+import { trendingUp } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
  * Internal dependencies
  */
-import { ArrayCheckboxField, SelectField } from '@jetpack-premium-analytics/fields';
+import {
+	chartTypeAttributeField,
+	type ChartDisplayChartType,
+} from '@jetpack-premium-analytics/widgets-toolkit';
 
 /**
- * Granularity the chart can be grouped by. `auto` follows the dashboard date
- * range (a wide range buckets by month, a narrow one by day); an explicit
- * value sticks across range changes.
+ * The bucket sizes this chart draws. The bucket follows the dashboard's interval
+ * control, clamped into this set.
  */
-export type TrafficChartGranularity = 'auto' | 'day' | 'week' | 'month';
+export const TRAFFIC_PERIODS = [
+	'hour',
+	'day',
+	'week',
+	'month',
+] as const satisfies readonly StatsPeriod[];
+
+export type TrafficChartGranularity = ( typeof TRAFFIC_PERIODS )[ number ];
 
 /**
- * The metric tabs the chart can show, in display order: the persisted id and
- * label of each metric. The id doubles as the visits `stat_fields` field the
- * tab reads. Single source for the settings checkboxes and the chart tabs so
- * the two cannot drift apart.
+ * How the selected metric is drawn. The shared chart-display list keeps every
+ * chart widget's dropdown identical and ties it to the toolkit's own union.
+ */
+export type TrafficChartType = ChartDisplayChartType;
+
+/** The visits `stat_fields` field each metric tab reads, which is also its id. */
+export type TrafficChartMetricId = 'views' | 'visitors' | 'comments' | 'likes';
+
+/**
+ * Metric tabs in display order; id doubles as the `stat_fields` value. Views
+ * and Visitors pair via `counterpartId` (unavailable at the hourly bucket);
+ * `counterpartId` is typed to the id set so a typo can't silently drop the pairing.
  */
 export const TRAFFIC_CHART_METRICS = [
-	{ id: 'views', label: __( 'Views', 'jetpack-premium-analytics-pkg' ) },
-	{ id: 'visitors', label: __( 'Visitors', 'jetpack-premium-analytics-pkg' ) },
-	{ id: 'likes', label: __( 'Likes', 'jetpack-premium-analytics-pkg' ) },
+	{ id: 'views', label: __( 'Views', 'jetpack-premium-analytics-pkg' ), counterpartId: 'visitors' },
+	{
+		id: 'visitors',
+		label: __( 'Visitors', 'jetpack-premium-analytics-pkg' ),
+		counterpartId: 'views',
+	},
 	{ id: 'comments', label: __( 'Comments', 'jetpack-premium-analytics-pkg' ) },
-] as const satisfies readonly { id: string; label: string }[];
+	{ id: 'likes', label: __( 'Likes', 'jetpack-premium-analytics-pkg' ) },
+] as const satisfies readonly {
+	id: TrafficChartMetricId;
+	label: string;
+	counterpartId?: TrafficChartMetricId;
+}[];
 
 /**
- * Identifier persisted in the widget's `metrics` attribute for one metric tab.
- */
-export type TrafficChartMetricId = ( typeof TRAFFIC_CHART_METRICS )[ number ][ 'id' ];
-
-/**
- * Configurable attributes for the Traffic chart widget. Report params still
- * reach it through WidgetRoot: the dashboard date range, or
- * `attributes.reportParams` when a host injects them (e.g. Storybook and
- * dashboard previews).
+ * Configurable attributes for the Traffic chart widget; report params still
+ * reach it through WidgetRoot or `attributes.reportParams` from a host.
  *
- * @property granularity - Bucket size within the dashboard range. Defaults to `auto`.
- * @property metrics     - Metric tabs to show in the chart. Defaults to every metric.
+ * @property chartType - How to draw the selected metric. Defaults to `line`.
  */
 export type TrafficChartAttributes = {
-	granularity?: TrafficChartGranularity;
-	metrics?: TrafficChartMetricId[];
+	chartType?: TrafficChartType;
 };
 
 /**
- * Default selection for new widget instances: every metric enabled.
- */
-export const DEFAULT_TRAFFIC_CHART_METRICS: TrafficChartMetricId[] = TRAFFIC_CHART_METRICS.map(
-	metric => metric.id
-);
-
-/**
- * Widget type definition.
- *
- * Ported from the Jetpack Stats `stats-chart-tabs` card in wp-calypso (the chart
- * above the Traffic page). Renders the selected period's Views, Visitors, Likes,
- * and Comments as selectable metric tabs over a comparative line chart. The date
- * range and comparison state come from the dashboard via `reportParams`; the
- * `granularity` attribute (`relevance: 'high'`) chooses the bucket size within
- * that range and the `metrics` attribute selects which tabs render.
- * `example.attributes` doubles as the defaults applied to new instances.
+ * Ported from the Jetpack Stats `stats-chart-tabs` card in wp-calypso. Date
+ * range, comparison, and bucket size come from `reportParams`; the plotted
+ * metric is the chart's own tab selection, not an attribute.
  */
 export default {
-	icon: chartBar,
-	attributes: [
-		{
-			id: 'granularity',
-			label: __( 'Group by', 'jetpack-premium-analytics-pkg' ),
-			type: 'text',
-			Edit: SelectField,
-			elements: [
-				{
-					label: __( 'Auto', 'jetpack-premium-analytics-pkg' ),
-					value: 'auto',
-				},
-				{
-					label: __( 'By days', 'jetpack-premium-analytics-pkg' ),
-					value: 'day',
-				},
-				{
-					label: __( 'By weeks', 'jetpack-premium-analytics-pkg' ),
-					value: 'week',
-				},
-				{
-					label: __( 'By months', 'jetpack-premium-analytics-pkg' ),
-					value: 'month',
-				},
-			],
-			relevance: 'high',
-		},
-		{
-			id: 'metrics',
-			label: __( 'Metrics', 'jetpack-premium-analytics-pkg' ),
-			type: 'array',
-			relevance: 'high',
-			Edit: ArrayCheckboxField,
-			elements: TRAFFIC_CHART_METRICS.map( metric => ( {
-				value: metric.id,
-				label: metric.label,
-			} ) ),
-		},
-	] as WidgetAttributeField< TrafficChartAttributes >[],
+	icon: trendingUp,
+	attributes: [ chartTypeAttributeField() ] as WidgetAttributeField< TrafficChartAttributes >[],
 	example: {
 		attributes: {
-			granularity: 'auto',
-			metrics: DEFAULT_TRAFFIC_CHART_METRICS,
+			chartType: 'line',
 		},
 	},
 };

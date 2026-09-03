@@ -5,6 +5,39 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.21.0] - 2026-09-01
+### Removed
+- Minimum supported PHP version is now 7.4. [#51515]
+
+### Fixed
+- Fix the `view_stats` capability check for users with multiple roles by checking all roles instead of only the first. [#51514]
+
+## [0.20.4] - 2026-08-25
+### Changed
+- Escape the AMP tracking pixel URL at output. [#51472]
+
+### Fixed
+- Normalize the excluded IP list so addresses written in another form still match. [#51349]
+
+## [0.20.3] - 2026-08-20
+### Changed
+- Load the rule that hides the tracking pixel through the stylesheet queue. [#51358]
+
+### Fixed
+- Let a Stats page load asking for fresh data bypass the cached copy, so a site that has just connected or bought a plan is not shown what it saw before. [#51200]
+- Stop caching the failure a request makes when the site has no WordPress.com connection, so a site that has just connected sees its stats straight away. [#51200]
+
+## [0.20.2] - 2026-08-13
+### Fixed
+- Fix daily history lookups on WordPress.com sites. [#51197]
+
+## [0.20.1] - 2026-08-10
+### Security
+- Ensure post IDs are cast to integers before they are used in the post views query on Simple sites. [#51049]
+
+### Changed
+- Rename the text domain to jetpack-stats-pkg, freeing jetpack-stats for the standalone plugin. [#51115]
+
 ## [0.20.0] - 2026-07-22
 ### Added
 - Add a per-site setting to make the Stats tracking pixel honor the WP Consent API statistics category. [#50602]
@@ -351,6 +384,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Fixing static method which was called without self reference. [#26640]
 
+[0.21.0]: https://github.com/Automattic/jetpack-stats/compare/v0.20.4...v0.21.0
+[0.20.4]: https://github.com/Automattic/jetpack-stats/compare/v0.20.3...v0.20.4
+[0.20.3]: https://github.com/Automattic/jetpack-stats/compare/v0.20.2...v0.20.3
+[0.20.2]: https://github.com/Automattic/jetpack-stats/compare/v0.20.1...v0.20.2
+[0.20.1]: https://github.com/Automattic/jetpack-stats/compare/v0.20.0...v0.20.1
 [0.20.0]: https://github.com/Automattic/jetpack-stats/compare/v0.19.7...v0.20.0
 [0.19.7]: https://github.com/Automattic/jetpack-stats/compare/v0.19.6...v0.19.7
 [0.19.6]: https://github.com/Automattic/jetpack-stats/compare/v0.19.5...v0.19.6

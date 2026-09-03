@@ -5,6 +5,38 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.0.0] - 2026-09-01
+### Changed
+- Update package dependencies. [#51303] [#51802]
+
+### Removed
+- Minimum supported PHP version is now 7.4. [#51515]
+
+### Fixed
+- Abilities: Fix the backup overview reporting no storage usage, storage limit or backup time. [#51684]
+- Show a real failure message when your backup status cannot be read, instead of the "your first backup will be ready soon" screen, and let the "Back up now" button recover when a backup could not be queued. [#51625]
+- Show storage usage and the plan limit the right way round when the interface is translated. [#51664]
+
+## [4.3.15] - 2026-08-25
+### Changed
+- Internal updates.
+
+## [4.3.14] - 2026-08-20
+### Changed
+- Update package dependencies. [#51399]
+
+## [4.3.13] - 2026-08-11
+### Changed
+- Update dependencies. [#50841]
+
+## [4.3.12] - 2026-08-10
+### Changed
+- Update package dependencies. [#50509] [#51008]
+
+## [4.3.11] - 2026-08-03
+### Fixed
+- Load JS translation catalogs and stamp the package text domain on the wp-build dashboard bundles. [#50762]
+
 ## [4.3.10] - 2026-07-27
 ### Changed
 - Update dependencies. [#50719]
@@ -1177,6 +1209,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add API endpoints and Jetpack Backup package for managing Help…
 
+[5.0.0]: https://github.com/Automattic/jetpack-backup/compare/v4.3.15...v5.0.0
+[4.3.15]: https://github.com/Automattic/jetpack-backup/compare/v4.3.14...v4.3.15
+[4.3.14]: https://github.com/Automattic/jetpack-backup/compare/v4.3.13...v4.3.14
+[4.3.13]: https://github.com/Automattic/jetpack-backup/compare/v4.3.12...v4.3.13
+[4.3.12]: https://github.com/Automattic/jetpack-backup/compare/v4.3.11...v4.3.12
+[4.3.11]: https://github.com/Automattic/jetpack-backup/compare/v4.3.10...v4.3.11
 [4.3.10]: https://github.com/Automattic/jetpack-backup/compare/v4.3.9...v4.3.10
 [4.3.9]: https://github.com/Automattic/jetpack-backup/compare/v4.3.8...v4.3.9
 [4.3.8]: https://github.com/Automattic/jetpack-backup/compare/v4.3.7...v4.3.8

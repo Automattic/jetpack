@@ -1,5 +1,5 @@
 /**
- * MCP Settings hub — main view shown at wp-admin/admin.php?page=jetpack-ai.
+ * MCP and Connectors hub — main view shown at wp-admin/admin.php?page=jetpack-ai.
  * Shows the enable/disable toggle and navigation to Read, Write, and Setup sub-views.
  */
 
@@ -24,8 +24,8 @@ import {
 	list,
 } from '@wordpress/icons';
 import { Badge, Button, Stack } from '@wordpress/ui';
-import analytics from 'lib/analytics';
 import { isWriteTool } from './categories';
+import { recordMcpTracksEvent } from './tracks';
 import {
 	getAccountMcpAbilities,
 	getSiteContextToolIds,
@@ -162,13 +162,15 @@ function ConnectRow( { title, description, onClick } ) {
 /**
  * MCP hub component.
  *
- * @param {object}   props                - Component props.
- * @param {object}   props.mcpAbilities   - Full mcp_abilities object from API.
- * @param {number}   props.blogId         - Current site's blog ID.
- * @param {string}   props.activityLogUrl - URL for the activity log link.
- * @param {Set}      props.savingToolIds  - Set of toolIds currently being saved.
- * @param {Function} props.onNavigate     - Called with 'read' | 'write' | 'setup'.
- * @param {Function} props.onUpdate       - Called with partial mcp_abilities update.
+ * @param {object}   props                   - Component props.
+ * @param {object}   props.mcpAbilities      - Full mcp_abilities object from API.
+ * @param {number}   props.blogId            - Current site's blog ID.
+ * @param {string}   props.activityLogUrl    - URL for the activity log link.
+ * @param {Set}      props.savingToolIds     - Set of toolIds currently being saved.
+ * @param {Function} props.onNavigate        - Called with 'read' | 'write' | 'setup'.
+ * @param {Function} props.onUpdate          - Called with partial mcp_abilities update.
+ * @param {boolean}  [props.showActivityLog] - Whether this view owns the activity log row
+ *                                           (false when the Overview tab renders it instead).
  * @return {object} Component markup.
  */
 export default function McpHub( {
@@ -178,6 +180,7 @@ export default function McpHub( {
 	savingToolIds,
 	onNavigate,
 	onUpdate,
+	showActivityLog = true,
 } ) {
 	const accountAbilities = getAccountMcpAbilities( mcpAbilities ?? {} );
 	const siteContextToolIds = getSiteContextToolIds( mcpAbilities ?? {} );
@@ -209,7 +212,7 @@ export default function McpHub( {
 
 	const handleMcpToggle = useCallback(
 		enabled => {
-			analytics.tracks.recordEvent( 'jetpack_mcp_enabled_toggled', { enabled } );
+			recordMcpTracksEvent( 'jetpack_mcp_enabled_toggled', { enabled } );
 			const abilities = {};
 			if ( enabled ) {
 				// Enable all tools (read + write) by default, matching the backend's
@@ -291,7 +294,7 @@ export default function McpHub( {
 				</Card>
 			) }
 
-			{ isMcpEnabled && activityLogUrl && (
+			{ showActivityLog && isMcpEnabled && activityLogUrl && (
 				<Card className="jetpack-ai-mcp__action-card">
 					<a className="jetpack-ai-mcp__connect-row" href={ activityLogUrl }>
 						<span className="jetpack-ai-mcp__connect-row-icon">

@@ -1,16 +1,44 @@
 /**
  * External dependencies
  */
-import { Link } from '@wordpress/ui';
+import { Link } from '@jetpack-premium-analytics/externals';
 /**
  * Internal dependencies
  */
+import { PostTitleLink } from '../post-title-link';
+import { VideoTitleLink } from '../video-title-link';
 import { LeaderboardLabel, type LeaderboardRowMedia } from './leaderboard-label';
 import styles from './leaderboard-label.module.scss';
 import type { MouseEvent, ReactElement } from 'react';
 
 export type LeaderboardRowAction =
 	| { kind: 'link'; href: string }
+	| {
+			/** A post, page, or email with a detail page inside the dashboard. */
+			kind: 'postLink';
+			/** Post or page ID. Rows carrying one link to the internal detail route. */
+			id?: number | string;
+			/** Public URL. It becomes the link itself when there is no post ID. */
+			href?: string | null;
+			/**
+			 * Required, so a row cannot silently open the detail page on its own
+			 * default range. Pass `{}` to navigate without a window on purpose.
+			 */
+			search: Record< string, unknown >;
+	  }
+	| {
+			/** A video with a detail page inside the dashboard. */
+			kind: 'videoLink';
+			/** Video ID. Rows carrying one link to the internal detail route. */
+			id?: number | string;
+			/** Public URL. It becomes the link itself when there is no video ID. */
+			href?: string | null;
+			/**
+			 * Required, so a row cannot silently open the detail page on its own
+			 * default range. Pass `{}` to navigate without a window on purpose.
+			 */
+			search: Record< string, unknown >;
+	  }
 	| {
 			kind: 'drillDown';
 			onClick: ( event: MouseEvent< HTMLButtonElement > ) => void;
@@ -51,11 +79,9 @@ export type LeaderboardRowChartProps =
 /**
  * Resolve raw row navigation facts into one mutually exclusive action.
  *
- * Child rows take precedence over an external URL because chart rows cannot
- * be buttons and contain interactive link content at the same time. A URL is
- * therefore used only for a childless row; otherwise the row stays static.
+ * Child rows take precedence over an external URL because a chart row cannot be a
+ * button and hold interactive link content at the same time.
  *
- * @param options - Row navigation facts and optional drill-down behavior.
  * @return The single action that the leaderboard row should expose.
  */
 export function resolveLeaderboardRowAction(
@@ -75,17 +101,33 @@ export function resolveLeaderboardRowAction(
 /**
  * Render the shared leaderboard row chrome around a label.
  *
- * Link actions own the anchor and its new-tab affordance. Drill-down actions
- * stay non-interactive here because `LeaderboardChart` turns the whole row
- * into a button; `buildLeaderboardRow` passes that action to the chart.
+ * Drill-down actions stay non-interactive here because `LeaderboardChart` turns the
+ * whole row into a button.
  *
- * @param props        - Component props.
- * @param props.label  - Label text.
- * @param props.media  - Media rendered before the label.
- * @param props.action - The row action.
  * @return A single label element accepted by `LeaderboardEntry.label`.
  */
 export function LeaderboardRow( { label, media, action }: LeaderboardRowProps ): ReactElement {
+	// Title-link rows carry no media, so the row chrome goes on the title element.
+	if ( action.kind === 'postLink' || action.kind === 'videoLink' ) {
+		const TitleLink = action.kind === 'postLink' ? PostTitleLink : VideoTitleLink;
+
+		return (
+			<TitleLink
+				id={ action.id }
+				label={ label }
+				link={ action.href }
+				search={ action.search }
+				title={ label }
+				classNames={ {
+					internal: styles.rowLink,
+					external: styles.rowLink,
+					plain: styles.row,
+					text: styles.label,
+				} }
+			/>
+		);
+	}
+
 	const content = (
 		<LeaderboardLabel label={ label } media={ media } decorativeMedia={ action.kind === 'link' } />
 	);
@@ -114,7 +156,6 @@ export function LeaderboardRow( { label, media, action }: LeaderboardRowProps ):
 /**
  * Build the label and chart-level interaction props for one leaderboard row.
  *
- * @param props - Leaderboard row content and action.
  * @return Props to spread onto a `LeaderboardEntry`.
  */
 export function buildLeaderboardRow( props: LeaderboardRowProps ): LeaderboardRowChartProps {

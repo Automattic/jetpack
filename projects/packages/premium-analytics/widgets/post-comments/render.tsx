@@ -6,6 +6,7 @@ import { formatRelativeSince } from '@jetpack-premium-analytics/datetime';
 import { reports } from '@jetpack-premium-analytics/icons';
 import {
 	SubscriberList,
+	SubscriberListSkeleton,
 	WidgetRoot,
 	WidgetState,
 	useWidgetRootContext,
@@ -28,10 +29,7 @@ type PostCommentsWidgetProps = WidgetRenderProps< PostCommentsRenderAttributes >
 const COMMENTS_SHOWN = 10;
 
 /**
- * Latest comments inner component. Reads the post scope from WidgetRoot's
- * report params and lists approved comments in reverse chronological order.
- *
- * @return The rendered widget content.
+ * Lists the scoped post's approved comments, newest first.
  */
 function PostCommentsInner() {
 	const { reportParams } = useWidgetRootContext();
@@ -62,13 +60,13 @@ function PostCommentsInner() {
 	return (
 		<div className={ styles.root }>
 			<WidgetState
-				isLoading={ isLoading && ! data }
+				isLoading={ isLoading }
 				isFetching={ isFetching }
-				// The query keeps prior data via `placeholderData`, so a transient
-				// refetch failure keeps the comments visible; only surface the error
-				// when there is nothing to show.
+				// `placeholderData` keeps the prior comments on screen, so a transient
+				// refetch failure should not replace them with an error.
 				isError={ ! data && isError }
 				isEmpty={ isEmpty }
+				renderLoading={ <SubscriberListSkeleton rows={ COMMENTS_SHOWN } /> }
 				error={ {
 					description: __(
 						"We couldn't load these comments. Please try again in a moment.",
@@ -93,13 +91,6 @@ function PostCommentsInner() {
 	);
 }
 
-/**
- * Latest comments widget: the scoped post's recent commenters as an avatar
- * roster.
- *
- * @param {PostCommentsWidgetProps} props - The widget render props.
- * @return The rendered widget.
- */
 export default function PostComments( { attributes = {} }: PostCommentsWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>

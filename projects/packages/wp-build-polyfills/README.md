@@ -19,8 +19,11 @@ This package provides those missing or updated packages so that plugins using `@
 |-------------------|------------------------|-----------------|
 | `wp-notices`      | `@wordpress/notices`    | Yes on WP < 7.0 — missing component exports |
 | `wp-private-apis` | `@wordpress/private-apis` | Yes on WP < 7.1 unless Gutenberg >= 23.5.0 is active — incomplete allowlist |
+| `wp-rich-text`    | `@wordpress/rich-text`  | Yes on WP < 7.1 unless Gutenberg >= 23.6.0 is active — incomplete `privateApis` |
 | `wp-theme`        | `@wordpress/theme`      | No — only registered if absent |
 | `wp-views`        | `@wordpress/views`      | No — only registered if absent |
+
+`wp-rich-text`, `wp-theme` and `wp-views` require `wp-private-apis`, because each opts into private APIs under a package name Core's allowlist rejects (WP 6.9 rejects all three; WP 7.0 still rejects `@wordpress/compose`, which the rich-text polyfill bundles). Requesting any of them implicitly requests `wp-private-apis` too — see `WP_Build_Polyfills::SCRIPT_DEPENDENCIES`.
 
 ### Script modules (ESM)
 
@@ -65,6 +68,10 @@ The version threshold for force-replacements can be overridden with a third para
 ```php
 WP_Build_Polyfills::register( 'my-plugin', array( 'wp-notices' ), '7.1' );
 ```
+
+## Admin frame backdrop
+
+`WP_Build_Admin_Frame` makes the `@wordpress/boot` single-page backdrop continue the wp-admin menu color. `@wordpress/admin-ui` only knows Core's color schemes and paints a near-black backdrop for WordPress.com and third-party ones, and on WordPress 7.0+ the boot module that runs is Core's bundled copy, so the override is applied from PHP: `WP_Build_Polyfills::register()` arms it, and it prints a stylesheet on `admin_head` plus a script on `in_admin_header` that samples the `#adminmenuback` background into `--wp-build-admin-menu-background`. It lives here because this package is the one runtime every wp-build page already loads, and it is temporary until wp-build or boot ship the same behavior.
 
 ## Boot module asset file
 

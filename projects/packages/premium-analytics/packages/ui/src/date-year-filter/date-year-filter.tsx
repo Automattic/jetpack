@@ -8,10 +8,10 @@ import {
 	type PrimaryPresetId,
 	type YearSurfacePresetId,
 } from '@jetpack-premium-analytics/datetime';
+import { Button, SelectControl } from '@jetpack-premium-analytics/externals';
 import { Composite } from '@wordpress/components';
 import { useResizeObserver } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
-import { Button, SelectControl } from '@wordpress/ui';
 import { useCallback, useLayoutEffect, useMemo, useState } from 'react';
 /**
  * Internal dependencies
@@ -74,9 +74,6 @@ type PillsMeasurement = {
 /**
  * Content-box width of an element, the same box a ResizeObserver reports, so
  * the first read and the observed updates can't disagree on a padded container.
- *
- * @param element - The element to measure.
- * @return The content width in pixels.
  */
 function getContentWidth( element: HTMLElement ): number {
 	const style = getComputedStyle( element );
@@ -88,7 +85,7 @@ function getContentWidth( element: HTMLElement ): number {
 
 /**
  * Date filter for whole-history reporting: all time, then one pill per calendar
- * year, newest first. A sibling of `DateRangeFilter` for screens whose data is
+ * year, newest first. A sibling of `DatePeriodDropdown` for screens whose data is
  * read by year rather than by rolling window.
  */
 export function DateYearFilter( {

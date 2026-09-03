@@ -33,16 +33,10 @@ export type RequestReportOrderAttributionByProductParams = BaseReportParams & {
 };
 
 /**
- * Fetches order attribution by product data from the WC Analytics REST API
- *
- * This endpoint supports product filtering similar to fetchReportOrdersByProductType.
- * Unlike the regular order-attribution endpoint, this one:
+ * Supports product filtering. Unlike the regular order-attribution endpoint, this one:
  * - Does not support compare_from/compare_to parameters
  * - Returns data in a flatter structure (no current_period/previous_period nesting)
  * - Requires separate requests for comparison data
- *
- * @param params - Query parameters
- * @return Promise resolving to order attribution by product response
  */
 export async function fetchReportOrderAttributionByProduct(
 	params: RequestReportOrderAttributionByProductParams
@@ -57,7 +51,6 @@ export async function fetchReportOrderAttributionByProduct(
 		date_type,
 	};
 
-	// Add filters to query params if provided
 	if ( filters && filters.length > 0 ) {
 		queryParams.filters = filters;
 	}

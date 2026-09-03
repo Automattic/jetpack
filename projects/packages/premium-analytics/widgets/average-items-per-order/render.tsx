@@ -20,23 +20,9 @@ type AverageItemsPerOrderRenderAttributes = AverageItemsPerOrderAttributes &
 	Partial< ReportParamsFieldAttributes >;
 
 type AverageItemsPerOrderWidgetProps = WidgetRenderProps< AverageItemsPerOrderRenderAttributes > & {
-	/**
-	 * Dashboard error handler.
-	 */
 	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
 };
 
-/**
- * Average items per order widget.
- *
- * Thin composition over the widgets-toolkit: WidgetRoot provides the query
- * client, chart theme, and resolved report params; OrderMetricWidget fetches
- * the orders report and renders the avg_items metric with a comparison delta
- * and sparkline.
- *
- * @param {AverageItemsPerOrderWidgetProps} props - The widget render props.
- * @return The rendered widget.
- */
 export default function AverageItemsPerOrderRender( {
 	attributes = {},
 	setError,
@@ -45,6 +31,7 @@ export default function AverageItemsPerOrderRender( {
 		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
 			<OrderMetricWidget
 				metricKey="avg_items"
+				seriesLabel={ __( 'Average items per order', 'jetpack-premium-analytics-pkg' ) }
 				emptyStateText={ __( 'No orders in this period.', 'jetpack-premium-analytics-pkg' ) }
 				errorText={ __(
 					"We couldn't load average items per order. Please try again in a moment.",

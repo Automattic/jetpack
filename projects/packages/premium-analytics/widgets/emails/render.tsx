@@ -2,14 +2,18 @@
  * External dependencies
  */
 import { useStatsEmailSummary, type StatsEmailSummary } from '@jetpack-premium-analytics/data';
+import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import {
-	LeaderboardChart,
+	LeaderboardSkeleton,
+	MetricList,
+	PostTitleLink,
 	ReportLink,
+	WIDGET_ROW_LIMIT,
 	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
-	sharePercentage,
-	type LeaderboardChartData,
+	useWidgetNavigationSearch,
+	type MetricListItem,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
@@ -25,120 +29,63 @@ import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 type EmailsRenderAttributes = EmailsAttributes & Partial< ReportParamsFieldAttributes >;
 type EmailsWidgetProps = WidgetRenderProps< EmailsRenderAttributes >;
 
-/**
- * A single normalized email row, flattened from the `useStatsEmailSummary`
- * report into the shape the leaderboard renders. Exported so Storybook can
- * build fixtures for `EmailsLeaderboard`.
- */
+/** A normalized email summary row. */
 export type EmailRow = {
-	/**
-	 * Stable identifier for the email (post ID or, as a fallback, the array index).
-	 */
+	/** Stable email identifier. */
 	id: string | number;
-	/**
-	 * Email subject line.
-	 */
+	/** Newsletter post ID. */
+	postId?: string | number;
+	/** Public newsletter URL. */
+	link?: string | null;
+	/** Email subject. */
 	label: string;
-	/**
-	 * Open rate as a percentage (0–100).
-	 */
+	/** Open rate from 0 to 100. */
 	opensRate: number;
-	/**
-	 * Click rate as a percentage (0–100).
-	 */
+	/** Click rate from 0 to 100. */
 	clicksRate: number;
 };
 
-/**
- * Maps normalized email rows onto the shape `LeaderboardChart` expects. The
- * selected metric drives both the displayed value and the overlay bar width
- * (shares are relative to the highest rate in the set). The emails summary has
- * no comparison period, so the comparison fields are zeroed.
- *
- * @param rows   - The normalized email rows.
- * @param metric - Which rate to display (`opens` or `clicks`).
- * @return The leaderboard chart data.
- */
-function buildLeaderboardData( rows: EmailRow[], metric: EmailMetric ): LeaderboardChartData {
-	const rateOf = ( row: EmailRow ) => ( metric === 'opens' ? row.opensRate : row.clicksRate );
-	// Shares are relative to the real maximum so the top row always fills, even
-	// when every rate is below 1%. The `> 0` check guards the divide-by-zero.
-	const maxRate = Math.max( ...rows.map( rateOf ), 0 );
+const METRIC_SECTION: Record< EmailMetric, string > = {
+	opens: 'email-opens',
+	clicks: 'email-clicks',
+};
 
-	return rows.map( row => {
-		const rate = rateOf( row );
-
-		return {
-			id: String( row.id ),
-			label: (
-				<span className={ styles.label } title={ row.label }>
-					{ row.label }
-				</span>
-			),
-			// `LeaderboardChart` formats the value as a percentage, so the rate
-			// is expressed as a fraction here.
-			currentValue: rate / 100,
-			currentShare: sharePercentage( rate, maxRate ),
-			previousValue: 0,
-			previousShare: 0,
-			delta: 0,
-		};
-	} );
-}
-
-type EmailsLeaderboardProps = {
-	/**
-	 * Normalized email rows to render.
-	 */
+type EmailsListProps = {
+	/** Email rows to render. */
 	rows?: EmailRow[];
-	/**
-	 * Which rate to display. Defaults to `opens`.
-	 */
+	/** Rate to display. */
 	metric?: EmailMetric;
 };
 
-/**
- * Presentational leaderboard for the "Emails" widget. Lists the most recently
- * sent emails with their open or click rate.
- *
- * Renders the populated (ready) state only — loading, error, and empty are
- * handled by `<WidgetState>` in the data-connected `EmailsReport`. Exported so
- * Storybook can exercise the chart with fixture rows (there is no analytics
- * backend in Storybook, so the data-connected entry point would only ever show
- * chrome).
- *
- * @param {EmailsLeaderboardProps} props - The component props.
- * @return The rendered leaderboard.
- */
-export const EmailsLeaderboard = ( { rows = [], metric = 'opens' }: EmailsLeaderboardProps ) => {
-	const data = useMemo( () => buildLeaderboardData( rows, metric ), [ rows, metric ] );
+/** Render the latest emails with their open or click rate. */
+export const EmailsList = ( { rows = [], metric = 'opens' }: EmailsListProps ) => {
+	const search = useWidgetNavigationSearch( METRIC_SECTION[ metric ] );
 
-	return (
-		<div className={ styles.root }>
-			<LeaderboardChart
-				className={ styles.leaderboard }
-				data={ data }
-				withComparison={ false }
-				withOverlayLabel
-				showLegend={ false }
-				dataFormat={ {
-					type: 'percentage',
-					options: { decimals: 2, signDisplay: 'never' },
-				} }
-			/>
-		</div>
-	);
+	const items: MetricListItem[] = rows.map( row => {
+		const rate = metric === 'clicks' ? row.clicksRate : row.opensRate;
+
+		return {
+			id: row.id,
+			label: (
+				<PostTitleLink
+					id={ row.postId }
+					label={ row.label }
+					link={ row.link }
+					search={ search }
+					title={ row.label }
+				/>
+			),
+			value: formatMetricValue( rate / 100, 'percentage', {
+				decimals: 2,
+				signDisplay: 'never',
+			} ),
+		};
+	} );
+
+	return <MetricList className={ styles.list } items={ items } />;
 };
 
-/**
- * Flatten the `useStatsEmailSummary` report into the `{ id, label, opensRate,
- * clicksRate }` rows the leaderboard renders, keeping the endpoint's
- * newest-first order and trimming to `max`.
- *
- * @param report - The normalized email-summary report, or undefined while loading.
- * @param max    - Maximum rows to display; `0` keeps all rows.
- * @return The normalized email rows.
- */
+/** Normalize and limit the email summary rows. */
 function toEmailRows( report: StatsEmailSummary | undefined, max: number ): EmailRow[] {
 	const items = report?.data?.[ 0 ]?.items ?? [];
 
@@ -146,6 +93,8 @@ function toEmailRows( report: StatsEmailSummary | undefined, max: number ): Emai
 	// `max = 0 → all rows` convention and a guard against an over-long response.
 	return items.slice( 0, max > 0 ? max : undefined ).map( ( item, index ) => ( {
 		id: item.id ?? index,
+		postId: item.id,
+		link: typeof item.link === 'string' ? item.link : null,
 		label: String( item.label ?? '' ),
 		opensRate: item.opens_rate,
 		clicksRate: item.clicks_rate,
@@ -156,24 +105,17 @@ type EmailsReportProps = {
 	attributes?: EmailsAttributes;
 };
 
-/**
- * Fetches the email-summary report through the `useStatsEmailSummary` Stats
- * hook and hands the normalized rows to the presentational `EmailsLeaderboard`,
- * with the loading / error / empty states rendered through `<WidgetState>`.
- *
- * @param {EmailsReportProps} props - The component props.
- * @return The widget content.
- */
+/** Fetch and render the email summary. */
 function EmailsReport( { attributes }: EmailsReportProps ) {
-	const max = attributes?.max ?? 10;
 	const metric = attributes?.metric ?? 'opens';
-	// The summary endpoint accepts 1–30 rows and resets anything outside that
-	// range to 10, so request its maximum when the widget wants "all rows".
-	const quantity = max > 0 ? Math.min( max, 30 ) : 30;
 
-	const { data, isLoading, isFetching, isError, refetch } = useStatsEmailSummary( { quantity } );
+	// The summary endpoint accepts 1–30 rows and silently resets anything outside
+	// that range to 10, so the shared limit has to stay inside it.
+	const { data, isLoading, isFetching, isError, refetch } = useStatsEmailSummary( {
+		quantity: WIDGET_ROW_LIMIT,
+	} );
 
-	const rows = useMemo( () => toEmailRows( data, max ), [ data, max ] );
+	const rows = useMemo( () => toEmailRows( data, WIDGET_ROW_LIMIT ), [ data ] );
 
 	return (
 		<div className={ styles.widget }>
@@ -181,9 +123,8 @@ function EmailsReport( { attributes }: EmailsReportProps ) {
 				<WidgetState
 					isLoading={ isLoading }
 					isFetching={ isFetching }
-					// The query keeps the prior response via `placeholderData`, so a failed
-					// refetch leaves rows on screen; only surface the error when there is
-					// nothing to show.
+					// `placeholderData` keeps the prior rows on screen, so a transient
+					// refetch failure should not replace them with an error.
 					isError={ rows.length === 0 && isError }
 					isEmpty={ rows.length === 0 }
 					error={ {
@@ -202,8 +143,9 @@ function EmailsReport( { attributes }: EmailsReportProps ) {
 							'jetpack-premium-analytics-pkg'
 						),
 					} }
+					renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
 				>
-					<EmailsLeaderboard rows={ rows } metric={ metric } />
+					<EmailsList rows={ rows } metric={ metric } />
 				</WidgetState>
 			</div>
 			<WidgetFooter>
@@ -213,16 +155,6 @@ function EmailsReport( { attributes }: EmailsReportProps ) {
 	);
 }
 
-/**
- * Widget render entry point.
- *
- * The displayed rate is the `metric` attribute (`relevance: 'high'`), exposed
- * as a control by the widget host. The email summary still reads `max` from
- * props because it does not use report params.
- *
- * @param {EmailsWidgetProps} props - The widget render props.
- * @return The rendered widget.
- */
 export default function Emails( { attributes = {} }: EmailsWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>

@@ -1,30 +1,42 @@
 /**
  * External dependencies
  */
-import { AnalyticsQueryClientProvider, GlobalErrorProvider } from '@jetpack-premium-analytics/data';
-import { pickReportDateParams, useDashboardLink } from '@jetpack-premium-analytics/routing';
-import { Breadcrumbs, Page } from '@wordpress/admin-ui';
+import {
+	AnalyticsQueryClientProvider,
+	GlobalErrorProvider,
+	ReportScopeProvider,
+} from '@jetpack-premium-analytics/data';
+import { Button, Stack, Text } from '@jetpack-premium-analytics/externals';
+import { pickReportDateParams, useReportDateFilters } from '@jetpack-premium-analytics/routing';
+import { DateFiltersPanel, StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
+import {
+	DetailPageLayout,
+	DetailPageSection,
+	DetailPageShell,
+} from '@jetpack-premium-analytics/widgets-toolkit';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { Link, useParams, useSearch } from '@wordpress/route';
-import { Button, Stack, Text } from '@wordpress/ui';
-import { WidgetDashboard } from '@wordpress/widget-dashboard';
-import { useWidgetTypes, type WidgetModuleRecord } from '@wordpress/widget-primitives';
+import { DEFAULT_GRID, ROW_HEIGHT_PRESETS, WidgetDashboard } from '@wordpress/widget-dashboard';
+import { type WidgetModuleRecord } from '@wordpress/widget-primitives';
 /**
  * Internal dependencies
  */
-// Grid settings are intentionally shared across analytics dashboards (see the
-// hook's own note), so the video-detail page reuses the dashboard's hook rather
-// than storing a separate copy.
-import { useDashboardGridSettings } from '../dashboard/hooks/use-dashboard-grid-settings';
-import { VideoSummaryCard } from './components';
+import { useDetailBreadcrumbs } from '../use-detail-breadcrumbs';
+import { useDetailDateControls } from '../use-detail-date-controls';
+import { resolveWidgetModuleWithI18n, useWidgetTypesWithI18n } from '../widget-module-i18n';
+import { videoHeaderSlots } from './components';
 import { VIDEO_DETAIL_LAYOUT } from './config';
 import { useVideoSummary } from './hooks';
 import { route } from './package.json';
-import styles from './stage.module.scss';
 
 const ROUTE_FROM = route.path;
+
+// The composition is fixed (WOOA7S-1625), so keep its grid independent from the
+// customizable main-dashboard preference — a future settings control must not
+// stretch these tiles out of proportion.
+const VIDEO_DETAIL_GRID = { ...DEFAULT_GRID, rowHeight: ROW_HEIGHT_PRESETS.small };
 
 // The layout is fixed, so the change callback never fires; the dashboard
 // still requires one because it owns a staging copy internally.
@@ -38,7 +50,6 @@ const noopLayoutChange = () => {};
 function VideoDetail(): JSX.Element {
 	const { videoId: videoIdParam } = useParams( { from: ROUTE_FROM } ) as { videoId?: string };
 	const summary = useVideoSummary( Number( videoIdParam ) );
-	const [ gridSettings ] = useDashboardGridSettings();
 
 	const widgetModules = useSelect(
 		select =>
@@ -51,33 +62,39 @@ function VideoDetail(): JSX.Element {
 					) => WidgetModuleRecord[] | null;
 				}
 			 )
-				// `per_page: -1` returns every widget type. Without it, core-data's
-				// default query (`per_page: 10`) caps the records at 10 and could
-				// silently drop the widgets this page's fixed layout requires.
+				// `per_page: -1` returns every widget type; core-data's default query
+				// (`per_page: 10`) could silently drop ones this fixed layout requires.
 				.getEntityRecords( 'root', 'widgetModule', { per_page: -1 } ),
 		[]
 	);
 
-	const [ widgetTypes, isResolvingWidgetTypes ] = useWidgetTypes( widgetModules );
+	const [ widgetTypes, isResolvingWidgetTypes ] = useWidgetTypesWithI18n( widgetModules );
 
-	const dashboardLink = useDashboardLink();
+	// The applied report date range lives in the URL search params.
+	const dateFilters = useReportDateFilters( ROUTE_FROM );
+	const dateControls = useDetailDateControls( summary.publishedDate, dateFilters );
+
 	const search = useSearch( { strict: false } ) as Record< string, unknown > | undefined;
 	const reportSearch = pickReportDateParams( search );
 
-	// Error and not-found responses have no trustworthy title, so only resolved
-	// videos add the title crumb or render the heading.
-	const title =
-		summary.isLoading || summary.isError || summary.isNotFound
-			? undefined
-			: summary.title?.trim() || __( 'Untitled video', 'jetpack-premium-analytics-pkg' );
-	const resolvedSummary = { ...summary, title };
-	const canRenderWidgets = ! summary.isLoading && ! summary.isError && ! summary.isNotFound;
-	let summaryContent: JSX.Element | null;
+	const layout = VIDEO_DETAIL_LAYOUT;
 
-	if ( summary.isLoading ) {
-		summaryContent = null;
-	} else if ( summary.isError ) {
-		summaryContent = (
+	const canRenderWidgets = ! summary.isLoading && ! summary.isError && ! summary.isNotFound;
+
+	// Error and not-found responses have no trustworthy title, so only a
+	// resolved video adds the title crumb.
+	const breadcrumbs = useDetailBreadcrumbs(
+		canRenderWidgets
+			? summary.title?.trim() || __( 'Untitled video', 'jetpack-premium-analytics-pkg' )
+			: undefined
+	);
+
+	// The reason a video is missing goes below the header, where the widgets
+	// would have been.
+	let notice: JSX.Element | null = null;
+
+	if ( summary.isError ) {
+		notice = (
 			<Stack direction="column" align="flex-start" gap="sm">
 				<Text>
 					{ __(
@@ -91,7 +108,7 @@ function VideoDetail(): JSX.Element {
 			</Stack>
 		);
 	} else if ( summary.isNotFound ) {
-		summaryContent = (
+		notice = (
 			<Stack direction="column" align="flex-start" gap="sm">
 				<Text>{ __( "We couldn't find this video.", 'jetpack-premium-analytics-pkg' ) }</Text>
 				<Link
@@ -103,42 +120,38 @@ function VideoDetail(): JSX.Element {
 				</Link>
 			</Stack>
 		);
-	} else {
-		summaryContent = <VideoSummaryCard summary={ resolvedSummary } />;
 	}
 
 	return (
 		<WidgetDashboard
 			widgetTypes={ widgetTypes }
 			isResolvingWidgetTypes={ isResolvingWidgetTypes }
-			layout={ VIDEO_DETAIL_LAYOUT }
+			resolveWidgetModule={ resolveWidgetModuleWithI18n }
+			layout={ layout }
 			onLayoutChange={ noopLayoutChange }
-			gridSettings={ gridSettings }
+			gridSettings={ VIDEO_DETAIL_GRID }
 		>
-			<Page
-				breadcrumbs={
-					<Breadcrumbs
-						items={ [
-							{ label: __( 'Stats', 'jetpack-premium-analytics-pkg' ), to: dashboardLink },
-							...( title ? [ { label: title } ] : [] ),
-						] }
-					/>
-				}
-				className={ styles.page }
+			<DetailPageShell
+				visual={ <StatsPageIcon /> }
+				breadcrumbs={ <StatsBreadcrumbs items={ breadcrumbs } /> }
 			>
-				<div className={ styles.scrollArea }>
-					{ summaryContent ? (
-						<div className={ styles.header }>
-							<div className={ styles.summary }>{ summaryContent }</div>
-						</div>
-					) : null }
+				<DetailPageLayout
+					header={ videoHeaderSlots( {
+						summary,
+						performanceRange: dateFilters.appliedRange,
+					} ) }
+					// The presets render in every summary state, so the range stays
+					// adjustable while the video loads or errors.
+					controls={ <DateFiltersPanel { ...dateFilters } { ...dateControls } /> }
+				>
 					{ canRenderWidgets ? (
-						<div className={ styles.content }>
+						<DetailPageSection>
 							<WidgetDashboard.Widgets />
-						</div>
+						</DetailPageSection>
 					) : null }
-				</div>
-			</Page>
+					{ notice ? <DetailPageSection>{ notice }</DetailPageSection> : null }
+				</DetailPageLayout>
+			</DetailPageShell>
 		</WidgetDashboard>
 	);
 }
@@ -152,7 +165,13 @@ export function stage(): JSX.Element {
 	return (
 		<AnalyticsQueryClientProvider>
 			<GlobalErrorProvider>
-				<VideoDetail />
+				{ /*
+				 * The page names no compared period, so nothing below may fetch or draw
+				 * one. The params stay on the URL for the breadcrumb to carry back out.
+				 */ }
+				<ReportScopeProvider offersComparison={ false }>
+					<VideoDetail />
+				</ReportScopeProvider>
 			</GlobalErrorProvider>
 		</AnalyticsQueryClientProvider>
 	);

@@ -327,12 +327,7 @@ export default function DashboardPage( { isLoading = false } ) {
 						<Tabs.List variant="minimal">
 							<Tabs.Tab value="overview">{ __( 'Overview', 'jetpack-search-pkg' ) }</Tabs.Tab>
 							<Tabs.Tab value="settings">{ __( 'Settings', 'jetpack-search-pkg' ) }</Tabs.Tab>
-							<Tabs.Tab value="ai-answers">
-								{ __( 'AI Answers', 'jetpack-search-pkg' ) }
-								<span className="jp-search-dashboard-tabs__tab-preview-label">
-									&nbsp;{ __( '(Preview)', 'jetpack-search-pkg' ) }
-								</span>
-							</Tabs.Tab>
+							<Tabs.Tab value="ai-answers">{ __( 'AI Answers', 'jetpack-search-pkg' ) }</Tabs.Tab>
 						</Tabs.List>
 					</div>
 					<Tabs.Panel value="overview">

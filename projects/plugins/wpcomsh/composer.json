@@ -8,7 +8,7 @@
 		"automattic/custom-fonts": "^3.0",
 		"automattic/custom-fonts-typekit": "^2.0",
 		"automattic/text-media-widget-styles": "^2.0",
-		"automattic/wc-calypso-bridge": "^2.11.6",
+		"automattic/wc-calypso-bridge": "^2.11.7",
 		"wordpress/classic-editor-plugin": "1.6.7",
 		"automattic/jetpack-autoloader": "@dev",
 		"automattic/jetpack-composer-plugin": "@dev",
@@ -16,9 +16,7 @@
 		"automattic/jetpack-post-list": "@dev",
 		"automattic/jetpack-mu-wpcom": "@dev",
 		"tubalmartin/cssmin": "^4.1",
-		"automattic/jetpack-explat": "@dev",
-		"wp-php-toolkit/reprint-exporter": "^0.1.47",
-		"wp-php-toolkit/reprint-importer": "^0.1.47"
+		"automattic/jetpack-explat": "@dev"
 	},
 	"require-dev": {
 		"yoast/phpunit-polyfills": "^4.0.0",

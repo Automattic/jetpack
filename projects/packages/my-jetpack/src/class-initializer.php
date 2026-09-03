@@ -8,7 +8,6 @@
 namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
-use Automattic\Jetpack\Agents_Manager\WP_REST_Jetpack_AI_JWT;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Boost_Speed_Score\Speed_Score;
 use Automattic\Jetpack\Boost_Speed_Score\Speed_Score_History;
@@ -16,6 +15,7 @@ use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
+use Automattic\Jetpack\Connection\REST_Jetpack_AI_JWT;
 use Automattic\Jetpack\Constants as Jetpack_Constants;
 use Automattic\Jetpack\ExPlat;
 use Automattic\Jetpack\JITMS\JITM;
@@ -43,7 +43,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '5.41.0';
+	const PACKAGE_VERSION = '6.1.0';
 
 	/**
 	 * HTML container ID for the IDC screen on My Jetpack page.
@@ -281,9 +281,14 @@ class Initializer {
 	}
 
 	/**
-	 * Register polyfills for the wp-notices / wp-private-apis / wp-theme handles the
-	 * My Jetpack app bundle depends on but WP < 7.0 does not ship (or ships with an
-	 * incomplete allowlist).
+	 * Register polyfills for the wp-notices / wp-private-apis / wp-rich-text / wp-theme
+	 * handles the My Jetpack app bundle depends on but WP < 7.0 does not ship (or ships
+	 * with an incomplete allowlist).
+	 *
+	 * `wp-rich-text` is needed because the bundle reaches `@wordpress/dataviews` (via
+	 * `@wordpress/ui`), whose dataform controls unlock rich-text's `privateApis` at module
+	 * scope. WP 6.9 exports none, so without the polyfill the bundle throws "Cannot unlock
+	 * an undefined object" and the page renders blank.
 	 *
 	 * @return void
 	 */
@@ -294,7 +299,7 @@ class Initializer {
 
 		WP_Build_Polyfills::register(
 			'my-jetpack',
-			array( 'wp-notices', 'wp-private-apis', 'wp-theme' )
+			array( 'wp-notices', 'wp-private-apis', 'wp-rich-text', 'wp-theme' )
 		);
 	}
 
@@ -523,6 +528,14 @@ class Initializer {
 		$flags = array(
 			'videoPressStats'          => Jetpack_Constants::is_true( 'JETPACK_MY_JETPACK_VIDEOPRESS_STATS_ENABLED' ),
 			'showFullJetpackStatsCard' => class_exists( 'Jetpack' ),
+			// Only says which destination `manage_url` is: the legacy Stats page
+			// caches its report and wants a `force_refresh` hint the dashboard does not.
+			'premiumAnalyticsEnabled'  => Products\Stats::is_premium_analytics_enabled(),
+			// Pre-release gate: only internal testing environments get the AI
+			// card's module toggle. The helper lives in the Jetpack plugin, so
+			// standalone installs resolve to false. Remove when the AI settings
+			// page goes public.
+			'showAiModuleToggle'       => function_exists( 'jetpack_is_internal_testing_environment' ) && jetpack_is_internal_testing_environment(),
 		);
 
 		return $flags;
@@ -593,7 +606,7 @@ class Initializer {
 		new REST_Products();
 		new REST_Purchases();
 		new REST_Zendesk_Chat();
-		( new WP_REST_Jetpack_AI_JWT() )->register_rest_route();
+		( new REST_Jetpack_AI_JWT() )->register_rest_route();
 		new REST_Recommendations_Evaluation();
 
 		Products::register_product_endpoints();

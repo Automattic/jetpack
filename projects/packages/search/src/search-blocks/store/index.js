@@ -492,6 +492,14 @@ function* fetchResults( pageHandle ) {
 		// so a same-keyed default in the `store()` state object would be applied
 		// *after* and clobber the seeded value back down every time.
 		size: state.resultsPerPage ?? 10,
+		// Instant Search options seeded by Search_Blocks — no client defaults
+		// so a missing seed stays unset rather than overriding PHP.
+		highlightPhraseOnly: state.highlightPhraseOnly ?? false,
+		highlightFilterStopwords: state.highlightFilterStopwords ?? [],
+		highlightFields: state.highlightFields ?? null,
+		additionalBlogIds: state.additionalBlogIds ?? [],
+		adminQueryFilter: state.adminQueryFilter ?? null,
+		customResults: state.customResults ?? [],
 	} );
 	const response = yield fetch( url, {
 		headers: state.isPrivateSite ? { 'X-WP-Nonce': state.nonce } : {},
@@ -666,6 +674,83 @@ const { state, actions } = store( NAMESPACE, {
 				! state.hasError &&
 				state.results.length === 0
 			);
+		},
+
+		/**
+		 * Whether the results region is showing something other than results —
+		 * an empty state or an error. Binds the `no-results` container, whose
+		 * variants then hide themselves per condition.
+		 *
+		 * @return {boolean} True when any empty-state variant could show.
+		 */
+		get showEmptyStateRegion() {
+			return state.showNoResults || state.showError;
+		},
+
+		/**
+		 * No-results visibility for an unscoped `no-results` block. Yields on a
+		 * filtered empty search when a `filtered` block claimed it, so the
+		 * suggested "keep the default block, add a filters-active one" pairing
+		 * shows one message rather than stacking both.
+		 *
+		 * @return {boolean} True when the unscoped variant should show.
+		 */
+		get showNoResultsAny() {
+			if ( ! state.showNoResults ) {
+				return false;
+			}
+			return ! ( state.hasActiveFilters && state.hasScopedNoResultsFiltered );
+		},
+
+		/**
+		 * No-results visibility for a `no-results` block scoped to searches
+		 * with filters applied.
+		 *
+		 * @return {boolean} True when the filtered variant should show.
+		 */
+		get showNoResultsFiltered() {
+			return state.showNoResults && state.hasActiveFilters;
+		},
+
+		/**
+		 * No-results visibility for an unscoped variant sitting beside one
+		 * scoped to filtered searches, where the pairing is known at render
+		 * time rather than through the seeded coverage flags — the overlay
+		 * template, which is pre-rendered outside the page's own state.
+		 *
+		 * @return {boolean} True when the unfiltered empty state should show.
+		 */
+		get showNoResultsUnfiltered() {
+			return state.showNoResults && ! state.hasActiveFilters;
+		},
+
+		/**
+		 * Visibility for `results-list`'s built-in error region, which predates
+		 * the `no-results` block. Mirrors `showLegacyNoResults`, but there is
+		 * only one error case to cover, so a flat "a variant claimed it" flag is
+		 * enough — no per-case seeding.
+		 *
+		 * @return {boolean} True when the legacy error region should show.
+		 */
+		get showLegacyError() {
+			return state.showError && ! state.hasErrorBlock;
+		},
+
+		/**
+		 * Visibility for `results-list`'s built-in message region, which
+		 * predates the `no-results` block. Each variant seeds the filter states
+		 * it covers, and the legacy region fills whatever is left — so a page
+		 * whose only variant is scoped to one filter state still shows a
+		 * message in the other, and a page with full coverage never shows two
+		 * empty states at once.
+		 *
+		 * @return {boolean} True when the legacy region should show.
+		 */
+		get showLegacyNoResults() {
+			if ( ! state.showNoResults ) {
+				return false;
+			}
+			return state.hasActiveFilters ? ! state.hasNoResultsFiltered : ! state.hasNoResultsUnfiltered;
 		},
 
 		/**
