@@ -15,17 +15,10 @@
  */
 
 import apiFetch from '@wordpress/api-fetch'; // eslint-disable-line import/no-unresolved
-import {
-	BlockControls,
-	InspectorControls,
-	store as blockEditorStore,
-	useBlockProps,
-} from '@wordpress/block-editor';
+import { BlockControls, store as blockEditorStore, useBlockProps } from '@wordpress/block-editor';
 import {
 	Notice,
-	PanelBody,
 	Spinner,
-	TextControl,
 	ToolbarButton,
 	ToolbarGroup,
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis -- Experimental API; stable ConfirmDialog not yet exported by @wordpress/components.
@@ -40,6 +33,7 @@ import metadata from './block.json';
 import ConnectionWizard from './connection-wizard';
 import { VALID_CURRENCY_CODES } from './currencies';
 import { FORMAT_OPTIONS } from './format-switcher';
+import LegacyBlock from './legacy-block';
 import PayPalButtonPreview from './paypal-button-preview';
 import ProductForm from './product-form';
 import { broadcastConnectionChange, usePayPalConnection } from './use-paypal-connection';
@@ -309,28 +303,12 @@ export default function PayPalPaymentButtonsEdit( {
 	// Legacy paste-code block — render as-is without the new UI.
 	if ( ! isApiManaged && ( scriptSrc || hostedButtonId ) ) {
 		return (
-			<div { ...blockProps } data-color-scheme={ colorScheme || 'auto' }>
-				<div className="jetpack-paypal-payment-buttons__legacy">
-					<p>
-						{ __(
-							'This PayPal button uses the legacy paste-code format.',
-							'jetpack-paypal-payments'
-						) }
-					</p>
-					<p>
-						{ __( 'It will continue to work as-is on the frontend.', 'jetpack-paypal-payments' ) }
-					</p>
-				</div>
-				<InspectorControls>
-					<PanelBody title={ __( 'Button Settings', 'jetpack-paypal-payments' ) }>
-						<TextControl
-							label={ __( 'Button Text', 'jetpack-paypal-payments' ) }
-							value={ buttonText }
-							onChange={ value => setAttributes( { buttonText: value } ) }
-						/>
-					</PanelBody>
-				</InspectorControls>
-			</div>
+			<LegacyBlock
+				setAttributes={ setAttributes }
+				colorScheme={ colorScheme }
+				buttonText={ buttonText }
+				blockProps={ blockProps }
+			/>
 		);
 	}
 
