@@ -136,7 +136,7 @@ function Dashboard(): JSX.Element {
 
 	/*
 	 * The year surface applies on click — no Apply step of its own — so stage and
-	 * commit together, the way the quick presets do inside `DateRangeFilter`.
+	 * commit together, the way `DatePeriodDropdown` applies a period.
 	 */
 	const { onChange: onDateChange, onApply: onDateApply } = dateFilters;
 	const selectYear = useCallback(

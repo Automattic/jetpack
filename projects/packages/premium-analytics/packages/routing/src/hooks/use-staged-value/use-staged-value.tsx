@@ -78,7 +78,7 @@ export function useStagedValue< TValue extends AnyObject, TCommitOptions = void 
 	onCommit: ( staged: TValue, patch: Partial< TValue >, options?: TCommitOptions ) => void
 ): UseStagedValueReturn< TValue, TCommitOptions > {
 	/*
-	 * A control can stage and commit in the same tick — `DateRangeFilter` does
+	 * A control can stage and commit in the same tick — `DatePeriodDropdown` does
 	 * that to apply a quick preset — so `commit` reads these refs, not the state
 	 * React has only queued, which would leave the store a click behind.
 	 */

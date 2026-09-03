@@ -85,7 +85,7 @@ function getContentWidth( element: HTMLElement ): number {
 
 /**
  * Date filter for whole-history reporting: all time, then one pill per calendar
- * year, newest first. A sibling of `DateRangeFilter` for screens whose data is
+ * year, newest first. A sibling of `DatePeriodDropdown` for screens whose data is
  * read by year rather than by rolling window.
  */
 export function DateYearFilter( {

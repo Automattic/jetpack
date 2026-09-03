@@ -62,7 +62,7 @@ describe( 'useStagedValue', () => {
 		expect( result.current.isDirty ).toBe( true );
 	} );
 
-	// `DateRangeFilter` applies a quick preset this way, so a commit reading the
+	// `DatePeriodDropdown` applies a period this way, so a commit reading the
 	// state React has only queued would leave the store a click behind.
 	it( 'commits an edit staged in the same tick', () => {
 		const { result, commits } = renderStagedValue();
