@@ -52,13 +52,6 @@ const BACKUPS_QUESTION = 'Do you enjoy the peace of mind of having backups?';
 // wording rather than to ours.
 const CTA = /Please leave a review and help us spread the word!/;
 
-// jsdom implements no scrolling, and DataViews' list layout calls
-// `scrollIntoView` on the selected row.
-Object.defineProperty( window.HTMLElement.prototype, 'scrollIntoView', {
-	value: () => {},
-	writable: true,
-} );
-
 /**
  * One rewindable-activity entry, so the list has a row to render and the
  * first-run panel does not take the body over.
