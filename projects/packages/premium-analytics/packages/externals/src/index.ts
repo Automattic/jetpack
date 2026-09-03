@@ -69,6 +69,7 @@ export { DateRangeCalendar } from '@automattic/ui';
  */
 export {
 	Button,
+	Dialog,
 	EmptyState,
 	LinkButton,
 	Field as FormField,

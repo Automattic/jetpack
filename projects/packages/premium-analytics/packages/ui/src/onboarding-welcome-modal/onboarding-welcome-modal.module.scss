@@ -1,0 +1,17 @@
+// The stage runs full-bleed under the popup's rounded top corners, and the
+// close icon floats over it, as the design draws it.
+.stage {
+	position: relative;
+}
+
+// White over the dark stage, whatever the neutral tone would pick. The 4px
+// inset lands the 24px glyph of the 32px button 8px from the corner.
+.close {
+	--wp-ui-button-foreground-color: #fff;
+	--wp-ui-button-foreground-color-active: #fff;
+	--wp-ui-button-background-color-active: color-mix(in srgb, #fff 16%, transparent);
+
+	position: absolute;
+	inset-block-start: var(--wpds-dimension-padding-xs);
+	inset-inline-end: var(--wpds-dimension-padding-xs);
+}
