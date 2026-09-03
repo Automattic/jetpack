@@ -7,12 +7,15 @@ import { LinkButton } from '@jetpack-premium-analytics/externals';
 import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
 import {
 	DateFiltersPanel,
-	SectionTabPanel,
 	safeHttpUrl,
 	StatsBreadcrumbs,
 	StatsPageIcon,
 } from '@jetpack-premium-analytics/ui';
-import { Page } from '@wordpress/admin-ui';
+import {
+	DetailPageLayout,
+	DetailPageShell,
+	DetailPageTabPanel,
+} from '@jetpack-premium-analytics/widgets-toolkit';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { useMemo } from '@wordpress/element';
@@ -23,11 +26,10 @@ import { type WidgetModuleRecord } from '@wordpress/widget-primitives';
 import { useDetailBreadcrumbs } from '../use-detail-breadcrumbs';
 import { useDetailDateControls } from '../use-detail-date-controls';
 import { resolveWidgetModuleWithI18n, useWidgetTypesWithI18n } from '../widget-module-i18n';
-import { PostDetailTabs, PostSummaryCard } from './components';
+import { PostDetailTabs, postHeaderSlots } from './components';
 import { EMAIL_TAB_IDS, POST_DETAIL_WIDGET_TYPE_ALIASES } from './config';
 import { useEmailTabScope, usePostDetailTabs, usePostSummary } from './hooks';
 import { route } from './package.json';
-import styles from './stage.module.scss';
 
 const ROUTE_FROM = route.path;
 
@@ -116,6 +118,14 @@ function PostDetail(): JSX.Element {
 
 	const breadcrumbs = useDetailBreadcrumbs( summary.title );
 
+	// The email tabs are pinned to the send window, so the filter would only
+	// suggest a choice they do not offer; the range stays in the URL so the Post
+	// traffic tab keeps its selection. The design has no comparison on this page
+	// either — the panel reads that from the scope the stage declares.
+	const dateFiltersPanel = isEmailTab ? null : (
+		<DateFiltersPanel { ...dateFilters } { ...dateControls } />
+	);
+
 	return (
 		<GlobalErrorProvider>
 			<WidgetDashboard
@@ -126,7 +136,7 @@ function PostDetail(): JSX.Element {
 				onLayoutChange={ noopLayoutChange }
 				gridSettings={ POST_DETAIL_GRID }
 			>
-				<Page
+				<DetailPageShell
 					visual={ <StatsPageIcon /> }
 					breadcrumbs={ <StatsBreadcrumbs items={ breadcrumbs } /> }
 					actions={
@@ -144,49 +154,29 @@ function PostDetail(): JSX.Element {
 							</LinkButton>
 						) : undefined
 					}
-					className={ styles.page }
 				>
 					<PostDetailTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab }>
-						<div className={ styles.scrollArea }>
-							{ /*
-							 * The summary card and the date filter presets are shared by every
-							 * tab (same post, same date range), so they render once above the
-							 * per-tab widget grid and scroll away with it.
-							 */ }
-							<div className={ styles.header }>
-								<div className={ styles.summary }>
-									{ /* The email tabs give the header an email identity and report over
-									     the send window; the title stays the post's. */ }
-									<PostSummaryCard
-										summary={ summary }
-										variant={ isEmailTab ? 'email' : 'post' }
-										performanceRange={ isEmailTab ? emailScope?.range : dateFilters.appliedRange }
-									/>
-								</div>
-								{ /* The email tabs are pinned to the send window, so the filter
-								     would only suggest a choice they do not offer; the range stays in
-								     the URL so the Post traffic tab keeps its selection. */ }
-								{ ! isEmailTab && (
-									<div className={ styles.dateFilters }>
-										{ /*
-										 * The design has no comparison on this page. The panel reads
-										 * that from the scope the stage declares; the params themselves
-										 * stay in the URL so the breadcrumb carries them back out.
-										 */ }
-										<DateFiltersPanel { ...dateFilters } { ...dateControls } />
-									</div>
-								) }
-							</div>
+						{ /*
+						 * The header is shared by every tab (same post, same range), so it
+						 * renders once above the per-tab grids; the email tabs give it an
+						 * email identity and report over the send window.
+						 */ }
+						<DetailPageLayout
+							header={ postHeaderSlots( {
+								summary,
+								variant: isEmailTab ? 'email' : 'post',
+								performanceRange: isEmailTab ? emailScope?.range : dateFilters.appliedRange,
+							} ) }
+							controls={ dateFiltersPanel }
+						>
 							{ tabs.map( tab => (
-								<SectionTabPanel key={ tab.id } value={ tab.id } className={ styles.content }>
-									{ activeTab === tab.id ? (
-										<WidgetDashboard.Widgets className={ styles.widgets } />
-									) : null }
-								</SectionTabPanel>
+								<DetailPageTabPanel key={ tab.id } value={ tab.id }>
+									{ activeTab === tab.id ? <WidgetDashboard.Widgets /> : null }
+								</DetailPageTabPanel>
 							) ) }
-						</div>
+						</DetailPageLayout>
 					</PostDetailTabs>
-				</Page>
+				</DetailPageShell>
 			</WidgetDashboard>
 		</GlobalErrorProvider>
 	);

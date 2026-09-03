@@ -11,4 +11,11 @@
 
 .tabList {
 	padding-inline: var(--wpds-dimension-padding-2xl);
+
+	// The header below owns the gap to the tab bar, so the tablist's default
+	// bottom margin would stack on top of it. Doubled selector: SectionTabs'
+	// own rule hits this element at equal specificity, so order would decide.
+	&.tabList {
+		margin-block-end: 0;
+	}
 }
