@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics;
 
+use Automattic\Jetpack\Constants;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\CoversFunction;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -81,9 +82,24 @@ class Analytics_Test extends TestCase {
 		remove_all_filters( 'jetpack_stats_post_list_column_url' );
 		remove_all_filters( 'rest_post_dispatch' );
 		remove_all_filters( 'jetpack_stats_transient_cleanup_prefixes' );
+		Constants::clear_constants();
+		$this->reset_tracks_identity_state();
 		Capabilities::unregister();
 		$this->reset_analytics_init_state();
 		parent::tearDown();
+	}
+
+	/**
+	 * Drop the connected-user fixtures the Tracks identity tests set up.
+	 */
+	private function reset_tracks_identity_state() {
+		$user_id = get_current_user_id();
+
+		if ( $user_id ) {
+			delete_transient( "jetpack_connected_user_data_$user_id" );
+			\Jetpack_Options::delete_option( 'user_tokens' );
+			wp_set_current_user( 0 );
+		}
 	}
 
 	/**
@@ -1056,6 +1072,7 @@ class Analytics_Test extends TestCase {
 			'Simple still publishes the VideoPress availability flag.'
 		);
 	}
+
 	/**
 	 * Without the Tracks transport the dashboard's `@automattic/jetpack-analytics` events
 	 * only pile up in `window._tkq`, so every feedback submission is silently lost.
@@ -1077,5 +1094,71 @@ class Analytics_Test extends TestCase {
 		$data = array( 'user' => array( 'current_user' => array( 'id' => 1 ) ) );
 
 		$this->assertSame( $data, Analytics::add_tracks_identity_script_data( $data ) );
+	}
+
+	/**
+	 * On Simple the local user is the WPCOM user, so no connection lookup is involved.
+	 */
+	public function test_tracks_identity_names_the_local_user_on_wpcom_simple() {
+		Constants::set_constant( 'IS_WPCOM', true );
+		$user_id = self::sign_in_as( 'simple-user' );
+
+		$data = Analytics::add_tracks_identity_script_data( array( 'user' => array( 'current_user' => array() ) ) );
+
+		$this->assertSame(
+			array(
+				'ID'    => $user_id,
+				'login' => 'simple-user',
+			),
+			$data['user']['current_user']['wpcom']
+		);
+	}
+
+	/**
+	 * Off Simple the identity comes from the connection, and carries only the two fields
+	 * `identifyUser` needs: the rest of the connected-user payload is profile data.
+	 */
+	public function test_tracks_identity_names_the_connected_user_elsewhere() {
+		$user_id = self::sign_in_as( 'local-user' );
+		\Jetpack_Options::update_option( 'user_tokens', array( $user_id => "dummy.usertoken.$user_id" ) );
+		set_transient(
+			"jetpack_connected_user_data_$user_id",
+			array(
+				'ID'    => 777,
+				'login' => 'wpcomuser',
+				'email' => 'wpcomuser@example.com',
+			)
+		);
+
+		$data = Analytics::add_tracks_identity_script_data(
+			array( 'user' => array( 'current_user' => array( 'wpcom' => array( 'colorScheme' => 'default' ) ) ) )
+		);
+
+		$this->assertSame(
+			array(
+				'colorScheme' => 'default',
+				'ID'          => 777,
+				'login'       => 'wpcomuser',
+			),
+			$data['user']['current_user']['wpcom']
+		);
+	}
+
+	/**
+	 * Create a user and make it the current one.
+	 *
+	 * @param string $login User login.
+	 * @return int The new user's ID.
+	 */
+	private static function sign_in_as( $login ) {
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => $login,
+				'user_pass'  => 'password',
+			)
+		);
+		wp_set_current_user( $user_id );
+
+		return $user_id;
 	}
 }
