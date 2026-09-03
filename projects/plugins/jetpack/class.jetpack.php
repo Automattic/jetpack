@@ -883,9 +883,10 @@ class Jetpack {
 		/**
 		 * Filters whether the bundled Premium Analytics dashboard is enabled.
 		 *
-		 * Resolved once, from `Jetpack::configure()` on `plugins_loaded`. Register
-		 * this from a mu-plugin or a plugin's main file — a callback added on
-		 * `plugins_loaded` or later runs too late to be seen.
+		 * Resolved once, from `Jetpack::configure()` on `plugins_loaded`, and only
+		 * while the Stats module is active. Register this from a mu-plugin or a
+		 * plugin's main file — a callback added on `plugins_loaded` or later runs
+		 * too late to be seen.
 		 *
 		 * @since 16.1
 		 *

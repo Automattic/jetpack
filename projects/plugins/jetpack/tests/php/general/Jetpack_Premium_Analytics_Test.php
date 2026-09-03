@@ -127,13 +127,22 @@ class Jetpack_Premium_Analytics_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Off while the Stats module is inactive, back once it is active again.
+	 * Off while the Stats module is inactive, without even consulting the flag; back once it is active again.
 	 */
 	public function test_follows_the_stats_module() {
 		update_option( 'jetpack_premium_analytics_enabled', 1 );
 		Jetpack_Options::update_option( 'active_modules', array() );
 
-		$this->assertFalse( Jetpack::is_premium_analytics_enabled() );
+		$not_consulted = function () {
+			$this->fail( 'The flag must not be consulted while the Stats module is inactive.' );
+		};
+		add_filter( 'jetpack_premium_analytics_enabled', $not_consulted );
+
+		try {
+			$this->assertFalse( Jetpack::is_premium_analytics_enabled() );
+		} finally {
+			remove_filter( 'jetpack_premium_analytics_enabled', $not_consulted );
+		}
 
 		self::reset_flag_cache();
 		Jetpack_Options::update_option( 'active_modules', array( 'stats' ) );
