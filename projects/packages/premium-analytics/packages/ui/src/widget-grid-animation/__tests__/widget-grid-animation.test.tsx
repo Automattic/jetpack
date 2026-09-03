@@ -146,13 +146,18 @@ describe( 'WidgetGridAnimation', () => {
 		expect( currentFrame( container ) ).toBe( WIDGET_GRID_STATIC_FRAME );
 	} );
 
-	it( 'reveals the chart only on keyframes that show it', () => {
+	it( 'shows each tile the content its keyframe gives it', () => {
 		const { container, rerender } = render( <WidgetGridAnimation frame={ 0 } /> );
-		expect( tile( container, 'chart' ) ).toHaveAttribute( 'data-chart', 'hidden' );
-		expect( tile( container, 'people' ) ).not.toHaveAttribute( 'data-chart' );
+		expect( tile( container, 'chart' ) ).toHaveAttribute( 'data-content', 'icon' );
+		expect( tile( container, 'pages' ) ).toHaveAttribute( 'data-content', 'icon' );
 
-		rerender( <WidgetGridAnimation frame={ 2 } /> );
-		expect( tile( container, 'chart' ) ).toHaveAttribute( 'data-chart', 'visible' );
+		rerender( <WidgetGridAnimation frame={ 4 } /> );
+		expect( tile( container, 'chart' ) ).toHaveAttribute( 'data-content', 'chart' );
+		expect( tile( container, 'people' ) ).toHaveAttribute( 'data-content', 'rows' );
+		expect( tile( container, 'pages' ) ).toHaveAttribute( 'data-content', 'rows' );
+
+		rerender( <WidgetGridAnimation frame={ 6 } /> );
+		expect( tile( container, 'pages' ) ).toHaveAttribute( 'data-content', 'donut' );
 	} );
 
 	it( 'captions every keyframe of the storyboard', () => {

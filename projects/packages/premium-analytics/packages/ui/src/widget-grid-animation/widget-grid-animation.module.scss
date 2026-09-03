@@ -5,9 +5,20 @@ $widget-grid-tile-gradient: linear-gradient(180deg, #fff 0%, #eaf1e7 100%);
 $widget-grid-tile-radius: 8px;
 $widget-grid-tile-padding: 16px;
 
+// The chart's blue, faint: the tint of the row and donut placeholders in the
+// prototype video.
+$widget-grid-placeholder-color: rgba(56, 88, 233, 0.16);
+
 // Where the chart sits inside its tile: under the icon row, inset like the
 // Figma export.
 $widget-grid-chart-inset: 18px 8px 16px;
+
+// Two list rows pinned to the tile's bottom padding, and a donut centered in
+// the tile, both measured off the prototype video.
+$widget-grid-row-height: 8px;
+$widget-grid-row-gap: 8px;
+$widget-grid-donut-size: 76px;
+$widget-grid-donut-thickness: 16px;
 
 .canvas {
 	position: relative;
@@ -35,7 +46,8 @@ $widget-grid-chart-inset: 18px 8px 16px;
 
 .icon {
 	position: relative;
-	// Above the chart, which paints under the icon row. No z-index token in WPDS.
+	// Above the placeholders, which paint under the icon row. WPDS has no
+	// z-index token.
 	z-index: 1;
 	display: block;
 	fill: currentColor;
@@ -60,10 +72,56 @@ $widget-grid-chart-inset: 18px 8px 16px;
 	clip-path: inset(0 0 0 0);
 }
 
+.rows {
+	position: absolute;
+	inset-inline: $widget-grid-tile-padding;
+	inset-block-end: $widget-grid-tile-padding;
+	display: flex;
+	flex-direction: column;
+	gap: $widget-grid-row-gap;
+	opacity: 0;
+	transition: opacity var(--wga-duration) var(--wga-easing);
+}
+
+.rowsVisible {
+	opacity: 1;
+}
+
+.row {
+	block-size: $widget-grid-row-height;
+	border-radius: calc($widget-grid-row-height / 2);
+	background: $widget-grid-placeholder-color;
+
+	// A full line, then a short one, as a list placeholder reads.
+	&:last-child {
+		inline-size: 50%;
+	}
+}
+
+.donut {
+	position: absolute;
+	inset-inline-start: 50%;
+	inset-block-start: 50%;
+	box-sizing: border-box;
+	inline-size: $widget-grid-donut-size;
+	block-size: $widget-grid-donut-size;
+	border: $widget-grid-donut-thickness solid $widget-grid-placeholder-color;
+	border-radius: 50%;
+	translate: -50% -50%;
+	opacity: 0;
+	transition: opacity var(--wga-duration) var(--wga-easing);
+}
+
+.donutVisible {
+	opacity: 1;
+}
+
 @media (prefers-reduced-motion: reduce) {
 
 	.tile,
-	.chart {
+	.chart,
+	.rows,
+	.donut {
 		transition: none;
 	}
 }

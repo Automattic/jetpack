@@ -10,7 +10,7 @@ import {
 	WIDGET_GRID_STATIC_FRAME,
 	WIDGET_GRID_TILE_IDS,
 	type WidgetGridKeyframe,
-	type WidgetGridRect,
+	type WidgetGridTile,
 	type WidgetGridTileId,
 } from './keyframes';
 import styles from './widget-grid-animation.module.scss';
@@ -50,17 +50,6 @@ export type WidgetGridAnimationProps = {
 	className?: string;
 };
 
-function chartState(
-	id: WidgetGridTileId,
-	keyframe: WidgetGridKeyframe
-): 'visible' | 'hidden' | undefined {
-	if ( id !== 'chart' ) {
-		return undefined;
-	}
-
-	return keyframe.chart ? 'visible' : 'hidden';
-}
-
 function clampIndex( index: number, length: number ): number {
 	return Math.min( Math.max( 0, Math.trunc( index ) ), length - 1 );
 }
@@ -71,12 +60,12 @@ function percent( value: number, total: number ): string {
 
 // Geometry travels as custom properties: the stylesheet maps them onto logical
 // insets, so the composition mirrors in RTL and jsdom can read them back.
-function tileStyle( rect: WidgetGridRect, duration: number ): CSSProperties {
+function tileStyle( tile: WidgetGridTile, duration: number ): CSSProperties {
 	return {
-		'--wga-x': percent( rect.x, WIDGET_GRID_CANVAS.width ),
-		'--wga-y': percent( rect.y, WIDGET_GRID_CANVAS.height ),
-		'--wga-width': percent( rect.width, WIDGET_GRID_CANVAS.width ),
-		'--wga-height': percent( rect.height, WIDGET_GRID_CANVAS.height ),
+		'--wga-x': percent( tile.x, WIDGET_GRID_CANVAS.width ),
+		'--wga-y': percent( tile.y, WIDGET_GRID_CANVAS.height ),
+		'--wga-width': percent( tile.width, WIDGET_GRID_CANVAS.width ),
+		'--wga-height': percent( tile.height, WIDGET_GRID_CANVAS.height ),
 		'--wga-duration': `${ duration }ms`,
 	} as CSSProperties;
 }
@@ -131,22 +120,36 @@ export function WidgetGridAnimation( {
 			data-frame={ index }
 			aria-hidden="true"
 		>
-			{ WIDGET_GRID_TILE_IDS.map( id => (
-				<div
-					key={ id }
-					className={ styles.tile }
-					style={ tileStyle( keyframe.tiles[ id ], keyframe.duration ?? duration ) }
-					data-tile={ id }
-					data-chart={ chartState( id, keyframe ) }
-				>
-					<Icon icon={ TILE_ICONS[ id ] } size={ 24 } className={ styles.icon } />
-					{ id === 'chart' && (
+			{ WIDGET_GRID_TILE_IDS.map( id => {
+				const tile = keyframe.tiles[ id ];
+				const content = tile.content ?? 'icon';
+
+				// Every placeholder stays mounted so it can fade or wipe rather than pop.
+				return (
+					<div
+						key={ id }
+						className={ styles.tile }
+						style={ tileStyle( tile, keyframe.duration ?? duration ) }
+						data-tile={ id }
+						data-content={ content }
+					>
+						<Icon icon={ TILE_ICONS[ id ] } size={ 24 } className={ styles.icon } />
 						<ChartArtwork
-							className={ clsx( styles.chart, keyframe.chart && styles.chartVisible ) }
+							className={ clsx( styles.chart, content === 'chart' && styles.chartVisible ) }
 						/>
-					) }
-				</div>
-			) ) }
+						<div className={ clsx( styles.donut, content === 'donut' && styles.donutVisible ) } />
+						<div
+							className={ clsx(
+								styles.rows,
+								( content === 'rows' || content === 'donut' ) && styles.rowsVisible
+							) }
+						>
+							<div className={ styles.row } />
+							<div className={ styles.row } />
+						</div>
+					</div>
+				);
+			} ) }
 		</div>
 	);
 }

@@ -16,7 +16,8 @@ const meta: Meta< typeof WidgetGridAnimation > = {
 				component:
 					'The looping illustration at the top of the onboarding welcome modal: ' +
 					'three widget tiles resize, move and swap to show what the dashboard ' +
-					'lets a reader do, and the chart appears as its tile grows.\n\n' +
+					'lets a reader do. Each tile fills the room it gains: the chart wipes ' +
+					'in, list rows fade in, and the tall tile gets a donut placeholder.\n\n' +
 					'Every keyframe is data (`keyframes`), taken from the Figma ' +
 					'"animation flow" frames. The component tweens between them: ' +
 					'`hold` is the pause on each frame, `duration` the length of each ' +

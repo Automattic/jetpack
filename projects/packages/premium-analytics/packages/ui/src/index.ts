@@ -31,5 +31,7 @@ export {
 	type WidgetGridAnimationProps,
 	type WidgetGridKeyframe,
 	type WidgetGridRect,
+	type WidgetGridTile,
+	type WidgetGridTileContent,
 	type WidgetGridTileId,
 } from './widget-grid-animation';
