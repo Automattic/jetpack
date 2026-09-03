@@ -1,6 +1,6 @@
 /**
- * Unit tests for the drag-and-drop upload decision logic powering the
- * VideoPress Library DropZone (see routes/library/stage.tsx).
+ * Unit tests for the upload decision logic powering the shared upload intake
+ * (see hooks/use-upload-intake.ts and routes/library/stage.tsx).
  */
 
 import { filterVideoFiles, planVideoDrop } from '../upload-drop';

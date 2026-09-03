@@ -1,4 +1,4 @@
-import type { FreeTierState } from '../../src/dashboard/hooks/use-free-tier';
+import type { FreeTierState } from '../hooks/use-free-tier';
 
 // Fallback accepted-upload extensions, used only when the server-provided
 // allow-list is absent (unit tests, or a render before the initial state is
