@@ -17,8 +17,11 @@ const meta: Meta< typeof OnboardingWelcomeModal > = {
 					'the tour.\n\n' +
 					'The consumer owns the open state. `onStart` fires when the reader ' +
 					'presses Get started; `onDismiss` when they close the dialog any other ' +
-					'way (the close button, Escape, a click outside). The onboarding hook ' +
-					'decides what each one means for the journey.',
+					'way, naming which (the close button, Escape, a click outside). The ' +
+					'onboarding hook decides what each one means for the journey.\n\n' +
+					'On viewports too short for the animation, the copy and Get started ' +
+					'take the room instead; on the ones in between, the content scrolls ' +
+					'while the footer stays pinned.',
 			},
 		},
 	},
@@ -45,7 +48,7 @@ function WelcomeModalDemo() {
 			<OnboardingWelcomeModal
 				open={ open }
 				onStart={ () => close( 'started the tour' ) }
-				onDismiss={ () => close( 'dismissed' ) }
+				onDismiss={ reason => close( `dismissed (${ reason })` ) }
 			/>
 		</Stack>
 	);

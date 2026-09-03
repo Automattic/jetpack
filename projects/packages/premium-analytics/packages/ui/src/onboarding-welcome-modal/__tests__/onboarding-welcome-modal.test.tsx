@@ -37,20 +37,22 @@ describe( 'OnboardingWelcomeModal', () => {
 		expect( onDismiss ).not.toHaveBeenCalled();
 	} );
 
-	it( 'reports the close button as a dismissal', async () => {
+	it( 'reports the close button as a dismissal, naming it', async () => {
 		const { onStart, onDismiss } = renderModal();
 
 		await userEvent.click( screen.getByRole( 'button', { name: 'Close' } ) );
 
 		expect( onDismiss ).toHaveBeenCalledTimes( 1 );
+		expect( onDismiss ).toHaveBeenCalledWith( 'close' );
 		expect( onStart ).not.toHaveBeenCalled();
 	} );
 
-	it( 'reports Escape as a dismissal', async () => {
+	it( 'reports Escape as a dismissal, naming it', async () => {
 		const { onDismiss } = renderModal();
 
 		await userEvent.keyboard( '{Escape}' );
 
 		expect( onDismiss ).toHaveBeenCalledTimes( 1 );
+		expect( onDismiss ).toHaveBeenCalledWith( 'escape' );
 	} );
 } );

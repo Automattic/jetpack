@@ -4,6 +4,20 @@ import { useCallback } from 'react';
 import { WidgetGridAnimation } from '../widget-grid-animation';
 import styles from './onboarding-welcome-modal.module.scss';
 
+/** How the reader closed the modal without starting: the close button, Escape or a click outside. */
+export type OnboardingDismissReason = 'close' | 'escape' | 'outside' | 'other';
+
+// Base UI names the cause on `onOpenChange`; these are the three a reader can produce.
+const DISMISS_REASONS: Record< string, OnboardingDismissReason > = {
+	'close-press': 'close',
+	'escape-key': 'escape',
+	'outside-press': 'outside',
+};
+
+type OpenChangeDetails = {
+	reason?: string;
+};
+
 export type OnboardingWelcomeModalProps = {
 	/** The consumer owns the open state; the modal only reports what the reader chose. */
 	open: boolean;
@@ -11,8 +25,8 @@ export type OnboardingWelcomeModalProps = {
 	/** The reader pressed Get started and wants the tour. */
 	onStart: () => void;
 
-	/** The reader closed the modal instead: the close button, Escape or a click outside. */
-	onDismiss: () => void;
+	/** The reader closed the modal instead, and how. */
+	onDismiss: ( reason: OnboardingDismissReason ) => void;
 };
 
 /**
@@ -27,9 +41,9 @@ export function OnboardingWelcomeModal( {
 	// Get started closes through its own handler, so any close reaching here
 	// came from the chrome.
 	const handleOpenChange = useCallback(
-		( nextOpen: boolean ) => {
+		( nextOpen: boolean, details?: OpenChangeDetails ) => {
 			if ( ! nextOpen ) {
-				onDismiss();
+				onDismiss( DISMISS_REASONS[ details?.reason ?? '' ] ?? 'other' );
 			}
 		},
 		[ onDismiss ]
@@ -38,11 +52,13 @@ export function OnboardingWelcomeModal( {
 	return (
 		<Dialog.Root open={ open } onOpenChange={ handleOpenChange }>
 			<Dialog.Popup size="small">
-				<div className={ styles.stage }>
-					<WidgetGridAnimation />
-					<Dialog.CloseIcon className={ styles.close } />
-				</div>
+				<Dialog.CloseIcon className={ styles.close } />
+				{ /* The stage lives in the scroll region so the copy and Get started
+				     stay reachable on short viewports; the footer stays pinned. */ }
 				<Dialog.Content>
+					<div className={ styles.stage }>
+						<WidgetGridAnimation />
+					</div>
 					<Stack direction="column" gap="md">
 						<Dialog.Title>
 							{ __( 'Introducing an updated experience', 'jetpack-premium-analytics-pkg' ) }

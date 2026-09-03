@@ -13,6 +13,7 @@ export { DatePeriodNavigation } from './date-period-navigation';
 export { DateYearFilter, type DateYearFilterProps } from './date-year-filter';
 export {
 	OnboardingWelcomeModal,
+	type OnboardingDismissReason,
 	type OnboardingWelcomeModalProps,
 } from './onboarding-welcome-modal';
 export { safeHttpUrl } from './utils/safe-http-url';
