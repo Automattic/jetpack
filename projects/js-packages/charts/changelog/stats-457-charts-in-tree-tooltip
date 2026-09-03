@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Render chart tooltips inside the chart instead of a document.body portal, so they stack correctly under sticky and fixed page elements. `detectBounds` now keeps the box inside the nearest ancestor that clips its overflow, or the viewport. The tooltip's `scroll`, `debounce` and `resizeObserverPolyfill` options are deprecated and ignored.

@@ -1,8 +1,9 @@
 import { formatNumber, formatNumberCompact } from '@automattic/number-formatters';
-import { useTooltip, useTooltipInPortal } from '@visx/tooltip';
+import { useTooltip } from '@visx/tooltip';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { BoundedTooltip } from '../../components/tooltip/private/bounded-tooltip';
 import {
 	GlobalChartsProvider,
 	useChartId,
@@ -10,7 +11,7 @@ import {
 	useGlobalChartsContext,
 	GlobalChartsContext,
 } from '../../providers';
-import { CHART_SCOPE_CLASS } from '../../styles/chart-scope-class';
+import { useStandaloneScopeClass } from '../../providers/chart-scope';
 import { attachSubComponents } from '../../utils';
 import {
 	isValidHexColor,
@@ -69,14 +70,18 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 	const [ selectedIndex, setSelectedIndex ] = useState< number | undefined >();
 	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, showTooltip, hideTooltip } =
 		useTooltip< HeatmapTooltipData >();
-	const { containerRef, containerBounds, TooltipInPortal } = useTooltipInPortal( {
-		detectBounds: true,
-		scroll: true,
-	} );
-	// Read from a ref so the keyboard-tooltip effect doesn't depend on containerBounds, which
-	// is a new object each render and would loop the effect via showTooltip.
-	const containerBoundsRef = useRef( containerBounds );
-	containerBoundsRef.current = containerBounds;
+	const standaloneScopeClass = useStandaloneScopeClass();
+	const containerRef = useRef< HTMLDivElement >( null );
+	// The chart root positions the tooltip, so pointer and cell coordinates are
+	// measured against it — found by its id rather than by walking up, so
+	// whatever ChartLayout wraps the grid in cannot shift the origin.
+	const getTooltipOrigin = useCallback(
+		() =>
+			containerRef.current
+				?.closest( `[data-chart-id="heatmap-chart-${ chartId }"]` )
+				?.getBoundingClientRect() ?? null,
+		[ chartId ]
+	);
 
 	const { color: primaryColorHex } = getElementStyles( {
 		index: 0,
@@ -212,20 +217,20 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 			if ( ! withTooltips ) {
 				return;
 			}
+			const origin = getTooltipOrigin();
+			if ( ! origin ) {
+				return;
+			}
 			const target = event.currentTarget;
 			const columnIndex = Number( target.dataset.column );
 			const rowIndex = Number( target.dataset.row );
-			// Read bounds from the ref (like the keyboard-tooltip effect) so this
-			// callback stays stable across renders.
-			const bounds = containerBoundsRef.current;
-			// TooltipInPortal re-adds containerBounds, so subtract it to land at the cursor.
 			showTooltip( {
-				tooltipLeft: event.clientX - bounds.left,
-				tooltipTop: event.clientY - bounds.top,
+				tooltipLeft: event.clientX - origin.left,
+				tooltipTop: event.clientY - origin.top,
 				tooltipData: buildTooltipData( columnIndex, rowIndex ),
 			} );
 		},
-		[ withTooltips, showTooltip, buildTooltipData ]
+		[ withTooltips, showTooltip, buildTooltipData, getTooltipOrigin ]
 	);
 
 	const handleCellMouseLeave = useCallback( () => {
@@ -241,6 +246,10 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 		if ( ! withTooltips || selectedIndex === undefined ) {
 			return;
 		}
+		const origin = getTooltipOrigin();
+		if ( ! origin ) {
+			return;
+		}
 		const col = Math.floor( selectedIndex / rows );
 		const row = selectedIndex % rows;
 		const cell =
@@ -248,13 +257,20 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 				? document.getElementById( `${ chartId }-cell-${ col }-${ row }` )
 				: null;
 		const rect = cell?.getBoundingClientRect();
-		const bounds = containerBoundsRef.current;
 		showTooltip( {
-			tooltipLeft: rect ? rect.left + rect.width / 2 - bounds.left : 0,
-			tooltipTop: rect ? rect.top + rect.height / 2 - bounds.top : 0,
+			tooltipLeft: rect ? rect.left + rect.width / 2 - origin.left : 0,
+			tooltipTop: rect ? rect.top + rect.height / 2 - origin.top : 0,
 			tooltipData: buildTooltipData( col, row ),
 		} );
-	}, [ selectedIndex, withTooltips, rows, chartId, buildTooltipData, showTooltip ] );
+	}, [
+		selectedIndex,
+		withTooltips,
+		rows,
+		chartId,
+		buildTooltipData,
+		showTooltip,
+		getTooltipOrigin,
+	] );
 
 	const defaultRenderTooltip = useCallback(
 		( info: HeatmapTooltipData ) => (
@@ -472,11 +488,11 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 						} ) }
 					</div>
 					{ withTooltips && tooltipOpen && tooltipData && (
-						<TooltipInPortal top={ tooltipTop } left={ tooltipLeft }>
-							<div className={ CHART_SCOPE_CLASS } role="tooltip" tabIndex={ -1 }>
+						<BoundedTooltip top={ tooltipTop } left={ tooltipLeft }>
+							<div className={ standaloneScopeClass } role="tooltip" tabIndex={ -1 }>
 								{ ( renderTooltip ?? defaultRenderTooltip )( tooltipData ) }
 							</div>
-						</TooltipInPortal>
+						</BoundedTooltip>
 					) }
 				</ChartLayout>
 			</ChartInstanceContext.Provider>

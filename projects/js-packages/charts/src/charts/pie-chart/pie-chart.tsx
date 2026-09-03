@@ -1,10 +1,11 @@
 import { Group } from '@visx/group';
 import { Pie } from '@visx/shape';
-import { useTooltip, useTooltipInPortal } from '@visx/tooltip';
+import { useTooltip } from '@visx/tooltip';
 import clsx from 'clsx';
-import { useCallback, useContext, useMemo } from 'react';
+import { useCallback, useContext, useMemo, useRef } from 'react';
 import { Legend, useChartLegendItems } from '../../components/legend';
 import { BaseTooltip } from '../../components/tooltip';
+import { BoundedTooltip } from '../../components/tooltip/private/bounded-tooltip';
 import {
 	useDataWithPercentages,
 	useLegendVisibilityData,
@@ -18,7 +19,7 @@ import {
 	useGlobalChartsTheme,
 	GlobalChartsContext,
 } from '../../providers';
-import { CHART_SCOPE_CLASS } from '../../styles/chart-scope-class';
+import { useStandaloneScopeClass } from '../../providers/chart-scope';
 import { attachSubComponents, resolveFontSize } from '../../utils';
 import { getStringWidth } from '../../visx/text';
 import { Center } from '../private/center';
@@ -196,14 +197,10 @@ const PieChartInternal = ( {
 	const chartId = useChartId( providedChartId );
 	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, hideTooltip, showTooltip } =
 		useTooltip< DataPointPercentageCalculated >();
+	const standaloneScopeClass = useStandaloneScopeClass();
 
-	// Set up portal tooltip for better z-index handling
-	// We get containerBounds to cancel out stale offsets in the position calculation
-	const { containerRef, TooltipInPortal, containerBounds } = useTooltipInPortal( {
-		detectBounds: true,
-		scroll: true,
-		debounce: 0,
-	} );
+	// The tooltip renders inside this element, so pointer coordinates are taken relative to it.
+	const containerRef = useRef< HTMLDivElement >( null );
 
 	const onMouseLeave = useCallback( () => {
 		if ( ! withTooltips ) {
@@ -325,13 +322,6 @@ const PieChartInternal = ( {
 				} }
 				trailingContent={
 					<>
-						{ withTooltips && tooltipOpen && tooltipData && (
-							<TooltipInPortal top={ tooltipTop || 0 } left={ tooltipLeft || 0 }>
-								<div className={ CHART_SCOPE_CLASS } role="tooltip">
-									{ renderTooltip( { tooltipData } ) }
-								</div>
-							</TooltipInPortal>
-						) }
 						{ htmlChildren }
 						{ otherChildren }
 					</>
@@ -359,7 +349,7 @@ const PieChartInternal = ( {
 						: 0;
 
 					return (
-						<Center ref={ containerRef }>
+						<Center ref={ containerRef } className={ styles[ 'pie-chart__plot' ] }>
 							<svg
 								viewBox={ `0 0 ${ width } ${ height }` }
 								preserveAspectRatio="xMidYMid meet"
@@ -403,20 +393,15 @@ const PieChartInternal = ( {
 															return;
 														}
 
-														// Don't show tooltip until container bounds are measured
-														if ( containerBounds.width === 0 || containerBounds.height === 0 ) {
+														const bounds = containerRef.current?.getBoundingClientRect();
+														if ( ! bounds ) {
 															return;
 														}
 
-														// Use clientX/Y and subtract containerBounds to cancel out any stale offset.
-														// TooltipInPortal calculates: tooltipLeft + containerBounds.left + scrollX
-														// By passing (clientX - containerBounds.left), we get:
-														// (clientX - containerBounds.left) + containerBounds.left + scrollX = clientX + scrollX
-														// This gives correct page coordinates regardless of stale bounds.
 														showTooltip( {
 															tooltipData: arc.data,
-															tooltipLeft: event.clientX - containerBounds.left + tooltipOffsetX,
-															tooltipTop: event.clientY - containerBounds.top + tooltipOffsetY,
+															tooltipLeft: event.clientX - bounds.left + tooltipOffsetX,
+															tooltipTop: event.clientY - bounds.top + tooltipOffsetY,
 														} );
 													};
 
@@ -486,6 +471,13 @@ const PieChartInternal = ( {
 									{ ! allSegmentsHidden && svgChildren }
 								</Group>
 							</svg>
+							{ withTooltips && tooltipOpen && tooltipData && (
+								<BoundedTooltip top={ tooltipTop || 0 } left={ tooltipLeft || 0 }>
+									<div className={ standaloneScopeClass } role="tooltip">
+										{ renderTooltip( { tooltipData } ) }
+									</div>
+								</BoundedTooltip>
+							) }
 						</Center>
 					);
 				} }

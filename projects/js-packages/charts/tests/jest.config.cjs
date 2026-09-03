@@ -21,6 +21,5 @@ module.exports = {
 	setupFilesAfterEnv: [
 		...( baseConfig.setupFilesAfterEnv || [] ),
 		path.join( __dirname, 'setup-element-size-mock.js' ),
-		path.join( __dirname, 'setup-visx-tooltip-mock.js' ),
 	],
 };

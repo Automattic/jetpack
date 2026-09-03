@@ -498,6 +498,8 @@ hourly data. A custom `renderTooltip` is handed the same classification as
 	/>` }
 />
 
+Tooltips render inside the chart's own wrapper, not in a `document.body` portal, so they stack with the page like any other element and a sticky or fixed header paints over them. `detectBounds` keeps the box inside the nearest ancestor that clips its overflow (`overflow: hidden`, `clip`, `auto` or `scroll`), or inside the viewport when nothing clips, flipping and then clamping it; it may reach past the chart wrapper into that ancestor. Only an ancestor smaller than the box itself can still cut it off.
+
 ### Pointer Events
 
 Handle user interactions with custom event handlers:
