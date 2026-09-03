@@ -3,7 +3,7 @@
  */
 import { dailySeries, hourlySeries } from '../../../test-utils/series-fixtures';
 import { getFormatter, getMaxTicksForWidth, getTimeAxisTickValues } from '../time-axis';
-import type { SeriesData } from '../../../types';
+import type { DataPointDate, SeriesData } from '../../../types';
 
 // The runtime zone deliberately differs from every zone under test, so a test
 // that passes only because the two agree cannot hide here.
@@ -26,6 +26,19 @@ describe( 'getMaxTicksForWidth', () => {
 		expect( getMaxTicksForWidth( 0 ) ).toBe( 1 );
 	} );
 } );
+
+// One label is `span / maxTicks` wide, so anything closer overlaps its neighbour.
+const closestGap = ( ticks: Date[] ) =>
+	ticks
+		.slice( 1 )
+		.reduce(
+			( nearest, tick, index ) => Math.min( nearest, tick.getTime() - ticks[ index ].getTime() ),
+			Infinity
+		);
+
+const joinSeries = ( label: string, ...parts: SeriesData[][] ): SeriesData[] => [
+	{ label, data: parts.flatMap( ( [ series ] ) => series.data as DataPointDate[] ) },
+];
 
 describe( 'getTimeAxisTickValues', () => {
 	it( 'returns null when no series carries a date', () => {
@@ -93,6 +106,71 @@ describe( 'getTimeAxisTickValues', () => {
 		];
 
 		expect( getTimeAxisTickValues( data, gap, formatter, 6 ) ).toEqual( [] );
+	} );
+
+	// An index stride is a pixel stride only on evenly spaced points: sampling a
+	// gapped series by index piles every tick into the two ends.
+	it( 'spreads ticks over a long gap rather than crowding its ends', () => {
+		const data = joinSeries(
+			'views',
+			dailySeries( '2026-01-01T00:00:00Z', 10 ),
+			dailySeries( '2026-03-11T00:00:00Z', 10 )
+		);
+		const formatter = getFormatter( data, 'day', TOKYO );
+		const maxTicks = getMaxTicksForWidth( 700 );
+
+		const ticks = getTimeAxisTickValues( data, undefined, formatter, maxTicks ) as Date[];
+		const span = 78 * 24 * 60 * 60 * 1000;
+
+		expect( ticks.length ).toBeGreaterThan( maxTicks / 2 );
+		expect( closestGap( ticks ) ).toBeGreaterThanOrEqual( ( span / maxTicks ) * 0.9 );
+	} );
+
+	it( 'keeps a usable axis when two series sit on different grids', () => {
+		const data = [
+			...hourlySeries( '2026-01-01T00:00:00Z', 24 ),
+			{ ...dailySeries( '2026-01-01T00:00:00Z', 10 )[ 0 ], label: 'visitors' },
+		];
+		const formatter = getFormatter( data, undefined, TOKYO );
+		const maxTicks = getMaxTicksForWidth( 700 );
+
+		const ticks = getTimeAxisTickValues( data, undefined, formatter, maxTicks ) as Date[];
+
+		// The 24 same-day points share one label, which used to veto every stride
+		// and leave the ten day axis with two ticks.
+		expect( ticks.length ).toBeGreaterThan( maxTicks / 2 );
+		expect( new Set( ticks.map( tick => formatter( tick.getTime() ) ) ).size ).toBe( ticks.length );
+	} );
+
+	it( 'still samples evenly spaced points by index', () => {
+		const data = dailySeries( '2026-01-01T00:00:00Z', 90 );
+		const formatter = getFormatter( data, 'day', TOKYO );
+
+		const ticks = getTimeAxisTickValues( data, undefined, formatter, 11 ) as Date[];
+		const gaps = ticks
+			.slice( 1 )
+			.map( ( tick, index ) => tick.getTime() - ticks[ index ].getTime() );
+
+		expect( ticks ).toHaveLength( 11 );
+		expect( new Set( gaps ).size ).toBe( 1 );
+	} );
+
+	// Past a week of hourly data the axis switches to bare dates, which used to
+	// drop the boundary steering with the hour label: a tick reading "Aug 3" sat
+	// 14 hours into Aug 3.
+	it( 'keeps date ticks on host zone midnight once hourly data outgrows the hour format', () => {
+		const data = hourlySeries( '2026-08-01T15:00:00Z', 8 * 24 );
+		const formatter = getFormatter( data, 'hour', TOKYO );
+
+		const ticks = getTimeAxisTickValues(
+			data,
+			undefined,
+			formatter,
+			getMaxTicksForWidth( 700 )
+		) as Date[];
+
+		expect( ticks.length ).toBeGreaterThan( 4 );
+		expect( localTimes( ticks, TOKYO.timeZone ) ).toEqual( ticks.map( () => '00:00' ) );
 	} );
 
 	// Japan has no DST, so the Tokyo fixture cannot reach this. New York can.

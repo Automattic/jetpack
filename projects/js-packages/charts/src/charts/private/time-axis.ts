@@ -49,6 +49,10 @@ const MONTH_TICK = { month: 'short' } as const;
  */
 export type TickFormat = ( ( timestamp: number ) => string ) & {
 	isAnchor?: ( date: Date ) => boolean;
+	// Anchors the ticks that open a new label instead. A label changes at the
+	// host zone's own boundary, so this needs no clock of its own, and it holds
+	// for data that starts partway through a day.
+	anchorsAtLabelChange?: boolean;
 };
 
 const boundaryFormat = (
@@ -72,9 +76,14 @@ const tickFormats = ( formatting: ChartFormatting ) => {
 	const hour = createDateFormatter( HOUR_TICK, formatting );
 	const month = createDateFormatter( MONTH_TICK, formatting );
 
+	// A date tick names a whole day, so it belongs at the start of one; without
+	// this the stride drifts hours off the boundary it labels.
+	const datedTick: TickFormat = ( timestamp: number ) => date( timestamp );
+	datedTick.anchorsAtLabelChange = true;
+
 	return {
 		year,
-		date,
+		date: datedTick,
 		// Hour ticks with the date at midnight boundaries, so multi-day spans of
 		// sub-daily data keep their days identifiable.
 		dateOrHour: boundaryFormat(
@@ -234,12 +243,22 @@ export const getBandTickValues = (
 		return [];
 	}
 
-	const { isAnchor } = tickFormatter;
-	const anchorIndices = isAnchor ? getAnchorIndices( domain, isAnchor ) : [];
-
 	// Once per bucket rather than once per bucket per candidate: the sweep reads
 	// the same labels back for every step and offset.
 	const domainLabels = domain.map( date => tickFormatter( date.getTime() ) );
+
+	const { isAnchor } = tickFormatter;
+	let anchorIndices: number[] = [];
+	if ( tickFormatter.anchorsAtLabelChange ) {
+		anchorIndices = domainLabels.reduce< number[] >( ( indices, label, index ) => {
+			if ( index === 0 || label !== domainLabels[ index - 1 ] ) {
+				indices.push( index );
+			}
+			return indices;
+		}, [] );
+	} else if ( isAnchor ) {
+		anchorIndices = getAnchorIndices( domain, isAnchor );
+	}
 
 	const candidates: number[][] = [];
 	const consider = ( indices: number[] ) => {
@@ -270,8 +289,16 @@ export const getBandTickValues = (
 	// uneven number of buckets apart are still all reachable — a wall-clock day
 	// is 23 buckets of hourly data across a spring-forward DST transition, and a
 	// fixed stride drifts off midnight for the rest of the span.
-	for ( let stride = 1; stride <= anchorIndices.length; stride++ ) {
-		consider( anchorIndices.filter( ( _, position ) => position % stride === 0 ) );
+	// From the sparsest stride that could still overflow the axis: anything
+	// denser is rejected below, and every point opening a new label is an anchor,
+	// so the list is as long as the domain on daily data.
+	const minStride = Math.max( 1, Math.ceil( anchorIndices.length / maxTicks ) );
+	for ( let stride = minStride; stride <= anchorIndices.length; stride++ ) {
+		const stepped: number[] = [];
+		for ( let position = 0; position < anchorIndices.length; position += stride ) {
+			stepped.push( anchorIndices[ position ] );
+		}
+		consider( stepped );
 	}
 
 	if ( ! candidates.length ) {
@@ -307,11 +334,113 @@ export const getBandTickValues = (
 export const getMaxTicksForWidth = ( chartWidth: number ): number =>
 	Math.max( 1, Math.floor( chartWidth / X_TICK_WIDTH ) );
 
+// Closest value in a sorted list.
+const nearestValue = ( sorted: number[], target: number ) => {
+	let low = 0;
+	let high = sorted.length - 1;
+	while ( low < high ) {
+		const middle = Math.floor( ( low + high ) / 2 );
+		if ( sorted[ middle ] < target ) {
+			low = middle + 1;
+		} else {
+			high = middle;
+		}
+	}
+	const above = sorted[ low ];
+	const below = low > 0 ? sorted[ low - 1 ] : above;
+	return Math.abs( above - target ) <= Math.abs( below - target ) ? above : below;
+};
+
+// Ticks chosen by position: step evenly across the domain in time, and take the
+// nearest point to each target, preferring an anchor within half a step. A
+// target with no point that close keeps its own instant, since a gap in the data
+// holds nothing for a tick to align with.
+const getPositionTickValues = (
+	points: Date[],
+	tickFormatter: TickFormat,
+	maxTicks: number
+): Date[] => {
+	const times = points.map( point => point.getTime() );
+	const first = times[ 0 ];
+	const last = times[ times.length - 1 ];
+
+	if ( maxTicks <= 1 || times.length === 1 || first === last ) {
+		return [ points[ 0 ] ];
+	}
+
+	const count = Math.min( maxTicks, times.length );
+	const step = ( last - first ) / ( count - 1 );
+	const { isAnchor } = tickFormatter;
+	const anchors = isAnchor ? times.filter( ( _, index ) => isAnchor( points[ index ] ) ) : [];
+
+	const chosen: number[] = [];
+	let lastLabel: string | null = null;
+
+	for ( let index = 0; index < count; index++ ) {
+		const target = first + index * step;
+		const anchor = anchors.length ? nearestValue( anchors, target ) : null;
+		let tick = anchor !== null && Math.abs( anchor - target ) <= step / 2 ? anchor : null;
+
+		if ( tick === null ) {
+			const point = nearestValue( times, target );
+			tick = Math.abs( point - target ) <= step / 2 ? point : target;
+		}
+
+		// Two targets can reach for the same anchor, and a snap can land back
+		// behind the tick before it.
+		const previous = chosen[ chosen.length - 1 ];
+		if ( previous !== undefined && ( tick <= previous || tick - previous < step * 0.6 ) ) {
+			continue;
+		}
+
+		const label = tickFormatter( tick );
+		if ( label === lastLabel ) {
+			continue;
+		}
+
+		chosen.push( tick );
+		lastLabel = label;
+	}
+
+	return chosen.map( timestamp => new Date( timestamp ) );
+};
+
+// An index stride is a pixel stride only while the points are evenly spaced.
+// `span / maxTicks` is one label's worth of axis, so a closer pair overlaps, and
+// a selection this much thinner than the axis has room for means the
+// duplicate-label veto in `getBandTickValues` ate every stride.
+const isIndexSamplingUnusable = ( ticks: Date[], points: Date[], maxTicks: number ) => {
+	if ( ticks.length < 2 || points.length < 2 ) {
+		return false;
+	}
+
+	const span = points[ points.length - 1 ].getTime() - points[ 0 ].getTime();
+	if ( ! span ) {
+		return false;
+	}
+
+	const closest = ticks
+		.slice( 1 )
+		.reduce(
+			( nearest, tick, index ) => Math.min( nearest, tick.getTime() - ticks[ index ].getTime() ),
+			Infinity
+		);
+
+	return (
+		closest < ( span / maxTicks ) * 0.9 || ticks.length < Math.min( maxTicks, points.length ) / 3
+	);
+};
+
 /**
  * Tick values for a continuous time axis, chosen from the points it draws.
  *
- * Selected, never constructed: a local time that does not exist cannot be a
- * data point, so DST gaps and overlaps need no special case.
+ * Sampled by index while the points are evenly spaced, which keeps the axis on
+ * the calendar boundaries `getBandTickValues` steers towards, and by position
+ * once they are not, where an index stride crowds one end of the scale.
+ *
+ * Values are taken from the data wherever there is one to take, so a local time
+ * that does not exist cannot become a tick and DST needs no special case. Only a
+ * target stranded in a gap is constructed, as a plain instant.
  *
  * @param sortedData    - Series as returned by `useChartDataTransform`.
  * @param domain        - The effective scale domain, or undefined for all data.
@@ -350,7 +479,11 @@ export const getTimeAxisTickValues = (
 		)
 		.map( timestamp => byTimestamp.get( timestamp ) as Date );
 
-	return getBandTickValues( visible, tickFormatter, maxTicks );
+	const ticks = getBandTickValues( visible, tickFormatter, maxTicks );
+
+	return isIndexSamplingUnusable( ticks, visible, maxTicks )
+		? getPositionTickValues( visible, tickFormatter, maxTicks )
+		: ticks;
 };
 
 // Estimate the largest number of x-axis ticks that fit without producing
