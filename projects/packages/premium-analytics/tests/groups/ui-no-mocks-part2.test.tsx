@@ -6,3 +6,4 @@ import '../../packages/ui/src/section-header/__tests__/section-header.test';
 import '../../packages/ui/src/use-paginated-view/__tests__/clamp-page.test';
 import '../../packages/ui/src/use-paginated-view/__tests__/use-paginated-view.test';
 import '../../packages/ui/src/utils/__tests__/safe-http-url.test';
+import '../../packages/ui/src/widget-grid-animation/__tests__/widget-grid-animation.test';
