@@ -145,7 +145,12 @@ class Expiry_Domain {
 		$response = Client::wpcom_json_api_request_as_blog(
 			sprintf( '/sites/%d/domains', (int) $site_id ),
 			'1.2',
-			array( 'method' => 'GET' ),
+			array(
+				'method'  => 'GET',
+				// This runs during an admin page load, so a slow answer must not
+				// become a slow dashboard. Failing here just omits the domain line.
+				'timeout' => 5,
+			),
 			null,
 			'rest'
 		);

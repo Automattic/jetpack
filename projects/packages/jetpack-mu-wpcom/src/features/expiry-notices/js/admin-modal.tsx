@@ -94,10 +94,11 @@ const ExpiryModal = ( { data }: { data: ExpiryModalData } ) => {
 	return (
 		// No `title`: the heading belongs under the illustration, so the header is
 		// left holding just the close button, which the stylesheet lifts onto the
-		// image. `aria-label` carries the name the missing title would have given.
+		// image. `contentLabel` names the dialog in its place -- Modal destructures
+		// a fixed prop list, so a bare `aria-label` would be dropped.
 		<Modal
 			className="wpcom-expiry-modal"
-			aria-label={ data.title }
+			contentLabel={ data.title }
 			// A stray click on the overlay shouldn't spend the one dismissal the
 			// user gets, so closing has to be deliberate. Escape still works, and
 			// is left alone on purpose: it is the only way out for someone who

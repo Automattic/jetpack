@@ -5,6 +5,7 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Data;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Notice_Dismiss;
 
@@ -262,11 +263,20 @@ function wpcom_expiry_notices_admin_banner_body( array $state ): string {
 	$days       = isset( $state['days_remaining'] ) ? (int) $state['days_remaining'] : 0;
 	$auto_renew = ! empty( $state['auto_renew'] );
 
-	if ( Expiry_Data::STATE_EXPIRED === ( $state['state'] ?? '' ) ) {
+	$stage = $state['state'] ?? '';
+
+	// Past grace by the calendar but still Atomic and un-reverted: none of what
+	// the post-grace copy claims has happened yet, and renewing still prevents
+	// it, so describe it the way the grace period does.
+	if ( Expiry_Data::STATE_EXPIRED === $stage
+		&& ! wpcom_expiry_notices_revert_applies_to_site( $state )
+		&& Constants::is_true( 'IS_ATOMIC' ) ) {
+		$stage = Expiry_Data::STATE_EXPIRED_GRACE;
+	}
+
+	if ( Expiry_Data::STATE_EXPIRED === $stage ) {
 		// A revert takes the site private and deletes what it lists, and buying
 		// the plan again brings none of it back -- so this half asks for support.
-		// Keyed on the revert rather than on `is_atomic`, which is already false
-		// by the time a site has been reverted.
 		if ( wpcom_expiry_notices_revert_applies_to_site( $state ) ) {
 			if ( null === $storage_gb ) {
 				return __( 'Your site has been moved to the Free plan and set to private. You no longer have access to plugins, custom themes, or additional storage. Contact support to get help restoring it.', 'jetpack-mu-wpcom' );
@@ -287,7 +297,7 @@ function wpcom_expiry_notices_admin_banner_body( array $state ): string {
 		);
 	}
 
-	if ( Expiry_Data::STATE_EXPIRED_GRACE === ( $state['state'] ?? '' ) ) {
+	if ( Expiry_Data::STATE_EXPIRED_GRACE === $stage ) {
 		// "If renewal doesn't go through" only makes sense while a renewal
 		// attempt is still scheduled.
 		if ( $auto_renew ) {

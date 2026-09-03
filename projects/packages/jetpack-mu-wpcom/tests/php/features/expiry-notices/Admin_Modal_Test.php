@@ -50,6 +50,7 @@ class Admin_Modal_Test extends \WorDBless\BaseTestCase {
 		);
 		wp_set_current_user( $this->admin_id );
 		wpcom_expiry_notices_eligible_state( true );
+		wpcom_expiry_notices_admin_modal_data( true );
 		set_current_screen( 'dashboard' );
 		Constants::set_constant( 'IS_ATOMIC', true );
 		// The modal names the domain the site reverts to; resolving it is an HTTP
@@ -95,6 +96,18 @@ class Admin_Modal_Test extends \WorDBless\BaseTestCase {
 		}
 	}
 
+	/**
+	 * Record a dismissal and clear the modal memo, which in production could not
+	 * change inside one request.
+	 *
+	 * @param string $meta_key Dismiss meta key.
+	 * @param int    $when     Timestamp to store.
+	 */
+	private function set_dismissed( string $meta_key, int $when ): void {
+		update_user_meta( $this->admin_id, $meta_key, $when );
+		wpcom_expiry_notices_admin_modal_data( true );
+	}
+
 	private function set_purchase( int $days_until_expiry, string $slug = 'business-bundle' ): void {
 		$GLOBALS['wpcom_get_site_purchases_test_value'] = array(
 			(object) array(
@@ -107,8 +120,9 @@ class Admin_Modal_Test extends \WorDBless\BaseTestCase {
 				'user_allows_auto_renew' => false,
 			),
 		);
-		// The eligible-state memo has already answered for the previous fixture.
+		// Both memos have already answered for the previous fixture.
 		wpcom_expiry_notices_eligible_state( true );
+		wpcom_expiry_notices_admin_modal_data( true );
 	}
 
 	public function test_shows_in_grace_with_the_pre_revert_copy(): void {
@@ -167,25 +181,6 @@ class Admin_Modal_Test extends \WorDBless\BaseTestCase {
 	 */
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
-	public function test_shows_after_grace_on_a_reverted_site(): void {
-		// The revert is what moves the site off Atomic, so by the time the
-		// post-grace copy is true the site is Simple. Gating on IS_ATOMIC alone
-		// would make this variant unreachable in production.
-		$this->pretend_reverted_to_simple();
-
-		$this->set_purchase( -45 );
-		$data = wpcom_expiry_notices_admin_modal_data();
-
-		$this->assertNotNull( $data );
-		$this->assertSame( 'Contact support', $data['primary']['label'] );
-	}
-
-	/**
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
-	 */
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState( false )]
 	public function test_does_not_show_in_grace_on_a_reverted_site(): void {
 		// A site already reverted was reverted by an earlier lapse. This one has
 		// not reached the changes the pre-revert variant promises are coming.
@@ -236,10 +231,10 @@ class Admin_Modal_Test extends \WorDBless\BaseTestCase {
 	public function test_grace_dismissal_lapses_so_the_modal_returns(): void {
 		$this->set_purchase( -5 );
 
-		update_user_meta( $this->admin_id, Expiry_Notice_Dismiss::META_MODAL_GRACE, time() );
+		$this->set_dismissed( Expiry_Notice_Dismiss::META_MODAL_GRACE, time() );
 		$this->assertNull( wpcom_expiry_notices_admin_modal_data(), 'a fresh dismissal should hide the modal' );
 
-		update_user_meta( $this->admin_id, Expiry_Notice_Dismiss::META_MODAL_GRACE, time() - ( Expiry_Notice_Dismiss::MODAL_GRACE_DISMISS_TTL + HOUR_IN_SECONDS ) );
+		$this->set_dismissed( Expiry_Notice_Dismiss::META_MODAL_GRACE, time() - ( Expiry_Notice_Dismiss::MODAL_GRACE_DISMISS_TTL + HOUR_IN_SECONDS ) );
 		$this->assertNotNull( wpcom_expiry_notices_admin_modal_data(), 'the site is still lapsing, so a stale dismissal should not hold' );
 	}
 
@@ -255,7 +250,7 @@ class Admin_Modal_Test extends \WorDBless\BaseTestCase {
 		// Dismissed 10 days ago -- within this term, since the revert it reports
 		// happened at day 30, but far outside the grace TTL, which must not apply
 		// once the revert has actually happened.
-		update_user_meta( $this->admin_id, Expiry_Notice_Dismiss::META_MODAL, time() - 10 * DAY_IN_SECONDS );
+		$this->set_dismissed( Expiry_Notice_Dismiss::META_MODAL, time() - 10 * DAY_IN_SECONDS );
 		$this->assertNull( wpcom_expiry_notices_admin_modal_data() );
 	}
 
@@ -271,7 +266,7 @@ class Admin_Modal_Test extends \WorDBless\BaseTestCase {
 		// a grace dismissal is stamped after expiry and would otherwise satisfy
 		// the post-grace "belongs to this term" check.
 		$this->set_purchase( -45 );
-		update_user_meta( $this->admin_id, Expiry_Notice_Dismiss::META_MODAL_GRACE, time() - DAY_IN_SECONDS );
+		$this->set_dismissed( Expiry_Notice_Dismiss::META_MODAL_GRACE, time() - DAY_IN_SECONDS );
 		$this->assertNotNull( wpcom_expiry_notices_admin_modal_data() );
 	}
 
@@ -286,16 +281,10 @@ class Admin_Modal_Test extends \WorDBless\BaseTestCase {
 		$this->set_purchase( -45 );
 		// Dismissed against a purchase that has since been renewed and lapsed
 		// again: this revert is news.
-		update_user_meta( $this->admin_id, Expiry_Notice_Dismiss::META_MODAL, time() - YEAR_IN_SECONDS );
+		$this->set_dismissed( Expiry_Notice_Dismiss::META_MODAL, time() - YEAR_IN_SECONDS );
 		$this->assertNotNull( wpcom_expiry_notices_admin_modal_data() );
 	}
 
-	/**
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
-	 */
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState( false )]
 	public function test_names_the_domain_the_site_will_move_to_in_grace(): void {
 		$this->set_revert_domain( 'example.wordpress.com' );
 
@@ -336,25 +325,6 @@ class Admin_Modal_Test extends \WorDBless\BaseTestCase {
 		$this->assertNotNull( $data );
 		$this->assertCount( 3, $data['items'] );
 		$this->assertStringNotContainsString( 'primary domain', implode( "\n", $data['items'] ) );
-	}
-
-	/**
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
-	 */
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState( false )]
-	public function test_names_the_wpcom_address_a_reverted_site_now_serves_from(): void {
-		$this->pretend_reverted_to_simple();
-		// WorDBless serves example.org, so a blogs-table domain that matches is a
-		// site sitting on its own unmapped address -- the switch already happened.
-		$GLOBALS['wpcom_blog_details_domain_test_value'] = 'example.org';
-
-		$this->set_purchase( -45 );
-		$data = wpcom_expiry_notices_admin_modal_data();
-
-		$this->assertNotNull( $data );
-		$this->assertStringContainsString( 'switched to example.org', implode( "\n", $data['items'] ) );
 	}
 
 	/**

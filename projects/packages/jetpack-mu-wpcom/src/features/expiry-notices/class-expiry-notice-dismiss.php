@@ -100,12 +100,9 @@ class Expiry_Notice_Dismiss {
 	/**
 	 * Should the expired-state modal show for the given user right now?
 	 *
-	 * The modal only speaks to a site that has already lapsed, and the two
-	 * lapsed states dismiss differently: in grace the revert is still ahead, so
-	 * the modal returns after `MODAL_GRACE_DISMISS_TTL`; afterwards it has
-	 * happened and saying so once is enough. Deliberately not routed through
-	 * `is_dismissible()`, which answers for the banner -- where the grace notice
-	 * cannot be dismissed at all.
+	 * The two lapsed states dismiss differently: in grace the modal returns after
+	 * `MODAL_GRACE_DISMISS_TTL`, afterwards saying so once is enough. Not routed
+	 * through `is_dismissible()`, which answers for the banner.
 	 *
 	 * @param array<string,mixed> $expiry_state State from Expiry_Data::get_expiry_state().
 	 * @param int|null            $user_id      Defaults to current user.

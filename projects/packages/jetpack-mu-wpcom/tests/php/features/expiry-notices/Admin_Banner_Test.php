@@ -560,5 +560,8 @@ class Admin_Banner_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertStringNotContainsString( 'Contact support', $out );
 		$this->assertStringContainsString( '/checkout/', $out );
+		// And the copy must not claim the changes have already happened.
+		$this->assertStringNotContainsString( 'has been moved to the Free plan', $out );
+		$this->assertStringContainsString( 'will move to the Free plan', $out );
 	}
 }

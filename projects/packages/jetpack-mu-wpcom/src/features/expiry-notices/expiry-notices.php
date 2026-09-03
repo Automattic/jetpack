@@ -128,13 +128,9 @@ function wpcom_expiry_notices_expired_heading( array $state ): string {
 /**
  * Whether the revert this feature describes applies to this site, now.
  *
- * Past the grace period the answer waits on the revert having happened, not on
- * the date it was due: the state opens 30 days after expiry, while the revert
- * runs off the subscription-removal record and can lag it. In that gap a site is
- * still Atomic and still renewable, so the past-tense copy would be untrue and
- * support would be the wrong ask. wpcom's sticker marks the event itself.
- *
- * Before then the changes are still ahead, which only an Atomic site faces.
+ * Past the grace period this waits on the sticker rather than the date, because
+ * the revert runs off the subscription-removal record and can lag the state by
+ * days. Before then the changes are still ahead, which only Atomic faces.
  *
  * @param array<string,mixed> $state Expiry state.
  */
@@ -149,13 +145,9 @@ function wpcom_expiry_notices_revert_applies_to_site( array $state ): bool {
 /**
  * The CTA a reverted site gets, pointing at support rather than checkout.
  *
- * Buying the plan again does not undo the revert: the cleanup that follows it
- * deletes the Atomic site outright -- container, tables and tokens -- and a
- * re-transfer starts a fresh one. Plugins, themes and their data are gone, so
- * only support can help with what the notice says was lost.
- *
- * `url` is the fallback for a click the Help Center could not answer; `message`
- * is what its chat opens prefilled with.
+ * Buying the plan again does not undo the revert, so only support can help with
+ * what the notice says was lost. `url` is the fallback for a click the Help
+ * Center could not answer.
  *
  * @param array<string,mixed> $state Expiry state.
  * @return array{label:string,url:string,message:string}
