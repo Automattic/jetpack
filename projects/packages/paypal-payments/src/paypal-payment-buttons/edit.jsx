@@ -901,6 +901,48 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 	}, [ isOverlayOpen ] );
 
 	/**
+	 * Take the overlay down at the merchant's request.
+	 *
+	 * PayPal's lightbox has its own close control, but it tells us nothing, so
+	 * the overlay needs an exit of ours as well. The referral goes with it, and
+	 * clearing it makes the prefetch ask for a new one.
+	 */
+	const cancelOnboarding = useCallback( () => {
+		setOnboardingRequested( false );
+		setSignupUrl( '' );
+	}, [] );
+
+	/**
+	 * Escape closes the overlay.
+	 *
+	 * Two documents: in a modern theme the canvas is an iframe, keydown does not
+	 * cross that boundary, and focus is often on the editor chrome outside it.
+	 * Capture phase, and the event stops here, so the editor's own Escape on the
+	 * canvas body does not clear the block selection behind the overlay.
+	 */
+	useEffect( () => {
+		if ( ! isOverlayOpen || ! frameNode ) {
+			return;
+		}
+
+		const handleKeyDown = event => {
+			if ( event.key !== 'Escape' ) {
+				return;
+			}
+
+			event.preventDefault();
+			event.stopPropagation();
+			cancelOnboarding();
+		};
+
+		const targets = new Set( [ frameNode.ownerDocument, document ] );
+		targets.forEach( target => target.addEventListener( 'keydown', handleKeyDown, true ) );
+
+		return () =>
+			targets.forEach( target => target.removeEventListener( 'keydown', handleKeyDown, true ) );
+	}, [ isOverlayOpen, frameNode, cancelOnboarding ] );
+
+	/**
 	 * Handle PayPal disconnect with confirmation.
 	 * Triggers a ConfirmDialog — actual disconnect runs in executeDisconnect().
 	 */
@@ -1305,15 +1347,30 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 	 * write and leaves the frame empty.
 	 */
 	const onboardingFrame = signupUrl ? (
-		<iframe
-			ref={ setFrameNode }
-			title={ __( 'PayPal onboarding', 'jetpack-paypal-payments' ) }
-			sandbox={ ONBOARDING_SANDBOX }
-			className={
-				'jetpack-paypal-onboarding-frame' +
-				( isOverlayOpen ? ' jetpack-paypal-onboarding-frame--active' : '' )
-			}
-		/>
+		<>
+			{ /* Only while the overlay is up: the frame is mounted hidden long
+			     before anyone clicks Connect, and a close button in the tab
+			     order then has nothing to close. */ }
+			{ isOverlayOpen && (
+				<Button
+					className="jetpack-paypal-onboarding-frame__close"
+					variant="secondary"
+					aria-label={ __( 'Close PayPal onboarding', 'jetpack-paypal-payments' ) }
+					onClick={ cancelOnboarding }
+				>
+					{ __( 'Close', 'jetpack-paypal-payments' ) }
+				</Button>
+			) }
+			<iframe
+				ref={ setFrameNode }
+				title={ __( 'PayPal onboarding', 'jetpack-paypal-payments' ) }
+				sandbox={ ONBOARDING_SANDBOX }
+				className={
+					'jetpack-paypal-onboarding-frame' +
+					( isOverlayOpen ? ' jetpack-paypal-onboarding-frame--active' : '' )
+				}
+			/>
+		</>
 	) : null;
 
 	// Not connected — show the guided connection wizard. A block that already

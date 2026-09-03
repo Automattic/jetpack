@@ -431,6 +431,23 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			);
 		}
 
+		const keyListeners = [];
+
+		/**
+		 * Watch keydown for the length of one test.
+		 *
+		 * Torn down by afterEach rather than inline, so a failed assertion cannot
+		 * leave a listener behind for every test after it.
+		 *
+		 * @param {Node}     target  - What to listen on.
+		 * @param {Function} handler - The listener.
+		 * @param {boolean}  capture - Capture phase.
+		 */
+		function watchKeys( target, handler, capture = false ) {
+			target.addEventListener( 'keydown', handler, capture );
+			keyListeners.push( [ target, handler, capture ] );
+		}
+
 		afterEach( () => {
 			// clearAllMocks does not undo a spy, so one failure before a manual
 			// restore would leave window.open stubbed, or the contentWindow getter
@@ -438,6 +455,11 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			jest.restoreAllMocks();
 			delete window.PAYPAL;
 			delete window.jetpackPayPalOnboardComplete;
+			keyListeners
+				.splice( 0 )
+				.forEach( ( [ target, handler, capture ] ) =>
+					target.removeEventListener( 'keydown', handler, capture )
+				);
 		} );
 
 		it( 'denies the onboarding frame the top navigation that would reload the editor', async () => {
@@ -873,6 +895,30 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			expect( frame ).toHaveClass( 'jetpack-paypal-onboarding-frame--active' );
 		} );
 
+		it( 'does not open on a rebuilt frame the SDK has not bound yet', async () => {
+			const user = userEvent.setup();
+			const click = watchAnchorClicks();
+			mockPlatformMode( { action_url: 'https://www.sandbox.paypal.com/merchantsignup/x' } );
+
+			await openActiveOverlay();
+			await user.keyboard( '{Escape}' );
+			await waitFor( () => expect( signupLinkCalls() ).toHaveLength( 2 ) );
+
+			// The replacement frame is mounted but PayPal has not bound its anchor
+			// yet. Unless tearing down the old frame also cleared isSdkReady, this
+			// click opens the overlay onto an ordinary link.
+			const frame = await screen.findByTitle( 'PayPal onboarding' );
+			await user.click( screen.getByRole( 'button', { name: /Connect with PayPal/i } ) );
+
+			expect( click ).toHaveBeenCalledTimes( 1 );
+			expect( frame ).not.toHaveClass( 'jetpack-paypal-onboarding-frame--active' );
+
+			// And once it does bind, the click that was waiting goes through.
+			await settlePartnerScript( frame );
+
+			expect( click ).toHaveBeenCalledTimes( 2 );
+		} );
+
 		it( 'exchanges the auth code the SDK hands to the frame realm', async () => {
 			mockPlatformMode( { action_url: 'https://www.sandbox.paypal.com/merchantsignup/x' } );
 
@@ -906,6 +952,168 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				screen.findByText( /Create PayPal Payment Button/ )
 			).resolves.toBeInTheDocument();
 			expect( screen.queryByTitle( 'PayPal onboarding' ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'closes the overlay on Escape', async () => {
+			const user = userEvent.setup();
+			mockPlatformMode( { action_url: 'https://www.sandbox.paypal.com/merchantsignup/x' } );
+
+			const frame = await openActiveOverlay();
+
+			await user.keyboard( '{Escape}' );
+
+			// The referral goes with the overlay, so the frame unmounts and the
+			// prefetch builds a fresh one. It has to come back closed.
+			await waitFor( () => expect( frame ).not.toBeInTheDocument() );
+			await expect( screen.findByTitle( 'PayPal onboarding' ) ).resolves.not.toHaveClass(
+				'jetpack-paypal-onboarding-frame--active'
+			);
+		} );
+
+		it( 'closes the overlay from its close button', async () => {
+			const user = userEvent.setup();
+			mockPlatformMode( { action_url: 'https://www.sandbox.paypal.com/merchantsignup/x' } );
+
+			const frame = await openActiveOverlay();
+
+			// Queried by accessible name — that is all a keyboard or screen
+			// reader user gets.
+			await user.click( screen.getByRole( 'button', { name: 'Close PayPal onboarding' } ) );
+
+			await waitFor( () => expect( frame ).not.toBeInTheDocument() );
+			await expect( screen.findByTitle( 'PayPal onboarding' ) ).resolves.not.toHaveClass(
+				'jetpack-paypal-onboarding-frame--active'
+			);
+		} );
+
+		it( 'shows the close button only while the overlay is up', async () => {
+			mockPlatformMode( { action_url: 'https://www.sandbox.paypal.com/merchantsignup/x' } );
+
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+			await settlePartnerScript( await screen.findByTitle( 'PayPal onboarding' ) );
+
+			// The frame is mounted hidden long before the merchant clicks Connect.
+			// A close button sitting in the tab order there has nothing to close.
+			expect(
+				screen.queryByRole( 'button', { name: 'Close PayPal onboarding' } )
+			).not.toBeInTheDocument();
+		} );
+
+		it( 'leaves the referral alone when Escape lands with the overlay down', async () => {
+			const user = userEvent.setup();
+			mockPlatformMode( { action_url: 'https://www.sandbox.paypal.com/merchantsignup/x' } );
+
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+			await settlePartnerScript( await screen.findByTitle( 'PayPal onboarding' ) );
+
+			await user.keyboard( '{Escape}' );
+
+			// Escape belongs to the editor until the overlay is up. Taking it here
+			// throws away a referral the merchant never opened and asks for another.
+			expect( signupLinkCalls() ).toHaveLength( 1 );
+			await expect( screen.findByTitle( 'PayPal onboarding' ) ).resolves.toBeInTheDocument();
+		} );
+
+		it( 'asks for a fresh referral after a cancel', async () => {
+			const user = userEvent.setup();
+			mockPlatformMode( { action_url: 'https://www.sandbox.paypal.com/merchantsignup/x' } );
+
+			await openActiveOverlay();
+			expect( signupLinkCalls() ).toHaveLength( 1 );
+
+			await user.keyboard( '{Escape}' );
+
+			// The referral has been opened, so it cannot be reopened. Canceling
+			// has to drop it and the prefetch has to ask for another.
+			await waitFor( () => expect( signupLinkCalls() ).toHaveLength( 2 ) );
+		} );
+
+		it( 'stops the Escape before anything below the document sees it', async () => {
+			const user = userEvent.setup();
+			mockPlatformMode( { action_url: 'https://www.sandbox.paypal.com/merchantsignup/x' } );
+
+			await openActiveOverlay();
+
+			// Stands in for the editor's own Escape, which runs on the canvas
+			// body. jsdom has no canvas iframe, so this checks the listener
+			// ordering rather than the editor itself.
+			const editor = jest.fn();
+			watchKeys( document.body, editor );
+
+			await user.keyboard( '{Escape}' );
+
+			expect( editor ).not.toHaveBeenCalled();
+		} );
+
+		it( 'cancels the Escape event', async () => {
+			const user = userEvent.setup();
+			mockPlatformMode( { action_url: 'https://www.sandbox.paypal.com/merchantsignup/x' } );
+
+			await openActiveOverlay();
+
+			// Same node, same phase, registered second, so it still runs —
+			// stopPropagation does not silence other listeners on its own node.
+			const seen = [];
+			watchKeys( document, event => seen.push( event.defaultPrevented ), true );
+
+			await user.keyboard( '{Escape}' );
+
+			expect( seen ).toEqual( [ true ] );
+		} );
+
+		it( 'stops listening for Escape once the overlay is closed', async () => {
+			const user = userEvent.setup();
+			mockPlatformMode( { action_url: 'https://www.sandbox.paypal.com/merchantsignup/x' } );
+
+			await openActiveOverlay();
+			await user.keyboard( '{Escape}' );
+			await waitFor( () =>
+				expect( screen.getByTitle( 'PayPal onboarding' ) ).not.toHaveClass(
+					'jetpack-paypal-onboarding-frame--active'
+				)
+			);
+
+			// A listener left behind goes on eating Escape for the rest of the
+			// editor session, with no overlay left to close.
+			const editor = jest.fn();
+			watchKeys( document.body, editor );
+
+			await user.keyboard( '{Escape}' );
+
+			expect( editor ).toHaveBeenCalled();
+		} );
+
+		it( 'leaves the overlay up for keys that are not Escape', async () => {
+			const user = userEvent.setup();
+			mockPlatformMode( { action_url: 'https://www.sandbox.paypal.com/merchantsignup/x' } );
+
+			const frame = await openActiveOverlay();
+
+			await user.keyboard( 'a' );
+
+			// Escape is the exit. Closing on anything else throws away a referral
+			// on a stray keypress.
+			expect( frame ).toBeInTheDocument();
+			expect( frame ).toHaveClass( 'jetpack-paypal-onboarding-frame--active' );
+		} );
+
+		it( 'does not reopen PayPal off the referral fetched after a cancel', async () => {
+			const user = userEvent.setup();
+			const click = watchAnchorClicks();
+			mockPlatformMode( { action_url: 'https://www.sandbox.paypal.com/merchantsignup/x' } );
+
+			await openActiveOverlay();
+
+			await user.keyboard( '{Escape}' );
+			await waitFor( () => expect( signupLinkCalls() ).toHaveLength( 2 ) );
+
+			// If the request survived the cancel, the replacement referral would
+			// reopen PayPal on its own, over the wizard the merchant came back to.
+			const frame = await screen.findByTitle( 'PayPal onboarding' );
+			await settlePartnerScript( frame );
+
+			expect( click ).toHaveBeenCalledTimes( 1 );
+			expect( frame ).not.toHaveClass( 'jetpack-paypal-onboarding-frame--active' );
 		} );
 
 		it( 'exposes the completion callback for the SDK to call by name', async () => {

@@ -638,6 +638,23 @@
 	}
 }
 
+// Above the frame, opposite corner from PayPal's own close control.
+// The .components-button.is-secondary prefix beats the core rules that paint
+// this button transparent: (0,2,0) at rest, and (0,4,0) on hover, which is why
+// the hover rule below adds :not().
+.components-button.is-secondary.jetpack-paypal-onboarding-frame__close {
+	position: fixed;
+	top: 16px;
+	left: 16px;
+	z-index: 100001;
+	background: #fff;
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+
+	&:hover:not(:disabled),
+	&:focus:not(:disabled) {
+		background: #fff;
+	}
+}
 
 .jetpack-paypal-payment-buttons__confirm-body {
 
