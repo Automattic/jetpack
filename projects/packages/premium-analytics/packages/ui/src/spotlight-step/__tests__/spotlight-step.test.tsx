@@ -8,6 +8,7 @@ type HarnessProps = {
 	rect?: Pick< DOMRect, 'top' | 'left' | 'width' | 'height' >;
 	step?: number;
 	totalSteps?: number;
+	scrollIntoView?: () => void;
 	onNext: () => void;
 	onDismiss: () => void;
 };
@@ -18,6 +19,7 @@ function Harness( {
 	rect,
 	step = 1,
 	totalSteps = 3,
+	scrollIntoView,
 	onNext,
 	onDismiss,
 }: HarnessProps ) {
@@ -26,6 +28,9 @@ function Harness( {
 	const attach = ( element: HTMLButtonElement | null ) => {
 		if ( element && rect ) {
 			element.getBoundingClientRect = () => rect as DOMRect;
+		}
+		if ( element && scrollIntoView ) {
+			element.scrollIntoView = scrollIntoView;
 		}
 		setAnchor( element );
 	};
@@ -112,5 +117,12 @@ describe( 'SpotlightStep', () => {
 			width: '40px',
 			height: '32px',
 		} );
+	} );
+
+	it( 'brings the anchor into view', async () => {
+		const scrollIntoView = jest.fn();
+		await renderStep( { scrollIntoView } );
+
+		expect( scrollIntoView ).toHaveBeenCalledWith( { block: 'nearest' } );
 	} );
 } );
