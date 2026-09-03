@@ -65,6 +65,24 @@ class PayPal_Attribute_Mapper {
 	);
 
 	/**
+	 * Maximum number of option groups (variant dimensions) per product.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @var int
+	 */
+	const MAX_VARIANT_DIMENSIONS = 5;
+
+	/**
+	 * Maximum number of options per option group.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @var int
+	 */
+	const MAX_VARIANT_OPTIONS = 10;
+
+	/**
 	 * Maximum product name length.
 	 *
 	 * @var int
@@ -321,6 +339,15 @@ class PayPal_Attribute_Mapper {
 			);
 		}
 
+		// Anything sanitize_variants() would drop must be rejected here instead,
+		// or the pricing checks below run against options PayPal never receives.
+		if ( ! empty( $attributes['variantsEnabled'] ) && ! empty( $attributes['variants']['dimensions'] ) ) {
+			$variant_structure_error = self::validate_variant_structure( $attributes['variants'] );
+			if ( is_wp_error( $variant_structure_error ) ) {
+				return $variant_structure_error;
+			}
+		}
+
 		// Required: price — unless the product options carry their own prices,
 		// in which case PayPal takes the amount from the options instead.
 		$uses_variant_pricing = ! empty( $attributes['variantsEnabled'] )
@@ -513,6 +540,62 @@ class PayPal_Attribute_Mapper {
 	}
 
 	/**
+	 * Validate the shape of a variants structure.
+	 *
+	 * Mirrors what sanitize_variants() discards, so a save cannot pass
+	 * validation on options that are then dropped before reaching PayPal.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $variants Variants structure (block or API shape).
+	 * @return true|WP_Error True when valid, WP_Error otherwise.
+	 */
+	private static function validate_variant_structure( array $variants ) {
+		$dimensions = $variants['dimensions'] ?? array();
+
+		if ( ! is_array( $dimensions ) || count( $dimensions ) > self::MAX_VARIANT_DIMENSIONS ) {
+			return new WP_Error(
+				'too_many_variant_dimensions',
+				/* translators: %d: maximum number of option groups */
+				sprintf( __( 'A product can have at most %d option groups.', 'jetpack-paypal-payments' ), self::MAX_VARIANT_DIMENSIONS ),
+				array( 'status' => 400 )
+			);
+		}
+
+		foreach ( $dimensions as $dimension ) {
+			if ( ! is_array( $dimension ) || '' === trim( sanitize_text_field( (string) ( $dimension['name'] ?? '' ) ) ) ) {
+				return new WP_Error(
+					'missing_variant_name',
+					__( 'Every option group needs a name.', 'jetpack-paypal-payments' ),
+					array( 'status' => 400 )
+				);
+			}
+
+			$options = $dimension['options'] ?? array();
+			if ( ! is_array( $options ) || count( $options ) > self::MAX_VARIANT_OPTIONS ) {
+				return new WP_Error(
+					'too_many_variant_options',
+					/* translators: %d: maximum number of options per group */
+					sprintf( __( 'An option group can have at most %d options.', 'jetpack-paypal-payments' ), self::MAX_VARIANT_OPTIONS ),
+					array( 'status' => 400 )
+				);
+			}
+
+			foreach ( $options as $option ) {
+				if ( ! is_array( $option ) || '' === trim( sanitize_text_field( (string) ( $option['label'] ?? '' ) ) ) ) {
+					return new WP_Error(
+						'missing_variant_label',
+						__( 'Every product option needs a label.', 'jetpack-paypal-payments' ),
+						array( 'status' => 400 )
+					);
+				}
+			}
+		}
+
+		return true;
+	}
+
+	/**
 	 * Validate per-option pricing.
 	 *
 	 * Per-option prices replace the product-level price, so they are
@@ -572,7 +655,7 @@ class PayPal_Attribute_Mapper {
 		$count                = 0;
 
 		foreach ( $variants['dimensions'] as $dimension ) {
-			if ( ++$count > 5 ) {
+			if ( ++$count > self::MAX_VARIANT_DIMENSIONS ) {
 				break;
 			}
 
@@ -588,7 +671,7 @@ class PayPal_Attribute_Mapper {
 
 			$option_count = 0;
 			foreach ( ( $dimension['options'] ?? array() ) as $option ) {
-				if ( ++$option_count > 10 ) {
+				if ( ++$option_count > self::MAX_VARIANT_OPTIONS ) {
 					break;
 				}
 

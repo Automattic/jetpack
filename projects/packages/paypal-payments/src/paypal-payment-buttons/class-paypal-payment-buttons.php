@@ -475,7 +475,10 @@ class PayPal_Payment_Buttons {
 	}
 
 	/**
-	 * Find the cheapest per-option price in a variants structure.
+	 * Find the cheapest per-option price in the primary dimension.
+	 *
+	 * PayPal only prices the primary dimension, so an amount left on any other
+	 * dimension is not a price a buyer can pay and must not become the headline.
 	 *
 	 * @since $$next-version$$
 	 *
@@ -490,7 +493,7 @@ class PayPal_Payment_Buttons {
 		$lowest = null;
 
 		foreach ( $variants['dimensions'] as $dimension ) {
-			if ( empty( $dimension['options'] ) || ! is_array( $dimension['options'] ) ) {
+			if ( empty( $dimension['primary'] ) || empty( $dimension['options'] ) || ! is_array( $dimension['options'] ) ) {
 				continue;
 			}
 
