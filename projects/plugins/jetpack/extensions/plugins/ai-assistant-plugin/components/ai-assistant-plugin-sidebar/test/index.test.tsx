@@ -9,6 +9,8 @@ const mockEditPost = jest.fn();
 const mockRecordEvent = jest.fn();
 let mockIsAgentNoticeDismissed = false;
 let mockIsPostEmpty = false;
+let mockRequireUpgrade = false;
+let mockPlanType = 'free';
 
 jest.mock( '@wordpress/hooks', () => ( {
 	applyFilters: jest.fn(),
@@ -55,7 +57,7 @@ jest.mock( '@automattic/jetpack-components', () => ( {
 jest.mock( '@automattic/jetpack-ai-client', () => ( {
 	useAICheckout: () => ( { checkoutUrl: 'https://checkout.example.com' } ),
 	useAiFeature: () => ( {
-		requireUpgrade: false,
+		requireUpgrade: mockRequireUpgrade,
 		upgradeType: 'default',
 		currentTier: { value: 1 },
 		isOverLimit: false,
@@ -68,7 +70,7 @@ jest.mock( '@automattic/jetpack-shared-extension-utils', () => ( {
 	useAnalytics: () => ( { tracks: { recordEvent: mockRecordEvent } } ),
 	PLAN_TYPE_FREE: 'free',
 	PLAN_TYPE_UNLIMITED: 'unlimited',
-	usePlanType: () => 'free',
+	usePlanType: () => mockPlanType,
 } ) );
 
 jest.mock( '@automattic/jetpack-shared-extension-utils/components', () => ( {
@@ -203,15 +205,7 @@ jest.mock( '@wordpress/ui', () => ( {
 	},
 } ) );
 
-jest.mock( '@wordpress/core-data', () => {
-	// Runs before imports due to jest.mock hoisting; the component reads this at module scope
-	Object.defineProperty( globalThis, 'Jetpack_Editor_Initial_State', {
-		value: { available_blocks: {} },
-		writable: true,
-		configurable: true,
-	} );
-	return { store: 'core' };
-} );
+jest.mock( '@wordpress/core-data', () => ( { store: 'core' } ) );
 
 jest.mock( '../../../../../blocks/ai-assistant/hooks/use-ai-product-page', () => () => ( {
 	productPageUrl: 'https://product.example.com',
@@ -241,13 +235,23 @@ jest.mock( '../../breve/utils/get-availability', () => ( {
 
 jest.mock( '../../feedback', () => ( { __esModule: true, default: () => null } ) );
 jest.mock( '../../title-optimization', () => ( { __esModule: true, default: () => null } ) );
-jest.mock( '../../usage-panel', () => ( { __esModule: true, default: () => null } ) );
-jest.mock( '../upgrade', () => ( { __esModule: true, default: () => null } ) );
+jest.mock( '../../usage-panel', () => ( {
+	__esModule: true,
+	default: () => <div data-testid="usage-panel" />,
+} ) );
+jest.mock( '../upgrade', () => ( {
+	__esModule: true,
+	default: () => <div data-testid="upgrade-row" />,
+} ) );
 jest.mock( '../style.scss', () => ( {} ) );
 
 const AGENT_NOTICE_FEATURE = 'ai-sidebar-agent-notice';
-// What a site with the writing assistant and the image editor both on exposes.
-const DEFAULT_FEATURES = [ 'ai-featured-image-generator', 'ai-assistant-support' ];
+// What a site with AI on, the writing assistant and the image editor exposes.
+const DEFAULT_FEATURES = [
+	'ai-assistant-usage-panel',
+	'ai-featured-image-generator',
+	'ai-assistant-support',
+];
 const withFeatures = ( features: string[] ) =>
 	jest.mocked( getFeatureAvailability ).mockImplementation( f => features.includes( f ) );
 const AGENT_NOTICE_TEXT =
@@ -260,6 +264,8 @@ describe( 'AiAssistantPluginSidebar', () => {
 		withFeatures( DEFAULT_FEATURES );
 		mockIsAgentNoticeDismissed = false;
 		mockIsPostEmpty = false;
+		mockRequireUpgrade = false;
+		mockPlanType = 'free';
 		// The notice reads this to decide whether to offer its action, so stand in
 		// for a loaded Agents Manager the way production has one.
 		( window as unknown as { __agentsManagerActions?: unknown } ).__agentsManagerActions = {
@@ -441,6 +447,30 @@ describe( 'AiAssistantPluginSidebar', () => {
 			expect(
 				screen.queryByRole( 'button', { name: 'Generate using AI' } )
 			).not.toBeInTheDocument();
+		} );
+	} );
+
+	describe( 'upgrade prompt', () => {
+		it( 'shows the usage meter, not the upgrade row, on the free plan', () => {
+			mockRequireUpgrade = true;
+
+			render( <AiAssistantPluginSidebar /> );
+
+			const documentPanel = screen.getByTestId( 'document-panel' );
+			expect( within( documentPanel ).getByTestId( 'usage-panel' ) ).toBeInTheDocument();
+			expect( within( documentPanel ).queryByTestId( 'upgrade-row' ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'shows the upgrade row on a paid plan that is over its limit, even with every feature off', () => {
+			mockRequireUpgrade = true;
+			mockPlanType = 'tiered';
+			withFeatures( [] );
+
+			render( <AiAssistantPluginSidebar /> );
+
+			const documentPanel = screen.getByTestId( 'document-panel' );
+			expect( within( documentPanel ).getByTestId( 'upgrade-row' ) ).toBeInTheDocument();
+			expect( within( documentPanel ).queryByTestId( 'usage-panel' ) ).not.toBeInTheDocument();
 		} );
 	} );
 

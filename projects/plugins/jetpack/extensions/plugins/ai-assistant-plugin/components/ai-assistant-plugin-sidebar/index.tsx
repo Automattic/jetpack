@@ -204,7 +204,7 @@ const JetpackAndSettingsContent = ( {
 					</BaseControl>
 				</PanelRow>
 			) }
-			{ requireUpgrade && ! isUsagePanelAvailable && (
+			{ requireUpgrade && ! showUsagePanel && (
 				<PanelRow>
 					<Upgrade placement={ placement } type={ upgradeType } upgradeUrl={ checkoutUrl } />
 				</PanelRow>
