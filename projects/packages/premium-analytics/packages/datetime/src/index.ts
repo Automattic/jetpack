@@ -4,6 +4,7 @@ export {
 	type DateRange,
 	type ComparisonPresetId,
 } from './get-comparison-range';
+export type { ComparisonRangeOptions } from './get-comparison-range';
 
 export {
 	createTZDateFromParts,
@@ -21,6 +22,7 @@ export { INTERVAL_TYPES, isIntervalType, type IntervalType } from './interval';
 export { getDateRangeSpan, type DateRangeSpan, type DateRangeSpanUnit } from './date-range-span';
 
 export { stepDateRange, canStepForward, type StepDirection } from './step-date-range';
+export { completeToDateRange, clampRangeEndToToday } from './to-date-range';
 
 export { drillDateRange } from './drill-date-range';
 

@@ -141,4 +141,29 @@ describe( 'deriveComparisonRange', () => {
 			compare_preset: 'previous-period',
 		} );
 	} );
+
+	it( 'steps a to-date preset back by its completed window and stops where it does', () => {
+		// `last-12-months` as read on 20 August 2026.
+		const range = {
+			from: '2025-09-01T00:00:00.000Z',
+			to: '2026-08-20T23:59:59.999Z',
+			comp: '1' as const,
+			compare_preset: 'previous-period' as const,
+		};
+
+		// Twelve months back from the first, running as many days short as the
+		// reference does: 354 days against 354, not against 365.
+		expect( deriveComparisonRange( { ...range, preset: 'last-12-months' } ) ).toEqual( {
+			compare_from: '2024-09-01T00:00:00.000+00:00',
+			compare_to: '2025-08-20T23:59:59.999+00:00',
+			compare_preset: 'previous-period',
+		} );
+
+		// The same dates picked by hand are a day count.
+		expect( deriveComparisonRange( { ...range, preset: 'custom' } ) ).toEqual( {
+			compare_from: '2024-09-12T00:00:00.000+00:00',
+			compare_to: '2025-08-31T23:59:59.999+00:00',
+			compare_preset: 'previous-period',
+		} );
+	} );
 } );
