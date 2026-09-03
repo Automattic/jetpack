@@ -127,6 +127,9 @@ export function usePayPalConnection() {
 	// Requires the site to be on WordPress.com or connected to it.
 	const [ partnerReferralsAvailable, setPartnerReferralsAvailable ] = useState( false );
 
+	/**
+	 * Check PayPal connection status on mount.
+	 */
 	useEffect( () => {
 		apiFetch( { path: `${ API_BASE }/connection` } )
 			.then( response => {

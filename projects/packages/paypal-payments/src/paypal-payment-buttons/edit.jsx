@@ -259,10 +259,6 @@ export default function PayPalPaymentButtonsEdit( {
 		! validationErrors.currencyCode &&
 		variantErrors.length === 0;
 
-	/**
-	 * Check PayPal connection status on mount.
-	 */
-
 	// Two blocks can share one PayPal payment — a duplicate, or one product
 	// shown as a button, a link and a QR code — and only the block that saved
 	// last has seen what PayPal holds. Read it back so every block agrees.
