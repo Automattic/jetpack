@@ -39,10 +39,10 @@ const collapsed = ( x: number, y: number ): WidgetGridRect => rect( x, y, 56, 56
 /**
  * The onboarding storyboard: tiles resize, move and swap to show what the
  * dashboard lets a reader do. Geometry is the Figma "animation flow" keyframes
- * verbatim, centering included; the captions are the designer's.
+ * verbatim, centering included; `WIDGET_GRID_KEYFRAME_CAPTIONS` says what each
+ * one changes.
  */
 export const WIDGET_GRID_KEYFRAMES: WidgetGridKeyframe[] = [
-	// Three tiles collapsed.
 	{
 		tiles: {
 			chart: collapsed( 138, 81 ),
@@ -50,7 +50,6 @@ export const WIDGET_GRID_KEYFRAMES: WidgetGridKeyframe[] = [
 			pages: collapsed( 206, 149 ),
 		},
 	},
-	// The chart tile grows.
 	{
 		tiles: {
 			chart: rect( 66, 40, 268, 102 ),
@@ -58,7 +57,6 @@ export const WIDGET_GRID_KEYFRAMES: WidgetGridKeyframe[] = [
 			pages: collapsed( 134, 154 ),
 		},
 	},
-	// The chart appears inside it.
 	{
 		chart: true,
 		tiles: {
@@ -67,7 +65,6 @@ export const WIDGET_GRID_KEYFRAMES: WidgetGridKeyframe[] = [
 			pages: collapsed( 134, 154 ),
 		},
 	},
-	// The people tile grows and pushes the pages tile along.
 	{
 		chart: true,
 		tiles: {
@@ -76,7 +73,6 @@ export const WIDGET_GRID_KEYFRAMES: WidgetGridKeyframe[] = [
 			pages: collapsed( 206, 154 ),
 		},
 	},
-	// The pages tile grows.
 	{
 		chart: true,
 		tiles: {
@@ -85,7 +81,6 @@ export const WIDGET_GRID_KEYFRAMES: WidgetGridKeyframe[] = [
 			pages: rect( 206, 154, 128, 102 ),
 		},
 	},
-	// The chart tile shrinks, and the chart with it.
 	{
 		chart: true,
 		tiles: {
@@ -94,7 +89,6 @@ export const WIDGET_GRID_KEYFRAMES: WidgetGridKeyframe[] = [
 			pages: rect( 206, 154, 128, 102 ),
 		},
 	},
-	// The pages tile grows taller to fill the column.
 	{
 		chart: true,
 		tiles: {
@@ -103,7 +97,6 @@ export const WIDGET_GRID_KEYFRAMES: WidgetGridKeyframe[] = [
 			pages: rect( 206, 40, 128, 216 ),
 		},
 	},
-	// The pages tile swaps sides with the other two.
 	{
 		chart: true,
 		tiles: {
@@ -112,7 +105,6 @@ export const WIDGET_GRID_KEYFRAMES: WidgetGridKeyframe[] = [
 			pages: rect( 66, 40, 128, 216 ),
 		},
 	},
-	// The people tile shrinks.
 	{
 		chart: true,
 		tiles: {
@@ -121,7 +113,6 @@ export const WIDGET_GRID_KEYFRAMES: WidgetGridKeyframe[] = [
 			pages: rect( 66, 40, 128, 216 ),
 		},
 	},
-	// The pages tile shrinks.
 	{
 		chart: true,
 		tiles: {
@@ -130,7 +121,6 @@ export const WIDGET_GRID_KEYFRAMES: WidgetGridKeyframe[] = [
 			pages: collapsed( 102, 58 ),
 		},
 	},
-	// The chart tile shrinks and hides the chart; the loop then reorders back to the start.
 	{
 		tiles: {
 			chart: collapsed( 206, 81 ),
@@ -138,6 +128,24 @@ export const WIDGET_GRID_KEYFRAMES: WidgetGridKeyframe[] = [
 			pages: collapsed( 138, 81 ),
 		},
 	},
+];
+
+/**
+ * What changes on the way into each keyframe, after the designer's captions
+ * on the Figma frames. Read by the stories; the app never imports it.
+ */
+export const WIDGET_GRID_KEYFRAME_CAPTIONS: readonly string[] = [
+	'The start: three tiles collapsed to their icons.',
+	'The chart tile grows wide.',
+	'The chart wipes in, left to right, inside the wide tile.',
+	'The people tile grows and pushes the pages tile along; the group stays centered.',
+	'The pages tile grows to match.',
+	'The chart tile shrinks, and the chart squeezes with it.',
+	'The pages tile grows taller to fill its column.',
+	'The pages tile swaps sides with the chart and people tiles.',
+	'The people tile shrinks back to its icon.',
+	'The pages tile shrinks back too; the group recenters.',
+	'The chart tile shrinks and hides the chart. The loop then reorders the tiles back to the start.',
 ];
 
 /** The fullest composition: what a reader who prefers reduced motion gets, still. */

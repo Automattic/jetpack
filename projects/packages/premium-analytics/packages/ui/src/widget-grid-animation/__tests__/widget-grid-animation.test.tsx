@@ -1,5 +1,9 @@
 import { act, render } from '@testing-library/react';
-import { WIDGET_GRID_KEYFRAMES, WIDGET_GRID_STATIC_FRAME } from '../keyframes';
+import {
+	WIDGET_GRID_KEYFRAME_CAPTIONS,
+	WIDGET_GRID_KEYFRAMES,
+	WIDGET_GRID_STATIC_FRAME,
+} from '../keyframes';
 import { WidgetGridAnimation } from '../widget-grid-animation';
 import type { WidgetGridKeyframe } from '../keyframes';
 
@@ -149,6 +153,10 @@ describe( 'WidgetGridAnimation', () => {
 
 		rerender( <WidgetGridAnimation frame={ 2 } /> );
 		expect( tile( container, 'chart' ) ).toHaveAttribute( 'data-chart', 'visible' );
+	} );
+
+	it( 'captions every keyframe of the storyboard', () => {
+		expect( WIDGET_GRID_KEYFRAME_CAPTIONS ).toHaveLength( WIDGET_GRID_KEYFRAMES.length );
 	} );
 
 	it( 'is decorative: hidden from assistive technology', () => {
