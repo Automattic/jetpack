@@ -1,0 +1,69 @@
+// Illustration palette from the Figma "animation flow" frames. The stage is a
+// fixed dark green, so nothing here follows the admin color scheme.
+$widget-grid-stage-color: #003010;
+$widget-grid-tile-gradient: linear-gradient(180deg, #fff 0%, #eaf1e7 100%);
+$widget-grid-tile-radius: 8px;
+$widget-grid-tile-padding: 16px;
+
+// Where the chart sits inside its tile: under the icon row, inset like the
+// Figma export.
+$widget-grid-chart-inset: 18px 8px 16px;
+
+.canvas {
+	position: relative;
+	overflow: hidden;
+	inline-size: 100%;
+	aspect-ratio: 400 / 286;
+	background: $widget-grid-stage-color;
+}
+
+.tile {
+	position: absolute;
+	inset-inline-start: var(--wga-x);
+	inset-block-start: var(--wga-y);
+	box-sizing: border-box;
+	inline-size: var(--wga-width);
+	block-size: var(--wga-height);
+	padding: $widget-grid-tile-padding;
+	border-radius: $widget-grid-tile-radius;
+	background: $widget-grid-tile-gradient;
+	color: $widget-grid-stage-color;
+	transition-property: inset-inline-start, inset-block-start, inline-size, block-size;
+	transition-duration: var(--wga-duration);
+	transition-timing-function: var(--wga-easing);
+}
+
+.icon {
+	position: relative;
+	// Above the chart, which paints under the icon row. No z-index token in WPDS.
+	z-index: 1;
+	display: block;
+	fill: currentColor;
+}
+
+// Clipped from the right edge inward, so it reveals left to right as the tile
+// grows and hides the same way back when it shrinks.
+.chart {
+	position: absolute;
+	inset: $widget-grid-chart-inset;
+	clip-path: inset(0 100% 0 0);
+	transition: clip-path var(--wga-duration) var(--wga-easing);
+
+	> svg {
+		display: block;
+		inline-size: 100%;
+		block-size: 100%;
+	}
+}
+
+.chartVisible {
+	clip-path: inset(0 0 0 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+	.tile,
+	.chart {
+		transition: none;
+	}
+}
