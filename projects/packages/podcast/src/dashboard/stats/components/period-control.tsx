@@ -1,4 +1,5 @@
 import { useViewportMatch } from '@wordpress/compose';
+import { dateI18n } from '@wordpress/date';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { calendar as calendarIcon } from '@wordpress/icons';
@@ -11,34 +12,13 @@ type DateRange = NonNullable< Parameters< typeof RangeCalendar >[ 0 ][ 'value' ]
 
 const MAX_RANGE_DAYS = 365;
 
-const getLocale = () => {
-	if ( typeof document !== 'undefined' ) {
-		const htmlLang = document.documentElement.lang;
-		if ( htmlLang ) {
-			return htmlLang;
-		}
-	}
-	if ( typeof navigator !== 'undefined' && navigator.language ) {
-		return navigator.language;
-	}
-	return 'en-US';
-};
-
-const formatLabel = ( start: Date, end: Date ) => {
-	const format = ( date: Date ) => {
-		try {
-			return new Intl.DateTimeFormat( getLocale(), { dateStyle: 'medium' } ).format( date );
-		} catch {
-			return new Intl.DateTimeFormat( 'en-US', { dateStyle: 'medium' } ).format( date );
-		}
-	};
-	return sprintf(
+const formatLabel = ( start: Date, end: Date ) =>
+	sprintf(
 		/* translators: %1$s: start date, %2$s: end date */
 		__( '%1$s to %2$s', 'jetpack-podcast' ),
-		format( start ),
-		format( end )
+		dateI18n( 'M j, Y', start ),
+		dateI18n( 'M j, Y', end )
 	);
-};
 
 /**
  * Translated heading for a selection. Preset periods use a fixed label;
@@ -138,8 +118,10 @@ const PeriodControl = ( { value, onChange }: PeriodControlProps ) => {
 	const [ draft, setDraft ] = useState< DateRange | null >( null );
 	const isSmall = useViewportMatch( 'medium', '<' );
 
-	const end = localDateFromYmd( value.range.to );
-	const label = formatLabel( localDateFromYmd( value.range.from ), end );
+	const label = formatLabel(
+		localDateFromYmd( value.range.from ),
+		localDateFromYmd( value.range.to )
+	);
 	const today = startOfToday();
 	const earliest = daysAgo( MAX_RANGE_DAYS - 1 );
 
@@ -188,24 +170,9 @@ const PeriodControl = ( { value, onChange }: PeriodControlProps ) => {
 		},
 		[ presets, apply ]
 	);
-	// Show the two months ending at the selection so the picked range is in view.
-	const endMonth = draft?.to ?? draft?.from ?? end;
-	const defaultMonth = new Date(
-		endMonth.getFullYear(),
-		endMonth.getMonth() - ( isSmall ? 0 : 1 ),
-		1
-	);
-
 	return (
 		<Popover.Root open={ isOpen } onOpenChange={ handleOpenChange }>
-			<Popover.Trigger
-				render={ <Button variant="outline" tone="neutral" /> }
-				aria-label={ sprintf(
-					/* translators: %s: selected date range */
-					__( 'Date range: %s. Activate to open calendar.', 'jetpack-podcast' ),
-					label
-				) }
-			>
+			<Popover.Trigger render={ <Button variant="outline" tone="neutral" /> }>
 				{ label }
 				<Button.Icon icon={ calendarIcon } />
 			</Popover.Trigger>
@@ -241,9 +208,8 @@ const PeriodControl = ( { value, onChange }: PeriodControlProps ) => {
 					<RangeCalendar
 						value={ draft }
 						onValueChange={ handleCalendarChange }
-						locale={ getLocale() }
+						locale={ document.documentElement.lang }
 						numberOfMonths={ isSmall ? 1 : 2 }
-						defaultMonth={ defaultMonth }
 						startMonth={ earliest }
 						endMonth={ today }
 						disabled={ [ { before: earliest }, { after: today } ] }
