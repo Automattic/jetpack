@@ -34,9 +34,8 @@ class Expiry_Domain {
 	 * The WordPress.com address this site would fall back to, or null when the
 	 * modal should leave the domain out.
 	 *
-	 * Null covers two different situations that happen to want the same silence:
-	 * a site whose custom domain survives the revert, and a site we couldn't get
-	 * an answer for. Naming the wrong domain is worse than naming none.
+	 * Null covers both a domain that survives the revert and a lookup that
+	 * failed: naming the wrong one is worse than naming none.
 	 */
 	public static function get_revert_domain(): ?string {
 		// A reverted site is back on Simple, where the blogs table holds the
@@ -67,10 +66,8 @@ class Expiry_Domain {
 	/**
 	 * The address a reverted Simple site is now on, or null if it kept its own.
 	 *
-	 * `wp_blogs.domain` is the unmapped address itself, so where the site is
-	 * serving from it, that is the switch the copy describes having happened. A
-	 * site still answering on a custom domain kept it through the revert, and
-	 * nothing was switched.
+	 * `wp_blogs.domain` is the unmapped address, so serving from it means the
+	 * switch has happened; a custom domain means it never did.
 	 */
 	private static function simple_revert_domain(): ?string {
 		if ( ! function_exists( 'get_blog_details' ) ) {
@@ -90,10 +87,8 @@ class Expiry_Domain {
 	/**
 	 * Pure: pick the fallback address out of a site's domain list.
 	 *
-	 * A custom primary domain is not removed when a plan lapses -- the revert
-	 * keeps it and repoints its A records -- so a site that has one is not going
-	 * to be renamed and has nothing to read here. Only a site sitting on its
-	 * platform-assigned address actually moves, and it moves to the row below.
+	 * The revert keeps a custom primary domain and only repoints it, so a site
+	 * with one is never renamed and gets nothing.
 	 *
 	 * @param array<int,object> $domains Domain objects from /sites/{id}/domains.
 	 * @return string|null

@@ -46,16 +46,23 @@ function wpcom_expiry_notices_admin_banner_data(): ?array {
 /**
  * CTA URLs for the banner.
  *
- * Once the site has been reverted, renewing no longer undoes anything the
- * notice describes, so the ask becomes support instead.
+ * Only a reverted site is sent to support: one that never carried a transfer
+ * lost plan features and nothing else, and buying the plan again does give those
+ * back. The banner shows on every site, so this has to be asked, not assumed.
  *
  * @param array<string,mixed> $state Expiry state.
  * @return array<string,array>
  */
 function wpcom_expiry_notices_admin_banner_urls( array $state ): array {
 	$urls = Expiry_Data::get_cta_urls( $state, wpcom_expiry_notices_current_admin_url() );
-	if ( Expiry_Data::STATE_EXPIRED === ( $state['state'] ?? '' ) ) {
+	if ( Expiry_Data::STATE_EXPIRED !== ( $state['state'] ?? '' ) ) {
+		return $urls;
+	}
+
+	if ( wpcom_expiry_notices_revert_applies_to_site( $state ) ) {
 		$urls['primary'] = wpcom_expiry_notices_support_cta( $state );
+	} else {
+		$urls['primary']['label'] = __( 'Restore site', 'jetpack-mu-wpcom' );
 	}
 	return $urls;
 }
@@ -256,15 +263,17 @@ function wpcom_expiry_notices_admin_banner_body( array $state ): string {
 	$auto_renew = ! empty( $state['auto_renew'] );
 
 	if ( Expiry_Data::STATE_EXPIRED === ( $state['state'] ?? '' ) ) {
-		// Reverting an Atomic site also takes it private; a Simple site stays
-		// public, so only Atomic mentions it.
-		if ( ! empty( $state['is_atomic'] ) ) {
+		// A revert takes the site private and deletes what it lists, and buying
+		// the plan again brings none of it back -- so this half asks for support.
+		// Keyed on the revert rather than on `is_atomic`, which is already false
+		// by the time a site has been reverted.
+		if ( wpcom_expiry_notices_revert_applies_to_site( $state ) ) {
 			if ( null === $storage_gb ) {
-				return __( 'Your site has been moved to the Free plan and set to private. You no longer have access to plugins, custom themes, or additional storage. Upgrade your plan to restore your site.', 'jetpack-mu-wpcom' );
+				return __( 'Your site has been moved to the Free plan and set to private. You no longer have access to plugins, custom themes, or additional storage. Contact support to get help restoring it.', 'jetpack-mu-wpcom' );
 			}
 			return sprintf(
 				/* translators: %d is a number of gigabytes of storage. */
-				__( 'Your site has been moved to the Free plan and set to private. You no longer have access to plugins, custom themes, or %d GB of storage. Upgrade your plan to restore your site.', 'jetpack-mu-wpcom' ),
+				__( 'Your site has been moved to the Free plan and set to private. You no longer have access to plugins, custom themes, or %d GB of storage. Contact support to get help restoring it.', 'jetpack-mu-wpcom' ),
 				$storage_gb
 			);
 		}

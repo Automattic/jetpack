@@ -3,14 +3,13 @@
  * Wp-admin modal for plans that have expired, in grace or after it.
  *
  * For sites that carry an Atomic transfer, which is not the same as sites that
- * are Atomic now -- see wpcom_expiry_notices_modal_applies_to_site(). Copy lives
+ * are Atomic now -- see wpcom_expiry_notices_revert_applies_to_site(). Copy lives
  * here rather than in the React that renders it, because this package extracts
  * PHP strings for translation and not JS.
  *
  * @package automattic/jetpack-mu-wpcom
  */
 
-use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Data;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Domain;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Notice_Dismiss;
@@ -27,7 +26,7 @@ function wpcom_expiry_notices_admin_modal_data(): ?array {
 		return null;
 	}
 
-	if ( ! wpcom_expiry_notices_modal_applies_to_site( $state ) ) {
+	if ( ! wpcom_expiry_notices_revert_applies_to_site( $state ) ) {
 		return null;
 	}
 
@@ -60,37 +59,6 @@ function wpcom_expiry_notices_admin_modal_data(): ?array {
 }
 
 /**
- * Whether this site is one the modal's copy is true of.
- *
- * The revert is the whole subject, so the audience is sites that carry a
- * transfer -- but it cannot simply be "Atomic", because the revert itself is
- * what ends that. A site is Atomic while the changes are still ahead of it and
- * Simple once they have happened, which is exactly when the second variant is
- * due. So Simple counts too, on the sticker wpcom leaves behind.
- *
- * @param array<string,mixed> $state Expiry state.
- */
-function wpcom_expiry_notices_modal_applies_to_site( array $state ): bool {
-	if ( Constants::is_true( 'IS_ATOMIC' ) ) {
-		return true;
-	}
-
-	// Only after the grace period. Before it, a site that has been reverted was
-	// reverted by some earlier lapse, and this one has not reached the changes
-	// the pre-revert variant promises.
-	//
-	// Not narrowed by plan: Personal and higher carry a transfer, so there is no
-	// tier whose lapse could not have produced this revert. The window does the
-	// narrowing instead -- a state only exists for 60 days past an expiry, and
-	// the revert lands 30 days into it.
-	if ( Expiry_Data::STATE_EXPIRED !== ( $state['state'] ?? '' ) ) {
-		return false;
-	}
-
-	return wpcom_has_blog_sticker( 'blog-transfer-reverted', get_wpcom_blog_id() );
-}
-
-/**
  * The paragraph under the title.
  *
  * @param bool $is_grace Whether the site is still inside the grace period.
@@ -99,7 +67,9 @@ function wpcom_expiry_notices_modal_description( bool $is_grace ): string {
 	if ( $is_grace ) {
 		return __( 'Your site will be moved to the Free plan. We will also make these changes to your site:', 'jetpack-mu-wpcom' );
 	}
-	return __( 'Your site has been moved to the Free plan and set to private. Upgrade your plan to restore your site.', 'jetpack-mu-wpcom' );
+	// Not "upgrade your plan": buying it again does not bring back what the
+	// revert deleted, which is why the only button here goes to support.
+	return __( 'Your site has been moved to the Free plan and set to private. Contact support to get help restoring it.', 'jetpack-mu-wpcom' );
 }
 
 /**

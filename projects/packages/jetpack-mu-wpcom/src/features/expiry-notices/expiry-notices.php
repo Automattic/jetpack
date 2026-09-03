@@ -126,6 +126,28 @@ function wpcom_expiry_notices_expired_heading( array $state ): string {
 }
 
 /**
+ * Whether the revert this feature describes applies to this site, now.
+ *
+ * Not simply "is Atomic": the revert is what ends that, so a site is Atomic
+ * while the changes are ahead of it and Simple once they have happened. wpcom
+ * marks the difference with a sticker, which only counts after the grace period
+ * -- before it, a reverted site was reverted by some earlier lapse.
+ *
+ * @param array<string,mixed> $state Expiry state.
+ */
+function wpcom_expiry_notices_revert_applies_to_site( array $state ): bool {
+	if ( \Automattic\Jetpack\Constants::is_true( 'IS_ATOMIC' ) ) {
+		return true;
+	}
+
+	if ( \Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Data::STATE_EXPIRED !== ( $state['state'] ?? '' ) ) {
+		return false;
+	}
+
+	return wpcom_has_blog_sticker( 'blog-transfer-reverted', get_wpcom_blog_id() );
+}
+
+/**
  * The CTA a reverted site gets, pointing at support rather than checkout.
  *
  * Buying the plan again does not undo the revert: the cleanup that follows it

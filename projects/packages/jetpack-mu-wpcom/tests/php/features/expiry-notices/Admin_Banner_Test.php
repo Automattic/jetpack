@@ -7,6 +7,7 @@
 
 declare( strict_types = 1 );
 
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Data;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Notice_Dismiss;
@@ -55,6 +56,7 @@ class Admin_Banner_Test extends \WorDBless\BaseTestCase {
 		unset( $GLOBALS['wpcom_get_site_purchases_test_value'] );
 		unset( $GLOBALS['wpcom_is_vip_test_value'] );
 		delete_user_meta( $this->admin_id, Expiry_Notice_Dismiss::META_BANNER );
+		Constants::clear_constants();
 		parent::tear_down();
 	}
 
@@ -153,6 +155,7 @@ class Admin_Banner_Test extends \WorDBless\BaseTestCase {
 	}
 
 	public function test_the_two_post_expiry_windows_ask_for_different_things(): void {
+		Constants::set_constant( 'IS_ATOMIC', true );
 		$this->set_purchase( -5 );
 		$grace = $this->render();
 		$this->set_purchase( -45 );
@@ -427,15 +430,17 @@ class Admin_Banner_Test extends \WorDBless\BaseTestCase {
 	}
 
 	public function test_body_after_revert_on_atomic_mentions_the_site_going_private(): void {
+		// Keyed on the constant rather than the state's is_atomic, which is
+		// already false by the time a site has been reverted.
+		Constants::set_constant( 'IS_ATOMIC', true );
 		$state = $this->message_state(
 			array(
 				'state'          => Expiry_Data::STATE_EXPIRED,
 				'days_remaining' => -45,
-				'is_atomic'      => true,
 			)
 		);
 		$this->assertSame(
-			'Your site has been moved to the Free plan and set to private. You no longer have access to plugins, custom themes, or 50 GB of storage. Upgrade your plan to restore your site.',
+			'Your site has been moved to the Free plan and set to private. You no longer have access to plugins, custom themes, or 50 GB of storage. Contact support to get help restoring it.',
 			wpcom_expiry_notices_admin_banner_body( $state )
 		);
 	}
@@ -454,6 +459,7 @@ class Admin_Banner_Test extends \WorDBless\BaseTestCase {
 	}
 
 	public function test_after_revert_the_cta_points_at_support(): void {
+		Constants::set_constant( 'IS_ATOMIC', true );
 		// Re-purchasing cannot bring back what the revert deleted, so checkout is
 		// the wrong destination once the site is on Free.
 		$this->set_purchase( -45 );
@@ -464,6 +470,7 @@ class Admin_Banner_Test extends \WorDBless\BaseTestCase {
 	}
 
 	public function test_the_support_cta_carries_the_message_and_a_fallback(): void {
+		Constants::set_constant( 'IS_ATOMIC', true );
 		// The Help Center has no URL that opens it in this state, so the message
 		// rides on the element and the href is what a click falls back to.
 		$this->set_purchase( -45 );
@@ -485,5 +492,21 @@ class Admin_Banner_Test extends \WorDBless\BaseTestCase {
 	public function test_body_falls_back_to_additional_storage_for_unknown_slug(): void {
 		$state = $this->message_state( array( 'product_slug' => 'mystery-bundle' ) );
 		$this->assertStringContainsString( 'additional storage', wpcom_expiry_notices_admin_banner_body( $state ) );
+	}
+
+	public function test_a_site_that_was_never_atomic_is_not_sent_to_support(): void {
+		// The banner shows on every site, and one that never carried a transfer
+		// lost plan features and nothing else -- buying the plan again does give
+		// those back, so support is the wrong destination.
+		Constants::set_constant( 'IS_ATOMIC', false );
+		$this->set_purchase( -45 );
+		$out = $this->render();
+
+		$this->assertStringNotContainsString( 'Contact support', $out );
+		$this->assertStringNotContainsString( 'data-support-message', $out );
+		$this->assertStringContainsString( 'Restore site', $out );
+		$this->assertStringContainsString( '/checkout/', $out );
+		// And the copy has to ask for the same thing the button does.
+		$this->assertStringContainsString( 'Upgrade your plan to restore your site.', $out );
 	}
 }

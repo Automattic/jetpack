@@ -81,13 +81,11 @@ class Admin_Modal_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * A site the revert has already moved back to Simple: no longer Atomic, and
-	 * carrying the sticker wpcom leaves behind.
+	 * A site the revert has already moved back to Simple.
 	 *
-	 * `has_blog_sticker` is declared here rather than in the shared bootstrap
-	 * because other suites in this package declare their own, and a definition
-	 * that is already in place makes theirs a fatal redeclare. Hence the separate
-	 * process on every test that calls this.
+	 * `has_blog_sticker` is declared per test because other suites declare their
+	 * own, and a shared definition makes theirs a fatal redeclare -- hence the
+	 * separate process on every caller.
 	 */
 	private function pretend_reverted_to_simple(): void {
 		Constants::set_constant( 'IS_ATOMIC', false );

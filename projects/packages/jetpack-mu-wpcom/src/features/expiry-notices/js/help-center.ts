@@ -3,15 +3,13 @@ import { dispatch } from '@wordpress/data';
 const HELP_CENTER_STORE = 'automattic/help-center';
 
 /**
- * Open the Help Center's chat with the message already typed in.
+ * Open the Help Center's chat with the message sent.
  *
- * `?query=` fills the input without sending it, so the person still reads and
- * sends their own first message. Mirrors what Calypso's own inline Help Center
- * button does, since there is no URL that opens the panel in this state — the
- * route lives in the Help Center's own router, not the page's.
+ * Dispatched rather than linked because the route lives in the Help Center's own
+ * router, so no URL reaches it.
  *
- * @param message - Text to put in the chat input.
- * @return Whether the Help Center answered. False when its bundle is absent, so the caller can let the click fall through to its href instead.
+ * @param message - Text to send.
+ * @return Whether the Help Center answered. False lets the caller fall through to its href.
  */
 export const openHelpCenterWithMessage = ( message: string ): boolean => {
 	let helpCenter;
