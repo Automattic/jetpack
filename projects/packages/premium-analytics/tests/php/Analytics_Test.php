@@ -1126,6 +1126,18 @@ class Analytics_Test extends TestCase {
 	}
 
 	/**
+	 * On Simple stats.php already prints w.js on every wp-admin page, so enqueueing it
+	 * here would only repeat the request.
+	 */
+	public function test_wpcom_simple_skips_the_tracks_transport() {
+		Constants::set_constant( 'IS_WPCOM', true );
+
+		Analytics::enqueue_tracks_transport();
+
+		$this->assertFalse( wp_script_is( 'jp-tracks', 'enqueued' ) );
+	}
+
+	/**
 	 * The identity filter has to survive a site with no connected user: the dashboard
 	 * still records events there, just anonymously.
 	 */

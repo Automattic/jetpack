@@ -575,11 +575,15 @@ class Analytics {
 	 *
 	 * `@automattic/jetpack-analytics` only queues events into `window._tkq` — its own w.js
 	 * loader is disabled — so without this handle no `jetpack_premium_analytics_*` event
-	 * ever flushes. Mirrors Activity Log's `enqueue_initial_state()`.
+	 * ever flushes. Simple is skipped because stats.php already prints the same script.
 	 *
 	 * @return void
 	 */
 	public static function enqueue_tracks_transport() {
+		if ( ( new Host() )->is_wpcom_simple() ) {
+			return;
+		}
+
 		wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
 	}
 
