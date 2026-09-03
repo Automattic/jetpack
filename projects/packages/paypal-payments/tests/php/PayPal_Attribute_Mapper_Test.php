@@ -659,6 +659,32 @@ class PayPal_Attribute_Mapper_Test extends TestCase {
 	}
 
 	/**
+	 * Test that the currency comes from the priced options when there is no product price.
+	 */
+	public function test_api_response_to_attributes_takes_currency_from_priced_options() {
+		$variants = $this->variants_with_prices( array( '10.00', '20.00' ) );
+
+		$variants['dimensions'][0]['options'][0]['unit_amount']['currency_code'] = 'EUR';
+		$variants['dimensions'][0]['options'][1]['unit_amount']['currency_code'] = 'EUR';
+
+		$attributes = PayPal_Attribute_Mapper::api_response_to_attributes(
+			array(
+				'id'         => 'PLB-VAR',
+				'line_items' => array(
+					array(
+						'name'     => 'Widget',
+						'variants' => $variants,
+					),
+				),
+			)
+		);
+
+		$this->assertSame( 'EUR', $attributes['currencyCode'] );
+		$this->assertArrayNotHasKey( 'price', $attributes );
+		$this->assertTrue( $attributes['variantsEnabled'] );
+	}
+
+	/**
 	 * Test that the product price is optional once the options carry their own.
 	 */
 	public function test_validate_allows_missing_price_with_variant_pricing() {

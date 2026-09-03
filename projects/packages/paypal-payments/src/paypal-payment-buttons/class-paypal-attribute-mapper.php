@@ -249,6 +249,14 @@ class PayPal_Attribute_Mapper {
 			if ( ! empty( $line_item['variants']['dimensions'] ) ) {
 				$attributes['variantsEnabled'] = true;
 				$attributes['variants']        = $line_item['variants'];
+
+				// With per-option pricing the currency lives on the options.
+				if ( ! isset( $attributes['currencyCode'] ) ) {
+					$variant_currency = self::get_variant_currency( $line_item['variants'] );
+					if ( null !== $variant_currency ) {
+						$attributes['currencyCode'] = $variant_currency;
+					}
+				}
 			}
 
 			// Adjustable quantity (WOOPTP-170).
@@ -504,6 +512,26 @@ class PayPal_Attribute_Mapper {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Find the currency the per-option prices are in.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array|null $variants Variants structure (block or API shape).
+	 * @return string|null The first priced option's currency code, or null when none is priced.
+	 */
+	private static function get_variant_currency( $variants ) {
+		foreach ( ( $variants['dimensions'] ?? array() ) as $dimension ) {
+			foreach ( ( $dimension['options'] ?? array() ) as $option ) {
+				if ( ! empty( $option['unit_amount']['currency_code'] ) ) {
+					return sanitize_text_field( $option['unit_amount']['currency_code'] );
+				}
+			}
+		}
+
+		return null;
 	}
 
 	/**

@@ -20,6 +20,7 @@ import {
 	InspectorControls,
 	MediaUpload,
 	MediaUploadCheck,
+	store as blockEditorStore,
 	useBlockProps,
 } from '@wordpress/block-editor';
 import {
@@ -37,10 +38,12 @@ import {
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis -- Experimental API; stable ConfirmDialog not yet exported by @wordpress/components.
 	__experimentalConfirmDialog as ConfirmDialog,
 } from '@wordpress/components';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { useState, useEffect, useCallback, useMemo, useRef } from '@wordpress/element';
-import { __, sprintf } from '@wordpress/i18n';
+import { __, _n, sprintf } from '@wordpress/i18n';
 import metadata from './block.json';
 import PayPalButtonPreview from './paypal-button-preview';
+import { getResourceAttributeUpdates } from './resource-sync';
 import {
 	validatePrice,
 	validateProductName,
@@ -301,9 +304,14 @@ function FormatSwitcher( { value, onChange, disabled } ) {
  * @param {object}   props               - Block props.
  * @param {object}   props.attributes    - Block attributes.
  * @param {Function} props.setAttributes - Function to update block attributes.
+ * @param {string}   props.clientId      - The block's client ID (not the PayPal one).
  * @return {Element} Block editor UI.
  */
-export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } ) {
+export default function PayPalPaymentButtonsEdit( {
+	attributes,
+	setAttributes,
+	clientId: blockClientId,
+} ) {
 	const {
 		colorScheme,
 		isApiManaged,
@@ -553,6 +561,68 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 				setConnectionLoading( false );
 			} );
 	}, [] );
+
+	// Two blocks can share one PayPal payment — a duplicate, or one product
+	// shown as a button, a link and a QR code — and only the block that saved
+	// last has seen what PayPal holds. Read it back so every block agrees.
+	const { __unstableMarkNextChangeAsNotPersistent } = useDispatch( blockEditorStore );
+	const latestAttributes = useRef( attributes );
+	latestAttributes.current = attributes;
+
+	useEffect( () => {
+		if ( ! isConnected || ! isApiManaged || ! resourceId ) {
+			return;
+		}
+
+		let cancelled = false;
+
+		apiFetch( { path: `${ API_BASE }/buttons/${ resourceId }` } )
+			.then( response => {
+				if ( cancelled || ! response?.attributes ) {
+					return;
+				}
+				const updates = getResourceAttributeUpdates(
+					latestAttributes.current,
+					response.attributes
+				);
+				if ( ! Object.keys( updates ).length ) {
+					return;
+				}
+				// Opening a post must not mark it dirty.
+				__unstableMarkNextChangeAsNotPersistent?.();
+				setAttributes( updates );
+			} )
+			// A payment deleted on PayPal is re-created when the merchant next saves the block.
+			.catch( () => {} );
+
+		return () => {
+			cancelled = true;
+		};
+	}, [
+		isConnected,
+		isApiManaged,
+		resourceId,
+		setAttributes,
+		__unstableMarkNextChangeAsNotPersistent,
+	] );
+
+	// Other blocks on this page pointing at the same PayPal payment.
+	const sharedResourceCount = useSelect(
+		select => {
+			if ( ! resourceId || ! blockClientId ) {
+				return 0;
+			}
+			const { getClientIdsWithDescendants, getBlockName, getBlockAttributes } =
+				select( blockEditorStore );
+			return getClientIdsWithDescendants().filter(
+				id =>
+					id !== blockClientId &&
+					getBlockName( id ) === metadata.name &&
+					getBlockAttributes( id )?.resourceId === resourceId
+			).length;
+		},
+		[ blockClientId, resourceId ]
+	);
 
 	/**
 	 * Follow the site-wide connection state when another block changes it.
@@ -1877,6 +1947,23 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 		</Notice>
 	) : null;
 
+	const sharedResourceMessage = sprintf(
+		/* translators: %d: number of other blocks on this page using the same PayPal payment */
+		_n(
+			'%d other block on this page uses this PayPal payment. Changing the product or price here changes it there too. To sell something different, add a new block and create a new payment.',
+			'%d other blocks on this page use this PayPal payment. Changing the product or price here changes it there too. To sell something different, add a new block and create a new payment.',
+			sharedResourceCount,
+			'jetpack-paypal-payments'
+		),
+		sharedResourceCount
+	);
+	const sharedResourceNotice =
+		sharedResourceCount > 0 ? (
+			<Notice status="info" isDismissible={ false }>
+				{ sharedResourceMessage }
+			</Notice>
+		) : null;
+
 	const connectionStatus = (
 		<span
 			className={ `jetpack-paypal-payment-buttons__status-dot ${
@@ -1915,6 +2002,7 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 					</div>
 
 					{ disconnectedNotice }
+					{ sharedResourceNotice }
 
 					{ successMessage && (
 						<Notice status="success" isDismissible onDismiss={ () => setSuccessMessage( null ) }>
@@ -1964,6 +2052,7 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 				</div>
 
 				{ disconnectedNotice }
+				{ sharedResourceNotice }
 
 				<h3>{ hasButton ? labelEditHeading : labelCreateHeading }</h3>
 				{ ! hasButton && (

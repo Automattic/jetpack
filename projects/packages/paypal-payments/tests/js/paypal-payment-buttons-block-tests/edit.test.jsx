@@ -33,14 +33,28 @@ jest.mock( '@wordpress/element', () => {
 jest.mock( '@wordpress/i18n', () => ( {
 	__: text => text,
 	_x: text => text,
+	_n: ( single, plural, count ) => ( count === 1 ? single : plural ),
 	sprintf: ( format, ...args ) => {
 		let i = 0;
 		return format.replace( /%[ds]/g, () => args[ i++ ] );
 	},
 } ) );
 
+// Block-editor store: the sibling count reads other blocks through useSelect.
+const mockBlockEditorSelect = {
+	getClientIdsWithDescendants: jest.fn( () => [] ),
+	getBlockName: jest.fn(),
+	getBlockAttributes: jest.fn(),
+};
+const mockMarkNotPersistent = jest.fn();
+jest.mock( '@wordpress/data', () => ( {
+	useSelect: selector => selector( () => mockBlockEditorSelect ),
+	useDispatch: () => ( { __unstableMarkNextChangeAsNotPersistent: mockMarkNotPersistent } ),
+} ) );
+
 // Mock WordPress block-editor.
 jest.mock( '@wordpress/block-editor', () => ( {
+	store: { name: 'core/block-editor' },
 	useBlockProps: () => ( { className: 'wp-block-paypal-payment-buttons' } ),
 	BlockControls: ( { children } ) => <div data-testid="block-controls">{ children }</div>,
 	InspectorControls: ( { children } ) => <div data-testid="inspector-controls">{ children }</div>,
@@ -1370,6 +1384,110 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					} ),
 				} )
 			);
+		} );
+	} );
+
+	describe( 'Shared payment resource', () => {
+		const attributes = {
+			isApiManaged: true,
+			resourceId: 'PLB-SHARED1',
+			paymentLink: 'https://www.paypal.com/ncp/payment/PLB-SHARED1',
+			productName: 'original',
+			price: '9.99',
+			currencyCode: 'USD',
+		};
+		const resourcePath = '/wpcom/v2/paypal/buttons/PLB-SHARED1';
+
+		/**
+		 * Answer the connection check as connected and the payment read with the given attributes.
+		 *
+		 * @param {object} resourceAttributes - Block-shaped attributes the server maps from the payment.
+		 */
+		function mockResource( resourceAttributes ) {
+			apiFetch.mockImplementation( ( { path } ) => {
+				if ( path.endsWith( '/connection' ) ) {
+					return Promise.resolve( { connected: true, environment: 'sandbox' } );
+				}
+				if ( path === resourcePath ) {
+					return Promise.resolve( { id: 'PLB-SHARED1', attributes: resourceAttributes } );
+				}
+				return Promise.resolve( {} );
+			} );
+		}
+
+		beforeEach( () => {
+			mockMarkNotPersistent.mockClear();
+			mockBlockEditorSelect.getClientIdsWithDescendants.mockReturnValue( [] );
+		} );
+
+		it( 'corrects a stale copy from the payment PayPal holds, without dirtying the post', async () => {
+			mockResource( { ...attributes, productName: 'duplicate', price: '49.00' } );
+
+			render( <Edit attributes={ attributes } setAttributes={ setAttributes } clientId="a" /> );
+
+			await waitFor( () =>
+				expect( setAttributes ).toHaveBeenCalledWith( { productName: 'duplicate', price: '49.00' } )
+			);
+			expect( mockMarkNotPersistent ).toHaveBeenCalledTimes( 1 );
+		} );
+
+		it( 'leaves a block alone when it already matches the payment', async () => {
+			mockResource( { ...attributes } );
+
+			render( <Edit attributes={ attributes } setAttributes={ setAttributes } clientId="a" /> );
+
+			await expect( screen.findByTestId( 'paypal-button-preview' ) ).resolves.toBeInTheDocument();
+			await waitFor( () =>
+				expect( apiFetch ).toHaveBeenCalledWith( expect.objectContaining( { path: resourcePath } ) )
+			);
+			expect( setAttributes ).not.toHaveBeenCalled();
+			expect( mockMarkNotPersistent ).not.toHaveBeenCalled();
+		} );
+
+		it( 'keeps a payment deleted on PayPal for the save-time recovery path', async () => {
+			apiFetch.mockImplementation( ( { path } ) => {
+				if ( path.endsWith( '/connection' ) ) {
+					return Promise.resolve( { connected: true, environment: 'sandbox' } );
+				}
+				return Promise.reject( { code: 'paypal_api_resource_not_found', data: { status: 404 } } );
+			} );
+
+			render( <Edit attributes={ attributes } setAttributes={ setAttributes } clientId="a" /> );
+
+			await expect( screen.findByTestId( 'paypal-button-preview' ) ).resolves.toBeInTheDocument();
+			await waitFor( () =>
+				expect( apiFetch ).toHaveBeenCalledWith( expect.objectContaining( { path: resourcePath } ) )
+			);
+			expect( setAttributes ).not.toHaveBeenCalled();
+			expect( screen.queryByTestId( 'notice' ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'does not read the payment while PayPal is disconnected', async () => {
+			apiFetch.mockResolvedValue( { connected: false, environment: 'sandbox' } );
+
+			render( <Edit attributes={ attributes } setAttributes={ setAttributes } clientId="a" /> );
+
+			await expect( screen.findByTestId( 'paypal-button-preview' ) ).resolves.toBeInTheDocument();
+			expect( apiFetch ).not.toHaveBeenCalledWith(
+				expect.objectContaining( { path: resourcePath } )
+			);
+		} );
+
+		it( 'says when other blocks on the page use the same payment', async () => {
+			mockResource( { ...attributes } );
+			mockBlockEditorSelect.getClientIdsWithDescendants.mockReturnValue( [ 'a', 'b', 'c', 'd' ] );
+			mockBlockEditorSelect.getBlockName.mockImplementation( id =>
+				id === 'd' ? 'core/paragraph' : 'jetpack/paypal-payment-buttons'
+			);
+			mockBlockEditorSelect.getBlockAttributes.mockImplementation( id => ( {
+				resourceId: id === 'c' ? 'PLB-OTHER' : 'PLB-SHARED1',
+			} ) );
+
+			render( <Edit attributes={ attributes } setAttributes={ setAttributes } clientId="a" /> );
+
+			await expect(
+				screen.findByText( /1 other block on this page uses this PayPal payment/ )
+			).resolves.toBeInTheDocument();
 		} );
 	} );
 
