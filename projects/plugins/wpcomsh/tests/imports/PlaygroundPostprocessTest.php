@@ -198,6 +198,41 @@ class PlaygroundPostprocessTest extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test that woocommerce_helper_data from the live (destination) site is preserved
+	 * in the temp options table after save_whitelist_options().
+	 */
+	public function test_save_whitelist_options_preserves_woocommerce_helper_data(): void {
+		global $wpdb;
+
+		$live_value   = '{"auth":{"access_token":"live-token","access_token_secret":"live-secret","site_id":123}}';
+		$import_value = '{"auth":{"access_token":"old-playground-token","access_token_secret":"old-secret","site_id":0}}';
+
+		// Seed the live option (the destination/provisioned value).
+		update_option( 'woocommerce_helper_data', $live_value );
+
+		// Put a different (imported backup) value in the temp options table.
+		$tmp_options = self::TEMPORARY_PREFIX . $wpdb->prefix . 'options';
+		$wpdb->replace(
+			$tmp_options,
+			array(
+				'option_name'  => 'woocommerce_helper_data',
+				'option_value' => $import_value,
+			),
+			array( '%s', '%s' )
+		);
+
+		$processor = new SQL_Postprocessor( 'https://word.press', 'https://word.press', self::TEMPORARY_PREFIX );
+		$processor->save_whitelist_options();
+
+		$result = $wpdb->get_var( "SELECT option_value FROM {$tmp_options} WHERE option_name = 'woocommerce_helper_data'" );
+		$this->assertSame( $live_value, $result );
+
+		// Clean up.
+		delete_option( 'woocommerce_helper_data' );
+		$wpdb->delete( $tmp_options, array( 'option_name' => 'woocommerce_helper_data' ), array( '%s' ) );
+	}
+
+	/**
 	 * Open a database without the valid temporary tables.
 	 */
 	public function test_open_database_with_valid_tables(): void {
