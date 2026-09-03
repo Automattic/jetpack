@@ -53,9 +53,8 @@ export default function NavRow( {
 	const descriptionId = useId();
 	const newTabId = useId();
 	const describedBy =
-		[ description && descriptionId, href && external && newTabId ]
-			.filter( Boolean )
-			.join( ' ' ) || undefined;
+		[ description && descriptionId, href && external && newTabId ].filter( Boolean ).join( ' ' ) ||
+		undefined;
 
 	return (
 		<Tag
