@@ -877,25 +877,25 @@ class REST_Controller_Test extends Search_TestCase {
 	}
 
 	/**
-	 * Outside internal testing environments the payload reports the master as
-	 * on and enabling stays allowed — the rollout must not leak publicly.
+	 * Self-hosted settings report the real master state and reject enabling AI
+	 * Answers while that master is off.
 	 */
-	public function test_master_reporting_is_scoped_to_internal_testing_environments() {
+	public function test_master_reporting_follows_the_master_on_self_hosted() {
 		wp_set_current_user( $this->admin_id );
 		$this->enable_instant_search();
 		$this->turn_ai_master_off();
 		$GLOBALS['jetpack_search_test_internal_env'] = false;
 
 		$get = new WP_REST_Request( 'GET', '/jetpack/v4/search/settings' );
-		$this->assertTrue( $this->server->dispatch( $get )->get_data()['ai_master_enabled'] );
+		$this->assertFalse( $this->server->dispatch( $get )->get_data()['ai_master_enabled'] );
 
 		$post = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
 		$post->set_header( 'content-type', 'application/json' );
 		$post->set_body( wp_json_encode( array( 'ai_answers_enabled' => true ), JSON_UNESCAPED_SLASHES ) );
 		$response = $this->server->dispatch( $post );
 
-		$this->assertEquals( 200, $response->get_status() );
-		$this->assertTrue( (bool) get_option( 'jetpack_search_ai_answers_enabled', false ) );
+		$this->assertEquals( 400, $response->get_status() );
+		$this->assertFalse( (bool) get_option( 'jetpack_search_ai_answers_enabled', false ) );
 
 		unset( $GLOBALS['jetpack_search_test_internal_env'] );
 	}
