@@ -6,6 +6,10 @@ $widget-grid-chart-inset:
 	18px var(--wpds-dimension-padding-sm) var(--wpds-dimension-padding-lg);
 $widget-grid-donut-size: 76px;
 
+// The placeholders are the brand stroke at the opacity sampled off the
+// prototype video, composited over the tile gradient like the prototype does.
+$widget-grid-placeholder-color: color-mix(in srgb, var(--wpds-color-stroke-surface-brand-strong) 15%, transparent);
+
 .canvas {
 	position: relative;
 	overflow: hidden;
@@ -73,12 +77,11 @@ $widget-grid-donut-size: 76px;
 	opacity: 1;
 }
 
-// A Skeleton tinted with the brand surface and held still: the tiles already
-// move.
+// A Skeleton with the placeholder tint, held still: the tiles already move.
 .row {
 	block-size: var(--wpds-dimension-size-4xs);
 	border-radius: var(--wpds-dimension-size-4xs);
-	background-color: var(--wpds-color-background-surface-brand);
+	background-color: $widget-grid-placeholder-color;
 	animation: none;
 
 	// A full line, then a short one, as a list placeholder reads.
@@ -94,7 +97,7 @@ $widget-grid-donut-size: 76px;
 	box-sizing: border-box;
 	inline-size: $widget-grid-donut-size;
 	block-size: $widget-grid-donut-size;
-	border: var(--wpds-dimension-size-2xs) solid var(--wpds-color-background-surface-brand);
+	border: var(--wpds-dimension-size-2xs) solid $widget-grid-placeholder-color;
 	border-radius: 50%;
 	translate: -50% -50%;
 	opacity: 0;
