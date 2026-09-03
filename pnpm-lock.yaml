@@ -2925,8 +2925,8 @@ importers:
         specifier: 1.2.2
         version: 1.2.2(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(@wordpress/data@10.54.0(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/element@8.6.0(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/i18n@6.27.0)(debug@4.4.3)(postcss@8.5.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@automattic/site-launch-modals':
-        specifier: 1.0.2
-        version: 1.0.2(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(postcss@8.5.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 1.0.3
+        version: 1.0.3(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(postcss@8.5.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@automattic/typography':
         specifier: 1.0.0
         version: 1.0.0
@@ -7228,8 +7228,8 @@ packages:
       react: ^18.3.1 || ^19.0.0
       react-dom: ^18.3.1 || ^19.0.0
 
-  '@automattic/site-launch-modals@1.0.2':
-    resolution: {integrity: sha512-nKi7qg0WcmsLpL1qBe7PYY2YppHUJPQpzv5Xkc6brD29EYCQ31rDkWhy92K9kXXXJMXrtQkHTAMUBF06Ind2pQ==}
+  '@automattic/site-launch-modals@1.0.3':
+    resolution: {integrity: sha512-8iOLZ/aX6KrllOP+OYnez4fOtfwdhfODjoI4tlmm+RT9NLnhkKSNuRoJaJOhxNADnfDqeTxQWp87G1R+QuIuuw==}
     peerDependencies:
       react: ^18.3.1 || ^19.0.0
       react-dom: ^18.3.1 || ^19.0.0
@@ -19137,7 +19137,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@automattic/site-launch-modals@1.0.2(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(postcss@8.5.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@automattic/site-launch-modals@1.0.3(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(postcss@8.5.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@wordpress/base-styles': 9.1.0
       '@wordpress/components': 37.0.0(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(postcss@8.5.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
