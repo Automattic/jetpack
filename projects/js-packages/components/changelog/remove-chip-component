@@ -1,0 +1,4 @@
+Significance: major
+Type: removed
+
+Remove the deprecated Chip component. Use Badge from @wordpress/ui instead.
