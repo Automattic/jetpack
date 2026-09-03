@@ -47,6 +47,7 @@ import { SUPPORTED_CURRENCIES, VALID_CURRENCY_CODES } from './currencies';
 import { getPriceStep } from './currency-symbols';
 import FormatSwitcher, { FORMAT_OPTIONS } from './format-switcher';
 import PayPalButtonPreview from './paypal-button-preview';
+import { CONNECTION_CHANGED_EVENT, broadcastConnectionChange } from './paypal-connection';
 import { paypalLogoSvg } from './paypal-full-logo';
 import {
 	ONBOARD_CALLBACK_NAME,
@@ -65,24 +66,6 @@ import {
 	MAX_DESCRIPTION_LENGTH,
 } from './validation';
 import VariantBuilder, { hasVariantPricing, validateVariants } from './variant-builder';
-
-/**
- * The PayPal connection is stored per-site, not per-block, so connecting or
- * disconnecting from one block changes the state of every other block in the
- * editor. Each instance only learns that from its own `/connection` fetch on
- * mount, so the block that made the change broadcasts it to its siblings.
- */
-const CONNECTION_CHANGED_EVENT = 'jetpack-paypal-payments-connection-changed';
-
-/**
- * Tell the other blocks on this page that the site-wide PayPal connection
- * changed.
- *
- * @param {boolean} connected - The new connection state.
- */
-function broadcastConnectionChange( connected ) {
-	window.dispatchEvent( new CustomEvent( CONNECTION_CHANGED_EVENT, { detail: { connected } } ) );
-}
 
 // Button type is always 'single' — the hosted payment page handles
 // payment method selection (PayPal, cards, wallets, etc.).
