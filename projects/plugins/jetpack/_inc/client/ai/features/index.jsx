@@ -1,7 +1,7 @@
 /**
  * AI Features view — per-feature toggles for Jetpack AI, grouped by area
- * (Content, Media, SEO, Search) inside a single "Agent capabilities" card
- * per the AI-Settings design.
+ * (Content, Media, SEO, Search) inside a single card per the AI-Settings
+ * design. The card carries no heading of its own: the tab names it.
  *
  * Each feature has its own on/off switch, backed by the feature-settings
  * endpoint. A disabled feature must genuinely stop loading (its assets are
@@ -315,24 +315,16 @@ export default function AiFeatures( { settings, savingKeys, onUpdate } ) {
 			) }
 			{ sections.length > 0 && (
 				<Card.Root className="jetpack-ai-features__card">
-					{ /* Single Card.Content, no Card.Header: the FullBleed dividers —
-					     including the one under the header — must stay direct children
-					     of Card.Content per the component's contract. */ }
+					{ /* Single Card.Content, no Card.Header: the FullBleed dividers must
+					     stay direct children of Card.Content per the component's contract. */ }
 					<Card.Content className="jetpack-ai-features__card-content">
-						<Stack direction="column" gap="sm">
-							<Card.Title render={ <h2 /> }>{ __( 'Agent capabilities', 'jetpack' ) }</Card.Title>
-							<Text variant="body-sm" className="jetpack-ai-features__card-subtitle">
-								{ __(
-									'Choose what your WordPress Agent can help with across your site.',
-									'jetpack'
-								) }
-							</Text>
-						</Stack>
-						{ sections.map( section => {
+						{ sections.map( ( section, index ) => {
 							const titleId = `jetpack-ai-features-${ section.key }-title`;
 							return (
 								<Fragment key={ section.key }>
-									<Card.FullBleed render={ <hr /> } className="jetpack-ai-features__divider" />
+									{ index > 0 && (
+										<Card.FullBleed render={ <hr /> } className="jetpack-ai-features__divider" />
+									) }
 									{ /* Labelled by its heading so each group is a named region —
 									     screen readers can jump between them inside the merged card. */ }
 									<Stack
@@ -341,7 +333,7 @@ export default function AiFeatures( { settings, savingKeys, onUpdate } ) {
 										render={ <section aria-labelledby={ titleId } /> }
 									>
 										<div className="jetpack-ai-features__section-header">
-											<Text variant="heading-lg" render={ <h3 id={ titleId } /> }>
+											<Text variant="heading-lg" render={ <h2 id={ titleId } /> }>
 												{ section.title }
 											</Text>
 											{ isConnected &&

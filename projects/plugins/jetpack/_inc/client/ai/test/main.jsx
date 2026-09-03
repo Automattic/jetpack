@@ -459,7 +459,7 @@ describe( 'AI admin page (main.jsx)', () => {
 		).resolves.toBeInTheDocument();
 
 		// No Features UI and no tab bar (a single tab renders no tabs at all).
-		expect( screen.queryByText( 'WordPress Agent' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( 'AI Features' ) ).not.toBeInTheDocument();
 		expect( screen.queryByText( 'MCP Settings' ) ).not.toBeInTheDocument();
 		expect(
 			screen.queryByRole( 'checkbox', { name: /Writing Assistant/ } )
@@ -499,7 +499,7 @@ describe( 'AI admin page (main.jsx)', () => {
 			screen.findByText( 'Available requests', IGNORE_A11Y )
 		).resolves.toBeInTheDocument();
 		expect( screen.getByText( 'Overview' ) ).toBeInTheDocument();
-		expect( screen.getByText( 'WordPress Agent' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'AI Features' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'MCP Settings' ) ).toBeInTheDocument();
 		expect(
 			screen.queryByRole( 'checkbox', { name: /Writing Assistant/ } )

@@ -173,8 +173,8 @@ body.jetpack_page_jetpack-ai {
 	margin-inline-start: 40px;
 }
 
-// The Agent capabilities card, values read off the Figma (AI-Settings
-// node 6021-4152): 20px card padding with 24px above the title. The
+// The feature card, values read off the Figma (AI-Settings
+// node 6021-4152): 20px card padding with 24px above the first group. The
 // Card.FullBleed dividers inherit the same padding var for their
 // edge-to-edge negative margins, so they stay in sync.
 .jetpack-ai-features__card {
@@ -185,12 +185,7 @@ body.jetpack_page_jetpack-ai {
 	padding-block-start: var(--wpds-dimension-padding-2xl, 24px);
 }
 
-// Figma: Body SM in foreground/content/neutral-weak.
-.jetpack-ai-features__card-subtitle {
-	color: var(--wpds-color-foreground-content-neutral-weak, #707070);
-}
-
-// Section divider inside the Agent capabilities card. Card.FullBleed already
+// Section divider inside the feature card. Card.FullBleed already
 // pulls the hr edge-to-edge past the card padding (margin-inline); this only
 // draws the rule and sets the vertical rhythm.
 .jetpack-ai-features__divider {
