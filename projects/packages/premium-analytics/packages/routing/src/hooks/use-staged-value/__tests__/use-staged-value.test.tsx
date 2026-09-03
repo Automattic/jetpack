@@ -120,6 +120,20 @@ describe( 'useStagedValue', () => {
 		expect( commits ).toHaveLength( 0 );
 	} );
 
+	// The picker's queued close calls the `revert` from before the drill's commit.
+	it( 'reverts to the committed value the store holds now, not the one it held', () => {
+		const { result } = renderStagedValue();
+
+		const revertFromBeforeTheCommit = result.current.revert;
+
+		act( () => result.current.stage( { preset: 'custom', interval: 'hour' } ) );
+		act( () => result.current.commit() );
+		act( () => revertFromBeforeTheCommit() );
+
+		expect( result.current.staged ).toEqual( { preset: 'custom', interval: 'hour' } );
+		expect( result.current.isDirty ).toBe( false );
+	} );
+
 	// Without this the next commit puts the stale draft back over the change.
 	it( 'realigns the draft on a value arriving from outside', () => {
 		const { result, writeFromOutside } = renderStagedValue();
