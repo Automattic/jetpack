@@ -64,6 +64,23 @@ describe( 'validatePrice', () => {
 	it( 'returns null for the minimum valid price', () => {
 		expect( validatePrice( '0.01' ) ).toBeNull();
 	} );
+
+	it.each( [ 'JPY', 'HUF', 'TWD' ] )(
+		'rejects a decimal price in %s, which PayPal prices whole',
+		code => {
+			expect( validatePrice( '1500.50', code ) ).toBe(
+				`Prices in ${ code } are whole numbers (e.g., "1500").`
+			);
+		}
+	);
+
+	it.each( [ 'JPY', 'HUF', 'TWD' ] )( 'accepts a whole-number price in %s', code => {
+		expect( validatePrice( '1500', code ) ).toBeNull();
+	} );
+
+	it( 'still accepts two decimals in a currency PayPal prices with them', () => {
+		expect( validatePrice( '12.34', 'EUR' ) ).toBeNull();
+	} );
 } );
 
 describe( 'validateProductName', () => {

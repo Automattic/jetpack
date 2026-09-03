@@ -97,6 +97,26 @@ describe( 'validateVariants', () => {
 		expect( errors[ 0 ] ).toContain( 'must be a positive number' );
 	} );
 
+	it( 'rejects more than two decimals on an option price', () => {
+		const errors = validateVariants( true, variantsWithPrices( [ '10.00', '10.005' ] ) );
+
+		expect( errors ).toHaveLength( 1 );
+		expect( errors[ 0 ] ).toContain( 'at most 2 decimal places' );
+	} );
+
+	it( 'rejects a decimal option price in a currency PayPal prices whole', () => {
+		const errors = validateVariants( true, variantsWithPrices( [ '1500', '1500.50' ] ), 'JPY' );
+
+		expect( errors ).toHaveLength( 1 );
+		expect( errors[ 0 ] ).toContain( 'Prices in JPY are whole numbers' );
+	} );
+
+	it( 'accepts whole-number option prices in a currency PayPal prices whole', () => {
+		expect( validateVariants( true, variantsWithPrices( [ '1500', '2000' ] ), 'JPY' ) ).toEqual(
+			[]
+		);
+	} );
+
 	it( 'still requires group names and option labels', () => {
 		const errors = validateVariants( true, {
 			dimensions: [ { name: '', primary: true, options: [ { label: '' } ] } ],

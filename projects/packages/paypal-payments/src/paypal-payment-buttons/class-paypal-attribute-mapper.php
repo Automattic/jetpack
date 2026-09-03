@@ -61,7 +61,6 @@ class PayPal_Attribute_Mapper {
 		'PHP',
 		'TWD',
 		'THB',
-		'INR',
 	);
 
 	/**
@@ -371,24 +370,27 @@ class PayPal_Attribute_Mapper {
 			);
 		}
 
-		if ( $has_price && ! self::is_valid_price( $attributes['price'] ) ) {
+		// The currency decides how many decimals a price may carry, so the
+		// price checks need it before it is itself validated below.
+		$currency = strtoupper( sanitize_text_field( (string) ( $attributes['currencyCode'] ?? 'USD' ) ) );
+
+		if ( $has_price && ! self::is_valid_price( $attributes['price'], $currency ) ) {
 			return new WP_Error(
 				'invalid_price',
-				__( 'Price must be a valid positive number (e.g., "29.99").', 'jetpack-paypal-payments' ),
+				self::get_invalid_price_message( $currency ),
 				array( 'status' => 400 )
 			);
 		}
 
 		if ( $uses_variant_pricing ) {
-			$variant_price_error = self::validate_variant_pricing( $attributes['variants'] );
+			$variant_price_error = self::validate_variant_pricing( $attributes['variants'], $currency );
 			if ( is_wp_error( $variant_price_error ) ) {
 				return $variant_price_error;
 			}
 		}
 
 		// Required: currency code.
-		$currency = $attributes['currencyCode'] ?? 'USD';
-		if ( ! in_array( strtoupper( $currency ), self::SUPPORTED_CURRENCIES, true ) ) {
+		if ( ! in_array( $currency, self::SUPPORTED_CURRENCIES, true ) ) {
 			return new WP_Error(
 				'invalid_currency',
 				__( 'Unsupported currency code.', 'jetpack-paypal-payments' ),
@@ -485,15 +487,53 @@ class PayPal_Attribute_Mapper {
 	}
 
 	/**
+	 * Whether PayPal prices a currency without decimals.
+	 *
+	 * PayPal rejects a decimal amount in these currencies outright rather than
+	 * rounding it. The legacy currency table already records which they are.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $currency ISO currency code.
+	 * @return bool True for JPY, HUF and TWD.
+	 */
+	public static function is_zero_decimal_currency( $currency ) {
+		$currency = strtoupper( (string) $currency );
+
+		return in_array( $currency, self::SUPPORTED_CURRENCIES, true )
+			&& isset( \PayPal_Payments_Currencies::CURRENCIES[ $currency ]['decimal'] )
+			&& 0 === \PayPal_Payments_Currencies::CURRENCIES[ $currency ]['decimal'];
+	}
+
+	/**
+	 * The message for a price PayPal would not accept in the given currency.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $currency ISO currency code.
+	 * @return string Translated message.
+	 */
+	private static function get_invalid_price_message( $currency ) {
+		if ( self::is_zero_decimal_currency( $currency ) ) {
+			/* translators: %s: currency code, e.g. JPY */
+			return sprintf( __( 'Prices in %s must be whole numbers (e.g., "1500").', 'jetpack-paypal-payments' ), $currency );
+		}
+
+		return __( 'Price must be a valid positive number (e.g., "29.99").', 'jetpack-paypal-payments' );
+	}
+
+	/**
 	 * Validate a price string.
 	 *
-	 * Ensures the price is a positive decimal number with up to 2 decimal places.
-	 * PayPal requires string format prices like "29.99".
+	 * The price must be a positive number with at most two decimal places, or
+	 * a whole number in a currency PayPal prices without decimals. PayPal
+	 * requires string format prices like "29.99".
 	 *
-	 * @param string $price The price string to validate.
+	 * @param string $price    The price string to validate.
+	 * @param string $currency ISO currency code the price is in.
 	 * @return bool True if valid.
 	 */
-	private static function is_valid_price( $price ) {
+	private static function is_valid_price( $price, $currency = 'USD' ) {
 		// Must be a string representation of a positive decimal number.
 		if ( ! is_string( $price ) && ! is_numeric( $price ) ) {
 			return false;
@@ -501,8 +541,8 @@ class PayPal_Attribute_Mapper {
 
 		$price = (string) $price;
 
-		// Match positive numbers with optional decimal places (up to 2).
-		if ( ! preg_match( '/^\d+(\.\d{1,2})?$/', $price ) ) {
+		$pattern = self::is_zero_decimal_currency( $currency ) ? '/^\d+$/' : '/^\d+(\.\d{1,2})?$/';
+		if ( ! preg_match( $pattern, $price ) ) {
 			return false;
 		}
 
@@ -633,9 +673,10 @@ class PayPal_Attribute_Mapper {
 	 * @since $$next-version$$
 	 *
 	 * @param array|null $variants Variants structure (block or API shape).
+	 * @param string     $currency ISO currency code the option prices are in.
 	 * @return true|WP_Error True when valid, WP_Error otherwise.
 	 */
-	private static function validate_variant_pricing( $variants ) {
+	private static function validate_variant_pricing( $variants, $currency = 'USD' ) {
 		foreach ( ( $variants['dimensions'] ?? array() ) as $dimension ) {
 			if ( empty( $dimension['primary'] ) ) {
 				continue;
@@ -652,12 +693,15 @@ class PayPal_Attribute_Mapper {
 					);
 				}
 
-				if ( ! self::is_valid_price( $value ) ) {
-					return new WP_Error(
-						'invalid_variant_price',
-						__( 'Product option prices must be valid positive numbers (e.g., "29.99").', 'jetpack-paypal-payments' ),
-						array( 'status' => 400 )
-					);
+				if ( ! self::is_valid_price( $value, $currency ) ) {
+					if ( self::is_zero_decimal_currency( $currency ) ) {
+						/* translators: %s: currency code, e.g. JPY */
+						$message = sprintf( __( 'Product option prices in %s must be whole numbers (e.g., "1500").', 'jetpack-paypal-payments' ), $currency );
+					} else {
+						$message = __( 'Product option prices must be valid positive numbers (e.g., "29.99").', 'jetpack-paypal-payments' );
+					}
+
+					return new WP_Error( 'invalid_variant_price', $message, array( 'status' => 400 ) );
 				}
 			}
 		}
