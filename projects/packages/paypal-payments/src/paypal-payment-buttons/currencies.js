@@ -2,7 +2,6 @@
  * PayPal Payment Buttons — Supported currencies.
  *
  * @package
- * @since 0.9.0
  */
 
 /**

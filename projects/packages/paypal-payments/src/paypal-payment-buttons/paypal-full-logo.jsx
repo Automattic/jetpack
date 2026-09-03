@@ -2,7 +2,6 @@
  * PayPal Payment Buttons — Full-color logo.
  *
  * @package
- * @since 0.9.0
  */
 
 /**

@@ -3,7 +3,6 @@
  * PayPal Payment Buttons — Display format switcher.
  *
  * @package
- * @since 0.9.0
  */
 
 import { Button, ButtonGroup } from '@wordpress/components';

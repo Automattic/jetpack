@@ -2,7 +2,6 @@
  * PayPal Payment Buttons — REST API base path.
  *
  * @package
- * @since 0.9.0
  */
 
 /**
