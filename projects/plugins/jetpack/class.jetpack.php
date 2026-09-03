@@ -859,7 +859,8 @@ class Jetpack {
 	 * menu alongside the existing Stats UI; it never replaces or hides the
 	 * legacy Stats menu, admin-bar entries, post-list column, or WP dashboard
 	 * widget. The Stats module's tracking is unaffected either way, and Stats v2
-	 * reads what that module collects, so it stays off while the module is off.
+	 * reads what that module collects, so while the module is off the plugin
+	 * answers false here before even reading the flag.
 	 *
 	 * The package has to be loadable for this to be true, so a site with the
 	 * flag on but a missing package answers false here and never adds the
@@ -872,6 +873,11 @@ class Jetpack {
 	public static function is_premium_analytics_enabled() {
 		if ( null !== self::$premium_analytics_enabled ) {
 			return self::$premium_analytics_enabled;
+		}
+
+		if ( ! self::is_module_active( 'stats' ) ) {
+			self::$premium_analytics_enabled = false;
+			return false;
 		}
 
 		/**
@@ -887,21 +893,14 @@ class Jetpack {
 		 */
 		$flag = (bool) apply_filters( 'jetpack_premium_analytics_enabled', (bool) get_option( 'jetpack_premium_analytics_enabled' ) );
 
-		if ( ! $flag ) {
-			self::$premium_analytics_enabled = false;
-			return false;
-		}
+		self::$premium_analytics_enabled = $flag && class_exists( 'Automattic\Jetpack\PremiumAnalytics\Analytics' );
 
-		if ( ! class_exists( 'Automattic\Jetpack\PremiumAnalytics\Analytics' ) ) {
+		if ( $flag && ! self::$premium_analytics_enabled ) {
 			wp_trigger_error(
 				__METHOD__,
 				'The jetpack_premium_analytics_enabled flag is on but the Premium Analytics package is not loadable; keeping the Stats UI in place.'
 			);
-			self::$premium_analytics_enabled = false;
-			return false;
 		}
-
-		self::$premium_analytics_enabled = self::is_module_active( 'stats' );
 
 		return self::$premium_analytics_enabled;
 	}
