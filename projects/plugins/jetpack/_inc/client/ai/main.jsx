@@ -1,9 +1,9 @@
 /**
  * Root component for the Jetpack AI admin page.
  *
- * Four top-level tabs (Overview | AI Features | Scheduled tasks | MCP Settings) with hash-based
- * routing. The MCP tab owns the read | write | setup sub-views, which render
- * with breadcrumbs in place of the tab bar.
+ * Four top-level tabs (Overview | AI Features | Scheduled tasks | MCP and Connectors)
+ * with hash-based routing. The MCP tab owns the read | write | setup sub-views,
+ * which render with breadcrumbs in place of the tab bar.
  *
  * Overview and AI Features share an internal-testing gate. Scheduled tasks
  * is controlled independently by the ai-hub-scheduled-tasks server-side feature
@@ -35,7 +35,7 @@ const SETTINGS_REF = 'jetpack-ai-mcp-settings';
 
 const MCP_SUB_VIEWS = [ 'read', 'write', 'setup' ];
 
-// Views that only exist in internal testing environments. MCP Settings ships
+// Views that only exist in internal testing environments. MCP and Connectors ships
 // publicly, so it is not in here.
 const GATED_VIEWS = [ 'overview', 'features' ];
 
@@ -64,7 +64,7 @@ const VIEW_TITLES = {
 	overview: __( 'Overview', 'jetpack' ),
 	features: __( 'AI Features', 'jetpack' ),
 	'scheduled-tasks': __( 'Scheduled tasks', 'jetpack' ),
-	mcp: __( 'MCP Settings', 'jetpack' ),
+	mcp: __( 'MCP and Connectors', 'jetpack' ),
 	read: __( 'Read', 'jetpack' ),
 	write: __( 'Write', 'jetpack' ),
 	setup: __( 'Connect external AI agent', 'jetpack' ),
