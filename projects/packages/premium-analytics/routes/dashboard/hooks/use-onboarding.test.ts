@@ -12,7 +12,7 @@ import {
 	DASHBOARD_PREFERENCES_SCOPE,
 	ONBOARDING_FORCE_QUERY_ARG,
 } from './constants';
-import { useOnboarding } from './use-onboarding';
+import { resetOnboardingForTesting, useOnboarding } from './use-onboarding';
 import { resetTracksIdentityForTesting } from './use-track-event';
 
 const mockRecordEvent = jest.fn();
@@ -80,6 +80,7 @@ describe( 'useOnboarding', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
 		resetTracksIdentityForTesting();
+		resetOnboardingForTesting();
 		// The preferences store registers on the shared default registry, so
 		// clear the key between tests.
 		setStoredCompletion( null );
@@ -171,6 +172,18 @@ describe( 'useOnboarding', () => {
 			'jetpack_premium_analytics_onboarding_dismiss',
 			{ phase: 'tour', step: 2 }
 		);
+	} );
+
+	it( 'does not reopen when the dashboard remounts within the same page load', () => {
+		window.history.replaceState( {}, '', `/?p=/&${ ONBOARDING_FORCE_QUERY_ARG }=1` );
+		const { result, unmount } = renderHook( () => useOnboarding( { enabled: true } ) );
+		expect( result.current.phase ).toBe( 'modal' );
+
+		act( () => result.current.dismiss() );
+		unmount();
+
+		const { result: remounted } = renderHook( () => useOnboarding( { enabled: true } ) );
+		expect( remounted.current.phase ).toBe( 'closed' );
 	} );
 
 	it( 'does not reopen within the same page load once completed', () => {

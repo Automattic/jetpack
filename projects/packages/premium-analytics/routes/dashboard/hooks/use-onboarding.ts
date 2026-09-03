@@ -2,7 +2,7 @@
  * WordPress dependencies
  */
 import { useDispatch, useSelect } from '@wordpress/data';
-import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
+import { useCallback, useEffect, useState } from '@wordpress/element';
 import { store as preferencesStore } from '@wordpress/preferences';
 /**
  * Internal dependencies
@@ -48,6 +48,17 @@ type PreferencesActions = {
 	set: ( scope: string, key: string, value: string ) => Promise< void > | void;
 };
 
+// Once per page load, not per mount: the dashboard stage remounts on the way
+// back from a report, and the force argument survives that navigation.
+let hasOpenedThisLoad = false;
+
+/**
+ * Reset the once-per-load latch. Test-only.
+ */
+export function resetOnboardingForTesting() {
+	hasOpenedThisLoad = false;
+}
+
 /**
  * Whether the URL carries the force argument, read once: the SPA keeps foreign
  * search params in place, so it survives in-app navigation.
@@ -88,12 +99,10 @@ export function useOnboarding( { enabled, stepCount = 0 }: OnboardingOptions ): 
 	const [ phase, setPhase ] = useState< OnboardingPhase >( 'closed' );
 	const [ step, setStep ] = useState( 0 );
 
-	// Once per page load, whatever the preference does afterwards.
-	const hasOpenedRef = useRef( false );
 	const [ isForced ] = useState( isForcedByQueryArg );
 
 	useEffect( () => {
-		if ( ! enabled || hasOpenedRef.current ) {
+		if ( ! enabled || hasOpenedThisLoad ) {
 			return;
 		}
 
@@ -101,7 +110,7 @@ export function useOnboarding( { enabled, stepCount = 0 }: OnboardingOptions ): 
 			return;
 		}
 
-		hasOpenedRef.current = true;
+		hasOpenedThisLoad = true;
 		setPhase( 'modal' );
 		trackEvent( 'jetpack_premium_analytics_onboarding_view' );
 	}, [ enabled, completedAt, isForced, trackEvent ] );
