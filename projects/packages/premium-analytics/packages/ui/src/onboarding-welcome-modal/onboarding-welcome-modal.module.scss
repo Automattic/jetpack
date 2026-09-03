@@ -26,13 +26,16 @@
 // its neutral colors over the white popup.
 @media (max-height: 600px) {
 
-	.stage {
-		display: none;
-	}
-
 	.close {
 		--wp-ui-button-foreground-color: var(--wpds-color-foreground-interactive-neutral);
 		--wp-ui-button-foreground-color-active: var(--wpds-color-foreground-interactive-neutral-active);
 		--wp-ui-button-background-color-active: var(--wpds-color-background-interactive-neutral-weak-active);
+	}
+}
+
+@media (max-height: 600px) and (orientation: landscape) {
+
+	.stage {
+		display: none;
 	}
 }
