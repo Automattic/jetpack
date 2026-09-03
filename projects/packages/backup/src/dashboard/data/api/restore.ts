@@ -88,10 +88,10 @@ const SUCCEEDED_ROW_STATUSES = new Set( [ 'finished', 'success' ] );
 /**
  * One row of `GET /jetpack/v4/restores` — the last ten restores, any state.
  *
- * `when` is WordPress.com's own ISO-8601 timestamp and is compared only
- * against other rows', never against the browser's clock: a browser
- * minutes ahead of the server would otherwise reject the restore it had
- * just started, and recovery would fail for the whole session.
+ * `when` is WordPress.com's own timestamp and must be read through
+ * `parseRestoreWhen`, never `Date.parse`. The activity list renders it, but
+ * `pickLiveRestore` still ranks rows only against each other: a browser minutes
+ * ahead of the server would otherwise reject the restore it had just started.
  *
  * `settled` and `succeeded` are the quarantined readings of the row's
  * `status` — see `SETTLED_ROW_STATUSES` and `SUCCEEDED_ROW_STATUSES`. The
@@ -113,6 +113,30 @@ export type RecentRestore = {
 	 */
 	succeeded: boolean;
 };
+
+/** A trailing `Z` or `±HH:MM` — the only thing that makes `when` self-describing. */
+const HAS_ZONE_DESIGNATOR = /(?:Z|[+-]\d{2}:?\d{2})$/i;
+
+/**
+ * A row's `when` as an instant, or null when it cannot be read.
+ *
+ * WordPress.com stamps most rows `YYYY-MM-DD HH:MM:SS` in UTC with no zone
+ * marker, which `Date` would read in the browser's zone — three hours out on GMT-3.
+ *
+ * @param when - The row's raw `when` value.
+ * @return Milliseconds since the epoch, or null.
+ */
+export function parseRestoreWhen( when: string ): number | null {
+	const trimmed = when?.trim();
+	if ( ! trimmed ) {
+		return null;
+	}
+	const stamped = HAS_ZONE_DESIGNATOR.test( trimmed )
+		? trimmed
+		: `${ trimmed.replace( ' ', 'T' ) }Z`;
+	const ms = Date.parse( stamped );
+	return Number.isNaN( ms ) ? null : ms;
+}
 
 /** Statuses that mean the restore is still going, or might be. */
 const LIVE_STATUSES: RestoreStatus[] = [ 'queued', 'running', 'unknown' ];
@@ -195,10 +219,8 @@ export function pickLiveRestore(
 			row => ! row.settled && ( rewindId === null || sameRewindId( row.rewind_id, rewindId ) )
 		)
 		.sort( ( a, b ) => {
-			const at = Date.parse( a.when );
-			const bt = Date.parse( b.when );
-			const av = Number.isNaN( at ) ? -Infinity : at;
-			const bv = Number.isNaN( bt ) ? -Infinity : bt;
+			const av = parseRestoreWhen( a.when ) ?? -Infinity;
+			const bv = parseRestoreWhen( b.when ) ?? -Infinity;
 			// Restore ids are handed out in order, so they break a tie
 			// between two rows stamped in the same second.
 			return bv === av ? b.restore_id - a.restore_id : bv - av;

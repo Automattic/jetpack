@@ -7,8 +7,10 @@ import {
 	type WpcomActivityLogResponse,
 } from '../data/api/activity-log';
 import { normalizeActivityLog } from '../data/normalize/activity-log';
+import { findRestoreRow, isRestoreRowId, mergeRestoreRows } from '../data/normalize/restores';
 import { keys } from '../data/query-client';
 import { useCanQueryWpcom } from './use-connection';
+import { useRecentRestores } from './use-recent-restores';
 import { useStickyError } from './use-sticky-error';
 import type { ActivityItem } from '../types/activity';
 
@@ -81,6 +83,9 @@ function useActivityPageQuery( page: number, pageSize: number, sortOrder: Activi
  * does the paging, `totalItems` / `totalPages` come back in the
  * envelope, and DataViews owns the footer.
  *
+ * The site's restores are folded in on top of that: WPCOM's feed carries restore
+ * points, and a restore is not one, so it is absent there by construction.
+ *
  * @param args           - Query args.
  * @param args.page      - 1-indexed page number.
  * @param args.pageSize  - Items per page.
@@ -89,15 +94,27 @@ function useActivityPageQuery( page: number, pageSize: number, sortOrder: Activi
  */
 export function useActivityLog( { page, pageSize, sortOrder }: Args ): Result {
 	const query = useActivityPageQuery( page, pageSize, sortOrder );
+	const restores = useRecentRestores( useCanQueryWpcom() );
 	const { refetch } = query;
 	// Held across the retry: React Query rewinds this query to `pending`
 	// when it refetches after a failure, so without this the reason
 	// disappears the moment the reader clicks the retry button.
 	const error = useStickyError( query.error, query.isFetching );
 
-	const items = useMemo(
+	const entries = useMemo(
 		() => normalizeActivityLog( query.data?.current?.orderedItems ),
 		[ query.data ]
+	);
+
+	// The server's own count, not the merged one: restore rows are added to
+	// this page alone, so counting them would misreport how many pages there are.
+	const totalItems = query.data?.totalItems ?? entries.length;
+	const totalPages =
+		query.data?.totalPages ?? Math.max( 1, Math.ceil( entries.length / pageSize ) );
+
+	const items = useMemo(
+		() => mergeRestoreRows( entries, restores.data, { page, totalPages, sortOrder } ),
+		[ entries, restores.data, page, totalPages, sortOrder ]
 	);
 
 	// Wrapped so callers can hand it straight to `onClick` without
@@ -108,8 +125,8 @@ export function useActivityLog( { page, pageSize, sortOrder }: Args ): Result {
 
 	return {
 		items,
-		totalItems: query.data?.totalItems ?? items.length,
-		totalPages: query.data?.totalPages ?? Math.max( 1, Math.ceil( items.length / pageSize ) ),
+		totalItems,
+		totalPages,
 		isLoading: query.isLoading,
 		isFetching: query.isFetching,
 		error,
@@ -145,11 +162,18 @@ export function useActivityById(
 	// Follows the list's `sortOrder`: it is part of the cache key, so pinning it
 	// here would open a second query for rows already on screen.
 	const query = useActivityPageQuery( page, pageSize, sortOrder );
+	const restores = useRecentRestores( useCanQueryWpcom() );
 	const queryClient = useQueryClient();
+	// A merged restore row is never in the feed, so its id is answered by the
+	// collection instead — including which query decides `hasAnswered`.
+	const isRestore = id !== null && isRestoreRowId( id );
 
 	const item = useMemo( () => {
 		if ( ! id ) {
 			return null;
+		}
+		if ( isRestore ) {
+			return findRestoreRow( restores.data, id );
 		}
 		const found = findById( query.data?.current?.orderedItems, id );
 		if ( found ) {
@@ -171,9 +195,13 @@ export function useActivityById(
 		// `queryClient` is stable; the cache scan re-runs whenever the
 		// active page query resolves (covered by `query.data`).
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [ id, query.data ] );
+	}, [ id, isRestore, restores.data, query.data ] );
 
-	return { item, hasAnswered: query.isSuccess, error: query.error };
+	return {
+		item,
+		hasAnswered: isRestore ? restores.isSuccess : query.isSuccess,
+		error: isRestore ? restores.error : query.error,
+	};
 }
 
 /**
