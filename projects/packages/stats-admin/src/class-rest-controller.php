@@ -111,6 +111,17 @@ class REST_Controller {
 			)
 		);
 
+		// Single media item info (e.g. the video shown on the video details page).
+		register_rest_route(
+			static::$namespace,
+			sprintf( '/sites/%d/media/(?P<resource_id>[\d]+)', Jetpack_Options::get_option( 'id' ) ),
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_single_media_item' ),
+				'permission_callback' => array( $this, 'can_user_view_general_stats_callback' ),
+			)
+		);
+
 		// General stats for the site.
 		register_rest_route(
 			static::$namespace,
@@ -655,6 +666,57 @@ class REST_Controller {
 			'discussion'     => array( 'comment_count' => intval( $post->comment_count ) ),
 			'date'           => $post->post_date,
 			'post_thumbnail' => array( 'URL' => get_the_post_thumbnail_url( $post->ID ) ),
+		);
+	}
+
+	/**
+	 * Get brief information for a single media item.
+	 *
+	 * @param WP_REST_Request $req The request object.
+	 * @return array|WP_Error
+	 */
+	public function get_single_media_item( $req ) {
+		$media_id = intval( $req->get_param( 'resource_id' ) );
+		$post     = get_post( $media_id, OBJECT, 'display' );
+		if ( empty( $post ) || 'attachment' !== $post->post_type ) {
+			return new WP_Error(
+				'unknown_media',
+				'Unknown media',
+				array( 'status' => 404 )
+			);
+		}
+
+		// The response should be as compatible as possible with `/sites/$site_id/media/$media_id`.
+		// Like `get_single_post`, the request is not forwarded to WordPress.com because that
+		// might require user tokens, which is not possible for users without a WordPress.com account.
+		$metadata   = wp_get_attachment_metadata( $media_id );
+		$length     = null;
+		$thumbnails = array();
+
+		if ( ! empty( $metadata['length'] ) ) {
+			$length = intval( $metadata['length'] );
+		} elseif ( ! empty( $metadata['videopress']['duration'] ) ) {
+			// VideoPress stores the duration in milliseconds.
+			$length = intval( round( $metadata['videopress']['duration'] / 1000 ) );
+		}
+
+		if ( ! empty( $metadata['videopress']['poster'] ) ) {
+			// VideoPress format thumbnails (fmt_*) are only generated on WordPress.com;
+			// map the poster to the largest format so consumers find a thumbnail where expected.
+			$thumbnails['fmt_hd'] = $metadata['videopress']['poster'];
+		} elseif ( get_the_post_thumbnail_url( $post->ID ) ) {
+			$thumbnails['fmt_std'] = get_the_post_thumbnail_url( $post->ID );
+		}
+
+		return array(
+			'ID'         => $post->ID,
+			'site_ID'    => Jetpack_Options::get_option( 'id' ),
+			'title'      => $post->post_title,
+			'date'       => $post->post_date,
+			'URL'        => wp_get_attachment_url( $post->ID ),
+			'mime_type'  => $post->post_mime_type,
+			'length'     => $length,
+			'thumbnails' => (object) $thumbnails,
 		);
 	}
 
