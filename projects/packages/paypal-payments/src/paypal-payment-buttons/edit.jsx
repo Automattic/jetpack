@@ -40,6 +40,7 @@ import {
 import { useState, useEffect, useCallback, useMemo, useRef } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import metadata from './block.json';
+import { getPriceStep } from './currency-symbols';
 import PayPalButtonPreview from './paypal-button-preview';
 import {
 	validatePrice,
@@ -226,7 +227,6 @@ const SUPPORTED_CURRENCIES = [
 	{ label: 'PHP — Philippine Peso', value: 'PHP' },
 	{ label: 'TWD — Taiwan Dollar', value: 'TWD' },
 	{ label: 'THB — Thai Baht', value: 'THB' },
-	{ label: 'INR — Indian Rupee', value: 'INR' },
 	{ label: 'CNY — Chinese Yuan', value: 'CNY' },
 ];
 
@@ -361,6 +361,10 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 		'Each product option sets its own price, so this value is ignored.',
 		'jetpack-paypal-payments'
 	);
+
+	// PayPal rejects any decimal in JPY, HUF and TWD, so the input must not offer one.
+	const priceStep = getPriceStep( currencyCode || 'USD' );
+	const pricePlaceholder = priceStep === '1' ? '1500' : '29.99';
 
 	// Connection state.
 	const [ isConnected, setIsConnected ] = useState( false );
@@ -500,7 +504,7 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 			// The product price is only required when the options aren't priced
 			// individually. A stray value is still validated so it can't be sent
 			// half-formed if the merchant clears the per-option prices later.
-			price: usesVariantPricing && ! price ? null : validatePrice( price ),
+			price: usesVariantPricing && ! price ? null : validatePrice( price, currencyCode || 'USD' ),
 			productDescription: validateDescription( productDescription ),
 			currencyCode:
 				currencyCode && ! VALID_CURRENCY_CODES.has( currencyCode )
@@ -514,8 +518,8 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 	 * Variant validation errors (empty array if valid or disabled).
 	 */
 	const variantErrors = useMemo(
-		() => validateVariants( variantsEnabled, variants ),
-		[ variantsEnabled, variants ]
+		() => validateVariants( variantsEnabled, variants, currencyCode || 'USD' ),
+		[ variantsEnabled, variants, currencyCode ]
 	);
 
 	/**
@@ -2018,9 +2022,9 @@ export default function PayPalPaymentButtonsEdit( { attributes, setAttributes } 
 							onBlur={ () => markTouched( 'price' ) }
 							disabled={ isCreating }
 							type="number"
-							min="0.01"
-							step="0.01"
-							placeholder="29.99"
+							min={ priceStep }
+							step={ priceStep }
+							placeholder={ pricePlaceholder }
 							help={
 								touchedFields.price && validationErrors.price
 									? validationErrors.price

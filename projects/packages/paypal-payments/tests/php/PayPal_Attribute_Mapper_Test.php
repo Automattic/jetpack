@@ -197,14 +197,16 @@ class PayPal_Attribute_Mapper_Test extends TestCase {
 	}
 
 	/**
-	 * Test that all 26 supported currencies are accepted.
+	 * Test that every supported currency is accepted.
+	 *
+	 * A whole-number price, because three of them refuse decimals.
 	 */
 	public function test_validate_accepts_all_supported_currencies() {
 		foreach ( PayPal_Attribute_Mapper::SUPPORTED_CURRENCIES as $currency ) {
 			$result = PayPal_Attribute_Mapper::validate_attributes(
 				array(
 					'productName'  => 'Widget',
-					'price'        => '10.00',
+					'price'        => '10',
 					'currencyCode' => $currency,
 				)
 			);
@@ -212,7 +214,143 @@ class PayPal_Attribute_Mapper_Test extends TestCase {
 			$this->assertTrue( $result, "Currency $currency should be accepted" );
 		}
 
-		$this->assertCount( 25, PayPal_Attribute_Mapper::SUPPORTED_CURRENCIES );
+		$this->assertCount( 24, PayPal_Attribute_Mapper::SUPPORTED_CURRENCIES );
+	}
+
+	// --- validate_attributes: zero-decimal currencies ---
+
+	/**
+	 * Data provider for the currencies PayPal prices without decimals.
+	 *
+	 * @return array[] Test cases.
+	 */
+	public static function zero_decimal_currency_provider(): array {
+		return array(
+			'JPY' => array( 'JPY' ),
+			'HUF' => array( 'HUF' ),
+			'TWD' => array( 'TWD' ),
+		);
+	}
+
+	/**
+	 * Test that is_zero_decimal_currency knows the three currencies and nothing else.
+	 */
+	public function test_is_zero_decimal_currency() {
+		$this->assertTrue( PayPal_Attribute_Mapper::is_zero_decimal_currency( 'JPY' ) );
+		$this->assertTrue( PayPal_Attribute_Mapper::is_zero_decimal_currency( 'huf' ) );
+		$this->assertTrue( PayPal_Attribute_Mapper::is_zero_decimal_currency( 'TWD' ) );
+		$this->assertFalse( PayPal_Attribute_Mapper::is_zero_decimal_currency( 'USD' ) );
+		$this->assertFalse( PayPal_Attribute_Mapper::is_zero_decimal_currency( 'EUR' ) );
+		// The legacy table lists INR as zero-decimal, but PayPal does not support it at all.
+		$this->assertFalse( PayPal_Attribute_Mapper::is_zero_decimal_currency( 'INR' ) );
+	}
+
+	/**
+	 * Test that a decimal price is rejected in a currency PayPal prices whole.
+	 *
+	 * @param string $currency Zero-decimal currency code.
+	 * @dataProvider zero_decimal_currency_provider
+	 */
+	#[DataProvider( 'zero_decimal_currency_provider' )]
+	public function test_validate_rejects_decimal_price_for_zero_decimal_currency( $currency ) {
+		$result = PayPal_Attribute_Mapper::validate_attributes(
+			array(
+				'productName'  => 'Widget',
+				'price'        => '1500.50',
+				'currencyCode' => $currency,
+			)
+		);
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertEquals( 'invalid_price', $result->get_error_code() );
+		$this->assertStringContainsString( 'whole numbers', $result->get_error_message() );
+	}
+
+	/**
+	 * Test that a whole-number price is accepted in a currency PayPal prices whole.
+	 *
+	 * @param string $currency Zero-decimal currency code.
+	 * @dataProvider zero_decimal_currency_provider
+	 */
+	#[DataProvider( 'zero_decimal_currency_provider' )]
+	public function test_validate_accepts_whole_price_for_zero_decimal_currency( $currency ) {
+		$result = PayPal_Attribute_Mapper::validate_attributes(
+			array(
+				'productName'  => 'Widget',
+				'price'        => '1500',
+				'currencyCode' => $currency,
+			)
+		);
+
+		$this->assertTrue( $result );
+	}
+
+	/**
+	 * Test that a decimal option price is rejected in a currency PayPal prices whole.
+	 *
+	 * @param string $currency Zero-decimal currency code.
+	 * @dataProvider zero_decimal_currency_provider
+	 */
+	#[DataProvider( 'zero_decimal_currency_provider' )]
+	public function test_validate_rejects_decimal_option_price_for_zero_decimal_currency( $currency ) {
+		$result = PayPal_Attribute_Mapper::validate_attributes(
+			array(
+				'productName'     => 'Widget',
+				'currencyCode'    => $currency,
+				'variantsEnabled' => true,
+				'variants'        => $this->variants_with_prices( array( '1500', '1500.50' ) ),
+			)
+		);
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertEquals( 'invalid_variant_price', $result->get_error_code() );
+		$this->assertStringContainsString( 'whole numbers', $result->get_error_message() );
+	}
+
+	/**
+	 * Test that whole-number option prices are accepted in a currency PayPal prices whole.
+	 *
+	 * @param string $currency Zero-decimal currency code.
+	 * @dataProvider zero_decimal_currency_provider
+	 */
+	#[DataProvider( 'zero_decimal_currency_provider' )]
+	public function test_validate_accepts_whole_option_prices_for_zero_decimal_currency( $currency ) {
+		$result = PayPal_Attribute_Mapper::validate_attributes(
+			array(
+				'productName'     => 'Widget',
+				'currencyCode'    => $currency,
+				'variantsEnabled' => true,
+				'variants'        => $this->variants_with_prices( array( '1500', '2000' ) ),
+			)
+		);
+
+		$this->assertTrue( $result );
+	}
+
+	/**
+	 * Test that a two-decimal currency still takes decimals, on the product and on its options.
+	 */
+	public function test_validate_accepts_decimal_prices_for_two_decimal_currency() {
+		$this->assertTrue(
+			PayPal_Attribute_Mapper::validate_attributes(
+				array(
+					'productName'  => 'Widget',
+					'price'        => '12.34',
+					'currencyCode' => 'EUR',
+				)
+			)
+		);
+
+		$this->assertTrue(
+			PayPal_Attribute_Mapper::validate_attributes(
+				array(
+					'productName'     => 'Widget',
+					'currencyCode'    => 'EUR',
+					'variantsEnabled' => true,
+					'variants'        => $this->variants_with_prices( array( '12.34', '56.78' ) ),
+				)
+			)
+		);
 	}
 
 	// --- validate_attributes: optional field length limits ---

@@ -10,6 +10,7 @@
  */
 
 import { __, sprintf } from '@wordpress/i18n';
+import { ZERO_DECIMAL_CURRENCIES } from './currency-symbols';
 
 /**
  * Validation constants — match server-side limits.
@@ -44,17 +45,44 @@ export const VALID_CURRENCY_CODES = new Set( [
 	'PHP',
 	'TWD',
 	'THB',
-	'INR',
 	'CNY',
 ] );
 
 /**
- * Validate a price string.
+ * Check the decimals a price carries against what PayPal accepts for the currency.
  *
- * @param {string} value - The price value.
+ * PayPal rejects any decimal for JPY, HUF and TWD; every other currency takes up to two.
+ *
+ * @param {string} value        - The price value.
+ * @param {string} currencyCode - The ISO currency code the price is in.
  * @return {string|null} Error message or null if valid.
  */
-export function validatePrice( value ) {
+export function getPriceFormatError( value, currencyCode = 'USD' ) {
+	const trimmed = `${ value ?? '' }`.trim();
+
+	if ( ZERO_DECIMAL_CURRENCIES.has( currencyCode ) ) {
+		return /^\d+$/.test( trimmed )
+			? null
+			: sprintf(
+					/* translators: %s: currency code, e.g. JPY */
+					__( 'Prices in %s are whole numbers (e.g., "1500").', 'jetpack-paypal-payments' ),
+					currencyCode
+			  );
+	}
+
+	return /^\d+(\.\d{1,2})?$/.test( trimmed )
+		? null
+		: __( 'Price can have at most 2 decimal places (e.g., "29.99").', 'jetpack-paypal-payments' );
+}
+
+/**
+ * Validate a price string.
+ *
+ * @param {string} value        - The price value.
+ * @param {string} currencyCode - The ISO currency code the price is in.
+ * @return {string|null} Error message or null if valid.
+ */
+export function validatePrice( value, currencyCode = 'USD' ) {
 	if ( ! value || value.trim() === '' ) {
 		return __( 'Price is required.', 'jetpack-paypal-payments' );
 	}
@@ -64,15 +92,7 @@ export function validatePrice( value ) {
 		return __( 'Price must be a positive number.', 'jetpack-paypal-payments' );
 	}
 
-	// Check max 2 decimal places.
-	if ( ! /^\d+(\.\d{1,2})?$/.test( value.trim() ) ) {
-		return __(
-			'Price can have at most 2 decimal places (e.g., "29.99").',
-			'jetpack-paypal-payments'
-		);
-	}
-
-	return null;
+	return getPriceFormatError( value, currencyCode );
 }
 
 /**

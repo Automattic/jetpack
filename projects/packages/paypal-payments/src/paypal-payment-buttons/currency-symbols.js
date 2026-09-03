@@ -35,3 +35,20 @@ export const CURRENCY_SYMBOLS = {
 	TWD: 'NT$',
 	THB: '\u0E3F',
 };
+
+/**
+ * Currencies PayPal only accepts as whole numbers. A decimal amount is
+ * rejected outright, not rounded. Matches the `decimal` column of the PHP
+ * currency table.
+ */
+export const ZERO_DECIMAL_CURRENCIES = new Set( [ 'HUF', 'JPY', 'TWD' ] );
+
+/**
+ * The smallest step a price input should offer for a currency.
+ *
+ * @param {string} currencyCode - The ISO currency code.
+ * @return {string} '1' for a zero-decimal currency, '0.01' otherwise.
+ */
+export function getPriceStep( currencyCode ) {
+	return ZERO_DECIMAL_CURRENCIES.has( currencyCode ) ? '1' : '0.01';
+}

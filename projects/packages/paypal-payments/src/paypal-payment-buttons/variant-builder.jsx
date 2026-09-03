@@ -12,6 +12,8 @@
 import { Button, TextControl, ToggleControl } from '@wordpress/components';
 import { useRef, useEffect, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
+import { getPriceStep } from './currency-symbols';
+import { getPriceFormatError } from './validation';
 
 // Pre-extract translated strings used in ternaries to avoid i18n build errors.
 const placeholderColor = __( 'e.g., Color', 'jetpack-paypal-payments' );
@@ -115,11 +117,12 @@ export function hasVariantPricing( enabled, variants ) {
 /**
  * Validate variant data and return error messages.
  *
- * @param {boolean} enabled  - Whether variants are enabled.
- * @param {object}  variants - The variants data.
+ * @param {boolean} enabled      - Whether variants are enabled.
+ * @param {object}  variants     - The variants data.
+ * @param {string}  currencyCode - Product currency the option prices are in.
  * @return {Array} Array of error strings. Empty if valid.
  */
-export function validateVariants( enabled, variants ) {
+export function validateVariants( enabled, variants, currencyCode = 'USD' ) {
 	if ( ! enabled || ! variants?.dimensions?.length ) {
 		return [];
 	}
@@ -185,6 +188,20 @@ export function validateVariants( enabled, variants ) {
 							),
 							opt.label || `Option ${ j + 1 }`,
 							dim.name || `#${ i + 1 }`
+						)
+					);
+					return;
+				}
+
+				const formatError = getPriceFormatError( rawValue, currencyCode );
+				if ( formatError ) {
+					errors.push(
+						sprintf(
+							/* translators: 1: option label or number, 2: group name, 3: what is wrong with the price */
+							__( 'Price for "%1$s" in "%2$s": %3$s', 'jetpack-paypal-payments' ),
+							opt.label || `Option ${ j + 1 }`,
+							dim.name || `#${ i + 1 }`,
+							formatError
 						)
 					);
 				}
@@ -324,8 +341,8 @@ function GroupEditor( { group, index, currencyCode, onChange, onRemove, onSetPri
 									} )
 								}
 								type="number"
-								min="0.01"
-								step="0.01"
+								min={ getPriceStep( currencyCode ) }
+								step={ getPriceStep( currencyCode ) }
 								placeholder={ __( 'Same as product price', 'jetpack-paypal-payments' ) }
 								disabled={ disabled }
 								help={ helpOptionPrice }
