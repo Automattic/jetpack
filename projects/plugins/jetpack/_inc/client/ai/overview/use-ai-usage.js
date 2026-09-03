@@ -8,6 +8,7 @@
 
 import {
 	PLAN_TYPE_FREE,
+	PLAN_TYPE_TIERED,
 	usePlanType as getPlanType,
 } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch';
@@ -36,22 +37,33 @@ export function anchorDateToUtc( value ) {
 }
 
 /**
- * Normalize the ai-assistant-feature payload for display. The product has two
- * states: Free gets a meter and an upgrade offer; Paid (a single subscription,
- * no higher tier) gets nothing — the card only renders for the free plan. The
- * i4 card shows what is AVAILABLE (limit − used), so that is derived here.
+ * Normalize the ai-assistant-feature payload for display, with the live
+ * entitlement as the only source of truth (billing metadata can lag behind
+ * migrations). Free gets a meter and an upgrade offer; the paid fair-use
+ * plan (tier value 1, migrated legacy subscribers included) gets nothing;
+ * a fixed tier still returned by the entitlement is genuinely active and
+ * gets its period meter, but no upgrade — there is no higher tier to sell.
+ * The i4 card shows what is AVAILABLE (limit − used), so that is derived here.
  *
  * @param {object} data - Raw endpoint payload (dash-cased keys).
  * @return {object} { isFree, requestsCount, requestsLimit, requestsAvailable, showUpgrade }
  */
 export function normalizeUsage( data ) {
-	const planType = getPlanType( data?.[ 'current-tier' ] ?? null );
-	// A payload that doesn't positively identify the free tier gets no card
-	// rather than a guessed meter — paid has nothing to meter or sell.
+	const currentTier = data?.[ 'current-tier' ] ?? null;
+	const planType = getPlanType( currentTier );
+	// A payload that doesn't positively identify a meterable plan gets no
+	// card rather than a guessed meter.
 	const isFree = planType === PLAN_TYPE_FREE;
 
-	const requestsCount = ( isFree ? data?.[ 'requests-count' ] : null ) ?? null;
-	const requestsLimit = ( isFree ? data?.[ 'requests-limit' ] : null ) ?? null;
+	let requestsCount = null;
+	let requestsLimit = null;
+	if ( isFree ) {
+		requestsCount = data?.[ 'requests-count' ] ?? null;
+		requestsLimit = data?.[ 'requests-limit' ] ?? null;
+	} else if ( planType === PLAN_TYPE_TIERED ) {
+		requestsCount = data?.[ 'usage-period' ]?.[ 'requests-count' ] ?? null;
+		requestsLimit = currentTier?.limit ?? null;
+	}
 	const requestsAvailable =
 		requestsCount !== null && requestsLimit !== null
 			? Math.max( 0, requestsLimit - requestsCount )

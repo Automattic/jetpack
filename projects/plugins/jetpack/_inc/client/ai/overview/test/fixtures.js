@@ -29,8 +29,9 @@ export const paidPayload = () => ( {
 	'current-tier': { value: 1, limit: 999999999, 'readable-limit': 'Unlimited' },
 } );
 
-// The retired tiered plans still arrive on the wire for old subscribers.
-export const legacyTieredPayload = () => ( {
+// A fixed tier the entitlement still returns is genuinely active: legacy
+// tiered subscribers were migrated to fair-use and arrive as paidPayload.
+export const tieredPayload = () => ( {
 	...paidPayload(),
 	'current-tier': { value: 500, limit: 500 },
 	'next-tier': { value: 750, limit: 750 },

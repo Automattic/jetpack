@@ -1,7 +1,7 @@
 import { renderHook, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 import { anchorDateToUtc, normalizeUsage, useAiUsage } from '../use-ai-usage';
-import { freePayload, legacyTieredPayload, paidPayload } from './fixtures';
+import { freePayload, paidPayload, tieredPayload } from './fixtures';
 
 // The hook fetches through @wordpress/api-fetch; stub it so nothing hits the
 // network and each test controls the response.
@@ -63,11 +63,13 @@ describe( 'normalizeUsage', () => {
 		expect( usage.showUpgrade ).toBe( false );
 	} );
 
-	test( 'legacy tiered plan: treated as paid — no numbers, no upgrade', () => {
-		const usage = normalizeUsage( legacyTieredPayload() );
+	test( 'fixed tier: counts remaining period requests against the tier limit, no upgrade', () => {
+		const usage = normalizeUsage( tieredPayload() );
 
 		expect( usage.isFree ).toBe( false );
-		expect( usage.requestsAvailable ).toBeNull();
+		expect( usage.requestsCount ).toBe( 340 );
+		expect( usage.requestsLimit ).toBe( 500 );
+		expect( usage.requestsAvailable ).toBe( 160 );
 		expect( usage.showUpgrade ).toBe( false );
 	} );
 

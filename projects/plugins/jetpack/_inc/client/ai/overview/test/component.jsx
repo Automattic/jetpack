@@ -6,7 +6,7 @@ import { dispatch } from '@wordpress/data';
 import { store as preferencesStore } from '@wordpress/preferences';
 import analytics from 'lib/analytics';
 import AiOverview from '../index';
-import { depletedPayload, freePayload, legacyTieredPayload, paidPayload } from './fixtures';
+import { depletedPayload, freePayload, paidPayload, tieredPayload } from './fixtures';
 
 // The usage hook fetches through @wordpress/api-fetch; stub it so nothing
 // hits the network and each test controls the response.
@@ -178,19 +178,16 @@ describe( 'AiOverview', () => {
 		expect( screen.getByRole( 'heading', { level: 2, name: 'Quick start' } ) ).toBeInTheDocument();
 	} );
 
-	test( 'legacy tiered plan: treated as paid, no usage card', async () => {
-		apiFetch.mockResolvedValueOnce( legacyTieredPayload() );
+	test( 'fixed tier: renders remaining period requests against the tier limit, no upgrade', async () => {
+		apiFetch.mockResolvedValueOnce( tieredPayload() );
 
-		const { container } = render( <AiOverview { ...PROPS } /> );
+		render( <AiOverview { ...PROPS } /> );
 
-		/* eslint-disable testing-library/no-container, testing-library/no-node-access --
-		   The skeleton bars are decorative and aria-hidden, so Testing Library
-		   has no query that reaches them; the layout class is the only handle. */
-		await waitForElementToBeRemoved( () =>
-			container.querySelector( '.jetpack-ai-overview__upsell' )
-		);
-		/* eslint-enable testing-library/no-container, testing-library/no-node-access */
-		expect( screen.queryByText( 'Available requests' ) ).not.toBeInTheDocument();
+		await expect( screen.findByText( '160' ) ).resolves.toBeInTheDocument();
+		// The limit shows once, on the meter — never repeated as a plan name.
+		expect( screen.getAllByText( '500' ) ).toHaveLength( 1 );
+		expect( screen.getByRole( 'progressbar', { hidden: true } ) ).toBeInTheDocument();
+		// There is no higher tier to sell, whatever next-tier claims.
 		expect( screen.queryByRole( 'link', { name: 'Upgrade' } ) ).not.toBeInTheDocument();
 	} );
 
