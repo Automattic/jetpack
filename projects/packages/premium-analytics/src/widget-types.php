@@ -202,18 +202,14 @@ function sanitize_widget_actions( $actions ) {
 
 		$href = esc_url_raw( resolve_widget_action_href( $action['href'] ) );
 		if ( ! $href ) {
-			_doing_it_wrong(
-				__FUNCTION__,
-				esc_html(
-					sprintf(
-						/* translators: 1: Widget action id. 2: Declared action href. */
-						__( 'Dropped widget action "%1$s": href "%2$s" is not an allowed URL.', 'jetpack-premium-analytics-pkg' ),
-						$action['id'],
-						$action['href']
-					)
-				),
-				'jetpack-premium-analytics-$$next-version$$'
+			$message = sprintf(
+				/* translators: 1: Widget action id. 2: Declared action href. */
+				__( 'Dropped widget action "%1$s": href "%2$s" is not an allowed URL.', 'jetpack-premium-analytics-pkg' ),
+				$action['id'],
+				$action['href']
 			);
+			// One line: tools/replace-next-version-tag.sh only rewrites the token in a single-line call.
+			_doing_it_wrong( __FUNCTION__, esc_html( $message ), 'jetpack-premium-analytics-$$next-version$$' );
 			continue;
 		}
 
