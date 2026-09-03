@@ -3,8 +3,11 @@
  */
 import { fetchStatsProxy } from './stats-proxy-fetch';
 
+/** Where the reader placed the new tab on the comparison scale, worst to best. */
+export type StatsFeedbackRating = 1 | 2 | 3 | 4 | 5;
+
 export type StatsUserFeedback = {
-	rating: number;
+	rating: StatsFeedbackRating;
 	comment: string;
 	productName: string;
 };
@@ -17,7 +20,7 @@ export type StatsUserFeedback = {
  * Tracks carries the rating either way.
  *
  * @param feedback             - The reader's submission.
- * @param feedback.rating      - Where the reader placed the new tab on the comparison scale, 1 to 5.
+ * @param feedback.rating      - Where the reader placed the new tab on the comparison scale.
  * @param feedback.comment     - The reader's message. Must not be empty.
  * @param feedback.productName - The surface being reviewed. Reaches Happiness as the email
  *                             subject line, so it has to stand alone.

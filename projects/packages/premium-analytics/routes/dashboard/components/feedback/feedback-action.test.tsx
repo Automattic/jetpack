@@ -236,7 +236,7 @@ describe( 'the Happiness copy of the feedback', () => {
 				method: 'POST',
 				data: {
 					source_url: window.location.href,
-					product_name: 'Stats v2',
+					product_name: 'Jetpack Stats v2',
 					feedback: 'Missing the date picker',
 					rating: 2,
 				},

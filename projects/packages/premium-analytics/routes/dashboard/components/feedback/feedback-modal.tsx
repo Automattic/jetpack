@@ -1,7 +1,7 @@
 /**
  * WordPress dependencies
  */
-import { submitStatsUserFeedback } from '@jetpack-premium-analytics/data';
+import { submitStatsUserFeedback, type StatsFeedbackRating } from '@jetpack-premium-analytics/data';
 import { Button, Notice, Stack, Text } from '@jetpack-premium-analytics/externals';
 import { Modal, RadioControl, TextareaControl } from '@wordpress/components';
 import { useCallback, useState } from '@wordpress/element';
@@ -11,15 +11,13 @@ import { __ } from '@wordpress/i18n';
  */
 import { useTrackEvent } from '../../hooks/use-track-event';
 
-type Rating = 1 | 2 | 3 | 4 | 5;
-
 // Tracks drops an event whose properties are oversized, so a pasted essay would
 // cost us the rating too.
 const COMMENT_MAX_LENGTH = 1000;
 
 // Reaches Happiness as the subject line of the feedback email ("Feedback received
 // from …"), so it has to name the surface without any further context.
-const PRODUCT_NAME = 'Stats v2';
+const PRODUCT_NAME = 'Jetpack Stats v2';
 
 /**
  * The comparison scale, worst to best. `value` is the score that reaches Tracks.
@@ -66,7 +64,7 @@ type FeedbackModalProps = {
  */
 export function FeedbackModal( { onClose }: FeedbackModalProps ) {
 	const trackEvent = useTrackEvent();
-	const [ rating, setRating ] = useState< Rating | null >( null );
+	const [ rating, setRating ] = useState< StatsFeedbackRating | null >( null );
 	const [ comment, setComment ] = useState( '' );
 	const [ hasSubmitted, setHasSubmitted ] = useState( false );
 
@@ -80,7 +78,7 @@ export function FeedbackModal( { onClose }: FeedbackModalProps ) {
 	);
 
 	const selectRating = useCallback(
-		( value: string ) => setRating( Number( value ) as Rating ),
+		( value: string ) => setRating( Number( value ) as StatsFeedbackRating ),
 		[]
 	);
 
