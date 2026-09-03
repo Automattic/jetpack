@@ -22,6 +22,8 @@ $widget-grid-donut-size: 76px;
 	inline-size: var(--wga-width);
 	block-size: var(--wga-height);
 	padding: var(--wpds-dimension-padding-lg);
+	// Keeps tiles apart where they cross mid-tween.
+	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
 	border-radius: var(--wpds-border-radius-lg);
 	background: $widget-grid-tile-gradient;
 	color: $widget-grid-stage-color;
