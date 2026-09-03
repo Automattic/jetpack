@@ -212,6 +212,7 @@ const PeriodControl = ( { value, onChange }: PeriodControlProps ) => {
 					</Stack>
 					<RangeCalendar
 						value={ draft }
+						defaultMonth={ draft?.from }
 						onValueChange={ handleCalendarChange }
 						locale={ document.documentElement.lang }
 						numberOfMonths={ isSmall ? 1 : 2 }
