@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix handling of non-array response in `wp_ajax_wpcom_generate_site_preview_link`
