@@ -245,11 +245,6 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 			};
 		}, [ options, dataSorted, width, stacked, fixedYDomain, zoom.domain, formatting ] );
 
-		const bucketInfo = useMemo(
-			() => getBucketInfo( dataSorted, options?.axis?.x?.tickResolution ),
-			[ dataSorted, options?.axis?.x?.tickResolution ]
-		);
-
 		const defaultMargin = useChartMargin( height, chartOptions, dataSorted, theme );
 
 		const error = validateData( dataSorted );
@@ -292,6 +287,18 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 		const visibleLabels = useMemo(
 			() => new Set( seriesWithVisibility.filter( s => s.isVisible ).map( s => s.series.label ) ),
 			[ seriesWithVisibility ]
+		);
+
+		// Classified from the visible series, not the axis's: a hidden area stays in
+		// the x domain for its animation, but the tooltip below drops its data, so a
+		// heading naming that series' bucket would name one no visible datum has.
+		const bucketInfo = useMemo(
+			() =>
+				getBucketInfo(
+					dataSorted.filter( series => visibleLabels.has( series.label ) ),
+					options?.axis?.x?.tickResolution
+				),
+			[ dataSorted, visibleLabels, options?.axis?.x?.tickResolution ]
 		);
 		const filteredRenderTooltip = useCallback(
 			( params: Parameters< typeof renderTooltip >[ 0 ] ) => {

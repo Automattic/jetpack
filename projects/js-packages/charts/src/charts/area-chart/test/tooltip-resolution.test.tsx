@@ -33,4 +33,37 @@ describe( 'area chart tooltip bucket info', () => {
 
 		expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveTextContent( '2.8.2026, 09 Uhr' );
 	} );
+
+	// The axis keeps a hidden area in its domain for the animation, but the
+	// tooltip drops its data, so the bucket has to follow the tooltip.
+	it( 'ignores a hidden series when naming the bucket', async () => {
+		const user = userEvent.setup();
+		const hourly = Array.from( { length: 4 }, ( _, index ) => ( {
+			date: new Date( Date.UTC( 2026, 7, 2, index ) ),
+			value: index,
+		} ) );
+		const daily = Array.from( { length: 3 }, ( _, index ) => ( {
+			date: new Date( Date.UTC( 2026, 7, 2 + index ) ),
+			value: index,
+		} ) );
+
+		render(
+			<GlobalChartsProvider locale="de-DE" timeZone="Asia/Tokyo">
+				<AreaChart
+					width={ 500 }
+					height={ 300 }
+					defaultHiddenSeries={ [ 'Hourly' ] }
+					data={ [
+						{ label: 'Hourly', data: hourly, options: {} },
+						{ label: 'Daily', data: daily, options: {} },
+					] }
+				/>
+			</GlobalChartsProvider>
+		);
+
+		screen.getByRole( 'grid', { name: /area chart/i } ).focus();
+		await user.keyboard( '{ArrowRight}' );
+
+		expect( screen.getByTestId( 'chart-tooltip-0' ) ).not.toHaveTextContent( 'Uhr' );
+	} );
 } );
