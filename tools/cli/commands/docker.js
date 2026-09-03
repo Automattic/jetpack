@@ -1179,51 +1179,6 @@ async function generateConfig( argv ) {
 }
 
 /**
- * Paths `docker clean` deletes for one instance. `wordpress/` and `wordpress-develop/` are
- * shared by every instance rather than per-project, which is why the plan lists them.
- *
- * @param {string} project - Compose project name (e.g. 'jetpack_dev').
- * @return {Array<string>} Paths, exactly as handed to `rm -rf`.
- */
-export const buildCleanPaths = project => [
-	`${ dockerFolder }/wordpress/`,
-	`${ dockerFolder }/wordpress-develop/*`,
-	`${ dockerFolder }/logs/${ project }/`,
-	`${ dockerFolder }/data/${ project }_mysql/`,
-];
-
-/**
- * Decide how `clean` may proceed. A non-TTY caller is refused rather than prompted, so a
- * script or agent that cannot read the plan has to pass --yes to destroy anything.
- *
- * @param {object}  opts       - Options.
- * @param {boolean} opts.yes   - Whether --yes was passed.
- * @param {boolean} opts.isTty - Whether stdin and stdout are both TTYs.
- * @return {string} 'proceed', 'prompt' or 'refuse'.
- */
-export const resolveCleanConsent = ( { yes, isTty } ) => {
-	if ( yes ) {
-		return 'proceed';
-	}
-	return isTty ? 'prompt' : 'refuse';
-};
-
-/**
- * Print what `clean` is about to destroy, before anything is destroyed.
- *
- * @param {string}        project - Compose project name.
- * @param {Array<string>} paths   - Paths that will be removed.
- */
-const printCleanPlan = ( project, paths ) => {
-	console.log( chalk.yellow( `\n'clean' will permanently destroy the '${ project }' instance:` ) );
-	console.log( chalk.yellow( '  - its containers and Docker volumes (`compose down -v`)' ) );
-	for ( const path of paths ) {
-		console.log( chalk.yellow( `  - ${ path }` ) );
-	}
-	console.log();
-};
-
-/**
  * Handler for `docker clean`: announce the target, get consent, then tear it down.
  *
  * @param {object} argv - Yargs
@@ -1235,15 +1190,26 @@ export const cleanCmdHandler = async argv => {
 	applyParallelEnv( argv );
 
 	const project = getProjectName( argv );
-	const paths = buildCleanPaths( project );
-	printCleanPlan( project, paths );
+	// `wordpress/` and `wordpress-develop/` are shared by every instance rather than
+	// per-project, which is why the plan lists them. The glob is expanded by `shell: true`.
+	const paths = [
+		`${ dockerFolder }/wordpress/`,
+		`${ dockerFolder }/wordpress-develop/*`,
+		`${ dockerFolder }/logs/${ project }/`,
+		`${ dockerFolder }/data/${ project }_mysql/`,
+	];
 
-	const consent = resolveCleanConsent( {
-		yes: Boolean( argv.yes ),
-		isTty: Boolean( process.stdin.isTTY && process.stdout.isTTY ),
-	} );
+	console.log( chalk.yellow( `\n'clean' will permanently destroy the '${ project }' instance:` ) );
+	console.log( chalk.yellow( '  - its containers and Docker volumes (`compose down -v`)' ) );
+	for ( const path of paths ) {
+		console.log( chalk.yellow( `  - ${ path }` ) );
+	}
+	console.log();
 
-	if ( consent === 'refuse' ) {
+	// Refuse a non-TTY caller rather than prompting, so a script or agent that cannot read the
+	// plan has to pass --yes to destroy anything.
+	const isTty = Boolean( process.stdin.isTTY && process.stdout.isTTY );
+	if ( ! argv.yes && ! isTty ) {
 		console.error(
 			chalk.red(
 				`No terminal to confirm at, so '${ project }' was left alone. Pass --yes if you really mean to destroy it.`
@@ -1252,7 +1218,7 @@ export const cleanCmdHandler = async argv => {
 		process.exit( 1 );
 	}
 
-	if ( consent === 'prompt' ) {
+	if ( ! argv.yes ) {
 		const { confirmed } = await enquirer.prompt( {
 			type: 'confirm',
 			name: 'confirmed',

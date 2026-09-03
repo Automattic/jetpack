@@ -56,8 +56,6 @@ const {
 	shouldWriteParallelEnv,
 	applyParallelEnv,
 	PARALLEL_ENV_KEYS,
-	buildCleanPaths,
-	resolveCleanConsent,
 	cleanCmdHandler,
 } = await import( '../../../commands/docker.js' );
 
@@ -820,36 +818,6 @@ describe( 'pipeDbDump', () => {
 	} );
 } );
 
-describe( 'buildCleanPaths', () => {
-	test( 'scopes the logs and mysql paths to the given project', () => {
-		expect( buildCleanPaths( 'jetpack_feature' ) ).toEqual( [
-			'tools/docker/wordpress/',
-			'tools/docker/wordpress-develop/*',
-			'tools/docker/logs/jetpack_feature/',
-			'tools/docker/data/jetpack_feature_mysql/',
-		] );
-	} );
-
-	test( 'never names another instance', () => {
-		expect( buildCleanPaths( 'jetpack_feature' ).join( '\n' ) ).not.toContain( 'jetpack_dev' );
-	} );
-} );
-
-describe( 'resolveCleanConsent', () => {
-	test( '--yes proceeds with or without a TTY', () => {
-		expect( resolveCleanConsent( { yes: true, isTty: true } ) ).toBe( 'proceed' );
-		expect( resolveCleanConsent( { yes: true, isTty: false } ) ).toBe( 'proceed' );
-	} );
-
-	test( 'prompts when a TTY is available', () => {
-		expect( resolveCleanConsent( { yes: false, isTty: true } ) ).toBe( 'prompt' );
-	} );
-
-	test( 'refuses without a TTY and without --yes', () => {
-		expect( resolveCleanConsent( { yes: false, isTty: false } ) ).toBe( 'refuse' );
-	} );
-} );
-
 describe( 'cleanCmdHandler', () => {
 	const rmCalls = () => cpStub.spawnSync.mock.calls.filter( call => call[ 0 ] === 'rm' );
 	const composeCalls = () =>
@@ -882,8 +850,12 @@ describe( 'cleanCmdHandler', () => {
 	} );
 
 	test( 'removes the paths of the instance it just took down', async () => {
+		process.stdin.isTTY = true;
+		process.stdout.isTTY = true;
+
 		await cleanCmdHandler( { _: [ 'docker', 'clean' ], type: 'dev', name: 'feature', yes: true } );
 
+		expect( enquirerStub.prompt ).not.toHaveBeenCalled();
 		expect( rmCalls() ).toHaveLength( 1 );
 		expect( rmCalls()[ 0 ][ 1 ] ).toEqual( [
 			'-rf',

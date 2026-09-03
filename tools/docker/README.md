@@ -294,6 +294,8 @@ git worktree remove ../jetpack-feature
 
 Each of the above needs the same `--name` you used when bringing the instance up. The primary `jetpack_dev` instance is untouched.
 
+**`jp` is not `jetpack` here.** `jp docker up|stop|down|clean` run `docker compose` on the host rather than forwarding to this CLI, so they have no `--name` and refuse it. They read `COMPOSE_PROJECT_NAME` from `tools/docker/.env` instead — use the seeded-worktree flow above, or run these four as `jetpack docker`.
+
 #### Notes & gotchas
 
 * The `mailpit` container is no longer globally named — each instance gets its own `jetpack_<name>-mailpit-1`. Internal SMTP routing still uses the compose service name `mailpit`, so PHP mail from within any container routes to that instance's MailPit.

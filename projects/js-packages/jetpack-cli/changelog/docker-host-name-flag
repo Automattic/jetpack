@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Docker: `up`, `stop`, `down` and `clean` now explain that they take no `--name` instead of failing inside `docker compose`. These run on the host and read the instance name from `tools/docker/.env`.

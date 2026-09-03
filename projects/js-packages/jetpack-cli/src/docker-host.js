@@ -5,9 +5,10 @@ import process from 'process';
 /**
  * Resolve the compose environment for a docker command that runs on the host.
  *
- * Mirrors the precedence `tools/cli/commands/docker.js` uses inside the container:
- * process env, then tools/docker/default.env, then the worktree's tools/docker/.env,
- * then built-in defaults for whatever is still unset.
+ * Precedence, last wins: process env, tools/docker/default.env, the worktree's
+ * tools/docker/.env, then built-in defaults for whatever is still unset. Note the file beats
+ * an exported variable here, the reverse of `tools/cli/commands/docker.js`, whose
+ * `shellExecutor` layers `process.env` last.
  *
  * @param {string}   monorepoRoot - Path to the monorepo root.
  * @param {Array}    args         - Raw CLI arguments.
@@ -67,16 +68,44 @@ export const resolveDockerEnv = ( monorepoRoot, args, parseEnv ) => {
  * Paths `docker clean` deletes for one instance. `wordpress/` and `wordpress-develop/` are
  * shared by every instance rather than per-project, which is why the plan lists them.
  *
+ * `wordpress-develop` is expanded to its entries because `fs.rmSync` does no globbing, and
+ * dotfiles are skipped so `.gitkeep` survives, as it does under `rm -rf .../*`.
+ *
  * @param {string} monorepoRoot - Path to the monorepo root.
  * @param {string} projectName  - Resolved compose project name (e.g. 'jetpack_dev').
  * @return {Array<string>} Paths that will be removed.
  */
-export const buildCleanupPaths = ( monorepoRoot, projectName ) => [
-	resolve( monorepoRoot, 'tools/docker/wordpress/' ),
-	resolve( monorepoRoot, 'tools/docker/wordpress-develop/*' ),
-	resolve( monorepoRoot, 'tools/docker/logs/', projectName ),
-	resolve( monorepoRoot, 'tools/docker/data/', `${ projectName }_mysql` ),
-];
+export const buildCleanupPaths = ( monorepoRoot, projectName ) => {
+	const wpDevelop = resolve( monorepoRoot, 'tools/docker/wordpress-develop' );
+	const wpDevelopEntries = fs.existsSync( wpDevelop )
+		? fs
+				.readdirSync( wpDevelop )
+				.filter( entry => ! entry.startsWith( '.' ) )
+				.map( entry => resolve( wpDevelop, entry ) )
+		: [];
+
+	return [
+		resolve( monorepoRoot, 'tools/docker/wordpress/' ),
+		...wpDevelopEntries,
+		resolve( monorepoRoot, 'tools/docker/logs/', projectName ),
+		resolve( monorepoRoot, 'tools/docker/data/', `${ projectName }_mysql` ),
+	];
+};
+
+/**
+ * Find the first `jetpack docker` flag in `args` that `docker compose` does not accept.
+ *
+ * `up`, `down`, `stop` and `clean` run compose directly on the host, so their arguments are
+ * forwarded verbatim. `--name` belongs to the container-side CLI; compose rejects it with
+ * `unknown flag`, after the host path has already announced the wrong instance.
+ *
+ * @param {Array} args - Raw CLI arguments.
+ * @return {string|null} The offending flag, or null when there is none.
+ */
+export const findUnsupportedHostFlag = args => {
+	const match = args.find( arg => arg === '--name' || arg === '-n' || arg.startsWith( '--name=' ) );
+	return match ? match.split( '=' )[ 0 ] : null;
+};
 
 /**
  * Decide how `clean` may proceed. A non-TTY caller is refused rather than prompted, so a

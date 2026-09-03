@@ -12,10 +12,11 @@ import prompts from 'prompts';
 import updateNotifier from 'update-notifier';
 import {
 	buildCleanupPaths,
+	findUnsupportedHostFlag,
 	resolveCleanConsent,
 	resolveDockerEnv,
 	stripYesFlags,
-} from './docker-host.js';
+} from '../src/docker-host.js';
 
 // Get package.json path relative to this file
 const packageJson = JSON.parse(
@@ -645,12 +646,25 @@ const main = async () => {
 		if ( args[ 0 ] === 'docker' ) {
 			const hostCommands = [ 'up', 'down', 'stop', 'clean' ];
 			if ( hostCommands.includes( args[ 1 ] ) ) {
+				// Before anything announces or destroys an instance: these subcommands forward their
+				// arguments straight to `docker compose`, which has no --name.
+				const unsupportedFlag = findUnsupportedHostFlag( args );
+				if ( unsupportedFlag ) {
+					throw new Error(
+						`\`jp docker ${ args[ 1 ] }\` runs \`docker compose\` directly, which has no ${ unsupportedFlag }. Set COMPOSE_PROJECT_NAME in this checkout's tools/docker/.env instead — \`tools/docker/bin/seed-worktree-env.sh\` writes it for you.`
+					);
+				}
+
+				// One resolution for the whole block, so the instance we announce, create data
+				// directories for, and hand to compose can never come out different.
+				const envVars = resolveDockerEnv( monorepoRoot, args, dotenv.parse );
+				const projectName = envVars.COMPOSE_PROJECT_NAME;
 				let afterCompose = null;
 
 				// Handle command-specific setup/cleanup
 				if ( args[ 1 ] === 'up' ) {
 					// Create required directories
-					fs.mkdirSync( resolve( monorepoRoot, 'tools/docker/data/jetpack_dev_mysql' ), {
+					fs.mkdirSync( resolve( monorepoRoot, 'tools/docker/data/', `${ projectName }_mysql` ), {
 						recursive: true,
 					} );
 					fs.mkdirSync( resolve( monorepoRoot, 'tools/docker/data/ssh.keys' ), {
@@ -674,13 +688,6 @@ const main = async () => {
 						throw new Error( 'Failed to generate Docker config' );
 					}
 				} else if ( args[ 1 ] === 'clean' ) {
-					// Same resolution the compose call below uses, so the containers we stop and the
-					// data we delete can never belong to different instances.
-					const { COMPOSE_PROJECT_NAME: projectName } = resolveDockerEnv(
-						monorepoRoot,
-						args,
-						dotenv.parse
-					);
 					const cleanupPaths = buildCleanupPaths( monorepoRoot, projectName );
 
 					const yes = stripYesFlags( args );
@@ -704,8 +711,6 @@ const main = async () => {
 					// Replace 'clean' with 'down -v' in the arguments
 					args.splice( 1, 1, 'down', '-v' );
 				}
-
-				const envVars = resolveDockerEnv( monorepoRoot, args, dotenv.parse );
 
 				// Build the list of compose files to use
 				const composeFiles =

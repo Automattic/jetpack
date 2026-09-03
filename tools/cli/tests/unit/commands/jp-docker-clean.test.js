@@ -3,6 +3,7 @@ import { jest } from '@jest/globals';
 const fsStub = {
 	readFileSync: jest.fn( () => '' ),
 	existsSync: jest.fn( () => false ),
+	readdirSync: jest.fn( () => [] ),
 };
 jest.unstable_mockModule( 'fs', () => ( {
 	default: fsStub,
@@ -10,20 +11,27 @@ jest.unstable_mockModule( 'fs', () => ( {
 } ) );
 
 // The `jp` host CLI is excluded from the pnpm workspace, so it has no jest of its own.
-const { resolveDockerEnv, buildCleanupPaths, resolveCleanConsent, stripYesFlags } = await import(
-	'../../../../../projects/js-packages/jetpack-cli/bin/docker-host.js'
-);
+const {
+	resolveDockerEnv,
+	buildCleanupPaths,
+	findUnsupportedHostFlag,
+	resolveCleanConsent,
+	stripYesFlags,
+} = await import( '../../../../../projects/js-packages/jetpack-cli/src/docker-host.js' );
 
 const ROOT = '/repo';
 const ENV_FILE = '/repo/tools/docker/.env';
+const WP_DEVELOP = '/repo/tools/docker/wordpress-develop';
 
 const parseEnv = buffer => Object.fromEntries( new URLSearchParams( String( buffer ) ) );
 
 beforeEach( () => {
 	fsStub.readFileSync.mockReset();
 	fsStub.existsSync.mockReset();
+	fsStub.readdirSync.mockReset();
 	fsStub.readFileSync.mockReturnValue( '' );
 	fsStub.existsSync.mockReturnValue( false );
+	fsStub.readdirSync.mockReturnValue( [] );
 	delete process.env.COMPOSE_PROJECT_NAME;
 } );
 
@@ -56,7 +64,21 @@ describe( 'buildCleanupPaths', () => {
 	test( 'scopes the logs and mysql paths to the given project', () => {
 		expect( buildCleanupPaths( ROOT, 'jetpack_cleanguard' ) ).toEqual( [
 			'/repo/tools/docker/wordpress',
-			'/repo/tools/docker/wordpress-develop/*',
+			'/repo/tools/docker/logs/jetpack_cleanguard',
+			'/repo/tools/docker/data/jetpack_cleanguard_mysql',
+		] );
+	} );
+
+	// fs.rmSync does no glob expansion and force:true swallows the ENOENT, so a literal
+	// 'wordpress-develop/*' entry deleted nothing while the plan promised it would.
+	test( 'expands wordpress-develop to its entries, skipping dotfiles like rm -rf does', () => {
+		fsStub.existsSync.mockImplementation( path => path === WP_DEVELOP );
+		fsStub.readdirSync.mockReturnValue( [ '.gitkeep', 'tests', 'wp-tests-config.php' ] );
+
+		expect( buildCleanupPaths( ROOT, 'jetpack_cleanguard' ) ).toEqual( [
+			'/repo/tools/docker/wordpress',
+			'/repo/tools/docker/wordpress-develop/tests',
+			'/repo/tools/docker/wordpress-develop/wp-tests-config.php',
 			'/repo/tools/docker/logs/jetpack_cleanguard',
 			'/repo/tools/docker/data/jetpack_cleanguard_mysql',
 		] );
@@ -93,6 +115,20 @@ describe( 'resolveCleanConsent', () => {
 
 	test( 'refuses without a TTY and without --yes', () => {
 		expect( resolveCleanConsent( { yes: false, isTty: false } ) ).toBe( 'refuse' );
+	} );
+} );
+
+describe( 'findUnsupportedHostFlag', () => {
+	test.each( [ '--name', '-n' ] )( 'catches %s, which docker compose rejects', flag => {
+		expect( findUnsupportedHostFlag( [ 'docker', 'clean', flag, 'foo' ] ) ).toBe( flag );
+	} );
+
+	test( 'reports the flag, not the value, for the --name=value form', () => {
+		expect( findUnsupportedHostFlag( [ 'docker', 'up', '--name=foo' ] ) ).toBe( '--name' );
+	} );
+
+	test( 'passes flags compose does accept', () => {
+		expect( findUnsupportedHostFlag( [ 'docker', 'up', '-d', '--type=e2e' ] ) ).toBeNull();
 	} );
 } );
 
