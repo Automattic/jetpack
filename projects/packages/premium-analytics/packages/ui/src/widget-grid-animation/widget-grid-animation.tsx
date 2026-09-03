@@ -120,6 +120,7 @@ export function WidgetGridAnimation( {
 			data-frame={ index }
 			aria-hidden="true"
 		>
+			<div className={ styles.glow } />
 			{ WIDGET_GRID_TILE_IDS.map( id => {
 				const tile = keyframe.tiles[ id ];
 				const content = tile.content ?? 'icon';
@@ -140,7 +141,7 @@ export function WidgetGridAnimation( {
 						<div className={ clsx( styles.donut, content === 'donut' && styles.donutVisible ) } />
 						<Stack
 							direction="column"
-							gap="sm"
+							gap="xs"
 							className={ clsx(
 								styles.rows,
 								( content === 'rows' || content === 'donut' ) && styles.rowsVisible

@@ -1,5 +1,8 @@
-/** Design canvas the keyframes are drawn on, in px; the rendered tiles scale with it. */
-export const WIDGET_GRID_CANVAS = { width: 400, height: 286 } as const;
+/**
+ * The modal's stage the keyframes are drawn on, in px; the rendered tiles scale
+ * with it. The storyboard frames are 16px shorter but share the coordinates.
+ */
+export const WIDGET_GRID_CANVAS = { width: 400, height: 302 } as const;
 
 export type WidgetGridTileId = 'chart' | 'people' | 'pages';
 
@@ -150,5 +153,5 @@ export const WIDGET_GRID_KEYFRAME_CAPTIONS: readonly string[] = [
 	'The chart tile shrinks and hides the chart. The loop then reorders the tiles back to the start.',
 ];
 
-/** The fullest composition: what a reader who prefers reduced motion gets, still. */
-export const WIDGET_GRID_STATIC_FRAME = 4;
+/** The composition the modal design shows: what reduced-motion readers get, still. */
+export const WIDGET_GRID_STATIC_FRAME = 6;

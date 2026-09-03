@@ -1,21 +1,41 @@
-// Illustration constants from the Figma "animation flow" frames: the greens
-// have no WPDS token, and the chart inset and donut size are export geometry.
+// Illustration constants from the Figma modal: colors no WPDS token covers and
+// geometry the design fixes in px.
 $widget-grid-stage-color: #003010;
-$widget-grid-tile-gradient: linear-gradient(180deg, #fff 0%, #eaf1e7 100%);
-$widget-grid-chart-inset:
-	18px var(--wpds-dimension-padding-sm) var(--wpds-dimension-padding-lg);
-$widget-grid-donut-size: 76px;
+$widget-grid-tile-color: #fff;
+$widget-grid-tile-gradient: linear-gradient(180deg, #fff 0%, rgba(255, 255, 255, 0.9) 100%);
+$widget-grid-tile-radius: 16px;
+$widget-grid-donut-size: 75px;
+$widget-grid-donut-top: 67px;
 
-// The placeholders are the brand stroke at the opacity sampled off the
-// prototype video, composited over the tile gradient like the prototype does.
-$widget-grid-placeholder-color: color-mix(in srgb, var(--wpds-color-stroke-surface-brand-strong) 15%, transparent);
+// The glow behind the tiles: a rounded panel inset from the stage's sides that
+// runs off its top, fading from a dark tint through blue to green.
+$widget-grid-glow-radius: 64px;
+$widget-grid-glow-gradient: linear-gradient(180deg, rgba(1, 1, 2, 0.24) 0%, rgba(5, 42, 152, 0.24) 53.646%, rgba(72, 255, 80, 0.24) 100%);
+
+// Design offsets are measured from the tile's outer edge; absolute children
+// position from inside the border, hence the 1px.
+$widget-grid-chart-inset: 17px 7px 15px;
+
+// The placeholders are the brand stroke at the design's opacity, composited
+// over the tile like the design does.
+$widget-grid-placeholder-color: color-mix(in srgb, var(--wpds-color-stroke-surface-brand-strong) 16%, transparent);
 
 .canvas {
 	position: relative;
 	overflow: hidden;
 	inline-size: 100%;
-	aspect-ratio: 400 / 286;
+	aspect-ratio: 400 / 302;
 	background: $widget-grid-stage-color;
+}
+
+.glow {
+	position: absolute;
+	inset-inline-start: 3.75%;
+	inset-block-start: -13.576%;
+	inline-size: 92.5%;
+	block-size: 113.576%;
+	border-radius: $widget-grid-glow-radius;
+	background: $widget-grid-glow-gradient;
 }
 
 .tile {
@@ -25,10 +45,10 @@ $widget-grid-placeholder-color: color-mix(in srgb, var(--wpds-color-stroke-surfa
 	box-sizing: border-box;
 	inline-size: var(--wga-width);
 	block-size: var(--wga-height);
+	overflow: hidden;
 	padding: var(--wpds-dimension-padding-lg);
-	// Keeps tiles apart where they cross mid-tween.
-	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
-	border-radius: var(--wpds-border-radius-lg);
+	border: var(--wpds-border-width-xs) solid $widget-grid-tile-color;
+	border-radius: $widget-grid-tile-radius;
 	background: $widget-grid-tile-gradient;
 	color: $widget-grid-stage-color;
 	transition-property: inset-inline-start, inset-block-start, inline-size, block-size;
@@ -64,11 +84,12 @@ $widget-grid-placeholder-color: color-mix(in srgb, var(--wpds-color-stroke-surfa
 	clip-path: inset(0 0 0 0);
 }
 
-// The Stack pins to the tile's bottom padding; the gap between rows is its own.
+// The Stack pins the rows to the tile's bottom; the gap between them is its
+// own.
 .rows {
 	position: absolute;
 	inset-inline: var(--wpds-dimension-padding-lg);
-	inset-block-end: var(--wpds-dimension-padding-lg);
+	inset-block-end: calc(var(--wpds-dimension-padding-xl) - var(--wpds-border-width-xs));
 	opacity: 0;
 	transition: opacity var(--wga-duration) var(--wga-easing);
 }
@@ -79,27 +100,27 @@ $widget-grid-placeholder-color: color-mix(in srgb, var(--wpds-color-stroke-surfa
 
 // A Skeleton with the placeholder tint, held still: the tiles already move.
 .row {
-	block-size: var(--wpds-dimension-size-4xs);
-	border-radius: var(--wpds-dimension-size-4xs);
+	block-size: var(--wpds-dimension-size-3xs);
+	border-radius: var(--wpds-dimension-size-3xs);
 	background-color: $widget-grid-placeholder-color;
 	animation: none;
 
 	// A full line, then a short one, as a list placeholder reads.
 	&:last-child {
-		inline-size: 50%;
+		inline-size: 54%;
 	}
 }
 
 .donut {
 	position: absolute;
 	inset-inline-start: 50%;
-	inset-block-start: 50%;
+	inset-block-start: $widget-grid-donut-top;
 	box-sizing: border-box;
 	inline-size: $widget-grid-donut-size;
 	block-size: $widget-grid-donut-size;
 	border: var(--wpds-dimension-size-2xs) solid $widget-grid-placeholder-color;
 	border-radius: 50%;
-	translate: -50% -50%;
+	translate: -50% 0;
 	opacity: 0;
 	transition: opacity var(--wga-duration) var(--wga-easing);
 }

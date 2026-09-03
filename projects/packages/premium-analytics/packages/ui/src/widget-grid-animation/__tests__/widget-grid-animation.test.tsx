@@ -69,12 +69,12 @@ describe( 'WidgetGridAnimation', () => {
 
 		expect( currentFrame( container ) ).toBe( 0 );
 
-		// The chart tile collapsed at (138, 81), 56px square, on a 400×286 canvas.
+		// The chart tile collapsed at (138, 81), 56px square, on a 400×302 canvas.
 		const chart = tile( container, 'chart' ).style;
 		expect( chart.getPropertyValue( '--wga-x' ) ).toBe( '34.5%' );
-		expect( chart.getPropertyValue( '--wga-y' ) ).toBe( '28.322%' );
+		expect( chart.getPropertyValue( '--wga-y' ) ).toBe( '26.821%' );
 		expect( chart.getPropertyValue( '--wga-width' ) ).toBe( '14%' );
-		expect( chart.getPropertyValue( '--wga-height' ) ).toBe( '19.58%' );
+		expect( chart.getPropertyValue( '--wga-height' ) ).toBe( '18.543%' );
 		expect( chart.getPropertyValue( '--wga-duration' ) ).toBe( '600ms' );
 	} );
 
