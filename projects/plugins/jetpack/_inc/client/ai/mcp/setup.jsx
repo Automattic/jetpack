@@ -21,7 +21,10 @@ import { Button, Link, Stack } from '@wordpress/ui';
 
 const MCP_SERVER_NAME = 'wpcom-mcp';
 const MCP_SERVER_URL = 'https://public-api.wordpress.com/wpcom/v2/mcp/v1';
-const CLAUDE_SETTINGS_CONNECTOR_REDIRECT_SOURCE = 'jetpack-ai-claude-settings-connector';
+// Same redirect sources as the Overview page's Quick start cards: each
+// resolves to the connector's install page.
+const CLAUDE_CONNECTOR_REDIRECT_SOURCE = 'jetpack-ai-hub-overview-quick-start-claude';
+const CHATGPT_CONNECTOR_REDIRECT_SOURCE = 'jetpack-ai-hub-overview-quick-start-chatgpt';
 
 const CLIENT_OPTIONS = [
 	{ label: 'Claude', value: 'claude' },
@@ -131,26 +134,24 @@ export default function McpSetup() {
 								<ol className="jetpack-ai-mcp-setup__steps">
 									<li>
 										<Text as="p" variant="muted">
-											{ createInterpolateElement( __( 'Open <ClaudeSettings/>.', 'jetpack' ), {
-												ClaudeSettings: (
-													<Link
-														href={ getRedirectUrl( CLAUDE_SETTINGS_CONNECTOR_REDIRECT_SOURCE ) }
-														openInNewTab
-													>
-														{ __( 'Claude settings', 'jetpack' ) }
-													</Link>
-												),
-											} ) }
+											{ createInterpolateElement(
+												__( 'Open the <ClaudeConnector/> page in Claude.', 'jetpack' ),
+												{
+													ClaudeConnector: (
+														<Link
+															href={ getRedirectUrl( CLAUDE_CONNECTOR_REDIRECT_SOURCE ) }
+															openInNewTab
+														>
+															{ __( 'WordPress.com connector', 'jetpack' ) }
+														</Link>
+													),
+												}
+											) }
 										</Text>
 									</li>
 									<li>
 										<Text as="p" variant="muted">
-											{ __( 'Click "Browse connectors" and search for WordPress.com.', 'jetpack' ) }
-										</Text>
-									</li>
-									<li>
-										<Text as="p" variant="muted">
-											{ __( 'Select WordPress.com and follow the prompts.', 'jetpack' ) }
+											{ __( 'Click "Connect" and follow the prompts.', 'jetpack' ) }
 										</Text>
 									</li>
 								</ol>
@@ -216,23 +217,24 @@ export default function McpSetup() {
 								<ol className="jetpack-ai-mcp-setup__steps">
 									<li>
 										<Text as="p" variant="muted">
-											{ createInterpolateElement( __( 'Open <ChatGptSettings/>.', 'jetpack' ), {
-												ChatGptSettings: (
-													<Link href="https://chatgpt.com/plugins" openInNewTab>
-														{ __( 'ChatGPT plugins settings', 'jetpack' ) }
-													</Link>
-												),
-											} ) }
+											{ createInterpolateElement(
+												__( 'Open the <ChatGptConnector/> page in ChatGPT.', 'jetpack' ),
+												{
+													ChatGptConnector: (
+														<Link
+															href={ getRedirectUrl( CHATGPT_CONNECTOR_REDIRECT_SOURCE ) }
+															openInNewTab
+														>
+															{ __( 'WordPress.com connector', 'jetpack' ) }
+														</Link>
+													),
+												}
+											) }
 										</Text>
 									</li>
 									<li>
 										<Text as="p" variant="muted">
-											{ __( 'Search for WordPress.com.', 'jetpack' ) }
-										</Text>
-									</li>
-									<li>
-										<Text as="p" variant="muted">
-											{ __( 'Click "Install plugin".', 'jetpack' ) }
+											{ __( 'Click "Install" and follow the prompts.', 'jetpack' ) }
 										</Text>
 									</li>
 								</ol>
