@@ -65,7 +65,7 @@ function stats_load() {
 	Admin_Post_List_Column::register();
 
 	add_action( 'jetpack_admin_menu', 'stats_admin_menu' );
-	add_action( 'wp_before_admin_bar_render', 'stats_add_link_to_admin_bar_site_menu' );
+	add_action( 'admin_bar_menu', 'stats_add_link_to_admin_bar_site_menu', 40 );
 
 	add_filter( 'pre_option_db_version', 'stats_ignore_db_version' );
 
@@ -826,24 +826,29 @@ function stats_admin_bar_menu( &$wp_admin_bar ) {
 }
 
 /**
- * Adds a Stats link to the site-name admin bar submenu, alongside Dashboard.
+ * Adds a Stats link to the site-name admin bar submenu.
  *
  * @access public
+ * @param WP_Admin_Bar|null $admin_bar WP_Admin_Bar instance.
  * @return void
  */
-function stats_add_link_to_admin_bar_site_menu() {
+function stats_add_link_to_admin_bar_site_menu( $admin_bar = null ) {
 	global $wp_admin_bar;
 
+	if ( null === $admin_bar ) {
+		$admin_bar = $wp_admin_bar;
+	}
+
 	if (
-		! is_object( $wp_admin_bar ) ||
-		! $wp_admin_bar->get_node( 'dashboard' ) ||
+		! is_object( $admin_bar ) ||
+		( ! $admin_bar->get_node( 'dashboard' ) && ! $admin_bar->get_node( 'view-site' ) ) ||
 		! current_user_can( 'view_stats' ) ||
 		( new Host() )->is_wpcom_platform()
 	) {
 		return;
 	}
 
-	$wp_admin_bar->add_node(
+	$admin_bar->add_node(
 		array(
 			'parent' => 'site-name',
 			'id'     => 'jetpack-stats',
