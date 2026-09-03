@@ -262,7 +262,7 @@ describe( 'the default selection on an ascending list', () => {
 				return {
 					list,
 					defaultRewindId,
-					item: useActivityById( defaultRewindId, 1, ACTIVITY_LOG_DEFAULT_PER_PAGE, 'asc' ).item,
+					item: useActivityById( defaultRewindId, 1, ACTIVITY_LOG_DEFAULT_PER_PAGE, 'asc' ),
 				};
 			},
 			{ wrapper: wrapper() }
@@ -303,7 +303,7 @@ describe( 'the default selection on an ascending list', () => {
 				return {
 					list,
 					defaultRewindId,
-					item: useActivityById( defaultRewindId, 2, ACTIVITY_LOG_DEFAULT_PER_PAGE, 'asc' ).item,
+					item: useActivityById( defaultRewindId, 2, ACTIVITY_LOG_DEFAULT_PER_PAGE, 'asc' ),
 				};
 			},
 			{ wrapper: wrapper() }
@@ -328,7 +328,7 @@ describe( 'useActivityById', () => {
 					pageSize: ACTIVITY_LOG_DEFAULT_PER_PAGE,
 					sortOrder: 'asc',
 				} ),
-				item: useActivityById( MIDDLE_ID, 1, ACTIVITY_LOG_DEFAULT_PER_PAGE, 'asc' ).item,
+				item: useActivityById( MIDDLE_ID, 1, ACTIVITY_LOG_DEFAULT_PER_PAGE, 'asc' ),
 			} ),
 			{ wrapper: wrapper() }
 		);
