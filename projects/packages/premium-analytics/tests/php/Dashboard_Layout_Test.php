@@ -374,7 +374,7 @@ class Dashboard_Layout_Test extends BaseTestCase {
 			);
 		}
 
-		// Plan usage is intentionally not a default.
+		// Plan usage is intentionally not a default (and held back entirely while the paid plan is revised).
 		$this->assertNotContains( 'jpa/plan-usage', $layout_types );
 
 		$this->assertSame(

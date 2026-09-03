@@ -6478,19 +6478,22 @@ async function performSave( postStatus, isAutosave = false, saveCtx = {} ) {
 				// the user later presses Back.
 				document.documentElement.style.visibility = 'hidden';
 
-				// On a Coming Soon site the published post is still private. Tag
-				// the redirect so the post-publish next-steps checklist (launch +
-				// share) surfaces on the post the author lands on. Public sites
-				// redirect to the bare permalink, unchanged.
+				// Tag the redirect so the post-publish surfaces know the author has
+				// just published from Write: the next-steps checklist (launch +
+				// share) on a Coming Soon site, and the one-question survey on any
+				// site. Both gate themselves server-side on top of this marker.
+				// `source` rides along so survey responses can be segmented by the
+				// same entry point the funnel records at editor open.
 				let destination = post.link;
-				if ( state.isComingSoon ) {
-					try {
-						const url = new URL( post.link );
-						url.searchParams.set( state.publishedMarker || 'wpcom_write_published', '1' );
-						destination = url.href;
-					} catch {
-						// Fall back to the bare permalink if it can't be parsed.
+				try {
+					const url = new URL( post.link );
+					url.searchParams.set( state.publishedMarker || 'wpcom_write_published', '1' );
+					if ( state.source ) {
+						url.searchParams.set( 'source', state.source );
 					}
+					destination = url.href;
+				} catch {
+					// Fall back to the bare permalink if it can't be parsed.
 				}
 				window.location.href = destination;
 			}, 800 );

@@ -4,8 +4,20 @@
 // states come from the shared trigger mixin; what stays here is the typography
 // of a trigger that carries a label, which the interval control does not.
 .date-comparison-dropdown {
+	display: flex;
+	align-items: center;
+	gap: var(--wpds-dimension-size-4xs);
 
-	@include menu-trigger.container;
+	&__menu {
+
+		@include menu-trigger.container;
+	}
+
+	// Reads with the trigger beside it rather than as a control of its own, so
+	// it takes the row's own type and only refuses to wrap.
+	&__prefix {
+		white-space: nowrap;
+	}
 
 	.date-comparison-dropdown__toggle {
 

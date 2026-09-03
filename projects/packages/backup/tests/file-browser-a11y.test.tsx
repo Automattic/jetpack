@@ -23,6 +23,9 @@ const noop = () => {};
 const ROOT = {
 	'wp-content': { type: 'dir', has_children: true },
 	'wp-config.php': { type: 'file', period: '1786644531', manifest_path: 'f5:/wp-config.php' },
+	// The busy assertion below needs a file whose preview actually fetches;
+	// `wp-config.php` waits for a reveal click and so never reports busy.
+	'readme.txt': { type: 'file', period: '1786644531', manifest_path: 'f5:/readme.txt' },
 };
 
 /**
@@ -116,8 +119,7 @@ describe( 'the preview pane', () => {
 	} );
 
 	// Without this the reader has to tab through every remaining tree row to
-	// reach content they just asked for, and on a scrolled tree the card
-	// renders off-screen entirely.
+	// reach content they just asked for.
 	it( 'takes focus when a file is opened', async () => {
 		await renderBrowser();
 		await userEvent.click( screen.getByRole( 'button', { name: 'File: wp-config.php' } ) );
@@ -164,9 +166,9 @@ describe( 'the preview while it loads', () => {
 		} );
 
 		await renderBrowser();
-		await userEvent.click( screen.getByRole( 'button', { name: 'File: wp-config.php' } ) );
+		await userEvent.click( screen.getByRole( 'button', { name: 'File: readme.txt' } ) );
 
-		const preview = await screen.findByRole( 'region', { name: 'Preview of wp-config.php' } );
+		const preview = await screen.findByRole( 'region', { name: 'Preview of readme.txt' } );
 		expect( preview ).toHaveAttribute( 'aria-busy', 'true' );
 		expect( screen.getByText( 'Loading preview…' ) ).toBeInTheDocument();
 

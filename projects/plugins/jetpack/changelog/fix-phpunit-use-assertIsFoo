@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Tests: Use assertions like `assertIsString()` rather than `assertTrue( is_string() )`
+
+

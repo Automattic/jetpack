@@ -5,4 +5,8 @@ export type { DateRange } from './date-range-filter';
  * needs the exact string shown, since "Custom" vs. a formatted range differ
  * enough to move the label-mode boundary. Exported so both share one source.
  */
-export { getCustomTriggerLabel, getCustomTriggerState } from './get-custom-trigger-state';
+export {
+	getCustomTriggerLabel,
+	getCustomTriggerRange,
+	getCustomTriggerState,
+} from './get-custom-trigger-state';

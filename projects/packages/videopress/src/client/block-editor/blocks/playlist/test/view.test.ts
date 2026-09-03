@@ -242,6 +242,25 @@ describe( 'initPlaylistBlock', () => {
 		);
 	} );
 
+	it( 'decodes HTML entities in hydrated titles', async () => {
+		const root = setUpPlaylist();
+		mockLiveMetadata = {
+			aaaaaaaa: { title: 'Sylvie&#039;s Video' },
+			bbbbbbbb: { title: 'Cats &amp; Dogs &lt;3' },
+		};
+
+		await hydratePlaylistMetadata( root );
+
+		const entries = root.querySelectorAll< HTMLButtonElement >( '.videopress-playlist__select' );
+		expect( entries[ 0 ].querySelector( '.videopress-playlist__entry-title' ) ).toHaveTextContent(
+			/^Sylvie's Video$/
+		);
+		expect( entries[ 0 ].dataset.title ).toBe( "Sylvie's Video" );
+		expect( entries[ 1 ].querySelector( '.videopress-playlist__entry-title' ) ).toHaveTextContent(
+			/^Cats & Dogs <3$/
+		);
+	} );
+
 	it( 'retries private videos with a playback token when the token bridge is configured', async () => {
 		window.videopressAjax = { ajaxUrl: '/wp-admin/admin-ajax.php', bridgeUrl: '', post_id: '12' };
 		mockPlaybackToken = 'jwt-token';

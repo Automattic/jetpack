@@ -770,36 +770,47 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Tests that `meta.icon` is the same markup wp-admin renders, so the two cannot drift.
+	 * Tests that `meta.icon` names the glyph wp-admin renders, so the two cannot drift.
 	 *
-	 * @param string $id Node ID.
+	 * @param string $id            Node ID.
+	 * @param string $expected_name Glyph name the node is expected to advertise.
 	 * @dataProvider provide_icon_bearing_node_ids
 	 */
 	#[DataProvider( 'provide_icon_bearing_node_ids' )]
-	public function test_meta_icon_matches_the_rendered_icon( $id ) {
+	public function test_meta_icon_names_the_rendered_icon( $id, $expected_name ) {
 		$this->apply_admin_bar_context( array( 'unified' => true ) );
 
 		$node = $this->render_admin_bar()->get_node( $id );
 
 		$this->assertNotNull( $node );
-		$this->assertNotEmpty( $node->meta['icon'] ?? '' );
-		$this->assertStringContainsString( $node->meta['icon'], $node->title );
+		$this->assertSame( $expected_name, $node->meta['icon'] ?? '' );
+
+		// The name must resolve to the glyph wp-admin draws, so the two cannot drift.
+		$get_icon = new \ReflectionMethod( Agents_Manager::class, 'get_icon' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$get_icon->setAccessible( true );
+		}
+		$markup = $get_icon->invoke( Agents_Manager::get_instance(), $expected_name );
+
+		// `get_icon()` returns '' for a name it does not know, which would make the check below vacuous.
+		$this->assertNotSame( '', $markup );
+		$this->assertStringContainsString( $markup, $node->title );
 	}
 
 	/**
 	 * Data provider for the nodes that carry an icon.
 	 *
-	 * @return array<string, array{0: string}>
+	 * @return array<string, array{0: string, 1: string}>
 	 */
 	public static function provide_icon_bearing_node_ids() {
 		return array(
-			'help'            => array( 'agents-manager' ),
-			'ask ai'          => array( 'agents-manager-ai-chat' ),
-			'chat support'    => array( 'agents-manager-chat-support' ),
-			'chat history'    => array( 'agents-manager-chat-history' ),
-			'support guides'  => array( 'agents-manager-support-guides' ),
-			'courses'         => array( 'agents-manager-courses' ),
-			'product updates' => array( 'agents-manager-product-updates' ),
+			'help'            => array( 'agents-manager', 'help' ),
+			'ask ai'          => array( 'agents-manager-ai-chat', 'ask-ai' ),
+			'chat support'    => array( 'agents-manager-chat-support', 'comment' ),
+			'chat history'    => array( 'agents-manager-chat-history', 'backup' ),
+			'support guides'  => array( 'agents-manager-support-guides', 'page' ),
+			'courses'         => array( 'agents-manager-courses', 'video' ),
+			'product updates' => array( 'agents-manager-product-updates', 'rss' ),
 		);
 	}
 

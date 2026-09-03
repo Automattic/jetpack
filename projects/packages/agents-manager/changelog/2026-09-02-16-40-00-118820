@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Admin bar nodes: send the icon name in `meta.icon` instead of SVG markup, so REST consumers resolve it against their own icon set.

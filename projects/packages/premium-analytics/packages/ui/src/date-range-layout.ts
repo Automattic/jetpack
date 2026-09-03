@@ -32,3 +32,12 @@ export function resolvePresetLabelMode(
  * two month grids whose width does not follow the locale's string lengths.
  */
 export const WIDE_CALENDAR_CONTAINER_THRESHOLD = 560;
+
+/**
+ * Viewport width (in pixels) at which the period menu can seat two month grids
+ * beside its list: the list's own column plus the calendar's wide threshold.
+ *
+ * Read from the viewport rather than a container, since the menu floats in a
+ * popover and is bounded by the window rather than by the row it opens from.
+ */
+export const WIDE_PERIOD_MENU_THRESHOLD = 820;

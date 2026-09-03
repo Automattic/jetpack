@@ -73,8 +73,11 @@ export function DateRangeQuickPresets( {
 	 * pill picks its own form.
 	 */
 	const pillLabel = useCallback(
-		( preset: { label: string; shortLabel?: string } ) =>
-			labelMode === 'abbreviated' ? preset.shortLabel ?? preset.label : preset.label,
+		( preset: { label: string; pillLabel?: string; shortLabel?: string } ) => {
+			const fullForm = preset.pillLabel ?? preset.label;
+
+			return labelMode === 'abbreviated' ? preset.shortLabel ?? fullForm : fullForm;
+		},
 		[ labelMode ]
 	);
 

@@ -71,7 +71,7 @@ describe( 'getPresetLabel', () => {
 	} );
 
 	it( 'still labels the rolling presets', () => {
-		expect( getPresetLabel( 'last-7-days' ) ).toBe( '7 days' );
+		expect( getPresetLabel( 'last-7-days' ) ).toBe( 'Last 7 days' );
 		expect( getPresetLabel( 'custom' ) ).toBeNull();
 	} );
 } );

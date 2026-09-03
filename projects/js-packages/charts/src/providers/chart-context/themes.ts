@@ -66,8 +66,6 @@ const defaultTheme: CompleteChartTheme = {
 		featureFillColor: 'var(--a8c-charts-color-surface-secondary, #f4f4f4)',
 	},
 	leaderboardChart: {
-		rowGap: 12,
-		columnGap: 4,
 		labelSpacing: 'xs',
 		// [negative, neutral, positive]
 		deltaColors: [

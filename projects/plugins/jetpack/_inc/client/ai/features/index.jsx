@@ -13,7 +13,7 @@ import { ToggleControl } from '@wordpress/components';
 import { Fragment, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Badge, Card, Link, Notice, Popover, Stack, Text, VisuallyHidden } from '@wordpress/ui';
-import analytics from 'lib/analytics';
+import { EVENTS, recordAiHubEvent } from '../tracks';
 
 // Server-computed target for the AI SEO row: the dedicated Jetpack SEO page
 // where it exists, the Traffic settings card otherwise. Falls back to Traffic
@@ -101,7 +101,7 @@ const SECTIONS = [
 		features: [
 			{
 				key: 'ai_search',
-				label: __( 'AI Search', 'jetpack' ),
+				label: __( 'AI Answers', 'jetpack' ),
 				description: __(
 					'Help visitors and AI agents find answers in your content, via Jetpack Search.',
 					'jetpack'
@@ -228,7 +228,7 @@ export default function AiFeatures( { settings, savingKeys, onUpdate } ) {
 	// The badge tooltip names the remedy for the gated Search section. A site
 	// with a paid Search plan is pointed at Search setup; one with no Search
 	// entitlement — or only the free tier, which reports supports_search but
-	// cannot run AI Search — is asked to upgrade instead. Unlike the gates
+	// cannot run AI Answers — is asked to upgrade instead. Unlike the gates
 	// above this defaults to the upgrade copy: pointing an unentitled site at
 	// setup would send it down the wrong path, and the badge cannot render
 	// before the payload (which carries `plan`) has arrived anyway.
@@ -253,7 +253,7 @@ export default function AiFeatures( { settings, savingKeys, onUpdate } ) {
 			onUpdate( { features: { [ key ]: enabled } } ).then( saved => {
 				// Track outcomes, not attempts: a failed save changed nothing.
 				if ( saved ) {
-					analytics.tracks.recordEvent( 'jetpack_ai_feature_toggled', {
+					recordAiHubEvent( EVENTS.FEATURE_TOGGLED, {
 						feature: key,
 						enabled,
 					} );

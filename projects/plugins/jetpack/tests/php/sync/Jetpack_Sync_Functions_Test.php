@@ -731,9 +731,9 @@ class Jetpack_Sync_Functions_Test extends Jetpack_Sync_TestBase {
 		$this->assertTrue( $sanitized->exclude_from_search );
 		$this->assertTrue( $sanitized->can_export );
 		$this->assertTrue( $sanitized->map_meta_cap );
-		$this->assertTrue( is_object( $sanitized->labels ) );
+		$this->assertIsObject( $sanitized->labels );
 		$this->assertIsArray( $sanitized->rewrite );
-		$this->assertTrue( is_object( $sanitized->cap ) );
+		$this->assertIsObject( $sanitized->cap );
 	}
 
 	public function test_sanitize_sync_post_type_method_all_values_set() {

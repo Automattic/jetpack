@@ -1,14 +1,9 @@
 .date-filters-panel {
 
 	/*
-	 * The label mode comes from this element's own measured width, so it has to
-	 * be sized by its container and never by its content. As a flex item that
-	 * means filling the slot: a shrink-to-fit panel measures the width it wants,
-	 * concludes that everything fits, and never steps down to the abbreviated
-	 * labels. Inert in a block parent, where it already spans its container.
-	 *
-	 * The root publishes `--date-filters-panel-full-row-width`, the width of
-	 * the full-labels row, so a host can size the slot from it.
+	 * Fills the header's slot rather than shrinking to its content, so the row
+	 * inside can align to its end. The 0 minimum lets it give the column back.
+	 * Inert in a block parent, where it already spans its container.
 	 */
 	flex: 1 1 0%;
 	min-inline-size: 0;

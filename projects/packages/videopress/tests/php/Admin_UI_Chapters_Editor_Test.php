@@ -77,12 +77,19 @@ class Admin_UI_Chapters_Editor_Test extends BaseTestCase {
 		return array_column( $routes, 'path' );
 	}
 
-	/** Tests that the chapters editor filter defaults to off. */
-	public function test_is_chapters_editor_enabled_defaults_to_false() {
+	/** Tests that the chapters editor is generally available, so the filter defaults to on. */
+	public function test_is_chapters_editor_enabled_defaults_to_true() {
+		$this->assertTrue( Admin_UI::is_chapters_editor_enabled() );
+	}
+
+	/** Tests that the filter still works as a kill switch when it returns false. */
+	public function test_is_chapters_editor_enabled_false_when_filter_disabled() {
+		add_filter( Admin_UI::CHAPTERS_EDITOR_FILTER, '__return_false' );
+
 		$this->assertFalse( Admin_UI::is_chapters_editor_enabled() );
 	}
 
-	/** Tests that the chapters editor filter enables the feature when it returns true. */
+	/** Tests that an explicit opt-in filter is honored too. */
 	public function test_is_chapters_editor_enabled_true_when_filter_enabled() {
 		add_filter( Admin_UI::CHAPTERS_EDITOR_FILTER, '__return_true' );
 
@@ -110,8 +117,22 @@ class Admin_UI_Chapters_Editor_Test extends BaseTestCase {
 		$this->assertSame( array( array( 'name' => 'pathless' ) ), $stripped );
 	}
 
+	/**
+	 * Opt out of the now-default-on chapters editor.
+	 *
+	 * Every guard below the early return in `maybe_strip_chapters_editor_routes()`
+	 * is only reachable with the feature disabled, so these tests have to turn it
+	 * off explicitly — without this they would pass vacuously, returning before
+	 * touching the code they exist to cover.
+	 */
+	private function disable_chapters_editor() {
+		add_filter( Admin_UI::CHAPTERS_EDITOR_FILTER, '__return_false' );
+	}
+
 	/** Tests that the registry global loses the editor route when the filter is off. */
 	public function test_maybe_strip_chapters_editor_routes_strips_global_when_off() {
+		$this->disable_chapters_editor();
+
 		$GLOBALS[ self::ROUTES_GLOBAL ] = $this->get_fixture_routes();
 
 		Admin_UI::maybe_strip_chapters_editor_routes();
@@ -119,10 +140,8 @@ class Admin_UI_Chapters_Editor_Test extends BaseTestCase {
 		$this->assertSame( self::OTHER_ROUTE_PATHS, $this->get_paths( $GLOBALS[ self::ROUTES_GLOBAL ] ) );
 	}
 
-	/** Tests that the registry global is left untouched when the filter is on. */
+	/** Tests that the registry global is left untouched when the filter is on, which is now the default. */
 	public function test_maybe_strip_chapters_editor_routes_leaves_global_untouched_when_on() {
-		add_filter( Admin_UI::CHAPTERS_EDITOR_FILTER, '__return_true' );
-
 		$fixture                        = $this->get_fixture_routes();
 		$GLOBALS[ self::ROUTES_GLOBAL ] = $fixture;
 
@@ -133,6 +152,8 @@ class Admin_UI_Chapters_Editor_Test extends BaseTestCase {
 
 	/** Tests that a missing registry global does not error. */
 	public function test_maybe_strip_chapters_editor_routes_missing_global_does_not_error() {
+		$this->disable_chapters_editor();
+
 		unset( $GLOBALS[ self::ROUTES_GLOBAL ] );
 
 		Admin_UI::maybe_strip_chapters_editor_routes();
@@ -142,6 +163,8 @@ class Admin_UI_Chapters_Editor_Test extends BaseTestCase {
 
 	/** Tests that an empty registry global does not error and stays empty. */
 	public function test_maybe_strip_chapters_editor_routes_empty_global_does_not_error() {
+		$this->disable_chapters_editor();
+
 		$GLOBALS[ self::ROUTES_GLOBAL ] = array();
 
 		Admin_UI::maybe_strip_chapters_editor_routes();
@@ -151,6 +174,8 @@ class Admin_UI_Chapters_Editor_Test extends BaseTestCase {
 
 	/** Tests that a non-array registry global is left untouched (graceful degradation). */
 	public function test_maybe_strip_chapters_editor_routes_non_array_global_does_not_error() {
+		$this->disable_chapters_editor();
+
 		$GLOBALS[ self::ROUTES_GLOBAL ] = 'not-an-array';
 
 		Admin_UI::maybe_strip_chapters_editor_routes();

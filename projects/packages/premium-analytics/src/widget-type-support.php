@@ -1,8 +1,9 @@
 <?php
 /**
  * Widget type support shared by the registry and default layouts — hard availability only
- * (a feature the site has or doesn't); soft/request-dependent state belongs in the runtime
- * types filter. Persisted layouts keep missing types as removable ghost widgets.
+ * (a feature the site has or doesn't, or a type held back from release); soft/request-dependent
+ * state belongs in the runtime types filter. Persisted layouts keep missing types as removable
+ * ghost widgets.
  *
  * @package automattic/jetpack-premium-analytics
  */
@@ -27,6 +28,13 @@ const VIDEOPRESS_WIDGET_TYPES = array(
 );
 
 /**
+ * Widget types that surface plan usage and upgrade prompts.
+ */
+const PLAN_USAGE_WIDGET_TYPES = array(
+	'jpa/plan-usage',
+);
+
+/**
  * Returns the current widget support context.
  *
  * @return array{is_wpcom_simple:bool,has_videopress:bool} Widget support context.
@@ -45,7 +53,9 @@ function get_widget_support_context() {
  * @return string[] Unsupported widget type names.
  */
 function get_unsupported_widget_types( $context ) {
-	$unsupported = array();
+	// Usage and upgrade UX stays out of Stats v2 on every site until the paid plan is
+	// settled (STATS-459); it returns through the configurations drawer (WOOA7S-2037).
+	$unsupported = PLAN_USAGE_WIDGET_TYPES;
 
 	// File download tracking is served only on WPCOM Simple. Calypso applies
 	// the same boundary, which excludes self-hosted Jetpack and Atomic sites.
