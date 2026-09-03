@@ -145,7 +145,8 @@ export default function ActivityList( { selectedId, onSelect, view, onChangeView
 	// A remembered page can outlive the log that had it, and DataViews hides its
 	// footer entirely at one page — so nothing on screen would offer a way back.
 	// `totalPages` falls back to 1, so a request that is in flight, paused offline
-	// or failed reads as a one-page log; `>= 1` rejects a literal `totalPages: 0`.
+	// or failed reads as a one-page log. A literal `totalPages: 0` survives that
+	// fallback's `??`, though, so `>= 1` is what stops it from clamping to page 0.
 	useEffect( () => {
 		if ( ! isFetching && ! isPaused && ! error && totalPages >= 1 && page > totalPages ) {
 			onChangeView( { ...view, page: totalPages } );

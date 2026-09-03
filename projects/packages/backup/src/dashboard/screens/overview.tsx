@@ -173,18 +173,29 @@ function OverviewBody() {
 	// The URL still wins; the remembered row only answers for the return trip, where
 	// the reader made a choice this page load and the address no longer carries it.
 	const urlSelectedId = typeof search.selected === 'string' ? search.selected : null;
-	// State as well as module scope: clearing it has to render, and the return trip
-	// navigates to the same URL, which TanStack treats as a no-op.
-	const [ rememberedId, setRememberedId ] = useState( lastSelectedId );
-	const selectedId = urlSelectedId ?? rememberedId ?? defaultSelectedId;
+	const selectedId = urlSelectedId ?? lastSelectedId ?? defaultSelectedId;
 	// Only an explicit choice is remembered: `defaultSelectedId` moves as new backups
 	// land, and pinning the row it happened to name would outlive its own reason.
 	useEffect( () => {
 		if ( urlSelectedId ) {
 			lastSelectedId = urlSelectedId;
-			setRememberedId( urlSelectedId );
 		}
 	}, [ urlSelectedId ] );
+	// Puts the remembered row in the address whenever the address lacks one, so
+	// `clearSelected` below always has a real change to make: without one, TanStack
+	// treats its navigate as a no-op and pushes no history entry, leaving Back with
+	// nowhere on the Overview to land. `replace`: this is not its own stop.
+	// Not only the return trip — Back onto a bare address rewrites it too, so a Back
+	// that would land on "nothing selected" lands on the remembered row instead.
+	useEffect( () => {
+		if ( urlSelectedId || ! lastSelectedId ) {
+			return;
+		}
+		navigate( {
+			search: ( previous: OverviewSearch ) => ( { ...previous, selected: lastSelectedId } ),
+			replace: true,
+		} as Parameters< typeof navigate >[ 0 ] );
+	}, [ urlSelectedId, navigate ] );
 	// `/site/rewindable-activity` only lists completed restore points, so
 	// on its own it cannot tell "no backups yet" from "the first one is
 	// running" from "they're all failing". This second query answers that.
@@ -238,7 +249,6 @@ function OverviewBody() {
 		// The memory too, not just the URL: `selectedId` falls back to it, so
 		// clearing one and not the other puts the reader straight back.
 		lastSelectedId = null;
-		setRememberedId( null );
 		overviewRef.current?.focus();
 		navigate( {
 			search: ( previous: OverviewSearch ) => {

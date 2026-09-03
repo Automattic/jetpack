@@ -565,8 +565,9 @@ describe( 'A remembered place asked for with no connection', () => {
 } );
 
 describe( 'Clearing a selection that came from memory', () => {
-	// `clearSelected` navigates to the URL it is already on, which TanStack treats
-	// as a no-op — so without state the pane never re-renders and the button is inert.
+	// The return trip now writes the remembered row into the address itself (see
+	// `cleared-selection-back-stack.test.tsx` for why), so by the time this mounts the
+	// clear this test drives is a real search change — this mock just needs telling.
 	it( 'renders the change, not just forgets it', async () => {
 		// Page 2's row, so the remembered row differs from `defaultSelectedId` — which is
 		// page 1's newest backup, and would otherwise mask the clear.
@@ -581,7 +582,7 @@ describe( 'Clearing a selection that came from memory', () => {
 		await roundTripVia( RestoreStage );
 
 		// The remembered row is gone from the log by the time they return — the case
-		// that reaches the dead end without a `?selected=` to clear.
+		// that reaches the dead end without a page to find it on.
 		mockEndpoints( {
 			activity: ( page, number ) => {
 				const fresh = activityPage( page, number );
@@ -591,18 +592,18 @@ describe( 'Clearing a selection that came from memory', () => {
 		} );
 		queryClient.clear();
 
-		render( <OverviewStage /> );
-		// The address carries nothing, so only the memory can be putting them here.
-		expect( routerSearch.selected ).toBeUndefined();
-		// The pane's own affordance stands in for its copy, which has changed once already.
+		const view = render( <OverviewStage /> );
 		await expect(
 			screen.findByRole( 'button', { name: 'Clear selection' }, SETTLE )
 		).resolves.toBeInTheDocument();
+		// The write-back effect puts the remembered row in the address once `<Gates>`
+		// admits the body — same trip the rest of this file waits out.
+		expect( routerSearch.selected ).toBe( rewindId( 2, 10 ) );
 
 		await userEvent.click( screen.getByRole( 'button', { name: 'Clear selection' } ) );
+		// As above: this stands in for the router commit `clearSelected`'s navigate makes.
+		view.rerender( <OverviewStage /> );
 
-		// Without state behind the memory the navigate is a no-op, so the pane never
-		// re-renders and the dead end stays on screen.
 		await waitFor( () =>
 			expect( screen.queryByRole( 'button', { name: 'Clear selection' } ) ).not.toBeInTheDocument()
 		);
