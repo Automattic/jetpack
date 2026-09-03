@@ -9,6 +9,7 @@ import {
 	STATS_CHART_BUCKET_PERIODS,
 	type StatsEmailTimeSeriesReport,
 } from '@jetpack-premium-analytics/data';
+import { parseBucketStart } from '@jetpack-premium-analytics/datetime';
 import { reports } from '@jetpack-premium-analytics/icons';
 import {
 	MetricTabsChart,
@@ -16,7 +17,6 @@ import {
 	WidgetRoot,
 	WidgetState,
 	defaultPeriodForInterval,
-	toChartDate,
 	useWidgetRootContext,
 	type MetricTab,
 	type ReportParamsFieldAttributes,
@@ -107,12 +107,13 @@ function EmailTimeSeriesReport( { metric, chartType }: EmailTimeSeriesReportProp
 	}, [ report, period, field ] );
 
 	// The headline is the window total: buckets are per-period sums, so their sum
-	// is the range's opens/clicks. Point dates are wall clocks — see `chart-date.ts`.
+	// is the range's opens/clicks.
 	const metricTabs = useMemo< MetricTab[] >( () => {
-		const points = ( chartReport?.data ?? [] ).map( point => ( {
-			date: toChartDate( point.date_start ),
-			value: Number( point[ field ] ?? 0 ),
-		} ) );
+		const points = ( chartReport?.data ?? [] ).flatMap( point => {
+			const date = parseBucketStart( point.date_start );
+
+			return date ? [ { date, value: Number( point[ field ] ?? 0 ) } ] : [];
+		} );
 
 		return [
 			{
@@ -156,7 +157,6 @@ function EmailTimeSeriesReport( { metric, chartType }: EmailTimeSeriesReportProp
 					metrics={ metricTabs }
 					dataFormat={ DATA_FORMAT }
 					chartType={ chartType }
-					pointsAreWallClocks
 				/>
 			</WidgetState>
 		</div>

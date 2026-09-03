@@ -24,6 +24,8 @@ export { stepDateRange, canStepForward, type StepDirection } from './step-date-r
 
 export { drillDateRange } from './drill-date-range';
 
+export { parseBucketStart } from './bucket-start';
+
 export { parseSiteDateTime } from './site-datetime';
 
 export { readSiteTimestamp, type SiteTimestamp, type TimestampParts } from './site-timestamp';

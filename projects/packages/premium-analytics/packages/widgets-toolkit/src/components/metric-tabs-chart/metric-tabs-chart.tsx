@@ -16,7 +16,7 @@ import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
 /**
  * Internal dependencies
  */
-import { formatComparisonSeriesLabel, fromChartDate } from '../../helpers';
+import { formatComparisonSeriesLabel } from '../../helpers';
 import { useSeriesStyles } from '../../hooks';
 import { ComparativeBarChart } from '../chart-comparative-bar';
 import { ComparativeLineChart } from '../chart-comparative-line';
@@ -114,25 +114,11 @@ export interface MetricTabsChartProps {
 	 */
 	tickResolution?: TickResolution;
 	/**
-	 * Whether each point's date is a Stats bucket's wall clock rather than a real
-	 * instant; wall clocks are re-anchored via `fromChartDate` before a label reads
-	 * them. Full rationale in `chart-date.ts`.
-	 */
-	pointsAreWallClocks?: boolean;
-	/**
 	 * A click on the plot, or Enter on the keyboard-selected point, carrying the
 	 * date of that bucket. Omit to leave the chart non-interactive.
 	 */
 	onDatumClick?: ( date: Date ) => void;
 }
-
-/**
- * Resolves a chart point's date to the instant its label should name. Which one
- * applies is the producer's to declare, through `pointsAreWallClocks`.
- */
-type ReadPointDate = ( date: Date ) => Date;
-
-const asInstant: ReadPointDate = date => date;
 
 /**
  * Build the chart series for a metric: current period plus, when present, the
@@ -188,7 +174,6 @@ function MetricChart( {
 	chartType,
 	chartId,
 	tickResolution,
-	readPointDate,
 	onDatumClick,
 }: {
 	metric: MetricTab;
@@ -197,7 +182,6 @@ function MetricChart( {
 	chartType: MetricTabsChartType;
 	chartId: string;
 	tickResolution?: TickResolution;
-	readPointDate: ReadPointDate;
 	onDatumClick?: ( date: Date ) => void;
 } ) {
 	const { series, defaultHiddenSeries } = useMemo( () => {
@@ -214,8 +198,8 @@ function MetricChart( {
 		};
 	}, [ metric, counterpart, chartType ] );
 	const formatTooltipDate = useCallback(
-		( date: Date, format: DateFormatName ) => formatDate( readPointDate( date ), format ),
-		[ readPointDate ]
+		( date: Date, format: DateFormatName ) => formatDate( date, format ),
+		[]
 	);
 
 	const pointerDownRef = useRef< { x: number; y: number } | null >( null );
@@ -227,10 +211,10 @@ function MetricChart( {
 			const date = ( datum as { date?: unknown } | undefined )?.date;
 
 			if ( date instanceof Date ) {
-				onDatumClick?.( readPointDate( date ) );
+				onDatumClick?.( date );
 			}
 		},
-		[ onDatumClick, readPointDate ]
+		[ onDatumClick ]
 	);
 
 	const handlePointerDown = useCallback( ( { svgPoint }: ChartPointerParams ) => {
@@ -389,10 +373,8 @@ export function MetricTabsChart( {
 	controls,
 	groupLabel = __( 'Select metric', 'jetpack-premium-analytics-pkg' ),
 	tickResolution,
-	pointsAreWallClocks = false,
 	onDatumClick,
 }: MetricTabsChartProps ) {
-	const readPointDate = pointsAreWallClocks ? fromChartDate : asInstant;
 	const [ selectedKey, setSelectedKey ] = useState( defaultMetricKey ?? metrics[ 0 ]?.key );
 
 	// The chart seeds its hidden series once per chart ID, so a stable ID would leave
@@ -484,7 +466,6 @@ export function MetricTabsChart( {
 						chartType={ chartType }
 						chartId={ chartIdFor( activeMetric ) }
 						tickResolution={ tickResolution }
-						readPointDate={ readPointDate }
 						onDatumClick={ onDatumClick }
 					/>
 				</div>
@@ -554,7 +535,6 @@ export function MetricTabsChart( {
 							chartType={ chartType }
 							chartId={ chartIdFor( activeMetric ) }
 							tickResolution={ tickResolution }
-							readPointDate={ readPointDate }
 							onDatumClick={ onDatumClick }
 						/>
 					) }
@@ -600,7 +580,6 @@ export function MetricTabsChart( {
 						chartType={ chartType }
 						chartId={ chartIdFor( metric ) }
 						tickResolution={ tickResolution }
-						readPointDate={ readPointDate }
 						onDatumClick={ onDatumClick }
 					/>
 				</Tabs.Panel>

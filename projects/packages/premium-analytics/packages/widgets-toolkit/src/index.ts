@@ -200,7 +200,7 @@ export {
 	toDay,
 	defaultPeriodForInterval,
 	buildMetricTab,
-	toChartDate,
+	siteChartFormatting,
 	CHART_DISPLAY_CHART_TYPES,
 	chartTypeAttributeField,
 	type ChartDisplayChartType,
