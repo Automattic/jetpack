@@ -105,8 +105,8 @@ export function useActivityLog( { page, pageSize, sortOrder }: Args ): Result {
 		[ query.data ]
 	);
 
-	// The server's own count, not the merged one: restore rows land on page 1
-	// only, so counting them would misreport how many pages there are.
+	// The server's own count, not the merged one: restore rows land on a single
+	// page, so counting them would misreport how many pages there are.
 	const totalItems = query.data?.totalItems ?? entries.length;
 	const totalPages =
 		query.data?.totalPages ?? Math.max( 1, Math.ceil( entries.length / pageSize ) );
@@ -115,8 +115,10 @@ export function useActivityLog( { page, pageSize, sortOrder }: Args ): Result {
 	// restores would fill it, hiding the failure the list's `empty` slot reports.
 	const items = useMemo(
 		() =>
-			query.isSuccess ? mergeRestoreRows( entries, restores.data, { page, sortOrder } ) : entries,
-		[ query.isSuccess, entries, restores.data, page, sortOrder ]
+			query.isSuccess
+				? mergeRestoreRows( entries, restores.data, { page, totalPages, sortOrder } )
+				: entries,
+		[ query.isSuccess, entries, restores.data, page, totalPages, sortOrder ]
 	);
 
 	// Wrapped so callers can hand it straight to `onClick` without

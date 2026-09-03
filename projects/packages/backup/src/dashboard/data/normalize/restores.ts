@@ -110,14 +110,27 @@ export function findRestoreRow(
 type PageWindow = {
 	/** 1-indexed page the list is showing. */
 	page: number;
+	/** How many pages the server says there are; anything unusable reads as one. */
+	totalPages: number;
 	sortOrder: ActivitySortOrder;
 };
 
 /**
+ * Whether this page is the one holding the newest activity.
+ *
+ * @param placement - Which page the list is showing, and in which direction.
+ * @return True on page 1 descending, on the last page ascending.
+ */
+function holdsNewestActivity( placement: PageWindow ): boolean {
+	const lastPage = Math.max( 1, placement.totalPages || 1 );
+	return placement.sortOrder === 'desc' ? placement.page <= 1 : placement.page >= lastPage;
+}
+
+/**
  * Fold the restores collection into one page of activity rows.
  *
- * Page 1 is the whole window, in either direction: the collection has no paging
- * of its own, so spreading it over the feed's pages drops one that falls in a gap.
+ * All of them land on the page holding the newest activity, because the
+ * collection has no paging of its own and any split drops rows that fall in a gap.
  *
  * @param items     - The page's activity rows.
  * @param restores  - The collection, or null when the read failed.
@@ -129,7 +142,7 @@ export function mergeRestoreRows(
 	restores: RecentRestore[] | null | undefined,
 	placement: PageWindow
 ): ActivityItem[] {
-	if ( placement.page > 1 ) {
+	if ( ! holdsNewestActivity( placement ) ) {
 		return items;
 	}
 
