@@ -21,6 +21,10 @@ import type { FileNodeFile } from '../../types/file-tree';
  * an opaque binary. Calypso reaches the same conclusion and keeps its
  * own extension map for exactly this decision, using `data_type` only
  * to drive granular download.
+ *
+ * `sql` and `log` are deliberately absent: a database dump and a debug
+ * log are pure secret, and nobody previews one to decide whether to
+ * restore it.
  */
 const PREVIEWABLE_TEXT_TYPES: Record< string, string > = {
 	css: 'text/css',
@@ -29,12 +33,10 @@ const PREVIEWABLE_TEXT_TYPES: Record< string, string > = {
 	html: 'text/html',
 	js: 'application/javascript',
 	json: 'application/json',
-	log: 'text/plain',
 	md: 'text/markdown',
 	php: 'application/x-php',
 	po: 'text/plain',
 	pot: 'text/plain',
-	sql: 'application/sql',
 	svg: 'image/svg+xml',
 	txt: 'text/plain',
 	xml: 'application/xml',
@@ -66,19 +68,26 @@ function mimeFromName( name: string ): string {
 }
 
 /**
- * The one filename whose preview waits for a deliberate second click:
- * `wp-config.php`, which carries `DB_PASSWORD` and the salts. Same single
- * file Calypso hides, so the two surfaces agree.
+ * Files whose preview waits for a deliberate second click, matched against
+ * the lowercased manifest path once its volume prefix is dropped.
+ *
+ * A family rather than the single `wp-config.php` Calypso names, so a
+ * hand-made copy that still previews is gated too; `(^|\/)` is what keeps
+ * `mywp-config.php` out.
  */
-const SENSITIVE_NAME = 'wp-config.php';
+const SENSITIVE_PATH_PATTERNS: readonly RegExp[] = [
+	/(^|\/)wp-config[^/]*$/,
+	/(^|\/)\.env[^/]*$/,
+	/(^|\/)config\/application\.php$/,
+	/\.sql[^/]*$/,
+	/debug\.log[^/]*$/,
+];
 
 /**
- * Whether the given manifest path names the file above, at any depth.
+ * Whether the given manifest path matches one of the patterns above.
  *
- * Three ways to fail open, all closed: the volume prefix is dropped (the `5`
- * in `f5:` is a data-type code, not identity), the compare is lowercased, and
- * the name matches at any depth, so a second install under `/staging/` is
- * covered. The `/` in the suffix keeps `mywp-config.php` out.
+ * Two ways to fail open, both closed: the volume prefix is dropped (the `5`
+ * in `f5:` is a data-type code, not identity) and the compare is lowercased.
  *
  * @param manifestPath - The volume-prefixed manifest path, e.g. `f5:/wp-config.php`.
  * @return True when the preview needs a reveal.
@@ -88,7 +97,7 @@ function isSensitivePath( manifestPath: string | undefined ): boolean {
 		return false;
 	}
 	const path = manifestPath.slice( manifestPath.indexOf( ':' ) + 1 ).toLowerCase();
-	return path === SENSITIVE_NAME || path.endsWith( `/${ SENSITIVE_NAME }` );
+	return SENSITIVE_PATH_PATTERNS.some( pattern => pattern.test( path ) );
 }
 
 /**
