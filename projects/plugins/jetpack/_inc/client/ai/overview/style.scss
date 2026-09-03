@@ -276,3 +276,9 @@
 .jetpack-ai-overview__assistant-banner .jetpack-ai-banner__orb--bottom {
 	display: none;
 }
+
+// On plans with no usage card and no connection notices the intro Stack
+// renders empty; drop it so the outer Stack's 3xl gap doesn't double.
+.jetpack-ai-overview__intro:empty {
+	display: none;
+}

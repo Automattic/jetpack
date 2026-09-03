@@ -82,6 +82,15 @@ function mockApiFetch( { featureGet = enabledSettings(), mcpGet = {}, featurePos
 		if ( path?.includes( 'mcp-settings' ) ) {
 			return Promise.resolve( mcpGet );
 		}
+		if ( path?.includes( 'ai-assistant-feature' ) ) {
+			// A free-plan shape: the Overview usage card renders only for a
+			// payload that positively identifies the free tier.
+			return Promise.resolve( {
+				'requests-count': 12,
+				'requests-limit': 20,
+				'current-tier': { value: 0, limit: 20 },
+			} );
+		}
 		return Promise.resolve( {} );
 	} );
 }

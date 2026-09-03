@@ -50,24 +50,31 @@ export default function NavRow( {
 		? `jetpack-ai-nav-row jetpack-ai-nav-row--${ tone }`
 		: 'jetpack-ai-nav-row';
 
+	const titleId = useId();
 	const descriptionId = useId();
 	const newTabId = useId();
-	const describedBy =
-		[ description && descriptionId, href && external && newTabId ].filter( Boolean ).join( ' ' ) ||
-		undefined;
+	// The new-tab warning belongs in the accessible NAME — screen readers often
+	// skip descriptions when scanning links — so the name is composed from the
+	// title and the warning, and the description stays a description.
+	const labelledBy = [ titleId, href && external && newTabId ].filter( Boolean ).join( ' ' );
 
 	return (
 		<Tag
 			className={ className }
-			aria-label={ title }
-			aria-describedby={ describedBy }
+			aria-labelledby={ labelledBy }
+			aria-describedby={ description ? descriptionId : undefined }
 			{ ...tagProps }
 		>
 			<span className="jetpack-ai-nav-row__icon">
 				<Icon icon={ icon } size={ iconSize } />
 			</span>
 			<span className="jetpack-ai-nav-row__text">
-				<Text render={ <p /> } variant="heading-lg" className="jetpack-ai-nav-row__title">
+				<Text
+					render={ <p /> }
+					id={ titleId }
+					variant="heading-lg"
+					className="jetpack-ai-nav-row__title"
+				>
 					{ title }
 				</Text>
 				{ description && (

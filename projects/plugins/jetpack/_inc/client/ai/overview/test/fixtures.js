@@ -29,8 +29,8 @@ export const paidPayload = () => ( {
 	'current-tier': { value: 1, limit: 999999999, 'readable-limit': 'Unlimited' },
 } );
 
-// A fixed tier the entitlement still returns is genuinely active: legacy
-// tiered subscribers were migrated to fair-use and arrive as paidPayload.
+// A retired fixed-tier shape; every paid shape is treated the same, so it
+// gets no card just like paidPayload.
 export const tieredPayload = () => ( {
 	...paidPayload(),
 	'current-tier': { value: 500, limit: 500 },

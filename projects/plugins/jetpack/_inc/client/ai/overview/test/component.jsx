@@ -176,18 +176,27 @@ describe( 'AiOverview', () => {
 		expect( screen.queryByRole( 'link', { name: 'Upgrade' } ) ).not.toBeInTheDocument();
 		// The rest of the tab is unaffected.
 		expect( screen.getByRole( 'heading', { level: 2, name: 'Quick start' } ) ).toBeInTheDocument();
+		// With nothing left inside it, the intro wrapper must be truly :empty
+		// so the stylesheet can drop it and the outer gap doesn't double.
+		/* eslint-disable testing-library/no-container, testing-library/no-node-access --
+		   The wrapper is a bare layout div; the class is the only handle. */
+		expect( container.querySelector( '.jetpack-ai-overview__intro' ) ).toBeEmptyDOMElement();
+		/* eslint-enable testing-library/no-container, testing-library/no-node-access */
 	} );
 
-	test( 'fixed tier: renders remaining period requests against the tier limit, no upgrade', async () => {
+	test( 'fixed tier: treated as paid, no usage card', async () => {
 		apiFetch.mockResolvedValueOnce( tieredPayload() );
 
-		render( <AiOverview { ...PROPS } /> );
+		const { container } = render( <AiOverview { ...PROPS } /> );
 
-		await expect( screen.findByText( '160' ) ).resolves.toBeInTheDocument();
-		// The limit shows once, on the meter — never repeated as a plan name.
-		expect( screen.getAllByText( '500' ) ).toHaveLength( 1 );
-		expect( screen.getByRole( 'progressbar', { hidden: true } ) ).toBeInTheDocument();
-		// There is no higher tier to sell, whatever next-tier claims.
+		/* eslint-disable testing-library/no-container, testing-library/no-node-access --
+		   The skeleton bars are decorative and aria-hidden, so Testing Library
+		   has no query that reaches them; the layout class is the only handle. */
+		await waitForElementToBeRemoved( () =>
+			container.querySelector( '.jetpack-ai-overview__upsell' )
+		);
+		/* eslint-enable testing-library/no-container, testing-library/no-node-access */
+		expect( screen.queryByText( 'Available requests' ) ).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'link', { name: 'Upgrade' } ) ).not.toBeInTheDocument();
 	} );
 
@@ -509,10 +518,13 @@ describe( 'AiOverview', () => {
 		await expect( screen.findByText( 'Available requests' ) ).resolves.toBeInTheDocument();
 
 		for ( const title of [ 'Connect Claude', 'Connect ChatGPT' ] ) {
-			// The row is named by its title alone; the description and the
-			// new-tab announcement arrive via aria-describedby.
-			const card = screen.getByRole( 'link', { name: title } );
-			expect( card ).toHaveAccessibleDescription( /\(opens in a new tab\)/ );
+			// The new-tab warning rides in the accessible NAME — descriptions
+			// are often skipped when scanning links; the description carries
+			// only the row's own copy.
+			const card = screen.getByRole( 'link', {
+				name: new RegExp( `${ title }.*\\(opens in a new tab\\)` ),
+			} );
+			expect( card ).not.toHaveAccessibleDescription( /\(opens in a new tab\)/ );
 			expect( card ).toHaveAttribute( 'target', '_blank' );
 			expect( card ).toHaveAttribute( 'rel', 'noopener noreferrer' );
 		}

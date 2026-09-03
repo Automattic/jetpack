@@ -139,27 +139,26 @@ function SummaryRow( { icon, title, badge, onClick } ) {
  * @return {object} Component markup.
  */
 function ConnectRow( { title, description, onClick } ) {
-	// Name the row with the action alone. Left to name-from-content, the button
-	// pulls the whole description into its name too. Browsers do put a separator
-	// between the two block-level paragraphs, so the name is readable — just
-	// needlessly long, and a longer, fuzzier target for voice control.
-	// aria-describedby keeps the description available, announced after the name
-	// instead of as part of it. The label is the visible title verbatim, so
-	// "click Connect external AI agent" still matches what a user can see.
+	// Name the row with the title alone. Left to name-from-content, the button
+	// pulls the whole description into its name too — needlessly long, and a
+	// fuzzier target for voice control. aria-labelledby points at the visible
+	// title (matching NavRow), and aria-describedby keeps the description
+	// available, announced after the name instead of as part of it.
+	const titleId = useId();
 	const descriptionId = useId();
 	return (
 		<button
 			className="jetpack-ai-mcp__connect-row"
 			onClick={ onClick }
 			type="button"
-			aria-label={ title }
+			aria-labelledby={ titleId }
 			aria-describedby={ descriptionId }
 		>
 			<span className="jetpack-ai-mcp__connect-row-icon">
 				<Icon icon={ connection } size={ 24 } />
 			</span>
 			<span className="jetpack-ai-mcp__connect-row-text">
-				<Text as="p" className="jetpack-ai-mcp__connect-row-title" weight={ 600 }>
+				<Text as="p" id={ titleId } className="jetpack-ai-mcp__connect-row-title" weight={ 600 }>
 					{ title }
 				</Text>
 				<Text

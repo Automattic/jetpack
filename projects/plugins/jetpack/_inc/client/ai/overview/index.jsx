@@ -196,14 +196,14 @@ function RequestsMeter( { usage } ) {
 }
 
 /**
- * The requests card. The paid fair-use plan has nothing to meter and nothing
- * to sell, so it renders no card at all. Free renders as an upsell when an
- * upgrade URL is available: icon and pitch on the left, the requests readout
- * with the Upgrade button on the right — with harder copy once every request
- * is used. A still-active fixed tier gets the plain requests readout over
- * its meter, never an upgrade (there is no higher tier; plan details are
- * My Jetpack's job). Loading and error states stay inside the card so the
- * rest of the Overview renders immediately.
+ * The requests card, free plans only — any paid plan has nothing to meter
+ * and nothing to sell, so it renders no card at all. With an upgrade URL
+ * the card renders as an upsell: icon and pitch on the left, the requests
+ * readout with the Upgrade button on the right — with harder copy once
+ * every request is used. Without one it falls back to the plain requests
+ * readout over its meter (plan details are My Jetpack's job). Loading and
+ * error states stay inside the card so the rest of the Overview renders
+ * immediately.
  *
  * @param {object} props            - Component props.
  * @param {string} props.upgradeUrl - Upgrade destination (shared with the MCP upsell).
@@ -248,11 +248,11 @@ function UsageCard( { upgradeUrl, planName } ) {
 	}, [ isLoading, error, srSummary, expectUpsell ] );
 
 	// Nothing to show while the fetch is in flight on an expected-paid site,
-	// and nothing after it on a plan with nothing to meter or sell.
+	// and nothing after it on any paid site.
 	if ( isLoading && ! expectUpsell ) {
 		return null;
 	}
-	if ( ! isLoading && ! error && ! usage.isFree && ! hasNumbers ) {
+	if ( ! isLoading && ! error && ! usage.isFree ) {
 		return null;
 	}
 
@@ -366,8 +366,11 @@ export default function AiOverview( {
 		<Stack direction="column" gap="3xl">
 			<AssistantBanner />
 			{ /* The banner, connection notices, and usage card share a tighter
-			     rhythm than the titled sections below. */ }
-			<Stack direction="column" gap="xl">
+			     rhythm than the titled sections below. On plans where nothing
+			     in here renders (the usage card returns null after the fetch),
+			     the stylesheet's :empty rule drops the wrapper so the outer
+			     3xl gap doesn't double. */ }
+			<Stack direction="column" gap="xl" className="jetpack-ai-overview__intro">
 				{ !! blogId && hostBlocked && (
 					<Notice.Root intent="warning">
 						<Notice.Description>

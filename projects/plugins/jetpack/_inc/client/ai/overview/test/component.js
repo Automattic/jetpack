@@ -63,13 +63,11 @@ describe( 'normalizeUsage', () => {
 		expect( usage.showUpgrade ).toBe( false );
 	} );
 
-	test( 'fixed tier: counts remaining period requests against the tier limit, no upgrade', () => {
+	test( 'fixed tier: treated as paid — no numbers, no upgrade', () => {
 		const usage = normalizeUsage( tieredPayload() );
 
 		expect( usage.isFree ).toBe( false );
-		expect( usage.requestsCount ).toBe( 340 );
-		expect( usage.requestsLimit ).toBe( 500 );
-		expect( usage.requestsAvailable ).toBe( 160 );
+		expect( usage.requestsAvailable ).toBeNull();
 		expect( usage.showUpgrade ).toBe( false );
 	} );
 
