@@ -986,7 +986,6 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 			'<span class="agents-manager-ai-chat-label" aria-hidden="true"><span>Agent</span></span>',
 			$node->title
 		);
-		$this->assertSame( 'Agent', $node->meta['title'] );
 		$this->assertSame( $is_pre_hidden ? 'is-chat-visible' : null, $node->meta['class'] ?? null );
 	}
 

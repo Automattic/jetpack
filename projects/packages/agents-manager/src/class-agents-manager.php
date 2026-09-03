@@ -234,7 +234,6 @@ class Agents_Manager {
 	 */
 	public function add_ai_chat_button( $wp_admin_bar ) {
 		$meta = array(
-			'title'      => __( 'Agent', 'jetpack-agents-manager' ),
 			'menu_title' => __( 'Agent', 'jetpack-agents-manager' ),
 			'icon'       => 'sparkle',
 			// The wp-admin bundle mounts the chat into this div.
@@ -253,7 +252,7 @@ class Agents_Manager {
 			array(
 				'id'     => 'agents-manager-ai-chat',
 				'parent' => 'top-secondary',
-				'title'  => $this->get_icon( 'sparkle' )
+				'title'  => '<span title="' . esc_attr__( 'Agent', 'jetpack-agents-manager' ) . '">' . $this->get_icon( 'sparkle' ) . '</span>'
 					. '<span class="agents-manager-ai-chat-label" aria-hidden="true"><span>' . esc_html__( 'Agent', 'jetpack-agents-manager' ) . '</span></span>',
 				'meta'   => $meta,
 			)
