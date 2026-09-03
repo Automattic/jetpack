@@ -391,7 +391,7 @@ describe( 'AiOverview', () => {
 		}
 	} );
 
-	test( 'documentation: renders all five links through the redirect service', async () => {
+	test( 'documentation: renders all four links through the redirect service', async () => {
 		apiFetch.mockResolvedValueOnce( freePayload() );
 
 		render( <AiOverview { ...PROPS } /> );
@@ -403,7 +403,6 @@ describe( 'AiOverview', () => {
 		const slugByName = {
 			'MCP integration guide': 'jetpack-ai-hub-overview-docs-mcp-guide',
 			'AI features overview': 'jetpack-ai-hub-overview-docs-features',
-			'Setting up agentic workflows': 'jetpack-ai-hub-overview-docs-agent-setup',
 			'Billing & plans': 'jetpack-ai-hub-overview-docs-billing',
 			'Available capabilities': 'jetpack-ai-hub-overview-docs-mcp-tools',
 		};
