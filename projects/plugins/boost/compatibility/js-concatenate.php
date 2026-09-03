@@ -18,6 +18,8 @@ function maybe_do_not_concat( $do_concat, $handle ) {
 		'wc-bookings-booking-form',
 		// WooCommerce Analytics
 		'woocommerce-analytics-client',
+		// Plugin: `woocommerce`
+		'wc-single-product',
 	);
 
 	if ( in_array( $handle, $excluded_handles, true ) ) {

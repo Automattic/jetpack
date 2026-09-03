@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Concatenate JS: Prevent WooCommerce product thumbnail carousels from breaking.
