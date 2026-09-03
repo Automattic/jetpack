@@ -225,8 +225,8 @@ const PeriodControl = ( { value, onChange }: PeriodControlProps ) => {
 							return (
 								<li key={ preset.label }>
 									<Button
-										variant={ isActive ? 'solid' : 'minimal' }
-										tone={ isActive ? 'brand' : 'neutral' }
+										variant="minimal"
+										tone="neutral"
 										aria-pressed={ isActive }
 										className="podcast-period-control__preset"
 										data-index={ index }
@@ -238,18 +238,16 @@ const PeriodControl = ( { value, onChange }: PeriodControlProps ) => {
 							);
 						} ) }
 					</ul>
-					<div className="podcast-period-control__calendar">
-						<RangeCalendar
-							value={ draft }
-							onValueChange={ handleCalendarChange }
-							locale={ getLocale() }
-							numberOfMonths={ isSmall ? 1 : 2 }
-							defaultMonth={ defaultMonth }
-							startMonth={ earliest }
-							endMonth={ today }
-							disabled={ [ { before: earliest }, { after: today } ] }
-						/>
-					</div>
+					<RangeCalendar
+						value={ draft }
+						onValueChange={ handleCalendarChange }
+						locale={ getLocale() }
+						numberOfMonths={ isSmall ? 1 : 2 }
+						defaultMonth={ defaultMonth }
+						startMonth={ earliest }
+						endMonth={ today }
+						disabled={ [ { before: earliest }, { after: today } ] }
+					/>
 				</Stack>
 			</Popover.Popup>
 		</Popover.Root>
