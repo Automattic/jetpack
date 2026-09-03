@@ -39,17 +39,9 @@ describe( 'AiFeatures rendering', () => {
 		);
 	} );
 
-	test( 'renders one card, described by its lead line and no heading of its own', () => {
-		renderFeatures();
-
-		expect(
-			screen.getByText( 'Choose what AI can help with across your site.' )
-		).toBeInTheDocument();
-	} );
-
-	// One divider per visible section — the first doubles as the header rule
-	// per the Figma — and the group headers are real h2s, one level below the
-	// page title "AI"; the card itself carries no heading.
+	// Dividers separate the groups and never lead the card — the group headers
+	// are real h2s, one level below the page title "AI", and the card itself
+	// carries no heading or lead line.
 	test.each( [
 		[ 'one section', { writing_assistant: { enabled: true } }, [ 'Content' ] ],
 		[ 'two sections', null, [ 'Content', 'Search' ] ],
@@ -62,21 +54,22 @@ describe( 'AiFeatures rendering', () => {
 			},
 			[ 'Content', 'Media', 'Search' ],
 		],
-	] )( '%s: one divider per section, h2 group headers in order', ( _label, features, titles ) => {
-		renderFeatures( features ? { features } : {} );
+	] )(
+		'%s: dividers between groups only, h2 group headers in order',
+		( _label, features, titles ) => {
+			renderFeatures( features ? { features } : {} );
 
-		expect( screen.getAllByRole( 'separator' ) ).toHaveLength( titles.length );
-		const headings = screen.getAllByRole( 'heading', { level: 2 } );
-		expect( headings.map( heading => heading.textContent ) ).toEqual( titles );
-	} );
+			expect( screen.queryAllByRole( 'separator' ) ).toHaveLength( titles.length - 1 );
+			const headings = screen.getAllByRole( 'heading', { level: 2 } );
+			expect( headings.map( heading => heading.textContent ) ).toEqual( titles );
+		}
+	);
 
 	test( 'no reported features: no empty card shell', () => {
 		// Everything else healthy — the empty payload alone must suppress the card.
 		renderFeatures( { features: {} } );
 
-		expect(
-			screen.queryByText( 'Choose what AI can help with across your site.' )
-		).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'region' ) ).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'separator' ) ).not.toBeInTheDocument();
 	} );
 
@@ -85,9 +78,7 @@ describe( 'AiFeatures rendering', () => {
 
 		// The notices live outside the card and must not go down with it.
 		expect( screen.getByText( 'Jetpack AI is turned off for this site.' ) ).toBeInTheDocument();
-		expect(
-			screen.queryByText( 'Choose what AI can help with across your site.' )
-		).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'region' ) ).not.toBeInTheDocument();
 	} );
 
 	test( 'the AI SEO row renders from the ai_seo feature key inside the SEO group', () => {

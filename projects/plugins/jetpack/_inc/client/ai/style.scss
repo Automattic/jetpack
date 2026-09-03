@@ -174,7 +174,7 @@ body.jetpack_page_jetpack-ai {
 }
 
 // The feature card, values read off the Figma (AI-Settings
-// node 6021-4152): 20px card padding with 24px above the description. The
+// node 6021-4152): 20px card padding with 24px above the first group. The
 // Card.FullBleed dividers inherit the same padding var for their
 // edge-to-edge negative margins, so they stay in sync.
 .jetpack-ai-features__card {
@@ -183,11 +183,6 @@ body.jetpack_page_jetpack-ai {
 
 .jetpack-ai-features__card-content {
 	padding-block-start: var(--wpds-dimension-padding-2xl, 24px);
-}
-
-// Figma: Body SM in foreground/content/neutral-weak.
-.jetpack-ai-features__card-subtitle {
-	color: var(--wpds-color-foreground-content-neutral-weak, #707070);
 }
 
 // Section divider inside the feature card. Card.FullBleed already
