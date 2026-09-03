@@ -83,8 +83,7 @@ function useActivityPageQuery( page: number, pageSize: number, sortOrder: Activi
  * does the paging, `totalItems` / `totalPages` come back in the
  * envelope, and DataViews owns the footer.
  *
- * The site's restores are folded in on top of that: WPCOM's feed carries restore
- * points, and a restore is not one, so it is absent there by construction.
+ * The site's restores are folded in on top of that; see `ActivityKind`.
  *
  * @param args           - Query args.
  * @param args.page      - 1-indexed page number.
@@ -106,15 +105,18 @@ export function useActivityLog( { page, pageSize, sortOrder }: Args ): Result {
 		[ query.data ]
 	);
 
-	// The server's own count, not the merged one: restore rows are added to
-	// this page alone, so counting them would misreport how many pages there are.
+	// The server's own count, not the merged one: restore rows land on page 1
+	// only, so counting them would misreport how many pages there are.
 	const totalItems = query.data?.totalItems ?? entries.length;
 	const totalPages =
 		query.data?.totalPages ?? Math.max( 1, Math.ceil( entries.length / pageSize ) );
 
+	// Only once the feed has answered: a failed page holds no rows, and merged
+	// restores would fill it, hiding the failure the list's `empty` slot reports.
 	const items = useMemo(
-		() => mergeRestoreRows( entries, restores.data, { page, totalPages, sortOrder } ),
-		[ entries, restores.data, page, totalPages, sortOrder ]
+		() =>
+			query.isSuccess ? mergeRestoreRows( entries, restores.data, { page, sortOrder } ) : entries,
+		[ query.isSuccess, entries, restores.data, page, sortOrder ]
 	);
 
 	// Wrapped so callers can hand it straight to `onClick` without

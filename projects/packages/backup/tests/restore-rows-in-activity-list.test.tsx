@@ -1,5 +1,4 @@
 // JETPACK-2465 — a finished or failed restore left no trace on the dashboard.
-// These rows are merged in from `GET /jetpack/v4/restores`, not the WPCOM feed.
 
 const mockApiFetch = jest.fn();
 const mockSearch = jest.fn< Record< string, unknown >, [] >();
@@ -19,7 +18,8 @@ jest.mock( '@wordpress/route', () => ( {
 // Imports must come after the jest.mock factories above.
 import { render, screen } from '@testing-library/react';
 import { stage as OverviewStage } from '../routes/dashboard/stage';
-import { queryClient } from '../src/dashboard/data/query-client';
+import { keys, queryClient } from '../src/dashboard/data/query-client';
+import { ACTIVITY_LOG_DEFAULT_PER_PAGE } from '../src/dashboard/hooks/use-activity-log';
 
 const CONNECTED = { isRegistered: true, hasConnectedOwner: true, isUserConnected: true };
 
@@ -37,6 +37,9 @@ const RESTORE_READ_AS_LOCAL = 'Sep 3, 2026, 5:11 PM';
 
 const NOT_ON_THIS_PAGE =
 	"That item isn't on this page of the activity log. It may be on another page, or no longer available.";
+const NOT_AMONG_RECENT = "That restore isn't among this site's most recent ones any more.";
+const ACTIVITY_FAILED = "We couldn't load your site's activity.";
+const FAILURE_REASON = 'Service unavailable';
 
 /**
  * The two rewindable-activity rows the restore has to sort between.
@@ -66,20 +69,34 @@ function activityRows() {
 /**
  * Point every route the Overview reads at a fixed set of answers.
  *
- * @param restores - What `/jetpack/v4/restores` resolves with.
+ * @param options            - Fixture options.
+ * @param options.restores   - What `/jetpack/v4/restores` resolves with.
+ * @param options.standalone - Whether the standalone plugin is active, which is what
+ *                           opens the review prompt's own read of the collection.
+ * @param options.activity   - 'ok' to answer the rewindable feed, 'error' to 5xx it.
  */
-function mockEndpoints( restores: unknown[] ) {
+function mockEndpoints( {
+	restores = [] as unknown,
+	standalone = false,
+	activity = 'ok' as 'ok' | 'error',
+} = {} ) {
 	mockApiFetch.mockImplementation( ( o: { path?: string } ) => {
 		const path = o?.path ?? '';
 		if ( path.includes( '/site/capabilities' ) ) {
-			return Promise.resolve( { hasBackupPlan: true, hasScan: false } );
+			return Promise.resolve( {
+				hasBackupPlan: true,
+				hasScan: false,
+				local: { isStandalonePluginActive: standalone },
+			} );
 		}
 		if ( path.includes( '/site/rewindable-activity' ) ) {
-			return Promise.resolve( {
-				current: { orderedItems: activityRows() },
-				totalItems: 2,
-				totalPages: 1,
-			} );
+			return activity === 'error'
+				? Promise.reject( { code: 'http_500', message: FAILURE_REASON } )
+				: Promise.resolve( {
+						current: { orderedItems: activityRows() },
+						totalItems: 2,
+						totalPages: 1,
+				  } );
 		}
 		if ( path === '/jetpack/v4/restores' ) {
 			return Promise.resolve( restores );
@@ -144,21 +161,25 @@ beforeEach( () => {
 
 describe( 'a restore that has already ended', () => {
 	beforeEach( () => {
-		mockEndpoints( [ failedRestore() ] );
+		mockEndpoints( { restores: [ failedRestore() ] } );
 	} );
 
 	it( 'is reported in the list, in its place among the activity', async () => {
 		render( <OverviewStage /> );
-		await expect( screen.findByText( 'Restore failed', undefined, SETTLE ) ).resolves.toBeVisible();
+		await expect(
+			screen.findByText( "Restore didn't finish", undefined, SETTLE )
+		).resolves.toBeVisible();
 
-		expect( renderedRows()[ 0 ] ).toContain( 'Restore failed' );
+		expect( renderedRows()[ 0 ] ).toContain( "Restore didn't finish" );
 		expect( renderedRows()[ 1 ] ).toContain( 'Backup complete' );
 		expect( renderedRows()[ 2 ] ).toContain( 'Plugin activated' );
 	} );
 
 	it( "is stamped from WordPress.com's clock, not the browser's", async () => {
 		render( <OverviewStage /> );
-		await expect( screen.findByText( 'Restore failed', undefined, SETTLE ) ).resolves.toBeVisible();
+		await expect(
+			screen.findByText( "Restore didn't finish", undefined, SETTLE )
+		).resolves.toBeVisible();
 
 		expect( screen.getByText( RESTORE_RENDERED_AT ) ).toBeVisible();
 		expect( screen.queryByText( RESTORE_READ_AS_LOCAL ) ).not.toBeInTheDocument();
@@ -166,16 +187,30 @@ describe( 'a restore that has already ended', () => {
 
 	it( 'names the backup it was aiming at', async () => {
 		render( <OverviewStage /> );
-		await expect( screen.findByText( 'Restore failed', undefined, SETTLE ) ).resolves.toBeVisible();
+		await expect(
+			screen.findByText( "Restore didn't finish", undefined, SETTLE )
+		).resolves.toBeVisible();
 
 		expect( screen.getByText( 'Restore to Aug 13, 2026, 6:08 PM' ) ).toBeVisible();
 	} );
 
-	it( 'costs no request the screen was not already making', async () => {
+	it( 'reads the collection once for the whole screen', async () => {
 		render( <OverviewStage /> );
 		// Witness: the row is on screen, so the single request below is one
 		// that answered rather than one nobody made.
-		await expect( screen.findByText( 'Restore failed', undefined, SETTLE ) ).resolves.toBeVisible();
+		await expect(
+			screen.findByText( "Restore didn't finish", undefined, SETTLE )
+		).resolves.toBeVisible();
+
+		expect( requestedPaths( '/jetpack/v4/restores' ) ).toHaveLength( 1 );
+	} );
+
+	it( 'still reads it once when the review prompt reads it too', async () => {
+		mockEndpoints( { restores: [ failedRestore() ], standalone: true } );
+		render( <OverviewStage /> );
+		await expect(
+			screen.findByText( "Restore didn't finish", undefined, SETTLE )
+		).resolves.toBeVisible();
 
 		expect( requestedPaths( '/jetpack/v4/restores' ) ).toHaveLength( 1 );
 	} );
@@ -185,9 +220,10 @@ describe( 'a restore that has already ended', () => {
 		render( <OverviewStage /> );
 
 		await expect(
-			screen.findByRole( 'heading', { name: 'Restore failed' }, SETTLE )
+			screen.findByRole( 'heading', { name: "Restore didn't finish" }, SETTLE )
 		).resolves.toBeVisible();
 		expect( screen.queryByText( NOT_ON_THIS_PAGE ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( NOT_AMONG_RECENT ) ).not.toBeInTheDocument();
 		// A restore is not a restore point, so neither action belongs on it.
 		expect(
 			screen.queryByRole( 'button', { name: 'Restore to this point' } )
@@ -198,22 +234,24 @@ describe( 'a restore that has already ended', () => {
 
 describe( 'a restore still under way', () => {
 	it( 'says so rather than claiming an outcome', async () => {
-		mockEndpoints( [ failedRestore( { status: 'running' } ) ] );
+		mockEndpoints( { restores: [ failedRestore( { status: 'running' } ) ] } );
 		render( <OverviewStage /> );
 
 		await expect(
 			screen.findByText( 'Restore in progress', undefined, SETTLE )
 		).resolves.toBeVisible();
-		expect( screen.queryByText( 'Restore failed' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( "Restore didn't finish" ) ).not.toBeInTheDocument();
 	} );
 } );
 
 describe( 'a restore dismissed upstream', () => {
 	it( 'is reported anyway', async () => {
-		mockEndpoints( [ failedRestore( { dismissed: true } ) ] );
+		mockEndpoints( { restores: [ failedRestore( { dismissed: true } ) ] } );
 		render( <OverviewStage /> );
 
-		await expect( screen.findByText( 'Restore failed', undefined, SETTLE ) ).resolves.toBeVisible();
+		await expect(
+			screen.findByText( "Restore didn't finish", undefined, SETTLE )
+		).resolves.toBeVisible();
 	} );
 } );
 
@@ -221,28 +259,65 @@ describe( 'a collection the route could not read', () => {
 	it( 'leaves the activity list as it was', async () => {
 		// The route answers an undecodable WPCOM reply with a bare `null`,
 		// which WordPress serves as HTTP 200.
-		mockApiFetch.mockImplementation( ( o: { path?: string } ) => {
-			const path = o?.path ?? '';
-			if ( path.includes( '/site/capabilities' ) ) {
-				return Promise.resolve( { hasBackupPlan: true, hasScan: false } );
-			}
-			if ( path.includes( '/site/rewindable-activity' ) ) {
-				return Promise.resolve( {
-					current: { orderedItems: activityRows() },
-					totalItems: 2,
-					totalPages: 1,
-				} );
-			}
-			if ( path === '/jetpack/v4/restores' ) {
-				return Promise.resolve( null );
-			}
-			return Promise.resolve( [] );
-		} );
+		mockEndpoints( { restores: null as unknown as unknown[] } );
 		render( <OverviewStage /> );
 
 		await expect(
 			screen.findByText( 'Backup complete', undefined, SETTLE )
 		).resolves.toBeVisible();
 		expect( renderedRows() ).toHaveLength( 2 );
+	} );
+} );
+
+describe( 'an activity feed that failed', () => {
+	beforeEach( () => {
+		mockEndpoints( { restores: [ failedRestore() ], activity: 'error' } );
+	} );
+
+	it( 'still reports the failure, with restores available to fill the list', async () => {
+		render( <OverviewStage /> );
+
+		await expect( screen.findByText( ACTIVITY_FAILED, undefined, SETTLE ) ).resolves.toBeVisible();
+		expect( screen.getByText( FAILURE_REASON ) ).toBeVisible();
+		expect( screen.getByRole( 'button', { name: 'Try again' } ) ).toBeVisible();
+	} );
+
+	it( "does not pass the restores off as the site's activity", async () => {
+		render( <OverviewStage /> );
+		await expect( screen.findByText( ACTIVITY_FAILED, undefined, SETTLE ) ).resolves.toBeVisible();
+
+		expect( screen.queryByText( "Restore didn't finish" ) ).not.toBeInTheDocument();
+	} );
+} );
+
+describe( 'a selected restore the collection no longer holds', () => {
+	it( "says so in its own terms, not the activity log's", async () => {
+		mockSearch.mockReturnValue( { selected: 'restore-999' } );
+		mockEndpoints( { restores: [ failedRestore() ] } );
+		render( <OverviewStage /> );
+
+		await expect( screen.findByText( NOT_AMONG_RECENT, undefined, SETTLE ) ).resolves.toBeVisible();
+		expect( screen.queryByText( NOT_ON_THIS_PAGE ) ).not.toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: 'Clear selection' } ) ).toBeVisible();
+	} );
+} );
+
+describe( 'a refetch that failed with rows still on screen', () => {
+	it( 'reports the failure above the list', async () => {
+		// React Query keeps the last successful page when a refetch fails, so the
+		// list is not empty and its `empty` slot — the other error surface — never
+		// renders. `updatedAt` in the past is what makes the mount refetch at all.
+		queryClient.setQueryData(
+			keys.activityLogPage( 1, ACTIVITY_LOG_DEFAULT_PER_PAGE, 'desc' ),
+			{ current: { orderedItems: activityRows() }, totalItems: 2, totalPages: 1 },
+			{ updatedAt: Date.now() - 60_000 }
+		);
+		mockEndpoints( { restores: [ failedRestore() ], activity: 'error' } );
+		render( <OverviewStage /> );
+
+		await expect( screen.findByText( ACTIVITY_FAILED, undefined, SETTLE ) ).resolves.toBeVisible();
+		// Witness: the stale rows are on screen, which is what keeps the `empty`
+		// slot unrendered and leaves this failure nowhere else to report from.
+		expect( renderedRows()[ 0 ] ).toContain( 'Backup complete' );
 	} );
 } );

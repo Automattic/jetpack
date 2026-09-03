@@ -21,8 +21,8 @@ export function isRestoreRowId( id: string ): boolean {
 /**
  * What to call a restore, from the two booleans `RecentRestore` derives.
  *
- * `success-with-errors` is settled and not `succeeded`, so a partial restore
- * reads as failed here — the direction that under-promises.
+ * Two booleans cannot tell a failure from an abort or a partial success, so the
+ * unsuccessful case says only that it did not finish rather than blaming one.
  *
  * @param restore - The collection row.
  * @return The row's title.
@@ -33,7 +33,7 @@ function restoreTitle( restore: RecentRestore ): string {
 	}
 	return restore.succeeded
 		? __( 'Restore complete', 'jetpack-backup-pkg' )
-		: __( 'Restore failed', 'jetpack-backup-pkg' );
+		: __( "Restore didn't finish", 'jetpack-backup-pkg' );
 }
 
 /**
@@ -110,59 +110,32 @@ export function findRestoreRow(
 type PageWindow = {
 	/** 1-indexed page the list is showing. */
 	page: number;
-	/** How many pages the server says there are. */
-	totalPages: number;
 	sortOrder: ActivitySortOrder;
 };
 
 /**
- * The span of time this page of activity accounts for.
- *
- * Open at whichever end of the log this page holds, so a restore newer than
- * every restore point — the common case — lands on page 1 rather than nowhere.
- *
- * @param items     - The page's activity rows.
- * @param placement - Where this page sits in the log.
- * @return The inclusive bounds, in milliseconds.
- */
-function pageBounds( items: ActivityItem[], placement: PageWindow ): { from: number; to: number } {
-	const times = items
-		.map( item => Date.parse( item.publishedAt ) )
-		.filter( time => ! Number.isNaN( time ) );
-
-	const isFirstPage = placement.page <= 1;
-	const isLastPage = placement.page >= placement.totalPages;
-	const newestFirst = placement.sortOrder === 'desc';
-	const holdsNewest = newestFirst ? isFirstPage : isLastPage;
-	const holdsOldest = newestFirst ? isLastPage : isFirstPage;
-
-	return {
-		from: holdsOldest || times.length === 0 ? -Infinity : Math.min( ...times ),
-		to: holdsNewest || times.length === 0 ? Infinity : Math.max( ...times ),
-	};
-}
-
-/**
  * Fold the restores collection into one page of activity rows.
  *
- * Only the restores this page's own span covers, spliced in by timestamp so the
- * reader still sees one list in one order. Server rows keep the order they came in.
+ * Page 1 is the whole window, in either direction: the collection has no paging
+ * of its own, so spreading it over the feed's pages drops one that falls in a gap.
  *
  * @param items     - The page's activity rows.
  * @param restores  - The collection, or null when the read failed.
- * @param placement - Where this page sits in the log.
- * @return The merged rows.
+ * @param placement - Which page the list is showing, and in which direction.
+ * @return The merged rows, with each restore spliced in by timestamp.
  */
 export function mergeRestoreRows(
 	items: ActivityItem[],
 	restores: RecentRestore[] | null | undefined,
 	placement: PageWindow
 ): ActivityItem[] {
+	if ( placement.page > 1 ) {
+		return items;
+	}
+
 	const newestFirst = placement.sortOrder === 'desc';
-	const { from, to } = pageBounds( items, placement );
 	const rows = normalizeRestores( restores )
 		.map( row => ( { row, at: Date.parse( row.publishedAt ) } ) )
-		.filter( ( { at } ) => at >= from && at <= to )
 		.sort( ( a, b ) => ( newestFirst ? b.at - a.at : a.at - b.at ) );
 
 	if ( rows.length === 0 ) {

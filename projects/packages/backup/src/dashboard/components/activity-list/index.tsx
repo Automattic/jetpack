@@ -156,7 +156,7 @@ export default function ActivityList( { selectedId, onSelect, view, onChangeView
 	// reader their site has no activity. The `empty` slot is the same node
 	// that copy renders in, so replacing it puts the reason exactly where
 	// the wrong answer used to be.
-	const emptyState = error ? (
+	const failure = error ? (
 		<QueryError
 			title={ __( "We couldn't load your site's activity.", 'jetpack-backup-pkg' ) }
 			error={ error }
@@ -164,6 +164,10 @@ export default function ActivityList( { selectedId, onSelect, view, onChangeView
 			isRetrying={ isFetching }
 		/>
 	) : undefined;
+
+	// A stale page DataViews kept, or a merged restore row, leaves the `empty`
+	// slot unrendered — so a failure then needs somewhere else to report from.
+	const reportsAboveList = failure !== undefined && items.length > 0;
 
 	// Every field opts out of filtering, and all but `description` out of sorting:
 	// `/activity/rewindable` takes no search term and orders only on the event
@@ -226,7 +230,7 @@ export default function ActivityList( { selectedId, onSelect, view, onChangeView
 	// itself told DataViews nothing was happening while the reader looked
 	// at rows from the page they had just left.
 	//
-	// This cannot swallow `emptyState`: DataViews initialises
+	// This cannot swallow the `empty` slot: DataViews initialises
 	// `hasInitiallyLoaded` to `!isLoading` and latches it true on the first
 	// non-loading render, and the spinner branch that would replace the
 	// `empty` slot is gated on `!hasInitiallyLoaded`. Past the first load a
@@ -236,6 +240,7 @@ export default function ActivityList( { selectedId, onSelect, view, onChangeView
 
 	return (
 		<Card.Root className="jpb-activity-list" aria-busy={ isBusy }>
+			{ reportsAboveList && <div className="jpb-activity-list__failure">{ failure }</div> }
 			<DataViews< ActivityItem >
 				data={ items }
 				fields={ fields }
@@ -248,7 +253,7 @@ export default function ActivityList( { selectedId, onSelect, view, onChangeView
 				onChangeSelection={ onChangeSelection }
 				isLoading={ isBusy }
 				search={ false }
-				empty={ emptyState }
+				empty={ reportsAboveList ? undefined : failure }
 			/>
 		</Card.Root>
 	);
