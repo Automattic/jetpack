@@ -19,18 +19,19 @@ export const depletedPayload = () => ( {
 	'requests-count': 20,
 } );
 
-export const tieredPayload = () => ( {
+// The paid subscription as actually serialized: value 1 with a localized
+// readable-limit. There is no higher tier to sell.
+export const paidPayload = () => ( {
 	'has-feature': true,
 	'requests-count': 950,
 	'requests-limit': 20,
 	'usage-period': { 'requests-count': 340, 'next-start': '2026-09-01' },
-	// Tiered tiers carry no readable limit — only the unlimited tier does.
-	'current-tier': { value: 500, limit: 500 },
-	'next-tier': { value: 750, limit: 750 },
+	'current-tier': { value: 1, limit: 999999999, 'readable-limit': 'Unlimited' },
 } );
 
-export const unlimitedPayload = () => ( {
-	...tieredPayload(),
-	// The unlimited tier as actually serialized: a localized readable-limit.
-	'current-tier': { value: 1, limit: 999999999, 'readable-limit': 'Unlimited' },
+// The retired tiered plans still arrive on the wire for old subscribers.
+export const legacyTieredPayload = () => ( {
+	...paidPayload(),
+	'current-tier': { value: 500, limit: 500 },
+	'next-tier': { value: 750, limit: 750 },
 } );

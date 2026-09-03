@@ -6,7 +6,7 @@ import { dispatch } from '@wordpress/data';
 import { store as preferencesStore } from '@wordpress/preferences';
 import analytics from 'lib/analytics';
 import AiOverview from '../index';
-import { depletedPayload, freePayload, tieredPayload, unlimitedPayload } from './fixtures';
+import { depletedPayload, freePayload, legacyTieredPayload, paidPayload } from './fixtures';
 
 // The usage hook fetches through @wordpress/api-fetch; stub it so nothing
 // hits the network and each test controls the response.
@@ -139,16 +139,12 @@ describe( 'AiOverview', () => {
 		).not.toBeInTheDocument();
 	} );
 
-	test( 'depleted: without an upgrade to offer, the standard card stays', async () => {
-		// Zero available on a tiered plan with no next tier: the upsell copy
-		// is a pitch for a button that could not exist, so it must not show.
-		apiFetch.mockResolvedValueOnce( {
-			...tieredPayload(),
-			'usage-period': { 'requests-count': 500, 'next-start': '2026-09-01' },
-			'next-tier': null,
-		} );
+	test( 'depleted: without an upgrade URL, the standard card stays', async () => {
+		// Zero available with nowhere to upgrade to: the upsell copy is a
+		// pitch for a button that could not exist, so it must not show.
+		apiFetch.mockResolvedValueOnce( depletedPayload() );
 
-		render( <AiOverview { ...PROPS } /> );
+		render( <AiOverview { ...PROPS } upgradeUrl={ undefined } /> );
 
 		await expect( screen.findByText( '0' ) ).resolves.toBeInTheDocument();
 		expect( screen.getByText( 'Available requests' ) ).toBeInTheDocument();
@@ -158,23 +154,12 @@ describe( 'AiOverview', () => {
 		expect( screen.queryByRole( 'link', { name: 'Upgrade' } ) ).not.toBeInTheDocument();
 	} );
 
-	test( 'tiered plan: renders remaining period requests against the tier limit', async () => {
-		apiFetch.mockResolvedValueOnce( tieredPayload() );
+	test( 'paid: no usage card at all', async () => {
+		apiFetch.mockResolvedValueOnce( paidPayload() );
 
-		render( <AiOverview { ...PROPS } /> );
-
-		await expect( screen.findByText( '160' ) ).resolves.toBeInTheDocument();
-		// The limit shows once, on the meter — never repeated as a plan name.
-		expect( screen.getAllByText( '500' ) ).toHaveLength( 1 );
-		expect( screen.getByRole( 'progressbar', { hidden: true } ) ).toBeInTheDocument();
-	} );
-
-	test( 'legacy unlimited: no usage card at all', async () => {
-		apiFetch.mockResolvedValueOnce( unlimitedPayload() );
-
-		// planName holds the standard skeleton while the fetch is in flight,
-		// which is also the only queryable handle for "the fetch settled".
-		const { container } = render( <AiOverview { ...PROPS } planName="WordPress.com Business" /> );
+		// Without a named plan the upsell placeholder holds the slot, which is
+		// also the only queryable handle for "the fetch settled".
+		const { container } = render( <AiOverview { ...PROPS } /> );
 
 		// Nothing to meter and nothing to sell: once the fetch lands the card
 		// unmounts entirely.
@@ -182,7 +167,7 @@ describe( 'AiOverview', () => {
 		   The skeleton bars are decorative and aria-hidden, so Testing Library
 		   has no query that reaches them; the layout class is the only handle. */
 		await waitForElementToBeRemoved( () =>
-			container.querySelector( '.jetpack-ai-overview__usage' )
+			container.querySelector( '.jetpack-ai-overview__upsell' )
 		);
 		/* eslint-enable testing-library/no-container, testing-library/no-node-access */
 		expect( screen.queryByText( 'Unlimited' ) ).not.toBeInTheDocument();
@@ -193,21 +178,20 @@ describe( 'AiOverview', () => {
 		expect( screen.getByRole( 'heading', { level: 2, name: 'Quick start' } ) ).toBeInTheDocument();
 	} );
 
-	test( 'standard card: shows only the requests readout, no plan details', async () => {
-		// Top tier, nothing to sell: the plain requests card renders.
-		apiFetch.mockResolvedValueOnce( {
-			...tieredPayload(),
-			'next-tier': null,
-			'site-require-upgrade': false,
-		} );
+	test( 'legacy tiered plan: treated as paid, no usage card', async () => {
+		apiFetch.mockResolvedValueOnce( legacyTieredPayload() );
 
-		// Plan name and renewal live in My Jetpack; the card must not render
-		// them even when the page data names a purchase.
-		render( <AiOverview { ...PROPS } planName="WordPress.com Business" /> );
+		const { container } = render( <AiOverview { ...PROPS } /> );
 
-		await expect( screen.findByText( '160' ) ).resolves.toBeInTheDocument();
-		expect( screen.queryByText( 'Plan' ) ).not.toBeInTheDocument();
-		expect( screen.queryByText( 'WordPress.com Business' ) ).not.toBeInTheDocument();
+		/* eslint-disable testing-library/no-container, testing-library/no-node-access --
+		   The skeleton bars are decorative and aria-hidden, so Testing Library
+		   has no query that reaches them; the layout class is the only handle. */
+		await waitForElementToBeRemoved( () =>
+			container.querySelector( '.jetpack-ai-overview__upsell' )
+		);
+		/* eslint-enable testing-library/no-container, testing-library/no-node-access */
+		expect( screen.queryByText( 'Available requests' ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'link', { name: 'Upgrade' } ) ).not.toBeInTheDocument();
 	} );
 
 	test( 'standard card: a free site without an upgrade URL shows no plan label either', async () => {
@@ -233,7 +217,7 @@ describe( 'AiOverview', () => {
 		).toBeInTheDocument();
 	} );
 
-	test( 'upgrade: links to the shared upgrade URL when a next tier exists', async () => {
+	test( 'upgrade: links to the shared upgrade URL', async () => {
 		apiFetch.mockResolvedValueOnce( freePayload() );
 
 		render( <AiOverview { ...PROPS } /> );
@@ -546,21 +530,22 @@ describe( 'AiOverview', () => {
 		expect( speak ).toHaveBeenCalledWith( '8 of 20 requests available', 'polite' );
 	} );
 
-	test( 'loading: a site that already names a plan gets the standard placeholder', () => {
+	test( 'loading: a site that already names a plan gets no placeholder', () => {
 		// A held promise keeps the usage fetch in flight for the whole test.
 		apiFetch.mockReturnValueOnce( new Promise( () => {} ) );
 
 		const { container } = render( <AiOverview { ...PROPS } planName="Jetpack Complete" /> );
 
-		// showUpsell needs the response, so the shape is guessed from the props.
-		// A named plan means no upgrade is being sold, and the placeholder must not
-		// promise a tall upsell the card will then collapse out of.
+		// A named plan means the likely outcome is no card at all — a skeleton
+		// that then vanishes would be a resize for nothing, and announcing a
+		// load that renders nothing is noise.
 		/* eslint-disable testing-library/no-container, testing-library/no-node-access --
 		   The placeholder bars are decorative and aria-hidden, so Testing Library
 		   has no query that reaches them; the layout class is the only handle. */
-		expect( container.querySelector( '.jetpack-ai-overview__card--upsell' ) ).toBeNull();
-		expect( container.querySelector( '.jetpack-ai-overview__usage' ) ).not.toBeNull();
+		expect( container.querySelector( '.jetpack-ai-overview__upsell' ) ).toBeNull();
+		expect( container.querySelector( '.jetpack-ai-overview__usage' ) ).toBeNull();
 		/* eslint-enable testing-library/no-container, testing-library/no-node-access */
+		expect( speak ).not.toHaveBeenCalled();
 	} );
 
 	test( 'section order: the activity log sits below the walkthrough videos', async () => {

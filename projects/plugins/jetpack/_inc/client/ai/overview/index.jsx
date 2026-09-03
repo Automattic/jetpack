@@ -139,25 +139,6 @@ function UpsellSkeleton() {
 }
 
 /**
- * Placeholder for the standard layout: the requests readout over the meter.
- * Used whenever no upgrade can be offered, so those sites do not watch a tall
- * upsell-shaped card collapse into a short one.
- *
- * @return {object} Component markup.
- */
-function UsageSkeleton() {
-	return (
-		<div className="jetpack-ai-overview__usage">
-			<div className="jetpack-ai-overview__usage-cell">
-				<Skeleton className="jetpack-ai-overview__skeleton-line jetpack-ai-overview__skeleton-line--eyebrow" />
-				<Skeleton className="jetpack-ai-overview__skeleton-line jetpack-ai-overview__skeleton-line--value" />
-				<Skeleton className="jetpack-ai-overview__skeleton-meter" />
-			</div>
-		</div>
-	);
-}
-
-/**
  * The "Available requests" readout shared by the standard card and the
  * upsell: eyebrow, one hidden translatable summary sentence, the
  * decorative value/limit pair, and the decorative meter.
@@ -215,14 +196,14 @@ function RequestsMeter( { usage } ) {
 }
 
 /**
- * The requests card. Whenever an upgrade can actually be offered the card
- * renders as an upsell: icon and pitch on the left, the requests readout
- * with the Upgrade button on the right — with harder copy once every request
- * is used. Without an upgrade to offer it falls back to the plain requests
- * readout over its meter (plan details are My Jetpack's job). A legacy
- * unlimited plan renders no card at all: there is nothing to meter and
- * nothing to sell. Loading and error states stay inside the card so the
- * rest of the Overview renders immediately.
+ * The requests card, free plans only — a paid subscription has nothing to
+ * meter and nothing to sell, so it renders no card at all. With an upgrade
+ * URL the card renders as an upsell: icon and pitch on the left, the
+ * requests readout with the Upgrade button on the right — with harder copy
+ * once every request is used. Without one it falls back to the plain
+ * requests readout over its meter (plan details are My Jetpack's job).
+ * Loading and error states stay inside the card so the rest of the
+ * Overview renders immediately.
  *
  * @param {object} props            - Component props.
  * @param {string} props.upgradeUrl - Upgrade destination (shared with the MCP upsell).
@@ -240,11 +221,10 @@ function UsageCard( { upgradeUrl, planName } ) {
 	const showUpsell = usage.showUpgrade && !! upgradeUrl;
 	// Out of requests, the pitch hardens from "before you run out" to "you ran out".
 	const isDepleted = hasNumbers && usage.requestsAvailable === 0;
-	// Which shape to hold while the fetch is in flight. showUpsell needs the
-	// response, so this is the best guess available before it: an upsell needs
-	// somewhere to upgrade to, and a site that already names a paid plan is
-	// usually not being sold one. Guessing wrong costs a resize, which is why
-	// the fallback is the standard card rather than the taller upsell.
+	// Whether to hold the upsell shape while the fetch is in flight. The likely
+	// outcome for a site that already names a paid plan is no card at all, so
+	// only the expected-free case gets a placeholder — a skeleton that vanishes
+	// would be a resize for nothing.
 	const expectUpsell = !! upgradeUrl && ! planName;
 	const srSummary = usageSummary( usage );
 
@@ -254,18 +234,25 @@ function UsageCard( { upgradeUrl, planName } ) {
 	// spoken. Errors are left alone: Notice announces those itself.
 	useEffect( () => {
 		if ( isLoading ) {
-			speak( __( 'Loading your AI usage…', 'jetpack' ), 'polite' );
+			// Only when a placeholder is on screen: announcing a load that
+			// resolves to nothing rendered is noise.
+			if ( expectUpsell ) {
+				speak( __( 'Loading your AI usage…', 'jetpack' ), 'polite' );
+			}
 			return;
 		}
 		if ( error || ! srSummary ) {
 			return;
 		}
 		speak( srSummary, 'polite' );
-	}, [ isLoading, error, srSummary ] );
+	}, [ isLoading, error, srSummary, expectUpsell ] );
 
-	// A legacy unlimited plan has nothing to meter and nothing to sell — a
-	// full bar and "Unlimited" would only take up the tab's first slot.
-	if ( ! isLoading && ! error && usage.unlimited ) {
+	// Nothing to show while the fetch is in flight on an expected-paid site,
+	// and nothing after it on any paid site.
+	if ( isLoading && ! expectUpsell ) {
+		return null;
+	}
+	if ( ! isLoading && ! error && ! usage.isFree ) {
 		return null;
 	}
 
@@ -281,7 +268,7 @@ function UsageCard( { upgradeUrl, planName } ) {
 			}
 		>
 			<Card.Content>
-				{ isLoading && ( expectUpsell ? <UpsellSkeleton /> : <UsageSkeleton /> ) }
+				{ isLoading && <UpsellSkeleton /> }
 
 				{ ! isLoading && error && (
 					<Notice.Root intent="error">
