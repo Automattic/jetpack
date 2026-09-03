@@ -84,6 +84,7 @@ const JetpackAndSettingsContent = ( {
 	const { checkoutUrl } = useAICheckout();
 	const { productPageUrl } = useAiProductPage();
 	const isBreveAvailable = getBreveAvailability();
+	const showWriteBrief = canWriteBriefBeEnabled() && isBreveAvailable;
 	const {
 		usagePanel: isUsagePanelAvailable,
 		featuredImage: isAIFeaturedImageAvailable,
@@ -149,14 +150,15 @@ const JetpackAndSettingsContent = ( {
 					</BaseControl>
 				</PanelRow>
 			) }
-			{ isPostEmpty && (
-				<PanelRow className="jetpack-ai-sidebar__warning-content">
-					<Notice isDismissible={ false } status="warning">
-						{ __( 'The following features require content to work.', 'jetpack' ) }
-					</Notice>
-				</PanelRow>
-			) }
-			{ canWriteBriefBeEnabled() && isBreveAvailable && (
+			{ isPostEmpty &&
+				( showWriteBrief || isAITitleOptimizationAvailable || isAIFeedbackAvailable ) && (
+					<PanelRow className="jetpack-ai-sidebar__warning-content">
+						<Notice isDismissible={ false } status="warning">
+							{ __( 'The following features require content to work.', 'jetpack' ) }
+						</Notice>
+					</PanelRow>
+				) }
+			{ showWriteBrief && (
 				<PanelRow>
 					<BaseControl __nextHasNoMarginBottom={ true }>
 						<BaseControl.VisualLabel>

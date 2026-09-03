@@ -8,6 +8,7 @@ import { useSidebarOpenFromUrl } from '../open-sidebar-from-url';
 const mockEditPost = jest.fn();
 const mockRecordEvent = jest.fn();
 let mockIsAgentNoticeDismissed = false;
+let mockIsPostEmpty = false;
 
 jest.mock( '@wordpress/hooks', () => ( {
 	applyFilters: jest.fn(),
@@ -26,7 +27,7 @@ jest.mock( '@wordpress/data', () => ( {
 		const stores: Record< string, unknown > = {
 			'core/editor': {
 				getCurrentPostType: () => 'post',
-				isEditedPostEmpty: () => false,
+				isEditedPostEmpty: () => mockIsPostEmpty,
 			},
 			core: {
 				getPostType: () => ( { viewable: true } ),
@@ -258,6 +259,7 @@ describe( 'AiAssistantPluginSidebar', () => {
 		jest.mocked( applyFilters ).mockReturnValue( null );
 		withFeatures( DEFAULT_FEATURES );
 		mockIsAgentNoticeDismissed = false;
+		mockIsPostEmpty = false;
 		// The notice reads this to decide whether to offer its action, so stand in
 		// for a loaded Agents Manager the way production has one.
 		( window as unknown as { __agentsManagerActions?: unknown } ).__agentsManagerActions = {
@@ -413,6 +415,19 @@ describe( 'AiAssistantPluginSidebar', () => {
 				within( documentPanel ).getByText( 'Learn more about Jetpack AI' )
 			).toBeInTheDocument();
 			expect( screen.queryByTestId( 'pre-publish-panel' ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'warns about an empty post only when a section that needs content is shown', () => {
+			mockIsPostEmpty = true;
+			const warning = 'The following features require content to work.';
+
+			const { unmount } = render( <AiAssistantPluginSidebar /> );
+			expect( screen.getAllByText( warning ).length ).toBeGreaterThan( 0 );
+			unmount();
+
+			withFeatures( [ 'ai-featured-image-generator' ] );
+			render( <AiAssistantPluginSidebar /> );
+			expect( screen.queryByText( warning ) ).not.toBeInTheDocument();
 		} );
 
 		it( 'keeps the panel when every feature is off, so the upgrade and usage rows still have a home', () => {
