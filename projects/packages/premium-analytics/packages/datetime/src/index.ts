@@ -30,7 +30,7 @@ export { parseSiteDateTime } from './site-datetime';
 
 export { readSiteTimestamp, type SiteTimestamp, type TimestampParts } from './site-timestamp';
 
-export { siteTimeZone } from './site-time-zone';
+export { reportingTimeZone } from './reporting-time-zone';
 
 export {
 	formatDatePartWithTime,

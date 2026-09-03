@@ -4,14 +4,14 @@
  * so the anchoring under test is the production one.
  */
 jest.mock( '@jetpack-premium-analytics/data', () => {
-	const { toLocalTZ, dateToISOStringWithTZ, siteTimeZone } = jest.requireActual(
+	const { toLocalTZ, dateToISOStringWithTZ, reportingTimeZone } = jest.requireActual(
 		'@jetpack-premium-analytics/datetime'
 	);
 	return {
 		localTZDate: ( value?: number | string | Date, timezone?: string ) =>
-			toLocalTZ( value, timezone ?? siteTimeZone() ),
+			toLocalTZ( value, timezone ?? reportingTimeZone() ),
 		dateToISOStringWithLocalTZ: ( date: Date, timezone?: string ) =>
-			dateToISOStringWithTZ( date, timezone ?? siteTimeZone() ),
+			dateToISOStringWithTZ( date, timezone ?? reportingTimeZone() ),
 	};
 } );
 /**

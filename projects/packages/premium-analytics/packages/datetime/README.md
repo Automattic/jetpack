@@ -11,7 +11,7 @@ for analytics widgets and date-range pickers.
 
 ### Timezone Utilities
 
-#### `createTZDateFromParts( dateParts: number[], timezone? )`
+#### `createTZDateFromParts( parts: number[], timezone? )`
 
 Creates a timezone-aware date in the specified timezone using the provided date parts.
 **Important:** Months are zero-based (0 = January, 11 = December).
@@ -23,18 +23,23 @@ const date = createTZDateFromParts( [ 2025, 9, 9 ], 'America/New_York' );
 
 **Parameters:**
 
-- `dateParts` : `number[]` - Date value to convert
+- `parts` : `number[]` - Wall-clock parts to convert
 - `timezone` (optional): `string` - Target timezone, default is GMT
 
 **Returns:** `TZDate` - Timezone-aware date object
 
-#### `siteTimeZone()`
+#### `reportingTimeZone()`
 
-The site's timezone, as an identifier `Intl` accepts. Reads the WordPress
-date settings that ship with the page, so it needs no await.
+The timezone reports are read in, as an identifier `Intl` accepts. Today that
+is the site's own timezone, read from the WordPress date settings that ship
+with the page, so it needs no await.
+
+Every layer asks here — request dates, bucket anchoring, display — so moving
+reports off the site's zone stays a one-line change. Nothing outside this
+package reads the site timezone directly.
 
 ```typescript
-siteTimeZone(); // 'America/New_York', or '+05:30' on an offset-configured site
+reportingTimeZone(); // 'America/New_York', or '+05:30' on an offset-configured site
 ```
 
 **Returns:** `string` - An IANA zone name, or a `±HH:MM` offset

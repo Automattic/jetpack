@@ -5,7 +5,7 @@ import { resolveIntervalForRange, type ReportQueryParams } from '@jetpack-premiu
 import {
 	endOfDayTZ,
 	isSelectablePreset,
-	siteTimeZone,
+	reportingTimeZone,
 	type ComparisonPresetId,
 	type DateRange,
 	type PrimaryPresetId,
@@ -76,7 +76,7 @@ export function buildRangePatch( {
 		const rangeTo = encodeDateToSearchParam(
 			exactRange || isSelectablePreset( nextPresetId )
 				? nextRange.to
-				: endOfDayTZ( nextRange.to, siteTimeZone() )
+				: endOfDayTZ( nextRange.to, reportingTimeZone() )
 		);
 		patch.from = rangeFrom;
 		patch.to = rangeTo;

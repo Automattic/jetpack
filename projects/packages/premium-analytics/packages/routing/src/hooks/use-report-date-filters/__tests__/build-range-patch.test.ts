@@ -1,11 +1,11 @@
 /**
- * Pin the site timezone to UTC for deterministic day-bound math. Stubs
- * `siteTimeZone()` directly rather than the `datetime` barrel: the interval
+ * Pin the reporting timezone to UTC for deterministic day-bound math. Stubs
+ * `reportingTimeZone()` directly rather than the `datetime` barrel: the interval
  * rules import `localTZDate` via a relative path a barrel stub can't reach.
  */
 jest.mock( '@jetpack-premium-analytics/datetime', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/datetime' ),
-	siteTimeZone: () => '+00:00',
+	reportingTimeZone: () => '+00:00',
 } ) );
 /**
  * External dependencies
