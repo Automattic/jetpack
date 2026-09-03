@@ -162,38 +162,17 @@ describe( 'AI admin page (main.jsx)', () => {
 			).resolves.toBeInTheDocument();
 		} );
 
-		test( 'MCP tab: the notice shows', async () => {
+		test( 'MCP tab: the notice does not show and the hub stays functional', async () => {
 			window.jetpackAiSettings = { showFeaturesView: true, blogId: 1 };
 			window.location.hash = '#/mcp';
 			mockApiFetch( { featureGet: masterOffSettings(), mcpGet: connectedMcpGet() } );
 
 			render( <App /> );
 
-			await expect(
-				screen.findByText( MASTER_OFF_TITLE, IGNORE_A11Y )
-			).resolves.toBeInTheDocument();
-		} );
-
-		test( 'MCP tab: master off disables the main toggle and hides the rest of the hub', async () => {
-			window.jetpackAiSettings = { showFeaturesView: true, blogId: 1 };
-			window.location.hash = '#/mcp';
-			mockApiFetch( { featureGet: masterOffSettings(), mcpGet: connectedMcpGet() } );
-
-			render( <App /> );
-
-			await expect(
-				screen.findByText( MASTER_OFF_TITLE, IGNORE_A11Y )
-			).resolves.toBeInTheDocument();
-
-			// Saved "on" value stays visible but the toggle is inert.
-			const mcpToggle = screen.getByRole( 'checkbox', { name: 'Enable MCP access' } );
+			const mcpToggle = await screen.findByRole( 'checkbox', { name: 'Enable MCP access' } );
 			expect( mcpToggle ).toBeChecked();
-			expect( mcpToggle ).toBeDisabled();
-
-			expect( screen.queryByRole( 'button', { name: /Read/ } ) ).not.toBeInTheDocument();
-			expect( screen.queryByRole( 'button', { name: /Write/ } ) ).not.toBeInTheDocument();
-			expect( screen.queryByText( 'Connect external AI agent' ) ).not.toBeInTheDocument();
-			expect( screen.queryByRole( 'link', { name: /Activity log/ } ) ).not.toBeInTheDocument();
+			expect( mcpToggle ).toBeEnabled();
+			expect( screen.queryByText( MASTER_OFF_TITLE, IGNORE_A11Y ) ).not.toBeInTheDocument();
 		} );
 
 		test( 'scheduled tasks tab: the notice shows', async () => {
@@ -240,7 +219,7 @@ describe( 'AI admin page (main.jsx)', () => {
 			expect( screen.queryByText( MASTER_OFF_TITLE, IGNORE_A11Y ) ).not.toBeInTheDocument();
 		} );
 
-		test( 'MCP sub-view: the notice shows there too', async () => {
+		test( 'MCP sub-view: the notice does not show there either', async () => {
 			window.location.hash = '#/read';
 			mockApiFetch( { featureGet: masterOffSettings(), mcpGet: connectedMcpGet() } );
 
@@ -249,7 +228,7 @@ describe( 'AI admin page (main.jsx)', () => {
 			await expect(
 				screen.findByRole( 'button', { name: 'Jetpack AI' } )
 			).resolves.toBeInTheDocument();
-			expect( screen.getByText( MASTER_OFF_TITLE, IGNORE_A11Y ) ).toBeInTheDocument();
+			expect( screen.queryByText( MASTER_OFF_TITLE, IGNORE_A11Y ) ).not.toBeInTheDocument();
 		} );
 	} );
 

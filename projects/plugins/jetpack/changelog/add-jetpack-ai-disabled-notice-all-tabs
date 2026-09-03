@@ -1,4 +1,4 @@
 Significance: patch
 Type: other
-Comment: AI Hub: show the Jetpack AI turned-off notice on every tab. The gated tabs have not shipped in a stable release, so there is nothing for users to be told about.
+Comment: AI Hub: show the Jetpack AI turned-off notice on the non-MCP tabs; MCP is not gated by the master switch. The gated tabs have not shipped in a stable release, so there is nothing for users to be told about.
 

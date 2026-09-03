@@ -169,7 +169,6 @@ function ConnectRow( { title, description, onClick } ) {
  * @param {Set}      props.savingToolIds     - Set of toolIds currently being saved.
  * @param {Function} props.onNavigate        - Called with 'read' | 'write' | 'setup'.
  * @param {Function} props.onUpdate          - Called with partial mcp_abilities update.
- * @param {boolean}  [props.masterEnabled]   - Whether the site-wide AI master switch is on.
  * @param {boolean}  [props.showActivityLog] - Whether this view owns the activity log row
  *                                           (false when the Overview tab renders it instead).
  * @return {object} Component markup.
@@ -181,7 +180,6 @@ export default function McpHub( {
 	savingToolIds,
 	onNavigate,
 	onUpdate,
-	masterEnabled = true,
 	showActivityLog = true,
 } ) {
 	const accountAbilities = getAccountMcpAbilities( mcpAbilities ?? {} );
@@ -240,11 +238,6 @@ export default function McpHub( {
 	const navigateToWrite = useCallback( () => onNavigate( 'write' ), [ onNavigate ] );
 	const navigateToSetup = useCallback( () => onNavigate( 'setup' ), [ onNavigate ] );
 
-	// Saved MCP access stays visible while master is off; the toggle is inert
-	// until AI is turned back on (same pattern as the Features rows).
-	const controlsDisabled = ! masterEnabled;
-	const isToggleDisabled = savingToolIds.has( '__site_level__' ) || controlsDisabled;
-
 	return (
 		<>
 			<Card className="jetpack-ai-mcp__access-card">
@@ -261,14 +254,14 @@ export default function McpHub( {
 						<ToggleControl
 							__nextHasNoMarginBottom
 							checked={ isMcpEnabled }
-							disabled={ isToggleDisabled }
+							disabled={ savingToolIds.has( '__site_level__' ) }
 							label={ __( 'Enable MCP access', 'jetpack' ) }
 							onChange={ handleMcpToggle }
 						/>
 					</Stack>
 				</CardBody>
 
-				{ isMcpEnabled && masterEnabled && (
+				{ isMcpEnabled && (
 					<>
 						<CardDivider />
 						<SummaryRow
@@ -288,7 +281,7 @@ export default function McpHub( {
 				) }
 			</Card>
 
-			{ isMcpEnabled && masterEnabled && (
+			{ isMcpEnabled && (
 				<Card className="jetpack-ai-mcp__action-card">
 					<ConnectRow
 						title={ __( 'Connect external AI agent', 'jetpack' ) }
@@ -301,7 +294,7 @@ export default function McpHub( {
 				</Card>
 			) }
 
-			{ showActivityLog && isMcpEnabled && activityLogUrl && masterEnabled && (
+			{ showActivityLog && isMcpEnabled && activityLogUrl && (
 				<Card className="jetpack-ai-mcp__action-card">
 					<a className="jetpack-ai-mcp__connect-row" href={ activityLogUrl }>
 						<span className="jetpack-ai-mcp__connect-row-icon">

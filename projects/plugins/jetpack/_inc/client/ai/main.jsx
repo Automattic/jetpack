@@ -298,6 +298,7 @@ export default function App() {
 				<GlobalNotices />
 
 				{ ! masterEnabled &&
+					! isMcpContext &&
 					aiSettings?.is_connected !== false &&
 					aiSettings?.host_allows_ai !== false && <MasterOffNotice /> }
 
@@ -338,7 +339,6 @@ export default function App() {
 										savingToolIds={ savingToolIds }
 										onNavigate={ handleMcpNavigate }
 										onUpdate={ handleUpdate }
-										masterEnabled={ masterEnabled }
 										// The activity log has exactly one home: Overview owns the
 										// row whenever the Overview tab exists; the MCP hub keeps
 										// it in the ungated MCP-only shape.
