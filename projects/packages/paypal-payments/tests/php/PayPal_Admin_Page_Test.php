@@ -29,6 +29,7 @@ class PayPal_Admin_Page_Test extends TestCase {
 		delete_transient( PayPal_OAuth::TOKEN_TRANSIENT_KEY );
 		delete_transient( 'paypal_admin_notice_' . get_current_user_id() );
 		remove_all_filters( 'pre_http_request' );
+		remove_all_filters( 'posts_pre_query' );
 
 		// Clear detail view and list table API response caches.
 		delete_transient( 'paypal_resource_plb-abc123' );
@@ -116,6 +117,96 @@ class PayPal_Admin_Page_Test extends TestCase {
 
 		PayPal_Admin_Page::handle_actions();
 		$this->assertTrue( true );
+	}
+
+	// --- Delete confirmation ---
+
+	/**
+	 * Test the confirmation warns that embedded buttons break, even with no count.
+	 */
+	public function test_delete_confirm_text_warns_about_orphaned_blocks() {
+		$text = PayPal_Admin_Page::delete_confirm_text();
+
+		$this->assertStringContainsString( 'permanently delete your payment link', $text );
+		$this->assertStringContainsString( 'embedded buttons using this payment will stop working', $text );
+		$this->assertStringNotContainsString( 'published post', $text );
+	}
+
+	/**
+	 * Test the confirmation says how many published posts embed the link.
+	 */
+	public function test_delete_confirm_text_counts_embedding_posts() {
+		$this->assertStringContainsString(
+			'embedded in 1 published post, which will show a broken button.',
+			PayPal_Admin_Page::delete_confirm_text( 1 )
+		);
+		$this->assertStringContainsString(
+			'embedded in 3 published posts, which will show broken buttons.',
+			PayPal_Admin_Page::delete_confirm_text( 3 )
+		);
+	}
+
+	/**
+	 * Test that embeds are counted once per post, from the query that asks for published block posts.
+	 *
+	 * The test environment has no database behind WP_Query, so the posts are
+	 * fed through posts_pre_query, which also pins down what the query asks for.
+	 */
+	public function test_count_published_embeds_counts_posts_once_each() {
+		$block = '<!-- wp:jetpack/paypal-payment-buttons {"isApiManaged":true,"resourceId":"PLB-EMBED1","paymentLink":"https://www.paypal.com/ncp/payment/PLB-EMBED1"} /-->';
+		$posts = array(
+			$this->make_post( $block . $block ),
+			$this->make_post( $block, 'page' ),
+			$this->make_post( str_replace( 'PLB-EMBED1', 'PLB-EMBED2', $block ) ),
+			$this->make_post( 'No block here.' ),
+		);
+
+		add_filter(
+			'posts_pre_query',
+			function ( $pre, $query ) use ( $posts ) {
+				$this->assertSame( 'publish', $query->get( 'post_status' ) );
+				$this->assertSame( 'any', $query->get( 'post_type' ) );
+				$this->assertSame( 'wp:jetpack/paypal-payment-buttons', $query->get( 's' ) );
+				$this->assertSame( PayPal_Admin_Page::EMBED_SCAN_LIMIT, $query->get( 'posts_per_page' ) );
+				return $posts;
+			},
+			10,
+			2
+		);
+		$queries_before = did_filter( 'posts_pre_query' );
+
+		$counts = PayPal_Admin_Page::count_published_embeds();
+
+		$this->assertSame( $queries_before + 1, did_filter( 'posts_pre_query' ) );
+
+		$this->assertSame(
+			array(
+				'PLB-EMBED1' => 2,
+				'PLB-EMBED2' => 1,
+			),
+			$counts
+		);
+	}
+
+	/**
+	 * Build a post object with the given content.
+	 *
+	 * @param string $content   Post content.
+	 * @param string $post_type Post type.
+	 * @return \WP_Post The post.
+	 */
+	private function make_post( $content, $post_type = 'post' ) {
+		static $next_id = 1000;
+
+		return new \WP_Post(
+			(object) array(
+				'ID'           => $next_id++,
+				'post_type'    => $post_type,
+				'post_status'  => 'publish',
+				'post_content' => $content,
+				'filter'       => 'raw',
+			)
+		);
 	}
 
 	// --- render_page: disconnected state ---

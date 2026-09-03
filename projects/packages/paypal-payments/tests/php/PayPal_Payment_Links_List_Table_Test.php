@@ -28,6 +28,7 @@ class PayPal_Payment_Links_List_Table_Test extends TestCase {
 		delete_option( PayPal_OAuth::ENVIRONMENT_OPTION_KEY );
 		delete_transient( PayPal_OAuth::TOKEN_TRANSIENT_KEY );
 		remove_all_filters( 'pre_http_request' );
+		remove_all_filters( 'posts_pre_query' );
 
 		// Clear list table API response caches.
 		delete_transient( 'paypal_list_cache_' . md5( '' ) );
@@ -171,6 +172,32 @@ class PayPal_Payment_Links_List_Table_Test extends TestCase {
 		$this->assertStringContainsString( 'action=delete', $output );
 		$this->assertStringContainsString( 'PLB-ABC123', $output );
 		$this->assertStringContainsString( '_wpnonce', $output );
+	}
+
+	/**
+	 * Test the delete confirmation says how many published posts embed the link.
+	 */
+	public function test_column_name_delete_confirm_counts_published_embeds() {
+		$post = new \WP_Post(
+			(object) array(
+				'ID'           => 1000,
+				'post_type'    => 'post',
+				'post_status'  => 'publish',
+				'post_content' => '<!-- wp:jetpack/paypal-payment-buttons {"isApiManaged":true,"resourceId":"PLB-ABC123"} /-->',
+				'filter'       => 'raw',
+			)
+		);
+		add_filter(
+			'posts_pre_query',
+			function () use ( $post ) {
+				return array( $post );
+			}
+		);
+
+		$table  = new PayPal_Payment_Links_List_Table();
+		$output = $table->column_name( $this->get_sample_items()[0] );
+
+		$this->assertStringContainsString( 'embedded in 1 published post', $output );
 	}
 
 	/**
