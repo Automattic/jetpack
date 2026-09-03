@@ -516,6 +516,46 @@ class Widget_Metadata_Test extends BaseTestCase {
 	}
 
 	/**
+	 * The three relevance tiers survive; any other value drops the key and
+	 * keeps the action.
+	 */
+	public function test_sanitize_widget_actions_keeps_every_relevance_tier() {
+		$href = 'https://example.com/report';
+
+		$actions = sanitize_widget_actions(
+			array(
+				array(
+					'id'        => 'high',
+					'label'     => 'High',
+					'href'      => $href,
+					'relevance' => 'high',
+				),
+				array(
+					'id'        => 'medium',
+					'label'     => 'Medium',
+					'href'      => $href,
+					'relevance' => 'medium',
+				),
+				array(
+					'id'        => 'low',
+					'label'     => 'Low',
+					'href'      => $href,
+					'relevance' => 'low',
+				),
+				array(
+					'id'        => 'unknown',
+					'label'     => 'Unknown',
+					'href'      => $href,
+					'relevance' => 'urgent',
+				),
+			)
+		);
+
+		$this->assertSame( array( 'high', 'medium', 'low' ), array_column( $actions, 'relevance' ), 'Every tier survives in order.' );
+		$this->assertSame( array( 'high', 'medium', 'low', 'unknown' ), array_column( $actions, 'id' ), 'An unknown tier keeps the action.' );
+	}
+
+	/**
 	 * A registered widget type's metadata reaches the widget-modules REST
 	 * record intact.
 	 */

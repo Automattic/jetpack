@@ -245,7 +245,7 @@ function sanitize_widget_actions( $actions ) {
 			}
 		}
 
-		if ( isset( $action['relevance'] ) && in_array( $action['relevance'], array( 'high', 'low' ), true ) ) {
+		if ( isset( $action['relevance'] ) && in_array( $action['relevance'], array( 'high', 'medium', 'low' ), true ) ) {
 			$entry['relevance'] = $action['relevance'];
 		}
 
