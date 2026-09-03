@@ -653,6 +653,10 @@ class PayPal_REST_Controller {
 			return self::api_error_to_rest_error( $result );
 		}
 
+		// The editor reads a payment back to line its block up with what PayPal
+		// holds, so hand it the block shape alongside the raw resource.
+		$result['attributes'] = PayPal_Attribute_Mapper::api_response_to_attributes( $result );
+
 		return new WP_REST_Response( $result, 200 );
 	}
 

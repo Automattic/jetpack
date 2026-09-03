@@ -747,6 +747,51 @@ class PayPal_REST_Controller_Test extends TestCase {
 	}
 
 	/**
+	 * Test that reading a button also returns it in block-attribute shape.
+	 *
+	 * The editor uses it to line a block up with the payment it points at.
+	 */
+	public function test_get_button_includes_block_attributes() {
+		$this->set_up_connected_admin_state();
+		$this->mock_http_routes(
+			array(
+				'/v1/checkout/payment-resources' => $this->http_response(
+					200,
+					array(
+						'id'         => 'PLB-42',
+						'line_items' => array(
+							array(
+								'name'        => 'Widget',
+								'unit_amount' => array(
+									'currency_code' => 'EUR',
+									'value'         => '49.00',
+								),
+							),
+						),
+						'links'      => array(
+							array(
+								'rel'  => 'payment_link',
+								'href' => 'https://www.paypal.com/ncp/payment/PLB-42',
+							),
+						),
+					)
+				),
+			)
+		);
+
+		$request = new \WP_REST_Request( 'GET', '/wpcom/v2/paypal/buttons/PLB-42' );
+		$request->set_param( 'resource_id', 'PLB-42' );
+
+		$data = PayPal_REST_Controller::handle_get_button( $request )->get_data();
+
+		$this->assertSame( 'PLB-42', $data['attributes']['resourceId'] );
+		$this->assertSame( 'Widget', $data['attributes']['productName'] );
+		$this->assertSame( '49.00', $data['attributes']['price'] );
+		$this->assertSame( 'EUR', $data['attributes']['currencyCode'] );
+		$this->assertSame( 'https://www.paypal.com/ncp/payment/PLB-42', $data['attributes']['paymentLink'] );
+	}
+
+	/**
 	 * Test that an API failure while listing is surfaced as a REST error.
 	 */
 	public function test_list_buttons_converts_api_error() {
