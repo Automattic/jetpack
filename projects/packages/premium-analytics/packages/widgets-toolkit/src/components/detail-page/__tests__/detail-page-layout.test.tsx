@@ -1,12 +1,11 @@
 /**
  * External dependencies
  */
-import { SectionTabs } from '@jetpack-premium-analytics/ui';
 import { render, screen } from '@testing-library/react';
 /**
  * Internal dependencies
  */
-import { DetailPageLayout, DetailPageSection, DetailPageTabPanel } from '../detail-page-layout';
+import { DetailPageLayout, DetailPageSection } from '../detail-page-layout';
 
 // The gutter, the widget grid's gap and the Card padding overrides all hang off
 // these classes; the shared style stub would leave every one of them undefined.
@@ -69,26 +68,5 @@ describe( 'DetailPageLayout', () => {
 
 		expect( screen.getByText( 'widgets' ) ).toHaveClass( 'section' );
 		expect( screen.getByText( 'notice' ) ).toHaveClass( 'section', 'custom-band' );
-	} );
-
-	it( 'mounts a tabbed page section as the active tab panel', () => {
-		render(
-			<SectionTabs
-				tabs={ [
-					{ id: 'traffic', label: 'Traffic' },
-					{ id: 'email-opens', label: 'Email opens' },
-				] }
-				value="traffic"
-				onChange={ () => {} }
-			>
-				<DetailPageLayout header={ { title: 'Hello world' } }>
-					<DetailPageTabPanel value="traffic">traffic widgets</DetailPageTabPanel>
-					<DetailPageTabPanel value="email-opens">email widgets</DetailPageTabPanel>
-				</DetailPageLayout>
-			</SectionTabs>
-		);
-
-		expect( screen.getByRole( 'tabpanel' ) ).toHaveTextContent( 'traffic widgets' );
-		expect( screen.getByRole( 'tabpanel' ) ).toHaveClass( 'section' );
 	} );
 } );
