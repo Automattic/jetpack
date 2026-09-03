@@ -1,8 +1,9 @@
 import { Meta, StoryObj } from '@storybook/react';
-import { expect, waitFor } from 'storybook/test';
+import { expect, waitFor, within } from 'storybook/test';
 import {
 	LineChart,
 	BarChart,
+	GlobalChartsProvider,
 	PieSemiCircleChart,
 	PieChart,
 	BarListChart,
@@ -342,5 +343,79 @@ export const AdminColorSchemeLeadsThePalette: Story = {
 
 		await expect( bar.getAttribute( 'fill' ) ).toBe( ADMIN_SCHEME_COLOR );
 		await expect( bar.getAttribute( 'fill' ) ).not.toBe( ACCENT_COLOR_NOT_EXPECTED );
+	},
+};
+
+// 15:30 UTC falls on Aug 2 in Los Angeles and Aug 3 in Tokyo, so one set of
+// instants carries a different calendar day in each column below.
+const HOST_DATE_DATA: SeriesData[] = [
+	{
+		label: 'Views',
+		data: Array.from( { length: 5 }, ( _, day ) => ( {
+			date: new Date( Date.parse( '2026-08-02T15:30:00Z' ) + day * 24 * 60 * 60 * 1000 ),
+			value: 40 + day * 6,
+		} ) ),
+		options: {},
+	},
+];
+
+const HOSTS = [
+	{ testId: 'tokyo', title: 'de-DE · Asia/Tokyo', locale: 'de-DE', timeZone: 'Asia/Tokyo' },
+	{
+		testId: 'los-angeles',
+		title: 'en-US · America/Los_Angeles',
+		locale: 'en-US',
+		timeZone: 'America/Los_Angeles',
+	},
+];
+
+/**
+ * Each provider dates and words the same instants for its own host, so the two columns disagree.
+ *
+ * Without `locale` and `timeZone` both would read the viewer's browser instead: they would agree
+ * with each other, and with at most one of the two sites.
+ */
+export const HostLocaleAndTimeZoneFormatDates: Story = {
+	render: () => (
+		<div style={ { display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '4rem' } }>
+			{ HOSTS.map( ( { testId, title, locale, timeZone } ) => (
+				<div key={ testId } data-testid={ testId }>
+					<h3>{ title }</h3>
+					<GlobalChartsProvider locale={ locale } timeZone={ timeZone }>
+						<div data-testid={ `${ testId }-bars` }>
+							<BarChart data={ HOST_DATE_DATA } width={ 350 } height={ 200 } withTooltips />
+						</div>
+						<LineChart
+							data={ HOST_DATE_DATA }
+							width={ 350 }
+							height={ 200 }
+							withGradientFill={ false }
+							withTooltips
+							margin={ { bottom: 40 } }
+						/>
+					</GlobalChartsProvider>
+				</div>
+			) ) }
+		</div>
+	),
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'The same five instants, dated and worded for two hosts. Hover a bar or a point to see the tooltip follow its axis.',
+			},
+		},
+	},
+	play: async ( { canvasElement } ) => {
+		const canvas = within( canvasElement );
+
+		// Asserted on the bar charts alone: a band axis labels the data's own
+		// buckets, so its ticks are fixed by the data and the supplied zone, while
+		// the line chart samples ticks off the runner's own midnights.
+		const tokyo = within( canvas.getByTestId( 'tokyo-bars' ) );
+		const losAngeles = within( canvas.getByTestId( 'los-angeles-bars' ) );
+
+		await expect( await tokyo.findByText( '3. Aug.' ) ).toBeInTheDocument();
+		await expect( await losAngeles.findByText( 'Aug 2' ) ).toBeInTheDocument();
 	},
 };

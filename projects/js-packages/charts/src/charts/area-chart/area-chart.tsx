@@ -22,6 +22,7 @@ import {
 import {
 	GlobalChartsProvider,
 	GlobalChartsContext,
+	useChartFormatting,
 	useChartId,
 	useChartRegistration,
 	useGlobalChartsContext,
@@ -88,6 +89,7 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 		const rescaleYOnVisibility = rescaleYOnVisibilityChange ?? rescaleYOnLegendToggle ?? true;
 
 		const providerTheme = useGlobalChartsTheme();
+		const formatting = useChartFormatting();
 		const theme = useXYChartTheme( data );
 		const chartId = useChartId( providedChartId );
 		const hiddenSeries = useDefaultHiddenSeries( chartId, defaultHiddenSeries );
@@ -206,7 +208,7 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 
 		const chartOptions = useMemo( () => {
 			const { tickResolution, tickFormat, ...xAxisOptions } = options?.axis?.x ?? {};
-			const formatter = tickFormat || getFormatter( dataSorted, tickResolution );
+			const formatter = tickFormat || getFormatter( dataSorted, tickResolution, formatting );
 
 			return {
 				axis: {
@@ -239,7 +241,7 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 					...options?.yScale,
 				},
 			};
-		}, [ options, dataSorted, width, stacked, fixedYDomain, zoom.domain ] );
+		}, [ options, dataSorted, width, stacked, fixedYDomain, zoom.domain, formatting ] );
 
 		const defaultMargin = useChartMargin( height, chartOptions, dataSorted, theme );
 

@@ -1,8 +1,9 @@
 import { curveCatmullRom, curveLinear, curveMonotoneX } from '@visx/curve';
 import { scaleTime } from '@visx/scale';
 import { differenceInHours, differenceInYears } from 'date-fns';
+import { createDateFormatter, createZonedClock } from '../../utils/date-formatting';
 import type { useChartDataTransform } from '../../hooks';
-import type { TickResolution } from '../../types';
+import type { ChartFormatting, TickResolution } from '../../types';
 import type { CurveType } from '../line-chart/types';
 
 // Approximate min pixel width for an x-axis tick label.
@@ -33,31 +34,10 @@ export const getCurveType = ( type?: CurveType, smoothing?: boolean ): typeof cu
 	}
 };
 
-// Built once and reused: these run per bucket over the whole band domain when
-// the axis picks its tick values, and `toLocaleDateString` rebuilds its
-// formatter on every call once an options object is passed.
-const dateTimeFormat = ( options: Intl.DateTimeFormatOptions ) => {
-	let formatter: Intl.DateTimeFormat;
-	return ( timestamp: number ) => {
-		// `Intl.DateTimeFormat` throws on an invalid date where the `Date`
-		// methods it replaces return "Invalid Date", and charts are expected to
-		// render past a bad point rather than fail.
-		// visx hands its tick formatter a `Date`, so coerce before the check.
-		if ( ! Number.isFinite( Number( timestamp ) ) ) {
-			return new Date( timestamp ).toLocaleDateString();
-		}
-		formatter = formatter ?? new Intl.DateTimeFormat( undefined, options );
-		return formatter.format( timestamp );
-	};
-};
-
-const formatYearTick = dateTimeFormat( { year: 'numeric' } );
-
-const formatDateTick = dateTimeFormat( { month: 'short', day: 'numeric' } );
-
-const formatHourTick = dateTimeFormat( { hour: 'numeric', hour12: true } );
-
-const formatMonthTick = dateTimeFormat( { month: 'short' } );
+const YEAR_TICK = { year: 'numeric' } as const;
+const DATE_TICK = { month: 'short', day: 'numeric' } as const;
+const HOUR_TICK = { hour: 'numeric', hour12: true } as const;
+const MONTH_TICK = { month: 'short' } as const;
 
 /**
  * A tick format, carrying the boundary test that decides its coarser label.
@@ -81,21 +61,29 @@ const boundaryFormat = (
 	return format;
 };
 
-// Hour ticks with the date at midnight boundaries, so multi-day spans of
-// sub-daily data keep their days identifiable.
-const formatDateOrHourTick = boundaryFormat(
-	date => date.getHours() === 0 && date.getMinutes() === 0,
-	formatDateTick,
-	formatHourTick
-);
+// The tick formats, bound to the host's locale and time zone. Built per call
+// rather than once per module: both halves are the host's to set, and the
+// boundary tests have to read the same clock as the labels they gate.
+const tickFormats = ( formatting: ChartFormatting ) => {
+	const clock = createZonedClock( formatting.timeZone );
+	const year = createDateFormatter( YEAR_TICK, formatting );
+	const date = createDateFormatter( DATE_TICK, formatting );
+	const hour = createDateFormatter( HOUR_TICK, formatting );
+	const month = createDateFormatter( MONTH_TICK, formatting );
 
-// Month ticks with the year at January boundaries, for month-or-coarser
-// buckets where a full "Sep 1" date would misread as a daily point.
-const formatMonthOrYearTick = boundaryFormat(
-	date => date.getMonth() === 0,
-	formatYearTick,
-	formatMonthTick
-);
+	return {
+		year,
+		date,
+		// Hour ticks with the date on the day's first bucket, so multi-day spans of
+		// sub-daily data keep their days identifiable. The hour alone rather than an
+		// exact midnight: on a half-hour zone no UTC-aligned bucket ever reads :00.
+		dateOrHour: boundaryFormat( value => clock( value ).hour === 0, date, hour ),
+		hour,
+		// Month ticks with the year at January boundaries, for month-or-coarser
+		// buckets where a full "Sep 1" date would misread as a daily point.
+		monthOrYear: boundaryFormat( value => clock( value ).month === 1, year, month ),
+	};
+};
 
 // Overall time span of the data. Series with no dated points are dropped rather
 // than folded in: an empty comparison series is legitimate, and one undefined
@@ -175,40 +163,40 @@ export const getBucketResolution = (
 // spanning up to a week, calendar dates within a year, otherwise years.
 export const getFormatter = (
 	sortedData: ReturnType< typeof useChartDataTransform >,
-	tickResolution?: TickResolution
+	tickResolution?: TickResolution,
+	formatting: ChartFormatting = {}
 ): TickFormat => {
+	const format = tickFormats( formatting );
 	const resolution = getBucketResolution( sortedData, tickResolution );
 
 	// The month regime only prints the year at January boundaries, so yearly
 	// buckets starting mid-year would render as bare month names.
 	if ( resolution === 'year' ) {
-		return formatYearTick;
+		return format.year;
 	}
 
 	if ( resolution === 'month' ) {
-		return formatMonthOrYearTick;
+		return format.monthOrYear;
 	}
 
 	const span = getSpan( sortedData );
 	if ( ! span ) {
-		return formatDateTick;
+		return format.date;
 	}
 
 	const diffInHours = Math.abs( differenceInHours( span.maxX, span.minX ) );
 	if ( resolution === 'hour' ) {
 		if ( diffInHours <= 24 ) {
-			return formatHourTick;
+			return format.hour;
 		}
 		if ( diffInHours <= 24 * 7 ) {
-			return formatDateOrHourTick;
+			return format.dateOrHour;
 		}
 	}
 
 	// Beyond a year, dates repeat often enough under tick sampling that the year
 	// is the only part worth printing.
-	return Math.abs( differenceInYears( span.maxX, span.minX ) ) <= 1
-		? formatDateTick
-		: formatYearTick;
+	return Math.abs( differenceInYears( span.maxX, span.minX ) ) <= 1 ? format.date : format.year;
 };
 
 // Indices of the buckets whose label carries the coarser unit.
@@ -318,8 +306,11 @@ export const getBandTickValues = (
 	// collapsed ordinary monthly axes to two ticks — worse than sampling by index,
 	// which at least stayed dense — while ignoring anchors leaves the year unnamed.
 	const densest = candidates.reduce( ( most, indices ) => Math.max( most, indices.length ), 0 );
+	// Re-reading `isAnchor` here would run a time-zone-aware clock once per index
+	// per candidate; the indices it would answer for are already known.
+	const anchorIndexSet = new Set( anchorIndices );
 	const anchorsIn = ( indices: number[] ) =>
-		isAnchor ? indices.filter( index => isAnchor( domain[ index ] ) ).length : 0;
+		indices.filter( index => anchorIndexSet.has( index ) ).length;
 
 	const best = candidates
 		.filter( indices => indices.length >= densest - 1 )

@@ -24,6 +24,7 @@ import {
 import {
 	GlobalChartsProvider,
 	GlobalChartsContext,
+	useChartFormatting,
 	useChartId,
 	useChartRegistration,
 	useGlobalChartsContext,
@@ -31,6 +32,7 @@ import {
 } from '../../providers';
 import { useDefaultHiddenSeries } from '../../providers/chart-context/hooks/use-default-hidden-series';
 import { attachSubComponents } from '../../utils';
+import { createDateFormatter } from '../../utils/date-formatting';
 import { useChartChildren } from '../private/chart-composition';
 import { ChartInstanceContext, type ChartInstanceRef } from '../private/chart-instance-context';
 import { ChartLayout } from '../private/chart-layout';
@@ -58,6 +60,21 @@ const toNumber = ( val?: number | string | null ): number | undefined => {
 	return isNaN( num ) ? undefined : num;
 };
 
+// No date-part options, which is what `Intl` defaults to a numeric date for —
+// the heading the tooltip printed with `toLocaleDateString()` before it could
+// be told a locale and a zone.
+const TOOLTIP_DATE: Intl.DateTimeFormatOptions = {};
+
+// A component rather than a call, because `renderDefaultTooltip` is a plain
+// function a consumer may pass around: the context has to be read where the
+// heading renders, not where the tooltip is built.
+const TooltipDate: FC< { date?: Date } > = ( { date } ) => {
+	const formatting = useChartFormatting();
+	const format = useMemo( () => createDateFormatter( TOOLTIP_DATE, formatting ), [ formatting ] );
+
+	return <>{ date ? format( date ) : null }</>;
+};
+
 /**
  * Default visx-tooltip render that prints the hovered date as a heading and
  * one row per visible series (label + formatted value), sorted descending by
@@ -81,7 +98,7 @@ export const renderDefaultTooltip = ( params: RenderTooltipParams< DataPointDate
 	return (
 		<div className={ styles[ 'line-chart__tooltip' ] }>
 			<div className={ styles[ 'line-chart__tooltip-date' ] }>
-				{ nearestDatum.date?.toLocaleDateString() }
+				<TooltipDate date={ nearestDatum.date } />
 			</div>
 			{ tooltipPoints.map( point => (
 				<Stack
@@ -195,6 +212,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 		const legendPosition = legend.position ?? 'bottom';
 
 		const providerTheme = useGlobalChartsTheme();
+		const formatting = useChartFormatting();
 		const theme = useXYChartTheme( data );
 		// Gradient stops apply this as an SVG attribute, where CSS var() cannot resolve. useXYChartTheme has already resolved the same role inside its memo, against the chart's scope element, so read it back rather than paying another getComputedStyle on every render.
 		const resolvedBackgroundColor = theme.backgroundColor ?? providerTheme.backgroundColor;
@@ -307,7 +325,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 
 		const chartOptions = useMemo( () => {
 			const { tickResolution, tickFormat, ...xAxisOptions } = options?.axis?.x ?? {};
-			const formatter = tickFormat || getFormatter( dataSorted, tickResolution );
+			const formatter = tickFormat || getFormatter( dataSorted, tickResolution, formatting );
 
 			return {
 				axis: {
@@ -339,7 +357,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 					...options?.yScale,
 				},
 			};
-		}, [ options, dataSorted, width, zoom.domain, stableYDomain ] );
+		}, [ options, dataSorted, width, zoom.domain, stableYDomain, formatting ] );
 
 		const tooltipRenderGlyph = useMemo( () => {
 			return ( props: GlyphProps< DataPointDate > ) => {
