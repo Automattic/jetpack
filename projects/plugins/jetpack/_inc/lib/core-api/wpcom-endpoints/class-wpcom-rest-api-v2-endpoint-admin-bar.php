@@ -33,7 +33,7 @@ class WPCOM_REST_API_V2_Endpoint_Admin_Bar extends WP_REST_Controller {
 	 *
 	 * @var string[]
 	 */
-	const ALLOWED_TOP_LEVEL_NODES = array( 'wp-logo', 'site-name', 'updates', 'command-palette', 'comments', 'new-content', 'my-account', 'agents-manager', 'agents-manager-ai-chat' );
+	const ALLOWED_TOP_LEVEL_NODES = array( 'wp-logo', 'site-name', 'updates', 'command-palette', 'comments', 'new-content', 'my-account', 'agents-manager', 'agents-manager-ai-chat', 'free-domain-upsell' );
 
 	/**
 	 * WPCOM_REST_API_V2_Endpoint_Admin_Bar constructor.
