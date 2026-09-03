@@ -125,4 +125,12 @@ describe( 'SpotlightStep', () => {
 
 		expect( scrollIntoView ).toHaveBeenCalledWith( { block: 'nearest' } );
 	} );
+
+	it( 'dims the page from outside the tree it is rendered in', async () => {
+		const { container } = await renderStep();
+		const halo = screen.getByTestId( 'spotlight-halo' );
+
+		expect( container ).not.toContainElement( halo );
+		expect( document.body ).toContainElement( halo );
+	} );
 } );

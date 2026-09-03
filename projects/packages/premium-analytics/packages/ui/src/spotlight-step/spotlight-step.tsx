@@ -1,4 +1,5 @@
 import { Button, Popover, Stack, Text } from '@jetpack-premium-analytics/externals';
+import { createPortal } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { useCallback, useLayoutEffect, useState, type CSSProperties, type ReactNode } from 'react';
 import styles from './spotlight-step.module.scss';
@@ -26,7 +27,7 @@ export type SpotlightStepProps = {
 	side?: 'top' | 'bottom' | 'left' | 'right' | 'inline-start' | 'inline-end';
 };
 
-// Level with wp-admin's bar and above its menu, the way the widget inserter stacks.
+// One above the overlay, which shares its container: level with wp-admin's bar.
 const STACK_LEVEL = 99999;
 
 // Room the halo leaves around the anchor.
@@ -119,11 +120,20 @@ export function SpotlightStep( {
 
 	return (
 		<>
-			<div className={ styles.overlay } aria-hidden="true">
-				{ rect && (
-					<div className={ styles.halo } style={ haloStyle( rect ) } data-testid="spotlight-halo" />
-				) }
-			</div>
+			{ /* Portaled next to the card: inside the admin page, itself a stacking
+			     context, no z-index could lift the dim over wp-admin's menu. */ }
+			{ createPortal(
+				<div className={ styles.overlay } aria-hidden="true">
+					{ rect && (
+						<div
+							className={ styles.halo }
+							style={ haloStyle( rect ) }
+							data-testid="spotlight-halo"
+						/>
+					) }
+				</div>,
+				document.body
+			) }
 			<Popover.Root open modal="trap-focus" onOpenChange={ handleOpenChange }>
 				<Popover.Popup
 					className={ styles.card }
