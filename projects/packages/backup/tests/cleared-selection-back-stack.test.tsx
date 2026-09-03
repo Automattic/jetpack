@@ -31,13 +31,6 @@ const SETTLE = { timeout: 10000 };
 const PER_PAGE = 10;
 const CLEAR = 'Clear selection';
 
-// jsdom implements no scrolling, and DataViews' list layout calls
-// `scrollIntoView` on the selected row.
-Object.defineProperty( window.HTMLElement.prototype, 'scrollIntoView', {
-	value: () => {},
-	writable: true,
-} );
-
 /**
  * A rewind id, newest first.
  *

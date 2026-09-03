@@ -47,13 +47,6 @@ import { resetListStateForTesting } from '../src/dashboard/screens/overview';
 const CONNECTED = { isRegistered: true, hasConnectedOwner: true, isUserConnected: true };
 const SETTLE = { timeout: 10000 };
 
-// jsdom implements no scrolling, and DataViews' list layout calls
-// `scrollIntoView` on the selected row.
-Object.defineProperty( window.HTMLElement.prototype, 'scrollIntoView', {
-	value: () => {},
-	writable: true,
-} );
-
 /** Flipped per test, so the gate verdict can be made to change under a mounted screen. */
 let hasBackupPlan = true;
 
