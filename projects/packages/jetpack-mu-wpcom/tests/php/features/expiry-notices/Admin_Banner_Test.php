@@ -11,6 +11,8 @@ use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Data;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Notice_Dismiss;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/expiry-notices/expiry-notices.php';
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/expiry-notices/admin-banner.php';
@@ -58,6 +60,20 @@ class Admin_Banner_Test extends \WorDBless\BaseTestCase {
 		delete_user_meta( $this->admin_id, Expiry_Notice_Dismiss::META_BANNER );
 		Constants::clear_constants();
 		parent::tear_down();
+	}
+
+	/**
+	 * A site the revert has already happened to.
+	 *
+	 * `has_blog_sticker` is declared per test because other suites declare their
+	 * own, and a shared definition makes theirs a fatal redeclare -- hence the
+	 * separate process on every caller.
+	 */
+	private function pretend_reverted(): void {
+		Constants::set_constant( 'IS_ATOMIC', false );
+		if ( ! function_exists( 'has_blog_sticker' ) ) {
+			eval( 'namespace { function has_blog_sticker( $sticker, $blog_id = 0 ) { return "blog-transfer-reverted" === $sticker; } }' ); // phpcs:ignore Squiz.PHP.Eval.Discouraged,MediaWiki.Usage.ForbiddenFunctions.eval
+		}
 	}
 
 	private function set_purchase( int $days_until_expiry, bool $auto_renew = false, string $slug = 'business-bundle' ): void {
@@ -154,8 +170,14 @@ class Admin_Banner_Test extends \WorDBless\BaseTestCase {
 		}
 	}
 
+	/**
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
 	public function test_the_two_post_expiry_windows_ask_for_different_things(): void {
-		Constants::set_constant( 'IS_ATOMIC', true );
+		$this->pretend_reverted();
 		$this->set_purchase( -5 );
 		$grace = $this->render();
 		$this->set_purchase( -45 );
@@ -429,10 +451,16 @@ class Admin_Banner_Test extends \WorDBless\BaseTestCase {
 		$this->assertStringContainsString( 'But it’s not too late.', $body );
 	}
 
-	public function test_body_after_revert_on_atomic_mentions_the_site_going_private(): void {
-		// Keyed on the constant rather than the state's is_atomic, which is
-		// already false by the time a site has been reverted.
-		Constants::set_constant( 'IS_ATOMIC', true );
+	/**
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_body_after_revert_mentions_the_site_going_private(): void {
+		// Keyed on the revert having happened, not on the state's is_atomic,
+		// which is already false by then.
+		$this->pretend_reverted();
 		$state = $this->message_state(
 			array(
 				'state'          => Expiry_Data::STATE_EXPIRED,
@@ -458,8 +486,14 @@ class Admin_Banner_Test extends \WorDBless\BaseTestCase {
 		$this->assertStringContainsString( '50 GB of storage', $body );
 	}
 
+	/**
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
 	public function test_after_revert_the_cta_points_at_support(): void {
-		Constants::set_constant( 'IS_ATOMIC', true );
+		$this->pretend_reverted();
 		// Re-purchasing cannot bring back what the revert deleted, so checkout is
 		// the wrong destination once the site is on Free.
 		$this->set_purchase( -45 );
@@ -469,8 +503,14 @@ class Admin_Banner_Test extends \WorDBless\BaseTestCase {
 		$this->assertStringNotContainsString( '/checkout/', $out );
 	}
 
+	/**
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
 	public function test_the_support_cta_carries_the_message_and_a_fallback(): void {
-		Constants::set_constant( 'IS_ATOMIC', true );
+		$this->pretend_reverted();
 		// The Help Center has no URL that opens it in this state, so the message
 		// rides on the element and the href is what a click falls back to.
 		$this->set_purchase( -45 );
@@ -508,5 +548,17 @@ class Admin_Banner_Test extends \WorDBless\BaseTestCase {
 		$this->assertStringContainsString( '/checkout/', $out );
 		// And the copy has to ask for the same thing the button does.
 		$this->assertStringContainsString( 'Upgrade your plan to restore your site.', $out );
+	}
+
+	public function test_before_the_revert_runs_the_cta_still_offers_checkout(): void {
+		// Same gap: post-grace by date, but not yet reverted. Renewing still works,
+		// so support would be the wrong ask and the copy must not be past tense
+		// about a revert that has not happened.
+		Constants::set_constant( 'IS_ATOMIC', true );
+		$this->set_purchase( -45 );
+		$out = $this->render();
+
+		$this->assertStringNotContainsString( 'Contact support', $out );
+		$this->assertStringContainsString( '/checkout/', $out );
 	}
 }

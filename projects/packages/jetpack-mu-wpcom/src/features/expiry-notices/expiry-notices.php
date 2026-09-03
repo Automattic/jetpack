@@ -128,23 +128,22 @@ function wpcom_expiry_notices_expired_heading( array $state ): string {
 /**
  * Whether the revert this feature describes applies to this site, now.
  *
- * Not simply "is Atomic": the revert is what ends that, so a site is Atomic
- * while the changes are ahead of it and Simple once they have happened. wpcom
- * marks the difference with a sticker, which only counts after the grace period
- * -- before it, a reverted site was reverted by some earlier lapse.
+ * Past the grace period the answer waits on the revert having happened, not on
+ * the date it was due: the state opens 30 days after expiry, while the revert
+ * runs off the subscription-removal record and can lag it. In that gap a site is
+ * still Atomic and still renewable, so the past-tense copy would be untrue and
+ * support would be the wrong ask. wpcom's sticker marks the event itself.
+ *
+ * Before then the changes are still ahead, which only an Atomic site faces.
  *
  * @param array<string,mixed> $state Expiry state.
  */
 function wpcom_expiry_notices_revert_applies_to_site( array $state ): bool {
-	if ( \Automattic\Jetpack\Constants::is_true( 'IS_ATOMIC' ) ) {
-		return true;
+	if ( \Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Data::STATE_EXPIRED === ( $state['state'] ?? '' ) ) {
+		return wpcom_has_blog_sticker( 'blog-transfer-reverted', get_wpcom_blog_id() );
 	}
 
-	if ( \Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Data::STATE_EXPIRED !== ( $state['state'] ?? '' ) ) {
-		return false;
-	}
-
-	return wpcom_has_blog_sticker( 'blog-transfer-reverted', get_wpcom_blog_id() );
+	return \Automattic\Jetpack\Constants::is_true( 'IS_ATOMIC' );
 }
 
 /**

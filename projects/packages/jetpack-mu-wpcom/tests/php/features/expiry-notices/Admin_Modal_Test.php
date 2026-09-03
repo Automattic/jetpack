@@ -124,7 +124,14 @@ class Admin_Modal_Test extends \WorDBless\BaseTestCase {
 		$this->assertStringContainsString( '/plans/', $data['secondary']['url'] );
 	}
 
+	/**
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
 	public function test_shows_after_grace_with_the_post_revert_copy(): void {
+		$this->pretend_reverted_to_simple();
 		$this->set_purchase( -45 );
 		$data = wpcom_expiry_notices_admin_modal_data();
 
@@ -236,7 +243,14 @@ class Admin_Modal_Test extends \WorDBless\BaseTestCase {
 		$this->assertNotNull( wpcom_expiry_notices_admin_modal_data(), 'the site is still lapsing, so a stale dismissal should not hold' );
 	}
 
+	/**
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
 	public function test_post_grace_dismissal_does_not_lapse(): void {
+		$this->pretend_reverted_to_simple();
 		$this->set_purchase( -45 );
 		// Dismissed 10 days ago -- within this term, since the revert it reports
 		// happened at day 30, but far outside the grace TTL, which must not apply
@@ -245,7 +259,14 @@ class Admin_Modal_Test extends \WorDBless\BaseTestCase {
 		$this->assertNull( wpcom_expiry_notices_admin_modal_data() );
 	}
 
+	/**
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
 	public function test_a_grace_dismissal_does_not_bury_the_post_grace_modal(): void {
+		$this->pretend_reverted_to_simple();
 		// The two states dismiss to separate keys precisely so this can't happen:
 		// a grace dismissal is stamped after expiry and would otherwise satisfy
 		// the post-grace "belongs to this term" check.
@@ -254,7 +275,14 @@ class Admin_Modal_Test extends \WorDBless\BaseTestCase {
 		$this->assertNotNull( wpcom_expiry_notices_admin_modal_data() );
 	}
 
+	/**
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
 	public function test_dismissal_of_an_earlier_term_shows_again(): void {
+		$this->pretend_reverted_to_simple();
 		$this->set_purchase( -45 );
 		// Dismissed against a purchase that has since been renewed and lapsed
 		// again: this revert is news.
@@ -262,18 +290,39 @@ class Admin_Modal_Test extends \WorDBless\BaseTestCase {
 		$this->assertNotNull( wpcom_expiry_notices_admin_modal_data() );
 	}
 
-	public function test_names_the_revert_domain_when_there_is_one(): void {
+	/**
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_names_the_domain_the_site_will_move_to_in_grace(): void {
 		$this->set_revert_domain( 'example.wordpress.com' );
 
 		$this->set_purchase( -5 );
 		$grace = wpcom_expiry_notices_admin_modal_data();
+
 		$this->assertNotNull( $grace );
 		$this->assertStringContainsString( 'Use example.wordpress.com as your primary domain.', implode( "\n", $grace['items'] ) );
+	}
+
+	/**
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_names_the_domain_the_site_moved_to_after_the_revert(): void {
+		$this->pretend_reverted_to_simple();
+		// WorDBless serves example.org, so a matching blogs-table domain is a site
+		// sitting on its own unmapped address -- the switch already happened.
+		$GLOBALS['wpcom_blog_details_domain_test_value'] = 'example.org';
 
 		$this->set_purchase( -45 );
 		$reverted = wpcom_expiry_notices_admin_modal_data();
+
 		$this->assertNotNull( $reverted );
-		$this->assertStringContainsString( 'switched to example.wordpress.com', implode( "\n", $reverted['items'] ) );
+		$this->assertStringContainsString( 'switched to example.org', implode( "\n", $reverted['items'] ) );
 	}
 
 	public function test_omits_the_domain_line_when_the_site_keeps_its_domain(): void {
@@ -282,13 +331,11 @@ class Admin_Modal_Test extends \WorDBless\BaseTestCase {
 		// goes away rather than naming the wrong domain.
 		$this->set_revert_domain( null );
 
-		foreach ( array( -5, -45 ) as $days ) {
-			$this->set_purchase( $days );
-			$data = wpcom_expiry_notices_admin_modal_data();
-			$this->assertNotNull( $data, "expected a modal {$days} days past expiry" );
-			$this->assertCount( 3, $data['items'], "expected three items {$days} days past expiry" );
-			$this->assertStringNotContainsString( 'primary domain', implode( "\n", $data['items'] ) );
-		}
+		$this->set_purchase( -5 );
+		$data = wpcom_expiry_notices_admin_modal_data();
+		$this->assertNotNull( $data );
+		$this->assertCount( 3, $data['items'] );
+		$this->assertStringNotContainsString( 'primary domain', implode( "\n", $data['items'] ) );
 	}
 
 	/**
@@ -329,7 +376,14 @@ class Admin_Modal_Test extends \WorDBless\BaseTestCase {
 		$this->assertStringNotContainsString( 'primary domain', implode( "\n", $data['items'] ) );
 	}
 
+	/**
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
 	public function test_the_support_cta_prefills_a_message(): void {
+		$this->pretend_reverted_to_simple();
 		$this->set_purchase( -45 );
 		$data = wpcom_expiry_notices_admin_modal_data();
 
@@ -361,5 +415,15 @@ class Admin_Modal_Test extends \WorDBless\BaseTestCase {
 		$this->assertNotNull( $data );
 		$this->assertStringContainsString( '/checkout/', $data['primary']['url'] );
 		$this->assertArrayNotHasKey( 'message', $data['primary'] );
+	}
+
+	public function test_waits_for_the_revert_rather_than_the_date(): void {
+		// The post-grace state opens 30 days after expiry, but the revert runs off
+		// the subscription-removal record and can lag it. In that gap the site is
+		// still Atomic and still renewable, so past-tense copy would be untrue.
+		Constants::set_constant( 'IS_ATOMIC', true );
+		$this->set_purchase( -45 );
+
+		$this->assertNull( wpcom_expiry_notices_admin_modal_data() );
 	}
 }
