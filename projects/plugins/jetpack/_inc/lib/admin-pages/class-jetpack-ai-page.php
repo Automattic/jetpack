@@ -263,6 +263,8 @@ class Jetpack_AI_Page {
 			Connection_Initial_State::render_script( 'jetpack-ai-admin' );
 		}
 
+		$host = new Host();
+
 		/**
 		 * Filters the host-specific AI Hub configuration.
 		 *
@@ -273,10 +275,10 @@ class Jetpack_AI_Page {
 		$config = apply_filters(
 			'jetpack_ai_admin_config',
 			array(
-				// Pre-release gate for the Overview and Features views. When opening
-				// them to everyone, also drop the matching gate in My Jetpack's
-				// Jetpack_Ai::get_manage_url() so its links land here too.
-				'showGatedViews'  => $is_internal_test,
+				// The Overview and Features views launch on self-hosted sites first.
+				// Keep this filterable so hosts can close them independently.
+				'showGatedViews'  => ! $host->is_wpcom_platform() || ( $host->is_woa_site() && $is_internal_test ),
+				'showA12sBadge'   => $host->is_woa_site() && $is_internal_test,
 				'isUserConnected' => ( new Connection_Manager() )->is_user_connected(),
 				'mcpSettingsApi'  => array(
 					'path'   => '/wpcom/v2/jetpack-ai/mcp-settings',
@@ -316,6 +318,7 @@ class Jetpack_AI_Page {
 			// auto-renew, matching My Jetpack and the wpcom subscriptions page.
 			'planAutoRenew'    => $plan_info['auto_renew'],
 			'showFeaturesView' => $show_gated_views,
+			'showA12sBadge'    => ! empty( $config['showA12sBadge'] ),
 			// The tab and its Agents Manager sidebar ship disabled by default.
 			'featureFlags'     => array(
 				Jetpack_AI_Feature_Flags::SCHEDULED_TASKS => $show_scheduled_tasks_view,

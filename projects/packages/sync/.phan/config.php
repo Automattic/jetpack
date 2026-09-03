@@ -13,8 +13,13 @@ require __DIR__ . '/../../../../.phan/config.base.php';
 return make_phan_config(
 	dirname( __DIR__ ),
 	array(
-		'+stubs'          => array( 'amp', 'woocommerce', 'woocommerce-internal' ),
-		'parse_file_list' => array(
+		'+stubs'             => array( 'amp', 'woocommerce', 'woocommerce-internal' ),
+		// Test stand-ins for WooCommerce runtime symbols; they intentionally redefine
+		// symbols that also exist in the WooCommerce stubs above.
+		'exclude_file_regex' => array(
+			'tests/php/stubs/',
+		),
+		'parse_file_list'    => array(
 			// Reference files to handle code checking for stuff from Jetpack-the-plugin or other in-monorepo plugins.
 			// Wherever feasible we should really clean up this sort of thing instead of adding stuff here.
 			//
