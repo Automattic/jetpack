@@ -28,6 +28,12 @@ class AI_Answers_Test extends Search_TestCase {
 	/** @var int[] */
 	private $test_post_ids = array();
 
+	public function setUp(): void {
+		parent::setUp();
+		// Default to a paid plan; tests exercising the gate override this.
+		Search_Blocks::set_supports_paid_search_for_testing( true );
+	}
+
 	public function tearDown(): void {
 		// Delete test posts BEFORE parent::tearDown() empties the WorDBless store.
 		// wp_delete_post() must find the post to call clean_post_cache(), which
@@ -50,6 +56,7 @@ class AI_Answers_Test extends Search_TestCase {
 		if ( post_type_exists( 'wp_guideline' ) ) {
 			unregister_post_type( 'wp_guideline' );
 		}
+		Search_Blocks::reset_supports_paid_search_cache();
 	}
 
 	public function test_is_enabled_defaults_to_false() {
@@ -65,6 +72,25 @@ class AI_Answers_Test extends Search_TestCase {
 	public function test_is_enabled_filter_overrides_option() {
 		add_filter( 'jetpack_search_ai_answers_enabled', '__return_true' );
 		$this->assertTrue( AI_Answers::is_enabled() );
+		remove_filter( 'jetpack_search_ai_answers_enabled', '__return_true' );
+	}
+
+	/**
+	 * SEARCH-342: the option must not enable AI Answers without a paid plan.
+	 */
+	public function test_is_enabled_returns_false_without_paid_search_plan() {
+		Search_Blocks::set_supports_paid_search_for_testing( false );
+		update_option( 'jetpack_search_ai_answers_enabled', true );
+
+		$this->assertFalse( AI_Answers::is_enabled() );
+	}
+
+	public function test_is_enabled_filter_cannot_override_missing_paid_plan() {
+		Search_Blocks::set_supports_paid_search_for_testing( false );
+		add_filter( 'jetpack_search_ai_answers_enabled', '__return_true' );
+
+		$this->assertFalse( AI_Answers::is_enabled() );
+
 		remove_filter( 'jetpack_search_ai_answers_enabled', '__return_true' );
 	}
 
