@@ -4013,6 +4013,9 @@ importers:
       '@automattic/charts':
         specifier: workspace:*
         version: link:../../js-packages/charts
+      '@automattic/jetpack-analytics':
+        specifier: workspace:*
+        version: link:../../js-packages/analytics
       '@automattic/jetpack-connection':
         specifier: workspace:*
         version: link:../../js-packages/connection
