@@ -1,7 +1,6 @@
 // Illustration constants from the Figma modal: colors no WPDS token covers and
 // geometry the design fixes in px.
 $widget-grid-stage-color: #003010;
-$widget-grid-tile-color: #fff;
 $widget-grid-tile-gradient: linear-gradient(180deg, #fff 0%, rgba(255, 255, 255, 0.9) 100%);
 $widget-grid-tile-radius: 16px;
 $widget-grid-donut-size: 75px;
@@ -47,7 +46,9 @@ $widget-grid-placeholder-color: color-mix(in srgb, var(--wpds-color-stroke-surfa
 	block-size: var(--wga-height);
 	overflow: hidden;
 	padding: var(--wpds-dimension-padding-lg);
-	border: var(--wpds-border-width-xs) solid $widget-grid-tile-color;
+	// A neutral stroke where the design draws white: it keeps tiles apart where
+	// they cross mid-tween, which white on white cannot.
+	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
 	border-radius: $widget-grid-tile-radius;
 	background: $widget-grid-tile-gradient;
 	color: $widget-grid-stage-color;
