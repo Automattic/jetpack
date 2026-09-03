@@ -6,6 +6,14 @@ import type { Meta, StoryObj } from '@storybook/react';
 
 const LAST_FRAME = WIDGET_GRID_KEYFRAMES.length - 1;
 
+// The WPDS motion curves, plus `linear` to see the raw keyframes.
+const EASINGS: Record< string, string > = {
+	balanced: 'var(--wpds-motion-easing-balanced)',
+	expressive: 'var(--wpds-motion-easing-expressive)',
+	subtle: 'var(--wpds-motion-easing-subtle)',
+	linear: 'linear',
+};
+
 const meta: Meta< typeof WidgetGridAnimation > = {
 	title: 'Packages/Premium Analytics/UI/WidgetGridAnimation',
 	component: WidgetGridAnimation,
@@ -29,6 +37,20 @@ const meta: Meta< typeof WidgetGridAnimation > = {
 	argTypes: {
 		keyframes: { control: false },
 		className: { control: false },
+		hold: {
+			control: { type: 'range', min: 0, max: 5000, step: 100 },
+		},
+		duration: {
+			control: { type: 'range', min: 0, max: 3000, step: 50 },
+		},
+		easing: {
+			control: 'select',
+			options: Object.keys( EASINGS ),
+			mapping: EASINGS,
+		},
+		paused: {
+			control: 'boolean',
+		},
 		frame: {
 			control: { type: 'number', min: 0, max: LAST_FRAME, step: 1 },
 		},
@@ -61,6 +83,22 @@ type Story = StoryObj< typeof WidgetGridAnimation >;
  * story to watch it from the collapsed start.
  */
 export const Default: Story = {};
+
+/**
+ * Every prop on the Controls panel, starting from the modal's defaults. Drag
+ * `hold` and `duration` to retime the loop, pick an `easing` curve, pause it,
+ * or set `frame` to pin one keyframe; clear `frame` to let the loop run again.
+ */
+export const Playground: Story = {
+	args: {
+		hold: 1200,
+		duration: 600,
+		// The option key; Storybook maps it to the token through `mapping`.
+		easing: 'balanced',
+		paused: false,
+		staticFrame: 4,
+	},
+};
 
 /**
  * The same loop slowed down, to follow how a tile grows, moves or swaps and
