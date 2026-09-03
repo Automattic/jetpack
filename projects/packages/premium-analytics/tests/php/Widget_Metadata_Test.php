@@ -477,11 +477,6 @@ class Widget_Metadata_Test extends BaseTestCase {
 					'href'     => 'https://example.com/report.csv',
 					'download' => 'My-Report.csv',
 				),
-				array(
-					'id'    => 'download-empty',
-					'label' => 'Download nothing',
-					'href'  => 'https://example.com/report.csv',
-				),
 			),
 			sanitize_widget_actions(
 				array(
@@ -503,16 +498,55 @@ class Widget_Metadata_Test extends BaseTestCase {
 						'icon'      => 'not a reference',
 						'relevance' => 'urgent',
 					),
-					array(
-						'id'       => 'download-empty',
-						'label'    => 'Download nothing',
-						'href'     => 'https://example.com/report.csv',
-						'download' => '???',
-					),
 				)
 			),
 			'Optional fields are normalized and unknown keys dropped.'
 		);
+	}
+
+	/**
+	 * Every download value but `false` keeps the download: a usable filename
+	 * survives sanitization, anything else falls back to the original name.
+	 */
+	public function test_sanitize_widget_actions_keeps_download_intent() {
+		$href = 'https://example.com/export.csv';
+
+		$actions = sanitize_widget_actions(
+			array(
+				array(
+					'id'       => 'empty',
+					'label'    => 'Empty string',
+					'href'     => $href,
+					'download' => '',
+				),
+				array(
+					'id'       => 'zero',
+					'label'    => 'Zero',
+					'href'     => $href,
+					'download' => '0',
+				),
+				array(
+					'id'       => 'unusable',
+					'label'    => 'Unusable name',
+					'href'     => $href,
+					'download' => '???',
+				),
+				array(
+					'id'       => 'flag',
+					'label'    => 'Boolean true',
+					'href'     => $href,
+					'download' => true,
+				),
+				array(
+					'id'       => 'off',
+					'label'    => 'Boolean false',
+					'href'     => $href,
+					'download' => false,
+				),
+			)
+		);
+
+		$this->assertSame( array( true, '0', true, true, false ), array_column( $actions, 'download' ), 'Only false means navigation; an unusable name downloads under the original one.' );
 	}
 
 	/**

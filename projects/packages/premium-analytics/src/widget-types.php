@@ -173,7 +173,7 @@ function resolve_widget_action_href( $href ) {
  * plus optional `download` / `openInNewTab` / `icon` / `relevance`. Drops
  * incomplete or unsafe entries and reports dropped hrefs through
  * `_doing_it_wrong()`; a malformed `icon` or `relevance` drops the key, never
- * the action.
+ * the action, and a `download` name that sanitizes to nothing becomes `true`.
  *
  * @param mixed $actions Actions from the build manifest.
  * @return array|null Sanitized actions, or null when none survive.
@@ -227,10 +227,9 @@ function sanitize_widget_actions( $actions ) {
 			if ( is_bool( $action['download'] ) ) {
 				$entry['download'] = $action['download'];
 			} else {
-				$filename = sanitize_file_name( (string) $action['download'] );
-				if ( $filename ) {
-					$entry['download'] = $filename;
-				}
+				// A name that sanitizes to nothing keeps the download under the original name; only `false` navigates.
+				$filename          = sanitize_file_name( (string) $action['download'] );
+				$entry['download'] = '' !== $filename ? $filename : true;
 			}
 		}
 
