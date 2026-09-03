@@ -248,4 +248,30 @@ class BruteForceProtectionTest extends WorDBless\BaseTestCase {
 			array( (object) array() ),
 		);
 	}
+
+	/**
+	 * Test that the deprecated ip_is_whitelisted() wrapper delegates to ip_is_allowed()
+	 * without a fatal error on PHP 8 (static call to non-static method).
+	 */
+	public function test_ip_is_whitelisted_delegates_to_ip_is_allowed() {
+		// ip_allow_list_enabled() defaults to true; with no allow list entries and no
+		// JETPACK_IP_ADDRESS_OK constant, ip_is_allowed() should return false.
+		$result = @Brute_Force_Protection::ip_is_whitelisted( '1.2.3.4' ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- suppress the expected deprecation notice
+		$this->assertFalse( $result );
+	}
+
+	/**
+	 * Test that the deprecated is_current_ip_whitelisted() wrapper delegates to
+	 * is_current_ip_allowed() without a fatal error on PHP 8.
+	 *
+	 * @backupGlobals enabled
+	 */
+	#[BackupGlobals( true )]
+	public function test_is_current_ip_whitelisted_delegates_to_is_current_ip_allowed() {
+		$_SERVER['REMOTE_ADDR'] = '1.2.3.4';
+
+		// With no allow list entries the method should return false (IP not allowed).
+		$result = @Brute_Force_Protection::is_current_ip_whitelisted(); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- suppress the expected deprecation notice
+		$this->assertFalse( $result );
+	}
 }
