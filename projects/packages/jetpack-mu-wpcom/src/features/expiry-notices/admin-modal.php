@@ -163,13 +163,7 @@ function wpcom_expiry_notices_enqueue_admin_modal_assets() {
 		'wpcomExpiryModal',
 		array_merge(
 			$data,
-			array(
-				'trackProps' => array(
-					'state'          => $state['state'],
-					'days_remaining' => isset( $state['days_remaining'] ) ? (int) $state['days_remaining'] : 0,
-					'product_slug'   => isset( $state['product_slug'] ) ? (string) $state['product_slug'] : '',
-				),
-			)
+			array( 'trackProps' => wpcom_expiry_notices_track_props( $state ) )
 		)
 	);
 }

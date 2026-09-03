@@ -97,9 +97,21 @@ class Admin_Banner_Test extends \WorDBless\BaseTestCase {
 	}
 
 	private function render(): string {
+		// Tests move the screen between renders, so never trust the memo.
+		wpcom_expiry_notices_admin_banner_data( true );
 		ob_start();
 		wpcom_expiry_notices_render_admin_banner();
 		return (string) ob_get_clean();
+	}
+
+	public function test_leaves_block_editor_screens_to_the_editor_notice(): void {
+		$this->set_purchase( 5 );
+		set_current_screen( 'post' );
+		get_current_screen()->is_block_editor( true );
+		$this->assertSame( '', $this->render() );
+
+		get_current_screen()->is_block_editor( false );
+		$this->assertStringContainsString( 'notice-error', $this->render() );
 	}
 
 	public function test_renders_for_approaching_state(): void {
