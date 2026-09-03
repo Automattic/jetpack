@@ -967,7 +967,7 @@ class Analytics_Test extends TestCase {
 
 	/**
 	 * A front-end request registers none of the admin render surface: no menu, no widget
-	 * import map, no CSV export script data.
+	 * import map, no CSV export script data, and no Tracks plumbing.
 	 *
 	 * Isolated because widget-modules.php and csv-exports.php register these filters at file
 	 * scope via require_once, so an earlier test that loaded them would leave them registered
@@ -1007,6 +1007,14 @@ class Analytics_Test extends TestCase {
 				__NAMESPACE__ . '\\inject_videopress_script_data'
 			),
 			'The VideoPress availability flag is not wired on a front-end request.'
+		);
+		$this->assertFalse(
+			has_action( 'admin_enqueue_scripts', array( Analytics::class, 'enqueue_tracks_transport' ) ),
+			'The Tracks transport is not enqueued on a front-end request.'
+		);
+		$this->assertFalse(
+			has_filter( 'jetpack_admin_js_script_data', array( Analytics::class, 'add_tracks_identity_script_data' ) ),
+			'The Tracks identity is not published on a front-end request.'
 		);
 	}
 
@@ -1070,6 +1078,37 @@ class Analytics_Test extends TestCase {
 				__NAMESPACE__ . '\\inject_videopress_script_data'
 			),
 			'Simple still publishes the VideoPress availability flag.'
+		);
+	}
+
+	/**
+	 * Both halves of the Tracks plumbing hang off the dashboard request. The identity filter
+	 * runs at 20 so it merges onto the `current_user` the connection publishes at 10.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_dashboard_request_wires_the_tracks_hooks() {
+		$this->use_fixture_build();
+		$_GET['page'] = self::MENU_SLUG;
+		set_current_screen( self::MENU_HOOKNAME );
+
+		Analytics::init();
+		do_action( 'init' );
+
+		$this->assertNotFalse(
+			has_action( 'admin_enqueue_scripts', array( Analytics::class, 'enqueue_tracks_transport' ) ),
+			'The dashboard enqueues the Tracks transport.'
+		);
+		$this->assertSame(
+			20,
+			has_filter(
+				'jetpack_admin_js_script_data',
+				array( Analytics::class, 'add_tracks_identity_script_data' )
+			),
+			'The Tracks identity is published after the connection fills current_user in.'
 		);
 	}
 
