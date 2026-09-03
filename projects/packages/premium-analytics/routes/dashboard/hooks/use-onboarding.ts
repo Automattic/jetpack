@@ -12,6 +12,9 @@ import { useTrackEvent } from './use-track-event';
 
 export type OnboardingPhase = 'closed' | 'modal' | 'tour';
 
+/** How the reader closed the journey without finishing it. */
+export type OnboardingDismissReason = 'close' | 'escape' | 'outside' | 'other';
+
 export type OnboardingOptions = {
 	/** Whether the reader is on the surface the journey introduces; nothing opens until then. */
 	enabled: boolean;
@@ -32,8 +35,8 @@ export type Onboarding = {
 	/** Continue or Finish on a tour step. */
 	next: () => void;
 
-	/** The reader closed the modal or the tour: done, and not shown again. */
-	dismiss: () => void;
+	/** The reader closed the modal or the tour, and how: done, and not shown again. */
+	dismiss: ( reason?: OnboardingDismissReason ) => void;
 };
 
 type PreferencesSelectors = {
@@ -122,13 +125,17 @@ export function useOnboarding( { enabled, stepCount = 0 }: OnboardingOptions ): 
 		trackEvent( 'jetpack_premium_analytics_onboarding_step_view', { step: step + 2 } );
 	}, [ complete, step, stepCount, trackEvent ] );
 
-	const dismiss = useCallback( () => {
-		trackEvent( 'jetpack_premium_analytics_onboarding_dismiss', {
-			phase,
-			step: phase === 'tour' ? step + 1 : 0,
-		} );
-		complete();
-	}, [ complete, phase, step, trackEvent ] );
+	const dismiss = useCallback(
+		( reason: OnboardingDismissReason = 'other' ) => {
+			trackEvent( 'jetpack_premium_analytics_onboarding_dismiss', {
+				phase,
+				step: phase === 'tour' ? step + 1 : 0,
+				reason,
+			} );
+			complete();
+		},
+		[ complete, phase, step, trackEvent ]
+	);
 
 	return { phase, step, start, next, dismiss };
 }

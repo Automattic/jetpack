@@ -149,12 +149,12 @@ describe( 'useOnboarding', () => {
 
 		act( () => result.current.start() );
 		act( () => result.current.next() );
-		act( () => result.current.dismiss() );
+		act( () => result.current.dismiss( 'escape' ) );
 
 		expect( result.current.phase ).toBe( 'closed' );
 		expect( mockRecordEvent ).toHaveBeenCalledWith(
 			'jetpack_premium_analytics_onboarding_dismiss',
-			{ phase: 'tour', step: 2 }
+			{ phase: 'tour', step: 2, reason: 'escape' }
 		);
 	} );
 
