@@ -85,9 +85,11 @@ type Story = StoryObj< typeof WidgetGridAnimation >;
 export const Default: Story = {};
 
 /**
- * Every prop on the Controls panel, starting from the modal's defaults. Drag
- * `hold` and `duration` to retime the loop, pick an `easing` curve, pause it,
- * or set `frame` to pin one keyframe; clear `frame` to let the loop run again.
+ * Every prop on the Controls panel, starting from the modal's defaults. Raise
+ * `duration` to slow the tweens down (`hold` only lengthens the pauses), pick
+ * an `easing` curve, flip `paused` to stop the clock where it is, or set
+ * `frame` to pin one keyframe and preview the tween into it; clear `frame` to
+ * let the loop run again.
  */
 export const Playground: Story = {
 	args: {
@@ -97,42 +99,6 @@ export const Playground: Story = {
 		easing: 'balanced',
 		paused: false,
 		staticFrame: 4,
-	},
-};
-
-/**
- * The same loop slowed down, to follow how a tile grows, moves or swaps and
- * how the chart wipes in with its tile. The tween runs at `duration`, so
- * raising it is what stretches the motion; `hold` only lengthens the pauses.
- */
-export const SlowMotion: Story = {
-	name: 'Slow motion',
-	args: {
-		hold: 2000,
-		duration: 1500,
-	},
-};
-
-/**
- * One keyframe, no clock. Change the `frame` control to jump to any of the
- * eleven keyframes: the tween into the chosen one still plays, so this also
- * previews a single transition on its own.
- */
-export const Pinned: Story = {
-	name: 'Pinned to a keyframe',
-	args: {
-		frame: 4,
-	},
-};
-
-/**
- * The clock stopped on the first keyframe. Turn `paused` off in the controls
- * to resume from there; the loop picks up where it stopped rather than
- * starting over.
- */
-export const Paused: Story = {
-	args: {
-		paused: true,
 	},
 };
 
