@@ -8,7 +8,12 @@ import userEvent from '@testing-library/user-event';
  * Internal dependencies
  */
 import { DATE_FILTER_RANGE, DATE_FILTER_YEAR } from './config';
-import { useActiveSection, useDashboardSections, useSectionDateFilter } from './hooks';
+import {
+	useActiveSection,
+	useDashboardSections,
+	useOnboarding,
+	useSectionDateFilter,
+} from './hooks';
 import { stage as Dashboard } from './stage';
 import type { SyncStatus } from '@jetpack-premium-analytics/site-sync';
 import type { ReactNode } from 'react';
@@ -56,6 +61,8 @@ jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 	DateFiltersPanel: () => <MockHeaderScopeProbe />,
 	DateIntervalDropdown: () => null,
 	DateYearFilter: () => null,
+	OnboardingWelcomeModal: ( { open }: { open: boolean } ) =>
+		open ? <div data-testid="onboarding-welcome-modal" /> : null,
 	SectionHeader: ( { children }: { children: ReactNode } ) => <div>{ children }</div>,
 	SectionTabPanel: ( { value, children }: { value: string; children: ReactNode } ) =>
 		value === mockActiveSectionSlug ? <div>{ children }</div> : null,
@@ -156,6 +163,7 @@ jest.mock( './hooks', () => ( {
 	useDashboardGridSettings: () => [ {} ],
 	useDashboardSectionLayout: () => [ [], jest.fn(), jest.fn() ],
 	useDashboardSections: jest.fn(),
+	useOnboarding: jest.fn(),
 	useSectionDateFilter: jest.fn(),
 } ) );
 
@@ -163,11 +171,21 @@ beforeEach( () => {
 	mockSyncState = { data: undefined, error: null, isComplete: false };
 	mockIsSyncFinished = false;
 	mockTriggerSync.mockImplementation( () => Promise.resolve() );
+	useOnboardingMock.mockReturnValue( closedOnboarding );
 } );
 
 const useDashboardSectionsMock = jest.mocked( useDashboardSections );
 const useSectionDateFilterMock = jest.mocked( useSectionDateFilter );
 const useActiveSectionMock = jest.mocked( useActiveSection );
+const useOnboardingMock = jest.mocked( useOnboarding );
+
+const closedOnboarding = {
+	phase: 'closed' as const,
+	step: 0,
+	start: jest.fn(),
+	next: jest.fn(),
+	dismiss: jest.fn(),
+};
 
 /**
  * Resolve the sections entity with one active section.
@@ -316,6 +334,44 @@ describe( 'Dashboard feedback action', () => {
 
 		// eslint-disable-next-line testing-library/no-node-access -- order within the actions slot is what this test is for.
 		expect( feedback.nextElementSibling ).toBe( screen.getByTestId( 'widget-dashboard-actions' ) );
+	} );
+} );
+
+describe( 'Dashboard onboarding', () => {
+	beforeEach( () => {
+		jest.clearAllMocks();
+		useActiveSectionMock.mockReturnValue( [ 'traffic', jest.fn() ] );
+		mockActiveSectionSlug = 'traffic';
+		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_RANGE );
+		useOnboardingMock.mockReturnValue( closedOnboarding );
+		mockSection( { slug: 'traffic', date_filter: DATE_FILTER_RANGE } );
+	} );
+
+	it( 'runs the journey on the default section at rest', () => {
+		render( <Dashboard /> );
+
+		expect( useOnboardingMock ).toHaveBeenLastCalledWith(
+			expect.objectContaining( { enabled: true } )
+		);
+	} );
+
+	it( 'holds the journey while another section is active', () => {
+		useActiveSectionMock.mockReturnValue( [ 'store', jest.fn() ] );
+		mockActiveSectionSlug = 'store';
+
+		render( <Dashboard /> );
+
+		expect( useOnboardingMock ).toHaveBeenLastCalledWith(
+			expect.objectContaining( { enabled: false } )
+		);
+	} );
+
+	it( 'opens the welcome modal when the journey reaches it', () => {
+		useOnboardingMock.mockReturnValue( { ...closedOnboarding, phase: 'modal' } );
+
+		render( <Dashboard /> );
+
+		expect( screen.getByTestId( 'onboarding-welcome-modal' ) ).toBeInTheDocument();
 	} );
 } );
 
