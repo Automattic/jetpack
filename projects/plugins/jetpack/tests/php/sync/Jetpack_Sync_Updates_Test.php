@@ -41,7 +41,7 @@ class Jetpack_Sync_Updates_Test extends Jetpack_Sync_TestBase {
 		$updates = $this->server_replica_storage->get_updates( 'plugins' );
 
 		$this->assertFalse( isset( $updates->no_update ) );
-		$this->assertTrue( is_int( $updates->last_checked ) );
+		$this->assertIsInt( $updates->last_checked );
 
 		$this->assertArrayHasKey( 'hello', $updates->response );
 	}
@@ -105,7 +105,7 @@ class Jetpack_Sync_Updates_Test extends Jetpack_Sync_TestBase {
 		$theme   = reset( $updates->response );
 
 		$this->assertSame( 'hello', $theme['name'] );
-		$this->assertTrue( is_int( $updates->last_checked ) );
+		$this->assertIsInt( $updates->last_checked );
 	}
 
 	public function test_update_themes_is_synced_once() {
@@ -169,7 +169,7 @@ class Jetpack_Sync_Updates_Test extends Jetpack_Sync_TestBase {
 
 		$this->sender->do_sync();
 		$updates = $this->server_replica_storage->get_updates( 'core' );
-		$this->assertTrue( is_int( $updates->last_checked ) );
+		$this->assertIsInt( $updates->last_checked );
 
 		// Since the transient gets updates twice and we only care about the
 		// last update we only want to see 1 sync event.

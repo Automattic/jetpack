@@ -630,7 +630,7 @@ class Consent_Log_Controller_Test extends TestCase {
 
 		// Retry-After is the seconds left in the current window (1..window); Reset mirrors it.
 		$retry_after = $headers['Retry-After'];
-		$this->assertSame( 1, preg_match( '/^[0-9]+$/', (string) $retry_after ) );
+		$this->assertMatchesRegularExpression( '/^[0-9]+$/', (string) $retry_after );
 		$this->assertGreaterThanOrEqual( 1, (int) $retry_after );
 		$this->assertLessThanOrEqual( 60, (int) $retry_after );
 		$this->assertSame( $retry_after, $headers['RateLimit-Reset'] );

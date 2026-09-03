@@ -46,7 +46,7 @@ const CONNECTED = { isRegistered: true, hasConnectedOwner: true, isUserConnected
 const SETTLE = { timeout: 10000 };
 
 const RESTORE_QUESTION = 'Was it easy to restore your site?';
-const BACKUPS_QUESTION = 'Do you enjoy the peace of mind of having real-time backups?';
+const BACKUPS_QUESTION = 'Do you enjoy the peace of mind of having backups?';
 // Matched loosely: `Link` appends its own "opens in a new tab" text to
 // the accessible name, so an exact match would pin this test to that
 // wording rather than to ours.

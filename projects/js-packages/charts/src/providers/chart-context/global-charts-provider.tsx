@@ -21,6 +21,7 @@ import {
 	resolveCssVariable,
 	normalizeColorToHex,
 } from '../../utils';
+import { sanitizeFormatting } from '../../utils/date-formatting';
 // Imported from the module rather than the `chart-scope` barrel: the barrel also pulls `use-standalone-scope-class`, which imports `GlobalChartsContext` back from this file. That cycle resolves today only because the binding is read lazily inside the hook body.
 import { ChartScopeContext } from '../chart-scope/chart-scope-context';
 import { getChartColor, type ColorCache } from './private/get-chart-color';
@@ -37,9 +38,24 @@ export const GlobalChartsContext = createContext< GlobalChartsContextValue | nul
 export interface GlobalChartsProviderProps {
 	children: ReactNode;
 	theme?: Partial< ChartTheme >;
+	/**
+	 * BCP-47 language tag every date label is rendered in, e.g. `de-DE`.
+	 * Defaults to the viewer's browser locale.
+	 */
+	locale?: string;
+	/**
+	 * IANA time zone every date label is dated in, e.g. `Asia/Tokyo`.
+	 * Defaults to the viewer's browser time zone.
+	 */
+	timeZone?: string;
 }
 
-export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { children, theme } ) => {
+export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
+	children,
+	theme,
+	locale,
+	timeZone,
+} ) => {
 	const [ charts, setCharts ] = useState< Map< string, ChartRegistration > >( () => new Map() );
 	// Track hidden series per chart: chartId -> Set<seriesLabel>
 	const [ hiddenSeries, setHiddenSeries ] = useState< Map< string, Set< string > > >(
@@ -358,6 +374,12 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 		[ hiddenSeries ]
 	);
 
+	// Held as one object so a chart's formatting memos key on a single stable reference.
+	const formatting = useMemo(
+		() => sanitizeFormatting( { locale, timeZone } ),
+		[ locale, timeZone ]
+	);
+
 	const value: GlobalChartsContextValue = useMemo(
 		() => ( {
 			charts,
@@ -365,6 +387,7 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 			unregisterChart,
 			getChartData,
 			theme: providerTheme,
+			formatting,
 			getElementStyles,
 			toggleSeriesVisibility,
 			setSeriesVisibility,
@@ -381,6 +404,7 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 			unregisterChart,
 			getChartData,
 			providerTheme,
+			formatting,
 			getElementStyles,
 			toggleSeriesVisibility,
 			setSeriesVisibility,

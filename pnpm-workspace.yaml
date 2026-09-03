@@ -37,8 +37,8 @@ minimumReleaseAgeExclude:
   - '@wordpress/*'
   - 'gridicons'
   - 'i18n-calypso'
-  # Renovate security update: browserslist@4.28.7
-  - browserslist@4.28.7
+  # Security update: fast-uri@3.1.7
+  - fast-uri@3.1.7
 trustPolicy: no-downgrade
 trustPolicyExclude:
   # https://github.com/paulmillr/chokidar/issues/1440

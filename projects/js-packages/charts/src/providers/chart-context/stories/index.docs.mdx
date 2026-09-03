@@ -47,7 +47,48 @@ Wrap your application or chart components with `GlobalChartsProvider` to enable 
 ### Basic Provider Props
 
 - **`theme`** *(optional)*: Partial theme object to customize chart appearance
+- **`locale`** *(optional)*: BCP-47 tag every date label is rendered in, e.g. `de-DE`
+- **`timeZone`** *(optional)*: IANA zone every date label is dated in, e.g. `Asia/Tokyo`
 - **`children`**: Chart components and other React elements
+
+### Dates: locale and time zone
+
+The time axis and the built-in tooltips of `LineChart`, `AreaChart` and
+`BarChart` render their dates through the provider's `locale` and `timeZone`. Set
+them from whatever the host already knows — a WordPress site's user locale and
+site timezone, say — and pass plain strings; the library never reaches for a
+WordPress package to resolve them. `locale` is a BCP-47 tag, and WordPress's
+underscored form (`en_US`) is repaired for you; a value `Intl` still cannot use
+falls back to the runtime's own and warns in development.
+
+<Source
+	language="tsx"
+	code={ `<GlobalChartsProvider locale="de-DE" timeZone="Asia/Tokyo">
+		<LineChart data={ data } />
+	</GlobalChartsProvider>` }
+/>
+
+<Canvas of={ ChartContextStories.HostLocaleAndTimeZoneFormatDates } />
+
+Leave either out and that half falls back to the JavaScript runtime's own — the
+viewer's browser locale and browser time zone. That is the default, so nothing
+changes for a consumer that sets neither, but it does mean two people viewing
+the same site from different countries see different axes until the host sets
+them.
+
+`timeZone` re-dates the instants you supply rather than relabeling them, so a
+value that is really a calendar day moves under it: `new Date( '2026-08-02' )` is
+UTC midnight, which is Aug 1 in `America/Los_Angeles`. A `dateString` point moves
+the same way but by a viewer-dependent amount, because `parseAsLocalDate` reads it
+as midnight in the browser's zone. Supply true instants alongside a `timeZone`, or
+set only `locale` for day-bucketed data. CHARTS-268 has the detail.
+
+Two things neither prop reaches. `HeatmapChart` builds its labels in
+`buildCalendarHeatmapData`, a plain function the host calls outside the provider,
+so they stay in English on the browser's calendar. And the boundaries that promote
+a tick to its date or its year are read on the Gregorian calendar, so a
+non-Gregorian `locale` labels its own new year while the year tick still lands on
+January 1.
 
 ## Color Coordination
 
@@ -403,6 +444,25 @@ Access just the theme when you only need the non-color settings — sizing, weig
 		color: var(--a8c-charts-color-label, #1e1e1e);
 	}` }
 />
+
+### useChartFormatting
+
+Read the locale and time zone dates are rendered in, for a custom tooltip or
+label that has to agree with the axis:
+
+<Source
+	language="tsx"
+	code={ `import { useChartFormatting } from '@automattic/charts';
+
+	function BucketLabel( { date } ) {
+		const { locale, timeZone } = useChartFormatting();
+
+		return <span>{ date.toLocaleDateString( locale, { timeZone } ) }</span>;
+	}` }
+/>
+
+Outside a provider it returns an empty object rather than throwing, so both
+halves fall back to the runtime's own.
 
 ### useChartRegistration
 

@@ -12,11 +12,11 @@ Portal-rendered tooltips carry the class unconditionally, because a React portal
 
 That unconditional class has a cost: a portal tooltip re-declares the catalog on itself, so it sees only the catalog *default*, never an instance override — both the provider's inline `theme` var and a consumer rule scoped to the provider wrapper live on an ancestor the portal is not a descendant of. A bare `.a8c-charts-scope { … }` rule does reach it, matching the tooltip's own class directly.
 
-Each catalog entry maps to a WPDS token with the WPDS spec value as its fallback:
+Each catalog entry maps to a WPDS token. Source writes the mapping bare; the LightningCSS plugin in `tsdown.config.ts` injects the WPDS spec value as a fallback into `dist/`:
 
 ```scss
 :where(.a8c-charts-scope) {
-	--a8c-charts-color-grid: var(--wpds-color-stroke-surface-neutral, #dbdbdb);
+	--a8c-charts-color-grid: var(--wpds-color-stroke-surface-neutral);
 }
 ```
 
@@ -30,7 +30,7 @@ Highest first:
 2. The role set by a consumer rule targeting the provider wrapper. It beats the catalog default because `:where()` is zero-specificity.
 3. The theme layer `GlobalChartsProvider` writes inline from a `theme` prop override — see below.
 4. The catalog default on the provider wrapper, resolving the mapped `--wpds-*` token.
-5. The WPDS spec-value fallback, when no `--wpds-*` token is set either (SSR, jsdom, or WPDS not loaded). This is not a rare corner: WordPress itself defines no `--wpds-*` typography tokens, so in wp-admin the fallback is what renders. It is written by hand — see `src/styles/test/wpds-fallbacks.test.ts`, which checks each one against the installed `@wordpress/theme`.
+5. The WPDS spec-value fallback, when no `--wpds-*` token is set either (SSR, jsdom, or WPDS not loaded). This is not a rare corner: WordPress itself defines no `--wpds-*` typography tokens, so in wp-admin the fallback is what renders. It is injected at build time by `@wordpress/theme`'s LightningCSS plugin.
 
 A CSS declaration of a role therefore beats a `theme` prop override *anywhere* it is set, the wrapper included — the prop writes a variable the role reads, not the role itself, and a role declared in CSS never reads it.
 
@@ -42,7 +42,7 @@ Each role a `theme` prop field can override is declared reading a `*-theme` vari
 
 ```scss
 :where(.a8c-charts-scope) {
-	--a8c-charts-color-grid: var(--a8c-charts-color-grid-theme, var(--wpds-color-stroke-surface-neutral, #dbdbdb));
+	--a8c-charts-color-grid: var(--a8c-charts-color-grid-theme, var(--wpds-color-stroke-surface-neutral));
 }
 ```
 

@@ -146,9 +146,9 @@ class Filter_Wc_Attribute_Render_Test extends TestCase {
 		// paint. Match `hidden` only as a standalone attribute (preceded by
 		// whitespace, followed by whitespace / `>` / `=`) so the assertion can't
 		// be satisfied by `data-wp-bind--hidden` or `aria-hidden`.
-		$this->assertSame( 1, preg_match( '/<ul[^>]*\s+hidden(?=\s|\/|>|=)/', $markup ) );
+		$this->assertMatchesRegularExpression( '/<ul[^>]*\s+hidden(?=\s|\/|>|=)/', $markup );
 		// The wrapper is hidden too — no buckets and no initial load.
-		$this->assertSame( 1, preg_match( '/<div[^>]*\s+hidden(?=\s|\/|>|=)/', $markup ) );
+		$this->assertMatchesRegularExpression( '/<div[^>]*\s+hidden(?=\s|\/|>|=)/', $markup );
 	}
 
 	/**
@@ -168,8 +168,8 @@ class Filter_Wc_Attribute_Render_Test extends TestCase {
 		// `hidden` only as a standalone attribute so the indirect bindings
 		// (`data-wp-bind--hidden`, `aria-hidden`, `wrapperHidden`) don't
 		// false-positive.
-		$this->assertSame( 0, preg_match( '/<div[^>]*\s+hidden(?=\s|\/|>|=)/', $markup ) );
-		$this->assertSame( 0, preg_match( '/<ul[^>]*\s+hidden(?=\s|\/|>|=)/', $markup ) );
+		$this->assertDoesNotMatchRegularExpression( '/<div[^>]*\s+hidden(?=\s|\/|>|=)/', $markup );
+		$this->assertDoesNotMatchRegularExpression( '/<ul[^>]*\s+hidden(?=\s|\/|>|=)/', $markup );
 	}
 
 	/**
