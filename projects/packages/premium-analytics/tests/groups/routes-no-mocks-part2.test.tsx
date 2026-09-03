@@ -1,6 +1,5 @@
 // See README.md before adding a suite to this group.
 
-import '../../routes/dashboard/components/onboarding-tour/onboarding-tour.test';
 import '../../routes/reports/clicks/config/aggregate.test';
 import '../../routes/reports/clicks/config/fields.test';
 import '../../routes/reports/clicks/config/get-click-csv-group.test';
