@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+AI Assistant: keep the "Improve with AI" editor panel when the Writing Assistant is turned off. The switch now hides only the title and feedback sections, so the image generator, usage meter and upgrade prompt stay.

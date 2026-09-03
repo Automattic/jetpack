@@ -205,14 +205,7 @@ jest.mock( '@wordpress/ui', () => ( {
 jest.mock( '@wordpress/core-data', () => {
 	// Runs before imports due to jest.mock hoisting; the component reads this at module scope
 	Object.defineProperty( globalThis, 'Jetpack_Editor_Initial_State', {
-		value: {
-			available_blocks: {
-				'ai-assistant-usage-panel': { available: false },
-				'ai-featured-image-generator': { available: true },
-				'ai-title-optimization': { available: false },
-				'ai-title-optimization-keywords-support': { available: false },
-			},
-		},
+		value: { available_blocks: {} },
 		writable: true,
 		configurable: true,
 	} );
@@ -252,6 +245,10 @@ jest.mock( '../upgrade', () => ( { __esModule: true, default: () => null } ) );
 jest.mock( '../style.scss', () => ( {} ) );
 
 const AGENT_NOTICE_FEATURE = 'ai-sidebar-agent-notice';
+// What a site with the writing assistant and the image editor both on exposes.
+const DEFAULT_FEATURES = [ 'ai-featured-image-generator', 'ai-assistant-support' ];
+const withFeatures = ( features: string[] ) =>
+	jest.mocked( getFeatureAvailability ).mockImplementation( f => features.includes( f ) );
 const AGENT_NOTICE_TEXT =
 	'AI tools have moved to the WordPress Agent. Look for the "Ask AI" button at the top of the screen.';
 
@@ -259,7 +256,7 @@ describe( 'AiAssistantPluginSidebar', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
 		jest.mocked( applyFilters ).mockReturnValue( null );
-		jest.mocked( getFeatureAvailability ).mockReturnValue( false );
+		withFeatures( DEFAULT_FEATURES );
 		mockIsAgentNoticeDismissed = false;
 		// The notice reads this to decide whether to offer its action, so stand in
 		// for a loaded Agents Manager the way production has one.
@@ -335,7 +332,7 @@ describe( 'AiAssistantPluginSidebar', () => {
 		} );
 
 		it( 'leaves the collapsed panels alone when there is no notice to show', () => {
-			jest.mocked( getFeatureAvailability ).mockReturnValue( false );
+			withFeatures( DEFAULT_FEATURES );
 
 			render( <AiAssistantPluginSidebar /> );
 
@@ -381,7 +378,7 @@ describe( 'AiAssistantPluginSidebar', () => {
 		} );
 
 		it( 'keeps the AI tools when the notice is not available for the site', () => {
-			jest.mocked( getFeatureAvailability ).mockReturnValue( false );
+			withFeatures( DEFAULT_FEATURES );
 
 			render( <AiAssistantPluginSidebar /> );
 
@@ -389,6 +386,46 @@ describe( 'AiAssistantPluginSidebar', () => {
 			expect(
 				within( screen.getByTestId( 'document-panel' ) ).getByText( 'Get Feedback' )
 			).toBeInTheDocument();
+		} );
+	} );
+
+	describe( 'writing assistant switch', () => {
+		it( 'shows the feedback section and the pre-publish panel when the writing assistant is on', () => {
+			render( <AiAssistantPluginSidebar /> );
+
+			expect(
+				within( screen.getByTestId( 'document-panel' ) ).getByText( 'Get Feedback' )
+			).toBeInTheDocument();
+			expect( screen.getByTestId( 'pre-publish-panel' ) ).toBeInTheDocument();
+		} );
+
+		it( 'hides only the writing sections when the writing assistant is off', () => {
+			withFeatures( [ 'ai-featured-image-generator' ] );
+
+			render( <AiAssistantPluginSidebar /> );
+
+			const documentPanel = screen.getByTestId( 'document-panel' );
+			expect( within( documentPanel ).queryByText( 'Get Feedback' ) ).not.toBeInTheDocument();
+			expect(
+				within( documentPanel ).getByRole( 'button', { name: 'Generate using AI' } )
+			).toBeInTheDocument();
+			expect(
+				within( documentPanel ).getByText( 'Learn more about Jetpack AI' )
+			).toBeInTheDocument();
+			expect( screen.queryByTestId( 'pre-publish-panel' ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'keeps the panel when every feature is off, so the upgrade and usage rows still have a home', () => {
+			withFeatures( [] );
+
+			render( <AiAssistantPluginSidebar /> );
+
+			expect( screen.getByTestId( 'jetpack-sidebar' ) ).toBeInTheDocument();
+			expect( screen.getByTestId( 'document-panel' ) ).toBeInTheDocument();
+			expect( screen.queryByText( 'Get Feedback' ) ).not.toBeInTheDocument();
+			expect(
+				screen.queryByRole( 'button', { name: 'Generate using AI' } )
+			).not.toBeInTheDocument();
 		} );
 	} );
 
