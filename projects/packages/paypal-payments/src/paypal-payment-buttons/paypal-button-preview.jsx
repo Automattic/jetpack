@@ -20,7 +20,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { CURRENCY_SYMBOLS } from './currency-symbols';
 import { withPartnerAttribution } from './partner-attribution';
 import PayPalLogo from './paypal-logo';
-import { hasVariantPricing } from './variant-builder';
+import { getPrimaryDimension, hasVariantPricing } from './variant-builder';
 
 /**
  * Format a price with currency symbol.
@@ -35,7 +35,10 @@ function formatPrice( priceValue, currencyCode ) {
 }
 
 /**
- * Find the cheapest per-option price across the variant dimensions.
+ * Find the cheapest per-option price in the primary option group.
+ *
+ * PayPal only prices the primary group, so an amount left on another group is
+ * not a price a buyer can pay and must not become the headline.
  *
  * @param {object} variants - Variants data with dimensions.
  * @return {string|null} The lowest option price, or null when none are priced.
@@ -43,16 +46,14 @@ function formatPrice( priceValue, currencyCode ) {
 function getLowestVariantPrice( variants ) {
 	let lowest = null;
 
-	( variants?.dimensions || [] ).forEach( dim => {
-		( dim.options || [] ).forEach( opt => {
-			const value = `${ opt.unit_amount?.value ?? '' }`.trim();
-			if ( value === '' || isNaN( parseFloat( value ) ) ) {
-				return;
-			}
-			if ( lowest === null || parseFloat( value ) < parseFloat( lowest ) ) {
-				lowest = value;
-			}
-		} );
+	( getPrimaryDimension( variants )?.options || [] ).forEach( opt => {
+		const value = `${ opt.unit_amount?.value ?? '' }`.trim();
+		if ( value === '' || isNaN( parseFloat( value ) ) ) {
+			return;
+		}
+		if ( lowest === null || parseFloat( value ) < parseFloat( lowest ) ) {
+			lowest = value;
+		}
 	} );
 
 	return lowest;

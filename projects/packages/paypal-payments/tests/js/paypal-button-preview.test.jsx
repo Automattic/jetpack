@@ -158,4 +158,33 @@ describe( 'PayPalButtonPreview', () => {
 		);
 		expect( screen.getByText( '$9.99' ) ).toBeInTheDocument();
 	} );
+
+	it( 'ignores a price left on a non-primary option group', () => {
+		// PayPal only prices the primary group, so $5.00 is not a price a buyer can pay.
+		render(
+			<PayPalButtonPreview
+				{ ...defaultProps }
+				price=""
+				variantsEnabled
+				variants={ {
+					dimensions: [
+						{
+							name: 'Size',
+							primary: true,
+							options: [
+								{ label: 'Small', unit_amount: { currency_code: 'USD', value: '12.50' } },
+							],
+						},
+						{
+							name: 'Color',
+							primary: false,
+							options: [ { label: 'Red', unit_amount: { currency_code: 'USD', value: '5.00' } } ],
+						},
+					],
+				} }
+			/>
+		);
+		expect( screen.getByText( 'From $12.50' ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'From $5.00' ) ).not.toBeInTheDocument();
+	} );
 } );

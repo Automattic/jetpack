@@ -725,6 +725,118 @@ class PayPal_Attribute_Mapper_Test extends TestCase {
 		$this->assertEquals( 'invalid_variant_price', $result->get_error_code() );
 	}
 
+	/**
+	 * Test that an option group without a name is rejected.
+	 *
+	 * The sanitizer drops such a group, so accepting it would validate prices
+	 * PayPal never receives.
+	 */
+	public function test_validate_rejects_unnamed_option_group() {
+		$variants                          = $this->variants_with_prices( array( '10.00', '20.00' ) );
+		$variants['dimensions'][0]['name'] = ' ';
+
+		$result = PayPal_Attribute_Mapper::validate_attributes(
+			array(
+				'productName'     => 'Widget',
+				'currencyCode'    => 'USD',
+				'variantsEnabled' => true,
+				'variants'        => $variants,
+			)
+		);
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertEquals( 'missing_variant_name', $result->get_error_code() );
+	}
+
+	/**
+	 * Test that an option without a label is rejected.
+	 */
+	public function test_validate_rejects_unlabeled_option() {
+		$variants = $this->variants_with_prices( array( '10.00', '20.00' ) );
+		$variants['dimensions'][0]['options'][1]['label'] = '';
+
+		$result = PayPal_Attribute_Mapper::validate_attributes(
+			array(
+				'productName'     => 'Widget',
+				'currencyCode'    => 'USD',
+				'variantsEnabled' => true,
+				'variants'        => $variants,
+			)
+		);
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertEquals( 'missing_variant_label', $result->get_error_code() );
+	}
+
+	/**
+	 * Test that more option groups than the sanitizer keeps are rejected.
+	 */
+	public function test_validate_rejects_too_many_option_groups() {
+		$variants = array( 'dimensions' => array() );
+		for ( $i = 0; $i <= PayPal_Attribute_Mapper::MAX_VARIANT_DIMENSIONS; $i++ ) {
+			$variants['dimensions'][] = array(
+				'name'    => 'Group ' . $i,
+				'primary' => 0 === $i,
+				'options' => array( array( 'label' => 'Option' ) ),
+			);
+		}
+
+		$result = PayPal_Attribute_Mapper::validate_attributes(
+			array(
+				'productName'     => 'Widget',
+				'price'           => '29.99',
+				'currencyCode'    => 'USD',
+				'variantsEnabled' => true,
+				'variants'        => $variants,
+			)
+		);
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertEquals( 'too_many_variant_dimensions', $result->get_error_code() );
+	}
+
+	/**
+	 * Test that more options than the sanitizer keeps are rejected.
+	 */
+	public function test_validate_rejects_too_many_options() {
+		$variants = $this->variants_with_prices( array_fill( 0, PayPal_Attribute_Mapper::MAX_VARIANT_OPTIONS + 1, '10.00' ) );
+
+		$result = PayPal_Attribute_Mapper::validate_attributes(
+			array(
+				'productName'     => 'Widget',
+				'currencyCode'    => 'USD',
+				'variantsEnabled' => true,
+				'variants'        => $variants,
+			)
+		);
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertEquals( 'too_many_variant_options', $result->get_error_code() );
+	}
+
+	/**
+	 * Test that a well-formed non-primary option group is accepted.
+	 */
+	public function test_validate_accepts_named_and_labeled_option_groups() {
+		$variants                 = $this->variants_with_prices( array( '10.00', '20.00' ) );
+		$variants['dimensions'][] = array(
+			'name'    => 'Color',
+			'primary' => false,
+			'options' => array( array( 'label' => 'Red' ) ),
+		);
+
+		$result = PayPal_Attribute_Mapper::validate_attributes(
+			array(
+				'productName'     => 'Widget',
+				'currencyCode'    => 'USD',
+				'variantsEnabled' => true,
+				'variants'        => $variants,
+			)
+		);
+
+		$this->assertTrue( $result );
+	}
+
 	// --- Constants ---
 
 	/**

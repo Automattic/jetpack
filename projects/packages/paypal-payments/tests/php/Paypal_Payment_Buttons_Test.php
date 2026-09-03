@@ -679,6 +679,61 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 	}
 
 	/**
+	 * Test that a price left on a non-primary option never becomes the headline.
+	 *
+	 * PayPal only prices the primary group, so the $5.00 here is not a price a
+	 * buyer can pay.
+	 */
+	public function test_render_block_ignores_prices_on_non_primary_options() {
+		$attributes = array(
+			'isApiManaged'    => true,
+			'resourceId'      => 'PLB-VAR7',
+			'paymentLink'     => 'https://www.paypal.com/ncp/payment/PLB-VAR7',
+			'productName'     => 'Widget',
+			'price'           => '',
+			'currencyCode'    => 'USD',
+			'variantsEnabled' => true,
+			'variants'        => array(
+				'dimensions' => array(
+					array(
+						'name'    => 'Size',
+						'primary' => true,
+						'options' => array(
+							array(
+								'label'       => 'Small',
+								'unit_amount' => array(
+									'currency_code' => 'USD',
+									'value'         => '12.50',
+								),
+							),
+						),
+					),
+					array(
+						'name'    => 'Color',
+						'primary' => false,
+						'options' => array(
+							array(
+								'label'       => 'Red',
+								'unit_amount' => array(
+									'currency_code' => 'USD',
+									'value'         => '5.00',
+								),
+							),
+						),
+					),
+				),
+			),
+		);
+
+		$this->set_up_block_render_context( $attributes );
+
+		$result = PayPal_Payment_Buttons::render_block( $attributes, '' );
+
+		$this->assertStringContainsString( 'jetpack-paypal-button__product-price">From $12.50</span>', $result );
+		$this->assertStringNotContainsString( 'From $5.00', $result );
+	}
+
+	/**
 	 * Test that render_block keeps the product price when the options are off.
 	 *
 	 * Whether the options have prices is a separate question from whether they
