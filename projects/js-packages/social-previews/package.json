@@ -56,6 +56,7 @@
 		"@types/react": "18.3.31",
 		"@types/react-dom": "18.3.7",
 		"@typescript/native-preview": "7.0.0-dev.20260707.2",
+		"@wordpress/theme": "2.1.1-next.v.202608281122.0",
 		"babel-jest": "30.4.1",
 		"jest": "30.4.2",
 		"react": "18.3.1",
