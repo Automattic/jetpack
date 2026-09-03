@@ -47,10 +47,10 @@ import { SUPPORTED_CURRENCIES, VALID_CURRENCY_CODES } from './currencies';
 import { getPriceStep } from './currency-symbols';
 import FormatSwitcher, { FORMAT_OPTIONS } from './format-switcher';
 import PayPalButtonPreview from './paypal-button-preview';
-import { broadcastConnectionChange, usePayPalConnection } from './paypal-connection';
 import { paypalLogoSvg } from './paypal-full-logo';
 import { ONBOARDING_SANDBOX } from './paypal-partner-sdk';
 import { getResourceAttributeUpdates } from './resource-sync';
+import { broadcastConnectionChange, usePayPalConnection } from './use-paypal-connection';
 import {
 	validatePrice,
 	validateProductName,
