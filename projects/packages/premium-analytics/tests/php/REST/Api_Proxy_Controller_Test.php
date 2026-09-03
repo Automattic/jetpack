@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics\REST;
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Constants;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
@@ -345,6 +347,67 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 		$this->assertSame(
 			'{"feedback":"slow"}',
 			$accessor->call( $this->controller, '{"feedback":"slow"}', array( 'inject_user_email' => true ) )
+		);
+	}
+
+	/**
+	 * The cases above call the injector directly. This one drives the whole route, so a config
+	 * flag that never reaches `forward()` fails here rather than shipping as a dead option.
+	 */
+	public function test_feedback_write_forwards_the_user_email_through_the_route() {
+		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
+		\Jetpack_Options::update_option( 'id', 4242 );
+		\Jetpack_Options::update_option( 'blog_token', 'blog_token.secret' );
+		( new Connection_Manager() )->reset_connection_status();
+
+		wp_set_current_user(
+			wp_insert_user(
+				array(
+					'user_login' => 'jpa_feedback_route',
+					'user_pass'  => 'password',
+					'user_email' => self::FEEDBACK_USER_EMAIL,
+					'role'       => 'administrator',
+				)
+			)
+		);
+
+		$captured = array(
+			'url'  => '',
+			'args' => array(),
+		);
+		add_filter(
+			'pre_http_request',
+			function ( $pre, $args, $url ) use ( &$captured ) {
+				$captured = array(
+					'url'  => $url,
+					'args' => $args,
+				);
+
+				return array(
+					'response' => array( 'code' => 200 ),
+					'body'     => wp_json_encode( array( 'success' => true ), JSON_UNESCAPED_SLASHES ),
+					'headers'  => array(),
+				);
+			},
+			10,
+			3
+		);
+
+		$request = $this->build_data_request( 'POST', 'jetpack-stats/user-feedback' );
+		$request->set_body( '{"feedback":"slow"}' );
+		$response = $this->controller->handle_data_request( $request );
+
+		remove_all_filters( 'pre_http_request' );
+		\Jetpack_Options::delete_option( 'blog_token' );
+		\Jetpack_Options::delete_option( 'id' );
+		( new Connection_Manager() )->reset_connection_status();
+		Constants::clear_single_constant( 'JETPACK__WPCOM_JSON_API_BASE' );
+
+		$this->assertInstanceOf( WP_REST_Response::class, $response );
+		$this->assertStringContainsString( '/wpcom/v2/sites/4242/jetpack-stats/user-feedback', $captured['url'] );
+		$this->assertSame(
+			'{"feedback":"slow","user_email":"' . self::FEEDBACK_USER_EMAIL . '"}',
+			$captured['args']['body'] ?? null
 		);
 	}
 

@@ -384,10 +384,11 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 			$request,
 			$this->build_data_path( $endpoint ),
 			array(
-				'version'         => $version,
-				'base'            => $this->base_for_version( $version ),
-				'bust_on_write'   => $this->busts_cache( $endpoint ),
-				'unauthenticated' => ! empty( $config['unauthenticated'] ),
+				'version'           => $version,
+				'base'              => $this->base_for_version( $version ),
+				'bust_on_write'     => $this->busts_cache( $endpoint ),
+				'unauthenticated'   => ! empty( $config['unauthenticated'] ),
+				'inject_user_email' => ! empty( $config['inject_user_email'] ),
 			)
 		);
 	}
