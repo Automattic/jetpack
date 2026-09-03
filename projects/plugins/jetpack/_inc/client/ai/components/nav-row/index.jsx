@@ -4,6 +4,7 @@
  */
 
 import { Icon, VisuallyHidden } from '@wordpress/components';
+import { useId } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { chevronRight } from '@wordpress/icons';
 import { Text } from '@wordpress/ui';
@@ -49,8 +50,20 @@ export default function NavRow( {
 		? `jetpack-ai-nav-row jetpack-ai-nav-row--${ tone }`
 		: 'jetpack-ai-nav-row';
 
+	const descriptionId = useId();
+	const newTabId = useId();
+	const describedBy =
+		[ description && descriptionId, href && external && newTabId ]
+			.filter( Boolean )
+			.join( ' ' ) || undefined;
+
 	return (
-		<Tag className={ className } { ...tagProps }>
+		<Tag
+			className={ className }
+			aria-label={ title }
+			aria-describedby={ describedBy }
+			{ ...tagProps }
+		>
 			<span className="jetpack-ai-nav-row__icon">
 				<Icon icon={ icon } size={ iconSize } />
 			</span>
@@ -59,7 +72,12 @@ export default function NavRow( {
 					{ title }
 				</Text>
 				{ description && (
-					<Text render={ <p /> } variant="body-md" className="jetpack-ai-nav-row__description">
+					<Text
+						render={ <p /> }
+						id={ descriptionId }
+						variant="body-md"
+						className="jetpack-ai-nav-row__description"
+					>
 						{ description }
 					</Text>
 				) }
@@ -68,7 +86,7 @@ export default function NavRow( {
 				<Icon icon={ chevronRight } size={ 24 } />
 			</span>
 			{ href && external && (
-				<VisuallyHidden>{ __( '(opens in a new tab)', 'jetpack' ) }</VisuallyHidden>
+				<VisuallyHidden id={ newTabId }>{ __( '(opens in a new tab)', 'jetpack' ) }</VisuallyHidden>
 			) }
 		</Tag>
 	);

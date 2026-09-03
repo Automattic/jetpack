@@ -529,9 +529,10 @@ describe( 'AiOverview', () => {
 		await expect( screen.findByText( 'Available requests' ) ).resolves.toBeInTheDocument();
 
 		for ( const title of [ 'Connect Claude', 'Connect ChatGPT' ] ) {
-			const card = screen.getByRole( 'link', {
-				name: new RegExp( `${ title }.*\\(opens in a new tab\\)` ),
-			} );
+			// The row is named by its title alone; the description and the
+			// new-tab announcement arrive via aria-describedby.
+			const card = screen.getByRole( 'link', { name: title } );
+			expect( card ).toHaveAccessibleDescription( /\(opens in a new tab\)/ );
 			expect( card ).toHaveAttribute( 'target', '_blank' );
 			expect( card ).toHaveAttribute( 'rel', 'noopener noreferrer' );
 		}
