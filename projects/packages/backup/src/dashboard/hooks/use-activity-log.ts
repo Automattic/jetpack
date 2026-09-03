@@ -126,24 +126,29 @@ export function useActivityLog( { page, pageSize, sortOrder }: Args ): Result {
  * selections that are not clicks — a bookmarked `?selected=` on a page nothing
  * has loaded, and the newest-backup default pinned by the hook below.
  *
+ * A null item alone cannot be reported as "no such row": it is equally the
+ * answer while the page query is in flight and after it failed. Callers that
+ * act on the absence — not merely describe it — need `isResolved` and `error`
+ * to tell those three apart.
+ *
  * @param id        - Selection id: `rewindId` for backup items, `activity_id` otherwise.
  * @param page      - The page currently shown in the list.
  * @param pageSize  - The per-page setting currently shown in the list.
  * @param sortOrder - The sort direction currently shown in the list.
- * @return The matching item, or null when nothing in the cached page(s) matches.
+ * @return The matching item or null, whether the page query has answered, and its failure if it did.
  */
 export function useActivityById(
 	id: string | null,
 	page: number,
 	pageSize: number,
 	sortOrder: ActivitySortOrder
-): ActivityItem | null {
+): { item: ActivityItem | null; isResolved: boolean; error: Error | null } {
 	// Follows the list's `sortOrder`: it is part of the cache key, so pinning it
 	// here would open a second query for rows already on screen.
 	const query = useActivityPageQuery( page, pageSize, sortOrder );
 	const queryClient = useQueryClient();
 
-	return useMemo( () => {
+	const item = useMemo( () => {
 		if ( ! id ) {
 			return null;
 		}
@@ -168,6 +173,8 @@ export function useActivityById(
 		// active page query resolves (covered by `query.data`).
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [ id, query.data ] );
+
+	return { item, isResolved: query.isSuccess, error: query.error };
 }
 
 /**
