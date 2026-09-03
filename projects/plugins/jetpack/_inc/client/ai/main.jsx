@@ -140,6 +140,7 @@ export default function App() {
 		planName,
 		planRenewsOn,
 		planAutoRenew,
+		planExpired,
 		isUserConnected,
 		showFeaturesView = false,
 		showA12sBadge = false,
@@ -366,6 +367,7 @@ export default function App() {
 						planName={ planName }
 						planRenewsOn={ planRenewsOn }
 						planAutoRenew={ planAutoRenew }
+						planExpired={ planExpired }
 						isUserConnected={ isUserConnected }
 						hostAllowsAi={ aiSettings?.host_allows_ai }
 						// Same preconditions the MCP hub applies to its copy of the

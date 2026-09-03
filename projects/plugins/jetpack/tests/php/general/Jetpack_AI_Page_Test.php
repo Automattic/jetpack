@@ -769,9 +769,11 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * An expired purchase names nothing, so a lapsed site cannot read as paid.
+	 * An expired purchase is still named and dated, flagged so the card can
+	 * say the plan expired rather than leaving the cell empty during the
+	 * grace period, when AI still works.
 	 */
-	public function test_expired_purchase_is_not_named() {
+	public function test_expired_purchase_is_named_and_flagged() {
 		$expired                = $this->jetpack_ai_purchase();
 		$expired->expiry_status = 'expired';
 
@@ -781,7 +783,67 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 
 		$settings = $this->get_injected_settings();
 
-		$this->assertSame( '', $settings['planName'] );
+		$this->assertSame( 'AI Assistant', $settings['planName'] );
+		$this->assertSame( '2027-03-15T00:00:00+00:00', $settings['planRenewsOn'] );
+		$this->assertTrue( $settings['planExpired'] );
+	}
+
+	/**
+	 * A live purchase must not be flagged, or every plan would read as expired.
+	 */
+	public function test_a_live_purchase_is_not_flagged_as_expired() {
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+		$this->given_woa( false );
+		$this->given_site( array( $this->jetpack_ai_purchase() ) );
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertFalse( $settings['planExpired'] );
+	}
+
+	/**
+	 * The Dotcom branch carries the flag too — the reported case was an
+	 * expired WordPress.com plan on an Atomic site.
+	 */
+	public function test_expired_wpcom_plan_is_named_and_flagged() {
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+		$this->given_woa( true );
+		$this->given_site(
+			array(
+				$this->jetpack_ai_purchase(),
+				(object) array(
+					'product_slug'  => 'business-bundle',
+					'product_name'  => 'WordPress.com Business',
+					'expiry_status' => 'expired',
+					'expiry_date'   => '2026-08-27T00:00:00+00:00',
+				),
+			),
+			'business-bundle'
+		);
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertSame( 'Business', $settings['planName'] );
+		$this->assertTrue( $settings['planExpired'] );
+	}
+
+	/**
+	 * A cache written before the flag existed must not read as expired.
+	 */
+	public function test_a_cache_without_the_flag_is_not_expired() {
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+		set_transient(
+			'jetpack_ai_overview_plan_info',
+			array(
+				'name'      => 'Cached',
+				'renews_on' => '2027-03-15T00:00:00+00:00',
+			),
+			HOUR_IN_SECONDS
+		);
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertFalse( $settings['planExpired'] );
 	}
 
 	/**

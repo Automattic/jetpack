@@ -98,15 +98,32 @@ const DOC_LINKS = [
  *                                        the usage-period rollover, which is monthly.
  * @param {boolean} [props.planAutoRenew] - Whether the purchase auto-renews; decides
  *                                        whether the date reads Renews on or Expires on.
+ * @param {boolean} [props.planExpired]   - Whether the purchase has already lapsed; puts
+ *                                        the date in the past tense, over auto-renew.
  * @return {object} Component markup.
  */
-function UsageCard( { upgradeUrl, planName, planRenewsOn, planAutoRenew } ) {
+function UsageCard( { upgradeUrl, planName, planRenewsOn, planAutoRenew, planExpired } ) {
 	const { isLoading, data, error } = useAiUsage();
 	const usage = normalizeUsage( data );
 	// Only the purchase's own renewal belongs under "Renews on"; the usage
 	// period's rollover is a different date. Rendered in the site's timezone to
 	// match My Jetpack and the other purchase surfaces (review call).
 	const renewsOnDisplay = planRenewsOn && dateI18n( getDateSettings().formats.date, planRenewsOn );
+	// A lapsed plan reads in the past tense whatever its auto-renew flag says:
+	// it keeps granting AI through the grace period, which is when this shows.
+	let renewalTemplate =
+		/* translators: %s: localized date the plan renews on. */
+		__( 'Renews on: <date>%s</date>', 'jetpack' );
+	if ( planExpired ) {
+		renewalTemplate =
+			/* translators: %s: localized date the plan expired on. */
+			__( 'Expired on: <date>%s</date>', 'jetpack' );
+	} else if ( planAutoRenew === false ) {
+		renewalTemplate =
+			/* translators: %s: localized date the plan expires on. */
+			__( 'Expires on: <date>%s</date>', 'jetpack' );
+	}
+	const renewalLine = sprintf( renewalTemplate, renewsOnDisplay );
 	// The purchase name only labels a paid state — the usage endpoint is
 	// authoritative for the tier, so an expired purchase cannot relabel Free.
 	const planLabel = ( ! usage.isFree && planName ) || usage.planLabel;
@@ -227,22 +244,17 @@ function UsageCard( { upgradeUrl, planName, planRenewsOn, planAutoRenew } ) {
 									<Text
 										render={ <p /> }
 										variant="body-sm"
-										className="jetpack-ai-overview__muted jetpack-ai-overview__renewal"
+										// Exclusive, not additive: both classes set a color, and
+										// equal specificity would leave source order to decide.
+										className={ `jetpack-ai-overview__renewal ${
+											planExpired
+												? 'jetpack-ai-overview__renewal--expired'
+												: 'jetpack-ai-overview__muted'
+										}` }
 									>
-										{ createInterpolateElement(
-											planAutoRenew !== false
-												? sprintf(
-														/* translators: %s: localized date the plan renews on. */
-														__( 'Renews on: <date>%s</date>', 'jetpack' ),
-														renewsOnDisplay
-												  )
-												: sprintf(
-														/* translators: %s: localized date the plan expires on. */
-														__( 'Expires on: <date>%s</date>', 'jetpack' ),
-														renewsOnDisplay
-												  ),
-											{ date: <span className="jetpack-ai-overview__renewal-date" /> }
-										) }
+										{ createInterpolateElement( renewalLine, {
+											date: <span className="jetpack-ai-overview__renewal-date" />,
+										} ) }
 									</Text>
 								) }
 							</Stack>
@@ -264,6 +276,7 @@ function UsageCard( { upgradeUrl, planName, planRenewsOn, planAutoRenew } ) {
  * @param {string}  [props.planName]        - Purchase name granting AI, from the page data.
  * @param {string}  [props.planRenewsOn]    - The purchase's renewal date, from the page data.
  * @param {boolean} [props.planAutoRenew]   - Whether that purchase auto-renews, from the page data.
+ * @param {boolean} [props.planExpired]     - Whether that purchase has lapsed, from the page data.
  * @param {boolean} [props.showActivityLog] - Whether the activity-log row applies: the row's
  *                                          copy promises AI-agent actions, which need MCP.
  * @param {boolean} [props.hostAllowsAi]    - The host's AI switch; when explicitly false, no
@@ -279,6 +292,7 @@ export default function AiOverview( {
 	planName,
 	planRenewsOn,
 	planAutoRenew,
+	planExpired,
 	showActivityLog,
 	hostAllowsAi,
 	isUserConnected,
@@ -317,6 +331,7 @@ export default function AiOverview( {
 					planName={ planName }
 					planRenewsOn={ planRenewsOn }
 					planAutoRenew={ planAutoRenew }
+					planExpired={ planExpired }
 				/>
 			) }
 			{ ! blogId && (
