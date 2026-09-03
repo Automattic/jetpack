@@ -1,5 +1,4 @@
 import { useViewportMatch } from '@wordpress/compose';
-import { dateI18n } from '@wordpress/date';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { calendar as calendarIcon } from '@wordpress/icons';
@@ -12,13 +11,19 @@ type DateRange = NonNullable< Parameters< typeof RangeCalendar >[ 0 ][ 'value' ]
 
 const MAX_RANGE_DAYS = 365;
 
-const formatLabel = ( start: Date, end: Date ) =>
-	sprintf(
+// Dates are local midnight, so format them locally rather than through the
+// site timezone that `dateI18n` applies.
+const formatLabel = ( start: Date, end: Date ) => {
+	const format = new Intl.DateTimeFormat( document.documentElement.lang || undefined, {
+		dateStyle: 'medium',
+	} );
+	return sprintf(
 		/* translators: %1$s: start date, %2$s: end date */
 		__( '%1$s to %2$s', 'jetpack-podcast' ),
-		dateI18n( 'M j, Y', start ),
-		dateI18n( 'M j, Y', end )
+		format.format( start ),
+		format.format( end )
 	);
+};
 
 /**
  * Translated heading for a selection. Preset periods use a fixed label;
