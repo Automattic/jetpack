@@ -489,6 +489,78 @@ Register custom charts with the global context:
 	}` }
 />
 
+## Date Bucket Classification
+
+### getBucketInfo
+
+Unlike the hooks above, this is a plain function — it reads no context and
+needs no `GlobalChartsProvider`.
+
+`LineChart` and `AreaChart` classify a series' time bucket to pick their axis
+and tooltip formats. `getBucketInfo( data, tickResolution? )` exposes that
+same classification for a consumer building its own label:
+
+<Source
+	language="tsx"
+	code={ `import { getBucketInfo } from '@automattic/charts';
+
+	const bucketInfo = getBucketInfo( data, tickResolution );
+	// { bucket: 'day', displayResolution: 'day' }` }
+/>
+
+It returns two fields because labeling and semantics diverge. A weekly
+series is labeled with calendar dates exactly as a daily one is, so
+`displayResolution` (`Exclude< TickResolution, 'week' >`) is what a date
+format keys on. But a consumer may still need to know the series is weekly —
+to write "Week of 5 Aug" rather than a bare date, say — and that is what
+`bucket` carries.
+
+`bucket` only reports `'week'` when a caller declares it, via the same
+`tickResolution` handed to the chart's `options.axis.x`. Seven-day spacing is
+indistinguishable from sparse daily data, so `getBucketInfo` cannot recover a
+week on its own; an undeclared weekly series reports `'day'` in both fields.
+
+**Inside a custom tooltip**, read it directly: `LineChart` and `AreaChart`
+always call `renderTooltip` with `bucketInfo` attached, so a custom renderer
+needs no separate call and no cast.
+
+<Source
+	language="tsx"
+	code={ `<LineChart
+		data={ data }
+		renderTooltip={ params => {
+			const heading =
+				params.bucketInfo?.bucket === 'week' ? 'Week of …' : 'Day of …';
+			return <span>{ heading }</span>;
+		} }
+	/>` }
+/>
+
+**Anywhere else — `tickFormat` above all — call `getBucketInfo` yourself.**
+visx fixes the `tickFormat` signature to `( value, index, values ) => string`,
+so a chart has no channel to hand it `bucketInfo` the way it hands
+`renderTooltip`. Call `getBucketInfo` in the component body with the same data
+and `tickResolution` the chart receives, and close over the result:
+
+<Source
+	language="tsx"
+	code={ `import { getBucketInfo } from '@automattic/charts';
+
+	function MyChart( { data, tickResolution } ) {
+		const bucketInfo = getBucketInfo( data, tickResolution );
+
+		const tickFormat = ( timestamp ) =>
+			bucketInfo.bucket === 'week' ? formatWeek( timestamp ) : formatDay( timestamp );
+
+		return (
+			<LineChart
+				data={ data }
+				options={ { axis: { x: { tickResolution, tickFormat } } } }
+			/>
+		);
+	}` }
+/>
+
 ## Performance Considerations
 
 ### Color Caching
