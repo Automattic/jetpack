@@ -100,20 +100,18 @@ function BadgeWithIcon( { badge } ) {
  * A tappable row that navigates to a sub-view, visually similar to calypso's
  * RouterLinkSummaryButton.
  *
- * @param {object}                            props          - Component props.
- * @param {*}                                 props.icon     - WordPress icon.
- * @param {string}                            props.title    - Row label.
- * @param {{ text: string, intent?: string }} props.badge    - Optional badge.
- * @param {Function}                          props.onClick  - Click handler.
- * @param {boolean}                           props.disabled - Whether the row is inert.
+ * @param {object}                            props         - Component props.
+ * @param {*}                                 props.icon    - WordPress icon.
+ * @param {string}                            props.title   - Row label.
+ * @param {{ text: string, intent?: string }} props.badge   - Optional badge.
+ * @param {Function}                          props.onClick - Click handler.
  * @return {object} Component markup.
  */
-function SummaryRow( { icon, title, badge, onClick, disabled } ) {
+function SummaryRow( { icon, title, badge, onClick } ) {
 	return (
 		<Button
 			className="jetpack-ai-mcp__summary-row"
-			onClick={ disabled ? undefined : onClick }
-			disabled={ disabled }
+			onClick={ onClick }
 			variant="minimal"
 			tone="neutral"
 		>
@@ -123,7 +121,7 @@ function SummaryRow( { icon, title, badge, onClick, disabled } ) {
 					<Text>{ title }</Text>
 				</Stack>
 				<Stack direction="row" gap="sm" align="center" justify="flex-end">
-					{ ! disabled && badge && <BadgeWithIcon badge={ badge } /> }
+					{ badge && <BadgeWithIcon badge={ badge } /> }
 					<Icon icon={ chevronRight } size={ 20 } />
 				</Stack>
 			</Stack>
@@ -270,7 +268,7 @@ export default function McpHub( {
 					</Stack>
 				</CardBody>
 
-				{ isMcpEnabled && (
+				{ isMcpEnabled && masterEnabled && (
 					<>
 						<CardDivider />
 						<SummaryRow
@@ -278,7 +276,6 @@ export default function McpHub( {
 							title={ __( 'Read', 'jetpack' ) }
 							badge={ readBadge }
 							onClick={ navigateToRead }
-							disabled={ controlsDisabled }
 						/>
 						<CardDivider />
 						<SummaryRow
@@ -286,7 +283,6 @@ export default function McpHub( {
 							title={ __( 'Write', 'jetpack' ) }
 							badge={ writeBadge }
 							onClick={ navigateToWrite }
-							disabled={ controlsDisabled }
 						/>
 					</>
 				) }

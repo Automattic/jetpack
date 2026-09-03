@@ -174,7 +174,7 @@ describe( 'AI admin page (main.jsx)', () => {
 			).resolves.toBeInTheDocument();
 		} );
 
-		test( 'MCP tab: master off disables the main toggle and hides action cards', async () => {
+		test( 'MCP tab: master off disables the main toggle and hides the rest of the hub', async () => {
 			window.jetpackAiSettings = { showFeaturesView: true, blogId: 1 };
 			window.location.hash = '#/mcp';
 			mockApiFetch( { featureGet: masterOffSettings(), mcpGet: connectedMcpGet() } );
@@ -190,19 +190,8 @@ describe( 'AI admin page (main.jsx)', () => {
 			expect( mcpToggle ).toBeChecked();
 			expect( mcpToggle ).toBeDisabled();
 
-			// Read / Write nav rows appear (MCP is saved on) but cannot be clicked.
-			// @wordpress/ui Button uses aria-disabled rather than the HTML disabled
-			// attribute, so toBeDisabled() does not match — check the attribute directly.
-			expect( screen.getByRole( 'button', { name: /Read/ } ) ).toHaveAttribute(
-				'aria-disabled',
-				'true'
-			);
-			expect( screen.getByRole( 'button', { name: /Write/ } ) ).toHaveAttribute(
-				'aria-disabled',
-				'true'
-			);
-
-			// Action cards are hidden while master is off.
+			expect( screen.queryByRole( 'button', { name: /Read/ } ) ).not.toBeInTheDocument();
+			expect( screen.queryByRole( 'button', { name: /Write/ } ) ).not.toBeInTheDocument();
 			expect( screen.queryByText( 'Connect external AI agent' ) ).not.toBeInTheDocument();
 			expect( screen.queryByRole( 'link', { name: /Activity log/ } ) ).not.toBeInTheDocument();
 		} );
