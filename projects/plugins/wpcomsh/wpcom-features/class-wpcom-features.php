@@ -101,10 +101,6 @@ class WPCOM_Features {
 	private const WPCOM_WOOEXPRESS_MEDIUM_BUNDLE_YEARLY       = 'wooexpress-medium-bundle-yearly'; // 1055
 	private const WPCOM_WOOEXPRESS_SMALL_BUNDLE_MONTHLY       = 'wooexpress-small-bundle-monthly'; // 1054
 	private const WPCOM_WOOEXPRESS_SMALL_BUNDLE_YEARLY        = 'wooexpress-small-bundle-yearly'; // 1056
-	private const WOO_HOSTED_BASIC_PLAN_MONTHLY               = 'woo_hosted_basic_plan_monthly'; // 4001
-	private const WOO_HOSTED_BASIC_PLAN_YEARLY                = 'woo_hosted_basic_plan_yearly'; // 4002
-	private const WOO_HOSTED_PRO_PLAN_MONTHLY                 = 'woo_hosted_pro_plan_monthly'; // 4003
-	private const WOO_HOSTED_PRO_PLAN_YEARLY                  = 'woo_hosted_pro_plan_yearly'; // 4004
 	private const WPCOM_MIGRATION_TRIAL_BUNDLE_MONTHLY        = 'wp_bundle_migration_trial_monthly'; // 1057
 	private const WPCOM_HOSTING_TRIAL_BUNDLE_MONTHLY          = 'wp_bundle_hosting_trial_monthly'; // 1058
 	private const WPCOM_STAGING_PRODUCT                       = 'wp_staging_site_lifetime'; // 1060
@@ -263,6 +259,10 @@ class WPCOM_Features {
 	private const A4A_JETPACK_SOCIAL_V1_MONTHLY               = 'a4a_jetpack_social_v1_monthly'; // 3339
 	private const A4A_JETPACK_CREATOR_YEARLY                  = 'a4a_jetpack_creator_yearly'; // 3340
 	private const A4A_JETPACK_CREATOR_MONTHLY                 = 'a4a_jetpack_creator_monthly'; // 3341
+	private const WOO_HOSTED_BASIC_PLAN_MONTHLY               = 'woo_hosted_basic_plan_monthly'; // 4001
+	private const WOO_HOSTED_BASIC_PLAN_YEARLY                = 'woo_hosted_basic_plan_yearly'; // 4002
+	private const WOO_HOSTED_PRO_PLAN_MONTHLY                 = 'woo_hosted_pro_plan_monthly'; // 4003
+	private const WOO_HOSTED_PRO_PLAN_YEARLY                  = 'woo_hosted_pro_plan_yearly'; // 4004
 
 	// WPCOM "Level 2": Groups of level 1s.
 	private const WPCOM_BLOGGER_PLANS           = array( self::BLOGGER_BUNDLE, self::BLOGGER_BUNDLE_2Y );
@@ -418,9 +418,9 @@ class WPCOM_Features {
 	public const BACKUPS                           = 'backups';
 	public const BACKUPS_DAILY                     = 'backups-daily';
 	public const BACKUPS_RESTORE                   = 'restore';
+	public const BIG_SKY                           = 'big-sky';
 	public const BACKUPS_SELF_SERVE                = 'backups-self-serve';
 	public const BACKUP_ONE_TIME                   = 'backup-one-time';
-	public const BIG_SKY                           = 'big-sky';
 	public const BLAZE_CREDITS_VOUCHER             = 'blaze-credits-voucher';
 	public const BLOG_DOMAIN_ONLY                  = 'blog-domain-only';
 	public const CALENDLY                          = 'calendly';
@@ -682,12 +682,14 @@ class WPCOM_Features {
 		),
 		self::BLAZE_CREDITS_VOUCHER             => array(
 			array(
-				// Business (Excluding Monthly).
+				// Business.
 				self::BUSINESS_BUNDLE,
+				self::BUSINESS_BUNDLE_MONTHLY,
 				self::BUSINESS_BUNDLE_2Y,
 				self::BUSINESS_BUNDLE_3Y,
-				// Ecommerce (Excluding Monthly).
+				// Ecommerce.
 				self::ECOMMERCE_BUNDLE,
+				self::ECOMMERCE_BUNDLE_MONTHLY,
 				self::ECOMMERCE_BUNDLE_2Y,
 				self::ECOMMERCE_BUNDLE_3Y,
 			),
