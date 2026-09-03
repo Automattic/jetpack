@@ -6447,8 +6447,14 @@ async function performSave( postStatus, isAutosave = false, saveCtx = {} ) {
 			state.editPostId = post.id;
 		}
 
-		// Keep existingTagIds in sync so the next save in this session merges correctly.
-		if ( tagData.tags ) {
+		// Keep existingTagIds in sync so the next save in this session merges
+		// correctly. Prefer the response's list over what we sent: the server can
+		// attach terms of its own after the insert — the dailyprompt tags stamped
+		// on a prompt answer by rest_after_insert_post — and the next save would
+		// drop them if we only tracked the client's view.
+		if ( Array.isArray( post.tags ) ) {
+			state.existingTagIds = post.tags;
+		} else if ( tagData.tags ) {
 			state.existingTagIds = tagData.tags;
 		}
 
