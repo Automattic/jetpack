@@ -19,6 +19,7 @@ module.exports = {
 		'<rootDir>/_inc/client/ai/test/main.jsx',
 		'<rootDir>/_inc/client/ai/test/tracks.js',
 		'<rootDir>/_inc/client/at-a-glance/boost/test/component.jsx',
+		'<rootDir>/_inc/client/components/jetpack-notices/test/state-notices.test.jsx',
 		'<rootDir>/_inc/client/sharing/test/component.jsx',
 		'<rootDir>/_inc/client/traffic/test/component.jsx',
 		'<rootDir>/_inc/client/at-a-glance/stats/test/chart-bar-range.js',
