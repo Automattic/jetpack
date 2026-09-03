@@ -8,6 +8,9 @@ import { useSidebarOpenFromUrl } from '../open-sidebar-from-url';
 const mockEditPost = jest.fn();
 const mockRecordEvent = jest.fn();
 let mockIsAgentNoticeDismissed = false;
+let mockIsPostEmpty = false;
+let mockRequireUpgrade = false;
+let mockPlanType = 'free';
 
 jest.mock( '@wordpress/hooks', () => ( {
 	applyFilters: jest.fn(),
@@ -26,7 +29,7 @@ jest.mock( '@wordpress/data', () => ( {
 		const stores: Record< string, unknown > = {
 			'core/editor': {
 				getCurrentPostType: () => 'post',
-				isEditedPostEmpty: () => false,
+				isEditedPostEmpty: () => mockIsPostEmpty,
 			},
 			core: {
 				getPostType: () => ( { viewable: true } ),
@@ -54,7 +57,7 @@ jest.mock( '@automattic/jetpack-components', () => ( {
 jest.mock( '@automattic/jetpack-ai-client', () => ( {
 	useAICheckout: () => ( { checkoutUrl: 'https://checkout.example.com' } ),
 	useAiFeature: () => ( {
-		requireUpgrade: false,
+		requireUpgrade: mockRequireUpgrade,
 		upgradeType: 'default',
 		currentTier: { value: 1 },
 		isOverLimit: false,
@@ -67,7 +70,7 @@ jest.mock( '@automattic/jetpack-shared-extension-utils', () => ( {
 	useAnalytics: () => ( { tracks: { recordEvent: mockRecordEvent } } ),
 	PLAN_TYPE_FREE: 'free',
 	PLAN_TYPE_UNLIMITED: 'unlimited',
-	usePlanType: () => 'free',
+	usePlanType: () => mockPlanType,
 } ) );
 
 jest.mock( '@automattic/jetpack-shared-extension-utils/components', () => ( {
@@ -202,22 +205,7 @@ jest.mock( '@wordpress/ui', () => ( {
 	},
 } ) );
 
-jest.mock( '@wordpress/core-data', () => {
-	// Runs before imports due to jest.mock hoisting; the component reads this at module scope
-	Object.defineProperty( globalThis, 'Jetpack_Editor_Initial_State', {
-		value: {
-			available_blocks: {
-				'ai-assistant-usage-panel': { available: false },
-				'ai-featured-image-generator': { available: true },
-				'ai-title-optimization': { available: false },
-				'ai-title-optimization-keywords-support': { available: false },
-			},
-		},
-		writable: true,
-		configurable: true,
-	} );
-	return { store: 'core' };
-} );
+jest.mock( '@wordpress/core-data', () => ( { store: 'core' } ) );
 
 jest.mock( '../../../../../blocks/ai-assistant/hooks/use-ai-product-page', () => () => ( {
 	productPageUrl: 'https://product.example.com',
@@ -247,11 +235,25 @@ jest.mock( '../../breve/utils/get-availability', () => ( {
 
 jest.mock( '../../feedback', () => ( { __esModule: true, default: () => null } ) );
 jest.mock( '../../title-optimization', () => ( { __esModule: true, default: () => null } ) );
-jest.mock( '../../usage-panel', () => ( { __esModule: true, default: () => null } ) );
-jest.mock( '../upgrade', () => ( { __esModule: true, default: () => null } ) );
+jest.mock( '../../usage-panel', () => ( {
+	__esModule: true,
+	default: () => <div data-testid="usage-panel" />,
+} ) );
+jest.mock( '../upgrade', () => ( {
+	__esModule: true,
+	default: () => <div data-testid="upgrade-row" />,
+} ) );
 jest.mock( '../style.scss', () => ( {} ) );
 
 const AGENT_NOTICE_FEATURE = 'ai-sidebar-agent-notice';
+// What a site with AI on, the writing assistant and the image editor exposes.
+const DEFAULT_FEATURES = [
+	'ai-assistant-usage-panel',
+	'ai-featured-image-generator',
+	'ai-assistant-support',
+];
+const withFeatures = ( features: string[] ) =>
+	jest.mocked( getFeatureAvailability ).mockImplementation( f => features.includes( f ) );
 const AGENT_NOTICE_TEXT =
 	'AI tools have moved to the WordPress Agent. Look for the "Ask AI" button at the top of the screen.';
 
@@ -259,8 +261,11 @@ describe( 'AiAssistantPluginSidebar', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
 		jest.mocked( applyFilters ).mockReturnValue( null );
-		jest.mocked( getFeatureAvailability ).mockReturnValue( false );
+		withFeatures( DEFAULT_FEATURES );
 		mockIsAgentNoticeDismissed = false;
+		mockIsPostEmpty = false;
+		mockRequireUpgrade = false;
+		mockPlanType = 'free';
 		// The notice reads this to decide whether to offer its action, so stand in
 		// for a loaded Agents Manager the way production has one.
 		( window as unknown as { __agentsManagerActions?: unknown } ).__agentsManagerActions = {
@@ -335,7 +340,7 @@ describe( 'AiAssistantPluginSidebar', () => {
 		} );
 
 		it( 'leaves the collapsed panels alone when there is no notice to show', () => {
-			jest.mocked( getFeatureAvailability ).mockReturnValue( false );
+			withFeatures( DEFAULT_FEATURES );
 
 			render( <AiAssistantPluginSidebar /> );
 
@@ -381,7 +386,7 @@ describe( 'AiAssistantPluginSidebar', () => {
 		} );
 
 		it( 'keeps the AI tools when the notice is not available for the site', () => {
-			jest.mocked( getFeatureAvailability ).mockReturnValue( false );
+			withFeatures( DEFAULT_FEATURES );
 
 			render( <AiAssistantPluginSidebar /> );
 
@@ -389,6 +394,83 @@ describe( 'AiAssistantPluginSidebar', () => {
 			expect(
 				within( screen.getByTestId( 'document-panel' ) ).getByText( 'Get Feedback' )
 			).toBeInTheDocument();
+		} );
+	} );
+
+	describe( 'writing assistant switch', () => {
+		it( 'shows the feedback section and the pre-publish panel when the writing assistant is on', () => {
+			render( <AiAssistantPluginSidebar /> );
+
+			expect(
+				within( screen.getByTestId( 'document-panel' ) ).getByText( 'Get Feedback' )
+			).toBeInTheDocument();
+			expect( screen.getByTestId( 'pre-publish-panel' ) ).toBeInTheDocument();
+		} );
+
+		it( 'hides only the writing sections when the writing assistant is off', () => {
+			withFeatures( [ 'ai-featured-image-generator' ] );
+
+			render( <AiAssistantPluginSidebar /> );
+
+			const documentPanel = screen.getByTestId( 'document-panel' );
+			expect( within( documentPanel ).queryByText( 'Get Feedback' ) ).not.toBeInTheDocument();
+			expect(
+				within( documentPanel ).getByRole( 'button', { name: 'Generate using AI' } )
+			).toBeInTheDocument();
+			expect(
+				within( documentPanel ).getByText( 'Learn more about Jetpack AI' )
+			).toBeInTheDocument();
+			expect( screen.queryByTestId( 'pre-publish-panel' ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'warns about an empty post only when a section that needs content is shown', () => {
+			mockIsPostEmpty = true;
+			const warning = 'The following features require content to work.';
+
+			const { unmount } = render( <AiAssistantPluginSidebar /> );
+			expect( screen.getAllByText( warning ).length ).toBeGreaterThan( 0 );
+			unmount();
+
+			withFeatures( [ 'ai-featured-image-generator' ] );
+			render( <AiAssistantPluginSidebar /> );
+			expect( screen.queryByText( warning ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'keeps the panel when every feature is off, so the upgrade and usage rows still have a home', () => {
+			withFeatures( [] );
+
+			render( <AiAssistantPluginSidebar /> );
+
+			expect( screen.getByTestId( 'jetpack-sidebar' ) ).toBeInTheDocument();
+			expect( screen.getByTestId( 'document-panel' ) ).toBeInTheDocument();
+			expect( screen.queryByText( 'Get Feedback' ) ).not.toBeInTheDocument();
+			expect(
+				screen.queryByRole( 'button', { name: 'Generate using AI' } )
+			).not.toBeInTheDocument();
+		} );
+	} );
+
+	describe( 'upgrade prompt', () => {
+		it( 'shows the usage meter, not the upgrade row, on the free plan', () => {
+			mockRequireUpgrade = true;
+
+			render( <AiAssistantPluginSidebar /> );
+
+			const documentPanel = screen.getByTestId( 'document-panel' );
+			expect( within( documentPanel ).getByTestId( 'usage-panel' ) ).toBeInTheDocument();
+			expect( within( documentPanel ).queryByTestId( 'upgrade-row' ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'shows the upgrade row on a paid plan that is over its limit, even with every feature off', () => {
+			mockRequireUpgrade = true;
+			mockPlanType = 'tiered';
+			withFeatures( [] );
+
+			render( <AiAssistantPluginSidebar /> );
+
+			const documentPanel = screen.getByTestId( 'document-panel' );
+			expect( within( documentPanel ).getByTestId( 'upgrade-row' ) ).toBeInTheDocument();
+			expect( within( documentPanel ).queryByTestId( 'usage-panel' ) ).not.toBeInTheDocument();
 		} );
 	} );
 
