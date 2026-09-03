@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Jetpack AI: Hide the legacy AI panel once a site is eligible to turn on the WordPress Agent, not only once it is switched on. The notice in its place offers to open the Agent, or to enable it where it is not yet on.
