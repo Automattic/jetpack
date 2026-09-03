@@ -24,14 +24,4 @@ export { StaleDataNotice } from './stale-data-notice';
 export { StatsBreadcrumbs, type StatsBreadcrumbsProps } from './stats-breadcrumbs';
 export { StatsPageIcon } from './stats-page-icon';
 export { usePaginatedView, type PaginatedView } from './use-paginated-view';
-export {
-	WidgetGridAnimation,
-	WIDGET_GRID_KEYFRAMES,
-	WIDGET_GRID_STATIC_FRAME,
-	type WidgetGridAnimationProps,
-	type WidgetGridKeyframe,
-	type WidgetGridRect,
-	type WidgetGridTile,
-	type WidgetGridTileContent,
-	type WidgetGridTileId,
-} from './widget-grid-animation';
+export { WidgetGridAnimation, type WidgetGridAnimationProps } from './widget-grid-animation';
