@@ -41,6 +41,7 @@ import {
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useState, useEffect, useCallback, useMemo, useRef } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
+import { API_BASE } from './api-base';
 import metadata from './block.json';
 import { getPriceStep } from './currency-symbols';
 import PayPalButtonPreview from './paypal-button-preview';
@@ -240,11 +241,6 @@ const VALID_CURRENCY_CODES = new Set( SUPPORTED_CURRENCIES.map( c => c.value ) )
 
 // Button type is always 'single' — the hosted payment page handles
 // payment method selection (PayPal, cards, wallets, etc.).
-
-/**
- * REST API base path for PayPal endpoints.
- */
-const API_BASE = '/wpcom/v2/paypal';
 
 /**
  * Format options for the format switcher.
