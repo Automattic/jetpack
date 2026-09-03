@@ -1,4 +1,5 @@
 import { __ } from '@wordpress/i18n';
+import { AvatarWithFallback } from '../../../avatar-with-fallback';
 import TumblrPostIcon from '../icons';
 import type { TumblrPreviewProps } from '../../types';
 
@@ -8,10 +9,13 @@ type Props = Pick< TumblrPreviewProps, 'user' >;
 
 const TumblrPostHeader: React.FC< Props > = ( { user } ) => (
 	<div className="tumblr-preview__post-header">
-		<div className="tumblr-preview__post-header-username">
-			{ user?.displayName ||
-				// translators: username of a fictional Tumblr User
-				__( 'anonymous-user', 'social-previews' ) }
+		<div className="tumblr-preview__post-header-left">
+			<AvatarWithFallback className="tumblr-preview__post-header-avatar" src={ user?.avatarUrl } />
+			<div className="tumblr-preview__post-header-username">
+				{ user?.displayName ||
+					// translators: username of a fictional Tumblr User
+					__( 'anonymous-user', 'social-previews' ) }
+			</div>
 		</div>
 		<TumblrPostIcon name="ellipsis" />
 	</div>

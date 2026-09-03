@@ -1,6 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
-import { baseDomain, getTitleFromDescription, stripHtmlTags } from '../../../helpers';
+import { baseDomain, getTitleFromDescription } from '../../../helpers';
 import { MediaImage } from '../../../shared/media-image';
 import { mastodonTitle } from '../../helpers';
 import { MastodonPreviewProps } from '../../types';
@@ -14,6 +14,7 @@ const MastodonPostCard: React.FC< MastodonPreviewProps > = ( {
 	url,
 	image,
 	customImage,
+	author,
 	imageFocalPoint,
 } ) => {
 	return (
@@ -44,7 +45,7 @@ const MastodonPostCard: React.FC< MastodonPreviewProps > = ( {
 				<span className="mastodon-preview__card-title">
 					{ mastodonTitle( title ) || getTitleFromDescription( description ) }
 				</span>
-				<span className="mastodon-preview__card-description">{ stripHtmlTags( description ) }</span>
+				{ author && <span className="mastodon-preview__card-author">{ author }</span> }
 			</div>
 		</div>
 	);

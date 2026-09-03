@@ -1,6 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import { AvatarWithFallback } from '../avatar-with-fallback';
-import { preparePreviewText } from '../helpers';
+import { baseDomain, preparePreviewText } from '../helpers';
 import { ExpandableText } from '../shared/expandable-text';
 import { MediaImage } from '../shared/media-image';
 import { tumblrTitle, tumblrDescription } from './helpers';
@@ -16,16 +15,14 @@ export const TumblrPostPreview: React.FC< TumblrPreviewProps > = ( {
 	user,
 	url,
 	media,
+	cardTitle,
 	hyperlinks,
 	imageFocalPoint,
 } ) => {
-	const avatarUrl = user?.avatarUrl;
-
-	const mediaItem = media?.[ 0 ];
+	const hasMedia = !! media?.length;
 
 	return (
 		<div className="tumblr-preview__post">
-			<AvatarWithFallback className="tumblr-preview__avatar" src={ avatarUrl } />
 			<div className="tumblr-preview__card">
 				<TumblrPostHeader user={ user } />
 				<div className="tumblr-preview__body">
@@ -42,29 +39,58 @@ export const TumblrPostPreview: React.FC< TumblrPreviewProps > = ( {
 							</ExpandableText>
 						</div>
 					) }
-					{ mediaItem ? (
-						<div className="tumblr-preview__media-item">
-							{ mediaItem.type.startsWith( 'video/' ) ? (
-								<video controls className="tumblr-preview__media--video">
-									<source src={ mediaItem.url } type={ mediaItem.type } />
-								</video>
-							) : (
-								<img className="tumblr-preview__image" src={ mediaItem.url } alt="" />
+					{ hasMedia ? (
+						<>
+							<div className="tumblr-preview__media-item">
+								{ media[ 0 ].type.startsWith( 'video/' ) ? (
+									<video controls>
+										<source src={ media[ 0 ].url } type={ media[ 0 ].type } />
+									</video>
+								) : (
+									<img
+										className="tumblr-preview__image"
+										src={ media[ 0 ].url }
+										alt={ media[ 0 ].alt || '' }
+									/>
+								) }
+							</div>
+							{ url && (
+								<div className="tumblr-preview__view-link">
+									<a href={ url } target="_blank" rel="noreferrer">
+										{ __( 'View On WordPress', 'social-previews' ) }
+									</a>
+								</div>
 							) }
-						</div>
+						</>
 					) : (
-						image && (
-							<MediaImage
-								className="tumblr-preview__image"
-								src={ image }
-								alt={ __( 'Tumblr preview thumbnail', 'social-previews' ) }
-								focalPoint={ imageFocalPoint }
-							/>
+						url && (
+							<div className="tumblr-preview__window">
+								{ image && (
+									<div className="tumblr-preview__window-top">
+										<MediaImage
+											className="tumblr-preview__image"
+											src={ image }
+											alt={ __( 'Tumblr preview thumbnail', 'social-previews' ) }
+											focalPoint={ imageFocalPoint }
+										/>
+										{ cardTitle && (
+											<div className="tumblr-preview__overlay">
+												<div className="tumblr-preview__overlay-title">
+													{ tumblrTitle( cardTitle ) }
+												</div>
+											</div>
+										) }
+									</div>
+								) }
+								<div className={ `tumblr-preview__window-bottom ${ ! image ? 'is-full' : '' }` }>
+									{ ! image && cardTitle && (
+										<div className="tumblr-preview__window-title">{ tumblrTitle( cardTitle ) }</div>
+									) }
+									<div className="tumblr-preview__site-name">{ baseDomain( url ) }</div>
+								</div>
+							</div>
 						)
 					) }
-					<a className="tumblr-preview__url" href={ url } target="_blank" rel="noreferrer">
-						{ __( 'View On WordPress', 'social-previews' ) }
-					</a>
 				</div>
 				<TumblrPostActions />
 			</div>
