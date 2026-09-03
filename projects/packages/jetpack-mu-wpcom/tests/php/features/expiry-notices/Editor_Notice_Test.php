@@ -7,7 +7,6 @@
 
 declare( strict_types = 1 );
 
-use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Notice_Dismiss;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
@@ -16,20 +15,12 @@ use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/expiry-notices/expiry-notices.php';
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/expiry-notices/admin-banner.php';
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/expiry-notices/editor-notice.php';
+require_once __DIR__ . '/trait-expiry-notices-fixtures.php';
 
 class Editor_Notice_Test extends \WorDBless\BaseTestCase {
+	use Expiry_Notices_Fixtures;
 
 	const HANDLE = 'jetpack-mu-wpcom-expiry-notices-editor-notice';
-
-	/**
-	 * @var int
-	 */
-	private $admin_id;
-
-	/**
-	 * @var int
-	 */
-	private $subscriber_id;
 
 	/**
 	 * @var string|null
@@ -40,51 +31,21 @@ class Editor_Notice_Test extends \WorDBless\BaseTestCase {
 		parent::set_up();
 		// Restored rather than unset afterwards: cron reads it at shutdown, and a
 		// missing key there is a warning the process-isolated test reports as an error.
-		$this->request_uri   = $_SERVER['REQUEST_URI'] ?? null;
-		$this->admin_id      = wp_insert_user(
-			array(
-				'user_login' => 'editor_admin',
-				'user_pass'  => 'pass',
-				'user_email' => 'editor_admin@example.com',
-				'role'       => 'administrator',
-			)
-		);
-		$this->subscriber_id = wp_insert_user(
-			array(
-				'user_login' => 'editor_subscriber',
-				'user_pass'  => 'pass',
-				'user_email' => 'editor_subscriber@example.com',
-				'role'       => 'subscriber',
-			)
-		);
-		wp_set_current_user( $this->admin_id );
+		$this->request_uri = $_SERVER['REQUEST_URI'] ?? null;
+		$this->set_up_expiry_fixtures();
 		$this->set_screen( 'post' );
 	}
 
 	public function tear_down() {
-		unset( $GLOBALS['wpcom_get_site_purchases_test_value'] );
-		unset( $GLOBALS['wpcom_is_vip_test_value'] );
 		if ( null === $this->request_uri ) {
 			unset( $_SERVER['REQUEST_URI'] );
 		} else {
 			$_SERVER['REQUEST_URI'] = $this->request_uri;
 		}
-		delete_user_meta( $this->admin_id, Expiry_Notice_Dismiss::META_BANNER );
 		wp_dequeue_script( self::HANDLE );
 		wp_deregister_script( self::HANDLE );
-		Constants::clear_constants();
+		$this->tear_down_expiry_fixtures();
 		parent::tear_down();
-	}
-
-	/**
-	 * A site the revert has already happened to. Declared per test, in a
-	 * separate process, for the reason Admin_Banner_Test gives.
-	 */
-	private function pretend_reverted(): void {
-		Constants::set_constant( 'IS_ATOMIC', false );
-		if ( ! function_exists( 'has_blog_sticker' ) ) {
-			eval( 'namespace { function has_blog_sticker( $sticker, $blog_id = 0 ) { return "blog-transfer-reverted" === $sticker; } }' ); // phpcs:ignore Squiz.PHP.Eval.Discouraged,MediaWiki.Usage.ForbiddenFunctions.eval
-		}
 	}
 
 	/**
@@ -94,25 +55,7 @@ class Editor_Notice_Test extends \WorDBless\BaseTestCase {
 	private function set_screen( string $id, bool $is_block_editor = true ): void {
 		set_current_screen( $id );
 		get_current_screen()->is_block_editor( $is_block_editor );
-		$this->flush();
-	}
-
-	private function flush(): void {
-		wpcom_expiry_notices_eligible_state( true );
-		wpcom_expiry_notices_admin_banner_data( true );
-	}
-
-	private function set_purchase( int $days_until_expiry, bool $auto_renew = false, string $slug = 'business-bundle' ): void {
-		$GLOBALS['wpcom_get_site_purchases_test_value'] = array(
-			(object) array(
-				'product_slug'           => $slug,
-				'product_type'           => 'bundle',
-				// Same half-day cushion as the banner tests, for the same race.
-				'expiry_date'            => gmdate( 'c', time() + ( $days_until_expiry * DAY_IN_SECONDS ) + ( 12 * HOUR_IN_SECONDS ) ),
-				'user_allows_auto_renew' => $auto_renew,
-			),
-		);
-		$this->flush();
+		$this->flush_expiry_memos();
 	}
 
 	/**
@@ -166,7 +109,7 @@ class Editor_Notice_Test extends \WorDBless\BaseTestCase {
 	public function test_a_banner_dismissal_hides_the_editor_notice_too(): void {
 		$this->set_purchase( -45 );
 		update_user_meta( $this->admin_id, Expiry_Notice_Dismiss::META_BANNER, time() - DAY_IN_SECONDS );
-		$this->flush();
+		$this->flush_expiry_memos();
 		$this->assertNull( wpcom_expiry_notices_editor_notice_data() );
 	}
 
