@@ -507,7 +507,6 @@ function wpcom_get_product_features( $product ) {
 		$features = array();
 
 		foreach ( WPCOM_Features::get_feature_slugs() as $feature ) {
-			// @phan-suppress-next-line PhanTypeMismatchArgumentNullable
 			if ( wpcom_purchase_has_feature( $purchase, $feature ) ) {
 				$features[] = $feature;
 			}
