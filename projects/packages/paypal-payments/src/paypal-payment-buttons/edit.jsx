@@ -43,6 +43,7 @@ import { useState, useEffect, useCallback, useMemo, useRef } from '@wordpress/el
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { API_BASE } from './api-base';
 import metadata from './block.json';
+import { SUPPORTED_CURRENCIES, VALID_CURRENCY_CODES } from './currencies';
 import { getPriceStep } from './currency-symbols';
 import PayPalButtonPreview from './paypal-button-preview';
 import { getResourceAttributeUpdates } from './resource-sync';
@@ -202,42 +203,6 @@ function waitForAnchorBinding( link, realm ) {
 function broadcastConnectionChange( connected ) {
 	window.dispatchEvent( new CustomEvent( CONNECTION_CHANGED_EVENT, { detail: { connected } } ) );
 }
-
-/**
- * Supported currencies for the currency selector.
- * Matches PayPal_Attribute_Mapper::SUPPORTED_CURRENCIES on the server.
- */
-const SUPPORTED_CURRENCIES = [
-	{ label: 'USD — US Dollar', value: 'USD' },
-	{ label: 'EUR — Euro', value: 'EUR' },
-	{ label: 'GBP — British Pound', value: 'GBP' },
-	{ label: 'CAD — Canadian Dollar', value: 'CAD' },
-	{ label: 'AUD — Australian Dollar', value: 'AUD' },
-	{ label: 'JPY — Japanese Yen', value: 'JPY' },
-	{ label: 'CHF — Swiss Franc', value: 'CHF' },
-	{ label: 'SEK — Swedish Krona', value: 'SEK' },
-	{ label: 'NOK — Norwegian Krone', value: 'NOK' },
-	{ label: 'DKK — Danish Krone', value: 'DKK' },
-	{ label: 'NZD — New Zealand Dollar', value: 'NZD' },
-	{ label: 'SGD — Singapore Dollar', value: 'SGD' },
-	{ label: 'HKD — Hong Kong Dollar', value: 'HKD' },
-	{ label: 'MXN — Mexican Peso', value: 'MXN' },
-	{ label: 'BRL — Brazilian Real', value: 'BRL' },
-	{ label: 'PLN — Polish Zloty', value: 'PLN' },
-	{ label: 'CZK — Czech Koruna', value: 'CZK' },
-	{ label: 'HUF — Hungarian Forint', value: 'HUF' },
-	{ label: 'ILS — Israeli Shekel', value: 'ILS' },
-	{ label: 'MYR — Malaysian Ringgit', value: 'MYR' },
-	{ label: 'PHP — Philippine Peso', value: 'PHP' },
-	{ label: 'TWD — Taiwan Dollar', value: 'TWD' },
-	{ label: 'THB — Thai Baht', value: 'THB' },
-	{ label: 'CNY — Chinese Yuan', value: 'CNY' },
-];
-
-/**
- * Currency code set for fast lookup.
- */
-const VALID_CURRENCY_CODES = new Set( SUPPORTED_CURRENCIES.map( c => c.value ) );
 
 // Button type is always 'single' — the hosted payment page handles
 // payment method selection (PayPal, cards, wallets, etc.).
