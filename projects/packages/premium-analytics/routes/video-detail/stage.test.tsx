@@ -280,8 +280,8 @@ describe( 'video detail stage', () => {
 
 	it( 'keeps a long unbroken title single-line-ready: full text in markup plus the hover attr', () => {
 		// Layout is out of jsdom's reach (the clip is CSS, `white-space: nowrap` +
-		// ellipsis, in stage.module.scss), so this guards the DOM contract it relies
-		// on: full text in the heading, mirrored in `title` for hover access.
+		// ellipsis, in `section-header.module.scss`), so this guards the DOM contract
+		// it relies on: full text in the heading, mirrored in `title` for hover access.
 		const longTitle = `VID_20260731_${ 'a'.repeat( 120 ) }.mp4`;
 		mockSummary( { title: longTitle } );
 

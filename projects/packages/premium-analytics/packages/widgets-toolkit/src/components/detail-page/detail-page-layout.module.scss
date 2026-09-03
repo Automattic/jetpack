@@ -1,26 +1,27 @@
-.page {
-	min-block-size: 0;
-}
-
-// The scroll container below the fixed tab bar: the summary
-// header scrolls away with the widgets instead of permanently occupying the
-// viewport.
-.scrollArea {
+// The scroll container below the page header: the resource header scrolls away
+// with the sections instead of permanently occupying the viewport.
+.root {
 	flex: 1 1 auto;
 	min-block-size: 0;
 	overflow-y: auto;
 }
 
-.content {
-	// Reserve paint space for the widget host's outer focus outline.
-	padding-block-start: calc(var(--wpds-border-width-focus) + 2px);
-	// Match the horizontal padding of the tab bar and header so the widget grid
-	// lines up with them instead of sitting flush to the edge.
-	padding-block-end: 24px;
+.header {
+	// The header's own container query sizes its two halves; this only places
+	// the block on the page. Inline padding matches the widget grid; the block
+	// spacing is the design's breathing room around the header.
+	padding-block: var(--wpds-dimension-gap-3xl);
 	padding-inline: var(--wpds-dimension-padding-2xl);
 }
 
-.widgets {
+.section {
+	// Reserve paint space for the widget host's outer focus outline.
+	padding-block-start: calc(var(--wpds-border-width-focus) + 2px);
+	padding-block-end: var(--wpds-dimension-padding-2xl);
+	// Match the header's horizontal padding (and the tab bar's, on a tabbed
+	// page) so the widget grid lines up instead of sitting flush to the edge.
+	padding-inline: var(--wpds-dimension-padding-2xl);
+
 	// Inherited by the @wordpress/grid surfaces (grid, masonry, edit overlay),
 	// which otherwise fall back to the wider `--wpds-dimension-gap-xl`.
 	--wp-grid-gap: var(--wpds-dimension-gap-lg);
@@ -30,10 +31,6 @@
 	// clips content-sized widgets like the traffic activity heatmap
 	// (WOOA7S-1905). TODO with #51101: consider fixing upstream in Card.
 	section:first-of-type {
-		// Temporary solution. Fixed upstream https://github.com/WordPress/gutenberg/pull/80570
-		display: flex;
-		flex-direction: column;
-
 		--wp-ui-card-padding: var(--wpds-dimension-padding-lg);
 		--wp-ui-card-header-content-margin: var(--wpds-dimension-padding-lg);
 
@@ -46,11 +43,4 @@
 	[class*="__widget-header"][class*="__overlay"] {
 		--wp-ui-card-padding: var(--wpds-dimension-padding-lg);
 	}
-}
-
-.header {
-	// The header's own container query sizes its two halves; this only places
-	// the block on the page. Inline padding matches the widget grid.
-	padding-block: var(--wpds-dimension-gap-2xl);
-	padding-inline: var(--wpds-dimension-padding-2xl);
 }

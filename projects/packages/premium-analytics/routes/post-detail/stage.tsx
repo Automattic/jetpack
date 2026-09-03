@@ -7,13 +7,15 @@ import { LinkButton } from '@jetpack-premium-analytics/externals';
 import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
 import {
 	DateFiltersPanel,
-	SectionHeader,
-	SectionTabPanel,
 	safeHttpUrl,
 	StatsBreadcrumbs,
 	StatsPageIcon,
 } from '@jetpack-premium-analytics/ui';
-import { Page } from '@wordpress/admin-ui';
+import {
+	DetailPageLayout,
+	DetailPageShell,
+	DetailPageTabPanel,
+} from '@jetpack-premium-analytics/widgets-toolkit';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { useMemo } from '@wordpress/element';
@@ -28,7 +30,6 @@ import { PostDetailTabs, postHeaderSlots } from './components';
 import { EMAIL_TAB_IDS, POST_DETAIL_WIDGET_TYPE_ALIASES } from './config';
 import { useEmailTabScope, usePostDetailTabs, usePostSummary } from './hooks';
 import { route } from './package.json';
-import styles from './stage.module.scss';
 
 const ROUTE_FROM = route.path;
 
@@ -135,7 +136,7 @@ function PostDetail(): JSX.Element {
 				onLayoutChange={ noopLayoutChange }
 				gridSettings={ POST_DETAIL_GRID }
 			>
-				<Page
+				<DetailPageShell
 					visual={ <StatsPageIcon /> }
 					breadcrumbs={ <StatsBreadcrumbs items={ breadcrumbs } /> }
 					actions={
@@ -153,36 +154,29 @@ function PostDetail(): JSX.Element {
 							</LinkButton>
 						) : undefined
 					}
-					className={ styles.page }
 				>
 					<PostDetailTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab }>
-						<div className={ styles.scrollArea }>
-							{ /*
-							 * The header is shared by every tab, so it renders once above the
-							 * per-tab widget grid and scrolls away with it.
-							 */ }
-							<div className={ styles.header }>
-								<SectionHeader
-									headingLevel={ 1 }
-									{ ...postHeaderSlots( {
-										summary,
-										variant: isEmailTab ? 'email' : 'post',
-										performanceRange: isEmailTab ? emailScope?.range : dateFilters.appliedRange,
-									} ) }
-								>
-									{ dateFiltersPanel }
-								</SectionHeader>
-							</div>
+						{ /*
+						 * The header is shared by every tab (same post, same range), so it
+						 * renders once above the per-tab grids; the email tabs give it an
+						 * email identity and report over the send window.
+						 */ }
+						<DetailPageLayout
+							header={ postHeaderSlots( {
+								summary,
+								variant: isEmailTab ? 'email' : 'post',
+								performanceRange: isEmailTab ? emailScope?.range : dateFilters.appliedRange,
+							} ) }
+							controls={ dateFiltersPanel }
+						>
 							{ tabs.map( tab => (
-								<SectionTabPanel key={ tab.id } value={ tab.id } className={ styles.content }>
-									{ activeTab === tab.id ? (
-										<WidgetDashboard.Widgets className={ styles.widgets } />
-									) : null }
-								</SectionTabPanel>
+								<DetailPageTabPanel key={ tab.id } value={ tab.id }>
+									{ activeTab === tab.id ? <WidgetDashboard.Widgets /> : null }
+								</DetailPageTabPanel>
 							) ) }
-						</div>
+						</DetailPageLayout>
 					</PostDetailTabs>
-				</Page>
+				</DetailPageShell>
 			</WidgetDashboard>
 		</GlobalErrorProvider>
 	);
