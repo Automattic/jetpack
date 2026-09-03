@@ -250,6 +250,53 @@ class ReportCSVGenerator_Test extends TestCase {
 	}
 
 	/**
+	 * Embedded quotes must be doubled so the row stays intact, including a quote after a backslash
+	 * (which fputcsv() leaves undoubled unless its escape parameter is empty).
+	 *
+	 * @dataProvider embedded_quotes_provider
+	 * @param string $raw      The raw cell value.
+	 * @param string $expected The expected quoted CSV field.
+	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'embedded_quotes_provider' )]
+	public function test_generate_doubles_embedded_quotes( string $raw, string $expected ) {
+		$generator = $this->generator();
+
+		$data = array(
+			'data' => array(
+				array(
+					'time_interval' => $raw,
+					'orders_no'     => 1,
+				),
+				array(
+					'time_interval' => '2026-01-02',
+					'orders_no'     => 2,
+				),
+			),
+		);
+
+		$path            = $generator->generate( $data, self::COLUMNS, $this->formatter(), 'unit-test-quotes' );
+		$this->created[] = $path;
+
+		$lines = explode( "\n", trim( substr( file_get_contents( $path ), 3 ) ) );
+		$this->assertCount( 3, $lines, 'A quoted value must not split or merge rows.' );
+		$this->assertSame( $expected . ',1', $lines[1] );
+		$this->assertSame( '2026-01-02,2', $lines[2] );
+	}
+
+	/**
+	 * Raw values containing quotes and the CSV field they must serialize to.
+	 *
+	 * @return array<string, array{0:string, 1:string}>
+	 */
+	public static function embedded_quotes_provider(): array {
+		return array(
+			'pair of quotes'         => array( 'He said "hi" twice', '"He said ""hi"" twice"' ),
+			'leading quote'          => array( '"Quoted" title', '"""Quoted"" title"' ),
+			'backslash before quote' => array( 'path\\"x"', '"path\\""x"""' ),
+		);
+	}
+
+	/**
 	 * Values that begin with a formula trigger character must be neutralized with a leading quote.
 	 *
 	 * @dataProvider formula_injection_provider

@@ -458,6 +458,48 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Tests that enqueue_scripts exposes the deployed build version as `{variant}:{version}`,
+	 * even in dev mode, where the enqueue cache buster is a random number.
+	 */
+	public function test_enqueue_scripts_exposes_deployed_version() {
+		Functions\when( 'wpcom_is_proxied_request' )->justReturn( true );
+
+		// Set admin context - scripts only enqueue in admin.
+		require_once ABSPATH . 'wp-admin/includes/screen.php';
+		set_current_screen( 'dashboard' );
+
+		// Register the agents-manager script so we can attach inline script to it.
+		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
+
+		add_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		$force_variant = static function () {
+			return 'wp-admin';
+		};
+		add_filter( 'agents_manager_variant', $force_variant );
+		// Seed the cached asset metadata so no fetch is attempted.
+		set_transient(
+			'agents-manager-asset-wp-admin.asset.json',
+			array(
+				'version'      => 'abc123',
+				'dependencies' => array(),
+			)
+		);
+
+		$this->agents_manager->enqueue_scripts();
+
+		global $wp_scripts;
+		$inline_scripts = $wp_scripts->registered['agents-manager']->extra['before'] ?? array();
+		$inline_script  = implode( "\n", array_filter( $inline_scripts ) );
+
+		$this->assertStringContainsString( '"isDevMode":true', $inline_script );
+		$this->assertStringContainsString( '"version":"wp-admin:abc123"', $inline_script );
+
+		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		remove_filter( 'agents_manager_variant', $force_variant );
+		delete_transient( 'agents-manager-asset-wp-admin.asset.json' );
+	}
+
+	/**
 	 * Tests that enqueue_scripts includes providers added via the filter.
 	 */
 	public function test_enqueue_scripts_includes_filtered_providers() {

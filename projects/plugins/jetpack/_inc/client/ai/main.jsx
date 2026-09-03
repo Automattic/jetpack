@@ -5,7 +5,7 @@
  * with hash-based routing. The MCP tab owns the read | write | setup sub-views,
  * which render with breadcrumbs in place of the tab bar.
  *
- * Overview and AI Features share an internal-testing gate. Scheduled tasks
+ * Overview and AI Features share a host-controlled gate. Scheduled tasks
  * is controlled independently by the ai-hub-scheduled-tasks server-side feature
  * flag. Without either flag the page keeps its original MCP-only shape, with the
  * MCP hub as the landing view and no tab bar.
@@ -35,8 +35,8 @@ const SETTINGS_REF = 'jetpack-ai-mcp-settings';
 
 const MCP_SUB_VIEWS = [ 'read', 'write', 'setup' ];
 
-// Views that only exist in internal testing environments. MCP and Connectors ships
-// publicly, so it is not in here.
+// Views that retain an internal-testing badge when a host enables them for a
+// test request. MCP and Connectors ships publicly, so it is not in here.
 const GATED_VIEWS = [ 'overview', 'features' ];
 
 // Read at call time, not module scope, so the flag reflects the injected page data.
@@ -142,6 +142,7 @@ export default function App() {
 		planAutoRenew,
 		isUserConnected,
 		showFeaturesView = false,
+		showA12sBadge = false,
 	} = window?.jetpackAiSettings ?? {};
 	const [ view, setView ] = useState( getViewFromHash );
 	// Save feedback goes through the shared GlobalNotices snackbars (the
@@ -267,10 +268,8 @@ export default function App() {
 							{ tabViews.map( tab => (
 								<Tabs.Tab key={ tab } value={ tab }>
 									{ VIEW_TITLES[ tab ] }
-									{ /* Overview and Features ship behind the internal-testing gate;
-									     label them so Automatticians don't mistake them for public UI.
-									     Remove with the gate. */ }
-									{ GATED_VIEWS.includes( tab ) && (
+									{ /* Keep the badge when a host exposes these views to internal testers. */ }
+									{ showA12sBadge && GATED_VIEWS.includes( tab ) && (
 										<Badge intent="medium" className="jetpack-ai-admin__tab-badge">
 											{ __( 'A12s only', 'jetpack' ) }
 										</Badge>
