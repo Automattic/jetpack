@@ -23,6 +23,10 @@ module.exports = async () => {
 					'./src/features/expiry-notices/js/admin-banner.ts',
 					'./src/features/expiry-notices/css/admin-banner.scss',
 				],
+				'expiry-notices-admin-modal': [
+					'./src/features/expiry-notices/js/admin-modal.tsx',
+					'./src/features/expiry-notices/css/admin-modal.scss',
+				],
 				'holiday-snow': './src/features/holiday-snow/holiday-snow.scss',
 				'html-block-restricted-tags':
 					'./src/features/html-block-restricted-tags/html-block-restricted-tags.tsx',

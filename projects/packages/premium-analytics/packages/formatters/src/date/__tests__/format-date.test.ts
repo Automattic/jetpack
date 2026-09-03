@@ -99,6 +99,25 @@ describe( 'formatDate', () => {
 
 		expect( formatDate( JUNE_21, 'dateTime' ) ).toBe( 'June 21, 2025 12:00 am' );
 	} );
+
+	it( 'renders the calendar day the instant falls on in the reporting timezone', () => {
+		setSettings( {
+			...EN_US_SETTINGS,
+			timezone: { offset: -4, offsetFormatted: '-4', string: 'America/New_York', abbr: 'EDT' },
+		} );
+
+		// 22:00 the evening before, in New York.
+		expect( formatDate( new Date( '2025-06-21T02:00:00Z' ), 'medium' ) ).toBe( 'June 20, 2025' );
+	} );
+
+	it( 'renders in a site zone configured as a bare offset', () => {
+		setSettings( {
+			...EN_US_SETTINGS,
+			timezone: { offset: 5.5, offsetFormatted: '5.5', string: '', abbr: '' },
+		} );
+
+		expect( formatDate( new Date( '2025-06-20T20:00:00Z' ), 'medium' ) ).toBe( 'June 21, 2025' );
+	} );
 } );
 
 describe( 'formatMondayFirstWeekday', () => {

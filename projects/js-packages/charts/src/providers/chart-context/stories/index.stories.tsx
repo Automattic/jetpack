@@ -385,14 +385,16 @@ export const HostLocaleAndTimeZoneFormatDates: Story = {
 						<div data-testid={ `${ testId }-bars` }>
 							<BarChart data={ HOST_DATE_DATA } width={ 350 } height={ 200 } withTooltips />
 						</div>
-						<LineChart
-							data={ HOST_DATE_DATA }
-							width={ 350 }
-							height={ 200 }
-							withGradientFill={ false }
-							withTooltips
-							margin={ { bottom: 40 } }
-						/>
+						<div data-testid={ `${ testId }-lines` }>
+							<LineChart
+								data={ HOST_DATE_DATA }
+								width={ 350 }
+								height={ 200 }
+								withGradientFill={ false }
+								withTooltips
+								margin={ { bottom: 40 } }
+							/>
+						</div>
 					</GlobalChartsProvider>
 				</div>
 			) ) }
@@ -409,13 +411,12 @@ export const HostLocaleAndTimeZoneFormatDates: Story = {
 	play: async ( { canvasElement } ) => {
 		const canvas = within( canvasElement );
 
-		// Asserted on the bar charts alone: a band axis labels the data's own
-		// buckets, so its ticks are fixed by the data and the supplied zone, while
-		// the line chart samples ticks off the runner's own midnights.
-		const tokyo = within( canvas.getByTestId( 'tokyo-bars' ) );
-		const losAngeles = within( canvas.getByTestId( 'los-angeles-bars' ) );
+		for ( const chart of [ 'bars', 'lines' ] ) {
+			const tokyo = within( canvas.getByTestId( `tokyo-${ chart }` ) );
+			const losAngeles = within( canvas.getByTestId( `los-angeles-${ chart }` ) );
 
-		await expect( await tokyo.findByText( '3. Aug.' ) ).toBeInTheDocument();
-		await expect( await losAngeles.findByText( 'Aug 2' ) ).toBeInTheDocument();
+			await expect( await tokyo.findByText( '3. Aug.' ) ).toBeInTheDocument();
+			await expect( await losAngeles.findByText( 'Aug 2' ) ).toBeInTheDocument();
+		}
 	},
 };

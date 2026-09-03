@@ -19,8 +19,9 @@ export {
 	type SectionTabPanelProps,
 	type SectionTabsProps,
 } from './section-tabs/section-tabs';
-export { SectionHeader } from './section-header/section-header';
+export { SectionHeader, type SectionHeaderProps } from './section-header/section-header';
 export { StaleDataNotice } from './stale-data-notice';
 export { StatsBreadcrumbs, type StatsBreadcrumbsProps } from './stats-breadcrumbs';
 export { StatsPageIcon } from './stats-page-icon';
 export { usePaginatedView, type PaginatedView } from './use-paginated-view';
+export { WidgetGridAnimation, type WidgetGridAnimationProps } from './widget-grid-animation';

@@ -25,6 +25,11 @@ import {
 import { createStoryWidgetType } from '../../stories/create-story-widget-type';
 import { presetForStoryInterval } from '../../stories/preset-for-story-interval';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
+import {
+	siteTimeZoneArgTypes,
+	withSiteTimeZone,
+	type SiteTimeZoneControls,
+} from '../../stories/with-site-time-zone';
 import EmailTimeSeriesRender from '../render';
 import widgetDefinition from '../widget';
 import widgetManifest from '../widget.json';
@@ -47,7 +52,7 @@ const MOCK_EMAIL_ID = 1234;
 const METRIC_OPTIONS: EmailTimeSeriesMetric[] = [ 'opens', 'clicks' ];
 const INTERVAL_OPTIONS: StatsChartBucketPeriod[] = [ 'day', 'week', 'month' ];
 
-interface EmailTimeSeriesStoryControls {
+interface EmailTimeSeriesStoryControls extends SiteTimeZoneControls {
 	metric: EmailTimeSeriesMetric;
 	interval: StatsChartBucketPeriod;
 	chartType: EmailTimeSeriesChartType;
@@ -95,6 +100,7 @@ const meta = {
 	component: EmailTimeSeriesRender,
 	tags: [ 'autodocs' ],
 	argTypes: {
+		...siteTimeZoneArgTypes,
 		metric: { control: 'select', options: METRIC_OPTIONS },
 		interval: { control: 'select', options: INTERVAL_OPTIONS },
 		chartType: { control: 'radio', options: [ 'line', 'bar' ] },
@@ -107,7 +113,7 @@ const meta = {
 			},
 		},
 	},
-	decorators: [ withChartTheme ],
+	decorators: [ withChartTheme, withSiteTimeZone ],
 } satisfies Meta< ComponentProps< typeof EmailTimeSeriesRender > & EmailTimeSeriesStoryControls >;
 
 export default meta;

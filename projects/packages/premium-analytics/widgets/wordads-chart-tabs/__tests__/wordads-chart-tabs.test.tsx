@@ -26,7 +26,6 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	MetricTabsChart: ( {
 		metrics,
 		chartType,
-		pointsAreWallClocks,
 	}: {
 		metrics: {
 			key: string;
@@ -36,12 +35,10 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 			dataFormat?: { type: string };
 		}[];
 		chartType?: string;
-		pointsAreWallClocks?: boolean;
 	} ) => (
 		<div
 			data-testid="metric-tabs-chart"
 			data-chart-type={ String( chartType ) }
-			data-wall-clocks={ String( pointsAreWallClocks ) }
 			data-metrics={ JSON.stringify(
 				metrics.map( metric => ( {
 					key: metric.key,

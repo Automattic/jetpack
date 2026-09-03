@@ -11,7 +11,7 @@ for analytics widgets and date-range pickers.
 
 ### Timezone Utilities
 
-#### `createTZDateFromParts( dateParts: number[], timezone? )`
+#### `createTZDateFromParts( parts: number[], timezone? )`
 
 Creates a timezone-aware date in the specified timezone using the provided date parts.
 **Important:** Months are zero-based (0 = January, 11 = December).
@@ -23,18 +23,23 @@ const date = createTZDateFromParts( [ 2025, 9, 9 ], 'America/New_York' );
 
 **Parameters:**
 
-- `dateParts` : `number[]` - Date value to convert
+- `parts` : `number[]` - Wall-clock parts to convert
 - `timezone` (optional): `string` - Target timezone, default is GMT
 
 **Returns:** `TZDate` - Timezone-aware date object
 
-#### `siteTimeZone()`
+#### `reportingTimeZone()`
 
-The site's timezone, as an identifier `Intl` accepts. Reads the WordPress
-date settings that ship with the page, so it needs no await.
+The timezone reports are read in, as an identifier `Intl` accepts. Today that
+is the site's own timezone, read from the WordPress date settings that ship
+with the page, so it needs no await.
+
+Every layer asks here — request dates, bucket anchoring, display — so moving
+reports off the site's zone stays a one-line change. Nothing outside this
+package reads the site timezone directly.
 
 ```typescript
-siteTimeZone(); // 'America/New_York', or '+05:30' on an offset-configured site
+reportingTimeZone(); // 'America/New_York', or '+05:30' on an offset-configured site
 ```
 
 **Returns:** `string` - An IANA zone name, or a `±HH:MM` offset
@@ -99,7 +104,7 @@ const withTZ = dateToISOStringWithTZ( new Date(), 'America/New_York' );
 
 ### Comparison Range Calculations
 
-#### `getComparisonRangeFromPreset( reference, presetId )`
+#### `getComparisonRangeFromPreset( reference, presetId, options? )`
 
 Calculates comparison date ranges based on predefined presets.
 
@@ -116,6 +121,8 @@ const comparison = getComparisonRangeFromPreset( reference, 'previous-period' );
 
 - `reference`: `DateRange` - Reference date range with `from` and `to`
 - `presetId`: `ComparisonPresetId` - One of the supported preset identifiers
+- `options`: `ComparisonRangeOptions` - Optional. `primaryPresetId` names the
+  preset the reference came from
 
 **Returns:** `DateRange | undefined` - Comparison date range or undefined
 if inputs are invalid
@@ -134,7 +141,13 @@ so their duration can differ. Whole months are read from the range itself, so a
 rolling window that happens to land on one (April 1-30 from "Last 30 days")
 compares against all 31 days of March.
 
-#### `getComparisonOptions( reference )`
+A to-date preset (`last-12-months` runs to the end of today) is measured on
+the window it covers once its running month closes, so `previous-period` steps
+back twelve months and stops as many days short as the reference does; both
+windows are the same length. `previous-month` / `previous-year` shift the dates
+as read.
+
+#### `getComparisonOptions( reference, options? )`
 
 The comparison options the given range offers, in display order: the previous
 period always; the week, month, and year shifts only while they cannot overlap
@@ -146,6 +159,9 @@ same window as an earlier one is dropped. Each option carries the resolved
 **Parameters:**
 
 - `reference`: `DateRange` - The applied range with `from` and `to`
+- `options`: `ComparisonRangeOptions` - Optional. `primaryPresetId` names the
+  preset the range came from, so a to-date window is measured on its
+  completed month
 
 **Returns:** `ComparisonOption[]` - Empty when the range is incomplete or
 inverted

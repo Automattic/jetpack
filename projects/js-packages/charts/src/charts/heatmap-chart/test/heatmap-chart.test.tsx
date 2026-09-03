@@ -393,3 +393,45 @@ describe( 'HeatmapChart', () => {
 		expect( chart ).not.toHaveStyle( { height: '300px' } );
 	} );
 } );
+
+// Chart container at (100, 50); the tooltip box measures 120x40. Everything
+// else the charts measure (wrapper, clipping lookups) reports the container.
+const mockRects = () =>
+	jest.spyOn( Element.prototype, 'getBoundingClientRect' ).mockImplementation( function (
+		this: Element
+	) {
+		const box = this.classList.contains( 'visx-tooltip' );
+		return {
+			left: box ? 0 : 100,
+			top: box ? 0 : 50,
+			width: box ? 120 : 400,
+			height: box ? 40 : 300,
+			right: box ? 120 : 500,
+			bottom: box ? 40 : 350,
+			x: box ? 0 : 100,
+			y: box ? 0 : 50,
+			toJSON: () => ( {} ),
+		} as DOMRect;
+	} );
+
+describe( 'HeatmapChart tooltip position', () => {
+	afterEach( () => {
+		jest.restoreAllMocks();
+	} );
+
+	test( 'places the box relative to the chart root, at the pointer plus the offsets', async () => {
+		mockRects();
+		renderChart( { withTooltips: true, rowLabels: [ 'Mon', 'Tue', 'Wed' ] } );
+
+		await userEvent.setup().pointer( {
+			target: screen.getAllByTestId( 'heatmap-cell' )[ 0 ],
+			coords: { clientX: 180, clientY: 140 },
+		} );
+
+		// (180, 140) is (80, 90) inside the root; the box adds 10px each way.
+		await expect( screen.findByRole( 'tooltip' ) ).resolves.toBeInTheDocument();
+		expect( screen.getByTestId( 'bounded-tooltip' ) ).toHaveStyle( {
+			transform: 'translate(90px, 100px)',
+		} );
+	} );
+} );

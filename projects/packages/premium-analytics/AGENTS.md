@@ -129,7 +129,9 @@ prefixes; Woo `analytics/reports/*` → `proxy/v2/analytics/reports/*`. The dash
 
 Simple has no local proxy, notices, sync, or dashboard support routes — WPCOM serves the dashboard
 and reaches `public-api.wordpress.com` directly. `jetpack-mu-wpcom` boots the package via
-`Analytics::init_wpcom_simple()`, behind the `jetpack-premium-analytics` blog sticker.
+`Analytics::init_wpcom_simple()`, behind the site's own `jetpack_premium_analytics_enabled`
+opt-in or the `jetpack-premium-analytics` blog sticker, whichever says yes. Both answer the
+shared `jetpack_premium_analytics_enabled` filter, as they do on the other platforms.
 
 ### Route guards must use the shared site-readiness helpers
 

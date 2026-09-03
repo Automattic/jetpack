@@ -70,7 +70,7 @@ const WALKTHROUGH_VIDEOS = [
 	},
 ];
 
-// Redirect-service sources for the documentation links. All five are
+// Redirect-service sources for the documentation links. All four are
 // registered and resolving (as are the four video sources above).
 const DOC_LINKS = [
 	{
@@ -80,10 +80,6 @@ const DOC_LINKS = [
 	{
 		slug: 'jetpack-ai-hub-overview-docs-features',
 		title: __( 'AI features overview', 'jetpack' ),
-	},
-	{
-		slug: 'jetpack-ai-hub-overview-docs-agent-setup',
-		title: __( 'Setting up agentic workflows', 'jetpack' ),
 	},
 	{ slug: 'jetpack-ai-hub-overview-docs-billing', title: __( 'Billing & plans', 'jetpack' ) },
 	{

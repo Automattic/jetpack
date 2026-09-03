@@ -12,11 +12,11 @@ import { useCallback, useEffect, useState } from 'react';
 /**
  * Internal dependencies
  */
-import { DateRangePopover } from '../date-range-popover/date-range-filter';
+import { DateRangePopoverContent } from '../date-range-popover/date-range-filter';
 import './date-range-input.scss';
 
 type DateRangeInputProps = Pick<
-	Parameters< typeof DateRangePopover >[ 0 ],
+	Parameters< typeof DateRangePopoverContent >[ 0 ],
 	'range' | 'onChange'
 > & {
 	timeZone: string;

@@ -1,4 +1,4 @@
-export { localTZDate, dateToISOStringWithLocalTZ, formatToTimezoneNaiveString } from './date';
+export { localTZDate, dateToISOStringWithLocalTZ } from './date';
 export {
 	getApiErrorCode,
 	getApiErrorStatus,

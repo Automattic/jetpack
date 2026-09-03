@@ -445,7 +445,29 @@ describe( 'LineChart', () => {
 				data: [
 					{
 						label: 'Series A',
-						// A day apart: spacing inference would read this as daily buckets.
+						// 23h apart (not 24, and not both midnight): spacing inference would
+						// read this as daily buckets, and the two hours format distinctly.
+						data: [
+							{ date: new Date( '2024-01-01T00:00:00' ), value: 10 },
+							{ date: new Date( '2024-01-01T23:00:00' ), value: 20 },
+						],
+					},
+				],
+			} );
+
+			const ticks = screen.getAllByText( /\d+\s(AM|PM)/ );
+			expect( ticks.length ).toBeGreaterThan( 1 );
+		} );
+
+		// Exactly 24 hours apart: bare hours would print "12 AM" twice and leave the
+		// second day unnamed, so the span reads as multi-day and dates its ticks.
+		test( 'names both days when two sub-daily points sit a full day apart', () => {
+			renderWithTheme( {
+				width: 800,
+				options: { axis: { x: { tickResolution: 'hour' } } },
+				data: [
+					{
+						label: 'Series A',
 						data: [
 							{ date: new Date( '2024-01-01T00:00:00' ), value: 10 },
 							{ date: new Date( '2024-01-02T00:00:00' ), value: 20 },
@@ -454,8 +476,8 @@ describe( 'LineChart', () => {
 				],
 			} );
 
-			const ticks = screen.getAllByText( /\d+\s(AM|PM)/ );
-			expect( ticks.length ).toBeGreaterThan( 1 );
+			expect( screen.getByText( 'Jan 1' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Jan 2' ) ).toBeInTheDocument();
 		} );
 
 		test( 'renders ticks in short date format.', () => {
@@ -599,6 +621,8 @@ describe( 'LineChart', () => {
 			expect( ticks.length ).toBeLessThan( 6 ); // Not much space
 		} );
 
+		// One repeated instant carries no spacing, so the axis falls back to
+		// calendar dates rather than reading a zero gap as hourly buckets.
 		test( 'renders only one tick when all ticks are the same', () => {
 			renderWithTheme( {
 				width: 800,
@@ -614,7 +638,7 @@ describe( 'LineChart', () => {
 				],
 			} );
 
-			const ticks = screen.getAllByText( /\d+ [AP]M/ );
+			const ticks = screen.getAllByText( /^[A-Z][a-z]{2} \d{1,2}$/ );
 			expect( ticks ).toHaveLength( 1 );
 		} );
 	} );

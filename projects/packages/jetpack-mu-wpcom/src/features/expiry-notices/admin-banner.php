@@ -5,6 +5,7 @@
  * @package automattic/jetpack-mu-wpcom
  */
 
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Data;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Notice_Dismiss;
 
@@ -15,19 +16,8 @@ use Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Notice_Dismiss;
  * @return array{state:array,is_early_warning:bool,is_dismissible:bool,urls:array}|null
  */
 function wpcom_expiry_notices_admin_banner_data(): ?array {
-	if ( ! current_user_can( 'manage_options' ) ) {
-		return null;
-	}
-
-	// The Simple notice this replaces excluded VIP sites, and swapping the
-	// notices was never meant to change who sees one. Guarded because
-	// wpcom_is_vip() only exists on wpcom.
-	if ( function_exists( 'wpcom_is_vip' ) && wpcom_is_vip() ) {
-		return null;
-	}
-
-	$state = Expiry_Data::get_expiry_state();
-	if ( null === $state || Expiry_Data::STATE_ACTIVE === $state['state'] ) {
+	$state = wpcom_expiry_notices_eligible_state();
+	if ( null === $state ) {
 		return null;
 	}
 
@@ -57,16 +47,22 @@ function wpcom_expiry_notices_admin_banner_data(): ?array {
 /**
  * CTA URLs for the banner.
  *
- * Once the site has been reverted the ask is no longer "renew" but "put the
- * site back", and wp-admin labels that button "Restore site" where the other
- * surfaces say "Restore my site".
+ * Only a reverted site is sent to support: one that never carried a transfer
+ * lost plan features and nothing else, and buying the plan again does give those
+ * back. The banner shows on every site, so this has to be asked, not assumed.
  *
  * @param array<string,mixed> $state Expiry state.
  * @return array<string,array>
  */
 function wpcom_expiry_notices_admin_banner_urls( array $state ): array {
 	$urls = Expiry_Data::get_cta_urls( $state, wpcom_expiry_notices_current_admin_url() );
-	if ( Expiry_Data::STATE_EXPIRED === ( $state['state'] ?? '' ) ) {
+	if ( Expiry_Data::STATE_EXPIRED !== ( $state['state'] ?? '' ) ) {
+		return $urls;
+	}
+
+	if ( wpcom_expiry_notices_revert_applies_to_site( $state ) ) {
+		$urls['primary'] = wpcom_expiry_notices_support_cta( $state );
+	} else {
 		$urls['primary']['label'] = __( 'Restore site', 'jetpack-mu-wpcom' );
 	}
 	return $urls;
@@ -98,6 +94,10 @@ function wpcom_expiry_notices_enqueue_admin_banner_assets() {
 	}
 
 	$asset_handle = jetpack_mu_wpcom_enqueue_assets( 'expiry-notices-admin-banner', array( 'js', 'css' ) );
+	// Without this the banner's events are recorded on Simple and dropped on
+	// Atomic, where nothing else in wp-admin loads the Tracks transport and
+	// `window._tkq` stays an ordinary array.
+	\Automattic\Jetpack\Jetpack_Mu_Wpcom\Common\wpcom_enqueue_tracking_scripts( $asset_handle );
 	wp_localize_script(
 		$asset_handle,
 		'wpcomExpiryBanner',
@@ -145,7 +145,14 @@ function wpcom_expiry_notices_render_admin_banner_html( array $state, array $url
 		<p><strong><?php echo esc_html( wpcom_expiry_notices_admin_banner_heading( $state ) ); ?></strong></p>
 		<p><?php echo esc_html( wpcom_expiry_notices_admin_banner_body( $state ) ); ?></p>
 		<p class="wpcom-expiry-banner__actions">
-			<a class="button button-primary" href="<?php echo esc_url( $urls['primary']['url'] ); ?>">
+			<?php // The message turns this into a Help Center opener; the href stays as what a click falls back to. ?>
+			<a
+				class="button button-primary"
+				href="<?php echo esc_url( $urls['primary']['url'] ); ?>"
+				<?php if ( isset( $urls['primary']['message'] ) ) : ?>
+					data-support-message="<?php echo esc_attr( $urls['primary']['message'] ); ?>"
+				<?php endif; ?>
+			>
 				<?php echo esc_html( $urls['primary']['label'] ); ?>
 			</a>
 			<?php if ( $is_grace ) : ?>
@@ -183,14 +190,7 @@ function wpcom_expiry_notices_admin_banner_heading( array $state ): string {
 	);
 
 	if ( $has_expired ) {
-		if ( '' === $plan ) {
-			return __( 'Your plan has expired', 'jetpack-mu-wpcom' );
-		}
-		return sprintf(
-			/* translators: %s is the plan name (e.g. Business). */
-			__( 'Your %s plan has expired', 'jetpack-mu-wpcom' ),
-			$plan
-		);
+		return wpcom_expiry_notices_expired_heading( $state );
 	}
 
 	// A plan that is still expected to renew hasn't failed yet, so it gets a
@@ -263,16 +263,27 @@ function wpcom_expiry_notices_admin_banner_body( array $state ): string {
 	$days       = isset( $state['days_remaining'] ) ? (int) $state['days_remaining'] : 0;
 	$auto_renew = ! empty( $state['auto_renew'] );
 
-	if ( Expiry_Data::STATE_EXPIRED === ( $state['state'] ?? '' ) ) {
-		// Reverting an Atomic site also takes it private; a Simple site stays
-		// public, so only Atomic mentions it.
-		if ( ! empty( $state['is_atomic'] ) ) {
+	$stage = $state['state'] ?? '';
+
+	// Past grace by the calendar but still Atomic and un-reverted: none of what
+	// the post-grace copy claims has happened yet, and renewing still prevents
+	// it, so describe it the way the grace period does.
+	if ( Expiry_Data::STATE_EXPIRED === $stage
+		&& ! wpcom_expiry_notices_revert_applies_to_site( $state )
+		&& Constants::is_true( 'IS_ATOMIC' ) ) {
+		$stage = Expiry_Data::STATE_EXPIRED_GRACE;
+	}
+
+	if ( Expiry_Data::STATE_EXPIRED === $stage ) {
+		// A revert takes the site private and deletes what it lists, and buying
+		// the plan again brings none of it back -- so this half asks for support.
+		if ( wpcom_expiry_notices_revert_applies_to_site( $state ) ) {
 			if ( null === $storage_gb ) {
-				return __( 'Your site has been moved to the Free plan and set to private. You no longer have access to plugins, custom themes, or additional storage. Upgrade your plan to restore your site.', 'jetpack-mu-wpcom' );
+				return __( 'Your site has been moved to the Free plan and set to private. You no longer have access to plugins, custom themes, or additional storage. Contact support to get help restoring it.', 'jetpack-mu-wpcom' );
 			}
 			return sprintf(
 				/* translators: %d is a number of gigabytes of storage. */
-				__( 'Your site has been moved to the Free plan and set to private. You no longer have access to plugins, custom themes, or %d GB of storage. Upgrade your plan to restore your site.', 'jetpack-mu-wpcom' ),
+				__( 'Your site has been moved to the Free plan and set to private. You no longer have access to plugins, custom themes, or %d GB of storage. Contact support to get help restoring it.', 'jetpack-mu-wpcom' ),
 				$storage_gb
 			);
 		}
@@ -286,7 +297,7 @@ function wpcom_expiry_notices_admin_banner_body( array $state ): string {
 		);
 	}
 
-	if ( Expiry_Data::STATE_EXPIRED_GRACE === ( $state['state'] ?? '' ) ) {
+	if ( Expiry_Data::STATE_EXPIRED_GRACE === $stage ) {
 		// "If renewal doesn't go through" only makes sense while a renewal
 		// attempt is still scheduled.
 		if ( $auto_renew ) {
@@ -382,20 +393,4 @@ function wpcom_expiry_notices_admin_banner_body( array $state ): string {
 		$expiry_date,
 		$storage_gb
 	);
-}
-
-/**
- * Build the full URL of the current admin page so checkout can redirect back.
- * Strips transient query args (`settings-updated`, `_wpnonce`, etc.) so the
- * redirected user doesn't re-trigger one-shot admin notices or hit stale
- * nonces on return.
- */
-function wpcom_expiry_notices_current_admin_url(): string {
-	$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated
-	if ( '' === $request_uri ) {
-		return admin_url();
-	}
-	$request_uri = remove_query_arg( wp_removable_query_args(), $request_uri );
-	$admin_path  = preg_replace( '#^/?wp-admin/?#', '', $request_uri );
-	return admin_url( ltrim( $admin_path, '/' ) );
 }

@@ -18,7 +18,7 @@ import {
 	isPrimaryPreset,
 	QUICK_SURFACE_PRESETS,
 	type QuickSurfacePresetId,
-	siteTimeZone,
+	reportingTimeZone,
 	type DateRange,
 } from '@jetpack-premium-analytics/datetime';
 import { Stack } from '@jetpack-premium-analytics/externals';
@@ -205,7 +205,7 @@ function ReportParamsControl( {
 				patch.from = encodeDateToSearchParam( nextRange.from );
 				patch.to = encodeDateToSearchParam(
 					// The site's day boundary, not the visitor's (see build-range-patch).
-					endOfDayTZ( nextRange.to, siteTimeZone() )
+					endOfDayTZ( nextRange.to, reportingTimeZone() )
 				);
 			}
 
@@ -295,7 +295,7 @@ function ReportParamsControl( {
 				onApply={ commit }
 				canApply={ isDateRangeDirty }
 				onCancel={ revert }
-				timeZone={ siteTimeZone() }
+				timeZone={ reportingTimeZone() }
 				presetIds={ presetIds }
 				withIntervalControl={ withIntervalControl }
 				interval={ interval }

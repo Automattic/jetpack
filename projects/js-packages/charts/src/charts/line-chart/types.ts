@@ -1,5 +1,6 @@
 import type {
 	BaseChartProps,
+	BucketInfo,
 	DataPointDate,
 	SeriesData,
 	SeriesChartLegendConfig,
@@ -37,7 +38,9 @@ export interface LineChartProps extends BaseChartProps< SeriesData[] >, SeriesVi
 	withGradientFill: boolean;
 	smoothing?: boolean;
 	curveType?: CurveType;
-	renderTooltip?: ( params: RenderTooltipParams< DataPointDate > ) => ReactNode;
+	renderTooltip?: (
+		params: RenderTooltipParams< DataPointDate > & { bucketInfo?: BucketInfo }
+	) => ReactNode;
 	withStartGlyphs?: boolean;
 	withEndGlyphs?: boolean;
 	renderGlyph?: < Datum extends object >( props: GlyphProps< Datum > ) => ReactNode;

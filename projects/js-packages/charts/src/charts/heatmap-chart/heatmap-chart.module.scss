@@ -4,6 +4,7 @@
 $focus-ring-width: var(--wpds-border-width-focus);
 
 .heatmap-chart {
+	position: relative;
 	width: 100%;
 	height: 100%;
 	min-height: 0;

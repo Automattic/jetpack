@@ -24,7 +24,12 @@ import { WidgetDashboard } from '@wordpress/widget-dashboard';
 import { type WidgetModuleRecord } from '@wordpress/widget-primitives';
 import { isPremiumAnalyticsInitialSyncFinished } from '../site-readiness';
 import { resolveWidgetModuleWithI18n, useWidgetTypesWithI18n } from '../widget-module-i18n';
-import { DashboardSections, RefreshFailureNotice, SectionSyncNotice } from './components';
+import {
+	DashboardSections,
+	FeedbackAction,
+	RefreshFailureNotice,
+	SectionSyncNotice,
+} from './components';
 import {
 	DATE_FILTER_YEAR,
 	isSectionAwaitingSync,
@@ -136,7 +141,7 @@ function Dashboard(): JSX.Element {
 
 	/*
 	 * The year surface applies on click — no Apply step of its own — so stage and
-	 * commit together, the way the quick presets do inside `DateRangeFilter`.
+	 * commit together, the way `DatePeriodDropdown` applies a period.
 	 */
 	const { onChange: onDateChange, onApply: onDateApply } = dateFilters;
 	const selectYear = useCallback(
@@ -222,7 +227,12 @@ function Dashboard(): JSX.Element {
 					<Page
 						visual={ <StatsPageIcon /> }
 						breadcrumbs={ <StatsBreadcrumbs isRoot /> }
-						actions={ <WidgetDashboard.Actions /> }
+						actions={
+							<>
+								<FeedbackAction />
+								<WidgetDashboard.Actions />
+							</>
+						}
 						className={ styles.dashboard }
 					>
 						<DashboardSections

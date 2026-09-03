@@ -1,13 +1,13 @@
 /**
  * Root component for the Jetpack AI admin page.
  *
- * Four top-level tabs (Overview | AI Features | Scheduled tasks | MCP Settings) with hash-based
- * routing. The MCP tab owns the mcp/read | mcp/write | mcp/setup sub-views,
+ * Four top-level tabs (Overview | AI Features | Scheduled tasks | MCP and Connectors)
+ * with hash-based routing. The MCP tab owns the mcp/read | mcp/write | mcp/setup sub-views,
  * which render with breadcrumbs in place of the page title while keeping the
- * tab bar — with MCP Settings selected, since the first path segment names the
- * owning tab — so top-level navigation is always available.
+ * tab bar — with MCP and Connectors selected, since the first path segment names
+ * the owning tab — so top-level navigation is always available.
  *
- * Overview and AI Features share an internal-testing gate. Scheduled tasks
+ * Overview and AI Features share a host-controlled gate. Scheduled tasks
  * is controlled independently by the ai-hub-scheduled-tasks server-side feature
  * flag. Without either flag the page keeps its original MCP-only shape, with the
  * MCP hub as the landing view and no tab bar.
@@ -48,8 +48,8 @@ const LEGACY_VIEW_ALIASES = {
 	setup: 'mcp/setup',
 };
 
-// Views that only exist in internal testing environments. MCP Settings ships
-// publicly, so it is not in here.
+// Views that retain an internal-testing badge when a host enables them for a
+// test request. MCP and Connectors ships publicly, so it is not in here.
 const GATED_VIEWS = [ 'overview', 'features' ];
 
 // Read at call time, not module scope, so the flag reflects the injected page data.
@@ -78,7 +78,7 @@ const VIEW_TITLES = {
 	overview: __( 'Overview', 'jetpack' ),
 	features: __( 'AI Features', 'jetpack' ),
 	'scheduled-tasks': __( 'Scheduled tasks', 'jetpack' ),
-	mcp: __( 'MCP Settings', 'jetpack' ),
+	mcp: __( 'MCP and Connectors', 'jetpack' ),
 	'mcp/read': __( 'Read', 'jetpack' ),
 	'mcp/write': __( 'Write', 'jetpack' ),
 	'mcp/setup': __( 'Connect external AI agent', 'jetpack' ),
@@ -139,7 +139,7 @@ function Breadcrumbs( { view, onNavigate } ) {
 }
 
 /**
- * Back-link eyebrow shown above sub-view content: "‹ MCP Settings".
+ * Back-link eyebrow shown above sub-view content: "‹ MCP and Connectors".
  * Labelled with the parent view's title, so it works for any tab's sub-views.
  * Deliberately quiet — small muted text with a chevron, styled in style.scss
  * rather than as a design-system button.
@@ -156,7 +156,7 @@ function BackEyebrow( { label, onNavigate } ) {
 			className="jetpack-ai-admin__back-eyebrow"
 			onClick={ onNavigate }
 			aria-label={ sprintf(
-				/* translators: %s: the name of the parent screen, e.g. "MCP Settings". */
+				/* translators: %s: the name of the parent screen, e.g. "MCP and Connectors". */
 				__( 'Back to %s', 'jetpack' ),
 				label
 			) }
@@ -185,6 +185,7 @@ export default function App() {
 		planName,
 		isUserConnected,
 		showFeaturesView = false,
+		showA12sBadge = false,
 	} = window?.jetpackAiSettings ?? {};
 	const [ view, setView ] = useState( getViewFromHash );
 	// Save feedback goes through the shared GlobalNotices snackbars (the
@@ -224,7 +225,7 @@ export default function App() {
 	const isSubView = MCP_SUB_VIEWS.includes( view );
 	const isMcpContext = view === 'mcp' || isSubView;
 	// The first path segment names the owning tab, so sub-views keep their
-	// parent tab (MCP Settings) selected.
+	// parent tab (MCP and Connectors) selected.
 	const activeTab = view.split( '/' )[ 0 ];
 
 	useEffect( () => {
@@ -370,10 +371,8 @@ export default function App() {
 							{ tabViews.map( tab => (
 								<Tabs.Tab key={ tab } value={ tab } onClick={ handleTabClick }>
 									{ VIEW_TITLES[ tab ] }
-									{ /* Overview and Features ship behind the internal-testing gate;
-									     label them so Automatticians don't mistake them for public UI.
-									     Remove with the gate. */ }
-									{ GATED_VIEWS.includes( tab ) && (
+									{ /* Keep the badge when a host exposes these views to internal testers. */ }
+									{ showA12sBadge && GATED_VIEWS.includes( tab ) && (
 										<Badge intent="medium" className="jetpack-ai-admin__tab-badge">
 											{ __( 'A12s only', 'jetpack' ) }
 										</Badge>

@@ -7,12 +7,8 @@ import {
 	type StatsChartBucketPeriod,
 	type StatsSingleVideoDataPoint,
 } from '@jetpack-premium-analytics/data';
-import {
-	toChartDate,
-	toDay,
-	type DataFormat,
-	type MetricTab,
-} from '@jetpack-premium-analytics/widgets-toolkit';
+import { parseBucketStart } from '@jetpack-premium-analytics/datetime';
+import { toDay, type DataFormat, type MetricTab } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import {
@@ -162,18 +158,17 @@ function bucketTotals(
 }
 
 /**
- * Turns bucket totals into chart points. Keys are wall clocks, not instants —
- * read via `toChartDate` with `pointsAreWallClocks` declared to the chart
- * (rationale in `chart-date.ts`); a real instant would shift labels by timezone.
+ * Turns bucket totals into chart points.
  */
 function toBucketPoints(
 	buckets: BucketWindow[],
 	totals: Map< string, number >
 ): VideoMetricPoint[] {
-	return buckets.map( bucket => ( {
-		date: toChartDate( bucket.date ),
-		value: totals.get( bucket.date ) ?? 0,
-	} ) );
+	return buckets.flatMap( bucket => {
+		const date = parseBucketStart( bucket.date );
+
+		return date ? [ { date, value: totals.get( bucket.date ) ?? 0 } ] : [];
+	} );
 }
 
 /**
