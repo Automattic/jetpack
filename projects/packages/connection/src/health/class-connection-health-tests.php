@@ -111,7 +111,7 @@ class Connection_Health_Tests extends Connection_Health_Test_Base {
 					'long_description' => sprintf(
 						'<p>%1$s</p>' .
 						'<p><span class="dashicons pass"><span class="screen-reader-text">%2$s</span></span> %3$s</p>',
-						__( 'A healthy Jetpack Connection allows connected plugins (such as Jetpack and WooCommerce) to provide features like Stats, Site Security, and Payments.', 'jetpack-connection' ),
+						self::helper_get_healthy_connection_text(),
 						/* translators: Screen reader text indicating a test has passed */
 						__( 'Passed', 'jetpack-connection' ),
 						__( 'Your site is connected to WordPress.com.', 'jetpack-connection' )
@@ -419,9 +419,26 @@ class Connection_Health_Tests extends Connection_Health_Test_Base {
 	protected function test__wpcom_connection_test() {
 		$name = 'test__wpcom_connection_test';
 
-		$status = new Status();
-		if ( ! ( new Manager() )->is_connected() || $status->is_offline_mode() || $status->in_safe_mode() || ! $this->pass ) {
-			return self::skipped_test( array( 'name' => $name ) );
+		$status      = new Status();
+		$skip_reason = '';
+
+		if ( $status->is_offline_mode() ) {
+			$skip_reason = __( 'Your site is in Offline Mode, so this test was skipped.', 'jetpack-connection' );
+		} elseif ( $status->in_safe_mode() ) {
+			$skip_reason = __( 'Your site is in Safe Mode, so this test was skipped.', 'jetpack-connection' );
+		} elseif ( ! ( new Manager() )->is_connected() ) {
+			$skip_reason = __( 'Your site is not communicating with WordPress.com, so this test was skipped.', 'jetpack-connection' );
+		} elseif ( ! $this->pass ) {
+			$skip_reason = __( 'A previous connection health test failed, so this test was skipped.', 'jetpack-connection' );
+		}
+
+		if ( $skip_reason ) {
+			return self::skipped_test(
+				array(
+					'name'              => $name,
+					'short_description' => $skip_reason,
+				)
+			);
 		}
 
 		add_filter( 'http_request_timeout', array( static::class, 'increase_timeout' ) );
@@ -451,7 +468,11 @@ class Connection_Health_Tests extends Connection_Health_Test_Base {
 			return self::failing_test(
 				array(
 					'name'              => $name,
-					'short_description' => __( 'Connection test failed (empty response body)', 'jetpack-connection' ) . wp_remote_retrieve_response_code( $response ),
+					'short_description' => sprintf(
+						/* translators: %s is the HTTP status code returned by WordPress.com. */
+						__( 'Connection test failed: WordPress.com returned an empty response (status code: %s).', 'jetpack-connection' ),
+						wp_remote_retrieve_response_code( $response )
+					),
 					'action_label'      => $this->helper_get_support_text(),
 					'action'            => $this->helper_get_support_url(),
 				)
@@ -584,19 +605,33 @@ class Connection_Health_Tests extends Connection_Health_Test_Base {
 	 * @return array Test results.
 	 */
 	protected function blocked_request_failing_test( $name, $site_http_status = 0 ) {
-		$connection_error = $site_http_status
+		// Only the first sentence varies with the status code. Keeping the explanation
+		// in its own string means it is written, translated, and edited once.
+		$blocked = $site_http_status
 			? sprintf(
 				/* translators: %d is the HTTP status code (e.g. 403) the site returned. */
-				__( 'WordPress.com reached your site but the request was blocked (HTTP %d). This is usually caused by a firewall, security plugin, or server rule rejecting requests from WordPress.com.', 'jetpack-connection' ),
+				__( 'WordPress.com reached your site but the request was blocked (HTTP %d).', 'jetpack-connection' ),
 				$site_http_status
 			)
-			: __( 'WordPress.com reached your site but the request was blocked. This is usually caused by a firewall, security plugin, or server rule rejecting requests from WordPress.com.', 'jetpack-connection' );
+			: __( 'WordPress.com reached your site but the request was blocked.', 'jetpack-connection' );
 
-		$recommendation = __( 'Ask your host or security provider to allow requests from WordPress.com to your site\'s xmlrpc.php file. Reconnecting will not resolve this. If you need further help, contact Jetpack support.', 'jetpack-connection' );
+		$connection_error = $blocked . ' ' . __( 'This is usually caused by a security plugin, firewall, or server rule rejecting requests from WordPress.com.', 'jetpack-connection' );
+
+		$recommendation = sprintf(
+			/* translators: %1$s opens a link to Jetpack's IP allowlist documentation, %2$s closes it (it also carries hidden text noting the link opens in a new tab). Place them around the phrase that should be linked. */
+			__( 'Jetpack Connection uses your site\'s xmlrpc.php file to securely communicate with WordPress.com. Ask your host or security provider to %1$sallowlist Jetpack Connection IPs%2$s — reconnecting will not resolve this. If you need further help, contact Jetpack support.', 'jetpack-connection' ),
+			'<a href="' . esc_url( Redirect::get_url( 'https://jetpack.com/support/how-to-add-jetpack-ips-allowlist/' ) ) . '" target="_blank" rel="noopener noreferrer">',
+			sprintf(
+				/* translators: accessibility text */
+				'<span class="screen-reader-text"> %s</span></a>',
+				esc_html__( '(opens in a new tab)', 'jetpack-connection' )
+			)
+		);
 
 		return self::failing_test(
 			array(
 				'name'              => $name,
+				'label'             => __( 'Your site is blocking requests from WordPress.com', 'jetpack-connection' ),
 				'short_description' => $connection_error,
 				'long_description'  => self::helper_get_reconnect_long_description( $connection_error, $recommendation ),
 				'action_label'      => $this->helper_get_support_text(),

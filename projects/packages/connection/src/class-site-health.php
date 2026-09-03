@@ -116,6 +116,67 @@ class Site_Health {
 	}
 
 	/**
+	 * Human-readable headings for the built-in connection tests.
+	 *
+	 * Used when a test result carries no label of its own, so Site Health does not
+	 * derive a title from the method name (e.g. "Wpcom Connection Test").
+	 *
+	 * A heading here has to read sensibly for a pass, a fail, and a skip alike, so
+	 * these name what was tested rather than stating an outcome. Results that want
+	 * to state an outcome set their own label, which takes precedence.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return array Map of test name => label.
+	 */
+	private static function get_default_test_labels() {
+		return array(
+			'test__blog_token_if_exists'           => __( 'Blog Token', 'jetpack-connection' ),
+			'test__check_if_connected'             => __( 'WordPress.com Connection', 'jetpack-connection' ),
+			'test__master_user_exists_on_site'     => __( 'Connection Owner', 'jetpack-connection' ),
+			'test__master_user_can_manage_options' => __( 'Connection Owner Permissions', 'jetpack-connection' ),
+			'test__outbound_http'                  => __( 'Outbound HTTP Requests', 'jetpack-connection' ),
+			'test__outbound_https'                 => __( 'Outbound HTTPS Requests', 'jetpack-connection' ),
+			'test__identity_crisis'                => __( 'Site Address', 'jetpack-connection' ),
+			'test__connection_token_health'        => __( 'Connection Tokens', 'jetpack-connection' ),
+			'test__wpcom_connection_test'          => __( 'Requests from WordPress.com', 'jetpack-connection' ),
+			// Only registered when the jetpack_debugger_run_self_test filter returns true.
+			'test__wpcom_self_test'                => __( 'Site XML-RPC Endpoint', 'jetpack-connection' ),
+			'test__server_port_value'              => __( 'Server Port', 'jetpack-connection' ),
+			'test__xml_parser_available'           => __( 'PHP XML Support', 'jetpack-connection' ),
+		);
+	}
+
+	/**
+	 * Get the heading for a test whose result carries no label of its own.
+	 *
+	 * Falls back to deriving a title from the method name, which is the last resort
+	 * for tests other plugins register through the jetpack_connection_tests_loaded
+	 * action and which therefore cannot appear in the map.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $test_name Test name, e.g. "test__blog_token_if_exists".
+	 *
+	 * @return string The heading to display.
+	 */
+	private static function get_default_test_label( $test_name ) {
+		$labels = self::get_default_test_labels();
+
+		if ( isset( $labels[ $test_name ] ) ) {
+			return $labels[ $test_name ];
+		}
+
+		return ucwords(
+			str_replace(
+				'_',
+				' ',
+				str_replace( 'test__', '', $test_name )
+			)
+		);
+	}
+
+	/**
 	 * Create a closure for a Site Health direct test.
 	 *
 	 * @since 8.5.0
@@ -126,21 +187,15 @@ class Site_Health {
 	 * @return callable The Site Health test callback.
 	 */
 	private static function make_site_health_callback( $test, $cxn_tests ) {
-		return function () use ( $test, $cxn_tests ) {
+		$default_label = self::get_default_test_label( $test['name'] );
+
+		return function () use ( $test, $cxn_tests, $default_label ) {
 			$results = $cxn_tests->run_test( $test['name'] );
 			if ( is_wp_error( $results ) ) {
 				return;
 			}
 
-			$label = $results['label'] ?
-				$results['label'] :
-				ucwords(
-					str_replace(
-						'_',
-						' ',
-						str_replace( 'test__', '', $test['name'] )
-					)
-				);
+			$label = $results['label'] ? $results['label'] : $default_label;
 
 			if ( $results['long_description'] ) {
 				$description = $results['long_description'];

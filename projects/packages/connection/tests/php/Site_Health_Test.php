@@ -37,7 +37,9 @@ class Site_Health_Test extends TestCase {
 
 		remove_all_filters( 'site_status_tests' );
 		remove_all_filters( 'pre_http_request' );
+		remove_all_filters( 'jetpack_debugger_run_self_test' );
 		remove_all_actions( 'admin_init' );
+		remove_all_actions( 'jetpack_connection_tests_loaded' );
 		remove_all_actions( 'wp_ajax_health-check-jetpack-connection-health' );
 		remove_all_actions( 'jetpack_heartbeat' );
 		remove_all_filters( 'jetpack_connection_bypass_error_reporting_gate' );
@@ -45,6 +47,43 @@ class Site_Health_Test extends TestCase {
 		WorDBless_Options::init()->clear_options();
 		Constants::clear_constants();
 		( new Manager() )->reset_connection_status();
+	}
+
+	/**
+	 * Register the connection tests and return the direct test callbacks.
+	 *
+	 * @return array Map of test name => Site Health callback.
+	 */
+	private function register_direct_tests() {
+		$result = Site_Health::register_site_health_tests(
+			array(
+				'direct' => array(),
+				'async'  => array(),
+			)
+		);
+
+		return $result['direct'];
+	}
+
+	/**
+	 * Register an extra test through the action other plugins use, so the suite
+	 * contains a test that cannot appear in the default label map.
+	 *
+	 * @param string $name   Test name.
+	 * @param array  $result Result the test should return.
+	 */
+	private function register_third_party_test( $name, array $result ) {
+		add_action(
+			'jetpack_connection_tests_loaded',
+			function ( $tests ) use ( $name, $result ) {
+				$tests->add_test(
+					function () use ( $result ) {
+						return $result;
+					},
+					$name
+				);
+			}
+		);
 	}
 
 	/**
@@ -303,5 +342,102 @@ class Site_Health_Test extends TestCase {
 		$this->assertIsArray( $output );
 		// Skipped tests still return 'good' status (they aren't failures).
 		$this->assertEquals( 'good', $output['status'] );
+	}
+
+	/**
+	 * Test that a result carrying no label of its own gets the readable heading from
+	 * the default map, rather than one derived from the method name.
+	 *
+	 * This is the case that prompted the map: the skipped result sets no label, and
+	 * the heading used to read "Wpcom Connection Test".
+	 */
+	public function test_direct_callback_applies_default_label() {
+		$tests = $this->register_direct_tests();
+
+		// Skips when not connected, and the skipped result sets no label.
+		$output = $tests['test__wpcom_connection_test']['test']();
+
+		$this->assertSame( 'Requests from WordPress.com', $output['label'] );
+	}
+
+	/**
+	 * Test that the default map is applied to every test, not just the one it was
+	 * introduced for.
+	 */
+	public function test_direct_callback_applies_default_label_to_other_tests() {
+		$tests = $this->register_direct_tests();
+
+		$output = $tests['test__blog_token_if_exists']['test']();
+
+		$this->assertSame( 'Blog Token', $output['label'] );
+	}
+
+	/**
+	 * Test that a result which sets its own label keeps it, so the default never
+	 * overwrites a more specific heading.
+	 */
+	public function test_direct_callback_keeps_label_set_by_the_result() {
+		$this->register_third_party_test(
+			'test__labelled_example',
+			Connection_Health_Tests::failing_test(
+				array(
+					'name'  => 'test__labelled_example',
+					'label' => 'A more specific heading',
+				)
+			)
+		);
+
+		$tests = $this->register_direct_tests();
+
+		$output = $tests['test__labelled_example']['test']();
+
+		$this->assertSame( 'A more specific heading', $output['label'] );
+	}
+
+	/**
+	 * Test that a test registered by another plugin, which cannot appear in the
+	 * default map, still falls back to a heading derived from its name.
+	 */
+	public function test_direct_callback_derives_label_for_third_party_test() {
+		$this->register_third_party_test(
+			'test__some_other_plugin_check',
+			Connection_Health_Tests::passing_test( array( 'name' => 'test__some_other_plugin_check' ) )
+		);
+
+		$tests = $this->register_direct_tests();
+
+		$output = $tests['test__some_other_plugin_check']['test']();
+
+		$this->assertSame( 'Some Other Plugin Check', $output['label'] );
+	}
+
+	/**
+	 * Test that the default label map covers every built-in test, in both directions.
+	 *
+	 * Without this, renaming a test method degrades its heading back to the derived
+	 * form silently, and removing one leaves a dead entry behind.
+	 */
+	public function test_default_label_map_matches_the_built_in_tests() {
+		// Registers test__wpcom_self_test, which is otherwise left out of the suite.
+		add_filter( 'jetpack_debugger_run_self_test', '__return_true' );
+
+		$method = new \ReflectionMethod( Site_Health::class, 'get_default_test_labels' );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+		$labels = $method->invoke( null );
+
+		$registered = array_keys( ( new Connection_Health_Tests() )->list_tests( 'direct' ) );
+
+		sort( $registered );
+		$mapped = array_keys( $labels );
+		sort( $mapped );
+
+		$this->assertSame(
+			$registered,
+			$mapped,
+			'Site_Health::get_default_test_labels() must list exactly the built-in connection tests.'
+		);
 	}
 }
