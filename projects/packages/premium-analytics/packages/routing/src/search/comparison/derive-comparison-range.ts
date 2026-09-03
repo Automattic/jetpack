@@ -9,7 +9,7 @@ import {
 import {
 	getComparisonOptions,
 	isComparisonPresetId,
-	siteTimeZone,
+	reportingTimeZone,
 	type ComparisonPresetId,
 } from '@jetpack-premium-analytics/datetime';
 
@@ -54,7 +54,7 @@ export function deriveComparisonRange( opts: ReportParams ):
 	 * site zone here too — a raw instant would put a date-only deep link on UTC
 	 * midnight, a different calendar day than the picker shows.
 	 */
-	const timezone = siteTimeZone();
+	const timezone = reportingTimeZone();
 	const reference = {
 		from: localTZDate( opts.from, timezone ),
 		to: localTZDate( opts.to, timezone ),

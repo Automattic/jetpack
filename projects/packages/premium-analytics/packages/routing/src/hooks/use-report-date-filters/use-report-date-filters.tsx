@@ -9,7 +9,7 @@ import {
 import {
 	drillDateRange,
 	PRESET_CUSTOM,
-	siteTimeZone,
+	reportingTimeZone,
 	stepDateRange,
 	toLocalTZ,
 } from '@jetpack-premium-analytics/datetime';
@@ -133,7 +133,7 @@ export function useReportDateFilters< TFrom extends string >( from?: TFrom ): Re
 		TFrom
 	>( { from } );
 
-	const timeZone = siteTimeZone();
+	const timeZone = reportingTimeZone();
 
 	const presetId = useMemo( () => effective.preset ?? undefined, [ effective.preset ] );
 	const range = useMemo(
