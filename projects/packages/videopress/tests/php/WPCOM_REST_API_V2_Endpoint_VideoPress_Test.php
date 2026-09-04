@@ -121,6 +121,7 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Test extends BaseTestCase {
 
 		$this->assertArrayHasKey( 'videopress_videos_private_for_site', $data );
 		$this->assertArrayHasKey( 'videopress_auto_subtitles_disabled', $data );
+		$this->assertArrayHasKey( 'videopress_player_preload_disabled', $data );
 		$this->assertArrayHasKey( 'site_is_private', $data );
 		$this->assertArrayHasKey( 'site_type', $data );
 	}
@@ -133,10 +134,12 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Test extends BaseTestCase {
 	public function test_update_settings_persists_options() {
 		delete_option( 'videopress_private_enabled_for_site' );
 		delete_option( 'videopress_auto_subtitles_disabled' );
+		delete_option( 'videopress_player_preload_disabled' );
 
 		$request = new \WP_REST_Request( 'POST', self::ROUTE_SETTINGS );
 		$request->set_param( 'videopress_videos_private_for_site', true );
 		$request->set_param( 'videopress_auto_subtitles_disabled', true );
+		$request->set_param( 'videopress_player_preload_disabled', true );
 
 		$endpoint = new WPCOM_REST_API_V2_Endpoint_VideoPress();
 		$response = $endpoint->videopress_update_settings( $request );
@@ -146,6 +149,7 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Test extends BaseTestCase {
 		$this->assertArrayNotHasKey( 'ignored', $response->get_data() );
 		$this->assertTrue( (bool) get_option( 'videopress_private_enabled_for_site' ) );
 		$this->assertTrue( (bool) get_option( 'videopress_auto_subtitles_disabled' ) );
+		$this->assertTrue( (bool) get_option( 'videopress_player_preload_disabled' ) );
 	}
 
 	/**
@@ -154,6 +158,7 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Test extends BaseTestCase {
 	public function test_update_settings_ignores_absent_params() {
 		update_option( 'videopress_private_enabled_for_site', true );
 		update_option( 'videopress_auto_subtitles_disabled', false );
+		update_option( 'videopress_player_preload_disabled', true );
 
 		$request = new \WP_REST_Request( 'POST', self::ROUTE_SETTINGS );
 		$request->set_param( 'videopress_auto_subtitles_disabled', true );
@@ -163,6 +168,7 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Test extends BaseTestCase {
 
 		$this->assertTrue( (bool) get_option( 'videopress_private_enabled_for_site' ) );
 		$this->assertTrue( (bool) get_option( 'videopress_auto_subtitles_disabled' ) );
+		$this->assertTrue( (bool) get_option( 'videopress_player_preload_disabled' ) );
 	}
 
 	/**

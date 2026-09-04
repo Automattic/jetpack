@@ -41,6 +41,7 @@ describe( 'useSettings', () => {
 				return {
 					videopress_videos_private_for_site: true,
 					videopress_auto_subtitles_disabled: true,
+					videopress_player_preload_disabled: false,
 					site_is_private: false,
 					site_type: 'jetpack',
 				};
@@ -52,6 +53,7 @@ describe( 'useSettings', () => {
 		await waitFor( () => expect( result.current.data ).toBeDefined() );
 		expect( result.current.data?.videoPressVideosPrivateForSite ).toBe( true );
 		expect( result.current.data?.videoPressAutoSubtitlesDisabled ).toBe( true );
+		expect( result.current.data?.videoPressPlayerPreloadDisabled ).toBe( false );
 		expect( result.current.data?.siteIsPrivate ).toBe( false );
 	} );
 } );
@@ -71,6 +73,7 @@ describe( 'useUpdateSettings', () => {
 			return {
 				videopress_videos_private_for_site: serverValue,
 				videopress_auto_subtitles_disabled: false,
+				videopress_player_preload_disabled: false,
 				site_is_private: false,
 				site_type: 'jetpack',
 			};
@@ -107,6 +110,7 @@ describe( 'useUpdateSettings', () => {
 			return {
 				videopress_videos_private_for_site: false,
 				videopress_auto_subtitles_disabled: serverValue,
+				videopress_player_preload_disabled: false,
 				site_is_private: false,
 				site_type: 'jetpack',
 			};
@@ -131,6 +135,45 @@ describe( 'useUpdateSettings', () => {
 		);
 	} );
 
+	it( 'POSTs videopress_player_preload_disabled and optimistically updates the cache', async () => {
+		const calls: { path?: string; method?: string; data?: unknown }[] = [];
+		// Track server state so the refetch after onSettled returns the updated value.
+		let serverValue = false;
+		mockApiFetch( async ( { path, method, data } ) => {
+			calls.push( { path, method, data } );
+			if ( method === 'POST' ) {
+				serverValue = ( data as Record< string, unknown > )
+					?.videopress_player_preload_disabled as boolean;
+				return { code: 'success', message: 'ok', data: 200 };
+			}
+			return {
+				videopress_videos_private_for_site: false,
+				videopress_auto_subtitles_disabled: false,
+				videopress_player_preload_disabled: serverValue,
+				site_is_private: false,
+				site_type: 'jetpack',
+			};
+		} );
+
+		const client = createTestQueryClient();
+		const wrapper = createTestWrapper( client );
+		const { result: settingsResult } = renderHook( () => useSettings(), { wrapper } );
+		await waitFor( () => expect( settingsResult.current.data ).toBeDefined() );
+
+		const { result: mutationResult } = renderHook( () => useUpdateSettings(), { wrapper } );
+		await act( async () => {
+			await mutationResult.current.mutateAsync( {
+				videoPressPlayerPreloadDisabled: true,
+			} );
+		} );
+
+		const postCall = calls.find( c => c.method === 'POST' );
+		expect( postCall?.data ).toEqual( { videopress_player_preload_disabled: true } );
+		await waitFor( () =>
+			expect( settingsResult.current.data?.videoPressPlayerPreloadDisabled ).toBe( true )
+		);
+	} );
+
 	it( 'sends no request for an empty patch', async () => {
 		const calls: { method?: string }[] = [];
 		mockApiFetch( async ( { method } ) => {
@@ -138,6 +181,7 @@ describe( 'useUpdateSettings', () => {
 			return {
 				videopress_videos_private_for_site: false,
 				videopress_auto_subtitles_disabled: false,
+				videopress_player_preload_disabled: false,
 				site_is_private: false,
 				site_type: 'jetpack',
 			};
@@ -160,6 +204,7 @@ describe( 'useUpdateSettings', () => {
 			return {
 				videopress_videos_private_for_site: false,
 				videopress_auto_subtitles_disabled: false,
+				videopress_player_preload_disabled: false,
 				site_is_private: false,
 				site_type: 'jetpack',
 			};
@@ -195,6 +240,7 @@ describe( 'on WordPress.com Simple', () => {
 				return {
 					videopress_videos_private_for_site: false,
 					videopress_auto_subtitles_disabled: true,
+					videopress_player_preload_disabled: false,
 					site_is_private: true,
 					site_type: 'simple',
 				};
@@ -219,6 +265,7 @@ describe( 'on WordPress.com Simple', () => {
 			return {
 				videopress_videos_private_for_site: false,
 				videopress_auto_subtitles_disabled: true,
+				videopress_player_preload_disabled: false,
 				site_is_private: true,
 				site_type: 'simple',
 			};
