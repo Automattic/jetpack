@@ -88,10 +88,9 @@ const SUCCEEDED_ROW_STATUSES = new Set( [ 'finished', 'success' ] );
 /**
  * One row of `GET /jetpack/v4/restores` — the last ten restores, any state.
  *
- * `when` is WordPress.com's own timestamp and must be read through
- * `parseRestoreWhen`, never `Date.parse`. The activity list renders it, but
- * `pickLiveRestore` still ranks rows only against each other: a browser minutes
- * ahead of the server would otherwise reject the restore it had just started.
+ * `when` must be read through `parseRestoreWhen`, never `Date.parse`, and
+ * `pickLiveRestore` ranks rows only against each other: a browser ahead of the
+ * server would otherwise reject the restore it had just started.
  *
  * `settled` and `succeeded` are the quarantined readings of the row's
  * `status` — see `SETTLED_ROW_STATUSES` and `SUCCEEDED_ROW_STATUSES`. The

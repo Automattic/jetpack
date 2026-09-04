@@ -5,8 +5,8 @@ import { keys } from '../data/query-client';
 /**
  * The site's ten most recent restores, in any state.
  *
- * One query key for every reader — adoption, the review prompt, the activity
- * list's restore rows — so an Overview mounting all three makes one request.
+ * One query key for every reader, so an Overview mounting several of them
+ * still makes one request.
  *
  * @param enabled - False to leave the query idle.
  * @return The shared restores query.

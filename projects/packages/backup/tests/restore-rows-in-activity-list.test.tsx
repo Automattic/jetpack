@@ -29,8 +29,7 @@ const SETTLE = { timeout: 10000 };
 
 const BACKUP_REWIND_ID = '1786644531.100';
 const RESTORE_ROW_ID = 'restore-912682';
-// 14:11 UTC. The runner's zone is pinned to GMT-3 in `tests/jest.config.js`, so
-// a `when` read as local time would render three hours late.
+// 14:11 UTC; read as local time on the GMT-3 runner it would render three hours late.
 const RESTORE_WHEN = '2026-09-03 14:11:00';
 const RESTORE_RENDERED_AT = 'Sep 3, 2026, 2:11 PM';
 const RESTORE_READ_AS_LOCAL = 'Sep 3, 2026, 5:11 PM';
@@ -316,8 +315,7 @@ describe( 'a refetch that failed with rows still on screen', () => {
 		render( <OverviewStage /> );
 
 		await expect( screen.findByText( ACTIVITY_FAILED, undefined, SETTLE ) ).resolves.toBeVisible();
-		// Witness: the stale rows are on screen, which is what keeps the `empty`
-		// slot unrendered and leaves this failure nowhere else to report from.
+		// Witness: the stale rows are on screen, so the `empty` slot never rendered.
 		expect( renderedRows()[ 0 ] ).toContain( 'Backup complete' );
 	} );
 } );

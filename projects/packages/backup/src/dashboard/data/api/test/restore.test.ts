@@ -103,8 +103,7 @@ describe( 'fetchRecentRestores', () => {
 	} );
 } );
 
-// The runner's zone is pinned to GMT-3 in `tests/jest.config.js`; on a UTC
-// runner every assertion below would pass against the naive parse too.
+// On a UTC runner every assertion below would pass against the naive parse too.
 describe( 'parseRestoreWhen', () => {
 	test( 'reads a zone-less stamp as UTC rather than the browser zone', () => {
 		expect( parseRestoreWhen( '2026-09-03 14:11:00' ) ).toBe( Date.UTC( 2026, 8, 3, 14, 11 ) );
