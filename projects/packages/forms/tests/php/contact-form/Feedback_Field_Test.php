@@ -775,6 +775,7 @@ class Feedback_Field_Test extends BaseTestCase {
 
 		$value = $field->get_render_value( 'web' );
 
+		$this->assertIsArray( $value );
 		$this->assertSame( Feedback_Field::MAX_RATING_ICONS, $value['maxRating'] );
 		$this->assertSame( 3, $value['rating'] );
 	}
@@ -788,6 +789,7 @@ class Feedback_Field_Test extends BaseTestCase {
 
 		$value = $field->get_render_value( 'web' );
 
+		$this->assertIsArray( $value );
 		$this->assertSame( Feedback_Field::MAX_RATING_ICONS, $value['maxRating'] );
 		$this->assertSame( Feedback_Field::MAX_RATING_ICONS, $value['rating'] );
 	}
