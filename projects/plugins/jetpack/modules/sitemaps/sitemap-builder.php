@@ -494,14 +494,17 @@ class Jetpack_Sitemap_Builder { // phpcs:ignore Generic.Files.OneObjectStructure
 	/**
 	 * Builds the master sitemap index.
 	 *
+	 * Per the sitemap protocol a sitemap index may not list other sitemap
+	 * indexes, so the master lists every individual sitemap file directly and
+	 * never links the per-type `*-sitemap-index-N.xml` files.
+	 *
+	 * @link https://www.sitemaps.org/protocol.html#index
+	 *
 	 * @param array $max Array of sitemap types with max index and datetime.
 	 *
 	 * @since 4.8.0
 	 */
 	private function build_master_sitemap( $max ) {
-		$page  = array();
-		$image = array();
-		$video = array();
 		if ( $this->logger ) {
 			$this->logger->report( '-- Building Master Sitemap.' );
 		}
@@ -516,67 +519,55 @@ class Jetpack_Sitemap_Builder { // phpcs:ignore Generic.Files.OneObjectStructure
 			return;
 		}
 
-		if ( isset( $max[ JP_PAGE_SITEMAP_TYPE ] ) && 0 < $max[ JP_PAGE_SITEMAP_TYPE ]['number'] ) {
-			if ( 1 === $max[ JP_PAGE_SITEMAP_TYPE ]['number'] ) {
-				$page['filename']      = jp_sitemap_filename( JP_PAGE_SITEMAP_TYPE, 1 );
-				$page['last_modified'] = jp_sitemap_datetime( $max[ JP_PAGE_SITEMAP_TYPE ]['lastmod'] );
-			} else {
-				$page['filename']      = jp_sitemap_filename(
-					JP_PAGE_SITEMAP_INDEX_TYPE,
-					$max[ JP_PAGE_SITEMAP_INDEX_TYPE ]['number']
-				);
-				$page['last_modified'] = jp_sitemap_datetime( $max[ JP_PAGE_SITEMAP_INDEX_TYPE ]['lastmod'] );
-			}
+		$sitemap_types = array(
+			JP_PAGE_SITEMAP_TYPE,
+			JP_IMAGE_SITEMAP_TYPE,
+			JP_VIDEO_SITEMAP_TYPE,
+		);
 
-			$buffer->append(
-				array(
-					'sitemap' => array(
-						'loc'     => $this->finder->construct_sitemap_url( $page['filename'] ),
-						'lastmod' => $page['last_modified'],
-					),
-				)
-			);
+		// Total number of individual sitemap files to list.
+		$total = 0;
+		foreach ( $sitemap_types as $sitemap_type ) {
+			if ( isset( $max[ $sitemap_type ]['number'] ) ) {
+				$total += (int) $max[ $sitemap_type ]['number'];
+			}
 		}
 
-		if ( isset( $max[ JP_IMAGE_SITEMAP_TYPE ] ) && 0 < $max[ JP_IMAGE_SITEMAP_TYPE ]['number'] ) {
-			if ( 1 === $max[ JP_IMAGE_SITEMAP_TYPE ]['number'] ) {
-				$image['filename']      = jp_sitemap_filename( JP_IMAGE_SITEMAP_TYPE, 1 );
-				$image['last_modified'] = jp_sitemap_datetime( $max[ JP_IMAGE_SITEMAP_TYPE ]['lastmod'] );
+		/*
+		 * Listing every file directly needs room for all of them. Above the
+		 * buffer's item capacity (a million-plus URLs) fall back to the nested
+		 * indexes: Google flags the nesting, but that beats dropping URLs.
+		 *
+		 * ponytail: raising this ceiling means paginating the master itself,
+		 * which the protocol can't express without nesting anyway.
+		 */
+		$flatten = ( $total <= JP_SITEMAP_MAX_ITEMS );
+
+		foreach ( $sitemap_types as $sitemap_type ) {
+			if ( ! isset( $max[ $sitemap_type ]['number'] ) || 0 >= $max[ $sitemap_type ]['number'] ) {
+				continue;
+			}
+
+			if ( $flatten ) {
+				$this->append_sitemaps_to_master( $buffer, $sitemap_type );
+				continue;
+			}
+
+			$index_type = jp_sitemap_index_type_of( $sitemap_type );
+
+			if ( 1 === $max[ $sitemap_type ]['number'] || ! isset( $max[ $index_type ]['number'] ) ) {
+				$filename = jp_sitemap_filename( $sitemap_type, 1 );
+				$lastmod  = $max[ $sitemap_type ]['lastmod'];
 			} else {
-				$image['filename']      = jp_sitemap_filename(
-					JP_IMAGE_SITEMAP_INDEX_TYPE,
-					$max[ JP_IMAGE_SITEMAP_INDEX_TYPE ]['number']
-				);
-				$image['last_modified'] = jp_sitemap_datetime( $max[ JP_IMAGE_SITEMAP_INDEX_TYPE ]['lastmod'] );
+				$filename = jp_sitemap_filename( $index_type, $max[ $index_type ]['number'] );
+				$lastmod  = $max[ $index_type ]['lastmod'];
 			}
 
 			$buffer->append(
 				array(
 					'sitemap' => array(
-						'loc'     => $this->finder->construct_sitemap_url( $image['filename'] ),
-						'lastmod' => $image['last_modified'],
-					),
-				)
-			);
-		}
-
-		if ( isset( $max[ JP_VIDEO_SITEMAP_TYPE ] ) && 0 < $max[ JP_VIDEO_SITEMAP_TYPE ]['number'] ) {
-			if ( 1 === $max[ JP_VIDEO_SITEMAP_TYPE ]['number'] ) {
-				$video['filename']      = jp_sitemap_filename( JP_VIDEO_SITEMAP_TYPE, 1 );
-				$video['last_modified'] = jp_sitemap_datetime( $max[ JP_VIDEO_SITEMAP_TYPE ]['lastmod'] );
-			} else {
-				$video['filename']      = jp_sitemap_filename(
-					JP_VIDEO_SITEMAP_INDEX_TYPE,
-					$max[ JP_VIDEO_SITEMAP_INDEX_TYPE ]['number']
-				);
-				$video['last_modified'] = jp_sitemap_datetime( $max[ JP_VIDEO_SITEMAP_INDEX_TYPE ]['lastmod'] );
-			}
-
-			$buffer->append(
-				array(
-					'sitemap' => array(
-						'loc'     => $this->finder->construct_sitemap_url( $video['filename'] ),
-						'lastmod' => $video['last_modified'],
+						'loc'     => $this->finder->construct_sitemap_url( $filename ),
+						'lastmod' => jp_sitemap_datetime( $lastmod ),
 					),
 				)
 			);
@@ -588,6 +579,44 @@ class Jetpack_Sitemap_Builder { // phpcs:ignore Generic.Files.OneObjectStructure
 			$buffer->contents(),
 			''
 		);
+	}
+
+	/**
+	 * Append every stored sitemap file of the given type to the master sitemap.
+	 *
+	 * Stops early if the buffer fills up; see build_master_sitemap() for how
+	 * that case is avoided.
+	 *
+	 * @access private
+	 * @since 16.2
+	 *
+	 * @param Jetpack_Sitemap_Buffer $buffer       The master sitemap buffer.
+	 * @param string                 $sitemap_type The type of sitemap to list.
+	 */
+	private function append_sitemaps_to_master( $buffer, $sitemap_type ) {
+		$last_sitemap_id = 0;
+
+		while ( false === $buffer->is_full() ) {
+			$rows = $this->librarian->query_sitemaps_after_id(
+				$sitemap_type,
+				$last_sitemap_id,
+				JP_SITEMAP_BATCH_SIZE
+			);
+
+			if ( empty( $rows ) ) {
+				return;
+			}
+
+			foreach ( $rows as $row ) {
+				$current_item = $this->sitemap_row_to_index_item( (array) $row );
+
+				if ( true !== $buffer->append( $current_item['xml'] ) ) {
+					return;
+				}
+
+				$last_sitemap_id = $row['ID'];
+			}
+		}
 	}
 
 	/**

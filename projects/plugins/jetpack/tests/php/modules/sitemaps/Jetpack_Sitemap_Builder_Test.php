@@ -305,6 +305,51 @@ class Jetpack_Sitemap_Builder_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * The master sitemap links leaf sitemaps directly, never a nested sitemap index.
+	 *
+	 * A sitemap index file may not list other sitemap index files.
+	 *
+	 * @link https://www.sitemaps.org/protocol.html#index
+	 *
+	 * @group jetpack-sitemap
+	 * @since 16.2
+	 */
+	#[Group( 'jetpack-sitemap' )]
+	public function test_master_sitemap_is_not_nested() {
+		// Enough URLs to spill over JP_SITEMAP_MAX_ITEMS into a second page sitemap.
+		$callback = function () {
+			$urls = array();
+			for ( $i = 0; $i <= JP_SITEMAP_MAX_ITEMS; $i++ ) {
+				$urls[] = 'https://example.com/' . $i;
+			}
+			return $urls;
+		};
+
+		add_filter( 'jetpack_page_sitemap_other_urls', $callback );
+
+		// Run to completion: page sitemaps, indexes, then the master.
+		for ( $i = 0; $i < 10; $i++ ) {
+			$this->builder->update_sitemap();
+		}
+
+		remove_filter( 'jetpack_page_sitemap_other_urls', $callback );
+
+		$librarian = new Jetpack_Sitemap_Librarian();
+
+		// Sanity check: the content really did split across two sitemaps.
+		$this->assertNotEmpty(
+			$librarian->get_sitemap_text( 'sitemap-2.xml', JP_PAGE_SITEMAP_TYPE ),
+			'Expected the URLs to split across more than one page sitemap.'
+		);
+
+		$master = $librarian->get_sitemap_text( 'sitemap.xml', JP_MASTER_SITEMAP_TYPE );
+
+		$this->assertStringContainsString( 'sitemap-1.xml', $master );
+		$this->assertStringContainsString( 'sitemap-2.xml', $master );
+		$this->assertStringNotContainsString( 'sitemap-index-', $master );
+	}
+
+	/**
 	 * Test that cache suspension state is restored after sitemap update
 	 *
 	 * @group jetpack-sitemap

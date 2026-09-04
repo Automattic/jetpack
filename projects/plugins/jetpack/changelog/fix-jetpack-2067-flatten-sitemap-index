@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Sitemaps: link individual sitemap files directly from sitemap.xml instead of nesting sitemap index files, which Google Search Console rejects.
