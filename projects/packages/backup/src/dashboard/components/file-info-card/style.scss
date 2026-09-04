@@ -42,12 +42,14 @@
 		font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
 		font-size: 12px;
 		line-height: 1.5;
-		// Wrapping rather than a horizontal scroller: the `<pre>` is `dir="ltr"`,
-		// so inside an RTL panel it overflowed past the panel's inline-start
-		// edge, which Chrome never makes scrollable. `anywhere` catches the
-		// unbroken runs — minified JS, base64 — that `pre-wrap` alone would not.
 		white-space: pre-wrap;
+		// `anywhere` breaks the unbroken runs — minified JS, base64 — that
+		// `pre-wrap` alone will not.
 		overflow-wrap: anywhere;
+		// The scroller stays here rather than on the panel, which is
+		// `overflow-x: hidden`: an RTL panel cannot scroll to a `dir="ltr"`
+		// box's inline-start overflow.
+		overflow-x: auto;
 		color: var(--wp-components-color-foreground, #1e1e1e);
 	}
 }
