@@ -135,14 +135,19 @@ export function useFileTree( rewindId: string, folderPath: string | null ): Resu
 		refetch();
 	}, [ refetch ] );
 
-	// Held across the retry: React Query rewinds this query to `pending`
-	// when it refetches after a failure, so without this the reason
-	// disappears the moment the reader clicks the retry button.
-	const error = useStickyError( query.error, query.isFetching );
+	// `networkMode: 'online'` parks an offline request rather than failing it, so
+	// the first read is neither loading nor errored and holds no children — which
+	// the tree read as an answered "empty". `isPending` spares a parked refetch,
+	// which still has its children.
+	const isParkedOffline = query.isPending && query.isPaused;
+	// Held across the retry: React Query rewinds this query to `pending` when it
+	// refetches after a failure, so without this the reason disappears the moment
+	// the reader clicks retry — and an offline retry parks rather than fetching.
+	const error = useStickyError( query.error, query.isFetching || isParkedOffline );
 
 	return {
 		children,
-		isLoading: query.isLoading,
+		isLoading: query.isLoading || isParkedOffline,
 		isFetching: query.isFetching,
 		error,
 		refetch: retry,
