@@ -3,11 +3,9 @@ import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 /**
  * Tracks whether the observed element is narrower than `threshold`.
  *
- * Measures the element rather than the viewport because the two do not move
- * together: wp-admin's "Collapse menu" preference shifts the content column by
- * 124px (272px on WordPress.com) at an unchanged window width, and crossing
- * 782px widens the sidebar rather than narrowing it. A media query is blind to
- * the first and backwards about the second.
+ * Measures the element, not the viewport: collapsing the admin menu shifts the
+ * content column at an unchanged window width, and crossing 782px widens the
+ * sidebar rather than narrowing it — a media query gets both wrong.
  *
  * @param threshold - Inline size, in px, at and above which the element is wide.
  * @return A callback ref to put on the element, and whether it is currently narrow.

@@ -3,13 +3,9 @@ import { useCallback, useEffect, useState } from '@wordpress/element';
 /**
  * Width of the wp-admin sidebar, in px, or 0 when there is none.
  *
- * Whatever `#wpcontent` does not occupy is the sidebar — 160px expanded, 36px
- * folded, 0 off-canvas, 272px on WordPress.com's nav-unification sidebar.
- * Measured rather than enumerated, so the four cases and the two environments
- * need no table here, and it holds in RTL where the menu swaps edges.
- *
- * Overlays that position themselves against the viewport need this: they are
- * unaware of wp-admin's chrome and would otherwise tuck under the menu.
+ * Whatever `#wpcontent` does not occupy is the sidebar: measured rather than
+ * enumerated, so the fold, nav-unification and RTL cases need no table here.
+ * Viewport-positioned overlays need it, or they tuck under the menu.
  *
  * @return The sidebar's current width in px.
  */

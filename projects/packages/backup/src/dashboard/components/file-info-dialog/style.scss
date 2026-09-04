@@ -1,8 +1,7 @@
 .jpb-file-info-dialog {
 
-	// `Dialog` centres on the viewport and knows nothing about wp-admin's sidebar,
-	// so a narrow content column leaves it tucked under the menu. Unlayered, which
-	// is what beats `@layer wp-ui` here — specificity would not.
+	// `Dialog` centres on the viewport and knows nothing about wp-admin's sidebar.
+	// Unlayered, which is what beats `@layer wp-ui` here — specificity would not.
 	&__popup {
 		// Physical, because it overrides `Dialog`'s own `left` + `translate(-50%)`.
 		// Only the offset is asymmetric; the centring it rides on is not.

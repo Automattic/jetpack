@@ -1,6 +1,5 @@
-// Stacking the info card under the tree left it below however many rows the
-// open folder had, and the card's own focus move then scrolled the dashboard
-// past all of them. A narrow panel shows the preview in a dialog instead.
+// A narrow panel shows the preview in a dialog: stacked under the tree, the
+// card sat below every row of the open folder and its focus move scrolled past them.
 
 const mockApiFetch = jest.fn();
 
@@ -27,9 +26,7 @@ const ROOT = {
  * Stands in for the panel's `ResizeObserver`, which jsdom does not implement.
  *
  * Reports `inlineSize` to every observer the render creates, and re-reports it
- * on `resizeTo` so a test can cross the threshold mid-render. Real observers
- * deliver a first observation on `observe()`, so this one does too — without
- * it the component would never learn a width at all.
+ * on `resizeTo` so a test can cross the threshold mid-render.
  *
  * @param inlineSize - Panel width the observers should report.
  * @param deliver    - Whether `observe()` delivers a first observation. A hidden

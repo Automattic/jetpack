@@ -18,13 +18,9 @@ type Props = {
 /**
  * Details for the currently-open file, as a modal.
  *
- * The chrome for a panel too narrow to hold `<FileInfoCard>`'s column beside
- * the tree, where the card would otherwise stack below every row of the open
- * folder. Sized against the viewport, so the preview gets the room the panel
- * could not give it.
- *
- * Closing restores focus to the row that opened it — `Dialog` does that for
- * us, which is why nothing here mirrors `<FileInfoCard>`'s `openerRef` dance.
+ * Used where the panel is too narrow to hold `<FileInfoCard>` beside the tree,
+ * and sized against the viewport instead. `Dialog` restores focus on close, so
+ * nothing here mirrors `<FileInfoCard>`'s `openerRef` dance.
  *
  * @param props         - Component props.
  * @param props.file    - The file node clicked in the tree.

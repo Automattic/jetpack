@@ -95,19 +95,8 @@ function isSensitivePath( manifestPath: string | undefined ): boolean {
  * Everything a file-info chrome needs about the open file: the two fetches,
  * the previewability decision, and the reveal gate for sensitive files.
  *
- * Two fetches back this, both keyed on the file's own `period` from
- * `/ls` rather than the parent backup's rewindId, because VaultPress
- * records one row per file version and matches the period exactly.
- * `path-info` supplies size, hash and the real mtime; `file-content`
- * supplies the preview body. Neither is fatal on its own — the chrome
- * renders whatever resolved.
- *
- * `lastModified` from `/ls` is the snapshot the file landed in, which
- * is close to but not the same as the file's modification time, so
- * path-info's `mtime` wins when it is available.
- *
- * `reveal` does not move focus: the click unmounts the button holding it, and
- * where focus should land next is the chrome's to decide.
+ * Both fetches key on the file's own `period`, not the backup's rewindId:
+ * VaultPress rows are per file version. `mtime` beats `/ls`'s snapshot date.
  *
  * @param file - The file node clicked in the tree.
  * @return Metadata, preview state, and the reveal callback.

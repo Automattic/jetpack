@@ -7,16 +7,8 @@ import { Button, Stack, Text } from '@wordpress/ui';
  * Renders the preview slot's body: a spinner while loading, the file
  * contents in a `<pre>`, or a muted line when there is nothing to show.
  *
- * The error branch says nothing about *why*, on purpose. It used to
- * blame blob storage having outlived the manifest entry, which was
- * never right: upstream reports a genuinely unreadable blob with a
- * different error entirely, and the failure that prompted that wording
- * turned out to be this package percent-encoding an already-base64
- * path. There is no failure mode here specific enough to name.
- *
- * Pulled out as a standalone component to keep the chromes' JSX flat
- * (no nested ternaries) and to give the loading / error / empty branches
- * unique render paths the linter can reason about.
+ * The error branch names no cause on purpose: no failure mode here is
+ * specific enough to blame.
  *
  * @param props                - Component props.
  * @param props.awaitingReveal - Whether the file holds secrets the reader has not asked for yet.
@@ -73,10 +65,8 @@ export default function PreviewBody( {
 		);
 	}
 	if ( isLoading ) {
-		// `Spinner` is `role="presentation"` with no text, so on its own this
-		// branch is silent — and focus lands here while it is still showing.
-		// Without something to read, the region announces itself and then says
-		// nothing at all.
+		// `Spinner` is `role="presentation"` with no text, so focus landing here
+		// would announce the region and then say nothing at all.
 		return (
 			<>
 				<Spinner />
