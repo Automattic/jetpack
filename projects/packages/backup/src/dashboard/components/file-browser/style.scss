@@ -1,3 +1,5 @@
+@use "@wordpress/base-styles/breakpoints";
+
 .jpb-file-browser {
 	display: flex;
 	flex-direction: column;
@@ -16,20 +18,27 @@
 		grid-template-columns: minmax(0, 1fr);
 		gap: 16px;
 
-		&:has(> .jpb-file-info-card) {
-			grid-template-columns: minmax(0, 1fr) minmax(0, 280px);
-		}
+		// Above wp-admin's own mobile breakpoint only — the same width the
+		// `admin-page-layout` chassis takes the sidebar off-canvas at. Below
+		// it the 280px card would leave the tree ~100px, so the card stacks
+		// under the tree as a full-width, non-sticky panel instead.
+		@media (min-width: #{ (breakpoints.$break-medium + 1) }) {
 
-		// `align-self` is load-bearing: grid stretches the card to its row's
-		// height — the tree's — and a stretched card has nowhere to travel.
-		// Silently unsticks if `Card.Root` ever becomes `overflow: hidden`:
-		// that makes `.jpb-backup-detail` the scrollport, not `.jpb-dashboard-body`.
-		> .jpb-file-info-card {
-			position: sticky;
-			align-self: start;
-			// Zero because the scrollport is `.jpb-dashboard-body`; the admin
-			// bar and the sticky `Page` header sit outside it, above its top.
-			inset-block-start: 0;
+			&:has(> .jpb-file-info-card) {
+				grid-template-columns: minmax(0, 1fr) minmax(0, 280px);
+			}
+
+			// `align-self` is load-bearing: grid stretches the card to its row's
+			// height — the tree's — and a stretched card has nowhere to travel.
+			// Silently unsticks if `Card.Root` ever becomes `overflow: hidden`:
+			// that makes `.jpb-backup-detail` the scrollport, not `.jpb-dashboard-body`.
+			> .jpb-file-info-card {
+				position: sticky;
+				align-self: start;
+				// Zero because the scrollport is `.jpb-dashboard-body`; the admin
+				// bar and the sticky `Page` header sit outside it, above its top.
+				inset-block-start: 0;
+			}
 		}
 	}
 
