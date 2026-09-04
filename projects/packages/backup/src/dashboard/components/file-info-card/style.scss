@@ -42,10 +42,12 @@
 		font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
 		font-size: 12px;
 		line-height: 1.5;
-		white-space: pre;
-		// The `<pre>` is `dir="ltr"`, so inside an RTL panel it overflows past
-		// the panel's inline-start edge, which Chrome never makes scrollable.
-		overflow-x: auto;
+		// Wrapping rather than a horizontal scroller: the `<pre>` is `dir="ltr"`,
+		// so inside an RTL panel it overflowed past the panel's inline-start
+		// edge, which Chrome never makes scrollable. `anywhere` catches the
+		// unbroken runs — minified JS, base64 — that `pre-wrap` alone would not.
+		white-space: pre-wrap;
+		overflow-wrap: anywhere;
 		color: var(--wp-components-color-foreground, #1e1e1e);
 	}
 }
