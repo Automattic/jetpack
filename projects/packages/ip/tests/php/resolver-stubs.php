@@ -26,10 +26,14 @@ function gethostbynamel( $hostname ) {
 /**
  * Shadows dns_get_record() for calls made from this namespace.
  *
- * @param string $hostname Host to look up.
- * @param int    $type     Record type requested.
+ * The default is null rather than DNS_ANY so this file names no constant from
+ * ext-dns, which the package treats as optional. A null type is handed to the real
+ * function's own default.
+ *
+ * @param string   $hostname Host to look up.
+ * @param int|null $type     Record type requested, null for the default.
  * @return array[]|false
  */
-function dns_get_record( $hostname, $type = DNS_ANY ) {
+function dns_get_record( $hostname, $type = null ) {
 	return \Jetpack_IP_Test_Resolver::ipv6( $hostname, $type );
 }

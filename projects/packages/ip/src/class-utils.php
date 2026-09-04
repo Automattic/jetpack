@@ -233,6 +233,9 @@ class Utils {
 	 * This does not defend against DNS rebinding -- the address checked here is not
 	 * pinned for the request that follows.
 	 *
+	 * Without ext-dns there is no AAAA lookup, so only a host's IPv4 addresses are
+	 * checked and an internal IPv6 address sitting behind a public IPv4 one is missed.
+	 *
 	 * Returns a plain boolean rather than a WP_Error, so it can be dropped in as a
 	 * REST validate_callback and so a rejection reveals nothing about the host.
 	 *

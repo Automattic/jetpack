@@ -510,6 +510,7 @@ final class UtilsTest extends PHPUnit\Framework\TestCase {
 	 */
 	public function test_url_is_public_requires_every_resolved_address_to_be_public() {
 		$this->stub_url_helpers();
+		$this->require_aaaa_lookups();
 
 		\Jetpack_IP_Test_Resolver::$answers = array(
 			'all-public.test'    => array( 'ipv4' => array( '8.8.8.8', '1.1.1.1' ) ),
@@ -537,6 +538,7 @@ final class UtilsTest extends PHPUnit\Framework\TestCase {
 	 * Both the A and the AAAA answers are returned, not just whichever came first.
 	 */
 	public function test_resolve_host_ips_returns_both_a_and_aaaa_records() {
+		$this->require_aaaa_lookups();
 		\Jetpack_IP_Test_Resolver::$answers = array(
 			'dual.test'   => array(
 				'ipv4' => array( '8.8.8.8', '8.8.4.4' ),
@@ -556,6 +558,7 @@ final class UtilsTest extends PHPUnit\Framework\TestCase {
 	 * Anything a resolver returns that is not an address is dropped, repeats included.
 	 */
 	public function test_resolve_host_ips_drops_junk_and_duplicates() {
+		$this->require_aaaa_lookups();
 		\Jetpack_IP_Test_Resolver::$answers = array(
 			'noisy.test' => array(
 				'ipv4' => array( '8.8.8.8', 'not-an-ip', '8.8.8.8', '' ),
@@ -575,6 +578,18 @@ final class UtilsTest extends PHPUnit\Framework\TestCase {
 	public function test_resolve_host_ips_returns_empty_for_unresolvable_host() {
 		$this->assertSame( array(), Utils::resolve_host_ips( '' ) );
 		$this->assertSame( array(), Utils::resolve_host_ips( 'jetpack-ip-test.invalid' ) );
+	}
+
+	/**
+	 * Skips a test whose expectations need AAAA records.
+	 *
+	 * They are only looked up when ext-dns supplies dns_get_record(), and the package
+	 * does not require the extension.
+	 */
+	private function require_aaaa_lookups() {
+		if ( ! function_exists( 'dns_get_record' ) ) {
+			$this->markTestSkipped( 'AAAA lookups need dns_get_record() from ext-dns.' );
+		}
 	}
 
 	/**

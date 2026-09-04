@@ -43,14 +43,14 @@ class Jetpack_IP_Test_Resolver {
 	/**
 	 * Answers an AAAA record lookup, in dns_get_record()'s shape.
 	 *
-	 * @param string $hostname Host to look up.
-	 * @param int    $type     Record type requested.
+	 * @param string   $hostname Host to look up.
+	 * @param int|null $type     Record type requested, null for the default.
 	 * @return array[] Records, empty when the host is unknown.
 	 */
 	public static function ipv6( $hostname, $type ) {
 		$answers = self::$answers;
 		if ( null === $answers ) {
-			return \dns_get_record( $hostname, $type );
+			return null === $type ? \dns_get_record( $hostname ) : \dns_get_record( $hostname, $type );
 		}
 
 		$records = array();
