@@ -42,7 +42,33 @@ class Block_Editor_Content_Test extends BaseTestCase {
 		delete_option( 'videopress_player_preload_disabled' );
 		remove_filter( 'default_content', array( Block_Editor_Content::class, 'videopress_video_block_by_guid' ), 10 );
 		unset( $_GET['videopress_guid'], $_GET['_wpnonce'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		delete_option( 'videopress_inline_player_enabled' );
 		parent::tear_down();
+	}
+
+	/**
+	 * Test that the shortcode renders an inline player, with its own attributes, when the site turns it on.
+	 */
+	public function test_shortcode_renders_inline_player_when_enabled() {
+		update_option( 'videopress_inline_player_enabled', true );
+
+		$html = Block_Editor_Content::videopress_embed_shortcode(
+			array(
+				'abcDEF12',
+				'w'       => 400,
+				'h'       => 300,
+				'muted'   => 'true',
+				'preload' => 'none',
+			)
+		);
+
+		$this->assertStringNotContainsString( '<iframe', $html );
+		$this->assertStringContainsString( 'jetpack-videopress-player__wrapper', $html );
+		$this->assertStringContainsString( 'data-videopress-guid="abcDEF12"', $html );
+		$this->assertStringContainsString( '&quot;muted&quot;:true', $html );
+		$this->assertStringContainsString( '&quot;preloadContent&quot;:&quot;none&quot;', $html );
+		$this->assertStringContainsString( 'aspect-ratio:100 / 75', $html );
+		$this->assertFalse( wp_script_is( 'videopress-iframe', 'enqueued' ) );
 	}
 
 	/**
