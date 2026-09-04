@@ -10,6 +10,13 @@ import chalk from 'chalk';
 import * as dotenv from 'dotenv';
 import prompts from 'prompts';
 import updateNotifier from 'update-notifier';
+import {
+	buildCleanupPaths,
+	findUnsupportedHostFlag,
+	resolveCleanConsent,
+	resolveDockerEnv,
+	stripYesFlags,
+} from '../src/docker-host.js';
 
 // Get package.json path relative to this file
 const packageJson = JSON.parse(
@@ -524,6 +531,51 @@ const runRsyncWithProxy = async ( monorepoRoot, args ) => {
 	}
 };
 
+/**
+ * Announce what `docker clean` will destroy and get the user's consent.
+ *
+ * @param {string}  projectName  - Resolved compose project name.
+ * @param {Array}   cleanupPaths - Paths that will be removed.
+ * @param {boolean} yes          - Whether --yes was passed.
+ * @throws {Error} When there is no terminal to confirm at and --yes was not passed.
+ * @return {Promise<boolean>} True when the caller may proceed.
+ */
+const confirmClean = async ( projectName, cleanupPaths, yes ) => {
+	console.log(
+		chalk.yellow( `\n'clean' will permanently destroy the '${ projectName }' instance:` )
+	);
+	console.log( chalk.yellow( '  - its containers and Docker volumes (`compose down -v`)' ) );
+	for ( const path of cleanupPaths ) {
+		console.log( chalk.yellow( `  - ${ path }` ) );
+	}
+	console.log();
+
+	const consent = resolveCleanConsent( {
+		yes,
+		isTty: Boolean( process.stdin.isTTY && process.stdout.isTTY ),
+	} );
+
+	if ( consent === 'proceed' ) {
+		return true;
+	}
+	if ( consent === 'refuse' ) {
+		throw new Error(
+			`No terminal to confirm at, so '${ projectName }' was left alone. Pass --yes if you really mean to destroy it.`
+		);
+	}
+
+	const { confirmed } = await prompts( {
+		type: 'confirm',
+		name: 'confirmed',
+		message: `Destroy '${ projectName }'?`,
+		initial: false,
+	} );
+	if ( ! confirmed ) {
+		console.log( chalk.green( 'Nothing was removed.' ) );
+	}
+	return Boolean( confirmed );
+};
+
 // Main execution
 const main = async () => {
 	try {
@@ -594,10 +646,25 @@ const main = async () => {
 		if ( args[ 0 ] === 'docker' ) {
 			const hostCommands = [ 'up', 'down', 'stop', 'clean' ];
 			if ( hostCommands.includes( args[ 1 ] ) ) {
+				// Before anything announces or destroys an instance: these subcommands forward their
+				// arguments straight to `docker compose`, which has neither flag.
+				const unsupportedFlag = findUnsupportedHostFlag( args );
+				if ( unsupportedFlag ) {
+					throw new Error(
+						`\`jp docker ${ args[ 1 ] }\` runs \`docker compose\` directly, which has no ${ unsupportedFlag }. These subcommands take their instance from tools/docker/.env, which \`tools/docker/bin/seed-worktree-env.sh\` writes for you. Use \`jetpack docker\` if you need ${ unsupportedFlag }.`
+					);
+				}
+
+				// One resolution for the whole block, so the instance we announce, create data
+				// directories for, and hand to compose can never come out different.
+				const envVars = resolveDockerEnv( monorepoRoot, args, dotenv.parse );
+				const projectName = envVars.COMPOSE_PROJECT_NAME;
+				let afterCompose = null;
+
 				// Handle command-specific setup/cleanup
 				if ( args[ 1 ] === 'up' ) {
 					// Create required directories
-					fs.mkdirSync( resolve( monorepoRoot, 'tools/docker/data/jetpack_dev_mysql' ), {
+					fs.mkdirSync( resolve( monorepoRoot, 'tools/docker/data/', `${ projectName }_mysql` ), {
 						recursive: true,
 					} );
 					fs.mkdirSync( resolve( monorepoRoot, 'tools/docker/data/ssh.keys' ), {
@@ -621,17 +688,15 @@ const main = async () => {
 						throw new Error( 'Failed to generate Docker config' );
 					}
 				} else if ( args[ 1 ] === 'clean' ) {
-					// After docker-compose down -v, also remove local files
-					const projectName = args.includes( '--type=e2e' ) ? 'jetpack_e2e' : 'jetpack_dev';
-					const cleanupPaths = [
-						resolve( monorepoRoot, 'tools/docker/wordpress/' ),
-						resolve( monorepoRoot, 'tools/docker/wordpress-develop/*' ),
-						resolve( monorepoRoot, 'tools/docker/logs/', projectName ),
-						resolve( monorepoRoot, 'tools/docker/data/', `${ projectName }_mysql` ),
-					];
+					const cleanupPaths = buildCleanupPaths( monorepoRoot, projectName );
 
-					// Function to clean up after docker-compose down
-					const cleanupFiles = () => {
+					const yes = stripYesFlags( args );
+					if ( ! ( await confirmClean( projectName, cleanupPaths, yes ) ) ) {
+						return;
+					}
+
+					// Only after `down -v` succeeds: a failed teardown must not leave the data deleted.
+					afterCompose = () => {
 						for ( const path of cleanupPaths ) {
 							try {
 								fs.rmSync( path, { recursive: true, force: true } );
@@ -643,73 +708,9 @@ const main = async () => {
 						}
 					};
 
-					// Add cleanup to process events to ensure it runs after docker-compose
-					process.once( 'beforeExit', cleanupFiles );
-
 					// Replace 'clean' with 'down -v' in the arguments
 					args.splice( 1, 1, 'down', '-v' );
 				}
-
-				// Get project name (from docker.js)
-				const projectName = args.includes( '--type=e2e' ) ? 'jetpack_e2e' : 'jetpack_dev';
-
-				// Build environment variables (from docker.js)
-				const envVars = {
-					...process.env, // Start with process.env
-				};
-
-				// Add default env vars if they exist
-				if ( fs.existsSync( resolve( monorepoRoot, 'tools/docker/default.env' ) ) ) {
-					Object.assign(
-						envVars,
-						dotenv.parse( fs.readFileSync( resolve( monorepoRoot, 'tools/docker/default.env' ) ) )
-					);
-				}
-
-				// Add user overrides from .env if they exist
-				if ( fs.existsSync( resolve( monorepoRoot, 'tools/docker/.env' ) ) ) {
-					Object.assign(
-						envVars,
-						dotenv.parse( fs.readFileSync( resolve( monorepoRoot, 'tools/docker/.env' ) ) )
-					);
-				}
-
-				// Only set these specific vars if they're not already set in .env
-				if ( ! envVars.COMPOSE_PROJECT_NAME ) {
-					envVars.COMPOSE_PROJECT_NAME = projectName;
-				}
-				if ( ! envVars.PORT_WORDPRESS ) {
-					envVars.PORT_WORDPRESS = args.includes( '--type=e2e' ) ? '8889' : '80';
-				}
-
-				// Load versions from .github/versions.sh if not already set
-				if (
-					! (
-						envVars.PHP_VERSION &&
-						envVars.COMPOSER_VERSION &&
-						envVars.NODE_VERSION &&
-						envVars.PNPM_VERSION
-					)
-				) {
-					const versionsPath = resolve( monorepoRoot, '.github/versions.sh' );
-					const versions = fs.readFileSync( versionsPath, 'utf8' );
-					const versionVars = {};
-					versions.split( '\n' ).forEach( line => {
-						const match = line.match( /^([A-Z_]+)=(.+)$/ );
-						if ( match ) {
-							versionVars[ match[ 1 ] ] = match[ 2 ].replace( /['"]/g, '' );
-						}
-					} );
-
-					// Only set version vars if they're not already set
-					if ( ! envVars.PHP_VERSION ) envVars.PHP_VERSION = versionVars.PHP_VERSION;
-					if ( ! envVars.COMPOSER_VERSION ) envVars.COMPOSER_VERSION = versionVars.COMPOSER_VERSION;
-					if ( ! envVars.NODE_VERSION ) envVars.NODE_VERSION = versionVars.NODE_VERSION;
-					if ( ! envVars.PNPM_VERSION ) envVars.PNPM_VERSION = versionVars.PNPM_VERSION;
-				}
-
-				// Always set HOST_CWD as it's required for Docker context
-				envVars.HOST_CWD = monorepoRoot;
 
 				// Build the list of compose files to use
 				const composeFiles =
@@ -735,6 +736,9 @@ const main = async () => {
 
 				if ( result.status !== 0 ) {
 					throw new Error( `Docker command failed with status ${ result.status }` );
+				}
+				if ( afterCompose ) {
+					afterCompose();
 				}
 				return;
 			}

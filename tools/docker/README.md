@@ -155,7 +155,9 @@ You can run a second (or third, …) Jetpack Docker instance alongside your main
 
 #### Quick isolation in a worktree (recommended)
 
-`jetpack docker up` reads `COMPOSE_PROJECT_NAME` and `PORT_*` from this directory's `tools/docker/.env` and, when they're absent, falls back to the shared `jetpack_dev` instance on the default ports. So if you run a bare `up` from several worktrees, they collide — sharing one set of containers, with the bind-mounts re-pointed at whichever worktree ran `up` last.
+`jetpack docker` reads `COMPOSE_PROJECT_NAME` and `PORT_*` from this directory's `tools/docker/.env` and, when they're absent, falls back to the shared `jetpack_dev` instance on the default ports. So if you run a bare `up` from several worktrees, they collide — sharing one set of containers, with the bind-mounts re-pointed at whichever worktree ran `up` last.
+
+Every `dev` subcommand reads the file, so once a worktree is seeded, `stop`, `down`, `clean`, `wp`, `exec` and `phpunit` all target that worktree's instance without `--name`. Only `up` writes back to it.
 
 To avoid that, seed the worktree's `.env` once:
 
@@ -232,13 +234,16 @@ jetpack docker install --name clean --port 8090
 
 The CLI treats the worktree's `tools/docker/.env` as a per-instance config file, in addition to (not instead of) the CLI flags. This means a worktree configured once can be brought back up with bare `jetpack docker up` afterwards — the flag set above is only needed on the first invocation.
 
-**Read precedence on `up`** (last wins):
+**Read precedence** (last wins), on every `dev` subcommand:
 
 `tools/docker/default.env` → worktree's `tools/docker/.env` → CLI flags → `process.env`
+
+Reading applies to `up`, `stop`, `down`, `clean`, `wp`, `exec`, `phpunit` and the rest, so a seeded worktree tears down and shells into its own instance rather than the shared `jetpack_dev`. The `--type e2e` flow is excluded: it passes its own `--name t1` and ports.
 
 **What the CLI writes:**
 
 * On `up --name <slug>`, after the instance is up, the CLI **appends** any of the following keys to `tools/docker/.env` that aren't already present: `COMPOSE_PROJECT_NAME`, `PORT_WORDPRESS`, `PORT_PHPMY`, `PORT_INBOX`, `PORT_SMTP`, `PORT_SFTP`. Existing lines are never modified or reordered.
+* Only `up` writes. Every other subcommand reads `.env` and leaves it alone.
 * The primary `jetpack_dev` flow (no `--name`) **never** writes to `.env`. Your main checkout's `.env` stays as you've set it.
 
 **Conflicts between flags and `.env`:**
@@ -289,6 +294,8 @@ git worktree remove ../jetpack-feature
 
 Each of the above needs the same `--name` you used when bringing the instance up. The primary `jetpack_dev` instance is untouched.
 
+**`jp` is not `jetpack` here.** `jp docker up|stop|down|clean` run `docker compose` on the host rather than forwarding to this CLI, so they have no `--name` and refuse it. They read `COMPOSE_PROJECT_NAME` from `tools/docker/.env` instead — use the seeded-worktree flow above, or run these four as `jetpack docker`.
+
 #### Notes & gotchas
 
 * The `mailpit` container is no longer globally named — each instance gets its own `jetpack_<name>-mailpit-1`. Internal SMTP routing still uses the compose service name `mailpit`, so PHP mail from within any container routes to that instance's MailPit.
@@ -331,6 +338,8 @@ To remove all docker images, all MySQL data, and all docker-related files from y
 ```sh
 jetpack docker clean
 ```
+
+`clean` first prints the compose project it resolved and every path it will delete, then asks you to confirm; the default answer is no. Add `--yes` to skip the prompt in a script. Without a terminal to confirm at, `clean` refuses unless `--yes` is passed, so it can never destroy an instance from a pipe or a CI job by default.
 
 **Note:** this command does not work in Windows.
 

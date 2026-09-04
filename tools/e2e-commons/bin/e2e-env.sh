@@ -56,7 +56,7 @@ reset_env() {
 
 clean_env() {
 	$BASE_CMD uninstall || true
-	$BASE_CMD clean
+	$BASE_CMD clean --yes
 }
 
 new_env() {

@@ -25,10 +25,24 @@ jest.unstable_mockModule( 'child_process', () => ( {
 	...cpStub,
 } ) );
 
+const enquirerStub = { prompt: jest.fn() };
+jest.unstable_mockModule( 'enquirer', () => ( {
+	default: enquirerStub,
+	...enquirerStub,
+} ) );
+
+// setConfig parses the real docker config yaml, which the fs stub cannot serve.
+jest.unstable_mockModule( '../../../helpers/docker-config.js', () => ( {
+	dockerFolder: 'tools/docker',
+	setConfig: jest.fn(),
+} ) );
+
 const {
 	getProjectName,
 	buildEnv,
 	buildExecCmd,
+	execDockerCmdHandler,
+	defaultDockerCmdHandler,
 	resolveDevCloneSource,
 	normalizeProjectShortName,
 	pipeDbDump,
@@ -38,8 +52,11 @@ const {
 	detectEnvConflicts,
 	persistParallelEnv,
 	applyUpdateEnv,
-	shouldManageParallelEnv,
+	shouldReadParallelEnv,
+	shouldWriteParallelEnv,
+	applyParallelEnv,
 	PARALLEL_ENV_KEYS,
+	cleanCmdHandler,
 } = await import( '../../../commands/docker.js' );
 
 /**
@@ -227,14 +244,14 @@ describe( 'resolveDevCloneSource', () => {
 	} );
 } );
 
-describe( 'shouldManageParallelEnv', () => {
+describe( 'shouldWriteParallelEnv', () => {
 	test( 'true for `up` on the default dev type', () => {
-		expect( shouldManageParallelEnv( { type: 'dev', _: [ 'docker', 'up' ] } ) ).toBe( true );
+		expect( shouldWriteParallelEnv( { type: 'dev', _: [ 'docker', 'up' ] } ) ).toBe( true );
 	} );
 
 	test( 'true for `up --name` on dev', () => {
 		expect(
-			shouldManageParallelEnv( { type: 'dev', name: 'feature', _: [ 'docker', 'up' ] } )
+			shouldWriteParallelEnv( { type: 'dev', name: 'feature', _: [ 'docker', 'up' ] } )
 		).toBe( true );
 	} );
 
@@ -242,16 +259,163 @@ describe( 'shouldManageParallelEnv', () => {
 	// type gate, that --name leaked COMPOSE_PROJECT_NAME/PORT_* into the shared
 	// tools/docker/.env of a plain checkout. See PR #48643 review follow-up.
 	test( 'false for the e2e flow (--type e2e --name t1 up)', () => {
-		expect( shouldManageParallelEnv( { type: 'e2e', name: 't1', _: [ 'docker', 'up' ] } ) ).toBe(
+		expect( shouldWriteParallelEnv( { type: 'e2e', name: 't1', _: [ 'docker', 'up' ] } ) ).toBe(
 			false
 		);
 	} );
 
 	test( 'false for non-up commands on dev', () => {
-		expect( shouldManageParallelEnv( { type: 'dev', _: [ 'docker', 'down' ] } ) ).toBe( false );
+		expect( shouldWriteParallelEnv( { type: 'dev', _: [ 'docker', 'down' ] } ) ).toBe( false );
 		expect(
-			shouldManageParallelEnv( { type: 'dev', name: 'feature', _: [ 'docker', 'clean' ] } )
+			shouldWriteParallelEnv( { type: 'dev', name: 'feature', _: [ 'docker', 'clean' ] } )
 		).toBe( false );
+	} );
+} );
+
+describe( 'shouldReadParallelEnv', () => {
+	test.each( [ [ 'up' ], [ 'stop' ], [ 'down' ], [ 'clean' ], [ 'wp' ], [ 'phpunit' ] ] )(
+		'true for `%s` on dev, so it targets this worktree',
+		cmd => {
+			expect( shouldReadParallelEnv( { type: 'dev', _: [ 'docker', cmd ] } ) ).toBe( true );
+		}
+	);
+
+	test( 'false for the e2e flow, which brings its own name and ports', () => {
+		expect( shouldReadParallelEnv( { type: 'e2e', name: 't1', _: [ 'docker', 'down' ] } ) ).toBe(
+			false
+		);
+	} );
+
+	// Commands registered without defaultOpts leave argv.type undefined.
+	test( 'false when no container type was parsed', () => {
+		expect( shouldReadParallelEnv( { _: [ 'docker', 'link-plugin' ] } ) ).toBe( false );
+	} );
+} );
+
+describe( 'applyParallelEnv', () => {
+	// A worktree seeded by tools/docker/bin/seed-worktree-env.sh.
+	const seededEnv = [
+		'COMPOSE_PROJECT_NAME=jetpack_wtfix',
+		'PORT_WORDPRESS=8080',
+		'PORT_PHPMY=8282',
+	].join( '\n' );
+
+	// buildEnv reads .github/versions.sh through the same stub, so match on path or its
+	// contents get parsed as the .env and clobber the assertion.
+	const isEnvPath = p => String( p ).endsWith( '/.env' );
+
+	const seedEnvFile = contents => {
+		fsStub.existsSync.mockImplementation( isEnvPath );
+		fsStub.readFileSync.mockImplementation( p => ( isEnvPath( p ) ? contents : '' ) );
+	};
+
+	// The bug this guards: `down`/`clean` used to skip the .env read, so getProjectName fell
+	// back to jetpack_dev and tore down the shared instance from a seeded worktree.
+	test.each( [ [ 'stop' ], [ 'down' ], [ 'clean' ], [ 'wp' ], [ 'exec' ], [ 'phpunit' ] ] )(
+		'`%s` targets the worktree instance from .env',
+		cmd => {
+			seedEnvFile( seededEnv );
+			const argv = { type: 'dev', _: [ 'docker', cmd ] };
+			applyParallelEnv( argv );
+			expect( argv.name ).toBe( 'wtfix' );
+			expect( buildEnv( argv ).COMPOSE_PROJECT_NAME ).toBe( 'jetpack_wtfix' );
+		}
+	);
+
+	test( 'fills the ports a compose invocation needs', () => {
+		seedEnvFile( seededEnv );
+		const argv = { type: 'dev', _: [ 'docker', 'down' ] };
+		applyParallelEnv( argv );
+		expect( argv.port ).toBe( 8080 );
+		expect( argv.portPhpmy ).toBe( 8282 );
+	} );
+
+	test( 'leaves e2e alone, so it keeps its own name and 8889 default', () => {
+		seedEnvFile( seededEnv );
+		const argv = { type: 'e2e', name: 't1', _: [ 'docker', 'down' ] };
+		expect( applyParallelEnv( argv ) ).toEqual( {} );
+		expect( argv.name ).toBe( 't1' );
+		expect( argv.port ).toBeUndefined();
+		expect( buildEnv( argv ).PORT_WORDPRESS ).toBe( 8889 );
+	} );
+
+	test( 'flags win over .env', () => {
+		seedEnvFile( seededEnv );
+		const argv = { type: 'dev', name: 'other', port: 9000, _: [ 'docker', 'down' ] };
+		applyParallelEnv( argv );
+		expect( buildEnv( argv ).COMPOSE_PROJECT_NAME ).toBe( 'jetpack_other' );
+		expect( argv.port ).toBe( 9000 );
+	} );
+
+	// The main checkout: no COMPOSE_PROJECT_NAME, so the shared instance is still the target.
+	test( 'stays on jetpack_dev when .env is absent', () => {
+		const argv = { type: 'dev', _: [ 'docker', 'down' ] };
+		expect( applyParallelEnv( argv ) ).toEqual( {} );
+		expect( argv.name ).toBeUndefined();
+		expect( buildEnv( argv ).COMPOSE_PROJECT_NAME ).toBe( 'jetpack_dev' );
+	} );
+
+	// augmentArgvFromEnvFile's guard: a hand-set jetpack_dev must not become `--name dev`.
+	test( 'does not infer a name from a jetpack_dev .env', () => {
+		seedEnvFile( 'COMPOSE_PROJECT_NAME=jetpack_dev\nPORT_WORDPRESS=80' );
+		const argv = { type: 'dev', _: [ 'docker', 'down' ] };
+		applyParallelEnv( argv );
+		expect( argv.name ).toBeUndefined();
+		expect( buildEnv( argv ).COMPOSE_PROJECT_NAME ).toBe( 'jetpack_dev' );
+	} );
+
+	test( 'is idempotent, so the clean handler can re-read after the compose step', () => {
+		seedEnvFile( seededEnv );
+		const argv = { type: 'dev', _: [ 'docker', 'clean' ] };
+		applyParallelEnv( argv );
+		applyParallelEnv( argv );
+		expect( argv.name ).toBe( 'wtfix' );
+		expect( argv.port ).toBe( 8080 );
+	} );
+
+	// The env of the last spawnSync is what compose actually runs against.
+	const composeEnv = () => cpStub.spawnSync.mock.calls.at( -1 )[ 2 ].env;
+
+	describe( 'wired into execDockerCmdHandler', () => {
+		test.each( [ [ 'wp' ], [ 'exec' ], [ 'phpunit' ] ] )(
+			'`%s` runs compose against the worktree instance',
+			cmd => {
+				seedEnvFile( seededEnv );
+				execDockerCmdHandler( { type: 'dev', _: [ 'docker', cmd ] } );
+				expect( composeEnv().COMPOSE_PROJECT_NAME ).toBe( 'jetpack_wtfix' );
+			}
+		);
+
+		test( 'stays on jetpack_dev when .env is absent', () => {
+			execDockerCmdHandler( { type: 'dev', _: [ 'docker', 'wp' ] } );
+			expect( composeEnv().COMPOSE_PROJECT_NAME ).toBe( 'jetpack_dev' );
+		} );
+	} );
+
+	describe( 'wired into defaultDockerCmdHandler', () => {
+		// `down` and `clean` used to tear down the shared jetpack_dev from a seeded worktree.
+		test.each( [ [ 'stop' ], [ 'down' ], [ 'clean' ] ] )(
+			'`%s` runs compose against the worktree instance',
+			async cmd => {
+				seedEnvFile( seededEnv );
+				await defaultDockerCmdHandler( { type: 'dev', _: [ 'docker', cmd ] } );
+				expect( composeEnv().COMPOSE_PROJECT_NAME ).toBe( 'jetpack_wtfix' );
+			}
+		);
+
+		test( 'stays on jetpack_dev when .env is absent', async () => {
+			await defaultDockerCmdHandler( { type: 'dev', _: [ 'docker', 'down' ] } );
+			expect( composeEnv().COMPOSE_PROJECT_NAME ).toBe( 'jetpack_dev' );
+		} );
+
+		// `clean` derives its rm -rf paths from getProjectName after the compose step, so an
+		// unaugmented argv would delete the primary instance's mysql data and logs.
+		test( '`clean` names the worktree instance in the paths it removes', async () => {
+			seedEnvFile( seededEnv );
+			const argv = { type: 'dev', _: [ 'docker', 'clean' ] };
+			await defaultDockerCmdHandler( argv );
+			expect( getProjectName( argv ) ).toBe( 'jetpack_wtfix' );
+		} );
 	} );
 } );
 
@@ -651,5 +815,142 @@ describe( 'pipeDbDump', () => {
 		await expect( pipeDbDump( 'src-wp-1', 'tgt-wp-1', '/var/www/html' ) ).rejects.toThrow(
 			/source.*exit 1.*target.*exit 3/is
 		);
+	} );
+} );
+
+describe( 'cleanCmdHandler', () => {
+	const rmCalls = () => cpStub.spawnSync.mock.calls.filter( call => call[ 0 ] === 'rm' );
+	const composeCalls = () =>
+		cpStub.spawnSync.mock.calls.filter(
+			call => call[ 0 ] === 'docker' && call[ 1 ]?.includes( 'down' )
+		);
+
+	let ttyBackup;
+	let exitSpy;
+	const silenced = [];
+
+	beforeEach( () => {
+		ttyBackup = { stdin: process.stdin.isTTY, stdout: process.stdout.isTTY };
+		enquirerStub.prompt.mockReset();
+		// process.exit() never returns in production, so the stub must not either.
+		exitSpy = jest.spyOn( process, 'exit' ).mockImplementation( code => {
+			throw new Error( `EXIT:${ code }` );
+		} );
+		silenced.push(
+			jest.spyOn( console, 'log' ).mockImplementation( () => {} ),
+			jest.spyOn( console, 'error' ).mockImplementation( () => {} )
+		);
+	} );
+
+	afterEach( () => {
+		process.stdin.isTTY = ttyBackup.stdin;
+		process.stdout.isTTY = ttyBackup.stdout;
+		exitSpy.mockRestore();
+		silenced.splice( 0 ).forEach( spy => spy.mockRestore() );
+	} );
+
+	test( 'removes the paths of the instance it just took down', async () => {
+		process.stdin.isTTY = true;
+		process.stdout.isTTY = true;
+
+		await cleanCmdHandler( { _: [ 'docker', 'clean' ], type: 'dev', name: 'feature', yes: true } );
+
+		expect( enquirerStub.prompt ).not.toHaveBeenCalled();
+		expect( rmCalls() ).toHaveLength( 1 );
+		expect( rmCalls()[ 0 ][ 1 ] ).toEqual( [
+			'-rf',
+			'tools/docker/wordpress/',
+			'tools/docker/wordpress-develop/*',
+			'tools/docker/logs/jetpack_feature/',
+			'tools/docker/data/jetpack_feature_mysql/',
+		] );
+	} );
+
+	// The two halves of this PR meet here: targeting resolves .env inside
+	// defaultDockerCmdHandler, which runs after the plan is printed. Resolve it first, or
+	// `clean` in a seeded worktree announces jetpack_dev, stops the worktree and deletes the
+	// primary's data.
+	test( 'announces, takes down and removes one and the same instance', async () => {
+		const isEnvPath = path => String( path ).endsWith( '/.env' );
+		fsStub.existsSync.mockImplementation( isEnvPath );
+		fsStub.readFileSync.mockImplementation( path =>
+			isEnvPath( path ) ? 'COMPOSE_PROJECT_NAME=jetpack_wtfix\nPORT_WORDPRESS=8080' : ''
+		);
+
+		await cleanCmdHandler( { _: [ 'docker', 'clean' ], type: 'dev', yes: true } );
+
+		const announced = console.log.mock.calls.flat().join( '\n' );
+		expect( announced ).toContain( 'jetpack_wtfix' );
+		expect( announced ).not.toContain( 'jetpack_dev' );
+
+		expect( composeCalls() ).toHaveLength( 1 );
+		expect( composeCalls()[ 0 ][ 2 ].env.COMPOSE_PROJECT_NAME ).toBe( 'jetpack_wtfix' );
+
+		expect( rmCalls()[ 0 ][ 1 ] ).toEqual( [
+			'-rf',
+			'tools/docker/wordpress/',
+			'tools/docker/wordpress-develop/*',
+			'tools/docker/logs/jetpack_wtfix/',
+			'tools/docker/data/jetpack_wtfix_mysql/',
+		] );
+	} );
+
+	test( 'refuses and exits non-zero without a TTY and without --yes', async () => {
+		process.stdin.isTTY = false;
+		process.stdout.isTTY = false;
+
+		await expect(
+			cleanCmdHandler( { _: [ 'docker', 'clean' ], type: 'dev', yes: false } )
+		).rejects.toThrow( 'EXIT:1' );
+
+		expect( enquirerStub.prompt ).not.toHaveBeenCalled();
+		expect( composeCalls() ).toHaveLength( 0 );
+		expect( rmCalls() ).toHaveLength( 0 );
+	} );
+
+	test( 'destroys nothing when the prompt is declined', async () => {
+		process.stdin.isTTY = true;
+		process.stdout.isTTY = true;
+		enquirerStub.prompt.mockResolvedValue( { confirmed: false } );
+
+		await cleanCmdHandler( { _: [ 'docker', 'clean' ], type: 'dev', yes: false } );
+
+		expect( enquirerStub.prompt ).toHaveBeenCalled();
+		expect( composeCalls() ).toHaveLength( 0 );
+		expect( rmCalls() ).toHaveLength( 0 );
+	} );
+
+	test( 'defaults the prompt to no', async () => {
+		process.stdin.isTTY = true;
+		process.stdout.isTTY = true;
+		enquirerStub.prompt.mockResolvedValue( { confirmed: false } );
+
+		await cleanCmdHandler( { _: [ 'docker', 'clean' ], type: 'dev', yes: false } );
+
+		expect( enquirerStub.prompt ).toHaveBeenCalledWith(
+			expect.objectContaining( { type: 'confirm', initial: false } )
+		);
+	} );
+
+	test( 'proceeds when the prompt is accepted', async () => {
+		process.stdin.isTTY = true;
+		process.stdout.isTTY = true;
+		enquirerStub.prompt.mockResolvedValue( { confirmed: true } );
+
+		await cleanCmdHandler( { _: [ 'docker', 'clean' ], type: 'dev', yes: false } );
+
+		expect( rmCalls() ).toHaveLength( 1 );
+	} );
+
+	test( 'names the instance and its paths before asking', async () => {
+		process.stdin.isTTY = true;
+		process.stdout.isTTY = true;
+		enquirerStub.prompt.mockResolvedValue( { confirmed: false } );
+
+		await cleanCmdHandler( { _: [ 'docker', 'clean' ], type: 'dev', name: 'feature', yes: false } );
+
+		const printed = console.log.mock.calls.flat().join( '\n' );
+		expect( printed ).toContain( 'jetpack_feature' );
+		expect( printed ).toContain( 'tools/docker/data/jetpack_feature_mysql/' );
 	} );
 } );

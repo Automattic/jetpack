@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Docker: derive the paths `clean` deletes from the same compose project name it stops containers for, so cleaning a parallel instance no longer removes the primary instance's database and logs.

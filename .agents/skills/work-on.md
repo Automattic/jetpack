@@ -4,7 +4,7 @@ description: Optional end-to-end Jetpack workflow that drives a scoped task to a
 
 # /work-on
 
-Drives a task prompt all the way to a draft pull request on its own worktree and its own `jp docker` instance, without touching the primary `jetpack_dev` environment. This skill exists because the default monorepo Docker setup is singleton — two `jp docker up` calls from different branches would otherwise collide — so parallel work requires the named-instance CLI flags and port isolation this skill relies on.
+Drives a task prompt all the way to a draft pull request on its own worktree and its own `jp docker` instance, without touching the primary `jetpack_dev` environment. This skill exists because the default monorepo Docker setup is singleton — two `jp docker up` calls from different branches would otherwise collide — so parallel work requires the per-instance name and port isolation this skill relies on.
 
 **This skill is an option, not a policy.** It is one way to work in this repo, offered alongside the plain in-checkout workflow and the repo-native worktree flow described below. Offer it, name what it costs, and take no for an answer — see "Relationship to the native worktree flows".
 
@@ -44,14 +44,14 @@ The skill would:
 2. **Plan** the change (inspect the block's label CSS, identify breakpoint rule), show the plan, wait for approval.
 3. **Bootstrap** via `work-on/scripts/bootstrap-worktree.sh fix-forms-label-wrap` → creates `../jetpack-fix-forms-label-wrap` on branch `change/fix-forms-label-wrap` off trunk, runs pnpm install, seeds `.work-on/`.
 4. **Isolate Docker** via `tools/docker/bin/seed-worktree-env.sh` inside the worktree → writes `COMPOSE_PROJECT_NAME=jetpack_a1b2c3` and a free `PORT_*` set into `tools/docker/.env`; record `NAME=a1b2c3` and `WP_PORT=8080`.
-5. `jp docker up -d` (no flags — `.env` supplies name and ports, and the DB auto-clones from `jetpack_dev`) → `jp docker install --name a1b2c3 --port 8080` (a no-op after a successful clone).
+5. `jp docker up -d` (no flags — `.env` supplies name and ports) → `jp docker install` to populate the empty instance.
 6. **Baseline screenshot** of the affected block at `http://localhost:8080/...` → `.work-on/screenshots/fix-forms-label-wrap-before.png`.
 7. **Implement** the CSS fix.
 8. `jp build packages/forms` → `jp test js packages/forms` → `jp phan packages/forms`.
 9. **After screenshot** → compare to Figma reference.
 10. `jp changelog add packages/forms -s patch -t fixed -e "Forms: Fix label wrap on mobile."`
 11. Commit (`Forms: Fix label wrap on mobile`), push, open **draft** PR via `jetpack-pr` skill with before/after attachments + testing steps + Figma link.
-12. `jp docker stop --name a1b2c3`. Worktree stays for review follow-ups.
+12. `jp docker stop`. Worktree stays for review follow-ups.
 
 ## When to use
 - Non-trivial features or bug fixes that land as their own PR.
@@ -170,7 +170,7 @@ tools/docker/bin/seed-worktree-env.sh
 
 That writes a unique `COMPOSE_PROJECT_NAME` plus a free `PORT_*` set into the worktree's `tools/docker/.env`. It is host-only, idempotent, and a no-op in the primary checkout. It exits non-zero with an explanatory message if the name it would use is already claimed by another worktree — read the message rather than retrying.
 
-Read the values back; every later `jp docker` subcommand needs them:
+Read the values back; `.work-on/env.json` and the screenshot URLs need them:
 
 ```bash
 # Last occurrence wins and surrounding whitespace is ignored — matches how the
@@ -181,29 +181,29 @@ read_env() {
 }
 
 INSTANCE=$(read_env COMPOSE_PROJECT_NAME)   # e.g. jetpack_a1b2c3
-NAME=${INSTANCE#jetpack_}                   # value for --name
+NAME=${INSTANCE#jetpack_}                   # short id, recorded in env.json
 WP_PORT=$(read_env PORT_WORDPRESS)
 ```
 
-> **`--name` is not the slug.** The seeder derives the instance name from git's worktree id, not from your task slug, so `NAME` is an opaque id. Record it in `.work-on/env.json` (below) — Mode 3 and every cleanup command read it from there.
+> **The instance name is not the slug.** The seeder derives it from git's worktree id, not from your task slug, so `NAME` is an opaque id. Record it in `.work-on/env.json` (below) — Mode 3 and the orphan check under "Docker instance tracking" read it from there.
 
-Bring the instance up. Pass **no `--name` or `--port*` flags**: `up` is the one subcommand that reads `tools/docker/.env` (`shouldManageParallelEnv` in `tools/cli/commands/docker.js`), and flags that disagree with `.env` only produce conflict warnings.
+Bring the instance up. Pass **no `--name` or `--port*` flags**: `jp docker up` reads `tools/docker/.env` on the host (`resolveDockerEnv` in `projects/js-packages/jetpack-cli/src/docker-host.js`), and `docker compose` rejects those flags outright.
 
 ```bash
 jp docker up -d
 ```
 
-Because `.env` supplies the name, the CLI treats this as a parallel instance and **auto-clones the database from `jetpack_dev`** when that instance is running — same content, users, and Jetpack connection, no separate install needed. If `jetpack_dev` isn't running the clone is skipped silently and you get the fresh-install flow, so follow up with:
+The instance comes up empty. **`jp docker up` does not clone the database** — the auto-clone lives in `tools/cli`'s `defaultDockerCmdHandler`, and `jp`'s four host subcommands bypass `tools/cli` entirely. So always follow up with:
 
 ```bash
-jp docker install --name "$NAME" --port "$WP_PORT"
+jp docker install
 ```
 
 WordPress image pulls can take several minutes on a cold cache — if `jp docker install` fails with "WordPress install is incomplete! Perhaps it is still downloading?", wait ~30s and retry once before escalating.
 
-Pass `--no-clone` to `up` to force a fresh install, or `--clone-from <name>` to seed from a specific instance instead of `jetpack_dev`. Note that `--clone-from` makes a missing source a hard error, where auto-clone degrades quietly.
+The clone flags (`--clone-from`, `--no-clone`) documented in `tools/docker/README.md` belong to `jetpack docker up`. `jp docker up` hands its arguments straight to `docker compose`, which rejects them — see the flag note below.
 
-**Every other `jp docker` subcommand needs `--name "$NAME"` explicitly** — `install`, `stop`, `clean`, and `phpunit` do not read `.env`, and without the flag they resolve to the primary `jetpack_dev` instance.
+**Run every `jp docker` subcommand from the worktree, and pass no `--name`.** They all read `tools/docker/.env`, so they already target this instance. The four that run `docker compose` on the host — `up`, `stop`, `down`, `clean` — reject `--name` outright, because compose has no such flag.
 
 Write the full session record to `$WORKTREE/.work-on/env.json` using the schema below. Mode 3 (implement-only resume) reads this file — fields are mandatory.
 
@@ -242,7 +242,7 @@ All commands are in `AGENTS.md`. Run the subset that applies:
 |---|---|
 | PHP in a project | `jp build <project>`, `jp test php <project>`, `jp phan <project>` |
 | JS/TS in a project | `jp build <project>`, `jp test js <project>` (no-op if the project doesn't define it) |
-| WP-integration plugin (jetpack / wpcomsh) | `jp docker phpunit <target> -- --name "$NAME"` — `$NAME` is the instance id from `.work-on/env.json`; without it the run hits `jetpack_dev`, not the worktree |
+| WP-integration plugin (jetpack / wpcomsh) | `jp docker phpunit <target>` — run it from the worktree, whose `tools/docker/.env` points it at this instance; from anywhere else the run hits `jetpack_dev` |
 | Root / `tools/*` change | `pnpm test` inside the affected tool package |
 | Every change | lint the touched files: `npx eslint <files>` and project-local `composer lint` / PHPCS when present |
 
@@ -300,10 +300,10 @@ Record the PR as soon as it exists — this is the checkpoint a coordinator wait
 
 **On success:**
 
-- `jp docker stop --name "$NAME"` — stops the containers and frees ports. DB, uploads, and `node_modules` remain on disk for review follow-ups. `$NAME` comes from `.work-on/env.json`; omitting it stops the user's primary `jetpack_dev` instead.
+- `jp docker stop` — stops the containers and frees ports. DB, uploads, and `node_modules` remain on disk for review follow-ups. Run it from the worktree, whose `tools/docker/.env` names the instance; from anywhere else it stops the user's primary `jetpack_dev`.
 
 Do NOT run automatically — wait for PR merge or explicit user request:
-- `jp docker clean --name "$NAME"` (destroys that instance's DB).
+- `jp docker clean --yes` (destroys that instance's DB). It targets the instance named in the worktree's `tools/docker/.env`, so run it from the worktree and do not pass `--name`. Without `--yes` it refuses, because an agent has no terminal to confirm at.
 - `git worktree remove <path>` (removes the worktree + scratchpad, including its `tools/docker/.env`, which releases the seeded ports and instance name for reuse).
 
 **On failure** (any phase errors out):
@@ -312,7 +312,7 @@ Do NOT run automatically — wait for PR merge or explicit user request:
   ```bash
   .agents/skills/work-on/scripts/checkpoint.sh --state failed --action "<what broke, one line>"
   ```
-- Attempt `jp docker stop --name "$NAME"` so the named instance doesn't sit orphaned holding ports.
+- Attempt `jp docker stop` from the worktree so the named instance doesn't sit orphaned holding ports.
 - Leave the worktree in place; the user may want to inspect the partial state.
 - Tell the user exactly which phase failed, what the error was, and which of the two cleanup paths to use next.
 
