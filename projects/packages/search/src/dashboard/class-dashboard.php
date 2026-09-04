@@ -102,8 +102,7 @@ class Dashboard {
 				'Search',
 				'manage_options',
 				'jetpack-search',
-				array( $this, 'render' ),
-				10
+				array( $this, 'render' )
 			);
 		} else {
 			// always add the page, but hide it from the menu.

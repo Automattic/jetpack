@@ -183,8 +183,7 @@ class Admin_UI {
 			'VideoPress',
 			'manage_options',
 			self::ADMIN_PAGE_SLUG,
-			$callback,
-			3
+			$callback
 		);
 		add_action( 'load-' . $page_suffix, array( __CLASS__, 'admin_init' ) );
 	}
@@ -241,8 +240,7 @@ class Admin_UI {
 			'VideoPress',
 			'manage_options',
 			self::MY_JETPACK_ADD_VIDEOPRESS_URI,
-			null,
-			3
+			null
 		);
 	}
 

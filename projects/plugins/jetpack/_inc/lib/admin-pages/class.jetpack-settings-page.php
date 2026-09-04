@@ -50,8 +50,7 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 				__( 'Modules', 'jetpack' ),
 				'jetpack_manage_modules',
 				'jetpack_modules',
-				array( $this, 'render' ),
-				1
+				array( $this, 'render' )
 			);
 		}
 

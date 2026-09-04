@@ -61,8 +61,7 @@ class Admin_Page {
 			'SEO',
 			'manage_options',
 			self::MENU_SLUG,
-			$callback,
-			2
+			$callback
 		);
 	}
 

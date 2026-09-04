@@ -20,14 +20,6 @@ class Admin_Page {
 	const ADMIN_PAGE_SLUG = 'jetpack-podcast';
 
 	/**
-	 * Where the Podcast item sits in the Jetpack submenu on self-hosted.
-	 *
-	 * Placed after content/product items like Newsletter and Search (10), and
-	 * above Activity Log (12) so Activity Log stays immediately before Settings (13).
-	 */
-	const MENU_POSITION = 11;
-
-	/**
 	 * Slug emitted by `@wordpress/build`. wp-build's auto-generated enqueue
 	 * callback only fires when `$screen->id` matches this value, so we alias
 	 * the screen id via `current_screen` without changing the user-facing URL.
@@ -87,8 +79,7 @@ class Admin_Page {
 				'Podcast',
 				'manage_options',
 				self::ADMIN_PAGE_SLUG,
-				$callback,
-				self::MENU_POSITION
+				$callback
 			);
 		}
 
