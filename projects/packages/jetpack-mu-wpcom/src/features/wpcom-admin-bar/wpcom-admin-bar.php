@@ -42,19 +42,6 @@ function maybe_add_origin_site_id_to_url( $url ) {
 }
 
 /**
- * Adds the origin_admin_bar query parameter to a URL.
- * Calypso can use this parameter to know that the user is coming from wp-admin
- * and to check whether it should do custom routing based on user preferences.
- * E.g. redirecting to my.wordpress.com depending on their preference.
- *
- * @param string $url The URL to add the query param to.
- * @return string The URL with the origin_admin_bar query parameter mey be added.
- */
-function add_origin_admin_bar_to_url( $url ) {
-	return add_query_arg( 'origin_admin_bar', 'wpcom', $url );
-}
-
-/**
  * Enqueue assets needed by the WordPress.com admin bar.
  */
 function wpcom_enqueue_admin_bar_assets() {
@@ -168,7 +155,7 @@ function wpcom_replace_wp_logo_with_wpcom_logo_menu( $wp_admin_bar ) {
 						/* translators: Hidden accessibility text. */
 						'WordPress.com' .
 						'</span>',
-			'href'  => add_origin_admin_bar_to_url( Urls::maybe_add_origin_site_id( 'https://wordpress.com/sites' ) ),
+			'href'  => Urls::maybe_add_origin_site_id( 'https://my.wordpress.com/sites' ),
 			'meta'  => array(
 				'menu_title' => 'WordPress.com',
 			),
@@ -316,13 +303,13 @@ function wpcom_replace_edit_profile_menu_to_me( $wp_admin_bar ) {
 
 	$edit_profile_node = $wp_admin_bar->get_node( 'user-info' );
 	if ( $edit_profile_node ) {
-		$edit_profile_node->href  = add_origin_admin_bar_to_url( Urls::maybe_add_origin_site_id( 'https://wordpress.com/me' ) );
+		$edit_profile_node->href  = Urls::maybe_add_origin_site_id( 'https://my.wordpress.com/me/account' );
 		$edit_profile_node->title = preg_replace( "/(<span class='display-name edit-profile'>)(.*?)(<\/span>)/", '$1' . __( 'My Profile', 'jetpack-mu-wpcom' ) . '$3', $edit_profile_node->title );
 		$wp_admin_bar->add_node( (array) $edit_profile_node );
 	}
 	$my_account_node = $wp_admin_bar->get_node( 'my-account' );
 	if ( $my_account_node ) {
-		$my_account_node->href = add_origin_admin_bar_to_url( Urls::maybe_add_origin_site_id( 'https://wordpress.com/me' ) );
+		$my_account_node->href = Urls::maybe_add_origin_site_id( 'https://my.wordpress.com/me/account' );
 		$wp_admin_bar->add_node( (array) $my_account_node );
 	}
 }
@@ -353,7 +340,7 @@ function wpcom_add_my_wpcom_account_submenu( $wp_admin_bar ) {
 			'parent' => 'wpcom-account',
 			'id'     => 'my-wpcom-account',
 			'title'  => '<span class="button wpcom-button">' . $button_text . '</span>',
-			'href'   => add_origin_admin_bar_to_url( Urls::maybe_add_origin_site_id( 'https://wordpress.com/me/account' ) ),
+			'href'   => Urls::maybe_add_origin_site_id( 'https://my.wordpress.com/me/account' ),
 		)
 	);
 }
