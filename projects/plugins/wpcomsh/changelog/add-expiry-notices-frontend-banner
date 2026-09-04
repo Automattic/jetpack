@@ -1,4 +1,4 @@
-Significance: patch
+Significance: minor
 Type: changed
 
-Gifting banner: Stand down while the plan-expiry notice is shown to the site admin.
+Expiry notices: Show the plan-expiry notice on the site front-end to logged-in admins, and stand the gifting banner down while it shows.

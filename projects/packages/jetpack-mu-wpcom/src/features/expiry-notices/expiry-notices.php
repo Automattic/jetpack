@@ -504,10 +504,8 @@ function wpcom_expiry_notices_frontend_banner_is_due(): bool {
 /**
  * Take the one front-end banner slot on Simple when the expiry banner is due.
  *
- * WordPress.com's banner resolver shows a single banner per request, chosen
- * from a fixed list of keys. Handing back only a key it does not know leaves it
- * nothing to show, and the expiry banner renders through its own hooks. Last
- * in line so no later registration can add a banner back.
+ * WordPress.com's resolver shows a single banner per request, picked from a
+ * fixed key list; a key it does not know leaves it nothing to show.
  *
  * @param array<string,callable> $banners Banners registered so far.
  * @return array<string,callable>

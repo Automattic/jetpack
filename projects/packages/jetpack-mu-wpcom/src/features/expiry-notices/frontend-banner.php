@@ -89,8 +89,6 @@ function wpcom_expiry_notices_enqueue_frontend_banner_assets() {
 	}
 
 	$asset_handle = jetpack_mu_wpcom_enqueue_assets( 'expiry-notices-frontend-banner', array( 'js', 'css' ) );
-	// Nothing else on the front-end loads the Tracks transport, so without this
-	// the events are pushed to a plain array and dropped.
 	\Automattic\Jetpack\Jetpack_Mu_Wpcom\Common\wpcom_enqueue_tracking_scripts( $asset_handle );
 	wp_localize_script(
 		$asset_handle,
@@ -144,7 +142,6 @@ function wpcom_expiry_notices_render_frontend_banner_html( array $state, array $
 	?>
 	<div id="wpcom-expiry-frontend-banner" class="wpcom-expiry-frontend-banner" role="status">
 		<span class="wpcom-expiry-frontend-banner__text"><?php echo esc_html( $text ); ?></span>
-		<?php // The message turns this into a Help Center opener; the href stays as what a click falls back to. ?>
 		<a
 			class="wpcom-expiry-frontend-banner__cta"
 			href="<?php echo esc_url( $urls['primary']['url'] ); ?>"

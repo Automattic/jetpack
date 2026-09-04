@@ -166,12 +166,10 @@ class FrontendNoticesTest extends WP_UnitTestCase {
 		$gifting_banner = new Gifting_Banner();
 		$gifting_banner->init();
 		$this->assertNotFalse( has_action( 'wp_head', array( $gifting_banner, 'inject_gifting_banner_wpcomsh' ) ) );
-		remove_action( 'wp_head', array( $gifting_banner, 'inject_gifting_banner_wpcomsh' ), 1103 );
 
 		add_filter( 'wpcomsh_test_expiry_frontend_banner_is_due', '__return_true' );
 		$gifting_banner = new Gifting_Banner();
 		$gifting_banner->init();
 		$this->assertFalse( has_action( 'wp_head', array( $gifting_banner, 'inject_gifting_banner_wpcomsh' ) ) );
-		remove_filter( 'wpcomsh_test_expiry_frontend_banner_is_due', '__return_true' );
 	}
 }

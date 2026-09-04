@@ -45,7 +45,6 @@ document.addEventListener( 'DOMContentLoaded', () => {
 	const cta = banner.querySelector< HTMLAnchorElement >( '.wpcom-expiry-frontend-banner__cta' );
 	cta?.addEventListener( 'click', ( e: Event ) => {
 		const supportMessage = cta.dataset.supportMessage;
-		// Only the reverted state asks for support; everything else is a plain link.
 		const openedHere = supportMessage ? openHelpCenterWithMessage( supportMessage ) : false;
 		if ( openedHere ) {
 			e.preventDefault();
@@ -64,8 +63,6 @@ document.addEventListener( 'DOMContentLoaded', () => {
 			await recordDismissal( data.metaKey );
 			wpcomTrackEvent( 'jetpack_expiry_banner_dismiss', trackProps );
 		} catch ( err ) {
-			// Re-show so a failed write is visible now rather than as a banner
-			// that comes back on the next load.
 			banner.hidden = false;
 			document.body.classList.add( 'has-wpcom-expiry-banner' );
 			wpcomTrackEvent( 'jetpack_expiry_banner_dismiss_failed', {

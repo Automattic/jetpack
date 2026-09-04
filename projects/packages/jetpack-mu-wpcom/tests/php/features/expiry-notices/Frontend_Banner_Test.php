@@ -155,6 +155,19 @@ class Frontend_Banner_Test extends \WorDBless\BaseTestCase {
 		$this->assertNotContains( 'has-wpcom-expiry-banner', wpcom_expiry_notices_frontend_banner_body_class( array() ) );
 	}
 
+	public function test_is_due_is_false_in_admin_and_for_held_back_sites(): void {
+		$this->set_purchase( 5 );
+		$this->assertTrue( wpcom_expiry_notices_frontend_banner_is_due() );
+
+		set_current_screen( 'dashboard' );
+		$this->assertFalse( wpcom_expiry_notices_frontend_banner_is_due() );
+		set_current_screen( 'front' );
+
+		add_filter( 'wpcom_expiry_notices_enabled', '__return_false' );
+		$this->assertFalse( wpcom_expiry_notices_frontend_banner_is_due() );
+		remove_filter( 'wpcom_expiry_notices_enabled', '__return_false' );
+	}
+
 	public function test_hooks_are_registered(): void {
 		$this->assertNotFalse( has_action( 'wp_enqueue_scripts', 'wpcom_expiry_notices_enqueue_frontend_banner_assets' ) );
 		$this->assertNotFalse( has_action( 'wp_footer', 'wpcom_expiry_notices_render_frontend_banner' ) );
