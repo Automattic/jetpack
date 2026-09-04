@@ -598,7 +598,29 @@ class Contact_Form extends Contact_Form_Shortcode {
 		// $this->body and $this->fields have been setup.  We no longer need the contact-field shortcode.
 		Contact_Form_Plugin::$using_contact_form_field = false;
 
+		$this->harvest_container_logic();
 		$this->apply_initial_field_visibility();
+	}
+
+	/**
+	 * Read conditions off the container blocks in this form's body.
+	 *
+	 * Has to happen here rather than while the containers render: a container is rendered
+	 * before the fields it encloses become fields, so at that point there is nothing to record
+	 * a containment against.
+	 *
+	 * @return void
+	 */
+	private function harvest_container_logic() {
+		if ( ! Jetpack_Forms::is_conditional_logic_enabled() || empty( $this->body ) ) {
+			return;
+		}
+
+		$harvested = Conditional_Logic_Container::harvest( $this->body );
+
+		$this->container_logic    = $harvested['logic'];
+		$this->container_contains = $harvested['contains'];
+		$this->body               = $harvested['body'];
 	}
 
 	/**
@@ -629,6 +651,20 @@ class Contact_Form extends Contact_Form_Shortcode {
 		return isset( $_POST['action'] ) // phpcs:ignore WordPress.Security.NonceVerification.Missing -- no site changes.
 			&& 'grunion-contact-form' === sanitize_text_field( wp_unslash( $_POST['action'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- no site changes.
 	}
+
+	/**
+	 * Conditions on container blocks in this form, keyed by generated container id.
+	 *
+	 * @var array
+	 */
+	private $container_logic = array();
+
+	/**
+	 * Field ids enclosed by each container, keyed by container id.
+	 *
+	 * @var array
+	 */
+	private $container_contains = array();
 
 	/**
 	 * Mark conditionally hidden fields as hidden in the rendered markup.
@@ -4022,15 +4058,27 @@ class Contact_Form extends Contact_Form_Shortcode {
 			}
 		}
 
+		// Containers are targets, never subjects: they hold no value to compare, so they carry
+		// logic but no meaningful type. They are typed anyway because the evaluator reads a
+		// type for every descriptor it is given.
+		foreach ( $this->container_logic as $container_id => $container_logic ) {
+			$types[ $container_id ] = Conditional_Logic::TYPE_CONTAINER;
+			$logic[ $container_id ] = $container_logic;
+		}
+
 		if ( empty( $logic ) ) {
 			return array();
 		}
 
 		return array(
-			'types'   => $types,
-			'logic'   => $logic,
+			'types'    => $types,
+			'logic'    => $logic,
 			// Only date fields appear here; everything else compares without a format.
-			'formats' => $formats,
+			'formats'  => $formats,
+			// Which fields each container encloses. The browser needs this for the same reason
+			// the server does: a required field inside a hidden container must not block
+			// submission, and the two sides have to agree on which fields those are.
+			'contains' => $this->container_contains,
 		);
 	}
 
@@ -4071,7 +4119,15 @@ class Contact_Form extends Contact_Form_Shortcode {
 			return array();
 		}
 
-		if ( ! is_array( $this->fields ) || empty( $this->fields ) ) {
+		// The type check stays unconditional. `$fields` is declared with no default, so it is
+		// null until add_field() runs, and the loop below would fatal on PHP 8. Only the
+		// emptiness half may be relaxed: a form with no fields but a conditional container
+		// still has visibility to resolve.
+		if ( ! is_array( $this->fields ) ) {
+			return array();
+		}
+
+		if ( empty( $this->fields ) && empty( $this->container_logic ) ) {
 			return array();
 		}
 
@@ -4095,7 +4151,21 @@ class Contact_Form extends Contact_Form_Shortcode {
 			$values[ $field_id ] = $field->get_conditional_logic_value();
 		}
 
-		return Conditional_Logic::resolve_visibility( $descriptors, $values );
+		foreach ( $this->container_logic as $container_id => $container_logic ) {
+			$descriptors[ $container_id ] = array(
+				'logic'  => $container_logic,
+				'type'   => Conditional_Logic::TYPE_CONTAINER,
+				'format' => null,
+			);
+		}
+
+		/*
+		 * Containment goes into the evaluator rather than being applied to what it returns. A
+		 * field inside a hidden container has to read as empty for everyone else, the same as a
+		 * field its own rules hid -- otherwise its answer can unlock a field outside the group
+		 * that is then validated and stored, while the answer that unlocked it is dropped.
+		 */
+		return Conditional_Logic::resolve_visibility( $descriptors, $values, $this->container_contains );
 	}
 
 	/**
