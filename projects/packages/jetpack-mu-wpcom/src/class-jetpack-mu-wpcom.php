@@ -1004,8 +1004,8 @@ class Jetpack_Mu_Wpcom {
 	/**
 	 * Override the WooCommerce unified block editor assets option with blog stickers.
 	 *
-	 * The `disable-woocommerce-block-editor-unified-assets` blog sticker force-disables the feature,
-	 * while the `woocommerce-block-editor-unified-assets` sticker opts the site in.
+	 * The `wc-disable-block-editor-unified-assets` blog sticker force-disables the feature,
+	 * while the `wc-block-editor-unified-assets` sticker opts the site in.
 	 *
 	 * @since $$next-version$$
 	 *
@@ -1015,13 +1015,30 @@ class Jetpack_Mu_Wpcom {
 	public static function enable_woocommerce_block_editor_unified_assets( $enabled ) {
 		$blog_id = get_wpcom_blog_id();
 
-		if ( wpcom_has_blog_sticker( 'disable-woocommerce-block-editor-unified-assets', $blog_id ) ) {
+		if ( wpcom_has_blog_sticker( 'wc-disable-block-editor-unified-assets', $blog_id ) ) {
 			return 'no';
 		}
 
-		if ( wpcom_has_blog_sticker( 'woocommerce-block-editor-unified-assets', $blog_id ) ) {
+		if ( wpcom_has_blog_sticker( 'wc-block-editor-unified-assets', $blog_id ) ) {
 			return 'yes';
 		}
+
+		// phpcs:disable Squiz.PHP.CommentedOutCode.Found,Squiz.Commenting.BlockComment.NoCapital -- Preserve the rollout for future activation.
+
+		/*
+		if ( function_exists( 'wpcomsh_get_atomic_site_id' ) ) {
+			$site_id = wpcomsh_get_atomic_site_id();
+
+			if ( $site_id ) {
+				$current_segment = 1; // Segment of Atomic sites in the experiment, in %.
+
+				if ( $site_id % 100 < $current_segment ) {
+					return 'yes';
+				}
+			}
+		}
+		*/
+		// phpcs:enable
 
 		return $enabled;
 	}

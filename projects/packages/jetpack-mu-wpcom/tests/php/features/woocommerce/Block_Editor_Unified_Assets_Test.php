@@ -45,7 +45,10 @@ class Block_Editor_Unified_Assets_Test extends TestCase {
 	 * The disable sticker takes precedence over every opt-in path.
 	 */
 	public function test_disable_sticker_force_disables_feature() {
-		$GLOBALS['jetpack_mu_wpcom_test_blog_stickers'] = array( 'disable-woocommerce-block-editor-unified-assets' );
+		$GLOBALS['jetpack_mu_wpcom_test_blog_stickers'] = array(
+			'wc-block-editor-unified-assets',
+			'wc-disable-block-editor-unified-assets',
+		);
 
 		$this->assertSame( 'no', Jetpack_Mu_Wpcom::enable_woocommerce_block_editor_unified_assets( 'yes' ) );
 	}
@@ -54,7 +57,7 @@ class Block_Editor_Unified_Assets_Test extends TestCase {
 	 * The enable sticker opts a site in.
 	 */
 	public function test_enable_sticker_force_enables_feature() {
-		$GLOBALS['jetpack_mu_wpcom_test_blog_stickers'] = array( 'woocommerce-block-editor-unified-assets' );
+		$GLOBALS['jetpack_mu_wpcom_test_blog_stickers'] = array( 'wc-block-editor-unified-assets' );
 
 		$this->assertSame( 'yes', Jetpack_Mu_Wpcom::enable_woocommerce_block_editor_unified_assets( 'no' ) );
 	}
