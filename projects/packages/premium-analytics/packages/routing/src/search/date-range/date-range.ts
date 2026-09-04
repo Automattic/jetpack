@@ -1,11 +1,7 @@
 /**
  * External dependencies
  */
-import {
-	dateToISOStringWithTZ,
-	localTZDate,
-	reportingTimeZone,
-} from '@jetpack-premium-analytics/datetime';
+import { dateToISOStringWithLocalTZ, localTZDate } from '@jetpack-premium-analytics/datetime';
 import { isValid } from 'date-fns';
 
 /**
@@ -29,10 +25,9 @@ export function decodeDateSearchParam( value?: string, timezone?: string ): Date
  * Serialize a Date into an ISO string with the reporting timezone, for writing
  * to the URL or API requests.
  *
- * @param date     - The date to serialize.
- * @param timezone - The zone to serialize in, the reporting timezone when omitted.
+ * @param date - The date to serialize.
  * @return The ISO string, or undefined when there is no date.
  */
-export function encodeDateToSearchParam( date?: Date, timezone?: string ): string | undefined {
-	return date ? dateToISOStringWithTZ( date, timezone ?? reportingTimeZone() ) : undefined;
+export function encodeDateToSearchParam( date?: Date ): string | undefined {
+	return date ? dateToISOStringWithLocalTZ( date ) : undefined;
 }

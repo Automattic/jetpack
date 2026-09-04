@@ -1,4 +1,3 @@
 Significance: patch
 Type: changed
-
-Remove the unused date-range URL writers and make the date encoder's timezone argument take effect.
+Comment: Internal refactor: drop the unused date-range URL writers and the date encoder's dead timezone argument, and move the reporting-timezone date helpers to one entry point.

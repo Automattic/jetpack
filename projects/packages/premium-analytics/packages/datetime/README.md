@@ -102,6 +102,37 @@ const withTZ = dateToISOStringWithTZ( new Date(), 'America/New_York' );
 
 **Returns:** `string` - ISO string with timezone offset
 
+#### `localTZDate( value?, timezone? )`
+
+`toLocalTZ` with the reporting timezone as its default.
+
+```typescript
+const now = localTZDate(); // Current time in the reporting timezone
+const custom = localTZDate( '2024-01-15', 'America/New_York' );
+```
+
+**Parameters:**
+
+- `value` (optional): `number | string | Date` - Value to anchor
+- `timezone` (optional): `string` - Zone to read it in, the reporting timezone when omitted
+
+**Returns:** `TZDate` - Timezone-aware date object
+
+#### `dateToISOStringWithLocalTZ( date )`
+
+Converts a date to an ISO string with the reporting timezone's offset applied.
+
+```typescript
+const withTZ = dateToISOStringWithLocalTZ( new Date() );
+// Returns: "2024-01-15T14:30:00.000-05:00"
+```
+
+**Parameters:**
+
+- `date`: `Date` - Date to convert
+
+**Returns:** `string` - ISO string with timezone offset
+
 ### Comparison Range Calculations
 
 #### `getComparisonRangeFromPreset( reference, presetId, options? )`

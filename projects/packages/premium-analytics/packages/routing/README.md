@@ -34,14 +34,13 @@ value is missing or malformed.
 
 **Returns:** A timezone-aware Date or undefined
 
-### `encodeDateToSearchParam( date?, timezone? )`
+### `encodeDateToSearchParam( date? )`
 
-Low-level function to convert a Date to an ISO string with timezone.
+Low-level function to convert a Date to an ISO string in the reporting timezone.
 
 **Parameters:**
 
 - **`date?`** – Date to encode (returns undefined if not provided)
-- **`timezone?`** – Timezone override
 
 **Returns:** ISO string with timezone offset or undefined
 

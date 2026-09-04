@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { localTZDate } from '@jetpack-premium-analytics/data';
+import { localTZDate } from '@jetpack-premium-analytics/datetime';
 import { formatDateRange } from '@jetpack-premium-analytics/formatters';
 import { __ } from '@wordpress/i18n';
 /**

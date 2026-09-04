@@ -75,8 +75,8 @@ export function useEmailTabScope(
 			from: lifetime.from,
 			to: windowEnd < lifetime.to ? windowEnd : lifetime.to,
 		};
-		const from = encodeDateToSearchParam( range.from, timeZone );
-		const to = encodeDateToSearchParam( range.to, timeZone );
+		const from = encodeDateToSearchParam( range.from );
+		const to = encodeDateToSearchParam( range.to );
 
 		if ( ! from || ! to ) {
 			return undefined;

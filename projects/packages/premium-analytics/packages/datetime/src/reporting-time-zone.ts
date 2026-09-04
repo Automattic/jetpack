@@ -33,7 +33,9 @@ export function localTZDate( value?: number | string | Date, timezone?: string )
 
 /**
  * TZ-aware Date -> ISO with the reporting offset `YYYY-MM-DDTHH:mm:ss.SSSxxx`.
- * @param date
+ *
+ * @param date - The date to serialize.
+ * @return The ISO string in the reporting timezone.
  */
 export function dateToISOStringWithLocalTZ( date: Date ): string {
 	return dateToISOStringWithTZ( date, reportingTimeZone() );
