@@ -17,6 +17,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { useTrackEvent } from '../../hooks/use-track-event';
+import styles from './feedback-modal.module.scss';
 
 // Tracks drops an event whose properties are oversized, so a pasted essay would
 // cost us the rating too.
@@ -142,7 +143,7 @@ export function FeedbackModal( { onClose }: FeedbackModalProps ) {
 				) : (
 					<>
 						<Dialog.Content>
-							<Stack direction="column" gap="xl">
+							<Stack className={ styles.body } direction="column" gap="xl">
 								<Stack direction="column" gap="sm">
 									<Question>{ comparisonQuestion }</Question>
 									<RadioControl
