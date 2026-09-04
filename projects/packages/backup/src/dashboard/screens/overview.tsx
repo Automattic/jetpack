@@ -216,9 +216,9 @@ function OverviewBody() {
 	// briefly showing the two-pane view is a milder error than briefly
 	// telling an established customer they have no backups.
 	//
-	// A failed request is "still unknown" too, and that is the whole
-	// point of reading `isError` here. React Query reports an errored
-	// query as not-loading with no rows, so without this the veto lifts
+	// A failed request is "still unknown" too, and so is one React Query
+	// parked because the browser is offline — that is what `isError` and
+	// `isPaused` are for: neither loads nor has rows, so without them the veto lifts
 	// on a question nobody managed to ask: the first-run panel takes the
 	// body over and takes the activity log's own error report down with
 	// it, and a 5xx reads as "your first backup is on its way".
@@ -226,6 +226,7 @@ function OverviewBody() {
 		hasRestorePoints,
 		isLoading: restorePointsLoading,
 		isError: restorePointsError,
+		isPaused: restorePointsPaused,
 	} = useHasRestorePoints();
 
 	const overviewRef = useRef< HTMLDivElement >( null );
@@ -263,7 +264,7 @@ function OverviewBody() {
 		replacesOverview(
 			backupsState,
 			isInitialBackup,
-			restorePointsLoading || restorePointsError || hasRestorePoints
+			restorePointsLoading || restorePointsError || restorePointsPaused || hasRestorePoints
 		)
 	) {
 		return <BackupStatusPanel state={ backupsState } progress={ progress } />;
