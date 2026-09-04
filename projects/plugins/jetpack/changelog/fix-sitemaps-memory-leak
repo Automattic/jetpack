@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Sitemaps: clear in-memory caches between batches during image sitemap builds to prevent OOM on large media libraries (100k+ items).

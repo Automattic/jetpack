@@ -774,6 +774,33 @@ class Jetpack_Sitemap_Builder { // phpcs:ignore Generic.Files.OneObjectStructure
 	}
 
 	/**
+	 * Clear WordPress in-memory caches to prevent memory accumulation
+	 * during long-running sitemap builds on large sites.
+	 *
+	 * This is safe to call during cron/CLI builds because the persistent
+	 * cache (DB/Redis/Memcached) is not affected; only the per-request
+	 * in-memory caches are cleared.
+	 *
+	 * @access private
+	 * @since $$next-version$$
+	 */
+	private static function clear_runtime_cache() {
+		global $wpdb, $wp_object_cache;
+
+		// Flush the WPDB result cache to free query result memory.
+		$wpdb->flush();
+
+		// Clear in-memory object cache (posts, terms, meta, etc.).
+		if ( is_object( $wp_object_cache ) ) {
+			$wp_object_cache->cache     = array();
+			$wp_object_cache->group_ops = array(); // persistence-backed caches track groups here.
+		}
+
+		// Reset the post meta cache for the current blog.
+		wp_cache_flush_runtime();
+	}
+
+	/**
 	 * Build and store a single image sitemap. Returns false if no sitemap is built.
 	 *
 	 * Side effect: Create/update an image sitemap row.
@@ -831,7 +858,18 @@ class Jetpack_Sitemap_Builder { // phpcs:ignore Generic.Files.OneObjectStructure
 					break;
 				}
 			}
+
+			// Free the posts array so memory is reclaimed before the next batch.
+			unset( $posts );
 		}
+
+		// Clear WordPress in-memory caches once per sitemap file to prevent
+		// memory accumulation across sitemap chunks on sites with large media
+		// libraries (100k+ items). Calling this inside the while loop caused
+		// ~20 flushes per file (~2,000 per cron run), each wiping the options
+		// group and triggering expensive wp_load_alloptions() DB queries that
+		// re-allocated the very memory being freed.
+		self::clear_runtime_cache();
 
 		// If no items were added, return false.
 		if ( true === $buffer->is_empty() ) {
