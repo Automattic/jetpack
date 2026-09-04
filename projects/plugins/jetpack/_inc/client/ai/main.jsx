@@ -19,6 +19,7 @@ import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __, isRTL, sprintf } from '@wordpress/i18n';
 import { chevronLeft, chevronRight, Icon } from '@wordpress/icons';
 import { Badge, Notice, Stack, Tabs } from '@wordpress/ui';
+import MasterOffNotice from './components/master-off-notice';
 import AiFeatures from './features/index';
 import { useFeatureSettings } from './features/use-feature-settings';
 import McpConnectCallout from './mcp/connect-callout';
@@ -51,6 +52,10 @@ const LEGACY_VIEW_ALIASES = {
 // Views that retain an internal-testing badge when a host enables them for a
 // test request. MCP and Connectors ships publicly, so it is not in here.
 const GATED_VIEWS = [ 'overview', 'features' ];
+
+// Views the master switch governs. MCP and Scheduled tasks are not gated by
+// it, so they never show the master-off notice.
+const MASTER_SWITCH_VIEWS = [ 'overview', 'features' ];
 
 // Read at call time, not module scope, so the flag reflects the injected page data.
 const getTabViews = () => {
@@ -208,6 +213,8 @@ export default function App() {
 		error: aiSettingsError,
 		updateSettings: updateAiSettings,
 	} = useFeatureSettings( showFeaturesView );
+
+	const masterEnabled = aiSettings?.master_enabled !== false;
 
 	// The hash is the single source of truth for the current view: popstate
 	// covers back/forward, hashchange covers direct hash edits and links.
@@ -398,6 +405,11 @@ export default function App() {
 					<BackEyebrow label={ VIEW_TITLES[ activeTab ] } onNavigate={ navigateToParent } />
 				) }
 				<GlobalNotices />
+
+				{ ! masterEnabled &&
+					MASTER_SWITCH_VIEWS.includes( view ) &&
+					aiSettings?.is_connected !== false &&
+					aiSettings?.host_allows_ai !== false && <MasterOffNotice /> }
 
 				{ isMcpContext && (
 					<>
