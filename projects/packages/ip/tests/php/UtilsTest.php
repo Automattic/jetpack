@@ -34,6 +34,7 @@ final class UtilsTest extends PHPUnit\Framework\TestCase {
 	public function tearDown(): void {
 		parent::tearDown();
 		Monkey\tearDown();
+		\Jetpack_IP_Test_Resolver::reset();
 	}
 
 	/**
@@ -499,6 +500,73 @@ final class UtilsTest extends PHPUnit\Framework\TestCase {
 			$this->assertIsString( $ip );
 			$this->assertNotFalse( filter_var( $ip, FILTER_VALIDATE_IP ), "$ip should be an IP address" );
 		}
+	}
+
+	/**
+	 * A host is public only when every address it resolves to is public.
+	 *
+	 * This is the whole point of the helper, and the one behaviour real DNS cannot
+	 * pin down, so the answers are supplied rather than looked up.
+	 */
+	public function test_url_is_public_requires_every_resolved_address_to_be_public() {
+		$this->stub_url_helpers();
+
+		\Jetpack_IP_Test_Resolver::$answers = array(
+			'all-public.test'    => array( 'ipv4' => array( '8.8.8.8', '1.1.1.1' ) ),
+			'one-internal.test'  => array( 'ipv4' => array( '8.8.8.8', '169.254.169.254' ) ),
+			'public-dual.test'   => array(
+				'ipv4' => array( '8.8.8.8' ),
+				'ipv6' => array( '2606:4700:4700::1111' ),
+			),
+			'internal-v6.test'   => array(
+				'ipv4' => array( '8.8.8.8' ),
+				'ipv6' => array( '2606:4700:4700::1111', 'fd00::1' ),
+			),
+			'only-internal.test' => array( 'ipv4' => array( '10.0.0.1' ) ),
+		);
+
+		$this->assertTrue( Utils::url_is_public( 'http://all-public.test/x' ) );
+		$this->assertTrue( Utils::url_is_public( 'http://public-dual.test/x' ) );
+
+		$this->assertFalse( Utils::url_is_public( 'http://one-internal.test/x' ), 'one internal A record rejects the host' );
+		$this->assertFalse( Utils::url_is_public( 'http://internal-v6.test/x' ), 'one internal AAAA record rejects the host' );
+		$this->assertFalse( Utils::url_is_public( 'http://only-internal.test/x' ) );
+	}
+
+	/**
+	 * Both the A and the AAAA answers are returned, not just whichever came first.
+	 */
+	public function test_resolve_host_ips_returns_both_a_and_aaaa_records() {
+		\Jetpack_IP_Test_Resolver::$answers = array(
+			'dual.test'   => array(
+				'ipv4' => array( '8.8.8.8', '8.8.4.4' ),
+				'ipv6' => array( '2001:4860:4860::8888' ),
+			),
+			'v6only.test' => array( 'ipv6' => array( '2001:4860:4860::8888' ) ),
+		);
+
+		$this->assertSame(
+			array( '8.8.8.8', '8.8.4.4', '2001:4860:4860::8888' ),
+			Utils::resolve_host_ips( 'dual.test' )
+		);
+		$this->assertSame( array( '2001:4860:4860::8888' ), Utils::resolve_host_ips( 'v6only.test' ) );
+	}
+
+	/**
+	 * Anything a resolver returns that is not an address is dropped, repeats included.
+	 */
+	public function test_resolve_host_ips_drops_junk_and_duplicates() {
+		\Jetpack_IP_Test_Resolver::$answers = array(
+			'noisy.test' => array(
+				'ipv4' => array( '8.8.8.8', 'not-an-ip', '8.8.8.8', '' ),
+				'ipv6' => array( '2001:4860:4860::8888', 'nonsense', '2001:4860:4860::8888' ),
+			),
+		);
+
+		$this->assertSame(
+			array( '8.8.8.8', '2001:4860:4860::8888' ),
+			Utils::resolve_host_ips( 'noisy.test' )
+		);
 	}
 
 	/**
