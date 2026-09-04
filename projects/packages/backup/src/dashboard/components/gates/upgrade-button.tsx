@@ -24,8 +24,7 @@ export default function UpgradeButton() {
 	const upgradeUrl = getRedirectUrl( 'backup-plugin-upgrade-10gb', site ? { site } : {} );
 
 	const recordClick = useCallback( () => {
-		// Legacy records the same name and payload from `no-backup-capabilities.jsx`.
-		// Click-time and the `undefined` arm are as in `addon-upsell.tsx`.
+		// Same name and payload legacy records from `no-backup-capabilities.jsx`.
 		analytics.tracks.recordEvent(
 			'jetpack_backup_plugin_upgrade_click',
 			site ? { site } : undefined

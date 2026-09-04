@@ -391,9 +391,8 @@ describe( 'Upgrade from the no-plan gate', () => {
 		document.removeEventListener( 'click', cancelNavigation );
 	} );
 
-	// JETPACK-2500. Legacy records this from `no-backup-capabilities.jsx`, and
-	// the rollout is all-at-once — so a name or payload that drifted here would
-	// read in Tracks as conversions stopping rather than telemetry stopping.
+	// JETPACK-2500 — a name or payload that drifted from legacy's would read in
+	// Tracks as conversions stopping rather than telemetry stopping.
 	it( 'records the reader deciding to buy, with the site they came from', async () => {
 		await userEvent.click( await upgradeCta( SITE_SUFFIX ) );
 
