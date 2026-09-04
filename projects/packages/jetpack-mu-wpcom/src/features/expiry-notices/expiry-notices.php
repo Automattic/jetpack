@@ -467,21 +467,39 @@ function wpcom_expiry_notices_admin_banner_body( array $state ): string {
 }
 
 /**
- * Load the wp-admin banner, modal, and editor notice, unless something has held
- * this site back.
+ * Load the surfaces for this request, unless something has held this site back.
  *
  * On `init` rather than at file load. This file is required on `plugins_loaded`,
  * and every hook any surface registers fires later still, so waiting keeps the
  * requires off the bootstrap at no cost.
  */
-function wpcom_expiry_notices_maybe_load_admin_banner() {
-	if ( is_admin() && wpcom_expiry_notices_is_enabled_for_site() ) {
+function wpcom_expiry_notices_maybe_load_surfaces() {
+	if ( ! wpcom_expiry_notices_is_enabled_for_site() ) {
+		return;
+	}
+	if ( is_admin() ) {
 		require_once __DIR__ . '/admin-banner.php';
 		require_once __DIR__ . '/admin-modal.php';
 		require_once __DIR__ . '/editor-notice.php';
+	} else {
+		require_once __DIR__ . '/frontend-banner.php';
 	}
 }
-add_action( 'init', 'wpcom_expiry_notices_maybe_load_admin_banner' ); // @codeCoverageIgnore
+add_action( 'init', 'wpcom_expiry_notices_maybe_load_surfaces' ); // @codeCoverageIgnore
+
+/**
+ * Whether the front-end banner will render on this request.
+ *
+ * The one predicate the other front-end banners read to stand down. Loads the
+ * surface itself because the callers hook `init` and can run before the loader.
+ */
+function wpcom_expiry_notices_frontend_banner_is_due(): bool {
+	if ( is_admin() || ! wpcom_expiry_notices_is_enabled_for_site() ) {
+		return false;
+	}
+	require_once __DIR__ . '/frontend-banner.php';
+	return null !== wpcom_expiry_notices_frontend_banner_data();
+}
 
 /**
  * Register the dismiss meta keys. Gated on admin / REST so we don't pay the
