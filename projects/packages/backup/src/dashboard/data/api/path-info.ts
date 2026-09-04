@@ -15,8 +15,7 @@ import { apiCall, apiPath } from './_helpers';
  * deriving previewability from the file extension the way Calypso does.
  *
  * `size` has been observed arriving as a decimal string while `mtime`
- * arrives as a number, so the union keeps both shapes and `toFileDetails`
- * coerces whichever turns up.
+ * arrives as a number, so the union keeps both shapes.
  */
 export type PathInfoResponse = {
 	error?: string;

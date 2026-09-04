@@ -102,8 +102,7 @@ describe( 'toFileDetails', () => {
 		expect( toFileDetails( payload( { size } ) ) ).toMatchObject( { size: expected } );
 	} );
 
-	// `Number()` turns `null`, `''` and whitespace into `0`, which would
-	// render `0 B` for a file whose size the endpoint never reported.
+	// `0 B` for a file the endpoint never sized would be a lie, not a reading.
 	test.each( [
 		[ 'missing', undefined ],
 		[ 'null', null ],
