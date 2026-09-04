@@ -262,8 +262,10 @@ export default function ActivityList( { selectedId, onSelect, view, onChangeView
 	// Placeholder data is the qualifier, not `isFetching` alone: DataViews
 	// puts `inert` on the composite that owns every row, so reporting a
 	// background refetch — the one a finished backup triggers — would blur
-	// the reader out of the list mid-read. A page or sort change is the
-	// reader's own action and their focus is on the control they used.
+	// the reader out of the list mid-read. A page or sort change still
+	// inerts them, and the footer's own copy of this flag inerts the
+	// control the reader just used; DataViews offers no way to separate
+	// those, so that case is unchanged rather than fixed.
 	const isBusy = isLoading || ( isFetching && isPlaceholderData );
 
 	return (

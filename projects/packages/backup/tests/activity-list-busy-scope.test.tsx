@@ -75,7 +75,9 @@ function freezeNextFetch(): ( value: unknown ) => void {
 
 beforeEach( () => {
 	queryClient.clear();
-	queryClient.setDefaultOptions( { queries: { retry: false } } );
+	queryClient.setDefaultOptions( {
+		queries: { ...queryClient.getDefaultOptions().queries, retry: false },
+	} );
 	mockApiFetch.mockReset();
 	mockApiFetch.mockResolvedValue( PAGE );
 	window.JP_CONNECTION_INITIAL_STATE = {
@@ -93,11 +95,14 @@ it( 'keeps the rows reachable through a background refetch', async () => {
 		screen.findByRole( 'button', { name: /^Backup 1786600000/ }, SETTLE )
 	).resolves.toBeInTheDocument();
 
+	// Mount fires two queries of its own, so only a rise from here proves
+	// the invalidation's refetch is the one in flight below.
+	const before = mockApiFetch.mock.calls.length;
 	const release = freezeNextFetch();
 	await act( async () => {
 		queryClient.invalidateQueries( { queryKey: keys.activityLogRoot() } );
 	} );
-	await waitFor( () => expect( mockApiFetch.mock.calls.length ).toBeGreaterThan( 1 ) );
+	await waitFor( () => expect( mockApiFetch.mock.calls.length ).toBeGreaterThan( before ) );
 
 	// The refetch is in flight right now — this is the window that used to
 	// blur a reader out of the list.
