@@ -79,11 +79,15 @@ async function fixDeps( pkg ) {
 		}
 	}
 
-	// lock()/unlock() pair through a module-scoped registry, so the dev-release
-	// widget-dashboard's prerelease range would resolve a second copy and throw.
-	// Remove with the prerelease pins in premium-analytics.
-	if ( pkg.dependencies?.[ '@wordpress/private-apis' ] ) {
-		pkg.dependencies[ '@wordpress/private-apis' ] = '1.54.2-next.v.202609031004.0';
+	// lock()/unlock() pair through a module-scoped registry, so a prerelease
+	// private-apis range would resolve a second copy beside the stable one the
+	// repo pins and throw. Collapse it onto the version premium-analytics
+	// declares; the rule stops matching once no manifest asks for a prerelease.
+	if ( pkg.dependencies?.[ '@wordpress/private-apis' ]?.includes( '-next' ) ) {
+		pkg.dependencies[ '@wordpress/private-apis' ] =
+			require( './projects/packages/premium-analytics/package.json' ).dependencies[
+				'@wordpress/private-apis'
+			];
 	}
 
 	// Unused, vulnerable dep.
