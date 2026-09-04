@@ -105,13 +105,6 @@ function list() {
 	return document.querySelector( '.jpb-activity-list' ) as HTMLElement;
 }
 
-// jsdom implements no scrolling, and DataViews' list layout calls
-// `scrollIntoView` on the selected row.
-Object.defineProperty( window.HTMLElement.prototype, 'scrollIntoView', {
-	value: () => {},
-	writable: true,
-} );
-
 beforeEach( () => {
 	queryClient.clear();
 	queryClient.setDefaultOptions( { queries: { retry: false } } );

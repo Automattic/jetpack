@@ -65,13 +65,6 @@ const FAILURE_REASON = 'Service unavailable';
 const LOADING = 'Loading item details…';
 const LOAD_FAILED = "We couldn't load this item.";
 
-// jsdom implements no scrolling, and DataViews' list layout calls
-// `scrollIntoView` on the selected row.
-Object.defineProperty( window.HTMLElement.prototype, 'scrollIntoView', {
-	value: () => {},
-	writable: true,
-} );
-
 /**
  * One completed backup, in WPCOM's rewindable-activity shape.
  *

@@ -74,12 +74,15 @@ add_action(
 	'jetpack_register_gutenberg_extensions',
 	function () {
 		if ( \Jetpack_AI_Settings::is_ai_enabled() ) {
+			// The usage meter reports on every AI feature, so it follows the
+			// master switch alone.
+			Jetpack_Gutenberg::set_extension_available( 'ai-assistant-usage-panel' );
+
 			if ( \Jetpack_AI_Settings::is_feature_enabled( 'writing_assistant' ) ) {
 				Jetpack_Gutenberg::set_extension_available( 'ai-content-lens' );
 				Jetpack_Gutenberg::set_extension_available( 'ai-assistant-support' );
 				Jetpack_Gutenberg::set_extension_available( 'ai-assistant-form-support' );
 				Jetpack_Gutenberg::set_extension_available( 'ai-assistant-backend-prompts' );
-				Jetpack_Gutenberg::set_extension_available( 'ai-assistant-usage-panel' );
 				Jetpack_Gutenberg::set_extension_available( 'ai-title-optimization' );
 				Jetpack_Gutenberg::set_extension_available( 'ai-title-optimization-keywords-support' );
 
