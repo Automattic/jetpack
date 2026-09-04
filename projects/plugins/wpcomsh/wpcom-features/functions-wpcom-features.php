@@ -488,32 +488,25 @@ function wpcom_get_product_features( $product ) {
 	$cache_group = 'site_purchases';
 	$cache_found = false;
 
-	// Include sticker status in cache key only for Personal and Premium plans since they're affected by feature gating experiments.
-	$sticker_cache_suffix = '';
-	// @phan-suppress-next-line PhanRedundantCondition
-	if ( function_exists( 'has_blog_sticker' ) && $purchase ) {
-		// Use existing WPCOM_Store helper methods to check plan types
-		$is_personal_or_premium_plan = false;
-		if ( isset( $purchase->product_id ) ) {
-			$is_personal_or_premium_plan = WPCOM_Store::is_wpcom_personal_plan( $purchase->product_id ) || WPCOM_Store::is_wpcom_premium_plan( $purchase->product_id );
-		}
+	/*
+	Adjust the cache key to include site legacy/gating_2026 status. Applying it to all plans
+	 * and not just Personal/Premium to make it future-proof and avoid issue like
+	 * WPCOM_Store::get_wpcom_personal_plans() not returning the Personal trial plan.
+	 *
+	 * The cohort is not the only per-site input: `required_sticker` branches read stickers too, and
+	 * `site_purchases` is a global cache group. WPCOM_Features builds the whole suffix because it
+	 * owns the map that decides what varies.
+	 */
+	$cache_key = $purchase->product_slug
+		. WPCOM_Features::get_site_gating_cache_suffix( _wpcom_get_current_blog_id() )
+		. filemtime( __DIR__ . '/class-wpcom-features.php' );
 
-		if ( $is_personal_or_premium_plan ) {
-			$current_blog_id = get_current_blog_id();
-			if ( has_blog_sticker( 'gating-business-q1', $current_blog_id ) ) {
-				$sticker_cache_suffix .= '_gatingbq1';
-			}
-		}
-	}
-
-	$cache_key = $purchase->product_slug . $sticker_cache_suffix . filemtime( __DIR__ . '/class-wpcom-features.php' );
-	$features  = wp_cache_get( $cache_key, $cache_group, false, $cache_found );
+	$features = wp_cache_get( $cache_key, $cache_group, false, $cache_found );
 
 	if ( false === $cache_found ) {
 		$features = array();
 
 		foreach ( WPCOM_Features::get_feature_slugs() as $feature ) {
-			// @phan-suppress-next-line PhanTypeMismatchArgumentNullable
 			if ( wpcom_purchase_has_feature( $purchase, $feature ) ) {
 				$features[] = $feature;
 			}
