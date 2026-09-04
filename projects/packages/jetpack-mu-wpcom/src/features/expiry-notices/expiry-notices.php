@@ -502,6 +502,25 @@ function wpcom_expiry_notices_frontend_banner_is_due(): bool {
 }
 
 /**
+ * Take the one front-end banner slot on Simple when the expiry banner is due.
+ *
+ * WordPress.com's banner resolver shows a single banner per request, chosen
+ * from a fixed list of keys. Handing back only a key it does not know leaves it
+ * nothing to show, and the expiry banner renders through its own hooks. Last
+ * in line so no later registration can add a banner back.
+ *
+ * @param array<string,callable> $banners Banners registered so far.
+ * @return array<string,callable>
+ */
+function wpcom_expiry_notices_claim_wpcom_banner_slot( array $banners ): array {
+	if ( ! wpcom_expiry_notices_frontend_banner_is_due() ) {
+		return $banners;
+	}
+	return array( 'wpcom_expiry_banner' => '__return_null' );
+}
+add_filter( 'wpcom_register_banners', 'wpcom_expiry_notices_claim_wpcom_banner_slot', PHP_INT_MAX ); // @codeCoverageIgnore
+
+/**
  * Register the dismiss meta keys. Gated on admin / REST so we don't pay the
  * register_meta cost on every front-end request.
  */

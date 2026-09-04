@@ -167,4 +167,28 @@ class Frontend_Banner_Test extends \WorDBless\BaseTestCase {
 		wpcom_expiry_notices_render_frontend_banner();
 		return (string) ob_get_clean();
 	}
+
+	public function test_claims_the_simple_banner_slot_when_due(): void {
+		$this->set_purchase( 5 );
+		wpcom_expiry_notices_frontend_banner_data( true );
+		$others = array(
+			'wpcom_gifting_banner' => '__return_null',
+			'wpcom_marketing_bar'  => '__return_null',
+		);
+		$this->assertSame(
+			array( 'wpcom_expiry_banner' => '__return_null' ),
+			wpcom_expiry_notices_claim_wpcom_banner_slot( $others )
+		);
+	}
+
+	public function test_leaves_the_simple_banner_slot_alone_when_not_due(): void {
+		$this->set_purchase( 45 );
+		wpcom_expiry_notices_frontend_banner_data( true );
+		$others = array( 'wpcom_gifting_banner' => '__return_null' );
+		$this->assertSame( $others, wpcom_expiry_notices_claim_wpcom_banner_slot( $others ) );
+	}
+
+	public function test_the_slot_filter_runs_last(): void {
+		$this->assertSame( PHP_INT_MAX, has_filter( 'wpcom_register_banners', 'wpcom_expiry_notices_claim_wpcom_banner_slot' ) );
+	}
 }
