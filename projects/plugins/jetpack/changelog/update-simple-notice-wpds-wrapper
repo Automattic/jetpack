@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Notices: render Jetpack admin notices with the WordPress design system Notice component.

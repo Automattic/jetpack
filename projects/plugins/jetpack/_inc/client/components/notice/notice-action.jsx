@@ -1,8 +1,6 @@
+import { Notice } from '@wordpress/ui';
 import PropTypes from 'prop-types';
 import { Component } from 'react';
-import Gridicon from 'components/gridicon';
-
-import './style.scss';
 
 export default class NoticeAction extends Component {
 	static displayName = 'NoticeAction';
@@ -20,27 +18,17 @@ export default class NoticeAction extends Component {
 	};
 
 	render() {
-		let className = 'dops-notice__action';
-		if ( this.props.variant === 'secondary' ) {
-			className += ' is-secondary';
+		const { children, href, onClick, external } = this.props;
+
+		if ( href ) {
+			// `openInNewTab` also draws the external-link arrow the old Gridicon supplied.
+			return (
+				<Notice.ActionLink href={ href } onClick={ onClick } openInNewTab={ external }>
+					{ children }
+				</Notice.ActionLink>
+			);
 		}
 
-		const attributes = {
-			className,
-			href: this.props.href,
-			onClick: this.props.onClick,
-		};
-
-		if ( this.props.external ) {
-			attributes.target = '_blank';
-		}
-
-		return (
-			<a { ...attributes }>
-				<span>{ this.props.children }</span>
-				{ this.props.icon && <Gridicon icon={ this.props.icon } size={ 24 } /> }
-				{ this.props.external && <Gridicon icon="external" size={ 24 } /> }
-			</a>
-		);
+		return <Notice.ActionButton onClick={ onClick }>{ children }</Notice.ActionButton>;
 	}
 }
