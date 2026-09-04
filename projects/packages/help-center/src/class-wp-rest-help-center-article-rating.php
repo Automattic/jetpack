@@ -76,6 +76,14 @@ class WP_REST_Help_Center_Article_Rating extends WP_REST_Help_Center_Controller 
 			return $body;
 		}
 
-		return rest_ensure_response( json_decode( wp_remote_retrieve_body( $body ) ) );
+		$response = rest_ensure_response( json_decode( wp_remote_retrieve_body( $body ) ) );
+
+		// Pass the WordPress.com status through so clients see upstream failures as failures.
+		$status = (int) wp_remote_retrieve_response_code( $body );
+		if ( $status > 0 ) {
+			$response->set_status( $status );
+		}
+
+		return $response;
 	}
 }
