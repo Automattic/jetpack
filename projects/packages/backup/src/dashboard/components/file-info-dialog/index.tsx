@@ -76,11 +76,7 @@ export default function FileInfoDialog( { file, onClose }: Props ) {
 				</Dialog.Header>
 				<Dialog.Content className="jpb-file-info-dialog__body">
 					<FileInfoMeta modified={ modified } size={ size } mimeType={ mimeType } hash={ hash } />
-					{ /*
-					 * The gray surface has to be the scrollport, not the `<pre>`: a
-					 * `<pre>` that only paints a background lets long lines render
-					 * past it, onto a `Dialog.Content` that clips without scrolling.
-					 */ }
+					{ /* Focusable because `handleReveal` hands focus here. */ }
 					<div
 						ref={ previewRef }
 						className="jpb-file-info-dialog__preview"

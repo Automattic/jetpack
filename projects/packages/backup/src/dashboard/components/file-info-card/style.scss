@@ -46,9 +46,9 @@
 		// `anywhere` breaks the unbroken runs — minified JS, base64 — that
 		// `pre-wrap` alone will not.
 		overflow-wrap: anywhere;
-		// The scroller stays here rather than on the panel, which is
-		// `overflow-x: hidden`: an RTL panel cannot scroll to a `dir="ltr"`
-		// box's inline-start overflow.
+		// Belt behind the wrapping, and it lives here rather than on the
+		// card's panel (`overflow-x: hidden`): an RTL panel cannot scroll to
+		// a `dir="ltr"` box's inline-start overflow.
 		overflow-x: auto;
 		color: var(--wp-components-color-foreground, #1e1e1e);
 	}

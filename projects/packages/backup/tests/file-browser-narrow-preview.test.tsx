@@ -230,8 +230,8 @@ it( 'measures the menu by the room it takes, not the edge it takes it from', asy
 	expect( popup.style.getPropertyValue( '--jpb-admin-menu-width' ) ).toBe( '160px' );
 } );
 
-// A scrollport nothing can focus cannot be scrolled by keyboard, and long code
-// lines are the whole reason the dialog exists.
+// The reveal click unmounts the button holding focus, and this region is where
+// the dialog hands it back.
 it( 'gives the dialog preview a named region focus can enter, as the card has', async () => {
 	panel = mockPanelWidth( 480 );
 
