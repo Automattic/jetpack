@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Forms: Cap the rating scale when rendering a response so a malformed value cannot exhaust memory.

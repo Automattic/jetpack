@@ -742,6 +742,58 @@ class Feedback_Field_Test extends BaseTestCase {
 		$this->assertStringNotContainsString( '&#9733;', $value );
 	}
 
+	/**
+	 * A visitor picks a rating from radio inputs whose value is "<selected>/<max>",
+	 * so the scale is POST data and a forged one must not become a loop bound.
+	 */
+	public function test_rating_field_clamps_forged_scale_in_email_html_context() {
+		$field = new Feedback_Field( 'rating_key', 'Rating', '3/5000', 'rating', array( 'iconStyle' => 'stars' ) );
+
+		$value = $field->get_render_value( 'email_html' );
+
+		$this->assertSame( Feedback_Field::MAX_RATING_ICONS, substr_count( $value, '&#9733;' ) );
+	}
+
+	/**
+	 * The production OOM: a scale large enough to exhaust the memory limit while
+	 * concatenating one span per icon.
+	 */
+	public function test_rating_field_with_huge_scale_does_not_exhaust_memory() {
+		$field = new Feedback_Field( 'rating_key', 'Rating', '1/50000000', 'rating', array( 'iconStyle' => 'stars' ) );
+
+		$value = $field->get_render_value( 'email_html' );
+
+		$this->assertSame( Feedback_Field::MAX_RATING_ICONS, substr_count( $value, '&#9733;' ) );
+	}
+
+	/**
+	 * The structured value feeds the web/API renderers, which loop over maxRating
+	 * in JavaScript, so it needs the same bound the email path has.
+	 */
+	public function test_rating_field_clamps_forged_scale_in_web_context() {
+		$field = new Feedback_Field( 'rating_key', 'Rating', '3/5000', 'rating', array( 'iconStyle' => 'stars' ) );
+
+		$value = $field->get_render_value( 'web' );
+
+		$this->assertIsArray( $value );
+		$this->assertSame( Feedback_Field::MAX_RATING_ICONS, $value['maxRating'] );
+		$this->assertSame( 3, $value['rating'] );
+	}
+
+	/**
+	 * Clamping the scale must also pull the selected value down with it, or a
+	 * "3000/5000" submission renders every icon filled on a 10-icon scale.
+	 */
+	public function test_rating_field_clamps_selected_value_to_clamped_scale() {
+		$field = new Feedback_Field( 'rating_key', 'Rating', '3000/5000', 'rating', array( 'iconStyle' => 'stars' ) );
+
+		$value = $field->get_render_value( 'web' );
+
+		$this->assertIsArray( $value );
+		$this->assertSame( Feedback_Field::MAX_RATING_ICONS, $value['maxRating'] );
+		$this->assertSame( Feedback_Field::MAX_RATING_ICONS, $value['rating'] );
+	}
+
 	// ─── Email HTML rendering tests ───
 
 	/**
