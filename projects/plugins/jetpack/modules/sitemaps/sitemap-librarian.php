@@ -253,6 +253,45 @@ class Jetpack_Sitemap_Librarian {
 	}
 
 	/**
+	 * Retrieve the timestamp of every stored sitemap of a given type, keyed by filename.
+	 *
+	 * Deliberately skips post_content: a caller listing sitemaps in an index needs
+	 * only the filename and its timestamp, and the bodies are large enough that
+	 * loading a site's worth of them is a real memory cost. Keying by filename
+	 * also means the caller does not have to assume anything about row order.
+	 *
+	 * @access public
+	 * @since 16.2
+	 *
+	 * @param string $type Type of the sitemap rows to retrieve.
+	 *
+	 * @return array Map of sitemap filename to its 'YYYY-MM-DD hh:mm:ss' timestamp.
+	 */
+	public function query_sitemap_timestamps( $type ) {
+		global $wpdb;
+
+		$rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+			$wpdb->prepare(
+				"SELECT post_title, post_date
+					FROM $wpdb->posts
+					WHERE post_type=%s
+						AND post_status=%s;",
+				$type,
+				'draft'
+			),
+			ARRAY_A
+		);
+
+		$timestamps = array();
+
+		foreach ( (array) $rows as $row ) {
+			$timestamps[ $row['post_title'] ] = $row['post_date'];
+		}
+
+		return $timestamps;
+	}
+
+	/**
 	 * Retrieve an array of sitemap rows (of a given type) sorted by ID.
 	 *
 	 * Returns the smallest $num_posts sitemap rows (measured by ID)
