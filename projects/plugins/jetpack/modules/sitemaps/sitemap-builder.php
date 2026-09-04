@@ -561,6 +561,25 @@ class Jetpack_Sitemap_Builder { // phpcs:ignore Generic.Files.OneObjectStructure
 	}
 
 	/**
+	 * Create the buffer a master sitemap is assembled in.
+	 *
+	 * Extracted as a protected seam so a test can hand back a buffer small
+	 * enough to overflow without generating a million URLs.
+	 *
+	 * @access protected
+	 * @since 16.2
+	 *
+	 * @return Jetpack_Sitemap_Buffer|Jetpack_Sitemap_Buffer_XMLWriter|false The buffer, or false if one cannot be created.
+	 */
+	protected function create_master_buffer() {
+		return Jetpack_Sitemap_Buffer_Factory::create(
+			'master',
+			JP_SITEMAP_MAX_ITEMS,
+			JP_SITEMAP_MAX_BYTES
+		);
+	}
+
+	/**
 	 * Build a master sitemap buffer listing every individual sitemap file.
 	 *
 	 * The buffer's item and byte limits can both stop this short, and how soon
@@ -580,11 +599,7 @@ class Jetpack_Sitemap_Builder { // phpcs:ignore Generic.Files.OneObjectStructure
 	 * @return Jetpack_Sitemap_Buffer|Jetpack_Sitemap_Buffer_XMLWriter|string The buffer, or MASTER_OVERFLOW / MASTER_INCOMPLETE.
 	 */
 	private function build_flat_master_buffer( $sitemap_types, $max ) {
-		$buffer = Jetpack_Sitemap_Buffer_Factory::create(
-			'master',
-			JP_SITEMAP_MAX_ITEMS,
-			JP_SITEMAP_MAX_BYTES
-		);
+		$buffer = $this->create_master_buffer();
 
 		if ( ! $buffer ) {
 			return self::MASTER_INCOMPLETE;
@@ -644,11 +659,7 @@ class Jetpack_Sitemap_Builder { // phpcs:ignore Generic.Files.OneObjectStructure
 	 * @return Jetpack_Sitemap_Buffer|Jetpack_Sitemap_Buffer_XMLWriter|string The buffer, or MASTER_INCOMPLETE.
 	 */
 	private function build_nested_master_buffer( $sitemap_types, $max ) {
-		$buffer = Jetpack_Sitemap_Buffer_Factory::create(
-			'master',
-			JP_SITEMAP_MAX_ITEMS,
-			JP_SITEMAP_MAX_BYTES
-		);
+		$buffer = $this->create_master_buffer();
 
 		if ( ! $buffer ) {
 			return self::MASTER_INCOMPLETE;
