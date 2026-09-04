@@ -53,11 +53,9 @@ export {
 export { default as BoostScoreBar } from './components/boost-score-bar/index.tsx';
 export { default as BoostScoreGraph } from './components/boost-score-graph/index.tsx';
 export { default as ProductPrice } from './components/product-price/index.tsx';
-export { default as ProductOffer, IconsCard } from './components/product-offer/index.tsx';
 export { default as DotPager } from './components/dot-pager/index.tsx';
 export { default as DonutMeter } from './components/donut-meter/index.tsx';
 export { default as RecordMeterBar } from './components/record-meter-bar/index.tsx';
-export { default as Alert } from './components/alert/index.tsx';
 export { default as Notice } from './components/notice/index.tsx';
 export { default as Popover } from './components/popover/index.tsx';
 export { default as IndeterminateProgressBar } from './components/indeterminate-progress-bar/index.tsx';
