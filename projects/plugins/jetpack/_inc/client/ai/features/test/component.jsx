@@ -73,6 +73,19 @@ describe( 'AiFeatures rendering', () => {
 		expect( screen.queryByRole( 'separator' ) ).not.toBeInTheDocument();
 	} );
 
+	test( 'an unavailable AI Answers row and its empty Search section stay hidden', () => {
+		renderFeatures( {
+			features: {
+				writing_assistant: { enabled: true },
+				ai_search: { enabled: true, available: false },
+			},
+		} );
+
+		expect( screen.getByRole( 'checkbox', { name: /Writing Assistant/ } ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'checkbox', { name: /AI Answers/ } ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'region', { name: 'Search' } ) ).not.toBeInTheDocument();
+	} );
+
 	test( 'the connect notice survives the card disappearing', () => {
 		renderFeatures( { is_connected: false, features: {} } );
 

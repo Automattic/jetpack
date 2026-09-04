@@ -346,6 +346,7 @@ function UsageCard( { upgradeUrl, planName } ) {
  *                                          usage is shown and no upgrade is ever offered.
  * @param {boolean} [props.isUserConnected] - Whether the current user's own WordPress.com
  *                                          account is linked; the usage fetch needs it.
+ * @param {string}  props.userConnectionUrl - URL for connecting the current user.
  * @return {object} Component markup.
  */
 export default function AiOverview( {
@@ -356,6 +357,7 @@ export default function AiOverview( {
 	showActivityLog,
 	hostAllowsAi,
 	isUserConnected,
+	userConnectionUrl,
 } ) {
 	const hostBlocked = hostAllowsAi === false;
 	const userUnlinked = isUserConnected === false;
@@ -388,7 +390,7 @@ export default function AiOverview( {
 							{ __( 'Your WordPress.com account isn’t connected.', 'jetpack' ) }
 						</Notice.Title>
 						<Notice.Description>
-							<Link href="admin.php?page=my-jetpack#/connection">
+							<Link href={ userConnectionUrl }>
 								{ __( 'Connect your user account to see your AI usage.', 'jetpack' ) }
 							</Link>
 						</Notice.Description>

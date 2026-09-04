@@ -89,6 +89,7 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings_Test extends Jetpack_REST_T
 		}
 		remove_filter( 'wp_supports_ai', '__return_false' );
 		Constants::clear_single_constant( 'IS_WPCOM' );
+		Constants::clear_single_constant( 'WPCOM_IS_VIP_ENV' );
 
 		delete_option( Search_Plan::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY );
 
@@ -440,8 +441,21 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings_Test extends Jetpack_REST_T
 		// page only carries the AI SEO row.
 		$this->assertArrayNotHasKey( 'seo_enhancer', $features );
 		$this->assertFalse( $features['ai_search']['enabled'] );
+		$this->assertTrue( $features['ai_search']['available'] );
 		// No paid Search product in the test environment.
 		$this->assertTrue( $features['ai_search']['requires_upgrade'] );
+	}
+
+	/**
+	 * VIP sites cannot reach the Search settings page that owns AI Answers.
+	 */
+	public function test_ai_search_is_unavailable_on_vip_sites() {
+		wp_set_current_user( self::$admin_id );
+		Constants::set_constant( 'WPCOM_IS_VIP_ENV', true );
+
+		$data = $this->dispatch( 'GET' )->get_data();
+
+		$this->assertFalse( $data['features']['ai_search']['available'] );
 	}
 
 	/**

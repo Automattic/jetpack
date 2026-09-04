@@ -276,11 +276,14 @@ class Jetpack_AI_Page {
 			'jetpack_ai_admin_config',
 			array(
 				// The Overview and Features views launch on self-hosted sites first.
-				// Keep this filterable so hosts can close them independently.
-				'showGatedViews'  => ! $host->is_wpcom_platform() || ( $host->is_woa_site() && $is_internal_test ),
-				'showA12sBadge'   => $host->is_woa_site() && $is_internal_test,
-				'isUserConnected' => ( new Connection_Manager() )->is_user_connected(),
-				'mcpSettingsApi'  => array(
+				// Filtering showGatedViews changes view visibility only, not enforcement.
+				'showGatedViews'    => ! $host->is_wpcom_platform() || ( $host->is_woa_site() && $is_internal_test ),
+				'showA12sBadge'     => $host->is_woa_site() && $is_internal_test,
+				'isUserConnected'   => ( new Connection_Manager() )->is_user_connected(),
+				'userConnectionUrl' => $host->is_vip_site()
+					? 'admin.php?page=jetpack#/connect-user'
+					: 'admin.php?page=my-jetpack#/connection',
+				'mcpSettingsApi'    => array(
 					'path'   => '/wpcom/v2/jetpack-ai/mcp-settings',
 					'format' => 'jetpack',
 				),
@@ -292,39 +295,40 @@ class Jetpack_AI_Page {
 		$plan_info = $show_gated_views ? self::get_ai_plan_info() : array( 'name' => '' );
 
 		$settings = array(
-			'blogId'           => $blog_id ? (int) $blog_id : 0,
-			'activityLogUrl'   => $activity_log_url,
-			'seoSettingsUrl'   => $seo_settings_url,
-			'siteAdminUrl'     => admin_url(),
-			'apiRoot'          => esc_url_raw( rest_url() ),
-			'apiNonce'         => wp_create_nonce( 'wp_rest' ),
-			'pluginUrl'        => plugins_url( '', JETPACK__PLUGIN_FILE ),
+			'blogId'            => $blog_id ? (int) $blog_id : 0,
+			'activityLogUrl'    => $activity_log_url,
+			'seoSettingsUrl'    => $seo_settings_url,
+			'siteAdminUrl'      => admin_url(),
+			'userConnectionUrl' => esc_url_raw( $config['userConnectionUrl'] ),
+			'apiRoot'           => esc_url_raw( rest_url() ),
+			'apiNonce'          => wp_create_nonce( 'wp_rest' ),
+			'pluginUrl'         => plugins_url( '', JETPACK__PLUGIN_FILE ),
 			// The redirect entry bakes in the jetpack_ai_yearly product and
 			// a post-checkout return to this page, so both can be
 			// retargeted without shipping a code change.
-			'upgradeUrl'       => Redirect::get_url( 'jetpack-ai-hub-upgrade' ),
+			'upgradeUrl'        => Redirect::get_url( 'jetpack-ai-hub-upgrade' ),
 			// The purchase granting AI — the usage card only uses it to pick
 			// the right loading-skeleton shape before the usage fetch lands.
 			// Only looked up when a gated view can render the card.
-			'planName'         => $plan_info['name'],
-			'showFeaturesView' => $show_gated_views,
-			'showA12sBadge'    => ! empty( $config['showA12sBadge'] ),
+			'planName'          => $plan_info['name'],
+			'showFeaturesView'  => $show_gated_views,
+			'showA12sBadge'     => ! empty( $config['showA12sBadge'] ),
 			// The tab and its Agents Manager sidebar ship disabled by default.
-			'featureFlags'     => array(
+			'featureFlags'      => array(
 				Jetpack_AI_Feature_Flags::SCHEDULED_TASKS => $show_scheduled_tasks_view,
 			),
 			// The usage endpoint proxies as the current user, which needs
 			// their own WordPress.com account linked — not just the site.
-			'isUserConnected'  => ! empty( $config['isUserConnected'] ),
+			'isUserConnected'   => ! empty( $config['isUserConnected'] ),
 			// Tracks audience properties for the jetpack_mcp_* events, per the
 			// Tracks standards for AI product events (AIINT-586). The client
 			// sends them as the strings 'true'/'false' (AIINT-576).
-			'isA11n'           => self::is_current_user_automattician(),
-			'isTest'           => $is_internal_test,
+			'isA11n'            => self::is_current_user_automattician(),
+			'isTest'            => $is_internal_test,
 			// Identity for Tracks; the lookup can call WordPress.com on a
 			// cache miss, so it shares the sender's guard.
-			'tracksUserData'   => $can_send_tracks ? self::get_tracks_user_data() : null,
-			'mcpSettingsApi'   => $config['mcpSettingsApi'],
+			'tracksUserData'    => $can_send_tracks ? self::get_tracks_user_data() : null,
+			'mcpSettingsApi'    => $config['mcpSettingsApi'],
 		);
 
 		wp_add_inline_script(
