@@ -246,11 +246,13 @@ class Utils {
 			return false;
 		}
 
-		if ( ! wp_http_validate_url( $url ) ) {
+		// Parse what core accepted, not what we were handed: it returns a normalized URL.
+		$validated_url = wp_http_validate_url( $url );
+		if ( ! $validated_url ) {
 			return false;
 		}
 
-		$host = wp_parse_url( $url, PHP_URL_HOST );
+		$host = wp_parse_url( $validated_url, PHP_URL_HOST );
 		if ( ! is_string( $host ) || '' === $host ) {
 			return false;
 		}
@@ -277,8 +279,8 @@ class Utils {
 	 *
 	 * IP literals are returned as-is. Host names are resolved to their IPv4 and
 	 * IPv6 addresses so every address a request could connect to is checked. An
-	 * empty list means resolution failed; callers must treat that as unsafe rather
-	 * than letting the host through.
+	 * empty list means the host is unusable -- malformed, or it resolved to nothing
+	 * -- and callers must treat that as unsafe rather than letting the host through.
 	 *
 	 * @since $$next-version$$
 	 *
@@ -293,12 +295,18 @@ class Utils {
 		// IPv6 literals arrive bracketed, e.g. "[::1]".
 		$host = trim( $host, '[]' );
 
-		// URL-decode so a percent-encoded host (e.g. "169%2e254%2e169%2e254")
-		// cannot slip past the IP-literal and DNS checks, then strip any IPv6 zone
-		// identifier (e.g. "fe80::1%eth0") -- which only becomes visible once "%25"
-		// is decoded to "%".
+		// URL-decode so a percent-encoded host (e.g. "169%2e254%2e169%2e254") cannot
+		// slip past the IP-literal and DNS checks below.
 		$host = rawurldecode( $host );
+
+		// Strip an IPv6 zone identifier (e.g. "fe80::1%eth0"), only visible once "%25"
+		// is decoded. Zone ids are IPv6-only, so a '%' on anything else is malformed:
+		// reject it rather than normalizing it into a host that looks safe, which is
+		// how ip_is_public() treats the same input.
 		if ( false !== strpos( $host, '%' ) ) {
+			if ( false === strpos( $host, ':' ) ) {
+				return array();
+			}
 			$host = preg_replace( '/%.*$/', '', $host );
 		}
 

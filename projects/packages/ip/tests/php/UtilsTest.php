@@ -350,7 +350,7 @@ final class UtilsTest extends PHPUnit\Framework\TestCase {
 
 		$public_urls = array(
 			'http://8.8.8.8/image.jpg',
-			'https://203.0.113.10/a/b?c=d#e',
+			'https://1.1.1.1/a/b?c=d#e',
 			'https://[2606:4700:4700::1111]/image.jpg',
 			'https://[::ffff:8.8.8.8]/image.jpg',
 		);
@@ -381,6 +381,7 @@ final class UtilsTest extends PHPUnit\Framework\TestCase {
 			'http://[fd00::1]/internal',                 // IPv6 unique-local.
 			'http://[::ffff:169.254.169.254]/',          // IPv4-mapped metadata.
 			'http://169%2e254%2e169%2e254/',             // Percent-encoded metadata host.
+			'http://8.8.8.8%foo/',                       // Zone id on a non-IPv6 host.
 		);
 		foreach ( $rejected_urls as $url ) {
 			$this->assertFalse( Utils::url_is_public( $url ), "$url should not be public" );
@@ -419,6 +420,19 @@ final class UtilsTest extends PHPUnit\Framework\TestCase {
 	}
 
 	/**
+	 * The host checked is the one core handed back, not the one we passed in.
+	 *
+	 * Core returns a normalized URL, so parsing the argument instead would check a
+	 * host it never approved.
+	 */
+	public function test_url_is_public_checks_the_url_core_returned() {
+		$this->stub_url_helpers();
+		Functions\when( 'wp_http_validate_url' )->justReturn( 'http://169.254.169.254/' );
+
+		$this->assertFalse( Utils::url_is_public( 'http://8.8.8.8/image.jpg' ) );
+	}
+
+	/**
 	 * `resolve_host_ips` returns IP literals as-is, after undoing the encodings a
 	 * caller could hide one behind.
 	 */
@@ -431,6 +445,20 @@ final class UtilsTest extends PHPUnit\Framework\TestCase {
 		);
 		foreach ( $literals as $host => $expected ) {
 			$this->assertSame( array( $expected ), Utils::resolve_host_ips( (string) $host ) );
+		}
+	}
+
+	/**
+	 * A '%' outside an IPv6 address is malformed, so the host resolves to nothing.
+	 *
+	 * Trimming it back to the prefix instead would launder a bad host into a public
+	 * one, undoing the same guard ip_is_public() applies.
+	 */
+	public function test_resolve_host_ips_rejects_zone_id_on_non_ipv6_host() {
+		$malformed = array( '8.8.8.8%foo', '8.8.8.8%25foo', 'example.com%foo' );
+		foreach ( $malformed as $host ) {
+			$this->assertSame( array(), Utils::resolve_host_ips( $host ), "$host should resolve to nothing" );
+			$this->assertFalse( Utils::ip_is_public( $host ), "$host should not be public" );
 		}
 	}
 
