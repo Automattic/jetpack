@@ -211,9 +211,14 @@ class Dashboard {
 	public function check_plan_deactivate_search_module( $current_screen ) {
 		// Only run on Jetpack admin pages.
 		// The first two checks for current screen are cheap to run on every page.
+		// The get_plan_info() check requires an actual cached answer before
+		// deciding to deactivate — an empty/backed-off lookup must not read as
+		// "unsupported" (it isn't redundant with the calls inside supports_search()
+		// and must_upgrade() below).
 		if (
 			property_exists( $current_screen, 'base' ) &&
 			strpos( $current_screen->base, 'jetpack_page_' ) !== false &&
+			$this->plan->get_plan_info() &&
 			( ! $this->plan->supports_search() || $this->plan->must_upgrade() )
 		) {
 			$this->module_control->deactivate();

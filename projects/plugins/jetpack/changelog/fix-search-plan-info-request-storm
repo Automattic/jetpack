@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Search: Reduce unnecessary requests to WordPress.com for plan information.

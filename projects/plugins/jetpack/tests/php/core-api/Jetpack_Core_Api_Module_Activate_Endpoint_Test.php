@@ -504,4 +504,52 @@ class Jetpack_Core_Api_Module_Activate_Endpoint_Test extends Jetpack_REST_TestCa
 			delete_option( Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION );
 		}
 	}
+
+	/**
+	 * The search_auto_config setting forces a plan check (Automattic\Jetpack\Search\Plan::ensure_plan_info_populated())
+	 * before deciding whether Instant Search is supported, rather than trusting
+	 * a possibly-empty cache outright. With an empty cache and no answer
+	 * already attempted this request, that must make exactly one live request.
+	 *
+	 * The per-request guard in ensure_plan_info_populated() is reset here via
+	 * Reflection because Initializer::init() (Config::ensure('search'), which
+	 * runs on every real plugins_loaded) already makes its own ambient attempt
+	 * before this endpoint ever runs -- that's the correct, intended behavior
+	 * in production (don't retry a request that already failed this request),
+	 * but it means this test has to simulate "first attempt this request"
+	 * explicitly to isolate what search_auto_config itself does.
+	 */
+	public function test_search_auto_config_makes_only_one_plan_request_on_empty_cache() {
+		delete_option( \Automattic\Jetpack\Search\Plan::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY );
+		delete_transient( \Automattic\Jetpack\Search\Plan::PLAN_FETCH_BACKOFF_TRANSIENT_KEY );
+
+		$prop = ( new \ReflectionClass( \Automattic\Jetpack\Search\Plan::class ) )->getProperty( 'fetch_attempted_this_request' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$prop->setAccessible( true );
+		}
+		$prop->setValue( null, array() );
+
+		\Jetpack_Options::update_option( 'id', '999' );
+		\Jetpack_Options::update_option( 'blog_token', 'new.blogtoken' );
+
+		$request_count = 0;
+		$counter       = function ( $response, $parsed_args, $url ) use ( &$request_count ) {
+			if ( strpos( $url, '/jetpack-search/plan' ) !== false ) {
+				++$request_count;
+				return new WP_Error( 'request_failed' );
+			}
+			return $response;
+		};
+		add_filter( 'pre_http_request', $counter, 20, 3 );
+
+		$request = new WP_REST_Request();
+		$request->set_body_params( array( 'search_auto_config' => true ) );
+
+		( new Jetpack_Core_API_Data() )->update_data( $request );
+
+		remove_filter( 'pre_http_request', $counter, 20 );
+		delete_transient( \Automattic\Jetpack\Search\Plan::PLAN_FETCH_BACKOFF_TRANSIENT_KEY );
+
+		$this->assertSame( 1, $request_count );
+	}
 }
