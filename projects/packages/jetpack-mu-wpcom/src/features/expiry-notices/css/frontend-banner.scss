@@ -1,14 +1,14 @@
 // Fixed under the admin bar. Themes that respect the admin-bar height variable
 // get pushed down by the same amount through the body class.
-$banner-height: 48px;
 $admin-bar-height: 32px;
 $admin-bar-height-mobile: 46px;
 
 body.has-wpcom-expiry-banner {
-	--wp-admin--admin-bar--height: #{$banner-height};
+	--wp-admin--admin-bar--height: var(--wpcom-expiry-banner-height, 0px);
+	margin-block-start: var(--wpcom-expiry-banner-height, 0);
 
 	&.admin-bar {
-		--wp-admin--admin-bar--height: #{$admin-bar-height + $banner-height};
+		--wp-admin--admin-bar--height: calc(#{$admin-bar-height} + var(--wpcom-expiry-banner-height, 0px));
 	}
 }
 
@@ -19,7 +19,6 @@ body.has-wpcom-expiry-banner {
 	// One below #wpadminbar, above everything a theme fixes to the top.
 	z-index: 99998;
 	box-sizing: border-box;
-	min-block-size: $banner-height;
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
@@ -77,7 +76,7 @@ body.has-wpcom-expiry-banner {
 @media screen and ( max-width: 782px ) {
 
 	body.has-wpcom-expiry-banner.admin-bar {
-		--wp-admin--admin-bar--height: #{$admin-bar-height-mobile + $banner-height};
+		--wp-admin--admin-bar--height: calc(#{$admin-bar-height-mobile} + var(--wpcom-expiry-banner-height, 0px));
 	}
 
 	.wpcom-expiry-frontend-banner {
@@ -87,5 +86,12 @@ body.has-wpcom-expiry-banner {
 		body.admin-bar & {
 			inset-block-start: $admin-bar-height-mobile;
 		}
+	}
+}
+
+@media screen and ( max-width: 600px ) {
+
+	.wpcom-expiry-frontend-banner {
+		position: absolute;
 	}
 }

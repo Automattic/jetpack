@@ -23,6 +23,12 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		return;
 	}
 
+	// The copy wraps at narrow widths, so the offset is measured, not fixed.
+	const setOffset = () =>
+		document.body.style.setProperty( '--wpcom-expiry-banner-height', `${ banner.offsetHeight }px` );
+	setOffset();
+	new ResizeObserver( setOffset ).observe( banner );
+
 	const trackProps = {
 		state: data.state,
 		days_remaining: data.daysRemaining,
