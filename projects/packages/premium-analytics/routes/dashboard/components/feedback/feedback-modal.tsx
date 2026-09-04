@@ -1,6 +1,7 @@
 /**
  * WordPress dependencies
  */
+import { submitStatsUserFeedback, type StatsFeedbackRating } from '@jetpack-premium-analytics/data';
 import { Button, Notice, Stack, Text } from '@jetpack-premium-analytics/externals';
 import { Modal, RadioControl, TextareaControl } from '@wordpress/components';
 import { useCallback, useState } from '@wordpress/element';
@@ -10,11 +11,13 @@ import { __ } from '@wordpress/i18n';
  */
 import { useTrackEvent } from '../../hooks/use-track-event';
 
-type Rating = 1 | 2 | 3 | 4 | 5;
-
 // Tracks drops an event whose properties are oversized, so a pasted essay would
 // cost us the rating too.
 const COMMENT_MAX_LENGTH = 1000;
+
+// Reaches Happiness as the subject line of the feedback email ("Feedback received
+// from …"), so it has to name the surface without any further context.
+const PRODUCT_NAME = 'Jetpack Stats v2';
 
 /**
  * The comparison scale, worst to best. `value` is the score that reaches Tracks.
@@ -52,7 +55,8 @@ type FeedbackModalProps = {
 };
 
 /**
- * Comparison rating with an optional comment, recorded as a single Tracks event.
+ * Comparison rating with an optional comment. Both reach Tracks as one event; a non-empty
+ * comment also goes to the Stats feedback endpoint.
  *
  * @param {FeedbackModalProps} props         - Component props.
  * @param {Function}           props.onClose - Called once the reader dismisses the modal.
@@ -60,7 +64,7 @@ type FeedbackModalProps = {
  */
 export function FeedbackModal( { onClose }: FeedbackModalProps ) {
 	const trackEvent = useTrackEvent();
-	const [ rating, setRating ] = useState< Rating | null >( null );
+	const [ rating, setRating ] = useState< StatsFeedbackRating | null >( null );
 	const [ comment, setComment ] = useState( '' );
 	const [ hasSubmitted, setHasSubmitted ] = useState( false );
 
@@ -74,7 +78,7 @@ export function FeedbackModal( { onClose }: FeedbackModalProps ) {
 	);
 
 	const selectRating = useCallback(
-		( value: string ) => setRating( Number( value ) as Rating ),
+		( value: string ) => setRating( Number( value ) as StatsFeedbackRating ),
 		[]
 	);
 
@@ -83,10 +87,21 @@ export function FeedbackModal( { onClose }: FeedbackModalProps ) {
 			return;
 		}
 
-		trackEvent( 'jetpack_premium_analytics_feedback_submit', {
-			rating,
-			comment: comment.trim(),
-		} );
+		const message = comment.trim();
+
+		trackEvent( 'jetpack_premium_analytics_feedback_submit', { rating, comment: message } );
+
+		// Second channel, deliberately not awaited: Tracks is a pixel and ad blockers drop it
+		// silently, so the message also goes to Happiness where delivery is not the reader's
+		// browser's decision. A rating alone would only open an empty ticket.
+		if ( message ) {
+			submitStatsUserFeedback( { rating, comment: message, productName: PRODUCT_NAME } ).catch(
+				() => {
+					// The reader has already been thanked and Tracks may well have the submission;
+					// a second, contradictory message would cost more than the lost email.
+				}
+			);
+		}
 
 		setHasSubmitted( true );
 	}, [ comment, rating, trackEvent ] );

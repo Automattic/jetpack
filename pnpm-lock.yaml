@@ -3832,9 +3832,6 @@ importers:
       '@automattic/charts':
         specifier: workspace:*
         version: link:../../js-packages/charts
-      '@automattic/date-range-picker':
-        specifier: 1.0.2
-        version: 1.0.2(@types/react@18.3.31)(@wordpress/components@40.0.0(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/compose@8.7.0(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/date@5.54.0)(@wordpress/i18n@6.27.0)(@wordpress/icons@15.5.0(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@automattic/jetpack-analytics':
         specifier: workspace:*
         version: link:../../js-packages/analytics
@@ -3853,9 +3850,6 @@ importers:
       '@automattic/number-formatters':
         specifier: workspace:*
         version: link:../../js-packages/number-formatters
-      '@automattic/ui':
-        specifier: 1.0.2
-        version: 1.0.2(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/api-fetch':
         specifier: 7.54.0
         version: 7.54.0
@@ -4742,11 +4736,11 @@ importers:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
       react-redux:
-        specifier: 7.2.8
-        version: 7.2.8(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 9.3.0
+        version: 9.3.0(@types/react@18.3.31)(react@18.3.1)(redux@5.0.1)
       redux:
-        specifier: 4.2.1
-        version: 4.2.1
+        specifier: 5.0.1
+        version: 5.0.1
       refx:
         specifier: 3.1.1
         version: 3.1.1
@@ -5450,6 +5444,30 @@ importers:
       '@playwright/test':
         specifier: 1.60.0
         version: 1.60.0
+      allure-playwright:
+        specifier: 2.15.1
+        version: 2.15.1
+      config:
+        specifier: 4.4.1
+        version: 4.4.1
+      playwright-ctrf-json-reporter:
+        specifier: ^0.0.26
+        version: 0.0.26
+
+  projects/plugins/backup/tests/e2e:
+    devDependencies:
+      '@automattic/_jetpack-e2e-commons':
+        specifier: workspace:*
+        version: link:../../../../../tools/e2e-commons
+      '@playwright/test':
+        specifier: 1.60.0
+        version: 1.60.0
+      '@types/node':
+        specifier: ^24.12.0
+        version: 24.13.3
+      '@typescript/native-preview':
+        specifier: 7.0.0-dev.20260707.2
+        version: 7.0.0-dev.20260707.2
       allure-playwright:
         specifier: 2.15.1
         version: 2.15.1
@@ -7153,17 +7171,6 @@ packages:
     resolution: {integrity: sha512-WXQiHSGLnwHGBGv5l7edluYILlY9dwgiDpFzl7aG1XNTZhDDcQfXQiEnNSmN9761VxEgwMbAiz0sICpNgu5p8w==}
     peerDependencies:
       '@wordpress/data': ^10.23.0
-      react: ^18.3.1
-      react-dom: ^18.3.1
-
-  '@automattic/date-range-picker@1.0.2':
-    resolution: {integrity: sha512-uK6xrI7v6pmj5TLcmBV9BERuPwqiAeG+pdC7gPZDoKJXMsFaWm1hfzYnPGGRk4R3ZwL28FYF8ZAZUoEUTgGf0w==}
-    peerDependencies:
-      '@wordpress/components': '>=32.1.0'
-      '@wordpress/compose': '>=7.23.0'
-      '@wordpress/date': '>=5.23.0'
-      '@wordpress/i18n': '>=5.23.0'
-      '@wordpress/icons': '>=10.23.0'
       react: ^18.3.1
       react-dom: ^18.3.1
 
@@ -10422,11 +10429,6 @@ packages:
   '@types/highlight-words-core@1.2.3':
     resolution: {integrity: sha512-PWNU/NR0CaYEsK38mcCTyDzeS2TlEGK9kRhRMz1i86jVAe836ZlA3gl6QYpu+CG6IpfNKTgWpEnJuRededvC0g==}
 
-  '@types/hoist-non-react-statics@3.3.7':
-    resolution: {integrity: sha512-PQTyIulDkIDro8P+IHbKCsw7U2xxBYflVzW/FgWdCAePD9xGSidgA76/GeJ6lBKoblyhf9pBY763gbrN+1dI8g==}
-    peerDependencies:
-      '@types/react': '*'
-
   '@types/http-errors@2.0.5':
     resolution: {integrity: sha512-r8Tayk8HJnX0FztbZN7oVqGccWgw98T/0neJphO91KkmOzug1KkofZURD4UaD5uH8AqcFLfdPErnBod0u71/qg==}
 
@@ -10500,9 +10502,6 @@ packages:
     resolution: {integrity: sha512-MEe3UeoENYVFXzoXEWsvcpg6ZvlrFNlOQ7EOsvhI3CfAXwzPfO8Qwuxd40nepsYKqyyVQnTdEfv68q91yLcKrQ==}
     peerDependencies:
       '@types/react': ^18.0.0
-
-  '@types/react-redux@7.1.34':
-    resolution: {integrity: sha512-GdFaVjEbYv4Fthm2ZLvj1VSCedV7TqE5y1kNwnjSdBOTXuRSgowux6J8TAct15T3CKBr63UMk+2CO7ilRhyrAQ==}
 
   '@types/react@18.3.31':
     resolution: {integrity: sha512-vfEqpXTvwT91yhmwdfouStN2hSKwTvyRs8qpLfADyrq/kxDw0hZM7Wk9Ug1FELj8hIby+S/+kQCSRFF32nv2Qw==}
@@ -16839,18 +16838,6 @@ packages:
   react-property@2.0.2:
     resolution: {integrity: sha512-+PbtI3VuDV0l6CleQMsx2gtK0JZbZKbpdu5ynr+lbsuvtmgbNcS3VM0tuY2QjFNOcWxvXeHjDpy42RO+4U2rug==}
 
-  react-redux@7.2.8:
-    resolution: {integrity: sha512-6+uDjhs3PSIclqoCk0kd6iX74gzrGc3W5zcAjbrFgEdIjRSQObdIwfx80unTkVUYvbQ95Y8Av3OvFHq1w5EOUw==}
-    peerDependencies:
-      react: ^16.8.3 || ^17 || ^18
-      react-dom: '*'
-      react-native: '*'
-    peerDependenciesMeta:
-      react-dom:
-        optional: true
-      react-native:
-        optional: true
-
   react-redux@9.3.0:
     resolution: {integrity: sha512-KQopgqFo/p/fgmAs5qz6p5RWaNAzq40WAu7fJIXnQpYxFPbJYtsJPWvGeF2rOBaY/kEuV77AVsX8TsQzKm+A/g==}
     peerDependencies:
@@ -19212,21 +19199,6 @@ snapshots:
       - stylelint
       - supports-color
       - vite
-
-  '@automattic/date-range-picker@1.0.2(@types/react@18.3.31)(@wordpress/components@40.0.0(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/compose@8.7.0(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/date@5.54.0)(@wordpress/i18n@6.27.0)(@wordpress/icons@15.5.0(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
-    dependencies:
-      '@automattic/ui': 1.0.2(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@wordpress/components': 40.0.0(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@wordpress/compose': 8.7.0(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@wordpress/date': 5.54.0
-      '@wordpress/i18n': 6.27.0
-      '@wordpress/icons': 15.5.0(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      date-fns: 4.1.0
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
-    transitivePeerDependencies:
-      - '@types/react'
-      - '@types/react-dom'
 
   '@automattic/explat-client-react-helpers@0.1.1':
     dependencies:
@@ -23039,11 +23011,6 @@ snapshots:
 
   '@types/highlight-words-core@1.2.3': {}
 
-  '@types/hoist-non-react-statics@3.3.7(@types/react@18.3.31)':
-    dependencies:
-      '@types/react': 18.3.31
-      hoist-non-react-statics: 3.3.2
-
   '@types/http-errors@2.0.5': {}
 
   '@types/istanbul-lib-coverage@2.0.6': {}
@@ -23115,13 +23082,6 @@ snapshots:
   '@types/react-dom@18.3.7(@types/react@18.3.31)':
     dependencies:
       '@types/react': 18.3.31
-
-  '@types/react-redux@7.1.34':
-    dependencies:
-      '@types/hoist-non-react-statics': 3.3.7(@types/react@18.3.31)
-      '@types/react': 18.3.31
-      hoist-non-react-statics: 3.3.2
-      redux: 4.2.1
 
   '@types/react@18.3.31':
     dependencies:
@@ -37493,18 +37453,6 @@ snapshots:
       warning: 4.0.3
 
   react-property@2.0.2: {}
-
-  react-redux@7.2.8(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
-    dependencies:
-      '@babel/runtime': 7.29.7
-      '@types/react-redux': 7.1.34
-      hoist-non-react-statics: 3.3.2
-      loose-envify: 1.4.0
-      prop-types: 15.8.1
-      react: 18.3.1
-      react-is: 17.0.2
-    optionalDependencies:
-      react-dom: 18.3.1(react@18.3.1)
 
   react-redux@9.3.0(@types/react@18.3.31)(react@18.3.1)(redux@5.0.1):
     dependencies:

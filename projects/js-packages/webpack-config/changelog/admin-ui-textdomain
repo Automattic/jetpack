@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Bundled WP packages: rewrite the text domain of `@wordpress/admin-ui` i18n calls too, so webpack builds that bundle it pass the i18n check.

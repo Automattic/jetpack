@@ -263,6 +263,8 @@ class Jetpack_AI_Page {
 			Connection_Initial_State::render_script( 'jetpack-ai-admin' );
 		}
 
+		$host = new Host();
+
 		/**
 		 * Filters the host-specific AI Hub configuration.
 		 *
@@ -273,10 +275,10 @@ class Jetpack_AI_Page {
 		$config = apply_filters(
 			'jetpack_ai_admin_config',
 			array(
-				// Pre-release gate for the Overview and Features views. When opening
-				// them to everyone, also drop the matching gate in My Jetpack's
-				// Jetpack_Ai::get_manage_url() so its links land here too.
-				'showGatedViews'  => $is_internal_test,
+				// The Overview and Features views launch on self-hosted sites first.
+				// Keep this filterable so hosts can close them independently.
+				'showGatedViews'  => ! $host->is_wpcom_platform() || ( $host->is_woa_site() && $is_internal_test ),
+				'showA12sBadge'   => $host->is_woa_site() && $is_internal_test,
 				'isUserConnected' => ( new Connection_Manager() )->is_user_connected(),
 				'mcpSettingsApi'  => array(
 					'path'   => '/wpcom/v2/jetpack-ai/mcp-settings',
@@ -291,6 +293,7 @@ class Jetpack_AI_Page {
 			'name'       => '',
 			'renews_on'  => '',
 			'auto_renew' => true,
+			'expired'    => false,
 		);
 
 		$settings = array(
@@ -313,9 +316,12 @@ class Jetpack_AI_Page {
 			// usage-period rollover is a different, monthly date.
 			'planRenewsOn'     => $plan_info['renews_on'],
 			// The same date reads "Renews on" or "Expires on" depending on
-			// auto-renew, matching My Jetpack and the wpcom subscriptions page.
+			// auto-renew, matching the wpcom subscriptions page.
 			'planAutoRenew'    => $plan_info['auto_renew'],
+			// Past tense wins over the auto-renew wording above.
+			'planExpired'      => $plan_info['expired'],
 			'showFeaturesView' => $show_gated_views,
+			'showA12sBadge'    => ! empty( $config['showA12sBadge'] ),
 			// The tab and its Agents Manager sidebar ship disabled by default.
 			'featureFlags'     => array(
 				Jetpack_AI_Feature_Flags::SCHEDULED_TASKS => $show_scheduled_tasks_view,
@@ -419,15 +425,16 @@ class Jetpack_AI_Page {
 	 * The renewal is the purchase's expiry date, matching what My Jetpack
 	 * shows — not the AI usage-period rollover, which is a different date.
 	 *
-	 * @return array{name: string, renews_on: string} Empty strings when nothing
-	 *                                                paid grants AI or the data
-	 *                                                is unavailable.
+	 * @return array{name: string, renews_on: string, auto_renew: bool, expired: bool}
+	 *         Empty strings when nothing paid grants AI or the data is
+	 *         unavailable.
 	 */
 	private static function get_ai_plan_info() {
 		$empty = array(
 			'name'       => '',
 			'renews_on'  => '',
 			'auto_renew' => true,
+			'expired'    => false,
 		);
 
 		if ( ! class_exists( '\Automattic\Jetpack\My_Jetpack\Products\Jetpack_Ai' ) ) {
@@ -455,7 +462,7 @@ class Jetpack_AI_Page {
 		}
 
 		$info = $empty;
-		if ( $purchase && ! empty( $purchase->product_name ) && 'expired' !== ( $purchase->expiry_status ?? '' ) ) {
+		if ( $purchase && ! empty( $purchase->product_name ) ) {
 			// The design shows the bare plan name ("Complete", "Business"), so
 			// trim the store names' brand prefixes; they are untranslated.
 			$info['name']      = (string) preg_replace( '/^(Jetpack|WordPress\.com) /', '', (string) $purchase->product_name );
@@ -464,6 +471,9 @@ class Jetpack_AI_Page {
 			// reports auto-renew off should relabel the date as an expiry.
 			$info['auto_renew'] = ! isset( $purchase->is_auto_renew_enabled )
 				|| (bool) $purchase->is_auto_renew_enabled;
+			// A lapsed plan keeps working through its grace period, so the card
+			// names it and says it expired instead of leaving the cell empty.
+			$info['expired'] = 'expired' === ( $purchase->expiry_status ?? '' );
 		}
 
 		set_transient( 'jetpack_ai_overview_plan_info', $info, HOUR_IN_SECONDS );

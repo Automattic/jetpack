@@ -114,14 +114,6 @@ function failFileTree( error: { code: string; message: string } ) {
 	} );
 }
 
-// jsdom implements no scrolling, and DataViews' list layout calls
-// `scrollIntoView` on the selected row. Defined rather than spied on:
-// `jest.spyOn` requires the property to already exist.
-Object.defineProperty( window.HTMLElement.prototype, 'scrollIntoView', {
-	value: () => {},
-	writable: true,
-} );
-
 beforeEach( () => {
 	queryClient.clear();
 	queryClient.setDefaultOptions( { queries: { retry: false } } );

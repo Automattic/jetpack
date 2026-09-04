@@ -13,8 +13,11 @@ describe( 'Series styling utility functions', () => {
 		options: {},
 	};
 
+	// `getSeriesStroke` takes the resolved palette as an argument rather than reading it
+	// off the theme, so this is a plain array of colors.
+	const palette = [ '#FF0000', '#00FF00', '#0000FF' ];
+
 	const mockTheme: Partial< ChartTheme > = {
-		colors: [ '#FF0000', '#00FF00', '#0000FF' ],
 		lineChart: {
 			lineStyles: {
 				comparison: {
@@ -40,17 +43,17 @@ describe( 'Series styling utility functions', () => {
 				options: { stroke: '#CUSTOM' },
 			};
 
-			const result = getSeriesStroke( seriesWithStroke, 0, mockTheme.colors );
+			const result = getSeriesStroke( seriesWithStroke, 0, palette );
 			expect( result ).toBe( '#CUSTOM' );
 		} );
 
-		it( 'returns theme color by index when no custom stroke', () => {
-			const result = getSeriesStroke( mockSeriesData, 1, mockTheme.colors );
+		it( 'returns the palette color by index when no custom stroke', () => {
+			const result = getSeriesStroke( mockSeriesData, 1, palette );
 			expect( result ).toBe( '#00FF00' ); // Second color
 		} );
 
-		it( 'wraps around theme colors when index exceeds array length', () => {
-			const result = getSeriesStroke( mockSeriesData, 5, mockTheme.colors );
+		it( 'wraps around the palette when index exceeds its length', () => {
+			const result = getSeriesStroke( mockSeriesData, 5, palette );
 			expect( result ).toBe( '#0000FF' ); // 5 % 3 = 2, third color
 		} );
 	} );
@@ -92,7 +95,7 @@ describe( 'Series styling utility functions', () => {
 		} );
 
 		it( 'returns empty object when no styles available', () => {
-			const themeWithoutStyles = { colors: [ '#FF0000' ] } as ChartTheme;
+			const themeWithoutStyles = { tickLength: 4 } as ChartTheme;
 			const result = getSeriesLineStyles( mockSeriesData, 0, themeWithoutStyles );
 			expect( result ).toEqual( {} );
 		} );
