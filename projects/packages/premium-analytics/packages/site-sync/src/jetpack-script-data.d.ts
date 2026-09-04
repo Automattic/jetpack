@@ -13,6 +13,8 @@ declare module '@automattic/jetpack-script-data' {
 			csv_exports_enabled?: boolean;
 			// Whether the site runs VideoPress, which gates the video surfaces.
 			has_videopress?: boolean;
+			// Section slugs the preview exposes. Absent when the dashboard is not scoped.
+			preview_sections?: string[];
 		};
 	}
 }

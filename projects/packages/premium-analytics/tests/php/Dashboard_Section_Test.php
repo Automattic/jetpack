@@ -1398,6 +1398,63 @@ class Dashboard_Section_Test extends BaseTestCase {
 	}
 
 	/**
+	 * The scope published to the client lists the tabs the preview exposes.
+	 */
+	public function test_preview_scope_sections_are_the_exposed_tabs() {
+		$this->enable_every_section();
+		update_option( Enablement_Setting::ENABLED_OPTION, 1 );
+
+		register_default_dashboard_sections();
+
+		$this->assertSame( array( 'traffic' ), get_dashboard_preview_scope_sections() );
+	}
+
+	/**
+	 * An unscoped dashboard publishes every tab, so the client gates nothing.
+	 */
+	public function test_preview_scope_sections_list_every_tab_when_unscoped() {
+		$this->enable_every_section();
+
+		register_default_dashboard_sections();
+
+		$this->assertSame(
+			array( 'traffic', 'insights', 'subscribers', 'store', 'ads' ),
+			get_dashboard_preview_scope_sections()
+		);
+	}
+
+	/**
+	 * Publishing an empty scope would hide every report, so an unhydrated registry
+	 * publishes nothing at all.
+	 */
+	public function test_preview_scope_sections_are_absent_before_the_registry_is_hydrated() {
+		update_option( Enablement_Setting::ENABLED_OPTION, 1 );
+
+		$this->assertNull( get_dashboard_preview_scope_sections() );
+		$this->assertSame( array(), inject_dashboard_preview_scope_script_data( array() ) );
+	}
+
+	/**
+	 * The scope reaches the client through the script data the dashboard page prints.
+	 */
+	public function test_preview_scope_script_data_carries_the_exposed_tabs() {
+		$this->enable_every_section();
+		update_option( Enablement_Setting::ENABLED_OPTION, 1 );
+
+		register_default_dashboard_sections();
+
+		$data = inject_dashboard_preview_scope_script_data( array( 'premium_analytics' => array( 'has_videopress' => true ) ) );
+
+		$this->assertSame(
+			array(
+				'has_videopress'   => true,
+				'preview_sections' => array( 'traffic' ),
+			),
+			$data['premium_analytics']
+		);
+	}
+
+	/**
 	 * The sections route drops the Subscribers tab once it is unavailable.
 	 */
 	public function test_sections_route_reflects_subscribers_availability() {
