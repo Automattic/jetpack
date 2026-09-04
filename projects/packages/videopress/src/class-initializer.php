@@ -429,7 +429,11 @@ class Initializer {
 				Inline_Player::render(
 					$guid,
 					Inline_Player::get_player_options( $block_attributes ),
-					$block_attributes['videoRatio'] ?? null
+					$block_attributes['videoRatio'] ?? null,
+					array(
+						'poster' => Inline_Player::get_poster_url( $guid, $block_attributes ),
+						'title'  => $block_attributes['title'] ?? '',
+					)
 				)
 			);
 		} elseif ( $videopress_url ) {
@@ -1074,9 +1078,13 @@ class Initializer {
 			return null;
 		}
 
+		$attributes = Inline_Player::get_attributes_from_embed_url( $url );
+
 		return Inline_Player::render(
 			$guid,
-			Inline_Player::get_player_options( Inline_Player::get_attributes_from_embed_url( $url ) )
+			Inline_Player::get_player_options( $attributes ),
+			null,
+			array( 'poster' => Inline_Player::get_poster_url( $guid, $attributes ) )
 		);
 	}
 }

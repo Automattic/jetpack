@@ -145,6 +145,8 @@ class Initializer_Test extends BaseTestCase {
 			array(
 				'muted'      => true,
 				'videoRatio' => 75,
+				'poster'     => 'https://example.com/custom.jpg',
+				'title'      => 'Clip',
 			)
 		);
 
@@ -154,6 +156,17 @@ class Initializer_Test extends BaseTestCase {
 		$this->assertStringContainsString( '&quot;muted&quot;:true', $html );
 		$this->assertStringContainsString( 'aspect-ratio:100 / 75', $html );
 		$this->assertTrue( wp_script_is( 'videopress-inline-player', 'enqueued' ) );
+
+		// The block's poster and title feed the facade; the player bundle waits for a click.
+		$this->assertStringContainsString( 'data-videopress-facade="1"', $html );
+		$this->assertStringContainsString( 'aria-label="Play video: Clip"', $html );
+		$this->assertStringContainsString( 'src="https://example.com/custom.jpg"', $html );
+		$this->assertFalse( wp_script_is( 'videopress-videojs', 'enqueued' ) );
+
+		// Autoplay needs the player immediately, so no facade.
+		$autoplay = $this->render( array( 'autoplay' => true ) );
+		$this->assertStringNotContainsString( 'data-videopress-facade', $autoplay );
+		$this->assertTrue( wp_script_is( 'videopress-videojs', 'enqueued' ) );
 	}
 
 	/** Tests that preview on hover keeps the iframe, since it drives the player through the iframe API. */
