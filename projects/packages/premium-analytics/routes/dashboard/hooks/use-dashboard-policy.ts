@@ -6,23 +6,22 @@ import type { CanPerformDashboardOperation } from '@wordpress/widget-dashboard';
  * The application's answer to the dashboard policy seam.
  *
  * Customization is limited to moving and resizing widgets: adding, removing
- * and resetting are offered to Automatticians on sandboxed requests only while
- * the dashboard composition is under evaluation. Attribute editing stays open:
+ * and resetting sit behind the dashboard composition feature flag, whose
+ * answer the server puts on the script data. Attribute editing stays open:
  * it is how widgets expose their views, in and out of customize mode.
  *
  * @return The policy callback for `WidgetDashboard.Policy`.
  */
 export function useDashboardPolicy(): CanPerformDashboardOperation {
 	return useMemo< CanPerformDashboardOperation >( () => {
-		const facts = getScriptData()?.premium_analytics;
-		const canRecompose = facts?.is_automattician === true && facts?.is_sandboxed === true;
+		const canCompose = getScriptData()?.premium_analytics?.dashboard_composition_enabled === true;
 
 		return request => {
 			switch ( request.operation ) {
 				case 'insert':
 				case 'remove':
 				case 'reset':
-					return canRecompose;
+					return canCompose;
 				default:
 					return true;
 			}

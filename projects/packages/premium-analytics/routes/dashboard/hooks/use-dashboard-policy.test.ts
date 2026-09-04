@@ -11,7 +11,7 @@ const widgetType: WidgetType = {
 const widget = { uuid: 'devices', type: widgetType.name } as const;
 
 /**
- * Seed the facts the dashboard policy reads.
+ * Seed the flag's answer the dashboard policy reads.
  *
  * @param facts - The `premium_analytics` block, omitted to leave the script data without one.
  */
@@ -29,7 +29,7 @@ describe( 'useDashboardPolicy', () => {
 	} );
 
 	it( 'lets everyone customize by moving and resizing, and keep editing attributes', () => {
-		seedScriptData( { is_automattician: false, is_sandboxed: false } );
+		seedScriptData( { dashboard_composition_enabled: false } );
 		const { result } = renderHook( () => useDashboardPolicy() );
 
 		expect( result.current( { operation: 'customize' } ) ).toBe( true );
@@ -38,15 +38,8 @@ describe( 'useDashboardPolicy', () => {
 		expect( result.current( { operation: 'edit', widget, widgetType } ) ).toBe( true );
 	} );
 
-	it.each( [
-		[ 'anyone outside a sandbox', { is_automattician: true, is_sandboxed: false } ],
-		[
-			'a sandboxed request from a non-Automattician',
-			{ is_automattician: false, is_sandboxed: true },
-		],
-		[ 'a request with neither fact', { is_automattician: false, is_sandboxed: false } ],
-	] )( 'withholds adding, removing and resetting from %s', ( _label, facts ) => {
-		seedScriptData( facts );
+	it( 'withholds adding, removing and resetting while the composition flag is off', () => {
+		seedScriptData( { dashboard_composition_enabled: false } );
 		const { result } = renderHook( () => useDashboardPolicy() );
 
 		expect( result.current( { operation: 'insert', widgetType } ) ).toBe( false );
@@ -54,7 +47,7 @@ describe( 'useDashboardPolicy', () => {
 		expect( result.current( { operation: 'reset' } ) ).toBe( false );
 	} );
 
-	it( 'withholds them when the script data carries no facts', () => {
+	it( 'withholds them when the script data carries no answer', () => {
 		seedScriptData();
 		const { result } = renderHook( () => useDashboardPolicy() );
 
@@ -62,8 +55,8 @@ describe( 'useDashboardPolicy', () => {
 		expect( result.current( { operation: 'move', widget } ) ).toBe( true );
 	} );
 
-	it( 'offers the full composition to an Automattician on a sandboxed request', () => {
-		seedScriptData( { is_automattician: true, is_sandboxed: true } );
+	it( 'offers the full composition while the flag is on', () => {
+		seedScriptData( { dashboard_composition_enabled: true } );
 		const { result } = renderHook( () => useDashboardPolicy() );
 
 		expect( result.current( { operation: 'insert', widgetType } ) ).toBe( true );
@@ -72,7 +65,7 @@ describe( 'useDashboardPolicy', () => {
 	} );
 
 	it( 'keeps the same callback across renders', () => {
-		seedScriptData( { is_automattician: true, is_sandboxed: true } );
+		seedScriptData( { dashboard_composition_enabled: true } );
 		const { result, rerender } = renderHook( () => useDashboardPolicy() );
 		const first = result.current;
 
