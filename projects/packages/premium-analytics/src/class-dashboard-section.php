@@ -170,6 +170,12 @@ final class Dashboard_Section {
 	 * @return bool
 	 */
 	public function is_available() {
+		// The preview scope is the one gate that is about the rollout rather than the site,
+		// so it sits here, ahead of the section's own check, for both readers of this method.
+		if ( ! is_dashboard_section_in_preview_scope( $this->id ) ) {
+			return false;
+		}
+
 		if ( is_callable( $this->is_available ) ) {
 			return (bool) call_user_func( $this->is_available, $this );
 		}

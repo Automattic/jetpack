@@ -14,6 +14,7 @@ require_once __DIR__ . '/dashboard-layout.php';
 require_once __DIR__ . '/dashboard-grammar.php';
 require_once __DIR__ . '/class-dashboard-section.php';
 require_once __DIR__ . '/class-dashboard-section-registry.php';
+require_once __DIR__ . '/class-enablement-setting.php';
 
 /**
  * Filter through which WooCommerce section availability is resolved.
@@ -29,6 +30,17 @@ const SUBSCRIBERS_DASHBOARD_SECTION_AVAILABLE_FILTER = 'jetpack_premium_analytic
  * Filter for Ads section availability.
  */
 const ADS_DASHBOARD_SECTION_AVAILABLE_FILTER = 'jetpack_premium_analytics_ads_dashboard_section_available';
+
+/**
+ * Filter through which the preview's section scope is resolved.
+ */
+const DASHBOARD_PREVIEW_SCOPE_FILTER = 'jetpack_premium_analytics_dashboard_preview_scope';
+
+/**
+ * Sections the customer preview exposes. The single answer to what the preview shows;
+ * a section still rolling out to some sites is opened through the filter instead.
+ */
+const PREVIEW_SECTIONS = array( 'analytics/traffic' );
 
 /**
  * Registers a dashboard section.
@@ -61,6 +73,45 @@ function get_registered_dashboard_section( $dashboard_name, $id ) {
  */
 function get_available_dashboard_sections( $dashboard_name ) {
 	return Dashboard_Section_Registry::get_instance()->get_available_sections( $dashboard_name );
+}
+
+/**
+ * Whether the dashboard is running as the customer-facing preview.
+ *
+ * The site's own opt-in means the preview. Anything else that switches the dashboard on, the
+ * WordPress.com blog sticker or the `jetpack_premium_analytics_enabled` filter, means us.
+ *
+ * @since $$next-version$$
+ *
+ * @return bool
+ */
+function is_dashboard_preview_scoped() {
+	return (bool) get_option( Enablement_Setting::ENABLED_OPTION );
+}
+
+/**
+ * Whether the preview exposes a dashboard section.
+ *
+ * @since $$next-version$$
+ *
+ * @param string $id Namespaced section identifier.
+ * @return bool
+ */
+function is_dashboard_section_in_preview_scope( $id ) {
+	$in_scope = ! is_dashboard_preview_scoped() || in_array( $id, PREVIEW_SECTIONS, true );
+
+	/**
+	 * Filters whether the preview exposes a dashboard section.
+	 *
+	 * `__return_true` restores the whole dashboard, which is how a development or test site
+	 * sees every tab.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param bool   $in_scope Whether the preview exposes the section.
+	 * @param string $id       Namespaced section identifier.
+	 */
+	return (bool) apply_filters( DASHBOARD_PREVIEW_SCOPE_FILTER, $in_scope, $id );
 }
 
 /**

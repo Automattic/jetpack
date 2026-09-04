@@ -81,6 +81,8 @@ class Dashboard_Section_Test extends BaseTestCase {
 		remove_all_filters( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER );
 		remove_all_filters( SUBSCRIBERS_DASHBOARD_SECTION_AVAILABLE_FILTER );
 		remove_all_filters( ADS_DASHBOARD_SECTION_AVAILABLE_FILTER );
+		remove_all_filters( DASHBOARD_PREVIEW_SCOPE_FILTER );
+		delete_option( Enablement_Setting::ENABLED_OPTION );
 
 		if ( null !== $this->available_modules_filter ) {
 			remove_filter( 'jetpack_get_available_standalone_modules', $this->available_modules_filter );
@@ -117,6 +119,17 @@ class Dashboard_Section_Test extends BaseTestCase {
 		};
 
 		add_filter( 'jetpack_get_available_standalone_modules', $this->available_modules_filter );
+	}
+
+	/**
+	 * Satisfy every built-in section's own availability check.
+	 *
+	 * @return void
+	 */
+	private function enable_every_section() {
+		$this->set_admin_user();
+		add_filter( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_true' );
+		add_filter( ADS_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_true' );
 	}
 
 	/**
@@ -1223,6 +1236,89 @@ class Dashboard_Section_Test extends BaseTestCase {
 
 		$this->assertFalse( $ads->is_available() );
 		$this->assertNotContains( 'analytics/ads', $this->available_section_ids() );
+	}
+
+	/**
+	 * The customer preview exposes the Traffic tab and nothing else.
+	 */
+	public function test_preview_scope_leaves_only_the_traffic_section() {
+		$this->enable_every_section();
+		update_option( Enablement_Setting::ENABLED_OPTION, 1 );
+
+		register_default_dashboard_sections();
+
+		$this->assertSame( array( 'analytics/traffic' ), $this->available_section_ids() );
+	}
+
+	/**
+	 * A dashboard switched on by anything but the site's own opt-in keeps every tab.
+	 */
+	public function test_an_overridden_dashboard_is_not_preview_scoped() {
+		$this->enable_every_section();
+
+		register_default_dashboard_sections();
+
+		$this->assertSame(
+			array(
+				'analytics/traffic',
+				'analytics/insights',
+				'analytics/subscribers',
+				'woocommerce/store',
+				'analytics/ads',
+			),
+			$this->available_section_ids()
+		);
+	}
+
+	/**
+	 * The scope filter restores the whole dashboard, which is how our own sites see every tab.
+	 */
+	public function test_preview_scope_filter_restores_every_section() {
+		$this->enable_every_section();
+		update_option( Enablement_Setting::ENABLED_OPTION, 1 );
+		add_filter( DASHBOARD_PREVIEW_SCOPE_FILTER, '__return_true' );
+
+		register_default_dashboard_sections();
+
+		$this->assertCount( 5, $this->available_section_ids() );
+	}
+
+	/**
+	 * The scope filter carries the section id, so one tab can open without the rest.
+	 */
+	public function test_preview_scope_filter_can_open_a_single_section() {
+		$this->enable_every_section();
+		update_option( Enablement_Setting::ENABLED_OPTION, 1 );
+		add_filter(
+			DASHBOARD_PREVIEW_SCOPE_FILTER,
+			static function ( $in_scope, $id ) {
+				return 'analytics/insights' === $id ? true : $in_scope;
+			},
+			10,
+			2
+		);
+
+		register_default_dashboard_sections();
+
+		$this->assertSame(
+			array( 'analytics/traffic', 'analytics/insights' ),
+			$this->available_section_ids()
+		);
+	}
+
+	/**
+	 * A section the preview hides is a 404 for anyone who addresses it directly.
+	 */
+	public function test_preview_scope_hides_a_section_from_the_route() {
+		$this->enable_every_section();
+		update_option( Enablement_Setting::ENABLED_OPTION, 1 );
+
+		register_default_dashboard_sections();
+
+		$section = get_available_dashboard_section_for_route( DASHBOARD_NAME, 'analytics/insights' );
+
+		$this->assertInstanceOf( \WP_Error::class, $section );
+		$this->assertSame( 'dashboard_section_unavailable', $section->get_error_code() );
 	}
 
 	/**
