@@ -15,12 +15,3 @@
 function has_blog_sticker( $sticker, $blog_id ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 	return in_array( $sticker, $GLOBALS['jetpack_mu_wpcom_test_blog_stickers'], true );
 }
-
-/**
- * Return the Atomic site ID configured by the current test.
- *
- * @return int The Atomic site ID.
- */
-function wpcomsh_get_atomic_site_id() {
-	return $GLOBALS['jetpack_mu_wpcom_test_atomic_site_id'];
-}

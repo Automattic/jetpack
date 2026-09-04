@@ -137,7 +137,7 @@ class Jetpack_Mu_Wpcom {
 		add_filter( 'option_gutenberg-experiments', array( __CLASS__, 'enable_gutenberg_react_19_experiment' ) );
 		add_filter( 'default_option_gutenberg-experiments', array( __CLASS__, 'enable_gutenberg_react_19_experiment' ) );
 
-		// Enable WooCommerce unified block editor assets on selected sites.
+		// Allow blog stickers to override the WooCommerce unified block editor assets option.
 		add_filter( 'option_woocommerce_feature_block_editor_unified_assets_enabled', array( __CLASS__, 'enable_woocommerce_block_editor_unified_assets' ) );
 		add_filter( 'default_option_woocommerce_feature_block_editor_unified_assets_enabled', array( __CLASS__, 'enable_woocommerce_block_editor_unified_assets' ) );
 
@@ -1002,11 +1002,10 @@ class Jetpack_Mu_Wpcom {
 	}
 
 	/**
-	 * Enable WooCommerce unified block editor assets on selected sites.
+	 * Override the WooCommerce unified block editor assets option with blog stickers.
 	 *
 	 * The `disable-woocommerce-block-editor-unified-assets` blog sticker force-disables the feature,
-	 * while the `woocommerce-block-editor-unified-assets` sticker opts the site in. With neither
-	 * sticker, the feature is enabled on 1% of Atomic sites.
+	 * while the `woocommerce-block-editor-unified-assets` sticker opts the site in.
 	 *
 	 * @since $$next-version$$
 	 *
@@ -1020,23 +1019,11 @@ class Jetpack_Mu_Wpcom {
 			return 'no';
 		}
 
-		if ( 'yes' === $enabled || wpcom_has_blog_sticker( 'woocommerce-block-editor-unified-assets', $blog_id ) ) {
+		if ( wpcom_has_blog_sticker( 'woocommerce-block-editor-unified-assets', $blog_id ) ) {
 			return 'yes';
 		}
 
-		if ( ! function_exists( 'wpcomsh_get_atomic_site_id' ) ) {
-			return $enabled;
-		}
-
-		$site_id = wpcomsh_get_atomic_site_id();
-
-		if ( ! $site_id ) {
-			return $enabled;
-		}
-
-		$current_segment = 1; // Segment of Atomic sites in the experiment, in %.
-
-		return $site_id % 100 < $current_segment ? 'yes' : $enabled;
+		return $enabled;
 	}
 
 	/**
