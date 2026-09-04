@@ -48,6 +48,13 @@ class PayPal_Payment_Links_List_Table extends \WP_List_Table {
 	public $next_page_token = null;
 
 	/**
+	 * Published posts embedding each link, keyed by resource id. Loaded once per table.
+	 *
+	 * @var array<string,int>|null
+	 */
+	private $embed_counts = null;
+
+	/**
 	 * Constructor.
 	 */
 	public function __construct() {
@@ -213,10 +220,14 @@ class PayPal_Payment_Links_List_Table extends \WP_List_Table {
 				'delete_payment_link_' . $item['id']
 			);
 
+			if ( null === $this->embed_counts ) {
+				$this->embed_counts = PayPal_Admin_Page::count_published_embeds();
+			}
+
 			$actions['delete'] = sprintf(
 				'<a href="%s" class="submitdelete paypal-delete-link" data-confirm="%s">%s</a>',
 				esc_url( $delete_url ),
-				esc_attr__( 'This will permanently delete your payment link. Any links, QR codes, or embedded buttons using this payment will stop working and cannot be recovered.', 'jetpack-paypal-payments' ),
+				esc_attr( PayPal_Admin_Page::delete_confirm_text( $this->embed_counts[ $item['id'] ] ?? 0 ) ),
 				esc_html__( 'Delete', 'jetpack-paypal-payments' )
 			);
 		}

@@ -39,6 +39,84 @@ class PayPal_Admin_Page {
 	const CAPABILITY = 'manage_options';
 
 	/**
+	 * Most published posts scanned for embedded payment links.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @var int
+	 */
+	const EMBED_SCAN_LIMIT = 100;
+
+	/**
+	 * The confirmation shown before a payment link is deleted from the admin.
+	 *
+	 * Deleting a link orphans every published block embedding it, so the
+	 * warning has to be at least as strong as the one the block itself shows.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param int $embed_count Published posts embedding the link, when known.
+	 * @return string Plain text; escape it for wherever it goes.
+	 */
+	public static function delete_confirm_text( $embed_count = 0 ) {
+		$text = __( 'This will permanently delete your payment link. Any links, QR codes, or embedded buttons using this payment will stop working and cannot be recovered.', 'jetpack-paypal-payments' );
+
+		if ( $embed_count > 0 ) {
+			$text .= ' ' . sprintf(
+				/* translators: %d: number of published posts embedding the payment link */
+				_n(
+					'It is embedded in %d published post, which will show a broken button.',
+					'It is embedded in %d published posts, which will show broken buttons.',
+					$embed_count,
+					'jetpack-paypal-payments'
+				),
+				$embed_count
+			);
+		}
+
+		return $text;
+	}
+
+	/**
+	 * Count the published posts embedding each payment link.
+	 *
+	 * The id only exists inside the block comment in post_content, so this is
+	 * one search for the block across published posts rather than a query per
+	 * link. It is capped, so on a site with more block posts than the cap the
+	 * counts are a lower bound.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return array<string,int> Post counts keyed by resource id.
+	 */
+	public static function count_published_embeds() {
+		$posts = get_posts(
+			array(
+				'post_type'              => 'any',
+				'post_status'            => 'publish',
+				'posts_per_page'         => self::EMBED_SCAN_LIMIT,
+				's'                      => 'wp:jetpack/paypal-payment-buttons',
+				'sentence'               => true,
+				'no_found_rows'          => true,
+				'update_post_meta_cache' => false,
+				'update_post_term_cache' => false,
+			)
+		);
+
+		$counts = array();
+		foreach ( $posts as $post ) {
+			if ( ! preg_match_all( '/"resourceId":"(PLB-[A-Za-z0-9]+)"/', $post->post_content, $matches ) ) {
+				continue;
+			}
+			foreach ( array_unique( $matches[1] ) as $resource_id ) {
+				$counts[ $resource_id ] = ( $counts[ $resource_id ] ?? 0 ) + 1;
+			}
+		}
+
+		return $counts;
+	}
+
+	/**
 	 * Initialize admin hooks.
 	 */
 	public static function init() {
@@ -497,7 +575,7 @@ class PayPal_Admin_Page {
 		printf(
 			'<a href="%s" class="button paypal-delete-link" data-confirm="%s">%s</a>',
 			esc_url( $delete_url ),
-			esc_attr__( 'This will permanently delete your payment link. Any links, QR codes, or embedded buttons using this payment will stop working and cannot be recovered.', 'jetpack-paypal-payments' ),
+			esc_attr( self::delete_confirm_text( self::count_published_embeds()[ $resource_id ] ?? 0 ) ),
 			esc_html__( 'Delete', 'jetpack-paypal-payments' )
 		);
 		echo '</p>';
