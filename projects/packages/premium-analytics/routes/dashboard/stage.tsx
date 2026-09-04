@@ -116,15 +116,17 @@ function Dashboard(): JSX.Element {
 	const [ editMode, setEditMode ] = useState( false );
 
 	// The tour's anchors, handed in by the elements below once they mount.
-	const [ actionsAnchor, setActionsAnchor ] = useState< HTMLDivElement | null >( null );
+	const [ actionsFrame, setActionsFrame ] = useState< HTMLDivElement | null >( null );
 	const [ controlsAnchor, setControlsAnchor ] = useState< HTMLDivElement | null >( null );
 	const [ widgetsFrame, setWidgetsFrame ] = useState< HTMLDivElement | null >( null );
+	// A step without its anchor is left out so the counter counts what is on the
+	// page: the configurations menu only arrives with WOOA7S-2055.
 	const tourSteps = onboardingTourSteps( {
-		actions: actionsAnchor,
-		dateControls: controlsAnchor,
 		// Every tile is a section; the grid draws them in layout order.
 		firstWidget: widgetsFrame?.querySelector( 'section' ) ?? null,
-	} );
+		dateControls: controlsAnchor,
+		optionsMenu: actionsFrame?.querySelector( '[aria-haspopup="menu"]' ) ?? null,
+	} ).filter( step => step.anchor );
 
 	// The journey introduces the default section at rest: not another tab, and
 	// not while the reader is already customizing.
@@ -258,7 +260,7 @@ function Dashboard(): JSX.Element {
 							visual={ <StatsPageIcon /> }
 							breadcrumbs={ <StatsBreadcrumbs isRoot /> }
 							actions={
-								<Stack ref={ setActionsAnchor } direction="row" gap="sm">
+								<Stack ref={ setActionsFrame } direction="row" gap="sm">
 									<WidgetDashboard.Actions />
 									<DashboardOptionsMenu />
 								</Stack>

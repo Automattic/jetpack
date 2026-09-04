@@ -1,25 +1,35 @@
 import { onboardingTourSteps } from './steps';
 
 describe( 'onboardingTourSteps', () => {
-	it( 'walks the actions, the date controls and the first widget in that order', () => {
-		const actions = document.createElement( 'div' );
-		const dateControls = document.createElement( 'div' );
+	it( 'walks the first widget, the date controls and the options menu twice', () => {
 		const firstWidget = document.createElement( 'section' );
+		const dateControls = document.createElement( 'div' );
+		const optionsMenu = document.createElement( 'button' );
 
-		const steps = onboardingTourSteps( { actions, dateControls, firstWidget } );
+		const steps = onboardingTourSteps( { firstWidget, dateControls, optionsMenu } );
 
-		expect( steps.map( step => step.anchor ) ).toEqual( [ actions, dateControls, firstWidget ] );
-		expect( steps.map( step => step.side ) ).toEqual( [ 'bottom', 'bottom', 'top' ] );
+		expect( steps.map( step => step.anchor ) ).toEqual( [
+			firstWidget,
+			dateControls,
+			optionsMenu,
+			optionsMenu,
+		] );
+		expect( steps.map( step => step.side ) ).toEqual( [ 'top', 'bottom', 'bottom', 'bottom' ] );
 		expect( steps.map( step => step.title ) ).toEqual( [
-			'Customize your experience',
-			'Improved date selection',
-			'Introducing widgets',
+			'Everything is a widget',
+			'A better date picker',
+			'Rearrange it your way',
+			'One last thing',
 		] );
 	} );
 
 	it( 'keeps the steps whose anchors are not mounted yet', () => {
-		const steps = onboardingTourSteps( { actions: null, dateControls: null, firstWidget: null } );
+		const steps = onboardingTourSteps( {
+			firstWidget: null,
+			dateControls: null,
+			optionsMenu: null,
+		} );
 
-		expect( steps.map( step => step.anchor ) ).toEqual( [ null, null, null ] );
+		expect( steps.map( step => step.anchor ) ).toEqual( [ null, null, null, null ] );
 	} );
 } );
