@@ -69,14 +69,10 @@ function wpcom_expiry_notices_current_frontend_url(): string {
 }
 
 /**
- * Whether this request is a page the banner belongs on. Feeds, embeds, and the
- * Customizer preview render markup of their own the bar would corrupt.
+ * Whether this request is a page the banner belongs on: feeds and embeds render markup of their own the bar would corrupt.
  */
 function wpcom_expiry_notices_frontend_banner_should_render(): bool {
-	if ( is_feed() || is_embed() || is_customize_preview() ) {
-		return false;
-	}
-	return null !== wpcom_expiry_notices_frontend_banner_data();
+	return ! is_feed() && ! is_embed() && wpcom_expiry_notices_frontend_banner_is_due();
 }
 
 /**
@@ -110,7 +106,7 @@ add_action( 'wp_enqueue_scripts', 'wpcom_expiry_notices_enqueue_frontend_banner_
  * @return string[]
  */
 function wpcom_expiry_notices_frontend_banner_body_class( array $classes ): array {
-	if ( null !== wpcom_expiry_notices_frontend_banner_data() ) {
+	if ( wpcom_expiry_notices_frontend_banner_should_render() ) {
 		$classes[] = 'has-wpcom-expiry-banner';
 	}
 	return $classes;

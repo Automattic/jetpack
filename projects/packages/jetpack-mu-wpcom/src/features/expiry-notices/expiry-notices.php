@@ -494,7 +494,7 @@ add_action( 'init', 'wpcom_expiry_notices_maybe_load_surfaces' ); // @codeCovera
  * surface itself because the callers hook `init` and can run before the loader.
  */
 function wpcom_expiry_notices_frontend_banner_is_due(): bool {
-	if ( is_admin() || ! wpcom_expiry_notices_is_enabled_for_site() ) {
+	if ( is_admin() || is_customize_preview() || ! wpcom_expiry_notices_is_enabled_for_site() ) {
 		return false;
 	}
 	require_once __DIR__ . '/frontend-banner.php';

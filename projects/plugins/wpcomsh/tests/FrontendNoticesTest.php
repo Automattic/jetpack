@@ -151,10 +151,6 @@ class FrontendNoticesTest extends WP_UnitTestCase {
 		$this->assertFalse( $gifting_banner->should_display_expiring_plan_notice() );
 	}
 
-	/**
-	 * The expiry banner takes the top of the page for admins; two bars there
-	 * would fight for the same space.
-	 */
 	public function test_gifting_banner_stands_down_for_the_expiry_banner() {
 		$business_plan_purchase = array(
 			'product_slug' => 'business-bundle',
