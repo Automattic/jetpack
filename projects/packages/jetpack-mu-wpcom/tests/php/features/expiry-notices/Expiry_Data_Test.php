@@ -543,4 +543,19 @@ class Expiry_Data_Test extends \WorDBless\BaseTestCase {
 		$this->assertArrayHasKey( 'redirect_to', $query_args );
 		$this->assertSame( $redirect, $query_args['redirect_to'] );
 	}
+
+	public function test_get_cta_urls_keeps_a_redirect_with_its_own_query_intact(): void {
+		$state    = array(
+			'state'        => Expiry_Data::STATE_EXPIRED_GRACE,
+			'product_slug' => 'business-bundle',
+			'auto_renew'   => false,
+		);
+		$redirect = 'https://example.com/wp-admin/site-editor.php?p=%2Fpage&canvas=edit';
+		$urls     = Expiry_Data::get_cta_urls( $state, $redirect );
+
+		$parsed = wp_parse_url( $urls['primary']['url'] );
+		parse_str( $parsed['query'] ?? '', $query_args );
+		$this->assertSame( $redirect, $query_args['redirect_to'] );
+		$this->assertArrayNotHasKey( 'canvas', $query_args );
+	}
 }

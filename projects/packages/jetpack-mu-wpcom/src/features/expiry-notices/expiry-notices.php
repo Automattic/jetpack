@@ -62,9 +62,9 @@ function wpcom_expiry_notices_is_enabled_for_site(): bool {
 /**
  * The expiry state this user should be shown something about, or null.
  *
- * The audience test the banner and the modal share. Memoized because four hooks
- * reach it per admin pageview -- each surface enqueues and renders -- and
- * nothing can change the answer mid-request.
+ * The audience test every surface shares. Memoized because several hooks reach
+ * it per admin pageview -- each surface enqueues and renders -- and nothing can
+ * change the answer mid-request.
  *
  * @param bool $flush Drop the memo. For tests, which move the purchase fixture
  *                    under a process that has already answered once.
@@ -175,16 +175,41 @@ function wpcom_expiry_notices_support_cta( array $state ): array {
 }
 
 /**
- * Load the wp-admin banner and modal, unless something has held this site back.
+ * The Tracks props every surface's events carry.
+ *
+ * @param array<string,mixed> $state Expiry state.
+ * @return array{state:string,days_remaining:int,product_slug:string}
+ */
+function wpcom_expiry_notices_track_props( array $state ): array {
+	return array(
+		'state'          => (string) ( $state['state'] ?? '' ),
+		'days_remaining' => isset( $state['days_remaining'] ) ? (int) $state['days_remaining'] : 0,
+		'product_slug'   => isset( $state['product_slug'] ) ? (string) $state['product_slug'] : '',
+	);
+}
+
+/**
+ * Whether the current screen is a block editor: post editor, site editor, or
+ * block widgets.
+ */
+function wpcom_expiry_notices_is_block_editor_screen(): bool {
+	$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+	return $screen ? $screen->is_block_editor() : false;
+}
+
+/**
+ * Load the wp-admin banner, modal, and editor notice, unless something has held
+ * this site back.
  *
  * On `init` rather than at file load. This file is required on `plugins_loaded`,
- * and every hook either surface registers fires later still, so waiting keeps
- * the requires off the bootstrap at no cost.
+ * and every hook any surface registers fires later still, so waiting keeps the
+ * requires off the bootstrap at no cost.
  */
 function wpcom_expiry_notices_maybe_load_admin_banner() {
 	if ( is_admin() && wpcom_expiry_notices_is_enabled_for_site() ) {
 		require_once __DIR__ . '/admin-banner.php';
 		require_once __DIR__ . '/admin-modal.php';
+		require_once __DIR__ . '/editor-notice.php';
 	}
 }
 add_action( 'init', 'wpcom_expiry_notices_maybe_load_admin_banner' ); // @codeCoverageIgnore

@@ -213,9 +213,9 @@ function FeatureRow( {
  */
 export default function AiFeatures( { settings, savingKeys, onUpdate } ) {
 	const features = settings?.features ?? {};
-	// Children keep their saved values while the master switch is off — the
-	// page shows them greyed with a site-wide notice instead of misreporting
-	// the user's choices as off.
+	// Children keep their saved values while the master switch is off — they
+	// render greyed (under the page-level master-off notice main.jsx owns)
+	// instead of misreporting the user's choices as off.
 	const masterEnabled = settings?.master_enabled !== false;
 	// The connection gate sits outside the master switch: false covers both a
 	// site without a connected owner and one in offline mode, and in either
@@ -290,25 +290,6 @@ export default function AiFeatures( { settings, savingKeys, onUpdate } ) {
 						) }{ ' ' }
 						<Link href="admin.php?page=my-jetpack#/connection">
 							{ __( 'Connect Jetpack', 'jetpack' ) }
-						</Link>
-					</Notice.Description>
-				</Notice.Root>
-			) }
-			{ isConnected && ! masterEnabled && (
-				<Notice.Root intent="warning">
-					<Notice.Title>
-						{ __( 'Jetpack AI is turned off for this site.', 'jetpack' ) }
-					</Notice.Title>
-					<Notice.Description>
-						{ __(
-							'Your feature settings are saved and will apply again when AI is turned back on.',
-							'jetpack'
-						) }{ ' ' }
-						<Link
-							href="admin.php?page=my-jetpack#/products"
-							className="jetpack-ai-features__notice-link"
-						>
-							{ __( 'Manage in My Jetpack', 'jetpack' ) }
 						</Link>
 					</Notice.Description>
 				</Notice.Root>

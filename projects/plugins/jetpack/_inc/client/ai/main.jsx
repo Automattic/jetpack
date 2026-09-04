@@ -5,7 +5,7 @@
  * with hash-based routing. The MCP tab owns the read | write | setup sub-views,
  * which render with breadcrumbs in place of the tab bar.
  *
- * Overview and AI Features share an internal-testing gate. Scheduled tasks
+ * Overview and AI Features share a host-controlled gate. Scheduled tasks
  * is controlled independently by the ai-hub-scheduled-tasks server-side feature
  * flag. Without either flag the page keeps its original MCP-only shape, with the
  * MCP hub as the landing view and no tab bar.
@@ -16,6 +16,7 @@ import { Spinner } from '@wordpress/components';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Badge, Notice, Stack, Tabs } from '@wordpress/ui';
+import MasterOffNotice from './components/master-off-notice';
 import AiFeatures from './features/index';
 import { useFeatureSettings } from './features/use-feature-settings';
 import McpConnectCallout from './mcp/connect-callout';
@@ -35,9 +36,13 @@ const SETTINGS_REF = 'jetpack-ai-mcp-settings';
 
 const MCP_SUB_VIEWS = [ 'read', 'write', 'setup' ];
 
-// Views that only exist in internal testing environments. MCP and Connectors ships
-// publicly, so it is not in here.
+// Views that retain an internal-testing badge when a host enables them for a
+// test request. MCP and Connectors ships publicly, so it is not in here.
 const GATED_VIEWS = [ 'overview', 'features' ];
+
+// Views the master switch governs. MCP and Scheduled tasks are not gated by
+// it, so they never show the master-off notice.
+const MASTER_SWITCH_VIEWS = [ 'overview', 'features' ];
 
 // Read at call time, not module scope, so the flag reflects the injected page data.
 const getTabViews = () => {
@@ -140,8 +145,10 @@ export default function App() {
 		planName,
 		planRenewsOn,
 		planAutoRenew,
+		planExpired,
 		isUserConnected,
 		showFeaturesView = false,
+		showA12sBadge = false,
 	} = window?.jetpackAiSettings ?? {};
 	const [ view, setView ] = useState( getViewFromHash );
 	// Save feedback goes through the shared GlobalNotices snackbars (the
@@ -164,6 +171,8 @@ export default function App() {
 		error: aiSettingsError,
 		updateSettings: updateAiSettings,
 	} = useFeatureSettings( showFeaturesView );
+
+	const masterEnabled = aiSettings?.master_enabled !== false;
 
 	// The hash is the single source of truth for the current view: popstate
 	// covers back/forward, hashchange covers direct hash edits and links.
@@ -267,10 +276,8 @@ export default function App() {
 							{ tabViews.map( tab => (
 								<Tabs.Tab key={ tab } value={ tab }>
 									{ VIEW_TITLES[ tab ] }
-									{ /* Overview and Features ship behind the internal-testing gate;
-									     label them so Automatticians don't mistake them for public UI.
-									     Remove with the gate. */ }
-									{ GATED_VIEWS.includes( tab ) && (
+									{ /* Keep the badge when a host exposes these views to internal testers. */ }
+									{ showA12sBadge && GATED_VIEWS.includes( tab ) && (
 										<Badge intent="medium" className="jetpack-ai-admin__tab-badge">
 											{ __( 'A12s only', 'jetpack' ) }
 										</Badge>
@@ -293,6 +300,11 @@ export default function App() {
 				}` }
 			>
 				<GlobalNotices />
+
+				{ ! masterEnabled &&
+					MASTER_SWITCH_VIEWS.includes( view ) &&
+					aiSettings?.is_connected !== false &&
+					aiSettings?.host_allows_ai !== false && <MasterOffNotice /> }
 
 				{ isMcpContext && (
 					<>
@@ -367,6 +379,7 @@ export default function App() {
 						planName={ planName }
 						planRenewsOn={ planRenewsOn }
 						planAutoRenew={ planAutoRenew }
+						planExpired={ planExpired }
 						isUserConnected={ isUserConnected }
 						hostAllowsAi={ aiSettings?.host_allows_ai }
 						// Same preconditions the MCP hub applies to its copy of the

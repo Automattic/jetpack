@@ -630,6 +630,26 @@ describe( 'useReportDateFilters', () => {
 				to: '2026-07-26T23:59:59.999Z',
 			} );
 		} );
+
+		it( 'leaves the calendar on the drilled window when the picker closes after the drill', () => {
+			const { result, rerender } = renderDateFilters( {
+				from: '2026-07-01T00:00:00.000Z',
+				to: '2026-07-30T23:59:59.999Z',
+				preset: 'last-30-days',
+				interval: 'day',
+			} );
+
+			const cancelBeforeDrill = result.current.onCancel;
+
+			act( () => result.current.drillDown( new Date( '2026-07-21T13:45:00.000Z' ) ) );
+			rerender();
+
+			act( () => cancelBeforeDrill() );
+
+			expect( result.current.range.from?.toISOString() ).toBe( '2026-07-21T00:00:00.000Z' );
+			expect( result.current.range.to?.toISOString() ).toBe( '2026-07-21T23:59:59.999Z' );
+			expect( result.current.presetId ).toBe( 'custom' );
+		} );
 	} );
 
 	it( 'steps a to-date preset by whole months and compares it with the months before', () => {
