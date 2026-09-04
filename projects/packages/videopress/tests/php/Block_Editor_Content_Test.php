@@ -52,7 +52,7 @@ class Block_Editor_Content_Test extends BaseTestCase {
 
 		$html = Block_Editor_Content::videopress_embed_shortcode(
 			array(
-				'abcDEF12',
+				0         => 'abcDEF12',
 				'w'       => 400,
 				'h'       => 300,
 				'muted'   => 'true',
