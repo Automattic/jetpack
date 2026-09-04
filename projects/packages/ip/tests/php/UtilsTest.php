@@ -339,6 +339,125 @@ final class UtilsTest extends PHPUnit\Framework\TestCase {
 	}
 
 	/**
+	 * `url_is_public` accepts URLs whose host is a public address.
+	 *
+	 * Core's gate is stubbed open throughout these tests so the assertions are
+	 * about this helper's own check and not wp_http_validate_url()'s blocklist.
+	 * IP-literal hosts keep the whole set off DNS.
+	 */
+	public function test_url_is_public_accepts_public_hosts() {
+		$this->stub_url_helpers();
+
+		$public_urls = array(
+			'http://8.8.8.8/image.jpg',
+			'https://203.0.113.10/a/b?c=d#e',
+			'https://[2606:4700:4700::1111]/image.jpg',
+			'https://[::ffff:8.8.8.8]/image.jpg',
+		);
+		foreach ( $public_urls as $url ) {
+			$this->assertTrue( Utils::url_is_public( $url ), "$url should be public" );
+		}
+	}
+
+	/**
+	 * `url_is_public` rejects URLs pointing at reserved or internal addresses.
+	 *
+	 * Several of these are also rejected by core's wp_http_validate_url(); stubbing
+	 * it open is what makes this a test of our own check rather than of core's.
+	 */
+	public function test_url_is_public_rejects_reserved_hosts() {
+		$this->stub_url_helpers();
+
+		$rejected_urls = array(
+			'http://169.254.169.254/latest/meta-data/',  // Cloud metadata.
+			'http://168.63.129.16/metadata',             // Azure "Wire Server".
+			'http://100.64.0.1/',                        // CGNAT.
+			'http://198.18.0.1/',                        // Benchmarking.
+			'http://192.0.0.1/',                         // IETF protocol assignments.
+			'http://127.0.0.1/internal',                 // Loopback.
+			'http://10.0.0.1/internal',                  // Private.
+			'http://[::1]/internal',                     // IPv6 loopback.
+			'http://[fe80::1]/internal',                 // IPv6 link-local.
+			'http://[fd00::1]/internal',                 // IPv6 unique-local.
+			'http://[::ffff:169.254.169.254]/',          // IPv4-mapped metadata.
+			'http://169%2e254%2e169%2e254/',             // Percent-encoded metadata host.
+		);
+		foreach ( $rejected_urls as $url ) {
+			$this->assertFalse( Utils::url_is_public( $url ), "$url should not be public" );
+		}
+	}
+
+	/**
+	 * A host that resolves to nothing is rejected rather than passed to the request layer.
+	 */
+	public function test_url_is_public_rejects_unresolvable_host() {
+		$this->stub_url_helpers();
+
+		// RFC 2606 reserves .invalid, so this can never resolve.
+		$this->assertFalse( Utils::url_is_public( 'http://jetpack-ip-test.invalid/x' ) );
+	}
+
+	/**
+	 * Input that is not a usable URL is rejected before any lookup.
+	 */
+	public function test_url_is_public_rejects_malformed_input() {
+		$this->stub_url_helpers();
+
+		$malformed = array( '', 'not a url', '/relative/path', 'http:///nohost' );
+		foreach ( $malformed as $url ) {
+			$this->assertFalse( Utils::url_is_public( $url ), 'malformed input should not be public' );
+		}
+	}
+
+	/**
+	 * A URL core rejects stays rejected, whatever its host resolves to.
+	 */
+	public function test_url_is_public_defers_to_core_validation() {
+		Functions\when( 'wp_http_validate_url' )->justReturn( false );
+
+		$this->assertFalse( Utils::url_is_public( 'http://8.8.8.8/image.jpg' ) );
+	}
+
+	/**
+	 * `resolve_host_ips` returns IP literals as-is, after undoing the encodings a
+	 * caller could hide one behind.
+	 */
+	public function test_resolve_host_ips_normalizes_literals() {
+		$literals = array(
+			'8.8.8.8'               => '8.8.8.8',
+			'[::1]'                 => '::1',
+			'169%2e254%2e169%2e254' => '169.254.169.254', // Percent-encoded dots.
+			'fe80::1%25eth0'        => 'fe80::1',         // Encoded IPv6 zone id.
+		);
+		foreach ( $literals as $host => $expected ) {
+			$this->assertSame( array( $expected ), Utils::resolve_host_ips( (string) $host ) );
+		}
+	}
+
+	/**
+	 * An unresolvable or empty host yields no addresses, which callers treat as unsafe.
+	 */
+	public function test_resolve_host_ips_returns_empty_for_unresolvable_host() {
+		$this->assertSame( array(), Utils::resolve_host_ips( '' ) );
+		$this->assertSame( array(), Utils::resolve_host_ips( 'jetpack-ip-test.invalid' ) );
+	}
+
+	/**
+	 * Stubs the WordPress functions `url_is_public` depends on.
+	 *
+	 * Core's wp_http_validate_url() is stubbed to accept everything, so each URL is
+	 * judged by this package's own check alone.
+	 */
+	private function stub_url_helpers() {
+		Functions\when( 'wp_http_validate_url' )->returnArg();
+		Functions\when( 'wp_parse_url' )->alias(
+			function ( $url, $component = -1 ) {
+				return parse_url( $url, $component ); // phpcs:ignore WordPress.WP.AlternativeFunctions.parse_url_parse_url -- This stub is what wp_parse_url() wraps.
+			}
+		);
+	}
+
+	/**
 	 * Test `convert_ip_address`.
 	 */
 	public function test_convert_ip_address() {

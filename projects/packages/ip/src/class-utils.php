@@ -219,6 +219,121 @@ class Utils {
 	}
 
 	/**
+	 * Checks whether a URL is a safe destination for a server-side request.
+	 *
+	 * Runs core's wp_http_validate_url(), then rejects hosts that resolve to a
+	 * reserved or non-public IP core leaves open (Azure's metadata address, IPv6
+	 * link-local / ULA, and similar -- see ip_is_public()). Every address the host
+	 * resolves to is checked, and a host that resolves to none is rejected, so a
+	 * partly-internal or unresolvable host is never assumed safe.
+	 *
+	 * Callers that follow redirects must re-check every hop: this validates one URL,
+	 * and the request layer's own per-hop check is only core's weaker one.
+	 *
+	 * This does not defend against DNS rebinding -- the address checked here is not
+	 * pinned for the request that follows.
+	 *
+	 * Returns a plain boolean rather than a WP_Error, so it can be dropped in as a
+	 * REST validate_callback and so a rejection reveals nothing about the host.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $url URL to check.
+	 * @return bool True when the URL is safe to request, false otherwise.
+	 */
+	public static function url_is_public( $url ) {
+		if ( ! is_string( $url ) || '' === $url ) {
+			return false;
+		}
+
+		if ( ! wp_http_validate_url( $url ) ) {
+			return false;
+		}
+
+		$host = wp_parse_url( $url, PHP_URL_HOST );
+		if ( ! is_string( $host ) || '' === $host ) {
+			return false;
+		}
+
+		$ips = self::resolve_host_ips( $host );
+
+		// A host we cannot resolve to any IP must not be assumed safe: fail closed
+		// rather than deferring to the weaker checks in the request layer.
+		if ( empty( $ips ) ) {
+			return false;
+		}
+
+		foreach ( $ips as $ip ) {
+			if ( ! self::ip_is_public( $ip ) ) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * Resolves a host to the list of IP addresses that should be validated.
+	 *
+	 * IP literals are returned as-is. Host names are resolved to their IPv4 and
+	 * IPv6 addresses so every address a request could connect to is checked. An
+	 * empty list means resolution failed; callers must treat that as unsafe rather
+	 * than letting the host through.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $host Host name or IP literal (IPv6 literals may be bracketed).
+	 * @return string[] List of IP addresses.
+	 */
+	public static function resolve_host_ips( $host ) {
+		if ( ! is_string( $host ) || '' === $host ) {
+			return array();
+		}
+
+		// IPv6 literals arrive bracketed, e.g. "[::1]".
+		$host = trim( $host, '[]' );
+
+		// URL-decode so a percent-encoded host (e.g. "169%2e254%2e169%2e254")
+		// cannot slip past the IP-literal and DNS checks, then strip any IPv6 zone
+		// identifier (e.g. "fe80::1%eth0") -- which only becomes visible once "%25"
+		// is decoded to "%".
+		$host = rawurldecode( $host );
+		if ( false !== strpos( $host, '%' ) ) {
+			$host = preg_replace( '/%.*$/', '', $host );
+		}
+
+		if ( filter_var( $host, FILTER_VALIDATE_IP ) ) {
+			return array( $host );
+		}
+
+		$ips = array();
+
+		if ( function_exists( 'gethostbynamel' ) ) {
+			// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- gethostbynamel() warns on an unresolvable host.
+			$ipv4 = @gethostbynamel( $host );
+			if ( is_array( $ipv4 ) ) {
+				$ips = $ipv4;
+			}
+		}
+
+		// gethostbynamel() only resolves IPv4; check AAAA records too. dns_get_record()
+		// can be disabled on some hosts and may warn on lookup failure.
+		if ( function_exists( 'dns_get_record' ) ) {
+			// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged -- dns_get_record may fail on some systems.
+			$aaaa = @dns_get_record( $host, DNS_AAAA );
+			if ( is_array( $aaaa ) ) {
+				foreach ( $aaaa as $record ) {
+					if ( ! empty( $record['ipv6'] ) ) {
+						$ips[] = $record['ipv6'];
+					}
+				}
+			}
+		}
+
+		return $ips;
+	}
+
+	/**
 	 * Validate an IP address.
 	 *
 	 * @param string $ip IP address.
