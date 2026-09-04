@@ -1,13 +1,6 @@
-.jpb-file-info-card {
-	padding: 16px;
-	display: flex;
-	flex-direction: column;
-	gap: 12px;
-
-	&__header {
-		padding-bottom: 8px;
-		border-bottom: 1px solid var(--wp-components-color-gray-200, #e0e0e0);
-	}
+// Shared by both chromes: `FileInfoMeta` and `PreviewBody` render the same
+// markup inside the card's column and inside `<FileInfoDialog>`.
+.jpb-file-info {
 
 	&__meta {
 		display: flex;
@@ -39,9 +32,33 @@
 		word-break: break-all;
 	}
 
-	&__preview-note {
+	&__note {
 		margin-block: 0 8px;
 		margin-inline: 0;
+	}
+
+	&__code {
+		margin: 0;
+		font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+		font-size: 12px;
+		line-height: 1.5;
+		white-space: pre;
+		// The `<pre>` is `dir="ltr"`, so inside an RTL panel it overflows past
+		// the panel's inline-start edge, which Chrome never makes scrollable.
+		overflow-x: auto;
+		color: var(--wp-components-color-foreground, #1e1e1e);
+	}
+}
+
+.jpb-file-info-card {
+	padding: 16px;
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+
+	&__header {
+		padding-bottom: 8px;
+		border-bottom: 1px solid var(--wp-components-color-gray-200, #e0e0e0);
 	}
 
 	&__preview {
@@ -51,17 +68,5 @@
 		background-color: var(--wp-components-color-background-secondary, #f7f7f7);
 		border-radius: 4px;
 		padding: 12px;
-
-		pre {
-			margin: 0;
-			font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-			font-size: 12px;
-			line-height: 1.5;
-			white-space: pre;
-			// The `<pre>` is `dir="ltr"`, so inside an RTL panel it overflows past
-			// the panel's inline-start edge, which Chrome never makes scrollable.
-			overflow-x: auto;
-			color: var(--wp-components-color-foreground, #1e1e1e);
-		}
 	}
 }
