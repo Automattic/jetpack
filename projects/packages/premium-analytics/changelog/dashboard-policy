@@ -1,4 +1,4 @@
 Significance: patch
-Type: added
+Type: changed
 
-Dashboard: offer moving and removing widgets to Automatticians on sandboxed requests only while the dashboard composition is under evaluation.
+Dashboard: limit customization to moving and resizing widgets. Adding and removing widgets and resetting the layout are offered only to Automatticians on sandboxed requests while the dashboard composition is under evaluation.

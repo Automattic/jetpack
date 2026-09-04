@@ -28,42 +28,47 @@ describe( 'useDashboardPolicy', () => {
 		delete window.JetpackScriptData;
 	} );
 
-	it( 'offers move and remove to an Automattician on a sandboxed request', () => {
-		seedScriptData( { is_automattician: true, is_sandboxed: true } );
+	it( 'lets everyone customize by moving and resizing, and keep editing attributes', () => {
+		seedScriptData( { is_automattician: false, is_sandboxed: false } );
 		const { result } = renderHook( () => useDashboardPolicy() );
 
+		expect( result.current( { operation: 'customize' } ) ).toBe( true );
 		expect( result.current( { operation: 'move', widget, widgetType } ) ).toBe( true );
-		expect( result.current( { operation: 'remove', widget, widgetType } ) ).toBe( true );
+		expect( result.current( { operation: 'resize', widget, widgetType } ) ).toBe( true );
+		expect( result.current( { operation: 'edit', widget, widgetType } ) ).toBe( true );
 	} );
 
 	it.each( [
-		[ 'an Automattician outside a sandbox', { is_automattician: true, is_sandboxed: false } ],
-		[ 'a sandboxed request from anyone else', { is_automattician: false, is_sandboxed: true } ],
+		[ 'anyone outside a sandbox', { is_automattician: true, is_sandboxed: false } ],
+		[
+			'a sandboxed request from a non-Automattician',
+			{ is_automattician: false, is_sandboxed: true },
+		],
 		[ 'a request with neither fact', { is_automattician: false, is_sandboxed: false } ],
-	] )( 'withholds move and remove from %s', ( _label, facts ) => {
+	] )( 'withholds adding, removing and resetting from %s', ( _label, facts ) => {
 		seedScriptData( facts );
 		const { result } = renderHook( () => useDashboardPolicy() );
 
-		expect( result.current( { operation: 'move', widget, widgetType } ) ).toBe( false );
+		expect( result.current( { operation: 'insert', widgetType } ) ).toBe( false );
 		expect( result.current( { operation: 'remove', widget, widgetType } ) ).toBe( false );
+		expect( result.current( { operation: 'reset' } ) ).toBe( false );
 	} );
 
 	it( 'withholds them when the script data carries no facts', () => {
 		seedScriptData();
 		const { result } = renderHook( () => useDashboardPolicy() );
 
-		expect( result.current( { operation: 'move', widget } ) ).toBe( false );
+		expect( result.current( { operation: 'insert', widgetType } ) ).toBe( false );
+		expect( result.current( { operation: 'move', widget } ) ).toBe( true );
 	} );
 
-	it( 'allows the operations it does not govern', () => {
-		seedScriptData( { is_automattician: false, is_sandboxed: false } );
+	it( 'offers the full composition to an Automattician on a sandboxed request', () => {
+		seedScriptData( { is_automattician: true, is_sandboxed: true } );
 		const { result } = renderHook( () => useDashboardPolicy() );
 
-		expect( result.current( { operation: 'customize' } ) ).toBe( true );
-		expect( result.current( { operation: 'reset' } ) ).toBe( true );
 		expect( result.current( { operation: 'insert', widgetType } ) ).toBe( true );
-		expect( result.current( { operation: 'resize', widget } ) ).toBe( true );
-		expect( result.current( { operation: 'edit', widget } ) ).toBe( true );
+		expect( result.current( { operation: 'remove', widget, widgetType } ) ).toBe( true );
+		expect( result.current( { operation: 'reset' } ) ).toBe( true );
 	} );
 
 	it( 'keeps the same callback across renders', () => {
