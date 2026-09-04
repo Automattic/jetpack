@@ -30,7 +30,7 @@ jobs:
     name: "Manage labels and assignees"
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request_target' || github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name
-    timeout-minutes: 5  # 2026-05-21: Successful runs take 1–2 minutes.
+    timeout-minutes: 15  # 2026-09-04: Temporary, pnpm/action-setup is taking up to 7 minutes.
 
     # See above.
     concurrency:
