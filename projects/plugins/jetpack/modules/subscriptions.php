@@ -288,6 +288,15 @@ class Jetpack_Subscriptions {
 			return false;
 		}
 
+		/*
+		 * Restoring or re-publishing an old post must not email the back catalog.
+		 * WordPress.com vetoes the same sends for every Jetpack version in
+		 * jetpack_newsletter_allow_send_for_post_age(); keep the thresholds in step.
+		 */
+		if ( $this->is_post_too_old_to_email( $post ) ) {
+			return false;
+		}
+
 		/**
 		 * Array of categories that will never trigger subscription emails.
 		 *
@@ -325,6 +334,54 @@ class Jetpack_Subscriptions {
 		}
 
 		return $should_email;
+	}
+
+	/**
+	 * Whether a post was published too long ago to email subscribers.
+	 *
+	 * An unknown or unparseable publish date returns false: a missed newsletter is
+	 * worse than an extra one, so bad dates fall through to the other checks.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param object $post The post.
+	 * @return bool
+	 */
+	public function is_post_too_old_to_email( $post ) {
+		/**
+		 * Maximum age a post can have and still email subscribers when published.
+		 *
+		 * Set to 0 to disable the age check entirely.
+		 *
+		 * @module subscriptions
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param int $max_age Maximum post age in seconds. Default 30 days.
+		 */
+		$max_age = (int) apply_filters( 'jetpack_subscriptions_max_post_age', 30 * DAY_IN_SECONDS );
+
+		if ( $max_age <= 0 ) {
+			return false;
+		}
+
+		$post_date_gmt = isset( $post->post_date_gmt ) ? trim( (string) $post->post_date_gmt ) : '';
+
+		/*
+		 * wp_publish_post() leaves a draft's post_date_gmt at the zero date, and
+		 * strtotime() reads that as year 0 rather than failing, which would suppress
+		 * every such publish. Treat it as unknown instead.
+		 */
+		if ( '' === $post_date_gmt || '0000-00-00 00:00:00' === $post_date_gmt ) {
+			return false;
+		}
+
+		$published = strtotime( $post_date_gmt . ' UTC' );
+		if ( false === $published || $published <= 0 ) {
+			return false;
+		}
+
+		return ( time() - $published ) > $max_age;
 	}
 
 	/**

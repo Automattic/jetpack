@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Subscriptions: Stop sending subscriber emails for posts published more than 30 days ago.

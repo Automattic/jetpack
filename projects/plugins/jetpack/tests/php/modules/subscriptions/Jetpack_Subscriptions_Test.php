@@ -195,6 +195,60 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Regression tests for NL-895: restoring or re-publishing a years-old post
+	 * emailed it to every subscriber. WordPress.com cannot catch this on its own --
+	 * its `email_notification` dedup meta is only written by a WordPress.com send, so
+	 * a back catalog predating the connection has no record of ever being emailed.
+	 */
+	public function test_recent_post_is_emailed_to_subscribers() {
+		$subscriptions = Jetpack_Subscriptions::init();
+		$post          = self::factory()->post->create_and_get(
+			array( 'post_date_gmt' => gmdate( 'Y-m-d H:i:s', time() - 2 * DAY_IN_SECONDS ) )
+		);
+
+		$this->assertFalse( $subscriptions->is_post_too_old_to_email( $post ) );
+		$this->assertTrue( $subscriptions->should_email_post_to_subscribers( $post ) );
+	}
+
+	public function test_old_post_is_not_emailed_to_subscribers() {
+		$subscriptions = Jetpack_Subscriptions::init();
+		$post          = self::factory()->post->create_and_get(
+			array( 'post_date_gmt' => '2010-03-06 23:21:00' )
+		);
+
+		$this->assertTrue( $subscriptions->is_post_too_old_to_email( $post ) );
+		$this->assertFalse( $subscriptions->should_email_post_to_subscribers( $post ) );
+	}
+
+	/**
+	 * Drafts published by wp_publish_post() keep the zero post_date_gmt, which
+	 * strtotime() reads as year 0. Suppressing on that would kill the newsletter for
+	 * every draft published that way.
+	 */
+	public function test_zero_publish_date_is_still_emailed_to_subscribers() {
+		$subscriptions = Jetpack_Subscriptions::init();
+		$post          = self::factory()->post->create_and_get();
+
+		$post->post_date_gmt = '0000-00-00 00:00:00';
+
+		$this->assertFalse( $subscriptions->is_post_too_old_to_email( $post ) );
+		$this->assertTrue( $subscriptions->should_email_post_to_subscribers( $post ) );
+	}
+
+	public function test_post_age_check_is_filterable() {
+		$subscriptions = Jetpack_Subscriptions::init();
+		$post          = self::factory()->post->create_and_get(
+			array( 'post_date_gmt' => '2010-03-06 23:21:00' )
+		);
+
+		add_filter( 'jetpack_subscriptions_max_post_age', '__return_zero' );
+		$this->assertFalse( $subscriptions->is_post_too_old_to_email( $post ) );
+		remove_filter( 'jetpack_subscriptions_max_post_age', '__return_zero' );
+
+		$this->assertTrue( $subscriptions->is_post_too_old_to_email( $post ) );
+	}
+
+	/**
 	 * Contributors can submit a post for review without the "was ever published" meta
 	 * blocking the save. Regression test for NL-706 / CM-232: the meta is included in
 	 * the editor save payload, and its auth_callback previously required publish_posts,
