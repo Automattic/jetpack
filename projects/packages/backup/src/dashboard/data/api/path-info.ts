@@ -14,10 +14,9 @@ import { apiCall, apiPath } from './_helpers';
  * type; it exists to drive granular download, and the info card keeps
  * deriving previewability from the file extension the way Calypso does.
  *
- * `size` has been observed arriving as a decimal string while `mtime` and
- * `data_type` arrive as numbers, and nothing upstream says which columns
- * are serialized either way — so the union keeps both shapes and
- * `toFileDetails` coerces whichever turns up.
+ * `size` has been observed arriving as a decimal string while `mtime`
+ * arrives as a number, so the union keeps both shapes and `toFileDetails`
+ * coerces whichever turns up.
  */
 export type PathInfoResponse = {
 	error?: string;
