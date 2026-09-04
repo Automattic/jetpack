@@ -50,8 +50,16 @@ export function toFileDetails( raw: PathInfoResponse | undefined ): FileDetails 
 	const lastModified =
 		mtimeDate && ! Number.isNaN( mtimeDate.getTime() ) ? mtimeDate.toISOString() : null;
 
+	// `size` arrives as a decimal string, and a bare `Number()` would turn
+	// `null` or `''` into a real-looking `0` — a zero-byte file is genuine.
+	const rawSize = raw.size;
+	const byteCount =
+		typeof rawSize === 'number' || ( typeof rawSize === 'string' && rawSize.trim() !== '' )
+			? Number( rawSize )
+			: NaN;
+
 	return {
-		size: typeof raw.size === 'number' ? raw.size : null,
+		size: Number.isFinite( byteCount ) ? byteCount : null,
 		hash: raw.hash ? raw.hash : null,
 		lastModified,
 	};

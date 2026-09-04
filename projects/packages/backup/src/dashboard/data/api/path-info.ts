@@ -13,10 +13,14 @@ import { apiCall, apiPath } from './_helpers';
  * code taken from the manifest path's second character, not a mime
  * type; it exists to drive granular download, and the info card keeps
  * deriving previewability from the file extension the way Calypso does.
+ *
+ * `size` arrives as a decimal string: WPCOM serializes VaultPress's MySQL
+ * row directly, so its integer columns come back as strings — the same
+ * wire shape `RawBackupEntry` documents. `mtime` is sent as a number.
  */
 export type PathInfoResponse = {
 	error?: string;
-	size?: number;
+	size?: string | number;
 	hash?: string;
 	mtime?: number;
 	data_type?: number;
