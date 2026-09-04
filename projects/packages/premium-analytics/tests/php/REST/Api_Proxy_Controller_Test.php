@@ -395,13 +395,15 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 
 		$request = $this->build_data_request( 'POST', 'jetpack-stats/user-feedback' );
 		$request->set_body( '{"feedback":"slow"}' );
-		$response = $this->controller->handle_data_request( $request );
-
-		remove_all_filters( 'pre_http_request' );
-		\Jetpack_Options::delete_option( 'blog_token' );
-		\Jetpack_Options::delete_option( 'id' );
-		( new Connection_Manager() )->reset_connection_status();
-		Constants::clear_single_constant( 'JETPACK__WPCOM_JSON_API_BASE' );
+		try {
+			$response = $this->controller->handle_data_request( $request );
+		} finally {
+			remove_all_filters( 'pre_http_request' );
+			\Jetpack_Options::delete_option( 'blog_token' );
+			\Jetpack_Options::delete_option( 'id' );
+			( new Connection_Manager() )->reset_connection_status();
+			Constants::clear_single_constant( 'JETPACK__WPCOM_JSON_API_BASE' );
+		}
 
 		$this->assertInstanceOf( WP_REST_Response::class, $response );
 		$this->assertStringContainsString( '/wpcom/v2/sites/4242/jetpack-stats/user-feedback', $captured['url'] );
