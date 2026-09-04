@@ -85,7 +85,8 @@ class WPCOM_Client {
 			// error carries no status, which the REST API renders as a 500. Say what actually
 			// happened so callers can tell an unconnected site from a broken one. Newer connection
 			// packages name the reason (`no_possible_tokens`); older ones return `missing_token`.
-			if ( in_array( $response->get_error_code(), array( 'missing_token', 'no_possible_tokens' ), true ) ) {
+			// `malformed_token` means the stored token has no secret half and cannot sign anything.
+			if ( in_array( $response->get_error_code(), array( 'missing_token', 'no_possible_tokens', 'malformed_token' ), true ) ) {
 				return new WP_Error(
 					'site_not_connected',
 					__( 'This site is not connected to WordPress.com.', 'jetpack-stats-admin' ),
@@ -102,6 +103,15 @@ class WPCOM_Client {
 
 		$error = static::get_wp_error( $response_body, (int) $response_code );
 		if ( is_wp_error( $error ) ) {
+			// WordPress.com rejects an invalid blog token with `invalid_token`; expose it the
+			// same as a missing token so callers can identify the broken connection.
+			if ( 'invalid_token' === $error->get_error_code() ) {
+				return new WP_Error(
+					'site_not_connected',
+					__( 'This site is not connected to WordPress.com.', 'jetpack-stats-admin' ),
+					array( 'status' => 400 )
+				);
+			}
 			return $error;
 		}
 

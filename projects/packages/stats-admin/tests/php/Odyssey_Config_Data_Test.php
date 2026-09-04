@@ -79,6 +79,20 @@ class Odyssey_Config_Data_Test extends Stats_TestCase {
 	}
 
 	/**
+	 * The connection manager considers a site connected when a token exists, even if that
+	 * token is malformed. The config-data layer has to catch this case separately so the
+	 * app sees an unconnected site rather than one whose every API request will fail.
+	 */
+	public function test_config_data_with_invalid_blog_token() {
+		$this->use_invalid_blog_token();
+
+		$data = ( new Odyssey_Config_Data() )->get_data();
+
+		$this->assertSame( 0, $data['blog_id'] );
+		$this->assertArrayNotHasKey( 'intial_state', $data );
+	}
+
+	/**
 	 * Without a connection there is no site to describe, and a record keyed on a blog ID of 0
 	 * would only make every lookup in the app miss.
 	 */

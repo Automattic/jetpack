@@ -122,6 +122,29 @@ abstract class TestCase extends PHPUnit_TestCase {
 	}
 
 	/**
+	 * Replace the blog token with one that has no dot — no secret half — simulating an
+	 * administrator writing an invalid value directly into the options table.
+	 */
+	protected function use_invalid_blog_token() {
+		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_site_connection_options' ), 10 );
+		add_filter(
+			'jetpack_options',
+			static function ( $value, $name ) {
+				switch ( $name ) {
+					case 'blog_token':
+						return 'nodot-token';
+					case 'id':
+						return '999';
+				}
+				return $value;
+			},
+			10,
+			2
+		);
+		( new Connection_Manager() )->reset_connection_status();
+	}
+
+	/**
 	 * Intercept the `Jetpack_Options` call and mock the values.
 	 * Site-level connection set-up.
 	 *
