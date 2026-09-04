@@ -39,6 +39,7 @@ import {
 import {
 	useActiveSection,
 	useDashboardGridSettings,
+	useDashboardPolicy,
 	useDashboardSectionLayout,
 	useDashboardSections,
 	useSectionDateFilter,
@@ -56,6 +57,7 @@ function Dashboard(): JSX.Element {
 	const [ activeSection, setActiveSection ] = useActiveSection( sections );
 	const [ layout, setLayout, resetLayout ] = useDashboardSectionLayout( activeSection, sections );
 	const [ gridSettings ] = useDashboardGridSettings();
+	const canPerform = useDashboardPolicy();
 
 	/*
 	 * The watcher runs at the dashboard level, not inside the notice below, so the
@@ -213,74 +215,77 @@ function Dashboard(): JSX.Element {
 			 * so a widget reading them off the URL could show a comparison the reader can't see.
 			 */ }
 			<ReportScopeProvider offersComparison={ showComparison }>
-				<WidgetDashboard
-					widgetTypes={ widgetTypes }
-					isResolvingWidgetTypes={ isResolvingWidgetTypes }
-					resolveWidgetModule={ resolveWidgetModuleWithI18n }
-					layout={ layout }
-					onLayoutChange={ setLayout }
-					onLayoutReset={ resetLayout }
-					gridSettings={ gridSettings }
-					editMode={ editMode }
-					onEditChange={ setEditMode }
-				>
-					<Page
-						visual={ <StatsPageIcon /> }
-						breadcrumbs={ <StatsBreadcrumbs isRoot /> }
-						actions={
-							<>
-								<FeedbackAction />
-								<WidgetDashboard.Actions />
-							</>
-						}
-						className={ styles.dashboard }
+				{ /* Outside the dashboard: the inserter mounts beyond `children`. */ }
+				<WidgetDashboard.Policy canPerform={ canPerform }>
+					<WidgetDashboard
+						widgetTypes={ widgetTypes }
+						isResolvingWidgetTypes={ isResolvingWidgetTypes }
+						resolveWidgetModule={ resolveWidgetModuleWithI18n }
+						layout={ layout }
+						onLayoutChange={ setLayout }
+						onLayoutReset={ resetLayout }
+						gridSettings={ gridSettings }
+						editMode={ editMode }
+						onEditChange={ setEditMode }
 					>
-						<DashboardSections
-							sections={ sections }
-							value={ activeSection }
-							onChange={ setActiveSection }
+						<Page
+							visual={ <StatsPageIcon /> }
+							breadcrumbs={ <StatsBreadcrumbs isRoot /> }
+							actions={
+								<>
+									<FeedbackAction />
+									<WidgetDashboard.Actions />
+								</>
+							}
+							className={ styles.dashboard }
 						>
-							{ sections.map( section => (
-								<SectionTabPanel
-									key={ section.slug }
-									value={ section.slug }
-									className={ styles.content }
-								>
-									{ /* Marks where the header below comes to rest, so it starts
+							<DashboardSections
+								sections={ sections }
+								value={ activeSection }
+								onChange={ setActiveSection }
+							>
+								{ sections.map( section => (
+									<SectionTabPanel
+										key={ section.slug }
+										value={ section.slug }
+										className={ styles.content }
+									>
+										{ /* Marks where the header below comes to rest, so it starts
 								     condensing there. Measured, never seen. */ }
-									<div className={ styles.pinMarker } aria-hidden="true" />
+										<div className={ styles.pinMarker } aria-hidden="true" />
 
-									<div ref={ setHeaderElement } className={ styles.sectionHeader }>
-										<SectionHeader title={ resolveSectionHeading( section ) } condenseOnScroll>
-											{ dateControls }
-										</SectionHeader>
-										{ /* Inside the pinned band, so its Retry stays reachable however
+										<div ref={ setHeaderElement } className={ styles.sectionHeader }>
+											<SectionHeader title={ resolveSectionHeading( section ) } condenseOnScroll>
+												{ dateControls }
+											</SectionHeader>
+											{ /* Inside the pinned band, so its Retry stays reachable however
 										     far the reader has scrolled. */ }
-										<RefreshFailureNotice className={ styles.refreshFailure } />
-									</div>
+											<RefreshFailureNotice className={ styles.refreshFailure } />
+										</div>
 
-									{ activeSection === section.slug ? (
-										<>
-											{ isSectionAwaitingSync( section, isSyncFinished ) && ! isSyncComplete ? (
-												<SectionSyncNotice
-													percentage={ syncStatus?.percentage ?? 0 }
-													hasError={ !! syncError }
-													onRetry={ retrySync }
-													isRetrying={ isRetryingSync }
-												/>
-											) : null }
+										{ activeSection === section.slug ? (
+											<>
+												{ isSectionAwaitingSync( section, isSyncFinished ) && ! isSyncComplete ? (
+													<SectionSyncNotice
+														percentage={ syncStatus?.percentage ?? 0 }
+														hasError={ !! syncError }
+														onRetry={ retrySync }
+														isRetrying={ isRetryingSync }
+													/>
+												) : null }
 
-											<WidgetDashboard.NoWidgetsState />
-											<WidgetDashboard.Widgets className={ styles.widgets } />
-										</>
-									) : null }
-								</SectionTabPanel>
-							) ) }
-						</DashboardSections>
+												<WidgetDashboard.NoWidgetsState />
+												<WidgetDashboard.Widgets className={ styles.widgets } />
+											</>
+										) : null }
+									</SectionTabPanel>
+								) ) }
+							</DashboardSections>
 
-						<WidgetDashboard.Commands />
-					</Page>
-				</WidgetDashboard>
+							<WidgetDashboard.Commands />
+						</Page>
+					</WidgetDashboard>
+				</WidgetDashboard.Policy>
 			</ReportScopeProvider>
 		</GlobalErrorProvider>
 	);

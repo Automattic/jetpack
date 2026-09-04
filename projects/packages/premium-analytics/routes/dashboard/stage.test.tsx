@@ -112,6 +112,7 @@ jest.mock( '@wordpress/widget-dashboard', () => {
 	WidgetDashboard.NoWidgetsState = () => null;
 	WidgetDashboard.Widgets = () => <MockScopeProbe />;
 	WidgetDashboard.Commands = () => null;
+	WidgetDashboard.Policy = ( { children }: { children: ReactNode } ) => <>{ children }</>;
 
 	return { WidgetDashboard };
 } );
@@ -154,6 +155,7 @@ jest.mock( '../widget-module-i18n', () => ( {
 jest.mock( './hooks', () => ( {
 	useActiveSection: jest.fn(),
 	useDashboardGridSettings: () => [ {} ],
+	useDashboardPolicy: () => () => true,
 	useDashboardSectionLayout: () => [ [], jest.fn(), jest.fn() ],
 	useDashboardSections: jest.fn(),
 	useSectionDateFilter: jest.fn(),

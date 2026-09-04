@@ -345,6 +345,12 @@ class Analytics {
 			require_once __DIR__ . '/videopress-availability.php';
 		}
 		configure_videopress_availability();
+
+		// Who may add and remove widgets, read by the dashboard policy.
+		if ( ! function_exists( __NAMESPACE__ . '\\configure_dashboard_policy' ) ) {
+			require_once __DIR__ . '/dashboard-policy.php';
+		}
+		configure_dashboard_policy();
 	}
 
 	/**
