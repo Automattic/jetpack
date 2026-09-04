@@ -78,6 +78,25 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		// self-hosted connection path. The wpcom/Big Sky gating itself is covered
 		// by the preview-gate tests, which remove this override.
 		add_filter( 'jetpack_ai_sidebar_enabled', '__return_true' );
+		// Image Studio reports manifest failures under this suite's
+		// get_availability() calls; short-circuit only its stats pixel so a
+		// widgets.wp.com flake in CI cannot send live telemetry.
+		add_filter(
+			'pre_http_request',
+			function ( $preempt, $args, $url ) {
+				unset( $args );
+				if ( false !== strpos( $url, 'pixel.wp.com' ) ) {
+					return array(
+						'response' => array( 'code' => 200 ),
+						'headers'  => array(),
+						'body'     => '',
+					);
+				}
+				return $preempt;
+			},
+			5,
+			3
+		);
 	}
 
 	/**

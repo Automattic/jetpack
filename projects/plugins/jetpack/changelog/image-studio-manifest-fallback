@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Image Studio: Fall back to Jetpack AI image tools when the asset manifest cannot load.
