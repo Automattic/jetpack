@@ -15,6 +15,29 @@ import { getDisabledGate } from '../../lib/get-disabled-gate';
 const AI_SETTINGS_PATH = 'admin.php?page=jetpack-ai#/features';
 
 /**
+ * One message per gate. Kept as separate `__()` calls in an object rather
+ * than a ternary so the minifier cannot fold them into a single call with a
+ * non-literal message, which breaks translation extraction.
+ *
+ * @param {DisabledGate | null} gate - The setting that switched the block off.
+ * @return {string} The message to show in the placeholder.
+ */
+const getInstructions = ( gate: ReturnType< typeof getDisabledGate > ) => {
+	const messages = {
+		writing_assistant: __(
+			'The Writing Assistant is turned off for this site, so this block cannot be used. You can leave it here or remove it.',
+			'jetpack'
+		),
+		master: __(
+			'Jetpack AI is turned off for this site, so this block cannot be used. You can leave it here or remove it.',
+			'jetpack'
+		),
+	};
+
+	return messages[ gate ?? 'master' ];
+};
+
+/**
  * Shown in place of the AI Assistant block when Jetpack AI, or the Writing
  * Assistant, is switched off for the site. Tells the author why the block is
  * inert and, for users who can change the setting, links to it.
@@ -27,16 +50,7 @@ export default function DisabledPlaceholder() {
 	const canManageSettings =
 		getScriptData()?.user?.current_user?.capabilities?.manage_options ?? false;
 
-	const instructions =
-		gate === 'writing_assistant'
-			? __(
-					'The Writing Assistant is turned off for this site, so this block cannot be used. You can leave it here or remove it.',
-					'jetpack'
-			  )
-			: __(
-					'Jetpack AI is turned off for this site, so this block cannot be used. You can leave it here or remove it.',
-					'jetpack'
-			  );
+	const instructions = getInstructions( gate );
 
 	return (
 		<div { ...blockProps }>
