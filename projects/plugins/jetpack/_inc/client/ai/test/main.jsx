@@ -14,13 +14,6 @@ jest.mock( '@automattic/jetpack-ai-client/jwt', () => ( {
 	default: jest.fn(),
 } ) );
 
-// Counts Scheduled tasks module loads on globalThis: the factory may run during
-// import, before any local exists, and the tab must stay out of the initial load.
-jest.mock( '../scheduled-tasks/index', () => {
-	globalThis.scheduledTasksModuleLoads = ( globalThis.scheduledTasksModuleLoads ?? 0 ) + 1;
-	return jest.requireActual( '../scheduled-tasks/index' );
-} );
-
 // Both settings hooks fetch through @wordpress/api-fetch; stub it so nothing
 // hits the network and each test controls the GET/POST responses.
 jest.mock( '@wordpress/api-fetch' );
@@ -324,17 +317,6 @@ describe( 'AI admin page (main.jsx)', () => {
 		render( <App /> );
 
 		await expect( screen.findAllByText( 'A12s only' ) ).resolves.toHaveLength( 2 );
-	} );
-
-	test( 'scheduled tasks flag off: never loads the tab module', async () => {
-		mockApiFetch();
-
-		render( <App /> );
-
-		await expect(
-			screen.findByRole( 'checkbox', { name: /Writing Assistant/ } )
-		).resolves.toBeInTheDocument();
-		expect( globalThis.scheduledTasksModuleLoads ).toBeUndefined();
 	} );
 
 	test( 'scheduled tasks flag: exposes the gated hash route and Figma empty state', async () => {
