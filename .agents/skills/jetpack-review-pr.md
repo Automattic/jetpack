@@ -337,6 +337,9 @@ Known limitations — every one is a silent failure, so keep reading the diff yo
   `grep -rn "<six distinctive words>" projects/`.
 - **Whole-line comments in code files only.** Trailing `foo(); // note` is skipped, as are `.md`,
   `.json`, changelog entries, and vendored or generated trees.
+- **A brief comment can fall below both floors.** The verbatim report tests each line (40 chars,
+  6 words), the phrase report the joined block (8 words, 45 chars). A copy-paste of very short
+  lines that is itself short clears neither, and is reported nowhere.
 
 ---
 

@@ -105,7 +105,7 @@ function rule( n, why, pat ) {
 	if ( low ~ annot ) { flush_block(); next }
 
 	add_to_block( text )
-	record_dup( low, text )
+	if ( record_dup( low, text ) ) blk_recorded = 1
 }
 
 # --- comment extraction -----------------------------------------------------
@@ -148,16 +148,17 @@ function flush_block(   i, low, sigs ) {
 	if ( blk_text == "" ) return
 	low  = tolower( blk_text )
 	sigs = ""
-	for ( i = 1; i <= nrules; i++ ) if ( low ~ rpat[i] ) sigs = sigs ( sigs == "" ? "" : "," ) rname[i]
+	for ( i = 1; i <= nrules; i++ ) if ( low ~ rpat[i] ) sigs = sigs "" ( sigs == "" ? "" : "," ) rname[i]
 	if ( sigs != "" ) {
 		nrot++
-		rot_at[nrot]  = blk_file ":" blk_start ( blk_end > blk_start ? "-" blk_end : "" )
+		rot_at[nrot]  = blk_file ":" blk_start "" ( blk_end > blk_start ? "-" blk_end : "" )
 		rot_sig[nrot] = sigs
 		rot_txt[nrot] = blk_text
 	}
 	nblk++
-	blk_at[nblk]  = blk_file ":" blk_start ( blk_end > blk_start ? "-" blk_end : "" )
+	blk_at[nblk]  = blk_file ":" blk_start "" ( blk_end > blk_start ? "-" blk_end : "" )
 	blk_norm[nblk] = norm( blk_text )
+	blk_had_dup[nblk] = blk_recorded; blk_recorded = 0
 	blk_text = ""
 }
 
@@ -174,7 +175,7 @@ function norm( t,   k ) {
 # line breaks, even when it reuses a whole distinctive clause. Index every
 # window of `min_phrase_words` consecutive words and report any window two
 # different comments share: a run that long is reuse, not coincidence.
-function shared_phrases(   i, j, k2, w, nw, key, ids, nid, sig, a, allsame ) {
+function shared_phrases(   i, j, k2, w, nw, key, ids, nid, sig, a, b, tmp, allsame, dupped ) {
 	for ( i = 1; i <= nblk; i++ ) {
 		nw = split( blk_norm[i], w, " " )
 		for ( j = 1; j + min_phrase_words - 1 <= nw; j++ ) {
@@ -193,12 +194,27 @@ function shared_phrases(   i, j, k2, w, nw, key, ids, nid, sig, a, allsame ) {
 		if ( nid < 2 ) continue
 		allsame = 1
 		for ( a = 2; a <= nid; a++ ) if ( blk_norm[ids[a]] != blk_norm[ids[1]] ) allsame = 0
-		if ( allsame ) continue   # identical blocks are already in the verbatim report
+		# Skip only what the verbatim report really has: its substance floor is per
+		# line, so a block of individually-short lines fails it and misses both.
+		if ( allsame ) {
+			dupped = 1
+			for ( a = 1; a <= nid; a++ ) if ( !blk_had_dup[ids[a]] ) dupped = 0
+			if ( dupped ) continue
+		}
 		sig = owners[key]
-		if ( length( key ) > length( best[sig] ) ) best[sig] = key
+		sig_same[sig] = allsame
+		# Tie on length: break it lexicographically, or the array walk order decides.
+		if ( length( key ) > length( best[sig] ) || ( length( key ) == length( best[sig] ) && key < best[sig] ) ) best[sig] = key
 	}
 	nsig = 0
 	for ( sig in best ) sig_list[++nsig] = sig
+	# That walk has no defined order, so sort before reporting — otherwise the
+	# phrase quoted and the candidate order both vary by awk implementation.
+	for ( a = 2; a <= nsig; a++ ) {
+		tmp = sig_list[a]
+		for ( b = a - 1; b >= 1 && sig_gt( sig_list[b], tmp ); b-- ) sig_list[b + 1] = sig_list[b]
+		sig_list[b + 1] = tmp
+	}
 	# A shorter window often spans a subset of a longer one's comments. Reporting
 	# both says the same thing twice, so keep only the widest set.
 	npair = 0
@@ -207,7 +223,14 @@ function shared_phrases(   i, j, k2, w, nw, key, ids, nid, sig, a, allsame ) {
 		npair++
 		pair_key[npair]   = best[sig_list[a]]
 		pair_sites[npair] = sig_list[a]
+		pair_same[npair]  = sig_same[sig_list[a]]
 	}
+}
+
+# Orders two site sets by their first comment, whose number leads the string.
+function sig_gt( x, y ) {
+	if ( ( x + 0 ) != ( y + 0 ) ) return ( x + 0 ) > ( y + 0 )
+	return x > y
 }
 
 function subsumed( sig, list, n, self,   b, i, nid, ids, ok ) {
@@ -227,12 +250,12 @@ function subsumed( sig, list, n, self,   b, i, nid, ids, ok ) {
 # still an exact match, just not defeated by a backtick or a full stop. The
 # skill's "Known limitation" note says why this stops short of paraphrase.
 function record_dup( low, text,   key, words, junk ) {
-	if ( length( text ) < min_chars ) return
+	if ( length( text ) < min_chars ) return 0
 	key = low
 	gsub( /[^a-z0-9]+/, " ", key )
 	sub( /^ +/, "", key ); sub( / +$/, "", key )
 	words = split( key, junk, " " )
-	if ( words < min_words ) return
+	if ( words < min_words ) return 0
 
 	if ( !( key in dup_n ) ) {
 		dup_n[key]   = 0
@@ -240,8 +263,9 @@ function record_dup( low, text,   key, words, junk ) {
 		dup_order[++ndup] = key
 	}
 	dup_n[key]++
-	dup_where[key] = dup_where[key] ( dup_n[key] > 1 ? "\n" : "" ) path ":" lineno
+	dup_where[key] = dup_where[key] "" ( dup_n[key] > 1 ? "\n" : "" ) path ":" lineno
 	seen_at[path ":" lineno] = key
+	return 1
 }
 
 function root_of( k,   guard ) {
@@ -312,7 +336,8 @@ END {
 	if ( npair + 0 == 0 ) print "  none"
 	for ( i = 1; i <= npair; i++ ) {
 		n = split( pair_sites[i], sites, " " )
-		printf "\n%d. %d comments reuse \"…%s…\", reworded around it\n", i, n, pair_key[i]
+		printf "\n%d. %d comments reuse \"…%s…\"%s\n", i, n, pair_key[i], \
+			( pair_same[i] ? ", identical but under the verbatim floor" : ", reworded around it" )
 		for ( j = 1; j <= n; j++ ) print "   - " blk_at[sites[j]]
 	}
 
