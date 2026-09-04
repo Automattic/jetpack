@@ -8,6 +8,25 @@
  * @since 0.8.0
  */
 
+@use "@wordpress/base-styles/mixins" as *;
+
+// ---------------------------------------------------------------
+// Paste-code editor (V1)
+// ---------------------------------------------------------------
+
+.wp-block-jetpack-paypal-payment-buttons {
+
+	.block-editor-plain-text {
+		width: auto;
+
+		@include editor-input-reset();
+	}
+
+	.components-notice {
+		align-self: normal;
+	}
+}
+
 // ---------------------------------------------------------------
 // Shared / Utility
 // ---------------------------------------------------------------
