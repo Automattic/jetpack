@@ -4,9 +4,10 @@
 // but not guaranteed here. Define a local fallback.
 $spacing-base: var(--spacing-base, 8px);
 
-// AdminPage uses margin-left: -20px to neutralize #wpcontent's default 20px
-// padding. But Jetpack's own CSS zeros out that padding (admin-static.scss,
-// _main.scss), so the -20px just shifts everything into the sidebar. Reset it.
+// AdminPage uses margin-inline-start: -20px to neutralize #wpcontent's
+// default 20px padding. But Jetpack's own CSS zeros out that padding
+// (admin-static.scss, _main.scss), so the -20px just shifts everything
+// into the sidebar. Reset it.
 // Double class for specificity over the CSS module rule.
 .jp-settings-admin-page.jp-settings-admin-page {
 	margin-left: 0;

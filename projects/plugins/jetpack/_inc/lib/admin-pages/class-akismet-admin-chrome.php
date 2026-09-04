@@ -218,11 +218,9 @@ class Akismet_Admin_Chrome {
 				markup (#wpbody-content > #akismet-plugin-container > header/.akismet-lower/footer).
 				Scoped to both menu locations: jetpack_page_… and settings_page_…
 
-				The mixin uses physical `left`/`right` because its SCSS is compiled
-				through rtlcss, which emits a flipped stylesheet. This inline `<style>`
-				has no such build step, so it uses CSS logical properties
-				(`inset-inline-*`, `padding-inline-*`, `margin-inline`) to flip with the
-				admin menu under RTL locales. */
+				Logical properties throughout (`inset-inline-*`, `padding-inline-*`,
+				`margin-inline`), like the mixin, so this block flips with the admin
+				menu under RTL locales. */
 			body[class*="_page_akismet-key-config"] #wpcontent {
 				padding-inline-start: 0;
 			}
