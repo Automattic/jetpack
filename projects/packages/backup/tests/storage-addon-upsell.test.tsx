@@ -283,8 +283,6 @@ describe( 'when the upsell appears', () => {
 
 describe( 'what the offer says', () => {
 	it( 'hands the button one child, so nothing is spaced out as a flex item', async () => {
-		// The button is a flex container with a gap, so an interpolated price left bare
-		// is a second flex item with 8px either side — a gap no msgid asked for.
 		renderWithClient( <StorageSpace /> );
 		const link = await offerLink();
 
