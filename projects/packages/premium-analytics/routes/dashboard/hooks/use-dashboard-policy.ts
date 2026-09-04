@@ -1,39 +1,29 @@
 import { getScriptData } from '@automattic/jetpack-script-data';
 import { useMemo } from 'react';
-import type {
-	CanPerformDashboardOperation,
-	DashboardOperationRequest,
-} from '@wordpress/widget-dashboard';
-
-type DashboardOperation = DashboardOperationRequest[ 'operation' ];
-
-/**
- * What the dashboard offers for an operation the server sent no answer for:
- * a reader's rights, with adding and removing widgets withheld.
- */
-const DEFAULT_CAPABILITIES: Record< DashboardOperation, boolean > = {
-	customize: true,
-	insert: false,
-	remove: false,
-	move: true,
-	resize: true,
-	edit: true,
-	reset: true,
-};
+import type { CanPerformDashboardOperation } from '@wordpress/widget-dashboard';
 
 /**
  * The application's answer to the dashboard policy seam.
  *
- * The server derives what the user may do from the role they play on the
- * dashboard; this hook only reads that answer, one flag per operation.
+ * Moving and removing widgets is offered to Automatticians on sandboxed
+ * requests only while the dashboard composition is under evaluation. Every
+ * other operation is left to the engine.
  *
  * @return The policy callback for `WidgetDashboard.Policy`.
  */
 export function useDashboardPolicy(): CanPerformDashboardOperation {
 	return useMemo< CanPerformDashboardOperation >( () => {
-		const capabilities = getScriptData()?.premium_analytics?.dashboard?.capabilities ?? {};
+		const facts = getScriptData()?.premium_analytics;
+		const canRestructure = facts?.is_automattician === true && facts?.is_sandboxed === true;
 
-		return request =>
-			capabilities[ request.operation ] ?? DEFAULT_CAPABILITIES[ request.operation ];
+		return request => {
+			switch ( request.operation ) {
+				case 'move':
+				case 'remove':
+					return canRestructure;
+				default:
+					return true;
+			}
+		};
 	}, [] );
 }

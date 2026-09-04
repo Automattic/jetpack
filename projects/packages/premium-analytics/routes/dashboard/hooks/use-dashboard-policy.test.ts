@@ -11,81 +11,63 @@ const widgetType: WidgetType = {
 const widget = { uuid: 'devices', type: widgetType.name } as const;
 
 /**
- * Seed the dashboard block of the script data the policy reads.
+ * Seed the facts the dashboard policy reads.
  *
- * @param dashboard              - The block, omitted to leave the script data without one.
- * @param dashboard.role         - The role the server resolved.
- * @param dashboard.capabilities - One flag per operation, partial on purpose.
+ * @param facts - The `premium_analytics` block, omitted to leave the script data without one.
  */
-function seedScriptData( dashboard?: {
-	role: string;
-	capabilities: Partial< Record< string, boolean > >;
-} ) {
+function seedScriptData( facts?: Record< string, boolean > ) {
 	Object.defineProperty( window, 'JetpackScriptData', {
-		value: dashboard ? { premium_analytics: { dashboard } } : {},
+		value: facts ? { premium_analytics: facts } : {},
 		configurable: true,
 		writable: true,
 	} );
 }
-
-const everything = {
-	customize: true,
-	insert: true,
-	remove: true,
-	move: true,
-	resize: true,
-	edit: true,
-	reset: true,
-};
 
 describe( 'useDashboardPolicy', () => {
 	afterEach( () => {
 		delete window.JetpackScriptData;
 	} );
 
-	it( 'answers each operation from the capabilities the server sent', () => {
-		seedScriptData( { role: 'automattician', capabilities: everything } );
+	it( 'offers move and remove to an Automattician on a sandboxed request', () => {
+		seedScriptData( { is_automattician: true, is_sandboxed: true } );
 		const { result } = renderHook( () => useDashboardPolicy() );
 
-		expect( result.current( { operation: 'insert', widgetType } ) ).toBe( true );
+		expect( result.current( { operation: 'move', widget, widgetType } ) ).toBe( true );
 		expect( result.current( { operation: 'remove', widget, widgetType } ) ).toBe( true );
-		expect( result.current( { operation: 'customize' } ) ).toBe( true );
 	} );
 
-	it( 'withholds what the role was not granted', () => {
-		seedScriptData( {
-			role: 'editor',
-			capabilities: { ...everything, insert: false, remove: false, reset: false },
-		} );
+	it.each( [
+		[ 'an Automattician outside a sandbox', { is_automattician: true, is_sandboxed: false } ],
+		[ 'a sandboxed request from anyone else', { is_automattician: false, is_sandboxed: true } ],
+		[ 'a request with neither fact', { is_automattician: false, is_sandboxed: false } ],
+	] )( 'withholds move and remove from %s', ( _label, facts ) => {
+		seedScriptData( facts );
 		const { result } = renderHook( () => useDashboardPolicy() );
 
-		expect( result.current( { operation: 'insert', widgetType } ) ).toBe( false );
+		expect( result.current( { operation: 'move', widget, widgetType } ) ).toBe( false );
 		expect( result.current( { operation: 'remove', widget, widgetType } ) ).toBe( false );
-		expect( result.current( { operation: 'reset' } ) ).toBe( false );
-		expect( result.current( { operation: 'move', widget } ) ).toBe( true );
 	} );
 
-	it( 'falls back to a reader without adding or removing when the server sent nothing', () => {
+	it( 'withholds them when the script data carries no facts', () => {
 		seedScriptData();
 		const { result } = renderHook( () => useDashboardPolicy() );
 
-		expect( result.current( { operation: 'customize' } ) ).toBe( true );
-		expect( result.current( { operation: 'insert', widgetType } ) ).toBe( false );
-		expect( result.current( { operation: 'remove', widget, widgetType } ) ).toBe( false );
-		expect( result.current( { operation: 'resize', widget } ) ).toBe( true );
+		expect( result.current( { operation: 'move', widget } ) ).toBe( false );
 	} );
 
-	it( 'fills the operations a partial answer leaves out from the same defaults', () => {
-		seedScriptData( { role: 'administrator', capabilities: { insert: true } } );
+	it( 'allows the operations it does not govern', () => {
+		seedScriptData( { is_automattician: false, is_sandboxed: false } );
 		const { result } = renderHook( () => useDashboardPolicy() );
 
+		expect( result.current( { operation: 'customize' } ) ).toBe( true );
+		expect( result.current( { operation: 'reset' } ) ).toBe( true );
 		expect( result.current( { operation: 'insert', widgetType } ) ).toBe( true );
-		expect( result.current( { operation: 'remove', widget, widgetType } ) ).toBe( false );
+		expect( result.current( { operation: 'resize', widget } ) ).toBe( true );
 		expect( result.current( { operation: 'edit', widget } ) ).toBe( true );
 	} );
 
 	it( 'keeps the same callback across renders', () => {
-		seedScriptData( { role: 'automattician', capabilities: everything } );
+		seedScriptData( { is_automattician: true, is_sandboxed: true } );
 		const { result, rerender } = renderHook( () => useDashboardPolicy() );
 		const first = result.current;
 

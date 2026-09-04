@@ -1,4 +1,4 @@
 Significance: patch
 Type: added
 
-Dashboard: answer the widget dashboard policy from the role the user plays. Automatticians alone may add and remove widgets while the dashboard composition is under evaluation; the `jetpack_premium_analytics_dashboard_role` and `jetpack_premium_analytics_dashboard_capabilities` filters adjust the role and what it may do.
+Dashboard: offer moving and removing widgets to Automatticians on sandboxed requests only while the dashboard composition is under evaluation.
