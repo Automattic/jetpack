@@ -44,10 +44,11 @@ class Dashboard_Policy_Test extends TestCase {
 	public function test_flag_registers_off_by_default() {
 		register_dashboard_feature_flags();
 
-		$flag = Feature_Flags::get( DASHBOARD_COMPOSITION_FLAG );
+		$flags = Feature_Flags::all();
 
-		$this->assertFalse( $flag['default'] );
-		$this->assertSame( 'jetpack-premium-analytics', $flag['owner'] );
+		$this->assertArrayHasKey( DASHBOARD_COMPOSITION_FLAG, $flags );
+		$this->assertFalse( $flags[ DASHBOARD_COMPOSITION_FLAG ]['default'] );
+		$this->assertSame( 'jetpack-premium-analytics', $flags[ DASHBOARD_COMPOSITION_FLAG ]['owner'] );
 	}
 
 	public function test_composition_is_off_by_default() {
