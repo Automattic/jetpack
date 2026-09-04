@@ -7,12 +7,33 @@
 
 namespace Automattic\Jetpack\VideoPress;
 
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use WorDBless\BaseTestCase;
 
 /**
  * Class Block_Editor_Content_Test
+ *
+ * Runs in separate processes because the shortcode loads Jwt_Token_Bridge, which
+ * Uploader_Test replaces with a Mockery alias mock that requires the real class
+ * to not be loaded yet.
+ *
+ * @runTestsInSeparateProcesses
+ * @preserveGlobalState disabled
  */
+#[RunTestsInSeparateProcesses]
+#[PreserveGlobalState( false )]
 class Block_Editor_Content_Test extends BaseTestCase {
+
+	/**
+	 * Set up before each test.
+	 */
+	public function set_up() {
+		parent::set_up();
+
+		// Each isolated process starts without the package's utility functions.
+		require_once __DIR__ . '/../../src/utility-functions.php';
+	}
 
 	/**
 	 * Tear down after each test.
