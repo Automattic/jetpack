@@ -282,6 +282,18 @@ describe( 'when the upsell appears', () => {
 } );
 
 describe( 'what the offer says', () => {
+	it( 'hands the button one child, so nothing is spaced out as a flex item', async () => {
+		// The button is a flex container with a gap, so an interpolated price left bare
+		// is a second flex item with 8px either side — a gap no msgid asked for.
+		renderWithClient( <StorageSpace /> );
+		const link = await offerLink();
+
+		expect( link.childNodes ).toHaveLength( 1 );
+		expect( link ).toHaveTextContent(
+			/^Add 100GB additional storage for \$9\.95\/month, billed monthly$/
+		);
+	} );
+
 	it( 'quotes a Brazilian site in reais, with no dollar sign anywhere', async () => {
 		// Why `price.jsx` was not ported: it reads `currencyCode` off a block keyed
 		// `currency_code` and `getCurrencyObject` falls back to `$`. This catalogue is
