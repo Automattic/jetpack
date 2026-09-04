@@ -494,9 +494,10 @@ class Jetpack_Sitemap_Builder { // phpcs:ignore Generic.Files.OneObjectStructure
 	/**
 	 * Builds the master sitemap index.
 	 *
-	 * Per the sitemap protocol a sitemap index may not list other sitemap
-	 * indexes, so the master lists every individual sitemap file directly and
-	 * never links the per-type `*-sitemap-index-N.xml` files.
+	 * A sitemap index file may not list other sitemap index files, so the master
+	 * lists every individual sitemap file directly whenever they all fit in one
+	 * buffer. They no longer fit somewhere north of a million URLs, and only then
+	 * does it fall back to linking the per-type `*-sitemap-index-N.xml` files.
 	 *
 	 * @link https://www.sitemaps.org/protocol.html#index
 	 *
@@ -509,6 +510,56 @@ class Jetpack_Sitemap_Builder { // phpcs:ignore Generic.Files.OneObjectStructure
 			$this->logger->report( '-- Building Master Sitemap.' );
 		}
 
+		$sitemap_types = array(
+			JP_PAGE_SITEMAP_TYPE,
+			JP_IMAGE_SITEMAP_TYPE,
+			JP_VIDEO_SITEMAP_TYPE,
+		);
+
+		/*
+		 * Both the item limit and the byte limit can stop the flat listing, and
+		 * how soon the byte limit bites depends on how long this site's URLs are,
+		 * so the flat build reports whether everything fit instead of quietly
+		 * storing a master that omits sitemaps.
+		 */
+		$buffer = $this->build_flat_master_buffer( $sitemap_types );
+
+		if ( ! $buffer ) {
+			/*
+			 * ponytail: nested indexes are invalid per the protocol and Google
+			 * flags them, but a complete invalid tree beats a valid tree that
+			 * drops URLs. Lifting this ceiling means paginating the master
+			 * itself, which the protocol cannot express without nesting anyway.
+			 */
+			$buffer = $this->build_nested_master_buffer( $sitemap_types, $max );
+		}
+
+		if ( ! $buffer ) {
+			return;
+		}
+
+		$this->librarian->store_sitemap_data(
+			0,
+			JP_MASTER_SITEMAP_TYPE,
+			$buffer->contents(),
+			''
+		);
+	}
+
+	/**
+	 * Build a master sitemap buffer listing every individual sitemap file.
+	 *
+	 * Returns false if the buffer filled up before every file was listed, in
+	 * which case the partial buffer is discarded rather than stored.
+	 *
+	 * @access private
+	 * @since 16.2
+	 *
+	 * @param array $sitemap_types The sitemap types to list, in order.
+	 *
+	 * @return Jetpack_Sitemap_Buffer|Jetpack_Sitemap_Buffer_XMLWriter|false The buffer, or false if they did not all fit.
+	 */
+	private function build_flat_master_buffer( $sitemap_types ) {
 		$buffer = Jetpack_Sitemap_Buffer_Factory::create(
 			'master',
 			JP_SITEMAP_MAX_ITEMS,
@@ -516,51 +567,89 @@ class Jetpack_Sitemap_Builder { // phpcs:ignore Generic.Files.OneObjectStructure
 		);
 
 		if ( ! $buffer ) {
-			return;
+			return false;
 		}
 
-		$sitemap_types = array(
-			JP_PAGE_SITEMAP_TYPE,
-			JP_IMAGE_SITEMAP_TYPE,
-			JP_VIDEO_SITEMAP_TYPE,
+		foreach ( $sitemap_types as $sitemap_type ) {
+			$last_sitemap_id = 0;
+
+			while ( true ) {
+				$rows = $this->librarian->query_sitemaps_after_id(
+					$sitemap_type,
+					$last_sitemap_id,
+					JP_SITEMAP_BATCH_SIZE
+				);
+
+				if ( empty( $rows ) ) {
+					break;
+				}
+
+				foreach ( $rows as $row ) {
+					$current_item = $this->sitemap_row_to_index_item( (array) $row );
+
+					if ( true !== $buffer->append( $current_item['xml'] ) ) {
+						if ( $this->logger ) {
+							$this->logger->report( '-- Master Sitemap is full; falling back to nested indexes.' );
+						}
+
+						return false;
+					}
+
+					$last_sitemap_id = $row['ID'];
+				}
+			}
+		}
+
+		return $buffer;
+	}
+
+	/**
+	 * Build a master sitemap buffer linking one file per sitemap type: the single
+	 * sitemap when there is only one, otherwise that type's newest index file.
+	 *
+	 * Returns false if a type reports several sitemap files but no index to reach
+	 * them through, which means this generation cycle is incomplete. Publishing
+	 * then would drop every file after the first, so the caller keeps the master
+	 * built by the previous cycle instead.
+	 *
+	 * @access private
+	 * @since 16.2
+	 *
+	 * @param array $sitemap_types The sitemap types to list, in order.
+	 * @param array $max           Array of sitemap types with max index and datetime.
+	 *
+	 * @return Jetpack_Sitemap_Buffer|Jetpack_Sitemap_Buffer_XMLWriter|false The buffer, or false if the state is incomplete.
+	 */
+	private function build_nested_master_buffer( $sitemap_types, $max ) {
+		$buffer = Jetpack_Sitemap_Buffer_Factory::create(
+			'master',
+			JP_SITEMAP_MAX_ITEMS,
+			JP_SITEMAP_MAX_BYTES
 		);
 
-		// Total number of individual sitemap files to list.
-		$total = 0;
-		foreach ( $sitemap_types as $sitemap_type ) {
-			if ( isset( $max[ $sitemap_type ]['number'] ) ) {
-				$total += (int) $max[ $sitemap_type ]['number'];
-			}
+		if ( ! $buffer ) {
+			return false;
 		}
 
-		/*
-		 * Listing every file directly needs room for all of them. Above the
-		 * buffer's item capacity (a million-plus URLs) fall back to the nested
-		 * indexes: Google flags the nesting, but that beats dropping URLs.
-		 *
-		 * ponytail: raising this ceiling means paginating the master itself,
-		 * which the protocol can't express without nesting anyway.
-		 */
-		$flatten = ( $total <= JP_SITEMAP_MAX_ITEMS );
-
 		foreach ( $sitemap_types as $sitemap_type ) {
-			if ( ! isset( $max[ $sitemap_type ]['number'] ) || 0 >= $max[ $sitemap_type ]['number'] ) {
-				continue;
-			}
-
-			if ( $flatten ) {
-				$this->append_sitemaps_to_master( $buffer, $sitemap_type );
+			if ( empty( $max[ $sitemap_type ]['number'] ) ) {
 				continue;
 			}
 
 			$index_type = jp_sitemap_index_type_of( $sitemap_type );
 
-			if ( 1 === $max[ $sitemap_type ]['number'] || ! isset( $max[ $index_type ]['number'] ) ) {
+			if ( 1 === $max[ $sitemap_type ]['number'] ) {
 				$filename = jp_sitemap_filename( $sitemap_type, 1 );
 				$lastmod  = $max[ $sitemap_type ]['lastmod'];
-			} else {
+			} elseif ( ! empty( $max[ $index_type ]['number'] ) ) {
 				$filename = jp_sitemap_filename( $index_type, $max[ $index_type ]['number'] );
 				$lastmod  = $max[ $index_type ]['lastmod'];
+			} else {
+				if ( $this->logger ) {
+					$this->logger->report( "-- No index for $sitemap_type; keeping the previous Master Sitemap." );
+				}
+
+				return false;
 			}
 
 			$buffer->append(
@@ -573,50 +662,7 @@ class Jetpack_Sitemap_Builder { // phpcs:ignore Generic.Files.OneObjectStructure
 			);
 		}
 
-		$this->librarian->store_sitemap_data(
-			0,
-			JP_MASTER_SITEMAP_TYPE,
-			$buffer->contents(),
-			''
-		);
-	}
-
-	/**
-	 * Append every stored sitemap file of the given type to the master sitemap.
-	 *
-	 * Stops early if the buffer fills up; see build_master_sitemap() for how
-	 * that case is avoided.
-	 *
-	 * @access private
-	 * @since 16.2
-	 *
-	 * @param Jetpack_Sitemap_Buffer $buffer       The master sitemap buffer.
-	 * @param string                 $sitemap_type The type of sitemap to list.
-	 */
-	private function append_sitemaps_to_master( $buffer, $sitemap_type ) {
-		$last_sitemap_id = 0;
-
-		while ( false === $buffer->is_full() ) {
-			$rows = $this->librarian->query_sitemaps_after_id(
-				$sitemap_type,
-				$last_sitemap_id,
-				JP_SITEMAP_BATCH_SIZE
-			);
-
-			if ( empty( $rows ) ) {
-				return;
-			}
-
-			foreach ( $rows as $row ) {
-				$current_item = $this->sitemap_row_to_index_item( (array) $row );
-
-				if ( true !== $buffer->append( $current_item['xml'] ) ) {
-					return;
-				}
-
-				$last_sitemap_id = $row['ID'];
-			}
-		}
+		return $buffer;
 	}
 
 	/**

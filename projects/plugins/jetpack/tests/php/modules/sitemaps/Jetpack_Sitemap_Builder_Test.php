@@ -319,7 +319,7 @@ class Jetpack_Sitemap_Builder_Test extends WP_UnitTestCase {
 		// Enough URLs to spill over JP_SITEMAP_MAX_ITEMS into a second page sitemap.
 		$callback = function () {
 			$urls = array();
-			for ( $i = 0; $i <= JP_SITEMAP_MAX_ITEMS; $i++ ) {
+			for ( $i = 0; $i < JP_SITEMAP_MAX_ITEMS * 2; $i++ ) {
 				$urls[] = 'https://example.com/' . $i;
 			}
 			return $urls;
