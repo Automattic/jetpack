@@ -509,7 +509,7 @@ export default function App() {
 							( aiSettings?.host_allows_ai === false ? (
 								<Notice.Root intent="warning">
 									<Notice.Description>
-										{ __( 'AI has been turned off for this site.', 'jetpack' ) }
+										{ __( 'Jetpack AI is not available for this site.', 'jetpack' ) }
 									</Notice.Description>
 								</Notice.Root>
 							) : (

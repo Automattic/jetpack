@@ -148,7 +148,7 @@ describe( 'AI admin page (main.jsx)', () => {
 		render( <App /> );
 
 		await expect(
-			screen.findByText( 'AI has been turned off for this site.', IGNORE_A11Y )
+			screen.findByText( 'Jetpack AI is not available for this site.', IGNORE_A11Y )
 		).resolves.toBeInTheDocument();
 
 		// AiFeatures never mounts: no feature toggle, no upgrade badge, no action link.
@@ -243,7 +243,7 @@ describe( 'AI admin page (main.jsx)', () => {
 			render( <App /> );
 
 			await expect(
-				screen.findByText( 'AI has been turned off for this site.', IGNORE_A11Y )
+				screen.findByText( 'Jetpack AI is not available for this site.', IGNORE_A11Y )
 			).resolves.toBeInTheDocument();
 			expect( screen.queryByText( MASTER_OFF_TITLE, IGNORE_A11Y ) ).not.toBeInTheDocument();
 		} );

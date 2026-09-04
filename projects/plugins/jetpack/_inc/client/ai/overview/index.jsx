@@ -364,17 +364,16 @@ export default function AiOverview( {
 		recordAiHubEvent( EVENTS.LINK_CLICK, { link_type: linkType, link: slug } );
 	return (
 		<Stack direction="column" gap="3xl">
-			<AssistantBanner />
-			{ /* The banner, connection notices, and usage card share a tighter
-			     rhythm than the titled sections below. On plans where nothing
-			     in here renders (the usage card returns null after the fetch),
-			     the stylesheet's :empty rule drops the wrapper so the outer
-			     3xl gap doesn't double. */ }
+			{ /* Connection notices first, then the banner, then the usage card:
+			     the three share a tighter rhythm than the titled sections below.
+			     On plans where nothing in here renders (banner dismissed, usage
+			     card null after the fetch), the stylesheet's :empty rule drops
+			     the wrapper so the outer 3xl gap doesn't double. */ }
 			<Stack direction="column" gap="xl" className="jetpack-ai-overview__intro">
 				{ !! blogId && hostBlocked && (
 					<Notice.Root intent="warning">
 						<Notice.Description>
-							{ __( 'AI has been turned off for this site.', 'jetpack' ) }
+							{ __( 'Jetpack AI is not available for this site.', 'jetpack' ) }
 						</Notice.Description>
 					</Notice.Root>
 				) }
@@ -392,9 +391,6 @@ export default function AiOverview( {
 						</Notice.Description>
 					</Notice.Root>
 				) }
-				{ !! blogId && ! hostBlocked && ! userUnlinked && (
-					<UsageCard upgradeUrl={ upgradeUrl } planName={ planName } />
-				) }
 				{ ! blogId && (
 					// Disconnected: skip the fetch (it can only fail) and explain
 					// the actual problem instead of a fetch error.
@@ -409,6 +405,10 @@ export default function AiOverview( {
 							</Link>
 						</Notice.Description>
 					</Notice.Root>
+				) }
+				<AssistantBanner />
+				{ !! blogId && ! hostBlocked && ! userUnlinked && (
+					<UsageCard upgradeUrl={ upgradeUrl } planName={ planName } />
 				) }
 			</Stack>
 

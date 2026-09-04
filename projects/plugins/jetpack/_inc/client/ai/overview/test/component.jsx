@@ -306,13 +306,26 @@ describe( 'AiOverview', () => {
 		render( <AiOverview { ...PROPS } hostAllowsAi={ false } /> );
 
 		expect(
-			screen.getByText( 'AI has been turned off for this site.', IGNORE_A11Y )
+			screen.getByText( 'Jetpack AI is not available for this site.', IGNORE_A11Y )
 		).toBeInTheDocument();
 		expect( screen.queryByText( 'Available requests' ) ).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'link', { name: 'Upgrade' } ) ).not.toBeInTheDocument();
 		expect( apiFetch ).not.toHaveBeenCalled();
 		// The rest of the tab is unrelated to AI billing and stays.
 		expect( screen.getByText( 'Documentation' ) ).toBeInTheDocument();
+	} );
+
+	test( 'host AI off: the notice renders above the assistant banner', () => {
+		dispatch( preferencesStore ).set( 'jetpack/ai', 'assistantBannerDismissed', false );
+		render( <AiOverview { ...PROPS } hostAllowsAi={ false } /> );
+
+		// getAllByText returns matches in document order.
+		const [ first, second ] = screen.getAllByText(
+			/Jetpack AI is not available for this site\.|Do more on your site with AI\./,
+			IGNORE_A11Y
+		);
+		expect( first ).toHaveTextContent( 'Jetpack AI is not available for this site.' );
+		expect( second ).toHaveTextContent( 'Do more on your site with AI.' );
 	} );
 
 	test( 'user account not linked: explains the account, does not fetch', async () => {
