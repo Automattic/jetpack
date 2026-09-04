@@ -77,7 +77,7 @@ The simplest line chart requires only a `data` prop with time-series data:
 
 **Visual Styling:**
 - **`curveType`**: Line curve style (`'smooth'`, `'linear'`, `'monotone'`)
-- **`smoothing`**: Legacy smoothing parameter (deprecated, use `curveType` instead)
+- **`smoothing`**: Catmull-Rom smoothing, on by default. Ignored when `curveType` is set
 - **`withGradientFill`**: Fill area under lines with gradient (`false` by default)
 - **`withStartGlyphs`**: Show markers at the first data point of each series (`false` by default)
 - **`renderGlyph`**: Custom glyph render function
@@ -475,6 +475,11 @@ Add contextual information to highlight specific data points or events. For comp
 
 Enable rich interactive tooltips with optional crosshair guides:
 
+The built-in tooltip names the bucket at its own granularity, down to the hour on
+hourly data. A custom `renderTooltip` is handed the same classification as
+`bucketInfo`, so it can label the bucket the way the chart's own axis does. See
+[Date Bucket Classification](?path=/docs/js-packages-charts-library-global-context--docs).
+
 <Source
 	language="jsx"
 	code={ `<LineChart
@@ -492,6 +497,8 @@ Enable rich interactive tooltips with optional crosshair guides:
 		)}
 	/>` }
 />
+
+Tooltips render inside the chart's own wrapper, not in a `document.body` portal, so they stack with the page like any other element and a sticky or fixed header paints over them. `detectBounds` keeps the box inside the nearest ancestor that clips its overflow (`overflow: hidden`, `clip`, `auto` or `scroll`), or inside the viewport when nothing clips, flipping and then clamping it; it may reach past the chart wrapper into that ancestor. Only an ancestor smaller than the box itself can still cut it off.
 
 ### Pointer Events
 
@@ -559,7 +566,7 @@ Use `defaultHiddenSeries` to hide selected series initially while keeping them a
 
 ## Theming Integration
 
-Line Charts integrate seamlessly with the chart theming system. The default theme has neutral colors and styling, and is automatically applied to all charts unless a custom theme is provided.
+Line Charts integrate seamlessly with the chart theming system. The default theme has neutral styling, and is automatically applied to all charts unless a custom theme is provided.
 
 **Series colors come from the palette custom properties, not the theme object.** Set as many of the five slots as you need; an unset slot is skipped, and charts generates accessible colors beyond whatever you set:
 
@@ -572,19 +579,13 @@ Line Charts integrate seamlessly with the chart theming system. The default them
 	}` }
 />
 
-Everything else is set by wrapping your chart in `GlobalChartsProvider` and passing a theme object with the properties you want to override to the `theme` prop:
+Every other color works the same way — declare its catalog role. The closest declaration inside the provider tree wins, so scope the rule to one dashboard, or to `.a8c-charts-scope` to move every chart on the page:
 
 <Source
-	language="tsx"
-	code={ `import { GlobalChartsProvider, LineChart, type ChartTheme } from '@automattic/charts';
-
-	const customTheme: ChartTheme = {
-		gridStyles: { stroke: '#E0E0E0' },
-	};
-
-	<GlobalChartsProvider theme={customTheme}>
-		<LineChart data={data} />
-	</GlobalChartsProvider>` }
+	language="css"
+	code={ `.my-dashboard {
+		--a8c-charts-color-grid: #E0E0E0;
+	}` }
 />
 
 ## Responsive Behavior

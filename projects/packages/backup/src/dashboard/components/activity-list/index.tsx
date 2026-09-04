@@ -1,6 +1,6 @@
 import { DataViews } from '@wordpress/dataviews';
 import { dateI18n } from '@wordpress/date';
-import { useCallback, useMemo } from '@wordpress/element';
+import { useCallback, useEffect, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Icon, cloud, image, post, plugins as pluginsIcon, color, info } from '@wordpress/icons';
 import { Card, Stack, Text } from '@wordpress/ui';
@@ -8,6 +8,7 @@ import { ACTIVITY_LOG_DEFAULT_PER_PAGE, useActivityLog } from '../../hooks/use-a
 import { isBackupItem } from '../../types/activity';
 import QueryError from '../query-error';
 import './style.scss';
+import type { ActivitySortOrder } from '../../data/api/activity-log';
 import type { ActivityItem, ActivityKind } from '../../types/activity';
 import type { Field, View } from '@wordpress/dataviews';
 
@@ -27,6 +28,27 @@ type Props = {
 	view: View;
 	onChangeView: ( next: View ) => void;
 };
+
+/**
+ * The query a DataViews view is asking the server for.
+ *
+ * Exported so Overview derives the same cache key for `useActivityById` instead
+ * of repeating the arithmetic and drifting into a second, needless request.
+ *
+ * @param view - DataViews view state.
+ * @return The page, page size and direction to request.
+ */
+export function activityQueryArgs( view: View ): {
+	page: number;
+	pageSize: number;
+	sortOrder: ActivitySortOrder;
+} {
+	return {
+		page: view.page ?? 1,
+		pageSize: view.perPage ?? ACTIVITY_LOG_DEFAULT_PER_PAGE,
+		sortOrder: view.sort?.direction === 'asc' ? 'asc' : 'desc',
+	};
+}
 
 /**
  * Returns the row's stable id for DataViews selection bookkeeping.
@@ -72,8 +94,12 @@ function DescriptionCell( { item }: { item: ActivityItem } ) {
 			<Text variant="body-sm" className="jpb-text-muted jpb-activity-list__date">
 				{ dateI18n( 'M j, Y, g:i A', item.publishedAt, undefined ) }
 			</Text>
+			{ /*
+			 * `auto`, not `ltr`: WPCOM may legitimately translate this line into RTL.
+			 * Same everywhere `stats` and `summary` are rendered.
+			 */ }
 			{ item.summary && (
-				<Text variant="body-sm" className="jpb-text-muted jpb-activity-list__summary">
+				<Text variant="body-sm" className="jpb-text-muted jpb-activity-list__summary" dir="auto">
 					{ item.summary }
 				</Text>
 			) }
@@ -101,12 +127,34 @@ function DescriptionCell( { item }: { item: ActivityItem } ) {
  * @return The rendered list.
  */
 export default function ActivityList( { selectedId, onSelect, view, onChangeView }: Props ) {
-	const page = view.page ?? 1;
-	const perPage = view.perPage ?? ACTIVITY_LOG_DEFAULT_PER_PAGE;
-	const { items, totalItems, totalPages, isLoading, isFetching, error, refetch } = useActivityLog( {
-		page,
-		pageSize: perPage,
-	} );
+	const { page, pageSize, sortOrder } = activityQueryArgs( view );
+	const { items, totalItems, totalPages, isLoading, isFetching, isPaused, error, refetch } =
+		useActivityLog( {
+			page,
+			pageSize,
+			sortOrder,
+		} );
+
+	// DataViews' `SortDirectionControl` spreads `...view` and replaces only
+	// `sort`, so without this a reorder strands the reader on page 3 of an
+	// ordering they have not seen the start of.
+	const handleChangeView = useCallback(
+		( next: View ) => {
+			const reordered = ( next.sort?.direction ?? 'desc' ) !== sortOrder;
+			onChangeView( reordered ? { ...next, page: 1 } : next );
+		},
+		[ onChangeView, sortOrder ]
+	);
+
+	// A remembered page can outlive its log, and DataViews hides the footer at one
+	// page — so nothing on screen would offer a way back. `totalPages` falls back to
+	// 1, so in flight, paused offline and failed all read as a one-page log; a
+	// literal 0 survives that `??`, which is what `>= 1` guards against.
+	useEffect( () => {
+		if ( ! isFetching && ! isPaused && ! error && totalPages >= 1 && page > totalPages ) {
+			onChangeView( { ...view, page: totalPages } );
+		}
+	}, [ isFetching, isPaused, error, totalPages, page, view, onChangeView ] );
 
 	// DataViews shows its own "No results" whenever `data` is empty, and a
 	// failed request leaves it empty — so without this a 5xx tells the
@@ -122,6 +170,11 @@ export default function ActivityList( { selectedId, onSelect, view, onChangeView
 		/>
 	) : undefined;
 
+	// Every field opts out of filtering, and all but `description` out of sorting:
+	// `/activity/rewindable` takes no search term and orders only on the event
+	// timestamp, so any other control would be a label the server cannot honour.
+	// Zero filters also keeps `FiltersToggle` unrendered, and with it a private
+	// `@wordpress/components` API that drops the dashboard to its error boundary.
 	const fields: Field< ActivityItem >[] = useMemo(
 		() => [
 			{
@@ -131,13 +184,15 @@ export default function ActivityList( { selectedId, onSelect, view, onChangeView
 				render: MediaCell,
 				enableHiding: false,
 				enableSorting: false,
+				filterBy: false,
 			},
 			{
 				id: 'title',
 				type: 'text',
 				label: __( 'Title', 'jetpack-backup-pkg' ),
 				getValue: ( { item } ) => item.title,
-				enableGlobalSearch: true,
+				enableSorting: false,
+				filterBy: false,
 			},
 			{
 				id: 'description',
@@ -148,8 +203,8 @@ export default function ActivityList( { selectedId, onSelect, view, onChangeView
 					`${ dateI18n( 'M j, Y, g:i A', item.publishedAt, undefined ) }${
 						item.summary ? ` ${ item.summary }` : ''
 					}`,
-				enableGlobalSearch: true,
 				enableHiding: false,
+				filterBy: false,
 			},
 		],
 		[]
@@ -190,7 +245,7 @@ export default function ActivityList( { selectedId, onSelect, view, onChangeView
 				data={ items }
 				fields={ fields }
 				view={ view }
-				onChangeView={ onChangeView }
+				onChangeView={ handleChangeView }
 				paginationInfo={ { totalItems, totalPages } }
 				defaultLayouts={ { list: {} } }
 				getItemId={ getRowId }

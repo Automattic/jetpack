@@ -310,11 +310,11 @@ describe( 'usePopularPost', () => {
 			const [ rankingPath ] = topPostsRequestPaths();
 			const ranking = decodeURIComponent( rankingPath );
 
-			// Whole days: from the start of the day 12 months back, through the end
-			// of yesterday.
-			expect( ranking ).toContain( 'start_date=2025-08-27T00:00:00' );
-			expect( ranking ).toContain( 'date=2026-08-26T23:59:59' );
-			expect( ranking ).toContain( 'days=365' );
+			// Whole calendar months: from the first of the month eleven months back,
+			// through the end of today.
+			expect( ranking ).toContain( 'start_date=2025-09-01T00:00:00' );
+			expect( ranking ).toContain( 'date=2026-08-27T23:59:59' );
+			expect( ranking ).not.toContain( 'days=' );
 		} );
 
 		it( 'draws the window in the site zone, not at UTC midnight', async () => {
@@ -336,10 +336,10 @@ describe( 'usePopularPost', () => {
 
 			await waitFor( () => expect( result.current.post?.id ).toBe( 7 ) );
 
-			expect( result.current.range.from ).toBe( '2025-08-27T00:00:00.000-07:00' );
-			expect( result.current.range.to ).toBe( '2026-08-26T23:59:59.999-07:00' );
+			expect( result.current.range.from ).toBe( '2025-09-01T00:00:00.000-07:00' );
+			expect( result.current.range.to ).toBe( '2026-08-27T23:59:59.999-07:00' );
 			expect( decodeURIComponent( topPostsRequestPaths()[ 0 ] ) ).toContain(
-				'start_date=2025-08-27T00:00:00.000-07:00'
+				'start_date=2025-09-01T00:00:00.000-07:00'
 			);
 		} );
 
@@ -354,8 +354,8 @@ describe( 'usePopularPost', () => {
 			// range from it, and both its date control and the dashboard's render
 			// it as a pill.
 			expect( result.current.range.preset ).toBe( 'last-12-months' );
-			expect( result.current.range.from ).toContain( '2025-08-27T00:00:00' );
-			expect( result.current.range.to ).toContain( '2026-08-26T23:59:59' );
+			expect( result.current.range.from ).toContain( '2025-09-01T00:00:00' );
+			expect( result.current.range.to ).toContain( '2026-08-27T23:59:59' );
 			// Whatever the detail page would have resolved for this window, so its
 			// route has no incomplete window to seed.
 			expect( result.current.range.interval ).toBe( 'month' );

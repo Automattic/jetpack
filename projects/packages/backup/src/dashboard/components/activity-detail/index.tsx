@@ -28,7 +28,7 @@ export default function ActivityDetail( { item }: Props ) {
 						{ ' · ' }
 						{ item.actor.name }
 					</Text>
-					{ item.summary && <Text>{ item.summary }</Text> }
+					{ item.summary && <Text dir="auto">{ item.summary }</Text> }
 				</Stack>
 			</Card.Content>
 		</Card.Root>

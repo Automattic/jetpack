@@ -35,24 +35,13 @@ import userEvent from '@testing-library/user-event';
 import { useCallback, useState } from '@wordpress/element';
 import ActivityList from '../src/dashboard/components/activity-list';
 import { queryClient } from '../src/dashboard/data/query-client';
-import { ACTIVITY_LOG_DEFAULT_PER_PAGE } from '../src/dashboard/hooks/use-activity-log';
 import QueryClientProvider from '../src/dashboard/providers/query-client-provider';
+import { INITIAL_VIEW } from '../src/dashboard/screens/overview';
 import type { View } from '@wordpress/dataviews';
 
 const noop = () => {};
 
 const CONNECTED = { isRegistered: true, hasConnectedOwner: true, isUserConnected: true };
-
-const INITIAL_VIEW: View = {
-	type: 'list',
-	page: 1,
-	perPage: ACTIVITY_LOG_DEFAULT_PER_PAGE,
-	filters: [],
-	titleField: 'title',
-	mediaField: 'icon',
-	descriptionField: 'description',
-	fields: [],
-};
 
 /**
  * One raw rewindable-activity row for the page under test.
@@ -115,13 +104,6 @@ function Harness() {
 function list() {
 	return document.querySelector( '.jpb-activity-list' ) as HTMLElement;
 }
-
-// jsdom implements no scrolling, and DataViews' list layout calls
-// `scrollIntoView` on the selected row.
-Object.defineProperty( window.HTMLElement.prototype, 'scrollIntoView', {
-	value: () => {},
-	writable: true,
-} );
 
 beforeEach( () => {
 	queryClient.clear();

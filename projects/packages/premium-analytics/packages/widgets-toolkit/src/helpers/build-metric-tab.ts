@@ -1,7 +1,10 @@
 /**
+ * External dependencies
+ */
+import { parseBucketStart } from '@jetpack-premium-analytics/datetime';
+/**
  * Internal dependencies
  */
-import { toChartDate } from './chart-date';
 import type { MetricTab } from '../components';
 import type { DataFormat } from '../types';
 
@@ -50,10 +53,13 @@ function total( report: MetricReport | undefined, field: string ): number {
  * @return One point per period, oldest first.
  */
 function toPoints( report: MetricReport | undefined, field: string ) {
-	return ( report?.data ?? [] ).map( point => ( {
-		date: toChartDate( point.date_start ),
-		value: Number( ( point as Record< string, unknown > )[ field ] ?? 0 ),
-	} ) );
+	return ( report?.data ?? [] ).flatMap( point => {
+		const date = parseBucketStart( point.date_start );
+
+		return date
+			? [ { date, value: Number( ( point as Record< string, unknown > )[ field ] ?? 0 ) } ]
+			: [];
+	} );
 }
 
 /**

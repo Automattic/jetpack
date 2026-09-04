@@ -6,9 +6,10 @@ import {
 	type PrimaryPresetId,
 	type YearSurfacePresetId,
 } from '@jetpack-premium-analytics/datetime';
-import { Stack } from '@jetpack-premium-analytics/externals';
+import { Icon, Skeleton, Stack } from '@jetpack-premium-analytics/externals';
 import { getSettings, setSettings } from '@wordpress/date';
-import { useCallback, useRef, useState } from 'react';
+import { post } from '@wordpress/icons';
+import { useCallback, useRef, useState, type ReactNode } from 'react';
 import { DateFiltersPanel } from '../../date-filters-panel';
 import { DateIntervalDropdown } from '../../date-interval-dropdown';
 import {
@@ -136,7 +137,6 @@ function RollingDateControls() {
 
 	return (
 		<DateFiltersPanel
-			presetId={ staged.presetId }
 			range={ staged.range }
 			appliedPresetId={ committed.presetId }
 			appliedRange={ committed.range }
@@ -186,7 +186,7 @@ function YearDateControls( { containerElement }: { containerElement: HTMLElement
 }
 
 type SectionHeaderStoryProps = {
-	title: string;
+	title: ReactNode;
 	condenseOnScroll?: boolean;
 };
 
@@ -327,4 +327,46 @@ export const WithoutControls: Story = {
 		title: 'Site traffic',
 	},
 	render: ( { title } ) => <SectionHeader title={ title } />,
+};
+
+/**
+ * The **detail-page** instance: a resource names the page, so the title is its
+ * `h1`, its mark (here the type icon, a thumbnail when the post has one) sits
+ * before it, and a subtitle states what the widgets below report on.
+ *
+ * The visual slot owns its box, so a consumer passes only the image or the
+ * glyph. It is decorative by contract — the title already names the resource.
+ */
+export const WithVisualAndSubtitle: Story = {
+	args: {
+		title: 'Ten things I learned building a headless storefront',
+	},
+	render: ( { title } ) => (
+		<SectionHeader
+			headingLevel={ 1 }
+			title={ title }
+			visual={ <Icon icon={ post } size={ 28 } /> }
+			subTitle="Post published on Feb 3, 2025. Performance from Feb 3, 2025 to Sep 2, 2026"
+		>
+			<RollingDateControls />
+		</SectionHeader>
+	),
+};
+
+/**
+ * The same header before the resource resolves: the title and subtitle slots
+ * hold skeletons, so the page does not read as blank while the grid draws.
+ */
+export const LoadingResource: Story = {
+	render: () => (
+		<SectionHeader
+			headingLevel={ 1 }
+			busy
+			title={ <Skeleton style={ { display: 'block', blockSize: 38, inlineSize: 320 } } /> }
+			visual={ <Icon icon={ post } size={ 28 } /> }
+			subTitle={ <Skeleton style={ { display: 'block', blockSize: 18, inlineSize: 260 } } /> }
+		>
+			<RollingDateControls />
+		</SectionHeader>
+	),
 };

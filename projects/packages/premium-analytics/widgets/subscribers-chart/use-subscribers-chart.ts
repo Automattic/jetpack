@@ -7,7 +7,7 @@ import {
 	type StatsSubscribersResponse,
 	type StatsSubscribersUnit,
 } from '@jetpack-premium-analytics/data';
-import { toChartDate } from '@jetpack-premium-analytics/widgets-toolkit';
+import { parseBucketStart } from '@jetpack-premium-analytics/datetime';
 import { useMemo } from '@wordpress/element';
 
 /**
@@ -40,14 +40,20 @@ export interface SubscribersChartState {
 	refetch: () => void;
 }
 
-// Wall clocks, not instants — the chart reads them back via
-// `pointsAreWallClocks` (rationale in `chart-date.ts`).
 function toPoints( report: StatsSubscribersResponse | undefined ): SubscribersChartPoint[] {
-	return ( report?.data ?? [] ).map( point => ( {
-		date: toChartDate( point.date_start ),
-		subscribers: Number( point.subscribers ?? point.value ?? 0 ),
-		paid: Number( point.subscribers_paid ?? 0 ),
-	} ) );
+	return ( report?.data ?? [] ).flatMap( point => {
+		const date = parseBucketStart( point.date_start );
+
+		return date
+			? [
+					{
+						date,
+						subscribers: Number( point.subscribers ?? point.value ?? 0 ),
+						paid: Number( point.subscribers_paid ?? 0 ),
+					},
+			  ]
+			: [];
+	} );
 }
 
 /**

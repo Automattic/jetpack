@@ -413,9 +413,9 @@ class Critical_CSS_Storage_Test extends BaseTestCase {
 		// Assert the pattern directly as well. Naming an absent class makes unserialize()
 		// fail on its own, so the outcome below is the same with E: dropped from the
 		// pattern, and narrowing it to [OC] would otherwise pass the whole suite.
-		$this->assertSame(
-			1,
-			preg_match( Storage_Post_Type::OBJECT_TOKEN_PATTERN, $payload ),
+		$this->assertMatchesRegularExpression(
+			Storage_Post_Type::OBJECT_TOKEN_PATTERN,
+			$payload,
 			'The wire-format check must still recognise an E: enum token.'
 		);
 

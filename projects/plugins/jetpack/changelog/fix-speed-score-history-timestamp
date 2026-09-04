@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Boost: Stop At a Glance re-testing the site speed when a recent score is already stored for the site's URL.

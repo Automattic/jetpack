@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Modernized dashboard only, behind the rsm_jetpack_ui_modernization_backup filter: an offline browser no longer reads as an answer. React Query parks a request instead of failing it, so the plan check showed a paying site the upgrade screen and the Overview showed an established site the first-backup panel. Both now wait, and pick up where they left off once the browser is back. No-op when the filter is off.
+
+

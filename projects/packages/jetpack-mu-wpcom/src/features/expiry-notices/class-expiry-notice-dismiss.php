@@ -33,14 +33,26 @@ class Expiry_Notice_Dismiss {
 	const META_BANNER = 'wpcom_plan_expiry_notice_dismiss_wp_admin';
 	// Not scoped: one dismissal of the modal clears it on every surface.
 	const META_MODAL = 'wpcom_plan_expiry_modal_dismiss';
+	// The grace-period modal comes back, so its dismissal can't share a key with
+	// the permanent one: a grace dismissal is stamped after `expiry_ts` and would
+	// otherwise satisfy the post-grace check, burying a modal the user never saw.
+	const META_MODAL_GRACE = 'wpcom_plan_expiry_modal_dismiss_grace';
 
 	const FINAL_WINDOW_DAYS = 7;
+
+	/**
+	 * Stands in for the "browser session" the design asks this modal to be
+	 * dismissed for: wp-admin and Calypso are two origins, so no browser store
+	 * answers for both and the dismissal lives server-side, where there is no
+	 * session to scope it to.
+	 */
+	const MODAL_GRACE_DISMISS_TTL = DAY_IN_SECONDS;
 
 	/**
 	 * Register the banner + modal dismiss meta keys on the `user` object.
 	 */
 	public static function register_user_meta(): void {
-		foreach ( array( self::META_BANNER, self::META_MODAL ) as $meta_key ) {
+		foreach ( array( self::META_BANNER, self::META_MODAL, self::META_MODAL_GRACE ) as $meta_key ) {
 			register_meta(
 				'user',
 				$meta_key,
@@ -88,12 +100,44 @@ class Expiry_Notice_Dismiss {
 	/**
 	 * Should the expired-state modal show for the given user right now?
 	 *
+	 * The two lapsed states dismiss differently: in grace the modal returns after
+	 * `MODAL_GRACE_DISMISS_TTL`, afterwards saying so once is enough. Not routed
+	 * through `is_dismissible()`, which answers for the banner.
+	 *
 	 * @param array<string,mixed> $expiry_state State from Expiry_Data::get_expiry_state().
 	 * @param int|null            $user_id      Defaults to current user.
 	 */
 	public static function should_show_modal( array $expiry_state, ?int $user_id = null ): bool {
-		return ! self::is_dismissible( $expiry_state )
-			|| ! self::is_dismissed( $user_id, self::META_MODAL, self::term_expiry_ts( $expiry_state ) );
+		$expiry_ts = self::term_expiry_ts( $expiry_state );
+
+		switch ( $expiry_state['state'] ?? '' ) {
+			case Expiry_Data::STATE_EXPIRED_GRACE:
+				return ! self::is_dismissed( $user_id, self::META_MODAL_GRACE, $expiry_ts, self::MODAL_GRACE_DISMISS_TTL );
+			case Expiry_Data::STATE_EXPIRED:
+				return ! self::is_dismissed( $user_id, self::META_MODAL, $expiry_ts );
+			default:
+				return false;
+		}
+	}
+
+	/**
+	 * The meta key the modal dismisses to in the given state, or null where the
+	 * modal doesn't show at all.
+	 *
+	 * The client has to be told which key to write, and this keeps that choice
+	 * in the same class that reads it back.
+	 *
+	 * @param array<string,mixed> $expiry_state State from Expiry_Data::get_expiry_state().
+	 */
+	public static function modal_meta_key( array $expiry_state ): ?string {
+		switch ( $expiry_state['state'] ?? '' ) {
+			case Expiry_Data::STATE_EXPIRED_GRACE:
+				return self::META_MODAL_GRACE;
+			case Expiry_Data::STATE_EXPIRED:
+				return self::META_MODAL;
+			default:
+				return null;
+		}
 	}
 
 	/**
@@ -109,14 +153,18 @@ class Expiry_Notice_Dismiss {
 	 * later of the two.
 	 *
 	 * @param int|null $user_id   Defaults to current user.
-	 * @param string   $meta_key  One of self::META_BANNER, self::META_MODAL.
+	 * @param string   $meta_key  One of the self::META_* keys.
 	 * @param int|null $expiry_ts Expiry of the term being judged. Null when the
 	 *                            caller has no term in hand, where any stored
 	 *                            dismissal counts.
+	 * @param int|null $ttl       Seconds a dismissal holds for. Null never lapses.
 	 */
-	public static function is_dismissed( ?int $user_id, string $meta_key, ?int $expiry_ts = null ): bool {
+	public static function is_dismissed( ?int $user_id, string $meta_key, ?int $expiry_ts = null, ?int $ttl = null ): bool {
 		$dismissed_at = self::get_dismissed_at( $user_id, $meta_key );
 		if ( null === $dismissed_at ) {
+			return false;
+		}
+		if ( null !== $ttl && $dismissed_at < time() - $ttl ) {
 			return false;
 		}
 		return null === $expiry_ts || $dismissed_at >= $expiry_ts;

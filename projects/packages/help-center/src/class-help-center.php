@@ -557,6 +557,10 @@ class Help_Center {
 		$controller = new WP_REST_Help_Center_Fetch_Post( $this->wpcom_request_client );
 		$controller->register_rest_route();
 
+		require_once __DIR__ . '/class-wp-rest-help-center-article-rating.php';
+		$controller = new WP_REST_Help_Center_Article_Rating( $this->wpcom_request_client );
+		$controller->register_rest_route();
+
 		require_once __DIR__ . '/class-wp-rest-help-center-ticket.php';
 		$controller = new WP_REST_Help_Center_Ticket( $this->wpcom_request_client );
 		$controller->register_rest_route();
@@ -591,6 +595,10 @@ class Help_Center {
 
 		require_once __DIR__ . '/class-wp-rest-help-center-ticket-csat.php';
 		$controller = new WP_REST_Help_Center_Ticket_CSAT( $this->wpcom_request_client );
+		$controller->register_rest_route();
+
+		require_once __DIR__ . '/class-wp-rest-help-center-cta.php';
+		$controller = new WP_REST_Help_Center_CTA( $this->wpcom_request_client );
 		$controller->register_rest_route();
 	}
 

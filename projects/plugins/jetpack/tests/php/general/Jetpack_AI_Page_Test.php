@@ -2,10 +2,8 @@
 /**
  * Tests for the Jetpack AI admin page script data.
  *
- * The contract worth locking down: the pre-release a11n gate flag rides the
- * jetpackAiSettings inline script and follows
- * jetpack_is_internal_testing_environment(), so the Features view stays hidden
- * outside internal testing environments while the MCP-only page keeps working.
+ * The Overview and AI Features views are public on self-hosted sites, gated on
+ * Atomic, and remain filterable by the host.
  *
  * @package automattic/jetpack
  */
@@ -45,6 +43,9 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 		remove_all_filters( 'jetpack_feature_flag_enabled_ai-hub-scheduled-tasks' );
 		remove_all_filters( 'jetpack_is_connection_ready' );
 		remove_all_filters( 'jetpack_offline_mode' );
+		Jetpack_Options::delete_option( 'tos_agreed' );
+		Jetpack_Options::delete_option( 'user_tokens' );
+		wp_set_current_user( 0 );
 		remove_all_actions( 'admin_print_scripts-jetpack_page_jetpack-ai' );
 		remove_all_actions( 'admin_print_styles-jetpack_page_jetpack-ai' );
 		remove_all_actions( 'load-jetpack_page_jetpack-ai' );
@@ -104,18 +105,6 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 			'expiry_status' => 'active',
 			'expiry_date'   => '2027-03-15T00:00:00+00:00',
 		);
-	}
-
-	/**
-	 * A Jetpack AI subscription with auto-renew switched off.
-	 *
-	 * @return object
-	 */
-	private function jetpack_ai_purchase_without_auto_renew() {
-		$purchase                        = $this->jetpack_ai_purchase();
-		$purchase->is_auto_renew_enabled = false;
-
-		return $purchase;
 	}
 
 	/**
@@ -263,35 +252,83 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Outside internal testing environments the Features view flag is off.
+	 * The Overview and AI Features views render publicly on self-hosted sites.
 	 */
-	public function test_features_view_flag_is_off_by_default() {
+	public function test_features_view_flag_is_on_for_self_hosted_site() {
+		$this->given_woa( false );
+
 		$settings = $this->get_injected_settings();
 
 		$this->assertArrayHasKey( 'showFeaturesView', $settings );
-		$this->assertFalse( $settings['showFeaturesView'] );
+		$this->assertTrue( $settings['showFeaturesView'] );
+		$this->assertFalse( $settings['showA12sBadge'] );
+		$this->assertFalse( $settings['isTest'] );
 		$this->assertArrayHasKey( 'featureFlags', $settings );
 		$this->assertFalse( $settings['featureFlags'][ Jetpack_AI_Feature_Flags::SCHEDULED_TASKS ] );
 	}
 
 	/**
-	 * A proxied a8c request marks an internal testing environment and turns
-	 * the Features view flag on.
+	 * Internal self-hosted requests still present the views as public UI.
 	 */
-	public function test_features_view_flag_follows_internal_testing_environment() {
+	public function test_self_hosted_internal_request_has_no_a12s_badge() {
+		$this->given_woa( false );
 		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
 
 		$settings = $this->get_injected_settings();
 
 		$this->assertTrue( $settings['showFeaturesView'] );
+		$this->assertFalse( $settings['showA12sBadge'] );
+		$this->assertTrue( $settings['isTest'] );
+	}
+
+	/**
+	 * The views remain hidden from an ordinary Atomic request.
+	 */
+	public function test_features_view_flag_is_off_for_ordinary_woa_site() {
+		$this->given_woa( true );
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertFalse( $settings['showFeaturesView'] );
+		$this->assertFalse( $settings['showA12sBadge'] );
+		$this->assertFalse( $settings['isTest'] );
+	}
+
+	/**
+	 * The views remain hidden from Simple sites, including internal requests.
+	 */
+	public function test_features_view_flag_is_off_for_simple_site() {
+		Constants::set_constant( 'IS_WPCOM', true );
+		$this->given_woa( false );
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertFalse( $settings['showFeaturesView'] );
+		$this->assertFalse( $settings['showA12sBadge'] );
+		$this->assertTrue( $settings['isTest'] );
+	}
+
+	/**
+	 * A proxied Atomic request retains access for internal testing.
+	 */
+	public function test_features_view_flag_is_on_for_proxied_woa_site() {
+		$this->given_woa( true );
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertTrue( $settings['showFeaturesView'] );
+		$this->assertTrue( $settings['showA12sBadge'] );
+		$this->assertTrue( $settings['isTest'] );
 		$this->assertFalse( $settings['featureFlags'][ Jetpack_AI_Feature_Flags::SCHEDULED_TASKS ] );
 	}
 
 	/**
-	 * Hosts can hide pre-release views even in an internal testing environment.
+	 * Hosts retain final control over the views.
 	 */
 	public function test_features_view_flag_can_be_filtered_by_the_host() {
-		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+		$this->given_woa( false );
 		add_filter(
 			'jetpack_ai_admin_config',
 			function ( $config ) {
@@ -407,32 +444,6 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Auto-renew off must reach the client, so the date can read as an expiry.
-	 */
-	public function test_plan_auto_renew_is_false_when_the_purchase_does_not_renew() {
-		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
-		$this->given_site( array( $this->jetpack_ai_purchase_without_auto_renew() ) );
-
-		$settings = $this->get_injected_settings();
-
-		$this->assertArrayHasKey( 'planAutoRenew', $settings );
-		$this->assertFalse( $settings['planAutoRenew'] );
-	}
-
-	/**
-	 * A purchase that says nothing about auto-renew is unknown, not off — the
-	 * date must keep the renewal wording rather than claim an expiry.
-	 */
-	public function test_plan_auto_renew_defaults_true_when_the_purchase_omits_it() {
-		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
-		$this->given_site( array( $this->jetpack_ai_purchase() ) );
-
-		$settings = $this->get_injected_settings();
-
-		$this->assertTrue( $settings['planAutoRenew'] );
-	}
-
-	/**
 	 * The AI Hub Agents Manager includes the scheduled task starter prompts.
 	 */
 	public function test_agents_manager_uses_scheduled_task_empty_view() {
@@ -509,6 +520,113 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 
 		$inline = implode( "\n", array_filter( (array) wp_scripts()->get_data( 'jetpack-ai-admin', 'before' ) ) );
 		$this->assertStringNotContainsString( 'JP_CONNECTION_INITIAL_STATE', $inline );
+	}
+
+	/**
+	 * The Tracks sender is enqueued once tracking is consented to.
+	 */
+	public function test_tracks_script_is_enqueued_with_tracking_consent() {
+		delete_option( 'jetpack_offline_mode' );
+		Jetpack_Options::update_option( 'tos_agreed', true );
+		add_filter( 'jetpack_offline_mode', '__return_false' );
+
+		( new Jetpack_AI_Page() )->page_admin_scripts();
+
+		$this->assertTrue( wp_script_is( 'jp-tracks', 'registered' ) );
+		$this->assertTrue( wp_script_is( 'jp-tracks-functions', 'enqueued' ) );
+	}
+
+	/**
+	 * The sender stays out without tracking consent.
+	 */
+	public function test_tracks_script_stays_out_without_tracking_consent() {
+		Jetpack_Options::update_option( 'tos_agreed', false );
+		add_filter( 'jetpack_offline_mode', '__return_false' );
+
+		( new Jetpack_AI_Page() )->page_admin_scripts();
+
+		$this->assertFalse( wp_script_is( 'jp-tracks', 'registered' ) );
+		$this->assertFalse( wp_script_is( 'jp-tracks-functions', 'enqueued' ) );
+	}
+
+	/**
+	 * Offline mode never talks to WordPress.com, consented or not.
+	 */
+	public function test_tracks_script_is_not_enqueued_in_offline_mode() {
+		Jetpack_Options::update_option( 'tos_agreed', true );
+		add_filter( 'jetpack_offline_mode', '__return_true' );
+
+		( new Jetpack_AI_Page() )->page_admin_scripts();
+
+		$this->assertFalse( wp_script_is( 'jp-tracks', 'registered' ) );
+		$this->assertFalse( wp_script_is( 'jp-tracks-functions', 'enqueued' ) );
+	}
+
+	/**
+	 * The tracksUserData slot is null without a linked WordPress.com account,
+	 * even when consent lets the identity lookup actually run.
+	 */
+	public function test_tracks_user_data_is_null_without_a_linked_account() {
+		delete_option( 'jetpack_offline_mode' );
+		Jetpack_Options::update_option( 'tos_agreed', true );
+		add_filter( 'jetpack_offline_mode', '__return_false' );
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertArrayHasKey( 'tracksUserData', $settings );
+		$this->assertNull( $settings['tracksUserData'] );
+	}
+
+	/**
+	 * The tracksUserData slot is null in offline mode — the lookup could call WordPress.com.
+	 */
+	public function test_tracks_user_data_is_null_in_offline_mode() {
+		Jetpack_Options::update_option( 'tos_agreed', true );
+		add_filter( 'jetpack_offline_mode', '__return_true' );
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertNull( $settings['tracksUserData'] );
+	}
+
+	/**
+	 * The tracksUserData slot names the linked WordPress.com account.
+	 */
+	public function test_tracks_user_data_names_the_linked_account() {
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'tracks_identity_user',
+				'user_pass'  => 'password',
+				'role'       => 'administrator',
+			)
+		);
+		wp_set_current_user( $user_id );
+		delete_option( 'jetpack_offline_mode' );
+		add_filter( 'jetpack_offline_mode', '__return_false' );
+		Jetpack_Options::update_option( 'user_tokens', array( $user_id => "dummy.usertoken.$user_id" ) );
+		set_transient(
+			"jetpack_connected_user_data_$user_id",
+			array(
+				'ID'          => 777,
+				'login'       => 'wpcomuser',
+				'email'       => 'wpcomuser@example.com',
+				'user_locale' => 'en',
+			)
+		);
+
+		try {
+			$settings = $this->get_injected_settings();
+
+			$this->assertSame(
+				array(
+					'userid'   => 777,
+					'username' => 'wpcomuser',
+				),
+				$settings['tracksUserData']
+			);
+		} finally {
+			delete_transient( "jetpack_connected_user_data_$user_id" );
+		}
 	}
 
 	/**
@@ -590,27 +708,12 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 	 * Self-hosted sites keep the Jetpack purchase name, brand prefix trimmed.
 	 */
 	public function test_self_hosted_site_shows_the_jetpack_plan() {
-		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
 		$this->given_woa( false );
 		$this->given_site( array( $this->jetpack_ai_purchase() ) );
 
 		$settings = $this->get_injected_settings();
 
 		$this->assertSame( 'AI Assistant', $settings['planName'] );
-	}
-
-	/**
-	 * The Plan cell's renewal date is the purchase's own expiry — the date My
-	 * Jetpack shows — not the monthly AI usage-period rollover.
-	 */
-	public function test_plan_renewal_date_comes_from_the_purchase() {
-		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
-		$this->given_woa( false );
-		$this->given_site( array( $this->jetpack_ai_purchase() ) );
-
-		$settings = $this->get_injected_settings();
-
-		$this->assertSame( '2027-03-15T00:00:00+00:00', $settings['planRenewsOn'] );
 	}
 
 	/**
@@ -637,25 +740,20 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
 		set_transient(
 			'jetpack_ai_overview_plan_info',
-			array(
-				'name'      => 'Cached',
-				'renews_on' => '2027-03-15T00:00:00+00:00',
-			),
+			array( 'name' => 'Cached' ),
 			HOUR_IN_SECONDS
 		);
 
 		$settings = $this->get_injected_settings();
 
 		$this->assertSame( 'Cached', $settings['planName'] );
-		$this->assertSame( '2027-03-15T00:00:00+00:00', $settings['planRenewsOn'] );
 	}
 
 	/**
-	 * The name is only looked up for the gated views, so an ungated page ships
-	 * an empty value rather than paying for the purchase lookup.
+	 * Atomic skips the plan lookup while the views remain gated.
 	 */
-	public function test_plan_name_is_absent_without_the_gate() {
-		$this->given_woa( false );
+	public function test_plan_name_is_absent_on_ordinary_woa_site() {
+		$this->given_woa( true );
 		$this->given_site( array( $this->jetpack_ai_purchase() ) );
 
 		$settings = $this->get_injected_settings();

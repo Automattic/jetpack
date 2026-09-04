@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+Comment: AI Hub: remove the "Setting up agentic workflows" link from the Overview tab. The tab has not shipped in a stable release, so there is nothing for users to be told about.
+

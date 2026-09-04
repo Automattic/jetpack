@@ -1,4 +1,3 @@
-import { GlobalChartsProvider } from '../../../providers';
 import {
 	chartDecorator,
 	sharedChartArgTypes,
@@ -15,6 +14,7 @@ import { PieChart } from '../index';
 import { PieChartUnresponsive } from '../pie-chart';
 import type { ChartLegendConfig, DataPointPercentage } from '../../../types';
 import type { Meta, StoryObj } from '@storybook/react';
+import type { CSSProperties } from 'react';
 
 type StoryArgs = ChartStoryArgs< React.ComponentProps< typeof PieChart > > &
 	LegendStoryControls & {
@@ -94,12 +94,14 @@ const meta: Meta< StoryArgs > = {
 		},
 		labelTextColor: {
 			control: { type: 'color' },
-			description: 'Color of the label text displayed on pie chart segments',
+			description:
+				'Color of the label text on pie segments. Sets `--a8c-charts-color-label-inverse`.',
 			table: { category: 'Labels' },
 		},
 		labelBackgroundColor: {
 			control: { type: 'color' },
-			description: 'Background color for labels displayed on pie chart segments',
+			description:
+				'Background color for labels on pie segments. Sets `--a8c-charts-color-label-background`.',
 			table: { category: 'Labels' },
 		},
 		showLabels: {
@@ -114,14 +116,16 @@ const meta: Meta< StoryArgs > = {
 
 		if ( labelTextColor || labelBackgroundColor ) {
 			return (
-				<GlobalChartsProvider
-					theme={ {
-						labelTextColor,
-						labelBackgroundColor,
-					} }
+				<div
+					style={
+						{
+							'--a8c-charts-color-label-inverse': labelTextColor,
+							'--a8c-charts-color-label-background': labelBackgroundColor,
+						} as CSSProperties
+					}
 				>
 					{ ChartComponent }
-				</GlobalChartsProvider>
+				</div>
 			);
 		}
 
@@ -338,15 +342,15 @@ export const CustomLabelColors: Story = {
 	parameters: {
 		docs: {
 			description: {
-				story: `This example demonstrates how to enable label backgrounds for enhanced readability. By default, labels have no background (transparent) to preserve the original chart appearance, but you can add backgrounds when needed.
+				story: `This example demonstrates how to enable label backgrounds for enhanced readability. By default a label has no plate behind it, so it reads straight off the slice.
 
 **Key Features:**
-- **labelTextColor**: White text (\`#FFFFFF\`) for contrast against dark background
-- **labelBackgroundColor**: Dark semi-transparent background (\`rgba(0, 0, 0, 0.75)\`) - disabled by default
-- **Custom segment colors**: Bright colors that would make default dark text hard to read
-- **Opt-in enhancement**: Backgrounds only appear when explicitly set
+- **Label text**: white, for contrast against the dark plate — \`--a8c-charts-color-label-inverse\`
+- **Label plate**: dark and semi-transparent, \`rgba(0, 0, 0, 0.75)\` — \`--a8c-charts-color-label-background\`, \`transparent\` by default
+- **Custom segment colors**: bright colors that would make default dark text hard to read
+- **Opt-in enhancement**: the plate appears only once you set its role
 
-Use the Storybook controls to experiment with different combinations. Try setting labelBackgroundColor to \`transparent\` to see the default behavior.`,
+The controls below set the two roles on a wrapper around the chart, which is how a consumer declares them.`,
 			},
 		},
 	},

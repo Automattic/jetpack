@@ -2,6 +2,7 @@ import { keepPreviousData, useQuery, useQueryClient } from '@tanstack/react-quer
 import { useCallback, useMemo } from '@wordpress/element';
 import {
 	fetchActivityLog,
+	type ActivitySortOrder,
 	type WpcomActivityEntry,
 	type WpcomActivityLogResponse,
 } from '../data/api/activity-log';
@@ -14,6 +15,7 @@ import type { ActivityItem } from '../types/activity';
 type Args = {
 	page: number;
 	pageSize: number;
+	sortOrder: ActivitySortOrder;
 };
 
 type Result = {
@@ -28,6 +30,13 @@ type Result = {
 	 * whole duration of a retry.
 	 */
 	isFetching: boolean;
+	/**
+	 * True when React Query parked the request instead of sending it, which
+	 * `networkMode: 'online'` does for an offline browser. Neither fetching nor
+	 * errored — so callers that read an absence as an answer need this to tell
+	 * "nothing there" from "never asked".
+	 */
+	isPaused: boolean;
 	error: Error | null;
 	refetch: () => void;
 };
@@ -40,6 +49,9 @@ type Result = {
  */
 export const ACTIVITY_LOG_DEFAULT_PER_PAGE = 10;
 
+/** The order the list starts in, and the only one where the first backup row is the newest. */
+export const ACTIVITY_LOG_NEWEST_FIRST: ActivitySortOrder = 'desc';
+
 /**
  * Shared `useQuery` for a single page of the rewindable activity log.
  *
@@ -47,21 +59,22 @@ export const ACTIVITY_LOG_DEFAULT_PER_PAGE = 10;
  * page's request is in flight — DataViews' pagination feels smooth
  * instead of flashing a spinner over the list on every page change.
  *
- * `useDefaultBackupRewindId` mounts in the Overview screen's own body,
- * which React renders before `<Gates>` — so this query has to decide for
- * itself whether the bridge can answer, rather than relying on the gate
- * to not render it. Consumers inside the gated body get `enabled: true`
- * for free, since they only mount once the connection checks pass.
+ * Every consumer mounts inside `<Gates>`, so `enabled` is the backstop for a future
+ * one that does not: without a user-level WPCOM connection the bridge only 403s.
  *
- * @param page     - 1-indexed page number.
- * @param pageSize - Items per page.
+ * WPCOM sorts the whole result set server-side, so `sortOrder` is part of the
+ * cache key rather than something applied to the page after it arrives.
+ *
+ * @param page      - 1-indexed page number.
+ * @param pageSize  - Items per page.
+ * @param sortOrder - Sort direction.
  * @return The page query.
  */
-function useActivityPageQuery( page: number, pageSize: number ) {
+function useActivityPageQuery( page: number, pageSize: number, sortOrder: ActivitySortOrder ) {
 	const enabled = useCanQueryWpcom();
 	return useQuery( {
-		queryKey: keys.activityLogPage( page, pageSize ),
-		queryFn: () => fetchActivityLog( { page, number: pageSize } ),
+		queryKey: keys.activityLogPage( page, pageSize, sortOrder ),
+		queryFn: () => fetchActivityLog( { page, number: pageSize, sort_order: sortOrder } ),
 		placeholderData: keepPreviousData,
 		enabled,
 	} );
@@ -75,13 +88,14 @@ function useActivityPageQuery( page: number, pageSize: number ) {
  * does the paging, `totalItems` / `totalPages` come back in the
  * envelope, and DataViews owns the footer.
  *
- * @param args          - Query args.
- * @param args.page     - 1-indexed page number.
- * @param args.pageSize - Items per page.
- * @return Items, total items, total pages, loading, error, refetch.
+ * @param args           - Query args.
+ * @param args.page      - 1-indexed page number.
+ * @param args.pageSize  - Items per page.
+ * @param args.sortOrder - Sort direction, from the list's Order control.
+ * @return Items, total items, total pages, loading, paused, error, refetch.
  */
-export function useActivityLog( { page, pageSize }: Args ): Result {
-	const query = useActivityPageQuery( page, pageSize );
+export function useActivityLog( { page, pageSize, sortOrder }: Args ): Result {
+	const query = useActivityPageQuery( page, pageSize, sortOrder );
 	const { refetch } = query;
 	// Held across the retry: React Query rewinds this query to `pending`
 	// when it refetches after a failure, so without this the reason
@@ -105,6 +119,7 @@ export function useActivityLog( { page, pageSize }: Args ): Result {
 		totalPages: query.data?.totalPages ?? Math.max( 1, Math.ceil( items.length / pageSize ) ),
 		isLoading: query.isLoading,
 		isFetching: query.isFetching,
+		isPaused: query.isPaused,
 		error,
 		refetch: retry,
 	};
@@ -115,28 +130,32 @@ export function useActivityLog( { page, pageSize }: Args ): Result {
  * rewindable activity, falling through to any other cached pages of
  * the same family if not found.
  *
- * Selection happens by clicking a row, so the item is guaranteed to be
- * in the page that's currently rendered. When the user lands via a
- * bookmarked `?selected=` URL on a different page than the row, this
- * hook returns null and the right pane shows the "Item not found"
- * fallback until the user paginates to that page.
+ * A clicked row is always in the rendered page; the cache scan covers the two
+ * selections that are not clicks — a bookmarked `?selected=` on a page nothing
+ * has loaded, and the newest-backup default pinned by the hook below.
  *
- * @param id       - Selection id: `rewindId` for backup items, `activity_id` otherwise.
- * @param page     - The page currently shown in the list.
- * @param pageSize - The per-page setting currently shown in the list.
- * @return The matching item, or null when nothing in the cached page(s) matches.
+ * A null item never means "no such row": it is equally the answer while the page
+ * query is in flight, after it failed, and while the row sits on a page nothing
+ * has loaded — `hasAnswered` is the list's page verdict, not the whole log's.
+ *
+ * @param id        - Selection id: `rewindId` for backup items, `activity_id` otherwise.
+ * @param page      - The page currently shown in the list.
+ * @param pageSize  - The per-page setting currently shown in the list.
+ * @param sortOrder - The sort direction currently shown in the list.
+ * @return The matching item or null, whether the list's page query has answered, and its failure if it did.
  */
 export function useActivityById(
 	id: string | null,
 	page: number,
-	pageSize: number
-): ActivityItem | null {
-	// Subscribe to the same page query the list uses so this hook
-	// re-renders the moment the list's data resolves.
-	const query = useActivityPageQuery( page, pageSize );
+	pageSize: number,
+	sortOrder: ActivitySortOrder
+): { item: ActivityItem | null; hasAnswered: boolean; error: Error | null } {
+	// Follows the list's `sortOrder`: it is part of the cache key, so pinning it
+	// here would open a second query for rows already on screen.
+	const query = useActivityPageQuery( page, pageSize, sortOrder );
 	const queryClient = useQueryClient();
 
-	return useMemo( () => {
+	const item = useMemo( () => {
 		if ( ! id ) {
 			return null;
 		}
@@ -161,6 +180,8 @@ export function useActivityById(
 		// active page query resolves (covered by `query.data`).
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [ id, query.data ] );
+
+	return { item, hasAnswered: query.isSuccess, error: query.error };
 }
 
 /**
@@ -170,14 +191,15 @@ export function useActivityById(
  * default selection reconciles to the newest backup the moment the
  * page-1 fetch resolves.
  *
- * Always reads page 1 with the default per-page size, regardless of
- * which page the list is currently on. When the list is also on page 1
- * with the default size, TanStack dedupes — no extra fetch.
+ * Always page 1, newest-first, whatever the list is showing: inheriting an
+ * ascending sort would preselect the *oldest* restore point behind the Restore
+ * button. The cost is that an ascending list highlights no row, since the
+ * selection is off-screen; `useActivityById` still resolves it from the cache.
  *
  * @return The newest backup item's rewindId, or null.
  */
 export function useDefaultBackupRewindId(): string | null {
-	const query = useActivityPageQuery( 1, ACTIVITY_LOG_DEFAULT_PER_PAGE );
+	const query = useActivityPageQuery( 1, ACTIVITY_LOG_DEFAULT_PER_PAGE, ACTIVITY_LOG_NEWEST_FIRST );
 	return useMemo( () => {
 		const items = normalizeActivityLog( query.data?.current?.orderedItems );
 		for ( const item of items ) {
@@ -193,8 +215,9 @@ export function useDefaultBackupRewindId(): string | null {
  * Whether the newest page of rewindable activity holds any backup row,
  * and whether that is known yet.
  *
- * Shares the page-1 query with `useDefaultBackupRewindId`, so it costs
- * no extra request.
+ * Shares the pinned page-1 query with `useDefaultBackupRewindId`, so it costs
+ * no extra request. Pinned because it gates the first-run takeover: read off
+ * the list's own page, paginating away would claim the site has no backups.
  *
  * This is a second, independent opinion on "does this site have a
  * restore point". `/jetpack/v4/backups` only reports VaultPress's most
@@ -204,21 +227,23 @@ export function useDefaultBackupRewindId(): string | null {
  * is paginated over the full retention window and does not have that
  * blind spot.
  *
- * `isError` is reported separately from `isLoading` because callers must
- * treat the two the same way and React Query does not. A failed query is
- * not loading and holds no rows, so `hasRestorePoints` comes back a
+ * `isError` and `isPaused` are reported separately from `isLoading`
+ * because callers must treat all three the same way and React Query does
+ * not. A query that failed, and a first read parked because the browser is
+ * offline, are both not loading and hold no rows, so `hasRestorePoints` comes back a
  * confident `false` for a question that was never actually answered —
  * which is indistinguishable, to a caller reading only the first two
  * values, from a site that genuinely has no restore points.
  *
- * @return Whether a restore point is visible, whether the answer has loaded, and whether asking failed.
+ * @return Whether a restore point is visible, whether the answer has loaded, and whether asking failed or was parked.
  */
 export function useHasRestorePoints(): {
 	hasRestorePoints: boolean;
 	isLoading: boolean;
 	isError: boolean;
+	isPaused: boolean;
 } {
-	const query = useActivityPageQuery( 1, ACTIVITY_LOG_DEFAULT_PER_PAGE );
+	const query = useActivityPageQuery( 1, ACTIVITY_LOG_DEFAULT_PER_PAGE, ACTIVITY_LOG_NEWEST_FIRST );
 	const hasRestorePoints = useMemo(
 		() =>
 			normalizeActivityLog( query.data?.current?.orderedItems ).some(
@@ -226,7 +251,14 @@ export function useHasRestorePoints(): {
 			),
 		[ query.data ]
 	);
-	return { hasRestorePoints, isLoading: query.isLoading, isError: query.isError };
+	return {
+		hasRestorePoints,
+		isLoading: query.isLoading,
+		isError: query.isError,
+		// `isPending` too: a parked *refetch* still holds its rows, and reporting
+		// that as unanswered would pull the first-run panel off a genuinely empty site.
+		isPaused: query.isPending && query.isPaused,
+	};
 }
 
 /**

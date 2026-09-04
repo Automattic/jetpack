@@ -1,4 +1,4 @@
-import { SectionTabs } from '@jetpack-premium-analytics/ui';
+import { DetailPageTabs } from '@jetpack-premium-analytics/widgets-toolkit';
 import styles from './post-detail-tabs.module.scss';
 import type { PostDetailTab, PostDetailTabId } from '../../config';
 import type { ReactNode } from 'react';
@@ -41,7 +41,7 @@ type PostDetailTabsProps = {
  */
 export function PostDetailTabs( { tabs, value, onChange, children }: PostDetailTabsProps ) {
 	return (
-		<SectionTabs
+		<DetailPageTabs
 			tabs={ tabs }
 			value={ value }
 			onChange={ onChange }
@@ -49,6 +49,6 @@ export function PostDetailTabs( { tabs, value, onChange, children }: PostDetailT
 			className={ styles.tabList }
 		>
 			{ children }
-		</SectionTabs>
+		</DetailPageTabs>
 	);
 }

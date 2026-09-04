@@ -108,11 +108,35 @@ export type ChartType =
 
 export type OrientationType = ValueOf< typeof Orientation >;
 
+/**
+ * Styling for one annotation, as its `styles` prop. Colors belong here because
+ * `--a8c-charts-color-annotation` moves every annotation on the page at once and no
+ * selector narrows it to one.
+ */
 export type AnnotationStyles = {
-	circleSubject?: Omit< CircleSubjectProps, 'x' | 'y' > & { fill?: string };
+	circleSubject?: Omit< CircleSubjectProps, 'x' | 'y' | 'fill' > & {
+		fill?: string;
+	};
 	lineSubject?: Omit< LineSubjectProps, 'x' | 'y' >;
 	connector?: Omit< ConnectorProps, 'x' | 'y' | 'dx' | 'dy' >;
 	label?: Omit< LabelProps, 'title' | 'subtitle' | 'x' | 'y' > & {
+		x?: number | 'start' | 'end';
+		y?: number | 'start' | 'end';
+	};
+};
+
+/**
+ * Annotation styling on the theme: geometry only. Colors come from
+ * `--a8c-charts-color-annotation` and `--a8c-charts-color-surface`.
+ */
+export type ThemeAnnotationStyles = {
+	circleSubject?: Omit< CircleSubjectProps, 'x' | 'y' | 'fill' | 'stroke' >;
+	lineSubject?: Omit< LineSubjectProps, 'x' | 'y' | 'stroke' >;
+	connector?: Omit< ConnectorProps, 'x' | 'y' | 'dx' | 'dy' | 'stroke' >;
+	label?: Omit<
+		LabelProps,
+		'title' | 'subtitle' | 'x' | 'y' | 'anchorLineStroke' | 'backgroundFill'
+	> & {
 		x?: number | 'start' | 'end';
 		y?: number | 'start' | 'end';
 	};
@@ -326,86 +350,55 @@ export type DataPointPercentageCalculated = DataPointPercentage & {
 };
 
 /**
- * Base theme configuration for chart components with optional properties
+ * Base theme configuration for chart components: shape and spacing. Chart colors are
+ * `--a8c-charts-color-*` roles set in CSS inside the provider tree, catalogued in
+ * `TOKENS.md`.
  */
 export type ChartTheme = {
-	/** Background color for chart components */
-	backgroundColor: string;
-	/** Background color for labels */
-	labelBackgroundColor?: string;
-	/** Text color for labels */
-	labelTextColor?: string;
-	/**
-	 * Series palette seeds. Entry N publishes `--a8c-charts-color-series-{N+1}`; entries past the fifth are ignored.
-	 *
-	 * Optional so the deprecation is actionable: a consumer writing a full theme literal can now stop setting it. `CompleteChartTheme` is `Required< ChartTheme >`, so `defaultTheme` must still carry one.
-	 *
-	 * @deprecated Set the `--a8c-charts-color-series-1` … `-5` custom properties inside the provider tree instead, or `options.stroke` on a series for a single one. See `TOKENS.md`. Removed in CHARTS-227.
-	 */
-	colors?: string[];
-	/** Optional CSS styles for grid lines */
-	gridStyles?: GridStyles;
+	/** Optional CSS styles for grid lines. */
+	gridStyles?: Omit< GridStyles, 'stroke' >;
 	/** Length of axis ticks in pixels */
 	tickLength: number;
-	/** Color of the grid lines */
-	gridColor: string;
-	/** Color of the grid lines in dark mode */
-	gridColorDark: string;
 	/** Styles for x-axis tick lines */
-	xTickLineStyles?: LineStyles;
+	xTickLineStyles?: Omit< LineStyles, 'stroke' >;
 	/** Styles for x-axis line */
-	xAxisLineStyles?: LineStyles;
-	/** Styles for series lines */
-	seriesLineStyles?: LineStyles[];
+	xAxisLineStyles?: Omit< LineStyles, 'stroke' >;
+	/**
+	 * Per-series line styling — dash pattern, width, cap. These spread on top of the
+	 * palette-derived stroke, so a color here would override it; a single series takes
+	 * one through `options.seriesLineStyle`.
+	 */
+	seriesLineStyles?: Array< Omit< LineStyles, 'stroke' > >;
 	/** Array of render functions for glyphs */
 	glyphs?: Array< < Datum extends object >( props: GlyphProps< Datum > ) => ReactNode >;
 	/** Legend specific settings */
 	legend?: {
 		/** Styles for legend shapes */
 		shapeStyles?: Record< string, unknown >[];
-		/** Styles for legend labels */
-		labelStyles?: CSSProperties;
+		/** Styles for legend labels. */
+		labelStyles?: Omit< CSSProperties, 'color' >;
 		/** Styles for legend container */
 		containerStyles?: CSSProperties;
 	};
-	/** Styles for small SVG text (eg. axis tick labels), passed through to the XYChart theme. */
-	svgLabelSmall?: TextProps;
+	/**
+	 * Styles for small SVG text (eg. axis tick labels), passed through to the XYChart theme.
+	 *
+	 * `fontFamily: 'inherit'` is load-bearing here — it overrides the font stack
+	 * `buildChartTheme` injects inline on SVG `<text>`.
+	 */
+	svgLabelSmall?: Omit< TextProps, 'fill' >;
 	/** Styles for large SVG text (eg. axis titles), passed through to the XYChart theme. */
 	svgLabelBig?: TextProps;
-	annotationStyles?: AnnotationStyles;
-	/** GeoChart specific settings */
-	geoChart?: {
-		/** Default fill color for a geo chart feature (e.g. country) with no data */
-		featureFillColor?: string;
-	};
+	annotationStyles?: ThemeAnnotationStyles;
 	/** LeaderboardChart specific settings */
 	leaderboardChart?: {
-		/** Gap between rows in the leaderboard grid */
-		rowGap?: number;
-		/** Gap between columns in the leaderboard grid */
-		columnGap?: number;
 		/** Spacing between label and progress bars */
 		labelSpacing?: GapSize;
-		/** Primary color for current period bars */
-		primaryColor?: string;
-		/** Secondary color for comparison period bars */
-		secondaryColor?: string;
-		/** Delta colors: [negative, neutral, positive] */
-		deltaColors?: [ string, string, string ];
-	};
-	/** ConversionFunnelChart specific settings */
-	conversionFunnelChart?: {
-		/** Primary color for funnel bars */
-		primaryColor?: string;
-		/** Background color for chart container */
-		backgroundColor?: string;
-		/** Color for positive change indicators */
-		positiveChangeColor?: string;
-		/** Color for negative change indicators */
-		negativeChangeColor?: string;
 	};
 	lineChart?: {
-		lineStyles?: Partial< Record< NonNullable< SeriesDataOptions[ 'type' ] >, LineStyles > >;
+		lineStyles?: Partial<
+			Record< NonNullable< SeriesDataOptions[ 'type' ] >, Omit< LineStyles, 'stroke' > >
+		>;
 	};
 	barChart?: {
 		barStyles?: Partial< Record< NonNullable< SeriesDataOptions[ 'type' ] >, BarStyles > >;
@@ -424,14 +417,9 @@ export type ChartTheme = {
 	};
 	/**
 	 * HeatmapChart settings. Cell gap, radius, value size and the selection ring come from
-	 * WPDS tokens in CSS, so only the scale color and the compact sizing live here.
+	 * WPDS tokens in CSS, so only the compact sizing lives here.
 	 */
 	heatmapChart?: {
-		/**
-		 * Color the cell scale interpolates toward at the highest value (prop > this >
-		 * palette `colors[0]`), fed to CSS `color-mix`. Omit to use the palette color.
-		 */
-		primaryColor?: string;
 		/** Gap in px between cells in compact mode */
 		compactCellGap?: number;
 		/** Fixed square cell size in px for compact mode */
@@ -444,18 +432,9 @@ export type ChartTheme = {
  * Useful for merged themes where defaults are provided for all optional properties.
  */
 export type CompleteChartTheme = Required< ChartTheme > & {
-	leaderboardChart: Omit<
-		Required< NonNullable< ChartTheme[ 'leaderboardChart' ] > >,
-		'primaryColor' | 'secondaryColor'
-	> &
-		Pick< NonNullable< ChartTheme[ 'leaderboardChart' ] >, 'primaryColor' | 'secondaryColor' >;
-	conversionFunnelChart: Omit<
-		Required< NonNullable< ChartTheme[ 'conversionFunnelChart' ] > >,
-		'primaryColor'
-	> &
-		Pick< NonNullable< ChartTheme[ 'conversionFunnelChart' ] >, 'primaryColor' >;
+	leaderboardChart: Required< NonNullable< ChartTheme[ 'leaderboardChart' ] > >;
 	lineChart: {
-		lineStyles: Record< NonNullable< SeriesDataOptions[ 'type' ] >, LineStyles >;
+		lineStyles: Record< NonNullable< SeriesDataOptions[ 'type' ] >, Omit< LineStyles, 'stroke' > >;
 	};
 	barChart: {
 		barStyles: Record< NonNullable< SeriesDataOptions[ 'type' ] >, BarStyles >;
@@ -464,8 +443,7 @@ export type CompleteChartTheme = Required< ChartTheme > & {
 	sparkline: Required< NonNullable< ChartTheme[ 'sparkline' ] > > & {
 		margin: Required< NonNullable< ChartTheme[ 'sparkline' ] >[ 'margin' ] >;
 	};
-	heatmapChart: Omit< Required< NonNullable< ChartTheme[ 'heatmapChart' ] > >, 'primaryColor' > &
-		Pick< NonNullable< ChartTheme[ 'heatmapChart' ] >, 'primaryColor' >;
+	heatmapChart: Required< NonNullable< ChartTheme[ 'heatmapChart' ] > >;
 };
 
 /**
@@ -473,6 +451,42 @@ export type CompleteChartTheme = Required< ChartTheme > & {
  * granularity selector), for consumers that don't need to infer it.
  */
 export type TickResolution = 'hour' | 'day' | 'week' | 'month' | 'year';
+
+/**
+ * How a chart classified the buckets of the data it's drawing.
+ */
+export type BucketInfo = {
+	/**
+	 * The bucket the series has. Only reports `'week'` when declared: seven-day
+	 * spacing is indistinguishable from sparse daily data.
+	 */
+	bucket: TickResolution;
+	/** The classification tick formats are keyed on. `'week'` reads as `'day'`. */
+	displayResolution: Exclude< TickResolution, 'week' >;
+};
+
+/**
+ * The locale and time zone the time axis and the built-in tooltips render dates
+ * in, set once by the host on `GlobalChartsProvider`.
+ *
+ * Both halves are plain strings the host resolves for itself, so a non-WordPress
+ * consumer needs no WordPress package to supply them. Both are optional and
+ * default to the JavaScript runtime's own — the viewer's browser locale and
+ * browser time zone — which is what every version before this one used
+ * unconditionally.
+ *
+ * `timeZone` re-dates the instants the host supplies, so a value that is really a
+ * calendar day shifts under it: `new Date( '2026-08-02' )` is UTC midnight and
+ * labels as Aug 1 in `America/Los_Angeles`. Supply true instants alongside a
+ * `timeZone`, or set only `locale` for day-bucketed data. `HeatmapChart`'s
+ * calendar labels take neither — see `buildCalendarHeatmapData`.
+ */
+export type ChartFormatting = {
+	/** BCP-47 language tag, e.g. `de-DE`. Defaults to the runtime's locale. */
+	locale?: string;
+	/** IANA time zone name, e.g. `Asia/Tokyo`. Defaults to the runtime's zone. */
+	timeZone?: string;
+};
 
 export type AxisOptions = {
 	orientation?: OrientationType;

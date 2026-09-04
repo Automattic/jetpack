@@ -21,7 +21,7 @@ and shaded with CSS `color-mix`, so the scale adapts to the chart background.
 | `maxCellHeight` | `number` | - | Maximum cell height in pixels in non-compact mode. Applying it content-sizes the chart vertically so unused container height does not stretch the rows. |
 | `minCellWidth` | `number` | `0` | Minimum cell width in pixels in non-compact mode. The grid overflows horizontally instead of shrinking cells below this width. |
 | `minCellHeight` | `number` | `0` | Minimum cell height in pixels in non-compact mode. The grid overflows vertically instead of shrinking cells below this height. |
-| `primaryColor` | `string` | theme / palette | Color the scale interpolates toward at the highest value. Resolution order: this prop > `heatmapChart.primaryColor` > the first series palette color (`--a8c-charts-color-series-1`). |
+| `primaryColor` | `string` | palette | Color the scale interpolates toward at the highest value. Defaults to the first series palette color, `--a8c-charts-color-series-1`. |
 | `withTooltips` | `boolean` | `false` | Show a tooltip on cell hover or keyboard navigation. |
 | `renderTooltip` | `(data: HeatmapTooltipData) => ReactNode` | - | Custom tooltip render function. Receives `HeatmapTooltipData`. The default tooltip formats numeric values with `@automattic/number-formatters`. |
 | `width` | `number` | - | Fixed width in pixels. When omitted, the chart fills its parent's width. |

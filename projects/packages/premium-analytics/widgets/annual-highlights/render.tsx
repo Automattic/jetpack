@@ -113,7 +113,7 @@ function AnnualHighlightsReport( { year }: { year?: YearPresetId } ) {
 					</Stack>
 				) }
 			</WidgetState>
-			<WidgetFooter className={ styles.footer }>
+			<WidgetFooter>
 				<ReportLink report="annual-insights" />
 			</WidgetFooter>
 		</div>

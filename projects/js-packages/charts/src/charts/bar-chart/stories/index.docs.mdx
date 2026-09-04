@@ -253,9 +253,9 @@ span: hour ticks within a day, hour ticks dated at midnight for sub-daily data s
 to a week, calendar dates within a year, and years beyond that. An explicit
 `options.axis.x.tickFormat` still overrides (`axis.y` on a horizontal chart).
 
-Because bars sit on a band scale, which has no ticks of its own, the tick values are
-chosen rather than sampled evenly by index — otherwise the axis would routinely skip the
-bucket that prints the year or dates the day, and could repeat a label. Over spans long
+The tick values are chosen rather than sampled evenly by index, the same selection line
+and area charts use — otherwise the axis would routinely skip the bucket that prints the
+year or dates the day, and could repeat a label. Over spans long
 enough that nothing closer together reaches a boundary, the ticks fall on whole days or
 whole years instead. `numTicks` caps how many it picks.
 
@@ -393,7 +393,7 @@ Use `defaultHiddenSeries` to hide selected series initially while keeping them a
 
 ## Theming Integration
 
-Bar Charts integrate seamlessly with the chart theming system. The default theme has neutral colors and styling, and is automatically applied to all charts unless a custom theme is provided.
+Bar Charts integrate seamlessly with the chart theming system. The default theme has neutral styling, and is automatically applied to all charts unless a custom theme is provided.
 
 **Series colors come from the palette custom properties, not the theme object.** Set as many of the five slots as you need; an unset slot is skipped, and charts generates accessible colors beyond whatever you set:
 
@@ -406,19 +406,13 @@ Bar Charts integrate seamlessly with the chart theming system. The default theme
 	}` }
 />
 
-Everything else is set by wrapping your chart in `GlobalChartsProvider` and passing a theme object with the properties you want to override to the `theme` prop:
+Every other color works the same way — declare its catalog role. The closest declaration inside the provider tree wins, so scope the rule to one dashboard, or to `.a8c-charts-scope` to move every chart on the page:
 
 <Source
-	language="tsx"
-	code={ `import { GlobalChartsProvider, BarChart, type ChartTheme } from '@automattic/charts';
-
-	const customTheme: ChartTheme = {
-		gridStyles: { stroke: '#E0E0E0' },
-	};
-
-	<GlobalChartsProvider theme={customTheme}>
-		<BarChart data={data} />
-	</GlobalChartsProvider>` }
+	language="css"
+	code={ `.my-dashboard {
+		--a8c-charts-color-grid: #E0E0E0;
+	}` }
 />
 
 ## Responsive Behavior

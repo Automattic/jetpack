@@ -7,6 +7,7 @@ import {
 	getAllowedIntervalsForPreset,
 	getDefaultPreset,
 	getStoreInfo,
+	hasComparisonEnabled,
 	normalizeReportParams,
 	type StatsPeriod,
 } from '@jetpack-premium-analytics/data';
@@ -17,7 +18,7 @@ import {
 	isPrimaryPreset,
 	QUICK_SURFACE_PRESETS,
 	type QuickSurfacePresetId,
-	siteTimeZone,
+	reportingTimeZone,
 	type DateRange,
 } from '@jetpack-premium-analytics/datetime';
 import { Stack } from '@jetpack-premium-analytics/externals';
@@ -204,7 +205,7 @@ function ReportParamsControl( {
 				patch.from = encodeDateToSearchParam( nextRange.from );
 				patch.to = encodeDateToSearchParam(
 					// The site's day boundary, not the visitor's (see build-range-patch).
-					endOfDayTZ( nextRange.to, siteTimeZone() )
+					endOfDayTZ( nextRange.to, reportingTimeZone() )
 				);
 			}
 
@@ -217,6 +218,9 @@ function ReportParamsControl( {
 				if ( derived ) {
 					patch.compare_from = derived.compare_from;
 					patch.compare_to = derived.compare_to;
+					// May differ from the active preset: a preset the new range no
+					// longer offers falls back to the previous period.
+					patch.compare_preset = derived.compare_preset;
 				}
 			}
 
@@ -281,16 +285,17 @@ function ReportParamsControl( {
 		<Stack direction="column" gap="sm">
 			<DateFiltersPanel
 				range={ range }
-				presetId={ stagedReportParams.preset ?? reportParams.preset }
 				appliedPresetId={ appliedParams.preset }
 				appliedRange={ appliedRange }
-				comparisonPresetId={ stagedReportParams.compare_preset }
+				comparisonPresetId={
+					hasComparisonEnabled( stagedReportParams ) ? stagedReportParams.compare_preset : undefined
+				}
 				onChange={ stageDateRange }
 				onComparisonChange={ changeComparisonRange }
 				onApply={ commit }
 				canApply={ isDateRangeDirty }
 				onCancel={ revert }
-				timeZone={ siteTimeZone() }
+				timeZone={ reportingTimeZone() }
 				presetIds={ presetIds }
 				withIntervalControl={ withIntervalControl }
 				interval={ interval }

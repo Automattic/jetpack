@@ -7,9 +7,11 @@ import {
 	resolveIntervalForRange,
 } from '@jetpack-premium-analytics/data';
 import {
+	clampRangeEndToToday,
+	completeToDateRange,
 	drillDateRange,
 	PRESET_CUSTOM,
-	siteTimeZone,
+	reportingTimeZone,
 	stepDateRange,
 	toLocalTZ,
 } from '@jetpack-premium-analytics/datetime';
@@ -133,7 +135,7 @@ export function useReportDateFilters< TFrom extends string >( from?: TFrom ): Re
 		TFrom
 	>( { from } );
 
-	const timeZone = siteTimeZone();
+	const timeZone = reportingTimeZone();
 
 	const presetId = useMemo( () => effective.preset ?? undefined, [ effective.preset ] );
 	const range = useMemo(
@@ -158,9 +160,11 @@ export function useReportDateFilters< TFrom extends string >( from?: TFrom ): Re
 		[ stage, effective ]
 	);
 
+	// Gated like the applied pair below: a link carrying `compare_preset` with no
+	// window compares nothing, and must not paint the control active.
 	const comparisonPresetId = useMemo(
-		() => effective.compare_preset ?? undefined,
-		[ effective.compare_preset ]
+		() => ( hasComparisonEnabled( effective ) ? effective.compare_preset ?? undefined : undefined ),
+		[ effective ]
 	);
 
 	/*
@@ -261,14 +265,23 @@ export function useReportDateFilters< TFrom extends string >( from?: TFrom ): Re
 	 */
 	const onStep = useCallback(
 		( direction: StepDirection ) => {
-			const stepped = stepDateRange( appliedRange, direction );
+			// A to-date window steps as its completed window, so the arrows move
+			// "12 months" by whole months rather than by the days read so far.
+			const stepped = stepDateRange(
+				completeToDateRange( appliedRange, appliedPresetId ),
+				direction
+			);
 
 			if ( ! stepped ) {
 				return;
 			}
 
 			const patch = buildRangePatch( {
-				nextRange: stepped,
+				// A forward step closes the running unit the window was measured
+				// against, which reaches past today. Stepping forward out of
+				// "12 months" returns the to-date window, not a month of empty
+				// buckets.
+				nextRange: clampRangeEndToToday( stepped, toLocalTZ( undefined, timeZone ) ),
 				nextPresetId: PRESET_CUSTOM,
 				exactRange: true,
 				effective,
@@ -279,7 +292,7 @@ export function useReportDateFilters< TFrom extends string >( from?: TFrom ): Re
 				commit();
 			}
 		},
-		[ appliedRange, commit, effective, stage ]
+		[ appliedPresetId, appliedRange, commit, effective, stage, timeZone ]
 	);
 
 	/*

@@ -352,24 +352,21 @@ describe( 'HeatmapChart', () => {
 		expect( grid.style.getPropertyValue( '--a8c-charts-color-heatmap-primary' ) ).toBe( '#abcdef' );
 	} );
 
-	test( 'resolves primaryColor from the chart theme', () => {
-		render(
-			<GlobalChartsProvider theme={ { heatmapChart: { primaryColor: '#0a0b0c' } } }>
-				<HeatmapChart width={ 500 } height={ 300 } data={ data } />
-			</GlobalChartsProvider>
-		);
-		const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
-		expect( grid.style.getPropertyValue( '--a8c-charts-color-heatmap-primary' ) ).toBe( '#0a0b0c' );
-	} );
+	test( 'falls back to the first palette slot when no primaryColor prop is set', () => {
+		const scope = document.createElement( 'div' );
+		scope.style.setProperty( '--a8c-charts-color-series-1', '#0a0b0c' );
+		document.body.appendChild( scope );
 
-	test( 'falls back to the palette colors[0] when no prop or theme primaryColor is set', () => {
 		render(
-			<GlobalChartsProvider theme={ { colors: [ '#0a0b0c' ] } }>
+			<GlobalChartsProvider>
 				<HeatmapChart width={ 500 } height={ 300 } data={ data } />
-			</GlobalChartsProvider>
+			</GlobalChartsProvider>,
+			{ container: scope }
 		);
 		const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
 		expect( grid.style.getPropertyValue( '--a8c-charts-color-heatmap-primary' ) ).toBe( '#0a0b0c' );
+
+		document.body.removeChild( scope );
 	} );
 
 	test( 'the unresponsive export pins explicit width and height', () => {
@@ -391,5 +388,47 @@ describe( 'HeatmapChart', () => {
 		const chart = screen.getByTestId( 'heatmap-chart' );
 		expect( chart ).not.toHaveStyle( { width: '500px' } );
 		expect( chart ).not.toHaveStyle( { height: '300px' } );
+	} );
+} );
+
+// Chart container at (100, 50); the tooltip box measures 120x40. Everything
+// else the charts measure (wrapper, clipping lookups) reports the container.
+const mockRects = () =>
+	jest.spyOn( Element.prototype, 'getBoundingClientRect' ).mockImplementation( function (
+		this: Element
+	) {
+		const box = this.classList.contains( 'visx-tooltip' );
+		return {
+			left: box ? 0 : 100,
+			top: box ? 0 : 50,
+			width: box ? 120 : 400,
+			height: box ? 40 : 300,
+			right: box ? 120 : 500,
+			bottom: box ? 40 : 350,
+			x: box ? 0 : 100,
+			y: box ? 0 : 50,
+			toJSON: () => ( {} ),
+		} as DOMRect;
+	} );
+
+describe( 'HeatmapChart tooltip position', () => {
+	afterEach( () => {
+		jest.restoreAllMocks();
+	} );
+
+	test( 'places the box relative to the chart root, at the pointer plus the offsets', async () => {
+		mockRects();
+		renderChart( { withTooltips: true, rowLabels: [ 'Mon', 'Tue', 'Wed' ] } );
+
+		await userEvent.setup().pointer( {
+			target: screen.getAllByTestId( 'heatmap-cell' )[ 0 ],
+			coords: { clientX: 180, clientY: 140 },
+		} );
+
+		// (180, 140) is (80, 90) inside the root; the box adds 10px each way.
+		await expect( screen.findByRole( 'tooltip' ) ).resolves.toBeInTheDocument();
+		expect( screen.getByTestId( 'bounded-tooltip' ) ).toHaveStyle( {
+			transform: 'translate(90px, 100px)',
+		} );
 	} );
 } );

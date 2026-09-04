@@ -991,7 +991,7 @@ class Jetpack_Gutenberg {
 	 * block editors such as P2. These must never be deferred (see self::$lazy_blocks and
 	 * self::load_independent_blocks()).
 	 *
-	 * @since $$next-version$$
+	 * @since 16.2
 	 *
 	 * @return string[] Feature names, or an empty array when the preset is unavailable.
 	 */
@@ -1010,7 +1010,7 @@ class Jetpack_Gutenberg {
 	 *
 	 * @since 7.1.0
 	 * @since 16.0 Pure display blocks are deferred on front-end requests and registered on first render.
-	 * @since $$next-version$$ Blocks in the `no-post-editor` preset are never deferred, so front-end editors (e.g. P2) keep them.
+	 * @since 16.2 Blocks in the `no-post-editor` preset are never deferred, so front-end editors (e.g. P2) keep them.
 	 * @see wp_common_block_scripts_and_styles()
 	 */
 	public static function load_independent_blocks() {

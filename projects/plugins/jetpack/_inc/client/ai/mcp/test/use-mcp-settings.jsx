@@ -93,3 +93,38 @@ describe( 'useMcpSettings with the native WordPress.com API', () => {
 		expect( result.current.mcpAbilities ).toEqual( {} );
 	} );
 } );
+
+describe( 'useMcpSettings with skip', () => {
+	afterEach( () => {
+		jest.resetAllMocks();
+	} );
+
+	test( 'skip: exposes empty state and never fetches', () => {
+		const { result } = renderHook( () => useMcpSettings( { skip: true } ) );
+
+		expect( result.current.isLoading ).toBe( false );
+		expect( apiFetch ).not.toHaveBeenCalled();
+		expect( result.current.mcpAbilities ).toBeNull();
+		expect( result.current.hasMcpAccess ).toBeNull();
+		expect( result.current.error ).toBeNull();
+		expect( result.current.savingToolIds.size ).toBe( 0 );
+	} );
+
+	test( 'un-skipping starts the fetch', async () => {
+		apiFetch.mockResolvedValueOnce( {
+			has_mcp_access: true,
+			mcp_abilities: { account: { some_tool: {} }, sites: [] },
+		} );
+
+		const { result, rerender } = renderHook( ( { skip } ) => useMcpSettings( { skip } ), {
+			initialProps: { skip: true },
+		} );
+		expect( apiFetch ).not.toHaveBeenCalled();
+
+		rerender( { skip: false } );
+
+		await waitFor( () => expect( result.current.isLoading ).toBe( false ) );
+		expect( apiFetch ).toHaveBeenCalledTimes( 1 );
+		expect( result.current.hasMcpAccess ).toBe( true );
+	} );
+} );

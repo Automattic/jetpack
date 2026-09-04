@@ -26,51 +26,37 @@ export const customTheme: ChartTheme = {
 			strokeDasharray: '5 8',
 		},
 	],
-	geoChart: {
-		featureFillColor: '#ffffff',
-	},
 	gridStyles: {
-		stroke: '#ffe3e3',
 		strokeWidth: 2,
 	},
 } as ChartTheme;
 
+/** The catalog roles the `custom` theme moves. Colors have no theme field; they are set in CSS. */
+export const customThemeRoles: Record< string, string > = {
+	'--a8c-charts-color-grid': '#ffe3e3',
+	'--a8c-charts-color-surface-secondary': '#ffffff',
+};
+
 /**
- * Theme that uses a variety of color formats (hex, RGB, RGBA, HSL, named)
- * to demonstrate and test color normalization support.
+ * Roles set in a variety of color formats (hex, RGB, RGBA, HSL, named) to demonstrate and test
+ * color normalization.
  *
- * One color per format, and exactly as many as there are palette slots: a sixth entry would
- * be dropped with a console warning without covering a format the first five miss.
+ * One format per palette slot, and exactly as many as there are slots: a sixth would resolve to
+ * nothing without covering a format the first five miss.
  */
-export const mixedColorFormatsTheme: ChartTheme = {
-	colors: [
-		'#e63946',
-		'rgb(42, 157, 143)',
-		'hsl(48, 96%, 53%)',
-		'rgba(38, 70, 83, 0.9)',
-		'steelblue',
-	],
-	backgroundColor: 'hsl(0, 0%, 98%)',
-	gridColor: 'rgba(0, 0, 0, 0.1)',
-	gridColorDark: 'rgba(255, 255, 255, 0.15)',
-	gridStyles: {
-		stroke: 'rgb(200, 200, 200)',
-		strokeWidth: 1,
-	},
-	geoChart: {
-		featureFillColor: 'hsl(0, 0%, 93%)',
-	},
-	leaderboardChart: {
-		primaryColor: 'rgb(42, 157, 143)',
-		secondaryColor: 'rgb(148, 206, 199)',
-		deltaColors: [ 'hsl(0, 70%, 50%)', 'rgb(150, 150, 150)', '#2a9d8f' ],
-	},
-	conversionFunnelChart: {
-		primaryColor: 'hsl(200, 60%, 45%)',
-		positiveChangeColor: 'rgb(42, 157, 143)',
-		negativeChangeColor: 'hsl(0, 70%, 50%)',
-	},
-} as ChartTheme;
+export const mixedColorFormatRoles: Record< string, string > = {
+	'--a8c-charts-color-series-1': '#e63946',
+	'--a8c-charts-color-series-2': 'rgb(42, 157, 143)',
+	'--a8c-charts-color-series-3': 'hsl(48, 96%, 53%)',
+	'--a8c-charts-color-series-4': 'rgba(38, 70, 83, 0.9)',
+	'--a8c-charts-color-series-5': 'steelblue',
+	'--a8c-charts-color-background': 'hsl(0, 0%, 98%)',
+	'--a8c-charts-color-grid': 'rgb(200, 200, 200)',
+	'--a8c-charts-color-surface-secondary': 'hsl(0, 0%, 93%)',
+	'--a8c-charts-color-trend-up': '#2a9d8f',
+	'--a8c-charts-color-trend-down': 'hsl(0, 70%, 50%)',
+	'--a8c-charts-color-trend-neutral': 'rgb(150, 150, 150)',
+};
 
 /**
  * The `--wp-admin-theme-color` each WordPress admin color scheme publishes, copied from
@@ -99,7 +85,22 @@ export const NO_ADMIN_COLOR_SCHEME = 'none';
 export const CHART_THEME_MAP: Record< string, ChartTheme | undefined > = {
 	default: defaultTheme,
 	custom: customTheme,
-	'mixed-color-formats': mixedColorFormatsTheme,
+	'mixed-color-formats': undefined,
+};
+
+/**
+ * The catalog roles each theme declares.
+ *
+ * Applied as a rule on `.a8c-charts-scope` rather than inline on an ancestor: the catalog is
+ * declared on the provider's own wrapper, and an element's own declaration beats one it merely
+ * inherits, so an ancestor's value would never be seen. That rule is also the one route
+ * the JS-read roles — the palette above all — can travel, since the provider resolves
+ * them at that same wrapper.
+ */
+export const CHART_THEME_ROLES: Record< string, Record< string, string > | undefined > = {
+	default: undefined,
+	custom: customThemeRoles,
+	'mixed-color-formats': mixedColorFormatRoles,
 };
 
 /**

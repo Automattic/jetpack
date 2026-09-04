@@ -73,8 +73,8 @@ The simplest leaderboard chart requires only a `data` prop with pre-processed le
 **Visual Features:**
 - **`withComparison`**: Show comparison data (previous period bars and delta values) - `false` by default
 - **`withOverlayLabel`**: Overlay labels on top of the bars instead of beside them - `false` by default
-- **`primaryColor`**: Primary color for current period bars (theme default)
-- **`secondaryColor`**: Secondary color for comparison period bars (theme default)
+- **`primaryColor`**: Primary color for current period bars (defaults to the first palette slot)
+- **`secondaryColor`**: Secondary color for comparison period bars (defaults to the second palette slot)
 
 **Data Formatting:**
 - **`valueFormatter`**: Custom formatter function for values - defaults to `formatMetricValue` with compact notation
@@ -384,7 +384,7 @@ For full legend configuration options — positioning, orientation, shapes, inte
 
 ### Custom Colors
 
-Override default theme colors with custom primary and secondary colors:
+Override the palette defaults with custom primary and secondary colors:
 
 <Canvas of={ LeaderboardChartStories.CustomColors } />
 
@@ -482,7 +482,7 @@ The component supports CSS custom properties for advanced styling:
 
 ## Theming Integration
 
-Leaderboard Charts integrate seamlessly with the chart theming system. The default theme has neutral colors and styling, and is automatically applied to all charts unless a custom theme is provided.
+Leaderboard Charts integrate seamlessly with the chart theming system. The default theme has neutral styling, and is automatically applied to all charts unless a custom theme is provided.
 
 **Series colors come from the palette custom properties, not the theme object.** Set as many of the five slots as you need; an unset slot is skipped, and charts generates accessible colors beyond whatever you set:
 
@@ -493,19 +493,16 @@ Leaderboard Charts integrate seamlessly with the chart theming system. The defau
 	}` }
 />
 
-Everything else is set by wrapping your chart in `GlobalChartsProvider` and passing a theme object with the properties you want to override to the `theme` prop:
+Every other color works the same way — declare its catalog role. The closest declaration inside the provider tree wins, so scope the rule to one dashboard, or to `.a8c-charts-scope` to move every chart on the page:
 
 <Source
-	language="tsx"
-	code={ `import { GlobalChartsProvider, LeaderboardChart, type ChartTheme } from '@automattic/charts';
-
-	const customTheme: ChartTheme = {
-		backgroundColor: '#f5f5f5',
-	};
-
-	<GlobalChartsProvider theme={customTheme}>
-		<LeaderboardChart data={data} />
-	</GlobalChartsProvider>` }
+	language="css"
+	code={ `.my-dashboard {
+		--a8c-charts-color-background: #f5f5f5;
+		/* The trend arrows on each row: */
+		--a8c-charts-color-trend-up: #008030;
+		--a8c-charts-color-trend-down: #cc1818;
+	}` }
 />
 
 ## Responsive Behavior

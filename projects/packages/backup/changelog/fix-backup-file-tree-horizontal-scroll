@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Modernized dashboard only, behind the flag: the file browser's tree now scrolls sideways when the preview card narrows it, so long names at depth stay reachable instead of being cut off.
+
+

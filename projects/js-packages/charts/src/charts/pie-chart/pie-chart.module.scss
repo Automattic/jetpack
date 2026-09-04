@@ -1,5 +1,8 @@
 .pie-chart {
-	overflow: hidden;
+	// Anchors the tooltip, which renders next to the SVG in here.
+	&__plot {
+		position: relative;
+	}
 
 	// Fill parent when no explicit width/height provided
 	&--responsive {
@@ -7,4 +10,13 @@
 		width: 100%;
 	}
 
+	// Both literals are load-bearing: an undeclared role makes the
+	// `fill` invalid, and `fill` starts at black.
+	&__label-plate {
+		fill: var(--a8c-charts-color-label-background, transparent);
+	}
+
+	&__label-text {
+		fill: var(--a8c-charts-color-label-inverse, #f0f0f0);
+	}
 }

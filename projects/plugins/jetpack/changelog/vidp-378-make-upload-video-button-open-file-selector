@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+VideoPress: Open the file picker directly from the dashboard welcome modal's Upload a video button, then land on the Library to follow the upload's progress.

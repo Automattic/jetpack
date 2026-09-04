@@ -36,17 +36,11 @@ import { useNextBackupSchedule } from '../src/dashboard/hooks/use-backup-schedul
 import type { ReactNode } from 'react';
 
 const CONNECTED = { isRegistered: true, hasConnectedOwner: true, isUserConnected: true };
+const SITE = 'example.wordpress.com';
 
 // The route stages render behind several sequential requests and have
 // taken well over Testing Library's 1s default on a loaded runner.
 const SETTLE = { timeout: 10000 };
-
-// jsdom implements no scrolling, and DataViews calls `scrollIntoView`. Defined rather
-// than spied on: `jest.spyOn` needs the property to already exist.
-Object.defineProperty( window.HTMLElement.prototype, 'scrollIntoView', {
-	value: () => {},
-	writable: true,
-} );
 
 // Everything Jest's fake timers can replace *except* `Date`. Faking the timer functions
 // too would take Testing Library's polling with it — `waitFor` switches implementation
@@ -296,6 +290,29 @@ function scheduleLine(): Promise< HTMLElement > {
 }
 
 /**
+ * The "Modify" link that follows the sentence, once it has arrived.
+ *
+ * Matched on a name fragment: `Link` appends "(opens in a new tab)".
+ *
+ * @return The anchor.
+ */
+function modifyLink(): Promise< HTMLElement > {
+	return screen.findByRole( 'link', { name: /Modify/ } );
+}
+
+/**
+ * The row holding the sentence and the link.
+ *
+ * No role and no accessible name, so its class is the only handle — the same
+ * escape hatch the storage suites use.
+ *
+ * @return The row, or null before it has rendered.
+ */
+function scheduleRow(): HTMLElement | null {
+	return document.querySelector( '.jpb-next-scheduled-backup' );
+}
+
+/**
  * The Overview's two-pane grid.
  *
  * A layout container with no role and no accessible name, so its class is
@@ -313,20 +330,20 @@ function overviewGrid(): HTMLElement | null {
  * The direct node access lives here rather than in the test body: neither "is a sibling
  * of" nor "comes before" has a Testing Library query.
  *
- * @param line - The rendered schedule line.
+ * @param row - The rendered schedule row.
  * @return Whether it is a sibling of the grid, and whether it precedes it.
  */
-function placementRelativeToGrid( line: HTMLElement ) {
+function placementRelativeToGrid( row: HTMLElement ) {
 	/* eslint-disable testing-library/no-node-access -- the question *is* about node relationships; see above. */
 	const grid = overviewGrid();
 	const gridParent = grid?.parentElement ?? null;
 
 	return {
-		isSibling: gridParent !== null && line.parentElement === gridParent,
+		isSibling: gridParent !== null && row.parentElement === gridParent,
 		comesFirst: Boolean(
 			grid &&
 				// eslint-disable-next-line no-bitwise -- compareDocumentPosition returns a bitmask.
-				line.compareDocumentPosition( grid ) & Node.DOCUMENT_POSITION_FOLLOWING
+				row.compareDocumentPosition( grid ) & Node.DOCUMENT_POSITION_FOLLOWING
 		),
 	};
 	/* eslint-enable testing-library/no-node-access */
@@ -355,6 +372,7 @@ beforeEach( () => {
 	window.JP_CONNECTION_INITIAL_STATE = {
 		...window.JP_CONNECTION_INITIAL_STATE,
 		connectionStatus: CONNECTED,
+		siteSuffix: SITE,
 	} as typeof window.JP_CONNECTION_INITIAL_STATE;
 } );
 
@@ -654,6 +672,60 @@ describe( 'the line, translated', () => {
 	} );
 } );
 
+describe( 'the Modify link', () => {
+	// JETPACK-2329. The one Calypso destination this dashboard is allowed to send
+	// anyone to, because `cloud.jetpack.com/settings` is the only place a backup's
+	// time can be changed and there is no schedule-editing UI here. Dropping it
+	// would take a capability legacy readers have away from them.
+	it( 'points at the schedule settings, scoped to this site and opened away from here', async () => {
+		freezeClock( '2026-10-22T05:00:00Z' );
+		mockEndpoints( { schedule: { ok: true, scheduled_hour: 10 } } );
+
+		renderWithClient( <NextScheduledBackup /> );
+
+		const link = await modifyLink();
+		expect( link ).toHaveAttribute(
+			'href',
+			`https://jetpack.com/redirect/?source=backup-plugin-schedule-time-setting&site=${ SITE }`
+		);
+		expect( link ).toHaveAttribute( 'target', '_blank' );
+	} );
+
+	it( 'omits the site entirely when the connection global carries no slug', async () => {
+		// Not cosmetic: `getRedirectUrl` walks its args with `for…in`, so passing
+		// the key as undefined encodes the literal string `undefined` *and*
+		// suppresses the helper's own site fallback.
+		freezeClock( '2026-10-22T05:00:00Z' );
+		mockEndpoints( { schedule: { ok: true, scheduled_hour: 10 } } );
+		window.JP_CONNECTION_INITIAL_STATE = {
+			...window.JP_CONNECTION_INITIAL_STATE,
+			siteSuffix: undefined,
+		} as typeof window.JP_CONNECTION_INITIAL_STATE;
+
+		renderWithClient( <NextScheduledBackup /> );
+
+		await expect( modifyLink() ).resolves.toHaveAttribute(
+			'href',
+			'https://jetpack.com/redirect/?source=backup-plugin-schedule-time-setting'
+		);
+	} );
+
+	it( 'goes with the line when there is no schedule to modify', async () => {
+		// The link lives inside the same return as the sentence, so it can only
+		// survive a change that pulls it out of there. The sentence arriving under
+		// a probe elsewhere in this file is the witness that the data was readable.
+		freezeClock( '2026-10-22T05:00:00Z' );
+		mockEndpoints( { schedule: { ok: true, scheduled_hour: null } } );
+
+		const client = newQueryClient();
+		renderWithClient( <NextScheduledBackup />, client );
+
+		await readsSettled( client );
+		expect( placeholder() ).toBeNull();
+		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
+	} );
+} );
+
 describe( 'on the Overview', () => {
 	it( 'renders above the activity list', async () => {
 		freezeClock( '2026-10-22T05:00:00Z' );
@@ -667,8 +739,17 @@ describe( 'on the Overview', () => {
 		// Placement, not just presence: `.jpb-overview` is a two-column grid above
 		// 960px, so a child would be auto-placed into a cell and a following sibling
 		// would sit below the fold. Asserting the text alone let both through.
+		const row = scheduleRow();
 		expect( overviewGrid() ).not.toBeNull();
-		expect( placementRelativeToGrid( line ) ).toEqual( { isSibling: true, comesFirst: true } );
+		expect( row ).not.toBeNull();
+		// A block box, or the 16px separating this from the storage section below
+		// computes and then does nothing — vertical margins do not apply to the
+		// inline box `Text` renders by default.
+		expect( row?.tagName ).toBe( 'DIV' );
+		expect( placementRelativeToGrid( row as HTMLElement ) ).toEqual( {
+			isSibling: true,
+			comesFirst: true,
+		} );
 	} );
 
 	it( 'still reports the schedule while a backup is running', async () => {

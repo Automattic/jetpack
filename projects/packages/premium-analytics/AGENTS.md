@@ -95,7 +95,8 @@ Two local REST surfaces; almost all data comes from WordPress.com via one agnost
 | `analytics` (Woo store reports)                                   | `view_woocommerce_reports` | —                               |
 | `stats`                                                           | `view_stats`               | `stats/referrers/spam/`         |
 | `wordads`                                                         | `activate_wordads`         | —                               |
-| `subscribers` / `site-has-never-published-post` / `jetpack-stats` | `view_stats`               | —                               |
+| `subscribers` / `site-has-never-published-post`                    | `view_stats`               | —                               |
+| `jetpack-stats`                                                   | `view_stats`               | `jetpack-stats/user-feedback`   |
 | `jetpack-stats-dashboard`                                         | `view_stats`               | whole prefix (busts read cache) |
 | `commercial-classification`                                       | `view_stats`               | exact path                      |
 | `upgrades` (not under `/sites/`)                                  | `view_stats`               | —                               |
@@ -107,6 +108,10 @@ Writes column. Query params pass through except control params (`endpoint`, `ver
 `force_refresh` to bypass. `x-wp-total` / `x-wp-totalpages` are forwarded back. Errors:
 `403 no_connection`, `500`/`502 api_error`, `405 rest_read_only`, `401`/`403` on a failed cap.
 
+The `jetpack-stats` write is the one body the proxy rewrites: it gains the submitting user's
+`user_email` (`inject_user_email`), because the blog token names no user and WPCOM would
+otherwise attribute the feedback to the first administrator it finds.
+
 ### Notices
 
 `GET|POST /jetpack-premium-analytics/v1/notices` (`{ id, status, postponed_for }`). Not proxied
@@ -116,7 +121,7 @@ gets its own route outside `proxy/`, like this.
 ### Adding a proxied endpoint
 
 To add a transparent forward, add a key to `PREFIX_CONFIG` (at least `capability`; add
-`writes` / `cache_bust` as needed) and cover it in `data_endpoint_matrix()`.
+`writes` / `cache_bust` / `inject_user_email` as needed) and cover it in `data_endpoint_matrix()`.
 
 ### Migrating from Stats / Woo Analytics
 
@@ -129,7 +134,9 @@ prefixes; Woo `analytics/reports/*` → `proxy/v2/analytics/reports/*`. The dash
 
 Simple has no local proxy, notices, sync, or dashboard support routes — WPCOM serves the dashboard
 and reaches `public-api.wordpress.com` directly. `jetpack-mu-wpcom` boots the package via
-`Analytics::init_wpcom_simple()`, behind the `jetpack-premium-analytics` blog sticker.
+`Analytics::init_wpcom_simple()`, behind the site's own `jetpack_premium_analytics_enabled`
+opt-in or the `jetpack-premium-analytics` blog sticker, whichever says yes. Both answer the
+shared `jetpack_premium_analytics_enabled` filter, as they do on the other platforms.
 
 ### Route guards must use the shared site-readiness helpers
 
@@ -610,7 +617,7 @@ const report = primary.data as StatsNormalizedReport< StatsXxxItem > | undefined
 const items = report?.data?.[ 0 ]?.items ?? [];
 ```
 
-Date-range conversion (`from`/`to` → `period`/`end_date`/`days`) is handled inside
+Date-range conversion (`from`/`to` → `period`/`start_date`/`date`) is handled inside
 the query factory — do not do it in the widget or the view hook.
 
 **Row count**

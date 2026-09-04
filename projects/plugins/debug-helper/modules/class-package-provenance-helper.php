@@ -294,7 +294,7 @@ class Package_Provenance_Helper {
 					<li>The Gutenberg plugin overrides core's registrations when active.</li>
 					<li>Jetpack's wp-build-polyfills register last (<code>wp_default_scripts</code>, priority 20) and back off when the handle is already taken.</li>
 				</ol>
-				<p>Two exceptions. The polyfills <strong>force-replace</strong> <code>wp-notices</code>, <code>wp-private-apis</code> and <code>wp-rich-text</code> on WordPress versions whose copies are too old, taking the slot even when core or Gutenberg already filled it. And script modules are always first-wins: <code>wp_register_script_module()</code> silently ignores every later registration, so nothing can force a replacement there.</p>
+				<p>Two exceptions. The polyfills <strong>force-replace</strong> <code>wp-notices</code>, <code>wp-private-apis</code> and <code>wp-rich-text</code> on WordPress versions whose copies are too old, taking the slot even when core or Gutenberg already filled it. Script modules are first-wins (<code>wp_register_script_module()</code> silently ignores later registrations), so the polyfills deregister a module first when the active Gutenberg's copy is too old for the bundled dashboards, as with <code>@wordpress/widget-primitives</code> on Gutenberg &lt; 23.9.</p>
 				<p>A package missing from the list was never registered by anyone on this screen. That is normal — the polyfills only register when something on the screen asks for them.</p>
 
 				<h4>How this panel labels it</h4>
