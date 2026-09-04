@@ -75,8 +75,7 @@ class Jetpack_AI_Page {
 			'Jetpack AI',
 			'manage_options',
 			'jetpack-ai',
-			array( $this, 'render' ),
-			4
+			array( $this, 'render' )
 		);
 	}
 

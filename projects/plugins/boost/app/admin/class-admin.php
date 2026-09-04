@@ -63,8 +63,7 @@ class Admin {
 			'Boost', // "Boost" is a product name, do not translate.
 			'manage_options',
 			JETPACK_BOOST_SLUG,
-			array( $this, 'render_settings' ),
-			2
+			array( $this, 'render_settings' )
 		);
 		add_action( 'load-' . $page_suffix, array( $this, 'admin_init' ) );
 	}

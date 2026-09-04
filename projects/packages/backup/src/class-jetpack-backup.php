@@ -186,8 +186,7 @@ class Jetpack_Backup {
 			$menu_title,
 			'manage_options',
 			self::JETPACK_BACKUP_SLUG,
-			$callback,
-			7
+			$callback
 		);
 
 		if ( $page_suffix ) {

@@ -201,8 +201,7 @@ class Settings {
 				'Newsletter',
 				'manage_options',
 				'jetpack-newsletter',
-				$callback,
-				10
+				$callback
 			);
 		} else {
 			$page_suffix = add_submenu_page(

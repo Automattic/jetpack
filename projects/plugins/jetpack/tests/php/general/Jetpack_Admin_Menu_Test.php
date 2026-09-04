@@ -3,6 +3,7 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Backup\V0005\Jetpack_Backup;
 use Automattic\Jetpack\Stats_Admin\Dashboard;
 use Automattic\Jetpack\VideoPress\Admin_UI;
@@ -44,10 +45,10 @@ class Jetpack_Admin_Menu_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test the order of many of the Jetpack admin menu items.
-	 * External links (those that open in new windows) should appear after internal links.
+	 * Test the order of the Jetpack admin menu items.
 	 *
-	 * @see https://github.com/Automattic/jetpack-roadmap/issues/856#issuecomment-2308599496
+	 * Encodes the position scheme: My Jetpack is pinned first, external links (marked with ↗)
+	 * sort after every internal page, and everything else is alphabetical by menu title.
 	 */
 	public function test_jetpack_admin_menu_order() {
 		global $submenu;
@@ -68,25 +69,44 @@ class Jetpack_Admin_Menu_Test extends WP_UnitTestCase {
 		do_action( 'admin_menu' );
 
 		if ( ! isset( $submenu['jetpack'] ) ) {
-			return;
+			$this->markTestSkipped( 'No Jetpack submenu was registered.' );
 		}
 
-		$submenu_names = array_column( $submenu['jetpack'], 3 );
-		// Capture the positions of these submenu items.
-		$videopress_submenu_position = array_search( 'Jetpack VideoPress', $submenu_names, true );
-		$backup_submenu_position     = array_search( 'Jetpack Backup', $submenu_names, true );
-		$search_submenu_position     = array_search( 'Jetpack Search', $submenu_names, true );
-		$settings_submenu_position   = array_search( 'Settings', $submenu_names, true );
+		$this->assertSame( 'my-jetpack', $submenu['jetpack'][0][2], 'My Jetpack should be pinned to the top of the Jetpack submenu.' );
 
-		// Test internal link ordering (should appear before Settings).
-		$this->assertLessThan( $backup_submenu_position, $videopress_submenu_position, 'Jetpack VideoPress should be above Jetpack VaultPress Backup in the submenu order.' );
-		$this->assertLessThan( $search_submenu_position, $backup_submenu_position, 'Jetpack Backup should be above Search in the submenu order.' );
-		$this->assertLessThan( $settings_submenu_position, $search_submenu_position, 'Search should be above Settings in the submenu order.' );
+		/*
+		 * Three kinds of entry sit outside the alphabetical run: My Jetpack is pinned to the top,
+		 * Beta Tester is pinned to the bottom, and the free-plan upsell is appended by
+		 * Admin_Menu after the sorted items have been registered.
+		 */
+		$pinned = static function ( $item ) {
+			return 'my-jetpack' === $item[2]
+				|| 'jetpack-beta' === $item[2]
+				|| false !== strpos( $item[2], Admin_Menu::UPGRADE_MENU_SLUG );
+		};
 
-		// Test that Activity Log appears immediately before Settings when present.
-		if ( in_array( 'Activity Log', $submenu_names, true ) ) {
-			$activity_log_submenu_position = array_search( 'Activity Log', $submenu_names, true );
-			$this->assertSame( $settings_submenu_position - 1, $activity_log_submenu_position, 'Activity Log should be immediately above Settings in the submenu order.' );
+		$internal = array();
+		$external = array();
+
+		foreach ( $submenu['jetpack'] as $item ) {
+			if ( $pinned( $item ) ) {
+				continue;
+			}
+
+			if ( false !== strpos( $item[0], '↗' ) ) {
+				$external[] = $item[0];
+				continue;
+			}
+
+			$this->assertEmpty( $external, "{$item[0]} is an internal page and should sort before every external link." );
+			$internal[] = $item[0];
 		}
+
+		$this->assertNotEmpty( $internal, 'Expected at least one internal Jetpack submenu item to check the ordering of.' );
+
+		$alphabetical = $internal;
+		usort( $alphabetical, 'strcmp' );
+
+		$this->assertSame( $alphabetical, $internal, 'Jetpack submenu items should be ordered alphabetically by menu title.' );
 	}
 }

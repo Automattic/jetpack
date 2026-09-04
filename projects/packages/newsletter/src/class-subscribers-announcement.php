@@ -223,8 +223,7 @@ class Subscribers_Announcement {
 				__( 'Subscribers', 'jetpack-newsletter' ),
 				'manage_options',
 				self::PAGE_SLUG,
-				$callback,
-				15
+				$callback
 			);
 		}
 

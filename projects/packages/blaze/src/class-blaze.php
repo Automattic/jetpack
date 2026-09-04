@@ -193,8 +193,7 @@ class Blaze {
 					$menu_label,
 					'manage_options',
 					$menu_slug,
-					array( $blaze_dashboard, 'render' ),
-					1
+					array( $blaze_dashboard, 'render' )
 				);
 			} else {
 				// Other parents already exist at this priority, so add_submenu_page is safe.

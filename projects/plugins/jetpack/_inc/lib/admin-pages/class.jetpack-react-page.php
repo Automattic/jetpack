@@ -180,8 +180,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 				__( 'Settings', 'jetpack' ),
 				'jetpack_admin_page',
 				Jetpack::admin_url( array( 'page' => 'jetpack#/settings' ) ),
-				null,
-				13
+				null
 			);
 		}
 	}
