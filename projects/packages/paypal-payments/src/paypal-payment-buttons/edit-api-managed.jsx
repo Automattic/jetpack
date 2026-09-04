@@ -22,6 +22,7 @@ import {
 	SelectControl,
 	Spinner,
 	TextControl,
+	TextareaControl,
 	ToolbarButton,
 	ToolbarGroup,
 } from '@wordpress/components';
@@ -43,6 +44,7 @@ import { API_BASE } from './utils/api-base';
 import { SUPPORTED_CURRENCIES, VALID_CURRENCY_CODES } from './utils/currencies';
 import { getPriceStep } from './utils/currency-symbols';
 import {
+	MAX_DESCRIPTION_LENGTH,
 	MAX_NAME_LENGTH,
 	validatePrice,
 	validateProductName,
@@ -596,6 +598,31 @@ export default function ApiManagedEdit( { attributes, setAttributes, clientId: b
 							onChange={ value => setAttributes( { currencyCode: value } ) }
 						/>
 					</div>
+
+					<TextareaControl
+						label={ __( 'Description (optional)', 'jetpack-paypal-payments' ) }
+						value={ productDescription || '' }
+						onChange={ value => setAttributes( { productDescription: value } ) }
+						onBlur={ () => markTouched( 'productDescription' ) }
+						help={
+							touchedFields.productDescription && validationErrors.productDescription
+								? validationErrors.productDescription
+								: sprintf(
+										/* translators: 1: current character count, 2: maximum allowed */
+										__(
+											'Shown to customers at checkout. %1$d / %2$d characters',
+											'jetpack-paypal-payments'
+										),
+										( productDescription || '' ).length,
+										MAX_DESCRIPTION_LENGTH
+								  )
+						}
+						className={
+							touchedFields.productDescription && validationErrors.productDescription
+								? 'has-error'
+								: undefined
+						}
+					/>
 				</PanelBody>
 			</InspectorControls>
 			{ inspectorControls }
@@ -606,7 +633,6 @@ export default function ApiManagedEdit( { attributes, setAttributes, clientId: b
 				buttonText={ buttonText }
 				productName={ productName }
 				currencyCode={ currencyCode }
-				productDescription={ productDescription }
 				imageUrl={ imageUrl }
 				imageId={ imageId }
 				returnUrl={ returnUrl }
@@ -626,7 +652,6 @@ export default function ApiManagedEdit( { attributes, setAttributes, clientId: b
 				touchedFields={ touchedFields }
 				setTouchedFields={ setTouchedFields }
 				markTouched={ markTouched }
-				validationErrors={ validationErrors }
 				isFormValid={ isFormValid }
 				isCreating={ isCreating }
 				error={ error }

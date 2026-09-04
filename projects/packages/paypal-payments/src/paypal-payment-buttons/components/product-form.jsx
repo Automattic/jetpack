@@ -6,17 +6,9 @@
  */
 
 import { MediaUpload, MediaUploadCheck } from '@wordpress/block-editor';
-import {
-	Button,
-	Notice,
-	SelectControl,
-	TextControl,
-	TextareaControl,
-	ToggleControl,
-} from '@wordpress/components';
+import { Button, Notice, SelectControl, TextControl, ToggleControl } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import metadata from '../block.json';
-import { MAX_DESCRIPTION_LENGTH } from '../utils/validation';
 import FormatSwitcher from './format-switcher';
 import VariantBuilder from './variant-builder';
 
@@ -36,7 +28,6 @@ const helpTaxOff = __( 'No tax collected.', 'jetpack-paypal-payments' );
  * @param {string}   props.buttonText           - The button label attribute.
  * @param {string}   props.productName          - The product name attribute.
  * @param {string}   props.currencyCode         - The currency code attribute.
- * @param {string}   props.productDescription   - The product description attribute.
  * @param {string}   props.imageUrl             - The product image URL attribute.
  * @param {number}   props.imageId              - The product image media ID attribute.
  * @param {string}   props.returnUrl            - The post-payment return URL attribute.
@@ -56,7 +47,6 @@ const helpTaxOff = __( 'No tax collected.', 'jetpack-paypal-payments' );
  * @param {object}   props.touchedFields        - Which fields the merchant has interacted with.
  * @param {Function} props.setTouchedFields     - Setter for the touched fields.
  * @param {Function} props.markTouched          - Mark a field as touched.
- * @param {object}   props.validationErrors     - Validation errors keyed by field name.
  * @param {boolean}  props.isFormValid          - Whether the form has no validation errors.
  * @param {boolean}  props.isCreating           - Whether a create or update request is in flight.
  * @param {string}   props.error                - Error message, or null.
@@ -78,7 +68,6 @@ export default function ProductForm( {
 	buttonText,
 	productName,
 	currencyCode,
-	productDescription,
 	imageUrl,
 	imageId,
 	returnUrl,
@@ -98,7 +87,6 @@ export default function ProductForm( {
 	touchedFields,
 	setTouchedFields,
 	markTouched,
-	validationErrors,
 	isFormValid,
 	isCreating,
 	error,
@@ -149,31 +137,6 @@ export default function ProductForm( {
 					{ successMessage }
 				</Notice>
 			) }
-
-			<TextareaControl
-				label={ __( 'Description (optional)', 'jetpack-paypal-payments' ) }
-				value={ productDescription || '' }
-				onChange={ value => setAttributes( { productDescription: value } ) }
-				onBlur={ () => markTouched( 'productDescription' ) }
-				help={
-					touchedFields.productDescription && validationErrors.productDescription
-						? validationErrors.productDescription
-						: sprintf(
-								/* translators: 1: current character count, 2: maximum allowed */
-								__(
-									'Shown to customers at checkout. %1$d / %2$d characters',
-									'jetpack-paypal-payments'
-								),
-								( productDescription || '' ).length,
-								MAX_DESCRIPTION_LENGTH
-						  )
-				}
-				className={
-					touchedFields.productDescription && validationErrors.productDescription
-						? 'has-error'
-						: undefined
-				}
-			/>
 
 			<div className="jetpack-paypal-payment-buttons__image-field">
 				<p className="components-base-control__label">
