@@ -8,6 +8,7 @@
  */
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 require_once JETPACK__PLUGIN_DIR . 'class.json-api.php';
 require_once JETPACK__PLUGIN_DIR . 'class.json-api-endpoints.php';
@@ -199,6 +200,167 @@ class Jetpack_Json_Api_New_Endpoints_Test extends WP_UnitTestCase {
 		$this->assertInstanceOf( WP_Error::class, $result );
 		$this->assertSame( 'unauthorized', $result->get_error_code() );
 		$this->assertStringContainsString( 'install_plugins', $result->get_error_message() );
+	}
+
+	/**
+	 * Invoke one of the protected folder_exists helpers.
+	 *
+	 * @param object $endpoint Endpoint instance.
+	 * @param string $name     Method name.
+	 * @param array  $args     Arguments.
+	 * @return mixed
+	 */
+	private function invoke_protected( $endpoint, $name, array $args ) {
+		$class  = new ReflectionClass( $endpoint );
+		$method = $class->getMethod( $name );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+		return $method->invokeArgs( $endpoint, $args );
+	}
+
+	private function make_plugins_endpoint() {
+		return new Jetpack_JSON_API_Plugins_New_Endpoint_Test_Stub( $this->endpoint_args(), array() );
+	}
+
+	/**
+	 * Stand-in for Automatic_Install_Skin after WP_Upgrader::run() has called
+	 * set_result() with the WP_Error install_package() returned.
+	 *
+	 * @param mixed $result Value of the skin's public $result.
+	 * @return stdClass
+	 */
+	private function make_skin( $result ) {
+		$skin         = new stdClass();
+		$skin->result = $result;
+		return $skin;
+	}
+
+	/**
+	 * Stand-in for Plugin_Upgrader after check_package() has read the zip's headers.
+	 *
+	 * @param array $new_plugin_data Value of the upgrader's public $new_plugin_data.
+	 * @return stdClass
+	 */
+	private function make_upgrader( array $new_plugin_data ) {
+		$upgrader                  = new stdClass();
+		$upgrader->new_plugin_data = $new_plugin_data;
+		return $upgrader;
+	}
+
+	private function folder_exists_skin( $destination = '/srv/htdocs/wp-content/plugins/akismet/' ) {
+		return $this->make_skin( new WP_Error( 'folder_exists', 'Destination folder already exists.', $destination ) );
+	}
+
+	public function test_folder_exists_error_carries_uploaded_plugin_identity() {
+		$endpoint = $this->make_plugins_endpoint();
+		$error    = new WP_Error( 'folder_exists', 'Destination folder already exists.', 400 );
+
+		$this->invoke_protected(
+			$endpoint,
+			'add_folder_exists_data',
+			array(
+				$error,
+				$this->folder_exists_skin(),
+				$this->make_upgrader(
+					array(
+						'Name'    => 'Akismet Anti-spam',
+						'Version' => '5.3.1',
+					)
+				),
+			)
+		);
+
+		$this->assertSame(
+			array(
+				'plugin_slug'    => 'akismet',
+				'plugin_version' => '5.3.1',
+				'plugin_name'    => 'Akismet Anti-spam',
+			),
+			$error->get_error_data( 'additional_data' )
+		);
+	}
+
+	/**
+	 * The payload must not disturb the code, message or status any existing client reads.
+	 */
+	public function test_folder_exists_payload_preserves_primary_error_contract() {
+		$endpoint = $this->make_plugins_endpoint();
+		$error    = new WP_Error( 'folder_exists', 'Destination folder already exists.', 400 );
+
+		$this->invoke_protected(
+			$endpoint,
+			'add_folder_exists_data',
+			array( $error, $this->folder_exists_skin(), $this->make_upgrader( array( 'Version' => '5.3.1' ) ) )
+		);
+
+		$this->assertSame( 'folder_exists', $error->get_error_code() );
+		$this->assertSame( 'Destination folder already exists.', $error->get_error_message() );
+
+		$serialized = WPCOM_JSON_API::serializable_error( $error );
+		$this->assertSame( 400, $serialized['status_code'] );
+		$this->assertSame( 'folder_exists', $serialized['errors']['error'] );
+		$this->assertSame( 'Destination folder already exists.', $serialized['errors']['message'] );
+		$this->assertSame( 'akismet', $serialized['errors']['data']['plugin_slug'] );
+	}
+
+	/**
+	 * No slug means the client gets exactly today's rejection and falls back to the old screen.
+	 */
+	public function test_folder_exists_payload_omitted_when_no_slug_derived() {
+		$endpoint = $this->make_plugins_endpoint();
+		$error    = new WP_Error( 'folder_exists', 'Destination folder already exists.', 400 );
+
+		$this->invoke_protected(
+			$endpoint,
+			'add_folder_exists_data',
+			array( $error, $this->make_skin( false ), $this->make_upgrader( array( 'Version' => '5.3.1' ) ) )
+		);
+
+		$this->assertSame( array( 'folder_exists' ), $error->get_error_codes() );
+		$this->assertNull( $error->get_error_data( 'additional_data' ) );
+
+		$serialized = WPCOM_JSON_API::serializable_error( $error );
+		$this->assertArrayNotHasKey( 'data', $serialized['errors'] );
+	}
+
+	public function test_folder_exists_payload_omits_version_and_name_when_headers_are_empty() {
+		$endpoint = $this->make_plugins_endpoint();
+		$error    = new WP_Error( 'folder_exists', 'Destination folder already exists.', 400 );
+
+		$this->invoke_protected(
+			$endpoint,
+			'add_folder_exists_data',
+			array( $error, $this->folder_exists_skin(), $this->make_upgrader( array() ) )
+		);
+
+		$this->assertSame( array( 'plugin_slug' => 'akismet' ), $error->get_error_data( 'additional_data' ) );
+	}
+
+	/**
+	 * @param mixed  $result   Value of the skin's public $result.
+	 * @param string $expected Expected slug.
+	 * @dataProvider provide_folder_exists_slugs
+	 */
+	#[DataProvider( 'provide_folder_exists_slugs' )]
+	public function test_folder_exists_slug_derivation( $result, $expected ) {
+		$slug = $this->invoke_protected( $this->make_plugins_endpoint(), 'get_folder_exists_slug', array( $this->make_skin( $result ) ) );
+
+		$this->assertSame( $expected, $slug );
+	}
+
+	public static function provide_folder_exists_slugs() {
+		return array(
+			'trailing slash'    => array( new WP_Error( 'folder_exists', '', '/srv/htdocs/wp-content/plugins/jetpack/' ), 'jetpack' ),
+			'no trailing slash' => array( new WP_Error( 'folder_exists', '', '/srv/htdocs/wp-content/plugins/jetpack' ), 'jetpack' ),
+			'dotted folder'     => array( new WP_Error( 'folder_exists', '', '/wp-content/plugins/wp-super-cache.old/' ), 'wp-super-cache.old' ),
+			'traversal segment' => array( new WP_Error( 'folder_exists', '', '/wp-content/plugins/../' ), '' ),
+			'empty destination' => array( new WP_Error( 'folder_exists', '', '' ), '' ),
+			'non-string data'   => array( new WP_Error( 'folder_exists', '', array( 'path' => '/plugins/jetpack/' ) ), '' ),
+			'different code'    => array( new WP_Error( 'copy_dir_failed', '', '/wp-content/plugins/jetpack/' ), '' ),
+			'no result'         => array( false, '' ),
+			'non-error result'  => array( array( 'destination_name' => 'jetpack' ), '' ),
+		);
 	}
 }
 
