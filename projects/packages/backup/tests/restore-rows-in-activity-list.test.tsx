@@ -20,6 +20,7 @@ import { render, screen } from '@testing-library/react';
 import { stage as OverviewStage } from '../routes/dashboard/stage';
 import { keys, queryClient } from '../src/dashboard/data/query-client';
 import { ACTIVITY_LOG_DEFAULT_PER_PAGE } from '../src/dashboard/hooks/use-activity-log';
+import { resetListStateForTesting } from '../src/dashboard/screens/overview';
 
 const CONNECTED = { isRegistered: true, hasConnectedOwner: true, isUserConnected: true };
 
@@ -145,6 +146,8 @@ function renderedRows(): string[] {
 }
 
 beforeEach( () => {
+	resetListStateForTesting();
+
 	queryClient.clear();
 	queryClient.setDefaultOptions( { queries: { retry: false } } );
 
