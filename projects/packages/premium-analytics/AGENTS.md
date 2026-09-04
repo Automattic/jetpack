@@ -138,6 +138,11 @@ and reaches `public-api.wordpress.com` directly. `jetpack-mu-wpcom` boots the pa
 opt-in or the `jetpack-premium-analytics` blog sticker, whichever says yes. Both answer the
 shared `jetpack_premium_analytics_enabled` filter, as they do on the other platforms.
 
+Which one says yes also decides how many tabs the dashboard offers: the site's own opt-in is the
+customer preview and exposes only the sections in `PREVIEW_SECTIONS`, while a sticker or filter
+override exposes every section the site qualifies for. `jetpack_premium_analytics_dashboard_preview_scope`
+overrides that per section — `__return_true` gives a development or test site the whole dashboard.
+
 ### Route guards must use the shared site-readiness helpers
 
 Every route's `beforeLoad` that checks connection state, and every sync check, must call
