@@ -341,18 +341,18 @@ class Dashboard_Layout_Test extends BaseTestCase {
 		$layout_types    = array_column( $layout, 'type' );
 		$utm_widget_uuid = 'default-utm-insights-widget-instance';
 
-		// uuid => [ type, width, order ]; widths fill the four-column grid.
+		// uuid => [ type, width, order ]; widths fill the three-column grid.
 		$expected = array(
-			'default-traffic-chart-widget-instance'   => array( 'jpa/traffic-chart', 4, 0 ),
-			'default-stats-top-posts-widget-instance' => array( 'jpa/stats-top-posts', 2, 1 ),
+			'default-traffic-chart-widget-instance'   => array( 'jpa/traffic-chart', 3, 0 ),
+			'default-stats-top-posts-widget-instance' => array( 'jpa/stats-top-posts', 1, 1 ),
 			'default-referrers-widget-instance'       => array( 'jpa/referrers', 1, 2 ),
 			'default-devices-widget-instance'         => array( 'jpa/devices', 1, 3 ),
-			'default-locations-widget-instance'       => array( 'jpa/locations', 3, 4 ),
+			'default-locations-widget-instance'       => array( 'jpa/locations', 2, 4 ),
 			'default-top-platforms-widget-instance'   => array( 'jpa/top-platforms', 1, 5 ),
-			'default-videopress-widget-instance'      => array( 'jpa/videopress', 1, 6 ),
+			'default-utm-insights-widget-instance'    => array( 'jpa/utm-insights', 1, 6 ),
 			'default-clicks-widget-instance'          => array( 'jpa/clicks', 1, 7 ),
-			'default-authors-widget-instance'         => array( 'jpa/authors', 2, 8 ),
-			'default-utm-insights-widget-instance'    => array( 'jpa/utm-insights', 2, 9 ),
+			'default-videopress-widget-instance'      => array( 'jpa/videopress', 1, 8 ),
+			'default-authors-widget-instance'         => array( 'jpa/authors', 1, 9 ),
 			'default-search-terms-widget-instance'    => array( 'jpa/search-terms', 1, 10 ),
 			'default-file-downloads-widget-instance'  => array( 'jpa/file-downloads', 1, 11 ),
 		);
