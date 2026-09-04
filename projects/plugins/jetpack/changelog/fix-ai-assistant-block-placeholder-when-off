@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+AI Assistant block: show a placeholder instead of the "unsupported block" warning on posts that contain the block when Jetpack AI or the Writing Assistant is turned off.
