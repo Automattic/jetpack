@@ -190,10 +190,11 @@ class Survicate {
 		}
 	}
 
-	// Requiring aria-modal excludes popovers/tooltips that only set role="dialog";
-	// the .components-modal__screen-overlay class covers older @wordpress/components
-	// Modal versions whose aria-modal attribute sat on an inner node.
-	var MODAL_SELECTOR = '[role="dialog"][aria-modal="true"], dialog[open], .components-modal__screen-overlay';
+	// Requiring aria-modal excludes generic role="dialog" widgets; the
+	// .components-modal__screen-overlay class covers older @wordpress/components
+	// Modal versions whose aria-modal attribute sat on an inner node; Popover
+	// counts, but Tooltip reuses its class and must not suppress on every hover.
+	var MODAL_SELECTOR = '[role="dialog"][aria-modal="true"], dialog[open], .components-modal__screen-overlay, .components-popover:not(.components-tooltip)';
 	// The Survicate widget renders role="dialog"/aria-modal elements inside
 	// <div id="survicate-box" class="survicate-box-...">; without this exclusion
 	// every survey would suppress itself on display.
@@ -239,6 +240,25 @@ class Survicate {
 		}
 		return false;
 	}
+	// Closing a suppressed auto-campaign survey is not enough: the SDK's
+	// targeting engine re-evaluates every few seconds and re-displays it,
+	// producing an endless display/close loop. The disableTargeting flag is
+	// read live by the engine — while truthy, auto-campaigns are not scheduled
+	// at all (API-triggered surveys are unaffected); retarget() re-runs the
+	// evaluation once the last modal closes.
+	function pauseTargeting() {
+		if ( window._sva && ! window._sva.disableTargeting ) {
+			window._sva.disableTargeting = true;
+		}
+	}
+	function resumeTargeting() {
+		if ( window._sva && window._sva.disableTargeting ) {
+			window._sva.disableTargeting = false;
+			if ( typeof window._sva.retarget === 'function' ) {
+				window._sva.retarget();
+			}
+		}
+	}
 
 	if ( window.wp && window.wp.data && typeof window.wp.data.subscribe === 'function' ) {
 		var wasShown = isHelpCenterShown();
@@ -256,35 +276,59 @@ class Survicate {
 	window.addEventListener( 'SurvicateReady', function () {
 		window._sva.setVisitorTraits( traits );
 
-		// Covers the race where the Help Center or a modal opened before the SDK finished loading.
+		// Covers the race where the Help Center or a modal opened before the SDK
+		// finished loading. A modal already open pauses targeting up front, so
+		// the survey never displays at all while it stays open.
+		if ( isModalOpen() ) {
+			pauseTargeting();
+		}
 		if ( isHelpCenterShown() || isModalOpen() ) {
 			closeAnySurvey();
 		}
 
 		if ( typeof window._sva.addEventListener === 'function' ) {
 			// The SDK does not expose a pre-display hook, so we close on the
-			// post-display event. This causes a brief flash but is the best the
-			// public API allows.
+			// post-display event. The Help Center path deliberately doesn't
+			// pause targeting — it has no close hook here to resume from and
+			// keeps its long-standing close-on-display behavior.
 			window._sva.addEventListener( 'survey_displayed', function () {
-				if ( isHelpCenterShown() || isModalOpen() ) {
+				if ( isModalOpen() ) {
+					pauseTargeting();
+					closeAnySurvey();
+				} else if ( isHelpCenterShown() ) {
 					closeAnySurvey();
 				}
 			} );
 		}
 
 		if ( typeof MutationObserver === 'function' && document.body ) {
-			// Close a survey already on screen when a modal opens on top of it.
-			// Only added nodes are inspected, so the observer is cheap on
-			// ordinary DOM churn; closeAnySurvey() is a no-op without a survey.
+			// Close a survey already on screen when a modal opens on top of it,
+			// pausing targeting so the SDK doesn't re-display it; resume once
+			// the last modal is removed. Only added/removed nodes are
+			// inspected, so the observer is cheap on ordinary DOM churn.
 			new MutationObserver( function ( mutations ) {
+				var sawRemovedModal = false;
 				for ( var m = 0; m < mutations.length; m++ ) {
 					var added = mutations[ m ].addedNodes;
 					for ( var n = 0; n < added.length; n++ ) {
 						if ( nodeContainsModal( added[ n ] ) ) {
+							pauseTargeting();
 							closeAnySurvey();
 							return;
 						}
 					}
+					if ( ! sawRemovedModal ) {
+						var removed = mutations[ m ].removedNodes;
+						for ( var r = 0; r < removed.length; r++ ) {
+							if ( nodeContainsModal( removed[ r ] ) ) {
+								sawRemovedModal = true;
+								break;
+							}
+						}
+					}
+				}
+				if ( sawRemovedModal && ! isModalOpen() ) {
+					resumeTargeting();
 				}
 			} ).observe( document.body, { childList: true, subtree: true } );
 		}
