@@ -22,6 +22,7 @@ jest.mock( '@wordpress/api-fetch', () => ( {
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import FileInfoCard from '../src/dashboard/components/file-info-card';
+import FileInfoDialog from '../src/dashboard/components/file-info-dialog';
 import { queryClient } from '../src/dashboard/data/query-client';
 import QueryClientProvider from '../src/dashboard/providers/query-client-provider';
 import type { FileNodeFile } from '../src/dashboard/types/file-tree';
@@ -108,6 +109,20 @@ function renderCard( file: FileNodeFile ) {
 	return render(
 		<QueryClientProvider>
 			<FileInfoCard file={ file } onClose={ noop } />
+		</QueryClientProvider>
+	);
+}
+
+/**
+ * Render one file's dialog, the chrome a panel too narrow for the card uses.
+ *
+ * @param file - The file node to open.
+ * @return The Testing Library render result.
+ */
+function renderDialog( file: FileNodeFile ) {
+	return render(
+		<QueryClientProvider>
+			<FileInfoDialog file={ file } onClose={ noop } />
 		</QueryClientProvider>
 	);
 }
@@ -353,5 +368,29 @@ describe( 'sensitive preview gate', () => {
 		await expect( screen.findByText( HIDDEN ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByText( SECRET ) ).not.toBeInTheDocument();
 		expect( fetchedContent() ).toBe( false );
+	} );
+} );
+
+// The dialog arrived after this gate did, and shares only the hook. Nothing
+// asserted the gate reached the second chrome until this.
+describe( 'the dialog chrome', () => {
+	it( 'gates a sensitive file there too, and still withholds the fetch', async () => {
+		mockEndpoints( SECRET );
+
+		renderDialog( fileAt( '/wp-config.php' ) );
+
+		await expect( screen.findByText( HIDDEN ) ).resolves.toBeVisible();
+		expect( screen.getByRole( 'button', { name: SHOW } ) ).toBeVisible();
+		expect( screen.queryByText( SECRET ) ).not.toBeInTheDocument();
+		expect( fetchedContent() ).toBe( false );
+	} );
+
+	it( 'reveals on a second click, as the card does', async () => {
+		mockEndpoints( SECRET );
+
+		renderDialog( fileAt( '/wp-config.php' ) );
+		await userEvent.click( await screen.findByRole( 'button', { name: SHOW } ) );
+
+		await expect( screen.findByText( SECRET ) ).resolves.toBeVisible();
 	} );
 } );
