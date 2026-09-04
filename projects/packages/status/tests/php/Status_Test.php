@@ -526,6 +526,33 @@ class Status_Test extends TestCase {
 				'https://127.0.0.1:8443/wordpress',
 				true,
 			),
+			// The whole 127.0.0.0/8 range is loopback, not just 127.0.0.1.
+			'loopback_ip_127_0_0_2'          => array(
+				'http://127.0.0.2',
+				true,
+			),
+			'loopback_ip_127_1_2_3'          => array(
+				'http://127.1.2.3:8080',
+				true,
+			),
+			// 0.0.0.0 is a common container/all-interfaces bind address.
+			'all_interfaces_ipv4'            => array(
+				'http://0.0.0.0',
+				true,
+			),
+			'all_interfaces_ipv4_with_port'  => array(
+				'http://0.0.0.0:8080',
+				true,
+			),
+			// Looks close to loopback but isn't: 128.0.0.0/8 is routable, and an octet over 255 is not an IP.
+			'near_loopback_ip'               => array(
+				'http://128.0.0.1',
+				false,
+			),
+			'invalid_loopback_octet'         => array(
+				'http://127.256.0.1',
+				false,
+			),
 			// A host with no dot at all can't be a public domain, so it is treated as local.
 			'dotless_host'                   => array(
 				'http://intranet',
@@ -533,6 +560,20 @@ class Status_Test extends TestCase {
 			),
 			'dotless_host_with_port'         => array(
 				'http://intranet:8080',
+				true,
+			),
+
+			/*
+			 * An IPv6 literal is dot-free, so the rule above calls every one of them local,
+			 * routable addresses included. Pinned because that is the answer we want, not an
+			 * accident: WordPress.com won't accept an IPv6 site URL at registration.
+			 */
+			'ipv6_loopback'                  => array(
+				'http://[::1]:8080',
+				true,
+			),
+			'ipv6_routable'                  => array(
+				'http://[2606:4700:4700::1111]',
 				true,
 			),
 			'playground'                     => array(

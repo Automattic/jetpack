@@ -163,7 +163,12 @@ class Status {
 			$host = '';
 		}
 
-		// Check for localhost and sites using an IP only first.
+		/*
+		 * Check for localhost and sites using an IP only first. No dot means it can't be a
+		 * public domain. This also catches every bracketed IPv6 literal, routable ones
+		 * included, which is intended: WordPress.com does not accept an IPv6 site URL when
+		 * registering a site, so offline mode is where such a site belongs.
+		 */
 		$is_local = '' !== $host && false === strpos( $host, '.' );
 
 		// Use Core's environment check, if available.
@@ -181,7 +186,9 @@ class Status {
 			'#\.dev\.cc$#i',       // ServerPress.
 			'#\.lndo\.site$#i',    // Lando.
 			'#\.ddev\.site$#i',    // DDEV.
-			'#^127\.0\.0\.1$#',
+			// The whole 127.0.0.0/8 range is loopback; each octet is capped at 255.
+			'#^127\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(?:\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){2}$#',
+			'#^0\.0\.0\.0$#', // All-interfaces bind, common under Docker and `wp server`.
 			'#^playground\.wordpress\.net$#i', // WordPress Playground, which runs entirely in the browser.
 		);
 
