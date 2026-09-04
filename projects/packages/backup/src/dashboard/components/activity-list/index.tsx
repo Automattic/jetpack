@@ -138,12 +138,21 @@ function DescriptionCell( { item }: { item: ActivityItem } ) {
  */
 export default function ActivityList( { selectedId, onSelect, view, onChangeView }: Props ) {
 	const { page, pageSize, sortOrder } = activityQueryArgs( view );
-	const { items, totalItems, totalPages, isLoading, isFetching, isPaused, error, refetch } =
-		useActivityLog( {
-			page,
-			pageSize,
-			sortOrder,
-		} );
+	const {
+		items,
+		totalItems,
+		totalPages,
+		isLoading,
+		isFetching,
+		isPlaceholderData,
+		isPaused,
+		error,
+		refetch,
+	} = useActivityLog( {
+		page,
+		pageSize,
+		sortOrder,
+	} );
 
 	// DataViews' `SortDirectionControl` spreads `...view` and replaces only
 	// `sort`, so without this a reorder strands the reader on page 3 of an
@@ -248,10 +257,14 @@ export default function ActivityList( { selectedId, onSelect, view, onChangeView
 	// This cannot swallow the `empty` slot: DataViews initialises
 	// `hasInitiallyLoaded` to `!isLoading` and latches it true on the first
 	// non-loading render, and the spinner branch that would replace the
-	// `empty` slot is gated on `!hasInitiallyLoaded`. Past the first load a
-	// truthy `isLoading` only reaches the footer, which marks itself inert
-	// while the next page is fetched.
-	const isBusy = isLoading || isFetching;
+	// `empty` slot is gated on `!hasInitiallyLoaded`.
+	//
+	// Placeholder data is the qualifier, not `isFetching` alone: DataViews
+	// puts `inert` on the composite that owns every row, so reporting a
+	// background refetch — the one a finished backup triggers — would blur
+	// the reader out of the list mid-read. A page or sort change is the
+	// reader's own action and their focus is on the control they used.
+	const isBusy = isLoading || ( isFetching && isPlaceholderData );
 
 	return (
 		<Card.Root className="jpb-activity-list" aria-busy={ isBusy }>
