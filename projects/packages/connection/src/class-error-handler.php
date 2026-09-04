@@ -407,6 +407,10 @@ class Error_Handler {
 								)
 								: __( 'The connection owner needs to reconnect their WordPress.com account to restore the connection. If you reconnect instead, you will become the new connection owner and every other user will be disconnected from WordPress.com.', 'jetpack-connection' );
 						}
+					} elseif ( 'site' === $audience && $viewer_id > 0 && ! current_user_can( 'jetpack_connect' ) ) {
+						// A logged-in viewer without the reconnect capability cannot act
+						// on a site connection error. Show an informational notice only.
+						$action = 'none';
 					}
 
 					$error['audience']      = $audience;

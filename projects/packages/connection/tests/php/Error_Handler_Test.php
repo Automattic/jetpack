@@ -2657,6 +2657,60 @@ class Error_Handler_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test that a site-scoped error has its reconnect CTA suppressed for a viewer
+	 * who lacks jetpack_connect — the Reporter bug (JETPACK-2523).
+	 */
+	public function test_site_error_suppresses_cta_for_viewer_without_jetpack_connect() {
+		$viewer_id = wp_insert_user(
+			array(
+				'user_login' => 'editor_no_cap',
+				'user_pass'  => 'password',
+				'user_email' => 'editor_no_cap@example.org',
+				'role'       => 'editor',
+			)
+		);
+		$this->assertIsInt( $viewer_id );
+		wp_set_current_user( $viewer_id );
+		// Editor does not have jetpack_connect; do not add it.
+
+		$this->store_single_verified_error( 'no_valid_blog_token', '0' );
+
+		$displayable = $this->error_handler->get_displayable_errors();
+
+		$this->assertArrayHasKey( 'no_valid_blog_token', $displayable );
+		$error = $displayable['no_valid_blog_token']['0'];
+		$this->assertSame( 'site', $error['audience'] );
+		$this->assertSame( 'none', $error['error_data']['action'], 'Viewer without jetpack_connect must see no reconnect CTA.' );
+	}
+
+	/**
+	 * Test that a site-scoped error shows the reconnect CTA to a viewer with jetpack_connect.
+	 */
+	public function test_site_error_shows_cta_for_viewer_with_jetpack_connect() {
+		$viewer_id = wp_insert_user(
+			array(
+				'user_login' => 'admin_with_cap',
+				'user_pass'  => 'password',
+				'user_email' => 'admin_with_cap@example.org',
+				'role'       => 'administrator',
+			)
+		);
+		$this->assertIsInt( $viewer_id );
+		wp_set_current_user( $viewer_id );
+		wp_get_current_user()->add_cap( 'jetpack_connect' );
+
+		$this->store_single_verified_error( 'no_valid_blog_token', '0' );
+
+		$displayable = $this->error_handler->get_displayable_errors();
+
+		$this->assertArrayHasKey( 'no_valid_blog_token', $displayable );
+		$error = $displayable['no_valid_blog_token']['0'];
+		$this->assertSame( 'site', $error['audience'] );
+		// No action key injected: the JS default reconnect CTA remains available.
+		$this->assertArrayNotHasKey( 'action', $error['error_data'], 'Viewer with jetpack_connect must see the reconnect CTA.' );
+	}
+
+	/**
 	 * Stores a set of verified errors, one entry per given error code and user ID.
 	 *
 	 * @param array $errors_by_code Map of error code to a list of user ID keys.
