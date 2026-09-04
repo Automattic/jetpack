@@ -134,9 +134,14 @@ add_action( 'wp_footer', 'wpcom_expiry_notices_render_frontend_banner' );
  * @param bool                $is_dismissible Whether the notice can be dismissed.
  */
 function wpcom_expiry_notices_render_frontend_banner_html( array $state, array $urls, bool $is_dismissible ): void {
-	$text = wpcom_expiry_notices_admin_banner_heading( $state ) . '. ' . wpcom_expiry_notices_admin_banner_body( $state );
+	$text = sprintf(
+		/* translators: %1$s is the notice heading (e.g. "Your Business plan has expired"), %2$s the notice body. */
+		__( '%1$s. %2$s', 'jetpack-mu-wpcom' ),
+		wpcom_expiry_notices_admin_banner_heading( $state ),
+		wpcom_expiry_notices_admin_banner_body( $state )
+	);
 	?>
-	<div id="wpcom-expiry-frontend-banner" class="wpcom-expiry-frontend-banner" role="status">
+	<div id="wpcom-expiry-frontend-banner" class="wpcom-expiry-frontend-banner" role="region" aria-label="<?php esc_attr_e( 'Plan expiry notice', 'jetpack-mu-wpcom' ); ?>">
 		<span class="wpcom-expiry-frontend-banner__text"><?php echo esc_html( $text ); ?></span>
 		<a
 			class="wpcom-expiry-frontend-banner__cta"
