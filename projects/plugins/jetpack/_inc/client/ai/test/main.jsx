@@ -15,11 +15,16 @@ jest.mock( '@automattic/jetpack-ai-client', () => ( { requestJwt: jest.fn() } ) 
 // hits the network and each test controls the GET/POST responses.
 jest.mock( '@wordpress/api-fetch' );
 
-// Swap Tabs for inert passthroughs; the real Notice/Stack are kept because
-// the assertions below rely on them.
+// Swap Tabs for lightweight stand-ins; the real Notice/Stack are kept because
+// the assertions below rely on them. The stand-ins keep the Base UI contracts
+// main.jsx depends on: aria-selected marks the tab matching the Root value,
+// a consumer onClick always runs, and onValueChange fires on click EXCEPT for
+// the already-selected tab — which is why main.jsx needs its own onClick to
+// leave a sub-view via the (selected) MCP tab.
 jest.mock( '@wordpress/ui', () => {
 	const actual = jest.requireActual( '@wordpress/ui' );
-	const { createElement } = require( 'react' );
+	const { createContext, createElement, useContext } = require( 'react' );
+	const TabsContext = createContext( {} );
 	const passthrough =
 		tag =>
 		( { children } ) =>
@@ -27,9 +32,23 @@ jest.mock( '@wordpress/ui', () => {
 	return {
 		...actual,
 		Tabs: {
-			Root: passthrough( 'div' ),
+			Root: ( { children, value, onValueChange } ) =>
+				createElement( TabsContext.Provider, { value: { value, onValueChange } }, children ),
 			List: passthrough( 'div' ),
-			Tab: passthrough( 'button' ),
+			Tab: ( { children, value, onClick } ) => {
+				const { value: selected, onValueChange } = useContext( TabsContext );
+				const handleClick = event => {
+					onClick?.( event );
+					if ( value !== selected ) {
+						onValueChange?.( value );
+					}
+				};
+				return createElement(
+					'button',
+					{ role: 'tab', 'aria-selected': value === selected, onClick: handleClick },
+					children
+				);
+			},
 			Panel: passthrough( 'div' ),
 		},
 	};
@@ -62,6 +81,15 @@ function mockApiFetch( { featureGet = enabledSettings(), mcpGet = {}, featurePos
 		}
 		if ( path?.includes( 'mcp-settings' ) ) {
 			return Promise.resolve( mcpGet );
+		}
+		if ( path?.includes( 'ai-assistant-feature' ) ) {
+			// A free-plan shape: the Overview usage card renders only for a
+			// payload that positively identifies the free tier.
+			return Promise.resolve( {
+				'requests-count': 12,
+				'requests-limit': 20,
+				'current-tier': { value: 0, limit: 20 },
+			} );
 		}
 		return Promise.resolve( {} );
 	} );
@@ -120,13 +148,121 @@ describe( 'AI admin page (main.jsx)', () => {
 		render( <App /> );
 
 		await expect(
-			screen.findByText( 'AI has been turned off for this site.', IGNORE_A11Y )
+			screen.findByText( 'Jetpack AI is not available for this site.', IGNORE_A11Y )
 		).resolves.toBeInTheDocument();
 
 		// AiFeatures never mounts: no feature toggle, no upgrade badge, no action link.
 		expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
 		expect( screen.queryByText( 'Requires upgrade' ) ).not.toBeInTheDocument();
-		expect( screen.queryByText( 'Learn more' ) ).not.toBeInTheDocument();
+		// The only Learn more left is the notice's own, pointing at core's wp_supports_ai reference.
+		expect( screen.getByRole( 'link', { name: /Learn more/ } ) ).toHaveAttribute(
+			'href',
+			expect.stringContaining( 'source=jetpack-ai-hub-docs-wp-supports-ai' )
+		);
+	} );
+
+	describe( 'master-off notice', () => {
+		const MASTER_OFF_TITLE = 'Jetpack AI is turned off for this site.';
+		const masterOffSettings = () => ( { ...enabledSettings(), master_enabled: false } );
+
+		test( 'features tab: notice with the My Jetpack link, rendered exactly once', async () => {
+			mockApiFetch( { featureGet: masterOffSettings() } );
+
+			render( <App /> );
+
+			await expect(
+				screen.findByText( MASTER_OFF_TITLE, IGNORE_A11Y )
+			).resolves.toBeInTheDocument();
+			expect( screen.getByRole( 'link', { name: 'Manage in My Jetpack' } ) ).toHaveAttribute(
+				'href',
+				'admin.php?page=my-jetpack#/products'
+			);
+			// One page-level notice — AiFeatures must not render a second copy.
+			expect( screen.getAllByText( MASTER_OFF_TITLE, IGNORE_A11Y ) ).toHaveLength( 1 );
+			expect( screen.getByRole( 'checkbox', { name: /Writing Assistant/ } ) ).toBeDisabled();
+		} );
+
+		test( 'overview tab: the notice shows', async () => {
+			window.jetpackAiSettings = { showFeaturesView: true, blogId: 1 };
+			window.location.hash = '#/overview';
+			mockApiFetch( { featureGet: masterOffSettings() } );
+
+			render( <App /> );
+
+			await expect(
+				screen.findByText( MASTER_OFF_TITLE, IGNORE_A11Y )
+			).resolves.toBeInTheDocument();
+		} );
+
+		test( 'MCP tab: the notice does not show and the hub stays functional', async () => {
+			window.jetpackAiSettings = { showFeaturesView: true, blogId: 1 };
+			window.location.hash = '#/mcp';
+			mockApiFetch( { featureGet: masterOffSettings(), mcpGet: connectedMcpGet() } );
+
+			render( <App /> );
+
+			const mcpToggle = await screen.findByRole( 'checkbox', { name: 'Enable MCP access' } );
+			expect( mcpToggle ).toBeChecked();
+			expect( mcpToggle ).toBeEnabled();
+			expect( screen.queryByText( MASTER_OFF_TITLE, IGNORE_A11Y ) ).not.toBeInTheDocument();
+		} );
+
+		test( 'scheduled tasks tab: the notice does not show', async () => {
+			window.jetpackAiSettings = {
+				showFeaturesView: true,
+				blogId: 1,
+				featureFlags: { 'ai-hub-scheduled-tasks': true },
+			};
+			window.location.hash = '#/scheduled-tasks';
+			window.__agentsManagerActions = {
+				isReady: true,
+				chatNavigate: jest.fn(),
+				setChatDocked: jest.fn(),
+				setChatOpen: jest.fn(),
+			};
+			mockApiFetch( { featureGet: masterOffSettings() } );
+
+			render( <App /> );
+
+			await expect(
+				screen.findByRole( 'button', { name: 'Try again' } )
+			).resolves.toBeInTheDocument();
+			expect( screen.queryByText( MASTER_OFF_TITLE, IGNORE_A11Y ) ).not.toBeInTheDocument();
+		} );
+
+		test( 'not connected: the connect ask wins over the master-off notice', async () => {
+			mockApiFetch( { featureGet: { ...masterOffSettings(), is_connected: false } } );
+
+			render( <App /> );
+
+			await expect(
+				screen.findByText( 'Jetpack is not connected to WordPress.com.', IGNORE_A11Y )
+			).resolves.toBeInTheDocument();
+			expect( screen.queryByText( MASTER_OFF_TITLE, IGNORE_A11Y ) ).not.toBeInTheDocument();
+		} );
+
+		test( 'host off: only the host notice shows', async () => {
+			mockApiFetch( { featureGet: { ...masterOffSettings(), host_allows_ai: false } } );
+
+			render( <App /> );
+
+			await expect(
+				screen.findByText( 'Jetpack AI is not available for this site.', IGNORE_A11Y )
+			).resolves.toBeInTheDocument();
+			expect( screen.queryByText( MASTER_OFF_TITLE, IGNORE_A11Y ) ).not.toBeInTheDocument();
+		} );
+
+		test( 'MCP sub-view: the notice does not show there either', async () => {
+			window.location.hash = '#/read';
+			mockApiFetch( { featureGet: masterOffSettings(), mcpGet: connectedMcpGet() } );
+
+			render( <App /> );
+
+			await expect(
+				screen.findByRole( 'button', { name: 'Jetpack AI' } )
+			).resolves.toBeInTheDocument();
+			expect( screen.queryByText( MASTER_OFF_TITLE, IGNORE_A11Y ) ).not.toBeInTheDocument();
+		} );
 	} );
 
 	test( 'save-confirmation: a successful AI-settings save shows a success snackbar', async () => {
@@ -427,6 +563,79 @@ describe( 'AI admin page (main.jsx)', () => {
 			screen.findByRole( 'button', { name: 'Jetpack AI' } )
 		).resolves.toBeInTheDocument();
 		expect( screen.queryByRole( 'button', { name: 'AI' } ) ).not.toBeInTheDocument();
+	} );
+
+	test( 'MCP sub-views: the tab bar stays visible alongside the breadcrumbs', async () => {
+		mockApiFetch( {
+			mcpGet: { has_mcp_access: true, mcp_abilities: { account: { some_tool: {} }, sites: [] } },
+		} );
+
+		window.location.hash = '#/setup';
+		render( <App /> );
+
+		// Breadcrumbs render for the sub-view…
+		await expect(
+			screen.findByRole( 'button', { name: 'Jetpack AI' } )
+		).resolves.toBeInTheDocument();
+		// …and the top-level tabs are still there for navigation, with the
+		// owning MCP tab marked selected (the view is nested under it).
+		expect( screen.getByRole( 'tab', { name: 'MCP and Connectors' } ) ).toHaveAttribute(
+			'aria-selected',
+			'true'
+		);
+		expect( screen.getByRole( 'tab', { name: /Overview/ } ) ).toHaveAttribute(
+			'aria-selected',
+			'false'
+		);
+	} );
+
+	test( 'MCP sub-views: clicking the MCP and Connectors tab returns to the hub', async () => {
+		mockApiFetch( { mcpGet: connectedMcpGet() } );
+		window.jetpackAiSettings = { showFeaturesView: true, blogId: 1 };
+
+		window.location.hash = '#/setup';
+		render( <App /> );
+
+		// On the sub-view: breadcrumbs are present.
+		await expect(
+			screen.findByRole( 'button', { name: 'Jetpack AI' } )
+		).resolves.toBeInTheDocument();
+
+		// The MCP tab is selected here, and Tabs never emit the already-selected
+		// value — this click only navigates through main.jsx's own tab onClick
+		// (the regression this guards).
+		await userEvent.click( screen.getByRole( 'tab', { name: 'MCP and Connectors' } ) );
+
+		// Back on the hub: breadcrumbs are gone.
+		await waitFor( () =>
+			expect( screen.queryByRole( 'button', { name: 'Jetpack AI' } ) ).not.toBeInTheDocument()
+		);
+		expect( window.location.hash ).toBe( '#/mcp' );
+	} );
+
+	test( 'MCP sub-views: the back eyebrow names the parent and returns to the hub', async () => {
+		mockApiFetch( { mcpGet: connectedMcpGet() } );
+		window.jetpackAiSettings = { showFeaturesView: true, blogId: 1 };
+
+		window.location.hash = '#/mcp/setup';
+		render( <App /> );
+
+		// The eyebrow's accessible name disambiguates it from the MCP tab.
+		const eyebrow = await screen.findByRole( 'button', { name: 'Back to MCP and Connectors' } );
+		await userEvent.click( eyebrow );
+
+		// Back on the hub: breadcrumbs and the eyebrow itself are gone.
+		await waitFor( () =>
+			expect( screen.queryByRole( 'button', { name: 'Jetpack AI' } ) ).not.toBeInTheDocument()
+		);
+		expect(
+			screen.queryByRole( 'button', { name: 'Back to MCP and Connectors' } )
+		).not.toBeInTheDocument();
+		expect( window.location.hash ).toBe( '#/mcp' );
+
+		// The clicked eyebrow unmounted; focus must be restored to the
+		// selected tab instead of silently dropping to <body>.
+		expect( screen.getByRole( 'tab', { name: 'MCP and Connectors' } ) ).toHaveFocus();
 	} );
 
 	test( 'host gate: without showFeaturesView the page is MCP-only with no tab bar', async () => {

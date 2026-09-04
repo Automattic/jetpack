@@ -1,6 +1,7 @@
-import apiFetch from '@wordpress/api-fetch';
 import { wpcomTrackEvent } from '../../../common/tracks';
+import { recordDismissal } from './dismiss.ts';
 import { openHelpCenterWithMessage } from './help-center.ts';
+import { trackOncePerSession } from './track-once.ts';
 
 interface ExpiryBannerData {
 	metaKey: string;
@@ -15,22 +16,6 @@ declare global {
 	}
 }
 
-// sessionStorage can throw in private browsing / sandboxed iframes.
-const safeSessionGet = ( key: string ): string | null => {
-	try {
-		return sessionStorage.getItem( key );
-	} catch {
-		return null;
-	}
-};
-const safeSessionSet = ( key: string, value: string ): void => {
-	try {
-		sessionStorage.setItem( key, value );
-	} catch {
-		// Storage unavailable; the impression may fire more than once.
-	}
-};
-
 document.addEventListener( 'DOMContentLoaded', () => {
 	const banner = document.getElementById( 'wpcom-expiry-banner' );
 	const data = window.wpcomExpiryBanner;
@@ -44,13 +29,13 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		product_slug: data.productSlug,
 	};
 
-	// Fire impression once per browser session — the banner re-renders on
-	// every load in the non-dismissible states but we count unique sessions.
-	const impressionKey = `${ data.metaKey }_impression_fired`;
-	if ( safeSessionGet( impressionKey ) !== '1' ) {
-		wpcomTrackEvent( 'jetpack_expiry_banner_impression', trackProps );
-		safeSessionSet( impressionKey, '1' );
-	}
+	// Once per browser session: the banner re-renders on every load in the
+	// non-dismissible states but we count unique sessions.
+	trackOncePerSession(
+		`${ data.metaKey }_impression_fired`,
+		'jetpack_expiry_banner_impression',
+		trackProps
+	);
 
 	const primaryCta = banner.querySelector< HTMLAnchorElement >( '.button-primary' );
 	primaryCta?.addEventListener( 'click', ( e: Event ) => {
@@ -73,11 +58,7 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		banner.style.display = 'none';
 
 		try {
-			await apiFetch( {
-				path: '/wp/v2/users/me',
-				method: 'POST',
-				data: { meta: { [ data.metaKey ]: 1 } },
-			} );
+			await recordDismissal( data.metaKey );
 			wpcomTrackEvent( 'jetpack_expiry_banner_dismiss', trackProps );
 		} catch ( err ) {
 			// Re-show the banner so the user can see something went wrong

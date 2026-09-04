@@ -79,6 +79,7 @@ export {
 	Input,
 	Link,
 	Notice,
+	Popover,
 	SelectControl,
 	Skeleton,
 	Stack,

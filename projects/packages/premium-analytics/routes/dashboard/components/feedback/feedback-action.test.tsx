@@ -28,6 +28,14 @@ const mockGetScriptData = jest.fn();
 
 jest.mock( '@automattic/jetpack-script-data', () => ( {
 	getScriptData: () => mockGetScriptData(),
+	isSimpleSite: () => false,
+} ) );
+
+const mockApiFetch = jest.fn();
+
+jest.mock( '@wordpress/api-fetch', () => ( {
+	__esModule: true,
+	default: ( ...args: unknown[] ) => mockApiFetch( ...args ),
 } ) );
 
 beforeEach( () => {
@@ -37,6 +45,7 @@ beforeEach( () => {
 		site: { wpcom: { blog_id: 42 } },
 		user: { current_user: { wpcom: { ID: 7, login: 'reader' } } },
 	} );
+	mockApiFetch.mockResolvedValue( 'success' );
 } );
 
 /**
@@ -210,5 +219,54 @@ describe( 'the Tracks identity', () => {
 
 		expect( mockSetUser ).toHaveBeenCalledWith( 7, 'reader' );
 		expect( mockAssignSuperProps ).not.toHaveBeenCalled();
+	} );
+} );
+
+describe( 'the Happiness copy of the feedback', () => {
+	it( 'sends the message and the rating to the WPCOM feedback endpoint', async () => {
+		const user = await openModal();
+
+		await user.click( screen.getByRole( 'radio', { name: 'A bit worse' } ) );
+		await user.type( screen.getByRole( 'textbox' ), '  Missing the date picker  ' );
+		await user.click( screen.getByRole( 'button', { name: 'Send feedback' } ) );
+
+		expect( mockApiFetch ).toHaveBeenCalledWith(
+			expect.objectContaining( {
+				path: '/jetpack-premium-analytics/v1/proxy/v2/jetpack-stats/user-feedback',
+				method: 'POST',
+				data: {
+					source_url: window.location.href,
+					product_name: 'Jetpack Stats v2',
+					feedback: 'Missing the date picker',
+					rating: 2,
+				},
+			} )
+		);
+	} );
+
+	it( 'keeps a bare rating out of the support queue', async () => {
+		const user = await openModal();
+
+		await user.click( screen.getByRole( 'radio', { name: 'Much better' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Send feedback' } ) );
+
+		expect( mockRecordEvent ).toHaveBeenLastCalledWith(
+			'jetpack_premium_analytics_feedback_submit',
+			{ rating: 5, comment: '' }
+		);
+		expect( mockApiFetch ).not.toHaveBeenCalled();
+	} );
+
+	it( 'still thanks the reader when the endpoint fails', async () => {
+		mockApiFetch.mockRejectedValue( new Error( 'throttled' ) );
+		const user = await openModal();
+
+		await user.click( screen.getByRole( 'radio', { name: 'About the same' } ) );
+		await user.type( screen.getByRole( 'textbox' ), 'Charts load slowly' );
+		await user.click( screen.getByRole( 'button', { name: 'Send feedback' } ) );
+
+		expect(
+			within( screen.getByRole( 'dialog' ) ).getByText( 'Thank you. This helps.' )
+		).toBeInTheDocument();
 	} );
 } );

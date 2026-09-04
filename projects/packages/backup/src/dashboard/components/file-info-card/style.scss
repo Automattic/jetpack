@@ -46,7 +46,8 @@
 
 	&__preview {
 		max-height: 320px;
-		overflow: auto;
+		overflow-y: auto;
+		overflow-x: hidden;
 		background-color: var(--wp-components-color-background-secondary, #f7f7f7);
 		border-radius: 4px;
 		padding: 12px;
@@ -57,6 +58,9 @@
 			font-size: 12px;
 			line-height: 1.5;
 			white-space: pre;
+			// The `<pre>` is `dir="ltr"`, so inside an RTL panel it overflows past
+			// the panel's inline-start edge, which Chrome never makes scrollable.
+			overflow-x: auto;
 			color: var(--wp-components-color-foreground, #1e1e1e);
 		}
 	}

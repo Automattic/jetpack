@@ -43,6 +43,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { stage as OverviewStage } from '../routes/dashboard/stage';
 import { queryClient } from '../src/dashboard/data/query-client';
+import { resetListStateForTesting } from '../src/dashboard/screens/overview';
 
 const CONNECTED = { isRegistered: true, hasConnectedOwner: true, isUserConnected: true };
 
@@ -192,6 +193,9 @@ function mockEndpoints( {
 }
 
 beforeEach( () => {
+	// Module state, so one test's selection would otherwise seed the next.
+	resetListStateForTesting();
+
 	queryClient.clear();
 	queryClient.setDefaultOptions( { queries: { retry: false } } );
 

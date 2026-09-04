@@ -15,8 +15,8 @@ Main chart component for displaying ranked data with optional comparison values.
 | `data` | `LeaderboardEntry[]` | - | **Required.** Array of leaderboard entries to display |
 | `withComparison` | `boolean` | `false` | Whether to show comparison data (previous period bars and delta values) |
 | `withOverlayLabel` | `boolean` | `false` | Whether to overlay the label on top of the bar |
-| `primaryColor` | `string` | theme default | Primary color for current period bars |
-| `secondaryColor` | `string` | theme default | Secondary color for comparison period bars |
+| `primaryColor` | `string` | first palette slot | Primary color for current period bars |
+| `secondaryColor` | `string` | second palette slot | Secondary color for comparison period bars |
 | `valueFormatter` | `(value: number) => string` | `defaultValueFormatter` | Custom formatter for values |
 | `deltaFormatter` | `(value: number) => string` | `defaultDeltaFormatter` | Custom formatter for delta values |
 | `loading` | `boolean` | `false` | Whether the chart is in loading state |

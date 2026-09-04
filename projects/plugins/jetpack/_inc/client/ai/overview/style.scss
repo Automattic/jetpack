@@ -1,21 +1,101 @@
 .jetpack-ai-overview {
 
-	&__loading {
-		display: flex;
-		justify-content: center;
-		padding-block: var(--wpds-dimension-padding-lg, 16px);
+	// Loading state. The bars sit in the loaded card's own grid, and each one
+	// reserves its whole line box through symmetric margins while painting at
+	// text weight — so the column is exactly as tall as the copy it stands in
+	// for without the placeholders reading as slabs. The line boxes are the ui
+	// Text variants' own, which pair a font size with a *smaller* line-height
+	// token: heading-lg and body-md are 20px, heading-sm is 16px. Skeleton
+	// brings its own pulse, reduced-motion and forced-colors handling; only
+	// geometry belongs here.
+	&__skeleton-icon {
+		// Matches <AiIcon size={ 28 } /> in the loaded card. No 28px token exists
+		// (size-sm is 24, size-md 32), so this tracks the component, not the scale.
+		inline-size: 28px;
+		block-size: 28px;
+		border-radius: var(--wpds-border-radius-md, 4px);
 	}
 
-	// The i4 usage card: two equal cells split by a hairline divider —
-	// available requests over the meter, plan beside upgrade/renewal.
+	// Bar thickness sits a little under each variant's font size — enough to
+	// read as a line of text, not as a filled box. The margins are the leftover
+	// half-leading, so the outer height is the line box exactly.
+	&__skeleton-line {
+		// Fully rounded ends: at text weight a pill reads as a line of copy,
+		// where a 4px corner reads as a small box.
+		border-radius: 999px;
+
+		// heading-lg: a 20px line box, plus the 8px the real <h2> carries above it.
+		&--title {
+			inline-size: 52%;
+			block-size: 14px;
+			margin-block: 3px;
+			margin-block-start: calc(3px + var(--wpds-dimension-gap-sm, 8px));
+		}
+
+		// The copy is a single two-line body-md paragraph — 20px a line, so 40px —
+		// but it takes two bars with the column's 8px gap between them. 16px each.
+		&--copy {
+			block-size: 10px;
+			margin-block: 3px;
+		}
+
+		// Roughly where the real second line ends.
+		&--copy-short {
+			inline-size: 76%;
+		}
+
+		// heading-sm: a 16px line box. Pinned to the top of the cell exactly as the
+		// real eyebrow is, so the readout below it stays bottom-anchored.
+		&--eyebrow {
+			inline-size: 44%;
+			block-size: 8px;
+			margin-block: 4px;
+			margin-block-end: auto;
+		}
+
+		// heading-xl, which this file lifts to a 32px line box (see __requests-value
+		// below). Narrow, because the number it stands in for is two digits.
+		&--value {
+			inline-size: 18%;
+			block-size: 20px;
+			margin-block: 6px;
+		}
+	}
+
+	// The meter runs the full width under the number. Unlike the real one it
+	// keeps the column's gap: the live meter tucks up 8px into the whitespace
+	// under the digits' baseline, but a placeholder bar has no whitespace to
+	// tuck into, so the same pull would sit it on top of the bar above.
+	&__skeleton-meter {
+		block-size: 4px;
+		// Pill, as above — at 4px the radius only softens the ends.
+		border-radius: 999px;
+	}
+
+	// Stands in for the Upgrade button: the ui Button's own default height, and
+	// a gap-sized margin that takes back the pull the real meter above it has.
+	&__skeleton-cta {
+		inline-size: 88px;
+		block-size: var(--wpds-dimension-size-lg, 40px);
+		margin-block-start: var(--wpds-dimension-gap-sm, 8px);
+		border-radius: var(--wpds-border-radius-sm, 2px);
+	}
+
+	// The resolved card fades up in place of the skeleton it replaces, so the
+	// text arrives rather than snapping in.
+	&__fade-in {
+
+		@media (prefers-reduced-motion: no-preference) {
+			animation:
+				jetpack-ai-overview-fade-in var(--wpds-motion-duration-lg, 300ms)
+				var(--wpds-motion-easing-balanced, cubic-bezier(0.4, 0, 0.2, 1));
+		}
+	}
+
+	// The usage card body: the available-requests readout over its meter.
 	&__usage {
 		display: flex;
 		align-items: stretch;
-
-		@media (max-width: 600px) {
-			flex-direction: column;
-			gap: var(--wpds-dimension-gap-lg, 16px);
-		}
 	}
 
 	&__usage-cell {
@@ -25,58 +105,75 @@
 		flex-direction: column;
 		gap: var(--wpds-dimension-gap-sm, 8px);
 
-		// Label stays at the top; value + meter (and plan name + renewal) drop to the
-		// bottom so both cells share a baseline — matches the Figma paid-plan card.
+		// Label stays at the top; the readout drops to the bottom so the cell
+		// shares a baseline with the upsell's right column.
 		.jetpack-ai-overview__eyebrow {
 			margin-block-end: auto;
 		}
+	}
 
-		&--plan {
-			border-inline-start: 1px solid var(--wpds-color-stroke-surface-neutral, #dbdbdb);
-			padding-inline-start: var(--wpds-dimension-gap-xl, 24px);
-			margin-inline-start: var(--wpds-dimension-gap-xl, 24px);
-			// Full-height divider: bleed through the card content's padding,
-			// then take the same space back (tracks the ui Card's own token).
-			margin-block: calc(-1 * var(--wp-ui-card-padding, 24px));
-			padding-block: var(--wp-ui-card-padding, 24px);
+	// The upsell card breathes more than the standard one — 32px per the
+	// mock. A literal: the wpds padding scale stops at 2xl (24px). The ui
+	// Card reads this token for its own padding.
+	&__card--upsell {
+		--wp-ui-card-padding: 32px;
+	}
 
-			@media (max-width: 600px) {
-				// Stacked cells divide with a horizontal rule instead.
-				border-inline-start: none;
-				padding-inline-start: 0;
-				margin-inline-start: 0;
-				margin-block: 0;
-				border-block-start: 1px solid var(--wpds-color-stroke-surface-neutral, #dbdbdb);
-				padding-block: var(--wpds-dimension-padding-lg, 16px) 0;
-			}
+	// The upsell replaces the two-cell layout whenever an upgrade is on
+	// offer, mirroring its grid without the divider: icon and pitch on the
+	// left, the requests readout with the Upgrade button on the right (the
+	// right cell reuses __usage-cell above).
+	&__upsell {
+		display: flex;
+		align-items: stretch;
+		gap: var(--wpds-dimension-gap-xl, 24px);
+
+		@media (max-width: 600px) {
+			// Stacks with the copy on top, as the MCP upsell does.
+			flex-direction: column;
 		}
+	}
+
+	&__upsell-content {
+		flex: 1;
+		min-inline-size: 0;
+		display: flex;
+		flex-direction: column;
+		gap: var(--wpds-dimension-gap-sm, 8px);
+
+		// Element + class outranks the Text runtime margin reset by
+		// specificity, not order (same fight as the doubled classes below).
+		> h2 {
+			margin-block-start: var(--wpds-dimension-gap-sm, 8px);
+		}
+	}
+
+	// Icon pinned top, heading and copy bottom-anchored — the same rhythm the
+	// usage cell gives its eyebrow and readout, so the two columns align.
+	&__upsell-icon {
+		display: block;
+		margin-block-end: auto;
+
+		svg {
+			// Kill the inline-svg baseline gap inside the wrapper.
+			display: block;
+		}
+	}
+
+	// Doubled class beats the component's runtime-injected rules by order.
+	&__upsell-cta#{&}__upsell-cta {
+		align-self: flex-start;
+		margin-block-start: var(--wpds-dimension-gap-lg, 16px);
 	}
 
 	&__muted {
 		color: var(--wpds-color-foreground-content-neutral-weak, #707070);
 	}
 
-	// Basis auto, not 0: the name starts from its own width so the renewal
-	// date beside it yields and wraps, rather than squeezing the name.
-	&__plan-name {
-		flex: 1 1 auto;
-	}
-
-	// Capped as in the frame, but only beside a plan name: uncapped the date
-	// claims a full line and the name breaks, while alone it needs no cap.
-	&__plan-name + &__renewal {
-		max-inline-size: 118px;
-	}
-
-	// The frame breaks this line after the label, never inside the date
-	// (AI-Settings node 6021-3997), so the date is a single unbreakable run.
-	&__renewal-date {
-		white-space: nowrap;
-	}
-
-	// The frame gives the requests number a taller line box than the plan name,
+	// The frame gives the requests number a taller line box than body text,
 	// which one shared heading-xl variant cannot express. Two classes, because the
 	// variant's runtime-injected line-height rule outranks a lone class in order.
+	&__upsell &__requests-value,
 	&__usage &__requests-value {
 		line-height: var(--wpds-typography-line-height-xl, 32px);
 	}
@@ -84,17 +181,6 @@
 	// Clip the row's hover background to the card's rounded corners.
 	&__row-card {
 		overflow: hidden;
-	}
-
-	// The titled sections sit 48px under the preceding card: the outer
-	// stack's 24px gap plus this margin.
-	&__quick-start,
-	&__videos,
-	&__docs {
-		display: flex;
-		flex-direction: column;
-		gap: var(--wpds-dimension-gap-lg, 16px);
-		margin-block-start: var(--wpds-dimension-gap-xl, 24px);
 	}
 
 	&__quick-start-grid,
@@ -111,7 +197,9 @@
 	&__video {
 		display: flex;
 		flex-direction: column;
-		border: 1px solid var(--wpds-color-stroke-surface-neutral, #dbdbdb);
+		// Same rgba as MCP Settings' @wordpress/components Card
+		// (CONFIG.surfaceBorderColor).
+		border: 1px solid rgba(0, 0, 0, 0.1);
 		border-radius: var(--wpds-border-radius-lg, 8px);
 		overflow: hidden;
 
@@ -147,20 +235,13 @@
 		// title misses a single line by under a pixel, and 8px seats it.
 		gap: var(--wpds-dimension-gap-sm, 8px);
 		padding: var(--wpds-dimension-padding-md, 12px) var(--wpds-dimension-padding-xl, 20px);
-		border-block-start: 1px solid var(--wpds-color-stroke-surface-neutral, #dbdbdb);
+		border-block-start: 1px solid rgba(0, 0, 0, 0.1);
 	}
 
 	// Size, weight, and uppercase come from the Text heading-sm variant
 	// (the design system's eyebrow style); only the colour is ours.
 	&__eyebrow {
 		color: var(--wpds-color-foreground-content-neutral-weak, #707070);
-	}
-
-	// Two classes: the Text component's runtime-injected p reset (margin: 0)
-	// otherwise outranks the auto margin by order alone.
-	&__usage &__unlimited {
-		text-transform: uppercase;
-		margin-inline-start: auto;
 	}
 
 	// Doubled class beats the component's runtime-injected rules. ProgressBar
@@ -177,4 +258,27 @@
 		background-color: var(--wpds-color-background-interactive-neutral-weak-active, #ededed);
 		--wp-components-color-foreground: var(--wpds-color-foreground-interactive-brand, #3858e9);
 	}
+}
+
+@keyframes jetpack-ai-overview-fade-in {
+
+	from {
+		opacity: 0;
+	}
+
+	to {
+		opacity: 1;
+	}
+}
+
+// Without an actions row the banner is shorter, which would push the shared
+// shell's bottom sphere up into the copy — sink it so only a rim shows.
+.jetpack-ai-overview__assistant-banner .jetpack-ai-banner__orb--bottom {
+	display: none;
+}
+
+// On plans with no usage card and no connection notices the intro Stack
+// renders empty; drop it so the outer Stack's 3xl gap doesn't double.
+.jetpack-ai-overview__intro:empty {
+	display: none;
 }

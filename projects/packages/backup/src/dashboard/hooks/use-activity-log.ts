@@ -32,6 +32,13 @@ type Result = {
 	 * whole duration of a retry.
 	 */
 	isFetching: boolean;
+	/**
+	 * True when React Query parked the request instead of sending it, which
+	 * `networkMode: 'online'` does for an offline browser. Neither fetching nor
+	 * errored — so callers that read an absence as an answer need this to tell
+	 * "nothing there" from "never asked".
+	 */
+	isPaused: boolean;
 	error: Error | null;
 	refetch: () => void;
 };
@@ -89,7 +96,7 @@ function useActivityPageQuery( page: number, pageSize: number, sortOrder: Activi
  * @param args.page      - 1-indexed page number.
  * @param args.pageSize  - Items per page.
  * @param args.sortOrder - Sort direction, from the list's Order control.
- * @return Items, total items, total pages, loading, error, refetch.
+ * @return Items, total items, total pages, loading, paused, error, refetch.
  */
 export function useActivityLog( { page, pageSize, sortOrder }: Args ): Result {
 	const query = useActivityPageQuery( page, pageSize, sortOrder );
@@ -133,6 +140,7 @@ export function useActivityLog( { page, pageSize, sortOrder }: Args ): Result {
 		totalPages,
 		isLoading: query.isLoading,
 		isFetching: query.isFetching,
+		isPaused: query.isPaused,
 		error,
 		refetch: retry,
 	};
@@ -251,19 +259,21 @@ export function useDefaultBackupRewindId(): string | null {
  * is paginated over the full retention window and does not have that
  * blind spot.
  *
- * `isError` is reported separately from `isLoading` because callers must
- * treat the two the same way and React Query does not. A failed query is
- * not loading and holds no rows, so `hasRestorePoints` comes back a
+ * `isError` and `isPaused` are reported separately from `isLoading`
+ * because callers must treat all three the same way and React Query does
+ * not. A query that failed, and a first read parked because the browser is
+ * offline, are both not loading and hold no rows, so `hasRestorePoints` comes back a
  * confident `false` for a question that was never actually answered —
  * which is indistinguishable, to a caller reading only the first two
  * values, from a site that genuinely has no restore points.
  *
- * @return Whether a restore point is visible, whether the answer has loaded, and whether asking failed.
+ * @return Whether a restore point is visible, whether the answer has loaded, and whether asking failed or was parked.
  */
 export function useHasRestorePoints(): {
 	hasRestorePoints: boolean;
 	isLoading: boolean;
 	isError: boolean;
+	isPaused: boolean;
 } {
 	const query = useActivityPageQuery( 1, ACTIVITY_LOG_DEFAULT_PER_PAGE, ACTIVITY_LOG_NEWEST_FIRST );
 	const hasRestorePoints = useMemo(
@@ -273,7 +283,14 @@ export function useHasRestorePoints(): {
 			),
 		[ query.data ]
 	);
-	return { hasRestorePoints, isLoading: query.isLoading, isError: query.isError };
+	return {
+		hasRestorePoints,
+		isLoading: query.isLoading,
+		isError: query.isError,
+		// `isPending` too: a parked *refetch* still holds its rows, and reporting
+		// that as unanswered would pull the first-run panel off a genuinely empty site.
+		isPaused: query.isPending && query.isPaused,
+	};
 }
 
 /**

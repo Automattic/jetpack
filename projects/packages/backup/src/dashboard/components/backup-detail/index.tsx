@@ -139,7 +139,9 @@ export default function BackupDetail( { item }: Props ) {
 				</Stack>
 			</Card.Header>
 			<Card.Content className="jpb-backup-detail__body">
-				<Text className="jpb-backup-detail__stats">{ item.stats }</Text>
+				<Text className="jpb-backup-detail__stats" dir="auto">
+					{ item.stats }
+				</Text>
 				<Text variant="body-sm" className="jpb-text-muted jpb-backup-detail__by">
 					{ sprintf(
 						/* translators: %1$s formatted date+time, %2$s actor name */

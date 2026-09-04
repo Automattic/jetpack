@@ -28,6 +28,8 @@ import { resolveWidgetModuleWithI18n, useWidgetTypesWithI18n } from '../widget-m
 import {
 	DashboardSections,
 	FeedbackAction,
+	OnboardingTour,
+	onboardingTourSteps,
 	RefreshFailureNotice,
 	SectionSyncNotice,
 } from './components';
@@ -41,6 +43,7 @@ import {
 import {
 	useActiveSection,
 	useDashboardGridSettings,
+	useDashboardPolicy,
 	useDashboardSectionLayout,
 	useDashboardSections,
 	useOnboarding,
@@ -59,6 +62,7 @@ function Dashboard(): JSX.Element {
 	const [ activeSection, setActiveSection ] = useActiveSection( sections );
 	const [ layout, setLayout, resetLayout ] = useDashboardSectionLayout( activeSection, sections );
 	const [ gridSettings ] = useDashboardGridSettings();
+	const canPerform = useDashboardPolicy();
 
 	/*
 	 * The watcher runs at the dashboard level, not inside the notice below, so the
@@ -111,6 +115,17 @@ function Dashboard(): JSX.Element {
 
 	const [ editMode, setEditMode ] = useState( false );
 
+	// The tour's anchors, handed in by the elements below once they mount.
+	const [ actionsAnchor, setActionsAnchor ] = useState< HTMLDivElement | null >( null );
+	const [ controlsAnchor, setControlsAnchor ] = useState< HTMLDivElement | null >( null );
+	const [ widgetsFrame, setWidgetsFrame ] = useState< HTMLDivElement | null >( null );
+	const tourSteps = onboardingTourSteps( {
+		actions: actionsAnchor,
+		dateControls: controlsAnchor,
+		// Every tile is a section; the grid draws them in layout order.
+		firstWidget: widgetsFrame?.querySelector( 'section' ) ?? null,
+	} );
+
 	// The journey introduces the default section at rest: not another tab, and
 	// not while the reader is already customizing.
 	const onboarding = useOnboarding( {
@@ -118,6 +133,7 @@ function Dashboard(): JSX.Element {
 			hasResolvedSections &&
 			! editMode &&
 			activeSection === resolveSectionId( undefined, sections ),
+		stepCount: tourSteps.length,
 	} );
 
 	// Only the widgets this section renders need metadata at boot; the full registry
@@ -225,80 +241,99 @@ function Dashboard(): JSX.Element {
 			 * so a widget reading them off the URL could show a comparison the reader can't see.
 			 */ }
 			<ReportScopeProvider offersComparison={ showComparison }>
-				<WidgetDashboard
-					widgetTypes={ widgetTypes }
-					isResolvingWidgetTypes={ isResolvingWidgetTypes }
-					resolveWidgetModule={ resolveWidgetModuleWithI18n }
-					layout={ layout }
-					onLayoutChange={ setLayout }
-					onLayoutReset={ resetLayout }
-					gridSettings={ gridSettings }
-					editMode={ editMode }
-					onEditChange={ setEditMode }
-				>
-					<Page
-						visual={ <StatsPageIcon /> }
-						breadcrumbs={ <StatsBreadcrumbs isRoot /> }
-						actions={
-							<>
-								<FeedbackAction />
-								<WidgetDashboard.Actions />
-							</>
-						}
-						className={ styles.dashboard }
+				{ /* Outside the dashboard: the inserter mounts beyond `children`. */ }
+				<WidgetDashboard.Policy canPerform={ canPerform }>
+					<WidgetDashboard
+						widgetTypes={ widgetTypes }
+						isResolvingWidgetTypes={ isResolvingWidgetTypes }
+						resolveWidgetModule={ resolveWidgetModuleWithI18n }
+						layout={ layout }
+						onLayoutChange={ setLayout }
+						onLayoutReset={ resetLayout }
+						gridSettings={ gridSettings }
+						editMode={ editMode }
+						onEditChange={ setEditMode }
 					>
-						<DashboardSections
-							sections={ sections }
-							value={ activeSection }
-							onChange={ setActiveSection }
+						<Page
+							visual={ <StatsPageIcon /> }
+							breadcrumbs={ <StatsBreadcrumbs isRoot /> }
+							actions={
+								<>
+									<FeedbackAction />
+									<Stack ref={ setActionsAnchor } direction="row">
+										<WidgetDashboard.Actions />
+									</Stack>
+								</>
+							}
+							className={ styles.dashboard }
 						>
-							{ sections.map( section => (
-								<SectionTabPanel
-									key={ section.slug }
-									value={ section.slug }
-									className={ styles.content }
-								>
-									{ /* Marks where the header below comes to rest, so it starts
+							<DashboardSections
+								sections={ sections }
+								value={ activeSection }
+								onChange={ setActiveSection }
+							>
+								{ sections.map( section => (
+									<SectionTabPanel
+										key={ section.slug }
+										value={ section.slug }
+										className={ styles.content }
+									>
+										{ /* Marks where the header below comes to rest, so it starts
 								     condensing there. Measured, never seen. */ }
-									<div className={ styles.pinMarker } aria-hidden="true" />
+										<div className={ styles.pinMarker } aria-hidden="true" />
 
-									<div ref={ setHeaderElement } className={ styles.sectionHeader }>
-										<SectionHeader title={ resolveSectionHeading( section ) } condenseOnScroll>
-											{ dateControls }
-										</SectionHeader>
-										{ /* Inside the pinned band, so its Retry stays reachable however
+										<div ref={ setHeaderElement } className={ styles.sectionHeader }>
+											<SectionHeader
+												title={ resolveSectionHeading( section ) }
+												condenseOnScroll
+												controlsRef={ setControlsAnchor }
+											>
+												{ dateControls }
+											</SectionHeader>
+											{ /* Inside the pinned band, so its Retry stays reachable however
 										     far the reader has scrolled. */ }
-										<RefreshFailureNotice className={ styles.refreshFailure } />
-									</div>
+											<RefreshFailureNotice className={ styles.refreshFailure } />
+										</div>
 
-									{ activeSection === section.slug ? (
-										<>
-											{ isSectionAwaitingSync( section, isSyncFinished ) && ! isSyncComplete ? (
-												<SectionSyncNotice
-													percentage={ syncStatus?.percentage ?? 0 }
-													hasError={ !! syncError }
-													onRetry={ retrySync }
-													isRetrying={ isRetryingSync }
-												/>
-											) : null }
+										{ activeSection === section.slug ? (
+											<>
+												{ isSectionAwaitingSync( section, isSyncFinished ) && ! isSyncComplete ? (
+													<SectionSyncNotice
+														percentage={ syncStatus?.percentage ?? 0 }
+														hasError={ !! syncError }
+														onRetry={ retrySync }
+														isRetrying={ isRetryingSync }
+													/>
+												) : null }
 
-											<WidgetDashboard.NoWidgetsState />
-											<WidgetDashboard.Widgets className={ styles.widgets } />
-										</>
-									) : null }
-								</SectionTabPanel>
-							) ) }
-						</DashboardSections>
+												<WidgetDashboard.NoWidgetsState />
+												<div ref={ setWidgetsFrame }>
+													<WidgetDashboard.Widgets className={ styles.widgets } />
+												</div>
+											</>
+										) : null }
+									</SectionTabPanel>
+								) ) }
+							</DashboardSections>
 
-						<WidgetDashboard.Commands />
+							<WidgetDashboard.Commands />
 
-						<OnboardingWelcomeModal
-							open={ onboarding.phase === 'modal' }
-							onStart={ onboarding.start }
-							onDismiss={ onboarding.dismiss }
-						/>
-					</Page>
-				</WidgetDashboard>
+							<OnboardingWelcomeModal
+								open={ onboarding.phase === 'modal' }
+								onStart={ onboarding.start }
+								onDismiss={ onboarding.dismiss }
+							/>
+							{ onboarding.phase === 'tour' && (
+								<OnboardingTour
+									steps={ tourSteps }
+									current={ onboarding.step }
+									onNext={ onboarding.next }
+									onDismiss={ onboarding.dismiss }
+								/>
+							) }
+						</Page>
+					</WidgetDashboard>
+				</WidgetDashboard.Policy>
 			</ReportScopeProvider>
 		</GlobalErrorProvider>
 	);

@@ -30,6 +30,7 @@ import userEvent from '@testing-library/user-event';
 import { stage as OverviewStage } from '../routes/dashboard/stage';
 import ErrorBoundary from '../src/dashboard/components/error-boundary';
 import { queryClient } from '../src/dashboard/data/query-client';
+import { resetListStateForTesting } from '../src/dashboard/screens/overview';
 
 const CONNECTED = { isRegistered: true, hasConnectedOwner: true, isUserConnected: true };
 const CAPABILITIES = { hasBackupPlan: true, hasScan: false };
@@ -117,6 +118,7 @@ function failFileTree( error: { code: string; message: string } ) {
 beforeEach( () => {
 	queryClient.clear();
 	queryClient.setDefaultOptions( { queries: { retry: false } } );
+	resetListStateForTesting();
 
 	mockApiFetch.mockReset();
 	mockApiFetch.mockResolvedValue( CAPABILITIES );

@@ -858,8 +858,9 @@ class Jetpack {
 	 * flag while it rolls out (WOOA7S-1595). When enabled it adds its own admin
 	 * menu alongside the existing Stats UI; it never replaces or hides the
 	 * legacy Stats menu, admin-bar entries, post-list column, or WP dashboard
-	 * widget. The Stats module's tracking is unaffected either way — Stats v2
-	 * depends on it.
+	 * widget. The Stats module's tracking is unaffected either way, and Stats v2
+	 * reads what that module collects, so while the module is off the plugin
+	 * answers false here before even reading the flag.
 	 *
 	 * The package has to be loadable for this to be true, so a site with the
 	 * flag on but a missing package answers false here and never adds the
@@ -874,12 +875,18 @@ class Jetpack {
 			return self::$premium_analytics_enabled;
 		}
 
+		if ( ! self::is_module_active( 'stats' ) ) {
+			self::$premium_analytics_enabled = false;
+			return false;
+		}
+
 		/**
 		 * Filters whether the bundled Premium Analytics dashboard is enabled.
 		 *
-		 * Resolved once, from `Jetpack::configure()` on `plugins_loaded`. Register
-		 * this from a mu-plugin or a plugin's main file — a callback added on
-		 * `plugins_loaded` or later runs too late to be seen.
+		 * Resolved once, from `Jetpack::configure()` on `plugins_loaded`, and only
+		 * while the Stats module is active. Register this from a mu-plugin or a
+		 * plugin's main file — a callback added on `plugins_loaded` or later runs
+		 * too late to be seen.
 		 *
 		 * @since 16.1
 		 *
