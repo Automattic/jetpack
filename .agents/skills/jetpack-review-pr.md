@@ -284,7 +284,8 @@ nothing needs checking out, and the PR head may predate the script.
 
 *Repeated explanation* — two reports. **Repeated explanation** groups identical comment lines;
 **Shared phrasing** catches the same idea reworded, by finding a distinctive run of words two
-comments reuse across different line breaks. Both are the same violation and triage the same way:
+comments reuse across different line breaks — and identical comments whose lines are each too
+short for the first report. Both are the same violation and triage the same way:
 
 - **Discard** — boilerplate that slipped past the substance floor, or two mirrors that genuinely
   have to be read independently (a TS type describing a payload its PHP producer also documents).

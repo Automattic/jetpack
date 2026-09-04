@@ -38,13 +38,13 @@ BEGIN {
 
 	nrules = 0
 	rule( "history", "the tree's former state — true only until the next reader arrives", \
-		"before this (pr|change|patch|commit|fix|branch)|prior to this|used to |we used to|previously[ ,]|formerly|originally[ ,]|until recently|up until|the old (code|implementation|version|way|behaviou?r)|an earlier version|we (tried|attempted)" )
+		"before this (pr|change|patch|commit|fix|branch)|prior to this|[^a-z]used to |previously[ ,]|formerly|originally[ ,]|until recently|up until|the old (code|implementation|version|way|behaviou?r)|an earlier version|we (tried|attempted)" )
 	# No "would …" here on purpose. It reads like a rejected alternative and is
 	# almost always an invariant instead ("turning this on would have to publish
 	# the site"): it was every false positive in the negative corpus, and cost
 	# nothing to drop — the real offenders match on the past tense.
 	rule( "rejected", "an alternative the tree does not have — describes code no reader can see", \
-		"caused (a|an|the|~|[0-9])|led to|resulted in|does ?n.t work|did ?n.t work|we could have|the (naive|obvious) (approach|version|fix)|first attempt|rejected because" )
+		"caused (a|an|the|~|[0-9])|[^a-z]led to|resulted in|does ?n.t work|did ?n.t work|we could have|the (naive|obvious) (approach|version|fix)|first attempt|rejected because" )
 	rule( "citation", "an upstream file-and-line pointer — drifts on the next upstream edit", \
 		"[a-z0-9_./-]+\\.(php|js|jsx|ts|tsx|mjs|cjs|scss|css|py|rb|go|java|c|h|inc)(:| line |#l)[0-9]+|line [0-9]+ (of|in)|#l[0-9]+" )
 	rule( "numbers", "a measurement or count — drifts the moment the thing it counts changes", \
@@ -146,7 +146,9 @@ function add_to_block( text ) {
 
 function flush_block(   i, low, sigs ) {
 	if ( blk_text == "" ) return
-	low  = tolower( blk_text )
+	# Leading space so a rule can demand a word start as `[^a-z]` and still match
+	# at position 0. `\b` is not POSIX ERE — the three awks each read it differently.
+	low  = " " tolower( blk_text )
 	sigs = ""
 	for ( i = 1; i <= nrules; i++ ) if ( low ~ rpat[i] ) sigs = sigs "" ( sigs == "" ? "" : "," ) rname[i]
 	if ( sigs != "" ) {

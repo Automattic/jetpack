@@ -264,7 +264,7 @@ If any file under `projects/` changed, delegate to `.agents/skills/jetpack-chang
 
 ## Phase 9 — Self-review
 
-- Read `git diff trunk..HEAD` end to end. Flag dead code, overfitting, drift from the Phase 2 plan.
+- Read `git diff origin/trunk...HEAD` end to end. Flag dead code, overfitting, drift from the Phase 2 plan.
 - Run `git diff origin/trunk...HEAD | awk -f .agents/skills/jetpack-review-pr/scripts/comment-rot.awk`
   for duplicated explanations and rotting provenance — neither is visible from the file you typed
   it in. Candidates, not verdicts: judge them per `jetpack-review-pr.md` § Comment repetition and
