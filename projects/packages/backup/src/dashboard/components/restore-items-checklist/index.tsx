@@ -34,7 +34,7 @@ const ITEMS: ItemDef[] = [
 	{
 		key: 'sqls',
 		label: __( 'Site database', 'jetpack-backup-pkg' ),
-		description: __( 'Includes pages, and posts.', 'jetpack-backup-pkg' ),
+		description: __( 'Includes pages and posts.', 'jetpack-backup-pkg' ),
 	},
 	{
 		key: 'uploads',
