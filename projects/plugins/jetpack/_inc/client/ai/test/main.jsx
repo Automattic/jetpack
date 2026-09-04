@@ -5,6 +5,9 @@ import { dispatch, select } from '@wordpress/data';
 import { store as noticesStore } from '@wordpress/notices';
 import analytics from 'lib/analytics';
 import App from '../main';
+// Compiles the lazy tab module before the tests run, so the flag test's 1s wait
+// covers the render and not Jest's cold transform of DataViews on CI.
+import '../scheduled-tasks/index';
 
 // main.jsx imports the webpack-aliased 'lib/analytics', which doesn't resolve
 // under jest — provide it virtually. (jest.mock is hoisted above the imports.)
