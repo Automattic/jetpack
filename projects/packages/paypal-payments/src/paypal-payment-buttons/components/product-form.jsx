@@ -16,8 +16,6 @@ import {
 } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import metadata from '../block.json';
-import { SUPPORTED_CURRENCIES } from '../utils/currencies';
-import { getPriceStep } from '../utils/currency-symbols';
 import { MAX_DESCRIPTION_LENGTH } from '../utils/validation';
 import FormatSwitcher from './format-switcher';
 import VariantBuilder from './variant-builder';
@@ -28,12 +26,6 @@ const helpQtyOn = __( 'Customers can buy multiple units at checkout.', 'jetpack-
 const helpQtyOff = __( 'Fixed at 1 unit per purchase.', 'jetpack-paypal-payments' );
 const helpTaxOn = __( 'Tax will be added at PayPal checkout.', 'jetpack-paypal-payments' );
 const helpTaxOff = __( 'No tax collected.', 'jetpack-paypal-payments' );
-const labelPrice = __( 'Price', 'jetpack-paypal-payments' );
-const labelPriceOptional = __( 'Price (not used)', 'jetpack-paypal-payments' );
-const helpPriceFromOptions = __(
-	'Each product option sets its own price, so this value is ignored.',
-	'jetpack-paypal-payments'
-);
 
 /**
  * The product creation form, shown when PayPal is connected and the block is in edit mode.
@@ -43,7 +35,6 @@ const helpPriceFromOptions = __(
  * @param {Function} props.setAttributes        - Function to update block attributes.
  * @param {string}   props.buttonText           - The button label attribute.
  * @param {string}   props.productName          - The product name attribute.
- * @param {string}   props.price                - The product price attribute.
  * @param {string}   props.currencyCode         - The currency code attribute.
  * @param {string}   props.productDescription   - The product description attribute.
  * @param {string}   props.imageUrl             - The product image URL attribute.
@@ -65,7 +56,6 @@ const helpPriceFromOptions = __(
  * @param {object}   props.touchedFields        - Which fields the merchant has interacted with.
  * @param {Function} props.setTouchedFields     - Setter for the touched fields.
  * @param {Function} props.markTouched          - Mark a field as touched.
- * @param {boolean}  props.usesVariantPricing   - Whether the options carry their own prices.
  * @param {object}   props.validationErrors     - Validation errors keyed by field name.
  * @param {boolean}  props.isFormValid          - Whether the form has no validation errors.
  * @param {boolean}  props.isCreating           - Whether a create or update request is in flight.
@@ -87,7 +77,6 @@ export default function ProductForm( {
 	setAttributes,
 	buttonText,
 	productName,
-	price,
 	currencyCode,
 	productDescription,
 	imageUrl,
@@ -109,7 +98,6 @@ export default function ProductForm( {
 	touchedFields,
 	setTouchedFields,
 	markTouched,
-	usesVariantPricing,
 	validationErrors,
 	isFormValid,
 	isCreating,
@@ -125,10 +113,6 @@ export default function ProductForm( {
 	connectionStatus,
 	connectionLabel,
 } ) {
-	// PayPal rejects any decimal in JPY, HUF and TWD, so the input must not offer one.
-	const priceStep = getPriceStep( currencyCode || 'USD' );
-	const pricePlaceholder = priceStep === '1' ? '1500' : '29.99';
-
 	return (
 		<div className="jetpack-paypal-payment-buttons__create-form">
 			<div className="jetpack-paypal-payment-buttons__preview-status">
@@ -165,34 +149,6 @@ export default function ProductForm( {
 					{ successMessage }
 				</Notice>
 			) }
-
-			<div className="jetpack-paypal-payment-buttons__price-row">
-				<div>
-					<TextControl
-						label={ usesVariantPricing ? labelPriceOptional : labelPrice }
-						value={ price || '' }
-						onChange={ value => setAttributes( { price: value } ) }
-						onBlur={ () => markTouched( 'price' ) }
-						disabled={ isCreating }
-						type="number"
-						min={ priceStep }
-						step={ priceStep }
-						placeholder={ pricePlaceholder }
-						help={
-							touchedFields.price && validationErrors.price
-								? validationErrors.price
-								: ( usesVariantPricing && helpPriceFromOptions ) || undefined
-						}
-						className={ touchedFields.price && validationErrors.price ? 'has-error' : undefined }
-					/>
-				</div>
-				<SelectControl
-					label={ __( 'Currency', 'jetpack-paypal-payments' ) }
-					value={ currencyCode || 'USD' }
-					options={ SUPPORTED_CURRENCIES }
-					onChange={ value => setAttributes( { currencyCode: value } ) }
-				/>
-			</div>
 
 			<TextareaControl
 				label={ __( 'Description (optional)', 'jetpack-paypal-payments' ) }

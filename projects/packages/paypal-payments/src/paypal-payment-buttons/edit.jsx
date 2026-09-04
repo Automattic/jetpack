@@ -24,6 +24,7 @@ import {
 import {
 	Notice,
 	PanelBody,
+	SelectControl,
 	Spinner,
 	TextControl,
 	ToolbarButton,
@@ -44,7 +45,8 @@ import PayPalInspectorControls from './controls';
 import { broadcastConnectionChange, usePayPalConnection } from './hooks/use-paypal-connection';
 import { usePayPalResource } from './hooks/use-paypal-resource';
 import { API_BASE } from './utils/api-base';
-import { VALID_CURRENCY_CODES } from './utils/currencies';
+import { SUPPORTED_CURRENCIES, VALID_CURRENCY_CODES } from './utils/currencies';
+import { getPriceStep } from './utils/currency-symbols';
 import {
 	MAX_NAME_LENGTH,
 	validatePrice,
@@ -54,6 +56,13 @@ import {
 
 // Button type is always 'single' — the hosted payment page handles
 // payment method selection (PayPal, cards, wallets, etc.).
+
+const labelPrice = __( 'Price', 'jetpack-paypal-payments' );
+const labelPriceOptional = __( 'Price (not used)', 'jetpack-paypal-payments' );
+const helpPriceFromOptions = __(
+	'Each product option sets its own price, so this value is ignored.',
+	'jetpack-paypal-payments'
+);
 
 /**
  * PayPal Payment Buttons edit component.
@@ -98,6 +107,10 @@ export default function PayPalPaymentButtonsEdit( {
 
 	// Normalize — old blocks without the attribute default to BUTTON.
 	const activeFormat = format || 'BUTTON';
+
+	// PayPal rejects any decimal in JPY, HUF and TWD, so the input must not offer one.
+	const priceStep = getPriceStep( currencyCode || 'USD' );
+	const pricePlaceholder = priceStep === '1' ? '1500' : '29.99';
 
 	const blockProps = useBlockProps();
 
@@ -562,6 +575,36 @@ export default function PayPalPaymentButtonsEdit( {
 							touchedFields.productName && validationErrors.productName ? 'has-error' : undefined
 						}
 					/>
+
+					<div className="jetpack-paypal-payment-buttons__price-row">
+						<div>
+							<TextControl
+								label={ usesVariantPricing ? labelPriceOptional : labelPrice }
+								value={ price || '' }
+								onChange={ value => setAttributes( { price: value } ) }
+								onBlur={ () => markTouched( 'price' ) }
+								disabled={ isCreating }
+								type="number"
+								min={ priceStep }
+								step={ priceStep }
+								placeholder={ pricePlaceholder }
+								help={
+									touchedFields.price && validationErrors.price
+										? validationErrors.price
+										: ( usesVariantPricing && helpPriceFromOptions ) || undefined
+								}
+								className={
+									touchedFields.price && validationErrors.price ? 'has-error' : undefined
+								}
+							/>
+						</div>
+						<SelectControl
+							label={ __( 'Currency', 'jetpack-paypal-payments' ) }
+							value={ currencyCode || 'USD' }
+							options={ SUPPORTED_CURRENCIES }
+							onChange={ value => setAttributes( { currencyCode: value } ) }
+						/>
+					</div>
 				</PanelBody>
 			</InspectorControls>
 			{ inspectorControls }
@@ -571,7 +614,6 @@ export default function PayPalPaymentButtonsEdit( {
 				setAttributes={ setAttributes }
 				buttonText={ buttonText }
 				productName={ productName }
-				price={ price }
 				currencyCode={ currencyCode }
 				productDescription={ productDescription }
 				imageUrl={ imageUrl }
@@ -593,7 +635,6 @@ export default function PayPalPaymentButtonsEdit( {
 				touchedFields={ touchedFields }
 				setTouchedFields={ setTouchedFields }
 				markTouched={ markTouched }
-				usesVariantPricing={ usesVariantPricing }
 				validationErrors={ validationErrors }
 				isFormValid={ isFormValid }
 				isCreating={ isCreating }
