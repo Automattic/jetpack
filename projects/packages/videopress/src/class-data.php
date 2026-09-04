@@ -62,6 +62,17 @@ class Data {
 	}
 
 	/**
+	 * Gets whether player preloading is turned off for every embed on the site.
+	 *
+	 * Preloading is on by default, so this opt-out option defaults to false.
+	 *
+	 * @return boolean If embeds should wait for playback before fetching video data and player assets.
+	 */
+	public static function get_videopress_player_preload_disabled() {
+		return boolval( get_option( 'videopress_player_preload_disabled', false ) );
+	}
+
+	/**
 	 * Gets the VideoPress Settings.
 	 *
 	 * @return array The settings as an associative array.
@@ -81,6 +92,7 @@ class Data {
 		return array(
 			'videopress_videos_private_for_site' => self::get_videopress_videos_private_for_site(),
 			'videopress_auto_subtitles_disabled' => self::get_videopress_auto_subtitles_disabled(),
+			'videopress_player_preload_disabled' => self::get_videopress_player_preload_disabled(),
 			'site_is_private'                    => $site_is_private,
 			'site_type'                          => $site_type,
 		);

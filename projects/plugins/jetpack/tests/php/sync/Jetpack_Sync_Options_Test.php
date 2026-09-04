@@ -255,6 +255,7 @@ class Jetpack_Sync_Options_Test extends Jetpack_Sync_TestBase {
 			'wpcom_is_fse_activated'                       => '1',
 			'videopress_private_enabled_for_site'          => false,
 			'videopress_auto_subtitles_disabled'           => true,
+			'videopress_player_preload_disabled'           => true,
 			'wpcom_featured_image_in_email'                => false,
 			'jetpack_gravatar_in_email'                    => false,
 			'jetpack_author_in_email'                      => false,

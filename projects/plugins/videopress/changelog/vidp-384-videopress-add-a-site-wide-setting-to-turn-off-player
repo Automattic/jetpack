@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add a site-wide setting to turn off player preloading for every embed.

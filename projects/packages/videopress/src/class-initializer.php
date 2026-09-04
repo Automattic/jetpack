@@ -664,7 +664,7 @@ class Initializer {
 	private static function playlist_embed_url( $guid, $autoplay, $muted = false ) {
 		$args = array(
 			'cover'          => 1,
-			'preloadContent' => 'metadata',
+			'preloadContent' => Data::get_videopress_player_preload_disabled() ? 'none' : 'metadata',
 			'autoPlay'       => $autoplay ? 1 : 0,
 		);
 		if ( $muted ) {
