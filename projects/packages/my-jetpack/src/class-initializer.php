@@ -934,7 +934,7 @@ class Initializer {
 	public static function get_recommended_modules() {
 		$recommendations_evaluation = \Jetpack_Options::get_option( 'recommendations_evaluation', null );
 
-		if ( ! $recommendations_evaluation ) {
+		if ( empty( $recommendations_evaluation ) || ! is_array( $recommendations_evaluation ) ) {
 			return null;
 		}
 
