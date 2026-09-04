@@ -24,9 +24,8 @@ export default function UpgradeButton() {
 	const upgradeUrl = getRedirectUrl( 'backup-plugin-upgrade-10gb', site ? { site } : {} );
 
 	const recordClick = useCallback( () => {
-		// On the click rather than at checkout: the event measures the reader
-		// deciding to buy, and this page never sees the purchase. Legacy records
-		// the same name and payload from `no-backup-capabilities.jsx`.
+		// Legacy records the same name and payload from `no-backup-capabilities.jsx`.
+		// Click-time and the `undefined` arm are as in `addon-upsell.tsx`.
 		analytics.tracks.recordEvent(
 			'jetpack_backup_plugin_upgrade_click',
 			site ? { site } : undefined
