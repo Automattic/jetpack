@@ -90,6 +90,15 @@ export function FeedbackModal( { onClose }: FeedbackModalProps ) {
 		[]
 	);
 
+	const handleOpenChange = useCallback(
+		( isOpen: boolean ) => {
+			if ( ! isOpen ) {
+				onClose();
+			}
+		},
+		[ onClose ]
+	);
+
 	const submit = useCallback( () => {
 		if ( rating === null ) {
 			return;
@@ -115,7 +124,7 @@ export function FeedbackModal( { onClose }: FeedbackModalProps ) {
 	}, [ comment, rating, trackEvent ] );
 
 	return (
-		<Dialog.Root open onOpenChange={ isOpen => ! isOpen && onClose() }>
+		<Dialog.Root open onOpenChange={ handleOpenChange }>
 			<Dialog.Popup size="medium">
 				<Dialog.Header>
 					<Dialog.Title>
@@ -162,7 +171,7 @@ export function FeedbackModal( { onClose }: FeedbackModalProps ) {
 										label={ blockerQuestion }
 										value={ comment }
 										maxLength={ COMMENT_MAX_LENGTH }
-										onValueChange={ value => setComment( value ) }
+										onValueChange={ setComment }
 									/>
 								</Stack>
 							</Stack>
