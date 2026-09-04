@@ -19,6 +19,9 @@ export type StatsUserFeedback = {
  * The endpoint requires a message, so a rating with no comment is not submittable here —
  * Tracks carries the rating either way.
  *
+ * It also throttles per site per day rather than per user, so on a multi-author site a
+ * co-author's earlier submission silently drops this one. Tracks still has it.
+ *
  * @param feedback             - The reader's submission.
  * @param feedback.rating      - Where the reader placed the new tab on the comparison scale.
  * @param feedback.comment     - The reader's message. Must not be empty.
