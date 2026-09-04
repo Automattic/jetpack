@@ -255,10 +255,11 @@ class Jetpack_Sitemap_Librarian {
 	/**
 	 * Retrieve the timestamps of named sitemaps of a given type, keyed by filename.
 	 *
-	 * Only the named rows are read, and only their titles and dates: a caller
-	 * listing sitemaps in an index needs nothing else, and the base64 bodies are
-	 * large enough that reading a site's worth of them is a real memory cost.
-	 * Names missing from the result are not stored.
+	 * Looking rows up by name is what lets a caller avoid assuming the Nth row of
+	 * a type is file N, which an interrupted cleanup can make false by rewriting a
+	 * row and moving it in ID order. Only the named rows are read, in batches, so
+	 * the result is bounded by what was asked for rather than by how many sitemap
+	 * rows the site has. Names with no stored row are absent from the result.
 	 *
 	 * @access public
 	 * @since 16.2
