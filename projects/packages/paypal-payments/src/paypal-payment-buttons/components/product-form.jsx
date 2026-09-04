@@ -18,7 +18,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import metadata from '../block.json';
 import { SUPPORTED_CURRENCIES } from '../utils/currencies';
 import { getPriceStep } from '../utils/currency-symbols';
-import { MAX_NAME_LENGTH, MAX_DESCRIPTION_LENGTH } from '../utils/validation';
+import { MAX_DESCRIPTION_LENGTH } from '../utils/validation';
 import FormatSwitcher from './format-switcher';
 import VariantBuilder from './variant-builder';
 
@@ -165,28 +165,6 @@ export default function ProductForm( {
 					{ successMessage }
 				</Notice>
 			) }
-
-			<TextControl
-				label={ __( 'Product Name', 'jetpack-paypal-payments' ) }
-				value={ productName || '' }
-				onChange={ value => setAttributes( { productName: value } ) }
-				onBlur={ () => markTouched( 'productName' ) }
-				disabled={ isCreating }
-				placeholder={ __( 'e.g., Premium Widget', 'jetpack-paypal-payments' ) }
-				help={
-					touchedFields.productName && validationErrors.productName
-						? validationErrors.productName
-						: sprintf(
-								/* translators: 1: current character count, 2: maximum allowed */
-								__( '%1$d / %2$d characters', 'jetpack-paypal-payments' ),
-								( productName || '' ).length,
-								MAX_NAME_LENGTH
-						  )
-				}
-				className={
-					touchedFields.productName && validationErrors.productName ? 'has-error' : undefined
-				}
-			/>
 
 			<div className="jetpack-paypal-payment-buttons__price-row">
 				<div>
