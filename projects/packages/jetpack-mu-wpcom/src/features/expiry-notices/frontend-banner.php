@@ -67,3 +67,98 @@ function wpcom_expiry_notices_current_frontend_url(): string {
 	}
 	return home_url( remove_query_arg( wp_removable_query_args(), $request_uri ) );
 }
+
+/**
+ * Whether this request is a page the banner belongs on. Feeds, embeds, and the
+ * Customizer preview render markup of their own the bar would corrupt.
+ */
+function wpcom_expiry_notices_frontend_banner_should_render(): bool {
+	if ( is_feed() || is_embed() || is_customize_preview() ) {
+		return false;
+	}
+	return null !== wpcom_expiry_notices_frontend_banner_data();
+}
+
+/**
+ * Enqueue + localize the banner's JS/CSS on wp_enqueue_scripts.
+ */
+function wpcom_expiry_notices_enqueue_frontend_banner_assets() {
+	$data = wpcom_expiry_notices_frontend_banner_data();
+	if ( null === $data || ! wpcom_expiry_notices_frontend_banner_should_render() ) {
+		return;
+	}
+
+	$asset_handle = jetpack_mu_wpcom_enqueue_assets( 'expiry-notices-frontend-banner', array( 'js', 'css' ) );
+	// Nothing else on the front-end loads the Tracks transport, so without this
+	// the events are pushed to a plain array and dropped.
+	\Automattic\Jetpack\Jetpack_Mu_Wpcom\Common\wpcom_enqueue_tracking_scripts( $asset_handle );
+	wp_localize_script(
+		$asset_handle,
+		'wpcomExpiryFrontendBanner',
+		array(
+			'metaKey'       => Expiry_Notice_Dismiss::META_BANNER,
+			'state'         => $data['state']['state'],
+			'daysRemaining' => isset( $data['state']['days_remaining'] ) ? (int) $data['state']['days_remaining'] : 0,
+			'productSlug'   => isset( $data['state']['product_slug'] ) ? (string) $data['state']['product_slug'] : '',
+		)
+	);
+}
+add_action( 'wp_enqueue_scripts', 'wpcom_expiry_notices_enqueue_frontend_banner_assets' );
+
+/**
+ * Body class the stylesheet keys theme offsets on.
+ *
+ * @param string[] $classes Body classes.
+ * @return string[]
+ */
+function wpcom_expiry_notices_frontend_banner_body_class( array $classes ): array {
+	if ( null !== wpcom_expiry_notices_frontend_banner_data() ) {
+		$classes[] = 'has-wpcom-expiry-banner';
+	}
+	return $classes;
+}
+add_filter( 'body_class', 'wpcom_expiry_notices_frontend_banner_body_class' );
+
+/**
+ * Render the banner markup on wp_footer. Fixed positioning puts it under the
+ * admin bar wherever it lands in the DOM.
+ */
+function wpcom_expiry_notices_render_frontend_banner() {
+	$data = wpcom_expiry_notices_frontend_banner_data();
+	if ( null === $data || ! wpcom_expiry_notices_frontend_banner_should_render() ) {
+		return;
+	}
+	wpcom_expiry_notices_render_frontend_banner_html( $data['state'], $data['urls'], $data['is_dismissible'] );
+}
+add_action( 'wp_footer', 'wpcom_expiry_notices_render_frontend_banner' );
+
+/**
+ * Render the banner DOM.
+ *
+ * @param array<string,mixed> $state          Expiry state.
+ * @param array<string,array> $urls           CTA URLs from wpcom_expiry_notices_banner_urls().
+ * @param bool                $is_dismissible Whether the notice can be dismissed.
+ */
+function wpcom_expiry_notices_render_frontend_banner_html( array $state, array $urls, bool $is_dismissible ): void {
+	$text = wpcom_expiry_notices_admin_banner_heading( $state ) . '. ' . wpcom_expiry_notices_admin_banner_body( $state );
+	?>
+	<div id="wpcom-expiry-frontend-banner" class="wpcom-expiry-frontend-banner" role="status">
+		<span class="wpcom-expiry-frontend-banner__text"><?php echo esc_html( $text ); ?></span>
+		<?php // The message turns this into a Help Center opener; the href stays as what a click falls back to. ?>
+		<a
+			class="wpcom-expiry-frontend-banner__cta"
+			href="<?php echo esc_url( $urls['primary']['url'] ); ?>"
+			<?php if ( isset( $urls['primary']['message'] ) ) : ?>
+				data-support-message="<?php echo esc_attr( $urls['primary']['message'] ); ?>"
+			<?php endif; ?>
+		>
+			<?php echo esc_html( $urls['primary']['label'] ); ?>
+		</a>
+		<?php if ( $is_dismissible ) : ?>
+			<button type="button" class="wpcom-expiry-frontend-banner__dismiss" aria-label="<?php esc_attr_e( 'Dismiss', 'jetpack-mu-wpcom' ); ?>">
+				<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="m13.06 12 6.47-6.47-1.06-1.06L12 10.94 5.53 4.47 4.47 5.53 10.94 12l-6.47 6.47 1.06 1.06L12 13.06l6.47 6.47 1.06-1.06L13.06 12Z"/></svg>
+			</button>
+		<?php endif; ?>
+	</div>
+	<?php
+}

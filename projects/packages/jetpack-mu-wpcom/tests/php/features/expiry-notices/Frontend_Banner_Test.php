@@ -9,6 +9,8 @@ declare( strict_types = 1 );
 
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Notice_Dismiss;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/expiry-notices/expiry-notices.php';
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/expiry-notices/frontend-banner.php';
@@ -104,6 +106,59 @@ class Frontend_Banner_Test extends \WorDBless\BaseTestCase {
 		$this->set_purchase( -5 );
 		$html = $this->render();
 		$this->assertStringNotContainsString( '/plans/', $html );
+	}
+
+	public function test_renders_one_run_of_text_with_no_heading_markup(): void {
+		$this->set_purchase( 5 );
+		$html = $this->render();
+		$this->assertStringContainsString( 'id="wpcom-expiry-frontend-banner"', $html );
+		// The Plans package isn't loaded under test, so the plan name resolves to
+		// null and the heading falls back to its no-plan-name variant.
+		$this->assertStringContainsString( 'Your plan expires in 5 days. ', $html );
+		$this->assertStringNotContainsString( '<strong>', $html );
+		$this->assertStringContainsString( 'wpcom-expiry-frontend-banner__cta', $html );
+		$this->assertStringContainsString( '/checkout/business-bundle/', $html );
+		$this->assertStringNotContainsString( 'wpcom-expiry-frontend-banner__dismiss', $html );
+	}
+
+	public function test_post_grace_renders_the_close_button(): void {
+		$this->set_purchase( -45 );
+		$this->assertStringContainsString( 'wpcom-expiry-frontend-banner__dismiss', $this->render() );
+	}
+
+	public function test_renders_nothing_when_not_due(): void {
+		$this->set_purchase( 45 );
+		$this->assertSame( '', $this->render() );
+	}
+
+	/**
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_reverted_site_asks_for_support(): void {
+		$this->pretend_reverted();
+		$this->set_purchase( -45 );
+		$html = $this->render();
+		$this->assertStringContainsString( 'Contact support', $html );
+		$this->assertStringContainsString( 'data-support-message=', $html );
+	}
+
+	public function test_body_class_follows_the_banner(): void {
+		$this->set_purchase( 5 );
+		wpcom_expiry_notices_frontend_banner_data( true );
+		$this->assertContains( 'has-wpcom-expiry-banner', wpcom_expiry_notices_frontend_banner_body_class( array() ) );
+
+		$this->set_purchase( 45 );
+		wpcom_expiry_notices_frontend_banner_data( true );
+		$this->assertNotContains( 'has-wpcom-expiry-banner', wpcom_expiry_notices_frontend_banner_body_class( array() ) );
+	}
+
+	public function test_hooks_are_registered(): void {
+		$this->assertNotFalse( has_action( 'wp_enqueue_scripts', 'wpcom_expiry_notices_enqueue_frontend_banner_assets' ) );
+		$this->assertNotFalse( has_action( 'wp_footer', 'wpcom_expiry_notices_render_frontend_banner' ) );
+		$this->assertNotFalse( has_filter( 'body_class', 'wpcom_expiry_notices_frontend_banner_body_class' ) );
 	}
 
 	private function render(): string {
