@@ -66,7 +66,7 @@ const ACTIVITY_ITEM: NonBackupActivityItem = {
 	kind: 'plugin-update',
 	title: 'Plugin updated',
 	publishedAt: '2026-08-13T18:08:56+00:00',
-	actor: { type: 'Person', name: 'Bob Sacramento' },
+	actor: { type: 'Person', name: 'أحمد Smith' },
 	summary: STATS,
 };
 
@@ -232,13 +232,8 @@ describe( 'bidi isolation on LTR data', () => {
 	} );
 } );
 
-// Machine data above has a direction known in advance. A person's display
-// name does not, and misrenders in both directions — so it needs `<bdi>`,
-// not a `dir` value.
 describe( 'bidi isolation on names of unknown direction', () => {
 	it( 'isolates the actor name interpolated into the backup detail sentence', () => {
-		// The pane mounts a file browser, which fetches its root listing on
-		// mount. Nothing here reads those rows.
 		mockApiFetch.mockResolvedValue( {} );
 
 		const { container } = render(
