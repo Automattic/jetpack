@@ -21,10 +21,9 @@ import { Button, Link, Stack } from '@wordpress/ui';
 
 const MCP_SERVER_NAME = 'wpcom-mcp';
 const MCP_SERVER_URL = 'https://public-api.wordpress.com/wpcom/v2/mcp/v1';
-// Same redirect sources as the Overview page's Quick start cards: each
-// resolves to the connector's install page.
-const CLAUDE_CONNECTOR_REDIRECT_SOURCE = 'jetpack-ai-hub-overview-quick-start-claude';
-const CHATGPT_CONNECTOR_REDIRECT_SOURCE = 'jetpack-ai-hub-overview-quick-start-chatgpt';
+// Each resolves to the connector's install page.
+const CLAUDE_CONNECTOR_REDIRECT_SOURCE = 'jetpack-ai-hub-mcp-setup-claude';
+const CHATGPT_CONNECTOR_REDIRECT_SOURCE = 'jetpack-ai-hub-mcp-setup-chatgpt';
 
 const CLIENT_OPTIONS = [
 	{ label: 'Claude', value: 'claude' },
