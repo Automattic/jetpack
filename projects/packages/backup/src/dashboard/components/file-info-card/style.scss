@@ -60,7 +60,6 @@
 			white-space: pre;
 			// The `<pre>` is `dir="ltr"`, so inside an RTL panel it overflows past
 			// the panel's inline-start edge, which Chrome never makes scrollable.
-			// Scrolling it here keeps long lines reachable in both directions.
 			overflow-x: auto;
 			color: var(--wp-components-color-foreground, #1e1e1e);
 		}

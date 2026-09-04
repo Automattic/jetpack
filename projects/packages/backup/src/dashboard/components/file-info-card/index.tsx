@@ -309,7 +309,7 @@ export default function FileInfoCard( { file, onClose }: Props ) {
 				className="jpb-file-info-card__header"
 			>
 				<Text variant="heading-sm" render={ <h3 /> }>
-					{ /* Isolated: an RTL page otherwise renders `.htaccess` as `htaccess.`. */ }
+					{ /* A filename is LTR data even on an RTL page. */ }
 					<span dir="ltr">{ file.name }</span>
 				</Text>
 				<Button
@@ -324,8 +324,7 @@ export default function FileInfoCard( { file, onClose }: Props ) {
 			</Stack>
 			{ /*
 			 * `dir` on a span, not the `<dd>`: isolating the value there would flip
-			 * the row's `text-align: start` inside an RTL panel. `auto` for the
-			 * translated size unit, `ltr` for the hash.
+			 * the row's `text-align: start` inside an RTL panel.
 			 */ }
 			<dl className="jpb-file-info-card__meta">
 				{ modified && (
