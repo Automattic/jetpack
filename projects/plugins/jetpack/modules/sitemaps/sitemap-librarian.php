@@ -253,39 +253,48 @@ class Jetpack_Sitemap_Librarian {
 	}
 
 	/**
-	 * Retrieve the timestamp of every stored sitemap of a given type, keyed by filename.
+	 * Retrieve the timestamps of named sitemaps of a given type, keyed by filename.
 	 *
-	 * Deliberately skips post_content: a caller listing sitemaps in an index needs
-	 * only the filename and its timestamp, and the bodies are large enough that
-	 * loading a site's worth of them is a real memory cost. Keying by filename
-	 * also means the caller does not have to assume anything about row order.
+	 * Only the named rows are read, and only their titles and dates: a caller
+	 * listing sitemaps in an index needs nothing else, and the base64 bodies are
+	 * large enough that reading a site's worth of them is a real memory cost.
+	 * Names missing from the result are not stored.
 	 *
 	 * @access public
 	 * @since 16.2
 	 *
-	 * @param string $type Type of the sitemap rows to retrieve.
+	 * @param string $type  Type of the sitemap rows to retrieve.
+	 * @param array  $names Sitemap filenames to look for.
 	 *
 	 * @return array Map of sitemap filename to its 'YYYY-MM-DD hh:mm:ss' timestamp.
 	 */
-	public function query_sitemap_timestamps( $type ) {
+	public function query_sitemap_timestamps( $type, $names ) {
 		global $wpdb;
-
-		$rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
-			$wpdb->prepare(
-				"SELECT post_title, post_date
-					FROM $wpdb->posts
-					WHERE post_type=%s
-						AND post_status=%s;",
-				$type,
-				'draft'
-			),
-			ARRAY_A
-		);
 
 		$timestamps = array();
 
-		foreach ( (array) $rows as $row ) {
-			$timestamps[ $row['post_title'] ] = $row['post_date'];
+		foreach ( array_chunk( (array) $names, JP_SITEMAP_BATCH_SIZE ) as $chunk ) {
+			$placeholders = implode( ', ', array_fill( 0, count( $chunk ), '%s' ) );
+
+			// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $placeholders is a generated list of %s.
+			$sql = "SELECT post_title, post_date
+					FROM $wpdb->posts
+					WHERE post_type=%s
+						AND post_status=%s
+						AND post_title IN ( $placeholders );";
+			// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+
+			$rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+				$wpdb->prepare(
+					$sql, // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Prepared right here.
+					array_merge( array( $type, 'draft' ), array_values( $chunk ) )
+				),
+				ARRAY_A
+			);
+
+			foreach ( (array) $rows as $row ) {
+				$timestamps[ $row['post_title'] ] = $row['post_date'];
+			}
 		}
 
 		return $timestamps;
