@@ -24,6 +24,7 @@ import { Suspense, lazy, useCallback, useEffect, useRef, useState } from '@wordp
 import { __, isRTL, sprintf } from '@wordpress/i18n';
 import { chevronLeft, chevronRight, Icon } from '@wordpress/icons';
 import { Badge, Notice, Stack, Tabs } from '@wordpress/ui';
+import ChunkErrorBoundary from './components/chunk-error-boundary/index';
 import MasterOffNotice from './components/master-off-notice';
 import AiFeatures from './features/index';
 import { useFeatureSettings } from './features/use-feature-settings';
@@ -536,14 +537,16 @@ export default function App() {
 				) }
 
 				{ view === 'scheduled-tasks' && (
-					<Suspense fallback={ <Spinner /> }>
-						<ScheduledTasks
-							blogId={ blogId }
-							apiNonce={ apiNonce }
-							createSuccessNotice={ createSuccessNotice }
-							createErrorNotice={ createErrorNotice }
-						/>
-					</Suspense>
+					<ChunkErrorBoundary>
+						<Suspense fallback={ <Spinner /> }>
+							<ScheduledTasks
+								blogId={ blogId }
+								apiNonce={ apiNonce }
+								createSuccessNotice={ createSuccessNotice }
+								createErrorNotice={ createErrorNotice }
+							/>
+						</Suspense>
+					</ChunkErrorBoundary>
 				) }
 			</div>
 		</AdminPage>
