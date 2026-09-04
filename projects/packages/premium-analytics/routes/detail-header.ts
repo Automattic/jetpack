@@ -2,15 +2,8 @@
  * External dependencies
  */
 import { __, sprintf } from '@wordpress/i18n';
-import { format, isValid } from 'date-fns';
-import {
-	parseSiteDateTime,
-	reportingTimeZone,
-	toLocalTZ,
-	type DateRange,
-} from '@jetpack-premium-analytics/datetime';
-
-const DATE_FORMAT = 'MMM d, yyyy';
+import { parseSiteDateTime, type DateRange } from '@jetpack-premium-analytics/datetime';
+import { formatDate } from '@jetpack-premium-analytics/formatters';
 
 /**
  * Formats a resource's publish date for the header, in the site timezone —
@@ -23,7 +16,7 @@ const DATE_FORMAT = 'MMM d, yyyy';
 export function formatPublishedDate( publishedDate: string | undefined ): string | undefined {
 	const parsed = parseSiteDateTime( publishedDate );
 
-	return parsed ? format( toLocalTZ( parsed, reportingTimeZone() ), DATE_FORMAT ) : undefined;
+	return parsed ? formatDate( parsed, 'compact' ) : undefined;
 }
 
 /**
@@ -33,16 +26,19 @@ export function formatPublishedDate( publishedDate: string | undefined ): string
  * @return The sentence, or undefined when either bound is missing or unparseable.
  */
 export function performanceSentence( range: DateRange | undefined ): string | undefined {
-	const { from, to } = range ?? {};
+	// Doubles as the validity check: an unparseable bound would otherwise reach
+	// `formatDate` and render as "Invalid date".
+	const from = parseSiteDateTime( range?.from );
+	const to = parseSiteDateTime( range?.to );
 
-	if ( ! from || ! to || ! isValid( from ) || ! isValid( to ) ) {
+	if ( ! from || ! to ) {
 		return undefined;
 	}
 
 	return sprintf(
 		/* translators: %1$s and %2$s: the report range bounds, e.g. "Jul 9, 2026". */
 		__( 'Performance from %1$s to %2$s', 'jetpack-premium-analytics-pkg' ),
-		format( from, DATE_FORMAT ),
-		format( to, DATE_FORMAT )
+		formatDate( from, 'compact' ),
+		formatDate( to, 'compact' )
 	);
 }
