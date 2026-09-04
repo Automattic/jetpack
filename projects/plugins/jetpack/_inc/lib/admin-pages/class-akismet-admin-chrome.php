@@ -218,9 +218,7 @@ class Akismet_Admin_Chrome {
 				markup (#wpbody-content > #akismet-plugin-container > header/.akismet-lower/footer).
 				Scoped to both menu locations: jetpack_page_… and settings_page_…
 
-				Logical properties throughout (`inset-inline-*`, `padding-inline-*`,
-				`margin-inline`), like the mixin, so this block flips with the admin
-				menu under RTL locales. */
+				Logical properties throughout, like the mixin, so it flips under RTL. */
 			body[class*="_page_akismet-key-config"] #wpcontent {
 				padding-inline-start: 0;
 			}
