@@ -310,6 +310,13 @@ class Utils {
 			$host = preg_replace( '/%.*$/', '', $host );
 		}
 
+		// Trimming and decoding can empty the host ("[]") or put control bytes in it
+		// ("%00"), and gethostbynamel() throws a ValueError on a NUL rather than just
+		// failing to resolve. Neither is a host, so stop before the lookups.
+		if ( '' === $host || preg_match( '/[\x00-\x20\x7f]/', $host ) ) {
+			return array();
+		}
+
 		if ( filter_var( $host, FILTER_VALIDATE_IP ) ) {
 			return array( $host );
 		}

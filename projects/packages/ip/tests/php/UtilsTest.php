@@ -463,6 +463,28 @@ final class UtilsTest extends PHPUnit\Framework\TestCase {
 	}
 
 	/**
+	 * A host that decodes to nothing, or to bytes no host name can hold, is rejected.
+	 *
+	 * Reaching the lookup at all would be a fatal rather than a failed resolution:
+	 * gethostbynamel() throws a ValueError on a NUL byte.
+	 */
+	public function test_resolve_host_ips_rejects_empty_and_control_character_hosts() {
+		$malformed = array( '[]', '%00', 'example%00.com', 'exa%09mple.com', 'exa%20mple.com' );
+		foreach ( $malformed as $host ) {
+			$this->assertSame( array(), Utils::resolve_host_ips( $host ), "$host should resolve to nothing" );
+		}
+	}
+
+	/**
+	 * A URL whose host decodes to a NUL byte is rejected, not fatal.
+	 */
+	public function test_url_is_public_rejects_control_character_host() {
+		$this->stub_url_helpers();
+
+		$this->assertFalse( Utils::url_is_public( 'http://example%00.com/image.jpg' ) );
+	}
+
+	/**
 	 * An unresolvable or empty host yields no addresses, which callers treat as unsafe.
 	 */
 	public function test_resolve_host_ips_returns_empty_for_unresolvable_host() {
