@@ -263,6 +263,8 @@ class Jetpack_AI_Page {
 			Connection_Initial_State::render_script( 'jetpack-ai-admin' );
 		}
 
+		$host = new Host();
+
 		/**
 		 * Filters the host-specific AI Hub configuration.
 		 *
@@ -273,10 +275,10 @@ class Jetpack_AI_Page {
 		$config = apply_filters(
 			'jetpack_ai_admin_config',
 			array(
-				// Pre-release gate for the Overview and Features views. When opening
-				// them to everyone, also drop the matching gate in My Jetpack's
-				// Jetpack_Ai::get_manage_url() so its links land here too.
-				'showGatedViews'  => $is_internal_test,
+				// The Overview and Features views launch on self-hosted sites first.
+				// Keep this filterable so hosts can close them independently.
+				'showGatedViews'  => ! $host->is_wpcom_platform() || ( $host->is_woa_site() && $is_internal_test ),
+				'showA12sBadge'   => $host->is_woa_site() && $is_internal_test,
 				'isUserConnected' => ( new Connection_Manager() )->is_user_connected(),
 				'mcpSettingsApi'  => array(
 					'path'   => '/wpcom/v2/jetpack-ai/mcp-settings',
@@ -287,11 +289,7 @@ class Jetpack_AI_Page {
 
 		$show_gated_views = ! empty( $config['showGatedViews'] );
 
-		$plan_info = $show_gated_views ? self::get_ai_plan_info() : array(
-			'name'       => '',
-			'renews_on'  => '',
-			'auto_renew' => true,
-		);
+		$plan_info = $show_gated_views ? self::get_ai_plan_info() : array( 'name' => '' );
 
 		$settings = array(
 			'blogId'           => $blog_id ? (int) $blog_id : 0,
@@ -305,17 +303,12 @@ class Jetpack_AI_Page {
 			// a post-checkout return to this page, so both can be
 			// retargeted without shipping a code change.
 			'upgradeUrl'       => Redirect::get_url( 'jetpack-ai-hub-upgrade' ),
-			// The purchase granting AI, for the Overview usage card — the
-			// usage endpoint cannot name it. Only looked up when a gated
-			// view can render it.
+			// The purchase granting AI — the usage card only uses it to pick
+			// the right loading-skeleton shape before the usage fetch lands.
+			// Only looked up when a gated view can render the card.
 			'planName'         => $plan_info['name'],
-			// The plan's own renewal date, matching My Jetpack — the
-			// usage-period rollover is a different, monthly date.
-			'planRenewsOn'     => $plan_info['renews_on'],
-			// The same date reads "Renews on" or "Expires on" depending on
-			// auto-renew, matching My Jetpack and the wpcom subscriptions page.
-			'planAutoRenew'    => $plan_info['auto_renew'],
 			'showFeaturesView' => $show_gated_views,
+			'showA12sBadge'    => ! empty( $config['showA12sBadge'] ),
 			// The tab and its Agents Manager sidebar ship disabled by default.
 			'featureFlags'     => array(
 				Jetpack_AI_Feature_Flags::SCHEDULED_TASKS => $show_scheduled_tasks_view,
@@ -413,22 +406,14 @@ class Jetpack_AI_Page {
 	}
 
 	/**
-	 * Name and renewal date of the purchase granting this site AI ("Jetpack
-	 * Complete"), from My Jetpack's purchase data — its Plans section's source.
+	 * Name of the purchase granting this site AI ("Jetpack Complete"), from
+	 * My Jetpack's purchase data — its Plans section's source.
 	 *
-	 * The renewal is the purchase's expiry date, matching what My Jetpack
-	 * shows — not the AI usage-period rollover, which is a different date.
-	 *
-	 * @return array{name: string, renews_on: string} Empty strings when nothing
-	 *                                                paid grants AI or the data
-	 *                                                is unavailable.
+	 * @return array{name: string} An empty string when nothing paid grants AI
+	 *                             or the data is unavailable.
 	 */
 	private static function get_ai_plan_info() {
-		$empty = array(
-			'name'       => '',
-			'renews_on'  => '',
-			'auto_renew' => true,
-		);
+		$empty = array( 'name' => '' );
 
 		if ( ! class_exists( '\Automattic\Jetpack\My_Jetpack\Products\Jetpack_Ai' ) ) {
 			return $empty;
@@ -442,7 +427,7 @@ class Jetpack_AI_Page {
 		}
 
 		// A failed lookup is not "no purchase": skip the hour-long cache so the
-		// next page load can try again instead of pinning a blank plan cell.
+		// next page load can try again instead of pinning a blank name.
 		if ( is_wp_error( \Automattic\Jetpack\My_Jetpack\Wpcom_Products::get_site_current_purchases() ) ) {
 			return $empty;
 		}
@@ -458,12 +443,7 @@ class Jetpack_AI_Page {
 		if ( $purchase && ! empty( $purchase->product_name ) && 'expired' !== ( $purchase->expiry_status ?? '' ) ) {
 			// The design shows the bare plan name ("Complete", "Business"), so
 			// trim the store names' brand prefixes; they are untranslated.
-			$info['name']      = (string) preg_replace( '/^(Jetpack|WordPress\.com) /', '', (string) $purchase->product_name );
-			$info['renews_on'] = (string) ( $purchase->expiry_date ?? '' );
-			// Absent means unknown, not off: only a purchase that positively
-			// reports auto-renew off should relabel the date as an expiry.
-			$info['auto_renew'] = ! isset( $purchase->is_auto_renew_enabled )
-				|| (bool) $purchase->is_auto_renew_enabled;
+			$info['name'] = (string) preg_replace( '/^(Jetpack|WordPress\.com) /', '', (string) $purchase->product_name );
 		}
 
 		set_transient( 'jetpack_ai_overview_plan_info', $info, HOUR_IN_SECONDS );

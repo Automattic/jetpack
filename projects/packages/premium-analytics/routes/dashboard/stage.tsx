@@ -10,6 +10,7 @@ import {
 	DateFiltersPanel,
 	DateIntervalDropdown,
 	DateYearFilter,
+	OnboardingWelcomeModal,
 	SectionHeader,
 	SectionTabPanel,
 	StatsBreadcrumbs,
@@ -24,18 +25,27 @@ import { WidgetDashboard } from '@wordpress/widget-dashboard';
 import { type WidgetModuleRecord } from '@wordpress/widget-primitives';
 import { isPremiumAnalyticsInitialSyncFinished } from '../site-readiness';
 import { resolveWidgetModuleWithI18n, useWidgetTypesWithI18n } from '../widget-module-i18n';
-import { DashboardSections, RefreshFailureNotice, SectionSyncNotice } from './components';
+import {
+	DashboardSections,
+	FeedbackAction,
+	OnboardingTour,
+	onboardingTourSteps,
+	RefreshFailureNotice,
+	SectionSyncNotice,
+} from './components';
 import {
 	DATE_FILTER_YEAR,
 	isSectionAwaitingSync,
 	offersDateComparison,
 	resolveSectionHeading,
+	resolveSectionId,
 } from './config';
 import {
 	useActiveSection,
 	useDashboardGridSettings,
 	useDashboardSectionLayout,
 	useDashboardSections,
+	useOnboarding,
 	useSectionDateFilter,
 } from './hooks';
 import styles from './stage.module.scss';
@@ -102,6 +112,31 @@ function Dashboard(): JSX.Element {
 	);
 
 	const [ editMode, setEditMode ] = useState( false );
+
+	// The tour's anchors, handed in by the elements below once they mount.
+	const [ actionsAnchor, setActionsAnchor ] = useState< HTMLDivElement | null >( null );
+	const [ controlsAnchor, setControlsAnchor ] = useState< HTMLDivElement | null >( null );
+	const [ widgetsFrame, setWidgetsFrame ] = useState< HTMLDivElement | null >( null );
+	const tourSteps = onboardingTourSteps( {
+		actions: actionsAnchor,
+		dateControls: controlsAnchor,
+		// Every tile is a section; the grid draws them in layout order.
+		firstWidget: widgetsFrame?.querySelector( 'section' ) ?? null,
+	} );
+
+	// The journey introduces the default section at rest: not another tab, and
+	// not while the reader is already customizing.
+	const onboarding = useOnboarding( {
+		enabled:
+			hasResolvedSections &&
+			! editMode &&
+			activeSection === resolveSectionId( undefined, sections ),
+		stepCount: tourSteps.length,
+	} );
+
+	// The tour's only way out is Escape.
+	const { dismiss: dismissOnboarding } = onboarding;
+	const leaveTour = useCallback( () => dismissOnboarding( 'escape' ), [ dismissOnboarding ] );
 
 	// Only the widgets this section renders need metadata at boot; the full registry
 	// waits for edit mode. `null` until sections resolve, since the layout is empty until then.
@@ -229,7 +264,14 @@ function Dashboard(): JSX.Element {
 					<Page
 						visual={ <StatsPageIcon /> }
 						breadcrumbs={ <StatsBreadcrumbs isRoot /> }
-						actions={ <WidgetDashboard.Actions /> }
+						actions={
+							<>
+								<FeedbackAction />
+								<Stack ref={ setActionsAnchor } direction="row">
+									<WidgetDashboard.Actions />
+								</Stack>
+							</>
+						}
 						className={ styles.dashboard }
 					>
 						<DashboardSections
@@ -248,7 +290,11 @@ function Dashboard(): JSX.Element {
 									<div className={ styles.pinMarker } aria-hidden="true" />
 
 									<div ref={ setHeaderRef } className={ styles.sectionHeader }>
-										<SectionHeader title={ resolveSectionHeading( section ) } condenseOnScroll>
+										<SectionHeader
+											title={ resolveSectionHeading( section ) }
+											condenseOnScroll
+											controlsRef={ setControlsAnchor }
+										>
 											{ dateControls }
 										</SectionHeader>
 										{ /* Inside the pinned band, so its Retry stays reachable however
@@ -268,7 +314,9 @@ function Dashboard(): JSX.Element {
 											) : null }
 
 											<WidgetDashboard.NoWidgetsState />
-											<WidgetDashboard.Widgets className={ styles.widgets } />
+											<div ref={ setWidgetsFrame }>
+												<WidgetDashboard.Widgets className={ styles.widgets } />
+											</div>
 										</>
 									) : null }
 								</SectionTabPanel>
@@ -276,6 +324,20 @@ function Dashboard(): JSX.Element {
 						</DashboardSections>
 
 						<WidgetDashboard.Commands />
+
+						<OnboardingWelcomeModal
+							open={ onboarding.phase === 'modal' }
+							onStart={ onboarding.start }
+							onDismiss={ onboarding.dismiss }
+						/>
+						{ onboarding.phase === 'tour' && (
+							<OnboardingTour
+								steps={ tourSteps }
+								current={ onboarding.step }
+								onNext={ onboarding.next }
+								onDismiss={ leaveTour }
+							/>
+						) }
 					</Page>
 				</WidgetDashboard>
 			</ReportScopeProvider>

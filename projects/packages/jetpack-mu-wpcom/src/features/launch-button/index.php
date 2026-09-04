@@ -102,7 +102,7 @@ function wpcom_add_launch_button_to_admin_bar( WP_Admin_Bar $admin_bar ) {
 /**
  * Enqueue wp-components styles and the celebration modal bundle CSS.
  *
- * The celebration modal uses @wordpress/components (Modal, Button, Tooltip).
+ * The celebration modal uses @wordpress/components (Modal, Button, etc.).
  * On the frontend, wp-components CSS is not loaded automatically, so we enqueue
  * it here together with the compiled bundle CSS that contains the modal's own styles.
  */
@@ -115,7 +115,7 @@ function wpcom_enqueue_components_styles() {
 	// In admin contexts it may already be queued; wp_enqueue_style() is idempotent.
 	wp_enqueue_style( 'wp-components' );
 
-	// Enqueue the compiled bundle CSS (contains celebrate-launch-modal SCSS).
+	// Enqueue the compiled bundle CSS (contains the celebration modal styles).
 	$css_file = is_rtl() ? 'adminbar-launch-button.rtl.css' : 'adminbar-launch-button.css';
 	$css_path = Jetpack_Mu_Wpcom::BASE_DIR . 'build/adminbar-launch-button/' . $css_file;
 

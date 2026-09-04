@@ -177,15 +177,17 @@ class AI_Assistant_Plugin_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * The writing toggle from the AI settings page turns the legacy panel off.
+	 * The writing toggle hides the writing sections inside the panel, not the
+	 * panel itself: it still carries the image generator, the usage meter and
+	 * the upgrade prompt.
 	 */
-	public function test_not_registered_when_writing_toggle_off() {
+	public function test_registered_when_writing_toggle_off() {
 		$this->reset_availability();
 		$this->simulate_connected_owner();
 		update_option( 'jetpack_ai_writing_assistant_enabled', 0 );
 
 		AiAssistantPlugin\register_plugin();
 
-		$this->assertFalse( \Jetpack_Gutenberg::is_available( AiAssistantPlugin\FEATURE_NAME ) );
+		$this->assertTrue( \Jetpack_Gutenberg::is_available( AiAssistantPlugin\FEATURE_NAME ) );
 	}
 }

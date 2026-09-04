@@ -1,5 +1,5 @@
 /**
- * MCP Settings hub — main view shown at wp-admin/admin.php?page=jetpack-ai.
+ * MCP and Connectors hub — main view shown at wp-admin/admin.php?page=jetpack-ai.
  * Shows the enable/disable toggle and navigation to Read, Write, and Setup sub-views.
  */
 
@@ -11,7 +11,7 @@ import {
 	ToggleControl,
 	__experimentalText as Text, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
-import { useCallback } from '@wordpress/element';
+import { useCallback, useId } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import {
 	seen,
@@ -139,16 +139,34 @@ function SummaryRow( { icon, title, badge, onClick } ) {
  * @return {object} Component markup.
  */
 function ConnectRow( { title, description, onClick } ) {
+	// Name the row with the title alone. Left to name-from-content, the button
+	// pulls the whole description into its name too — needlessly long, and a
+	// fuzzier target for voice control. aria-labelledby points at the visible
+	// title (matching NavRow), and aria-describedby keeps the description
+	// available, announced after the name instead of as part of it.
+	const titleId = useId();
+	const descriptionId = useId();
 	return (
-		<button className="jetpack-ai-mcp__connect-row" onClick={ onClick } type="button">
+		<button
+			className="jetpack-ai-mcp__connect-row"
+			onClick={ onClick }
+			type="button"
+			aria-labelledby={ titleId }
+			aria-describedby={ descriptionId }
+		>
 			<span className="jetpack-ai-mcp__connect-row-icon">
 				<Icon icon={ connection } size={ 24 } />
 			</span>
 			<span className="jetpack-ai-mcp__connect-row-text">
-				<Text as="p" className="jetpack-ai-mcp__connect-row-title" weight={ 600 }>
+				<Text as="p" id={ titleId } className="jetpack-ai-mcp__connect-row-title" weight={ 600 }>
 					{ title }
 				</Text>
-				<Text as="p" className="jetpack-ai-mcp__connect-row-description" variant="muted">
+				<Text
+					as="p"
+					id={ descriptionId }
+					className="jetpack-ai-mcp__connect-row-description"
+					variant="muted"
+				>
 					{ description }
 				</Text>
 			</span>

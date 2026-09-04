@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Internal refactor: the reporting timezone is now read from one accessor.
+
+

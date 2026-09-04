@@ -1,0 +1,3 @@
+Significance: patch
+Type: other
+Comment: Remove the test-only bootstrap workaround for the retired Atomic Jetpack AI fallback. No user-facing change.

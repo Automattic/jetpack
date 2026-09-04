@@ -1,5 +1,5 @@
 import { tz } from '@date-fns/tz';
-import { siteTimeZone } from '@jetpack-premium-analytics/datetime';
+import { reportingTimeZone } from '@jetpack-premium-analytics/datetime';
 import { format, fromUnixTime } from 'date-fns';
 import { safeParseFloat } from '../../utils/parsing';
 import { coerceStatsRecord } from './utils';
@@ -15,7 +15,7 @@ export function sanitizeStatsStreakResponse( response: unknown ): StatsStreakRes
 	const data = coerceStatsRecord( coerceStatsRecord( response ).data );
 	// Keyed by instant, not by day, so the calendar day is resolved here. By zone
 	// rather than by offset: a fixed offset is a day out either side of a DST change.
-	const zone = tz( siteTimeZone() );
+	const zone = tz( reportingTimeZone() );
 	const streak: StatsStreakResponse = {};
 
 	for ( const [ timestamp, count ] of Object.entries( data ) ) {

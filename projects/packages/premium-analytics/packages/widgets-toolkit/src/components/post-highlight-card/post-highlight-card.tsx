@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { siteTimeZone, toLocalTZ } from '@jetpack-premium-analytics/datetime';
+import { reportingTimeZone, toLocalTZ } from '@jetpack-premium-analytics/datetime';
 import { Text, VisuallyHidden } from '@jetpack-premium-analytics/externals';
 import { __, sprintf } from '@wordpress/i18n';
 import { format } from 'date-fns';
@@ -106,7 +106,7 @@ function formatPublishDate( date: string ): string {
 
 	// Read the instant in the site's zone: a plain `Date` would format in the
 	// visitor's, showing a late-evening post on the next day east of the site.
-	const parsed = toLocalTZ( date, siteTimeZone() );
+	const parsed = toLocalTZ( date, reportingTimeZone() );
 	const formatted = Number.isNaN( parsed.getTime() ) ? date : format( parsed, 'PP' );
 
 	return sprintf(

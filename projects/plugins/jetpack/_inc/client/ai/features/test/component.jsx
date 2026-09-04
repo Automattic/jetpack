@@ -73,11 +73,11 @@ describe( 'AiFeatures rendering', () => {
 		expect( screen.queryByRole( 'separator' ) ).not.toBeInTheDocument();
 	} );
 
-	test( 'the page notices survive the card disappearing', () => {
-		renderFeatures( { master_enabled: false, features: {} } );
+	test( 'the connect notice survives the card disappearing', () => {
+		renderFeatures( { is_connected: false, features: {} } );
 
-		// The notices live outside the card and must not go down with it.
-		expect( screen.getByText( 'Jetpack AI is turned off for this site.' ) ).toBeInTheDocument();
+		// The notice lives outside the card and must not go down with it.
+		expect( screen.getByText( 'Jetpack is not connected to WordPress.com.' ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'region' ) ).not.toBeInTheDocument();
 	} );
 
@@ -178,14 +178,14 @@ describe( 'AiFeatures rendering', () => {
 		).resolves.toBeInTheDocument();
 	} );
 
-	test( 'master off: notice with a My Jetpack link, toggles keep saved values but disable, links hidden', () => {
+	test( 'master off: toggles keep saved values but disable, links hidden', () => {
 		renderFeatures( { master_enabled: false } );
 
-		expect( screen.getByText( 'Jetpack AI is turned off for this site.' ) ).toBeInTheDocument();
-		expect( screen.getByRole( 'link', { name: 'Manage in My Jetpack' } ) ).toHaveAttribute(
-			'href',
-			'admin.php?page=my-jetpack#/products'
-		);
+		// The master-off notice is page-level (main.jsx owns it) — rendering it
+		// here too would double it up.
+		expect(
+			screen.queryByText( 'Jetpack AI is turned off for this site.' )
+		).not.toBeInTheDocument();
 
 		// The saved value stays visible — the toggle must not misreport it as off.
 		const toggle = screen.getByRole( 'checkbox', { name: /Writing Assistant/ } );
@@ -213,15 +213,6 @@ describe( 'AiFeatures rendering', () => {
 		// connection the plan is unknown, so no upgrade badge may show.
 		expect( screen.queryByText( 'Requires upgrade' ) ).not.toBeInTheDocument();
 		expect( screen.queryByText( 'Learn more' ) ).not.toBeInTheDocument();
-	} );
-
-	test( 'not connected takes precedence over the master-off notice', () => {
-		renderFeatures( { is_connected: false, master_enabled: false } );
-
-		expect( screen.getByText( 'Jetpack is not connected to WordPress.com.' ) ).toBeInTheDocument();
-		expect(
-			screen.queryByText( 'Jetpack AI is turned off for this site.' )
-		).not.toBeInTheDocument();
 	} );
 
 	// A plan without paid Jetpack AI still has the free tier (every connected
@@ -271,12 +262,6 @@ describe( 'AiFeatures rendering', () => {
 		// AI Answers stays gated while the free-tier rows work.
 		expect( screen.getByText( 'Requires upgrade' ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'checkbox', { name: /AI Answers/ } ) ).toBeDisabled();
-	} );
-
-	test( 'free plan AND master off: the master-off notice shows', () => {
-		renderFeatures( { is_connected: true, plan: { supports_ai: false }, master_enabled: false } );
-
-		expect( screen.getByText( 'Jetpack AI is turned off for this site.' ) ).toBeInTheDocument();
 	} );
 
 	// Gated toggles must be inert, not merely styled disabled.

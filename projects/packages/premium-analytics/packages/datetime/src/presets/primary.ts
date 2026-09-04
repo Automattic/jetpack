@@ -110,33 +110,33 @@ export const PRESET_DEFINITIONS: ReadonlyArray< PresetDefinition > = [
 	{
 		id: PRESET_LAST_7_DAYS,
 		getLabel: () => __( 'Last 7 days', 'jetpack-premium-analytics-pkg' ),
-		getRange: ( { initOfToday, endOfYesterday } ) => ( {
-			from: subDays( initOfToday, 7 ),
-			to: endOfYesterday,
+		getRange: ( { initOfToday, endOfToday } ) => ( {
+			from: subDays( initOfToday, 6 ),
+			to: endOfToday,
 		} ),
 	},
 	{
 		id: PRESET_LAST_30_DAYS,
 		getLabel: () => __( 'Last 30 days', 'jetpack-premium-analytics-pkg' ),
-		getRange: ( { initOfToday, endOfYesterday } ) => ( {
-			from: subDays( initOfToday, 30 ),
-			to: endOfYesterday,
+		getRange: ( { initOfToday, endOfToday } ) => ( {
+			from: subDays( initOfToday, 29 ),
+			to: endOfToday,
 		} ),
 	},
 	{
 		id: PRESET_LAST_90_DAYS,
 		getLabel: () => __( 'Last 90 days', 'jetpack-premium-analytics-pkg' ),
-		getRange: ( { initOfToday, endOfYesterday } ) => ( {
-			from: subDays( initOfToday, 90 ),
-			to: endOfYesterday,
+		getRange: ( { initOfToday, endOfToday } ) => ( {
+			from: subDays( initOfToday, 89 ),
+			to: endOfToday,
 		} ),
 	},
 	{
 		id: PRESET_LAST_365_DAYS,
 		getLabel: () => __( 'Last 365 days', 'jetpack-premium-analytics-pkg' ),
-		getRange: ( { initOfToday, endOfYesterday } ) => ( {
-			from: subDays( initOfToday, 365 ),
-			to: endOfYesterday,
+		getRange: ( { initOfToday, endOfToday } ) => ( {
+			from: subDays( initOfToday, 364 ),
+			to: endOfToday,
 		} ),
 	},
 	{
@@ -150,9 +150,11 @@ export const PRESET_DEFINITIONS: ReadonlyArray< PresetDefinition > = [
 	{
 		id: PRESET_LAST_12_MONTHS,
 		getLabel: () => __( 'Last 12 months', 'jetpack-premium-analytics-pkg' ),
-		getRange: ( { initOfToday, endOfYesterday } ) => ( {
-			from: subMonths( initOfToday, 12 ),
-			to: endOfYesterday,
+		// The chart buckets this preset by month, so a mid-month start would split
+		// the current month across a partial bucket at each end.
+		getRange: ( { initOfToday, endOfToday } ) => ( {
+			from: startOfMonth( subMonths( initOfToday, 11 ) ),
+			to: endOfToday,
 		} ),
 	},
 	{

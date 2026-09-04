@@ -7,11 +7,13 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics;
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Export;
 use Automattic\Jetpack\PremiumAnalytics\REST\Api_Proxy_Controller;
 use Automattic\Jetpack\PremiumAnalytics\REST\Notices_Controller;
 use Automattic\Jetpack\PremiumAnalytics\Sync\Configuration as Sync_Configuration;
 use Automattic\Jetpack\PremiumAnalytics\Sync\Sync_Status_Tracker;
+use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 
 /**
@@ -433,6 +435,8 @@ class Analytics {
 			);
 
 			add_action( 'admin_enqueue_scripts', array( static::class, 'enqueue_i18n_loader' ) );
+			add_action( 'admin_enqueue_scripts', array( static::class, 'enqueue_tracks_transport' ) );
+			add_filter( 'jetpack_admin_js_script_data', array( static::class, 'add_tracks_identity_script_data' ), 20 );
 		}
 
 		add_action( 'admin_menu', array( static::class, 'register_admin_menu' ) );
@@ -568,5 +572,61 @@ class Analytics {
 		if ( wp_script_is( 'wp-jp-i18n-loader', 'registered' ) ) {
 			wp_enqueue_script( 'wp-jp-i18n-loader' );
 		}
+	}
+
+	/**
+	 * Load the Tracks transport for the dashboard.
+	 *
+	 * `@automattic/jetpack-analytics` only queues events into `window._tkq` — its own w.js
+	 * loader is disabled — so without this handle no `jetpack_premium_analytics_*` event
+	 * ever flushes. Simple is skipped because stats.php already prints the same script.
+	 *
+	 * @return void
+	 */
+	public static function enqueue_tracks_transport() {
+		if ( ( new Host() )->is_wpcom_simple() ) {
+			return;
+		}
+
+		wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
+	}
+
+	/**
+	 * Publish the WPCOM identity the dashboard attributes its Tracks events to.
+	 *
+	 * Core's script data carries only the local user. Publicize is the one package that fills
+	 * `current_user.wpcom` in, and the standalone plugin does not bundle it, so without this
+	 * every event would land anonymous there.
+	 *
+	 * @param array $data The script data.
+	 * @return array The script data with the WPCOM identity added.
+	 */
+	public static function add_tracks_identity_script_data( $data ) {
+		if ( ( new Host() )->is_wpcom_simple() ) {
+			$wpcom_user = array(
+				'ID'    => get_current_user_id(),
+				'login' => wp_get_current_user()->user_login,
+			);
+		} else {
+			$connected = ( new Connection_Manager() )->get_connected_user_data();
+
+			if ( empty( $connected['ID'] ) || empty( $connected['login'] ) ) {
+				return $data;
+			}
+
+			// Only the two fields `identifyUser` needs: the rest of the connected-user payload
+			// is profile data the dashboard never reads.
+			$wpcom_user = array(
+				'ID'    => $connected['ID'],
+				'login' => $connected['login'],
+			);
+		}
+
+		$data['user']['current_user']['wpcom'] = array_merge(
+			$data['user']['current_user']['wpcom'] ?? array(),
+			$wpcom_user
+		);
+
+		return $data;
 	}
 }

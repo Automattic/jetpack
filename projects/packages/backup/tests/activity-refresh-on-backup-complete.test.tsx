@@ -39,13 +39,6 @@ const SETTLE = { timeout: 10000 };
 const OLD_REWIND = '1786644531.100';
 const NEW_REWIND = '1786644532.200';
 
-// jsdom implements no scrolling, and DataViews' list layout calls
-// `scrollIntoView` on the selected row.
-Object.defineProperty( window.HTMLElement.prototype, 'scrollIntoView', {
-	value: () => {},
-	writable: true,
-} );
-
 /**
  * One rewindable-activity entry, in WPCOM's shape.
  *

@@ -72,6 +72,10 @@ describe( 'useReportDateFilters', () => {
 		);
 	} );
 
+	afterEach( () => {
+		jest.useRealTimers();
+	} );
+
 	it( 'derives the applied state from the URL search params', () => {
 		const { result } = renderDateFilters( {
 			from: '2026-07-01T00:00:00.000Z',
@@ -625,6 +629,75 @@ describe( 'useReportDateFilters', () => {
 				from: '2026-07-22T00:00:00.000Z',
 				to: '2026-07-26T23:59:59.999Z',
 			} );
+		} );
+
+		it( 'leaves the calendar on the drilled window when the picker closes after the drill', () => {
+			const { result, rerender } = renderDateFilters( {
+				from: '2026-07-01T00:00:00.000Z',
+				to: '2026-07-30T23:59:59.999Z',
+				preset: 'last-30-days',
+				interval: 'day',
+			} );
+
+			const cancelBeforeDrill = result.current.onCancel;
+
+			act( () => result.current.drillDown( new Date( '2026-07-21T13:45:00.000Z' ) ) );
+			rerender();
+
+			act( () => cancelBeforeDrill() );
+
+			expect( result.current.range.from?.toISOString() ).toBe( '2026-07-21T00:00:00.000Z' );
+			expect( result.current.range.to?.toISOString() ).toBe( '2026-07-21T23:59:59.999Z' );
+			expect( result.current.presetId ).toBe( 'custom' );
+		} );
+	} );
+
+	it( 'steps a to-date preset by whole months and compares it with the months before', () => {
+		// `last-12-months` as read on 20 August 2026. Stepped by its day count
+		// the window would start on 12 September and its comparison on the 24th.
+		const { result, rerender } = renderDateFilters( {
+			from: '2025-09-01T00:00:00.000Z',
+			to: '2026-08-20T23:59:59.999Z',
+			preset: 'last-12-months',
+			interval: 'month',
+			comp: '1',
+			compare_preset: 'previous-period',
+		} );
+
+		act( () => result.current.onStep( 'previous' ) );
+		rerender();
+
+		expect( mockSearch ).toMatchObject( {
+			from: '2024-09-01T00:00:00.000Z',
+			to: '2025-08-31T23:59:59.999Z',
+			preset: 'custom',
+			interval: 'month',
+			compare_from: '2023-09-01T00:00:00.000Z',
+			compare_to: '2024-08-31T23:59:59.999Z',
+		} );
+	} );
+
+	it( 'lands back on the to-date window when a step forward closes the running month', () => {
+		// The window a step back out of `last-12-months` leaves. Stepping
+		// forward again closes August, eleven days past the day it is read on:
+		// days the report has no data for, and the forward arrow would then
+		// disappear on a window nobody can leave.
+		jest.useFakeTimers().setSystemTime( Date.parse( '2026-08-20T12:00:00.000Z' ) );
+
+		const { result, rerender } = renderDateFilters( {
+			from: '2024-09-01T00:00:00.000Z',
+			to: '2025-08-31T23:59:59.999Z',
+			preset: 'custom',
+			interval: 'month',
+		} );
+
+		act( () => result.current.onStep( 'next' ) );
+		rerender();
+
+		expect( mockSearch ).toMatchObject( {
+			from: '2025-09-01T00:00:00.000Z',
+			to: '2026-08-20T23:59:59.999Z',
+			preset: 'custom',
 		} );
 	} );
 } );
