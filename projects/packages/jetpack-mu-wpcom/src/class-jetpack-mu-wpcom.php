@@ -22,6 +22,9 @@ class Jetpack_Mu_Wpcom {
 	const BASE_DIR        = __DIR__ . '/';
 	const BASE_FILE       = __FILE__;
 
+	// Gutenberg plugin releases known to break with React 19.
+	const REACT_19_INCOMPATIBLE_GUTENBERG = array( '23.9.0' );
+
 	// Themes (by template slug) and plugins (by basename) known to break with React 19.
 	const REACT_19_INCOMPATIBLE_THEMES  = array( 'divi', 'woodmart' );
 	const REACT_19_INCOMPATIBLE_PLUGINS = array(
@@ -948,6 +951,10 @@ class Jetpack_Mu_Wpcom {
 	 * @return mixed Original option value or the filtered experiments.
 	 */
 	public static function enable_gutenberg_react_19_experiment( $experiments ) {
+		if ( self::has_react_19_incompatible_gutenberg() ) {
+			return $experiments;
+		}
+
 		$blog_id = get_wpcom_blog_id();
 
 		if ( wpcom_has_blog_sticker( 'disable-gutenberg-react-19', $blog_id ) ) {
@@ -988,6 +995,26 @@ class Jetpack_Mu_Wpcom {
 
 		$experiments['gutenberg-react-19'] = true;
 		return $experiments;
+	}
+
+	/**
+	 * Whether the site runs a Gutenberg plugin release that's known to break with React 19.
+	 *
+	 * Sites without the plugin run core's bundled Gutenberg, which the list doesn't cover.
+	 *
+	 * @return bool
+	 */
+	private static function has_react_19_incompatible_gutenberg() {
+		if ( ! defined( 'GUTENBERG_VERSION' ) ) {
+			return false;
+		}
+
+		// Match on the release number alone, so prereleases like 23.9.0-rc.1 count as 23.9.0.
+		if ( ! preg_match( '/^(\d+(?:\.\d+)*)/', (string) GUTENBERG_VERSION, $matches ) ) {
+			return false;
+		}
+
+		return in_array( $matches[1], self::REACT_19_INCOMPATIBLE_GUTENBERG, true );
 	}
 
 	/**
