@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Media API: accept an ai_generated flag on the media update endpoint so AI-image provenance postmeta is stored on the site that owns the attachment (Atomic and self-hosted Jetpack sites).
