@@ -242,18 +242,9 @@ class Plan_Matrix_Test extends TestCase {
 	/**
 	 * Cells the matrix does not hold today, and the issue that will make them hold.
 	 *
-	 * Search declares $requires_plan, and get_status() reads that flag before it reads
-	 * whether a plan exists -- so an owner whose module is off is told to buy the plan
-	 * they already have.
-	 *
 	 * @var array<string, string>
 	 */
-	private const KNOWN_BROKEN = array(
-		'search / bundle / plugin_absent' => 'JETPACK-2528',
-		'search / bundle / off'           => 'JETPACK-2528',
-		'search / direct / plugin_absent' => 'JETPACK-2528',
-		'search / direct / off'           => 'JETPACK-2528',
-	);
+	private const KNOWN_BROKEN = array();
 
 	/**
 	 * Every product that renders a card on the Products page.
