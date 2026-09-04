@@ -52,6 +52,7 @@ class Current_Plan {
 				'advanced-seo',
 				'opentable',
 				'calendly',
+				'zoom-scheduler',
 				'send-a-message',
 				'sharing-block',
 				'whatsapp-button',
