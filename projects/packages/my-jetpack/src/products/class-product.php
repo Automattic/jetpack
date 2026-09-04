@@ -856,7 +856,7 @@ abstract class Product {
 			// Getting a plan set up should help resolve any connection issues
 			// However if the standalone plugin for this product is active, then we will defer to showing errors that prevent the module from being active
 			// This is because if a standalone plugin is installed, we expect the product to not show as "inactive" on My Jetpack
-			if ( static::$requires_plan || ( ! static::has_any_plan_for_product() && static::$has_standalone_plugin && ! self::is_plugin_active() ) ) {
+			if ( ! static::has_any_plan_for_product() && ( static::$requires_plan || ( static::$has_standalone_plugin && ! self::is_plugin_active() ) ) ) {
 				$status = static::is_owned() && static::$has_free_offering && ! static::$requires_plan ? Products::STATUS_NEEDS_ACTIVATION : Products::STATUS_NEEDS_PLAN;
 			} elseif ( static::$requires_site_connection && ! ( new Connection_Manager() )->is_connected() ) {
 				// Site has never been connected before and product is not owned
