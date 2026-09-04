@@ -197,6 +197,11 @@ module.exports = [
 		entry: {
 			'jetpack-ai-admin': path.join( __dirname, '../_inc/client', 'ai-admin.jsx' ),
 		},
+		optimization: {
+			...sharedWebpackConfig.optimization,
+			// The Scheduled tasks tab is the only lazy import; keep it in one named chunk.
+			splitChunks: false,
+		},
 		plugins: [
 			...sharedWebpackConfig.plugins,
 			...jetpackWebpackConfig.DependencyExtractionPlugin( {

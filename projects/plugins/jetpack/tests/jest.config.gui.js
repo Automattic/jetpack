@@ -9,6 +9,7 @@ module.exports = {
 	testMatch: [
 		'<rootDir>/_inc/client/test/main.js',
 		'<rootDir>/_inc/client/**/test/component.js',
+		'<rootDir>/_inc/client/ai/components/chunk-error-boundary/test/component.jsx',
 		'<rootDir>/_inc/client/ai/test/ai-admin.jsx',
 		'<rootDir>/_inc/client/ai/features/test/component.jsx',
 		'<rootDir>/_inc/client/ai/mcp/test/allowlist-updated.jsx',
@@ -16,7 +17,9 @@ module.exports = {
 		'<rootDir>/_inc/client/ai/overview/test/component.jsx',
 		'<rootDir>/_inc/client/ai/scheduled-tasks/test/index.jsx',
 		'<rootDir>/_inc/client/ai/scheduled-tasks/test/use-scheduled-tasks.js',
+		'<rootDir>/_inc/client/ai/test/lazy-scheduled-tasks.jsx',
 		'<rootDir>/_inc/client/ai/test/main.jsx',
+		'<rootDir>/_inc/client/ai/test/public-path.js',
 		'<rootDir>/_inc/client/ai/test/tracks.js',
 		'<rootDir>/_inc/client/at-a-glance/boost/test/component.jsx',
 		'<rootDir>/_inc/client/sharing/test/component.jsx',
