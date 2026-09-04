@@ -6,6 +6,7 @@
  */
 
 // @phan-file-suppress PhanUndeclaredStaticMethod -- Atomic_Persistent_Data::set()/delete() only exist in the test mock in tests/lib/mocks, which Phan does not parse.
+// @phan-file-suppress PhanPluginMixedKeyNoKey -- The synthetic product definitions mirror FEATURES_MAP, which pairs a rule key with unkeyed slugs; class-wpcom-features.php is baselined for the same issue.
 
 /**
  * Covers `WPCOM_Features::purchase_in_products_map()` rule by rule, and
