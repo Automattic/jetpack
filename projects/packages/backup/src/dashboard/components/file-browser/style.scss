@@ -1,15 +1,4 @@
-$card-track: 280px;
-$column-gap: 16px;
-// Narrowest tree that still fits a nested row's ~120px of checkbox,
-// chevron, icon and indent plus a readable filename.
-$min-tree: 344px;
-$two-column-min: $card-track + $column-gap + $min-tree;
-
 .jpb-file-browser {
-	// Queried by `&__layout` below. A viewport query cannot answer it:
-	// wp-admin's "Collapse menu" moves this column 124px at any viewport
-	// width, and `admin-page-layout` matches `.folded` to follow it.
-	container-type: inline-size;
 	display: flex;
 	flex-direction: column;
 	gap: 8px;
@@ -20,20 +9,14 @@ $two-column-min: $card-track + $column-gap + $min-tree;
 	}
 
 	&__layout {
-		// Single-column by default — the tree owns the full panel width so
-		// zebra-stripe rows can run edge-to-edge. The 280px sidebar slot is
-		// only carved out when a `FileInfoCard` is actually rendered.
 		display: grid;
 		grid-template-columns: minmax(0, 1fr);
-		gap: $column-gap;
+		gap: 16px;
 
-		// Only once the panel can afford both tracks. Below this the card
-		// would leave the tree ~100px and filenames truncate to `wp…`.
-		@container (min-width: #{$two-column-min}) {
-
-			&:has(> .jpb-file-info-card) {
-				grid-template-columns: minmax(0, 1fr) minmax(0, $card-track);
-			}
+		// `FileBrowser` adds this only when it renders the card in-column;
+		// too narrow for that and the preview goes to `<FileInfoDialog>`.
+		&--with-card {
+			grid-template-columns: minmax(0, 1fr) minmax(0, 280px);
 
 			// `align-self` is load-bearing: grid stretches the card to its row's
 			// height — the tree's — and a stretched card has nowhere to travel.
