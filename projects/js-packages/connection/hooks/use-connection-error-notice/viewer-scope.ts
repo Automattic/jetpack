@@ -1,4 +1,4 @@
-import type { ConnectionErrorObject } from './types';
+import type { ConnectionErrorObject } from './types.ts';
 
 /**
  * Who a user-audience error is attributed to, relative to the viewer.

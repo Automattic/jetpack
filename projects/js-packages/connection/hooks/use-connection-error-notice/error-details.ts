@@ -1,22 +1,28 @@
-import {
-	getConnectionErrorUserScope,
-	isOtherUsersConnectionError,
-} from '@automattic/jetpack-connection';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import type { ConnectionErrorMap, ConnectionErrorObject } from '@automattic/jetpack-connection';
+import { getConnectionErrorUserScope, isOtherUsersConnectionError } from './viewer-scope.ts';
+import type {
+	ConnectionErrorDetailLine,
+	ConnectionErrorGroup,
+	ConnectionErrorMap,
+	ConnectionErrorNoticeLink,
+	ConnectionErrorObject,
+	ConnectionErrorViewer,
+} from './types.ts';
 
 /**
- * Identity of the person looking at the notice, used to phrase an error's scope
- * from their point of view ("Your account" vs "Another user's account").
+ * Whether a raw store value is usable as a connection error map.
+ *
+ * `connectionErrors` is declared as an array at the store boundary but is a
+ * `code → user_id → error` object at runtime, and the selector can fall back to
+ * `[]`. Narrowing through a predicate keeps that mismatch to one checked place
+ * instead of an `as unknown as` at every call site.
+ *
+ * @param {unknown} value - The raw selector value.
+ * @return {boolean} Whether the value can be read as a connection error map.
  */
-export type ConnectionErrorViewer = {
-	/** The viewer's local WordPress user ID, if known. */
-	currentUserId?: number;
-	/** Whether the viewer is the connection owner. */
-	isOwner?: boolean;
-	/** The connection owner's display name, if the viewer is allowed to see it. */
-	ownerName?: string;
-};
+export function isConnectionErrorMap( value: unknown ): value is ConnectionErrorMap {
+	return !! value && typeof value === 'object' && ! Array.isArray( value );
+}
 
 /**
  * Flatten the store's `code → user_id → error` map into a display list.
@@ -48,8 +54,8 @@ export function flattenConnectionErrors(
  * alongside a button that cannot fix it. Site-wide and connection-owner errors
  * are kept: those do break the site's connection, and any admin can act on them.
  *
- * The rule itself lives in the connection package, which owns both this
- * judgement and the CTA that has to agree with it.
+ * Shares `isOtherUsersConnectionError` with the CTA selection in the hook, so the
+ * error a notice names and the error its button acts on cannot disagree.
  *
  * @param {ConnectionErrorObject[]} errors - The displayable errors.
  * @param {ConnectionErrorViewer}   viewer - Who is looking at the notice.
@@ -63,25 +69,15 @@ export function excludeOtherUsersErrors(
 }
 
 /**
- * A set of errors that share one headline message.
- */
-export type ConnectionErrorGroup = {
-	/** The shared headline, rendered once for the whole group. */
-	message: string;
-	/** The errors it covers, each still carrying its own scope and code. */
-	errors: ConnectionErrorObject[];
-};
-
-/**
  * Group errors by their headline message.
  *
  * @param {ConnectionErrorObject[]} errors - The displayable errors.
- * @return {ConnectionErrorGroup[]} The errors grouped by shared message.
+ * @return {Array< { message: string, errors: ConnectionErrorObject[] } >} The errors grouped by shared message.
  */
 export function groupConnectionErrorsByMessage(
 	errors: ConnectionErrorObject[]
-): ConnectionErrorGroup[] {
-	const groups = new Map< string, ConnectionErrorGroup >();
+): Array< { message: string; errors: ConnectionErrorObject[] } > {
+	const groups = new Map< string, { message: string; errors: ConnectionErrorObject[] } >();
 
 	for ( const error of errors ) {
 		const message = error.error_message;
@@ -119,16 +115,16 @@ export function getConnectionErrorScope(
 		// This refers to whose token the error describes.
 		if ( isOwner ) {
 			// This refers to who is looking at the screen.
-			return __( 'Your account (connection owner)', 'jetpack-my-jetpack' );
+			return __( 'Your account (connection owner)', 'jetpack-connection-js' );
 		}
 
 		return ownerName
 			? sprintf(
 					/* translators: %s is the display name of the Jetpack connection owner. */
-					__( "Connection owner's account (%s)", 'jetpack-my-jetpack' ),
+					__( "Connection owner's account (%s)", 'jetpack-connection-js' ),
 					ownerName
 			  )
-			: __( "Connection owner's account", 'jetpack-my-jetpack' );
+			: __( "Connection owner's account", 'jetpack-connection-js' );
 	}
 
 	if ( audience === 'user' ) {
@@ -136,32 +132,22 @@ export function getConnectionErrorScope(
 		// the filter would have kept, or vice versa.
 		switch ( getConnectionErrorUserScope( error, currentUserId ) ) {
 			case 'self':
-				return __( 'Your account', 'jetpack-my-jetpack' );
+				return __( 'Your account', 'jetpack-connection-js' );
 			case 'other':
 				// Unreachable from the notice: `excludeOtherUsersErrors` drops these before
 				// anything gets labelled, and it shares this same predicate. Kept so a
 				// caller that labels an unfiltered error still gets an honest answer.
-				return __( "Another user's account", 'jetpack-my-jetpack' );
+				return __( "Another user's account", 'jetpack-connection-js' );
 			default:
 				// Unattributed, or the viewer is unidentified. The error is kept because
 				// it could be theirs, so the label must not claim it is somebody else's
 				// either; name the token type and leave the owner open.
-				return __( 'User connection', 'jetpack-my-jetpack' );
+				return __( 'User connection', 'jetpack-connection-js' );
 		}
 	}
 
-	return __( 'Site connection', 'jetpack-my-jetpack' );
+	return __( 'Site connection', 'jetpack-connection-js' );
 }
-
-/**
- * One rendered detail line, standing for one or more errors.
- */
-export type ConnectionErrorDetailLine = {
-	/** Stable key for rendering. */
-	key: string;
-	/** The line to display. */
-	text: string;
-};
 
 /**
  * Build the detail lines for a set of errors, collapsing any that would read
@@ -188,6 +174,19 @@ export function getConnectionErrorDetailLines(
 	}
 
 	return [ ...lines ].map( detail => ( { key: detail, text: detail } ) );
+}
+
+/**
+ * Render one detail line as it appears in a notice.
+ *
+ * Kept separate from `text` so the line itself stays the plain scope name: a
+ * renderer that can use real list markers should take `text` and skip this.
+ *
+ * @param {ConnectionErrorDetailLine} line - The line to render.
+ * @return {string} The line text, with its marker.
+ */
+export function formatConnectionErrorDetailLine( line: ConnectionErrorDetailLine ): string {
+	return `- ${ line.text }`;
 }
 
 /**
@@ -219,7 +218,7 @@ export function getConnectionErrorTitle(
 	if ( titleIncludesScope( errors ) ) {
 		return sprintf(
 			/* translators: %s is what the error applies to, e.g. "Site connection" or "Your account". */
-			__( 'Jetpack Connection error: %s', 'jetpack-my-jetpack' ),
+			__( 'Jetpack Connection error: %s', 'jetpack-connection-js' ),
 			getConnectionErrorScope( errors[ 0 ], viewer )
 		);
 	}
@@ -231,11 +230,107 @@ export function getConnectionErrorTitle(
 				'%d Jetpack Connection error',
 				'%d Jetpack Connection errors',
 				errors.length,
-				'jetpack-my-jetpack'
+				'jetpack-connection-js'
 			),
 			errors.length
 		);
 	}
 
-	return __( 'Jetpack Connection error', 'jetpack-my-jetpack' );
+	return __( 'Jetpack Connection error', 'jetpack-connection-js' );
+}
+
+/**
+ * Collect the notice links declared by a set of errors, deduplicated by URL.
+ *
+ * Errors that describe the same condition (a blocked request reported against
+ * more than one code, say) carry the same link, and it must only be offered once.
+ *
+ * The data is server-provided and reaches us through an untyped store, so both
+ * halves are checked before a link is offered rather than trusting the type.
+ *
+ * @param {ConnectionErrorObject[]} errors - The displayable errors.
+ * @return {ConnectionErrorNoticeLink[]} The deduplicated links.
+ */
+export function getConnectionErrorNoticeLinks(
+	errors: ConnectionErrorObject[]
+): ConnectionErrorNoticeLink[] {
+	const links = new Map< string, ConnectionErrorNoticeLink >();
+
+	for ( const error of errors ) {
+		const link = error.error_data?.notice_link;
+
+		if ( link?.url && link.label && ! links.has( link.url ) ) {
+			links.set( link.url, link );
+		}
+	}
+
+	return [ ...links.values() ];
+}
+
+/**
+ * Whether any of these errors asks for a support link.
+ *
+ * Set server-side (see `support_link` in `Error_Handler::get_error_display_configs()`)
+ * for errors where reconnecting may not be the fix, so the viewer has somewhere
+ * else to go.
+ *
+ * @param {ConnectionErrorObject[]} errors - The displayable errors.
+ * @return {boolean} Whether to offer the support link.
+ */
+export function hasSupportLink( errors: ConnectionErrorObject[] ): boolean {
+	return errors.some( error => Boolean( error?.error_data?.support_link ) );
+}
+
+/**
+ * Build everything a notice needs to describe a set of errors: the title, the
+ * message groups with their scope lines, and the links to offer beneath them.
+ *
+ * The single place this shape is derived, so the package's own notice and
+ * consumers with their own notice systems (My Jetpack) present the same errors
+ * the same way.
+ *
+ * @param {ConnectionErrorMap}    errors - The connection error map from the store.
+ * @param {ConnectionErrorViewer} viewer - Who is looking at the notice.
+ * @return {object} The derived detail: `errors`, `title`, `groups`, `showSupportLink`.
+ */
+export function getConnectionErrorDetails(
+	errors: ConnectionErrorMap,
+	viewer: ConnectionErrorViewer = {}
+): {
+	errors: ConnectionErrorObject[];
+	title: string;
+	groups: ConnectionErrorGroup[];
+	showSupportLink: boolean;
+} {
+	const displayable = excludeOtherUsersErrors( flattenConnectionErrors( errors ), viewer );
+
+	// A detail line only ever states the scope, so where the title already names
+	// it there is nothing left to say and no line is rendered.
+	const scopeIsInTitle = titleIncludesScope( displayable );
+
+	// Links are attached per-group so a link an error asks for renders directly
+	// beneath the message it belongs to, rather than pooled after every group.
+	// But dedupe by URL across the whole notice first: two different-message
+	// groups sharing a link (e.g. both point at Site Health) must still only
+	// show it once, on the group that introduces it, not once per group.
+	const seenLinkUrls = new Set< string >();
+
+	return {
+		errors: displayable,
+		title: getConnectionErrorTitle( displayable, viewer ),
+		groups: groupConnectionErrorsByMessage( displayable ).map( group => {
+			const noticeLinks = getConnectionErrorNoticeLinks( group.errors ).filter(
+				link => ! seenLinkUrls.has( link.url )
+			);
+
+			noticeLinks.forEach( link => seenLinkUrls.add( link.url ) );
+
+			return {
+				...group,
+				detailLines: scopeIsInTitle ? [] : getConnectionErrorDetailLines( group.errors, viewer ),
+				noticeLinks,
+			};
+		} ),
+		showSupportLink: hasSupportLink( displayable ),
+	};
 }
