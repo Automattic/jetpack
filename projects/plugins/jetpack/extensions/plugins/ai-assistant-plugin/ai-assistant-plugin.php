@@ -76,7 +76,7 @@ function register_ai_agents_setting() {
 	$show_in_rest = ! ( new Host() )->is_wpcom_simple();
 
 	register_setting(
-		'general',
+		'jetpack_search',
 		'jetpack_ai_agents_enabled',
 		array(
 			'type'              => 'boolean',

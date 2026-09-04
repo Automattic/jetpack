@@ -136,10 +136,6 @@ function Dashboard(): JSX.Element {
 		stepCount: tourSteps.length,
 	} );
 
-	// The tour's only way out is Escape.
-	const { dismiss: dismissOnboarding } = onboarding;
-	const leaveTour = useCallback( () => dismissOnboarding( 'escape' ), [ dismissOnboarding ] );
-
 	// Only the widgets this section renders need metadata at boot; the full registry
 	// waits for edit mode. `null` until sections resolve, since the layout is empty until then.
 	const [ widgetTypes, isResolvingWidgetTypes ] = useWidgetTypesWithI18n( widgetModules, {
@@ -332,7 +328,7 @@ function Dashboard(): JSX.Element {
 									steps={ tourSteps }
 									current={ onboarding.step }
 									onNext={ onboarding.next }
-									onDismiss={ leaveTour }
+									onDismiss={ onboarding.dismiss }
 								/>
 							) }
 						</Page>
