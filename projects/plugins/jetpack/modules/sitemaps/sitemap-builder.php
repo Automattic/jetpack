@@ -499,6 +499,10 @@ class Jetpack_Sitemap_Builder { // phpcs:ignore Generic.Files.OneObjectStructure
 	 * buffer. They no longer fit somewhere north of a million URLs, and only then
 	 * does it fall back to linking the per-type `*-sitemap-index-N.xml` files.
 	 *
+	 * Either way the buffer is only stored once it covers every sitemap this
+	 * generation cycle produced; a master that reaches fewer URLs than the last
+	 * one is worse than leaving the last one in place.
+	 *
 	 * @link https://www.sitemaps.org/protocol.html#index
 	 *
 	 * @param array $max Array of sitemap types with max index and datetime.
@@ -516,13 +520,7 @@ class Jetpack_Sitemap_Builder { // phpcs:ignore Generic.Files.OneObjectStructure
 			JP_VIDEO_SITEMAP_TYPE,
 		);
 
-		/*
-		 * Both the item limit and the byte limit can stop the flat listing, and
-		 * how soon the byte limit bites depends on how long this site's URLs are,
-		 * so the flat build reports whether everything fit instead of quietly
-		 * storing a master that omits sitemaps.
-		 */
-		$buffer = $this->build_flat_master_buffer( $sitemap_types );
+		$buffer = $this->build_flat_master_buffer( $sitemap_types, $max );
 
 		if ( ! $buffer ) {
 			/*
@@ -549,17 +547,23 @@ class Jetpack_Sitemap_Builder { // phpcs:ignore Generic.Files.OneObjectStructure
 	/**
 	 * Build a master sitemap buffer listing every individual sitemap file.
 	 *
-	 * Returns false if the buffer filled up before every file was listed, in
-	 * which case the partial buffer is discarded rather than stored.
+	 * Returns false, discarding the partial buffer, unless every file this cycle
+	 * generated was listed. The buffer's item and byte limits can both stop it
+	 * short, and how soon the byte limit bites depends on how long this site's
+	 * URLs are, so the count is checked rather than assumed. Rows are also
+	 * matched against the filenames this cycle should have produced, so a short
+	 * read or a row left behind by an interrupted cleanup fails the build instead
+	 * of quietly changing what the master points at.
 	 *
 	 * @access private
 	 * @since 16.2
 	 *
 	 * @param array $sitemap_types The sitemap types to list, in order.
+	 * @param array $max           Array of sitemap types with max index and datetime.
 	 *
-	 * @return Jetpack_Sitemap_Buffer|Jetpack_Sitemap_Buffer_XMLWriter|false The buffer, or false if they did not all fit.
+	 * @return Jetpack_Sitemap_Buffer|Jetpack_Sitemap_Buffer_XMLWriter|false The buffer, or false if it does not list every file.
 	 */
-	private function build_flat_master_buffer( $sitemap_types ) {
+	private function build_flat_master_buffer( $sitemap_types, $max ) {
 		$buffer = Jetpack_Sitemap_Buffer_Factory::create(
 			'master',
 			JP_SITEMAP_MAX_ITEMS,
@@ -571,21 +575,38 @@ class Jetpack_Sitemap_Builder { // phpcs:ignore Generic.Files.OneObjectStructure
 		}
 
 		foreach ( $sitemap_types as $sitemap_type ) {
+			$expected        = isset( $max[ $sitemap_type ]['number'] ) ? (int) $max[ $sitemap_type ]['number'] : 0;
+			$listed          = 0;
 			$last_sitemap_id = 0;
 
-			while ( true ) {
+			while ( $listed < $expected ) {
 				$rows = $this->librarian->query_sitemaps_after_id(
 					$sitemap_type,
 					$last_sitemap_id,
-					JP_SITEMAP_BATCH_SIZE
+					min( JP_SITEMAP_BATCH_SIZE, $expected - $listed )
 				);
 
 				if ( empty( $rows ) ) {
-					break;
+					if ( $this->logger ) {
+						$this->logger->report( "-- Only found $listed of $expected $sitemap_type rows; not flattening." );
+					}
+
+					return false;
 				}
 
 				foreach ( $rows as $row ) {
-					$current_item = $this->sitemap_row_to_index_item( (array) $row );
+					$row = (array) $row;
+					++$listed;
+
+					if ( jp_sitemap_filename( $sitemap_type, $listed ) !== $row['post_title'] ) {
+						if ( $this->logger ) {
+							$this->logger->report( "-- Unexpected row {$row['post_title']} for $sitemap_type; not flattening." );
+						}
+
+						return false;
+					}
+
+					$current_item = $this->sitemap_row_to_index_item( $row );
 
 					if ( true !== $buffer->append( $current_item['xml'] ) ) {
 						if ( $this->logger ) {
@@ -618,7 +639,7 @@ class Jetpack_Sitemap_Builder { // phpcs:ignore Generic.Files.OneObjectStructure
 	 * @param array $sitemap_types The sitemap types to list, in order.
 	 * @param array $max           Array of sitemap types with max index and datetime.
 	 *
-	 * @return Jetpack_Sitemap_Buffer|Jetpack_Sitemap_Buffer_XMLWriter|false The buffer, or false if the state is incomplete.
+	 * @return Jetpack_Sitemap_Buffer|Jetpack_Sitemap_Buffer_XMLWriter|false The buffer, or false if it does not list every type.
 	 */
 	private function build_nested_master_buffer( $sitemap_types, $max ) {
 		$buffer = Jetpack_Sitemap_Buffer_Factory::create(
@@ -652,7 +673,7 @@ class Jetpack_Sitemap_Builder { // phpcs:ignore Generic.Files.OneObjectStructure
 				return false;
 			}
 
-			$buffer->append(
+			$appended = $buffer->append(
 				array(
 					'sitemap' => array(
 						'loc'     => $this->finder->construct_sitemap_url( $filename ),
@@ -660,6 +681,14 @@ class Jetpack_Sitemap_Builder { // phpcs:ignore Generic.Files.OneObjectStructure
 					),
 				)
 			);
+
+			if ( true !== $appended ) {
+				if ( $this->logger ) {
+					$this->logger->report( "-- No room for $filename; keeping the previous Master Sitemap." );
+				}
+
+				return false;
+			}
 		}
 
 		return $buffer;
