@@ -274,6 +274,8 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings extends WP_REST_Controller 
 				),
 				'ai_search'         => array(
 					'enabled'          => $stored['ai_search'],
+					// VIP does not expose the Search settings page that owns this control.
+					'available'        => ! ( new Host() )->is_vip_site(),
 					'requires_upgrade' => $ai_search_requires_upgrade,
 				),
 			),

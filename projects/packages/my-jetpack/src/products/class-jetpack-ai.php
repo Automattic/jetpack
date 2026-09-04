@@ -518,7 +518,7 @@ class Jetpack_Ai extends Module_Product {
 	}
 
 	/**
-	 * Whether My Jetpack should surface the AI feature controls.
+	 * Whether My Jetpack should show the AI module switch and link to the AI Hub.
 	 *
 	 * @return bool
 	 */
@@ -604,6 +604,9 @@ class Jetpack_Ai extends Module_Product {
 
 	/**
 	 * Whether the 'ai' module backs this product's UI state.
+	 *
+	 * Returns true while the controls are hidden so the module check cannot mark
+	 * the product disabled.
 	 *
 	 * @return bool
 	 */

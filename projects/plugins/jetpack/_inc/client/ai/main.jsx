@@ -55,7 +55,7 @@ const LEGACY_VIEW_ALIASES = {
 };
 
 // Views that retain an internal-testing badge when a host enables them for a
-// test request. MCP and Connectors ships publicly, so it is not in here.
+// test request. The MCP and Connectors view ships publicly, so it is not in here.
 const GATED_VIEWS = [ 'overview', 'features' ];
 
 // Views the master switch governs. MCP and Scheduled tasks are not gated by
@@ -194,6 +194,7 @@ export default function App() {
 		upgradeUrl,
 		planName,
 		isUserConnected,
+		userConnectionUrl = 'admin.php?page=my-jetpack#/connection',
 		showFeaturesView = false,
 		showA12sBadge = false,
 	} = window?.jetpackAiSettings ?? {};
@@ -437,7 +438,7 @@ export default function App() {
 							</Notice.Root>
 						) }
 
-						{ showConnectNotice && <McpConnectCallout /> }
+						{ showConnectNotice && <McpConnectCallout userConnectionUrl={ userConnectionUrl } /> }
 
 						{ ! isLoading && ! error && !! blogId && ! userUnlinked && ! hasMcpAccess && (
 							<McpUpsell />
@@ -488,6 +489,7 @@ export default function App() {
 						upgradeUrl={ upgradeUrl }
 						planName={ planName }
 						isUserConnected={ isUserConnected }
+						userConnectionUrl={ userConnectionUrl }
 						hostAllowsAi={ aiSettings?.host_allows_ai }
 						// Same preconditions the MCP hub applies to its copy of the
 						// row: the copy promises AI-agent actions, which need MCP.

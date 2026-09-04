@@ -458,6 +458,26 @@ describe( 'AI admin page (main.jsx)', () => {
 			);
 		} );
 
+		test( 'the connect card uses the supplied connection screen', async () => {
+			window.jetpackAiSettings = {
+				showFeaturesView: true,
+				blogId: 1,
+				isUserConnected: false,
+				userConnectionUrl: 'admin.php?page=jetpack#/connect-user',
+			};
+			mockApiFetch( { mcpGet: { has_mcp_access: false, mcp_abilities: {} } } );
+
+			render( <App /> );
+
+			await expect(
+				screen.findByText( CONNECT_CARD_TEXT, IGNORE_A11Y )
+			).resolves.toBeInTheDocument();
+			expect( screen.getByRole( 'link', { name: 'Connect your user account' } ) ).toHaveAttribute(
+				'href',
+				'admin.php?page=jetpack#/connect-user'
+			);
+		} );
+
 		test( 'site connected, has plan: shows the connect card and not the hub', async () => {
 			window.jetpackAiSettings = { showFeaturesView: true, blogId: 1, isUserConnected: false };
 			mockApiFetch( { mcpGet: connectedMcpGet() } );

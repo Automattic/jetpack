@@ -50,6 +50,7 @@ const PROPS = {
 	activityLogUrl: 'https://example.com/activity',
 	upgradeUrl: 'https://example.com/upgrade',
 	showActivityLog: true,
+	userConnectionUrl: 'admin.php?page=my-jetpack#/connection',
 };
 
 // The design-system Notice mirrors its text into a hidden wp.a11y.speak live
@@ -339,6 +340,20 @@ describe( 'AiOverview', () => {
 		).toHaveAttribute( 'href', 'admin.php?page=my-jetpack#/connection' );
 		expect( screen.queryByText( 'Available requests' ) ).not.toBeInTheDocument();
 		expect( apiFetch ).not.toHaveBeenCalled();
+	} );
+
+	test( 'user account not linked: uses the supplied connection screen', () => {
+		render(
+			<AiOverview
+				{ ...PROPS }
+				isUserConnected={ false }
+				userConnectionUrl="admin.php?page=jetpack#/connect-user"
+			/>
+		);
+
+		expect(
+			screen.getByRole( 'link', { name: 'Connect your user account to see your AI usage.' } )
+		).toHaveAttribute( 'href', 'admin.php?page=jetpack#/connect-user' );
 	} );
 
 	test( 'activity log: absent without an activityLogUrl', async () => {

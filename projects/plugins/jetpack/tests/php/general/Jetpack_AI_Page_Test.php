@@ -263,8 +263,20 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 		$this->assertTrue( $settings['showFeaturesView'] );
 		$this->assertFalse( $settings['showA12sBadge'] );
 		$this->assertFalse( $settings['isTest'] );
+		$this->assertSame( 'admin.php?page=my-jetpack#/connection', $settings['userConnectionUrl'] );
 		$this->assertArrayHasKey( 'featureFlags', $settings );
 		$this->assertFalse( $settings['featureFlags'][ Jetpack_AI_Feature_Flags::SCHEDULED_TASKS ] );
+	}
+
+	/**
+	 * VIP sites connect users through the legacy Jetpack connection screen.
+	 */
+	public function test_vip_site_uses_jetpack_user_connection_url() {
+		Constants::set_constant( 'WPCOM_IS_VIP_ENV', true );
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertSame( 'admin.php?page=jetpack#/connect-user', $settings['userConnectionUrl'] );
 	}
 
 	/**
