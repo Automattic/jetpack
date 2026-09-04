@@ -83,6 +83,10 @@ runs:
         cache: true
         runtime: node@${{ steps.versions.outputs.node-version }}
 
+    # https://github.com/pnpm/setup/issues/51
+    - name: Work around pnpm/setup bug
+      run: git restore pnpm-lock.yaml
+
     - name: Configure composer 304-short-circuiting proxy
       if: steps.versions.outputs.php-version != 'false' && steps.versions.outputs.node-version != 'false'
       shell: bash
