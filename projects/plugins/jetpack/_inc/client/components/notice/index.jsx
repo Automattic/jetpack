@@ -1,10 +1,6 @@
-import clsx from 'clsx';
+import { Notice } from '@wordpress/ui';
 import PropTypes from 'prop-types';
-import { Component } from 'react';
-import Gridicon from 'components/gridicon';
-import onKeyDownCallback from 'utils/onkeydown-callback';
-
-import './style.scss';
+import { Component, isValidElement } from 'react';
 
 const noop = () => {};
 
@@ -30,7 +26,7 @@ export default class SimpleNotice extends Component {
 			PropTypes.oneOfType( [ PropTypes.string, PropTypes.node ] ),
 			PropTypes.arrayOf( PropTypes.oneOfType( [ PropTypes.string, PropTypes.node ] ) ),
 		] ),
-		icon: PropTypes.string,
+		icon: PropTypes.oneOfType( [ PropTypes.string, PropTypes.node ] ),
 		onDismissClick: PropTypes.func,
 		className: PropTypes.string,
 		display: PropTypes.bool,
@@ -50,28 +46,19 @@ export default class SimpleNotice extends Component {
 		}
 	}
 
-	getIcon = () => {
-		let icon;
-
+	getIntent = () => {
 		switch ( this.props.status ) {
 			case 'is-info':
-				icon = 'info';
-				break;
+				return 'info';
 			case 'is-success':
-				icon = 'checkmark';
-				break;
+				return 'success';
 			case 'is-error':
-				icon = 'notice';
-				break;
+				return 'error';
 			case 'is-warning':
-				icon = 'notice';
-				break;
+				return 'warning';
 			default:
-				icon = 'info';
-				break;
+				return 'neutral';
 		}
-
-		return icon;
 	};
 
 	clearText = text => {
@@ -89,41 +76,32 @@ export default class SimpleNotice extends Component {
 			isCompact,
 			onDismissClick,
 			showDismiss = ! isCompact, // by default, show on normal notices, don't show on compact ones
-			status,
 			text,
 			dismissText,
 			display,
 		} = this.props;
-		const classes = clsx( 'dops-notice', status, className, {
-			'is-compact': isCompact,
-			'is-dismissable': showDismiss,
-			'is-hidden': ! display,
-		} );
+
+		if ( ! display ) {
+			return null;
+		}
+
+		// `text` marks the caller as using the two-slot form, where children are the
+		// actions. Without it, children are the body.
+		const body = text ? this.clearText( text ) : children;
+		const actions = text ? children : null;
 
 		return (
-			<div className={ classes }>
-				<span className="dops-notice__icon-wrapper">
-					<Gridicon className="dops-notice__icon" icon={ icon || this.getIcon() } size={ 24 } />
-				</span>
-				<span className="dops-notice__content">
-					<span className="dops-notice__text">{ text ? this.clearText( text ) : children }</span>
-				</span>
-				{ text ? children : null }
-				{ showDismiss && (
-					<span
-						role="button"
-						onKeyDown={ onKeyDownCallback( onDismissClick ) }
-						tabIndex="0"
-						className="dops-notice__dismiss"
-						onClick={ onDismissClick }
-					>
-						<Gridicon icon="cross" size={ 24 } />
-						<span className="dops-notice__screen-reader-text screen-reader-text">
-							{ dismissText }
-						</span>
-					</span>
-				) }
-			</div>
+			<Notice.Root
+				intent={ this.getIntent() }
+				className={ className }
+				// Callers pass either a Gridicon name or an element; only elements work
+				// here, and the intent already picks a sensible default icon.
+				icon={ isValidElement( icon ) ? icon : undefined }
+			>
+				<Notice.Description>{ body }</Notice.Description>
+				{ actions ? <Notice.Actions>{ actions }</Notice.Actions> : null }
+				{ showDismiss && <Notice.CloseIcon label={ dismissText } onClick={ onDismissClick } /> }
+			</Notice.Root>
 		);
 	}
 }
