@@ -15,7 +15,7 @@ All live plugin code lives in this package. The two plugins that ship it — `pl
 | Static analysis | `jp phan packages/paypal-payments` |
 | Build | `jp build plugins/paypal-payment-buttons --deps` |
 | Watch | `jp watch packages/paypal-payments` |
-| Block metadata | `src/paypal-payment-buttons/block-v2.json` (V2), `block.json` (V1) |
+| Block metadata | `src/paypal-payment-buttons/block.json` (V2), `src/block/block.json` (V1) |
 | Doc drafts | `docs/` (for the Jetpack support team) |
 
 `jp` is the monorepo CLI (`npm install -g @automattic/jetpack-cli`). Everything below can also be run as `pnpm jetpack <...>` from the monorepo root.
@@ -70,6 +70,21 @@ Credentials are encrypted with `AUTH_KEY`, so a `wp-config.php` still carrying t
 | `jetpack_paypal_payment_buttons_token` | transient | Encrypted access token |
 | `jetpack_paypal_payment_buttons_token_expires_at` | option | Unix timestamp; paired with the transient so expiry survives object-cache flushes |
 | `jetpack_paypal_payment_buttons_seller_nonce` | transient | Onboarding nonce, 30-minute TTL |
+
+## Where New Files Go
+
+| Kind | Goes in |
+|---|---|
+| React component | `components/` |
+| Hook, named `use-*` | `hooks/` |
+| Pure helper, no JSX | `utils/` |
+| Webpack entry | block root, plus an `entry` line in `webpack.config.blocks.js` |
+
+Flat files, not `<name>/index.js` — `jest.config.js` excludes `index.*` from coverage.
+
+`.gitattributes` decides what ships to the mirror repo `Automattic/jetpack-paypal-payments`: everything not marked `production-exclude`. The `/src/paypal-payment-buttons/**/*.js`, `/src/**/*.jsx` and `/src/**/*.scss` patterns are recursive, so a new `.js`, `.jsx` or `.scss` under the block is already excluded. For any other file type, check with `git check-attr production-exclude <file>`.
+
+`register_block()` in `class-paypal-payment-buttons.php` passes `__DIR__` to `Blocks::jetpack_register_block()`, which reads `block.json` from that directory. Rename or move the block directory and registration breaks — the PHP class has to move with it.
 
 ## Changelog Entries
 
