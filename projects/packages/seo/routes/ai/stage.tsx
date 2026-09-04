@@ -17,7 +17,7 @@ import AiScreen from '../../_inc/screens/ai';
 import type { AiState } from '../../_inc/data/ai-types';
 
 // The AI form controller is owned here (the route stage); it's only used on this
-// route and saves through `/jetpack/v4/settings`, so it needn't persist across
+// route and saves through `/wp/v2/settings`, so it needn't persist across
 // route changes. Split out so it mounts only once the data is ready — its
 // one-time seed reads the store, which the gate below has populated by then.
 const AiReady = () => {

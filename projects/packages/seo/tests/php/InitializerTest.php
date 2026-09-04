@@ -145,8 +145,16 @@ class InitializerTest extends TestCase {
 			$this->assertNotFalse(
 				has_action( 'admin_menu', array( Admin_Page::class, 'maybe_load_wp_build' ) )
 			);
-			$this->assertNotFalse(
+			// Settings register on `rest_api_init`, after every chance a conflicting SEO
+			// plugin has to filter `jetpack_disable_seo_tools` and change which option the
+			// front page description belongs in, and before core builds the settings route
+			// from the registry at priority 99.
+			$this->assertSame(
+				5,
 				has_action( 'rest_api_init', array( Dashboard_Data::class, 'register_rest_settings' ) )
+			);
+			$this->assertNotFalse(
+				has_action( 'rest_api_init', array( Dashboard_Data::class, 'register_module_routes' ) )
 			);
 
 			// The coverage cache is invalidated from writes that happen anywhere — the block
