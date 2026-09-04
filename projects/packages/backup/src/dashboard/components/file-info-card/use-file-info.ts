@@ -21,6 +21,9 @@ import type { FileNodeFile } from '../../types/file-tree';
  * an opaque binary. Calypso reaches the same conclusion and keeps its
  * own extension map for exactly this decision, using `data_type` only
  * to drive granular download.
+ *
+ * `sql` and `log` never preview unprompted despite being here: every
+ * pattern below matches them, so they arrive behind the reveal click.
  */
 const PREVIEWABLE_TEXT_TYPES: Record< string, string > = {
 	css: 'text/css',
@@ -66,19 +69,25 @@ function mimeFromName( name: string ): string {
 }
 
 /**
- * The one filename whose preview waits for a deliberate second click:
- * `wp-config.php`, which carries `DB_PASSWORD` and the salts. Same single
- * file Calypso hides, so the two surfaces agree.
+ * Files whose preview waits for a deliberate second click: anything that can
+ * hold credentials, plus any hand-made copy of one that still previews.
+ *
+ * Matched against the lowercased, prefix-stripped manifest path. The trailing
+ * `[^/]*$` keeps a match inside one filename; `config/application` is the only
+ * pattern that also pins a parent directory.
  */
-const SENSITIVE_NAME = 'wp-config.php';
+const SENSITIVE_PATH_PATTERNS: readonly RegExp[] = [
+	/(^|\/)wp-config[^/]*$/,
+	/(^|\/)config\/application[^/]*$/,
+	/\.env[^/]*$/,
+	/\.log[^/]*$/,
+	/\.sql[^/]*$/,
+];
 
 /**
- * Whether the given manifest path names the file above, at any depth.
+ * Whether the given manifest path matches one of the patterns above.
  *
- * Three ways to fail open, all closed: the volume prefix is dropped (the `5`
- * in `f5:` is a data-type code, not identity), the compare is lowercased, and
- * the name matches at any depth, so a second install under `/staging/` is
- * covered. The `/` in the suffix keeps `mywp-config.php` out.
+ * The `5` in `f5:` is a data-type code, not identity, so the prefix goes.
  *
  * @param manifestPath - The volume-prefixed manifest path, e.g. `f5:/wp-config.php`.
  * @return True when the preview needs a reveal.
@@ -88,7 +97,7 @@ function isSensitivePath( manifestPath: string | undefined ): boolean {
 		return false;
 	}
 	const path = manifestPath.slice( manifestPath.indexOf( ':' ) + 1 ).toLowerCase();
-	return path === SENSITIVE_NAME || path.endsWith( `/${ SENSITIVE_NAME }` );
+	return SENSITIVE_PATH_PATTERNS.some( pattern => pattern.test( path ) );
 }
 
 /**

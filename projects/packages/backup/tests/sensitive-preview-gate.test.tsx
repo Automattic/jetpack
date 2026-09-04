@@ -1,6 +1,5 @@
 // JETPACK-2353 — clicking `wp-config.php` printed `DB_PASSWORD` and the salts
-// straight into the `<pre>`. Calypso already hides the same single file behind
-// a "Show preview" click; this is that gate, ported.
+// straight into the `<pre>`. JETPACK-2474 widened the gate to a pattern family.
 
 const mockRecordEvent = jest.fn();
 
@@ -113,6 +112,22 @@ function renderCard( file: FileNodeFile ) {
 	);
 }
 
+/**
+ * A file node for the given path below the backup root.
+ *
+ * @param path - Path below the root, e.g. `/wp-config.old.php`.
+ * @return The file node the tree would hand the card.
+ */
+function fileAt( path: string ): FileNodeFile {
+	return {
+		name: path.slice( path.lastIndexOf( '/' ) + 1 ),
+		path,
+		type: 'file',
+		period: '1786644531',
+		manifestPath: `f5:${ path }`,
+	};
+}
+
 beforeEach( () => {
 	queryClient.clear();
 	queryClient.setDefaultOptions( { queries: { retry: false } } );
@@ -213,21 +228,47 @@ describe( 'sensitive preview gate', () => {
 		expect( fetchedContent() ).toBe( false );
 	} );
 
-	// The leading `/` in the compare is what stops the basename match
-	// swallowing every name that merely ends in the same letters.
-	it( 'leaves a file whose name only ends in wp-config.php alone', async () => {
+	// Near-misses on all five: the two name-anchored patterns need a segment to
+	// start with the name, and the three extension patterns need the dot.
+	it.each( [
+		[ '/wp-content/mywp-config.php' ],
+		[ '/config/app.php' ],
+		[ '/wp-content/env.php' ],
+		[ '/changelog.txt' ],
+		[ '/wp-content/uploads/mysql.txt' ],
+	] )( 'leaves %s alone', async path => {
 		mockEndpoints( PLAIN );
 
-		renderCard( {
-			name: 'mywp-config.php',
-			path: '/wp-content/mywp-config.php',
-			type: 'file',
-			period: '1786644531',
-			manifestPath: 'f5:/wp-content/mywp-config.php',
-		} );
+		renderCard( fileAt( path ) );
 
 		await expect( screen.findByText( PLAIN ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByText( HIDDEN ) ).not.toBeInTheDocument();
+	} );
+
+	// `config/application.php` is Bedrock's, where the credentials live instead.
+	it.each( [
+		[ '/wp-config-backup.php' ],
+		[ '/wp-config.old.php' ],
+		[ '/wp-config.php.txt' ],
+		[ '/config/application.php' ],
+		[ '/config/application.old.php' ],
+		[ '/config/application.php.txt' ],
+		[ '/.env.txt' ],
+		[ '/production.env.txt' ],
+		[ '/dump.sql' ],
+		[ '/dump.sql.txt' ],
+		[ '/wp-content/uploads/db-backup.sql.txt' ],
+		[ '/wp-content/debug.log' ],
+		[ '/wp-content/debug.log.txt' ],
+		[ '/wp-content/error.log.txt' ],
+	] )( 'hides %s and never fetches it', async path => {
+		mockEndpoints( SECRET );
+
+		renderCard( fileAt( path ) );
+
+		await expect( screen.findByText( HIDDEN ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByText( SECRET ) ).not.toBeInTheDocument();
+		expect( fetchedContent() ).toBe( false );
 	} );
 
 	// Two gated files in one tree is what makes the stale-reveal render
@@ -267,23 +308,28 @@ describe( 'sensitive preview gate', () => {
 		expect( screen.queryByRole( 'button', { name: SHOW } ) ).not.toBeInTheDocument();
 	} );
 
-	// Why the gate names one path instead of a family: a stray backup copy is
-	// already unpreviewable, because `bak` is not in the extension map.
-	it( 'needs no entry for a wp-config.php.bak, which never previews at all', async () => {
+	// The pattern matches this one too, and the map still wins.
+	it( 'refuses a wp-config.php.bak outright rather than offering a reveal', async () => {
 		mockEndpoints( SECRET );
 
-		renderCard( {
-			name: 'wp-config.php.bak',
-			path: '/wp-config.php.bak',
-			type: 'file',
-			period: '1786644531',
-			manifestPath: 'f5:/wp-config.php.bak',
-		} );
+		renderCard( fileAt( '/wp-config.php.bak' ) );
 
 		await expect( screen.findByText( UNAVAILABLE ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByText( SECRET ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: SHOW } ) ).not.toBeInTheDocument();
 		expect( fetchedContent() ).toBe( false );
 	} );
+
+	it( 'shows a database dump once the reader asks', async () => {
+		mockEndpoints( SECRET );
+		renderCard( fileAt( '/dump.sql' ) );
+
+		await userEvent.click( await screen.findByRole( 'button', { name: SHOW } ) );
+
+		await expect( screen.findByText( SECRET ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByText( UNAVAILABLE ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'hands focus to the preview it just revealed', async () => {
 		mockEndpoints( SECRET );
 		renderCard( WP_CONFIG );
