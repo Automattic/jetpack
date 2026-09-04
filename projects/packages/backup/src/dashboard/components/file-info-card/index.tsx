@@ -222,7 +222,8 @@ function PreviewBody( {
 					) }
 				</Text>
 			) }
-			<pre>{ content }</pre>
+			{ /* `ltr`, not `auto`: source stays LTR even when it opens with an RTL string literal. */ }
+			<pre dir="ltr">{ content }</pre>
 		</>
 	);
 }

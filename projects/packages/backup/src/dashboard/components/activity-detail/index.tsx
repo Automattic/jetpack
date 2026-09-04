@@ -28,7 +28,8 @@ export default function ActivityDetail( { item }: Props ) {
 						{ ' · ' }
 						{ item.actor.name }
 					</Text>
-					{ item.summary && <Text>{ item.summary }</Text> }
+					{ /* `auto`, not `ltr`: WPCOM translates this line and may return it in RTL. */ }
+					{ item.summary && <Text dir="auto">{ item.summary }</Text> }
 				</Stack>
 			</Card.Content>
 		</Card.Root>

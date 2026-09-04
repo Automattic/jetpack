@@ -1,3 +1,5 @@
+/* eslint jest/expect-expect: [ "warn", { assertFunctionNames: [ "expect", "expectIsolated" ] } ] */
+
 const mockApiFetch = jest.fn();
 
 jest.mock( '@wordpress/api-fetch', () => ( {
@@ -5,14 +7,21 @@ jest.mock( '@wordpress/api-fetch', () => ( {
 	default: ( ...args: unknown[] ) => mockApiFetch( ...args ),
 } ) );
 
-// Imports must come after the jest.mock factory above.
+jest.mock( '@wordpress/route', () => ( {
+	Link: ( { children, ...rest }: { children: React.ReactNode } ) => <a { ...rest }>{ children }</a>,
+} ) );
+
+// Imports must come after the jest.mock factories above.
 import { render, screen } from '@testing-library/react';
+import ActivityDetail from '../src/dashboard/components/activity-detail';
 import ActivityList from '../src/dashboard/components/activity-list';
+import BackupDetail from '../src/dashboard/components/backup-detail';
 import FileBrowser, { EMPTY_FILE_SELECTION } from '../src/dashboard/components/file-browser';
 import FileInfoCard from '../src/dashboard/components/file-info-card';
 import { queryClient } from '../src/dashboard/data/query-client';
 import QueryClientProvider from '../src/dashboard/providers/query-client-provider';
 import { INITIAL_VIEW } from '../src/dashboard/screens/overview';
+import type { BackupActivityItem, NonBackupActivityItem } from '../src/dashboard/types/activity';
 import type { FileNodeFile } from '../src/dashboard/types/file-tree';
 
 /** Neither closing nor selection is relevant here; everything renders regardless. */
@@ -27,6 +36,38 @@ const FILE: FileNodeFile = {
 	type: 'file',
 	period: '1786644531',
 	manifestPath: 'f5:/..htaccess.swp',
+};
+
+/** An extension in the card's previewable map, so the `<pre>` actually renders. */
+const PHP_FILE: FileNodeFile = {
+	name: 'functions.php',
+	path: '/functions.php',
+	type: 'file',
+	period: '1786644531',
+	manifestPath: 'f5:/functions.php',
+};
+
+const SOURCE = "<?php // Load early. return [ 'key' => 'value' ];";
+
+// `normalizeActivityLog` fills `stats` and `summary` from the same
+// `content.text`, so both fixtures below carry the one string.
+const BACKUP_ITEM: BackupActivityItem = {
+	id: 'act-cloud',
+	kind: 'backup',
+	title: 'Backup complete',
+	publishedAt: '2026-08-13T18:08:56+00:00',
+	actor: { type: 'Application', name: 'Jetpack' },
+	rewindId: '1786644531.123',
+	stats: STATS,
+};
+
+const ACTIVITY_ITEM: NonBackupActivityItem = {
+	id: 'act-plugin',
+	kind: 'plugin-update',
+	title: 'Plugin updated',
+	publishedAt: '2026-08-13T18:08:56+00:00',
+	actor: { type: 'Person', name: 'Bob Sacramento' },
+	summary: STATS,
 };
 
 /**
@@ -134,5 +175,47 @@ describe( 'bidi isolation on LTR data', () => {
 
 		// `auto`, not `ltr`: WPCOM translates this string and may return it in RTL.
 		expectIsolated( STATS, 'auto' );
+	} );
+
+	// The right-hand pane prints this same string larger and bolder, so
+	// isolating only the list leaves the louder copy reordered.
+	it( 'isolates the same stats line on the backup detail pane', () => {
+		// The pane mounts a file browser, which fetches its root listing on
+		// mount. Nothing here reads those rows.
+		mockApiFetch.mockResolvedValue( {} );
+
+		render(
+			<QueryClientProvider>
+				<BackupDetail item={ BACKUP_ITEM } />
+			</QueryClientProvider>
+		);
+
+		expectIsolated( STATS, 'auto' );
+	} );
+
+	it( 'isolates the summary on the non-backup detail pane', () => {
+		render( <ActivityDetail item={ ACTIVITY_ITEM } /> );
+
+		expectIsolated( STATS, 'auto' );
+	} );
+
+	it( 'isolates the file preview source', async () => {
+		mockApiFetch.mockImplementation( ( options: { path: string } ) =>
+			Promise.resolve(
+				options.path.includes( '/file-content' )
+					? { content: SOURCE, is_text: true, truncated: false }
+					: { size: 42 }
+			)
+		);
+
+		render(
+			<QueryClientProvider>
+				<FileInfoCard file={ PHP_FILE } onClose={ noop } />
+			</QueryClientProvider>
+		);
+
+		await expect( screen.findByText( SOURCE ) ).resolves.toBeInTheDocument();
+
+		expectIsolated( SOURCE, 'ltr' );
 	} );
 } );
