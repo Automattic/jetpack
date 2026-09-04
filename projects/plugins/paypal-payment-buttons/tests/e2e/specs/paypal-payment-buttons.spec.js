@@ -1,4 +1,6 @@
 /* eslint-disable playwright/no-wait-for-selector, playwright/no-conditional-in-test, playwright/no-conditional-expect, playwright/no-wait-for-timeout, playwright/no-force-option, no-undef */
+// The site must have the `paypal-payments-api-managed-buttons` flag on, or the
+// block shows the paste-code editor instead. See the package DEVELOPMENT.md.
 /**
  * PayPal Payment Buttons — E2E Tests (Playwright).
  *
