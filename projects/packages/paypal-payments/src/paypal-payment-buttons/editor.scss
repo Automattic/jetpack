@@ -266,18 +266,19 @@
 	.components-base-control {
 		margin-bottom: 12px;
 	}
+}
 
-	// Error state for form fields.
-	.has-error {
+// Error state for form fields. Top-level: fields live on the canvas or in the
+// inspector depending on how far the migration has got, and this matches both.
+.has-error {
 
-		.components-text-control__input,
-		.components-textarea-control__input {
+	.components-text-control__input,
+	.components-textarea-control__input {
+		border-color: #cc1818;
+
+		&:focus {
 			border-color: #cc1818;
-
-			&:focus {
-				border-color: #cc1818;
-				box-shadow: 0 0 0 1px #cc1818;
-			}
+			box-shadow: 0 0 0 1px #cc1818;
 		}
 	}
 }

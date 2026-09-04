@@ -15,8 +15,20 @@
  */
 
 import apiFetch from '@wordpress/api-fetch'; // eslint-disable-line import/no-unresolved
-import { BlockControls, store as blockEditorStore, useBlockProps } from '@wordpress/block-editor';
-import { Notice, Spinner, ToolbarButton, ToolbarGroup } from '@wordpress/components';
+import {
+	BlockControls,
+	store as blockEditorStore,
+	InspectorControls,
+	useBlockProps,
+} from '@wordpress/block-editor';
+import {
+	Notice,
+	PanelBody,
+	Spinner,
+	TextControl,
+	ToolbarButton,
+	ToolbarGroup,
+} from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { useState, useCallback, useMemo } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
@@ -33,7 +45,12 @@ import { broadcastConnectionChange, usePayPalConnection } from './hooks/use-payp
 import { usePayPalResource } from './hooks/use-paypal-resource';
 import { API_BASE } from './utils/api-base';
 import { VALID_CURRENCY_CODES } from './utils/currencies';
-import { validatePrice, validateProductName, validateDescription } from './utils/validation';
+import {
+	MAX_NAME_LENGTH,
+	validatePrice,
+	validateProductName,
+	validateDescription,
+} from './utils/validation';
 
 // Button type is always 'single' — the hosted payment page handles
 // payment method selection (PayPal, cards, wallets, etc.).
@@ -522,6 +539,31 @@ export default function PayPalPaymentButtonsEdit( {
 	return (
 		<div { ...blockProps } data-color-scheme={ colorScheme || 'auto' }>
 			{ toolbarControls }
+			<InspectorControls>
+				<PanelBody title={ __( 'Details', 'jetpack-paypal-payments' ) } initialOpen={ true }>
+					<TextControl
+						label={ __( 'Product Name', 'jetpack-paypal-payments' ) }
+						value={ productName || '' }
+						onChange={ value => setAttributes( { productName: value } ) }
+						onBlur={ () => markTouched( 'productName' ) }
+						disabled={ isCreating }
+						placeholder={ __( 'e.g., Premium Widget', 'jetpack-paypal-payments' ) }
+						help={
+							touchedFields.productName && validationErrors.productName
+								? validationErrors.productName
+								: sprintf(
+										/* translators: 1: current character count, 2: maximum allowed */
+										__( '%1$d / %2$d characters', 'jetpack-paypal-payments' ),
+										( productName || '' ).length,
+										MAX_NAME_LENGTH
+								  )
+						}
+						className={
+							touchedFields.productName && validationErrors.productName ? 'has-error' : undefined
+						}
+					/>
+				</PanelBody>
+			</InspectorControls>
 			{ inspectorControls }
 
 			<ProductForm
