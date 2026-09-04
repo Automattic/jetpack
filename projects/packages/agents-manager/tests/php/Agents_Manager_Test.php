@@ -782,17 +782,17 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Tests that the Ask AI icon label follows a locale switch within the request.
+	 * Tests that the sparkle icon's aria-label follows a locale switch within the request.
 	 *
 	 * The admin-bar endpoint switches locale for `_locale=user`, so the icon markup cannot
 	 * be built once and reused.
 	 */
-	public function test_ask_ai_icon_label_follows_a_locale_switch() {
+	public function test_sparkle_icon_aria_label_follows_a_locale_switch() {
 		require_once ABSPATH . 'wp-includes/class-wp-admin-bar.php';
 
-		$label  = 'Ask AI';
+		$label  = 'Agent';
 		$filter = static function ( $translation, $text ) use ( &$label ) {
-			return 'Ask AI' === $text ? $label : $translation;
+			return 'Agent' === $text ? $label : $translation;
 		};
 		add_filter( 'gettext', $filter, 10, 2 );
 
@@ -807,7 +807,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 		remove_filter( 'gettext', $filter, 10 );
 
-		$this->assertStringContainsString( 'aria-label="Ask AI"', $first->get_node( 'agents-manager-ai-chat' )->title );
+		$this->assertStringContainsString( 'aria-label="Agent"', $first->get_node( 'agents-manager-ai-chat' )->title );
 		$this->assertStringContainsString( 'aria-label="Demander a l IA"', $second->get_node( 'agents-manager-ai-chat' )->title );
 	}
 
@@ -847,7 +847,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	public static function provide_icon_bearing_node_ids() {
 		return array(
 			'help'            => array( 'agents-manager', 'help' ),
-			'ask ai'          => array( 'agents-manager-ai-chat', 'ask-ai' ),
+			'ai chat'         => array( 'agents-manager-ai-chat', 'sparkle' ),
 			'chat support'    => array( 'agents-manager-chat-support', 'comment' ),
 			'chat history'    => array( 'agents-manager-chat-history', 'backup' ),
 			'support guides'  => array( 'agents-manager-support-guides', 'page' ),
@@ -862,7 +862,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	 * It is API data, and core escapes it again when rendering the group's aria-label.
 	 */
 	public function test_menu_title_is_not_html_escaped() {
-		$filter = static fn( $translation, $text ) => 'Ask AI' === $text ? "L'IA" : $translation;
+		$filter = static fn( $translation, $text ) => 'Agent' === $text ? "L'IA" : $translation;
 		add_filter( 'gettext', $filter, 10, 2 );
 
 		global $wp_admin_bar;
@@ -877,9 +877,9 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Tests that Help is registered before Ask AI, matching the wp-admin admin bar order.
+	 * Tests that Help is registered before the AI chat button, matching the wp-admin admin bar order.
 	 */
-	public function test_help_node_is_registered_before_ask_ai() {
+	public function test_help_node_is_registered_before_the_ai_chat_button() {
 		$this->apply_admin_bar_context( array( 'unified' => true ) );
 
 		$ids = array_keys( $this->render_admin_bar()->get_nodes() ?? array() );
@@ -929,7 +929,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Tests that the full UI mount target belongs to Ask AI rather than Help.
+	 * Tests that the full UI mount target belongs to the AI chat button rather than Help.
 	 */
 	public function test_ai_chat_button_owns_full_ui_mount_target() {
 		global $wp_admin_bar;
@@ -948,6 +948,75 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		$this->assertNotNull( $ai_node );
 		$this->assertStringNotContainsString( 'agents-manager-masterbar', $help_node->meta['html'] ?? '' );
 		$this->assertStringContainsString( 'agents-manager-masterbar', $ai_node->meta['html'] ?? '' );
+	}
+
+	/**
+	 * Tests that the AI chat button renders the "Agent" label, pre-hidden only when
+	 * the cached state says the chat will restore visible.
+	 *
+	 * @dataProvider provide_cached_open_states
+	 *
+	 * @param array|null $cached_state  The user's cached open state, or null when unknown.
+	 * @param bool       $is_pre_hidden Whether the label is expected to start hidden.
+	 */
+	#[DataProvider( 'provide_cached_open_states' )]
+	public function test_ai_chat_button_pre_hides_the_agent_label_only_when_the_chat_will_restore_visible( $cached_state, $is_pre_hidden ) {
+		require_once ABSPATH . 'wp-includes/class-wp-admin-bar.php';
+		$wp_admin_bar = new \WP_Admin_Bar();
+		$wp_admin_bar->initialize();
+
+		if ( null !== $cached_state ) {
+			// The cached state is only read for a connected user.
+			$user_id = wp_insert_user(
+				array(
+					'user_login' => 'test_cached_state_user',
+					'user_pass'  => 'password',
+					'role'       => 'administrator',
+				)
+			);
+			wp_set_current_user( $user_id );
+			\Jetpack_Options::update_option( 'user_tokens', array( $user_id => 'test.token.' . $user_id ) );
+			set_transient( 'agents_manager_open_state_' . $user_id, $cached_state );
+		}
+
+		$this->agents_manager->add_ai_chat_button( $wp_admin_bar );
+
+		$node = $wp_admin_bar->get_node( 'agents-manager-ai-chat' );
+		$this->assertStringContainsString(
+			'<span class="agents-manager-ai-chat-label" aria-hidden="true"><span>Agent</span></span>',
+			$node->title
+		);
+		$this->assertSame( $is_pre_hidden ? 'is-chat-visible' : null, $node->meta['class'] ?? null );
+	}
+
+	/**
+	 * Cached open states and whether the label starts hidden for each.
+	 */
+	public static function provide_cached_open_states() {
+		return array(
+			'unknown'   => array( null, false ),
+			'closed'    => array(
+				array(
+					'agents_manager_open'      => false,
+					'agents_manager_minimized' => false,
+				),
+				false,
+			),
+			'open'      => array(
+				array(
+					'agents_manager_open'      => true,
+					'agents_manager_minimized' => false,
+				),
+				true,
+			),
+			'minimized' => array(
+				array(
+					'agents_manager_open'      => true,
+					'agents_manager_minimized' => true,
+				),
+				false,
+			),
+		);
 	}
 
 	/**
