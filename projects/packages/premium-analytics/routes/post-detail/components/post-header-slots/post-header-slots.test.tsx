@@ -13,6 +13,13 @@ const SUMMARY: PostSummary = {
 	isError: false,
 };
 
+// UTC-anchored: the sentence renders in the site zone, so a browser-local
+// `Date` would name the previous day in zones west of it.
+const PERFORMANCE_RANGE = {
+	from: new Date( Date.UTC( 2026, 6, 9 ) ),
+	to: new Date( Date.UTC( 2026, 6, 15 ) ),
+};
+
 /**
  * Renders the slots where they are consumed, since only the header places them.
  *
@@ -36,7 +43,7 @@ describe( 'postHeaderSlots', () => {
 	it( 'states the window the widgets below report over', () => {
 		renderHeader( {
 			summary: SUMMARY,
-			performanceRange: { from: new Date( 2026, 6, 9 ), to: new Date( 2026, 6, 15 ) },
+			performanceRange: PERFORMANCE_RANGE,
 		} );
 
 		expect(

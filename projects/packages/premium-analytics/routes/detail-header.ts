@@ -22,7 +22,9 @@ export function formatPublishedDate( publishedDate: string | undefined ): string
 /**
  * States the window every widget below the header reflects.
  *
- * @param range - The committed report date range.
+ * @param range - The committed report date range. Both bounds render in the
+ *              reporting timezone, so a browser-local `Date` names the previous
+ *              day west of the site.
  * @return The sentence, or undefined when either bound is missing or unparseable.
  */
 export function performanceSentence( range: DateRange | undefined ): string | undefined {

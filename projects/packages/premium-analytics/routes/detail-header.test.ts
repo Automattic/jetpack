@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { setSettings } from '@wordpress/date';
+import { getSettings, setSettings } from '@wordpress/date';
 /**
  * Internal dependencies
  */
@@ -12,11 +12,17 @@ import {
 } from '../packages/formatters/src/date/__fixtures__/wp-date-settings';
 import { formatPublishedDate, performanceSentence } from './detail-header';
 
-describe( 'formatPublishedDate', () => {
-	beforeEach( () => setSettings( EN_US_SETTINGS ) );
+// Captured before any suite installs its own, since `setSettings` is global and
+// these suites share a module registry with the rest of their group.
+const BASE_SETTINGS = getSettings();
 
+beforeEach( () => setSettings( EN_US_SETTINGS ) );
+afterEach( () => setSettings( BASE_SETTINGS ) );
+
+describe( 'formatPublishedDate', () => {
 	it( 'reads an offset-less value as site wall time', () => {
-		expect( formatPublishedDate( '2026-01-10T08:00:00' ) ).toBe( 'Jan 10, 2026' );
+		// Late enough that a browser-local read would name the 11th east of the site.
+		expect( formatPublishedDate( '2026-01-10T23:30:00' ) ).toBe( 'Jan 10, 2026' );
 	} );
 
 	it( "follows the site's locale and date format", () => {
@@ -34,8 +40,6 @@ describe( 'formatPublishedDate', () => {
 } );
 
 describe( 'performanceSentence', () => {
-	beforeEach( () => setSettings( EN_US_SETTINGS ) );
-
 	it( 'names both bounds of the committed range', () => {
 		expect(
 			performanceSentence( { from: utcDate( 2026, 7, 9 ), to: utcDate( 2026, 7, 15 ) } )
@@ -50,8 +54,6 @@ describe( 'performanceSentence', () => {
 		).toBe( 'Performance from 9 de jul de 2026 to 15 de jul de 2026' );
 	} );
 
-	// An unparseable bound would otherwise reach `formatDate`, which renders it
-	// as "Invalid date".
 	it.each( [
 		[ 'no range', undefined ],
 		[ 'an open start', { from: undefined, to: utcDate( 2026, 7, 15 ) } ],
