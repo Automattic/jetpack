@@ -13,8 +13,13 @@
  * MCP hub as the landing view and no tab bar.
  */
 
-import { AdminPage, GlobalNotices, useGlobalNotices } from '@automattic/jetpack-components';
-import { Spinner } from '@wordpress/components';
+import {
+	AdminPage,
+	GlobalNotices,
+	useGlobalNotices,
+	getRedirectUrl,
+} from '@automattic/jetpack-components';
+import { Spinner, ExternalLink } from '@wordpress/components';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __, isRTL, sprintf } from '@wordpress/i18n';
 import { chevronLeft, chevronRight, Icon } from '@wordpress/icons';
@@ -509,7 +514,10 @@ export default function App() {
 							( aiSettings?.host_allows_ai === false ? (
 								<Notice.Root intent="warning">
 									<Notice.Description>
-										{ __( 'Jetpack AI is not available for this site.', 'jetpack' ) }
+										{ __( 'Jetpack AI is not available for this site.', 'jetpack' ) }{ ' ' }
+										<ExternalLink href={ getRedirectUrl( 'jetpack-ai-hub-docs-wp-supports-ai' ) }>
+											{ __( 'Learn more', 'jetpack' ) }
+										</ExternalLink>
 									</Notice.Description>
 								</Notice.Root>
 							) : (

@@ -373,7 +373,10 @@ export default function AiOverview( {
 				{ !! blogId && hostBlocked && (
 					<Notice.Root intent="warning">
 						<Notice.Description>
-							{ __( 'Jetpack AI is not available for this site.', 'jetpack' ) }
+							{ __( 'Jetpack AI is not available for this site.', 'jetpack' ) }{ ' ' }
+							<ExternalLink href={ getRedirectUrl( 'jetpack-ai-hub-docs-wp-supports-ai' ) }>
+								{ __( 'Learn more', 'jetpack' ) }
+							</ExternalLink>
 						</Notice.Description>
 					</Notice.Root>
 				) }

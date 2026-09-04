@@ -154,7 +154,11 @@ describe( 'AI admin page (main.jsx)', () => {
 		// AiFeatures never mounts: no feature toggle, no upgrade badge, no action link.
 		expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
 		expect( screen.queryByText( 'Requires upgrade' ) ).not.toBeInTheDocument();
-		expect( screen.queryByText( 'Learn more' ) ).not.toBeInTheDocument();
+		// The only Learn more left is the notice's own, pointing at core's wp_supports_ai reference.
+		expect( screen.getByRole( 'link', { name: /Learn more/ } ) ).toHaveAttribute(
+			'href',
+			expect.stringContaining( 'source=jetpack-ai-hub-docs-wp-supports-ai' )
+		);
 	} );
 
 	describe( 'master-off notice', () => {
