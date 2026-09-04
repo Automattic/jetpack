@@ -60,6 +60,7 @@ export { default as Notice } from './components/notice/index.tsx';
 export { default as Popover } from './components/popover/index.tsx';
 export { default as IndeterminateProgressBar } from './components/indeterminate-progress-bar/index.tsx';
 export { default as ActionPopover } from './components/action-popover/index.tsx';
+export { default as ZendeskChat } from './components/zendesk-chat/index.tsx';
 export { default as ProgressBar } from './components/progress-bar/index.tsx';
 export { default as UpsellBanner } from './components/upsell-banner/index.tsx';
 export { getUserLocale, cleanLocale } from './lib/locale/index.ts';
