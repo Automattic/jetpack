@@ -249,10 +249,10 @@ class Plan_Matrix_Test extends TestCase {
 	 * @var array<string, string>
 	 */
 	private const KNOWN_BROKEN = array(
-		'search / bundle / plugin_absent' => 'JETPACK-2381',
-		'search / bundle / off'           => 'JETPACK-2381',
-		'search / direct / plugin_absent' => 'JETPACK-2381',
-		'search / direct / off'           => 'JETPACK-2381',
+		'search / bundle / plugin_absent' => 'JETPACK-2528',
+		'search / bundle / off'           => 'JETPACK-2528',
+		'search / direct / plugin_absent' => 'JETPACK-2528',
+		'search / direct / off'           => 'JETPACK-2528',
 	);
 
 	/**
