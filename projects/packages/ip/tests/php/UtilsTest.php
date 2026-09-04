@@ -573,6 +573,22 @@ final class UtilsTest extends PHPUnit\Framework\TestCase {
 	}
 
 	/**
+	 * Only a single wrapping bracket pair is stripped; anything else is rejected.
+	 *
+	 * Trimming every bracket would turn input like "]8.8.8.8[" into a clean address,
+	 * the same laundering the '%' handling above exists to prevent.
+	 */
+	public function test_resolve_host_ips_only_unwraps_a_single_bracket_pair() {
+		$this->assertSame( array( '::1' ), Utils::resolve_host_ips( '[::1]' ) );
+		$this->assertSame( array( 'fe80::1' ), Utils::resolve_host_ips( '[fe80::1%25eth0]' ) );
+
+		$malformed = array( '[[8.8.8.8]]', '[8.8.8.8', '8.8.8.8]', ']8.8.8.8[', '[[[::1]]]', '%5B8.8.8.8%5D' );
+		foreach ( $malformed as $host ) {
+			$this->assertSame( array(), Utils::resolve_host_ips( $host ), "$host should resolve to nothing" );
+		}
+	}
+
+	/**
 	 * An unresolvable or empty host yields no addresses, which callers treat as unsafe.
 	 */
 	public function test_resolve_host_ips_returns_empty_for_unresolvable_host() {

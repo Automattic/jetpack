@@ -298,8 +298,12 @@ class Utils {
 			return array();
 		}
 
-		// IPv6 literals arrive bracketed, e.g. "[::1]".
-		$host = trim( $host, '[]' );
+		// IPv6 literals arrive bracketed, e.g. "[::1]". Strip one wrapping pair only --
+		// trimming every bracket would turn malformed input such as "]8.8.8.8[" into a
+		// clean address. Any bracket left after this is caught below.
+		if ( preg_match( '/^\[(.*)\]$/', $host, $matches ) ) {
+			$host = $matches[1];
+		}
 
 		// URL-decode so a percent-encoded host (e.g. "169%2e254%2e169%2e254") cannot
 		// slip past the IP-literal and DNS checks below.
@@ -316,10 +320,10 @@ class Utils {
 			$host = preg_replace( '/%.*$/', '', $host );
 		}
 
-		// Trimming and decoding can empty the host ("[]") or put control bytes in it
-		// ("%00"), and gethostbynamel() throws a ValueError on a NUL rather than just
-		// failing to resolve. Neither is a host, so stop before the lookups.
-		if ( '' === $host || preg_match( '/[\x00-\x20\x7f]/', $host ) ) {
+		// Unwrapping and decoding can empty the host ("[]") or leave bytes no host name
+		// holds: control characters from "%00", or a stray bracket. gethostbynamel()
+		// throws a ValueError on a NUL rather than failing to resolve, so stop here.
+		if ( '' === $host || preg_match( '/[\x00-\x20\x7f\[\]]/', $host ) ) {
 			return array();
 		}
 
