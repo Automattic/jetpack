@@ -320,8 +320,10 @@ class Expiry_Data {
 			'label' => __( 'Renew now', 'jetpack-mu-wpcom' ),
 			'url'   => sprintf( 'https://wordpress.com/checkout/%s/%s', $slug, $domain ),
 		);
+		// add_query_arg() does not encode values, so a redirect with a query of
+		// its own would hand checkout the second half as parameters of its own.
 		if ( '' !== $redirect_to ) {
-			$primary['url'] = add_query_arg( 'redirect_to', $redirect_to, $primary['url'] );
+			$primary['url'] = add_query_arg( 'redirect_to', rawurlencode( $redirect_to ), $primary['url'] );
 		}
 
 		$secondary = array(

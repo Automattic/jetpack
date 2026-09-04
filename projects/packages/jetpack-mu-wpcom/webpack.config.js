@@ -27,6 +27,7 @@ module.exports = async () => {
 					'./src/features/expiry-notices/js/admin-modal.tsx',
 					'./src/features/expiry-notices/css/admin-modal.scss',
 				],
+				'expiry-notices-editor-notice': [ './src/features/expiry-notices/js/editor-notice.tsx' ],
 				'holiday-snow': './src/features/holiday-snow/holiday-snow.scss',
 				'html-block-restricted-tags':
 					'./src/features/html-block-restricted-tags/html-block-restricted-tags.tsx',

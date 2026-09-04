@@ -71,7 +71,7 @@ class Agents_Manager {
 	 * @return string The SVG markup.
 	 */
 	private function get_icon( $icon_name ) {
-		// Not cached: the Ask AI label is translated, and the locale can switch mid-request.
+		// Not cached: the sparkle icon's aria-label is translated, and the locale can switch mid-request.
 		$icons = array(
 			'comment' => '<svg class="help-center-menu-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18 4H6c-1.1 0-2 .9-2 2v12.9c0 .6.5 1.1 1.1 1.1.3 0 .5-.1.8-.3L8.5 17H18c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm.5 11c0 .3-.2.5-.5.5H7.9l-2.4 2.4V6c0-.3.2-.5.5-.5h12c.3 0 .5.2.5.5v9z" /></svg>',
 			'backup'  => '<svg class="help-center-menu-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M5.5 12h1.75l-2.5 3-2.5-3H4a8 8 0 113.134 6.35l.907-1.194A6.5 6.5 0 105.5 12zm9.53 1.97l-2.28-2.28V8.5a.75.75 0 00-1.5 0V12a.747.747 0 00.218.529l1.282-.84-1.28.842 2.5 2.5a.75.75 0 101.06-1.061z" /></svg>',
@@ -81,7 +81,7 @@ class Agents_Manager {
 			'help'    => '<svg id="agents-manager-icon" class="ab-icon" width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
 							<path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm-1 16v-2h2v2h-2zm2-3v-1.141A3.991 3.991 0 0016 10a4 4 0 00-8 0h2c0-1.103.897-2 2-2s2 .897 2 2-.897 2-2 2a1 1 0 00-1 1v2h2z" />
 						</svg>',
-			'ask-ai'  => '<svg class="ab-icon" role="img" aria-label="' . esc_attr__( 'Ask AI', 'jetpack-agents-manager' ) . '" width="24" height="24" viewBox="-45 -45 490 490" xmlns="http://www.w3.org/2000/svg">
+			'sparkle' => '<svg class="ab-icon" role="img" aria-label="' . esc_attr__( 'Agent', 'jetpack-agents-manager' ) . '" width="24" height="24" viewBox="-45 -45 490 490" xmlns="http://www.w3.org/2000/svg">
 								<path fill="currentColor" d="M391.528 188.061L309.455 159.75C276.997 148.597 251.403 123.003 240.25 90.5451L211.939 8.47185C208.079 -2.82395 191.921 -2.82395 188.061 8.47185L159.75 90.5451C148.597 123.003 123.003 148.597 90.5451 159.75L8.47185 188.061C-2.82395 191.921 -2.82395 208.079 8.47185 211.939L90.5451 240.25C123.003 251.403 148.597 276.997 159.75 309.455L188.061 391.528C191.921 402.824 208.079 402.824 211.939 391.528L240.25 309.455C251.403 276.997 276.997 251.403 309.455 240.25L391.528 211.939C402.824 208.079 402.824 191.921 391.528 188.061ZM295.728 206.077L254.692 220.232C238.391 225.809 225.666 238.677 220.089 254.835L205.934 295.871C203.932 301.591 195.925 301.591 193.923 295.871L179.768 254.835C174.191 238.534 161.323 225.809 145.165 220.232L104.129 206.077C98.4093 204.075 98.4093 196.068 104.129 194.066L145.165 179.911C161.466 174.334 174.191 161.466 179.768 145.308L193.923 104.272C195.925 98.5523 203.932 98.5523 205.934 104.272L220.089 145.308C225.666 161.609 238.534 174.334 254.692 179.911L295.728 194.066C301.448 196.068 301.448 204.075 295.728 206.077Z" />
 							</svg>',
 		);
@@ -233,17 +233,28 @@ class Agents_Manager {
 	 * @param \WP_Admin_Bar $wp_admin_bar The WP_Admin_Bar instance.
 	 */
 	public function add_ai_chat_button( $wp_admin_bar ) {
+		$meta = array(
+			'menu_title' => __( 'Agent', 'jetpack-agents-manager' ),
+			'icon'       => 'sparkle',
+			// The wp-admin bundle mounts the chat into this div.
+			'html'       => '<div id="agents-manager-masterbar"></div>',
+		);
+
+		// The "Agent" label shows while the chat is hidden (closed or minimized).
+		// Pre-hide it when the chat will restore visible; the bundle keeps the
+		// class in step afterwards.
+		$state = Open_State_Store::get_cached();
+		if ( ! empty( $state['agents_manager_open'] ) && empty( $state['agents_manager_minimized'] ) ) {
+			$meta['class'] = 'is-chat-visible';
+		}
+
 		$wp_admin_bar->add_menu(
 			array(
 				'id'     => 'agents-manager-ai-chat',
 				'parent' => 'top-secondary',
-				'title'  => '<span title="' . esc_attr__( 'Ask AI', 'jetpack-agents-manager' ) . '">' . $this->get_icon( 'ask-ai' ) . '</span>',
-				'meta'   => array(
-					'menu_title' => __( 'Ask AI', 'jetpack-agents-manager' ),
-					'icon'       => 'ask-ai',
-					// The wp-admin bundle mounts the chat into this div.
-					'html'       => '<div id="agents-manager-masterbar"></div>',
-				),
+				'title'  => '<span title="' . esc_attr__( 'Agent', 'jetpack-agents-manager' ) . '">' . $this->get_icon( 'sparkle' ) . '</span>'
+					. '<span class="agents-manager-ai-chat-label" aria-hidden="true"><span>' . esc_html__( 'Agent', 'jetpack-agents-manager' ) . '</span></span>',
+				'meta'   => $meta,
 			)
 		);
 	}
@@ -319,7 +330,7 @@ class Agents_Manager {
 		// When the block editor exposes the WordPress admin bar, add the entry points there.
 		// CIAB is excluded — it has its own Site Hub UI.
 		// Mirroring wp-admin: the Help "?" dropdown shows only in the full unified experience;
-		// the Ask AI button shows whenever Agents Manager is enabled in this editor.
+		// the AI chat button shows whenever Agents Manager is enabled in this editor.
 		if ( ! $context['ciab'] && ! $context['disconnected'] && self::is_admin_bar_in_editor() ) {
 			// Help "?" node + dropdown panel first, matching the wp-admin admin bar order.
 			if ( $context['unified'] ) {

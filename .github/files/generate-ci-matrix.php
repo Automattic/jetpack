@@ -79,7 +79,7 @@ foreach ( array( 'previous', 'trunk' ) as $wp ) {
 		'script'  => 'test-php',
 		'php'     => $phpver,
 		'wp'      => $wp,
-		'timeout' => 15, // 2025-11-06: Successful runs seem to take ~7 minutes.
+		'timeout' => 25, // 2026-09-04: Temporary +10 while pnpm/action-setup is slow. Successful runs seem to take ~7 minutes.
 	);
 }
 
@@ -89,7 +89,7 @@ $matrix[] = array(
 	'script'           => 'test-php',
 	'php'              => '7.4',
 	'wp'               => 'latest',
-	'timeout'          => 15, // 2025-11-06: Successful runs seem to take ~3 minutes.
+	'timeout'          => 25, // 2026-09-04: Temporary +10 while pnpm/action-setup is slow. Successful runs seem to take ~3 minutes.
 	'with-woocommerce' => true,
 );
 
@@ -99,7 +99,7 @@ $matrix[] = array(
 	'script'       => 'test-php',
 	'php'          => '8.3',
 	'wp'           => 'latest',
-	'timeout'      => 15, // 2025-11-06: Successful runs seem to take ~7 minutes.
+	'timeout'      => 25, // 2026-09-04: Temporary +10 while pnpm/action-setup is slow. Successful runs seem to take ~7 minutes.
 	'with-wpcomsh' => true,
 );
 
@@ -107,7 +107,7 @@ $matrix[] = array(
 $matrix[] = array(
 	'name'    => 'JS tests',
 	'script'  => 'test-js',
-	'timeout' => 15, // 2025-11-06: Successful runs seem to take ~5 minutes.
+	'timeout' => 25, // 2026-09-04: Temporary +10 while pnpm/action-setup is slow. Successful runs seem to take ~5 minutes.
 );
 
 // Add Coverage tests. Split into PHP and JS groups so they run in parallel.

@@ -2,7 +2,7 @@ import { useAiFeature } from '@automattic/jetpack-ai-client';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useSelect, useDispatch } from '@wordpress/data';
-import EmptyStateBanner from '../components/empty-state-banner';
+import WelcomeBanner from '../components/welcome-banner';
 import useGenerateAll from '../hooks/use-generate-all';
 
 jest.mock( '@wordpress/data', () => ( {
@@ -67,7 +67,7 @@ function setup( { dismissed = false, hasFeature = true } ) {
 
 let user;
 
-describe( 'EmptyStateBanner', () => {
+describe( 'WelcomeBanner', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
 		user = userEvent.setup();
@@ -75,19 +75,19 @@ describe( 'EmptyStateBanner', () => {
 
 	it( 'renders nothing once dismissed', async () => {
 		setup( { dismissed: true } );
-		const { container } = render( <EmptyStateBanner /> );
+		const { container } = render( <WelcomeBanner /> );
 		expect( container ).toBeEmptyDOMElement();
 	} );
 
 	it( 'renders nothing without an AI plan', async () => {
 		setup( { hasFeature: false } );
-		const { container } = render( <EmptyStateBanner /> );
+		const { container } = render( <WelcomeBanner /> );
 		expect( container ).toBeEmptyDOMElement();
 	} );
 
 	it( 'shows the banner when active and generates on Get started', async () => {
 		setup( {} );
-		render( <EmptyStateBanner /> );
+		render( <WelcomeBanner /> );
 
 		expect( screen.getByText( /generate your guidelines/i ) ).toBeInTheDocument();
 
@@ -98,7 +98,7 @@ describe( 'EmptyStateBanner', () => {
 
 	it( 'dismisses without generating on Close', async () => {
 		setup( {} );
-		render( <EmptyStateBanner /> );
+		render( <WelcomeBanner /> );
 
 		await user.click( screen.getByRole( 'button', { name: 'Close' } ) );
 		expect( dismissBanner ).toHaveBeenCalledTimes( 1 );
