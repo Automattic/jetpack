@@ -1,4 +1,4 @@
 Significance: minor
 Type: enhancement
 
-AI: Add a dismissible assistant announcement banner to the Overview tab.
+Jetpack AI: Add a welcome banner to the Overview tab, keep the tab navigation and a back link on MCP sub-pages, and name the MCP connect row by its action for screen readers.
