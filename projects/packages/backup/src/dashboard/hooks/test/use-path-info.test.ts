@@ -91,8 +91,8 @@ describe( 'toFileDetails', () => {
 		} );
 	} );
 
-	// The endpoint sends `size` as a decimal string, and a zero-byte file is
-	// a real measurement the card must show as `0 B` rather than suppress.
+	// A zero-byte file is a real measurement the card must show as `0 B`
+	// rather than suppress.
 	test.each( [
 		[ 'a decimal string', '7407', 7407 ],
 		[ 'a number', 7407, 7407 ],
@@ -102,12 +102,13 @@ describe( 'toFileDetails', () => {
 		expect( toFileDetails( payload( { size } ) ) ).toMatchObject( { size: expected } );
 	} );
 
-	// `Number()` turns `null` and `''` into `0`, which would render `0 B`
-	// for a file whose size the endpoint never reported.
+	// `Number()` turns `null`, `''` and whitespace into `0`, which would
+	// render `0 B` for a file whose size the endpoint never reported.
 	test.each( [
 		[ 'missing', undefined ],
 		[ 'null', null ],
 		[ 'an empty string', '' ],
+		[ 'whitespace', '   ' ],
 		[ 'a non-numeric string', 'unknown' ],
 	] )( 'reports no size when it is %s, never 0', ( _label, size ) => {
 		expect(
