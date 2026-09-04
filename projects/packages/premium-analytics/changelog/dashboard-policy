@@ -1,4 +1,4 @@
 Significance: patch
 Type: added
 
-Dashboard: offer adding and removing widgets to Automatticians only while the dashboard composition is under evaluation.
+Dashboard: answer the widget dashboard policy from the role the user plays. Automatticians alone may add and remove widgets while the dashboard composition is under evaluation; the `jetpack_premium_analytics_dashboard_role` and `jetpack_premium_analytics_dashboard_capabilities` filters adjust the role and what it may do.

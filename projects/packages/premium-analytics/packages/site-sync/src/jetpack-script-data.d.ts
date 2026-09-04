@@ -13,8 +13,16 @@ declare module '@automattic/jetpack-script-data' {
 			csv_exports_enabled?: boolean;
 			// Whether the site runs VideoPress, which gates the video surfaces.
 			has_videopress?: boolean;
-			// Whether the current user is an Automattician, which the dashboard policy reads.
-			is_automattician?: boolean;
+			// The dashboard policy: the role the user plays and what it may do, per operation.
+			dashboard?: {
+				role: string;
+				capabilities: Partial<
+					Record<
+						'customize' | 'insert' | 'remove' | 'move' | 'resize' | 'edit' | 'reset',
+						boolean
+					>
+				>;
+			};
 		};
 	}
 }
