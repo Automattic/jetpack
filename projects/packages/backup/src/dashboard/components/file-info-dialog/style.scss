@@ -20,13 +20,14 @@
 		display: flex;
 		flex-direction: column;
 		gap: 12px;
+	}
 
-		// The dialog exists because the panel could not give the preview room,
-		// so the `<pre>` takes the popup's height rather than a capped box.
-		.jpb-file-info__code {
-			background-color: var(--wp-components-color-background-secondary, #f7f7f7);
-			border-radius: 4px;
-			padding: 12px;
-		}
+	// No `max-height`, unlike the card's: the dialog exists because the panel
+	// could not give the preview room, so the popup's own height is the limit.
+	&__preview {
+		overflow-x: auto;
+		background-color: var(--wp-components-color-background-secondary, #f7f7f7);
+		border-radius: 4px;
+		padding: 12px;
 	}
 }

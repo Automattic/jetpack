@@ -1,5 +1,5 @@
 import { useCallback, useRef } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import { Dialog } from '@wordpress/ui';
 import useAdminMenuWidth from '../../hooks/use-admin-menu-width';
 import FileInfoMeta from '../file-info-card/file-info-meta';
@@ -78,27 +78,36 @@ export default function FileInfoDialog( { file, onClose }: Props ) {
 					</Dialog.Title>
 					<Dialog.CloseIcon label={ __( 'Close preview', 'jetpack-backup-pkg' ) } />
 				</Dialog.Header>
-				{ /*
-				 * `Dialog.Content` owns the popup's overflow, so the preview is
-				 * deliberately not wrapped in the card's own capped scroll box —
-				 * two nested scrollports would leave the outer one unusable.
-				 */ }
-				<Dialog.Content
-					ref={ previewRef }
-					className="jpb-file-info-dialog__body"
-					aria-busy={ contentsLoading }
-				>
+				<Dialog.Content className="jpb-file-info-dialog__body">
 					<FileInfoMeta modified={ modified } size={ size } mimeType={ mimeType } hash={ hash } />
-					<PreviewBody
-						awaitingReveal={ awaitingReveal }
-						onReveal={ handleReveal }
-						showPreview={ showPreview }
-						isLoading={ contentsLoading }
-						content={ content }
-						isText={ isText }
-						truncated={ truncated }
-						error={ contentsError }
-					/>
+					{ /*
+					 * The gray surface has to be the scrollport, not the `<pre>`: a
+					 * `<pre>` that only paints a background lets long lines render
+					 * past it, onto a `Dialog.Content` that clips without scrolling.
+					 */ }
+					<div
+						ref={ previewRef }
+						className="jpb-file-info-dialog__preview"
+						tabIndex={ 0 }
+						role="region"
+						aria-busy={ contentsLoading }
+						aria-label={ sprintf(
+							/* translators: %s: file name. */
+							__( 'Preview of %s', 'jetpack-backup-pkg' ),
+							file.name
+						) }
+					>
+						<PreviewBody
+							awaitingReveal={ awaitingReveal }
+							onReveal={ handleReveal }
+							showPreview={ showPreview }
+							isLoading={ contentsLoading }
+							content={ content }
+							isText={ isText }
+							truncated={ truncated }
+							error={ contentsError }
+						/>
+					</div>
 				</Dialog.Content>
 			</Dialog.Popup>
 		</Dialog.Root>

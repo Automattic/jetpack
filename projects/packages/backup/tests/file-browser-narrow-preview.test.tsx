@@ -153,10 +153,11 @@ it( 'shows the preview in a dialog when the panel is too narrow for a second col
 	await openTheFile();
 
 	await expect( screen.findByRole( 'dialog' ) ).resolves.toBeInTheDocument();
-	// The inline card's own scroll region is the witness that the absence
-	// above is a choice of chrome and not a preview that failed to render.
+	// Both chromes name a preview region, so the heading level is what tells
+	// them apart — and witnesses that one of them rendered at all.
+	expect( screen.getByRole( 'heading', { level: 2, name: 'readme.txt' } ) ).toBeInTheDocument();
 	expect(
-		screen.queryByRole( 'region', { name: 'Preview of readme.txt' } )
+		screen.queryByRole( 'heading', { level: 3, name: 'readme.txt' } )
 	).not.toBeInTheDocument();
 } );
 
@@ -166,7 +167,7 @@ it( 'keeps the preview in the tree’s sibling column when the panel is wide eno
 	await openTheFile();
 
 	await expect(
-		screen.findByRole( 'region', { name: 'Preview of readme.txt' } )
+		screen.findByRole( 'heading', { level: 3, name: 'readme.txt' } )
 	).resolves.toBeInTheDocument();
 	expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
 } );
@@ -192,7 +193,7 @@ it( 'swaps chrome without losing the open file when the panel crosses the thresh
 	panel.resizeTo( 900 );
 
 	await expect(
-		screen.findByRole( 'region', { name: 'Preview of readme.txt' } )
+		screen.findByRole( 'heading', { level: 3, name: 'readme.txt' } )
 	).resolves.toBeInTheDocument();
 	expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
 } );
@@ -204,7 +205,7 @@ it( 'picks its chrome on the first paint, before any observation arrives', async
 
 	await expect( screen.findByRole( 'dialog' ) ).resolves.toBeInTheDocument();
 	expect(
-		screen.queryByRole( 'region', { name: 'Preview of readme.txt' } )
+		screen.queryByRole( 'heading', { level: 3, name: 'readme.txt' } )
 	).not.toBeInTheDocument();
 } );
 
@@ -230,4 +231,17 @@ it( 'measures the menu by the room it takes, not the edge it takes it from', asy
 
 	const popup = await screen.findByRole( 'dialog' );
 	expect( popup.style.getPropertyValue( '--jpb-admin-menu-width' ) ).toBe( '160px' );
+} );
+
+// A scrollport nothing can focus cannot be scrolled by keyboard, and long code
+// lines are the whole reason the dialog exists.
+it( 'gives the dialog preview a named region focus can enter, as the card has', async () => {
+	panel = mockPanelWidth( 480 );
+
+	await openTheFile();
+	await expect( screen.findByRole( 'dialog' ) ).resolves.toBeInTheDocument();
+
+	const preview = screen.getByRole( 'region', { name: 'Preview of readme.txt' } );
+	expect( preview ).toHaveAttribute( 'tabindex', '0' );
+	expect( preview ).toContainElement( screen.getByText( 'Hello.' ) );
 } );
