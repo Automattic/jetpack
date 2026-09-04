@@ -24,6 +24,24 @@ const projects = [
 		buildGroup: 'jetpack-core',
 	},
 	{
+		project: 'Jetpack AI sidebar - Post editor',
+		path: 'projects/plugins/jetpack/tests/e2e',
+		testArgs: [ 'specs/ai-sidebar', '--grep', '(post editor|without Big Sky|evidence collector)' ],
+		targets: [ 'plugins/jetpack' ],
+		buildGroup: 'jetpack-core',
+		timeoutMinutes: 60,
+		manualDispatchSuites: [ 'jetpack-ai-sidebar', 'jetpack-ai-sidebar-post' ],
+	},
+	{
+		project: 'Jetpack AI sidebar - Page editor',
+		path: 'projects/plugins/jetpack/tests/e2e',
+		testArgs: [ 'specs/ai-sidebar/abilities.test.ts', '--grep', 'page editor' ],
+		targets: [ 'plugins/jetpack' ],
+		buildGroup: 'jetpack-core',
+		timeoutMinutes: 60,
+		manualDispatchSuites: [ 'jetpack-ai-sidebar', 'jetpack-ai-sidebar-page' ],
+	},
+	{
 		project: 'Jetpack forms',
 		path: 'projects/plugins/jetpack/tests/e2e',
 		testArgs: [ 'specs/forms' ],
@@ -176,6 +194,10 @@ switch ( process.env.GITHUB_EVENT_NAME ) {
 		);
 
 		for ( const project of projects ) {
+			if ( project.manualDispatchSuites ) {
+				continue;
+			}
+
 			if ( ! project.targets ) {
 				// If no targets are defined, run the tests
 				pushBothVersions( project );
@@ -195,10 +217,11 @@ switch ( process.env.GITHUB_EVENT_NAME ) {
 		break;
 	}
 	case 'workflow_dispatch': {
-		// There's no diff to narrow things down to, so run everything against the single version
-		// asked for, defaulting to the oldest one we claim to support. Unlike the other events this
-		// doesn't also run 'latest': the point of a manual dispatch is to target one version.
+		// There's no diff to narrow things down to, so run the selected suite against one version,
+		// defaulting to the oldest one we claim to support. Unlike the other events this doesn't
+		// also run 'latest': the point of a manual dispatch is to target one version.
 		const wpVersion = process.env.WP_VERSION || minWpVersion();
+		const manualSuite = process.env.MANUAL_SUITE || 'standard-suites';
 
 		// Reject it here, rather than let every job discover it after standing up docker. This also
 		// keeps the value safe to echo into $GITHUB_OUTPUT. Pre-releases are allowed so we can test
@@ -212,7 +235,16 @@ switch ( process.env.GITHUB_EVENT_NAME ) {
 			);
 		}
 
-		for ( const project of projects ) {
+		const selectedProjects = projects.filter( project =>
+			manualSuite === 'standard-suites'
+				? ! project.manualDispatchSuites
+				: project.manualDispatchSuites?.includes( manualSuite )
+		);
+		if ( selectedProjects.length === 0 ) {
+			throw new Error( `Unknown manual suite '${ manualSuite }'.` );
+		}
+
+		for ( const project of selectedProjects ) {
 			matrix.push( { ...project, wpVersion, suite: `wp-${ wpVersion }` } );
 		}
 		break;
@@ -224,6 +256,10 @@ switch ( process.env.GITHUB_EVENT_NAME ) {
 			const refType = process.env.REF_TYPE;
 
 			for ( const project of projects ) {
+				if ( project.manualDispatchSuites ) {
+					continue;
+				}
+
 				const packageJson = JSON.parse(
 					fs.readFileSync( `${ project.path }/package.json`, 'utf8' )
 				);
