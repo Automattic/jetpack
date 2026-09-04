@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Set the dashboard's leaderboard row spacing and bar radius in CSS rather than on the chart theme. No visible change.
