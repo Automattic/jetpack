@@ -255,8 +255,10 @@ describe( 'sensitive preview gate', () => {
 		[ '/config/application.php.txt' ],
 		[ '/.env.txt' ],
 		[ '/production.env.txt' ],
+		[ '/dump.sql' ],
 		[ '/dump.sql.txt' ],
 		[ '/wp-content/uploads/db-backup.sql.txt' ],
+		[ '/wp-content/debug.log' ],
 		[ '/wp-content/debug.log.txt' ],
 		[ '/wp-content/error.log.txt' ],
 	] )( 'hides %s and never fetches it', async path => {
@@ -318,20 +320,15 @@ describe( 'sensitive preview gate', () => {
 		expect( fetchedContent() ).toBe( false );
 	} );
 
-	it.each( [ [ '/dump.sql' ], [ '/wp-content/debug.log' ] ] )(
-		'refuses %s with no reveal to click',
-		async path => {
-			mockEndpoints( SECRET );
+	it( 'shows a database dump once the reader asks', async () => {
+		mockEndpoints( SECRET );
+		renderCard( fileAt( '/dump.sql' ) );
 
-			renderCard( fileAt( path ) );
+		await userEvent.click( await screen.findByRole( 'button', { name: SHOW } ) );
 
-			await expect( screen.findByText( UNAVAILABLE ) ).resolves.toBeInTheDocument();
-			expect( screen.queryByText( SECRET ) ).not.toBeInTheDocument();
-			expect( screen.queryByText( HIDDEN ) ).not.toBeInTheDocument();
-			expect( screen.queryByRole( 'button', { name: SHOW } ) ).not.toBeInTheDocument();
-			expect( fetchedContent() ).toBe( false );
-		}
-	);
+		await expect( screen.findByText( SECRET ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByText( UNAVAILABLE ) ).not.toBeInTheDocument();
+	} );
 
 	it( 'hands focus to the preview it just revealed', async () => {
 		mockEndpoints( SECRET );

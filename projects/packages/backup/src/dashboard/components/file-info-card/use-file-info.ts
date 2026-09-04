@@ -22,8 +22,8 @@ import type { FileNodeFile } from '../../types/file-tree';
  * own extension map for exactly this decision, using `data_type` only
  * to drive granular download.
  *
- * `sql` and `log` are deliberately absent: a dump and a debug log are
- * pure secret, and previewing one decides nothing about restoring it.
+ * `sql` and `log` never preview unprompted despite being here: every
+ * pattern below matches them, so they arrive behind the reveal click.
  */
 const PREVIEWABLE_TEXT_TYPES: Record< string, string > = {
 	css: 'text/css',
@@ -32,10 +32,12 @@ const PREVIEWABLE_TEXT_TYPES: Record< string, string > = {
 	html: 'text/html',
 	js: 'application/javascript',
 	json: 'application/json',
+	log: 'text/plain',
 	md: 'text/markdown',
 	php: 'application/x-php',
 	po: 'text/plain',
 	pot: 'text/plain',
+	sql: 'application/sql',
 	svg: 'image/svg+xml',
 	txt: 'text/plain',
 	xml: 'application/xml',
@@ -70,8 +72,9 @@ function mimeFromName( name: string ): string {
  * Files whose preview waits for a deliberate second click: anything that can
  * hold credentials, plus any hand-made copy of one that still previews.
  *
- * Matched against the lowercased, prefix-stripped manifest path; `[^/]*$`
- * confines every pattern to the file's own name.
+ * Matched against the lowercased, prefix-stripped manifest path. The trailing
+ * `[^/]*$` keeps a match inside one filename; `config/application` is the only
+ * pattern that also pins a parent directory.
  */
 const SENSITIVE_PATH_PATTERNS: readonly RegExp[] = [
 	/(^|\/)wp-config[^/]*$/,
