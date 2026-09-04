@@ -31,7 +31,10 @@ export function renderRatingIconsHtml( rating, maxRating, iconStyle, screenReade
 		? `<span class="screen-reader-text">${ screenReaderText }</span>`
 		: '';
 
-	for ( let i = 1; i <= maxRating; i++ ) {
+	// The scale reaches here from submitted data, so cap it before it becomes a loop bound.
+	const cappedMax = Math.min( maxRating, MAX_RATING_ICONS );
+
+	for ( let i = 1; i <= cappedMax; i++ ) {
 		const filledClass = i <= rating ? 'is-filled' : '';
 		iconsHtml += `<svg class="field-rating__icon ${ filledClass }" viewBox="0 0 24 24" aria-hidden="true"><path d="${ iconPath }"></path></svg>`;
 	}
