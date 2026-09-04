@@ -175,6 +175,41 @@ describe( 'DateYearFilter', () => {
 			expect( screen.getByRole( 'combobox', { name: 'Time period' } ) ).toBeInTheDocument();
 		} );
 
+		it( 'keeps the pills on the first paint of a wide container', () => {
+			mockContainerResize();
+			Object.defineProperty( document.body, 'clientWidth', {
+				configurable: true,
+				value: 4 * PILL_WIDTH,
+			} );
+
+			renderFilter();
+
+			expect( screen.getAllByRole( 'button' ) ).toHaveLength( 4 );
+			expect( screen.queryByRole( 'combobox' ) ).not.toBeInTheDocument();
+		} );
+
+		/*
+		 * The pills are one occupant of their row. A container that fits them
+		 * alone does not fit them beside a chart-interval control, which is how
+		 * they came to run past its end (WOOA7S-2066).
+		 */
+		it( 'counts what shares the row against the container', () => {
+			const { resizeTo } = mockContainerResize();
+
+			render(
+				<div>
+					<DateYearFilter timeZone="UTC" startYear={ CURRENT_YEAR - 2 } onSelect={ jest.fn() } />
+					<span>interval</span>
+				</div>
+			);
+
+			// Room for the four pills, but not for the control beside them.
+			resizeTo( 4 * PILL_WIDTH );
+
+			expect( screen.queryAllByRole( 'button' ) ).toHaveLength( 0 );
+			expect( screen.getByRole( 'combobox', { name: 'Time period' } ) ).toBeInTheDocument();
+		} );
+
 		it( 'keeps the pills while they fit the container', () => {
 			const { resizeTo } = mockContainerResize();
 			renderFilter();

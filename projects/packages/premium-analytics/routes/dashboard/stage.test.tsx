@@ -21,8 +21,9 @@ import type { ReactNode } from 'react';
 // Read inside the mocked functions, never at factory time — the factories run
 // while `./stage` is still importing, so these are in the temporal dead zone.
 // Base UI's `Tabs.Panel` defaults to `keepMounted={false}`, so only the active
-// section is ever in the DOM; the mock below models that.
+// section is ever in the DOM; `mockMountedSectionSlugs` keeps extras for one frame.
 let mockActiveSectionSlug = 'insights';
+let mockMountedSectionSlugs: string[] | null = null;
 let mockSyncState: { data?: SyncStatus; error: Error | null; isComplete: boolean };
 let mockIsSyncFinished: boolean;
 const mockTriggerSync = jest.fn( () => Promise.resolve() );
@@ -67,12 +68,16 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 	DateFiltersPanel: () => <MockHeaderScopeProbe />,
 	DateIntervalDropdown: () => null,
-	DateYearFilter: () => null,
+	DateYearFilter: ( { containerElement }: { containerElement?: HTMLElement | null } ) => (
+		<span>{ containerElement ? 'measuring header' : 'measuring body' }</span>
+	),
 	OnboardingWelcomeModal: ( { open }: { open: boolean } ) =>
 		open ? <div data-testid="onboarding-welcome-modal" /> : null,
 	SectionHeader: ( { children }: { children: ReactNode } ) => <div>{ children }</div>,
 	SectionTabPanel: ( { value, children }: { value: string; children: ReactNode } ) =>
-		value === mockActiveSectionSlug ? <div>{ children }</div> : null,
+		( mockMountedSectionSlugs ?? [ mockActiveSectionSlug ] ).includes( value ) ? (
+			<div>{ children }</div>
+		) : null,
 	StatsBreadcrumbs: () => null,
 	StatsPageIcon: () => null,
 } ) );
@@ -179,6 +184,7 @@ jest.mock( './hooks', () => ( {
 beforeEach( () => {
 	mockSyncState = { data: undefined, error: null, isComplete: false };
 	mockIsSyncFinished = false;
+	mockMountedSectionSlugs = null;
 	mockTriggerSync.mockImplementation( () => Promise.resolve() );
 	useOnboardingMock.mockReturnValue( closedOnboarding );
 } );
@@ -520,5 +526,44 @@ describe( 'Dashboard header date control', () => {
 		render( <Dashboard /> );
 
 		expect( screen.getByText( 'header offers comparison' ) ).toBeInTheDocument();
+	} );
+
+	it( 'keeps measuring the header after a tab switch unmounts the previous panel', () => {
+		useDashboardSectionsMock.mockReturnValue( {
+			sections: [
+				{
+					slug: 'traffic',
+					label: 'Traffic',
+					title: 'Traffic',
+					date_filter: DATE_FILTER_RANGE,
+				},
+				{
+					slug: 'insights',
+					label: 'Insights',
+					title: 'Activity insights',
+					date_filter: DATE_FILTER_YEAR,
+				},
+			],
+			hasResolved: true,
+		} as unknown as ReturnType< typeof useDashboardSections > );
+		useActiveSectionMock.mockReturnValue( [ 'traffic', jest.fn() ] );
+		mockActiveSectionSlug = 'traffic';
+		mockMountedSectionSlugs = [ 'traffic' ];
+		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_RANGE );
+		const { rerender } = render( <Dashboard /> );
+
+		// Tabs.Panel mounts the incoming panel a frame before the outgoing one
+		// unmounts. Model that overlap, then the leave, or the null never fires.
+		useActiveSectionMock.mockReturnValue( [ 'insights', jest.fn() ] );
+		mockActiveSectionSlug = 'insights';
+		mockMountedSectionSlugs = [ 'traffic', 'insights' ];
+		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_YEAR );
+		rerender( <Dashboard /> );
+
+		mockMountedSectionSlugs = [ 'insights' ];
+		rerender( <Dashboard /> );
+
+		expect( screen.getByText( 'measuring header' ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'measuring body' ) ).not.toBeInTheDocument();
 	} );
 } );

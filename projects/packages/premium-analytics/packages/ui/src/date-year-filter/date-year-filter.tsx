@@ -59,17 +59,43 @@ export type DateYearFilterProps = {
 	 * It must be an element whose width does not depend on the filter's own
 	 * width — a full-width row, not a `fit-content` wrapper — or the two
 	 * measurements chase each other every time the layout switches.
+	 *
+	 * Siblings sharing the filter's flex row are counted against this width, so
+	 * the filter must be a direct child of that row — a wrapper around it hides them.
 	 */
 	containerElement?: HTMLElement | null;
 };
 
 /**
- * Width the pills asked for, tagged with the list they were measured from.
+ * Width the row asked for, tagged with the preset list it was measured from.
  */
-type PillsMeasurement = {
+type RowMeasurement = {
 	presets: DateRangePreset< YearSurfacePresetId >[];
 	width: number;
 };
+
+/**
+ * Width the group's row-mates take, the gap before each one included.
+ *
+ * The pills are one occupant of their row, not the whole of it. Measuring them
+ * alone leaves the row short by whatever the rest takes, which is how they came
+ * to run past its end.
+ *
+ * @param group - The pills' own group. Direct child of the flex row it shares.
+ * @return The width to count against the container alongside the pills.
+ */
+function getRowMatesWidth( group: HTMLElement ): number {
+	const row = group.parentElement;
+
+	if ( ! row ) {
+		return 0;
+	}
+
+	const mates = Array.from( row.children ).filter( child => child !== group );
+	const gap = parseFloat( getComputedStyle( row ).columnGap ) || 0;
+
+	return mates.reduce( ( total, mate ) => total + mate.getBoundingClientRect().width + gap, 0 );
+}
 
 /**
  * Content-box width of an element, the same box a ResizeObserver reports, so
@@ -137,7 +163,7 @@ export function DateYearFilter( {
 	 * both sides instead: the space available, and the width the pills ask for.
 	 */
 	const [ containerWidth, setContainerWidth ] = useState< number | null >( null );
-	const [ measurement, setMeasurement ] = useState< PillsMeasurement | null >( null );
+	const [ measurement, setMeasurement ] = useState< RowMeasurement | null >( null );
 
 	const handleResize = useCallback( ( entries: ResizeObserverEntry[] ) => {
 		const entry = entries[ 0 ];
@@ -170,14 +196,15 @@ export function DateYearFilter( {
 
 	/*
 	 * The group wraps when it runs out of room, so its own box reports the width
-	 * it was given rather than the width it needs: sum the pills instead.
+	 * it was given rather than the width it needs: sum the pills instead, and
+	 * add what shares their row.
 	 *
 	 * Measured from a ref rather than an effect, because the moment to measure is
 	 * when the pills attach, which is also the moment the select gives way to
 	 * them. Keyed on the preset list, so a list that changes under mounted pills
 	 * is measured again.
 	 */
-	const measurePills = useCallback(
+	const measureRow = useCallback(
 		( group: HTMLDivElement | null ) => {
 			if ( ! group ) {
 				return;
@@ -188,7 +215,15 @@ export function DateYearFilter( {
 				0
 			);
 
-			setMeasurement( { presets, width: pills + ( group.offsetWidth - group.clientWidth ) } );
+			// Rounded like the `clientWidth` it is compared against: a sum of
+			// fractional rects is otherwise a hair wider than the same row read
+			// as an integer, and lands on the wrong side of its own boundary.
+			setMeasurement( {
+				presets,
+				width: Math.round(
+					pills + ( group.offsetWidth - group.clientWidth ) + getRowMatesWidth( group )
+				),
+			} );
 		},
 		[ presets ]
 	);
@@ -200,12 +235,12 @@ export function DateYearFilter( {
 	 * is dropped when the list itself changes, so a shorter list is never judged
 	 * by a longer one's width.
 	 */
-	const pillsWidth = measurement?.presets === presets ? measurement.width : null;
+	const rowWidth = measurement?.presets === presets ? measurement.width : null;
 
 	// Until both measurements land, assume the pills fit: they are the layout
 	// this surface is designed around, and the first paint shouldn't flash a
 	// select on a screen wide enough for them.
-	const fitsPills = containerWidth === null || pillsWidth === null || containerWidth >= pillsWidth;
+	const fitsPills = containerWidth === null || rowWidth === null || containerWidth >= rowWidth;
 
 	if ( isCompact ?? ! fitsPills ) {
 		return (
@@ -231,7 +266,7 @@ export function DateYearFilter( {
 	 */
 	return (
 		<Composite
-			ref={ measurePills }
+			ref={ measureRow }
 			className="date-year-filter__group"
 			role="toolbar"
 			aria-label={ __( 'Time period', 'jetpack-premium-analytics-pkg' ) }
