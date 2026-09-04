@@ -91,6 +91,17 @@ export default () => {
 	);
 	const openReaderInNewTab = ! isWpcomPlatformSite();
 
+	// "Post your answer" opens the Write editor on WordPress.com-platform sites
+	// (Simple/Atomic, where Write exists); on self-hosted it falls back to the
+	// classic new-post screen, where the jetpack/blogging-prompt block editor
+	// script seeds the same prompt.
+	let postAnswerHref = '';
+	if ( hasPrompt ) {
+		postAnswerHref = isWpcomPlatformSite()
+			? addQueryArgs( 'admin.php', { page: 'write', answer_prompt: prompt.id } )
+			: addQueryArgs( 'post-new.php', { answer_prompt: prompt.id } );
+	}
+
 	return (
 		<Stack direction="column" gap="md">
 			{ hasPrompt ? (
@@ -138,7 +149,7 @@ export default () => {
 						<LinkButton
 							variant="outline"
 							size="compact"
-							href={ `post-new.php?answer_prompt=${ prompt.id }` }
+							href={ postAnswerHref }
 							onClick={ recordPostAnswerClick }
 						>
 							{ __( 'Post your answer', 'jetpack-newsletter' ) }

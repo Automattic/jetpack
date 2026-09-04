@@ -28,10 +28,15 @@ function jetpack_blogging_prompts_add_meta_data( $keys ) {
 add_filter( 'rest_api_allowed_public_metadata', 'jetpack_blogging_prompts_add_meta_data' );
 
 /**
- * Sets up a new post as an answer to a blogging prompt.
+ * Sets up a new post as an answer to a blogging prompt (classic new-post screen).
  *
  * When we know a user is explicitly answering a prompt, pre-populate the post meta to mark the post as a prompt response,
  * in case they decide to remove the block from the post content, preventing they meta from being added later.
+ *
+ * REST creations (e.g. the Write editor's POST /wp/v2/posts?answer_prompt=…) are
+ * handled by jetpack_setup_blogging_prompt_response_rest() on rest_after_insert_post
+ * instead — that hook runs after the REST controller sets the request's tags, so the
+ * prompt tags we add aren't overwritten.
  *
  * Called on `wp_insert_post` hook.
  *
@@ -39,26 +44,72 @@ add_filter( 'rest_api_allowed_public_metadata', 'jetpack_blogging_prompts_add_me
  * @return void
  */
 function jetpack_setup_blogging_prompt_response( $post_id ) {
-	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Clicking a prompt response link can happen from notifications, Calypso, wp-admin, email, etc and only sets up a response post (tag, meta, prompt text); the user must take action to actually publish the post.
-	$prompt_id = isset( $_GET['answer_prompt'] ) && absint( $_GET['answer_prompt'] ) ? absint( $_GET['answer_prompt'] ) : false;
-
-	if ( ! jetpack_is_new_post_screen() || ! $prompt_id ) {
+	if ( defined( 'REST_REQUEST' ) && REST_REQUEST ) {
 		return;
 	}
 
-	// Make sure the prompt exists.
-	$prompt = jetpack_get_blogging_prompt_by_id( $prompt_id );
+	if ( ! jetpack_is_new_post_screen() ) {
+		return;
+	}
 
-	if ( $prompt ) {
-		update_post_meta( $post_id, '_jetpack_blogging_prompt_key', $prompt_id );
-		wp_add_post_tags( $post_id, array( 'dailyprompt', "dailyprompt-$prompt_id" ) );
-		if ( array_key_exists( 'bloganuary_id', $prompt ) ) {
-			wp_add_post_tags( $post_id, array( 'bloganuary', $prompt['bloganuary_id'] ) );
-		}
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Clicking a prompt response link can happen from notifications, Calypso, wp-admin, email, etc and only sets up a response post (tag, meta, prompt text); the user must take action to actually publish the post.
+	$prompt_id = isset( $_GET['answer_prompt'] ) ? absint( $_GET['answer_prompt'] ) : 0;
+	if ( $prompt_id ) {
+		jetpack_apply_blogging_prompt_response( $post_id, $prompt_id );
 	}
 }
 
 add_action( 'wp_insert_post', 'jetpack_setup_blogging_prompt_response' );
+
+/**
+ * Sets up a REST-created post (e.g. the Write editor) as an answer to a prompt.
+ *
+ * Runs on `rest_after_insert_post`, which fires after the REST controller has set
+ * the request's tags — so the prompt tags added here survive.
+ *
+ * @param WP_Post         $post     Inserted post object.
+ * @param WP_REST_Request $request  Request object.
+ * @param bool            $creating True when creating, false when updating.
+ * @return void
+ */
+function jetpack_setup_blogging_prompt_response_rest( $post, $request, $creating ) {
+	if ( ! $creating || ! $post instanceof WP_Post || 'post' !== $post->post_type ) {
+		return;
+	}
+
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only GET param forwarded by the Write editor on the create request; only sets up a response post (tag, meta).
+	$prompt_id = isset( $_GET['answer_prompt'] ) ? absint( $_GET['answer_prompt'] ) : 0;
+	if ( $prompt_id ) {
+		jetpack_apply_blogging_prompt_response( $post->ID, $prompt_id );
+	}
+}
+
+add_action( 'rest_after_insert_post', 'jetpack_setup_blogging_prompt_response_rest', 10, 3 );
+
+/**
+ * Stamp a post as a blogging-prompt answer: prompt-key meta + prompt tags.
+ *
+ * Shared by the classic (wp_insert_post) and REST (rest_after_insert_post) entry
+ * points so both mark the answer identically.
+ *
+ * @param int $post_id   Post ID.
+ * @param int $prompt_id Prompt ID.
+ * @return void
+ */
+function jetpack_apply_blogging_prompt_response( $post_id, $prompt_id ) {
+	// Make sure the prompt exists.
+	$prompt = jetpack_get_blogging_prompt_by_id( $prompt_id );
+
+	if ( ! $prompt ) {
+		return;
+	}
+
+	update_post_meta( $post_id, '_jetpack_blogging_prompt_key', $prompt_id );
+	wp_add_post_tags( $post_id, array( 'dailyprompt', "dailyprompt-$prompt_id" ) );
+	if ( is_array( $prompt ) && array_key_exists( 'bloganuary_id', $prompt ) ) {
+		wp_add_post_tags( $post_id, array( 'bloganuary', $prompt['bloganuary_id'] ) );
+	}
+}
 
 /**
  * When a published posts answers a blogging prompt, store the prompt id in the post meta.

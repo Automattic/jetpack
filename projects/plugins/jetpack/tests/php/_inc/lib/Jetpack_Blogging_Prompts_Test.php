@@ -66,6 +66,60 @@ class Jetpack_Blogging_Prompts_Test extends WP_UnitTestCase {
 		\Patchwork\restore( $handle );
 	}
 
+	public function test_adds_post_meta_and_tags_on_rest_create() {
+		$prompt_id = 1234;
+		$handle    = \Patchwork\redefine( 'jetpack_get_blogging_prompt_by_id', \Patchwork\always( array( 'id' => $prompt_id ) ) );
+
+		// Not the post-new.php screen: the classic handler must stay out of it.
+		set_current_screen( 'front' );
+		$_GET['answer_prompt'] = $prompt_id;
+
+		$post_id = wp_insert_post(
+			array(
+				'post_content' => 'Draft response.',
+				'post_type'    => 'post',
+				'post_status'  => 'draft',
+			)
+		);
+
+		// Simulate the REST controller finishing a create.
+		$request = new WP_REST_Request( 'POST', '/wp/v2/posts' );
+		jetpack_setup_blogging_prompt_response_rest( get_post( $post_id ), $request, true );
+
+		$this->assertEquals( $prompt_id, get_post_meta( $post_id, '_jetpack_blogging_prompt_key', true ) );
+		$post_tags = wp_get_post_tags( $post_id, array( 'fields' => 'slugs' ) );
+		$this->assertContains( 'dailyprompt', $post_tags );
+		$this->assertContains( "dailyprompt-{$prompt_id}", $post_tags );
+
+		\Patchwork\restore( $handle );
+		unset( $_GET['answer_prompt'] );
+	}
+
+	public function test_no_meta_on_rest_update() {
+		$prompt_id = 1234;
+		$handle    = \Patchwork\redefine( 'jetpack_get_blogging_prompt_by_id', \Patchwork\always( array( 'id' => $prompt_id ) ) );
+
+		set_current_screen( 'front' );
+		$_GET['answer_prompt'] = $prompt_id;
+
+		$post_id = wp_insert_post(
+			array(
+				'post_content' => 'Draft response.',
+				'post_type'    => 'post',
+				'post_status'  => 'draft',
+			)
+		);
+
+		// $creating = false → an update, not a create: do nothing.
+		$request = new WP_REST_Request( 'PUT', '/wp/v2/posts/' . $post_id );
+		jetpack_setup_blogging_prompt_response_rest( get_post( $post_id ), $request, false );
+
+		$this->assertSame( '', get_post_meta( $post_id, '_jetpack_blogging_prompt_key', true ) );
+
+		\Patchwork\restore( $handle );
+		unset( $_GET['answer_prompt'] );
+	}
+
 	public function test_mark_post_as_prompt_answer_when_it_has_block_and_tags() {
 		$prompt_id = 1234;
 

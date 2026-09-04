@@ -6411,8 +6411,14 @@ async function performSave( postStatus, isAutosave = false, saveCtx = {} ) {
 		tagData.tags = [ ...new Set( [ ...( state.existingTagIds || [] ), ...newTagIds ] ) ];
 	}
 
-	// If editing, PUT to the existing post. If new, POST to create.
-	const path = isEditing ? state.postsPath + '/' + state.editPostId : state.postsPath;
+	// If editing, PUT to the existing post. If new, POST to create. On a new
+	// prompt answer, forward answer_prompt so the server-side
+	// jetpack_setup_blogging_prompt_response hook (rest_after_insert_post) tags
+	// the post as a prompt answer and stamps the roundup meta.
+	let path = isEditing ? state.postsPath + '/' + state.editPostId : state.postsPath;
+	if ( ! isEditing && state.answerPromptId ) {
+		path += '?answer_prompt=' + encodeURIComponent( state.answerPromptId );
+	}
 
 	// Prep is done; a stall from here on is the main save request itself.
 	stallPhase = 'save_request';
@@ -6441,8 +6447,14 @@ async function performSave( postStatus, isAutosave = false, saveCtx = {} ) {
 			state.editPostId = post.id;
 		}
 
-		// Keep existingTagIds in sync so the next save in this session merges correctly.
-		if ( tagData.tags ) {
+		// Keep existingTagIds in sync so the next save in this session merges
+		// correctly. Prefer the response's list over what we sent: the server can
+		// attach terms of its own after the insert — the dailyprompt tags stamped
+		// on a prompt answer by rest_after_insert_post — and the next save would
+		// drop them if we only tracked the client's view.
+		if ( Array.isArray( post.tags ) ) {
+			state.existingTagIds = post.tags;
+		} else if ( tagData.tags ) {
 			state.existingTagIds = tagData.tags;
 		}
 
