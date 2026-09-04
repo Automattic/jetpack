@@ -308,7 +308,8 @@ export default function FileInfoCard( { file, onClose }: Props ) {
 				className="jpb-file-info-card__header"
 			>
 				<Text variant="heading-sm" render={ <h3 /> }>
-					{ file.name }
+					{ /* Isolated: an RTL page otherwise renders `.htaccess` as `htaccess.`. */ }
+					<span dir="ltr">{ file.name }</span>
 				</Text>
 				<Button
 					variant="minimal"
@@ -342,7 +343,9 @@ export default function FileInfoCard( { file, onClose }: Props ) {
 				{ hash && (
 					<div>
 						<dt>{ __( 'Hash:', 'jetpack-backup-pkg' ) }</dt>
-						<dd className="jpb-file-info-card__hash">{ hash }</dd>
+						<dd className="jpb-file-info-card__hash" dir="ltr">
+							{ hash }
+						</dd>
 					</div>
 				) }
 			</dl>

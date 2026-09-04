@@ -94,8 +94,12 @@ function DescriptionCell( { item }: { item: ActivityItem } ) {
 			<Text variant="body-sm" className="jpb-text-muted jpb-activity-list__date">
 				{ dateI18n( 'M j, Y, g:i A', item.publishedAt, undefined ) }
 			</Text>
+			{ /*
+			 * `dir` isolates the stats line, which an RTL page otherwise reorders
+			 * into "plugins, 23 themes … 47"; `auto` because WPCOM may translate it.
+			 */ }
 			{ item.summary && (
-				<Text variant="body-sm" className="jpb-text-muted jpb-activity-list__summary">
+				<Text variant="body-sm" className="jpb-text-muted jpb-activity-list__summary" dir="auto">
 					{ item.summary }
 				</Text>
 			) }

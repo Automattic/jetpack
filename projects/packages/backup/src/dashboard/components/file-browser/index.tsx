@@ -647,6 +647,10 @@ function NodeRow( {
 					) }
 					__nextHasNoMarginBottom
 				/>
+				{ /*
+				 * `dir` isolates the names below: an RTL page otherwise moves a
+				 * leading dot to the visual end, so `.htaccess` reads `htaccess.`.
+				 */ }
 				{ nodeIsFolder ? (
 					// The glyphs are `aria-hidden`, so the folder/file distinction they
 					// carry visually has to be spelled out for assistive tech.
@@ -668,7 +672,7 @@ function NodeRow( {
 					>
 						<Icon icon={ open ? chevronDown : chevronRight } size={ 16 } />
 						<Icon icon={ folderIcon } size={ 18 } />
-						<span>{ node.name }</span>
+						<span dir="ltr">{ node.name }</span>
 					</button>
 				) : (
 					<button
@@ -682,7 +686,7 @@ function NodeRow( {
 						onClick={ handleOpenFile }
 					>
 						<Icon icon={ fileIcon } size={ 18 } />
-						<span>{ node.name }</span>
+						<span dir="ltr">{ node.name }</span>
 					</button>
 				) }
 			</div>
