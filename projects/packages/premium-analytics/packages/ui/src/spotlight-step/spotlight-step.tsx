@@ -1,8 +1,18 @@
 import { Button, Popover, Stack, Text } from '@jetpack-premium-analytics/externals';
 import { createPortal } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { useCallback, useLayoutEffect, useState, type CSSProperties, type ReactNode } from 'react';
+import {
+	useCallback,
+	useLayoutEffect,
+	useRef,
+	useState,
+	type CSSProperties,
+	type ReactNode,
+} from 'react';
 import styles from './spotlight-step.module.scss';
+
+/** How the reader left the tour: Escape, or the skip control. */
+export type SpotlightDismissReason = 'escape' | 'close';
 
 export type SpotlightStepProps = {
 	/** The element to spotlight. Until it is mounted the step renders nothing. */
@@ -20,8 +30,8 @@ export type SpotlightStepProps = {
 	/** Continue, or Finish on the last step. */
 	onNext: () => void;
 
-	/** Escape: the reader leaves the tour. */
-	onDismiss: () => void;
+	/** The reader leaves the tour, and how. */
+	onDismiss: ( reason: SpotlightDismissReason ) => void;
 
 	/** Which side of the anchor the card sits on. */
 	side?: 'top' | 'bottom' | 'left' | 'right' | 'inline-start' | 'inline-end';
@@ -36,6 +46,12 @@ const HALO_PADDING = 4;
 
 type OpenChangeDetails = {
 	reason?: string;
+};
+
+// Base UI names the cause on `onOpenChange`; the overlay swallows outside presses.
+const DISMISS_REASONS: Record< string, SpotlightDismissReason > = {
+	'escape-key': 'escape',
+	'close-press': 'close',
 };
 
 /**
@@ -88,8 +104,8 @@ function haloStyle( rect: DOMRect ): CSSProperties {
 /**
  * One step of a spotlight tour: the page dims except for a halo around the
  * anchor, and a card beside it carries the step's copy, its position in the
- * tour and the way forward. Escape leaves the tour; clicks on the dimmed page
- * do nothing.
+ * tour and the way forward. Escape and the skip control, shown on focus, leave
+ * the tour; clicks on the dimmed page do nothing.
  */
 export function SpotlightStep( {
 	anchor,
@@ -102,12 +118,13 @@ export function SpotlightStep( {
 	side = 'bottom',
 }: SpotlightStepProps ) {
 	const rect = useAnchorRect( anchor );
+	const nextRef = useRef< HTMLButtonElement >( null );
 
-	// The overlay swallows outside presses, so the only close reaching here is Escape.
 	const handleOpenChange = useCallback(
 		( open: boolean, details?: OpenChangeDetails ) => {
-			if ( ! open && details?.reason === 'escape-key' ) {
-				onDismiss();
+			const reason = DISMISS_REASONS[ details?.reason ?? '' ];
+			if ( ! open && reason ) {
+				onDismiss( reason );
 			}
 		},
 		[ onDismiss ]
@@ -138,6 +155,7 @@ export function SpotlightStep( {
 			<Popover.Root open modal="trap-focus" onOpenChange={ handleOpenChange }>
 				<Popover.Popup
 					className={ styles.card }
+					initialFocus={ nextRef }
 					portal={
 						<Popover.Portal style={ { '--wp-ui-popover-z-index': STACK_LEVEL } as CSSProperties } />
 					}
@@ -155,11 +173,21 @@ export function SpotlightStep( {
 									totalSteps
 								) }
 							</Text>
-							<Button variant="solid" onClick={ onNext }>
-								{ isLast
-									? __( 'Finish', 'jetpack-premium-analytics-pkg' )
-									: __( 'Continue', 'jetpack-premium-analytics-pkg' ) }
-							</Button>
+							<Stack direction="row" align="center" gap="sm">
+								{ /* The Close part is what makes Base UI trap focus. It stays out
+								     of sight until focused, as the design draws no skip control. */ }
+								<Popover.Close
+									className={ styles.skip }
+									render={ <Button variant="minimal" tone="neutral" /> }
+								>
+									{ __( 'Skip tour', 'jetpack-premium-analytics-pkg' ) }
+								</Popover.Close>
+								<Button ref={ nextRef } variant="solid" onClick={ onNext }>
+									{ isLast
+										? __( 'Finish', 'jetpack-premium-analytics-pkg' )
+										: __( 'Continue', 'jetpack-premium-analytics-pkg' ) }
+								</Button>
+							</Stack>
 						</Stack>
 					</Stack>
 				</Popover.Popup>
