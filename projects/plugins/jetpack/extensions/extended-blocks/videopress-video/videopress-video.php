@@ -34,6 +34,12 @@ add_action(
 		) {
 			VideoPress_Pkg_Initializer::register_videopress_video_block();
 		}
+
+		// The playlist block has its own VideoPress-module-active guard inside
+		// register_videopress_playlist_block(), so register it unconditionally here.
+		if ( method_exists( 'Automattic\Jetpack\VideoPress\Initializer', 'register_videopress_playlist_block' ) ) {
+			VideoPress_Pkg_Initializer::register_videopress_playlist_block();
+		}
 	}
 );
 
