@@ -18,7 +18,7 @@ type OnboardingTourProps = {
 
 	onNext: () => void;
 
-	onDismiss: () => void;
+	onDismiss: SpotlightStepProps[ 'onDismiss' ];
 };
 
 /**
@@ -30,7 +30,7 @@ type OnboardingTourProps = {
  * @param props.steps     - The tour steps in order.
  * @param props.current   - Zero-based index of the current step.
  * @param props.onNext    - Advances the tour, or finishes it on the last step.
- * @param props.onDismiss - Leaves the tour.
+ * @param props.onDismiss - Leaves the tour, and how.
  * @return The current step, or nothing while it has no anchor.
  */
 export function OnboardingTour( { steps, current, onNext, onDismiss }: OnboardingTourProps ) {
