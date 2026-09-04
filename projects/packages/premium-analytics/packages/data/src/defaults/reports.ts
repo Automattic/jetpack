@@ -78,8 +78,8 @@ export const getDefaultQueryParams = (
 		};
 	}
 
-	const from = localTZDate( new Date( fromString ) );
-	const to = localTZDate( new Date( toString ) );
+	const from = localTZDate( fromString );
+	const to = localTZDate( toString );
 
 	const comparisonParams = getComparisonRangeFromPreset( { from, to }, 'previous-period', {
 		primaryPresetId: preset,

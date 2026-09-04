@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Remove the unused date-range URL writers and make the date encoder's timezone argument take effect.
