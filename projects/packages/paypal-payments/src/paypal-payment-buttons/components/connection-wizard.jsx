@@ -8,7 +8,7 @@
 import { Button, Notice, TextControl, ToggleControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { ONBOARDING_SANDBOX } from '../utils/paypal-partner-sdk';
-import { paypalLogoSvg } from './paypal-full-logo';
+import { wizardLogo } from './wizard-logo';
 
 const labelConnect = __( 'Connect', 'jetpack-paypal-payments' );
 const labelConnecting = __( 'Connecting\u2026', 'jetpack-paypal-payments' );
@@ -179,7 +179,7 @@ export default function ConnectionWizard( {
 				{ /* Step 1: Welcome — Partner Referrals primary, manual credentials secondary */ }
 				{ visibleStep === 'welcome' && (
 					<div className="jetpack-paypal-wizard__welcome">
-						{ paypalLogoSvg }
+						{ wizardLogo }
 						<h3>{ __( 'Connect PayPal', 'jetpack-paypal-payments' ) }</h3>
 						<p>
 							{ __(

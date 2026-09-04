@@ -20,7 +20,6 @@ import { Notice, Spinner, ToolbarButton, ToolbarGroup } from '@wordpress/compone
 import { useSelect } from '@wordpress/data';
 import { useState, useCallback, useMemo } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import BlockInspector from './block-inspector';
 import metadata from './block.json';
 import ConfirmDialogs from './components/confirm-dialogs';
 import ConnectionWizard from './components/connection-wizard';
@@ -29,6 +28,7 @@ import LegacyBlock from './components/legacy-block';
 import PayPalButtonPreview from './components/paypal-button-preview';
 import ProductForm from './components/product-form';
 import { hasVariantPricing, validateVariants } from './components/variant-builder';
+import PayPalInspectorControls from './controls';
 import { broadcastConnectionChange, usePayPalConnection } from './hooks/use-paypal-connection';
 import { usePayPalResource } from './hooks/use-paypal-resource';
 import { API_BASE } from './utils/api-base';
@@ -379,7 +379,7 @@ export default function PayPalPaymentButtonsEdit( {
 
 	// Inspector sidebar — format switcher, Style preset, and connection info.
 	const inspectorControls = (
-		<BlockInspector
+		<PayPalInspectorControls
 			setAttributes={ setAttributes }
 			colorScheme={ colorScheme }
 			resourceId={ resourceId }

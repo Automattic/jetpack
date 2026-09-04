@@ -27,7 +27,7 @@ import FormatSwitcher from './components/format-switcher';
  * @param {boolean}  props.hasButton          - Whether the block has a created button.
  * @return {Element} The inspector sidebar.
  */
-export default function BlockInspector( {
+export default function PayPalInspectorControls( {
 	setAttributes,
 	colorScheme,
 	resourceId,

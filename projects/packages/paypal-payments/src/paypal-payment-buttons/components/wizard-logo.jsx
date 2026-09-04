@@ -9,7 +9,7 @@
  * Source: paypalobjects.com/digitalassets/c/website/logo/full-text/pp_fc_hl.svg
  * Includes the double-P monogram + wordmark for brand recognition.
  */
-export const paypalLogoSvg = (
+export const wizardLogo = (
 	<svg
 		className="jetpack-paypal-wizard__logo"
 		xmlns="http://www.w3.org/2000/svg"
