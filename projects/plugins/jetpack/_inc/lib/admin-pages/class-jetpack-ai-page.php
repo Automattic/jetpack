@@ -289,12 +289,7 @@ class Jetpack_AI_Page {
 
 		$show_gated_views = ! empty( $config['showGatedViews'] );
 
-		$plan_info = $show_gated_views ? self::get_ai_plan_info() : array(
-			'name'       => '',
-			'renews_on'  => '',
-			'auto_renew' => true,
-			'expired'    => false,
-		);
+		$plan_info = $show_gated_views ? self::get_ai_plan_info() : array( 'name' => '' );
 
 		$settings = array(
 			'blogId'           => $blog_id ? (int) $blog_id : 0,
@@ -308,18 +303,10 @@ class Jetpack_AI_Page {
 			// a post-checkout return to this page, so both can be
 			// retargeted without shipping a code change.
 			'upgradeUrl'       => Redirect::get_url( 'jetpack-ai-hub-upgrade' ),
-			// The purchase granting AI, for the Overview usage card — the
-			// usage endpoint cannot name it. Only looked up when a gated
-			// view can render it.
+			// The purchase granting AI — the usage card only uses it to pick
+			// the right loading-skeleton shape before the usage fetch lands.
+			// Only looked up when a gated view can render the card.
 			'planName'         => $plan_info['name'],
-			// The plan's own renewal date, matching My Jetpack — the
-			// usage-period rollover is a different, monthly date.
-			'planRenewsOn'     => $plan_info['renews_on'],
-			// The same date reads "Renews on" or "Expires on" depending on
-			// auto-renew, matching the wpcom subscriptions page.
-			'planAutoRenew'    => $plan_info['auto_renew'],
-			// Past tense wins over the auto-renew wording above.
-			'planExpired'      => $plan_info['expired'],
 			'showFeaturesView' => $show_gated_views,
 			'showA12sBadge'    => ! empty( $config['showA12sBadge'] ),
 			// The tab and its Agents Manager sidebar ship disabled by default.
@@ -419,23 +406,14 @@ class Jetpack_AI_Page {
 	}
 
 	/**
-	 * Name and renewal date of the purchase granting this site AI ("Jetpack
-	 * Complete"), from My Jetpack's purchase data — its Plans section's source.
+	 * Name of the purchase granting this site AI ("Jetpack Complete"), from
+	 * My Jetpack's purchase data — its Plans section's source.
 	 *
-	 * The renewal is the purchase's expiry date, matching what My Jetpack
-	 * shows — not the AI usage-period rollover, which is a different date.
-	 *
-	 * @return array{name: string, renews_on: string, auto_renew: bool, expired: bool}
-	 *         Empty strings when nothing paid grants AI or the data is
-	 *         unavailable.
+	 * @return array{name: string} An empty string when nothing paid grants AI
+	 *                             or the data is unavailable.
 	 */
 	private static function get_ai_plan_info() {
-		$empty = array(
-			'name'       => '',
-			'renews_on'  => '',
-			'auto_renew' => true,
-			'expired'    => false,
-		);
+		$empty = array( 'name' => '' );
 
 		if ( ! class_exists( '\Automattic\Jetpack\My_Jetpack\Products\Jetpack_Ai' ) ) {
 			return $empty;
@@ -449,7 +427,7 @@ class Jetpack_AI_Page {
 		}
 
 		// A failed lookup is not "no purchase": skip the hour-long cache so the
-		// next page load can try again instead of pinning a blank plan cell.
+		// next page load can try again instead of pinning a blank name.
 		if ( is_wp_error( \Automattic\Jetpack\My_Jetpack\Wpcom_Products::get_site_current_purchases() ) ) {
 			return $empty;
 		}
@@ -462,18 +440,10 @@ class Jetpack_AI_Page {
 		}
 
 		$info = $empty;
-		if ( $purchase && ! empty( $purchase->product_name ) ) {
+		if ( $purchase && ! empty( $purchase->product_name ) && 'expired' !== ( $purchase->expiry_status ?? '' ) ) {
 			// The design shows the bare plan name ("Complete", "Business"), so
 			// trim the store names' brand prefixes; they are untranslated.
-			$info['name']      = (string) preg_replace( '/^(Jetpack|WordPress\.com) /', '', (string) $purchase->product_name );
-			$info['renews_on'] = (string) ( $purchase->expiry_date ?? '' );
-			// Absent means unknown, not off: only a purchase that positively
-			// reports auto-renew off should relabel the date as an expiry.
-			$info['auto_renew'] = ! isset( $purchase->is_auto_renew_enabled )
-				|| (bool) $purchase->is_auto_renew_enabled;
-			// A lapsed plan keeps working through its grace period, so the card
-			// names it and says it expired instead of leaving the cell empty.
-			$info['expired'] = 'expired' === ( $purchase->expiry_status ?? '' );
+			$info['name'] = (string) preg_replace( '/^(Jetpack|WordPress\.com) /', '', (string) $purchase->product_name );
 		}
 
 		set_transient( 'jetpack_ai_overview_plan_info', $info, HOUR_IN_SECONDS );

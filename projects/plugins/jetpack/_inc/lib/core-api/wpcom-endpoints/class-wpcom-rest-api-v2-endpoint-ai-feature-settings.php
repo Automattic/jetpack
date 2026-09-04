@@ -140,7 +140,7 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings extends WP_REST_Controller 
 		if ( ! Jetpack_AI_Settings::host_allows_ai() ) {
 			return new WP_Error(
 				'ai_disabled_by_host',
-				__( 'AI has been turned off for this site.', 'jetpack' ),
+				__( 'Jetpack AI is not available for this site.', 'jetpack' ),
 				array( 'status' => 403 )
 			);
 		}

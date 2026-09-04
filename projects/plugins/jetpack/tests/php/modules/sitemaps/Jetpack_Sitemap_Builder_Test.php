@@ -10,6 +10,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Group;
 
 require_once JETPACK__PLUGIN_DIR . 'modules/sitemaps/sitemap-builder.php';
+require_once __DIR__ . '/class-jetpack-sitemap-builder-test-stub.php';
 
 /**
  * Test class for Jetpack_Sitemap_Builder.
@@ -300,8 +301,191 @@ class Jetpack_Sitemap_Builder_Test extends WP_UnitTestCase {
 		$result  = $builder->build_one_page_sitemap( 1, 1 );
 
 		remove_filter( 'jetpack_page_sitemap_other_urls', $callback );
+		remove_filter( 'jetpack_sitemap_flat_master_index', '__return_true' );
 
 		$this->assertSame( '2024-03-08T01:02:03Z', $result['last_modified'], 'Last modified date is not the one from the other_urls filter.' );
+	}
+
+	/**
+	 * Enough URLs to spill over JP_SITEMAP_MAX_ITEMS into a second page sitemap.
+	 *
+	 * @return callable The filter callback, so the caller can remove it again.
+	 */
+	private function add_split_page_sitemap_fixture() {
+		$callback = function () {
+			$urls = array();
+			for ( $i = 0; $i < JP_SITEMAP_MAX_ITEMS * 2; $i++ ) {
+				$urls[] = 'https://example.com/' . $i;
+			}
+			return $urls;
+		};
+
+		add_filter( 'jetpack_page_sitemap_other_urls', $callback );
+
+		return $callback;
+	}
+
+	/**
+	 * Turn on the flat master sitemap layout, which ships off by default.
+	 */
+	private function enable_flat_master_index() {
+		add_filter( 'jetpack_sitemap_flat_master_index', '__return_true' );
+	}
+
+	/**
+	 * The master sitemap links leaf sitemaps directly when they fit in its buffer.
+	 *
+	 * A sitemap index file may not list other sitemap index files. When the leaf
+	 * files do not fit, the master deliberately keeps the nested layout instead
+	 * of dropping URLs — see the overflow test below.
+	 *
+	 * @link https://www.sitemaps.org/protocol.html#index
+	 *
+	 * @group jetpack-sitemap
+	 * @since 16.2
+	 */
+	#[Group( 'jetpack-sitemap' )]
+	public function test_master_sitemap_lists_leaf_sitemaps_when_they_fit() {
+		$callback = $this->add_split_page_sitemap_fixture();
+		$this->enable_flat_master_index();
+
+		/*
+		 * One pass covers this fixture: update_sitemap() builds up to
+		 * JP_SITEMAP_UPDATE_SIZE files per call and this needs four. Calling it
+		 * again would start a fresh cycle rather than continue this one.
+		 */
+		$this->builder->update_sitemap();
+
+		remove_filter( 'jetpack_page_sitemap_other_urls', $callback );
+		remove_filter( 'jetpack_sitemap_flat_master_index', '__return_true' );
+
+		$librarian = new Jetpack_Sitemap_Librarian();
+
+		// Sanity check: the content really did split across two sitemaps.
+		$this->assertNotEmpty(
+			$librarian->get_sitemap_text( 'sitemap-2.xml', JP_PAGE_SITEMAP_TYPE ),
+			'Expected the URLs to split across more than one page sitemap.'
+		);
+
+		$master = $librarian->get_sitemap_text( 'sitemap.xml', JP_MASTER_SITEMAP_TYPE );
+
+		$this->assertStringContainsString( 'sitemap-1.xml', $master );
+		$this->assertStringContainsString( 'sitemap-2.xml', $master );
+		$this->assertStringNotContainsString( 'sitemap-index-', $master );
+	}
+
+	/**
+	 * Too many leaf sitemaps to list falls back to the nested index, intact.
+	 *
+	 * Filling the real buffer would take a million-plus URLs, so this shrinks it
+	 * to one entry through the builder's buffer seam. The master must then link
+	 * the per-type index rather than list some leaves and drop the rest, and the
+	 * index it links must still reach every leaf.
+	 *
+	 * @group jetpack-sitemap
+	 * @since 16.2
+	 */
+	#[Group( 'jetpack-sitemap' )]
+	public function test_master_sitemap_falls_back_to_nested_index_when_leaves_do_not_fit() {
+		$callback = $this->add_split_page_sitemap_fixture();
+		$this->enable_flat_master_index();
+
+		Jetpack_Sitemap_Builder_Test_Stub::$master_item_limit = 1;
+		$builder = new Jetpack_Sitemap_Builder_Test_Stub();
+		$builder->update_sitemap();
+
+		remove_filter( 'jetpack_page_sitemap_other_urls', $callback );
+		remove_filter( 'jetpack_sitemap_flat_master_index', '__return_true' );
+		Jetpack_Sitemap_Builder_Test_Stub::reset();
+
+		$librarian = new Jetpack_Sitemap_Librarian();
+		$master    = $librarian->get_sitemap_text( 'sitemap.xml', JP_MASTER_SITEMAP_TYPE );
+
+		$this->assertStringContainsString( 'sitemap-index-1.xml', $master );
+		$this->assertStringNotContainsString( 'sitemap-1.xml', $master );
+
+		// The fallback is only acceptable because the index still reaches everything.
+		$index = $librarian->get_sitemap_text( 'sitemap-index-1.xml', JP_PAGE_SITEMAP_INDEX_TYPE );
+
+		$this->assertStringContainsString( 'sitemap-1.xml', $index );
+		$this->assertStringContainsString( 'sitemap-2.xml', $index );
+	}
+
+	/**
+	 * A master sitemap is not replaced by one that cannot reach every file.
+	 *
+	 * This guard is not behind the flat-layout filter, so it applies to every
+	 * site. Losing a sitemap file the state still expects has to leave the
+	 * previously stored master alone rather than publish one that no longer
+	 * reaches those URLs.
+	 *
+	 * @group jetpack-sitemap
+	 * @since 16.2
+	 */
+	#[Group( 'jetpack-sitemap' )]
+	public function test_master_sitemap_is_kept_when_a_sitemap_file_is_missing() {
+		$callback = $this->add_split_page_sitemap_fixture();
+		$this->enable_flat_master_index();
+
+		$this->builder->update_sitemap();
+
+		$librarian = new Jetpack_Sitemap_Librarian();
+		$before    = $librarian->get_sitemap_text( 'sitemap.xml', JP_MASTER_SITEMAP_TYPE );
+
+		$this->assertStringContainsString( 'sitemap-2.xml', $before );
+
+		// Lose a file the state still expects, then run the master step again.
+		$librarian->delete_sitemap_data( 'sitemap-2.xml', JP_PAGE_SITEMAP_TYPE );
+		update_option(
+			'jetpack-sitemap-state',
+			array(
+				'sitemap-type'  => JP_MASTER_SITEMAP_TYPE,
+				'last-added'    => 0,
+				'number'        => 0,
+				'last-modified' => '1970-01-01 00:00:00',
+				'max'           => array(
+					JP_PAGE_SITEMAP_TYPE => array(
+						'number'  => 2,
+						'lastmod' => '1970-01-01 00:00:00',
+					),
+				),
+			)
+		);
+
+		$this->builder->update_sitemap();
+
+		remove_filter( 'jetpack_page_sitemap_other_urls', $callback );
+		remove_filter( 'jetpack_sitemap_flat_master_index', '__return_true' );
+
+		$this->assertSame(
+			$before,
+			$librarian->get_sitemap_text( 'sitemap.xml', JP_MASTER_SITEMAP_TYPE ),
+			'The master sitemap should be left alone when a file it lists is gone.'
+		);
+	}
+
+	/**
+	 * The flat layout is opt-in: without the filter the master still nests.
+	 *
+	 * The default is expected to flip once the flat layout has been verified in
+	 * production, at which point this test goes with it.
+	 *
+	 * @group jetpack-sitemap
+	 * @since 16.2
+	 */
+	#[Group( 'jetpack-sitemap' )]
+	public function test_master_sitemap_nests_by_default() {
+		$callback = $this->add_split_page_sitemap_fixture();
+
+		$this->builder->update_sitemap();
+
+		remove_filter( 'jetpack_page_sitemap_other_urls', $callback );
+
+		$librarian = new Jetpack_Sitemap_Librarian();
+		$master    = $librarian->get_sitemap_text( 'sitemap.xml', JP_MASTER_SITEMAP_TYPE );
+
+		$this->assertStringContainsString( 'sitemap-index-1.xml', $master );
+		$this->assertStringNotContainsString( 'sitemap-1.xml', $master );
 	}
 
 	/**
