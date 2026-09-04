@@ -63,6 +63,18 @@
 	&__header {
 		padding-bottom: 8px;
 		border-bottom: 1px solid var(--wp-components-color-gray-200, #e0e0e0);
+
+		// A filename offers no break opportunity at `.` or `_`, so at the
+		// card's fixed 280px track a long stem pushes the close button past
+		// `Card.Root`'s `overflow: clip` and out of reach of the mouse.
+		> :first-child {
+			min-width: 0;
+			overflow-wrap: anywhere;
+		}
+
+		> :last-child {
+			flex-shrink: 0;
+		}
 	}
 
 	&__preview {
