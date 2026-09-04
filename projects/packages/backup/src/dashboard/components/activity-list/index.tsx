@@ -91,6 +91,19 @@ function MediaCell( { item }: { item: ActivityItem } ) {
 }
 
 /**
+ * The row's timestamp, formatted once for both the name and the visible line.
+ *
+ * Drift between the two would announce a different restore point than the one
+ * on screen, on the control that picks what Restore and Download act on.
+ *
+ * @param item - The activity item.
+ * @return The formatted timestamp.
+ */
+function rowDate( item: ActivityItem ): string {
+	return dateI18n( 'M j, Y, g:i A', item.publishedAt, undefined );
+}
+
+/**
  * Title cell — the visible summary, plus the timestamp for assistive tech.
  *
  * DataViews points the row's `aria-labelledby` at this cell alone, so without
@@ -106,9 +119,7 @@ function TitleCell( { item }: { item: ActivityItem } ) {
 		<>
 			{ item.title }
 			{ /* JSX drops the newline, and the name computation adds nothing back. */ }{ ' ' }
-			<span className="jpb-visually-hidden">
-				{ dateI18n( 'M j, Y, g:i A', item.publishedAt, undefined ) }
-			</span>
+			<span className="jpb-visually-hidden">{ rowDate( item ) }</span>
 		</>
 	);
 }
@@ -125,7 +136,7 @@ function DescriptionCell( { item }: { item: ActivityItem } ) {
 	return (
 		<Stack direction="row" align="center" gap="xs">
 			<Text variant="body-sm" className="jpb-text-muted jpb-activity-list__date">
-				{ dateI18n( 'M j, Y, g:i A', item.publishedAt, undefined ) }
+				{ rowDate( item ) }
 			</Text>
 			{ /*
 			 * `auto`, not `ltr`: WPCOM may legitimately translate this line into RTL.
@@ -238,9 +249,7 @@ export default function ActivityList( { selectedId, onSelect, view, onChangeView
 				label: __( 'When', 'jetpack-backup-pkg' ),
 				render: DescriptionCell,
 				getValue: ( { item } ) =>
-					`${ dateI18n( 'M j, Y, g:i A', item.publishedAt, undefined ) }${
-						item.summary ? ` ${ item.summary }` : ''
-					}`,
+					`${ rowDate( item ) }${ item.summary ? ` ${ item.summary }` : '' }`,
 				enableHiding: false,
 				filterBy: false,
 			},
