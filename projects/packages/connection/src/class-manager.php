@@ -114,6 +114,13 @@ class Manager {
 	private static $connection_invalidators_added = false;
 
 	/**
+	 * The raw HTTP response of the registration request currently being processed.
+	 *
+	 * @var array|WP_Error|null
+	 */
+	private $last_register_response = null;
+
+	/**
 	 * Initialize the object.
 	 * Make sure to call the "Configure" first.
 	 *
@@ -184,6 +191,8 @@ class Manager {
 		add_action( 'profile_update', array( $user_account_status, 'clean_account_mismatch_transients' ), 9, 1 );
 
 		$manager->add_connection_status_invalidation_hooks();
+
+		Registration_Failure::init_hooks();
 
 		// Set up package version hook.
 		add_filter( 'jetpack_package_versions', __NAMESPACE__ . '\Package_Version::send_package_version_to_tracker' );
@@ -1557,6 +1566,34 @@ class Manager {
 	 * @return true|WP_Error The error object.
 	 */
 	public function register( $api_endpoint = 'register' ) {
+		$this->last_register_response = null;
+
+		$result = $this->do_register( $api_endpoint );
+
+		if ( is_wp_error( $result ) ) {
+			Registration_Failure::record(
+				$result,
+				$this->last_register_response,
+				$this->get_plugin() ? $this->get_plugin()->get_slug() : null
+			);
+		} else {
+			Registration_Failure::clear();
+		}
+
+		$this->last_register_response = null;
+
+		return $result;
+	}
+
+	/**
+	 * Perform the registration request and store the resulting connection data.
+	 *
+	 * @see Manager::register()
+	 *
+	 * @param string $api_endpoint An API endpoint to use.
+	 * @return true|WP_Error The error object.
+	 */
+	private function do_register( $api_endpoint ) {
 		// Clean-up leftover tokens just in-case.
 		// This fixes an edge case that was preventing users to register when the blog token was missing but
 		// there were still leftover user tokens present.
@@ -1648,6 +1685,10 @@ class Manager {
 			true
 		);
 
+		// Kept so that ::register() can read response headers such as `Retry-After`
+		// when recording the failure.
+		$this->last_register_response = $response;
+
 		// Make sure the response is valid and does not contain any Jetpack errors.
 		$registration_details = $this->validate_remote_register_response( $response );
 
@@ -1738,11 +1779,43 @@ class Manager {
 	/**
 	 * Attempts Jetpack registration.
 	 *
+	 * Automatic attempts are held back while a previous failure still stands: some
+	 * registration errors describe the site's environment and cannot be resolved by
+	 * trying again, and the rest are retried on a backoff schedule. Pass `$force` for
+	 * attempts a user explicitly asked for - those are never held back.
+	 *
+	 * @since $$next-version$$ Added the `$force` parameter, the offline mode check, and the retry backoff.
+	 *
 	 * @param bool $tos_agree Whether the user agreed to TOS.
+	 * @param bool $force     Whether this attempt was explicitly requested by a user.
 	 *
 	 * @return bool|WP_Error
 	 */
-	public function try_registration( $tos_agree = true ) {
+	public function try_registration( $tos_agree = true, $force = false ) {
+		if ( $force ) {
+			Registration_Failure::clear();
+		}
+
+		if ( ( new Status() )->is_offline_mode() ) {
+			return new WP_Error(
+				'offline_mode',
+				__( 'Site is in offline mode; WordPress.com registration is not attempted.', 'jetpack-connection' )
+			);
+		}
+
+		if ( ! $force ) {
+			$blocking_error = Registration_Failure::get_blocking_error();
+
+			if ( $blocking_error ) {
+				Registration_Failure::record_suppressed_attempt(
+					$blocking_error,
+					$this->get_plugin() ? $this->get_plugin()->get_slug() : null
+				);
+
+				return $blocking_error;
+			}
+		}
+
 		if ( $tos_agree ) {
 			$terms_of_service = new Terms_Of_Service();
 			$terms_of_service->agree();
@@ -1780,6 +1853,21 @@ class Manager {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Get the reason the last registration attempt failed, if it still stands.
+	 *
+	 * Lets consuming plugins tell the user why the site is not connected - for
+	 * example that WordPress.com cannot reach a site on a private address - instead
+	 * of leaving the connection silently unavailable.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return array|null Failure details, or null if the last attempt did not fail.
+	 */
+	public function get_registration_failure() {
+		return Registration_Failure::get();
 	}
 
 	/**
