@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Jetpack AI: load the Scheduled tasks tab only when it is opened, cutting the AI page script by two thirds.
