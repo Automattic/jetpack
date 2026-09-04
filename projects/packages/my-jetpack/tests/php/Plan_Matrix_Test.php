@@ -317,6 +317,7 @@ class Plan_Matrix_Test extends TestCase {
 	 */
 	public function tearDown(): void {
 		$this->uninstall_standalone_plugins();
+		// @phan-suppress-next-line PhanUndeclaredStaticProperty -- Declared on the mock in ./assets/jetpack-mock-plugin.txt
 		\Jetpack::$active_modules = array();
 
 		delete_transient( Product::MY_JETPACK_SITE_FEATURES_TRANSIENT_KEY );
@@ -528,6 +529,7 @@ class Plan_Matrix_Test extends TestCase {
 		}
 		Jetpack_Options::update_option( 'active_modules', $active );
 
+		// @phan-suppress-next-line PhanUndeclaredStaticProperty -- Declared on the mock in ./assets/jetpack-mock-plugin.txt
 		\Jetpack::$active_modules[] = $class::$module_name;
 	}
 
