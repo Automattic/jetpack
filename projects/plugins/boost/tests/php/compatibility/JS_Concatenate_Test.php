@@ -22,6 +22,7 @@ class JS_Concatenate_Test extends Base_TestCase {
 		$fn = 'Automattic\Jetpack_Boost\Compatibility\JS_Concatenate\maybe_do_not_concat';
 		$this->assertFalse( $fn( true, 'tribe-tickets-block' ) );
 		$this->assertFalse( $fn( true, 'woocommerce-analytics-client' ) );
+		$this->assertFalse( $fn( true, 'wc-single-product' ) );
 	}
 
 	public function test_other_handles_pass_through_unchanged() {
