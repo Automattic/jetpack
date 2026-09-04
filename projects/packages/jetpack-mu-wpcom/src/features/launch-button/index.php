@@ -59,6 +59,52 @@ function wpcom_should_show_launch_button(): bool {
 }
 
 /**
+ * The page the launch flow should return to, as a site-relative `ref` value.
+ *
+ * Calypso resolves `ref` against the site's own host, so it doubles as the destination after a
+ * launch and as the target of the flow's Back button. Screens that need query args beyond `page`
+ * (post.php, edit.php filters, and so on) can't be replayed from `ref` alone, so those fall back to
+ * the admin root rather than sending the user to a broken screen.
+ *
+ * @return string
+ */
+function wpcom_get_launch_button_ref(): string {
+	if ( ! is_admin() ) {
+		return 'wp-admin';
+	}
+
+	global $pagenow;
+
+	if ( ! is_string( $pagenow ) || ! preg_match( '/^[a-z0-9_-]+\.php$/', $pagenow ) ) {
+		return 'wp-admin';
+	}
+
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reading the current screen, not a form submission.
+	$query_args = wp_unslash( $_GET );
+
+	if ( ! empty( array_diff_key( $query_args, array( 'page' => '' ) ) ) ) {
+		return 'wp-admin';
+	}
+
+	$page = isset( $query_args['page'] ) && is_string( $query_args['page'] )
+		? sanitize_text_field( $query_args['page'] )
+		: '';
+
+	// admin.php only resolves to a screen together with its `page` arg.
+	if ( 'admin.php' === $pagenow && '' === $page ) {
+		return 'wp-admin';
+	}
+
+	$ref = 'wp-admin/' . $pagenow;
+
+	if ( '' !== $page ) {
+		$ref = add_query_arg( 'page', $page, $ref );
+	}
+
+	return $ref;
+}
+
+/**
  * Adds a "launch site" button to the admin bar.
  *
  * @param WP_Admin_Bar $admin_bar The WordPress admin bar.
@@ -87,7 +133,7 @@ function wpcom_add_launch_button_to_admin_bar( WP_Admin_Bar $admin_bar ) {
 			'href'   => add_query_arg(
 				array(
 					'siteSlug' => $blog_domain,
-					'ref'      => 'wp-admin',
+					'ref'      => wpcom_get_launch_button_ref(),
 				),
 				'https://wordpress.com/start/launch-site'
 			),
@@ -172,6 +218,7 @@ function wpcom_enqueue_launch_button_assets() {
 			'siteDomain'      => wp_parse_url( home_url(), PHP_URL_HOST ),
 			'sitePlan'        => $current_plan,
 			'hasCustomDomain' => function_exists( 'wpcom_site_has_feature' ) && wpcom_site_has_feature( 'custom-domain' ),
+			'launchRef'       => wpcom_get_launch_button_ref(),
 		),
 		JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 	);
