@@ -32,7 +32,7 @@ const PAGE = {
 	current: {
 		orderedItems: [
 			row( '1786600000', '2026-08-20T10:00:00+00:00' ),
-			row( '1786600060', '2026-08-19T22:30:00+00:00' ),
+			row( '1786600060', '2026-08-20T10:01:00+00:00' ),
 		],
 	},
 	totalItems: 2,
@@ -72,14 +72,14 @@ it( 'names each row by its own restore point, not by the shared summary', async 
 		screen.findByRole( 'button', { name: `${ SUMMARY } Aug 20, 2026, 10:00 AM` } )
 	).resolves.toBeInTheDocument();
 	expect(
-		screen.getByRole( 'button', { name: `${ SUMMARY } Aug 19, 2026, 10:30 PM` } )
+		screen.getByRole( 'button', { name: `${ SUMMARY } Aug 20, 2026, 10:01 AM` } )
 	).toBeInTheDocument();
 } );
 
 it( 'no longer answers to the summary alone, which every row shares', async () => {
 	renderList();
 	await expect(
-		screen.findByRole( 'button', { name: /Aug 20, 2026/ } )
+		screen.findByRole( 'button', { name: /Aug 20, 2026, 10:00 AM/ } )
 	).resolves.toBeInTheDocument();
 
 	expect( screen.queryByRole( 'button', { name: SUMMARY } ) ).not.toBeInTheDocument();

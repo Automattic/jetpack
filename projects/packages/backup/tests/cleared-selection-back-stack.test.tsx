@@ -52,8 +52,7 @@ function title( id: string ): string {
 }
 
 /**
- * The same row as a name matcher. A row's accessible name carries its
- * timestamp after the title, so an exact string never matches the button.
+ * The same row as a name matcher.
  *
  * @param id - The row's rewind id.
  * @return The matcher.
