@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Dashboard: limit customization to moving and resizing widgets. Adding and removing widgets and resetting the layout sit behind the premium-analytics-dashboard-composition feature flag, off by default.
