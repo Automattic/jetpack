@@ -59,6 +59,9 @@ export type DateYearFilterProps = {
 	 * It must be an element whose width does not depend on the filter's own
 	 * width — a full-width row, not a `fit-content` wrapper — or the two
 	 * measurements chase each other every time the layout switches.
+	 *
+	 * Siblings sharing the filter's flex row are counted against this width, so
+	 * the filter must be a direct child of that row — a wrapper around it hides them.
 	 */
 	containerElement?: HTMLElement | null;
 };
@@ -78,7 +81,7 @@ type RowMeasurement = {
  * alone leaves the row short by whatever the rest takes, which is how they came
  * to run past its end.
  *
- * @param group - The pills' own group.
+ * @param group - The pills' own group. Direct child of the flex row it shares.
  * @return The width to count against the container alongside the pills.
  */
 function getRowMatesWidth( group: HTMLElement ): number {
