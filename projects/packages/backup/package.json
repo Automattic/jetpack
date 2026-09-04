@@ -66,6 +66,7 @@
 		"@automattic/jetpack-wp-build-polyfills": "workspace:*",
 		"@babel/core": "7.29.7",
 		"@babel/runtime": "7.29.7",
+		"@tanstack/react-router": "^1.167.1",
 		"@testing-library/dom": "10.4.1",
 		"@testing-library/react": "16.3.2",
 		"@testing-library/user-event": "14.6.1",

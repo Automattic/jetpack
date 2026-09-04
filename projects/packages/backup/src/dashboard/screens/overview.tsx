@@ -61,6 +61,16 @@ export const INITIAL_VIEW: View = {
 let hasRecordedPageView = false;
 
 /**
+ * Where the reader last was in the list, and which row they last chose.
+ *
+ * Module state for the same reason `hasRecordedPageView` is: a trip to Download or
+ * Restore unmounts this screen, and a gate verdict change unmounts its body — so
+ * anything held in the component is gone by the time the reader comes back.
+ */
+let lastView: View = INITIAL_VIEW;
+let lastSelectedId: string | null = null;
+
+/**
  * Reset the page-view latch. Test-only.
  *
  * The latch is module state precisely so it outlives an unmount, which
@@ -69,6 +79,17 @@ let hasRecordedPageView = false;
  */
 export function resetPageViewForTesting(): void {
 	hasRecordedPageView = false;
+}
+
+/**
+ * Forget where the reader was. Test-only.
+ *
+ * Same hazard as the latch above: this state outlives an unmount, so one test's
+ * paging would otherwise seed every later one in the same file.
+ */
+export function resetListStateForTesting(): void {
+	lastView = INITIAL_VIEW;
+	lastSelectedId = null;
 }
 
 /**
@@ -133,7 +154,13 @@ function OverviewBody() {
 	const navigate = useNavigate();
 	// View state lives here so RightPane's `useActivityById` can
 	// subscribe to the same paginated query the list reads from.
-	const [ view, setView ] = useState< View >( INITIAL_VIEW );
+	const [ view, setView ] = useState< View >( lastView );
+	// Written on the way through, because the return trip has nothing to read it from:
+	// the back links on Download and Restore carry no search.
+	const rememberView = useCallback( ( next: View ) => {
+		lastView = next;
+		setView( next );
+	}, [] );
 	// Same derivation `<ActivityList>` uses, so the right pane reads the cache
 	// entry the list filled rather than opening its own.
 	const { page, pageSize, sortOrder } = activityQueryArgs( view );
@@ -143,7 +170,30 @@ function OverviewBody() {
 	// placeholder renders. Page 1 dedupes with the list's first
 	// fetch when the list is on page 1 with the default per-page.
 	const defaultSelectedId = useDefaultBackupRewindId();
-	const selectedId = typeof search.selected === 'string' ? search.selected : defaultSelectedId;
+	// The URL still wins; the remembered row only answers for the return trip, where
+	// the reader made a choice this page load and the address no longer carries it.
+	const urlSelectedId = typeof search.selected === 'string' ? search.selected : null;
+	const selectedId = urlSelectedId ?? lastSelectedId ?? defaultSelectedId;
+	// Only an explicit choice is remembered: `defaultSelectedId` moves as new backups
+	// land, and pinning the row it happened to name would outlive its own reason.
+	useEffect( () => {
+		if ( urlSelectedId ) {
+			lastSelectedId = urlSelectedId;
+		}
+	}, [ urlSelectedId ] );
+	// Puts the remembered row in the address whenever the address lacks one, so
+	// `clearSelected` below always has a real change to make: without one, TanStack
+	// treats its navigate as a no-op and pushes no history entry, leaving Back with
+	// nowhere on the Overview to land. `replace`: this is not its own stop.
+	useEffect( () => {
+		if ( urlSelectedId || ! lastSelectedId ) {
+			return;
+		}
+		navigate( {
+			search: ( previous: OverviewSearch ) => ( { ...previous, selected: lastSelectedId } ),
+			replace: true,
+		} as Parameters< typeof navigate >[ 0 ] );
+	}, [ urlSelectedId, navigate ] );
 	// `/site/rewindable-activity` only lists completed restore points, so
 	// on its own it cannot tell "no backups yet" from "the first one is
 	// running" from "they're all failing". This second query answers that.
@@ -194,6 +244,9 @@ function OverviewBody() {
 	// The stale id lives in the URL, so the dead end survives a reload without this.
 	// A new history entry, not a replacement: the selection may be fine, so Back must restore it.
 	const clearSelected = useCallback( () => {
+		// The memory too, not just the URL: `selectedId` falls back to it, so
+		// clearing one and not the other puts the reader straight back.
+		lastSelectedId = null;
 		overviewRef.current?.focus();
 		navigate( {
 			search: ( previous: OverviewSearch ) => {
@@ -321,7 +374,7 @@ function OverviewBody() {
 					selectedId={ selectedId }
 					onSelect={ setSelected }
 					view={ view }
-					onChangeView={ setView }
+					onChangeView={ rememberView }
 				/>
 				<RightPane
 					selectedId={ selectedId }

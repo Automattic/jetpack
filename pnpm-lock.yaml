@@ -2125,6 +2125,9 @@ importers:
       '@babel/runtime':
         specifier: 7.29.7
         version: 7.29.7
+      '@tanstack/react-router':
+        specifier: ^1.167.1
+        version: 1.167.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@testing-library/dom':
         specifier: 10.4.1
         version: 10.4.1
