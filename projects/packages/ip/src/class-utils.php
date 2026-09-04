@@ -282,6 +282,9 @@ class Utils {
 	 * empty list means the host is unusable -- malformed, or it resolved to nothing
 	 * -- and callers must treat that as unsafe rather than letting the host through.
 	 *
+	 * Every entry is a valid, distinct IP address; anything else a resolver hands
+	 * back is dropped.
+	 *
 	 * @since $$next-version$$
 	 *
 	 * @param string $host Host name or IP literal (IPv6 literals may be bracketed).
@@ -345,7 +348,16 @@ class Utils {
 			}
 		}
 
-		return $ips;
+		// Hand back addresses and nothing else, so a caller using these directly gets
+		// what the return type promises without re-checking the resolvers' output.
+		$ips = array_filter(
+			$ips,
+			function ( $ip ) {
+				return is_string( $ip ) && false !== filter_var( $ip, FILTER_VALIDATE_IP );
+			}
+		);
+
+		return array_values( array_unique( $ips ) );
 	}
 
 	/**

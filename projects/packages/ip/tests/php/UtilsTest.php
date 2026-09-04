@@ -485,6 +485,23 @@ final class UtilsTest extends PHPUnit\Framework\TestCase {
 	}
 
 	/**
+	 * Whatever a resolver returns, the list holds valid, distinct IP addresses.
+	 *
+	 * The lookup needs DNS, so the assertions are on the shape of the result rather
+	 * than a fixed set of addresses; with no network the list is empty and they hold
+	 * trivially.
+	 */
+	public function test_resolve_host_ips_returns_only_valid_distinct_addresses() {
+		$ips = Utils::resolve_host_ips( 'dns.google' );
+
+		$this->assertSame( array_values( array_unique( $ips ) ), $ips );
+		foreach ( $ips as $ip ) {
+			$this->assertIsString( $ip );
+			$this->assertNotFalse( filter_var( $ip, FILTER_VALIDATE_IP ), "$ip should be an IP address" );
+		}
+	}
+
+	/**
 	 * An unresolvable or empty host yields no addresses, which callers treat as unsafe.
 	 */
 	public function test_resolve_host_ips_returns_empty_for_unresolvable_host() {
