@@ -61,11 +61,12 @@ describe( 'JetpackStateNotices', () => {
 		);
 	} );
 
-	it( 'shows an unmapped code unchanged when there is no description', () => {
+	it( 'frames an unmapped code with generic copy when there is no description', () => {
 		renderWithState( { errorCode: 'xml_rpc-32601', errorDescription: '' } );
 
-		expect( screen.getByText( 'xml_rpc-32601' ) ).toBeInTheDocument();
-		expect( screen.queryByText( /Your Jetpack has a glitch/ ) ).not.toBeInTheDocument();
+		expect(
+			screen.getByText( /contact support with this message: xml_rpc-32601/ )
+		).toBeInTheDocument();
 	} );
 
 	it( 'renders nothing without an error or message code', () => {

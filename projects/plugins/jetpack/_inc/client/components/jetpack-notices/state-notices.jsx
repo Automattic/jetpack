@@ -36,7 +36,7 @@ class JetpackStateNotices extends Component {
 			sprintf(
 				/* translators: %s: an error code. */
 				__(
-					"<s>Your Jetpack has a glitch.</s> We're sorry for the inconvenience. Please try again later, if the issue continues please contact support with this message: %s",
+					'<s>Your Jetpack has a glitch.</s> We’re sorry for the inconvenience. Please try again later, if the issue continues please contact support with this message: %s',
 					'jetpack'
 				),
 				key
@@ -177,10 +177,8 @@ class JetpackStateNotices extends Component {
 				break;
 
 			default:
-				// Codes with no case of their own. When a description was supplied it
-				// carries the detail, so frame the code rather than presenting it as
-				// Jetpack's own message. With no description, show the key unchanged.
-				message = errorDesc ? this.getGenericErrorMessage( key ) : key;
+				// Codes with no case of their own get generic glitch copy; errorDesc (if any) is appended below.
+				message = this.getGenericErrorMessage( key );
 		}
 
 		if ( errorDesc ) {

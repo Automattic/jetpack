@@ -4265,7 +4265,7 @@ p {
 			return '';
 		}
 
-		return mb_substr( (string) $message, 0, 500 );
+		return mb_substr( (string) $message, 0, 250 );
 	}
 
 	/**
