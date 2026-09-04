@@ -71,6 +71,7 @@ e2e:
     projects/plugins/boost/tests/e2e/plugins/e2e-external-css-enqueue/: /var/www/html/wp-content/plugins/e2e-external-css-enqueue/
     projects/plugins/boost/tests/e2e/plugins/e2e-mock-premium-features.php: /var/www/html/wp-content/plugins/e2e-mock-premium-features.php
     projects/plugins/boost/tests/e2e/plugins/e2e-critical-css-force-errors.php: /var/www/html/wp-content/plugins/e2e-critical-css-force-errors.php
+    projects/plugins/paypal-payment-buttons/tests/e2e/plugins/e2e-paypal-feature-flag.php: /var/www/html/wp-content/plugins/e2e-paypal-feature-flag.php
     tools/e2e-commons/plugins/e2e-search-test-helper.php: /var/www/html/wp-content/plugins/e2e-search-test-helper.php
     tools/e2e-commons/plugins/e2e-wpcom-request-interceptor.php: /var/www/html/wp-content/plugins/e2e-wpcom-request-interceptor.php
     tools/e2e-commons/plugins/e2e-plan-helper.php: /var/www/html/wp-content/plugins/e2e-plan-helper.php
