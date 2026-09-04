@@ -83,6 +83,13 @@ class Jetpack_Subscriptions {
 	public static $hash;
 
 	/**
+	 * Status each post was published from this request, keyed by post ID.
+	 *
+	 * @var array
+	 */
+	private $published_from_status = array();
+
+	/**
 	 * Singleton
 	 *
 	 * @static
@@ -129,6 +136,8 @@ class Jetpack_Subscriptions {
 		add_action( 'post_submitbox_misc_actions', array( $this, 'subscription_post_page_metabox' ) );
 
 		add_action( 'transition_post_status', array( $this, 'maybe_send_subscription_email' ), 10, 3 );
+
+		add_action( 'transition_post_status', array( $this, 'record_published_from_status' ), 10, 3 );
 
 		add_filter( 'jetpack_published_post_flags', array( $this, 'set_post_flags' ), 10, 2 );
 
@@ -289,7 +298,17 @@ class Jetpack_Subscriptions {
 		}
 
 		/*
-		 * Restoring or re-publishing an old post must not email the back catalog.
+		 * Restoring a trashed post re-publishes it, which must not email subscribers.
+		 * WordPress.com already drops this transition for Simple sites, but
+		 * jetpack_published_post carries no previous status, so on Jetpack sites only
+		 * the plugin can tell a restore from a first publish.
+		 */
+		if ( $this->was_published_from_trash( $post ) ) {
+			return false;
+		}
+
+		/*
+		 * Re-publishing an old post must not email the back catalog either.
 		 * WordPress.com vetoes the same sends for every Jetpack version in
 		 * jetpack_newsletter_allow_send_for_post_age(); keep the thresholds in step.
 		 */
@@ -334,6 +353,38 @@ class Jetpack_Subscriptions {
 		}
 
 		return $should_email;
+	}
+
+	/**
+	 * Record the status a post was published from, for was_published_from_trash().
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string  $new_status The new post status.
+	 * @param string  $old_status The old post status.
+	 * @param WP_Post $post       The post.
+	 * @return void
+	 */
+	public function record_published_from_status( $new_status, $old_status, $post ) {
+		if ( 'publish' === $new_status && $post instanceof WP_Post ) {
+			$this->published_from_status[ $post->ID ] = $old_status;
+		}
+	}
+
+	/**
+	 * Whether this request published the post by restoring it from the trash.
+	 *
+	 * False when the post did not change status this request, so a stale record can
+	 * never suppress a later genuine publish.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param object $post The post.
+	 * @return bool
+	 */
+	public function was_published_from_trash( $post ) {
+		return isset( $this->published_from_status[ $post->ID ] )
+			&& 'trash' === $this->published_from_status[ $post->ID ];
 	}
 
 	/**

@@ -235,6 +235,47 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 		$this->assertTrue( $subscriptions->should_email_post_to_subscribers( $post ) );
 	}
 
+	/**
+	 * Restoring a trashed post republishes it at its original date. WordPress.com drops
+	 * that transition for Simple sites, but jetpack_published_post carries no previous
+	 * status, so on Jetpack sites only the plugin can tell a restore from a publish.
+	 */
+	public function test_post_restored_from_trash_is_not_emailed_to_subscribers() {
+		$subscriptions = Jetpack_Subscriptions::init();
+		$post_id       = self::factory()->post->create();
+
+		wp_trash_post( $post_id );
+		wp_publish_post( $post_id );
+
+		$post = get_post( $post_id );
+		$this->assertSame( 'publish', $post->post_status );
+		$this->assertTrue( $subscriptions->was_published_from_trash( $post ) );
+		$this->assertFalse( $subscriptions->should_email_post_to_subscribers( $post ) );
+	}
+
+	public function test_post_published_from_draft_is_emailed_to_subscribers() {
+		$subscriptions = Jetpack_Subscriptions::init();
+		$post_id       = self::factory()->post->create( array( 'post_status' => 'draft' ) );
+
+		wp_publish_post( $post_id );
+
+		$post = get_post( $post_id );
+		$this->assertFalse( $subscriptions->was_published_from_trash( $post ) );
+		$this->assertTrue( $subscriptions->should_email_post_to_subscribers( $post ) );
+	}
+
+	/**
+	 * A post that did not change status this request has no record, so an unrelated
+	 * publish elsewhere can never be mistaken for a restore.
+	 */
+	public function test_untouched_post_is_not_treated_as_restored_from_trash() {
+		$subscriptions = Jetpack_Subscriptions::init();
+		$post          = self::factory()->post->create_and_get();
+
+		$this->assertFalse( $subscriptions->was_published_from_trash( $post ) );
+		$this->assertTrue( $subscriptions->should_email_post_to_subscribers( $post ) );
+	}
+
 	public function test_post_age_check_is_filterable() {
 		$subscriptions = Jetpack_Subscriptions::init();
 		$post          = self::factory()->post->create_and_get(
