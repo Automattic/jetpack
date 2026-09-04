@@ -35,3 +35,18 @@ export function isPremiumAnalyticsInitialSyncFinished(): boolean {
 export function isVideoPressAvailable(): boolean {
 	return getScriptData()?.premium_analytics?.has_videopress ?? false;
 }
+
+/**
+ * Check whether the preview exposes a dashboard section.
+ *
+ * Defaults to true, so a build whose server never scoped the dashboard keeps every
+ * surface: an absent list is "not scoped", not "nothing is in scope".
+ *
+ * @param section - URL-facing slug of the section the surface belongs to.
+ * @return Whether the preview exposes the section.
+ */
+export function isDashboardSectionInPreviewScope( section: string ): boolean {
+	const sections = getScriptData()?.premium_analytics?.preview_sections;
+
+	return ! Array.isArray( sections ) || sections.includes( section );
+}

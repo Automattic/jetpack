@@ -143,6 +143,11 @@ customer preview and exposes only the sections in `PREVIEW_SECTIONS`, while a st
 override exposes every section the site qualifies for. `jetpack_premium_analytics_dashboard_preview_scope`
 overrides that per section — `__return_true` gives a development or test site the whole dashboard.
 
+The scope reaches the client as `premium_analytics.preview_sections` in the script data, which is
+what keeps `/reports/…` out of a scoped preview: each report declares the tab it belongs to, and
+`getReportDefinition()` treats one behind a hidden tab as unknown. An absent list means "not
+scoped", so a server that never published one shows every report.
+
 ### Route guards must use the shared site-readiness helpers
 
 Every route's `beforeLoad` that checks connection state, and every sync check, must call

@@ -24,6 +24,17 @@ function setVideoPress( hasVideoPress: boolean ) {
 	mockGetScriptData.mockReturnValue( { premium_analytics: { has_videopress: hasVideoPress } } );
 }
 
+/**
+ * Point the mocked script data at a preview exposing only the given tabs.
+ *
+ * @param sections - URL-facing slugs of the tabs the preview exposes.
+ */
+function setPreviewSections( sections: string[] ) {
+	mockGetScriptData.mockReturnValue( {
+		premium_analytics: { has_videopress: true, preview_sections: sections },
+	} );
+}
+
 describe( 'getReportDefinition', () => {
 	beforeEach( () => {
 		mockIsSimpleSite.mockReturnValue( true );
@@ -76,5 +87,32 @@ describe( 'getReportDefinition', () => {
 		mockGetScriptData.mockReturnValue( undefined );
 
 		expect( getReportDefinition( 'videos' ) ).toBeUndefined();
+	} );
+
+	it( 'hides a report whose tab the preview does not expose', () => {
+		setPreviewSections( [ 'traffic' ] );
+
+		expect( getReportDefinition( 'comments' ) ).toBeUndefined();
+		expect( getReportDefinition( 'emails' ) ).toBeUndefined();
+	} );
+
+	it( 'keeps the Traffic reports while the preview is scoped', () => {
+		setPreviewSections( [ 'traffic' ] );
+
+		expect( getReportDefinition( 'posts' )?.id ).toBe( 'posts' );
+		expect( getReportDefinition( 'videos' )?.id ).toBe( 'videos' );
+	} );
+
+	it( 'opens a report once its tab joins the scope', () => {
+		setPreviewSections( [ 'traffic', 'insights' ] );
+
+		expect( getReportDefinition( 'comments' )?.id ).toBe( 'comments' );
+		expect( getReportDefinition( 'emails' ) ).toBeUndefined();
+	} );
+
+	// An absent list means the dashboard was never scoped, not that nothing is in scope.
+	it( 'leaves every report available when no scope was published', () => {
+		expect( getReportDefinition( 'comments' )?.id ).toBe( 'comments' );
+		expect( getReportDefinition( 'emails' )?.id ).toBe( 'emails' );
 	} );
 } );

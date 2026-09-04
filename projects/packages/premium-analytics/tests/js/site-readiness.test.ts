@@ -2,6 +2,7 @@
  * Internal dependencies
  */
 import {
+	isDashboardSectionInPreviewScope,
 	isPremiumAnalyticsInitialSyncFinished,
 	isPremiumAnalyticsSiteConnected,
 	isVideoPressAvailable,
@@ -78,5 +79,28 @@ describe( 'Premium Analytics site readiness', () => {
 		setScriptData( data );
 
 		expect( isVideoPressAvailable() ).toBe( false );
+	} );
+
+	it( 'reads the exposed tabs from the published scope', () => {
+		setScriptData( { premium_analytics: { preview_sections: [ 'traffic' ] } } );
+
+		expect( isDashboardSectionInPreviewScope( 'traffic' ) ).toBe( true );
+		expect( isDashboardSectionInPreviewScope( 'insights' ) ).toBe( false );
+	} );
+
+	it.each( [
+		[ 'the list is absent', { premium_analytics: { has_videopress: true } } ],
+		[ 'no script data was published', {} ],
+	] )( 'exposes every tab when %s', ( _case, data ) => {
+		setScriptData( data );
+
+		expect( isDashboardSectionInPreviewScope( 'insights' ) ).toBe( true );
+	} );
+
+	// An empty list is a scope that exposes nothing, unlike an absent one.
+	it( 'exposes no tab when the published scope is empty', () => {
+		setScriptData( { premium_analytics: { preview_sections: [] } } );
+
+		expect( isDashboardSectionInPreviewScope( 'traffic' ) ).toBe( false );
 	} );
 } );
