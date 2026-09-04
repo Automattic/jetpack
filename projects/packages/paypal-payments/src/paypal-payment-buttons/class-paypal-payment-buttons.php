@@ -41,6 +41,15 @@ class PayPal_Payment_Buttons {
 	public const API_MANAGED_BUTTONS_FLAG = 'paypal-payments-api-managed-buttons';
 
 	/**
+	 * Front-end style handle, side-loaded from the sibling style.css by
+	 * `Assets::register_script` and handed to the block as its `style` arg.
+	 *
+	 * @since $$next-version$$
+	 * @var string
+	 */
+	public const STYLE_HANDLE = 'jetpack-block-paypal-payment-buttons';
+
+	/**
 	 * Register the feature flags this package owns.
 	 *
 	 * Call it from every bootstrap before `init`, so the flag exists on every
@@ -165,16 +174,45 @@ class PayPal_Payment_Buttons {
 	}
 
 	/**
+	 * Side-load the front-end stylesheet and register it under STYLE_HANDLE.
+	 *
+	 * The block.json `style` field can't do this. Its metadata is read from src/ in the
+	 * Jetpack plugin, and a `file:` path there also makes core register the editor
+	 * bundle a second time under its own generated handle, so the whole bundle is
+	 * parsed twice on every editor screen. Pass the handle to jetpack_register_block()
+	 * as `style` instead -- the podcast-episode block does the same.
+	 *
+	 * Called by both bootstraps: the standalone plugin registers the block itself and
+	 * never goes through register_block().
+	 *
+	 * @since $$next-version$$
+	 * @return void
+	 */
+	public static function register_block_style() {
+		Assets::register_script(
+			self::STYLE_HANDLE,
+			'../../dist/paypal-payment-buttons/style.js',
+			__FILE__,
+			array(
+				'css_path' => '../../dist/paypal-payment-buttons/style.css',
+			)
+		);
+	}
+
+	/**
 	 * Registers the block for use in Gutenberg
 	 * This is done via an action so that we can disable
 	 * registration if we need to.
 	 */
 	public static function register_block() {
+		self::register_block_style();
+
 		Blocks::jetpack_register_block(
 			__DIR__,
 			array(
 				'render_callback' => array( __CLASS__, 'render_block' ),
 				'plan_check'      => true,
+				'style'           => self::STYLE_HANDLE,
 			)
 		);
 	}
@@ -872,8 +910,18 @@ class PayPal_Payment_Buttons {
 	 * @since $$next-version$$ Defers to `init` and no-ops unless the API-managed buttons are enabled.
 	 */
 	public static function init_admin() {
-		add_action( 'init', array( PayPal_Admin_Page::class, 'maybe_init' ) );
-		add_action( 'init', array( PayPal_Email_Sender::class, 'maybe_init' ) );
+		add_action(
+			'init',
+			static function () {
+				// Read the flag before naming the classes, so neither is autoloaded while it is off.
+				if ( ! self::is_api_managed_enabled() ) {
+					return;
+				}
+
+				PayPal_Admin_Page::maybe_init();
+				PayPal_Email_Sender::maybe_init();
+			}
+		);
 	}
 
 	/**

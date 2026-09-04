@@ -116,15 +116,57 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 		$this->assertArrayHasKey( '/wpcom/v2/paypal/buttons', $routes );
 	}
 
-	public function test_init_admin_defers_the_gated_initializers_to_init() {
+	/**
+	 * A stacked button saved under the old schema carries no buttonType: Gutenberg
+	 * drops attributes equal to the default, and the default was 'stacked' then.
+	 */
+	public function test_a_legacy_stacked_button_still_renders_the_sdk_widget() {
+		register_block_type_from_metadata(
+			dirname( __DIR__, 2 ) . '/src/paypal-payment-buttons',
+			array( 'render_callback' => array( PayPal_Payment_Buttons::class, 'render_block' ) )
+		);
+
+		$html = do_blocks( '<!-- wp:jetpack/paypal-payment-buttons {"scriptSrc":"https://www.paypal.com/sdk/js?client-id=TEST&components=hosted-buttons","hostedButtonId":"ABC123XYZ"} /-->' );
+
+		unregister_block_type( 'jetpack/paypal-payment-buttons' );
+
+		$this->assertStringContainsString( 'paypal-container-ABC123XYZ', $html );
+		$this->assertStringNotContainsString( '/ncp/payment/', $html );
+	}
+
+	public function test_init_admin_registers_nothing_while_the_flag_is_off() {
 		remove_all_actions( 'init' );
+		remove_all_actions( 'admin_menu' );
+		remove_all_actions( 'wp_ajax_' . PayPal_Email_Sender::AJAX_ACTION );
 
 		PayPal_Payment_Buttons::init_admin();
+		$this->assertTrue( has_action( 'init' ) );
 
-		$this->assertNotFalse( has_action( 'init', array( PayPal_Admin_Page::class, 'maybe_init' ) ) );
-		$this->assertNotFalse( has_action( 'init', array( PayPal_Email_Sender::class, 'maybe_init' ) ) );
+		do_action( 'init' );
+
+		$this->assertFalse( has_action( 'admin_menu', array( PayPal_Admin_Page::class, 'register_menu' ) ) );
+		$this->assertFalse( has_action( 'wp_ajax_' . PayPal_Email_Sender::AJAX_ACTION, array( PayPal_Email_Sender::class, 'handle_send' ) ) );
 
 		remove_all_actions( 'init' );
+	}
+
+	public function test_init_admin_wires_the_admin_page_up_once_the_flag_is_on() {
+		remove_all_actions( 'init' );
+		remove_all_actions( 'admin_menu' );
+		remove_all_actions( 'wp_ajax_' . PayPal_Email_Sender::AJAX_ACTION );
+
+		PayPal_Payment_Buttons::register_feature_flags();
+		add_filter( self::FLAG_FILTER, '__return_true' );
+
+		PayPal_Payment_Buttons::init_admin();
+		do_action( 'init' );
+
+		$this->assertNotFalse( has_action( 'admin_menu', array( PayPal_Admin_Page::class, 'register_menu' ) ) );
+		$this->assertNotFalse( has_action( 'wp_ajax_' . PayPal_Email_Sender::AJAX_ACTION, array( PayPal_Email_Sender::class, 'handle_send' ) ) );
+
+		remove_all_actions( 'init' );
+		remove_all_actions( 'admin_menu' );
+		remove_all_actions( 'wp_ajax_' . PayPal_Email_Sender::AJAX_ACTION );
 	}
 
 	/**

@@ -163,11 +163,14 @@ class PayPal_Payment_Buttons {
 			return false;
 		}
 
+		Jetpack_PayPal_Payment_Buttons::register_block_style();
+
 		// Register the block using the Blocks package with the correct dist path
 		Blocks::jetpack_register_block(
 			$dist_dir,
 			array(
 				'render_callback' => array( Jetpack_PayPal_Payment_Buttons::class, 'render_block' ),
+				'style'           => Jetpack_PayPal_Payment_Buttons::STYLE_HANDLE,
 			)
 		);
 	}
