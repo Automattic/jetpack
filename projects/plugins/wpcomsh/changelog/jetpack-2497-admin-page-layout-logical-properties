@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Podcast: Fix the dashboard overlapping the admin menu in right-to-left languages.
