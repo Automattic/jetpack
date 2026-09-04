@@ -596,6 +596,10 @@ class Help_Center {
 		require_once __DIR__ . '/class-wp-rest-help-center-ticket-csat.php';
 		$controller = new WP_REST_Help_Center_Ticket_CSAT( $this->wpcom_request_client );
 		$controller->register_rest_route();
+
+		require_once __DIR__ . '/class-wp-rest-help-center-cta.php';
+		$controller = new WP_REST_Help_Center_CTA( $this->wpcom_request_client );
+		$controller->register_rest_route();
 	}
 
 	/**
