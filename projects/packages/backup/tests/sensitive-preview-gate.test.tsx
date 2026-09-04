@@ -27,7 +27,7 @@ import { queryClient } from '../src/dashboard/data/query-client';
 import QueryClientProvider from '../src/dashboard/providers/query-client-provider';
 import type { FileNodeFile } from '../src/dashboard/types/file-tree';
 
-/** Closing is irrelevant to these assertions; the card renders regardless. */
+/** Closing is irrelevant to these assertions; both chromes render regardless. */
 const noop = () => {};
 
 // Not a real credential — a marker whose only job is to be searched for.
@@ -369,28 +369,38 @@ describe( 'sensitive preview gate', () => {
 		expect( screen.queryByText( SECRET ) ).not.toBeInTheDocument();
 		expect( fetchedContent() ).toBe( false );
 	} );
-} );
 
-// The dialog arrived after this gate did, and shares only the hook. Nothing
-// asserted the gate reached the second chrome until this.
-describe( 'the dialog chrome', () => {
-	it( 'gates a sensitive file there too, and still withholds the fetch', async () => {
-		mockEndpoints( SECRET );
+	// The dialog shares only `useFileInfo` with the card, so the two surfaces
+	// can diverge without either one failing.
+	describe( 'the dialog chrome', () => {
+		it( 'gates a sensitive file there too, and still withholds the fetch', async () => {
+			mockEndpoints( SECRET );
 
-		renderDialog( fileAt( '/wp-config.php' ) );
+			renderDialog( WP_CONFIG );
 
-		await expect( screen.findByText( HIDDEN ) ).resolves.toBeVisible();
-		expect( screen.getByRole( 'button', { name: SHOW } ) ).toBeVisible();
-		expect( screen.queryByText( SECRET ) ).not.toBeInTheDocument();
-		expect( fetchedContent() ).toBe( false );
-	} );
+			// The heading level is what separates the two chromes; without it
+			// `HIDDEN` alone would pass for a dialog delegating to the card.
+			await expect( screen.findByRole( 'dialog' ) ).resolves.toBeInTheDocument();
+			expect(
+				screen.getByRole( 'heading', { level: 2, name: 'wp-config.php' } )
+			).toBeInTheDocument();
 
-	it( 'reveals on a second click, as the card does', async () => {
-		mockEndpoints( SECRET );
+			expect( screen.getByText( HIDDEN ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'button', { name: SHOW } ) ).toBeInTheDocument();
+			expect( screen.queryByText( SECRET ) ).not.toBeInTheDocument();
+			expect( fetchedContent() ).toBe( false );
+		} );
 
-		renderDialog( fileAt( '/wp-config.php' ) );
-		await userEvent.click( await screen.findByRole( 'button', { name: SHOW } ) );
+		it( 'reveals on a second click and hands focus to the preview, as the card does', async () => {
+			mockEndpoints( SECRET );
 
-		await expect( screen.findByText( SECRET ) ).resolves.toBeVisible();
+			renderDialog( WP_CONFIG );
+			await userEvent.click( await screen.findByRole( 'button', { name: SHOW } ) );
+
+			await expect( screen.findByText( SECRET ) ).resolves.toBeInTheDocument();
+			await waitFor( () =>
+				expect( screen.getByRole( 'region', { name: /Preview of wp-config.php/ } ) ).toHaveFocus()
+			);
+		} );
 	} );
 } );
