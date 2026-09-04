@@ -245,7 +245,7 @@ class Survicate {
 	// producing an endless display/close loop. The disableTargeting flag is
 	// read live by the engine — while truthy, auto-campaigns are not scheduled
 	// at all (API-triggered surveys are unaffected); retarget() re-runs the
-	// evaluation once the last modal closes.
+	// evaluation once neither a modal nor the Help Center remains open.
 	function pauseTargeting() {
 		if ( window._sva && ! window._sva.disableTargeting ) {
 			window._sva.disableTargeting = true;
@@ -267,7 +267,10 @@ class Survicate {
 		window.wp.data.subscribe( function () {
 			var shown = isHelpCenterShown();
 			if ( shown && ! wasShown ) {
+				pauseTargeting();
 				closeAnySurvey();
+			} else if ( ! shown && wasShown && ! isModalOpen() ) {
+				resumeTargeting();
 			}
 			wasShown = shown;
 		}, 'automattic/help-center' );
@@ -277,25 +280,19 @@ class Survicate {
 		window._sva.setVisitorTraits( traits );
 
 		// Covers the race where the Help Center or a modal opened before the SDK
-		// finished loading. A modal already open pauses targeting up front, so
-		// the survey never displays at all while it stays open.
-		if ( isModalOpen() ) {
-			pauseTargeting();
-		}
+		// finished loading. Either one already open pauses targeting up front,
+		// so the survey never displays at all while it stays open.
 		if ( isHelpCenterShown() || isModalOpen() ) {
+			pauseTargeting();
 			closeAnySurvey();
 		}
 
 		if ( typeof window._sva.addEventListener === 'function' ) {
 			// The SDK does not expose a pre-display hook, so we close on the
-			// post-display event. The Help Center path deliberately doesn't
-			// pause targeting — it has no close hook here to resume from and
-			// keeps its long-standing close-on-display behavior.
+			// post-display event, pausing targeting so it isn't re-displayed.
 			window._sva.addEventListener( 'survey_displayed', function () {
-				if ( isModalOpen() ) {
+				if ( isHelpCenterShown() || isModalOpen() ) {
 					pauseTargeting();
-					closeAnySurvey();
-				} else if ( isHelpCenterShown() ) {
 					closeAnySurvey();
 				}
 			} );
@@ -327,7 +324,7 @@ class Survicate {
 						}
 					}
 				}
-				if ( sawRemovedModal && ! isModalOpen() ) {
+				if ( sawRemovedModal && ! isModalOpen() && ! isHelpCenterShown() ) {
 					resumeTargeting();
 				}
 			} ).observe( document.body, { childList: true, subtree: true } );
