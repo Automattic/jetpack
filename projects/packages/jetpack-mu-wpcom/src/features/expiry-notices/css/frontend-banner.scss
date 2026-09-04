@@ -1,0 +1,87 @@
+// Fixed under the admin bar. Themes that respect the admin-bar height variable
+// get pushed down by the same amount through the body class.
+$banner-height: 48px;
+$admin-bar-height: 32px;
+$admin-bar-height-mobile: 46px;
+
+body.has-wpcom-expiry-banner {
+	--wp-admin--admin-bar--height: #{$banner-height};
+
+	&.admin-bar {
+		--wp-admin--admin-bar--height: #{$admin-bar-height + $banner-height};
+	}
+}
+
+.wpcom-expiry-frontend-banner {
+	position: fixed;
+	inset-block-start: 0;
+	inset-inline: 0;
+	// One below #wpadminbar, above everything a theme fixes to the top.
+	z-index: 99998;
+	box-sizing: border-box;
+	min-block-size: $banner-height;
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: center;
+	gap: 8px 16px;
+	padding: 8px 48px;
+	background: #1e1e1e;
+	color: #e0e0e0;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+	font-size: 14px;
+	line-height: 20px;
+
+	body.admin-bar & {
+		inset-block-start: $admin-bar-height;
+	}
+
+	&__text {
+		text-align: center;
+	}
+
+	&__cta {
+		flex-shrink: 0;
+		padding: 6px 12px;
+		border-radius: 2px;
+		background: #3858e9;
+		color: #fff;
+		font-weight: 500;
+		text-decoration: none;
+
+		&:hover,
+		&:focus {
+			background: #2145e6;
+			color: #fff;
+		}
+	}
+
+	&__dismiss {
+		position: absolute;
+		inset-inline-end: 12px;
+		inset-block-start: 50%;
+		transform: translateY(-50%);
+		padding: 4px;
+		border: 0;
+		background: transparent;
+		color: inherit;
+		cursor: pointer;
+		line-height: 0;
+	}
+}
+
+@media screen and ( max-width: 782px ) {
+
+	body.has-wpcom-expiry-banner.admin-bar {
+		--wp-admin--admin-bar--height: #{$admin-bar-height-mobile + $banner-height};
+	}
+
+	.wpcom-expiry-frontend-banner {
+		padding-inline: 16px 40px;
+		font-size: 13px;
+
+		body.admin-bar & {
+			inset-block-start: $admin-bar-height-mobile;
+		}
+	}
+}
