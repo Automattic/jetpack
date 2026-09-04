@@ -88,6 +88,22 @@ describe( 'the root tree', () => {
 		expect( screen.getByRole( 'presentation' ) ).toBeInTheDocument();
 	} );
 
+	// The retry path: the sticky error is held across a refetch, but an offline
+	// retry parks instead of fetching — so without the guard the reason vanishes
+	// and the reader is left with a spinner and no way to ask again.
+	it( 'keeps the failure on screen when the retry parks offline', async () => {
+		mockApiFetch.mockRejectedValueOnce( new Error( 'Service unavailable' ) );
+
+		renderBrowser();
+		const retry = await screen.findByRole( 'button', { name: 'Try again' } );
+
+		onlineManager.setOnline( false );
+		await userEvent.click( retry );
+		await settle();
+
+		expect( screen.getByRole( 'button', { name: 'Try again' } ) ).toBeInTheDocument();
+	} );
+
 	// The other half: a parked *refetch* still holds its rows, so reporting it
 	// as unanswered would blank a tree that is on screen and working.
 	it( 'keeps its rows when a refetch parks on a loaded tree', async () => {
