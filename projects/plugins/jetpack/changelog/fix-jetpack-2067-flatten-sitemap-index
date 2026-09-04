@@ -1,4 +1,4 @@
 Significance: patch
-Type: bugfix
+Type: other
 
-Sitemaps: Link individual sitemap files directly from sitemap.xml instead of nesting sitemap index files, which Google Search Console rejects. Sites with too many sitemap files to list in one index keep the nested layout.
+Sitemaps: Add a jetpack_sitemap_flat_master_index filter that makes sitemap.xml list individual sitemap files instead of nesting sitemap index files, which Google Search Console rejects. Off by default while it is rolled out.

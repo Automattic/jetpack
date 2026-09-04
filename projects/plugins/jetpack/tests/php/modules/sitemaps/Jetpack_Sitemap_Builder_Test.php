@@ -301,6 +301,7 @@ class Jetpack_Sitemap_Builder_Test extends WP_UnitTestCase {
 		$result  = $builder->build_one_page_sitemap( 1, 1 );
 
 		remove_filter( 'jetpack_page_sitemap_other_urls', $callback );
+		remove_filter( 'jetpack_sitemap_flat_master_index', '__return_true' );
 
 		$this->assertSame( '2024-03-08T01:02:03Z', $result['last_modified'], 'Last modified date is not the one from the other_urls filter.' );
 	}
@@ -325,6 +326,13 @@ class Jetpack_Sitemap_Builder_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Turn on the flat master sitemap layout, which ships off by default.
+	 */
+	private function enable_flat_master_index() {
+		add_filter( 'jetpack_sitemap_flat_master_index', '__return_true' );
+	}
+
+	/**
 	 * The master sitemap links leaf sitemaps directly when they fit in its buffer.
 	 *
 	 * A sitemap index file may not list other sitemap index files. When the leaf
@@ -339,6 +347,7 @@ class Jetpack_Sitemap_Builder_Test extends WP_UnitTestCase {
 	#[Group( 'jetpack-sitemap' )]
 	public function test_master_sitemap_lists_leaf_sitemaps_when_they_fit() {
 		$callback = $this->add_split_page_sitemap_fixture();
+		$this->enable_flat_master_index();
 
 		/*
 		 * One pass covers this fixture: update_sitemap() builds up to
@@ -348,6 +357,7 @@ class Jetpack_Sitemap_Builder_Test extends WP_UnitTestCase {
 		$this->builder->update_sitemap();
 
 		remove_filter( 'jetpack_page_sitemap_other_urls', $callback );
+		remove_filter( 'jetpack_sitemap_flat_master_index', '__return_true' );
 
 		$librarian = new Jetpack_Sitemap_Librarian();
 
@@ -378,12 +388,14 @@ class Jetpack_Sitemap_Builder_Test extends WP_UnitTestCase {
 	#[Group( 'jetpack-sitemap' )]
 	public function test_master_sitemap_falls_back_to_nested_index_when_leaves_do_not_fit() {
 		$callback = $this->add_split_page_sitemap_fixture();
+		$this->enable_flat_master_index();
 
 		Jetpack_Sitemap_Builder_Test_Stub::$master_item_limit = 1;
 		$builder = new Jetpack_Sitemap_Builder_Test_Stub();
 		$builder->update_sitemap();
 
 		remove_filter( 'jetpack_page_sitemap_other_urls', $callback );
+		remove_filter( 'jetpack_sitemap_flat_master_index', '__return_true' );
 		Jetpack_Sitemap_Builder_Test_Stub::reset();
 
 		$librarian = new Jetpack_Sitemap_Librarian();
@@ -397,6 +409,30 @@ class Jetpack_Sitemap_Builder_Test extends WP_UnitTestCase {
 
 		$this->assertStringContainsString( 'sitemap-1.xml', $index );
 		$this->assertStringContainsString( 'sitemap-2.xml', $index );
+	}
+
+	/**
+	 * The flat layout is opt-in: without the filter the master still nests.
+	 *
+	 * The default is expected to flip once the flat layout has been verified in
+	 * production, at which point this test goes with it.
+	 *
+	 * @group jetpack-sitemap
+	 * @since 16.2
+	 */
+	#[Group( 'jetpack-sitemap' )]
+	public function test_master_sitemap_nests_by_default() {
+		$callback = $this->add_split_page_sitemap_fixture();
+
+		$this->builder->update_sitemap();
+
+		remove_filter( 'jetpack_page_sitemap_other_urls', $callback );
+
+		$librarian = new Jetpack_Sitemap_Librarian();
+		$master    = $librarian->get_sitemap_text( 'sitemap.xml', JP_MASTER_SITEMAP_TYPE );
+
+		$this->assertStringContainsString( 'sitemap-index-1.xml', $master );
+		$this->assertStringNotContainsString( 'sitemap-1.xml', $master );
 	}
 
 	/**

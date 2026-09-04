@@ -510,10 +510,12 @@ class Jetpack_Sitemap_Builder { // phpcs:ignore Generic.Files.OneObjectStructure
 	/**
 	 * Builds the master sitemap index.
 	 *
-	 * A sitemap index file may not list other sitemap index files, so the master
-	 * lists every individual sitemap file directly whenever they all fit in one
-	 * buffer. They no longer fit somewhere north of a million URLs, and only then
-	 * does it fall back to linking the per-type `*-sitemap-index-N.xml` files.
+	 * A sitemap index file may not list other sitemap index files, so with the
+	 * `jetpack_sitemap_flat_master_index` filter on, the master lists every
+	 * individual sitemap file directly whenever they all fit in one buffer. They
+	 * no longer fit somewhere north of a million URLs, and only then does it fall
+	 * back to linking the per-type `*-sitemap-index-N.xml` files. With the filter
+	 * off, which is still the default, it always links them.
 	 *
 	 * Either way the buffer is only stored once every sitemap this generation
 	 * cycle recorded is accounted for. If one is missing, the master the previous
@@ -537,13 +539,35 @@ class Jetpack_Sitemap_Builder { // phpcs:ignore Generic.Files.OneObjectStructure
 			JP_VIDEO_SITEMAP_TYPE,
 		);
 
-		$buffer = $this->build_flat_master_buffer( $sitemap_types, $max );
+		$buffer = null;
 
-		if ( self::MASTER_OVERFLOW === $buffer ) {
+		/**
+		 * Whether the master sitemap lists each individual sitemap file directly.
+		 *
+		 * A sitemap index file may not list other sitemap index files, and Google
+		 * Search Console reports the nested layout as "Nested indexing". Listing
+		 * the files directly is what fixes that.
+		 *
+		 * Off by default so the flat layout can be rolled out a site at a time.
+		 * The default is expected to flip once it has been verified in production,
+		 * at which point this filter goes away.
+		 *
+		 * @module sitemaps
+		 *
+		 * @since 16.2
+		 *
+		 * @param bool $flat_master_index Whether to list sitemap files directly. Default false.
+		 */
+		if ( apply_filters( 'jetpack_sitemap_flat_master_index', false ) ) {
+			$buffer = $this->build_flat_master_buffer( $sitemap_types, $max );
+		}
+
+		if ( null === $buffer || self::MASTER_OVERFLOW === $buffer ) {
 			/*
-			 * Nesting is invalid and Google flags it, but a complete invalid
-			 * tree beats a valid one that drops URLs, and a sitemap index
-			 * cannot be paginated to make the flat layout scale further.
+			 * Either the flat layout is off, or the files did not fit in one
+			 * buffer. Nesting is invalid and Google flags it, but a complete
+			 * invalid tree beats a valid one that drops URLs, and a sitemap
+			 * index cannot be paginated to make the flat layout scale further.
 			 */
 			$buffer = $this->build_nested_master_buffer( $sitemap_types, $max );
 		}
