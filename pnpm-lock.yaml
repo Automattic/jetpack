@@ -5983,9 +5983,6 @@ importers:
       copy-webpack-plugin:
         specifier: 14.0.0
         version: 14.0.0(webpack@5.107.2)
-      crypto-js:
-        specifier: 4.2.0
-        version: 4.2.0
       date-fns:
         specifier: 4.1.0
         version: 4.1.0
@@ -6034,6 +6031,9 @@ importers:
       markdown-it-footnote:
         specifier: 3.0.3
         version: 3.0.3
+      md5:
+        specifier: 2.3.0
+        version: 2.3.0
       nspell:
         specifier: 2.1.5
         version: 2.1.5
@@ -13203,10 +13203,6 @@ packages:
 
   crypt@0.0.2:
     resolution: {integrity: sha512-mCxBlsHFYh9C+HVpiEacem8FEBnMXgU9gy4zmNC+SXAZNB/1idgp/aulFJ4FgCi7GPEVbfyng092GqL2k2rmow==}
-
-  crypto-js@4.2.0:
-    resolution: {integrity: sha512-KALDyEYgpY+Rlob/iriUtjV6d5Eq+Y191A5g4UqLAi8CyGP9N1+FdVbkc1SxKc2r4YAYqG8JzO2KGL+AizD70Q==}
-    deprecated: Active development of CryptoJS has been discontinued. This library is no longer maintained.
 
   css-declaration-sorter@7.4.0:
     resolution: {integrity: sha512-LTuzjPoyA2vMGKKcaOqKSp7Ub2eGrNfKiZH4LpezxpNrsICGCSFvsQOI29psISxNZtaXibkC2CXzrQ5enMeGGw==}
@@ -33275,8 +33271,6 @@ snapshots:
       which: 2.0.2
 
   crypt@0.0.2: {}
-
-  crypto-js@4.2.0: {}
 
   css-declaration-sorter@7.4.0(postcss@8.5.23):
     dependencies:

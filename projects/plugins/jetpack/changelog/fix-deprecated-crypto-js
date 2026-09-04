@@ -1,0 +1,5 @@
+Significance: patch
+Type: other
+Comment: Replace deprecated `crypto-js/md5` dep with `md5`. Should be no change to functionality.
+
+
