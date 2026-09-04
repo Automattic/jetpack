@@ -1210,15 +1210,16 @@ EXPECTED;
 	 * @return array
 	 */
 	public static function provider_registration_error_description() {
-		$long = str_repeat( 'a', 600 );
+		$long         = str_repeat( 'a', 400 );
+		$real_message = 'Jetpack experienced an issue trying to save options (cannot_save_secrets). We suggest that you contact your hosting provider, and ask them for help checking that the options table is writable on your site.';
 
 		return array(
 			'a status code is not copy'         => array( 'wpcom_5??', '503', '' ),
 			'a status code as an int'           => array( 'wpcom_408', 408, '' ),
 			'the jetpack_id response body'      => array( 'jetpack_id', 'Error Details: Jetpack ID is empty. Do not publicly post this error message! {"body":"..."}', '' ),
-			'a real message is kept'            => array( 'cannot_save_secrets', 'Jetpack experienced an issue trying to save options (cannot_save_secrets). We suggest that you contact your hosting provider, and ask them for help checking that the options table is writable on your site.', 'Jetpack experienced an issue trying to save options (cannot_save_secrets). We suggest that you contact your hosting provider, and ask them for help checking that the options table is writable on your site.' ),
+			'a real message is kept'            => array( 'cannot_save_secrets', $real_message, $real_message ),
 			'an empty message stays empty'      => array( 'missing_secrets', '', '' ),
-			'an over-long message is truncated' => array( 'some_code', $long, str_repeat( 'a', 500 ) ),
+			'an over-long message is truncated' => array( 'some_code', $long, str_repeat( 'a', 250 ) ),
 		);
 	}
 
@@ -1237,11 +1238,11 @@ EXPECTED;
 	 * Truncation must not split a multibyte character, or the notice renders a replacement glyph.
 	 */
 	public function test_get_registration_error_description_does_not_split_multibyte_characters() {
-		$message = str_repeat( 'é', 600 );
+		$message = str_repeat( 'é', 400 );
 
 		$description = Jetpack::get_registration_error_description( 'some_code', $message );
 
-		$this->assertSame( str_repeat( 'é', 500 ), $description );
-		$this->assertSame( 500, mb_strlen( $description ) );
+		$this->assertSame( str_repeat( 'é', 250 ), $description );
+		$this->assertSame( 250, mb_strlen( $description ) );
 	}
 } // end class
