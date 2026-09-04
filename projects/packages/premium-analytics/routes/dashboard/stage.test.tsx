@@ -40,9 +40,16 @@ jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	GlobalErrorProvider: ( { children }: { children: ReactNode } ) => <>{ children }</>,
 } ) );
 
-jest.mock( '@jetpack-premium-analytics/externals', () => ( {
-	Stack: ( { children }: { children: ReactNode } ) => <div>{ children }</div>,
-} ) );
+jest.mock( '@jetpack-premium-analytics/externals', () => {
+	const { forwardRef } = jest.requireActual( 'react' );
+	// The stage hands a ref to the actions wrapper, so the stand-in must take one.
+	const Stack = forwardRef( ( { children }: { children: ReactNode }, ref: never ) => (
+		<div ref={ ref }>{ children }</div>
+	) );
+	Stack.displayName = 'Stack';
+
+	return { Stack };
+} );
 
 jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/routing' ),
@@ -126,6 +133,8 @@ jest.mock( '@wordpress/widget-dashboard', () => {
 jest.mock( './components', () => ( {
 	DashboardSections: ( { children }: { children: ReactNode } ) => <div>{ children }</div>,
 	FeedbackAction: () => <div data-testid="feedback-action" />,
+	OnboardingTour: () => <div data-testid="onboarding-tour" />,
+	onboardingTourSteps: () => [],
 	// A marker, not the real notice, which reads a query cache these tests do not
 	// stand up. Covered here: where the stage puts it.
 	RefreshFailureNotice: ( { className }: { className?: string } ) => (
@@ -333,7 +342,9 @@ describe( 'Dashboard feedback action', () => {
 		const feedback = screen.getByTestId( 'feedback-action' );
 
 		// eslint-disable-next-line testing-library/no-node-access -- order within the actions slot is what this test is for.
-		expect( feedback.nextElementSibling ).toBe( screen.getByTestId( 'widget-dashboard-actions' ) );
+		expect( feedback.nextElementSibling ).toContainElement(
+			screen.getByTestId( 'widget-dashboard-actions' )
+		);
 	} );
 } );
 
@@ -372,6 +383,16 @@ describe( 'Dashboard onboarding', () => {
 		render( <Dashboard /> );
 
 		expect( screen.getByTestId( 'onboarding-welcome-modal' ) ).toBeInTheDocument();
+		expect( screen.queryByTestId( 'onboarding-tour' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'runs the tour once the modal hands over', () => {
+		useOnboardingMock.mockReturnValue( { ...closedOnboarding, phase: 'tour' } );
+
+		render( <Dashboard /> );
+
+		expect( screen.getByTestId( 'onboarding-tour' ) ).toBeInTheDocument();
+		expect( screen.queryByTestId( 'onboarding-welcome-modal' ) ).not.toBeInTheDocument();
 	} );
 } );
 
