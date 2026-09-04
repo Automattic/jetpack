@@ -11,18 +11,36 @@ use Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Notice_Dismiss;
 
 /**
  * Resolve the data needed to render the banner, or null if it shouldn't show.
- * Shared by the enqueue and render hooks.
+ * Shared by the enqueue and render hooks, and by the block-editor notice.
  *
+ * Memoized: each read costs a user-meta lookup, a site-slug resolution, and
+ * post-grace a sticker lookup, and three hooks ask per pageview.
+ *
+ * @param bool $flush Drop the memo. For tests, which move the fixture or the
+ *                    screen under a process that has already answered once.
  * @return array{state:array,is_early_warning:bool,is_dismissible:bool,urls:array}|null
  */
-function wpcom_expiry_notices_admin_banner_data(): ?array {
-	$state = wpcom_expiry_notices_eligible_state();
-	if ( null === $state ) {
+function wpcom_expiry_notices_admin_banner_data( bool $flush = false ): ?array {
+	// Distinct from null, which is a real answer worth remembering.
+	static $memo = false;
+
+	if ( $flush ) {
+		$memo = false;
 		return null;
 	}
 
+	if ( false !== $memo ) {
+		return $memo;
+	}
+
+	$memo  = null;
+	$state = wpcom_expiry_notices_eligible_state();
+	if ( null === $state ) {
+		return $memo;
+	}
+
 	if ( ! Expiry_Notice_Dismiss::should_show_banner( $state ) ) {
-		return null;
+		return $memo;
 	}
 
 	// Scope progression: the gentle pre-window reminder shows on the Dashboard
@@ -32,16 +50,18 @@ function wpcom_expiry_notices_admin_banner_data(): ?array {
 	if ( $is_early_warning ) {
 		$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
 		if ( ! $screen || 'dashboard' !== $screen->id ) {
-			return null;
+			return $memo;
 		}
 	}
 
-	return array(
+	$memo = array(
 		'state'            => $state,
 		'is_early_warning' => $is_early_warning,
 		'is_dismissible'   => Expiry_Notice_Dismiss::is_dismissible( $state ),
 		'urls'             => wpcom_expiry_notices_admin_banner_urls( $state ),
 	);
+
+	return $memo;
 }
 
 /**
@@ -86,8 +106,15 @@ function wpcom_expiry_notices_is_early_warning( array $state ): bool {
 /**
  * Enqueue + localize the banner's JS/CSS on admin_enqueue_scripts so the
  * stylesheet lands in <head>.
+ *
+ * Not on block-editor screens: core hides the banner there, the editor notice
+ * carries its message, and the script would still count an impression.
  */
 function wpcom_expiry_notices_enqueue_admin_banner_assets() {
+	if ( wpcom_expiry_notices_is_block_editor_screen() ) {
+		return;
+	}
+
 	$data = wpcom_expiry_notices_admin_banner_data();
 	if ( null === $data ) {
 		return;
@@ -115,6 +142,10 @@ add_action( 'admin_enqueue_scripts', 'wpcom_expiry_notices_enqueue_admin_banner_
  * Render the banner markup on admin_notices.
  */
 function wpcom_expiry_notices_render_admin_banner() {
+	if ( wpcom_expiry_notices_is_block_editor_screen() ) {
+		return;
+	}
+
 	$data = wpcom_expiry_notices_admin_banner_data();
 	if ( null === $data ) {
 		return;

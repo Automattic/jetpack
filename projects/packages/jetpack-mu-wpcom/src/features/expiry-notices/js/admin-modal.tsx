@@ -1,17 +1,10 @@
-import apiFetch from '@wordpress/api-fetch';
 import { Button, Modal } from '@wordpress/components';
 import { createRoot, useState } from '@wordpress/element';
 import { wpcomTrackEvent } from '../../../common/tracks';
+import { recordDismissal } from './dismiss.ts';
 import { openHelpCenterWithMessage } from './help-center.ts';
+import type { Cta } from './types.ts';
 import type { MouseEvent } from 'react';
-
-interface Cta {
-	label: string;
-	url: string;
-	// Present only on the reverted state's CTA, which opens the Help Center with
-	// this typed in rather than following its href.
-	message?: string;
-}
 
 interface ExpiryModalData {
 	metaKey: string;
@@ -38,17 +31,6 @@ const ExpiryModal = ( { data }: { data: ExpiryModalData } ) => {
 		return null;
 	}
 
-	const recordDismissal = ( keepalive: boolean ) =>
-		apiFetch( {
-			path: '/wp/v2/users/me',
-			method: 'POST',
-			data: { meta: { [ data.metaKey ]: 1 } },
-			// Survives the page unload a CTA starts. Without it the browser is
-			// free to cancel the write as it navigates, and the modal returns to
-			// someone who did what it asked.
-			keepalive,
-		} );
-
 	// Closing is the dismissal however it was reached, so the record matches what
 	// the user saw happen. Writing only from the button would let Escape hide a
 	// modal that then came straight back on the next page load.
@@ -56,7 +38,7 @@ const ExpiryModal = ( { data }: { data: ExpiryModalData } ) => {
 		setIsOpen( false );
 
 		try {
-			await recordDismissal( false );
+			await recordDismissal( data.metaKey );
 			wpcomTrackEvent( 'jetpack_expiry_modal_dismiss', data.trackProps );
 		} catch ( err ) {
 			wpcomTrackEvent( 'jetpack_expiry_modal_dismiss_failed', {
@@ -85,7 +67,9 @@ const ExpiryModal = ( { data }: { data: ExpiryModalData } ) => {
 			...data.trackProps,
 			cta: target.message ? 'support' : cta,
 		} );
-		recordDismissal( ! openedHere ).catch( () => {
+		// Keepalive survives the page unload a CTA starts; without it the browser
+		// may cancel the write as it navigates, and the modal returns.
+		recordDismissal( data.metaKey, ! openedHere ).catch( () => {
 			// Nothing useful to do while the page is leaving; at worst the modal
 			// shows once more.
 		} );
