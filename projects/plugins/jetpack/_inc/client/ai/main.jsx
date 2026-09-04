@@ -40,6 +40,10 @@ const MCP_SUB_VIEWS = [ 'read', 'write', 'setup' ];
 // test request. MCP and Connectors ships publicly, so it is not in here.
 const GATED_VIEWS = [ 'overview', 'features' ];
 
+// Views the master switch governs. MCP and Scheduled tasks are not gated by
+// it, so they never show the master-off notice.
+const MASTER_SWITCH_VIEWS = [ 'overview', 'features' ];
+
 // Read at call time, not module scope, so the flag reflects the injected page data.
 const getTabViews = () => {
 	const views = [];
@@ -298,7 +302,7 @@ export default function App() {
 				<GlobalNotices />
 
 				{ ! masterEnabled &&
-					! isMcpContext &&
+					MASTER_SWITCH_VIEWS.includes( view ) &&
 					aiSettings?.is_connected !== false &&
 					aiSettings?.host_allows_ai !== false && <MasterOffNotice /> }
 

@@ -175,7 +175,7 @@ describe( 'AI admin page (main.jsx)', () => {
 			expect( screen.queryByText( MASTER_OFF_TITLE, IGNORE_A11Y ) ).not.toBeInTheDocument();
 		} );
 
-		test( 'scheduled tasks tab: the notice shows', async () => {
+		test( 'scheduled tasks tab: the notice does not show', async () => {
 			window.jetpackAiSettings = {
 				showFeaturesView: true,
 				blogId: 1,
@@ -193,8 +193,9 @@ describe( 'AI admin page (main.jsx)', () => {
 			render( <App /> );
 
 			await expect(
-				screen.findByText( MASTER_OFF_TITLE, IGNORE_A11Y )
+				screen.findByRole( 'button', { name: 'Try again' } )
 			).resolves.toBeInTheDocument();
+			expect( screen.queryByText( MASTER_OFF_TITLE, IGNORE_A11Y ) ).not.toBeInTheDocument();
 		} );
 
 		test( 'not connected: the connect ask wins over the master-off notice', async () => {
