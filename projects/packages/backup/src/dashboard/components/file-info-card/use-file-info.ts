@@ -22,9 +22,8 @@ import type { FileNodeFile } from '../../types/file-tree';
  * own extension map for exactly this decision, using `data_type` only
  * to drive granular download.
  *
- * `sql` and `log` are deliberately absent: a database dump and a debug
- * log are pure secret, and nobody previews one to decide whether to
- * restore it.
+ * `sql` and `log` are deliberately absent: a dump and a debug log are
+ * pure secret, and previewing one decides nothing about restoring it.
  */
 const PREVIEWABLE_TEXT_TYPES: Record< string, string > = {
 	css: 'text/css',
@@ -71,8 +70,8 @@ function mimeFromName( name: string ): string {
  * Files whose preview waits for a deliberate second click: anything that can
  * hold credentials, plus any hand-made copy of one that still previews.
  *
- * Matched against the lowercased manifest path once its volume prefix is
- * dropped, and `[^/]*$` confines every pattern to the file's own name.
+ * Matched against the lowercased, prefix-stripped manifest path; `[^/]*$`
+ * confines every pattern to the file's own name.
  */
 const SENSITIVE_PATH_PATTERNS: readonly RegExp[] = [
 	/(^|\/)wp-config[^/]*$/,
@@ -85,8 +84,7 @@ const SENSITIVE_PATH_PATTERNS: readonly RegExp[] = [
 /**
  * Whether the given manifest path matches one of the patterns above.
  *
- * Two ways to fail open, both closed: the volume prefix is dropped (the `5`
- * in `f5:` is a data-type code, not identity) and the compare is lowercased.
+ * The `5` in `f5:` is a data-type code, not identity, so the prefix goes.
  *
  * @param manifestPath - The volume-prefixed manifest path, e.g. `f5:/wp-config.php`.
  * @return True when the preview needs a reveal.

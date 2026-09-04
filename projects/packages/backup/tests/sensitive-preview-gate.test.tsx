@@ -1,6 +1,5 @@
 // JETPACK-2353 — clicking `wp-config.php` printed `DB_PASSWORD` and the salts
-// straight into the `<pre>`. JETPACK-2474 widened that literal path into a
-// pattern family, because a hand-made copy of it previewed just as freely.
+// straight into the `<pre>`. JETPACK-2474 widened the gate to a pattern family.
 
 const mockRecordEvent = jest.fn();
 
