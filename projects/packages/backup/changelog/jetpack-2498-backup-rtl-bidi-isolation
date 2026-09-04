@@ -1,5 +1,5 @@
 Significance: patch
 Type: fixed
-Comment: Modernized dashboard only, behind the rsm_jetpack_ui_modernization_backup filter: isolate filenames, the file hash, the file preview source and the activity stats line wherever it is shown — in the list and in both detail panes — so RTL no longer moves their leading punctuation and digits to the visual end. No-op when the filter is off.
+Comment: Modernized dashboard only, behind the rsm_jetpack_ui_modernization_backup filter: isolate filenames, the file size and hash, the file preview source and the activity stats line wherever it is shown — in the list and in both detail panes — so RTL no longer moves their leading punctuation and digits to the visual end, and give the preview its own horizontal scroller so long lines stay reachable there. No-op when the filter is off.
 
 
