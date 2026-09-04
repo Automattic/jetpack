@@ -8,7 +8,7 @@
  * @package
  */
 
-import metadata from './block.json';
+import metadata from '../block.json';
 
 /**
  * Attributes the PayPal payment is the source of truth for. Everything else

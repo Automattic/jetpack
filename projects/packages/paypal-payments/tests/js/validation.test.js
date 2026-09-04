@@ -24,7 +24,7 @@ import {
 	VALID_CURRENCY_CODES,
 	MAX_NAME_LENGTH,
 	MAX_DESCRIPTION_LENGTH,
-} from '../../src/paypal-payment-buttons/validation';
+} from '../../src/paypal-payment-buttons/utils/validation';
 
 describe( 'validatePrice', () => {
 	it( 'returns an error when value is null', () => {

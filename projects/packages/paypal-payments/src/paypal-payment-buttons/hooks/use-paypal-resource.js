@@ -9,9 +9,9 @@ import { store as blockEditorStore } from '@wordpress/block-editor';
 import { useDispatch } from '@wordpress/data';
 import { useState, useEffect, useCallback, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { API_BASE } from './api-base';
-import { getResourceAttributeUpdates } from './resource-sync';
-import { getUserFriendlyError } from './validation';
+import { API_BASE } from '../utils/api-base';
+import { getResourceAttributeUpdates } from '../utils/resource-sync';
+import { getUserFriendlyError } from '../utils/validation';
 
 /**
  * The PayPal payment resource this block points at: creating it, updating it,

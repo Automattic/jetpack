@@ -168,7 +168,7 @@ jest.mock( '@wordpress/components', () => ( {
 } ) );
 
 // Mock PayPal button preview component.
-jest.mock( '../../../src/paypal-payment-buttons/paypal-button-preview', () => {
+jest.mock( '../../../src/paypal-payment-buttons/components/paypal-button-preview', () => {
 	return function MockPayPalButtonPreview( props ) {
 		return (
 			<div data-testid="paypal-button-preview" data-product-name={ props.productName }>

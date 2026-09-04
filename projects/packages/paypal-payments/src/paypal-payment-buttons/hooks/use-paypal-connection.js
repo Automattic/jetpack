@@ -7,14 +7,14 @@
 import apiFetch from '@wordpress/api-fetch'; // eslint-disable-line import/no-unresolved
 import { useState, useEffect, useCallback, useMemo, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { API_BASE } from './api-base';
+import { API_BASE } from '../utils/api-base';
 import {
 	ONBOARD_CALLBACK_NAME,
 	ONBOARDING_FRAME_SHELL,
 	loadPartnerScript,
 	waitForAnchorBinding,
-} from './paypal-partner-sdk';
-import { getUserFriendlyError } from './validation';
+} from '../utils/paypal-partner-sdk';
+import { getUserFriendlyError } from '../utils/validation';
 
 /**
  * The PayPal connection is stored per-site, not per-block, so connecting or

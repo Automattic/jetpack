@@ -15,11 +15,11 @@ import {
 	ToggleControl,
 } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
-import metadata from './block.json';
-import { SUPPORTED_CURRENCIES } from './currencies';
-import { getPriceStep } from './currency-symbols';
+import metadata from '../block.json';
+import { SUPPORTED_CURRENCIES } from '../utils/currencies';
+import { getPriceStep } from '../utils/currency-symbols';
+import { MAX_NAME_LENGTH, MAX_DESCRIPTION_LENGTH } from '../utils/validation';
 import FormatSwitcher from './format-switcher';
-import { MAX_NAME_LENGTH, MAX_DESCRIPTION_LENGTH } from './validation';
 import VariantBuilder from './variant-builder';
 
 const labelEditHeading = __( 'Edit PayPal Payment Button', 'jetpack-paypal-payments' );

@@ -7,7 +7,7 @@
 import {
 	getResourceAttributeUpdates,
 	normalizeResourceVariants,
-} from '../../src/paypal-payment-buttons/resource-sync';
+} from '../../src/paypal-payment-buttons/utils/resource-sync';
 
 const blockAttributes = {
 	isApiManaged: true,

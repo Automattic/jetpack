@@ -17,8 +17,8 @@
 
 import { useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { CURRENCY_SYMBOLS } from './currency-symbols';
-import { withPartnerAttribution } from './partner-attribution';
+import { CURRENCY_SYMBOLS } from '../utils/currency-symbols';
+import { withPartnerAttribution } from '../utils/partner-attribution';
 import PayPalLogo from './paypal-logo';
 import { getPrimaryDimension, hasVariantPricing } from './variant-builder';
 

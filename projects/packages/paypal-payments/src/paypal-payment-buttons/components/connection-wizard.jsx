@@ -7,8 +7,8 @@
 
 import { Button, Notice, TextControl, ToggleControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { ONBOARDING_SANDBOX } from '../utils/paypal-partner-sdk';
 import { paypalLogoSvg } from './paypal-full-logo';
-import { ONBOARDING_SANDBOX } from './paypal-partner-sdk';
 
 const labelConnect = __( 'Connect', 'jetpack-paypal-payments' );
 const labelConnecting = __( 'Connecting\u2026', 'jetpack-paypal-payments' );

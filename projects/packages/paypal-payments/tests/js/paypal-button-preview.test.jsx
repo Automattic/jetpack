@@ -9,7 +9,7 @@
  */
 
 import { render, screen } from '@testing-library/react';
-import PayPalButtonPreview from '../../src/paypal-payment-buttons/paypal-button-preview';
+import PayPalButtonPreview from '../../src/paypal-payment-buttons/components/paypal-button-preview';
 
 const defaultProps = {
 	buttonText: '',

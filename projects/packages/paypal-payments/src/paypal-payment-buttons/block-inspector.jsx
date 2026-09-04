@@ -8,7 +8,7 @@
 import { InspectorControls } from '@wordpress/block-editor';
 import { Button, ButtonGroup, PanelBody } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import FormatSwitcher from './format-switcher';
+import FormatSwitcher from './components/format-switcher';
 
 /**
  * The inspector sidebar — format switcher, Style preset, and connection info.

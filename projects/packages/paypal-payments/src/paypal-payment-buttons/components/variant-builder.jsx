@@ -12,8 +12,8 @@
 import { Button, TextControl, ToggleControl } from '@wordpress/components';
 import { useRef, useEffect, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { getPriceStep } from './currency-symbols';
-import { getPriceFormatError } from './validation';
+import { getPriceStep } from '../utils/currency-symbols';
+import { getPriceFormatError } from '../utils/validation';
 
 // Pre-extract translated strings used in ternaries to avoid i18n build errors.
 const placeholderColor = __( 'e.g., Color', 'jetpack-paypal-payments' );

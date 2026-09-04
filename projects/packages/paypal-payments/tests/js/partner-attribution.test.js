@@ -4,7 +4,7 @@
  * @package
  */
 
-import { withPartnerAttribution } from '../../src/paypal-payment-buttons/partner-attribution';
+import { withPartnerAttribution } from '../../src/paypal-payment-buttons/utils/partner-attribution';
 
 const BN_CODE = 'WooNCPS_Ecom_Wordpress';
 

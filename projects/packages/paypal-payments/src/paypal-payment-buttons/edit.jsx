@@ -20,20 +20,20 @@ import { Notice, Spinner, ToolbarButton, ToolbarGroup } from '@wordpress/compone
 import { useSelect } from '@wordpress/data';
 import { useState, useCallback, useMemo } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { API_BASE } from './api-base';
 import BlockInspector from './block-inspector';
 import metadata from './block.json';
-import ConfirmDialogs from './confirm-dialogs';
-import ConnectionWizard from './connection-wizard';
-import { VALID_CURRENCY_CODES } from './currencies';
-import { FORMAT_OPTIONS } from './format-switcher';
-import LegacyBlock from './legacy-block';
-import PayPalButtonPreview from './paypal-button-preview';
-import ProductForm from './product-form';
-import { broadcastConnectionChange, usePayPalConnection } from './use-paypal-connection';
-import { usePayPalResource } from './use-paypal-resource';
-import { validatePrice, validateProductName, validateDescription } from './validation';
-import { hasVariantPricing, validateVariants } from './variant-builder';
+import ConfirmDialogs from './components/confirm-dialogs';
+import ConnectionWizard from './components/connection-wizard';
+import { FORMAT_OPTIONS } from './components/format-switcher';
+import LegacyBlock from './components/legacy-block';
+import PayPalButtonPreview from './components/paypal-button-preview';
+import ProductForm from './components/product-form';
+import { hasVariantPricing, validateVariants } from './components/variant-builder';
+import { broadcastConnectionChange, usePayPalConnection } from './hooks/use-paypal-connection';
+import { usePayPalResource } from './hooks/use-paypal-resource';
+import { API_BASE } from './utils/api-base';
+import { VALID_CURRENCY_CODES } from './utils/currencies';
+import { validatePrice, validateProductName, validateDescription } from './utils/validation';
 
 // Button type is always 'single' — the hosted payment page handles
 // payment method selection (PayPal, cards, wallets, etc.).

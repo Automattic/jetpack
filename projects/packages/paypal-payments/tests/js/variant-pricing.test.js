@@ -12,7 +12,7 @@ import {
 	getPrimaryDimension,
 	hasVariantPricing,
 	validateVariants,
-} from '../../src/paypal-payment-buttons/variant-builder';
+} from '../../src/paypal-payment-buttons/components/variant-builder';
 
 /**
  * Build a variants structure with a single primary dimension.
