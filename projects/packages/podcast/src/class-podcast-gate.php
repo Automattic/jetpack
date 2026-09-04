@@ -13,7 +13,7 @@ use Automattic\Jetpack\Status\Host;
 use Jetpack_Options;
 
 /**
- * Premium podcast feature gate (dashboard, stats, episode block). Two paths:
+ * Premium podcast feature gate (dashboard, stats, episode block, feed credit). Two paths:
  *
  * - WordPress.com (Simple/WoA): the `podcasting` plan feature via
  *   `Current_Plan::supports`, plus the launch-day grandfather rule. Request-
@@ -69,6 +69,18 @@ class Podcast_Gate {
 	 */
 	public static function get_required_plan_slug(): string {
 		return ( new Host() )->is_wpcom_platform() ? 'value_bundle' : 'jetpack_growth_yearly';
+	}
+
+	/**
+	 * Whether the podcast feed must carry the "Made with Jetpack Podcast"
+	 * credit: WordPress.com sites without podcast plan access. Self-hosted sites
+	 * only ever opt in, so the purchase lookup behind
+	 * {@see self::has_product_access()} never runs from a feed render.
+	 *
+	 * @return bool
+	 */
+	public static function requires_feed_credit(): bool {
+		return ( new Host() )->is_wpcom_platform() && ! self::has_product_access();
 	}
 
 	/**

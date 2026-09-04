@@ -28,7 +28,7 @@ class Podcast_Gate_Test extends BaseTestCase {
 		// Default these tests to the WordPress.com (feature + grandfather) path;
 		// self-hosted cases clear it explicitly via `as_self_hosted()`.
 		Constants::set_constant( 'IS_WPCOM', true );
-		self::reset_active_plan_cache();
+		jetpack_podcast_test_reset_plan_cache();
 	}
 
 	protected function tearDown(): void {
@@ -36,7 +36,7 @@ class Podcast_Gate_Test extends BaseTestCase {
 		remove_all_filters( 'pre_http_request' );
 		Constants::clear_constants();
 		WorDBless_Options::init()->clear_options();
-		self::reset_active_plan_cache();
+		jetpack_podcast_test_reset_plan_cache();
 		parent::tearDown();
 	}
 
@@ -92,19 +92,6 @@ class Podcast_Gate_Test extends BaseTestCase {
 			$purchases[] = array( 'product_slug' => $slug );
 		}
 		set_transient( Podcast_Gate::PURCHASES_TRANSIENT, $purchases );
-	}
-
-	/**
-	 * `Current_Plan::get()` memoizes for the request, leaking option writes between tests.
-	 */
-	private static function reset_active_plan_cache(): void {
-		$property = ( new \ReflectionClass( Current_Plan::class ) )->getProperty( 'active_plan_cache' );
-		// @todo Remove once we drop PHP < 8.1 support. `setAccessible()` is
-		// deprecated in 8.5 (a no-op since 8.1), so only call it where it's needed.
-		if ( PHP_VERSION_ID < 80100 ) {
-			$property->setAccessible( true );
-		}
-		$property->setValue( null, null );
 	}
 
 	public function test_plan_supports_feature_grants_access(): void {

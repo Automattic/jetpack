@@ -66,7 +66,7 @@ class Settings_Test extends BaseTestCase {
 		$this->assertSame( 'object', $schema['podcasting_show_urls']['type'] );
 		$this->assertSame( 'object', $schema['podcasting_show_states']['type'] );
 		$this->assertSame( array( 'boolean', 'string' ), $schema['podcasting_explicit']['type'] );
-		$this->assertSame( array( 'boolean', 'string' ), $schema['podcasting_credit']['type'] );
+		$this->assertSame( 'boolean', $schema['podcasting_credit']['type'] );
 	}
 
 	public function test_register_adds_options_to_jetpack_sync_whitelist() {

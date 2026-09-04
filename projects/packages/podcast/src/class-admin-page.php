@@ -9,7 +9,6 @@ namespace Automattic\Jetpack\Podcast;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
-use Automattic\Jetpack\Podcast\Feed\Customize_Feed;
 use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 
@@ -169,7 +168,7 @@ class Admin_Page {
 		// product name shown in the locked-preview copy (not translated).
 		$data['podcast'] = array(
 			'has_product_access'  => Podcast_Gate::has_product_access(),
-			'credit_forced'       => Customize_Feed::credit_forced(),
+			'credit_forced'       => Podcast_Gate::requires_feed_credit(),
 			'is_connected'        => $is_wpcom || ( new Connection_Manager( 'jetpack' ) )->is_connected(),
 			'show_url_hosts'      => Settings::SHOW_URL_HOSTS,
 			'show_url_max_length' => Settings::SHOW_URL_MAX_LENGTH,

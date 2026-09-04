@@ -43,7 +43,7 @@ class Customize_Feed_Test extends BaseTestCase {
 		delete_option( Current_Plan::PLAN_OPTION );
 		unset( $GLOBALS['jetpack_podcast_test_blog_details'] );
 		Constants::clear_constants();
-		self::reset_active_plan_cache();
+		jetpack_podcast_test_reset_plan_cache();
 		remove_all_filters( 'jetpack_podcast_feed_credit' );
 		remove_all_filters( 'pre_attachment_url_to_postid' );
 		remove_all_filters( 'wpcom_podcasting_enable_play_tracking' );
@@ -67,20 +67,7 @@ class Customize_Feed_Test extends BaseTestCase {
 		$plan                       = Current_Plan::PLAN_DATA['free'];
 		$plan['features']['active'] = $features;
 		update_option( Current_Plan::PLAN_OPTION, $plan, true );
-		self::reset_active_plan_cache();
-	}
-
-	/**
-	 * `Current_Plan::get()` memoizes for the request, leaking option writes between tests.
-	 */
-	private static function reset_active_plan_cache(): void {
-		$property = ( new \ReflectionClass( Current_Plan::class ) )->getProperty( 'active_plan_cache' );
-		// @todo Remove once we drop PHP < 8.1 support. `setAccessible()` is
-		// deprecated in 8.5 (a no-op since 8.1), so only call it where it's needed.
-		if ( PHP_VERSION_ID < 80100 ) {
-			$property->setAccessible( true );
-		}
-		$property->setValue( null, null );
+		jetpack_podcast_test_reset_plan_cache();
 	}
 
 	/**
@@ -175,11 +162,25 @@ class Customize_Feed_Test extends BaseTestCase {
 		$this->assertStringStartsWith( 'Example Site is made with Jetpack Podcast.', Customize_Feed::credit_text() );
 	}
 
-	public function test_credit_strips_markup_and_cdata_terminators_from_the_show_title() {
+	public function test_credit_strips_markup_from_the_show_title() {
 		update_option( 'podcasting_credit', true );
-		update_option( 'podcasting_title', 'The <b>Weekly</b> Show]]>' );
+		update_option( 'podcasting_title', 'The <b>Weekly</b> Show' );
 
 		$this->assertStringStartsWith( 'The Weekly Show is made with', Customize_Feed::credit_text() );
+	}
+
+	/**
+	 * The item `<description>` is CDATA, and core escapes `]]>` in the excerpt
+	 * before this filter runs, so the appended credit gets the same escape.
+	 */
+	public function test_excerpt_credit_escapes_cdata_terminators_like_core() {
+		update_option( 'podcasting_credit', true );
+		update_option( 'podcasting_title', 'The Show]]>' );
+
+		$excerpt = Customize_Feed::append_credit_to_excerpt( 'Notes' );
+
+		$this->assertStringContainsString( 'The Show]]&gt; is made with', $excerpt );
+		$this->assertStringNotContainsString( ']]>', $excerpt );
 	}
 
 	/**
@@ -197,7 +198,6 @@ class Customize_Feed_Test extends BaseTestCase {
 		add_filter( 'jetpack_podcast_feed_credit', '__return_true' );
 		$this->assertTrue( Customize_Feed::credit_enabled() );
 
-		Customize_Feed::reset_render_state();
 		remove_all_filters( 'jetpack_podcast_feed_credit' );
 		update_option( 'podcasting_credit', true );
 		add_filter( 'jetpack_podcast_feed_credit', '__return_false' );
@@ -233,10 +233,9 @@ class Customize_Feed_Test extends BaseTestCase {
 	public function test_credit_is_forced_on_wordpress_com_without_plan_access() {
 		$this->as_wpcom_with_plan_features( array() );
 
-		$this->assertTrue( Customize_Feed::credit_forced() );
+		$this->assertTrue( Podcast_Gate::requires_feed_credit() );
 		$this->assertTrue( Customize_Feed::credit_enabled() );
 
-		Customize_Feed::reset_render_state();
 		add_filter( 'jetpack_podcast_feed_credit', '__return_false' );
 		$this->assertFalse( Customize_Feed::credit_enabled() );
 	}
@@ -244,10 +243,9 @@ class Customize_Feed_Test extends BaseTestCase {
 	public function test_credit_follows_the_option_on_wordpress_com_with_plan_access() {
 		$this->as_wpcom_with_plan_features( array( Podcast_Gate::FEATURE_SLUG ) );
 
-		$this->assertFalse( Customize_Feed::credit_forced() );
+		$this->assertFalse( Podcast_Gate::requires_feed_credit() );
 		$this->assertFalse( Customize_Feed::credit_enabled() );
 
-		Customize_Feed::reset_render_state();
 		update_option( 'podcasting_credit', true );
 		$this->assertTrue( Customize_Feed::credit_enabled() );
 	}
@@ -270,30 +268,7 @@ class Customize_Feed_Test extends BaseTestCase {
 			$this->assertSame( 10, has_filter( 'the_content_feed', array( Customize_Feed::class, 'append_credit_to_content' ) ) );
 		} finally {
 			$GLOBALS['wp_query'] = $previous_query;
-			self::remove_feed_hooks();
 		}
-	}
-
-	/**
-	 * Undo everything `maybe_register_feed_hooks()` adds so later tests start clean.
-	 */
-	private static function remove_feed_hooks(): void {
-		$class = Customize_Feed::class;
-		remove_action( 'rss2_ns', array( $class, 'output_namespaces' ) );
-		remove_filter( 'wp_title_rss', array( $class, 'feed_title' ) );
-		remove_filter( 'bloginfo_rss', array( $class, 'feed_description' ) );
-		remove_action( 'rss2_head', array( $class, 'reset_render_state' ), 0 );
-		remove_action( 'rss2_head', array( $class, 'output_channel_tags' ) );
-		remove_action( 'rss2_item', array( $class, 'output_item_tags' ) );
-		remove_filter( 'rss_enclosure', array( $class, 'rewrite_enclosure' ) );
-		remove_filter( 'the_excerpt_rss', array( $class, 'capture_item_summary' ), PHP_INT_MAX );
-		remove_filter( 'the_excerpt_rss', array( $class, 'append_credit_to_excerpt' ), PHP_INT_MAX - 1 );
-		remove_filter( 'the_content_feed', array( $class, 'append_credit_to_content' ) );
-		remove_filter( 'option_rss_use_excerpt', '__return_false' );
-		remove_filter( 'pre_render_block', array( $class, 'skip_block_in_feed' ) );
-		remove_filter( 'comments_open', '__return_false' );
-		remove_filter( 'get_comments_number', '__return_zero' );
-		remove_filter( 'the_category_rss', '__return_empty_string' );
 	}
 
 	public function test_credit_uses_the_site_host_when_show_and_site_titles_are_empty() {

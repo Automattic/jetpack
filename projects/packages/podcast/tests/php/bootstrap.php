@@ -46,3 +46,18 @@ if ( ! function_exists( 'get_blog_details' ) ) {
 		return $details ? (object) $details : false;
 	}
 }
+
+if ( ! function_exists( 'jetpack_podcast_test_reset_plan_cache' ) ) {
+	/**
+	 * `Current_Plan::get()` memoizes for the request, leaking option writes between tests.
+	 */
+	function jetpack_podcast_test_reset_plan_cache() {
+		$property = ( new \ReflectionClass( \Automattic\Jetpack\Current_Plan::class ) )->getProperty( 'active_plan_cache' );
+		// @todo Remove once we drop PHP < 8.1 support. `setAccessible()` is
+		// deprecated in 8.5 (a no-op since 8.1), so only call it where it's needed.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$property->setValue( null, null );
+	}
+}

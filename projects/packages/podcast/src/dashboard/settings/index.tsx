@@ -39,6 +39,19 @@ const feedLimitMax = getScriptData()?.podcast?.feed_limit_max;
 
 // WordPress.com sites without podcast plan access always carry the feed credit.
 const isCreditForced = getScriptData()?.podcast?.credit_forced === true;
+const creditHelp = isCreditForced
+	? sprintf(
+			/* translators: %s: plan name, e.g. Premium */
+			__(
+				'Adds a "Made with Jetpack Podcast" line, with a link to your site, to your show description and every episode. Your plan includes this credit; upgrade to %s to turn it off.',
+				'jetpack-podcast'
+			),
+			getUpgradePlanName()
+	  )
+	: __(
+			'Adds a "Made with Jetpack Podcast" line, with a link to your site, to your show description and every episode.',
+			'jetpack-podcast'
+	  );
 
 // Flatten the Apple Podcasts topic tree into one searchable token list for
 // `FormTokenField`. Display strings use `Primary » Subtopic` (matching
@@ -518,21 +531,7 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 						<ToggleControl
 							__nextHasNoMarginBottom
 							label={ __( 'Credit Jetpack Podcast in your feed', 'jetpack-podcast' ) }
-							help={
-								isCreditForced
-									? sprintf(
-											/* translators: %s: plan name, e.g. Premium */
-											__(
-												'Adds a "Made with Jetpack Podcast" line, with a link to your site, to your show description and every episode. Your plan includes this credit; upgrade to %s to turn it off.',
-												'jetpack-podcast'
-											),
-											getUpgradePlanName()
-									  )
-									: __(
-											'Adds a "Made with Jetpack Podcast" line, with a link to your site, to your show description and every episode.',
-											'jetpack-podcast'
-									  )
-							}
+							help={ creditHelp }
 							checked={ isCreditForced || draft.podcasting_credit }
 							onChange={ handleCreditChange }
 							disabled={ isLocked || isCreditForced }
