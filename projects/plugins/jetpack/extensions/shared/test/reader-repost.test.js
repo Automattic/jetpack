@@ -3,6 +3,11 @@
  *
  * Every value this module consumes arrives from the query string of an editor URL that an
  * attacker can hand to a logged-in user, so each one is treated as untrusted input.
+ *
+ * The quote body lives in `core/paragraph` inner blocks rather than the deprecated `value`
+ * attribute, which `core/quote` stopped rendering in WordPress 6.1. That is what reaches post
+ * content, so it is also what the sanitizer has to make safe: the assertions below read the body
+ * back out of the inner blocks for both jobs.
  */
 
 const mockResetEditorBlocks = jest.fn();
@@ -12,7 +17,11 @@ jest.mock( '@wordpress/data', () => ( {
 } ) );
 
 jest.mock( '@wordpress/blocks', () => ( {
-	createBlock: ( name, attributes ) => ( { name, attributes } ),
+	createBlock: ( name, attributes = {}, innerBlocks = [] ) => ( {
+		name,
+		attributes,
+		innerBlocks,
+	} ),
 } ) );
 
 jest.mock( '../wait-for-editor', () => ( {
@@ -61,6 +70,41 @@ const getQuoteBlocks = blocks => blocks.filter( block => block.name === 'core/qu
 const getEmbedBlock = blocks => blocks.find( block => block.name === 'core/embed' );
 
 /**
+ * Flattens a block tree, so an assertion cannot miss a payload parked in an inner block.
+ *
+ * @param {Array} blocks - Blocks to flatten.
+ * @return {Array} Every block in the tree, parents before children.
+ */
+const flattenBlocks = blocks =>
+	blocks.flatMap( block => [ block, ...flattenBlocks( block.innerBlocks ) ] );
+
+/**
+ * Reads the content of each paragraph making up a quote's body.
+ *
+ * @param {object} quote - A `core/quote` block.
+ * @return {string[]} Paragraph contents, in order.
+ */
+const getParagraphContents = quote =>
+	quote.innerBlocks.map( ( { name, attributes } ) => {
+		expect( name ).toBe( 'core/paragraph' );
+		return attributes.content;
+	} );
+
+/**
+ * Rebuilds the HTML a quote's body serializes to, from its paragraph inner blocks.
+ *
+ * This is the string that lands in post content, so it is the one the sanitization assertions
+ * have to be made against.
+ *
+ * @param {object} quote - A `core/quote` block.
+ * @return {string} The body HTML.
+ */
+const getQuoteBodyHTML = quote =>
+	getParagraphContents( quote )
+		.map( content => `<p>${ content }</p>` )
+		.join( '' );
+
+/**
  * Parses HTML and returns the tag names of every element it actually creates.
  *
  * Escaped markup yields an empty list, which is the property that matters here: the payload
@@ -80,19 +124,35 @@ describe( 'reader-repost', () => {
 		it( 'produces no executable markup anywhere in the resulting blocks', async () => {
 			const blocks = await loadWithQueryArgs( {
 				url: 'https://example.com/source',
-				comment_content: 'safe',
+				comment_content:
+					'<iframe srcdoc="<script>top.alert(top.document.domain)</script>">body</iframe>',
 				comment_author:
 					'<iframe srcdoc="<script>top.alert(top.document.domain)</script>">x</iframe>',
 			} );
 
-			// No value from the URL may become a live element in any attribute of any block.
-			const renderedTags = blocks
+			// No value from the URL may become a live element in any attribute of any block,
+			// inner blocks included — that is where the quote body now lives.
+			const renderedTags = flattenBlocks( blocks )
 				.flatMap( block => Object.values( block.attributes ) )
 				.filter( attribute => typeof attribute === 'string' )
 				.flatMap( getRenderedTagNames );
 
 			expect( renderedTags ).not.toContain( 'IFRAME' );
 			expect( renderedTags ).not.toContain( 'SCRIPT' );
+		} );
+
+		it( 'never sets the deprecated value attribute on a quote', async () => {
+			const blocks = await loadWithQueryArgs( {
+				url: 'https://example.com/source',
+				title: 'T1',
+				text: 'BODY1',
+				comment_content: 'PLAINTEXTONLY',
+				comment_author: 'AUTH1',
+			} );
+
+			getQuoteBlocks( blocks ).forEach( quote => {
+				expect( quote.attributes ).not.toHaveProperty( 'value' );
+			} );
 		} );
 	} );
 
@@ -135,12 +195,10 @@ describe( 'reader-repost', () => {
 					'<p>First <strong>bold</strong> and <em>italic</em>.</p><p>Second with a <a href="https://example.com/x">link</a>.</p>',
 			} );
 
-			const { value } = getQuoteBlocks( blocks )[ 0 ].attributes;
-
-			expect( value ).toContain( '<strong>bold</strong>' );
-			expect( value ).toContain( '<em>italic</em>' );
-			expect( value ).toContain( '<a href="https://example.com/x">link</a>' );
-			expect( value.match( /<p>/g ) ).toHaveLength( 2 );
+			expect( getParagraphContents( getQuoteBlocks( blocks )[ 0 ] ) ).toEqual( [
+				'First <strong>bold</strong> and <em>italic</em>.',
+				'Second with a <a href="https://example.com/x">link</a>.',
+			] );
 		} );
 
 		it( 'strips dangerous elements while keeping their text', async () => {
@@ -150,14 +208,18 @@ describe( 'reader-repost', () => {
 					'<p>before</p><iframe srcdoc="<script>alert(1)</script>">x</iframe><p>after</p>',
 			} );
 
-			const { value } = getQuoteBlocks( blocks )[ 0 ].attributes;
+			const body = getQuoteBodyHTML( getQuoteBlocks( blocks )[ 0 ] );
 
 			// Here the content IS parsed as markup, so assert the iframe is gone from the DOM
-			// the value produces — not merely absent from the string.
-			expect( getRenderedTagNames( value ) ).toEqual( [ 'P', 'P' ] );
-			expect( value ).not.toContain( 'srcdoc' );
-			expect( value ).toContain( '<p>before</p>' );
-			expect( value ).toContain( '<p>after</p>' );
+			// the body produces — not merely absent from the string. Its text becomes a
+			// paragraph of its own rather than being dropped with the element.
+			expect( getRenderedTagNames( body ) ).toEqual( [ 'P', 'P', 'P' ] );
+			expect( body ).not.toContain( 'srcdoc' );
+			expect( getParagraphContents( getQuoteBlocks( blocks )[ 0 ] ) ).toEqual( [
+				'before',
+				'x',
+				'after',
+			] );
 		} );
 
 		it( 'strips script in foreign content, where tag names keep their case', async () => {
@@ -166,10 +228,10 @@ describe( 'reader-repost', () => {
 				comment_content: '<p>before</p><svg><script>alert(1)</script></svg><p>after</p>',
 			} );
 
-			const { value } = getQuoteBlocks( blocks )[ 0 ].attributes;
+			const body = getQuoteBodyHTML( getQuoteBlocks( blocks )[ 0 ] );
 
-			expect( getRenderedTagNames( value ) ).toEqual( [ 'P', 'P' ] );
-			expect( value ).not.toContain( 'alert(1)' );
+			expect( getRenderedTagNames( body ) ).toEqual( [ 'P', 'P' ] );
+			expect( body ).not.toContain( 'alert(1)' );
 		} );
 
 		it( 'strips event handler attributes from allowed elements', async () => {
@@ -178,13 +240,11 @@ describe( 'reader-repost', () => {
 				comment_content: '<p onmouseover="alert(1)">hover me</p>',
 			} );
 
-			const { value } = getQuoteBlocks( blocks )[ 0 ].attributes;
-
-			expect( value ).toBe( '<p>hover me</p>' );
+			expect( getParagraphContents( getQuoteBlocks( blocks )[ 0 ] ) ).toEqual( [ 'hover me' ] );
 		} );
 
 		it( 'strips HTML comments, which are block delimiters in this destination', async () => {
-			// A quote's value is serialized into post content, where `<!-- wp:html -->` is not
+			// A quote body is serialized into post content, where `<!-- wp:html -->` is not
 			// inert punctuation but a block delimiter: left in place it ends the quote early and
 			// opens a block of the attacker's choosing once the victim saves.
 			const blocks = await loadWithQueryArgs( {
@@ -192,10 +252,10 @@ describe( 'reader-repost', () => {
 				comment_content: '<p>before</p><!-- /wp:quote --><!-- wp:html --><p>after</p>',
 			} );
 
-			const { value } = getQuoteBlocks( blocks )[ 0 ].attributes;
+			const body = getQuoteBodyHTML( getQuoteBlocks( blocks )[ 0 ] );
 
-			expect( value ).toBe( '<p>before</p><p>after</p>' );
-			expect( value ).not.toContain( '<!--' );
+			expect( body ).toBe( '<p>before</p><p>after</p>' );
+			expect( body ).not.toContain( '<!--' );
 		} );
 
 		it( 'strips HTML comments nested inside an element that is itself unwrapped', async () => {
@@ -204,10 +264,10 @@ describe( 'reader-repost', () => {
 				comment_content: '<div><p>text<!-- wp:html --></p></div>',
 			} );
 
-			const { value } = getQuoteBlocks( blocks )[ 0 ].attributes;
+			const body = getQuoteBodyHTML( getQuoteBlocks( blocks )[ 0 ] );
 
-			expect( value ).toBe( '<p>text</p>' );
-			expect( value ).not.toContain( 'wp:html' );
+			expect( body ).toBe( '<p>text</p>' );
+			expect( body ).not.toContain( 'wp:html' );
 		} );
 
 		it( 'strips angle brackets from free-text attributes, which serialize unescaped', async () => {
@@ -218,10 +278,10 @@ describe( 'reader-repost', () => {
 				comment_content: '<abbr title="<!-- /wp:quote --><!-- wp:html -->">x</abbr>',
 			} );
 
-			const { value } = getQuoteBlocks( blocks )[ 0 ].attributes;
+			const body = getQuoteBodyHTML( getQuoteBlocks( blocks )[ 0 ] );
 
-			expect( value ).not.toContain( '<!--' );
-			expect( value ).toBe( '<abbr title="!-- /wp:quote --!-- wp:html --">x</abbr>' );
+			expect( body ).not.toContain( '<!--' );
+			expect( body ).toBe( '<p><abbr title="!-- /wp:quote --!-- wp:html --">x</abbr></p>' );
 		} );
 
 		it( 'strips angle brackets from datetime as well as title', async () => {
@@ -230,9 +290,10 @@ describe( 'reader-repost', () => {
 				comment_content: '<del datetime="<!-- wp:html -->">x</del>',
 			} );
 
-			const { value } = getQuoteBlocks( blocks )[ 0 ].attributes;
+			const body = getQuoteBodyHTML( getQuoteBlocks( blocks )[ 0 ] );
 
-			expect( value ).not.toContain( '<!--' );
+			expect( body ).not.toContain( '<!--' );
+			expect( body ).toBe( '<p><del datetime="!-- wp:html --">x</del></p>' );
 		} );
 
 		it( 'keeps the normalized URL, not the raw one, so href cannot smuggle a delimiter', async () => {
@@ -241,10 +302,10 @@ describe( 'reader-repost', () => {
 				comment_content: '<a href="https://example.com/?a=<!-- wp:html -->">x</a>',
 			} );
 
-			const { value } = getQuoteBlocks( blocks )[ 0 ].attributes;
+			const body = getQuoteBodyHTML( getQuoteBlocks( blocks )[ 0 ] );
 
-			expect( value ).not.toContain( '<!--' );
-			expect( value ).toContain( '%3C!--' );
+			expect( body ).not.toContain( '<!--' );
+			expect( body ).toContain( '%3C!--' );
 		} );
 
 		it( 'keeps the formatting WordPress itself allows in a comment', async () => {
@@ -260,20 +321,20 @@ describe( 'reader-repost', () => {
 					'<strong>sr</strong></p><blockquote cite="https://example.com">bq</blockquote>',
 			} );
 
-			const { value } = getQuoteBlocks( blocks )[ 0 ].attributes;
+			const body = getQuoteBodyHTML( getQuoteBlocks( blocks )[ 0 ] );
 
-			expect( getRenderedTagNames( value ).sort() ).toEqual(
+			expect( getRenderedTagNames( body ).sort() ).toEqual(
 				[
 					'A',
 					'ABBR',
 					'ACRONYM',
 					'B',
-					'BLOCKQUOTE',
 					'CITE',
 					'CODE',
 					'DEL',
 					'EM',
 					'I',
+					'P',
 					'P',
 					'Q',
 					'S',
@@ -282,13 +343,17 @@ describe( 'reader-repost', () => {
 				].sort()
 			);
 
-			// Allowlisted attributes survive alongside their tags.
-			expect( value ).toContain( 'title="t"' );
-			expect( value ).toContain( 'datetime="2026-01-01"' );
+			// Allowlisted attributes survive alongside their tags. The `cite` here is the one on
+			// `q`: a top-level blockquote is flattened into a paragraph, since it cannot be
+			// nested inside one, so its own cite goes with it.
+			expect( body ).toContain( 'title="t"' );
+			expect( body ).toContain( 'datetime="2026-01-01"' );
 			// Normalized rather than preserved verbatim: keeping the parsed form is what stops a
 			// raw value from carrying angle brackets into the markup, at the cost of cosmetic
 			// rewrites like this added trailing slash.
-			expect( value ).toContain( 'cite="https://example.com/"' );
+			expect( body ).toContain( 'cite="https://example.com/"' );
+			// Flattened, but not dropped.
+			expect( body ).toContain( 'bq' );
 		} );
 
 		it( 'drops javascript: URLs from cite as well as href', async () => {
@@ -297,10 +362,10 @@ describe( 'reader-repost', () => {
 				comment_content: '<blockquote cite="javascript:alert(1)">quoted</blockquote>',
 			} );
 
-			const { value } = getQuoteBlocks( blocks )[ 0 ].attributes;
+			const body = getQuoteBodyHTML( getQuoteBlocks( blocks )[ 0 ] );
 
-			expect( value ).not.toContain( 'javascript:' );
-			expect( value ).toContain( 'quoted' );
+			expect( body ).not.toContain( 'javascript:' );
+			expect( body ).toContain( 'quoted' );
 		} );
 
 		it( 'drops javascript: hrefs that the tag allowlist alone would keep', async () => {
@@ -309,10 +374,79 @@ describe( 'reader-repost', () => {
 				comment_content: '<p><a href="javascript:alert(1)">click</a></p>',
 			} );
 
-			const { value } = getQuoteBlocks( blocks )[ 0 ].attributes;
+			const body = getQuoteBodyHTML( getQuoteBlocks( blocks )[ 0 ] );
 
-			expect( value ).not.toContain( 'javascript:' );
-			expect( value ).toContain( 'click' );
+			expect( body ).not.toContain( 'javascript:' );
+			expect( body ).toContain( 'click' );
+		} );
+
+		it( 'keeps a plain text body, which the value attribute dropped entirely', async () => {
+			const blocks = await loadWithQueryArgs( {
+				url: 'https://example.com/source',
+				comment_content: 'PLAINTEXTONLY',
+				comment_author: 'AUTH1',
+			} );
+
+			const [ quote ] = getQuoteBlocks( blocks );
+
+			expect( getParagraphContents( quote ) ).toEqual( [ 'PLAINTEXTONLY' ] );
+			expect( quote.attributes.citation ).toBe( 'AUTH1' );
+		} );
+
+		it( 'keeps a body that is inline markup with no paragraph of its own', async () => {
+			const blocks = await loadWithQueryArgs( {
+				url: 'https://example.com/source',
+				comment_content: '<a href="https://example.com/x">LINKONLY</a>',
+			} );
+
+			expect( getParagraphContents( getQuoteBlocks( blocks )[ 0 ] ) ).toEqual( [
+				'<a href="https://example.com/x">LINKONLY</a>',
+			] );
+		} );
+
+		it( 'keeps line breaks inside a paragraph', async () => {
+			const blocks = await loadWithQueryArgs( {
+				url: 'https://example.com/source',
+				comment_content: '<p>LINE1<br>LINE2</p>',
+			} );
+
+			expect( getParagraphContents( getQuoteBlocks( blocks )[ 0 ] ) ).toEqual( [
+				'LINE1<br>LINE2',
+			] );
+		} );
+
+		it( 'keeps both halves of a body that mixes loose content and paragraphs', async () => {
+			const blocks = await loadWithQueryArgs( {
+				url: 'https://example.com/source',
+				comment_content: 'loose <em>text</em><p>PARA</p>',
+			} );
+
+			expect( getParagraphContents( getQuoteBlocks( blocks )[ 0 ] ) ).toEqual( [
+				'loose <em>text</em>',
+				'PARA',
+			] );
+		} );
+
+		it( 'emits no quote at all when the body has nothing to show', async () => {
+			const blocks = await loadWithQueryArgs( {
+				url: 'https://example.com/source',
+				comment_content: '   ',
+				comment_author: 'AUTH1',
+			} );
+
+			// A quote of nothing, credited to someone, is worse than no quote at all.
+			expect( getQuoteBlocks( blocks ) ).toHaveLength( 0 );
+			expect( blocks.map( block => block.name ) ).toEqual( [ 'core/embed' ] );
+		} );
+
+		it( 'emits no quote when sanitization leaves the body empty', async () => {
+			const blocks = await loadWithQueryArgs( {
+				url: 'https://example.com/source',
+				comment_content: '<script>alert(1)</script>',
+				comment_author: 'AUTH1',
+			} );
+
+			expect( getQuoteBlocks( blocks ) ).toHaveLength( 0 );
 		} );
 	} );
 
@@ -408,11 +542,35 @@ describe( 'reader-repost', () => {
 				text: '<script>alert(1)</script>',
 			} );
 
-			const { value, citation } = getQuoteBlocks( blocks )[ 0 ].attributes;
+			const [ quote ] = getQuoteBlocks( blocks );
+			const { citation } = quote.attributes;
 
-			expect( value ).toBe( '<p>&lt;script>alert(1)&lt;/script></p>' );
+			expect( getParagraphContents( quote ) ).toEqual( [ '&lt;script>alert(1)&lt;/script>' ] );
 			expect( citation ).toContain( '&lt;img src=x onerror=alert(1)>' );
 			expect( citation ).not.toContain( '<img' );
+		} );
+
+		it( 'puts the reposted text in a paragraph and links the source in the citation', async () => {
+			const blocks = await loadWithQueryArgs( {
+				url: 'https://example.com/source',
+				title: 'T1',
+				text: 'BODY1',
+			} );
+
+			const [ quote ] = getQuoteBlocks( blocks );
+
+			expect( getParagraphContents( quote ) ).toEqual( [ 'BODY1' ] );
+			expect( quote.attributes.citation ).toBe( '<a href="https://example.com/source">T1</a>' );
+		} );
+
+		it( 'skips the text quote when it only repeats the title', async () => {
+			const blocks = await loadWithQueryArgs( {
+				url: 'https://example.com/source',
+				title: 'SAME',
+				text: 'SAME',
+			} );
+
+			expect( getQuoteBlocks( blocks ) ).toHaveLength( 0 );
 		} );
 	} );
 } );

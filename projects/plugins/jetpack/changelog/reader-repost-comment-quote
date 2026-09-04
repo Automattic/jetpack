@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Reader: show the body of a reposted comment instead of an empty quote.
