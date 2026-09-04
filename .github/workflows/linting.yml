@@ -631,12 +631,8 @@ jobs:
       - name: Setup tools
         uses: ./.github/actions/tool-setup
 
-      - run: git diff
       - run: pnpm install
-      - run: git diff
       - run: .github/files/lint-project-structure.sh
-      - run: git diff
-        if: always()
 
   ### Warn on manual updates to Phan auto-generated stubs
   phan_stubs:
