@@ -541,10 +541,9 @@ class Jetpack_Sitemap_Builder { // phpcs:ignore Generic.Files.OneObjectStructure
 
 		if ( self::MASTER_OVERFLOW === $buffer ) {
 			/*
-			 * ponytail: nested indexes are invalid per the protocol and Google
-			 * flags them, but a complete invalid tree beats a valid tree that
-			 * drops URLs. Lifting this ceiling means paginating the master
-			 * itself, which the protocol cannot express without nesting anyway.
+			 * Nesting is invalid and Google flags it, but a complete invalid
+			 * tree beats a valid one that drops URLs, and a sitemap index
+			 * cannot be paginated to make the flat layout scale further.
 			 */
 			$buffer = $this->build_nested_master_buffer( $sitemap_types, $max );
 		}

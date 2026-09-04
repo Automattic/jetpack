@@ -327,10 +327,12 @@ class Jetpack_Sitemap_Builder_Test extends WP_UnitTestCase {
 
 		add_filter( 'jetpack_page_sitemap_other_urls', $callback );
 
-		// Run to completion: page sitemaps, indexes, then the master.
-		for ( $i = 0; $i < 10; $i++ ) {
-			$this->builder->update_sitemap();
-		}
+		/*
+		 * One pass covers this fixture: update_sitemap() builds up to
+		 * JP_SITEMAP_UPDATE_SIZE files per call and this needs four. Calling it
+		 * again would start a fresh cycle rather than continue this one.
+		 */
+		$this->builder->update_sitemap();
 
 		remove_filter( 'jetpack_page_sitemap_other_urls', $callback );
 

@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-Sitemaps: link individual sitemap files directly from sitemap.xml instead of nesting sitemap index files, which Google Search Console rejects. Sites with too many sitemap files to list in one index keep the nested layout.
+Sitemaps: Link individual sitemap files directly from sitemap.xml instead of nesting sitemap index files, which Google Search Console rejects. Sites with too many sitemap files to list in one index keep the nested layout.
