@@ -112,10 +112,9 @@ $jp-breakpoint-mobile: 782px;
 		inset-inline-end: 0;
 		bottom: 0;
 		// wp-admin core sets `width: 100%` on #wpbody-content (common.css).
-		// With `position: fixed`, that resolves to 100% of the viewport and
-		// overrides `inset-inline-end: 0`, making the column extend past the
-		// viewport by the sidebar width. `width: auto` lets the inline
-		// insets size it.
+		// Under `position: fixed` that resolves to the viewport width and
+		// overrides `inset-inline-end: 0`, pushing the column past it by the
+		// sidebar width; `width: auto` lets the inline insets size it instead.
 		width: auto;
 		padding-bottom: 0;          // wp-admin default is 65px (clears #wpfooter).
 		overflow: hidden;
@@ -359,7 +358,7 @@ $jp-breakpoint-mobile: 782px;
 		}
 
 		.jp-admin-page {
-			margin-inline-start: 0;  // override legacy -10px @ ≤782px too.
+			margin-inline-start: 0;  // override AdminPage's own -10px @ ≤782px.
 		}
 	}
 }
