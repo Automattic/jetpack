@@ -786,13 +786,6 @@ fi
 debug "Checking pnpm-workspace.yaml"
 "$BASE/tools/js-tools/check-pnpm-workspace-yaml.mjs" || EXIT=1
 
-# - pnpm lockfile bug: https://github.com/pnpm/pnpm/issues/12228
-debug "Checking for pnpm lockfile bug https://github.com/pnpm/pnpm/issues/12228"
-if grep -q '@pnpm/exe' "$BASE/pnpm-lock.yaml"; then
-	EXIT=1
-	echo '::error file=pnpm-lock.yaml::Please regenerate the pnpm lockfile (e.g. `git checkout $( git merge-base HEAD trunk ) pnpm-lock.yaml && pnpm dedupe`) to avoid [a bug in pnpm](https://href.li/?https://github.com/pnpm/pnpm/issues/12228).'
-fi
-
 debug "Finished"
 
 exit $EXIT
