@@ -549,6 +549,21 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * Webpack loads the Scheduled tasks chunk from this base URL.
+	 */
+	public function test_chunk_base_url_is_injected() {
+		unset( $GLOBALS['wp_scripts'] );
+
+		( new Jetpack_AI_Page() )->page_admin_scripts();
+
+		$inline = implode( "\n", array_filter( (array) wp_scripts()->get_data( 'jetpack-ai-admin', 'before' ) ) );
+		$this->assertStringContainsString(
+			'var Jetpack_AI_Admin_Assets_Base_Url = "' . plugins_url( '_inc/build/', JETPACK__PLUGIN_FILE ) . '";',
+			$inline
+		);
+	}
+
+	/**
 	 * The Agents Manager connection state stays dormant with Scheduled tasks.
 	 */
 	public function test_connection_initial_state_is_not_injected_by_default() {

@@ -13,7 +13,7 @@
 
 import { AdminPage, GlobalNotices, useGlobalNotices } from '@automattic/jetpack-components';
 import { Spinner } from '@wordpress/components';
-import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
+import { Suspense, lazy, useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Badge, Notice, Stack, Tabs } from '@wordpress/ui';
 import MasterOffNotice from './components/master-off-notice';
@@ -29,7 +29,11 @@ import { useMcpSettings } from './mcp/use-mcp-settings';
 import { getSiteLevelEnabled } from './mcp/utils';
 import McpWrite from './mcp/write';
 import AiOverview from './overview';
-import ScheduledTasks from './scheduled-tasks/index';
+
+// Split into its own chunk: DataViews and the AI client add ~1 MB the other tabs never use.
+const ScheduledTasks = lazy( () =>
+	import( /* webpackChunkName: "jetpack-ai-scheduled-tasks" */ './scheduled-tasks/index' )
+);
 
 // Matches the `ref` value convention used by the MCP upsell events.
 const SETTINGS_REF = 'jetpack-ai-mcp-settings';
@@ -421,12 +425,14 @@ export default function App() {
 				) }
 
 				{ view === 'scheduled-tasks' && (
-					<ScheduledTasks
-						blogId={ blogId }
-						apiNonce={ apiNonce }
-						createSuccessNotice={ createSuccessNotice }
-						createErrorNotice={ createErrorNotice }
-					/>
+					<Suspense fallback={ <Spinner /> }>
+						<ScheduledTasks
+							blogId={ blogId }
+							apiNonce={ apiNonce }
+							createSuccessNotice={ createSuccessNotice }
+							createErrorNotice={ createErrorNotice }
+						/>
+					</Suspense>
 				) }
 			</div>
 		</AdminPage>

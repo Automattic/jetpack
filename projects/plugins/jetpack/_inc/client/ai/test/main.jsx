@@ -9,7 +9,17 @@ import App from '../main';
 // main.jsx imports the webpack-aliased 'lib/analytics', which doesn't resolve
 // under jest — provide it virtually. (jest.mock is hoisted above the imports.)
 jest.mock( 'lib/analytics', () => ( { tracks: { recordEvent: jest.fn() } } ), { virtual: true } );
-jest.mock( '@automattic/jetpack-ai-client', () => ( { requestJwt: jest.fn() } ) );
+jest.mock( '@automattic/jetpack-ai-client/jwt', () => ( {
+	__esModule: true,
+	default: jest.fn(),
+} ) );
+
+// Counts Scheduled tasks module loads on globalThis: the factory may run during
+// import, before any local exists, and the tab must stay out of the initial load.
+jest.mock( '../scheduled-tasks/index', () => {
+	globalThis.scheduledTasksModuleLoads = ( globalThis.scheduledTasksModuleLoads ?? 0 ) + 1;
+	return jest.requireActual( '../scheduled-tasks/index' );
+} );
 
 // Both settings hooks fetch through @wordpress/api-fetch; stub it so nothing
 // hits the network and each test controls the GET/POST responses.
@@ -314,6 +324,17 @@ describe( 'AI admin page (main.jsx)', () => {
 		render( <App /> );
 
 		await expect( screen.findAllByText( 'A12s only' ) ).resolves.toHaveLength( 2 );
+	} );
+
+	test( 'scheduled tasks flag off: never loads the tab module', async () => {
+		mockApiFetch();
+
+		render( <App /> );
+
+		await expect(
+			screen.findByRole( 'checkbox', { name: /Writing Assistant/ } )
+		).resolves.toBeInTheDocument();
+		expect( globalThis.scheduledTasksModuleLoads ).toBeUndefined();
 	} );
 
 	test( 'scheduled tasks flag: exposes the gated hash route and Figma empty state', async () => {
