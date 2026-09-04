@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { localTZDate } from '@jetpack-premium-analytics/data';
+import { localTZDate } from '@jetpack-premium-analytics/datetime';
 /**
  * Internal dependencies
  */

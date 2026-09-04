@@ -1,12 +1,11 @@
 /**
  * External dependencies
  */
-import { getDatePart } from '@jetpack-premium-analytics/datetime';
+import { getDatePart, localTZDate } from '@jetpack-premium-analytics/datetime';
 import { format } from 'date-fns';
 /**
  * Internal dependencies
  */
-import { localTZDate } from '../utils/date';
 import {
 	getPeriodsBetweenInclusive,
 	reportParamsToStatsQueryParams,

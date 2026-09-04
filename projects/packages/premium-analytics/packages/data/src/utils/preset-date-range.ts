@@ -1,8 +1,11 @@
 /**
  * External dependencies
  */
-import { computePrimaryRange, reportingTimeZone } from '@jetpack-premium-analytics/datetime';
-import { dateToISOStringWithLocalTZ } from './date';
+import {
+	computePrimaryRange,
+	dateToISOStringWithLocalTZ,
+	reportingTimeZone,
+} from '@jetpack-premium-analytics/datetime';
 import type { ComputablePresetId } from '@jetpack-premium-analytics/datetime';
 
 /**
