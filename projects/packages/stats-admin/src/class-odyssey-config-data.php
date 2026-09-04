@@ -64,7 +64,18 @@ class Odyssey_Config_Data {
 	protected function get_connected_blog_id() {
 		$blog_id = (int) Jetpack_Options::get_option( 'id' );
 
-		return Main::is_site_connected() ? $blog_id : 0;
+		if ( ! Main::is_site_connected() ) {
+			return 0;
+		}
+
+		// A token with no dot has no secret half; `Client::build_signed_request()` would
+		// reject it before sending, making it equivalent to a missing token.
+		$blog_token = Jetpack_Options::get_option( 'blog_token' );
+		if ( $blog_token && false === strpos( $blog_token, '.' ) ) {
+			return 0;
+		}
+
+		return $blog_id;
 	}
 
 	/**
