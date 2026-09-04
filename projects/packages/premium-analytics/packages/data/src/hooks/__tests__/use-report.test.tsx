@@ -86,6 +86,34 @@ describe( 'useReport', () => {
 		expect( calls[ 1 ].params ).not.toHaveProperty( 'compare_from' );
 	} );
 
+	it( 'records the reporting zone the params named', () => {
+		const queryFactory = (): UseQueryOptions< unknown > => ( {
+			queryKey: [ 'test-report' ],
+			queryFn: async () => ( { summary: {}, data: [] } ),
+			enabled: false,
+		} );
+
+		const { result } = renderHook(
+			() =>
+				useReport(
+					queryFactory,
+					{
+						from: '2026-06-01',
+						to: '2026-06-07',
+						compare_from: '2026-05-01',
+						compare_to: '2026-05-07',
+						comp: '1',
+						interval: 'day',
+						timezone: 'Asia/Kolkata',
+					},
+					{ enabled: false }
+				),
+			{ wrapper }
+		);
+
+		expect( result.current.timezone ).toBe( 'Asia/Kolkata' );
+	} );
+
 	it( 'awaits data when only the comparison window moves, leaving primary untouched', async () => {
 		// Deliberate: the whole widget skeletons even though the primary numbers
 		// never went stale, because the deltas on screen did — showing one
