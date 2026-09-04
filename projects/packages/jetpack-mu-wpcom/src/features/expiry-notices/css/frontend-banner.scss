@@ -32,6 +32,10 @@ body.has-wpcom-expiry-banner {
 	font-size: 14px;
 	line-height: 20px;
 
+	&[hidden] {
+		display: none;
+	}
+
 	body.admin-bar & {
 		inset-block-start: $admin-bar-height;
 	}
