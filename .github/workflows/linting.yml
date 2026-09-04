@@ -393,7 +393,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: changed_files
     if: github.event_name == 'push' || needs.changed_files.outputs.js == 'true' || needs.changed_files.outputs.misc_js == 'true'
-    timeout-minutes: 10  # 2025-11-06: Runs now take ~5 minutes due to now installing all JS deps to ensure valid linting.
+    timeout-minutes: 20  # 2026-09-04: The lint itself takes 5-7 minutes, and setup on top of that was blowing the 10 minute budget.
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
