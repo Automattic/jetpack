@@ -22,9 +22,6 @@ const PROPS_FROM_WINDOW = {
 	aggregations: buildFilterAggregations( [ ...widgets, ...widgetsOutsideOverlay ] ),
 	defaultSort: window[ SERVER_OBJECT_NAME ].defaultSort,
 	hasOverlayWidgets: !! window[ SERVER_OBJECT_NAME ].hasOverlayWidgets,
-	// options is always overridden by AppWrapper()'s own `options` below, which
-	// is the one actually normalized and passed to SearchApp.
-	options: window[ SERVER_OBJECT_NAME ],
 	themeOptions: getThemeOptions( window[ SERVER_OBJECT_NAME ] ),
 };
 
