@@ -37,10 +37,11 @@ const ADS_DASHBOARD_SECTION_AVAILABLE_FILTER = 'jetpack_premium_analytics_ads_da
 const DASHBOARD_PREVIEW_SCOPE_FILTER = 'jetpack_premium_analytics_dashboard_preview_scope';
 
 /**
- * Sections the customer preview exposes. The single answer to what the preview shows;
- * a section still rolling out to some sites is opened through the filter instead.
+ * Section slugs the customer preview exposes as tabs. A section still rolling out to some
+ * sites is opened through the filter instead. Widget types are registered independently of
+ * this, as they are of the per-section availability checks.
  */
-const PREVIEW_SECTIONS = array( 'analytics/traffic' );
+const PREVIEW_SECTIONS = array( DASHBOARD_TRAFFIC_SECTION_ID );
 
 /**
  * Registers a dashboard section.
@@ -94,11 +95,14 @@ function is_dashboard_preview_scoped() {
  *
  * @since $$next-version$$
  *
- * @param string $id Namespaced section identifier.
+ * @param string $dashboard_name Dashboard identifier. Only this package's own dashboard is scoped.
+ * @param string $slug           URL-facing section slug.
  * @return bool
  */
-function is_dashboard_section_in_preview_scope( $id ) {
-	$in_scope = ! is_dashboard_preview_scoped() || in_array( $id, PREVIEW_SECTIONS, true );
+function is_dashboard_section_in_preview_scope( $dashboard_name, $slug ) {
+	$in_scope = DASHBOARD_NAME !== $dashboard_name
+		|| ! is_dashboard_preview_scoped()
+		|| in_array( $slug, PREVIEW_SECTIONS, true );
 
 	/**
 	 * Filters whether the preview exposes a dashboard section.
@@ -108,10 +112,11 @@ function is_dashboard_section_in_preview_scope( $id ) {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param bool   $in_scope Whether the preview exposes the section.
-	 * @param string $id       Namespaced section identifier.
+	 * @param bool   $in_scope       Whether the preview exposes the section.
+	 * @param string $slug           URL-facing section slug.
+	 * @param string $dashboard_name Dashboard the section belongs to.
 	 */
-	return (bool) apply_filters( DASHBOARD_PREVIEW_SCOPE_FILTER, $in_scope, $id );
+	return (bool) apply_filters( DASHBOARD_PREVIEW_SCOPE_FILTER, $in_scope, $slug, $dashboard_name );
 }
 
 /**

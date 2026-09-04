@@ -1271,7 +1271,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The scope filter restores the whole dashboard, which is how our own sites see every tab.
+	 * The scope filter restores the whole dashboard for a development or test site.
 	 */
 	public function test_preview_scope_filter_restores_every_section() {
 		$this->enable_every_section();
@@ -1291,8 +1291,8 @@ class Dashboard_Section_Test extends BaseTestCase {
 		update_option( Enablement_Setting::ENABLED_OPTION, 1 );
 		add_filter(
 			DASHBOARD_PREVIEW_SCOPE_FILTER,
-			static function ( $in_scope, $id ) {
-				return 'analytics/insights' === $id ? true : $in_scope;
+			static function ( $in_scope, $slug ) {
+				return 'insights' === $slug ? true : $in_scope;
 			},
 			10,
 			2
@@ -1304,6 +1304,82 @@ class Dashboard_Section_Test extends BaseTestCase {
 			array( 'analytics/traffic', 'analytics/insights' ),
 			$this->available_section_ids()
 		);
+	}
+
+	/**
+	 * The scope decides which sections the preview offers, never whether the site has them.
+	 */
+	public function test_preview_scope_does_not_bypass_a_section_own_availability() {
+		$this->set_admin_user();
+		add_filter( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_false' );
+		update_option( Enablement_Setting::ENABLED_OPTION, 1 );
+		add_filter( DASHBOARD_PREVIEW_SCOPE_FILTER, '__return_true' );
+
+		register_default_dashboard_sections();
+
+		$this->assertNotContains( 'woocommerce/store', $this->available_section_ids() );
+	}
+
+	/**
+	 * Switching the preview off stores a falsy option, which is not the same as running it.
+	 *
+	 * @param mixed $stored Value the opt-out leaves in the option.
+	 * @dataProvider provide_opted_out_option_values
+	 */
+	#[DataProvider( 'provide_opted_out_option_values' )]
+	public function test_an_explicit_opt_out_is_not_preview_scoped( $stored ) {
+		$this->enable_every_section();
+		update_option( Enablement_Setting::ENABLED_OPTION, $stored );
+
+		register_default_dashboard_sections();
+
+		$this->assertCount( 5, $this->available_section_ids() );
+	}
+
+	/**
+	 * Data provider for the opt-out values core can leave behind.
+	 *
+	 * @return array<string, array{mixed}>
+	 */
+	public static function provide_opted_out_option_values() {
+		return array(
+			'sanitized zero' => array( 0 ),
+			'empty string'   => array( '' ),
+		);
+	}
+
+	/**
+	 * The preview leaves nothing that waits on the analytics sync, so the sync stays idle
+	 * until the Store tab is exposed.
+	 */
+	public function test_preview_scope_leaves_no_section_awaiting_sync() {
+		$this->enable_every_section();
+		update_option( Enablement_Setting::ENABLED_OPTION, 1 );
+
+		register_default_dashboard_sections();
+
+		$requires_sync = array_column(
+			array_map(
+				static function ( Dashboard_Section $section ) {
+					return $section->to_array();
+				},
+				get_available_dashboard_sections( DASHBOARD_NAME )
+			),
+			'requires_sync'
+		);
+
+		$this->assertSame( array( false ), $requires_sync );
+	}
+
+	/**
+	 * The scope governs this package's dashboard, not every dashboard using the registry.
+	 */
+	public function test_preview_scope_leaves_other_dashboards_alone() {
+		update_option( Enablement_Setting::ENABLED_OPTION, 1 );
+
+		register_dashboard_section( 'other_dashboard', 'other/insights', array( 'label' => 'Insights' ) );
+
+		$this->assertCount( 1, get_available_dashboard_sections( 'other_dashboard' ) );
 	}
 
 	/**

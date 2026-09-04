@@ -101,7 +101,10 @@ function get_dashboard_default_layout_response( $request ) {
 	$gates          = get_dashboard_default_layout_gates();
 	$section_id     = get_dashboard_default_section_id_for( $dashboard_name );
 
-	if ( isset( $gates[ $section_id ] ) && ! call_user_func( $gates[ $section_id ] ) ) {
+	$out_of_preview = null !== $section_id
+		&& ! is_dashboard_section_in_preview_scope( DASHBOARD_NAME, $section_id );
+
+	if ( $out_of_preview || ( isset( $gates[ $section_id ] ) && ! call_user_func( $gates[ $section_id ] ) ) ) {
 		return new \WP_Error(
 			'dashboard_section_unavailable',
 			__( 'Dashboard section is not available.', 'jetpack-premium-analytics-pkg' ),

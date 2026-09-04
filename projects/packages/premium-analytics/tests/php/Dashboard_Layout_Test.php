@@ -36,6 +36,8 @@ class Dashboard_Layout_Test extends BaseTestCase {
 		$this->reset_analytics_capabilities();
 		wp_set_current_user( 0 );
 		remove_all_filters( SUBSCRIBERS_DASHBOARD_SECTION_AVAILABLE_FILTER );
+		remove_all_filters( DASHBOARD_PREVIEW_SCOPE_FILTER );
+		delete_option( Enablement_Setting::ENABLED_OPTION );
 		Constants::clear_constants();
 		// The default layout now reaches Host::is_wpcom_platform(), which memoizes
 		// `is_woa_site` past Constants::clear_constants().
@@ -111,6 +113,33 @@ class Dashboard_Layout_Test extends BaseTestCase {
 			array( Capabilities::class, 'current_user_can_view_analytics' ),
 			$routes[ self::ROUTE ][0]['permission_callback']
 		);
+	}
+
+	/**
+	 * This route keeps its own availability table, so the preview scope has to be applied
+	 * here too or a hidden tab still hands out its layout.
+	 */
+	public function test_default_layout_route_refuses_a_tab_the_preview_hides() {
+		$this->register_route_with_capabilities();
+		$this->login_as( 'administrator' );
+		update_option( Enablement_Setting::ENABLED_OPTION, 1 );
+
+		list( $status ) = $this->request_default_layout( DASHBOARD_INSIGHTS_SECTION_ID );
+
+		$this->assertSame( 404, $status );
+	}
+
+	/**
+	 * The tab the preview does expose keeps serving its layout.
+	 */
+	public function test_default_layout_route_serves_the_traffic_tab_while_the_preview_is_scoped() {
+		$this->register_route_with_capabilities();
+		$this->login_as( 'administrator' );
+		update_option( Enablement_Setting::ENABLED_OPTION, 1 );
+
+		list( $status ) = $this->request_default_layout( DASHBOARD_TRAFFIC_SECTION_ID );
+
+		$this->assertSame( 200, $status );
 	}
 
 	/**
