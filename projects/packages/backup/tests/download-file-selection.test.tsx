@@ -469,6 +469,7 @@ describe( 'Download screen with a file selection', () => {
 
 		const link = await screen.findByRole( 'link', { name: 'Download the file' }, SETTLE );
 		expect( link ).toHaveAttribute( 'href', 'https://example.com/archive.zip' );
+		expect( link ).toHaveAttribute( 'download' );
 		// `Notice` also speaks its text through `wp.a11y.speak`, which
 		// mirrors the string into a live region — so an unscoped query
 		// matches twice. The visible notice is the one under assertion.

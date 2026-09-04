@@ -1,5 +1,5 @@
 Significance: patch
 Type: fixed
-Comment: Modernized dashboard only, behind the rsm_jetpack_ui_modernization_backup filter: drop a stray comma from the Site database description on the Restore and Download screens, and render the finished archive's download link as a button rather than plain underlined text. No-op when the filter is off.
+Comment: Modernized dashboard only, behind the rsm_jetpack_ui_modernization_backup filter: tidy two copy errors in the Restore and Download checklist (a stray comma, and an unhyphenated "non-WordPress"), and render the finished archive's download link as a button rather than plain underlined text. No-op when the filter is off.
 
 

@@ -24,7 +24,7 @@ const ITEMS: ItemDef[] = [
 	{
 		key: 'roots',
 		label: __( 'WordPress root', 'jetpack-backup-pkg' ),
-		description: __( 'Includes wp-config.php and any non WordPress files.', 'jetpack-backup-pkg' ),
+		description: __( 'Includes wp-config.php and any non-WordPress files.', 'jetpack-backup-pkg' ),
 	},
 	{
 		key: 'contents',
