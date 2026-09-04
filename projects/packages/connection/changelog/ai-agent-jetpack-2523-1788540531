@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Hide the Restore Connection CTA from logged-in users who lack the jetpack_connect capability.

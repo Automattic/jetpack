@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Connection: Hide the Restore Connection CTA from users who lack permission to reconnect the site.
