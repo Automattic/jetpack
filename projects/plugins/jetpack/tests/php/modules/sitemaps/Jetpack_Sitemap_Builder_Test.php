@@ -412,6 +412,59 @@ class Jetpack_Sitemap_Builder_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * A master sitemap is not replaced by one that cannot reach every file.
+	 *
+	 * This guard is not behind the flat-layout filter, so it applies to every
+	 * site. Losing a sitemap file the state still expects has to leave the
+	 * previously stored master alone rather than publish one that no longer
+	 * reaches those URLs.
+	 *
+	 * @group jetpack-sitemap
+	 * @since 16.2
+	 */
+	#[Group( 'jetpack-sitemap' )]
+	public function test_master_sitemap_is_kept_when_a_sitemap_file_is_missing() {
+		$callback = $this->add_split_page_sitemap_fixture();
+		$this->enable_flat_master_index();
+
+		$this->builder->update_sitemap();
+
+		$librarian = new Jetpack_Sitemap_Librarian();
+		$before    = $librarian->get_sitemap_text( 'sitemap.xml', JP_MASTER_SITEMAP_TYPE );
+
+		$this->assertStringContainsString( 'sitemap-2.xml', $before );
+
+		// Lose a file the state still expects, then run the master step again.
+		$librarian->delete_sitemap_data( 'sitemap-2.xml', JP_PAGE_SITEMAP_TYPE );
+		update_option(
+			'jetpack-sitemap-state',
+			array(
+				'sitemap-type'  => JP_MASTER_SITEMAP_TYPE,
+				'last-added'    => 0,
+				'number'        => 0,
+				'last-modified' => '1970-01-01 00:00:00',
+				'max'           => array(
+					JP_PAGE_SITEMAP_TYPE => array(
+						'number'  => 2,
+						'lastmod' => '1970-01-01 00:00:00',
+					),
+				),
+			)
+		);
+
+		$this->builder->update_sitemap();
+
+		remove_filter( 'jetpack_page_sitemap_other_urls', $callback );
+		remove_filter( 'jetpack_sitemap_flat_master_index', '__return_true' );
+
+		$this->assertSame(
+			$before,
+			$librarian->get_sitemap_text( 'sitemap.xml', JP_MASTER_SITEMAP_TYPE ),
+			'The master sitemap should be left alone when a file it lists is gone.'
+		);
+	}
+
+	/**
 	 * The flat layout is opt-in: without the filter the master still nests.
 	 *
 	 * The default is expected to flip once the flat layout has been verified in
