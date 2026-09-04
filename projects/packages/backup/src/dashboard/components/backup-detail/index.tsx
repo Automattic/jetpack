@@ -139,7 +139,6 @@ export default function BackupDetail( { item }: Props ) {
 				</Stack>
 			</Card.Header>
 			<Card.Content className="jpb-backup-detail__body">
-				{ /* `auto`, not `ltr`: WPCOM translates this line and may return it in RTL. */ }
 				<Text className="jpb-backup-detail__stats" dir="auto">
 					{ item.stats }
 				</Text>

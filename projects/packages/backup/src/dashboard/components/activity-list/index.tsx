@@ -95,8 +95,9 @@ function DescriptionCell( { item }: { item: ActivityItem } ) {
 				{ dateI18n( 'M j, Y, g:i A', item.publishedAt, undefined ) }
 			</Text>
 			{ /*
-			 * `dir` isolates the stats line, which an RTL page otherwise reorders
-			 * into "plugins, 23 themes … 47"; `auto` because WPCOM may translate it.
+			 * `auto`, not `ltr`: an RTL page reorders this into "plugins, 23 themes … 47",
+			 * and WPCOM may legitimately translate the line into RTL. Same everywhere
+			 * `stats` and `summary` are rendered.
 			 */ }
 			{ item.summary && (
 				<Text variant="body-sm" className="jpb-text-muted jpb-activity-list__summary" dir="auto">
