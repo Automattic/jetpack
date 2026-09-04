@@ -222,7 +222,8 @@ function PreviewBody( {
 					) }
 				</Text>
 			) }
-			<pre>{ content }</pre>
+			{ /* `ltr`, not `auto`: source stays LTR even when it opens with an RTL string literal. */ }
+			<pre dir="ltr">{ content }</pre>
 		</>
 	);
 }
@@ -308,7 +309,8 @@ export default function FileInfoCard( { file, onClose }: Props ) {
 				className="jpb-file-info-card__header"
 			>
 				<Text variant="heading-sm" render={ <h3 /> }>
-					{ file.name }
+					{ /* A filename is LTR data even on an RTL page. */ }
+					<span dir="ltr">{ file.name }</span>
 				</Text>
 				<Button
 					variant="minimal"
@@ -320,6 +322,10 @@ export default function FileInfoCard( { file, onClose }: Props ) {
 					<Button.Icon icon={ closeSmall } />
 				</Button>
 			</Stack>
+			{ /*
+			 * `dir` on a span, not the `<dd>`: isolating the value there would flip
+			 * the row's `text-align: start` inside an RTL panel.
+			 */ }
 			<dl className="jpb-file-info-card__meta">
 				{ modified && (
 					<div>
@@ -330,7 +336,9 @@ export default function FileInfoCard( { file, onClose }: Props ) {
 				{ size !== null && (
 					<div>
 						<dt>{ __( 'Size:', 'jetpack-backup-pkg' ) }</dt>
-						<dd>{ formatFileSize( size ) }</dd>
+						<dd>
+							<span dir="auto">{ formatFileSize( size ) }</span>
+						</dd>
 					</div>
 				) }
 				{ mimeType && (
@@ -342,7 +350,9 @@ export default function FileInfoCard( { file, onClose }: Props ) {
 				{ hash && (
 					<div>
 						<dt>{ __( 'Hash:', 'jetpack-backup-pkg' ) }</dt>
-						<dd className="jpb-file-info-card__hash">{ hash }</dd>
+						<dd className="jpb-file-info-card__hash">
+							<span dir="ltr">{ hash }</span>
+						</dd>
 					</div>
 				) }
 			</dl>
