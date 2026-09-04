@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+VideoPress: Register the "Add to a post or page" default content handler when the Jetpack VideoPress module is active, not only when the standalone plugin is present.
