@@ -190,6 +190,56 @@ class Survicate {
 		}
 	}
 
+	// Requiring aria-modal excludes popovers/tooltips that only set role="dialog";
+	// the .components-modal__screen-overlay class covers older @wordpress/components
+	// Modal versions whose aria-modal attribute sat on an inner node.
+	var MODAL_SELECTOR = '[role="dialog"][aria-modal="true"], dialog[open], .components-modal__screen-overlay';
+	// The Survicate widget renders role="dialog"/aria-modal elements inside
+	// <div id="survicate-box" class="survicate-box-...">; without this exclusion
+	// every survey would suppress itself on display.
+	var SURVICATE_CONTAINER_SELECTOR = '#survicate-box, [class*="survicate-box"]';
+	function isElementRendered( el ) {
+		if ( typeof el.checkVisibility === 'function' ) {
+			return el.checkVisibility();
+		}
+		return el.getClientRects().length > 0;
+	}
+	function isModalOpen() {
+		try {
+			var candidates = document.querySelectorAll( MODAL_SELECTOR );
+			for ( var i = 0; i < candidates.length; i++ ) {
+				if ( candidates[ i ].closest( SURVICATE_CONTAINER_SELECTOR ) ) {
+					continue;
+				}
+				if ( ! isElementRendered( candidates[ i ] ) ) {
+					continue;
+				}
+				return true;
+			}
+		} catch ( e ) {
+			return false;
+		}
+		return false;
+	}
+	function nodeContainsModal( node ) {
+		if ( ! node || node.nodeType !== 1 ) {
+			return false;
+		}
+		if ( node.closest( SURVICATE_CONTAINER_SELECTOR ) ) {
+			return false;
+		}
+		if ( node.matches( MODAL_SELECTOR ) ) {
+			return true;
+		}
+		var inner = node.querySelectorAll( MODAL_SELECTOR );
+		for ( var i = 0; i < inner.length; i++ ) {
+			if ( ! inner[ i ].closest( SURVICATE_CONTAINER_SELECTOR ) ) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	if ( window.wp && window.wp.data && typeof window.wp.data.subscribe === 'function' ) {
 		var wasShown = isHelpCenterShown();
 		// Scope the subscription to the Help Center store so the callback does not
@@ -206,8 +256,8 @@ class Survicate {
 	window.addEventListener( 'SurvicateReady', function () {
 		window._sva.setVisitorTraits( traits );
 
-		// Covers the race where the Help Center opened before the SDK finished loading.
-		if ( isHelpCenterShown() ) {
+		// Covers the race where the Help Center or a modal opened before the SDK finished loading.
+		if ( isHelpCenterShown() || isModalOpen() ) {
 			closeAnySurvey();
 		}
 
@@ -216,10 +266,27 @@ class Survicate {
 			// post-display event. This causes a brief flash but is the best the
 			// public API allows.
 			window._sva.addEventListener( 'survey_displayed', function () {
-				if ( isHelpCenterShown() ) {
+				if ( isHelpCenterShown() || isModalOpen() ) {
 					closeAnySurvey();
 				}
 			} );
+		}
+
+		if ( typeof MutationObserver === 'function' && document.body ) {
+			// Close a survey already on screen when a modal opens on top of it.
+			// Only added nodes are inspected, so the observer is cheap on
+			// ordinary DOM churn; closeAnySurvey() is a no-op without a survey.
+			new MutationObserver( function ( mutations ) {
+				for ( var m = 0; m < mutations.length; m++ ) {
+					var added = mutations[ m ].addedNodes;
+					for ( var n = 0; n < added.length; n++ ) {
+						if ( nodeContainsModal( added[ n ] ) ) {
+							closeAnySurvey();
+							return;
+						}
+					}
+				}
+			} ).observe( document.body, { childList: true, subtree: true } );
 		}
 	} );
 } )();
