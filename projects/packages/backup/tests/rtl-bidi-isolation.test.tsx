@@ -119,7 +119,7 @@ describe( 'bidi isolation on LTR data', () => {
 		expectIsolated( '.htaccess', 'ltr' );
 	} );
 
-	it( 'isolates the file name and hash on the info card', async () => {
+	it( 'isolates the file name, size and hash on the info card', async () => {
 		mockApiFetch.mockImplementation( ( options: { path: string } ) =>
 			Promise.resolve(
 				options.path.includes( '/file-content' )
@@ -137,6 +137,7 @@ describe( 'bidi isolation on LTR data', () => {
 		await expect( screen.findByText( HASH ) ).resolves.toBeInTheDocument();
 
 		expectIsolated( FILE.name, 'ltr' );
+		expectIsolated( '42 B', 'auto' );
 		expectIsolated( HASH, 'ltr' );
 	} );
 
@@ -173,7 +174,6 @@ describe( 'bidi isolation on LTR data', () => {
 
 		await expect( screen.findByText( STATS ) ).resolves.toBeInTheDocument();
 
-		// `auto`, not `ltr`: WPCOM translates this string and may return it in RTL.
 		expectIsolated( STATS, 'auto' );
 	} );
 

@@ -322,6 +322,11 @@ export default function FileInfoCard( { file, onClose }: Props ) {
 					<Button.Icon icon={ closeSmall } />
 				</Button>
 			</Stack>
+			{ /*
+			 * `dir` on a span, not the `<dd>`: isolating the value there would flip
+			 * the row's `text-align: start` inside an RTL panel. `auto` for the
+			 * translated size unit, `ltr` for the hash.
+			 */ }
 			<dl className="jpb-file-info-card__meta">
 				{ modified && (
 					<div>
@@ -332,7 +337,9 @@ export default function FileInfoCard( { file, onClose }: Props ) {
 				{ size !== null && (
 					<div>
 						<dt>{ __( 'Size:', 'jetpack-backup-pkg' ) }</dt>
-						<dd>{ formatFileSize( size ) }</dd>
+						<dd>
+							<span dir="auto">{ formatFileSize( size ) }</span>
+						</dd>
 					</div>
 				) }
 				{ mimeType && (
@@ -344,8 +351,8 @@ export default function FileInfoCard( { file, onClose }: Props ) {
 				{ hash && (
 					<div>
 						<dt>{ __( 'Hash:', 'jetpack-backup-pkg' ) }</dt>
-						<dd className="jpb-file-info-card__hash" dir="ltr">
-							{ hash }
+						<dd className="jpb-file-info-card__hash">
+							<span dir="ltr">{ hash }</span>
 						</dd>
 					</div>
 				) }
