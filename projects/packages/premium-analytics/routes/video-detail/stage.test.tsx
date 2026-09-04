@@ -29,6 +29,7 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 // Avoid loading DataViews while keeping the real breadcrumbs for these assertions.
 jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 	DateFiltersPanel: () => <div>Date filters</div>,
+	SectionHeader: jest.requireActual( '../../packages/ui/src/section-header' ).SectionHeader,
 	StatsBreadcrumbs: jest.requireActual( '../../packages/ui/src/stats-breadcrumbs' )
 		.StatsBreadcrumbs,
 	StatsPageIcon: () => null,
@@ -186,12 +187,16 @@ describe( 'video detail stage', () => {
 			'href',
 			'/reports/videos?from=2026-06-01&to=2026-06-16'
 		);
-		expect( screen.queryByRole( 'heading', { level: 1 } ) ).not.toBeInTheDocument();
+		expect( getSummaryHeading( 'Video not found' ) ).toBeInTheDocument();
 	} );
 
-	it.each( [ { isLoading: true }, { isError: true }, { isNotFound: true } ] )(
-		'shows only the Stats crumb and does not mount widgets while no video is available',
-		summary => {
+	it.each( [
+		{ summary: { isLoading: true }, heading: 'Loading…' },
+		{ summary: { isError: true }, heading: 'Video unavailable' },
+		{ summary: { isNotFound: true }, heading: 'Video not found' },
+	] )(
+		'names the page and keeps its date controls while no video is available',
+		( { summary, heading } ) => {
 			mockSummary( summary );
 
 			render( stage() );
@@ -205,18 +210,21 @@ describe( 'video detail stage', () => {
 				'href',
 				'/?from=2026-06-01&to=2026-06-16'
 			);
-			expect( screen.queryByRole( 'heading', { level: 1 } ) ).not.toBeInTheDocument();
+			expect( getSummaryHeading( heading ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Date filters' ) ).toBeInTheDocument();
+			// No window is worth stating without a video behind it.
+			expect( screen.queryByText( /Performance from/ ) ).not.toBeInTheDocument();
 			expect( screen.queryByText( 'Video widgets' ) ).not.toBeInTheDocument();
 		}
 	);
 
 	/**
-	 * Find the summary card's `h1` while skipping the breadcrumb title crumb —
-	 * admin-ui renders the current crumb as an `h1` too, so an unscoped heading
-	 * query matches both.
+	 * Find the page heading while skipping the breadcrumb title crumb — admin-ui
+	 * renders the current crumb as an `h1` too, so an unscoped heading query
+	 * matches both.
 	 *
 	 * @param name - The accessible heading name.
-	 * @return The summary card heading.
+	 * @return The page heading.
 	 */
 	function getSummaryHeading( name: string ): HTMLElement {
 		const nav = screen.getByRole( 'navigation', { name: 'Breadcrumbs' } );
@@ -224,7 +232,7 @@ describe( 'video detail stage', () => {
 			.getAllByRole( 'heading', { level: 1, name } )
 			.find( node => ! nav.contains( node ) );
 		if ( ! heading ) {
-			throw new Error( `No summary heading named "${ name }" outside the breadcrumbs.` );
+			throw new Error( `No page heading named "${ name }" outside the breadcrumbs.` );
 		}
 		return heading;
 	}
@@ -235,15 +243,15 @@ describe( 'video detail stage', () => {
 			posterUrl: 'https://i0.wp.com/videos.files.wordpress.com/abcd1234/launch-recap.jpg',
 		} );
 
-		// The placeholder is decorative (`aria-hidden`), so it has no role or
-		// text to query; find its glyph block structurally.
+		// The whole visual slot is decorative (`aria-hidden`), so both the poster
+		// and the placeholder live outside the accessibility tree.
 		const placeholderGlyph = () =>
 			// eslint-disable-next-line testing-library/no-node-access -- The aria-hidden placeholder has no accessible query target.
 			document.querySelector( 'div[aria-hidden="true"] svg' );
 
 		render( stage() );
 
-		const poster = screen.getByRole( 'presentation' );
+		const poster = screen.getByRole( 'presentation', { hidden: true } );
 		expect( poster ).toHaveAttribute(
 			'src',
 			'https://i0.wp.com/videos.files.wordpress.com/abcd1234/launch-recap.jpg'
@@ -253,7 +261,7 @@ describe( 'video detail stage', () => {
 		// A tokenless poster (private video) 404s; the broken image must swap
 		// itself for the video-glyph placeholder, keeping the image slot.
 		fireEvent.error( poster );
-		expect( screen.queryByRole( 'presentation' ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'presentation', { hidden: true } ) ).not.toBeInTheDocument();
 		expect( placeholderGlyph() ).toBeInTheDocument();
 		expect( getSummaryHeading( 'Launch recap' ) ).toBeInTheDocument();
 	} );
@@ -263,7 +271,7 @@ describe( 'video detail stage', () => {
 
 		render( stage() );
 
-		expect( screen.queryByRole( 'presentation' ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'presentation', { hidden: true } ) ).not.toBeInTheDocument();
 		expect(
 			// eslint-disable-next-line testing-library/no-node-access -- The aria-hidden placeholder has no accessible query target.
 			document.querySelector( 'div[aria-hidden="true"] svg' )
@@ -272,8 +280,8 @@ describe( 'video detail stage', () => {
 
 	it( 'keeps a long unbroken title single-line-ready: full text in markup plus the hover attr', () => {
 		// Layout is out of jsdom's reach (the clip is CSS, `white-space: nowrap` +
-		// ellipsis, in stage.module.scss), so this guards the DOM contract it relies
-		// on: full text in the heading, mirrored in `title` for hover access.
+		// ellipsis, in `section-header.module.scss`), so this guards the DOM contract
+		// it relies on: full text in the heading, mirrored in `title` for hover access.
 		const longTitle = `VID_20260731_${ 'a'.repeat( 120 ) }.mp4`;
 		mockSummary( { title: longTitle } );
 

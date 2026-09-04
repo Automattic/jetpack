@@ -2,10 +2,8 @@
 /**
  * Tests for the Jetpack AI admin page script data.
  *
- * The contract worth locking down: the pre-release a11n gate flag rides the
- * jetpackAiSettings inline script and follows
- * jetpack_is_internal_testing_environment(), so the Features view stays hidden
- * outside internal testing environments while the MCP-only page keeps working.
+ * The Overview and AI Features views are public on self-hosted sites, gated on
+ * Atomic, and remain filterable by the host.
  *
  * @package automattic/jetpack
  */
@@ -107,18 +105,6 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 			'expiry_status' => 'active',
 			'expiry_date'   => '2027-03-15T00:00:00+00:00',
 		);
-	}
-
-	/**
-	 * A Jetpack AI subscription with auto-renew switched off.
-	 *
-	 * @return object
-	 */
-	private function jetpack_ai_purchase_without_auto_renew() {
-		$purchase                        = $this->jetpack_ai_purchase();
-		$purchase->is_auto_renew_enabled = false;
-
-		return $purchase;
 	}
 
 	/**
@@ -266,35 +252,83 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Outside internal testing environments the Features view flag is off.
+	 * The Overview and AI Features views render publicly on self-hosted sites.
 	 */
-	public function test_features_view_flag_is_off_by_default() {
+	public function test_features_view_flag_is_on_for_self_hosted_site() {
+		$this->given_woa( false );
+
 		$settings = $this->get_injected_settings();
 
 		$this->assertArrayHasKey( 'showFeaturesView', $settings );
-		$this->assertFalse( $settings['showFeaturesView'] );
+		$this->assertTrue( $settings['showFeaturesView'] );
+		$this->assertFalse( $settings['showA12sBadge'] );
+		$this->assertFalse( $settings['isTest'] );
 		$this->assertArrayHasKey( 'featureFlags', $settings );
 		$this->assertFalse( $settings['featureFlags'][ Jetpack_AI_Feature_Flags::SCHEDULED_TASKS ] );
 	}
 
 	/**
-	 * A proxied a8c request marks an internal testing environment and turns
-	 * the Features view flag on.
+	 * Internal self-hosted requests still present the views as public UI.
 	 */
-	public function test_features_view_flag_follows_internal_testing_environment() {
+	public function test_self_hosted_internal_request_has_no_a12s_badge() {
+		$this->given_woa( false );
 		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
 
 		$settings = $this->get_injected_settings();
 
 		$this->assertTrue( $settings['showFeaturesView'] );
+		$this->assertFalse( $settings['showA12sBadge'] );
+		$this->assertTrue( $settings['isTest'] );
+	}
+
+	/**
+	 * The views remain hidden from an ordinary Atomic request.
+	 */
+	public function test_features_view_flag_is_off_for_ordinary_woa_site() {
+		$this->given_woa( true );
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertFalse( $settings['showFeaturesView'] );
+		$this->assertFalse( $settings['showA12sBadge'] );
+		$this->assertFalse( $settings['isTest'] );
+	}
+
+	/**
+	 * The views remain hidden from Simple sites, including internal requests.
+	 */
+	public function test_features_view_flag_is_off_for_simple_site() {
+		Constants::set_constant( 'IS_WPCOM', true );
+		$this->given_woa( false );
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertFalse( $settings['showFeaturesView'] );
+		$this->assertFalse( $settings['showA12sBadge'] );
+		$this->assertTrue( $settings['isTest'] );
+	}
+
+	/**
+	 * A proxied Atomic request retains access for internal testing.
+	 */
+	public function test_features_view_flag_is_on_for_proxied_woa_site() {
+		$this->given_woa( true );
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertTrue( $settings['showFeaturesView'] );
+		$this->assertTrue( $settings['showA12sBadge'] );
+		$this->assertTrue( $settings['isTest'] );
 		$this->assertFalse( $settings['featureFlags'][ Jetpack_AI_Feature_Flags::SCHEDULED_TASKS ] );
 	}
 
 	/**
-	 * Hosts can hide pre-release views even in an internal testing environment.
+	 * Hosts retain final control over the views.
 	 */
 	public function test_features_view_flag_can_be_filtered_by_the_host() {
-		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+		$this->given_woa( false );
 		add_filter(
 			'jetpack_ai_admin_config',
 			function ( $config ) {
@@ -407,32 +441,6 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 		);
 		$this->assertTrue( apply_filters( 'agents_manager_should_load', false ) );
 		$this->assertSame( 'wp-orchestrator', apply_filters( 'agents_manager_agent_id', null ) );
-	}
-
-	/**
-	 * Auto-renew off must reach the client, so the date can read as an expiry.
-	 */
-	public function test_plan_auto_renew_is_false_when_the_purchase_does_not_renew() {
-		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
-		$this->given_site( array( $this->jetpack_ai_purchase_without_auto_renew() ) );
-
-		$settings = $this->get_injected_settings();
-
-		$this->assertArrayHasKey( 'planAutoRenew', $settings );
-		$this->assertFalse( $settings['planAutoRenew'] );
-	}
-
-	/**
-	 * A purchase that says nothing about auto-renew is unknown, not off — the
-	 * date must keep the renewal wording rather than claim an expiry.
-	 */
-	public function test_plan_auto_renew_defaults_true_when_the_purchase_omits_it() {
-		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
-		$this->given_site( array( $this->jetpack_ai_purchase() ) );
-
-		$settings = $this->get_injected_settings();
-
-		$this->assertTrue( $settings['planAutoRenew'] );
 	}
 
 	/**
@@ -700,27 +708,12 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 	 * Self-hosted sites keep the Jetpack purchase name, brand prefix trimmed.
 	 */
 	public function test_self_hosted_site_shows_the_jetpack_plan() {
-		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
 		$this->given_woa( false );
 		$this->given_site( array( $this->jetpack_ai_purchase() ) );
 
 		$settings = $this->get_injected_settings();
 
 		$this->assertSame( 'AI Assistant', $settings['planName'] );
-	}
-
-	/**
-	 * The Plan cell's renewal date is the purchase's own expiry — the date My
-	 * Jetpack shows — not the monthly AI usage-period rollover.
-	 */
-	public function test_plan_renewal_date_comes_from_the_purchase() {
-		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
-		$this->given_woa( false );
-		$this->given_site( array( $this->jetpack_ai_purchase() ) );
-
-		$settings = $this->get_injected_settings();
-
-		$this->assertSame( '2027-03-15T00:00:00+00:00', $settings['planRenewsOn'] );
 	}
 
 	/**
@@ -747,25 +740,20 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
 		set_transient(
 			'jetpack_ai_overview_plan_info',
-			array(
-				'name'      => 'Cached',
-				'renews_on' => '2027-03-15T00:00:00+00:00',
-			),
+			array( 'name' => 'Cached' ),
 			HOUR_IN_SECONDS
 		);
 
 		$settings = $this->get_injected_settings();
 
 		$this->assertSame( 'Cached', $settings['planName'] );
-		$this->assertSame( '2027-03-15T00:00:00+00:00', $settings['planRenewsOn'] );
 	}
 
 	/**
-	 * The name is only looked up for the gated views, so an ungated page ships
-	 * an empty value rather than paying for the purchase lookup.
+	 * Atomic skips the plan lookup while the views remain gated.
 	 */
-	public function test_plan_name_is_absent_without_the_gate() {
-		$this->given_woa( false );
+	public function test_plan_name_is_absent_on_ordinary_woa_site() {
+		$this->given_woa( true );
 		$this->given_site( array( $this->jetpack_ai_purchase() ) );
 
 		$settings = $this->get_injected_settings();

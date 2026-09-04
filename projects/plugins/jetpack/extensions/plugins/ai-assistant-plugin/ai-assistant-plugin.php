@@ -27,9 +27,11 @@ require_once __DIR__ . '/../../../_inc/lib/class-jetpack-ai-settings.php';
  * @return void
  */
 function register_plugin() {
-	// Connection check, the AI master switch, and the writing toggle that owns
-	// the legacy "Improve with AI" panel on the AI settings page. Grouping the
-	// connection term explicitly also makes the master gate (host + master via
+	// Connection check and the AI master switch. The per-feature switches on
+	// the AI settings page hide sections inside the "Improve with AI" panel
+	// (see extensions/blocks/ai-assistant/ai-assistant.php), not the panel:
+	// it also carries the usage meter and the upgrade prompt. Grouping the
+	// connection term explicitly makes the master gate (host + master via
 	// is_ai_enabled()) effective on WordPress.com Simple — the previous
 	// precedence short-circuited it there.
 	if (
@@ -38,7 +40,6 @@ function register_plugin() {
 			|| ( ( new Connection_Manager( 'jetpack' ) )->has_connected_owner() && ! ( new Status() )->is_offline_mode() )
 		)
 		&& \Jetpack_AI_Settings::is_ai_enabled()
-		&& \Jetpack_AI_Settings::is_feature_enabled( 'writing_assistant' )
 	) {
 		// Register AI assistant plugin.
 		\Jetpack_Gutenberg::set_extension_available( FEATURE_NAME );

@@ -2,9 +2,9 @@
  * External dependencies
  */
 import {
-	getComparisonRangeFromPreset,
-	getComparisonPresetConfigs,
-	type ComparisonPresetId,
+	getComparisonOptions,
+	type ComparisonOption,
+	type PrimaryPresetId,
 } from '@jetpack-premium-analytics/datetime';
 import { useMemo } from 'react';
 /**
@@ -13,33 +13,27 @@ import { useMemo } from 'react';
 import type { DateRange } from '../date-range-popover/date-range-filter';
 
 /**
- * `DateRangePreset` narrowed to a `ComparisonPresetId`.
+ * A comparison option offered for the primary range, as the dropdown consumes
+ * it.
  */
-export type ComparisonDateRangePreset = {
-	id: ComparisonPresetId;
-	label: string;
-	/**
-	 * Abbreviated label for the picker's trigger, e.g. "Prev. period".
-	 */
-	shortLabel: string;
-	range: DateRange;
-};
+export type ComparisonDateRangePreset = ComparisonOption;
 
 /**
- * Comparison presets derived from the primary range, dropping any the range
- * cannot support.
+ * Comparison options derived from the primary range: which shifts are offered,
+ * the window each resolves to, and the label naming it all follow the range —
+ * see `getComparisonOptions`.
+ *
+ * @param referenceRange - The primary range.
+ * @param presetId       - The preset that produced it, so a to-date window
+ *                       compares with its previous whole period.
+ * @return The comparison options, each with its range.
  */
-export function useComparisonDatePresets( referenceRange: DateRange ): ComparisonDateRangePreset[] {
-	return useMemo( () => {
-		if ( ! referenceRange.from || ! referenceRange.to ) {
-			return [];
-		}
-
-		return getComparisonPresetConfigs()
-			.map( ( { id, label, shortLabel } ) => {
-				const range = getComparisonRangeFromPreset( referenceRange, id );
-				return range ? { id, label, shortLabel, range } : null;
-			} )
-			.filter( ( preset ): preset is ComparisonDateRangePreset => preset !== null );
-	}, [ referenceRange ] );
+export function useComparisonDatePresets(
+	referenceRange: DateRange,
+	presetId?: PrimaryPresetId
+): ComparisonDateRangePreset[] {
+	return useMemo(
+		() => getComparisonOptions( referenceRange, { primaryPresetId: presetId } ),
+		[ referenceRange, presetId ]
+	);
 }

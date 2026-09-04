@@ -52,8 +52,8 @@ export function useDetailDateControls(
 	publishedDate: string | undefined,
 	{ appliedPresetId, appliedRange, replaceRange, timeZone }: DetailDateFilters
 ): DetailDateControls {
-	// Read in the site timezone, the way the summary cards show it, so the pill
-	// and the "published on" sentence agree on the day for every visitor.
+	// Read in the site timezone, matching the header subtitle, so the pill and
+	// the "published on" sentence name the same day for every visitor.
 	const allTimeStart = useMemo( () => parseSiteDateTime( publishedDate ), [ publishedDate ] );
 
 	const appliedFrom = appliedRange.from?.getTime();

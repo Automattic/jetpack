@@ -21,25 +21,39 @@ import {
 	resolveCssVariable,
 	normalizeColorToHex,
 } from '../../utils';
+import { sanitizeFormatting } from '../../utils/date-formatting';
 // Imported from the module rather than the `chart-scope` barrel: the barrel also pulls `use-standalone-scope-class`, which imports `GlobalChartsContext` back from this file. That cycle resolves today only because the binding is read lazily inside the hook body.
 import { ChartScopeContext } from '../chart-scope/chart-scope-context';
 import { getChartColor, type ColorCache } from './private/get-chart-color';
 import { SERIES_PALETTE_POINTERS } from './private/series-palette';
-import { themeOverrideVars } from './private/theme-override-vars';
-import { withCatalogPointers } from './private/with-catalog-pointers';
 import { defaultTheme } from './themes';
 import type { GlobalChartsContextValue, ChartRegistration } from './types';
 import type { ChartTheme, CompleteChartTheme } from '../../types';
-import type { CSSProperties, FC, ReactNode } from 'react';
+import type { FC, ReactNode } from 'react';
 
 export const GlobalChartsContext = createContext< GlobalChartsContextValue | null >( null );
 
 export interface GlobalChartsProviderProps {
 	children: ReactNode;
 	theme?: Partial< ChartTheme >;
+	/**
+	 * BCP-47 language tag every date label is rendered in, e.g. `de-DE`.
+	 * Defaults to the viewer's browser locale.
+	 */
+	locale?: string;
+	/**
+	 * IANA time zone every date label is dated in, e.g. `Asia/Tokyo`.
+	 * Defaults to the viewer's browser time zone.
+	 */
+	timeZone?: string;
 }
 
-export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { children, theme } ) => {
+export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
+	children,
+	theme,
+	locale,
+	timeZone,
+} ) => {
 	const [ charts, setCharts ] = useState< Map< string, ChartRegistration > >( () => new Map() );
 	// Track hidden series per chart: chartId -> Set<seriesLabel>
 	const [ hiddenSeries, setHiddenSeries ] = useState< Map< string, Set< string > > >(
@@ -59,19 +73,10 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 		setScopeNode( node );
 	}, [] );
 
-	// themeOverrideVars reads the raw `theme` prop, never `providerTheme` — feeding it the restored theme below would make an overridden role's pointer look like a self-reference and drop the var (see themeOverrideVars' own doc comment).
-	const { vars: overrideVars, roles: overriddenRoles } = useMemo(
-		() => themeOverrideVars( theme ),
+	const providerTheme: CompleteChartTheme = useMemo(
+		() => ( theme ? mergeThemes( defaultTheme, theme ) : defaultTheme ),
 		[ theme ]
 	);
-
-	const providerTheme: CompleteChartTheme = useMemo( () => {
-		if ( ! theme ) {
-			return defaultTheme;
-		}
-
-		return withCatalogPointers( mergeThemes( defaultTheme, theme ), overriddenRoles );
-	}, [ theme, overriddenRoles ] );
 
 	// Cache expensive color computations that only change when theme colors change
 	// Using useState + useLayoutEffect instead of useMemo to ensure CSS variables
@@ -88,14 +93,10 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 	// Useful for animations that should only run after the color palette is resolved
 	const [ isColorPaletteResolved, setIsColorPaletteResolved ] = useState( false );
 
-	// Compute color cache after DOM is updated (so CSS variables are available)
-	// Resolves CSS variables from the wrapper element's scope to handle scoped variables
-	// Note: Only re-runs when providerTheme changes, not when wrapper element changes.
-	// This is intentional, as wrapperRef is expected to be stable for the lifetime of the provider.
-	// A remount is not a gap in that: effects always run on mount, so a new instance resolves
-	// against its own node. Only a node swap *within* one instance would go unseen, and the catalog
-	// is declared on the `.a8c-charts-scope` class rather than on a particular element, so the
-	// replacement carries the same computed values anyway.
+	// A layout effect rather than a memo: the catalog reaches the wrapper as a stylesheet, which
+	// must be applied before `getComputedStyle` can answer. Mount only — the slots are a fixed
+	// manifest and `wrapperRef` is stable for the provider's life.
+
 	useLayoutEffect( () => {
 		setIsColorPaletteResolved( false );
 		const resolvedColors: string[] = [];
@@ -104,13 +105,7 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 		let minHue = 360;
 		let maxHue = 0;
 
-		// Resolved from the theme rather than from `SERIES_PALETTE_POINTERS`, and it has to be. In a
-		// browser the two are equivalent — both name the same slots, and the wrapper's theme-layer
-		// vars answer either. But `withCatalogPointers` puts the consumer's own color in each
-		// pointer's terminal position, and that literal is the only carrier for the palette where
-		// `getComputedStyle` resolves nothing: SSR and jsdom. Walking the manifest instead makes
-		// every consumer palette collapse to the catalog seed there.
-		for ( const color of providerTheme.colors ?? SERIES_PALETTE_POINTERS ) {
+		for ( const color of SERIES_PALETTE_POINTERS ) {
 			// Normalize color to hex format, handling CSS variables, RGB, HSL, etc.
 			// This uses normalizeColorToHex which resolves CSS variables and converts
 			// rgb(), rgba(), hsl() formats to hex
@@ -145,7 +140,7 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 			minHue,
 			maxHue,
 		} );
-	}, [ providerTheme ] );
+	}, [] );
 
 	useEffect( () => {
 		if ( colorCache.colors.length > 0 ) {
@@ -157,12 +152,8 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 		() => new Map()
 	);
 
-	// Reset group color mappings when the resolved palette changes.
-	//
-	// Keyed on the resolved colors rather than on `providerTheme.colors`, which holds five
-	// catalog pointers and so does not move with a `theme.colors` change — a consumer's colors
-	// reach the palette through the theme-layer vars on the wrapper. Keying on content also stops
-	// a consumer passing an inline `theme` object from resetting the map on every render.
+	// Keyed on the resolved colors rather than the cache object, so a consumer passing an inline
+	// `theme` cannot reset the map on every render.
 	const paletteKey = colorCache.colors.join( ',' );
 
 	useEffect( () => {
@@ -358,6 +349,12 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 		[ hiddenSeries ]
 	);
 
+	// Held as one object so a chart's formatting memos key on a single stable reference.
+	const formatting = useMemo(
+		() => sanitizeFormatting( { locale, timeZone } ),
+		[ locale, timeZone ]
+	);
+
 	const value: GlobalChartsContextValue = useMemo(
 		() => ( {
 			charts,
@@ -365,6 +362,7 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 			unregisterChart,
 			getChartData,
 			theme: providerTheme,
+			formatting,
 			getElementStyles,
 			toggleSeriesVisibility,
 			setSeriesVisibility,
@@ -381,6 +379,7 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 			unregisterChart,
 			getChartData,
 			providerTheme,
+			formatting,
 			getElementStyles,
 			toggleSeriesVisibility,
 			setSeriesVisibility,
@@ -399,7 +398,7 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( { childre
 				ref={ setWrapperNode }
 				className={ CHART_SCOPE_CLASS }
 				data-testid="charts-scope"
-				style={ { display: 'contents', ...overrideVars } as CSSProperties }
+				style={ { display: 'contents' } }
 			>
 				<ChartScopeContext.Provider value={ scopeNode }>{ children }</ChartScopeContext.Provider>
 			</div>

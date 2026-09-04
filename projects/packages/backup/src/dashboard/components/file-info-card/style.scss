@@ -39,6 +39,11 @@
 		word-break: break-all;
 	}
 
+	&__preview-note {
+		margin-block: 0 8px;
+		margin-inline: 0;
+	}
+
 	&__preview {
 		max-height: 320px;
 		overflow: auto;

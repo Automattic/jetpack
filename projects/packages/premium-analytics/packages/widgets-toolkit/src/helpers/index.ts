@@ -63,7 +63,6 @@ export { summaryCount } from './summary-count';
 export { toDay } from './to-day';
 export { defaultPeriodForInterval } from '@jetpack-premium-analytics/data';
 export { buildMetricTab, type MetricReport, type BuildMetricTabOptions } from './build-metric-tab';
-export { fromChartDate, toChartDate } from './chart-date';
 export { dateFormatForResolution } from './tick-resolution-date-format';
 export {
 	CHART_DISPLAY_CHART_TYPES,
@@ -81,6 +80,7 @@ export {
 	type FitWeekColumnsInput,
 } from './calendar-heatmap-layout';
 export { formatViewCount } from './format-view-count';
+export { siteChartFormatting } from './site-chart-formatting';
 export { formatComparisonSeriesLabel } from './format-comparison-series-label';
 export { formatTooltipSeriesLabel } from './format-tooltip-series-label';
 export { resolveSeriesNames, type ResolvedSeriesNames } from './resolve-series-names';

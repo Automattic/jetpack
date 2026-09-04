@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+At a Glance: stop requesting a new speed score on sites that already have Boost.

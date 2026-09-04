@@ -262,18 +262,17 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings_Test extends Jetpack_REST_T
 	}
 
 	/**
-	 * Input 3 on a free plan: the row follows `advanced-seo`, which sits in the
-	 * free plan's supports list, so it is offered wherever SEO tools run. The
-	 * row governs user-initiated suggestions as well as automatic generation,
-	 * and only the automatic half needs the higher `ai-seo-enhancer` tier.
+	 * Input 3 on a free plan: entitled to AI SEO, but neither surface it governs
+	 * can run here — no sidebar off WordPress.com, and the editor's generation
+	 * needs `ai-seo-enhancer`. A control over nothing is not offered.
 	 */
-	public function test_seo_row_available_on_a_free_plan() {
+	public function test_seo_row_unavailable_on_a_free_plan_without_a_surface() {
 		wp_set_current_user( self::$admin_id );
 
 		self::set_seo_tools_active( true );
 		self::set_plan( 'jetpack_free' );
 
-		$this->assertTrue( $this->get_seo_available() );
+		$this->assertFalse( $this->get_seo_available() );
 	}
 
 	/**
@@ -590,6 +589,20 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings_Test extends Jetpack_REST_T
 		// The automatic-generation option is owned by the Traffic page and the SEO
 		// dashboard: this endpoint no longer writes it.
 		$this->assertFalse( (bool) get_option( 'ai_seo_enhancer_enabled', false ) );
+	}
+
+	/**
+	 * An explicit `{ enabled: null }` is a present value (sanitizes to false),
+	 * not an absent key — it must still write, not be skipped as absent.
+	 */
+	public function test_post_enabled_null_writes_false() {
+		wp_set_current_user( self::$admin_id );
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+		update_option( Jetpack_AI_Settings::FEATURE_OPTIONS['writing_assistant'], true );
+
+		$this->dispatch( 'POST', array( 'features' => array( 'writing_assistant' => array( 'enabled' => null ) ) ) );
+
+		$this->assertFalse( Jetpack_AI_Settings::is_feature_enabled( 'writing_assistant' ) );
 	}
 
 	/**

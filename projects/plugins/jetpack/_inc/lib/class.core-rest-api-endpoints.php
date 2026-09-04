@@ -767,13 +767,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 	/**
 	 * Ask WPCOM for a JWT token to use for OpenAI conversations.
 	 *
-	 * @deprecated since $$next-version$$
+	 * @deprecated since 16.2
 	 * @see Automattic\Jetpack\Connection\REST_Jetpack_AI_JWT::get_jwt()
 	 *
 	 * @return array|WP_Error The token and blog ID, or the error from WPCOM.
 	 */
 	public static function get_openai_jwt() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', '\Automattic\Jetpack\Connection\REST_Jetpack_AI_JWT::get_jwt' );
+		_deprecated_function( __METHOD__, 'jetpack-16.2', '\Automattic\Jetpack\Connection\REST_Jetpack_AI_JWT::get_jwt' );
 
 		$response = ( new REST_Jetpack_AI_JWT() )->get_jwt();
 

@@ -1,7 +1,7 @@
 /**
  * AI Features view — per-feature toggles for Jetpack AI, grouped by area
- * (Content, Media, SEO, Search) inside a single "Agent capabilities" card
- * per the AI-Settings design.
+ * (Content, Media, SEO, Search) inside a single card per the AI-Settings
+ * design. The card carries no heading of its own: the tab names it.
  *
  * Each feature has its own on/off switch, backed by the feature-settings
  * endpoint. A disabled feature must genuinely stop loading (its assets are
@@ -13,7 +13,7 @@ import { ToggleControl } from '@wordpress/components';
 import { Fragment, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Badge, Card, Link, Notice, Popover, Stack, Text, VisuallyHidden } from '@wordpress/ui';
-import analytics from 'lib/analytics';
+import { EVENTS, recordAiHubEvent } from '../tracks';
 
 // Server-computed target for the AI SEO row: the dedicated Jetpack SEO page
 // where it exists, the Traffic settings card otherwise. Falls back to Traffic
@@ -101,7 +101,7 @@ const SECTIONS = [
 		features: [
 			{
 				key: 'ai_search',
-				label: __( 'AI Search', 'jetpack' ),
+				label: __( 'AI Answers', 'jetpack' ),
 				description: __(
 					'Help visitors and AI agents find answers in your content, via Jetpack Search.',
 					'jetpack'
@@ -213,9 +213,9 @@ function FeatureRow( {
  */
 export default function AiFeatures( { settings, savingKeys, onUpdate } ) {
 	const features = settings?.features ?? {};
-	// Children keep their saved values while the master switch is off — the
-	// page shows them greyed with a site-wide notice instead of misreporting
-	// the user's choices as off.
+	// Children keep their saved values while the master switch is off — they
+	// render greyed (under the page-level master-off notice main.jsx owns)
+	// instead of misreporting the user's choices as off.
 	const masterEnabled = settings?.master_enabled !== false;
 	// The connection gate sits outside the master switch: false covers both a
 	// site without a connected owner and one in offline mode, and in either
@@ -228,7 +228,7 @@ export default function AiFeatures( { settings, savingKeys, onUpdate } ) {
 	// The badge tooltip names the remedy for the gated Search section. A site
 	// with a paid Search plan is pointed at Search setup; one with no Search
 	// entitlement — or only the free tier, which reports supports_search but
-	// cannot run AI Search — is asked to upgrade instead. Unlike the gates
+	// cannot run AI Answers — is asked to upgrade instead. Unlike the gates
 	// above this defaults to the upgrade copy: pointing an unentitled site at
 	// setup would send it down the wrong path, and the badge cannot render
 	// before the payload (which carries `plan`) has arrived anyway.
@@ -253,7 +253,7 @@ export default function AiFeatures( { settings, savingKeys, onUpdate } ) {
 			onUpdate( { features: { [ key ]: enabled } } ).then( saved => {
 				// Track outcomes, not attempts: a failed save changed nothing.
 				if ( saved ) {
-					analytics.tracks.recordEvent( 'jetpack_ai_feature_toggled', {
+					recordAiHubEvent( EVENTS.FEATURE_TOGGLED, {
 						feature: key,
 						enabled,
 					} );
@@ -294,45 +294,18 @@ export default function AiFeatures( { settings, savingKeys, onUpdate } ) {
 					</Notice.Description>
 				</Notice.Root>
 			) }
-			{ isConnected && ! masterEnabled && (
-				<Notice.Root intent="warning">
-					<Notice.Title>
-						{ __( 'Jetpack AI is turned off for this site.', 'jetpack' ) }
-					</Notice.Title>
-					<Notice.Description>
-						{ __(
-							'Your feature settings are saved and will apply again when AI is turned back on.',
-							'jetpack'
-						) }{ ' ' }
-						<Link
-							href="admin.php?page=my-jetpack#/products"
-							className="jetpack-ai-features__notice-link"
-						>
-							{ __( 'Manage in My Jetpack', 'jetpack' ) }
-						</Link>
-					</Notice.Description>
-				</Notice.Root>
-			) }
 			{ sections.length > 0 && (
 				<Card.Root className="jetpack-ai-features__card">
-					{ /* Single Card.Content, no Card.Header: the FullBleed dividers —
-					     including the one under the header — must stay direct children
-					     of Card.Content per the component's contract. */ }
+					{ /* Single Card.Content, no Card.Header: the FullBleed dividers must
+					     stay direct children of Card.Content per the component's contract. */ }
 					<Card.Content className="jetpack-ai-features__card-content">
-						<Stack direction="column" gap="sm">
-							<Card.Title render={ <h2 /> }>{ __( 'Agent capabilities', 'jetpack' ) }</Card.Title>
-							<Text variant="body-sm" className="jetpack-ai-features__card-subtitle">
-								{ __(
-									'Choose what your WordPress Agent can help with across your site.',
-									'jetpack'
-								) }
-							</Text>
-						</Stack>
-						{ sections.map( section => {
+						{ sections.map( ( section, index ) => {
 							const titleId = `jetpack-ai-features-${ section.key }-title`;
 							return (
 								<Fragment key={ section.key }>
-									<Card.FullBleed render={ <hr /> } className="jetpack-ai-features__divider" />
+									{ index > 0 && (
+										<Card.FullBleed render={ <hr /> } className="jetpack-ai-features__divider" />
+									) }
 									{ /* Labelled by its heading so each group is a named region —
 									     screen readers can jump between them inside the merged card. */ }
 									<Stack
@@ -341,7 +314,7 @@ export default function AiFeatures( { settings, savingKeys, onUpdate } ) {
 										render={ <section aria-labelledby={ titleId } /> }
 									>
 										<div className="jetpack-ai-features__section-header">
-											<Text variant="heading-lg" render={ <h3 id={ titleId } /> }>
+											<Text variant="heading-lg" render={ <h2 id={ titleId } /> }>
 												{ section.title }
 											</Text>
 											{ isConnected &&

@@ -10,16 +10,6 @@
 // the same element wins. Chart roots deliberately do NOT re-declare these: an
 // element's own declaration beats an inherited one, so re-declaring lower down
 // would shadow a consumer override set inside the provider tree.
-
-// The roles a `theme` prop field can override read a `*-theme` variable first,
-// which GlobalChartsProvider writes inline from that field. Publishing the
-// consumer's value one layer out keeps the catalog default reachable: a value
-// that is invalid at computed-value time (a fallback-less `var()` naming a
-// token nothing set, which is how premium-analytics passes its grid stroke)
-// invalidates only the `*-theme` variable, leaving the role's own fallback to
-// resolve. Written as the role directly, it made the role guaranteed-invalid
-// and took every bare read site with it.
-// `src/styles/test/chart-scope.test.ts` pins which roles carry the layer.
 :where(.a8c-charts-scope) {
 	// The series palette. GlobalChartsProvider resolves these five slots at its
 	// wrapper and seeds ColorCache with whatever resolves; a slot that resolves
@@ -35,58 +25,42 @@
 	// admin color. Leading with the admin color costs nothing:
 	// @wordpress/theme writes --wp-admin-theme-color from a provider's own
 	// accent as a legacy wp-admin override, so a provider accent still wins.
-
-	// DO NOT SIMPLIFY the chain below. The innermost
-	// var(--wp-admin-theme-color, #3858e9) is unreachable — the outer leg
-	// already tried that variable — and reads like a copy-paste mistake. It is
-	// the design system's own spec value for the WPDS token, which
-	// `src/styles/test/wpds-fallbacks.test.ts` compares against literally, so
-	// collapsing it to a bare hex fails that test. Reordering to put the WPDS
-	// token first passes every test and breaks only on a host with no root
-	// provider.
-
-	// That test scans this file as text, comments included, so do not write an
-	// example --wpds-* reference in a comment here — it is read as a real one.
-	--a8c-charts-color-series-1: var(--a8c-charts-color-series-1-theme, var(--wp-admin-theme-color, var(--wpds-color-foreground-interactive-brand, var(--wp-admin-theme-color, #3858e9))));
-	--a8c-charts-color-series-2: var(--a8c-charts-color-series-2-theme);
-	--a8c-charts-color-series-3: var(--a8c-charts-color-series-3-theme);
-	--a8c-charts-color-series-4: var(--a8c-charts-color-series-4-theme);
-	--a8c-charts-color-series-5: var(--a8c-charts-color-series-5-theme);
-	--a8c-charts-color-grid: var(--a8c-charts-color-grid-theme, var(--wpds-color-stroke-surface-neutral, #dbdbdb));
-	--a8c-charts-color-axis: var(--a8c-charts-color-axis-theme, var(--wpds-color-stroke-surface-neutral, #dbdbdb));
-	--a8c-charts-color-tick: var(--a8c-charts-color-tick-theme, var(--wpds-color-stroke-surface-neutral, #dbdbdb));
-	--a8c-charts-color-label: var(--wpds-color-foreground-content-neutral, #1e1e1e);
-	--a8c-charts-color-label-secondary: var(--wpds-color-foreground-content-neutral-weak, #707070);
-	--a8c-charts-color-label-inverse: var(--wpds-color-foreground-interactive-neutral-strong, #f0f0f0);
-	// White label text sits on arbitrary series colors, so it has no WPDS
-	// content-foreground equivalent.
-	--a8c-charts-color-label-on-fill: var(--a8c-charts-color-label-on-fill-theme, #fff);
+	--a8c-charts-color-series-1: var(--wp-admin-theme-color, var(--wpds-color-foreground-interactive-brand));
+	--a8c-charts-color-grid: var(--wpds-color-stroke-surface-neutral);
+	--a8c-charts-color-axis-x: var(--wpds-color-stroke-surface-neutral);
+	--a8c-charts-color-tick-x: var(--wpds-color-stroke-surface-neutral);
+	// The y axis carries labels only until one of these is declared. `none`
+	// rather than `transparent` keeps the line out of hit-testing too.
+	--a8c-charts-color-axis-y: none;
+	--a8c-charts-color-tick-y: none;
+	--a8c-charts-color-label: var(--wpds-color-foreground-content-neutral);
+	--a8c-charts-color-label-secondary: var(--wpds-color-foreground-content-neutral-weak);
+	// Label text on a filled surface — a pie segment, a heatmap cell.
+	--a8c-charts-color-label-inverse: var(--wpds-color-foreground-interactive-neutral-strong);
 	// The plate behind a pie-slice label. Transparent by default, so a label
 	// reads straight off the slice; there is no WPDS token for "no surface".
-	--a8c-charts-color-label-background: var(--a8c-charts-color-label-background-theme, transparent);
-	// The SVG axis and tick labels. `svgLabelSmall.fill` publishes THIS role, so
-	// deriving from --a8c-charts-color-label is safe and wanted: the theme field
-	// moves only these labels, while setting the broad role in CSS still moves
-	// every label at once. (--a8c-charts-color-surface cannot derive the same
-	// way — see its comment; there the theme field owns the broad role.)
-	--a8c-charts-color-label-axis: var(--a8c-charts-color-label-axis-theme, var(--a8c-charts-color-label));
-	--a8c-charts-color-annotation: var(--wpds-color-foreground-content-neutral, #1e1e1e);
-	--a8c-charts-color-trend-up: var(--wpds-color-foreground-content-success-weak, #008030);
-	--a8c-charts-color-trend-down: var(--wpds-color-foreground-content-error-weak, #cc1818);
-	--a8c-charts-color-trend-neutral: var(--wpds-color-foreground-content-neutral-weak, #707070);
-	--a8c-charts-color-background: var(--a8c-charts-color-background-theme, var(--wpds-color-background-surface-neutral-strong, #fff));
-	// Surfaces that float over the chart — tooltips, the annotation label, the
-	// zoom-reset control. Same WPDS token as --a8c-charts-color-background, and
-	// deliberately NOT derived from it: `backgroundColor` publishes the
-	// background role, so deriving would let that theme field repaint these too.
-	// Sibling of the background role, not a child of it.
-	--a8c-charts-color-surface: var(--wpds-color-background-surface-neutral-strong, #fff);
-	--a8c-charts-color-surface-secondary: var(--wpds-color-background-surface-neutral-weak, #f4f4f4);
-	--a8c-charts-color-track: var(--wpds-color-background-track-neutral-weak, #f0f0f0);
+	// The literal is load-bearing: a `fill` reading a fallback-less var() on an
+	// undeclared property drops the declaration and paints black instead.
+	--a8c-charts-color-label-background: transparent;
+	// The SVG axis and tick labels. Narrower than --a8c-charts-color-label and
+	// derived from it, so setting the broad role moves every label at once while
+	// setting this one moves only the axis.
+	--a8c-charts-color-label-axis: var(--a8c-charts-color-label);
+	--a8c-charts-color-annotation: var(--wpds-color-foreground-content-neutral);
+	--a8c-charts-color-trend-up: var(--wpds-color-foreground-content-success-weak);
+	--a8c-charts-color-trend-down: var(--wpds-color-foreground-content-error-weak);
+	--a8c-charts-color-trend-neutral: var(--wpds-color-foreground-content-neutral-weak);
+	--a8c-charts-color-background: var(--wpds-color-background-surface-neutral-strong);
+	// Surfaces floating over the chart — tooltips, the annotation label, the
+	// zoom-reset control. Same WPDS token as --a8c-charts-color-background but
+	// deliberately not derived from it, so either can move without the other.
+	--a8c-charts-color-surface: var(--wpds-color-background-surface-neutral-strong);
+	--a8c-charts-color-surface-secondary: var(--wpds-color-background-surface-neutral-weak);
+	--a8c-charts-color-track: var(--wpds-color-background-track-neutral-weak);
 	// Translucent dark surface; no WPDS token carries this.
 	--a8c-charts-color-tooltip-surface: rgb(0 0 0 / 85%);
-	--a8c-charts-color-zoom-selection: var(--wpds-color-background-interactive-brand-strong, var(--wp-admin-theme-color, #3858e9));
-	--a8c-charts-color-zoom-selection-stroke: var(--wpds-color-stroke-interactive-brand, var(--wp-admin-theme-color, #3858e9));
+	--a8c-charts-color-zoom-selection: var(--wpds-color-background-interactive-brand-strong);
+	--a8c-charts-color-zoom-selection-stroke: var(--wpds-color-stroke-interactive-brand);
 
 	// @wordpress/theme 1.0.0 removed the whole --wpds-elevation-* group while the
 	// elevation model is redefined (gutenberg#80099). These carry the removed spec
@@ -102,10 +76,13 @@
 		0 6px 6px 0 #00000008,
 		0 8px 8px 0 #00000005;
 
-	--a8c-charts-motion-duration-entrance: var(--wpds-motion-duration-xl, 400ms);
-	--a8c-charts-motion-easing-entrance: var(--wpds-motion-easing-expressive, cubic-bezier(0.25, 0, 0, 1));
-	--a8c-charts-border-radius-bar: var(--wpds-border-radius-md, 4px);
-	--a8c-charts-border-radius-cell: var(--wpds-border-radius-sm, 2px);
+	--a8c-charts-motion-duration-entrance: var(--wpds-motion-duration-xl);
+	--a8c-charts-motion-easing-entrance: var(--wpds-motion-easing-expressive);
+	--a8c-charts-border-radius-bar: var(--wpds-border-radius-md);
+	--a8c-charts-border-radius-cell: var(--wpds-border-radius-sm);
 	// Pill shape; no WPDS radius reaches it.
 	--a8c-charts-border-radius-leaderboard-bar: 9999px;
+
+	--a8c-charts-dimension-leaderboard-row-gap: var(--wpds-dimension-gap-md);
+	--a8c-charts-dimension-leaderboard-column-gap: var(--wpds-dimension-gap-xs);
 }

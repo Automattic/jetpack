@@ -1,7 +1,8 @@
-import { useCallback, useEffect, useState } from '@wordpress/element';
+import { Spinner, VisuallyHidden } from '@wordpress/components';
+import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useNavigate, useSearch } from '@wordpress/route';
-import { Text } from '@wordpress/ui';
+import { Button, Stack, Text } from '@wordpress/ui';
 import ActivityDetail from '../components/activity-detail';
 import ActivityList, { activityQueryArgs } from '../components/activity-list';
 import BackupDetail from '../components/backup-detail';
@@ -73,11 +74,8 @@ export function resetPageViewForTesting(): void {
 /**
  * Overview screen for the modernized Backup dashboard.
  *
- * Renders the shared `<DashboardLayout>` chrome around a two-pane body: the
- * left pane is a paginated activity list; the right pane resolves the
- * selected row to a detail card. Selection is persisted in the URL via
- * `?selected=<id>` so a refresh preserves it; on first visit the newest
- * backup is preselected so the right pane mirrors Calypso's behaviour.
+ * Records the page view and mounts `<DashboardLayout>` around a body that lives below
+ * `<Gates>` — the view is recorded above the gate, so a plan-less visit still counts.
  *
  * @return The rendered Overview screen.
  */
@@ -111,6 +109,23 @@ export default function OverviewScreen() {
 		tracks.recordEvent( 'jetpack_backup_admin_page_view' );
 	}, [ tracks ] );
 
+	return (
+		<DashboardLayout actions={ <BackupNowButton /> }>
+			<OverviewBody />
+		</DashboardLayout>
+	);
+}
+
+/**
+ * The Overview's body: a paginated activity list beside a detail pane for the row
+ * selected by `?selected=<id>`, defaulting to the newest backup.
+ *
+ * Mounted by `<Gates>`, not rendered above it: React runs a component's hooks before its
+ * children, so reads moved up into the screen would fetch — and poll — behind the upsell.
+ *
+ * @return The rendered body.
+ */
+function OverviewBody() {
 	const search = useSearch( {
 		from: '/' as unknown as never,
 		strict: false,
@@ -163,15 +178,33 @@ export default function OverviewScreen() {
 		isError: restorePointsError,
 	} = useHasRestorePoints();
 
+	const overviewRef = useRef< HTMLDivElement >( null );
+
+	// The updater form, like `clearSelected` below: an object literal replaces the
+	// search wholesale, so every future param would depend on this closure being fresh.
 	const setSelected = useCallback(
 		( id: string ) => {
-			// Merge into existing search so future params (filters, range, etc.) aren't dropped.
 			navigate( {
-				search: { ...search, selected: id },
-			} as unknown as Parameters< typeof navigate >[ 0 ] );
+				search: ( previous: OverviewSearch ) => ( { ...previous, selected: id } ),
+			} as Parameters< typeof navigate >[ 0 ] );
 		},
-		[ navigate, search ]
+		[ navigate ]
 	);
+
+	// The stale id lives in the URL, so the dead end survives a reload without this.
+	// A new history entry, not a replacement: the selection may be fine, so Back must restore it.
+	const clearSelected = useCallback( () => {
+		overviewRef.current?.focus();
+		navigate( {
+			search: ( previous: OverviewSearch ) => {
+				const next = { ...previous };
+				delete next.selected;
+				return next;
+			},
+			// A single assertion, not `as unknown as`: the updater form stays
+			// comparable, so a typo in the key is still a build error.
+		} as Parameters< typeof navigate >[ 0 ] );
+	}, [ navigate ] );
 
 	if (
 		replacesOverview(
@@ -180,15 +213,11 @@ export default function OverviewScreen() {
 			restorePointsLoading || restorePointsError || hasRestorePoints
 		)
 	) {
-		return (
-			<DashboardLayout actions={ <BackupNowButton /> }>
-				<BackupStatusPanel state={ backupsState } progress={ progress } />
-			</DashboardLayout>
-		);
+		return <BackupStatusPanel state={ backupsState } progress={ progress } />;
 	}
 
 	return (
-		<DashboardLayout actions={ <BackupNowButton /> }>
+		<>
 			{ /*
 			 * A backup running on a site that already has restore points is
 			 * reported alongside the list rather than in place of it. The
@@ -277,7 +306,17 @@ export default function OverviewScreen() {
 			 * a reader whose storage is full needs to read first.
 			 */ }
 			<ReviewRequest />
-			<div className="jpb-overview">
+			{ /*
+			 * Where `clearSelected` puts focus once the empty state unmounts, so the
+			 * next Tab reaches the list rather than the top of the page.
+			 */ }
+			<div
+				className="jpb-overview"
+				ref={ overviewRef }
+				tabIndex={ -1 }
+				role="group"
+				aria-label={ __( 'Backup activity', 'jetpack-backup-pkg' ) }
+			>
 				<ActivityList
 					selectedId={ selectedId }
 					onSelect={ setSelected }
@@ -289,9 +328,10 @@ export default function OverviewScreen() {
 					page={ page }
 					pageSize={ pageSize }
 					sortOrder={ sortOrder }
+					onClearSelected={ clearSelected }
 				/>
 			</div>
-		</DashboardLayout>
+		</>
 	);
 }
 
@@ -300,14 +340,16 @@ export default function OverviewScreen() {
  *
  * Resolves the URL-driven `selectedId` to an activity item and renders the
  * matching detail card: `<BackupDetail>` for backup rows and `<ActivityDetail>`
- * for everything else. Falls back to an empty/not-found state when the
- * selection is missing or doesn't resolve.
+ * for everything else. A selection that resolves to nothing is reported three
+ * ways — the log failed, the log has not answered yet, or nothing loaded holds
+ * the row — and only the last of those offers to drop the selection.
  *
- * @param props            - Component props.
- * @param props.selectedId - Currently selected row id, or null when nothing is selected.
- * @param props.page       - The page currently shown in the list.
- * @param props.pageSize   - The per-page setting currently shown in the list.
- * @param props.sortOrder  - The sort direction currently shown in the list.
+ * @param props                 - Component props.
+ * @param props.selectedId      - Currently selected row id, or null when nothing is selected.
+ * @param props.page            - The page currently shown in the list.
+ * @param props.pageSize        - The per-page setting currently shown in the list.
+ * @param props.sortOrder       - The sort direction currently shown in the list.
+ * @param props.onClearSelected - Drops `?selected=` from the URL.
  * @return The rendered detail card or an empty-state placeholder.
  */
 function RightPane( {
@@ -315,14 +357,16 @@ function RightPane( {
 	page,
 	pageSize,
 	sortOrder,
+	onClearSelected,
 }: {
 	selectedId: string | null;
 	page: number;
 	pageSize: number;
 	sortOrder: ActivitySortOrder;
+	onClearSelected: () => void;
 } ) {
 	// All four must match the list's arguments — this reads its cache entry.
-	const item = useActivityById( selectedId, page, pageSize, sortOrder );
+	const { item, hasAnswered, error } = useActivityById( selectedId, page, pageSize, sortOrder );
 	if ( ! selectedId ) {
 		return (
 			<div className="jpb-overview__detail jpb-overview__detail--empty">
@@ -330,10 +374,42 @@ function RightPane( {
 			</div>
 		);
 	}
+	if ( ! item && error ) {
+		return (
+			<div className="jpb-overview__detail jpb-overview__detail--empty">
+				{ /*
+				 * Neither the upstream reason nor a retry: the list beside this pane
+				 * reports the same failed query with both, and a second copy of each
+				 * is two error notices and two buttons for one thing to fix.
+				 */ }
+				<QueryError title={ __( "We couldn't load this item.", 'jetpack-backup-pkg' ) } />
+			</div>
+		);
+	}
+	if ( ! item && ! hasAnswered ) {
+		return (
+			<div className="jpb-overview__detail jpb-overview__detail--empty">
+				{ /* `Spinner` is `role="presentation"` with no text, so on its own this branch is silent. */ }
+				<Spinner />
+				<VisuallyHidden>{ __( 'Loading item details…', 'jetpack-backup-pkg' ) }</VisuallyHidden>
+			</div>
+		);
+	}
 	if ( ! item ) {
 		return (
 			<div className="jpb-overview__detail jpb-overview__detail--empty">
-				<Text>{ __( 'Item not found.', 'jetpack-backup-pkg' ) }</Text>
+				<Stack direction="column" gap="sm" align="center">
+					{ /* Only loaded pages were searched, so "gone" is not ours to claim. */ }
+					<Text>
+						{ __(
+							"That item isn't on this page of the activity log. It may be on another page, or no longer available.",
+							'jetpack-backup-pkg'
+						) }
+					</Text>
+					<Button variant="outline" onClick={ onClearSelected }>
+						{ __( 'Clear selection', 'jetpack-backup-pkg' ) }
+					</Button>
+				</Stack>
 			</div>
 		);
 	}

@@ -12,11 +12,14 @@ import {
 	hasSeenOnboarding,
 	saveDismissal,
 } from '../../hooks/use-first-run-state';
+import { useFreeTier } from '../../hooks/use-free-tier';
 import { useOnboardingCounts } from '../../hooks/use-onboarding-counts';
 import { useUpload } from '../../hooks/use-upload';
+import { useUploadIntake } from '../../hooks/use-upload-intake';
+import { videoFileAccept } from '../upload-dropzone/video-files';
 import IntroVideo, { INTRO_VIDEO_ASPECT, getAssetUrl } from './intro-video';
 import './style.scss';
-import type { CSSProperties, ReactElement, ReactNode } from 'react';
+import type { ChangeEvent, CSSProperties, ReactElement, ReactNode } from 'react';
 
 const LEARN_MORE_URL = 'https://jetpack.com/videopress/';
 
@@ -127,6 +130,15 @@ function consumeWelcomeParam( inRouterSearch: boolean ): boolean {
 	scope[ WELCOME_CONSUMED_FLAG ] = true;
 	scope[ WELCOME_ACTIVE_FLAG ] = true;
 
+	// The stored dismissal is forgotten HERE, synchronously with consumption,
+	// not in the consuming mount's effect. The replaceState below wakes the
+	// router mid-render, and when the resulting transition discards the
+	// consuming mount, its effects never run — so an effect-based clear was
+	// skipped on exactly the load that needed it most: a reviewer who had
+	// dismissed the modal before got `consumed` without the clear, and
+	// welcome=1 opened nothing.
+	clearDismissal();
+
 	if ( params.has( 'welcome' ) ) {
 		params.delete( 'welcome' );
 		const query = params.toString();
@@ -150,6 +162,26 @@ function isWelcomeLoad(): boolean {
 	return (
 		typeof window !== 'undefined' && Boolean( ( window as WelcomeWindow )[ WELCOME_ACTIVE_FLAG ] )
 	);
+}
+
+/**
+ * The band's ThemeProvider wrapper, guarded: the `wp-theme` bundled with core
+ * 7.0.x exposes only `privateApis`, so the public `ThemeProvider` import can
+ * resolve to undefined — and rendering it crashed the whole dashboard route,
+ * since this modal's tree is built on every mount. The band keeps its derived
+ * dark scheme where the provider exists and falls back to the stylesheet's
+ * colors where it doesn't.
+ *
+ * @param props          - Component props.
+ * @param props.children - The band's content.
+ * @return The children, re-themed when the environment allows it.
+ */
+function BandTheme( { children }: { children: ReactNode } ): ReactElement {
+	if ( ! ThemeProvider ) {
+		return <>{ children }</>;
+	}
+
+	return <ThemeProvider color={ { background: '#003010' } }>{ children }</ThemeProvider>;
 }
 
 type ValueCard = {
@@ -210,9 +242,12 @@ export default function OnboardingModal(): ReactElement | null {
 	// Observer instance, like `useFreeTier`'s: the queue lives in a shared
 	// window-scoped store, so reading it here starts nothing and owns nothing.
 	const { uploadQueue } = useUpload();
+	const intakeFiles = useUploadIntake();
+	const { isFree, isUnlimited } = useFreeTier();
 	const navigate = useNavigate();
 	const search = useSearch( { strict: false } ) as Record< string, unknown >;
 	const popupRef = useRef< HTMLDivElement >( null );
+	const filePickerRef = useRef< HTMLInputElement >( null );
 	// Resolved per render, like the film's own URL: the boot payload is a
 	// global, so reading it at module scope would bake in whatever existed when
 	// this bundle was imported.
@@ -229,9 +264,11 @@ export default function OnboardingModal(): ReactElement | null {
 	const [ isPreview ] = useState( () => consumeWelcomeParam( search?.welcome === '1' ) );
 	const [ isWelcomeSession ] = useState( isWelcomeLoad );
 
+	// The stored flag was already cleared at consume time (see
+	// consumeWelcomeParam); this only fixes up the in-memory copy, which the
+	// initializer above read before consumption ran.
 	useEffect( () => {
 		if ( isPreview ) {
-			clearDismissal();
 			setIsDismissed( false );
 		}
 	}, [ isPreview ] );
@@ -285,19 +322,37 @@ export default function OnboardingModal(): ReactElement | null {
 		setIsDismissed( true );
 	}, [] );
 
-	// The primary CTA lands on the Library, whose empty state is the upload
-	// flow: on a true first run this is a no-op hop to the dropzone already
-	// showing. On a site whose media library holds only local videos the
-	// Library lists them instead, with its header Upload button and page-wide
-	// dropzone one gesture away.
-	const goToUpload = useCallback( () => {
-		dismiss();
-		navigate( { href: '/' } );
-	}, [ dismiss, navigate ] );
+	// The primary CTA opens the OS file picker directly — the same gesture as
+	// the Library header's "Upload video" button — rather than parking the
+	// user in front of another upload affordance. The modal stays up until a
+	// selection is actually made, so cancelling the picker costs nothing.
+	const openFilePicker = useCallback( () => {
+		filePickerRef.current?.click();
+	}, [] );
+
+	// A selection ends the first run either way: the files go through the
+	// same intake pipeline as the Library's own picker and DropZone (plan
+	// gating, notices, queueing), and the user lands on the Library, where
+	// the queued rows carry the live upload progress. A refused selection
+	// lands there too — the refusal notice must be read over the Library,
+	// not under this modal.
+	const onFilesPicked = useCallback(
+		( event: ChangeEvent< HTMLInputElement > ) => {
+			const files = Array.from( event.target.files ?? [] );
+			event.target.value = '';
+			if ( files.length === 0 ) {
+				return;
+			}
+			intakeFiles( files );
+			dismiss();
+			navigate( { href: '/' } );
+		},
+		[ intakeFiles, dismiss, navigate ]
+	);
 
 	// Lands on the Library pre-filtered to local videos, where the existing
 	// bulk "Upload to VideoPress" action does the actual moving. The user
-	// picks what migrates — the modal never starts uploads on its own, and it
+	// picks what migrates — this path never starts uploads on its own, and it
 	// stays out of plan-limit logic (the library actions own that).
 	const goToLocalLibrary = useCallback( () => {
 		dismiss();
@@ -355,13 +410,13 @@ export default function OnboardingModal(): ReactElement | null {
 					 * ThemeProvider renders `display: contents`, so the close
 					 * affordance still positions against the band itself.
 					 */ }
-					<ThemeProvider color={ { background: '#003010' } }>
+					<BandTheme>
 						<Dialog.CloseIcon
 							className="vp-onboarding-modal__close"
 							label={ __( 'Close', 'jetpack-videopress-pkg' ) }
 						/>
 						<IntroVideo />
-					</ThemeProvider>
+					</BandTheme>
 				</div>
 
 				<Dialog.Content className="vp-onboarding-modal__body">
@@ -441,7 +496,18 @@ export default function OnboardingModal(): ReactElement | null {
 					 * default for a primary action is brand tone, so this
 					 * divergence is deliberate and owned by the spec.
 					 */ }
-					<Button variant="solid" tone="neutral" onClick={ goToUpload }>
+					<input
+						ref={ filePickerRef }
+						type="file"
+						accept={ videoFileAccept() }
+						// The capped free tier can only ever host `limit` videos, so
+						// multi-select there would only produce skipped-file notices;
+						// paid and grandfathered-unlimited plans get bulk selection.
+						multiple={ ! isFree || isUnlimited }
+						style={ { display: 'none' } }
+						onChange={ onFilesPicked }
+					/>
+					<Button variant="solid" tone="neutral" onClick={ openFilePicker }>
 						{ __( 'Upload a video', 'jetpack-videopress-pkg' ) }
 					</Button>
 				</Dialog.Footer>

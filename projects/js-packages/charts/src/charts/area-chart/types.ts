@@ -1,5 +1,6 @@
 import type {
 	BaseChartProps,
+	BucketInfo,
 	DataPointDate,
 	SeriesData,
 	SeriesChartLegendConfig,
@@ -39,7 +40,9 @@ export interface AreaChartProps extends BaseChartProps< SeriesData[] >, SeriesVi
 	/**
 	 * Custom tooltip renderer.
 	 */
-	renderTooltip?: ( params: RenderTooltipParams< DataPointDate > ) => ReactNode;
+	renderTooltip?: (
+		params: RenderTooltipParams< DataPointDate > & { bucketInfo?: BucketInfo }
+	) => ReactNode;
 	/**
 	 * Whether to show crosshair lines in the tooltip.
 	 */
@@ -71,11 +74,5 @@ export interface AreaChartProps extends BaseChartProps< SeriesData[] >, SeriesVi
 	 * @default true
 	 */
 	rescaleYOnVisibilityChange?: boolean;
-	/**
-	 * @deprecated Use `rescaleYOnVisibilityChange`. The behaviour keys off series
-	 * visibility changing, not specifically a legend toggle. Still honoured when
-	 * `rescaleYOnVisibilityChange` is not set.
-	 */
-	rescaleYOnLegendToggle?: boolean;
 	children?: ReactNode;
 }

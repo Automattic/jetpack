@@ -40,6 +40,13 @@ describe( 'DateComparisonDropdown', () => {
 		await user.click( trigger );
 		expect( screen.getByRole( 'menuitemradio', { name: 'No comparison' } ) ).toBeChecked();
 
+		// The options lead and "No comparison" closes the menu as the way out.
+		expect( screen.getAllByRole( 'menuitemradio' ).map( item => item.textContent ) ).toEqual( [
+			'Previous period',
+			'Previous month',
+			'No comparison',
+		] );
+
 		await user.click( screen.getByRole( 'menuitemradio', { name: 'Previous month' } ) );
 		expect( onPresetChange ).toHaveBeenCalledWith( 'previous-month' );
 	} );
@@ -68,6 +75,53 @@ describe( 'DateComparisonDropdown', () => {
 		// The way back out is the same menu the `+` opens.
 		await user.click( screen.getByRole( 'menuitemradio', { name: 'No comparison' } ) );
 		expect( onClear ).toHaveBeenCalled();
+	} );
+
+	it( 'marks an active comparison with a vs prefix', () => {
+		render(
+			<DateComparisonDropdown
+				presets={ presets }
+				enabled
+				presetId="previous-period"
+				onPresetChange={ jest.fn() }
+				onClear={ jest.fn() }
+			/>
+		);
+
+		expect( screen.getByText( 'vs' ) ).toBeVisible();
+	} );
+
+	it( 'leaves the additive state unprefixed', () => {
+		render(
+			<DateComparisonDropdown
+				presets={ presets }
+				enabled={ false }
+				onPresetChange={ jest.fn() }
+				onClear={ jest.fn() }
+			/>
+		);
+
+		expect( screen.queryByText( 'vs' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'spells the compared window out in the trigger tooltip', async () => {
+		const user = userEvent.setup();
+
+		render(
+			<DateComparisonDropdown
+				presets={ presets }
+				enabled
+				presetId="previous-period"
+				onPresetChange={ jest.fn() }
+				onClear={ jest.fn() }
+			/>
+		);
+
+		await user.hover( screen.getByRole( 'button', { name: 'Previous period' } ) );
+
+		await expect(
+			screen.findByRole( 'tooltip', undefined, { timeout: 3000 } )
+		).resolves.toHaveTextContent( /June 1.+30, 2026/ );
 	} );
 
 	// A URL can carry a comparison whose preset the trigger cannot name — the

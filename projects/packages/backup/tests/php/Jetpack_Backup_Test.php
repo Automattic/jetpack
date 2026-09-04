@@ -64,18 +64,55 @@ class Jetpack_Backup_Test extends TestCase {
 	private $http_requests = 0;
 
 	/**
+	 * Timeout the most recent mocked request was given.
+	 *
+	 * @var int|float|null
+	 */
+	private $captured_timeout = null;
+
+	/**
+	 * Locale reported to the code under test.
+	 *
+	 * @var string
+	 */
+	private $locale = 'en_US';
+
+	/**
+	 * Clear the memoized rewind state on the way in as well as out, so this
+	 * class starts clean whatever ran before it.
+	 */
+	protected function setUp(): void {
+		parent::setUp();
+
+		$this->forget_rewind_state();
+	}
+
+	/**
 	 * Undo the request mocking. Done here rather than after each assertion so
 	 * that a failing assertion cannot leak a filter into the next test.
+	 *
+	 * The database survives between tests here, so a warmed promoted-product
+	 * transient would answer a later test before it reached the transport.
 	 */
 	protected function tearDown(): void {
 		remove_filter( 'pre_http_request', array( $this, 'mock_wpcom_response' ) );
 		remove_filter( 'pre_http_request', array( $this, 'mock_wpcom_unreachable' ) );
+		remove_filter( 'pre_http_request', array( $this, 'mock_wpcom_response_recording_timeout' ) );
 		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_connection_options' ) );
+		remove_filter( 'locale', array( $this, 'mock_locale' ) );
 		wp_set_current_user( 0 );
 
-		$this->wpcom_status  = 200;
-		$this->wpcom_body    = '{}';
-		$this->http_requests = 0;
+		foreach ( array( 'en_US', $this->locale ) as $locale ) {
+			delete_transient( Jetpack_Backup::PROMOTED_PRODUCT_TRANSIENT_PREFIX . sanitize_key( $locale ) );
+		}
+
+		$this->wpcom_status     = 200;
+		$this->wpcom_body       = '{}';
+		$this->http_requests    = 0;
+		$this->locale           = 'en_US';
+		$this->captured_timeout = null;
+
+		$this->forget_rewind_state();
 
 		parent::tearDown();
 	}
@@ -279,12 +316,9 @@ class Jetpack_Backup_Test extends TestCase {
 	 * answer is acted on: it backs `GET /jetpack/v4/has-backup-plan` and the
 	 * standalone-license upsell in `jetpack_check_user_licenses()`.
 	 *
-	 * The request count is asserted because that helper memoizes a
-	 * *successful* fetch in a function static, which no test can reset. This
-	 * is the only test in the suite that drives it to a success, so the
-	 * static should still be empty when it runs — and if some later test
-	 * changes that, this assertion says so rather than passing on a cached
-	 * answer that never touched the code under test.
+	 * The request count is asserted because the helper memoizes a readable
+	 * response: without it this would pass on a cached answer left by an
+	 * earlier test rather than on the code under test.
 	 */
 	public function test_has_backup_plan_reads_a_string_status_200() {
 		$this->sign_in_as_connected_admin();
@@ -298,19 +332,166 @@ class Jetpack_Backup_Test extends TestCase {
 		$this->assertTrue( $result );
 	}
 
+	/**
+	 * A 200 that says nothing about the plan does not answer for the rest of
+	 * the request.
+	 *
+	 * @param string $label Human-readable case name.
+	 * @param string $body  The unreadable body.
+	 * @dataProvider provide_cacheable_unreadable_states
+	 */
+	#[DataProvider( 'provide_cacheable_unreadable_states' )]
+	public function test_backup_plan_state_does_not_cache_an_unreadable_200( $label, $body ) {
+		$this->sign_in_as_connected_admin();
+		$this->wpcom_body = $body;
+		add_filter( 'pre_http_request', array( $this, 'mock_wpcom_response' ) );
+
+		$unreadable = Jetpack_Backup::get_backup_plan_state();
+
+		$this->wpcom_body = '{"state":"active"}';
+		$recovered        = Jetpack_Backup::get_backup_plan_state();
+
+		$this->assertInstanceOf( WP_Error::class, $unreadable, $label );
+		$this->assertSame( 'rewind_state_unreadable', $unreadable->get_error_code(), $label );
+		$this->assertSame( 2, $this->http_requests, $label );
+		$this->assertTrue( $recovered, $label );
+	}
+
+	/**
+	 * Bodies a 200 can carry that say nothing about the plan *and* decode to a
+	 * value worth caching. An empty or invalid body decodes to null, which was
+	 * never cached, so it has nothing to prove here.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_cacheable_unreadable_states() {
+		return array(
+			array( 'a JSON list', '[]' ),
+			array( 'a response without a state', '{"last_updated":"2026-09-01T22:10:23.797+00:00"}' ),
+			array( 'a null state', '{"state":null}' ),
+			array( 'a bare number', '123' ),
+		);
+	}
+
+	/**
+	 * Pinned in both directions: a shorter bound reproduces the bug, and
+	 * `Client`'s 10s default is too long for the redirect this sits on.
+	 */
+	public function test_rewind_state_read_is_bounded_at_five_seconds() {
+		$this->sign_in_as_connected_admin();
+		$this->wpcom_status = 503;
+		add_filter( 'pre_http_request', array( $this, 'mock_wpcom_response_recording_timeout' ), 10, 3 );
+
+		Jetpack_Backup::has_backup_plan();
+
+		$this->assertSame( 5, $this->captured_timeout );
+	}
+
+	/**
+	 * A WordPress.com failure is reported as one, not as "no plan".
+	 *
+	 * That answer is acted on: `GET /jetpack/v4/has-backup-plan` backs the
+	 * connect screen's own-it-already check, so a blip sent a paying site's
+	 * owner to checkout to buy Backup again.
+	 */
+	public function test_backup_plan_state_forwards_a_non_200() {
+		$this->sign_in_as_connected_admin();
+		$this->wpcom_status = 503;
+		add_filter( 'pre_http_request', array( $this, 'mock_wpcom_response' ) );
+
+		$result = Jetpack_Backup::get_backup_plan_state();
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'failed_to_fetch_data', $result->get_error_code() );
+		$this->assertSame( 503, $result->get_error_data()['status'] );
+	}
+
+	/**
+	 * A request that never reaches WordPress.com has no status to forward, and
+	 * the 0 that casting produces is not one the REST layer can serve.
+	 *
+	 * This is the shape a timeout arrives in, which is the case the two plan
+	 * checks used to disagree about.
+	 */
+	public function test_backup_plan_state_reports_a_transport_failure_as_500() {
+		$this->sign_in_as_connected_admin();
+		add_filter( 'pre_http_request', array( $this, 'mock_wpcom_unreachable' ) );
+
+		$result = Jetpack_Backup::get_backup_plan_state();
+
+		$this->assertSame( 1, $this->http_requests );
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 500, $result->get_error_data()['status'] );
+	}
+
+	/**
+	 * The route serves the failure. It used to serve `false` as an HTTP 200,
+	 * which no caller can tell from "this site has no Backup plan".
+	 */
+	public function test_has_backup_plan_route_serves_a_failure_as_an_error() {
+		$this->sign_in_as_connected_admin();
+		$this->wpcom_status = 503;
+		add_filter( 'pre_http_request', array( $this, 'mock_wpcom_response' ) );
+
+		rest_get_server();
+		Jetpack_Backup::register_rest_routes();
+
+		$response = rest_do_request( new WP_REST_Request( 'GET', '/jetpack/v4/has-backup-plan' ) );
+
+		$this->assertTrue( $response->is_error() );
+		$this->assertSame( 503, $response->get_status() );
+	}
+
+	/**
+	 * A site that genuinely has no plan still answers a plain `false`. The
+	 * wrapper must not turn the legitimate negative into a positive.
+	 */
+	public function test_has_backup_plan_answers_false_for_an_unavailable_state() {
+		$this->sign_in_as_connected_admin();
+		$this->wpcom_body = '{"state":"unavailable"}';
+		add_filter( 'pre_http_request', array( $this, 'mock_wpcom_response' ) );
+
+		$result = Jetpack_Backup::has_backup_plan();
+
+		$this->assertFalse( $result );
+	}
+
+	/**
+	 * `has_backup_plan()` stays a `bool`. It is public in a versioned namespace,
+	 * and `WP_Error` is truthy — so a consumer written against `bool` would not
+	 * error on a widened return, it would answer the opposite question.
+	 */
+	public function test_has_backup_plan_stays_a_boolean_when_the_read_fails() {
+		$this->sign_in_as_connected_admin();
+		add_filter( 'pre_http_request', array( $this, 'mock_wpcom_unreachable' ) );
+
+		$result = Jetpack_Backup::has_backup_plan();
+
+		$this->assertFalse( $result );
+	}
+
+	/**
+	 * `jetpack_connection_user_has_license` is a boolean filter, so the error
+	 * must not reach it. An unknown plan is answered as absent on purpose: that
+	 * routes the reader to the licence they already own rather than to checkout.
+	 */
+	public function test_user_license_check_answers_a_boolean_when_the_plan_is_unknown() {
+		$this->sign_in_as_connected_admin();
+		add_filter( 'pre_http_request', array( $this, 'mock_wpcom_unreachable' ) );
+
+		$result = Jetpack_Backup::jetpack_check_user_licenses(
+			false,
+			array( (object) array( 'product_id' => 2112 ) ),
+			'jetpack-backup'
+		);
+
+		$this->assertTrue( $result );
+	}
+
 	public function test_list_backup_events_returns_response_and_pins_backup_actions_on_success() {
 		$this->captured_url = '';
+		$this->sign_in_as_connected_admin();
 
-		$admin_id = wp_insert_user(
-			array(
-				'user_login' => 'backup_events_admin',
-				'user_pass'  => 'pass',
-				'role'       => 'administrator',
-			)
-		);
-		wp_set_current_user( $admin_id );
-
-		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_connection_options' ), 10, 2 );
 		add_filter( 'pre_http_request', array( $this, 'mock_request_as_activity_collection' ), 10, 3 );
 
 		// Caller-supplied `action` must be overridden with the curated backup list.
@@ -449,6 +630,108 @@ class Jetpack_Backup_Test extends TestCase {
 	}
 
 	/**
+	 * A no-plan screen rendered twice costs the site one catalogue request.
+	 */
+	public function test_promoted_product_info_serves_a_second_read_from_cache() {
+		add_filter( 'pre_http_request', array( $this, 'mock_request_as_product_catalogue' ), 10, 3 );
+
+		$first  = Jetpack_Backup::get_backup_promoted_product_info();
+		$second = Jetpack_Backup::get_backup_promoted_product_info();
+
+		remove_filter( 'pre_http_request', array( $this, 'mock_request_as_product_catalogue' ) );
+
+		$this->assertSame( 1, $this->http_requests );
+		$this->assertEquals( $first, $second );
+		$this->assertSame( 539.4, $second->cost );
+	}
+
+	/**
+	 * Neither failure is cached, so an outage cannot leave the no-plan screen
+	 * without a price for longer than it lasts.
+	 *
+	 * @param string      $error_code The error code the failing call reports.
+	 * @param int|string  $status     Status for the failing response.
+	 * @param string|null $body       Body for the failing response, or null for the well-formed catalogue.
+	 * @dataProvider provide_uncacheable_failures
+	 */
+	#[DataProvider( 'provide_uncacheable_failures' )]
+	public function test_promoted_product_info_does_not_cache_a_failure( $error_code, $status, $body ) {
+		$this->catalogue_status = $status;
+		$this->catalogue_body   = $body;
+		add_filter( 'pre_http_request', array( $this, 'mock_request_as_product_catalogue' ), 10, 3 );
+
+		$failed = Jetpack_Backup::get_backup_promoted_product_info();
+
+		$this->catalogue_status = 200;
+		$this->catalogue_body   = null;
+
+		$recovered = Jetpack_Backup::get_backup_promoted_product_info();
+
+		remove_filter( 'pre_http_request', array( $this, 'mock_request_as_product_catalogue' ) );
+
+		$this->assertInstanceOf( WP_Error::class, $failed, $error_code );
+		$this->assertSame( $error_code, $failed->get_error_code() );
+		$this->assertSame( 2, $this->http_requests, $error_code );
+		$this->assertIsObject( $recovered, $error_code );
+		$this->assertSame( 539.4, $recovered->cost, $error_code );
+	}
+
+	/**
+	 * The two failures the route distinguishes, as error code, status, body.
+	 *
+	 * @return array[]
+	 */
+	public static function provide_uncacheable_failures() {
+		return array(
+			'a non-200'         => array( 'failed_to_fetch_data', 503, null ),
+			'an unreadable 200' => array( 'promoted_product_unreadable', 200, '{"jetpack_scan":{"cost":10}}' ),
+		);
+	}
+
+	public function test_promoted_product_info_caches_per_locale() {
+		add_filter( 'pre_http_request', array( $this, 'mock_request_as_product_catalogue' ), 10, 3 );
+
+		Jetpack_Backup::get_backup_promoted_product_info();
+
+		$this->locale = 'pt_BR';
+		add_filter( 'locale', array( $this, 'mock_locale' ) );
+
+		Jetpack_Backup::get_backup_promoted_product_info();
+
+		remove_filter( 'pre_http_request', array( $this, 'mock_request_as_product_catalogue' ) );
+
+		$this->assertSame( 2, $this->http_requests );
+		$this->assertStringContainsString( 'locale=pt_BR', $this->captured_url );
+		$this->assertNotFalse( get_transient( Jetpack_Backup::PROMOTED_PRODUCT_TRANSIENT_PREFIX . 'en_us' ) );
+		$this->assertNotFalse( get_transient( Jetpack_Backup::PROMOTED_PRODUCT_TRANSIENT_PREFIX . 'pt_br' ) );
+	}
+
+	/**
+	 * Clear the memoized rewind state, which is otherwise kept for the whole
+	 * process — one readable response would answer every later test without
+	 * reaching the transport.
+	 */
+	private function forget_rewind_state() {
+		$property = new \ReflectionProperty( Jetpack_Backup::class, 'rewind_state' );
+
+		// `setAccessible()` has been a no-op since PHP 8.1 and is deprecated in 8.5.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+
+		$property->setValue( null, null );
+	}
+
+	/**
+	 * Report the configured locale.
+	 *
+	 * @return string
+	 */
+	public function mock_locale() {
+		return $this->locale;
+	}
+
+	/**
 	 * Mock the product catalogue endpoint.
 	 *
 	 * @param false  $preempt     Short-circuit value (unused).
@@ -458,6 +741,7 @@ class Jetpack_Backup_Test extends TestCase {
 	 */
 	public function mock_request_as_product_catalogue( $preempt, $parsed_args, $url ) {
 		$this->captured_url = (string) $url;
+		++$this->http_requests;
 
 		$body = $this->catalogue_body;
 
@@ -546,6 +830,19 @@ class Jetpack_Backup_Test extends TestCase {
 		++$this->http_requests;
 
 		return new WP_Error( 'http_request_failed', 'The request failed.' );
+	}
+
+	/**
+	 * Mock a WordPress.com request and record the timeout it was given.
+	 *
+	 * @param false $preempt     Short-circuit value (unused).
+	 * @param array $parsed_args Request args.
+	 * @return array
+	 */
+	public function mock_wpcom_response_recording_timeout( $preempt, $parsed_args ) {
+		$this->captured_timeout = $parsed_args['timeout'] ?? null;
+
+		return $this->mock_wpcom_response();
 	}
 
 	/**

@@ -1,8 +1,13 @@
 /**
+ * External dependencies
+ */
+import { differenceInDays } from 'date-fns';
+/**
  * Internal dependencies
  */
 import { getDateRangeSpan } from '../date-range-span';
 import { COMPARISON_PRESETS, getComparisonRangeFromPreset } from '../get-comparison-range';
+import { stepDateRange } from '../step-date-range';
 import { createTZDateFromParts } from '../tz';
 
 describe( 'getComparisonRangeFromPreset', () => {
@@ -256,15 +261,226 @@ describe( 'getComparisonRangeFromPreset', () => {
 			expect( comparison?.to?.getMonth() ).toBe( 1 );
 		} );
 
-		it( 'still mirrors the reference length for previous-period', () => {
+		/*
+		 * The previous period of a whole-months window steps back by the month
+		 * count (WOOA7S-2028): a 31-day shift would put March against a window
+		 * straddling January and February.
+		 */
+		it( 'sets a whole month against the whole month before it for previous-period', () => {
 			const march = {
 				from: new Date( 2026, 2, 1, 0, 0, 0, 0 ),
 				to: new Date( 2026, 2, 31, 23, 59, 59, 999 ),
 			};
 
 			expect( getComparisonRangeFromPreset( march, 'previous-period' ) ).toEqual( {
-				from: new Date( 2026, 0, 29, 0, 0, 0, 0 ),
+				from: new Date( 2026, 1, 1, 0, 0, 0, 0 ),
 				to: new Date( 2026, 1, 28, 23, 59, 59, 999 ),
+			} );
+		} );
+
+		/*
+		 * A 365-day shift of a calendar year would land on Jan 2 across leap
+		 * 2024; the month-count step keeps calendar years whole.
+		 */
+		it( 'sets a calendar year against the previous calendar year for previous-period', () => {
+			const year2025 = {
+				from: new Date( 2025, 0, 1, 0, 0, 0, 0 ),
+				to: new Date( 2025, 11, 31, 23, 59, 59, 999 ),
+			};
+
+			expect( getComparisonRangeFromPreset( year2025, 'previous-period' ) ).toEqual( {
+				from: new Date( 2024, 0, 1, 0, 0, 0, 0 ),
+				to: new Date( 2024, 11, 31, 23, 59, 59, 999 ),
+			} );
+		} );
+
+		/*
+		 * Whole months are detected by round trip, not calendar alignment, so
+		 * the rolling last-12-months window (mid-month to mid-month) also steps
+		 * back by its month count.
+		 */
+		it( 'steps a rolling 12-month window back by its month count for previous-period', () => {
+			const last12Months = {
+				from: new Date( 2025, 7, 31, 0, 0, 0, 0 ),
+				to: new Date( 2026, 7, 30, 23, 59, 59, 999 ),
+			};
+
+			expect( getComparisonRangeFromPreset( last12Months, 'previous-period' ) ).toEqual( {
+				from: new Date( 2024, 7, 31, 0, 0, 0, 0 ),
+				to: new Date( 2025, 7, 30, 23, 59, 59, 999 ),
+			} );
+		} );
+	} );
+
+	describe( 'previous-week', () => {
+		it( 'shifts a day-aligned range back seven days on day bounds', () => {
+			const yesterday = {
+				from: new Date( 2026, 7, 30, 0, 0, 0, 0 ),
+				to: new Date( 2026, 7, 30, 23, 59, 59, 999 ),
+			};
+
+			expect( getComparisonRangeFromPreset( yesterday, 'previous-week' ) ).toEqual( {
+				from: new Date( 2026, 7, 23, 0, 0, 0, 0 ),
+				to: new Date( 2026, 7, 23, 23, 59, 59, 999 ),
+			} );
+		} );
+
+		it( 'keeps the time of day for a rolling window', () => {
+			const rolling = {
+				from: new Date( 2026, 6, 9, 14, 30, 0, 0 ),
+				to: new Date( 2026, 6, 10, 14, 29, 59, 999 ),
+			};
+
+			expect( getComparisonRangeFromPreset( rolling, 'previous-week' ) ).toEqual( {
+				from: new Date( 2026, 6, 2, 14, 30, 0, 0 ),
+				to: new Date( 2026, 6, 3, 14, 29, 59, 999 ),
+			} );
+		} );
+
+		/*
+		 * For a 7-day range the week shift equals the previous period — the
+		 * reason the options builder lists only one of them.
+		 */
+		it( 'matches the previous period exactly at seven days', () => {
+			const week = {
+				from: new Date( 2026, 5, 1, 0, 0, 0, 0 ),
+				to: new Date( 2026, 5, 7, 23, 59, 59, 999 ),
+			};
+
+			expect( getComparisonRangeFromPreset( week, 'previous-week' ) ).toEqual(
+				getComparisonRangeFromPreset( week, 'previous-period' )
+			);
+		} );
+	} );
+
+	describe( 'whole-month and whole-year references', () => {
+		it( 'moves a calendar year back by a year, not by its day count', () => {
+			// 2024 has 366 days, so 365 days back from 1 January 2025 is
+			// 2 January 2024, and the previous period drops New Year's Day.
+			expect(
+				getComparisonRangeFromPreset(
+					{
+						from: new Date( 2025, 0, 1, 0, 0, 0, 0 ),
+						to: new Date( 2025, 11, 31, 23, 59, 59, 999 ),
+					},
+					'previous-period'
+				)
+			).toEqual( {
+				from: new Date( 2024, 0, 1, 0, 0, 0, 0 ),
+				to: new Date( 2024, 11, 31, 23, 59, 59, 999 ),
+			} );
+		} );
+
+		it( 'moves twelve rolling months back by calendar months', () => {
+			expect(
+				getComparisonRangeFromPreset(
+					{
+						from: new Date( 2025, 7, 20, 0, 0, 0, 0 ),
+						to: new Date( 2026, 7, 19, 23, 59, 59, 999 ),
+					},
+					'previous-period'
+				)
+			).toEqual( {
+				from: new Date( 2024, 7, 20, 0, 0, 0, 0 ),
+				to: new Date( 2025, 7, 19, 23, 59, 59, 999 ),
+			} );
+		} );
+
+		it( 'falls back to the day count where a month step will not reverse', () => {
+			// 31 January through 30 March measures as two months, but two months
+			// back from 31 January clamps to 30 November: 62 days against the
+			// reference's 59. The step arrows count days there, and a comparison
+			// naming a different window than the arrow would is a defect.
+			const clamping = {
+				from: new Date( 2026, 0, 31, 0, 0, 0, 0 ),
+				to: new Date( 2026, 2, 30, 23, 59, 59, 999 ),
+			};
+			const expected = {
+				from: new Date( 2025, 11, 3, 0, 0, 0, 0 ),
+				to: new Date( 2026, 0, 30, 23, 59, 59, 999 ),
+			};
+
+			expect( getComparisonRangeFromPreset( clamping, 'previous-period' ) ).toEqual( expected );
+			expect( stepDateRange( clamping, 'previous' ) ).toEqual( expected );
+		} );
+
+		it( 'ends the previous whole months on a month end, whatever day the reference ends on', () => {
+			// January through February: moving the end back two months would
+			// land it on 28 December, not on the end of December.
+			expect(
+				getComparisonRangeFromPreset(
+					{
+						from: new Date( 2026, 0, 1, 0, 0, 0, 0 ),
+						to: new Date( 2026, 1, 28, 23, 59, 59, 999 ),
+					},
+					'previous-period'
+				)
+			).toEqual( {
+				from: new Date( 2025, 10, 1, 0, 0, 0, 0 ),
+				to: new Date( 2025, 11, 31, 23, 59, 59, 999 ),
+			} );
+		} );
+	} );
+
+	describe( 'to-date presets', () => {
+		// `last-12-months` as read on 20 August 2026.
+		const reference = {
+			from: new Date( 2025, 8, 1, 0, 0, 0, 0 ),
+			to: new Date( 2026, 7, 20, 23, 59, 59, 999 ),
+		};
+
+		it( 'steps the previous period back by the completed window', () => {
+			// Twelve whole months back from 1 September 2025, not the 354 days
+			// read so far.
+			expect(
+				getComparisonRangeFromPreset( reference, 'previous-period', {
+					primaryPresetId: 'last-12-months',
+				} )?.from
+			).toEqual( new Date( 2024, 8, 1, 0, 0, 0, 0 ) );
+		} );
+
+		it( 'stops the previous period as many days short as the reference does', () => {
+			// The completed window runs to 31 August, the reference only to the
+			// 20th. Comparing the whole twelve months would read 354 days of
+			// data against 365.
+			const comparison = getComparisonRangeFromPreset( reference, 'previous-period', {
+				primaryPresetId: 'last-12-months',
+			} );
+
+			expect( comparison?.to ).toEqual( new Date( 2025, 7, 20, 23, 59, 59, 999 ) );
+			expect( differenceInDays( comparison!.to!, comparison!.from! ) ).toBe(
+				differenceInDays( reference.to, reference.from )
+			);
+		} );
+
+		it( 'compares the previous month and year with the days read so far', () => {
+			// Year over year and month over month stay to-date, so the totals
+			// line up with the same days a year or a month earlier.
+			expect(
+				getComparisonRangeFromPreset( reference, 'previous-year', {
+					primaryPresetId: 'last-12-months',
+				} )
+			).toEqual( {
+				from: new Date( 2024, 8, 1, 0, 0, 0, 0 ),
+				to: new Date( 2025, 7, 20, 23, 59, 59, 999 ),
+			} );
+			expect(
+				getComparisonRangeFromPreset( reference, 'previous-month', {
+					primaryPresetId: 'last-12-months',
+				} )
+			).toEqual( {
+				from: new Date( 2025, 7, 1, 0, 0, 0, 0 ),
+				to: new Date( 2026, 6, 20, 23, 59, 59, 999 ),
+			} );
+		} );
+
+		it( 'measures the same dates by the day under any other preset', () => {
+			// Picked by hand, the window has no running month: 354 days back.
+			expect(
+				getComparisonRangeFromPreset( reference, 'previous-period', { primaryPresetId: 'custom' } )
+			).toEqual( {
+				from: new Date( 2024, 8, 12, 0, 0, 0, 0 ),
+				to: new Date( 2025, 7, 31, 23, 59, 59, 999 ),
 			} );
 		} );
 	} );

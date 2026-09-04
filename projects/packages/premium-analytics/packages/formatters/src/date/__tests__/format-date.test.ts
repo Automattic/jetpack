@@ -29,6 +29,10 @@ describe( 'formatDate', () => {
 			expect( formatDate( JUNE_21, 'short' ) ).toBe( 'June 21' );
 		} );
 
+		it( 'formats "monthYear" as the site format without its day', () => {
+			expect( formatDate( JUNE_21, 'monthYear' ) ).toBe( 'June 2025' );
+		} );
+
 		it( 'formats "year"', () => {
 			expect( formatDate( JUNE_21, 'year' ) ).toBe( '2025' );
 		} );
@@ -59,6 +63,10 @@ describe( 'formatDate', () => {
 			expect( formatDate( JUNE_21, 'short' ) ).toBe( '21 de junio' );
 		} );
 
+		it( 'drops the leading "<day> de" for "monthYear"', () => {
+			expect( formatDate( JUNE_21, 'monthYear' ) ).toBe( 'junio de 2025' );
+		} );
+
 		it( 'keeps "iso" untranslated so it stays machine-readable', () => {
 			expect( formatDate( JUNE_21, 'iso' ) ).toBe( '2025-06-21' );
 		} );
@@ -74,6 +82,12 @@ describe( 'formatDate', () => {
 		expect( formatDate( JUNE_21, 'short' ) ).toBe( '2025' );
 	} );
 
+	it( 'falls back to the site format when removing the day leaves nothing', () => {
+		setSettings( settingsFor( 'day-only-test', 'j' ) );
+
+		expect( formatDate( JUNE_21, 'monthYear' ) ).toBe( '21' );
+	} );
+
 	it( 'does not add a second weekday when the site format already names one', () => {
 		setSettings( settingsFor( 'weekday-format-test', 'l, F j, Y' ) );
 
@@ -84,6 +98,25 @@ describe( 'formatDate', () => {
 		setSettings( EN_US_SETTINGS );
 
 		expect( formatDate( JUNE_21, 'dateTime' ) ).toBe( 'June 21, 2025 12:00 am' );
+	} );
+
+	it( 'renders the calendar day the instant falls on in the reporting timezone', () => {
+		setSettings( {
+			...EN_US_SETTINGS,
+			timezone: { offset: -4, offsetFormatted: '-4', string: 'America/New_York', abbr: 'EDT' },
+		} );
+
+		// 22:00 the evening before, in New York.
+		expect( formatDate( new Date( '2025-06-21T02:00:00Z' ), 'medium' ) ).toBe( 'June 20, 2025' );
+	} );
+
+	it( 'renders in a site zone configured as a bare offset', () => {
+		setSettings( {
+			...EN_US_SETTINGS,
+			timezone: { offset: 5.5, offsetFormatted: '5.5', string: '', abbr: '' },
+		} );
+
+		expect( formatDate( new Date( '2025-06-20T20:00:00Z' ), 'medium' ) ).toBe( 'June 21, 2025' );
 	} );
 } );
 

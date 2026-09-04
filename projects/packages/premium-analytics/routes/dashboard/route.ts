@@ -3,8 +3,10 @@
  */
 import {
 	ensureCoreSettingsReady,
+	hasComparisonEnabled,
 	needsReportDateParamsSeed,
 	normalizeReportParams,
+	withoutComparison,
 } from '@jetpack-premium-analytics/data';
 import { redirect } from '@wordpress/route';
 /**
@@ -39,14 +41,20 @@ export const route = {
 				// Proceed with the default seed below.
 			}
 
+			const normalized = normalizeReportParams(
+				params as Parameters< typeof normalizeReportParams >[ 0 ]
+			);
+
 			/*
-			 * Overlay `normalizeReportParams` onto `params`, not replace it — a raw
-			 * default would force `comp=1` onto a custom deep-link and drop `section`.
+			 * Overlay `normalizeReportParams` onto `params`, not replace it, so
+			 * passthrough params like `section` survive the seed. Comparison keys
+			 * only survive when normalize returned a complete comparison: a
+			 * hand-edited bare `comp=1` must not outlive the seed.
 			 */
-			const seeded: Record< string, unknown > = {
-				...params,
-				...normalizeReportParams( params as Parameters< typeof normalizeReportParams >[ 0 ] ),
-			};
+			const merged = { ...params, ...normalized };
+			const seeded: Record< string, unknown > = hasComparisonEnabled( normalized )
+				? merged
+				: withoutComparison( merged );
 
 			throw redirect( {
 				to: '/',

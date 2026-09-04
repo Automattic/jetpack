@@ -71,8 +71,22 @@ function renderField(
 	};
 }
 
-function openCustomRange( user: ReturnType< typeof userEvent.setup > ) {
-	return user.click( screen.getByRole( 'button', { name: /custom/i } ) );
+// The trigger names the applied period, which the fixtures leave on 30 days.
+function openPeriods(
+	user: ReturnType< typeof userEvent.setup >,
+	name: RegExp = /^Last 30 days$/
+) {
+	return user.click( screen.getByRole( 'button', { name } ) );
+}
+
+async function pickPeriod( user: ReturnType< typeof userEvent.setup >, name: string | RegExp ) {
+	await openPeriods( user );
+	await user.click( await screen.findByRole( 'menuitemradio', { name } ) );
+}
+
+async function openCustomRange( user: ReturnType< typeof userEvent.setup > ) {
+	await openPeriods( user );
+	await user.click( await screen.findByRole( 'menuitemradio', { name: 'Custom range' } ) );
 }
 
 async function shortenRangeTo( days: number ) {
@@ -108,38 +122,57 @@ describe( 'report params field', () => {
 	it( 'offers no bucket control by default', () => {
 		renderField();
 
-		expect( screen.queryByRole( 'button', { name: 'Chart interval' } ) ).not.toBeInTheDocument();
+		// Prefix, not the whole name: the trigger appends the active bucket.
+		expect( screen.queryByRole( 'button', { name: /^Chart interval/ } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'offers the bucket control when asked for it', async () => {
 		renderField( true );
 
 		await expect(
-			screen.findByRole( 'button', { name: 'Chart interval' } )
+			screen.findByRole( 'button', { name: /^Chart interval/ } )
 		).resolves.toBeInTheDocument();
 	} );
 
-	const windowsOnOffer = () =>
-		within( screen.getByRole( 'toolbar', { name: 'Date range' } ) )
-			.getAllByRole( 'button' )
-			.map( button => button.textContent );
+	const windowsOnOffer = async ( user: ReturnType< typeof userEvent.setup > ) => {
+		await openPeriods( user );
 
-	it( 'offers every rolling window when the widget names none', () => {
+		return within( screen.getByRole( 'menu', { name: 'Period' } ) )
+			.getAllByRole( 'menuitemradio' )
+			.map( item => item.textContent );
+	};
+
+	it( 'offers every period when the widget names none', async () => {
+		const user = userEvent.setup();
 		renderField();
 
-		expect( windowsOnOffer() ).toEqual( [
+		await expect( windowsOnOffer( user ) ).resolves.toEqual( [
+			'Today',
+			'Yesterday',
 			'Last 24 hours',
-			'7 days',
-			'30 days',
-			'12 months',
-			'Custom',
+			'Last 7 days',
+			'Last 30 days',
+			'Last 90 days',
+			'Last 365 days',
+			'Last month',
+			'Last 12 months',
+			'Last year',
+			'Custom range',
 		] );
 	} );
 
-	it( 'offers only the windows the widget names, in that order', () => {
+	// The widget says what is offered; the menu says in what order, so its
+	// grouping by scale holds whatever order the widget asked in.
+	it( "offers only the windows the widget names, in the menu's order", async () => {
+		const user = userEvent.setup();
 		renderField( true, { presetIds: [ 'last-12-months', 'last-7-days', 'last-30-days' ] } );
 
-		expect( windowsOnOffer() ).toEqual( [ '12 months', '7 days', '30 days', 'Custom' ] );
+		await expect( windowsOnOffer( user ) ).resolves.toEqual( [
+			'Last 7 days',
+			'Last 30 days',
+			'Last 12 months',
+			'Custom range',
+		] );
 	} );
 
 	it( 'moves an instance saved on an unoffered window onto an offered one', () => {
@@ -159,10 +192,7 @@ describe( 'report params field', () => {
 		// The window and bucket leave with the preset, so nothing left in the
 		// preference describes a range the widget no longer offers.
 		expect( latest() ).toEqual( { preset: 'last-30-days' } );
-		expect( screen.getByRole( 'button', { name: '30 days' } ) ).toHaveAttribute(
-			'aria-pressed',
-			'true'
-		);
+		expect( screen.getByRole( 'button', { name: 'Last 30 days' } ) ).toBeInTheDocument();
 	} );
 
 	it( 'leaves a custom range alone', () => {
@@ -181,14 +211,14 @@ describe( 'report params field', () => {
 		const user = userEvent.setup();
 		const { latest } = renderField( true );
 
-		await user.click( await screen.findByRole( 'button', { name: 'Chart interval' } ) );
+		await user.click( await screen.findByRole( 'button', { name: /^Chart interval/ } ) );
 		await user.click( await screen.findByRole( 'menuitemradio', { name: 'By weeks' } ) );
 
 		expect( latest() ).toEqual( expect.objectContaining( { interval: 'week' } ) );
 	} );
 
 	/*
-	 * `DateRangeFilter` calls `onChange` then `onApply` in the same tick; a
+	 * `DatePeriodDropdown` calls `onChange` then `onApply` in the same tick; a
 	 * commit reading staged state lands a click behind — the first click, on
 	 * the range it already had, left the previous range's buckets on offer.
 	 */
@@ -196,11 +226,12 @@ describe( 'report params field', () => {
 		const user = userEvent.setup();
 		const { latest } = renderField( true );
 
-		await user.click( screen.getByRole( 'button', { name: /24 hours/i } ) );
+		await pickPeriod( user, 'Last 24 hours' );
 
 		expect( latest() ).toEqual( expect.objectContaining( { preset: 'last-24-hours' } ) );
 
-		await user.click( screen.getByRole( 'button', { name: /7 days/i } ) );
+		await openPeriods( user, /^Last 24 hours$/ );
+		await user.click( await screen.findByRole( 'menuitemradio', { name: 'Last 7 days' } ) );
 
 		expect( latest() ).toEqual( expect.objectContaining( { preset: 'last-7-days' } ) );
 	} );
@@ -209,8 +240,8 @@ describe( 'report params field', () => {
 		const user = userEvent.setup();
 		renderField( true );
 
-		await user.click( screen.getByRole( 'button', { name: /24 hours/i } ) );
-		await user.click( await screen.findByRole( 'button', { name: 'Chart interval' } ) );
+		await pickPeriod( user, 'Last 24 hours' );
+		await user.click( await screen.findByRole( 'button', { name: /^Chart interval/ } ) );
 
 		await expect(
 			screen.findByRole( 'menuitemradio', { name: 'By hours' } )
@@ -222,7 +253,7 @@ describe( 'report params field', () => {
 		const user = userEvent.setup();
 		const { saved } = renderField( true );
 
-		await user.click( screen.getByRole( 'button', { name: /custom/i } ) );
+		await openCustomRange( user );
 
 		expect( saved ).toHaveLength( 0 );
 	} );
@@ -254,69 +285,41 @@ describe( 'report params field', () => {
 
 		await draftShortRange( user, 3 );
 
-		expect( screen.getByRole( 'button', { name: /30 days/i } ) ).toHaveAttribute(
-			'aria-pressed',
-			'true'
-		);
+		expect( screen.getByRole( 'button', { name: 'Last 30 days' } ) ).toBeInTheDocument();
 	} );
 
 	/*
-	 * Reading options from the applied range while checked value comes from the
-	 * draft could offer a bucket the draft can't hold — the click resolves away
-	 * and Apply silently drops it. Both must read the same range.
+	 * The bucket menu reads the applied range, so a custom range has to reshape
+	 * it the way a preset does. The calendar lives inside the period menu now,
+	 * so the range is applied before the bucket menu is reachable at all.
 	 */
-	it( 'reshapes the bucket menu with the range being drafted', async () => {
+	it( 'reshapes the bucket menu once a custom range applies', async () => {
 		const user = userEvent.setup();
 		renderField( true );
 
 		await draftShortRange( user, 3 );
-		await user.click( screen.getByRole( 'button', { name: 'Chart interval' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Apply' } ) );
+		await user.click( await screen.findByRole( 'button', { name: /^Chart interval/ } ) );
 
 		await expect(
 			screen.findByRole( 'menuitemradio', { name: 'By hours' } )
 		).resolves.toBeInTheDocument();
-		expect( screen.queryByRole( 'menuitemradio', { name: 'By weeks' } ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'holds a bucket picked mid-draft until Apply', async () => {
-		const user = userEvent.setup();
-		const { saved, latest } = renderField( true );
-
-		await draftShortRange( user, 3 );
-		await user.click( screen.getByRole( 'button', { name: 'Chart interval' } ) );
-		await user.click( await screen.findByRole( 'menuitemradio', { name: 'By hours' } ) );
-
-		expect( saved ).toHaveLength( 0 );
-
-		await user.click( screen.getByRole( 'button', { name: 'Apply' } ) );
-
-		expect( latest() ).toEqual( expect.objectContaining( { interval: 'hour' } ) );
-	} );
-
-	// The bucket rides along with an open range draft, so cancelling it drops
-	// the bucket too — and leaves the control clean for the next click to commit.
-	it( 'drops a bucket picked mid-draft when the range draft is cancelled', async () => {
+	// Closing the period menu any other way is a discard, so the widget keeps
+	// the window it was showing.
+	it( 'discards a range draft the user closes without applying', async () => {
 		const user = userEvent.setup();
 		const { saved } = renderField( true );
 
 		await draftShortRange( user, 3 );
-		await user.click( screen.getByRole( 'button', { name: 'Chart interval' } ) );
-		await user.click( await screen.findByRole( 'menuitemradio', { name: 'By hours' } ) );
-
 		await user.click( screen.getByRole( 'button', { name: 'Cancel' } ) );
 
 		expect( saved ).toHaveLength( 0 );
 
-		await user.click( screen.getByRole( 'button', { name: 'Chart interval' } ) );
+		await openPeriods( user );
 
-		await expect(
-			screen.findByRole( 'menuitemradio', { name: 'By weeks' } )
-		).resolves.toBeInTheDocument();
-		expect( screen.queryByRole( 'menuitemradio', { name: 'By hours' } ) ).not.toBeInTheDocument();
-
-		await user.click( await screen.findByRole( 'menuitemradio', { name: 'By weeks' } ) );
-
-		expect( saved ).toHaveLength( 1 );
+		expect( screen.getByRole( 'menuitemradio', { name: 'Last 30 days' } ) ).toBeChecked();
 	} );
 
 	it( 'commits a comparison range on selection', async () => {
@@ -324,7 +327,7 @@ describe( 'report params field', () => {
 		const { latest } = renderField();
 
 		await user.click( screen.getByRole( 'button', { name: /compare/i } ) );
-		await user.click( await screen.findByRole( 'menuitemradio', { name: 'Previous period' } ) );
+		await user.click( await screen.findByRole( 'menuitemradio', { name: /^previous /i } ) );
 
 		expect( latest() ).toEqual(
 			expect.objectContaining( {
@@ -334,6 +337,16 @@ describe( 'report params field', () => {
 				compare_to: expect.any( String ),
 			} )
 		);
+	} );
+
+	// A widget can carry a preset with no window behind it, and it compares
+	// nothing, so the control has to stay in its additive state.
+	it( 'ignores a saved comparison preset with no window', () => {
+		renderField( undefined, undefined, {
+			reportParams: { preset: 'last-30-days', interval: 'day', compare_preset: 'previous-period' },
+		} );
+
+		expect( screen.getByRole( 'button', { name: 'Compare' } ) ).toBeVisible();
 	} );
 
 	// Re-picking the item that already has the checkmark changes nothing, so the
@@ -355,22 +368,6 @@ describe( 'report params field', () => {
 		);
 	} );
 
-	// Committing the comparison on its own would apply the range draft with it.
-	it( 'holds a comparison picked mid-draft until Apply', async () => {
-		const user = userEvent.setup();
-		const { saved, latest } = renderField();
-
-		await draftShortRange( user, 3 );
-		await user.click( screen.getByRole( 'button', { name: /compare/i } ) );
-		await user.click( await screen.findByRole( 'menuitemradio', { name: 'Previous period' } ) );
-
-		expect( saved ).toHaveLength( 0 );
-
-		await user.click( screen.getByRole( 'button', { name: 'Apply' } ) );
-
-		expect( latest() ).toEqual( expect.objectContaining( { compare_preset: 'previous-period' } ) );
-	} );
-
 	it( 'realigns the draft when the params change from outside', async () => {
 		const user = userEvent.setup();
 		const { setFromOutside } = renderField( true );
@@ -379,7 +376,7 @@ describe( 'report params field', () => {
 		await draftShortRange( user, 3 );
 		await setFromOutside( { preset: 'last-7-days', interval: 'day' } );
 
-		await user.click( screen.getByRole( 'button', { name: 'Chart interval' } ) );
+		await user.click( screen.getByRole( 'button', { name: /^Chart interval/ } ) );
 
 		await expect(
 			screen.findByRole( 'menuitemradio', { name: 'By days' } )
@@ -398,7 +395,7 @@ describe( 'buckets the widget cannot draw', () => {
 
 		// Two to six days is the window that puts hours on offer.
 		await draftShortRange( user, 3 );
-		await user.click( await screen.findByRole( 'button', { name: 'Chart interval' } ) );
+		await user.click( await screen.findByRole( 'button', { name: /^Chart interval/ } ) );
 
 		await expect(
 			screen.findByRole( 'menuitemradio', { name: 'By days' } )
@@ -414,7 +411,7 @@ describe( 'buckets the widget cannot draw', () => {
 			reportParams: { preset: 'last-24-hours', interval: 'hour' },
 		} );
 
-		await user.click( await screen.findByRole( 'button', { name: 'Chart interval' } ) );
+		await user.click( await screen.findByRole( 'button', { name: /^Chart interval/ } ) );
 
 		await expect(
 			screen.findByRole( 'menuitemradio', { name: 'By days' } )

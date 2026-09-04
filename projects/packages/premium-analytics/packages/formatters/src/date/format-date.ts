@@ -1,12 +1,13 @@
 /**
  * External dependencies
  */
+import { reportingTimeZone } from '@jetpack-premium-analytics/datetime';
 import { dateI18n, getSettings } from '@wordpress/date';
 /**
  * Internal dependencies
  */
 import { intlLocale } from './elide-range';
-import { hasToken, withShortMonth, withWeekday, withoutYear } from './php-format';
+import { hasToken, withShortMonth, withWeekday, withoutDay, withoutYear } from './php-format';
 
 /** Fixed because this format backs form values and query parameters. */
 const ISO_FORMAT = 'Y-m-d';
@@ -19,6 +20,7 @@ export type DateFormatName =
 	| 'compact'
 	| 'compactNoYear'
 	| 'short'
+	| 'monthYear'
 	| 'year'
 	| 'iso'
 	| 'full'
@@ -67,6 +69,10 @@ function formatFor( name: DateFormatName ): string {
 		return withoutYearFormat;
 	}
 
+	if ( name === 'monthYear' ) {
+		return withoutDay( siteFormat ) || siteFormat;
+	}
+
 	if ( name === 'full' ) {
 		return withWeekday( siteFormat );
 	}
@@ -79,7 +85,7 @@ function formatFor( name: DateFormatName ): string {
 }
 
 /**
- * Format a date in the site's locale and timezone.
+ * Format a date in the site's locale and the reporting timezone.
  *
  * Month and weekday names come from WordPress's translation tables and the
  * ordering from `date_format`, so dates match wp-admin rather than the browser.
@@ -89,7 +95,7 @@ function formatFor( name: DateFormatName ): string {
  * @return The formatted date.
  */
 export const formatDate = ( date: DateInput, name: DateFormatName = 'medium' ): string =>
-	dateI18n( formatFor( name ), date );
+	dateI18n( formatFor( name ), date, reportingTimeZone() );
 
 /**
  * Return a full weekday name in the site's locale.

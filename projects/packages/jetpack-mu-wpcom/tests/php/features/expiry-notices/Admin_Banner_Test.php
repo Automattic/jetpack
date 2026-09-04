@@ -7,78 +7,47 @@
 
 declare( strict_types = 1 );
 
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Data;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Notice_Dismiss;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/expiry-notices/expiry-notices.php';
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/expiry-notices/admin-banner.php';
+require_once __DIR__ . '/trait-expiry-notices-fixtures.php';
 
 class Admin_Banner_Test extends \WorDBless\BaseTestCase {
-
-	/**
-	 * @var int
-	 */
-	private $admin_id;
-
-	/**
-	 * @var int
-	 */
-	private $subscriber_id;
+	use Expiry_Notices_Fixtures;
 
 	public function set_up() {
 		parent::set_up();
-		// WorDBless resets the users table between tests, so recreate fixture
-		// users here rather than in set_up_before_class.
-		$this->admin_id      = wp_insert_user(
-			array(
-				'user_login' => 'banner_admin',
-				'user_pass'  => 'pass',
-				'user_email' => 'banner_admin@example.com',
-				'role'       => 'administrator',
-			)
-		);
-		$this->subscriber_id = wp_insert_user(
-			array(
-				'user_login' => 'banner_subscriber',
-				'user_pass'  => 'pass',
-				'user_email' => 'banner_subscriber@example.com',
-				'role'       => 'subscriber',
-			)
-		);
-		wp_set_current_user( $this->admin_id );
+		$this->set_up_expiry_fixtures();
 		set_current_screen( 'dashboard' );
 	}
 
 	public function tear_down() {
-		unset( $GLOBALS['wpcom_get_site_purchases_test_value'] );
-		unset( $GLOBALS['wpcom_is_vip_test_value'] );
-		delete_user_meta( $this->admin_id, Expiry_Notice_Dismiss::META_BANNER );
+		$this->tear_down_expiry_fixtures();
 		parent::tear_down();
 	}
 
-	private function set_purchase( int $days_until_expiry, bool $auto_renew = false, string $slug = 'business-bundle' ): void {
-		$GLOBALS['wpcom_get_site_purchases_test_value'] = array(
-			(object) array(
-				'product_slug'           => $slug,
-				'product_type'           => 'bundle',
-				// Half a day of slack on top of the whole days: the banner
-				// computes `floor( ( expiry - now ) / DAY_IN_SECONDS )` at
-				// render time, so an expiry set to exactly N days collapses to
-				// N-1 the moment a single second elapses between this call and
-				// render() — which is a race this test loses on a slow runner.
-				// The cushion keeps every case in its intended day bucket for
-				// twelve hours instead of one second.
-				'expiry_date'            => gmdate( 'c', time() + ( $days_until_expiry * DAY_IN_SECONDS ) + ( 12 * HOUR_IN_SECONDS ) ),
-				'user_allows_auto_renew' => $auto_renew,
-			),
-		);
-	}
-
 	private function render(): string {
+		// Tests move the screen between renders, so never trust the memo.
+		wpcom_expiry_notices_admin_banner_data( true );
 		ob_start();
 		wpcom_expiry_notices_render_admin_banner();
 		return (string) ob_get_clean();
+	}
+
+	public function test_leaves_block_editor_screens_to_the_editor_notice(): void {
+		$this->set_purchase( 5 );
+		set_current_screen( 'post' );
+		get_current_screen()->is_block_editor( true );
+		$this->assertSame( '', $this->render() );
+
+		get_current_screen()->is_block_editor( false );
+		$this->assertStringContainsString( 'notice-error', $this->render() );
 	}
 
 	public function test_renders_for_approaching_state(): void {
@@ -149,7 +118,14 @@ class Admin_Banner_Test extends \WorDBless\BaseTestCase {
 		}
 	}
 
+	/**
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
 	public function test_the_two_post_expiry_windows_ask_for_different_things(): void {
+		$this->pretend_reverted();
 		$this->set_purchase( -5 );
 		$grace = $this->render();
 		$this->set_purchase( -45 );
@@ -158,8 +134,8 @@ class Admin_Banner_Test extends \WorDBless\BaseTestCase {
 		// Grace: the site is intact, so the ask is to renew before it isn't.
 		$this->assertStringContainsString( 'Renew now', $grace );
 		$this->assertStringNotContainsString( 'wpcom-expiry-banner__dismiss', $grace );
-		// Reverted: already on Free, so the ask is to restore — and it can be dismissed.
-		$this->assertStringContainsString( 'Restore site', $reverted );
+		// Reverted: renewing no longer undoes any of it, so the ask is support.
+		$this->assertStringContainsString( 'Contact support', $reverted );
 		$this->assertStringContainsString( 'wpcom-expiry-banner__dismiss', $reverted );
 	}
 
@@ -423,16 +399,24 @@ class Admin_Banner_Test extends \WorDBless\BaseTestCase {
 		$this->assertStringContainsString( 'But it’s not too late.', $body );
 	}
 
-	public function test_body_after_revert_on_atomic_mentions_the_site_going_private(): void {
+	/**
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_body_after_revert_mentions_the_site_going_private(): void {
+		// Keyed on the revert having happened, not on the state's is_atomic,
+		// which is already false by then.
+		$this->pretend_reverted();
 		$state = $this->message_state(
 			array(
 				'state'          => Expiry_Data::STATE_EXPIRED,
 				'days_remaining' => -45,
-				'is_atomic'      => true,
 			)
 		);
 		$this->assertSame(
-			'Your site has been moved to the Free plan and set to private. You no longer have access to plugins, custom themes, or 50 GB of storage. Upgrade your plan to restore your site.',
+			'Your site has been moved to the Free plan and set to private. You no longer have access to plugins, custom themes, or 50 GB of storage. Contact support to get help restoring it.',
 			wpcom_expiry_notices_admin_banner_body( $state )
 		);
 	}
@@ -450,22 +434,82 @@ class Admin_Banner_Test extends \WorDBless\BaseTestCase {
 		$this->assertStringContainsString( '50 GB of storage', $body );
 	}
 
-	public function test_after_revert_the_cta_offers_to_restore_the_site(): void {
+	/**
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_after_revert_the_cta_points_at_support(): void {
+		$this->pretend_reverted();
+		// Re-purchasing cannot bring back what the revert deleted, so checkout is
+		// the wrong destination once the site is on Free.
 		$this->set_purchase( -45 );
 		$out = $this->render();
-		$this->assertStringContainsString( 'Restore site', $out );
+		$this->assertStringContainsString( 'Contact support', $out );
 		$this->assertStringNotContainsString( 'Renew now', $out );
+		$this->assertStringNotContainsString( '/checkout/', $out );
+	}
+
+	/**
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_the_support_cta_carries_the_message_and_a_fallback(): void {
+		$this->pretend_reverted();
+		// The Help Center has no URL that opens it in this state, so the message
+		// rides on the element and the href is what a click falls back to.
+		$this->set_purchase( -45 );
+		$out = $this->render();
+		// Plans::get_plan_short_name() is unavailable here, so this is the
+		// no-plan-name variant; wpcom_expiry_notices_support_cta() covers the other.
+		$this->assertStringContainsString( 'data-support-message="My plan expired', $out );
+		$this->assertStringContainsString( 'wordpress.com/help', $out );
 	}
 
 	public function test_before_revert_the_cta_still_asks_for_a_renewal(): void {
 		$this->set_purchase( -5 );
 		$out = $this->render();
 		$this->assertStringContainsString( 'Renew now', $out );
-		$this->assertStringNotContainsString( 'Restore site', $out );
+		$this->assertStringNotContainsString( 'Contact support', $out );
+		$this->assertStringNotContainsString( 'data-support-message', $out );
 	}
 
 	public function test_body_falls_back_to_additional_storage_for_unknown_slug(): void {
 		$state = $this->message_state( array( 'product_slug' => 'mystery-bundle' ) );
 		$this->assertStringContainsString( 'additional storage', wpcom_expiry_notices_admin_banner_body( $state ) );
+	}
+
+	public function test_a_site_that_was_never_atomic_is_not_sent_to_support(): void {
+		// The banner shows on every site, and one that never carried a transfer
+		// lost plan features and nothing else -- buying the plan again does give
+		// those back, so support is the wrong destination.
+		Constants::set_constant( 'IS_ATOMIC', false );
+		$this->set_purchase( -45 );
+		$out = $this->render();
+
+		$this->assertStringNotContainsString( 'Contact support', $out );
+		$this->assertStringNotContainsString( 'data-support-message', $out );
+		$this->assertStringContainsString( 'Restore site', $out );
+		$this->assertStringContainsString( '/checkout/', $out );
+		// And the copy has to ask for the same thing the button does.
+		$this->assertStringContainsString( 'Upgrade your plan to restore your site.', $out );
+	}
+
+	public function test_before_the_revert_runs_the_cta_still_offers_checkout(): void {
+		// Same gap: post-grace by date, but not yet reverted. Renewing still works,
+		// so support would be the wrong ask and the copy must not be past tense
+		// about a revert that has not happened.
+		Constants::set_constant( 'IS_ATOMIC', true );
+		$this->set_purchase( -45 );
+		$out = $this->render();
+
+		$this->assertStringNotContainsString( 'Contact support', $out );
+		$this->assertStringContainsString( '/checkout/', $out );
+		// And the copy must not claim the changes have already happened.
+		$this->assertStringNotContainsString( 'has been moved to the Free plan', $out );
+		$this->assertStringContainsString( 'will move to the Free plan', $out );
 	}
 }

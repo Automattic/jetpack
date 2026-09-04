@@ -21,9 +21,14 @@ use Jetpack_Tracks_Client;
  */
 class Settings {
 
-	const PACKAGE_VERSION = '0.12.7';
+	const PACKAGE_VERSION = '0.13.0';
 
 	const ADMIN_PAGE_SLUG = 'jetpack-newsletter';
+
+	/**
+	 * Slug of the retired Subscribers page, kept only to redirect stale bookmarks.
+	 */
+	const RETIRED_SUBSCRIBERS_PAGE_SLUG = 'jetpack-subscribers';
 
 	/**
 	 * Filter name that gates the wp-build–based dashboard.
@@ -83,15 +88,8 @@ class Settings {
 	 * Subscribe to necessary hooks.
 	 */
 	public function init_hooks() {
-		// Transitional Subscribers announcement page (active only while the
-		// modernization filter is on): registers its AJAX/admin-post handlers
-		// and wp-build loading here so they exist on admin-ajax.php and
-		// admin-post.php requests. The menu itself is added by the Jetpack
-		// plugin's subscriptions module, which owns the Subscribers placement.
-		// init() self-gates on Subscribers_Announcement::is_enabled(), which is
-		// also what the menu-registration entry points consult, so the handlers
-		// and the menu can never disagree about whether the feature is on.
-		Subscribers_Announcement::init();
+		// Priority 1 so this runs before the menu is built and the request is denied.
+		add_action( 'admin_menu', array( __CLASS__, 'redirect_retired_subscribers_page' ), 1 );
 
 		// Add the Reading settings notice as long as subscriptions are active.
 		if ( $this->is_subscriptions_active() ) {
@@ -132,6 +130,27 @@ class Settings {
 		// Use priority 999 to ensure menu items are queued BEFORE Admin_Menu::admin_menu_hook_callback
 		// runs at priority 1000 to process all queued items.
 		add_action( 'admin_menu', array( $this, 'add_wp_admin_menu' ), 999 );
+	}
+
+	/**
+	 * Send the retired Subscribers page to Newsletter, which absorbed it.
+	 *
+	 * The slug was live for about three months, so it is still in browser histories,
+	 * where it would otherwise hit WordPress's generic "not allowed to access this
+	 * page" and read as a permissions error rather than a move.
+	 *
+	 * @return void
+	 */
+	public static function redirect_retired_subscribers_page() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$page = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '';
+
+		if ( self::RETIRED_SUBSCRIBERS_PAGE_SLUG !== $page || ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+
+		wp_safe_redirect( admin_url( 'admin.php?page=' . self::ADMIN_PAGE_SLUG ) );
+		exit( 0 );
 	}
 
 	/**

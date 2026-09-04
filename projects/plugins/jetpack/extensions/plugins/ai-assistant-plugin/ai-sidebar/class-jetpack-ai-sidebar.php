@@ -318,19 +318,25 @@ class Jetpack_AI_Sidebar {
 	}
 
 	/**
-	 * UI feature flag for the public Jetpack AI Sidebar Preview surface.
-	 *
-	 * Defaults to enabled only on WordPress.com platform sites (Simple or WoA)
-	 * that have the Big Sky plugin present and enabled. Big Sky defaults on for
-	 * Simple sites and off on WoA/Atomic. The jetpack_ai_sidebar_enabled filter
-	 * is a host-level override of that default, respected by init() and every
-	 * sidebar surface that gates on this method. Independently of the filter,
-	 * the sidebar requires at least one of its features (writing assistant or
-	 * SEO enhancer) to be enabled.
+	 * UI feature flag for the public Jetpack AI Sidebar Preview surface: this
+	 * host loads the sidebar, and at least one feature it surfaces is on.
 	 *
 	 * @return bool
 	 */
 	private static function is_jetpack_ai_sidebar_preview_enabled(): bool {
+		return self::is_host_enabled() && self::has_enabled_sidebar_features();
+	}
+
+	/**
+	 * Whether this host loads the sidebar at all: a WordPress.com platform site
+	 * with Big Sky enabled, past the filter and the master switch. Public and
+	 * feature-free so the AI SEO gate can ask without asking back through it.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public static function is_host_enabled(): bool {
 		$host = new Host();
 
 		$enabled = false;
@@ -353,12 +359,10 @@ class Jetpack_AI_Sidebar {
 		 */
 		$enabled = (bool) apply_filters( 'jetpack_ai_sidebar_enabled', $enabled );
 
-		// Re-asserted after the filter so a later filter cannot surface a
-		// sidebar whose features are all off, or one blocked by the host or
-		// master gates — the gates are final, as with is_ai_enabled().
-		return $enabled
-			&& \Jetpack_AI_Settings::apply_master_gates( true )
-			&& self::has_enabled_sidebar_features();
+		// Re-asserted after the filter so a later filter cannot surface a sidebar
+		// blocked by the host or master gates — the gates are final, as with
+		// is_ai_enabled().
+		return $enabled && \Jetpack_AI_Settings::apply_master_gates( true );
 	}
 
 	/**

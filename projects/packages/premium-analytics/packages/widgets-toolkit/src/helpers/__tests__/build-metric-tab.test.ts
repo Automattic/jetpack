@@ -1,6 +1,11 @@
 /**
+ * External dependencies
+ */
+import { getSettings, setSettings } from '@wordpress/date';
+/**
  * Internal dependencies
  */
+import { siteSettingsIn } from '../../__fixtures__/wp-date-settings';
 import { buildMetricTab } from '../build-metric-tab';
 
 describe( 'buildMetricTab', () => {
@@ -95,17 +100,20 @@ describe( 'buildMetricTab', () => {
 		expect( tab.previousValue ).toBeUndefined();
 		expect( tab.previous ).toBeUndefined();
 	} );
-	// Bucket stamps carry a nominal offset that must be dropped (rationale on
-	// `toChartDate`); these cases are the only guard against the old buggy reading.
-	describe( 'bucket stamps are read as the wall clock they name', () => {
+	// Bucket stamps carry a nominal offset that must be dropped; these cases are
+	// the only guard against reading a bucket in the wrong zone.
+	describe( 'bucket stamps are anchored in the site zone', () => {
 		// Pinned west of UTC — under a UTC runner the correct and buggy readings
 		// coincide and this would pass either way. `TZ` isn't on the typed env shape, hence the cast.
 		const env = process.env as Record< string, string | undefined >;
 		const runnerTimeZone = env.TZ;
+		const settings = getSettings();
 		beforeAll( () => {
 			env.TZ = 'America/Los_Angeles';
+			setSettings( siteSettingsIn( 'Asia/Tokyo' ) );
 		} );
 		afterAll( () => {
+			setSettings( settings );
 			// Assigning `undefined` to an env var sets the literal string "undefined";
 			// an unset variable has to be deleted back off.
 			if ( runnerTimeZone === undefined ) {
@@ -132,11 +140,19 @@ describe( 'buildMetricTab', () => {
 			// `row.date_start` passes through whatever the API sent, which may carry no
 			// time; a bare date parses as UTC unless anchored — same bug, different door.
 			[ '2026-06-15', 15, 0 ],
-		] )( 'reads %s as day %i hour %i in the local frame', ( stamp, day, hour ) => {
+		] )( 'reads %s as day %i hour %i of the site day', ( stamp, day, hour ) => {
 			const date = dateOf( stamp );
 
 			expect( date.getDate() ).toBe( day );
 			expect( date.getHours() ).toBe( hour );
+		} );
+
+		// The parts round-trip through any zone, so only the instant tells the
+		// site's zone apart from the runner's.
+		it( 'names the instant the site zone puts that wall time at', () => {
+			expect( dateOf( '2026-06-15T00:00:00+00:00' ).toISOString() ).toBe(
+				'2026-06-14T15:00:00.000Z'
+			);
 		} );
 	} );
 } );

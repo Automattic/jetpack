@@ -2,8 +2,8 @@
 /**
  * Bootstrap.
  *
- * Shadows the wpcom Simple `tracks_record_event` from wpcom-stubs at test
- * runtime so dispatched events land in a per-test buffer.
+ * Shadows the wpcom Simple `tracks_record_event` and `bump_stats_extras`
+ * from wpcom-stubs at test runtime so dispatches land in per-test buffers.
  *
  * @phan-file-suppress PhanRedefineFunction
  *
@@ -22,6 +22,16 @@ if ( ! function_exists( 'tracks_record_event' ) ) {
 			'user'       => $user,
 			'event_name' => $event_name,
 			'properties' => $properties,
+		);
+		return true;
+	}
+}
+
+if ( ! function_exists( 'bump_stats_extras' ) ) {
+	function bump_stats_extras( $name, $value ) {
+		$GLOBALS['jetpack_podcast_test_captured_stats'][] = array(
+			'group' => $name,
+			'bin'   => $value,
 		);
 		return true;
 	}

@@ -22,7 +22,6 @@ use Wikimedia\TestingAccessWrapper;
  */
 #[CoversClass( \Automattic\Jetpack\Changelogger\AddCommand::class )]
 class AddCommandTest extends CommandTestCase {
-	use \Yoast\PHPUnitPolyfills\Polyfills\AssertionRenames;
 
 	/**
 	 * Set up.

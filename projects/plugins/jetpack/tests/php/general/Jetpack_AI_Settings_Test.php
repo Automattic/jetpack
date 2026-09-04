@@ -13,6 +13,7 @@
 
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Modules;
+use Automattic\Jetpack\Status\Cache as Status_Cache;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
@@ -25,6 +26,14 @@ use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 #[CoversClass( Jetpack_AI_Settings::class )]
 class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
+
+	/**
+	 * Default each test to a self-hosted site.
+	 */
+	public function set_up() {
+		parent::set_up();
+		Status_Cache::set( 'is_woa_site', false );
+	}
 
 	/**
 	 * Filter callback used to simulate the `ai` module being active without the
@@ -49,11 +58,17 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Master enforcement only runs on internal testing environments while the
-	 * AI controls are not publicly launched. The predicate treats a proxied
-	 * A8C request as internal, so that is the lever the enforcement tests pull.
+	 * Make the current request look like WordPress.com Atomic.
+	 */
+	private function force_atomic_site() {
+		Status_Cache::set( 'is_woa_site', true );
+	}
+
+	/**
+	 * Make the current Atomic request internal and proxied.
 	 */
 	private function force_internal_testing_env() {
+		$this->force_atomic_site();
 		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
 	}
 
@@ -79,6 +94,7 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 
 		// Reset the platform: every test in this class defaults to off-Simple.
 		Constants::clear_single_constant( 'IS_WPCOM' );
+		Status_Cache::clear();
 		\Jetpack_Options::update_option( 'active_modules', array() );
 
 		parent::tear_down();
@@ -126,12 +142,12 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Until the AI controls ship publicly, the master gate is waived outside
-	 * internal testing environments: an inactive `ai` module must not turn AI
-	 * off for the public.
+	 * Ordinary Atomic requests keep the master gate waived while the controls
+	 * remain hidden there.
 	 */
-	public function test_master_not_enforced_outside_internal_testing_env() {
-		// Plain test env: not internal, module inactive.
+	public function test_master_not_enforced_for_ordinary_atomic_request() {
+		$this->force_atomic_site();
+
 		$this->assertFalse( Jetpack_AI_Settings::is_master_enabled(), 'Precondition: the stored master state reads off.' );
 
 		$this->assertTrue( apply_filters( 'jetpack_ai_enabled', true ) );
@@ -143,14 +159,14 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * The waiver covers only the master gate: the host gate (a server-owner
-	 * decision) keeps enforcing everywhere.
+	 * The Atomic waiver covers only the master gate; the host gate still applies.
 	 */
-	public function test_host_gate_enforced_outside_internal_testing_env() {
+	public function test_host_gate_enforced_for_ordinary_atomic_request() {
 		if ( ! function_exists( 'wp_supports_ai' ) ) {
 			$this->markTestSkipped( 'wp_supports_ai() is not available in this WordPress version.' );
 		}
 
+		$this->force_atomic_site();
 		add_filter( 'wp_supports_ai', '__return_false' );
 
 		$this->assertFalse( Jetpack_AI_Settings::is_ai_enabled() );
@@ -402,11 +418,11 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * The controls this class owns are not publicly launched, so a stored-off
-	 * toggle is inert outside internal testing environments: the feature keeps
-	 * the behavior the released version has.
+	 * The hidden Atomic controls remain inert on ordinary requests.
 	 */
-	public function test_owned_toggles_are_inert_outside_internal_testing() {
+	public function test_owned_toggles_are_inert_for_ordinary_atomic_request() {
+		$this->force_atomic_site();
+
 		update_option( 'jetpack_ai_writing_assistant_enabled', 0 );
 		update_option( 'jetpack_ai_image_editor_enabled', 0 );
 		update_option( 'jetpack_ai_feature_clip_enabled', 0 );
@@ -571,15 +587,14 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * Off Simple the same option still switches the feature off, where the
-	 * owned toggles apply.
+	 * Self-hosted sites honor a saved off value for the owned feature controls.
 	 */
-	public function test_owned_features_honor_their_option_off_wpcom_simple() {
-		Constants::set_constant( 'IS_WPCOM', false );
-		$this->force_internal_testing_env();
-
+	public function test_owned_features_honor_their_option_on_self_hosted() {
+		// Seed on first so WordPress persists the later false value instead of treating it as an absent default.
+		update_option( 'jetpack_ai_image_editor_enabled', 1 );
 		update_option( 'jetpack_ai_image_editor_enabled', 0 );
 
+		$this->assertFalse( get_option( 'jetpack_ai_image_editor_enabled', 'missing' ) );
 		$this->assertFalse( Jetpack_AI_Settings::is_feature_enabled( 'image_editor' ) );
 	}
 
@@ -599,20 +614,33 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * The owned options are registered (register_setting on init). The master
-	 * option must stay OUT of core settings REST: off-Simple the module is the
-	 * master (a core-REST write would only clobber the legacy opt-out value),
-	 * and the dedicated feature-settings endpoint is the real writable surface.
+	 * The owned options are registered (register_setting on init) in their own
+	 * group so saving Settings > General cannot clear fields that form does not
+	 * contain. The master option must stay OUT of core settings REST: off-Simple
+	 * the module is the master (a core-REST write would only clobber the legacy
+	 * opt-out value), and the dedicated feature-settings endpoint is the real
+	 * writable surface.
 	 */
 	public function test_options_are_registered() {
+		global $new_allowed_options;
+
 		Jetpack_AI_Settings::register_settings();
 
 		$registered = get_registered_settings();
+		$options    = array( Jetpack_AI_Settings::MASTER_OPTION );
+		foreach ( Jetpack_AI_Settings::OWNED_FEATURES as $feature ) {
+			$options[] = Jetpack_AI_Settings::FEATURE_OPTIONS[ $feature ];
+		}
 
-		$this->assertArrayHasKey( 'jetpack_ai_enabled', $registered );
-		$this->assertArrayHasKey( 'jetpack_ai_writing_assistant_enabled', $registered );
-		$this->assertArrayHasKey( 'jetpack_ai_image_editor_enabled', $registered );
-		$this->assertArrayHasKey( 'jetpack_ai_seo_enabled', $registered );
+		foreach ( $options as $option ) {
+			$this->assertArrayHasKey( $option, $registered );
+			$this->assertSame( 'jetpack_ai', $registered[ $option ]['group'] );
+			$this->assertContains( $option, $new_allowed_options['jetpack_ai'] ?? array() );
+		}
+		$this->assertEmpty(
+			array_intersect( $options, $new_allowed_options['general'] ?? array() ),
+			'Jetpack AI settings must not be submitted with the General Settings form.'
+		);
 		$this->assertArrayNotHasKey( 'jetpack_ai_image_label_enabled', $registered );
 
 		$this->assertFalse( $registered['jetpack_ai_enabled']['show_in_rest'], 'The master option is never exposed over core settings REST.' );

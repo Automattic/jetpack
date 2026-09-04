@@ -172,7 +172,11 @@ function deriveState( input: DeriveInput ): RestoreState {
 				message: data.message || __( 'Restore failed.', 'jetpack-backup-pkg' ),
 			};
 		case 'running':
-			return { phase: 'progress', percent: Math.round( data.progress ?? 0 ) };
+			return {
+				phase: 'progress',
+				percent: Math.round( data.progress ?? 0 ),
+				message: data.message,
+			};
 		default:
 			// `queued`, `unknown`, or nothing yet. All the same to the
 			// reader: accepted, nothing to show. Unless it has been that
@@ -219,10 +223,16 @@ function deriveState( input: DeriveInput ): RestoreState {
  * stopping it, because the failure this replaces was a bar frozen
  * forever at its first reading.
  *
+ * Every read is gated on `enabled`, which the screen supplies from the gate
+ * verdict. Gating here rather than mounting the screen's body below `<Gates>`:
+ * the state below is what stops a second concurrent restore, and unmounting it
+ * on a gate flip re-arms Confirm while the first restore is still running.
+ *
  * @param rewindId - The backup's rewind id, in full.
+ * @param enabled  - Whether this site may query WordPress.com at all.
  * @return state + submit + reset.
  */
-export function useRestore( rewindId: string ): Result {
+export function useRestore( rewindId: string, enabled = true ): Result {
 	const [ submittedId, setSubmittedId ] = useState< number | null >( null );
 	const [ errorMessage, setErrorMessage ] = useState< string | null >( null );
 	// Non-null while a submission's outcome is unknown, holding the
@@ -316,7 +326,7 @@ export function useRestore( rewindId: string ): Result {
 	// restore on screen is ours, and the lookup would only be a second
 	// opinion about a question we can already answer.
 	const hasOwnSubmission = startedRewindId !== null || isPending;
-	const { adopted: found, isChecking } = useAdoptedRestore( ! hasOwnSubmission );
+	const { adopted: found, isChecking } = useAdoptedRestore( ! hasOwnSubmission && enabled );
 
 	// Latched, not read live, and that distinction is the whole
 	// lifecycle. `useAdoptedRestore` derives its answer from a
@@ -353,7 +363,7 @@ export function useRestore( rewindId: string ): Result {
 	const restoresQuery = useQuery( {
 		queryKey: keys.recentRestores(),
 		queryFn: fetchRecentRestores,
-		enabled: recovering,
+		enabled: recovering && enabled,
 		refetchInterval: recovering ? POLL_INTERVAL_MS : false,
 	} );
 
@@ -388,7 +398,7 @@ export function useRestore( rewindId: string ): Result {
 	const statusQuery = useQuery( {
 		queryKey: keys.restoreStatus( effectiveRestoreId ),
 		queryFn: () => fetchRestoreStatus( effectiveRestoreId ),
-		enabled: restoreId !== null,
+		enabled: restoreId !== null && enabled,
 		refetchInterval: query => {
 			// Keep asking through anything unrecognised — stopping there
 			// is what froze this before — but not past the deadline.

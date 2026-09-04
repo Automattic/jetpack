@@ -17,7 +17,7 @@ use Automattic\Jetpack\Jetpack_Mu_Wpcom\Common;
 
 if ( ! defined( 'WPCOM_WRITE_VERSION' ) ) {
 	// Use file modification time to bust CDN caches when files change.
-	define( 'WPCOM_WRITE_VERSION', (string) max( filemtime( __DIR__ . '/view.js' ), filemtime( __DIR__ . '/style.css' ), filemtime( __DIR__ . '/undo-history.js' ), filemtime( __DIR__ . '/image-format.js' ), filemtime( __DIR__ . '/text-helpers.js' ), filemtime( __DIR__ . '/post-publish-checklist.js' ), filemtime( __DIR__ . '/post-publish-checklist.css' ) ) );
+	define( 'WPCOM_WRITE_VERSION', (string) max( filemtime( __DIR__ . '/view.js' ), filemtime( __DIR__ . '/style.css' ), filemtime( __DIR__ . '/undo-history.js' ), filemtime( __DIR__ . '/image-format.js' ), filemtime( __DIR__ . '/text-helpers.js' ), filemtime( __DIR__ . '/post-publish-checklist.js' ), filemtime( __DIR__ . '/post-publish-checklist.css' ), filemtime( __DIR__ . '/post-publish-survey.js' ), filemtime( __DIR__ . '/post-publish-survey.css' ) ) );
 }
 
 // Inline SVG icons used by the top bar and the formatting toolbar.
@@ -29,6 +29,9 @@ require_once __DIR__ . '/post-publish-checklist.php';
 
 // Email-verification launch gate backing the checklist's inline confirm-email step.
 require_once __DIR__ . '/email-verification.php';
+
+// One-question survey shown on the published post after a writer's first Write publish.
+require_once __DIR__ . '/post-publish-survey.php';
 
 /**
  * Get the URL for a Write feature asset file.
@@ -918,14 +921,14 @@ function wpcom_write_render_admin_page() {
 			'editPostId'             => $edit_post_id,
 			'postStatus'             => $post_status,
 			'isPublishedPost'        => 'publish' === $post_status,
-			// When the site is still Coming Soon (private by default), publishing
-			// lands a private post. The publish redirect tags the post URL so the
-			// post-publish next-steps checklist can surface there.
-			'isComingSoon'           => 1 === (int) get_option( 'wpcom_public_coming_soon' ),
 			// The query arg the redirect tags onto the post URL, kept in sync with
 			// the server-side gate by sharing WPCOM_WRITE_PUBLISHED_MARKER (defined
 			// in post-publish-checklist.php) rather than hardcoding it in view.js.
 			'publishedMarker'        => WPCOM_WRITE_PUBLISHED_MARKER,
+			// The entry point this editor session was opened from, forwarded onto
+			// the post-publish redirect so survey responses segment by the same
+			// `source` the funnel's wpcom_write_editor_open event records.
+			'source'                 => $source,
 			'title'                  => $edit_title,
 			'isSaving'               => false,
 			'isPublished'            => false,

@@ -26,7 +26,6 @@ use Wikimedia\TestingAccessWrapper;
  */
 #[CoversClass( SquashCommand::class )]
 class SquashCommandTest extends CommandTestCase {
-	use \Yoast\PHPUnitPolyfills\Polyfills\AssertionRenames;
 
 	/**
 	 * Set up.

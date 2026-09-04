@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-boost-score-api",
-	"version": "1.0.55",
+	"version": "1.0.56",
 	"description": "A package to get the Jetpack Boost score of a site",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/boost-score-api/#readme",
 	"bugs": {
@@ -30,7 +30,7 @@
 		"watch": "tsgo --project tsconfig.build.json --watch"
 	},
 	"dependencies": {
-		"@wordpress/i18n": "6.24.0",
+		"@wordpress/i18n": "6.27.0",
 		"zod": "3.25.76"
 	},
 	"devDependencies": {

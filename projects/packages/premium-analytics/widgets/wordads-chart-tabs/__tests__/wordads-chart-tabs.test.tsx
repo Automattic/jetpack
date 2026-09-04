@@ -26,7 +26,6 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	MetricTabsChart: ( {
 		metrics,
 		chartType,
-		pointsAreWallClocks,
 	}: {
 		metrics: {
 			key: string;
@@ -36,12 +35,10 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 			dataFormat?: { type: string };
 		}[];
 		chartType?: string;
-		pointsAreWallClocks?: boolean;
 	} ) => (
 		<div
 			data-testid="metric-tabs-chart"
 			data-chart-type={ String( chartType ) }
-			data-wall-clocks={ String( pointsAreWallClocks ) }
 			data-metrics={ JSON.stringify(
 				metrics.map( metric => ( {
 					key: metric.key,
@@ -297,19 +294,18 @@ describe( 'WordAdsChartTabsWidget date control', () => {
 			onChange,
 		} );
 
-		const toolbar = screen.getByRole( 'toolbar', { name: 'Date range' } );
+		await user.click( screen.getByRole( 'button', { name: 'Last 30 days' } ) );
+
+		const menu = screen.getByRole( 'menu', { name: 'Period' } );
 
 		expect(
-			within( toolbar )
-				.getAllByRole( 'button' )
-				.map( button => button.textContent )
-		).toEqual( [ '7 days', '30 days', '12 months', 'Custom' ] );
-		expect( screen.getByRole( 'button', { name: '30 days' } ) ).toHaveAttribute(
-			'aria-pressed',
-			'true'
-		);
+			within( menu )
+				.getAllByRole( 'menuitemradio' )
+				.map( item => item.textContent )
+		).toEqual( [ 'Last 7 days', 'Last 30 days', 'Last 12 months', 'Custom range' ] );
+		expect( screen.getByRole( 'menuitemradio', { name: 'Last 30 days' } ) ).toBeChecked();
 
-		await user.click( screen.getByRole( 'button', { name: '7 days' } ) );
+		await user.click( screen.getByRole( 'menuitemradio', { name: 'Last 7 days' } ) );
 
 		expect( onChange ).toHaveBeenCalledWith( {
 			reportParams: expect.objectContaining( { preset: 'last-7-days' } ),
@@ -342,7 +338,7 @@ describe( 'WordAdsChartTabsWidget date control', () => {
 			onChange: jest.fn(),
 		} );
 
-		await user.click( await screen.findByRole( 'button', { name: 'Chart interval' } ) );
+		await user.click( await screen.findByRole( 'button', { name: /^Chart interval/ } ) );
 
 		expect( screen.getAllByRole( 'menuitemradio' ).map( item => item.textContent ) ).toEqual( [
 			'By days',
@@ -357,7 +353,7 @@ describe( 'WordAdsChartTabsWidget date control', () => {
 			onChange: jest.fn(),
 		} );
 
-		await user.click( await screen.findByRole( 'button', { name: 'Chart interval' } ) );
+		await user.click( await screen.findByRole( 'button', { name: /^Chart interval/ } ) );
 
 		expect( screen.getAllByRole( 'menuitemradio' ).map( item => item.textContent ) ).toEqual( [
 			'By months',

@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Blocks: keep blocks that load outside the post editor available in front-end block editors such as P2, by never deferring their registration. See JETPACK-1747.

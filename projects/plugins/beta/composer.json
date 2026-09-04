@@ -13,7 +13,7 @@
 		"automattic/jetpack-logo": "@dev",
 		"automattic/jetpack-redirect": "@dev",
 		"composer/semver": "3.4.3",
-		"erusev/parsedown": "1.7.4"
+		"erusev/parsedown": "1.8.0"
 	},
 	"scripts": {},
 	"autoload": {

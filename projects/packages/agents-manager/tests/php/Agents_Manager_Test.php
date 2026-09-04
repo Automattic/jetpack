@@ -458,6 +458,48 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Tests that enqueue_scripts exposes the deployed build version as `{variant}:{version}`,
+	 * even in dev mode, where the enqueue cache buster is a random number.
+	 */
+	public function test_enqueue_scripts_exposes_deployed_version() {
+		Functions\when( 'wpcom_is_proxied_request' )->justReturn( true );
+
+		// Set admin context - scripts only enqueue in admin.
+		require_once ABSPATH . 'wp-admin/includes/screen.php';
+		set_current_screen( 'dashboard' );
+
+		// Register the agents-manager script so we can attach inline script to it.
+		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
+
+		add_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		$force_variant = static function () {
+			return 'wp-admin';
+		};
+		add_filter( 'agents_manager_variant', $force_variant );
+		// Seed the cached asset metadata so no fetch is attempted.
+		set_transient(
+			'agents-manager-asset-wp-admin.asset.json',
+			array(
+				'version'      => 'abc123',
+				'dependencies' => array(),
+			)
+		);
+
+		$this->agents_manager->enqueue_scripts();
+
+		global $wp_scripts;
+		$inline_scripts = $wp_scripts->registered['agents-manager']->extra['before'] ?? array();
+		$inline_script  = implode( "\n", array_filter( $inline_scripts ) );
+
+		$this->assertStringContainsString( '"isDevMode":true', $inline_script );
+		$this->assertStringContainsString( '"version":"wp-admin:abc123"', $inline_script );
+
+		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		remove_filter( 'agents_manager_variant', $force_variant );
+		delete_transient( 'agents-manager-asset-wp-admin.asset.json' );
+	}
+
+	/**
 	 * Tests that enqueue_scripts includes providers added via the filter.
 	 */
 	public function test_enqueue_scripts_includes_filtered_providers() {
@@ -740,17 +782,17 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Tests that the Ask AI icon label follows a locale switch within the request.
+	 * Tests that the sparkle icon's aria-label follows a locale switch within the request.
 	 *
 	 * The admin-bar endpoint switches locale for `_locale=user`, so the icon markup cannot
 	 * be built once and reused.
 	 */
-	public function test_ask_ai_icon_label_follows_a_locale_switch() {
+	public function test_sparkle_icon_aria_label_follows_a_locale_switch() {
 		require_once ABSPATH . 'wp-includes/class-wp-admin-bar.php';
 
-		$label  = 'Ask AI';
+		$label  = 'Agent';
 		$filter = static function ( $translation, $text ) use ( &$label ) {
-			return 'Ask AI' === $text ? $label : $translation;
+			return 'Agent' === $text ? $label : $translation;
 		};
 		add_filter( 'gettext', $filter, 10, 2 );
 
@@ -765,41 +807,52 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 		remove_filter( 'gettext', $filter, 10 );
 
-		$this->assertStringContainsString( 'aria-label="Ask AI"', $first->get_node( 'agents-manager-ai-chat' )->title );
+		$this->assertStringContainsString( 'aria-label="Agent"', $first->get_node( 'agents-manager-ai-chat' )->title );
 		$this->assertStringContainsString( 'aria-label="Demander a l IA"', $second->get_node( 'agents-manager-ai-chat' )->title );
 	}
 
 	/**
-	 * Tests that `meta.icon` is the same markup wp-admin renders, so the two cannot drift.
+	 * Tests that `meta.icon` names the glyph wp-admin renders, so the two cannot drift.
 	 *
-	 * @param string $id Node ID.
+	 * @param string $id            Node ID.
+	 * @param string $expected_name Glyph name the node is expected to advertise.
 	 * @dataProvider provide_icon_bearing_node_ids
 	 */
 	#[DataProvider( 'provide_icon_bearing_node_ids' )]
-	public function test_meta_icon_matches_the_rendered_icon( $id ) {
+	public function test_meta_icon_names_the_rendered_icon( $id, $expected_name ) {
 		$this->apply_admin_bar_context( array( 'unified' => true ) );
 
 		$node = $this->render_admin_bar()->get_node( $id );
 
 		$this->assertNotNull( $node );
-		$this->assertNotEmpty( $node->meta['icon'] ?? '' );
-		$this->assertStringContainsString( $node->meta['icon'], $node->title );
+		$this->assertSame( $expected_name, $node->meta['icon'] ?? '' );
+
+		// The name must resolve to the glyph wp-admin draws, so the two cannot drift.
+		$get_icon = new \ReflectionMethod( Agents_Manager::class, 'get_icon' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$get_icon->setAccessible( true );
+		}
+		$markup = $get_icon->invoke( Agents_Manager::get_instance(), $expected_name );
+
+		// `get_icon()` returns '' for a name it does not know, which would make the check below vacuous.
+		$this->assertNotSame( '', $markup );
+		$this->assertStringContainsString( $markup, $node->title );
 	}
 
 	/**
 	 * Data provider for the nodes that carry an icon.
 	 *
-	 * @return array<string, array{0: string}>
+	 * @return array<string, array{0: string, 1: string}>
 	 */
 	public static function provide_icon_bearing_node_ids() {
 		return array(
-			'help'            => array( 'agents-manager' ),
-			'ask ai'          => array( 'agents-manager-ai-chat' ),
-			'chat support'    => array( 'agents-manager-chat-support' ),
-			'chat history'    => array( 'agents-manager-chat-history' ),
-			'support guides'  => array( 'agents-manager-support-guides' ),
-			'courses'         => array( 'agents-manager-courses' ),
-			'product updates' => array( 'agents-manager-product-updates' ),
+			'help'            => array( 'agents-manager', 'help' ),
+			'ai chat'         => array( 'agents-manager-ai-chat', 'sparkle' ),
+			'chat support'    => array( 'agents-manager-chat-support', 'comment' ),
+			'chat history'    => array( 'agents-manager-chat-history', 'backup' ),
+			'support guides'  => array( 'agents-manager-support-guides', 'page' ),
+			'courses'         => array( 'agents-manager-courses', 'video' ),
+			'product updates' => array( 'agents-manager-product-updates', 'rss' ),
 		);
 	}
 
@@ -809,7 +862,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	 * It is API data, and core escapes it again when rendering the group's aria-label.
 	 */
 	public function test_menu_title_is_not_html_escaped() {
-		$filter = static fn( $translation, $text ) => 'Ask AI' === $text ? "L'IA" : $translation;
+		$filter = static fn( $translation, $text ) => 'Agent' === $text ? "L'IA" : $translation;
 		add_filter( 'gettext', $filter, 10, 2 );
 
 		global $wp_admin_bar;
@@ -824,9 +877,9 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Tests that Help is registered before Ask AI, matching the wp-admin admin bar order.
+	 * Tests that Help is registered before the AI chat button, matching the wp-admin admin bar order.
 	 */
-	public function test_help_node_is_registered_before_ask_ai() {
+	public function test_help_node_is_registered_before_the_ai_chat_button() {
 		$this->apply_admin_bar_context( array( 'unified' => true ) );
 
 		$ids = array_keys( $this->render_admin_bar()->get_nodes() ?? array() );
@@ -876,7 +929,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Tests that the full UI mount target belongs to Ask AI rather than Help.
+	 * Tests that the full UI mount target belongs to the AI chat button rather than Help.
 	 */
 	public function test_ai_chat_button_owns_full_ui_mount_target() {
 		global $wp_admin_bar;
@@ -895,6 +948,75 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		$this->assertNotNull( $ai_node );
 		$this->assertStringNotContainsString( 'agents-manager-masterbar', $help_node->meta['html'] ?? '' );
 		$this->assertStringContainsString( 'agents-manager-masterbar', $ai_node->meta['html'] ?? '' );
+	}
+
+	/**
+	 * Tests that the AI chat button renders the "Agent" label, pre-hidden only when
+	 * the cached state says the chat will restore visible.
+	 *
+	 * @dataProvider provide_cached_open_states
+	 *
+	 * @param array|null $cached_state  The user's cached open state, or null when unknown.
+	 * @param bool       $is_pre_hidden Whether the label is expected to start hidden.
+	 */
+	#[DataProvider( 'provide_cached_open_states' )]
+	public function test_ai_chat_button_pre_hides_the_agent_label_only_when_the_chat_will_restore_visible( $cached_state, $is_pre_hidden ) {
+		require_once ABSPATH . 'wp-includes/class-wp-admin-bar.php';
+		$wp_admin_bar = new \WP_Admin_Bar();
+		$wp_admin_bar->initialize();
+
+		if ( null !== $cached_state ) {
+			// The cached state is only read for a connected user.
+			$user_id = wp_insert_user(
+				array(
+					'user_login' => 'test_cached_state_user',
+					'user_pass'  => 'password',
+					'role'       => 'administrator',
+				)
+			);
+			wp_set_current_user( $user_id );
+			\Jetpack_Options::update_option( 'user_tokens', array( $user_id => 'test.token.' . $user_id ) );
+			set_transient( 'agents_manager_open_state_' . $user_id, $cached_state );
+		}
+
+		$this->agents_manager->add_ai_chat_button( $wp_admin_bar );
+
+		$node = $wp_admin_bar->get_node( 'agents-manager-ai-chat' );
+		$this->assertStringContainsString(
+			'<span class="agents-manager-ai-chat-label" aria-hidden="true"><span>Agent</span></span>',
+			$node->title
+		);
+		$this->assertSame( $is_pre_hidden ? 'is-chat-visible' : null, $node->meta['class'] ?? null );
+	}
+
+	/**
+	 * Cached open states and whether the label starts hidden for each.
+	 */
+	public static function provide_cached_open_states() {
+		return array(
+			'unknown'   => array( null, false ),
+			'closed'    => array(
+				array(
+					'agents_manager_open'      => false,
+					'agents_manager_minimized' => false,
+				),
+				false,
+			),
+			'open'      => array(
+				array(
+					'agents_manager_open'      => true,
+					'agents_manager_minimized' => false,
+				),
+				true,
+			),
+			'minimized' => array(
+				array(
+					'agents_manager_open'      => true,
+					'agents_manager_minimized' => true,
+				),
+				false,
+			),
+		);
 	}
 
 	/**
