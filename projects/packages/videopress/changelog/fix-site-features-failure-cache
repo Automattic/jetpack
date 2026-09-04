@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Remove process isolation from the features REST API tests now that a failed My Jetpack lookup no longer leaks across tests.
+
+

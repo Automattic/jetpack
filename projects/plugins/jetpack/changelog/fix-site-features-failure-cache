@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+My Jetpack: Stop offering upgrades for products the site already owns when a plan lookup fails.
