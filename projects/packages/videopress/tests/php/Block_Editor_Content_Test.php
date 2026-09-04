@@ -53,7 +53,7 @@ class Block_Editor_Content_Test extends BaseTestCase {
 
 		$html = Block_Editor_Content::videopress_embed_shortcode(
 			array(
-				'abcDEF12',
+				0         => 'abcDEF12',
 				'preload' => 'none',
 			)
 		);
@@ -68,7 +68,7 @@ class Block_Editor_Content_Test extends BaseTestCase {
 
 		$html = Block_Editor_Content::videopress_embed_shortcode(
 			array(
-				'abcDEF12',
+				0                => 'abcDEF12',
 				'preloadcontent' => 'metadata',
 			)
 		);
