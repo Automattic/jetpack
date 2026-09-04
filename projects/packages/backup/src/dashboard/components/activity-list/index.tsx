@@ -91,6 +91,29 @@ function MediaCell( { item }: { item: ActivityItem } ) {
 }
 
 /**
+ * Title cell — the visible summary, plus the timestamp for assistive tech.
+ *
+ * DataViews points the row's `aria-labelledby` at this cell alone, so without
+ * the date every row announces the same sentence and a screen-reader user
+ * cannot tell which restore point they are about to open, download or restore.
+ *
+ * @param props      - Component props.
+ * @param props.item - The activity item.
+ * @return The rendered title.
+ */
+function TitleCell( { item }: { item: ActivityItem } ) {
+	return (
+		<>
+			{ item.title }
+			{ /* JSX drops the newline, and the name computation adds nothing back. */ }{ ' ' }
+			<span className="jpb-visually-hidden">
+				{ dateI18n( 'M j, Y, g:i A', item.publishedAt, undefined ) }
+			</span>
+		</>
+	);
+}
+
+/**
  * Descriptions cell — single muted line with the timestamp + optional
  * summary, joined by a thin separator.
  *
@@ -204,6 +227,7 @@ export default function ActivityList( { selectedId, onSelect, view, onChangeView
 				id: 'title',
 				type: 'text',
 				label: __( 'Title', 'jetpack-backup-pkg' ),
+				render: TitleCell,
 				getValue: ( { item } ) => item.title,
 				enableSorting: false,
 				filterBy: false,
