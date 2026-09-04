@@ -15,9 +15,10 @@ class Article_Rating_Request_Test extends \WorDBless\BaseTestCase {
 	/**
 	 * Create a request client that captures the proxied request and returns the given response.
 	 *
+	 * The return type is left to inference so Phan knows about the anonymous class's `requests` property.
+	 *
 	 * @param int    $code Upstream HTTP status code.
 	 * @param string $body Upstream response body.
-	 * @return Wpcom_Request_Client
 	 */
 	private function create_request_client( $code, $body ) {
 		return new class( $code, $body ) implements Wpcom_Request_Client {
