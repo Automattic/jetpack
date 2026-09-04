@@ -57,7 +57,6 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 		$routes = rest_get_server()->get_routes();
 
 		remove_all_actions( 'rest_api_init' );
-		$wp_rest_server = null;
 
 		return $routes;
 	}
