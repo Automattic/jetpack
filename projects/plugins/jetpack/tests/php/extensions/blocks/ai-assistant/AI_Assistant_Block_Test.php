@@ -7,6 +7,7 @@
 
 use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Extensions\AIAssistant;
+use Automattic\Jetpack\Status\Cache as StatusCache;
 
 require_once JETPACK__PLUGIN_DIR . '/extensions/blocks/ai-assistant/ai-assistant.php';
 
@@ -91,7 +92,8 @@ class AI_Assistant_Block_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * The writing toggle prevents the block from registering.
+	 * The writing toggle prevents the block from registering and tells the
+	 * editor which setting is off, so it can show a placeholder for saved blocks.
 	 */
 	public function test_block_not_registered_when_writing_disabled() {
 		update_option( 'jetpack_ai_writing_assistant_enabled', 0 );
@@ -100,6 +102,74 @@ class AI_Assistant_Block_Test extends WP_UnitTestCase {
 		AIAssistant\register_block();
 
 		$this->assertFalse( Blocks::is_registered( self::BLOCK_NAME ) );
+
+		$availability = $this->get_block_availability();
+		$this->assertFalse( $availability['available'] );
+		$this->assertSame( 'ai_disabled', $availability['unavailable_reason'] );
+		$this->assertSame( array( 'gate' => 'writing_assistant' ), $availability['details'] );
+	}
+
+	/**
+	 * The master toggle reports itself as the gate, separately from the writing toggle.
+	 */
+	public function test_block_reports_master_gate_when_master_disabled() {
+		$this->force_master_enforcement_for_test();
+		$this->deactivate_ai_module_for_test();
+
+		AIAssistant\register_block();
+
+		$availability = $this->get_block_availability();
+		$this->assertFalse( $availability['available'] );
+		$this->assertSame( 'ai_disabled', $availability['unavailable_reason'] );
+		$this->assertSame( array( 'gate' => 'master' ), $availability['details'] );
+	}
+
+	/**
+	 * Offline mode keeps the generic reason: the block is missing for a reason
+	 * the AI settings placeholder must not claim as its own.
+	 */
+	public function test_block_keeps_generic_reason_in_offline_mode() {
+		remove_filter( 'jetpack_offline_mode', '__return_false' );
+		add_filter( 'jetpack_offline_mode', '__return_true' );
+		// Status caches the offline check per process, so drop the value set_up produced.
+		StatusCache::clear();
+
+		AIAssistant\register_block();
+
+		$availability = $this->get_block_availability();
+		$this->assertFalse( $availability['available'] );
+		$this->assertSame( 'missing_module', $availability['unavailable_reason'] );
+
+		remove_filter( 'jetpack_offline_mode', '__return_true' );
+		StatusCache::clear();
+	}
+
+	/**
+	 * Read the block's entry from the availability list the editor receives.
+	 *
+	 * Limits the list to this block and treats the site as connected so the
+	 * list is computed at all.
+	 *
+	 * @return array The block's availability entry.
+	 */
+	private function get_block_availability() {
+		$only_this_block = static function () {
+			return array( 'ai-assistant' );
+		};
+		add_filter( 'jetpack_set_available_extensions', $only_this_block, 1000 );
+		// Atomic (wpcomsh) test runs hook these at default priority, so run late.
+		add_filter( 'jetpack_is_connection_ready', '__return_true', 1000 );
+		add_filter( 'jetpack_gutenberg', '__return_true', 1000 );
+		// Other extensions re-registering here is noise for this test.
+		remove_all_actions( 'jetpack_register_gutenberg_extensions' );
+
+		$availability = Jetpack_Gutenberg::get_availability();
+
+		remove_filter( 'jetpack_set_available_extensions', $only_this_block, 1000 );
+		remove_filter( 'jetpack_is_connection_ready', '__return_true', 1000 );
+		remove_filter( 'jetpack_gutenberg', '__return_true', 1000 );
+
+		return $availability['ai-assistant'];
 	}
 
 	/**
