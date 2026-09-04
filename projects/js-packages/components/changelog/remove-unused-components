@@ -1,0 +1,4 @@
+Significance: major
+Type: removed
+
+Remove unused ContextualUpgradeTrigger, Dialog, JetpackProtectLogo, JetpackSearchLogo, JetpackVideoPressLogo, RadioControl, SplitButton, Status, ToggleControl, and ZendeskChat components.

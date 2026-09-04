@@ -14,10 +14,7 @@ along with this program; if not, see <https://www.gnu.org/licenses/>.
 */
 
 export { default as JetpackLogo } from './components/jetpack-logo/index.tsx';
-export { default as JetpackSearchLogo } from './components/jetpack-search-logo/index.tsx';
-export { default as JetpackProtectLogo } from './components/jetpack-protect-logo/index.tsx';
 export { default as JetpackVaultPressBackupLogo } from './components/jetpack-vaultpress-backup-logo/index.tsx';
-export { default as JetpackVideoPressLogo } from './components/jetpack-videopress-logo/index.tsx';
 export { default as getRedirectUrl } from './tools/jp-redirect/index.ts';
 export { default as getProductCheckoutUrl } from './tools/get-product-checkout-url/index.ts';
 export { isFirstMonthTrial } from './tools/pricing-utils/index.ts';
@@ -39,10 +36,8 @@ export { default as Testimonials } from './components/testimonials/index.tsx';
 export { default as Container } from './components/layout/container/index.tsx';
 export { default as CopyToClipboard } from './components/copy-to-clipboard/index.tsx';
 export * from './components/icons/index.tsx';
-export { default as SplitButton } from './components/split-button/index.tsx';
 export { default as ThemeProvider } from './components/theme-provider/index.tsx';
 export { default as Text, H2, H3, Title } from './components/text/index.tsx';
-export { default as ToggleControl } from './components/toggle-control/index.tsx';
 export { default as NumberControl } from './components/number-control/index.tsx';
 export { default as QRCode } from './components/qr-code/index.tsx';
 export { default as Button } from './components/button/index.tsx';
@@ -59,22 +54,17 @@ export { default as BoostScoreBar } from './components/boost-score-bar/index.tsx
 export { default as BoostScoreGraph } from './components/boost-score-graph/index.tsx';
 export { default as ProductPrice } from './components/product-price/index.tsx';
 export { default as ProductOffer, IconsCard } from './components/product-offer/index.tsx';
-export { default as Dialog } from './components/dialog/index.tsx';
 export { default as DotPager } from './components/dot-pager/index.tsx';
 export { default as DonutMeter } from './components/donut-meter/index.tsx';
 export { default as RecordMeterBar } from './components/record-meter-bar/index.tsx';
-export { default as ContextualUpgradeTrigger } from './components/contextual-upgrade-trigger/index.tsx';
 export { default as Alert } from './components/alert/index.tsx';
 export { default as Notice } from './components/notice/index.tsx';
 export { default as Popover } from './components/popover/index.tsx';
-export { default as Status } from './components/status/index.tsx';
 export { default as IndeterminateProgressBar } from './components/indeterminate-progress-bar/index.tsx';
 export { default as ActionPopover } from './components/action-popover/index.tsx';
-export { default as ZendeskChat } from './components/zendesk-chat/index.tsx';
 export { default as ProgressBar } from './components/progress-bar/index.tsx';
 export { default as UpsellBanner } from './components/upsell-banner/index.tsx';
 export { getUserLocale, cleanLocale } from './lib/locale/index.ts';
-export { default as RadioControl } from './components/radio-control/index.tsx';
 export { default as StatCard } from './components/stat-card/index.tsx';
 export { default as DiffViewer } from './components/diff-viewer/index.tsx';
 export { default as MarkedLines } from './components/marked-lines/index.tsx';
