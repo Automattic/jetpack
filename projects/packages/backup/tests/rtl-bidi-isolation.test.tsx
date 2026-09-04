@@ -1,4 +1,4 @@
-/* eslint jest/expect-expect: [ "warn", { assertFunctionNames: [ "expect", "expectIsolated" ] } ] */
+/* eslint jest/expect-expect: [ "warn", { assertFunctionNames: [ "expect", "expectIsolated", "expectBidiIsolated" ] } ] */
 
 const mockApiFetch = jest.fn();
 
@@ -66,7 +66,7 @@ const ACTIVITY_ITEM: NonBackupActivityItem = {
 	kind: 'plugin-update',
 	title: 'Plugin updated',
 	publishedAt: '2026-08-13T18:08:56+00:00',
-	actor: { type: 'Person', name: 'Bob Sacramento' },
+	actor: { type: 'Person', name: 'أحمد Smith' },
 	summary: STATS,
 };
 
@@ -81,6 +81,18 @@ const ACTIVITY_ITEM: NonBackupActivityItem = {
  */
 function expectIsolated( text: string, expected: 'ltr' | 'auto' ): void {
 	expect( screen.getByText( text ) ).toHaveAttribute( 'dir', expected );
+}
+
+/**
+ * Assert that the element directly owning `text` is a `<bdi>`.
+ *
+ * No fixed `dir` can stand in: a display name's direction is per-value and
+ * unknown, and `<bdi>` alone isolates it while still letting it resolve.
+ *
+ * @param text - The exact rendered string.
+ */
+function expectBidiIsolated( text: string ): void {
+	expect( screen.getByText( text ).tagName ).toBe( 'BDI' );
 }
 
 beforeEach( () => {
@@ -217,5 +229,27 @@ describe( 'bidi isolation on LTR data', () => {
 		await expect( screen.findByText( SOURCE ) ).resolves.toBeInTheDocument();
 
 		expectIsolated( SOURCE, 'ltr' );
+	} );
+} );
+
+describe( 'bidi isolation on names of unknown direction', () => {
+	it( 'isolates the actor name interpolated into the backup detail sentence', () => {
+		mockApiFetch.mockResolvedValue( {} );
+
+		const { container } = render(
+			<QueryClientProvider>
+				<BackupDetail item={ BACKUP_ITEM } />
+			</QueryClientProvider>
+		);
+
+		expectBidiIsolated( BACKUP_ITEM.actor.name );
+		// Isolating the name must not cost the sentence built around it.
+		expect( container ).toHaveTextContent( `by ${ BACKUP_ITEM.actor.name }` );
+	} );
+
+	it( 'isolates the actor name on the non-backup detail pane', () => {
+		render( <ActivityDetail item={ ACTIVITY_ITEM } /> );
+
+		expectBidiIsolated( ACTIVITY_ITEM.actor.name );
 	} );
 } );
