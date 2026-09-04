@@ -87,6 +87,27 @@ abstract class Product {
 	const MY_JETPACK_SITE_FEATURES_TRANSIENT_KEY = 'my-jetpack-site-features';
 
 	/**
+	 * How long, in seconds, a site features lookup is reused before WPCOM is asked again
+	 *
+	 * @var int
+	 */
+	const MY_JETPACK_SITE_FEATURES_CACHE_DURATION = 15;
+
+	/**
+	 * A failed site features lookup, kept so one outage does not fire a request per product
+	 *
+	 * @var WP_Error|null
+	 */
+	private static $site_features_failure = null;
+
+	/**
+	 * Unix time at which the memoized failure above stops being used
+	 *
+	 * @var int
+	 */
+	private static $site_features_failure_expires = 0;
+
+	/**
 	 * Whether this module is a Jetpack feature
 	 *
 	 * @var boolean
@@ -317,24 +338,23 @@ abstract class Product {
 	 * @return WP_Error|array
 	 */
 	public static function get_site_features_from_wpcom() {
-		static $features = null;
-
-		if ( $features !== null ) {
-			return $features;
-		}
-
-		// Check for a cached value before doing lookup
+		// Read the cache first, so a memoized failure can never outrank a warm lookup.
 		$stored_features = get_transient( self::MY_JETPACK_SITE_FEATURES_TRANSIENT_KEY );
 		if ( $stored_features !== false ) {
 			return $stored_features;
+		}
+
+		if ( self::$site_features_failure !== null && time() < self::$site_features_failure_expires ) {
+			return self::$site_features_failure;
 		}
 
 		$site_id  = Jetpack_Options::get_option( 'id' );
 		$response = Client::wpcom_json_api_request_as_blog( sprintf( '/sites/%d/features', $site_id ), '1.1' );
 
 		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
-			$features = new WP_Error( 'site_features_fetch_failed' );
-			return $features;
+			self::$site_features_failure         = new WP_Error( 'site_features_fetch_failed' );
+			self::$site_features_failure_expires = time() + self::MY_JETPACK_SITE_FEATURES_CACHE_DURATION;
+			return self::$site_features_failure;
 		}
 
 		$body           = wp_remote_retrieve_body( $response );
@@ -344,10 +364,21 @@ abstract class Product {
 			'active'    => $feature_return->active,
 			'available' => $feature_return->available,
 		);
+
 		// set a short transient to help with multiple lookups on the same page load.
-		set_transient( self::MY_JETPACK_SITE_FEATURES_TRANSIENT_KEY, $features, 15 );
+		set_transient( self::MY_JETPACK_SITE_FEATURES_TRANSIENT_KEY, $features, self::MY_JETPACK_SITE_FEATURES_CACHE_DURATION );
 
 		return $features;
+	}
+
+	/**
+	 * Forget a memoized failed site features lookup so the next call asks WPCOM again.
+	 *
+	 * @return void
+	 */
+	public static function reset_site_features_failure() {
+		self::$site_features_failure         = null;
+		self::$site_features_failure_expires = 0;
 	}
 
 	/**
