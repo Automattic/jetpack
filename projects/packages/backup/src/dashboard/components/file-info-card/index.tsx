@@ -73,7 +73,7 @@ export default function FileInfoCard( { file, onClose }: Props ) {
 				justify="space-between"
 				className="jpb-file-info-card__header"
 			>
-				<Text variant="heading-sm" render={ <h3 /> }>
+				<Text variant="heading-md" render={ <h3 /> }>
 					{ /* A filename is LTR data even on an RTL page. */ }
 					<span dir="ltr">{ file.name }</span>
 				</Text>
