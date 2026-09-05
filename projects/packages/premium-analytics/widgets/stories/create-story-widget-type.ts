@@ -1,7 +1,7 @@
 /**
  * WordPress dependencies
  */
-import type { WidgetType } from '@wordpress/widget-primitives';
+import type { WidgetActionRecord, WidgetRelevance, WidgetType } from '@wordpress/widget-primitives';
 
 /**
  * Identity and declarative metadata a widget authors in `widget.json` — the
@@ -20,21 +20,12 @@ export interface StoryWidgetManifest {
 }
 
 /**
- * An action as authored in `widget.json`: the wire shape, with `icon` as a
- * registered icon name the story cannot resolve and `relevance` widened to
- * `string` by the JSON import.
+ * An action as authored in `widget.json`: the wire shape, with `relevance`
+ * widened to `string` by the JSON import.
  */
-interface StoryWidgetManifestAction {
-	id: string;
-	label: string;
-	href: string;
-	icon?: string;
+type StoryWidgetManifestAction = Omit< WidgetActionRecord, 'relevance' > & {
 	relevance?: string;
-	download?: string | boolean;
-	openInNewTab?: boolean;
-}
-
-type StoryWidgetAction = NonNullable< WidgetType[ 'actions' ] >[ number ];
+};
 
 /**
  * Runtime-only fields a widget declares in `widget.ts` (its default export):
@@ -88,14 +79,9 @@ export function createStoryWidgetType(
 					// Mirrors useWidgetTypes: an icon reference only reaches the
 					// host once resolved, and the story has no resolver.
 					actions: manifest.actions.map( action => ( {
-						id: action.id,
-						label: action.label,
-						href: action.href,
-						...( action.relevance
-							? { relevance: action.relevance as StoryWidgetAction[ 'relevance' ] }
-							: {} ),
-						...( action.download !== undefined ? { download: action.download } : {} ),
-						...( action.openInNewTab !== undefined ? { openInNewTab: action.openInNewTab } : {} ),
+						...action,
+						icon: undefined,
+						relevance: action.relevance as WidgetRelevance | undefined,
 					} ) ),
 			  }
 			: {} ),
