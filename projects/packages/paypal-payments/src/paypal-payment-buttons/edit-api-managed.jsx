@@ -899,13 +899,32 @@ export default function ApiManagedEdit( { attributes, setAttributes, clientId: b
 						disabled={ isCreating }
 					/>
 				</PanelBody>
+				<PanelBody
+					title={ __( 'Button Appearance', 'jetpack-paypal-payments' ) }
+					initialOpen={ false }
+				>
+					<TextControl
+						label={ __( 'Button Text', 'jetpack-paypal-payments' ) }
+						value={ buttonText || '' }
+						onChange={ value => setAttributes( { buttonText: value } ) }
+						disabled={ isCreating }
+					/>
+					<ToggleControl
+						label={ __( 'Show QR code', 'jetpack-paypal-payments' ) }
+						help={ __(
+							'Display a QR code below the button for in-person sharing.',
+							'jetpack-paypal-payments'
+						) }
+						checked={ attributes.showQrCode !== false }
+						onChange={ value => setAttributes( { showQrCode: value } ) }
+						disabled={ isCreating }
+					/>
+				</PanelBody>
 			</InspectorControls>
 			{ inspectorControls }
 
 			<ProductForm
-				attributes={ attributes }
 				setAttributes={ setAttributes }
-				buttonText={ buttonText }
 				activeFormat={ activeFormat }
 				isConnected={ isConnected }
 				environment={ environment }
