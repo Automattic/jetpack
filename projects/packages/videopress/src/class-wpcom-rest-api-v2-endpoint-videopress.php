@@ -276,6 +276,10 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 							'description' => __( 'If embedded players should wait for playback before preloading video data', 'jetpack-videopress-pkg' ),
 							'type'        => 'boolean',
 						),
+						'videopress_inline_player_enabled' => array(
+							'description' => __( 'If videos should render an inline player from one shared script instead of one frame per video', 'jetpack-videopress-pkg' ),
+							'type'        => 'boolean',
+						),
 					),
 				),
 			)
@@ -348,6 +352,7 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 		$private_for_site        = $request->get_param( 'videopress_videos_private_for_site' );
 		$auto_subtitles_disabled = $request->get_param( 'videopress_auto_subtitles_disabled' );
 		$player_preload_disabled = $request->get_param( 'videopress_player_preload_disabled' );
+		$inline_player_enabled   = $request->get_param( 'videopress_inline_player_enabled' );
 
 		$ignored = array();
 
@@ -372,6 +377,10 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 
 		if ( null !== $player_preload_disabled ) {
 			update_option( 'videopress_player_preload_disabled', $player_preload_disabled );
+		}
+
+		if ( null !== $inline_player_enabled ) {
+			update_option( 'videopress_inline_player_enabled', $inline_player_enabled );
 		}
 
 		$response = array(

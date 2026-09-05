@@ -122,6 +122,30 @@ class Block_Editor_Content {
 			$height = absint( $atts['h'] );
 		}
 
+		if ( Inline_Player::is_enabled() ) {
+			$player = Inline_Player::render(
+				$guid,
+				Inline_Player::get_player_options(
+					array(
+						'autoplay'        => $atts['autoplay'],
+						'loop'            => $atts['loop'],
+						'muted'           => $atts['muted'],
+						'controls'        => $atts['controls'],
+						'playsinline'     => $atts['playsinline'],
+						'useAverageColor' => $atts['useaveragecolor'],
+						'preload'         => $atts['preloadcontent'],
+						'cover'           => $atts['cover'],
+						'at'              => $atts['at'],
+					)
+				),
+				$width > 0 ? ( $height / $width ) * 100 : null
+			);
+
+			return '<figure class="wp-block-videopress-video wp-block-jetpack-videopress jetpack-videopress-player">' .
+				'<div class="jetpack-videopress-player__wrapper">' . $player . '</div>' .
+			'</figure>';
+		}
+
 		$cover = $atts['cover'] ? ' data-resize-to-parent="true"' : '';
 
 		$block_template =
