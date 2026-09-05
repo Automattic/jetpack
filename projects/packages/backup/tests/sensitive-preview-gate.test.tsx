@@ -22,11 +22,12 @@ jest.mock( '@wordpress/api-fetch', () => ( {
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import FileInfoCard from '../src/dashboard/components/file-info-card';
+import FileInfoDialog from '../src/dashboard/components/file-info-dialog';
 import { queryClient } from '../src/dashboard/data/query-client';
 import QueryClientProvider from '../src/dashboard/providers/query-client-provider';
 import type { FileNodeFile } from '../src/dashboard/types/file-tree';
 
-/** Closing is irrelevant to these assertions; the card renders regardless. */
+/** Closing is irrelevant to these assertions; both chromes render regardless. */
 const noop = () => {};
 
 // Not a real credential — a marker whose only job is to be searched for.
@@ -108,6 +109,20 @@ function renderCard( file: FileNodeFile ) {
 	return render(
 		<QueryClientProvider>
 			<FileInfoCard file={ file } onClose={ noop } />
+		</QueryClientProvider>
+	);
+}
+
+/**
+ * Render one file's dialog, the chrome a panel too narrow for the card uses.
+ *
+ * @param file - The file node to open.
+ * @return The Testing Library render result.
+ */
+function renderDialog( file: FileNodeFile ) {
+	return render(
+		<QueryClientProvider>
+			<FileInfoDialog file={ file } onClose={ noop } />
 		</QueryClientProvider>
 	);
 }
@@ -353,5 +368,39 @@ describe( 'sensitive preview gate', () => {
 		await expect( screen.findByText( HIDDEN ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByText( SECRET ) ).not.toBeInTheDocument();
 		expect( fetchedContent() ).toBe( false );
+	} );
+
+	// The dialog shares only `useFileInfo` with the card, so the two surfaces
+	// can diverge without either one failing.
+	describe( 'the dialog chrome', () => {
+		it( 'gates a sensitive file there too, and still withholds the fetch', async () => {
+			mockEndpoints( SECRET );
+
+			renderDialog( WP_CONFIG );
+
+			// The heading level is what separates the two chromes; without it
+			// `HIDDEN` alone would pass for a dialog delegating to the card.
+			await expect( screen.findByRole( 'dialog' ) ).resolves.toBeInTheDocument();
+			expect(
+				screen.getByRole( 'heading', { level: 2, name: 'wp-config.php' } )
+			).toBeInTheDocument();
+
+			expect( screen.getByText( HIDDEN ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'button', { name: SHOW } ) ).toBeInTheDocument();
+			expect( screen.queryByText( SECRET ) ).not.toBeInTheDocument();
+			expect( fetchedContent() ).toBe( false );
+		} );
+
+		it( 'reveals on a second click and hands focus to the preview, as the card does', async () => {
+			mockEndpoints( SECRET );
+
+			renderDialog( WP_CONFIG );
+			await userEvent.click( await screen.findByRole( 'button', { name: SHOW } ) );
+
+			await expect( screen.findByText( SECRET ) ).resolves.toBeInTheDocument();
+			await waitFor( () =>
+				expect( screen.getByRole( 'region', { name: /Preview of wp-config.php/ } ) ).toHaveFocus()
+			);
+		} );
 	} );
 } );
