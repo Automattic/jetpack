@@ -334,6 +334,12 @@ describe( 'switching the new Traffic tab off', () => {
 		expect( dialog ).toHaveTextContent(
 			"You'll go back to your current Stats. You can switch the new Traffic tab on again from the banner there."
 		);
+		// The reason is asked for, never required: the button is live with nothing filled in.
+		expect( within( dialog ).getByRole( 'radiogroup' ) ).toBeInTheDocument();
+		expect(
+			within( dialog ).getByRole( 'textbox', { name: 'What made you switch it off?' } )
+		).toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: 'Switch it off' } ) ).toBeEnabled();
 		expect( mockApiFetch ).not.toHaveBeenCalled();
 
 		await user.click( screen.getByRole( 'button', { name: 'Cancel' } ) );
@@ -355,14 +361,61 @@ describe( 'switching the new Traffic tab off', () => {
 			method: 'POST',
 			data: { jetpack_premium_analytics_enabled: false },
 		} );
+		// Nothing filled in: the event carries no reason, and Happiness hears nothing.
 		expect( mockRecordEvent ).toHaveBeenCalledWith(
 			'jetpack_premium_analytics_preview_disable',
-			undefined
+			{}
 		);
+		expect( mockApiFetch ).toHaveBeenCalledTimes( 1 );
 		// The beacon goes out ahead of the write, so the navigation cannot cut it short.
 		expect( mockRecordEvent.mock.invocationCallOrder[ 0 ] ).toBeLessThan(
 			mockApiFetch.mock.invocationCallOrder[ 0 ]
 		);
+	} );
+
+	it( 'carries the reason on the event and hands the comment to Happiness', async () => {
+		const user = await openConfirmation();
+
+		await user.click( screen.getByRole( 'radio', { name: 'A bit worse' } ) );
+		await user.type( screen.getByRole( 'textbox' ), '  Too slow on my phone  ' );
+		await user.click( screen.getByRole( 'button', { name: 'Switch it off' } ) );
+
+		await waitFor( () => expect( mockReturnToClassicStats ).toHaveBeenCalledTimes( 1 ) );
+		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_premium_analytics_preview_disable', {
+			rating: 2,
+			comment: 'Too slow on my phone',
+		} );
+		expect( mockApiFetch ).toHaveBeenCalledWith(
+			expect.objectContaining( {
+				path: '/jetpack-premium-analytics/v1/proxy/v2/jetpack-stats/user-feedback',
+				method: 'POST',
+				data: expect.objectContaining( {
+					product_name: 'Jetpack Stats v2 (switched off)',
+					feedback: 'Too slow on my phone',
+					rating: 2,
+				} ),
+			} )
+		);
+		expect( mockApiFetch ).toHaveBeenCalledWith(
+			expect.objectContaining( { path: '/wp/v2/settings' } )
+		);
+	} );
+
+	it( 'still switches off when Happiness is unreachable', async () => {
+		mockApiFetch.mockImplementation( ( { path }: { path: string } ) =>
+			path.includes( 'user-feedback' )
+				? Promise.reject( new Error( 'throttled' ) )
+				: Promise.resolve( 'success' )
+		);
+		const user = await openConfirmation();
+
+		await user.type( screen.getByRole( 'textbox' ), 'No comparison on the map' );
+		await user.click( screen.getByRole( 'button', { name: 'Switch it off' } ) );
+
+		await waitFor( () => expect( mockReturnToClassicStats ).toHaveBeenCalledTimes( 1 ) );
+		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_premium_analytics_preview_disable', {
+			comment: 'No comparison on the map',
+		} );
 	} );
 
 	it( 'keeps the reader here when the write fails', async () => {
