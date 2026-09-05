@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\PaypalPayments;
 
+use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
@@ -19,10 +20,37 @@ use PHPUnit\Framework\TestCase;
 class PayPal_Email_Sender_Test extends TestCase {
 
 	/**
+	 * Per-flag filter that forces the API-managed buttons on.
+	 */
+	private const FLAG_FILTER = 'jetpack_feature_flag_enabled_' . PayPal_Payment_Buttons::API_MANAGED_BUTTONS_FLAG;
+
+	public function test_maybe_init_does_nothing_while_the_flag_is_off() {
+		remove_all_actions( 'wp_ajax_' . PayPal_Email_Sender::AJAX_ACTION );
+
+		PayPal_Email_Sender::maybe_init();
+
+		$this->assertFalse( has_action( 'wp_ajax_' . PayPal_Email_Sender::AJAX_ACTION, array( PayPal_Email_Sender::class, 'handle_send' ) ) );
+	}
+
+	public function test_maybe_init_hooks_up_while_the_flag_is_on() {
+		remove_all_actions( 'wp_ajax_' . PayPal_Email_Sender::AJAX_ACTION );
+		add_filter( self::FLAG_FILTER, '__return_true' );
+
+		PayPal_Email_Sender::maybe_init();
+
+		$this->assertNotFalse( has_action( 'wp_ajax_' . PayPal_Email_Sender::AJAX_ACTION, array( PayPal_Email_Sender::class, 'handle_send' ) ) );
+
+		remove_all_actions( 'wp_ajax_' . PayPal_Email_Sender::AJAX_ACTION );
+	}
+
+	/**
 	 * Clean up after each test.
 	 */
 	protected function tearDown(): void {
 		parent::tearDown();
+
+		remove_all_filters( self::FLAG_FILTER );
+		Feature_Flags::reset();
 
 		delete_option( PayPal_Email_Sender::LOG_OPTION_KEY );
 		wp_set_current_user( 0 );

@@ -60,6 +60,9 @@ class PayPal_Payment_Buttons {
 	 * @return void
 	 */
 	public function init_hooks() {
+		// The API-managed buttons ship behind a flag; register it before anything reads it.
+		Jetpack_PayPal_Payment_Buttons::register_feature_flags();
+
 		// Register standalone script stubs for Jetpack dependencies not available outside the monorepo.
 		add_action( 'init', array( $this, 'register_standalone_script_stubs' ), 1 );
 
@@ -160,11 +163,14 @@ class PayPal_Payment_Buttons {
 			return false;
 		}
 
+		Jetpack_PayPal_Payment_Buttons::register_block_style();
+
 		// Register the block using the Blocks package with the correct dist path
 		Blocks::jetpack_register_block(
 			$dist_dir,
 			array(
 				'render_callback' => array( Jetpack_PayPal_Payment_Buttons::class, 'render_block' ),
+				'style'           => Jetpack_PayPal_Payment_Buttons::STYLE_HANDLE,
 			)
 		);
 	}
@@ -190,6 +196,7 @@ class PayPal_Payment_Buttons {
 					'available' => true,
 				),
 			),
+			'feature_flags'    => Jetpack_PayPal_Payment_Buttons::add_editor_feature_flags( array() ),
 		);
 
 		wp_localize_script(

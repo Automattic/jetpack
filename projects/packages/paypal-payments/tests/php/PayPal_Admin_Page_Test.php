@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\PaypalPayments;
 
+use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
@@ -19,10 +20,37 @@ use PHPUnit\Framework\TestCase;
 class PayPal_Admin_Page_Test extends TestCase {
 
 	/**
+	 * Per-flag filter that forces the API-managed buttons on.
+	 */
+	private const FLAG_FILTER = 'jetpack_feature_flag_enabled_' . PayPal_Payment_Buttons::API_MANAGED_BUTTONS_FLAG;
+
+	public function test_maybe_init_does_nothing_while_the_flag_is_off() {
+		remove_all_actions( 'admin_menu' );
+
+		PayPal_Admin_Page::maybe_init();
+
+		$this->assertFalse( has_action( 'admin_menu', array( PayPal_Admin_Page::class, 'register_menu' ) ) );
+	}
+
+	public function test_maybe_init_hooks_up_while_the_flag_is_on() {
+		remove_all_actions( 'admin_menu' );
+		add_filter( self::FLAG_FILTER, '__return_true' );
+
+		PayPal_Admin_Page::maybe_init();
+
+		$this->assertNotFalse( has_action( 'admin_menu', array( PayPal_Admin_Page::class, 'register_menu' ) ) );
+
+		remove_all_actions( 'admin_menu' );
+	}
+
+	/**
 	 * Clean up after each test.
 	 */
 	protected function tearDown(): void {
 		parent::tearDown();
+
+		remove_all_filters( self::FLAG_FILTER );
+		Feature_Flags::reset();
 
 		delete_option( PayPal_OAuth::CREDENTIALS_OPTION_KEY );
 		delete_option( PayPal_OAuth::ENVIRONMENT_OPTION_KEY );

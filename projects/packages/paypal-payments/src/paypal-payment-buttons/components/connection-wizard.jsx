@@ -322,7 +322,9 @@ export default function ConnectionWizard( {
 									? undefined
 									: __( 'Found under your app name in the dashboard.', 'jetpack-paypal-payments' )
 							}
-							className={ clientIdWarning ? 'has-warning' : undefined }
+							className={
+								clientIdWarning ? 'jetpack-paypal-payment-buttons__has-warning' : undefined
+							}
 							autoComplete="off"
 						/>
 						{ clientIdWarning && (

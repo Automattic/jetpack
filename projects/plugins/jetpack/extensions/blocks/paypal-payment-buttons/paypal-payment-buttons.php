@@ -13,6 +13,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
 
+// The API-managed buttons ship behind a flag; register it before anything reads it.
+PayPal_Payment_Buttons::register_feature_flags();
+add_filter( 'jetpack_block_editor_feature_flags', array( PayPal_Payment_Buttons::class, 'add_editor_feature_flags' ) );
+
 // Register the block.
 add_action( 'init', array( PayPal_Payment_Buttons::class, 'register_block' ), 9 );
 
@@ -23,7 +27,7 @@ add_action( 'init', array( PayPal_Payment_Buttons::class, 'register_block' ), 9 
  *
  * Only the routes: init_api() would also register the standalone script stubs, which
  * exist for hosts without the Jetpack runtime and would shadow Jetpack's own
- * jetpack-script-data handle.
+ * jetpack-script-data handle. Both this and init_admin() no-op while the flag is off.
  */
 PayPal_Payment_Buttons::init_rest_api();
 

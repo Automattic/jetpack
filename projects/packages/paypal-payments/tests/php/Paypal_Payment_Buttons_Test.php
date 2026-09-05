@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\PaypalPayments;
 
+use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -30,6 +31,142 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 		$wp_scripts = null;
 
 		\WP_Block_Supports::$block_to_render = null;
+
+		remove_all_filters( self::FLAG_FILTER );
+		Feature_Flags::reset();
+	}
+
+	/**
+	 * Per-flag filter that forces the API-managed buttons on.
+	 */
+	private const FLAG_FILTER = 'jetpack_feature_flag_enabled_' . PayPal_Payment_Buttons::API_MANAGED_BUTTONS_FLAG;
+
+	/**
+	 * Register the PayPal routes the way production does -- on rest_api_init --
+	 * and return the resulting route table.
+	 *
+	 * @return array The REST server's route table.
+	 */
+	private function build_rest_routes() {
+		global $wp_rest_server;
+		$wp_rest_server = null;
+
+		remove_all_actions( 'rest_api_init' );
+		PayPal_Payment_Buttons::init_rest_api();
+
+		$routes = rest_get_server()->get_routes();
+
+		remove_all_actions( 'rest_api_init' );
+
+		return $routes;
+	}
+
+	public function test_feature_flag_registers_off_by_default() {
+		Feature_Flags::reset();
+
+		PayPal_Payment_Buttons::register_feature_flags();
+
+		$definition = Feature_Flags::get( PayPal_Payment_Buttons::API_MANAGED_BUTTONS_FLAG );
+		$this->assertIsArray( $definition );
+		$this->assertFalse( $definition['default'] );
+		$this->assertFalse( PayPal_Payment_Buttons::is_api_managed_enabled() );
+	}
+
+	public function test_is_api_managed_enabled_honours_the_flag_filter() {
+		PayPal_Payment_Buttons::register_feature_flags();
+		add_filter( self::FLAG_FILTER, '__return_true' );
+
+		$this->assertTrue( PayPal_Payment_Buttons::is_api_managed_enabled() );
+	}
+
+	public function test_add_editor_feature_flags_reports_the_flag_state() {
+		PayPal_Payment_Buttons::register_feature_flags();
+
+		$flags = PayPal_Payment_Buttons::add_editor_feature_flags( array( 'other-flag' => true ) );
+		$this->assertSame(
+			array(
+				'other-flag' => true,
+				PayPal_Payment_Buttons::API_MANAGED_BUTTONS_FLAG => false,
+			),
+			$flags
+		);
+
+		add_filter( self::FLAG_FILTER, '__return_true' );
+
+		$flags = PayPal_Payment_Buttons::add_editor_feature_flags( array() );
+		$this->assertTrue( $flags[ PayPal_Payment_Buttons::API_MANAGED_BUTTONS_FLAG ] );
+	}
+
+	public function test_register_rest_routes_registers_nothing_while_the_flag_is_off() {
+		PayPal_Payment_Buttons::register_feature_flags();
+
+		$routes = $this->build_rest_routes();
+
+		$this->assertArrayNotHasKey( '/wpcom/v2/paypal/connection', $routes );
+		$this->assertArrayNotHasKey( '/wpcom/v2/paypal/buttons', $routes );
+	}
+
+	public function test_register_rest_routes_registers_the_routes_while_the_flag_is_on() {
+		PayPal_Payment_Buttons::register_feature_flags();
+		add_filter( self::FLAG_FILTER, '__return_true' );
+
+		$routes = $this->build_rest_routes();
+
+		$this->assertArrayHasKey( '/wpcom/v2/paypal/connection', $routes );
+		$this->assertArrayHasKey( '/wpcom/v2/paypal/buttons', $routes );
+	}
+
+	/**
+	 * A stacked button saved under the old schema carries no buttonType: Gutenberg
+	 * drops attributes equal to the default, and the default was 'stacked' then.
+	 */
+	public function test_a_legacy_stacked_button_still_renders_the_sdk_widget() {
+		register_block_type_from_metadata(
+			dirname( __DIR__, 2 ) . '/src/paypal-payment-buttons',
+			array( 'render_callback' => array( PayPal_Payment_Buttons::class, 'render_block' ) )
+		);
+
+		$html = do_blocks( '<!-- wp:jetpack/paypal-payment-buttons {"scriptSrc":"https://www.paypal.com/sdk/js?client-id=TEST&components=hosted-buttons","hostedButtonId":"ABC123XYZ"} /-->' );
+
+		unregister_block_type( 'jetpack/paypal-payment-buttons' );
+
+		$this->assertStringContainsString( 'paypal-container-ABC123XYZ', $html );
+		$this->assertStringNotContainsString( '/ncp/payment/', $html );
+	}
+
+	public function test_init_admin_registers_nothing_while_the_flag_is_off() {
+		remove_all_actions( 'init' );
+		remove_all_actions( 'admin_menu' );
+		remove_all_actions( 'wp_ajax_' . PayPal_Email_Sender::AJAX_ACTION );
+
+		PayPal_Payment_Buttons::init_admin();
+		$this->assertTrue( has_action( 'init' ) );
+
+		do_action( 'init' );
+
+		$this->assertFalse( has_action( 'admin_menu', array( PayPal_Admin_Page::class, 'register_menu' ) ) );
+		$this->assertFalse( has_action( 'wp_ajax_' . PayPal_Email_Sender::AJAX_ACTION, array( PayPal_Email_Sender::class, 'handle_send' ) ) );
+
+		remove_all_actions( 'init' );
+	}
+
+	public function test_init_admin_wires_the_admin_page_up_once_the_flag_is_on() {
+		remove_all_actions( 'init' );
+		remove_all_actions( 'admin_menu' );
+		remove_all_actions( 'wp_ajax_' . PayPal_Email_Sender::AJAX_ACTION );
+
+		PayPal_Payment_Buttons::register_feature_flags();
+		add_filter( self::FLAG_FILTER, '__return_true' );
+
+		PayPal_Payment_Buttons::init_admin();
+		do_action( 'init' );
+
+		$this->assertNotFalse( has_action( 'admin_menu', array( PayPal_Admin_Page::class, 'register_menu' ) ) );
+		$this->assertNotFalse( has_action( 'wp_ajax_' . PayPal_Email_Sender::AJAX_ACTION, array( PayPal_Email_Sender::class, 'handle_send' ) ) );
+
+		remove_all_actions( 'init' );
+		remove_all_actions( 'admin_menu' );
+		remove_all_actions( 'wp_ajax_' . PayPal_Email_Sender::AJAX_ACTION );
 	}
 
 	/**
@@ -279,7 +416,7 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 		PayPal_Payment_Buttons::init_rest_api();
 
 		$this->assertNotFalse(
-			has_action( 'rest_api_init', array( PayPal_REST_Controller::class, 'register_routes' ) )
+			has_action( 'rest_api_init', array( PayPal_Payment_Buttons::class, 'register_rest_routes' ) )
 		);
 
 		remove_all_actions( 'rest_api_init' );

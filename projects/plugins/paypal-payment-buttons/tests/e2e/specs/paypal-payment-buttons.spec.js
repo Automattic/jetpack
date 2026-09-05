@@ -1,4 +1,6 @@
 /* eslint-disable playwright/no-wait-for-selector, playwright/no-conditional-in-test, playwright/no-conditional-expect, playwright/no-wait-for-timeout, playwright/no-force-option, no-undef */
+// Needs the `paypal-payments-api-managed-buttons` flag on, which the
+// e2e-paypal-feature-flag helper plugin (activated by `pnpm env:up`) provides.
 /**
  * PayPal Payment Buttons — E2E Tests (Playwright).
  *
