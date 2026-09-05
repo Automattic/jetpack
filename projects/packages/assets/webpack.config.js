@@ -1,6 +1,19 @@
 const path = require( 'path' );
 const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpack' );
 
+/*
+ * Babel options that rewrite every bundled string's textdomain to jetpack-assets
+ * (see the shared-stores entry below for why).
+ */
+const sharedStoresBabelOpts = {
+	presets: [
+		[
+			require.resolve( '@automattic/jetpack-webpack-config/babel/preset' ),
+			{ pluginReplaceTextdomain: { textdomain: 'jetpack-assets' } },
+		],
+	],
+};
+
 const sharedConfig = {
 	mode: jetpackWebpackConfig.mode,
 	devtool: jetpackWebpackConfig.devtool,
@@ -72,14 +85,21 @@ module.exports = [
 				},
 			},
 		},
-		// Transpile the bundled @automattic/jetpack-shared-stores source (it ships as
-		// untranspiled TS/JS), in addition to the default node_modules-excluding rule.
+		/*
+		 * Transpile the bundled @automattic/jetpack-shared-stores source (it ships as
+		 * untranspiled TS/JS), in addition to the default node_modules-excluding rule.
+		 * Rewrite every bundled string's textdomain to jetpack-assets: this bundle is
+		 * shipped by the assets package, so its strings translate through that domain
+		 * (matching the I18nCheckPlugin/I18nLoaderPlugin defaults and the script handle's
+		 * registered textdomain). Source keeps each package's own domain for linting.
+		 */
 		module: {
 			strictExportPresence: true,
 			rules: [
-				jetpackWebpackConfig.TranspileRule(),
+				jetpackWebpackConfig.TranspileRule( { babelOpts: sharedStoresBabelOpts } ),
 				jetpackWebpackConfig.TranspileRule( {
 					includeNodeModules: [ '@automattic/jetpack-' ],
+					babelOpts: sharedStoresBabelOpts,
 				} ),
 			],
 		},
@@ -87,8 +107,10 @@ module.exports = [
 			...jetpackWebpackConfig.StandardPlugins( {
 				DependencyExtractionPlugin: {
 					requestMap: {
-						// We don't want to externalize this package, we rather want to bundle it.
+						// We don't want to externalize this package (and its
+						// /connection subpath), we rather want to bundle it.
 						'@automattic/jetpack-shared-stores': {},
+						'@automattic/jetpack-shared-stores/connection': {},
 					},
 				},
 			} ),

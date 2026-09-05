@@ -1,6 +1,6 @@
 import restApi from '@automattic/jetpack-api';
 import apiFetch from '@wordpress/api-fetch';
-import mapHealthCheckErrors from '../helpers/map-health-check-errors';
+import mapHealthCheckErrors from './helpers/map-health-check-errors';
 
 const SET_CONNECTION_STATUS = 'SET_CONNECTION_STATUS';
 const SET_CONNECTION_STATUS_IS_FETCHING = 'SET_CONNECTION_STATUS_IS_FETCHING';

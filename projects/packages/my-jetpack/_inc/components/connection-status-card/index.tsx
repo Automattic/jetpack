@@ -1,4 +1,4 @@
-import { CONNECTION_STORE_ID, ManageConnectionDialog } from '@automattic/jetpack-connection';
+import { initConnectionStore, ManageConnectionDialog } from '@automattic/jetpack-connection';
 import { currentUserCan, isWoASite } from '@automattic/jetpack-script-data';
 import { Button } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
@@ -39,7 +39,8 @@ const ConnectionStatusCard: ConnectionStatusCardType = ( {
 	const { lifecycleStats } = getMyJetpackWindowInitialState();
 	const { recordEvent } = useAnalytics();
 	const [ isManageConnectionDialogOpen, setIsManageConnectionDialogOpen ] = useState( false );
-	const { setConnectionStatus, setUserIsConnecting } = useDispatch( CONNECTION_STORE_ID );
+	const connectionStore = initConnectionStore();
+	const { setConnectionStatus, setUserIsConnecting } = useDispatch( connectionStore );
 	const connectUserFn = onConnectUser || setUserIsConnecting;
 	const avatar = userConnectionData.currentUser?.wpcomUser?.avatar;
 

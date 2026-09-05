@@ -1,6 +1,6 @@
 import analytics from '@automattic/jetpack-analytics';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
+import { CONNECTION_STORE_ID, initConnectionStore } from '@automattic/jetpack-connection';
 import { jest } from '@jest/globals';
 import { render, renderHook, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -46,6 +46,8 @@ let stubGetConnectionStatus;
 
 describe( 'RedeemPartnerCouponPreConnection', () => {
 	const setupSpies = () => {
+		// The store registers lazily now; register it before stubbing it.
+		initConnectionStore();
 		let storeSelect;
 		renderHook( () => useSelect( select => ( storeSelect = select( CONNECTION_STORE_ID ) ) ) );
 

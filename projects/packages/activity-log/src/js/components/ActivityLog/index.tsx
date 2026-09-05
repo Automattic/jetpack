@@ -10,7 +10,7 @@ import { AdminPage } from '@automattic/jetpack-components';
 // Deep imports (not the package barrel): wp-build's esbuild bundles the whole
 // re-export graph of a barrel, and the connection barrel pulls in the
 // disconnect-dialog's `.jpg` imports, which esbuild has no loader for.
-import CONNECTION_STORE_ID from '@automattic/jetpack-connection/state/store-id';
+import { initConnectionStore } from '@automattic/jetpack-connection/state/store';
 import useConnectionErrorNotice, {
 	ConnectionError,
 } from '@automattic/jetpack-connection/use-connection-error-notice';
@@ -349,7 +349,10 @@ export default function ActivityLog() {
 	// check so a real broken-connection state surfaces an actionable notice
 	// instead of a generic "couldn't load" dead-end. Never runs on mount — only
 	// off a failure — so the multi-call probe stays off the happy path.
-	const { runConnectionHealthCheck } = useDispatch( CONNECTION_STORE_ID );
+	// Register the connection store lazily and dispatch against the returned
+	// descriptor so the health-check action can't be dispatched without the
+	// store being initialized first. Idempotent across consumers.
+	const { runConnectionHealthCheck } = useDispatch( initConnectionStore() );
 	// Opt in to health-check errors: AL is the consumer that runs the probe, so it
 	// is the one that should surface its result. Other consumers of the shared
 	// hook default to `includeHealthErrors: false` and never inherit this slot.

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Register the connection store via initConnectionStore() and dispatch the health check against the returned descriptor, matching the connection store's lazy registration.
