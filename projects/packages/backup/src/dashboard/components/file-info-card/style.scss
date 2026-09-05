@@ -65,6 +65,17 @@
 		border-bottom: 1px solid var(--wp-components-color-gray-200, #e0e0e0);
 	}
 
+	// Filenames offer no break at `.` or `_`, so a long stem pushes the close
+	// button past `Card.Root`'s `overflow: clip` and out of reach.
+	&__header-title {
+		min-width: 0;
+		overflow-wrap: anywhere;
+	}
+
+	&__header-close {
+		flex-shrink: 0;
+	}
+
 	&__preview {
 		max-height: 320px;
 		overflow-y: auto;

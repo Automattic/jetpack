@@ -69,7 +69,7 @@ export default function FileInfoDialog( { file, onClose }: Props ) {
 				style={ { '--jpb-admin-menu-width': `${ adminMenuWidth }px` } as CSSProperties }
 			>
 				<Dialog.Header>
-					<Dialog.Title>
+					<Dialog.Title className="jpb-file-info-dialog__title">
 						<span dir="ltr">{ file.name }</span>
 					</Dialog.Title>
 					<Dialog.CloseIcon label={ __( 'Close preview', 'jetpack-backup-pkg' ) } />
