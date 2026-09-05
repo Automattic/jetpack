@@ -100,6 +100,9 @@ type DatePeriodDropdownProps = {
 	 */
 	withCustomRange?: boolean;
 
+	/** Greys the trigger out but keeps it focusable: a passing state, not a missing control. */
+	disabled?: boolean;
+
 	/**
 	 * Notifies the parent as the menu opens and closes, so it can mirror the
 	 * draft-while-open behaviour for related controls (the comparison label,
@@ -125,6 +128,7 @@ export function DatePeriodDropdown( {
 	onCancel,
 	canApply,
 	withCustomRange = true,
+	disabled = false,
 	onOpenChange,
 }: DatePeriodDropdownProps ) {
 	// The menu floats free of the row it opens from, so the window is what says
@@ -192,6 +196,7 @@ export function DatePeriodDropdown( {
 						className="date-period-dropdown__toggle"
 						variant="minimal"
 						tone="neutral"
+						disabled={ disabled }
 						onClick={ onToggle }
 						aria-expanded={ isOpen }
 						aria-haspopup="true"

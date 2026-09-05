@@ -65,9 +65,15 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 } ) );
 
 jest.mock( '@jetpack-premium-analytics/ui', () => ( {
-	DateFiltersPanel: () => <MockHeaderScopeProbe />,
-	DateIntervalDropdown: () => null,
-	DateYearFilter: () => null,
+	DateFiltersPanel: ( { disabled }: { disabled?: boolean } ) => (
+		<MockHeaderScopeProbe disabled={ disabled } />
+	),
+	DateIntervalDropdown: ( { disabled }: { disabled?: boolean } ) => (
+		<span>{ disabled ? 'interval disabled' : 'interval enabled' }</span>
+	),
+	DateYearFilter: ( { disabled }: { disabled?: boolean } ) => (
+		<span>{ disabled ? 'year surface disabled' : 'year surface enabled' }</span>
+	),
 	OnboardingWelcomeModal: ( { open }: { open: boolean } ) =>
 		open ? <div data-testid="onboarding-welcome-modal" /> : null,
 	SectionHeader: ( { children }: { children: ReactNode } ) => <div>{ children }</div>,
@@ -99,13 +105,18 @@ jest.mock( '@wordpress/data', () => ( { useSelect: () => [] } ) );
  * render. Both halves derive from the one declaration, so the header reads it
  * rather than being handed a prop.
  *
- * @return The declared scope, as text.
+ * @param props          - The props the stage hands the panel.
+ * @param props.disabled - Whether the stage greyed the controls out.
+ * @return The declared scope, as text, with the disabled state appended.
  */
-function MockHeaderScopeProbe() {
+function MockHeaderScopeProbe( { disabled = false }: { disabled?: boolean } ) {
 	const { offersComparison } = useReportScope();
 
 	return (
-		<span>{ offersComparison ? 'header offers comparison' : 'header offers no comparison' }</span>
+		<span>
+			{ offersComparison ? 'header offers comparison' : 'header offers no comparison' }
+			{ disabled ? ', disabled' : '' }
+		</span>
 	);
 }
 
@@ -121,8 +132,62 @@ function MockScopeProbe() {
 }
 
 jest.mock( '@wordpress/widget-dashboard', () => {
-	const WidgetDashboard = ( { children }: { children: ReactNode } ) => <div>{ children }</div>;
-	WidgetDashboard.Actions = () => <div data-testid="widget-dashboard-actions" />;
+	const { createContext, useCallback, useContext, useMemo } = jest.requireActual( 'react' );
+
+	const EditModeContext = createContext( { editMode: false, onEditChange: () => {} } );
+
+	const WidgetDashboard = ( {
+		editMode = false,
+		onEditChange = () => {},
+		children,
+	}: {
+		editMode?: boolean;
+		onEditChange?: ( next: boolean ) => void;
+		children: ReactNode;
+	} ) => {
+		const value = useMemo( () => ( { editMode, onEditChange } ), [ editMode, onEditChange ] );
+
+		return (
+			<EditModeContext.Provider value={ value }>
+				<div>{ children }</div>
+			</EditModeContext.Provider>
+		);
+	};
+
+	/**
+	 *
+	 */
+	/**
+	 * The real dashboard hands `editMode` and `onEditChange` to `Actions` through its
+	 * context; the stand-in does the same so Customize, Done and Cancel round-trip.
+	 *
+	 * @return The stand-in edit toolbar.
+	 */
+	function Actions() {
+		const { editMode, onEditChange } = useContext( EditModeContext );
+		const enter = useCallback( () => onEditChange( true ), [ onEditChange ] );
+		const leave = useCallback( () => onEditChange( false ), [ onEditChange ] );
+
+		return (
+			<div data-testid="widget-dashboard-actions">
+				{ editMode ? (
+					<>
+						<button type="button" onClick={ leave }>
+							Cancel
+						</button>
+						<button type="button" onClick={ leave }>
+							Done
+						</button>
+					</>
+				) : (
+					<button type="button" onClick={ enter }>
+						Customize
+					</button>
+				) }
+			</div>
+		);
+	}
+	WidgetDashboard.Actions = Actions;
 	WidgetDashboard.NoWidgetsState = () => null;
 	WidgetDashboard.Widgets = () => <MockScopeProbe />;
 	WidgetDashboard.Commands = () => null;
@@ -520,6 +585,54 @@ describe( 'Dashboard header date control', () => {
 		} );
 
 		render( <Dashboard /> );
+
+		expect( screen.getByText( 'header offers comparison' ) ).toBeInTheDocument();
+	} );
+} );
+
+describe( 'Dashboard customizing', () => {
+	beforeEach( () => {
+		jest.clearAllMocks();
+		useActiveSectionMock.mockReturnValue( [ 'traffic', jest.fn() ] );
+		mockActiveSectionSlug = 'traffic';
+		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_RANGE );
+		mockSection( { slug: 'traffic', date_filter: DATE_FILTER_RANGE } );
+	} );
+
+	// The layout has to be saved or dropped before the page is used again, so
+	// the controls stay in view naming the range but take nothing until then.
+	it( 'greys the date controls out while customizing', async () => {
+		render( <Dashboard /> );
+		expect( screen.getByText( 'header offers comparison' ) ).toBeInTheDocument();
+
+		await userEvent.click( screen.getByRole( 'button', { name: 'Customize' } ) );
+
+		expect( screen.getByText( 'header offers comparison, disabled' ) ).toBeInTheDocument();
+		// The widgets keep reporting over the same range meanwhile.
+		expect( screen.getByText( 'offers comparison' ) ).toBeInTheDocument();
+	} );
+
+	it( 'greys the year surface out too', async () => {
+		useActiveSectionMock.mockReturnValue( [ 'insights', jest.fn() ] );
+		mockActiveSectionSlug = 'insights';
+		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_YEAR );
+		mockSection();
+
+		render( <Dashboard /> );
+		expect( screen.getByText( 'year surface enabled' ) ).toBeInTheDocument();
+
+		await userEvent.click( screen.getByRole( 'button', { name: 'Customize' } ) );
+
+		expect( screen.getByText( 'year surface disabled' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'interval disabled' ) ).toBeInTheDocument();
+	} );
+
+	it.each( [ 'Done', 'Cancel' ] )( 'enables the date controls again on %s', async action => {
+		render( <Dashboard /> );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Customize' } ) );
+		expect( screen.getByText( 'header offers comparison, disabled' ) ).toBeInTheDocument();
+
+		await userEvent.click( screen.getByRole( 'button', { name: action } ) );
 
 		expect( screen.getByText( 'header offers comparison' ) ).toBeInTheDocument();
 	} );

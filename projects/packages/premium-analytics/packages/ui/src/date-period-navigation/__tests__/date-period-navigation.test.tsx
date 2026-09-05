@@ -36,4 +36,24 @@ describe( 'DatePeriodNavigation', () => {
 		expect( screen.getByRole( 'button', { name: 'Previous period' } ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'button', { name: 'Next period' } ) ).not.toBeInTheDocument();
 	} );
+
+	it( 'greys both arrows out while disabled, focusable still', async () => {
+		const onStep = jest.fn();
+		const user = userEvent.setup();
+
+		render( <DatePeriodNavigation canStepForward disabled onStep={ onStep } /> );
+
+		const previous = screen.getByRole( 'button', { name: 'Previous period' } );
+		expect( previous ).toHaveAttribute( 'aria-disabled', 'true' );
+		expect( screen.getByRole( 'button', { name: 'Next period' } ) ).toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
+
+		previous.focus();
+		expect( previous ).toHaveFocus();
+
+		await user.click( previous );
+		expect( onStep ).not.toHaveBeenCalled();
+	} );
 } );
