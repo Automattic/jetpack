@@ -51,6 +51,16 @@ function title( id: string ): string {
 	return `Backup ${ id }`;
 }
 
+/**
+ * The same row as a name matcher.
+ *
+ * @param id - The row's rewind id.
+ * @return The matcher.
+ */
+function named( id: string ): RegExp {
+	return new RegExp( `^${ title( id ) } ` );
+}
+
 /** The log the fixture answers from, newest first. Grown mid-test to move a row to page 2. */
 let log: string[] = [];
 
@@ -142,7 +152,7 @@ function renderApp() {
  */
 async function roundTripViaDownload( view: ReturnType< typeof renderApp > ): Promise< string > {
 	const chosen = rewindId( PER_PAGE - 1 );
-	await userEvent.click( await screen.findByRole( 'button', { name: title( chosen ) }, SETTLE ) );
+	await userEvent.click( await screen.findByRole( 'button', { name: named( chosen ) }, SETTLE ) );
 	await waitFor( () => expect( view.state.location.search ).toEqual( { selected: chosen } ) );
 
 	await userEvent.click( await screen.findByRole( 'link', { name: /Download backup/ }, SETTLE ) );

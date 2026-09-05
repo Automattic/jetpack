@@ -326,7 +326,7 @@ describe( 'Choosing a row', () => {
 
 		render( <OverviewStage /> );
 		await userEvent.click(
-			await screen.findByRole( 'button', { name: 'Post published' }, SETTLE )
+			await screen.findByRole( 'button', { name: /^Post published / }, SETTLE )
 		);
 
 		const options = mockNavigate.mock.calls[ 0 ][ 0 ] as {
