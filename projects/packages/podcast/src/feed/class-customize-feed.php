@@ -394,7 +394,7 @@ class Customize_Feed {
 	public static function credit_html(): string {
 		$site_url = home_url( '/' );
 		return '<p>' . sprintf(
-			/* translators: 1: podcast title, 2: "Jetpack Podcast", 3: site URL */
+			/* translators: 1: podcast title, 2: HTML link to "Jetpack Podcast", 3: HTML link to site URL */
 			esc_html__( '%1$s is made with %2$s. Full show notes and every episode at %3$s', 'jetpack-podcast' ),
 			esc_html( self::credit_show_title() ),
 			'<a href="' . esc_url( self::CREDIT_URL ) . '">Jetpack Podcast</a>',

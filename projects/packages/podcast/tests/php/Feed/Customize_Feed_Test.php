@@ -38,7 +38,6 @@ class Customize_Feed_Test extends BaseTestCase {
 		delete_option( 'podcasting_category_id' );
 		delete_option( 'podcasting_archive' );
 		delete_option( 'podcasting_feed_limit' );
-		delete_option( 'blogname' );
 		delete_option( Current_Plan::PLAN_OPTION );
 		unset( $GLOBALS['jetpack_podcast_test_blog_details'] );
 		Constants::clear_constants();
@@ -168,9 +167,14 @@ class Customize_Feed_Test extends BaseTestCase {
 
 	public function test_credit_falls_back_to_the_site_name_without_a_show_title() {
 		$this->as_wpcom_with_plan_features( array() );
+		$blogname = get_option( 'blogname' );
 		update_option( 'blogname', 'Example Site' );
 
-		$this->assertStringStartsWith( 'Example Site is made with Jetpack Podcast.', Customize_Feed::credit_text() );
+		try {
+			$this->assertStringStartsWith( 'Example Site is made with Jetpack Podcast.', Customize_Feed::credit_text() );
+		} finally {
+			update_option( 'blogname', $blogname );
+		}
 	}
 
 	public function test_credit_strips_markup_from_the_show_title() {
