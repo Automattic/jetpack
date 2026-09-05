@@ -343,8 +343,11 @@ describe( 'Dashboard options menu', () => {
 
 		const actions = screen.getByTestId( 'widget-dashboard-actions' );
 
+		// Each sits in its own frame, the tour's anchors; the menu's frame follows the actions'.
 		// eslint-disable-next-line testing-library/no-node-access -- order within the actions slot is what this test is for.
-		expect( actions.nextElementSibling ).toBe( screen.getByTestId( 'dashboard-options-menu' ) );
+		expect( actions.parentElement?.nextElementSibling ).toContainElement(
+			screen.getByTestId( 'dashboard-options-menu' )
+		);
 	} );
 } );
 
