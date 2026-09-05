@@ -133,7 +133,7 @@ jest.mock( '@wordpress/widget-dashboard', () => {
 
 jest.mock( './components', () => ( {
 	DashboardSections: ( { children }: { children: ReactNode } ) => <div>{ children }</div>,
-	FeedbackAction: () => <div data-testid="feedback-action" />,
+	DashboardOptionsMenu: () => <div data-testid="dashboard-options-menu" />,
 	OnboardingTour: () => <div data-testid="onboarding-tour" />,
 	onboardingTourSteps: () => [],
 	// A marker, not the real notice, which reads a query cache these tests do not
@@ -328,7 +328,7 @@ describe( 'Dashboard refresh-failure notice', () => {
 	} );
 } );
 
-describe( 'Dashboard feedback action', () => {
+describe( 'Dashboard options menu', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
 		useActiveSectionMock.mockReturnValue( [ 'traffic', jest.fn() ] );
@@ -336,17 +336,15 @@ describe( 'Dashboard feedback action', () => {
 		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_RANGE );
 	} );
 
-	it( "sits in the page actions, ahead of the dashboard's own", () => {
+	it( "follows the dashboard's own actions in the page header", () => {
 		mockSection( { slug: 'traffic', date_filter: DATE_FILTER_RANGE } );
 
 		render( <Dashboard /> );
 
-		const feedback = screen.getByTestId( 'feedback-action' );
+		const actions = screen.getByTestId( 'widget-dashboard-actions' );
 
 		// eslint-disable-next-line testing-library/no-node-access -- order within the actions slot is what this test is for.
-		expect( feedback.nextElementSibling ).toContainElement(
-			screen.getByTestId( 'widget-dashboard-actions' )
-		);
+		expect( actions.nextElementSibling ).toBe( screen.getByTestId( 'dashboard-options-menu' ) );
 	} );
 } );
 

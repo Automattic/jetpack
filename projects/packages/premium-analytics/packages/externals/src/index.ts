@@ -78,6 +78,7 @@ export {
 	IconButton,
 	Input,
 	Link,
+	Menu,
 	Notice,
 	Popover,
 	SelectControl,
