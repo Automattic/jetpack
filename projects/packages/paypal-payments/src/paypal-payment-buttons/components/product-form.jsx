@@ -8,7 +8,6 @@
 import { Button, Notice, TextControl, ToggleControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import metadata from '../block.json';
-import FormatSwitcher from './format-switcher';
 
 const labelEditHeading = __( 'Edit PayPal Payment Button', 'jetpack-paypal-payments' );
 const labelCreateHeading = __( 'Create PayPal Payment Button', 'jetpack-paypal-payments' );
@@ -118,17 +117,6 @@ export default function ProductForm( {
 					) }
 					checked={ attributes.showQrCode !== false }
 					onChange={ value => setAttributes( { showQrCode: value } ) }
-					disabled={ isCreating }
-				/>
-			</div>
-
-			<div className="jetpack-paypal-payment-buttons__format-section">
-				<h4 className="jetpack-paypal-payment-buttons__section-heading">
-					{ __( 'Display Format', 'jetpack-paypal-payments' ) }
-				</h4>
-				<FormatSwitcher
-					value={ activeFormat }
-					onChange={ value => setAttributes( { format: value } ) }
 					disabled={ isCreating }
 				/>
 			</div>
