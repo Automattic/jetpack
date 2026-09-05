@@ -5,7 +5,7 @@
  * @package
  */
 
-import { Button, Notice, TextControl, ToggleControl } from '@wordpress/components';
+import { Button, Notice } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import metadata from '../block.json';
 
@@ -16,9 +16,7 @@ const labelCreateHeading = __( 'Create PayPal Payment Button', 'jetpack-paypal-p
  * The product creation form, shown when PayPal is connected and the block is in edit mode.
  *
  * @param {object}   props                      - Component props.
- * @param {object}   props.attributes           - The full block attributes bag.
  * @param {Function} props.setAttributes        - Function to update block attributes.
- * @param {string}   props.buttonText           - The button label attribute.
  * @param {string}   props.activeFormat         - The display format, normalized.
  * @param {boolean}  props.isConnected          - Whether the site is connected to PayPal.
  * @param {string}   props.environment          - 'production' or 'sandbox'.
@@ -40,9 +38,7 @@ const labelCreateHeading = __( 'Create PayPal Payment Button', 'jetpack-paypal-p
  * @return {Element} The product creation form.
  */
 export default function ProductForm( {
-	attributes,
 	setAttributes,
-	buttonText,
 	activeFormat,
 	isConnected,
 	environment,
@@ -98,28 +94,6 @@ export default function ProductForm( {
 					{ successMessage }
 				</Notice>
 			) }
-
-			<div className="jetpack-paypal-payment-buttons__button-appearance">
-				<h4 className="jetpack-paypal-payment-buttons__section-heading">
-					{ __( 'Button Appearance', 'jetpack-paypal-payments' ) }
-				</h4>
-				<TextControl
-					label={ __( 'Button Text', 'jetpack-paypal-payments' ) }
-					value={ buttonText || '' }
-					onChange={ value => setAttributes( { buttonText: value } ) }
-					disabled={ isCreating }
-				/>
-				<ToggleControl
-					label={ __( 'Show QR code', 'jetpack-paypal-payments' ) }
-					help={ __(
-						'Display a QR code below the button for in-person sharing.',
-						'jetpack-paypal-payments'
-					) }
-					checked={ attributes.showQrCode !== false }
-					onChange={ value => setAttributes( { showQrCode: value } ) }
-					disabled={ isCreating }
-				/>
-			</div>
 
 			<div className="jetpack-paypal-payment-buttons__form-actions">
 				<Button
