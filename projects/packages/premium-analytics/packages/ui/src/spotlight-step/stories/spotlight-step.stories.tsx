@@ -43,12 +43,12 @@ const STEPS = [
 	{
 		title: 'Rearrange it your way',
 		description:
-			'Access the settings here and select Customize to move and resize widgets. Your layout is saved to your profile.',
+			'Select Customize to move and resize widgets. Your layout is saved to your profile.',
 	},
 	{
 		title: 'One last thing',
 		description:
-			"This same menu is where you'll be able to share feedback and deactivate this tab if you want. It's an early version, so do tell us what's working and what isn't.",
+			"This menu is where you can share feedback and switch the preview off if you want. It's an early version, so do tell us what's working and what isn't.",
 	},
 ];
 
@@ -120,7 +120,7 @@ function TourDemo() {
 
 /**
  * The onboarding steps on a mock of the dashboard header: the first widget,
- * the date controls and the options menu twice. Continue walks them, Finish
+ * the date controls, Customize and the options menu. Continue walks them, Finish
  * ends, Escape leaves at any point; the button that appears afterwards
  * restarts the tour.
  */
