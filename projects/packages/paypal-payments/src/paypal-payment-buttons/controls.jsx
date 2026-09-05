@@ -81,15 +81,13 @@ export default function PayPalInspectorControls( {
 				</p>
 			</PanelBody>
 
-			{ hasButton && (
-				<PanelBody title={ __( 'Display Format', 'jetpack-paypal-payments' ) } initialOpen={ true }>
-					<FormatSwitcher
-						value={ activeFormat }
-						onChange={ value => setAttributes( { format: value } ) }
-						disabled={ isCreating }
-					/>
-				</PanelBody>
-			) }
+			<PanelBody title={ __( 'Display Format', 'jetpack-paypal-payments' ) } initialOpen={ true }>
+				<FormatSwitcher
+					value={ activeFormat }
+					onChange={ value => setAttributes( { format: value } ) }
+					disabled={ isCreating }
+				/>
+			</PanelBody>
 
 			{ hasButton && (
 				<PanelBody
