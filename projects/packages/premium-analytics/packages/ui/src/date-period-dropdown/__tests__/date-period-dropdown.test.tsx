@@ -118,6 +118,18 @@ describe( 'DatePeriodDropdown', () => {
 			screen.findByRole( 'tooltip', undefined, { timeout: 3000 } )
 		).resolves.toHaveTextContent( /July 1.+31, 2026/ );
 	} );
+
+	it( 'greys the trigger out while disabled and keeps the menu shut', async () => {
+		const user = userEvent.setup();
+		const { onSelect } = renderDropdown( { disabled: true } );
+
+		const trigger = screen.getByRole( 'button', { name: 'Last 30 days' } );
+		expect( trigger ).toHaveAttribute( 'aria-disabled', 'true' );
+
+		await user.click( trigger );
+		expect( screen.queryByRole( 'menu' ) ).not.toBeInTheDocument();
+		expect( onSelect ).not.toHaveBeenCalled();
+	} );
 } );
 
 describe( 'DatePeriodDropdown custom range', () => {

@@ -163,4 +163,26 @@ describe( 'DateFiltersPanel', () => {
 			'previous-period'
 		);
 	} );
+
+	it( 'greys every control out while disabled', () => {
+		renderPanel( {
+			disabled: true,
+			onStep: jest.fn(),
+			appliedRange: {
+				from: new Date( '2020-07-01T00:00:00.000Z' ),
+				to: new Date( '2020-07-30T23:59:59.999Z' ),
+			},
+			withIntervalControl: true,
+			intervalOptions: [ 'day', 'week' ],
+			interval: 'day',
+			onIntervalChange: jest.fn(),
+		} );
+
+		// Both arrows, the period, the comparison and the interval.
+		const buttons = screen.getAllByRole( 'button' );
+		expect( buttons ).toHaveLength( 5 );
+		buttons.forEach( button => {
+			expect( button ).toHaveAttribute( 'aria-disabled', 'true' );
+		} );
+	} );
 } );
