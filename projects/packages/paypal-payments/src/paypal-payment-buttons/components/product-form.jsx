@@ -26,7 +26,6 @@ const helpTaxOff = __( 'No tax collected.', 'jetpack-paypal-payments' );
  * @param {Function} props.setAttributes        - Function to update block attributes.
  * @param {string}   props.buttonText           - The button label attribute.
  * @param {string}   props.currencyCode         - The currency code attribute.
- * @param {string}   props.returnUrl            - The post-payment return URL attribute.
  * @param {boolean}  props.variantsEnabled      - Whether product options are enabled.
  * @param {object}   props.variants             - The product options attribute.
  * @param {boolean}  props.adjustableQuantity   - Whether customers can adjust quantity.
@@ -40,9 +39,7 @@ const helpTaxOff = __( 'No tax collected.', 'jetpack-paypal-payments' );
  * @param {boolean}  props.isConnected          - Whether the site is connected to PayPal.
  * @param {string}   props.environment          - 'production' or 'sandbox'.
  * @param {Function} props.setIsEditing         - Setter for the edit/preview toggle.
- * @param {object}   props.touchedFields        - Which fields the merchant has interacted with.
  * @param {Function} props.setTouchedFields     - Setter for the touched fields.
- * @param {Function} props.markTouched          - Mark a field as touched.
  * @param {boolean}  props.isFormValid          - Whether the form has no validation errors.
  * @param {boolean}  props.isCreating           - Whether a create or update request is in flight.
  * @param {string}   props.error                - Error message, or null.
@@ -63,7 +60,6 @@ export default function ProductForm( {
 	setAttributes,
 	buttonText,
 	currencyCode,
-	returnUrl,
 	variantsEnabled,
 	variants,
 	adjustableQuantity,
@@ -77,9 +73,7 @@ export default function ProductForm( {
 	isConnected,
 	environment,
 	setIsEditing,
-	touchedFields,
 	setTouchedFields,
-	markTouched,
 	isFormValid,
 	isCreating,
 	error,
@@ -140,28 +134,6 @@ export default function ProductForm( {
 					disabled={ isCreating }
 				/>
 			</div>
-
-			<TextControl
-				label={ __( 'Return URL (optional)', 'jetpack-paypal-payments' ) }
-				value={ returnUrl || '' }
-				onChange={ value => setAttributes( { returnUrl: value } ) }
-				onBlur={ () => markTouched( 'returnUrl' ) }
-				type="url"
-				disabled={ isCreating }
-				help={
-					touchedFields.returnUrl && returnUrl && ! /^https:\/\/.+/.test( returnUrl )
-						? __(
-								'Return URL must use HTTPS (e.g., https://example.com/thank-you).',
-								'jetpack-paypal-payments'
-						  )
-						: __( 'Redirect customers here after payment.', 'jetpack-paypal-payments' )
-				}
-				className={
-					touchedFields.returnUrl && returnUrl && ! /^https:\/\/.+/.test( returnUrl )
-						? 'has-error'
-						: undefined
-				}
-			/>
 
 			<div className="jetpack-paypal-payment-buttons__checkout-options">
 				<h4 className="jetpack-paypal-payment-buttons__section-heading">
