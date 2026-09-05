@@ -25,10 +25,18 @@ jest.mock( '@automattic/jetpack-analytics', () => ( {
 } ) );
 
 const mockGetScriptData = jest.fn();
+const mockCurrentUserCan = jest.fn();
 
 jest.mock( '@automattic/jetpack-script-data', () => ( {
 	getScriptData: () => mockGetScriptData(),
 	isSimpleSite: () => false,
+	currentUserCan: ( capability: string ) => mockCurrentUserCan( capability ),
+} ) );
+
+const mockReturnToClassicStats = jest.fn();
+
+jest.mock( './return-to-classic-stats', () => ( {
+	returnToClassicStats: () => mockReturnToClassicStats(),
 } ) );
 
 const mockApiFetch = jest.fn();
@@ -46,6 +54,7 @@ beforeEach( () => {
 		user: { current_user: { wpcom: { ID: 7, login: 'reader' } } },
 	} );
 	mockApiFetch.mockResolvedValue( 'success' );
+	mockCurrentUserCan.mockReturnValue( true );
 } );
 
 /**
@@ -285,5 +294,90 @@ describe( 'the Happiness copy of the feedback', () => {
 		expect(
 			within( screen.getByRole( 'dialog' ) ).getByText( 'Thank you. This helps.' )
 		).toBeInTheDocument();
+	} );
+} );
+
+describe( 'switching the new Traffic tab off', () => {
+	/**
+	 * Opens the menu and picks the switch-off entry, so the confirmation is up.
+	 *
+	 * @return The `userEvent` session, for the rest of the interaction.
+	 */
+	async function openConfirmation() {
+		const user = userEvent.setup();
+		render( <DashboardOptionsMenu /> );
+		await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
+		await user.click(
+			await screen.findByRole( 'menuitem', { name: 'Switch off the new Traffic tab' } )
+		);
+		return user;
+	}
+
+	it( 'is offered to those who can change site settings', async () => {
+		mockCurrentUserCan.mockReturnValue( false );
+		const user = userEvent.setup();
+		render( <DashboardOptionsMenu /> );
+
+		await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
+
+		await expect(
+			screen.findByRole( 'menuitem', { name: 'Any feedback?' } )
+		).resolves.toBeInTheDocument();
+		expect( mockCurrentUserCan ).toHaveBeenCalledWith( 'manage_options' );
+		expect(
+			screen.queryByRole( 'menuitem', { name: 'Switch off the new Traffic tab' } )
+		).not.toBeInTheDocument();
+	} );
+
+	it( 'asks before switching off, and Cancel changes nothing', async () => {
+		const user = await openConfirmation();
+
+		const dialog = screen.getByRole( 'dialog', { name: 'Switch off the new Traffic tab?' } );
+		expect( dialog ).toHaveTextContent(
+			"You'll go back to your current Stats. You can switch the new Traffic tab on again from the banner there."
+		);
+		expect( mockApiFetch ).not.toHaveBeenCalled();
+
+		await user.click( screen.getByRole( 'button', { name: 'Cancel' } ) );
+
+		await waitFor( () => expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument() );
+		expect( mockApiFetch ).not.toHaveBeenCalled();
+		expect( mockRecordEvent ).not.toHaveBeenCalled();
+		expect( mockReturnToClassicStats ).not.toHaveBeenCalled();
+	} );
+
+	it( 'writes the opt-in off, reports it, and returns the reader to classic Stats', async () => {
+		const user = await openConfirmation();
+
+		await user.click( screen.getByRole( 'button', { name: 'Switch it off' } ) );
+
+		await waitFor( () => expect( mockReturnToClassicStats ).toHaveBeenCalledTimes( 1 ) );
+		expect( mockApiFetch ).toHaveBeenCalledWith( {
+			path: '/wp/v2/settings',
+			method: 'POST',
+			data: { jetpack_premium_analytics_enabled: false },
+		} );
+		expect( mockRecordEvent ).toHaveBeenCalledWith(
+			'jetpack_premium_analytics_preview_disable',
+			undefined
+		);
+		// The beacon goes out ahead of the write, so the navigation cannot cut it short.
+		expect( mockRecordEvent.mock.invocationCallOrder[ 0 ] ).toBeLessThan(
+			mockApiFetch.mock.invocationCallOrder[ 0 ]
+		);
+	} );
+
+	it( 'keeps the reader here when the write fails', async () => {
+		mockApiFetch.mockRejectedValue( new Error( 'rest_forbidden' ) );
+		const user = await openConfirmation();
+
+		await user.click( screen.getByRole( 'button', { name: 'Switch it off' } ) );
+
+		const dialog = screen.getByRole( 'dialog' );
+		await expect(
+			within( dialog ).findByText( "We couldn't switch it off. Please try again." )
+		).resolves.toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: 'Switch it off' } ) ).toBeEnabled();
+		expect( mockReturnToClassicStats ).not.toHaveBeenCalled();
 	} );
 } );
