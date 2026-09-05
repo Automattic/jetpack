@@ -11,13 +11,16 @@ export type OnboardingTourAnchors = {
 	/** The section header's date controls. */
 	dateControls: Element | null;
 
-	/** The configurations menu trigger among the dashboard actions (WOOA7S-2055). */
+	/** The Customize button among the dashboard actions. */
+	customize: Element | null;
+
+	/** The page options menu trigger beside it: feedback and the way back to classic Stats. */
 	optionsMenu: Element | null;
 };
 
 /**
  * The four steps of the tour, in order, over the elements the dashboard
- * stage hands in. The last two share the configurations menu.
+ * stage hands in. The last two sit side by side in the page header.
  *
  * @param anchors - The elements each step highlights, or null while unmounted.
  * @return The tour steps.
@@ -43,10 +46,10 @@ export function onboardingTourSteps( anchors: OnboardingTourAnchors ): Onboardin
 			side: 'bottom',
 		},
 		{
-			anchor: anchors.optionsMenu,
+			anchor: anchors.customize,
 			title: __( 'Rearrange it your way', 'jetpack-premium-analytics-pkg' ),
 			description: __(
-				'Access the settings here and select Customize to move and resize widgets. Your layout is saved to your profile.',
+				'Select Customize to move and resize widgets. Your layout is saved to your profile.',
 				'jetpack-premium-analytics-pkg'
 			),
 			side: 'bottom',
@@ -55,7 +58,7 @@ export function onboardingTourSteps( anchors: OnboardingTourAnchors ): Onboardin
 			anchor: anchors.optionsMenu,
 			title: __( 'One last thing', 'jetpack-premium-analytics-pkg' ),
 			description: __(
-				"This same menu is where you'll be able to share feedback and deactivate this tab if you want. It's an early version, so do tell us what's working and what isn't.",
+				"This menu is where you can share feedback and switch the preview off if you want. It's an early version, so do tell us what's working and what isn't.",
 				'jetpack-premium-analytics-pkg'
 			),
 			side: 'bottom',

@@ -1,17 +1,18 @@
 import { onboardingTourSteps } from './steps';
 
 describe( 'onboardingTourSteps', () => {
-	it( 'walks the first widget, the date controls and the options menu twice', () => {
+	it( 'walks the first widget, the date controls, Customize and the options menu', () => {
 		const firstWidget = document.createElement( 'section' );
 		const dateControls = document.createElement( 'div' );
+		const customize = document.createElement( 'button' );
 		const optionsMenu = document.createElement( 'button' );
 
-		const steps = onboardingTourSteps( { firstWidget, dateControls, optionsMenu } );
+		const steps = onboardingTourSteps( { firstWidget, dateControls, customize, optionsMenu } );
 
 		expect( steps.map( step => step.anchor ) ).toEqual( [
 			firstWidget,
 			dateControls,
-			optionsMenu,
+			customize,
 			optionsMenu,
 		] );
 		expect( steps.map( step => step.side ) ).toEqual( [ 'top', 'bottom', 'bottom', 'bottom' ] );
@@ -27,6 +28,7 @@ describe( 'onboardingTourSteps', () => {
 		const steps = onboardingTourSteps( {
 			firstWidget: null,
 			dateControls: null,
+			customize: null,
 			optionsMenu: null,
 		} );
 

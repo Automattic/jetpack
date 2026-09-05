@@ -117,15 +117,18 @@ function Dashboard(): JSX.Element {
 
 	// The tour's anchors, handed in by the elements below once they mount.
 	const [ actionsFrame, setActionsFrame ] = useState< HTMLDivElement | null >( null );
+	const [ optionsMenuFrame, setOptionsMenuFrame ] = useState< HTMLDivElement | null >( null );
 	const [ controlsAnchor, setControlsAnchor ] = useState< HTMLDivElement | null >( null );
 	const [ widgetsFrame, setWidgetsFrame ] = useState< HTMLDivElement | null >( null );
-	// A step without its anchor is left out so the counter counts what is on the
-	// page: the configurations menu only arrives with WOOA7S-2055.
+	// A step without its anchor is left out, so the counter counts what is on the page.
 	const tourSteps = onboardingTourSteps( {
 		// Every tile is a section; the grid draws them in layout order.
 		firstWidget: widgetsFrame?.querySelector( 'section' ) ?? null,
 		dateControls: controlsAnchor,
-		optionsMenu: actionsFrame?.querySelector( '[aria-haspopup="menu"]' ) ?? null,
+		// At rest the dashboard's first button is Customize; its own menu, when the
+		// policy allows one, comes after it.
+		customize: actionsFrame?.querySelector( 'button' ) ?? null,
+		optionsMenu: optionsMenuFrame?.querySelector( 'button' ) ?? null,
 	} ).filter( step => step.anchor );
 
 	// The journey introduces the default section at rest: not another tab, and
@@ -260,9 +263,13 @@ function Dashboard(): JSX.Element {
 							visual={ <StatsPageIcon /> }
 							breadcrumbs={ <StatsBreadcrumbs isRoot /> }
 							actions={
-								<Stack ref={ setActionsFrame } direction="row" gap="sm">
-									<WidgetDashboard.Actions />
-									<DashboardOptionsMenu />
+								<Stack direction="row" gap="sm">
+									<Stack ref={ setActionsFrame } direction="row">
+										<WidgetDashboard.Actions />
+									</Stack>
+									<Stack ref={ setOptionsMenuFrame } direction="row">
+										<DashboardOptionsMenu />
+									</Stack>
 								</Stack>
 							}
 							className={ styles.dashboard }
