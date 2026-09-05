@@ -74,7 +74,7 @@ class Podcast_Gate {
 	/**
 	 * Whether the podcast feed must carry the "Made with Jetpack Podcast"
 	 * credit: WordPress.com sites without podcast plan access. Self-hosted sites
-	 * only ever opt in, so the purchase lookup behind
+	 * never carry it, so the purchase lookup behind
 	 * {@see self::has_product_access()} never runs from a feed render.
 	 *
 	 * @return bool

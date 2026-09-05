@@ -26,7 +26,7 @@ class Customize_Feed {
 	/**
 	 * Where the "Made with Jetpack Podcast" credit links to.
 	 */
-	const CREDIT_URL = 'https://jetpack.com/support/jetpack-podcast/';
+	const CREDIT_URL = 'https://wordpress.com/podcast/';
 
 	/**
 	 * Whether `init()` has wired its hooks.
@@ -312,25 +312,16 @@ class Customize_Feed {
 	}
 
 	/**
-	 * Whether the feed carries the "Made with Jetpack Podcast" credit: the site
-	 * opted in through `podcasting_credit`, or WordPress.com requires it
-	 * ({@see Podcast_Gate::requires_feed_credit()}). Self-hosted sites only ever
-	 * opt in because the WordPress.org plugin directory requires credits to
+	 * Whether the feed carries the "Made with Jetpack Podcast" credit: only
+	 * WordPress.com sites without podcast plan access
+	 * ({@see Podcast_Gate::requires_feed_credit()}). Self-hosted sites never
+	 * carry it, since the WordPress.org plugin directory requires credits to
 	 * default off.
 	 *
 	 * @return bool
 	 */
 	public static function credit_enabled(): bool {
-		$enabled = Podcast_Gate::requires_feed_credit() || rest_sanitize_boolean( get_option( 'podcasting_credit', false ) );
-
-		/**
-		 * Filters whether the podcast feed carries the "Made with Jetpack Podcast" credit.
-		 *
-		 * @since $$next-version$$
-		 *
-		 * @param bool $enabled True when the site opted in, or is a WordPress.com site without podcast plan access.
-		 */
-		return (bool) apply_filters( 'jetpack_podcast_feed_credit', $enabled );
+		return Podcast_Gate::requires_feed_credit();
 	}
 
 	/**

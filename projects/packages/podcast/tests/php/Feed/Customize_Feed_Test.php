@@ -38,13 +38,11 @@ class Customize_Feed_Test extends BaseTestCase {
 		delete_option( 'podcasting_category_id' );
 		delete_option( 'podcasting_archive' );
 		delete_option( 'podcasting_feed_limit' );
-		delete_option( 'podcasting_credit' );
 		delete_option( 'blogname' );
 		delete_option( Current_Plan::PLAN_OPTION );
 		unset( $GLOBALS['jetpack_podcast_test_blog_details'] );
 		Constants::clear_constants();
-		jetpack_podcast_test_reset_plan_cache();
-		remove_all_filters( 'jetpack_podcast_feed_credit' );
+		self::reset_active_plan_cache();
 		remove_all_filters( 'pre_attachment_url_to_postid' );
 		remove_all_filters( 'wpcom_podcasting_enable_play_tracking' );
 		remove_all_filters( 'wpcom_podcasting_tracked_blog_id' );
@@ -67,7 +65,20 @@ class Customize_Feed_Test extends BaseTestCase {
 		$plan                       = Current_Plan::PLAN_DATA['free'];
 		$plan['features']['active'] = $features;
 		update_option( Current_Plan::PLAN_OPTION, $plan, true );
-		jetpack_podcast_test_reset_plan_cache();
+		self::reset_active_plan_cache();
+	}
+
+	/**
+	 * `Current_Plan::get()` memoizes for the request, leaking option writes between tests.
+	 */
+	private static function reset_active_plan_cache(): void {
+		$property = ( new \ReflectionClass( Current_Plan::class ) )->getProperty( 'active_plan_cache' );
+		// @todo Remove once we drop PHP < 8.1 support. `setAccessible()` is
+		// deprecated in 8.5 (a no-op since 8.1), so only call it where it's needed.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$property->setValue( null, null );
 	}
 
 	/**
@@ -128,17 +139,17 @@ class Customize_Feed_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Off-platform (the test environment) nothing forces the credit, so an
-	 * unset option leaves every surface untouched.
+	 * Off-platform (the test environment) nothing forces the credit, so every
+	 * surface stays untouched.
 	 */
-	public function test_credit_is_off_by_default() {
+	public function test_credit_is_off_outside_wordpress_com() {
 		$this->assertFalse( Customize_Feed::credit_enabled() );
 		$this->assertSame( 'Show notes.', Customize_Feed::append_credit( 'Show notes.' ) );
 		$this->assertSame( '<p>Notes</p>', Customize_Feed::append_credit_to_content( '<p>Notes</p>' ) );
 	}
 
-	public function test_credit_option_appends_the_credit_after_a_blank_line() {
-		update_option( 'podcasting_credit', true );
+	public function test_credit_is_appended_after_a_blank_line() {
+		$this->as_wpcom_with_plan_features( array() );
 		update_option( 'podcasting_title', 'The Weekly Show' );
 
 		$this->assertTrue( Customize_Feed::credit_enabled() );
@@ -149,21 +160,21 @@ class Customize_Feed_Test extends BaseTestCase {
 	}
 
 	public function test_credit_stands_alone_when_there_is_no_text_to_append_to() {
-		update_option( 'podcasting_credit', true );
+		$this->as_wpcom_with_plan_features( array() );
 		update_option( 'podcasting_title', 'The Weekly Show' );
 
 		$this->assertStringStartsWith( 'The Weekly Show is made with Jetpack Podcast.', Customize_Feed::append_credit( '' ) );
 	}
 
 	public function test_credit_falls_back_to_the_site_name_without_a_show_title() {
-		update_option( 'podcasting_credit', true );
+		$this->as_wpcom_with_plan_features( array() );
 		update_option( 'blogname', 'Example Site' );
 
 		$this->assertStringStartsWith( 'Example Site is made with Jetpack Podcast.', Customize_Feed::credit_text() );
 	}
 
 	public function test_credit_strips_markup_from_the_show_title() {
-		update_option( 'podcasting_credit', true );
+		$this->as_wpcom_with_plan_features( array() );
 		update_option( 'podcasting_title', 'The <b>Weekly</b> Show' );
 
 		$this->assertStringStartsWith( 'The Weekly Show is made with', Customize_Feed::credit_text() );
@@ -174,7 +185,7 @@ class Customize_Feed_Test extends BaseTestCase {
 	 * before this filter runs, so the appended credit gets the same escape.
 	 */
 	public function test_excerpt_credit_escapes_cdata_terminators_like_core() {
-		update_option( 'podcasting_credit', true );
+		$this->as_wpcom_with_plan_features( array() );
 		update_option( 'podcasting_title', 'The Show]]>' );
 
 		$excerpt = Customize_Feed::append_credit_to_excerpt( 'Notes' );
@@ -188,24 +199,14 @@ class Customize_Feed_Test extends BaseTestCase {
 	 * content is empty, so an empty body must stay empty.
 	 */
 	public function test_html_credit_leaves_empty_content_empty() {
-		update_option( 'podcasting_credit', true );
+		$this->as_wpcom_with_plan_features( array() );
 
 		$this->assertSame( '', Customize_Feed::append_credit_to_content( '' ) );
 		$this->assertStringStartsWith( "\n\n<p>", Customize_Feed::append_credit_to_content( "\n" ) );
 	}
 
-	public function test_credit_filter_can_force_it_either_way() {
-		add_filter( 'jetpack_podcast_feed_credit', '__return_true' );
-		$this->assertTrue( Customize_Feed::credit_enabled() );
-
-		remove_all_filters( 'jetpack_podcast_feed_credit' );
-		update_option( 'podcasting_credit', true );
-		add_filter( 'jetpack_podcast_feed_credit', '__return_false' );
-		$this->assertFalse( Customize_Feed::credit_enabled() );
-	}
-
-	public function test_feed_description_carries_the_credit_when_on() {
-		update_option( 'podcasting_credit', true );
+	public function test_feed_description_carries_the_credit() {
+		$this->as_wpcom_with_plan_features( array() );
 		update_option( 'podcasting_summary', 'Our weekly podcast.' );
 		update_option( 'podcasting_title', 'The Weekly Show' );
 
@@ -216,7 +217,7 @@ class Customize_Feed_Test extends BaseTestCase {
 	}
 
 	public function test_html_credit_links_jetpack_podcast_and_the_site() {
-		update_option( 'podcasting_credit', true );
+		$this->as_wpcom_with_plan_features( array() );
 		update_option( 'podcasting_title', 'The Weekly Show' );
 
 		$html = Customize_Feed::append_credit_to_content( '<p>Notes</p>' );
@@ -226,28 +227,18 @@ class Customize_Feed_Test extends BaseTestCase {
 		$this->assertStringContainsString( '<a href="' . esc_url( home_url( '/' ) ) . '">', $html );
 	}
 
-	/**
-	 * A WordPress.com site without podcast plan access carries the credit with
-	 * no option set; a filter can still switch it off.
-	 */
-	public function test_credit_is_forced_on_wordpress_com_without_plan_access() {
+	public function test_credit_is_on_for_wordpress_com_sites_without_plan_access() {
 		$this->as_wpcom_with_plan_features( array() );
 
 		$this->assertTrue( Podcast_Gate::requires_feed_credit() );
 		$this->assertTrue( Customize_Feed::credit_enabled() );
-
-		add_filter( 'jetpack_podcast_feed_credit', '__return_false' );
-		$this->assertFalse( Customize_Feed::credit_enabled() );
 	}
 
-	public function test_credit_follows_the_option_on_wordpress_com_with_plan_access() {
+	public function test_credit_is_off_for_wordpress_com_sites_with_plan_access() {
 		$this->as_wpcom_with_plan_features( array( Podcast_Gate::FEATURE_SLUG ) );
 
 		$this->assertFalse( Podcast_Gate::requires_feed_credit() );
 		$this->assertFalse( Customize_Feed::credit_enabled() );
-
-		update_option( 'podcasting_credit', true );
-		$this->assertTrue( Customize_Feed::credit_enabled() );
 	}
 
 	/**
@@ -272,7 +263,7 @@ class Customize_Feed_Test extends BaseTestCase {
 	}
 
 	public function test_credit_uses_the_site_host_when_show_and_site_titles_are_empty() {
-		update_option( 'podcasting_credit', true );
+		$this->as_wpcom_with_plan_features( array() );
 
 		$this->assertStringStartsWith(
 			wp_parse_url( home_url(), PHP_URL_HOST ) . ' is made with Jetpack Podcast.',
@@ -285,7 +276,7 @@ class Customize_Feed_Test extends BaseTestCase {
 	 * summary, and stands in for the summary when none is set.
 	 */
 	public function test_output_channel_tags_carries_the_credit_in_itunes_summary() {
-		update_option( 'podcasting_credit', true );
+		$this->as_wpcom_with_plan_features( array() );
 		update_option( 'podcasting_title', 'The Weekly Show' );
 		update_option( 'podcasting_summary', 'Our weekly podcast.' );
 

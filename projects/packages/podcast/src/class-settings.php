@@ -75,7 +75,6 @@ class Settings {
 		'podcasting_show_urls',
 		'podcasting_show_states',
 		'podcasting_feed_limit',
-		'podcasting_credit',
 	);
 
 	/**
@@ -201,16 +200,6 @@ class Settings {
 				'sanitize_callback' => array( __CLASS__, 'sanitize_feed_limit' ),
 			)
 		);
-
-		register_setting(
-			'options',
-			'podcasting_credit',
-			array(
-				'type'              => 'boolean',
-				'default'           => false,
-				'sanitize_callback' => 'rest_sanitize_boolean',
-			)
-		);
 	}
 
 	/**
@@ -241,7 +230,6 @@ class Settings {
 			'podcasting_show_urls'   => array_merge( $empty_map, array_intersect_key( $show_urls, $empty_map ) ),
 			'podcasting_show_states' => array_merge( $empty_map, array_intersect_key( $show_states, $empty_map ) ),
 			'podcasting_feed_limit'  => self::feed_limit(),
-			'podcasting_credit'      => rest_sanitize_boolean( get_option( 'podcasting_credit', false ) ),
 			'podcasting_feed_url'    => self::feed_url(),
 		);
 	}
@@ -312,7 +300,6 @@ class Settings {
 			'podcasting_show_urls'   => array( 'type' => 'object' ),
 			'podcasting_show_states' => array( 'type' => 'object' ),
 			'podcasting_feed_limit'  => array( 'type' => 'integer' ),
-			'podcasting_credit'      => array( 'type' => 'boolean' ),
 		);
 	}
 
