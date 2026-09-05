@@ -197,6 +197,8 @@ function Dashboard(): JSX.Element {
 	/*
 	 * Tab panels unmount when unfocused, so only the active section's header renders
 	 * and one set of controls suffices; an opted-out section renders none at all.
+	 * Greyed out while customizing: the layout has to be saved or dropped before the
+	 * page is used again, and the range stays readable meanwhile.
 	 */
 	let dateControls: JSX.Element | null = null;
 
@@ -217,11 +219,13 @@ function Dashboard(): JSX.Element {
 						onSelect={ selectYear }
 						timeZone={ dateFilters.timeZone }
 						containerElement={ headerElement }
+						disabled={ editMode }
 					/>
 
 					<DateIntervalDropdown
 						options={ dateFilters.intervalOptions }
 						value={ dateFilters.interval }
+						disabled={ editMode }
 						onChange={ dateFilters.onIntervalChange }
 					/>
 				</Stack>
@@ -230,7 +234,7 @@ function Dashboard(): JSX.Element {
 				 * Report pages mount this same panel over records tables, which have no
 				 * interval, so the control is asked for rather than implied.
 				 */
-				<DateFiltersPanel { ...dateFilters } withIntervalControl />
+				<DateFiltersPanel { ...dateFilters } withIntervalControl disabled={ editMode } />
 			);
 	}
 
