@@ -28,6 +28,25 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 		// Clean up any registered scripts.
 		global $wp_scripts;
 		$wp_scripts = null;
+
+		\WP_Block_Supports::$block_to_render = null;
+	}
+
+	/**
+	 * Put WP into a block-render context.
+	 *
+	 * The render callback calls get_block_wrapper_attributes(), which reads
+	 * WP_Block_Supports::$block_to_render. WordPress sets that while rendering a
+	 * block; calling the render callback directly leaves it null, which older
+	 * WordPress releases warn about instead of bailing out.
+	 *
+	 * @param array $attributes The block attributes being rendered.
+	 */
+	private function set_up_block_render_context( array $attributes ) {
+		\WP_Block_Supports::$block_to_render = array(
+			'blockName' => 'jetpack/paypal-payment-buttons',
+			'attrs'     => $attributes,
+		);
 	}
 
 	/**
@@ -246,5 +265,513 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 			$script_content,
 			'The render() call must NOT use container ID without # prefix'
 		);
+	}
+
+	/**
+	 * Test that init_rest_api() hooks the REST routes.
+	 *
+	 * The Jetpack plugin calls this instead of init_api(); if it stops registering
+	 * the routes, every request the block editor makes returns 404.
+	 */
+	public function test_init_rest_api_registers_the_routes() {
+		remove_all_actions( 'rest_api_init' );
+
+		PayPal_Payment_Buttons::init_rest_api();
+
+		$this->assertNotFalse(
+			has_action( 'rest_api_init', array( PayPal_REST_Controller::class, 'register_routes' ) )
+		);
+
+		remove_all_actions( 'rest_api_init' );
+	}
+
+	/**
+	 * Test that init_rest_api() does not register the standalone script stubs.
+	 *
+	 * Script_Data registers the real jetpack-script-data handle on wp_loaded, after
+	 * init. A stub registered first wins, and the block editor is then left without
+	 * window.JetpackScriptData -- which breaks the editor for every block, not just
+	 * this one.
+	 */
+	public function test_init_rest_api_does_not_register_script_stubs() {
+		remove_all_actions( 'init' );
+		remove_all_actions( 'rest_api_init' );
+
+		PayPal_Payment_Buttons::init_rest_api();
+
+		$this->assertFalse(
+			has_action( 'init', array( PayPal_Payment_Buttons::class, 'register_standalone_script_stubs' ) )
+		);
+
+		remove_all_actions( 'init' );
+		remove_all_actions( 'rest_api_init' );
+	}
+
+	/**
+	 * Test that the script stub is registered when the Jetpack runtime is absent.
+	 *
+	 * This is the standalone and Playground case the stub exists for. The Jetpack
+	 * case is covered by init_rest_api() not hooking the stub at all, since
+	 * defining a stand-in Jetpack class here would leak into every other test.
+	 */
+	public function test_script_stub_registers_without_jetpack() {
+		$this->assertFalse( class_exists( 'Jetpack' ), 'Precondition: no Jetpack runtime in this suite.' );
+
+		wp_deregister_script( 'jetpack-script-data' );
+
+		PayPal_Payment_Buttons::register_standalone_script_stubs();
+
+		$this->assertTrue( wp_script_is( 'jetpack-script-data', 'registered' ) );
+
+		wp_deregister_script( 'jetpack-script-data' );
+	}
+
+	/**
+	 * Test that render_block includes product image when imageUrl is set.
+	 */
+	public function test_render_block_includes_product_image() {
+		$attributes = array(
+			'isApiManaged' => true,
+			'resourceId'   => 'PLB-IMG123',
+			'paymentLink'  => 'https://www.paypal.com/ncp/payment/PLB-IMG123',
+			'productName'  => 'Widget',
+			'price'        => '10.00',
+			'currencyCode' => 'USD',
+			'imageUrl'     => 'https://example.com/widget.jpg',
+		);
+
+		$this->set_up_block_render_context( $attributes );
+
+		$result = PayPal_Payment_Buttons::render_block( $attributes, '' );
+
+		$this->assertStringContainsString( 'jetpack-paypal-button__product-image', $result );
+		$this->assertStringContainsString( 'https://example.com/widget.jpg', $result );
+		$this->assertStringContainsString( 'alt="Widget"', $result );
+	}
+
+	/**
+	 * Test that render_block omits product image when imageUrl is not set.
+	 */
+	public function test_render_block_omits_product_image_when_not_set() {
+		$attributes = array(
+			'isApiManaged' => true,
+			'resourceId'   => 'PLB-NOIMG',
+			'paymentLink'  => 'https://www.paypal.com/ncp/payment/PLB-NOIMG',
+			'productName'  => 'Widget',
+			'price'        => '10.00',
+			'currencyCode' => 'USD',
+		);
+
+		$this->set_up_block_render_context( $attributes );
+
+		$result = PayPal_Payment_Buttons::render_block( $attributes, '' );
+
+		$this->assertStringNotContainsString( 'jetpack-paypal-button__product-image', $result );
+	}
+
+	// --- QR code ---
+
+	/**
+	 * Test that render_block puts the attributed payment link on the button panel's QR canvas.
+	 */
+	public function test_render_block_button_qr_canvas_carries_payment_link() {
+		$attributes = array(
+			'isApiManaged' => true,
+			'resourceId'   => 'PLB-QR123',
+			'paymentLink'  => 'https://www.paypal.com/ncp/payment/PLB-QR123',
+			'productName'  => 'Widget',
+			'price'        => '10.00',
+			'currencyCode' => 'USD',
+			'format'       => 'BUTTON',
+			'showQrCode'   => true,
+		);
+
+		$this->set_up_block_render_context( $attributes );
+
+		$result = PayPal_Payment_Buttons::render_block( $attributes, '' );
+
+		$this->assertStringContainsString(
+			'data-qr-url="https://www.paypal.com/ncp/payment/PLB-QR123?at_code=' . PayPal_Payment_Buttons::PAYPAL_PARTNER_ATTRIBUTION_ID . '"',
+			$result,
+			'The QR canvas should carry the payment link with the attribution code'
+		);
+	}
+
+	/**
+	 * Test that render_block puts the same link on the standalone QR canvas.
+	 */
+	public function test_render_block_standalone_qr_canvas_carries_payment_link() {
+		$attributes = array(
+			'isApiManaged' => true,
+			'resourceId'   => 'PLB-QR456',
+			'paymentLink'  => 'https://www.paypal.com/ncp/payment/PLB-QR456',
+			'productName'  => 'Widget',
+			'price'        => '10.00',
+			'currencyCode' => 'USD',
+			'format'       => 'QR',
+		);
+
+		$this->set_up_block_render_context( $attributes );
+
+		$result = PayPal_Payment_Buttons::render_block( $attributes, '' );
+
+		$this->assertStringContainsString(
+			'data-qr-url="https://www.paypal.com/ncp/payment/PLB-QR456?at_code=' . PayPal_Payment_Buttons::PAYPAL_PARTNER_ATTRIBUTION_ID . '"',
+			$result,
+			'The standalone QR canvas should carry the payment link with the attribution code'
+		);
+	}
+
+	/**
+	 * Test that render_block omits the QR section when showQrCode is off.
+	 */
+	public function test_render_block_omits_qr_canvas_when_disabled() {
+		$attributes = array(
+			'isApiManaged' => true,
+			'resourceId'   => 'PLB-QR789',
+			'paymentLink'  => 'https://www.paypal.com/ncp/payment/PLB-QR789',
+			'productName'  => 'Widget',
+			'price'        => '10.00',
+			'currencyCode' => 'USD',
+			'format'       => 'BUTTON',
+			'showQrCode'   => false,
+		);
+
+		$this->set_up_block_render_context( $attributes );
+
+		$result = PayPal_Payment_Buttons::render_block( $attributes, '' );
+
+		$this->assertStringNotContainsString( 'jetpack-paypal-button__qr-canvas', $result );
+	}
+
+	// --- Partner attribution ---
+
+	/**
+	 * Test that add_partner_attribution appends the BN code.
+	 */
+	public function test_add_partner_attribution_appends_the_bn_code() {
+		$result = PayPal_Payment_Buttons::add_partner_attribution( 'https://www.paypal.com/ncp/payment/ABC123' );
+
+		$this->assertStringContainsString(
+			'at_code=' . PayPal_Payment_Buttons::PAYPAL_PARTNER_ATTRIBUTION_ID,
+			$result
+		);
+	}
+
+	/**
+	 * Test that add_partner_attribution replaces an existing BN code rather than duplicating it.
+	 */
+	public function test_add_partner_attribution_replaces_an_existing_code() {
+		$result = PayPal_Payment_Buttons::add_partner_attribution(
+			'https://www.paypal.com/ncp/payment/ABC123?at_code=Stale&foo=bar'
+		);
+
+		$this->assertStringNotContainsString( 'Stale', $result );
+		$this->assertStringContainsString( 'foo=bar', $result );
+		$this->assertSame( 1, substr_count( $result, 'at_code=' ) );
+	}
+
+	/**
+	 * Test that add_partner_attribution leaves a non-PayPal URL alone.
+	 */
+	public function test_add_partner_attribution_ignores_non_paypal_urls() {
+		$this->assertSame(
+			'https://evil.example.com/pay',
+			PayPal_Payment_Buttons::add_partner_attribution( 'https://evil.example.com/pay' )
+		);
+	}
+
+	// --- Per-option pricing display ---
+
+	/**
+	 * Test that the cheapest option price is shown when there is no product price.
+	 */
+	public function test_render_block_shows_from_price_for_priced_variants() {
+		$attributes = array(
+			'isApiManaged'    => true,
+			'resourceId'      => 'PLB-VAR1',
+			'paymentLink'     => 'https://www.paypal.com/ncp/payment/PLB-VAR1',
+			'productName'     => 'Widget',
+			'price'           => '',
+			'currencyCode'    => 'USD',
+			'variantsEnabled' => true,
+			'variants'        => array(
+				'dimensions' => array(
+					array(
+						'name'    => 'Size',
+						'primary' => true,
+						'options' => array(
+							array(
+								'label'       => 'Large',
+								'unit_amount' => array(
+									'currency_code' => 'USD',
+									'value'         => '20.00',
+								),
+							),
+							array(
+								'label'       => 'Small',
+								'unit_amount' => array(
+									'currency_code' => 'USD',
+									'value'         => '10.00',
+								),
+							),
+						),
+					),
+				),
+			),
+		);
+
+		$this->set_up_block_render_context( $attributes );
+
+		$result = PayPal_Payment_Buttons::render_block( $attributes, '' );
+
+		$this->assertStringContainsString( 'From $10.00', $result );
+	}
+
+	/**
+	 * Test that no price is shown when neither the product nor its options are priced.
+	 */
+	public function test_render_block_omits_price_when_nothing_is_priced() {
+		$attributes = array(
+			'isApiManaged'    => true,
+			'resourceId'      => 'PLB-VAR2',
+			'paymentLink'     => 'https://www.paypal.com/ncp/payment/PLB-VAR2',
+			'productName'     => 'Widget',
+			'price'           => '',
+			'currencyCode'    => 'USD',
+			'variantsEnabled' => true,
+			'variants'        => array(
+				'dimensions' => array(
+					array(
+						'name'    => 'Size',
+						'primary' => true,
+						'options' => array( array( 'label' => 'Small' ) ),
+					),
+				),
+			),
+		);
+
+		$this->set_up_block_render_context( $attributes );
+
+		$result = PayPal_Payment_Buttons::render_block( $attributes, '' );
+
+		$this->assertStringNotContainsString( 'jetpack-paypal-button__product-price', $result );
+	}
+
+	/**
+	 * Test that render_block shows the option price instead of a stale product price.
+	 */
+	public function test_render_block_ignores_stale_price_when_options_are_priced() {
+		$attributes = array(
+			'isApiManaged'    => true,
+			'resourceId'      => 'PLB-VAR3',
+			'paymentLink'     => 'https://www.paypal.com/ncp/payment/PLB-VAR3',
+			'productName'     => 'Widget',
+			'price'           => '9.99',
+			'currencyCode'    => 'USD',
+			'variantsEnabled' => true,
+			'variants'        => array(
+				'dimensions' => array(
+					array(
+						'name'    => 'Size',
+						'primary' => true,
+						'options' => array(
+							array(
+								'label'       => 'Small',
+								'unit_amount' => array(
+									'currency_code' => 'USD',
+									'value'         => '12.50',
+								),
+							),
+						),
+					),
+				),
+			),
+		);
+
+		$this->set_up_block_render_context( $attributes );
+
+		$result = PayPal_Payment_Buttons::render_block( $attributes, '' );
+
+		$this->assertStringContainsString( 'jetpack-paypal-button__product-price">From $12.50</span>', $result );
+	}
+
+	/**
+	 * Test that render_block keeps an option's price badge when it matches the stale product price.
+	 */
+	public function test_render_block_keeps_option_badge_matching_stale_price() {
+		$attributes = array(
+			'isApiManaged'    => true,
+			'resourceId'      => 'PLB-VAR4',
+			'paymentLink'     => 'https://www.paypal.com/ncp/payment/PLB-VAR4',
+			'productName'     => 'Widget',
+			'price'           => '12.50',
+			'currencyCode'    => 'USD',
+			'variantsEnabled' => true,
+			'variants'        => array(
+				'dimensions' => array(
+					array(
+						'name'    => 'Size',
+						'primary' => true,
+						'options' => array(
+							array(
+								'label'       => 'Small',
+								'unit_amount' => array(
+									'currency_code' => 'USD',
+									'value'         => '12.50',
+								),
+							),
+							array(
+								'label'       => 'Large',
+								'unit_amount' => array(
+									'currency_code' => 'USD',
+									'value'         => '20.00',
+								),
+							),
+						),
+					),
+				),
+			),
+		);
+
+		$this->set_up_block_render_context( $attributes );
+
+		$result = PayPal_Payment_Buttons::render_block( $attributes, '' );
+
+		$this->assertStringContainsString( 'jetpack-paypal-button__variant-price">$12.50</span>', $result );
+		$this->assertStringContainsString( 'jetpack-paypal-button__variant-price">$20.00</span>', $result );
+	}
+
+	/**
+	 * Test that the product price is still shown when no option is priced.
+	 *
+	 * Options can exist without prices, so the product price stays until one of
+	 * them is priced.
+	 */
+	public function test_render_block_keeps_product_price_when_no_option_is_priced() {
+		$attributes = array(
+			'isApiManaged'    => true,
+			'resourceId'      => 'PLB-VAR5',
+			'paymentLink'     => 'https://www.paypal.com/ncp/payment/PLB-VAR5',
+			'productName'     => 'Widget',
+			'price'           => '9.99',
+			'currencyCode'    => 'USD',
+			'variantsEnabled' => true,
+			'variants'        => array(
+				'dimensions' => array(
+					array(
+						'name'    => 'Size',
+						'primary' => true,
+						'options' => array(
+							array( 'label' => 'Small' ),
+							array( 'label' => 'Large' ),
+						),
+					),
+				),
+			),
+		);
+
+		$this->set_up_block_render_context( $attributes );
+
+		$result = PayPal_Payment_Buttons::render_block( $attributes, '' );
+
+		$this->assertStringContainsString( 'jetpack-paypal-button__product-price">$9.99</span>', $result );
+	}
+
+	/**
+	 * Test that a price left on a non-primary option never becomes the headline.
+	 *
+	 * PayPal only prices the primary group, so the $5.00 here is not a price a
+	 * buyer can pay.
+	 */
+	public function test_render_block_ignores_prices_on_non_primary_options() {
+		$attributes = array(
+			'isApiManaged'    => true,
+			'resourceId'      => 'PLB-VAR7',
+			'paymentLink'     => 'https://www.paypal.com/ncp/payment/PLB-VAR7',
+			'productName'     => 'Widget',
+			'price'           => '',
+			'currencyCode'    => 'USD',
+			'variantsEnabled' => true,
+			'variants'        => array(
+				'dimensions' => array(
+					array(
+						'name'    => 'Size',
+						'primary' => true,
+						'options' => array(
+							array(
+								'label'       => 'Small',
+								'unit_amount' => array(
+									'currency_code' => 'USD',
+									'value'         => '12.50',
+								),
+							),
+						),
+					),
+					array(
+						'name'    => 'Color',
+						'primary' => false,
+						'options' => array(
+							array(
+								'label'       => 'Red',
+								'unit_amount' => array(
+									'currency_code' => 'USD',
+									'value'         => '5.00',
+								),
+							),
+						),
+					),
+				),
+			),
+		);
+
+		$this->set_up_block_render_context( $attributes );
+
+		$result = PayPal_Payment_Buttons::render_block( $attributes, '' );
+
+		$this->assertStringContainsString( 'jetpack-paypal-button__product-price">From $12.50</span>', $result );
+		$this->assertStringNotContainsString( 'From $5.00', $result );
+	}
+
+	/**
+	 * Test that render_block keeps the product price when the options are off.
+	 *
+	 * Whether the options have prices is a separate question from whether they
+	 * are switched on, so the renderer asks both. PayPal still uses the product
+	 * price here.
+	 */
+	public function test_render_block_keeps_product_price_when_variants_are_disabled() {
+		$attributes = array(
+			'isApiManaged'    => true,
+			'resourceId'      => 'PLB-VAR6',
+			'paymentLink'     => 'https://www.paypal.com/ncp/payment/PLB-VAR6',
+			'productName'     => 'Widget',
+			'price'           => '9.99',
+			'currencyCode'    => 'USD',
+			'variantsEnabled' => false,
+			'variants'        => array(
+				'dimensions' => array(
+					array(
+						'name'    => 'Size',
+						'primary' => true,
+						'options' => array(
+							array(
+								'label'       => 'Small',
+								'unit_amount' => array(
+									'currency_code' => 'USD',
+									'value'         => '12.50',
+								),
+							),
+						),
+					),
+				),
+			),
+		);
+
+		$this->set_up_block_render_context( $attributes );
+
+		$result = PayPal_Payment_Buttons::render_block( $attributes, '' );
+
+		$this->assertStringContainsString( 'jetpack-paypal-button__product-price">$9.99</span>', $result );
 	}
 }
