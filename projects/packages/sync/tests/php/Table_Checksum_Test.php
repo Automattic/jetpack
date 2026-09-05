@@ -56,6 +56,9 @@ class Table_Checksum_Test extends BaseTestCase {
 	/**
 	 * Analytics checksum schemas are registered centrally and use the shared gate.
 	 *
+	 * WPCOM mirrors these field lists (jetpack_wpcom_sync_checksum_allowed_tables) and both sides hash
+	 * over their own lists, so a change must ship with the matching WPCOM change before this pin moves.
+	 *
 	 * @param string   $table_name           Checksum table key.
 	 * @param string[] $key_fields           Expected key fields.
 	 * @param string[] $checksum_fields      Expected checksum fields.
