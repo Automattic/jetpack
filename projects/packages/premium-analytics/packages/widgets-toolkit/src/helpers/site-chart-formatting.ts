@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { siteTimeZone } from '@jetpack-premium-analytics/datetime';
+import { reportingTimeZone } from '@jetpack-premium-analytics/datetime';
 import { intlLocale } from '@jetpack-premium-analytics/formatters';
 
 /**
@@ -10,5 +10,5 @@ import { intlLocale } from '@jetpack-premium-analytics/formatters';
  * @return The formatting context.
  */
 export function siteChartFormatting() {
-	return { locale: intlLocale(), timeZone: siteTimeZone() };
+	return { locale: intlLocale(), timeZone: reportingTimeZone() };
 }

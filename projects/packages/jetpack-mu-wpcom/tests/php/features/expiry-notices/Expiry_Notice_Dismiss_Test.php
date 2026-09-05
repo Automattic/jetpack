@@ -158,6 +158,7 @@ class Expiry_Notice_Dismiss_Test extends \WorDBless\BaseTestCase {
 		$registered = get_registered_meta_keys( 'user' );
 		$this->assertArrayHasKey( Expiry_Notice_Dismiss::META_BANNER, $registered );
 		$this->assertArrayHasKey( Expiry_Notice_Dismiss::META_MODAL, $registered );
+		$this->assertArrayHasKey( Expiry_Notice_Dismiss::META_MODAL_GRACE, $registered );
 		$this->assertTrue( $registered[ Expiry_Notice_Dismiss::META_BANNER ]['show_in_rest'] );
 		$this->assertSame( 'integer', $registered[ Expiry_Notice_Dismiss::META_BANNER ]['type'] );
 	}
@@ -189,5 +190,82 @@ class Expiry_Notice_Dismiss_Test extends \WorDBless\BaseTestCase {
 		$this->assertTrue( Expiry_Notice_Dismiss::should_show_modal( $state, $user_id ) );
 		update_user_meta( $user_id, Expiry_Notice_Dismiss::META_MODAL, self::NOW - DAY_IN_SECONDS );
 		$this->assertFalse( Expiry_Notice_Dismiss::should_show_modal( $state, $user_id ) );
+	}
+
+	private function grace_state( int $expiry_ts ): array {
+		return array(
+			'state'     => Expiry_Data::STATE_EXPIRED_GRACE,
+			'expiry_ts' => $expiry_ts,
+		);
+	}
+
+	public function test_the_modal_only_speaks_to_a_lapsed_site(): void {
+		// The banner carries every stage before expiry; the modal carries none of
+		// them, so `should_show_modal` can't fall through to true the way the
+		// not-yet-dismissible states do for the banner.
+		foreach ( array( Expiry_Data::STATE_ACTIVE, Expiry_Data::STATE_APPROACHING ) as $state ) {
+			$this->assertFalse(
+				Expiry_Notice_Dismiss::should_show_modal( array( 'state' => $state ), 0 ),
+				"expected no modal in {$state}"
+			);
+		}
+	}
+
+	public function test_a_grace_dismissal_lapses_after_the_ttl(): void {
+		$user_id = $this->make_admin( 'grace_ttl' );
+		$state   = $this->grace_state( time() - 5 * DAY_IN_SECONDS );
+
+		update_user_meta( $user_id, Expiry_Notice_Dismiss::META_MODAL_GRACE, time() );
+		$this->assertFalse( Expiry_Notice_Dismiss::should_show_modal( $state, $user_id ) );
+
+		update_user_meta(
+			$user_id,
+			Expiry_Notice_Dismiss::META_MODAL_GRACE,
+			time() - ( Expiry_Notice_Dismiss::MODAL_GRACE_DISMISS_TTL + HOUR_IN_SECONDS )
+		);
+		$this->assertTrue( Expiry_Notice_Dismiss::should_show_modal( $state, $user_id ) );
+	}
+
+	public function test_a_post_grace_dismissal_never_lapses(): void {
+		$user_id = $this->make_admin( 'post_grace_no_ttl' );
+		$state   = $this->expired_state( time() - 40 * DAY_IN_SECONDS );
+		// Far older than the grace TTL, which must not apply here: the revert has
+		// happened and saying so once is enough.
+		update_user_meta( $user_id, Expiry_Notice_Dismiss::META_MODAL, time() - 30 * DAY_IN_SECONDS );
+		$this->assertFalse( Expiry_Notice_Dismiss::should_show_modal( $state, $user_id ) );
+	}
+
+	public function test_a_grace_dismissal_does_not_bury_the_post_grace_modal(): void {
+		$user_id   = $this->make_admin( 'grace_then_post_grace' );
+		$expiry_ts = time() - 40 * DAY_IN_SECONDS;
+		// Dismissed during grace, so stamped after the term's own expiry -- which
+		// is exactly what the post-grace check looks for. Separate keys are what
+		// stop that from hiding a modal the user has never seen.
+		update_user_meta( $user_id, Expiry_Notice_Dismiss::META_MODAL_GRACE, $expiry_ts + DAY_IN_SECONDS );
+		$this->assertTrue( Expiry_Notice_Dismiss::should_show_modal( $this->expired_state( $expiry_ts ), $user_id ) );
+	}
+
+	public function test_a_grace_dismissal_of_an_earlier_term_does_not_carry_over(): void {
+		$user_id = $this->make_admin( 'grace_earlier_term' );
+		// Recent enough to be inside the TTL, but recorded against a term that has
+		// since renewed and lapsed again.
+		update_user_meta( $user_id, Expiry_Notice_Dismiss::META_MODAL_GRACE, time() - HOUR_IN_SECONDS );
+		$this->assertTrue(
+			Expiry_Notice_Dismiss::should_show_modal( $this->grace_state( time() - 60 ), $user_id )
+		);
+	}
+
+	public function test_modal_meta_key_matches_the_state(): void {
+		$this->assertSame(
+			Expiry_Notice_Dismiss::META_MODAL_GRACE,
+			Expiry_Notice_Dismiss::modal_meta_key( array( 'state' => Expiry_Data::STATE_EXPIRED_GRACE ) )
+		);
+		$this->assertSame(
+			Expiry_Notice_Dismiss::META_MODAL,
+			Expiry_Notice_Dismiss::modal_meta_key( array( 'state' => Expiry_Data::STATE_EXPIRED ) )
+		);
+		$this->assertNull(
+			Expiry_Notice_Dismiss::modal_meta_key( array( 'state' => Expiry_Data::STATE_APPROACHING ) )
+		);
 	}
 }

@@ -1,0 +1,50 @@
+// The dimmed page is the halo's shadow: one huge spread from the box around the
+// anchor darkens everything but that box. The overlay itself stays clear and
+// only swallows pointer events.
+$spotlight-dim-color: rgba(0, 0, 0, 0.5);
+
+.overlay {
+	position: fixed;
+	inset: 0;
+	// Portaled to the body: above wp-admin's menu (9990), just under its bar
+	// (99999). The card lands higher, in the body or in the @wordpress/ui
+	// overlay slot. WPDS has no z-index token.
+	z-index: 99998;
+}
+
+.halo {
+	position: fixed;
+	border-radius: var(--wpds-border-radius-lg);
+	box-shadow: 0 0 0 100vmax $spotlight-dim-color;
+	pointer-events: none;
+	transition:
+		top var(--wpds-motion-duration-lg) var(--wpds-motion-easing-balanced),
+		left var(--wpds-motion-duration-lg) var(--wpds-motion-easing-balanced),
+		width var(--wpds-motion-duration-lg) var(--wpds-motion-easing-balanced),
+		height var(--wpds-motion-duration-lg) var(--wpds-motion-easing-balanced);
+}
+
+.card {
+	inline-size: var(--wpds-dimension-surface-width-sm);
+	max-inline-size: calc(100vw - 2 * var(--wpds-dimension-padding-2xl));
+}
+
+.skip {
+	// A skip link's recipe, clipped away until it takes focus: keyboard and
+	// screen reader users get a way out and the card stays as designed.
+	&:not(:focus-visible) {
+		position: absolute;
+		inline-size: 1px;
+		block-size: 1px;
+		overflow: hidden;
+		clip-path: inset(50%);
+		white-space: nowrap;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+	.halo {
+		transition: none;
+	}
+}

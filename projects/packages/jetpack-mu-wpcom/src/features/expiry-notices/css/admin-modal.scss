@@ -1,0 +1,91 @@
+.wpcom-expiry-modal.components-modal__frame {
+	max-width: 400px;
+	width: calc(100% - 32px);
+	max-height: calc(100% - 32px);
+
+	// Below its own breakpoint the components Modal stops being a centred card
+	// and becomes a sheet pinned to the bottom-left of the overlay, which leaves
+	// this one hanging off-centre and low. Handing position back to the overlay's
+	// flex centring restores the same card at every width, and keeps the vertical
+	// placement proportional to the viewport rather than anchored to its foot.
+	@media (max-width: 599px) {
+		position: relative;
+		inset: auto;
+		margin: auto;
+	}
+
+	.components-modal__content {
+		// The illustration is flush to the frame on three sides, so the padding
+		// that would inset it moves onto the body below.
+		padding: 0;
+		margin-block-start: 0;
+		overflow-x: hidden;
+	}
+
+	// Left holding only the close button, which belongs over the illustration.
+	.components-modal__header {
+		position: absolute;
+		inset-block-start: 0;
+		inset-inline-end: 0;
+		background: none;
+		border-block-end: none;
+		padding: 0;
+		height: auto;
+		z-index: 1;
+	}
+}
+
+.wpcom-expiry-modal__image {
+	display: block;
+	width: 100%;
+	height: auto;
+}
+
+.wpcom-expiry-modal__body {
+	padding: 24px;
+}
+
+.wpcom-expiry-modal__title {
+	margin-block: 0 12px;
+	font-size: 20px;
+	line-height: 1.3;
+}
+
+.wpcom-expiry-modal__list {
+	margin-block: 16px;
+	list-style: none;
+	padding-inline-start: 0;
+
+	li {
+		position: relative;
+		margin-block-end: 8px;
+		padding-inline-start: 28px;
+	}
+
+	// The warning mark against every item. Drawn here rather than shipped as a
+	// per-item icon so the list stays plain translated strings from PHP.
+	li::before {
+		content: "";
+		position: absolute;
+		inset-block-start: 2px;
+		inset-inline-start: 0;
+		width: 16px;
+		height: 16px;
+		background-color: currentColor;
+		color: #d63638;
+		mask-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 3.2A8.8 8.8 0 1 0 20.8 12 8.81 8.81 0 0 0 12 3.2Zm0 16A7.2 7.2 0 1 1 19.2 12 7.21 7.21 0 0 1 12 19.2Zm-.8-11.2h1.6v6h-1.6Zm0 7.2h1.6v1.6h-1.6Z'/%3E%3C/svg%3E");
+		mask-repeat: no-repeat;
+		mask-size: contain;
+	}
+}
+
+.wpcom-expiry-modal__actions {
+	display: flex;
+	gap: 8px;
+	margin-block-start: 24px;
+
+	.components-button {
+		flex: 1;
+		justify-content: center;
+	}
+}

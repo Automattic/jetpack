@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import { siteTimeZone } from './site-time-zone';
+import { reportingTimeZone } from './reporting-time-zone';
 import { readSiteTimestamp } from './site-timestamp';
 import { createTZDateFromParts } from './tz';
 
@@ -25,7 +25,7 @@ export function parseBucketStart( value: unknown ): Date | undefined {
 		return undefined;
 	}
 
-	const date = createTZDateFromParts( timestamp.parts, siteTimeZone() );
+	const date = createTZDateFromParts( timestamp.parts, reportingTimeZone() );
 
 	return isNaN( date.getTime() ) ? undefined : date;
 }

@@ -118,18 +118,21 @@ class AI_Answers {
 	}
 
 	/**
-	 * Whether master enforcement has rolled out here — mirrors the Jetpack
-	 * plugin's rollout scoping: Simple keeps its option contract; elsewhere
-	 * the rollout is internal-only for now.
+	 * Whether master enforcement has rolled out here.
+	 *
+	 * Simple keeps its existing option contract, self-hosted sites use the
+	 * Jetpack module, and Atomic remains limited to internal testing.
 	 *
 	 * @return bool
 	 */
 	private static function is_master_rollout_active() {
-		if ( ( new Host() )->is_wpcom_simple() ) {
+		$host = new Host();
+		if ( $host->is_wpcom_simple() ) {
 			return true;
 		}
 
-		return function_exists( 'jetpack_is_internal_testing_environment' ) && jetpack_is_internal_testing_environment();
+		return ! $host->is_woa_site()
+			|| ( function_exists( 'jetpack_is_internal_testing_environment' ) && jetpack_is_internal_testing_environment() );
 	}
 
 	/**
@@ -182,13 +185,16 @@ class AI_Answers {
 
 	/**
 	 * Whether AI Answers is enabled for the current site.
+	 *
+	 * Paid-plan eligibility is applied after the filter chain alongside the
+	 * master gate so neither can be filtered back on.
 	 */
 	public static function is_enabled() {
 		$enabled = (bool) apply_filters( 'jetpack_search_ai_answers_enabled', self::is_saved_on() );
 
 		// The master gate is applied after the filter chain so it cannot be
 		// filtered back on, matching `Jetpack_AI_Settings::is_ai_enabled()`.
-		return $enabled && self::should_enforce_master();
+		return $enabled && self::should_enforce_master() && Search_Blocks::supports_paid_search();
 	}
 
 	/**

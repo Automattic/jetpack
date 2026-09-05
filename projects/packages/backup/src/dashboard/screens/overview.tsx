@@ -1,7 +1,8 @@
-import { useCallback, useEffect, useState } from '@wordpress/element';
+import { Spinner, VisuallyHidden } from '@wordpress/components';
+import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useNavigate, useSearch } from '@wordpress/route';
-import { Text } from '@wordpress/ui';
+import { Button, Stack, Text } from '@wordpress/ui';
 import ActivityDetail from '../components/activity-detail';
 import ActivityList, { activityQueryArgs } from '../components/activity-list';
 import BackupDetail from '../components/backup-detail';
@@ -13,6 +14,7 @@ import NextScheduledBackup from '../components/next-scheduled-backup';
 import QueryError from '../components/query-error';
 import ReviewRequest from '../components/review-request';
 import StorageSpace from '../components/storage-space';
+import { isRestoreRowId } from '../data/normalize/restores';
 import {
 	ACTIVITY_LOG_DEFAULT_PER_PAGE,
 	ACTIVITY_LOG_NEWEST_FIRST,
@@ -60,6 +62,16 @@ export const INITIAL_VIEW: View = {
 let hasRecordedPageView = false;
 
 /**
+ * Where the reader last was in the list, and which row they last chose.
+ *
+ * Module state for the same reason `hasRecordedPageView` is: a trip to Download or
+ * Restore unmounts this screen, and a gate verdict change unmounts its body — so
+ * anything held in the component is gone by the time the reader comes back.
+ */
+let lastView: View = INITIAL_VIEW;
+let lastSelectedId: string | null = null;
+
+/**
  * Reset the page-view latch. Test-only.
  *
  * The latch is module state precisely so it outlives an unmount, which
@@ -68,6 +80,17 @@ let hasRecordedPageView = false;
  */
 export function resetPageViewForTesting(): void {
 	hasRecordedPageView = false;
+}
+
+/**
+ * Forget where the reader was. Test-only.
+ *
+ * Same hazard as the latch above: this state outlives an unmount, so one test's
+ * paging would otherwise seed every later one in the same file.
+ */
+export function resetListStateForTesting(): void {
+	lastView = INITIAL_VIEW;
+	lastSelectedId = null;
 }
 
 /**
@@ -132,7 +155,13 @@ function OverviewBody() {
 	const navigate = useNavigate();
 	// View state lives here so RightPane's `useActivityById` can
 	// subscribe to the same paginated query the list reads from.
-	const [ view, setView ] = useState< View >( INITIAL_VIEW );
+	const [ view, setView ] = useState< View >( lastView );
+	// Written on the way through, because the return trip has nothing to read it from:
+	// the back links on Download and Restore carry no search.
+	const rememberView = useCallback( ( next: View ) => {
+		lastView = next;
+		setView( next );
+	}, [] );
 	// Same derivation `<ActivityList>` uses, so the right pane reads the cache
 	// entry the list filled rather than opening its own.
 	const { page, pageSize, sortOrder } = activityQueryArgs( view );
@@ -142,7 +171,30 @@ function OverviewBody() {
 	// placeholder renders. Page 1 dedupes with the list's first
 	// fetch when the list is on page 1 with the default per-page.
 	const defaultSelectedId = useDefaultBackupRewindId();
-	const selectedId = typeof search.selected === 'string' ? search.selected : defaultSelectedId;
+	// The URL still wins; the remembered row only answers for the return trip, where
+	// the reader made a choice this page load and the address no longer carries it.
+	const urlSelectedId = typeof search.selected === 'string' ? search.selected : null;
+	const selectedId = urlSelectedId ?? lastSelectedId ?? defaultSelectedId;
+	// Only an explicit choice is remembered: `defaultSelectedId` moves as new backups
+	// land, and pinning the row it happened to name would outlive its own reason.
+	useEffect( () => {
+		if ( urlSelectedId ) {
+			lastSelectedId = urlSelectedId;
+		}
+	}, [ urlSelectedId ] );
+	// Puts the remembered row in the address whenever the address lacks one, so
+	// `clearSelected` below always has a real change to make: without one, TanStack
+	// treats its navigate as a no-op and pushes no history entry, leaving Back with
+	// nowhere on the Overview to land. `replace`: this is not its own stop.
+	useEffect( () => {
+		if ( urlSelectedId || ! lastSelectedId ) {
+			return;
+		}
+		navigate( {
+			search: ( previous: OverviewSearch ) => ( { ...previous, selected: lastSelectedId } ),
+			replace: true,
+		} as Parameters< typeof navigate >[ 0 ] );
+	}, [ urlSelectedId, navigate ] );
 	// `/site/rewindable-activity` only lists completed restore points, so
 	// on its own it cannot tell "no backups yet" from "the first one is
 	// running" from "they're all failing". This second query answers that.
@@ -165,9 +217,9 @@ function OverviewBody() {
 	// briefly showing the two-pane view is a milder error than briefly
 	// telling an established customer they have no backups.
 	//
-	// A failed request is "still unknown" too, and that is the whole
-	// point of reading `isError` here. React Query reports an errored
-	// query as not-loading with no rows, so without this the veto lifts
+	// A failed request is "still unknown" too, and so is one React Query
+	// parked because the browser is offline — that is what `isError` and
+	// `isPaused` are for: neither loads nor has rows, so without them the veto lifts
 	// on a question nobody managed to ask: the first-run panel takes the
 	// body over and takes the activity log's own error report down with
 	// it, and a 5xx reads as "your first backup is on its way".
@@ -175,23 +227,45 @@ function OverviewBody() {
 		hasRestorePoints,
 		isLoading: restorePointsLoading,
 		isError: restorePointsError,
+		isPaused: restorePointsPaused,
 	} = useHasRestorePoints();
 
+	const overviewRef = useRef< HTMLDivElement >( null );
+
+	// The updater form, like `clearSelected` below: an object literal replaces the
+	// search wholesale, so every future param would depend on this closure being fresh.
 	const setSelected = useCallback(
 		( id: string ) => {
-			// Merge into existing search so future params (filters, range, etc.) aren't dropped.
 			navigate( {
-				search: { ...search, selected: id },
-			} as unknown as Parameters< typeof navigate >[ 0 ] );
+				search: ( previous: OverviewSearch ) => ( { ...previous, selected: id } ),
+			} as Parameters< typeof navigate >[ 0 ] );
 		},
-		[ navigate, search ]
+		[ navigate ]
 	);
+
+	// The stale id lives in the URL, so the dead end survives a reload without this.
+	// A new history entry, not a replacement: the selection may be fine, so Back must restore it.
+	const clearSelected = useCallback( () => {
+		// The memory too, not just the URL: `selectedId` falls back to it, so
+		// clearing one and not the other puts the reader straight back.
+		lastSelectedId = null;
+		overviewRef.current?.focus();
+		navigate( {
+			search: ( previous: OverviewSearch ) => {
+				const next = { ...previous };
+				delete next.selected;
+				return next;
+			},
+			// A single assertion, not `as unknown as`: the updater form stays
+			// comparable, so a typo in the key is still a build error.
+		} as Parameters< typeof navigate >[ 0 ] );
+	}, [ navigate ] );
 
 	if (
 		replacesOverview(
 			backupsState,
 			isInitialBackup,
-			restorePointsLoading || restorePointsError || hasRestorePoints
+			restorePointsLoading || restorePointsError || restorePointsPaused || hasRestorePoints
 		)
 	) {
 		return <BackupStatusPanel state={ backupsState } progress={ progress } />;
@@ -287,18 +361,29 @@ function OverviewBody() {
 			 * a reader whose storage is full needs to read first.
 			 */ }
 			<ReviewRequest />
-			<div className="jpb-overview">
+			{ /*
+			 * Where `clearSelected` puts focus once the empty state unmounts, so the
+			 * next Tab reaches the list rather than the top of the page.
+			 */ }
+			<div
+				className="jpb-overview"
+				ref={ overviewRef }
+				tabIndex={ -1 }
+				role="group"
+				aria-label={ __( 'Backup activity', 'jetpack-backup-pkg' ) }
+			>
 				<ActivityList
 					selectedId={ selectedId }
 					onSelect={ setSelected }
 					view={ view }
-					onChangeView={ setView }
+					onChangeView={ rememberView }
 				/>
 				<RightPane
 					selectedId={ selectedId }
 					page={ page }
 					pageSize={ pageSize }
 					sortOrder={ sortOrder }
+					onClearSelected={ clearSelected }
 				/>
 			</div>
 		</>
@@ -310,14 +395,16 @@ function OverviewBody() {
  *
  * Resolves the URL-driven `selectedId` to an activity item and renders the
  * matching detail card: `<BackupDetail>` for backup rows and `<ActivityDetail>`
- * for everything else. Falls back to an empty/not-found state when the
- * selection is missing or doesn't resolve.
+ * for everything else. A selection that resolves to nothing is reported three
+ * ways — the log failed, the log has not answered yet, or nothing loaded holds
+ * the row — and only the last of those offers to drop the selection.
  *
- * @param props            - Component props.
- * @param props.selectedId - Currently selected row id, or null when nothing is selected.
- * @param props.page       - The page currently shown in the list.
- * @param props.pageSize   - The per-page setting currently shown in the list.
- * @param props.sortOrder  - The sort direction currently shown in the list.
+ * @param props                 - Component props.
+ * @param props.selectedId      - Currently selected row id, or null when nothing is selected.
+ * @param props.page            - The page currently shown in the list.
+ * @param props.pageSize        - The per-page setting currently shown in the list.
+ * @param props.sortOrder       - The sort direction currently shown in the list.
+ * @param props.onClearSelected - Drops `?selected=` from the URL.
  * @return The rendered detail card or an empty-state placeholder.
  */
 function RightPane( {
@@ -325,14 +412,16 @@ function RightPane( {
 	page,
 	pageSize,
 	sortOrder,
+	onClearSelected,
 }: {
 	selectedId: string | null;
 	page: number;
 	pageSize: number;
 	sortOrder: ActivitySortOrder;
+	onClearSelected: () => void;
 } ) {
 	// All four must match the list's arguments — this reads its cache entry.
-	const item = useActivityById( selectedId, page, pageSize, sortOrder );
+	const { item, hasAnswered, error } = useActivityById( selectedId, page, pageSize, sortOrder );
 	if ( ! selectedId ) {
 		return (
 			<div className="jpb-overview__detail jpb-overview__detail--empty">
@@ -340,10 +429,49 @@ function RightPane( {
 			</div>
 		);
 	}
+	if ( ! item && error ) {
+		return (
+			<div className="jpb-overview__detail jpb-overview__detail--empty">
+				{ /*
+				 * Neither the upstream reason nor a retry: the list beside this pane
+				 * reports the activity feed's failure with both, and a second copy of
+				 * each is two error notices and two buttons for one thing to fix.
+				 */ }
+				<QueryError title={ __( "We couldn't load this item.", 'jetpack-backup-pkg' ) } />
+			</div>
+		);
+	}
+	if ( ! item && ! hasAnswered ) {
+		return (
+			<div className="jpb-overview__detail jpb-overview__detail--empty">
+				{ /* `Spinner` is `role="presentation"` with no text, so on its own this branch is silent. */ }
+				<Spinner />
+				<VisuallyHidden>{ __( 'Loading item details…', 'jetpack-backup-pkg' ) }</VisuallyHidden>
+			</div>
+		);
+	}
 	if ( ! item ) {
 		return (
 			<div className="jpb-overview__detail jpb-overview__detail--empty">
-				<Text>{ __( 'Item not found.', 'jetpack-backup-pkg' ) }</Text>
+				<Stack direction="column" gap="sm" align="center">
+					<Text>
+						{ isRestoreRowId( selectedId )
+							? // The collection is the last ten restores and has no pages,
+							  // so there is nowhere else to send the reader.
+							  __(
+									"That restore isn't among this site's most recent ones any more.",
+									'jetpack-backup-pkg'
+							  )
+							: // Only loaded pages were searched, so "gone" is not ours to claim.
+							  __(
+									"That item isn't on this page of the activity log. It may be on another page, or no longer available.",
+									'jetpack-backup-pkg'
+							  ) }
+					</Text>
+					<Button variant="outline" onClick={ onClearSelected }>
+						{ __( 'Clear selection', 'jetpack-backup-pkg' ) }
+					</Button>
+				</Stack>
 			</div>
 		);
 	}

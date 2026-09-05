@@ -71,7 +71,7 @@ The simplest sparkline requires only a `data` prop with an array of numeric valu
 - **`resizeDebounceTime`** (default: `300`): Debounce delay for resize events in ms
 
 **Visual Styling:**
-- **`color`**: Color for the line stroke (defaults to theme color)
+- **`color`**: Color for the line stroke (defaults to `--a8c-charts-color-series-1`)
 - **`strokeWidth`** (default: `1.5`): Line stroke width in pixels
 - **`withGradientFill`** (default: `true`): Whether to render gradient fill beneath the line
 - **`gradient`**: Custom gradient configuration (from, to, fromOpacity, toOpacity)
@@ -187,7 +187,7 @@ Disable the gradient for a cleaner line-only appearance, or customize it:
 
 ## Theming Integration
 
-Sparklines integrate seamlessly with the chart theming system. The default theme has neutral colors and styling, and is automatically applied to all charts unless a custom theme is provided.
+Sparklines integrate seamlessly with the chart theming system. The default theme has neutral styling, and is automatically applied to all charts unless a custom theme is provided.
 
 **The line color comes from the first palette custom property, not the theme object.** Use the `color` prop to override a single sparkline:
 
@@ -204,7 +204,7 @@ Everything else is set by wrapping your chart in `GlobalChartsProvider` and pass
 	language="tsx"
 	code={ `import { GlobalChartsProvider, Sparkline, type ChartTheme } from '@automattic/charts';
 
-	const customTheme: ChartTheme = {
+	const customTheme: Partial< ChartTheme > = {
 		sparkline: { strokeWidth: 2 },
 	};
 

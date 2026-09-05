@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Premium Analytics: keep the dashboard off while the Stats module is inactive.

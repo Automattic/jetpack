@@ -5,7 +5,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { format, isValid } from 'date-fns';
 import {
 	parseSiteDateTime,
-	siteTimeZone,
+	reportingTimeZone,
 	toLocalTZ,
 	type DateRange,
 } from '@jetpack-premium-analytics/datetime';
@@ -23,7 +23,7 @@ const DATE_FORMAT = 'MMM d, yyyy';
 export function formatPublishedDate( publishedDate: string | undefined ): string | undefined {
 	const parsed = parseSiteDateTime( publishedDate );
 
-	return parsed ? format( toLocalTZ( parsed, siteTimeZone() ), DATE_FORMAT ) : undefined;
+	return parsed ? format( toLocalTZ( parsed, reportingTimeZone() ), DATE_FORMAT ) : undefined;
 }
 
 /**

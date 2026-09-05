@@ -37,7 +37,7 @@
 		"@storybook/react": "10.4.6",
 		"@testing-library/react": "16.3.2",
 		"@testing-library/user-event": "14.6.1",
-		"@wordpress/dataviews": "18.1.0",
+		"@wordpress/dataviews": "19.0.1-next.v.202609031004.0",
 		"@wordpress/date": "5.54.0"
 	}
 }

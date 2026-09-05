@@ -8,7 +8,12 @@ import userEvent from '@testing-library/user-event';
  * Internal dependencies
  */
 import { DATE_FILTER_RANGE, DATE_FILTER_YEAR } from './config';
-import { useActiveSection, useDashboardSections, useSectionDateFilter } from './hooks';
+import {
+	useActiveSection,
+	useDashboardSections,
+	useOnboarding,
+	useSectionDateFilter,
+} from './hooks';
 import { stage as Dashboard } from './stage';
 import type { SyncStatus } from '@jetpack-premium-analytics/site-sync';
 import type { ReactNode } from 'react';
@@ -35,9 +40,16 @@ jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	GlobalErrorProvider: ( { children }: { children: ReactNode } ) => <>{ children }</>,
 } ) );
 
-jest.mock( '@jetpack-premium-analytics/externals', () => ( {
-	Stack: ( { children }: { children: ReactNode } ) => <div>{ children }</div>,
-} ) );
+jest.mock( '@jetpack-premium-analytics/externals', () => {
+	const { forwardRef } = jest.requireActual( 'react' );
+	// The stage hands a ref to the actions wrapper, so the stand-in must take one.
+	const Stack = forwardRef( ( { children }: { children: ReactNode }, ref: never ) => (
+		<div ref={ ref }>{ children }</div>
+	) );
+	Stack.displayName = 'Stack';
+
+	return { Stack };
+} );
 
 jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/routing' ),
@@ -56,6 +68,8 @@ jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 	DateFiltersPanel: () => <MockHeaderScopeProbe />,
 	DateIntervalDropdown: () => null,
 	DateYearFilter: () => null,
+	OnboardingWelcomeModal: ( { open }: { open: boolean } ) =>
+		open ? <div data-testid="onboarding-welcome-modal" /> : null,
 	SectionHeader: ( { children }: { children: ReactNode } ) => <div>{ children }</div>,
 	SectionTabPanel: ( { value, children }: { value: string; children: ReactNode } ) =>
 		value === mockActiveSectionSlug ? <div>{ children }</div> : null,
@@ -64,7 +78,12 @@ jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 } ) );
 
 jest.mock( '@wordpress/admin-ui', () => ( {
-	Page: ( { children }: { children: ReactNode } ) => <div>{ children }</div>,
+	Page: ( { actions, children }: { actions?: ReactNode; children: ReactNode } ) => (
+		<div>
+			<div data-testid="page-actions">{ actions }</div>
+			{ children }
+		</div>
+	),
 } ) );
 
 jest.mock( '@wordpress/components', () => ( {
@@ -103,16 +122,20 @@ function MockScopeProbe() {
 
 jest.mock( '@wordpress/widget-dashboard', () => {
 	const WidgetDashboard = ( { children }: { children: ReactNode } ) => <div>{ children }</div>;
-	WidgetDashboard.Actions = () => null;
+	WidgetDashboard.Actions = () => <div data-testid="widget-dashboard-actions" />;
 	WidgetDashboard.NoWidgetsState = () => null;
 	WidgetDashboard.Widgets = () => <MockScopeProbe />;
 	WidgetDashboard.Commands = () => null;
+	WidgetDashboard.Policy = ( { children }: { children: ReactNode } ) => <>{ children }</>;
 
 	return { WidgetDashboard };
 } );
 
 jest.mock( './components', () => ( {
 	DashboardSections: ( { children }: { children: ReactNode } ) => <div>{ children }</div>,
+	FeedbackAction: () => <div data-testid="feedback-action" />,
+	OnboardingTour: () => <div data-testid="onboarding-tour" />,
+	onboardingTourSteps: () => [],
 	// A marker, not the real notice, which reads a query cache these tests do not
 	// stand up. Covered here: where the stage puts it.
 	RefreshFailureNotice: ( { className }: { className?: string } ) => (
@@ -148,8 +171,10 @@ jest.mock( '../widget-module-i18n', () => ( {
 jest.mock( './hooks', () => ( {
 	useActiveSection: jest.fn(),
 	useDashboardGridSettings: () => [ {} ],
+	useDashboardPolicy: () => () => true,
 	useDashboardSectionLayout: () => [ [], jest.fn(), jest.fn() ],
 	useDashboardSections: jest.fn(),
+	useOnboarding: jest.fn(),
 	useSectionDateFilter: jest.fn(),
 } ) );
 
@@ -157,11 +182,21 @@ beforeEach( () => {
 	mockSyncState = { data: undefined, error: null, isComplete: false };
 	mockIsSyncFinished = false;
 	mockTriggerSync.mockImplementation( () => Promise.resolve() );
+	useOnboardingMock.mockReturnValue( closedOnboarding );
 } );
 
 const useDashboardSectionsMock = jest.mocked( useDashboardSections );
 const useSectionDateFilterMock = jest.mocked( useSectionDateFilter );
 const useActiveSectionMock = jest.mocked( useActiveSection );
+const useOnboardingMock = jest.mocked( useOnboarding );
+
+const closedOnboarding = {
+	phase: 'closed' as const,
+	step: 0,
+	start: jest.fn(),
+	next: jest.fn(),
+	dismiss: jest.fn(),
+};
 
 /**
  * Resolve the sections entity with one active section.
@@ -290,6 +325,76 @@ describe( 'Dashboard refresh-failure notice', () => {
 		expect( notices[ 0 ].previousElementSibling ).toContainElement(
 			screen.getByText( 'header offers comparison' )
 		);
+	} );
+} );
+
+describe( 'Dashboard feedback action', () => {
+	beforeEach( () => {
+		jest.clearAllMocks();
+		useActiveSectionMock.mockReturnValue( [ 'traffic', jest.fn() ] );
+		mockActiveSectionSlug = 'traffic';
+		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_RANGE );
+	} );
+
+	it( "sits in the page actions, ahead of the dashboard's own", () => {
+		mockSection( { slug: 'traffic', date_filter: DATE_FILTER_RANGE } );
+
+		render( <Dashboard /> );
+
+		const feedback = screen.getByTestId( 'feedback-action' );
+
+		// eslint-disable-next-line testing-library/no-node-access -- order within the actions slot is what this test is for.
+		expect( feedback.nextElementSibling ).toContainElement(
+			screen.getByTestId( 'widget-dashboard-actions' )
+		);
+	} );
+} );
+
+describe( 'Dashboard onboarding', () => {
+	beforeEach( () => {
+		jest.clearAllMocks();
+		useActiveSectionMock.mockReturnValue( [ 'traffic', jest.fn() ] );
+		mockActiveSectionSlug = 'traffic';
+		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_RANGE );
+		useOnboardingMock.mockReturnValue( closedOnboarding );
+		mockSection( { slug: 'traffic', date_filter: DATE_FILTER_RANGE } );
+	} );
+
+	it( 'runs the journey on the default section at rest', () => {
+		render( <Dashboard /> );
+
+		expect( useOnboardingMock ).toHaveBeenLastCalledWith(
+			expect.objectContaining( { enabled: true } )
+		);
+	} );
+
+	it( 'holds the journey while another section is active', () => {
+		useActiveSectionMock.mockReturnValue( [ 'store', jest.fn() ] );
+		mockActiveSectionSlug = 'store';
+
+		render( <Dashboard /> );
+
+		expect( useOnboardingMock ).toHaveBeenLastCalledWith(
+			expect.objectContaining( { enabled: false } )
+		);
+	} );
+
+	it( 'opens the welcome modal when the journey reaches it', () => {
+		useOnboardingMock.mockReturnValue( { ...closedOnboarding, phase: 'modal' } );
+
+		render( <Dashboard /> );
+
+		expect( screen.getByTestId( 'onboarding-welcome-modal' ) ).toBeInTheDocument();
+		expect( screen.queryByTestId( 'onboarding-tour' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'runs the tour once the modal hands over', () => {
+		useOnboardingMock.mockReturnValue( { ...closedOnboarding, phase: 'tour' } );
+
+		render( <Dashboard /> );
+
+		expect( screen.getByTestId( 'onboarding-tour' ) ).toBeInTheDocument();
+		expect( screen.queryByTestId( 'onboarding-welcome-modal' ) ).not.toBeInTheDocument();
 	} );
 } );
 

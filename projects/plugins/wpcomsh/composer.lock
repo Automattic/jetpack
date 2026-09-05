@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2d86e97be5937a9514188a45b11b07c1",
+    "content-hash": "322ae0393abf28902a8b7658c32ea20b",
     "packages": [
         {
             "name": "automattic/block-delimiter",
@@ -2098,12 +2098,13 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/premium-analytics",
-                "reference": "3f266ef7e224e73c22174fc248a5dce1a968ca9a"
+                "reference": "89f4be4707f2894e05264c600cbc61b41d4b1870"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
                 "automattic/jetpack-config": "@dev",
                 "automattic/jetpack-connection": "@dev",
+                "automattic/jetpack-feature-flags": "@dev",
                 "automattic/jetpack-stats": "@dev",
                 "automattic/jetpack-status": "@dev",
                 "automattic/jetpack-sync": "@dev",
@@ -2827,16 +2828,16 @@
         },
         {
             "name": "automattic/wc-calypso-bridge",
-            "version": "v2.11.7",
+            "version": "v2.11.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/wc-calypso-bridge.git",
-                "reference": "ff8f1980da53ce4ad724edb3ca3e7188a7f1778e"
+                "reference": "0c058d67c384d15752691402dd8031824387b6da"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/wc-calypso-bridge/zipball/ff8f1980da53ce4ad724edb3ca3e7188a7f1778e",
-                "reference": "ff8f1980da53ce4ad724edb3ca3e7188a7f1778e",
+                "url": "https://api.github.com/repos/Automattic/wc-calypso-bridge/zipball/0c058d67c384d15752691402dd8031824387b6da",
+                "reference": "0c058d67c384d15752691402dd8031824387b6da",
                 "shasum": ""
             },
             "require-dev": {
@@ -2878,7 +2879,7 @@
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "time": "2026-08-21T15:43:09+00:00"
+            "time": "2026-09-03T14:06:44+00:00"
         },
         {
             "name": "automattic/woocommerce-analytics",
