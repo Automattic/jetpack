@@ -1,0 +1,3 @@
+Significance: patch
+Type: changed
+Comment: Internal refactor only; behavior unchanged. The woocommerce_analytics sync module now comes from the jetpack-sync package.

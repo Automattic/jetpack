@@ -39,7 +39,7 @@ filters.
 src/class-analytics.php                 # entry: loads build, registers menu + routes
 src/REST/class-api-proxy-controller.php # the WPCOM data proxy (PREFIX_CONFIG)
 src/REST/class-notices-controller.php   # /notices route
-src/Sync/                               # interim woocommerce_analytics sync (WOOA7S-1550)
+src/Sync/                               # PA glue for the shared woocommerce_analytics sync module
 packages/data/src/api/                  # frontend fetch helpers (apiFetch)
 packages/externals/                     # passthrough module for shared third-party libraries
 routes/                                 # lazy-loaded SPA pages; build/ is generated
@@ -205,7 +205,9 @@ See Automattic/jetpack#50266 for the PR that established this contract.
 - A proxy 404 usually means the prefix isn't in `PREFIX_CONFIG`, not a missing WPCOM endpoint.
 - Reads are cached 5 min; add `force_refresh` if a screen looks stale.
 - `v2` vs `v1.x` changes the WPCOM base — a wrong version silently hits a different endpoint.
-- Sync code under `src/Sync/` is interim (WOOA7S-1550); don't build on it.
+- The `woocommerce_analytics` sync module lives in the jetpack-sync package
+  (`Sync\Configuration::register()` is the opt-in); `src/Sync/` holds only
+  PA-specific glue (Config bootstrap, bookings meta whitelist, milestone tracker).
 - Don't edit dashboard React in Calypso — it lives here now.
 - Internal package names use `@jetpack-premium-analytics/*` aliases throughout the package —
   never `@automattic/jetpack-premium-analytics-*`.
