@@ -1565,11 +1565,10 @@ class Contact_Form_Plugin {
 			return;
 		}
 		\Automattic\Jetpack\Menu_Badges\Menu_Badges::init(); // idempotent; wires the renderer.
-		$slug = apply_filters( 'jetpack_forms_alpha', true ) ? Dashboard::FORMS_WPBUILD_ADMIN_SLUG : Dashboard::ADMIN_SLUG;
 		\Automattic\Jetpack\Menu_Badges\Notification_Counts::register(
 			'jetpack-forms',
 			array(
-				'menu_slug' => $slug,
+				'menu_slug' => Dashboard::FORMS_WPBUILD_ADMIN_SLUG,
 				'count'     => self::get_unread_count(),
 				'type'      => 'count',
 			)
