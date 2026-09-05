@@ -565,17 +565,13 @@
 
 .jetpack-paypal-variants__option {
 	display: flex;
+	flex-direction: column;
 	gap: 8px;
-	align-items: flex-end;
+	align-items: stretch;
 	margin-bottom: 8px;
 
 	.components-text-control__input {
 		min-width: 0;
-	}
-
-	@media ( max-width: 480px ) {
-		flex-direction: column;
-		align-items: stretch;
 	}
 }
 
@@ -583,6 +579,7 @@
 	min-width: 44px;
 	min-height: 44px;
 	display: flex;
+	align-self: flex-start;
 	align-items: center;
 	justify-content: center;
 }

@@ -45,7 +45,7 @@ import { FORMAT_OPTIONS } from './components/format-switcher';
 import LegacyBlock from './components/legacy-block';
 import PayPalButtonPreview from './components/paypal-button-preview';
 import ProductForm from './components/product-form';
-import { hasVariantPricing, validateVariants } from './components/variant-builder';
+import VariantBuilder, { hasVariantPricing, validateVariants } from './components/variant-builder';
 import PayPalInspectorControls from './controls';
 import { broadcastConnectionChange, usePayPalConnection } from './hooks/use-paypal-connection';
 import { usePayPalResource } from './hooks/use-paypal-resource';
@@ -896,6 +896,18 @@ export default function PayPalPaymentButtonsEdit( {
 						</div>
 					) }
 				</PanelBody>
+				<PanelBody
+					title={ __( 'Product Options', 'jetpack-paypal-payments' ) }
+					initialOpen={ false }
+				>
+					<VariantBuilder
+						enabled={ variantsEnabled }
+						variants={ variants }
+						currencyCode={ currencyCode || 'USD' }
+						onChange={ updates => setAttributes( updates ) }
+						disabled={ isCreating }
+					/>
+				</PanelBody>
 			</InspectorControls>
 			{ inspectorControls }
 
@@ -903,9 +915,6 @@ export default function PayPalPaymentButtonsEdit( {
 				attributes={ attributes }
 				setAttributes={ setAttributes }
 				buttonText={ buttonText }
-				currencyCode={ currencyCode }
-				variantsEnabled={ variantsEnabled }
-				variants={ variants }
 				activeFormat={ activeFormat }
 				isConnected={ isConnected }
 				environment={ environment }

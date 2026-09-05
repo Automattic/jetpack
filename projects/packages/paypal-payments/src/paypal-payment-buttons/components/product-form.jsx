@@ -9,7 +9,6 @@ import { Button, Notice, TextControl, ToggleControl } from '@wordpress/component
 import { __ } from '@wordpress/i18n';
 import metadata from '../block.json';
 import FormatSwitcher from './format-switcher';
-import VariantBuilder from './variant-builder';
 
 const labelEditHeading = __( 'Edit PayPal Payment Button', 'jetpack-paypal-payments' );
 const labelCreateHeading = __( 'Create PayPal Payment Button', 'jetpack-paypal-payments' );
@@ -21,9 +20,6 @@ const labelCreateHeading = __( 'Create PayPal Payment Button', 'jetpack-paypal-p
  * @param {object}   props.attributes           - The full block attributes bag.
  * @param {Function} props.setAttributes        - Function to update block attributes.
  * @param {string}   props.buttonText           - The button label attribute.
- * @param {string}   props.currencyCode         - The currency code attribute.
- * @param {boolean}  props.variantsEnabled      - Whether product options are enabled.
- * @param {object}   props.variants             - The product options attribute.
  * @param {string}   props.activeFormat         - The display format, normalized.
  * @param {boolean}  props.isConnected          - Whether the site is connected to PayPal.
  * @param {string}   props.environment          - 'production' or 'sandbox'.
@@ -48,9 +44,6 @@ export default function ProductForm( {
 	attributes,
 	setAttributes,
 	buttonText,
-	currencyCode,
-	variantsEnabled,
-	variants,
 	activeFormat,
 	isConnected,
 	environment,
@@ -106,16 +99,6 @@ export default function ProductForm( {
 					{ successMessage }
 				</Notice>
 			) }
-
-			<div className="jetpack-paypal-payment-buttons__variants-section">
-				<VariantBuilder
-					enabled={ variantsEnabled }
-					variants={ variants }
-					currencyCode={ currencyCode || 'USD' }
-					onChange={ updates => setAttributes( updates ) }
-					disabled={ isCreating }
-				/>
-			</div>
 
 			<div className="jetpack-paypal-payment-buttons__button-appearance">
 				<h4 className="jetpack-paypal-payment-buttons__section-heading">
