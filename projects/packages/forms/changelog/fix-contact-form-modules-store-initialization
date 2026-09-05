@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Load active module state before the editor module store.
