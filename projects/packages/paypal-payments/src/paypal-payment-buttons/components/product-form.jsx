@@ -5,7 +5,6 @@
  * @package
  */
 
-import { MediaUpload, MediaUploadCheck } from '@wordpress/block-editor';
 import { Button, Notice, SelectControl, TextControl, ToggleControl } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import metadata from '../block.json';
@@ -26,10 +25,7 @@ const helpTaxOff = __( 'No tax collected.', 'jetpack-paypal-payments' );
  * @param {object}   props.attributes           - The full block attributes bag.
  * @param {Function} props.setAttributes        - Function to update block attributes.
  * @param {string}   props.buttonText           - The button label attribute.
- * @param {string}   props.productName          - The product name attribute.
  * @param {string}   props.currencyCode         - The currency code attribute.
- * @param {string}   props.imageUrl             - The product image URL attribute.
- * @param {number}   props.imageId              - The product image media ID attribute.
  * @param {string}   props.returnUrl            - The post-payment return URL attribute.
  * @param {boolean}  props.variantsEnabled      - Whether product options are enabled.
  * @param {object}   props.variants             - The product options attribute.
@@ -66,10 +62,7 @@ export default function ProductForm( {
 	attributes,
 	setAttributes,
 	buttonText,
-	productName,
 	currencyCode,
-	imageUrl,
-	imageId,
 	returnUrl,
 	variantsEnabled,
 	variants,
@@ -137,56 +130,6 @@ export default function ProductForm( {
 					{ successMessage }
 				</Notice>
 			) }
-
-			<div className="jetpack-paypal-payment-buttons__image-field">
-				<p className="components-base-control__label">
-					{ __( 'Product Image (optional)', 'jetpack-paypal-payments' ) }
-				</p>
-				{ imageUrl ? (
-					<div className="jetpack-paypal-payment-buttons__image-preview">
-						<img src={ imageUrl } alt={ productName || '' } />
-						<div className="jetpack-paypal-payment-buttons__image-actions">
-							<MediaUploadCheck>
-								<MediaUpload
-									onSelect={ media => setAttributes( { imageUrl: media.url, imageId: media.id } ) }
-									allowedTypes={ [ 'image' ] }
-									value={ imageId }
-									render={ ( { open } ) => (
-										<Button variant="secondary" onClick={ open } size="small">
-											{ __( 'Replace', 'jetpack-paypal-payments' ) }
-										</Button>
-									) }
-								/>
-							</MediaUploadCheck>
-							<Button
-								variant="link"
-								isDestructive
-								onClick={ () => setAttributes( { imageUrl: undefined, imageId: undefined } ) }
-								size="small"
-							>
-								{ __( 'Remove', 'jetpack-paypal-payments' ) }
-							</Button>
-						</div>
-					</div>
-				) : (
-					<MediaUploadCheck>
-						<MediaUpload
-							onSelect={ media => setAttributes( { imageUrl: media.url, imageId: media.id } ) }
-							allowedTypes={ [ 'image' ] }
-							value={ imageId }
-							render={ ( { open } ) => (
-								<Button
-									variant="secondary"
-									onClick={ open }
-									className="jetpack-paypal-payment-buttons__upload-button"
-								>
-									{ __( 'Upload Image', 'jetpack-paypal-payments' ) }
-								</Button>
-							) }
-						/>
-					</MediaUploadCheck>
-				) }
-			</div>
 
 			<div className="jetpack-paypal-payment-buttons__variants-section">
 				<VariantBuilder
