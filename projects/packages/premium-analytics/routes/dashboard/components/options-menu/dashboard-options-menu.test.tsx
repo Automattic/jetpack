@@ -1,13 +1,13 @@
 /**
  * External dependencies
  */
-import { render, screen, within } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 /**
  * Internal dependencies
  */
 import { resetTracksIdentityForTesting } from '../../hooks/use-track-event';
-import { FeedbackAction } from './feedback-action';
+import { DashboardOptionsMenu } from './dashboard-options-menu';
 
 const mockSetUser = jest.fn();
 const mockIdentifyUser = jest.fn();
@@ -49,23 +49,40 @@ beforeEach( () => {
 } );
 
 /**
- * Renders the action and opens the modal, the way most cases here start.
+ * Renders the menu and opens the feedback modal, the way most cases here start.
  *
  * @return The `userEvent` session, for the rest of the interaction.
  */
 async function openModal() {
 	const user = userEvent.setup();
-	render( <FeedbackAction /> );
-	await user.click( screen.getByRole( 'button', { name: 'Any feedback?' } ) );
+	render( <DashboardOptionsMenu /> );
+	await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
+	await user.click( await screen.findByRole( 'menuitem', { name: 'Any feedback?' } ) );
 	return user;
 }
 
-describe( 'FeedbackAction', () => {
-	it( 'stays out of the way until the reader asks for it', () => {
-		render( <FeedbackAction /> );
+describe( 'DashboardOptionsMenu', () => {
+	it( 'keeps its entries behind the trigger', async () => {
+		const user = userEvent.setup();
+		render( <DashboardOptionsMenu /> );
 
+		expect( screen.queryByRole( 'menuitem' ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
+
+		await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
+
+		await expect(
+			screen.findByRole( 'menuitem', { name: 'Any feedback?' } )
+		).resolves.toBeInTheDocument();
 		expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
 		expect( mockRecordEvent ).not.toHaveBeenCalled();
+	} );
+
+	it( 'closes the menu as it opens the modal', async () => {
+		await openModal();
+
+		expect( screen.getByRole( 'dialog' ) ).toBeVisible();
+		await waitFor( () => expect( screen.queryByRole( 'menuitem' ) ).not.toBeInTheDocument() );
 	} );
 
 	it( 'reports the opening as its own event', async () => {
