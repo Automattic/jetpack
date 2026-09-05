@@ -63,7 +63,7 @@ export function DashboardOptionsMenu() {
 							<Menu.Separator />
 							<Menu.Item prefix={ <Icon icon={ close } /> } onClick={ openSwitchOff }>
 								<Menu.ItemLabel>
-									{ __( 'Switch off the new Traffic tab', 'jetpack-premium-analytics-pkg' ) }
+									{ __( 'Switch off the preview', 'jetpack-premium-analytics-pkg' ) }
 								</Menu.ItemLabel>
 							</Menu.Item>
 						</>

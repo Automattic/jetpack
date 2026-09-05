@@ -307,9 +307,7 @@ describe( 'switching the new Traffic tab off', () => {
 		const user = userEvent.setup();
 		render( <DashboardOptionsMenu /> );
 		await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
-		await user.click(
-			await screen.findByRole( 'menuitem', { name: 'Switch off the new Traffic tab' } )
-		);
+		await user.click( await screen.findByRole( 'menuitem', { name: 'Switch off the preview' } ) );
 		return user;
 	}
 
@@ -325,7 +323,7 @@ describe( 'switching the new Traffic tab off', () => {
 		).resolves.toBeInTheDocument();
 		expect( mockCurrentUserCan ).toHaveBeenCalledWith( 'manage_options' );
 		expect(
-			screen.queryByRole( 'menuitem', { name: 'Switch off the new Traffic tab' } )
+			screen.queryByRole( 'menuitem', { name: 'Switch off the preview' } )
 		).not.toBeInTheDocument();
 	} );
 
