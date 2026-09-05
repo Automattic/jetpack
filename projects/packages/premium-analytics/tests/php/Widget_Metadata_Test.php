@@ -14,6 +14,7 @@ use WorDBless\BaseTestCase;
 require_once __DIR__ . '/../../src/widget-types.php';
 require_once __DIR__ . '/../../src/widget-modules.php';
 require_once __DIR__ . '/fixtures/widget-modules-manifest.php';
+require_once __DIR__ . '/traits/trait-widget-manifest-fixture.php';
 
 /**
  * @covers ::Automattic\Jetpack\PremiumAnalytics\register_widget_types
@@ -34,6 +35,7 @@ require_once __DIR__ . '/fixtures/widget-modules-manifest.php';
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_widget_metadata_i18n_schema' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\get_widget_modules_response' )]
 class Widget_Metadata_Test extends BaseTestCase {
+	use Widget_Manifest_Fixture_Trait;
 
 	/**
 	 * Without a declared textdomain, strings are translated under the package
@@ -617,17 +619,13 @@ class Widget_Metadata_Test extends BaseTestCase {
 			)
 		);
 
-		// A local build/ would otherwise be required on first use and redeclare the fixture stub.
-		$manifest_path = static function () {
-			return __DIR__ . '/fixtures/build-entry/widgets.php';
-		};
-		add_filter( 'jetpack_premium_analytics_widgets_manifest_path', $manifest_path );
+		add_filter( 'jetpack_premium_analytics_widgets_manifest_path', array( $this, 'use_fixture_widget_manifest' ) );
 
 		$records = array();
 		try {
 			$records = get_widget_modules_response()->get_data();
 		} finally {
-			remove_filter( 'jetpack_premium_analytics_widgets_manifest_path', $manifest_path );
+			remove_filter( 'jetpack_premium_analytics_widgets_manifest_path', array( $this, 'use_fixture_widget_manifest' ) );
 			$registry->unregister( 'test/metadata-sentinel' );
 		}
 
