@@ -19,9 +19,12 @@ import {
 	BlockControls,
 	store as blockEditorStore,
 	InspectorControls,
+	MediaUpload,
+	MediaUploadCheck,
 	useBlockProps,
 } from '@wordpress/block-editor';
 import {
+	Button,
 	Notice,
 	PanelBody,
 	SelectControl,
@@ -632,6 +635,58 @@ export default function PayPalPaymentButtonsEdit( {
 								: undefined
 						}
 					/>
+
+					<div className="jetpack-paypal-payment-buttons__image-field">
+						<p className="components-base-control__label">
+							{ __( 'Product Image (optional)', 'jetpack-paypal-payments' ) }
+						</p>
+						{ imageUrl ? (
+							<div className="jetpack-paypal-payment-buttons__image-preview">
+								<img src={ imageUrl } alt={ productName || '' } />
+								<div className="jetpack-paypal-payment-buttons__image-actions">
+									<MediaUploadCheck>
+										<MediaUpload
+											onSelect={ media =>
+												setAttributes( { imageUrl: media.url, imageId: media.id } )
+											}
+											allowedTypes={ [ 'image' ] }
+											value={ imageId }
+											render={ ( { open } ) => (
+												<Button variant="secondary" onClick={ open } size="small">
+													{ __( 'Replace', 'jetpack-paypal-payments' ) }
+												</Button>
+											) }
+										/>
+									</MediaUploadCheck>
+									<Button
+										variant="link"
+										isDestructive
+										onClick={ () => setAttributes( { imageUrl: undefined, imageId: undefined } ) }
+										size="small"
+									>
+										{ __( 'Remove', 'jetpack-paypal-payments' ) }
+									</Button>
+								</div>
+							</div>
+						) : (
+							<MediaUploadCheck>
+								<MediaUpload
+									onSelect={ media => setAttributes( { imageUrl: media.url, imageId: media.id } ) }
+									allowedTypes={ [ 'image' ] }
+									value={ imageId }
+									render={ ( { open } ) => (
+										<Button
+											variant="secondary"
+											onClick={ open }
+											className="jetpack-paypal-payment-buttons__upload-button"
+										>
+											{ __( 'Upload Image', 'jetpack-paypal-payments' ) }
+										</Button>
+									) }
+								/>
+							</MediaUploadCheck>
+						) }
+					</div>
 				</PanelBody>
 			</InspectorControls>
 			{ inspectorControls }
@@ -640,10 +695,7 @@ export default function PayPalPaymentButtonsEdit( {
 				attributes={ attributes }
 				setAttributes={ setAttributes }
 				buttonText={ buttonText }
-				productName={ productName }
 				currencyCode={ currencyCode }
-				imageUrl={ imageUrl }
-				imageId={ imageId }
 				returnUrl={ returnUrl }
 				variantsEnabled={ variantsEnabled }
 				variants={ variants }
