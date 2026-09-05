@@ -13,6 +13,7 @@
 namespace Automattic\Jetpack\PremiumAnalytics\Sync;
 
 use Automattic\Jetpack\Config;
+use Automattic\Jetpack\Sync\Data_Settings;
 use Automattic\Jetpack\Sync\Modules\Meta as Meta_Module;
 use Automattic\Jetpack\Sync\Modules\Posts as Posts_Module;
 use Automattic\Jetpack\Sync\Modules\Term_Relationships as Term_Relationships_Module;
@@ -158,24 +159,38 @@ class Configuration {
 	/**
 	 * Jetpack Sync module configuration.
 	 *
+	 * Merging MUST_SYNC_DATA_SETTINGS keeps the narrow option and callable whitelists on
+	 * sites where Premium Analytics is the only Sync consumer; for any filter left out here,
+	 * Data_Settings falls back to the full default whitelist instead.
+	 *
 	 * @return array Jetpack Sync config array.
 	 */
 	private function get_jetpack_sync_config(): array {
-		return array(
-			'jetpack_sync_modules'             => array(
-				WooCommerce_Analytics_Module::class,
-				Meta_Module::class,
-				Posts_Module::class,
-				Terms_Module::class,
-				Term_Relationships_Module::class,
-			),
-			'jetpack_sync_constants_whitelist' => array(
-				// Syncing this triggers WPCom to provision the WC Analytics tables. Defined by the
-				// plugin at load (double underscore, per the JETPACK__VERSION convention). (WOOA7S-1643)
-				// WC_ANALYTICS_VERSION is intentionally omitted: it is defined and whitelisted by the
-				// standalone woocommerce-analytics plugin, and on a PA-only store would only sync null.
-				'JETPACK_PREMIUM_ANALYTICS__VERSION',
-			),
+		return array_merge_recursive(
+			Data_Settings::MUST_SYNC_DATA_SETTINGS,
+			array(
+				'jetpack_sync_modules'             => array(
+					WooCommerce_Analytics_Module::class,
+					Meta_Module::class,
+					Posts_Module::class,
+					Terms_Module::class,
+					Term_Relationships_Module::class,
+				),
+				// The shared and WooCommerce modules also append these; listing them keeps the
+				// contract explicit and independent of module load order.
+				'jetpack_sync_options_whitelist'   => array(
+					'woocommerce_custom_orders_table_enabled', // Required for HPOS checksums.
+					'woocommerce_excluded_report_order_statuses', // Required for generating analytics reports.
+					'woocommerce_date_type', // Date used to determine the date range for analytics reports.
+				),
+				'jetpack_sync_constants_whitelist' => array(
+					// Syncing this triggers WPCom to provision the WC Analytics tables. Defined by the
+					// plugin at load (double underscore, per the JETPACK__VERSION convention). (WOOA7S-1643)
+					// WC_ANALYTICS_VERSION is intentionally omitted: it is defined and whitelisted by the
+					// standalone woocommerce-analytics plugin, and on a PA-only store would only sync null.
+					'JETPACK_PREMIUM_ANALYTICS__VERSION',
+				),
+			)
 		);
 	}
 
