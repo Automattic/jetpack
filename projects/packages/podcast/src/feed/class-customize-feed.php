@@ -1,7 +1,7 @@
 <?php
 /**
- * Adds podcast tags + tracked enclosure URLs to the RSS feed for the
- * configured podcast category.
+ * Adds podcast tags, tracked enclosure URLs, and the optional Jetpack Podcast
+ * credit to the RSS feed for the configured podcast category.
  *
  * @package automattic/jetpack-podcast
  */
@@ -11,15 +11,22 @@ declare( strict_types = 1 );
 namespace Automattic\Jetpack\Podcast\Feed;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Podcast\Podcast_Gate;
 use Automattic\Jetpack\Podcast\Settings;
 use WP_Post;
 
 /**
  * Hooks into RSS2 rendering when the current request is the podcast category
- * feed, adding `<itunes:*>` + `<podcast:*>` tags at channel and item level
- * and rewriting `<enclosure>` URLs through the WPCOM stats endpoint.
+ * feed, adding `<itunes:*>` + `<podcast:*>` tags at channel and item level,
+ * rewriting `<enclosure>` URLs through the WPCOM stats endpoint, and appending
+ * the "Made with Jetpack Podcast" credit when it is on.
  */
 class Customize_Feed {
+
+	/**
+	 * Where the "Made with Jetpack Podcast" credit links to.
+	 */
+	const CREDIT_URL = 'https://wordpress.com/podcast/';
 
 	/**
 	 * Whether `init()` has wired its hooks.
@@ -108,6 +115,10 @@ class Customize_Feed {
 		// a filter above priority 10 would otherwise leave us caching an
 		// intermediate string and `<itunes:summary>` disagreeing with it.
 		add_filter( 'the_excerpt_rss', array( __CLASS__, 'capture_item_summary' ), PHP_INT_MAX );
+		// Just below `capture_item_summary()`, so the captured `<description>`
+		// and the `<itunes:summary>` built from it both carry the credit.
+		add_filter( 'the_excerpt_rss', array( __CLASS__, 'append_credit_to_excerpt' ), PHP_INT_MAX - 1 );
+		add_filter( 'the_content_feed', array( __CLASS__, 'append_credit_to_content' ) );
 
 		add_filter( 'option_rss_use_excerpt', '__return_false' );
 		// Request-scoped to the feed: only the queried episodes render here, so
@@ -151,11 +162,12 @@ class Customize_Feed {
 	}
 
 	/**
-	 * Replace the `bloginfo_rss('description')` value with `podcasting_summary`.
+	 * Replace the `bloginfo_rss('description')` value with `podcasting_summary`,
+	 * plus the credit when it is on.
 	 *
-	 * `bloginfo_rss()` echoes the filter return value directly, so we strip and
-	 * escape here — matches the channel-level `<itunes:summary>` treatment and
-	 * keeps stray markup in the option from leaking into `<description>`.
+	 * `bloginfo_rss()` echoes the filter return value directly, so escaping
+	 * happens here; `channel_summary()` strips markup so `<description>` and
+	 * the channel-level `<itunes:summary>` agree.
 	 *
 	 * @param string $value Existing value.
 	 * @param string $field Field being requested.
@@ -165,16 +177,25 @@ class Customize_Feed {
 		if ( 'description' !== $field ) {
 			return $value;
 		}
-		return esc_xml( wp_strip_all_tags( (string) get_option( 'podcasting_summary', '' ) ) );
+		return esc_xml( self::channel_summary() );
+	}
+
+	/**
+	 * `podcasting_summary` as plain text, with the credit appended when it is on.
+	 *
+	 * @return string
+	 */
+	private static function channel_summary(): string {
+		return self::append_credit( wp_strip_all_tags( (string) get_option( 'podcasting_summary', '' ) ) );
 	}
 
 	/**
 	 * Channel-level podcast tags (rss2_head).
 	 */
 	public static function output_channel_tags() {
-		$summary = (string) get_option( 'podcasting_summary', '' );
+		$summary = self::channel_summary();
 		if ( '' !== $summary ) {
-			echo '<itunes:summary>' . esc_xml( wp_strip_all_tags( $summary ) ) . "</itunes:summary>\n";
+			echo '<itunes:summary>' . esc_xml( $summary ) . "</itunes:summary>\n";
 		}
 
 		$author = (string) get_option( 'podcasting_talent_name', '' );
@@ -288,6 +309,113 @@ class Customize_Feed {
 	public static function capture_item_summary( $excerpt ) {
 		self::$item_summary = array( (int) get_the_ID(), (string) $excerpt );
 		return $excerpt;
+	}
+
+	/**
+	 * Whether the feed carries the "Made with Jetpack Podcast" credit: only
+	 * WordPress.com sites without podcast plan access
+	 * ({@see Podcast_Gate::requires_feed_credit()}). Self-hosted sites never
+	 * carry it, since the WordPress.org plugin directory requires credits to
+	 * default off.
+	 *
+	 * @return bool
+	 */
+	public static function credit_enabled(): bool {
+		return Podcast_Gate::requires_feed_credit();
+	}
+
+	/**
+	 * Append the credit to plain text, separated by a blank line. The text
+	 * comes back untouched when the credit is off.
+	 *
+	 * @param string $text   Plain text.
+	 * @param string $credit Credit line to append; empty means {@see self::credit_text()}.
+	 * @return string
+	 */
+	public static function append_credit( string $text, string $credit = '' ): string {
+		if ( ! self::credit_enabled() ) {
+			return $text;
+		}
+		$credit = '' === $credit ? self::credit_text() : $credit;
+		$text   = rtrim( $text );
+		return '' === $text ? $credit : $text . "\n\n" . $credit;
+	}
+
+	/**
+	 * `the_excerpt_rss` filter: append the credit to the episode's `<description>`.
+	 * The template wraps that in CDATA and core has already escaped `]]>` in
+	 * the excerpt by now, so the credit gets the same treatment.
+	 *
+	 * @param string $excerpt Item excerpt.
+	 * @return string
+	 */
+	public static function append_credit_to_excerpt( $excerpt ) {
+		if ( ! self::credit_enabled() ) {
+			return $excerpt;
+		}
+		return self::append_credit( (string) $excerpt, str_replace( ']]>', ']]&gt;', self::credit_text() ) );
+	}
+
+	/**
+	 * `the_content_feed` filter: append the HTML credit to `<content:encoded>`.
+	 * Empty content stays empty (core's own test is `strlen() > 0`) so core
+	 * falls back to the excerpt, which already carries the credit.
+	 *
+	 * @param string $content Item content.
+	 * @return string
+	 */
+	public static function append_credit_to_content( $content ) {
+		if ( ! self::credit_enabled() || '' === (string) $content ) {
+			return $content;
+		}
+		return (string) $content . "\n" . self::credit_html();
+	}
+
+	/**
+	 * Plain-text credit, for `<description>` and `<itunes:summary>`.
+	 *
+	 * @return string
+	 */
+	public static function credit_text(): string {
+		return sprintf(
+			/* translators: 1: podcast title, 2: "Jetpack Podcast", 3: site URL */
+			__( '%1$s is made with %2$s. Full show notes and every episode at %3$s', 'jetpack-podcast' ),
+			self::credit_show_title(),
+			'Jetpack Podcast',
+			home_url( '/' )
+		);
+	}
+
+	/**
+	 * HTML credit, for `<content:encoded>`.
+	 *
+	 * @return string
+	 */
+	public static function credit_html(): string {
+		$site_url = home_url( '/' );
+		return '<p>' . sprintf(
+			/* translators: 1: podcast title, 2: HTML link to "Jetpack Podcast", 3: HTML link to site URL */
+			esc_html__( '%1$s is made with %2$s. Full show notes and every episode at %3$s', 'jetpack-podcast' ),
+			esc_html( self::credit_show_title() ),
+			'<a href="' . esc_url( self::CREDIT_URL ) . '">Jetpack Podcast</a>',
+			'<a href="' . esc_url( $site_url ) . '">' . esc_html( $site_url ) . '</a>'
+		) . '</p>';
+	}
+
+	/**
+	 * The show title for the credit: `podcasting_title`, else the site name,
+	 * else the site's host so the sentence always has a subject.
+	 *
+	 * @return string
+	 */
+	private static function credit_show_title(): string {
+		foreach ( array( get_option( 'podcasting_title', '' ), get_bloginfo( 'name' ) ) as $candidate ) {
+			$candidate = trim( wp_strip_all_tags( (string) $candidate ) );
+			if ( '' !== $candidate ) {
+				return $candidate;
+			}
+		}
+		return (string) wp_parse_url( home_url(), PHP_URL_HOST );
 	}
 
 	/**
