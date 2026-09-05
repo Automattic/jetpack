@@ -152,7 +152,7 @@ class Inline_Player {
 		}
 
 		$params = array();
-		parse_str( html_entity_decode( $query ), $params );
+		parse_str( html_entity_decode( $query, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 ), $params );
 
 		$booleans = array(
 			'autoPlay'        => 'autoplay',
