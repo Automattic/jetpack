@@ -138,7 +138,8 @@ class Block_Editor_Content {
 						'at'              => $atts['at'],
 					)
 				),
-				$width > 0 ? ( $height / $width ) * 100 : null
+				$width > 0 ? ( $height / $width ) * 100 : null,
+				array( 'poster' => Inline_Player::get_poster_url( $guid ) )
 			);
 
 			return '<figure class="wp-block-videopress-video wp-block-jetpack-videopress jetpack-videopress-player">' .
