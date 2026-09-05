@@ -475,10 +475,6 @@ export default function VariantBuilder( {
 
 	return (
 		<div className="jetpack-paypal-variants">
-			<h4 className="jetpack-paypal-variants__heading">
-				{ __( 'Product Options', 'jetpack-paypal-payments' ) }
-			</h4>
-
 			<ToggleControl
 				label={ __( 'Enable product options', 'jetpack-paypal-payments' ) }
 				help={ enabled ? helpVariantsOn : helpVariantsOff }

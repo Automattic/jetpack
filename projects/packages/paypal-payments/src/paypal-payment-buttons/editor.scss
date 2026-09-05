@@ -253,31 +253,17 @@
 // Create / Edit Form
 // ---------------------------------------------------------------
 
-.jetpack-paypal-payment-buttons__create-form {
-	padding: 24px;
-	border: 1px solid #c3c4c7;
-	border-radius: 4px;
+// Error state for form fields. Top-level because has-error is our own
+// class, so it can't reach a control we don't own.
+.has-error {
 
-	h3 {
-		margin-top: 0;
-		margin-bottom: 16px;
-	}
+	.components-text-control__input,
+	.components-textarea-control__input {
+		border-color: #cc1818;
 
-	.components-base-control {
-		margin-bottom: 12px;
-	}
-
-	// Error state for form fields.
-	.has-error {
-
-		.components-text-control__input,
-		.components-textarea-control__input {
+		&:focus {
 			border-color: #cc1818;
-
-			&:focus {
-				border-color: #cc1818;
-				box-shadow: 0 0 0 1px #cc1818;
-			}
+			box-shadow: 0 0 0 1px #cc1818;
 		}
 	}
 }
@@ -288,14 +274,19 @@
 
 	> * {
 		flex: 1;
+		min-width: 0;
 	}
 }
 
+// Renders as a bare child of the inspector fill rather than inside a PanelBody,
+// so it has to supply the separator and the 16px inset a panel would have given
+// it. Without them it reads as the footer of whichever panel sits above.
 .jetpack-paypal-payment-buttons__form-actions {
 	display: flex;
 	align-items: center;
 	gap: 12px;
-	margin-top: 4px;
+	padding: 16px;
+	border-top: 1px solid #e0e0e0;
 }
 
 // Image upload field in the create/edit form.
@@ -330,18 +321,6 @@
 
 .jetpack-paypal-payment-buttons__upload-button {
 	margin-bottom: 4px;
-}
-
-// ---------------------------------------------------------------
-// Inline Field Validation Errors
-// ---------------------------------------------------------------
-
-.jetpack-paypal-payment-buttons__field-error {
-	margin: -8px 0 12px;
-	padding: 0;
-	font-size: 12px;
-	color: #cc1818;
-	line-height: 1.4;
 }
 
 // ---------------------------------------------------------------
@@ -494,25 +473,7 @@
 	}
 }
 
-// Variant builder inline section.
-.jetpack-paypal-payment-buttons__variants-section {
-	margin: 16px 0;
-	padding: 16px;
-	border: 1px solid #e0e0e0;
-	border-radius: 4px;
-	background: #fafafa;
-}
-
-// Variant builder heading.
-.jetpack-paypal-variants__heading {
-	margin: 0 0 8px;
-	font-size: 13px;
-	font-weight: 600;
-	text-transform: uppercase;
-	letter-spacing: 0.5px;
-	color: #1e1e1e;
-}
-
+// Variant builder.
 .jetpack-paypal-variants__empty-help {
 	font-size: 13px;
 	color: #757575;
@@ -533,26 +494,12 @@
 }
 
 // Variant builder option groups.
-.jetpack-paypal-variants__group,
-.jetpack-paypal-variants__dimension {
+.jetpack-paypal-variants__group {
 	border: 1px solid #ddd;
 	border-radius: 4px;
 	padding: 12px;
 	margin-bottom: 12px;
 	background: #f9f9f9;
-}
-
-.jetpack-paypal-variants__dimension-header {
-	display: flex;
-	flex-direction: column;
-	gap: 8px;
-	margin-bottom: 8px;
-}
-
-.jetpack-paypal-variants__dimension-controls {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
 }
 
 .jetpack-paypal-variants__options {
@@ -563,17 +510,13 @@
 
 .jetpack-paypal-variants__option {
 	display: flex;
+	flex-direction: column;
 	gap: 8px;
-	align-items: flex-end;
+	align-items: stretch;
 	margin-bottom: 8px;
 
 	.components-text-control__input {
 		min-width: 0;
-	}
-
-	@media ( max-width: 480px ) {
-		flex-direction: column;
-		align-items: stretch;
 	}
 }
 
@@ -581,6 +524,7 @@
 	min-width: 44px;
 	min-height: 44px;
 	display: flex;
+	align-self: flex-start;
 	align-items: center;
 	justify-content: center;
 }
@@ -589,8 +533,7 @@
 	margin-top: 4px;
 }
 
-.jetpack-paypal-variants__add-group,
-.jetpack-paypal-variants__add-dimension {
+.jetpack-paypal-variants__add-group {
 	margin-top: 8px;
 	display: flex;
 	align-items: center;
@@ -678,24 +621,7 @@
 	}
 }
 
-// Checkout options section (WOOPTP-170/171/172).
-.jetpack-paypal-payment-buttons__checkout-options {
-	margin: 16px 0;
-	padding: 16px;
-	border: 1px solid #e0e0e0;
-	border-radius: 4px;
-	background: #fafafa;
-}
-
-.jetpack-paypal-payment-buttons__section-heading {
-	margin: 0 0 12px;
-	font-size: 13px;
-	font-weight: 600;
-	text-transform: uppercase;
-	letter-spacing: 0.5px;
-	color: #1e1e1e;
-}
-
+// Checkout options (WOOPTP-170/171/172).
 .jetpack-paypal-payment-buttons__tax-config {
 	margin-left: 12px;
 	padding-left: 12px;
