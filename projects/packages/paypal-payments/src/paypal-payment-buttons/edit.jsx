@@ -44,7 +44,6 @@ import ConnectionWizard from './components/connection-wizard';
 import { FORMAT_OPTIONS } from './components/format-switcher';
 import LegacyBlock from './components/legacy-block';
 import PayPalButtonPreview from './components/paypal-button-preview';
-import ProductForm from './components/product-form';
 import VariantBuilder, { hasVariantPricing, validateVariants } from './components/variant-builder';
 import PayPalInspectorControls from './controls';
 import { broadcastConnectionChange, usePayPalConnection } from './hooks/use-paypal-connection';
@@ -931,28 +930,120 @@ export default function PayPalPaymentButtonsEdit( {
 				</PanelBody>
 			</InspectorControls>
 			{ inspectorControls }
+			<InspectorControls>
+				<div className="jetpack-paypal-payment-buttons__form-actions">
+					<Button
+						variant="primary"
+						onClick={ hasButton ? handleUpdateButton : handleCreateButton }
+						isBusy={ isCreating }
+						disabled={ isCreating || ! isFormValid || ! isConnected }
+					>
+						{ isCreating && __( 'Saving…', 'jetpack-paypal-payments' ) }
+						{ ! isCreating &&
+							hasButton &&
+							activeFormat === 'LINK' &&
+							__( 'Update Link', 'jetpack-paypal-payments' ) }
+						{ ! isCreating &&
+							hasButton &&
+							activeFormat === 'QR' &&
+							__( 'Update QR Code', 'jetpack-paypal-payments' ) }
+						{ ! isCreating &&
+							hasButton &&
+							activeFormat === 'BUTTON' &&
+							__( 'Update Button', 'jetpack-paypal-payments' ) }
+						{ ! isCreating &&
+							! hasButton &&
+							activeFormat === 'LINK' &&
+							__( 'Create Link', 'jetpack-paypal-payments' ) }
+						{ ! isCreating &&
+							! hasButton &&
+							activeFormat === 'QR' &&
+							__( 'Create QR Code', 'jetpack-paypal-payments' ) }
+						{ ! isCreating &&
+							! hasButton &&
+							activeFormat === 'BUTTON' &&
+							__( 'Create Button', 'jetpack-paypal-payments' ) }
+					</Button>
 
-			<ProductForm
-				setAttributes={ setAttributes }
-				activeFormat={ activeFormat }
-				isConnected={ isConnected }
-				environment={ environment }
-				setIsEditing={ setIsEditing }
-				setTouchedFields={ setTouchedFields }
-				isFormValid={ isFormValid }
-				isCreating={ isCreating }
-				error={ error }
-				setError={ setError }
-				successMessage={ successMessage }
-				setSuccessMessage={ setSuccessMessage }
-				handleCreateButton={ handleCreateButton }
-				handleUpdateButton={ handleUpdateButton }
-				hasButton={ hasButton }
-				disconnectedNotice={ disconnectedNotice }
-				sharedResourceNotice={ sharedResourceNotice }
-				connectionStatus={ connectionStatus }
-				connectionLabel={ connectionLabel }
-			/>
+					<Button
+						variant="tertiary"
+						onClick={ () => {
+							if ( hasButton ) {
+								// Return to preview — discard unsaved edits.
+								setIsEditing( false );
+								setTouchedFields( {} );
+							} else {
+								// No saved button yet — reset form fields so merchant can
+								// remove the block if they want.
+								setAttributes( {
+									productName: metadata.attributes.productName.default,
+									price: metadata.attributes.price.default,
+									currencyCode: metadata.attributes.currencyCode.default,
+									productDescription: metadata.attributes.productDescription.default,
+									imageUrl: undefined,
+									imageId: undefined,
+									returnUrl: metadata.attributes.returnUrl.default,
+									variantsEnabled: metadata.attributes.variantsEnabled.default,
+									variants: undefined,
+									adjustableQuantity: metadata.attributes.adjustableQuantity.default,
+									maxQuantity: metadata.attributes.maxQuantity.default,
+									customerNotes: metadata.attributes.customerNotes.default,
+									taxEnabled: metadata.attributes.taxEnabled.default,
+									taxType: metadata.attributes.taxType.default,
+									taxName: metadata.attributes.taxName.default,
+									taxValue: metadata.attributes.taxValue.default,
+									buttonText: metadata.attributes.buttonText.default,
+									showQrCode: metadata.attributes.showQrCode.default,
+								} );
+								setTouchedFields( {} );
+								setError( null );
+							}
+						} }
+						disabled={ isCreating }
+					>
+						{ __( 'Cancel', 'jetpack-paypal-payments' ) }
+					</Button>
+				</div>
+			</InspectorControls>
+
+			<div className="jetpack-paypal-payment-buttons__preview">
+				<div className="jetpack-paypal-payment-buttons__preview-status">
+					{ connectionStatus }
+					{ connectionLabel }
+					{ environment === 'sandbox' && (
+						<span className="jetpack-paypal-payment-buttons__sandbox-badge">
+							{ __( 'Sandbox', 'jetpack-paypal-payments' ) }
+						</span>
+					) }
+				</div>
+
+				{ disconnectedNotice }
+				{ sharedResourceNotice }
+
+				{ error && (
+					<Notice status="error" isDismissible onDismiss={ () => setError( null ) }>
+						{ error }
+					</Notice>
+				) }
+
+				{ successMessage && (
+					<Notice status="success" isDismissible onDismiss={ () => setSuccessMessage( null ) }>
+						{ successMessage }
+					</Notice>
+				) }
+
+				<PayPalButtonPreview
+					productName={ productName }
+					price={ price }
+					currencyCode={ currencyCode }
+					productDescription={ productDescription }
+					paymentLink={ paymentLink }
+					variantsEnabled={ variantsEnabled }
+					variants={ variants }
+					imageUrl={ imageUrl }
+					partnerAttributionId={ partnerAttributionId }
+				/>
+			</div>
 
 			{ confirmDialogs }
 		</div>

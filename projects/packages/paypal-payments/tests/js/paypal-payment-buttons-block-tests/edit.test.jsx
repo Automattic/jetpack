@@ -796,9 +796,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			// The frame going away means little on its own: clearing the referral
 			// and flipping to connected each remove it. Check for the connected
 			// view itself.
-			await expect(
-				screen.findByText( /Create PayPal Payment Button/ )
-			).resolves.toBeInTheDocument();
+			await expect( screen.findByText( /Create Button/ ) ).resolves.toBeInTheDocument();
 			expect( screen.queryByTitle( 'PayPal onboarding' ) ).not.toBeInTheDocument();
 		} );
 
@@ -817,9 +815,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				window.jetpackPayPalOnboardComplete( 'AUTH_CODE_1', 'SHARED_ID_1' );
 			} );
 
-			await expect(
-				screen.findByText( /Create PayPal Payment Button/ )
-			).resolves.toBeInTheDocument();
+			await expect( screen.findByText( /Create Button/ ) ).resolves.toBeInTheDocument();
 
 			await user.click( screen.getByRole( 'button', { name: /Disconnect PayPal/i } ) );
 			await user.click( screen.getByTestId( 'confirm-dialog-confirm' ) );
@@ -962,9 +958,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			);
 
 			// Then the wizard gives way to the connected view.
-			await expect(
-				screen.findByText( /Create PayPal Payment Button/ )
-			).resolves.toBeInTheDocument();
+			await expect( screen.findByText( /Create Button/ ) ).resolves.toBeInTheDocument();
 			expect( screen.queryByTitle( 'PayPal onboarding' ) ).not.toBeInTheDocument();
 		} );
 
@@ -1265,25 +1259,11 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		it( 'shows the create form when connected but no button exists', async () => {
 			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
 
-			await expect(
-				screen.findByText( /Create PayPal Payment Button/ )
-			).resolves.toBeInTheDocument();
+			await expect( screen.findByText( /Create Button/ ) ).resolves.toBeInTheDocument();
 			expect( screen.getByLabelText( 'Product Name' ) ).toBeInTheDocument();
 			expect( screen.getByLabelText( 'Price' ) ).toBeInTheDocument();
 			expect( screen.getByLabelText( 'Currency' ) ).toBeInTheDocument();
 			expect( screen.getByLabelText( /Description/ ) ).toBeInTheDocument();
-		} );
-
-		it( 'shows PayPal Connected status', async () => {
-			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
-
-			await expect( screen.findByText( 'PayPal Connected' ) ).resolves.toBeInTheDocument();
-		} );
-
-		it( 'shows sandbox badge when in sandbox mode', async () => {
-			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
-
-			await expect( screen.findByText( 'Sandbox' ) ).resolves.toBeInTheDocument();
 		} );
 
 		it( 'calls setAttributes when product name changes', async () => {
@@ -1496,6 +1476,36 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			apiFetch.mockResolvedValue( { connected: true, environment: 'sandbox' } );
 		} );
 
+		it( 'shows PayPal Connected status', async () => {
+			render(
+				<Edit
+					attributes={ {
+						isApiManaged: true,
+						resourceId: 'PLB-TEST123',
+						paymentLink: 'https://www.paypal.com/paymentpage/PLB-TEST123',
+					} }
+					setAttributes={ setAttributes }
+				/>
+			);
+
+			await expect( screen.findByText( 'PayPal Connected' ) ).resolves.toBeInTheDocument();
+		} );
+
+		it( 'shows sandbox badge when in sandbox mode', async () => {
+			render(
+				<Edit
+					attributes={ {
+						isApiManaged: true,
+						resourceId: 'PLB-TEST123',
+						paymentLink: 'https://www.paypal.com/paymentpage/PLB-TEST123',
+					} }
+					setAttributes={ setAttributes }
+				/>
+			);
+
+			await expect( screen.findByText( 'Sandbox' ) ).resolves.toBeInTheDocument();
+		} );
+
 		it( 'shows button preview when API-managed button exists', async () => {
 			render(
 				<Edit
@@ -1555,8 +1565,8 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			const editButton = screen.getByTestId( 'toolbar-Edit' );
 			await user.click( editButton );
 
-			// Should now show the edit form with "Edit PayPal Button" heading.
-			expect( screen.getByText( /Edit PayPal Payment Button/ ) ).toBeInTheDocument();
+			// Should now show the edit form.
+			expect( screen.getByLabelText( 'Product Name' ) ).toBeInTheDocument();
 			expect( screen.getByText( /Update Button/ ) ).toBeInTheDocument();
 		} );
 	} );

@@ -115,7 +115,7 @@ function CopyablePaymentLink( { paymentLink, partnerAttributionId } ) {
  * @param {string}  props.price                - Price value string.
  * @param {string}  props.currencyCode         - ISO currency code.
  * @param {string}  props.productDescription   - Optional product description.
- * @param {string}  props.paymentLink          - PayPal payment URL.
+ * @param {string}  props.paymentLink          - PayPal payment URL, once one has been issued.
  * @param {boolean} props.variantsEnabled      - Whether variants are active.
  * @param {object}  props.variants             - Variants data with dimensions.
  * @param {string}  props.imageUrl             - Optional product image URL.
@@ -193,11 +193,13 @@ export default function PayPalButtonPreview( {
 				</div>
 			</div>
 
-			{ /* Payment link with copy button */ }
-			<CopyablePaymentLink
-				paymentLink={ paymentLink }
-				partnerAttributionId={ partnerAttributionId }
-			/>
+			{ /* Payment link with copy button — only once PayPal has issued one. */ }
+			{ paymentLink && (
+				<CopyablePaymentLink
+					paymentLink={ paymentLink }
+					partnerAttributionId={ partnerAttributionId }
+				/>
+			) }
 		</div>
 	);
 }
