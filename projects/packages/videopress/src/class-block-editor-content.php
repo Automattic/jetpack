@@ -94,6 +94,11 @@ class Block_Editor_Content {
 			unset( $atts['preloadcontent'] );
 		}
 
+		// The site-wide opt-out wins over the shortcode's own preload attribute.
+		if ( Data::get_videopress_player_preload_disabled() ) {
+			$atts['preloadcontent'] = 'none';
+		}
+
 		$atts = shortcode_atts( $defaults, $atts, 'videopress' );
 
 		$base_url     = 'https://videopress.com/embed/' . $guid;
