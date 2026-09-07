@@ -161,7 +161,11 @@ function VideoDetail(): JSX.Element {
 					// video to resolve.
 					actions={
 						canRenderWidgets ? (
-							<DetailPageActions isCustomizing={ isCustomizing } onCustomize={ startCustomizing } />
+							<DetailPageActions
+								isCustomizing={ isCustomizing }
+								onCustomize={ startCustomizing }
+								editingActions={ <WidgetDashboard.Actions /> }
+							/>
 						) : undefined
 					}
 				>

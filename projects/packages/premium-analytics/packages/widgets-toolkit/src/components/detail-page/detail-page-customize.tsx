@@ -1,12 +1,8 @@
 import { Badge, Icon, IconButton, Menu, Stack } from '@jetpack-premium-analytics/externals';
 import { __ } from '@wordpress/i18n';
 import { moreVertical, pencil } from '@wordpress/icons';
-import {
-	WidgetDashboard,
-	type CanPerformDashboardOperation,
-	type DashboardWidget,
-} from '@wordpress/widget-dashboard';
 import { useCallback, useState } from 'react';
+import type { CanPerformDashboardOperation, DashboardWidget } from '@wordpress/widget-dashboard';
 import type { ReactNode } from 'react';
 
 export type DetailPageCustomize = {
@@ -97,6 +93,12 @@ export function DetailPageBreadcrumbs( { isCustomizing, children }: DetailPageBr
 export type DetailPageActionsProps = {
 	isCustomizing: boolean;
 	onCustomize: () => void;
+	/**
+	 * The dashboard's own actions, `<WidgetDashboard.Actions />`, created by the route.
+	 * Each bundle carries its own copy of `@wordpress/widget-dashboard`, so one rendered
+	 * from here would read a context the route's `WidgetDashboard` never provides.
+	 */
+	editingActions: ReactNode;
 	/** The page's own actions, shown ahead of the menu while not customizing. */
 	children?: ReactNode;
 };
@@ -106,19 +108,21 @@ export type DetailPageActionsProps = {
  * and the page options menu with Customize; customizing, the dashboard's own
  * Cancel, Done and overflow (with Reset to default) take it over.
  *
- * @param props               - Component props.
- * @param props.isCustomizing - Whether the page is in customize mode.
- * @param props.onCustomize   - Called when the reader picks Customize.
- * @param props.children      - The page's own actions.
+ * @param props                - Component props.
+ * @param props.isCustomizing  - Whether the page is in customize mode.
+ * @param props.onCustomize    - Called when the reader picks Customize.
+ * @param props.editingActions - The dashboard's own actions, shown while customizing.
+ * @param props.children       - The page's own actions.
  * @return The slot content.
  */
 export function DetailPageActions( {
 	isCustomizing,
 	onCustomize,
+	editingActions,
 	children,
 }: DetailPageActionsProps ) {
 	if ( isCustomizing ) {
-		return <WidgetDashboard.Actions />;
+		return <>{ editingActions }</>;
 	}
 
 	return (

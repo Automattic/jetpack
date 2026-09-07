@@ -162,7 +162,11 @@ function PostDetail(): JSX.Element {
 							</DetailPageBreadcrumbs>
 						}
 						actions={
-							<DetailPageActions isCustomizing={ isCustomizing } onCustomize={ startCustomizing }>
+							<DetailPageActions
+								isCustomizing={ isCustomizing }
+								onCustomize={ startCustomizing }
+								editingActions={ <WidgetDashboard.Actions /> }
+							>
 								{ publicUrl ? (
 									<LinkButton
 										variant="solid"

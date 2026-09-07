@@ -7,11 +7,9 @@ import {
 } from '../detail-page-customize';
 import type { DashboardWidget } from '@wordpress/widget-dashboard';
 
-jest.mock( '@wordpress/widget-dashboard', () => ( {
-	WidgetDashboard: { Actions: () => <div data-testid="dashboard-actions" /> },
-} ) );
-
 const layout = [ { uuid: 'card', type: 'jpa/card' } ] as DashboardWidget[];
+
+const editingActions = <div data-testid="dashboard-actions" />;
 
 describe( 'useDetailPageCustomize', () => {
 	it( 'lets the reader rearrange cards but never add or remove them', () => {
@@ -79,7 +77,11 @@ describe( 'DetailPageActions', () => {
 		const user = userEvent.setup();
 		const onCustomize = jest.fn();
 		render(
-			<DetailPageActions isCustomizing={ false } onCustomize={ onCustomize }>
+			<DetailPageActions
+				isCustomizing={ false }
+				onCustomize={ onCustomize }
+				editingActions={ editingActions }
+			>
 				<a href="https://example.com/">View post</a>
 			</DetailPageActions>
 		);
@@ -95,7 +97,7 @@ describe( 'DetailPageActions', () => {
 
 	it( "hands the slot to the dashboard's own actions while customizing", () => {
 		render(
-			<DetailPageActions isCustomizing onCustomize={ () => {} }>
+			<DetailPageActions isCustomizing onCustomize={ () => {} } editingActions={ editingActions }>
 				<a href="https://example.com/">View post</a>
 			</DetailPageActions>
 		);
