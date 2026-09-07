@@ -5,8 +5,9 @@ import type { RestoreItems } from '../../types/restore';
  * Lifecycle of a restore, as the bridge reports it.
  *
  * Deliberately not WPCOM's own vocabulary. Upstream says
- * `running | success | fail | aborted | success-with-errors`; the bridge
- * maps those to these, reports a not-yet-visible restore as `queued`, and
+ * `queued | running | finished | fail` for a Rewind restore and
+ * `success | success-with-errors | aborted` for a legacy one; the bridge
+ * maps both to these, reports a not-yet-visible restore as `queued`, and
  * anything it does not recognise as `unknown` rather than guessing. See
  * `Restore_Bridge::STATUS_MAP`.
  *

@@ -61,14 +61,16 @@ const QUIET_TIMEOUT_MS = 5 * 60 * 1000;
  * silence deadline.
  *
  * Only `running` does, and deliberately not `queued` — which looks like
- * positive information and is not. WordPress.com's status enum is exactly
- * `running | success | fail | aborted | success-with-errors`; there is no
- * `queued` in it. Every `queued` the client sees is minted by our own
- * bridge, and overwhelmingly means *404 — that restore is not visible to
- * this route*. Treating it as a sign of life would mean a restore that
- * never materialises upstream answers 404 forever, resets the deadline
- * every time it does, and polls until the tab closes. That is precisely
- * the frozen-forever failure this hook exists to end.
+ * positive information and is not. The bridge mints `queued` for a 404,
+ * meaning *that restore is not visible to this route*, and cannot tell
+ * that apart from WordPress.com's own `queued`. Treating the pair as a
+ * sign of life would mean a restore that never materialises upstream
+ * answers 404 forever, resets the deadline every time it does, and polls
+ * until the tab closes. That is precisely the frozen-forever failure this
+ * hook exists to end.
+ *
+ * The cost of not separating them: a restore genuinely queued upstream
+ * for longer than `QUIET_TIMEOUT_MS` is reported as lost.
  *
  * @param status - The status the bridge reported, if any.
  * @return True when the restore has demonstrably moved.

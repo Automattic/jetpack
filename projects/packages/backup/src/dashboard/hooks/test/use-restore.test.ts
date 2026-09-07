@@ -1,11 +1,5 @@
 // The restore state machine — the only place in this dashboard where a
 // bug costs someone their site rather than their patience.
-//
-// It had no test at all, and was dead on arrival: the client tested for
-// `in-progress`, `queued`, `finished` and `failed`, and WordPress.com has
-// never returned any of those. Nothing noticed because the v1 route it
-// called answered 401 before a status could come back, so the whole
-// machine was unreachable rather than merely wrong.
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, renderHook, waitFor } from '@testing-library/react';

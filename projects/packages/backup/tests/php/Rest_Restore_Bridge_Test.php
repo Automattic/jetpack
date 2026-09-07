@@ -412,11 +412,51 @@ class Rest_Restore_Bridge_Test extends TestCase {
 	}
 
 	/**
+	 * Every status the v2 route actually returns is recognised.
+	 *
+	 * Sourced from Calypso's typed contract for this same endpoint
+	 * (`packages/api-core/src/site-backup-restore/types.ts`), never from
+	 * `STATUS_MAP` — a provider mirroring the map cannot catch a key the
+	 * map is missing, which is how `finished` went unmapped.
+	 *
+	 * @param string $upstream A status the v2 route returns.
+	 * @dataProvider provide_upstream_statuses
+	 */
+	#[DataProvider( 'provide_upstream_statuses' )]
+	public function test_no_upstream_status_reports_as_unknown( $upstream ) {
+		$this->arrange_wpcom(
+			array(
+				'restore_id' => 1,
+				'status'     => $upstream,
+			)
+		);
+
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/rewind/restore/1/status' );
+		$request->set_param( 'restore_id', 1 );
+		$data = Restore_Bridge::get_restore_status( $request )->get_data();
+
+		$this->assertNotSame( 'unknown', $data['status'], "upstream: $upstream" );
+	}
+
+	/**
+	 * @return array<string, array{0: string}>
+	 */
+	public static function provide_upstream_statuses() {
+		return array(
+			'queued'   => array( 'queued' ),
+			'running'  => array( 'running' ),
+			'finished' => array( 'finished' ),
+			'fail'     => array( 'fail' ),
+			'empty'    => array( '' ),
+		);
+	}
+
+	/**
 	 * WPCOM's status vocabulary is mapped to the client's.
 	 *
-	 * The client used to test for `in-progress`, `queued`, `finished` and
-	 * `failed` — none of which WPCOM returns — so no terminal state was
-	 * ever reachable and the poll stopped after one response.
+	 * Mirrors `STATUS_MAP`, so it can only confirm that each key maps
+	 * where it says — never that the map covers what arrives. That is what
+	 * `test_no_upstream_status_reports_as_unknown` above is for.
 	 *
 	 * @param string $upstream WPCOM's status value.
 	 * @param string $expected What the bridge should report.
@@ -443,7 +483,9 @@ class Rest_Restore_Bridge_Test extends TestCase {
 	 */
 	public static function provide_statuses() {
 		return array(
+			'queued'                  => array( 'queued', 'queued' ),
 			'running'                 => array( 'running', 'running' ),
+			'finished'                => array( 'finished', 'finished' ),
 			'success'                 => array( 'success', 'finished' ),
 			// Kept distinct rather than folded into either neighbour: a
 			// restore that completed but not cleanly is neither.
