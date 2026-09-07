@@ -142,17 +142,28 @@ const row = {
 A `postLink` row carries no media, and never becomes a chart button: a chart row that is a
 button cannot nest an anchor.
 
-Inside a widget, use `LeaderboardPostLabel` instead of building the action by hand. It reads the
-report window from `WidgetRootContext` and passes it as `search`, so the detail page opens on
+Video rows use `videoLink`, which delegates to `VideoTitleLink` so the row reaches the video
+detail route instead of the post one. Same constraints: no media, never a chart button.
+
+```tsx
+action: { kind: 'videoLink', id: 9, search: { from: '2026-03-01', to: '2026-03-10' } },
+```
+
+Inside a widget, use `LeaderboardPostLabel` instead of building a post action by hand. It reads
+the report window from `WidgetRootContext` and passes it as `search`, so the detail page opens on
 the range the row was read against:
 
 ```tsx
 <LeaderboardPostLabel id={ row.postId } label={ row.label } link={ row.link } />
 ```
 
-Pass `section` to open a named tab on the detail page, such as `email-opens`.
+Pass `section` to `LeaderboardPostLabel` to open a named tab on the detail page, such as
+`email-opens`.
 
-`LeaderboardRowMedia` provides five semantic media variants. The variant owns its size,
+There is no `LeaderboardVideoLabel`, so a widget building a `videoLink` action takes that same
+window from `useWidgetNavigationSearch()` and passes it as `search`.
+
+`LeaderboardRowMedia` provides six semantic media variants. The variant owns its size,
 fallback, and default alt-text policy:
 
 | Kind        | Size      | Missing or failed image behavior |
@@ -161,29 +172,18 @@ fallback, and default alt-text policy:
 | `favicon`   | 16 × 16px | Hidden; always decorative        |
 | `flag`      | 28px wide | Placeholder; proportional height |
 | `thumbnail` | 28 × 28px | Placeholder                      |
+| `icon`      | 20 × 20px | No image; takes a glyph          |
 | `none`      | No media  | Renders text only                |
+
+`icon` takes a `@wordpress/icons` glyph rather than a URL: `media: { kind: 'icon', icon: category }`.
 
 Use `resolveLeaderboardRowAction` when raw data can contain both an external URL and children.
 It applies the shared precedence: drill-down for rows with children, external links for
 childless rows, and static content otherwise.
 
 Use `LeaderboardLabel` directly for media plus truncating text outside chart rows, such as a
-DataViews table cell. It deliberately does not add the chart row's 36px minimum block size.
-
-### Row layout
-
-`LeaderboardRow` takes two optional layout props. `LeaderboardPostLabel` accepts both and
-forwards them.
-
-| Prop        | Default     | Description                                                                                                 |
-| ----------- | ----------- | ----------------------------------------------------------------------------------------------------------- |
-| `variant`   | `'compact'` | `'compact'` is the standard 36px row. `'overlay'` drops that floor and takes its height from block padding. |
-| `className` | -           | Extra class on the row, for per-widget spacing.                                                             |
-
-Pick `variant` to match the sibling rows in the same widget, not the chart's `withOverlayLabel`
-prop. That prop only tints the bar fill; it sets no row height. Use `'overlay'` where the
-neighbouring rows also take their height from block padding, and `'compact'` where they come
-from `buildLeaderboardRow`.
+DataViews table cell. It deliberately does not add the chart row's 36px minimum block size or its
+inline padding.
 
 ## Props
 

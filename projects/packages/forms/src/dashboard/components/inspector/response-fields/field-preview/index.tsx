@@ -7,6 +7,7 @@ import {
 	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 	__experimentalVStack as VStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
+import { __ } from '@wordpress/i18n';
 import { Badge, Link } from '@wordpress/ui';
 /**
  * Internal dependencies
@@ -21,10 +22,10 @@ import { EMAIL_REGEX, inferFieldTypeFromLabel } from './field-preview-utils.ts';
 import type { ResponseField, FieldType, FileItem } from '../../../../../types/index.ts';
 import './style.scss';
 
-const getFieldIcon = ( fieldType: FieldType, value: unknown ): React.ReactNode => {
+const getFieldIcon = ( fieldType: FieldType, isUnticked: boolean ): React.ReactNode => {
 	// A checkbox reflects the respondent's answer: an unchecked box gets the
 	// empty square rather than the ticked one.
-	if ( fieldType === 'checkbox' && ! isCheckedValue( value ) ) {
+	if ( isUnticked ) {
 		return <Icon icon={ checkboxUncheckedFieldIcon } />;
 	}
 	return <Icon icon={ fieldIcons[ fieldType ] ?? fieldIcons.text } />;
@@ -42,10 +43,18 @@ const FieldPreview = ( { field, onFilePreview }: FieldPreviewProps ) => {
 	// For legacy responses without a proper type (undefined or "basic"), try to infer from label
 	const fieldType: FieldType =
 		type && type !== 'basic' ? type : inferFieldTypeFromLabel( label ) ?? 'text';
-	const icon = getFieldIcon( fieldType, value );
+	// The icon and the value are two views of one answer, so they read it once.
+	const isUntickedCheckbox = fieldType === 'checkbox' && ! isCheckedValue( value );
+	const icon = getFieldIcon( fieldType, isUntickedCheckbox );
 	const typeClassName = `is-field-type-${ fieldType }`;
 
 	const renderFieldValue = () => {
+		// An unticked checkbox submits nothing, so it fell through to the dash meaning "no
+		// answer" -- but the respondent did answer. Badged, as a ticked one already is.
+		if ( isUntickedCheckbox ) {
+			return <Badge intent="draft">{ __( 'No', 'jetpack-forms' ) }</Badge>;
+		}
+
 		// Image select fields
 		if ( fieldType === 'image-select' ) {
 			const choices = ( value as { choices?: unknown[] } )?.choices;

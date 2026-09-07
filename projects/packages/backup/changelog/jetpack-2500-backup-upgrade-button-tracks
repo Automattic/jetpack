@@ -1,0 +1,5 @@
+Significance: patch
+Type: added
+Comment: Modernized dashboard only, behind the rsm_jetpack_ui_modernization_backup filter: the no-plan gate's Get VaultPress Backup button now records the same jetpack_backup_plugin_upgrade_click Tracks event the legacy dashboard records, so the purchase path stays measurable across the rollout. No-op when the filter is off.
+
+

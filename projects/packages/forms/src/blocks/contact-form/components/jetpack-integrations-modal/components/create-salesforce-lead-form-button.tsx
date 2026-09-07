@@ -17,7 +17,8 @@ export default function CreateSalesforceLeadFormButton( { className }: Props ) {
 					window.jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_salesforce_lead_form_click' );
 				}
 			},
-		} );
+			// There is no modal to keep open here, and openNewForm already logs the failure.
+		} ).catch( () => {} );
 	};
 
 	return (

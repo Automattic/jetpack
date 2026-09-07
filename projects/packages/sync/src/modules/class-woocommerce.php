@@ -803,7 +803,7 @@ class WooCommerce extends Module {
 	 * @return array Updated options whitelist.
 	 */
 	public function add_woocommerce_options_whitelist( $list ) {
-		return array_merge( $list, self::$wc_options_whitelist );
+		return array_values( array_unique( array_merge( $list, self::$wc_options_whitelist ) ) );
 	}
 
 	/**
@@ -971,6 +971,7 @@ class WooCommerce extends Module {
 		'woocommerce_checkout_pay_endpoint',
 		'woocommerce_custom_orders_table_data_sync_enabled',
 		'woocommerce_custom_orders_table_enabled',
+		'woocommerce_date_type',
 		'woocommerce_feature_block_email_editor_enabled',
 		'woocommerce_feature_blueprint_enabled',
 		'woocommerce_feature_cost_of_goods_sold_enabled',

@@ -9,9 +9,12 @@ import { bindCustomizerChanges } from './lib/customize';
  * Loads and runs the main chunk for Instant Search.
  */
 function init() {
-	import( /* webpackChunkName: "jp-search.chunk-main-payload" */ './index' ).then( instantSearch =>
-		instantSearch.initialize()
-	);
+	import( /* webpackChunkName: "jp-search.chunk-main-payload" */ './index' )
+		.then( instantSearch => instantSearch.initialize() )
+		.catch( error => {
+			// eslint-disable-next-line no-console
+			console.error( 'Jetpack Search ', error );
+		} );
 }
 
 // Bind customizer changes immediately.

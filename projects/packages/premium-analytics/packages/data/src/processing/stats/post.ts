@@ -1,5 +1,6 @@
 import { format, isValid, parse } from 'date-fns';
 import { safeParseFloat } from '../../utils/parsing';
+import { decodeHtmlText } from '../../utils/text';
 import { coerceStatsArray, coerceStatsRecord, isStatsRecord } from './utils';
 
 export type StatsPostMonthValues = Record< string, number >;
@@ -53,10 +54,8 @@ type StatsPostRawWeek = {
 };
 
 /**
- * The `post` field of the Stats post response is the site's raw post row, so it
- * uses WordPress column names (`post_title`, `post_type`, `post_date_gmt`) — not
- * the WP REST `title`/`type` shape. Only the fields the dashboard consumes are
- * modeled; the endpoint returns more.
+ * The `post` field is the site's raw post row, so it uses WordPress column names
+ * (`post_title`, `post_type`) — not the WP REST `title`/`type` shape.
  */
 export type StatsPostMeta = {
 	ID?: number;
@@ -176,6 +175,9 @@ function normalizeStatsPostMeta( value: unknown ): StatsPostMeta {
 
 	return {
 		...( meta as StatsPostMeta ),
+		...( typeof meta.post_title === 'string'
+			? { post_title: decodeHtmlText( meta.post_title ) }
+			: {} ),
 		...( meta.comment_count !== undefined
 			? { comment_count: safeParseFloat( meta.comment_count ) }
 			: {} ),

@@ -57,3 +57,8 @@ export {
 	type StatsProxyParams,
 	type StatsProxyVersion,
 } from './stats-proxy-fetch';
+export {
+	submitStatsUserFeedback,
+	type StatsFeedbackRating,
+	type StatsUserFeedback,
+} from './stats-user-feedback';

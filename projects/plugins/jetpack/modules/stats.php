@@ -1384,8 +1384,7 @@ function stats_str_getcsv( $csv ) {
 	$lines = explode( "\n", rtrim( $csv, "\n" ) );
 	return array_map(
 		function ( $line ) {
-			// @todo When we drop support for PHP <7.4, consider passing empty-string for `$escape` here for better spec compatibility.
-			return str_getcsv( $line, ',', '"', '\\' );
+			return str_getcsv( $line, ',', '"', '' );
 		},
 		$lines
 	);

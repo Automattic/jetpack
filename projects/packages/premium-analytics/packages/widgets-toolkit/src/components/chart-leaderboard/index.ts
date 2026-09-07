@@ -19,5 +19,4 @@ export type {
 	LeaderboardRowActionOptions,
 	LeaderboardRowChartProps,
 	LeaderboardRowProps,
-	LeaderboardRowVariant,
 } from './leaderboard-row';

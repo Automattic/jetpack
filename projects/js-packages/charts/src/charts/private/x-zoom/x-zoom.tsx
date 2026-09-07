@@ -3,7 +3,7 @@ import { __ } from '@wordpress/i18n';
 import { IconButton } from '@wordpress/ui';
 import { useCallback, useContext, useMemo, useState } from 'react';
 import styles from './x-zoom.module.scss';
-import type { SingleChartRef } from '../single-chart-context';
+import type { ChartInstanceRef } from '../chart-instance-context';
 import type { AxisScale } from '@visx/axis';
 import type { EventHandlerParams } from '@visx/xychart';
 import type { KeyboardEvent, ReactNode, RefObject } from 'react';
@@ -38,7 +38,7 @@ export function useXZoom< T extends Date | number = Date >( {
 	userHandlers,
 }: {
 	enabled: boolean;
-	chartRef: RefObject< SingleChartRef | null >;
+	chartRef: RefObject< ChartInstanceRef | null >;
 	userHandlers?: {
 		onPointerDown?: PointerHandler;
 		onPointerMove?: PointerHandler;

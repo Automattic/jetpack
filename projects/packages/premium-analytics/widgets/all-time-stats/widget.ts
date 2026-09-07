@@ -11,10 +11,9 @@ import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 import { ArrayCheckboxField } from '@jetpack-premium-analytics/fields';
 
 /**
- * The lifetime totals the widget can show, in display order: the persisted id
- * and label of each metric. Single source for the settings checkboxes and the
- * rendered tiles so the two cannot drift apart; `render.tsx` maps the ids to
- * icons and summary fields.
+ * Lifetime totals the widget can show, in display order. Renaming an id
+ * breaks the Insights default layout silently: `dashboard-layout.php`
+ * hardcodes a subset, and `render.tsx` filters ids it doesn't know.
  */
 export const ALL_TIME_STATS_METRICS = [
 	{ id: 'views', label: __( 'Views', 'jetpack-premium-analytics-pkg' ) },
@@ -30,32 +29,20 @@ export const ALL_TIME_STATS_METRICS = [
 export type AllTimeStatsMetricId = ( typeof ALL_TIME_STATS_METRICS )[ number ][ 'id' ];
 
 /**
- * Configurable attributes for the All-time stats widget. The widget does not
- * read the dashboard date range: the site summary is all-time, so
- * `useStatsSite()` is queried without report params. Host-injected
- * `attributes.reportParams` still flow into WidgetRoot for parity with the
- * other Stats widgets.
+ * Configurable attributes for the All-time stats widget. The site summary is
+ * all-time, so `useStatsSite()` is queried without the dashboard date range.
  */
 export type AllTimeStatsAttributes = {
-	/**
-	 * Lifetime totals to show in the widget body.
-	 */
 	metrics?: AllTimeStatsMetricId[];
 };
 
-/**
- * Default selection for new widget instances: every metric enabled.
- */
 export const DEFAULT_ALL_TIME_STATS_METRICS: AllTimeStatsMetricId[] = ALL_TIME_STATS_METRICS.map(
 	metric => metric.id
 );
 
 /**
- * Widget type definition.
- *
- * Ported from the Jetpack Stats "All-time stats" card: a grid of metric tiles
- * for lifetime totals — views, visitors, posts, and comments. `example.attributes`
- * doubles as the defaults applied to new instances: every metric enabled.
+ * Ported from the Jetpack Stats "All-time stats" card. `example.attributes`
+ * doubles as the defaults applied to new instances.
  */
 export default {
 	icon: trendingUp,

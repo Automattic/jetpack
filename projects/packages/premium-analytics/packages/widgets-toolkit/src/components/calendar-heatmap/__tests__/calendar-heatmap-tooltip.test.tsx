@@ -29,8 +29,7 @@ describe( 'CalendarHeatmapTooltip', () => {
 	it.each( [
 		[ 'null', null ],
 		// The package builds without `strictNullChecks`, so `undefined` type-checks
-		// here; without the `== null` check it would reach `formatValue` and render
-		// "undefined views".
+		// here; without the `== null` check it would render "undefined views".
 		[ 'undefined', undefined ],
 	] )( 'shows the empty label instead of a count for a %s cell', ( _label, value ) => {
 		render(

@@ -36,6 +36,7 @@ export default function BookingsOverTimeRender( {
 		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
 			<BookingOrderMetricWidget
 				metricKey="orders_no"
+				seriesLabel={ __( 'Bookings', 'jetpack-premium-analytics-pkg' ) }
 				emptyStateText={ __( 'No bookings in this period.', 'jetpack-premium-analytics-pkg' ) }
 				errorText={ __(
 					"We couldn't load bookings. Please try again in a moment.",

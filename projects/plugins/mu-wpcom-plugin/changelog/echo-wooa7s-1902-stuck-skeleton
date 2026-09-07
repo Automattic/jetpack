@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Premium Analytics: Fix charts getting stuck on their loading skeleton after switching a control that turns one of the underlying requests off.

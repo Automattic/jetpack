@@ -63,8 +63,7 @@ if ( is_readable( $jetpack_autoloader ) ) {
 add_filter(
 	'plugin_action_links_' . JETPACK_PREMIUM_ANALYTICS_FOLDER . '/jetpack-premium-analytics.php',
 	function ( $actions ) {
-		$page          = \Automattic\Jetpack\PremiumAnalytics\Analytics::MENU_PAGE_SLUG;
-		$settings_link = '<a href="' . esc_url( admin_url( 'admin.php?page=' . $page ) ) . '">Settings</a>';
+		$settings_link = '<a href="' . esc_url( \Automattic\Jetpack\PremiumAnalytics\Analytics::dashboard_url() ) . '">Settings</a>';
 		array_unshift( $actions, $settings_link );
 
 		return $actions;

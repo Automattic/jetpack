@@ -31,6 +31,7 @@ class Tracks_Test extends BaseTestCase {
 		}
 
 		$GLOBALS['jetpack_podcast_test_captured_events'] = array();
+		$GLOBALS['jetpack_podcast_test_captured_stats']  = array();
 	}
 
 	protected function tearDown(): void {
@@ -42,7 +43,7 @@ class Tracks_Test extends BaseTestCase {
 		wp_cache_flush();
 		WorDBless_Posts::init()->clear_all_posts();
 		WorDBless_Users::init()->clear_all_users();
-		unset( $GLOBALS['jetpack_podcast_test_captured_events'] );
+		unset( $GLOBALS['jetpack_podcast_test_captured_events'], $GLOBALS['jetpack_podcast_test_captured_stats'] );
 		parent::tearDown();
 	}
 
@@ -53,6 +54,22 @@ class Tracks_Test extends BaseTestCase {
 				static function ( array $event ) use ( $event_name ) {
 					return $event['event_name'] === $event_name;
 				}
+			)
+		);
+	}
+
+	private function stats_in_group( string $group ): array {
+		return array_values(
+			array_map(
+				static function ( array $stat ) {
+					return $stat['bin'];
+				},
+				array_filter(
+					$GLOBALS['jetpack_podcast_test_captured_stats'],
+					static function ( array $stat ) use ( $group ) {
+						return $stat['group'] === $group;
+					}
+				)
 			)
 		);
 	}
@@ -109,6 +126,7 @@ class Tracks_Test extends BaseTestCase {
 		$this->assertCount( 1, $events );
 		$this->assertSame( $post->ID, $events[0]['properties']['post_id'] );
 		$this->assertTrue( $events[0]['properties']['is_first_episode_for_site'] );
+		$this->assertSame( array( 'published', 'show-launched' ), $this->stats_in_group( 'wpcom-podcast-episodes' ) );
 	}
 
 	public function test_episode_published_fires_show_launched_only_once_per_site() {
@@ -122,6 +140,7 @@ class Tracks_Test extends BaseTestCase {
 
 		$this->assertCount( 1, $this->events_named( 'wpcom_podcast_show_launched' ) );
 		$this->assertCount( 2, $this->events_named( 'wpcom_podcast_episode_published' ) );
+		$this->assertSame( array( 'published', 'show-launched', 'published' ), $this->stats_in_group( 'wpcom-podcast-episodes' ) );
 	}
 
 	public function test_episode_published_skips_when_post_was_already_published() {
@@ -133,6 +152,7 @@ class Tracks_Test extends BaseTestCase {
 		Tracks::record_episode_published( $post->ID, $post, true, $before );
 
 		$this->assertEmpty( $this->events_named( 'wpcom_podcast_episode_published' ) );
+		$this->assertEmpty( $this->stats_in_group( 'wpcom-podcast-episodes' ) );
 	}
 
 	public function test_episode_published_skips_when_post_not_in_podcast_category() {
@@ -260,6 +280,7 @@ class Tracks_Test extends BaseTestCase {
 		$this->assertSame( 'enabled', $events[0]['properties']['status'] );
 		$this->assertSame( 0, $events[0]['properties']['previous_category_id'] );
 		$this->assertSame( 42, $events[0]['properties']['new_category_id'] );
+		$this->assertSame( array( 'enabled' ), $this->stats_in_group( 'wpcom-podcasting-status' ) );
 	}
 
 	public function test_status_changed_emits_disabled_when_category_cleared() {
@@ -268,6 +289,7 @@ class Tracks_Test extends BaseTestCase {
 		$events = $this->events_named( 'wpcom_podcasting_status_changed' );
 		$this->assertCount( 1, $events );
 		$this->assertSame( 'disabled', $events[0]['properties']['status'] );
+		$this->assertSame( array( 'disabled' ), $this->stats_in_group( 'wpcom-podcasting-status' ) );
 	}
 
 	public function test_status_changed_emits_changed_when_category_swapped() {
@@ -276,6 +298,7 @@ class Tracks_Test extends BaseTestCase {
 		$events = $this->events_named( 'wpcom_podcasting_status_changed' );
 		$this->assertCount( 1, $events );
 		$this->assertSame( 'changed', $events[0]['properties']['status'] );
+		$this->assertSame( array( 'changed' ), $this->stats_in_group( 'wpcom-podcasting-status' ) );
 	}
 
 	public function test_show_url_added_emits_on_first_entry_per_directory() {
@@ -287,6 +310,7 @@ class Tracks_Test extends BaseTestCase {
 		$events = $this->events_named( 'wpcom_podcasting_show_url_saved' );
 		$this->assertCount( 1, $events );
 		$this->assertSame( 'apple', $events[0]['properties']['app'] );
+		$this->assertSame( array( 'apple' ), $this->stats_in_group( 'wpcom-podcast-distribution' ) );
 	}
 
 	public function test_show_url_updated_skips_when_directory_already_had_url() {
@@ -297,6 +321,7 @@ class Tracks_Test extends BaseTestCase {
 		);
 
 		$this->assertEmpty( $this->events_named( 'wpcom_podcasting_show_url_saved' ) );
+		$this->assertEmpty( $this->stats_in_group( 'wpcom-podcast-distribution' ) );
 	}
 
 	public function test_show_url_added_emits_only_once_for_first_new_directory() {
@@ -309,5 +334,6 @@ class Tracks_Test extends BaseTestCase {
 		);
 
 		$this->assertCount( 1, $this->events_named( 'wpcom_podcasting_show_url_saved' ) );
+		$this->assertSame( array( 'apple' ), $this->stats_in_group( 'wpcom-podcast-distribution' ) );
 	}
 }

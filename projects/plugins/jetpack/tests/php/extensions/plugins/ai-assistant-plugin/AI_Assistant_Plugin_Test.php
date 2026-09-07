@@ -22,6 +22,11 @@ class AI_Assistant_Plugin_Test extends WP_UnitTestCase {
 	 */
 	public function set_up() {
 		parent::set_up();
+		// The AI controls only take effect on internal testing environments while
+		// they are unlaunched. These tests are about what the toggles do, so put
+		// the suite where they apply; the scoping itself is pinned in
+		// Jetpack_AI_Settings_Test.
+		$this->force_master_enforcement_for_test();
 		// Off-Simple the `ai` module is the AI master switch; activate it so the
 		// legacy panel's jetpack_ai_enabled gate reads on.
 		$this->activate_ai_module_for_test();
@@ -31,8 +36,10 @@ class AI_Assistant_Plugin_Test extends WP_UnitTestCase {
 	 * Tear down after each test.
 	 */
 	public function tear_down() {
+		unset( $_SERVER['A8C_PROXIED_REQUEST'] );
 		$this->deactivate_ai_module_for_test();
-		unregister_setting( 'general', 'jetpack_ai_agents_enabled' );
+		unset( $_SERVER['A8C_PROXIED_REQUEST'] );
+		unregister_setting( 'jetpack_search', 'jetpack_ai_agents_enabled' );
 		Constants::clear_single_constant( 'IS_WPCOM' );
 
 		remove_filter( 'jetpack_ai_enabled', '__return_false' );
@@ -48,7 +55,7 @@ class AI_Assistant_Plugin_Test extends WP_UnitTestCase {
 	 * Test that the AI Agent Access setting is exposed as a REST-writable boolean.
 	 */
 	public function test_register_ai_agents_setting_registers_rest_boolean_option() {
-		global $wp_registered_settings;
+		global $new_allowed_options, $wp_registered_settings;
 
 		AiAssistantPlugin\register_ai_agents_setting();
 
@@ -61,6 +68,9 @@ class AI_Assistant_Plugin_Test extends WP_UnitTestCase {
 		$this->assertSame( 'rest_sanitize_boolean', $setting['sanitize_callback'] );
 		$this->assertTrue( $setting['show_in_rest'] );
 		$this->assertFalse( $setting['default'] );
+		$this->assertSame( 'jetpack_search', $setting['group'] );
+		$this->assertContains( 'jetpack_ai_agents_enabled', $new_allowed_options['jetpack_search'] ?? array() );
+		$this->assertNotContains( 'jetpack_ai_agents_enabled', $new_allowed_options['general'] ?? array() );
 	}
 
 	/**
@@ -161,6 +171,7 @@ class AI_Assistant_Plugin_Test extends WP_UnitTestCase {
 		$this->reset_availability();
 		$this->simulate_connected_owner();
 		// Off-Simple the master is the `ai` module; turn it off there.
+		$this->force_master_enforcement_for_test();
 		$this->deactivate_ai_module_for_test();
 
 		AiAssistantPlugin\register_plugin();
@@ -169,15 +180,17 @@ class AI_Assistant_Plugin_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * The writing toggle from the AI settings page turns the legacy panel off.
+	 * The writing toggle hides the writing sections inside the panel, not the
+	 * panel itself: it still carries the image generator, the usage meter and
+	 * the upgrade prompt.
 	 */
-	public function test_not_registered_when_writing_toggle_off() {
+	public function test_registered_when_writing_toggle_off() {
 		$this->reset_availability();
 		$this->simulate_connected_owner();
 		update_option( 'jetpack_ai_writing_assistant_enabled', 0 );
 
 		AiAssistantPlugin\register_plugin();
 
-		$this->assertFalse( \Jetpack_Gutenberg::is_available( AiAssistantPlugin\FEATURE_NAME ) );
+		$this->assertTrue( \Jetpack_Gutenberg::is_available( AiAssistantPlugin\FEATURE_NAME ) );
 	}
 }

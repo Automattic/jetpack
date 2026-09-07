@@ -1,5 +1,6 @@
 import { needsReportDateParamsSeed } from '@jetpack-premium-analytics/data';
 import {
+	isDashboardSectionInPreviewScope,
 	isPremiumAnalyticsInitialSyncFinished,
 	isPremiumAnalyticsSiteConnected,
 	isVideoPressAvailable,
@@ -23,20 +24,12 @@ jest.mock( '../site-readiness', () => ( {
 	isPremiumAnalyticsSiteConnected: jest.fn( () => true ),
 	isPremiumAnalyticsInitialSyncFinished: jest.fn( () => true ),
 	isVideoPressAvailable: jest.fn( () => true ),
+	isDashboardSectionInPreviewScope: jest.fn( () => true ),
 } ) );
 
 jest.mock( '@wordpress/route', () => ( {
 	redirect: jest.fn( ( options: object ) => ( { isRedirect: true, ...options } ) ),
 } ) );
-
-const mockGetEntityConfig = jest.fn( () => ( {} ) );
-const mockAddEntities = jest.fn();
-jest.mock( '@wordpress/data', () => ( {
-	select: () => ( { getEntityConfig: mockGetEntityConfig } ),
-	dispatch: () => ( { addEntities: mockAddEntities } ),
-} ) );
-
-jest.mock( '@wordpress/core-data', () => ( { store: {} } ) );
 
 // A search that needs no seeding at all for video 42: dates present (the seed
 // check is mocked false), the post scope matches, and no comparison params.
@@ -52,7 +45,6 @@ const beforeLoad = ( params?: object, search?: object ) =>
 describe( 'video detail route.beforeLoad', () => {
 	afterEach( () => {
 		jest.clearAllMocks();
-		mockGetEntityConfig.mockReturnValue( {} );
 	} );
 
 	it( 'redirects to /connect when the site is not connected', async () => {
@@ -61,10 +53,10 @@ describe( 'video detail route.beforeLoad', () => {
 		await expect( beforeLoad( { videoId: '42' } ) ).rejects.toMatchObject( { to: '/connect' } );
 	} );
 
-	it( 'redirects to /syncing before the initial sync finishes', async () => {
+	it( 'loads the page before the initial sync finishes', async () => {
 		( isPremiumAnalyticsInitialSyncFinished as jest.Mock ).mockReturnValueOnce( false );
 
-		await expect( beforeLoad( { videoId: '42' } ) ).rejects.toMatchObject( { to: '/syncing' } );
+		await expect( beforeLoad( { videoId: '42' }, settledSearch ) ).resolves.toBeUndefined();
 	} );
 
 	it.each( [ undefined, '', 'abc', '-3', '0', '1.5' ] )(
@@ -78,6 +70,14 @@ describe( 'video detail route.beforeLoad', () => {
 
 	it( 'redirects home without VideoPress', async () => {
 		( isVideoPressAvailable as jest.Mock ).mockReturnValueOnce( false );
+
+		await expect( beforeLoad( { videoId: '42' }, settledSearch ) ).rejects.toMatchObject( {
+			to: '/',
+		} );
+	} );
+
+	it( 'redirects home when the Videos report is behind a hidden tab', async () => {
+		( isDashboardSectionInPreviewScope as jest.Mock ).mockReturnValueOnce( false );
 
 		await expect( beforeLoad( { videoId: '42' }, settledSearch ) ).rejects.toMatchObject( {
 			to: '/',
@@ -108,9 +108,8 @@ describe( 'video detail route.beforeLoad', () => {
 		} );
 	} );
 
-	// The page renders no comparison, but the dashboard link carries the URL
-	// state back out — stripping the params would lose the user's comparison
-	// settings on a Dashboard → Video → Dashboard round trip.
+	// The page renders no comparison, but the dashboard link carries the URL state
+	// back out — stripping the params would lose it on a round trip.
 	it( 'passes through comparison params without redirecting on a settled URL', async () => {
 		await expect(
 			beforeLoad( { videoId: '42' }, { ...settledSearch, comp: 'previous_period' } )
@@ -140,23 +139,11 @@ describe( 'video detail route.beforeLoad', () => {
 			compare_from: '2026-05-01T00:00:00',
 		} );
 	} );
-
-	it( 'registers the widget-module entity exactly once', async () => {
-		mockGetEntityConfig.mockReturnValueOnce( undefined as unknown as object );
-
-		await beforeLoad( { videoId: '42' }, settledSearch );
-		expect( mockAddEntities ).toHaveBeenCalledTimes( 1 );
-
-		// Registered now, so the next pass skips.
-		await beforeLoad( { videoId: '42' }, settledSearch );
-		expect( mockAddEntities ).toHaveBeenCalledTimes( 1 );
-	} );
 } );
 
 describe( 'video detail route report origin', () => {
 	afterEach( () => {
 		jest.clearAllMocks();
-		mockGetEntityConfig.mockReturnValue( {} );
 	} );
 
 	it( 'carries the report origin through the seeding redirect', async () => {

@@ -715,6 +715,182 @@ class WPCOM_JSON_API_Media_Endpoints_Authorization_Test extends WP_UnitTestCase 
 	}
 
 	/**
+	 * V1.1: `parent_id` names a post to attach the media to, which is an edit of that post.
+	 * A caller who may edit their own attachment must not be able to hang it off a post they
+	 * cannot edit.
+	 *
+	 * @group json-api
+	 */
+	#[Group( 'json-api' )]
+	public function test_v1_1_callback_rejects_parent_id_the_user_cannot_edit() {
+		global $blog_id;
+
+		$attachment_id = $this->create_attachment( self::$owner_id );
+		$target_id     = self::factory()->post->create( array( 'post_author' => self::$other_author_id ) );
+
+		wp_set_current_user( self::$owner_id );
+
+		$this->assertTrue( current_user_can( 'edit_post', $attachment_id ), 'The caller owns the attachment.' );
+		$this->assertFalse( current_user_can( 'edit_post', $target_id ), 'The caller must not be able to edit the target.' );
+
+		$endpoint = $this->make_endpoint( WPCOM_JSON_API_Update_Media_v1_1_Endpoint::class );
+		$this->set_input(
+			array(
+				'title'     => 'Renamed',
+				'parent_id' => $target_id,
+			)
+		);
+
+		$response = $endpoint->callback( sprintf( '/sites/%d/media/%d', $blog_id, $attachment_id ), $blog_id, $attachment_id );
+
+		$this->assertInstanceOf( WP_Error::class, $response );
+		$this->assertSame( 'unauthorized', $response->get_error_code() );
+		$this->assertSame( 403, $response->get_error_data() );
+
+		// The whole update is refused, not just the parent field.
+		$this->assertSame( 0, (int) get_post( $attachment_id )->post_parent );
+		$this->assertSame( 'Original title', get_post( $attachment_id )->post_title );
+	}
+
+	/**
+	 * V1.2 reaches the same `parent_id` handling through `parent::callback()`, so pin it
+	 * there too — the v1.2 route is registered from v1 up to v1.2.
+	 *
+	 * @group json-api
+	 */
+	#[Group( 'json-api' )]
+	public function test_v1_2_callback_rejects_parent_id_the_user_cannot_edit() {
+		global $blog_id;
+
+		$attachment_id = $this->create_attachment( self::$owner_id );
+		$target_id     = self::factory()->post->create( array( 'post_author' => self::$other_author_id ) );
+
+		wp_set_current_user( self::$owner_id );
+
+		$endpoint = $this->make_endpoint( WPCOM_JSON_API_Edit_Media_v1_2_Endpoint::class );
+		$this->set_input( array( 'parent_id' => $target_id ) );
+
+		$response = $endpoint->callback( sprintf( '/sites/%d/media/%d/edit', $blog_id, $attachment_id ), $blog_id, $attachment_id );
+
+		$this->assertInstanceOf( WP_Error::class, $response );
+		$this->assertSame( 'unauthorized', $response->get_error_code() );
+		$this->assertSame( 0, (int) get_post( $attachment_id )->post_parent );
+	}
+
+	/**
+	 * V1.1: attaching media to a post the caller may edit still works.
+	 *
+	 * @group json-api
+	 */
+	#[Group( 'json-api' )]
+	public function test_v1_1_callback_allows_parent_id_the_user_can_edit() {
+		global $blog_id;
+
+		$attachment_id = $this->create_attachment( self::$owner_id );
+		$target_id     = self::factory()->post->create( array( 'post_author' => self::$owner_id ) );
+
+		wp_set_current_user( self::$owner_id );
+
+		$endpoint = $this->make_endpoint( WPCOM_JSON_API_Update_Media_v1_1_Endpoint::class );
+		$this->set_input( array( 'parent_id' => $target_id ) );
+
+		$response = $endpoint->callback( sprintf( '/sites/%d/media/%d', $blog_id, $attachment_id ), $blog_id, $attachment_id );
+
+		$this->assertNotWPError( $response );
+		$this->assertSame( $target_id, (int) get_post( $attachment_id )->post_parent );
+	}
+
+	/**
+	 * V1.1: a `parent_id` naming a post that does not exist is refused, for every role.
+	 * `edit_post` maps to `do_not_allow` on a missing post, so this 403s administrators
+	 * too. Intended: trunk wrote the dangling `post_parent` instead. A trashed target
+	 * still passes, since the post is there to check.
+	 *
+	 * @group json-api
+	 */
+	#[Group( 'json-api' )]
+	public function test_v1_1_callback_rejects_a_parent_id_that_does_not_exist() {
+		global $blog_id;
+
+		$attachment_id = $this->create_attachment( self::$owner_id );
+		$missing_id    = 999999;
+
+		$this->assertNull( get_post( $missing_id ), 'Fixture ID must not exist.' );
+
+		wp_set_current_user( self::$editor_id );
+		$this->assertFalse( current_user_can( 'edit_post', $missing_id ), 'edit_post fails closed on a missing post.' );
+
+		$endpoint = $this->make_endpoint( WPCOM_JSON_API_Update_Media_v1_1_Endpoint::class );
+		$this->set_input( array( 'parent_id' => $missing_id ) );
+
+		$response = $endpoint->callback( sprintf( '/sites/%d/media/%d', $blog_id, $attachment_id ), $blog_id, $attachment_id );
+
+		$this->assertInstanceOf( WP_Error::class, $response );
+		$this->assertSame( 'unauthorized', $response->get_error_code() );
+		$this->assertSame( 403, $response->get_error_data() );
+		$this->assertSame( 0, (int) get_post( $attachment_id )->post_parent );
+	}
+
+	/**
+	 * V1.1: a trashed target is still a post the caller may edit, so re-parenting to it
+	 * keeps working. Pins the boundary of the missing-post rejection above.
+	 *
+	 * @group json-api
+	 */
+	#[Group( 'json-api' )]
+	public function test_v1_1_callback_allows_a_trashed_parent_id() {
+		global $blog_id;
+
+		$attachment_id = $this->create_attachment( self::$owner_id );
+		$target_id     = self::factory()->post->create( array( 'post_author' => self::$owner_id ) );
+		wp_trash_post( $target_id );
+
+		wp_set_current_user( self::$owner_id );
+
+		$endpoint = $this->make_endpoint( WPCOM_JSON_API_Update_Media_v1_1_Endpoint::class );
+		$this->set_input( array( 'parent_id' => $target_id ) );
+
+		$response = $endpoint->callback( sprintf( '/sites/%d/media/%d', $blog_id, $attachment_id ), $blog_id, $attachment_id );
+
+		$this->assertNotWPError( $response );
+		$this->assertSame( $target_id, (int) get_post( $attachment_id )->post_parent );
+	}
+
+	/**
+	 * V1.1: `parent_id` 0 detaches the item. It names no target, and `edit_post` fails
+	 * closed on 0, so it must stay exempt from the target check or detaching becomes
+	 * impossible.
+	 *
+	 * @group json-api
+	 */
+	#[Group( 'json-api' )]
+	public function test_v1_1_callback_allows_detaching_media() {
+		global $blog_id;
+
+		$target_id     = self::factory()->post->create( array( 'post_author' => self::$owner_id ) );
+		$attachment_id = self::factory()->attachment->create_object(
+			array(
+				'file'           => 'image.jpg',
+				'post_parent'    => $target_id,
+				'post_title'     => 'Original title',
+				'post_mime_type' => 'image/jpeg',
+				'post_type'      => 'attachment',
+				'post_author'    => self::$owner_id,
+			)
+		);
+
+		wp_set_current_user( self::$owner_id );
+
+		$endpoint = $this->make_endpoint( WPCOM_JSON_API_Update_Media_v1_1_Endpoint::class );
+		$this->set_input( array( 'parent_id' => 0 ) );
+
+		$response = $endpoint->callback( sprintf( '/sites/%d/media/%d', $blog_id, $attachment_id ), $blog_id, $attachment_id );
+
+		$this->assertNotWPError( $response );
+		$this->assertSame( 0, (int) get_post( $attachment_id )->post_parent );
+	}
+
+	/**
 	 * V1.1: editors can still rename media uploaded by someone else.
 	 *
 	 * @group json-api

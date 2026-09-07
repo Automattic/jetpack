@@ -9,10 +9,8 @@ import { SkeletonRoot } from '../widget-skeleton';
 import styles from './donut-chart-skeleton.module.scss';
 
 /**
- * The design prototype draws four legend rows, and the count is deliberately
- * not derived from the widget: a donut's segment count only arrives with the
- * response, so a stand-in tracking it would land on the wrong count and read as
- * the layout jump it was meant to prevent.
+ * Deliberately not derived from the widget: a donut's segment count only arrives
+ * with the response, so a stand-in tracking it would read as a layout jump.
  */
 const LEGEND_ROW_COUNT = 4;
 

@@ -1,6 +1,7 @@
 import {
 	buildDashboardLink,
 	buildReportLink,
+	hasPrimaryDateDraft,
 	omitComparisonReportParams,
 	pickReportDateParams,
 } from './report-params';
@@ -209,5 +210,30 @@ describe( 'buildReportLink', () => {
 			'/reports/emails',
 			{ from: '2026-01-01' }
 		);
+	} );
+} );
+
+describe( 'hasPrimaryDateDraft', () => {
+	const applied = { from: '2026-07-01', to: '2026-07-30', preset: 'last-30-days' };
+
+	it( 'reports no draft for the applied window', () => {
+		expect( hasPrimaryDateDraft( applied, { ...applied } ) ).toBe( false );
+	} );
+
+	it.each( [ 'from', 'to', 'preset' ] )( 'reports a draft on a changed %s', key => {
+		expect( hasPrimaryDateDraft( applied, { ...applied, [ key ]: 'other' } ) ).toBe( true );
+	} );
+
+	// The comparison and interval controls ride along with a range draft, so
+	// their own changes must not read as one.
+	it( 'ignores params the picker does not own', () => {
+		const draft = { ...applied, interval: 'week' };
+
+		expect( hasPrimaryDateDraft( applied, draft ) ).toBe( false );
+	} );
+
+	it( 'treats a missing window as a draft against a set one', () => {
+		expect( hasPrimaryDateDraft( undefined, applied ) ).toBe( true );
+		expect( hasPrimaryDateDraft( undefined, undefined ) ).toBe( false );
 	} );
 } );

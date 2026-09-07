@@ -5,6 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [9.1.0] - 2026-09-01
+### Added
+- Register the `dismissed_a4a_banner` option name. [#51441]
+- REST API: Add the `jetpack/v4/jetpack-ai-jwt` route, moved from the Agents Manager package. [#51629]
+
+### Changed
+- Error reporting: Make the gate direction-aware to avoid suppressing matching codes across directions. [#51387]
+- Update package dependencies. [#51802]
+
+## [9.0.0] - 2026-08-26
+### Changed
+- Cache the WordPress.com site record briefly so the site endpoint does not make a request per read. [#51146]
+
+### Removed
+- Minimum supported PHP version is now 7.4. [#51515]
+
+## [8.12.0] - 2026-08-25
+### Changed
+- Enqueue the connection owner notice script through `wp_add_inline_script()` instead of printing a script element. [#51461]
+- Enqueue the Users screen connection column CSS through `wp_add_inline_style()` instead of printing a style element. [#51459]
+- SSO: Enqueue the login and user-admin styles through `wp_add_inline_style()` instead of printing style elements. [#51460]
+
+### Deprecated
+- Deprecate `Users_Connection_Admin::add_connection_column_styles()`; the Users screen column CSS is enqueued as an inline style now. [#51459]
+- SSO: Deprecate `print_inline_admin_css()` in favour of `enqueue_login_styles()`. [#51460]
+
 ## [8.11.0] - 2026-08-20
 ### Added
 - Error UI: Document displayable connection errors and identify cases where consumers should offer a support link. [#51360]
@@ -2018,6 +2044,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Separate the connection library into its own package.
 
+[9.1.0]: https://github.com/Automattic/jetpack-connection/compare/v9.0.0...v9.1.0
+[9.0.0]: https://github.com/Automattic/jetpack-connection/compare/v8.12.0...v9.0.0
+[8.12.0]: https://github.com/Automattic/jetpack-connection/compare/v8.11.0...v8.12.0
 [8.11.0]: https://github.com/Automattic/jetpack-connection/compare/v8.10.4...v8.11.0
 [8.10.4]: https://github.com/Automattic/jetpack-connection/compare/v8.10.3...v8.10.4
 [8.10.3]: https://github.com/Automattic/jetpack-connection/compare/v8.10.2...v8.10.3

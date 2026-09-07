@@ -27,22 +27,19 @@ export type PostSummary = {
 	url?: string;
 	/** Whether the underlying stats request is still resolving. */
 	isLoading: boolean;
+	/** Whether the underlying stats request failed. */
+	isError: boolean;
 };
 
 /**
- * Resolve the public URL a list surface carried into this route.
+ * Resolve the public URL a list surface carried into this route. Kept
+ * detailed: this is a security-relevant origin check, not a plain lookup.
  *
- * A public post type that sets `show_in_rest: false` has no core-data entity
- * config, so the permalink lookup below can never resolve it. The Stats report
- * does hold a URL for those rows, so the list surfaces pass it through the
- * route as a search param.
- *
- * That param comes from the address bar, so it is only honoured for an http(s)
- * URL on the site's own origin. Otherwise a crafted dashboard link could point
- * the header's link out at any host. The site URL needs `manage_options`, so
- * where it is unreadable the origin serving the dashboard stands in for it —
- * that is the site itself on a self-hosted install. A URL that passes neither
- * check resolves to `undefined`, and the header simply offers no link out.
+ * A `show_in_rest: false` post type has no core-data entity, so list surfaces
+ * pass the Stats-report URL through as a search param instead — honoured only
+ * for an http(s) URL matching the site's own origin (falling back to the
+ * dashboard's own origin when the site URL is unreadable), so a crafted link
+ * can't point the header out at another host.
  *
  * @return The carried URL when it is safe to use, otherwise `undefined`.
  */
@@ -67,12 +64,9 @@ function useCarriedPostUrl(): string | undefined {
 }
 
 /**
- * Resolve the header summary for a single post/page.
- *
- * Title, type, and published date come straight from the Stats `post` payload
- * (the raw post row). The featured image isn't part of that payload, so it's
- * read from the site's own post entity via `@wordpress/core-data`, degrading
- * gracefully to `undefined` when the record or the featured media is missing.
+ * Resolve the header summary for a single post/page. Title, type, and
+ * published date come from the Stats `post` payload; the featured image
+ * isn't in that payload, so it's read separately from core-data.
  *
  * @param postId - The post/page ID from the route.
  * @return The resolved post summary.
@@ -80,7 +74,7 @@ function useCarriedPostUrl(): string | undefined {
 export function usePostSummary( postId: number ): PostSummary {
 	// The header only needs the post row, so scope the query to the `post` field
 	// instead of pulling the full stats payload.
-	const { data, isLoading } = useStatsPost( { postId, fields: [ 'post' ] } );
+	const { data, isLoading, isError } = useStatsPost( { postId, fields: [ 'post' ] } );
 	const post = data?.post;
 	const type = post?.post_type;
 
@@ -110,10 +104,8 @@ export function usePostSummary( postId: number ): PostSummary {
 		[ postId, type ]
 	);
 
-	// The public URL is not part of the Stats payload, so it comes from the same
-	// post entity the featured image is read from — already resolved, so this
-	// adds no request. Kept as its own selector so the mapped value stays a
-	// primitive and cannot re-render the header on every store change.
+	// Reads the same already-resolved post entity as the image (no extra
+	// request); its own selector avoids re-rendering on every store change.
 	const url = useSelect(
 		select => {
 			if ( ! type || ! Number.isInteger( postId ) || postId <= 0 ) {
@@ -138,11 +130,15 @@ export function usePostSummary( postId: number ): PostSummary {
 	return {
 		title: post?.post_title,
 		type,
-		publishedDate: post?.post_date_gmt ?? post?.post_date,
+		// GMT fallback gets an explicit `Z` suffix so downstream code doesn't
+		// mistake it for a site-timezone wall time.
+		publishedDate:
+			post?.post_date ?? ( post?.post_date_gmt ? `${ post.post_date_gmt }Z` : undefined ),
 		imageUrl,
 		// The entity permalink is authoritative; the carried URL only covers the
 		// post types core data cannot resolve.
 		url: url ?? carriedUrl,
 		isLoading,
+		isError,
 	};
 }

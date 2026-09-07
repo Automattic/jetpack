@@ -17,6 +17,7 @@ import { globe } from '@wordpress/icons';
 import clsx from 'clsx';
 import { getTranslatedCountryName } from '../../util/country-names-translated.js';
 import JetpackFieldControls from '../shared/components/jetpack-field-controls.jsx';
+import JetpackFieldHints from '../shared/components/jetpack-field-hints.jsx';
 import useFieldSelected from '../shared/hooks/use-field-selected.js';
 import useFormWrapper from '../shared/hooks/use-form-wrapper.js';
 import useJetpackFieldStyles from '../shared/hooks/use-jetpack-field-styles.js';
@@ -82,24 +83,27 @@ export default function PhoneFieldEdit( props ) {
 		}
 	}, [ showCountrySelector, setAttributes, countryPairs, defaultCountry ] );
 
-	const innerBlocksProps = useInnerBlocksProps( blockProps, {
-		allowedBlocks: [ 'jetpack/label', 'jetpack/phone-input' ],
-		template: [
-			[
-				'jetpack/label',
-				{
-					label: __( 'Phone number', 'jetpack-forms' ),
-					placeholder,
-					required,
-					requiredText,
-					requiredIndicator,
-				},
+	const innerBlocksProps = useInnerBlocksProps(
+		{ className: 'jetpack-field__control' },
+		{
+			allowedBlocks: [ 'jetpack/label', 'jetpack/phone-input' ],
+			template: [
+				[
+					'jetpack/label',
+					{
+						label: __( 'Phone number', 'jetpack-forms' ),
+						placeholder,
+						required,
+						requiredText,
+						requiredIndicator,
+					},
+				],
+				[ 'jetpack/phone-input', {} ],
 			],
-			[ 'jetpack/phone-input', {} ],
-		],
-		templateLock: 'all',
-		__experimentalCaptureToolbars: true,
-	} );
+			templateLock: 'all',
+			__experimentalCaptureToolbars: true,
+		}
+	);
 
 	useSyncRequiredIndicator( {
 		clientId,
@@ -126,7 +130,14 @@ export default function PhoneFieldEdit( props ) {
 					'jetpack/field-phone-search-placeholder': searchPlaceholder,
 				} }
 			>
-				<div { ...innerBlocksProps } />
+				<div { ...blockProps }>
+					<div { ...innerBlocksProps } />
+					<JetpackFieldHints
+						attributes={ attributes }
+						setAttributes={ setAttributes }
+						isActive={ isSelected || isInnerBlockSelected }
+					/>
+				</div>
 			</BlockContextProvider>
 
 			<BlockControls __experimentalShareWithChildBlocks>
@@ -147,6 +158,7 @@ export default function PhoneFieldEdit( props ) {
 				attributes={ attributes }
 				setAttributes={ setAttributes }
 				width={ width }
+				helpTextSupport
 				extraFieldSettings={ [
 					{
 						index: 2,

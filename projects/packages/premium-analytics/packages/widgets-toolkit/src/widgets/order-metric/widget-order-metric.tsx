@@ -16,6 +16,9 @@ export type OrderMetricWidgetProps = {
 	emptyStateText?: string;
 
 	errorText?: string;
+
+	/** The metric's name, for the chart legend. */
+	seriesLabel?: string;
 };
 
 /**
@@ -27,6 +30,7 @@ export function OrderMetricWidget( {
 	metricKey,
 	emptyStateText,
 	errorText,
+	seriesLabel,
 }: OrderMetricWidgetProps ) {
 	const { reportParams } = useWidgetRootContext();
 
@@ -37,6 +41,7 @@ export function OrderMetricWidget( {
 			dataFormat={ getFormatByMetricKey( metricKey ) }
 			emptyStateText={ emptyStateText }
 			errorText={ errorText }
+			seriesLabel={ seriesLabel }
 		/>
 	);
 }

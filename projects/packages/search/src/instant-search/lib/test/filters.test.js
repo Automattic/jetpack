@@ -1,7 +1,10 @@
+import { SERVER_OBJECT_NAME } from '../constants';
 import {
 	FILTER_KEYS,
+	getAvailableStaticFilters,
 	getFilterKeys,
 	getSelectableFilterKeys,
+	getStaticFilterKeys,
 	getUnselectableFilterKeys,
 	mapFilterKeyToFilter,
 } from '../filters';
@@ -9,6 +12,15 @@ import {
 describe( 'getFilterKeys', () => {
 	test( 'defaults to a fixed array when parameters are null-ish', () => {
 		expect( getFilterKeys( null, undefined ) ).toEqual( FILTER_KEYS );
+	} );
+
+	test( 'does not crash when the localized widgets value is malformed', () => {
+		try {
+			window[ SERVER_OBJECT_NAME ] = { widgets: {}, widgetsOutsideOverlay: 'nope' };
+			expect( getFilterKeys() ).toEqual( FILTER_KEYS );
+		} finally {
+			delete window[ SERVER_OBJECT_NAME ];
+		}
 	} );
 
 	test( 'includes taxonomies from widget configurations without duplicates', () => {
@@ -74,6 +86,15 @@ describe( 'getSelectableFilterKeys', () => {
 		expect( getSelectableFilterKeys( null ) ).toEqual( [] );
 		expect( getSelectableFilterKeys( undefined ) ).toEqual( [] );
 	} );
+
+	test( 'does not crash when the localized widgets value is malformed', () => {
+		try {
+			window[ SERVER_OBJECT_NAME ] = { widgets: 'nope' };
+			expect( getSelectableFilterKeys() ).toEqual( [] );
+		} finally {
+			delete window[ SERVER_OBJECT_NAME ];
+		}
+	} );
 	test( 'extracts filter keys from widgets inside the search overlay sidebar', () => {
 		const widgets = [
 			{ filters: [ { type: 'taxonomy', taxonomy: 'category' } ] },
@@ -96,6 +117,15 @@ describe( 'getUnselectableFilterKeys', () => {
 	test( 'defaults to getFilterKeys() value on nullish inputs', () => {
 		expect( getUnselectableFilterKeys( null ) ).toEqual( getFilterKeys( null, null ) );
 		expect( getUnselectableFilterKeys( undefined ) ).toEqual( getFilterKeys( null, null ) );
+	} );
+
+	test( 'does not crash when the localized widgets value is malformed', () => {
+		try {
+			window[ SERVER_OBJECT_NAME ] = { widgets: {} };
+			expect( getUnselectableFilterKeys() ).toEqual( FILTER_KEYS );
+		} finally {
+			delete window[ SERVER_OBJECT_NAME ];
+		}
 	} );
 	test( 'defaults to getFilterKeys() value on empty inputs', () => {
 		const widgets = [];
@@ -120,6 +150,44 @@ describe( 'getUnselectableFilterKeys', () => {
 			'year_post_modified',
 			'year_post_modified_gmt',
 		] );
+	} );
+} );
+
+describe( 'getAvailableStaticFilters', () => {
+	test( 'returns an empty array when the localized value is missing', () => {
+		expect( getAvailableStaticFilters() ).toEqual( [] );
+	} );
+
+	test( 'does not crash when the localized staticFilters value is a non-array', () => {
+		try {
+			window[ SERVER_OBJECT_NAME ] = { staticFilters: {} };
+			expect( getAvailableStaticFilters() ).toEqual( [] );
+			expect( getAvailableStaticFilters( 'sidebar' ) ).toEqual( [] );
+		} finally {
+			delete window[ SERVER_OBJECT_NAME ];
+		}
+	} );
+
+	test( 'drops malformed entries instead of crashing on a variation lookup', () => {
+		try {
+			window[ SERVER_OBJECT_NAME ] = {
+				staticFilters: [ null, { filter_id: 'group_id' } ],
+			};
+			expect( getAvailableStaticFilters( 'sidebar' ) ).toEqual( [ { filter_id: 'group_id' } ] );
+		} finally {
+			delete window[ SERVER_OBJECT_NAME ];
+		}
+	} );
+} );
+
+describe( 'getStaticFilterKeys', () => {
+	test( 'does not crash when the localized staticFilters value is malformed', () => {
+		try {
+			window[ SERVER_OBJECT_NAME ] = { staticFilters: 'nope' };
+			expect( getStaticFilterKeys() ).toEqual( [] );
+		} finally {
+			delete window[ SERVER_OBJECT_NAME ];
+		}
 	} );
 } );
 

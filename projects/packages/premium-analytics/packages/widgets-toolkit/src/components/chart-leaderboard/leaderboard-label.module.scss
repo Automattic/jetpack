@@ -52,6 +52,8 @@
 	--jpa-leaderboard-image-fit: cover;
 }
 
+/* The chart insets its own `.label` in overlay mode, but an element label
+ * bypasses that rule — and the overlay bar takes its height from this row. */
 .row,
 .rowLink {
 	display: flex;
@@ -61,7 +63,7 @@
 	min-block-size: 36px;
 	min-inline-size: 0;
 	max-inline-size: 100%;
-	padding-inline: var(--wpds-dimension-padding-sm);
+	padding-inline: var(--wpds-dimension-padding-md);
 	overflow: hidden;
 	color: inherit;
 	text-decoration: none;
@@ -72,13 +74,11 @@
 	gap: var(--wpds-dimension-gap-xs);
 }
 
-/* Block padding sets the bar height when the label sits on top of the bar, so
-   the 36px floor is dropped. Doubled with the base class to beat it on
-   specificity rather than on stylesheet order. */
-.overlay.row,
-.overlay.rowLink {
-	min-block-size: 0;
-	padding-block: var(--wpds-dimension-padding-md);
+/* The design system renders the external-link arrow as a sibling of the
+   label, so the colour has to go on the anchor to reach it. */
+.rowLink:hover,
+.rowLink:focus {
+	color: var(--wpds-color-foreground-interactive-brand);
 }
 
 .rowLink:hover .label,
@@ -92,4 +92,8 @@
 	width: var(--jpa-leaderboard-image-width);
 	height: var(--jpa-leaderboard-image-height);
 	object-fit: var(--jpa-leaderboard-image-fit);
+}
+
+.icon {
+	flex: none;
 }

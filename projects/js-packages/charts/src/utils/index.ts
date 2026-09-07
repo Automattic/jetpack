@@ -1,6 +1,9 @@
 // Chart composition utilities
 export { attachSubComponents } from './create-composition';
 
+// Date bucket classification
+export { getBucketInfo } from './bucket-info';
+
 // Date parsing utilities
 export { parseAsLocalDate } from './date-parsing';
 

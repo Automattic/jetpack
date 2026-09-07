@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Paywall Block: Preserve paid post access after reloading the editor.

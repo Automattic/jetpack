@@ -5,6 +5,7 @@ import { usePosterUrl } from '../../hooks/use-poster-url';
 import { useProcessingProgress } from '../../hooks/use-processing-progress';
 import { formatDuration } from '../../utils/format';
 import { useUploadActions } from './upload-actions-context';
+import { getUploadFailureLabel } from './upload-failure-label';
 import type { LibraryItem } from '../../types/library';
 
 type Props = { item: LibraryItem };
@@ -30,6 +31,7 @@ export default function ThumbnailField( { item }: Props ) {
 	const { type, upload, durationSeconds, id, guid, title, isPrivate, isProcessing } = item;
 	const posterUrl = usePosterUrl( item );
 
+	const failureLabel = getUploadFailureLabel( upload.failureReason );
 	const isVideoPressIdle = type === 'videopress' && upload.status === 'idle';
 	const processingProgress = useProcessingProgress(
 		guid,
@@ -153,7 +155,10 @@ export default function ThumbnailField( { item }: Props ) {
 					justify="center"
 					className="vp-library__failed"
 				>
-					<Text>{ __( 'Upload failed', 'jetpack-videopress-pkg' ) }</Text>
+					<Text>{ failureLabel.summary }</Text>
+					{ /* Own line rather than joined onto the summary: the tile is too
+					     narrow for one string, and the Retry button sits below. */ }
+					{ failureLabel.cause ? <Text variant="body-sm">{ failureLabel.cause }</Text> : null }
 					<Button size="compact" onClick={ () => retryUpload( id ) }>
 						{ __( 'Retry', 'jetpack-videopress-pkg' ) }
 					</Button>

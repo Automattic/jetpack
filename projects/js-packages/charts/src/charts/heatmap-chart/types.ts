@@ -13,6 +13,14 @@ export type HeatmapCell = {
 	 * days completing the first/last week fall outside the covered range.
 	 */
 	hidden?: boolean;
+	/**
+	 * Paint the cell as a faded empty slot that carries no claim about the day:
+	 * it is set apart from a measured day that scored zero, and skipped by
+	 * hover, tooltips, keyboard navigation and the accessibility tree. For grid
+	 * filler — slots drawn only so a short range still fills its container,
+	 * which were never measured.
+	 */
+	placeholder?: boolean;
 };
 
 /** A heatmap column (rendered left→right); its cells render top→bottom. */
@@ -61,8 +69,8 @@ export interface HeatmapChartProps
 	/** Floor a cell's height (px) in non-compact mode; see `minCellWidth`. */
 	minCellHeight?: number;
 	/**
-	 * Color the cell scale interpolates toward at the highest value
-	 * (this prop > theme `heatmapChart.primaryColor` > palette `colors[0]`).
+	 * Color the cell scale interpolates toward at the highest value. Defaults to the
+	 * first series palette slot, `--a8c-charts-color-series-1`.
 	 */
 	primaryColor?: string;
 	renderTooltip?: ( data: HeatmapTooltipData ) => ReactNode;

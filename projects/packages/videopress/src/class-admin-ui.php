@@ -48,10 +48,10 @@ class Admin_UI {
 	/**
 	 * Filter name that gates the chapters editor.
 	 *
-	 * When this filter returns true, the chapters editor is exposed in both
-	 * places it lives: the dashboard's Editor tab (and the `/video/$id/editor`
-	 * route behind it) and the block editor's chapter manager modal. Unlike the
-	 * modernization filter, this defaults to false.
+	 * The chapters editor is generally available, so this defaults to true and
+	 * the filter serves as a kill switch: returning false withdraws it from both
+	 * places it lives — the dashboard's Editor tab (and the `/video/$id/editor`
+	 * route behind it) and the block editor's chapter manager modal.
 	 */
 	const CHAPTERS_EDITOR_FILTER = 'jetpack_videopress_chapters_editor';
 
@@ -366,6 +366,8 @@ class Admin_UI {
 		// This callback is registered via `load-{$page_suffix}` in `enable_menu()`,
 		// so it only fires on the VideoPress admin page — no need to re-check the page here.
 		if ( self::is_modernized() ) {
+			Admin_Menu::enqueue_design_tokens();
+
 			// Page-level shell stylesheet: scopes the shared `jetpack-admin-page-layout`
 			// mixin to the dashboard body so every route inherits the proper
 			// scrollable chrome (fixed `#wpbody-content`, scrollable middle, pinned
@@ -813,10 +815,10 @@ class Admin_UI {
 	/**
 	 * Returns true when the chapters editor feature filter is enabled.
 	 *
-	 * Note the default is false: the dashboard Editor tab, the
+	 * Note the default is true: the dashboard Editor tab, the
 	 * `/video/$id/editor` route, the Details-tab deep link, and the block
-	 * editor's "Manage chapters" toolbar button all stay hidden unless a site
-	 * explicitly opts in via the filter.
+	 * editor's "Manage chapters" toolbar button are all available unless a site
+	 * explicitly opts out via the filter.
 	 *
 	 * @since 0.45.0
 	 *
@@ -830,9 +832,9 @@ class Admin_UI {
 		 *
 		 * @since 0.45.0
 		 *
-		 * @param bool $enabled Whether the chapters editor UI is enabled. Default false.
+		 * @param bool $enabled Whether the chapters editor UI is enabled. Default true.
 		 */
-		return (bool) apply_filters( self::CHAPTERS_EDITOR_FILTER, false );
+		return (bool) apply_filters( self::CHAPTERS_EDITOR_FILTER, true );
 	}
 
 	/**

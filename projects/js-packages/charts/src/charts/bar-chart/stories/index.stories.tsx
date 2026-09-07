@@ -419,6 +419,24 @@ export const WithLegend: Story = {
 	},
 };
 
+export const WithDefaultHiddenSeries: Story = {
+	args: {
+		...Default.args,
+		showLegend: true,
+		legendInteractive: true,
+		chartId: 'default-hidden-series-demo',
+		defaultHiddenSeries: [ 'Great Britain' ],
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Great Britain is hidden from the initial render and marked inactive in the legend. Select its legend item to reveal it.',
+			},
+		},
+	},
+};
+
 // Story demonstrating composition API
 export const WithCompositionLegend: Story = {
 	render: args => {
@@ -678,6 +696,55 @@ export const ComparisonMulti: Story = {
 			description: {
 				story:
 					'Two groups (`views` and `visitors`) rendered side by side, each paired with its own `type: "comparison"` series. Each group\'s standard-width shadow bar sits behind its 60%-width primary bar, with clear gaps preserved between groups — confirming comparison mode composes correctly with grouped bar layouts. With `legend.collapseGroups` each group is a single legend item (Views, Visitors), and because `legend.interactive` is also on, clicking one toggles both its current and previous-period series at once. Turn the `legendCollapseGroups` control off to get one item per series, each toggling alone.',
+			},
+		},
+	},
+};
+
+export const PaintedYAxis: Story = {
+	args: {
+		containerWidth: '900px',
+		containerHeight: '400px',
+		resize: 'none',
+	},
+	render: () => (
+		<div style={ { display: 'grid', gap: '32px', gridTemplateColumns: 'repeat(2, 380px)' } }>
+			<div>
+				<h3 style={ { marginBottom: '4px' } }>Default — labels only</h3>
+				<p style={ { marginBottom: '12px', color: '#666' } }>
+					Both roles resolve to <code>none</code>.
+				</p>
+				<BarChart
+					width={ 380 }
+					height={ 220 }
+					data={ [ medalCountsData[ 0 ] ] }
+					gridVisibility="x"
+				/>
+			</div>
+			<div
+				style={
+					{
+						'--a8c-charts-color-axis-y': '#3858e9',
+						'--a8c-charts-color-tick-y': '#cc1818',
+					} as React.CSSProperties
+				}
+			>
+				<h3 style={ { marginBottom: '4px' } }>Painted</h3>
+				<p style={ { marginBottom: '12px', color: '#666' } }>Axis blue, tick marks red.</p>
+				<BarChart
+					width={ 380 }
+					height={ 220 }
+					data={ [ medalCountsData[ 0 ] ] }
+					gridVisibility="x"
+				/>
+			</div>
+		</div>
+	),
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Each axis has its own pair of catalog roles, set in CSS anywhere inside the provider tree. The y pair resolves to `none` by default, which is what leaves that axis carrying tick labels and nothing else; declaring either one paints that part. The x pair — `--a8c-charts-color-axis-x` and `--a8c-charts-color-tick-x` — is untouched here, which is why the x axis is identical in both charts. Nothing reaches any of these through the `theme` prop; colors are CSS.',
 			},
 		},
 	},

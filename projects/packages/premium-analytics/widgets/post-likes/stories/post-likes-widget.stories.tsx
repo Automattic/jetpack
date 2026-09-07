@@ -16,7 +16,10 @@ import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
 /**
  * Internal dependencies
  */
-import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
+import {
+	registerReportMocks,
+	setReportMockState,
+} from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import {
 	DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
 	WidgetDashboardWithWidget as WidgetDashboardWithWidgetStory,
@@ -39,6 +42,8 @@ registerReportMocks();
 const MOCK_POST_ID = 779;
 
 const POST_LIKES_RENDER_MODULE = 'storybook/post-likes';
+
+const LIKES_REQUEST_PATH = `posts/${ MOCK_POST_ID }/likes`;
 
 interface PostLikesStoryControls {
 	hasPostScope: boolean;
@@ -101,6 +106,55 @@ export const NoPostScope: Story = {
 	render: renderPostLikes,
 	args: { hasPostScope: false },
 	decorators: [ withWidgetCanvas ],
+};
+
+/**
+ * Loading — the first fetch is still in flight, so the widget shows its
+ * skeleton roster. The mock is forced to never resolve for this story.
+ */
+export const Loading: Story = {
+	render: renderPostLikes,
+	args: { hasPostScope: true },
+	// Off the shared autodocs page — path-keyed override; see setReportMockState.
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		setReportMockState( LIKES_REQUEST_PATH, 'loading' );
+		return () => setReportMockState( LIKES_REQUEST_PATH, null );
+	},
+};
+
+/**
+ * Error — the fetch failed with a 403: the widget shows its error copy and a
+ * Retry action, which re-runs the query (still mocked as failing here).
+ */
+export const Error: Story = {
+	render: renderPostLikes,
+	args: { hasPostScope: true },
+	// Off the shared autodocs page — path-keyed override; see setReportMockState.
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		setReportMockState( LIKES_REQUEST_PATH, 'error' );
+		return () => setReportMockState( LIKES_REQUEST_PATH, null );
+	},
+};
+
+/**
+ * Empty — a scoped post that resolved with no likes: "There are no likes yet."
+ * This is the scoped empty state, distinct from the scopeless copy in
+ * NoPostScope.
+ */
+export const Empty: Story = {
+	render: renderPostLikes,
+	args: { hasPostScope: true },
+	// Off the shared autodocs page — path-keyed override; see setReportMockState.
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas ],
+	beforeEach: () => {
+		setReportMockState( LIKES_REQUEST_PATH, 'empty' );
+		return () => setReportMockState( LIKES_REQUEST_PATH, null );
+	},
 };
 
 interface PostLikesDashboardStoryProps

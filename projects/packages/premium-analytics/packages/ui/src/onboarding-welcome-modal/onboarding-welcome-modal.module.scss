@@ -1,0 +1,41 @@
+// The stage bleeds out of the content padding to run edge to edge under the
+// popup's rounded top corners, and scrolls with the copy on short viewports.
+.stage {
+	margin-block: calc(-1 * var(--wpds-dimension-padding-2xl)) var(--wpds-dimension-padding-3xl);
+	margin-inline: calc(-1 * var(--wpds-dimension-padding-2xl));
+}
+
+// Anchored to the popup rather than the stage, so it stays put while the
+// content scrolls. White over the dark stage, whatever the neutral tone would
+// pick; the 4px inset lands the 24px glyph of the 32px button 8px from the
+// corner.
+.close {
+	--wp-ui-button-foreground-color: #fff;
+	--wp-ui-button-foreground-color-active: #fff;
+	--wp-ui-button-background-color-active: color-mix(in srgb, #fff 16%, transparent);
+
+	position: absolute;
+	inset-block-start: var(--wpds-dimension-padding-xs);
+	inset-inline-end: var(--wpds-dimension-padding-xs);
+	// Above the scroll region. WPDS has no z-index token.
+	z-index: 1;
+}
+
+// Below this height the stage would push Get started out of the popup, so the
+// copy and the button take the room instead, and the close icon goes back to
+// its neutral colors over the white popup.
+@media (max-height: 600px) {
+
+	.close {
+		--wp-ui-button-foreground-color: var(--wpds-color-foreground-interactive-neutral);
+		--wp-ui-button-foreground-color-active: var(--wpds-color-foreground-interactive-neutral-active);
+		--wp-ui-button-background-color-active: var(--wpds-color-background-interactive-neutral-weak-active);
+	}
+}
+
+@media (max-height: 600px) and (orientation: landscape) {
+
+	.stage {
+		display: none;
+	}
+}

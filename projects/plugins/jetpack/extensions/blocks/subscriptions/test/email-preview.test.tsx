@@ -34,6 +34,9 @@ jest.mock( '@wordpress/ui', () => ( {
 	Link: ( { children, href } ) => <a href={ href }>{ children }</a>,
 } ) );
 
+// `@wordpress/editor` registers rich-text formats at import time against the real data registry.
+jest.mock( '@wordpress/editor', () => ( { store: 'core/editor' } ) );
+
 jest.mock( '@wordpress/data', () => {
 	const actual = jest.requireActual( '@wordpress/data' );
 	const mocks = {

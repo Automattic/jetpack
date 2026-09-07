@@ -1,6 +1,8 @@
 /* Editor-specific styles for file upload field */
 .jetpack-form-file-field__dropzone {
 	position: relative;
+	margin-top: 0; /* Override default margin on classic theme wp-block */
+	margin-bottom: 0; /* Override default margin on classic theme wp-block */
 }
 
 .jetpack-form-file-field__dropzone-inner {

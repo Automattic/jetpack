@@ -8,10 +8,10 @@ import { render, screen } from '@testing-library/react';
 import { MetricTabsChartSkeleton } from '../metric-tabs-chart-skeleton';
 
 describe( 'MetricTabsChartSkeleton', () => {
-	it( 'draws a single chart block inside a status region', () => {
+	it( 'draws a single chart block', () => {
 		render( <MetricTabsChartSkeleton /> );
 
-		expect( screen.getByRole( 'status' ) ).toBeInTheDocument();
+		expect( screen.getByTestId( 'widget-skeleton' ) ).toBeInTheDocument();
 		expect( screen.getAllByTestId( 'skeleton-chart-block' ) ).toHaveLength( 1 );
 	} );
 
@@ -19,6 +19,6 @@ describe( 'MetricTabsChartSkeleton', () => {
 		render( <MetricTabsChartSkeleton /> );
 
 		// eslint-disable-next-line testing-library/no-node-access -- child count is the assertion.
-		expect( screen.getByRole( 'status' ).children ).toHaveLength( 2 );
+		expect( screen.getByTestId( 'widget-skeleton' ).children ).toHaveLength( 2 );
 	} );
 } );

@@ -40,6 +40,17 @@ class Tokens {
 		);
 
 		$this->remove_lock();
+
+		/**
+		 * Fires after all connection tokens have been deleted from the local site.
+		 *
+		 * `Jetpack_Options::delete_option()` fires no action of its own, so this is the only
+		 * signal that the tokens backing the connection are gone. Anything holding derived
+		 * state — a memoized connection status, a cached credential — must recompute from here.
+		 *
+		 * @since $$next-version$$
+		 */
+		do_action( 'jetpack_connection_tokens_deleted' );
 	}
 
 	/**

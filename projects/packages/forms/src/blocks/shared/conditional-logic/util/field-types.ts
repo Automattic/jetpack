@@ -194,3 +194,79 @@ export const getValueInputForTypeKey = ( typeKey: TypeKey | string ): ValueInput
  */
 export const operatorNeedsValue = ( operator: Operator | string ): boolean =>
 	! OPERATORS_WITHOUT_VALUE.has( operator );
+
+/**
+ * Whether `<input type="date">` will show this value.
+ *
+ * The format has to match and the day has to exist: a well-formed date that does not exist rolls
+ * over rather than failing to parse -- `2026-02-31` becomes 2 March -- so what came back has to be
+ * compared against what went in.
+ *
+ * @param value - A trimmed candidate value.
+ * @return True when the date input can display it.
+ */
+const isDisplayableDate = ( value: string ): boolean => {
+	if ( ! /^\d{4}-\d{2}-\d{2}$/.test( value ) ) {
+		return false;
+	}
+
+	const parsed = new Date( `${ value }T00:00:00Z` );
+
+	return ! Number.isNaN( parsed.getTime() ) && parsed.toISOString().startsWith( value );
+};
+
+/**
+ * The value a subject change carries over, or null when it cannot be carried.
+ *
+ * Returns the value to store rather than a yes/no, because the decision is made on the
+ * trimmed form: handing back a verdict left the caller storing the padded original, which
+ * every control here then failed to display -- a dropdown has no option named `" Small "`,
+ * and a date input renders nothing for `" 2026-03-15 "`. One function owns both halves so
+ * they cannot disagree.
+ *
+ * A value the new subject's control cannot represent is dropped rather than kept out of
+ * sight, where the evaluators would go on comparing against it.
+ *
+ * @param value   - The value currently on the rule.
+ * @param typeKey - The new subject's comparison behavior.
+ * @param options - The new subject's selectable options, where it has any.
+ * @return The value to store, or null when the new subject cannot represent it.
+ */
+export const getCarriedOverValue = (
+	value: unknown,
+	typeKey: TypeKey | string,
+	options: ReadonlyArray< { value: string } > = []
+): string | null => {
+	const raw = String( value ?? '' ).trim();
+
+	if ( '' === raw ) {
+		return null;
+	}
+
+	switch ( getValueInputForTypeKey( typeKey ) ) {
+		// No value box at all: `is checked` and friends compare against nothing.
+		case 'none':
+			return null;
+
+		case 'options':
+			return options.some( option => option.value === raw ) ? raw : null;
+
+		// The grammar a number input accepts, rather than whatever `Number()` can coerce: it
+		// blanks `.5`, `5.`, `+5` and `0x10`, all of which `Number()` reads happily.
+		case 'number':
+			return /^-?\d+(\.\d+)?([eE][-+]?\d+)?$/.test( raw ) ? raw : null;
+
+		// A date or time input renders nothing for a value outside its own format, and nothing
+		// for one that is well-formed but not a real date or clock time. Stricter than
+		// `evaluate.ts`'s parser on purpose: that answers what the evaluator can read, this
+		// answers what the control can show, so `15/03/2026` and `2026-02-31` both have to go.
+		case 'date':
+			return isDisplayableDate( raw ) ? raw : null;
+
+		case 'time':
+			return /^([01]\d|2[0-3]):[0-5]\d(:[0-5]\d)?$/.test( raw ) ? raw : null;
+
+		default:
+			return raw;
+	}
+};

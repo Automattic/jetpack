@@ -33,6 +33,47 @@ if ( ! function_exists( 'add_blog_option' ) ) {
 	}
 }
 
+if ( ! function_exists( 'wpcom_expiry_get_purchases' ) ) {
+	/**
+	 * Test seam for the expiry-notices wrapper. Shadows the production
+	 * function without redefining wpcom_get_site_purchases() globally, which
+	 * would change behaviour for unrelated features that use
+	 * function_exists() guards on it.
+	 *
+	 * @return array
+	 */
+	function wpcom_expiry_get_purchases() {
+		return $GLOBALS['wpcom_get_site_purchases_test_value'] ?? array();
+	}
+}
+
+if ( ! function_exists( 'wpcom_is_vip' ) ) {
+	/**
+	 * A drop-in for a WordPress.com function. Defaults to false, matching a
+	 * regular site, so features that guard on it behave as they did before
+	 * this stub existed.
+	 *
+	 * @return bool
+	 */
+	function wpcom_is_vip() {
+		return ! empty( $GLOBALS['wpcom_is_vip_test_value'] );
+	}
+}
+
+if ( ! function_exists( 'get_blog_details' ) ) {
+	/**
+	 * A drop-in for the multisite function WordPress.com keeps the unmapped
+	 * domain in. WorDBless is single-site, so it does not ship one.
+	 *
+	 * @param int $blog_id Blog ID. Unused: tests only ever have one site.
+	 * @return object|false
+	 */
+	function get_blog_details( $blog_id = 0 ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- single-site test env.
+		$domain = $GLOBALS['wpcom_blog_details_domain_test_value'] ?? null;
+		return null === $domain ? false : (object) array( 'domain' => $domain );
+	}
+}
+
 if ( ! function_exists( 'wpcom_rest_api_v2_load_plugin' ) ) {
 	/**
 	 * A drop-in for a WordPress.com function.

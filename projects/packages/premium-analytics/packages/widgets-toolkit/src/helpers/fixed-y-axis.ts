@@ -15,17 +15,10 @@ export type FixedYAxis = {
 };
 
 /**
- * Resolve the y-axis domain a comparative chart should pin, if any.
- *
- * Two cases want a fixed domain instead of the data's own range: a percentage
- * metric always reads 0%–100%, so a series sitting between 2% and 5% doesn't
- * fill the plot; and an all-zero period gets a real axis instead of a flat
- * baseline.
- *
- * A pinned domain has to carry its own left margin. `useChartMargin` sizes the
- * axis gutter by re-deriving ticks from the data's own min/max — it overwrites
- * `options.yScale.domain` while doing so — so the widest tick of a pinned domain
- * would otherwise be drawn outside the gutter reserved for it and clipped.
+ * Resolve the y-axis domain a comparative chart should pin, if any: a percentage
+ * metric always reads 0–100%, an all-zero period gets a real axis instead of a
+ * flat baseline, and the domain carries its own margin since `useChartMargin`'s
+ * data-derived ticks would otherwise clip a pinned domain's widest tick.
  *
  * @param metricType  - The data format type (currency, number, percentage).
  * @param isEmptyData - Whether every value in the chart is 0 or null.

@@ -177,7 +177,7 @@ class Dashboard_Test extends BaseTestCase {
 		$redirect = null;
 
 		// Declared in the docblock rather than as a native `never` return type: this
-		// package supports PHP 7.2 and `never` is 8.1+.
+		// package supports PHP 7.4 and `never` is 8.1+.
 		$capture = /** @return never */ function ( $location ) use ( &$redirect ) {
 			$redirect = $location;
 			throw new \RuntimeException( 'redirected' );

@@ -45,8 +45,7 @@ class Jetpack_Stats_Plugin_Test extends BaseTestCase {
 	private function reset_static( $class, $property, $value ) {
 		$reflected = new ReflectionProperty( $class, $property );
 
-		// Reflection cannot write a private property before PHP 8.1 without this, and the
-		// method is deprecated from PHP 8.5. The plugin supports 7.2, so both ends apply.
+		// @todo Remove this call once we no longer need to support PHP <8.1.
 		if ( PHP_VERSION_ID < 80100 ) {
 			$reflected->setAccessible( true );
 		}

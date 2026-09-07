@@ -91,10 +91,6 @@ function CommentsReport(): JSX.Element {
 			tabbed
 			visual={ <StatsPageIcon /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
-			subTitle={ __(
-				'Learn about the comments your site receives by authors, posts, and pages.',
-				'jetpack-premium-analytics-pkg'
-			) }
 			actions={
 				canExport ? (
 					<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />

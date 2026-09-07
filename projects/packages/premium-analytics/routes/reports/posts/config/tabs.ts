@@ -18,12 +18,8 @@ export type ReportPostsTabId = 'posts-pages' | 'archives';
 const DEFAULT_TAB_ID: ReportPostsTabId = 'posts-pages';
 
 /**
- * Canonical tab machinery built from the ordered definitions.
- *
- * Labels are defined once here, as getters resolved at call time, so translations
- * are applied after the i18n locale data has loaded. The generic `defineReportTabs`
- * helper turns these into the `resolve`/`getTabs`/`getTabLabel` API. Mirrors the
- * post-detail tab definitions.
+ * Canonical tab machinery. Labels are getters resolved at call time so translations
+ * apply after i18n locale data loads; mirrors the post-detail tab definitions.
  */
 const reportPostsTabs = defineReportTabs< ReportPostsTabId >(
 	[

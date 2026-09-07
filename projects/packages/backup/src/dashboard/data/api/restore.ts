@@ -75,23 +75,67 @@ const SETTLED_ROW_STATUSES = new Set( [
 ] );
 
 /**
+ * Spellings in that same vocabulary that mean the restore worked.
+ *
+ * Both, because `Restore_Bridge::STATUS_MAP` maps `success` to `finished` while
+ * `GET /jetpack/v4/restores` returns WordPress.com's body unmapped. Matching
+ * only `finished` would silence the review prompt's restore trigger site-wide
+ * with nothing to notice. `success-with-errors` stays out, and an unrecognised
+ * spelling counts as not succeeded — the harmless direction here is not asking.
+ */
+const SUCCEEDED_ROW_STATUSES = new Set( [ 'finished', 'success' ] );
+
+/**
  * One row of `GET /jetpack/v4/restores` — the last ten restores, any state.
  *
- * `when` is WordPress.com's own ISO-8601 timestamp and is compared only
- * against other rows', never against the browser's clock: a browser
- * minutes ahead of the server would otherwise reject the restore it had
- * just started, and recovery would fail for the whole session.
+ * `when` must be read through `parseRestoreWhen`, never `Date.parse`, and
+ * `pickLiveRestore` ranks rows only against each other: a browser ahead of the
+ * server would otherwise reject the restore it had just started.
  *
- * `settled` is the quarantined reading of the row's `status` — see
- * `SETTLED_ROW_STATUSES`. The raw spelling is deliberately not carried
- * any further than this file.
+ * `settled` and `succeeded` are the quarantined readings of the row's
+ * `status` — see `SETTLED_ROW_STATUSES` and `SUCCEEDED_ROW_STATUSES`. The
+ * raw spelling is deliberately not carried any further than this file.
  */
 export type RecentRestore = {
 	restore_id: number;
 	rewind_id: string;
 	when: string;
 	settled: boolean;
+	/**
+	 * Whether this restore finished and worked.
+	 *
+	 * A separate reading from `settled` rather than a refinement of it,
+	 * because the two answer different questions: `settled` is "is there
+	 * anything left to wait for", which an aborted or failed restore also
+	 * satisfies, and this is "did the site actually come back". Only the
+	 * review prompt asks the second one.
+	 */
+	succeeded: boolean;
 };
+
+/** A trailing `Z` or `±HH:MM` — the only thing that makes `when` self-describing. */
+const HAS_ZONE_DESIGNATOR = /(?:Z|[+-]\d{2}:?\d{2})$/i;
+
+/**
+ * A row's `when` as an instant, or null when it cannot be read.
+ *
+ * WordPress.com stamps most rows `YYYY-MM-DD HH:MM:SS` in UTC with no zone
+ * marker, which `Date` would read in the browser's zone — three hours out on GMT-3.
+ *
+ * @param when - The row's raw `when` value.
+ * @return Milliseconds since the epoch, or null.
+ */
+export function parseRestoreWhen( when: string ): number | null {
+	const trimmed = when?.trim();
+	if ( ! trimmed ) {
+		return null;
+	}
+	const stamped = HAS_ZONE_DESIGNATOR.test( trimmed )
+		? trimmed
+		: `${ trimmed.replace( ' ', 'T' ) }Z`;
+	const ms = Date.parse( stamped );
+	return Number.isNaN( ms ) ? null : ms;
+}
 
 /** Statuses that mean the restore is still going, or might be. */
 const LIVE_STATUSES: RestoreStatus[] = [ 'queued', 'running', 'unknown' ];
@@ -174,10 +218,8 @@ export function pickLiveRestore(
 			row => ! row.settled && ( rewindId === null || sameRewindId( row.rewind_id, rewindId ) )
 		)
 		.sort( ( a, b ) => {
-			const at = Date.parse( a.when );
-			const bt = Date.parse( b.when );
-			const av = Number.isNaN( at ) ? -Infinity : at;
-			const bv = Number.isNaN( bt ) ? -Infinity : bt;
+			const av = parseRestoreWhen( a.when ) ?? -Infinity;
+			const bv = parseRestoreWhen( b.when ) ?? -Infinity;
 			// Restore ids are handed out in order, so they break a tie
 			// between two rows stamped in the same second.
 			return bv === av ? b.restore_id - a.restore_id : bv - av;
@@ -234,10 +276,10 @@ export async function fetchRestoreStatus( restoreId: number ): Promise< RestoreS
  * the one who started the restore.
  *
  * Used to recover a restore id that WPCOM accepted but did not return.
- * Note the route follows the legacy convention of answering a non-200
- * from WPCOM with a bare `null`, which WordPress serves as HTTP 200 — so
- * this resolves rather than rejecting, and the empty list it returns in
- * that case means "could not read", not "no restores".
+ * Note the route follows the legacy convention of answering a WPCOM
+ * reply it cannot decode with a bare `null`, which WordPress serves as
+ * HTTP 200 — so this resolves rather than rejecting, and the empty list
+ * it returns in that case means "could not read", not "no restores".
  *
  * Returns `null` — not an empty list — when the read failed, because the
  * two mean opposite things to a caller deciding whether it is safe to
@@ -263,6 +305,8 @@ export async function fetchRecentRestores(): Promise< RecentRestore[] | null > {
 			when: typeof row.when === 'string' ? row.when : '',
 			settled:
 				typeof row.status === 'string' && SETTLED_ROW_STATUSES.has( row.status.toLowerCase() ),
+			succeeded:
+				typeof row.status === 'string' && SUCCEEDED_ROW_STATUSES.has( row.status.toLowerCase() ),
 		} ) )
 		.filter( row => row.restore_id > 0 );
 }

@@ -68,6 +68,12 @@
 	padding-inline: var(--wpds-dimension-padding-2xl);
 }
 
+.refreshFailure {
+	// Sits below the header row inside the pinned band; the band's own bottom
+	// padding keeps it clear of the widgets.
+	margin-block-start: var(--wpds-dimension-gap-md);
+}
+
 .widgets {
 	// Caps every layer the grid raises (edit overlay, resizing tiles, the
 	// @dnd-kit drag preview) under the sticky header, which then only has to
@@ -139,8 +145,8 @@
 @supports (animation-timeline: --section-header-pin) {
 
 	.sectionHeader {
-		// Tightens the padding on the subtitle's own timeline: once pinned
-		// there are no tabs left to clear, and the band should cost the
+		// Tightens the padding on the timeline the header condenses on: once
+		// pinned there are no tabs left to clear, and the band should cost the
 		// widgets as little height as it can.
 		animation: condense-section-header linear both;
 		animation-timeline: --section-header-pin;

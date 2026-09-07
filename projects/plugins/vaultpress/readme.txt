@@ -4,7 +4,7 @@ Tags: security, malware, virus, archive, back up, back ups, backup, backups, sca
 Requires at least: 5.2
 Tested up to: 7.1
 Stable tag: 4.0.7
-Requires PHP: 7.2
+Requires PHP: 7.4
 License: GPLv2
 
 (DEPRECATED: Please install "Jetpack VaultPress Backup" instead) Jetpack VaultPress offers real-time backups, one-click restores, and premium support from WordPress experts.

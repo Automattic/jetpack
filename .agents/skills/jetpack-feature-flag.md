@@ -1,7 +1,7 @@
 ---
 name: jetpack-feature-flag
 description: "Use when adding, gating, testing, or retiring a Jetpack feature flag built on the `automattic/jetpack-feature-flags` package — Feature_Flags::register(), branching on is_enabled(), declaring and installing the dependency, regenerating dependent plugin lock files, bridging the flag to JS, and forcing it on for testing via the `jetpack_feature_flag_enabled_<flag>` filter or `wp companion feature-flag` on Jurassic Ninja. Triggers on 'add a feature flag', 'put this behind a flag', 'gate this feature', 'ship this disabled by default', 'kill switch', 'staged rollout', 'remove the feature flag'. NOT for other things loosely called flags: ExPlat experiments, paid-plan gating via Current_Plan::supports(), module activation, JETPACK_* constants, Jetpack_Options, or adding a key to the `jetpack_block_editor_feature_flags` filter. Use only when the toggle is, or should become, a registered Feature_Flags flag."
-compatibility: "Jetpack monorepo. Requires the `automattic/jetpack-feature-flags` package (`projects/packages/feature-flags`, PHP 7.2+). The `wp companion feature-flag` command used for testing is preinstalled on every Jurassic Ninja site; it does not exist in `jp docker`."
+compatibility: "Jetpack monorepo. Requires the `automattic/jetpack-feature-flags` package (`projects/packages/feature-flags`, PHP 7.4+). The `wp companion feature-flag` command used for testing is preinstalled on every Jurassic Ninja site; it does not exist in `jp docker`."
 ---
 
 # Jetpack Feature Flags

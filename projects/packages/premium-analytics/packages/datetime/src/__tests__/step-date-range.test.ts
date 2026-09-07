@@ -84,13 +84,8 @@ describe( 'stepDateRange', () => {
 	} );
 
 	/*
-	 * The first acceptance criterion, asserted the way the control exercises it:
-	 * each call re-derives the span from whatever range it is handed, so a step
-	 * that changes what the window measures as has to survive that too.
-	 *
-	 * The clamping case is why this is a property rather than one example.
-	 * `addMonths` shortens a day the target month cannot hold, and the clamp does
-	 * not undo: August 31 two months back is June 30, forward again August 30.
+	 * A property rather than one example because of clamping: `addMonths` shortens
+	 * a day the target month cannot hold, and the clamp does not undo.
 	 */
 	describe( 'is reversible', () => {
 		const cases = [
@@ -125,10 +120,8 @@ describe( 'stepDateRange', () => {
 	} );
 
 	/*
-	 * The window keeps its length whichever unit the step had to fall back to.
-	 * Counted in calendar days, not elapsed milliseconds: a window that crosses a
-	 * daylight-saving change is an hour longer than one that does not, and the
-	 * step is meant to preserve the days a reader sees rather than the seconds.
+	 * Counted in calendar days, not elapsed milliseconds: a window crossing a DST
+	 * change is an hour longer, and the step preserves the days a reader sees.
 	 */
 	it( 'preserves the window length when a calendar step would clamp', () => {
 		const range = wholeDays( at( 2026, 8, 31 ), at( 2026, 10, 30 ) );
@@ -153,10 +146,8 @@ describe( 'canStepForward', () => {
 	const now = at( 2026, 7, 27, 12 );
 
 	/*
-	 * The shapes a live preset takes. `Last 24 hours` ends at the end of the
-	 * running hour, `today` at the end of the running day, `Last 7 days` at the
-	 * end of yesterday: the first two end in the future, the last never contains
-	 * the present, and all are the latest window available.
+	 * Live presets end in the future (`Last 24 hours`, `today`) or before the
+	 * present (`Last 7 days`), yet all are the latest window available.
 	 */
 	it( 'is false on a rolling window whose end has just gone stale', () => {
 		const to = at( 2026, 7, 27, 11, 59 );
@@ -164,9 +155,8 @@ describe( 'canStepForward', () => {
 		expect( canStepForward( { from: at( 2026, 7, 26, 11, 59 ), to }, now ) ).toBe( false );
 	} );
 
-	// The live window ends at the end of the running hour, in the future on
-	// purpose; counting that bucket is what keeps it reachable after a step
-	// back.
+	// The live window ends in the future on purpose; counting that bucket is what
+	// keeps it reachable after a step back.
 	it( 'is true on the window right behind a live hour-snapped one', () => {
 		const live = {
 			from: at( 2026, 7, 26, 13 ),

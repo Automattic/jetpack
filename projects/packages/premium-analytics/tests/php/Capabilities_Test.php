@@ -109,11 +109,9 @@ class Capabilities_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Pins the helper to the capability the proxy enforces for the `analytics`
-	 * prefix, so the two can't drift apart and leave widgets that answer 403.
-	 * Asserted through check_data_permission() rather than by reading
-	 * PREFIX_CONFIG, so what's compared is the decision each side actually
-	 * reaches for the same user.
+	 * Pins the helper to the capability the proxy enforces for `analytics`, so the two can't
+	 * drift apart and leave widgets that answer 403. Asserted through check_data_permission()
+	 * rather than PREFIX_CONFIG, so what's compared is the decision each side actually reaches.
 	 */
 	public function test_store_report_helper_matches_the_proxy_capability() {
 		$controller = new Api_Proxy_Controller();
@@ -137,9 +135,8 @@ class Capabilities_Test extends BaseTestCase {
 			'An administrator must be admitted by both.'
 		);
 
-		// WooCommerce's own capability, held by shop managers, who have no
-		// manage_options. WorDBless has no shop_manager role, so grant the
-		// capability the role would carry.
+		// WooCommerce's own capability, held by shop managers (no manage_options). WorDBless
+		// has no shop_manager role, so grant the capability the role would carry.
 		$shop_manager = $this->login_as( 'subscriber' );
 		$this->grant_capability_to( $shop_manager, 'view_woocommerce_reports' );
 
@@ -149,6 +146,61 @@ class Capabilities_Test extends BaseTestCase {
 			Capabilities::current_user_can_view_store_reports(),
 			'A WooCommerce report viewer must be admitted by both.'
 		);
+	}
+
+	/**
+	 * A stats reader cannot view ad reports.
+	 */
+	public function test_view_stats_reader_cannot_view_ad_reports() {
+		$user_id = $this->login_as( 'editor' );
+		$this->grant_view_stats_to( $user_id );
+
+		$this->assertTrue( Capabilities::current_user_can_view_analytics() );
+		$this->assertFalse( Capabilities::current_user_can_view_ad_reports() );
+	}
+
+	/**
+	 * The ad reports helper matches the proxy permission check.
+	 */
+	public function test_ad_report_helper_matches_the_proxy_capability() {
+		$controller = new Api_Proxy_Controller();
+		$request    = new WP_REST_Request( 'GET', '/jetpack-premium-analytics/v1/proxy/v1.1/wordads/earnings' );
+		$request->set_param( 'endpoint', 'wordads/earnings' );
+
+		$reader = $this->login_as( 'editor' );
+		$this->grant_view_stats_to( $reader );
+
+		$this->assertSame(
+			$controller->check_data_permission( $request ),
+			Capabilities::current_user_can_view_ad_reports(),
+			'A view_stats reader must be refused by the proxy and by the helper that hides its surfaces.'
+		);
+
+		$this->login_as( 'administrator' );
+
+		$this->assertSame(
+			$controller->check_data_permission( $request ),
+			Capabilities::current_user_can_view_ad_reports(),
+			'An administrator must be admitted by both.'
+		);
+	}
+
+	/**
+	 * The activate_wordads capability is not assigned to any role.
+	 */
+	public function test_activate_wordads_is_not_a_registered_capability() {
+		foreach ( wp_roles()->roles as $slug => $role ) {
+			$this->assertArrayNotHasKey(
+				'activate_wordads',
+				(array) $role['capabilities'],
+				"Role $slug grants activate_wordads."
+			);
+		}
+
+		$this->login_as( 'administrator' );
+
+		// phpcs:ignore WordPress.WP.Capabilities.Unknown -- asserting the capability is unknown is the point.
+		$this->assertFalse( current_user_can( 'activate_wordads' ) );
 	}
 
 	/**

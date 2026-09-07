@@ -13,7 +13,6 @@ import type { OctokitClient, PushEvent } from '../../types.ts';
 async function addMilestone( payload: PushEvent, octokit: OctokitClient ): Promise< void > {
 	const { commits, ref, repository } = payload;
 	const { name: repo, owner } = repository;
-	const ownerLogin = owner.login;
 
 	// We should not get to that point as the action is triggered on pushes to trunk, but...
 	if ( ref !== 'refs/heads/trunk' ) {
@@ -26,6 +25,12 @@ async function addMilestone( payload: PushEvent, octokit: OctokitClient ): Promi
 		debug( 'add-milestone: Commit is not a squashed PR. Aborting' );
 		return;
 	}
+
+	if ( ! owner ) {
+		debug( 'add-milestone: No owner supplied in push event. Aborting' );
+		return;
+	}
+	const ownerLogin = owner.login;
 
 	const {
 		data: { milestone: pullMilestone },

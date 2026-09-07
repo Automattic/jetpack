@@ -585,7 +585,7 @@ class Jetpack_Carousel {
 		$required = ( $require_name_email ) ? __( '%s (Required)', 'jetpack' ) : '%s';
 		require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-spinner.php';
 		?>
-		<div id="jp-carousel-loading-overlay">
+		<div id="jp-carousel-loading-overlay" style="display: none;">
 			<div id="jp-carousel-loading-wrapper">
 				<span id="jp-carousel-library-loading"><?php echo Jetpack_Spinner::render( 40 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG markup. ?></span>
 			</div>
@@ -1090,7 +1090,7 @@ class Jetpack_Carousel {
 	/**
 	 * Retrieves comment information
 	 *
-	 * @return string
+	 * @return never
 	 */
 	public function get_attachment_comments() {
 		if ( ! headers_sent() ) {
@@ -1119,7 +1119,6 @@ class Jetpack_Carousel {
 				403,
 				JSON_UNESCAPED_SLASHES
 			);
-			return;
 		}
 
 		$attachment_post = get_post( $attachment_id );
@@ -1130,7 +1129,6 @@ class Jetpack_Carousel {
 				403,
 				JSON_UNESCAPED_SLASHES
 			);
-			return;
 		}
 
 		// This AJAX call should only be used to fetch comments of attachments.
@@ -1140,7 +1138,6 @@ class Jetpack_Carousel {
 				403,
 				JSON_UNESCAPED_SLASHES
 			);
-			return;
 		}
 
 		$parent_post = get_post_parent( $attachment_id );
@@ -1163,7 +1160,6 @@ class Jetpack_Carousel {
 					403,
 					JSON_UNESCAPED_SLASHES
 				);
-				return;
 			}
 
 			/*
@@ -1180,7 +1176,6 @@ class Jetpack_Carousel {
 					403,
 					JSON_UNESCAPED_SLASHES
 				);
-				return;
 			}
 		}
 

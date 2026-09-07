@@ -16,8 +16,8 @@ describe( 'post detail widget type aliases', () => {
 		);
 
 		expect( titles ).toEqual( {
-			'jpa/email-time-series--total-opens': 'Total opens',
-			'jpa/email-time-series--total-clicks': 'Total clicks',
+			'jpa/email-time-series--total-opens': 'Opens, first 30 days',
+			'jpa/email-time-series--total-clicks': 'Clicks, first 30 days',
 			'jpa/email-breakdown--location-opens': 'Locations',
 			'jpa/email-breakdown--platforms-opens': 'Platforms',
 			'jpa/email-breakdown--clients-opens': 'Clients',
@@ -48,6 +48,24 @@ describe( 'post detail widget type aliases', () => {
 			'jpa/email-breakdown--top-links': link,
 			'jpa/utm-insights--utm': megaphone,
 		} );
+	} );
+
+	it( 'replaces the help note only on the pinned timeline variants', () => {
+		const help = Object.fromEntries(
+			POST_DETAIL_WIDGET_TYPE_ALIASES.flatMap( ( { variants } ) =>
+				variants.map( variant => [ variant.name, variant.getHelp?.().content ] )
+			)
+		);
+
+		expect( help[ 'jpa/email-time-series--total-opens' ] ).toBe(
+			'Daily opens for the 30 days after this email was sent. The totals above are all-time.'
+		);
+		expect( help[ 'jpa/email-time-series--total-clicks' ] ).toBe(
+			'Daily clicks for the 30 days after this email was sent. The totals above are all-time.'
+		);
+		Object.entries( help )
+			.filter( ( [ name ] ) => ! name.startsWith( 'jpa/email-time-series' ) )
+			.forEach( ( [ , content ] ) => expect( content ).toBeUndefined() );
 	} );
 
 	it( 'keeps every variant name unique so the host resolves each independently', () => {

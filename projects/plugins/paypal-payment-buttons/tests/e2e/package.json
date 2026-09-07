@@ -24,10 +24,6 @@
 		"playwright-ctrf-json-reporter": "^0.0.26"
 	},
 	"ci": {
-		"targets": [
-			"plugins/paypal-payment-buttons",
-			"tools/e2e-commons"
-		],
 		"pluginSlug": "paypal-payment-buttons",
 		"mirrorName": "paypal-payment-buttons"
 	}

@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { localTZDate } from '@jetpack-premium-analytics/data';
+import { parseBucketStart } from '@jetpack-premium-analytics/datetime';
 /**
  * Internal dependencies
  */
@@ -53,18 +53,19 @@ function total( report: MetricReport | undefined, field: string ): number {
  * @return One point per period, oldest first.
  */
 function toPoints( report: MetricReport | undefined, field: string ) {
-	return ( report?.data ?? [] ).map( point => ( {
-		date: localTZDate( point.date_start ),
-		value: Number( ( point as Record< string, unknown > )[ field ] ?? 0 ),
-	} ) );
+	return ( report?.data ?? [] ).flatMap( point => {
+		const date = parseBucketStart( point.date_start );
+
+		return date
+			? [ { date, value: Number( ( point as Record< string, unknown > )[ field ] ?? 0 ) } ]
+			: [];
+	} );
 }
 
 /**
- * Build one metric tab from a primary/comparison report pair. The headline is
- * the period total; the previous-period total and overlay are included only when
- * comparison is on *and* the comparison request actually returned rows — while
- * that request is still loading or came back empty, its total would be `0`,
- * which would render a misleading previous-period value.
+ * Build one metric tab from a primary/comparison report pair. The previous-period
+ * total/overlay appear only when comparison is on and the comparison request
+ * actually returned rows — an empty or loading response would otherwise total to a misleading 0.
  *
  * @param options - The report pair, field, and presentation options.
  * @return The metric tab.

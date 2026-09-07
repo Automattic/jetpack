@@ -16,6 +16,9 @@ export type BookingOrderMetricWidgetProps = {
 	emptyStateText?: string;
 
 	errorText?: string;
+
+	/** The metric's name, for the chart legend. */
+	seriesLabel?: string;
 };
 
 /**
@@ -28,6 +31,7 @@ export function BookingOrderMetricWidget( {
 	metricKey,
 	emptyStateText,
 	errorText,
+	seriesLabel,
 }: BookingOrderMetricWidgetProps ) {
 	const { reportParams } = useWidgetRootContext();
 
@@ -41,6 +45,7 @@ export function BookingOrderMetricWidget( {
 			dataFormat={ getFormatByMetricKey( metricKey ) }
 			emptyStateText={ emptyStateText }
 			errorText={ errorText }
+			seriesLabel={ seriesLabel }
 		/>
 	);
 }

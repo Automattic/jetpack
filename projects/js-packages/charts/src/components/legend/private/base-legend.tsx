@@ -1,6 +1,7 @@
 import { Group } from '@visx/group';
 import { LegendItem, LegendLabel, LegendOrdinal, LegendShape } from '@visx/legend';
 import { scaleOrdinal } from '@visx/scale';
+import { _x, sprintf } from '@wordpress/i18n';
 import { Stack } from '@wordpress/ui';
 import clsx from 'clsx';
 import {
@@ -11,12 +12,13 @@ import {
 	useCallback,
 	useContext,
 } from 'react';
+import { ChartInstanceContext } from '../../../charts/private/chart-instance-context';
 import { useTextTruncation } from '../../../hooks';
 import { GlobalChartsContext, useGlobalChartsTheme } from '../../../providers';
 import { useStandaloneScopeClass } from '../../../providers/chart-scope';
 import { valueOrIdentity, valueOrIdentityString, labelTransformFactory } from '../utils';
 import styles from './base-legend.module.scss';
-import type { BaseLegendProps } from '../types';
+import type { BaseLegendItem, BaseLegendProps } from '../types';
 
 const ALIGNMENT_TO_FLEX = {
 	start: 'flex-start',
@@ -55,6 +57,52 @@ const LegendText = ( {
 		>
 			{ text }
 		</span>
+	);
+};
+
+// Interactive items get a toggle affordance; non-interactive items only need a label
+// when hidden, since a visible item's own text already serves as its accessible name.
+const getLegendItemAriaLabel = (
+	text: string,
+	value: BaseLegendItem[ 'value' ],
+	visible: boolean,
+	interactive: boolean
+) => {
+	const accessibleText =
+		value != null && value !== ''
+			? sprintf(
+					/* translators: 1: legend item label; 2: legend item value. */
+					_x( '%1$s, %2$s', 'legend item label and value', 'jetpack-charts' ),
+					text,
+					String( value )
+			  )
+			: text;
+
+	if ( interactive ) {
+		if ( visible ) {
+			return sprintf(
+				/* translators: %s: legend item label (e.g. a series or segment name) */
+				_x(
+					'%s: visible. Toggle visibility.',
+					'visible interactive legend item',
+					'jetpack-charts'
+				),
+				accessibleText
+			);
+		}
+		return sprintf(
+			/* translators: %s: legend item label (e.g. a series or segment name) */
+			_x( '%s: hidden. Toggle visibility.', 'hidden interactive legend item', 'jetpack-charts' ),
+			accessibleText
+		);
+	}
+	if ( visible ) {
+		return undefined;
+	}
+	return sprintf(
+		/* translators: %s: legend item label (e.g. a series or segment name) */
+		_x( '%s: hidden', 'hidden non-interactive legend item', 'jetpack-charts' ),
+		accessibleText
 	);
 };
 
@@ -103,6 +151,7 @@ export const BaseLegend: ForwardRefExoticComponent<
 
 		const theme = useGlobalChartsTheme();
 		const context = useContext( GlobalChartsContext );
+		const chartInstanceContext = useContext( ChartInstanceContext );
 		const standaloneScopeClass = useStandaloneScopeClass();
 
 		const legendScale = scaleOrdinal( {
@@ -120,29 +169,28 @@ export const BaseLegend: ForwardRefExoticComponent<
 		const handleLegendClick = useCallback(
 			( seriesLabels: string[] ) => {
 				if ( interactive && chartId && context ) {
-					// Converge the whole group on the representative's next state: only toggle series that
-					// currently match it, so a desynced group (e.g. one member hidden programmatically)
-					// ends up uniformly hidden/shown after one click.
 					const representativeVisible = context.isSeriesVisible( chartId, seriesLabels[ 0 ] );
-					seriesLabels.forEach( label => {
-						if ( context.isSeriesVisible( chartId, label ) === representativeVisible ) {
-							context.toggleSeriesVisibility( chartId, label );
-						}
-					} );
+					seriesLabels.forEach( label =>
+						context.setSeriesVisibility( chartId, label, ! representativeVisible )
+					);
 				}
 			},
 			[ interactive, chartId, context ]
 		);
 
-		// Check if a series is visible
+		// Visibility is display state, not interaction state: a series hidden
+		// programmatically must read as hidden even when the legend cannot be clicked.
 		const isSeriesVisible = useCallback(
 			( seriesLabel: string ) => {
-				if ( ! interactive || ! chartId || ! context ) {
+				if ( chartInstanceContext?.isSeriesVisible ) {
+					return chartInstanceContext.isSeriesVisible( seriesLabel );
+				}
+				if ( ! chartId || ! context ) {
 					return true;
 				}
 				return context.isSeriesVisible( chartId, seriesLabel );
 			},
-			[ interactive, chartId, context ]
+			[ chartId, chartInstanceContext, context ]
 		);
 
 		// Create event handlers to avoid inline arrow functions
@@ -189,7 +237,7 @@ export const BaseLegend: ForwardRefExoticComponent<
 						align={ orientation === 'vertical' ? flexAlignment : undefined }
 						justify={ orientation === 'horizontal' ? flexAlignment : undefined }
 						wrap={ orientation === 'horizontal' ? 'wrap' : undefined }
-						role="list"
+						role={ interactive ? undefined : 'list' }
 						data-testid={ `legend-${ orientation }` }
 						className={ clsx( standaloneScopeClass, styles.legend, className ) }
 						style={ theme.legend?.containerStyles }
@@ -223,14 +271,15 @@ export const BaseLegend: ForwardRefExoticComponent<
 									}
 									onClick={ handleClick }
 									onKeyDown={ handleKeyDown }
-									role={ interactive ? 'button' : undefined }
+									role={ interactive ? 'button' : 'listitem' }
 									tabIndex={ interactive ? 0 : undefined }
 									aria-pressed={ interactive ? visible : undefined }
-									aria-label={
+									aria-label={ getLegendItemAriaLabel(
+										label.text,
+										matchedItem?.value,
+										visible,
 										interactive
-											? `${ label.text }: ${ visible ? 'visible' : 'hidden' }. Toggle visibility.`
-											: undefined
-									}
+									) }
 								>
 									{ items[ i ]?.renderGlyph ? (
 										<svg

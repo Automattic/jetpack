@@ -2,7 +2,7 @@
 Contributors: paypal,automattic,woocommerce
 Tags: paypal, payments, ecommerce, blocks, checkout
 Requires at least: 7.0
-Requires PHP: 7.2
+Requires PHP: 7.4
 Tested up to: 7.1
 Stable tag: 0.4.0
 License: GPLv2 or later

@@ -10,7 +10,7 @@
  * a field that was never shown, so Conditional_Logic_Parity_Test pins the operator
  * vocabulary and Conditional_Logic_Test mirrors the JS cases one for one.
  *
- * Targets PHP 7.2: no arrow functions, no typed properties, no match expressions.
+ * Targets PHP 7.4: no typed class constants, no match expressions.
  *
  * @package automattic/jetpack-forms
  */

@@ -1,0 +1,8 @@
+// The XYChart and its in-tree tooltip. `position: relative` anchors the tooltip
+// box on the SVG's origin. `isolation: isolate` keeps the box's z-index, and
+// the zoom reset button's, inside the chart, so page chrome such as a sticky
+// header still paints over them.
+.xy-plot {
+	position: relative;
+	isolation: isolate;
+}

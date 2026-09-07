@@ -6,6 +6,7 @@ import { store as preferencesStore } from '@wordpress/preferences';
 import {
 	DEFAULT_GRID,
 	ROW_HEIGHT_PRESETS,
+	WIDGET_DASHBOARD_COLUMN_COUNT,
 	normalizeGridSettings,
 } from '@wordpress/widget-dashboard';
 import fastDeepEqual from 'fast-deep-equal/es6/index.js';
@@ -47,7 +48,12 @@ export function useDashboardGridSettings(): [
 				get: ( scope: string, name: string ) => WidgetGridSettings | undefined;
 			}
 		 ).get( DASHBOARD_PREFERENCES_SCOPE, DASHBOARD_GRID_SETTINGS_KEY );
-		return normalizeGridSettings( stored ?? PA_DEFAULT_GRID, PA_DEFAULT_ROW_HEIGHT );
+		return {
+			...normalizeGridSettings( stored ?? PA_DEFAULT_GRID, PA_DEFAULT_ROW_HEIGHT ),
+			// Placements are authored for four columns, and preferences written by the
+			// removed Columns control may still carry another count: pin it on read.
+			columns: WIDGET_DASHBOARD_COLUMN_COUNT,
+		};
 	}, [] );
 
 	const { set } = useDispatch( preferencesStore ) as unknown as {

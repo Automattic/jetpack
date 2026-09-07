@@ -17,15 +17,18 @@ const mockUpdateBlockAttributes = jest.fn();
 let blocks = {};
 let rootOf = {};
 
+const fakeSelect = () => ( {
+	getBlock: clientId => blocks[ clientId ],
+	getBlockParentsByBlockName: ( clientId, name ) =>
+		'jetpack/contact-form' === name && rootOf[ clientId ] ? [ rootOf[ clientId ] ] : [],
+	getBlockRootClientId: clientId => rootOf[ clientId ] || '',
+} );
+
 await jest.unstable_mockModule( '@wordpress/data', () => ( {
 	useDispatch: () => ( { updateBlockAttributes: mockUpdateBlockAttributes } ),
-	useSelect: selector =>
-		selector( () => ( {
-			getBlock: clientId => blocks[ clientId ],
-			getBlockParentsByBlockName: ( clientId, name ) =>
-				'jetpack/contact-form' === name && rootOf[ clientId ] ? [ rootOf[ clientId ] ] : [],
-			getBlockRootClientId: clientId => rootOf[ clientId ] || '',
-		} ) ),
+	useSelect: selector => selector( fakeSelect ),
+	// useEnsureFieldId reads the whole form on demand rather than subscribing to it.
+	useRegistry: () => ( { select: fakeSelect } ),
 } ) );
 
 await jest.unstable_mockModule( '@wordpress/block-editor', () => ( {
@@ -47,6 +50,7 @@ await jest.unstable_mockModule( '../../../../../src/blocks/contact-form/child-bl
 	childBlocks: [
 		{ name: 'field-text', conditional_logic: { type: 'string' } },
 		{ name: 'field-select', conditional_logic: { type: 'choice' } },
+		{ name: 'field-checkbox', conditional_logic: { type: 'boolean' } },
 	],
 } ) );
 
@@ -57,19 +61,34 @@ const { default: useSubjectFields, useEnsureFieldId } = await import(
 /**
  * A field block, optionally carrying a label block and an explicit id.
  *
- * @param {string} clientId        - Block client id.
- * @param {object} [options]       - Field options.
- * @param {string} [options.label] - Text of the field's label block, if it has one.
- * @param {string} [options.id]    - Explicit field id, if the field carries one.
- * @param {string} [options.name]  - Block name; defaults to a text field.
+ * @param {string} clientId         - Block client id.
+ * @param {object} [options]        - Field options.
+ * @param {string} [options.label]  - Text of the field's label block, if it has one.
+ * @param {string} [options.id]     - Explicit field id, if the field carries one.
+ * @param {string} [options.name]   - Block name; defaults to a text field.
+ * @param {string} [options.option] - Text of a standalone `jetpack/option` inner block.
  * @return {object} A block instance shaped the way the store returns them.
  */
-const field = ( clientId, { label, id, name = 'jetpack/field-text' } = {} ) => ( {
-	clientId,
-	name,
-	attributes: id ? { id } : {},
-	innerBlocks: label ? [ { name: 'jetpack/label', attributes: { label } } ] : [],
-} );
+const field = ( clientId, { label, id, option, name = 'jetpack/field-text' } = {} ) => {
+	const innerBlocks = [];
+
+	if ( label ) {
+		innerBlocks.push( { name: 'jetpack/label', attributes: { label } } );
+	}
+	if ( option ) {
+		innerBlocks.push( {
+			name: 'jetpack/option',
+			attributes: { label: option, isStandalone: true },
+		} );
+	}
+
+	return {
+		clientId,
+		name,
+		attributes: id ? { id } : {},
+		innerBlocks,
+	};
+};
 
 const ensureFieldId = () => renderHook( () => useEnsureFieldId() ).result.current;
 const subjectsFor = clientId => renderHook( () => useSubjectFields( clientId ) ).result.current;
@@ -98,11 +117,28 @@ describe( 'useEnsureFieldId', () => {
 		expect( mockUpdateBlockAttributes ).not.toHaveBeenCalled();
 	} );
 
-	it( 'de-duplicates against ids already in the form', () => {
-		const assigned = ensureFieldId()( { clientId: 'c-1', id: '', label: 'Email' }, [ 'email' ] );
+	// The used ids come from the form itself, not from a list the caller assembles -- so a
+	// field the subject dropdown never offers still blocks its id.
+	it( 'de-duplicates against every field in the form', () => {
+		blocks = {
+			form: {
+				clientId: 'form',
+				name: 'jetpack/contact-form',
+				innerBlocks: [
+					field( 'c-taken', { id: 'email' } ),
+					// Not offered as a subject -- it declares no conditional logic -- but the
+					// renderer still gives it an id, so minting on top of it would collide.
+					field( 'c-image', { id: 'email-2', name: 'jetpack/field-image-select' } ),
+					field( 'c-1' ),
+				],
+			},
+		};
+		rootOf = { 'c-1': 'form' };
 
-		expect( assigned ).toBe( 'email-2' );
-		expect( mockUpdateBlockAttributes ).toHaveBeenCalledWith( 'c-1', { id: 'email-2' } );
+		const assigned = ensureFieldId()( { clientId: 'c-1', id: '', label: 'Email' } );
+
+		expect( assigned ).toBe( 'email-3' );
+		expect( mockUpdateBlockAttributes ).toHaveBeenCalledWith( 'c-1', { id: 'email-3' } );
 	} );
 
 	/**
@@ -115,15 +151,6 @@ describe( 'useEnsureFieldId', () => {
 	 * evaluating a different field, or the owner's response key changes underneath a form
 	 * that may already have responses stored against it.
 	 */
-	it( "does not reuse the panel's own field id", () => {
-		const assigned = ensureFieldId()( { clientId: 'c-1', id: '', label: 'Email' }, [
-			'email',
-			'email-2',
-		] );
-
-		expect( assigned ).toBe( 'email-3' );
-		expect( assigned ).not.toBe( 'email' );
-	} );
 
 	it( 'falls back to a generic base when the label slugifies to nothing', () => {
 		const assigned = ensureFieldId()( { clientId: 'c-1', id: '', label: '!!!' }, [] );
@@ -212,6 +239,81 @@ describe( 'useSubjectFields', () => {
 			'c-labelled': 'Budget',
 			'c-id-only': 'total_1',
 			'c-bare': 'Untitled field',
+		} );
+	} );
+
+	// A checkbox and a consent field keep their inline label on the standalone `jetpack/option`
+	// their template inserts, not on a `jetpack/label` block.
+	it( 'reads a checkbox label from its standalone option block', () => {
+		blocks = {
+			form: {
+				clientId: 'form',
+				name: 'jetpack/contact-form',
+				innerBlocks: [
+					field( 'c-consent', {
+						name: 'jetpack/field-checkbox',
+						option: 'Send me a copy',
+					} ),
+				],
+			},
+		};
+		rootOf = { 'c-owner': 'form' };
+
+		expect( subjectsFor( 'c-owner' )[ 0 ].label ).toBe( 'Send me a copy' );
+	} );
+
+	// The choice fields nest theirs under a `jetpack/options` wrapper, so only a direct child
+	// can be the field's own inline label.
+	it( 'ignores option blocks nested under an options wrapper', () => {
+		blocks = {
+			form: {
+				clientId: 'form',
+				name: 'jetpack/contact-form',
+				innerBlocks: [
+					{
+						clientId: 'c-choice',
+						name: 'jetpack/field-select',
+						attributes: {},
+						innerBlocks: [
+							{
+								name: 'jetpack/options',
+								innerBlocks: [ { name: 'jetpack/option', attributes: { label: 'Red' } } ],
+							},
+						],
+					},
+				],
+			},
+		};
+		rootOf = { 'c-owner': 'form' };
+
+		expect( subjectsFor( 'c-owner' )[ 0 ].label ).toBe( 'Untitled field' );
+	} );
+
+	// Choosing an unnamed field mints it an id from whatever this hook called it, so a
+	// placeholder-derived one would rename the field inside the dropdown it was picked from.
+	it( 'does not show an id minted from the placeholder as the label', () => {
+		blocks = {
+			form: {
+				clientId: 'form',
+				name: 'jetpack/contact-form',
+				innerBlocks: [
+					field( 'c-first', { id: 'untitled-field' } ),
+					field( 'c-second', { id: 'untitled-field-2' } ),
+					field( 'c-author-named', { id: 'untitled-field-ish' } ),
+				],
+			},
+		};
+		rootOf = { 'c-owner': 'form' };
+
+		const labels = Object.fromEntries(
+			subjectsFor( 'c-owner' ).map( entry => [ entry.clientId, entry.label ] )
+		);
+
+		expect( labels ).toEqual( {
+			'c-first': 'Untitled field',
+			'c-second': 'Untitled field',
+			// Not one this panel could have minted, so it is the author's and still shown.
+			'c-author-named': 'untitled-field-ish',
 		} );
 	} );
 

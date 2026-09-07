@@ -29,9 +29,8 @@ registerStatsMocks();
 
 const TOP_POSTS_RENDER_MODULE = 'storybook/top-posts';
 
-// Attribute metadata flows through from the module to drive the host-rendered
-// chrome: the high-relevance `contentView` control in the framed header and the
-// settings fields. `presentation` comes from widget.json ( 'framed' ).
+// Attribute metadata flows through to drive host chrome: the high-relevance
+// `contentView` control and settings fields. `presentation` comes from widget.json.
 const storyWidgetType = createStoryWidgetType( widgetManifest, widgetDefinition );
 
 interface TopPostsStoryControls {

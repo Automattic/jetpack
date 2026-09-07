@@ -32,6 +32,11 @@ jest.mock( '../../../client/hooks/use-resumable-uploader', () => ( {
 	} ),
 } ) );
 
+const tokenError = () =>
+	Object.assign( new Error( 'No token provided' ), {
+		code: 'videopress_no_upload_token',
+	} );
+
 describe( 'useUpload', () => {
 	beforeEach( () => {
 		mockUploadHandler.mockClear();
@@ -89,6 +94,50 @@ describe( 'useUpload', () => {
 		expect( mockUploadHandler ).toHaveBeenCalledWith( file );
 		expect( result.current.uploadQueue[ 0 ].status ).toBe( 'pending' );
 		expect( result.current.uploadQueue[ 0 ].progress ).toBe( 0 );
+	} );
+
+	it( 'keeps the failed error message and its code on the queue item', () => {
+		const { result } = renderHook( () => useUpload(), { wrapper: createTestWrapper() } );
+		act( () => {
+			result.current.startUpload( new File( [ 'x' ], 't.mp4', { type: 'video/mp4' } ) );
+		} );
+		act( () => {
+			lastCallbacks.onError?.( tokenError() );
+		} );
+
+		expect( result.current.uploadQueue[ 0 ].status ).toBe( 'failed' );
+		expect( result.current.uploadQueue[ 0 ].error ).toBe( 'No token provided' );
+		expect( result.current.uploadQueue[ 0 ].errorCode ).toBe( 'videopress_no_upload_token' );
+	} );
+
+	it( 'leaves errorCode unset for a failure that carried no code', () => {
+		const { result } = renderHook( () => useUpload(), { wrapper: createTestWrapper() } );
+		act( () => {
+			result.current.startUpload( new File( [ 'x' ], 't.mp4', { type: 'video/mp4' } ) );
+		} );
+		act( () => {
+			lastCallbacks.onError?.( new Error( 'boom' ) );
+		} );
+
+		expect( result.current.uploadQueue[ 0 ].error ).toBe( 'boom' );
+		expect( result.current.uploadQueue[ 0 ].errorCode ).toBeUndefined();
+	} );
+
+	it( 'clears the previous failure when an item is retried', () => {
+		const { result } = renderHook( () => useUpload(), { wrapper: createTestWrapper() } );
+		let id: string | undefined;
+		act( () => {
+			id = result.current.startUpload( new File( [ 'x' ], 't.mp4', { type: 'video/mp4' } ) );
+		} );
+		act( () => {
+			lastCallbacks.onError?.( tokenError() );
+		} );
+		act( () => {
+			result.current.retryUpload( id! );
+		} );
+
+		expect( result.current.uploadQueue[ 0 ].error ).toBeUndefined();
+		expect( result.current.uploadQueue[ 0 ].errorCode ).toBeUndefined();
 	} );
 
 	it( 'retryUpload is a no-op for an unknown id', () => {

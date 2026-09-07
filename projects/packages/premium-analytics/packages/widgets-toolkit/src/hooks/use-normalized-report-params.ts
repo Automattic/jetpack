@@ -3,6 +3,7 @@
  */
 import {
 	getDefaultPreset,
+	getStoreInfo,
 	normalizeReportParams,
 	type ReportParams,
 } from '@jetpack-premium-analytics/data';
@@ -11,8 +12,7 @@ import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
-import { getStoreInfo } from '../helpers/store-info';
-import type { ReportParamsFieldAttributes } from '../fields/date-report-params-field';
+import type { ReportParamsFieldAttributes } from '../fields';
 
 /**
  * Normalized report params for a widget surface: `attributes.reportParams`
@@ -24,13 +24,8 @@ export function useNormalizedReportParams(
 ): ReportParams {
 	let search: Record< string, unknown > = {};
 
-	/*
-	 * Read the search params of the current route. `{ strict: false }` returns
-	 * whatever route is matched, so widgets pick up the date range (and the
-	 * single-resource scope like `post_id`) on any page — not only the dashboard
-	 * at `/`. `useSearch` throws when rendered outside a matched route (e.g.
-	 * Storybook), so the empty fallback stands in there.
-	 */
+	// `{ strict: false }` lets widgets read params on any matched route, not
+	// only `/`; `useSearch` throws outside one (e.g. Storybook), hence the catch.
 	try {
 		// eslint-disable-next-line react-hooks/rules-of-hooks -- useSearch may throw outside a matched route
 		search = useSearch( { strict: false } );

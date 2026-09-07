@@ -1,8 +1,9 @@
 import { store as blockEditorStore } from '@wordpress/block-editor';
 import { getBlockType } from '@wordpress/blocks';
-import { useDispatch, useSelect } from '@wordpress/data';
+import { useDispatch, useRegistry, useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { getFormClientId, getFormFieldEntries } from '../../hooks/use-form-field-ids.js';
 import { generateUniqueFormFieldId } from '../../util/generate-unique-id.js';
 import { getTypeKeyForBlockName } from '../util/block-types.js';
 import { getFieldOptions } from '../util/field-options.ts';
@@ -28,6 +29,9 @@ const toFieldIdBase = label => {
 /**
  * Read a field block's visible label.
  *
+ * A checkbox and a consent field keep theirs on the standalone `jetpack/option` their
+ * template inserts rather than on a `jetpack/label` block.
+ *
  * Falls back to the explicit id, then to a placeholder: a field with neither a label nor an
  * id is still selectable, and an empty entry in the dropdown would be unusable.
  *
@@ -35,14 +39,35 @@ const toFieldIdBase = label => {
  * @return {string} A label suitable for the subject dropdown.
  */
 const getFieldLabel = block => {
-	const labelBlock = ( block.innerBlocks || [] ).find( inner => inner.name === 'jetpack/label' );
-	const label = labelBlock?.attributes?.label;
+	const innerBlocks = block.innerBlocks || [];
+	// Direct children only: the choice fields nest their options under a `jetpack/options`
+	// wrapper, so a `jetpack/option` found here can only be a field's own inline label. The
+	// block also declares `isStandalone` for this, but position holds for older markup saved
+	// before that attribute existed.
+	const inlineLabel = name =>
+		innerBlocks.find( inner => inner.name === name )?.attributes?.label?.trim();
 
-	if ( label && label.trim() ) {
-		return label.trim();
+	const label = inlineLabel( 'jetpack/label' ) || inlineLabel( 'jetpack/option' );
+
+	if ( label ) {
+		return label;
 	}
 
-	return block.attributes?.id || __( 'Untitled field', 'jetpack-forms' );
+	const id = block.attributes?.id;
+	const untitled = __( 'Untitled field', 'jetpack-forms' );
+
+	if ( ! id ) {
+		return untitled;
+	}
+
+	// An author's id is worth showing; one this panel minted from the placeholder is not, or
+	// choosing an unnamed field renames it to "untitled-field" in the dropdown it was picked
+	// from. `generateUniqueFormFieldId` only ever appends `-<n>`, so stripping that suffix is
+	// enough to recognize one.
+	const placeholderId = toFieldIdBase( untitled );
+	const isMinted = id === placeholderId || id.replace( /-\d+$/, '' ) === placeholderId;
+
+	return isMinted ? untitled : id;
 };
 
 /**
@@ -108,20 +133,13 @@ const walk = ( blocks, excludeId, step, found ) => {
 const useSubjectFields = clientId =>
 	useSelect(
 		select => {
-			const { getBlock, getBlockParentsByBlockName, getBlockRootClientId } =
-				select( 'core/block-editor' );
-
-			const formParents = getBlockParentsByBlockName( clientId, 'jetpack/contact-form' );
-			// Fall back to the immediate root when the field is not inside a contact form yet,
-			// which happens in pattern previews and legacy layouts.
-			const formClientId =
-				formParents?.[ formParents.length - 1 ] || getBlockRootClientId( clientId );
+			const formClientId = getFormClientId( select, clientId );
 
 			if ( ! formClientId ) {
 				return [];
 			}
 
-			const form = getBlock( formClientId );
+			const form = select( 'core/block-editor' ).getBlock( formClientId );
 			const found = [];
 			walk( form?.innerBlocks || [], clientId, null, found );
 
@@ -138,13 +156,19 @@ const useSubjectFields = clientId =>
  * change it and the rule would quietly stop matching. Choosing a field as a condition
  * subject therefore assigns it the same kind of explicit id its Name/ID control writes.
  *
- * @return {Function} `( field, usedIds ) => fieldId`, assigning an id when the field has none.
+ * The id is made unique against every field in the form, read at call time. The subject list
+ * cannot serve that: it excludes the field owning the panel, and it excludes field blocks with
+ * no comparison behaviour -- `jetpack/field-image-select` today -- both of which still hold ids
+ * the renderer counts. Minting against the shorter list is how a fresh collision gets created.
+ *
+ * @return {Function} `( field ) => fieldId`, assigning an id when the field has none.
  */
 export const useEnsureFieldId = () => {
 	const { updateBlockAttributes } = useDispatch( blockEditorStore );
+	const registry = useRegistry();
 
 	return useCallback(
-		( field, usedIds = [] ) => {
+		field => {
 			if ( ! field ) {
 				return '';
 			}
@@ -152,12 +176,16 @@ export const useEnsureFieldId = () => {
 				return field.id;
 			}
 
+			const usedIds = getFormFieldEntries( registry.select, field.clientId )
+				.map( entry => entry.id )
+				.filter( Boolean );
+
 			const fieldId = generateUniqueFormFieldId( toFieldIdBase( field.label ), usedIds );
 			updateBlockAttributes( field.clientId, { id: fieldId } );
 
 			return fieldId;
 		},
-		[ updateBlockAttributes ]
+		[ registry, updateBlockAttributes ]
 	);
 };
 

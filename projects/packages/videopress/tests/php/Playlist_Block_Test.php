@@ -161,6 +161,14 @@ class Playlist_Block_Test extends BaseTestCase {
 		$this->assertStringContainsString( 'data-title="Video 1"', $markup );
 		$this->assertStringContainsString( '>Video 2<', $markup );
 		$this->assertStringNotContainsString( '<img', $markup );
+
+		// Every thumb carries the hidden lock placeholder the view script shows
+		// when a private video's thumbnail can't be authorized for the viewer.
+		$this->assertSame( 2, substr_count( $markup, 'videopress-playlist__entry-lock"' ) );
+		$this->assertStringContainsString(
+			'<span class="videopress-playlist__entry-lock-label">Private video</span>',
+			$markup
+		);
 	}
 
 	/**

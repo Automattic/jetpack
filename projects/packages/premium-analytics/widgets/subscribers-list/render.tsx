@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { getSiteData, isWpcomPlatformSite } from '@automattic/jetpack-script-data';
 import {
 	getStatsReportItems,
 	useStatsFollowers,
@@ -26,6 +27,22 @@ import { useMemo } from 'react';
 import type { SubscribersListAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
+/** Base URL for the site's subscriber management pages. */
+function getSubscribersBaseUrl() {
+	// Only wp-admin supplies the slug; other mounts get no link.
+	const siteSlug = getSiteData()?.suffix;
+
+	if ( ! siteSlug ) {
+		return null;
+	}
+
+	// Simple and WoA both go to WordPress.com, matching the wp-admin Subscribers
+	// menu and the Newsletter widget.
+	const host = isWpcomPlatformSite() ? 'https://wordpress.com' : 'https://cloud.jetpack.com';
+
+	return `${ host }/subscribers/${ siteSlug }`;
+}
+
 /**
  * Flattens the designated `useStatsFollowers` report into the rows the roster
  * renders.
@@ -34,6 +51,7 @@ function toSubscriberItems(
 	report: StatsNormalizedReport< StatsFollowersItem > | undefined
 ): SubscriberListItem[] {
 	const items = getStatsReportItems( report );
+	const subscribersBaseUrl = getSubscribersBaseUrl();
 
 	return items.map( ( item, index ) => ( {
 		// Subscription id is the stable key; fall back to the row index so two
@@ -41,43 +59,34 @@ function toSubscriberItems(
 		id: item.subscription_id ?? `row-${ index }`,
 		name: item.label,
 		avatarUrl: item.icon,
-		href: item.link,
+		// `link` is unreliable: the subscriber's own site on some payloads, a
+		// user-ID Calypso link that 404s on others.
+		href:
+			subscribersBaseUrl && item.subscription_id
+				? `${ subscribersBaseUrl }/${ item.subscription_id }`
+				: null,
 		secondaryText: formatRelativeSince( item.date_subscribed ),
 	} ) );
 }
 
 type SubscribersRosterProps = {
-	/**
-	 * Subscriber rows to render.
-	 */
 	items?: SubscriberListItem[];
 	/**
-	 * Count of subscribers beyond those shown; renders an "N more" footer.
+	 * Number of subscribers beyond those in `items`. Rows the roster hides to
+	 * fit the tile are added to this in the "N more" footer.
 	 */
 	moreCount?: number;
 };
 
 /**
- * Presentational subscriber roster. The card title ("Latest Subscribers") is
- * rendered by the dashboard host from the widget's `title`, so this body
- * renders the list only; loading, error, and empty are handled by
- * `<WidgetState>` in the data-connected `SubscribersReport`. Takes
- * already-fetched rows via props so Storybook can exercise the populated state
- * without an analytics backend.
+ * Presentational subscriber roster; title comes from the widget host, not here.
+ * Renders `<SubscriberList>` directly — an intermediate wrapper breaks row fitting.
  */
-export const SubscribersRoster = ( { items = [], moreCount = 0 }: SubscribersRosterProps ) => {
-	return (
-		<div>
-			<SubscriberList items={ items } moreCount={ moreCount } />
-		</div>
-	);
-};
+export const SubscribersRoster = ( { items = [], moreCount = 0 }: SubscribersRosterProps ) => (
+	<SubscriberList items={ items } moreCount={ moreCount } />
+);
 
-/**
- * Fetches the latest subscribers through the designated `useStatsFollowers`
- * Stats hook and hands the normalized rows to the presentational roster, with
- * the loading / error / empty states rendered through `<WidgetState>`.
- */
+/** Fetches subscribers via `useStatsFollowers` and renders the roster through `<WidgetState>`. */
 function SubscribersReport() {
 	const { data, isLoading, isFetching, isError, refetch } = useStatsFollowers( {
 		type: 'all',
@@ -96,9 +105,8 @@ function SubscribersReport() {
 		<WidgetState
 			isLoading={ isLoading }
 			isFetching={ isFetching }
-			// The query keeps the prior response via `placeholderData`, so a failed
-			// refetch leaves rows on screen; only surface the error when there is
-			// nothing to show.
+			// `placeholderData` keeps stale rows after a failed refetch; only surface
+			// the error when nothing is on screen.
 			isError={ items.length === 0 && isError }
 			isEmpty={ items.length === 0 }
 			renderLoading={ <SubscriberListSkeleton rows={ WIDGET_ROW_LIMIT } /> }

@@ -31,6 +31,11 @@ class AI_Assistant_Block_Test extends WP_UnitTestCase {
 	 */
 	public function set_up() {
 		parent::set_up();
+		// The AI controls only take effect on internal testing environments while
+		// they are unlaunched. These tests are about what the toggles do, so put
+		// the suite where they apply; the scoping itself is pinned in
+		// Jetpack_AI_Settings_Test.
+		$this->force_master_enforcement_for_test();
 
 		Jetpack_Gutenberg::reset();
 		add_filter( 'jetpack_offline_mode', '__return_false' );
@@ -53,6 +58,7 @@ class AI_Assistant_Block_Test extends WP_UnitTestCase {
 	 * Clean up after each test.
 	 */
 	public function tear_down() {
+		unset( $_SERVER['A8C_PROXIED_REQUEST'] );
 		if ( Blocks::is_registered( self::BLOCK_NAME ) ) {
 			unregister_block_type( self::BLOCK_NAME );
 		}
@@ -61,6 +67,7 @@ class AI_Assistant_Block_Test extends WP_UnitTestCase {
 		}
 
 		$this->deactivate_ai_module_for_test();
+		unset( $_SERVER['A8C_PROXIED_REQUEST'] );
 		delete_option( 'jetpack_ai_enabled' );
 		delete_option( 'jetpack_ai_writing_assistant_enabled' );
 		delete_option( 'jetpack_ai_image_editor_enabled' );
@@ -100,6 +107,7 @@ class AI_Assistant_Block_Test extends WP_UnitTestCase {
 	 */
 	public function test_block_and_extensions_not_registered_when_master_disabled() {
 		// Off-Simple the master is the `ai` module; turn it off there.
+		$this->force_master_enforcement_for_test();
 		$this->deactivate_ai_module_for_test();
 
 		AIAssistant\register_block();
@@ -108,6 +116,7 @@ class AI_Assistant_Block_Test extends WP_UnitTestCase {
 		$this->assertFalse( Blocks::is_registered( self::BLOCK_NAME ) );
 		$this->assertFalse( Jetpack_Gutenberg::is_available( 'ai-assistant-support' ) );
 		$this->assertFalse( Jetpack_Gutenberg::is_available( 'ai-content-lens' ) );
+		$this->assertFalse( Jetpack_Gutenberg::is_available( 'ai-assistant-usage-panel' ) );
 	}
 
 	/**
@@ -119,10 +128,12 @@ class AI_Assistant_Block_Test extends WP_UnitTestCase {
 
 		$this->assertTrue( Jetpack_Gutenberg::is_available( 'ai-assistant-support' ) );
 		$this->assertTrue( Jetpack_Gutenberg::is_available( 'ai-content-lens' ) );
+		$this->assertTrue( Jetpack_Gutenberg::is_available( 'ai-assistant-usage-panel' ) );
 	}
 
 	/**
-	 * Disabling writing disables the writing and excerpt extensions.
+	 * Disabling writing disables the writing and excerpt extensions. The usage
+	 * meter is not a writing feature, so it stays.
 	 */
 	public function test_writing_toggle_disables_writing_and_excerpt_extensions() {
 		update_option( 'jetpack_ai_writing_assistant_enabled', 0 );
@@ -131,7 +142,9 @@ class AI_Assistant_Block_Test extends WP_UnitTestCase {
 
 		$this->assertFalse( Jetpack_Gutenberg::is_available( 'ai-assistant-support' ) );
 		$this->assertFalse( Jetpack_Gutenberg::is_available( 'ai-content-lens' ) );
+		$this->assertFalse( Jetpack_Gutenberg::is_available( 'ai-title-optimization' ) );
 		$this->assertTrue( Jetpack_Gutenberg::is_available( 'ai-featured-image-generator' ) );
+		$this->assertTrue( Jetpack_Gutenberg::is_available( 'ai-assistant-usage-panel' ) );
 	}
 
 	/**

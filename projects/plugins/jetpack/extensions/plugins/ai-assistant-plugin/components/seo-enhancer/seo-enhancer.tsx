@@ -114,7 +114,7 @@ export function SeoEnhancer( {
 							) }
 						/>
 					) }
-					{ ( ! isEnabled || disableAutoEnhance ) && (
+					{ ! isEnabled && (
 						<div className="feature-checkboxes-container">
 							{ FEATURES.map( feature => (
 								<CheckboxControl

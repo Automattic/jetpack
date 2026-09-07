@@ -1,10 +1,17 @@
-export { localTZDate, dateToISOStringWithLocalTZ, formatToTimezoneNaiveString } from './date';
-export { getApiErrorCode, getApiErrorStatus, shouldRetryApiError } from './api-error';
+export {
+	getApiErrorCode,
+	getApiErrorStatus,
+	isAccessDenied,
+	isUserRetryableError,
+	shouldRetryApiError,
+	StatsResponseShapeError,
+} from './api-error';
 export { ensureCoreSettingsReady } from './ensure-core-settings';
 export { getDefaultIntervalForPeriod } from './interval';
 export { safeParseInt, safeParseFloat } from './parsing';
 export { computeDateRangeFromPreset } from './preset-date-range';
 export { hasProductFilters } from './product-filters';
+export { resolveReportTimeZone, type ReportTimeZoneParams } from './report-timezone';
 export { saveBlob } from './save-blob';
 export { toPostId } from './to-post-id';
 export { withoutComparison } from './without-comparison';

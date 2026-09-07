@@ -11,8 +11,9 @@ describe( 'DateIntervalDropdown', () => {
 			<DateIntervalDropdown options={ [ 'day', 'week' ] } value="day" onChange={ onChange } />
 		);
 
-		// Named by its tooltip: the trigger carries no text of its own.
-		const trigger = screen.getByRole( 'button', { name: 'Chart interval' } );
+		// The tooltip is where the active bucket is readable: the trigger
+		// carries no text of its own.
+		const trigger = screen.getByRole( 'button', { name: 'Chart interval: By days' } );
 		expect( trigger ).toHaveTextContent( '' );
 
 		await user.click( trigger );
@@ -31,7 +32,7 @@ describe( 'DateIntervalDropdown', () => {
 
 		render( <DateIntervalDropdown options={ [ 'hour' ] } value="hour" onChange={ jest.fn() } /> );
 
-		await user.click( screen.getByRole( 'button', { name: 'Chart interval' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Chart interval: By hours' } ) );
 
 		// Visible and checked rather than hidden or disabled, so the interval
 		// stays inspectable on a range with nothing to choose between.
@@ -44,13 +45,19 @@ describe( 'DateIntervalDropdown', () => {
 		// The coercion in report params makes this transient, but the menu must
 		// not invent a selection while it lasts.
 		render(
-			<DateIntervalDropdown options={ [ 'month', 'quarter' ] } value="day" onChange={ jest.fn() } />
+			<DateIntervalDropdown options={ [ 'month', 'year' ] } value="day" onChange={ jest.fn() } />
 		);
 
-		await user.click( screen.getByRole( 'button', { name: 'Chart interval' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Chart interval: By days' } ) );
 
 		expect( screen.getAllByRole( 'menuitemradio' ) ).toHaveLength( 2 );
 		expect( screen.getByRole( 'menuitemradio', { name: 'By months' } ) ).not.toBeChecked();
-		expect( screen.getByRole( 'menuitemradio', { name: 'By quarters' } ) ).not.toBeChecked();
+		expect( screen.getByRole( 'menuitemradio', { name: 'By years' } ) ).not.toBeChecked();
+	} );
+
+	it( 'names the trigger without a bucket when there is no active one', () => {
+		render( <DateIntervalDropdown options={ [ 'day', 'week' ] } onChange={ jest.fn() } /> );
+
+		expect( screen.getByRole( 'button', { name: 'Chart interval' } ) ).toBeVisible();
 	} );
 } );

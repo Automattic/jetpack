@@ -368,13 +368,13 @@ if ( document.readyState === "loading" ) {
 	}
 
 	/**
-	 * Gets the stats footer for AMP output.
+	 * Gets the tracking pixel URL for AMP output.
 	 *
 	 * @access private
 	 * @param array $data Array of data for the AMP pixel tracker.
-	 * @return string Returns the footer to add for the Stats tracker in an AMP scenario.
+	 * @return string Returns the URL for the Stats tracker in an AMP scenario.
 	 */
-	private static function get_amp_footer( $data ) {
+	private static function get_amp_pixel_url( $data ) {
 		/**
 		 * Filter the parameters added to the AMP pixel tracking code.
 		 *
@@ -390,8 +390,7 @@ if ( document.readyState === "loading" ) {
 		$data['rand'] = 'RANDOM'; // AMP placeholder.
 		$data['ref']  = 'DOCUMENT_REFERRER'; // AMP placeholder.
 		$data         = array_map( 'rawurlencode', $data );
-		$pixel_url    = add_query_arg( $data, 'https://pixel.wp.com/g.gif' );
-		return '<amp-pixel src="' . esc_url( $pixel_url ) . '"></amp-pixel>';
+		return add_query_arg( $data, 'https://pixel.wp.com/g.gif' );
 	}
 
 	/**
@@ -407,8 +406,7 @@ if ( document.readyState === "loading" ) {
 			return;
 		}
 
-		$pixel = self::get_amp_footer( $data );
-		echo $pixel; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		printf( '<amp-pixel src="%s"></amp-pixel>', esc_url( self::get_amp_pixel_url( $data ) ) );
 	}
 
 	/**
@@ -455,7 +453,7 @@ if ( document.readyState === "loading" ) {
 	 * @param array $data Array of data for the AMP pixel tracker.
 	 */
 	public static function render_amp_footer( $data ) {
-		print self::get_amp_footer( $data ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		printf( '<amp-pixel src="%s"></amp-pixel>', esc_url( self::get_amp_pixel_url( $data ) ) );
 	}
 
 	/**

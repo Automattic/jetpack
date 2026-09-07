@@ -10,7 +10,10 @@ import { useState } from 'react';
 /**
  * Internal dependencies
  */
+import { FIXTURE_SITE_TIME_ZONE } from '../../../__fixtures__/wp-date-settings';
+import { siteChartFormatting } from '../../../helpers';
 import { useChartTheme } from '../../../hooks';
+import { applyFixtureSiteSettings } from '../../../stories/fixture-site';
 import { ReportPageLayout } from '../report-page-layout';
 import { ReportPageShell } from '../report-page-shell';
 import { ReportPerformanceChart } from '../report-performance-chart';
@@ -20,6 +23,8 @@ import type { IntervalType, StatsTimeSeriesReport } from '@jetpack-premium-analy
 import type { ReportDateFilters } from '@jetpack-premium-analytics/routing';
 import type { Decorator, Meta, StoryObj } from '@storybook/react';
 import type { ComponentProps, ReactNode } from 'react';
+
+applyFixtureSiteSettings();
 
 /**
  * Build a deterministic 30-day visits report fixture. `offsetDays` shifts the
@@ -134,7 +139,11 @@ interface ReportPageStoryControls {
 function StoryChartProviders( { children }: { children: ReactNode } ) {
 	const chartTheme = useChartTheme();
 
-	return <GlobalChartsProvider theme={ chartTheme }>{ children }</GlobalChartsProvider>;
+	return (
+		<GlobalChartsProvider theme={ chartTheme } { ...siteChartFormatting() }>
+			{ children }
+		</GlobalChartsProvider>
+	);
 }
 
 const withChartProviders: Decorator = Story => (
@@ -157,7 +166,7 @@ function StoryBreadcrumbs() {
 	);
 }
 
-const STORY_TIMEZONE = 'America/New_York';
+const STORY_TIMEZONE = FIXTURE_SITE_TIME_ZONE;
 const STORY_RANGE = computePrimaryRange( 'last-30-days', STORY_TIMEZONE );
 
 // Stand-in for `useReportDateFilters`, which needs a mounted router. Inert:
@@ -180,6 +189,7 @@ const STORY_DATE_FILTERS: ReportDateFilters = {
 	canApply: false,
 	timeZone: STORY_TIMEZONE,
 	replaceRange: () => {},
+	drillDown: () => {},
 };
 
 /**
@@ -195,7 +205,6 @@ function ComposedReportPage( { withComparison, isLoading }: ReportPageStoryContr
 	return (
 		<ReportPageShell
 			breadcrumbs={ <StoryBreadcrumbs /> }
-			subTitle="All your posts and archive pages."
 			actions={ <Button variant="secondary">Download</Button> }
 		>
 			<ReportPageLayout title="Posts & Pages" dateFilters={ STORY_DATE_FILTERS }>
@@ -254,7 +263,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'The shared report-page framework: `ReportPageShell` (the page header — breadcrumbs, description, actions), `ReportPageLayout` (optional tabs, the `SectionHeader` carrying the report title and its date controls, and the stacked sections), `ReportPerformanceChart` (multi-metric visits chart with metric show/hide and interval control), and `ReportRecordsTable` (Core DataViews table with client-side search/sort/pagination). Module report pages compose these with their own data hook and field config.',
+					'The shared report-page framework: `ReportPageShell` (the page header — breadcrumbs and actions), `ReportPageLayout` (optional tabs, the `SectionHeader` carrying the report title and its date controls, and the stacked sections), `ReportPerformanceChart` (multi-metric visits chart with metric show/hide and interval control), and `ReportRecordsTable` (Core DataViews table with client-side search/sort/pagination). Module report pages compose these with their own data hook and field config.',
 			},
 		},
 	},

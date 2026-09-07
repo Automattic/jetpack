@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Update react-redux to 9.3.0 and redux to 5.0.1.

@@ -5,7 +5,22 @@ import {
 	playlistEmbedUrl,
 	playlistRuntimeMs,
 	resolutionLabel,
+	withMetadataToken,
 } from '../utils';
+
+describe( 'withMetadataToken', () => {
+	it( 'appends the token as the first query parameter', () => {
+		expect( withMetadataToken( 'https://example.com/poster.jpg', 'jwt' ) ).toBe(
+			'https://example.com/poster.jpg?metadata_token=jwt'
+		);
+	} );
+
+	it( 'appends with & and encodes when the URL already has a query', () => {
+		expect( withMetadataToken( 'https://example.com/poster.jpg?w=100', 'a+b' ) ).toBe(
+			'https://example.com/poster.jpg?w=100&metadata_token=a%2Bb'
+		);
+	} );
+} );
 
 describe( 'formatTimecode', () => {
 	it( 'formats minutes and seconds', () => {

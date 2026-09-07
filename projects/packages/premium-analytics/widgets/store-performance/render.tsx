@@ -203,10 +203,8 @@ function StorePerformanceContent() {
 		() => [ generalReport, bookingsReport, visitorsReport, conversionReport, customersReport ],
 		[ generalReport, bookingsReport, visitorsReport, conversionReport, customersReport ]
 	);
-	// Gate the error per report — each metric tab has its own report, so a failed
-	// one must surface an error rather than render as an empty chart beside the
-	// others. Placeholder data keeps a report's rows on a transient refetch failure,
-	// so a report with data is not errored.
+	// Gate the error per report so a failed one surfaces beside the others' charts
+	// instead of rendering empty; placeholder data spares a report that still has rows.
 	const isError = reports.some( report => report.isError && ! report.hasData );
 	// Retry re-runs every metric report, not only the failed one.
 	const refetch = useCallback(

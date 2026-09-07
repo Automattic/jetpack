@@ -1,0 +1,12 @@
+// Shared by the editor and the frontend. The container owns all the styling so
+// the hints stay bare spans with nothing for a theme's <p> rules to grab.
+.contact-form__field-hints {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.25rem 0.75rem;
+	margin-block: 0.25rem 0;
+	margin-inline: 0;
+	font-size: 0.875em;
+	line-height: 1.4;
+	color: var(--jetpack--contact-form--text-color, inherit);
+}

@@ -79,7 +79,6 @@ const getLabelClassName = formClassName => {
 		context: {
 			'jetpack/form-class-name': formClassName,
 			'jetpack/field-required': false,
-			'jetpack/field-date-format': undefined,
 			'jetpack/field-share-attributes': false,
 		},
 	} );

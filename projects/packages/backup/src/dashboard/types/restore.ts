@@ -87,7 +87,7 @@ export type RestoreState =
 	| { phase: 'submitting' }
 	| { phase: 'queued' }
 	| { phase: 'unconfirmed'; detail: string | null }
-	| { phase: 'progress'; percent: number }
+	| { phase: 'progress'; percent: number; message: string }
 	| { phase: 'success' }
 	| { phase: 'success-with-errors'; message: string }
 	| { phase: 'lost-track'; detail: string | null }

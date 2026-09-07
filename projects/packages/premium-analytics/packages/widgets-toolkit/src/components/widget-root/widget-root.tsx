@@ -11,6 +11,7 @@ import { useMemo, type ReactNode } from 'react';
 /**
  * Internal dependencies
  */
+import { siteChartFormatting } from '../../helpers';
 import { useChartTheme } from '../../hooks';
 import { useNormalizedReportParams } from '../../hooks/use-normalized-report-params';
 import { WidgetRootContext } from './context';
@@ -39,27 +40,13 @@ type WidgetRootProps = {
 	};
 };
 
-/**
- * WidgetRoot
- *
- * A wrapper component that encapsulates all the infrastructure a lazy-loaded
- * dashboard widget needs:
- * - AnalyticsQueryClientProvider for data fetching
- * - GlobalChartsProvider with chart theme
- * - Report params resolution (from attributes or URL fallback)
- * - Context provider for child widgets to access resolved params
- */
+/** Wraps a lazy-loaded widget with its query client, chart theme, and resolved report params. */
 export function WidgetRoot( { attributes, children, setError }: WidgetRootProps ) {
 	const chartTheme = useChartTheme();
 	const navigationParams = useNormalizedReportParams( attributes );
 
-	/*
-	 * Stripped after resolution rather than at either source, so a surface that
-	 * offers no comparison holds the invariant by construction: neither the URL
-	 * nor a widget's own attributes can put a comparison in front of a reader
-	 * who has no control to switch it off. The params stay in the URL, for the
-	 * surfaces that do offer one to pick back up.
-	 */
+	// Stripped after resolution, not at the source, so a no-comparison surface
+	// never shows one regardless of URL/attributes; params stay in the URL for others.
 	const { offersComparison } = useReportScope();
 	const reportParams = useMemo(
 		() => ( offersComparison ? navigationParams : withoutComparison( navigationParams ) ),
@@ -73,7 +60,7 @@ export function WidgetRoot( { attributes, children, setError }: WidgetRootProps 
 
 	return (
 		<AnalyticsQueryClientProvider>
-			<GlobalChartsProvider theme={ chartTheme }>
+			<GlobalChartsProvider theme={ chartTheme } { ...siteChartFormatting() }>
 				<WidgetRootContext.Provider value={ contextValue }>
 					<div className={ styles.root }>{ children }</div>
 				</WidgetRootContext.Provider>

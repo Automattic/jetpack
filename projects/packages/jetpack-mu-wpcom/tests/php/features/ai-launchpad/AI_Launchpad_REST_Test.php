@@ -1030,6 +1030,17 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		// The shared context rides along, populated from the persisted options.
 		$this->assertSame( 'write', $props['goal'] );
 		$this->assertSame( 'hiking', $props['niche'] );
+		// The AI standard props ride along too, and unlike the shared context they are never
+		// dropped — "none" and false are meaningful values, not missing ones.
+		$this->assertSame( 'web', $props['channel'] );
+		$this->assertSame( 'dashboard', $props['surface'] );
+		$this->assertSame( 'admin.php', $props['screen'] );
+		$this->assertSame( 'ai_launchpad', $props['agent_name'] );
+		$this->assertSame( \Automattic\Jetpack\Jetpack_Mu_Wpcom::PACKAGE_VERSION, $props['agent_version'] );
+		$this->assertArrayHasKey( 'is_a11n', $props );
+		$this->assertSame( 'false', $props['is_test'] );
+		$this->assertSame( 'ai', $props['source'] );
+		$this->assertSame( 'success', $props['outcome'] );
 		// Null context values are omitted from the recorded event, never "null" strings.
 		$this->assertArrayNotHasKey( 'inferred_goal', $props );
 		$this->assertJson( $props['rendered_list'] );
@@ -1123,6 +1134,29 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		// The latch prevents a re-fire on later reads.
 		$this->call_api( Requests::GET );
 		$this->assertCount( 2, $events );
+	}
+
+	/**
+	 * Test that a call-site property beats a standard property of the same name, so the
+	 * wrapper can never silently overwrite what a call site deliberately sent.
+	 */
+	public function test_call_site_props_win_over_the_standard_props() {
+		$this->seed_tailored_site();
+
+		$events = array();
+		$this->capture_tracks_events( $events );
+
+		wpcom_ai_launchpad_record_tracks_event(
+			'jetpack_ai_launchpad_task_completed',
+			array(
+				'task_id' => 'site_title',
+				'surface' => 'somewhere_else',
+			)
+		);
+
+		list( , $props ) = self::captured_event( $events );
+		$this->assertSame( 'somewhere_else', $props['surface'] );
+		$this->assertSame( 'web', $props['channel'] );
 	}
 
 	/**
@@ -1306,6 +1340,62 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		// The route's arg schema rejects out-of-range telemetry before the callback runs.
 		$result = $this->call_api( 'PUT', '/tailored', self::valid_payload(), array( 'duration_ms' => -1 ) );
 		$this->assertSame( 400, $result->get_status() );
+	}
+
+	/**
+	 * Test that the tailoring run's session id is persisted on the envelope, so every event
+	 * fired afterwards — on this page load and on later ones — is attributable to that run.
+	 */
+	public function test_tailored_persists_the_ai_session_id() {
+		$result = $this->call_api(
+			'PUT',
+			'/tailored',
+			self::valid_payload(),
+			array(
+				'source'        => 'ai',
+				'ai_session_id' => 'a755f9e8-8e0a-45be-81bc-524aaf8e2703',
+			)
+		);
+
+		$this->assertSame( 200, $result->get_status() );
+
+		$envelope = get_option( 'wpcom_ai_launchpad_ai_output' );
+		$this->assertSame( 'a755f9e8-8e0a-45be-81bc-524aaf8e2703', $envelope['ai_session_id'] );
+		$this->assertSame( 'a755f9e8-8e0a-45be-81bc-524aaf8e2703', wpcom_ai_launchpad_standard_props()['ai_session_id'] );
+	}
+
+	/**
+	 * Test that a write without a session id leaves the key off the envelope rather than
+	 * persisting an empty string, so the props builder reports "none" for it.
+	 */
+	public function test_tailored_omits_a_missing_ai_session_id() {
+		$result = $this->call_api( 'PUT', '/tailored', self::valid_payload(), array( 'source' => 'ai' ) );
+
+		$this->assertSame( 200, $result->get_status() );
+
+		$envelope = get_option( 'wpcom_ai_launchpad_ai_output' );
+		$this->assertArrayNotHasKey( 'ai_session_id', $envelope );
+		$this->assertSame( 'none', wpcom_ai_launchpad_standard_props()['ai_session_id'] );
+	}
+
+	/**
+	 * Test that the schema rejects an oversized ai_session_id (rather than silently truncating
+	 * it), so an id can't land 100 KB deep in an option, the inline script, and every Tracks
+	 * event fired afterwards.
+	 */
+	public function test_tailored_rejects_an_oversized_ai_session_id() {
+		$result = $this->call_api(
+			'PUT',
+			'/tailored',
+			self::valid_payload(),
+			array(
+				'source'        => 'ai',
+				'ai_session_id' => str_repeat( 'a', 65 ),
+			)
+		);
+
+		$this->assertSame( 400, $result->get_status() );
+		$this->assertFalse( get_option( 'wpcom_ai_launchpad_ai_output' ) );
 	}
 
 	/**

@@ -46,6 +46,13 @@ class Site_Data_Endpoint_Test extends BaseTestCase {
 	private $rest_connector;
 
 	/**
+	 * Whether the test simulated a request signed by WordPress.com, so tear_down knows to undo it.
+	 *
+	 * @var bool
+	 */
+	private $signed_request_simulated = false;
+
+	/**
 	 * Set up the REST server and register the package routes.
 	 */
 	public function set_up() {
@@ -76,10 +83,71 @@ class Site_Data_Endpoint_Test extends BaseTestCase {
 		$wp_rest_server = null;
 		$this->server   = null;
 
+		unset( $_COOKIE['store_sandbox'] );
+
+		if ( $this->signed_request_simulated ) {
+			unset( $_GET['_for'], $_GET['token'], $_GET['signature'], $_SERVER['REQUEST_METHOD'] );
+			self::clear_auth_singleton();
+			$this->signed_request_simulated = false;
+		}
+
 		StatusCache::clear();
 		Constants::clear_constants();
 
 		wp_set_current_user( 0 );
+	}
+
+	/**
+	 * Delete any cached Rest_Authentication singleton.
+	 */
+	private static function clear_auth_singleton() {
+		$instance_property = ( new \ReflectionClass( Rest_Authentication::class ) )->getProperty( 'instance' );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$instance_property->setAccessible( true );
+		}
+		$instance_property->setValue( null, false );
+	}
+
+	/**
+	 * Make the current request read as signed with a user connection token, the way the
+	 * WordPress.com post-purchase plan refresh arrives.
+	 *
+	 * Drives the real `Rest_Authentication::wp_rest_authenticate()` with a mocked signature
+	 * verifier, because a real signature would consume a single-use nonce.
+	 */
+	private function sign_request_as_wpcom() {
+		$this->signed_request_simulated = true;
+
+		self::clear_auth_singleton();
+		$authentication = Rest_Authentication::init();
+
+		$verifier = $this->getMockBuilder( Manager::class )
+			->onlyMethods( array( 'verify_xml_rpc_signature' ) )
+			->getMock();
+		$verifier->expects( $this->once() )->method( 'verify_xml_rpc_signature' )->willReturn(
+			array(
+				'type'      => 'user',
+				'token_key' => 'asdasd',
+				'user_id'   => 1,
+			)
+		);
+
+		$manager_property = ( new \ReflectionClass( Rest_Authentication::class ) )->getProperty( 'connection_manager' );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$manager_property->setAccessible( true );
+		}
+		$manager_property->setValue( $authentication, $verifier );
+
+		$_GET['_for']              = 'jetpack';
+		$_GET['token']             = 'asdasd:1:1';
+		$_GET['signature']         = 'signature';
+		$_SERVER['REQUEST_METHOD'] = 'GET';
+
+		$authentication->wp_rest_authenticate( false );
+
+		$this->assertTrue( Rest_Authentication::is_signed_with_user_token() );
 	}
 
 	/**
@@ -212,6 +280,9 @@ class Site_Data_Endpoint_Test extends BaseTestCase {
 		Jetpack_Options::update_option( 'id', 1234 );
 		$this->manager->reset_connection_status();
 
+		// Each test starts uncached, otherwise the first fetch would answer every later one.
+		delete_transient( Manager::SITE_DATA_TRANSIENT_PREFIX . 1234 );
+
 		// Signing needs an absolute URL, so the API base has to resolve.
 		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
 		Constants::set_constant( 'JETPACK__API_VERSION', 1 );
@@ -292,6 +363,261 @@ class Site_Data_Endpoint_Test extends BaseTestCase {
 		$this->assertSame( 'site_data_fetch_failed', $result->get_error_code() );
 		$this->assertSame( 'invalid_body', $result->get_error_data()['api_error_code'] );
 		$this->assertFalse( $fired, 'The action must not fire without a usable record.' );
+	}
+
+	/**
+	 * Count the outgoing HTTP requests made while the callback runs.
+	 *
+	 * @param callable $callback Code under test.
+	 * @return int
+	 */
+	private function count_http_requests( callable $callback ) {
+		$requests = 0;
+
+		$counter = function ( $pre ) use ( &$requests ) {
+			++$requests;
+
+			return $pre;
+		};
+
+		add_filter( 'pre_http_request', $counter, 1 );
+		$callback();
+		remove_filter( 'pre_http_request', $counter, 1 );
+
+		return $requests;
+	}
+
+	/**
+	 * The record is cached, so a second read inside the window is served without another round
+	 * trip. Every plugin bundling this package serves the route, so an uncached read is a
+	 * blocking request per render.
+	 */
+	public function test_the_site_record_is_served_from_cache() {
+		$this->fake_http_response( 200, '{"ID":1234,"name":"Test site"}' );
+
+		$requests = $this->count_http_requests(
+			function () {
+				$first  = $this->manager->get_connected_site_data();
+				$second = $this->manager->get_connected_site_data();
+
+				$this->assertEquals( $first, $second );
+			}
+		);
+
+		$this->assertSame( 1, $requests );
+	}
+
+	/**
+	 * A cached read still announces the record, so a consumer deriving its own state stays in
+	 * step with every request that serves it.
+	 */
+	public function test_a_cached_read_still_fires_the_site_data_action() {
+		$this->fake_http_response( 200, '{"ID":1234,"name":"Test site"}' );
+
+		$payloads = array();
+		add_action(
+			'jetpack_site_data_fetched',
+			function ( $payload ) use ( &$payloads ) {
+				$payloads[] = $payload;
+			}
+		);
+
+		$fresh  = $this->manager->get_connected_site_data();
+		$cached = $this->manager->get_connected_site_data();
+
+		$this->assertEquals( $fresh, $cached );
+		$this->assertCount( 2, $payloads );
+		$this->assertSame( reset( $payloads ), end( $payloads ) );
+	}
+
+	/**
+	 * A caller that reached WordPress.com by another route holds something newer than the cache
+	 * can. Dropping the cache has to send the next read back to WordPress.com, otherwise the
+	 * older record keeps being announced and undoes what that caller stored.
+	 */
+	public function test_dropping_the_cache_sends_the_next_read_to_wpcom() {
+		$this->fake_http_response( 200, '{"ID":1234,"name":"Test site"}' );
+
+		$requests = $this->count_http_requests(
+			function () {
+				$this->manager->get_connected_site_data();
+
+				Manager::delete_cached_site_data();
+
+				$this->manager->get_connected_site_data();
+			}
+		);
+
+		$this->assertSame( 2, $requests );
+	}
+
+	/**
+	 * A failure is cached as well, so an outage does not put a blocking request on every load.
+	 */
+	public function test_a_failed_fetch_is_also_cached() {
+		$this->fake_http_response( 500, '{"error":"unavailable"}' );
+
+		$requests = $this->count_http_requests(
+			function () {
+				$first  = $this->manager->get_connected_site_data();
+				$second = $this->manager->get_connected_site_data();
+
+				$this->assertInstanceOf( 'WP_Error', $first );
+				$this->assertInstanceOf( 'WP_Error', $second );
+			}
+		);
+
+		$this->assertSame( 1, $requests );
+	}
+
+	/**
+	 * A sandboxed request must not read the shared cache or seed it, otherwise sandbox data would
+	 * leak into ordinary requests.
+	 */
+	public function test_a_sandboxed_request_bypasses_the_cache() {
+		$this->fake_http_response( 200, '{"ID":1234,"name":"Test site"}' );
+		$_COOKIE['store_sandbox'] = 'sandbox.example.com';
+
+		$requests = $this->count_http_requests(
+			function () {
+				$first  = $this->manager->get_connected_site_data();
+				$second = $this->manager->get_connected_site_data();
+
+				$this->assertEquals( $first, $second );
+			}
+		);
+
+		$this->assertSame( 2, $requests );
+		$this->assertFalse( get_transient( Manager::SITE_DATA_TRANSIENT_PREFIX . 1234 ) );
+	}
+
+	/**
+	 * `store_sandbox[]=` arrives as an array, which sanitizes down to an empty string. Treating
+	 * that as a sandbox secret would let any reader of the route opt their own requests out of
+	 * the cache, so it has to read as no cookie at all.
+	 */
+	public function test_an_array_sandbox_cookie_is_not_a_sandboxed_request() {
+		$this->fake_http_response( 200, '{"ID":1234,"name":"Test site"}' );
+		$_COOKIE['store_sandbox'] = array( 'sandbox.example.com' );
+
+		$requests = $this->count_http_requests(
+			function () {
+				$first  = $this->manager->get_connected_site_data();
+				$second = $this->manager->get_connected_site_data();
+
+				$this->assertEquals( $first, $second );
+			}
+		);
+
+		$this->assertSame( 1, $requests );
+		$this->assertNotFalse( get_transient( Manager::SITE_DATA_TRANSIENT_PREFIX . 1234 ) );
+	}
+
+	/**
+	 * A `store_sandbox` cookie sent with no value sanitizes down to an empty string. Counting that
+	 * as a sandbox secret opts the request out of the cache and puts a `store_sandbox=;` header on
+	 * a request that has no sandbox to reach, so an empty cookie has to read as no cookie at all.
+	 */
+	public function test_an_empty_sandbox_cookie_is_not_a_sandboxed_request() {
+		$this->fake_http_response( 200, '{"ID":1234,"name":"Test site"}' );
+		$_COOKIE['store_sandbox'] = '';
+
+		$headers = null;
+		add_filter(
+			'pre_http_request',
+			function ( $pre, $args ) use ( &$headers ) {
+				$headers = $args['headers'];
+
+				return $pre;
+			},
+			1,
+			2
+		);
+
+		$requests = $this->count_http_requests(
+			function () {
+				$first  = $this->manager->get_connected_site_data();
+				$second = $this->manager->get_connected_site_data();
+
+				$this->assertEquals( $first, $second );
+			}
+		);
+
+		$this->assertSame( 1, $requests );
+		$this->assertNotFalse( get_transient( Manager::SITE_DATA_TRANSIENT_PREFIX . 1234 ) );
+		$this->assertArrayNotHasKey( 'cookie', array_change_key_case( (array) $headers ) );
+	}
+
+	/**
+	 * Only the array shape this method stores can be served. A `pre_transient_*` filter or a
+	 * damaged object cache entry can hand back anything, and reading a body off a non-array would
+	 * throw for every request until the entry expired. An unusable entry has to fail open.
+	 */
+	public function test_an_unusable_cache_entry_is_refetched() {
+		$this->fake_http_response( 200, '{"ID":1234,"name":"Test site"}' );
+		set_transient( Manager::SITE_DATA_TRANSIENT_PREFIX . 1234, 'not-an-array', 5 * MINUTE_IN_SECONDS );
+
+		$record = $this->manager->get_connected_site_data();
+
+		$this->assertSame( 'Test site', $record->name );
+		$this->assertSame(
+			array( 'body' => '{"ID":1234,"name":"Test site"}' ),
+			get_transient( Manager::SITE_DATA_TRANSIENT_PREFIX . 1234 )
+		);
+	}
+
+	/**
+	 * WordPress.com requests this route right after a purchase so the site stores the new plan.
+	 * That request arrives signed with a connection token. Serving it from the cache would hand
+	 * it the pre-purchase record and turn the refresh into a no-op, so a signed request reads
+	 * from WordPress.com and replaces the cache with the record it fetched.
+	 */
+	public function test_a_signed_request_reads_fresh_and_replaces_the_cache() {
+		$this->fake_http_response( 200, '{"ID":1234,"name":"After purchase"}' );
+
+		// A browser read moments earlier left the pre-purchase record in the cache.
+		set_transient(
+			Manager::SITE_DATA_TRANSIENT_PREFIX . 1234,
+			array( 'body' => '{"ID":1234,"name":"Before purchase"}' ),
+			5 * MINUTE_IN_SECONDS
+		);
+
+		$this->sign_request_as_wpcom();
+
+		$requests = $this->count_http_requests(
+			function () {
+				$this->assertSame( 'After purchase', $this->manager->get_connected_site_data()->name );
+			}
+		);
+
+		$this->assertSame( 1, $requests );
+
+		$cached = get_transient( Manager::SITE_DATA_TRANSIENT_PREFIX . 1234 );
+		$this->assertSame( '{"ID":1234,"name":"After purchase"}', $cached['body'] );
+	}
+
+	/**
+	 * A signed read that fails must not replace a still-usable cached record with the failure,
+	 * or a hiccup during the WordPress.com refresh would put an error in front of every browser
+	 * read for the failure window.
+	 */
+	public function test_a_failed_signed_read_keeps_the_cached_record() {
+		$this->fake_http_response( 500, '{"error":"unavailable"}' );
+
+		set_transient(
+			Manager::SITE_DATA_TRANSIENT_PREFIX . 1234,
+			array( 'body' => '{"ID":1234,"name":"Before purchase"}' ),
+			5 * MINUTE_IN_SECONDS
+		);
+
+		$this->sign_request_as_wpcom();
+
+		$result = $this->manager->get_connected_site_data();
+
+		$this->assertInstanceOf( 'WP_Error', $result );
+
+		$cached = get_transient( Manager::SITE_DATA_TRANSIENT_PREFIX . 1234 );
+		$this->assertSame( '{"ID":1234,"name":"Before purchase"}', $cached['body'] );
 	}
 
 	/**

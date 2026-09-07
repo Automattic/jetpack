@@ -43,7 +43,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'The "Tags & categories" widget. Displays the site\'s most visited tags and categories for the selected period, ranked by views. Single tags/categories link to their archive; grouped rows (several tags/categories sharing posts) drill down to their members. Ported from the Jetpack Stats Tags & categories module.',
+					'The "Tags & categories" widget. Displays the site\'s most visited tags and categories over the seven days ending yesterday, ranked by views — the endpoint takes no date parameters, so the section\'s date filter does not reach it. Single tags/categories link to their archive; grouped rows (several tags/categories sharing posts) drill down to their members. Ported from the Jetpack Stats Tags & categories module.',
 			},
 		},
 	},

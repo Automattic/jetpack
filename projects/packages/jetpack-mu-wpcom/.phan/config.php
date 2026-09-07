@@ -17,6 +17,9 @@ return make_phan_config(
 		'exclude_file_list'               => array(
 			'tests/lib/class-wpcom-features.php',
 		),
+		'exclude_file_regex'              => array(
+			'build/',
+		),
 		'parse_file_list'                 => array(
 			// Reference files to handle code checking for stuff from Jetpack-the-plugin or other in-monorepo plugins.
 			// Wherever feasible we should really clean up this sort of thing instead of adding stuff here.

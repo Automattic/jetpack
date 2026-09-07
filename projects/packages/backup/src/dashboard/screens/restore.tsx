@@ -8,6 +8,7 @@ import { Button, Card, Stack, Text } from '@wordpress/ui';
 import DashboardLayout from '../components/dashboard-layout';
 import InvalidRewindId from '../components/invalid-rewind-id';
 import RestoreItemsChecklist from '../components/restore-items-checklist';
+import { useGateState } from '../hooks/use-gate-state';
 import { useRestore } from '../hooks/use-restore';
 import { DEFAULT_RESTORE_ITEMS, hasSelectedItems } from '../types/restore';
 import { isValidRewindId, rewindIdToIso } from '../types/rewind-id';
@@ -22,12 +23,18 @@ const SELECTION_HINT_ID = 'jpb-restore__selection-hint';
  * shared item checklist, and a Confirm button. Submit drives a real
  * state machine over the `/jetpack/v4/rewind/to/$rewindId` bridge.
  *
+ * Every `ProgressBar` below is given an `aria-label`, for the reason
+ * recorded in `tests/progress-bar-names.test.tsx`; the `<Text>` beside
+ * each one never reaches the bar's accessible name.
+ *
  * @return The rendered Restore screen.
  */
 export default function RestoreScreen() {
 	const { rewindId } = useParams( { from: '/restore/$rewindId' } );
+	const gate = useGateState();
 	const [ items, setItems ] = useState( DEFAULT_RESTORE_ITEMS );
-	const { state, submit, reset, adopted } = useRestore( rewindId );
+
+	const { state, submit, reset, adopted } = useRestore( rewindId, gate.status === 'ready' );
 	const handleConfirm = useCallback( () => submit( items ), [ submit, items ] );
 	// An empty checklist would restore *everything* rather than nothing —
 	// see `hasSelectedItems`. On this screen that is unrecoverable.
@@ -70,7 +77,7 @@ export default function RestoreScreen() {
 					<Stack direction="row" gap="sm" align="center">
 						<Icon icon={ backupIcon } />
 						<Stack direction="column" gap="xs">
-							<Text variant="heading-md" render={ <h3 /> }>
+							<Text variant="heading-md" render={ <h2 /> }>
 								{ __( 'Restore backup', 'jetpack-backup-pkg' ) }
 							</Text>
 							<Text variant="body-sm" className="jpb-text-muted">
@@ -193,13 +200,39 @@ export default function RestoreScreen() {
 							<Text>
 								{ __( 'Your restore is queued and will begin shortly…', 'jetpack-backup-pkg' ) }
 							</Text>
-							<ProgressBar />
+							<ProgressBar
+								aria-label={ __( 'Waiting for your restore to begin', 'jetpack-backup-pkg' ) }
+							/>
 						</Stack>
 					) }
 					{ state.phase === 'progress' && (
 						<Stack direction="column" gap="sm">
-							<Text>{ __( 'Restoring…', 'jetpack-backup-pkg' ) }</Text>
-							<ProgressBar value={ state.percent } />
+							{ /*
+							 * Scoped to this line, not the block: the percentage and message
+							 * below change on every 5s poll and would re-announce with it.
+							 */ }
+							<Text role="status">{ __( 'Restoring…', 'jetpack-backup-pkg' ) }</Text>
+							<ProgressBar
+								value={ state.percent }
+								aria-label={ __( 'Restoring your site', 'jetpack-backup-pkg' ) }
+							/>
+							<Text variant="body-sm" className="jpb-text-muted">
+								{ sprintf(
+									/* translators: %d is a completion percentage, e.g. "50% complete". */
+									__( '%d%% complete', 'jetpack-backup-pkg' ),
+									state.percent
+								) }
+							</Text>
+							{ /*
+							 * The message is the only sign of life while `percent` stays
+							 * pinned at 0 — VaultPress's file-check preflight can run for
+							 * minutes before it moves.
+							 */ }
+							{ state.message && (
+								<Text variant="body-sm" className="jpb-text-muted">
+									{ state.message }
+								</Text>
+							) }
 						</Stack>
 					) }
 					{ state.phase === 'success' && (
@@ -254,7 +287,9 @@ export default function RestoreScreen() {
 									{ state.detail }
 								</Text>
 							) }
-							<ProgressBar />
+							<ProgressBar
+								aria-label={ __( 'Checking whether your restore started', 'jetpack-backup-pkg' ) }
+							/>
 						</Stack>
 					) }
 					{ /*

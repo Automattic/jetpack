@@ -128,6 +128,13 @@ const projects = [
 		targets: [ 'plugins/protect' ],
 		buildGroup: 'jetpack-protect',
 	},
+	{
+		project: 'Backup',
+		path: 'projects/plugins/backup/tests/e2e',
+		testArgs: [ 'specs' ],
+		targets: [ 'plugins/backup' ],
+		buildGroup: 'jetpack-backup',
+	},
 ];
 
 /**

@@ -201,7 +201,8 @@ abstract class Product {
 		if ( ! is_array( $filename ) ) {
 			$filename = array( $filename );
 		}
-		foreach ( $filename as $name ) {
+		// Products without a standalone plugin don't declare a filename, so drop the empty values.
+		foreach ( array_filter( $filename ) as $name ) {
 			$installed = array_key_exists( $name, $all_plugins );
 			if ( $installed ) {
 				return $name;

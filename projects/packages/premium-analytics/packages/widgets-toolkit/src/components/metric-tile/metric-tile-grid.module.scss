@@ -7,6 +7,13 @@ $metric-tile-grid-row-value-font-size-max: 40px;
 // The design spec pins highlight-tile values at 32px.
 $metric-tile-grid-tile-value-font-size: 32px;
 $metric-tile-grid-prominent-value-font-size-max: 44px;
+// Metrics are separated by a hairline rather than boxed, so the tiles run flush
+// and each draws the rule on the edge it shares with its neighbour - the tile
+// before it in the one-dimensional layouts, whichever tile that turns out to be
+// in the two-column one. The grid's outer edges stay open, which is what tells
+// a divider from a box. Same weak stroke as WidgetFooter's rule, which sits
+// inches away in the same card.
+$metric-tile-grid-divider: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
 $metric-tile-grid-large-row-min-block-size: calc(var(--wpds-typography-line-height-2xl) + var(--wpds-dimension-padding-2xl) + var(--wpds-dimension-padding-2xl) + var(--wpds-dimension-gap-lg));
 
 /* Size containment removes the container from auto sizing, so it must get its
@@ -23,7 +30,7 @@ $metric-tile-grid-large-row-min-block-size: calc(var(--wpds-typography-line-heig
 	display: grid;
 	grid-auto-rows: minmax(var(--wpds-typography-line-height-2xl), 1fr);
 	grid-template-columns: 1fr;
-	gap: var(--wpds-dimension-gap-sm);
+	gap: 0;
 	block-size: 100%;
 	min-block-size: 0;
 }
@@ -35,10 +42,16 @@ $metric-tile-grid-large-row-min-block-size: calc(var(--wpds-typography-line-heig
 	gap: var(--wpds-dimension-gap-md);
 	min-inline-size: 0;
 	min-block-size: 0;
+
+	/* No inline padding: it existed to sit inside the border, and without one it
+	 * only pushes the label and value out of line with the widget's own header.
+	 * The wider layouts set their own, to hold the content off the rules. */
 	padding-block: var(--wpds-dimension-padding-sm);
-	padding-inline: var(--wpds-dimension-padding-lg);
-	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
-	border-radius: var(--wpds-border-radius-lg);
+}
+
+/* Narrow: one column, so the shared edge is the row above. */
+.tile + .tile {
+	border-block-start: $metric-tile-grid-divider;
 }
 
 .header {
@@ -124,6 +137,12 @@ $metric-tile-grid-large-row-min-block-size: calc(var(--wpds-typography-line-heig
 		text-align: center;
 	}
 
+	/* One row, so the shared edge moves to the tile's leading side. */
+	.tile + .tile {
+		border-block-start: 0;
+		border-inline-start: $metric-tile-grid-divider;
+	}
+
 	.header {
 		flex: 0 1 auto;
 		justify-content: center;
@@ -156,8 +175,9 @@ $metric-tile-grid-large-row-min-block-size: calc(var(--wpds-typography-line-heig
 	}
 }
 
-/* Wide and tall: a balanced two-column grid of large centered tiles. Resets the
- * one-row flow set above so tiles wrap into rows again. */
+/* Wide and tall: a balanced two-column grid of large centered tiles, the last
+ * one taking the whole row when the count is odd. Resets the one-row flow set
+ * above so tiles wrap into rows again. */
 @container (min-inline-size: #{$widget-wide-min-inline-size}) and (min-block-size: #{$metric-tile-grid-grid-min-block-size}) {
 
 	.grid {
@@ -171,6 +191,40 @@ $metric-tile-grid-large-row-min-block-size: calc(var(--wpds-typography-line-heig
 	.tile {
 		padding-block: var(--wpds-dimension-padding-2xl);
 		padding-inline: var(--wpds-dimension-padding-lg);
+	}
+
+	/* An odd count leaves the last row half empty. A box needed no neighbour to
+	 * look finished, but a rule does: the row's divider would stop dead at the
+	 * midpoint. Give the trailing tile the whole row instead, which also spares
+	 * a lone tile from rendering at half the width it has. */
+	.tile:last-child:nth-child(odd) {
+		grid-column: 1 / -1;
+	}
+
+	/* Two columns: a tile's neighbour in document order is no longer the one it
+	 * shares an edge with, so position decides. Column two is always an even
+	 * child, and the first row is always the first two. Each pair covers every
+	 * tile, so this block states both edges outright rather than patching over
+	 * what the one-row query left behind.
+	 *
+	 * Counting children only holds while every tile is rendered and laid out in
+	 * order, which the grid guarantees today - it maps `tiles` straight into
+	 * `.grid` and puts nothing else there. A consumer that hid a tile through
+	 * the public `className` prop would move the rules onto the wrong edges. */
+	.tile:nth-child(odd) {
+		border-inline-start: 0;
+	}
+
+	.tile:nth-child(even) {
+		border-inline-start: $metric-tile-grid-divider;
+	}
+
+	.tile:nth-child(-n + 2) {
+		border-block-start: 0;
+	}
+
+	.tile:nth-child(n + 3) {
+		border-block-start: $metric-tile-grid-divider;
 	}
 
 	.tile .value,

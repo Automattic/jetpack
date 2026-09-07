@@ -119,13 +119,9 @@ export function TopPerformingProductLeaderboardWidget( {
 			// Match by product_id instead of index.
 			const comparisonProduct = comparisonMap.get( product.product_id );
 
-			// A product ranked below the previous top-N cutoff is absent from
-			// the comparison list. That is an unknown previous value, not a
-			// real 0, so leave the comparison fields undefined and let the
-			// chart show a missing-data placeholder instead of implying the
-			// product earned nothing. A product present with 0 revenue keeps
-			// its known comparison value while its unavailable delta renders
-			// separately.
+			// A product below the previous top-N cutoff is absent from the comparison list —
+			// an unknown previous value, not a real 0 — so leave it undefined for the missing-data
+			// placeholder. A product present with 0 revenue keeps its known comparison value.
 			const previousValue = comparisonProduct?.product_net_revenue;
 			const hasComparisonValue = previousValue !== undefined;
 
@@ -141,9 +137,8 @@ export function TopPerformingProductLeaderboardWidget( {
 					action: { kind: 'static' },
 				} ),
 				currentValue,
-				// Net revenue can be negative once refunds outweigh sales; a
-				// negative share would render an invalid bar width, so clamp
-				// both periods' shares to zero-width bars.
+				// Net revenue can go negative once refunds outweigh sales; clamp both periods'
+				// shares to zero-width bars rather than render an invalid negative width.
 				currentShare: sharePercentage( Math.max( currentValue, 0 ), maxValue ),
 				previousValue,
 				previousShare: hasComparisonValue
@@ -154,9 +149,8 @@ export function TopPerformingProductLeaderboardWidget( {
 		} );
 	}, [ data?.data, comparisonData?.data, hasComparison, productImages ] );
 
-	// `hasComparison` only tracks the date range. When none of the visible
-	// products carry over from the comparison period, comparison mode would draw
-	// a column of placeholders, so suppress it rather than show an empty column.
+	// `hasComparison` only tracks the date range; when no visible product carries
+	// over from that period, suppress comparison mode rather than draw an empty column.
 	const hasVisibleComparison = useMemo(
 		() => chartData.some( row => row.previousValue !== undefined ),
 		[ chartData ]
@@ -166,14 +160,12 @@ export function TopPerformingProductLeaderboardWidget( {
 
 	return (
 		<WidgetState
-			// The images query only starts once the report supplies product IDs, so
-			// rows land first and the thumbnails fill in behind them. That gap is
-			// a refetch, not a missing answer, so it belongs in `isFetching`.
+			// Images only start fetching once the report supplies product IDs, so rows
+			// land first and thumbnails fill in behind — that gap belongs in `isFetching`, not loading.
 			isLoading={ isLoading }
 			isFetching={ isFetching || imagesLoading }
-			// The report queries keep the previous period's data as placeholders
-			// across range changes, so only surface the error when there is
-			// nothing to show.
+			// The report queries keep the previous period's data as placeholders across
+			// range changes, so only surface the error when nothing else is showing.
 			isError={ isError && ! hasData }
 			isEmpty={ chartData.length === 0 }
 			error={ {

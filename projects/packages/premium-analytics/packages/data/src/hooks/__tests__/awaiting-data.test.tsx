@@ -17,7 +17,7 @@ type Row = { range: string };
 
 const STALE_TIME = 5 * 60 * 1000;
 
-function Probe( { range }: { range: string } ) {
+function Probe( { range, enabled = true }: { range: string; enabled?: boolean } ) {
 	const query = useQuery< Row >( {
 		queryKey: [ 'report', range ],
 		queryFn: async () => {
@@ -25,16 +25,28 @@ function Probe( { range }: { range: string } ) {
 			return { range };
 		},
 		placeholderData: previousData => previousData,
+		enabled,
 	} );
+
+	refetchProbe = query.refetch;
+
+	const awaiting = isAwaitingData( query );
+	renders.push( { awaiting, isPlaceholderData: query.isPlaceholderData } );
 
 	return (
 		<>
 			<span data-testid="shown">{ query.data?.range ?? '—' }</span>
-			<span data-testid="awaiting">{ String( isAwaitingData( query ) ) }</span>
+			<span data-testid="awaiting">{ String( awaiting ) }</span>
 			<span data-testid="fetching">{ String( query.isFetching ) }</span>
 		</>
 	);
 }
+
+let refetchProbe: () => Promise< unknown >;
+
+// Every render's verdict, so a test can assert on the frames between two settled
+// states and not just on the settled states themselves.
+const renders: Array< { awaiting: boolean; isPlaceholderData: boolean } > = [];
 
 function read( testId: string ) {
 	return screen.getByTestId( testId ).textContent;
@@ -43,6 +55,7 @@ function read( testId: string ) {
 describe( 'isAwaitingData', () => {
 	let client: QueryClient;
 	let setRange: ( range: string ) => void;
+	let setState: ( state: { range: string; enabled: boolean } ) => void;
 
 	function Host() {
 		const [ range, set ] = useState( 'january' );
@@ -50,22 +63,24 @@ describe( 'isAwaitingData', () => {
 		return <Probe range={ range } />;
 	}
 
+	function SwitchableHost() {
+		const [ state, set ] = useState( { range: 'january', enabled: true } );
+		setState = set;
+		return <Probe range={ state.range } enabled={ state.enabled } />;
+	}
+
 	function wrap( children: ReactNode ) {
 		return <QueryClientProvider client={ client }>{ children }</QueryClientProvider>;
 	}
 
-	/**
-	 * Wait for a range's rows to land. Polled, not slept through — a fixed delay
-	 * races the query on a loaded runner.
-	 *
-	 * @param range - The range whose rows should be on screen.
-	 */
+	// Polled, not slept through — a fixed delay races the query on a loaded runner.
 	async function settleOn( range: string ) {
 		await waitFor( () => expect( read( 'shown' ) ).toBe( range ) );
 		await waitFor( () => expect( read( 'awaiting' ) ).toBe( 'false' ) );
 	}
 
 	beforeEach( () => {
+		renders.length = 0;
 		client = new QueryClient( {
 			defaultOptions: { queries: { staleTime: STALE_TIME, retry: false } },
 		} );
@@ -105,8 +120,8 @@ describe( 'isAwaitingData', () => {
 		} );
 		await waitFor( () => expect( read( 'fetching' ) ).toBe( 'true' ) );
 
-		// What a window refocus past `staleTime` does. `isFetching` here is
-		// indistinguishable from the range change above.
+		// `isFetching` is true exactly as in the range change above; what separates
+		// them is that January still answers what was asked.
 		expect( read( 'shown' ) ).toBe( 'january' );
 		expect( read( 'awaiting' ) ).toBe( 'false' );
 
@@ -134,5 +149,56 @@ describe( 'isAwaitingData', () => {
 		// The invalidation above leaves a refetch in flight; let it land inside
 		// the test rather than during teardown.
 		await settleOn( 'january' );
+	} );
+
+	// The flag rests on React Query's optimistic result reporting the new key's
+	// fetch on the first render after a param change; a frame without it would
+	// flash the previous range as though it were the answer.
+	it( 'never calls the placeholder the answer mid-transition', async () => {
+		render( wrap( <Host /> ) );
+		await settleOn( 'january' );
+
+		renders.length = 0;
+		await act( async () => {
+			setRange( 'february' );
+		} );
+		await settleOn( 'february' );
+
+		expect( renders.some( frame => frame.isPlaceholderData ) ).toBe( true );
+		expect( renders.filter( frame => frame.isPlaceholderData && ! frame.awaiting ) ).toEqual( [] );
+	} );
+
+	// The stuck-skeleton bug: switching a query off changes its params in the same
+	// render, leaving placeholder data no fetch will ever replace.
+	it( 'stays false for a disabled query left holding placeholder data', async () => {
+		render( wrap( <SwitchableHost /> ) );
+		await waitFor( () => expect( read( 'shown' ) ).toBe( 'january' ) );
+
+		await act( async () => {
+			setState( { range: 'february', enabled: false } );
+		} );
+
+		expect( read( 'fetching' ) ).toBe( 'false' );
+		expect( read( 'awaiting' ) ).toBe( 'false' );
+	} );
+
+	// `refetch()` deliberately ignores `enabled`, so a switched-off query can still
+	// have a real request in flight.
+	it( 'is true while a switched-off query is refetching by hand', async () => {
+		render( wrap( <Probe range="january" enabled={ false } /> ) );
+
+		expect( read( 'awaiting' ) ).toBe( 'false' );
+
+		let inFlight: Promise< unknown >;
+		act( () => {
+			inFlight = refetchProbe();
+		} );
+
+		await waitFor( () => expect( read( 'fetching' ) ).toBe( 'true' ) );
+		expect( read( 'awaiting' ) ).toBe( 'true' );
+
+		await act( async () => {
+			await inFlight;
+		} );
 	} );
 } );

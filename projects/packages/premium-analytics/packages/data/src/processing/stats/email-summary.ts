@@ -1,4 +1,5 @@
 import { safeParseFloat } from '../../utils/parsing';
+import { decodeHtmlText } from '../../utils/text';
 import { coerceStatsArray, coerceStatsRecord, createStatsListDataPoint } from './utils';
 import type {
 	StatsItemAction,
@@ -29,7 +30,7 @@ function normalizeStatsEmailSummaryItem( post: StatsRecord ): StatsEmailSummaryI
 
 	return {
 		id: post.id as string | number | undefined,
-		label: post.title,
+		label: decodeHtmlText( post.title ),
 		// Opens is the headline metric for the emails leaderboard; clicks_rate is frequently 0.
 		value: safeParseFloat( post.opens ),
 		link,

@@ -10,6 +10,7 @@ import { parseSiteDateTime } from '@jetpack-premium-analytics/datetime';
 import { formatDate } from '@jetpack-premium-analytics/formatters';
 import {
 	AdaptiveCalendarHeatmap,
+	CalendarHeatmapPagerOverlay,
 	CalendarHeatmapTooltip,
 	HeatmapChartUnresponsive,
 	HeatmapSkeleton,
@@ -59,19 +60,15 @@ function TrafficViewsActivityInner() {
 	// them against different days.
 	const today = format( new Date(), 'yyyy-MM-dd' );
 
+	// A ceiling only — a floor would leak years outside the selection into the
+	// card's heading (WOOA7S-1963); it also bounds paging, so paging can't escape the selection.
 	const fetchWindow = useMemo(
-		() =>
-			resolveCalendarHeatmapWindow(
-				reportParams,
-				{ minDays: windowDays, maxDays: windowDays },
-				today
-			),
+		() => resolveCalendarHeatmapWindow( reportParams, { maxDays: windowDays }, today ),
 		[ reportParams, windowDays, today ]
 	);
 
-	// The period as selected, before the viewport window, and the only use for it:
-	// All time on a long-dormant site reaches back past the window, and the empty
-	// state has to know the response says nothing about the years left out.
+	// The period as selected, before the ceiling — the empty state needs it to know
+	// the response says nothing about years the ceiling left out.
 	const periodWindow = useMemo(
 		() => resolveCalendarHeatmapWindow( reportParams, {}, today ),
 		[ reportParams, today ]
@@ -106,14 +103,18 @@ function TrafficViewsActivityInner() {
 		[ report ]
 	);
 
-	// Key the empty state to the response rather than the densified calendar, whose
-	// missing dates are represented by null-valued cells.
-	const hasViews = ( report?.data ?? [] ).some( row => Number( row.views ?? 0 ) > 0 );
+	// Key the empty state to the response, not the densified calendar (whose gaps
+	// are null cells) — a stale wider-selection response can't hide the empty state.
+	const hasViews = ( report?.data ?? [] ).some( row => {
+		const day = String( row.time_interval );
 
-	// And where the period outran the window, the message names the days the request
-	// covers instead of the period: the site may well have views outside them. Both
-	// ends are named — the clipped end is the start, but the period can also end
-	// before today, and "since" would speak for the days after it.
+		return (
+			Number( row.views ?? 0 ) > 0 && day >= fetchWindow.startDate && day <= fetchWindow.endDate
+		);
+	} );
+
+	// When the period outran the window, name the days the request covers (both
+	// ends) — the period can end before today, so "since" would misname the tail.
 	const windowStart = parseSiteDateTime( fetchWindow.startDate );
 	const windowEnd = parseSiteDateTime( fetchWindow.endDate );
 	const emptyDescription =
@@ -128,7 +129,7 @@ function TrafficViewsActivityInner() {
 
 	return (
 		<AdaptiveCalendarHeatmap valueByDay={ viewsByDay } period={ fetchWindow }>
-			{ chartProps => (
+			{ ( chartProps, pager ) => (
 				<WidgetState
 					isLoading={ isLoading }
 					isFetching={ isFetching }
@@ -148,12 +149,14 @@ function TrafficViewsActivityInner() {
 					} }
 					renderLoading={ <HeatmapSkeleton /> }
 				>
-					<HeatmapChartUnresponsive
-						{ ...chartProps }
-						primaryColor="var(--wp-admin-theme-color, #3858e9)"
-						withTooltips
-						renderTooltip={ renderCellTooltip }
-					/>
+					<CalendarHeatmapPagerOverlay pager={ pager }>
+						<HeatmapChartUnresponsive
+							{ ...chartProps }
+							primaryColor="var(--wp-admin-theme-color, #3858e9)"
+							withTooltips
+							renderTooltip={ renderCellTooltip }
+						/>
+					</CalendarHeatmapPagerOverlay>
 				</WidgetState>
 			) }
 		</AdaptiveCalendarHeatmap>

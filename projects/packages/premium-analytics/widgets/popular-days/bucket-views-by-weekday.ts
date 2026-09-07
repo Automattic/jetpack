@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { getDatePart } from '@jetpack-premium-analytics/datetime';
-import { formatWeekday } from '@jetpack-premium-analytics/formatters';
+import { formatMondayFirstWeekday } from '@jetpack-premium-analytics/formatters';
 import { format, getDay, isValid, parse } from 'date-fns';
 
 export type PopularDayBucket = {
@@ -21,13 +21,12 @@ const DATE_PART_FORMAT = 'yyyy-MM-dd';
 const referenceDate = new Date( 2001, 0, 1 );
 
 function weekdayLabel( weekday: number ) {
-	// WordPress's locale table is Sunday-first; the widget's buckets are Monday-first.
-	return formatWeekday( ( weekday + 1 ) % 7 );
+	return formatMondayFirstWeekday( weekday );
 }
 
-// The `+00:00` on `date_start` labels a calendar bucket rather than marking a
-// real UTC time, so `new Date()` would resolve it against the viewer's timezone
-// and slide the row onto the previous weekday west of Greenwich.
+// `date_start` labels a calendar bucket rather than marking a real instant, so
+// `new Date()` would resolve it against the viewer's timezone and slide the row
+// onto the previous weekday west of Greenwich.
 function readRowDate( row: Record< string, unknown > ) {
 	const datePart = getDatePart( row.date_start ?? row.time_interval ?? row.period );
 
@@ -47,10 +46,8 @@ function readRowViews( row: Record< string, unknown > ) {
 }
 
 /**
- * Fold a daily `stats/visits` series into one bucket per day of the week.
- *
  * Always seven buckets, so the chart keeps a stable shape; weekdays the range
- * never covered carry `occurrences: 0` and are skipped by `pickPeakWeekday`.
+ * never covered carry `occurrences: 0`.
  */
 export function bucketViewsByWeekday( rows: Record< string, unknown >[] ): PopularDayBucket[] {
 	const totals = Array.from( { length: 7 }, () => ( { total: 0, occurrences: 0 } ) );
@@ -81,15 +78,12 @@ export function bucketViewsByWeekday( rows: Record< string, unknown >[] ): Popul
 }
 
 /**
- * The busiest weekday by mean views per occurrence.
- *
- * Mean, not total: a selected range rarely spans a whole number of weeks — over
- * 30 days two weekdays occur five times and five occur four — so a total would
- * let that extra occurrence alone decide the winner.
+ * Mean, not total: a selected range rarely spans a whole number of weeks, so a
+ * total would let one extra occurrence of a weekday decide the winner.
  */
 export function pickPeakWeekday( buckets: PopularDayBucket[] ): PopularDayBucket | undefined {
 	return buckets
-		.filter( bucket => bucket.occurrences > 0 )
+		.filter( bucket => bucket.occurrences > 0 && bucket.total > 0 )
 		.reduce< PopularDayBucket | undefined >(
 			( peak, bucket ) => ( ! peak || bucket.average > peak.average ? bucket : peak ),
 			undefined

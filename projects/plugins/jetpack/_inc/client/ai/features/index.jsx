@@ -1,7 +1,7 @@
 /**
  * AI Features view — per-feature toggles for Jetpack AI, grouped by area
- * (Content, Media, SEO, Search) inside a single "Agent capabilities" card
- * per the AI-Settings design.
+ * (Content, Media, SEO, Search) inside a single card per the AI-Settings
+ * design. The card carries no heading of its own: the tab names it.
  *
  * Each feature has its own on/off switch, backed by the feature-settings
  * endpoint. A disabled feature must genuinely stop loading (its assets are
@@ -13,7 +13,7 @@ import { ToggleControl } from '@wordpress/components';
 import { Fragment, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Badge, Card, Link, Notice, Popover, Stack, Text, VisuallyHidden } from '@wordpress/ui';
-import analytics from 'lib/analytics';
+import { EVENTS, recordAiHubEvent } from '../tracks';
 
 // Server-computed target for the AI SEO row: the dedicated Jetpack SEO page
 // where it exists, the Traffic settings card otherwise. Falls back to Traffic
@@ -22,7 +22,8 @@ const { seoSettingsUrl } = window?.jetpackAiSettings ?? {};
 
 // Per the design, a row's action link depends on the toggle state: enabled
 // features invite you to try them (AI SEO opens its settings), disabled ones
-// link to documentation via registered Jetpack Redirects handlers.
+// link to documentation via registered Jetpack Redirects handlers. A row with
+// a single `action` shows that link in both states.
 const SECTIONS = [
 	{
 		key: 'content',
@@ -35,13 +36,10 @@ const SECTIONS = [
 					'Draft, rewrite, translate, and adjust tone for your content right in the block editor.',
 					'jetpack'
 				),
-				enabledAction: {
-					label: __( 'Try it out in the editor', 'jetpack' ),
-					// The arg asks the ai-assistant-plugin sidebar to open itself
-					// once the editor loads (same convention as openSidebar=global-styles).
-					href: 'post-new.php?openSidebar=jetpack-ai-assistant',
-				},
-				disabledAction: {
+				// Docs in both states for now. The editor link
+				// (post-new.php?openSidebar=jetpack-ai-assistant) returns with the
+				// sidebar agent; its editor-side handler is still in place.
+				action: {
 					label: __( 'Learn more', 'jetpack' ),
 					href: getRedirectUrl( 'jetpack-ai-settings-writing-assistant-learn-more' ),
 					external: true,
@@ -79,7 +77,7 @@ const SECTIONS = [
 		title: __( 'SEO', 'jetpack' ),
 		features: [
 			{
-				key: 'seo_enhancer',
+				key: 'ai_seo',
 				label: __( 'AI SEO', 'jetpack' ),
 				description: __(
 					'AI recommendations to optimize titles, meta descriptions, and content for search engines.',
@@ -103,14 +101,15 @@ const SECTIONS = [
 		features: [
 			{
 				key: 'ai_search',
-				label: __( 'AI Search', 'jetpack' ),
+				label: __( 'AI Answers', 'jetpack' ),
 				description: __(
 					'Help visitors and AI agents find answers in your content, via Jetpack Search.',
 					'jetpack'
 				),
 				enabledAction: {
 					label: __( 'Open Search Settings', 'jetpack' ),
-					href: 'admin.php?page=jetpack-search',
+					// The toggle lives on the Search dashboard's AI tab, not Overview.
+					href: 'admin.php?page=jetpack-search#/ai-answers',
 				},
 				disabledAction: {
 					label: __( 'Learn more', 'jetpack' ),
@@ -148,14 +147,15 @@ export function visibleSections( sections, features ) {
 /**
  * A single feature row: toggle + description + optional action link.
  *
- * @param {object}   props               - Component props.
- * @param {object}   props.feature       - Entry from SECTIONS[].features.
- * @param {object}   props.reported      - This feature's object from the settings response.
- * @param {boolean}  props.checked       - Whether the feature is enabled.
- * @param {boolean}  props.isSaving      - Whether this toggle is being saved.
- * @param {boolean}  props.masterEnabled - Whether the site-wide AI master switch is on.
- * @param {boolean}  props.isConnected   - Whether the AI connection gate passes (connected owner, not offline).
- * @param {Function} props.onChange      - Called with (key, enabled) on toggle.
+ * @param {object}   props                 - Component props.
+ * @param {object}   props.feature         - Entry from SECTIONS[].features.
+ * @param {object}   props.reported        - This feature's object from the settings response.
+ * @param {boolean}  props.checked         - Whether the feature is enabled.
+ * @param {boolean}  props.isSaving        - Whether this toggle is being saved.
+ * @param {boolean}  props.masterEnabled   - Whether the site-wide AI master switch is on.
+ * @param {boolean}  props.isConnected     - Whether the AI connection gate passes (connected owner, not offline).
+ * @param {boolean}  props.isUserConnected - Whether the current user's own WordPress.com account is linked.
+ * @param {Function} props.onChange        - Called with (key, enabled) on toggle.
  * @return {object} Component markup.
  */
 function FeatureRow( {
@@ -165,6 +165,7 @@ function FeatureRow( {
 	isSaving,
 	masterEnabled,
 	isConnected,
+	isUserConnected,
 	onChange,
 } ) {
 	const handleChange = useCallback(
@@ -172,13 +173,17 @@ function FeatureRow( {
 		[ feature.key, onChange ]
 	);
 
-	const action = checked ? feature.enabledAction : feature.disabledAction;
-	// The toggle keeps showing the SAVED value but can't be used while the
-	// connection gate fails (no feature can load without it), while the master
-	// switch is off (the saved choice returns when master does), or while the
-	// plan doesn't include the individual feature. There is deliberately no
-	// site-wide plan gate here: every connected site can run the free tier.
-	const isDisabled = isSaving || ! isConnected || ! masterEnabled || !! reported?.requires_upgrade;
+	const action = ( checked ? feature.enabledAction : feature.disabledAction ) ?? feature.action;
+	// The toggle keeps showing the SAVED value but can't be used while the site
+	// or user connection gate fails, while the master switch is off, or while
+	// the plan doesn't include the feature. There is deliberately no site-wide
+	// plan gate here: every connected site can run the free tier.
+	const isDisabled =
+		isSaving ||
+		! isConnected ||
+		! isUserConnected ||
+		! masterEnabled ||
+		!! reported?.requires_upgrade;
 
 	return (
 		<Stack direction="column" gap="xs" className="jetpack-ai-features__row">
@@ -190,7 +195,7 @@ function FeatureRow( {
 				help={ feature.description }
 				onChange={ handleChange }
 			/>
-			{ action && masterEnabled && isConnected && (
+			{ action && masterEnabled && isConnected && isUserConnected && (
 				<Link
 					className="jetpack-ai-features__action"
 					href={ action.href }
@@ -214,22 +219,25 @@ function FeatureRow( {
  */
 export default function AiFeatures( { settings, savingKeys, onUpdate } ) {
 	const features = settings?.features ?? {};
-	// Children keep their saved values while the master switch is off — the
-	// page shows them greyed with a site-wide notice instead of misreporting
-	// the user's choices as off.
+	// Children keep their saved values while the master switch is off — they
+	// render greyed (under the page-level master-off notice main.jsx owns)
+	// instead of misreporting the user's choices as off.
 	const masterEnabled = settings?.master_enabled !== false;
 	// The connection gate sits outside the master switch: false covers both a
 	// site without a connected owner and one in offline mode, and in either
 	// case no AI feature can load. Saved values stay visible but inert, and
 	// the connection ask comes before any upgrade messaging.
 	const isConnected = settings?.is_connected !== false;
+	// The user gate is separate: the site can be connected while this admin's
+	// own account is not.
+	const isUserConnected = settings?.is_user_connected !== false;
 	// There is no site-wide plan gate: a plan without paid Jetpack AI still has
 	// the free tier, so a connected site can always run the free-tier features.
 	// Paid-only features are gated per-feature via requires_upgrade instead.
 	// The badge tooltip names the remedy for the gated Search section. A site
 	// with a paid Search plan is pointed at Search setup; one with no Search
 	// entitlement — or only the free tier, which reports supports_search but
-	// cannot run AI Search — is asked to upgrade instead. Unlike the gates
+	// cannot run AI Answers — is asked to upgrade instead. Unlike the gates
 	// above this defaults to the upgrade copy: pointing an unentitled site at
 	// setup would send it down the wrong path, and the badge cannot render
 	// before the payload (which carries `plan`) has arrived anyway.
@@ -254,7 +262,7 @@ export default function AiFeatures( { settings, savingKeys, onUpdate } ) {
 			onUpdate( { features: { [ key ]: enabled } } ).then( saved => {
 				// Track outcomes, not attempts: a failed save changed nothing.
 				if ( saved ) {
-					analytics.tracks.recordEvent( 'jetpack_ai_feature_toggled', {
+					recordAiHubEvent( EVENTS.FEATURE_TOGGLED, {
 						feature: key,
 						enabled,
 					} );
@@ -273,6 +281,7 @@ export default function AiFeatures( { settings, savingKeys, onUpdate } ) {
 			isSaving={ savingKeys.has( feature.key ) }
 			masterEnabled={ masterEnabled }
 			isConnected={ isConnected }
+			isUserConnected={ isUserConnected }
 			onChange={ handleToggle }
 		/>
 	);
@@ -295,42 +304,31 @@ export default function AiFeatures( { settings, savingKeys, onUpdate } ) {
 					</Notice.Description>
 				</Notice.Root>
 			) }
-			{ isConnected && ! masterEnabled && (
+			{ isConnected && ! isUserConnected && (
+				// One ask at a time: a disconnected site gets the site notice above.
 				<Notice.Root intent="warning">
 					<Notice.Title>
-						{ __( 'Jetpack AI is turned off for this site.', 'jetpack' ) }
+						{ __( 'Your WordPress.com account isn’t connected.', 'jetpack' ) }
 					</Notice.Title>
 					<Notice.Description>
-						{ __(
-							'Your feature settings are saved and will apply again when AI is turned back on.',
-							'jetpack'
-						) }{ ' ' }
-						<Link href="admin.php?page=my-jetpack">
-							{ __( 'Manage in My Jetpack', 'jetpack' ) }
+						<Link href="admin.php?page=my-jetpack#/connection">
+							{ __( 'Connect your user account to manage AI features.', 'jetpack' ) }
 						</Link>
 					</Notice.Description>
 				</Notice.Root>
 			) }
 			{ sections.length > 0 && (
 				<Card.Root className="jetpack-ai-features__card">
-					{ /* Single Card.Content, no Card.Header: the FullBleed dividers —
-					     including the one under the header — must stay direct children
-					     of Card.Content per the component's contract. */ }
+					{ /* Single Card.Content, no Card.Header: the FullBleed dividers must
+					     stay direct children of Card.Content per the component's contract. */ }
 					<Card.Content className="jetpack-ai-features__card-content">
-						<Stack direction="column" gap="sm">
-							<Card.Title render={ <h2 /> }>{ __( 'Agent capabilities', 'jetpack' ) }</Card.Title>
-							<Text variant="body-sm" className="jetpack-ai-features__card-subtitle">
-								{ __(
-									'Choose what your WordPress Agent can help with across your site.',
-									'jetpack'
-								) }
-							</Text>
-						</Stack>
-						{ sections.map( section => {
+						{ sections.map( ( section, index ) => {
 							const titleId = `jetpack-ai-features-${ section.key }-title`;
 							return (
 								<Fragment key={ section.key }>
-									<Card.FullBleed render={ <hr /> } className="jetpack-ai-features__divider" />
+									{ index > 0 && (
+										<Card.FullBleed render={ <hr /> } className="jetpack-ai-features__divider" />
+									) }
 									{ /* Labelled by its heading so each group is a named region —
 									     screen readers can jump between them inside the merged card. */ }
 									<Stack
@@ -339,10 +337,11 @@ export default function AiFeatures( { settings, savingKeys, onUpdate } ) {
 										render={ <section aria-labelledby={ titleId } /> }
 									>
 										<div className="jetpack-ai-features__section-header">
-											<Text variant="heading-lg" render={ <h3 id={ titleId } /> }>
+											<Text variant="heading-lg" render={ <h2 id={ titleId } /> }>
 												{ section.title }
 											</Text>
 											{ isConnected &&
+												isUserConnected &&
 												section.features.some( f => features[ f.key ]?.requires_upgrade ) && (
 													<Popover.Root>
 														{ /* A popover rather than a tooltip: click opens it, touch

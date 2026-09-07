@@ -14,6 +14,7 @@ export function VisitorMetricWidget() {
 	return (
 		<ReportMetricWidget
 			metricKey="visitors"
+			seriesLabel={ __( 'Visitors', 'jetpack-premium-analytics-pkg' ) }
 			data={ useReportVisitors( reportParams ) }
 			dataFormat={ {
 				type: 'number',

@@ -964,7 +964,7 @@ class Error_Handler {
 			return true;
 		}
 
-		$transient = self::ERROR_REPORTING_GATE . $error->get_error_code();
+		$transient = self::error_reporting_gate_transient( $error );
 
 		if ( get_transient( $transient ) ) {
 			return false;
@@ -972,6 +972,24 @@ class Error_Handler {
 
 		set_transient( $transient, true, HOUR_IN_SECONDS );
 		return true;
+	}
+
+	/**
+	 * Builds the reporting-gate transient name for an error.
+	 *
+	 * Keyed by code and direction, not code alone: an outgoing error is reported
+	 * immediately and verified locally (no WP.com round trip), while an incoming error of the
+	 * same code still needs to clear the gate to reach the `verify_xml_rpc_error` round trip
+	 * that triggers WP.com-side self-healing (flow 1 in the class docblock).
+	 *
+	 * @param \WP_Error $error the error object.
+	 * @return string
+	 */
+	private static function error_reporting_gate_transient( \WP_Error $error ) {
+		$error_data      = $error->get_error_data();
+		$error_direction = is_array( $error_data ) && ! empty( $error_data['error_direction'] ) ? $error_data['error_direction'] : '';
+
+		return self::ERROR_REPORTING_GATE . $error->get_error_code() . '_' . $error_direction;
 	}
 
 	/**
@@ -1535,8 +1553,11 @@ class Error_Handler {
 
 		// Reopen the reporting gate for this code: deletion means the condition was
 		// positively confirmed cleared, so a recurrence must be reportable immediately
-		// rather than suppressed for up to an hour.
-		delete_transient( self::ERROR_REPORTING_GATE . $error_code );
+		// rather than suppressed for up to an hour. The gate is keyed by code + direction
+		// (see error_reporting_gate_transient()), so every direction variant is cleared.
+		delete_transient( self::ERROR_REPORTING_GATE . $error_code . '_' . self::DIRECTION_INCOMING );
+		delete_transient( self::ERROR_REPORTING_GATE . $error_code . '_' . self::DIRECTION_OUTGOING );
+		delete_transient( self::ERROR_REPORTING_GATE . $error_code . '_' );
 
 		$stored_errors = $this->get_stored_errors();
 		if ( isset( $stored_errors[ $error_code ] ) ) {

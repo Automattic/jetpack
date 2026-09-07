@@ -27,7 +27,7 @@ capability-gated admin page serves the dashboard.
 
 ## Requirements
 
-- **PHP** >= 7.2
+- **PHP** >= 7.4
 - WordPress core or Jetpack's wp-build polyfills provide the WordPress
   script handles/modules used by the dashboard. The Gutenberg plugin is not
   required.

@@ -74,7 +74,9 @@ export const PostTypesPanel = ( { attributes, setAttributes } ) => {
 export const PostStatusesPanel = ( { attributes, setAttributes } ) => {
 	return (
 		<PanelBody title={ __( 'Additional Post Statuses', 'jetpack-mu-wpcom' ) } initialOpen={ false }>
-			<BaseControl help={ __( 'Selection here has effect only for editors, regular users will only see published posts.', 'jetpack-mu-wpcom' ) } />
+			<BaseControl
+				help={ __( 'Selection here has effect only for editors, regular users will only see published posts.', 'jetpack-mu-wpcom' ) }
+			/>
 			<CheckboxesGroup
 				values={ attributes.includedPostStatuses }
 				options={ [

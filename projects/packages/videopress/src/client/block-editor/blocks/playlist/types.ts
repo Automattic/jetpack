@@ -19,6 +19,9 @@ export type PlaylistEntry = {
 export type PlaylistLiveMetadata = {
 	title?: string;
 	poster?: string;
+	// The video is private and its thumbnail could not be authorized for this
+	// viewer; the entry shows the lock placeholder instead.
+	isPrivateLocked?: boolean;
 };
 
 export type PlaylistLayout = 'side-rail' | 'grid' | 'strip';

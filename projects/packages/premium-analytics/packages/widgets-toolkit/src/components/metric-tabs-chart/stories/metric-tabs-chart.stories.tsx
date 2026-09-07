@@ -26,13 +26,7 @@ const PREVIOUS_DATES = [
 	new Date( '2026-05-31' ),
 ];
 
-/**
- * Pair a value series with a set of dates.
- *
- * @param dates  - One date per value.
- * @param values - The series values.
- * @return The metric points.
- */
+/** Pair a value series with a set of dates. */
 const points = ( dates: Date[], values: number[] ) =>
 	dates.map( ( date, index ) => ( { date, value: values[ index ] } ) );
 
@@ -53,6 +47,11 @@ const METRICS: MetricTab[] = [
 		current: points( CURRENT_DATES, [ 520, 560, 610, 660, 710, 780, 820 ] ),
 		previous: points( PREVIOUS_DATES, [ 300, 340, 380, 430, 470, 510, 540 ] ),
 	},
+];
+
+const PAIRED_METRICS: MetricTab[] = [
+	{ ...METRICS[ 0 ], counterpartKey: 'paid' },
+	{ ...METRICS[ 1 ], counterpartKey: 'subscribers' },
 ];
 
 // Close-up canvas so the chart fills the frame.
@@ -96,7 +95,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'A metric switcher over a comparative chart: selectable cards (value + period-over-period delta), and the selected metric drawn with its previous-period overlay. `chartType` picks the mark — a current line with a dashed previous-period overlay, or bars with a translucent previous-period shadow. Shared by the subscribers and traffic charts.',
+					'A metric switcher over a comparative chart: selectable cards (value + period-over-period delta), and the selected metric drawn with its previous-period overlay. `chartType` picks the mark — a current line with a dashed previous-period overlay, or bars with a translucent previous-period shadow. A metric naming another through `counterpartKey` draws it alongside, hidden until the reader reveals it from the legend. Shared by the subscribers and traffic charts.',
 			},
 		},
 	},
@@ -132,6 +131,23 @@ export const SingleMetric: Story = {
  */
 export const Bars: Story = {
 	args: { metrics: METRICS, dataFormat: DATA_FORMAT, chartType: 'bar' },
+};
+
+/**
+ * Metrics that name each other as `counterpartKey` are drawn together: the
+ * selected one solid, the other struck through in the legend and hidden until
+ * clicked. Selecting the other card swaps the roles, and revealing a metric
+ * brings its previous-period overlay with it.
+ */
+export const PairedMetrics: Story = {
+	args: { metrics: PAIRED_METRICS, dataFormat: DATA_FORMAT },
+};
+
+/**
+ * The same pair as bars — four bars per interval once both metrics are shown.
+ */
+export const PairedMetricsAsBars: Story = {
+	args: { metrics: PAIRED_METRICS, dataFormat: DATA_FORMAT, chartType: 'bar' },
 };
 
 type SkeletonStory = StoryObj< typeof MetricTabsChartSkeleton >;

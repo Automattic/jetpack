@@ -15,34 +15,28 @@ export type CalendarHeatmapWindow = {
 };
 
 export type CalendarHeatmapWindowBounds = {
-	minDays?: number;
 	maxDays?: number;
 };
 
 /**
- * Clamps a report range to inclusive minimum and maximum day counts.
+ * Caps a report range at an inclusive maximum day count. No floor is offered:
+ * it would reach past the selection and misattribute years to the card's
+ * heading (WOOA7S-1963); a short range gets filler weeks instead.
  */
 export function resolveCalendarHeatmapWindow(
 	params: { from?: string; to?: string },
 	bounds: CalendarHeatmapWindowBounds,
 	todayIso: string
 ): CalendarHeatmapWindow {
-	const { minDays, maxDays } = bounds;
+	const { maxDays } = bounds;
 	const endDate = getDatePart( params.to ) ?? todayIso;
 	const end = parseISO( endDate );
 
 	// ISO date-only strings sort chronologically.
 	let startDate = getDatePart( params.from ) ?? endDate;
 
-	if ( minDays !== undefined ) {
-		// Bounds count inclusive dates, hence the subtraction of one day.
-		const floor = format( subDays( end, minDays - 1 ), 'yyyy-MM-dd' );
-		if ( startDate > floor ) {
-			startDate = floor;
-		}
-	}
-
 	if ( maxDays !== undefined ) {
+		// Bounds count inclusive dates, hence the subtraction of one day.
 		const cap = format( subDays( end, maxDays - 1 ), 'yyyy-MM-dd' );
 		if ( startDate < cap ) {
 			startDate = cap;
@@ -50,6 +44,33 @@ export function resolveCalendarHeatmapWindow(
 	}
 
 	return { startDate: startDate > endDate ? endDate : startDate, endDate };
+}
+
+/**
+ * Date a heatmap grid opens on to draw `columns` columns ending `endDate`. A
+ * short period is padded backwards with unrequested filler (WOOA7S-1963), so
+ * trimming later drops the oldest — filler — columns first.
+ *
+ * @param endDate - Last day the grid covers, `yyyy-MM-dd`.
+ * @param columns - Week columns the tile can draw.
+ * @return The grid's first day, or `undefined` when the inputs can't size one.
+ */
+export function resolveCalendarHeatmapGridStart(
+	endDate: string,
+	columns: number
+): string | undefined {
+	if ( ! Number.isFinite( columns ) || columns < 1 ) {
+		return undefined;
+	}
+
+	const end = parseISO( endDate );
+	if ( isNaN( end.getTime() ) ) {
+		return undefined;
+	}
+
+	// A whole number of weeks back from `endDate` lands on the same weekday, so
+	// the grid spans exactly `columns` columns whichever day the week starts on.
+	return format( subDays( end, ( Math.floor( columns ) - 1 ) * 7 ), 'yyyy-MM-dd' );
 }
 
 /**
@@ -91,14 +112,9 @@ const WINDOW_YEAR_DAYS = 366;
 const MAX_WINDOW_YEARS = 6;
 
 /**
- * How many days of history a calendar heatmap is worth requesting at a given
- * viewport width.
- *
- * The grid only draws the week columns that fit, so history beyond what the widest
- * possible tile could show would be fetched and thrown away. Compact-cell capacity
- * is a stable proxy for that ceiling; adaptive cells can shrink further in unusually
- * short tiles. The result is quantized to whole years so resizing the window cannot
- * fire a fresh request per column gained.
+ * Days of history worth requesting for a calendar heatmap at a given viewport
+ * width. Compact-cell capacity stands in for the widest tile's column ceiling,
+ * quantized to whole years so resizing can't fire a request per column gained.
  *
  * @param viewportWidth - Viewport width in px.
  * @return Days of history to request.

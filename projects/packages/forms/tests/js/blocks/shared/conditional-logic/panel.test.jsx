@@ -1,4 +1,4 @@
-import { describe, expect, it, jest } from '@jest/globals';
+import { beforeEach, describe, expect, it, jest } from '@jest/globals';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useCallback, useState } from 'react';
@@ -55,10 +55,21 @@ const SUBJECT_FIELDS = [
 	},
 ];
 
+// Swapped per test by the duplicate-id cases; reset to SUBJECT_FIELDS before each.
+let subjectFields = SUBJECT_FIELDS;
+
 const mockToggleBlockHighlight = jest.fn();
 
+// InspectorControls is a slot fill, and a fill renders its children only while a matching
+// slot is mounted -- which, for the block inspector, means only while the settings sidebar is
+// open. A mock that passes children straight through erases that, and with it any test's
+// ability to tell "renders in the sidebar" apart from "renders at all". Modelling the slot
+// keeps the two distinguishable; `isSidebarOpen` is reset to true before each test, so the
+// cases that do not care about the sidebar read exactly as they did before.
+let isSidebarOpen = true;
+
 await jest.unstable_mockModule( '@wordpress/block-editor', () => ( {
-	InspectorControls: ( { children } ) => <div>{ children }</div>,
+	InspectorControls: ( { children } ) => ( isSidebarOpen ? <div>{ children }</div> : null ),
 	BlockControls: ( { children } ) => <div>{ children }</div>,
 	store: 'core/block-editor',
 } ) );
@@ -71,24 +82,46 @@ const actualData = await import( '@wordpress/data' );
 
 await jest.unstable_mockModule( '@wordpress/data', () => ( {
 	...actualData,
-	useDispatch: () => ( { toggleBlockHighlight: mockToggleBlockHighlight } ),
+	useDispatch: () => ( {
+		toggleBlockHighlight: mockToggleBlockHighlight,
+	} ),
 } ) );
 
-const mockEnsureFieldId = jest.fn( ( field, usedIds = [] ) => {
+const mockEnsureFieldId = jest.fn( field => {
 	if ( field?.id ) {
 		return field.id;
 	}
-	// Mirrors the real hook: slugify the label, de-duplicate against ids already in use.
-	const base = ( field?.label || '' ).trim().toLowerCase().replace( /\s+/g, '-' );
-	return usedIds.includes( base ) ? `${ base }-2` : base;
+	// Mirrors the real hook: slugify the label. It de-duplicates against the whole form,
+	// which is covered where that happens, in use-subject-fields.test.jsx.
+	return ( field?.label || '' ).trim().toLowerCase().replace( /\s+/g, '-' );
 } );
 
 await jest.unstable_mockModule(
 	'../../../../../src/blocks/shared/conditional-logic/hooks/use-subject-fields.js',
 	() => ( {
 		__esModule: true,
-		default: () => SUBJECT_FIELDS,
+		default: () => subjectFields,
 		useEnsureFieldId: () => mockEnsureFieldId,
+	} )
+);
+
+// The panel reads two lists: the subject dropdown's fields (which exclude this block) and
+// every field id in the form (which includes it), the second being what tells it whether an
+// id is unique.
+let formFieldIds = [];
+
+const mockFixDuplicateFieldIds = jest.fn();
+
+await jest.unstable_mockModule(
+	'../../../../../src/blocks/shared/hooks/use-fix-duplicate-field-ids.js',
+	() => ( { __esModule: true, default: () => mockFixDuplicateFieldIds } )
+);
+
+await jest.unstable_mockModule(
+	'../../../../../src/blocks/shared/hooks/use-form-field-ids.js',
+	() => ( {
+		__esModule: true,
+		default: () => formFieldIds,
 	} )
 );
 
@@ -113,16 +146,24 @@ const withRules = ( rules, extra = {} ) => ( {
 
 const setup = async (
 	conditionalLogic = DEFAULT_ATTRIBUTE,
-	{ openModal = true, ownFieldId } = {}
+	{ openModal = true, sidebarOpen = true } = {}
 ) => {
+	isSidebarOpen = sidebarOpen;
+
 	const setAttributes = jest.fn();
 	const { container } = render(
 		<ConditionalLogicPanel
 			clientId="abc"
-			attributes={ { conditionalLogic, id: ownFieldId } }
+			attributes={ { conditionalLogic } }
 			setAttributes={ setAttributes }
 		/>
 	);
+
+	// With the sidebar closed the inspector fill renders nothing, so there is no panel to
+	// expand and no button to reach the dialog with -- the toolbar is all a test has.
+	if ( ! sidebarOpen ) {
+		return { setAttributes, container };
+	}
 
 	// PanelBody renders collapsed (initialOpen={false}), so nothing inside it exists
 	// in the DOM until the title is activated.
@@ -166,6 +207,14 @@ const optionValues = select =>
 		.map( o => o.value );
 
 describe( 'ConditionalLogicPanel', () => {
+	beforeEach( () => {
+		// setup() sets this per test; reset it for the helpers that render directly.
+		isSidebarOpen = true;
+		subjectFields = SUBJECT_FIELDS;
+		formFieldIds = [];
+		mockFixDuplicateFieldIds.mockClear();
+	} );
+
 	it( 'renders the panel title', async () => {
 		await setup( DEFAULT_ATTRIBUTE, { openModal: false } );
 		expect( screen.getByText( 'Conditional logic' ) ).toBeInTheDocument();
@@ -265,6 +314,22 @@ describe( 'ConditionalLogicPanel', () => {
 		expect( screen.getByRole( 'dialog' ) ).toBeInTheDocument();
 	} );
 
+	// The toolbar button exists so an author can reach the builder from the canvas, which is
+	// exactly the situation in which the settings sidebar is likely to be closed. The dialog
+	// therefore cannot live inside InspectorControls: a fill whose slot is unmounted renders
+	// nothing, so the click would flip the open state and produce no dialog at all.
+	it( 'opens the dialog from the toolbar while the sidebar is closed', async () => {
+		await setup( DEFAULT_ATTRIBUTE, { sidebarOpen: false, openModal: false } );
+
+		// Guards the premise: with the sidebar closed the inspector panel really is absent,
+		// so the toolbar button is the only way in.
+		expect( screen.queryByRole( 'button', { name: 'Conditional logic' } ) ).not.toBeInTheDocument();
+
+		await userEvent.click( screen.getByRole( 'button', { name: 'Add conditional logic' } ) );
+
+		expect( screen.getByRole( 'dialog' ) ).toBeInTheDocument();
+	} );
+
 	it( 'opens the dialog from the toolbar button', async () => {
 		await setup( withRules( [ { field: 'name_1', operator: 'is', value: 'x' } ] ), {
 			openModal: false,
@@ -277,6 +342,144 @@ describe( 'ConditionalLogicPanel', () => {
 		);
 
 		expect( screen.getByRole( 'dialog' ) ).toBeInTheDocument();
+	} );
+
+	// Two fields can share an id -- ids survive copy, paste and duplicate, and the Name
+	// field's inserter variations ship fixed ones. A rule stores the id of the field it
+	// compares against, so a shared id cannot say which field is meant. The builder refuses to
+	// offer those fields and explains how to fix it, rather than choosing for the author.
+	describe( 'fields that share a Name/ID', () => {
+		const nameField = ( clientId, label ) => ( {
+			clientId,
+			id: 'first-name',
+			label,
+			typeLabel: 'Name field',
+			typeKey: 'string',
+			options: [],
+			step: null,
+		} );
+
+		beforeEach( () => {
+			subjectFields = [
+				nameField( 'c-a', 'First name' ),
+				nameField( 'c-b', 'Partner first name' ),
+			];
+			formFieldIds = [ 'first-name', 'first-name' ];
+		} );
+
+		it( 'names the duplicated Name/ID and says how to fix it', async () => {
+			await setup( DEFAULT_ATTRIBUTE );
+
+			// `Notice` announces itself through @wordpress/a11y, which mirrors the text into a
+			// live region -- so every notice matches twice. Either copy carries the whole message.
+			const [ notice ] = screen.getAllByText(
+				/Some fields are unavailable because their Name\/ID isn't unique: first-name/
+			);
+
+			expect( notice ).toHaveTextContent( /Advanced → Name\/ID/ );
+		} );
+
+		it( 'still lists the fields, marked and disabled', async () => {
+			await setup( DEFAULT_ATTRIBUTE );
+
+			const first = screen.getByRole( 'option', {
+				name: 'First name (Name field) — duplicate Name/ID',
+			} );
+			const second = screen.getByRole( 'option', {
+				name: 'Partner first name (Name field) — duplicate Name/ID',
+			} );
+
+			expect( first ).toBeDisabled();
+			expect( second ).toBeDisabled();
+		} );
+
+		// The status icon must not say "active" while the notice beside it says the condition
+		// cannot tell which field it means. The subject resolves -- to whichever field claims
+		// the id first -- so shape alone would call this complete.
+		it( 'does not show an ambiguous condition as active', async () => {
+			await setup( withRules( [ { field: 'first-name', operator: 'is', value: 'x' } ] ) );
+
+			expect(
+				screen.queryByRole( 'img', { name: 'This condition is active.' } )
+			).not.toBeInTheDocument();
+			expect(
+				screen.getByRole( 'img', {
+					name: 'Field Name/ID first-name is not unique. Rename one under Advanced → Name/ID.',
+				} )
+			).toBeInTheDocument();
+		} );
+
+		// Offered, not done for them: renaming a field changes the key its responses are
+		// stored under, so it waits for a deliberate click.
+		it( 'offers to repair the collision, and repairs the id the rule names', async () => {
+			await setup( withRules( [ { field: 'first-name', operator: 'is', value: 'x' } ] ) );
+
+			await userEvent.click(
+				screen.getByRole( 'button', { name: 'Fix it: make the Name/ID first-name unique' } )
+			);
+
+			expect( mockFixDuplicateFieldIds ).toHaveBeenCalledWith( [ 'first-name' ] );
+		} );
+
+		// Nothing to repair when the field is simply gone.
+		it( 'offers no repair for a condition whose field was deleted', async () => {
+			await setup( withRules( [ { field: 'deleted_1', operator: 'is', value: 'x' } ] ) );
+
+			expect( screen.queryByRole( 'button', { name: /Fix it/ } ) ).not.toBeInTheDocument();
+		} );
+
+		// The inspector summary and the toolbar tooltip describe what the field will actually
+		// do. A condition on a duplicated id resolves to whichever field renders first, so the
+		// builder refuses it -- and these two must not go on calling it active.
+		it( 'leaves an ambiguous condition out of the inspector summary', async () => {
+			await setup( withRules( [ { field: 'first-name', operator: 'is', value: 'x' } ] ), {
+				openModal: false,
+			} );
+
+			expect(
+				screen.getByText( 'Show or hide this field based on the answer to another field.' )
+			).toBeInTheDocument();
+		} );
+
+		it( 'leaves an ambiguous condition out of the toolbar tooltip', async () => {
+			await setup( withRules( [ { field: 'first-name', operator: 'is', value: 'x' } ] ), {
+				openModal: false,
+			} );
+
+			expect( screen.getByRole( 'button', { name: 'Add conditional logic' } ) ).toBeInTheDocument();
+		} );
+
+		// The notice carries the repair too, and it is the reachable one: duplicated options are
+		// disabled, so a new rule cannot name a duplicated id and the row button only ever
+		// appears on a rule saved before the collision.
+		it( 'repairs every duplicated id from the notice', async () => {
+			await setup( DEFAULT_ATTRIBUTE );
+
+			await userEvent.click( screen.getByRole( 'button', { name: 'Make it unique' } ) );
+
+			expect( mockFixDuplicateFieldIds ).toHaveBeenCalledWith( [ 'first-name' ] );
+		} );
+
+		// A rule saved before the ids collided, or against a field that was later duplicated.
+		// The message hangs under the subject control it is about, not over the whole row.
+		it( 'explains a stored condition that names a shared id, under its field', async () => {
+			await setup( withRules( [ { field: 'first-name', operator: 'is', value: 'x' } ] ) );
+
+			expect(
+				within( screen.getByRole( 'dialog' ) ).getByText(
+					/Field Name\/ID first-name is not unique/
+				)
+			).toBeInTheDocument();
+		} );
+	} );
+
+	it( 'leaves fields with distinct ids selectable and unremarked', async () => {
+		formFieldIds = [ 'name_1', 'budget_1' ];
+
+		await setup( DEFAULT_ATTRIBUTE );
+
+		expect( screen.queryAllByText( /duplicate Name\/ID/ ) ).toHaveLength( 0 );
+		expect( screen.getByRole( 'option', { name: 'Name (Name field)' } ) ).toBeEnabled();
 	} );
 
 	it( 'invites the author in when there are no conditions yet', async () => {
@@ -497,17 +700,13 @@ describe( 'ConditionalLogicPanel', () => {
 	it( 'warns when a rule references a field that no longer exists', async () => {
 		await setup( withRules( [ { field: 'deleted_1', operator: 'is', value: 'x' } ] ) );
 
-		// Scoped to the dialog: Notice mirrors its text into an aria-live region that
-		// WordPress appends to document.body, so an unscoped query matches twice.
+		// Below the row it belongs to. Screen readers get the same reason from the status
+		// icon's label, which is asserted separately.
 		expect(
 			within( screen.getByRole( 'dialog' ) ).getByText( /no longer exists/i )
 		).toBeInTheDocument();
 	} );
 
-	// A condition naming no subject, or giving no value where one is needed, is skipped by both
-	// evaluators. Letting an author stack up rules that quietly do nothing is the trap here.
-	// A condition naming no subject, or giving no value where one is needed, is skipped by both
-	// evaluators. Letting an author stack up rules that quietly do nothing is the trap here.
 	// A condition naming no subject, or giving no value where one is needed, is skipped by
 	// both evaluators. The badge makes that visible rather than the field silently not
 	// reacting, which is why the Add button no longer has to police it.
@@ -546,6 +745,26 @@ describe( 'ConditionalLogicPanel', () => {
 		expect( screen.getByRole( 'button', { name: 'Add condition' } ) ).toBeEnabled();
 	} );
 
+	// The builder opens with one empty row, so amber there warned about something the author
+	// had not done yet. It is kept for a condition begun and left unfinished.
+	it( 'stays neutral on a condition nobody has started', async () => {
+		await setup( withRules( [] ) );
+
+		const status = screen.getByLabelText( 'Choose a field to compare against.' );
+
+		expect( status ).toHaveClass( 'is-unstarted' );
+		expect( status ).not.toHaveClass( 'is-active' );
+	} );
+
+	it( 'warns once a condition has been started and left unfinished', async () => {
+		await setup( withRules( [ { field: 'name_1', operator: 'is', value: '' } ] ) );
+
+		const status = screen.getByLabelText( 'Give this condition a value.' );
+
+		expect( status ).not.toHaveClass( 'is-unstarted' );
+		expect( status ).not.toHaveClass( 'is-active' );
+	} );
+
 	it( 'marks a complete condition as active', async () => {
 		await setup( withRules( [ { field: 'name_1', operator: 'is', value: 'x' } ] ) );
 
@@ -556,7 +775,9 @@ describe( 'ConditionalLogicPanel', () => {
 		await setup( withRules( [ { field: 'deleted_1', operator: 'is', value: 'x' } ] ) );
 
 		expect(
-			screen.getByLabelText( 'The field this condition refers to no longer exists.' )
+			screen.getByLabelText(
+				'The referenced field no longer exists. Pick another field or remove this condition.'
+			)
 		).toBeInTheDocument();
 	} );
 
@@ -571,40 +792,19 @@ describe( 'ConditionalLogicPanel', () => {
 		await userEvent.selectOptions( screen.getByLabelText( 'Field' ), 'clientId:c-colour' );
 
 		expect( mockEnsureFieldId ).toHaveBeenCalledWith(
-			expect.objectContaining( { clientId: 'c-colour', id: '' } ),
-			expect.arrayContaining( [ 'name_1', 'budget_1' ] )
+			expect.objectContaining( { clientId: 'c-colour', id: '' } )
 		);
 		expect( setAttributes ).toHaveBeenCalledWith( {
 			conditionalLogic: expect.objectContaining( {
 				groups: [
 					{
 						logicalOperator: 'all',
-						rules: [ { field: 'untitled-field', operator: 'is', value: '' } ],
+						// Carried over: both subjects compare textually.
+						rules: [ { field: 'untitled-field', operator: 'is', value: 'x' } ],
 					},
 				],
 			} ),
 		} );
-	} );
-
-	/**
-	 * useSubjectFields excludes the field owning the panel, so the owner's id is the one the
-	 * used-id list cannot see. It has to be passed in explicitly, or an unnamed sibling whose
-	 * label slugifies to the same thing is handed the owner's id -- and PHP's duplicate guard
-	 * then renames whichever parses second, repointing the rule or changing the owner's
-	 * response key. The de-duplication itself is covered in use-subject-fields.test.jsx.
-	 */
-	it( "feeds the panel's own field id into the uniqueness check", async () => {
-		mockEnsureFieldId.mockClear();
-		await setup( withRules( [ { field: 'name_1', operator: 'is', value: 'x' } ] ), {
-			ownFieldId: 'email',
-		} );
-
-		await userEvent.selectOptions( screen.getByLabelText( 'Field' ), 'clientId:c-colour' );
-
-		expect( mockEnsureFieldId ).toHaveBeenCalledWith(
-			expect.objectContaining( { clientId: 'c-colour' } ),
-			expect.arrayContaining( [ 'email' ] )
-		);
 	} );
 
 	it( 'keeps the existing id when the chosen field already has one', async () => {
@@ -620,6 +820,70 @@ describe( 'ConditionalLogicPanel', () => {
 					{
 						logicalOperator: 'all',
 						rules: [ { field: 'budget_1', operator: 'equals', value: '' } ],
+					},
+				],
+			} ),
+		} );
+	} );
+
+	/**
+	 * The value box is offered before a subject is chosen, so filling it in first is a normal
+	 * order to work in -- and choosing the subject used to wipe it. It is kept only where the
+	 * new subject can still show it.
+	 */
+	it.each( [
+		[ 'keeps a value typed before the subject was chosen', 'iPhone', 'name_1', 'is', 'iPhone' ],
+		// A checkbox compares against nothing, so the value has to go rather than sit unseen.
+		[ 'drops it for a subject that takes no value', 'iPhone', 'terms_1', 'is_checked', '' ],
+		[ 'keeps it for a dropdown that offers it', 'Large', 'size_1', 'is', 'Large' ],
+		// Padding is what the representability check ignores, so it must not survive into the
+		// stored value: a dropdown has no option named "  Large  " and would render blank.
+		[
+			'stores a padded value the way the control can show it',
+			'  Large  ',
+			'size_1',
+			'is',
+			'Large',
+		],
+		[ 'trims a padded number too', ' 10 ', 'budget_1', 'equals', '10' ],
+	] )( '%s', async ( _name, typed, selection, operator, expected ) => {
+		const { setAttributes } = await setup(
+			withRules( [ { field: '', operator: 'is', value: typed } ] )
+		);
+
+		await userEvent.selectOptions( screen.getByLabelText( 'Field' ), selection );
+
+		expect( setAttributes ).toHaveBeenCalledWith( {
+			conditionalLogic: expect.objectContaining( {
+				groups: [
+					{
+						logicalOperator: 'all',
+						rules: [ { field: selection, operator, value: expected } ],
+					},
+				],
+			} ),
+		} );
+	} );
+
+	/**
+	 * Clearing the subject puts the row back where it started, which is a place the value box
+	 * is still offered -- so wiping the value would throw away something the author can still
+	 * see and is still allowed to type. It is representability that decides, and there is no
+	 * subject yet to decide it against.
+	 */
+	it( 'keeps the value when the subject is cleared again', async () => {
+		const { setAttributes } = await setup(
+			withRules( [ { field: 'name_1', operator: 'is', value: 'iPhone' } ] )
+		);
+
+		await userEvent.selectOptions( screen.getByLabelText( 'Field' ), '' );
+
+		expect( setAttributes ).toHaveBeenCalledWith( {
+			conditionalLogic: expect.objectContaining( {
+				groups: [
+					{
+						logicalOperator: 'all',
+						rules: [ { field: '', operator: 'is', value: 'iPhone' } ],
 					},
 				],
 			} ),

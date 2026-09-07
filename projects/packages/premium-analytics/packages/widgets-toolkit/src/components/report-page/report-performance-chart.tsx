@@ -17,7 +17,6 @@ import styles from './report-performance-chart.module.scss';
 import { buildReportMetricSeries } from './utils/build-report-metric-series';
 import type { ReportChartMetric } from './types';
 import type { DataFormat } from '../../types';
-import type { LegendLabels } from '../chart-leaderboard';
 import type { IntervalType, StatsTimeSeriesReport } from '@jetpack-premium-analytics/data';
 import type { ReactNode } from 'react';
 
@@ -68,27 +67,16 @@ export interface ReportPerformanceChartProps {
 	intervalOptions?: IntervalType[];
 	/** Value/axis format (defaults to compact numbers). */
 	dataFormat?: DataFormat;
-	/** Optional date labels for the single-metric comparison legend. */
-	legendLabels?: LegendLabels;
 	/** Extra header-right controls, rendered before the built-in ones. */
 	controls?: ReactNode;
 }
 
 /**
- * The report page's multi-metric performance section: a card with the
- * Views/Visitors/Comments/Likes series drawn together, a metric show/hide
- * menu, the time-bucket selector, and a chart collapse toggle. The page owns
- * data fetching (`useStatsVisits`) and the interval, and passes the reports in.
+ * The report page's multi-metric performance section: the series drawn together with
+ * a metric show/hide menu, the time-bucket selector, and a collapse toggle.
  *
- * Chart theming comes from the `GlobalChartsProvider` mounted once by the
- * `/reports/$report` stage, so this component must render under that stage —
- * or under a provider of its own in isolated contexts like Storybook.
- *
- * With a single visible metric and comparison data present, the previous
- * period renders as a dashed overlay (see `buildReportMetricSeries`).
- *
- * @param {ReportPerformanceChartProps} props - The component props.
- * @return The performance chart section.
+ * Chart theming comes from the `GlobalChartsProvider` the `/reports/$report` stage
+ * mounts, so this must render under that stage — or its own provider in Storybook.
  */
 export function ReportPerformanceChart( {
 	title = __( 'Performance', 'jetpack-premium-analytics-pkg' ),
@@ -100,7 +88,6 @@ export function ReportPerformanceChart( {
 	onIntervalChange,
 	intervalOptions = DEFAULT_INTERVAL_OPTIONS,
 	dataFormat = DEFAULT_DATA_FORMAT,
-	legendLabels,
 	controls,
 }: ReportPerformanceChartProps ) {
 	const allMetrics = useMemo( () => metrics ?? getDefaultMetrics(), [ metrics ] );
@@ -113,8 +100,8 @@ export function ReportPerformanceChart( {
 	);
 
 	const series = useMemo(
-		() => buildReportMetricSeries( { primary, comparison, metrics: visibleMetrics, legendLabels } ),
-		[ primary, comparison, visibleMetrics, legendLabels ]
+		() => buildReportMetricSeries( { primary, comparison, metrics: visibleMetrics } ),
+		[ primary, comparison, visibleMetrics ]
 	);
 	const seriesStyles = useSeriesStyles( series );
 

@@ -100,7 +100,7 @@ export default function createSwiper( els, config = {} ) {
 			renderBullet: ( index, className ) => {
 				// Use a custom render, as Swiper's render is inaccessible.
 				return `<button class="${ className }"><span>${ sprintf(
-					/* translators: Indicates which slide the slider is on. */
+					/* translators: %s: indicates which slide the slider is on. */
 					__( 'Slide %s', 'jetpack-mu-wpcom' ),
 					index + 1
 				) }</span></button>`;
@@ -126,9 +126,7 @@ export default function createSwiper( els, config = {} ) {
 		},
 		on: {
 			init() {
-				forEachNode( this.wrapperEl.querySelectorAll( '.swiper-slide' ), slide =>
-					deactivateSlide( slide )
-				);
+				forEachNode( this.wrapperEl.querySelectorAll( '.swiper-slide' ), slide => deactivateSlide( slide ) );
 
 				setAspectRatio.call( this ); // Set the aspect ratio on init.
 				activateSlide( this.slides[ this.activeIndex ] ); // Set-up our active slide.
@@ -154,7 +152,7 @@ export default function createSwiper( els, config = {} ) {
 					const alt = currentImage ? currentImage?.alt : false;
 
 					const slideInfo = sprintf(
-						/* translators: 1: current slide number and 2: total number of slides */
+						/* translators: %1$s: current slide number, %2$s: total number of slides */
 						__( 'Slide %1$s of %2$s', 'jetpack-mu-wpcom' ),
 						this.realIndex + 1,
 						this.pagination?.bullets?.length || 0
@@ -163,14 +161,7 @@ export default function createSwiper( els, config = {} ) {
 					speak(
 						escapeHTML(
 							`${ currentSlide.innerText },
-							${
-	alt
-		? /* translators: the title of the image. */ sprintf(
-			__( 'Image: %s, ', 'jetpack-mu-wpcom' ),
-			alt
-		)
-		: ''
-}
+							${ alt ? /* translators: %s: the title of the image. */ sprintf( __( 'Image: %s,', 'jetpack-mu-wpcom' ), alt ) : '' }
 							${ slideInfo }`
 						),
 						'assertive'

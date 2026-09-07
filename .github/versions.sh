@@ -10,7 +10,7 @@ NODE_VERSION=24.15.0
 PNPM_VERSION=11.5.2
 
 # Other useful version numbers.
-MIN_PHP_VERSION=7.2
+MIN_PHP_VERSION=7.4
 MAX_PHP_VERSION=8.5
 
 # Minimum supported WordPress version. Keep in sync with the "Requires at least" headers in the plugins.

@@ -10,16 +10,8 @@ import type { WidgetAttributeField } from '@wordpress/widget-primitives';
  */
 import {
 	chartTypeAttributeField,
-	granularityAttributeField,
 	type ChartDisplayChartType,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-
-/**
- * Granularity the chart can be grouped by. `auto` follows the dashboard date
- * range (a wide range buckets by month, a narrow one by day); an explicit
- * value sticks across range changes.
- */
-export type SubscribersChartGranularity = 'auto' | 'day' | 'week' | 'month';
 
 /**
  * How the selected metric is drawn. The shared chart-display list keeps every
@@ -43,39 +35,22 @@ export const SUBSCRIBERS_CHART_METRICS = [
 export type SubscribersChartMetricId = ( typeof SUBSCRIBERS_CHART_METRICS )[ number ][ 'id' ];
 
 /**
- * Configurable attributes for the Subscribers chart widget. Report params
- * still reach it through WidgetRoot: the dashboard date range, or
- * `attributes.reportParams` when a host injects them (e.g. Storybook and
- * dashboard previews).
- *
- * @property granularity - Bucket size within the dashboard range. Defaults to `auto`.
- * @property chartType   - How to draw the selected metric. Defaults to `line`.
+ * @property chartType - How to draw the selected metric. Defaults to `line`.
  */
 export type SubscribersChartAttributes = {
-	granularity?: SubscribersChartGranularity;
 	chartType?: SubscribersChartType;
 };
 
 /**
- * Widget type definition.
- *
- * Ported from the Jetpack Stats `stats-subscribers-chart-section` card in
- * wp-calypso. The date range and previous-period comparison follow the
- * dashboard picker; the legacy interval segmented control is the
- * `granularity` attribute (`relevance: 'high'`), so the widget host renders
- * its control. It only chooses the bucket size within that range. Which metric
- * is plotted is the chart's own tab selection, not an attribute;
+ * Ported from the Jetpack Stats `stats-subscribers-chart-section` card; the
+ * legacy interval control is now the dashboard's chart interval control.
  * `example.attributes` doubles as the defaults applied to new instances.
  */
 export default {
 	icon: people,
-	attributes: [
-		granularityAttributeField( [ 'auto', 'day', 'week', 'month' ] ),
-		chartTypeAttributeField(),
-	] as WidgetAttributeField< SubscribersChartAttributes >[],
+	attributes: [ chartTypeAttributeField() ] as WidgetAttributeField< SubscribersChartAttributes >[],
 	example: {
 		attributes: {
-			granularity: 'auto',
 			chartType: 'line',
 		},
 	},

@@ -9,7 +9,7 @@
  * Author URI: https://jetpack.com/
  * License: GPLv2 or later
  * Requires at least: 7.0
- * Requires PHP: 7.2
+ * Requires PHP: 7.4
  * Text Domain: jetpack-stats
  *
  * @package automattic/jetpack-stats-plugin

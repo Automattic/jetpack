@@ -35,14 +35,14 @@ describe( 'Stats report utilities', () => {
 				status: 'complete',
 				empty_label: '',
 				enabled: true,
-				date_start: '2026-06-16T00:00:00+00:00',
+				date_start: '2026-06-16T00:00:00',
 			} )
 		).toEqual( {
 			total_views: 123,
 			status: 'complete',
 			empty_label: '',
 			enabled: true,
-			date_start: '2026-06-16T00:00:00+00:00',
+			date_start: '2026-06-16T00:00:00',
 		} );
 	} );
 
@@ -63,8 +63,8 @@ describe( 'Stats report utilities', () => {
 				}
 			)
 		).toEqual( {
-			date_start: '2026-06-16T00:00:00+00:00',
-			date_end: '2026-06-22T23:59:59+00:00',
+			date_start: '2026-06-16T00:00:00',
+			date_end: '2026-06-22T23:59:59',
 		} );
 	} );
 

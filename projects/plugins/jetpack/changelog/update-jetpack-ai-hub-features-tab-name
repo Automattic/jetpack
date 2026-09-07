@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+Comment: AI Hub: rename the "WordPress Agent" tab to "AI Features" and drop the repeated heading inside it. The tab has not shipped in a stable release, so there is nothing for users to be told about.
+

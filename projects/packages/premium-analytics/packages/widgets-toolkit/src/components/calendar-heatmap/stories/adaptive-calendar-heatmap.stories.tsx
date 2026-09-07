@@ -14,11 +14,6 @@ const SHORT_PERIOD = { startDate: '2026-06-01', endDate: '2026-06-30' };
 /**
  * A deterministic weekday-weighted series. Real traffic dips at weekends, and a
  * flat ramp would hide the color scale.
- *
- * @param period           - The period to generate values for.
- * @param period.startDate - First day, inclusive.
- * @param period.endDate   - Last day, inclusive.
- * @return Views per `yyyy-MM-dd`.
  */
 function buildViewsByDay( period: { startDate: string; endDate: string } ) {
 	return Object.fromEntries(
@@ -47,24 +42,23 @@ interface AdaptiveCalendarHeatmapStoryControls {
 	tileWidth: number;
 	/** Height of the mock tile's body, in px. Drives the cell size. */
 	tileHeight: number;
-	/** Use a one-month period to show that the grid stays inside its data window. */
+	/** Use a one-month period to show how a grid shorter than the tile is filled. */
 	shortPeriod: boolean;
 }
 
+// The current year is selected as January through today, so early in the year it is
+// the shortest period Insights can produce.
+const CURRENT_YEAR_AS_OF = [
+	{ label: 'Jan 15 — 2 weeks of data', endDate: '2026-01-15' },
+	{ label: 'Apr 15 — 15 weeks of data', endDate: '2026-04-15' },
+	{ label: 'Aug 19 — 33 weeks of data', endDate: '2026-08-19' },
+	{ label: 'Dec 31 — the whole year', endDate: '2026-12-31' },
+] as const;
+
 /**
- * Mock widget tile. The component measures its parent, so the story has to give it
- * a real box; `width` / `height` are the widget *body*, which is what it sees.
- *
- * Measured in the widget dashboard: a one-row tile is a 200px grid row, about 86px
- * of it body — two rows is about 300px. Keep `ShortTile` on the real figure. It was
- * 110px here for a while, which is roomy enough to hide a grid that overflowed the
- * real tile, so the story showed a clean heatmap the dashboard never rendered.
- *
- * @param props          - Component props.
- * @param props.width    - Body width, in px.
- * @param props.height   - Body height, in px.
- * @param props.children - The tile's contents.
- * @return The mock tile.
+ * Mock widget tile. The component measures its parent, so `width` / `height` must be
+ * the widget *body* box, not the tile — keep `ShortTile` on the real ~86px body
+ * height, since a roomier value hides overflow the real tile would show.
  */
 function TileCanvas( {
 	width,
@@ -177,9 +171,9 @@ export const VeryTallTile: Story = {
 };
 
 /**
- * One month of data in a tile that fits well over a year of columns. The grid stops
- * at the period boundary instead of presenting unfetched earlier dates as no-data
- * cells.
+ * One month of data in a tile that fits well over a year of columns. The month sits
+ * at the right-hand edge and the weeks before it are filler: drawn so the tile fills,
+ * but inert — no tooltip, no keyboard stop, no claim that those days had no traffic.
  */
 export const ShortPeriod: Story = {
 	render: renderAdaptiveCalendarHeatmap,
@@ -194,5 +188,47 @@ export const ShortPeriod: Story = {
 export const NarrowTile: Story = {
 	render: renderAdaptiveCalendarHeatmap,
 	args: { ...SHORT_TILE_ARGS, tileWidth: 420, tileHeight: 320 },
+	decorators: [ withChartTheme ],
+};
+
+/**
+ * The current year, read at four points in it. Every row ends on the day the year has
+ * reached and fills leftwards with filler weeks, so the tile is as full in January as
+ * in December while the request only ever covers days that have happened.
+ */
+export const CurrentYearThroughTheYear: Story = {
+	render: ( { tileWidth, tileHeight } ) => (
+		<div style={ { display: 'flex', flexDirection: 'column', gap: '16px' } }>
+			{ CURRENT_YEAR_AS_OF.map( ( { label, endDate } ) => {
+				const fetched = { startDate: '2026-01-01', endDate };
+
+				return (
+					<div key={ endDate }>
+						<div
+							style={ {
+								marginBlockEnd: '4px',
+								font: 'var(--wpds-typography-body-small)',
+								color: 'var(--wpds-color-foreground-neutral-weak)',
+							} }
+						>
+							{ label }
+						</div>
+						<TileCanvas width={ tileWidth } height={ tileHeight }>
+							<AdaptiveCalendarHeatmap valueByDay={ buildViewsByDay( fetched ) } period={ fetched }>
+								{ chartProps => (
+									<HeatmapChartUnresponsive
+										{ ...chartProps }
+										primaryColor="var(--wp-admin-theme-color, #3858e9)"
+										withTooltips
+									/>
+								) }
+							</AdaptiveCalendarHeatmap>
+						</TileCanvas>
+					</div>
+				);
+			} ) }
+		</div>
+	),
+	args: SHORT_TILE_ARGS,
 	decorators: [ withChartTheme ],
 };

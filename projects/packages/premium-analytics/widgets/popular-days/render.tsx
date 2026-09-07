@@ -37,8 +37,7 @@ function PopularDaysReport() {
 	const points = useMemo( () => buckets.map( bucket => bucket.average ), [ buckets ] );
 
 	// `placeholderData` keeps the prior response on a transient refetch failure,
-	// so the error only surfaces when there is nothing left to show. `error` is
-	// gated on the same predicate so the two cannot disagree.
+	// so the error only surfaces when there is nothing left to show.
 	const showError = isError && ! peak;
 
 	return (

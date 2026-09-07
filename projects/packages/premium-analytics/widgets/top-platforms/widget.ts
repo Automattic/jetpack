@@ -18,11 +18,9 @@ export type TopPlatformsAttributes = {
 };
 
 /**
- * Top Platforms widget type definition.
- *
  * Shows Browser and OS breakdown as a ranked leaderboard. The active
- * dimension is the `platformDimension` attribute (`relevance: 'high'`),
- * so the widget host renders its control.
+ * dimension is `platformDimension` (`relevance: 'high'`), so the widget host
+ * renders its control.
  */
 export default {
 	icon: desktop,

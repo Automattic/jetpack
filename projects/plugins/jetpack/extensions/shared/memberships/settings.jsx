@@ -13,7 +13,7 @@ import { useEntityId, useEntityProp, store as coreDataStore } from '@wordpress/c
 import { useDispatch, useSelect } from '@wordpress/data';
 import { PostVisibilityCheck, store as editorStore } from '@wordpress/editor';
 import { __ } from '@wordpress/i18n';
-import { Link as ExternalLink, Notice } from '@wordpress/ui';
+import { Link, Notice } from '@wordpress/ui';
 import clsx from 'clsx';
 import paywallBlockMetadata from '../../blocks/paywall/block.json';
 import { store as membershipProductsStore } from '../../store/membership-products';
@@ -25,14 +25,6 @@ import {
 	META_NAME_FOR_POST_TIER_ID_SETTINGS,
 } from './constants';
 import { getPaidPlanLink, getShowMisconfigurationWarning, MisconfigurationWarning } from './utils';
-
-export function Link( { href, children } ) {
-	return (
-		<a target="_blank" rel="noopener noreferrer" href={ href } className="jetpack-newsletter-link">
-			{ children }
-		</a>
-	);
-}
 
 export function getReachForAccessLevelKey( {
 	accessLevel,
@@ -340,9 +332,9 @@ export function NewsletterAccessRadioButtons( {
 				</div>
 			</fieldset>
 			{ showPaidAsDisabled && (
-				<ExternalLink id={ setupLinkId } openInNewTab href={ getPaidPlanLink( hasTierPlans ) }>
+				<Link id={ setupLinkId } openInNewTab href={ getPaidPlanLink( hasTierPlans ) }>
 					{ __( 'Turn on paid subscribers', 'jetpack' ) }
-				</ExternalLink>
+				</Link>
 			) }
 			{ isPaidSelected && isPaidAvailable && <TierSelector></TierSelector> }
 			<p className="jetpack-newsletter-access-radio-buttons__description">

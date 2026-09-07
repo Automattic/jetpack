@@ -118,6 +118,8 @@ function ReferrersReport(): JSX.Element {
 						getItemId={ getReferrerRowId }
 						getItemParentId={ getReferrerParentId }
 						hideLevelMarkers
+						collapsible
+						defaultExpanded="none"
 						isLoading={ records.isLoading }
 						initialView={ RECORDS_VIEW }
 						searchLabel={ __( 'Search referrers', 'jetpack-premium-analytics-pkg' ) }

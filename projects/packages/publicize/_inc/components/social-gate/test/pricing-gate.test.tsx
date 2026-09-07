@@ -7,6 +7,10 @@ const mockUpdateSocialModuleSettings = jest.fn( () => Promise.resolve() );
 
 let mockProductInfo = { currencyCode: 'USD', v1: { price: 10, introOffer: null } };
 
+jest.mock( '@automattic/jetpack-components/tools/jp-redirect', () => ( {
+	__esModule: true,
+	default: () => 'https://example.com/upgrade',
+} ) );
 jest.mock( '@wordpress/data', () => ( {
 	useDispatch: () => ( {
 		setShowPricingPage: mockSetShowPricingPage,
@@ -43,7 +47,7 @@ describe( 'PricingGate', () => {
 
 	it( 'renders the upgrade CTA', () => {
 		render( <PricingGate onDismiss={ jest.fn() } /> );
-		expect( screen.getByRole( 'button', { name: /get social/i } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'link', { name: /get social/i } ) ).toBeInTheDocument();
 	} );
 
 	it( 'renders the formatted price', () => {

@@ -222,7 +222,7 @@ function wpcomsh_enable_error_reporting_for_react_19( $is_enabled ) {
 		return false;
 	}
 
-	$current_segment = 2; // Segment of sites that get error reporting, in %.
+	$current_segment = 10; // Segment of sites that get error reporting, in %.
 	$site_segment    = $site_id % 100;
 
 	// Sites whose id ends in digits < $current_segment are in the segment.

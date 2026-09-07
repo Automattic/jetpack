@@ -1,34 +1,16 @@
 /**
  * Internal dependencies
  */
-import { buildDenseDaySeries, resolveCalendarHeatmapWindow } from '../calendar-heatmap-window';
+import {
+	buildDenseDaySeries,
+	resolveCalendarHeatmapGridStart,
+	resolveCalendarHeatmapWindow,
+} from '../calendar-heatmap-window';
 
 const TODAY = '2026-08-10';
 
 describe( 'resolveCalendarHeatmapWindow', () => {
-	describe( 'minDays — the posting activity floor', () => {
-		it( 'extends a short range backwards to the floor', () => {
-			expect(
-				resolveCalendarHeatmapWindow(
-					{ from: '2026-08-04', to: '2026-08-10' },
-					{ minDays: 366 },
-					TODAY
-				)
-			).toEqual( { startDate: '2025-08-10', endDate: '2026-08-10' } );
-		} );
-
-		it( 'leaves a range that already reaches further back alone', () => {
-			expect(
-				resolveCalendarHeatmapWindow(
-					{ from: '2021-01-01', to: '2026-08-10' },
-					{ minDays: 366 },
-					TODAY
-				)
-			).toEqual( { startDate: '2021-01-01', endDate: '2026-08-10' } );
-		} );
-	} );
-
-	describe( 'maxDays — the traffic views cap', () => {
+	describe( 'maxDays — the shared cap', () => {
 		it( 'caps an all-time range to the most recent year', () => {
 			expect(
 				resolveCalendarHeatmapWindow(
@@ -78,17 +60,6 @@ describe( 'resolveCalendarHeatmapWindow', () => {
 				)
 			).toEqual( { startDate: '2026-08-01', endDate: '2026-08-10' } );
 		} );
-	} );
-
-	it( 'applies both bounds together', () => {
-		const bounds = { minDays: 30, maxDays: 60 };
-
-		expect(
-			resolveCalendarHeatmapWindow( { from: '2026-08-08', to: '2026-08-10' }, bounds, TODAY )
-		).toEqual( { startDate: '2026-07-12', endDate: '2026-08-10' } );
-		expect(
-			resolveCalendarHeatmapWindow( { from: '2020-01-01', to: '2026-08-10' }, bounds, TODAY )
-		).toEqual( { startDate: '2026-06-12', endDate: '2026-08-10' } );
 	} );
 
 	it( 'reads only the calendar day from an offset-bearing timestamp', () => {
@@ -187,5 +158,34 @@ describe( 'buildDenseDaySeries', () => {
 		expect( buildDenseDaySeries( { '2026-08-02': 5 }, '2026-08-05', '2026-08-01' ) ).toEqual( [
 			{ dateString: '2026-08-02', value: 5 },
 		] );
+	} );
+} );
+
+describe( 'resolveCalendarHeatmapGridStart', () => {
+	// The current year is selected as January through today, so for most of the
+	// year it has fewer weeks than a wide tile can draw.
+	it( 'opens the grid back far enough to fill the tile', () => {
+		expect( resolveCalendarHeatmapGridStart( TODAY, 53 ) ).toBe( '2025-08-11' );
+	} );
+
+	it( 'lands on the same weekday, so the span is a whole number of columns', () => {
+		// 2026-08-10 is a Monday; every result must be one too.
+		expect( resolveCalendarHeatmapGridStart( TODAY, 1 ) ).toBe( TODAY );
+		expect( resolveCalendarHeatmapGridStart( TODAY, 2 ) ).toBe( '2026-08-03' );
+		expect( resolveCalendarHeatmapGridStart( TODAY, 3 ) ).toBe( '2026-07-27' );
+	} );
+
+	it( 'crosses a leap day without drifting', () => {
+		expect( resolveCalendarHeatmapGridStart( '2024-03-04', 2 ) ).toBe( '2024-02-26' );
+	} );
+
+	// The caller passes a measured column count, so a collapsed tile reports zero
+	// and must not be turned into a one-column grid.
+	it.each( [ 0, -1, 0.5, NaN, Infinity ] )( 'sizes nothing from %p columns', columns => {
+		expect( resolveCalendarHeatmapGridStart( TODAY, columns ) ).toBeUndefined();
+	} );
+
+	it( 'sizes nothing from a date it cannot parse', () => {
+		expect( resolveCalendarHeatmapGridStart( 'not-a-date', 53 ) ).toBeUndefined();
 	} );
 } );
