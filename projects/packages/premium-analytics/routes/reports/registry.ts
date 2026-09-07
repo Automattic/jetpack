@@ -13,13 +13,8 @@ import { resolveTabId as resolveCommentsTabId } from './comments/config/tabs';
 import { resolveSection as resolveLocationsSection } from './locations/config/tabs';
 import { resolveTabId } from './posts/config/tabs';
 import { resolveSection as resolveUtmSection } from './utm/config/tabs';
+import type { DashboardSectionSlug } from '../site-readiness';
 import type { ComponentType } from 'react';
-
-/**
- * URL-facing slugs of the dashboard tabs, mirroring the section ids in
- * `src/dashboard-layout.php`.
- */
-type DashboardSectionSlug = 'traffic' | 'insights' | 'subscribers' | 'store' | 'ads';
 
 /**
  * A single report's registration in the report registry.
@@ -35,9 +30,8 @@ export type ReportDefinition = {
 	id: string;
 
 	/**
-	 * Dashboard tab the report belongs to. A report whose tab the preview hides is
-	 * treated like an unknown one. Unrelated to `resolveSection`, which names a tab
-	 * inside* the report.
+	 * Dashboard tab the report belongs to. Unrelated to `resolveSection`, which names
+	 * a tab *inside* the report.
 	 */
 	dashboardSection: DashboardSectionSlug;
 

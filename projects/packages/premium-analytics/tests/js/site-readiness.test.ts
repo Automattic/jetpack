@@ -97,7 +97,6 @@ describe( 'Premium Analytics site readiness', () => {
 		expect( isDashboardSectionInPreviewScope( 'insights' ) ).toBe( true );
 	} );
 
-	// An empty list is a scope that exposes nothing, unlike an absent one.
 	it( 'exposes no tab when the published scope is empty', () => {
 		setScriptData( { premium_analytics: { preview_sections: [] } } );
 

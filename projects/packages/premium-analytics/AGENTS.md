@@ -90,17 +90,17 @@ Two local REST surfaces; almost all data comes from WordPress.com via one agnost
 - `<prefix>` must be allowlisted in `PREFIX_CONFIG` or the route 404s. This is the security
   boundary — the blog token is only forwarded for these.
 
-| Prefix                                                            | Capability                 | Writes (POST)                   |
-| ----------------------------------------------------------------- | -------------------------- | ------------------------------- |
-| `analytics` (Woo store reports)                                   | `view_woocommerce_reports` | —                               |
-| `stats`                                                           | `view_stats`               | `stats/referrers/spam/`         |
-| `wordads`                                                         | `activate_wordads`         | —                               |
-| `subscribers` / `site-has-never-published-post`                    | `view_stats`               | —                               |
-| `jetpack-stats`                                                   | `view_stats`               | `jetpack-stats/user-feedback`   |
-| `jetpack-stats-dashboard`                                         | `view_stats`               | whole prefix (busts read cache) |
-| `commercial-classification`                                       | `view_stats`               | exact path                      |
-| `upgrades` (not under `/sites/`)                                  | `view_stats`               | —                               |
-| `posts` (pattern-constrained: only `<id>/likes`)                  | `view_stats`               | —                               |
+| Prefix                                           | Capability                 | Writes (POST)                   |
+| ------------------------------------------------ | -------------------------- | ------------------------------- |
+| `analytics` (Woo store reports)                  | `view_woocommerce_reports` | —                               |
+| `stats`                                          | `view_stats`               | `stats/referrers/spam/`         |
+| `wordads`                                        | `activate_wordads`         | —                               |
+| `subscribers` / `site-has-never-published-post`  | `view_stats`               | —                               |
+| `jetpack-stats`                                  | `view_stats`               | `jetpack-stats/user-feedback`   |
+| `jetpack-stats-dashboard`                        | `view_stats`               | whole prefix (busts read cache) |
+| `commercial-classification`                      | `view_stats`               | exact path                      |
+| `upgrades` (not under `/sites/`)                 | `view_stats`               | —                               |
+| `posts` (pattern-constrained: only `<id>/likes`) | `view_stats`               | —                               |
 
 `manage_options` is always accepted too. `POST` is rejected (`405 rest_read_only`) outside the
 Writes column. Query params pass through except control params (`endpoint`, `version`,
@@ -143,10 +143,11 @@ customer preview and exposes only the sections in `PREVIEW_SECTIONS`, while a st
 override exposes every section the site qualifies for. `jetpack_premium_analytics_dashboard_preview_scope`
 overrides that per section — `__return_true` gives a development or test site the whole dashboard.
 
-The scope reaches the client as `premium_analytics.preview_sections` in the script data, which is
-what keeps `/reports/…` out of a scoped preview: each report declares the tab it belongs to, and
-`getReportDefinition()` treats one behind a hidden tab as unknown. An absent list means "not
-scoped", so a server that never published one shows every report.
+The same list the tab bar gets over REST also reaches the client as
+`premium_analytics.preview_sections` in the script data, which is what keeps `/reports/…` out of a
+scoped preview: each report declares the tab it belongs to, and `getReportDefinition()` treats one
+behind a hidden tab as unknown. The two detail routes follow their own report (`posts`, `videos`)
+rather than declaring a tab.
 
 ### Route guards must use the shared site-readiness helpers
 
