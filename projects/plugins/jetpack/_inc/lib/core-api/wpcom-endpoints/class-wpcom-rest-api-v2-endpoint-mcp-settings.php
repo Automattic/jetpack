@@ -124,12 +124,26 @@ class WPCOM_REST_API_V2_Endpoint_MCP_Settings extends WP_REST_Controller {
 
 		$body = json_decode( wp_remote_retrieve_body( $response ), true );
 
+		$http_status = wp_remote_retrieve_response_code( $response );
+
+		// 403 is this user being refused, not the site lacking a plan. Reporting it as
+		// a plan problem offers an upgrade to someone who cannot buy one, so it is
+		// reported separately and takes precedence over the plan field.
+		if ( 403 === $http_status ) {
+			return rest_ensure_response(
+				array(
+					'has_mcp_access' => false,
+					'mcp_abilities'  => array(),
+					'access_error'   => 'forbidden',
+				)
+			);
+		}
+
 		// has_mcp_plan is set explicitly by the WPCOM endpoint using PaidPlanMiddleware.
-		// Fall back to 402/403 status handling for older WPCOM builds that predate the field.
-		$http_status  = wp_remote_retrieve_response_code( $response );
+		// Fall back to 402 status handling for older WPCOM builds that predate the field.
 		$has_mcp_plan = isset( $body['has_mcp_plan'] )
 			? (bool) $body['has_mcp_plan']
-			: ! in_array( $http_status, array( 402, 403 ), true );
+			: 402 !== $http_status;
 
 		if ( ! $has_mcp_plan ) {
 			return rest_ensure_response(

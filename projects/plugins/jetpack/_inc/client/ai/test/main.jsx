@@ -448,6 +448,29 @@ describe( 'AI admin page (main.jsx)', () => {
 			window.location.hash = '#/mcp';
 		} );
 
+		test( 'connected user refused by WordPress.com: no-access notice, not the upsell', async () => {
+			window.jetpackAiSettings = { showFeaturesView: true, blogId: 1, isUserConnected: true };
+			mockApiFetch( {
+				mcpGet: { has_mcp_access: false, mcp_abilities: {}, access_error: 'forbidden' },
+			} );
+
+			render( <App /> );
+
+			await expect(
+				screen.findByText( /does not have access to Jetpack AI on this site/, IGNORE_A11Y )
+			).resolves.toBeInTheDocument();
+			expect( screen.queryByText( UPSELL_CTA ) ).not.toBeInTheDocument();
+		} );
+
+		test( 'site really has no plan: still shows the upsell', async () => {
+			window.jetpackAiSettings = { showFeaturesView: true, blogId: 1, isUserConnected: true };
+			mockApiFetch( { mcpGet: { has_mcp_access: false, mcp_abilities: {} } } );
+
+			render( <App /> );
+
+			await expect( screen.findByText( UPSELL_CTA ) ).resolves.toBeInTheDocument();
+		} );
+
 		test( 'site connected, no plan: shows the connect card instead of the upsell', async () => {
 			window.jetpackAiSettings = { showFeaturesView: true, blogId: 1, isUserConnected: false };
 			mockApiFetch( { mcpGet: { has_mcp_access: false, mcp_abilities: {} } } );

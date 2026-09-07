@@ -29,6 +29,7 @@ import AiFeatures from './features/index';
 import { useFeatureSettings } from './features/use-feature-settings';
 import McpConnectCallout from './mcp/connect-callout';
 import McpHub from './mcp/index';
+import McpNoAccessNotice from './mcp/no-access-notice';
 import McpRead from './mcp/read';
 import McpSetup from './mcp/setup';
 import { recordMcpTracksEvent } from './mcp/tracks';
@@ -209,8 +210,15 @@ export default function App() {
 	// so with either one missing the MCP body gives way to a connection notice —
 	// and the settings fetch is skipped, since it could only fail.
 	const showConnectNotice = !! blogId && userUnlinked;
-	const { isLoading, savingToolIds, mcpAbilities, hasMcpAccess, error, updateMcpAbilities } =
-		useMcpSettings( { skip: showConnectNotice || ! blogId } );
+	const {
+		isLoading,
+		savingToolIds,
+		mcpAbilities,
+		hasMcpAccess,
+		accessError,
+		error,
+		updateMcpAbilities,
+	} = useMcpSettings( { skip: showConnectNotice || ! blogId } );
 	const {
 		isLoading: isAiSettingsLoading,
 		savingKeys: aiSavingKeys,
@@ -440,7 +448,7 @@ export default function App() {
 						{ showConnectNotice && <McpConnectCallout /> }
 
 						{ ! isLoading && ! error && !! blogId && ! userUnlinked && ! hasMcpAccess && (
-							<McpUpsell />
+							<>{ accessError === 'forbidden' ? <McpNoAccessNotice /> : <McpUpsell /> }</>
 						) }
 
 						{ ! isLoading && ! error && !! blogId && ! userUnlinked && hasMcpAccess && (

@@ -87,7 +87,7 @@ export function prepareWpcomMcpUpdate( update ) {
  * @param {object}  [options]      - Hook options.
  * @param {boolean} [options.skip] - Skip the fetch and expose empty state (for callers
  *                                 that know the request cannot succeed).
- * @return {{ isLoading: boolean, savingToolIds: Set, mcpAbilities: Object|null, hasMcpAccess: boolean|null, error: string|null, updateMcpAbilities: Function }} MCP settings state and updater.
+ * @return {{ isLoading: boolean, savingToolIds: Set, mcpAbilities: Object|null, hasMcpAccess: boolean|null, accessError: string|null, error: string|null, updateMcpAbilities: Function }} MCP settings state and updater.
  */
 export function useMcpSettings( { skip = false } = {} ) {
 	const { blogId = 0, mcpSettingsApi = DEFAULT_API } = window?.jetpackAiSettings ?? {};
@@ -97,6 +97,7 @@ export function useMcpSettings( { skip = false } = {} ) {
 	const [ savingToolIds, setSavingToolIds ] = useState( () => new Set() );
 	const [ mcpAbilities, setMcpAbilities ] = useState( null );
 	const [ hasMcpAccess, setHasMcpAccess ] = useState( null );
+	const [ accessError, setAccessError ] = useState( null );
 	const [ error, setError ] = useState( null );
 
 	useEffect( () => {
@@ -106,6 +107,7 @@ export function useMcpSettings( { skip = false } = {} ) {
 			setSavingToolIds( new Set() );
 			setMcpAbilities( null );
 			setHasMcpAccess( null );
+			setAccessError( null );
 			setError( null );
 			return;
 		}
@@ -122,6 +124,8 @@ export function useMcpSettings( { skip = false } = {} ) {
 						response?.has_mcp_access !== false &&
 							Object.keys( response?.mcp_abilities?.account ?? {} ).length > 0
 					);
+					// 'forbidden' means this user was refused, not that the site needs a plan.
+					setAccessError( response?.access_error ?? null );
 					setError( null );
 				}
 			} )
@@ -188,5 +192,13 @@ export function useMcpSettings( { skip = false } = {} ) {
 		[ blogId, endpoint, mcpAbilities, usesWpcomApi ]
 	);
 
-	return { isLoading, savingToolIds, mcpAbilities, hasMcpAccess, error, updateMcpAbilities };
+	return {
+		isLoading,
+		savingToolIds,
+		mcpAbilities,
+		hasMcpAccess,
+		accessError,
+		error,
+		updateMcpAbilities,
+	};
 }
