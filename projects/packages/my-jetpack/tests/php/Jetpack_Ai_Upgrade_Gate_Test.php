@@ -17,10 +17,6 @@ use WorDBless\Users as WorDBless_Users;
 /**
  * Whether the AI product offers an upgrade when the feature lookup fails.
  *
- * The lookup is a user-token call, so it can fail for one admin and succeed for
- * another on the same site. Offering an upgrade off a failed lookup sends a user
- * who cannot buy anything to checkout.
- *
  * @package automattic/my-jetpack
  */
 class Jetpack_Ai_Upgrade_Gate_Test extends TestCase {

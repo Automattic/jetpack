@@ -195,9 +195,8 @@ class Jetpack_Ai extends Module_Product {
 
 		$info = self::get_ai_assistant_feature();
 
-		// An unreadable tier is not the free tier: the lookup is a user-token call
-		// and can be refused for one admin while another sees a paid tier. Reporting
-		// 0 here offers an upgrade the refused user cannot complete.
+		// An unreadable tier is not the free tier: this is a user-token call, so
+		// answering 0 offers an upgrade to an admin who was merely refused.
 		if ( is_wp_error( $info ) ) {
 			return null;
 		}

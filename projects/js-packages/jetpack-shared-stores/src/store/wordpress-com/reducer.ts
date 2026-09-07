@@ -71,6 +71,9 @@ export default function reducer( state = INITIAL_STATE, action ) {
 					...state.features,
 					aiAssistant: {
 						...state.features.aiAssistant,
+						errorCode: '',
+						errorMessage: '',
+						errorStatus: undefined,
 						_meta: {
 							...state.features.aiAssistant._meta,
 							isRequesting: true,
@@ -97,9 +100,9 @@ export default function reducer( state = INITIAL_STATE, action ) {
 			};
 		}
 
-		// Entitlement fields are deliberately left alone: a failed fetch says
-		// nothing about the site's plan, and blanking them would offer an
-		// upgrade to someone who is already paying.
+		// Only the error fields change. Entitlement is left alone because a failed
+		// fetch says nothing about the plan, and `_meta.isRequesting` because the
+		// editor's usage panel reveals its upgrade button once loading clears.
 		case ACTION_SET_AI_ASSISTANT_FEATURE_ERROR: {
 			return {
 				...state,
@@ -110,10 +113,6 @@ export default function reducer( state = INITIAL_STATE, action ) {
 						errorCode: action.code,
 						errorMessage: action.message,
 						errorStatus: action.status,
-						_meta: {
-							...state.features.aiAssistant._meta,
-							isRequesting: false,
-						},
 					},
 				},
 			};

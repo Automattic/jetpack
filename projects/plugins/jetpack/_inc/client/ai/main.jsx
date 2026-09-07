@@ -447,9 +447,12 @@ export default function App() {
 
 						{ showConnectNotice && <McpConnectCallout /> }
 
-						{ ! isLoading && ! error && !! blogId && ! userUnlinked && ! hasMcpAccess && (
-							<>{ accessError === 'forbidden' ? <McpNoAccessNotice /> : <McpUpsell /> }</>
-						) }
+						{ ! isLoading &&
+							! error &&
+							!! blogId &&
+							! userUnlinked &&
+							! hasMcpAccess &&
+							( accessError === 'forbidden' ? <McpNoAccessNotice /> : <McpUpsell /> ) }
 
 						{ ! isLoading && ! error && !! blogId && ! userUnlinked && hasMcpAccess && (
 							<Stack direction="column" gap="md">

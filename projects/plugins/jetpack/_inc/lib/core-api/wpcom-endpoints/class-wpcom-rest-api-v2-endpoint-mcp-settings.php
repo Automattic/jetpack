@@ -126,10 +126,9 @@ class WPCOM_REST_API_V2_Endpoint_MCP_Settings extends WP_REST_Controller {
 
 		$http_status = wp_remote_retrieve_response_code( $response );
 
-		// 403 is this user being refused, not the site lacking a plan. Reporting it as
-		// a plan problem offers an upgrade to someone who cannot buy one, so it is
-		// reported separately and takes precedence over the plan field.
-		if ( 403 === $http_status ) {
+		// A 403 saying nothing about the plan means this user was refused, not that the
+		// site is unpaid. An explicit has_mcp_plan still wins: 403 has also meant unpaid.
+		if ( 403 === $http_status && ! isset( $body['has_mcp_plan'] ) ) {
 			return rest_ensure_response(
 				array(
 					'has_mcp_access' => false,

@@ -2,7 +2,11 @@
  * Internal dependencies
  */
 import actions from '../actions.ts';
-import { ACTION_SET_AI_ASSISTANT_FEATURE_ERROR, FREE_PLAN_REQUESTS_LIMIT } from '../constants.ts';
+import {
+	ACTION_REQUEST_AI_ASSISTANT_FEATURE,
+	ACTION_SET_AI_ASSISTANT_FEATURE_ERROR,
+	FREE_PLAN_REQUESTS_LIMIT,
+} from '../constants.ts';
 import reducer from '../reducer.ts';
 import type { PlanStateProps } from '../types.ts';
 
@@ -69,17 +73,29 @@ describe( 'AI Assistant feature error state', () => {
 		expect( state.features.aiAssistant.errorStatus ).toBe( 403 );
 	} );
 
-	it( 'should stop reporting the request as in flight', () => {
+	// The editor's usage panel reveals its upgrade button once loading clears, so a
+	// refused user must not be moved out of the loading state.
+	it( 'should leave the in-flight flag alone', () => {
 		const state = reducer(
 			paidPlanState(),
 			actions.setAiAssistantFeatureError( { code: 'x', message: 'y', status: 500 } )
 		);
 
-		expect( state.features.aiAssistant._meta.isRequesting ).toBe( false );
+		expect( state.features.aiAssistant._meta.isRequesting ).toBe( true );
 	} );
 
-	// A failed fetch says nothing about the site's entitlement, so flipping these
-	// would offer an upgrade to someone who is already paying.
+	it( 'should clear a previous error when a new request starts', () => {
+		const errored = reducer(
+			paidPlanState(),
+			actions.setAiAssistantFeatureError( { code: 'x', message: 'y', status: 403 } )
+		);
+
+		const state = reducer( errored, { type: ACTION_REQUEST_AI_ASSISTANT_FEATURE } );
+
+		expect( state.features.aiAssistant.errorCode ).toBe( '' );
+		expect( state.features.aiAssistant.errorStatus ).toBeUndefined();
+	} );
+
 	it( 'should leave the entitlement fields untouched', () => {
 		const state = reducer(
 			paidPlanState(),

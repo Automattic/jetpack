@@ -12,7 +12,7 @@ if ( ! class_exists( 'Jetpack_AI_Helper' ) ) {
 	/**
 	 * Test double returning whatever the current test set.
 	 */
-	class Jetpack_AI_Helper { // phpcs:ignore Generic.Classes.OpeningBraceSameLine.ContentAfterBrace
+	class Jetpack_AI_Helper {
 		/**
 		 * Return the response the test asked for.
 		 *

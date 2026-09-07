@@ -2,9 +2,8 @@ import { __ } from '@wordpress/i18n';
 import { Notice } from '@wordpress/ui';
 
 /**
- * Shown when WordPress.com refuses this user's AI request on an otherwise
- * working site. Deliberately not an upsell: the site's plan may be fine, and a
- * user who is not the connection owner cannot buy one anyway.
+ * Shown when WordPress.com refuses this user on an otherwise working site.
+ * Not an upsell: the plan may be fine, and a non-owner cannot buy one.
  *
  * @return {object} Component markup.
  */

@@ -1,4 +1,4 @@
 Significance: patch
-Type: fixed
+Type: changed
 
-Record a failed AI feature request instead of discarding it, so surfaces can tell a refused user from a site that needs a plan.
+Record why an AI feature request failed instead of discarding it, so surfaces can tell a refused user from a site that needs a plan.
