@@ -36,6 +36,7 @@ class Initializer_Test extends BaseTestCase {
 	public function tear_down() {
 		parent::tear_down();
 		unset( $GLOBALS['post'] );
+		delete_option( 'videopress_player_preload_disabled' );
 	}
 
 	/**
@@ -112,6 +113,17 @@ class Initializer_Test extends BaseTestCase {
 		$this->assertStringContainsString( 'allow="clipboard-write; presentation"', $html );
 		$this->assertStringContainsString( 'width="640"', $html );
 		$this->assertStringContainsString( 'height="360"', $html );
+	}
+
+	/** Tests that the site-wide preload opt-out reaches the block's embed URL. */
+	public function test_block_embed_honors_site_preload_opt_out() {
+		$this->assertStringContainsString( 'preloadContent=metadata', $this->render() );
+
+		update_option( 'videopress_player_preload_disabled', true );
+
+		$html = $this->render( array( 'preload' => 'metadata' ) );
+		$this->assertStringContainsString( 'preloadContent=none', $html );
+		$this->assertStringNotContainsString( 'preloadContent=metadata', $html );
 	}
 
 	/** Tests that the fallback filter is cleaned up after rendering. */
