@@ -28,13 +28,15 @@ If not, you might need as a prerequisite to bypass the Jetpack connection.
 
 ## Build the project
 
-You may also need building the Image CDN Jetpack Package dependency using the following command:
+From the monorepo root, build Boost and its dependencies:
 
-  ```sh
-  jetpack build packages/image_cdn
-  ```
+```sh
+pnpm jetpack build plugins/boost --deps
+```
 
-You may need to do this only once.
+Add `--production` for a production build. The build produces both the legacy
+webpack assets and the modern dashboard assets. For an opt-in local demo, see
+[Dashboard modernization](../tests/e2e/README.md#dashboard-modernization).
 
 
 ## PHP unit tests
@@ -80,6 +82,10 @@ To check for PHP code compatibility run:
 
 ## Linting Jetpack Boost JavaScript code
 The following commands need to be run from the `projects/plugins/boost` directory.
+
+Run `pnpm typecheck` to check the modern dashboard TypeScript using
+[`tsconfig.dashboard.json`](../tsconfig.dashboard.json). This command does not
+check the full legacy application.
 
 To check syntax and style in the all the TypeScript and Svelte files that Jetpack Boost relies on, you can run:
 
