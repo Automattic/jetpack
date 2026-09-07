@@ -18,7 +18,7 @@ export const POST_DETAIL_TAB_LAYOUTS: Record< PostDetailTabId, DashboardWidget[]
 		{
 			uuid: 'post-views',
 			type: 'jpa/post-views',
-			placement: { width: 2, height: 2, order: 2 },
+			placement: { width: DETAIL_COLUMN_COUNT, height: 2, order: 2 },
 		},
 		{
 			uuid: 'post-likes',
@@ -31,12 +31,6 @@ export const POST_DETAIL_TAB_LAYOUTS: Record< PostDetailTabId, DashboardWidget[]
 			placement: { width: 1, height: 2, order: 4 },
 		},
 		{
-			uuid: 'post-traffic-activity',
-			// Full width: the heatmap lays a whole year out across its columns.
-			type: 'jpa/post-traffic-activity',
-			placement: { width: DETAIL_COLUMN_COUNT, height: 2, order: 5 },
-		},
-		{
 			uuid: 'post-utm',
 			// The alias carries the mock's "UTM" card title; the registry's
 			// global "UTM Insights" title is owned by the copy spreadsheet work.
@@ -44,7 +38,13 @@ export const POST_DETAIL_TAB_LAYOUTS: Record< PostDetailTabId, DashboardWidget[]
 			// No "View all" action: this page is the terminal page, and the
 			// site-wide UTM report would drop this post's scope.
 			attributes: { utmDimension: 'utm_source,utm_medium', showReportLink: false },
-			placement: { width: 1, height: 2, order: 6 },
+			placement: { width: 1, height: 2, order: 5 },
+		},
+		{
+			uuid: 'post-traffic-activity',
+			// Full width: the heatmap lays a whole year out across its columns.
+			type: 'jpa/post-traffic-activity',
+			placement: { width: DETAIL_COLUMN_COUNT, height: 2, order: 6 },
 		},
 	],
 	'email-opens': [

@@ -2,7 +2,7 @@ import { DETAIL_COLUMN_COUNT } from '../../detail-grid';
 import { POST_DETAIL_TAB_LAYOUTS } from './tab-layouts';
 
 describe( 'post detail tab layouts', () => {
-	it( 'composes Post traffic as a full-width highlights row, a Post views chart beside Likes, Comments, then a full-width Traffic activity over UTM', () => {
+	it( 'composes Post traffic as full-width highlights and Post views rows, Likes, Comments and UTM side by side, then a full-width Traffic activity', () => {
 		expect( POST_DETAIL_TAB_LAYOUTS[ 'post-traffic' ] ).toEqual( [
 			{
 				uuid: 'post-detail-highlights',
@@ -12,7 +12,7 @@ describe( 'post detail tab layouts', () => {
 			{
 				uuid: 'post-views',
 				type: 'jpa/post-views',
-				placement: { width: 2, height: 2, order: 2 },
+				placement: { width: DETAIL_COLUMN_COUNT, height: 2, order: 2 },
 			},
 			{
 				uuid: 'post-likes',
@@ -25,15 +25,15 @@ describe( 'post detail tab layouts', () => {
 				placement: { width: 1, height: 2, order: 4 },
 			},
 			{
-				uuid: 'post-traffic-activity',
-				type: 'jpa/post-traffic-activity',
-				placement: { width: DETAIL_COLUMN_COUNT, height: 2, order: 5 },
-			},
-			{
 				uuid: 'post-utm',
 				type: 'jpa/utm-insights--utm',
 				attributes: { utmDimension: 'utm_source,utm_medium', showReportLink: false },
-				placement: { width: 1, height: 2, order: 6 },
+				placement: { width: 1, height: 2, order: 5 },
+			},
+			{
+				uuid: 'post-traffic-activity',
+				type: 'jpa/post-traffic-activity',
+				placement: { width: DETAIL_COLUMN_COUNT, height: 2, order: 6 },
 			},
 		] );
 	} );
@@ -114,11 +114,16 @@ describe( 'post detail tab layouts', () => {
 		] );
 	} );
 
-	it( 'keeps every tile within the three-column grid', () => {
+	it( 'fills every row of the three-column grid without leaving a gap', () => {
 		for ( const layout of Object.values( POST_DETAIL_TAB_LAYOUTS ) ) {
+			let used = 0;
 			for ( const widget of layout ) {
-				expect( widget.placement?.width ).toBeLessThanOrEqual( DETAIL_COLUMN_COUNT );
+				const width = widget.placement?.width ?? 1;
+				// A tile that does not fit wraps and strands the columns before it.
+				expect( used + width ).toBeLessThanOrEqual( DETAIL_COLUMN_COUNT );
+				used = ( used + width ) % DETAIL_COLUMN_COUNT;
 			}
+			expect( used ).toBe( 0 );
 		}
 	} );
 } );
