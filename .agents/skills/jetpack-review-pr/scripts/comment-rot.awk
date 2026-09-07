@@ -119,7 +119,9 @@ function comment_body( s,   t ) {
 	if ( substr( s, 1, 3 ) == "/**" )      t = substr( s, 4 )
 	else if ( substr( s, 1, 2 ) == "//" )  t = substr( s, 3 )
 	else if ( substr( s, 1, 2 ) == "/*" )  t = substr( s, 3 )
-	else if ( substr( s, 1, 2 ) == "* " || s == "*" ) t = substr( s, 2 )
+	# `{` rules out the CSS universal selector `* { … }`; it also drops docblock
+	# lines carrying a code sample, which a prose duplicate check does not want.
+	else if ( ( substr( s, 1, 2 ) == "* " && index( s, "{" ) == 0 ) || s == "*" ) t = substr( s, 2 )
 	else if ( hashes && substr( s, 1, 1 ) == "#" ) t = substr( s, 2 )
 	else return ""
 
