@@ -16,6 +16,9 @@ use WorDBless\Users as WorDBless_Users;
 
 /**
  * Tests for resolving and caching a connected user's WordPress.com user ID.
+ *
+ * @covers \Automattic\Jetpack\Connection\Manager
+ * @covers \Automattic\Jetpack\Connection\Utils
  */
 #[AllowMockObjectsWithoutExpectations]
 #[CoversClass( Manager::class )]
