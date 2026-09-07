@@ -154,7 +154,7 @@ describe( 'WordPressAgentNotice', () => {
 
 			expect(
 				screen.getByText(
-					'AI tools have moved to the WordPress Agent. Look for the "Agent" button at the top of the screen.'
+					'AI tools have moved to the WordPress Agent. Look for the " Agent" button at the top of the screen.'
 				)
 			).toBeInTheDocument();
 		} );
@@ -197,7 +197,7 @@ describe( 'WordPressAgentNotice', () => {
 
 		expect(
 			screen.getByText(
-				'AI tools have moved to the WordPress Agent. Look for the "Agent" button at the top of the screen.'
+				'AI tools have moved to the WordPress Agent. Look for the " Agent" button at the top of the screen.'
 			)
 		).toBeInTheDocument();
 	} );

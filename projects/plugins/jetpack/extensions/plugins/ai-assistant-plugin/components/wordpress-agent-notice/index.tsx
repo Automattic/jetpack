@@ -140,7 +140,7 @@ export default function WordPressAgentNotice( { placement }: WordPressAgentNotic
 					// translators: <icon /> is replaced with the WordPress Agent's icon, so keep the tag
 					// as written. "Agent" is the label on a button in the editor toolbar.
 					__(
-						'AI tools have moved to the WordPress Agent. Look for the <icon /> "Agent" button at the top of the screen.',
+						'AI tools have moved to the WordPress Agent. Look for the "<icon /> Agent" button at the top of the screen.',
 						'jetpack'
 					),
 					{
