@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Connect screen: Show a clearer error message when the site cannot reach WordPress.com during registration, and export the getConnectScreenErrorMessage helper.
