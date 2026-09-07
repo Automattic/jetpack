@@ -41,6 +41,9 @@ jest.mock( './return-to-classic-stats', () => ( {
 
 const mockApiFetch = jest.fn();
 
+// What the settings route echoes once the opt-in is off.
+const SETTINGS_OFF = { jetpack_premium_analytics_enabled: false };
+
 jest.mock( '@wordpress/api-fetch', () => ( {
 	__esModule: true,
 	default: ( ...args: unknown[] ) => mockApiFetch( ...args ),
@@ -53,7 +56,9 @@ beforeEach( () => {
 		site: { wpcom: { blog_id: 42 } },
 		user: { current_user: { wpcom: { ID: 7, login: 'reader' } } },
 	} );
-	mockApiFetch.mockResolvedValue( 'success' );
+	mockApiFetch.mockImplementation( ( { path }: { path: string } ) =>
+		Promise.resolve( path === '/wp/v2/settings' ? SETTINGS_OFF : 'success' )
+	);
 	mockCurrentUserCan.mockReturnValue( true );
 } );
 
@@ -405,7 +410,7 @@ describe( 'switching the new Traffic tab off', () => {
 		mockApiFetch.mockImplementation( ( { path }: { path: string } ) =>
 			path.includes( 'user-feedback' )
 				? Promise.reject( new Error( 'throttled' ) )
-				: Promise.resolve( 'success' )
+				: Promise.resolve( SETTINGS_OFF )
 		);
 		const user = await openConfirmation();
 

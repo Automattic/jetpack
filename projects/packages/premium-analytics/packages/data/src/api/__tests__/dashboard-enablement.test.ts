@@ -34,4 +34,13 @@ describe( 'disableDashboard', () => {
 
 		await expect( disableDashboard() ).rejects.toThrow( 'rest_forbidden' );
 	} );
+
+	it.each( [
+		[ 'still on', { jetpack_premium_analytics_enabled: true } ],
+		[ 'unknown to the route', {} ],
+	] )( 'rejects a 200 that leaves the setting %s', async ( _label, echo ) => {
+		mockApiFetch.mockResolvedValue( echo );
+
+		await expect( disableDashboard() ).rejects.toThrow( 'did not switch' );
+	} );
 } );
