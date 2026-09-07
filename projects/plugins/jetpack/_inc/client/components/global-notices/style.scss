@@ -3,7 +3,6 @@
 @use "../../scss/calypso-mixins";
 
 .global-notices {
-	text-align: right;
 	pointer-events: none;
 
 	z-index: z-index.z-index("root", ".global-notices");
@@ -43,11 +42,13 @@
  * Targets children rather than a notice class: the notices are now
  * `@wordpress/ui` `Notice.Root`, whose CSS-module class name is hashed.
  * The container is click-through so it never blocks the page, so each notice
- * has to opt back in, and undo the right-alignment that stacks them.
+ * has to opt back in. `container-type` is off because the container shrinks to
+ * fit its contents, and a size-contained child reports no width — collapsing
+ * the toast. The query it disables only applies to notices with a title.
  */
 .global-notices > * {
+	container-type: normal;
 	margin-bottom: 0;
-	text-align: left;
 	pointer-events: auto;
 	box-shadow:
 		0 2px 5px rgba(0, 0, 0, 0.2),
