@@ -28,6 +28,8 @@ export { drillDateRange } from './drill-date-range';
 
 export { parseBucketStart } from './bucket-start';
 
+export { toBucketStamp } from './bucket-stamp';
+
 export { parseSiteDateTime } from './site-datetime';
 
 export { readSiteTimestamp, type SiteTimestamp, type TimestampParts } from './site-timestamp';
