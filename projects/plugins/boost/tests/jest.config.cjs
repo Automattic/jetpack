@@ -1,10 +1,12 @@
+const { existsSync } = require( 'fs' );
 const path = require( 'path' );
 const coverageConfig = require( 'jetpack-js-tools/jest/config.coverage.js' );
 const baseConfig = require( 'jetpack-js-tools/jest/config.base.js' );
 
-module.exports = {
+const config = {
 	...coverageConfig,
 	rootDir: path.join( __dirname, '..' ),
+	roots: [ '<rootDir>/app', '<rootDir>/routes' ],
 	testEnvironment: require.resolve( 'jetpack-js-tools/jest/fix-environment-jsdom.mjs' ),
 	collectCoverageFrom: [
 		'<rootDir>/app/**/*.{js,mjs,cjs,jsx,ts,tsx,mts,cts}',
@@ -29,3 +31,13 @@ module.exports = {
 		'^\\$svg/(.*)$': '<rootDir>/app/assets/src/js/svg/$1',
 	},
 };
+
+const overviewConfig = path.join( __dirname, '../_inc/overview/jest.config.cjs' );
+module.exports = existsSync( overviewConfig )
+	? {
+			projects: [
+				{ ...config, testPathIgnorePatterns: [ '/node_modules/', '<rootDir>/_inc/overview/' ] },
+				overviewConfig,
+			],
+	  }
+	: config;
