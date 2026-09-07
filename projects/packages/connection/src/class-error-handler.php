@@ -217,6 +217,7 @@ class Error_Handler {
 		// Connection state problems (Manager::get_connection_owner, Connection_Health_Tests).
 		'invalid_connection_owner',  // The connection owner cannot be resolved: token missing or WP user deleted.
 		'xmlrpc_request_blocked',    // WP.com reached the site but the request was rejected (firewall, WAF, or server rule).
+		'ssl_verification_failed',   // WP.com could not verify the site's SSL certificate when connecting to it (expired, self-signed, or incomplete chain).
 	);
 
 	/**
@@ -633,6 +634,21 @@ class Error_Handler {
 					'url'   => admin_url( 'site-health.php' ),
 				),
 			),
+			// The tokens can be perfectly valid: WP.com cannot verify the site's SSL
+			// certificate, and a reconnect would be rejected the same way — so no
+			// reconnect CTA, and it outlives a broken owner. Ships a default admin notice
+			// for the same reason as the blocked error above: WP.com's requests never
+			// arrive, so no other detection path can see this.
+			'ssl_verification_failed'  => array(
+				'message_callback'         => array( $this, 'get_ssl_verification_failed_message' ),
+				'default_admin_notice'     => true,
+				'survives_owner_promotion' => true,
+				'support_link'             => true,
+				'notice_link'              => array(
+					'label' => __( 'Visit Site Health', 'jetpack-connection' ),
+					'url'   => admin_url( 'site-health.php' ),
+				),
+			),
 		);
 
 		return $configs;
@@ -677,6 +693,21 @@ class Error_Handler {
 	 */
 	private function get_blocked_request_message( $error ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		return __( 'WordPress.com requests to your site are being blocked, usually by a firewall or security rule. See Site Health for details and next steps.', 'jetpack-connection' );
+	}
+
+	/**
+	 * Builds the displayable message for the SSL-verification-failed error.
+	 *
+	 * Deliberately brief: Site Health holds the transport detail and the resolution
+	 * steps, so the message only names the condition and points there.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $error The stored error array (unused; part of the message_callback contract).
+	 * @return string The message.
+	 */
+	private function get_ssl_verification_failed_message( $error ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		return __( 'WordPress.com cannot securely connect to your site because its SSL certificate could not be verified. See Site Health for details and next steps.', 'jetpack-connection' );
 	}
 
 	/**

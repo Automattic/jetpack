@@ -477,11 +477,12 @@ class Connection_Health_Tests extends Connection_Health_Test_Base {
 	 * exercised without performing a signed remote request.
 	 *
 	 * Besides producing the Site Health result, this also keeps the Error_Handler
-	 * state for `xmlrpc_request_blocked` in sync: a blocked result reports the
-	 * error (making it visible on Error_Handler surfaces such as admin notices and
-	 * the dashboard), and a connected result clears it. Runs from every entry point
-	 * of the test: Site Health page loads, Core's weekly Site Health cron, and the
-	 * daily connection check on the heartbeat cron.
+	 * state for `xmlrpc_request_blocked` and `ssl_verification_failed` in sync: a
+	 * result carrying one of those codes reports the matching error (making it
+	 * visible on Error_Handler surfaces such as admin notices and the dashboard),
+	 * and a connected result clears both. Runs from every entry point of the test:
+	 * Site Health page loads, Core's weekly Site Health cron, and the daily
+	 * connection check on the heartbeat cron.
 	 *
 	 * @param string      $name        The test name.
 	 * @param object|null $result      The JSON-decoded response body; null when the body was not valid JSON.
@@ -492,6 +493,7 @@ class Connection_Health_Tests extends Connection_Health_Test_Base {
 	public function evaluate_wpcom_connection_result( $name, $result, $status_code ) {
 		if ( ! empty( $result->connected ) ) {
 			$this->clear_blocked_request_error();
+			$this->clear_ssl_verification_error();
 			return self::passing_test( array( 'name' => $name ) );
 		}
 
@@ -529,18 +531,54 @@ class Connection_Health_Tests extends Connection_Health_Test_Base {
 				);
 			}
 
+			// A 4xx/5xx from the site means WP.com completed the TLS handshake to get
+			// it, so a lingering SSL-verification error is provably stale.
+			$this->clear_ssl_verification_error();
+
 			return $this->blocked_request_failing_test( $name, $site_http_status );
 		}
 
+		// WP.com could not verify the site's SSL certificate when connecting to it
+		// (expired, self-signed, or incomplete chain). The site itself never sees these
+		// failures — the TLS handshake dies before PHP runs — so WP.com's response to
+		// this signed request is the only evidence, and reconnecting would be rejected
+		// the same way. A stored blocked error is preserved: a failed handshake proves
+		// nothing about a blockage, and ERROR_LIFE_TIME bounds any staleness.
+		if ( isset( $result->error_code ) && 'ssl_verification_failed' === $result->error_code ) {
+			// Same trust model and mid-update guard as the blocked branch above.
+			if ( method_exists( Error_Handler::class, 'build_connection_wp_error' ) ) {
+				Error_Handler::get_instance()->report_error(
+					Error_Handler::build_connection_wp_error(
+						'ssl_verification_failed',
+						'WordPress.com cannot verify the SSL certificate of the site',
+						array( 'token' => '' ),
+						'local_state', // Error_Handler::ERROR_TYPE_LOCAL_STATE.
+						'', // The broken certificate describes the site's environment, not one request, so it has no direction.
+						array(
+							'user_id' => 0,
+							// Reconnecting would fail certificate verification the same way,
+							// so the error carries its remedy: no reconnect CTA on any surface.
+							'action'  => 'none',
+						)
+					),
+					false,
+					true
+				);
+			}
+
+			return $this->ssl_verification_failing_test( $name );
+		}
+
 		// An explicit `connected` property (falsy here, past the pass branch) proves
-		// WP.com actually ran its test and did not report a blockage — a definitive
-		// non-blocked failure, so a lingering blocked error is stale and its
-		// suppressed-reconnect presentation would be wrong for this failure.
-		// Malformed bodies and service-error envelopes (no `connected` property) are
-		// inconclusive: preserve any existing blocked error, as with timeouts and
-		// 404s. A wrongly preserved error is bounded by ERROR_LIFE_TIME anyway.
+		// WP.com actually ran its test and did not report a blockage or a certificate
+		// failure — a definitive other failure, so a lingering blocked or SSL error is
+		// stale and its suppressed-reconnect presentation would be wrong for this
+		// failure. Malformed bodies and service-error envelopes (no `connected`
+		// property) are inconclusive: preserve any existing errors, as with timeouts
+		// and 404s. A wrongly preserved error is bounded by ERROR_LIFE_TIME anyway.
 		if ( is_object( $result ) && property_exists( $result, 'connected' ) ) {
 			$this->clear_blocked_request_error();
+			$this->clear_ssl_verification_error();
 		}
 
 		$message = isset( $result->message ) && '' !== $result->message
@@ -572,6 +610,20 @@ class Connection_Health_Tests extends Connection_Health_Test_Base {
 	}
 
 	/**
+	 * Clears a stored `ssl_verification_failed` error, when the loaded Error_Handler supports it.
+	 *
+	 * As with clear_blocked_request_error(), state sync is best-effort and skipped when a
+	 * stale Error_Handler predating the method is loaded mid-plugin-update.
+	 *
+	 * @since $$next-version$$
+	 */
+	private function clear_ssl_verification_error() {
+		if ( method_exists( Error_Handler::class, 'delete_error_by_code' ) ) {
+			Error_Handler::get_instance()->delete_error_by_code( 'ssl_verification_failed' );
+		}
+	}
+
+	/**
 	 * Builds a failing result for the case where the site is blocking WordPress.com's
 	 * connection test (e.g. firewall/WAF/security plugin).
 	 *
@@ -593,6 +645,35 @@ class Connection_Health_Tests extends Connection_Health_Test_Base {
 			: __( 'WordPress.com reached your site but the request was blocked. This is usually caused by a firewall, security plugin, or server rule rejecting requests from WordPress.com.', 'jetpack-connection' );
 
 		$recommendation = __( 'Ask your host or security provider to allow requests from WordPress.com to your site\'s xmlrpc.php file. Reconnecting will not resolve this. If you need further help, contact Jetpack support.', 'jetpack-connection' );
+
+		return self::failing_test(
+			array(
+				'name'              => $name,
+				'short_description' => $connection_error,
+				'long_description'  => self::helper_get_reconnect_long_description( $connection_error, $recommendation ),
+				'action_label'      => $this->helper_get_support_text(),
+				'action'            => $this->helper_get_support_url(),
+			)
+		);
+	}
+
+	/**
+	 * Builds a failing result for the case where WordPress.com could not verify the
+	 * site's SSL certificate when connecting to it.
+	 *
+	 * No reconnect action is offered because a reconnect would fail certificate
+	 * verification the same way.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $name The test name.
+	 *
+	 * @return array Test results.
+	 */
+	protected function ssl_verification_failing_test( $name ) {
+		$connection_error = __( 'WordPress.com could not establish a secure connection to your site because your site\'s SSL certificate could not be verified. This is usually caused by an expired or self-signed certificate, or a missing intermediate certificate.', 'jetpack-connection' );
+
+		$recommendation = __( 'Ask your hosting provider to renew your site\'s SSL certificate or complete its certificate chain. Reconnecting will not resolve this. If you need further help, contact Jetpack support.', 'jetpack-connection' );
 
 		return self::failing_test(
 			array(
