@@ -1,0 +1,179 @@
+/* eslint-disable testing-library/prefer-user-event */
+import { requestSpeedScores } from '@automattic/jetpack-boost-score-api';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { act, fireEvent, render, renderHook, screen, waitFor } from '@testing-library/react';
+import apiFetch from '@wordpress/api-fetch';
+import { recordBoostEvent } from '../../app/assets/src/js/lib/utils/analytics';
+import { useSpeedScores } from './lib/use-speed-scores';
+import Overview from './overview';
+import ScoreCards from './score-cards';
+
+jest.mock( '@automattic/jetpack-boost-score-api', () => ( {
+	...jest.requireActual( '@automattic/jetpack-boost-score-api' ),
+	requestSpeedScores: jest.fn(),
+} ) );
+jest.mock( '@wordpress/api-fetch' );
+jest.mock( '../../app/assets/src/js/lib/utils/analytics', () => ( {
+	recordBoostEvent: jest.fn(),
+} ) );
+jest.mock( '../../app/assets/src/js/features/upgrade-cta/interstitial-modal-cta', () => ( {
+	__esModule: true,
+	default: ( { customModalTrigger }: { customModalTrigger: import('react').ReactNode } ) =>
+		customModalTrigger,
+} ) );
+
+const scores = {
+	current: { desktop: 91, mobile: 81 },
+	noBoost: { desktop: 81, mobile: 80 },
+	isStale: false,
+};
+
+beforeEach( () => {
+	jest.clearAllMocks();
+	Object.assign( window, {
+		Jetpack_Boost: { site: { url: 'https://example.org', online: true } },
+		wpApiSettings: { root: 'https://example.org/wp-json/', nonce: 'wp-nonce' },
+		jetpack_boost_ds: {
+			rest_api: { value: 'https://example.org/wp-json/jetpack-boost-ds', nonce: 'wp-nonce' },
+			modules_state: {
+				nonce: 'modules-nonce',
+				value: { performance_history: { available: true, active: true } },
+			},
+			performance_history: { nonce: 'history-nonce' },
+			dismissed_alerts: { nonce: 'alerts-nonce', value: { performance_history_fresh_start: true } },
+		},
+	} );
+	jest.mocked( requestSpeedScores ).mockResolvedValue( scores );
+	jest.mocked( apiFetch ).mockImplementation( async ( { url } ) => ( {
+		status: 'success',
+		JSON: url?.includes( 'modules-state' )
+			? window.jetpack_boost_ds!.modules_state!.value
+			: url?.includes( 'dismissed-alerts' )
+			? { performance_history_fresh_start: true }
+			: null,
+	} ) );
+} );
+
+function renderOverview() {
+	const client = new QueryClient( { defaultOptions: { queries: { retry: false } } } );
+	const view = render(
+		<QueryClientProvider client={ client }>
+			<Overview />
+		</QueryClientProvider>
+	);
+	return { ...view, client };
+}
+
+test( 'loads online scores and regenerates them with refresh tracking and history invalidation', async () => {
+	const { client } = renderOverview();
+	await expect( screen.findByText( '91' ) ).resolves.toBeTruthy();
+	expect( requestSpeedScores ).toHaveBeenCalledWith(
+		false,
+		wpApiSettings.root,
+		Jetpack_Boost.site.url,
+		wpApiSettings.nonce
+	);
+	const invalidate = jest.spyOn( client, 'invalidateQueries' );
+	fireEvent.click( screen.getByRole( 'button', { name: 'Refresh' } ) );
+	await waitFor( () =>
+		expect( requestSpeedScores ).toHaveBeenLastCalledWith(
+			true,
+			wpApiSettings.root,
+			Jetpack_Boost.site.url,
+			wpApiSettings.nonce
+		)
+	);
+	expect( recordBoostEvent ).toHaveBeenCalledWith( 'speed_score_refresh_clicked', {} );
+	await waitFor( () =>
+		expect( invalidate ).toHaveBeenCalledWith( { queryKey: [ 'performance_history' ] } )
+	);
+} );
+
+test( 'keeps offline sites out of score and Data Sync requests', async () => {
+	Jetpack_Boost.site.online = false;
+	renderOverview();
+	expect( screen.getByText( 'Website is not publicly available' ) ).toBeInTheDocument();
+	expect( screen.queryByRole( 'button', { name: 'Refresh' } ) ).not.toBeInTheDocument();
+	expect( requestSpeedScores ).not.toHaveBeenCalled();
+	expect( apiFetch ).not.toHaveBeenCalled();
+	const { result } = renderHook( () => useSpeedScores() );
+	await act( async () => result.current[ 1 ]( true ) );
+	expect( requestSpeedScores ).not.toHaveBeenCalled();
+} );
+
+test( 'tracks score errors and offers a successful retry', async () => {
+	jest
+		.mocked( requestSpeedScores )
+		.mockRejectedValueOnce( new Error( 'Score service unavailable' ) );
+	renderOverview();
+	await expect( screen.findByText( 'Score service unavailable' ) ).resolves.toBeTruthy();
+	expect( recordBoostEvent ).toHaveBeenCalledWith( 'speed_score_request_error', {
+		error_message: 'Score service unavailable',
+	} );
+	fireEvent.click( screen.getByRole( 'button', { name: 'Try again' } ) );
+	await expect( screen.findByText( '91' ) ).resolves.toBeTruthy();
+	expect( screen.queryByText( 'Score service unavailable' ) ).not.toBeInTheDocument();
+} );
+
+test( 'does not present initial loading scores as measured scores', () => {
+	jest.mocked( requestSpeedScores ).mockReturnValue( new Promise( () => {} ) );
+	renderOverview();
+	expect( screen.getAllByText( '—' ) ).toHaveLength( 3 );
+	expect( screen.queryByRole( 'progressbar' ) ).not.toBeInTheDocument();
+	fireEvent.click( screen.getByRole( 'button', { name: 'Refresh' } ) );
+	expect( requestSpeedScores ).toHaveBeenCalledTimes( 1 );
+} );
+
+test( 'hides stale and absent baselines while preserving measured scores', () => {
+	const { rerender } = render( <ScoreCards scores={ scores } /> );
+	expect( screen.getByText( /\+10 points/ ) ).toBeInTheDocument();
+	rerender( <ScoreCards scores={ { ...scores, isStale: true } } /> );
+	expect( screen.queryByText( /compared to without Boost/ ) ).not.toBeInTheDocument();
+	expect( screen.getByText( '91' ) ).toBeInTheDocument();
+	rerender( <ScoreCards scores={ { ...scores, noBoost: null } } /> );
+	expect( screen.queryByText( /compared to without Boost/ ) ).not.toBeInTheDocument();
+} );
+
+test( 'selects the free history upgrade using module availability', async () => {
+	window.jetpack_boost_ds!.modules_state!.value = {
+		performance_history: { available: false, active: false },
+	};
+	renderOverview();
+	await expect( screen.findByRole( 'button', { name: 'Upgrade now' } ) ).resolves.toBeTruthy();
+	expect( screen.queryByText( /Performance history will appear/ ) ).not.toBeInTheDocument();
+} );
+
+test( 'selects the paid empty history state using module availability', async () => {
+	renderOverview();
+	await expect( screen.findByText( /Performance history will appear/ ) ).resolves.toBeTruthy();
+	expect( screen.queryByRole( 'button', { name: 'Upgrade now' } ) ).not.toBeInTheDocument();
+} );
+
+test( 'debounces optimization changes and waits for generation to finish', async () => {
+	jest.useFakeTimers();
+	try {
+		const { result, rerender, unmount } = renderHook( state => useSpeedScores( state ), {
+			initialProps: { config: 'modules-active:1,updated:10', isPending: false },
+		} );
+		await waitFor( () => expect( result.current[ 0 ].status ).toBe( 'loaded' ) );
+		rerender( { config: 'modules-active:1,updated:20', isPending: true } );
+		act( () => jest.advanceTimersByTime( 2000 ) );
+		expect( requestSpeedScores ).toHaveBeenCalledTimes( 1 );
+		rerender( { config: 'modules-active:1,updated:20', isPending: false } );
+		act( () => jest.advanceTimersByTime( 1999 ) );
+		expect( requestSpeedScores ).toHaveBeenCalledTimes( 1 );
+		await act( async () => {
+			jest.advanceTimersByTime( 1 );
+		} );
+		expect( requestSpeedScores ).toHaveBeenCalledTimes( 2 );
+		expect( requestSpeedScores ).toHaveBeenLastCalledWith(
+			true,
+			wpApiSettings.root,
+			Jetpack_Boost.site.url,
+			wpApiSettings.nonce
+		);
+		unmount();
+	} finally {
+		jest.useRealTimers();
+	}
+} );

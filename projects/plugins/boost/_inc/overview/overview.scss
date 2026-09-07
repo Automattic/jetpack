@@ -1,0 +1,89 @@
+.jetpack-boost-overview {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-xl);
+	inline-size: 100%;
+	max-inline-size: 720px;
+	margin-inline: auto;
+	min-inline-size: 0;
+
+	&__score-row {
+		display: grid;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+
+		@media ( max-width: 600px ) {
+			grid-template-columns: minmax(0, 1fr);
+		}
+	}
+
+	&__score-section {
+		display: flex;
+		flex-direction: column;
+		gap: var(--wpds-dimension-gap-sm);
+		padding: var(--wpds-dimension-padding-xl) var(--wpds-dimension-padding-2xl);
+		min-inline-size: 0;
+	}
+
+	&__progress {
+		appearance: none;
+		border: 0;
+		border-radius: 2px;
+		block-size: 4px;
+		inline-size: 100%;
+		overflow: hidden;
+		background-color: var(--wpds-color-background-surface-neutral-weak);
+
+		&::-webkit-progress-bar {
+			background-color: var(--wpds-color-background-surface-neutral-weak);
+		}
+
+		&::-webkit-progress-value {
+			background-color: currentColor;
+		}
+
+		&::-moz-progress-bar {
+			background-color: currentColor;
+		}
+	}
+
+	&__progress--good,
+	&__delta--up {
+		color: var(--wpds-color-foreground-content-success);
+	}
+
+	&__progress--medium {
+		color: var(--wpds-color-foreground-content-warning);
+	}
+
+	&__progress--poor,
+	&__delta--down {
+		color: var(--wpds-color-foreground-content-error);
+	}
+
+	&__delta--neutral {
+		color: var(--wpds-color-foreground-content-neutral-weak);
+	}
+
+	&__chart-canvas {
+		min-inline-size: 0;
+	}
+
+	&__chart-loading {
+		display: grid;
+		place-items: center;
+		min-block-size: 240px;
+	}
+
+	&__history-tooltip {
+
+		dl {
+			margin-block: 8px 0;
+		}
+
+		dd {
+			margin-inline-start: 0;
+			margin-block-end: 8px;
+			font-weight: 600;
+		}
+	}
+}
