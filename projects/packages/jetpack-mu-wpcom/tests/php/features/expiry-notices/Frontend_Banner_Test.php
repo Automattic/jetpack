@@ -19,13 +19,26 @@ require_once __DIR__ . '/trait-expiry-notices-fixtures.php';
 class Frontend_Banner_Test extends \WorDBless\BaseTestCase {
 	use Expiry_Notices_Fixtures;
 
+	/**
+	 * @var string|null
+	 */
+	private $request_uri;
+
 	public function set_up() {
 		parent::set_up();
+		// Restored rather than unset afterwards: later suites read it and CI
+		// reports the missing key as an error.
+		$this->request_uri = $_SERVER['REQUEST_URI'] ?? null;
 		$this->set_up_expiry_fixtures();
 		set_current_screen( 'front' );
 	}
 
 	public function tear_down() {
+		if ( null === $this->request_uri ) {
+			unset( $_SERVER['REQUEST_URI'] );
+		} else {
+			$_SERVER['REQUEST_URI'] = $this->request_uri;
+		}
 		$this->tear_down_expiry_fixtures();
 		parent::tear_down();
 	}
@@ -99,7 +112,6 @@ class Frontend_Banner_Test extends \WorDBless\BaseTestCase {
 		$this->assertStringContainsString( 'redirect_to=' . rawurlencode( home_url( '/about/?utm_source=x' ) ), $url );
 		$this->assertStringNotContainsString( 'settings-updated', rawurldecode( $url ) );
 		$this->assertStringNotContainsString( 'wp-admin', $url );
-		unset( $_SERVER['REQUEST_URI'] );
 	}
 
 	public function test_no_secondary_cta_in_grace(): void {
