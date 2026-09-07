@@ -11,7 +11,6 @@ import { redirect } from '@wordpress/route';
 /**
  * Internal dependencies
  */
-import { ensureDashboardEntities } from '../dashboard-entities';
 import { getReportDefinition } from '../reports/registry';
 import { isPremiumAnalyticsSiteConnected, isVideoPressAvailable } from '../site-readiness';
 
@@ -104,7 +103,5 @@ export const route = {
 				search: seeded as unknown as never,
 			} );
 		}
-
-		ensureDashboardEntities();
 	},
 };
