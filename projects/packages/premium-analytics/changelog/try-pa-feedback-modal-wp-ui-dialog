@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Feedback modal: render with the design system Dialog and TextareaControl.
