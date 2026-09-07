@@ -137,9 +137,7 @@ export default function WordPressAgentNotice( { placement }: WordPressAgentNotic
 		>
 			<Notice.Description>
 				{ createInterpolateElement(
-					// translators: <icon/> is replaced with the WordPress Agent's icon and <label></label> keeps
-					// the quoted button label on one line, so keep both tags as written. "Agent" is the label
-					// on a button in the editor toolbar.
+					// translators: <icon/> is the WordPress Agent's icon. "Agent" is the label on an editor toolbar button.
 					__(
 						'AI tools have moved to the WordPress Agent. Look for the <label>"<icon/>Agent"</label> button at the top of the screen.',
 						'jetpack'
