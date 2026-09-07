@@ -3,6 +3,7 @@
  */
 import {
 	disableDashboard,
+	getApiErrorCode,
 	submitStatsUserFeedback,
 	type StatsFeedbackRating,
 } from '@jetpack-premium-analytics/data';
@@ -57,7 +58,12 @@ export function SwitchOffDialog( { onClose }: SwitchOffDialogProps ) {
 
 		try {
 			await disableDashboard();
-		} catch {
+		} catch ( error ) {
+			// eslint-disable-next-line no-console -- the notice names no cause, so the code goes where a report can find it
+			console.error(
+				'Switching the new Traffic tab off failed:',
+				getApiErrorCode( error ) ?? error
+			);
 			setHasFailed( true );
 			setIsSwitchingOff( false );
 			return;
@@ -77,7 +83,10 @@ export function SwitchOffDialog( { onClose }: SwitchOffDialogProps ) {
 				rating,
 				comment: message,
 				productName: PRODUCT_NAME,
-			} ).catch( () => undefined );
+			} ).catch( ( error: unknown ) => {
+				// eslint-disable-next-line no-console -- swallowed on purpose, so this is the only trace
+				console.warn( 'Exit feedback not delivered:', getApiErrorCode( error ) ?? error );
+			} );
 		}
 
 		returnToClassicStats();

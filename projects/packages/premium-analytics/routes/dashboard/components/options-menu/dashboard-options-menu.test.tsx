@@ -407,6 +407,7 @@ describe( 'switching the new Traffic tab off', () => {
 	} );
 
 	it( 'still switches off when Happiness is unreachable', async () => {
+		const warn = jest.spyOn( console, 'warn' ).mockImplementation( () => {} );
 		mockApiFetch.mockImplementation( ( { path }: { path: string } ) =>
 			path.includes( 'user-feedback' )
 				? Promise.reject( new Error( 'throttled' ) )
@@ -421,9 +422,12 @@ describe( 'switching the new Traffic tab off', () => {
 		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_premium_analytics_preview_disable', {
 			comment: 'No comparison on the map',
 		} );
+		expect( warn ).toHaveBeenCalledTimes( 1 );
+		warn.mockRestore();
 	} );
 
 	it( 'keeps the reader here when the write fails, and counts a retry once', async () => {
+		const error = jest.spyOn( console, 'error' ).mockImplementation( () => {} );
 		mockApiFetch.mockRejectedValueOnce( { code: 'rest_forbidden' } );
 		const user = await openConfirmation();
 
@@ -435,13 +439,15 @@ describe( 'switching the new Traffic tab off', () => {
 		).resolves.toBeInTheDocument();
 		expect( screen.getByRole( 'button', { name: 'Switch it off' } ) ).toBeEnabled();
 		expect( mockReturnToClassicStats ).not.toHaveBeenCalled();
-		// A failed attempt is not a disable.
+		// A failed attempt is not a disable, and the code is left where a report can find it.
 		expect( mockRecordEvent ).not.toHaveBeenCalled();
+		expect( error ).toHaveBeenCalledWith( expect.any( String ), 'rest_forbidden' );
 
 		await user.click( screen.getByRole( 'button', { name: 'Switch it off' } ) );
 
 		await waitFor( () => expect( mockReturnToClassicStats ).toHaveBeenCalledTimes( 1 ) );
 		expect( mockRecordEvent ).toHaveBeenCalledTimes( 1 );
+		error.mockRestore();
 	} );
 
 	it( 'ignores Escape while the write is in flight', async () => {
