@@ -30,7 +30,7 @@ type FeedbackModalProps = {
  */
 export function FeedbackModal( { onClose }: FeedbackModalProps ) {
 	const trackEvent = useTrackEvent();
-	const [ rating, setRating ] = useState< StatsFeedbackRating | null >( null );
+	const [ rating, setRating ] = useState< StatsFeedbackRating >();
 	const [ comment, setComment ] = useState( '' );
 	const [ hasSubmitted, setHasSubmitted ] = useState( false );
 
@@ -49,7 +49,7 @@ export function FeedbackModal( { onClose }: FeedbackModalProps ) {
 	);
 
 	const submit = useCallback( () => {
-		if ( rating === null ) {
+		if ( rating === undefined ) {
 			return;
 		}
 
@@ -119,7 +119,7 @@ export function FeedbackModal( { onClose }: FeedbackModalProps ) {
 							<Button
 								variant="solid"
 								size="compact"
-								disabled={ rating === null }
+								disabled={ rating === undefined }
 								onClick={ submit }
 							>
 								{ __( 'Send feedback', 'jetpack-premium-analytics-pkg' ) }

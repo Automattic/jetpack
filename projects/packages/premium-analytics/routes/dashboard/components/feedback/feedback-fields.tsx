@@ -43,7 +43,7 @@ function Question( { children }: { children: string } ) {
 }
 
 type FeedbackFieldsProps = {
-	rating: StatsFeedbackRating | null;
+	rating: StatsFeedbackRating | undefined;
 	onRatingChange: ( rating: StatsFeedbackRating ) => void;
 	comment: string;
 	onCommentChange: ( comment: string ) => void;
@@ -55,7 +55,7 @@ type FeedbackFieldsProps = {
  * surface asks its own open question under the scale.
  *
  * @param {FeedbackFieldsProps} props                 - Component props.
- * @param {number|null}         props.rating          - The score picked, or null.
+ * @param {number|undefined}    props.rating          - The score picked, if any.
  * @param {Function}            props.onRatingChange  - Called with the score picked.
  * @param {string}              props.comment         - The comment as typed.
  * @param {Function}            props.onCommentChange - Called with the comment as typed.
@@ -87,7 +87,7 @@ export function FeedbackFields( {
 					hideLabelFromVision
 					label={ comparisonQuestion }
 					options={ ratingOptions() }
-					selected={ rating === null ? undefined : String( rating ) }
+					selected={ rating?.toString() }
 					onChange={ selectRating }
 				/>
 			</Stack>

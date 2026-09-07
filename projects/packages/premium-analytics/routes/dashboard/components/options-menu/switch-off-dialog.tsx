@@ -35,7 +35,7 @@ type SwitchOffDialogProps = {
  */
 export function SwitchOffDialog( { open, onClose }: SwitchOffDialogProps ) {
 	const trackEvent = useTrackEvent();
-	const [ rating, setRating ] = useState< StatsFeedbackRating | null >( null );
+	const [ rating, setRating ] = useState< StatsFeedbackRating >();
 	const [ comment, setComment ] = useState( '' );
 	const [ isSwitchingOff, setIsSwitchingOff ] = useState( false );
 	const [ hasFailed, setHasFailed ] = useState( false );
@@ -58,14 +58,14 @@ export function SwitchOffDialog( { open, onClose }: SwitchOffDialogProps ) {
 
 		// Before the write: the navigation below would cut short a beacon sent after it.
 		trackEvent( 'jetpack_premium_analytics_preview_disable', {
-			...( rating === null ? {} : { rating } ),
+			...( rating === undefined ? {} : { rating } ),
 			...( message ? { comment: message } : {} ),
 		} );
 
 		// Happiness gets the comment too; a failure there must not keep the reader here.
 		const feedback = message
 			? submitStatsUserFeedback( {
-					rating: rating ?? undefined,
+					rating,
 					comment: message,
 					productName: PRODUCT_NAME,
 			  } ).catch( () => undefined )
