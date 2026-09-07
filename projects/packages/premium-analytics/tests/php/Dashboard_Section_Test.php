@@ -81,6 +81,8 @@ class Dashboard_Section_Test extends BaseTestCase {
 		remove_all_filters( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER );
 		remove_all_filters( SUBSCRIBERS_DASHBOARD_SECTION_AVAILABLE_FILTER );
 		remove_all_filters( ADS_DASHBOARD_SECTION_AVAILABLE_FILTER );
+		remove_all_filters( DASHBOARD_PREVIEW_SCOPE_FILTER );
+		delete_option( Enablement_Setting::ENABLED_OPTION );
 
 		if ( null !== $this->available_modules_filter ) {
 			remove_filter( 'jetpack_get_available_standalone_modules', $this->available_modules_filter );
@@ -117,6 +119,17 @@ class Dashboard_Section_Test extends BaseTestCase {
 		};
 
 		add_filter( 'jetpack_get_available_standalone_modules', $this->available_modules_filter );
+	}
+
+	/**
+	 * Satisfy every built-in section's own availability check.
+	 *
+	 * @return void
+	 */
+	private function enable_every_section() {
+		$this->set_admin_user();
+		add_filter( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_true' );
+		add_filter( ADS_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_true' );
 	}
 
 	/**
@@ -1223,6 +1236,165 @@ class Dashboard_Section_Test extends BaseTestCase {
 
 		$this->assertFalse( $ads->is_available() );
 		$this->assertNotContains( 'analytics/ads', $this->available_section_ids() );
+	}
+
+	/**
+	 * The customer preview exposes the Traffic tab and nothing else.
+	 */
+	public function test_preview_scope_leaves_only_the_traffic_section() {
+		$this->enable_every_section();
+		update_option( Enablement_Setting::ENABLED_OPTION, 1 );
+
+		register_default_dashboard_sections();
+
+		$this->assertSame( array( 'analytics/traffic' ), $this->available_section_ids() );
+	}
+
+	/**
+	 * A dashboard switched on by anything but the site's own opt-in keeps every tab.
+	 */
+	public function test_an_overridden_dashboard_is_not_preview_scoped() {
+		$this->enable_every_section();
+
+		register_default_dashboard_sections();
+
+		$this->assertSame(
+			array(
+				'analytics/traffic',
+				'analytics/insights',
+				'analytics/subscribers',
+				'woocommerce/store',
+				'analytics/ads',
+			),
+			$this->available_section_ids()
+		);
+	}
+
+	/**
+	 * The scope filter restores the whole dashboard for a development or test site.
+	 */
+	public function test_preview_scope_filter_restores_every_section() {
+		$this->enable_every_section();
+		update_option( Enablement_Setting::ENABLED_OPTION, 1 );
+		add_filter( DASHBOARD_PREVIEW_SCOPE_FILTER, '__return_true' );
+
+		register_default_dashboard_sections();
+
+		$this->assertCount( 5, $this->available_section_ids() );
+	}
+
+	/**
+	 * The scope filter carries the section id, so one tab can open without the rest.
+	 */
+	public function test_preview_scope_filter_can_open_a_single_section() {
+		$this->enable_every_section();
+		update_option( Enablement_Setting::ENABLED_OPTION, 1 );
+		add_filter(
+			DASHBOARD_PREVIEW_SCOPE_FILTER,
+			static function ( $in_scope, $slug ) {
+				return 'insights' === $slug ? true : $in_scope;
+			},
+			10,
+			2
+		);
+
+		register_default_dashboard_sections();
+
+		$this->assertSame(
+			array( 'analytics/traffic', 'analytics/insights' ),
+			$this->available_section_ids()
+		);
+	}
+
+	/**
+	 * The scope decides which sections the preview offers, never whether the site has them.
+	 */
+	public function test_preview_scope_does_not_bypass_a_section_own_availability() {
+		$this->set_admin_user();
+		add_filter( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_false' );
+		update_option( Enablement_Setting::ENABLED_OPTION, 1 );
+		add_filter( DASHBOARD_PREVIEW_SCOPE_FILTER, '__return_true' );
+
+		register_default_dashboard_sections();
+
+		$this->assertNotContains( 'woocommerce/store', $this->available_section_ids() );
+	}
+
+	/**
+	 * Switching the preview off stores a falsy option, which is not the same as running it.
+	 *
+	 * @param mixed $stored Value the opt-out leaves in the option.
+	 * @dataProvider provide_opted_out_option_values
+	 */
+	#[DataProvider( 'provide_opted_out_option_values' )]
+	public function test_an_explicit_opt_out_is_not_preview_scoped( $stored ) {
+		$this->enable_every_section();
+		update_option( Enablement_Setting::ENABLED_OPTION, $stored );
+
+		register_default_dashboard_sections();
+
+		$this->assertCount( 5, $this->available_section_ids() );
+	}
+
+	/**
+	 * Data provider for the opt-out values core can leave behind.
+	 *
+	 * @return array<string, array{mixed}>
+	 */
+	public static function provide_opted_out_option_values() {
+		return array(
+			'sanitized zero' => array( 0 ),
+			'empty string'   => array( '' ),
+		);
+	}
+
+	/**
+	 * The preview leaves nothing that waits on the analytics sync, so the sync stays idle
+	 * until the Store tab is exposed.
+	 */
+	public function test_preview_scope_leaves_no_section_awaiting_sync() {
+		$this->enable_every_section();
+		update_option( Enablement_Setting::ENABLED_OPTION, 1 );
+
+		register_default_dashboard_sections();
+
+		$requires_sync = array_column(
+			array_map(
+				static function ( Dashboard_Section $section ) {
+					return $section->to_array();
+				},
+				get_available_dashboard_sections( DASHBOARD_NAME )
+			),
+			'requires_sync'
+		);
+
+		$this->assertSame( array( false ), $requires_sync );
+	}
+
+	/**
+	 * The scope governs this package's dashboard, not every dashboard using the registry.
+	 */
+	public function test_preview_scope_leaves_other_dashboards_alone() {
+		update_option( Enablement_Setting::ENABLED_OPTION, 1 );
+
+		register_dashboard_section( 'other_dashboard', 'other/insights', array( 'label' => 'Insights' ) );
+
+		$this->assertCount( 1, get_available_dashboard_sections( 'other_dashboard' ) );
+	}
+
+	/**
+	 * A section the preview hides is a 404 for anyone who addresses it directly.
+	 */
+	public function test_preview_scope_hides_a_section_from_the_route() {
+		$this->enable_every_section();
+		update_option( Enablement_Setting::ENABLED_OPTION, 1 );
+
+		register_default_dashboard_sections();
+
+		$section = get_available_dashboard_section_for_route( DASHBOARD_NAME, 'analytics/insights' );
+
+		$this->assertInstanceOf( \WP_Error::class, $section );
+		$this->assertSame( 'dashboard_section_unavailable', $section->get_error_code() );
 	}
 
 	/**

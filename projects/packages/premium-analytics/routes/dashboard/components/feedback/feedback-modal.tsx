@@ -2,14 +2,22 @@
  * WordPress dependencies
  */
 import { submitStatsUserFeedback, type StatsFeedbackRating } from '@jetpack-premium-analytics/data';
-import { Button, Notice, Stack, Text } from '@jetpack-premium-analytics/externals';
-import { Modal, RadioControl, TextareaControl } from '@wordpress/components';
+import {
+	Button,
+	Dialog,
+	Notice,
+	Stack,
+	Text,
+	TextareaControl,
+} from '@jetpack-premium-analytics/externals';
+import { RadioControl } from '@wordpress/components';
 import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
 import { useTrackEvent } from '../../hooks/use-track-event';
+import styles from './feedback-modal.module.scss';
 
 // Tracks drops an event whose properties are oversized, so a pasted essay would
 // cost us the rating too.
@@ -82,6 +90,15 @@ export function FeedbackModal( { onClose }: FeedbackModalProps ) {
 		[]
 	);
 
+	const handleOpenChange = useCallback(
+		( isOpen: boolean ) => {
+			if ( ! isOpen ) {
+				onClose();
+			}
+		},
+		[ onClose ]
+	);
+
 	const submit = useCallback( () => {
 		if ( rating === null ) {
 			return;
@@ -107,59 +124,75 @@ export function FeedbackModal( { onClose }: FeedbackModalProps ) {
 	}, [ comment, rating, trackEvent ] );
 
 	return (
-		<Modal
-			title={ __( 'Share your feedback', 'jetpack-premium-analytics-pkg' ) }
-			onRequestClose={ onClose }
-			size="medium"
-		>
-			{ hasSubmitted ? (
-				<Stack direction="column" gap="lg">
-					<Notice.Root intent="success">
-						<Notice.Description>
-							{ __( 'Thank you. This helps.', 'jetpack-premium-analytics-pkg' ) }
-						</Notice.Description>
-					</Notice.Root>
+		<Dialog.Root open onOpenChange={ handleOpenChange }>
+			<Dialog.Popup size="medium">
+				<Dialog.Header>
+					<Dialog.Title>
+						{ __( 'Share your feedback', 'jetpack-premium-analytics-pkg' ) }
+					</Dialog.Title>
+					<Dialog.CloseIcon />
+				</Dialog.Header>
 
-					<Stack direction="row" gap="sm" justify="end">
-						<Button variant="solid" size="compact" onClick={ onClose }>
-							{ __( 'Done', 'jetpack-premium-analytics-pkg' ) }
-						</Button>
-					</Stack>
-				</Stack>
-			) : (
-				<Stack direction="column" gap="xl">
-					<Stack direction="column" gap="sm">
-						<Question>{ comparisonQuestion }</Question>
-						<RadioControl
-							hideLabelFromVision
-							label={ comparisonQuestion }
-							options={ ratingOptions() }
-							selected={ rating === null ? undefined : String( rating ) }
-							onChange={ selectRating }
-						/>
-					</Stack>
+				{ hasSubmitted ? (
+					<>
+						<Dialog.Content>
+							<Notice.Root intent="success">
+								<Notice.Description>
+									{ __( 'Thank you. This helps.', 'jetpack-premium-analytics-pkg' ) }
+								</Notice.Description>
+							</Notice.Root>
+						</Dialog.Content>
 
-					<Stack direction="column" gap="sm">
-						<Question>{ blockerQuestion }</Question>
-						<TextareaControl
-							hideLabelFromVision
-							label={ blockerQuestion }
-							value={ comment }
-							maxLength={ COMMENT_MAX_LENGTH }
-							onChange={ setComment }
-						/>
-					</Stack>
+						<Dialog.Footer>
+							<Dialog.Action variant="solid" size="compact">
+								{ __( 'Done', 'jetpack-premium-analytics-pkg' ) }
+							</Dialog.Action>
+						</Dialog.Footer>
+					</>
+				) : (
+					<>
+						<Dialog.Content>
+							<Stack className={ styles.body } direction="column" gap="xl">
+								<Stack direction="column" gap="sm">
+									<Question>{ comparisonQuestion }</Question>
+									<RadioControl
+										hideLabelFromVision
+										label={ comparisonQuestion }
+										options={ ratingOptions() }
+										selected={ rating === null ? undefined : String( rating ) }
+										onChange={ selectRating }
+									/>
+								</Stack>
 
-					<Stack direction="row" gap="sm" justify="end">
-						<Button variant="minimal" size="compact" onClick={ onClose }>
-							{ __( 'Cancel', 'jetpack-premium-analytics-pkg' ) }
-						</Button>
-						<Button variant="solid" size="compact" disabled={ rating === null } onClick={ submit }>
-							{ __( 'Send feedback', 'jetpack-premium-analytics-pkg' ) }
-						</Button>
-					</Stack>
-				</Stack>
-			) }
-		</Modal>
+								<Stack direction="column" gap="sm">
+									<Question>{ blockerQuestion }</Question>
+									<TextareaControl
+										hideLabelFromVision
+										label={ blockerQuestion }
+										value={ comment }
+										maxLength={ COMMENT_MAX_LENGTH }
+										onValueChange={ setComment }
+									/>
+								</Stack>
+							</Stack>
+						</Dialog.Content>
+
+						<Dialog.Footer>
+							<Dialog.Action variant="minimal" size="compact">
+								{ __( 'Cancel', 'jetpack-premium-analytics-pkg' ) }
+							</Dialog.Action>
+							<Button
+								variant="solid"
+								size="compact"
+								disabled={ rating === null }
+								onClick={ submit }
+							>
+								{ __( 'Send feedback', 'jetpack-premium-analytics-pkg' ) }
+							</Button>
+						</Dialog.Footer>
+					</>
+				) }
+			</Dialog.Popup>
+		</Dialog.Root>
 	);
 }

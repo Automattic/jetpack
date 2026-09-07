@@ -225,14 +225,6 @@ function getRowIntervalFields( row: StatsRecord, rawPeriod: unknown, unit: strin
 		return getHourIntervalFields( rawPeriod, row.hour );
 	}
 
-	if ( typeof row.date_start === 'string' && typeof row.date_end === 'string' ) {
-		return {
-			time_interval: row.date_start,
-			date_start: row.date_start,
-			date_end: row.date_end,
-		};
-	}
-
 	if ( unit === 'hour' && typeof rawPeriod === 'string' ) {
 		const packed = rawPeriod.match( packedHourlyPeriod );
 

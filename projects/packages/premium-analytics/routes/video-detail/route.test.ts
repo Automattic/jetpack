@@ -29,15 +29,6 @@ jest.mock( '@wordpress/route', () => ( {
 	redirect: jest.fn( ( options: object ) => ( { isRedirect: true, ...options } ) ),
 } ) );
 
-const mockGetEntityConfig = jest.fn( () => ( {} ) );
-const mockAddEntities = jest.fn();
-jest.mock( '@wordpress/data', () => ( {
-	select: () => ( { getEntityConfig: mockGetEntityConfig } ),
-	dispatch: () => ( { addEntities: mockAddEntities } ),
-} ) );
-
-jest.mock( '@wordpress/core-data', () => ( { store: {} } ) );
-
 // A search that needs no seeding at all for video 42: dates present (the seed
 // check is mocked false), the post scope matches, and no comparison params.
 const settledSearch = {
@@ -52,7 +43,6 @@ const beforeLoad = ( params?: object, search?: object ) =>
 describe( 'video detail route.beforeLoad', () => {
 	afterEach( () => {
 		jest.clearAllMocks();
-		mockGetEntityConfig.mockReturnValue( {} );
 	} );
 
 	it( 'redirects to /connect when the site is not connected', async () => {
@@ -139,23 +129,11 @@ describe( 'video detail route.beforeLoad', () => {
 			compare_from: '2026-05-01T00:00:00',
 		} );
 	} );
-
-	it( 'registers the widget-module entity exactly once', async () => {
-		mockGetEntityConfig.mockReturnValueOnce( undefined as unknown as object );
-
-		await beforeLoad( { videoId: '42' }, settledSearch );
-		expect( mockAddEntities ).toHaveBeenCalledTimes( 1 );
-
-		// Registered now, so the next pass skips.
-		await beforeLoad( { videoId: '42' }, settledSearch );
-		expect( mockAddEntities ).toHaveBeenCalledTimes( 1 );
-	} );
 } );
 
 describe( 'video detail route report origin', () => {
 	afterEach( () => {
 		jest.clearAllMocks();
-		mockGetEntityConfig.mockReturnValue( {} );
 	} );
 
 	it( 'carries the report origin through the seeding redirect', async () => {
