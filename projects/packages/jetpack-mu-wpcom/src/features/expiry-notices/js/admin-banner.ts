@@ -27,6 +27,7 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		state: data.state,
 		days_remaining: data.daysRemaining,
 		product_slug: data.productSlug,
+		surface: 'wp_admin',
 	};
 
 	// Once per browser session: the banner re-renders on every load in the

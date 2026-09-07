@@ -28,6 +28,10 @@ module.exports = async () => {
 					'./src/features/expiry-notices/css/admin-modal.scss',
 				],
 				'expiry-notices-editor-notice': [ './src/features/expiry-notices/js/editor-notice.tsx' ],
+				'expiry-notices-frontend-banner': [
+					'./src/features/expiry-notices/js/frontend-banner.ts',
+					'./src/features/expiry-notices/css/frontend-banner.scss',
+				],
 				'holiday-snow': './src/features/holiday-snow/holiday-snow.scss',
 				'html-block-restricted-tags':
 					'./src/features/html-block-restricted-tags/html-block-restricted-tags.tsx',

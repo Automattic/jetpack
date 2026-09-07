@@ -57,6 +57,10 @@ class VideoPress_Rest_Api_V1_Settings {
 							'description' => __( 'If auto-generated subtitles should be skipped for new videos', 'jetpack-videopress-pkg' ),
 							'type'        => 'boolean',
 						),
+						'videopress_player_preload_disabled' => array(
+							'description' => __( 'If embedded players should wait for playback before preloading video data', 'jetpack-videopress-pkg' ),
+							'type'        => 'boolean',
+						),
 					),
 				),
 			)
@@ -129,6 +133,7 @@ class VideoPress_Rest_Api_V1_Settings {
 
 		$private_for_site        = $request->get_param( 'videopress_videos_private_for_site' );
 		$auto_subtitles_disabled = $request->get_param( 'videopress_auto_subtitles_disabled' );
+		$player_preload_disabled = $request->get_param( 'videopress_player_preload_disabled' );
 
 		if ( null !== $private_for_site ) {
 			update_option( 'videopress_private_enabled_for_site', $private_for_site );
@@ -136,6 +141,10 @@ class VideoPress_Rest_Api_V1_Settings {
 
 		if ( null !== $auto_subtitles_disabled ) {
 			update_option( 'videopress_auto_subtitles_disabled', $auto_subtitles_disabled );
+		}
+
+		if ( null !== $player_preload_disabled ) {
+			update_option( 'videopress_player_preload_disabled', $player_preload_disabled );
 		}
 
 		return rest_ensure_response(

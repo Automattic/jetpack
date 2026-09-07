@@ -16,10 +16,10 @@ const meta: Meta< typeof OnboardingWelcomeModal > = {
 					'the new experience over the widget grid animation and hands off to ' +
 					'the tour.\n\n' +
 					'The consumer owns the open state. `onStart` fires when the reader ' +
-					'presses Get started; `onDismiss` when they close the dialog any other ' +
+					'presses Take a quick tour; `onDismiss` when they close the dialog any other ' +
 					'way, naming which (the close button, Escape, a click outside). The ' +
 					'onboarding hook decides what each one means for the journey.\n\n' +
-					'On viewports too short for the animation, the copy and Get started ' +
+					'On viewports too short for the animation, the copy and the tour button ' +
 					'take the room instead; on the ones in between, the content scrolls ' +
 					'while the footer stays pinned.',
 			},
@@ -55,7 +55,7 @@ function WelcomeModalDemo() {
 }
 
 /**
- * Opens on load, as it would on a reader's first visit. Get started and the
+ * Opens on load, as it would on a reader's first visit. Take a quick tour and the
  * close button both close it here and report which one the reader chose;
  * the button below reopens it.
  */
