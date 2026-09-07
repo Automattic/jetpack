@@ -140,6 +140,29 @@ describe( 'DateYearFilter', () => {
 		expect( screen.getByRole( 'combobox', { name: 'Time period' } ) ).toBeInTheDocument();
 	} );
 
+	it( 'greys the pills out while disabled, focusable still', async () => {
+		const user = userEvent.setup();
+		const { onSelect } = renderFilter( { disabled: true } );
+
+		const allTime = screen.getByRole( 'button', { name: 'All time' } );
+		expect( allTime ).toHaveAttribute( 'aria-disabled', 'true' );
+
+		// The composite tracks the active item, so focusing is a state update.
+		act( () => allTime.focus() );
+		expect( allTime ).toHaveFocus();
+
+		await user.click( allTime );
+		expect( onSelect ).not.toHaveBeenCalled();
+	} );
+
+	// Natively, the way Base UI's select does it: the compact surface is the one
+	// control on the row that drops out of the tab order while disabled.
+	it( 'greys the select out while disabled', () => {
+		renderFilter( { isCompact: true, disabled: true } );
+
+		expect( screen.getByRole( 'combobox', { name: 'Time period' } ) ).toBeDisabled();
+	} );
+
 	describe( 'measured layout', () => {
 		let originalResizeObserver: typeof ResizeObserver;
 		let rectSpy: jest.SpyInstance;
