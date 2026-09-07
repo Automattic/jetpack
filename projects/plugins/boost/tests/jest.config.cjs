@@ -1,5 +1,6 @@
 const { existsSync } = require( 'fs' );
 const path = require( 'path' );
+const { pathToFileURL } = require( 'url' );
 const coverageConfig = require( 'jetpack-js-tools/jest/config.coverage.js' );
 const baseConfig = require( 'jetpack-js-tools/jest/config.base.js' );
 
@@ -23,7 +24,35 @@ const config = {
 	 * in jest-dom and jest-console matchers that Boost does not depend on.
 	 */
 	testEnvironmentOptions: baseConfig.testEnvironmentOptions,
-	transform: baseConfig.transform,
+	transform: {
+		...baseConfig.transform,
+		'\\.m?[jt]sx?$': [
+			baseConfig.transform[ '\\.m?[jt]sx?$' ][ 0 ],
+			{
+				...baseConfig.transform[ '\\.m?[jt]sx?$' ][ 1 ],
+				// Jest runs CommonJS; preserve the module URL used by the catalog loader.
+				plugins: [
+					( { types } ) => ( {
+						visitor: {
+							MemberExpression( nodePath, state ) {
+								const { object, property } = nodePath.node;
+								if (
+									types.isMetaProperty( object ) &&
+									object.meta.name === 'import' &&
+									object.property.name === 'meta' &&
+									types.isIdentifier( property, { name: 'url' } )
+								) {
+									nodePath.replaceWith(
+										types.stringLiteral( pathToFileURL( state.filename ).href )
+									);
+								}
+							},
+						},
+					} ),
+				],
+			},
+		],
+	},
 	transformIgnorePatterns: baseConfig.transformIgnorePatterns,
 	setupFiles: baseConfig.setupFiles,
 	// Mirror the TypeScript path aliases from tsconfig.json so tests can import
