@@ -22,13 +22,13 @@ class Block_Editor_Content_Test extends BaseTestCase {
 	 */
 	public function tear_down() {
 		parent::tear_down();
-		remove_all_filters( 'default_content' );
+		remove_filter( 'default_content', array( Block_Editor_Content::class, 'videopress_video_block_by_guid' ), 10 );
 		unset( $_GET['videopress_guid'], $_GET['_wpnonce'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	}
 
 	/**
-	 * init() must register the default_content filter even when the standalone
-	 * VideoPress plugin class is absent (i.e. Jetpack plugin + module context).
+	 * Confirms that init() registers the default_content filter even when
+	 * the standalone plugin is absent (Jetpack plugin + module context).
 	 *
 	 * Runs in a separate process so the absent-class assertion cannot be
 	 * polluted by another test in this suite that loaded the standalone stub.
@@ -53,8 +53,7 @@ class Block_Editor_Content_Test extends BaseTestCase {
 	}
 
 	/**
-	 * videopress_video_block_by_guid() inserts the VideoPress block when a valid
-	 * nonce and GUID are present in the query string.
+	 * Inserts a VideoPress block when a valid nonce and GUID are present.
 	 */
 	public function test_videopress_video_block_by_guid_injects_block_with_valid_nonce() {
 		$user_id = wp_insert_user(
@@ -83,7 +82,7 @@ class Block_Editor_Content_Test extends BaseTestCase {
 	}
 
 	/**
-	 * videopress_video_block_by_guid() leaves content unchanged when the nonce is invalid.
+	 * Leaves content unchanged when the nonce is invalid.
 	 */
 	public function test_videopress_video_block_by_guid_no_injection_with_invalid_nonce() {
 		$user_id = wp_insert_user(
