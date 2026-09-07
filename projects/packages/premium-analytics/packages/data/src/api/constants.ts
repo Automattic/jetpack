@@ -5,6 +5,8 @@ export const statsProxyPath = '/jetpack-premium-analytics/v1/proxy';
  * `<plugin>_<page>` to mirror the underscore form produced by the
  * wp-build pipeline. Used as the `{name}` segment of the default-layout
  * REST route.
+ *
+ * Must match `DASHBOARD_NAME` in `src/dashboard-layout.php`.
  */
 export const DASHBOARD_NAME = 'jetpack-premium-analytics_dashboard';
 

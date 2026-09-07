@@ -4,8 +4,7 @@
  *
  * Centralized so the preferences scope and keys can be renamed in one place —
  * e.g. to fully isolate Premium Analytics' stored preferences from the core
- * dashboard's. The values here must match the constants in
- * `src/dashboard-layout.php`.
+ * dashboard's.
  */
 
 /**
