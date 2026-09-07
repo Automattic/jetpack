@@ -105,7 +105,7 @@ function rule( n, why, pat ) {
 	if ( low ~ annot ) { flush_block(); next }
 
 	add_to_block( text )
-	if ( record_dup( low, text ) ) blk_recorded = 1
+	if ( record_dup( low, text ) ) blk_recorded = blk_recorded dup_last "\n"
 }
 
 # --- comment extraction -----------------------------------------------------
@@ -160,7 +160,7 @@ function flush_block(   i, low, sigs ) {
 	nblk++
 	blk_at[nblk]  = blk_file ":" blk_start "" ( blk_end > blk_start ? "-" blk_end : "" )
 	blk_norm[nblk] = norm( blk_text )
-	blk_had_dup[nblk] = blk_recorded; blk_recorded = 0
+	blk_had_dup[nblk] = blk_recorded; blk_recorded = ""
 	blk_text = ""
 }
 
@@ -196,11 +196,12 @@ function shared_phrases(   i, j, k2, w, nw, key, ids, nid, sig, a, b, tmp, allsa
 		if ( nid < 2 ) continue
 		allsame = 1
 		for ( a = 2; a <= nid; a++ ) if ( blk_norm[ids[a]] != blk_norm[ids[1]] ) allsame = 0
-		# Skip only what the verbatim report really has: its substance floor is per
-		# line, so a block of individually-short lines fails it and misses both.
+		# Skip only what the verbatim report really has. Clearing its per-line floor
+		# is not enough: two copies wrapped differently clear it and still never
+		# pair up, so ask whether a key of theirs actually reached the report.
 		if ( allsame ) {
 			dupped = 1
-			for ( a = 1; a <= nid; a++ ) if ( !blk_had_dup[ids[a]] ) dupped = 0
+			for ( a = 1; a <= nid; a++ ) if ( !in_dup_report( ids[a] ) ) dupped = 0
 			if ( dupped ) continue
 		}
 		sig = owners[key]
@@ -227,6 +228,13 @@ function shared_phrases(   i, j, k2, w, nw, key, ids, nid, sig, a, b, tmp, allsa
 		pair_sites[npair] = sig_list[a]
 		pair_same[npair]  = sig_same[sig_list[a]]
 	}
+}
+
+# Did any line of block `i` end up in a group the verbatim report prints?
+function in_dup_report( i,   n, ks, j ) {
+	n = split( blk_had_dup[i], ks, "\n" )
+	for ( j = 1; j <= n; j++ ) if ( ks[j] != "" && dup_n[ks[j]] >= 2 ) return 1
+	return 0
 }
 
 # Orders two site sets by their first comment, whose number leads the string.
@@ -267,6 +275,7 @@ function record_dup( low, text,   key, words, junk ) {
 	dup_n[key]++
 	dup_where[key] = dup_where[key] "" ( dup_n[key] > 1 ? "\n" : "" ) path ":" lineno
 	seen_at[path ":" lineno] = key
+	dup_last = key
 	return 1
 }
 
@@ -339,7 +348,7 @@ END {
 	for ( i = 1; i <= npair; i++ ) {
 		n = split( pair_sites[i], sites, " " )
 		printf "\n%d. %d comments reuse \"…%s…\"%s\n", i, n, pair_key[i], \
-			( pair_same[i] ? ", identical but under the verbatim floor" : ", reworded around it" )
+			( pair_same[i] ? ", identical but not paired in the verbatim report" : ", reworded around it" )
 		for ( j = 1; j <= n; j++ ) print "   - " blk_at[sites[j]]
 	}
 

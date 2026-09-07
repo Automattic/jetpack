@@ -287,8 +287,10 @@ nothing needs checking out, and the PR head may predate the script.
 comments reuse across different line breaks — and identical comments whose lines are each too
 short for the first report. Both are the same violation and triage the same way:
 
-- **Discard** — boilerplate that slipped past the substance floor, or two mirrors that genuinely
-  have to be read independently (a TS type describing a payload its PHP producer also documents).
+- **Discard** — boilerplate that slipped past the substance floor, two mirrors that genuinely
+  have to be read independently (a TS type describing a payload its PHP producer also documents),
+  or a file docblock and the class docblock below it saying the same thing, which PHPCS requires
+  separately.
 - **`[suggestion]`** — the default, and it is only a review if it names the owner. AGENTS.md's
   tie-break is the file that owns the thing: the implementation over its tests, the source of
   truth over its mirror, the shared helper over each of its callers. Say which copy stays, then
