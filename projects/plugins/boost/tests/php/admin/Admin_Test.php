@@ -388,6 +388,7 @@ class Admin_Test extends Base_TestCase {
 		$this->assertNull( $data );
 		$this->assertIsCallable( $page_callback );
 		$page_callback();
+		$this->assertNotNull( $data );
 		$this->assertFalse( $data['getting_started']['value'] );
 		$this->assertFalse( $data['dismissed_alerts']['value']['score_increase'] );
 		$this->assertNotEmpty( $data['dismissed_alerts']['nonce'] );

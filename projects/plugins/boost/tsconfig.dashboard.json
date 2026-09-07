@@ -1,5 +1,14 @@
 {
 	"extends": "./tsconfig.json",
+	"compilerOptions": {
+		"paths": {
+			"$lib/*": [ "./app/assets/src/js/lib/*" ],
+			"$features/*": [ "./app/assets/src/js/features/*" ],
+			"$layout/*": [ "./app/assets/src/js/layout/*" ],
+			"$svg/*": [ "./app/assets/src/js/svg/*" ],
+			"@automattic/jetpack-components/admin-page": [ "./_inc/types/admin-page.d.ts" ]
+		}
+	},
 	"include": [
 		"_inc/**/*",
 		"routes/**/*",
