@@ -39,6 +39,22 @@ class Enablement_Setting {
 	const ENABLED_OPTION = 'jetpack_premium_analytics_enabled';
 
 	/**
+	 * Preferences scope the dashboard stores its per-user state under. Mirrors
+	 * `routes/dashboard/hooks/constants.ts`.
+	 *
+	 * @since $$next-version$$
+	 */
+	const PREFERENCES_SCOPE = 'jetpack-premium-analytics/dashboard';
+
+	/**
+	 * Preferences key the dashboard sets once a reader has been through the onboarding. Mirrors
+	 * `routes/dashboard/hooks/constants.ts`.
+	 *
+	 * @since $$next-version$$
+	 */
+	const ONBOARDING_KEY = 'onboardingCompletedAt';
+
+	/**
 	 * Declare the setting so core's settings route exposes it.
 	 *
 	 * Call on `rest_api_init`: core builds the settings route from the registered settings at
@@ -61,6 +77,7 @@ class Enablement_Setting {
 				'description'       => __( 'Whether the Premium Analytics dashboard is enabled for this site.', 'jetpack-premium-analytics-pkg' ),
 			)
 		);
+		add_action( 'update_option_' . self::ENABLED_OPTION, array( __CLASS__, 'reset_onboarding_on_reactivation' ), 10, 2 );
 	}
 
 	/**
@@ -78,5 +95,46 @@ class Enablement_Setting {
 	 */
 	public static function sanitize_enabled( $value ) {
 		return (int) rest_sanitize_boolean( $value );
+	}
+
+	/**
+	 * Forget that the reader switching the dashboard back on has seen the onboarding.
+	 *
+	 * Someone who switched off and came back gets the tour again; a first activation, a
+	 * switch-off, and everyone else's preference are left alone. Riding on the option write means
+	 * only writes made while the setting is registered count, which is every product path: the
+	 * classic Stats banner and menu, and the dashboard's own switch-off, all go through REST.
+	 *
+	 * The preference lives in core's persisted preferences user meta, whose client-side layer
+	 * keeps a localStorage copy and takes whichever is newer, so `_modified` moves with the change.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param mixed $old_value Previous option value.
+	 * @param mixed $value     New option value.
+	 * @return void
+	 */
+	public static function reset_onboarding_on_reactivation( $old_value, $value ) {
+		if ( (bool) $old_value || ! (bool) $value ) {
+			return;
+		}
+
+		$user_id = get_current_user_id();
+		if ( ! $user_id ) {
+			return;
+		}
+
+		global $wpdb;
+		$meta_key    = $wpdb->get_blog_prefix() . 'persisted_preferences';
+		$preferences = get_user_meta( $user_id, $meta_key, true );
+
+		if ( ! is_array( $preferences ) || ! isset( $preferences[ self::PREFERENCES_SCOPE ][ self::ONBOARDING_KEY ] ) ) {
+			return;
+		}
+
+		unset( $preferences[ self::PREFERENCES_SCOPE ][ self::ONBOARDING_KEY ] );
+		$preferences['_modified'] = gmdate( 'Y-m-d\TH:i:s\Z' );
+
+		update_user_meta( $user_id, $meta_key, $preferences );
 	}
 }
