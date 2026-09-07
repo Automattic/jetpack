@@ -1,5 +1,11 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen } from 'test/test-utils';
 import JetpackConnectionErrors from '../jetpack-connection-errors';
+
+// The 'reconnect' action reaches a connected NoticeActionReconnect, which reads
+// the site reconnection request state.
+const initialState = {
+	jetpack: { connection: { requests: { reconnectingSite: false } } },
+};
 
 describe( 'JetpackConnectionErrors', () => {
 	it( 'should render error with URL action', () => {
@@ -83,8 +89,9 @@ describe( 'JetpackConnectionErrors', () => {
 			screen.getByText( 'The connection owner needs to reconnect their account.' )
 		).toBeInTheDocument();
 		// No reconnect/restore CTA should be rendered for an informational notice.
+		// Matched exactly: the notice's own message contains the word "reconnect".
 		expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
-		expect( screen.queryByText( 'Reconnect', { exact: false } ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'link', { name: 'Restore Connection' } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'should handle multiple errors correctly', () => {
@@ -105,7 +112,7 @@ describe( 'JetpackConnectionErrors', () => {
 			},
 		];
 
-		render( <JetpackConnectionErrors errors={ errors } /> );
+		render( <JetpackConnectionErrors errors={ errors } />, { initialState } );
 
 		expect( screen.getByText( 'First error' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Second error' ) ).toBeInTheDocument();

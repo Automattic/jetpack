@@ -9,6 +9,8 @@ module.exports = {
 	testMatch: [
 		'<rootDir>/_inc/client/test/main.js',
 		'<rootDir>/_inc/client/**/test/component.js',
+		'<rootDir>/_inc/client/**/test/component.jsx',
+		'<rootDir>/_inc/client/components/**/test/*.test.jsx',
 		'<rootDir>/_inc/client/ai/test/ai-admin.jsx',
 		'<rootDir>/_inc/client/ai/features/test/component.jsx',
 		'<rootDir>/_inc/client/ai/mcp/test/allowlist-updated.jsx',
