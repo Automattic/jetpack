@@ -186,19 +186,17 @@ describe( 'DashItem', () => {
 		};
 
 		it( "shows a warning badge when status is 'is-warning'", () => {
-			const { container } = render( <DashItem { ...manageProps } />, {
+			render( <DashItem { ...manageProps } />, {
 				initialState: buildInitialState(),
 			} );
-			// eslint-disable-next-line testing-library/no-container
-			expect( container.querySelector( '.dops-notice.is-warning' ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Updates needed' ) ).toBeInTheDocument();
 		} );
 
 		it( 'when it is activated, the warning badge is linked to Plugins screen in WordPress.com', () => {
-			const { container } = render( <DashItem { ...manageProps } />, {
+			render( <DashItem { ...manageProps } />, {
 				initialState: buildInitialState(),
 			} );
-			// eslint-disable-next-line testing-library/no-container
-			const node = container.querySelector( '.dops-notice.is-warning' ).closest( 'a' );
+			const node = screen.getByText( 'Updates needed' ).closest( 'a' );
 			expect( node ).toBeInTheDocument();
 			expect( node ).toHaveAttribute(
 				'href',

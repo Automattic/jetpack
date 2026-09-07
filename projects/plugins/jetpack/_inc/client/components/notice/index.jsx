@@ -102,6 +102,9 @@ export default class SimpleNotice extends Component {
 				// Callers pass either a Gridicon name or an element; only elements work
 				// here, and the intent already picks a sensible default icon.
 				icon={ isValidElement( icon ) ? icon : undefined }
+				// The legacy notice never announced. Several of these are permanent, and
+				// the ones that should announce already sit in an aria-live container.
+				spokenMessage={ null }
 			>
 				{ title ? <Notice.Title>{ title }</Notice.Title> : null }
 				<Notice.Description>{ body }</Notice.Description>

@@ -290,7 +290,7 @@ export const SEO = withModuleSettingsFormHelpers(
 					saveDisabled={ this.props.isSavingAnyOption( this.constants.moduleOptionsArray ) }
 					hideButton={ hasConflictingSeoPlugin || ! hasSeoTools }
 				>
-					{ this.seoOptInBanner() }
+					<div className="jp-settings-card__notice">{ this.seoOptInBanner() }</div>
 					{ hasSeoTools && (
 						<SettingsGroup
 							hasChild
