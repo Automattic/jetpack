@@ -81,23 +81,21 @@ To check for PHP code compatibility run:
   ```
 
 ## Linting Jetpack Boost JavaScript code
-The following commands need to be run from the `projects/plugins/boost` directory.
-
-Run `pnpm typecheck` to check the modern dashboard TypeScript using
+From `projects/plugins/boost`, run `pnpm typecheck` to check the modern dashboard TypeScript using
 [`tsconfig.dashboard.json`](../tsconfig.dashboard.json). This command does not
 check the full legacy application.
 
-To check syntax and style in the all the TypeScript and Svelte files that Jetpack Boost relies on, you can run:
+From the monorepo root, check Boost's JavaScript, TypeScript, and Svelte syntax and style:
 
   ```sh
-  pnpm lint
+  pnpm lint-file --ext .js,.jsx,.cjs,.mjs,.ts,.tsx,.svelte projects/plugins/boost
   ``` 
 
 
 To automatically fix some JavaScript related issues, you can run:
 
   ```sh
-  pnpm lint:fix
+  pnpm lint-file --ext .js,.jsx,.cjs,.mjs,.ts,.tsx,.svelte projects/plugins/boost --fix
   ``` 
 
 
