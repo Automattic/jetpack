@@ -11,6 +11,7 @@ import { redirect } from '@wordpress/route';
 /**
  * Internal dependencies
  */
+import { getReportDefinition } from '../reports/registry';
 import { isPremiumAnalyticsSiteConnected } from '../site-readiness';
 import { resolveTabId } from './config';
 
@@ -40,6 +41,12 @@ export const route = {
 	}: { params?: PostDetailParams; search?: PostDetailSearch } = {} ) => {
 		if ( ! isPremiumAnalyticsSiteConnected() ) {
 			throw redirect( { to: '/connect' } );
+		}
+
+		// This is the All pages report's detail page, so it follows that report out of
+		// scope rather than declaring a tab of its own.
+		if ( ! getReportDefinition( 'posts' ) ) {
+			throw redirect( { to: '/' } );
 		}
 
 		// A malformed path param would render site-wide stats under a

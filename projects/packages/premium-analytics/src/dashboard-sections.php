@@ -119,6 +119,70 @@ function is_dashboard_section_in_preview_scope( $dashboard_name, $slug ) {
 }
 
 /**
+ * Slugs of the tabs the dashboard exposes, for the client's report routes.
+ *
+ * Reads the same sections the tab list does, so a report cannot outlive the tab it sits
+ * behind. Null, never `array()`, before the registry is hydrated: an empty array is a
+ * published scope that exposes nothing.
+ *
+ * @since $$next-version$$
+ *
+ * @return string[]|null
+ */
+function get_dashboard_preview_scope_sections() {
+	$registry = Dashboard_Section_Registry::get_instance();
+
+	if ( empty( $registry->get_all_registered( DASHBOARD_NAME ) ) ) {
+		return null;
+	}
+
+	return array_map(
+		static function ( Dashboard_Section $section ) {
+			return $section->slug;
+		},
+		$registry->get_available_sections( DASHBOARD_NAME )
+	);
+}
+
+/**
+ * Configures the preview scope script data.
+ *
+ * @since $$next-version$$
+ *
+ * @return void
+ */
+function configure_dashboard_preview_scope() {
+	add_filter( 'jetpack_admin_js_script_data', __NAMESPACE__ . '\\inject_dashboard_preview_scope_script_data', 20 );
+}
+
+/**
+ * Injects the preview's section scope into JetpackScriptData.
+ *
+ * The same list travels over REST for the tab bar, but a report route reads no REST before
+ * choosing its redirect, so it reads the scope from boot data instead.
+ *
+ * @since $$next-version$$
+ *
+ * @param array $data The script data passed by the assets package.
+ * @return array
+ */
+function inject_dashboard_preview_scope_script_data( array $data ): array {
+	$sections = get_dashboard_preview_scope_sections();
+
+	if ( null === $sections ) {
+		return $data;
+	}
+
+	if ( ! isset( $data['premium_analytics'] ) || ! is_array( $data['premium_analytics'] ) ) {
+		$data['premium_analytics'] = array();
+	}
+
+	$data['premium_analytics']['preview_sections'] = $sections;
+
+	return $data;
+}
+
+/**
  * Whether the WooCommerce dashboard section should be exposed.
  *
  * @return bool True when WooCommerce is active.

@@ -1,5 +1,6 @@
 import { ensureCoreSettingsReady } from '@jetpack-premium-analytics/data';
 import { redirect } from '@wordpress/route';
+import { isDashboardSectionInPreviewScope } from '../site-readiness';
 import { route } from './route';
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
@@ -12,6 +13,7 @@ jest.mock( '@wordpress/route', () => ( {
 } ) );
 jest.mock( '../site-readiness', () => ( {
 	isPremiumAnalyticsSiteConnected: () => true,
+	isDashboardSectionInPreviewScope: jest.fn( () => true ),
 } ) );
 jest.mock( './config', () => ( {
 	resolveTabId: ( section: string ) => section,
@@ -71,6 +73,17 @@ describe( 'post detail route report origin', () => {
 		).resolves.toBeUndefined();
 
 		expect( mockRedirect ).not.toHaveBeenCalled();
+	} );
+
+	it( 'redirects home when the All pages report is behind a hidden tab', async () => {
+		( isDashboardSectionInPreviewScope as jest.Mock ).mockReturnValueOnce( false );
+
+		await expect(
+			route.beforeLoad( {
+				params: { postId: '42' },
+				search: seededSearch,
+			} )
+		).rejects.toMatchObject( { to: '/' } );
 	} );
 
 	it( 'does not redirect when the shareable search is fully seeded and clean', async () => {
