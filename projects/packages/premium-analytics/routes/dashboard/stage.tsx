@@ -26,8 +26,8 @@ import { type WidgetModuleRecord } from '@wordpress/widget-primitives';
 import { isPremiumAnalyticsInitialSyncFinished } from '../site-readiness';
 import { resolveWidgetModuleWithI18n, useWidgetTypesWithI18n } from '../widget-module-i18n';
 import {
+	DashboardOptionsMenu,
 	DashboardSections,
-	FeedbackAction,
 	OnboardingTour,
 	onboardingTourSteps,
 	RefreshFailureNotice,
@@ -258,12 +258,10 @@ function Dashboard(): JSX.Element {
 							visual={ <StatsPageIcon /> }
 							breadcrumbs={ <StatsBreadcrumbs isRoot /> }
 							actions={
-								<>
-									<FeedbackAction />
-									<Stack ref={ setActionsAnchor } direction="row">
-										<WidgetDashboard.Actions />
-									</Stack>
-								</>
+								<Stack ref={ setActionsAnchor } direction="row" gap="sm">
+									<WidgetDashboard.Actions />
+									<DashboardOptionsMenu />
+								</Stack>
 							}
 							className={ styles.dashboard }
 						>
