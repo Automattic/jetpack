@@ -57,7 +57,8 @@ function TourDemo() {
 	const [ menu, setMenu ] = useState< HTMLElement | null >( null );
 	const [ dates, setDates ] = useState< HTMLElement | null >( null );
 	const [ widget, setWidget ] = useState< HTMLElement | null >( null );
-	const anchors = [ widget, dates, menu, menu ];
+	const [ customize, setCustomize ] = useState< HTMLElement | null >( null );
+	const anchors = [ widget, dates, customize, menu ];
 
 	const next = () =>
 		setStep( current => ( current && current < STEPS.length ? current + 1 : null ) );
@@ -72,6 +73,9 @@ function TourDemo() {
 							Last 30 days
 						</Button>
 					</div>
+					<Button ref={ setCustomize } variant="outline" tone="neutral">
+						Customize
+					</Button>
 					<IconButton
 						ref={ setMenu }
 						icon={ moreVertical }
