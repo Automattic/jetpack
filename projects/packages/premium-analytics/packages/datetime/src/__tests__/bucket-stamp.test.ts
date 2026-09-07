@@ -38,4 +38,18 @@ describe( 'toBucketStamp', () => {
 		expect( toBucketStamp( 'not a date', 'Asia/Taipei' ) ).toBe( 'not a date' );
 		expect( toBucketStamp( '2026-02-31 00:00:00', 'Asia/Taipei' ) ).toBe( '2026-02-31 00:00:00' );
 	} );
+
+	// `toLocalTZ` would read a missing bound as the current instant.
+	it( 'empties a bound that is not a string rather than stamping it with today', () => {
+		expect( toBucketStamp( undefined, 'Asia/Taipei' ) ).toBe( '' );
+	} );
+
+	// A zone that does not resolve leaves every bound of every report as written,
+	// so pin the shape rather than leaving that exit undocumented.
+	it( 'leaves the bound alone when the zone does not resolve', () => {
+		expect( toBucketStamp( '2026-06-15T00:00:00+08:00', 'Not/AZone' ) ).toBe(
+			'2026-06-15T00:00:00+08:00'
+		);
+		expect( toBucketStamp( '2026-06-15T00:00:00+08:00', '' ) ).toBe( '2026-06-15T00:00:00+08:00' );
+	} );
 } );

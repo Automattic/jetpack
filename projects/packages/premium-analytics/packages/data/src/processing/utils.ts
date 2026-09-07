@@ -9,7 +9,7 @@ export function sanitizeStringNumber( value: string ): number {
 	return isNaN( parsed ) ? 0 : parsed;
 }
 
-type BucketBounds = { date_start: string; date_end: string };
+export type BucketBounds = { date_start: string; date_end: string };
 
 /**
  * Re-stamp a store report row's bucket bounds into the one shape reports carry.

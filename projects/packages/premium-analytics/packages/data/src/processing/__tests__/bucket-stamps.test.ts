@@ -5,7 +5,12 @@ import { localTZDate } from '@jetpack-premium-analytics/datetime';
 /**
  * Internal dependencies
  */
+import { sanitizeReportBookingsResponse } from '../bookings';
+import { sanitizeReportConversionRateResponse } from '../conversion-rate';
+import { sanitizeReportCouponsByDateResponse } from '../coupons-by-date';
+import { sanitizeReportCustomersByDateResponse } from '../customers-by-date';
 import { sanitizeReportOrderAttributionSummaryResponse } from '../order-attribution';
+import { sanitizeReportOrdersResponse } from '../orders';
 import { withBucketStamps } from '../utils';
 import { sanitizeReportVisitorsResponse } from '../visitors';
 
@@ -32,6 +37,32 @@ describe( 'withBucketStamps', () => {
 	} );
 } );
 
+type BoundedReport = {
+	summary: { date_start: string; date_end: string };
+	data: Array< { date_start: string; date_end: string } >;
+};
+
+// A `Z` bound, so an assertion on it only holds when the sanitizer threaded the
+// reporting zone: stripping the offset textually would leave 00:00 in place.
+const zoneThreadingSanitizers = [
+	[ 'bookings', sanitizeReportBookingsResponse ],
+	[ 'conversion rate', sanitizeReportConversionRateResponse ],
+	[ 'coupons by date', sanitizeReportCouponsByDateResponse ],
+	[ 'customers by date', sanitizeReportCustomersByDateResponse ],
+	[ 'orders', sanitizeReportOrdersResponse ],
+	[ 'visitors', sanitizeReportVisitorsResponse ],
+] as Array< [ string, ( response: never, zone: string ) => BoundedReport ] >;
+
+describe.each( zoneThreadingSanitizers )( '%s sanitizer', ( _name, sanitize ) => {
+	it( 'resolves both bounds in the reporting zone', () => {
+		const row = wooRow( '2026-06-15', 'Z' );
+		const report = sanitize( { data: [ row ], summary: row } as never, SITE_ZONE );
+
+		expect( report.data[ 0 ].date_start ).toBe( '2026-06-15T08:00:00' );
+		expect( report.summary.date_end ).toBe( '2026-06-16T07:59:59' );
+	} );
+} );
+
 describe( 'store report sanitizers', () => {
 	it( 'strips the offset from rows and from the summary', () => {
 		const report = sanitizeReportVisitorsResponse(
@@ -44,8 +75,8 @@ describe( 'store report sanitizers', () => {
 		expect( report.summary.date_start ).toBe( '2026-06-15T00:00:00' );
 	} );
 
-	// #51499 removed the fabricated `+00:00`, which is the only offset that is not
-	// the site's own and so the only one that moves a bucket when it is resolved.
+	// No store endpoint writes this today; an offset that is not the site's own is
+	// the only one that moves a bucket when it is resolved.
 	it( 'resolves a fabricated UTC stamp into the site wall time', () => {
 		const report = sanitizeReportVisitorsResponse(
 			{ data: [ wooRow( '2026-06-15', 'Z' ) ], summary: wooRow( '2026-06-15', 'Z' ) },
