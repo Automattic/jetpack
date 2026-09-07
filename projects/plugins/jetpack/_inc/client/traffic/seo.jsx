@@ -192,9 +192,13 @@ export const SEO = withModuleSettingsFormHelpers(
 				  );
 
 			return (
-				<SimpleNotice status="is-info" showDismiss={ false } className="jp-seo-optin-banner">
+				<SimpleNotice
+					status="is-info"
+					showDismiss={ false }
+					className="jp-seo-optin-banner"
+					title={ __( 'SEO has a new home', 'jetpack' ) }
+				>
 					<div className="jp-seo-optin-banner__content">
-						<strong>{ __( 'SEO has a new home', 'jetpack' ) }</strong>
 						<p>
 							{ __(
 								'Manage all of your search engine optimization from the redesigned Jetpack SEO dashboard.',

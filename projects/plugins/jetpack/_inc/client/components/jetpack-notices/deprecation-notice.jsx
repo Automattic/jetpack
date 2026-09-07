@@ -7,10 +7,10 @@ const DeprecationNotice = ( { dismissNotice, message, link, linkText, title } ) 
 	return (
 		<SimpleNotice
 			status="is-warning"
+			title={ title }
 			dismissText={ __( 'Dismiss', 'jetpack' ) }
 			onDismissClick={ dismissNotice }
 		>
-			{ title && <div style={ { fontWeight: 600 } }>{ title }</div> }
 			<div>{ message }</div>
 			{ link && (
 				<Link openInNewTab href={ link }>

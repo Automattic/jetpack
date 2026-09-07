@@ -27,6 +27,7 @@ export default class SimpleNotice extends Component {
 			PropTypes.oneOfType( [ PropTypes.string, PropTypes.node ] ),
 			PropTypes.arrayOf( PropTypes.oneOfType( [ PropTypes.string, PropTypes.node ] ) ),
 		] ),
+		title: PropTypes.oneOfType( [ PropTypes.string, PropTypes.node ] ),
 		icon: PropTypes.oneOfType( [ PropTypes.string, PropTypes.node ] ),
 		onDismissClick: PropTypes.func,
 		className: PropTypes.string,
@@ -78,6 +79,7 @@ export default class SimpleNotice extends Component {
 			onDismissClick,
 			showDismiss = ! isCompact, // by default, show on normal notices, don't show on compact ones
 			text,
+			title,
 			dismissText,
 			display,
 		} = this.props;
@@ -101,6 +103,7 @@ export default class SimpleNotice extends Component {
 				// here, and the intent already picks a sensible default icon.
 				icon={ isValidElement( icon ) ? icon : undefined }
 			>
+				{ title ? <Notice.Title>{ title }</Notice.Title> : null }
 				<Notice.Description>{ body }</Notice.Description>
 				{ actions ? <Notice.Actions>{ actions }</Notice.Actions> : null }
 				{ showDismiss && <Notice.CloseIcon label={ dismissText } onClick={ onDismissClick } /> }
