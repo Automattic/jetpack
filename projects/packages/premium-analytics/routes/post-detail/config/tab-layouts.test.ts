@@ -1,13 +1,13 @@
-import { WIDGET_DASHBOARD_COLUMN_COUNT } from '@wordpress/widget-dashboard';
+import { DETAIL_COLUMN_COUNT } from '../../detail-grid';
 import { POST_DETAIL_TAB_LAYOUTS } from './tab-layouts';
 
 describe( 'post detail tab layouts', () => {
-	it( 'composes Post traffic as a full-width highlights row, a Post views chart beside the interaction cards, then Traffic activity beside UTM', () => {
+	it( 'composes Post traffic as a full-width highlights row, a Post views chart beside Likes, Comments, then a full-width Traffic activity over UTM', () => {
 		expect( POST_DETAIL_TAB_LAYOUTS[ 'post-traffic' ] ).toEqual( [
 			{
 				uuid: 'post-detail-highlights',
 				type: 'jpa/post-detail-highlights',
-				placement: { width: WIDGET_DASHBOARD_COLUMN_COUNT, height: 1, order: 1 },
+				placement: { width: DETAIL_COLUMN_COUNT, height: 1, order: 1 },
 			},
 			{
 				uuid: 'post-views',
@@ -27,7 +27,7 @@ describe( 'post detail tab layouts', () => {
 			{
 				uuid: 'post-traffic-activity',
 				type: 'jpa/post-traffic-activity',
-				placement: { width: 3, height: 2, order: 5 },
+				placement: { width: DETAIL_COLUMN_COUNT, height: 2, order: 5 },
 			},
 			{
 				uuid: 'post-utm',
@@ -38,19 +38,19 @@ describe( 'post detail tab layouts', () => {
 		] );
 	} );
 
-	it( 'composes Email opens as a highlights row over a three-column trend chart with Locations beside it', () => {
+	it( 'composes Email opens as a highlights row over a full-width trend chart, then Locations, Platforms and Clients side by side', () => {
 		expect( POST_DETAIL_TAB_LAYOUTS[ 'email-opens' ] ).toMatchObject( [
 			{
 				uuid: 'email-opens-highlights',
 				type: 'jpa/email-top-row',
 				attributes: { metric: 'opens' },
-				placement: { width: WIDGET_DASHBOARD_COLUMN_COUNT, height: 1, order: 1 },
+				placement: { width: DETAIL_COLUMN_COUNT, height: 1, order: 1 },
 			},
 			{
 				uuid: 'email-opens-trend',
 				type: 'jpa/email-time-series--total-opens',
 				attributes: { metric: 'opens' },
-				placement: { width: 3, height: 2, order: 2 },
+				placement: { width: DETAIL_COLUMN_COUNT, height: 2, order: 2 },
 			},
 			{
 				uuid: 'email-opens-countries',
@@ -73,13 +73,13 @@ describe( 'post detail tab layouts', () => {
 		] );
 	} );
 
-	it( 'composes Email clicks as a trend chart beside Platforms and Clients, over the Locations and links rows', () => {
+	it( 'composes Email clicks as a trend chart beside Platforms, Clients beside the Locations map, then a full-width links row', () => {
 		expect( POST_DETAIL_TAB_LAYOUTS[ 'email-clicks' ] ).toMatchObject( [
 			{
 				uuid: 'email-clicks-highlights',
 				type: 'jpa/email-top-row',
 				attributes: { metric: 'clicks' },
-				placement: { width: WIDGET_DASHBOARD_COLUMN_COUNT, height: 1, order: 1 },
+				placement: { width: DETAIL_COLUMN_COUNT, height: 1, order: 1 },
 			},
 			{
 				uuid: 'email-clicks-trend',
@@ -109,8 +109,16 @@ describe( 'post detail tab layouts', () => {
 				uuid: 'email-clicks-links',
 				type: 'jpa/email-breakdown--top-links',
 				attributes: { view: 'links', metric: 'clicks' },
-				placement: { width: 2, height: 2, order: 6 },
+				placement: { width: DETAIL_COLUMN_COUNT, height: 2, order: 6 },
 			},
 		] );
+	} );
+
+	it( 'keeps every tile within the three-column grid', () => {
+		for ( const layout of Object.values( POST_DETAIL_TAB_LAYOUTS ) ) {
+			for ( const widget of layout ) {
+				expect( widget.placement?.width ).toBeLessThanOrEqual( DETAIL_COLUMN_COUNT );
+			}
+		}
 	} );
 } );

@@ -1,10 +1,11 @@
-import { WIDGET_DASHBOARD_COLUMN_COUNT } from '@wordpress/widget-dashboard';
+import { DETAIL_COLUMN_COUNT } from '../../detail-grid';
 import type { PostDetailTabId } from './tabs';
 import type { DashboardWidget } from '@wordpress/widget-dashboard';
 
 /**
  * Fixed widget composition for each post-detail tab (not user-customizable,
  * WOOA7S-1622); a tab stays hidden only while its composition is empty.
+ * Widths fill the three-column detail grid.
  */
 export const POST_DETAIL_TAB_LAYOUTS: Record< PostDetailTabId, DashboardWidget[] > = {
 	'post-traffic': [
@@ -12,7 +13,7 @@ export const POST_DETAIL_TAB_LAYOUTS: Record< PostDetailTabId, DashboardWidget[]
 			uuid: 'post-detail-highlights',
 			// Full-width row, matching the email highlights layout.
 			type: 'jpa/post-detail-highlights',
-			placement: { width: WIDGET_DASHBOARD_COLUMN_COUNT, height: 1, order: 1 },
+			placement: { width: DETAIL_COLUMN_COUNT, height: 1, order: 1 },
 		},
 		{
 			uuid: 'post-views',
@@ -31,8 +32,9 @@ export const POST_DETAIL_TAB_LAYOUTS: Record< PostDetailTabId, DashboardWidget[]
 		},
 		{
 			uuid: 'post-traffic-activity',
+			// Full width: the heatmap lays a whole year out across its columns.
 			type: 'jpa/post-traffic-activity',
-			placement: { width: 3, height: 2, order: 5 },
+			placement: { width: DETAIL_COLUMN_COUNT, height: 2, order: 5 },
 		},
 		{
 			uuid: 'post-utm',
@@ -50,13 +52,13 @@ export const POST_DETAIL_TAB_LAYOUTS: Record< PostDetailTabId, DashboardWidget[]
 			uuid: 'email-opens-highlights',
 			type: 'jpa/email-top-row',
 			attributes: { metric: 'opens' },
-			placement: { width: WIDGET_DASHBOARD_COLUMN_COUNT, height: 1, order: 1 },
+			placement: { width: DETAIL_COLUMN_COUNT, height: 1, order: 1 },
 		},
 		{
 			uuid: 'email-opens-trend',
 			type: 'jpa/email-time-series--total-opens',
 			attributes: { metric: 'opens' },
-			placement: { width: 3, height: 2, order: 2 },
+			placement: { width: DETAIL_COLUMN_COUNT, height: 2, order: 2 },
 		},
 		{
 			uuid: 'email-opens-countries',
@@ -82,7 +84,7 @@ export const POST_DETAIL_TAB_LAYOUTS: Record< PostDetailTabId, DashboardWidget[]
 			uuid: 'email-clicks-highlights',
 			type: 'jpa/email-top-row',
 			attributes: { metric: 'clicks' },
-			placement: { width: WIDGET_DASHBOARD_COLUMN_COUNT, height: 1, order: 1 },
+			placement: { width: DETAIL_COLUMN_COUNT, height: 1, order: 1 },
 		},
 		{
 			uuid: 'email-clicks-trend',
@@ -113,7 +115,7 @@ export const POST_DETAIL_TAB_LAYOUTS: Record< PostDetailTabId, DashboardWidget[]
 			uuid: 'email-clicks-links',
 			type: 'jpa/email-breakdown--top-links',
 			attributes: { view: 'links', metric: 'clicks' },
-			placement: { width: 2, height: 2, order: 6 },
+			placement: { width: DETAIL_COLUMN_COUNT, height: 2, order: 6 },
 		},
 	],
 };

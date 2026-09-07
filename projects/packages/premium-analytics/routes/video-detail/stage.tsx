@@ -18,11 +18,12 @@ import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { Link, useParams, useSearch } from '@wordpress/route';
-import { DEFAULT_GRID, ROW_HEIGHT_PRESETS, WidgetDashboard } from '@wordpress/widget-dashboard';
+import { WidgetDashboard } from '@wordpress/widget-dashboard';
 import { type WidgetModuleRecord } from '@wordpress/widget-primitives';
 /**
  * Internal dependencies
  */
+import { DETAIL_GRID } from '../detail-grid';
 import { useDetailBreadcrumbs } from '../use-detail-breadcrumbs';
 import { useDetailDateControls } from '../use-detail-date-controls';
 import { resolveWidgetModuleWithI18n, useWidgetTypesWithI18n } from '../widget-module-i18n';
@@ -32,11 +33,6 @@ import { useVideoSummary } from './hooks';
 import { route } from './package.json';
 
 const ROUTE_FROM = route.path;
-
-// The composition is fixed (WOOA7S-1625), so keep its grid independent from the
-// customizable main-dashboard preference — a future settings control must not
-// stretch these tiles out of proportion.
-const VIDEO_DETAIL_GRID = { ...DEFAULT_GRID, rowHeight: ROW_HEIGHT_PRESETS.small };
 
 // The layout is fixed, so the change callback never fires; the dashboard
 // still requires one because it owns a staging copy internally.
@@ -129,7 +125,7 @@ function VideoDetail(): JSX.Element {
 			resolveWidgetModule={ resolveWidgetModuleWithI18n }
 			layout={ layout }
 			onLayoutChange={ noopLayoutChange }
-			gridSettings={ VIDEO_DETAIL_GRID }
+			gridSettings={ DETAIL_GRID }
 		>
 			<DetailPageShell
 				visual={ <StatsPageIcon /> }
