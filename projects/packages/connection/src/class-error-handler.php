@@ -267,6 +267,9 @@ class Error_Handler {
 	 * predefined error messages and actions, with optional filtering for specific sites.
 	 * Only processes a limited set of error codes that are meant to be displayed to users.
 	 *
+	 * The result is specific to the current viewer: an error is omitted entirely when
+	 * they lack the capability to resolve it, so no surface has to gate it again.
+	 *
 	 * error_data.action is only set when it deviates from the default behavior
 	 * (e.g. 'none' to suppress the reconnect CTA); when absent, readers fall back
 	 * to offering the reconnect CTA.
@@ -315,6 +318,10 @@ class Error_Handler {
 			$viewer_is_owner = $owner_id > 0 && $viewer_id === $owner_id;
 			$is_transferable = ( new Manager() )->is_ownership_transferable();
 
+			// Viewer-wide, so resolved once rather than per error.
+			$viewer_can_connect      = current_user_can( 'jetpack_connect' );
+			$viewer_can_connect_user = current_user_can( 'jetpack_connect_user' );
+
 			foreach ( $verified_errors as $error_code => $users ) {
 				// Only process error codes that are meant to be displayed to users.
 				// A raw verified error whose code is marked non-displayable in
@@ -353,6 +360,17 @@ class Error_Handler {
 						continue;
 					}
 
+					// An error a viewer cannot act on is withheld entirely.
+					if ( $viewer_id > 0 ) {
+						$can_view_error = 'user' === $audience && 'invalid_connection_owner' !== $error_code
+						? $viewer_can_connect_user
+						: $viewer_can_connect;
+
+						if ( ! $can_view_error ) {
+							continue;
+						}
+					}
+
 					$message = $generic_message;
 					$action  = null;
 
@@ -375,8 +393,7 @@ class Error_Handler {
 						// they can usefully be told depends on whether ownership is transferable.
 						// Only name the owner, or describe what reconnecting would do, for
 						// viewers who can act on connection issues.
-						$viewer_can_connect = current_user_can( 'jetpack_connect' );
-						$owner_name         = '';
+						$owner_name = '';
 						if ( $viewer_can_connect ) {
 							$owner      = get_userdata( $owner_id );
 							$owner_name = $owner instanceof \WP_User ? $owner->display_name : '';

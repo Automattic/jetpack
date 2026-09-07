@@ -27,6 +27,11 @@ class Error_Handler_Test extends BaseTestCase {
 	 */
 	public function set_up() {
 		$this->error_handler = Error_Handler::get_instance();
+
+		// Registered by Manager::configure() in production. The display pipeline gates
+		// errors on jetpack_connect / jetpack_connect_user, so without it no test user
+		// would hold either capability and every error would be filtered out.
+		add_filter( 'map_meta_cap', array( new Manager(), 'jetpack_connection_custom_caps' ), 10, 4 );
 	}
 
 	/**
@@ -51,10 +56,20 @@ class Error_Handler_Test extends BaseTestCase {
 		remove_all_filters( 'jetpack_connection_bypass_error_reporting_gate' );
 		remove_all_filters( 'jetpack_connection_ownership_transferable' );
 		remove_all_filters( 'user_has_cap' );
+		remove_all_filters( 'map_meta_cap' );
 
 		// Reset viewer/owner state used by the audience-aware display tests.
 		wp_set_current_user( 0 );
 		\Jetpack_Options::delete_option( 'master_user' );
+		\Jetpack_Options::delete_option( 'user_tokens' );
+
+		// Manager memoizes the connection owner, which jetpack_connect_user maps on.
+		$owner_id_property = new \ReflectionProperty( Manager::class, 'connection_owner_id' );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$owner_id_property->setAccessible( true );
+		}
+		$owner_id_property->setValue( null, null );
 
 		// The gate is keyed by code + direction; clean every direction variant a test could
 		// have armed (including '' for a WP_Error built with no error_data).
@@ -2657,6 +2672,183 @@ class Error_Handler_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test that a site-scoped error is withheld from a viewer without jetpack_connect.
+	 *
+	 * Restoring a broken blog token tears down and re-registers the whole site
+	 * connection, so an Editor is shown nothing rather than a notice whose only CTA
+	 * would fail for them.
+	 */
+	public function test_get_displayable_errors_hides_site_error_without_capability() {
+		$editor_id = wp_insert_user(
+			array(
+				'user_login' => 'site_error_editor',
+				'user_pass'  => 'password',
+				'user_email' => 'site_error_editor@example.org',
+				'role'       => 'editor',
+			)
+		);
+		$this->assertIsInt( $editor_id );
+		wp_set_current_user( $editor_id );
+
+		$this->store_single_verified_error( 'no_valid_blog_token', '0' );
+
+		$this->assertSame( array(), $this->error_handler->get_displayable_errors() );
+	}
+
+	/**
+	 * Test that the same site-scoped error still reaches a viewer who can act on it,
+	 * with no action override: readers fall back to the reconnect CTA.
+	 */
+	public function test_get_displayable_errors_shows_site_error_to_capable_viewer() {
+		$admin_id = wp_insert_user(
+			array(
+				'user_login' => 'site_error_admin',
+				'user_pass'  => 'password',
+				'user_email' => 'site_error_admin@example.org',
+				'role'       => 'administrator',
+			)
+		);
+		$this->assertIsInt( $admin_id );
+		wp_set_current_user( $admin_id );
+
+		$this->store_single_verified_error( 'no_valid_blog_token', '0' );
+
+		$result = $this->error_handler->get_displayable_errors();
+
+		$this->assertArrayHasKey( 'no_valid_blog_token', $result );
+		$displayed = $result['no_valid_blog_token']['0'];
+		$this->assertSame( 'site', $displayed['audience'] );
+		$this->assertArrayNotHasKey( 'action', $displayed['error_data'] );
+	}
+
+	/**
+	 * Test that the blocked-request error is withheld from a viewer without
+	 * jetpack_connect: it is site-scoped, and its message points at Site Health,
+	 * which such a viewer cannot open either.
+	 */
+	public function test_get_displayable_errors_hides_blocked_request_without_capability() {
+		$editor_id = wp_insert_user(
+			array(
+				'user_login' => 'blocked_request_editor',
+				'user_pass'  => 'password',
+				'user_email' => 'blocked_request_editor@example.org',
+				'role'       => 'editor',
+			)
+		);
+		$this->assertIsInt( $editor_id );
+		wp_set_current_user( $editor_id );
+
+		$this->store_single_verified_error( 'xmlrpc_request_blocked', '0' );
+
+		$this->assertSame( array(), $this->error_handler->get_displayable_errors() );
+	}
+
+	/**
+	 * Test that a viewer's own broken user token is still shown to them without
+	 * jetpack_connect: relinking their own account is self-service (jetpack_connect_user),
+	 * which non-admins hold once the site has a connected owner.
+	 */
+	public function test_get_displayable_errors_shows_own_user_error_to_non_admin() {
+		$owner_id = wp_insert_user(
+			array(
+				'user_login' => 'own_error_owner',
+				'user_pass'  => 'password',
+				'user_email' => 'own_error_owner@example.org',
+				'role'       => 'administrator',
+			)
+		);
+		$this->assertIsInt( $owner_id );
+		\Jetpack_Options::update_option( 'master_user', $owner_id );
+		\Jetpack_Options::update_option( 'user_tokens', array( $owner_id => 'token.secret.' . $owner_id ) );
+
+		$editor_id = wp_insert_user(
+			array(
+				'user_login' => 'own_error_editor',
+				'user_pass'  => 'password',
+				'user_email' => 'own_error_editor@example.org',
+				'role'       => 'editor',
+			)
+		);
+		$this->assertIsInt( $editor_id );
+		wp_set_current_user( $editor_id );
+		$this->assertFalse( current_user_can( 'jetpack_connect' ), 'An Editor must not hold the site-scoped capability.' );
+
+		$this->store_single_verified_error( 'no_valid_user_token', (string) $editor_id );
+
+		$result = $this->error_handler->get_displayable_errors();
+
+		$this->assertArrayHasKey( 'no_valid_user_token', $result );
+		$this->assertSame( 'user', $result['no_valid_user_token'][ (string) $editor_id ]['audience'] );
+	}
+
+	/**
+	 * Test that an `invalid_connection_owner` classified as `user` — the fallback when
+	 * there is no owner left to compare against — needs jetpack_connect rather than
+	 * jetpack_connect_user: its remedy is an admin becoming the new connection owner.
+	 */
+	public function test_get_displayable_errors_hides_ownerless_owner_error_from_non_admin() {
+		$editor_id = wp_insert_user(
+			array(
+				'user_login' => 'ownerless_editor',
+				'user_pass'  => 'password',
+				'user_email' => 'ownerless_editor@example.org',
+				'role'       => 'editor',
+			)
+		);
+		$this->assertIsInt( $editor_id );
+		wp_set_current_user( $editor_id );
+
+		$this->store_single_verified_error( 'invalid_connection_owner', (string) $editor_id );
+
+		$this->assertSame( array(), $this->error_handler->get_displayable_errors() );
+	}
+
+	/**
+	 * Test that a context with no current user (cron, WP-CLI, unauthenticated requests)
+	 * keeps the unfiltered set: there is no viewer to gate on, and no UI to render.
+	 */
+	public function test_get_displayable_errors_keeps_full_set_without_a_viewer() {
+		wp_set_current_user( 0 );
+
+		$this->store_single_verified_error( 'no_valid_blog_token', '0' );
+
+		$this->assertArrayHasKey( 'no_valid_blog_token', $this->error_handler->get_displayable_errors() );
+	}
+
+	/**
+	 * Test that the in-request cache does not leak one viewer's result to another:
+	 * the gate makes the output viewer-specific.
+	 */
+	public function test_get_displayable_errors_cache_is_keyed_by_viewer() {
+		$admin_id  = wp_insert_user(
+			array(
+				'user_login' => 'cache_admin',
+				'user_pass'  => 'password',
+				'user_email' => 'cache_admin@example.org',
+				'role'       => 'administrator',
+			)
+		);
+		$editor_id = wp_insert_user(
+			array(
+				'user_login' => 'cache_editor',
+				'user_pass'  => 'password',
+				'user_email' => 'cache_editor@example.org',
+				'role'       => 'editor',
+			)
+		);
+		$this->assertIsInt( $admin_id );
+		$this->assertIsInt( $editor_id );
+
+		$this->store_single_verified_error( 'no_valid_blog_token', '0' );
+
+		wp_set_current_user( $admin_id );
+		$this->assertArrayHasKey( 'no_valid_blog_token', $this->error_handler->get_displayable_errors() );
+
+		wp_set_current_user( $editor_id );
+		$this->assertSame( array(), $this->error_handler->get_displayable_errors() );
+	}
+
+	/**
 	 * Stores a set of verified errors, one entry per given error code and user ID.
 	 *
 	 * @param array $errors_by_code Map of error code to a list of user ID keys.
@@ -3172,11 +3364,23 @@ class Error_Handler_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test that the destructive-reconnect warning is withheld from viewers who are never
-	 * offered the CTA: it names the owner and describes an action they cannot take.
+	 * Test that an owner error is withheld entirely from a viewer who cannot act on it.
+	 *
+	 * Restoring an owner's connection is a site-scoped reconnect (jetpack_connect), so a
+	 * viewer without that capability is shown nothing rather than a notice naming the
+	 * owner and describing an action that is not theirs to take.
 	 */
-	public function test_get_displayable_errors_transferable_owner_warning_requires_capability() {
-		$owner_id = 999;
+	public function test_get_displayable_errors_hides_owner_error_without_capability() {
+		$owner_id = wp_insert_user(
+			array(
+				'user_login'   => 'connection_owner',
+				'user_pass'    => 'password',
+				'user_email'   => 'connection_owner@example.org',
+				'display_name' => 'Owner Person',
+				'role'         => 'administrator',
+			)
+		);
+		$this->assertIsInt( $owner_id );
 		\Jetpack_Options::update_option( 'master_user', $owner_id );
 
 		$contributor_id = wp_insert_user(
@@ -3190,22 +3394,9 @@ class Error_Handler_Test extends BaseTestCase {
 		$this->assertIsInt( $contributor_id );
 		wp_set_current_user( $contributor_id );
 
-		$error = array(
-			'error_code'    => 'no_valid_user_token',
-			'user_id'       => (string) $owner_id,
-			'error_message' => 'Original message',
-			'error_data'    => array(),
-			'timestamp'     => time(),
-			'nonce'         => 'nonce_owner',
-			'error_type'    => 'xmlrpc',
-		);
-		update_option( Error_Handler::STORED_VERIFIED_ERRORS_OPTION, array( 'no_valid_user_token' => array( (string) $owner_id => $error ) ) );
+		$this->store_single_verified_error( 'no_valid_user_token', (string) $owner_id );
 
-		$result    = $this->error_handler->get_displayable_errors();
-		$displayed = $result['no_valid_user_token'][ (string) $owner_id ];
-
-		$this->assertStringNotContainsString( 'every other user will be disconnected', $displayed['error_message'] );
-		$this->assertStringNotContainsString( 'connection owner', $displayed['error_message'] );
+		$this->assertSame( array(), $this->error_handler->get_displayable_errors() );
 	}
 
 	/**
@@ -3402,10 +3593,10 @@ class Error_Handler_Test extends BaseTestCase {
 	 * Test that the `invalid_connection_owner` message distinguishes its two flavors via
 	 * `has_user_token`, which wp_error_to_array() stores inside `error_data`.
 	 *
-	 * The viewer here is a secondary admin without the jetpack_connect capability: both
-	 * owner-audience rewrites in get_displayable_errors() (the second-person one for the
-	 * owner themselves, and the owner-naming one for admins who can act) are skipped for
-	 * them, so the message is the display config's callback output verbatim.
+	 * No owner is on record here, which is the one case where the callback's output
+	 * survives verbatim: with no master_user to compare the error's user ID against,
+	 * the error classifies as `user` rather than `owner`, so neither owner-audience
+	 * rewrite in get_displayable_errors() applies.
 	 *
 	 * @param bool|null $has_user_token Value to report, or null to omit the key entirely.
 	 * @param string    $expected       Fragment the resulting message must contain.
@@ -3423,7 +3614,6 @@ class Error_Handler_Test extends BaseTestCase {
 			)
 		);
 		$this->assertIsInt( $owner_id );
-		\Jetpack_Options::update_option( 'master_user', $owner_id );
 
 		$admin_id = wp_insert_user(
 			array(
@@ -3602,56 +3792,6 @@ class Error_Handler_Test extends BaseTestCase {
 				'The WordPress.com account for this connection no longer exists on this site',
 			),
 		);
-	}
-
-	/**
-	 * Test that the owner's display name is not exposed to viewers who cannot act on
-	 * connection issues (no jetpack_connect capability): displayable errors are printed
-	 * into the initial state for any logged-in user loading connection scripts.
-	 */
-	public function test_get_displayable_errors_hides_owner_name_without_capability() {
-		$owner_id = wp_insert_user(
-			array(
-				'user_login'   => 'connection_owner',
-				'user_pass'    => 'password',
-				'user_email'   => 'connection_owner@example.org',
-				'display_name' => 'Owner Person',
-				'role'         => 'administrator',
-			)
-		);
-		\Jetpack_Options::update_option( 'master_user', $owner_id );
-
-		// Act as a viewer without the jetpack_connect capability (e.g. a contributor).
-		$contributor_id = wp_insert_user(
-			array(
-				'user_login' => 'contributor_viewer',
-				'user_pass'  => 'password',
-				'user_email' => 'contributor_viewer@example.org',
-				'role'       => 'contributor',
-			)
-		);
-		wp_set_current_user( $contributor_id );
-
-		// Lock ownership so the informational branch (the only one naming the owner) runs.
-		add_filter( 'jetpack_connection_ownership_transferable', '__return_false' );
-
-		$error = array(
-			'error_code'    => 'no_valid_user_token',
-			'user_id'       => (string) $owner_id,
-			'error_message' => 'Original message',
-			'error_data'    => array(),
-			'timestamp'     => time(),
-			'nonce'         => 'nonce_owner',
-			'error_type'    => 'xmlrpc',
-		);
-		update_option( Error_Handler::STORED_VERIFIED_ERRORS_OPTION, array( 'no_valid_user_token' => array( (string) $owner_id => $error ) ) );
-
-		$result = $this->error_handler->get_displayable_errors();
-
-		$displayed = $result['no_valid_user_token'][ (string) $owner_id ];
-		$this->assertSame( 'none', $displayed['error_data']['action'] );
-		$this->assertStringNotContainsString( 'Owner Person', $displayed['error_message'], 'The owner name must not be exposed to low-capability viewers.' );
-		$this->assertStringContainsString( 'reconnect their WordPress.com account', $displayed['error_message'], 'The nameless informational variant is used instead.' );
 	}
 
 	/**
