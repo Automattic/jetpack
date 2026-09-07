@@ -171,50 +171,6 @@ describe( 'DashItem', () => {
 		} );
 	} );
 
-	describe( 'if this is the DashItem for Manage module', () => {
-		const manageProps = {
-			label: 'Manage',
-			module: 'manage',
-			status: 'is-warning',
-			pro: false,
-			isOfflineMode: false,
-			userCanToggle: true,
-			siteAdminUrl: 'https://example.org/wp-admin/',
-			siteRawUrl: 'example.org',
-			getOptionValue: () => true,
-			isUpdating: () => false,
-		};
-
-		it( "shows a warning badge when status is 'is-warning'", () => {
-			const { container } = render( <DashItem { ...manageProps } />, {
-				initialState: buildInitialState(),
-			} );
-			// eslint-disable-next-line testing-library/no-container
-			expect( container.querySelector( '.dops-notice.is-warning' ) ).toBeInTheDocument();
-		} );
-
-		it( 'when it is activated, the warning badge is linked to Plugins screen in WordPress.com', () => {
-			const { container } = render( <DashItem { ...manageProps } />, {
-				initialState: buildInitialState(),
-			} );
-			// eslint-disable-next-line testing-library/no-container
-			const node = container.querySelector( '.dops-notice.is-warning' ).closest( 'a' );
-			expect( node ).toBeInTheDocument();
-			expect( node ).toHaveAttribute(
-				'href',
-				getRedirectUrl( 'calypso-plugins-manage', { site: manageProps.siteRawUrl } )
-			);
-		} );
-
-		it( "when status is 'is-working', the warning badge has an 'active' label", () => {
-			const { container } = render( <DashItem { ...manageProps } status="is-working" />, {
-				initialState: buildInitialState(),
-			} );
-			// eslint-disable-next-line testing-library/no-container
-			expect( container.querySelector( '.jp-dash-item__active-label' ) ).toBeInTheDocument();
-		} );
-	} );
-
 	describe( 'if this is the DashItem for Monitor module', () => {
 		const monitorProps = {
 			module: 'monitor',

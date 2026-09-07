@@ -1,5 +1,4 @@
-import { getRedirectUrl } from '@automattic/jetpack-components';
-import { __, _x } from '@wordpress/i18n';
+import { _x } from '@wordpress/i18n';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import { Component } from 'react';
@@ -8,7 +7,6 @@ import Button from 'components/button';
 import Card from 'components/card';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
-import SimpleNotice from 'components/notice';
 import SectionHeader from 'components/section-header';
 import SupportInfo from 'components/support-info';
 import analytics from 'lib/analytics';
@@ -79,9 +77,7 @@ export class DashItem extends Component {
 					'videopress',
 				].includes( this.props.module ) &&
 					this.props.isOfflineMode ) ||
-				this.props.noToggle ||
-				// Avoid toggle for manage as it's no longer a module
-				'manage' === this.props.module ? (
+				this.props.noToggle ? (
 					''
 				) : (
 					<ModuleToggle
@@ -92,29 +88,6 @@ export class DashItem extends Component {
 						compact={ true }
 					/>
 				);
-
-			if ( 'manage' === this.props.module ) {
-				if ( 'is-warning' === this.props.status ) {
-					toggle = (
-						<a
-							href={
-								this.props.isOfflineMode
-									? this.props.siteAdminUrl + 'update-core.php'
-									: getRedirectUrl( 'calypso-plugins-manage', { site: this.props.siteRawUrl } )
-							}
-						>
-							<SimpleNotice showDismiss={ false } status={ this.props.status } isCompact={ true }>
-								{ _x( 'Updates needed', 'Short warning message', 'jetpack' ) }
-							</SimpleNotice>
-						</a>
-					);
-				}
-				if ( 'is-working' === this.props.status ) {
-					toggle = (
-						<span className="jp-dash-item__active-label">{ __( 'Active', 'jetpack' ) }</span>
-					);
-				}
-			}
 
 			if ( 'rewind' === this.props.module ) {
 				toggle = null;
