@@ -155,9 +155,6 @@ jest.mock( '@wordpress/widget-dashboard', () => {
 	};
 
 	/**
-	 *
-	 */
-	/**
 	 * The real dashboard hands `editMode` and `onEditChange` to `Actions` through its
 	 * context; the stand-in does the same so Customize, Done and Cancel round-trip.
 	 *
