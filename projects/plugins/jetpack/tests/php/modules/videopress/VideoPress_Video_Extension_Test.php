@@ -5,7 +5,6 @@
  * @package automattic/jetpack
  */
 
-use Automattic\Jetpack\VideoPress\Initializer as VideoPress_Initializer;
 use PHPUnit\Framework\Attributes\CoversNothing;
 
 /**
@@ -20,94 +19,90 @@ use PHPUnit\Framework\Attributes\CoversNothing;
 class VideoPress_Video_Extension_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
-	/**
-	 * Temporary block.json written at the path register_videopress_playlist_block()
-	 * reads by default.  Set to null when the build output already exists (so
-	 * we don't delete a file we didn't create).
-	 *
-	 * @var string|null
-	 */
-	private $created_fixture_dir = null;
+	/** @var string|null Temporary block.json fixture path. */
+	private $temp_fixture = null;
+
+	/** @var string|null Temporary directory holding the fixture. */
+	private $temp_dir = null;
 
 	/**
-	 * Determine the path where the playlist block.json is expected.
-	 *
-	 * @return string Absolute path to the block.json metadata file.
+	 * Create a minimal block.json fixture in a system temp directory.
 	 */
-	private function block_json_path() {
-		$initializer_dir = dirname( ( new ReflectionClass( VideoPress_Initializer::class ) )->getFileName() );
-		return $initializer_dir . '/../build/block-editor/blocks/playlist/block.json';
-	}
-
-	/**
-	 * Create a minimal block.json fixture at the package build path so the
-	 * registrar can succeed in a build-less test environment.
-	 */
-	protected function set_up() {
+	public function set_up() {
 		parent::set_up();
 
-		$block_json = $this->block_json_path();
-
-		if ( ! file_exists( $block_json ) ) {
-			$fixture_dir = dirname( $block_json );
-			if ( ! is_dir( $fixture_dir ) ) {
-				mkdir( $fixture_dir, 0755, true ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_mkdir
-				$this->created_fixture_dir = $fixture_dir;
-			}
-			file_put_contents( // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
-				$block_json,
-				wp_json_encode(
-					array(
-						'apiVersion' => 3,
-						'name'       => 'videopress/playlist',
-						'title'      => 'Video Playlist',
-					),
-					JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
-				)
-			);
-		}
+		$dir = sys_get_temp_dir() . '/videopress-test-' . uniqid();
+		mkdir( $dir, 0755, true ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_mkdir
+		$this->temp_dir     = $dir;
+		$this->temp_fixture = $dir . '/block.json';
+		file_put_contents( // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+			$this->temp_fixture,
+			wp_json_encode(
+				array(
+					'apiVersion' => 3,
+					'name'       => 'videopress/playlist',
+					'title'      => 'Video Playlist',
+				),
+				JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
+			)
+		);
 	}
 
 	/**
-	 * Remove any fixture files and block registrations created by the test.
+	 * Remove the fixture files and any registered block type.
 	 */
-	protected function tear_down() {
+	public function tear_down() {
 		$registry = \WP_Block_Type_Registry::get_instance();
 		if ( $registry->is_registered( 'videopress/playlist' ) ) {
 			unregister_block_type( 'videopress/playlist' );
 		}
 
-		$block_json = $this->block_json_path();
-		if ( $this->created_fixture_dir ) {
-			if ( file_exists( $block_json ) ) {
-				wp_delete_file( $block_json );
-			}
-			if ( is_dir( $this->created_fixture_dir ) ) {
-				rmdir( $this->created_fixture_dir ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir
-			}
-			$this->created_fixture_dir = null;
+		if ( $this->temp_fixture && file_exists( $this->temp_fixture ) ) {
+			wp_delete_file( $this->temp_fixture );
 		}
+		if ( $this->temp_dir && is_dir( $this->temp_dir ) ) {
+			rmdir( $this->temp_dir ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir
+		}
+
+		$this->temp_fixture = null;
+		$this->temp_dir     = null;
 
 		parent::tear_down();
 	}
 
 	/**
-	 * The videopress-video extension must wire up register_videopress_playlist_block()
-	 * on the init hook.  With the VideoPress module active, the block should be
-	 * registered — this was missing before the JETPACK-2520 fix.
+	 * The extension must attach its registration callback to the init action.
 	 */
-	public function test_playlist_block_is_registered_when_videopress_module_active() {
-		// Simulate the VideoPress module being active.
+	public function test_register_videopress_blocks_is_hooked_to_init() {
+		$this->assertSame(
+			10,
+			has_action( 'init', 'Automattic\Jetpack\Extensions\VideoPress_Video\register_videopress_blocks' )
+		);
+	}
+
+	/**
+	 * When the VideoPress module is active the playlist block must be registered.
+	 */
+	public function test_playlist_block_registered_when_videopress_module_active() {
 		add_filter( 'jetpack_active_modules', array( $this, 'filter_add_videopress_module' ) );
-
-		// Re-fire the init hook so the extension's callback runs under the above filter.
-		do_action( 'init' ); // phpcs:ignore WordPress.NamingConventions.ValidHookName.NotLowercase
-
+		Automattic\Jetpack\Extensions\VideoPress_Video\register_videopress_blocks( $this->temp_fixture );
 		remove_filter( 'jetpack_active_modules', array( $this, 'filter_add_videopress_module' ) );
 
 		$this->assertTrue(
 			\WP_Block_Type_Registry::get_instance()->is_registered( 'videopress/playlist' ),
 			'videopress/playlist must be registered when the VideoPress module is active.'
+		);
+	}
+
+	/**
+	 * When the VideoPress module is inactive the playlist block must not be registered.
+	 */
+	public function test_playlist_block_not_registered_when_videopress_module_inactive() {
+		Automattic\Jetpack\Extensions\VideoPress_Video\register_videopress_blocks( $this->temp_fixture );
+
+		$this->assertFalse(
+			\WP_Block_Type_Registry::get_instance()->is_registered( 'videopress/playlist' ),
+			'videopress/playlist must not be registered when the VideoPress module is inactive.'
 		);
 	}
 
