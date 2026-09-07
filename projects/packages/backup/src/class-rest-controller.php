@@ -784,7 +784,7 @@ class REST_Controller {
 	 * @access public
 	 * @static
 	 *
-	 * @return \WP_REST_Response Whether the cache was flushed, and why it was not when it was skipped.
+	 * @return \WP_REST_Response Whether the cache was flushed, carrying a `reason` whenever it was not.
 	 */
 	public static function flush_object_cache() {
 		if ( ! wp_using_ext_object_cache() ) {
@@ -796,7 +796,18 @@ class REST_Controller {
 			);
 		}
 
-		return rest_ensure_response( array( 'flushed' => (bool) wp_cache_flush() ) );
+		// Core documents false as the only failure signal, so a drop-in whose
+		// flush() returns nothing must not be reported as a failed flush.
+		if ( false === wp_cache_flush() ) {
+			return rest_ensure_response(
+				array(
+					'flushed' => false,
+					'reason'  => 'flush_failed',
+				)
+			);
+		}
+
+		return rest_ensure_response( array( 'flushed' => true ) );
 	}
 
 	/**

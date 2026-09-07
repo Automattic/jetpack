@@ -27,11 +27,14 @@ use function add_action;
 use function add_filter;
 use function do_action;
 use function remove_filter;
+use function wp_cache_get;
+use function wp_cache_set;
 use function wp_delete_file;
 use function wp_insert_post;
 use function wp_insert_user;
 use function wp_json_encode;
 use function wp_set_current_user;
+use function wp_using_ext_object_cache;
 
 require_once __DIR__ . '/trait-wpcom-request-mock.php';
 
@@ -54,6 +57,20 @@ class REST_Controller_Test extends TestCase {
 	private $admin_id;
 
 	/**
+	 * The object cache in place before a test swapped in a stub drop-in.
+	 *
+	 * @var \WP_Object_Cache
+	 */
+	private $real_object_cache;
+
+	/**
+	 * Whether the site reported a persistent object cache before a test flipped it.
+	 *
+	 * @var bool|null
+	 */
+	private $was_using_ext_object_cache;
+
+	/**
 	 * Setting up the test.
 	 */
 	public function setUp(): void {
@@ -70,6 +87,9 @@ class REST_Controller_Test extends TestCase {
 			)
 		);
 		wp_set_current_user( 0 );
+
+		$this->real_object_cache          = $GLOBALS['wp_object_cache'];
+		$this->was_using_ext_object_cache = wp_using_ext_object_cache();
 
 		// Register REST routes.
 		add_action( 'rest_api_init', array( 'Automattic\\Jetpack\\Backup\\V0005\\REST_Controller', 'register_rest_routes' ) );
@@ -94,6 +114,11 @@ class REST_Controller_Test extends TestCase {
 			$_GET['signature'],
 			$_SERVER['REQUEST_METHOD']
 		);
+
+		$GLOBALS['wp_object_cache'] = $this->real_object_cache;
+
+		// Cast: passing null would read the flag rather than restore it.
+		wp_using_ext_object_cache( (bool) $this->was_using_ext_object_cache );
 
 		WorDBless_Options::init()->clear_options();
 		WorDBless_Posts::init()->clear_all_posts();
@@ -690,14 +715,13 @@ class REST_Controller_Test extends TestCase {
 
 	/**
 	 * Without a persistent cache there is nothing stale to bust, so the route
-	 * says so rather than reporting a flush it never performed.
+	 * skips the flush and says why.
 	 */
 	public function test_flush_object_cache_skips_a_site_without_a_persistent_cache() {
-		$was_using = wp_using_ext_object_cache( false );
+		wp_using_ext_object_cache( false );
+		wp_cache_set( 'jetpack_2546', 'survives' );
 
-		$response = $this->dispatch_request_signed_with_blog_token( new WP_REST_Request( 'POST', '/jetpack/v4/site/cache/flush' ) );
-
-		wp_using_ext_object_cache( $was_using );
+		$response = $this->dispatch_flush();
 
 		$this->assertEquals( 200, $response->get_status() );
 		$this->assertSame(
@@ -707,22 +731,103 @@ class REST_Controller_Test extends TestCase {
 			),
 			$response->get_data()
 		);
+		$this->assertSame( 'survives', wp_cache_get( 'jetpack_2546' ), 'The cache should have been left alone.' );
 	}
 
 	/**
-	 * With a persistent cache the route flushes and reports what it got back.
+	 * With a persistent cache the route empties it, rather than merely saying so.
 	 *
-	 * The absent `reason` is the assertion that matters: it separates a real
-	 * flush from the skip above, which also reports `flushed` as false.
+	 * The witness key is the point: without it this passes just as happily
+	 * against a route that reports success and flushes nothing.
 	 */
-	public function test_flush_object_cache_flushes_a_persistent_cache() {
-		$was_using = wp_using_ext_object_cache( true );
+	public function test_flush_object_cache_empties_a_persistent_cache() {
+		wp_using_ext_object_cache( true );
+		wp_cache_set( 'jetpack_2546', 'stale' );
 
-		$response = $this->dispatch_request_signed_with_blog_token( new WP_REST_Request( 'POST', '/jetpack/v4/site/cache/flush' ) );
-
-		wp_using_ext_object_cache( $was_using );
+		$response = $this->dispatch_flush();
 
 		$this->assertEquals( 200, $response->get_status() );
 		$this->assertSame( array( 'flushed' => true ), $response->get_data() );
+		$this->assertFalse( wp_cache_get( 'jetpack_2546' ), 'The cache should have been emptied.' );
+	}
+
+	/**
+	 * A drop-in that declines to flush is reported as a failure, with a reason.
+	 *
+	 * Shared Memcached setups sometimes disable flushing so one site cannot
+	 * empty its neighbours', and that refusal is invisible to WordPress.com
+	 * unless the route forwards it.
+	 */
+	public function test_flush_object_cache_reports_a_drop_in_that_declines() {
+		wp_using_ext_object_cache( true );
+		$this->arrange_object_cache_drop_in( false );
+
+		$response = $this->dispatch_flush();
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertSame(
+			array(
+				'flushed' => false,
+				'reason'  => 'flush_failed',
+			),
+			$response->get_data()
+		);
+	}
+
+	/**
+	 * A drop-in whose flush() returns nothing counts as a success.
+	 *
+	 * Core documents false as the only failure signal, so casting the return
+	 * to bool would report a working flush as a failed one.
+	 */
+	public function test_flush_object_cache_treats_a_void_drop_in_return_as_success() {
+		wp_using_ext_object_cache( true );
+		$this->arrange_object_cache_drop_in( null );
+
+		$response = $this->dispatch_flush();
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertSame( array( 'flushed' => true ), $response->get_data() );
+	}
+
+	/**
+	 * Dispatch a flush request signed with the blog token.
+	 *
+	 * @return \WP_REST_Response
+	 */
+	private function dispatch_flush() {
+		return $this->dispatch_request_signed_with_blog_token( new WP_REST_Request( 'POST', '/jetpack/v4/site/cache/flush' ) );
+	}
+
+	/**
+	 * Stand a drop-in in for the object cache, so its flush() answer can be chosen.
+	 *
+	 * Subclassed rather than faked outright: the signed dispatch reads and
+	 * writes the cache on its way to the callback.
+	 *
+	 * @param mixed $result What the drop-in's flush() hands back.
+	 */
+	private function arrange_object_cache_drop_in( $result ) {
+		$cache = new class() extends \WP_Object_Cache {
+			/**
+			 * What flush() hands back.
+			 *
+			 * @var mixed
+			 */
+			public $flush_result;
+
+			/**
+			 * Stand in for a drop-in's flush().
+			 *
+			 * @return mixed
+			 */
+			public function flush() {
+				return $this->flush_result;
+			}
+		};
+
+		$cache->flush_result = $result;
+
+		$GLOBALS['wp_object_cache'] = $cache;
 	}
 }
