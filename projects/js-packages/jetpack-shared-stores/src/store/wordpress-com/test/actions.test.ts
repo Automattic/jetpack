@@ -7,6 +7,7 @@ import {
 	ACTION_FETCH_FROM_API,
 	ACTION_INCREASE_AI_ASSISTANT_REQUESTS_COUNT,
 	ACTION_REQUEST_AI_ASSISTANT_FEATURE,
+	ACTION_SET_AI_ASSISTANT_FEATURE_ERROR,
 	ACTION_SET_AI_ASSISTANT_FEATURE_REQUIRE_UPGRADE,
 	ACTION_SET_PLANS,
 	ACTION_SET_TIER_PLANS_ENABLED,
@@ -314,9 +315,47 @@ describe( 'fetchAiAssistantFeature', () => {
 
 		await actions.fetchAiAssistantFeature()( { dispatch } );
 
-		expect( dispatch ).toHaveBeenCalledTimes( 1 );
-		expect( dispatch ).toHaveBeenCalledWith( {
-			type: ACTION_REQUEST_AI_ASSISTANT_FEATURE,
+		expect( dispatch ).not.toHaveBeenCalledWith(
+			expect.objectContaining( { type: ACTION_STORE_AI_ASSISTANT_FEATURE } )
+		);
+
+		consoleErrorSpy.mockRestore();
+	} );
+
+	it( 'should record the error state when the request fails', async () => {
+		const dispatch = createDispatch();
+		const consoleErrorSpy = jest.spyOn( console, 'error' ).mockImplementation( () => {} );
+		mockedApiFetch.mockRejectedValueOnce(
+			Object.assign( new Error( 'Unable to fetch the requested data.' ), {
+				code: 'failed_to_fetch_data',
+				data: { status: 403 },
+			} )
+		);
+
+		await actions.fetchAiAssistantFeature()( { dispatch } );
+
+		expect( dispatch ).toHaveBeenNthCalledWith( 2, {
+			type: ACTION_SET_AI_ASSISTANT_FEATURE_ERROR,
+			code: 'failed_to_fetch_data',
+			message: 'Unable to fetch the requested data.',
+			status: 403,
+		} );
+
+		consoleErrorSpy.mockRestore();
+	} );
+
+	it( 'should record the error state when the failure carries no status', async () => {
+		const dispatch = createDispatch();
+		const consoleErrorSpy = jest.spyOn( console, 'error' ).mockImplementation( () => {} );
+		mockedApiFetch.mockRejectedValueOnce( new Error( 'Network down' ) );
+
+		await actions.fetchAiAssistantFeature()( { dispatch } );
+
+		expect( dispatch ).toHaveBeenNthCalledWith( 2, {
+			type: ACTION_SET_AI_ASSISTANT_FEATURE_ERROR,
+			code: '',
+			message: 'Network down',
+			status: undefined,
 		} );
 
 		consoleErrorSpy.mockRestore();

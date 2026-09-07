@@ -7,6 +7,7 @@ import {
 	ACTION_INCREASE_AI_ASSISTANT_REQUESTS_COUNT,
 	ACTION_REQUEST_AI_ASSISTANT_FEATURE,
 	ACTION_SET_PLANS,
+	ACTION_SET_AI_ASSISTANT_FEATURE_ERROR,
 	ACTION_SET_AI_ASSISTANT_FEATURE_REQUIRE_UPGRADE,
 	ACTION_STORE_AI_ASSISTANT_FEATURE,
 	ASYNC_REQUEST_COUNTDOWN_INIT_VALUE,
@@ -87,6 +88,28 @@ export default function reducer( state = INITIAL_STATE, action ) {
 					...state.features,
 					aiAssistant: {
 						...action.feature,
+						_meta: {
+							...state.features.aiAssistant._meta,
+							isRequesting: false,
+						},
+					},
+				},
+			};
+		}
+
+		// Entitlement fields are deliberately left alone: a failed fetch says
+		// nothing about the site's plan, and blanking them would offer an
+		// upgrade to someone who is already paying.
+		case ACTION_SET_AI_ASSISTANT_FEATURE_ERROR: {
+			return {
+				...state,
+				features: {
+					...state.features,
+					aiAssistant: {
+						...state.features.aiAssistant,
+						errorCode: action.code,
+						errorMessage: action.message,
+						errorStatus: action.status,
 						_meta: {
 							...state.features.aiAssistant._meta,
 							isRequesting: false,

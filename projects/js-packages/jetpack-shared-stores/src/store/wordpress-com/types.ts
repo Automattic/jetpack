@@ -99,6 +99,9 @@ export type AiFeatureProps = {
 	requireUpgrade: boolean;
 	errorMessage?: string;
 	errorCode?: string;
+	// HTTP status of a failed fetch. 403 means this user may not use AI on the
+	// site, which is not the same as the site lacking the feature.
+	errorStatus?: number;
 	upgradeType: UpgradeTypeProp;
 	currentTier?: TierProp;
 	usagePeriod?: {

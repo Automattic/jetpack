@@ -13,6 +13,7 @@ import {
 	ACTION_INCREASE_AI_ASSISTANT_REQUESTS_COUNT,
 	ACTION_REQUEST_AI_ASSISTANT_FEATURE,
 	ACTION_SET_PLANS,
+	ACTION_SET_AI_ASSISTANT_FEATURE_ERROR,
 	ACTION_SET_AI_ASSISTANT_FEATURE_REQUIRE_UPGRADE,
 	ACTION_STORE_AI_ASSISTANT_FEATURE,
 	ENDPOINT_AI_ASSISTANT_FEATURE,
@@ -75,6 +76,32 @@ const actions = {
 	},
 
 	/**
+	 * Record a failed attempt to read the AI Assistant feature.
+	 *
+	 * @param {object} error         - The failure.
+	 * @param {string} error.code    - Error code returned by the endpoint.
+	 * @param {string} error.message - Human readable error message.
+	 * @param {number} error.status  - HTTP status, when the failure carried one.
+	 * @return {object}                The action.
+	 */
+	setAiAssistantFeatureError( {
+		code,
+		message,
+		status,
+	}: {
+		code: string;
+		message: string;
+		status?: number;
+	} ) {
+		return {
+			type: ACTION_SET_AI_ASSISTANT_FEATURE_ERROR,
+			code,
+			message,
+			status,
+		};
+	},
+
+	/**
 	 * Thunk action to fetch the AI Assistant feature from the API.
 	 *
 	 * @return {Function} The thunk action.
@@ -94,7 +121,13 @@ const actions = {
 					actions.storeAiAssistantFeature( mapAiFeatureResponseToAiFeatureProps( response ) )
 				);
 			} catch ( err ) {
-				// @todo: Handle error.
+				dispatch(
+					actions.setAiAssistantFeatureError( {
+						code: err?.code ?? '',
+						message: err?.message ?? '',
+						status: err?.data?.status,
+					} )
+				);
 				console.error( err ); // eslint-disable-line no-console
 			}
 		};
