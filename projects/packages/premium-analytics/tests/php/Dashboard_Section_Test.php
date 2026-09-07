@@ -82,6 +82,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 		remove_all_filters( SUBSCRIBERS_DASHBOARD_SECTION_AVAILABLE_FILTER );
 		remove_all_filters( ADS_DASHBOARD_SECTION_AVAILABLE_FILTER );
 		remove_all_filters( DASHBOARD_PREVIEW_SCOPE_FILTER );
+		remove_all_filters( 'jetpack_admin_js_script_data' );
 		delete_option( Enablement_Setting::ENABLED_OPTION );
 
 		if ( null !== $this->available_modules_filter ) {
@@ -1424,14 +1425,56 @@ class Dashboard_Section_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Publishing an empty scope would hide every report, so an unhydrated registry
-	 * publishes nothing at all.
+	 * An unhydrated registry publishes nothing rather than an empty scope.
 	 */
 	public function test_preview_scope_sections_are_absent_before_the_registry_is_hydrated() {
 		update_option( Enablement_Setting::ENABLED_OPTION, 1 );
 
 		$this->assertNull( get_dashboard_preview_scope_sections() );
 		$this->assertSame( array(), inject_dashboard_preview_scope_script_data( array() ) );
+	}
+
+	/**
+	 * A tab the site cannot show is not a tab its reports may sit behind.
+	 */
+	public function test_preview_scope_sections_drop_an_unavailable_tab() {
+		$this->enable_every_section();
+		add_filter( SUBSCRIBERS_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_false' );
+
+		register_default_dashboard_sections();
+
+		$this->assertNotContains( 'subscribers', get_dashboard_preview_scope_sections() );
+	}
+
+	/**
+	 * A filter that closes every tab publishes an empty scope, not an absent one.
+	 */
+	public function test_preview_scope_sections_are_empty_when_every_tab_is_closed() {
+		$this->enable_every_section();
+		add_filter( DASHBOARD_PREVIEW_SCOPE_FILTER, '__return_false' );
+
+		register_default_dashboard_sections();
+
+		$this->assertSame( array(), get_dashboard_preview_scope_sections() );
+		$this->assertSame(
+			array( 'preview_sections' => array() ),
+			inject_dashboard_preview_scope_script_data( array() )['premium_analytics']
+		);
+	}
+
+	/**
+	 * The scope only reaches the client if the injector is actually hooked.
+	 */
+	public function test_configure_hooks_the_preview_scope_into_script_data() {
+		$this->enable_every_section();
+		update_option( Enablement_Setting::ENABLED_OPTION, 1 );
+
+		register_default_dashboard_sections();
+		configure_dashboard_preview_scope();
+
+		$data = apply_filters( 'jetpack_admin_js_script_data', array() );
+
+		$this->assertSame( array( 'traffic' ), $data['premium_analytics']['preview_sections'] );
 	}
 
 	/**

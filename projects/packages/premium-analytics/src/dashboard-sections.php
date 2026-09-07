@@ -119,31 +119,29 @@ function is_dashboard_section_in_preview_scope( $dashboard_name, $slug ) {
 }
 
 /**
- * Section slugs the preview exposes, for the client's report routes.
+ * Slugs of the tabs the dashboard exposes, for the client's report routes.
  *
- * Null before the registry is hydrated, which the client reads as "do not gate" rather
- * than hiding every report.
+ * Reads the same sections the tab list does, so a report cannot outlive the tab it sits
+ * behind. Null, never `array()`, before the registry is hydrated: an empty array is a
+ * published scope that exposes nothing.
  *
  * @since $$next-version$$
  *
  * @return string[]|null
  */
 function get_dashboard_preview_scope_sections() {
-	$registered = Dashboard_Section_Registry::get_instance()->get_all_registered( DASHBOARD_NAME );
+	$registry = Dashboard_Section_Registry::get_instance();
 
-	if ( empty( $registered ) ) {
+	if ( empty( $registry->get_all_registered( DASHBOARD_NAME ) ) ) {
 		return null;
 	}
 
-	$slugs = array();
-
-	foreach ( $registered as $section ) {
-		if ( is_dashboard_section_in_preview_scope( DASHBOARD_NAME, $section->slug ) ) {
-			$slugs[] = $section->slug;
-		}
-	}
-
-	return $slugs;
+	return array_map(
+		static function ( Dashboard_Section $section ) {
+			return $section->slug;
+		},
+		$registry->get_available_sections( DASHBOARD_NAME )
+	);
 }
 
 /**
@@ -160,8 +158,8 @@ function configure_dashboard_preview_scope() {
 /**
  * Injects the preview's section scope into JetpackScriptData.
  *
- * The tab list travels over REST, but a report route decides its redirect before rendering
- * and would have to block on a request to read it.
+ * The same list travels over REST for the tab bar, but a report route reads no REST before
+ * choosing its redirect, so it reads the scope from boot data instead.
  *
  * @since $$next-version$$
  *
