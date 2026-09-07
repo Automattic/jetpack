@@ -74,19 +74,19 @@ class Subscriber_Session_Test extends WP_UnitTestCase {
 			);
 			try {
 				$subscriber = render_block( array( 'blockName' => 'jetpack/test-subscriber-session' ) );
+
+				if ( $expected ) {
+					$this->assertSame( '', $premium_content );
+					$this->assertStringContainsString( '>Log out</a>', $subscriber );
+					$this->assertStringNotContainsString( '>Log in</a>', $subscriber );
+				} else {
+					$this->assertStringContainsString( '>Log in</a>', $premium_content );
+					$this->assertStringContainsString( '>Log in</a>', $subscriber );
+					$this->assertStringContainsString( 'subscribe.wordpress.com/memberships/jwt/', $premium_content );
+					$this->assertStringContainsString( 'subscribe.wordpress.com/memberships/jwt/', $subscriber );
+				}
 			} finally {
 				unregister_block_type( 'jetpack/test-subscriber-session' );
-			}
-
-			if ( $expected ) {
-				$this->assertSame( '', $premium_content );
-				$this->assertStringContainsString( '>Log out</a>', $subscriber );
-				$this->assertStringNotContainsString( '>Log in</a>', $subscriber );
-			} else {
-				$this->assertStringContainsString( '>Log in</a>', $premium_content );
-				$this->assertStringContainsString( '>Log in</a>', $subscriber );
-				$this->assertStringContainsString( 'subscribe.wordpress.com/memberships/jwt/', $premium_content );
-				$this->assertStringContainsString( 'subscribe.wordpress.com/memberships/jwt/', $subscriber );
 			}
 		} finally {
 			wp_set_current_user( $original_user );
