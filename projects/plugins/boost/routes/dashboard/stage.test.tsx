@@ -82,6 +82,32 @@ describe( 'Boost dashboard stage', () => {
 		}
 	);
 
+	it( 'follows pushState navigation into and out of a subpage', () => {
+		window.history.replaceState( null, '', '/?page=jetpack-boost&tab=settings' );
+		render( <Stage /> );
+		expect( getSubpageMount()?.hidden ).toBe( true );
+
+		act( () => {
+			window.history.pushState(
+				null,
+				'',
+				'/?page=jetpack-boost&tab=settings#/critical-css-advanced'
+			);
+		} );
+
+		expect( getSubpageMount()?.hidden ).toBe( false );
+		expect( screen.queryAllByRole( 'tablist' ) ).toHaveLength( 0 );
+		expect( mockNavigate ).not.toHaveBeenCalled();
+
+		act( () => {
+			window.history.pushState( null, '', '/?page=jetpack-boost&tab=settings#/' );
+		} );
+
+		expect( getSubpageMount()?.hidden ).toBe( true );
+		expect( mockNavigate ).toHaveBeenCalledTimes( 1 );
+		expect( mockNavigate ).toHaveBeenCalledWith( { search: { tab: 'settings' }, replace: true } );
+	} );
+
 	it( 'keeps both mount nodes across tab changes and subpage visits', () => {
 		const { rerender } = render( <Stage /> );
 		const settingsMount = getSettingsMount();

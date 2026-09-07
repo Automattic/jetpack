@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { useCallback, useEffect, useState } from '@wordpress/element';
+import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { useNavigate, useSearch } from '@wordpress/route';
 import { Tabs } from '@wordpress/ui';
 import BoostPage, { type BoostTab } from '../../_inc/components/boost-page';
@@ -14,6 +14,35 @@ const SUBPAGES = [
 
 type Subpage = ( typeof SUBPAGES )[ number ];
 
+const LOCATION_CHANGE_EVENT = 'jetpack-boost:location-change';
+const HISTORY_WRAPPED_KEY = '__jetpackBoostLocationChangeWrapped';
+
+function wrapHistoryOnce() {
+	const history = window.history as History & { [ HISTORY_WRAPPED_KEY ]?: boolean };
+	if ( history[ HISTORY_WRAPPED_KEY ] ) {
+		return;
+	}
+	history[ HISTORY_WRAPPED_KEY ] = true;
+	for ( const method of [ 'pushState', 'replaceState' ] as const ) {
+		const original = history[ method ];
+		history[ method ] = function (
+			this: History,
+			...args: Parameters< History[ typeof method ] >
+		) {
+			const result = original.apply( this, args );
+			window.dispatchEvent( new Event( LOCATION_CHANGE_EVENT ) );
+			return result;
+		};
+	}
+}
+
+function subscribeToLocationChange( listener: () => void ) {
+	wrapHistoryOnce();
+	const events = [ 'hashchange', 'popstate', LOCATION_CHANGE_EVENT ];
+	events.forEach( event => window.addEventListener( event, listener ) );
+	return () => events.forEach( event => window.removeEventListener( event, listener ) );
+}
+
 function getSubpage( hash: string ): Subpage | null {
 	const path = hash.replace( /^#\/?/, '' ).split( '?' )[ 0 ].replace( /\/$/, '' );
 	return SUBPAGES.find( subpage => subpage === path ) ?? null;
@@ -24,6 +53,7 @@ function Stage() {
 	const navigate = useNavigate();
 	const [ queryClient ] = useState( () => new QueryClient() );
 	const [ subpage, setSubpage ] = useState( () => getSubpage( window.location.hash ) );
+	const lastSubpage = useRef( subpage );
 	const activeTab: BoostTab = search.tab === 'settings' ? 'settings' : 'overview';
 	const goToTab = useCallback(
 		( next: BoostTab, replace = false ) => {
@@ -44,16 +74,19 @@ function Stage() {
 	);
 
 	useEffect( () => {
-		const onHashChange = () => {
+		return subscribeToLocationChange( () => {
 			const next = getSubpage( window.location.hash );
-			if ( ! next && ( subpage === 'cache-debug-log' || subpage === 'critical-css-advanced' ) ) {
+			const previous = lastSubpage.current;
+			if ( next === previous ) {
+				return;
+			}
+			lastSubpage.current = next;
+			setSubpage( next );
+			if ( ! next && ( previous === 'cache-debug-log' || previous === 'critical-css-advanced' ) ) {
 				goToTab( 'settings', true );
 			}
-			setSubpage( next );
-		};
-		window.addEventListener( 'hashchange', onHashChange );
-		return () => window.removeEventListener( 'hashchange', onHashChange );
-	}, [ goToTab, subpage ] );
+		} );
+	}, [ goToTab ] );
 
 	return (
 		<BoostPage
