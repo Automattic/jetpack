@@ -73,7 +73,7 @@ describe( 'post detail tab layouts', () => {
 		] );
 	} );
 
-	it( 'composes Email clicks as a trend chart beside Platforms, Clients beside the Locations map, then a full-width links row', () => {
+	it( 'composes Email clicks as a full-width trend chart over the full-width Locations map, then Platforms, Clients and Top links side by side', () => {
 		expect( POST_DETAIL_TAB_LAYOUTS[ 'email-clicks' ] ).toMatchObject( [
 			{
 				uuid: 'email-clicks-highlights',
@@ -85,31 +85,31 @@ describe( 'post detail tab layouts', () => {
 				uuid: 'email-clicks-trend',
 				type: 'jpa/email-time-series--total-clicks',
 				attributes: { metric: 'clicks' },
-				placement: { width: 2, height: 2, order: 2 },
-			},
-			{
-				uuid: 'email-clicks-devices',
-				type: 'jpa/email-breakdown--platforms-clicks',
-				attributes: { view: 'devices', metric: 'clicks' },
-				placement: { width: 1, height: 2, order: 3 },
-			},
-			{
-				uuid: 'email-clicks-clients',
-				type: 'jpa/email-breakdown--clients-clicks',
-				attributes: { view: 'clients', metric: 'clicks' },
-				placement: { width: 1, height: 2, order: 4 },
+				placement: { width: DETAIL_COLUMN_COUNT, height: 2, order: 2 },
 			},
 			{
 				uuid: 'email-clicks-countries',
 				type: 'jpa/email-breakdown--location-clicks',
 				attributes: { view: 'countries', metric: 'clicks', showMap: true },
-				placement: { width: 2, height: 2, order: 5 },
+				placement: { width: DETAIL_COLUMN_COUNT, height: 2, order: 3 },
+			},
+			{
+				uuid: 'email-clicks-devices',
+				type: 'jpa/email-breakdown--platforms-clicks',
+				attributes: { view: 'devices', metric: 'clicks' },
+				placement: { width: 1, height: 2, order: 4 },
+			},
+			{
+				uuid: 'email-clicks-clients',
+				type: 'jpa/email-breakdown--clients-clicks',
+				attributes: { view: 'clients', metric: 'clicks' },
+				placement: { width: 1, height: 2, order: 5 },
 			},
 			{
 				uuid: 'email-clicks-links',
 				type: 'jpa/email-breakdown--top-links',
 				attributes: { view: 'links', metric: 'clicks' },
-				placement: { width: DETAIL_COLUMN_COUNT, height: 2, order: 6 },
+				placement: { width: 1, height: 2, order: 6 },
 			},
 		] );
 	} );
