@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Stats: Fix traffic charts that could keep loading when a site's connection needs attention.
