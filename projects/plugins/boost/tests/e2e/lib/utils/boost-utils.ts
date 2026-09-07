@@ -186,10 +186,34 @@ export async function createTestPosts( testPostTitles: string[] ): Promise< void
 }
 
 /**
+ * Set the test-only modern dashboard filter.
+ * @param enabled - Whether to enable the modern dashboard.
+ */
+export async function setDashboardModernization( enabled: boolean ) {
+	await executeWpCommand( 'plugin activate e2e-dashboard-modernization' );
+	await executeWpCommand( [
+		'option',
+		'update',
+		'e2e_boost_dashboard_modernization',
+		JSON.stringify( enabled ),
+		'--format=json',
+	] );
+}
+
+/**
+ * Restore the default dashboard filter and remove the test option.
+ */
+export async function resetDashboardModernization() {
+	await executeWpCommand( 'plugin deactivate e2e-dashboard-modernization' );
+	await executeWpCommand( [ 'eval', "delete_option( 'e2e_boost_dashboard_modernization' );" ] );
+}
+
+/**
  * Reset the environment.
  */
 export async function resetEnvironment() {
 	logger.debug( 'Resetting Jetpack Boost' );
+	await resetDashboardModernization();
 	await executeWpCommand( 'plugin activate jetpack-boost' );
 	await disconnect();
 	await unMockConnection();

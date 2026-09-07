@@ -6,10 +6,13 @@ const baseConfig = require( 'jetpack-js-tools/jest/config.base.js' );
 const config = {
 	...coverageConfig,
 	rootDir: path.join( __dirname, '..' ),
-	roots: [ '<rootDir>/app', '<rootDir>/routes' ],
+	roots: [ '<rootDir>/app', '<rootDir>/_inc', '<rootDir>/routes', '<rootDir>/packages' ],
+	testPathIgnorePatterns: [ '/node_modules/', '<rootDir>/tests/e2e/' ],
 	testEnvironment: require.resolve( 'jetpack-js-tools/jest/fix-environment-jsdom.mjs' ),
 	collectCoverageFrom: [
-		'<rootDir>/app/**/*.{js,mjs,cjs,jsx,ts,tsx,mts,cts}',
+		...[ 'app', '_inc', 'routes', 'packages' ].map(
+			directory => `<rootDir>/${ directory }/**/*.{js,mjs,cjs,jsx,ts,tsx,mts,cts}`
+		),
 		...coverageConfig.collectCoverageFrom,
 	],
 	/*
@@ -36,7 +39,10 @@ const overviewConfig = path.join( __dirname, '../_inc/overview/jest.config.cjs' 
 module.exports = existsSync( overviewConfig )
 	? {
 			projects: [
-				{ ...config, testPathIgnorePatterns: [ '/node_modules/', '<rootDir>/_inc/overview/' ] },
+				{
+					...config,
+					testPathIgnorePatterns: [ ...config.testPathIgnorePatterns, '<rootDir>/_inc/overview/' ],
+				},
 				overviewConfig,
 			],
 	  }
