@@ -1,7 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { useMemo } from '@wordpress/element';
-import { fetchRecentRestores, fetchRestoreStatus, pickLiveRestore } from '../data/api/restore';
+import { fetchRestoreStatus, pickLiveRestore } from '../data/api/restore';
 import { keys } from '../data/query-client';
+import { useRecentRestores } from './use-recent-restores';
 
 export type AdoptedRestore = {
 	id: number;
@@ -48,11 +49,7 @@ type Result = {
  * @return The adopted restore, and whether the answer is still pending.
  */
 export function useAdoptedRestore( enabled: boolean ): Result {
-	const collection = useQuery( {
-		queryKey: keys.recentRestores(),
-		queryFn: fetchRecentRestores,
-		enabled,
-	} );
+	const collection = useRecentRestores( enabled );
 
 	// Any backup, not just this screen's: a restore of a different point
 	// overwrites the same live site, so a second one is wrong whichever

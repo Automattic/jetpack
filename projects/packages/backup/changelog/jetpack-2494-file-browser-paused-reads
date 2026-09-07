@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Modernized dashboard only, behind the rsm_jetpack_ui_modernization_backup filter: an offline browser no longer makes the file browser lie. React Query parks a request instead of failing it, so the backup's file tree rendered empty and an expanded folder announced itself as Empty to a screen reader. Both now wait, and pick up where they left off once the browser is back. No-op when the filter is off.
+
+

@@ -69,7 +69,7 @@ $jp-breakpoint-mobile: 782px;
 @mixin jetpack-admin-page-layout {
 	// ── wp-admin chrome resets ────────────────────────────────────────
 	#wpcontent {
-		padding-left: 0;
+		padding-inline-start: 0;
 	}
 
 	// wp-admin's footer floats at the very bottom via `position: absolute`;
@@ -108,13 +108,13 @@ $jp-breakpoint-mobile: 782px;
 		box-sizing: border-box;
 		position: fixed;
 		top: var(--wp-admin-bar-height, #{$jp-admin-bar-height-desktop});
-		left: $jp-sidebar-width-expanded;
-		right: 0;
+		inset-inline-start: $jp-sidebar-width-expanded;
+		inset-inline-end: 0;
 		bottom: 0;
 		// wp-admin core sets `width: 100%` on #wpbody-content (common.css).
-		// With `position: fixed`, that resolves to 100% of the viewport and
-		// overrides `right: 0`, making the column extend past the viewport
-		// by the sidebar width. `width: auto` lets left+right size it.
+		// Under `position: fixed` that resolves to the viewport width and
+		// overrides `inset-inline-end: 0`, pushing the column past it by the
+		// sidebar width; `width: auto` lets the inline insets size it instead.
 		width: auto;
 		padding-bottom: 0;          // wp-admin default is 65px (clears #wpfooter).
 		overflow: hidden;
@@ -125,7 +125,7 @@ $jp-breakpoint-mobile: 782px;
 	// `.folded` is the user's persistent "Collapse menu" preference; WP
 	// keeps it set at every viewport width, so we match it unconditionally.
 	&.folded #wpbody-content {
-		left: $jp-sidebar-width-folded;
+		inset-inline-start: $jp-sidebar-width-folded;
 	}
 
 	// `.auto-fold` is WP JS state, gated to narrow-desktop widths. Scope
@@ -136,7 +136,7 @@ $jp-breakpoint-mobile: 782px;
 	@media (max-width: #{$jp-breakpoint-auto-fold}) {
 
 		&.auto-fold #wpbody-content {
-			left: $jp-sidebar-width-folded;
+			inset-inline-start: $jp-sidebar-width-folded;
 		}
 	}
 
@@ -151,7 +151,7 @@ $jp-breakpoint-mobile: 782px;
 	@media (min-width: #{$jp-breakpoint-auto-fold + 1px}) {
 
 		&.is-nav-unification:not(.folded) #wpbody-content {
-			left: $jp-sidebar-width-nav-unification;
+			inset-inline-start: $jp-sidebar-width-nav-unification;
 		}
 	}
 
@@ -200,7 +200,7 @@ $jp-breakpoint-mobile: 782px;
 	// hidden` boundary, so consumer-side horizontal clipping isn't needed
 	// at this level.
 	.jp-admin-page {
-		margin-left: 0;
+		margin-inline-start: 0;
 		display: flex;
 		flex-direction: column;
 		flex: 1 1 auto;
@@ -347,18 +347,18 @@ $jp-breakpoint-mobile: 782px;
 	// ── Mobile: admin bar grows to 46px; sidebar goes off-canvas ─────
 	// Match `.folded` and `.auto-fold` explicitly: both outrank the bare
 	// `#wpbody-content` selector on specificity, so the media query needs
-	// equal specificity for `left: 0` to win over the desktop fold rules.
+	// equal specificity for the reset to win over the desktop fold rules.
 	@media (max-width: #{$jp-breakpoint-mobile}) {
 
 		#wpbody-content,
 		&.folded #wpbody-content,
 		&.auto-fold #wpbody-content {
 			top: var(--wp-admin-bar-height, #{$jp-admin-bar-height-mobile});
-			left: 0;                 // sidebar slides out of flow at this width.
+			inset-inline-start: 0;   // sidebar slides out of flow at this width.
 		}
 
 		.jp-admin-page {
-			margin-left: 0;          // override legacy -10px @ ≤782px too.
+			margin-inline-start: 0;  // override AdminPage's own -10px @ ≤782px.
 		}
 	}
 }

@@ -26,8 +26,8 @@ import { type WidgetModuleRecord } from '@wordpress/widget-primitives';
 import { isPremiumAnalyticsInitialSyncFinished } from '../site-readiness';
 import { resolveWidgetModuleWithI18n, useWidgetTypesWithI18n } from '../widget-module-i18n';
 import {
+	DashboardOptionsMenu,
 	DashboardSections,
-	FeedbackAction,
 	OnboardingTour,
 	onboardingTourSteps,
 	RefreshFailureNotice,
@@ -43,6 +43,7 @@ import {
 import {
 	useActiveSection,
 	useDashboardGridSettings,
+	useDashboardPolicy,
 	useDashboardSectionLayout,
 	useDashboardSections,
 	useOnboarding,
@@ -61,6 +62,7 @@ function Dashboard(): JSX.Element {
 	const [ activeSection, setActiveSection ] = useActiveSection( sections );
 	const [ layout, setLayout, resetLayout ] = useDashboardSectionLayout( activeSection, sections );
 	const [ gridSettings ] = useDashboardGridSettings();
+	const canPerform = useDashboardPolicy();
 
 	/*
 	 * The watcher runs at the dashboard level, not inside the notice below, so the
@@ -134,10 +136,6 @@ function Dashboard(): JSX.Element {
 		stepCount: tourSteps.length,
 	} );
 
-	// The tour's only way out is Escape.
-	const { dismiss: dismissOnboarding } = onboarding;
-	const leaveTour = useCallback( () => dismissOnboarding( 'escape' ), [ dismissOnboarding ] );
-
 	// Only the widgets this section renders need metadata at boot; the full registry
 	// waits for edit mode. `null` until sections resolve, since the layout is empty until then.
 	const [ widgetTypes, isResolvingWidgetTypes ] = useWidgetTypesWithI18n( widgetModules, {
@@ -206,6 +204,8 @@ function Dashboard(): JSX.Element {
 	/*
 	 * Tab panels unmount when unfocused, so only the active section's header renders
 	 * and one set of controls suffices; an opted-out section renders none at all.
+	 * Greyed out while customizing: the layout has to be saved or dropped before the
+	 * page is used again, and the range stays readable meanwhile.
 	 */
 	let dateControls: JSX.Element | null = null;
 
@@ -226,11 +226,13 @@ function Dashboard(): JSX.Element {
 						onSelect={ selectYear }
 						timeZone={ dateFilters.timeZone }
 						containerElement={ headerElement }
+						disabled={ editMode }
 					/>
 
 					<DateIntervalDropdown
 						options={ dateFilters.intervalOptions }
 						value={ dateFilters.interval }
+						disabled={ editMode }
 						onChange={ dateFilters.onIntervalChange }
 					/>
 				</Stack>
@@ -239,7 +241,7 @@ function Dashboard(): JSX.Element {
 				 * Report pages mount this same panel over records tables, which have no
 				 * interval, so the control is asked for rather than implied.
 				 */
-				<DateFiltersPanel { ...dateFilters } withIntervalControl />
+				<DateFiltersPanel { ...dateFilters } withIntervalControl disabled={ editMode } />
 			);
 	}
 
@@ -250,96 +252,97 @@ function Dashboard(): JSX.Element {
 			 * so a widget reading them off the URL could show a comparison the reader can't see.
 			 */ }
 			<ReportScopeProvider offersComparison={ showComparison }>
-				<WidgetDashboard
-					widgetTypes={ widgetTypes }
-					isResolvingWidgetTypes={ isResolvingWidgetTypes }
-					resolveWidgetModule={ resolveWidgetModuleWithI18n }
-					layout={ layout }
-					onLayoutChange={ setLayout }
-					onLayoutReset={ resetLayout }
-					gridSettings={ gridSettings }
-					editMode={ editMode }
-					onEditChange={ setEditMode }
-				>
-					<Page
-						visual={ <StatsPageIcon /> }
-						breadcrumbs={ <StatsBreadcrumbs isRoot /> }
-						actions={
-							<>
-								<FeedbackAction />
-								<Stack ref={ setActionsAnchor } direction="row">
-									<WidgetDashboard.Actions />
-								</Stack>
-							</>
-						}
-						className={ styles.dashboard }
+				{ /* Outside the dashboard: the inserter mounts beyond `children`. */ }
+				<WidgetDashboard.Policy canPerform={ canPerform }>
+					<WidgetDashboard
+						widgetTypes={ widgetTypes }
+						isResolvingWidgetTypes={ isResolvingWidgetTypes }
+						resolveWidgetModule={ resolveWidgetModuleWithI18n }
+						layout={ layout }
+						onLayoutChange={ setLayout }
+						onLayoutReset={ resetLayout }
+						gridSettings={ gridSettings }
+						editMode={ editMode }
+						onEditChange={ setEditMode }
 					>
-						<DashboardSections
-							sections={ sections }
-							value={ activeSection }
-							onChange={ setActiveSection }
+						<Page
+							visual={ <StatsPageIcon /> }
+							breadcrumbs={ <StatsBreadcrumbs isRoot /> }
+							actions={
+								<Stack ref={ setActionsAnchor } direction="row" gap="sm">
+									<WidgetDashboard.Actions />
+									<DashboardOptionsMenu />
+								</Stack>
+							}
+							className={ styles.dashboard }
 						>
-							{ sections.map( section => (
-								<SectionTabPanel
-									key={ section.slug }
-									value={ section.slug }
-									className={ styles.content }
-								>
-									{ /* Marks where the header below comes to rest, so it starts
+							<DashboardSections
+								sections={ sections }
+								value={ activeSection }
+								onChange={ setActiveSection }
+							>
+								{ sections.map( section => (
+									<SectionTabPanel
+										key={ section.slug }
+										value={ section.slug }
+										className={ styles.content }
+									>
+										{ /* Marks where the header below comes to rest, so it starts
 								     condensing there. Measured, never seen. */ }
-									<div className={ styles.pinMarker } aria-hidden="true" />
+										<div className={ styles.pinMarker } aria-hidden="true" />
 
-									<div ref={ setHeaderRef } className={ styles.sectionHeader }>
-										<SectionHeader
-											title={ resolveSectionHeading( section ) }
-											condenseOnScroll
-											controlsRef={ setControlsAnchor }
-										>
-											{ dateControls }
-										</SectionHeader>
-										{ /* Inside the pinned band, so its Retry stays reachable however
+										<div ref={ setHeaderRef } className={ styles.sectionHeader }>
+											<SectionHeader
+												title={ resolveSectionHeading( section ) }
+												condenseOnScroll
+												controlsRef={ setControlsAnchor }
+											>
+												{ dateControls }
+											</SectionHeader>
+											{ /* Inside the pinned band, so its Retry stays reachable however
 										     far the reader has scrolled. */ }
-										<RefreshFailureNotice className={ styles.refreshFailure } />
-									</div>
+											<RefreshFailureNotice className={ styles.refreshFailure } />
+										</div>
 
-									{ activeSection === section.slug ? (
-										<>
-											{ isSectionAwaitingSync( section, isSyncFinished ) && ! isSyncComplete ? (
-												<SectionSyncNotice
-													percentage={ syncStatus?.percentage ?? 0 }
-													hasError={ !! syncError }
-													onRetry={ retrySync }
-													isRetrying={ isRetryingSync }
-												/>
-											) : null }
+										{ activeSection === section.slug ? (
+											<>
+												{ isSectionAwaitingSync( section, isSyncFinished ) && ! isSyncComplete ? (
+													<SectionSyncNotice
+														percentage={ syncStatus?.percentage ?? 0 }
+														hasError={ !! syncError }
+														onRetry={ retrySync }
+														isRetrying={ isRetryingSync }
+													/>
+												) : null }
 
-											<WidgetDashboard.NoWidgetsState />
-											<div ref={ setWidgetsFrame }>
-												<WidgetDashboard.Widgets className={ styles.widgets } />
-											</div>
-										</>
-									) : null }
-								</SectionTabPanel>
-							) ) }
-						</DashboardSections>
+												<WidgetDashboard.NoWidgetsState />
+												<div ref={ setWidgetsFrame }>
+													<WidgetDashboard.Widgets className={ styles.widgets } />
+												</div>
+											</>
+										) : null }
+									</SectionTabPanel>
+								) ) }
+							</DashboardSections>
 
-						<WidgetDashboard.Commands />
+							<WidgetDashboard.Commands />
 
-						<OnboardingWelcomeModal
-							open={ onboarding.phase === 'modal' }
-							onStart={ onboarding.start }
-							onDismiss={ onboarding.dismiss }
-						/>
-						{ onboarding.phase === 'tour' && (
-							<OnboardingTour
-								steps={ tourSteps }
-								current={ onboarding.step }
-								onNext={ onboarding.next }
-								onDismiss={ leaveTour }
+							<OnboardingWelcomeModal
+								open={ onboarding.phase === 'modal' }
+								onStart={ onboarding.start }
+								onDismiss={ onboarding.dismiss }
 							/>
-						) }
-					</Page>
-				</WidgetDashboard>
+							{ onboarding.phase === 'tour' && (
+								<OnboardingTour
+									steps={ tourSteps }
+									current={ onboarding.step }
+									onNext={ onboarding.next }
+									onDismiss={ onboarding.dismiss }
+								/>
+							) }
+						</Page>
+					</WidgetDashboard>
+				</WidgetDashboard.Policy>
 			</ReportScopeProvider>
 		</GlobalErrorProvider>
 	);

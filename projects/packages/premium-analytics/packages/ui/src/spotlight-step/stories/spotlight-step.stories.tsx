@@ -18,9 +18,9 @@ const meta: Meta< typeof SpotlightStep > = {
 					'the anchor, and a card beside it carries the copy, the "n of m" ' +
 					'counter and Continue, or Finish on the last step.\n\n' +
 					'The step renders nothing until its anchor is mounted, so a tour can ' +
-					'declare steps for elements that appear later. Escape calls ' +
-					'`onDismiss`; clicks on the dimmed page do nothing, as the design has ' +
-					'no skip control.',
+					'declare steps for elements that appear later. Escape and a skip ' +
+					'control that shows up on focus call `onDismiss`; clicks on the ' +
+					'dimmed page do nothing, as the design draws no skip control.',
 			},
 		},
 	},

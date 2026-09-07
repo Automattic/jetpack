@@ -3,7 +3,7 @@
  * Tests for the Jetpack AI admin page script data.
  *
  * The Overview and AI Features views are public on self-hosted sites, gated on
- * Atomic, and remain filterable by the host.
+ * Atomic and VIP, and remain filterable by the host.
  *
  * @package automattic/jetpack
  */
@@ -292,6 +292,20 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 		$this->assertFalse( $settings['showFeaturesView'] );
 		$this->assertFalse( $settings['showA12sBadge'] );
 		$this->assertFalse( $settings['isTest'] );
+	}
+
+	/**
+	 * The views remain hidden from VIP sites, including internal requests.
+	 */
+	public function test_features_view_flag_is_off_for_vip_site() {
+		$this->given_woa( false );
+		Constants::set_constant( 'WPCOM_IS_VIP_ENV', true );
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertFalse( $settings['showFeaturesView'] );
+		$this->assertTrue( $settings['isTest'] );
 	}
 
 	/**

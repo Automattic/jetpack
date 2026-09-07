@@ -79,6 +79,17 @@ async function fixDeps( pkg ) {
 		}
 	}
 
+	// lock()/unlock() pair through a module-scoped registry, so a prerelease
+	// private-apis range would resolve a second copy beside the stable one the
+	// repo pins and throw. Collapse it onto the version premium-analytics
+	// declares; the rule stops matching once no manifest asks for a prerelease.
+	if ( pkg.dependencies?.[ '@wordpress/private-apis' ]?.includes( '-next' ) ) {
+		pkg.dependencies[ '@wordpress/private-apis' ] =
+			require( './projects/packages/premium-analytics/package.json' ).dependencies[
+				'@wordpress/private-apis'
+			];
+	}
+
 	// Unused, vulnerable dep.
 	if (
 		pkg.name === '@automattic/components' &&

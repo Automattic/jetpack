@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useState } from 'react';
 import { SpotlightStep } from '../spotlight-step';
@@ -105,7 +105,33 @@ describe( 'SpotlightStep', () => {
 		await userEvent.keyboard( '{Escape}' );
 
 		expect( onDismiss ).toHaveBeenCalledTimes( 1 );
+		expect( onDismiss ).toHaveBeenCalledWith( 'escape' );
 		expect( onNext ).not.toHaveBeenCalled();
+	} );
+
+	it( 'offers a way out besides walking every step', async () => {
+		const { onNext, onDismiss } = await renderStep();
+
+		await userEvent.click( screen.getByRole( 'button', { name: 'Skip tour' } ) );
+
+		expect( onDismiss ).toHaveBeenCalledTimes( 1 );
+		expect( onDismiss ).toHaveBeenCalledWith( 'close' );
+		expect( onNext ).not.toHaveBeenCalled();
+	} );
+
+	it( 'keeps keyboard focus inside the card', async () => {
+		await renderStep();
+		const next = screen.getByRole( 'button', { name: 'Continue' } );
+		const skip = screen.getByRole( 'button', { name: 'Skip tour' } );
+
+		await waitFor( () => expect( next ).toHaveFocus() );
+
+		// Base UI's focus guards hand focus back on the next frame.
+		await userEvent.tab();
+		await waitFor( () => expect( skip ).toHaveFocus() );
+
+		await userEvent.tab();
+		await waitFor( () => expect( next ).toHaveFocus() );
 	} );
 
 	it( 'draws the halo around the anchor with room to breathe', async () => {

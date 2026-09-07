@@ -12,6 +12,7 @@ import { Button, SelectControl } from '@jetpack-premium-analytics/externals';
 import { Composite } from '@wordpress/components';
 import { useResizeObserver } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
+import clsx from 'clsx';
 import { useCallback, useLayoutEffect, useMemo, useState } from 'react';
 /**
  * Internal dependencies
@@ -64,6 +65,9 @@ export type DateYearFilterProps = {
 	 * the filter must be a direct child of that row — a wrapper around it hides them.
 	 */
 	containerElement?: HTMLElement | null;
+
+	/** Greys the surface out but keeps it focusable: a passing state, not a missing control. */
+	disabled?: boolean;
 };
 
 /**
@@ -121,6 +125,7 @@ export function DateYearFilter( {
 	startYear,
 	isCompact,
 	containerElement,
+	disabled = false,
 }: DateYearFilterProps ) {
 	const presets = useMemo(
 		() => getYearSurfacePresets( timeZone, { startYear } ),
@@ -256,6 +261,7 @@ export function DateYearFilter( {
 				label={ __( 'Time period', 'jetpack-premium-analytics-pkg' ) }
 				hideLabelFromVision
 				placeholder={ __( 'Select period', 'jetpack-premium-analytics-pkg' ) }
+				disabled={ disabled }
 			/>
 		);
 	}
@@ -267,7 +273,7 @@ export function DateYearFilter( {
 	return (
 		<Composite
 			ref={ measureRow }
-			className="date-year-filter__group"
+			className={ clsx( 'date-year-filter__group', { 'is-disabled': disabled } ) }
 			role="toolbar"
 			aria-label={ __( 'Time period', 'jetpack-premium-analytics-pkg' ) }
 			orientation="horizontal"
@@ -275,6 +281,8 @@ export function DateYearFilter( {
 			{ presets.map( ( { id, label } ) => (
 				<Composite.Item
 					key={ id }
+					disabled={ disabled }
+					accessibleWhenDisabled
 					render={
 						<Button
 							className="date-year-filter__pill"
@@ -282,6 +290,7 @@ export function DateYearFilter( {
 							tone="neutral"
 							size="small"
 							aria-pressed={ value === id }
+							disabled={ disabled }
 							onClick={ () => selectPreset( id ) }
 						/>
 					}

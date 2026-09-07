@@ -29,6 +29,19 @@ $spotlight-dim-color: rgba(0, 0, 0, 0.5);
 	max-inline-size: calc(100vw - 2 * var(--wpds-dimension-padding-2xl));
 }
 
+.skip {
+	// A skip link's recipe, clipped away until it takes focus: keyboard and
+	// screen reader users get a way out and the card stays as designed.
+	&:not(:focus-visible) {
+		position: absolute;
+		inline-size: 1px;
+		block-size: 1px;
+		overflow: hidden;
+		clip-path: inset(50%);
+		white-space: nowrap;
+	}
+}
+
 @media (prefers-reduced-motion: reduce) {
 
 	.halo {

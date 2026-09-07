@@ -1,1 +1,5 @@
-export { SpotlightStep, type SpotlightStepProps } from './spotlight-step';
+export {
+	SpotlightStep,
+	type SpotlightDismissReason,
+	type SpotlightStepProps,
+} from './spotlight-step';

@@ -6,6 +6,7 @@ import { useCallback } from 'react';
 /**
  * Internal dependencies
  */
+import { resolveReportTimeZone, type ReportTimeZoneParams } from '../utils/report-timezone';
 import { hasComparisonEnabled, type ReportParams } from '../utils/search';
 import { isAwaitingData } from './awaiting-data';
 import { REFRESH_NOTICE_META } from './refresh-failure-scope';
@@ -25,11 +26,10 @@ type QueryFactory< TData > = (
  * query is driven by the comparison dates in `params`; when it is disabled the
  * query still mounts, parked on `options.disabledComparisonKey`.
  */
-export function useReport< TData, TParams extends ReportParams = ReportParams >(
-	queryFactory: QueryFactory< TData >,
-	params: TParams,
-	options?: UseReportOptions
-) {
+export function useReport<
+	TData,
+	TParams extends ReportParams & ReportTimeZoneParams = ReportParams,
+>( queryFactory: QueryFactory< TData >, params: TParams, options?: UseReportOptions ) {
 	const queryEnabled = options?.enabled ?? true;
 	const comparisonEnabled = hasComparisonEnabled( params );
 	const primaryParams = { ...params };
@@ -99,6 +99,9 @@ export function useReport< TData, TParams extends ReportParams = ReportParams >(
 		primary,
 		comparison,
 		hasComparison: comparisonEnabled,
+		// The zone both queries were built and normalized under, so a consumer
+		// reads the report it has rather than asking the environment again.
+		timezone: resolveReportTimeZone( params.timezone ),
 		isLoading,
 		isFetching,
 		hasData,
