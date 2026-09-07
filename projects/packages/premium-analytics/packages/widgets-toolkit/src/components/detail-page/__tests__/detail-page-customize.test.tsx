@@ -42,6 +42,15 @@ describe( 'useDetailPageCustomize', () => {
 		expect( result.current.isCustomizing ).toBe( false );
 	} );
 
+	it( 'can be left without committing', () => {
+		const { result } = renderHook( () => useDetailPageCustomize( layout ) );
+
+		act( () => result.current.startCustomizing() );
+		act( () => result.current.stopCustomizing() );
+
+		expect( result.current.isCustomizing ).toBe( false );
+	} );
+
 	it( "ignores the dashboard's empty-layout edit request", () => {
 		const { result } = renderHook( () => useDetailPageCustomize( [] ) );
 

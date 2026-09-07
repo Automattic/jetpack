@@ -168,7 +168,25 @@ jest.mock( '@wordpress/route', () => ( {
 // the real report-origin validation.
 
 jest.mock( './components', () => ( {
-	PostDetailTabs: ( { children }: { children: ReactNode } ) => <div>{ children }</div>,
+	PostDetailTabs: ( {
+		children,
+		onChange,
+	}: {
+		children: ReactNode;
+		onChange: ( tab: string ) => void;
+	} ) => {
+		const { useCallback } = jest.requireActual( 'react' );
+		const selectEmailOpens = useCallback( () => onChange( 'email-opens' ), [ onChange ] );
+
+		return (
+			<div>
+				<button type="button" onClick={ selectEmailOpens }>
+					Email opens tab
+				</button>
+				{ children }
+			</div>
+		);
+	},
 	postHeaderSlots: ( {
 		variant,
 		performanceRange,
@@ -189,6 +207,7 @@ jest.mock( './components', () => ( {
 } ) );
 
 let mockActiveTab = 'traffic';
+const mockSetActiveTab = jest.fn();
 
 // The pinned email scope the stage hands to the tabs hook and the header.
 const mockEmailScope = {
@@ -222,7 +241,7 @@ jest.mock( './hooks', () => ( {
 			{ id: 'email-opens', label: 'Email opens' },
 		],
 		activeTab: mockActiveTab,
-		setActiveTab: jest.fn(),
+		setActiveTab: mockSetActiveTab,
 		layout: [],
 	} ) ),
 } ) );
@@ -389,6 +408,25 @@ describe( 'post detail stage', () => {
 		// gate open the customize chrome.
 		act( () => mockDashboardProps.onEditChange?.( true ) );
 
+		expect( mockDashboardProps.editMode ).toBe( false );
+		expect( screen.queryByTestId( 'dashboard-actions' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'leaves customize mode when the reader switches tabs', async () => {
+		const user = userEvent.setup();
+		mockSummary();
+
+		render( stage() );
+
+		await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
+		await user.click( await screen.findByRole( 'menuitem', { name: 'Customize' } ) );
+		expect( mockDashboardProps.editMode ).toBe( true );
+
+		// Each tab is its own layout, and the dashboard drops staged edits when the
+		// committed layout changes, so the switch is a Cancel rather than a silent loss.
+		await user.click( screen.getByRole( 'button', { name: 'Email opens tab' } ) );
+
+		expect( mockSetActiveTab ).toHaveBeenCalledWith( 'email-opens' );
 		expect( mockDashboardProps.editMode ).toBe( false );
 		expect( screen.queryByTestId( 'dashboard-actions' ) ).not.toBeInTheDocument();
 	} );

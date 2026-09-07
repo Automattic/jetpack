@@ -138,8 +138,76 @@ describe( 'useStoredDetailLayout', () => {
 		act( () => result.current.resetLayout() );
 
 		expect( storedLayouts() ).toEqual( { 'post-traffic': [ { uuid: 'countries' } ] } );
-		expect( result.current.layout ).toBe( fixed );
+		expect( result.current.layout ).toEqual( fixed );
 		expect( result.current.hasCustomLayout ).toBe( false );
+	} );
+
+	it( 'stores only the attributes the reader changed, never the injected params', () => {
+		const pinned = fixed.map( card => ( {
+			...card,
+			attributes: {
+				...( card.attributes as Record< string, unknown > ),
+				reportParams: { from: '2026-06-22' },
+			},
+		} ) );
+		const { result } = renderHook( () => useStoredDetailLayout( SCOPE, 'email-opens', pinned ) );
+
+		act( () =>
+			result.current.setLayout( [
+				{
+					...pinned[ 0 ],
+					attributes: { ...pinned[ 0 ].attributes, chartType: 'bar' },
+				},
+				pinned[ 1 ],
+			] )
+		);
+
+		expect( storedLayouts() ).toEqual( {
+			'email-opens': [
+				{
+					uuid: 'trend',
+					placement: { width: 1, height: 2, order: 1 },
+					attributes: { chartType: 'bar' },
+				},
+				{ uuid: 'countries', placement: { width: 1, height: 2, order: 2 } },
+			],
+		} );
+	} );
+
+	it( 'reapplies changed attributes under the composition’s injected params', () => {
+		dispatch( preferencesStore ).set( SCOPE, KEY, {
+			'email-opens': [ { uuid: 'trend', attributes: { chartType: 'bar', pinned: 'stale' } } ],
+		} );
+		const pinned = [
+			{
+				...fixed[ 0 ],
+				attributes: {
+					...( fixed[ 0 ].attributes as Record< string, unknown > ),
+					reportParams: { from: '2026-06-22' },
+				},
+			},
+		];
+
+		const { result } = renderHook( () => useStoredDetailLayout( SCOPE, 'email-opens', pinned ) );
+
+		expect( result.current.layout[ 0 ].attributes ).toEqual( {
+			pinned: 'stale',
+			chartType: 'bar',
+			reportParams: { from: '2026-06-22' },
+		} );
+	} );
+
+	it( 'hands the dashboard a fresh committed layout on reset even with nothing stored', () => {
+		const { result } = renderHook( () => useStoredDetailLayout( SCOPE, 'email-opens', fixed ) );
+		const before = result.current.layout;
+
+		// The dashboard rebuilds its staged edits only when the committed layout
+		// changes identity, so a reset that stores nothing must still change it.
+		act( () => result.current.resetLayout() );
+
+		expect( result.current.layout ).not.toBe( before );
+		expect( result.current.layout ).toEqual( fixed );
+		expect( storedLayouts() ).toEqual( {} );
 	} );
 
 	it( 'ignores a stored value that is not a layouts map', () => {

@@ -12,6 +12,12 @@ export type DetailPageCustomize = {
 	canPerform: CanPerformDashboardOperation;
 	/** Enters customize mode; the page options menu's Customize entry. */
 	startCustomizing: () => void;
+	/**
+	 * Leaves customize mode without committing. The dashboard rebuilds its staged
+	 * edits from the committed layout, so call this before swapping the layout
+	 * out from under it, as a tab change does.
+	 */
+	stopCustomizing: () => void;
 	/** For `WidgetDashboard`'s `onEditChange`: its Cancel and Done report back here. */
 	onEditChange: ( nextEditMode: boolean ) => void;
 };
@@ -45,6 +51,7 @@ export function useDetailPageCustomize( layout: DashboardWidget[] ): DetailPageC
 	);
 
 	const startCustomizing = useCallback( () => setIsCustomizing( true ), [] );
+	const stopCustomizing = useCallback( () => setIsCustomizing( false ), [] );
 
 	const onEditChange = useCallback(
 		( nextEditMode: boolean ) => {
@@ -59,7 +66,7 @@ export function useDetailPageCustomize( layout: DashboardWidget[] ): DetailPageC
 		[ layout ]
 	);
 
-	return { isCustomizing, canPerform, startCustomizing, onEditChange };
+	return { isCustomizing, canPerform, startCustomizing, stopCustomizing, onEditChange };
 }
 
 export type DetailPageBreadcrumbsProps = {

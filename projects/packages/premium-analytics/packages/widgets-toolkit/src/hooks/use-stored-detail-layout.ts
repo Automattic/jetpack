@@ -1,20 +1,28 @@
 import { useDispatch, useSelect } from '@wordpress/data';
 import { store as preferencesStore } from '@wordpress/preferences';
-import { useCallback, useMemo } from 'react';
+import fastDeepEqual from 'fast-deep-equal';
+import { useCallback, useMemo, useState } from 'react';
 import type { DashboardWidget } from '@wordpress/widget-dashboard';
 
 // One preference per detail route, holding every layout the page can show.
 const PREFERENCES_KEY = 'layouts';
 
+// Injected per render by the compositions (the email tabs pin their send
+// window), so it is never stored and the fixed composition's copy always wins.
+const INJECTED_ATTRIBUTE = 'reportParams';
+
+type Attributes = Record< string, unknown >;
+
 /**
- * One stored card: which fixed-composition widget it is, and where the user
- * put it. Attributes are deliberately absent — the compositions pin per-card
- * attributes (the email tabs inject dated report params on every render), so
- * persisting them would freeze values that must stay fresh.
+ * One stored card: which fixed-composition widget it is, where the user put
+ * it, and the attributes they changed. Only the keys that differ from the
+ * composition are kept, so a composition that later changes a default still
+ * reaches every card the reader did not touch.
  */
 type StoredWidget = {
 	uuid: string;
 	placement?: DashboardWidget[ 'placement' ];
+	attributes?: Attributes;
 };
 
 type StoredLayouts = Partial< Record< string, StoredWidget[] > >;
@@ -49,14 +57,35 @@ function isStoredLayouts( value: unknown ): value is StoredLayouts {
 }
 
 /**
- * Rebuild a layout from its stored membership and placements.
+ * The attributes of a committed card that differ from its fixed composition.
  *
- * The stored entry carries order, membership, and placement; everything else —
- * type, attributes, and any params the composition injects — always comes from
- * the current fixed layout, so a stored card can never pin stale attributes. A
- * stored uuid the composition no longer ships is dropped; a fixed card absent
- * from the store stays removed, matching how the dashboard treats its stored
- * section layouts.
+ * @param committed - The card as the dashboard committed it.
+ * @param fixed     - The same card in the fixed composition, if still shipped.
+ * @return The changed attributes, or nothing when none changed.
+ */
+function changedAttributes(
+	committed: DashboardWidget,
+	fixed: DashboardWidget | undefined
+): Attributes | undefined {
+	const fixedAttributes = ( fixed?.attributes ?? {} ) as Attributes;
+	const changed: Attributes = {};
+
+	for ( const [ key, value ] of Object.entries( committed.attributes ?? {} ) ) {
+		if ( key !== INJECTED_ATTRIBUTE && ! fastDeepEqual( value, fixedAttributes[ key ] ) ) {
+			changed[ key ] = value;
+		}
+	}
+
+	return Object.keys( changed ).length ? changed : undefined;
+}
+
+/**
+ * Rebuild a layout from its stored membership, placements, and attribute changes.
+ *
+ * Everything else — type, the composition's own attributes, and any params it
+ * injects — always comes from the current fixed layout. A stored uuid the
+ * composition no longer ships is dropped; a fixed card absent from the store
+ * stays removed, matching how the dashboard treats its stored section layouts.
  *
  * @param stored - The stored cards, in display order.
  * @param fixed  - The current fixed composition.
@@ -71,7 +100,20 @@ function applyStoredLayout( stored: StoredWidget[], fixed: DashboardWidget[] ): 
 			return [];
 		}
 
-		return [ { ...fixedWidget, ...( entry.placement ? { placement: entry.placement } : {} ) } ];
+		return [
+			{
+				...fixedWidget,
+				...( entry.placement ? { placement: entry.placement } : {} ),
+				...( entry.attributes
+					? {
+							attributes: {
+								...( fixedWidget.attributes as Attributes | undefined ),
+								...entry.attributes,
+							},
+					  }
+					: {} ),
+			},
+		];
 	} );
 }
 
@@ -107,27 +149,42 @@ export function useStoredDetailLayout(
 
 	const { set } = useDispatch( preferencesStore ) as unknown as PreferencesActions;
 
+	// The dashboard rebuilds its staging copy only when the committed layout
+	// changes identity, so a reset with nothing stored still has to hand it one.
+	const [ resetCount, setResetCount ] = useState( 0 );
+
 	const stored = Object.hasOwn( layouts, layoutId ) ? layouts[ layoutId ] : undefined;
 
-	const layout = useMemo(
-		() => ( stored ? applyStoredLayout( stored, fixedLayout ) : fixedLayout ),
-		[ stored, fixedLayout ]
-	);
+	const layout = useMemo( () => {
+		if ( stored ) {
+			return applyStoredLayout( stored, fixedLayout );
+		}
+		return resetCount ? [ ...fixedLayout ] : fixedLayout;
+	}, [ stored, fixedLayout, resetCount ] );
 
 	const setLayout = useCallback(
 		( nextLayout: DashboardWidget[] ) => {
+			const fixedByUuid = new Map( fixedLayout.map( widget => [ widget.uuid, widget ] ) );
+
 			void set( scope, PREFERENCES_KEY, {
 				...layouts,
-				[ layoutId ]: nextLayout.map( ( { uuid, placement } ) => ( {
-					uuid,
-					...( placement ? { placement } : {} ),
-				} ) ),
+				[ layoutId ]: nextLayout.map( widget => {
+					const attributes = changedAttributes( widget, fixedByUuid.get( widget.uuid ) );
+
+					return {
+						uuid: widget.uuid,
+						...( widget.placement ? { placement: widget.placement } : {} ),
+						...( attributes ? { attributes } : {} ),
+					};
+				} ),
 			} );
 		},
-		[ scope, layoutId, layouts, set ]
+		[ scope, layoutId, layouts, fixedLayout, set ]
 	);
 
 	const resetLayout = useCallback( () => {
+		setResetCount( count => count + 1 );
+
 		if ( ! Object.hasOwn( layouts, layoutId ) ) {
 			return;
 		}
