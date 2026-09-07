@@ -1,0 +1,108 @@
+// Fixed under the admin bar. Themes that respect the admin-bar height variable
+// get pushed down by the same amount through the body class.
+$admin-bar-height: 32px;
+$admin-bar-height-mobile: 46px;
+
+body.has-wpcom-expiry-banner {
+	--wp-admin--admin-bar--height: var(--wpcom-expiry-banner-height, 48px);
+	margin-block-start: var(--wpcom-expiry-banner-height, 48px);
+
+	&.admin-bar {
+		--wp-admin--admin-bar--height: calc(#{$admin-bar-height} + var(--wpcom-expiry-banner-height, 48px));
+	}
+}
+
+.wpcom-expiry-frontend-banner {
+	position: fixed;
+	min-block-size: 48px;
+	inset-block-start: 0;
+	inset-inline: 0;
+	// One below #wpadminbar, above everything a theme fixes to the top.
+	z-index: 99998;
+	box-sizing: border-box;
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: center;
+	gap: 8px 16px;
+	padding: 8px 16px;
+	border-block-start: 1px solid rgba(255, 255, 255, 0.1);
+	background: #1e1e1e;
+	color: #e0e0e0;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+	font-size: 14px;
+	line-height: 20px;
+
+	&[hidden] {
+		display: none;
+	}
+
+	body.admin-bar & {
+		inset-block-start: $admin-bar-height;
+	}
+
+	&__text {
+		text-align: center;
+	}
+
+	&__cta {
+		flex-shrink: 0;
+		padding: 6px 12px;
+		border-radius: 2px;
+		background: #3858e9;
+		color: #fff;
+		font-weight: 500;
+		text-decoration: none;
+
+		&:hover,
+		&:focus {
+			background: #2145e6;
+			color: #fff;
+		}
+	}
+
+	// Only post-grace has the close button, so only then is room kept for it,
+	// on both sides so the text stays centered.
+	&--dismissible {
+		padding-inline: 64px;
+	}
+
+	&__dismiss {
+		position: absolute;
+		inset-inline-end: 16px;
+		inset-block-start: 8px;
+		padding: 4px;
+		border: 0;
+		background: transparent;
+		color: inherit;
+		cursor: pointer;
+		line-height: 0;
+	}
+}
+
+@media screen and ( max-width: 782px ) {
+
+	body.has-wpcom-expiry-banner.admin-bar {
+		--wp-admin--admin-bar--height: calc(#{$admin-bar-height-mobile} + var(--wpcom-expiry-banner-height, 48px));
+	}
+
+	.wpcom-expiry-frontend-banner {
+		font-size: 13px;
+
+		&--dismissible {
+			padding-inline: 56px;
+		}
+
+		body.admin-bar & {
+			inset-block-start: $admin-bar-height-mobile;
+		}
+	}
+}
+
+@media screen and ( max-width: 600px ) {
+
+	// Core makes #wpadminbar absolute here; a fixed bar would float away from it.
+	.wpcom-expiry-frontend-banner {
+		position: absolute;
+	}
+}

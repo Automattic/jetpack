@@ -1,6 +1,13 @@
 /**
+ * External dependencies
+ */
+import { setSettings } from '@wordpress/date';
+import { format } from 'date-fns';
+/**
  * Internal dependencies
  */
+import { wooBucketStamp } from '../../__fixtures__/woo-bucket-stamp';
+import { FIXTURE_SITE_TIME_ZONE, siteSettingsIn } from '../../__fixtures__/wp-date-settings';
 import { buildTimeSeriesChartData } from '../build-time-series-chart-data';
 
 const primary = {
@@ -57,5 +64,39 @@ describe( 'buildTimeSeriesChartData', () => {
 
 		expect( series ).toHaveLength( 1 );
 		expect( series[ 0 ].label ).toBe( 'Views' );
+	} );
+} );
+
+describe( 'buildTimeSeriesChartData with Woo bucket stamps', () => {
+	beforeEach( () => {
+		setSettings( siteSettingsIn( FIXTURE_SITE_TIME_ZONE ) );
+	} );
+
+	const wooPrimary = {
+		summary: {
+			date_start: wooBucketStamp( '2026-05-01' ),
+			date_end: wooBucketStamp( '2026-05-02T23:59:59' ),
+		},
+		data: [
+			{ date_start: wooBucketStamp( '2026-05-01' ), views: 10 },
+			{ date_start: wooBucketStamp( '2026-05-02' ), views: 20 },
+		],
+	};
+
+	it( "stamps a bucket with the site's own offset", () => {
+		expect( wooPrimary.data[ 0 ].date_start ).toBe( '2026-05-01T00:00:00+09:00' );
+	} );
+
+	it( 'reads a bucket as midnight on the site, not on the runtime', () => {
+		const [ series ] = buildTimeSeriesChartData( {
+			primary: wooPrimary,
+			metricKey: 'views',
+			label: 'Views',
+		} );
+
+		expect( series.data.map( point => format( point.date, 'yyyy-MM-dd HH:mm' ) ) ).toEqual( [
+			'2026-05-01 00:00',
+			'2026-05-02 00:00',
+		] );
 	} );
 } );

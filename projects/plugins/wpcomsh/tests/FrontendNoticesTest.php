@@ -150,4 +150,22 @@ class FrontendNoticesTest extends WP_UnitTestCase {
 		$gifting_banner = new Gifting_Banner();
 		$this->assertFalse( $gifting_banner->should_display_expiring_plan_notice() );
 	}
+
+	public function test_gifting_banner_stands_down_for_the_expiry_banner() {
+		$business_plan_purchase = array(
+			'product_slug' => 'business-bundle',
+			'expiry_date'  => ( new DateTime() )->sub( new DateInterval( 'P1D' ) )->format( 'c' ),
+			'auto_renew'   => false,
+		);
+		Atomic_Persistent_Data::set( 'WPCOM_PURCHASES', wp_json_encode( array( $business_plan_purchase ), JSON_UNESCAPED_SLASHES ) );
+
+		$gifting_banner = new Gifting_Banner();
+		$gifting_banner->init();
+		$this->assertNotFalse( has_action( 'wp_head', array( $gifting_banner, 'inject_gifting_banner_wpcomsh' ) ) );
+
+		add_filter( 'wpcomsh_test_expiry_frontend_banner_is_due', '__return_true' );
+		$gifting_banner = new Gifting_Banner();
+		$gifting_banner->init();
+		$this->assertFalse( has_action( 'wp_head', array( $gifting_banner, 'inject_gifting_banner_wpcomsh' ) ) );
+	}
 }

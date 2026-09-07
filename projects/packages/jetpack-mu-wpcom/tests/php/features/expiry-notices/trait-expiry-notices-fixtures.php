@@ -69,6 +69,9 @@ trait Expiry_Notices_Fixtures {
 		if ( function_exists( 'wpcom_expiry_notices_admin_modal_data' ) ) {
 			wpcom_expiry_notices_admin_modal_data( true );
 		}
+		if ( function_exists( 'wpcom_expiry_notices_frontend_banner_data' ) ) {
+			wpcom_expiry_notices_frontend_banner_data( true );
+		}
 	}
 
 	/**

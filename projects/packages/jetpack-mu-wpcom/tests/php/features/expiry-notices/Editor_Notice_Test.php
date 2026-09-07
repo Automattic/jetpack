@@ -161,15 +161,15 @@ class Editor_Notice_Test extends \WorDBless\BaseTestCase {
 		);
 	}
 
-	public function test_context_names_the_editor(): void {
+	public function test_surface_names_the_editor(): void {
 		$this->set_purchase( 5 );
-		$this->assertSame( 'post-editor', $this->notice()['context'] );
+		$this->assertSame( 'post_editor', $this->notice()['surface'] );
 
 		$this->set_screen( 'site-editor' );
-		$this->assertSame( 'site-editor', $this->notice()['context'] );
+		$this->assertSame( 'site_editor', $this->notice()['surface'] );
 
 		$this->set_screen( 'widgets' );
-		$this->assertSame( 'widgets', $this->notice()['context'] );
+		$this->assertSame( 'widgets', $this->notice()['surface'] );
 	}
 
 	public function test_checkout_returns_to_the_editor_deep_link(): void {
@@ -189,7 +189,7 @@ class Editor_Notice_Test extends \WorDBless\BaseTestCase {
 		$inline = wp_scripts()->get_inline_script_data( self::HANDLE, 'before' );
 		$this->assertStringContainsString( 'window.wpcomExpiryEditorNotice = {', $inline );
 		$this->assertStringContainsString( '"isDismissible":false', $inline );
-		$this->assertStringContainsString( '"context":"post-editor"', $inline );
+		$this->assertStringContainsString( '"surface":"post_editor"', $inline );
 	}
 
 	public function test_enqueues_nothing_when_there_is_nothing_to_say(): void {

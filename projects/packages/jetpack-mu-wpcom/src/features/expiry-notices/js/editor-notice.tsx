@@ -20,7 +20,7 @@ interface EditorNoticeData {
 	primary: Cta;
 	secondary: Cta | null;
 	isDismissible: boolean;
-	context: string;
+	surface: string;
 	trackProps: Record< string, string | number >;
 }
 
@@ -37,7 +37,7 @@ const ExpiryEditorNotice = ( { data }: { data: EditorNoticeData } ) => {
 	// The site editor renders store notices in its edit canvas only; browse mode
 	// gets nothing yet, so the notice waits rather than counting an impression
 	// nobody could see.
-	const isVisible = data.context !== 'site-editor' || canvasMode === 'edit';
+	const isVisible = data.surface !== 'site_editor' || canvasMode === 'edit';
 
 	useEffect( () => {
 		if ( ! isVisible ) {
@@ -45,7 +45,7 @@ const ExpiryEditorNotice = ( { data }: { data: EditorNoticeData } ) => {
 		}
 
 		let mounted = true;
-		const trackProps = { ...data.trackProps, context: data.context };
+		const trackProps = { ...data.trackProps, surface: data.surface };
 
 		const onCtaClick = ( cta: string, target: Cta, event: MouseEvent ) => {
 			// The support CTA opens the Help Center over the editor; its href is
@@ -54,7 +54,7 @@ const ExpiryEditorNotice = ( { data }: { data: EditorNoticeData } ) => {
 			if ( openedHere ) {
 				event.preventDefault();
 			}
-			wpcomTrackEvent( 'jetpack_expiry_editor_notice_cta_click', {
+			wpcomTrackEvent( 'jetpack_expiry_banner_cta_click', {
 				...trackProps,
 				cta: target.message ? 'support' : cta,
 			} );
@@ -65,14 +65,14 @@ const ExpiryEditorNotice = ( { data }: { data: EditorNoticeData } ) => {
 		const onDismiss = async () => {
 			try {
 				await recordDismissal( data.metaKey );
-				wpcomTrackEvent( 'jetpack_expiry_editor_notice_dismiss', trackProps );
+				wpcomTrackEvent( 'jetpack_expiry_banner_dismiss', trackProps );
 			} catch ( err ) {
 				// Put it back, so a failed write reads as something going wrong
 				// rather than as a notice that returns on the next load.
 				if ( mounted ) {
 					show();
 				}
-				wpcomTrackEvent( 'jetpack_expiry_editor_notice_dismiss_failed', {
+				wpcomTrackEvent( 'jetpack_expiry_banner_dismiss_failed', {
 					...trackProps,
 					error_message: err instanceof Error ? err.message : String( err ),
 				} );
@@ -92,7 +92,7 @@ const ExpiryEditorNotice = ( { data }: { data: EditorNoticeData } ) => {
 		show();
 		trackOncePerSession(
 			`${ data.metaKey }_editor_impression_fired`,
-			'jetpack_expiry_editor_notice_impression',
+			'jetpack_expiry_banner_impression',
 			trackProps
 		);
 
