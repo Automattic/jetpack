@@ -269,6 +269,7 @@ export const SEO = withModuleSettingsFormHelpers(
 				return acc;
 			}, [] );
 			const hasConflictingSeoPlugin = conflictingSeoPlugins.length > 0;
+			const optInBanner = this.seoOptInBanner();
 
 			const frontPageMetaCharCountClasses = clsx( {
 				'jp-seo-front-page-description-count': true,
@@ -290,7 +291,7 @@ export const SEO = withModuleSettingsFormHelpers(
 					saveDisabled={ this.props.isSavingAnyOption( this.constants.moduleOptionsArray ) }
 					hideButton={ hasConflictingSeoPlugin || ! hasSeoTools }
 				>
-					<div className="jp-settings-card__notice">{ this.seoOptInBanner() }</div>
+					{ optInBanner && <div className="jp-settings-card__notice">{ optInBanner }</div> }
 					{ hasSeoTools && hasConflictingSeoPlugin && (
 						<div className="jp-settings-card__notice">
 							<SimpleNotice showDismiss={ false }>
