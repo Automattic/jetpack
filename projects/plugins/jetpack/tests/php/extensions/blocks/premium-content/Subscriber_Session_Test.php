@@ -12,7 +12,6 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use function Automattic\Jetpack\Extensions\Premium_Content\is_subscriber_logged_in as premium_content_is_logged_in;
 use function Automattic\Jetpack\Extensions\Premium_Content\render_login_button_block;
 use function Automattic\Jetpack\Extensions\Subscriber_Login\is_subscriber_logged_in as subscriber_is_logged_in;
-use function Automattic\Jetpack\Extensions\Subscriber_Login\render_block;
 
 require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-memberships.php';
 require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/access-check.php';
@@ -69,7 +68,15 @@ class Subscriber_Session_Test extends WP_UnitTestCase {
 
 			update_option( Jetpack_Memberships::$has_connected_account_option_name, 1 );
 			$premium_content = render_login_button_block( array(), '<a>Log in</a>' );
-			$subscriber      = render_block( array() );
+			register_block_type(
+				'jetpack/test-subscriber-session',
+				array( 'render_callback' => 'Automattic\Jetpack\Extensions\Subscriber_Login\render_block' )
+			);
+			try {
+				$subscriber = render_block( array( 'blockName' => 'jetpack/test-subscriber-session' ) );
+			} finally {
+				unregister_block_type( 'jetpack/test-subscriber-session' );
+			}
 
 			if ( $expected ) {
 				$this->assertSame( '', $premium_content );
