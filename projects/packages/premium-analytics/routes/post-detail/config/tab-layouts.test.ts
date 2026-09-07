@@ -118,10 +118,13 @@ describe( 'post detail tab layouts', () => {
 		for ( const layout of Object.values( POST_DETAIL_TAB_LAYOUTS ) ) {
 			let used = 0;
 			for ( const widget of layout ) {
-				const width = widget.placement?.width ?? 1;
+				// Every detail tile declares a numeric span, never `fill` or `full`.
+				const width = widget.placement?.width;
+				expect( typeof width ).toBe( 'number' );
+				const span = width as number;
 				// A tile that does not fit wraps and strands the columns before it.
-				expect( used + width ).toBeLessThanOrEqual( DETAIL_COLUMN_COUNT );
-				used = ( used + width ) % DETAIL_COLUMN_COUNT;
+				expect( used + span ).toBeLessThanOrEqual( DETAIL_COLUMN_COUNT );
+				used = ( used + span ) % DETAIL_COLUMN_COUNT;
 			}
 			expect( used ).toBe( 0 );
 		}
