@@ -423,7 +423,7 @@ class Rest_Restore_Bridge_Test extends TestCase {
 	 * @dataProvider provide_upstream_statuses
 	 */
 	#[DataProvider( 'provide_upstream_statuses' )]
-	public function test_no_upstream_status_reports_as_unknown( $upstream ) {
+	public function test_every_upstream_status_maps_into_the_client_vocabulary( $upstream ) {
 		$this->arrange_wpcom(
 			array(
 				'restore_id' => 1,
@@ -436,7 +436,7 @@ class Rest_Restore_Bridge_Test extends TestCase {
 		$data = Restore_Bridge::get_restore_status( $request )->get_data();
 
 		// `RestoreStatus` in `dashboard/data/api/restore.ts`, less the two
-		// the client mints for itself.
+		// this bridge mints when upstream names no status.
 		$this->assertContains(
 			$data['status'],
 			array( 'queued', 'running', 'finished', 'finished-with-errors', 'failed', 'aborted' ),
@@ -471,7 +471,7 @@ class Rest_Restore_Bridge_Test extends TestCase {
 	 *
 	 * Mirrors `STATUS_MAP`, so it can only confirm that each key maps
 	 * where it says — never that the map covers what arrives. That is what
-	 * `test_no_upstream_status_reports_as_unknown` above is for.
+	 * `test_every_upstream_status_maps_into_the_client_vocabulary` is for.
 	 *
 	 * @param string $upstream WPCOM's status value.
 	 * @param string $expected What the bridge should report.
@@ -541,15 +541,24 @@ class Rest_Restore_Bridge_Test extends TestCase {
 	}
 
 	/**
-	 * A 200 carrying no restore record is `not-found`, not `queued`.
+	 * A record that names no `restore_id` is still a record.
 	 *
-	 * `queued` now means *upstream is holding this restore*: it holds the
-	 * silence deadline back, adopts at mount, and refuses a new restore on
-	 * the click. Minting it from a body that named no restore would block
-	 * the reader from restoring with nothing on screen to explain why.
-	 *
-	 * An empty `status` on a record that did arrive stays `queued` — see
-	 * the `absent` row in `provide_statuses`.
+	 * `queued` now means *upstream is holding this restore*, which is
+	 * enough to refuse the reader a new one — so the two must be told
+	 * apart on whether a record arrived, not on one key.
+	 */
+	public function test_status_keeps_a_record_that_names_no_restore_id() {
+		$this->arrange_wpcom_raw( '{"rewind_id":"1786663613.9425","percent":0,"status":""}', 200 );
+
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/rewind/restore/7/status' );
+		$request->set_param( 'restore_id', 7 );
+		$data = Restore_Bridge::get_restore_status( $request )->get_data();
+
+		$this->assertSame( 'queued', $data['status'] );
+	}
+
+	/**
+	 * A 200 carrying nothing at all is `not-found`.
 	 */
 	public function test_status_treats_a_recordless_200_as_not_found() {
 		$this->arrange_wpcom_raw( '{}', 200 );

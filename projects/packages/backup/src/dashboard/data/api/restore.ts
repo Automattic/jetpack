@@ -150,17 +150,31 @@ export function isTerminal( status: RestoreStatus | undefined ): boolean {
 }
 
 /**
- * Whether WordPress.com is holding a real restore under this id.
+ * Whether WordPress.com answered about this restore at all.
  *
- * Narrower than `! isTerminal(…)`, which also passes `not-found` and
- * `unknown` — absence of evidence, not evidence. Three callers have to
- * agree on this line: the silence deadline, adoption at mount, and the
- * refusal to start one on a destructive click.
+ * `unknown` counts: the bridge mints it only for a status string upstream
+ * did send and we do not map, where `not-found` is a 404 and proof of
+ * nothing. Excluding it put a live restore under a spelling WPCOM added
+ * on a five-minute fuse.
  *
  * @param status - The status the bridge reported, if any.
- * @return True when upstream has a live record of the restore.
+ * @return True when the reading is evidence rather than silence.
  */
-export function isUpstreamTracking( status: RestoreStatus | undefined ): boolean {
+export function isSignOfLife( status: RestoreStatus | undefined ): boolean {
+	return status === 'running' || status === 'queued' || status === 'unknown';
+}
+
+/**
+ * Whether a restore is actually under way.
+ *
+ * Stricter than `isSignOfLife`: an `unknown` reading proves upstream has
+ * a record but not that it is still running, and adopting a finished
+ * restore withholds the form with nothing left to give it back.
+ *
+ * @param status - The status the bridge reported, if any.
+ * @return True when upstream is holding a live restore.
+ */
+export function isRestoreInFlight( status: RestoreStatus | undefined ): boolean {
 	return status === 'running' || status === 'queued';
 }
 
@@ -183,7 +197,7 @@ export function isUpstreamTracking( status: RestoreStatus | undefined ): boolean
  * @param target    - The rewind id this screen submitted.
  * @return True when both name the same backup.
  */
-function sameRewindId( candidate: string, target: string ): boolean {
+export function sameRewindId( candidate: string, target: string ): boolean {
 	if ( ! candidate || ! target ) {
 		return false;
 	}
@@ -347,5 +361,5 @@ export async function fetchRunningRestore(): Promise< RecentRestore | null > {
 		return null;
 	}
 	const status = await fetchRestoreStatus( candidate.restore_id );
-	return isUpstreamTracking( status.status ) ? candidate : null;
+	return isRestoreInFlight( status.status ) ? candidate : null;
 }

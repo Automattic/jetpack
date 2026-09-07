@@ -346,11 +346,12 @@ class Restore_Bridge {
 			$mapped = $force;
 		} elseif ( '' === $raw ) {
 			// A record that arrived without a status is queued and has not
-			// started reporting. A payload naming no restore at all is not
-			// a record, and reporting it as `queued` would claim upstream
-			// is holding a restore it never mentioned — which is enough to
-			// refuse the reader a new one.
-			$mapped = isset( $status['restore_id'] ) ? 'queued' : 'not-found';
+			// started reporting. An empty payload is not a record, and
+			// calling it `queued` would claim upstream is holding a
+			// restore it never mentioned — enough to refuse the reader a
+			// new one. Tested on emptiness rather than on one key, so a
+			// record spelled with fields we do not read still counts.
+			$mapped = empty( $status ) ? 'not-found' : 'queued';
 		} else {
 			// Anything unrecognised is reported as such rather than
 			// guessed at. The client keeps polling through `unknown` under

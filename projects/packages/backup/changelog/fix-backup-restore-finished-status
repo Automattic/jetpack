@@ -1,3 +1,3 @@
 Significance: patch
 Type: fixed
-Comment: Modernized dashboard only, behind the flag: the restore screen now reports a completed restore as complete instead of losing track of it, keeps watching a restore WordPress.com is holding in its queue, and refuses to start a second restore of a site that already has one queued. The bridge recognises the statuses the v2 route actually returns, and tells "upstream has no record of this restore" apart from "upstream has it queued".
+Comment: Modernized dashboard only, behind the flag: the restore screen reports a completed restore as complete instead of losing track of it, keeps watching one WordPress.com is holding in its queue or reporting under a status we do not recognise, refuses to start a second restore of a site that already has one queued, reports the outcome of a restore whose reply was lost instead of claiming it never ran, and retires the "already running" notice when it finishes.

@@ -7,9 +7,10 @@ import {
 	fetchRestoreStatus,
 	fetchRunningRestore,
 	initiateRestore,
+	isSignOfLife,
 	isTerminal,
-	isUpstreamTracking,
 	pickLiveRestore,
+	sameRewindId,
 } from '../data/api/restore';
 import { keys } from '../data/query-client';
 import { useAdoptedRestore } from './use-adopted-restore';
@@ -64,6 +65,8 @@ type DeriveInput = {
 	unconfirmed: string | null;
 	startedRewindId: string | null;
 	restoreId: number | null;
+	/** Our restore, found already over in the collection; null when no row matches. */
+	settledOutcome: 'succeeded' | 'failed' | null;
 	statusError: Error | null;
 	data: RestoreStatusResponse | undefined;
 	lostTrack: boolean;
@@ -89,6 +92,7 @@ function deriveState( input: DeriveInput ): RestoreState {
 		unconfirmed,
 		startedRewindId,
 		restoreId,
+		settledOutcome,
 		statusError,
 		data,
 		lostTrack,
@@ -115,6 +119,15 @@ function deriveState( input: DeriveInput ): RestoreState {
 	// looking and finding nothing is that knowledge — before it, offering
 	// one would risk a second concurrent restore.
 	if ( unconfirmed !== null && restoreId === null ) {
+		// It did run, and it is already over — the recovery poll looks
+		// only for a *live* restore, so this is the case it cannot see.
+		// Answered as soon as it is found rather than after the deadline,
+		// whose message would deny the restore ever ran.
+		if ( settledOutcome !== null ) {
+			return settledOutcome === 'succeeded'
+				? { phase: 'success' }
+				: { phase: 'error', message: __( 'Restore failed.', 'jetpack-backup-pkg' ) };
+		}
 		if ( lostTrack ) {
 			return {
 				phase: 'error',
@@ -131,8 +144,8 @@ function deriveState( input: DeriveInput ): RestoreState {
 	//
 	// `lost-track` and not `error`: the restore was accepted and is very
 	// likely still running — we just cannot watch it any more. Reporting
-	// that as an error offers a retry, and the retry starts a second
-	// concurrent restore of the same site.
+	// that as an error offers a retry, which upstream refuses as a bare
+	// failure rather than as anything the reader can act on.
 	if ( restoreId !== null && statusError ) {
 		return { phase: 'lost-track', detail: statusError.message || null };
 	}
@@ -157,21 +170,16 @@ function deriveState( input: DeriveInput ): RestoreState {
 				percent: Math.round( data.progress ?? 0 ),
 				message: data.message,
 			};
-		case 'queued':
-			// Exempt from `lostTrack` for the same reason `running` is:
-			// WordPress.com is answering about this restore, so there is
-			// no silence to time out. A slow queue is not a lost restore,
-			// and saying so would invite a second concurrent one.
-			return { phase: 'queued' };
 		default:
-			// `not-found`, `unknown`, or nothing yet. All the same to the
-			// reader: accepted, nothing to show. Unless it has been that
-			// way long enough that we should stop implying something is
-			// about to happen.
+			// `queued`, `not-found`, `unknown`, or nothing yet. All the
+			// same to the reader: accepted, nothing to show.
 			//
-			// The copy for that lives on the screen, like every other
-			// phase's: this one is entirely ours, with no upstream part.
-			if ( lostTrack ) {
+			// The deadline only settles the readings that are silence —
+			// upstream still answering is not something to time out, and
+			// declaring a restore lost that it can see invites a second
+			// concurrent one. The copy lives on the screen, like every
+			// other phase's.
+			if ( lostTrack && ! isSignOfLife( data?.status ) ) {
 				return { phase: 'lost-track', detail: null };
 			}
 			return { phase: 'queued' };
@@ -372,6 +380,22 @@ export function useRestore( rewindId: string, enabled = true ): Result {
 		}
 	}, [ recoveredId, submittedId ] );
 
+	// The same rows, read for the case `pickLiveRestore` filters out: our
+	// restore, already settled. Without it the five-minute verdict cannot
+	// tell "never started" from "started and finished".
+	const settledOutcome = useMemo( () => {
+		if ( ! needsId || startedRewindId === null ) {
+			return null;
+		}
+		const row = ( restoresQuery.data ?? [] ).find(
+			candidate => candidate.settled && sameRewindId( candidate.rewind_id, startedRewindId )
+		);
+		if ( ! row ) {
+			return null;
+		}
+		return row.succeeded ? ( 'succeeded' as const ) : ( 'failed' as const );
+	}, [ needsId, restoresQuery.data, startedRewindId ] );
+
 	// An adoption stands in for a submission on both counts: it names the
 	// restore to poll, and it is what the screen renders instead of the
 	// form.
@@ -387,16 +411,12 @@ export function useRestore( rewindId: string, enabled = true ): Result {
 		enabled: restoreId !== null && enabled,
 		refetchInterval: query => {
 			// Keep asking through anything unrecognised — stopping there
-			// is what froze this before — but not past the deadline.
-			//
-			// The deadline does not apply while upstream is still
-			// answering, which mirrors `deriveState`. A hidden tab is
-			// polled neither on its interval nor on refocus, so the
-			// deadline can pass under a healthy restore; stopping there
-			// would strand the screen on the queued message with
-			// nothing left to correct it.
+			// is what froze this before — and past the deadline too while
+			// upstream is still answering, mirroring `deriveState`. A
+			// hidden tab is polled neither on its interval nor on refocus,
+			// so the deadline can pass under a healthy restore.
 			const status = query.state.data?.status;
-			if ( isTerminal( status ) || ( lostTrack && ! isUpstreamTracking( status ) ) ) {
+			if ( isTerminal( status ) || ( lostTrack && ! isSignOfLife( status ) ) ) {
 				return false;
 			}
 			return POLL_INTERVAL_MS;
@@ -413,7 +433,7 @@ export function useRestore( rewindId: string, enabled = true ): Result {
 	const observedStatus = statusQuery.data?.status;
 	const statusUpdatedAt = statusQuery.dataUpdatedAt;
 	useEffect( () => {
-		if ( isUpstreamTracking( observedStatus ) && statusUpdatedAt > lastSeenUpdateAt.current ) {
+		if ( isSignOfLife( observedStatus ) && statusUpdatedAt > lastSeenUpdateAt.current ) {
 			lastSeenUpdateAt.current = statusUpdatedAt;
 			setAliveAt( Date.now() );
 			setLostTrack( false );
@@ -455,6 +475,7 @@ export function useRestore( rewindId: string, enabled = true ): Result {
 		unconfirmed,
 		startedRewindId: activeRewindId,
 		restoreId,
+		settledOutcome,
 		statusError: statusQuery.error,
 		data: statusQuery.data,
 		lostTrack,

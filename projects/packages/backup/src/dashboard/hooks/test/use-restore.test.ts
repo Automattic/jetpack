@@ -1,7 +1,7 @@
 // The restore state machine — the only place in this dashboard where a
 // bug costs someone their site rather than their patience.
 
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClient, QueryClientProvider, focusManager } from '@tanstack/react-query';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 import { createElement, type ReactNode } from 'react';
@@ -378,6 +378,10 @@ describe( 'useRestore — the silence deadline', () => {
 
 	afterEach( () => {
 		jest.useRealTimers();
+		// Focus is global to the query client. A test that fails between
+		// hiding and restoring it would silently stop every later suite
+		// from polling.
+		focusManager.setFocused( true );
 	} );
 
 	// The case with no safety net before: the status query is disabled
@@ -440,9 +444,90 @@ describe( 'useRestore — the silence deadline', () => {
 		expect( result.current.state.phase ).toBe( 'queued' );
 
 		// Saying "queued" while no longer asking would be the same lie in
-		// a quieter voice. A hidden tab gets no polls and no catch-up
-		// fetch on return, so the deadline can pass under a restore that
-		// is fine — the poll has to survive it.
+		// a quieter voice.
+		const before = callsFor( '/status' );
+		await advance( 60_000 );
+		expect( callsFor( '/status' ) ).toBeGreaterThan( before );
+	} );
+
+	// The three pieces below each need `lostTrack` to be *true* while a
+	// sign of life is arriving, which a steady poll never produces — every
+	// reading pushes the deadline back. Hiding the tab is what creates it:
+	// query-core ticks the interval but gates the fetch on
+	// `focusManager.isFocused()`, and this dashboard sets
+	// `refetchOnWindowFocus: false`, so a hidden tab is polled neither on
+	// its interval nor on return.
+	/**
+	 * Let the deadline expire with no polls arriving, then restore focus.
+	 *
+	 * @param result - The rendered hook result.
+	 */
+	async function hideTabPastTheDeadline( result: PhaseResult ) {
+		focusManager.setFocused( false );
+		await advance( 5 * 60_000 + 1000 );
+		expect( result.current.state.phase ).toBe( 'queued' );
+		focusManager.setFocused( true );
+	}
+
+	it( 'resumes polling after the deadline passes under a hidden tab', async () => {
+		respondWith( { status: statusPayload( { status: 'queued' } ) } );
+		const { wrapper } = makeWrapper();
+
+		const { result } = renderHook( () => useRestore( REWIND_ID ), { wrapper } );
+		submitAll( result );
+		await settleAt( result, 'queued' );
+
+		await hideTabPastTheDeadline( result );
+
+		const before = callsFor( '/status' );
+		await advance( 60_000 );
+		expect( callsFor( '/status' ) ).toBeGreaterThan( before );
+	} );
+
+	// `lostTrack` has to mean "nothing heard lately", not "there was once
+	// a gap". Latched, the next silent reading is judged against a
+	// deadline that expired while the tab was hidden.
+	it( 'gives a restore a fresh deadline once it is heard from again', async () => {
+		let status: unknown = statusPayload( { status: 'queued' } );
+		mockedApiFetch.mockImplementation( ( options: { path?: string; method?: string } ) => {
+			if ( options?.method === 'POST' ) {
+				return Promise.resolve( { id: 912682, rewind_id: REWIND_ID } );
+			}
+			if ( ( options?.path ?? '' ).includes( '/restores' ) ) {
+				return Promise.resolve( [] );
+			}
+			return Promise.resolve( status );
+		} );
+		const { wrapper } = makeWrapper();
+
+		const { result } = renderHook( () => useRestore( REWIND_ID ), { wrapper } );
+		submitAll( result );
+		await settleAt( result, 'queued' );
+
+		await hideTabPastTheDeadline( result );
+		await advance( 30_000 );
+
+		// Upstream loses sight of it *after* the latch should have been
+		// cleared, so this reading starts its own five minutes.
+		status = statusPayload( { status: 'not-found' } );
+		await advance( 60_000 );
+		expect( result.current.state.phase ).toBe( 'queued' );
+	} );
+
+	// `unknown` is minted only for a status string upstream *did* send.
+	// Timing it out puts a live restore under a spelling WPCOM adds on a
+	// five-minute fuse — the bug this flow exists to prevent.
+	it( 'keeps watching a restore reported under a spelling it does not know', async () => {
+		respondWith( { status: statusPayload( { status: 'unknown', progress: 50 } ) } );
+		const { wrapper } = makeWrapper();
+
+		const { result } = renderHook( () => useRestore( REWIND_ID ), { wrapper } );
+		submitAll( result );
+		await settleAt( result, 'queued' );
+
+		await advance( 5 * 60_000 + 1000 );
+		expect( result.current.state.phase ).toBe( 'queued' );
+
 		const before = callsFor( '/status' );
 		await advance( 60_000 );
 		expect( callsFor( '/status' ) ).toBeGreaterThan( before );
@@ -937,6 +1022,37 @@ describe( 'useRestore — a submission we never got an answer to', () => {
 		await settleAt( result, 'unconfirmed' );
 		// The point of the phase: no control at all until we know.
 		expect( result.current.state ).not.toMatchObject( { phase: 'error' } );
+	} );
+
+	// "Nothing on your site has changed" is the one claim here that must
+	// never be guessed at. The recovery poll only looks for a *live*
+	// restore, so a submission whose reply was lost and whose restore then
+	// finished leaves no live row — and reporting that as "didn't start"
+	// asserts the site is untouched next to a Try again button.
+	it.each( [
+		[ 'finished', 'success' ],
+		[ 'fail', 'error' ],
+	] )( 'reports a %s restore it recovers rather than denying it ran', async ( row, phase ) => {
+		respondWith( {
+			initiateError: TIMEOUT,
+			restores: [
+				{
+					restore_id: 912682,
+					rewind_id: REWIND_ID,
+					when: '2026-08-20T10:00:00+00:00',
+					status: row,
+				},
+			],
+		} );
+		const { wrapper } = makeWrapper();
+
+		const { result } = renderHook( () => useRestore( REWIND_ID ), { wrapper } );
+		submitAll( result );
+
+		await settleAt( result, phase );
+		expect( result.current.state ).not.toMatchObject( {
+			message: "Your restore didn't start, so nothing on your site has changed.",
+		} );
 	} );
 
 	it( 'adopts the restore when it turns out to have started', async () => {
