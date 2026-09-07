@@ -90,32 +90,33 @@ export const POST_DETAIL_TAB_LAYOUTS: Record< PostDetailTabId, DashboardWidget[]
 			uuid: 'email-clicks-trend',
 			type: 'jpa/email-time-series--total-clicks',
 			attributes: { metric: 'clicks' },
-			placement: { width: DETAIL_COLUMN_COUNT, height: 2, order: 2 },
-		},
-		{
-			uuid: 'email-clicks-countries',
-			// Full width: the map unmounts below a 720px container floor.
-			type: 'jpa/email-breakdown--location-clicks',
-			attributes: { view: 'countries', metric: 'clicks', showMap: true },
-			placement: { width: DETAIL_COLUMN_COUNT, height: 2, order: 3 },
+			placement: { width: 2, height: 2, order: 2 },
 		},
 		{
 			uuid: 'email-clicks-devices',
 			type: 'jpa/email-breakdown--platforms-clicks',
 			attributes: { view: 'devices', metric: 'clicks' },
-			placement: { width: 1, height: 2, order: 4 },
+			placement: { width: 1, height: 2, order: 3 },
 		},
 		{
 			uuid: 'email-clicks-clients',
 			type: 'jpa/email-breakdown--clients-clicks',
 			attributes: { view: 'clients', metric: 'clicks' },
-			placement: { width: 1, height: 2, order: 5 },
+			placement: { width: 1, height: 2, order: 4 },
+		},
+		{
+			uuid: 'email-clicks-countries',
+			// Keep width: 2 — the map unmounts below a 720px container floor.
+			type: 'jpa/email-breakdown--location-clicks',
+			attributes: { view: 'countries', metric: 'clicks', showMap: true },
+			placement: { width: 2, height: 2, order: 5 },
 		},
 		{
 			uuid: 'email-clicks-links',
+			// Two of three columns, per the design; the last row is left open.
 			type: 'jpa/email-breakdown--top-links',
 			attributes: { view: 'links', metric: 'clicks' },
-			placement: { width: 1, height: 2, order: 6 },
+			placement: { width: 2, height: 2, order: 6 },
 		},
 	],
 };
