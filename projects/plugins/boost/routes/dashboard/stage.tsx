@@ -17,6 +17,7 @@ type Subpage = ( typeof SUBPAGES )[ number ];
 const LOCATION_CHANGE_EVENT = 'jetpack-boost:location-change';
 const HISTORY_WRAPPED_KEY = '__jetpackBoostLocationChangeWrapped';
 
+// Leave the wrapper installed for the page lifetime so later subscriptions reuse it.
 function wrapHistoryOnce() {
 	const history = window.history as History & { [ HISTORY_WRAPPED_KEY ]?: boolean };
 	if ( history[ HISTORY_WRAPPED_KEY ] ) {
@@ -95,10 +96,10 @@ function Stage() {
 			onTabChange={ onTabChange }
 			subpage={ <div id="jb-subpage-mount" hidden={ subpage === null } /> }
 		>
-			<Tabs.Panel value="overview" tabIndex={ -1 }>
+			<Tabs.Panel value="overview">
 				<QueryClientProvider client={ queryClient }>{ null }</QueryClientProvider>
 			</Tabs.Panel>
-			<Tabs.Panel value="settings" tabIndex={ -1 } keepMounted>
+			<Tabs.Panel value="settings" keepMounted>
 				<div id="jb-settings-tab-mount" />
 			</Tabs.Panel>
 		</BoostPage>

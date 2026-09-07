@@ -46,6 +46,7 @@ describe( 'Boost dashboard stage', () => {
 		);
 		expect( getSubpageMount()?.hidden ).toBe( true );
 		expect( getSettingsMount() ).not.toBeNull();
+		expect( screen.getByRole( 'tabpanel' ).tabIndex ).toBe( 0 );
 		expect( screen.getByRole( 'tabpanel' ).contains( getSettingsMount() ) ).toBe(
 			tab === 'Settings'
 		);

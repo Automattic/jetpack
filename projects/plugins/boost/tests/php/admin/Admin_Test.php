@@ -5,15 +5,15 @@ namespace Automattic\Jetpack_Boost\Tests\Admin;
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Menu_Badges\Notification_Counts;
-use Automattic\Jetpack\Schema\Schema;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
-use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync;
-use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync_Readonly;
 use Automattic\Jetpack_Boost\Admin\Admin;
 use Automattic\Jetpack_Boost\Admin\Config;
 use Automattic\Jetpack_Boost\Lib\Debug;
 use Automattic\Jetpack_Boost\Tests\Base_TestCase;
 use Brain\Monkey\Functions;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
 if ( ! defined( 'JETPACK_BOOST_SLUG' ) ) {
 	define( 'JETPACK_BOOST_SLUG', 'jetpack-boost' );
@@ -27,6 +27,9 @@ if ( ! defined( 'JETPACK_BOOST_SLUG' ) ) {
 class Admin_Test extends Base_TestCase {
 	private $original_get;
 	private $original_menu_items;
+	private $localized     = array();
+	private $enqueued      = array();
+	private $script_checks = array();
 
 	protected function set_up() {
 		parent::set_up();
@@ -151,7 +154,7 @@ class Admin_Test extends Base_TestCase {
 		$this->enable_modern_dashboard();
 		$events = array();
 		\Patchwork\redefine(
-			Admin::class . '::load_wp_build',
+			Admin::class . '::dashboard_build_is_available',
 			function () use ( &$events ) {
 				$events[] = 'build';
 				return true;
@@ -185,79 +188,179 @@ class Admin_Test extends Base_TestCase {
 		$this->assertSame( 'jetpack-boost-dashboard', $screen->id );
 	}
 
-	public function test_modern_prerequisites_wait_for_webpack_bootstrap_and_i18n() {
-		$admin  = new Admin();
-		$loaded = new \ReflectionProperty( Admin::class, 'modern_dashboard_loaded' );
-		if ( PHP_VERSION_ID < 80100 ) {
-			$loaded->setAccessible( true );
+	/**
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_existing_build_without_generated_functions_keeps_legacy_page() {
+		$fixture = JETPACK_BOOST_DIR_PATH . '/.cache/admin-build-' . uniqid();
+		mkdir( $fixture . '/build', 0777, true );
+		$build_file = $fixture . '/build/build.php';
+		file_put_contents( $build_file, '<?php // No generated dashboard functions.' );
+		define( 'Automattic\\Jetpack_Boost\\Admin\\JETPACK_BOOST_DIR_PATH', $fixture );
+
+		try {
+			$this->enable_modern_dashboard();
+			$admin = new Admin();
+
+			$admin->handle_admin_menu();
+
+			$this->assertContains( realpath( $build_file ), get_included_files() );
+			$this->assertSame( array( $admin, 'render_settings' ), $this->last_menu_callback() );
+			$this->assertFalse( has_action( 'current_screen', array( $admin, 'alias_screen_id_for_wp_build' ) ) );
+		} finally {
+			unlink( $build_file );
+			rmdir( $fixture . '/build' );
+			rmdir( $fixture );
 		}
-		$loaded->setValue( $admin, true );
-		$constants     = array(
-			'site' => array(
-				'url'    => 'https://example.org',
-				'online' => true,
-			),
-		);
-		$localized     = array();
-		$prerequisites = (object) array( 'deps' => array( 'wp-i18n' ) );
-		$scripts       = \Mockery::mock();
-		$scripts->shouldReceive( 'query' )->once()
-			->with( 'jetpack-boost-dashboard-wp-admin-prerequisites', 'registered' )->andReturn( $prerequisites );
-		Functions\when( 'wp_scripts' )->justReturn( $scripts );
-		Functions\when( 'rest_url' )->justReturn( 'https://example.org/wp-json/' );
-		Functions\when( 'wp_create_nonce' )->returnArg();
-		Functions\expect( 'wp_enqueue_script' )->once()->with( 'wp-jp-i18n-loader' );
-		Functions\when( 'wp_localize_script' )->alias(
-			function ( $handle, $name, $data ) use ( &$localized ) {
-				$localized[ $handle ][ $name ] = $data;
-			}
-		);
+	}
+
+	public function test_enqueue_localizes_boost_constants() {
+		$admin     = $this->prepare_enqueue_scripts();
+		$constants = array( 'site' => array( 'url' => 'https://example.org' ) );
 		\Patchwork\redefine(
 			Config::class . '::constants',
 			function () use ( $constants ) {
 				return $constants;
 			}
 		);
-		\Patchwork\redefine( Assets::class . '::register_script', function () {} );
-		\Patchwork\redefine( Assets::class . '::enqueue_script', function () {} );
-		if ( ! defined( 'JETPACK_BOOST_PATH' ) ) {
-			define( 'JETPACK_BOOST_PATH', dirname( __DIR__, 3 ) . '/jetpack-boost.php' );
-		}
-
 		$admin->enqueue_scripts();
-		'@phan-var array<string, array<string, mixed>> $localized';
 
-		$this->assertSame( array( 'wp-i18n', 'jetpack-boost-admin', 'wp-jp-i18n-loader' ), $prerequisites->deps );
-		$this->assertSame( $constants, $localized['jetpack-boost-admin']['Jetpack_Boost'] );
+		$this->assertSame( $constants, $this->localized['jetpack-boost-admin']['Jetpack_Boost'] );
+	}
+
+	/**
+	 * @dataProvider dashboard_modes
+	 */
+	#[DataProvider( 'dashboard_modes' )]
+	public function test_legacy_and_modern_dashboard_localize_api_settings( $modern ) {
+		$admin = $this->prepare_enqueue_scripts( $modern );
+
+		if ( $modern ) {
+			$admin->enqueue_scripts();
+		} else {
+			ob_start();
+			try {
+				$admin->render_settings();
+			} finally {
+				ob_end_clean();
+			}
+		}
 		$this->assertSame(
 			array(
 				'root'  => 'https://example.org/wp-json/',
 				'nonce' => 'wp_rest',
 			),
-			$localized['jetpack-boost-admin']['wpApiSettings']
+			$this->localized['jetpack-boost-admin']['wpApiSettings']
+		);
+	}
+
+	public static function dashboard_modes() {
+		return array(
+			'legacy' => array( false ),
+			'modern' => array( true ),
+		);
+	}
+
+	public function test_modern_dashboard_enqueues_registered_i18n_loader() {
+		$admin = $this->prepare_enqueue_scripts( true );
+		$admin->enqueue_scripts();
+
+		$this->assertSame( array( array( 'wp-jp-i18n-loader', 'registered' ) ), $this->script_checks );
+		$this->assertSame( array( 'wp-jp-i18n-loader' ), $this->enqueued );
+	}
+
+	public function test_modern_dashboard_skips_unregistered_i18n_loader() {
+		$admin         = $this->prepare_enqueue_scripts( true );
+		$prerequisites = $this->mock_prerequisites();
+		Functions\when( 'wp_script_is' )->justReturn( false );
+
+		$admin->enqueue_scripts();
+
+		$this->assertSame( array(), $this->enqueued );
+		$this->assertSame( array( 'wp-i18n', 'jetpack-boost-admin' ), $prerequisites->deps );
+	}
+
+	public function test_modern_prerequisites_wait_for_webpack_bootstrap_and_i18n() {
+		$admin         = $this->prepare_enqueue_scripts( true );
+		$prerequisites = $this->mock_prerequisites();
+
+		$admin->enqueue_scripts();
+
+		$this->assertSame( array( 'wp-i18n', 'jetpack-boost-admin', 'wp-jp-i18n-loader' ), $prerequisites->deps );
+	}
+
+	public function test_missing_modern_prerequisites_are_logged() {
+		$admin   = $this->prepare_enqueue_scripts( true );
+		$scripts = \Mockery::mock();
+		$scripts->shouldReceive( 'query' )->once()
+			->with( 'jetpack-boost-dashboard-wp-admin-prerequisites', 'registered' )->andReturn( false );
+		Functions\when( 'wp_scripts' )->justReturn( $scripts );
+		$messages = array();
+		\Patchwork\redefine(
+			Debug::class . '::log',
+			function ( $message ) use ( &$messages ) {
+				$messages[] = $message;
+			}
 		);
 
-		$data_sync = Data_Sync::get_instance( 'boost_admin_test' );
-		foreach ( array( 'modules_state', 'performance_history', 'dismissed_alerts', 'critical_css_state', 'lcp_state' ) as $key ) {
-			$data_sync->register(
-				$key,
-				Schema::as_unsafe_any(),
-				new Data_Sync_Readonly(
-					function () use ( $key ) {
-						return array( $key => 'current-value' );
-					}
-				)
-			);
-		}
-		$data_sync->attach_to_plugin( 'jetpack-boost-admin', 'jetpack_page_jetpack-boost' );
-		$this->assertNotFalse( has_action( 'jetpack_page_jetpack-boost', array( $data_sync, '_print_options_script_tag' ) ) );
-		$data_sync->_print_options_script_tag();
-		'@phan-var array<string, array<string, mixed>> $localized';
+		$admin->enqueue_scripts();
 
-		foreach ( array( 'modules_state', 'performance_history', 'dismissed_alerts', 'critical_css_state', 'lcp_state' ) as $key ) {
-			$this->assertSame( array( $key => 'current-value' ), $localized['jetpack-boost-admin']['boost_admin_test'][ $key ]['value'] );
-			$this->assertNotEmpty( $localized['jetpack-boost-admin']['boost_admin_test'][ $key ]['nonce'] );
+		$this->assertSame(
+			array( 'Modern dashboard prerequisites are not registered; bootstrap dependencies could not be attached.' ),
+			$messages
+		);
+	}
+
+	private function prepare_enqueue_scripts( $modern = false ) {
+		$admin  = new Admin();
+		$loaded = new \ReflectionProperty( Admin::class, 'modern_dashboard_loaded' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$loaded->setAccessible( true );
 		}
+		$loaded->setValue( $admin, $modern );
+		if ( ! defined( 'JETPACK_BOOST_PATH' ) ) {
+			define( 'JETPACK_BOOST_PATH', dirname( __DIR__, 3 ) . '/jetpack-boost.php' );
+		}
+		Functions\when( 'rest_url' )->justReturn( 'https://example.org/wp-json/' );
+		Functions\when( 'wp_create_nonce' )->returnArg();
+		Functions\when( 'wp_localize_script' )->alias(
+			function ( $handle, $name, $data ) {
+				$this->localized[ $handle ][ $name ] = $data;
+			}
+		);
+		Functions\when( 'wp_script_is' )->alias(
+			function ( $handle, $status ) {
+				$this->script_checks[] = array( $handle, $status );
+				return true;
+			}
+		);
+		Functions\when( 'wp_enqueue_script' )->alias(
+			function ( $handle ) {
+				$this->enqueued[] = $handle;
+			}
+		);
+		\Patchwork\redefine(
+			Config::class . '::constants',
+			function () {
+				return array();
+			}
+		);
+		\Patchwork\redefine( Assets::class . '::register_script', function () {} );
+		\Patchwork\redefine( Assets::class . '::enqueue_script', function () {} );
+		$this->mock_prerequisites();
+		return $admin;
+	}
+
+	private function mock_prerequisites() {
+		$prerequisites = (object) array( 'deps' => array( 'wp-i18n' ) );
+		$scripts       = \Mockery::mock();
+		$scripts->shouldReceive( 'query' )
+			->with( 'jetpack-boost-dashboard-wp-admin-prerequisites', 'registered' )->andReturn( $prerequisites );
+		Functions\when( 'wp_scripts' )->justReturn( $scripts );
+		return $prerequisites;
 	}
 
 	private function enable_modern_dashboard() {

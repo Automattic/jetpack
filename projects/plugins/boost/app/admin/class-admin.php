@@ -26,6 +26,11 @@ class Admin {
 	const MENU_SLUG = 'jetpack-boost';
 
 	/**
+	 * Filter enabling the modern dashboard.
+	 */
+	const MODERNIZATION_FILTER = 'rsm_jetpack_ui_modernization_boost';
+
+	/**
 	 * Whether this request loaded the modern dashboard.
 	 *
 	 * @var bool
@@ -90,13 +95,13 @@ class Admin {
 		 * @since $$next-version$$
 		 * @param bool $enabled Whether to enable the modern dashboard. Default false.
 		 */
-		if ( ! apply_filters( 'rsm_jetpack_ui_modernization_boost', false ) || ! is_admin() ) {
+		if ( ! apply_filters( self::MODERNIZATION_FILTER, false ) || ! is_admin() ) {
 			return;
 		}
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		$page = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '';
-		if ( JETPACK_BOOST_SLUG !== $page || ! $this->load_wp_build() ) {
+		if ( JETPACK_BOOST_SLUG !== $page || ! $this->dashboard_build_is_available() ) {
 			return;
 		}
 
@@ -106,7 +111,7 @@ class Admin {
 		);
 
 		// wp_default_scripts has already fired by admin_menu, so register the init module now.
-		jetpack_boost_register_script_modules(); // @phan-suppress-current-line PhanUndeclaredFunction -- Defined by the generated build and checked in load_wp_build().
+		jetpack_boost_register_script_modules(); // @phan-suppress-current-line PhanUndeclaredFunction -- Defined by the generated build and checked in dashboard_build_is_available().
 		add_action( 'current_screen', array( $this, 'alias_screen_id_for_wp_build' ) );
 		$this->modern_dashboard_loaded = true;
 	}
@@ -116,7 +121,7 @@ class Admin {
 	 *
 	 * @return bool Whether the generated dashboard is available.
 	 */
-	private function load_wp_build() {
+	private function dashboard_build_is_available() {
 		$build_file = JETPACK_BOOST_DIR_PATH . '/build/build.php';
 		if ( ! file_exists( $build_file ) ) {
 			Debug::log( 'Modern dashboard build is missing; loading the legacy dashboard.' );
@@ -193,18 +198,21 @@ class Admin {
 		Assets::enqueue_script( $admin_js_handle );
 
 		if ( $this->modern_dashboard_loaded ) {
-			$api_settings = array(
-				'root'  => esc_url_raw( rest_url() ),
-				'nonce' => wp_create_nonce( 'wp_rest' ),
-			);
-			wp_localize_script( $admin_js_handle, 'wpApiSettings', $api_settings );
-			wp_enqueue_script( 'wp-jp-i18n-loader' );
+			$this->localize_api_settings( $admin_js_handle );
+			$i18n_loader_registered = wp_script_is( 'wp-jp-i18n-loader', 'registered' );
+			if ( $i18n_loader_registered ) {
+				wp_enqueue_script( 'wp-jp-i18n-loader' );
+			}
 
 			// The webpack handle carries Boost constants and DataSync bootstrap needed before modules run.
 			$prerequisites = wp_scripts()->query( 'jetpack-boost-dashboard-wp-admin-prerequisites', 'registered' );
 			if ( $prerequisites ) {
 				$prerequisites->deps[] = $admin_js_handle;
-				$prerequisites->deps[] = 'wp-jp-i18n-loader';
+				if ( $i18n_loader_registered ) {
+					$prerequisites->deps[] = 'wp-jp-i18n-loader';
+				}
+			} else {
+				Debug::log( 'Modern dashboard prerequisites are not registered; bootstrap dependencies could not be attached.' );
 			}
 		}
 	}
@@ -222,17 +230,26 @@ class Admin {
 	}
 
 	/**
-	 * Generate the settings page.
+	 * Localize the REST API settings for a script.
+	 *
+	 * @param string $handle Script handle.
 	 */
-	public function render_settings() {
+	private function localize_api_settings( $handle ) {
 		wp_localize_script(
-			'jetpack-boost-admin',
+			$handle,
 			'wpApiSettings',
 			array(
 				'root'  => esc_url_raw( rest_url() ),
 				'nonce' => wp_create_nonce( 'wp_rest' ),
 			)
 		);
+	}
+
+	/**
+	 * Generate the settings page.
+	 */
+	public function render_settings() {
+		$this->localize_api_settings( 'jetpack-boost-admin' );
 		?>
 		<div id="jb-admin-settings"></div>
 		<?php
