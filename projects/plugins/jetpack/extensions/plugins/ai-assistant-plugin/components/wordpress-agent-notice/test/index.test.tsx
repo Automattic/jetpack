@@ -152,11 +152,9 @@ describe( 'WordPressAgentNotice', () => {
 		it( 'still says where the AI tools went', () => {
 			render( <WordPressAgentNotice placement="document-settings" /> );
 
-			expect(
-				screen.getByText(
-					'AI tools have moved to the WordPress Agent. Look for the " Agent" button at the top of the screen.'
-				)
-			).toBeInTheDocument();
+			expect( screen.getByText( 'AI tools have moved', { exact: false } ) ).toHaveTextContent(
+				'AI tools have moved to the WordPress Agent. Look for the "Agent" button at the top of the screen.'
+			);
 		} );
 
 		it( 'offers no action it cannot carry out', () => {
@@ -195,11 +193,9 @@ describe( 'WordPressAgentNotice', () => {
 	it( 'tells the reader where the AI tools went', () => {
 		render( <WordPressAgentNotice placement="document-settings" /> );
 
-		expect(
-			screen.getByText(
-				'AI tools have moved to the WordPress Agent. Look for the " Agent" button at the top of the screen.'
-			)
-		).toBeInTheDocument();
+		expect( screen.getByText( 'AI tools have moved', { exact: false } ) ).toHaveTextContent(
+			'AI tools have moved to the WordPress Agent. Look for the "Agent" button at the top of the screen.'
+		);
 	} );
 
 	it( 'shows the Agent icon in the description, hidden from screen readers', () => {
