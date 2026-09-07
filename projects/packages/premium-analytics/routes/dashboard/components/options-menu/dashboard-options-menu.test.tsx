@@ -436,4 +436,29 @@ describe( 'switching the new Traffic tab off', () => {
 		expect( screen.getByRole( 'button', { name: 'Switch it off' } ) ).toBeEnabled();
 		expect( mockReturnToClassicStats ).not.toHaveBeenCalled();
 	} );
+
+	it( 'ignores Escape while the write is in flight', async () => {
+		let finishWrite: ( echo: typeof SETTINGS_OFF ) => void = () => {};
+		mockApiFetch.mockImplementationOnce(
+			() =>
+				new Promise( resolve => {
+					finishWrite = resolve;
+				} )
+		);
+		const user = await openConfirmation();
+
+		await user.click( screen.getByRole( 'button', { name: 'Switch it off' } ) );
+		await user.keyboard( '{Escape}' );
+
+		expect( screen.getByRole( 'dialog' ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: 'Switching it off…' } ) ).toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
+		expect( mockReturnToClassicStats ).not.toHaveBeenCalled();
+
+		finishWrite( SETTINGS_OFF );
+
+		await waitFor( () => expect( mockReturnToClassicStats ).toHaveBeenCalledTimes( 1 ) );
+	} );
 } );

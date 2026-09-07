@@ -40,14 +40,16 @@ export function SwitchOffDialog( { open, onClose }: SwitchOffDialogProps ) {
 	const [ isSwitchingOff, setIsSwitchingOff ] = useState( false );
 	const [ hasFailed, setHasFailed ] = useState( false );
 
+	// Escape and the backdrop wait for the write too: a success would otherwise navigate away
+	// from wherever the reader went next, and a failure would surface on the next open.
 	const handleOpenChange = useCallback(
 		( nextOpen: boolean ) => {
-			if ( ! nextOpen ) {
+			if ( ! nextOpen && ! isSwitchingOff ) {
 				setHasFailed( false );
 				onClose();
 			}
 		},
-		[ onClose ]
+		[ isSwitchingOff, onClose ]
 	);
 
 	const switchOff = useCallback( async () => {
