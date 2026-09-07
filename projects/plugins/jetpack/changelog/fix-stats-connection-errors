@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Stats: Identify missing or rejected blog tokens as connection errors.

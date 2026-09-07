@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Return connection errors for Stats requests with missing or rejected blog tokens.

@@ -628,12 +628,23 @@ class WPCOM_Stats {
 		$response      = Client::wpcom_json_api_request_as_blog( $endpoint, self::STATS_REST_API_VERSION, array( 'timeout' => 20 ) );
 		$response_code = wp_remote_retrieve_response_code( $response );
 		$response_body = wp_remote_retrieve_body( $response );
+		$data          = json_decode( $response_body, true );
+		$error_code    = is_wp_error( $response ) ? $response->get_error_code() : ( $data['error'] ?? $data['code'] ?? null );
+
+		// Traffic endpoints must expose the same connection errors as the Stats admin API client.
+		if ( in_array( $error_code, array( 'missing_token', 'no_possible_tokens', 'malformed_token', 'invalid_token', 'unknown_token', 'signature_mismatch' ), true ) ) {
+			return new WP_Error(
+				'site_not_connected',
+				__( 'This site is not connected to WordPress.com.', 'jetpack-stats-pkg' ),
+				array( 'status' => 400 )
+			);
+		}
 
 		if ( is_wp_error( $response ) || 200 !== $response_code || empty( $response_body ) ) {
 			return is_wp_error( $response ) ? $response : new WP_Error( 'stats_error', 'Failed to fetch Stats from WPCOM' );
 		}
 
-		return json_decode( $response_body, true );
+		return $data;
 	}
 
 	/**
