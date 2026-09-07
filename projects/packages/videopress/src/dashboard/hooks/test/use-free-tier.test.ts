@@ -46,6 +46,31 @@ describe( 'useFreeTier', () => {
 		expect( result.current.isAtLimit ).toBe( true );
 	} );
 
+	it.each( [ null, undefined ] )(
+		'keeps unavailable access (%s) unknown with four videos',
+		async access => {
+			const win = window as unknown as { JPVIDEOPRESS_INITIAL_STATE: { siteData: unknown } };
+			const previousSiteData = win.JPVIDEOPRESS_INITIAL_STATE.siteData;
+			win.JPVIDEOPRESS_INITIAL_STATE.siteData = {
+				hasVideoPressAccess: access,
+				isVideoPressUnlimited: null,
+			};
+			mockApiFetch( async () => ( {
+				headers: { get: ( key: string ) => ( key === 'X-WP-Total' ? '3' : '1' ) },
+				json: async () => [],
+			} ) );
+
+			try {
+				const { result } = renderHook( () => useFreeTier(), { wrapper: createTestWrapper() } );
+				await waitFor( () => expect( result.current.videoCount ).toBe( 4 ) );
+				expect( result.current.isFree ).toBeNull();
+				expect( result.current.isAtLimit ).toBe( false );
+			} finally {
+				win.JPVIDEOPRESS_INITIAL_STATE.siteData = previousSiteData;
+			}
+		}
+	);
+
 	// Regression: an unlimited (grandfathered) plan must never be reported as
 	// at the limit, even when the counted videos reach the free-tier cap.
 	// `isFree` and `isUnlimited` come from independent signals, so `isAtLimit`
