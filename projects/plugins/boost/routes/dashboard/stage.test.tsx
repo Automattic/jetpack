@@ -7,6 +7,11 @@ import type { ReactNode } from 'react';
 
 const mockNavigate = jest.fn();
 
+jest.mock( '../../_inc/overview/overview', () => ( {
+	__esModule: true,
+	default: () => <div>Performance Overview</div>,
+} ) );
+
 jest.mock( '@wordpress/route', () => ( {
 	useSearch: () => ( { tab: new URLSearchParams( globalThis.location.search ).get( 'tab' ) } ),
 	useNavigate: () => mockNavigate,

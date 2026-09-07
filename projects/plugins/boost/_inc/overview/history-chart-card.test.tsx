@@ -3,10 +3,9 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import HistoryChartCard, { buildHistorySeries, HistoryTooltip } from './history-chart-card';
 import type { PerformanceHistoryData } from './lib/use-performance-history';
 
-jest.mock( '../../app/assets/src/js/features/upgrade-cta/interstitial-modal-cta', () => ( {
+jest.mock( './upgrade-cta', () => ( {
 	__esModule: true,
-	default: ( { customModalTrigger }: { customModalTrigger: import('react').ReactNode } ) =>
-		customModalTrigger,
+	default: () => <button>Upgrade now</button>,
 } ) );
 jest.mock( '../../app/assets/src/js/lib/utils/analytics', () => ( {
 	recordBoostEvent: jest.fn(),
@@ -133,4 +132,13 @@ test( 'waits for the initial fetch before showing the empty state', () => {
 	expect( screen.queryByText( /Performance history will appear/ ) ).not.toBeInTheDocument();
 	rerender( <HistoryChartCard { ...callbacks } /> );
 	expect( screen.getByText( /Performance history will appear/ ) ).toBeInTheDocument();
+} );
+
+test( 'transitions between upgrade, error, and paid history states', () => {
+	const { rerender } = render( <HistoryChartCard needsUpgrade { ...callbacks } /> );
+	expect( screen.getByRole( 'button', { name: 'Upgrade now' } ) ).toBeInTheDocument();
+	rerender( <HistoryChartCard isError { ...callbacks } /> );
+	expect( screen.getByRole( 'button', { name: 'Try again' } ) ).toBeInTheDocument();
+	rerender( <HistoryChartCard data={ history } { ...callbacks } /> );
+	expect( screen.getByRole( 'grid', { name: /line chart/i } ) ).toBeInTheDocument();
 } );

@@ -36,7 +36,10 @@ export default function Overview() {
 	if ( ! online ) {
 		return (
 			<div className="jetpack-boost-overview">
-				<Notice.Root intent="info">
+				<Notice.Root
+					intent="info"
+					spokenMessage={ __( 'Website is not publicly available', 'jetpack-boost' ) }
+				>
 					<Notice.Title>
 						{ __( 'Website is not publicly available', 'jetpack-boost' ) }
 					</Notice.Title>
@@ -54,7 +57,10 @@ export default function Overview() {
 	return (
 		<div className="jetpack-boost-overview">
 			{ scoreState.status === 'error' ? (
-				<Notice.Root intent="error">
+				<Notice.Root
+					intent="error"
+					spokenMessage={ __( 'Failed to load Speed Scores', 'jetpack-boost' ) }
+				>
 					<Notice.Title>{ __( 'Failed to load Speed Scores', 'jetpack-boost' ) }</Notice.Title>
 					<Notice.Description>{ scoreState.error?.message }</Notice.Description>
 					<Notice.Actions>

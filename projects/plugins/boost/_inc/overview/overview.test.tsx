@@ -16,10 +16,9 @@ jest.mock( '@wordpress/api-fetch' );
 jest.mock( '../../app/assets/src/js/lib/utils/analytics', () => ( {
 	recordBoostEvent: jest.fn(),
 } ) );
-jest.mock( '../../app/assets/src/js/features/upgrade-cta/interstitial-modal-cta', () => ( {
+jest.mock( './upgrade-cta', () => ( {
 	__esModule: true,
-	default: ( { customModalTrigger }: { customModalTrigger: import('react').ReactNode } ) =>
-		customModalTrigger,
+	default: () => <button>Upgrade now</button>,
 } ) );
 
 const scores = {
@@ -92,7 +91,9 @@ test( 'loads online scores and regenerates them with refresh tracking and histor
 test( 'keeps offline sites out of score and Data Sync requests', async () => {
 	Jetpack_Boost.site.online = false;
 	renderOverview();
-	expect( screen.getByText( 'Website is not publicly available' ) ).toBeInTheDocument();
+	expect(
+		screen.getByText( 'Website is not publicly available', { selector: 'span' } )
+	).toBeInTheDocument();
 	expect( screen.queryByRole( 'button', { name: 'Refresh' } ) ).not.toBeInTheDocument();
 	expect( requestSpeedScores ).not.toHaveBeenCalled();
 	expect( apiFetch ).not.toHaveBeenCalled();

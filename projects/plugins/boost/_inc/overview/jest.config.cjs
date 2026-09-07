@@ -1,8 +1,11 @@
 const path = require( 'path' );
-const boostConfig = require( '../../tests/jest.config.cjs' );
+const rootConfig = require( '../../tests/jest.config.cjs' );
+const boostConfig = rootConfig.projects?.[ 0 ] ?? rootConfig;
 
 module.exports = {
 	...boostConfig,
+	roots: [ __dirname ],
+	testPathIgnorePatterns: [ '/node_modules/' ],
 	testMatch: [ '<rootDir>/_inc/overview/**/*.test.{ts,tsx}' ],
 	testEnvironmentOptions: { customExportConditions: [ 'browser', 'jetpack:src' ] },
 	setupFilesAfterEnv: [ require.resolve( 'jetpack-js-tools/jest/setup-jest-dom.js' ) ],

@@ -5,8 +5,7 @@ import { Spinner } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { Button, Card, Notice, Text } from '@wordpress/ui';
 import { useCallback, useMemo } from 'react';
-import InterstitialModalCTA from '../../app/assets/src/js/features/upgrade-cta/interstitial-modal-cta';
-import { recordBoostEvent } from '../../app/assets/src/js/lib/utils/analytics';
+import UpgradeCTA from './upgrade-cta';
 import type { PerformanceHistoryData } from './lib/use-performance-history';
 import type { SeriesData } from '@automattic/charts';
 import type { ComponentProps } from 'react';
@@ -83,10 +82,6 @@ export function HistoryTooltip( { period }: { period: History[ 'periods' ][ numb
 	);
 }
 
-function handleUpgrade() {
-	recordBoostEvent( 'performance_history_upgrade_cta_click', {} );
-}
-
 export default function HistoryChartCard( {
 	data,
 	isLoading,
@@ -107,6 +102,7 @@ export default function HistoryChartCard( {
 		},
 		[ data ]
 	);
+	// Supply text announcements so WordPress does not serialize action components with hooks.
 	let content;
 	if ( isLoading && ! data?.periods.length ) {
 		content = (
@@ -116,7 +112,10 @@ export default function HistoryChartCard( {
 		);
 	} else if ( isError && ! isLoading ) {
 		content = (
-			<Notice.Root intent="error">
+			<Notice.Root
+				intent="error"
+				spokenMessage={ __( 'Failed to load performance history', 'jetpack-boost' ) }
+			>
 				<Notice.Title>{ __( 'Failed to load performance history', 'jetpack-boost' ) }</Notice.Title>
 				<Notice.Actions>
 					<Button onClick={ onRetry }>{ __( 'Try again', 'jetpack-boost' ) }</Button>
@@ -125,24 +124,25 @@ export default function HistoryChartCard( {
 		);
 	} else if ( needsUpgrade ) {
 		content = (
-			<Notice.Root intent="info">
+			<Notice.Root
+				intent="info"
+				spokenMessage={ __( 'Unlock historical performance', 'jetpack-boost' ) }
+			>
 				<Notice.Title>{ __( 'Unlock historical performance', 'jetpack-boost' ) }</Notice.Title>
 				<Notice.Description>
 					{ __( 'Upgrade and learn more about your site performance over time.', 'jetpack-boost' ) }
 				</Notice.Description>
 				<Notice.Actions>
-					<InterstitialModalCTA
-						identifier="historical-performance"
-						customModalTrigger={
-							<Button onClick={ handleUpgrade }>{ __( 'Upgrade now', 'jetpack-boost' ) }</Button>
-						}
-					/>
+					<UpgradeCTA />
 				</Notice.Actions>
 			</Notice.Root>
 		);
 	} else if ( isFreshStart ) {
 		content = (
-			<Notice.Root intent="success">
+			<Notice.Root
+				intent="success"
+				spokenMessage={ __( 'Your scores will be recorded from now on.', 'jetpack-boost' ) }
+			>
 				<Notice.Title>
 					{ __( 'Hello there! Jetpack Boost premium has been activated.', 'jetpack-boost' ) }
 				</Notice.Title>
