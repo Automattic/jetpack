@@ -50,9 +50,14 @@
 	container-type: normal;
 	margin-bottom: 0;
 	pointer-events: auto;
+
+	/* `@wordpress/ui`'s medium elevation, the level its popovers and menus use.
+	   Copied because the design system has no shadow token to reference yet. */
 	box-shadow:
-		0 2px 5px rgba(0, 0, 0, 0.2),
-		0 0 56px rgba(0, 0, 0, 0.15);
+		0 2px 3px rgba(0, 0, 0, 0.05),
+		0 4px 5px rgba(0, 0, 0, 0.04),
+		0 12px 12px rgba(0, 0, 0, 0.03),
+		0 16px 16px rgba(0, 0, 0, 0.02);
 
 	@include calypso-mixins.breakpoint( ">660px" ) {
 		margin-bottom: 24px;
