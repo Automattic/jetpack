@@ -1,13 +1,16 @@
 import { getDefaultQueryParams, normalizeReportParams } from '@jetpack-premium-analytics/data';
 import { WidgetRoot } from '../components/widget-root/widget-root';
+import { applyFixtureSiteSettings } from './fixture-site';
 import { registerReportMocks } from './mocks/register-report-mocks';
 import type { Decorator } from '@storybook/react';
 
 /*
- * Register the report-data `apiFetch` mock middleware as soon as this module is
- * imported. Any story using `withWidgetRoot()` therefore gets mocked report data
- * automatically, with no per-story wiring. `registerReportMocks` is idempotent.
+ * Seed the site and register the report-data `apiFetch` mock middleware as soon
+ * as this module is imported. Any story using `withWidgetRoot()` therefore gets
+ * the site's timezone and mocked report data automatically, with no per-story
+ * wiring. `registerReportMocks` is idempotent.
  */
+applyFixtureSiteSettings();
 registerReportMocks();
 
 /**

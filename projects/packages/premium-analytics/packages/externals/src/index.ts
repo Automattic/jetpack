@@ -86,6 +86,7 @@ export {
 	Stack,
 	Tabs,
 	Text,
+	TextareaControl,
 	VisuallyHidden,
 } from '@wordpress/ui';
 

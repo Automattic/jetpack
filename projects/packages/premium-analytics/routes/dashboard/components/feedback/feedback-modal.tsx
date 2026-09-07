@@ -2,8 +2,7 @@
  * WordPress dependencies
  */
 import { submitStatsUserFeedback, type StatsFeedbackRating } from '@jetpack-premium-analytics/data';
-import { Button, Notice, Stack } from '@jetpack-premium-analytics/externals';
-import { Modal } from '@wordpress/components';
+import { Button, Dialog, Notice, Stack } from '@jetpack-premium-analytics/externals';
 import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
@@ -11,6 +10,7 @@ import { __ } from '@wordpress/i18n';
  */
 import { useTrackEvent } from '../../hooks/use-track-event';
 import { FeedbackFields } from './feedback-fields';
+import styles from './feedback-modal.module.scss';
 
 // Reaches Happiness as the subject line of the feedback email ("Feedback received
 // from …"), so it has to name the surface without any further context.
@@ -39,6 +39,15 @@ export function FeedbackModal( { onClose }: FeedbackModalProps ) {
 		'jetpack-premium-analytics-pkg'
 	);
 
+	const handleOpenChange = useCallback(
+		( isOpen: boolean ) => {
+			if ( ! isOpen ) {
+				onClose();
+			}
+		},
+		[ onClose ]
+	);
+
 	const submit = useCallback( () => {
 		if ( rating === null ) {
 			return;
@@ -64,45 +73,61 @@ export function FeedbackModal( { onClose }: FeedbackModalProps ) {
 	}, [ comment, rating, trackEvent ] );
 
 	return (
-		<Modal
-			title={ __( 'Share your feedback', 'jetpack-premium-analytics-pkg' ) }
-			onRequestClose={ onClose }
-			size="medium"
-		>
-			{ hasSubmitted ? (
-				<Stack direction="column" gap="lg">
-					<Notice.Root intent="success">
-						<Notice.Description>
-							{ __( 'Thank you. This helps.', 'jetpack-premium-analytics-pkg' ) }
-						</Notice.Description>
-					</Notice.Root>
+		<Dialog.Root open onOpenChange={ handleOpenChange }>
+			<Dialog.Popup size="medium">
+				<Dialog.Header>
+					<Dialog.Title>
+						{ __( 'Share your feedback', 'jetpack-premium-analytics-pkg' ) }
+					</Dialog.Title>
+					<Dialog.CloseIcon />
+				</Dialog.Header>
 
-					<Stack direction="row" gap="sm" justify="end">
-						<Button variant="solid" size="compact" onClick={ onClose }>
-							{ __( 'Done', 'jetpack-premium-analytics-pkg' ) }
-						</Button>
-					</Stack>
-				</Stack>
-			) : (
-				<Stack direction="column" gap="xl">
-					<FeedbackFields
-						rating={ rating }
-						onRatingChange={ setRating }
-						comment={ comment }
-						onCommentChange={ setComment }
-						commentQuestion={ blockerQuestion }
-					/>
+				{ hasSubmitted ? (
+					<>
+						<Dialog.Content>
+							<Notice.Root intent="success">
+								<Notice.Description>
+									{ __( 'Thank you. This helps.', 'jetpack-premium-analytics-pkg' ) }
+								</Notice.Description>
+							</Notice.Root>
+						</Dialog.Content>
 
-					<Stack direction="row" gap="sm" justify="end">
-						<Button variant="minimal" size="compact" onClick={ onClose }>
-							{ __( 'Cancel', 'jetpack-premium-analytics-pkg' ) }
-						</Button>
-						<Button variant="solid" size="compact" disabled={ rating === null } onClick={ submit }>
-							{ __( 'Send feedback', 'jetpack-premium-analytics-pkg' ) }
-						</Button>
-					</Stack>
-				</Stack>
-			) }
-		</Modal>
+						<Dialog.Footer>
+							<Dialog.Action variant="solid" size="compact">
+								{ __( 'Done', 'jetpack-premium-analytics-pkg' ) }
+							</Dialog.Action>
+						</Dialog.Footer>
+					</>
+				) : (
+					<>
+						<Dialog.Content>
+							<Stack className={ styles.body } direction="column" gap="xl">
+								<FeedbackFields
+									rating={ rating }
+									onRatingChange={ setRating }
+									comment={ comment }
+									onCommentChange={ setComment }
+									commentQuestion={ blockerQuestion }
+								/>
+							</Stack>
+						</Dialog.Content>
+
+						<Dialog.Footer>
+							<Dialog.Action variant="minimal" size="compact">
+								{ __( 'Cancel', 'jetpack-premium-analytics-pkg' ) }
+							</Dialog.Action>
+							<Button
+								variant="solid"
+								size="compact"
+								disabled={ rating === null }
+								onClick={ submit }
+							>
+								{ __( 'Send feedback', 'jetpack-premium-analytics-pkg' ) }
+							</Button>
+						</Dialog.Footer>
+					</>
+				) }
+			</Dialog.Popup>
+		</Dialog.Root>
 	);
 }

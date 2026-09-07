@@ -2,8 +2,8 @@
  * WordPress dependencies
  */
 import { type StatsFeedbackRating } from '@jetpack-premium-analytics/data';
-import { Stack, Text } from '@jetpack-premium-analytics/externals';
-import { RadioControl, TextareaControl } from '@wordpress/components';
+import { Stack, Text, TextareaControl } from '@jetpack-premium-analytics/externals';
+import { RadioControl } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
@@ -99,7 +99,7 @@ export function FeedbackFields( {
 					label={ commentQuestion }
 					value={ comment }
 					maxLength={ COMMENT_MAX_LENGTH }
-					onChange={ onCommentChange }
+					onValueChange={ onCommentChange }
 				/>
 			</Stack>
 		</>

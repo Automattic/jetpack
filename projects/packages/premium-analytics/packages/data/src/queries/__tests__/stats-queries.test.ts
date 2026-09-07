@@ -37,6 +37,7 @@ import { statsInsightsQuery } from '../stats-insights-query';
 import { statsLocationsQuery } from '../stats-locations-query';
 import { statsPostCommentsQuery } from '../stats-post-comments-query';
 import { statsPostQuery } from '../stats-post-query';
+import { statsProxyQuery } from '../stats-query';
 import { statsReferrersQuery } from '../stats-referrers-query';
 import { statsSearchTermsQuery } from '../stats-search-terms-query';
 import { statsSingleVideoQuery } from '../stats-single-video-query';
@@ -116,6 +117,7 @@ describe( 'Stats query factories', () => {
 			},
 			undefined,
 			'referrers',
+			'UTC',
 		] );
 	} );
 
@@ -137,6 +139,7 @@ describe( 'Stats query factories', () => {
 			},
 			undefined,
 			'post',
+			'UTC',
 		] );
 	} );
 
@@ -170,6 +173,7 @@ describe( 'Stats query factories', () => {
 			{ number: 10, type: 'comment', status: 'approved', order: 'DESC' },
 			undefined,
 			'postComments',
+			'UTC',
 		] );
 		expect( query.enabled ).toBe( true );
 	} );
@@ -193,6 +197,7 @@ describe( 'Stats query factories', () => {
 			{},
 			undefined,
 			'emailBreakdown',
+			'UTC',
 		] );
 	} );
 
@@ -208,6 +213,7 @@ describe( 'Stats query factories', () => {
 			{},
 			undefined,
 			'emailBreakdown',
+			'UTC',
 		] );
 	} );
 
@@ -234,6 +240,7 @@ describe( 'Stats query factories', () => {
 			undefined,
 			'emailTimeSeries',
 			{ window_start: '2026-06-01', window_end: '2026-06-07' },
+			'UTC',
 		] );
 	} );
 
@@ -352,6 +359,7 @@ describe( 'Stats query factories', () => {
 			expect.objectContaining( { filter_by_country: 'US' } ),
 			undefined,
 			'locations',
+			'UTC',
 		] );
 	} );
 
@@ -384,6 +392,7 @@ describe( 'Stats query factories', () => {
 			expect.objectContaining( { date: '2026-06-16' } ),
 			undefined,
 			'locations',
+			'UTC',
 		] );
 	} );
 
@@ -449,6 +458,7 @@ describe( 'Stats query factories', () => {
 			},
 			undefined,
 			'fileDownloads',
+			'UTC',
 		] );
 		expect( query.queryKey[ 5 ] ).not.toHaveProperty( 'days' );
 	} );
@@ -497,6 +507,7 @@ describe( 'Stats query factories', () => {
 			},
 			undefined,
 			'searchTerms',
+			'UTC',
 		] );
 		expect( query.queryKey[ 5 ] ).not.toHaveProperty( 'days' );
 	} );
@@ -525,6 +536,7 @@ describe( 'Stats query factories', () => {
 			},
 			undefined,
 			'clicks',
+			'UTC',
 		] );
 		expect( query.queryKey[ 5 ] ).not.toHaveProperty( 'days' );
 	} );
@@ -562,6 +574,7 @@ describe( 'Stats query factories', () => {
 			},
 			undefined,
 			'videoPlays',
+			'UTC',
 		] );
 	} );
 
@@ -628,6 +641,7 @@ describe( 'Stats query factories', () => {
 			{},
 			undefined,
 			'tags',
+			'UTC',
 		] );
 	} );
 
@@ -643,6 +657,7 @@ describe( 'Stats query factories', () => {
 			{},
 			undefined,
 			'tags',
+			'UTC',
 		] );
 	} );
 
@@ -659,6 +674,7 @@ describe( 'Stats query factories', () => {
 			{ max: 10 },
 			undefined,
 			'tags',
+			'UTC',
 		] );
 	} );
 
@@ -667,7 +683,17 @@ describe( 'Stats query factories', () => {
 	it( 'never sends a date on the tags query, whatever the selected period', () => {
 		const tagsQueryKey = ( period: Record< string, unknown > ) =>
 			statsTagsQuery( { max: 10, ...period } ).queryKey;
-		const maxOnly = [ 'stats', 'tags', '1.1', 'stats/tags', 'GET', { max: 10 }, undefined, 'tags' ];
+		const maxOnly = [
+			'stats',
+			'tags',
+			'1.1',
+			'stats/tags',
+			'GET',
+			{ max: 10 },
+			undefined,
+			'tags',
+			'UTC',
+		];
 
 		expect( tagsQueryKey( { to: '2026-01-31T23:59:59.999-08:00' } ) ).toEqual( maxOnly );
 		expect( tagsQueryKey( { date: '2026-06-30', period: 'year', days: 365 } ) ).toEqual( maxOnly );
@@ -690,6 +716,7 @@ describe( 'Stats query factories', () => {
 			expect.objectContaining( { date: '2026-06-16' } ),
 			undefined,
 			'devices',
+			'UTC',
 		] );
 	} );
 
@@ -724,6 +751,7 @@ describe( 'Stats query factories', () => {
 			} ),
 			undefined,
 			'commentFollowers',
+			'UTC',
 		] );
 		expect( query.queryKey[ 5 ] ).not.toHaveProperty( 'period' );
 	} );
@@ -791,6 +819,7 @@ describe( 'Stats query factories', () => {
 			{ type: 'all', filter_admin: false, max: 10 },
 			undefined,
 			'followers',
+			'UTC',
 		] );
 	} );
 
@@ -810,6 +839,7 @@ describe( 'Stats query factories', () => {
 			{ type: 'wpcom', filter_admin: true, max: 20 },
 			undefined,
 			'followers',
+			'UTC',
 		] );
 	} );
 
@@ -830,6 +860,7 @@ describe( 'Stats query factories', () => {
 			},
 			undefined,
 			'emailSummary',
+			'UTC',
 		] );
 	} );
 
@@ -873,6 +904,7 @@ describe( 'Stats query factories', () => {
 			{ period: 'month' },
 			undefined,
 			'singleVideo',
+			'UTC',
 		] );
 	} );
 
@@ -1031,6 +1063,7 @@ describe( 'Stats query factories', () => {
 			{ source: 'stats-feedback' },
 			undefined,
 			'highlights',
+			'UTC',
 		] );
 		expect( query.staleTime ).toBe( STATS_HIGHLIGHTS_STALE_TIME );
 	} );
@@ -1047,6 +1080,7 @@ describe( 'Stats query factories', () => {
 			{},
 			undefined,
 			'comments',
+			'UTC',
 		] );
 	} );
 
@@ -1114,6 +1148,7 @@ describe( 'Stats query factories', () => {
 			},
 			undefined,
 			'subscribers',
+			'UTC',
 		] );
 	} );
 
@@ -1146,6 +1181,7 @@ describe( 'Stats query factories', () => {
 			{},
 			undefined,
 			'subscribersCounts',
+			'UTC',
 		] );
 	} );
 
@@ -1227,6 +1263,7 @@ describe( 'Stats query factories', () => {
 				period: 'month',
 				date: '2026-06-30',
 			},
+			'UTC',
 		] );
 	} );
 
@@ -1448,6 +1485,7 @@ describe( 'Stats query factories', () => {
 			{},
 			undefined,
 			'wordAdsEarnings',
+			'UTC',
 		] );
 	} );
 
@@ -1515,6 +1553,7 @@ describe( 'Stats query factories', () => {
 			undefined,
 			'utm',
 			{ utm_param: 'utm_campaign,utm_source,utm_medium' },
+			'UTC',
 		] );
 		expect( query.enabled ).toBe( true );
 	} );
@@ -1599,6 +1638,7 @@ describe( 'Stats query factories', () => {
 			{},
 			undefined,
 			'insights',
+			'UTC',
 		] );
 	} );
 
@@ -1624,11 +1664,49 @@ describe( 'Stats query factories', () => {
 			},
 			undefined,
 			'streak',
+			'UTC',
 		] );
 	} );
 
 	it( 'disables streak queries until start and end dates are available', () => {
 		expect( statsStreakQuery( {} as StatsReportParams ).enabled ).toBe( false );
+	} );
+
+	it( 'normalizes a streak response in the reporting timezone, without requesting it', async () => {
+		// 2016-04-29 23:30 UTC has already turned the page in India.
+		const settings = getSettings();
+		setSettings( {
+			...settings,
+			timezone: { string: 'Asia/Kolkata', offset: 5.5, offsetFormatted: '5.5', abbr: 'IST' },
+		} );
+		mockApiFetch.mockResolvedValueOnce( { data: { 1461972600: 1 } } );
+
+		try {
+			const query = statsStreakQuery( { from: '2026-06-01', to: '2026-06-30', interval: 'day' } );
+			const queryFn = query.queryFn as () => Promise< unknown >;
+
+			await expect( queryFn() ).resolves.toEqual( { '2016-04-30': 1 } );
+			expect( mockApiFetch.mock.calls[ 0 ][ 0 ].path ).not.toContain( 'timezone' );
+		} finally {
+			setSettings( settings );
+		}
+	} );
+
+	it( 'lets the query params name the reporting zone, overriding the environment', async () => {
+		// The file pins the environment to UTC, where the same instant is the 29th.
+		mockApiFetch.mockResolvedValueOnce( { data: { 1461972600: 1 } } );
+
+		const query = statsProxyQuery( {
+			name: 'streak',
+			version: '1.1',
+			endpoint: 'stats/streak',
+			params: { timezone: 'Asia/Kolkata' },
+			sanitizer: 'streak',
+		} );
+		const queryFn = query.queryFn as () => Promise< unknown >;
+
+		await expect( queryFn() ).resolves.toEqual( { '2016-04-30': 1 } );
+		expect( mockApiFetch.mock.calls[ 0 ][ 0 ].path ).not.toContain( 'timezone' );
 	} );
 
 	it( 'builds the published state query against the WPCOM proxy endpoint', () => {

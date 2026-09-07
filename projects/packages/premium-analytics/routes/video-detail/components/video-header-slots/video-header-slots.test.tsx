@@ -13,6 +13,13 @@ const SUMMARY: VideoSummary = {
 	refetch: () => {},
 };
 
+// UTC-anchored: the sentence renders in the site zone, so a browser-local
+// `Date` would name the previous day in zones west of it.
+const PERFORMANCE_RANGE = {
+	from: new Date( Date.UTC( 2026, 6, 9 ) ),
+	to: new Date( Date.UTC( 2026, 6, 15 ) ),
+};
+
 /**
  * Renders the slots where they are consumed, since only the header places them.
  *
@@ -27,7 +34,7 @@ describe( 'videoHeaderSlots', () => {
 	it( 'states the upload date and the window the widgets below report over', () => {
 		renderHeader( {
 			summary: SUMMARY,
-			performanceRange: { from: new Date( 2026, 6, 9 ), to: new Date( 2026, 6, 15 ) },
+			performanceRange: PERFORMANCE_RANGE,
 		} );
 
 		expect( screen.getByRole( 'heading', { level: 1 } ) ).toHaveTextContent( 'Launch recap' );
@@ -56,7 +63,7 @@ describe( 'videoHeaderSlots', () => {
 	] )( 'names the page from %s and states no window', ( flag, heading ) => {
 		renderHeader( {
 			summary: { ...SUMMARY, [ flag ]: true },
-			performanceRange: { from: new Date( 2026, 6, 9 ), to: new Date( 2026, 6, 15 ) },
+			performanceRange: PERFORMANCE_RANGE,
 		} );
 
 		expect( screen.getByRole( 'heading', { level: 1 } ) ).toHaveTextContent( heading );
