@@ -3,7 +3,14 @@ import {
 	GlobalErrorProvider,
 	ReportScopeProvider,
 } from '@jetpack-premium-analytics/data';
-import { LinkButton } from '@jetpack-premium-analytics/externals';
+import {
+	Badge,
+	Icon,
+	IconButton,
+	LinkButton,
+	Menu,
+	Stack,
+} from '@jetpack-premium-analytics/externals';
 import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
 import {
 	DateFiltersPanel,
@@ -18,10 +25,11 @@ import {
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
-import { useMemo } from '@wordpress/element';
+import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { moreVertical, pencil } from '@wordpress/icons';
 import { useParams } from '@wordpress/route';
-import { WidgetDashboard } from '@wordpress/widget-dashboard';
+import { WidgetDashboard, type CanPerformDashboardOperation } from '@wordpress/widget-dashboard';
 import { type WidgetModuleRecord } from '@wordpress/widget-primitives';
 import { DETAIL_GRID } from '../detail-grid';
 import { useDetailBreadcrumbs } from '../use-detail-breadcrumbs';
@@ -29,20 +37,49 @@ import { useDetailDateControls } from '../use-detail-date-controls';
 import { resolveWidgetModuleWithI18n, useWidgetTypesWithI18n } from '../widget-module-i18n';
 import { PostDetailTabs, postHeaderSlots } from './components';
 import { EMAIL_TAB_IDS, POST_DETAIL_WIDGET_TYPE_ALIASES } from './config';
-import { useEmailTabScope, usePostDetailTabs, usePostSummary } from './hooks';
+import {
+	useEmailTabScope,
+	usePostDetailTabLayout,
+	usePostDetailTabs,
+	usePostSummary,
+} from './hooks';
 import { route } from './package.json';
 
 const ROUTE_FROM = route.path;
 
-// The layout is fixed, so the change callback never fires; the dashboard
-// still requires one because it owns a staging copy internally.
-const noopLayoutChange = () => {};
+/**
+ * What the reader may do to a detail tab's composition: rearrange its cards,
+ * never add or remove them (WOOA7S-1622). Customize is offered by the page
+ * options menu, not the dashboard's own button, and Reset only joins Cancel
+ * and Done while customizing (WOOA7S-2033).
+ *
+ * @param isCustomizing - Whether the page is in customize mode.
+ * @return The policy for `WidgetDashboard.Policy`.
+ */
+function usePostDetailPolicy( isCustomizing: boolean ): CanPerformDashboardOperation {
+	return useCallback< CanPerformDashboardOperation >(
+		request => {
+			switch ( request.operation ) {
+				case 'customize':
+				case 'insert':
+				case 'remove':
+					return false;
+				case 'reset':
+					return isCustomizing;
+				default:
+					return true;
+			}
+		},
+		[ isCustomizing ]
+	);
+}
 
 /**
  * Premium Analytics post/page detail page stage component.
  *
- * A fixed, non-customizable page (WOOA7S-1622): there is no edit mode, so
- * required widgets and their sizing cannot be removed or reshaped.
+ * The composition is fixed (WOOA7S-1622), but the reader can rearrange its
+ * cards per tab from the page options menu (STATS-428); the arrangement is
+ * committed by the dashboard's own Done action and stored in preferences.
  *
  * @return {JSX.Element} The post detail page.
  */
@@ -67,11 +104,34 @@ function PostDetail(): JSX.Element {
 	// tabs mount their fixed layout and let each widget surface its own error.
 	const emailScopeBlocked = ! emailScope && ! summary.isLoading && summary.isError;
 
-	const { tabs, activeTab, setActiveTab, layout } = usePostDetailTabs(
-		postId,
-		emailScope?.reportParams,
-		emailScopeBlocked
+	const {
+		tabs,
+		activeTab,
+		setActiveTab,
+		layout: fixedLayout,
+	} = usePostDetailTabs( postId, emailScope?.reportParams, emailScopeBlocked );
+
+	// The stored per-tab arrangement, layered over the fixed composition.
+	const { layout, setLayout, resetLayout } = usePostDetailTabLayout( activeTab, fixedLayout );
+
+	const [ isCustomizing, setIsCustomizing ] = useState( false );
+	const canPerform = usePostDetailPolicy( isCustomizing );
+
+	const startCustomizing = useCallback( () => setIsCustomizing( true ), [] );
+
+	const onEditChange = useCallback(
+		( nextEditMode: boolean ) => {
+			// An empty layout makes the dashboard request edit mode on its own (its
+			// empty state invites customization); a detail tab is only empty while
+			// the email gate resolves, so that request is ignored here.
+			if ( nextEditMode && layout.length === 0 ) {
+				return;
+			}
+			setIsCustomizing( nextEditMode );
+		},
+		[ layout ]
 	);
+
 	const isEmailTab = EMAIL_TAB_IDS.includes( activeTab );
 
 	const widgetModules = useSelect(
@@ -123,58 +183,94 @@ function PostDetail(): JSX.Element {
 		<DateFiltersPanel { ...dateFilters } { ...dateControls } />
 	);
 
+	// While customizing, the dashboard's own Cancel and Done (and Reset, in their
+	// overflow) take the actions slot; the page options menu is the way in.
+	const actions = isCustomizing ? (
+		<WidgetDashboard.Actions />
+	) : (
+		<Stack direction="row" align="center" gap="sm">
+			{ publicUrl ? (
+				<LinkButton variant="solid" tone="neutral" size="compact" href={ publicUrl } openInNewTab>
+					{ summary.type === 'page'
+						? __( 'View page', 'jetpack-premium-analytics-pkg' )
+						: __( 'View post', 'jetpack-premium-analytics-pkg' ) }
+				</LinkButton>
+			) : null }
+			<Menu.Root>
+				<Menu.Trigger
+					render={
+						<IconButton
+							icon={ moreVertical }
+							label={ __( 'Page options', 'jetpack-premium-analytics-pkg' ) }
+							variant="minimal"
+							tone="brand"
+							size="compact"
+						/>
+					}
+				/>
+				<Menu.Popup positioner={ <Menu.Positioner align="end" /> }>
+					<Menu.Item prefix={ <Icon icon={ pencil } /> } onClick={ startCustomizing }>
+						<Menu.ItemLabel>{ __( 'Customize', 'jetpack-premium-analytics-pkg' ) }</Menu.ItemLabel>
+					</Menu.Item>
+				</Menu.Popup>
+			</Menu.Root>
+		</Stack>
+	);
+
 	return (
 		<GlobalErrorProvider>
-			<WidgetDashboard
-				widgetTypes={ pageWidgetTypes }
-				isResolvingWidgetTypes={ isResolvingWidgetTypes }
-				resolveWidgetModule={ resolveWidgetModuleWithI18n }
-				layout={ layout }
-				onLayoutChange={ noopLayoutChange }
-				gridSettings={ DETAIL_GRID }
-			>
-				<DetailPageShell
-					visual={ <StatsPageIcon /> }
-					breadcrumbs={ <StatsBreadcrumbs items={ breadcrumbs } /> }
-					actions={
-						publicUrl ? (
-							<LinkButton
-								variant="solid"
-								tone="neutral"
-								size="compact"
-								href={ publicUrl }
-								openInNewTab
-							>
-								{ summary.type === 'page'
-									? __( 'View page', 'jetpack-premium-analytics-pkg' )
-									: __( 'View post', 'jetpack-premium-analytics-pkg' ) }
-							</LinkButton>
-						) : undefined
-					}
+			<WidgetDashboard.Policy canPerform={ canPerform }>
+				<WidgetDashboard
+					widgetTypes={ pageWidgetTypes }
+					isResolvingWidgetTypes={ isResolvingWidgetTypes }
+					resolveWidgetModule={ resolveWidgetModuleWithI18n }
+					layout={ layout }
+					onLayoutChange={ setLayout }
+					onLayoutReset={ resetLayout }
+					gridSettings={ DETAIL_GRID }
+					editMode={ isCustomizing }
+					onEditChange={ onEditChange }
 				>
-					<PostDetailTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab }>
-						{ /*
-						 * The header is shared by every tab (same post, same range), so it
-						 * renders once above the per-tab grids; the email tabs give it an
-						 * email identity and report over the send window.
-						 */ }
-						<DetailPageLayout
-							header={ postHeaderSlots( {
-								summary,
-								variant: isEmailTab ? 'email' : 'post',
-								performanceRange: isEmailTab ? emailScope?.range : dateFilters.appliedRange,
-							} ) }
-							controls={ dateFiltersPanel }
-						>
-							{ tabs.map( tab => (
-								<DetailPageTabPanel key={ tab.id } value={ tab.id }>
-									{ activeTab === tab.id ? <WidgetDashboard.Widgets /> : null }
-								</DetailPageTabPanel>
-							) ) }
-						</DetailPageLayout>
-					</PostDetailTabs>
-				</DetailPageShell>
-			</WidgetDashboard>
+					<DetailPageShell
+						visual={ <StatsPageIcon /> }
+						breadcrumbs={
+							isCustomizing ? (
+								<Stack direction="row" align="center" gap="sm">
+									<StatsBreadcrumbs items={ breadcrumbs } />
+									<Badge intent="informational">
+										{ __( 'Customizing', 'jetpack-premium-analytics-pkg' ) }
+									</Badge>
+								</Stack>
+							) : (
+								<StatsBreadcrumbs items={ breadcrumbs } />
+							)
+						}
+						actions={ actions }
+					>
+						<PostDetailTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab }>
+							{ /*
+							 * The header is shared by every tab (same post, same range), so it
+							 * renders once above the per-tab grids; the email tabs give it an
+							 * email identity and report over the send window.
+							 */ }
+							<DetailPageLayout
+								header={ postHeaderSlots( {
+									summary,
+									variant: isEmailTab ? 'email' : 'post',
+									performanceRange: isEmailTab ? emailScope?.range : dateFilters.appliedRange,
+								} ) }
+								controls={ dateFiltersPanel }
+							>
+								{ tabs.map( tab => (
+									<DetailPageTabPanel key={ tab.id } value={ tab.id }>
+										{ activeTab === tab.id ? <WidgetDashboard.Widgets /> : null }
+									</DetailPageTabPanel>
+								) ) }
+							</DetailPageLayout>
+						</PostDetailTabs>
+					</DetailPageShell>
+				</WidgetDashboard>
+			</WidgetDashboard.Policy>
 		</GlobalErrorProvider>
 	);
 }

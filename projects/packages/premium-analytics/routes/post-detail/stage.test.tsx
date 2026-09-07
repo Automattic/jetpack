@@ -12,7 +12,11 @@ let mockDashboardProps: {
 	editMode?: boolean;
 	onEditChange?: ( next: boolean ) => void;
 	onLayoutChange?: ( next: unknown ) => void;
+	onLayoutReset?: () => void;
 } = {};
+
+// The policy the stage mounted above the (mocked) WidgetDashboard.
+let mockCanPerform: ( ( request: Record< string, unknown > ) => boolean ) | undefined;
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/data' ),
@@ -83,16 +87,29 @@ jest.mock( '@wordpress/widget-dashboard', () => {
 		editMode,
 		onEditChange,
 		onLayoutChange,
+		onLayoutReset,
 	}: {
 		children: ReactNode;
 		editMode?: boolean;
 		onEditChange?: ( next: boolean ) => void;
 		onLayoutChange?: ( next: unknown ) => void;
+		onLayoutReset?: () => void;
 	} ) => {
-		mockDashboardProps = { editMode, onEditChange, onLayoutChange };
+		mockDashboardProps = { editMode, onEditChange, onLayoutChange, onLayoutReset };
 		return <>{ children }</>;
 	};
 	WidgetDashboard.Widgets = () => <MockScopeProbe />;
+	WidgetDashboard.Actions = () => <div data-testid="dashboard-actions" />;
+	WidgetDashboard.Policy = ( {
+		canPerform,
+		children,
+	}: {
+		canPerform: ( request: Record< string, unknown > ) => boolean;
+		children: ReactNode;
+	} ) => {
+		mockCanPerform = canPerform;
+		return <>{ children }</>;
+	};
 
 	return {
 		WidgetDashboard,
@@ -280,110 +297,74 @@ describe( 'post detail stage', () => {
 		);
 	} );
 
-	it( 'offers Customize in a page options menu and enters customize mode', async () => {
+	it( 'offers Customize in a page options menu and hands the chrome to the dashboard', async () => {
 		const user = userEvent.setup();
 		mockSummary();
 
 		render( stage() );
 
+		expect( screen.queryByTestId( 'dashboard-actions' ) ).not.toBeInTheDocument();
+
 		await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
 		await user.click( await screen.findByRole( 'menuitem', { name: 'Customize' } ) );
 
-		// The header swaps to the customize actions and the dashboard is editing.
-		expect( screen.getByText( 'Customizing' ) ).toBeInTheDocument();
-		expect( screen.getByRole( 'button', { name: 'Cancel' } ) ).toBeInTheDocument();
-		expect( screen.getByRole( 'button', { name: 'Reset to default' } ) ).toBeInTheDocument();
-		// Nothing changed yet, so there is nothing to save.
-		// @wordpress/ui buttons disable via aria-disabled, not the HTML attribute.
-		expect( screen.getByRole( 'button', { name: 'Save' } ) ).toHaveAttribute(
-			'aria-disabled',
-			'true'
-		);
-		expect( screen.queryByRole( 'link', { name: /^View post/ } ) ).not.toBeInTheDocument();
+		// The dashboard's own Cancel and Done take the actions slot while editing.
 		expect( mockDashboardProps.editMode ).toBe( true );
+		expect( screen.getByText( 'Customizing' ) ).toBeInTheDocument();
+		expect( screen.getByTestId( 'dashboard-actions' ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: 'Page options' } ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'link', { name: /^View post/ } ) ).not.toBeInTheDocument();
 
-		await user.click( screen.getByRole( 'button', { name: 'Cancel' } ) );
-		expect( screen.queryByRole( 'button', { name: 'Save' } ) ).not.toBeInTheDocument();
+		// Cancel or Done report back through onEditChange.
+		act( () => mockDashboardProps.onEditChange?.( false ) );
+		expect( mockDashboardProps.editMode ).toBe( false );
+		expect( screen.queryByText( 'Customizing' ) ).not.toBeInTheDocument();
 		expect( screen.getByRole( 'link', { name: /^View post/ } ) ).toBeInTheDocument();
-		expect( mockDashboardProps.editMode ).toBe( false );
 	} );
 
-	it( 'stages edits and writes them only on Save', async () => {
-		const user = userEvent.setup();
-		const setLayout = jest.fn();
-		mockUseTabLayout.mockReturnValue( {
-			layout: [ { uuid: 'card', type: 'jpa/card' } ],
-			setLayout,
-			resetLayout: () => {},
-			hasCustomLayout: false,
-		} );
-		mockSummary();
-
-		render( stage() );
-
-		await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
-		await user.click( await screen.findByRole( 'menuitem', { name: 'Customize' } ) );
-
-		const rearranged = [ { uuid: 'card', type: 'jpa/card', placement: { order: 2 } } ];
-		// The dashboard reports layout edits through onLayoutChange (its own
-		// auto-save); they must stage locally, not hit storage.
-		act( () => mockDashboardProps.onLayoutChange?.( rearranged ) );
-		expect( setLayout ).not.toHaveBeenCalled();
-
-		await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
-		expect( setLayout ).toHaveBeenCalledWith( rearranged );
-		expect( mockDashboardProps.editMode ).toBe( false );
-	} );
-
-	it( 'discards staged edits on Cancel', async () => {
-		const user = userEvent.setup();
-		const setLayout = jest.fn();
-		mockUseTabLayout.mockReturnValue( {
-			layout: [ { uuid: 'card', type: 'jpa/card' } ],
-			setLayout,
-			resetLayout: () => {},
-			hasCustomLayout: false,
-		} );
-		mockSummary();
-
-		render( stage() );
-
-		await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
-		await user.click( await screen.findByRole( 'menuitem', { name: 'Customize' } ) );
-		act(
-			() =>
-				mockDashboardProps.onLayoutChange?.( [
-					{ uuid: 'card', type: 'jpa/card', placement: { order: 2 } },
-				] )
-		);
-
-		await user.click( screen.getByRole( 'button', { name: 'Cancel' } ) );
-		expect( setLayout ).not.toHaveBeenCalled();
-	} );
-
-	it( 'saves a reset as a deleted arrangement, not a stored copy', async () => {
-		const user = userEvent.setup();
+	it( 'stores what the dashboard commits, and forgets it on reset', () => {
 		const setLayout = jest.fn();
 		const resetLayout = jest.fn();
 		mockUseTabLayout.mockReturnValue( {
 			layout: [ { uuid: 'card', type: 'jpa/card' } ],
 			setLayout,
 			resetLayout,
-			hasCustomLayout: true,
+			hasCustomLayout: false,
 		} );
 		mockSummary();
 
 		render( stage() );
 
+		// The dashboard stages edits itself and fires onLayoutChange only on Done.
+		const rearranged = [ { uuid: 'card', type: 'jpa/card', placement: { order: 2 } } ];
+		act( () => mockDashboardProps.onLayoutChange?.( rearranged ) );
+		expect( setLayout ).toHaveBeenCalledWith( rearranged );
+
+		act( () => mockDashboardProps.onLayoutReset?.() );
+		expect( resetLayout ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( 'lets the reader rearrange cards but never add or remove them', async () => {
+		const user = userEvent.setup();
+		mockSummary();
+
+		render( stage() );
+
+		const widgetType = { name: 'jpa/card' };
+		expect( mockCanPerform?.( { operation: 'move' } ) ).toBe( true );
+		expect( mockCanPerform?.( { operation: 'resize' } ) ).toBe( true );
+		expect( mockCanPerform?.( { operation: 'edit' } ) ).toBe( true );
+		expect( mockCanPerform?.( { operation: 'insert', widgetType } ) ).toBe( false );
+		expect( mockCanPerform?.( { operation: 'remove' } ) ).toBe( false );
+		// The page options menu is the way in, not the dashboard's own button.
+		expect( mockCanPerform?.( { operation: 'customize' } ) ).toBe( false );
+		// Reset joins Cancel and Done while customizing, and is absent otherwise.
+		expect( mockCanPerform?.( { operation: 'reset' } ) ).toBe( false );
+
 		await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
 		await user.click( await screen.findByRole( 'menuitem', { name: 'Customize' } ) );
 
-		await user.click( screen.getByRole( 'button', { name: 'Reset to default' } ) );
-		// Reset stages the fixed composition, so Save has something to write.
-		await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
-
-		expect( resetLayout ).toHaveBeenCalled();
-		expect( setLayout ).not.toHaveBeenCalled();
+		expect( mockCanPerform?.( { operation: 'reset' } ) ).toBe( true );
 	} );
 
 	it( 'ignores the dashboard\u2019s empty-layout edit request while a tab has no layout', () => {
@@ -402,7 +383,8 @@ describe( 'post detail stage', () => {
 		// gate open the customize chrome.
 		act( () => mockDashboardProps.onEditChange?.( true ) );
 
-		expect( screen.queryByRole( 'button', { name: 'Done' } ) ).not.toBeInTheDocument();
+		expect( mockDashboardProps.editMode ).toBe( false );
+		expect( screen.queryByTestId( 'dashboard-actions' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'puts a View post action in the page header, opening the live post in a new tab', () => {
