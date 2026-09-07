@@ -4,20 +4,13 @@ import type { RestoreItems } from '../../types/restore';
 /**
  * Lifecycle of a restore, as the bridge reports it.
  *
- * Deliberately not WPCOM's own vocabulary. Upstream says
- * `queued | running | finished | fail` for a Rewind restore and
- * `success | success-with-errors | aborted` for a legacy one; the bridge
- * maps both to these, reports a restore upstream cannot find as
- * `not-found`, and anything it does not recognise as `unknown` rather
- * than guessing. See `Restore_Bridge::STATUS_MAP`.
+ * Deliberately not WPCOM's own vocabulary, which the bridge owns the
+ * translation of — see `Restore_Bridge::STATUS_MAP`.
  *
  * `not-found` and `queued` render the same and mean opposite things:
- * upstream has no record of the restore, versus upstream is holding a
- * real one in its queue. Only the second is a sign of life.
- *
- * `unknown` exists so a status WPCOM adds later degrades into "keep
- * asking for a while" instead of a progress bar frozen at whatever
- * percentage happened to arrive first.
+ * upstream has no record of the restore, versus upstream is holding one.
+ * `unknown` is a spelling WPCOM added that we do not know yet, kept live
+ * so it degrades into "keep asking" rather than a frozen progress bar.
  */
 export type RestoreStatus =
 	| 'not-found'
@@ -154,6 +147,21 @@ const LIVE_STATUSES: RestoreStatus[] = [ 'not-found', 'queued', 'running', 'unkn
  */
 export function isTerminal( status: RestoreStatus | undefined ): boolean {
 	return status !== undefined && ! LIVE_STATUSES.includes( status );
+}
+
+/**
+ * Whether WordPress.com is holding a real restore under this id.
+ *
+ * Narrower than `! isTerminal(…)`, which also passes `not-found` and
+ * `unknown` — absence of evidence, not evidence. Three callers have to
+ * agree on this line: the silence deadline, adoption at mount, and the
+ * refusal to start one on a destructive click.
+ *
+ * @param status - The status the bridge reported, if any.
+ * @return True when upstream has a live record of the restore.
+ */
+export function isUpstreamTracking( status: RestoreStatus | undefined ): boolean {
+	return status === 'running' || status === 'queued';
 }
 
 /**
@@ -323,7 +331,7 @@ export async function fetchRecentRestores(): Promise< RecentRestore[] | null > {
  * Two reads, because the collection alone cannot answer it: its rows
  * carry a status in a vocabulary that is not ours, so a row is only a
  * candidate until the status route — which speaks the vocabulary the
- * bridge maps — confirms it is `running`.
+ * bridge maps — confirms upstream is holding it.
  *
  * Deliberately separate from `useAdoptedRestore`, which asks the same
  * question at mount through two cached queries so its confirmation
@@ -339,5 +347,5 @@ export async function fetchRunningRestore(): Promise< RecentRestore | null > {
 		return null;
 	}
 	const status = await fetchRestoreStatus( candidate.restore_id );
-	return 'running' === status.status ? candidate : null;
+	return isUpstreamTracking( status.status ) ? candidate : null;
 }

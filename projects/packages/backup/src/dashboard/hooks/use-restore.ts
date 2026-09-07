@@ -8,12 +8,13 @@ import {
 	fetchRunningRestore,
 	initiateRestore,
 	isTerminal,
+	isUpstreamTracking,
 	pickLiveRestore,
 } from '../data/api/restore';
 import { keys } from '../data/query-client';
 import { useAdoptedRestore } from './use-adopted-restore';
 import type { AdoptedRestore } from './use-adopted-restore';
-import type { RestoreStatus, RestoreStatusResponse } from '../data/api/restore';
+import type { RestoreStatusResponse } from '../data/api/restore';
 import type { RestoreItems, RestoreState } from '../types/restore';
 
 type Result = {
@@ -55,25 +56,6 @@ const POLL_INTERVAL_MS = 5000;
  * timeout and no way out.
  */
 const QUIET_TIMEOUT_MS = 5 * 60 * 1000;
-
-/**
- * Whether a status reading counts as a sign of life, restarting the
- * silence deadline.
- *
- * The line is whether WordPress.com said anything about *this restore*,
- * not whether it has started moving. `queued` and `running` are upstream
- * tracking a real record; `not-found` is a 404, which is absence of
- * evidence. Reading that as life would mean a restore that never
- * materialises answers 404 forever, resets the deadline every time it
- * does, and polls until the tab closes — precisely the frozen-forever
- * failure this hook exists to end.
- *
- * @param status - The status the bridge reported, if any.
- * @return True when WordPress.com still knows about the restore.
- */
-function isSignOfLife( status: RestoreStatus | undefined ): boolean {
-	return status === 'running' || status === 'queued';
-}
 
 type DeriveInput = {
 	errorMessage: string | null;
@@ -257,7 +239,7 @@ export function useRestore( rewindId: string, enabled = true ): Result {
 	// list is structurally shared into the same array — so React Query's
 	// observer never notifies, no render happens, and any deadline
 	// evaluated during render is never reached. The screen would sit on
-	// "queued and will begin shortly…" for as long as the tab stayed
+	// "queued and will begin automatically." for as long as the tab stayed
 	// open, which is the one scenario this recovery path exists for.
 	const [ aliveAt, setAliveAt ] = useState< number | null >( null );
 	const [ lostTrack, setLostTrack ] = useState( false );
@@ -406,21 +388,35 @@ export function useRestore( rewindId: string, enabled = true ): Result {
 		refetchInterval: query => {
 			// Keep asking through anything unrecognised — stopping there
 			// is what froze this before — but not past the deadline.
-			if ( isTerminal( query.state.data?.status ) || lostTrack ) {
+			//
+			// The deadline does not apply while upstream is still
+			// answering, which mirrors `deriveState`. A hidden tab is
+			// polled neither on its interval nor on refocus, so the
+			// deadline can pass under a healthy restore; stopping there
+			// would strand the screen on the queued message with
+			// nothing left to correct it.
+			const status = query.state.data?.status;
+			if ( isTerminal( status ) || ( lostTrack && ! isUpstreamTracking( status ) ) ) {
 				return false;
 			}
 			return POLL_INTERVAL_MS;
 		},
 	} );
 
-	// A running restore is the only unambiguous sign of life. Recorded in
-	// an effect rather than during render so the render stays pure.
+	// Upstream still answering about this restore is the sign of life.
+	// Recorded in an effect rather than during render so the render stays
+	// pure.
+	//
+	// Clearing `lostTrack` is what makes it mean "nothing heard lately"
+	// rather than "there was once a five-minute gap". Without it the flag
+	// latches on the first gap and no later evidence can undo it.
 	const observedStatus = statusQuery.data?.status;
 	const statusUpdatedAt = statusQuery.dataUpdatedAt;
 	useEffect( () => {
-		if ( isSignOfLife( observedStatus ) && statusUpdatedAt > lastSeenUpdateAt.current ) {
+		if ( isUpstreamTracking( observedStatus ) && statusUpdatedAt > lastSeenUpdateAt.current ) {
 			lastSeenUpdateAt.current = statusUpdatedAt;
 			setAliveAt( Date.now() );
+			setLostTrack( false );
 		}
 	}, [ observedStatus, statusUpdatedAt ] );
 

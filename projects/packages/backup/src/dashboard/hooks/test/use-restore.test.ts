@@ -438,6 +438,14 @@ describe( 'useRestore — the silence deadline', () => {
 
 		await advance( 5 * 60_000 + 1000 );
 		expect( result.current.state.phase ).toBe( 'queued' );
+
+		// Saying "queued" while no longer asking would be the same lie in
+		// a quieter voice. A hidden tab gets no polls and no catch-up
+		// fetch on return, so the deadline can pass under a restore that
+		// is fine — the poll has to survive it.
+		const before = callsFor( '/status' );
+		await advance( 60_000 );
+		expect( callsFor( '/status' ) ).toBeGreaterThan( before );
 	} );
 
 	// The half that matters as much as firing: a long restore that keeps
@@ -1089,6 +1097,42 @@ describe( 'useRestore — a restore that starts after the screen loaded', () => 
 		await waitFor( () => expect( result.current.state.phase ).toBe( 'progress' ) );
 		expect( result.current.adopted ).toEqual( { rewindId: OTHER_ID } );
 		// The whole point: no restore was started.
+		expect( initiateCall() ).toBeUndefined();
+	}, 15000 );
+
+	// The same guard, on the status the queue reports before it starts.
+	// A restore WordPress.com is holding is one the reader must not be
+	// able to duplicate.
+	it( 'adopts instead of starting a second restore when the other one is queued', async () => {
+		let rows: unknown[] = [];
+		mockedApiFetch.mockImplementation( ( options: { path?: string; method?: string } ) => {
+			if ( options?.method === 'POST' ) {
+				return Promise.resolve( { id: 5, rewind_id: REWIND_ID } );
+			}
+			if ( ( options?.path ?? '' ).includes( '/restores' ) ) {
+				return Promise.resolve( rows );
+			}
+			return Promise.resolve(
+				statusPayload( { id: 912682, status: 'queued', progress: 0, rewind_id: OTHER_ID } )
+			);
+		} );
+		const { wrapper } = makeWrapper();
+
+		const { result } = renderHook( () => useRestore( REWIND_ID ), { wrapper } );
+		await waitFor( () => expect( result.current.state.phase ).toBe( 'idle' ) );
+
+		rows = [
+			{
+				restore_id: 912682,
+				rewind_id: OTHER_ID,
+				when: '2026-08-20T10:00:00+00:00',
+				status: 'started',
+			},
+		];
+
+		submitAll( result );
+
+		await waitFor( () => expect( result.current.adopted ).toEqual( { rewindId: OTHER_ID } ) );
 		expect( initiateCall() ).toBeUndefined();
 	}, 15000 );
 

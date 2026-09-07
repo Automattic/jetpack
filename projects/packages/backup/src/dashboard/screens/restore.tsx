@@ -198,7 +198,10 @@ export default function RestoreScreen() {
 					{ state.phase === 'queued' && (
 						<Stack direction="column" gap="sm">
 							<Text>
-								{ __( 'Your restore is queued and will begin shortly…', 'jetpack-backup-pkg' ) }
+								{ __(
+									'Your restore is queued and will begin automatically.',
+									'jetpack-backup-pkg'
+								) }
 							</Text>
 							<ProgressBar
 								aria-label={ __( 'Waiting for your restore to begin', 'jetpack-backup-pkg' ) }

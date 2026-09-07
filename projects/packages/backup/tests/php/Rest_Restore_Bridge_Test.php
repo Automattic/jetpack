@@ -414,10 +414,10 @@ class Rest_Restore_Bridge_Test extends TestCase {
 	/**
 	 * Every status the v2 route actually returns is recognised.
 	 *
-	 * Sourced from Calypso's typed contract for this same endpoint
-	 * (`packages/api-core/src/site-backup-restore/types.ts`), never from
-	 * `STATUS_MAP` — a provider mirroring the map cannot catch a key the
-	 * map is missing, which is how `finished` went unmapped.
+	 * Sourced from upstream, never from `STATUS_MAP` — a provider
+	 * mirroring the map cannot catch a key the map is missing, which is
+	 * how `finished` went unmapped. Asserting membership rather than
+	 * `!== 'unknown'` so a typo'd map value fails too.
 	 *
 	 * @param string $upstream A status the v2 route returns.
 	 * @dataProvider provide_upstream_statuses
@@ -435,19 +435,34 @@ class Rest_Restore_Bridge_Test extends TestCase {
 		$request->set_param( 'restore_id', 1 );
 		$data = Restore_Bridge::get_restore_status( $request )->get_data();
 
-		$this->assertNotSame( 'unknown', $data['status'], "upstream: $upstream" );
+		// `RestoreStatus` in `dashboard/data/api/restore.ts`, less the two
+		// the client mints for itself.
+		$this->assertContains(
+			$data['status'],
+			array( 'queued', 'running', 'finished', 'finished-with-errors', 'failed', 'aborted' ),
+			"upstream: $upstream"
+		);
 	}
 
 	/**
+	 * Both vocabularies, because the v2 route serves whichever engine ran.
+	 *
+	 * Rewind is Calypso's typed contract for this same endpoint
+	 * (`packages/api-core/src/site-backup-restore/types.ts`); legacy is
+	 * what `BackupRestore.php` assigns when it finishes a restore.
+	 *
 	 * @return array<string, array{0: string}>
 	 */
 	public static function provide_upstream_statuses() {
 		return array(
-			'queued'   => array( 'queued' ),
-			'running'  => array( 'running' ),
-			'finished' => array( 'finished' ),
-			'fail'     => array( 'fail' ),
-			'empty'    => array( '' ),
+			'queued'              => array( 'queued' ),
+			'running'             => array( 'running' ),
+			'finished'            => array( 'finished' ),
+			'fail'                => array( 'fail' ),
+			'empty'               => array( '' ),
+			'success'             => array( 'success' ),
+			'success-with-errors' => array( 'success-with-errors' ),
+			'aborted'             => array( 'aborted' ),
 		);
 	}
 
@@ -515,6 +530,29 @@ class Rest_Restore_Bridge_Test extends TestCase {
 	 */
 	public function test_status_treats_404_as_not_found() {
 		$this->arrange_wpcom( array( 'error' => 'not_found' ), 404 );
+
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/rewind/restore/7/status' );
+		$request->set_param( 'restore_id', 7 );
+		$response = Restore_Bridge::get_restore_status( $request );
+
+		$this->assertNotInstanceOf( WP_Error::class, $response );
+		$this->assertSame( 'not-found', $response->get_data()['status'] );
+		$this->assertSame( 7, $response->get_data()['id'] );
+	}
+
+	/**
+	 * A 200 carrying no restore record is `not-found`, not `queued`.
+	 *
+	 * `queued` now means *upstream is holding this restore*: it holds the
+	 * silence deadline back, adopts at mount, and refuses a new restore on
+	 * the click. Minting it from a body that named no restore would block
+	 * the reader from restoring with nothing on screen to explain why.
+	 *
+	 * An empty `status` on a record that did arrive stays `queued` — see
+	 * the `absent` row in `provide_statuses`.
+	 */
+	public function test_status_treats_a_recordless_200_as_not_found() {
+		$this->arrange_wpcom_raw( '{}', 200 );
 
 		$request = new WP_REST_Request( 'GET', '/jetpack/v4/rewind/restore/7/status' );
 		$request->set_param( 'restore_id', 7 );

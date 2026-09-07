@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { useMemo } from '@wordpress/element';
-import { fetchRestoreStatus, pickLiveRestore } from '../data/api/restore';
+import { fetchRestoreStatus, isUpstreamTracking, pickLiveRestore } from '../data/api/restore';
 import { keys } from '../data/query-client';
 import { useRecentRestores } from './use-recent-restores';
 
@@ -77,24 +77,11 @@ export function useAdoptedRestore( enabled: boolean ): Result {
 	const isChecking =
 		enabled && ( collection.isPending || ( candidate !== null && confirmation.isPending ) );
 
-	// Positive evidence only, and deliberately stricter than the poll's
-	// own `! isTerminal(…)`, which also counts `not-found` and `unknown`.
-	//
-	// `not-found` is a **404** — "that restore is not visible to this
-	// route" — so counting it would read absence of evidence as evidence
-	// of life. For a restore we are *watching*, erring that way is right:
-	// keep polling. For one we are deciding whether to adopt, it is
-	// backwards. A collection row spelled in a way we do not recognise as
-	// settled, pointing at a restore upstream cannot find, would take the
-	// form away and never give it back — and the adoption is what
-	// withholds the button that would have replaced it, so it cannot
-	// self-correct.
-	//
-	// `queued` is on the other side of that line: upstream is holding a
-	// real restore, and letting the reader start a second one is the
-	// outcome adoption exists to prevent.
-	const status = confirmation.data?.status;
-	const isLive = status === 'running' || status === 'queued';
+	// Positive evidence only. A row we cannot read as settled, pointing at
+	// a restore upstream cannot find, would take the form away and never
+	// give it back — the adoption is what withholds the button that would
+	// have replaced it, so it cannot self-correct.
+	const isLive = isUpstreamTracking( confirmation.data?.status );
 
 	return {
 		adopted:
