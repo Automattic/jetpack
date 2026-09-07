@@ -34,7 +34,6 @@ export default class JetpackConnectionErrors extends Component {
 					<SimpleNotice
 						text={ message }
 						status={ 'is-error' }
-						icon={ 'link-break' }
 						showDismiss={ false }
 						display={ this.props.display }
 					>
@@ -50,7 +49,6 @@ export default class JetpackConnectionErrors extends Component {
 					<SimpleNotice
 						text={ message }
 						status={ 'is-error' }
-						icon={ 'link-break' }
 						showDismiss={ false }
 						display={ this.props.display }
 					/>
@@ -81,7 +79,6 @@ export default class JetpackConnectionErrors extends Component {
 						<SimpleNotice
 							text={ message }
 							status={ 'is-error' }
-							icon={ 'link-break' }
 							showDismiss={ false }
 							display={ this.props.display }
 						>
