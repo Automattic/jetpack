@@ -1008,8 +1008,9 @@ class Manager {
 	/**
 	 * Returns the WordPress.com user ID of a connected user.
 	 *
-	 * Cached in user meta, which outlives the object cache backing the `get_connected_user_data()`
-	 * transient, and is dropped wherever that transient is so it cannot outlive its token.
+	 * Answers only for a user who currently holds a token, so a cached ID can never outlive the
+	 * connection it describes. A cache miss costs a blocking request to WordPress.com, so this is
+	 * not safe to call per row.
 	 *
 	 * @since $$next-version$$
 	 *
@@ -1017,13 +1018,15 @@ class Manager {
 	 * @return int The WordPress.com user ID, or 0 if it could not be determined.
 	 */
 	public function get_wpcom_user_id( $user_id = false ) {
-		$user_id = $user_id ? (int) $user_id : get_current_user_id();
+		$user_id = $user_id ? absint( $user_id ) : get_current_user_id();
 
-		if ( ! $user_id ) {
+		// The cached ID outlives the token, unlike the transient behind `get_connected_user_data()`,
+		// so connectedness is checked here rather than left to the lookup below.
+		if ( ! $user_id || ! $this->is_user_connected( $user_id ) ) {
 			return 0;
 		}
 
-		$cached = Utils::get_wpcom_user_id( $user_id );
+		$cached = Utils::get_cached_wpcom_user_id( $user_id );
 
 		if ( $cached ) {
 			return $cached;
@@ -1036,7 +1039,7 @@ class Manager {
 			return 0;
 		}
 
-		Utils::set_wpcom_user_id( $user_id, (int) $user_data['ID'] );
+		Utils::cache_wpcom_user_id( $user_id, (int) $user_data['ID'] );
 
 		return (int) $user_data['ID'];
 	}
@@ -1401,7 +1404,6 @@ class Manager {
 				// Delete cached connected user data.
 				$transient_key = "jetpack_connected_user_data_$user_id";
 				delete_transient( $transient_key );
-				Utils::delete_wpcom_user_id( $user_id );
 
 				// Clean up account mismatch transients for this user
 				if ( $wpcom_email ) {
@@ -1418,6 +1420,10 @@ class Manager {
 				 * @param int $user_id The current user's ID.
 				 */
 				do_action( 'jetpack_unlinked_user', $user_id );
+
+				// Must follow the action above: SSO's unlink teardown reads this meta and bails
+				// without it, leaving the WordPress.com-side association and cached profile behind.
+				Utils::delete_cached_wpcom_user_id( $user_id );
 
 				if ( $is_primary_user ) {
 					Jetpack_Options::delete_option( 'master_user' );
@@ -2200,7 +2206,7 @@ class Manager {
 		// Delete cached connected user data.
 		$transient_key = 'jetpack_connected_user_data_' . get_current_user_id();
 		delete_transient( $transient_key );
-		Utils::delete_wpcom_user_id( get_current_user_id() );
+		Utils::delete_cached_wpcom_user_id( get_current_user_id() );
 
 		// Delete the cached site record, which a later connection must not serve.
 		self::delete_cached_site_data();
@@ -2598,7 +2604,7 @@ class Manager {
 
 		// The replacement token may name a different WordPress.com account, so the cached ID
 		// has to go even though this user was never disconnected.
-		Utils::delete_wpcom_user_id( $current_user_id );
+		Utils::delete_cached_wpcom_user_id( $current_user_id );
 
 		/**
 		 * Fires after user has successfully received an auth token.

@@ -129,7 +129,12 @@ class Utils {
 
 		$created_user_id = wp_insert_user( $user );
 
-		self::set_wpcom_user_id( $created_user_id, (int) $user_data->ID );
+		// `clean_user_cache()` calls `exists()` on anything non-numeric, which a WP_Error does not have.
+		if ( is_wp_error( $created_user_id ) ) {
+			return false;
+		}
+
+		self::cache_wpcom_user_id( $created_user_id, (int) $user_data->ID );
 		return get_userdata( $created_user_id );
 	}
 
@@ -141,28 +146,31 @@ class Utils {
 	 * @param int $user_id The local WordPress user ID.
 	 * @return int The WordPress.com user ID, or 0 when none is cached.
 	 */
-	public static function get_wpcom_user_id( $user_id ) {
-		return (int) get_user_meta( (int) $user_id, 'wpcom_user_id', true );
+	public static function get_cached_wpcom_user_id( $user_id ) {
+		return (int) get_user_meta( absint( $user_id ), 'wpcom_user_id', true );
 	}
 
 	/**
 	 * Cache a WordPress.com user ID on a local user, removing it from any other user first.
 	 *
 	 * Two local users sharing one WordPress.com user ID would each answer to the same identity,
-	 * so the stale holder is cleared rather than left to collide.
+	 * so the stale holder is cleared rather than left to collide. On multisite the lookup is
+	 * scoped to the current site, so users on other sites may still hold the same ID.
 	 *
 	 * @since $$next-version$$
 	 *
 	 * @param int $user_id       The local WordPress user ID.
 	 * @param int $wpcom_user_id The WordPress.com user ID.
 	 */
-	public static function set_wpcom_user_id( $user_id, $wpcom_user_id ) {
+	public static function cache_wpcom_user_id( $user_id, $wpcom_user_id ) {
+		$user_id  = absint( $user_id );
 		$existing = new \WP_User_Query(
 			array(
-				'meta_key'   => 'wpcom_user_id',
-				'meta_value' => (int) $wpcom_user_id,
-				'exclude'    => array( $user_id ),
-				'fields'     => 'ID',
+				'meta_key'    => 'wpcom_user_id',
+				'meta_value'  => (int) $wpcom_user_id,
+				'exclude'     => array( $user_id ),
+				'fields'      => 'ID',
+				'count_total' => false,
 			)
 		);
 
@@ -182,8 +190,13 @@ class Utils {
 	 *
 	 * @param int $user_id The local WordPress user ID.
 	 */
-	public static function delete_wpcom_user_id( $user_id ) {
-		delete_user_meta( (int) $user_id, 'wpcom_user_id' );
-		clean_user_cache( (int) $user_id );
+	public static function delete_cached_wpcom_user_id( $user_id ) {
+		$user_id = absint( $user_id );
+
+		// `clean_user_cache()` bumps the site-wide users cache salt, so skip it on the common
+		// no-op path where there was nothing cached to delete.
+		if ( delete_user_meta( $user_id, 'wpcom_user_id' ) ) {
+			clean_user_cache( $user_id );
+		}
 	}
 }

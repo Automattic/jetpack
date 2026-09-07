@@ -1501,7 +1501,7 @@ CSS;
 	 * @param int $wpcom_user_id The WordPress.com user ID.
 	 */
 	private static function set_wpcom_user_id_meta( $user_id, $wpcom_user_id ) {
-		Utils::set_wpcom_user_id( $user_id, $wpcom_user_id );
+		Utils::cache_wpcom_user_id( $user_id, $wpcom_user_id );
 	}
 
 	/**
