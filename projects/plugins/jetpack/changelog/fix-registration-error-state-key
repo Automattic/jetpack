@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Connection: Show the reason a site registration failed, in cases where the notice was incomplete or did not appear at all.
