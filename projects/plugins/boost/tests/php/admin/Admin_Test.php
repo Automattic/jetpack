@@ -17,9 +17,9 @@ if ( ! defined( 'JETPACK_BOOST_SLUG' ) ) {
 }
 
 /**
- * Verifies that Admin::handle_admin_menu() reports the Boost problem count to
- * the central menu-badges registry, rather than hand-writing a menu-counter
- * span into the submenu label.
+ * Verifies that Admin::handle_admin_menu() reports the Boost problem count to the
+ * central menu-badges registry rather than hand-writing a menu-counter span into
+ * the submenu label, and that the modern dashboard loads only behind its filter.
  */
 class Admin_Test extends Base_TestCase {
 	private $original_get;

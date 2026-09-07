@@ -29,6 +29,7 @@ const getSettingsMount = () => document.getElementById( 'jb-settings-tab-mount' 
 const getSubpageMount = () => document.getElementById( 'jb-subpage-mount' );
 
 beforeEach( () => {
+	initLocationChange();
 	window.history.replaceState( null, '', '/?page=jetpack-boost' );
 	Object.assign( window, { wpApiSettings: { root: '/wp-json/', nonce: 'test-nonce' } } );
 	mockNavigate.mockReset();
@@ -78,10 +79,36 @@ describe( 'Boost dashboard stage', () => {
 				window.dispatchEvent( new HashChangeEvent( 'hashchange' ) );
 			} );
 
-			expect( mockNavigate ).toHaveBeenCalledWith( { search: { tab: 'settings' } } );
+			expect( mockNavigate ).toHaveBeenCalledWith( { search: { tab: 'settings' }, replace: true } );
 			expect( getSubpageMount()?.hidden ).toBe( true );
 		}
 	);
+
+	it( 'follows pushState navigation into and out of a subpage', () => {
+		window.history.replaceState( null, '', '/?page=jetpack-boost&tab=settings' );
+		render( <Stage /> );
+		expect( getSubpageMount()?.hidden ).toBe( true );
+
+		act( () => {
+			window.history.pushState(
+				null,
+				'',
+				'/?page=jetpack-boost&tab=settings#/critical-css-advanced'
+			);
+		} );
+
+		expect( getSubpageMount()?.hidden ).toBe( false );
+		expect( screen.queryAllByRole( 'tablist' ) ).toHaveLength( 0 );
+		expect( mockNavigate ).not.toHaveBeenCalled();
+
+		act( () => {
+			window.history.pushState( null, '', '/?page=jetpack-boost&tab=settings#/' );
+		} );
+
+		expect( getSubpageMount()?.hidden ).toBe( true );
+		expect( mockNavigate ).toHaveBeenCalledTimes( 1 );
+		expect( mockNavigate ).toHaveBeenCalledWith( { search: { tab: 'settings' }, replace: true } );
+	} );
 
 	it( 'keeps both mount nodes across tab changes and subpage visits', () => {
 		const { rerender } = render( <Stage /> );
@@ -112,9 +139,8 @@ describe( 'Boost dashboard stage', () => {
 		// eslint-disable-next-line testing-library/prefer-user-event
 		fireEvent.click( screen.getByRole( 'tab', { name: 'Settings' } ) );
 
-		expect( mockNavigate ).toHaveBeenCalledWith( { search: { tab: 'settings' } } );
+		expect( mockNavigate ).toHaveBeenCalledWith( { search: { tab: 'settings' }, replace: false } );
 	} );
-
 	it( 'updates the subpage mount for history navigation', () => {
 		initLocationChange();
 		initLocationChange();
@@ -137,6 +163,6 @@ describe( 'Boost dashboard stage', () => {
 
 		expect( subpageMount?.hidden ).toBe( true );
 		expect( mockNavigate ).toHaveBeenCalledTimes( 1 );
-		expect( mockNavigate ).toHaveBeenCalledWith( { search: { tab: 'settings' } } );
+		expect( mockNavigate ).toHaveBeenCalledWith( { search: { tab: 'settings' }, replace: true } );
 	} );
 } );

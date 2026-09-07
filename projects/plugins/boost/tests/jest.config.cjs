@@ -1,15 +1,14 @@
-const { existsSync } = require( 'fs' );
 const path = require( 'path' );
-const { pathToFileURL } = require( 'url' );
 const coverageConfig = require( 'jetpack-js-tools/jest/config.coverage.js' );
 const baseConfig = require( 'jetpack-js-tools/jest/config.base.js' );
 
-const config = {
+module.exports = {
 	...coverageConfig,
 	rootDir: path.join( __dirname, '..' ),
 	roots: [ '<rootDir>/app', '<rootDir>/_inc', '<rootDir>/routes', '<rootDir>/packages' ],
 	testPathIgnorePatterns: [ '/node_modules/', '<rootDir>/tests/e2e/' ],
 	testEnvironment: require.resolve( 'jetpack-js-tools/jest/fix-environment-jsdom.mjs' ),
+	testEnvironmentOptions: baseConfig.testEnvironmentOptions,
 	collectCoverageFrom: [
 		...[ 'app', '_inc', 'routes', 'packages' ].map(
 			directory => `<rootDir>/${ directory }/**/*.{js,mjs,cjs,jsx,ts,tsx,mts,cts}`
@@ -23,33 +22,14 @@ const config = {
 	 * We deliberately do NOT adopt config.base.js's setupFilesAfterEnv, which pulls
 	 * in jest-dom and jest-console matchers that Boost does not depend on.
 	 */
-	testEnvironmentOptions: baseConfig.testEnvironmentOptions,
 	transform: {
 		...baseConfig.transform,
 		'\\.m?[jt]sx?$': [
 			baseConfig.transform[ '\\.m?[jt]sx?$' ][ 0 ],
 			{
 				...baseConfig.transform[ '\\.m?[jt]sx?$' ][ 1 ],
-				// Jest runs CommonJS; preserve the module URL used by the catalog loader.
-				plugins: [
-					( { types } ) => ( {
-						visitor: {
-							MemberExpression( nodePath, state ) {
-								const { object, property } = nodePath.node;
-								if (
-									types.isMetaProperty( object ) &&
-									object.meta.name === 'import' &&
-									object.property.name === 'meta' &&
-									types.isIdentifier( property, { name: 'url' } )
-								) {
-									nodePath.replaceWith(
-										types.stringLiteral( pathToFileURL( state.filename ).href )
-									);
-								}
-							},
-						},
-					} ),
-				],
+				// Keep plugin options serializable for Jest worker processes.
+				plugins: [ require.resolve( './babel-plugin-import-meta-url.cjs' ) ],
 			},
 		],
 	},
@@ -64,16 +44,3 @@ const config = {
 		'^\\$svg/(.*)$': '<rootDir>/app/assets/src/js/svg/$1',
 	},
 };
-
-const overviewConfig = path.join( __dirname, '../_inc/overview/jest.config.cjs' );
-module.exports = existsSync( overviewConfig )
-	? {
-			projects: [
-				{
-					...config,
-					testPathIgnorePatterns: [ ...config.testPathIgnorePatterns, '<rootDir>/_inc/overview/' ],
-				},
-				overviewConfig,
-			],
-	  }
-	: config;

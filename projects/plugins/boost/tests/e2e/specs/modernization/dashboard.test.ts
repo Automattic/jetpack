@@ -19,7 +19,7 @@ test.describe( 'Dashboard modernization', () => {
 	test( 'Keep the legacy dashboard by default', async ( { jetpackBoostPage, page } ) => {
 		await jetpackBoostPage.visit();
 		await expect( page.locator( '#jb-admin-settings' ) ).toBeVisible();
-		await expect( page.locator( '.jp-admin-page' ) ).toHaveCount( 0 );
+		await expect( page.locator( '.jetpack-boost-page' ) ).toHaveCount( 0 );
 		await expect(
 			page.locator( '#jetpack-boost-dashboard-wp-admin-prerequisites-js-after' )
 		).toHaveCount( 0 );
@@ -33,7 +33,7 @@ test.describe( 'Dashboard modernization', () => {
 		await boostUtils.setDashboardModernization( false );
 		await jetpackBoostPage.visit();
 		await expect( page.locator( '#jb-admin-settings' ) ).toBeVisible();
-		await expect( page.locator( '.jp-admin-page' ) ).toHaveCount( 0 );
+		await expect( page.locator( '.jetpack-boost-page' ) ).toHaveCount( 0 );
 		await expect(
 			page.locator( '#jetpack-boost-dashboard-wp-admin-prerequisites-js-after' )
 		).toHaveCount( 0 );
@@ -46,7 +46,7 @@ test.describe( 'Dashboard modernization', () => {
 	} ) => {
 		await boostUtils.setDashboardModernization( true );
 		await jetpackBoostPage.visit();
-		await expect( page.locator( '.jp-admin-page' ) ).toHaveCount( 1 );
+		await expect( page.locator( '.jetpack-boost-page' ) ).toHaveCount( 1 );
 		await expect(
 			page.locator( '#jetpack-boost-dashboard-wp-admin-prerequisites-js-after' )
 		).toHaveCount( 1 );
@@ -63,6 +63,6 @@ test.describe( 'Dashboard modernization', () => {
 		await expect(
 			page.locator( '#jetpack-boost-dashboard-wp-admin-prerequisites-js-after' )
 		).toHaveCount( 0 );
-		await expect( page.locator( '.jp-admin-page' ) ).toHaveCount( 0 );
+		await expect( page.locator( '.jetpack-boost-page' ) ).toHaveCount( 0 );
 	} );
 } );
