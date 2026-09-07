@@ -5,7 +5,7 @@ import { currentUserCan } from '@automattic/jetpack-script-data';
 import { Icon, IconButton, Menu } from '@jetpack-premium-analytics/externals';
 import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { close, comment, moreVertical } from '@wordpress/icons';
+import { cancelCircleFilled, comment, moreVertical } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
@@ -61,7 +61,7 @@ export function DashboardOptionsMenu() {
 					{ canSwitchOff && (
 						<>
 							<Menu.Separator />
-							<Menu.Item prefix={ <Icon icon={ close } /> } onClick={ openSwitchOff }>
+							<Menu.Item prefix={ <Icon icon={ cancelCircleFilled } /> } onClick={ openSwitchOff }>
 								<Menu.ItemLabel>
 									{ __( 'Switch off the preview', 'jetpack-premium-analytics-pkg' ) }
 								</Menu.ItemLabel>
