@@ -8,8 +8,8 @@ import { createTZDateFromParts } from './tz';
 /**
  * Read a Stats bucket's stamp as the instant it names in the site's timezone.
  *
- * Any stated offset is ignored: the time-series passthrough copies `date_start`
- * from the API verbatim, so a bucket can carry a nominal offset that would shift it.
+ * Any stated offset is ignored: a bucket stamp names a site-local calendar
+ * bucket, so honouring an offset would move it off its own midnight.
  *
  * @param value - The bucket's `date_start`.
  * @return The instant, or `undefined` when the value is missing or malformed.
