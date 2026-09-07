@@ -28,3 +28,10 @@ vendor/wikimedia/aho-corasick/**                production-include
 /rollup.config.js                               production-exclude
 /rollup-tsconfig.json                           production-exclude
 /tsconfig.eslint.json                           production-exclude
+
+/build/**                                      production-include
+/build/**/*.map                                production-exclude
+/_inc/**                                       production-exclude
+/packages/**                                   production-exclude
+/routes/**                                     production-exclude
+/tsconfig.dashboard.json                       production-exclude

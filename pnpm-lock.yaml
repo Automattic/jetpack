@@ -5519,6 +5519,9 @@ importers:
       '@wordpress/api-fetch':
         specifier: 7.54.0
         version: 7.54.0
+      '@wordpress/base-styles':
+        specifier: 13.0.0
+        version: 13.0.0
       '@wordpress/components':
         specifier: 40.0.0
         version: 40.0.0(@types/react@18.3.31)(postcss@8.5.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
