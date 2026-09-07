@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add an endpoint that lets WordPress.com flush the object cache after a database restore.
