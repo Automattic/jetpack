@@ -2,6 +2,7 @@
 // Test dependencies come from the plugin, not the wp-build route package.
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { act, fireEvent, render, screen } from '@testing-library/react';
+import { initLocationChange } from '../../packages/init/src/location-change';
 import { stage as Stage } from './stage';
 import type { ReactNode } from 'react';
 
@@ -111,6 +112,31 @@ describe( 'Boost dashboard stage', () => {
 		// eslint-disable-next-line testing-library/prefer-user-event
 		fireEvent.click( screen.getByRole( 'tab', { name: 'Settings' } ) );
 
+		expect( mockNavigate ).toHaveBeenCalledWith( { search: { tab: 'settings' } } );
+	} );
+
+	it( 'updates the subpage mount for history navigation', () => {
+		initLocationChange();
+		initLocationChange();
+		mockNavigate.mockImplementation( () => {
+			window.history.replaceState( null, '', '/?page=jetpack-boost&tab=settings#/' );
+		} );
+		render( <Stage /> );
+		const subpageMount = getSubpageMount();
+
+		act( () => {
+			window.history.pushState( null, '', '/?page=jetpack-boost#/cache-debug-log' );
+		} );
+
+		expect( subpageMount?.hidden ).toBe( false );
+		expect( screen.queryAllByRole( 'tablist' ) ).toHaveLength( 0 );
+
+		act( () => {
+			window.history.replaceState( null, '', '/?page=jetpack-boost#/' );
+		} );
+
+		expect( subpageMount?.hidden ).toBe( true );
+		expect( mockNavigate ).toHaveBeenCalledTimes( 1 );
 		expect( mockNavigate ).toHaveBeenCalledWith( { search: { tab: 'settings' } } );
 	} );
 } );

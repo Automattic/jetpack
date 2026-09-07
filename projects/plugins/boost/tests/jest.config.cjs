@@ -22,6 +22,7 @@ const config = {
 	 * We deliberately do NOT adopt config.base.js's setupFilesAfterEnv, which pulls
 	 * in jest-dom and jest-console matchers that Boost does not depend on.
 	 */
+	testEnvironmentOptions: baseConfig.testEnvironmentOptions,
 	transform: baseConfig.transform,
 	transformIgnorePatterns: baseConfig.transformIgnorePatterns,
 	setupFiles: baseConfig.setupFiles,

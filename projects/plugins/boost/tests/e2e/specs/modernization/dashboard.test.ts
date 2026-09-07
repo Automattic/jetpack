@@ -21,7 +21,7 @@ test.describe( 'Dashboard modernization', () => {
 		await expect( page.locator( '#jb-admin-settings' ) ).toBeVisible();
 		await expect( page.locator( '.jp-admin-page' ) ).toHaveCount( 0 );
 		await expect(
-			page.locator( '#jetpack-boost-dashboard-wp-admin-prerequisites-js' )
+			page.locator( '#jetpack-boost-dashboard-wp-admin-prerequisites-js-after' )
 		).toHaveCount( 0 );
 	} );
 
@@ -35,7 +35,7 @@ test.describe( 'Dashboard modernization', () => {
 		await expect( page.locator( '#jb-admin-settings' ) ).toBeVisible();
 		await expect( page.locator( '.jp-admin-page' ) ).toHaveCount( 0 );
 		await expect(
-			page.locator( '#jetpack-boost-dashboard-wp-admin-prerequisites-js' )
+			page.locator( '#jetpack-boost-dashboard-wp-admin-prerequisites-js-after' )
 		).toHaveCount( 0 );
 	} );
 
@@ -47,6 +47,9 @@ test.describe( 'Dashboard modernization', () => {
 		await boostUtils.setDashboardModernization( true );
 		await jetpackBoostPage.visit();
 		await expect( page.locator( '.jp-admin-page' ) ).toHaveCount( 1 );
+		await expect(
+			page.locator( '#jetpack-boost-dashboard-wp-admin-prerequisites-js-after' )
+		).toHaveCount( 1 );
 		await expect( page.getByRole( 'tab', { name: 'Overview', exact: true } ) ).toBeVisible();
 		await expect( page.getByRole( 'tab', { name: 'Settings', exact: true } ) ).toBeVisible();
 		await expect( page.locator( '#jb-settings-tab-mount' ) ).toHaveCount( 1 );
@@ -58,7 +61,7 @@ test.describe( 'Dashboard modernization', () => {
 		await boostUtils.setDashboardModernization( true );
 		await admin.visitAdminPage( 'index.php' );
 		await expect(
-			page.locator( '#jetpack-boost-dashboard-wp-admin-prerequisites-js' )
+			page.locator( '#jetpack-boost-dashboard-wp-admin-prerequisites-js-after' )
 		).toHaveCount( 0 );
 		await expect( page.locator( '.jp-admin-page' ) ).toHaveCount( 0 );
 	} );

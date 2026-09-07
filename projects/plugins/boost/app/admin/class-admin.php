@@ -198,13 +198,18 @@ class Admin {
 				'nonce' => wp_create_nonce( 'wp_rest' ),
 			);
 			wp_localize_script( $admin_js_handle, 'wpApiSettings', $api_settings );
-			wp_enqueue_script( 'wp-jp-i18n-loader' );
+			$has_i18n_loader = wp_script_is( 'wp-jp-i18n-loader', 'registered' );
+			if ( $has_i18n_loader ) {
+				wp_enqueue_script( 'wp-jp-i18n-loader' );
+			}
 
 			// The webpack handle carries Boost constants and DataSync bootstrap needed before modules run.
 			$prerequisites = wp_scripts()->query( 'jetpack-boost-dashboard-wp-admin-prerequisites', 'registered' );
 			if ( $prerequisites ) {
 				$prerequisites->deps[] = $admin_js_handle;
-				$prerequisites->deps[] = 'wp-jp-i18n-loader';
+				if ( $has_i18n_loader ) {
+					$prerequisites->deps[] = 'wp-jp-i18n-loader';
+				}
 			}
 		}
 	}

@@ -5,10 +5,7 @@ namespace Automattic\Jetpack_Boost\Tests\Admin;
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Menu_Badges\Notification_Counts;
-use Automattic\Jetpack\Schema\Schema;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
-use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync;
-use Automattic\Jetpack\WP_JS_Data_Sync\Data_Sync_Readonly;
 use Automattic\Jetpack_Boost\Admin\Admin;
 use Automattic\Jetpack_Boost\Admin\Config;
 use Automattic\Jetpack_Boost\Lib\Debug;
@@ -259,6 +256,14 @@ class Admin_Test extends Base_TestCase {
 	}
 
 	public function test_modern_prerequisites_wait_for_webpack_bootstrap_and_i18n() {
+		$this->assert_modern_prerequisites( true );
+	}
+
+	public function test_modern_prerequisites_work_without_registered_i18n_loader() {
+		$this->assert_modern_prerequisites( false );
+	}
+
+	private function assert_modern_prerequisites( $has_i18n_loader ) {
 		$admin  = new Admin();
 		$loaded = new \ReflectionProperty( Admin::class, 'modern_dashboard_loaded' );
 		$loaded->setAccessible( true );
@@ -283,7 +288,8 @@ class Admin_Test extends Base_TestCase {
 		Functions\when( 'wp_scripts' )->justReturn( $scripts );
 		Functions\when( 'rest_url' )->justReturn( 'https://example.org/wp-json/' );
 		Functions\when( 'wp_create_nonce' )->returnArg();
-		Functions\expect( 'wp_enqueue_script' )->once()->with( 'wp-jp-i18n-loader' )->andReturnUsing(
+		Functions\expect( 'wp_script_is' )->once()->with( 'wp-jp-i18n-loader', 'registered' )->andReturn( $has_i18n_loader );
+		Functions\expect( 'wp_enqueue_script' )->times( $has_i18n_loader ? 1 : 0 )->with( 'wp-jp-i18n-loader' )->andReturnUsing(
 			function () use ( &$events ) {
 				$events[] = 'i18n';
 			}
@@ -316,8 +322,15 @@ class Admin_Test extends Base_TestCase {
 		$admin->enqueue_scripts();
 		'@phan-var array<string, array<string, mixed>> $localized';
 
-		$this->assertSame( array( 'register', 'Jetpack_Boost', 'enqueue', 'wpApiSettings', 'i18n', 'prerequisites' ), $events );
-		$this->assertSame( array( 'wp-i18n', 'jetpack-boost-admin', 'wp-jp-i18n-loader' ), $prerequisites->deps );
+		$expected_events = array( 'register', 'Jetpack_Boost', 'enqueue', 'wpApiSettings' );
+		$expected_deps   = array( 'wp-i18n', 'jetpack-boost-admin' );
+		if ( $has_i18n_loader ) {
+			$expected_events[] = 'i18n';
+			$expected_deps[]   = 'wp-jp-i18n-loader';
+		}
+		$expected_events[] = 'prerequisites';
+		$this->assertSame( $expected_events, $events );
+		$this->assertSame( $expected_deps, $prerequisites->deps );
 		$this->assertSame( $constants, $localized['jetpack-boost-admin']['Jetpack_Boost'] );
 		$this->assertSame(
 			array(
@@ -326,28 +339,58 @@ class Admin_Test extends Base_TestCase {
 			),
 			$localized['jetpack-boost-admin']['wpApiSettings']
 		);
+	}
 
-		$data_sync = Data_Sync::get_instance( 'boost_admin_test' );
-		foreach ( array( 'modules_state', 'performance_history', 'dismissed_alerts', 'critical_css_state', 'lcp_state' ) as $key ) {
-			$data_sync->register(
-				$key,
-				Schema::as_unsafe_any(),
-				new Data_Sync_Readonly(
-					function () use ( $key ) {
-						return array( $key => 'current-value' );
-					}
-				)
+	public function test_datasync_localizes_real_boost_entries_through_registered_page_callback() {
+		require_once JETPACK_BOOST_DIR_PATH . '/wp-js-data-sync.php';
+		Functions\when( 'get_option' )->justReturn( array() );
+		Functions\when( 'rest_url' )->returnArg();
+		Functions\when( 'wp_create_nonce' )->returnArg();
+		foreach ( array(
+			'Automattic\\Jetpack_Boost\\Lib\\Connection::get_connection_api_response',
+			'Automattic\\Jetpack_Boost\\Lib\\Premium_Pricing::get_yearly_pricing',
+			'Automattic\\Jetpack_Boost\\Lib\\My_Jetpack::get_product',
+			'Automattic\\Jetpack_Boost\\Lib\\Premium_Features::get_features',
+		) as $method ) {
+			\Patchwork\redefine(
+				$method,
+				function () {
+					return array();
+				}
 			);
 		}
-		$data_sync->attach_to_plugin( 'jetpack-boost-admin', 'jetpack_page_jetpack-boost' );
-		$this->assertNotFalse( has_action( 'jetpack_page_jetpack-boost', array( $data_sync, '_print_options_script_tag' ) ) );
-		$data_sync->_print_options_script_tag();
-		'@phan-var array<string, array<string, mixed>> $localized';
+		\Patchwork\redefine(
+			'Automattic\\Jetpack_Boost\\Data_Sync\\Getting_Started_Entry::get',
+			function () {
+				return false;
+			}
+		);
+		$data          = null;
+		$page_callback = null;
+		\Brain\Monkey\Actions\expectAdded( 'jetpack_page_jetpack-boost' )->once()->with(
+			\Mockery::on(
+				function ( $callback ) use ( &$page_callback ) {
+					$page_callback = $callback;
+					return is_callable( $callback );
+				}
+			)
+		);
+		Functions\expect( 'wp_localize_script' )->once()
+			->with( 'jetpack-boost-admin', JETPACK_BOOST_DATASYNC_NAMESPACE, \Mockery::type( 'array' ) )
+			->andReturnUsing(
+				function ( $handle, $namespace, $value ) use ( &$data ) {
+					$data = $value;
+				}
+			);
 
-		foreach ( array( 'modules_state', 'performance_history', 'dismissed_alerts', 'critical_css_state', 'lcp_state' ) as $key ) {
-			$this->assertSame( array( $key => 'current-value' ), $localized['jetpack-boost-admin']['boost_admin_test'][ $key ]['value'] );
-			$this->assertNotEmpty( $localized['jetpack-boost-admin']['boost_admin_test'][ $key ]['nonce'] );
-		}
+		$this->assertNotFalse( has_action( 'admin_init', 'jetpack_boost_initialize_datasync' ) );
+		jetpack_boost_initialize_datasync();
+		$this->assertNull( $data );
+		$this->assertIsCallable( $page_callback );
+		$page_callback();
+		$this->assertFalse( $data['getting_started']['value'] );
+		$this->assertFalse( $data['dismissed_alerts']['value']['score_increase'] );
+		$this->assertNotEmpty( $data['dismissed_alerts']['nonce'] );
 	}
 
 	private function enable_modern_dashboard() {

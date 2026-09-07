@@ -13,4 +13,5 @@
 yalc.lock
 .cache/
 /build
+/packages/*/build
 /packages/*/build-module

@@ -38,15 +38,26 @@ function Stage() {
 	);
 
 	useEffect( () => {
+		let previousSubpage = subpage;
 		const onHashChange = () => {
 			const next = getSubpage( window.location.hash );
-			if ( ! next && ( subpage === 'cache-debug-log' || subpage === 'critical-css-advanced' ) ) {
+			const returnToSettings =
+				! next &&
+				( previousSubpage === 'cache-debug-log' || previousSubpage === 'critical-css-advanced' );
+			previousSubpage = next;
+			setSubpage( next );
+			if ( returnToSettings ) {
 				onTabChange( 'settings' );
 			}
-			setSubpage( next );
 		};
 		window.addEventListener( 'hashchange', onHashChange );
-		return () => window.removeEventListener( 'hashchange', onHashChange );
+		window.addEventListener( 'popstate', onHashChange );
+		window.addEventListener( 'jetpack-boost:location-change', onHashChange );
+		return () => {
+			window.removeEventListener( 'hashchange', onHashChange );
+			window.removeEventListener( 'popstate', onHashChange );
+			window.removeEventListener( 'jetpack-boost:location-change', onHashChange );
+		};
 	}, [ onTabChange, subpage ] );
 
 	return (
