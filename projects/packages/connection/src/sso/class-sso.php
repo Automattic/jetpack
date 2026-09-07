@@ -232,14 +232,7 @@ class SSO {
 	 * @param int $user_id User to disconnect from the site.
 	 **/
 	public function xmlrpc_user_disconnect( $user_id ) {
-		$user_query = new WP_User_Query(
-			array(
-				'meta_key'   => 'wpcom_user_id',
-				'meta_value' => $user_id,
-			)
-		);
-		$user       = $user_query->get_results();
-		$user       = $user[0];
+		$user = self::get_user_by_wpcom_id( $user_id );
 
 		if ( $user instanceof WP_User ) {
 			$user = wp_set_current_user( $user->ID );
@@ -1082,8 +1075,8 @@ CSS;
 			$user_found_with = 'external_user_id';
 			$user            = get_user_by( 'id', (int) $user_data->external_user_id );
 			if ( $user ) {
-				$expected_id = get_user_meta( $user->ID, 'wpcom_user_id', true );
-				if ( $expected_id && $expected_id != $user_data->ID ) { // phpcs:ignore WordPress.PHP.StrictComparisons.LooseComparison, Universal.Operators.StrictComparisons.LooseNotEqual
+				$expected_id = Utils::get_cached_wpcom_user_id( $user->ID );
+				if ( $expected_id && $expected_id !== (int) $user_data->ID ) {
 					$error = new WP_Error( 'expected_wpcom_user', __( 'Something got a little mixed up and an unexpected WordPress.com user logged in.', 'jetpack-connection' ) );
 
 					$tracking->record_user_event(
