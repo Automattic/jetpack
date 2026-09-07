@@ -168,25 +168,7 @@ jest.mock( '@wordpress/route', () => ( {
 // the real report-origin validation.
 
 jest.mock( './components', () => ( {
-	PostDetailTabs: ( {
-		children,
-		onChange,
-	}: {
-		children: ReactNode;
-		onChange: ( tab: string ) => void;
-	} ) => {
-		const { useCallback } = jest.requireActual( 'react' );
-		const selectEmailOpens = useCallback( () => onChange( 'email-opens' ), [ onChange ] );
-
-		return (
-			<div>
-				<button type="button" onClick={ selectEmailOpens }>
-					Email opens tab
-				</button>
-				{ children }
-			</div>
-		);
-	},
+	PostDetailTabs: ( { children }: { children: ReactNode } ) => <div>{ children }</div>,
 	postHeaderSlots: ( {
 		variant,
 		performanceRange,
@@ -207,7 +189,6 @@ jest.mock( './components', () => ( {
 } ) );
 
 let mockActiveTab = 'traffic';
-const mockSetActiveTab = jest.fn();
 
 // The pinned email scope the stage hands to the tabs hook and the header.
 const mockEmailScope = {
@@ -241,7 +222,7 @@ jest.mock( './hooks', () => ( {
 			{ id: 'email-opens', label: 'Email opens' },
 		],
 		activeTab: mockActiveTab,
-		setActiveTab: mockSetActiveTab,
+		setActiveTab: jest.fn(),
 		layout: [],
 	} ) ),
 } ) );
@@ -412,23 +393,31 @@ describe( 'post detail stage', () => {
 		expect( screen.queryByTestId( 'dashboard-actions' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'leaves customize mode when the reader switches tabs', async () => {
+	it( 'leaves customize mode when the tab changes under it', async () => {
 		const user = userEvent.setup();
+		mockUseTabLayout.mockReturnValue( {
+			layout: [ { uuid: 'card', type: 'jpa/card' } ],
+			setLayout: () => {},
+			resetLayout: () => {},
+			hasCustomLayout: false,
+		} );
 		mockSummary();
 
-		render( stage() );
+		const { rerender } = render( stage() );
 
 		await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
 		await user.click( await screen.findByRole( 'menuitem', { name: 'Customize' } ) );
 		expect( mockDashboardProps.editMode ).toBe( true );
 
-		// Each tab is its own layout, and the dashboard drops staged edits when the
-		// committed layout changes, so the switch is a Cancel rather than a silent loss.
-		await user.click( screen.getByRole( 'button', { name: 'Email opens tab' } ) );
+		// A tab click, Back, and a deep link all change the tab through the router;
+		// the dashboard drops staged edits with the committed layout, so this is a
+		// Cancel rather than a silent loss.
+		mockActiveTab = 'email-opens';
+		rerender( stage() );
 
-		expect( mockSetActiveTab ).toHaveBeenCalledWith( 'email-opens' );
 		expect( mockDashboardProps.editMode ).toBe( false );
 		expect( screen.queryByTestId( 'dashboard-actions' ) ).not.toBeInTheDocument();
+		mockActiveTab = 'traffic';
 	} );
 
 	it( 'puts a View post action in the page header, opening the live post in a new tab', () => {

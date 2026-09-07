@@ -1,7 +1,7 @@
 import { Badge, Icon, IconButton, Menu, Stack } from '@jetpack-premium-analytics/externals';
 import { __ } from '@wordpress/i18n';
 import { moreVertical, pencil } from '@wordpress/icons';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import type { CanPerformDashboardOperation, DashboardWidget } from '@wordpress/widget-dashboard';
 import type { ReactNode } from 'react';
 
@@ -12,14 +12,20 @@ export type DetailPageCustomize = {
 	canPerform: CanPerformDashboardOperation;
 	/** Enters customize mode; the page options menu's Customize entry. */
 	startCustomizing: () => void;
-	/**
-	 * Leaves customize mode without committing. The dashboard rebuilds its staged
-	 * edits from the committed layout, so call this before swapping the layout
-	 * out from under it, as a tab change does.
-	 */
-	stopCustomizing: () => void;
 	/** For `WidgetDashboard`'s `onEditChange`: its Cancel and Done report back here. */
 	onEditChange: ( nextEditMode: boolean ) => void;
+};
+
+export type DetailPageCustomizeOptions = {
+	/**
+	 * Names the layout on show. When it changes, customize mode ends: the dashboard
+	 * rebuilds its staged edits from the new committed layout, so they are lost
+	 * either way, and a change the reader did not make here (Back, a deep link)
+	 * must not leave the chrome open on a layout they did not pick.
+	 */
+	layoutId?: string;
+	/** Whether there is anything to customize; going false ends customize mode. */
+	enabled?: boolean;
 };
 
 /**
@@ -28,11 +34,32 @@ export type DetailPageCustomize = {
  * offered by the page options menu, not the dashboard's own button, and Reset
  * only joins Cancel and Done while customizing (WOOA7S-2033).
  *
- * @param layout - The layout on show; while empty, edit mode cannot be entered.
+ * @param layout           - The layout on show; while empty, edit mode cannot be entered.
+ * @param options          - Which layout this is, and whether it can be customized at all.
+ * @param options.layoutId - Names the layout on show; a change ends customize mode.
+ * @param options.enabled  - Whether there is anything to customize.
  * @return The mode, the policy, and the transitions.
  */
-export function useDetailPageCustomize( layout: DashboardWidget[] ): DetailPageCustomize {
+export function useDetailPageCustomize(
+	layout: DashboardWidget[],
+	{ layoutId, enabled = true }: DetailPageCustomizeOptions = {}
+): DetailPageCustomize {
 	const [ isCustomizing, setIsCustomizing ] = useState( false );
+
+	// An empty layout makes the dashboard request edit mode on its own (its
+	// empty state invites customization); a detail page is only empty while a
+	// gate resolves, so neither that request nor the menu may open the chrome.
+	const canCustomize = enabled && layout.length > 0;
+
+	useEffect( () => {
+		setIsCustomizing( false );
+	}, [ layoutId ] );
+
+	useEffect( () => {
+		if ( ! canCustomize ) {
+			setIsCustomizing( false );
+		}
+	}, [ canCustomize ] );
 
 	const canPerform = useCallback< CanPerformDashboardOperation >(
 		request => {
@@ -50,23 +77,23 @@ export function useDetailPageCustomize( layout: DashboardWidget[] ): DetailPageC
 		[ isCustomizing ]
 	);
 
-	const startCustomizing = useCallback( () => setIsCustomizing( true ), [] );
-	const stopCustomizing = useCallback( () => setIsCustomizing( false ), [] );
+	const startCustomizing = useCallback( () => {
+		if ( canCustomize ) {
+			setIsCustomizing( true );
+		}
+	}, [ canCustomize ] );
 
 	const onEditChange = useCallback(
 		( nextEditMode: boolean ) => {
-			// An empty layout makes the dashboard request edit mode on its own (its
-			// empty state invites customization); a detail page is only empty while
-			// a gate resolves, so that request is ignored here.
-			if ( nextEditMode && layout.length === 0 ) {
+			if ( nextEditMode && ! canCustomize ) {
 				return;
 			}
 			setIsCustomizing( nextEditMode );
 		},
-		[ layout ]
+		[ canCustomize ]
 	);
 
-	return { isCustomizing, canPerform, startCustomizing, stopCustomizing, onEditChange };
+	return { isCustomizing, canPerform, startCustomizing, onEditChange };
 }
 
 export type DetailPageBreadcrumbsProps = {

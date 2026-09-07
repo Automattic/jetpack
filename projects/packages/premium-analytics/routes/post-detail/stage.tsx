@@ -22,7 +22,7 @@ import {
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
-import { useCallback, useMemo } from '@wordpress/element';
+import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useParams } from '@wordpress/route';
 import { WidgetDashboard } from '@wordpress/widget-dashboard';
@@ -86,17 +86,11 @@ function PostDetail(): JSX.Element {
 		fixedLayout
 	);
 
-	const { isCustomizing, canPerform, startCustomizing, stopCustomizing, onEditChange } =
-		useDetailPageCustomize( layout );
-
-	// Each tab is its own layout, and the dashboard drops its staged edits when
-	// the committed layout changes, so leaving the tab is leaving customize mode.
-	const changeTab = useCallback(
-		( tab: typeof activeTab ) => {
-			stopCustomizing();
-			setActiveTab( tab );
-		},
-		[ setActiveTab, stopCustomizing ]
+	// Each tab is its own layout, so leaving the tab, by click, Back, or a deep
+	// link, leaves customize mode with it.
+	const { isCustomizing, canPerform, startCustomizing, onEditChange } = useDetailPageCustomize(
+		layout,
+		{ layoutId: activeTab }
 	);
 
 	const isEmailTab = EMAIL_TAB_IDS.includes( activeTab );
@@ -193,7 +187,7 @@ function PostDetail(): JSX.Element {
 							</DetailPageActions>
 						}
 					>
-						<PostDetailTabs tabs={ tabs } value={ activeTab } onChange={ changeTab }>
+						<PostDetailTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab }>
 							{ /*
 							 * The header is shared by every tab (same post, same range), so it
 							 * renders once above the per-tab grids; the email tabs give it an

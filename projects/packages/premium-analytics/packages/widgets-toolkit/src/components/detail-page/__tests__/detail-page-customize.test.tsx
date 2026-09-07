@@ -42,20 +42,42 @@ describe( 'useDetailPageCustomize', () => {
 		expect( result.current.isCustomizing ).toBe( false );
 	} );
 
-	it( 'can be left without committing', () => {
-		const { result } = renderHook( () => useDetailPageCustomize( layout ) );
+	it( 'will not open on an empty layout, from the menu or the dashboard', () => {
+		const { result } = renderHook( () => useDetailPageCustomize( [] ) );
 
 		act( () => result.current.startCustomizing() );
-		act( () => result.current.stopCustomizing() );
+		act( () => result.current.onEditChange( true ) );
 
 		expect( result.current.isCustomizing ).toBe( false );
 	} );
 
-	it( "ignores the dashboard's empty-layout edit request", () => {
-		const { result } = renderHook( () => useDetailPageCustomize( [] ) );
+	it( 'leaves customize mode when the layout on show changes', () => {
+		const { result, rerender } = renderHook(
+			( { layoutId }: { layoutId: string } ) => useDetailPageCustomize( layout, { layoutId } ),
+			{ initialProps: { layoutId: 'traffic' } }
+		);
 
-		act( () => result.current.onEditChange( true ) );
+		act( () => result.current.startCustomizing() );
+		expect( result.current.isCustomizing ).toBe( true );
 
+		rerender( { layoutId: 'email-opens' } );
+
+		expect( result.current.isCustomizing ).toBe( false );
+	} );
+
+	it( 'leaves customize mode once there is nothing left to customize', () => {
+		const { result, rerender } = renderHook(
+			( { enabled }: { enabled: boolean } ) => useDetailPageCustomize( layout, { enabled } ),
+			{ initialProps: { enabled: true } }
+		);
+
+		act( () => result.current.startCustomizing() );
+		expect( result.current.isCustomizing ).toBe( true );
+
+		rerender( { enabled: false } );
+
+		expect( result.current.isCustomizing ).toBe( false );
+		act( () => result.current.startCustomizing() );
 		expect( result.current.isCustomizing ).toBe( false );
 	} );
 } );

@@ -454,6 +454,25 @@ describe( 'video detail stage', () => {
 		expect( screen.queryByRole( 'button', { name: 'Page options' } ) ).not.toBeInTheDocument();
 	} );
 
+	it( 'leaves customize mode when the video stops rendering', async () => {
+		const user = userEvent.setup();
+		mockSummary( { title: 'Launch recap' } );
+
+		const { rerender } = render( stage() );
+
+		await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
+		await user.click( await screen.findByRole( 'menuitem', { name: 'Customize' } ) );
+		expect( mockDashboardProps.editMode ).toBe( true );
+
+		// A failed background refetch hides the grid, and the dashboard's Cancel and
+		// Done with it, so the mode must not stay on with no way out.
+		mockSummary( { title: 'Launch recap', isError: true } );
+		rerender( stage() );
+
+		expect( mockDashboardProps.editMode ).toBe( false );
+		expect( screen.queryByTestId( 'dashboard-actions' ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'stores what the dashboard commits, and forgets it on reset', () => {
 		const setLayout = jest.fn();
 		const resetLayout = jest.fn();

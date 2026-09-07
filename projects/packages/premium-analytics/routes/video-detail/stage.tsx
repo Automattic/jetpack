@@ -91,10 +91,14 @@ function VideoDetail(): JSX.Element {
 		VIDEO_DETAIL_LAYOUT
 	);
 
-	const { isCustomizing, canPerform, startCustomizing, onEditChange } =
-		useDetailPageCustomize( layout );
-
 	const canRenderWidgets = ! summary.isLoading && ! summary.isError && ! summary.isNotFound;
+
+	// Without cards there is nothing to arrange, and a refetch that fails
+	// mid-customize would otherwise hide Cancel and Done along with the grid.
+	const { isCustomizing, canPerform, startCustomizing, onEditChange } = useDetailPageCustomize(
+		layout,
+		{ enabled: canRenderWidgets }
+	);
 
 	// Error and not-found responses have no trustworthy title, so only a
 	// resolved video adds the title crumb.
