@@ -1,9 +1,8 @@
-const { existsSync } = require( 'fs' );
 const path = require( 'path' );
 const coverageConfig = require( 'jetpack-js-tools/jest/config.coverage.js' );
 const baseConfig = require( 'jetpack-js-tools/jest/config.base.js' );
 
-const config = {
+module.exports = {
 	...coverageConfig,
 	rootDir: path.join( __dirname, '..' ),
 	roots: [ '<rootDir>/app', '<rootDir>/routes' ],
@@ -31,13 +30,3 @@ const config = {
 		'^\\$svg/(.*)$': '<rootDir>/app/assets/src/js/svg/$1',
 	},
 };
-
-const overviewConfig = path.join( __dirname, '../_inc/overview/jest.config.cjs' );
-module.exports = existsSync( overviewConfig )
-	? {
-			projects: [
-				{ ...config, testPathIgnorePatterns: [ '/node_modules/', '<rootDir>/_inc/overview/' ] },
-				overviewConfig,
-			],
-	  }
-	: config;

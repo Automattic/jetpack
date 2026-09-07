@@ -25,29 +25,35 @@ function Stage() {
 	const [ queryClient ] = useState( () => new QueryClient() );
 	const [ subpage, setSubpage ] = useState( () => getSubpage( window.location.hash ) );
 	const activeTab: BoostTab = search.tab === 'settings' ? 'settings' : 'overview';
-	const onTabChange = useCallback(
-		( next: string | null ) => {
-			if ( next !== 'overview' && next !== 'settings' ) {
-				return;
-			}
+	const goToTab = useCallback(
+		( next: BoostTab, replace = false ) => {
 			navigate( {
 				search: { tab: next === 'settings' ? 'settings' : undefined },
+				replace,
 			} as unknown as Parameters< typeof navigate >[ 0 ] );
 		},
 		[ navigate ]
+	);
+	const onTabChange = useCallback(
+		( next: string | null ) => {
+			if ( next === 'overview' || next === 'settings' ) {
+				goToTab( next );
+			}
+		},
+		[ goToTab ]
 	);
 
 	useEffect( () => {
 		const onHashChange = () => {
 			const next = getSubpage( window.location.hash );
 			if ( ! next && ( subpage === 'cache-debug-log' || subpage === 'critical-css-advanced' ) ) {
-				onTabChange( 'settings' );
+				goToTab( 'settings', true );
 			}
 			setSubpage( next );
 		};
 		window.addEventListener( 'hashchange', onHashChange );
 		return () => window.removeEventListener( 'hashchange', onHashChange );
-	}, [ onTabChange, subpage ] );
+	}, [ goToTab, subpage ] );
 
 	return (
 		<BoostPage
