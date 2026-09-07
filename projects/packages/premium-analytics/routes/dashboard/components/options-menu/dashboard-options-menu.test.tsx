@@ -461,4 +461,19 @@ describe( 'switching the new Traffic tab off', () => {
 
 		await waitFor( () => expect( mockReturnToClassicStats ).toHaveBeenCalledTimes( 1 ) );
 	} );
+
+	it( 'starts over after Cancel', async () => {
+		const user = await openConfirmation();
+
+		await user.click( screen.getByRole( 'radio', { name: 'A bit worse' } ) );
+		await user.type( screen.getByRole( 'textbox' ), 'Too slow' );
+		await user.click( screen.getByRole( 'button', { name: 'Cancel' } ) );
+		await waitFor( () => expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument() );
+
+		await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
+		await user.click( await screen.findByRole( 'menuitem', { name: 'Switch off the preview' } ) );
+
+		expect( screen.getByRole( 'radio', { name: 'A bit worse' } ) ).not.toBeChecked();
+		expect( screen.getByRole( 'textbox' ) ).toHaveValue( '' );
+	} );
 } );

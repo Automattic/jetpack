@@ -20,7 +20,6 @@ import { returnToClassicStats } from './return-to-classic-stats';
 const PRODUCT_NAME = 'Jetpack Stats v2 (switched off)';
 
 type SwitchOffDialogProps = {
-	open: boolean;
 	onClose: () => void;
 };
 
@@ -29,11 +28,10 @@ type SwitchOffDialogProps = {
  * required. On confirmation it writes the opt-in off and sends the reader to classic Stats.
  *
  * @param {SwitchOffDialogProps} props         - Component props.
- * @param {boolean}              props.open    - Whether the dialog is open.
  * @param {Function}             props.onClose - Called once the reader dismisses the dialog.
  * @return The dialog.
  */
-export function SwitchOffDialog( { open, onClose }: SwitchOffDialogProps ) {
+export function SwitchOffDialog( { onClose }: SwitchOffDialogProps ) {
 	const trackEvent = useTrackEvent();
 	const [ rating, setRating ] = useState< StatsFeedbackRating >();
 	const [ comment, setComment ] = useState( '' );
@@ -45,7 +43,6 @@ export function SwitchOffDialog( { open, onClose }: SwitchOffDialogProps ) {
 	const handleOpenChange = useCallback(
 		( nextOpen: boolean ) => {
 			if ( ! nextOpen && ! isSwitchingOff ) {
-				setHasFailed( false );
 				onClose();
 			}
 		},
@@ -86,7 +83,7 @@ export function SwitchOffDialog( { open, onClose }: SwitchOffDialogProps ) {
 	}, [ comment, rating, trackEvent ] );
 
 	return (
-		<Dialog.Root open={ open } onOpenChange={ handleOpenChange }>
+		<Dialog.Root open onOpenChange={ handleOpenChange }>
 			<Dialog.Popup size="medium">
 				<Dialog.Content>
 					<Stack direction="column" gap="lg">

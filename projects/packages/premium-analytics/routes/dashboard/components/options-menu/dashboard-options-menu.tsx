@@ -71,7 +71,7 @@ export function DashboardOptionsMenu() {
 				</Menu.Popup>
 			</Menu.Root>
 			{ isFeedbackOpen && <FeedbackModal onClose={ closeFeedback } /> }
-			<SwitchOffDialog open={ isSwitchOffOpen } onClose={ closeSwitchOff } />
+			{ isSwitchOffOpen && <SwitchOffDialog onClose={ closeSwitchOff } /> }
 		</>
 	);
 }
