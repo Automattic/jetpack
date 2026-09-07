@@ -463,14 +463,13 @@ class WPCOM_Stats {
 		$wpcom_stats = $this->fetch_remote_stats( $endpoint, $args );
 
 		/*
-		 * A site with no connection fails before a request leaves it, so remembering that failure
-		 * saves no remote call -- and the answer stops being true the moment the site connects.
-		 * Caching it left a freshly connected site staring at an empty dashboard until it expired.
+		 * Connection failures stop being true as soon as the site reconnects. Do not cache
+		 * them: otherwise the next request keeps returning the old failure after recovery.
 		 *
 		 * `no_possible_tokens` is what the connection package reports for a missing blog token
 		 * since it started naming the reason; `missing_token` is what older versions still return.
 		 */
-		if ( is_wp_error( $wpcom_stats ) && in_array( $wpcom_stats->get_error_code(), array( 'missing_token', 'no_possible_tokens' ), true ) ) {
+		if ( is_wp_error( $wpcom_stats ) && in_array( $wpcom_stats->get_error_code(), array( 'missing_token', 'no_possible_tokens', 'site_not_connected' ), true ) ) {
 			return $wpcom_stats;
 		}
 

@@ -34,6 +34,13 @@ abstract class TestCase extends PHPUnit_TestCase {
 	protected $editor_id;
 
 	/**
+	 * Connection option override owned by the current test.
+	 *
+	 * @var \Closure|null
+	 */
+	private $connection_options_filter;
+
+	/**
 	 * Setting up the test.
 	 */
 	public function setUp(): void {
@@ -95,6 +102,9 @@ abstract class TestCase extends PHPUnit_TestCase {
 
 		remove_filter( 'pre_http_request', array( $this, 'plan_http_response_fixture' ) );
 		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_site_connection_options' ) );
+		if ( $this->connection_options_filter ) {
+			remove_filter( 'jetpack_options', $this->connection_options_filter );
+		}
 		delete_option( Odyssey_Assets::ODYSSEY_STATS_CACHE_BUSTER_CACHE_KEY );
 	}
 
@@ -111,14 +121,10 @@ abstract class TestCase extends PHPUnit_TestCase {
 	 */
 	protected function disconnect_site_keeping_blog_id() {
 		$this->disconnect_site();
-		add_filter(
-			'jetpack_options',
-			static function ( $value, $name ) {
-				return 'id' === $name ? '999' : $value;
-			},
-			10,
-			2
-		);
+		$this->connection_options_filter = static function ( $value, $name ) {
+			return 'id' === $name ? '999' : $value;
+		};
+		add_filter( 'jetpack_options', $this->connection_options_filter, 10, 2 );
 	}
 
 	/**
@@ -127,20 +133,16 @@ abstract class TestCase extends PHPUnit_TestCase {
 	 */
 	protected function use_invalid_blog_token() {
 		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_site_connection_options' ), 10 );
-		add_filter(
-			'jetpack_options',
-			static function ( $value, $name ) {
-				switch ( $name ) {
-					case 'blog_token':
-						return 'nodot-token';
-					case 'id':
-						return '999';
-				}
-				return $value;
-			},
-			10,
-			2
-		);
+		$this->connection_options_filter = static function ( $value, $name ) {
+			switch ( $name ) {
+				case 'blog_token':
+					return 'nodot-token';
+				case 'id':
+					return '999';
+			}
+			return $value;
+		};
+		add_filter( 'jetpack_options', $this->connection_options_filter, 10, 2 );
 		( new Connection_Manager() )->reset_connection_status();
 	}
 

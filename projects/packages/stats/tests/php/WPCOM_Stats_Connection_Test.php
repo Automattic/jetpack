@@ -56,6 +56,38 @@ class WPCOM_Stats_Connection_Test extends StatsBaseTestCase {
 	}
 
 	/**
+	 * Restoring a connection must retry the same request instead of replaying a cached error.
+	 *
+	 * @dataProvider rejected_token_provider
+	 * @param string $error_code Remote authentication error.
+	 */
+	#[DataProvider( 'rejected_token_provider' )]
+	public function test_visits_retries_after_connection_recovery( $error_code ) {
+		\Automattic\Jetpack\Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
+		$calls   = 0;
+		$data    = array(
+			'fields' => array( 'period', 'views' ),
+			'data'   => array( array( '2026-09-07', 3 ) ),
+		);
+		$respond = static function () use ( &$calls, $error_code, $data ) {
+			++$calls;
+			return array(
+				'response' => array( 'code' => 1 === $calls ? 400 : 200 ),
+				'body'     => wp_json_encode( 1 === $calls ? array( 'error' => $error_code ) : $data, JSON_UNESCAPED_SLASHES ),
+			);
+		};
+		add_filter( 'pre_http_request', $respond );
+		try {
+			$client = new WPCOM_Stats();
+			$this->assertInstanceOf( WP_Error::class, $client->get_visits() );
+			$this->assertSame( $data, $client->get_visits() );
+			$this->assertSame( 2, $calls );
+		} finally {
+			remove_filter( 'pre_http_request', $respond );
+		}
+	}
+
+	/**
 	 * A malformed token fails before HTTP and still identifies the connection problem.
 	 */
 	public function test_visits_with_malformed_blog_token() {

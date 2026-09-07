@@ -68,13 +68,8 @@ class Odyssey_Config_Data {
 			return 0;
 		}
 
-		// A token with no dot has no secret half; `Client::build_signed_request()` would
-		// reject it before sending, making it equivalent to a missing token.
-		$blog_token = Jetpack_Options::get_option( 'blog_token' );
-		if ( $blog_token && false === strpos( $blog_token, '.' ) ) {
-			return 0;
-		}
-
+		// Keep registered sites in the dashboard even when their token is malformed.
+		// The traffic request reports the connection error; an ID of 0 routes to plan selection.
 		return $blog_id;
 	}
 

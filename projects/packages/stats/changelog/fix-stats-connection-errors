@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Return connection errors for Stats requests with missing or rejected blog tokens.
+Return uncached connection errors for Stats requests with missing or rejected blog tokens so requests recover when the connection is restored.
