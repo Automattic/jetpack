@@ -11,6 +11,9 @@ use Automattic\Jetpack_Boost\Admin\Config;
 use Automattic\Jetpack_Boost\Lib\Debug;
 use Automattic\Jetpack_Boost\Tests\Base_TestCase;
 use Brain\Monkey\Functions;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
 if ( ! defined( 'JETPACK_BOOST_SLUG' ) ) {
 	define( 'JETPACK_BOOST_SLUG', 'jetpack-boost' );
@@ -24,6 +27,10 @@ if ( ! defined( 'JETPACK_BOOST_SLUG' ) ) {
 class Admin_Test extends Base_TestCase {
 	private $original_get;
 	private $original_menu_items;
+	private $localized      = array();
+	private $enqueued       = array();
+	private $script_checks  = array();
+	private $enqueue_events = array();
 
 	protected function set_up() {
 		parent::set_up();
@@ -147,35 +154,11 @@ class Admin_Test extends Base_TestCase {
 		$this->assertFalse( has_action( 'current_screen', array( $admin, 'alias_screen_id_for_wp_build' ) ) );
 	}
 
-	public function test_modern_dashboard_does_not_load_without_a_page() {
-		$this->enable_modern_dashboard();
-		unset( $_GET['page'] );
-		Functions\expect( 'Automattic\\Jetpack_Boost\\Admin\\file_exists' )->never();
-		$admin = new Admin();
-
-		$admin->handle_admin_menu();
-
-		$this->assertSame( array( $admin, 'render_settings' ), $this->last_menu_callback() );
-		$this->assertFalse( has_action( 'current_screen', array( $admin, 'alias_screen_id_for_wp_build' ) ) );
-	}
-
-	public function test_modern_dashboard_does_not_load_on_front_end() {
-		$this->enable_modern_dashboard();
-		Functions\when( 'is_admin' )->justReturn( false );
-		Functions\expect( 'Automattic\\Jetpack_Boost\\Admin\\file_exists' )->never();
-		$admin = new Admin();
-
-		$admin->handle_admin_menu();
-
-		$this->assertSame( array( $admin, 'render_settings' ), $this->last_menu_callback() );
-		$this->assertFalse( has_action( 'current_screen', array( $admin, 'alias_screen_id_for_wp_build' ) ) );
-	}
-
 	public function test_modern_build_registers_polyfills_and_modules_before_aliasing_screen() {
 		$this->enable_modern_dashboard();
 		$events = array();
 		\Patchwork\redefine(
-			Admin::class . '::load_wp_build',
+			Admin::class . '::dashboard_build_is_available',
 			function () use ( &$events ) {
 				$events[] = 'build';
 				return true;
@@ -207,6 +190,158 @@ class Admin_Test extends Base_TestCase {
 		$this->assertNotFalse( has_action( 'current_screen', array( $admin, 'alias_screen_id_for_wp_build' ) ) );
 		$admin->alias_screen_id_for_wp_build( $screen );
 		$this->assertSame( 'jetpack-boost-dashboard', $screen->id );
+	}
+
+	/**
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_existing_build_without_generated_functions_keeps_legacy_page() {
+		$fixture = JETPACK_BOOST_DIR_PATH . '/.cache/admin-build-' . uniqid();
+		mkdir( $fixture . '/build', 0777, true );
+		$build_file = $fixture . '/build/build.php';
+		file_put_contents( $build_file, '<?php // No generated dashboard functions.' );
+		define( 'Automattic\\Jetpack_Boost\\Admin\\JETPACK_BOOST_DIR_PATH', $fixture );
+
+		try {
+			$this->enable_modern_dashboard();
+			$admin = new Admin();
+
+			$admin->handle_admin_menu();
+
+			$this->assertContains( realpath( $build_file ), get_included_files() );
+			$this->assertSame( array( $admin, 'render_settings' ), $this->last_menu_callback() );
+			$this->assertFalse( has_action( 'current_screen', array( $admin, 'alias_screen_id_for_wp_build' ) ) );
+		} finally {
+			unlink( $build_file );
+			rmdir( $fixture . '/build' );
+			rmdir( $fixture );
+		}
+	}
+
+	public function test_enqueue_localizes_boost_constants() {
+		$admin     = $this->prepare_enqueue_scripts();
+		$constants = array( 'site' => array( 'url' => 'https://example.org' ) );
+		\Patchwork\redefine(
+			Config::class . '::constants',
+			function () use ( $constants ) {
+				return $constants;
+			}
+		);
+		$admin->enqueue_scripts();
+
+		$this->assertSame( $constants, $this->localized['jetpack-boost-admin']['Jetpack_Boost'] );
+	}
+
+	/**
+	 * @dataProvider dashboard_modes
+	 */
+	#[DataProvider( 'dashboard_modes' )]
+	public function test_legacy_and_modern_dashboard_localize_api_settings( $modern ) {
+		$admin = $this->prepare_enqueue_scripts( $modern );
+
+		if ( $modern ) {
+			$admin->enqueue_scripts();
+		} else {
+			ob_start();
+			try {
+				$admin->render_settings();
+			} finally {
+				ob_end_clean();
+			}
+		}
+		$this->assertSame(
+			array(
+				'root'  => 'https://example.org/wp-json/',
+				'nonce' => 'wp_rest',
+			),
+			$this->localized['jetpack-boost-admin']['wpApiSettings']
+		);
+	}
+
+	public static function dashboard_modes() {
+		return array(
+			'legacy' => array( false ),
+			'modern' => array( true ),
+		);
+	}
+
+	public function test_modern_dashboard_enqueues_registered_i18n_loader() {
+		$admin = $this->prepare_enqueue_scripts( true );
+		$admin->enqueue_scripts();
+
+		$this->assertSame( array( array( 'wp-jp-i18n-loader', 'registered' ) ), $this->script_checks );
+		$this->assertSame( array( 'wp-jp-i18n-loader' ), $this->enqueued );
+	}
+
+	public function test_modern_dashboard_skips_unregistered_i18n_loader() {
+		$admin         = $this->prepare_enqueue_scripts( true );
+		$prerequisites = $this->mock_prerequisites();
+		Functions\when( 'wp_script_is' )->justReturn( false );
+
+		$admin->enqueue_scripts();
+
+		$this->assertSame( array(), $this->enqueued );
+		$this->assertSame( array( 'wp-i18n', 'jetpack-boost-admin' ), $prerequisites->deps );
+		$this->assertSame( array( 'register', 'Jetpack_Boost', 'enqueue', 'wpApiSettings', 'prerequisites' ), $this->enqueue_events );
+	}
+
+	public function test_modern_prerequisites_wait_for_webpack_bootstrap_and_i18n() {
+		$admin         = $this->prepare_enqueue_scripts( true );
+		$prerequisites = $this->mock_prerequisites();
+
+		$admin->enqueue_scripts();
+
+		$this->assertSame( array( 'wp-i18n', 'jetpack-boost-admin', 'wp-jp-i18n-loader' ), $prerequisites->deps );
+		$this->assertSame( array( 'register', 'Jetpack_Boost', 'enqueue', 'wpApiSettings', 'i18n', 'prerequisites' ), $this->enqueue_events );
+	}
+
+	public function test_missing_modern_prerequisites_are_logged() {
+		$admin   = $this->prepare_enqueue_scripts( true );
+		$scripts = \Mockery::mock();
+		$scripts->shouldReceive( 'query' )->once()
+			->with( 'jetpack-boost-dashboard-wp-admin-prerequisites', 'registered' )->andReturn( false );
+		Functions\when( 'wp_scripts' )->justReturn( $scripts );
+		$messages = array();
+		\Patchwork\redefine(
+			Debug::class . '::log',
+			function ( $message ) use ( &$messages ) {
+				$messages[] = $message;
+			}
+		);
+
+		$admin->enqueue_scripts();
+
+		$this->assertSame(
+			array( 'Modern dashboard prerequisites are not registered; bootstrap dependencies could not be attached.' ),
+			$messages
+		);
+	}
+
+	public function test_modern_dashboard_does_not_load_without_a_page() {
+		$this->enable_modern_dashboard();
+		unset( $_GET['page'] );
+		Functions\expect( 'Automattic\\Jetpack_Boost\\Admin\\file_exists' )->never();
+		$admin = new Admin();
+
+		$admin->handle_admin_menu();
+
+		$this->assertSame( array( $admin, 'render_settings' ), $this->last_menu_callback() );
+		$this->assertFalse( has_action( 'current_screen', array( $admin, 'alias_screen_id_for_wp_build' ) ) );
+	}
+
+	public function test_modern_dashboard_does_not_load_on_front_end() {
+		$this->enable_modern_dashboard();
+		Functions\when( 'is_admin' )->justReturn( false );
+		Functions\expect( 'Automattic\\Jetpack_Boost\\Admin\\file_exists' )->never();
+		$admin = new Admin();
+
+		$admin->handle_admin_menu();
+
+		$this->assertSame( array( $admin, 'render_settings' ), $this->last_menu_callback() );
+		$this->assertFalse( has_action( 'current_screen', array( $admin, 'alias_screen_id_for_wp_build' ) ) );
 	}
 
 	public function test_legacy_enqueue_keeps_existing_assets_and_localization() {
@@ -253,94 +388,6 @@ class Admin_Test extends Base_TestCase {
 			$registered
 		);
 		$this->assertSame( array( 'jetpack-boost-admin' ), $enqueued );
-	}
-
-	public function test_modern_prerequisites_wait_for_webpack_bootstrap_and_i18n() {
-		$this->assert_modern_prerequisites( true );
-	}
-
-	public function test_modern_prerequisites_work_without_registered_i18n_loader() {
-		$this->assert_modern_prerequisites( false );
-	}
-
-	private function assert_modern_prerequisites( $has_i18n_loader ) {
-		$admin  = new Admin();
-		$loaded = new \ReflectionProperty( Admin::class, 'modern_dashboard_loaded' );
-		if ( PHP_VERSION_ID < 80100 ) {
-			$loaded->setAccessible( true );
-		}
-		$loaded->setValue( $admin, true );
-		$constants     = array(
-			'site' => array(
-				'url'    => 'https://example.org',
-				'online' => true,
-			),
-		);
-		$events        = array();
-		$localized     = array();
-		$prerequisites = (object) array( 'deps' => array( 'wp-i18n' ) );
-		$scripts       = \Mockery::mock();
-		$scripts->shouldReceive( 'query' )->once()
-			->with( 'jetpack-boost-dashboard-wp-admin-prerequisites', 'registered' )->andReturnUsing(
-				function () use ( &$events, $prerequisites ) {
-					$events[] = 'prerequisites';
-					return $prerequisites;
-				}
-			);
-		Functions\when( 'wp_scripts' )->justReturn( $scripts );
-		Functions\when( 'rest_url' )->justReturn( 'https://example.org/wp-json/' );
-		Functions\when( 'wp_create_nonce' )->returnArg();
-		Functions\expect( 'wp_script_is' )->once()->with( 'wp-jp-i18n-loader', 'registered' )->andReturn( $has_i18n_loader );
-		Functions\expect( 'wp_enqueue_script' )->times( $has_i18n_loader ? 1 : 0 )->with( 'wp-jp-i18n-loader' )->andReturnUsing(
-			function () use ( &$events ) {
-				$events[] = 'i18n';
-			}
-		);
-		Functions\when( 'wp_localize_script' )->alias(
-			function ( $handle, $name, $data ) use ( &$localized, &$events ) {
-				$events[]                      = $name;
-				$localized[ $handle ][ $name ] = $data;
-			}
-		);
-		\Patchwork\redefine(
-			Config::class . '::constants',
-			function () use ( $constants ) {
-				return $constants;
-			}
-		);
-		\Patchwork\redefine(
-			Assets::class . '::register_script',
-			function () use ( &$events ) {
-				$events[] = 'register';
-			}
-		);
-		\Patchwork\redefine(
-			Assets::class . '::enqueue_script',
-			function () use ( &$events ) {
-				$events[] = 'enqueue';
-			}
-		);
-
-		$admin->enqueue_scripts();
-		'@phan-var array<string, array<string, mixed>> $localized';
-
-		$expected_events = array( 'register', 'Jetpack_Boost', 'enqueue', 'wpApiSettings' );
-		$expected_deps   = array( 'wp-i18n', 'jetpack-boost-admin' );
-		if ( $has_i18n_loader ) {
-			$expected_events[] = 'i18n';
-			$expected_deps[]   = 'wp-jp-i18n-loader';
-		}
-		$expected_events[] = 'prerequisites';
-		$this->assertSame( $expected_events, $events );
-		$this->assertSame( $expected_deps, $prerequisites->deps );
-		$this->assertSame( $constants, $localized['jetpack-boost-admin']['Jetpack_Boost'] );
-		$this->assertSame(
-			array(
-				'root'  => 'https://example.org/wp-json/',
-				'nonce' => 'wp_rest',
-			),
-			$localized['jetpack-boost-admin']['wpApiSettings']
-		);
 	}
 
 	public function test_datasync_localizes_real_boost_entries_through_registered_page_callback() {
@@ -394,6 +441,72 @@ class Admin_Test extends Base_TestCase {
 		$this->assertFalse( $data['getting_started']['value'] );
 		$this->assertFalse( $data['dismissed_alerts']['value']['score_increase'] );
 		$this->assertNotEmpty( $data['dismissed_alerts']['nonce'] );
+	}
+
+	private function prepare_enqueue_scripts( $modern = false ) {
+		$admin  = new Admin();
+		$loaded = new \ReflectionProperty( Admin::class, 'modern_dashboard_loaded' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$loaded->setAccessible( true );
+		}
+		$loaded->setValue( $admin, $modern );
+		if ( ! defined( 'JETPACK_BOOST_PATH' ) ) {
+			define( 'JETPACK_BOOST_PATH', dirname( __DIR__, 3 ) . '/jetpack-boost.php' );
+		}
+		Functions\when( 'rest_url' )->justReturn( 'https://example.org/wp-json/' );
+		Functions\when( 'wp_create_nonce' )->returnArg();
+		Functions\when( 'wp_localize_script' )->alias(
+			function ( $handle, $name, $data ) {
+				$this->enqueue_events[]              = $name;
+				$this->localized[ $handle ][ $name ] = $data;
+			}
+		);
+		Functions\when( 'wp_script_is' )->alias(
+			function ( $handle, $status ) {
+				$this->script_checks[] = array( $handle, $status );
+				return true;
+			}
+		);
+		Functions\when( 'wp_enqueue_script' )->alias(
+			function ( $handle ) {
+				$this->enqueue_events[] = 'i18n';
+				$this->enqueued[]       = $handle;
+			}
+		);
+		\Patchwork\redefine(
+			Config::class . '::constants',
+			function () {
+				return array();
+			}
+		);
+		\Patchwork\redefine(
+			Assets::class . '::register_script',
+			function () {
+				$this->enqueue_events[] = 'register';
+			}
+		);
+		\Patchwork\redefine(
+			Assets::class . '::enqueue_script',
+			function () {
+				$this->enqueue_events[] = 'enqueue';
+			}
+		);
+		$this->mock_prerequisites();
+		return $admin;
+	}
+
+	private function mock_prerequisites() {
+		$prerequisites = (object) array( 'deps' => array( 'wp-i18n' ) );
+		$scripts       = \Mockery::mock();
+		$scripts->shouldReceive( 'query' )
+			->with( 'jetpack-boost-dashboard-wp-admin-prerequisites', 'registered' )->andReturnUsing(
+				function () use ( $prerequisites ) {
+					$this->enqueue_events[] = 'prerequisites';
+					return $prerequisites;
+				}
+			);
+		Functions\when( 'wp_scripts' )->justReturn( $scripts );
+		return $prerequisites;
 	}
 
 	private function enable_modern_dashboard() {

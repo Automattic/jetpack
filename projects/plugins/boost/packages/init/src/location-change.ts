@@ -1,5 +1,6 @@
 let initialized = false;
 
+// Keep the history wrappers installed for the page lifetime.
 export function initLocationChange(): void {
 	if ( initialized ) {
 		return;
