@@ -123,7 +123,9 @@ class Frontend_Banner_Test extends \WorDBless\BaseTestCase {
 
 	public function test_post_grace_renders_the_close_button(): void {
 		$this->set_purchase( -45 );
-		$this->assertStringContainsString( 'wpcom-expiry-frontend-banner__dismiss', $this->render() );
+		$html = $this->render();
+		$this->assertStringContainsString( 'wpcom-expiry-frontend-banner__dismiss', $html );
+		$this->assertStringContainsString( 'wpcom-expiry-frontend-banner--dismissible', $html );
 	}
 
 	public function test_renders_nothing_when_not_due(): void {

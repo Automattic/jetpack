@@ -25,7 +25,8 @@ body.has-wpcom-expiry-banner {
 	align-items: center;
 	justify-content: center;
 	gap: 8px 16px;
-	padding: 8px 48px;
+	padding: 8px 16px;
+	border-block-start: 1px solid rgba(255, 255, 255, 0.1);
 	background: #1e1e1e;
 	color: #e0e0e0;
 	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
@@ -60,11 +61,16 @@ body.has-wpcom-expiry-banner {
 		}
 	}
 
+	// Only post-grace has the close button, so only then is room kept for it,
+	// on both sides so the text stays centered.
+	&--dismissible {
+		padding-inline: 64px;
+	}
+
 	&__dismiss {
 		position: absolute;
-		inset-inline-end: 12px;
-		inset-block-start: 50%;
-		transform: translateY(-50%);
+		inset-inline-end: 16px;
+		inset-block-start: 8px;
 		padding: 4px;
 		border: 0;
 		background: transparent;
@@ -81,8 +87,11 @@ body.has-wpcom-expiry-banner {
 	}
 
 	.wpcom-expiry-frontend-banner {
-		padding-inline: 16px 40px;
 		font-size: 13px;
+
+		&--dismissible {
+			padding-inline: 56px;
+		}
 
 		body.admin-bar & {
 			inset-block-start: $admin-bar-height-mobile;

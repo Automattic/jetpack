@@ -141,7 +141,7 @@ function wpcom_expiry_notices_render_frontend_banner_html( array $state, array $
 		wpcom_expiry_notices_admin_banner_body( $state )
 	);
 	?>
-	<div id="wpcom-expiry-frontend-banner" class="wpcom-expiry-frontend-banner" role="region" aria-label="<?php esc_attr_e( 'Plan expiry notice', 'jetpack-mu-wpcom' ); ?>">
+	<div id="wpcom-expiry-frontend-banner" class="wpcom-expiry-frontend-banner<?php echo $is_dismissible ? ' wpcom-expiry-frontend-banner--dismissible' : ''; ?>" role="region" aria-label="<?php esc_attr_e( 'Plan expiry notice', 'jetpack-mu-wpcom' ); ?>">
 		<span class="wpcom-expiry-frontend-banner__text"><?php echo esc_html( $text ); ?></span>
 		<a
 			class="wpcom-expiry-frontend-banner__cta"
