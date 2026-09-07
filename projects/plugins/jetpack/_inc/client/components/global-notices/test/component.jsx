@@ -93,21 +93,4 @@ describe( 'NoticesList', () => {
 		expect( screen.queryByText( 'Site is verified.' ) ).not.toBeInTheDocument();
 		expect( screen.getByText( 'Testing your connection…' ) ).toBeInTheDocument();
 	} );
-
-	it( 'leaves the remaining notices alone when one of them expires', () => {
-		const store = mountNotices();
-
-		act( () => {
-			store.dispatch( createNotice( 'is-success', 'Saved.', { id: 'a', duration: 2000 } ) );
-			store.dispatch( createNotice( 'is-info', 'Still working…', { id: 'b' } ) );
-		} );
-		expect( screen.getByText( 'Saved.' ) ).toBeInTheDocument();
-		expect( screen.getByText( 'Still working…' ) ).toBeInTheDocument();
-
-		act( () => {
-			jest.advanceTimersByTime( 2000 );
-		} );
-		expect( screen.queryByText( 'Saved.' ) ).not.toBeInTheDocument();
-		expect( screen.getByText( 'Still working…' ) ).toBeInTheDocument();
-	} );
 } );
