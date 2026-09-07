@@ -55,23 +55,6 @@ export function SwitchOffDialog( { onClose }: SwitchOffDialogProps ) {
 		setIsSwitchingOff( true );
 		setHasFailed( false );
 
-		const message = comment.trim();
-
-		// Before the write: the navigation below would cut short a beacon sent after it.
-		trackEvent( 'jetpack_premium_analytics_preview_disable', {
-			...( rating === undefined ? {} : { rating } ),
-			...( message ? { comment: message } : {} ),
-		} );
-
-		// Happiness gets the comment too; a failure there must not keep the reader here.
-		const feedback = message
-			? submitStatsUserFeedback( {
-					rating,
-					comment: message,
-					productName: PRODUCT_NAME,
-			  } ).catch( () => undefined )
-			: Promise.resolve();
-
 		try {
 			await disableDashboard();
 		} catch {
@@ -80,7 +63,23 @@ export function SwitchOffDialog( { onClose }: SwitchOffDialogProps ) {
 			return;
 		}
 
-		await feedback;
+		const message = comment.trim();
+
+		// After the write so a retry counts once, before the navigation so the beacon is not cut short.
+		trackEvent( 'jetpack_premium_analytics_preview_disable', {
+			...( rating === undefined ? {} : { rating } ),
+			...( message ? { comment: message } : {} ),
+		} );
+
+		// Happiness gets the comment too; a failure there must not keep the reader here.
+		if ( message ) {
+			await submitStatsUserFeedback( {
+				rating,
+				comment: message,
+				productName: PRODUCT_NAME,
+			} ).catch( () => undefined );
+		}
+
 		returnToClassicStats();
 	}, [ comment, rating, trackEvent ] );
 

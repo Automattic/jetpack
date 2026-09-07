@@ -372,8 +372,8 @@ describe( 'switching the new Traffic tab off', () => {
 			{}
 		);
 		expect( mockApiFetch ).toHaveBeenCalledTimes( 1 );
-		// The beacon goes out ahead of the write, so the navigation cannot cut it short.
-		expect( mockRecordEvent.mock.invocationCallOrder[ 0 ] ).toBeLessThan(
+		// Reported once the write is through, so a failed attempt is not a disable.
+		expect( mockRecordEvent.mock.invocationCallOrder[ 0 ] ).toBeGreaterThan(
 			mockApiFetch.mock.invocationCallOrder[ 0 ]
 		);
 	} );
@@ -423,8 +423,8 @@ describe( 'switching the new Traffic tab off', () => {
 		} );
 	} );
 
-	it( 'keeps the reader here when the write fails', async () => {
-		mockApiFetch.mockRejectedValue( new Error( 'rest_forbidden' ) );
+	it( 'keeps the reader here when the write fails, and counts a retry once', async () => {
+		mockApiFetch.mockRejectedValueOnce( { code: 'rest_forbidden' } );
 		const user = await openConfirmation();
 
 		await user.click( screen.getByRole( 'button', { name: 'Switch it off' } ) );
@@ -435,6 +435,13 @@ describe( 'switching the new Traffic tab off', () => {
 		).resolves.toBeInTheDocument();
 		expect( screen.getByRole( 'button', { name: 'Switch it off' } ) ).toBeEnabled();
 		expect( mockReturnToClassicStats ).not.toHaveBeenCalled();
+		// A failed attempt is not a disable.
+		expect( mockRecordEvent ).not.toHaveBeenCalled();
+
+		await user.click( screen.getByRole( 'button', { name: 'Switch it off' } ) );
+
+		await waitFor( () => expect( mockReturnToClassicStats ).toHaveBeenCalledTimes( 1 ) );
+		expect( mockRecordEvent ).toHaveBeenCalledTimes( 1 );
 	} );
 
 	it( 'ignores Escape while the write is in flight', async () => {
