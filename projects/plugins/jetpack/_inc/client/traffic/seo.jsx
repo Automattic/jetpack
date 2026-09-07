@@ -291,6 +291,17 @@ export const SEO = withModuleSettingsFormHelpers(
 					hideButton={ hasConflictingSeoPlugin || ! hasSeoTools }
 				>
 					<div className="jp-settings-card__notice">{ this.seoOptInBanner() }</div>
+					{ hasSeoTools && hasConflictingSeoPlugin && (
+						<div className="jp-settings-card__notice">
+							<SimpleNotice showDismiss={ false }>
+								{ sprintf(
+									/* translators: %s is the name of conflicting SEO plugin */
+									__( 'Your SEO settings are managed by the following plugin: %s', 'jetpack' ),
+									conflictingSeoPlugins[ 0 ].name
+								) }
+							</SimpleNotice>
+						</div>
+					) }
 					{ hasSeoTools && (
 						<SettingsGroup
 							hasChild
@@ -304,15 +315,6 @@ export const SEO = withModuleSettingsFormHelpers(
 								link: getRedirectUrl( 'jetpack-support-seo-tools' ),
 							} }
 						>
-							{ hasConflictingSeoPlugin && (
-								<SimpleNotice showDismiss={ false }>
-									{ sprintf(
-										/* translators: %s is the name of conflicting SEO plugin */
-										__( 'Your SEO settings are managed by the following plugin: %s', 'jetpack' ),
-										conflictingSeoPlugins[ 0 ].name
-									) }
-								</SimpleNotice>
-							) }
 							<p>
 								{ __(
 									'Take control of the way search engines represent your site. With Jetpack’s SEO tools you can preview how your content will look on popular search engines and change items like your site name and tagline in seconds.',
