@@ -119,7 +119,7 @@ class Jetpack_Admin_Menu_Test extends WP_UnitTestCase {
 		$this->assertGreaterThan( $last_unpinned_at, $settings_at, 'Settings should be pinned below every feature page and external link.' );
 
 		$alphabetical = $internal;
-		usort( $alphabetical, 'strcmp' );
+		usort( $alphabetical, 'strnatcasecmp' );
 
 		$this->assertSame( $alphabetical, $internal, 'Jetpack submenu items should be ordered alphabetically by menu title.' );
 	}

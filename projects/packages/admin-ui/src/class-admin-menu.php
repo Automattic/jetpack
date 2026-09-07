@@ -164,7 +164,16 @@ class Admin_Menu {
 				$result     = $position_a <=> $position_b;
 
 				if ( 0 === $result ) {
-					$result = strcmp( $a['menu_title'], $b['menu_title'] );
+					/*
+					 * Case-insensitive and number-aware. Menu titles mix translated strings
+					 * with untranslated product names, so a plain strcmp() sorts any
+					 * lowercase-leading label ("eCommerce") after every capitalised one.
+					 *
+					 * This is still a byte comparison: a title starting with an accented
+					 * character sorts after Z. Fixing that needs Collator from ext-intl,
+					 * which we cannot rely on being installed.
+					 */
+					$result = strnatcasecmp( $a['menu_title'], $b['menu_title'] );
 				}
 
 				return $result;
