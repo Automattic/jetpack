@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-Stats: Identify missing or rejected blog tokens as connection errors and retry after connection recovery without showing plan selection for malformed tokens.
+Stats: Fix traffic charts that could keep loading when a site's connection needs attention.
