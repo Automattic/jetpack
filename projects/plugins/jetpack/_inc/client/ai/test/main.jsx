@@ -462,6 +462,21 @@ describe( 'AI admin page (main.jsx)', () => {
 			expect( screen.queryByText( UPSELL_CTA ) ).not.toBeInTheDocument();
 		} );
 
+		test( 'refused user on an MCP-only page: no-access notice is the whole page', async () => {
+			window.jetpackAiSettings = { blogId: 1, isUserConnected: true };
+			mockApiFetch( {
+				mcpGet: { has_mcp_access: false, mcp_abilities: {}, access_error: 'forbidden' },
+			} );
+
+			render( <App /> );
+
+			await expect(
+				screen.findByText( /does not have access to Jetpack AI on this site/, IGNORE_A11Y )
+			).resolves.toBeInTheDocument();
+			expect( screen.queryByText( UPSELL_CTA ) ).not.toBeInTheDocument();
+			expect( screen.queryByText( 'AI Features' ) ).not.toBeInTheDocument();
+		} );
+
 		test( 'site really has no plan: still shows the upsell', async () => {
 			window.jetpackAiSettings = { showFeaturesView: true, blogId: 1, isUserConnected: true };
 			mockApiFetch( { mcpGet: { has_mcp_access: false, mcp_abilities: {} } } );
