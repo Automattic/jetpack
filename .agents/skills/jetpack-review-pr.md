@@ -308,7 +308,9 @@ and should keep only its own local reason for the value it passes.
 *Provenance that rots* — the report gives the whole comment, the signal that fired, and a range:
 
 - **Discard** — a durable pointer (an issue or PR link, an upstream permalink pinned to a tag or
-  SHA) or a number the code actually enforces rather than an observation about it.
+  SHA) or a number the code actually enforces rather than an observation about it. Also `history`
+  on the purpose sense of "used to" — `a schema used to validate`, `values used to render` — which
+  is its commonest false positive and reads nothing like the past tense the rule is after.
 - **`[suggestion]`** — the default. Give the replacement, not just the objection: keep the
   invariant, cut the history. "Calling this inside the while loop caused ~20 flushes per file"
   becomes "Once per file, not per batch — flushing here wipes the options group." Same warning,

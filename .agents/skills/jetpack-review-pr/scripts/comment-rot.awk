@@ -177,8 +177,8 @@ function alen( s,   a ) {
 	return length( a )
 }
 
-# Cut on a word boundary, never mid-character: a byte-counting awk splits a
-# multibyte character in half here and prints the broken bytes.
+# Cut on a word boundary: a character count and a byte count reach the limit at
+# different points, and a byte one can land inside a multibyte character.
 function clip( t, max,   n, w, i, o ) {
 	if ( alen( t ) <= max ) return t
 	n = split( t, w, " " )
