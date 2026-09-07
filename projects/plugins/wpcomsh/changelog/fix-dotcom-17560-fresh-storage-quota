@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Storage: use the storage limit refreshed at purchase time, so an upgrade or add-on lifts the cap in WP Admin right away instead of after up to 12 hours.

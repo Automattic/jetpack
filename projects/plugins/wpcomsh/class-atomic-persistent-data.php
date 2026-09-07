@@ -11,6 +11,7 @@
  * @property string $WPCOM_PURCHASES
  * @property string $WPCOM_MARKETPLACE
  * @property string $WPCOM_MARKETPLACE_SOFTWARE
+ * @property string $WPCOM_SPACE_QUOTA_BYTES
  */
 final class Atomic_Persistent_Data {
 

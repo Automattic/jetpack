@@ -332,6 +332,17 @@ function wpcomsh_get_at_site_info() {
 		return array();
 	}
 
+	// Prefer the quota wpcom pushes on purchase: the snapshot above is rewritten by the
+	// platform only every ~12h, so a customer who buys storage stays on the old cap until then.
+	if ( ! defined( 'WPCOMSH_DISABLE_FRESH_QUOTA' ) || ! WPCOMSH_DISABLE_FRESH_QUOTA ) {
+		$persistent_data = new Atomic_Persistent_Data();
+		$pushed_quota    = $persistent_data->WPCOM_SPACE_QUOTA_BYTES; // phpcs:ignore WordPress.NamingConventions
+
+		if ( is_numeric( $pushed_quota ) && (int) $pushed_quota > 0 ) {
+			$site_info['space_quota'] = (int) $pushed_quota;
+		}
+	}
+
 	return $site_info;
 }
 
