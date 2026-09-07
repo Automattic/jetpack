@@ -11,7 +11,6 @@ import { redirect } from '@wordpress/route';
 /**
  * Internal dependencies
  */
-import { ensureDashboardEntities } from '../dashboard-entities';
 import { isPremiumAnalyticsSiteConnected, isVideoPressAvailable } from '../site-readiness';
 
 type VideoDetailParams = { videoId?: string };
@@ -97,7 +96,5 @@ export const route = {
 				search: seeded as unknown as never,
 			} );
 		}
-
-		ensureDashboardEntities();
 	},
 };
