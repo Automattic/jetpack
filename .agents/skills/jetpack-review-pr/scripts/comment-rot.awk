@@ -31,7 +31,7 @@ BEGIN {
 	hash_ext = "php|py|sh|bash|rb|awk"
 
 	# Generated or vendored trees: comments there are not this PR's prose.
-	skip_path = "(^|/)(node_modules|vendor|jetpack_vendor|dist|build|coverage)/|\\.min\\.(js|css)$"
+	skip_path = "(^|/)(node_modules|vendor|jetpack_vendor|dist|build|coverage)/|\\.min\\.(js|css)$|/\\.phan/baseline\\.php$"
 
 	# Load-bearing annotations that are supposed to repeat verbatim.
 	annot = "^(@|phpcs:|phpstan-|psalm-|phan-|eslint-|stylelint-|prettier-|jshint|ts-|jsx-|istanbul |c8 |v8 |translators:|codingstandardsignore|spdx|copyright|licensed under)"
@@ -75,6 +75,7 @@ function rule( n, why, pat ) {
 	if ( match( path, /\.[A-Za-z0-9]+$/ ) ) ext = tolower( substr( path, RSTART + 1, RLENGTH - 1 ) )
 	interesting = ( ext ~ ( "^(" code_ext ")$" ) ) && ( path !~ skip_path )
 	hashes      = ( ext ~ ( "^(" hash_ext ")$" ) )
+	styles      = ( ext ~ /^(css|scss|sass)$/ )
 	next
 }
 
@@ -119,10 +120,11 @@ function comment_body( s,   t ) {
 	if ( substr( s, 1, 3 ) == "/**" )      t = substr( s, 4 )
 	else if ( substr( s, 1, 2 ) == "//" )  t = substr( s, 3 )
 	else if ( substr( s, 1, 2 ) == "/*" )  t = substr( s, 3 )
-	# `{` rules out the CSS universal selector `* { … }`; it also drops docblock
-	# lines carrying a code sample, which a prose duplicate check does not want.
-	else if ( ( substr( s, 1, 2 ) == "* " && index( s, "{" ) == 0 ) || s == "*" ) t = substr( s, 2 )
-	else if ( hashes && substr( s, 1, 1 ) == "#" ) t = substr( s, 2 )
+	# In a stylesheet `* { … }` is the universal selector, not a docblock line.
+	# Only there: elsewhere a brace is prose — `{@see …}`, `/sites/{blog_id}/…`.
+	else if ( ( substr( s, 1, 2 ) == "* " && !( styles && index( s, "{" ) ) ) || s == "*" ) t = substr( s, 2 )
+	# `#[` is a PHP 8 attribute — an annotation, and `annot` cannot see it here.
+	else if ( hashes && substr( s, 1, 1 ) == "#" && substr( s, 1, 2 ) != "#[" ) t = substr( s, 2 )
 	else return ""
 
 	sub( /\*\/[ \t]*$/, "", t )
