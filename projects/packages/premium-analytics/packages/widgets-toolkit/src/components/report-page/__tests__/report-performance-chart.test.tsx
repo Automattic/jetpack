@@ -47,7 +47,7 @@ const PRIMARY: StatsTimeSeriesReport = {
 
 describe( 'ReportPerformanceChart', () => {
 	it( 'renders only the loading overlay while loading without data', () => {
-		render( <ReportPerformanceChart interval="day" isLoading /> );
+		render( <ReportPerformanceChart interval="day" timezone="UTC" isLoading /> );
 
 		expect( screen.getByTestId( 'loading-overlay' ) ).toBeInTheDocument();
 		expect( screen.queryByTestId( 'comparative-line-chart' ) ).not.toBeInTheDocument();
@@ -55,7 +55,9 @@ describe( 'ReportPerformanceChart', () => {
 	} );
 
 	it( 'renders the chart and loading overlay while refetching existing data', () => {
-		render( <ReportPerformanceChart interval="day" primary={ PRIMARY } isLoading /> );
+		render(
+			<ReportPerformanceChart interval="day" timezone="UTC" primary={ PRIMARY } isLoading />
+		);
 
 		expect( screen.getByTestId( 'comparative-line-chart' ) ).toBeInTheDocument();
 		expect( screen.getByTestId( 'loading-overlay' ) ).toBeInTheDocument();
