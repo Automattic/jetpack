@@ -2,6 +2,7 @@
 namespace Automattic\Jetpack\Stats_Admin;
 
 use Automattic\Jetpack\Stats_Admin\TestCase as Stats_TestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 use WP_Error;
 
 /**
@@ -39,14 +40,16 @@ class WPCOM_Client_Test extends Stats_TestCase {
 	}
 
 	/**
-	 * WordPress.com rejects a token that was replaced with wrong credentials by returning
-	 * `invalid_token`. The error must look the same as a missing token so the client can
-	 * identify the connection problem without receiving an opaque server-fault status.
+	 * Rejected token keys and secrets must identify a connection problem.
+	 *
+	 * @dataProvider rejected_token_provider
+	 * @param string $error_code Remote authentication error.
 	 */
-	public function test_request_as_blog_when_wpcom_rejects_the_token() {
+	#[DataProvider( 'rejected_token_provider' )]
+	public function test_request_as_blog_when_wpcom_rejects_the_token( $error_code ) {
 		// Replace the HTTP fixture so WPCOM appears to reject the blog token.
 		remove_filter( 'pre_http_request', array( $this, 'plan_http_response_fixture' ), 10 );
-		$wpcom_rejection = static function () {
+		$wpcom_rejection = static function () use ( $error_code ) {
 			return array(
 				'response' => array(
 					'code'    => 403,
@@ -54,7 +57,7 @@ class WPCOM_Client_Test extends Stats_TestCase {
 				),
 				'body'     => wp_json_encode(
 					array(
-						'error'   => 'invalid_token',
+						'error'   => $error_code,
 						'message' => 'Invalid blog token.',
 					),
 					JSON_UNESCAPED_SLASHES
@@ -71,5 +74,18 @@ class WPCOM_Client_Test extends Stats_TestCase {
 		$this->assertInstanceOf( WP_Error::class, $response );
 		$this->assertSame( 'site_not_connected', $response->get_error_code() );
 		$this->assertSame( 400, $response->get_error_data()['status'] );
+	}
+
+	/**
+	 * Authentication errors returned for rejected blog credentials.
+	 *
+	 * @return array
+	 */
+	public static function rejected_token_provider() {
+		return array(
+			'invalid token'    => array( 'invalid_token' ),
+			'unknown key'      => array( 'unknown_token' ),
+			'incorrect secret' => array( 'signature_mismatch' ),
+		);
 	}
 }

@@ -103,9 +103,9 @@ class WPCOM_Client {
 
 		$error = static::get_wp_error( $response_body, (int) $response_code );
 		if ( is_wp_error( $error ) ) {
-			// WordPress.com rejects an invalid blog token with `invalid_token`; expose it the
-			// same as a missing token so callers can identify the broken connection.
-			if ( 'invalid_token' === $error->get_error_code() ) {
+			// Unknown token keys and incorrect secrets also mean the site cannot authenticate.
+			// Expose these rejections like a missing token so callers can identify the broken connection.
+			if ( in_array( $error->get_error_code(), array( 'invalid_token', 'unknown_token', 'signature_mismatch' ), true ) ) {
 				return new WP_Error(
 					'site_not_connected',
 					__( 'This site is not connected to WordPress.com.', 'jetpack-stats-admin' ),
