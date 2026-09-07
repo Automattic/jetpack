@@ -672,4 +672,57 @@ class REST_Controller_Test extends TestCase {
 		$this->assertSame( 'plugin__updated', $data['last_rewindable_event']['name'] );
 		$this->assertSame( '1786600000.11', $data['undo_backup_id'] );
 	}
+
+	/**
+	 * The flush route is site-level only, like the rest of this controller.
+	 *
+	 * An administrator's own session is not a blog token, so widening the
+	 * callback to reach it would hand every admin a site-wide cache flush.
+	 */
+	public function test_flush_object_cache_rejects_an_administrator() {
+		wp_set_current_user( $this->admin_id );
+
+		$response = $this->server->dispatch( new WP_REST_Request( 'POST', '/jetpack/v4/site/cache/flush' ) );
+
+		$this->assertEquals( 403, $response->get_status() );
+		$this->assertEquals( 'You are not allowed to perform this action.', $response->get_data()['message'] );
+	}
+
+	/**
+	 * Without a persistent cache there is nothing stale to bust, so the route
+	 * says so rather than reporting a flush it never performed.
+	 */
+	public function test_flush_object_cache_skips_a_site_without_a_persistent_cache() {
+		$was_using = wp_using_ext_object_cache( false );
+
+		$response = $this->dispatch_request_signed_with_blog_token( new WP_REST_Request( 'POST', '/jetpack/v4/site/cache/flush' ) );
+
+		wp_using_ext_object_cache( $was_using );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertSame(
+			array(
+				'flushed' => false,
+				'reason'  => 'no_ext_object_cache',
+			),
+			$response->get_data()
+		);
+	}
+
+	/**
+	 * With a persistent cache the route flushes and reports what it got back.
+	 *
+	 * The absent `reason` is the assertion that matters: it separates a real
+	 * flush from the skip above, which also reports `flushed` as false.
+	 */
+	public function test_flush_object_cache_flushes_a_persistent_cache() {
+		$was_using = wp_using_ext_object_cache( true );
+
+		$response = $this->dispatch_request_signed_with_blog_token( new WP_REST_Request( 'POST', '/jetpack/v4/site/cache/flush' ) );
+
+		wp_using_ext_object_cache( $was_using );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertSame( array( 'flushed' => true ), $response->get_data() );
+	}
 }
