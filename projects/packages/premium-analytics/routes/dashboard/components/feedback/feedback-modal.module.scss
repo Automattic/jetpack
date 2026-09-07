@@ -1,6 +1,6 @@
-// `Dialog.Content` has no bottom padding when a `Dialog.Footer` follows
-// and is the scroll container, so the last field's focus outline is
-// clipped. Give back the outline's reach: its offset plus its width.
+// TODO: drop when @wordpress/ui fixes this upstream. `Dialog.Content` loses its
+// bottom padding under a `Dialog.Footer` and also scrolls, clipping the last
+// field's focus outline; this gives back the outline's offset plus its width.
 .body {
 	padding-block-end: calc(var(--wpds-border-width-focus) * 2);
 }
