@@ -9,12 +9,19 @@ namespace Automattic\Jetpack\VideoPress;
 
 use Automattic\Jetpack\My_Jetpack\Product;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use WorDBless\BaseTestCase;
 use WP_Error;
 
 /**
  * Tests for dashboard entitlement state.
+ *
+ * @runTestsInSeparateProcesses
+ * @preserveGlobalState disabled
  */
+#[RunTestsInSeparateProcesses]
+#[PreserveGlobalState( false )]
 class Initial_State_Test extends BaseTestCase {
 
 	/**
