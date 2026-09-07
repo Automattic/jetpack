@@ -77,7 +77,7 @@ describe( 'Boost dashboard stage', () => {
 				window.dispatchEvent( new HashChangeEvent( 'hashchange' ) );
 			} );
 
-			expect( mockNavigate ).toHaveBeenCalledWith( { search: { tab: 'settings' } } );
+			expect( mockNavigate ).toHaveBeenCalledWith( { search: { tab: 'settings' }, replace: true } );
 			expect( getSubpageMount()?.hidden ).toBe( true );
 		}
 	);
@@ -111,6 +111,6 @@ describe( 'Boost dashboard stage', () => {
 		// eslint-disable-next-line testing-library/prefer-user-event
 		fireEvent.click( screen.getByRole( 'tab', { name: 'Settings' } ) );
 
-		expect( mockNavigate ).toHaveBeenCalledWith( { search: { tab: 'settings' } } );
+		expect( mockNavigate ).toHaveBeenCalledWith( { search: { tab: 'settings' }, replace: false } );
 	} );
 } );
