@@ -1140,10 +1140,6 @@ CSS;
 					return;
 				}
 
-				// generate_user() sets wpcom_user_id meta on the new user,
-				// but another user may still have stale meta for this WP.com ID.
-				self::set_wpcom_user_id_meta( $user->ID, $user_data->ID );
-
 				$user_found_with = $new_user_override_role
 				? 'user_created_new_user_override'
 				: 'user_created_users_can_register';
@@ -1497,11 +1493,7 @@ CSS;
 	}
 
 	/**
-	 * Sets the wpcom_user_id meta on a local user, removing it from any other user first.
-	 *
-	 * Multiple local users should never share the same wpcom_user_id. This can happen
-	 * when user resolution changes (e.g., external_user_id points to a different local
-	 * user than the one that previously had the meta).
+	 * Sets the wpcom_user_id meta on a local user.
 	 *
 	 * @since 8.6.0
 	 *
@@ -1509,22 +1501,7 @@ CSS;
 	 * @param int $wpcom_user_id The WordPress.com user ID.
 	 */
 	private static function set_wpcom_user_id_meta( $user_id, $wpcom_user_id ) {
-		$existing = new WP_User_Query(
-			array(
-				'meta_key'   => 'wpcom_user_id',
-				'meta_value' => (int) $wpcom_user_id,
-				'exclude'    => array( $user_id ),
-				'fields'     => 'ID',
-			)
-		);
-
-		foreach ( $existing->get_results() as $stale_user_id ) {
-			delete_user_meta( $stale_user_id, 'wpcom_user_id' );
-			clean_user_cache( $stale_user_id );
-		}
-
-		update_user_meta( $user_id, 'wpcom_user_id', $wpcom_user_id );
-		clean_user_cache( $user_id );
+		Utils::set_wpcom_user_id( $user_id, $wpcom_user_id );
 	}
 
 	/**

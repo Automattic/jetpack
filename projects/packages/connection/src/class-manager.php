@@ -1006,6 +1006,42 @@ class Manager {
 	}
 
 	/**
+	 * Returns the WordPress.com user ID of a connected user.
+	 *
+	 * Cached in user meta, which outlives the object cache backing the `get_connected_user_data()`
+	 * transient, and is dropped wherever that transient is so it cannot outlive its token.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param int|false $user_id The local user identifier. Default is the current user.
+	 * @return int The WordPress.com user ID, or 0 if it could not be determined.
+	 */
+	public function get_wpcom_user_id( $user_id = false ) {
+		$user_id = $user_id ? (int) $user_id : get_current_user_id();
+
+		if ( ! $user_id ) {
+			return 0;
+		}
+
+		$cached = Utils::get_wpcom_user_id( $user_id );
+
+		if ( $cached ) {
+			return $cached;
+		}
+
+		$user_data = $this->get_connected_user_data( $user_id );
+
+		// Callers must read 0 as "unknown", never as "no match": a failed lookup lands here too.
+		if ( empty( $user_data['ID'] ) ) {
+			return 0;
+		}
+
+		Utils::set_wpcom_user_id( $user_id, (int) $user_data['ID'] );
+
+		return (int) $user_data['ID'];
+	}
+
+	/**
 	 * Drop the cached WordPress.com site record.
 	 *
 	 * A caller that fetched the record by another route holds something newer than the cache can,
@@ -1365,6 +1401,7 @@ class Manager {
 				// Delete cached connected user data.
 				$transient_key = "jetpack_connected_user_data_$user_id";
 				delete_transient( $transient_key );
+				Utils::delete_wpcom_user_id( $user_id );
 
 				// Clean up account mismatch transients for this user
 				if ( $wpcom_email ) {
@@ -2163,6 +2200,7 @@ class Manager {
 		// Delete cached connected user data.
 		$transient_key = 'jetpack_connected_user_data_' . get_current_user_id();
 		delete_transient( $transient_key );
+		Utils::delete_wpcom_user_id( get_current_user_id() );
 
 		// Delete the cached site record, which a later connection must not serve.
 		self::delete_cached_site_data();
@@ -2557,6 +2595,10 @@ class Manager {
 		// Delete cached connected user data, so a cached failure from the
 		// previous (broken) token doesn't linger after reconnecting.
 		delete_transient( "jetpack_connected_user_data_$current_user_id" );
+
+		// The replacement token may name a different WordPress.com account, so the cached ID
+		// has to go even though this user was never disconnected.
+		Utils::delete_wpcom_user_id( $current_user_id );
 
 		/**
 		 * Fires after user has successfully received an auth token.

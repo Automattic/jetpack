@@ -129,7 +129,61 @@ class Utils {
 
 		$created_user_id = wp_insert_user( $user );
 
-		update_user_meta( $created_user_id, 'wpcom_user_id', $user_data->ID );
+		self::set_wpcom_user_id( $created_user_id, (int) $user_data->ID );
 		return get_userdata( $created_user_id );
+	}
+
+	/**
+	 * Get the WordPress.com user ID cached on a local user.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param int $user_id The local WordPress user ID.
+	 * @return int The WordPress.com user ID, or 0 when none is cached.
+	 */
+	public static function get_wpcom_user_id( $user_id ) {
+		return (int) get_user_meta( (int) $user_id, 'wpcom_user_id', true );
+	}
+
+	/**
+	 * Cache a WordPress.com user ID on a local user, removing it from any other user first.
+	 *
+	 * Two local users sharing one WordPress.com user ID would each answer to the same identity,
+	 * so the stale holder is cleared rather than left to collide.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param int $user_id       The local WordPress user ID.
+	 * @param int $wpcom_user_id The WordPress.com user ID.
+	 */
+	public static function set_wpcom_user_id( $user_id, $wpcom_user_id ) {
+		$existing = new \WP_User_Query(
+			array(
+				'meta_key'   => 'wpcom_user_id',
+				'meta_value' => (int) $wpcom_user_id,
+				'exclude'    => array( $user_id ),
+				'fields'     => 'ID',
+			)
+		);
+
+		foreach ( $existing->get_results() as $stale_user_id ) {
+			delete_user_meta( $stale_user_id, 'wpcom_user_id' );
+			clean_user_cache( $stale_user_id );
+		}
+
+		update_user_meta( $user_id, 'wpcom_user_id', $wpcom_user_id );
+		clean_user_cache( $user_id );
+	}
+
+	/**
+	 * Drop the WordPress.com user ID cached on a local user.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param int $user_id The local WordPress user ID.
+	 */
+	public static function delete_wpcom_user_id( $user_id ) {
+		delete_user_meta( (int) $user_id, 'wpcom_user_id' );
+		clean_user_cache( (int) $user_id );
 	}
 }
