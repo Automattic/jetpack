@@ -168,6 +168,25 @@ function flush_block(   i, low, sigs ) {
 	blk_text = ""
 }
 
+# Length with each non-ASCII run counted once. gawk measures characters and
+# mawk and busybox bytes, which otherwise puts the substance floor — and so the
+# candidate list — at the mercy of which awk a reviewer happens to run.
+function alen( s,   a ) {
+	a = s
+	gsub( /[^ -~]+/, "?", a )
+	return length( a )
+}
+
+# Cut on a word boundary, never mid-character: a byte-counting awk splits a
+# multibyte character in half here and prints the broken bytes.
+function clip( t, max,   n, w, i, o ) {
+	if ( alen( t ) <= max ) return t
+	n = split( t, w, " " )
+	o = w[1]
+	for ( i = 2; i <= n && alen( o " " w[i] ) <= max; i++ ) o = o " " w[i]
+	return o " […]"
+}
+
 function norm( t,   k ) {
 	k = tolower( t )
 	gsub( /[^a-z0-9']+/, " ", k )
@@ -264,7 +283,7 @@ function subsumed( sig, list, n, self,   b, i, nid, ids, ok ) {
 # still an exact match, just not defeated by a backtick or a full stop. The
 # skill's "Known limitation" note says why this stops short of paraphrase.
 function record_dup( low, text,   key, words, junk ) {
-	if ( length( text ) < min_chars ) return 0
+	if ( alen( text ) < min_chars ) return 0
 	key = low
 	gsub( /[^a-z0-9]+/, " ", key )
 	sub( /^ +/, "", key ); sub( / +$/, "", key )
@@ -361,7 +380,7 @@ END {
 	if ( nrot + 0 == 0 ) print "  none"
 	for ( i = 1; i <= nrot; i++ ) {
 		t = rot_txt[i]
-		if ( length( t ) > 400 ) t = substr( t, 1, 400 ) " […]"
+		t = clip( t, 400 )
 		printf "\n%d. [%s] %s\n   \"%s\"\n", i, rot_sig[i], rot_at[i], t
 	}
 }
