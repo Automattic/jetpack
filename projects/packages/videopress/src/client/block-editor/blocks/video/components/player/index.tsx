@@ -8,7 +8,9 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import { getInlinePlayerOptions } from '../../../../../lib/inline-player/options';
 import { isAllowedOrigin } from '../../../../../lib/videopress-allowed-origins';
+import useInlinePlayer, { getInlinePlayerConfig } from '../../../../hooks/use-inline-player';
 import useVideoPlayer, { getIframeWindowFromRef } from '../../../../hooks/use-video-player';
 /**
  * Types
@@ -85,9 +87,14 @@ export default function Player( {
 	 * trying to reduce the flicker effects as much as possible.
 	 * Once the preview is fetched, the temporary height is ignored.
 	 */
+	// With the shared bundle the player mounts in the page and its container keeps the ratio itself.
+	const inlinePlayerConfig = getInlinePlayerConfig();
+	const isInline = !! inlinePlayerConfig;
+	const inlinePlayerRef = useRef< HTMLDivElement >();
+
 	const [ videoPlayerTemporaryHeight, setVideoPlayerTemporaryHeightState ] = useState<
 		number | string
-	>( 400 );
+	>( isInline ? 'auto' : 400 );
 
 	// todo: figure out why 12px are needed.
 	const temporaryHeighErrorCorrection = 12;
@@ -113,7 +120,7 @@ export default function Player( {
 	const [ isVideoPlayerLoaded, setIsVideoPlayerLoaded ] = useState( false );
 
 	useEffect( () => {
-		if ( ! videoWrapperRef?.current ) {
+		if ( ! videoWrapperRef?.current || isInline ) {
 			return;
 		}
 
@@ -210,8 +217,30 @@ export default function Player( {
 			: undefined,
 	} );
 
+	const { isLoaded: isInlinePlayerLoaded } = useInlinePlayer( inlinePlayerRef, {
+		guid: isInline ? attributes.guid : undefined,
+		config: inlinePlayerConfig,
+		// Preview on hover needs the player playing to take control, as the embed URL does.
+		options: getInlinePlayerOptions(
+			{
+				...attributes,
+				autoplay: attributes.autoplay || previewOnHover,
+				muted: attributes.muted || previewOnHover,
+			},
+			{ preloadDisabled: inlinePlayerConfig?.preloadDisabled }
+		),
+		initialTimePosition: timeToSetPlayerPosition,
+		wrapperElement: mainWrapperRef?.current,
+		previewOnHover: previewOnHover
+			? {
+					atTime: previewAtTime,
+					duration: previewLoopDuration,
+			  }
+			: undefined,
+	} );
+
 	useEffect( () => {
-		if ( isRequestingEmbedPreview ) {
+		if ( isRequestingEmbedPreview && ! isInline ) {
 			setVideoPlayerTemporaryHeight();
 		}
 	}, [ isVideoPlayerLoaded, isRequestingEmbedPreview ] );
@@ -290,7 +319,15 @@ export default function Player( {
 					style={ wrapperElementStyle }
 				>
 					<>
-						{ ! isRequestingEmbedPreview && (
+						{ isInline && (
+							<div
+								className="jetpack-videopress-player__inline"
+								ref={ inlinePlayerRef }
+								style={ { aspectRatio: `100 / ${ videoRatio || 56.25 }` } }
+							/>
+						) }
+
+						{ ! isInline && ! isRequestingEmbedPreview && (
 							<SandBoxWithForms
 								html={ html }
 								scripts={ sandboxScripts }
@@ -300,7 +337,7 @@ export default function Player( {
 							/>
 						) }
 
-						{ ! isVideoPlayerLoaded && (
+						{ ! ( isInline ? isInlinePlayerLoaded : isVideoPlayerLoaded ) && (
 							<div className="jetpack-videopress-player__loading">
 								{ __( 'Loading…', 'jetpack-videopress-pkg' ) }
 							</div>

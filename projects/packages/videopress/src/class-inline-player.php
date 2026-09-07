@@ -208,6 +208,18 @@ class Inline_Player {
 	}
 
 	/**
+	 * Versioned URLs of the player bundle and its stylesheet, for anything that loads the player itself.
+	 *
+	 * @return array{script: string, style: string}
+	 */
+	public static function get_asset_config() {
+		return array(
+			'script' => add_query_arg( 'ver', Package_Version::PACKAGE_VERSION, self::PLAYER_SCRIPT_URL ),
+			'style'  => add_query_arg( 'ver', Package_Version::PACKAGE_VERSION, self::PLAYER_STYLE_URL ),
+		);
+	}
+
+	/**
 	 * Enqueue the boot script and, unless every player on the page sits behind a facade, the shared player assets.
 	 *
 	 * The boot script never depends on the player handle: behind a facade it fetches the
@@ -228,13 +240,7 @@ class Inline_Player {
 			self::$config_printed = true;
 			wp_add_inline_script(
 				self::BOOT_HANDLE,
-				'window.jetpackVideoPressInlinePlayer = ' . wp_json_encode(
-					array(
-						'script' => add_query_arg( 'ver', Package_Version::PACKAGE_VERSION, self::PLAYER_SCRIPT_URL ),
-						'style'  => add_query_arg( 'ver', Package_Version::PACKAGE_VERSION, self::PLAYER_STYLE_URL ),
-					),
-					JSON_UNESCAPED_SLASHES
-				) . ';',
+				'window.jetpackVideoPressInlinePlayer = ' . wp_json_encode( self::get_asset_config(), JSON_UNESCAPED_SLASHES ) . ';',
 				'before'
 			);
 		}
