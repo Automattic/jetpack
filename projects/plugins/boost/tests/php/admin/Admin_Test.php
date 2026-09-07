@@ -188,7 +188,9 @@ class Admin_Test extends Base_TestCase {
 	public function test_modern_prerequisites_wait_for_webpack_bootstrap_and_i18n() {
 		$admin  = new Admin();
 		$loaded = new \ReflectionProperty( Admin::class, 'modern_dashboard_loaded' );
-		$loaded->setAccessible( true );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$loaded->setAccessible( true );
+		}
 		$loaded->setValue( $admin, true );
 		$constants     = array(
 			'site' => array(
@@ -271,7 +273,9 @@ class Admin_Test extends Base_TestCase {
 
 	private function menu_items_property() {
 		$property = new \ReflectionProperty( Admin_Menu::class, 'menu_items' );
-		$property->setAccessible( true );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
 		return $property;
 	}
 

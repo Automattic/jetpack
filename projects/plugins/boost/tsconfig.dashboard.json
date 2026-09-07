@@ -1,12 +1,9 @@
 {
-	"extends": "./tsconfig.json",
+	"extends": "jetpack-js-tools/tsconfig.base.json",
 	"include": [
 		"_inc/**/*",
 		"routes/**/*",
 		"packages/init/src/**/*",
 		"app/assets/src/js/global.d.ts"
-	],
-	"compilerOptions": {
-		"customConditions": []
-	}
+	]
 }
