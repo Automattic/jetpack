@@ -1,5 +1,5 @@
 import { dateI18n } from '@wordpress/date';
-import { useCallback, useMemo, useState } from '@wordpress/element';
+import { createInterpolateElement, useCallback, useMemo, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { Icon, cloud, download as downloadIcon, rotateLeft } from '@wordpress/icons';
 import { Link } from '@wordpress/route';
@@ -139,13 +139,18 @@ export default function BackupDetail( { item }: Props ) {
 				</Stack>
 			</Card.Header>
 			<Card.Content className="jpb-backup-detail__body">
-				<Text className="jpb-backup-detail__stats">{ item.stats }</Text>
+				<Text className="jpb-backup-detail__stats" dir="auto">
+					{ item.stats }
+				</Text>
 				<Text variant="body-sm" className="jpb-text-muted jpb-backup-detail__by">
-					{ sprintf(
-						/* translators: %1$s formatted date+time, %2$s actor name */
-						__( '%1$s by %2$s', 'jetpack-backup-pkg' ),
-						dateI18n( 'M j, Y, g:i A', item.publishedAt, undefined ),
-						item.actor.name
+					{ createInterpolateElement(
+						sprintf(
+							/* translators: %1$s formatted date+time, %2$s actor name */
+							__( '%1$s by %2$s', 'jetpack-backup-pkg' ),
+							dateI18n( 'M j, Y, g:i A', item.publishedAt, undefined ),
+							'<Actor />'
+						),
+						{ Actor: <bdi>{ item.actor.name }</bdi> }
 					) }
 				</Text>
 				<div className="jpb-backup-detail__files">

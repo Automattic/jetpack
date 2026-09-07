@@ -1,6 +1,6 @@
 <?php
 /**
- * Tests for Block_Editor_Content.
+ * Tests for Automattic\Jetpack\VideoPress\Block_Editor_Content methods
  *
  * @package automattic/jetpack-videopress
  */
@@ -8,36 +8,80 @@
 namespace Automattic\Jetpack\VideoPress;
 
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
-use PHPUnit\Framework\Attributes\RunInSeparateProcess;
+use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use WorDBless\BaseTestCase;
 
 /**
- * Tests that Block_Editor_Content registers the default_content handler in every
- * active context, not only when the standalone VideoPress plugin is present.
+ * Class Block_Editor_Content_Test
+ *
+ * Runs in separate processes because the shortcode loads Jwt_Token_Bridge, which
+ * Uploader_Test replaces with a Mockery alias mock that requires the real class
+ * to not be loaded yet.
+ *
+ * @runTestsInSeparateProcesses
+ * @preserveGlobalState disabled
  */
+#[RunTestsInSeparateProcesses]
+#[PreserveGlobalState( false )]
 class Block_Editor_Content_Test extends BaseTestCase {
 
 	/**
-	 * Clean up after each test.
+	 * Set up before each test.
 	 */
-	public function tear_down() {
-		parent::tear_down();
-		remove_filter( 'default_content', array( Block_Editor_Content::class, 'videopress_video_block_by_guid' ), 10 );
-		unset( $_GET['videopress_guid'], $_GET['_wpnonce'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	public function set_up() {
+		parent::set_up();
+
+		// Each isolated process starts without the package's utility functions.
+		require_once __DIR__ . '/../../src/utility-functions.php';
 	}
 
 	/**
-	 * Confirms that init() registers the default_content filter even when
-	 * the standalone plugin is absent (Jetpack plugin + module context).
-	 *
-	 * Runs in a separate process so the absent-class assertion cannot be
-	 * polluted by another test in this suite that loaded the standalone stub.
-	 *
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
+	 * Tear down after each test.
 	 */
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState( false )]
+	public function tear_down() {
+		delete_option( 'videopress_player_preload_disabled' );
+		remove_filter( 'default_content', array( Block_Editor_Content::class, 'videopress_video_block_by_guid' ), 10 );
+		unset( $_GET['videopress_guid'], $_GET['_wpnonce'] ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		parent::tear_down();
+	}
+
+	/**
+	 * Test that the shortcode preloads metadata by default and honors an explicit preload attribute.
+	 */
+	public function test_shortcode_preload_attribute() {
+		$html = Block_Editor_Content::videopress_embed_shortcode( array( 'abcDEF12' ) );
+		$this->assertStringContainsString( 'videopress.com/embed/abcDEF12', $html );
+		$this->assertStringContainsString( 'preloadContent=metadata', $html );
+
+		$html = Block_Editor_Content::videopress_embed_shortcode(
+			array(
+				0         => 'abcDEF12',
+				'preload' => 'none',
+			)
+		);
+		$this->assertStringContainsString( 'preloadContent=none', $html );
+	}
+
+	/**
+	 * Test that the site-wide preload opt-out overrides the shortcode's preload attribute.
+	 */
+	public function test_shortcode_honors_site_preload_opt_out() {
+		update_option( 'videopress_player_preload_disabled', true );
+
+		$html = Block_Editor_Content::videopress_embed_shortcode(
+			array(
+				0                => 'abcDEF12',
+				'preloadcontent' => 'metadata',
+			)
+		);
+
+		$this->assertStringContainsString( 'preloadContent=none', $html );
+		$this->assertStringNotContainsString( 'preloadContent=metadata', $html );
+	}
+
+	/**
+	 * Register the default-content handler without the standalone plugin.
+	 */
 	public function test_default_content_filter_registered_without_standalone_plugin() {
 		$this->assertFalse(
 			class_exists( 'Jetpack_VideoPress_Plugin', false ),

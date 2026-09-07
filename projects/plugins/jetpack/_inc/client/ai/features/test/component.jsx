@@ -215,6 +215,44 @@ describe( 'AiFeatures rendering', () => {
 		expect( screen.queryByText( 'Learn more' ) ).not.toBeInTheDocument();
 	} );
 
+	test( 'user not linked: connect notice, toggles keep saved values but disable, links and badge hidden', () => {
+		renderFeatures( { is_connected: true, is_user_connected: false } );
+
+		expect( screen.getByText( 'Your WordPress.com account isn’t connected.' ) ).toBeInTheDocument();
+		expect(
+			screen.getByRole( 'link', { name: 'Connect your user account to manage AI features.' } )
+		).toHaveAttribute( 'href', 'admin.php?page=my-jetpack#/connection' );
+		// The site is connected, so the site-level ask must not show as well.
+		expect(
+			screen.queryByText( 'Jetpack is not connected to WordPress.com.' )
+		).not.toBeInTheDocument();
+
+		const toggle = screen.getByRole( 'checkbox', { name: /Writing Assistant/ } );
+		expect( toggle ).toBeChecked();
+		expect( toggle ).toBeDisabled();
+
+		expect( screen.queryByText( 'Requires upgrade' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( 'Learn more' ) ).not.toBeInTheDocument();
+	} );
+
+	test( 'is_user_connected absent: no user notice, toggles stay usable', () => {
+		renderFeatures( { is_connected: true } );
+
+		expect(
+			screen.queryByText( 'Your WordPress.com account isn’t connected.' )
+		).not.toBeInTheDocument();
+		expect( screen.getByRole( 'checkbox', { name: /Writing Assistant/ } ) ).toBeEnabled();
+	} );
+
+	test( 'site and user both unlinked: only the site notice shows', () => {
+		renderFeatures( { is_connected: false, is_user_connected: false } );
+
+		expect( screen.getByText( 'Jetpack is not connected to WordPress.com.' ) ).toBeInTheDocument();
+		expect(
+			screen.queryByText( 'Your WordPress.com account isn’t connected.' )
+		).not.toBeInTheDocument();
+	} );
+
 	// A plan without paid Jetpack AI still has the free tier (every connected
 	// site gets free requests), so the paid-plan signal must not lock the page:
 	// no site-wide notice, and the free-tier features stay usable.
@@ -267,6 +305,7 @@ describe( 'AiFeatures rendering', () => {
 	// Gated toggles must be inert, not merely styled disabled.
 	test.each( [
 		[ 'not connected', { is_connected: false } ],
+		[ 'user not linked', { is_user_connected: false } ],
 		[ 'master off', { master_enabled: false } ],
 	] )( '%s fires no save and no Tracks event', async ( _label, overrides ) => {
 		analytics.tracks.recordEvent.mockClear();

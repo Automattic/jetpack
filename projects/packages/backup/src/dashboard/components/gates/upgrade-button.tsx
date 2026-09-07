@@ -1,6 +1,8 @@
 import getRedirectUrl from '@automattic/jetpack-components/tools/jp-redirect';
 import { Button } from '@wordpress/components';
+import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { useAnalytics } from '../../hooks/use-analytics';
 import { useSiteSuffix } from '../../hooks/use-connection';
 
 /**
@@ -15,13 +17,22 @@ import { useSiteSuffix } from '../../hooks/use-connection';
  */
 export default function UpgradeButton() {
 	const site = useSiteSuffix();
+	const analytics = useAnalytics();
 	// The key is omitted rather than passed as undefined: `getRedirectUrl`
 	// walks its args with `for…in`, so a present-but-undefined `site` is
 	// encoded literally *and* suppresses the helper's own site fallback.
 	const upgradeUrl = getRedirectUrl( 'backup-plugin-upgrade-10gb', site ? { site } : {} );
 
+	const recordClick = useCallback( () => {
+		// Same name and payload legacy records from `no-backup-capabilities.jsx`.
+		analytics.tracks.recordEvent(
+			'jetpack_backup_plugin_upgrade_click',
+			site ? { site } : undefined
+		);
+	}, [ analytics, site ] );
+
 	return (
-		<Button variant="primary" href={ upgradeUrl }>
+		<Button variant="primary" href={ upgradeUrl } onClick={ recordClick }>
 			{ __( 'Get VaultPress Backup', 'jetpack-backup-pkg' ) }
 		</Button>
 	);

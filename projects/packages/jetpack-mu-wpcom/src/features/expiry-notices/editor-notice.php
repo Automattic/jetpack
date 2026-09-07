@@ -39,24 +39,24 @@ function wpcom_expiry_notices_editor_notice_data(): ?array {
 		'primary'       => $data['urls']['primary'],
 		'secondary'     => Expiry_Data::STATE_EXPIRED_GRACE === $state['state'] ? $data['urls']['secondary'] : null,
 		'isDismissible' => $data['is_dismissible'],
-		'context'       => wpcom_expiry_notices_editor_context( $screen ? $screen->id : '' ),
+		'surface'       => wpcom_expiry_notices_editor_surface( $screen ? $screen->id : '' ),
 		'trackProps'    => wpcom_expiry_notices_track_props( $state ),
 	);
 }
 
 /**
- * The Tracks `context` naming the editor the notice showed in.
+ * The Tracks `surface` naming the editor the notice showed in.
  *
  * @param string $screen_id Current screen id.
  */
-function wpcom_expiry_notices_editor_context( string $screen_id ): string {
+function wpcom_expiry_notices_editor_surface( string $screen_id ): string {
 	switch ( $screen_id ) {
 		case 'site-editor':
-			return 'site-editor';
+			return 'site_editor';
 		case 'widgets':
 			return 'widgets';
 		default:
-			return 'post-editor';
+			return 'post_editor';
 	}
 }
 

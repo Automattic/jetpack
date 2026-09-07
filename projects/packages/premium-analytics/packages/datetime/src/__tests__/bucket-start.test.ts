@@ -28,8 +28,6 @@ describe( 'parseBucketStart', () => {
 		);
 	} );
 
-	// The passthrough copies `date_start` from the API verbatim, and the offset it
-	// carries is nominal: honouring it would move the bucket off its own midnight.
 	it.each( [ '2026-06-15T00:00:00+00:00', '2026-06-15T00:00:00Z', '2026-06-15T00:00:00-07:00' ] )(
 		'ignores the nominal offset on %s',
 		stamp => {

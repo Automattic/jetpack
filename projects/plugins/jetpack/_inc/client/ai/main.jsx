@@ -194,6 +194,7 @@ export default function App() {
 		upgradeUrl,
 		planName,
 		isUserConnected,
+		userConnectionUrl = 'admin.php?page=my-jetpack#/connection',
 		showFeaturesView = false,
 		showA12sBadge = false,
 	} = window?.jetpackAiSettings ?? {};
@@ -437,7 +438,7 @@ export default function App() {
 							</Notice.Root>
 						) }
 
-						{ showConnectNotice && <McpConnectCallout /> }
+						{ showConnectNotice && <McpConnectCallout userConnectionUrl={ userConnectionUrl } /> }
 
 						{ ! isLoading && ! error && !! blogId && ! userUnlinked && ! hasMcpAccess && (
 							<McpUpsell />
