@@ -23,6 +23,12 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		return;
 	}
 
+	// Footer-rendered on themes without wp_body_open; a theme wrapper must not
+	// become the containing block of the small-screen absolute positioning.
+	if ( banner.parentElement !== document.body ) {
+		document.body.prepend( banner );
+	}
+
 	// The copy wraps at narrow widths, so the offset is measured, not fixed.
 	const setOffset = () =>
 		document.body.style.setProperty( '--wpcom-expiry-banner-height', `${ banner.offsetHeight }px` );

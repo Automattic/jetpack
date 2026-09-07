@@ -114,8 +114,8 @@ function wpcom_expiry_notices_frontend_banner_body_class( array $classes ): arra
 add_filter( 'body_class', 'wpcom_expiry_notices_frontend_banner_body_class' );
 
 /**
- * Render the banner markup on wp_footer. Fixed positioning puts it under the
- * admin bar wherever it lands in the DOM.
+ * Render the banner markup at the top of <body>, so the absolute positioning
+ * used on small screens anchors to the page and not to a theme wrapper.
  */
 function wpcom_expiry_notices_render_frontend_banner() {
 	$data = wpcom_expiry_notices_frontend_banner_data();
@@ -124,7 +124,18 @@ function wpcom_expiry_notices_render_frontend_banner() {
 	}
 	wpcom_expiry_notices_render_frontend_banner_html( $data['state'], $data['urls'], $data['is_dismissible'] );
 }
-add_action( 'wp_footer', 'wpcom_expiry_notices_render_frontend_banner' );
+add_action( 'wp_body_open', 'wpcom_expiry_notices_render_frontend_banner' );
+
+/**
+ * Themes that never call wp_body_open get the banner from the footer; the
+ * script then moves it to the top of <body>.
+ */
+function wpcom_expiry_notices_render_frontend_banner_fallback() {
+	if ( ! did_action( 'wp_body_open' ) ) {
+		wpcom_expiry_notices_render_frontend_banner();
+	}
+}
+add_action( 'wp_footer', 'wpcom_expiry_notices_render_frontend_banner_fallback' );
 
 /**
  * Render the banner DOM.

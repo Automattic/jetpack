@@ -184,8 +184,20 @@ class Frontend_Banner_Test extends \WorDBless\BaseTestCase {
 
 	public function test_hooks_are_registered(): void {
 		$this->assertNotFalse( has_action( 'wp_enqueue_scripts', 'wpcom_expiry_notices_enqueue_frontend_banner_assets' ) );
-		$this->assertNotFalse( has_action( 'wp_footer', 'wpcom_expiry_notices_render_frontend_banner' ) );
+		$this->assertNotFalse( has_action( 'wp_body_open', 'wpcom_expiry_notices_render_frontend_banner' ) );
+		$this->assertNotFalse( has_action( 'wp_footer', 'wpcom_expiry_notices_render_frontend_banner_fallback' ) );
 		$this->assertNotFalse( has_filter( 'body_class', 'wpcom_expiry_notices_frontend_banner_body_class' ) );
+	}
+
+	public function test_footer_fallback_stays_quiet_once_body_open_has_rendered(): void {
+		$this->set_purchase( 5 );
+		ob_start();
+		do_action( 'wp_body_open' );
+		$this->assertStringContainsString( 'id="wpcom-expiry-frontend-banner"', (string) ob_get_clean() );
+
+		ob_start();
+		wpcom_expiry_notices_render_frontend_banner_fallback();
+		$this->assertSame( '', (string) ob_get_clean() );
 	}
 
 	private function render(): string {
