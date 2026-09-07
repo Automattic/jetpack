@@ -40,6 +40,7 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 		remove_all_filters( 'agents_manager_agent_providers' );
 		remove_all_filters( 'jetpack_ai_sidebar_agents_manager_data' );
 		remove_all_filters( 'jetpack_ai_admin_config' );
+		remove_all_filters( 'jetpack_active_modules' );
 		remove_all_filters( 'jetpack_feature_flag_enabled_ai-hub-scheduled-tasks' );
 		remove_all_filters( 'jetpack_is_connection_ready' );
 		remove_all_filters( 'jetpack_offline_mode' );
@@ -785,5 +786,65 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 		$settings = $this->get_injected_settings();
 
 		$this->assertSame( '', $settings['planName'] );
+	}
+
+	/**
+	 * Answer Modules::is_active() without writing the active_modules option.
+	 *
+	 * The filter runs after the availability intersection, so a module the
+	 * generated module-headings.php does not know about still reads as active.
+	 *
+	 * @param string[] $modules Slugs to report as active.
+	 */
+	private function given_active_modules( array $modules ) {
+		add_filter(
+			'jetpack_active_modules',
+			function () use ( $modules ) {
+				return $modules;
+			}
+		);
+	}
+
+	/**
+	 * The self-hosted Activity Log page exists only while its module is on.
+	 */
+	public function test_activity_log_url_points_at_the_local_page_when_the_module_is_active() {
+		$this->given_woa( false );
+		$this->given_active_modules( array( 'activity-log' ) );
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertSame(
+			admin_url( 'admin.php?page=jetpack-activity-log' ),
+			$settings['activityLogUrl']
+		);
+	}
+
+	/**
+	 * Deactivating the module unregisters the page, so the row is dropped
+	 * rather than linking somewhere that 404s.
+	 */
+	public function test_activity_log_url_is_empty_when_the_module_is_inactive() {
+		$this->given_woa( false );
+		$this->given_active_modules( array() );
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertSame( '', $settings['activityLogUrl'] );
+	}
+
+	/**
+	 * Atomic links to WordPress.com, which the native module never gates.
+	 */
+	public function test_activity_log_url_stays_on_wpcom_for_woa_regardless_of_the_module() {
+		$this->given_woa( true );
+		$this->given_active_modules( array() );
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertStringStartsWith(
+			'https://wordpress.com/activity-log/',
+			$settings['activityLogUrl']
+		);
 	}
 }

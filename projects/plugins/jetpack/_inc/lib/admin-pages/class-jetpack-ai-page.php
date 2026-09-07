@@ -13,6 +13,7 @@ use Automattic\Jetpack\Agents_Manager\Agents_Manager;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Feature_Flags\Feature_Flags;
+use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
@@ -214,10 +215,19 @@ class Jetpack_AI_Page {
 		// the approach used by jetpack-mu-wpcom for the sidebar Activity Log link.
 		$site_host         = wp_parse_url( home_url(), PHP_URL_HOST );
 		$activity_log_site = ( is_string( $site_host ) && '' !== $site_host ) ? $site_host : $site_suffix;
-		// On Atomic link to WPCOM activity log; on self-hosted link to the local wp-admin page.
-		$activity_log_url = ( new Host() )->is_woa_site()
-			? 'https://wordpress.com/activity-log/' . $activity_log_site
-			: admin_url( 'admin.php?page=jetpack-activity-log' );
+
+		/*
+		 * On Atomic link to WPCOM activity log; on self-hosted link to the local
+		 * wp-admin page, which only exists while the `activity-log` module is on.
+		 * An empty URL hides the row rather than linking to an unregistered page.
+		 */
+		if ( ( new Host() )->is_woa_site() ) {
+			$activity_log_url = 'https://wordpress.com/activity-log/' . $activity_log_site;
+		} elseif ( ( new Modules() )->is_active( 'activity-log' ) ) {
+			$activity_log_url = admin_url( 'admin.php?page=jetpack-activity-log' );
+		} else {
+			$activity_log_url = '';
+		}
 
 		/*
 		 * Link SEO settings to the dedicated Jetpack SEO page where it exists,
