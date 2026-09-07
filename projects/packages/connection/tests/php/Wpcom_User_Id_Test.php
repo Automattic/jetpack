@@ -201,7 +201,9 @@ class Wpcom_User_Id_Test extends TestCase {
 				'user_pass'  => 'pass',
 			)
 		);
-		Utils::cache_wpcom_user_id( $previous_holder, 4242 );
+		// Seeded directly, so a regression in the method under test fails the test rather than
+		// making the environment probe below skip it.
+		update_user_meta( $previous_holder, 'wpcom_user_id', 4242 );
 
 		$probe = new \WP_User_Query(
 			array(

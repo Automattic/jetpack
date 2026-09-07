@@ -115,11 +115,12 @@ class UtilsTest extends TestCase {
 		};
 		add_filter( 'illegal_user_logins', $reject );
 
-		$user = Utils::generate_user( $user_data );
+		$before = Utils::get_cached_wpcom_user_id( 1 );
+		$user   = Utils::generate_user( $user_data );
 
 		remove_filter( 'illegal_user_logins', $reject );
 
 		$this->assertFalse( $user );
-		$this->assertSame( 0, Utils::get_cached_wpcom_user_id( 1 ) );
+		$this->assertSame( $before, Utils::get_cached_wpcom_user_id( 1 ) );
 	}
 }

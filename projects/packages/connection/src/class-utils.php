@@ -163,11 +163,18 @@ class Utils {
 	 * @param int $wpcom_user_id The WordPress.com user ID.
 	 */
 	public static function cache_wpcom_user_id( $user_id, $wpcom_user_id ) {
-		$user_id  = absint( $user_id );
+		$user_id       = absint( $user_id );
+		$wpcom_user_id = absint( $wpcom_user_id );
+
+		// 0 is what `get_cached_wpcom_user_id()` returns for "nothing cached", so it is not storable.
+		if ( ! $user_id || ! $wpcom_user_id ) {
+			return;
+		}
+
 		$existing = new \WP_User_Query(
 			array(
 				'meta_key'    => 'wpcom_user_id',
-				'meta_value'  => (int) $wpcom_user_id,
+				'meta_value'  => $wpcom_user_id,
 				'exclude'     => array( $user_id ),
 				'fields'      => 'ID',
 				'count_total' => false,
