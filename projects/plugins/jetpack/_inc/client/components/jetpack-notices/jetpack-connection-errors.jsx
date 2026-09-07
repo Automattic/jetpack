@@ -1,4 +1,5 @@
 import { __ } from '@wordpress/i18n';
+import { Stack } from '@wordpress/ui';
 import PropTypes from 'prop-types';
 import { Component, Fragment } from 'react';
 import SimpleNotice from 'components/notice';
@@ -128,6 +129,10 @@ export default class JetpackConnectionErrors extends Component {
 			}
 		}
 
-		return Object.values( errorsToDisplay ).map( error => this.renderOne( error ) );
+		return (
+			<Stack direction="column" gap="xl">
+				{ Object.values( errorsToDisplay ).map( error => this.renderOne( error ) ) }
+			</Stack>
+		);
 	}
 }

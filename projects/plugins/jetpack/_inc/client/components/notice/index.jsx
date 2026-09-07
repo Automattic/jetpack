@@ -1,4 +1,5 @@
 import { Notice } from '@wordpress/ui';
+import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import { Component, isValidElement } from 'react';
 
@@ -93,7 +94,9 @@ export default class SimpleNotice extends Component {
 		return (
 			<Notice.Root
 				intent={ this.getIntent() }
-				className={ className }
+				// `jp-notice` is always present so page-level styles have something
+				// stable to target: `Notice.Root`'s own class name is a CSS-module hash.
+				className={ clsx( 'jp-notice', className ) }
 				// Callers pass either a Gridicon name or an element; only elements work
 				// here, and the intent already picks a sensible default icon.
 				icon={ isValidElement( icon ) ? icon : undefined }
