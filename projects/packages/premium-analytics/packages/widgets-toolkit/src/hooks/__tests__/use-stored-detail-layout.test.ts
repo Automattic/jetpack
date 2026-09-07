@@ -1,17 +1,11 @@
-/**
- * External dependencies
- */
 import { act, renderHook } from '@testing-library/react';
 import { dispatch, select } from '@wordpress/data';
 import { store as preferencesStore } from '@wordpress/preferences';
-/**
- * Internal dependencies
- */
-import { usePostDetailTabLayout } from './use-post-detail-tab-layout';
+import { useStoredDetailLayout } from '../use-stored-detail-layout';
 import type { DashboardWidget } from '@wordpress/widget-dashboard';
 
 const SCOPE = 'jetpack-premium-analytics/post-detail';
-const KEY = 'tabLayouts';
+const KEY = 'layouts';
 
 /**
  * Build a fixed-composition widget for layout fixtures.
@@ -30,9 +24,9 @@ function widget( uuid: string, order: number ): DashboardWidget {
 }
 
 /**
- * Read the persisted tab layout map from the preferences store.
+ * Read the persisted layouts map from the preferences store.
  *
- * @return The stored tab layout map.
+ * @return The stored layouts map.
  */
 function storedLayouts(): unknown {
 	return (
@@ -42,7 +36,7 @@ function storedLayouts(): unknown {
 	 ).get( SCOPE, KEY );
 }
 
-describe( 'usePostDetailTabLayout', () => {
+describe( 'useStoredDetailLayout', () => {
 	const fixed = [ widget( 'trend', 1 ), widget( 'countries', 2 ) ];
 
 	beforeEach( () => {
@@ -52,14 +46,14 @@ describe( 'usePostDetailTabLayout', () => {
 	} );
 
 	it( 'returns the fixed composition untouched without a stored arrangement', () => {
-		const { result } = renderHook( () => usePostDetailTabLayout( 'email-opens', fixed ) );
+		const { result } = renderHook( () => useStoredDetailLayout( SCOPE, 'email-opens', fixed ) );
 
 		expect( result.current.layout ).toBe( fixed );
 		expect( result.current.hasCustomLayout ).toBe( false );
 	} );
 
 	it( 'stores membership and placement only, never attributes', () => {
-		const { result } = renderHook( () => usePostDetailTabLayout( 'email-opens', fixed ) );
+		const { result } = renderHook( () => useStoredDetailLayout( SCOPE, 'email-opens', fixed ) );
 
 		act( () =>
 			result.current.setLayout( [
@@ -84,7 +78,7 @@ describe( 'usePostDetailTabLayout', () => {
 			],
 		} );
 
-		const { result } = renderHook( () => usePostDetailTabLayout( 'email-opens', fixed ) );
+		const { result } = renderHook( () => useStoredDetailLayout( SCOPE, 'email-opens', fixed ) );
 
 		expect( result.current.hasCustomLayout ).toBe( true );
 		expect( result.current.layout ).toEqual( [
@@ -100,36 +94,46 @@ describe( 'usePostDetailTabLayout', () => {
 			'email-opens': [ { uuid: 'retired-card' }, { uuid: 'trend' } ],
 		} );
 
-		const { result } = renderHook( () => usePostDetailTabLayout( 'email-opens', fixed ) );
+		const { result } = renderHook( () => useStoredDetailLayout( SCOPE, 'email-opens', fixed ) );
 
 		expect( result.current.layout ).toEqual( [ fixed[ 0 ] ] );
 	} );
 
 	it( 'keeps a card removed from the arrangement removed', () => {
-		const { result } = renderHook( () => usePostDetailTabLayout( 'email-opens', fixed ) );
+		const { result } = renderHook( () => useStoredDetailLayout( SCOPE, 'email-opens', fixed ) );
 
 		act( () => result.current.setLayout( [ fixed[ 0 ] ] ) );
 
 		expect( result.current.layout ).toEqual( [ fixed[ 0 ] ] );
 	} );
 
-	it( 'scopes the arrangement to the active tab', () => {
+	it( 'scopes the arrangement to the layout id', () => {
 		dispatch( preferencesStore ).set( SCOPE, KEY, {
 			'email-clicks': [ { uuid: 'countries' } ],
 		} );
 
-		const { result } = renderHook( () => usePostDetailTabLayout( 'email-opens', fixed ) );
+		const { result } = renderHook( () => useStoredDetailLayout( SCOPE, 'email-opens', fixed ) );
 
 		expect( result.current.layout ).toBe( fixed );
 	} );
 
-	it( 'removes only the active tab entry on reset and follows the composition again', () => {
+	it( 'keeps routes apart through their preferences scope', () => {
+		dispatch( preferencesStore ).set( 'jetpack-premium-analytics/video-detail', KEY, {
+			video: [ { uuid: 'countries' } ],
+		} );
+
+		const { result } = renderHook( () => useStoredDetailLayout( SCOPE, 'video', fixed ) );
+
+		expect( result.current.layout ).toBe( fixed );
+	} );
+
+	it( 'removes only the active entry on reset and follows the composition again', () => {
 		dispatch( preferencesStore ).set( SCOPE, KEY, {
 			'email-opens': [ { uuid: 'trend' } ],
 			'post-traffic': [ { uuid: 'countries' } ],
 		} );
 
-		const { result } = renderHook( () => usePostDetailTabLayout( 'email-opens', fixed ) );
+		const { result } = renderHook( () => useStoredDetailLayout( SCOPE, 'email-opens', fixed ) );
 
 		act( () => result.current.resetLayout() );
 
@@ -138,15 +142,10 @@ describe( 'usePostDetailTabLayout', () => {
 		expect( result.current.hasCustomLayout ).toBe( false );
 	} );
 
-	it( 'ignores a stored value that is not a tab-layouts map', () => {
-		dispatch( preferencesStore ).set(
-			SCOPE,
-			KEY,
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			[ 'not', 'a', 'map' ] as any
-		);
+	it( 'ignores a stored value that is not a layouts map', () => {
+		dispatch( preferencesStore ).set( SCOPE, KEY, [ 'not', 'a', 'map' ] as unknown as never );
 
-		const { result } = renderHook( () => usePostDetailTabLayout( 'email-opens', fixed ) );
+		const { result } = renderHook( () => useStoredDetailLayout( SCOPE, 'email-opens', fixed ) );
 
 		expect( result.current.layout ).toBe( fixed );
 	} );

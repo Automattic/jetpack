@@ -1,23 +1,10 @@
-/**
- * External dependencies
- */
 import { useDispatch, useSelect } from '@wordpress/data';
-import { useCallback, useMemo } from '@wordpress/element';
 import { store as preferencesStore } from '@wordpress/preferences';
-/**
- * Internal dependencies
- */
-import type { PostDetailTabId } from '../config';
+import { useCallback, useMemo } from 'react';
 import type { DashboardWidget } from '@wordpress/widget-dashboard';
 
-/**
- * Preferences scope holding the post-detail page's stored state. Its own scope
- * rather than the dashboard's: the routes are separate packages, and the two
- * surfaces' preferences have no reason to share a namespace.
- */
-const PREFERENCES_SCOPE = 'jetpack-premium-analytics/post-detail';
-
-const PREFERENCES_KEY = 'tabLayouts';
+// One preference per detail route, holding every layout the page can show.
+const PREFERENCES_KEY = 'layouts';
 
 /**
  * One stored card: which fixed-composition widget it is, and where the user
@@ -30,21 +17,21 @@ type StoredWidget = {
 	placement?: DashboardWidget[ 'placement' ];
 };
 
-type StoredTabLayouts = Partial< Record< string, StoredWidget[] > >;
+type StoredLayouts = Partial< Record< string, StoredWidget[] > >;
 
-const EMPTY_TAB_LAYOUTS: StoredTabLayouts = {};
+const EMPTY_LAYOUTS: StoredLayouts = {};
 
 type PreferencesActions = {
-	set: ( scope: string, key: string, value: StoredTabLayouts ) => Promise< void > | void;
+	set: ( scope: string, key: string, value: StoredLayouts ) => Promise< void > | void;
 };
 
 /**
- * Narrow an arbitrary stored preference to the tab-layouts map.
+ * Narrow an arbitrary stored preference to the layouts map.
  *
  * @param value - The stored preference value.
- * @return Whether the value is a usable tab-layouts map.
+ * @return Whether the value is a usable layouts map.
  */
-function isStoredTabLayouts( value: unknown ): value is StoredTabLayouts {
+function isStoredLayouts( value: unknown ): value is StoredLayouts {
 	if ( ! value || typeof value !== 'object' || Array.isArray( value ) ) {
 		return false;
 	}
@@ -62,7 +49,7 @@ function isStoredTabLayouts( value: unknown ): value is StoredTabLayouts {
 }
 
 /**
- * Rebuild a tab's layout from its stored membership and placements.
+ * Rebuild a layout from its stored membership and placements.
  *
  * The stored entry carries order, membership, and placement; everything else —
  * type, attributes, and any params the composition injects — always comes from
@@ -71,8 +58,8 @@ function isStoredTabLayouts( value: unknown ): value is StoredTabLayouts {
  * from the store stays removed, matching how the dashboard treats its stored
  * section layouts.
  *
- * @param stored - The stored cards for the tab, in display order.
- * @param fixed  - The tab's current fixed composition.
+ * @param stored - The stored cards, in display order.
+ * @param fixed  - The current fixed composition.
  * @return The layout to render.
  */
 function applyStoredLayout( stored: StoredWidget[], fixed: DashboardWidget[] ): DashboardWidget[] {
@@ -89,34 +76,38 @@ function applyStoredLayout( stored: StoredWidget[], fixed: DashboardWidget[] ): 
 }
 
 /**
- * Manage the customized card arrangement for a post-detail tab.
+ * Manage the customized card arrangement of one detail-page layout.
  *
- * Reads the stored arrangement from preferences, falling back to the tab's
- * fixed composition. Reset deletes the tab's entry rather than writing the
- * fixed layout back, so a reset tab keeps following the composition as it
- * evolves.
+ * Reads the stored arrangement from preferences, falling back to the fixed
+ * composition. Reset deletes the entry rather than writing the fixed layout
+ * back, so a reset layout keeps following the composition as it evolves.
  *
- * @param activeTab   - The tab whose layout is shown.
- * @param fixedLayout - The tab's fixed composition (email tabs: with pinned params injected).
+ * @param scope       - The route's preferences scope; each detail route keeps its own.
+ * @param layoutId    - Which of the route's layouts this is: a tab id, or one fixed id.
+ * @param fixedLayout - The fixed composition (with any injected params already applied).
  * @return The layout with any stored arrangement applied, plus the setters.
  */
-export function usePostDetailTabLayout(
-	activeTab: PostDetailTabId,
+export function useStoredDetailLayout(
+	scope: string,
+	layoutId: string,
 	fixedLayout: DashboardWidget[]
 ) {
-	const tabLayouts = useSelect( select => {
-		const value = (
-			select( preferencesStore ) as unknown as {
-				get: ( scope: string, key: string ) => unknown;
-			}
-		 ).get( PREFERENCES_SCOPE, PREFERENCES_KEY );
+	const layouts = useSelect(
+		select => {
+			const value = (
+				select( preferencesStore ) as unknown as {
+					get: ( preferencesScope: string, key: string ) => unknown;
+				}
+			 ).get( scope, PREFERENCES_KEY );
 
-		return isStoredTabLayouts( value ) ? value : EMPTY_TAB_LAYOUTS;
-	}, [] );
+			return isStoredLayouts( value ) ? value : EMPTY_LAYOUTS;
+		},
+		[ scope ]
+	);
 
 	const { set } = useDispatch( preferencesStore ) as unknown as PreferencesActions;
 
-	const stored = Object.hasOwn( tabLayouts, activeTab ) ? tabLayouts[ activeTab ] : undefined;
+	const stored = Object.hasOwn( layouts, layoutId ) ? layouts[ layoutId ] : undefined;
 
 	const layout = useMemo(
 		() => ( stored ? applyStoredLayout( stored, fixedLayout ) : fixedLayout ),
@@ -125,26 +116,26 @@ export function usePostDetailTabLayout(
 
 	const setLayout = useCallback(
 		( nextLayout: DashboardWidget[] ) => {
-			void set( PREFERENCES_SCOPE, PREFERENCES_KEY, {
-				...tabLayouts,
-				[ activeTab ]: nextLayout.map( ( { uuid, placement } ) => ( {
+			void set( scope, PREFERENCES_KEY, {
+				...layouts,
+				[ layoutId ]: nextLayout.map( ( { uuid, placement } ) => ( {
 					uuid,
 					...( placement ? { placement } : {} ),
 				} ) ),
 			} );
 		},
-		[ activeTab, tabLayouts, set ]
+		[ scope, layoutId, layouts, set ]
 	);
 
 	const resetLayout = useCallback( () => {
-		if ( ! Object.hasOwn( tabLayouts, activeTab ) ) {
+		if ( ! Object.hasOwn( layouts, layoutId ) ) {
 			return;
 		}
 
-		const nextLayouts = { ...tabLayouts };
-		delete nextLayouts[ activeTab ];
-		void set( PREFERENCES_SCOPE, PREFERENCES_KEY, nextLayouts );
-	}, [ activeTab, tabLayouts, set ] );
+		const nextLayouts = { ...layouts };
+		delete nextLayouts[ layoutId ];
+		void set( scope, PREFERENCES_KEY, nextLayouts );
+	}, [ scope, layoutId, layouts, set ] );
 
 	return {
 		layout,

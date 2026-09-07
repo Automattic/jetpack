@@ -3,14 +3,7 @@ import {
 	GlobalErrorProvider,
 	ReportScopeProvider,
 } from '@jetpack-premium-analytics/data';
-import {
-	Badge,
-	Icon,
-	IconButton,
-	LinkButton,
-	Menu,
-	Stack,
-} from '@jetpack-premium-analytics/externals';
+import { LinkButton } from '@jetpack-premium-analytics/externals';
 import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
 import {
 	DateFiltersPanel,
@@ -19,17 +12,20 @@ import {
 	StatsPageIcon,
 } from '@jetpack-premium-analytics/ui';
 import {
+	DetailPageActions,
+	DetailPageBreadcrumbs,
 	DetailPageLayout,
 	DetailPageShell,
 	DetailPageTabPanel,
+	useDetailPageCustomize,
+	useStoredDetailLayout,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
-import { useCallback, useMemo, useState } from '@wordpress/element';
+import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { moreVertical, pencil } from '@wordpress/icons';
 import { useParams } from '@wordpress/route';
-import { WidgetDashboard, type CanPerformDashboardOperation } from '@wordpress/widget-dashboard';
+import { WidgetDashboard } from '@wordpress/widget-dashboard';
 import { type WidgetModuleRecord } from '@wordpress/widget-primitives';
 import { DETAIL_GRID } from '../detail-grid';
 import { useDetailBreadcrumbs } from '../use-detail-breadcrumbs';
@@ -37,42 +33,14 @@ import { useDetailDateControls } from '../use-detail-date-controls';
 import { resolveWidgetModuleWithI18n, useWidgetTypesWithI18n } from '../widget-module-i18n';
 import { PostDetailTabs, postHeaderSlots } from './components';
 import { EMAIL_TAB_IDS, POST_DETAIL_WIDGET_TYPE_ALIASES } from './config';
-import {
-	useEmailTabScope,
-	usePostDetailTabLayout,
-	usePostDetailTabs,
-	usePostSummary,
-} from './hooks';
+import { useEmailTabScope, usePostDetailTabs, usePostSummary } from './hooks';
 import { route } from './package.json';
 
 const ROUTE_FROM = route.path;
 
-/**
- * What the reader may do to a detail tab's composition: rearrange its cards,
- * never add or remove them (WOOA7S-1622). Customize is offered by the page
- * options menu, not the dashboard's own button, and Reset only joins Cancel
- * and Done while customizing (WOOA7S-2033).
- *
- * @param isCustomizing - Whether the page is in customize mode.
- * @return The policy for `WidgetDashboard.Policy`.
- */
-function usePostDetailPolicy( isCustomizing: boolean ): CanPerformDashboardOperation {
-	return useCallback< CanPerformDashboardOperation >(
-		request => {
-			switch ( request.operation ) {
-				case 'customize':
-				case 'insert':
-				case 'remove':
-					return false;
-				case 'reset':
-					return isCustomizing;
-				default:
-					return true;
-			}
-		},
-		[ isCustomizing ]
-	);
-}
+// Its own preferences scope: the routes are separate packages, and the detail
+// surfaces' stored arrangements have no reason to share a namespace.
+const PREFERENCES_SCOPE = 'jetpack-premium-analytics/post-detail';
 
 /**
  * Premium Analytics post/page detail page stage component.
@@ -112,25 +80,14 @@ function PostDetail(): JSX.Element {
 	} = usePostDetailTabs( postId, emailScope?.reportParams, emailScopeBlocked );
 
 	// The stored per-tab arrangement, layered over the fixed composition.
-	const { layout, setLayout, resetLayout } = usePostDetailTabLayout( activeTab, fixedLayout );
-
-	const [ isCustomizing, setIsCustomizing ] = useState( false );
-	const canPerform = usePostDetailPolicy( isCustomizing );
-
-	const startCustomizing = useCallback( () => setIsCustomizing( true ), [] );
-
-	const onEditChange = useCallback(
-		( nextEditMode: boolean ) => {
-			// An empty layout makes the dashboard request edit mode on its own (its
-			// empty state invites customization); a detail tab is only empty while
-			// the email gate resolves, so that request is ignored here.
-			if ( nextEditMode && layout.length === 0 ) {
-				return;
-			}
-			setIsCustomizing( nextEditMode );
-		},
-		[ layout ]
+	const { layout, setLayout, resetLayout } = useStoredDetailLayout(
+		PREFERENCES_SCOPE,
+		activeTab,
+		fixedLayout
 	);
+
+	const { isCustomizing, canPerform, startCustomizing, onEditChange } =
+		useDetailPageCustomize( layout );
 
 	const isEmailTab = EMAIL_TAB_IDS.includes( activeTab );
 
@@ -183,40 +140,6 @@ function PostDetail(): JSX.Element {
 		<DateFiltersPanel { ...dateFilters } { ...dateControls } />
 	);
 
-	// While customizing, the dashboard's own Cancel and Done (and Reset, in their
-	// overflow) take the actions slot; the page options menu is the way in.
-	const actions = isCustomizing ? (
-		<WidgetDashboard.Actions />
-	) : (
-		<Stack direction="row" align="center" gap="sm">
-			{ publicUrl ? (
-				<LinkButton variant="solid" tone="neutral" size="compact" href={ publicUrl } openInNewTab>
-					{ summary.type === 'page'
-						? __( 'View page', 'jetpack-premium-analytics-pkg' )
-						: __( 'View post', 'jetpack-premium-analytics-pkg' ) }
-				</LinkButton>
-			) : null }
-			<Menu.Root>
-				<Menu.Trigger
-					render={
-						<IconButton
-							icon={ moreVertical }
-							label={ __( 'Page options', 'jetpack-premium-analytics-pkg' ) }
-							variant="minimal"
-							tone="brand"
-							size="compact"
-						/>
-					}
-				/>
-				<Menu.Popup positioner={ <Menu.Positioner align="end" /> }>
-					<Menu.Item prefix={ <Icon icon={ pencil } /> } onClick={ startCustomizing }>
-						<Menu.ItemLabel>{ __( 'Customize', 'jetpack-premium-analytics-pkg' ) }</Menu.ItemLabel>
-					</Menu.Item>
-				</Menu.Popup>
-			</Menu.Root>
-		</Stack>
-	);
-
 	return (
 		<GlobalErrorProvider>
 			<WidgetDashboard.Policy canPerform={ canPerform }>
@@ -234,18 +157,27 @@ function PostDetail(): JSX.Element {
 					<DetailPageShell
 						visual={ <StatsPageIcon /> }
 						breadcrumbs={
-							isCustomizing ? (
-								<Stack direction="row" align="center" gap="sm">
-									<StatsBreadcrumbs items={ breadcrumbs } />
-									<Badge intent="informational">
-										{ __( 'Customizing', 'jetpack-premium-analytics-pkg' ) }
-									</Badge>
-								</Stack>
-							) : (
+							<DetailPageBreadcrumbs isCustomizing={ isCustomizing }>
 								<StatsBreadcrumbs items={ breadcrumbs } />
-							)
+							</DetailPageBreadcrumbs>
 						}
-						actions={ actions }
+						actions={
+							<DetailPageActions isCustomizing={ isCustomizing } onCustomize={ startCustomizing }>
+								{ publicUrl ? (
+									<LinkButton
+										variant="solid"
+										tone="neutral"
+										size="compact"
+										href={ publicUrl }
+										openInNewTab
+									>
+										{ summary.type === 'page'
+											? __( 'View page', 'jetpack-premium-analytics-pkg' )
+											: __( 'View post', 'jetpack-premium-analytics-pkg' ) }
+									</LinkButton>
+								) : null }
+							</DetailPageActions>
+						}
 					>
 						<PostDetailTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab }>
 							{ /*

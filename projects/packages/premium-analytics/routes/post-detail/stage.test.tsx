@@ -1,7 +1,8 @@
 import { useReportScope } from '@jetpack-premium-analytics/data';
+import { useStoredDetailLayout } from '@jetpack-premium-analytics/widgets-toolkit';
 import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { usePostDetailTabLayout, usePostDetailTabs, usePostSummary } from './hooks';
+import { usePostDetailTabs, usePostSummary } from './hooks';
 import { stage } from './stage';
 import type { ReactNode } from 'react';
 
@@ -200,14 +201,19 @@ const mockEmailScope = {
 	},
 };
 
-jest.mock( './hooks', () => ( {
-	usePostSummary: jest.fn(),
-	usePostDetailTabLayout: jest.fn( () => ( {
+// The stored arrangement is the toolkit's; the rest of the toolkit stays real.
+jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
+	...jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' ),
+	useStoredDetailLayout: jest.fn( () => ( {
 		layout: [ { uuid: 'card', type: 'jpa/card' } ],
 		setLayout: () => {},
 		resetLayout: () => {},
 		hasCustomLayout: false,
 	} ) ),
+} ) );
+
+jest.mock( './hooks', () => ( {
+	usePostSummary: jest.fn(),
 	useEmailTabScope: jest.fn( () => mockEmailScope ),
 	usePostDetailTabs: jest.fn( () => ( {
 		// The active tab mounts the panel carrying the widget grid.
@@ -223,7 +229,7 @@ jest.mock( './hooks', () => ( {
 
 const mockUsePostSummary = usePostSummary as jest.Mock;
 const mockUsePostDetailTabs = usePostDetailTabs as jest.Mock;
-const mockUseTabLayout = usePostDetailTabLayout as jest.Mock;
+const mockUseTabLayout = useStoredDetailLayout as jest.Mock;
 
 /**
  * Stub the post summary hook, defaulting to a resolved post with a public URL.
