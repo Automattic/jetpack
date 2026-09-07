@@ -60,23 +60,19 @@ const QUIET_TIMEOUT_MS = 5 * 60 * 1000;
  * Whether a status reading counts as a sign of life, restarting the
  * silence deadline.
  *
- * Only `running` does, and deliberately not `queued` — which looks like
- * positive information and is not. The bridge mints `queued` for a 404,
- * meaning *that restore is not visible to this route*, and cannot tell
- * that apart from WordPress.com's own `queued`. Treating the pair as a
- * sign of life would mean a restore that never materialises upstream
- * answers 404 forever, resets the deadline every time it does, and polls
- * until the tab closes. That is precisely the frozen-forever failure this
- * hook exists to end.
- *
- * The cost of not separating them: a restore genuinely queued upstream
- * for longer than `QUIET_TIMEOUT_MS` is reported as lost.
+ * The line is whether WordPress.com said anything about *this restore*,
+ * not whether it has started moving. `queued` and `running` are upstream
+ * tracking a real record; `not-found` is a 404, which is absence of
+ * evidence. Reading that as life would mean a restore that never
+ * materialises answers 404 forever, resets the deadline every time it
+ * does, and polls until the tab closes — precisely the frozen-forever
+ * failure this hook exists to end.
  *
  * @param status - The status the bridge reported, if any.
- * @return True when the restore has demonstrably moved.
+ * @return True when WordPress.com still knows about the restore.
  */
 function isSignOfLife( status: RestoreStatus | undefined ): boolean {
-	return status === 'running';
+	return status === 'running' || status === 'queued';
 }
 
 type DeriveInput = {
@@ -179,8 +175,14 @@ function deriveState( input: DeriveInput ): RestoreState {
 				percent: Math.round( data.progress ?? 0 ),
 				message: data.message,
 			};
+		case 'queued':
+			// Exempt from `lostTrack` for the same reason `running` is:
+			// WordPress.com is answering about this restore, so there is
+			// no silence to time out. A slow queue is not a lost restore,
+			// and saying so would invite a second concurrent one.
+			return { phase: 'queued' };
 		default:
-			// `queued`, `unknown`, or nothing yet. All the same to the
+			// `not-found`, `unknown`, or nothing yet. All the same to the
 			// reader: accepted, nothing to show. Unless it has been that
 			// way long enough that we should stop implying something is
 			// about to happen.

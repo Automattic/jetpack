@@ -78,21 +78,23 @@ export function useAdoptedRestore( enabled: boolean ): Result {
 		enabled && ( collection.isPending || ( candidate !== null && confirmation.isPending ) );
 
 	// Positive evidence only, and deliberately stricter than the poll's
-	// own `! isTerminal(…)`.
+	// own `! isTerminal(…)`, which also counts `not-found` and `unknown`.
 	//
-	// That test counts `queued` as live, and `queued` is exactly what the
-	// bridge mints for a **404** — "that restore is not visible to this
-	// route" — so it reads absence of evidence as evidence of life. For a
-	// restore we are *watching*, erring that way is right: keep polling.
-	// For one we are deciding whether to adopt, it is backwards. A
-	// collection row spelled in a way we do not recognise as settled,
-	// pointing at a restore upstream cannot find, would take the form
-	// away and never give it back — and the adoption is what withholds
-	// the button that would have replaced it, so it cannot self-correct.
+	// `not-found` is a **404** — "that restore is not visible to this
+	// route" — so counting it would read absence of evidence as evidence
+	// of life. For a restore we are *watching*, erring that way is right:
+	// keep polling. For one we are deciding whether to adopt, it is
+	// backwards. A collection row spelled in a way we do not recognise as
+	// settled, pointing at a restore upstream cannot find, would take the
+	// form away and never give it back — and the adoption is what
+	// withholds the button that would have replaced it, so it cannot
+	// self-correct.
 	//
-	// The cost of being strict is a missed adoption, which is what this
-	// hook already accepts for a confirmation that fails to arrive.
-	const isLive = confirmation.data?.status === 'running';
+	// `queued` is on the other side of that line: upstream is holding a
+	// real restore, and letting the reader start a second one is the
+	// outcome adoption exists to prevent.
+	const status = confirmation.data?.status;
+	const isLive = status === 'running' || status === 'queued';
 
 	return {
 		adopted:

@@ -409,8 +409,8 @@ describe( 'useRestore — the silence deadline', () => {
 		expect( result.current.state ).toMatchObject( { detail: null } );
 	} );
 
-	it( 'gives up on a restore whose status never leaves queued', async () => {
-		respondWith( { status: statusPayload( { status: 'queued' } ) } );
+	it( 'gives up on a restore WordPress.com never finds', async () => {
+		respondWith( { status: statusPayload( { status: 'not-found' } ) } );
 		const { wrapper } = makeWrapper();
 
 		const { result } = renderHook( () => useRestore( REWIND_ID ), { wrapper } );
@@ -421,6 +421,23 @@ describe( 'useRestore — the silence deadline', () => {
 		await advance( 5 * 60_000 + 1000 );
 		expect( result.current.state.phase ).toBe( 'lost-track' );
 		expect( result.current.state ).toMatchObject( { detail: null } );
+	} );
+
+	// The other half of the same distinction. `not-found` is upstream
+	// having no record; `queued` is upstream tracking a real restore that
+	// has not started. Declaring the second one lost is the bug this
+	// deadline was written to avoid, pointed the other way.
+	it( 'keeps waiting while WordPress.com reports the restore as queued', async () => {
+		respondWith( { status: statusPayload( { status: 'queued' } ) } );
+		const { wrapper } = makeWrapper();
+
+		const { result } = renderHook( () => useRestore( REWIND_ID ), { wrapper } );
+		submitAll( result );
+
+		await settleAt( result, 'queued' );
+
+		await advance( 5 * 60_000 + 1000 );
+		expect( result.current.state.phase ).toBe( 'queued' );
 	} );
 
 	// The half that matters as much as firing: a long restore that keeps
@@ -546,14 +563,36 @@ describe( 'useRestore — a restore already running when the screen opens', () =
 	} );
 
 	it( 'refuses to adopt on a status that only means "not visible"', async () => {
-		// `queued` is what the bridge mints for a **404** — "that restore
-		// is not visible to this route" — so reading it as a sign of life
-		// turns absence of evidence into evidence of life. Paired with a
-		// collection spelling we do not recognise as settled (`started` is
-		// the one WordPress.com's own docblock claims), a restore from
-		// January locks the screen out of restoring permanently: the form
-		// never returns, and the stale adoption is what withholds the
-		// button that would have replaced it.
+		// `not-found` is what the bridge mints for a **404** — "that
+		// restore is not visible to this route" — so reading it as a sign
+		// of life turns absence of evidence into evidence of life. Paired
+		// with a collection spelling we do not recognise as settled
+		// (`started` is the one WordPress.com's own docblock claims), a
+		// restore from January locks the screen out of restoring
+		// permanently: the form never returns, and the stale adoption is
+		// what withholds the button that would have replaced it.
+		respondWith( {
+			restores: [
+				{
+					restore_id: 111,
+					rewind_id: '1700000000.1',
+					when: '2026-01-01T00:00:00+00:00',
+					status: 'started',
+				},
+			],
+			status: statusPayload( { id: 111, status: 'not-found', rewind_id: '1700000000.1' } ),
+		} );
+		const { wrapper } = makeWrapper();
+
+		const { result } = renderHook( () => useRestore( REWIND_ID ), { wrapper } );
+
+		await waitFor( () => expect( result.current.state.phase ).toBe( 'idle' ) );
+		expect( result.current.adopted ).toBeNull();
+	} );
+
+	// Withholding the form is the point: a restore upstream is holding in
+	// its queue is one the reader must not be able to start again.
+	it( 'adopts a restore WordPress.com reports as queued', async () => {
 		respondWith( {
 			restores: [
 				{
@@ -569,8 +608,7 @@ describe( 'useRestore — a restore already running when the screen opens', () =
 
 		const { result } = renderHook( () => useRestore( REWIND_ID ), { wrapper } );
 
-		await waitFor( () => expect( result.current.state.phase ).toBe( 'idle' ) );
-		expect( result.current.adopted ).toBeNull();
+		await waitFor( () => expect( result.current.adopted ).toEqual( { rewindId: '1700000000.1' } ) );
 	} );
 
 	it( 'withholds the form until it knows whether anything is running', async () => {

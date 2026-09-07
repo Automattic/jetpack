@@ -500,8 +500,12 @@ class Rest_Restore_Bridge_Test extends TestCase {
 	}
 
 	/**
-	 * A 404 means "queued, not visible yet" — the normal first answer for
-	 * a restore that has only just been accepted.
+	 * A 404 means "not visible to this route yet" — the normal first
+	 * answer for a restore that has only just been accepted.
+	 *
+	 * Reported as `not-found` rather than `queued` so the client can tell
+	 * it from WordPress.com's own `queued`: one is upstream tracking a
+	 * real restore, the other is upstream having no record of it.
 	 *
 	 * Mapping every non-200 to a hard error, as the v1 code did, turns the
 	 * opening seconds of every restore into a user-visible failure. Safe
@@ -509,7 +513,7 @@ class Rest_Restore_Bridge_Test extends TestCase {
 	 * VaultPress returns nothing parseable, so a 404 can no longer
 	 * secretly mean "upstream is down".
 	 */
-	public function test_status_treats_404_as_queued() {
+	public function test_status_treats_404_as_not_found() {
 		$this->arrange_wpcom( array( 'error' => 'not_found' ), 404 );
 
 		$request = new WP_REST_Request( 'GET', '/jetpack/v4/rewind/restore/7/status' );
@@ -517,7 +521,7 @@ class Rest_Restore_Bridge_Test extends TestCase {
 		$response = Restore_Bridge::get_restore_status( $request );
 
 		$this->assertNotInstanceOf( WP_Error::class, $response );
-		$this->assertSame( 'queued', $response->get_data()['status'] );
+		$this->assertSame( 'not-found', $response->get_data()['status'] );
 		$this->assertSame( 7, $response->get_data()['id'] );
 	}
 
@@ -570,7 +574,7 @@ class Rest_Restore_Bridge_Test extends TestCase {
 	}
 
 	/**
-	 * A 404 reported as a string is still the queued carve-out.
+	 * A 404 reported as a string is still the not-found carve-out.
 	 *
 	 * Both branches of this callback read the same variable, so the cast
 	 * buys more here than the success test above shows: uncast, `'404'`
@@ -578,7 +582,7 @@ class Rest_Restore_Bridge_Test extends TestCase {
 	 * opening seconds of every restore — before the id is visible to this
 	 * route — surfaced as a failure.
 	 */
-	public function test_status_treats_a_string_404_as_queued() {
+	public function test_status_treats_a_string_404_as_not_found() {
 		$this->arrange_wpcom_raw( '{"error":"not_found"}', '404' );
 
 		$request = new WP_REST_Request( 'GET', '/jetpack/v4/rewind/restore/7/status' );
@@ -586,7 +590,7 @@ class Rest_Restore_Bridge_Test extends TestCase {
 		$response = Restore_Bridge::get_restore_status( $request );
 
 		$this->assertNotInstanceOf( WP_Error::class, $response );
-		$this->assertSame( 'queued', $response->get_data()['status'] );
+		$this->assertSame( 'not-found', $response->get_data()['status'] );
 		$this->assertSame( 7, $response->get_data()['id'] );
 	}
 

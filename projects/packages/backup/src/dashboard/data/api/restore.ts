@@ -7,15 +7,20 @@ import type { RestoreItems } from '../../types/restore';
  * Deliberately not WPCOM's own vocabulary. Upstream says
  * `queued | running | finished | fail` for a Rewind restore and
  * `success | success-with-errors | aborted` for a legacy one; the bridge
- * maps both to these, reports a not-yet-visible restore as `queued`, and
- * anything it does not recognise as `unknown` rather than guessing. See
- * `Restore_Bridge::STATUS_MAP`.
+ * maps both to these, reports a restore upstream cannot find as
+ * `not-found`, and anything it does not recognise as `unknown` rather
+ * than guessing. See `Restore_Bridge::STATUS_MAP`.
+ *
+ * `not-found` and `queued` render the same and mean opposite things:
+ * upstream has no record of the restore, versus upstream is holding a
+ * real one in its queue. Only the second is a sign of life.
  *
  * `unknown` exists so a status WPCOM adds later degrades into "keep
  * asking for a while" instead of a progress bar frozen at whatever
  * percentage happened to arrive first.
  */
 export type RestoreStatus =
+	| 'not-found'
 	| 'queued'
 	| 'running'
 	| 'finished'
@@ -139,7 +144,7 @@ export function parseRestoreWhen( when: string ): number | null {
 }
 
 /** Statuses that mean the restore is still going, or might be. */
-const LIVE_STATUSES: RestoreStatus[] = [ 'queued', 'running', 'unknown' ];
+const LIVE_STATUSES: RestoreStatus[] = [ 'not-found', 'queued', 'running', 'unknown' ];
 
 /**
  * Whether a status reading ends the poll.

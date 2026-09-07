@@ -301,11 +301,15 @@ class Restore_Bridge {
 		// would turn the ordinary opening seconds of every restore into a
 		// user-visible failure.
 		//
+		// Reported as `not-found` and never as `queued`, which upstream
+		// also returns: the client reads the two the same way on screen
+		// but must not treat "no record of it" as a sign of life.
+		//
 		// Safe to treat softly only because the upstream route now
 		// answers 502 for an unparseable VaultPress reply — before that, a
 		// 404 could quietly have meant "upstream is down".
 		if ( 404 === $status_code ) {
-			return rest_ensure_response( self::project_status( array(), $restore_id, 'queued' ) );
+			return rest_ensure_response( self::project_status( array(), $restore_id, 'not-found' ) );
 		}
 
 		if ( 200 !== $status_code ) {
