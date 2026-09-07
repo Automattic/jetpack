@@ -14,7 +14,6 @@ require_once __DIR__ . '/dashboard-layout.php';
 require_once __DIR__ . '/dashboard-grammar.php';
 require_once __DIR__ . '/class-dashboard-section.php';
 require_once __DIR__ . '/class-dashboard-section-registry.php';
-require_once __DIR__ . '/class-enablement-setting.php';
 
 /**
  * Filter through which WooCommerce section availability is resolved.
