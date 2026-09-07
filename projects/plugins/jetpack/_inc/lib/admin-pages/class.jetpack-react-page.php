@@ -170,10 +170,9 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	/**
 	 * Jetpack Settings sub-link.
 	 *
-	 * Settings is site configuration rather than a product page, so it is pinned to the bottom
-	 * of the menu instead of joining the alphabetical run. Anything below Beta Tester's 998
-	 * would put it back among the feature pages. The free-plan upsell still renders underneath:
-	 * Admin_Menu appends that one after the sorted items, so it is not competing on position.
+	 * Pinned past Beta Tester's 998 so it lands at the bottom rather than in the
+	 * alphabetical run. The upsell still renders below it — Admin_Menu appends that
+	 * one after sorting, so the two never compete on position.
 	 *
 	 * @since 4.3.0
 	 * @since 9.7.0 If Connection does not have an owner, restrict it to admins

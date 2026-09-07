@@ -22,9 +22,7 @@ class Admin_Page {
 	/**
 	 * Where the Podcast item used to sit in the Jetpack submenu on self-hosted.
 	 *
-	 * No longer read anywhere: `Admin_Menu` now orders the internal pages alphabetically
-	 * and Podcast registers without a position. Retained at its original value so that
-	 * anything still referencing it does not fatal.
+	 * Unread since Podcast registers without a position; kept so consumers do not fatal.
 	 *
 	 * @deprecated $$next-version$$
 	 */

@@ -5,6 +5,7 @@
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Backup\V0005\Jetpack_Backup;
+use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\Stats_Admin\Dashboard;
 use Automattic\Jetpack\VideoPress\Admin_UI;
 /**
@@ -57,6 +58,10 @@ class Jetpack_Admin_Menu_Test extends WP_UnitTestCase {
 		require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class.jetpack-react-page.php';
 		$jetpack_react = new Jetpack_React_Page();
 		$jetpack_react->jetpack_add_settings_sub_nav_item();
+
+		// Jetpack only inits My Jetpack for admin/cron/POST/CLI requests, none of which
+		// hold under PHPUnit, so register it by hand or it is absent from the menu.
+		My_Jetpack_Initializer::add_my_jetpack_menu_item();
 
 		$jetpack_stats = new Dashboard();
 		$jetpack_stats::init();
