@@ -186,7 +186,7 @@ class Jetpack_Ai extends Module_Product {
 	/**
 	 * Get the current usage tier
 	 *
-	 * @return int
+	 * @return int|null Null when the tier cannot be read.
 	 */
 	public static function get_current_usage_tier() {
 		if ( ! self::is_site_connected() ) {
@@ -195,9 +195,11 @@ class Jetpack_Ai extends Module_Product {
 
 		$info = self::get_ai_assistant_feature();
 
-		// Bail early if it's not possible to fetch the feature data.
+		// An unreadable tier is not the free tier: the lookup is a user-token call
+		// and can be refused for one admin while another sees a paid tier. Reporting
+		// 0 here offers an upgrade the refused user cannot complete.
 		if ( is_wp_error( $info ) ) {
-			return 0;
+			return null;
 		}
 
 		$current_tier = $info['current-tier']['value'] ?? null;

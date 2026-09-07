@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Jetpack AI: Stop offering an upgrade on the AI card when the site's AI plan cannot be read.
