@@ -1,7 +1,7 @@
 <?php
 
 use PHPUnit\Framework\Attributes\DataProvider;
-require_once JETPACK__PLUGIN_DIR . 'modules/google-fonts/current/class-jetpack-google-font-face.php.php';
+require_once JETPACK__PLUGIN_DIR . 'modules/google-fonts/current/class-jetpack-google-font-face.php';
 
 class Jetpack_Google_Font_Face_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;

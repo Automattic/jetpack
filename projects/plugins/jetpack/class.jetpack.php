@@ -2379,6 +2379,7 @@ class Jetpack {
 			'minileven'             => null,  // Closed out in 8.3 -- Responsive themes are common now, and so is AMP.
 			'lazy-images'           => null, // Closed out in 12.8 -- WordPress core now has native lazy loading.
 			'enhanced-distribution' => null, // Closed out in 13.3 -- WP.com is winding down the firehose.
+			'google-fonts'          => null, // Closed out in 16.0 -- now native via the WordPress Font Library; in-use fonts are preserved into global styles on deactivation.
 		);
 
 		// Don't activate SSO if they never completed activating WPCC.
