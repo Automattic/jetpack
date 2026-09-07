@@ -496,12 +496,26 @@ function wpcom_get_product_features( $product ) {
 	 * The cohort is not the only per-site input: `required_sticker` branches read stickers too, and
 	 * `site_purchases` is a global cache group. WPCOM_Features builds the whole suffix because it
 	 * owns the map that decides what varies.
+	 *
+	 * method_exists() covers the deploy window, when this file can land before the class does. The
+	 * class that lacks the method still carries the pre-2026 map, which varies only on
+	 * `gating-business-q1`, so the fallback keys on that rather than dropping the cohort from the
+	 * key entirely -- an empty suffix would let two Personal/Premium sites in different cohorts
+	 * share one entry. Drop the guard once the class change is fully deployed.
 	 */
-	$cache_key = $purchase->product_slug
-		. WPCOM_Features::get_site_gating_cache_suffix( _wpcom_get_current_blog_id() )
-		. filemtime( __DIR__ . '/class-wpcom-features.php' );
+	$blog_id_for_gating = _wpcom_get_current_blog_id();
+	if ( method_exists( 'WPCOM_Features', 'get_site_gating_cache_suffix' ) ) {
+		$gating_cache_suffix = WPCOM_Features::get_site_gating_cache_suffix( $blog_id_for_gating );
+	} elseif ( function_exists( 'has_blog_sticker' ) && has_blog_sticker( 'gating-business-q1', $blog_id_for_gating ) ) {
+		$gating_cache_suffix = '_gatingbq1';
+	} else {
+		$gating_cache_suffix = '';
+	}
 
-	$features = wp_cache_get( $cache_key, $cache_group, false, $cache_found );
+	$cache_key = $purchase->product_slug
+		. $gating_cache_suffix
+		. filemtime( __DIR__ . '/class-wpcom-features.php' );
+	$features  = wp_cache_get( $cache_key, $cache_group, false, $cache_found );
 
 	if ( false === $cache_found ) {
 		$features = array();
