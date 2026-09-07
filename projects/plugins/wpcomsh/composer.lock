@@ -1827,10 +1827,11 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/plans",
-                "reference": "558843aaf5371dd08a6a7cf26a3a8fa8b1da03a9"
+                "reference": "f90f66f893218c816b16467191a8f9d201d6b9eb"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
+                "automattic/jetpack-constants": "@dev",
                 "php": ">=7.4"
             },
             "require-dev": {

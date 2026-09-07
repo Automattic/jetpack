@@ -437,10 +437,20 @@ class Current_Plan {
 	 *
 	 * See Jetpack_Gutenberg::get_site_specific_features()
 	 *
+	 * @param bool $include_available Whether to include the features the site could
+	 *                                upgrade to, alongside the ones it has. Building
+	 *                                that list walks the plan catalog in the current
+	 *                                user's currency, which is by far the expensive
+	 *                                half of this call — pass false when only the
+	 *                                site's active features matter.
 	 * @return array
 	 */
-	public static function get_simple_site_specific_features() {
-		$is_simple_site = defined( 'IS_WPCOM' ) && constant( 'IS_WPCOM' );
+	public static function get_simple_site_specific_features( $include_available = true ) {
+		// Through Constants rather than `defined()`/`constant()` directly, matching
+		// `Host::is_wpcom_simple()` and the rest of this class. Identical in production
+		// — Constants falls through to the real constant — and it makes the branch
+		// reachable from a test.
+		$is_simple_site = Constants::is_true( 'IS_WPCOM' );
 
 		if ( ! $is_simple_site ) {
 			return array(
@@ -450,19 +460,24 @@ class Current_Plan {
 		}
 
 		$current_blog_id = get_current_blog_id();
+		$cache_key       = $include_available ? 'full' : 'active_only';
 
-		// Return the cached value if it exists.
-		if ( isset( self::$simple_site_specific_features[ $current_blog_id ] ) ) {
-			return self::$simple_site_specific_features[ $current_blog_id ];
+		// Return the cached value if it exists. A full result answers an active-only
+		// request too, so that one is reused rather than recomputed.
+		if ( isset( self::$simple_site_specific_features[ $current_blog_id ][ $cache_key ] ) ) {
+			return self::$simple_site_specific_features[ $current_blog_id ][ $cache_key ];
+		}
+		if ( ! $include_available && isset( self::$simple_site_specific_features[ $current_blog_id ]['full'] ) ) {
+			return self::$simple_site_specific_features[ $current_blog_id ]['full'];
 		}
 
 		if ( ! class_exists( '\Store_Product_List' ) ) {
 			require WP_CONTENT_DIR . '/admin-plugins/wpcom-billing/store-product-list.php';
 		}
 
-		$simple_site_specific_features = \Store_Product_List::get_site_specific_features_data( $current_blog_id );
+		$simple_site_specific_features = \Store_Product_List::get_site_specific_features_data( $current_blog_id, $include_available );
 
-		self::$simple_site_specific_features[ $current_blog_id ] = $simple_site_specific_features;
+		self::$simple_site_specific_features[ $current_blog_id ][ $cache_key ] = $simple_site_specific_features;
 
 		return $simple_site_specific_features;
 	}
