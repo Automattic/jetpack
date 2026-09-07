@@ -98,13 +98,14 @@ class Admin_Page_Test extends BaseTestCase {
 		);
 		wp_set_current_user( $user_id );
 
+		// Mirrors how the Jetpack plugin registers Settings: pinned to the bottom at 999.
 		Admin_Menu::add_menu(
 			__( 'Settings', 'jetpack-podcast' ),
 			__( 'Settings', 'jetpack-podcast' ),
 			'manage_options',
 			'jetpack#/settings',
 			null,
-			13
+			999
 		);
 		Admin_Page::add_wp_admin_submenu();
 

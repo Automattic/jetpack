@@ -48,7 +48,8 @@ class Jetpack_Admin_Menu_Test extends WP_UnitTestCase {
 	 * Test the order of the Jetpack admin menu items.
 	 *
 	 * Encodes the position scheme: My Jetpack is pinned first, external links (marked with ↗)
-	 * sort after every internal page, and everything else is alphabetical by menu title.
+	 * sort after every internal page, Settings is pinned below both, and everything else is
+	 * alphabetical by menu title.
 	 */
 	public function test_jetpack_admin_menu_order() {
 		global $submenu;
@@ -72,26 +73,37 @@ class Jetpack_Admin_Menu_Test extends WP_UnitTestCase {
 			$this->markTestSkipped( 'No Jetpack submenu was registered.' );
 		}
 
-		$this->assertSame( 'my-jetpack', $submenu['jetpack'][0][2], 'My Jetpack should be pinned to the top of the Jetpack submenu.' );
+		$items = array_values( $submenu['jetpack'] );
+
+		$this->assertSame( 'my-jetpack', $items[0][2], 'My Jetpack should be pinned to the top of the Jetpack submenu.' );
+
+		$settings_slug = Jetpack::admin_url( array( 'page' => 'jetpack#/settings' ) );
+		$settings_at   = array_search( $settings_slug, array_column( $items, 2 ), true );
+
+		$this->assertNotFalse( $settings_at, 'Settings should be registered in the Jetpack submenu.' );
 
 		/*
-		 * Three kinds of entry sit outside the alphabetical run: My Jetpack is pinned to the top,
-		 * Beta Tester is pinned to the bottom, and the free-plan upsell is appended by
-		 * Admin_Menu after the sorted items have been registered.
+		 * Four kinds of entry sit outside the alphabetical run: My Jetpack is pinned to the top,
+		 * Beta Tester and Settings are pinned to the bottom, and the free-plan upsell is appended
+		 * by Admin_Menu after the sorted items have been registered.
 		 */
-		$pinned = static function ( $item ) {
+		$pinned = static function ( $item ) use ( $settings_slug ) {
 			return 'my-jetpack' === $item[2]
 				|| 'jetpack-beta' === $item[2]
+				|| $settings_slug === $item[2]
 				|| false !== strpos( $item[2], Admin_Menu::UPGRADE_MENU_SLUG );
 		};
 
-		$internal = array();
-		$external = array();
+		$internal         = array();
+		$external         = array();
+		$last_unpinned_at = -1;
 
-		foreach ( $submenu['jetpack'] as $item ) {
+		foreach ( $items as $index => $item ) {
 			if ( $pinned( $item ) ) {
 				continue;
 			}
+
+			$last_unpinned_at = $index;
 
 			if ( false !== strpos( $item[0], '↗' ) ) {
 				$external[] = $item[0];
@@ -103,6 +115,8 @@ class Jetpack_Admin_Menu_Test extends WP_UnitTestCase {
 		}
 
 		$this->assertNotEmpty( $internal, 'Expected at least one internal Jetpack submenu item to check the ordering of.' );
+
+		$this->assertGreaterThan( $last_unpinned_at, $settings_at, 'Settings should be pinned below every feature page and external link.' );
 
 		$alphabetical = $internal;
 		usort( $alphabetical, 'strcmp' );
