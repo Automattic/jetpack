@@ -476,4 +476,10 @@ describe( 'switching the new Traffic tab off', () => {
 		expect( screen.getByRole( 'radio', { name: 'A bit worse' } ) ).not.toBeChecked();
 		expect( screen.getByRole( 'textbox' ) ).toHaveValue( '' );
 	} );
+
+	it( 'opens with the focus on Cancel', async () => {
+		await openConfirmation();
+
+		await waitFor( () => expect( screen.getByRole( 'button', { name: 'Cancel' } ) ).toHaveFocus() );
+	} );
 } );

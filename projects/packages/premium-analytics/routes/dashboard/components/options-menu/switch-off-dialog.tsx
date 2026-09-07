@@ -7,7 +7,7 @@ import {
 	type StatsFeedbackRating,
 } from '@jetpack-premium-analytics/data';
 import { Button, Dialog, Notice, Stack } from '@jetpack-premium-analytics/externals';
-import { useCallback, useState } from '@wordpress/element';
+import { useCallback, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
@@ -37,6 +37,8 @@ export function SwitchOffDialog( { onClose }: SwitchOffDialogProps ) {
 	const [ comment, setComment ] = useState( '' );
 	const [ isSwitchingOff, setIsSwitchingOff ] = useState( false );
 	const [ hasFailed, setHasFailed ] = useState( false );
+	// A confirmation opens on its way out, not on the first point of a scale nobody has to fill in.
+	const cancelRef = useRef< HTMLButtonElement >( null );
 
 	// Escape and the backdrop wait for the write too: a success would otherwise navigate away
 	// from wherever the reader went next, and a failure would surface on the next open.
@@ -84,7 +86,7 @@ export function SwitchOffDialog( { onClose }: SwitchOffDialogProps ) {
 
 	return (
 		<Dialog.Root open onOpenChange={ handleOpenChange }>
-			<Dialog.Popup size="medium">
+			<Dialog.Popup size="medium" initialFocus={ cancelRef }>
 				<Dialog.Content>
 					<Stack direction="column" gap="lg">
 						<Stack direction="column" gap="md">
@@ -123,7 +125,7 @@ export function SwitchOffDialog( { onClose }: SwitchOffDialogProps ) {
 					</Stack>
 				</Dialog.Content>
 				<Dialog.Footer>
-					<Dialog.Action variant="minimal" disabled={ isSwitchingOff }>
+					<Dialog.Action ref={ cancelRef } variant="minimal" disabled={ isSwitchingOff }>
 						{ __( 'Cancel', 'jetpack-premium-analytics-pkg' ) }
 					</Dialog.Action>
 					<Button variant="solid" onClick={ switchOff } disabled={ isSwitchingOff }>
