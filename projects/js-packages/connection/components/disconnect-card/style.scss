@@ -2,6 +2,9 @@
 
 // Show cards in the disconnection flow for active plugins and site benefits.
 .jp-connection__disconnect-card {
+	// Zero the @wordpress/ui supplied inner padding.
+	--wp-ui-card-padding: 0;
+
 	background-color: var(--jp-white);
 	width: 800px;
 	max-width: 100%;

@@ -146,7 +146,30 @@ beforeEach( async () => {
 
 afterEach( () => {
 	global.Image = originalImage;
+	delete ( window as unknown as { jetpackCookieConsentConfig?: unknown } )
+		.jetpackCookieConsentConfig;
 } );
+
+/**
+ * Stub the frontend feature flags read by isFeatureEnabled().
+ *
+ * @param {Record<string, boolean>} features - Feature flags to expose under jetpackCookieConsentConfig.
+ */
+function setFeatures( features: Record< string, boolean > ): void {
+	(
+		window as unknown as { jetpackCookieConsentConfig?: { features: Record< string, boolean > } }
+	 ).jetpackCookieConsentConfig = { features };
+}
+
+/**
+ * Resolve a GDPR country (FR) from the geo provider so handleConsentByRegion runs.
+ */
+function mockGdprGeoLookup(): void {
+	fetchMock.mockResolvedValue( {
+		ok: true,
+		json: async () => ( { country_short: 'FR', region: '' } ),
+	} as unknown as Response );
+}
 
 describe( 'initializeGeolocation geo-provider error handling', () => {
 	it( 'suppresses geo state and writes no fallback cookie when showOnError is false and the fetch fails', async () => {
@@ -216,6 +239,38 @@ describe( 'initializeGeolocation geoEnabled flag', () => {
 
 		expect( fetchMock ).not.toHaveBeenCalled();
 		expect( result ).toMatchObject( { initialized: true, countryCode: UNKNOWN_COUNTRY_CODE } );
+	} );
+} );
+
+describe( 'updateContextFromGeolocation banner-feature gate', () => {
+	it( 'auto-shows the banner for a GDPR visitor when the banner feature is on', async () => {
+		const context = { showBanner: false };
+		mockGetContext.mockReturnValue( context );
+		mockGetConfig.mockReturnValue( makeConfig() );
+		setFeatures( { banner: true } );
+		mockGdprGeoLookup();
+
+		await runAction(
+			storeActions.updateContextFromGeolocation() as Generator< unknown, unknown, unknown >
+		);
+
+		expect( context.showBanner ).toBe( true );
+	} );
+
+	it( 'does not auto-show the banner when the banner feature is off (footer-links-only site)', async () => {
+		// The banner markup is rendered so the footer "Manage Privacy Preferences" link can
+		// reopen the modal; with the banner feature off it must never pop for a GDPR visitor.
+		const context = { showBanner: false };
+		mockGetContext.mockReturnValue( context );
+		mockGetConfig.mockReturnValue( makeConfig() );
+		setFeatures( { banner: false } );
+		mockGdprGeoLookup();
+
+		await runAction(
+			storeActions.updateContextFromGeolocation() as Generator< unknown, unknown, unknown >
+		);
+
+		expect( context.showBanner ).toBe( false );
 	} );
 } );
 

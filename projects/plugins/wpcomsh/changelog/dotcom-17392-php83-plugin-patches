@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+CLI: generalize `wpcomsh php83-plugin-patch` into a table-driven patcher for PHP 8.3+ duplicate-static-variable fatals and add a `php83-theme-patch` counterpart. Covers the dash-slug mega-main-menu folder, ninja-forms, wiziapp, thegem-blocks, deepcore, malina-elements, sfwd-lms, cp-addons-for-vc and ingeniofy plugins, plus the SecondLine (tusant/gumbo/dixie/satchmo/bolden) and Select-Themes (hazel/hazel1/alma/maple/rhythm/architek) theme families.

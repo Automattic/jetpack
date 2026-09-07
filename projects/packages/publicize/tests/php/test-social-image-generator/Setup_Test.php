@@ -7,7 +7,9 @@
 
 namespace Automattic\Jetpack\Publicize;
 
+use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Publicize\Social_Image_Generator\Setup;
+use Jetpack_Options;
 use WorDBless\BaseTestCase;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Posts as WorDBless_Posts;
@@ -99,12 +101,142 @@ class Setup_Test extends BaseTestCase {
 
 		return array(
 			'headers'  => array(),
-			'body'     => '',
+			// The token endpoint responds with a bare JSON string; other callers ignore the body.
+			'body'     => '"generated-token"',
 			'response' => array(
 				'code'    => 200,
 				'message' => 'OK',
 			),
 		);
+	}
+
+	/**
+	 * Fake a site-level connection so token generation reaches the proxied request,
+	 * which the HTTP mock above then answers.
+	 */
+	private function connect_blog() {
+		( new Tokens() )->update_blog_token( 'new.blogtoken' );
+		Jetpack_Options::update_option( 'id', get_current_blog_id() );
+	}
+
+	/**
+	 * Save the post the way WordPress does after the editor writes its meta.
+	 */
+	private function save_post() {
+		$this->setup->generate_token_on_save( $this->post_id, get_post( $this->post_id ), true );
+	}
+
+	/**
+	 * Store the post's social options wholesale.
+	 *
+	 * @param array $options Options to store.
+	 */
+	private function set_social_options( $options ) {
+		update_post_meta( $this->post_id, Publicize::POST_JETPACK_SOCIAL_OPTIONS, $options );
+	}
+
+	/**
+	 * Read back the post's stored attached media.
+	 *
+	 * @return array
+	 */
+	private function get_attached_media() {
+		$options = get_post_meta( $this->post_id, Publicize::POST_JETPACK_SOCIAL_OPTIONS, true );
+
+		return $options['attached_media'] ?? array();
+	}
+
+	/**
+	 * Build the social options for a post sharing the generated image as an attachment.
+	 *
+	 * @param string $media_source   Which media the post shares.
+	 * @param array  $attached_media Attachment entries to store.
+	 * @return array
+	 */
+	private function sig_options( $media_source, $attached_media ) {
+		return array(
+			'media_source'             => $media_source,
+			'attached_media'           => $attached_media,
+			'image_generator_settings' => array(
+				'enabled'  => true,
+				'template' => 'dois',
+			),
+		);
+	}
+
+	/**
+	 * Saving re-points the shared attachment at the post's current generated image, so a
+	 * template change doesn't leave the previous template's image attached to the post.
+	 */
+	public function test_saving_repoints_a_stale_sig_attachment() {
+		$this->connect_blog();
+		$this->set_social_options(
+			$this->sig_options(
+				'sig',
+				array(
+					array(
+						'id'   => 0,
+						'url'  => 'https://jetpack.com/redirect/?source=sigenerate&query=t%3Dold-token',
+						'type' => 'image/png',
+					),
+				)
+			)
+		);
+
+		$this->save_post();
+
+		$attached_media = $this->get_attached_media();
+		$this->assertStringContainsString( 'generated-token', $attached_media[0]['url'] );
+		$this->assertSame( 0, $attached_media[0]['id'] );
+		$this->assertSame( 'image/png', $attached_media[0]['type'] );
+	}
+
+	/**
+	 * Media attached from the library is real content and must never be replaced.
+	 */
+	public function test_saving_leaves_library_media_alone() {
+		$attachment = array(
+			'id'   => 42,
+			'url'  => 'https://example.com/photo.jpg',
+			'type' => 'image/jpeg',
+		);
+
+		$this->connect_blog();
+		$this->set_social_options( $this->sig_options( 'sig', array( $attachment ) ) );
+
+		$this->save_post();
+
+		$this->assertSame( array( $attachment ), $this->get_attached_media() );
+	}
+
+	/**
+	 * A post sharing something other than the generated image is left untouched.
+	 */
+	public function test_saving_ignores_other_media_sources() {
+		$attachment = array(
+			'id'   => 0,
+			'url'  => 'https://example.com/stale.png',
+			'type' => 'image/png',
+		);
+
+		$this->connect_blog();
+		$this->set_social_options( $this->sig_options( 'featured-image', array( $attachment ) ) );
+
+		$this->save_post();
+
+		$this->assertSame( array( $attachment ), $this->get_attached_media() );
+	}
+
+	/**
+	 * A post that shares no media does not gain an attachment.
+	 */
+	public function test_saving_does_not_attach_media_to_a_post_without_any() {
+		$this->connect_blog();
+		$this->set_social_options( $this->sig_options( 'sig', array() ) );
+
+		$this->save_post();
+
+		$this->assertSame( array(), $this->get_attached_media() );
 	}
 
 	/**

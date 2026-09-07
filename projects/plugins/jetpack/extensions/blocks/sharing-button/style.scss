@@ -1,3 +1,5 @@
+@use "social-logos/colors.css";
+
 a.jetpack-sharing-button__button {
 	color: inherit;
 }
@@ -50,63 +52,63 @@ a.jetpack-sharing-button__button {
 		color: #fff;
 
 		&.share-bluesky {
-			background: var(--color-bluesky);
+			background: var(--jetpack-social-logo-color-bluesky);
 		}
 
 		&.share-x {
-			background: #000;
+			background: var(--jetpack-social-logo-color-x);
+		}
+
+		&.share-reddit {
+			background: var(--jetpack-social-logo-color-reddit);
+		}
+
+		&.share-facebook {
+			background: var(--jetpack-social-logo-color-facebook);
+		}
+
+		&.share-linkedin {
+			background: var(--jetpack-social-logo-color-linkedin);
+		}
+
+		&.share-twitter {
+			background: var(--jetpack-social-logo-color-twitter);
+		}
+
+		&.share-tumblr {
+			background: var(--jetpack-social-logo-color-tumblr);
+		}
+
+		&.share-pinterest {
+			background: var(--jetpack-social-logo-color-pinterest);
+		}
+
+		&.share-telegram {
+			background: var(--jetpack-social-logo-color-telegram);
+		}
+
+		&.share-threads {
+			background: var(--jetpack-social-logo-color-threads);
+		}
+
+		&.share-whatsapp {
+			background: var(--jetpack-social-logo-color-whatsapp);
+		}
+
+		&.share-mastodon {
+			background: var(--jetpack-social-logo-color-mastodon);
+		}
+
+		&.share-nextdoor {
+			background: var(--jetpack-social-logo-color-nextdoor);
 		}
 
 		&.share-print {
 			background: #c5c2c2;
 		}
 
-		&.share-reddit {
-			background: var(--color-reddit);
-		}
-
-		&.share-facebook {
-			background: var(--color-facebook);
-		}
-
-		&.share-linkedin {
-			background: var(--color-linkedin);
-		}
-
 		&.share-mail {
 			background: #c5c2c2;
-		}
-
-		&.share-twitter {
-			background: var(--color-twitter);
-		}
-
-		&.share-tumblr {
-			background: var(--color-tumblr);
-		}
-
-		&.share-pinterest {
-			background: var(--color-pinterest);
-		}
-
-		&.share-telegram {
-			background: var(--color-telegram);
-		}
-
-		&.share-threads {
-			background: var(--color-threads);
-		}
-
-		&.share-whatsapp {
-			background: var(--color-whatsapp);
-		}
-
-		&.share-mastodon {
-			background: var(--color-mastodon);
-		}
-
-		&.share-nextdoor {
-			background: var(--color-nextdoor);
 		}
 
 		&.share-share {

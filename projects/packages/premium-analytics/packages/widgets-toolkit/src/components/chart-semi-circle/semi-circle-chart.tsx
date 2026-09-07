@@ -1,8 +1,7 @@
 /**
  * External dependencies
  */
-import { PieSemiCircleChart } from '@automattic/charts';
-import { Icon, Stack } from '@wordpress/ui';
+import { PieSemiCircleChart, Icon, Stack } from '@jetpack-premium-analytics/externals';
 import { useMemo } from 'react';
 import { RESIZE_DEBOUNCE_MS } from '../../constants';
 import {
@@ -24,7 +23,6 @@ import type { DataFormat } from '../../types';
 import type { LegendItem } from '../legend/legend';
 import type { ComponentProps } from 'react';
 
-// Default chart configuration
 const DEFAULT_THICKNESS = 0.3;
 const DEFAULT_ASPECT_RATIO = 0.5;
 
@@ -64,9 +62,6 @@ export type SemiCircleChartProps = {
 	 */
 	comparisonValue?: number | null;
 
-	/**
-	 * Format for displaying values
-	 */
 	dataFormat?: DataFormat;
 
 	/**
@@ -74,9 +69,6 @@ export type SemiCircleChartProps = {
 	 */
 	legendData?: LegendItem[];
 
-	/**
-	 * Show legend below chart
-	 */
 	showLegend?: boolean;
 
 	/**
@@ -106,14 +98,8 @@ export type SemiCircleChartProps = {
 	 */
 	maxWidth?: number;
 
-	/**
-	 * Icon to display in the empty state
-	 */
 	emptyStateIcon?: React.ComponentProps< typeof Icon >[ 'icon' ];
 
-	/**
-	 * Text to display in the empty state
-	 */
 	emptyStateText?: string;
 
 	/**
@@ -122,14 +108,8 @@ export type SemiCircleChartProps = {
 	 */
 	withTooltips?: boolean;
 
-	/**
-	 * Horizontal offset for tooltip positioning.
-	 */
 	tooltipOffsetX?: number;
 
-	/**
-	 * Vertical offset for tooltip positioning.
-	 */
 	tooltipOffsetY?: number;
 
 	/**
@@ -141,12 +121,8 @@ export type SemiCircleChartProps = {
 };
 
 /**
- * Pure SemiCircleChart component.
- * Does not depend on any context provider - all data flows through props.
- *
- * Colors can be provided via:
- * 1. `styles` prop (takes priority) - array of { color } per segment
- * 2. `chartData[].color` - inline color per segment
+ * Context-free SemiCircleChart: everything arrives through props. Segment
+ * colors come from the `styles` prop, or from `chartData[].color` when absent.
  */
 export function SemiCircleChart( {
 	chartData,
@@ -175,17 +151,11 @@ export function SemiCircleChart( {
 	const [ containerRef, containerSize ] = useElementSize< HTMLDivElement >();
 	const [ legendRef, legendSize ] = useElementSize< HTMLDivElement >();
 
-	/**
-	 * Resolve styles: prop takes priority, fallback to chartData colors.
-	 */
 	const resolvedStyles = useMemo(
 		() => resolveSegmentStyles( stylesProp, chartData ),
 		[ stylesProp, chartData ]
 	);
 
-	/**
-	 * Apply styles to chart data
-	 */
 	const styledChartData = useMemo( () => {
 		if ( ! stylesProp?.length ) {
 			return chartData;
@@ -193,9 +163,6 @@ export function SemiCircleChart( {
 		return applyStylesToItems( chartData, resolvedStyles );
 	}, [ stylesProp, chartData, resolvedStyles ] );
 
-	/**
-	 * Apply styles to legend data
-	 */
 	const styledLegendData = useMemo( () => {
 		if ( ! legendData ) {
 			return undefined;
@@ -205,7 +172,6 @@ export function SemiCircleChart( {
 
 	const isEmptyData = isEmptyPieChartData( chartData );
 
-	// Render empty state when no data is available
 	if ( isEmptyData ) {
 		return <ChartEmptyState icon={ emptyStateIcon } text={ emptyStateText } />;
 	}

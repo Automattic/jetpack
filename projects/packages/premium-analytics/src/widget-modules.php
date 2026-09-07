@@ -2,35 +2,60 @@
 /**
  * Dashboard widget modules: REST exposure + import-map wiring.
  *
- * Reads get_available_widget_types() (the registry filtered by
- * widget-availability.php) and exposes it two ways: the
- * `/jetpack/v4/widget-modules` REST list, and the page import map, where each
- * widget's render and metadata modules are registered for dynamic `import()`.
+ * Reads get_available_widget_types() and exposes it two ways: the `/wpcom/v2/widget-modules`
+ * REST list, and the page import map, for dynamic `import()`.
  *
  * @package automattic/jetpack-premium-analytics
  */
 
 namespace Automattic\Jetpack\PremiumAnalytics;
 
+require_once __DIR__ . '/rest-namespace.php';
+
 /**
- * Register the `/jetpack/v4/widget-modules` REST route.
+ * Register the `/wpcom/v2/widget-modules` REST route.
  *
  * @return void
  */
 function register_widget_modules_rest_route() {
 	register_rest_route(
-		'jetpack/v4',
+		DASHBOARD_REST_NAMESPACE,
 		'/widget-modules',
 		array(
 			'methods'             => \WP_REST_Server::READABLE,
 			'callback'            => __NAMESPACE__ . '\\get_widget_modules_response',
-			'permission_callback' => static function () {
-				return current_user_can( 'manage_options' );
-			},
+			'permission_callback' => array( Capabilities::class, 'current_user_can_view_analytics' ),
 		)
 	);
 }
-add_action( 'rest_api_init', __NAMESPACE__ . '\\register_widget_modules_rest_route' );
+
+/**
+ * Load and hydrate the widget type registry, once.
+ *
+ * Deferred to the registry's only two readers rather than run at boot: on Simple this file's
+ * registration runs on every WPCOM public-api request, and most never read the registry.
+ *
+ * @return void
+ */
+function ensure_widget_registry_ready() {
+	static $ready = false;
+	if ( $ready ) {
+		return;
+	}
+	$ready = true;
+
+	require_once __DIR__ . '/widget-types.php';
+	require_once __DIR__ . '/widget-availability.php';
+
+	// REST does not load the admin build, so this require is the manifest's only route in
+	// (WOOA7S-1804). Drop it and every widget renders "Widget is no longer available" (#49961).
+	$widgets_manifest = Analytics::widget_manifest_path();
+	if ( file_exists( $widgets_manifest ) ) {
+		require_once $widgets_manifest;
+	}
+
+	bootstrap_widget_types();
+}
 
 /**
  * Build the REST response: one record per available widget type.
@@ -38,6 +63,8 @@ add_action( 'rest_api_init', __NAMESPACE__ . '\\register_widget_modules_rest_rou
  * @return \WP_REST_Response
  */
 function get_widget_modules_response() {
+	ensure_widget_registry_ready();
+
 	$records = array();
 
 	foreach ( get_available_widget_types() as $widget_type ) {
@@ -46,6 +73,11 @@ function get_widget_modules_response() {
 			'render_module' => $widget_type->render_module,
 			'widget_module' => $widget_type->widget_module,
 			'presentation'  => $widget_type->presentation,
+			'category'      => $widget_type->category,
+			'title'         => $widget_type->title,
+			'description'   => $widget_type->description,
+			'help'          => $widget_type->help,
+			'keywords'      => $widget_type->keywords,
 		);
 	}
 
@@ -60,6 +92,8 @@ function get_widget_modules_response() {
  * @return array Updated boot dependencies.
  */
 function add_widget_modules_to_boot_deps( $boot_dependencies ) {
+	ensure_widget_registry_ready();
+
 	foreach ( get_available_widget_types() as $widget_type ) {
 		if ( ! empty( $widget_type->render_module ) ) {
 			$boot_dependencies[] = array(
@@ -78,8 +112,4 @@ function add_widget_modules_to_boot_deps( $boot_dependencies ) {
 
 	return $boot_dependencies;
 }
-// The full-page interceptor (page.php) renders via the `{page-id}` filter; the
-// in-admin variant (page-wp-admin.php) uses the `{page-id}-wp-admin` filter. Hook
-// both so the widget modules land in the import map regardless of which renders.
-add_filter( 'jetpack-premium-analytics_boot_dependencies', __NAMESPACE__ . '\\add_widget_modules_to_boot_deps' );
 add_filter( 'jetpack-premium-analytics-wp-admin_boot_dependencies', __NAMESPACE__ . '\\add_widget_modules_to_boot_deps' );

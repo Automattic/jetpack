@@ -1,9 +1,14 @@
 # Podcast
 
-The wp-admin Podcast experience for the Jetpack plugin: the SPA, REST
-settings, and RSS feed customization for podcasting on Simple and Atomic
-sites. The package owns the experience outright now that the legacy stack
-it replaced has been removed.
+The wp-admin Podcast experience for Jetpack: the dashboard SPA, REST
+settings, and RSS feed customization for podcasting. The package owns the
+experience outright now that the legacy stack it replaced has been removed.
+
+Podcast ships as a Jetpack plugin module (`modules/podcast.php`,
+`Auto Activate: Yes`). It runs everywhere — WordPress.com Simple, WoA, and
+self-hosted Jetpack, where it auto-activates — and owns its own admin menu
+item (registered by `Admin_Page`, so it shows even when Calypso builds the
+nav over the `wpcom/v2/admin-menu` REST endpoint).
 
 ## UI primitives
 

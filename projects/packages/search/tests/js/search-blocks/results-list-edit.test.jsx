@@ -1,7 +1,11 @@
 import { fireEvent, render, screen } from '@testing-library/react';
+import { store as blockEditorStore } from '@wordpress/block-editor';
 import ResultsListEdit from '../../../src/search-blocks/blocks/results-list/edit';
 
+const mockSelectedStores = [];
+
 jest.mock( '@wordpress/block-editor', () => ( {
+	store: { name: 'core/block-editor' },
 	useBlockProps: props => ( { ...props, className: props?.className } ),
 	InspectorControls: ( { children } ) => <div data-testid="inspector">{ children }</div>,
 } ) );
@@ -82,15 +86,35 @@ jest.mock( '@wordpress/i18n', () => ( {
 // id) and `__mockSearchResultsAttrs` to drive the useSelect call.
 let mockSearchResultsParent = null;
 let mockSearchResultsAttrs = null;
+// Client id of a sibling `no-results` block, when the results region has one.
+let mockNoResultsBlockId = null;
 const mockSelectBlock = jest.fn();
+const mockInsertBlock = jest.fn();
 jest.mock( '@wordpress/data', () => ( {
 	useSelect: callback =>
-		callback( () => ( {
-			getBlockParentsByBlockName: () =>
-				mockSearchResultsParent ? [ mockSearchResultsParent ] : [],
-			getBlockAttributes: () => mockSearchResultsAttrs,
-		} ) ),
-	useDispatch: () => ( { selectBlock: mockSelectBlock } ),
+		callback( store => {
+			mockSelectedStores.push( store );
+			return {
+				getBlockParentsByBlockName: () =>
+					mockSearchResultsParent ? [ mockSearchResultsParent ] : [],
+				getBlockAttributes: () => mockSearchResultsAttrs,
+				// Argument-aware on purpose: the selector takes a single client id, and
+				// a mock that ignores its argument would hide a wrong call shape.
+				getClientIdsOfDescendants: rootClientId =>
+					mockNoResultsBlockId && rootClientId === mockSearchResultsParent
+						? [ mockNoResultsBlockId ]
+						: [],
+				getBlockRootClientId: () => 'sr-1',
+				getBlockIndex: () => 2,
+				getBlockName: id =>
+					id === mockNoResultsBlockId ? 'jetpack-search/no-results' : 'core/paragraph',
+			};
+		} ),
+	useDispatch: () => ( { selectBlock: mockSelectBlock, insertBlock: mockInsertBlock } ),
+} ) );
+
+jest.mock( '@wordpress/blocks', () => ( {
+	createBlock: name => ( { name } ),
 } ) );
 
 describe( 'ResultsListEdit', () => {
@@ -102,7 +126,9 @@ describe( 'ResultsListEdit', () => {
 		globalThis.JetpackSearchBlocksConfig = { isWooCommerceBlocksEnabled: true };
 		mockSearchResultsParent = null;
 		mockSearchResultsAttrs = null;
+		mockNoResultsBlockId = null;
 		mockSelectBlock.mockClear();
+		mockInsertBlock.mockClear();
 	} );
 	afterEach( () => {
 		delete globalThis.JetpackSearchBlocksConfig;
@@ -132,6 +158,14 @@ describe( 'ResultsListEdit', () => {
 		expect( screen.getByText( 'Older archived entry' ) ).toBeInTheDocument();
 	} );
 	/* eslint-enable testing-library/no-container, testing-library/no-node-access */
+
+	// Selecting by store object rather than the 'core/block-editor' string
+	// keeps the dependency explicit and survives a store rename.
+	it( 'selects state through the block-editor store object', () => {
+		render( <ResultsListEdit attributes={ {} } setAttributes={ jest.fn() } /> );
+
+		expect( mockSelectedStores ).toContain( blockEditorStore );
+	} );
 
 	it( 'renders the layout picker in the inspector', () => {
 		render( <ResultsListEdit attributes={ { layout: 'expanded' } } setAttributes={ jest.fn() } /> );
@@ -164,52 +198,99 @@ describe( 'ResultsListEdit', () => {
 		expect( screen.getByText( '$19.99' ) ).toBeInTheDocument();
 	} );
 
-	it( 'exposes message controls for the empty, filtered-empty, and error states in the inspector', () => {
+	// All three message fields are deprecated: `render.php` still emits saved
+	// values, but nothing new can set one, so the inspector never offers them —
+	// not even for content that carries a legacy message.
+	it( 'never offers the deprecated message fields', () => {
+		mockSearchResultsParent = 'sr-1';
+		render(
+			<ResultsListEdit
+				attributes={ {
+					noResultsMessage: 'Try a broader query.',
+					noResultsWithFiltersMessage: 'Clear a filter to see results.',
+					errorMessage: 'Search is offline right now.',
+				} }
+				setAttributes={ jest.fn() }
+			/>
+		);
+
+		expect( screen.queryByRole( 'textbox' ) ).not.toBeInTheDocument();
+	} );
+
+	// Editing anything else must leave the deprecated values alone — clearing
+	// them here would drop the empty and error states of every page saved
+	// before the No Results block, which is what the compat path exists to hold.
+	it( 'preserves saved messages when other settings change', () => {
+		const setAttributes = jest.fn();
+		render(
+			<ResultsListEdit
+				attributes={ {
+					layout: 'expanded',
+					noResultsMessage: 'Nothing here, sorry.',
+					noResultsWithFiltersMessage: 'Clear a filter to see results.',
+					errorMessage: 'Search is offline right now.',
+				} }
+				setAttributes={ setAttributes }
+			/>
+		);
+
+		// eslint-disable-next-line testing-library/prefer-user-event -- @testing-library/user-event isn't a dep of the search package; results-sort-edit.test.jsx uses fireEvent for the same reason.
+		fireEvent.click( screen.getByRole( 'radio', { name: 'Compact' } ) );
+
+		expect( setAttributes ).toHaveBeenCalledTimes( 1 );
+		setAttributes.mock.calls.forEach( ( [ payload ] ) => {
+			expect( payload ).not.toHaveProperty( 'noResultsMessage' );
+			expect( payload ).not.toHaveProperty( 'noResultsWithFiltersMessage' );
+			expect( payload ).not.toHaveProperty( 'errorMessage' );
+		} );
+	} );
+
+	it( 'jumps to an existing No Results block', () => {
+		mockSearchResultsParent = 'sr-1';
+		mockNoResultsBlockId = 'nr-1';
 		render( <ResultsListEdit attributes={ {} } setAttributes={ jest.fn() } /> );
 
-		expect( screen.getByRole( 'textbox', { name: 'No-results message' } ) ).toBeInTheDocument();
+		// eslint-disable-next-line testing-library/prefer-user-event -- @testing-library/user-event isn't a dep of the search package; results-sort-edit.test.jsx uses fireEvent for the same reason.
+		fireEvent.click( screen.getByRole( 'button', { name: 'Edit No Results block' } ) );
+		expect( mockSelectBlock ).toHaveBeenCalledWith( 'nr-1' );
+	} );
+
+	// A layout saved before the block existed still renders the deprecated
+	// message, so the panel has to advertise the block — otherwise the empty
+	// state reads as unconfigurable now that the text fields are gone.
+	it( 'offers to add a No Results block to a layout that has none', () => {
+		mockSearchResultsParent = 'sr-1';
+		render( <ResultsListEdit attributes={ {} } setAttributes={ jest.fn() } clientId="rl-1" /> );
+
 		expect(
-			screen.getByRole( 'textbox', { name: 'No-results message (when filters are active)' } )
+			screen.getByText(
+				'The empty and error states are plain messages. Add a No Results block to use any content — links, images, buttons.'
+			)
 		).toBeInTheDocument();
-		expect( screen.getByRole( 'textbox', { name: 'Error message' } ) ).toBeInTheDocument();
-	} );
-
-	it( 'updates the noResultsMessage attribute when the no-results control changes', () => {
-		const setAttributes = jest.fn();
-		render( <ResultsListEdit attributes={ {} } setAttributes={ setAttributes } /> );
+		expect(
+			screen.queryByRole( 'button', { name: 'Edit No Results block' } )
+		).not.toBeInTheDocument();
 
 		// eslint-disable-next-line testing-library/prefer-user-event -- @testing-library/user-event isn't a dep of the search package; results-sort-edit.test.jsx uses fireEvent for the same reason.
-		fireEvent.change( screen.getByRole( 'textbox', { name: 'No-results message' } ), {
-			target: { value: 'Try a broader query.' },
-		} );
-		expect( setAttributes ).toHaveBeenCalledWith( { noResultsMessage: 'Try a broader query.' } );
-	} );
-
-	it( 'updates the noResultsWithFiltersMessage attribute when the filtered-empty control changes', () => {
-		const setAttributes = jest.fn();
-		render( <ResultsListEdit attributes={ {} } setAttributes={ setAttributes } /> );
-
-		// eslint-disable-next-line testing-library/prefer-user-event -- @testing-library/user-event isn't a dep of the search package; results-sort-edit.test.jsx uses fireEvent for the same reason.
-		fireEvent.change(
-			screen.getByRole( 'textbox', { name: 'No-results message (when filters are active)' } ),
-			{ target: { value: 'Try removing a filter.' } }
+		fireEvent.click( screen.getByRole( 'button', { name: 'Add No Results block' } ) );
+		// Inserted as the results-list block's own next sibling, not appended to
+		// the search-results ancestor.
+		expect( mockInsertBlock ).toHaveBeenCalledWith(
+			{ name: 'jetpack-search/no-results' },
+			3,
+			'sr-1'
 		);
-		expect( setAttributes ).toHaveBeenCalledWith( {
-			noResultsWithFiltersMessage: 'Try removing a filter.',
-		} );
 	} );
 
-	it( 'updates the errorMessage attribute when the error control changes', () => {
-		const setAttributes = jest.fn();
-		render( <ResultsListEdit attributes={ {} } setAttributes={ setAttributes } /> );
+	it( 'omits both affordances when there is no search-results ancestor', () => {
+		render( <ResultsListEdit attributes={ {} } setAttributes={ jest.fn() } /> );
 
-		// eslint-disable-next-line testing-library/prefer-user-event -- @testing-library/user-event isn't a dep of the search package; results-sort-edit.test.jsx uses fireEvent for the same reason.
-		fireEvent.change( screen.getByRole( 'textbox', { name: 'Error message' } ), {
-			target: { value: 'Search is offline right now.' },
-		} );
-		expect( setAttributes ).toHaveBeenCalledWith( {
-			errorMessage: 'Search is offline right now.',
-		} );
+		expect(
+			screen.queryByRole( 'button', { name: 'Add No Results block' } )
+		).not.toBeInTheDocument();
+		expect(
+			screen.queryByRole( 'button', { name: 'Edit No Results block' } )
+		).not.toBeInTheDocument();
 	} );
 
 	it( 'omits the Search-scope hint panel when no search-results parent is found', () => {

@@ -1,5 +1,4 @@
 import * as Sentry from '@sentry/browser';
-import apiFetch from '@wordpress/api-fetch';
 import { addAction } from '@wordpress/hooks';
 
 const shouldActivateSentry = window.WPcom_Error_Reporting_Config?.shouldActivateSentry === 'true';
@@ -35,9 +34,11 @@ function activateSentry() {
 }
 
 /**
- * Activate the home-brew error-reporting.
+ * Activate the WP.com Logstash error-reporting.
  */
-function activateHomebrewErrorReporting() {
+function activateLogstash() {
+	const JS_ERROR_ENDPOINT = 'https://public-api.wordpress.com/rest/v1.1/js-error';
+
 	const reportError = ( { error } ) => {
 		// Sanitized error event objects do not include a nested error attribute. In
 		// that case, we return early to prevent a needless TypeError when defining
@@ -54,15 +55,16 @@ function activateHomebrewErrorReporting() {
 			feature: 'wp-admin',
 		};
 
+		// Send as direct `fetch` request with `x-www-form-urlencoded` content type and no extra
+		// headers like `X-WP-Nonce`. Prevents triggering a preflight request.
 		return (
-			apiFetch( {
-				global: true,
-				path: '/rest/v1.1/js-error',
-				method: 'POST',
-				data: { error: JSON.stringify( data ) },
-			} )
+			window
+				.fetch( JS_ERROR_ENDPOINT, {
+					method: 'POST',
+					body: new URLSearchParams( { error: JSON.stringify( data ) } ),
+				} )
 				// eslint-disable-next-line no-console
-				.catch( () => console.error( 'Error: Unable to record the error in Logstash.' ) )
+				.catch( err => console.error( 'Error: Unable to record the error in Logstash.', err ) )
 		);
 	};
 
@@ -75,7 +77,7 @@ function activateHomebrewErrorReporting() {
 if ( shouldActivateSentry ) {
 	activateSentry();
 } else {
-	activateHomebrewErrorReporting();
+	activateLogstash();
 }
 
 // Remove the head handler as it's not needed anymore after we set the main one above (either Sentry or homebrew)

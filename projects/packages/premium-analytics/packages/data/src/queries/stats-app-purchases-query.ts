@@ -55,4 +55,6 @@ export const statsAppPurchasesQuery = ( params: StatsAppPurchasesParams = {} ) =
 		version: '1.2',
 		endpoint: 'upgrades',
 		params,
+		// `upgrades` is a global (non-site-scoped) public-api endpoint on Simple.
+		global: true,
 	} );

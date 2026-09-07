@@ -80,15 +80,6 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 	private static $services_regex = '(?P<service>google_photos|openverse|pexels)';
 
 	/**
-	 * Temporary filename.
-	 *
-	 * Needed to cope with Google's very long file names.
-	 *
-	 * @var string
-	 */
-	private $tmp_name;
-
-	/**
 	 * Constructor.
 	 */
 	public function __construct() {
@@ -723,31 +714,55 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 	}
 
 	/**
-	 * Filter callback to provide a shorter file name for google images.
+	 * Downloads a remote media file into a temporary file for sideloading.
 	 *
-	 * @return string
-	 */
-	public function tmp_name() {
-		return $this->tmp_name;
-	}
-
-	/**
-	 * Returns a download URL, dealing with Google's long file names.
+	 * The remote file is streamed into a randomly-named temporary file created by
+	 * wp_tempnam(). The caller-supplied name is never used for the temporary file
+	 * itself; it is only applied — and validated by WordPress — later, when the
+	 * completed download is handed to media_handle_sideload(). This prevents a
+	 * crafted name from controlling the physical path or extension of the file
+	 * written to disk.
 	 *
 	 * @param array $guid Media information.
-	 * @return string|\WP_Error
+	 * @return string|\WP_Error Path to the downloaded temporary file, or WP_Error on failure.
 	 */
 	public function get_download_url( $guid ) {
-		$this->tmp_name = $guid['name'];
-		add_filter( 'wp_unique_filename', array( $this, 'tmp_name' ) );
-		$download_url = download_url( $guid['url'] );
-		remove_filter( 'wp_unique_filename', array( $this, 'tmp_name' ) );
+		require_once ABSPATH . 'wp-admin/includes/file.php';
 
-		if ( is_wp_error( $download_url ) ) {
-			$download_url->add_data( array( 'status' => 400 ) );
+		$tmp_name = wp_tempnam();
+		if ( ! $tmp_name ) {
+			return new WP_Error(
+				'rest_upload_error',
+				__( 'Could not create a temporary file.', 'jetpack' ),
+				array( 'status' => 500 )
+			);
 		}
 
-		return $download_url;
+		$response = wp_safe_remote_get(
+			$guid['url'],
+			array(
+				'timeout'  => 300,
+				'stream'   => true,
+				'filename' => $tmp_name,
+			)
+		);
+
+		if ( is_wp_error( $response ) ) {
+			wp_delete_file( $tmp_name );
+			$response->add_data( array( 'status' => 400 ) );
+			return $response;
+		}
+
+		if ( 200 !== (int) wp_remote_retrieve_response_code( $response ) ) {
+			wp_delete_file( $tmp_name );
+			return new WP_Error(
+				'rest_upload_error',
+				__( 'Could not download the media file.', 'jetpack' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		return $tmp_name;
 	}
 
 	/**
@@ -761,7 +776,7 @@ class WPCOM_REST_API_V2_Endpoint_External_Media extends WP_REST_Controller {
 	 */
 	public function sideload_media( $file_name, $download_url, $post_id = 0 ) {
 		$file = array(
-			'name'     => wp_basename( $file_name ),
+			'name'     => sanitize_file_name( wp_basename( $file_name ) ),
 			'tmp_name' => $download_url,
 		);
 

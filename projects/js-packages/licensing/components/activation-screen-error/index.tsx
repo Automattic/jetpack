@@ -1,11 +1,9 @@
 import jetpackAnalytics from '@automattic/jetpack-analytics';
-import { Icon, cautionFilled as warning, check } from '@wordpress/icons';
+import { Notice } from '@wordpress/ui';
 import { useEffect } from 'react';
 import { LICENSE_ERRORS } from './constants';
 import { useGetErrorContent } from './use-get-error-content';
 import type { FC } from 'react';
-
-import './style.scss';
 
 type LicenseErrorKeysType = keyof typeof LICENSE_ERRORS;
 type LicenseErrorValuesType = ( typeof LICENSE_ERRORS )[ LicenseErrorKeysType ];
@@ -31,21 +29,20 @@ const ActivationScreenError: FC< Props > = ( { licenseError, errorType } ) => {
 		return null;
 	}
 
-	const { ACTIVE_ON_SAME_SITE } = LICENSE_ERRORS;
-	const isLicenseAlreadyAttached = ACTIVE_ON_SAME_SITE === errorType;
-
-	const errorMessageClass = isLicenseAlreadyAttached
-		? 'activation-screen-error__message--success'
-		: 'activation-screen-error__message--error';
+	const isLicenseAlreadyAttached = LICENSE_ERRORS.ACTIVE_ON_SAME_SITE === errorType;
 
 	return (
-		<>
-			<div className={ `activation-screen-error__message ${ errorMessageClass }` }>
-				<Icon icon={ isLicenseAlreadyAttached ? check : warning } size={ 20 } />
-				<span>{ errorMessage }</span>
-			</div>
-			{ errorInfo && <div className="activation-screen-error__info">{ errorInfo }</div> }
-		</>
+		<Notice.Root
+			className="activation-screen-error"
+			intent={ isLicenseAlreadyAttached ? 'success' : 'error' }
+		>
+			<Notice.Title>{ errorMessage }</Notice.Title>
+			{ errorInfo && (
+				// errorInfo is rich block content (<p>/<ol>/links), so render the
+				// Description as a <div> rather than its default inline <span>.
+				<Notice.Description render={ <div /> }>{ errorInfo }</Notice.Description>
+			) }
+		</Notice.Root>
 	);
 };
 

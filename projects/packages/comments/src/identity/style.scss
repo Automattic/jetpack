@@ -1,0 +1,117 @@
+/**
+ * The identity block: guest fields when logged out, and the attribution line in
+ * the submit row when logged in.
+ */
+
+.jetpack-comments__identity {
+	padding: 16px;
+	border-block-start: 1px solid var(--jetpack-comments-border-color);
+}
+
+.jetpack-comments__prompt {
+	all: unset;
+	display: block;
+	margin-block-end: 16px;
+	font-size: 14px;
+	line-height: 22px;
+	color: var(--jetpack-comments-font-color);
+}
+
+.jetpack-comments__login {
+	display: inline-block;
+	padding: 7px 20px;
+	border: 1px solid var(--jetpack-comments-border-color);
+	border-radius: 4px;
+	color: inherit;
+	font-size: 14px;
+	text-decoration: none;
+
+	&:hover,
+	&:focus-visible {
+		border-color: var(--jetpack-comments-accent-color);
+	}
+}
+
+.jetpack-comments__guest {
+	display: flex;
+	flex-direction: column;
+	border: 1px solid var(--jetpack-comments-border-color);
+	border-radius: 4px;
+}
+
+.jetpack-comments__guest-field {
+	all: unset;
+	position: relative;
+	display: flex;
+	align-items: center;
+	block-size: 45px;
+	border-block-end: 1px solid var(--jetpack-comments-border-color);
+	color: var(--jetpack-comments-font-color);
+
+	svg {
+		position: absolute;
+		inset-block: 0;
+		inset-inline-start: 16px;
+		margin-block: auto;
+	}
+
+	input {
+		all: initial;
+		box-sizing: border-box;
+		inline-size: 100%;
+		block-size: 100%;
+		padding-inline: 44px 16px;
+		border: none;
+		background: transparent;
+		color: var(--jetpack-comments-font-color);
+		font-family: inherit;
+		font-size: 14px;
+
+		&::placeholder {
+			color: var(--jetpack-comments-font-color);
+			opacity: 0.8;
+		}
+
+		&:focus-visible {
+			outline: 1px solid var(--jetpack-comments-accent-color);
+			outline-offset: -1px;
+		}
+	}
+}
+
+.jetpack-comments__options {
+	padding: 16px 21px;
+	border-block-start: 1px solid var(--jetpack-comments-border-color);
+}
+
+.jetpack-comments__guest-field:last-child {
+	border-block-end: none;
+}
+
+.jetpack-comments__guest-field:has(+ .jetpack-comments__options) {
+	border-block-end: none;
+}
+
+
+.jetpack-comments__user {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	margin-inline-end: auto;
+	font-size: 14px;
+}
+
+.jetpack-comments__avatar {
+	flex-shrink: 0;
+	// 39 not 37: the border-box reset puts the 1px frame inside the box.
+	inline-size: 39px;
+	block-size: 39px;
+	border: 1px solid var(--jetpack-comments-border-color);
+	border-radius: 4px;
+	background-color: var(--jetpack-comments-content-background-color);
+}
+
+.jetpack-comments__logout {
+	color: inherit;
+	font-size: 14px;
+}

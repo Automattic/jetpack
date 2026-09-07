@@ -2,6 +2,7 @@ export {
 	SELECTABLE_PRESETS,
 	PRESET_TODAY,
 	PRESET_YESTERDAY,
+	PRESET_LAST_24_HOURS,
 	PRESET_LAST_7_DAYS,
 	PRESET_LAST_30_DAYS,
 	PRESET_LAST_90_DAYS,
@@ -10,18 +11,39 @@ export {
 	PRESET_LAST_12_MONTHS,
 	PRESET_LAST_YEAR,
 	PRESET_CUSTOM,
+	PRESET_ALL_TIME,
+	MENU_SURFACE_PRESETS,
+	MENU_SURFACE_PRESET_GROUPS,
+	QUICK_SURFACE_PRESETS,
+	DETAIL_SURFACE_PRESETS,
+	YEAR_PRESET_PREFIX,
 	isSelectablePreset,
 	isPrimaryPreset,
+	isYearPresetId,
+	isYearSurfacePresetId,
+	toYearPresetId,
+	getPresetYear,
 	type SelectablePresetId,
+	type QuickSurfacePresetId,
 	type PrimaryPresetId,
+	type ComputablePresetId,
+	type YearPresetId,
+	type YearSurfacePresetId,
 } from './types';
 
 export {
 	PRESET_DEFINITIONS,
+	DEFAULT_YEAR_SURFACE_COUNT,
 	getPresetLabel,
 	getDefaultDateRangePresets,
+	getMenuSurfacePresetGroups,
+	getQuickSurfacePresets,
+	getYearSurfacePresets,
 	computePrimaryRange,
 	type DateRangePreset,
+	type YearSurfaceOptions,
+	type AllTimeRangeOptions,
+	type QuickSurfaceOptions,
 } from './primary';
 
-export { getComparisonPresetLabel, getComparisonPresetConfigs } from './comparison';
+export { getComparisonOptions, type ComparisonOption } from './comparison';

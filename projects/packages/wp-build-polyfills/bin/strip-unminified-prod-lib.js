@@ -10,8 +10,12 @@
  * copies are never loaded but are still mirrored to deploy targets,
  * inflating the payload by ~13 MiB as of this writing.
  *
- * `strip(buildDir)` deletes the unminified siblings under
- * build/{routes,scripts,modules,styles,widgets}/** and rewrites the generated
+ * `strip(buildDir)` removes the unminified siblings under
+ * build/{routes,scripts,modules,styles,widgets}/** — deleting `.css` files
+ * outright and replacing string-bearing `.js` files with a tiny i18n
+ * reference stub (see `i18n-stub-lib.js`), since GlotPress and
+ * `wp i18n make-pot` ignore `*.min.js` and would otherwise have nothing to
+ * extract translations from — and rewrites the generated
  * routes.php / scripts.php / modules.php / styles.php / widgets.php loaders so the
  * SCRIPT_DEBUG branch collapses to the minified asset — keeping the asset
  * reachable even if a deploy target enables SCRIPT_DEBUG. The function is
@@ -29,6 +33,7 @@
 
 const { readdirSync, existsSync, unlinkSync, readFileSync, writeFileSync } = require( 'fs' );
 const path = require( 'path' );
+const { makeI18nStub, isStub } = require( './i18n-stub-lib.js' );
 
 const TARGET_SUBDIRS = [ 'routes', 'scripts', 'modules', 'styles', 'widgets' ];
 const STRIPPABLE_EXTS = [ '.js', '.css' ];
@@ -96,13 +101,19 @@ function walk( dir, visit ) {
 }
 
 /**
- * Delete a file if it is the unminified sibling of an existing
+ * Strip a file if it is the unminified sibling of an existing
  * `.min.js`/`.min.css` counterpart. Also drops any sibling source map.
  * Files that are already minified, orphaned (no `.min` counterpart), or of
  * an unrelated extension are left alone.
  *
+ * A `.css` sibling is deleted outright. A `.js` sibling is deleted only when
+ * it carries no gettext calls; otherwise it is replaced in place by an i18n
+ * reference stub (see `i18n-stub-lib.js`) — GlotPress and `wp i18n make-pot`
+ * ignore `*.min.js`, so deleting a string-bearing bundle would leave nothing
+ * to extract translations from and no catalogs would be generated at release.
+ *
  * @param {string} filePath - Absolute path to the candidate file.
- * @return {boolean} `true` if the file was deleted, `false` otherwise.
+ * @return {'deleted'|'stubbed'|false} What happened to the file.
  */
 function stripIfPaired( filePath ) {
 	for ( const ext of STRIPPABLE_EXTS ) {
@@ -114,12 +125,29 @@ function stripIfPaired( filePath ) {
 			if ( ! existsSync( minPath ) ) {
 				return false;
 			}
-			unlinkSync( filePath );
+
+			let stub = null;
+			if ( ext === '.js' ) {
+				const source = readFileSync( filePath, 'utf8' );
+				if ( isStub( source ) ) {
+					// Already processed by a previous pass; leave it alone.
+					return false;
+				}
+				stub = makeI18nStub( source );
+			}
+
+			if ( stub === null ) {
+				unlinkSync( filePath );
+			} else {
+				writeFileSync( filePath, stub );
+			}
+
+			// The source map matches neither the stub nor the deleted bundle.
 			const mapPath = filePath + '.map';
 			if ( existsSync( mapPath ) ) {
 				unlinkSync( mapPath );
 			}
-			return true;
+			return stub === null ? 'deleted' : 'stubbed';
 		}
 	}
 	return false;
@@ -157,20 +185,24 @@ function hasUnpatchedFallback( source ) {
  * the generated PHP loaders. See module docstring for context.
  *
  * @param {string} buildDir - Absolute path to the package's build/ directory.
- * @return {{deletedFiles: number, patchedFiles: number, skipped: boolean}} Summary of what changed. `skipped: true` if `buildDir` doesn't exist.
+ * @return {{deletedFiles: number, stubbedFiles: number, patchedFiles: number, skipped: boolean}} Summary of what changed. `skipped: true` if `buildDir` doesn't exist.
  */
 function strip( buildDir ) {
 	if ( ! existsSync( buildDir ) ) {
-		return { deletedFiles: 0, patchedFiles: 0, skipped: true };
+		return { deletedFiles: 0, stubbedFiles: 0, patchedFiles: 0, skipped: true };
 	}
 
 	let deletedFiles = 0;
+	let stubbedFiles = 0;
 	let patchedFiles = 0;
 
 	for ( const sub of TARGET_SUBDIRS ) {
 		walk( path.join( buildDir, sub ), filePath => {
-			if ( stripIfPaired( filePath ) ) {
+			const action = stripIfPaired( filePath );
+			if ( action === 'deleted' ) {
 				deletedFiles++;
+			} else if ( action === 'stubbed' ) {
+				stubbedFiles++;
 			}
 		} );
 	}
@@ -204,7 +236,7 @@ function strip( buildDir ) {
 		patchedFiles++;
 	}
 
-	return { deletedFiles, patchedFiles, skipped: false };
+	return { deletedFiles, stubbedFiles, patchedFiles, skipped: false };
 }
 
 module.exports = {

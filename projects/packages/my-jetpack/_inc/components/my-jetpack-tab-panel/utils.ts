@@ -1,4 +1,4 @@
-import { currentUserCan } from '@automattic/jetpack-script-data';
+import { currentUserCan, isSimpleSite } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
 import {
 	MY_JETPACK_SECTION_HELP,
@@ -16,8 +16,6 @@ type TabPanelProps = ComponentProps< typeof TabPanel >;
  * @return The sections for the My Jetpack tab panel.
  */
 export function getMyJetpackSections(): TabPanelProps[ 'tabs' ] {
-	const isAdmin = currentUserCan( 'manage_options' );
-
 	const tabs = [
 		{
 			name: MY_JETPACK_SECTION_OVERVIEW,
@@ -33,12 +31,26 @@ export function getMyJetpackSections(): TabPanelProps[ 'tabs' ] {
 		},
 	];
 
-	if ( isAdmin ) {
+	// WordPress.com Simple sites only get the Products section.
+	if ( isSimpleSite() ) {
+		return tabs.filter( tab => tab.name === MY_JETPACK_SECTION_PRODUCTS );
+	}
+
+	if ( currentUserCan( 'manage_options' ) ) {
 		return tabs;
 	}
 
 	// If the user is not an admin, remove the Products tab.
 	return tabs.filter( tab => tab.name !== MY_JETPACK_SECTION_PRODUCTS );
+}
+
+/**
+ * Get the default My Jetpack section.
+ *
+ * @return The name of the first available section.
+ */
+export function getDefaultMyJetpackSection() {
+	return getMyJetpackSections()[ 0 ].name;
 }
 
 /**

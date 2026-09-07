@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\CookieConsent;
 
 use PHPUnit\Framework\TestCase as PHPUnit_TestCase;
+use ReflectionProperty;
 
 /**
  * Base TestCase: resets database state between tests and provides consent-log
@@ -50,6 +51,7 @@ abstract class TestCase extends PHPUnit_TestCase {
 		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		wp_cache_flush();
 		wp_set_current_user( 0 );
+		$this->reset_cookie_consent_config();
 	}
 
 	/**
@@ -61,6 +63,9 @@ abstract class TestCase extends PHPUnit_TestCase {
 		Consent_Log_Controller::init()->maybe_create_table();
 		global $wpdb;
 		$wpdb->query( 'DELETE FROM ' . Consent_Log_Controller::get_table_name() ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
+		// init() also registers the cleanup cron and REST/privacy hooks; unregister them
+		// (the table stays) so they don't pollute tests asserting on hook registration.
+		Consent_Log_Controller::deactivate();
 	}
 
 	/**
@@ -84,5 +89,40 @@ abstract class TestCase extends PHPUnit_TestCase {
 		$row      = array_merge( $defaults, $overrides );
 		$wpdb->insert( Consent_Log_Controller::get_table_name(), $row ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 		return (int) $wpdb->insert_id;
+	}
+
+	/**
+	 * Stash a resolved config on Cookie_Consent for the rest of the test.
+	 *
+	 * Cookie_Consent::get_config() resolves once and stashes the result, so writing
+	 * the private static stash directly via reflection injects config without going
+	 * through the `jetpack_cookie_consent_config` filter or a full init() boot.
+	 *
+	 * @param array $config Partial config to resolve and stash.
+	 */
+	protected function set_cookie_consent_config( array $config ) {
+		$this->cookie_consent_config_property()->setValue( null, Config_Schema::resolve( $config ) );
+	}
+
+	/**
+	 * Clear the Cookie_Consent config stash so the next get_config() call re-resolves.
+	 */
+	protected function reset_cookie_consent_config() {
+		$this->cookie_consent_config_property()->setValue( null, null );
+	}
+
+	/**
+	 * Get a writable reflection handle on Cookie_Consent's private config stash.
+	 *
+	 * @return ReflectionProperty
+	 */
+	private function cookie_consent_config_property() {
+		$property = new ReflectionProperty( Cookie_Consent::class, 'config' );
+		// setAccessible() is required to write a private property on PHP < 8.1, and a
+		// deprecated no-op from 8.1 on. Call it only where it's actually needed.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		return $property;
 	}
 }

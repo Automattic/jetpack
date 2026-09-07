@@ -2,9 +2,17 @@ import { render, screen } from '@testing-library/react';
 import { InnerBlocks } from '@wordpress/block-editor';
 import FiltersEdit from '../../../src/search-blocks/blocks/filters/edit';
 
-jest.mock( '@wordpress/block-editor', () => ( {
-	useBlockProps: props => ( { ...props, className: props?.className } ),
-	InnerBlocks: jest.fn( () => <div data-testid="filters-inner-blocks" /> ),
+jest.mock( '@wordpress/block-editor', () => {
+	const mockInnerBlocks = jest.fn( () => <div data-testid="filters-inner-blocks" /> );
+	mockInnerBlocks.ButtonBlockAppender = () => null;
+	return {
+		useBlockProps: props => ( { ...props, className: props?.className } ),
+		InnerBlocks: mockInnerBlocks,
+	};
+} );
+
+jest.mock( '@wordpress/i18n', () => ( {
+	__: text => text,
 } ) );
 
 describe( 'FiltersEdit', () => {
@@ -31,5 +39,18 @@ describe( 'FiltersEdit', () => {
 			'jetpack-search/filter-checkbox',
 			'jetpack-search/filter-date',
 		] );
+	} );
+
+	it( 'bounds the insertion target with a persistent ButtonBlockAppender', () => {
+		render( <FiltersEdit /> );
+
+		const props = InnerBlocks.mock.calls[ 0 ][ 0 ];
+		expect( props.renderAppender ).toBe( InnerBlocks.ButtonBlockAppender );
+	} );
+
+	it( 'shows the "Filters" boundary label', () => {
+		render( <FiltersEdit /> );
+
+		expect( screen.getByText( 'Filters' ) ).toBeInTheDocument();
 	} );
 } );

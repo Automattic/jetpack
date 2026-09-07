@@ -2,22 +2,56 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { trendingUp } from '@wordpress/icons';
+import { people } from '@wordpress/icons';
+import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
- * Widget type definition.
- *
- * Ported from the Jetpack Stats `stats-subscribers-chart-section` card in
- * wp-calypso. The date range and previous-period comparison follow the
- * dashboard picker; the legacy interval segmented control becomes the in-body
- * "Group by" dropdown, which only chooses the bucket size within that range.
+ * Internal dependencies
+ */
+import {
+	chartTypeAttributeField,
+	type ChartDisplayChartType,
+} from '@jetpack-premium-analytics/widgets-toolkit';
+
+/**
+ * How the selected metric is drawn. The shared chart-display list keeps every
+ * chart widget's dropdown identical and ties it to the toolkit's own union.
+ */
+export type SubscribersChartType = ChartDisplayChartType;
+
+/**
+ * The metric tabs the chart shows, in display order: the id and label of each
+ * metric. The Paid subscribers tab only renders when the site has paid
+ * subscribers.
+ */
+export const SUBSCRIBERS_CHART_METRICS = [
+	{ id: 'subscribers', label: __( 'Subscribers', 'jetpack-premium-analytics-pkg' ) },
+	{ id: 'paid', label: __( 'Paid subscribers', 'jetpack-premium-analytics-pkg' ) },
+] as const satisfies readonly { id: string; label: string }[];
+
+/**
+ * Identifier of one metric tab.
+ */
+export type SubscribersChartMetricId = ( typeof SUBSCRIBERS_CHART_METRICS )[ number ][ 'id' ];
+
+/**
+ * @property chartType - How to draw the selected metric. Defaults to `line`.
+ */
+export type SubscribersChartAttributes = {
+	chartType?: SubscribersChartType;
+};
+
+/**
+ * Ported from the Jetpack Stats `stats-subscribers-chart-section` card; the
+ * legacy interval control is now the dashboard's chart interval control.
+ * `example.attributes` doubles as the defaults applied to new instances.
  */
 export default {
-	name: 'jpa/subscribers-chart',
-	title: __( 'Subscribers', 'jetpack-premium-analytics' ),
-	description: __(
-		'Track subscriber growth over time, with paid subscribers and the previous period overlaid for comparison.',
-		'jetpack-premium-analytics'
-	),
-	icon: trendingUp,
+	icon: people,
+	attributes: [ chartTypeAttributeField() ] as WidgetAttributeField< SubscribersChartAttributes >[],
+	example: {
+		attributes: {
+			chartType: 'line',
+		},
+	},
 };

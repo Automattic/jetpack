@@ -85,6 +85,36 @@ class VideoPressToken {
 		if ( static::check_connection() ) {
 			$blog_id = static::blog_id();
 
+			/*
+			 * On WordPress.com the classic `sites/{id}/media/token` (rest/v1.1) endpoint
+			 * isn't reachable in-process: `Client::wpcom_json_api_request_as_blog` routes
+			 * through `WPCOM_API_Direct`, which only dispatches WP-REST routes. Mint the
+			 * one-time token straight from the same primitives that endpoint uses. Mirrors
+			 * the IS_WPCOM branches already in this class (`blog_id()`) and its sibling AJAX
+			 * playback-JWT handler (`AJAX::request_jwt_from_wpcom()`).
+			 */
+			if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+				if ( ! class_exists( '\Jetpack_Server_Upload_Token' ) && defined( 'ABSPATH' ) ) {
+					// file_exists-guarded so a relocated wpcom mu-plugins file degrades
+					// to the friendly exception below instead of a require fatal.
+					$upload_token_file = ABSPATH . 'wp-content/mu-plugins/jetpack/class.jetpack-server-upload-token.php';
+					if ( file_exists( $upload_token_file ) ) {
+						require_once $upload_token_file;
+					}
+				}
+				if ( class_exists( '\Jetpack_Data' ) && class_exists( '\Jetpack_Server_Upload_Token' ) && defined( 'JETPACK__ANY_USER_TOKEN' ) ) {
+					// blog_id() types as int|string (the Jetpack-option path), but on
+					// WPCOM it's get_current_blog_id() — narrow for the int-typed stubs.
+					$wpcom_blog_id = (int) $blog_id;
+					$jetpack_token = \Jetpack_Data::get_access_token_by_blog_id_user_id( $wpcom_blog_id, JETPACK__ANY_USER_TOKEN );
+					$token         = \Jetpack_Server_Upload_Token::create_token( $wpcom_blog_id, $jetpack_token );
+					if ( is_array( $token ) && ! empty( $token['hash'] ) ) {
+						return $token['hash'];
+					}
+				}
+				throw new Upload_Exception( __( 'Could not obtain a VideoPress upload token. Please try again later.', 'jetpack-videopress-pkg' ) );
+			}
+
 			$args = array(
 				'method' => 'POST',
 			);

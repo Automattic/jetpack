@@ -6,6 +6,7 @@
 namespace Automattic\Jetpack\Podcast\Tests;
 
 use Automattic\Jetpack\Podcast\New_Episode_Prefill;
+use Automattic\Jetpack\Podcast\Podcast_Gate;
 use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
 
@@ -28,9 +29,23 @@ class New_Episode_Prefill_Test extends BaseTestCase {
 			remove_filter( 'default_content', array( New_Episode_Prefill::class, 'prefill_block_content' ), 10 );
 		}
 		delete_option( 'podcasting_category_id' );
+		delete_transient( Podcast_Gate::PURCHASES_TRANSIENT );
 		$_GET = array();
 		$this->reset_prefill_state();
 		parent::tearDown();
+	}
+
+	/**
+	 * Seed the gate's purchases lookup: a Growth purchase grants access, an empty
+	 * list denies it.
+	 *
+	 * @param bool $has_access Whether the site should have product access.
+	 */
+	private function set_product_access( bool $has_access ) {
+		set_transient(
+			Podcast_Gate::PURCHASES_TRANSIENT,
+			$has_access ? array( array( 'product_slug' => 'jetpack_growth_yearly' ) ) : array()
+		);
 	}
 
 	public function test_maybe_register_handlers_requires_flagged_post_new_screen_and_configured_category() {
@@ -46,7 +61,7 @@ class New_Episode_Prefill_Test extends BaseTestCase {
 		New_Episode_Prefill::maybe_register_handlers();
 
 		$this->assertSame( 10, has_action( 'wp_insert_post', array( New_Episode_Prefill::class, 'assign_category' ) ) );
-		$this->assertFalse( has_filter( 'default_content', array( New_Episode_Prefill::class, 'prefill_block_content' ) ) );
+		$this->assertSame( 10, has_filter( 'default_content', array( New_Episode_Prefill::class, 'prefill_block_content' ) ) );
 	}
 
 	public function test_assign_category_sets_configured_category_for_initial_auto_draft() {
@@ -71,8 +86,7 @@ class New_Episode_Prefill_Test extends BaseTestCase {
 			)
 		);
 
-		// WorDBless lacks the term-relationships table; spy on set_object_terms
-		// to verify the call instead of reading the assignment back.
+		// WorDBless lacks the term-relationships table; spy on set_object_terms.
 		$spy    = array();
 		$record = function ( $object_id, $terms, $tt_ids, $taxonomy ) use ( &$spy ) {
 			$spy[] = array(
@@ -129,7 +143,6 @@ class New_Episode_Prefill_Test extends BaseTestCase {
 			)
 		);
 
-		// Same set_object_terms spy as above; here we assert no call fires.
 		$spy    = array();
 		$record = function ( $object_id, $terms, $tt_ids, $taxonomy ) use ( &$spy, $post_id ) {
 			if ( (int) $object_id === (int) $post_id && 'category' === $taxonomy ) {
@@ -152,6 +165,8 @@ class New_Episode_Prefill_Test extends BaseTestCase {
 	}
 
 	public function test_prefill_block_content_only_inserts_for_empty_post_content() {
+		$this->set_product_access( true );
+
 		$post_id = wp_insert_post(
 			array(
 				'post_title'  => 'Auto Draft',
@@ -174,9 +189,28 @@ class New_Episode_Prefill_Test extends BaseTestCase {
 		wp_delete_post( $post_id, true );
 	}
 
+	public function test_prefill_block_content_falls_back_to_audio_block_without_product_access() {
+		$this->set_product_access( false );
+
+		$post_id = wp_insert_post(
+			array(
+				'post_title'  => 'Auto Draft',
+				'post_type'   => 'post',
+				'post_status' => 'auto-draft',
+			)
+		);
+		$post    = get_post( $post_id );
+
+		$this->assertSame(
+			"<!-- wp:audio /-->\n",
+			New_Episode_Prefill::prefill_block_content( '', $post )
+		);
+
+		wp_delete_post( $post_id, true );
+	}
+
 	private function reset_prefill_state() {
 		$property = new \ReflectionProperty( New_Episode_Prefill::class, 'handled_post_id' );
-		// setAccessible is required on PHP < 8.1; deprecated but still works on later versions.
 		if ( PHP_VERSION_ID < 80100 ) {
 			$property->setAccessible( true );
 		}

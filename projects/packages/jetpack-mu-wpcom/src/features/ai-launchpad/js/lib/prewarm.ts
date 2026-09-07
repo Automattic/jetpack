@@ -58,7 +58,7 @@ function startPrewarm( input: WizardInput ): void {
  * @param state - The partial wizard input collected so far.
  */
 export function usePrewarm( state: Partial< WizardInput > ): void {
-	const timer = useRef< ReturnType< typeof setTimeout > >();
+	const timer = useRef< ReturnType< typeof setTimeout > >( undefined );
 
 	// Depend on the stable cache key, not the `state` object, which is fresh every render and would re-arm the debounce on every re-render.
 	const input = isComplete( state ) ? state : null;

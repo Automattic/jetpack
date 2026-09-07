@@ -47,7 +47,7 @@ const Sidebar = props => {
 				widget={ props.widgetOutsideOverlay }
 			/>
 			<WidgetAreaContainer />
-			{ props.widgets.map( widget => {
+			{ ( props.widgets ?? [] ).map( widget => {
 				// Creates portals to elements moved into the WidgetAreaContainer.
 				return createPortal(
 					<div

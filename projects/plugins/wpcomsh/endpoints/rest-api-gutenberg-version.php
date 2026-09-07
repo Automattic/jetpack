@@ -10,12 +10,12 @@
  */
 
 /**
- * Returns the active Gutenberg plugin version, or null if the plugin is not active.
+ * Returns the active Gutenberg plugin version, or null if the plugin is inactive or ignored.
  *
  * @return WP_REST_Response
  */
 function wpcomsh_rest_api_gutenberg_version() {
-	$version = defined( 'GUTENBERG_VERSION' ) ? GUTENBERG_VERSION : null;
+	$version = ( ! wpcomsh_is_gutenberg_plugin_ignored() && defined( 'GUTENBERG_VERSION' ) ) ? GUTENBERG_VERSION : null;
 
 	return new WP_REST_Response(
 		array(

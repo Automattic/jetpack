@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Keep the full set of ticks on bar chart time axes, which could thin out to two labels on longer date ranges.

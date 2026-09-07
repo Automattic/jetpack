@@ -2,5 +2,9 @@
 	"name": "jpa/coupon-usage-over-time",
 	"title": "Coupon usage over time",
 	"description": "Coupon usage over the selected time period.",
-	"category": "coupons"
+	"help": {
+		"content": "Track how effective your discounts and promotions have been over a set period of time."
+	},
+	"category": "coupons",
+	"presentation": "framed"
 }

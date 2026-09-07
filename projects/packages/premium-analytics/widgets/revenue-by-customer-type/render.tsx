@@ -18,22 +18,15 @@ import type { ComponentProps } from 'react';
 type RevenueByCustomerTypeRenderAttributes = RevenueByCustomerTypeAttributes &
 	Partial< ReportParamsFieldAttributes >;
 
-type RevenueByCustomerTypeRenderProps =
+type RevenueByCustomerTypeWidgetProps =
 	WidgetRenderProps< RevenueByCustomerTypeRenderAttributes > & {
 		setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
 	};
 
-/**
- * Revenue by customer type widget.
- *
- * Thin composition over WidgetRoot: WidgetRoot provides the query client,
- * chart theme, and resolved report params; RevenueByCustomerTypeWidget fetches
- * the customers report and renders the new vs returning revenue breakdown.
- */
 export default function RevenueByCustomerTypeRender( {
 	attributes = {},
 	setError,
-}: RevenueByCustomerTypeRenderProps ) {
+}: RevenueByCustomerTypeWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
 			<RevenueByCustomerTypeWidget />

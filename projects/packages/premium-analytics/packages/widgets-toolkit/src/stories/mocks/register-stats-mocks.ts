@@ -1,9 +1,7 @@
 /**
- * Stats API mock middleware for Storybook.
- *
- * Intercepts `@wordpress/api-fetch` requests to the PA Stats proxy and returns
- * fixture data so Stats-backed widgets render in Storybook without a live
- * WordPress + WPCOM connection.
+ * Stats API mock middleware for Storybook: intercepts `@wordpress/api-fetch`
+ * requests to the PA Stats proxy and returns fixture data so Stats-backed
+ * widgets render without a live WordPress + WPCOM connection.
  */
 /**
  * External dependencies
@@ -213,6 +211,371 @@ const MOCK_CLICKS_COMPARISON = {
 				],
 			},
 		],
+	},
+};
+
+const MOCK_TOP_POSTS_POSTVIEWS = [
+	{
+		id: 1,
+		href: 'https://example.com/hello-world/',
+		date: '2026-06-01',
+		title: 'Hello World Post',
+		type: 'post',
+		status: 'publish',
+		public: true,
+		views: 4210,
+		video_play: false,
+	},
+	{
+		id: 2,
+		href: 'https://example.com/about/',
+		date: null,
+		title: 'About Page',
+		type: 'page',
+		status: 'publish',
+		public: true,
+		views: 3180,
+		video_play: false,
+	},
+	{
+		id: 3,
+		href: 'https://example.com/pricing/',
+		date: '2026-06-12',
+		title: 'Pricing',
+		type: 'page',
+		status: 'publish',
+		public: true,
+		views: 1840,
+		video_play: false,
+	},
+	{
+		id: 4,
+		href: 'https://example.com/build-times/',
+		date: '2026-06-18',
+		title: 'How we cut our build times in half',
+		type: 'post',
+		status: 'publish',
+		public: true,
+		views: 1260,
+		video_play: false,
+	},
+	{
+		id: 5,
+		href: 'https://example.com/changelog/',
+		date: '2026-06-22',
+		title: 'Changelog',
+		type: 'page',
+		status: 'publish',
+		public: true,
+		views: 940,
+		video_play: false,
+	},
+];
+
+const MOCK_TOP_POSTS_COMPARISON_POSTVIEWS = [
+	{
+		id: 1,
+		href: 'https://example.com/hello-world/',
+		date: '2026-05-01',
+		title: 'Hello World Post',
+		type: 'post',
+		status: 'publish',
+		public: true,
+		views: 3980,
+		video_play: false,
+	},
+	{
+		id: 2,
+		href: 'https://example.com/about/',
+		date: null,
+		title: 'About Page',
+		type: 'page',
+		status: 'publish',
+		public: true,
+		views: 3510,
+		video_play: false,
+	},
+	{
+		id: 3,
+		href: 'https://example.com/pricing/',
+		date: '2026-05-12',
+		title: 'Pricing',
+		type: 'page',
+		status: 'publish',
+		public: true,
+		views: 1640,
+		video_play: false,
+	},
+	{
+		id: 4,
+		href: 'https://example.com/build-times/',
+		date: '2026-05-18',
+		title: 'How we cut our build times in half',
+		type: 'post',
+		status: 'publish',
+		public: true,
+		views: 880,
+		video_play: false,
+	},
+];
+
+const MOCK_TOP_POSTS = {
+	date: '2026-06-29',
+	period: 'day',
+	days: {},
+	summary: {
+		postviews: [
+			...MOCK_TOP_POSTS_POSTVIEWS,
+			// With skip_archives=1 the API keeps the homepage-as-latest-posts
+			// entry in postviews, server-titled and without a URL.
+			{
+				id: 0,
+				href: null,
+				date: null,
+				title: 'Homepage (Latest posts)',
+				type: 'homepage',
+				status: 'publish',
+				public: true,
+				views: 2140,
+				video_play: false,
+			},
+		],
+		total_views: 13570,
+		dropped_ids: [],
+	},
+};
+
+const MOCK_TOP_POSTS_COMPARISON = {
+	date: '2026-05-30',
+	period: 'day',
+	days: {},
+	summary: {
+		postviews: MOCK_TOP_POSTS_COMPARISON_POSTVIEWS,
+		total_views: 10010,
+		dropped_ids: [],
+	},
+};
+
+// `stats/archives` groups views by archive type (one row per type); with
+// skip_archives=1 the API omits `home` here — it's in the top-posts response.
+const MOCK_ARCHIVES = {
+	date: '2026-06-29',
+	period: 'day',
+	summary: {
+		tax: {
+			category: [
+				{ value: 'News', href: 'https://example.com/category/news/', views: '430' },
+				{ value: 'Guides', href: 'https://example.com/category/guides/', views: '180' },
+			],
+			post_tag: [ { value: 'release', href: 'https://example.com/tag/release/', views: '120' } ],
+		},
+		post_type: [ { value: 'post', href: 'https://example.com/type/post/', views: '460' } ],
+		search: [
+			{ value: 'pricing', href: 'https://example.com/?s=pricing', views: '210' },
+			{ value: 'changelog', href: 'https://example.com/?s=changelog', views: '90' },
+		],
+	},
+};
+
+const MOCK_ARCHIVES_COMPARISON = {
+	date: '2026-05-30',
+	period: 'day',
+	summary: {
+		tax: {
+			category: [ { value: 'News', href: 'https://example.com/category/news/', views: '510' } ],
+		},
+		search: [ { value: 'pricing', href: 'https://example.com/?s=pricing', views: '260' } ],
+	},
+};
+
+// Exercises every referrer shape: multi-source drill-down (group → source →
+// domain), a single-result group (flattened), and childless outbound-link domains.
+const MOCK_REFERRERS = {
+	date: '2026-06-29',
+	period: 'day',
+	days: {},
+	summary: {
+		groups: [
+			{
+				group: 'Search Engines',
+				name: 'Search Engines',
+				icon: 'https://www.google.com/s2/favicons?domain=google.com&sz=32',
+				total: 4801,
+				results: [
+					{
+						name: 'Google Search',
+						icon: 'https://www.google.com/s2/favicons?domain=google.com&sz=32',
+						views: 3936,
+						children: [
+							{
+								name: 'google.com',
+								url: 'https://www.google.com/',
+								views: 3760,
+							},
+							{
+								name: 'google.co.uk',
+								url: 'https://www.google.co.uk/',
+								views: 176,
+							},
+						],
+					},
+					{
+						name: 'Bing',
+						icon: 'https://www.google.com/s2/favicons?domain=bing.com&sz=32',
+						views: 542,
+						children: [
+							{
+								name: 'bing.com',
+								url: 'https://www.bing.com/',
+								views: 542,
+							},
+						],
+					},
+					{
+						name: 'DuckDuckGo',
+						icon: 'https://www.google.com/s2/favicons?domain=duckduckgo.com&sz=32',
+						views: 323,
+						children: [
+							{
+								name: 'duckduckgo.com',
+								url: 'https://duckduckgo.com/',
+								views: 323,
+							},
+						],
+					},
+				],
+			},
+			{
+				group: 'WordPress.com Reader',
+				name: 'WordPress.com Reader',
+				icon: 'https://www.google.com/s2/favicons?domain=wordpress.com&sz=32',
+				total: 1240,
+				results: [
+					{
+						name: 'WordPress.com Reader',
+						url: 'https://wordpress.com/read',
+						views: 1240,
+					},
+				],
+			},
+			{
+				group: 'twitter.com',
+				name: 'twitter.com',
+				url: 'https://twitter.com/',
+				icon: 'https://www.google.com/s2/favicons?domain=twitter.com&sz=32',
+				total: 920,
+				results: { views: 920 },
+			},
+			{
+				group: 'linkedin.com',
+				name: 'linkedin.com',
+				url: 'https://www.linkedin.com/',
+				icon: 'https://www.google.com/s2/favicons?domain=linkedin.com&sz=32',
+				total: 610,
+				results: { views: 610 },
+			},
+			{
+				group: 'news.ycombinator.com',
+				name: 'news.ycombinator.com',
+				url: 'https://news.ycombinator.com/',
+				total: 480,
+				results: { views: 480 },
+			},
+		],
+		other_views: 120,
+		total_views: 8171,
+	},
+};
+
+// The comparison total exceeds every current-period value so the combined-scale
+// contract is visible: the widest bar stays under 100%, matching the negative delta.
+const MOCK_REFERRERS_COMPARISON = {
+	date: '2026-05-30',
+	period: 'day',
+	days: {},
+	summary: {
+		groups: [
+			{
+				group: 'Search Engines',
+				name: 'Search Engines',
+				icon: 'https://www.google.com/s2/favicons?domain=google.com&sz=32',
+				total: 6400,
+				results: [
+					{
+						name: 'Google Search',
+						icon: 'https://www.google.com/s2/favicons?domain=google.com&sz=32',
+						views: 5650,
+						children: [
+							{
+								name: 'google.com',
+								url: 'https://www.google.com/',
+								views: 5500,
+							},
+							{
+								name: 'google.co.uk',
+								url: 'https://www.google.co.uk/',
+								views: 150,
+							},
+						],
+					},
+					{
+						name: 'Bing',
+						icon: 'https://www.google.com/s2/favicons?domain=bing.com&sz=32',
+						views: 480,
+						children: [
+							{
+								name: 'bing.com',
+								url: 'https://www.bing.com/',
+								views: 480,
+							},
+						],
+					},
+					{
+						name: 'DuckDuckGo',
+						icon: 'https://www.google.com/s2/favicons?domain=duckduckgo.com&sz=32',
+						views: 270,
+						children: [
+							{
+								name: 'duckduckgo.com',
+								url: 'https://duckduckgo.com/',
+								views: 270,
+							},
+						],
+					},
+				],
+			},
+			{
+				group: 'WordPress.com Reader',
+				name: 'WordPress.com Reader',
+				icon: 'https://www.google.com/s2/favicons?domain=wordpress.com&sz=32',
+				total: 1390,
+				results: [
+					{
+						name: 'WordPress.com Reader',
+						url: 'https://wordpress.com/read',
+						views: 1390,
+					},
+				],
+			},
+			{
+				group: 'twitter.com',
+				name: 'twitter.com',
+				url: 'https://twitter.com/',
+				icon: 'https://www.google.com/s2/favicons?domain=twitter.com&sz=32',
+				total: 1050,
+				results: { views: 1050 },
+			},
+			{
+				group: 'linkedin.com',
+				name: 'linkedin.com',
+				url: 'https://www.linkedin.com/',
+				icon: 'https://www.google.com/s2/favicons?domain=linkedin.com&sz=32',
+				total: 540,
+				results: { views: 540 },
+			},
+		],
+		other_views: 90,
+		total_views: 7230,
 	},
 };
 
@@ -694,11 +1057,8 @@ const MOCK_DEVICES_PLATFORM_COMPARISON = {
 	},
 };
 
-// Heuristic: a request whose `date` param is more than 1 day ago is treated as the
-// comparison-period request. This works for the default `last-30-days` preset (primary
-// date ~= today, comparison date ~= 30 days ago). It would misclassify a `today` preset
-// (comparison date = yesterday, daysFromToday === 1), but the stories only use the default
-// preset so this is fine in practice.
+// Heuristic: a `date` more than 1 day old is the comparison request — works for
+// the default last-30-days preset but would misclassify a `today` preset (fine here).
 function isComparisonRequest( path: string ): boolean {
 	const queryString = path.split( '?' )[ 1 ];
 	const requestDate = queryString ? new URLSearchParams( queryString ).get( 'date' ) : null;
@@ -729,8 +1089,15 @@ function getLocationRows(
 	}
 
 	if ( geoMode === 'region' ) {
-		const countryCode = query.get( 'filter_by_country' ) || 'US';
+		const countryCode = query.get( 'filter_by_country' );
 		const regionRows = isComparison ? REGION_COMPARISON_ROWS_BY_COUNTRY : REGION_ROWS_BY_COUNTRY;
+
+		// Unfiltered, the endpoint returns the top regions worldwide.
+		if ( ! countryCode ) {
+			return Object.values( regionRows )
+				.flat()
+				.sort( ( a, b ) => b.views - a.views );
+		}
 
 		return regionRows[ countryCode ] ?? regionRows.US;
 	}
@@ -766,15 +1133,27 @@ function buildStatsLocationViewsResponse(
 	};
 }
 
-function getStatsMock( path: string ): unknown | null {
+export function getStatsMock( path: string ): unknown | null {
 	const withoutBase = path.slice( STATS_BASE.length );
 	const queryIndex = withoutBase.indexOf( '?' );
 	const subPath = queryIndex === -1 ? withoutBase : withoutBase.slice( 0, queryIndex );
 	const query = new URLSearchParams( queryIndex === -1 ? '' : withoutBase.slice( queryIndex + 1 ) );
 	const isComparison = isComparisonRequest( path );
 
-	if ( subPath.startsWith( '/clicks' ) ) {
+	if ( subPath === '/clicks' ) {
 		return isComparison ? MOCK_CLICKS_COMPARISON : MOCK_CLICKS;
+	}
+
+	if ( subPath.startsWith( '/top-posts' ) ) {
+		return isComparison ? MOCK_TOP_POSTS_COMPARISON : MOCK_TOP_POSTS;
+	}
+
+	if ( subPath.startsWith( '/archives' ) ) {
+		return isComparison ? MOCK_ARCHIVES_COMPARISON : MOCK_ARCHIVES;
+	}
+
+	if ( subPath.startsWith( '/referrers' ) ) {
+		return isComparison ? MOCK_REFERRERS_COMPARISON : MOCK_REFERRERS;
 	}
 
 	if ( subPath.startsWith( '/file-downloads' ) ) {
@@ -839,7 +1218,9 @@ const statsMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOption
 		return prepareStatsMockResponse( mock, options.parse );
 	}
 
-	return prepareStatsMockResponse( { data: [], summary: {} }, options.parse );
+	// Unknown endpoints may belong to the shared report mocks; fall through rather
+	// than swallowing them, since module load order decides which mock runs first.
+	return next( options );
 };
 
 let registered = false;

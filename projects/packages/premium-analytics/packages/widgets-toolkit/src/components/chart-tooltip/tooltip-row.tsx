@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { Stack } from '@wordpress/ui';
+import { Stack } from '@jetpack-premium-analytics/externals';
 /**
  * Internal dependencies
  */
@@ -12,11 +12,8 @@ import type { DataFormat } from '../../types';
 export type TooltipRowProps = {
 	/** Pre-rendered indicator element (LineShape, RectShape, etc.) */
 	indicator: React.ReactNode;
-	/** Row label text */
 	label: string;
-	/** Numeric value to format */
 	value: number;
-	/** Format configuration */
 	dataFormat: DataFormat;
 };
 

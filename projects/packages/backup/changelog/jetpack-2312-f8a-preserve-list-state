@@ -1,0 +1,3 @@
+Significance: patch
+Type: fixed
+Comment: Modernized dashboard only, behind the rsm_jetpack_ui_modernization_backup filter: the Overview now remembers the list page, page size and selected row for the trip out to Download or Restore, so coming back returns the reader where they were instead of the top of the list. A remembered page the log has since outgrown is clamped to the last page that exists, so a log that shrank while they were away no longer leaves them with no rows and no pagination. No-op when the filter is off.

@@ -18,13 +18,10 @@ namespace Automattic\Jetpack\Agents_Manager;
  * never left orphaned.
  *
  * The server can know the persisted "open && docked" preference, but not the
- * live viewport — and the docked layout only fits above a width breakpoint and
- * when the admin menu fits vertically. Width is handled in CSS (a static media
- * query). Height cannot be: the threshold is the *measured* #adminmenu height,
- * which varies per page. So a tiny synchronous viewport-height gate is printed on
- * `in_admin_header` (which fires after #adminmenu is in the DOM, before the
- * content paints) to re-evaluate the real dock gate and strip the pre-rendered
- * classes when the chat will actually float — pre-paint, so there is no flash.
+ * live viewport width or the editor's fullscreen mode. So a tiny synchronous
+ * gate script is printed on `in_admin_header` (before the content paints) to
+ * re-evaluate the real dock gates and strip the pre-rendered classes when the
+ * chat will actually float — pre-paint, so there is no flash.
  */
 class Sidebar_Open_Preservation {
 	/**
@@ -68,9 +65,8 @@ class Sidebar_Open_Preservation {
 		// ours, breaking the CSS selector that pre-opens the sidebar.
 		add_filter( 'admin_body_class', array( $this, 'add_preopen_body_classes' ), PHP_INT_MAX );
 
-		// Reconcile the pre-rendered shell against the live viewport before the
-		// page content paints. `in_admin_header` fires after #adminmenu is in the
-		// DOM, so the script can measure it the same way the React app does.
+		// Reconcile the pre-rendered shell against the live dock gates before
+		// the page content paints.
 		add_action( 'in_admin_header', array( $this, 'print_sidebar_docking_gate_script' ) );
 	}
 
@@ -106,7 +102,7 @@ class Sidebar_Open_Preservation {
 	 * inject the docked sidebar body classes, this script reconciles the gates that
 	 * the React hook applies and removes those classes so the chat floats instead.
 	 *
-	 * The script lives in src/js/sidebar-docking-gate.js and is inlined (not
+	 * The script lives in src/js/sidebar-docking-gate.ts and is inlined (not
 	 * referenced via `src`) on purpose: it must run render-blocking before paint,
 	 * and a same- or cross-origin fetch would add latency to that blocking window.
 	 * Reading the bundled file and printing it inline keeps it a real, lintable JS
@@ -143,21 +139,15 @@ class Sidebar_Open_Preservation {
 	/**
 	 * Whether the docked-open shell should be pre-rendered on this request.
 	 *
-	 * True only when the app is loading (so the shell will be reconciled by the
-	 * app that mounts to manage it) and the cached state is both open and docked
-	 * — the only state that reshapes the admin layout. A cold session (no cache),
-	 * a closed sidebar, a floating (undocked) chat, or the Site Editor navigation
-	 * view all pre-render nothing.
+	 * True only when the app is loading (so it will take over the shell once
+	 * mounted) and the cached state is both open and docked — the only state
+	 * that reshapes the admin layout. A cold session (no cache), a closed
+	 * sidebar, or a floating (undocked) chat all pre-render nothing.
 	 *
 	 * @return bool
 	 */
 	private function should_pre_render_docked_shell(): bool {
 		if ( ! $this->should_preserve_sidebar_open_state() ) {
-			return false;
-		}
-
-		// Skip the pre-render on the Site Editor navigation view, where the chat can't dock.
-		if ( Agents_Manager::is_site_editor_navigation() ) {
 			return false;
 		}
 

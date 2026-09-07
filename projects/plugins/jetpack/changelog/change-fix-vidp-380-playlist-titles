@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+VideoPress: Fix playlist block video titles overlapping when long, and apostrophes rendering as HTML entities.

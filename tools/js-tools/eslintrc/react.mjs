@@ -35,6 +35,7 @@ export default function makeReactConfig( configurl ) {
 				},
 			},
 			rules: {
+				'react/jsx-filename-extension': [ 'error', { extensions: [ '.jsx', '.tsx' ] } ],
 				'react/jsx-no-bind': [ 'error', { ignoreRefs: true } ],
 				'react/no-danger': 'error',
 				'react/no-did-mount-set-state': 'error',

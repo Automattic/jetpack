@@ -1,0 +1,34 @@
+.date-filters-panel {
+
+	/*
+	 * Fills the header's slot rather than shrinking to its content, so the row
+	 * inside can align to its end. The 0 minimum lets it give the column back.
+	 * Inert in a block parent, where it already spans its container.
+	 */
+	flex: 1 1 0%;
+	min-inline-size: 0;
+
+	&__primary,
+	&__comparison {
+		width: auto;
+		margin-bottom: 0;
+	}
+
+	// Holds the row's only shrinkable item, the period dropdown, whose label
+	// ellipsizes, so this is where a row short of space gives.
+	&__primary {
+		flex: 0 1 auto;
+	}
+
+	// Sized by its label and never squeezed: it has no abbreviated form to fall
+	// back to.
+	&__comparison {
+		flex: 0 0 auto;
+	}
+
+	// A glyph in a square box: nothing to give back when the row runs short.
+	.date-interval-dropdown,
+	.date-period-navigation {
+		flex: 0 0 auto;
+	}
+}

@@ -1,10 +1,10 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, arsihasi, azaozz, barry, batmoo, beaulebens, bindlegirl, biskobe, bjorsch, blobaugh, brbrr, brileyhooper, cainm, cena, cfinke, cgastrell, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, daniloercoli, davoraltman, delawski, designsimply, dkmyta, dllh, dlocc, drawmyface, dsmart, dun2mis, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, joen, jblz, jeffgolenski, jeherve, jennywp, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lhkowalski, lschuyler, macmanx, martinremy, matt, mattwiebe, matveb, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, miguelxavierpenha, mikeyarce, mkaz, nancythanki, nickmomrik, njweller, nunyvega, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, renatoagds, retrofox, richardmtl, richardmuscat, robertbpugh, roccotripaldi, ryanc413, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, thehenridev, tmoorewp, tyxla, Viper007Bond, westi, williamvianas, wpkaren, yoavf, zinigor
 Tags: Security, backup, malware, scan, performance
-Stable tag: 16.0-beta
-Requires at least: 6.9
-Requires PHP: 7.2
-Tested up to: 7.0
+Stable tag: 16.2-a.5
+Requires at least: 7.0
+Requires PHP: 7.4
+Tested up to: 7.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -303,7 +303,7 @@ Automattic actively develops [Jetpack Boost](https://wordpress.org/plugins/jetpa
 
 = What version of PHP do I need? =
 
-Sites must be built on PHP 7.2 or greater, but Jetpack always supports the latest version of PHP.
+Sites must be built on PHP 7.4 or greater, but Jetpack always supports the latest version of PHP.
 
 = Can Jetpack help my site comply with GDPR? =
 
@@ -326,61 +326,128 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 16.0-beta - 2026-07-06
+### 16.2-a.5 - 2026-09-01
 #### Enhancements
-- Add AI-powered "Generate/Improve with Jetpack" buttons to the Content Guidelines admin page.
-- AI: Surface SEO Enhancer suggestions (SEO title and meta description) in the AI sidebar.
-- AI Admin: Restructure MCP settings Read/Write pages to group tools by display group with collapsible per-group tool lists and a page-level Enable all toggle.
-- AI Sidebar: Enable Optimize Title suggestions.
-- Daily Writing Prompt: Load the Dashboard widget on connected self-hosted Jetpack sites.
-- Donations Block: Render the block in emails with email-friendly CTA buttons.
-- Forms: Warn admins and editors when a form isn't collecting responses (email and saving both off, no integration).
-- Newsletter: Allow setting a custom description for the free tier and hiding it from the subscriber plan selector.
-- Newsletter: Link to the site visibility settings from the Coming Soon notice in the pre-publish panel.
-- Render the unified Jetpack admin header and footer on Akismet's admin pages.
-- SEO: Add a per-post schema type control and SEO columns (schema, meta description, search visibility) to post-list tables.
-- SEO: Auto-discover the new SEO surface on fresh installs (opt-in on existing sites), and add an opt-in banner to the legacy Traffic > SEO settings page.
-- SEO: Hide the legacy Traffic-page SEO and Sitemaps sections once a site is on the new SEO dashboard (fresh install, opted-in, or WordPress.com); existing self-hosted installs that haven't opted in keep the legacy sections.
-- SEO: Surface SEO Tools as a Plugin Search Hint when users search the plugin directory for SEO-related terms.
-- Subscriptions: Replace the Subscribers menu link with a transitional announcement page when the Newsletter modernization filter is enabled.
-- Subscriptions Block: Customize the Subscribe modal heading site-wide via a new Newsletter setting.
-- VideoPress: Add presentation to the player iframe allow list to enable casting from embeds.
-- VideoPress: Make the VideoPress admin dashboard available in the Jetpack plugin (previously only in the standalone Jetpack VideoPress plugin).
+- AI: Add Quick start links for connecting Claude and ChatGPT to the AI Hub Overview.
+- AI: Rename the admin page and menu item to Jetpack AI, update the page description, and point the "turned off" notice at Jetpack Products.
+- AI: Show the Learn more link for the Writing Assistant instead of the editor link.
+- Boost: Wait up to four minutes for slow speed tests in My Jetpack and At a Glance instead of timing out after two.
+- Charts: Follow the WordPress admin color scheme for chart series colors.
+- Charts: Update chart grid, axis and label colors immediately when the theme changes.
+- Connection: Cache the WordPress.com site record briefly so the Jetpack dashboard does not make a request per view.
+- Forms: Add a guide to the form editor for people new to the block editor.
+- Forms: Add help text to form fields and show the date field's expected format below its input.
+- Forms: Allow a file upload field to accept more than one file.
+- Forms: Make form navigation actions real links so they can be opened in a new tab.
+- Forms: Remember which response columns are shown, and their order, for each form.
+- Forms: Rewrite the missing forms modal to reassure people that forms already on their pages keep working, and spell out the steps to add them to the list.
+- AI: Add an AI SEO control to the AI settings page. The AI sidebar's SEO suggestions follow it, separately from the automatic-generation setting.
+- AI: Make the editor and automatic-generation toggles follow the AI SEO control, preserving saved choices when it is switched off and back on.
+- AI: On sites with the WordPress Agent, replace the "Improve with AI" panel with a dismissible notice pointing to it.
+- AI: Return to the Jetpack AI Hub after upgrading from it, and point My Jetpack's AI links at the Hub.
+- AI: Support the AI Hub on WordPress.com Simple sites.
+- My Jetpack: Allow the Automattic for Agencies banner to be dismissed.
+- Premium Analytics: Add a year dropdown to the Year in review (Highlights) widget header, defaulting to the current year, and drop its metric selector so the card always shows posts, words, likes, and comments.
+- Premium Analytics: Add breathing room above and below the Top locations map.
+- Premium Analytics: Add the Most popular day widget to the default Insights layout, and say in its help note that its figures are all-time.
+- Premium Analytics: Add the Most popular time card to the default Insights layout.
+- Premium Analytics: Add total and per-post image counts to the Annual insights report.
+- Premium Analytics: Build the comparison menu from the applied date range and restore the same-period-last-week option.
+- Premium Analytics: Chart interval control: name the active interval in the button's tooltip, and give its menu a heading.
+- Premium Analytics: Click a point on the Traffic chart to narrow the dashboard to that period.
+- Premium Analytics: Date range control: name a custom range covering a whole month or year by that period, and spell the dates out in the button's tooltip.
+- Premium Analytics: Divide a widget's metrics with lines instead of boxing each one.
+- Premium Analytics: Fold the video detail highlight metrics into the Video performance chart as selectable tabs.
+- Premium Analytics: Give shared leaderboard rows one row height, bar radius, and link hover.
+- Premium Analytics: Lead the post and video detail date presets with All time and match the selected preset to the design.
+- Premium Analytics: Match the Most viewed and Videos leaderboard row labels to the other widgets.
+- Premium Analytics: Match the remaining leaderboard row labels to the other widgets.
+- Premium Analytics: Move the Ads date range into the WordAds card's own header, and drop the section header's date filter.
+- Premium Analytics: Post detail: the email tabs' opens and clicks timelines cover the first 30 days after the send instead of the page date filter, which no longer shows there; the other email cards stay all-time.
+- Premium Analytics: Remove the date configuration subtitle from the section header.
+- Premium Analytics: Remove the page descriptions from the dashboard and report pages.
+- Premium Analytics: Rename the Top pages CSV comparison column to "Views (Previous Period)" and move it after the primary columns.
+- Premium Analytics: Retitle the Popular post card to "Most popular post in the last 12 months" and pin it to the last 12 months.
+- Premium Analytics: Shorten the Popular post card title so it survives a narrow dashboard cell.
+- Premium Analytics: Show all-time views, visitors, and posts in the default Insights layout.
+- Premium Analytics: Tighten the Latest subscribers rows so more subscribers fit the widget.
+- Premium Analytics: Tighten the spacing between leaderboard rows.
+- Premium Analytics: Turn the dashboard period comparison off by default.
+- Search: Preserve the saved AI Answers choice while site-wide AI is off, disable unavailable controls, and honor the host AI opt-out in the AI Answer block. Require Instant Search to enable AI Answers.
+- Sitemaps: Speed up sitemap generation and reduce its memory use on sites with many posts and images.
+- Stats: Use the page-level chart interval for the Traffic summary chart.
+- VideoPress: Add a first-run welcome modal to the dashboard.
+- VideoPress: Invite the first upload with a dropzone when the video library is empty.
+
+#### Improved compatibility
+- CSV import and export in Forms and Stats now process data containing backslashed quotation marks as specified in the relevant standard.
+- Updated PHP version requirements to PHP 7.4 or newer.
 
 #### Bug fixes
-- AI Agent Access: Correct module references in Shortlinks and Related Posts ability descriptions.
-- AI Assistant: Hide legacy block toolbar controls when Jetpack AI Sidebar content editing is enabled.
-- AI Chat block: Stop prompting to enable Jetpack Search when the Search module is active in a non-Instant Search experience (Theme, Inline, or Embedded).
-- Akismet: Hide the empty `#screen-meta-links` container so it no longer reserves a blank slot above the Jetpack header (notably on WordPress.com Simple sites).
-- Akismet: Show the Akismet logo (instead of the Jetpack logo) in the unified admin header.
-- Archives shortcode: Cap the `postbypost` type with a filterable default limit to prevent memory exhaustion on large sites.
-- Blaze: Warn users with active campaigns before disabling the Blaze module.
-- Content Guidelines AI: Place the suggestion badge to the left of the section chevron so chevrons stay aligned across sections with and without a badge.
-- Content Guidelines AI: Wrap the per-section Save/Clear/Generate button row so the buttons no longer overlap on narrow screens.
-- Daily Writing Prompt: Defer the connection-readiness check to Dashboard setup to avoid a fatal error on Atomic sites.
-- Donations Form: Prevent the editor from flickering when hovering the block as an inserter preview.
-- Fix fatal error on My Jetpack when the current stable Jetpack plugin is active along with other Jetpack standalone plugins.
-- Forms: Sign file download links with an expiring token so they work for any logged-in editor.
-- JSON API: Ensure error responses always serialize an HTTP error status (>= 400), never a non-integer or a 2xx that clients could interpret as success.
-- JSON API: Only default a missing or invalid error status to 400, and stop overwriting valid HTTP status codes below 400 that callers return via `WP_Error`.
-- Memberships: Delegate the Payment Request API to the checkout iframe so Apple Pay, Google Pay, and Stripe Link can load and complete payments.
-- Newsletter: Default the post access level to "everybody" when the stored meta is not a string, and sanitize non-string writes, so corrupt values can no longer cause a fatal error when rendering a post.
-- Newsletter: Fix "Sorry, you are not allowed to do this" error for Contributors on the first Submit for Review when the Subscriptions module is active.
-- Newsletter: When setting up paid subscriptions, only prompt for the steps that are actually missing (Stripe connection and/or a newsletter tier).
-- Paid Content: Ensure paid subscribers on Atomic-hosted sites retain access to gated content.
-- Paid Content Block: Prevent lockout after a subscription renewal.
-- Podcast: Load the package outside Jetpack's connection-gated module loader so the podcast feed and dashboard keep working when the site is disconnected.
-- Prevent Slideshow block crash when converting from Gallery.
-- SEO: Default the Schema, Meta description, and Search post-list columns to hidden in Screen Options.
-- Social: Prevent errors in the post-publish sharing status panel from crashing the editor.
-- Subscriptions: Prevent a duplicate Subscribers menu entry on WordPress.com (Atomic) sites.
-- Tiled Gallery: Fix an infinite resize loop when the block is inside a Row or Stack block.
-- Tiled Gallery: Keep the mosaic layout stable and split rows evenly between galleries when the block is inside a Row or Stack.
-- Tiled Gallery: Prevent editor crash when transforming a core gallery block.
-- Top Posts & Pages: Use the live post permalink so links reflect the current site URL.
-- VideoPress: Fix the player overflowing the page on the non-iframe embed path.
-- VideoPress: Load player scripts only once when a page contains multiple videos.
-- WhatsApp Button block: Fix icon and text overlapping in RTL languages.
+- Activity Log: Ensure table content wraps neatly onto a new line if long.
+- Admin bar: Fix a fatal error when the endpoint's global `$wp_admin_bar` is null.
+- Admin dashboards: Continue the wp-admin menu color behind the page frame on WordPress.com and third-party admin color schemes.
+- Admin dashboards: Keep the page header and content in view when the wp-admin menu is taller than the window.
+- AI: Render scheduled task results as Markdown.
+- AI: Prevent saving the General Settings page from turning off Jetpack AI features.
+- Backup: Fix the backup overview ability reporting no storage usage, storage limit or backup time.
+- Backup: Show a failure message when your backup status cannot be read, rather than the screen that says your first backup is on its way, and let the "Back up now" button recover when a backup could not be queued.
+- Backup: Show storage usage and the plan limit the right way round when the interface is translated.
+- Blocks: Keep blocks that load outside the post editor available in front-end block editors such as P2, by never deferring their registration. See JETPACK-1747.
+- Blogging Prompts: Scope the endpoint's query filters to the prompts query so they no longer modify unrelated queries (e.g. Gutenberg global styles lookups) run while prompts are being rendered.
+- Carousel: Keep the loading overlay hidden when the module stylesheet is missing.
+- Contact Form: Bind the posted form id to the signed form when validating a token-authenticated submission.
+- Forms: Cancel in-flight uploads and release previews when a form containing a file upload field is reset.
+- Forms: Fix checkbox and consent field alignment in the editor on classic themes.
+- Forms: Fix several problems with adding more than one file at once to the file upload field, and with uploads that stall or fail.
+- Forms: Fix the form editor welcome guide artwork not loading on WordPress.com Simple sites.
+- Forms: Keep an option's label when switching it to the "Other" option.
+- Forms: Keep one column per form field on a form's responses when a field is moved, and read every answer from the field it belongs to.
+- Forms: Keep prev/next working on a single response after marking it as spam or trash, open responses instantly from the list, and add keyboard shortcuts for triaging responses.
+- Forms: Keep the remaining files when a folder or dragged text is included in a multi-file drop on the file upload field.
+- Forms: Let screen readers announce a date field's own label instead of the date picker instructions.
+- Forms: Prevent a new choice option from inheriting the previous option's label when pressing Enter.
+- Forms: Remove an uploaded file from the form immediately instead of waiting for the server, so a slow connection no longer leaves the file upload field looking stuck.
+- Forms: Restore the Integrations button in the Form block toolbar when the settings sidebar is closed.
+- Forms: Space out the files listed on a response and line their download buttons up on one edge.
+- Forms: Stop uploading a file that was removed while its upload was still being prepared.
+- Forms: Validate a required phone field with a default country against what the input actually shows, so it can no longer be submitted empty.
+- AI: Show connection notices instead of raw connection errors on the MCP settings page when the site or the current user is not connected to WordPress.com.
+- My Jetpack: Keep the Automattic for Agencies banner hidden after dismissing it and switching tabs.
+- My Jetpack: Stop repeating the partner lookup request on every page load.
+- Newsletter: Hide the "View delivery details" stats link in the publish panels when the Stats module is disabled, so the copy no longer points to an unavailable page.
+- Newsletter: Prevent unsupported date filtering on the Subscribers page.
+- Podcast: Scope the generated episodes list to the posts the current user can edit, matching the Posts screen.
+- Premium Analytics: Align title link styling across widgets: external video rows gain the standard outbound marker, long titles no longer clip it, and hover underlines cover only the title text.
+- Premium Analytics: Drop the Last 24 hours range from the WordAds card, which has no hourly data to chart.
+- Premium Analytics: Fall back to the last page of a table instead of reporting no results when a date range returns fewer rows than the current page.
+- Premium Analytics: Fix the email opens/clicks timeline charting hours outside the selected window.
+- Premium Analytics: Fix the Subscribers summary help text to describe the cumulative subscriber total the chart plots, not new subscribers.
+- Premium Analytics: Include the last day of the selected range in the WordAds card.
+- Premium Analytics: Keep the custom range Apply button disabled when re-selecting "No comparison".
+- Premium Analytics: Keep the Year in review report link reachable.
+- Premium Analytics: Link a subscriber's name to their subscriber details page.
+- Premium Analytics: Most popular day gives its Day and Views labels the weight the design has them at and the heading structure a screen reader can navigate, states a share of views only when there is an all-time total to take it from, and drops the Retry a reader without stats access cannot use.
+- Premium Analytics: Post detail: stop the Post traffic layout from flashing when an email tab is opened directly, and show placeholder lines in the header while the title loads.
+- Premium Analytics: Print Tags & categories view counts in full, and list far more rows in its report.
+- Premium Analytics: Print the Annual insights words-per-post average whole, as the old Stats report does.
+- Premium Analytics: Remove the quarterly chart interval option, which never changed the chart.
+- Premium Analytics: Show abbreviated month names on chart x-axes in line and area views.
+- Premium Analytics: Show a notice when a refresh fails, instead of silently leaving the previous numbers on screen.
+- Premium Analytics: Show email subject lines with characters like "&" instead of their HTML codes.
+- Premium Analytics: Show the Most popular time day and hour in the site's locale.
+- Premium Analytics: Show the most recent subscribers in the Latest subscribers widget.
+- Premium Analytics: Show the whole Most popular day card on a short tile instead of clipping it.
+- Premium Analytics: Show titles and names with characters like "&" instead of their HTML codes.
+- Premium Analytics: Stop the Ads chart interval menu offering buckets the WordAds chart cannot draw.
+- SEO: Stop the search-engine indexing toggle from publishing a private or coming-soon site.
+- SEO Tools: Fix og:description leaking the first post's custom SEO description on archive and latest-posts homepage views.
+- Stats: Fix access for users whose allowed role is not their first assigned role.
+- Tiled Gallery: Remove the forced gray background on images that made transparent areas appear gray.
+- VideoPress: Fix private video playback authorization for videos embedded through synced patterns and Video Playlist blocks, let private videos preview in the block editor canvas, load live metadata for private playlist entries for authorized viewers, and show a lock placeholder on playlist thumbnails of private videos the viewer cannot access.
+- VideoPress: Say when a video upload failed because of a Jetpack connection problem, instead of only "Upload failed".
+- VideoPress: Say when a video upload from the Video block failed because of a Jetpack connection problem, instead of only "Failed to upload your video".
+- VideoPress: Show the Jetpack connection error notice on the VideoPress dashboard again.
 
 --------
 

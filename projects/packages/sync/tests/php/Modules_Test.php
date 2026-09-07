@@ -15,18 +15,8 @@ class Modules_Test extends BaseTestCase {
 	 * Runs before every test in this class.
 	 */
 	public function set_up() {
-		// Reset private static properties after each test.
-		$reflection_class = new \ReflectionClass( '\Automattic\Jetpack\Sync\Modules' );
-		try {
-			$reflection_class->setStaticPropertyValue( 'initialized_modules', null );
-		} catch ( \ReflectionException $e ) { // PHP 7 compat
-			$configured = $reflection_class->getProperty( 'initialized_modules' );
-			// @todo Remove this call once we no longer need to support PHP <8.1.
-			if ( PHP_VERSION_ID < 80100 ) {
-				$configured->setAccessible( true );
-			}
-			$configured->setValue( null );
-		}
+		// Reset private static properties before each test.
+		$this->reset_initialized_modules();
 	}
 
 	/**
@@ -34,6 +24,26 @@ class Modules_Test extends BaseTestCase {
 	 */
 	public function tear_down() {
 		remove_filter( 'jetpack_sync_modules', array( $this, 'add_posts_module' ) );
+
+		// Avoid leaking test module instances to later test classes in this process.
+		$this->reset_initialized_modules();
+	}
+
+	/**
+	 * Reset Modules' initialized module cache.
+	 */
+	private function reset_initialized_modules() {
+		$reflection_class = new \ReflectionClass( '\Automattic\Jetpack\Sync\Modules' );
+		try {
+			$reflection_class->setStaticPropertyValue( 'initialized_modules', null );
+		} catch ( \ReflectionException $e ) { // PHP <7.4.9 compat
+			$configured = $reflection_class->getProperty( 'initialized_modules' );
+			// @todo Remove this call once we no longer need to support PHP <8.1.
+			if ( PHP_VERSION_ID < 80100 ) {
+				$configured->setAccessible( true );
+			}
+			$configured->setValue( null );
+		}
 	}
 
 	/**

@@ -191,6 +191,14 @@ const blockInfoMapping: { [ key: string ]: { link: string; postId: number } } = 
 		link: 'https://wordpress.com/support/wordpress-editor/blocks/terms-query-block/',
 		postId: 423600,
 	},
+	'core/playlist': {
+		link: 'https://wordpress.com/support/wordpress-editor/blocks/playlist-block/',
+		postId: 445741,
+	},
+	'core/tabs': {
+		link: 'https://wordpress.com/support/wordpress-editor/blocks/tabs-block/',
+		postId: 445742,
+	},
 	'syntaxhighlighter/code': {
 		link: 'https://wordpress.com/support/wordpress-editor/blocks/syntax-highlighter-code-block/',
 		postId: 4743,

@@ -3,7 +3,7 @@
 .jp-search-experience-option {
 	position: relative;
 	padding: var(--wpds-dimension-padding-2xl);
-	background: var(--wpds-color-bg-surface-neutral-strong);
+	background: var(--wpds-color-background-surface-neutral-strong);
 	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
 	border-radius: var(--wpds-border-radius-lg);
 	transition: border-color 120ms ease, box-shadow 120ms ease;
@@ -28,7 +28,7 @@
 	// (it's a hover wash, not a fill) — `bg-surface-brand` is the named token
 	// for a soft brand-tinted surface, which is what we actually want here.
 	&.is-active {
-		background: var(--wpds-color-bg-surface-brand);
+		background: var(--wpds-color-background-surface-brand);
 		border-color: var(--wpds-color-stroke-interactive-brand);
 	}
 
@@ -57,12 +57,12 @@
 	font-size: var(--wpds-typography-font-size-lg);
 	font-weight: 600;
 	line-height: var(--wpds-typography-line-height-sm);
-	color: var(--wpds-color-fg-content-neutral);
+	color: var(--wpds-color-foreground-content-neutral);
 }
 
 .jp-search-experience-option__description {
 	margin: 0;
-	color: var(--wpds-color-fg-content-neutral-weak);
+	color: var(--wpds-color-foreground-content-neutral-weak);
 	font-size: var(--wpds-typography-font-size-md);
 	line-height: var(--wpds-typography-line-height-sm);
 }
@@ -80,7 +80,7 @@
 	padding: 0;
 	font-size: var(--wpds-typography-font-size-md);
 	line-height: var(--wpds-typography-line-height-sm);
-	color: var(--wpds-color-fg-content-neutral-weak);
+	color: var(--wpds-color-foreground-content-neutral-weak);
 
 	li {
 		display: flex;
@@ -89,14 +89,14 @@
 		padding-block: var(--wpds-dimension-padding-xs);
 
 		strong {
-			color: var(--wpds-color-fg-content-neutral);
+			color: var(--wpds-color-foreground-content-neutral);
 			font-weight: 600;
 		}
 	}
 }
 
 .jp-search-experience-option__loss-icon {
-	fill: var(--wpds-color-fg-content-error);
+	fill: var(--wpds-color-foreground-content-error);
 	flex: 0 0 auto;
 }
 
@@ -106,19 +106,19 @@
 }
 
 .jp-search-experience-option__action-link {
-	color: var(--wpds-color-fg-interactive-brand);
+	color: var(--wpds-color-foreground-interactive-brand);
 	font-size: var(--wpds-typography-font-size-md);
 	font-weight: 500;
 	text-decoration: none;
 
 	&:hover,
 	&:focus-visible {
-		color: var(--wpds-color-fg-interactive-brand-active);
+		color: var(--wpds-color-foreground-interactive-brand-active);
 		text-decoration: underline;
 	}
 
 	&.is-disabled {
-		color: var(--wpds-color-fg-content-neutral-weak);
+		color: var(--wpds-color-foreground-content-neutral-weak);
 		cursor: not-allowed;
 
 		&:hover {

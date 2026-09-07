@@ -41,6 +41,28 @@ class Schema_Node_Ids {
 	}
 
 	/**
+	 * `@id` for an author's Person node.
+	 *
+	 * @param int    $user_id       User ID.
+	 * @param string $user_nicename User nicename.
+	 * @return string
+	 */
+	public static function person( $user_id, $user_nicename ) {
+		return self::author_anchor( $user_id, $user_nicename, 'person' );
+	}
+
+	/**
+	 * `@id` for an author's ProfilePage node.
+	 *
+	 * @param int    $user_id       User ID.
+	 * @param string $user_nicename User nicename.
+	 * @return string
+	 */
+	public static function profile_page( $user_id, $user_nicename ) {
+		return self::author_anchor( $user_id, $user_nicename, 'profilepage' );
+	}
+
+	/**
 	 * Build a stable site-root `@id` from a fragment name.
 	 *
 	 * @param string $fragment Fragment identifier (without the leading `#`).
@@ -50,5 +72,17 @@ class Schema_Node_Ids {
 		// home_url( '/' ) is the canonical site root and already carries a trailing
 		// slash, giving fragments like `https://example.com/#organization`.
 		return home_url( '/' ) . '#' . $fragment;
+	}
+
+	/**
+	 * Build a stable author-archive `@id` from a fragment name.
+	 *
+	 * @param int    $user_id       User ID.
+	 * @param string $user_nicename User nicename.
+	 * @param string $fragment      Fragment identifier (without the leading `#`).
+	 * @return string
+	 */
+	private static function author_anchor( $user_id, $user_nicename, $fragment ) {
+		return get_author_posts_url( (int) $user_id, $user_nicename ) . '#' . $fragment;
 	}
 }

@@ -1,1 +1,1 @@
-@../../../.agents/skills/wp-abilities-verify.md
+../../../.agents/skills/wp-abilities-verify.md

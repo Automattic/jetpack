@@ -29,7 +29,6 @@ class Podcast_Gate_Test extends BaseTestCase {
 		// self-hosted cases clear it explicitly via `as_self_hosted()`.
 		Constants::set_constant( 'IS_WPCOM', true );
 		self::reset_active_plan_cache();
-		Podcast_Gate::flush_purchases_cache();
 	}
 
 	protected function tearDown(): void {
@@ -38,7 +37,6 @@ class Podcast_Gate_Test extends BaseTestCase {
 		Constants::clear_constants();
 		WorDBless_Options::init()->clear_options();
 		self::reset_active_plan_cache();
-		Podcast_Gate::flush_purchases_cache();
 		parent::tearDown();
 	}
 
@@ -83,14 +81,12 @@ class Podcast_Gate_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Seed the cached `/upgrades` response the self-hosted path reads.
+	 * Seed the cached `/upgrades` response the self-hosted path reads, so it
+	 * resolves the given purchases without a fetch.
 	 *
 	 * @param array $slugs Product slugs to present as current purchases.
 	 */
 	private static function seed_purchases( array $slugs ): void {
-		// Clear the memo (and any stale transient) first, then seed, so the
-		// gate reads the seeded value fresh.
-		Podcast_Gate::flush_purchases_cache();
 		$purchases = array();
 		foreach ( $slugs as $slug ) {
 			$purchases[] = array( 'product_slug' => $slug );
@@ -164,30 +160,6 @@ class Podcast_Gate_Test extends BaseTestCase {
 		$this->assertFalse( Podcast_Gate::has_product_access() );
 	}
 
-	public function test_blog_registered_after_cutoff_with_plan_grants_access(): void {
-		$plan                       = Current_Plan::PLAN_DATA['free'];
-		$plan['features']['active'] = array( Podcast_Gate::FEATURE_SLUG );
-		update_option( Current_Plan::PLAN_OPTION, $plan, true );
-
-		$GLOBALS['jetpack_podcast_test_blog_details'][ get_current_blog_id() ] = array(
-			'registered' => '2027-01-01 00:00:00',
-		);
-
-		$this->assertTrue( Podcast_Gate::has_product_access() );
-	}
-
-	public function test_blog_registered_after_cutoff_without_plan_denies_access(): void {
-		$plan                       = Current_Plan::PLAN_DATA['free'];
-		$plan['features']['active'] = array();
-		update_option( Current_Plan::PLAN_OPTION, $plan, true );
-
-		$GLOBALS['jetpack_podcast_test_blog_details'][ get_current_blog_id() ] = array(
-			'registered' => '2027-01-01 00:00:00',
-		);
-
-		$this->assertFalse( Podcast_Gate::has_product_access() );
-	}
-
 	public function test_self_hosted_growth_purchase_grants_access(): void {
 		self::as_self_hosted();
 		self::seed_purchases( array( 'jetpack_growth_yearly' ) );
@@ -205,13 +177,6 @@ class Podcast_Gate_Test extends BaseTestCase {
 	public function test_self_hosted_non_qualifying_purchase_denies_access(): void {
 		self::as_self_hosted();
 		self::seed_purchases( array( 'jetpack_security_t1_yearly' ) );
-
-		$this->assertFalse( Podcast_Gate::has_product_access() );
-	}
-
-	public function test_self_hosted_no_purchases_denies_access(): void {
-		self::as_self_hosted();
-		self::seed_purchases( array() );
 
 		$this->assertFalse( Podcast_Gate::has_product_access() );
 	}
@@ -236,14 +201,14 @@ class Podcast_Gate_Test extends BaseTestCase {
 		add_filter( 'pre_http_request', self::upgrades_response( array( 'jetpack_growth_yearly' ) ) );
 
 		$this->assertTrue( Podcast_Gate::has_product_access() );
-		// A successful fetch is cached for reuse within the page load.
+		// A successful fetch is cached so successive gate checks skip the request.
 		$this->assertSame(
 			array( array( 'product_slug' => 'jetpack_growth_yearly' ) ),
 			get_transient( Podcast_Gate::PURCHASES_TRANSIENT )
 		);
 	}
 
-	public function test_self_hosted_fetch_http_error_denies_and_does_not_cache(): void {
+	public function test_self_hosted_fetch_http_error_denies_access(): void {
 		self::as_connected_self_hosted();
 		add_filter(
 			'pre_http_request',
@@ -263,7 +228,7 @@ class Podcast_Gate_Test extends BaseTestCase {
 		$this->assertFalse( get_transient( Podcast_Gate::PURCHASES_TRANSIENT ) );
 	}
 
-	public function test_self_hosted_fetch_malformed_body_denies_access(): void {
+	public function test_self_hosted_fetch_malformed_body_denies_and_does_not_cache(): void {
 		self::as_connected_self_hosted();
 		add_filter(
 			'pre_http_request',
@@ -280,18 +245,5 @@ class Podcast_Gate_Test extends BaseTestCase {
 
 		$this->assertFalse( Podcast_Gate::has_product_access() );
 		$this->assertFalse( get_transient( Podcast_Gate::PURCHASES_TRANSIENT ) );
-	}
-
-	public function test_flush_purchases_cache_drops_transient_and_memo(): void {
-		self::as_self_hosted();
-		self::seed_purchases( array( 'jetpack_growth_yearly' ) );
-		// Prime the request-scoped memo.
-		$this->assertTrue( Podcast_Gate::has_product_access() );
-
-		Podcast_Gate::flush_purchases_cache();
-
-		$this->assertFalse( get_transient( Podcast_Gate::PURCHASES_TRANSIENT ) );
-		// Memo cleared too: the uncached lookup now fails closed (no connection).
-		$this->assertFalse( Podcast_Gate::has_product_access() );
 	}
 }

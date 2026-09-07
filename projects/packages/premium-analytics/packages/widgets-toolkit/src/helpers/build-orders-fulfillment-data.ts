@@ -59,12 +59,12 @@ export function buildOrdersFulfillmentData(
 
 	const chartData: DonutChartData = [
 		{
-			label: __( 'Fulfilled', 'jetpack-premium-analytics' ),
+			label: __( 'Fulfilled', 'jetpack-premium-analytics-pkg' ),
 			value: fulfilledCount,
 			valueDisplay: formatCount( fulfilledCount ),
 		},
 		{
-			label: __( 'Unfulfilled', 'jetpack-premium-analytics' ),
+			label: __( 'Unfulfilled', 'jetpack-premium-analytics-pkg' ),
 			value: unfulfilledCount,
 			valueDisplay: formatCount( unfulfilledCount ),
 		},
@@ -72,13 +72,13 @@ export function buildOrdersFulfillmentData(
 
 	const legendData: LegendItem[] = [
 		{
-			label: __( 'Fulfilled', 'jetpack-premium-analytics' ),
+			label: __( 'Fulfilled', 'jetpack-premium-analytics-pkg' ),
 			value: fulfilledCount,
 			displayValue: formatCount( fulfilledCount ),
 			comparison: comparisonFulfilledOrders ? comparisonFulfilledCount : undefined,
 		},
 		{
-			label: __( 'Unfulfilled', 'jetpack-premium-analytics' ),
+			label: __( 'Unfulfilled', 'jetpack-premium-analytics-pkg' ),
 			value: unfulfilledCount,
 			displayValue: formatCount( unfulfilledCount ),
 			comparison: comparisonUnfulfilledOrders ? comparisonUnfulfilledCount : undefined,

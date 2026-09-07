@@ -3,14 +3,15 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
 import { createElement, type ReactNode } from 'react';
+import { makeLibraryItem } from '../../../test-utils/library-item';
 import { selectImageFromMediaLibrary } from '../../../utils/select-image-from-media-library';
 import ThumbnailCard from '../thumbnail-card';
-import type { LibraryItem } from '../../../types/library';
 
 jest.mock( '@wordpress/api-fetch', () => ( {
 	__esModule: true,
 	default: jest.fn(),
 } ) );
+
 const mockedApiFetch = apiFetch as unknown as jest.Mock;
 
 jest.mock( '../../../utils/select-image-from-media-library', () => ( {
@@ -48,27 +49,13 @@ jest.mock( '@automattic/jetpack-components/global-notices', () => ( {
 	} ),
 } ) );
 
-const baseVideo: LibraryItem = {
-	id: '42',
-	guid: 'abc123',
-	type: 'videopress',
-	title: 'My video',
-	filename: 'movie.mp4',
+// `sourceUrl` is what makes the "Select from video" mode available.
+const baseVideo = makeLibraryItem( {
 	thumbnailUrl: 'https://example.test/poster.jpg',
 	durationSeconds: 60,
-	uploadDate: '2026-01-01T00:00:00',
-	privacy: 'public',
-	isPrivate: false,
-	fileSizeBytes: 0,
-	upload: { status: 'idle', progress: 0 },
-	description: '',
-	rating: 'G',
-	displayEmbed: true,
-	allowDownloads: false,
 	shortcode: '[videopress abc123]',
 	sourceUrl: 'https://example.test/movie.mp4',
-	isProcessing: false,
-};
+} );
 
 /**
  * Minimal React Query wrapper for tests.
@@ -98,36 +85,61 @@ afterEach( () => {
 } );
 
 describe( 'ThumbnailCard — update flow', () => {
-	it( 'renders the Update thumbnail button when video is editable', () => {
-		render( <ThumbnailCard video={ baseVideo } onAddToNewPost={ jest.fn() } />, { wrapper } );
-		expect( screen.getByRole( 'button', { name: /update thumbnail/i } ) ).toBeInTheDocument();
+	it( 'renders both action tiles when the video is editable', () => {
+		render( <ThumbnailCard video={ baseVideo } />, { wrapper } );
+
+		expect( screen.getByRole( 'button', { name: /upload image/i } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: /select from video/i } ) ).toBeInTheDocument();
 	} );
 
-	it( 'hides the Update thumbnail button while the video is processing', () => {
-		render(
-			<ThumbnailCard video={ { ...baseVideo, isProcessing: true } } onAddToNewPost={ jest.fn() } />,
-			{ wrapper }
+	/*
+	 * Without a source file there is no footage to scrub, so that tile is
+	 * disabled rather than hidden — the other one still works.
+	 *
+	 * Asserted via `aria-disabled`, not `toBeDisabled()`: `@wordpress/ui`'s
+	 * Button defaults to `focusableWhenDisabled`, so it deliberately omits the
+	 * native attribute and keeps the control reachable by keyboard. That is
+	 * the better pattern — a disabled control a screen-reader user can't land
+	 * on is a control they never learn exists — so pin the behaviour rather
+	 * than override it.
+	 */
+	it( 'disables Select from video when the item has no source file', async () => {
+		const user = userEvent.setup();
+		render( <ThumbnailCard video={ { ...baseVideo, sourceUrl: undefined } } />, { wrapper } );
+
+		const disabled = screen.getByRole( 'button', { name: /select from video/i } );
+		expect( disabled ).toHaveAttribute( 'aria-disabled', 'true' );
+		expect( screen.getByRole( 'button', { name: /upload image/i } ) ).not.toHaveAttribute(
+			'aria-disabled',
+			'true'
 		);
-		expect( screen.queryByRole( 'button', { name: /update thumbnail/i } ) ).not.toBeInTheDocument();
+
+		// Focusable is not the same as actionable.
+		await user.click( disabled );
+		expect( screen.queryByTestId( 'select-frame-dialog' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'hides the Update thumbnail button for local (non-VideoPress) items', () => {
-		render(
-			<ThumbnailCard
-				video={ { ...baseVideo, type: 'local', guid: '' } }
-				onAddToNewPost={ jest.fn() }
-			/>,
+	it( 'renders nothing while the video is processing', () => {
+		const { container } = render(
+			<ThumbnailCard video={ { ...baseVideo, isProcessing: true } } />,
 			{ wrapper }
 		);
-		expect( screen.queryByRole( 'button', { name: /update thumbnail/i } ) ).not.toBeInTheDocument();
+		expect( container ).toBeEmptyDOMElement();
+	} );
+
+	it( 'renders nothing for local (non-VideoPress) items', () => {
+		const { container } = render(
+			<ThumbnailCard video={ { ...baseVideo, type: 'local', guid: '' } } />,
+			{ wrapper }
+		);
+		expect( container ).toBeEmptyDOMElement();
 	} );
 
 	it( 'frame mode: fires the mutation with at_time + is_millisec, shows a success toast', async () => {
 		const user = userEvent.setup();
 		mockedApiFetch.mockResolvedValueOnce( {} );
-		render( <ThumbnailCard video={ baseVideo } onAddToNewPost={ jest.fn() } />, { wrapper } );
-		await user.click( screen.getByRole( 'button', { name: /update thumbnail/i } ) );
-		await user.click( screen.getByRole( 'menuitem', { name: /select from video/i } ) );
+		render( <ThumbnailCard video={ baseVideo } />, { wrapper } );
+		await user.click( screen.getByRole( 'button', { name: /select from video/i } ) );
 		await user.click( screen.getByText( 'confirm-frame' ) );
 
 		await waitFor( () =>
@@ -145,10 +157,9 @@ describe( 'ThumbnailCard — update flow', () => {
 		const user = userEvent.setup();
 		mockedApiFetch.mockResolvedValueOnce( {} );
 		mockedSelectImage.mockResolvedValueOnce( { id: 17, url: 'x' } );
-		render( <ThumbnailCard video={ baseVideo } onAddToNewPost={ jest.fn() } />, { wrapper } );
+		render( <ThumbnailCard video={ baseVideo } />, { wrapper } );
 
-		await user.click( screen.getByRole( 'button', { name: /update thumbnail/i } ) );
-		await user.click( screen.getByRole( 'menuitem', { name: /upload image/i } ) );
+		await user.click( screen.getByRole( 'button', { name: /upload image/i } ) );
 
 		await waitFor( () =>
 			expect( mockedApiFetch ).toHaveBeenCalledWith( {
@@ -163,10 +174,9 @@ describe( 'ThumbnailCard — update flow', () => {
 	it( 'upload mode: no mutation when the user cancels the media library', async () => {
 		const user = userEvent.setup();
 		mockedSelectImage.mockResolvedValueOnce( null );
-		render( <ThumbnailCard video={ baseVideo } onAddToNewPost={ jest.fn() } />, { wrapper } );
+		render( <ThumbnailCard video={ baseVideo } />, { wrapper } );
 
-		await user.click( screen.getByRole( 'button', { name: /update thumbnail/i } ) );
-		await user.click( screen.getByRole( 'menuitem', { name: /upload image/i } ) );
+		await user.click( screen.getByRole( 'button', { name: /upload image/i } ) );
 
 		expect( mockedApiFetch ).not.toHaveBeenCalled();
 		expect( mockSuccessNotice ).not.toHaveBeenCalled();
@@ -175,12 +185,61 @@ describe( 'ThumbnailCard — update flow', () => {
 	it( 'shows an error toast when the mutation fails', async () => {
 		const user = userEvent.setup();
 		mockedApiFetch.mockRejectedValueOnce( new Error( 'boom' ) );
-		render( <ThumbnailCard video={ baseVideo } onAddToNewPost={ jest.fn() } />, { wrapper } );
-		await user.click( screen.getByRole( 'button', { name: /update thumbnail/i } ) );
-		await user.click( screen.getByRole( 'menuitem', { name: /select from video/i } ) );
+		render( <ThumbnailCard video={ baseVideo } />, { wrapper } );
+		await user.click( screen.getByRole( 'button', { name: /select from video/i } ) );
 		await user.click( screen.getByText( 'confirm-frame' ) );
 
 		await waitFor( () => expect( mockErrorNotice ).toHaveBeenCalledTimes( 1 ) );
 		expect( mockSuccessNotice ).not.toHaveBeenCalled();
+	} );
+} );
+
+// Showing the still next to the control that replaces it is the reason this
+// is a card rather than the labelled lone button it used to be, so the image
+// is worth pinning — particularly the private case, where rendering
+// `thumbnailUrl` straight would give a broken image on every private video.
+describe( 'ThumbnailCard — current poster', () => {
+	it( 'renders the poster for a public video', () => {
+		render( <ThumbnailCard video={ baseVideo } />, { wrapper } );
+
+		expect( screen.getByRole( 'img', { name: /current thumbnail/i } ) ).toHaveAttribute(
+			'src',
+			'https://example.test/poster.jpg'
+		);
+		expect( mockedApiFetch ).not.toHaveBeenCalled();
+	} );
+
+	it( 'waits for the playback token before rendering a private poster', async () => {
+		let resolveToken: ( value: { playback_token: string } ) => void = () => {};
+		mockedApiFetch.mockReturnValueOnce(
+			new Promise< { playback_token: string } >( resolve => {
+				resolveToken = resolve;
+			} )
+		);
+
+		render( <ThumbnailCard video={ { ...baseVideo, isPrivate: true } } />, { wrapper } );
+
+		// No <img> at all while the token is in flight — a src without the
+		// token would 403 and render as a broken image.
+		expect( screen.queryByRole( 'img' ) ).not.toBeInTheDocument();
+
+		resolveToken( { playback_token: 'tok-123' } );
+
+		await waitFor( () =>
+			expect( screen.getByRole( 'img', { name: /current thumbnail/i } ) ).toHaveAttribute(
+				'src',
+				'https://example.test/poster.jpg?metadata_token=tok-123'
+			)
+		);
+	} );
+
+	it( 'renders no image when the video has no poster', () => {
+		render( <ThumbnailCard video={ { ...baseVideo, thumbnailUrl: '' } } />, { wrapper } );
+
+		expect( screen.queryByRole( 'img' ) ).not.toBeInTheDocument();
+		expect( screen.getByText( /no thumbnail yet/i ) ).toBeInTheDocument();
+		// The actions are still there — a video with no poster is exactly the
+		// one most in need of getting one.
+		expect( screen.getByRole( 'button', { name: /upload image/i } ) ).toBeInTheDocument();
 	} );
 } );

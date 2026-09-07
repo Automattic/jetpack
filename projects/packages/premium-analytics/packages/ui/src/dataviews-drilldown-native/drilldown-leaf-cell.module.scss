@@ -1,0 +1,18 @@
+/*
+ * DataViews styles every title-field cell as a medium-weight neutral title,
+ * but only group parent rows are titles in a drilldown table. Leaf rows opt
+ * back out to body weight and, when linked, the link treatment.
+ */
+.leaf {
+	font-weight: var(--wpds-typography-font-weight-default);
+}
+
+/*
+ * DataViews' scoped title-link selector makes composed links blocks. Include
+ * the link's `href` attribute here to win only the layout properties while
+ * leaving its color to the report table's standard link treatment.
+ */
+span.leaf a[href] {
+	display: inline-flex;
+	align-items: center;
+}

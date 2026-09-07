@@ -3,12 +3,8 @@
  */
 import { __ } from '@wordpress/i18n';
 import { formatLegendLabels } from './format-legend-labels';
-import type { SeriesData } from '@automattic/charts';
 import type { ReportDataMap, ReportParams } from '@jetpack-premium-analytics/data';
-
-/**
- * Internal dependencies
- */
+import type { SeriesData } from '@jetpack-premium-analytics/externals';
 
 export interface RevenueByCustomerTypeData {
 	chartData: SeriesData[];
@@ -40,24 +36,22 @@ export function buildRevenueByCustomerTypeData(
 	const newCustomerSales = summary.new_customer_sales;
 	const returningCustomerSales = summary.returning_customer_sales;
 
-	// Build bar chart data - each category is a bar
 	const chartData: SeriesData[] = [
 		{
 			label: primaryLabel,
 			data: [
 				{
-					label: __( 'Returning', 'jetpack-premium-analytics' ),
+					label: __( 'Returning', 'jetpack-premium-analytics-pkg' ),
 					value: returningCustomerSales,
 				},
 				{
-					label: __( 'New', 'jetpack-premium-analytics' ),
+					label: __( 'New', 'jetpack-premium-analytics-pkg' ),
 					value: newCustomerSales,
 				},
 			],
 		},
 	];
 
-	// Add comparison period if available
 	if ( comparisonCustomers?.summary ) {
 		const comparisonNewCustomerSales = comparisonCustomers.summary.new_customer_sales || 0;
 		const comparisonReturningCustomerSales =

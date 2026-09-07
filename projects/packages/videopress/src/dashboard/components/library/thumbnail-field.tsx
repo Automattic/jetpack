@@ -2,8 +2,10 @@ import { ProgressBar } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { Button, Stack, Text } from '@wordpress/ui';
 import { usePosterUrl } from '../../hooks/use-poster-url';
+import { useProcessingProgress } from '../../hooks/use-processing-progress';
 import { formatDuration } from '../../utils/format';
 import { useUploadActions } from './upload-actions-context';
+import { getUploadFailureLabel } from './upload-failure-label';
 import type { LibraryItem } from '../../types/library';
 
 type Props = { item: LibraryItem };
@@ -26,10 +28,16 @@ type Props = { item: LibraryItem };
  */
 export default function ThumbnailField( { item }: Props ) {
 	const { promoteLocal, retryUpload, openVideoDetails } = useUploadActions();
-	const { type, upload, durationSeconds, id, title, isProcessing } = item;
+	const { type, upload, durationSeconds, id, guid, title, isPrivate, isProcessing } = item;
 	const posterUrl = usePosterUrl( item );
 
+	const failureLabel = getUploadFailureLabel( upload.failureReason );
 	const isVideoPressIdle = type === 'videopress' && upload.status === 'idle';
+	const processingProgress = useProcessingProgress(
+		guid,
+		isPrivate,
+		isVideoPressIdle && isProcessing
+	);
 
 	return (
 		<div className="vp-library__thumbnail">
@@ -40,11 +48,24 @@ export default function ThumbnailField( { item }: Props ) {
 			{ isVideoPressIdle && isProcessing ? (
 				<Stack
 					direction="column"
+					gap="sm"
 					align="center"
 					justify="center"
 					className="vp-library__processing"
 				>
-					<Text>{ __( 'Processing', 'jetpack-videopress-pkg' ) }</Text>
+					<Text>
+						{ processingProgress !== null
+							? sprintf(
+									/* translators: %d: transcoding progress percentage */
+									__( 'Processing %d%%', 'jetpack-videopress-pkg' ),
+									processingProgress
+							  )
+							: __( 'Processing', 'jetpack-videopress-pkg' ) }
+					</Text>
+					<ProgressBar
+						className="vp-library__progress-bar"
+						value={ processingProgress ?? undefined }
+					/>
 				</Stack>
 			) : null }
 
@@ -100,7 +121,7 @@ export default function ThumbnailField( { item }: Props ) {
 				</>
 			) : null }
 
-			{ upload.status === 'uploading' ? (
+			{ upload.status === 'uploading' || upload.status === 'promoting' ? (
 				<Stack
 					direction="column"
 					gap="sm"
@@ -113,7 +134,7 @@ export default function ThumbnailField( { item }: Props ) {
 				</Stack>
 			) : null }
 
-			{ upload.status === 'promoting' || upload.status === 'deleting' ? (
+			{ upload.status === 'deleting' ? (
 				<Stack
 					direction="column"
 					gap="sm"
@@ -121,11 +142,7 @@ export default function ThumbnailField( { item }: Props ) {
 					justify="center"
 					className="vp-library__progress"
 				>
-					<Text>
-						{ upload.status === 'deleting'
-							? __( 'Deleting…', 'jetpack-videopress-pkg' )
-							: __( 'Uploading…', 'jetpack-videopress-pkg' ) }
-					</Text>
+					<Text>{ __( 'Deleting…', 'jetpack-videopress-pkg' ) }</Text>
 					<ProgressBar className="vp-library__progress-bar" />
 				</Stack>
 			) : null }
@@ -138,7 +155,10 @@ export default function ThumbnailField( { item }: Props ) {
 					justify="center"
 					className="vp-library__failed"
 				>
-					<Text>{ __( 'Upload failed', 'jetpack-videopress-pkg' ) }</Text>
+					<Text>{ failureLabel.summary }</Text>
+					{ /* Own line rather than joined onto the summary: the tile is too
+					     narrow for one string, and the Retry button sits below. */ }
+					{ failureLabel.cause ? <Text variant="body-sm">{ failureLabel.cause }</Text> : null }
 					<Button size="compact" onClick={ () => retryUpload( id ) }>
 						{ __( 'Retry', 'jetpack-videopress-pkg' ) }
 					</Button>

@@ -42,6 +42,25 @@
 	margin: 0 auto;
 }
 
+// The content surface TabPanel renders inside its
+// `.components-tab-panel__tab-content`: an off-white band with the inner
+// content centered. Shared so the single-section path (rendered without
+// TabPanel) matches the tabbed layout exactly.
+@mixin tab-content-surface {
+	background-color: #fcfcfc;
+
+	.my-jetpack-tab-panel-inner {
+
+		@include full-width-container;
+	}
+}
+
+// Single-section view: rendered directly, without a TabPanel wrapper.
+.single-tab-content {
+
+	@include tab-content-surface;
+}
+
 .my-jetpack-tab-panel--full-width {
 
 	width: 100%;
@@ -59,11 +78,7 @@
 	}
 
 	:global(.components-tab-panel__tab-content) {
-		background-color: #fcfcfc;
 
-		.my-jetpack-tab-panel-inner {
-
-			@include full-width-container;
-		}
+		@include tab-content-surface;
 	}
 }

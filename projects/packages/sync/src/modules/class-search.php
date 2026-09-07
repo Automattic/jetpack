@@ -23,6 +23,8 @@
 
 namespace Automattic\Jetpack\Sync\Modules;
 
+use Automattic\Jetpack\Search\AI_Answers;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
@@ -1823,7 +1825,11 @@ class Search extends Module {
 	 * @return array Updated whitelist.
 	 */
 	public function add_ai_answer_post_types( $list ) {
-		if ( ! apply_filters( 'jetpack_search_ai_answers_enabled', (bool) get_option( 'jetpack_search_ai_answers_enabled', false ) ) ) {
+		$ai_answers_enabled = class_exists( AI_Answers::class )
+			? AI_Answers::is_enabled()
+			: apply_filters( 'jetpack_search_ai_answers_enabled', (bool) get_option( 'jetpack_search_ai_answers_enabled', false ) );
+
+		if ( ! $ai_answers_enabled ) {
 			return $list;
 		}
 		$list[] = 'wp_guideline';

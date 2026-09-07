@@ -1,8 +1,7 @@
 import { BaseControl, TextControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { Badge, Link } from '@wordpress/ui';
+import { Badge, Link, Notice } from '@wordpress/ui';
 import SalesforceIcon from '../../../../../icons/salesforce.tsx';
-import HelpMessage from '../../help-message/index.jsx';
 import CreateSalesforceLeadFormButton from '../components/create-salesforce-lead-form-button.tsx';
 import type { CardItem, CardBuilderProps } from './types.ts';
 
@@ -74,12 +73,14 @@ export function buildSalesforceCard( {
 						style={ { maxWidth: '300px' } }
 					/>
 					{ organizationId && ! isValidSalesforceOrgId( organizationId ) && (
-						<HelpMessage isError style={ { marginTop: '8px' } }>
-							{ __(
-								'Invalid Organization ID. Should be a 15–18 characters long alphanumeric string.',
-								'jetpack-forms'
-							) }
-						</HelpMessage>
+						<Notice.Root intent="error" style={ { marginTop: '8px' } }>
+							<Notice.Description>
+								{ __(
+									'Invalid Organization ID. Should be a 15–18 characters long alphanumeric string.',
+									'jetpack-forms'
+								) }
+							</Notice.Description>
+						</Notice.Root>
 					) }
 					<p>
 						<Link openInNewTab href="https://help.salesforce.com/s/articleView?id=000325251&type=1">

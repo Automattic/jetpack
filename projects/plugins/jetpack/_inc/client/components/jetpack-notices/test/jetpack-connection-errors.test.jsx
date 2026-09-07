@@ -67,6 +67,26 @@ describe( 'JetpackConnectionErrors', () => {
 		expect( screen.queryByText( 'Secondary Action' ) ).not.toBeInTheDocument();
 	} );
 
+	it( "should render an informational notice with no action for the 'none' action", () => {
+		const errors = [
+			{
+				code: 'no_valid_user_token',
+				message: 'The connection owner needs to reconnect their account.',
+				action: 'none',
+				data: {},
+			},
+		];
+
+		render( <JetpackConnectionErrors errors={ errors } /> );
+
+		expect(
+			screen.getByText( 'The connection owner needs to reconnect their account.' )
+		).toBeInTheDocument();
+		// No reconnect/restore CTA should be rendered for an informational notice.
+		expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( 'Reconnect', { exact: false } ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'should handle multiple errors correctly', () => {
 		const errors = [
 			{

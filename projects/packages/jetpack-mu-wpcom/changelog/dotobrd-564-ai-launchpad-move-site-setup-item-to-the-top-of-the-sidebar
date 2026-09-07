@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+AI Launchpad: move the Site Setup menu item to the top of the sidebar, decode HTML entities in the wizard prefill and site preview title, and collapse id_map twin tasks onto a single id.

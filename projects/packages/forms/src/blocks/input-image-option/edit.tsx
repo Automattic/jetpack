@@ -16,7 +16,7 @@ import clsx from 'clsx';
  */
 import useAddImageOption from '../shared/hooks/use-add-image-option.ts';
 import useJetpackFieldStyles from '../shared/hooks/use-jetpack-field-styles.js';
-import { useSyncedAttributes } from '../shared/hooks/use-synced-attributes.js';
+import { useSyncedAttributes } from '../shared/hooks/use-synced-attributes.jsx';
 import { getImageOptionLetter } from './label.tsx';
 /**
  * Types

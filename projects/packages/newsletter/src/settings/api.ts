@@ -199,3 +199,47 @@ async function fetchCategoriesViaWpApi(): Promise< Category[] > {
 
 	return allCategories;
 }
+
+/**
+ * Create a new category via the WordPress REST API (`/wp/v2/categories`).
+ *
+ * This endpoint works on both self-hosted and WordPress.com Simple sites — in the
+ * wp-admin context the request is proxied to WordPress.com — and, crucially, it
+ * returns errors in the standard WP-REST shape (`{ code: 'term_exists', … }`)
+ * that `@wordpress/api-fetch` parses natively. The older
+ * `/rest/v1.1/…/taxonomies/category/terms/new` endpoint returns wpcom-format
+ * errors (`{ error: 'duplicate' }`) that apiFetch can't parse, so it collapses
+ * them to a generic `unknown_error` and the duplicate signal is lost before we
+ * can read it — hence we use `/wp/v2/categories` everywhere here.
+ *
+ * @param {string} name - The name of the category to create.
+ * @return {Promise<Category>} The created category.
+ */
+export async function createCategory( name: string ): Promise< Category > {
+	const category = await createCategoryViaWpApi( name );
+
+	// Guard against an unexpected success payload: without a numeric id the caller
+	// would select a bogus token (e.g. `String( undefined )`). Surface it as a
+	// normal failure instead.
+	if ( typeof category.id !== 'number' || ! Number.isFinite( category.id ) ) {
+		throw new Error( 'Unexpected response while creating the category.' );
+	}
+
+	return category;
+}
+
+/**
+ * Create a category via the WordPress REST API.
+ *
+ * @param {string} name - The name of the category to create.
+ * @return {Promise<Category>} The created category.
+ */
+async function createCategoryViaWpApi( name: string ): Promise< Category > {
+	const category = ( await apiFetch( {
+		path: '/wp/v2/categories',
+		method: 'POST',
+		data: { name },
+	} ) ) as { id: number; name: string };
+
+	return { id: category.id, name: category.name };
+}

@@ -37,17 +37,49 @@ class Odyssey_Config_Data {
 	 * Return the config for the app.
 	 */
 	public function get_data() {
+		$blog_id = $this->get_connected_blog_id();
+		$data    = $this->get_site_agnostic_data( $blog_id );
+
+		/*
+		 * A site the app cannot reach has no record to seed its store with. Emitting one anyway
+		 * would key every entry on a blog ID of 0 and make each lookup miss, so leave it out and
+		 * let the app fall back to the screens it shows without a site.
+		 */
+		if ( $blog_id ) {
+			$data['intial_state'] = $this->get_initial_state( $blog_id );
+		}
+
+		return $data;
+	}
+
+	/**
+	 * The WordPress.com blog ID the app can talk to, or 0 when there is none.
+	 *
+	 * A site keeps its blog ID when it disconnects, but every request the app would make with it
+	 * has to be signed with a token the site no longer holds. Such a site has no more to offer
+	 * the app than one that was never connected.
+	 *
+	 * @return int
+	 */
+	protected function get_connected_blog_id() {
+		$blog_id = (int) Jetpack_Options::get_option( 'id' );
+
+		return Main::is_site_connected() ? $blog_id : 0;
+	}
+
+	/**
+	 * Config the app can rely on with or without a WordPress.com connection.
+	 *
+	 * @param int $blog_id The WordPress.com blog ID, 0 when the site is not connected.
+	 * @return array
+	 */
+	protected function get_site_agnostic_data( $blog_id ) {
 		global $wp_version;
-
-		$blog_id = Jetpack_Options::get_option( 'id' );
-		$host    = new Host();
-
-		$can_blaze = class_exists( 'Automattic\Jetpack\Blaze' ) && Blaze::should_initialize()['can_init'];
 
 		return array(
 			'admin_page_base'                => $this->get_admin_path(),
 			'api_root'                       => esc_url_raw( rest_url() ),
-			'blog_id'                        => Jetpack_Options::get_option( 'id' ),
+			'blog_id'                        => $blog_id,
 			'enable_all_sections'            => false,
 			'env_id'                         => 'production',
 			'google_analytics_key'           => 'UA-10673494-15',
@@ -62,50 +94,70 @@ class Odyssey_Config_Data {
 			'sections'                       => array(),
 			// Features are inlined @see https://github.com/Automattic/wp-calypso/pull/70122
 			'features'                       => array(
-				'is_running_in_jetpack_site' => ! $host->is_wpcom_simple(),
+				'is_running_in_jetpack_site' => ! ( new Host() )->is_wpcom_simple(),
 			),
 			// Intended for apps that do not use redux.
 			'gmt_offset'                     => $this->get_gmt_offset(),
 			'odyssey_stats_base_url'         => admin_url( 'admin.php?page=stats' ),
-			'intial_state'                   => array(
-				'currentUser' => array(
-					'id'           => 1000,
-					'user'         => array(
-						'ID'       => 1000,
-						'username' => 'no-user',
-					),
-					'capabilities' => array(
-						"$blog_id" => $this->get_current_user_capabilities(),
-					),
+			// Repeated in the site record below, which a site without a connection never gets.
+			'admin_url'                      => admin_url(),
+			'jetpack_version'                => defined( 'JETPACK__VERSION' ) ? JETPACK__VERSION : '',
+			'stats_admin_version'            => Main::VERSION,
+			'software_version'               => $wp_version,
+		);
+	}
+
+	/**
+	 * The Redux state the app boots with.
+	 *
+	 * @param int $blog_id The WordPress.com blog ID.
+	 * @return array
+	 */
+	protected function get_initial_state( $blog_id ) {
+		global $wp_version;
+
+		$host         = new Host();
+		$capabilities = $this->get_current_user_capabilities();
+		$can_blaze    = class_exists( 'Automattic\Jetpack\Blaze' ) && Blaze::should_initialize()['can_init'];
+
+		return array(
+			'currentUser' => array(
+				'id'           => 1000,
+				'user'         => array(
+					'ID'       => 1000,
+					'username' => 'no-user',
 				),
-				'sites'       => array(
-					'items'    => array(
-						"$blog_id" => array(
-							'ID'           => $blog_id,
-							'URL'          => site_url(),
-							// Atomic and jetpack sites should return true.
-							'jetpack'      => ! $host->is_wpcom_simple(),
-							'visible'      => true,
-							'capabilities' => $this->get_current_user_capabilities(),
-							'products'     => Jetpack_Plan::get_products(),
-							'plan'         => $this->get_plan(),
-							'options'      => array(
-								'wordads'               => ( new Modules() )->is_active( 'wordads' ),
-								'admin_url'             => admin_url(),
-								'gmt_offset'            => $this->get_gmt_offset(),
-								'is_automated_transfer' => $this->is_automated_transfer( $blog_id ),
-								'is_wpcom_atomic'       => $host->is_woa_site(),
-								'is_wpcom_simple'       => $host->is_wpcom_simple(),
-								'is_vip'                => $host->is_vip_site(),
-								'jetpack_version'       => defined( 'JETPACK__VERSION' ) ? JETPACK__VERSION : '',
-								'stats_admin_version'   => Main::VERSION,
-								'software_version'      => $wp_version,
-								'can_blaze'             => $can_blaze,
-							),
+				'capabilities' => array(
+					"$blog_id" => $capabilities,
+				),
+			),
+			'sites'       => array(
+				'items'    => array(
+					"$blog_id" => array(
+						'ID'           => $blog_id,
+						'URL'          => site_url(),
+						// Atomic and jetpack sites should return true.
+						'jetpack'      => ! $host->is_wpcom_simple(),
+						'visible'      => true,
+						'capabilities' => $capabilities,
+						'products'     => Jetpack_Plan::get_products(),
+						'plan'         => $this->get_plan(),
+						'options'      => array(
+							'wordads'               => ( new Modules() )->is_active( 'wordads' ),
+							'admin_url'             => admin_url(),
+							'gmt_offset'            => $this->get_gmt_offset(),
+							'is_automated_transfer' => $this->is_automated_transfer( $blog_id ),
+							'is_wpcom_atomic'       => $host->is_woa_site(),
+							'is_wpcom_simple'       => $host->is_wpcom_simple(),
+							'is_vip'                => $host->is_vip_site(),
+							'jetpack_version'       => defined( 'JETPACK__VERSION' ) ? JETPACK__VERSION : '',
+							'stats_admin_version'   => Main::VERSION,
+							'software_version'      => $wp_version,
+							'can_blaze'             => $can_blaze,
 						),
 					),
-					'features' => array( "$blog_id" => array( 'data' => $this->get_plan_features() ) ),
 				),
+				'features' => array( "$blog_id" => array( 'data' => $this->get_plan_features() ) ),
 			),
 		);
 	}

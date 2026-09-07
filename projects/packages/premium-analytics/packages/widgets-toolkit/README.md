@@ -195,14 +195,17 @@ import { ComparativeLineChart, getFormatByMetricKey } from '@jetpack-premium-ana
 <ComparativeLineChart
   series={ [
     {
-      key: 'primary',
+      group: 'primary',
       label: 'This Period',
       data: currentData,
     },
     {
-      key: 'comparison',
+      // Same group as the series it shadows; `type: 'comparison'` is what draws
+      // it as the previous-period overlay and re-dates it onto the axis.
+      group: 'primary',
       label: 'Previous Period',
       data: previousData,
+      options: { type: 'comparison' },
     },
   ] }
   dataFormat={ { type: 'number' } }
@@ -223,6 +226,11 @@ import { ComparativeLineChart, getFormatByMetricKey } from '@jetpack-premium-ana
   dataFormat={ getFormatByMetricKey( 'total_sales' ) }
 />
 ```
+
+**Bar variant:** for the same comparative time series drawn as bars, use `ComparativeBarChart`. It
+takes the same series shape and date alignment, but reads its styling from the chart theme instead
+of a `styles` prop, so it must render inside a `GlobalChartsProvider`. See
+`src/components/chart-comparative-bar/README.md`.
 
 ---
 

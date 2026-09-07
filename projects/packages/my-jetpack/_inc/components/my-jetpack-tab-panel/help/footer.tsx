@@ -1,4 +1,4 @@
-import { currentUserCan, getAdminUrl } from '@automattic/jetpack-script-data';
+import { currentUserCan, getAdminUrl, isSimpleSite } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
 import { Link, Text } from '@wordpress/ui';
 import { useCallback } from 'react';
@@ -31,9 +31,11 @@ export function HelpFooter() {
 	// the Jetpack plugin is active (My Jetpack also runs inside other standalone
 	// plugins where these pages aren't registered), and the current user can
 	// manage options (both pages require it, but the Help tab is also shown to
-	// non-admins like editors). Guard on both to avoid links that dead-end on a
-	// "you are not allowed to access this page" screen.
-	const showUsefulLinks = isJetpackPluginActive() && currentUserCan( 'manage_options' );
+	// non-admins like editors). Neither page is registered on WordPress.com
+	// Simple sites. Guard on all of these to avoid links that dead-end on a
+	// 404 or a "you are not allowed to access this page" screen.
+	const showUsefulLinks =
+		isJetpackPluginActive() && currentUserCan( 'manage_options' ) && ! isSimpleSite();
 
 	return (
 		<div className={ styles.footer }>

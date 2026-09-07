@@ -1,0 +1,13 @@
+/* No outer padding: the host frames the widget and owns the padding. */
+.root {
+	height: 100%;
+	overflow-x: hidden;
+	overflow-y: auto;
+}
+
+.content {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	min-height: 0;
+}

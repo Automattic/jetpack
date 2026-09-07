@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+AI Launchpad: improve task selection by describing the task menu to the model, enforcing the goal rules in code, and adding tasks for galleries, contact, events, video, portfolio pieces, site icons, style variations and Sensei.

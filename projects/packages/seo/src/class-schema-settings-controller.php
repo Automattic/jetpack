@@ -78,7 +78,7 @@ class Schema_Settings_Controller {
 
 	/**
 	 * POST/PUT: sanitize and persist the submission, then return the new payload.
-	 * The store only reads the keys it knows (`organization` today).
+	 * Unknown keys are ignored and omitted schema sections retain their stored values.
 	 *
 	 * @param WP_REST_Request $request The REST request.
 	 * @return \WP_REST_Response

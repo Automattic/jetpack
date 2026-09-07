@@ -11,8 +11,7 @@
 // overflow to scroll. Wrapping in a `display: block` div gives `<Col>` a
 // single flow item with the default `min-height: auto` (overflow visible),
 // so the inner content stacks at its natural height and overflow falls
-// back to the middle's scroll surface. Mirrors the `.content` class in
-// `projects/packages/publicize/_inc/components/admin-page/styles.module.scss`.
+// back to the middle's scroll surface.
 .jp-search-upsell-page-content {
 	display: block;
 }

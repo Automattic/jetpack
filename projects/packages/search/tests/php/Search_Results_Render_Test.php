@@ -48,15 +48,19 @@ class Search_Results_Render_Test extends TestCase {
 			'jetpack-search/search-results',
 			array(
 				'attributes'      => array(
-					'postTypeMode' => array(
+					'postTypeMode'   => array(
 						'type'    => 'string',
 						'enum'    => array( 'include', 'exclude' ),
 						'default' => 'exclude',
 					),
-					'postTypes'    => array(
+					'postTypes'      => array(
 						'type'    => 'array',
 						'default' => array(),
 						'items'   => array( 'type' => 'string' ),
+					),
+					'resultsPerPage' => array(
+						'type'    => 'number',
+						'default' => 0,
 					),
 				),
 				// phpcs:disable VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
@@ -103,6 +107,15 @@ class Search_Results_Render_Test extends TestCase {
 			}
 			$prop->setValue( $interactivity, array() );
 		}
+	}
+
+	/**
+	 * Restore the `posts_per_page` Reading setting so a fallback test doesn't
+	 * leak a non-default value into a later test in this class.
+	 */
+	protected function tearDown(): void {
+		update_option( 'posts_per_page', 10 );
+		parent::tearDown();
 	}
 
 	/**
@@ -190,5 +203,38 @@ class Search_Results_Render_Test extends TestCase {
 		);
 		$state = wp_interactivity_state( 'jetpack-search' );
 		$this->assertSame( array( 'product' ), $state['staticPostTypes']['include'] );
+	}
+
+	/**
+	 * An explicit `resultsPerPage` attribute seeds that value regardless of
+	 * the site's `posts_per_page` Reading setting.
+	 */
+	public function test_render_seeds_explicit_results_per_page() {
+		update_option( 'posts_per_page', 5 );
+		$this->render( array( 'resultsPerPage' => 25 ) );
+		$state = wp_interactivity_state( 'jetpack-search' );
+		$this->assertSame( 25, $state['resultsPerPage'] );
+	}
+
+	/**
+	 * Unset/`0` `resultsPerPage` falls back live to the site's
+	 * `posts_per_page` Reading setting — the whole point of the fallback is
+	 * that it isn't baked into the saved attribute.
+	 */
+	public function test_render_falls_back_to_site_posts_per_page() {
+		update_option( 'posts_per_page', 7 );
+		$this->render( array() );
+		$state = wp_interactivity_state( 'jetpack-search' );
+		$this->assertSame( 7, $state['resultsPerPage'] );
+	}
+
+	/**
+	 * A `resultsPerPage` above `Helper::get_max_posts_per_page()` clamps down
+	 * to the package's existing ES page-size ceiling.
+	 */
+	public function test_render_clamps_results_per_page_to_max() {
+		$this->render( array( 'resultsPerPage' => Helper::get_max_posts_per_page() + 500 ) );
+		$state = wp_interactivity_state( 'jetpack-search' );
+		$this->assertSame( Helper::get_max_posts_per_page(), $state['resultsPerPage'] );
 	}
 }

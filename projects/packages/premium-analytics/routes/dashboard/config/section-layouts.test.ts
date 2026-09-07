@@ -13,12 +13,18 @@ describe( 'section layouts config', () => {
 		).toBe( true );
 	} );
 
-	it( 'rejects unknown section keys', () => {
+	it( 'accepts any string key, since slugs are server-driven', () => {
 		expect(
 			isDashboardSectionLayouts( {
-				unknown: [],
+				store: [],
+				conversions: [],
 			} )
-		).toBe( false );
+		).toBe( true );
+	} );
+
+	it( 'rejects non-object values', () => {
+		expect( isDashboardSectionLayouts( [] ) ).toBe( false );
+		expect( isDashboardSectionLayouts( null ) ).toBe( false );
 	} );
 
 	it( 'rejects non-array layouts', () => {

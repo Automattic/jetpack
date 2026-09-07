@@ -48,7 +48,7 @@ class Jetpack_Components {
 			);
 
 			// Workaround, required to replace strings in `sprintf`-expressions.
-			// See extensions/i18n-to-php.js for more information.
+			// See extensions/shared/i18n-to-php.jsx for more information.
 			$markup = str_replace(
 				"%($key)s",
 				$value,

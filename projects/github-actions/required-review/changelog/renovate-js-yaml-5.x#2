@@ -1,0 +1,4 @@
+Significance: major
+Type: changed
+
+Yaml parsing is more strict, due to a dependency update to `js-yaml` v5. If you get errors that your requirements file is not valid, check your syntax.

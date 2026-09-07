@@ -18,21 +18,14 @@ import type { ComponentProps } from 'react';
 type SalesByDeviceRenderAttributes = SalesByDeviceAttributes &
 	Partial< ReportParamsFieldAttributes >;
 
-type SalesByDeviceRenderProps = WidgetRenderProps< SalesByDeviceRenderAttributes > & {
+type SalesByDeviceWidgetProps = WidgetRenderProps< SalesByDeviceRenderAttributes > & {
 	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
 };
 
-/**
- * Sales by device widget.
- *
- * Thin composition over the widgets-toolkit: WidgetRoot provides the query
- * client, chart theme, and resolved report params; SalesByDeviceWidget fetches
- * the order-attribution report and renders the device revenue breakdown.
- */
 export default function SalesByDeviceRender( {
 	attributes = {},
 	setError,
-}: SalesByDeviceRenderProps ) {
+}: SalesByDeviceWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
 			<SalesByDeviceWidget />

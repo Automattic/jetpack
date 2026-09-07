@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+AI Launchpad: filter the theme task's showcase link by an AI-inferred subject category instead of free-text search, so free themes always surface

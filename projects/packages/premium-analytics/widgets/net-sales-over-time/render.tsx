@@ -6,6 +6,7 @@ import {
 	WidgetRoot,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
+import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
@@ -18,13 +19,11 @@ import type { ComponentProps } from 'react';
 type NetSalesOverTimeRenderAttributes = NetSalesOverTimeAttributes &
 	Partial< ReportParamsFieldAttributes >;
 
-type NetSalesOverTimeRenderProps = WidgetRenderProps< NetSalesOverTimeRenderAttributes > & {
+type NetSalesOverTimeWidgetProps = WidgetRenderProps< NetSalesOverTimeRenderAttributes > & {
 	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
 };
 
 /**
- * Net sales over time widget.
- *
  * Thin composition over the widgets-toolkit: WidgetRoot provides the query
  * client, chart theme, and resolved report params; OrderMetricWidget fetches
  * the orders report and renders the net sales metric over time.
@@ -32,10 +31,18 @@ type NetSalesOverTimeRenderProps = WidgetRenderProps< NetSalesOverTimeRenderAttr
 export default function NetSalesOverTimeRender( {
 	attributes = {},
 	setError,
-}: NetSalesOverTimeRenderProps ) {
+}: NetSalesOverTimeWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
-			<OrderMetricWidget metricKey="orders_value_net" />
+			<OrderMetricWidget
+				metricKey="orders_value_net"
+				seriesLabel={ __( 'Net sales', 'jetpack-premium-analytics-pkg' ) }
+				emptyStateText={ __( 'No sales in this period.', 'jetpack-premium-analytics-pkg' ) }
+				errorText={ __(
+					"We couldn't load net sales. Please try again in a moment.",
+					'jetpack-premium-analytics-pkg'
+				) }
+			/>
 		</WidgetRoot>
 	);
 }

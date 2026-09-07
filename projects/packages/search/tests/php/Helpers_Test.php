@@ -98,6 +98,10 @@ class Helpers_Test extends TestCase {
 
 		Constants::$set_constants = static::$constants_backup;
 		remove_all_filters( 'jetpack_search_has_vip_index' );
+
+		// Restore `posts_per_page` so a `resolve_results_per_page()` test that
+		// mutates it doesn't leak into other tests in this class.
+		update_option( 'posts_per_page', 10 );
 	}
 
 	/**
@@ -608,6 +612,46 @@ class Helpers_Test extends TestCase {
 	public function test_get_max_posts_per_page( $expected, $has_vip_index ) {
 		Constants::set_constant( 'JETPACK_SEARCH_VIP_INDEX', $has_vip_index );
 		$this->assertSame( $expected, Helper::get_max_posts_per_page() );
+	}
+
+	/**
+	 * An explicit override takes precedence over the site's `posts_per_page`
+	 * setting, clamped to `get_max_posts_per_page()`.
+	 */
+	public function test_resolve_results_per_page_uses_override() {
+		update_option( 'posts_per_page', 5 );
+		$this->assertSame( 25, Helper::resolve_results_per_page( 25 ) );
+	}
+
+	/**
+	 * No override (or `0`) falls back to the site's `posts_per_page` setting.
+	 */
+	public function test_resolve_results_per_page_falls_back_to_site_setting() {
+		update_option( 'posts_per_page', 7 );
+		$this->assertSame( 7, Helper::resolve_results_per_page() );
+		$this->assertSame( 7, Helper::resolve_results_per_page( 0 ) );
+	}
+
+	/**
+	 * A non-positive `posts_per_page` (e.g. `-1`, "show all") falls back to
+	 * 10 rather than clamping down to a single result.
+	 */
+	public function test_resolve_results_per_page_handles_show_all_reading_setting() {
+		update_option( 'posts_per_page', -1 );
+		$this->assertSame( 10, Helper::resolve_results_per_page() );
+	}
+
+	/**
+	 * Both the override and the site-default path clamp to
+	 * `get_max_posts_per_page()`.
+	 */
+	public function test_resolve_results_per_page_clamps_to_max() {
+		update_option( 'posts_per_page', 500 );
+		$this->assertSame( Helper::get_max_posts_per_page(), Helper::resolve_results_per_page() );
+		$this->assertSame(
+			Helper::get_max_posts_per_page(),
+			Helper::resolve_results_per_page( Helper::get_max_posts_per_page() + 500 )
+		);
 	}
 
 	/**
@@ -1810,5 +1854,193 @@ class Helpers_Test extends TestCase {
 		$this->assertTrue( $found_pa_color, 'Should have pa_color attribute (was in included_attributes)' );
 		$this->assertTrue( $found_pa_size, 'Should have pa_size attribute (was in included_attributes)' );
 		$this->assertFalse( $found_pa_material, 'Should NOT have pa_material attribute (was NOT in included_attributes)' );
+	}
+
+	/**
+	 * Test that parse_instant_search_query_options normalizes empty / invalid option values.
+	 */
+	public function test_parse_instant_search_query_options_edge_cases() {
+		$parsed = Helper::parse_instant_search_query_options(
+			array(
+				'highlightFields'     => array( '', '' ),
+				'customResults'       => array(
+					'not-an-array',
+					array(
+						'pattern' => 'hello',
+						'ids'     => array( 1 ),
+					),
+					array(
+						'pattern' => '',
+						'ids'     => array( 2 ),
+					),
+					array(
+						'pattern' => 'missing-ids',
+						'ids'     => array(),
+					),
+				),
+				'highlightPhraseOnly' => false,
+			)
+		);
+
+		$this->assertNull( $parsed['highlightFields'] );
+		$this->assertSame(
+			array(
+				array(
+					'pattern' => 'hello',
+					'ids'     => array( 1 ),
+				),
+			),
+			$parsed['customResults']
+		);
+		$this->assertFalse( $parsed['highlightPhraseOnly'] );
+	}
+
+	/**
+	 * Test that stopwords drop when combined with highlightPhraseOnly — the v1.3 API
+	 * rejects requests carrying both.
+	 */
+	public function test_parse_instant_search_query_options_phrase_only_wins_over_stopwords() {
+		$parsed = Helper::parse_instant_search_query_options(
+			array(
+				'highlightPhraseOnly'      => true,
+				'highlightFilterStopwords' => array( 'the', 'a' ),
+			)
+		);
+
+		$this->assertTrue( $parsed['highlightPhraseOnly'] );
+		$this->assertSame( array(), $parsed['highlightFilterStopwords'] );
+
+		$parsed = Helper::parse_instant_search_query_options(
+			array(
+				'highlightFilterStopwords' => array( 'the', 'a' ),
+			)
+		);
+
+		$this->assertFalse( $parsed['highlightPhraseOnly'] );
+		$this->assertSame( array( 'the', 'a' ), $parsed['highlightFilterStopwords'] );
+	}
+
+	/**
+	 * Test that get_instant_search_query_options ignores a non-array filter return.
+	 */
+	public function test_get_instant_search_query_options_non_array_filter() {
+		$callback = static function () {
+			return 'not-an-array';
+		};
+		$options  = array(
+			'highlightPhraseOnly' => false,
+			'customResults'       => array(),
+		);
+		add_filter( 'jetpack_instant_search_options', $callback );
+		try {
+			$options = Helper::get_instant_search_query_options();
+		} finally {
+			remove_filter( 'jetpack_instant_search_options', $callback );
+		}
+
+		$this->assertFalse( $options['highlightPhraseOnly'] );
+		$this->assertSame( array(), $options['customResults'] );
+	}
+
+	/**
+	 * Test apply_instant_search_query_options_to_api_args for regex customResults,
+	 * missing fields, and a non-array options filter when options are loaded via generate.
+	 */
+	public function test_apply_instant_search_query_options_to_api_args_edge_cases() {
+		$with_regex = Helper::apply_instant_search_query_options_to_api_args(
+			array(
+				'query' => 'hello world',
+			),
+			array(
+				'customResults'     => array(
+					array(
+						'pattern' => 'regex:hello.*',
+						'ids'     => array( 99 ),
+					),
+				),
+				'additionalBlogIds' => array( 7 ),
+			)
+		);
+		$this->assertSame( array( 99 ), $with_regex['custom_results'] );
+		$this->assertSame( array( 7 ), $with_regex['additional_blog_ids'] );
+		$this->assertSame(
+			Helper::MULTISITE_SEARCH_FIELD_NAMES,
+			$with_regex['fields']
+		);
+
+		$no_match = Helper::apply_instant_search_query_options_to_api_args(
+			array( 'query' => 'nope' ),
+			array(
+				'customResults' => array(
+					array(
+						'pattern' => 'hello',
+						'ids'     => array( 1 ),
+					),
+					array(
+						'pattern' => 'regex:^world$',
+						'ids'     => array( 2 ),
+					),
+				),
+			)
+		);
+		$this->assertArrayNotHasKey( 'custom_results', $no_match );
+
+		$callback = static function () {
+			return 'not-an-array';
+		};
+		add_filter( 'jetpack_instant_search_options', $callback );
+		try {
+			$passthrough = Helper::apply_instant_search_query_options_to_api_args(
+				array( 'query' => 'keep-me' )
+			);
+		} finally {
+			remove_filter( 'jetpack_instant_search_options', $callback );
+		}
+		$this->assertSame( array( 'query' => 'keep-me' ), $passthrough );
+	}
+
+	/**
+	 * Test that resolve_instant_search_custom_results matches exact and regex: patterns.
+	 */
+	public function test_resolve_instant_search_custom_results() {
+		$rules = array(
+			array(
+				'pattern' => 'exact',
+				'ids'     => array( 1 ),
+			),
+			array(
+				'pattern' => 'regex:^hello.*',
+				'ids'     => array( 2, 3 ),
+			),
+		);
+
+		$this->assertNull( Helper::resolve_instant_search_custom_results( 'x', array() ) );
+		$this->assertSame( array( 1 ), Helper::resolve_instant_search_custom_results( 'exact', $rules ) );
+		$this->assertSame( array( 2, 3 ), Helper::resolve_instant_search_custom_results( 'hello there', $rules ) );
+		$this->assertNull( Helper::resolve_instant_search_custom_results( 'nope', $rules ) );
+		$this->assertNull(
+			Helper::resolve_instant_search_custom_results(
+				'hello',
+				array(
+					array(
+						'pattern' => 'regex:[invalid',
+						'ids'     => array( 9 ),
+					),
+				)
+			)
+		);
+		$this->assertSame(
+			array( 4 ),
+			Helper::resolve_instant_search_custom_results(
+				'docs/getting-started',
+				array(
+					array(
+						'pattern' => 'regex:docs/.*',
+						'ids'     => array( 4 ),
+					),
+				)
+			),
+			'Patterns containing the PCRE delimiter should still match.'
+		);
 	}
 }

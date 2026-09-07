@@ -9,25 +9,7 @@ type UseReportSessionsByDeviceOptions = {
 	enabled?: boolean;
 };
 
-/**
- * Hook for fetching sessions by device type report data.
- *
- * Returns a breakdown of website sessions by device category
- * (Mobile, Desktop, Tablet) for the specified date range.
- *
- * @param params  - Report parameters including date range and comparison dates
- * @param options - Optional configuration
- *
- * @example
- * ```typescript
- * const { primary, comparison, hasComparison, isLoading, hasData } =
- *     useReportSessionsByDevice( reportParams );
- *
- * // Access the data
- * const { summary, data } = primary.data;
- * const totalSessions = summary.total_sessions;
- * ```
- */
+/** Breaks website sessions down by device category (Mobile, Desktop, Tablet). */
 export function useReportSessionsByDevice(
 	params: ReportParams,
 	options?: UseReportSessionsByDeviceOptions

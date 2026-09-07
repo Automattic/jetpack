@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Admin bar: don't treat the default favicon fallback as a site icon

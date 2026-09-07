@@ -1,4 +1,5 @@
 import { Fragment } from 'preact';
+import type { JSX } from 'preact';
 import './style.scss';
 
 type DeliveryFrequency = 'instantly' | 'daily' | 'weekly';

@@ -10,13 +10,8 @@ describe( 'date helpers', () => {
 		expect( getDatePart( undefined ) ).toBeUndefined();
 	} );
 
-	it( 'formats date parts with a time and offset', () => {
-		expect( formatDatePartWithTime( '2026-06-22', '23:59:59' ) ).toBe(
-			'2026-06-22T23:59:59+00:00'
-		);
-		expect( formatDatePartWithTime( '2026-06-22', '00:00:00', '-05:00' ) ).toBe(
-			'2026-06-22T00:00:00-05:00'
-		);
+	it( 'formats date parts with a time and no offset', () => {
+		expect( formatDatePartWithTime( '2026-06-22', '23:59:59' ) ).toBe( '2026-06-22T23:59:59' );
 	} );
 
 	it( 'returns same-day intervals for day and hour periods', () => {

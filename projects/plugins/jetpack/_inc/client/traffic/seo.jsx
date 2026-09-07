@@ -26,6 +26,8 @@ import {
 	getSiteIcon,
 	isSeoEnhancerAvailable,
 	getSiteRepresentativeImage,
+	isAiEnabled,
+	isAiSeoEnabled,
 } from 'state/initial-state';
 import { siteHasFeature } from 'state/site';
 import { isFetchingPluginsData, isPluginActive } from 'state/site/plugins';
@@ -174,7 +176,7 @@ export const SEO = withModuleSettingsFormHelpers(
 
 		// Shown only when the SEO package reports the opt-in is available for this install
 		// (feature flag on, self-hosted, not yet opted in), surfaced on
-		// `window.JetpackScriptData.seo.optin_available` by Initializer::inject_optin_availability().
+		// `window.JetpackScriptData.seo.optin_available` by Surface_Visibility::inject_optin_availability().
 		seoOptInBanner = () => {
 			if ( ! getScriptData()?.seo?.optin_available ) {
 				return null;
@@ -334,7 +336,9 @@ export const SEO = withModuleSettingsFormHelpers(
 										__nextHasNoMarginBottom={ true }
 										id="seo-enhancer"
 										disabled={
-											! this.props.getOptionValue( 'seo-tools' ) || ! this.props.hasSeoEnhancer
+											! this.props.getOptionValue( 'seo-tools' ) ||
+											! this.props.hasSeoEnhancer ||
+											! this.props.aiSeoEnabled
 										}
 										checked={
 											this.props.hasSeoEnhancer &&
@@ -350,6 +354,19 @@ export const SEO = withModuleSettingsFormHelpers(
 											</span>
 										}
 									/>
+									{ this.props.getOptionValue( 'seo-tools' ) && ! this.props.aiSeoEnabled && (
+										<span className="jp-form-setting-explanation">
+											{ this.props.aiEnabled
+												? __(
+														'AI SEO is turned off for this site, so nothing is generated. Your choice is saved and applies again when AI SEO is turned back on.',
+														'jetpack'
+												  )
+												: __(
+														'Jetpack AI is turned off for this site, so nothing is generated. Your choice is saved and applies again when Jetpack AI is turned back on.',
+														'jetpack'
+												  ) }
+										</span>
+									) }
 								</FormFieldset>
 							) }
 						</SettingsGroup>
@@ -514,5 +531,12 @@ export default connect( state => {
 		seoEnhancerAvailable: isSeoEnhancerAvailable( state ),
 		state,
 		hasSeoEnhancer: siteHasFeature( state, 'ai-seo-enhancer' ),
+		// The server-composed AI gate chain: with it closed nothing generates,
+		// so the control says so rather than accepting a change that cannot
+		// take effect.
+		aiEnabled: isAiEnabled( state ),
+		// Automatic generation sits under the AI SEO feature, so the toggle
+		// follows it rather than the site-wide switch alone.
+		aiSeoEnabled: isAiSeoEnabled( state ),
 	};
 } )( SEO );

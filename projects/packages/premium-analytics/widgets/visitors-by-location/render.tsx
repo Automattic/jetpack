@@ -18,21 +18,17 @@ import type { ComponentProps } from 'react';
 type VisitorsByLocationRenderAttributes = VisitorsByLocationAttributes &
 	Partial< ReportParamsFieldAttributes >;
 
-type VisitorsByLocationRenderProps = WidgetRenderProps< VisitorsByLocationRenderAttributes > & {
+type VisitorsByLocationWidgetProps = WidgetRenderProps< VisitorsByLocationRenderAttributes > & {
 	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
 };
 
 /**
- * Visitors by location widget.
- *
- * Thin composition over the widgets-toolkit: WidgetRoot provides the query
- * client, chart theme, and resolved report params; VisitorsByLocationWidget
- * fetches the visitors-by-location reports and renders the location map.
+ * Where visitors are located, rendered as a map.
  */
 export default function VisitorsByLocationRender( {
 	attributes = {},
 	setError,
-}: VisitorsByLocationRenderProps ) {
+}: VisitorsByLocationWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
 			<VisitorsByLocationWidget />

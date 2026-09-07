@@ -1,69 +1,41 @@
 /**
  * WordPress dependencies
  */
-import { __ } from '@wordpress/i18n';
-import { calendar } from '@wordpress/icons';
+import { _x } from '@wordpress/i18n';
+import { pin } from '@wordpress/icons';
+import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
- * Configurable attributes for the Annual highlights widget: one visibility
- * toggle per metric tile. Mirrors the `attributes` declared on the widget
- * definition below; the host renders them as checkboxes and passes the selected
- * values through to `render.tsx`. The widget has no date range — the insights
- * endpoint is not period-scoped.
+ * Internal dependencies
+ */
+import { SelectField } from '@jetpack-premium-analytics/fields';
+import { getYearElements } from './years';
+import type { YearPresetId } from '@jetpack-premium-analytics/datetime';
+
+/**
+ * No date range: the insights endpoint is not period-scoped, and `year` picks a
+ * row out of the single payload it returns.
  */
 export type AnnualHighlightsAttributes = {
-	showPosts?: boolean;
-	showWords?: boolean;
-	showLikes?: boolean;
-	showComments?: boolean;
+	/** Year preset ID, e.g. `year-2026`. */
+	year?: YearPresetId;
 };
 
 /**
- * Widget type definition.
- *
- * `example.attributes` doubles as the defaults applied to new instances: every
- * metric enabled.
+ * The type keeps the `annual-highlights` name because saved layouts reference it;
+ * widget.json titles it "Year in review". No `example` year: the years on offer
+ * depend on the site's own data, so a new instance starts on the current year.
  */
 export default {
-	name: 'jpa/annual-highlights',
-	title: __( 'Annual highlights', 'jetpack-premium-analytics' ),
-	icon: calendar,
-	// Each metric defaults to enabled. The `getValue` defaults keep the settings
-	// checkbox in sync with the render, which also treats a missing flag as
-	// enabled: without them a metric absent from `attributes` would show as an
-	// unchecked box while its tile still rendered.
+	icon: pin,
 	attributes: [
 		{
-			id: 'showPosts',
-			label: __( 'Posts', 'jetpack-premium-analytics' ),
-			type: 'boolean',
-			getValue: ( { item }: { item: AnnualHighlightsAttributes } ) => item.showPosts ?? true,
+			id: 'year',
+			label: _x( 'Year', 'label for the year selector', 'jetpack-premium-analytics-pkg' ),
+			type: 'text',
+			relevance: 'high',
+			Edit: SelectField,
+			getElements: getYearElements,
 		},
-		{
-			id: 'showWords',
-			label: __( 'Words', 'jetpack-premium-analytics' ),
-			type: 'boolean',
-			getValue: ( { item }: { item: AnnualHighlightsAttributes } ) => item.showWords ?? true,
-		},
-		{
-			id: 'showLikes',
-			label: __( 'Likes', 'jetpack-premium-analytics' ),
-			type: 'boolean',
-			getValue: ( { item }: { item: AnnualHighlightsAttributes } ) => item.showLikes ?? true,
-		},
-		{
-			id: 'showComments',
-			label: __( 'Comments', 'jetpack-premium-analytics' ),
-			type: 'boolean',
-			getValue: ( { item }: { item: AnnualHighlightsAttributes } ) => item.showComments ?? true,
-		},
-	],
-	example: {
-		attributes: {
-			showPosts: true,
-			showWords: true,
-			showLikes: true,
-			showComments: true,
-		},
-	},
+	] as WidgetAttributeField< AnnualHighlightsAttributes >[],
 };

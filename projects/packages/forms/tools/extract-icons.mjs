@@ -30,34 +30,47 @@ const iconFiles = (
 	.flat()
 	.sort();
 
-// Extract unique block directory names, preserving the sort order.
-const blockDirs = [ ...new Set( iconFiles.map( f => basename( dirname( f ) ) ) ) ];
+// One entry per icon component: a block's base `icon.*` plus any state variants
+// (`icon-<variant>.*`). Keyed by "<block-dir>/<icon-name>" so a single block can
+// ship more than one icon; the first matching extension wins for a given name.
+const seenKeys = new Set();
+const iconComponents = [];
 
-if ( blockDirs.length === 0 ) {
+for ( const iconFile of iconFiles ) {
+	const dir = basename( dirname( iconFile ) );
+	const name = basename( iconFile ).replace( /\.(jsx|tsx|js)$/, '' );
+	const key = `${ dir }/${ name }`;
+
+	if ( seenKeys.has( key ) ) {
+		continue;
+	}
+	seenKeys.add( key );
+
+	iconComponents.push( { key, dir, name, filename: basename( iconFile ) } );
+}
+
+if ( iconComponents.length === 0 ) {
 	console.log( 'No icon components found.' );
 }
 
-console.log( `Found ${ blockDirs.length } icon components.\n` );
+console.log( `Found ${ iconComponents.length } icon components.\n` );
 
 // ---------------------------------------------------------------------------
 // Step 2: Generate the runner module
 // ---------------------------------------------------------------------------
 
-// Map each block directory to its icon import, using the first matching extension.
-const iconEntries = blockDirs.map( ( dir, i ) => {
-	const iconFile = iconFiles.find( f => basename( dirname( f ) ) === dir );
-	return {
-		dir,
-		varName: `icon${ i }`,
-		importPath: `../src/blocks/${ dir }/${ basename( iconFile ) }`,
-	};
-} );
+// Map each icon component to its import.
+const iconEntries = iconComponents.map( ( component, i ) => ( {
+	...component,
+	varName: `icon${ i }`,
+	importPath: `../src/blocks/${ component.dir }/${ component.filename }`,
+} ) );
 
 const imports = iconEntries
 	.map( e => `import ${ e.varName } from '${ e.importPath }';` )
 	.join( '\n' );
 
-const entries = iconEntries.map( e => `\t[ '${ e.dir }', ${ e.varName } ]` ).join( ',\n' );
+const entries = iconEntries.map( e => `\t[ '${ e.key }', ${ e.varName } ]` ).join( ',\n' );
 
 const runnerSource = `
 import * as React from '@wordpress/element';
@@ -125,16 +138,16 @@ function resolveElement( iconModule ) {
 }
 
 const result = {};
-for ( const [ blockDir, iconModule ] of ICONS ) {
+for ( const [ iconKey, iconModule ] of ICONS ) {
 	try {
 		const element = resolveElement( iconModule );
 		if ( element ) {
-			result[ blockDir ] = ReactDOMServer.renderToStaticMarkup( element );
+			result[ iconKey ] = ReactDOMServer.renderToStaticMarkup( element );
 		} else {
-			console.error( 'extract-icons: ' + blockDir + ': could not resolve element' );
+			console.error( 'extract-icons: ' + iconKey + ': could not resolve element' );
 		}
 	} catch ( err ) {
-		console.error( 'extract-icons: ' + blockDir + ': ' + err.message );
+		console.error( 'extract-icons: ' + iconKey + ': ' + err.message );
 	}
 }
 
@@ -261,8 +274,10 @@ try {
 
 	console.log( 'Writing SVG files:\n' );
 
-	for ( const [ blockDir, svgString ] of Object.entries( icons ) ) {
-		const outputFile = join( blocksDir, blockDir, 'icon.svg' );
+	for ( const [ iconKey, svgString ] of Object.entries( icons ) ) {
+		// iconKey is "<block-dir>/<icon-name>", e.g. "field-checkbox/icon-unchecked".
+		const [ blockDir, iconName ] = iconKey.split( '/' );
+		const outputFile = join( blocksDir, blockDir, `${ iconName }.svg` );
 		const relativePath = relative( formsRoot, outputFile );
 
 		try {

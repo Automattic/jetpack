@@ -493,11 +493,15 @@ function videopress_make_resumable_upload_path( $blog_id ) {
  * This is a mock of the internal VideoPress method, which is meant to duplicate the functionality
  * of the WPCOM API, so that the Jetpack REST API returns the same data with no modifications.
  *
- * @param int $blog_id Blog ID.
- * @param int $post_id Post ID.
+ * @param int  $blog_id    Blog ID.
+ * @param int  $post_id    Post ID.
+ * @param bool $cache_bust Ignored. The real WPCOM function caches reads for 12 hours and this
+ *                         param forces a fresh read; the mock reads local postmeta directly.
+ *                         Mirrored here so IS_WPCOM call sites can pass it without the shared
+ *                         signature diverging from the real one.
  * @return stdClass
  */
-function video_get_info_by_blogpostid( $blog_id, $post_id ) {
+function video_get_info_by_blogpostid( $blog_id, $post_id, $cache_bust = false ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- see docblock.
 	$post = get_post( $post_id );
 
 	$video_info                  = new stdClass();

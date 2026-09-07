@@ -4,6 +4,7 @@
  * deliberately untranslated — IA view bundles can't import `@wordpress/i18n`.
  */
 
+import { photonResize } from '../../instant-search/lib/photon-resize';
 import { formatWpDate } from './wp-date-format';
 
 // Module-scoped — seeded once at hydration. See AGENTS.md § Interactivity API gotchas.
@@ -357,19 +358,25 @@ export function deriveMatchHint( highlight, titlePieces ) {
 /**
  * Normalize a v1.3 result into the flat shape IA templates consume.
  *
- * @param {object} raw           - Raw result from the API.
- * @param {string} [locale]      - BCP47 locale for date formatting.
- * @param {string} [searchQuery] - Empty → suppress match-hint badge ("Matches
- *                               content" reads wrong on filter-only browse).
+ * @param {object}  raw               - Raw result from the API.
+ * @param {string}  [locale]          - BCP47 locale for date formatting.
+ * @param {string}  [searchQuery]     - Empty → suppress match-hint badge ("Matches
+ *                                    content" reads wrong on filter-only browse).
+ * @param {boolean} [isPhotonEnabled] - When true, image URLs are resized via Photon.
  * @return {object} Flat result.
  */
-export function normalizeResult( raw, locale = 'en-US', searchQuery = '' ) {
+export function normalizeResult(
+	raw,
+	locale = 'en-US',
+	searchQuery = '',
+	isPhotonEnabled = false
+) {
 	const fields = raw?.fields ?? {};
 	const highlight = raw?.highlight ?? {};
 	const permalink = toSafeUrl( fields[ 'permalink.url.raw' ] );
 	const rawImage = fields[ 'image.url.raw' ];
 	const imageSrc = Array.isArray( rawImage ) ? rawImage[ 0 ] : rawImage;
-	const imageUrl = toSafeUrl( imageSrc );
+	const imageUrl = photonResize( toSafeUrl( imageSrc ), 600, 600, isPhotonEnabled );
 	// Flatten entities (post titles can contain `&amp;`, `&#8217;`) since
 	// `data-wp-text` is textContent.
 	const plainTitle = stripTags( String( fields[ 'title.default' ] ?? fields.title ?? '' ) );

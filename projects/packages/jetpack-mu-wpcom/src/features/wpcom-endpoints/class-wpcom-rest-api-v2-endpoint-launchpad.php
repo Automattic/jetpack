@@ -43,7 +43,7 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad extends WP_REST_Controller {
 						'checklist_slug'             => array(
 							'description' => 'Checklist slug',
 							'type'        => 'string',
-							'enum'        => $this->get_checklist_slug_enums(),
+							'enum'        => $this->get_readable_checklist_slug_enums(),
 						),
 						'launchpad_context'          => array(
 							'description' => 'Screen where Launchpand instance is loaded.',
@@ -123,6 +123,21 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad extends WP_REST_Controller {
 	}
 
 	/**
+	 * Returns the checklist slugs a read request may reference.
+	 *
+	 * Retired flow slugs are included so a stale client request degrades to an
+	 * empty checklist rather than a 400. Read-only: mutations use the registered
+	 * slugs from get_checklist_slug_enums() so they cannot act on a retired slug.
+	 *
+	 * @return array Array of checklist slugs.
+	 */
+	public function get_readable_checklist_slug_enums() {
+		return array_values(
+			array_unique( array_merge( $this->get_checklist_slug_enums(), wpcom_launchpad_get_retired_site_intents() ) )
+		);
+	}
+
+	/**
 	 * Returns all registered checklist statuses.
 	 *
 	 * @return array Associative array of checklist status properties for the REST API.
@@ -190,7 +205,7 @@ class WPCOM_REST_API_V2_Endpoint_Launchpad extends WP_REST_Controller {
 			'launchpad_screen'   => get_option( 'launchpad_screen' ),
 			'checklist_statuses' => get_option( 'launchpad_checklist_tasks_statuses', array() ),
 			'checklist'          => wpcom_get_launchpad_checklist_by_checklist_slug( $checklist_slug, $launchpad_context ),
-			'is_enabled'         => wpcom_get_launchpad_task_list_is_enabled( $checklist_slug ),
+			'is_enabled'         => (bool) wpcom_get_launchpad_task_list_is_enabled( $checklist_slug ),
 			'is_dismissed'       => wpcom_launchpad_is_task_list_dismissed( $checklist_slug ),
 			'is_dismissible'     => wpcom_launchpad_is_task_list_dismissible( $checklist_slug ),
 			'title'              => wpcom_get_launchpad_checklist_title_by_checklist_slug( $checklist_slug ),

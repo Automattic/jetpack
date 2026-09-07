@@ -46,6 +46,43 @@ body.toplevel_page_jetpack-seo {
 	flex-direction: column;
 }
 
+// The tabs strip carries one non-tab affordance — the GEO infotip — so it has
+// to lay its children out in a row. The shared `.jp-admin-page-tabs` wrapper is
+// a block (it only ever held `Tabs.List`, which is `width: fit-content`), so
+// without this the icon drops to its own line under the tabs. Scoped to this
+// package rather than added to the shared mixin, which no one else needs.
+.jetpack-seo-tabs-strip {
+	display: flex;
+	align-items: center;
+	gap: var(--wpds-dimension-gap-xs);
+}
+
+// Reset the trigger's button chrome so it reads as an icon beside the tab label
+// rather than a control of its own. Sized to the 20px glyph; the tab row's own
+// height keeps it vertically centered.
+.jetpack-seo-tabs-strip__infotip {
+	display: inline-flex;
+	align-items: center;
+	padding: 0;
+	border: 0;
+	border-radius: var(--wpds-border-radius-sm);
+	background: none;
+	color: var(--wpds-color-foreground-content-neutral-weak);
+	cursor: var(--wpds-cursor-control);
+
+	&:hover {
+		color: var(--wpds-color-foreground-content-neutral);
+	}
+}
+
+// `Popover.Popup` sizes to its content, so a single sentence lays out as one
+// ~600px line — wider than the space left of the trigger, which put the start
+// of the sentence off the content area and clipped it. Cap it so the text
+// wraps into a compact block the positioner can keep on screen.
+.jetpack-seo-tabs-strip__infotip-popup {
+	max-inline-size: 20rem;
+}
+
 // The full-bleed Content (DataViews) tab opts out of the `0 0 auto` sizing:
 // it used to be a direct flex child of the page column and so inherited the
 // layout mixin's fill treatment (`flex: 1 1 auto; min-height: 0; display:
@@ -78,4 +115,60 @@ body.toplevel_page_jetpack-seo {
 // pagination, so they drop the shared content padding.
 .jetpack-seo-page-content--flush {
 	padding: 0;
+}
+
+// Toasts: move the boot layer's snackbars to the top-right, matching the
+// rest of Jetpack.
+
+// Two systems place Jetpack toasts and they disagree. `@wordpress/boot` renders
+// one `<SnackbarNotices className="boot-notices__snackbar">` per wp-build page
+// and pins it bottom-center; `<GlobalNotices>` in
+// @automattic/jetpack-components pins top-right, which is what Newsletter,
+// My Jetpack and VideoPress show.
+// This page is wp-build, so it inherited the odd one out.
+
+// We restyle boot's list rather than rendering our own. Rendering a second
+// `SnackbarList` is what #49470 removed: the store is shared, so both lists
+// subscribe and every toast appears twice.
+
+// The values below intentionally mirror `global-notices/styles.module.scss` so
+// the two stay identical — small screens keep the full-width bottom strip
+// (nothing is pinned over the content on a narrow viewport), and the top offset
+// steps down at 782px where the wp-admin bar shrinks.
+
+// Scoped to the SEO page's body class, like the layout rules at the top of
+// this file. Every other rule here is namespaced by a `jetpack-seo-*` class,
+// but this one targets a class we don't own — so without the scope it would
+// move the snackbars on any other wp-build screen this stylesheet loaded on.
+
+// It also settles specificity. Boot injects its rule at runtime as
+// `.boot-layout .boot-notices__snackbar` (0,2,0); the body class puts this at
+// (0,3,1), so it wins outright rather than depending on load order.
+body.jetpack_page_jetpack-seo,
+body.toplevel_page_jetpack-seo {
+
+	.boot-layout .boot-notices__snackbar {
+		inset-block-start: auto;
+		inset-block-end: 0;
+		inset-inline: 0;
+
+		@media (min-width: 600px) {
+			inset-block-start: 4rem;
+			inset-block-end: auto;
+			inset-inline-start: auto;
+			inset-inline-end: 1rem;
+			inline-size: auto;
+
+			// Boot centers each snackbar in a full-width container
+			// (`margin-inline: auto`). The container is no longer full width, so
+			// that would now center them against the right edge, not align to it.
+			.components-snackbar {
+				margin-inline: 0;
+			}
+		}
+
+		@media (min-width: 782px) {
+			inset-block-start: 3rem;
+		}
+	}
 }

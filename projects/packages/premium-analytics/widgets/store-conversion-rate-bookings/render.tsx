@@ -18,23 +18,18 @@ import type { ComponentProps } from 'react';
 type StoreConversionRateBookingsRenderAttributes = StoreConversionRateBookingsAttributes &
 	Partial< ReportParamsFieldAttributes >;
 
-type StoreConversionRateBookingsRenderProps =
+type StoreConversionRateBookingsWidgetProps =
 	WidgetRenderProps< StoreConversionRateBookingsRenderAttributes > & {
 		setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
 	};
 
 /**
- * Store conversion rate bookings widget.
- *
- * Thin composition over the widgets-toolkit: WidgetRoot provides the query
- * client, chart theme, and resolved report params; BookingConversionRateWidget
- * fetches the conversion-rate report with bookings filters and renders the
- * funnel.
+ * The conversion-rate report filtered to booking products, rendered as a funnel.
  */
 export default function StoreConversionRateBookingsRender( {
 	attributes = {},
 	setError,
-}: StoreConversionRateBookingsRenderProps ) {
+}: StoreConversionRateBookingsWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
 			<BookingConversionRateWidget />

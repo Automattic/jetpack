@@ -5,7 +5,7 @@ use PHPUnit\Framework\Constraint\Constraint;
 
 require __DIR__ . '/../../../../modules/widgets/wordpress-post-widget.php';
 
-#[AllowMockObjectsWithoutExpectations /* getStubBuilder() (for partial stubs) doesn't exist until PHPUnit 12.5. */ ]
+#[AllowMockObjectsWithoutExpectations /* getStubBuilder() (for partial stubs) doesn't exist until PHPUnit 12.5. */]
 class Jetpack_Display_Posts_Widget_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
@@ -48,7 +48,7 @@ class Jetpack_Display_Posts_Widget_Test extends WP_UnitTestCase {
 			$funcs[] = static::callback(
 				function ( $value ) use ( $value_sets, $i ) {
 					static $set = null;
-					$set        = $set ?? $value_sets[ $i ]; // @phan-suppress-current-line PhanTypePossiblyInvalidDimOffset -- False positive.
+					$set      ??= $value_sets[ $i ]; // @phan-suppress-current-line PhanTypePossiblyInvalidDimOffset -- False positive.
 					$expect     = array_shift( $set );
 					$expect->evaluate( $value );
 					return true;

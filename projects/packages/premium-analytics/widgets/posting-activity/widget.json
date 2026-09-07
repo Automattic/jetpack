@@ -2,6 +2,9 @@
 	"name": "jpa/posting-activity",
 	"title": "Posting activity",
 	"description": "How often you publish — a calendar heatmap of posts per day.",
+	"help": {
+		"content": "Your posting activity, shown as a heatmap to help you spot your most and least active days."
+	},
 	"category": "stats",
 	"presentation": "framed"
 }

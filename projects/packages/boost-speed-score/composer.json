@@ -14,7 +14,7 @@
 		}
 	},
 	"require": {
-		"php": ">=7.2",
+		"php": ">=7.4",
 		"automattic/jetpack-boost-core": "@dev"
 	},
 	"autoload": {
@@ -47,7 +47,7 @@
 		},
 		"autotagger": true,
 		"branch-alias": {
-			"dev-trunk": "0.4.x-dev"
+			"dev-trunk": "0.5.x-dev"
 		},
 		"textdomain": "jetpack-boost-speed-score",
 		"version-constants": {

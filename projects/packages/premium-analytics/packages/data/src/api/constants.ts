@@ -1,5 +1,17 @@
-/**
- * Constants for API endpoints
- */
 export const statsProxyPath = '/jetpack-premium-analytics/v1/proxy';
-export const reportsPath = `${ statsProxyPath }/v2/analytics/reports`;
+
+/**
+ * Identifier of the Premium Analytics dashboard, formatted as
+ * `<plugin>_<page>` to mirror the underscore form produced by the
+ * wp-build pipeline. Used as the `{name}` segment of the default-layout
+ * REST route.
+ *
+ * Must match `DASHBOARD_NAME` in `src/dashboard-layout.php`.
+ */
+export const DASHBOARD_NAME = 'jetpack-premium-analytics_dashboard';
+
+/**
+ * REST namespace that exposes Premium Analytics dashboard endpoints.
+ * Must match `DASHBOARD_REST_NAMESPACE` in `src/rest-namespace.php`.
+ */
+export const DASHBOARD_REST_NAMESPACE = 'wpcom/v2';

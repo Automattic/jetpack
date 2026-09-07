@@ -3,60 +3,60 @@
  */
 import { useReportCoupons } from '@jetpack-premium-analytics/data';
 import { coupon } from '@jetpack-premium-analytics/icons';
+import { __ } from '@wordpress/i18n';
 import { useMemo } from 'react';
-import { BarChart } from '../../components';
-import { WidgetLoadingOverlay } from '../../components/widget-loading-overlay';
+import { BarChart, BarChartSkeleton, WidgetState } from '../../components';
 /**
  * Internal dependencies
  */
 import { useWidgetRootContext } from '../../components/widget-root';
-import { buildSalesByCouponData } from '../../helpers';
-import { useWidgetError } from '../../hooks';
+import { buildSalesByCouponData, isEmptyChartData } from '../../helpers';
 import { useBarStyles } from '../common';
 
+/** Top coupons charted individually; the rest are summed into an "Other" bar. */
+const TOP_COUPON_SEGMENTS = 3;
+
 /**
- * Sales by Coupon Widget Component
- *
- * Displays a bar chart showing coupon discount distribution.
- * Shows top 3 coupons plus "Other" segment.
- * Displays data for all product types.
+ * Bar chart of coupon discount distribution: top 3 coupons plus an "Other"
+ * segment, across all product types.
  *
  * Must be used within a WidgetRoot which provides reportParams via context.
- *
- * @example
- * ```tsx
- * <WidgetRoot attributes={ attributes }>
- *     <SalesByCouponWidget />
- * </WidgetRoot>
- * ```
  */
 export function SalesByCouponWidget() {
 	const { reportParams } = useWidgetRootContext();
 
-	const { primary, comparison, isLoading, isFetching, hasData, isError, error, refetch } =
+	const { primary, comparison, isLoading, isFetching, hasData, isError, refetch } =
 		useReportCoupons( reportParams );
 
-	const isInitialLoading = isLoading && ! hasData;
-	const isRefetching = isFetching && hasData;
-
 	const { chartData } = useMemo(
-		() => buildSalesByCouponData( primary.data, comparison.data, reportParams, 3 ),
+		() =>
+			buildSalesByCouponData( primary.data, comparison.data, reportParams, TOP_COUPON_SEGMENTS ),
 		[ primary.data, comparison.data, reportParams ]
 	);
 
 	const barStyles = useBarStyles( chartData );
 
-	const hasError = useWidgetError( isError, error, refetch );
-	if ( hasError ) {
-		return null;
-	}
-
-	if ( isInitialLoading ) {
-		return <WidgetLoadingOverlay />;
-	}
-
 	return (
-		<>
+		<WidgetState
+			isLoading={ isLoading }
+			isFetching={ isFetching }
+			// The report queries keep the previous period's data as placeholders across
+			// range changes, so only surface the error when nothing else is showing.
+			isError={ isError && ! hasData }
+			isEmpty={ isEmptyChartData( chartData ) }
+			error={ {
+				description: __(
+					"We couldn't load coupon sales data. Please try again in a moment.",
+					'jetpack-premium-analytics-pkg'
+				),
+				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
+			} }
+			empty={ {
+				icon: coupon,
+				description: __( 'No coupon sales in this period.', 'jetpack-premium-analytics-pkg' ),
+			} }
+			renderLoading={ <BarChartSkeleton columns={ TOP_COUPON_SEGMENTS + 1 } /> }
+		>
 			<BarChart
 				chartData={ chartData }
 				styles={ barStyles }
@@ -64,9 +64,7 @@ export function SalesByCouponWidget() {
 					type: 'currency',
 					options: { useMultipliers: true, decimals: 0 },
 				} }
-				emptyStateIcon={ coupon }
 			/>
-			{ isRefetching && <WidgetLoadingOverlay /> }
-		</>
+		</WidgetState>
 	);
 }

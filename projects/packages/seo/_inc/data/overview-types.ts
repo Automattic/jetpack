@@ -1,9 +1,11 @@
 // Shape of the aggregated Overview state the server bootstraps onto
-// `window.JetpackScriptData.seo.overview` (see `Initializer::get_overview_data()`).
+// `window.JetpackScriptData.seo.overview` (see `Dashboard_Data::get_overview_data()`).
 // Plain TypeScript — the server owns the payload, so no runtime schema is needed.
 
 export interface SiteVisibility {
 	search_engines_visible: boolean;
+	// See `SettingsResponse['site_is_private']`.
+	site_is_private: boolean;
 	sitemap_active: boolean;
 	seo_tools_active: boolean;
 }

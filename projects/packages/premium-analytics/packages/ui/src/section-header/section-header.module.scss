@@ -1,0 +1,215 @@
+// Width at which the title and the date controls stop fitting side by side.
+// Tunable.
+$section-header-stacked-max-inline-size: 720px;
+
+// Floor under the truncating title, so the controls cannot squeeze it into
+// nothing. Tunable.
+$section-header-title-min-inline-size: 320px;
+
+// The visual's box and the space after it, from the detail-page mocks: no wpds
+// size or gap step reaches them.
+$section-header-visual-size: 72px;
+$section-header-visual-gap: 20px;
+
+// The visual widens the row by its own box and gap, so the two halves stop
+// fitting that much sooner.
+$section-header-visual-stacked-max-inline-size: $section-header-stacked-max-inline-size + $section-header-visual-size + $section-header-visual-gap;
+
+// The controls drop below the title, reading from the same edge.
+@mixin section-header-stacked {
+
+	.controls {
+		justify-content: flex-start;
+		padding-block-start: var(--wpds-dimension-gap-sm);
+
+		:global(.date-filters-panel__row) {
+			justify-content: flex-start;
+		}
+	}
+
+	// A row it no longer shares with the controls, so the title wraps rather
+	// than spending lines it does not have to.
+	.title {
+		overflow: visible;
+		text-overflow: clip;
+		white-space: normal;
+	}
+}
+
+/*
+ * Carries the query and nothing else: a container cannot answer a query about
+ * its own size, so the grid it switches has to be a descendant. A container
+ * query because this header renders at widths the viewport does not describe:
+ * a section panel on the dashboard, a report page's own column.
+ */
+.container {
+	container-type: inline-size;
+}
+
+.layout {
+	display: grid;
+
+	/*
+	 * The title and the controls share one row. The controls track is capped at
+	 * its max-content, so the controls render at their natural width and a long
+	 * title truncates instead of costing them labels; the title track takes what
+	 * is left, floored so the controls cannot squeeze it into nothing. Only once
+	 * the title sits at that floor does the controls track compress, and the
+	 * panel adapts internally.
+	 */
+	grid-template-columns: minmax($section-header-title-min-inline-size, 1fr) minmax(0, max-content);
+	grid-template-areas: "text controls";
+	align-items: center;
+
+	// Column gap only: in the stacked layout the controls row carries its
+	// spacing as its own padding.
+	column-gap: var(--wpds-dimension-gap-sm);
+	row-gap: 0;
+}
+
+.withVisual {
+	grid-template-columns: auto minmax($section-header-title-min-inline-size, 1fr) minmax(0, max-content);
+	grid-template-areas: "visual text controls";
+}
+
+.visual {
+	grid-area: visual;
+	inline-size: $section-header-visual-size;
+	block-size: $section-header-visual-size;
+	border-radius: var(--wpds-border-radius-lg);
+	overflow: hidden;
+	// The mocks' gap, less the column gap the grid already applies, so the
+	// visual adds exactly its own box plus that gap to the row.
+	margin-inline-end: calc(#{$section-header-visual-gap} - var(--wpds-dimension-gap-sm));
+	// Centers a bare icon; an image is stretched to the box below. The neutral
+	// fill shows through only where an icon leaves it visible.
+	display: grid;
+	place-items: center;
+	background: var(--wpds-color-background-surface-neutral-weak);
+	color: var(--wpds-color-foreground-content-neutral-weak);
+
+	// The boot shell's `.boot-layout-container .boot-layout img` reset outranks
+	// a class here, so the box comes back through the square aspect ratio
+	// rather than a specificity contest.
+	img {
+		inline-size: 100%;
+		block-size: 100%;
+		object-fit: cover;
+		aspect-ratio: 1;
+	}
+}
+
+.text {
+	grid-area: text;
+	display: flex;
+	flex-direction: column;
+	min-inline-size: 0;
+}
+
+.withVisual .text {
+	// Matches the visual's box: title against its top, subtitle against its
+	// bottom. A floor, not a height — the stacked layout lets the title wrap,
+	// and a fixed box would push the subtitle out from under it.
+	min-block-size: $section-header-visual-size;
+	justify-content: space-between;
+}
+
+// @todo Drop once `Text` truncates natively: https://github.com/WordPress/gutenberg/issues/77391
+.title,
+.subTitle {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.subTitle {
+	color: var(--wpds-color-foreground-content-neutral-weak);
+}
+
+/*
+ * Condenses the header into a compact bar as it pins: the title drops a step
+ * on the type scale.
+ *
+ * The surface, not this component, knows where the header pins, so it opts in
+ * by publishing a `--section-header-pin` view timeline whose `exit` phase
+ * opens at the pin point (see the dashboard's pin marker in
+ * `routes/dashboard/stage.module.scss`). Progress-driven, so it follows the
+ * scroll in both directions.
+ *
+ * The @supports gate is load-bearing: without scroll-driven animation
+ * support, the `animation` shorthand would run as a 0s time animation and its
+ * `both` fill would freeze the header in the condensed state. Inside the gate
+ * an unresolved timeline (a surface that publishes no marker) leaves the
+ * animation inert, which is the resting layout.
+ */
+@supports (animation-timeline: --section-header-pin) {
+
+	.condensing {
+
+		// Buys no height: the row is floored by the date controls beside it.
+		// What changes is what the pinned band reads as.
+		.title {
+			animation: condense-title linear both;
+			animation-timeline: --section-header-pin;
+			animation-range: exit;
+		}
+	}
+
+	// Scroll-driven, but still chrome moving under the reader.
+	@media (prefers-reduced-motion: reduce) {
+
+		.condensing .title {
+			animation: none;
+		}
+	}
+}
+
+@keyframes condense-title {
+
+	to {
+		font-size: var(--wpds-typography-font-size-xl);
+		line-height: var(--wpds-typography-line-height-xl);
+	}
+}
+
+.controls {
+	grid-area: controls;
+	min-inline-size: 0;
+	justify-content: flex-end;
+
+	/*
+	 * The panel fills the cell, so the end-anchoring happens inside its row
+	 * rather than through the cell's alignment. Scoped to the panel: the
+	 * slot's other occupant is the year surface's row, which keeps its
+	 * natural width and is anchored by the cell above.
+	 */
+	:global(.date-filters-panel__row) {
+		justify-content: flex-end;
+	}
+
+	// Never wider than its column, whose 0 minimum keeps the squeeze unaffected.
+	:global(.date-filters-panel) {
+		max-inline-size: 100%;
+	}
+}
+
+@container (max-width: #{$section-header-stacked-max-inline-size}) {
+
+	.layout:not(.withVisual) {
+		grid-template-columns: minmax(0, 1fr);
+		grid-template-areas: "text" "controls";
+
+		@include section-header-stacked;
+	}
+}
+
+@container (max-width: #{$section-header-visual-stacked-max-inline-size}) {
+
+	// The visual stays beside the title; only the controls take their own row.
+	.withVisual {
+		grid-template-columns: auto minmax(0, 1fr);
+		grid-template-areas: "visual text" "controls controls";
+
+		@include section-header-stacked;
+	}
+}

@@ -21,8 +21,8 @@ export const useGetErrorContent = ( licenseError: string, errorType: LicenseErro
 			a: (
 				<Link
 					openInNewTab
-					href={ getRedirectUrl( 'jetpack-support-license-activation' ) }
 					rel="noopener noreferrer"
+					href={ getRedirectUrl( 'jetpack-support-license-activation' ) }
 					children={ null }
 				/>
 			),

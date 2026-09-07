@@ -321,6 +321,177 @@ class Jetpack_Premium_Content_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * A freshly-verified magic-link token whose blog_subscriber email matches the local
+	 * account's own email should self-heal the wpcom_user_id link (NL-805), so future
+	 * requests can resolve subscriptions via the authoritative filter without another
+	 * magic-link round trip once the token/cookie expires.
+	 *
+	 * @return void
+	 */
+	public function test_get_and_set_token_from_request_links_wpcom_user_id_when_email_matches() {
+		$local_user_id = $this->factory->user->create(
+			array( 'user_email' => 'matching@example.test' )
+		);
+		$wpcom_user_id = 999999;
+
+		wp_set_current_user( $local_user_id );
+		$this->assertSame( '', get_user_meta( $local_user_id, 'wpcom_user_id', true ) );
+
+		$this->set_returned_token(
+			array(
+				'user_id'         => $wpcom_user_id,
+				'blog_subscriber' => 'matching@example.test',
+				'subscriptions'   => array(),
+			)
+		);
+
+		subscription_service()->get_and_set_token_from_request();
+
+		$this->assertSame( $wpcom_user_id, (int) get_user_meta( $local_user_id, 'wpcom_user_id', true ) );
+	}
+
+	/**
+	 * The email match must be case-insensitive -- WordPress itself normalizes emails to
+	 * lowercase in some paths but not all, and email addresses are case-insensitive by
+	 * convention.
+	 *
+	 * @return void
+	 */
+	public function test_get_and_set_token_from_request_links_wpcom_user_id_with_case_insensitive_email_match() {
+		$local_user_id = $this->factory->user->create(
+			array( 'user_email' => 'Matching@Example.Test' )
+		);
+		$wpcom_user_id = 999999;
+
+		wp_set_current_user( $local_user_id );
+		$this->set_returned_token(
+			array(
+				'user_id'         => $wpcom_user_id,
+				'blog_subscriber' => 'matching@example.test',
+				'subscriptions'   => array(),
+			)
+		);
+
+		subscription_service()->get_and_set_token_from_request();
+
+		$this->assertSame( $wpcom_user_id, (int) get_user_meta( $local_user_id, 'wpcom_user_id', true ) );
+	}
+
+	/**
+	 * A local account must never be linked to whichever WordPress.com session happens to
+	 * be active in the browser (e.g. a shared device) when the two aren't otherwise the
+	 * same person -- only a matching email is trusted as confirmation. The local
+	 * account's own stored email is never proof of identity by itself (see NL-787's
+	 * account-impersonation concern), so a mismatch must not link anything.
+	 *
+	 * @return void
+	 */
+	public function test_get_and_set_token_from_request_does_not_link_when_email_mismatch() {
+		$local_user_id = $this->factory->user->create(
+			array( 'user_email' => 'local-account@example.test' )
+		);
+
+		wp_set_current_user( $local_user_id );
+		$this->set_returned_token(
+			array(
+				'user_id'         => 999999,
+				'blog_subscriber' => 'someone-else@example.test',
+				'subscriptions'   => array(),
+			)
+		);
+
+		subscription_service()->get_and_set_token_from_request();
+
+		$this->assertSame( '', get_user_meta( $local_user_id, 'wpcom_user_id', true ) );
+	}
+
+	/**
+	 * An anonymous visitor (e.g. arriving via a ?token= magic link from a newsletter
+	 * email, with no local WordPress session at all) has no local account to link --
+	 * this must not error, and the token must still be returned normally.
+	 *
+	 * @return void
+	 */
+	public function test_get_and_set_token_from_request_does_not_link_when_not_logged_in() {
+		wp_set_current_user( 0 );
+		$this->set_returned_token(
+			array(
+				'user_id'         => 999999,
+				'blog_subscriber' => 'someone@example.test',
+				'subscriptions'   => array(),
+			)
+		);
+
+		$token = subscription_service()->get_and_set_token_from_request();
+
+		$this->assertNotEmpty( $token, 'The token should still be returned even with no local user to link.' );
+	}
+
+	/**
+	 * A stale wpcom_user_id (e.g. left over from a previous WordPress.com account that
+	 * used to own this email) must be corrected to match the freshly-verified token, not
+	 * left alone just because some value was already present.
+	 *
+	 * @return void
+	 */
+	public function test_get_and_set_token_from_request_updates_stale_wpcom_user_id() {
+		$local_user_id = $this->factory->user->create(
+			array( 'user_email' => 'matching@example.test' )
+		);
+		update_user_meta( $local_user_id, 'wpcom_user_id', 111111 );
+
+		wp_set_current_user( $local_user_id );
+		$this->set_returned_token(
+			array(
+				'user_id'         => 999999,
+				'blog_subscriber' => 'matching@example.test',
+				'subscriptions'   => array(),
+			)
+		);
+
+		subscription_service()->get_and_set_token_from_request();
+
+		$this->assertSame( 999999, (int) get_user_meta( $local_user_id, 'wpcom_user_id', true ) );
+	}
+
+	/**
+	 * Once the meta already matches the token, no redundant meta write should happen.
+	 *
+	 * @return void
+	 */
+	public function test_get_and_set_token_from_request_does_not_rewrite_when_already_linked() {
+		$local_user_id = $this->factory->user->create(
+			array( 'user_email' => 'matching@example.test' )
+		);
+		update_user_meta( $local_user_id, 'wpcom_user_id', 999999 );
+
+		wp_set_current_user( $local_user_id );
+		$this->set_returned_token(
+			array(
+				'user_id'         => 999999,
+				'blog_subscriber' => 'matching@example.test',
+				'subscriptions'   => array(),
+			)
+		);
+
+		$update_count = 0;
+		add_action(
+			'updated_user_meta',
+			static function ( $meta_id, $user_id, $meta_key ) use ( &$update_count ) {
+				if ( 'wpcom_user_id' === $meta_key ) {
+					++$update_count;
+				}
+			},
+			10,
+			3
+		);
+
+		subscription_service()->get_and_set_token_from_request();
+
+		$this->assertSame( 0, $update_count, 'No meta write should happen when the value is already correct.' );
+	}
+
+	/**
 	 * Regression guard: a logged-in user without `wpcom_user_id` user_meta (the typical
 	 * Jetpack self-hosted case) must still be granted access via the JWT cookie path.
 	 *
@@ -841,7 +1012,7 @@ class Jetpack_Premium_Content_Test extends WP_UnitTestCase {
 
 		wp_set_current_user( $paid_subscriber_id );
 		// Stale token — end_date in the past.
-		$stale_payload = $this->get_payload( true, true, time() - HOUR_IN_SECONDS );
+		$stale_payload = $this->get_payload( true, true, time() - 2 * DAY_IN_SECONDS );
 		$this->set_returned_token( $stale_payload );
 
 		// Refresh endpoint returns a fresh token with a valid future end_date.
@@ -878,7 +1049,7 @@ class Jetpack_Premium_Content_Test extends WP_UnitTestCase {
 		update_post_meta( $tier_plan_id, 'jetpack_memberships_type', 'tier' );
 
 		// Stale token — product_id matches the tier, but end_date is past.
-		$stale_payload = $this->get_payload( true, true, time() - HOUR_IN_SECONDS );
+		$stale_payload = $this->get_payload( true, true, time() - 2 * DAY_IN_SECONDS );
 		$this->set_returned_token( $stale_payload );
 
 		$this->refresh_response_override = $this->build_refresh_success_response();
@@ -943,7 +1114,7 @@ class Jetpack_Premium_Content_Test extends WP_UnitTestCase {
 		$plan_id            = $users_plans[3];
 
 		wp_set_current_user( $paid_subscriber_id );
-		$stale_payload = $this->get_payload( true, true, time() - HOUR_IN_SECONDS );
+		$stale_payload = $this->get_payload( true, true, time() - 2 * DAY_IN_SECONDS );
 		$this->set_returned_token( $stale_payload );
 
 		// Refresh returns a token with no subscriptions (cancelled).
@@ -989,7 +1160,7 @@ class Jetpack_Premium_Content_Test extends WP_UnitTestCase {
 		$plan_id            = $users_plans[3];
 
 		wp_set_current_user( $paid_subscriber_id );
-		$stale_payload                            = $this->get_payload( true, true, time() - HOUR_IN_SECONDS );
+		$stale_payload                            = $this->get_payload( true, true, time() - 2 * DAY_IN_SECONDS );
 		$service                                  = subscription_service();
 		$token_string                             = JWT::encode( $stale_payload, $service->get_key() );
 		$_COOKIE['wp-jp-premium-content-session'] = $token_string;
@@ -1025,7 +1196,7 @@ class Jetpack_Premium_Content_Test extends WP_UnitTestCase {
 		$plan_id            = $users_plans[3];
 
 		wp_set_current_user( $paid_subscriber_id );
-		$stale_payload                            = $this->get_payload( true, true, time() - HOUR_IN_SECONDS );
+		$stale_payload                            = $this->get_payload( true, true, time() - 2 * DAY_IN_SECONDS );
 		$service                                  = subscription_service();
 		$token_string                             = JWT::encode( $stale_payload, $service->get_key() );
 		$_COOKIE['wp-jp-premium-content-session'] = $token_string;
@@ -1060,7 +1231,7 @@ class Jetpack_Premium_Content_Test extends WP_UnitTestCase {
 		$plan_id            = $users_plans[3];
 
 		wp_set_current_user( $paid_subscriber_id );
-		$stale_payload                            = $this->get_payload( true, true, time() - HOUR_IN_SECONDS );
+		$stale_payload                            = $this->get_payload( true, true, time() - 2 * DAY_IN_SECONDS );
 		$service                                  = subscription_service();
 		$token_string                             = JWT::encode( $stale_payload, $service->get_key() );
 		$_COOKIE['wp-jp-premium-content-session'] = $token_string;
@@ -1099,7 +1270,7 @@ class Jetpack_Premium_Content_Test extends WP_UnitTestCase {
 		$plan_id            = $users_plans[3];
 
 		wp_set_current_user( $paid_subscriber_id );
-		$stale_payload                            = $this->get_payload( true, true, time() - HOUR_IN_SECONDS );
+		$stale_payload                            = $this->get_payload( true, true, time() - 2 * DAY_IN_SECONDS );
 		$service                                  = subscription_service();
 		$token_string                             = JWT::encode( $stale_payload, $service->get_key() );
 		$_COOKIE['wp-jp-premium-content-session'] = $token_string;
@@ -1152,5 +1323,154 @@ class Jetpack_Premium_Content_Test extends WP_UnitTestCase {
 
 		$this->assertTrue( current_visitor_can_access( array( 'selectedPlanIds' => array( $plan_id ) ), array() ) );
 		$this->assertSame( 0, $this->refresh_call_count, 'Refresh endpoint should not be called when the token is still active.' );
+	}
+
+	/**
+	 * Create a plan post mapped to the test product_id and return its ID.
+	 *
+	 * @return int
+	 */
+	private function create_plan_for_product() {
+		$plan_id = $this->factory->post->create(
+			array( 'post_type' => Jetpack_Memberships::$post_type_plan )
+		);
+		update_post_meta( $plan_id, 'jetpack_memberships_product_id', $this->product_id );
+		return $plan_id;
+	}
+
+	/**
+	 * Build a token payload for a single active subscription with the given end_date.
+	 *
+	 * @param int|string $subscription_end_date Unix timestamp or datetime string for the end_date.
+	 * @return array
+	 */
+	private function get_subscription_payload( $subscription_end_date ) {
+		return array(
+			'blog_sub'      => 'active',
+			'subscriptions' => array(
+				$this->product_id => array(
+					'status'     => 'active',
+					'end_date'   => $subscription_end_date,
+					'product_id' => $this->product_id,
+				),
+			),
+		);
+	}
+
+	/**
+	 * Core of the NL-735 fix: a subscription whose exact end_date timestamp has passed but whose
+	 * end_date DAY is still today keeps access through end-of-day (UTC). This is the incident —
+	 * a same-day auto-renewal that billing had not yet finished processing.
+	 *
+	 * @return void
+	 */
+	public function test_validate_subscriptions_grants_access_through_end_of_end_date_day() {
+		$plan_id = $this->create_plan_for_product();
+		// Start of today (UTC): the exact timestamp is in the past, but the day is not over.
+		$expired_earlier_today = strtotime( gmdate( 'Y-m-d 00:00:00' ) . ' UTC' );
+		$subs                  = array(
+			$this->product_id => (object) array( 'end_date' => $expired_earlier_today ),
+		);
+
+		$this->assertTrue(
+			Abstract_Token_Subscription_Service::validate_subscriptions( array( $plan_id ), $subs ),
+			'A subscription whose end_date is earlier today should keep access until end of day.'
+		);
+	}
+
+	/**
+	 * Once the end_date day is fully over, access is denied — end-of-day is the boundary, not a
+	 * multi-day grace.
+	 *
+	 * @return void
+	 */
+	public function test_validate_subscriptions_denies_access_after_end_of_end_date_day() {
+		$plan_id = $this->create_plan_for_product();
+		$subs    = array(
+			$this->product_id => (object) array( 'end_date' => time() - DAY_IN_SECONDS ),
+		);
+
+		$this->assertFalse(
+			Abstract_Token_Subscription_Service::validate_subscriptions( array( $plan_id ), $subs ),
+			'A subscription whose end_date day has fully passed should be denied.'
+		);
+	}
+
+	/**
+	 * Regression guard: a subscription with a future end_date still validates.
+	 *
+	 * @return void
+	 */
+	public function test_validate_subscriptions_grants_future_subscription() {
+		$plan_id = $this->create_plan_for_product();
+		$subs    = array(
+			$this->product_id => (object) array( 'end_date' => time() + DAY_IN_SECONDS ),
+		);
+
+		$this->assertTrue(
+			Abstract_Token_Subscription_Service::validate_subscriptions( array( $plan_id ), $subs )
+		);
+	}
+
+	/**
+	 * The end_date may be a datetime string (as memberships store it) rather than an int
+	 * timestamp; end-of-day handling must work either way.
+	 *
+	 * @return void
+	 */
+	public function test_validate_subscriptions_handles_string_end_date_through_end_of_day() {
+		$plan_id = $this->create_plan_for_product();
+		$subs    = array(
+			// A datetime string earlier today (UTC), the format memberships persist.
+			$this->product_id => (object) array( 'end_date' => gmdate( 'Y-m-d 00:00:00' ) ),
+		);
+
+		$this->assertTrue(
+			Abstract_Token_Subscription_Service::validate_subscriptions( array( $plan_id ), $subs ),
+			'A string end_date earlier today should still grant access through end of day.'
+		);
+	}
+
+	/**
+	 * End-to-end mirror of the NL-735 incident on the non-tier path: a paid subscriber whose
+	 * token end_date passed earlier today (a same-day auto-renewal still processing) keeps
+	 * access — and, because validation succeeds directly, no refresh HTTP call is made.
+	 *
+	 * @return void
+	 */
+	public function test_access_check_grants_access_through_end_of_day() {
+		$users_plans        = $this->set_up_users_and_plans();
+		$paid_subscriber_id = $users_plans[2];
+		$plan_id            = $users_plans[3];
+
+		wp_set_current_user( $paid_subscriber_id );
+		$expired_earlier_today = strtotime( gmdate( 'Y-m-d 00:00:00' ) . ' UTC' );
+		$this->set_returned_token( $this->get_subscription_payload( $expired_earlier_today ) );
+
+		$this->assertTrue(
+			current_visitor_can_access( array( 'selectedPlanIds' => array( $plan_id ) ), array() ),
+			'A subscriber whose end_date is earlier today should retain access through end of day.'
+		);
+		$this->assertSame( 0, $this->refresh_call_count, 'End-of-day access should be granted directly, without a refresh call.' );
+	}
+
+	/**
+	 * Counterpart: once the end_date day has fully passed the token no longer grants access, and
+	 * the refresh attempt (mocked to 500) cannot save it, so access is denied.
+	 *
+	 * @return void
+	 */
+	public function test_access_check_denies_after_end_of_day() {
+		$users_plans        = $this->set_up_users_and_plans();
+		$paid_subscriber_id = $users_plans[2];
+		$plan_id            = $users_plans[3];
+
+		wp_set_current_user( $paid_subscriber_id );
+		$this->set_returned_token( $this->get_subscription_payload( time() - 2 * DAY_IN_SECONDS ) );
+
+		$this->assertFalse(
+			current_visitor_can_access( array( 'selectedPlanIds' => array( $plan_id ) ), array() ),
+			'A subscription whose end_date day has passed should be denied.'
+		);
 	}
 }

@@ -487,6 +487,19 @@ EOT;
 			return '';
 		}
 
+		/*
+		 * The block renders through its own block callback, independently of the
+		 * module's front-end asset gate (enabled_for_request()). That gate only
+		 * enqueues our assets on single posts in classic themes, so a block placed
+		 * on a page (or any view the gate skips) would render as unstyled HTML.
+		 * Enqueue the stylesheet here, whenever the block actually outputs markup,
+		 * to keep it styled everywhere it can be used. We intentionally do not widen
+		 * enabled_for_request() itself: that governs the automatic the_content
+		 * insertion and was deliberately scoped in #39784 to avoid showing related
+		 * posts on classic-theme pages.
+		 */
+		$this->enqueue_assets( false, true );
+
 		$list_markup = $this->render_post_list( $related_posts, $block_attributes );
 
 		if ( empty( $attributes['isServerRendered'] ) ) {

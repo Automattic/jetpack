@@ -1,3 +1,4 @@
+import { getScriptData } from '@automattic/jetpack-script-data';
 import {
 	Button,
 	Card,
@@ -16,7 +17,7 @@ import {
 	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
 	__experimentalVStack as VStack,
 } from '@wordpress/components';
-import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
+import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import CategoryPicker from '../category-picker';
 import { usePodcastSettings, useUpdatePodcastSettings } from '../hooks/use-podcast-settings';
@@ -31,6 +32,8 @@ const EXPLICIT_OPTIONS: Array< { label: string; value: string } > = [
 	{ label: __( 'No', 'jetpack-podcast' ), value: 'no' },
 	{ label: __( 'Yes', 'jetpack-podcast' ), value: 'yes' },
 ];
+
+const feedLimitMax = getScriptData()?.podcast?.feed_limit_max;
 
 // Flatten the Apple Podcasts topic tree into one searchable token list for
 // `FormTokenField`. Display strings use `Primary » Subtopic` (matching
@@ -82,7 +85,8 @@ type StringFieldKey =
 // Spread directly onto `<TextControl>` etc. for `value` / `onChange` / `onBlur`.
 const useFieldEditor = (
 	stored: string,
-	onCommit: ( value: string ) => void
+	onCommit: ( value: string ) => void,
+	normalize?: ( value: string ) => string
 ): { value: string; onChange: ( v: string ) => void; onBlur: () => void } => {
 	const [ local, setLocal ] = useState( stored );
 	useEffect( () => {
@@ -92,12 +96,27 @@ const useFieldEditor = (
 		value: local,
 		onChange: setLocal,
 		onBlur: () => {
-			if ( local !== stored ) {
-				onCommit( local );
+			const next = normalize ? normalize( local ) : local;
+			setLocal( next );
+			if ( next !== stored ) {
+				onCommit( next );
 			}
 		},
 	};
 };
+
+// Leaving a text field starts its save on mousedown, and the click that caused
+// it only lands ~100ms later. Locking the instant the save starts would disable
+// the control mid-press and swallow that click, so wait out a press first. Long
+// enough for the click, short enough that a second deliberate edit still meets a
+// locked form — and a save that beats the delay never flashes the tab grey.
+const LOCK_DELAY_MS = 250;
+
+// `disabled` covers the native controls; `aria-disabled` the buttons that stay
+// focusable while locked.
+const isControlDisabled = ( element: HTMLElement ): boolean =>
+	( element as HTMLInputElement ).disabled === true ||
+	element.getAttribute( 'aria-disabled' ) === 'true';
 
 interface SettingsTabProps {
 	onAfterDisable?: () => void;
@@ -105,7 +124,9 @@ interface SettingsTabProps {
 
 const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 	const { data: settings, isLoading } = usePodcastSettings();
-	const { mutate: saveSettings } = useUpdatePodcastSettings();
+	// Controls lock while a save is in flight: they autosave as you leave each
+	// one, so a second edit landing mid-request would race it and be lost.
+	const { mutate: saveSettings, isPending: isSaving } = useUpdatePodcastSettings();
 
 	const [ draft, setDraft ] = useState< PodcastSettings | null >( null );
 	const [ confirmDisable, setConfirmDisable ] = useState( false );
@@ -115,6 +136,48 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 			setDraft( settings );
 		}
 	}, [ settings, draft ] );
+
+	const [ isLocked, setIsLocked ] = useState( false );
+	useEffect( () => {
+		if ( ! isSaving ) {
+			setIsLocked( false );
+			return;
+		}
+		const timer = setTimeout( () => setIsLocked( true ), LOCK_DELAY_MS );
+		return () => clearTimeout( timer );
+	}, [ isSaving ] );
+
+	// Disabling a control blurs it, and the browser has already moved focus to
+	// <body> by the time effects run — so record focus on the way in instead.
+	const lastFocused = useRef< HTMLElement | null >( null );
+	const rememberFocus = useCallback( ( event: FocusEvent< HTMLDivElement > ) => {
+		lastFocused.current = event.target;
+	}, [] );
+
+	// Focus leaving a control that is still enabled is the user's own move —
+	// clicking into blank space, say — and there's nothing to hand back. Only the
+	// lock taking focus away is worth undoing, and that control is already
+	// disabled by the time it fires this.
+	const forgetFocus = useCallback( ( event: FocusEvent< HTMLDivElement > ) => {
+		if ( ! isControlDisabled( event.target ) ) {
+			lastFocused.current = null;
+		}
+	}, [] );
+
+	useEffect( () => {
+		if ( isLocked ) {
+			return;
+		}
+		const target = lastFocused.current;
+		lastFocused.current = null;
+		if ( ! target?.isConnected ) {
+			return;
+		}
+		// Don't pull focus back from wherever the user has since moved it.
+		if ( target.ownerDocument.activeElement === target.ownerDocument.body ) {
+			target.focus();
+		}
+	}, [ isLocked ] );
 
 	// Save a partial update, then resync draft from the server-merged record so
 	// `isDirty` and reference checks fall back to false on the saved keys.
@@ -152,6 +215,26 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 	const emailField = useFieldEditor(
 		draft?.podcasting_email ?? '',
 		commitField( 'podcasting_email' )
+	);
+
+	const normalizeFeedLimit = useCallback(
+		( value: string ) => {
+			const parsed = Number.parseInt( value, 10 );
+			if ( Number.isNaN( parsed ) || parsed < 1 ) {
+				return String( draft?.podcasting_feed_limit ?? '' );
+			}
+			return String( feedLimitMax ? Math.min( parsed, feedLimitMax ) : parsed );
+		},
+		[ draft?.podcasting_feed_limit ]
+	);
+	const commitFeedLimit = useCallback(
+		( value: string ) => commit( { podcasting_feed_limit: Number.parseInt( value, 10 ) } ),
+		[ commit ]
+	);
+	const feedLimitField = useFieldEditor(
+		String( draft?.podcasting_feed_limit ?? '' ),
+		commitFeedLimit,
+		normalizeFeedLimit
 	);
 
 	// Discrete-action handlers — these controls "commit" on each user choice
@@ -250,7 +333,12 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 	}
 
 	return (
-		<VStack spacing={ 5 } className="podcast__settings">
+		<VStack
+			spacing={ 5 }
+			className="podcast__settings"
+			onFocus={ rememberFocus }
+			onBlur={ forgetFocus }
+		>
 			{ issues.length > 0 && (
 				<Notice status="warning" isDismissible={ false }>
 					<strong>{ __( 'Finish setting up your podcast', 'jetpack-podcast' ) }</strong>
@@ -277,6 +365,7 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 						<CategoryPicker
 							selectedId={ draft.podcasting_category_id }
 							onSelect={ handleCategorySelect }
+							disabled={ isLocked }
 						/>
 					</VStack>
 				</CardBody>
@@ -299,29 +388,34 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 							imageId={ draft.podcasting_image_id }
 							onSelect={ handleCoverSelect }
 							onRemove={ handleCoverRemove }
+							disabled={ isLocked }
 						/>
 						<TextControl
 							__next40pxDefaultSize
 							__nextHasNoMarginBottom
 							label={ __( 'Title', 'jetpack-podcast' ) }
+							disabled={ isLocked }
 							{ ...titleField }
 						/>
 						<TextareaControl
 							__nextHasNoMarginBottom
 							label={ __( 'Summary/Description', 'jetpack-podcast' ) }
 							rows={ 4 }
+							disabled={ isLocked }
 							{ ...summaryField }
 						/>
 						<TextControl
 							__next40pxDefaultSize
 							__nextHasNoMarginBottom
 							label={ __( 'Hosts/Artist/Producer', 'jetpack-podcast' ) }
+							disabled={ isLocked }
 							{ ...talentNameField }
 						/>
 						<TextControl
 							__next40pxDefaultSize
 							__nextHasNoMarginBottom
 							label={ __( 'Copyright', 'jetpack-podcast' ) }
+							disabled={ isLocked }
 							{ ...copyrightField }
 						/>
 					</VStack>
@@ -353,6 +447,7 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 									suggestions={ TOPIC_SUGGESTIONS }
 									onChange={ handleTopicsChange }
 									maxLength={ 3 }
+									disabled={ isLocked }
 								/>
 							</div>
 							<Text variant="muted">
@@ -364,7 +459,7 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 							{ subtopicHints.length > 0 && (
 								<Notice status="warning" isDismissible={ false }>
 									{ __(
-										'These categories have subcategories. Picking one helps Apple Podcasts and other directories place your show accurately:',
+										'These topics have subtopics. Picking one helps Apple Podcasts and other directories place your show accurately:',
 										'jetpack-podcast'
 									) }
 									<ul className="podcast__settings-issues">
@@ -382,6 +477,7 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 							value={ draft.podcasting_explicit ? 'yes' : 'no' }
 							onChange={ handleExplicitChange }
 							options={ EXPLICIT_OPTIONS }
+							disabled={ isLocked }
 						/>
 						<TextControl
 							__next40pxDefaultSize
@@ -392,7 +488,23 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 								'Included in your feed so podcast directories can verify ownership. Most require it for submission.',
 								'jetpack-podcast'
 							) }
+							disabled={ isLocked }
 							{ ...emailField }
+						/>
+						<TextControl
+							__next40pxDefaultSize
+							__nextHasNoMarginBottom
+							type="number"
+							min={ 1 }
+							max={ feedLimitMax }
+							step={ 1 }
+							label={ __( 'Episodes in feed', 'jetpack-podcast' ) }
+							help={ __(
+								'How many of your most recent episodes the feed includes.',
+								'jetpack-podcast'
+							) }
+							disabled={ isLocked }
+							{ ...feedLimitField }
 						/>
 					</VStack>
 				</CardBody>
@@ -401,7 +513,7 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 			<Card>
 				<CardHeader>
 					<h2 className="podcast__section-heading">
-						{ __( 'Disable podcasting', 'jetpack-podcast' ) }
+						{ __( 'Stop publishing your podcast', 'jetpack-podcast' ) }
 					</h2>
 				</CardHeader>
 				<CardBody>
@@ -412,8 +524,14 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 								'jetpack-podcast'
 							) }
 						</Text>
-						<Button variant="secondary" isDestructive onClick={ openConfirmDisable }>
-							{ __( 'Disable', 'jetpack-podcast' ) }
+						<Button
+							variant="secondary"
+							isDestructive
+							onClick={ openConfirmDisable }
+							disabled={ isLocked }
+							accessibleWhenDisabled
+						>
+							{ __( 'Stop publishing', 'jetpack-podcast' ) }
 						</Button>
 					</VStack>
 				</CardBody>
@@ -421,13 +539,13 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 
 			{ confirmDisable && (
 				<Modal
-					title={ __( 'Disable podcasting?', 'jetpack-podcast' ) }
+					title={ __( 'Stop publishing your podcast?', 'jetpack-podcast' ) }
 					onRequestClose={ closeConfirmDisable }
 				>
 					<VStack spacing={ 4 }>
 						<p>
 							{ __(
-								'Your podcast feed will stop being generated. Existing episodes stay in the assigned category and you can turn podcasting back on at any time.',
+								'Your podcast feed will stop being generated. Existing episodes stay in the assigned category and you can start publishing again at any time.',
 								'jetpack-podcast'
 							) }
 						</p>
@@ -436,7 +554,7 @@ const SettingsTab = ( { onAfterDisable }: SettingsTabProps = {} ) => {
 								{ __( 'Cancel', 'jetpack-podcast' ) }
 							</Button>
 							<Button variant="primary" isDestructive onClick={ onDisablePodcasting }>
-								{ __( 'Disable podcasting', 'jetpack-podcast' ) }
+								{ __( 'Stop publishing', 'jetpack-podcast' ) }
 							</Button>
 						</HStack>
 					</VStack>

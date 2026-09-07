@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Playlist block: Wrap long unbroken video titles and decode HTML entities in titles on the front end.

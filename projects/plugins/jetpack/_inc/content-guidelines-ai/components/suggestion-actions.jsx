@@ -2,7 +2,7 @@ import { Button } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { STORE_NAME } from '../constants';
+import { acceptSectionSuggestion } from '../lib/dom';
 import { recordGuidelinesEvent } from '../lib/tracks';
 import { AI_STORE_NAME } from '../store';
 import DiffView from './diff-view';
@@ -14,7 +14,6 @@ export default function SuggestionActions( { slug } ) {
 		[ slug ]
 	);
 	const { clearSuggestion } = useDispatch( AI_STORE_NAME );
-	const { setGuideline } = useDispatch( STORE_NAME );
 
 	const [ original, setOriginal ] = useState( '' );
 	const [ textareaHeight, setTextareaHeight ] = useState( null );
@@ -55,9 +54,8 @@ export default function SuggestionActions( { slug } ) {
 
 	const handleAccept = useCallback( () => {
 		recordGuidelinesEvent( 'accept', { type: 'section', slug } );
-		setGuideline( slug, suggestion );
-		clearSuggestion( slug );
-	}, [ slug, suggestion, setGuideline, clearSuggestion ] );
+		acceptSectionSuggestion( slug, suggestion, clearSuggestion );
+	}, [ slug, suggestion, clearSuggestion ] );
 
 	const handleDismiss = useCallback( () => {
 		recordGuidelinesEvent( 'dismiss', { type: 'section', slug } );

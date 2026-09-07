@@ -2,8 +2,8 @@ import { __ } from '@wordpress/i18n';
 import { Stack, Text } from '@wordpress/ui';
 import { useContext } from 'react';
 import { useGlobalChartsTheme } from '../../../providers';
-import { HeatmapContext } from '../heatmap-chart';
 import styles from '../heatmap-chart.module.scss';
+import { HeatmapContext } from './heatmap-context';
 import type { CSSProperties, FC } from 'react';
 
 export interface HeatmapLegendProps {
@@ -24,7 +24,11 @@ export const HeatmapLegend: FC< HeatmapLegendProps > = ( { steps = 5, lessLabel,
 
 	return (
 		<Stack direction="row" gap="xs" align="center">
-			<Text variant="body-sm" style={ labelStyle }>
+			<Text
+				variant="body-sm"
+				className={ styles[ 'heatmap-chart__legend-label' ] }
+				style={ labelStyle }
+			>
 				{ lessLabel ?? __( 'Less', 'jetpack-charts' ) }
 			</Text>
 			<Stack direction="row" gap="xs">
@@ -37,15 +41,19 @@ export const HeatmapLegend: FC< HeatmapLegendProps > = ( { steps = 5, lessLabel,
 							className={ styles[ 'heatmap-chart__legend-swatch' ] }
 							style={
 								{
-									'--heatmap-primary': primaryColorHex,
-									'--intensity': intensity,
+									'--a8c-charts-color-heatmap-primary': primaryColorHex,
+									'--a8c-charts-heatmap-cell-intensity': intensity,
 								} as CSSProperties
 							}
 						/>
 					);
 				} ) }
 			</Stack>
-			<Text variant="body-sm" style={ labelStyle }>
+			<Text
+				variant="body-sm"
+				className={ styles[ 'heatmap-chart__legend-label' ] }
+				style={ labelStyle }
+			>
 				{ moreLabel ?? __( 'More', 'jetpack-charts' ) }
 			</Text>
 		</Stack>

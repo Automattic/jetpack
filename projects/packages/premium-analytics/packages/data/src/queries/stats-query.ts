@@ -14,16 +14,18 @@ import {
 	sanitizeStatsCommentFollowersResponse,
 	sanitizeStatsFollowersResponse,
 	sanitizeStatsCommentsResponse,
+	sanitizeStatsHourOfDayResponse,
 	sanitizeStatsInsightsResponse,
 	sanitizeStatsStreakResponse,
 	sanitizeStatsVisitsResponse,
 	sanitizeStatsTagsResponse,
 	sanitizeStatsTimeSeriesResponse,
 	sanitizeStatsEmailTimeSeriesResponse,
-	sanitizeStatsPublicizeResponse,
 	sanitizeStatsEmailBreakdownResponse,
 	sanitizeStatsEmailSummaryResponse,
 	sanitizeStatsPassthroughResponse,
+	sanitizeStatsPostCommentsResponse,
+	sanitizeStatsPostLikesResponse,
 	sanitizeStatsPostResponse,
 	sanitizeStatsReferrersResponse,
 	sanitizeStatsSearchTermsResponse,
@@ -31,6 +33,7 @@ import {
 	sanitizeStatsSiteResponse,
 	sanitizeStatsSubscribersCountsResponse,
 	sanitizeStatsSubscribersResponse,
+	sanitizeStatsSummaryResponse,
 	sanitizeStatsTopAuthorsResponse,
 	sanitizeStatsTopPostsResponse,
 	sanitizeStatsUtmResponse,
@@ -38,24 +41,39 @@ import {
 	sanitizeStatsWordAdsEarningsResponse,
 	sanitizeStatsWordAdsStatsResponse,
 } from '../processing/stats';
+import { resolveReportTimeZone } from '../utils/report-timezone';
 import {
 	reportParamsToStatsQueryParams,
 	statsQueryParamsToApiParams,
 	type StatsQueryParams,
 	type StatsQueryParamFields,
+	type StatsSanitizerParams,
 } from '../utils/stats-params';
 import type { ReportParams } from '../utils/search';
 import type { UseQueryOptions } from '@tanstack/react-query';
 
-// Including `StatsProxyParams` confuses TypeScript because it brings in a string index signature,
-// which conflicts with `ReportParams.filters`. Endpoint-specific extras reach the proxy through
-// `statsReportQuery`'s `extraParams`, not this index signature.
+// `StatsProxyParams` is deliberately left out: its string index signature conflicts
+// with `ReportParams.filters`. Extras reach the proxy through `extraParams` instead.
 export type StatsReportParams = ReportParams & StatsQueryParamFields;
-type StatsSanitizer< TData = unknown > = ( response: unknown, params?: StatsQueryParams ) => TData;
+type StatsSanitizer< TData = unknown > = (
+	response: unknown,
+	params: StatsSanitizerParams
+) => TData;
+
+type StatsReportQuerySettings = {
+	/**
+	 * Query params derived from the shared report range that this endpoint does not accept.
+	 * WPCOM drops params an endpoint does not declare, so this changes nothing server-side —
+	 * it only keeps the request URL and the proxy cache key honest.
+	 */
+	omitParams?: readonly ( keyof StatsQueryParamFields )[];
+};
 
 const statsSanitizers = {
 	passthrough: sanitizeStatsPassthroughResponse,
 	post: sanitizeStatsPostResponse,
+	postComments: sanitizeStatsPostCommentsResponse,
+	postLikes: sanitizeStatsPostLikesResponse,
 	site: sanitizeStatsSiteResponse,
 	topPosts: sanitizeStatsTopPostsResponse,
 	referrers: sanitizeStatsReferrersResponse,
@@ -76,16 +94,17 @@ const statsSanitizers = {
 	tags: sanitizeStatsTagsResponse,
 	utm: sanitizeStatsUtmResponse,
 	visits: sanitizeStatsVisitsResponse,
+	hourOfDay: sanitizeStatsHourOfDayResponse,
 	timeSeries: sanitizeStatsTimeSeriesResponse,
 	emailTimeSeries: sanitizeStatsEmailTimeSeriesResponse,
 	subscribers: sanitizeStatsSubscribersResponse,
 	subscribersCounts: sanitizeStatsSubscribersCountsResponse,
-	publicize: sanitizeStatsPublicizeResponse,
 	wordAdsStats: sanitizeStatsWordAdsStatsResponse,
 	wordAdsEarnings: sanitizeStatsWordAdsEarningsResponse,
 	emailBreakdown: sanitizeStatsEmailBreakdownResponse,
 	emailSummary: sanitizeStatsEmailSummaryResponse,
 	singleVideo: sanitizeStatsSingleVideoResponse,
+	summary: sanitizeStatsSummaryResponse,
 } satisfies Record< string, StatsSanitizer >;
 
 export type StatsSanitizerKey = keyof typeof statsSanitizers;
@@ -126,6 +145,7 @@ export function statsProxyQuery( config: StatsQueryConfig ): StatsReportQueryOpt
 	} = config;
 	const sanitizer = config.sanitizer ?? 'passthrough';
 	const apiParams = statsQueryParamsToApiParams( params );
+	const timezone = resolveReportTimeZone( params?.timezone );
 
 	return {
 		queryKey: [
@@ -138,6 +158,7 @@ export function statsProxyQuery( config: StatsQueryConfig ): StatsReportQueryOpt
 			body,
 			sanitizer,
 			...( sanitizerParams ? [ sanitizerParams ] : [] ),
+			timezone,
 		],
 		queryFn: async () => {
 			const response = await fetchStatsProxy( {
@@ -150,6 +171,7 @@ export function statsProxyQuery( config: StatsQueryConfig ): StatsReportQueryOpt
 			return statsSanitizers[ sanitizer ]( response, {
 				...apiParams,
 				...sanitizerParams,
+				timezone,
 			} );
 		},
 		enabled,
@@ -165,11 +187,15 @@ export function statsReportQuery< TSanitizer extends StatsSanitizerKey >(
 	version: StatsProxyVersion = '1.1',
 	// Endpoint-specific params that should reach the API but are not in the
 	// reportParamsToStatsQueryParams allow-list (e.g. filter_by_country).
-	extraParams?: StatsProxyParams
+	extraParams?: StatsProxyParams,
+	settings?: StatsReportQuerySettings
 ): StatsReportQueryOptions< TSanitizer > {
 	const statsParams = reportParamsToStatsQueryParams( params );
 	const reportParams = {
 		...statsParams,
+		// A leaked chart interval would make the endpoint recount the window in
+		// weeks or months instead of the requested days.
+		...( params.period === undefined ? { period: 'day' as const } : {} ),
 		...extraParams,
 		...( statsParams.summarize === undefined &&
 		typeof statsParams.days === 'number' &&
@@ -177,13 +203,20 @@ export function statsReportQuery< TSanitizer extends StatsSanitizerKey >(
 			? { summarize: 1 }
 			: {} ),
 	};
+	const queryParams: StatsQueryParams = { ...reportParams };
+
+	// Runs after `summarize` is derived above: that derivation reads `days`, which
+	// the list endpoints omit.
+	for ( const param of settings?.omitParams ?? [] ) {
+		delete queryParams[ param ];
+	}
 
 	return statsProxyQuery( {
 		name,
 		version,
 		endpoint,
-		params: reportParams,
+		params: queryParams,
 		sanitizer,
-		enabled: !! ( reportParams.end_date || reportParams.date || reportParams.start_date ),
+		enabled: !! ( queryParams.end_date || queryParams.date || queryParams.start_date ),
 	} );
 }

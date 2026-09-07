@@ -37,6 +37,13 @@ class Blaze_Test extends BaseTestCase {
 	 * Set up before each test.
 	 */
 	public function set_up() {
+		// Reset admin menu globals to avoid state leakage between tests.
+		global $menu, $submenu, $_parent_pages, $_registered_pages;
+		$menu              = array();
+		$submenu           = array();
+		$_parent_pages     = array();
+		$_registered_pages = array();
+
 		$this->admin_id = wp_insert_user(
 			array(
 				'user_login' => 'dummy_user',
@@ -564,6 +571,517 @@ class Blaze_Test extends BaseTestCase {
 				false,
 			),
 		);
+	}
+
+	/**
+	 * Test that the menu label is "Blaze Ads" (not "Advertising").
+	 */
+	public function test_admin_menu_label_is_blaze_ads() {
+		global $submenu;
+
+		wp_set_current_user( $this->admin_id );
+		add_filter( 'jetpack_blaze_enabled', '__return_true' );
+
+		Blaze::enable_blaze_menu();
+
+		// Find the "advertising" submenu entry and verify its label.
+		$parent_slug = Blaze::get_menu_parent();
+		$found_label = null;
+		if ( isset( $submenu[ $parent_slug ] ) ) {
+			foreach ( $submenu[ $parent_slug ] as $item ) {
+				if ( 'advertising' === $item[2] ) {
+					$found_label = $item[0];
+					break;
+				}
+			}
+		}
+
+		$this->assertSame( 'Blaze Ads', $found_label );
+
+		add_filter( 'jetpack_blaze_enabled', '__return_false' );
+	}
+
+	/**
+	 * Test that no Blaze Ads menu is registered when the standalone Blaze Ads plugin
+	 * is active and still uses the default 'advertising' slug (legacy behavior), so the
+	 * two plugins do not produce a duplicate menu entry.
+	 */
+	public function test_no_menu_when_standalone_active_and_default_slug() {
+		global $submenu;
+
+		wp_set_current_user( $this->admin_id );
+		add_filter( 'jetpack_blaze_enabled', '__return_true' );
+		add_filter( 'jetpack_blaze_standalone_active', '__return_true' );
+
+		Blaze::enable_blaze_menu();
+
+		$parent_slug   = Blaze::get_menu_parent();
+		$found_default = false;
+		if ( isset( $submenu[ $parent_slug ] ) ) {
+			foreach ( $submenu[ $parent_slug ] as $item ) {
+				if ( 'advertising' === $item[2] ) {
+					$found_default = true;
+					break;
+				}
+			}
+		}
+		$this->assertFalse( $found_default, 'This package must not register its own menu when the standalone plugin owns it.' );
+
+		remove_all_filters( 'jetpack_blaze_standalone_active' );
+		add_filter( 'jetpack_blaze_enabled', '__return_false' );
+	}
+
+	/**
+	 * Test that when the standalone Blaze Ads plugin delegates registration to this
+	 * package by filtering the slug (e.g. to 'wp-blaze'), this package DOES register the
+	 * menu (it is the only registrant) instead of bailing out.
+	 */
+	public function test_menu_registered_when_standalone_delegates_via_slug() {
+		global $submenu;
+
+		wp_set_current_user( $this->admin_id );
+		add_filter( 'jetpack_blaze_enabled', '__return_true' );
+		add_filter( 'jetpack_blaze_standalone_active', '__return_true' );
+		add_filter(
+			'jetpack_blaze_menu_slug',
+			function () {
+				return 'wp-blaze';
+			}
+		);
+
+		Blaze::enable_blaze_menu();
+
+		$parent_slug     = Blaze::get_menu_parent();
+		$found_delegated = false;
+		if ( isset( $submenu[ $parent_slug ] ) ) {
+			foreach ( $submenu[ $parent_slug ] as $item ) {
+				if ( 'wp-blaze' === $item[2] ) {
+					$found_delegated = true;
+					break;
+				}
+			}
+		}
+		$this->assertTrue( $found_delegated, 'When the standalone delegates via the slug filter, this package must register the menu.' );
+
+		remove_all_filters( 'jetpack_blaze_menu_slug' );
+		remove_all_filters( 'jetpack_blaze_standalone_active' );
+		add_filter( 'jetpack_blaze_enabled', '__return_false' );
+	}
+
+	/**
+	 * Test that no temporary migration notice is registered under Tools when the
+	 * standalone plugin owns the menu (we bail before registering anything).
+	 */
+	public function test_no_migration_notice_when_standalone_active() {
+		global $submenu;
+
+		wp_set_current_user( $this->admin_id );
+		add_filter( 'jetpack_blaze_enabled', '__return_true' );
+		add_filter( 'jetpack_blaze_standalone_active', '__return_true' );
+		Constants::set_constant( 'IS_WPCOM', true );
+
+		Blaze::enable_blaze_menu();
+
+		$found_notice = false;
+		if ( isset( $submenu['tools.php'] ) ) {
+			foreach ( $submenu['tools.php'] as $item ) {
+				if ( 'advertising-moved' === $item[2] ) {
+					$found_notice = true;
+					break;
+				}
+			}
+		}
+		$this->assertFalse( $found_notice, 'No migration notice should be registered when the standalone plugin owns the menu.' );
+
+		Constants::clear_single_constant( 'IS_WPCOM' );
+		remove_all_filters( 'jetpack_blaze_standalone_active' );
+		add_filter( 'jetpack_blaze_enabled', '__return_false' );
+	}
+
+	/**
+	 * Test that when the standalone plugin is active, BOTH the admin.php and the tools.php
+	 * page=advertising entry points are forwarded to the standalone's wp-blaze page. This
+	 * package handles both itself rather than depending on the standalone shipping its own
+	 * redirect, so the matrix works against any standalone release.
+	 */
+	public function test_redirect_target_forwards_both_entrypoints_to_standalone() {
+		global $pagenow;
+		wp_set_current_user( $this->admin_id );
+		add_filter( 'jetpack_blaze_enabled', '__return_true' );
+		add_filter( 'jetpack_blaze_standalone_active', '__return_true' );
+		$_GET['page'] = 'advertising';
+
+		$pagenow = 'admin.php';
+		$this->assertStringContainsString(
+			'admin.php?page=wp-blaze',
+			(string) Blaze::get_legacy_advertising_redirect_target()
+		);
+
+		$pagenow = 'tools.php';
+		$this->assertStringContainsString(
+			'admin.php?page=wp-blaze',
+			(string) Blaze::get_legacy_advertising_redirect_target()
+		);
+
+		unset( $_GET['page'] );
+		remove_all_filters( 'jetpack_blaze_standalone_active' );
+		add_filter( 'jetpack_blaze_enabled', '__return_false' );
+	}
+
+	/**
+	 * Test that without the standalone, tools.php?page=advertising redirects to
+	 * admin.php?page=advertising once the menu has moved off Tools (WPCOM platform here).
+	 */
+	public function test_redirect_target_standard_move_to_admin_php() {
+		global $pagenow;
+		wp_set_current_user( $this->admin_id );
+		$pagenow      = 'tools.php';
+		$_GET['page'] = 'advertising';
+		add_filter( 'jetpack_blaze_enabled', '__return_true' );
+		Constants::set_constant( 'IS_WPCOM', true );
+
+		$this->assertStringContainsString(
+			'admin.php?page=advertising',
+			(string) Blaze::get_legacy_advertising_redirect_target()
+		);
+
+		Constants::clear_single_constant( 'IS_WPCOM' );
+		add_filter( 'jetpack_blaze_enabled', '__return_false' );
+		unset( $_GET['page'] );
+	}
+
+	/**
+	 * Test that no redirect happens when the menu is still under Tools (fallback context).
+	 */
+	public function test_redirect_target_null_when_menu_under_tools() {
+		global $pagenow;
+		wp_set_current_user( $this->admin_id );
+		$pagenow      = 'tools.php';
+		$_GET['page'] = 'advertising';
+		add_filter( 'jetpack_blaze_enabled', '__return_true' );
+
+		// Test env: no Woo / WPCOM / connection => parent is tools.php => no redirect.
+		$this->assertNull( Blaze::get_legacy_advertising_redirect_target() );
+
+		add_filter( 'jetpack_blaze_enabled', '__return_false' );
+		unset( $_GET['page'] );
+	}
+
+	/**
+	 * Test that get_menu_parent() returns 'tools.php' when neither WooCommerce
+	 * nor a Jetpack connection is present.
+	 */
+	public function test_get_menu_parent_fallback() {
+		// In the test environment, the WooCommerce class does not exist and
+		// the site is not WPCOM or Jetpack-connected, so we should get tools.php.
+		$this->assertSame( 'tools.php', Blaze::get_menu_parent() );
+	}
+
+	/**
+	 * Test that get_menu_parent() returns 'woocommerce-marketing' when WooCommerce
+	 * is active and the marketing menu is registered.
+	 */
+	public function test_get_menu_parent_woocommerce() {
+		global $menu;
+
+		if ( ! class_exists( 'WooCommerce' ) ) {
+			$this->markTestSkipped( 'WooCommerce class not available.' );
+		}
+
+		// Simulate the WooCommerce marketing menu being registered.
+		$menu[] = array( 'Marketing', 'manage_options', 'woocommerce-marketing', '', '', '', '' );
+
+		$this->assertSame( 'woocommerce-marketing', Blaze::get_menu_parent() );
+	}
+
+	/**
+	 * Test that get_menu_parent() returns 'jetpack' on the WPCOM platform.
+	 */
+	public function test_get_menu_parent_wpcom_platform() {
+		Constants::set_constant( 'IS_WPCOM', true );
+
+		$this->assertSame( 'jetpack', Blaze::get_menu_parent() );
+
+		Constants::clear_single_constant( 'IS_WPCOM' );
+	}
+
+	/**
+	 * Test that the jetpack_blaze_menu_parent filter can override the parent slug.
+	 */
+	public function test_menu_parent_filter() {
+		add_filter(
+			'jetpack_blaze_menu_parent',
+			function () {
+				return 'custom-parent';
+			}
+		);
+
+		$parent = Blaze::get_menu_parent();
+		$this->assertSame( 'custom-parent', $parent );
+
+		remove_all_filters( 'jetpack_blaze_menu_parent' );
+	}
+
+	/**
+	 * Test that the jetpack_blaze_menu_slug filter changes the registered menu slug.
+	 */
+	public function test_menu_slug_filter() {
+		global $submenu;
+
+		wp_set_current_user( $this->admin_id );
+		add_filter( 'jetpack_blaze_enabled', '__return_true' );
+		add_filter(
+			'jetpack_blaze_menu_slug',
+			function () {
+				return 'wp-blaze';
+			}
+		);
+
+		Blaze::enable_blaze_menu();
+
+		$parent_slug   = Blaze::get_menu_parent();
+		$found_submenu = false;
+		$found_default = false;
+		if ( isset( $submenu[ $parent_slug ] ) ) {
+			foreach ( $submenu[ $parent_slug ] as $item ) {
+				if ( 'wp-blaze' === $item[2] ) {
+					$found_submenu = true;
+				}
+				if ( 'advertising' === $item[2] ) {
+					$found_default = true;
+				}
+			}
+		}
+		$this->assertTrue( $found_submenu, 'Expected a submenu entry with slug wp-blaze when the filter is applied.' );
+		$this->assertFalse( $found_default, 'Default slug "advertising" should not be registered when the filter overrides it.' );
+
+		remove_all_filters( 'jetpack_blaze_menu_slug' );
+		add_filter( 'jetpack_blaze_enabled', '__return_false' );
+	}
+
+	/**
+	 * Test that the jetpack_blaze_menu_label filter changes the menu label.
+	 */
+	public function test_menu_label_filter() {
+		global $submenu;
+
+		wp_set_current_user( $this->admin_id );
+		add_filter( 'jetpack_blaze_enabled', '__return_true' );
+		add_filter(
+			'jetpack_blaze_menu_label',
+			function () {
+				return 'Custom Ads';
+			}
+		);
+
+		Blaze::enable_blaze_menu();
+
+		$parent_slug = Blaze::get_menu_parent();
+		$found_label = null;
+		if ( isset( $submenu[ $parent_slug ] ) ) {
+			foreach ( $submenu[ $parent_slug ] as $item ) {
+				if ( 'advertising' === $item[2] ) {
+					$found_label = $item[0];
+					break;
+				}
+			}
+		}
+
+		$this->assertSame( 'Custom Ads', $found_label );
+
+		remove_all_filters( 'jetpack_blaze_menu_label' );
+		add_filter( 'jetpack_blaze_enabled', '__return_false' );
+	}
+
+	/**
+	 * Test that get_campaign_management_url() uses admin.php (not tools.php).
+	 */
+	public function test_campaign_management_url_uses_admin_php() {
+		$url_data = Blaze::get_campaign_management_url( 42 );
+		$this->assertStringContainsString( 'admin.php?page=advertising', $url_data['link'] );
+		$this->assertStringNotContainsString( 'tools.php', $url_data['link'] );
+	}
+
+	/**
+	 * Test that get_campaign_management_url() uses the filtered slug.
+	 */
+	public function test_campaign_management_url_uses_filtered_slug() {
+		add_filter(
+			'jetpack_blaze_menu_slug',
+			function () {
+				return 'wp-blaze';
+			}
+		);
+
+		$url_data = Blaze::get_campaign_management_url( 42 );
+		$this->assertStringContainsString( 'admin.php?page=wp-blaze', $url_data['link'] );
+		$this->assertStringNotContainsString( 'page=advertising', $url_data['link'] );
+
+		remove_all_filters( 'jetpack_blaze_menu_slug' );
+	}
+
+	/**
+	 * Test that campaign/promote links point directly at the standalone Blaze Ads page
+	 * (both the ?page= slug and the #! route prefix) when the standalone plugin owns the
+	 * menu, so the deep-link fragment is preserved instead of being dropped by the
+	 * admin.php?page=advertising redirect.
+	 */
+	public function test_campaign_management_url_targets_standalone_when_active() {
+		add_filter( 'jetpack_blaze_standalone_active', '__return_true' );
+
+		$url_data = Blaze::get_campaign_management_url( 42 );
+
+		$this->assertStringContainsString( 'admin.php?page=wp-blaze', $url_data['link'] );
+		$this->assertStringContainsString( '#!/wp-blaze/posts/promote/post-42/', $url_data['link'] );
+		$this->assertStringNotContainsString( 'page=advertising', $url_data['link'] );
+		$this->assertStringNotContainsString( '#!/advertising/', $url_data['link'] );
+
+		remove_all_filters( 'jetpack_blaze_standalone_active' );
+	}
+
+	/**
+	 * Test that redirect_legacy_advertising_url() does not redirect when not on tools.php.
+	 */
+	public function test_redirect_legacy_url_no_redirect_on_other_pages() {
+		global $pagenow;
+		$pagenow = 'edit.php';
+
+		// Should not redirect (no exit), just return.
+		Blaze::redirect_legacy_advertising_url();
+
+		// If we get here, no redirect happened.
+		$this->assertTrue( true );
+	}
+
+	/**
+	 * Test that redirect_legacy_advertising_url() does not redirect when the menu
+	 * is still under Tools (fallback context).
+	 */
+	public function test_redirect_legacy_url_no_redirect_when_menu_under_tools() {
+		global $pagenow;
+		$pagenow      = 'tools.php';
+		$_GET['page'] = 'advertising';
+
+		// In the test environment the parent is tools.php, so no redirect happens.
+		Blaze::redirect_legacy_advertising_url();
+
+		$this->assertTrue( true );
+
+		unset( $_GET['page'] );
+	}
+
+	/**
+	 * Test that redirect_legacy_advertising_url() is hooked on admin_menu.
+	 */
+	public function test_redirect_legacy_url_is_hooked() {
+		Blaze::init();
+		// Must run late on admin_menu: get_menu_parent() needs WooCommerce/core
+		// menus registered to resolve the real parent, while still running before
+		// WordPress validates the page parameter.
+		$this->assertSame(
+			999,
+			has_action( 'admin_menu', array( Blaze::class, 'redirect_legacy_advertising_url' ) )
+		);
+	}
+
+	/**
+	 * Test that a migration notice entry is registered under Tools when the menu
+	 * moves to another parent.
+	 */
+	public function test_migration_notice_added_when_menu_moves() {
+		global $submenu;
+
+		wp_set_current_user( $this->admin_id );
+		add_filter( 'jetpack_blaze_enabled', '__return_true' );
+		Constants::set_constant( 'IS_WPCOM', true );
+
+		Blaze::enable_blaze_menu();
+
+		$found_notice = false;
+		$notice_label = null;
+		if ( isset( $submenu['tools.php'] ) ) {
+			foreach ( $submenu['tools.php'] as $item ) {
+				if ( 'advertising-moved' === $item[2] ) {
+					$found_notice = true;
+					$notice_label = $item[0];
+					break;
+				}
+			}
+		}
+		$this->assertTrue( $found_notice, 'Expected a migration notice entry under Tools when the menu moves.' );
+		// The temporary entry keeps the old "Advertising" label so users still
+		// recognize it; it must not be renamed to "Blaze Ads".
+		$this->assertSame( 'Advertising', $notice_label );
+
+		Constants::clear_single_constant( 'IS_WPCOM' );
+		add_filter( 'jetpack_blaze_enabled', '__return_false' );
+	}
+
+	/**
+	 * Test that no migration notice is registered when the menu stays under Tools.
+	 */
+	public function test_migration_notice_not_added_when_menu_stays_in_tools() {
+		global $submenu;
+
+		wp_set_current_user( $this->admin_id );
+		add_filter( 'jetpack_blaze_enabled', '__return_true' );
+
+		// Test environment: parent is tools.php (no WooCommerce, WPCOM, or connection).
+		Blaze::enable_blaze_menu();
+
+		$found_notice = false;
+		if ( isset( $submenu['tools.php'] ) ) {
+			foreach ( $submenu['tools.php'] as $item ) {
+				if ( 'advertising-moved' === $item[2] ) {
+					$found_notice = true;
+					break;
+				}
+			}
+		}
+		$this->assertFalse( $found_notice, 'No migration notice should be registered when the menu stays under Tools.' );
+
+		add_filter( 'jetpack_blaze_enabled', '__return_false' );
+	}
+
+	/**
+	 * Test that the migration notice can be disabled via filter.
+	 */
+	public function test_migration_notice_disabled_by_filter() {
+		global $submenu;
+
+		wp_set_current_user( $this->admin_id );
+		add_filter( 'jetpack_blaze_enabled', '__return_true' );
+		add_filter( 'jetpack_blaze_show_migration_notice', '__return_false' );
+		Constants::set_constant( 'IS_WPCOM', true );
+
+		Blaze::enable_blaze_menu();
+
+		$found_notice = false;
+		if ( isset( $submenu['tools.php'] ) ) {
+			foreach ( $submenu['tools.php'] as $item ) {
+				if ( 'advertising-moved' === $item[2] ) {
+					$found_notice = true;
+					break;
+				}
+			}
+		}
+		$this->assertFalse( $found_notice, 'The migration notice should not be registered when disabled via filter.' );
+
+		Constants::clear_single_constant( 'IS_WPCOM' );
+		remove_all_filters( 'jetpack_blaze_show_migration_notice' );
+		add_filter( 'jetpack_blaze_enabled', '__return_false' );
+	}
+
+	/**
+	 * Test that the migration notice renders a link to the new menu location.
+	 */
+	public function test_render_migration_notice_outputs_link() {
+		ob_start();
+		Blaze::render_migration_notice();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( 'admin.php?page=advertising', $output );
+		$this->assertStringContainsString( 'Blaze Ads', $output );
 	}
 
 	/**

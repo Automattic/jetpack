@@ -16,7 +16,9 @@ const _wpcomBuildFiverrCta = ( fragment: DocumentFragment ) => {
  * Set up the Fiverr CTA.
  */
 function wpcomInitializeFiverrCta() {
-	const fiverCta = document.querySelector( '.wpcom-fiverr-cta-button' );
+	// A button when a logo is set, an inline link in the empty state; only one
+	// of the two is ever rendered.
+	const fiverCta = document.querySelector( '.wpcom-fiverr-cta-button, .wpcom-fiverr-cta-link' );
 	if ( fiverCta ) {
 		fiverCta.addEventListener( 'click', e => {
 			e.preventDefault();

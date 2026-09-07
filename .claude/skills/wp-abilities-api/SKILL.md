@@ -1,1 +1,1 @@
-@../../../.agents/skills/wp-abilities-api.md
+../../../.agents/skills/wp-abilities-api.md

@@ -75,13 +75,13 @@ function getSharePostFormProps( connectionOverrides: Partial< Connection > = {} 
 describe( 'PerNetworkCustomizationForm', () => {
 	const mockCustomizeConnectionById = jest.fn();
 	let globalMessage = '';
-	let templatesEnabled = true;
+	let hasPaidFeatures = true;
 
 	beforeEach( () => {
 		jest.clearAllMocks();
 
 		globalMessage = '';
-		templatesEnabled = true;
+		hasPaidFeatures = true;
 
 		mockUseDispatch.mockReturnValue( {
 			customizeConnectionById: mockCustomizeConnectionById,
@@ -94,7 +94,7 @@ describe( 'PerNetworkCustomizationForm', () => {
 		} ) );
 
 		mockSiteHasFeature.mockImplementation( flag => {
-			return flag === 'social-message-templates' ? templatesEnabled : false;
+			return flag === 'social-enhanced-publishing' ? hasPaidFeatures : false;
 		} );
 	} );
 
@@ -130,8 +130,8 @@ describe( 'PerNetworkCustomizationForm', () => {
 		expect( sharePostFormProps.messageHelp ).toBe( 'A template will be used if this is empty.' );
 	} );
 
-	it( 'omits the helper text when message templates feature is off', () => {
-		templatesEnabled = false;
+	it( 'omits the helper text when the site lacks paid features', () => {
+		hasPaidFeatures = false;
 		globalMessage = 'Global custom message';
 
 		const sharePostFormProps = getSharePostFormProps( {

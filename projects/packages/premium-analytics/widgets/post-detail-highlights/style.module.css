@@ -1,0 +1,11 @@
+.root {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+
+	/* Scroll instead of clipping when the tiles stack at narrow widths: the
+	 * host chrome clips overflow by design, so without this the bottom tile
+	 * is unreachable. Matches annual-highlights and email-top-row. */
+	overflow-x: hidden;
+	overflow-y: auto;
+}

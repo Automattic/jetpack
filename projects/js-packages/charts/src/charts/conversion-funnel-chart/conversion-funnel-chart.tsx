@@ -1,17 +1,20 @@
-import { useTooltip, useTooltipInPortal } from '@visx/tooltip';
+import { useTooltip } from '@visx/tooltip';
 import { Stack } from '@wordpress/ui';
 import clsx from 'clsx';
-import { type FC, useRef, useMemo, useEffect, useCallback, useContext } from 'react';
+import { type FC, useRef, useMemo, useEffect, useState, useCallback, useContext } from 'react';
+import { BoundedTooltip } from '../../components/tooltip/private/bounded-tooltip';
 import { usePrefersReducedMotion } from '../../hooks';
 import {
 	GlobalChartsProvider,
 	GlobalChartsContext,
+	ChartScopeContext,
 	useChartId,
 	useChartRegistration,
-	useGlobalChartsTheme,
 	useGlobalChartsContext,
 } from '../../providers';
-import { formatPercentage, hexToRgba } from '../../utils';
+import { CATALOG_POINTERS } from '../../providers/chart-context/private/catalog-pointers';
+import { useStandaloneScopeClass } from '../../providers/chart-scope';
+import { formatPercentage } from '../../utils';
 import styles from './conversion-funnel-chart.module.scss';
 import { useFunnelSelection } from './private';
 import type { FunnelStep, ConversionFunnelChartProps } from './types';
@@ -51,10 +54,10 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 	renderTooltip,
 } ) => {
 	const chartId = useChartId( providedChartId );
-	const { conversionFunnelChart: conversionFunnelChartSettings } = useGlobalChartsTheme();
 	const { getElementStyles, isColorPaletteResolved } = useGlobalChartsContext();
 	const chartRef = useRef< HTMLDivElement >( null );
 	const selectedBarRef = useRef< HTMLDivElement | null >( null );
+	const [ scopeNode, setScopeNode ] = useState< HTMLElement | null >( null );
 
 	// Use @visx/tooltip hooks for tooltip positioning
 	const { tooltipData, tooltipLeft, tooltipTop, tooltipOpen, showTooltip, hideTooltip } =
@@ -63,16 +66,12 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 	// Use custom hook for selection management
 	const { handleBarClick, handleBarKeyDown, clearSelection, getStepState } =
 		useFunnelSelection( hideTooltip );
-	const {
-		containerRef: portalContainerRef,
-		TooltipInPortal,
-		containerBounds,
-	} = useTooltipInPortal( {
-		// use TooltipWithBounds for boundary detection
-		detectBounds: true,
-		// when tooltip containers are scrolled, this will correctly update the Tooltip position
-		scroll: true,
-	} );
+	const standaloneScopeClass = useStandaloneScopeClass();
+	// Stable identity so React doesn't detach/reattach (and re-render the scope context) on every commit. Keep it firing on unmount (node === null).
+	const setChartRef = useCallback( ( node: HTMLDivElement | null ) => {
+		chartRef.current = node;
+		setScopeNode( node );
+	}, [] );
 
 	// Wrapper to clear selectedBarRef after clearing selection
 	const clearSelectionAndRef = useCallback( () => {
@@ -93,43 +92,32 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 		[ showTooltip ]
 	);
 
-	// Helper function to get tooltip coordinates for mouse events
-	// Use clientX/Y and subtract containerBounds to cancel out any stale offset.
-	// TooltipInPortal calculates: tooltipLeft + containerBounds.left + scrollX
-	// By passing (clientX - containerBounds.left), we get correct page coordinates
-	// regardless of whether bounds are stale (e.g., after dashboard customization).
-	const getMouseTooltipCoords = useCallback(
-		( event: React.MouseEvent ) => {
-			// Don't return coords until container bounds are measured
-			if ( containerBounds.width === 0 || containerBounds.height === 0 ) {
-				return null;
-			}
+	// The chart root positions the tooltip, so coordinates are taken relative to it.
+	const getMouseTooltipCoords = useCallback( ( event: React.MouseEvent ) => {
+		const bounds = chartRef.current?.getBoundingClientRect();
+		if ( ! bounds ) {
+			return null;
+		}
 
-			return {
-				x: event.clientX - containerBounds.left,
-				y: event.clientY - containerBounds.top,
-			};
-		},
-		[ containerBounds.width, containerBounds.height, containerBounds.left, containerBounds.top ]
-	);
+		return {
+			x: event.clientX - bounds.left,
+			y: event.clientY - bounds.top,
+		};
+	}, [] );
 
-	// Helper function to get tooltip coordinates for keyboard events
-	// Use fresh getBoundingClientRect() and subtract containerBounds to cancel out stale offset.
-	const getKeyboardTooltipCoords = useCallback(
-		( event: React.KeyboardEvent ) => {
-			// Don't return coords until container bounds are measured
-			if ( containerBounds.width === 0 || containerBounds.height === 0 ) {
-				return null;
-			}
+	// Keyboard interaction anchors the tooltip at the top centre of the focused step.
+	const getKeyboardTooltipCoords = useCallback( ( event: React.KeyboardEvent ) => {
+		const bounds = chartRef.current?.getBoundingClientRect();
+		if ( ! bounds ) {
+			return null;
+		}
 
-			const rect = event.currentTarget.getBoundingClientRect();
-			// Calculate center of element in viewport coordinates, then subtract containerBounds
-			const x = rect.left + rect.width / 2 - containerBounds.left;
-			const y = rect.top - containerBounds.top;
-			return { x, y };
-		},
-		[ containerBounds.width, containerBounds.height, containerBounds.left, containerBounds.top ]
-	);
+		const rect = event.currentTarget.getBoundingClientRect();
+		return {
+			x: rect.left + rect.width / 2 - bounds.left,
+			y: rect.top - bounds.top,
+		};
+	}, [] );
 
 	// Helper function to handle step interaction (both click and keyboard)
 	const handleStepInteraction = useCallback(
@@ -229,32 +217,26 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 	// Resolve height: explicit height prop > style.height > default 100%
 	const resolvedHeight = height ?? style?.height ?? '100%';
 
-	// Get component settings from theme with fallbacks
-	const { primaryColor, backgroundColor, positiveChangeColor, negativeChangeColor } =
-		conversionFunnelChartSettings;
-
-	// Resolve bar color using getElementStyles with primaryColor as override
+	// The bar takes the first palette slot; move `--a8c-charts-color-series-1` to change it.
 	const { color: barColor } = getElementStyles
-		? getElementStyles( {
-				index: 0,
-				overrideColor: primaryColor,
-		  } )
-		: { color: primaryColor || '#000000' };
+		? getElementStyles( { index: 0 } )
+		: { color: '#000000' };
 
-	// Determine change indicator color
 	const isPositiveChange = changeIndicator?.startsWith( '+' );
-	const changeColor = isPositiveChange ? positiveChangeColor : negativeChangeColor;
-
-	// Create light background version of primary color if not set
-	const barBackgroundColor =
-		backgroundColor || hexToRgba( barColor, 0.08 ) || 'rgba(0, 0, 0, 0.08)';
+	// Only for `renderMainMetric`, which hands a consumer's own markup something to paint with.
+	const changeColor = isPositiveChange ? CATALOG_POINTERS.trendUp : CATALOG_POINTERS.trendDown;
 
 	// Default main metric rendering function
 	const renderDefaultMainMetric = () => (
 		<>
 			<span className={ styles[ 'main-rate' ] }>{ formatPercentage( mainRate ) }</span>
 			{ changeIndicator && (
-				<span className={ styles[ 'change-indicator' ] } style={ { color: changeColor } }>
+				<span
+					className={ clsx(
+						styles[ 'change-indicator' ],
+						styles[ isPositiveChange ? 'change-indicator--positive' : 'change-indicator--negative' ]
+					) }
+				>
 					{ changeIndicator }
 				</span>
 			) }
@@ -303,7 +285,9 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 				align="center"
 				justify="center"
 				data-testid="conversion-funnel-chart"
+				ref={ setScopeNode }
 				className={ clsx(
+					'conversion-funnel-chart',
 					styles[ 'conversion-funnel-chart' ],
 					loading && styles[ 'conversion-funnel-chart--loading' ],
 					className
@@ -321,23 +305,20 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 	const maxRate = Math.max( ...steps.map( step => step.rate ) );
 
 	return (
-		<>
-			<Stack
-				direction="column"
-				gap="xl"
-				data-testid="conversion-funnel-chart"
-				ref={ node => {
-					// Set containerRef for @visx coordinate system
-					portalContainerRef( node );
-					chartRef.current = node;
-				} }
-				className={ clsx(
-					styles[ 'conversion-funnel-chart' ],
-					loading && styles[ 'conversion-funnel-chart--loading' ],
-					className
-				) }
-				style={ { ...style, height: resolvedHeight } }
-			>
+		<Stack
+			direction="column"
+			gap="xl"
+			data-testid="conversion-funnel-chart"
+			ref={ setChartRef }
+			className={ clsx(
+				'conversion-funnel-chart',
+				styles[ 'conversion-funnel-chart' ],
+				loading && styles[ 'conversion-funnel-chart--loading' ],
+				className
+			) }
+			style={ { ...style, height: resolvedHeight } }
+		>
+			<ChartScopeContext.Provider value={ scopeNode }>
 				{ /* Main Metric */ }
 				{ renderMainMetric ? (
 					renderMainMetric( {
@@ -404,7 +385,6 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 									role="button"
 									tabIndex={ isBlurred ? -1 : 0 }
 									aria-label={ step.label }
-									style={ { backgroundColor: barBackgroundColor } }
 								>
 									<div
 										className={ clsx( styles[ 'funnel-bar' ], {
@@ -421,9 +401,8 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 						);
 					} ) }
 				</Stack>
-			</Stack>
+			</ChartScopeContext.Provider>
 
-			{ /* Tooltip Portal */ }
 			{ tooltipOpen &&
 				tooltipData &&
 				( () => {
@@ -441,18 +420,16 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 					if ( ! tooltipContent ) return null;
 
 					return (
-						<TooltipInPortal
-							// set this to random so it correctly updates with parent bounds
-							key={ Math.random() }
+						<BoundedTooltip
 							top={ tooltipTop }
 							left={ tooltipLeft }
-							className={ styles[ 'tooltip-wrapper' ] }
+							className={ clsx( standaloneScopeClass, styles[ 'tooltip-wrapper' ] ) }
 						>
 							{ tooltipContent }
-						</TooltipInPortal>
+						</BoundedTooltip>
 					);
 				} )() }
-		</>
+		</Stack>
 	);
 };
 

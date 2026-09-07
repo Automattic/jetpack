@@ -17,6 +17,15 @@ use Automattic\Jetpack\Assets;
 class Odyssey_Assets {
 	// This is a fixed list @see https://github.com/Automattic/wp-calypso/pull/71442/
 	const JS_DEPENDENCIES = array( 'lodash', 'react', 'react-dom', 'wp-api-fetch', 'wp-components', 'wp-compose', 'wp-element', 'wp-html-entities', 'wp-i18n', 'wp-is-shallow-equal', 'wp-polyfill', 'wp-primitives', 'wp-url', 'wp-warning', 'moment' );
+	/**
+	 * Odyssey's UI is built on @wordpress/components and runs against the page's own
+	 * `wp.components` (externalized, see JS_DEPENDENCIES above), so it needs that package's
+	 * matching stylesheet. Declare it rather than relying on some other admin feature loading it
+	 * as a side effect — WP 7.0's command palette happens to enqueue it globally today, but that's
+	 * an implementation detail of the palette, not a contract. Declaring it also fixes cascade
+	 * order: WP emits dependencies first, so Odyssey's own overrides of these classes reliably win.
+	 */
+	const CSS_DEPENDENCIES = array( 'wp-components' );
 	// Sometimes custom scripts would strip the `ver` query params, so we need to make sure it doesn't by adding a custom version param `osv` here.
 	const ODYSSEY_CDN_URL = 'https://widgets.wp.com/odyssey-stats/%s/%s?minify=false&osv=%s';
 
@@ -47,8 +56,9 @@ class Odyssey_Assets {
 				"../dist/{$asset_name}.js",
 				__FILE__,
 				array(
-					'in_footer'  => true,
-					'textdomain' => 'jetpack-stats-admin',
+					'in_footer'        => true,
+					'textdomain'       => 'jetpack-stats-admin',
+					'css_dependencies' => self::CSS_DEPENDENCIES,
 				)
 			);
 			Assets::enqueue_script( $asset_handle );
@@ -70,7 +80,7 @@ class Odyssey_Assets {
 				wp_register_style(
 					$css_handle,
 					sprintf( self::ODYSSEY_CDN_URL, self::ODYSSEY_STATS_VERSION, $css_url, $this->get_cdn_asset_cache_buster() ),
-					array(),
+					self::CSS_DEPENDENCIES,
 					$this->get_cdn_asset_cache_buster()
 				);
 				wp_enqueue_style( $css_handle );

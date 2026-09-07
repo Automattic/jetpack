@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Social: the block editor sidebar now uses the same connection management UI as the Social admin page.

@@ -2,17 +2,26 @@
  * External dependencies
  */
 import {
+	WIDGET_ROW_LIMIT,
 	calculateDelta,
+	describeError,
+	getCombinedPeriodMax,
 	LeaderboardChart,
-	WidgetLoadingOverlay,
+	LeaderboardSkeleton,
+	ReportLink,
+	WidgetFooter,
 	WidgetRoot,
+	WidgetState,
+	buildLeaderboardRow,
+	sharePercentage,
 	useWidgetRootContext,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
+import { search } from '@jetpack-premium-analytics/icons';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Stack, Text } from '@wordpress/ui';
+import { Stack } from '@jetpack-premium-analytics/externals';
 /**
  * Internal dependencies
  */
@@ -26,73 +35,83 @@ type SearchTermsWidgetProps = WidgetRenderProps< SearchTermsRenderAttributes >;
 
 /**
  * Search Terms widget inner component. Reads report params from WidgetRoot context.
- *
- * @param props     - Render props.
- * @param props.max - Maximum number of rows to display.
- * @return The rendered widget content.
  */
-function SearchTermsInner( { max = 10 }: { max?: number } ) {
+function SearchTermsInner() {
 	const { reportParams } = useWidgetRootContext();
 
-	const { data, isLoading, isError, hasComparison } = useSearchTermViews( { reportParams, max } );
+	const { data, isLoading, isFetching, isError, error, hasComparison, refetch } =
+		useSearchTermViews( {
+			reportParams,
+			max: WIDGET_ROW_LIMIT,
+		} );
 
 	const leaderboardData = useMemo< LeaderboardChartData >( () => {
-		const maxValue = Math.max( ...data.map( t => t.views ), 0 );
-		const prevMaxValue = Math.max( ...data.map( t => t.previousViews ), 0 );
+		const maxValue = getCombinedPeriodMax(
+			data.map( term => term.views ),
+			hasComparison ? data.map( term => term.previousViews ) : []
+		);
 
-		return data.map( ( term, index ) => ( {
-			id: `${ index }-${ term.label }`,
-			label: (
-				<Stack align="center" className={ styles.itemLabel }>
-					<Text className={ styles.itemLabelText }>{ term.label }</Text>
-				</Stack>
-			),
-			currentValue: term.views,
-			previousValue: term.previousViews,
-			currentShare: maxValue > 0 ? ( term.views / maxValue ) * 100 : 0,
-			previousShare: prevMaxValue > 0 ? ( term.previousViews / prevMaxValue ) * 100 : 0,
-			delta: hasComparison ? calculateDelta( term.views, term.previousViews ) : 0,
-		} ) );
+		return data.map( ( term, index ) => {
+			const previousViews = term.previousViews;
+
+			return {
+				id: `${ index }-${ term.label }`,
+				...buildLeaderboardRow( {
+					label: term.label,
+					media: { kind: 'none' },
+					action: { kind: 'static' },
+				} ),
+				currentValue: term.views,
+				previousValue: previousViews,
+				currentShare: sharePercentage( term.views, maxValue ),
+				previousShare:
+					hasComparison && previousViews !== undefined
+						? sharePercentage( previousViews, maxValue )
+						: undefined,
+				delta:
+					hasComparison && previousViews !== undefined
+						? calculateDelta( term.views, previousViews )
+						: undefined,
+			};
+		} );
 	}, [ data, hasComparison ] );
-
-	if ( isError ) {
-		return (
-			<Stack className={ styles.root }>
-				<div className={ styles.content }>
-					<Stack align="center" justify="center" className={ styles.placeholder }>
-						<Text>{ __( 'Could not load search terms data.', 'jetpack-premium-analytics' ) }</Text>
-					</Stack>
-				</div>
-			</Stack>
-		);
-	}
-
-	if ( isLoading && data.length === 0 ) {
-		return (
-			<Stack className={ styles.root }>
-				<div className={ styles.content }>
-					<WidgetLoadingOverlay />
-				</div>
-			</Stack>
-		);
-	}
 
 	return (
 		<Stack className={ styles.root }>
 			<div className={ styles.content }>
-				<LeaderboardChart
-					data={ leaderboardData }
-					loading={ isLoading }
-					withComparison={ hasComparison }
-					withOverlayLabel
-					showLegend={ false }
-					emptyStateText={ __( 'No search terms in this period.', 'jetpack-premium-analytics' ) }
-					dataFormat={ {
-						type: 'number',
-						options: { useMultipliers: true, decimals: 0 },
+				<WidgetState
+					isLoading={ isLoading }
+					isFetching={ isFetching }
+					isError={ isError }
+					isEmpty={ data.length === 0 }
+					error={ describeError( error, {
+						retryDescription: __(
+							"We couldn't load search terms. Please try again in a moment.",
+							'jetpack-premium-analytics-pkg'
+						),
+						onRetry: refetch,
+					} ) }
+					empty={ {
+						icon: search,
+						description: __( 'No search terms in this period.', 'jetpack-premium-analytics-pkg' ),
 					} }
-				/>
+					renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
+				>
+					<LeaderboardChart
+						data={ leaderboardData }
+						withComparison={ hasComparison }
+						withOverlayLabel
+						showLegend={ false }
+						dataFormat={ {
+							type: 'number',
+							options: { useMultipliers: true, decimals: 0 },
+						} }
+					/>
+				</WidgetState>
 			</div>
+			<WidgetFooter>
+				<ReportLink report="search-terms" />
+			</WidgetFooter>
 		</Stack>
 	);
 }
@@ -100,15 +119,11 @@ function SearchTermsInner( { max = 10 }: { max?: number } ) {
 /**
  * Search Terms widget: the top search queries visitors used to reach the site,
  * ranked by view count. Ported from the Jetpack Stats "Search Terms" module.
- *
- * @param props            - Render props.
- * @param props.attributes - Widget attributes (max, reportParams).
- * @return The rendered Search Terms widget.
  */
 export default function SearchTerms( { attributes = {} }: SearchTermsWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
-			<SearchTermsInner max={ attributes.max } />
+			<SearchTermsInner />
 		</WidgetRoot>
 	);
 }

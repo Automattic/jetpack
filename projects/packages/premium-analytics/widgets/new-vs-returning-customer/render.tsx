@@ -18,14 +18,12 @@ import type { ComponentProps } from 'react';
 type NewVsReturningCustomerRenderAttributes = NewVsReturningCustomerAttributes &
 	Partial< ReportParamsFieldAttributes >;
 
-type NewVsReturningCustomerRenderProps =
+type NewVsReturningCustomerWidgetProps =
 	WidgetRenderProps< NewVsReturningCustomerRenderAttributes > & {
 		setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
 	};
 
 /**
- * New vs returning customer widget.
- *
  * Thin composition over WidgetRoot: WidgetRoot provides the query client, chart
  * theme, and resolved report params; NewVsReturningCustomerWidget renders the
  * customer breakdown donut chart.
@@ -33,7 +31,7 @@ type NewVsReturningCustomerRenderProps =
 export default function NewVsReturningCustomerRender( {
 	attributes = {},
 	setError,
-}: NewVsReturningCustomerRenderProps ) {
+}: NewVsReturningCustomerWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
 			<NewVsReturningCustomerWidget />

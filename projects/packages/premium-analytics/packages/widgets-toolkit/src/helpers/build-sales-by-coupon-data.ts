@@ -3,12 +3,8 @@
  */
 import { __ } from '@wordpress/i18n';
 import { formatLegendLabels } from './format-legend-labels';
-import type { SeriesData } from '@automattic/charts';
 import type { ReportDataMap, ReportParams } from '@jetpack-premium-analytics/data';
-
-/**
- * Internal dependencies
- */
+import type { SeriesData } from '@jetpack-premium-analytics/externals';
 
 export interface SalesByCouponData {
 	chartData: SeriesData[];
@@ -40,10 +36,8 @@ export function buildSalesByCouponData(
 
 	const { data: items } = coupons;
 
-	// Process coupons and limit to totalSegments
 	const topCoupons = items.slice( 0, totalSegments );
 
-	// Create a map of comparison data by coupon code
 	const comparisonMap = new Map< string, number >();
 	if ( comparisonCoupons ) {
 		comparisonCoupons.data.forEach( item => {
@@ -51,25 +45,22 @@ export function buildSalesByCouponData(
 		} );
 	}
 
-	// Build current period data points
 	const currentPeriodData = topCoupons.map( item => ( {
 		label: item.coupon_code,
 		value: item.total_sales,
 	} ) );
 
-	// Add "Other" segment if there are more coupons than shown
 	if ( items.length > totalSegments ) {
 		const otherSales = items
 			.slice( totalSegments )
 			.reduce( ( sum, item ) => sum + item.total_sales, 0 );
 
 		currentPeriodData.push( {
-			label: __( 'Other', 'jetpack-premium-analytics' ),
+			label: __( 'Other', 'jetpack-premium-analytics-pkg' ),
 			value: otherSales,
 		} );
 	}
 
-	// Build bar chart data - current period
 	const chartData: SeriesData[] = [
 		{
 			label: primaryLabel,
@@ -77,21 +68,19 @@ export function buildSalesByCouponData(
 		},
 	];
 
-	// Add comparison period if available
 	if ( comparisonCoupons?.summary ) {
 		const comparisonPeriodData = topCoupons.map( item => ( {
 			label: item.coupon_code,
 			value: comparisonMap.get( item.coupon_code ) || 0,
 		} ) );
 
-		// Add "Other" segment for comparison
 		if ( items.length > totalSegments ) {
 			const otherComparison = comparisonCoupons.data
 				.slice( totalSegments )
 				.reduce( ( sum, item ) => sum + item.total_sales, 0 );
 
 			comparisonPeriodData.push( {
-				label: __( 'Other', 'jetpack-premium-analytics' ),
+				label: __( 'Other', 'jetpack-premium-analytics-pkg' ),
 				value: otherComparison,
 			} );
 		}

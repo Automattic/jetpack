@@ -1,9 +1,11 @@
 import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useState } from '@wordpress/element';
+import { decodeEntities } from '@wordpress/html-entities';
 import { decideInitialView, isAllTasksMode, type View } from './lib/orchestration.ts';
+import { contextFromInferred, contextFromTaskIds, setTracksContext } from './lib/tracks.ts';
 import { TailoredList } from './tailored-list/tailored-list.tsx';
 import { Wizard } from './wizard/wizard.tsx';
-import type { TailorResult } from './lib/types.ts';
+import type { GoalSlug, TailorResult } from './lib/types.ts';
 import type { LaunchpadData } from './tailored-list/model.ts';
 
 /**
@@ -16,6 +18,8 @@ export function App() {
 	// null while the initial read is in flight.
 	const [ view, setView ] = useState< View | null >( null );
 	const [ pendingTailor, setPendingTailor ] = useState< Promise< TailorResult > | undefined >();
+	// The goal picked in the wizard, forwarded to the list for its heading.
+	const [ goal, setGoal ] = useState< GoalSlug | undefined >();
 	// Handed to the list so returning users don't refetch the same endpoint.
 	const [ initialData, setInitialData ] = useState< LaunchpadData | undefined >();
 
@@ -28,8 +32,29 @@ export function App() {
 			if ( cancelled ) {
 				return;
 			}
+			// blogname/blogdescription arrive HTML-escaped (sanitize_option stores them
+			// that way); decode so React doesn't render literal entities in the wizard
+			// prefill and the preview title.
+			if ( data.site ) {
+				data.site = {
+					...data.site,
+					title: data.site.title && decodeEntities( data.site.title ),
+					description: data.site.description && decodeEntities( data.site.description ),
+				};
+			}
 			setInitialData( data );
 			setView( allTasks ? 'list' : decideInitialView( data ) );
+
+			// Seed the shared Tracks context from the persisted state (all-null for
+			// brand-new sites) before the mounted view records its viewed event.
+			const inferred = data.ai_output?.payload?.inferred;
+			setTracksContext( contextFromInferred( inferred ) );
+			if ( ! inferred?.goal && data.wizard?.goal ) {
+				setTracksContext( { goal: data.wizard.goal } );
+			}
+			if ( data.tasks?.length ) {
+				setTracksContext( contextFromTaskIds( data.tasks.map( task => task.id ) ) );
+			}
 		} );
 		return () => {
 			cancelled = true;
@@ -45,8 +70,19 @@ export function App() {
 			<Wizard
 				initialSiteName={ initialData?.site?.title }
 				initialIntent={ initialData?.site?.description }
-				onComplete={ ( _input, tailoring ) => {
+				siteUrl={ initialData?.site?.url }
+				onComplete={ ( input, tailoring ) => {
 					setPendingTailor( () => tailoring );
+					setGoal( input.goal );
+					// The wizard wrote the entered Name to blogname; keep the preview
+					// card's title in sync without refetching. Mirrors the server's
+					// guard: an empty/whitespace Name never overwrites the title.
+					const siteName = input.site_name.trim();
+					if ( siteName ) {
+						setInitialData( data =>
+							data?.site ? { ...data, site: { ...data.site, title: siteName } } : data
+						);
+					}
 					setView( 'list' );
 				} }
 			/>
@@ -60,6 +96,7 @@ export function App() {
 			pendingTailor={ pendingTailor }
 			initialData={ pendingTailor ? undefined : initialData }
 			site={ initialData?.site }
+			goal={ goal }
 		/>
 	);
 }

@@ -639,7 +639,6 @@ input#iris {
 }
 
 /* Restored CSS from wp.com theme customizer updates */
-/* stylelint-disable no-duplicate-selectors -- Preserving sectioning. */
 .color-grid li {
 	border-width: 1px;
 }

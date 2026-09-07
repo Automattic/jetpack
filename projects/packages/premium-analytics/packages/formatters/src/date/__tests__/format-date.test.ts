@@ -1,152 +1,130 @@
 /**
  * External dependencies
  */
-import { format } from 'date-fns';
+import { setSettings } from '@wordpress/date';
 /**
  * Internal dependencies
  */
-import { formatDate, DATE_FORMATS as FORMATS } from '../format-date';
+import { EN_US_SETTINGS, ES_ES_SETTINGS, settingsFor } from '../__fixtures__/wp-date-settings';
+import { formatDate, formatMondayFirstWeekday, formatWeekday } from '../format-date';
 
-jest.mock( 'date-fns', () => ( {
-	format: jest.fn(),
-} ) );
+// Midnight UTC, matching the fixtures' timezone, so no day shift is in play.
+const JUNE_21 = new Date( '2025-06-21T00:00:00+00:00' );
 
 describe( 'formatDate', () => {
-	/**
-	 * Setup the date-fns format mock that simulates the library.
-	 */
-	const setupDateFormat = () => {
-		( format as jest.Mock ).mockImplementation(
-			( _date: Date | number | string, formatString: string ) => {
-				const formatMap: Record< string, string > = {
-					[ FORMATS.short ]: 'Jun 21',
-					[ FORMATS.medium ]: 'Jun 21, 2025',
-					[ FORMATS.long ]: 'June 21, 2025',
-					[ FORMATS.full ]: 'Wednesday, June 21, 2025',
-					[ FORMATS.day ]: '21',
-					[ FORMATS.month ]: 'Jun',
-					[ FORMATS.year ]: '2025',
-					[ FORMATS.monthYear ]: 'Jun 2025',
-					[ FORMATS.numeric ]: '06/21/2025',
-					[ FORMATS.iso ]: '2025-06-21',
-					[ FORMATS.dateTime ]: 'Jun 21, 2025 2:30 PM',
-					'dd/MM/yyyy': '21/06/2025',
-				};
-
-				return formatMap[ formatString ] || formatString;
-			}
-		);
-	};
-
-	beforeEach( () => {
-		jest.clearAllMocks();
-		setupDateFormat();
-	} );
-
-	describe( 'named formats', () => {
-		const testDate = new Date( '2025-06-21T14:30:00' );
-
-		it( 'formats date with "short" preset', () => {
-			const result = formatDate( testDate, 'short' );
-			expect( result ).toBe( 'Jun 21' );
-			expect( format ).toHaveBeenCalledWith( testDate, FORMATS.short );
+	describe( 'en_US site', () => {
+		beforeEach( () => {
+			setSettings( EN_US_SETTINGS );
 		} );
 
-		it( 'formats date with "medium" preset (default)', () => {
-			const result = formatDate( testDate, 'medium' );
-			expect( result ).toBe( 'Jun 21, 2025' );
-			expect( format ).toHaveBeenCalledWith( testDate, FORMATS.medium );
+		it( 'formats "medium" with the site date format', () => {
+			expect( formatDate( JUNE_21, 'medium' ) ).toBe( 'June 21, 2025' );
 		} );
 
-		it( 'uses "medium" as default when no format specified', () => {
-			const result = formatDate( testDate );
-			expect( result ).toBe( 'Jun 21, 2025' );
-			expect( format ).toHaveBeenCalledWith( testDate, FORMATS.medium );
+		it( 'defaults to "medium"', () => {
+			expect( formatDate( JUNE_21 ) ).toBe( 'June 21, 2025' );
 		} );
 
-		it( 'formats date with "long" preset', () => {
-			const result = formatDate( testDate, 'long' );
-			expect( result ).toBe( 'June 21, 2025' );
-			expect( format ).toHaveBeenCalledWith( testDate, FORMATS.long );
+		it( 'formats "short" as the site format without its year', () => {
+			expect( formatDate( JUNE_21, 'short' ) ).toBe( 'June 21' );
 		} );
 
-		it( 'formats date with "full" preset', () => {
-			const result = formatDate( testDate, 'full' );
-			expect( result ).toBe( 'Wednesday, June 21, 2025' );
-			expect( format ).toHaveBeenCalledWith( testDate, FORMATS.full );
+		it( 'formats "monthYear" as the site format without its day', () => {
+			expect( formatDate( JUNE_21, 'monthYear' ) ).toBe( 'June 2025' );
 		} );
 
-		it( 'formats date with "day" preset', () => {
-			const result = formatDate( testDate, 'day' );
-			expect( result ).toBe( '21' );
-			expect( format ).toHaveBeenCalledWith( testDate, FORMATS.day );
+		it( 'formats "year"', () => {
+			expect( formatDate( JUNE_21, 'year' ) ).toBe( '2025' );
 		} );
 
-		it( 'formats date with "month" preset', () => {
-			const result = formatDate( testDate, 'month' );
-			expect( result ).toBe( 'Jun' );
-			expect( format ).toHaveBeenCalledWith( testDate, FORMATS.month );
+		it( 'formats "iso" as a machine-readable date', () => {
+			expect( formatDate( JUNE_21, 'iso' ) ).toBe( '2025-06-21' );
 		} );
 
-		it( 'formats date with "year" preset', () => {
-			const result = formatDate( testDate, 'year' );
-			expect( result ).toBe( '2025' );
-			expect( format ).toHaveBeenCalledWith( testDate, FORMATS.year );
+		it( 'leads "full" with the weekday', () => {
+			expect( formatDate( JUNE_21, 'full' ) ).toBe( 'Saturday, June 21, 2025' );
 		} );
 
-		it( 'formats date with "monthYear" preset', () => {
-			const result = formatDate( testDate, 'monthYear' );
-			expect( result ).toBe( 'Jun 2025' );
-			expect( format ).toHaveBeenCalledWith( testDate, FORMATS.monthYear );
-		} );
-
-		it( 'formats date with "numeric" preset', () => {
-			const result = formatDate( testDate, 'numeric' );
-			expect( result ).toBe( '06/21/2025' );
-			expect( format ).toHaveBeenCalledWith( testDate, FORMATS.numeric );
-		} );
-
-		it( 'formats date with "iso" preset', () => {
-			const result = formatDate( testDate, 'iso' );
-			expect( result ).toBe( '2025-06-21' );
-			expect( format ).toHaveBeenCalledWith( testDate, FORMATS.iso );
-		} );
-
-		it( 'formats date with "dateTime" preset', () => {
-			const result = formatDate( testDate, 'dateTime' );
-			expect( result ).toBe( 'Jun 21, 2025 2:30 PM' );
-			expect( format ).toHaveBeenCalledWith( testDate, FORMATS.dateTime );
+		it( 'leads "fullNoYear" with the weekday and drops the year', () => {
+			expect( formatDate( JUNE_21, 'fullNoYear' ) ).toBe( 'Saturday, June 21' );
 		} );
 	} );
 
-	describe( 'custom format strings', () => {
-		const testDate = new Date( '2025-06-21T14:30:00' );
+	describe( 'es_ES site', () => {
+		beforeEach( () => {
+			setSettings( ES_ES_SETTINGS );
+		} );
 
-		it( 'accepts custom format string', () => {
-			const customFormat = 'dd/MM/yyyy';
-			const result = formatDate( testDate, customFormat );
-			expect( result ).toBe( '21/06/2025' );
-			expect( format ).toHaveBeenCalledWith( testDate, customFormat );
+		it( 'orders "medium" the way the site format does', () => {
+			expect( formatDate( JUNE_21, 'medium' ) ).toBe( '21 de junio de 2025' );
+		} );
+
+		it( 'drops the trailing " de <year>" for "short"', () => {
+			expect( formatDate( JUNE_21, 'short' ) ).toBe( '21 de junio' );
+		} );
+
+		it( 'drops the leading "<day> de" for "monthYear"', () => {
+			expect( formatDate( JUNE_21, 'monthYear' ) ).toBe( 'junio de 2025' );
+		} );
+
+		it( 'keeps "iso" untranslated so it stays machine-readable', () => {
+			expect( formatDate( JUNE_21, 'iso' ) ).toBe( '2025-06-21' );
+		} );
+
+		it( 'formats a weekday in the site locale', () => {
+			expect( formatWeekday( 6 ) ).toBe( 'sábado' );
 		} );
 	} );
 
-	describe( 'date input types', () => {
-		it( 'accepts Date object', () => {
-			const dateObj = new Date( '2025-06-21' );
-			formatDate( dateObj, 'short' );
-			expect( format ).toHaveBeenCalledWith( dateObj, FORMATS.short );
+	it( 'falls back to the site format when removing the year leaves nothing', () => {
+		setSettings( settingsFor( 'year-only-test', 'Y' ) );
+
+		expect( formatDate( JUNE_21, 'short' ) ).toBe( '2025' );
+	} );
+
+	it( 'falls back to the site format when removing the day leaves nothing', () => {
+		setSettings( settingsFor( 'day-only-test', 'j' ) );
+
+		expect( formatDate( JUNE_21, 'monthYear' ) ).toBe( '21' );
+	} );
+
+	it( 'does not add a second weekday when the site format already names one', () => {
+		setSettings( settingsFor( 'weekday-format-test', 'l, F j, Y' ) );
+
+		expect( formatDate( JUNE_21, 'full' ) ).toBe( 'Saturday, June 21, 2025' );
+	} );
+
+	it( 'appends the site time format for "dateTime"', () => {
+		setSettings( EN_US_SETTINGS );
+
+		expect( formatDate( JUNE_21, 'dateTime' ) ).toBe( 'June 21, 2025 12:00 am' );
+	} );
+
+	it( 'renders the calendar day the instant falls on in the reporting timezone', () => {
+		setSettings( {
+			...EN_US_SETTINGS,
+			timezone: { offset: -4, offsetFormatted: '-4', string: 'America/New_York', abbr: 'EDT' },
 		} );
 
-		it( 'accepts timestamp number', () => {
-			const timestamp = 1718985000000;
-			formatDate( timestamp, 'short' );
-			expect( format ).toHaveBeenCalledWith( timestamp, FORMATS.short );
+		// 22:00 the evening before, in New York.
+		expect( formatDate( new Date( '2025-06-21T02:00:00Z' ), 'medium' ) ).toBe( 'June 20, 2025' );
+	} );
+
+	it( 'renders in a site zone configured as a bare offset', () => {
+		setSettings( {
+			...EN_US_SETTINGS,
+			timezone: { offset: 5.5, offsetFormatted: '5.5', string: '', abbr: '' },
 		} );
 
-		it( 'accepts date string', () => {
-			const dateString = '2025-06-21';
-			formatDate( dateString, 'short' );
-			expect( format ).toHaveBeenCalledWith( dateString, FORMATS.short );
-		} );
+		expect( formatDate( new Date( '2025-06-20T20:00:00Z' ), 'medium' ) ).toBe( 'June 21, 2025' );
+	} );
+} );
+
+describe( 'formatMondayFirstWeekday', () => {
+	it( 'reads index 0 as Monday and 6 as Sunday', () => {
+		// The offset is the whole point of the helper: a missing or reversed one
+		// still yields a real weekday name, so both ends are pinned.
+		expect( formatMondayFirstWeekday( 0 ) ).toBe( 'Monday' );
+		expect( formatMondayFirstWeekday( 6 ) ).toBe( 'Sunday' );
 	} );
 } );

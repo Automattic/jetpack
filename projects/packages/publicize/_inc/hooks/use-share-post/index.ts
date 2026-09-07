@@ -2,7 +2,7 @@ import { siteHasFeature } from '@automattic/jetpack-script-data';
 import { useDispatch } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { store as socialStore } from '../../social-store';
-import { features, getSocialScriptData } from '../../utils';
+import { features, getSocialScriptData, hasSocialPaidFeatures } from '../../utils';
 import useSocialMediaConnections from '../use-social-media-connections';
 import useSocialMediaMessage from '../use-social-media-message';
 
@@ -31,9 +31,7 @@ export function useSharePost() {
 			 * SIG is saved to the post meta and will be read on wpcom. Because of that we need to save
 			 * the post before sharing it, if it has the media features to make sure we use the latest data.
 			 */
-			const savePost =
-				siteHasFeature( features.IMAGE_GENERATOR ) ||
-				siteHasFeature( features.ENHANCED_PUBLISHING );
+			const savePost = siteHasFeature( features.IMAGE_GENERATOR ) || hasSocialPaidFeatures();
 
 			return await shareCurrentPost(
 				{ message, skipped_connections },

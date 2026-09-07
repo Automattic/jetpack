@@ -1,8 +1,9 @@
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import restApi from '@automattic/jetpack-api';
 import { __ } from '@wordpress/i18n';
+import { Card } from '@wordpress/ui';
 import PropTypes from 'prop-types';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import ActivationScreenControls from '../activation-screen-controls';
 import ActivationScreenIllustration from '../activation-screen-illustration';
 import ActivationScreenSuccessInfo from '../activation-screen-success-info';
@@ -73,11 +74,30 @@ const ActivationScreen = props => {
 	const [ isSaving, setIsSaving ] = useState( false );
 	const [ activatedProduct, setActivatedProduct ] = useState( null );
 
+	// Track the first available key we last selected. React Query hands back a
+	// new array reference on every refetch (and refetchOnReconnect is on by
+	// default), so keying off the array reference alone would re-run on unrelated
+	// background refetches. Comparing against the last selected key means we only
+	// react when the first available key genuinely changes.
+	const selectedLicenseKey = useRef( startingLicense ?? '' );
+
 	useEffect( () => {
-		if ( availableLicenses && availableLicenses[ 0 ] ) {
-			setLicense( availableLicenses[ 0 ].license_key );
+		const nextLicense = availableLicenses?.[ 0 ]?.license_key;
+		if ( nextLicense && nextLicense !== selectedLicenseKey.current ) {
+			selectedLicenseKey.current = nextLicense;
+			setLicense( nextLicense );
+			// setLicense bypasses the onLicenseChange path that normally clears the
+			// error, so clear the stale error left over from the previous key.
+			setLicenseError( null );
 		}
 	}, [ availableLicenses ] );
+
+	const onLicenseChange = useCallback( newLicense => {
+		setLicense( newLicense );
+		// Changing the license (via the select or the manual input) invalidates
+		// any prior activation error, so clear the stale notice.
+		setLicenseError( null );
+	}, [] );
 
 	const activateLicense = useCallback( () => {
 		if ( isSaving ) {
@@ -114,7 +134,7 @@ const ActivationScreen = props => {
 	}, [ isSaving, license, onActivationSuccess ] );
 
 	const renderActivationSuccess = () => (
-		<div className="jp-license-activation-screen">
+		<Card.Root className="jp-license-activation-screen">
 			<ActivationScreenSuccessInfo
 				siteRawUrl={ siteRawUrl }
 				productId={ activatedProduct }
@@ -122,11 +142,11 @@ const ActivationScreen = props => {
 				currentRecommendationsStep={ currentRecommendationsStep }
 			/>
 			<ActivationScreenIllustration imageUrl={ successImage } showSupportLink={ false } />
-		</div>
+		</Card.Root>
 	);
 
 	const renderActivationControl = () => (
-		<div className="jp-license-activation-screen">
+		<Card.Root className="jp-license-activation-screen">
 			<ActivationScreenControls
 				availableLicenses={ availableLicenses }
 				activateLicense={ activateLicense }
@@ -134,11 +154,11 @@ const ActivationScreen = props => {
 				isActivating={ isSaving }
 				license={ license }
 				licenseError={ licenseError }
-				onLicenseChange={ setLicense }
+				onLicenseChange={ onLicenseChange }
 				siteUrl={ siteRawUrl }
 			/>
 			<ActivationScreenIllustration imageUrl={ lockImage } showSupportLink />
-		</div>
+		</Card.Root>
 	);
 
 	const renderGoldenTokenModal = () => {

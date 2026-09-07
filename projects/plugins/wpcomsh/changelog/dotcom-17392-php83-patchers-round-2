@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+CLI: php83 patchers round 2 — accept any known folder slug as the command argument, add a `--force` escape hatch for pending-but-uninstallable updates, support alternative replacement sets per patch (CRLF/LF vendor variants), extend the deepcore patch to all three duplicated static counters, and add the skudo and larch-1 themes to the Select-Themes family.

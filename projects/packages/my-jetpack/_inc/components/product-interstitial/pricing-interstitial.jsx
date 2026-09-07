@@ -15,7 +15,7 @@ import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 import { getScriptData, getMyJetpackUrl } from '@automattic/jetpack-script-data';
 import { Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { Button } from '@wordpress/ui';
+import { Button, LinkButton } from '@wordpress/ui';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 /**
  * Internal dependencies
@@ -31,6 +31,7 @@ import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 import GoBackLink from '../go-back-link';
 import { getProductConfigs } from './config';
 import ProductInterstitial from './product-interstitial';
+import { reloadIfActivationChangesAdminMenu } from './reload-after-activation';
 import styles from './style.module.scss';
 
 /**
@@ -217,7 +218,7 @@ export default function PricingInterstitial( { slug } ) {
 									if ( postRegisterRedirectUri ) {
 										// Redirect to the product's admin page
 										window.location.href = postRegisterRedirectUri;
-									} else {
+									} else if ( ! reloadIfActivationChangesAdminMenu( slug, product?.title ) ) {
 										// Fall back to the My Jetpack overview page.
 										return navigateToMyJetpackOverviewPage();
 									}
@@ -388,15 +389,14 @@ export default function PricingInterstitial( { slug } ) {
 				/>
 			}
 			actions={
-				<Button
+				<LinkButton
 					size="compact"
 					variant="outline"
-					nativeButton={ false }
-					render={ <a href={ getMyJetpackUrl( '#/add-license' ) } /> }
+					href={ getMyJetpackUrl( '#/add-license' ) }
 					onClick={ handleLicenseActivationClick }
 				>
 					{ __( 'Use license key', 'jetpack-my-jetpack' ) }
-				</Button>
+				</LinkButton>
 			}
 		>
 			<Container
@@ -410,6 +410,7 @@ export default function PricingInterstitial( { slug } ) {
 						items={ config.features }
 						showIntroOfferDisclaimer={ false }
 						headerLogo={ config.logo ? <config.logo height={ 32 } /> : null }
+						breakpoint="xlarge"
 					>
 						{ config.tiers.free && (
 							<PricingTableColumn className={ styles[ 'pricing-column' ] }>

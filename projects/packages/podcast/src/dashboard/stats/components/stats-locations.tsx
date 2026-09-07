@@ -10,19 +10,21 @@ import type { GeoData } from '@automattic/charts';
 type StatsLocationsProps = {
 	rows?: PodcastStatsCountryRow[];
 	isLoading?: boolean;
+	scopeLabel?: string;
 };
 
-const StatsLocations = ( { rows = [], isLoading = false }: StatsLocationsProps ) => {
+const StatsLocations = ( { rows = [], isLoading = false, scopeLabel }: StatsLocationsProps ) => {
 	const title = __( 'By location', 'jetpack-podcast' );
 
 	if ( isLoading ) {
-		return <SectionCard title={ title } isLoading />;
+		return <SectionCard title={ title } metric={ scopeLabel } isLoading />;
 	}
 
 	if ( rows.length === 0 ) {
 		return (
 			<SectionCard
 				title={ title }
+				metric={ scopeLabel }
 				isEmpty
 				emptyMessage={ __( 'No country data in this period.', 'jetpack-podcast' ) }
 			>
@@ -59,7 +61,7 @@ const StatsLocations = ( { rows = [], isLoading = false }: StatsLocationsProps )
 	} );
 
 	return (
-		<SectionCard title={ title } className="podcast-stats-locations">
+		<SectionCard title={ title } metric={ scopeLabel } className="podcast-stats-locations">
 			<div className="podcast-stats-locations__grid">
 				<div className="podcast-stats-locations__map">
 					<GeoChart data={ mapData } region="world" height={ 480 } />

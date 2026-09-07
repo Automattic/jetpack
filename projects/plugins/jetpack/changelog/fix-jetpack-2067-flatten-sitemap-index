@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Sitemaps: Add a jetpack_sitemap_flat_master_index filter that makes sitemap.xml list individual sitemap files instead of nesting sitemap index files, which Google Search Console rejects. Off by default while it is rolled out.

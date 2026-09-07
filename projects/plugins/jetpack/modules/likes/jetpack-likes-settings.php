@@ -207,10 +207,27 @@ class Jetpack_Likes_Settings {
 	}
 
 	/**
-	 * Adds the 'sharing' menu to the settings menu.
-	 * Only ran if sharedaddy and publicize are not already active.
+	 * Should we register the Settings > Sharing screen ourselves?
 	 *
-	 * @deprecated 13.2
+	 * Our settings are displayed on Settings > Sharing, but that screen is registered by
+	 * the Sharing (sharedaddy) module. When that module is off, nothing registers the
+	 * screen and our settings become unreachable.
+	 *
+	 * WordPress.com Simple sites are excluded: the screen is registered elsewhere there.
+	 *
+	 * @since 16.2
+	 *
+	 * @param bool $sharedaddy_active Whether the Sharing (sharedaddy) module is active.
+	 * @return bool
+	 */
+	public function needs_own_sharing_menu( $sharedaddy_active ) {
+		return ! $sharedaddy_active && $this->in_jetpack;
+	}
+
+	/**
+	 * Adds the 'sharing' menu to the settings menu.
+	 * Only ran when the Sharing (sharedaddy) module is inactive on a Jetpack site,
+	 * since Settings > Sharing is where our settings live. See needs_own_sharing_menu().
 	 */
 	public function sharing_menu() {
 		add_submenu_page( 'options-general.php', esc_html__( 'Sharing Settings', 'jetpack' ), esc_html__( 'Sharing', 'jetpack' ), 'manage_options', 'sharing', array( $this, 'sharing_page' ) );
@@ -219,9 +236,8 @@ class Jetpack_Likes_Settings {
 	/**
 	 * Provides a sharing page with the sharing_global_options hook
 	 * so we can display the setting.
-	 * Only ran if sharedaddy and publicize are not already active.
-	 *
-	 * @deprecated 13.2
+	 * Only ran when the Sharing (sharedaddy) module is inactive on a Jetpack site,
+	 * since Settings > Sharing is where our settings live. See needs_own_sharing_menu().
 	 */
 	public function sharing_page() {
 		$this->updated_message();
@@ -240,8 +256,6 @@ class Jetpack_Likes_Settings {
 
 	/**
 	 * Returns the settings have been saved message.
-	 *
-	 * @deprecated 13.2
 	 */
 	public function updated_message() {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- ignoring since we are just displaying that the settings have been saved and not making  any other changes to the site.
@@ -251,13 +265,15 @@ class Jetpack_Likes_Settings {
 	}
 
 	/**
-	 * Returns just the "sharing buttons" w/ like option block, so it can be inserted into different sharing page contexts
+	 * Returns the Likes options block, so it can be inserted into different sharing page contexts.
 	 *
-	 * @deprecated 13.2
+	 * Only rendered when the Sharing (sharedaddy) module is off, which is why the heading
+	 * does not mention sharing buttons: what lands under it is the Likes settings, the
+	 * "Show buttons on" setting that governs where Likes appear, and the Twitter Site Tag.
 	 */
 	public function sharing_block() {
 		?>
-		<h2><?php esc_html_e( 'Sharing Buttons', 'jetpack' ); ?></h2>
+		<h2><?php esc_html_e( 'Likes and Sharing', 'jetpack' ); ?></h2>
 		<form method="post" action="">
 			<table class="form-table">
 				<tbody>
@@ -284,6 +300,10 @@ class Jetpack_Likes_Settings {
 	public function is_post_likeable( $post_id = 0 ) {
 		$post = get_post( $post_id );
 		if ( ! $post || is_wp_error( $post ) ) {
+			return false;
+		}
+
+		if ( ! empty( $post->post_password ) ) {
 			return false;
 		}
 
@@ -480,7 +500,33 @@ class Jetpack_Likes_Settings {
 
 		// Default visibility settings
 		if ( ! isset( $sharing['global']['show'] ) ) {
-			$sharing['global']['show'] = array( 'post', 'page' );
+			$public_commentable_cpts = array_filter(
+				get_post_types(
+					array(
+						'public'   => true,
+						'_builtin' => false,
+					)
+				),
+				function ( $post_type ) {
+					return post_type_supports( $post_type, 'comments' );
+				}
+			);
+			$public_commentable_cpts = array_values( $public_commentable_cpts );
+
+			/**
+			 * Filters the default post types that show Likes when no sharing settings have been saved.
+			 *
+			 * Only applies when the site has never explicitly configured Likes visibility.
+			 * Once a site owner saves sharing settings, those are used instead.
+			 *
+			 * @since 16.2
+			 *
+			 * @param string[] $post_types Array of post type slugs that will show Likes by default.
+			 */
+			$sharing['global']['show'] = apply_filters(
+				'jetpack_likes_default_post_types',
+				array_merge( array( 'post', 'page' ), $public_commentable_cpts )
+			);
 
 			// Scalar check
 		} elseif ( is_scalar( $sharing['global']['show'] ) ) {
@@ -497,8 +543,9 @@ class Jetpack_Likes_Settings {
 			}
 		}
 
-		// Ensure it's always an array (even if not previously empty or scalar)
-		$setting['show'] = ! empty( $sharing['global']['show'] ) ? (array) $sharing['global']['show'] : array();
+		// Ensure it's always an array (even if not previously empty or scalar).
+		$show            = $sharing['global']['show'] ?? array();
+		$setting['show'] = ! empty( $show ) ? (array) $show : array();
 
 		/**
 		 * Filters where the Likes are displayed.

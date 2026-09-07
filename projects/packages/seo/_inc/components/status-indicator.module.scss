@@ -1,0 +1,29 @@
+// A compact 3-state setting-completion indicator: a status label followed by
+// its icon, colored with the WPDS semantic status tokens. Shared across the
+// Settings modules so completion reads consistently.
+.status {
+	display: inline-flex;
+	align-items: center;
+	// Label first, icon second → the icon sits to the right of the text.
+	gap: var(--wpds-dimension-gap-xs);
+}
+
+// The color lives on the wrapper so both the label (color: inherit) and the
+// currentColor icon pick up the same status hue.
+.notStarted {
+	color: var(--wpds-color-foreground-content-neutral-weak);
+}
+
+.inProgress {
+	color: var(--wpds-color-foreground-content-warning-weak);
+}
+
+.complete {
+	color: var(--wpds-color-foreground-content-success-weak);
+}
+
+.label {
+	color: inherit;
+	font-weight: 600;
+	white-space: nowrap;
+}

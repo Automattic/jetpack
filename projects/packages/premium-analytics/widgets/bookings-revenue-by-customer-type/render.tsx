@@ -18,14 +18,12 @@ import type { ComponentProps } from 'react';
 type BookingsRevenueByCustomerTypeRenderAttributes = BookingsRevenueByCustomerTypeAttributes &
 	Partial< ReportParamsFieldAttributes >;
 
-type BookingsRevenueByCustomerTypeRenderProps =
+type BookingsRevenueByCustomerTypeWidgetProps =
 	WidgetRenderProps< BookingsRevenueByCustomerTypeRenderAttributes > & {
 		setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
 	};
 
 /**
- * Bookings revenue by customer type widget.
- *
  * Thin composition over the widgets-toolkit: WidgetRoot provides the query
  * client, chart theme, and resolved report params; BookingsRevenueByCustomerTypeWidget
  * fetches the bookings customers report and renders the revenue breakdown.
@@ -33,7 +31,7 @@ type BookingsRevenueByCustomerTypeRenderProps =
 export default function BookingsRevenueByCustomerTypeRender( {
 	attributes = {},
 	setError,
-}: BookingsRevenueByCustomerTypeRenderProps ) {
+}: BookingsRevenueByCustomerTypeWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
 			<BookingsRevenueByCustomerTypeWidget />

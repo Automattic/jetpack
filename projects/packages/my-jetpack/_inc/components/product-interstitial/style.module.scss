@@ -59,7 +59,10 @@
 }
 
 .interstitialContainer {
-	--max-container-width: 100%;
+	// Product pricing interstitials are the intentional exception to the shared
+	// 1040px container cap: most hold 3 pricing offers, which 1040px cramps.
+	// 1280px matches the content width of the Figma onboarding mockups (MYJP-326).
+	--max-container-width: 1280px;
 	padding: 48px;
 	background: #fcfcfc;
 }

@@ -1,18 +1,13 @@
 import { __, _n, sprintf } from '@wordpress/i18n';
 import Meta, { CornerstonePagesUpgradeCTA } from './meta/meta';
 import { Panel, PanelBody, PanelRow } from '@wordpress/components';
-import Upgraded from '$features/ui/upgraded/upgraded';
 import styles from './cornerstone-pages.module.scss';
-import { usePremiumFeatures } from '$lib/stores/premium-features';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import { useCustomCornerstonePages } from './lib/stores/cornerstone-pages';
 import Prerender from './prerender/prerender';
 import { useSingleModuleState } from '$features/module/lib/stores';
 
 const CornerstonePages = () => {
-	const premiumFeatures = usePremiumFeatures();
-	const isPremium = premiumFeatures.includes( 'cornerstone-10-pages' );
-
 	const [ moduleState ] = useSingleModuleState( 'speculation_rules' );
 	const isSpeculationRulesAvailable = moduleState?.available ?? false;
 
@@ -22,10 +17,7 @@ const CornerstonePages = () => {
 				<PanelBody
 					title={
 						<div>
-							<h3>
-								{ __( 'Cornerstone Pages', 'jetpack-boost' ) }
-								{ isPremium && <Upgraded /> }
-							</h3>
+							<h3>{ __( 'Cornerstone Pages', 'jetpack-boost' ) }</h3>
 							<CornerstoneTitleSummary />
 						</div>
 					}

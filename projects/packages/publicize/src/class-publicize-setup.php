@@ -164,11 +164,6 @@ class Publicize_Setup {
 		add_action( 'current_screen', array( self::class, 'add_filters_and_actions_for_screen' ), 5 );
 
 		( new Social_Image_Generator\Setup() )->init();
-
-		// Things that should not happen on WPCOM.
-		if ( ! $is_wpcom_simple ) {
-			add_action( 'rest_api_init', array( REST_Controller::class, 'register' ) );
-		}
 	}
 
 	/**

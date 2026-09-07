@@ -1,9 +1,7 @@
-import apiFetch from '@wordpress/api-fetch';
 import { addQueryArgs } from '@wordpress/url';
+import { fetchPreservingStatus, getNoticesPath } from '../api/stats-proxy-fetch';
 import { statsAppQueryKeyPart } from './stats-app-query';
 import type { UseQueryOptions } from '@tanstack/react-query';
-
-const noticesPath = '/jetpack-premium-analytics/v1/notices';
 
 export type StatsAppNoticeId =
 	| 'able_to_submit_user_feedback'
@@ -31,11 +29,11 @@ export type StatsAppNoticeStatus = 'dismissed' | 'postponed';
 export const statsAppNoticesQuery = (
 	params: StatsAppNoticesParams = {}
 ): UseQueryOptions< StatsAppNotices > => ( {
-	// Notices are served by the local plugin REST route, not the Stats proxy.
+	// Connected sites use the local plugin route; Simple uses WPCOM directly.
 	queryKey: [ 'stats-app', 'notices', statsAppQueryKeyPart( params ) ],
 	queryFn: () =>
-		apiFetch< StatsAppNotices >( {
-			path: addQueryArgs( noticesPath, params ),
+		fetchPreservingStatus< StatsAppNotices >( {
+			path: addQueryArgs( getNoticesPath(), params ),
 		} ),
 	placeholderData: previousData => previousData,
 } );
@@ -49,8 +47,8 @@ export type StatsAppNoticeMutationParams = {
 export type StatsAppNoticeMutationResponse = StatsAppNotices;
 
 export const updateStatsAppNotice = ( data: StatsAppNoticeMutationParams ) =>
-	apiFetch< StatsAppNoticeMutationResponse >( {
-		path: noticesPath,
+	fetchPreservingStatus< StatsAppNoticeMutationResponse >( {
+		path: getNoticesPath(),
 		method: 'POST',
 		data,
 	} );

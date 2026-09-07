@@ -1,31 +1,38 @@
 ---
-description: End-to-end Jetpack workflow that turns a task prompt into a draft PR on its own isolated worktree and `jp docker` instance. Use whenever the user asks to "work on", "ship", "implement", "take to PR", "build and submit", or otherwise wants a change driven from plan → code → tests → screenshots → pull request, or when they ask for a parallel/isolated sandbox separate from their primary `jetpack_dev` container. Also use for "set up a branch for X", "spin up an env to try Y", "walk this spec through to a PR", and similar phrasings — even when the user doesn't name this skill directly. Prefer this over freehand coding whenever the request carries a concrete scope that ends at a reviewable PR.
+description: Optional end-to-end Jetpack workflow that drives a scoped task to a draft PR inside its own git worktree and its own named `jp docker` instance, leaving the primary `jetpack_dev` untouched. It wraps the repo-native parallel-worktree flow (`tools/docker/bin/seed-worktree-env.sh`, tools/docker/README.md § "Parallel development environments") and layers plan → code → quality gates → screenshots → changelog → draft PR on top; it is not a replacement for ordinary in-checkout work. It costs a worktree, a pnpm install, and a multi-minute Docker bring-up. OFFER it when a request has concrete scope that ends at a reviewable PR and would genuinely benefit from isolation, then proceed only if the user accepts — do NOT enter it unprompted. Do not use it for one-line fixes, debugging, lookups, exploration, work that must mutate `jetpack_dev` directly, or anything requiring a Jurassic Tube tunnel.
 ---
 
 # /work-on
 
 Drives a task prompt all the way to a draft pull request on its own worktree and its own `jp docker` instance, without touching the primary `jetpack_dev` environment. This skill exists because the default monorepo Docker setup is singleton — two `jp docker up` calls from different branches would otherwise collide — so parallel work requires the named-instance CLI flags and port isolation this skill relies on.
 
+**This skill is an option, not a policy.** It is one way to work in this repo, offered alongside the plain in-checkout workflow and the repo-native worktree flow described below. Offer it, name what it costs, and take no for an answer — see "Relationship to the native worktree flows".
+
 ## Prerequisites
 
-- **Docker Desktop is running.** The port-allocation step calls `docker ps`; it fails silently on a stopped daemon.
+- **Docker Desktop is running.** Bring-up and the instance checks in Phase 3 and Phase 11 call `docker ps`; they fail silently on a stopped daemon.
 - **`jp` is on your PATH.** `jp` is the canonical CLI (see `AGENTS.md`). If your shell has it as `jetpack` or you invoke it as `pnpm jetpack`, substitute freely — every `jp` command below works identically under those aliases.
-- **`jq` is installed.** The scripts in `work-on/scripts/` use it to parse `.work-on/env.json`. `brew install jq` on macOS if missing.
+- **`jq` is installed.** Used to read and write `.work-on/env.json`. `brew install jq` on macOS if missing.
 - **`pnpm install --frozen-lockfile` may fail** if the lockfile has drifted since the last pull. The bootstrap script falls back to a regular `pnpm install` automatically; don't panic if you see the warning.
 
-## Trigger phrases
+## When to offer this skill
 
-Match this skill when the user's request includes phrases like:
+**Enter this skill only when the user has asked for it, or has accepted an offer of it.** The skill name is an everyday phrase — "let's work on the dashboard" is how any task begins — so a phrase match alone is never sufficient evidence that the user wants a worktree and a Docker instance.
 
-- "work on [something]"
-- "implement [feature/spec/ticket]"
-- "ship [change]" / "take [this] to PR" / "build and PR"
+Named requests — run it:
+
+- "/work-on [X]", "use work-on for this", "run the work-on flow"
+
+Unnamed requests worth **offering** it for — say what it costs and wait:
+
 - "spin up a branch / worktree / sandbox for [X]"
 - "set up an isolated environment to try [Y]"
-- "walk this through to a PR"
-- "draft a PR that does [Z]"
+- "walk this through to a PR" / "take this to PR" / "build and PR"
+- "implement [feature/spec/ticket]" where the scope is non-trivial and ends at a reviewable PR
 
-Ambiguous-but-likely triggers: "can you fix [specific thing] and open a PR", "make this happen end-to-end", "go do [task]" when the task has non-trivial scope. If the request is a one-line fix or obviously throwaway exploration, decline this skill and just code.
+The offer should be one sentence and concrete, e.g.: *"I can run this through `/work-on` — its own worktree plus a dedicated `jp docker` instance, so your `jetpack_dev` stays untouched. Costs a few minutes of bring-up. Want that, or should I just work here?"*
+
+Do not offer it at all for: one-line fixes, debugging an existing failure, code lookups or questions, throwaway exploration, or work that must mutate `jetpack_dev` directly. Just do the work in the current checkout.
 
 ## Example walkthrough
 
@@ -35,16 +42,16 @@ The skill would:
 
 1. **Parse** the prompt → slug `fix-forms-label-wrap`, project `projects/packages/forms`, visual = yes, Figma reference recorded.
 2. **Plan** the change (inspect the block's label CSS, identify breakpoint rule), show the plan, wait for approval.
-3. **Allocate ports** via `work-on/scripts/alloc-ports.sh fix-forms-label-wrap` → deterministic band 1 → WP 8080, phpMy 8281, Mailpit 1180/2525, SFTP 1122.
-4. **Bootstrap** via `work-on/scripts/bootstrap-worktree.sh fix-forms-label-wrap` → creates `../jetpack-fix-forms-label-wrap` on branch `change/fix-forms-label-wrap` off trunk, runs pnpm install, seeds `.work-on/`.
-5. `jp docker up -d --name fix-forms-label-wrap --port 8080 --port-phpmy 8281 --port-inbox 1180 --port-smtp 2525 --port-sftp 1122 --clone-from dev` → `jp docker install --name fix-forms-label-wrap --port 8080` (usually a no-op after clone).
+3. **Bootstrap** via `work-on/scripts/bootstrap-worktree.sh fix-forms-label-wrap` → creates `../jetpack-fix-forms-label-wrap` on branch `change/fix-forms-label-wrap` off trunk, runs pnpm install, seeds `.work-on/`.
+4. **Isolate Docker** via `tools/docker/bin/seed-worktree-env.sh` inside the worktree → writes `COMPOSE_PROJECT_NAME=jetpack_a1b2c3` and a free `PORT_*` set into `tools/docker/.env`; record `NAME=a1b2c3` and `WP_PORT=8080`.
+5. `jp docker up -d` (no flags — `.env` supplies name and ports, and the DB auto-clones from `jetpack_dev`) → `jp docker install --name a1b2c3 --port 8080` (a no-op after a successful clone).
 6. **Baseline screenshot** of the affected block at `http://localhost:8080/...` → `.work-on/screenshots/fix-forms-label-wrap-before.png`.
 7. **Implement** the CSS fix.
 8. `jp build packages/forms` → `jp test js packages/forms` → `jp phan packages/forms`.
 9. **After screenshot** → compare to Figma reference.
 10. `jp changelog add packages/forms -s patch -t fixed -e "Forms: Fix label wrap on mobile."`
 11. Commit (`Forms: Fix label wrap on mobile`), push, open **draft** PR via `jetpack-pr` skill with before/after attachments + testing steps + Figma link.
-12. `jp docker stop --name fix-forms-label-wrap`. Worktree stays for review follow-ups.
+12. `jp docker stop --name a1b2c3`. Worktree stays for review follow-ups.
 
 ## When to use
 - Non-trivial features or bug fixes that land as their own PR.
@@ -56,16 +63,55 @@ The skill would:
 - Work that must mutate `jetpack_dev` state directly.
 - Tasks that depend on a live WordPress.com connection / Jurassic Tube tunnel — tunnels are not set up by this skill.
 
+## Relationship to the native worktree flows
+
+Two mechanisms already cover parts of what this skill does. Know which one you're displacing before you start.
+
+**`tools/docker/bin/seed-worktree-env.sh`** (repo-native, and the path `tools/docker/README.md` § "Parallel development environments" calls *recommended*). It seeds a worktree's `tools/docker/.env` with a unique `COMPOSE_PROJECT_NAME` and a free port set, after which a bare `jp docker up -d` is isolated. If all you want is an isolated environment, **use that script directly — it is smaller, documented, and maintained with the CLI.** This skill's value over it is everything around the environment: planning, quality gates, screenshots, changelog, and the draft PR.
+
+**Phase 3 calls that script rather than reimplementing it.** This skill used to carry its own port allocator (`alloc-ports.sh`, deterministic bands passed as `--port*` flags); it was retired because the two allocators could not see each other. `seed-worktree-env.sh` reserves ports by reading other worktrees' `.env` files, and the old allocator never wrote one — so a `work-on` instance was invisible to it and it could hand out a port already in use. Their per-service bases disagreed too (phpMyAdmin `8281` vs `8282`, SFTP `1122` vs `2222`). Do not reintroduce a second allocator: if ports need changing, edit the worktree's `tools/docker/.env` or use the manual `--port*` flags documented in `tools/docker/README.md`.
+
+**Harness-native worktree tools** (e.g. Claude Code's `EnterWorktree`). These create a worktree and switch into it, but do nothing about Docker. A worktree made that way has no seeded `tools/docker/.env`, so a bare `jp docker up` there silently re-points the shared `jetpack_dev` containers at it. If you use a harness worktree tool in this repo, run `seed-worktree-env.sh` inside the new worktree before any `jp docker` command.
+
 ## Modes
 
 Ask the user up front which mode to run, unless they've specified:
 
 1. **Full run** — plan → bootstrap → implement → verify → draft PR. Default.
 2. **Bootstrap only** — plan + worktree + docker up, then stop and hand off. Useful when the human wants to drive implementation themselves.
-3. **Implement only** — resume Phases 5–11 against an existing `/work-on` bootstrap (worktree present, docker already running). The skill finds `.work-on/env.json` inside the target worktree and reads the slug/port map from it.
+3. **Implement only** — resume Phases 5–11 against an existing `/work-on` bootstrap (worktree present, docker already running). The skill finds `.work-on/env.json` inside the target worktree and reads the slug, instance name, and port map from it.
+
+## Progress checkpoints (always run)
+
+**At the end of every phase, record where you got to.** A coordinator (the centurion skill, or the user asking "what's in flight?") reads this file instead of interrupting the worker.
+
+```bash
+.agents/skills/work-on/scripts/checkpoint.sh \
+  --phase 6 --name "Quality gates" \
+  --action "jp test js packages/forms — 3 suites passed"
+```
+
+It writes `<worktree>/.work-on/status.json` atomically, carrying over any field you don't pass.
+
+`bootstrap-worktree.sh` already seeds the first checkpoint (phase 3, `running`) as it creates the worktree, so a worktree always has a status file from the moment it exists — that's what lets a coordinator tell "never started" from "started and went quiet". Don't re-write it for the same phase; the next call you make should be the one after Docker is up.
+
+Also call it — not only at phase boundaries — when:
+
+- **You block.** `--blocker "phan fails twice on the same check"` (implies `state: blocked`). Do this *before* surfacing the question, so a poller sees the reason even if nobody is watching the chat.
+- **You resume.** `--clear-blocker` returns the state to `running`.
+- **The PR opens.** `--pr <url> --state done` in Phase 10.
+- **You fail out.** `--state failed --action "<what broke>"` in Phase 11's failure path.
+
+`status.json` and `env.json` are different files with different jobs — never merge them or write one from the other:
+
+| | written | rewritten | describes | read by |
+|---|---|---|---|---|
+| `env.json` | once, Phase 3 | no | the session: slug, branch, instance, ports, references | Mode 3 resume |
+| `status.json` | every phase boundary | yes | progress: phase, state, last action, blocker, PR | coordinators, the user |
 
 ## Preflight (always run)
 
+0. **Confirm the user actually wants this flow.** If they named the skill, proceed. If you arrived here by inference, stop and offer it in one sentence (see "When to offer this skill"), naming the cost — a worktree, a pnpm install, and a multi-minute Docker bring-up. If they decline or don't answer clearly, work in the current checkout instead. Never spawn a worktree or a Docker instance on inference alone.
 1. **Read `AGENTS.md`** for the current build, test, docker, changelog, and PR commands. Do not guess from memory — these change.
 2. **Read any project-level `.codex/README.md`** for the project you're about to touch. It will save expensive re-exploration.
 3. **Read `design.md` at the repo root if it exists.** This is the product's design lens (the devkit pattern). Execute its procedure as a checklist before Phase 2 planning: state before-building assumptions tagged `confident`/`assuming`/`unclear`, walk the pattern-matching tiers, surface designer-review triggers by name, name relevant principles. The lens content overrides this skill's defaults where they conflict on UI choices. Skip silently if `design.md` does not exist.
@@ -76,13 +122,13 @@ Ask the user up front which mode to run, unless they've specified:
 5. **Continuation detection**:
    - Current branch ≠ trunk AND has commits ahead of `origin/trunk` → ask: "This looks like a continuation of `<branch>`. Options: (a) add to that branch (force-push may be needed later to keep rebased), (b) branch off fresh from trunk. Which?" Act on the answer.
    - A worktree already exists at the proposed path → ask whether to reuse or pick a different slug.
-   - A docker compose project matching `jetpack_<slug>` is already running → ask whether to reuse, stop, or pick a different slug.
+   - The proposed worktree already exists and its `tools/docker/.env` names a running compose project (`docker ps --filter name=<COMPOSE_PROJECT_NAME>`) → ask whether to reuse that instance, stop it, or pick a different slug.
 6. **Fill in missing details** by asking the user, not by guessing: Linear/P2/Figma links, plugin scope, whether the change is visual. A self-explanatory PR needs these.
 
 ## Phase 0 — Parse the prompt
 
 Extract:
-- **Task slug** — kebab-case, ≤ 30 chars, safe as both `--name` and branch suffix (e.g. `fix-forms-label-wrap`).
+- **Task slug** — kebab-case, ≤ 30 chars, safe as a branch suffix and worktree directory name (e.g. `fix-forms-label-wrap`). It is *not* the Docker instance name — see Phase 3.
 - **Target project(s)** — e.g. `projects/plugins/jetpack`, `projects/packages/forms`. If ambiguous, ask.
 - **Visual change?** — any UI/CSS/React/block markup implies yes. If yes, Phases 4 and 7 are mandatory.
 - **External references** — Linear, P2 (use the `abc1-2-p2` shorthand per `AGENTS.md` "Confidentiality"), Figma, GitHub issue.
@@ -108,39 +154,56 @@ Produce and show the user a plan containing:
 
 ## Phase 3 — Worktree & Docker bring-up
 
-From the **main checkout**, allocate ports and bootstrap the worktree using the helper scripts so the details stay consistent across runs:
+From the **main checkout**, bootstrap the worktree:
 
 ```bash
-PORTS=$(.agents/skills/work-on/scripts/alloc-ports.sh <slug>)
-# PORTS is JSON, e.g. {"band":1,"wp":8080,"phpmy":8281,"inbox":1180,"smtp":2525,"sftp":1122}
-
 WORKTREE=$(.agents/skills/work-on/scripts/bootstrap-worktree.sh <slug>)
 # WORKTREE = /path/to/jetpack-<slug>, created on branch change/<slug> off origin/trunk
 ```
 
-If `alloc-ports.sh` exits 2, every band is taken — ask the user to stop one of the running instances or provide explicit ports.
-
-Bring up the isolated Docker from within the worktree:
+Then isolate the worktree's Docker using the **repo-native seeder** — this skill does not allocate ports itself:
 
 ```bash
 cd "$WORKTREE"
-jp docker up -d \
-  --name <slug> \
-  --port  "$(echo "$PORTS" | jq -r .wp)" \
-  --port-phpmy "$(echo "$PORTS" | jq -r .phpmy)" \
-  --port-inbox "$(echo "$PORTS" | jq -r .inbox)" \
-  --port-smtp  "$(echo "$PORTS" | jq -r .smtp)" \
-  --port-sftp  "$(echo "$PORTS" | jq -r .sftp)" \
-  --clone-from dev
+tools/docker/bin/seed-worktree-env.sh
 ```
 
-WordPress image pulls can take several minutes on a cold cache — if `jp docker install` fails with "WordPress install is incomplete! Perhaps it is still downloading?", wait ~30s and retry once before escalating. Then:
+That writes a unique `COMPOSE_PROJECT_NAME` plus a free `PORT_*` set into the worktree's `tools/docker/.env`. It is host-only, idempotent, and a no-op in the primary checkout. It exits non-zero with an explanatory message if the name it would use is already claimed by another worktree — read the message rather than retrying.
+
+Read the values back; every later `jp docker` subcommand needs them:
 
 ```bash
-jp docker install --name <slug> --port "$(echo "$PORTS" | jq -r .wp)"
+# Last occurrence wins and surrounding whitespace is ignored — matches how the
+# seeder and `jp docker` themselves parse the file. Don't simplify to a bare grep:
+# `.env` may carry hand-edited or duplicated keys.
+read_env() {
+  grep -E "^[[:space:]]*$1[[:space:]]*=" tools/docker/.env | tail -1 | cut -d= -f2- | tr -d '[:space:]'
+}
+
+INSTANCE=$(read_env COMPOSE_PROJECT_NAME)   # e.g. jetpack_a1b2c3
+NAME=${INSTANCE#jetpack_}                   # value for --name
+WP_PORT=$(read_env PORT_WORDPRESS)
 ```
 
-Use `--clone-from <name>` to seed from a specific running source instance. When the flag is omitted, the CLI auto-clones from `jetpack_dev` if it's running; pass `--no-clone` to opt out and get a fresh-install flow instead.
+> **`--name` is not the slug.** The seeder derives the instance name from git's worktree id, not from your task slug, so `NAME` is an opaque id. Record it in `.work-on/env.json` (below) — Mode 3 and every cleanup command read it from there.
+
+Bring the instance up. Pass **no `--name` or `--port*` flags**: `up` is the one subcommand that reads `tools/docker/.env` (`shouldManageParallelEnv` in `tools/cli/commands/docker.js`), and flags that disagree with `.env` only produce conflict warnings.
+
+```bash
+jp docker up -d
+```
+
+Because `.env` supplies the name, the CLI treats this as a parallel instance and **auto-clones the database from `jetpack_dev`** when that instance is running — same content, users, and Jetpack connection, no separate install needed. If `jetpack_dev` isn't running the clone is skipped silently and you get the fresh-install flow, so follow up with:
+
+```bash
+jp docker install --name "$NAME" --port "$WP_PORT"
+```
+
+WordPress image pulls can take several minutes on a cold cache — if `jp docker install` fails with "WordPress install is incomplete! Perhaps it is still downloading?", wait ~30s and retry once before escalating.
+
+Pass `--no-clone` to `up` to force a fresh install, or `--clone-from <name>` to seed from a specific instance instead of `jetpack_dev`. Note that `--clone-from` makes a missing source a hard error, where auto-clone degrades quietly.
+
+**Every other `jp docker` subcommand needs `--name "$NAME"` explicitly** — `install`, `stop`, `clean`, and `phpunit` do not read `.env`, and without the flag they resolve to the primary `jetpack_dev` instance.
 
 Write the full session record to `$WORKTREE/.work-on/env.json` using the schema below. Mode 3 (implement-only resume) reads this file — fields are mandatory.
 
@@ -153,7 +216,7 @@ Skip if Phase 0 classified the change as non-visual.
    ```
    jp build <project>
    ```
-   The mounted volume means the running `jetpack_<slug>` container picks the new build up immediately.
+   The mounted volume means the running `$INSTANCE` container picks the new build up immediately.
 3. Auto-pick the browser tool:
    - **Playwright MCP** (default) — best for screenshots, clicks, form interaction, a11y labels, visual comparison.
    - **Chrome DevTools MCP** (via the `chrome-devtools-mcp:chrome-devtools` skill) — when the task needs perf metrics, network throttling, heavy console interrogation, or CDP-only features.
@@ -179,7 +242,7 @@ All commands are in `AGENTS.md`. Run the subset that applies:
 |---|---|
 | PHP in a project | `jp build <project>`, `jp test php <project>`, `jp phan <project>` |
 | JS/TS in a project | `jp build <project>`, `jp test js <project>` (no-op if the project doesn't define it) |
-| WP-integration plugin (jetpack / wpcomsh) | `jp docker phpunit <target> -- --name <slug>` — the `--name` routes to the *worktree's* instance, not `jetpack_dev` |
+| WP-integration plugin (jetpack / wpcomsh) | `jp docker phpunit <target> -- --name "$NAME"` — `$NAME` is the instance id from `.work-on/env.json`; without it the run hits `jetpack_dev`, not the worktree |
 | Root / `tools/*` change | `pnpm test` inside the affected tool package |
 | Every change | lint the touched files: `npx eslint <files>` and project-local `composer lint` / PHPCS when present |
 
@@ -226,19 +289,30 @@ Create a **draft** PR by delegating to `.agents/skills/jetpack-pr.md`. Additions
 - Embed: Phase 2 test plan, Phase 6 gate outputs, Phase 0 external references, before/after screenshot URLs.
 - Suggest reviewers if the user hasn't named any — pick the top 1–2 recent authors on the changed files from `git log --format='%an'`.
 
+Record the PR as soon as it exists — this is the checkpoint a coordinator waits on:
+
+```bash
+.agents/skills/work-on/scripts/checkpoint.sh \
+  --phase 10 --name "Commit & PR" --state done --pr "<pr-url>"
+```
+
 ## Phase 11 — Cleanup
 
 **On success:**
 
-- `jp docker stop --name <slug>` — stops the containers and frees ports. DB, uploads, and `node_modules` remain on disk for review follow-ups.
+- `jp docker stop --name "$NAME"` — stops the containers and frees ports. DB, uploads, and `node_modules` remain on disk for review follow-ups. `$NAME` comes from `.work-on/env.json`; omitting it stops the user's primary `jetpack_dev` instead.
 
 Do NOT run automatically — wait for PR merge or explicit user request:
-- `jp docker clean --name <slug>` (destroys that instance's DB).
-- `git worktree remove <path>` (removes the worktree + scratchpad).
+- `jp docker clean --name "$NAME"` (destroys that instance's DB).
+- `git worktree remove <path>` (removes the worktree + scratchpad, including its `tools/docker/.env`, which releases the seeded ports and instance name for reuse).
 
 **On failure** (any phase errors out):
 
-- Attempt `jp docker stop --name <slug>` so the named instance doesn't sit orphaned holding ports.
+- Checkpoint the failure first, before anything else — it's the only record a coordinator gets:
+  ```bash
+  .agents/skills/work-on/scripts/checkpoint.sh --state failed --action "<what broke, one line>"
+  ```
+- Attempt `jp docker stop --name "$NAME"` so the named instance doesn't sit orphaned holding ports.
 - Leave the worktree in place; the user may want to inspect the partial state.
 - Tell the user exactly which phase failed, what the error was, and which of the two cleanup paths to use next.
 
@@ -252,7 +326,7 @@ Do NOT run automatically — wait for PR merge or explicit user request:
 
 ## `.work-on/env.json` schema
 
-Written by Phase 3, read by Mode 3. Fields are required unless marked optional. Dates are ISO 8601 UTC.
+Written by Phase 3, read by Mode 3. Fields are required unless marked optional. Dates are ISO 8601 UTC. `instance`, `name`, and `ports` are copied verbatim from the worktree's `tools/docker/.env` after seeding — never invent them, and re-read `.env` if they ever disagree with it.
 
 ```json
 {
@@ -261,13 +335,14 @@ Written by Phase 3, read by Mode 3. Fields are required unless marked optional. 
   "worktree": "/Users/you/a8c/dev/jetpack-fix-forms-label-wrap",
   "project": "projects/packages/forms",
   "visual": true,
-  "band": 1,
+  "instance": "jetpack_a1b2c3",
+  "name": "a1b2c3",
   "ports": {
     "wp": 8080,
-    "phpmy": 8281,
+    "phpmy": 8282,
     "inbox": 1180,
     "smtp": 2525,
-    "sftp": 1122
+    "sftp": 2222
   },
   "references": {
     "figma": "https://figma.com/file/abc123",
@@ -279,20 +354,33 @@ Written by Phase 3, read by Mode 3. Fields are required unless marked optional. 
 }
 ```
 
+## `.work-on/status.json` schema
+
+Written by `checkpoint.sh` at every phase boundary; read by coordinators. Never hand-write it — the script's atomic temp-file-and-`mv` is what stops a poller reading half a file.
+
+```json
+{
+  "slug": "fix-forms-label-wrap",
+  "worktree": "/Users/you/a8c/dev/jetpack-fix-forms-label-wrap",
+  "phase": 6,
+  "phase_name": "Quality gates",
+  "state": "running",
+  "last_action": "jp test js packages/forms — 3 suites passed",
+  "blocker": null,
+  "pr": null,
+  "updated": "2026-07-30T18:37:57Z"
+}
+```
+
+`state` is one of `running`, `blocked`, `done`, `failed`. `blocker` is non-null only when `state` is `blocked`. `pr` is null until Phase 10 opens the draft.
+
 ## Port allocation
 
-Main `jetpack_dev` uses: WP 80, phpMyAdmin 8181, Mailpit inbox 1080, Mailpit SMTP 25, SFTP 1022.
+**This skill does not allocate ports.** `tools/docker/bin/seed-worktree-env.sh` owns that, and Phase 3 calls it — see "Relationship to the native worktree flows".
 
-Allocation is done by `work-on/scripts/alloc-ports.sh <slug>`. It reads `docker ps` for currently-bound host ports, picks the first band whose five ports are all unbound, and prints JSON on stdout. Bands are deterministic from the slug hash so the same task lands in the same band across restarts. Exit code 2 means every band is occupied — ask the user to free one.
+Main `jetpack_dev` uses: WP 80, phpMyAdmin 8181, Mailpit inbox 1080, Mailpit SMTP 25, SFTP 1022. The seeder allocates the first free value at or above a per-service base — WP `8080`, phpMyAdmin `8282`, inbox `1180`, SMTP `2525`, SFTP `2222` — so a first worktree usually lands exactly on those, and later ones step up from there. Values are persisted in the worktree's `tools/docker/.env` and stay stable across restarts.
 
-Band map (kept in sync with the script):
-
-| Band | WP | phpMyAdmin | Mailpit inbox | Mailpit SMTP | SFTP |
-|---|---|---|---|---|---|
-| 1 | 8080 | 8281 | 1180 | 2525 | 1122 |
-| 2 | 8090 | 8381 | 1280 | 2626 | 1222 |
-| 3 | 8100 | 8481 | 1380 | 2727 | 1322 |
-| 4 | 8110 | 8581 | 1480 | 2828 | 1422 |
+The seeder reserves ports recorded in other worktrees' `.env` files, but does not probe for live-bound host ports and does not lock against two worktrees seeding at the same instant. A genuine clash surfaces as `address already in use` from `jp docker up` — edit the port in `tools/docker/.env` and retry, then update `.work-on/env.json` to match. See `tools/docker/README.md` § "Parallel development environments" for the authoritative rules.
 
 ## Docker instance tracking
 
@@ -302,7 +390,7 @@ Before creating a new instance:
 docker ps -a --filter 'name=jetpack_' --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}'
 ```
 
-Collisions: ask the user to reuse, stop + recreate, or pick a different slug.
+Instance names come from git's worktree id, so two live worktrees cannot collide by construction — and `seed-worktree-env.sh` refuses to seed a name another worktree has already claimed. What you're looking for here is an *orphan*: a container from a worktree that was removed without `jp docker clean`. Match names against `git worktree list`; anything unmatched is stale, and stopping or cleaning it is the user's call.
 
 ## When to pause and ask
 
@@ -310,7 +398,7 @@ Default is to act, but stop and ask when:
 - Continuation is detected at preflight.
 - The plan diverges from expectations during implementation.
 - A gate fails twice on the same check (the 2-cycle limit).
-- All port bands are occupied.
+- `seed-worktree-env.sh` exits non-zero, or `jp docker up` reports `address already in use`.
 - The task turns out to need a live WordPress.com connection.
 - The inferred slug, project, or scope feels wrong or thin.
 
@@ -323,11 +411,12 @@ The skill completed successfully if all of these hold:
 - `git branch --show-current` (inside the worktree) equals `change/<slug>`.
 - `git log origin/trunk..HEAD` is non-empty and every commit message is imperative, present-tense, and does NOT contain `Co-Authored-By: Claude` or `Generated with Claude Code`.
 - `gh pr view --json isDraft,state,body` returns `{"isDraft":true,"state":"OPEN"}` and the body contains a "Testing instructions" section.
-- `docker ps --filter name=jetpack_<slug>` lists **no running container** (Phase 11 immediate stop was honored).
+- `docker ps --filter name="$INSTANCE"` lists **no running container** (Phase 11 immediate stop was honored).
 - `git worktree list | grep jetpack-<slug>` still shows the worktree present (deferred cleanup).
 - If the change was visual: `.work-on/screenshots/<slug>-before.png` and `<slug>-after.png` both exist and are >4 KB.
 - If any file under `projects/` changed: a new entry exists in that project's `changelog/` directory.
 - `.work-on/env.json` is valid JSON and round-trips through `jq` without error.
+- `.work-on/status.json` exists, is valid JSON, and its `state` is `done` with a non-null `pr`.
 
 Use these as the "definition of done" when you report back to the user — mention any that didn't hold.
 
@@ -337,8 +426,10 @@ Use these as the "definition of done" when you report back to the user — menti
 - `.agents/skills/jetpack-review-pr.md` — run before requesting a human reviewer.
 
 ## Scripts
-- `work-on/scripts/alloc-ports.sh` — port-band allocator.
 - `work-on/scripts/bootstrap-worktree.sh` — worktree + pnpm install + scratchpad.
+- `work-on/scripts/checkpoint.sh` — atomic phase-boundary write to `.work-on/status.json`.
+
+Port and instance-name allocation is **not** a script of this skill's — Phase 3 calls `tools/docker/bin/seed-worktree-env.sh`, which ships with the Docker CLI.
 
 ## Known limitations / future extensions
 - `/implement <slug>` — companion skill that assumes a prior `/work-on` bootstrap (picks up from Phase 5 using `.work-on/env.json`). Not yet implemented.

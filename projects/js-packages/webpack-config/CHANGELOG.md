@@ -5,6 +5,59 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 4.1.4 - 2026-09-04
+### Changed
+- Update package dependencies. [#51701]
+- Update package dependencies. [#51853]
+
+### Fixed
+- Bundled WP packages: rewrite the text domain of `@wordpress/admin-ui` i18n calls too, so webpack builds that bundle it pass the i18n check. [#51701]
+
+## 4.1.3 - 2026-09-01
+### Changed
+- Update package dependencies. [#51724] [#51727]
+
+### Fixed
+- Update @wordpress/dependency-extraction-webpack-plugin, which bundles @wordpress/kebab-case instead of externalizing it to a script handle WordPress does not register. [#51303]
+
+## 4.1.2 - 2026-08-06
+### Changed
+- Update dependencies.
+
+## 4.1.1 - 2026-07-31
+### Changed
+- Update dependencies.
+
+## 4.1.0 - 2026-07-27
+### Added
+- Add `PnpmDeterministicChunkIds` plugin. [#50758]
+
+### Changed
+- Update package dependencies. [#50751]
+
+## 4.0.1 - 2026-07-22
+### Changed
+- Update package dependencies. [#50683]
+
+## 4.0.0 - 2026-07-20
+### Changed
+- Update package dependencies. [#50529]
+
+### Removed
+- Remove ForkTSCheckerPlugin and the fork-ts-checker-webpack-plugin dependency. Use tsgo or tsdown to build TypeScript packages instead. [#50526]
+
+## 3.11.4 - 2026-07-15
+### Changed
+- Update package dependencies. [#50510]
+
+## 3.11.3 - 2026-07-13
+### Changed
+- Internal updates.
+
+## 3.11.2 - 2026-07-09
+### Changed
+- Update package dependencies. [#50236]
+
 ## 3.11.1 - 2026-07-06
 ### Changed
 - Update package dependencies. [#50097] [#50183]

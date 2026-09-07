@@ -9,4 +9,10 @@ return array(
 		),
 		'bar' => '4.5.6',
 	),
+	'paths' => array(
+		'target' => array(
+			'path' => 'path/to/target',
+			'ver' => '7.8.9',
+		),
+	),
 );

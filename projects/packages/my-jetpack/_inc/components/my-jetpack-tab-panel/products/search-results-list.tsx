@@ -3,6 +3,7 @@ import { DataViews, Field } from '@wordpress/dataviews';
 import { __ } from '@wordpress/i18n';
 import { Badge } from '@wordpress/ui';
 import { useId, useMemo } from 'react';
+import { getSharingBlockNotice } from '../../../utils/sharing-block';
 import { ModuleStatus } from '../../module-status';
 import { ModuleToggle } from '../../module-toggle';
 import modulesStyles from '../../modules-list/styles.module.scss';
@@ -26,7 +27,9 @@ const getName = ( item: SearchResultItem ) =>
 	item.kind === 'card' ? item.card.product.name : item.module.name;
 
 const getDescription = ( item: SearchResultItem ) =>
-	item.kind === 'card' ? item.card.product.description : item.module.description;
+	item.kind === 'card'
+		? item.card.product.description
+		: getSharingBlockNotice( item.module ) ?? item.module.description;
 
 /**
  * Renders relevance-ranked search results as a single uniform list of compact rows, mixing

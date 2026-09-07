@@ -20,12 +20,14 @@ import {
 	useGlobalChartsContext,
 	GlobalChartsContext,
 } from '../../providers';
+import { useDefaultHiddenSeries } from '../../providers/chart-context/hooks/use-default-hidden-series';
 import { attachSubComponents } from '../../utils';
 import { useChartChildren } from '../private/chart-composition';
+import { ChartInstanceContext } from '../private/chart-instance-context';
 import { ChartLayout } from '../private/chart-layout';
-import { SingleChartContext } from '../private/single-chart-context';
-import { SvgEmptyState } from '../private/svg-empty-state';
+import { getAllHiddenMessage, SvgEmptyState } from '../private/svg-empty-state';
 import { withResponsive } from '../private/with-responsive';
+import plotStyles from '../private/xy-plot/xy-plot.module.scss';
 import styles from './bar-chart.module.scss';
 import {
 	useBarChartOptions,
@@ -37,12 +39,23 @@ import {
 	BASE_BAND_PADDING_INNER,
 } from './private';
 import type { ComparisonSeriesEntry } from './private';
-import type { BaseChartProps, DataPointDate, SeriesData, Optional } from '../../types';
+import type {
+	BaseChartProps,
+	DataPointDate,
+	SeriesData,
+	SeriesChartLegendConfig,
+	SeriesVisibilityProps,
+	Optional,
+} from '../../types';
 import type { RenderTooltipParams } from '../../visx/types';
 import type { ResponsiveConfig } from '../private/with-responsive';
 import type { FC, ReactNode, ComponentType } from 'react';
 
-export interface BarChartProps extends BaseChartProps< SeriesData[] > {
+export interface BarChartProps extends BaseChartProps< SeriesData[] >, SeriesVisibilityProps {
+	/**
+	 * Legend configuration. Supports `collapseGroups` on top of the shared options.
+	 */
+	legend?: SeriesChartLegendConfig;
 	renderTooltip?: ( params: RenderTooltipParams< DataPointDate > ) => ReactNode;
 	orientation?: 'horizontal' | 'vertical';
 	withPatterns?: boolean;
@@ -112,13 +125,23 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	orientation = 'vertical',
 	withPatterns = false,
 	showZeroValues = false,
+	defaultHiddenSeries,
 	animation,
 	children,
 	gap = 'md',
+	onPointerDown,
+	onPointerUp,
+	onDatumActivate,
 } ) => {
 	const legendInteractive = legend.interactive ?? false;
+	const legendCollapseGroups = legend.collapseGroups ?? false;
 	const horizontal = orientation === 'horizontal';
 	const chartId = useChartId( providedChartId );
+	const hiddenSeries = useDefaultHiddenSeries( chartId, defaultHiddenSeries );
+	const isSeriesVisible = useCallback(
+		( seriesLabel: string ) => ! hiddenSeries.has( seriesLabel ),
+		[ hiddenSeries ]
+	);
 	const theme = useXYChartTheme( data );
 
 	const dataSorted = useChartDataTransform( data );
@@ -131,8 +154,28 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	} );
 
 	// Create legend items using the reusable hook
-	const legendItems = useChartLegendItems( dataSorted );
-	const chartOptions = useBarChartOptions( dataWithVisibleZeros, horizontal, options );
+	const legendOptions = useMemo(
+		() => ( { collapseGroups: legendCollapseGroups } ),
+		[ legendCollapseGroups ]
+	);
+	const legendItems = useChartLegendItems( dataSorted, legendOptions );
+
+	const { getElementStyles } = useGlobalChartsContext();
+
+	// A hidden series is unmounted, so it is not on the band scale either — the
+	// axis has to choose its tick values from what is left. Visibility is owned by
+	// the provider, whether it changed through the legend or programmatically.
+	const isSeriesRendered = useCallback(
+		( series: SeriesData ) => isSeriesVisible( series.label ),
+		[ isSeriesVisible ]
+	);
+
+	const chartOptions = useBarChartOptions(
+		dataWithVisibleZeros,
+		horizontal,
+		options,
+		isSeriesRendered
+	);
 	const defaultMargin = useChartMargin( height, chartOptions, dataSorted, theme, horizontal );
 	const chartRef = useRef< HTMLDivElement >( null );
 
@@ -157,33 +200,16 @@ const BarChartInternal: FC< BarChartProps > = ( {
 		Math.max( 0, ...primarySeriesForNav.map( s => s.data?.length || 0 ) ) *
 		primarySeriesForNav.length;
 
-	// Use the keyboard navigation hook
-	const { tooltipRef, onChartFocus, onChartBlur, onChartKeyDown } = useKeyboardNavigation( {
-		selectedIndex,
-		setSelectedIndex,
-		isNavigating,
-		setIsNavigating,
-		chartRef,
-		totalPoints,
-	} );
-
-	const { getElementStyles, isSeriesVisible } = useGlobalChartsContext();
-
-	// Add visibility information to series when using interactive legends
-	const seriesWithVisibility = useMemo( () => {
-		if ( ! chartId || ! legendInteractive ) {
-			return dataWithVisibleZeros.map( ( series, index ) => ( {
+	// Add visibility information from the shared legend state.
+	const seriesWithVisibility = useMemo(
+		() =>
+			dataWithVisibleZeros.map( ( series, index ) => ( {
 				series,
 				index,
-				isVisible: true,
-			} ) );
-		}
-		return dataWithVisibleZeros.map( ( series, index ) => ( {
-			series,
-			index,
-			isVisible: isSeriesVisible( chartId, series.label ),
-		} ) );
-	}, [ dataWithVisibleZeros, chartId, isSeriesVisible, legendInteractive ] );
+				isVisible: isSeriesRendered( series ),
+			} ) ),
+		[ dataWithVisibleZeros, isSeriesRendered ]
+	);
 
 	// Check if all series are hidden
 	const allSeriesHidden = useMemo( () => {
@@ -211,6 +237,37 @@ const BarChartInternal: FC< BarChartProps > = ( {
 		() => primaryEntries.map( ( { series } ) => series ),
 		[ primaryEntries ]
 	);
+
+	// Walks the selected index the way the highlight style does — series-major
+	// within each data point — so the bar handed on is the one outlined.
+	const activateSelectedBar = useCallback(
+		( index: number ) => {
+			const primaryCount = primaryEntries.length;
+
+			if ( ! primaryCount ) {
+				return;
+			}
+
+			const dataPointIndex = Math.floor( index / primaryCount );
+			const series = primaryEntries[ index % primaryCount ]?.series;
+			const datum = series?.data[ dataPointIndex ];
+
+			if ( series && datum ) {
+				onDatumActivate?.( { datum, index: dataPointIndex, key: series.label } );
+			}
+		},
+		[ primaryEntries, onDatumActivate ]
+	);
+
+	const { tooltipRef, onChartFocus, onChartBlur, onChartKeyDown } = useKeyboardNavigation( {
+		selectedIndex,
+		setSelectedIndex,
+		isNavigating,
+		setIsNavigating,
+		chartRef,
+		totalPoints,
+		onActivate: activateSelectedBar,
+	} );
 
 	const comparisonEntries = useMemo( () => {
 		const primaryByGroup = new Map< string | undefined, { label: string; index: number } >(
@@ -490,9 +547,10 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	);
 
 	return (
-		<SingleChartContext.Provider
+		<ChartInstanceContext.Provider
 			value={ {
 				chartId,
+				isSeriesVisible,
 				chartWidth: width,
 				chartHeight: measuredChartHeight || 0,
 			} }
@@ -530,7 +588,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 							onBlur={ onChartBlur }
 						>
 							{ chartHeight > 0 && (
-								<div ref={ chartRef }>
+								<div ref={ chartRef } className={ plotStyles[ 'xy-plot' ] }>
 									<XYChart
 										theme={ theme }
 										width={ width }
@@ -542,13 +600,17 @@ const BarChartInternal: FC< BarChartProps > = ( {
 										xScale={ xScale }
 										yScale={ yScale }
 										horizontal={ horizontal }
+										onPointerDown={ onPointerDown }
+										onPointerUp={ onPointerUp }
 										pointerEventsDataKey="nearest"
 									>
-										<Grid
-											columns={ gridVisibility.includes( 'y' ) }
-											rows={ gridVisibility.includes( 'x' ) }
-											numTicks={ 4 }
-										/>
+										{ ! allSeriesHidden && (
+											<Grid
+												columns={ gridVisibility.includes( 'y' ) }
+												rows={ gridVisibility.includes( 'x' ) }
+												numTicks={ 4 }
+											/>
+										) }
 
 										{ withPatterns && (
 											<>
@@ -580,10 +642,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 												width={ width }
 												height={ chartHeight }
 											>
-												{ __(
-													'All series are hidden. Click legend items to show data.',
-													'jetpack-charts'
-												) }
+												{ getAllHiddenMessage( legendInteractive, 'series' ) }
 											</SvgEmptyState>
 										) : null }
 
@@ -615,8 +674,15 @@ const BarChartInternal: FC< BarChartProps > = ( {
 											) ) }
 										</BarGroup>
 
-										<Axis { ...chartOptions.axis.x } />
-										<Axis { ...chartOptions.axis.y } />
+										{ /* With every series hidden there is no data to build the value scale from, so
+										     visx collapses the domain and the axes render squished at the top. Drop them
+										     while the empty state stands in. */ }
+										{ ! allSeriesHidden && (
+											<>
+												<Axis { ...chartOptions.axis.x } />
+												<Axis { ...chartOptions.axis.y } />
+											</>
+										) }
 
 										{ withTooltips && (
 											<AccessibleTooltip
@@ -640,7 +706,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 					);
 				} }
 			</ChartLayout>
-		</SingleChartContext.Provider>
+		</ChartInstanceContext.Provider>
 	);
 };
 

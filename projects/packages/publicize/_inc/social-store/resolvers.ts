@@ -132,6 +132,9 @@ export function getRenderedMessages(
 				if ( typeof record.rendered_message === 'string' ) {
 					slot.rendered_message = record.rendered_message;
 				}
+				if ( Array.isArray( record.hyperlinks ) ) {
+					slot.hyperlinks = record.hyperlinks;
+				}
 				if ( record.error ) {
 					slot.error = record.error;
 				}

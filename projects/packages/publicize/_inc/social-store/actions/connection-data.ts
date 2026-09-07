@@ -96,8 +96,16 @@ export function fetchKeyringResult( requestId: string ) {
 			if ( response?.code === 'success' && response.data ) {
 				return response.data;
 			}
-		} catch {
-			// Swallow the error: an absent result is surfaced to the user as "no accounts found".
+		} catch ( error ) {
+			let message: string = __( 'Error verifying the connection.', 'jetpack-publicize-pkg' );
+
+			if ( typeof error === 'object' && 'message' in error && error.message ) {
+				message = `${ message } ${ error.message }`;
+			}
+
+			const { createErrorNotice } = coreDispatch( globalNoticesStore );
+
+			createErrorNotice( message, { type: 'snackbar', isDismissible: true } );
 		} finally {
 			dispatch( setFetchingKeyringResult( false ) );
 		}

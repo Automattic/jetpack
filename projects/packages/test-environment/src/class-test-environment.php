@@ -13,7 +13,7 @@ namespace Automattic\Jetpack;
  */
 class Test_Environment {
 
-	const PACKAGE_VERSION = '0.2.4';
+	const PACKAGE_VERSION = '0.3.0';
 
 	/**
 	 * Whether the environment has been initialized.
@@ -48,6 +48,60 @@ class Test_Environment {
 	}
 
 	/**
+	 * Create a temporary directory.
+	 *
+	 * @param string $prefix Directory name prefix. The created directory will be under `sys_get_temp_dir()` with a random suffix added to this prefix.
+	 * @return string Created path.
+	 * @throws \RuntimeException On failure to create any directory.
+	 */
+	private static function make_temp_dir( $prefix ) {
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.rand_rand -- Not security sensitive, and `wp_rand` isn't loaded yet.
+		$mask = rand( 0, 0xffffff );
+		for ( $i = 0; $i < 0xffffff; $i++ ) {
+			$tmpdir = sys_get_temp_dir() . DIRECTORY_SEPARATOR . $prefix . sprintf( '%06x', $i ^ $mask );
+			// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.WP.AlternativeFunctions.file_system_operations_mkdir -- WP isn't loaded yet, and we're handling errors here.
+			if ( @mkdir( $tmpdir, 0700 ) ) {
+				return $tmpdir;
+			}
+		}
+
+		throw new \RuntimeException( 'Failed to create temporary directory' );
+	}
+
+	/**
+	 * Remove a directory, recursively.
+	 *
+	 * @private
+	 * @param string $dir Directory to remove.
+	 */
+	public static function rmrf( $dir ) {
+		if ( ! file_exists( $dir ) ) {
+			return;
+		}
+		if ( ! is_dir( $dir ) ) {
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink -- WP isn't loaded yet.
+			unlink( $dir );
+			return;
+		}
+
+		$iter = new \RecursiveIteratorIterator(
+			new \RecursiveDirectoryIterator( $dir, \FilesystemIterator::CURRENT_AS_PATHNAME | \FilesystemIterator::SKIP_DOTS ),
+			\RecursiveIteratorIterator::CHILD_FIRST
+		);
+		foreach ( $iter as $path ) {
+			if ( is_dir( $path ) ) {
+				// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir -- WP isn't loaded yet.
+				rmdir( $path );
+			} else {
+				// phpcs:ignore WordPress.WP.AlternativeFunctions.unlink_unlink -- WP isn't loaded yet.
+				unlink( $path );
+			}
+		}
+		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_rmdir -- WP isn't loaded yet.
+		rmdir( $dir );
+	}
+
+	/**
 	 * Initialize the shared WordPress test environment.
 	 *
 	 * This ensures we only load WordPress once across all packages.
@@ -65,6 +119,8 @@ class Test_Environment {
 		// phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
 		require_once self::find_autoloader();
 
+		$tmpdir = null;
+
 		try {
 			if ( ! class_exists( '\WorDBless\Load' ) ) {
 				throw new \RuntimeException( 'WorDBless not found. Please ensure automattic/wordbless is installed in tools/php-test-env/composer.json' );
@@ -75,8 +131,25 @@ class Test_Environment {
 				define( 'dbless_UPLOADS', 'uploads-' . $package_slug ); // phpcs:ignore Generic.NamingConventions.UpperCaseConstantName.ConstantNotUpperCase
 			}
 
-			\WorDBless\Load::load( $db_engine, true ); // persist the database across tests so with sqlite tests concurrency is possible without accidental deletions.
+			// If using sqlite, point FQDBDIR at a unique directory so concurrent runs don't interfere with each other (sqlite does poorly with multiple writers).
+			$persist = false;
+			if ( $db_engine === 'sqlite' ) {
+				$tmpdir = self::make_temp_dir( 'test-sqlite-' . ( $package_slug ?? 'null' ) . '-' );
+				define( 'FQDBDIR', "$tmpdir/" );
+				$persist = true;
+			}
+
+			\WorDBless\Load::load( $db_engine, $persist );
+
+			// WorDBless's normal cleanup won't handle cleanup when the above is redefined.
+			// Note this must be registered after `WorDBless\Load::load()` registers the exit handler for `shutdown_action_hook`.
+			if ( $db_engine === 'sqlite' ) {
+				register_shutdown_function( array( self::class, 'rmrf' ), $tmpdir );
+			}
 		} catch ( \Exception $e ) {
+			if ( $tmpdir ) {
+				self::rmrf( $tmpdir );
+			}
 			throw new \RuntimeException( 'Failed to initialize WordPress test environment: ' . $e->getMessage() );
 		}
 

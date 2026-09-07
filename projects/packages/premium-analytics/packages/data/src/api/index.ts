@@ -27,6 +27,7 @@ export type ReportQueryParams = Partial<
 		RequestReportSessionsByDeviceParams
 >;
 
+export { disableDashboard } from './dashboard-enablement';
 export { fetchReportOrders } from './report-orders-fetch';
 export {
 	fetchReportOrderAttributionSummary,
@@ -41,9 +42,15 @@ export { fetchReportVisitors } from './report-visitors-fetch';
 export { fetchReportVisitorsByLocation } from './report-visitors-by-location-fetch';
 export { fetchReportBookings } from './report-bookings-fetch';
 export { fetchReportSessionsByDevice } from './report-sessions-by-device-fetch';
-export { exportReport } from './report-export-fetch';
-export type { ExportReportParams, ExportReportResponse } from './report-export-fetch';
+export { downloadReport, exportReport } from './report-export-fetch';
+export type {
+	DownloadReportParams,
+	DownloadReportResponse,
+	ExportReportParams,
+	ExportReportResponse,
+} from './report-export-fetch';
 export {
+	fetchReport,
 	fetchStatsProxy,
 	getStatsProxyPath,
 	type StatsProxyFetchParams,
@@ -51,3 +58,8 @@ export {
 	type StatsProxyParams,
 	type StatsProxyVersion,
 } from './stats-proxy-fetch';
+export {
+	submitStatsUserFeedback,
+	type StatsFeedbackRating,
+	type StatsUserFeedback,
+} from './stats-user-feedback';

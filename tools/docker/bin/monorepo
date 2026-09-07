@@ -124,42 +124,62 @@ fi
   if [[ "$IS_WORKTREE" = "1" ]]; then
       # Share the main repo's Docker data dir (ssh keys, composer/npm/pnpm caches)
       DOCKER_DATA_DIR="$MAIN_REPO_ROOT/tools/docker/data/monorepo"
-      # Mount main .git/ so git operations work inside the container
+      # Mount main .git/ at its host path, so the worktree's `.git` file resolves inside the container.
       WORKTREE_DOCKER_ARGS+=(
-          -v "$MAIN_GIT_DIR:/repo-git:ro"
-          -v "$MAIN_GIT_DIR/objects:/repo-git/objects"
-          -v "$MAIN_GIT_DIR/worktrees/$WORKTREE_NAME:/repo-git/worktrees/$WORKTREE_NAME"
-          -e "GIT_DIR=/repo-git/worktrees/$WORKTREE_NAME"
-          -e "GIT_WORK_TREE=/workspace"
+          -v "$MAIN_GIT_DIR:$MAIN_GIT_DIR:ro"
+          -v "$MAIN_GIT_DIR/objects:$MAIN_GIT_DIR/objects"
+          -v "$MAIN_GIT_DIR/worktrees/$WORKTREE_NAME:$MAIN_GIT_DIR/worktrees/$WORKTREE_NAME"
+          -e "GIT_DIR=$MAIN_GIT_DIR/worktrees/$WORKTREE_NAME"
+          -e "GIT_WORK_TREE=$MONOREPO_ROOT"
       )
   else
       DOCKER_DATA_DIR="$MONOREPO_ROOT/tools/docker/data/monorepo"
   fi
 
-  # Set pnpm store directory.
-  # For worktrees: use /root/.pnpm-store (shared across all worktrees via DOCKER_DATA_DIR).
-  # For non-worktrees: use /workspace/.pnpm-store (same mount as node_modules, preserves hardlinks).
-  if [[ "$IS_WORKTREE" = "1" ]]; then
-      PNPM_STORE_DIR_CONTAINER="/root/.pnpm-store"
-  else
-      PNPM_STORE_DIR_CONTAINER="/workspace/.pnpm-store"
+  # Mirror the host pnpm store into the container at the same path, so node_modules' symlinks into it
+  # resolve on both sides. With no host pnpm there's no host store to share; fall back to the
+  # container's own store, as before.
+  PNPM_STORE_PATH="$( cd "$MONOREPO_ROOT" && command -v pnpm &>/dev/null && pnpm store path 2>/dev/null )"
+
+  PNPM_STORE_DOCKER_ARGS=()
+  if [[ -n "$PNPM_STORE_PATH" ]]; then
+      # `pnpm store path` includes the store version (e.g. .../store/v11), which pnpm re-appends to
+      # storeDir, so hand it the parent.
+      PNPM_STORE_BASE="$( dirname "$PNPM_STORE_PATH" )"
+      mkdir -p "$PNPM_STORE_PATH"
+
+      # A store inside the repo is already covered by the repo mount.
+      if [[ "$PNPM_STORE_BASE" != "$MONOREPO_ROOT" && "$PNPM_STORE_BASE" != "$MONOREPO_ROOT"/* ]]; then
+          PNPM_STORE_DOCKER_ARGS+=( -v "$PNPM_STORE_BASE:$PNPM_STORE_BASE" )
+      fi
+      PNPM_STORE_DOCKER_ARGS+=( -e pnpm_config_store_dir="$PNPM_STORE_BASE" )
   fi
 
   if [[ "${DEBUG:-}" = "1" ]]; then
-      echo "[pnpm] store dir (container): $PNPM_STORE_DIR_CONTAINER"
-      if [[ "$IS_WORKTREE" = "1" ]]; then
-          echo "[pnpm] store dir (host): $DOCKER_DATA_DIR/.pnpm-store"
+      if [[ -n "$PNPM_STORE_PATH" ]]; then
+          echo "[pnpm] store path (host and container): $PNPM_STORE_PATH"
+      else
+          echo "[pnpm] no host pnpm; using the container's default store"
       fi
   fi
 
   mkdir -p "$DOCKER_DATA_DIR"
 
+  # Mark the repo as a safe directory for git, which otherwise refuses to operate on a checkout owned
+  # by another user. `$DOCKER_DATA_DIR` is the container's HOME, so this lands in git's global config.
+  GITCONFIG="$DOCKER_DATA_DIR/.gitconfig"
+  for SAFE_DIR in "$MONOREPO_ROOT" ${MAIN_GIT_DIR:+"$MAIN_GIT_DIR"}; do
+      git config --file "$GITCONFIG" --get-all safe.directory 2>/dev/null | grep -qxF "$SAFE_DIR" \
+          || git config --file "$GITCONFIG" --add safe.directory "$SAFE_DIR"
+  done
+
   docker run --rm $TTY_FLAG \
-    -v "$MONOREPO_ROOT:/workspace" \
+    -v "$MONOREPO_ROOT:$MONOREPO_ROOT" \
     -v "$DOCKER_DATA_DIR:/root" \
     -v /var/run/docker.sock:/var/run/docker.sock \
+    "${PNPM_STORE_DOCKER_ARGS[@]}" \
     "${WORKTREE_DOCKER_ARGS[@]}" \
-    -w /workspace \
+    -w "$MONOREPO_ROOT" \
     -e TERM=$TERM \
     -e COLORTERM=$COLORTERM \
     -e JETPACK_MONOREPO_ENV=1 \
@@ -171,7 +191,6 @@ fi
     -e NPM_CONFIG_USERCONFIG=/root/.npmrc \
     -e NPM_CONFIG_CACHE=/root/.npm \
     -e PNPM_HOME=/root/.local/share/pnpm \
-    -e pnpm_config_store_dir="$PNPM_STORE_DIR_CONTAINER" \
     -e GIT_AUTHOR_NAME="${GIT_USER_NAME}" \
     -e GIT_AUTHOR_EMAIL="${GIT_USER_EMAIL}" \
     -e GIT_COMMITTER_NAME="${GIT_USER_NAME}" \

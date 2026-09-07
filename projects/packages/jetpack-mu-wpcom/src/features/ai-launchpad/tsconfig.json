@@ -1,0 +1,15 @@
+{
+	"$schema": "https://json.schemastore.org/tsconfig.json",
+	"extends": "jetpack-js-tools/tsconfig.base.json",
+	"compilerOptions": {
+		"lib": [ "ES2022", "DOM", "DOM.Iterable" ],
+		// The shared base leaves `strict` off, and with it `strictNullChecks`, which is what makes
+		// TypeScript narrow discriminated unions. Without it `tailor.ts`'s correct
+		// `! outcome.ok && outcome.retryable` is an error, because the false arm is never narrowed
+		// out. Turning it on for this project alone reports fewer errors, not more.
+		"strictNullChecks": true,
+		// The `.test.mts` suites import node:test / node:assert.
+		"types": [ "node" ]
+	},
+	"include": [ "js/**/*", "declarations.d.ts" ]
+}

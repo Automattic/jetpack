@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Bilmur: add opt-in data-site-v attribute to the RUM meta tag via a new wpcomsh_bilmur_site_v filter

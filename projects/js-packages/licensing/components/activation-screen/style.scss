@@ -1,14 +1,18 @@
+// The container is a @wordpress/ui Card.Root, which supplies the border,
+// border-radius, background, overflow clipping, and column flex layout. We
+// only add the two-column row layout on wide screens (overriding Card.Root's
+// default column direction).
 .jp-license-activation-screen {
-	box-shadow: 0 4px 24px 0 #00000026;
-	display: flex;
-	flex-direction: column;
-	// this clips our children to our border radius
-	border-radius: 4px;
-	overflow: hidden;
-	min-height: 540px;
 
 	@media screen and ( min-width: 780px ) {
 		flex-direction: row;
-	}
 
+		// Give each column a determinate width (and allow shrinking) so the
+		// controls don't reflow when the SelectControl's selected value length
+		// changes — its trigger ellipsis engages instead.
+		> * {
+			flex: 1;
+			min-width: 0;
+		}
+	}
 }

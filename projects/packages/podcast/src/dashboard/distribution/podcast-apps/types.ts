@@ -1,4 +1,4 @@
-import type { PodcatcherId } from '../types';
+import type { PodcastShowState, PodcatcherId } from '../../types';
 import type { ComponentType } from 'react';
 
 export interface PodcastApp {
@@ -7,8 +7,15 @@ export interface PodcastApp {
 	Logo: ComponentType;
 	submitUrl: string;
 	learnMoreUrl?: string;
-	// Full replacement for the default 3-step submit modal.
-	Modal?: ComponentType< PodcastAppModalProps >;
+	submission: 'automatic' | 'manual';
+	Row?: ComponentType< PodcastAppRowProps >;
+}
+
+export interface PodcastAppRowProps {
+	app: PodcastApp;
+	state: PodcastShowState;
+	blockedReason: string;
+	onFirstSave?: () => void;
 }
 
 export interface PodcastAppModalProps {

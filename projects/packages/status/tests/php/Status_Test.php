@@ -68,7 +68,13 @@ class Status_Test extends TestCase {
 			}
 		);
 		Functions\when( 'wp_get_environment_type' )->justReturn( 'production' );
+
 		Functions\when( 'wp_parse_url' )->alias( 'parse_url' );
+
+		// Default to a front-end request with no persistent object cache (no seeding).
+		Functions\when( 'wp_using_ext_object_cache' )->justReturn( false );
+		Functions\when( 'is_admin' )->justReturn( false );
+		Functions\when( 'wp_doing_cron' )->justReturn( false );
 		Functions\expect( 'defined' )->andReturnUsing(
 			function ( $const ) {
 				return array_key_exists( $const, $this->mocked_constants ) ? true : defined( $const );
@@ -100,7 +106,57 @@ class Status_Test extends TestCase {
 	 * Test is_offline_mode when not using any filter
 	 */
 	public function test_is_offline_mode_default() {
-		Functions\expect( 'get_option' )->once()->with( 'jetpack_offline_mode' )->andReturn( false );
+		Functions\expect( 'get_option' )->once()->with( 'jetpack_offline_mode', \Mockery::type( 'object' ) )->andReturnUsing(
+			function ( $name, $default ) {
+				return $default;
+			}
+		);
+		// Front-end request: the absent option is not seeded.
+		Functions\expect( 'add_option' )->never();
+		Filters\expectApplied( 'jetpack_offline_mode' )->once()->with( false )->andReturn( false );
+
+		$this->assertFalse( $this->status_obj->is_offline_mode() );
+	}
+
+	/**
+	 * Test that an absent option is seeded as an autoloaded default in a write context.
+	 */
+	public function test_is_offline_mode_seeds_default_in_write_context() {
+		Functions\when( 'wp_doing_cron' )->justReturn( true );
+		Functions\expect( 'get_option' )->once()->with( 'jetpack_offline_mode', \Mockery::type( 'object' ) )->andReturnUsing(
+			function ( $name, $default ) {
+				return $default;
+			}
+		);
+		Functions\expect( 'add_option' )->once()->with( 'jetpack_offline_mode', false, '', true );
+		Filters\expectApplied( 'jetpack_offline_mode' )->once()->with( false )->andReturn( false );
+
+		$this->assertFalse( $this->status_obj->is_offline_mode() );
+	}
+
+	/**
+	 * Test that the absent option is not seeded when a persistent object cache is present.
+	 */
+	public function test_is_offline_mode_does_not_seed_with_object_cache() {
+		Functions\when( 'wp_doing_cron' )->justReturn( true );
+		Functions\when( 'wp_using_ext_object_cache' )->justReturn( true );
+		Functions\expect( 'get_option' )->once()->with( 'jetpack_offline_mode', \Mockery::type( 'object' ) )->andReturnUsing(
+			function ( $name, $default ) {
+				return $default;
+			}
+		);
+		Functions\expect( 'add_option' )->never();
+		Filters\expectApplied( 'jetpack_offline_mode' )->once()->with( false )->andReturn( false );
+
+		$this->assertFalse( $this->status_obj->is_offline_mode() );
+	}
+
+	/**
+	 * Test that a non-scalar value (e.g. from a default_option filter) does not enable offline mode.
+	 */
+	public function test_is_offline_mode_non_scalar_is_not_offline() {
+		Functions\expect( 'get_option' )->once()->with( 'jetpack_offline_mode', \Mockery::type( 'object' ) )->andReturn( new \stdClass() );
+		Functions\expect( 'add_option' )->never();
 		Filters\expectApplied( 'jetpack_offline_mode' )->once()->with( false )->andReturn( false );
 
 		$this->assertFalse( $this->status_obj->is_offline_mode() );
@@ -120,7 +176,12 @@ class Status_Test extends TestCase {
 	 * Test when using a bool value for the jetpack_offline_mode filter.
 	 */
 	public function test_is_offline_mode_filter_bool() {
-		Functions\expect( 'get_option' )->once()->with( 'jetpack_offline_mode' )->andReturn( false );
+		Functions\expect( 'get_option' )->once()->with( 'jetpack_offline_mode', \Mockery::type( 'object' ) )->andReturnUsing(
+			function ( $name, $default ) {
+				return $default;
+			}
+		);
+		Functions\expect( 'add_option' )->never();
 		Filters\expectApplied( 'jetpack_offline_mode' )->once()->with( false )->andReturn( 0 );
 
 		$this->assertFalse( $this->status_obj->is_offline_mode() );
@@ -211,7 +272,7 @@ class Status_Test extends TestCase {
 	 * Test that `is_offline_mode()` returns true when the `jetpack_offline_mode` option is set.
 	 */
 	public function test_is_offline_mode_option() {
-		Functions\expect( 'get_option' )->once()->with( 'jetpack_offline_mode' )->andReturn( '1' );
+		Functions\expect( 'get_option' )->once()->with( 'jetpack_offline_mode', \Mockery::type( 'object' ) )->andReturn( '1' );
 
 		$this->assertTrue( $this->status_obj->is_offline_mode() );
 	}
@@ -220,7 +281,17 @@ class Status_Test extends TestCase {
 	 * Test that `is_offline_mode()` returns false when the `jetpack_offline_mode` option exists, but set to '0'.
 	 */
 	public function test_is_offline_mode_option_inactive() {
-		Functions\expect( 'get_option' )->once()->with( 'jetpack_offline_mode' )->andReturn( '0' );
+		Functions\expect( 'get_option' )->once()->with( 'jetpack_offline_mode', \Mockery::type( 'object' ) )->andReturn( '0' );
+
+		$this->assertFalse( $this->status_obj->is_offline_mode() );
+	}
+
+	/**
+	 * Test that a stored (previously-seeded) empty value is not re-seeded.
+	 */
+	public function test_is_offline_mode_option_present_not_reseeded() {
+		Functions\expect( 'get_option' )->once()->with( 'jetpack_offline_mode', \Mockery::type( 'object' ) )->andReturn( '' );
+		Functions\expect( 'add_option' )->never();
 
 		$this->assertFalse( $this->status_obj->is_offline_mode() );
 	}
@@ -341,7 +412,7 @@ class Status_Test extends TestCase {
 	public function test_is_local_site_for_known_tld( $site_url, $expected_response ) {
 		$this->site_url = $site_url;
 		$result         = $this->status_obj->is_local_site();
-		$this->assertEquals(
+		$this->assertSame(
 			$expected_response,
 			$result,
 			sprintf(
@@ -359,28 +430,226 @@ class Status_Test extends TestCase {
 	 */
 	public static function get_is_local_site_known_tld() {
 		return array(
-			'vvv'            => array(
+			'vvv'                            => array(
 				'http://jetpack.test',
 				true,
 			),
-			'docksal'        => array(
+			'vvv_with_port'                  => array(
+				'http://jetpack.test:8080',
+				true,
+			),
+			'wp_local'                       => array(
+				'http://jetpack.local',
+				true,
+			),
+			'wp_local_with_port'             => array(
+				'http://jetpack.local:8080',
+				true,
+			),
+			'docksal'                        => array(
 				'http://jetpack.docksal',
 				true,
 			),
-			'serverpress'    => array(
+			'docksal_with_port'              => array(
+				'http://jetpack.docksal:8080',
+				true,
+			),
+			'docksal_site'                   => array(
+				'http://jetpack.docksal.site',
+				true,
+			),
+			'docksal_site_with_port'         => array(
+				'http://jetpack.docksal.site:8080',
+				true,
+			),
+			'serverpress'                    => array(
 				'http://jetpack.dev.cc',
 				true,
 			),
-			'lando'          => array(
+			'serverpress_with_port'          => array(
+				'http://jetpack.dev.cc:8080',
+				true,
+			),
+			'lando'                          => array(
 				'http://jetpack.lndo.site',
 				true,
 			),
-			'test_subdomain' => array(
+			'lando_with_port'                => array(
+				'http://jetpack.lndo.site:8080',
+				true,
+			),
+			'ddev'                           => array(
+				'https://jetpack.ddev.site',
+				true,
+			),
+			'ddev_with_port'                 => array(
+				'https://jetpack.ddev.site:8443',
+				true,
+			),
+			'localhost'                      => array(
+				'http://localhost',
+				true,
+			),
+			'localhost_trailing_slash'       => array(
+				'http://localhost/',
+				true,
+			),
+			'localhost_with_port'            => array(
+				'http://localhost:8080',
+				true,
+			),
+			'localhost_with_port_and_path'   => array(
+				'https://localhost:8443/wordpress',
+				true,
+			),
+			'localhost_subdomain'            => array(
+				'http://jetpack.localhost',
+				true,
+			),
+			'localhost_subdomain_with_port'  => array(
+				'http://jetpack.localhost:8080',
+				true,
+			),
+			'loopback_ip'                    => array(
+				'http://127.0.0.1',
+				true,
+			),
+			'loopback_ip_trailing_slash'     => array(
+				'http://127.0.0.1/',
+				true,
+			),
+			'loopback_ip_with_port'          => array(
+				'http://127.0.0.1:8080',
+				true,
+			),
+			'loopback_ip_with_port_and_path' => array(
+				'https://127.0.0.1:8443/wordpress',
+				true,
+			),
+			// A host with no dot at all can't be a public domain, so it is treated as local.
+			'dotless_host'                   => array(
+				'http://intranet',
+				true,
+			),
+			'dotless_host_with_port'         => array(
+				'http://intranet:8080',
+				true,
+			),
+			'playground'                     => array(
+				'https://playground.wordpress.net/scope:0.8362470763364798',
+				true,
+			),
+			'playground_root'                => array(
+				'https://playground.wordpress.net',
+				true,
+			),
+			'playground_lookalike_host'      => array(
+				'https://notplayground.wordpress.net',
+				false,
+			),
+			'playground_in_domain'           => array(
+				'https://playground.wordpress.net.example.com',
+				false,
+			),
+			'test_subdomain'                 => array(
 				'https://test.jetpack.com',
 				false,
 			),
-			'test_in_domain' => array(
+			'test_in_domain'                 => array(
 				'https://jetpack.test.jetpack.com',
+				false,
+			),
+			'localhost_in_domain'            => array(
+				'https://localhost.jetpack.com',
+				false,
+			),
+			'lookalike_localhost_host'       => array(
+				'https://jetpack.notlocalhost.com',
+				false,
+			),
+			'lookalike_localhost_with_port'  => array(
+				'https://jetpack.notlocalhost.com:8080',
+				false,
+			),
+			'host_ending_in_localhost'       => array(
+				'https://jetpack.notlocalhost',
+				false,
+			),
+			'loopback_ip_in_domain'          => array(
+				'https://127.0.0.1.jetpack.com',
+				false,
+			),
+			'localhost_in_path'              => array(
+				'https://jetpack.com/localhost',
+				false,
+			),
+			'localhost_in_dotted_path'       => array(
+				'https://jetpack.com/foo.localhost',
+				false,
+			),
+			'known_tld_in_path'              => array(
+				'https://jetpack.com/jetpack.test',
+				false,
+			),
+			'loopback_ip_in_path'            => array(
+				'https://jetpack.com/127.0.0.1',
+				false,
+			),
+			// Hosts are compared case-insensitively; parse_url does not lowercase them for us.
+			'uppercase_host'                 => array(
+				'HTTPS://JETPACK.TEST',
+				true,
+			),
+			'uppercase_production_host'      => array(
+				'HTTPS://JETPACK.COM',
+				false,
+			),
+			// Userinfo must not be mistaken for the host.
+			'localhost_as_userinfo'          => array(
+				'https://localhost@jetpack.com/',
+				false,
+			),
+			'userinfo_on_local_host'         => array(
+				'http://user:pass@jetpack.localhost:8080',
+				true,
+			),
+
+			/*
+			 * site_url() is always absolute in practice. When it isn't, the value is read as a
+			 * bare host, so a known local domain in the path still must not match.
+			 */
+			'schemeless_host'                => array(
+				'localhost',
+				true,
+			),
+			'schemeless_local_domain'        => array(
+				'jetpack.test',
+				true,
+			),
+			'schemeless_local_in_path'       => array(
+				'jetpack.com/foo.test',
+				false,
+			),
+			'empty_site_url'                 => array(
+				'',
+				false,
+			),
+
+			/*
+			 * A value that carries a scheme but still won't parse is malformed, not a bare
+			 * host. Reading "https:/example.com" as the host "https" would make a dotless
+			 * "host" out of the scheme and drop a live site into offline mode.
+			 */
+			'single_slash_after_scheme'      => array(
+				'https:/example.com',
+				false,
+			),
+			'single_slash_with_path'         => array(
+				'https:/www.example.com/wordpress',
+				false,
+			),
+			'triple_slash_after_scheme'      => array(
+				'https:///example.com',
 				false,
 			),
 		);
@@ -456,6 +725,9 @@ class Status_Test extends TestCase {
 		if ( $one_call ) {
 			Functions\expect( $one_call )->once();
 		}
+
+		// is_offline_mode() seeds the jetpack_offline_mode option when it is absent.
+		Functions\when( 'add_option' )->justReturn( false );
 
 		$ret = $this->status_obj->$func();
 		$this->assertSame( $ret, $this->status_obj->$func() );

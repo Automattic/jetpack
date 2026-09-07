@@ -1,7 +1,6 @@
 /**
  * WordPress dependencies
  */
-import { __ } from '@wordpress/i18n';
 import { chartBar } from '@wordpress/icons';
 
 /**
@@ -23,11 +22,5 @@ export type BookingsByStatusAttributes = Record< never, never >;
  * dashboards can opt in.
  */
 export default {
-	name: 'jpa/bookings-by-status',
-	title: __( 'Bookings by status', 'jetpack-premium-analytics' ),
-	description: __(
-		'Number of bookings by status over the selected time period.',
-		'jetpack-premium-analytics'
-	),
 	icon: chartBar,
 };

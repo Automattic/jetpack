@@ -18,6 +18,7 @@ type StatsAppQueryConfig = {
 	params?: StatsProxyParams;
 	method?: StatsProxyMethod;
 	body?: unknown;
+	global?: boolean;
 };
 
 // App/admin resources use the Stats proxy transport but do not use report param
@@ -29,6 +30,7 @@ export function statsAppProxyQuery< TData = unknown >( {
 	params,
 	method = 'GET',
 	body,
+	global,
 }: StatsAppQueryConfig ): UseQueryOptions< TData > {
 	return {
 		queryKey: [
@@ -39,8 +41,9 @@ export function statsAppProxyQuery< TData = unknown >( {
 			method,
 			statsAppQueryKeyPart( params ),
 			statsAppQueryKeyPart( body ),
+			global ?? false,
 		],
-		queryFn: () => fetchStatsProxy< TData >( { version, endpoint, params, method, body } ),
+		queryFn: () => fetchStatsProxy< TData >( { version, endpoint, params, method, body, global } ),
 		placeholderData: previousData => previousData,
 	};
 }

@@ -84,7 +84,7 @@ export default {
 			// In order to let @rollup/plugin-typescript hanlde TS files from js-packages
 			// we need to include those here and pass the custom tsconfig as well
 			include: [ './src/**/*' ],
-			tsconfig: 'tsconfig.json',
+			tsconfig: 'tsconfig.rollup.json',
 			declaration: true,
 		} ),
 

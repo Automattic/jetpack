@@ -1,0 +1,10 @@
+{
+	"name": "jpa/wordads-highlights",
+	"title": "WordAds highlights",
+	"description": "Your WordAds earnings at a glance — total earnings, amount paid, and outstanding balance.",
+	"help": {
+		"content": "Payment is made once your outstanding balance reaches $100, approximately 45 days after the end of the month in which it was earned."
+	},
+	"category": "stats",
+	"presentation": "framed"
+}

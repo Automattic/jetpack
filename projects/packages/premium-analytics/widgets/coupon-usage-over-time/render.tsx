@@ -18,13 +18,11 @@ import type { ComponentProps } from 'react';
 type CouponUsageOverTimeRenderAttributes = CouponUsageOverTimeAttributes &
 	Partial< ReportParamsFieldAttributes >;
 
-type CouponUsageOverTimeRenderProps = WidgetRenderProps< CouponUsageOverTimeRenderAttributes > & {
+type CouponUsageOverTimeWidgetProps = WidgetRenderProps< CouponUsageOverTimeRenderAttributes > & {
 	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
 };
 
 /**
- * Coupon usage over time widget.
- *
  * Thin composition over the widgets-toolkit: WidgetRoot provides the query
  * client, chart theme, and resolved report params; CouponUseWidget fetches the
  * coupons-by-date report and renders the coupon usage breakdown.
@@ -32,7 +30,7 @@ type CouponUsageOverTimeRenderProps = WidgetRenderProps< CouponUsageOverTimeRend
 export default function CouponUsageOverTimeRender( {
 	attributes = {},
 	setError,
-}: CouponUsageOverTimeRenderProps ) {
+}: CouponUsageOverTimeWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
 			<CouponUseWidget />

@@ -129,7 +129,7 @@ class Stats_Abilities extends Registrar {
 		return array(
 			// "Jetpack" is a product name and should not be translated.
 			'label'       => 'Jetpack Stats',
-			'description' => __( 'Abilities for reading Jetpack Stats traffic insights and managing site-level Stats settings.', 'jetpack-stats' ),
+			'description' => __( 'Abilities for reading Jetpack Stats traffic insights and managing site-level Stats settings.', 'jetpack-stats-pkg' ),
 		);
 	}
 
@@ -159,10 +159,10 @@ class Stats_Abilities extends Registrar {
 	 */
 	private static function spec_get_site_overview(): array {
 		return array(
-			'label'               => __( 'Get site stats overview', 'jetpack-stats' ),
+			'label'               => __( 'Get site stats overview', 'jetpack-stats-pkg' ),
 			'description'         => __(
 				'Return a single zero-argument snapshot answering "how is my site doing right now?" — today\'s views/visitors, this week/month totals, the current posting streak, today\'s top post, and top referrer. Shape: { date, views_today, visitors_today, views_week, views_month, streak: { current_length, longest_length, longest_start, longest_end }, top_post: { id, title, views }, top_referrer: { name, views }, partial: bool, errors?: [string] }. Composes the WPCOM stats/summary, stats/highlights, and stats/streak endpoints — if any sub-call fails, `partial` is true and `errors` lists the failed sub-calls; when `partial` is true, count fields owned by the failed sub-call(s) are placeholder zeros rather than confirmed counts (cross-reference `errors` before treating a `0` as authoritative). If every sub-call fails, returns `jetpack_stats_data_unavailable`. Precondition: the site must be connected to WordPress.com. Results cached for ~5 minutes by WPCOM_Stats — safe to poll.',
-				'jetpack-stats'
+				'jetpack-stats-pkg'
 			),
 			'input_schema'        => array(
 				'type'                 => 'object',
@@ -207,10 +207,10 @@ class Stats_Abilities extends Registrar {
 	 */
 	private static function spec_get_top_content(): array {
 		return array(
-			'label'               => __( 'Get top stats content', 'jetpack-stats' ),
+			'label'               => __( 'Get top stats content', 'jetpack-stats-pkg' ),
 			'description'         => __(
 				'Return the top items for a chosen content type — posts, referrers, search terms, outbound clicks, tags/categories, authors, countries, downloads, or video plays — in one filtered call. Replaces nine atomic WPCOM endpoints with a single ability. Uniform shape: { type, period, date, num, max, items: [ { rank, label, value, href? } ] } — agents MUST NOT see a different shape per type. `label` is human-readable (post title, referrer host, search term, country name, etc.). `value` is the view/hit count for that item. `href` is present only when the item has a canonical URL. Precondition: site must be connected to WordPress.com.',
-				'jetpack-stats'
+				'jetpack-stats-pkg'
 			),
 			'input_schema'        => array(
 				'type'                 => 'object',
@@ -218,30 +218,30 @@ class Stats_Abilities extends Registrar {
 				'properties'           => array(
 					'type'   => array(
 						'type'        => 'string',
-						'description' => __( 'Which top-N surface to fetch.', 'jetpack-stats' ),
+						'description' => __( 'Which top-N surface to fetch.', 'jetpack-stats-pkg' ),
 						'enum'        => self::TOP_CONTENT_TYPES,
 					),
 					'period' => array(
 						'type'        => 'string',
-						'description' => __( 'Aggregation period.', 'jetpack-stats' ),
+						'description' => __( 'Aggregation period.', 'jetpack-stats-pkg' ),
 						'enum'        => self::PERIODS,
 						'default'     => 'day',
 					),
 					'date'   => array(
 						'type'        => 'string',
-						'description' => __( 'End date (YYYY-MM-DD). Defaults to today.', 'jetpack-stats' ),
+						'description' => __( 'End date (YYYY-MM-DD). Defaults to today.', 'jetpack-stats-pkg' ),
 						'pattern'     => '^[0-9]{4}-[0-9]{2}-[0-9]{2}$',
 					),
 					'num'    => array(
 						'type'        => 'integer',
-						'description' => __( 'How many prior periods to roll up (1-90).', 'jetpack-stats' ),
+						'description' => __( 'How many prior periods to roll up (1-90).', 'jetpack-stats-pkg' ),
 						'minimum'     => 1,
 						'maximum'     => 90,
 						'default'     => 1,
 					),
 					'max'    => array(
 						'type'        => 'integer',
-						'description' => __( 'Results cap (1-100).', 'jetpack-stats' ),
+						'description' => __( 'Results cap (1-100).', 'jetpack-stats-pkg' ),
 						'minimum'     => 1,
 						'maximum'     => 100,
 						'default'     => 20,
@@ -282,10 +282,10 @@ class Stats_Abilities extends Registrar {
 	 */
 	private static function spec_get_post_views(): array {
 		return array(
-			'label'               => __( 'Get views for a post', 'jetpack-stats' ),
+			'label'               => __( 'Get views for a post', 'jetpack-stats-pkg' ),
 			'description'         => __(
 				'Return views history for a single post: total views, timeseries of per-period views, and the period metadata. Shape: { post_id, total_views, period, num, date, series: [ { date, views } ] }. Accepts post_id as integer or numeric string (the literal "0" is rejected only because WordPress has no post 0 — any positive numeric value is legal). Precondition: site must be connected to WordPress.com. Related: call jetpack-stats/get-top-content with type=posts first to discover which posts to drill into.',
-				'jetpack-stats'
+				'jetpack-stats-pkg'
 			),
 			'input_schema'        => array(
 				'type'                 => 'object',
@@ -293,24 +293,24 @@ class Stats_Abilities extends Registrar {
 				'properties'           => array(
 					'post_id' => array(
 						'type'        => array( 'integer', 'string' ),
-						'description' => __( 'The post ID to fetch views for. Must be positive.', 'jetpack-stats' ),
+						'description' => __( 'The post ID to fetch views for. Must be positive.', 'jetpack-stats-pkg' ),
 					),
 					'period'  => array(
 						'type'        => 'string',
-						'description' => __( 'Aggregation period.', 'jetpack-stats' ),
+						'description' => __( 'Aggregation period.', 'jetpack-stats-pkg' ),
 						'enum'        => self::PERIODS,
 						'default'     => 'day',
 					),
 					'num'     => array(
 						'type'        => 'integer',
-						'description' => __( 'How many prior periods to include (1-90).', 'jetpack-stats' ),
+						'description' => __( 'How many prior periods to include (1-90).', 'jetpack-stats-pkg' ),
 						'minimum'     => 1,
 						'maximum'     => 90,
 						'default'     => 30,
 					),
 					'date'    => array(
 						'type'        => 'string',
-						'description' => __( 'End date (YYYY-MM-DD). Defaults to today.', 'jetpack-stats' ),
+						'description' => __( 'End date (YYYY-MM-DD). Defaults to today.', 'jetpack-stats-pkg' ),
 						'pattern'     => '^[0-9]{4}-[0-9]{2}-[0-9]{2}$',
 					),
 				),
@@ -349,10 +349,10 @@ class Stats_Abilities extends Registrar {
 	 */
 	private static function spec_get_visits(): array {
 		return array(
-			'label'               => __( 'Get site visits timeseries', 'jetpack-stats' ),
+			'label'               => __( 'Get site visits timeseries', 'jetpack-stats-pkg' ),
 			'description'         => __(
 				'Return a site-level views/visitors/likes/comments timeseries — answers "is traffic trending up?". Shape: { unit, quantity, date, fields, series: [ { date, views, visitors, likes, comments } ] }. Every series row always includes every field listed in the request (no per-row omission). Precondition: site must be connected to WordPress.com.',
-				'jetpack-stats'
+				'jetpack-stats-pkg'
 			),
 			'input_schema'        => array(
 				'type'                 => 'object',
@@ -360,25 +360,25 @@ class Stats_Abilities extends Registrar {
 				'properties'           => array(
 					'unit'     => array(
 						'type'        => 'string',
-						'description' => __( 'Granularity of each data point.', 'jetpack-stats' ),
+						'description' => __( 'Granularity of each data point.', 'jetpack-stats-pkg' ),
 						'enum'        => self::PERIODS,
 						'default'     => 'day',
 					),
 					'quantity' => array(
 						'type'        => 'integer',
-						'description' => __( 'How many data points to return (1-90).', 'jetpack-stats' ),
+						'description' => __( 'How many data points to return (1-90).', 'jetpack-stats-pkg' ),
 						'minimum'     => 1,
 						'maximum'     => 90,
 						'default'     => 30,
 					),
 					'date'     => array(
 						'type'        => 'string',
-						'description' => __( 'End date (YYYY-MM-DD). Defaults to today.', 'jetpack-stats' ),
+						'description' => __( 'End date (YYYY-MM-DD). Defaults to today.', 'jetpack-stats-pkg' ),
 						'pattern'     => '^[0-9]{4}-[0-9]{2}-[0-9]{2}$',
 					),
 					'fields'   => array(
 						'type'        => 'array',
-						'description' => __( 'Which metrics to include in each row. Defaults to views+visitors.', 'jetpack-stats' ),
+						'description' => __( 'Which metrics to include in each row. Defaults to views+visitors.', 'jetpack-stats-pkg' ),
 						'items'       => array(
 							'type' => 'string',
 							'enum' => self::VISIT_FIELDS,
@@ -420,10 +420,10 @@ class Stats_Abilities extends Registrar {
 	 */
 	private static function spec_get_followers(): array {
 		return array(
-			'label'               => __( 'Get follower counts', 'jetpack-stats' ),
+			'label'               => __( 'Get follower counts', 'jetpack-stats-pkg' ),
 			'description'         => __(
 				'Return a breakdown of follower counts across email, WordPress.com, comment, and publicize (per-service) — answers "how is my audience growing?" in one call. Shape: { total, email, wpcom, comment, publicize: { <service>: count }, partial: bool, errors?: [string] }. Composes three WPCOM endpoints — if any sub-call fails, `partial` is true and `errors` lists the failed sub-calls; when `partial` is true, source counts owned by the failed sub-call(s) are placeholder zeros rather than confirmed zero counts (cross-reference `errors` before treating a `0` as authoritative). Precondition: site must be connected to WordPress.com.',
-				'jetpack-stats'
+				'jetpack-stats-pkg'
 			),
 			'input_schema'        => array(
 				'type'                 => 'object',
@@ -465,10 +465,10 @@ class Stats_Abilities extends Registrar {
 	 */
 	private static function spec_get_settings(): array {
 		return array(
-			'label'               => __( 'Get Stats settings', 'jetpack-stats' ),
+			'label'               => __( 'Get Stats settings', 'jetpack-stats-pkg' ),
 			'description'         => __(
 				'Read the current Jetpack Stats settings: who sees the Stats admin bar + menu, whose visits are counted, and DNT behavior. Shape: { admin_bar, roles, count_roles, do_not_track }. `roles` is an array of role slugs that can view Stats; `count_roles` is an array of role slugs whose visits are counted. Call jetpack-stats/update-settings to change any of these.',
-				'jetpack-stats'
+				'jetpack-stats-pkg'
 			),
 			'input_schema'        => array(
 				'type'                 => 'object',
@@ -502,32 +502,32 @@ class Stats_Abilities extends Registrar {
 	 */
 	private static function spec_update_settings(): array {
 		return array(
-			'label'               => __( 'Update Stats settings', 'jetpack-stats' ),
+			'label'               => __( 'Update Stats settings', 'jetpack-stats-pkg' ),
 			'description'         => __(
 				'Update one or more Jetpack Stats settings. All fields are optional; only fields present in the call are written, and unrelated keys are preserved. Idempotent — setting a value to its current state returns changed=false. Shape: { changed, settings: { admin_bar, roles, count_roles, do_not_track } }. Role slugs in `roles` and `count_roles` are validated against the site\'s registered roles; unknown slugs return jetpack_stats_invalid_role. Narrowing `roles` can revoke Stats access for whole groups of users — confirm with the user before removing roles.',
-				'jetpack-stats'
+				'jetpack-stats-pkg'
 			),
 			'input_schema'        => array(
 				'type'                 => 'object',
 				'properties'           => array(
 					'admin_bar'    => array(
 						'type'        => 'boolean',
-						'description' => __( 'Whether to show the Stats item in the admin bar for users who can view Stats.', 'jetpack-stats' ),
+						'description' => __( 'Whether to show the Stats item in the admin bar for users who can view Stats.', 'jetpack-stats-pkg' ),
 					),
 					'roles'        => array(
 						'type'        => 'array',
-						'description' => __( 'Role slugs that can view Stats. Must be non-empty; each slug must be a registered role.', 'jetpack-stats' ),
+						'description' => __( 'Role slugs that can view Stats. Must be non-empty; each slug must be a registered role.', 'jetpack-stats-pkg' ),
 						'items'       => array( 'type' => 'string' ),
 						'minItems'    => 1,
 					),
 					'count_roles'  => array(
 						'type'        => 'array',
-						'description' => __( 'Role slugs whose visits are counted. May be empty (count visits from all users).', 'jetpack-stats' ),
+						'description' => __( 'Role slugs whose visits are counted. May be empty (count visits from all users).', 'jetpack-stats-pkg' ),
 						'items'       => array( 'type' => 'string' ),
 					),
 					'do_not_track' => array(
 						'type'        => 'boolean',
-						'description' => __( 'Whether to honor the browser Do Not Track header.', 'jetpack-stats' ),
+						'description' => __( 'Whether to honor the browser Do Not Track header.', 'jetpack-stats-pkg' ),
 					),
 				),
 				'additionalProperties' => false,
@@ -632,7 +632,7 @@ class Stats_Abilities extends Registrar {
 				'highlights' => $stats->get_highlights(),
 				'streak'     => $stats->get_streak(),
 			),
-			__( 'Stats data could not be fetched from WordPress.com. Confirm the site is connected and try again.', 'jetpack-stats' )
+			__( 'Stats data could not be fetched from WordPress.com. Confirm the site is connected and try again.', 'jetpack-stats-pkg' )
 		);
 		if ( is_wp_error( $composed ) ) {
 			return $composed;
@@ -682,7 +682,7 @@ class Stats_Abilities extends Registrar {
 				self::ERROR_PREFIX . 'missing_type',
 				sprintf(
 					/* translators: %s: comma-separated list of valid type values. */
-					__( 'A `type` is required. Valid values: %s.', 'jetpack-stats' ),
+					__( 'A `type` is required. Valid values: %s.', 'jetpack-stats-pkg' ),
 					implode( ', ', self::TOP_CONTENT_TYPES )
 				)
 			);
@@ -732,7 +732,7 @@ class Stats_Abilities extends Registrar {
 		if ( ! isset( $input['post_id'] ) || ! is_numeric( $input['post_id'] ) || (int) $input['post_id'] <= 0 ) {
 			return new WP_Error(
 				self::ERROR_PREFIX . 'missing_post_id',
-				__( 'A positive post_id is required.', 'jetpack-stats' )
+				__( 'A positive post_id is required.', 'jetpack-stats-pkg' )
 			);
 		}
 
@@ -822,7 +822,7 @@ class Stats_Abilities extends Registrar {
 				'comment_followers'   => $stats->get_comment_followers(),
 				'publicize_followers' => $stats->get_publicize_followers(),
 			),
-			__( 'Follower data could not be fetched from WordPress.com. Confirm the site is connected and try again.', 'jetpack-stats' )
+			__( 'Follower data could not be fetched from WordPress.com. Confirm the site is connected and try again.', 'jetpack-stats-pkg' )
 		);
 		if ( is_wp_error( $composed ) ) {
 			return $composed;
@@ -903,7 +903,7 @@ class Stats_Abilities extends Registrar {
 				self::ERROR_PREFIX . 'missing_setting_field',
 				sprintf(
 					/* translators: %s: comma-separated list of writable field names. */
-					__( 'Provide at least one of: %s.', 'jetpack-stats' ),
+					__( 'Provide at least one of: %s.', 'jetpack-stats-pkg' ),
 					implode( ', ', self::SETTINGS_KEYS )
 				)
 			);
@@ -930,7 +930,7 @@ class Stats_Abilities extends Registrar {
 					self::ERROR_PREFIX . 'invalid_' . $role_field,
 					sprintf(
 						/* translators: %s: the offending field name. */
-						__( 'Field `%s` must be an array of role slugs.', 'jetpack-stats' ),
+						__( 'Field `%s` must be an array of role slugs.', 'jetpack-stats-pkg' ),
 						$role_field
 					)
 				);
@@ -941,7 +941,7 @@ class Stats_Abilities extends Registrar {
 			if ( 'roles' === $role_field && empty( $provided[ $role_field ] ) ) {
 				return new WP_Error(
 					self::ERROR_PREFIX . 'invalid_roles',
-					__( 'Field `roles` must be a non-empty array of role slugs — an empty list would revoke Stats access for every user.', 'jetpack-stats' )
+					__( 'Field `roles` must be a non-empty array of role slugs — an empty list would revoke Stats access for every user.', 'jetpack-stats-pkg' )
 				);
 			}
 			$sanitized = array();
@@ -951,7 +951,7 @@ class Stats_Abilities extends Registrar {
 						self::ERROR_PREFIX . 'invalid_role',
 						sprintf(
 							/* translators: 1: field name, 2: comma-separated list of valid role slugs. */
-							__( 'Role slugs in `%1$s` must be non-empty strings. Known roles: %2$s.', 'jetpack-stats' ),
+							__( 'Role slugs in `%1$s` must be non-empty strings. Known roles: %2$s.', 'jetpack-stats-pkg' ),
 							$role_field,
 							implode( ', ', $known_roles )
 						)
@@ -962,7 +962,7 @@ class Stats_Abilities extends Registrar {
 						self::ERROR_PREFIX . 'invalid_role',
 						sprintf(
 							/* translators: 1: unknown role slug, 2: field name, 3: comma-separated list of valid role slugs. */
-							__( 'Unknown role `%1$s` in `%2$s`. Known roles: %3$s.', 'jetpack-stats' ),
+							__( 'Unknown role `%1$s` in `%2$s`. Known roles: %3$s.', 'jetpack-stats-pkg' ),
 							$role,
 							$role_field,
 							implode( ', ', $known_roles )
@@ -1139,7 +1139,7 @@ class Stats_Abilities extends Registrar {
 				return $stats->get_video_plays( $args );
 		}
 
-		return new WP_Error( self::ERROR_PREFIX . 'invalid_type', __( 'Unknown top-content type.', 'jetpack-stats' ) );
+		return new WP_Error( self::ERROR_PREFIX . 'invalid_type', __( 'Unknown top-content type.', 'jetpack-stats-pkg' ) );
 	}
 
 	/**

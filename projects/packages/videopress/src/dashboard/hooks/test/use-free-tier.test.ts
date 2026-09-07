@@ -5,6 +5,9 @@ import { useFreeTier } from '../use-free-tier';
 
 jest.mock( '@automattic/jetpack-script-data', () => ( {
 	isWoASite: jest.fn( () => false ),
+	// These suites run in self-hosted mode; Simple-mode suites use the real
+	// module with the JetpackScriptData global via test-utils/simple-site.
+	isSimpleSite: jest.fn( () => false ),
 } ) );
 
 jest.mock( '../use-upload', () => ( {
@@ -32,12 +35,8 @@ describe( 'useFreeTier', () => {
 					json: async () => [],
 				};
 			}
-			// /videopress/v1/features default response
-			return {
-				isVideoPressSupported: true,
-				isVideoPress1TBSupported: false,
-				isVideoPressUnlimitedSupported: false,
-			};
+			// No other endpoints are fetched by this hook anymore.
+			throw new Error( 'unexpected parsed request' );
 		} );
 
 		const { result } = renderHook( () => useFreeTier(), { wrapper: createTestWrapper() } );
@@ -68,11 +67,7 @@ describe( 'useFreeTier', () => {
 					json: async () => [],
 				};
 			}
-			return {
-				isVideoPressSupported: true,
-				isVideoPress1TBSupported: false,
-				isVideoPressUnlimitedSupported: false,
-			};
+			throw new Error( 'unexpected parsed request' );
 		} );
 
 		try {

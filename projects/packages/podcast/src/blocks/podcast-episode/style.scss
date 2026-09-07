@@ -96,6 +96,16 @@ $jetpack-podcast-episode-gap: 16px;
 		margin: 0;
 		font-size: 1.4em;
 		line-height: 1.3;
+
+		a {
+			color: inherit;
+			text-decoration: none;
+
+			&:hover,
+			&:focus {
+				text-decoration: underline;
+			}
+		}
 	}
 
 	.jetpack-podcast-episode__byline {

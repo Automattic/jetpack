@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add a consumer-configured WooCommerce Analytics sync module with checksum support.

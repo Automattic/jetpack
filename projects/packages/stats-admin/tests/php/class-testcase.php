@@ -7,7 +7,10 @@
 
 namespace Automattic\Jetpack\Stats_Admin;
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Stats\Options as Stats_Options;
 use PHPUnit\Framework\TestCase as PHPUnit_TestCase;
+use ReflectionProperty;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Posts as WorDBless_Posts;
 use WorDBless\Users as WorDBless_Users;
@@ -60,6 +63,23 @@ abstract class TestCase extends PHPUnit_TestCase {
 		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_site_connection_options' ), 10, 2 );
 		add_filter( 'pre_http_request', array( $this, 'plan_http_response_fixture' ), 10, 3 );
 		delete_option( Odyssey_Assets::ODYSSEY_STATS_CACHE_BUSTER_CACHE_KEY );
+
+		// The connection status and the stats options are both memoized in statics, so they
+		// outlive the mocked options and the cleared database.
+		( new Connection_Manager() )->reset_connection_status();
+		$this->reset_stats_options();
+	}
+
+	/**
+	 * Drop the stats options `Stats\Options` holds on to between calls.
+	 */
+	private function reset_stats_options() {
+		$options = new ReflectionProperty( Stats_Options::class, 'options' );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$options->setAccessible( true );
+		}
+		$options->setValue( null, array() );
 	}
 
 	/**
@@ -76,6 +96,29 @@ abstract class TestCase extends PHPUnit_TestCase {
 		remove_filter( 'pre_http_request', array( $this, 'plan_http_response_fixture' ) );
 		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_site_connection_options' ) );
 		delete_option( Odyssey_Assets::ODYSSEY_STATS_CACHE_BUSTER_CACHE_KEY );
+	}
+
+	/**
+	 * Drop the mocked tokens, leaving a site that was never connected to WordPress.com.
+	 */
+	protected function disconnect_site() {
+		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_site_connection_options' ), 10 );
+		( new Connection_Manager() )->reset_connection_status();
+	}
+
+	/**
+	 * Drop the mocked tokens but keep the blog ID, as disconnecting a site actually leaves it.
+	 */
+	protected function disconnect_site_keeping_blog_id() {
+		$this->disconnect_site();
+		add_filter(
+			'jetpack_options',
+			static function ( $value, $name ) {
+				return 'id' === $name ? '999' : $value;
+			},
+			10,
+			2
+		);
 	}
 
 	/**

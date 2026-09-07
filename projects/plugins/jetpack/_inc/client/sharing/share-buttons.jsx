@@ -3,6 +3,7 @@ import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
 import { __, _x } from '@wordpress/i18n';
 import { Component } from 'react';
 import BlockThemeNotice from 'components/block-theme-notice';
+import Button from 'components/button';
 import Card from 'components/card';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import { ModuleToggle } from 'components/module-toggle';
@@ -20,6 +21,21 @@ export const ShareButtons = withModuleSettingsFormHelpers(
 			} );
 		}
 
+		switchToSharingBlock = () => {
+			analytics.tracks.recordEvent( 'jetpack_wpa_module_toggle', {
+				module: 'sharedaddy',
+				toggled: 'off',
+			} );
+
+			this.props.updateOptions(
+				{ sharedaddy: false },
+				{
+					progress: __( 'Deactivating legacy sharing…', 'jetpack' ),
+					success: __( 'Sharing has been deactivated.', 'jetpack' ),
+				}
+			);
+		};
+
 		render() {
 			const siteAdminUrl = this.props.siteAdminUrl,
 				hasSharingBlock = this.props.hasSharingBlock,
@@ -27,6 +43,28 @@ export const ShareButtons = withModuleSettingsFormHelpers(
 				isActive = this.props.getOptionValue( 'sharedaddy' );
 
 			const shouldShowSharingBlock = isBlockTheme && hasSharingBlock;
+			const sharingTemplateUrl =
+				siteAdminUrl && this.props.themeStylesheet
+					? `${ siteAdminUrl }site-editor.php?p=%2Fwp_template%2F${ encodeURIComponent(
+							this.props.themeStylesheet
+					  ) }%2F%2Fsingle&canvas=edit`
+					: '';
+			const shouldUseSharingBlockAction = shouldShowSharingBlock && sharingTemplateUrl;
+			const isForcedActive =
+				isActive && this.props.getModule?.( 'sharedaddy' )?.override === 'active';
+			let description = __(
+				'Add sharing buttons so visitors can share your posts and pages on social media with a couple of quick clicks.',
+				'jetpack'
+			);
+			if ( shouldUseSharingBlockAction ) {
+				description = isActive
+					? __( 'Legacy sharing buttons cannot be customized on block themes.', 'jetpack' )
+					: _x(
+							'Add the Sharing Buttons block to your theme’s template.',
+							'Sharing block migration instruction',
+							'jetpack'
+					  );
+			}
 
 			const sharingModuleSupportUrl = getRedirectUrl( 'jetpack-support-sharing' );
 
@@ -57,18 +95,16 @@ export const ShareButtons = withModuleSettingsFormHelpers(
 			};
 
 			/**
-			 * Sharing module toggle, and suggestion to use the sharing block.
+			 * Use the legacy toggle where needed; otherwise guide block themes through
+			 * deactivating legacy sharing before configuring the Sharing Buttons block.
 			 *
-			 * If the sharing block is available,
-			 * we suggest to use it instead of the legacy module.
-			 *
-			 * @return {import('react').ReactNode} A module toggle.
+			 * @return {import('react').ReactNode} The sharing module action.
 			 */
-			const moduleToggle = () => {
+			const moduleAction = () => {
 				const toggle = (
 					<ModuleToggle
 						slug="sharedaddy"
-						disabled={ this.props.isSavingAnyOption( 'sharedaddy' ) }
+						disabled={ isForcedActive || this.props.isSavingAnyOption( 'sharedaddy' ) }
 						activated={ isActive }
 						toggleModule={ this.props.toggleModuleNow }
 					>
@@ -78,22 +114,40 @@ export const ShareButtons = withModuleSettingsFormHelpers(
 					</ModuleToggle>
 				);
 
-				// If the sharing block is not available,
-				// only display the legacy module toggle.
-				if ( ! shouldShowSharingBlock ) {
+				if ( ! shouldUseSharingBlockAction ) {
+					return (
+						<>
+							{ toggle }
+							{ shouldShowSharingBlock && (
+								<BlockThemeNotice
+									isModuleActive={ isActive }
+									redirectSlug="jetpack-support-sharing-block"
+								/>
+							) }
+						</>
+					);
+				}
+
+				if ( isForcedActive ) {
 					return toggle;
 				}
 
-				// If the sharing block is available,
-				// Let's suggest the sharing block as an alternative.
+				if ( isActive ) {
+					const isSwitching = this.props.isSavingAnyOption( 'sharedaddy' );
+
+					return (
+						<Button rna compact disabled={ isSwitching } onClick={ this.switchToSharingBlock }>
+							{ isSwitching
+								? _x( 'Switching…', 'Button caption', 'jetpack' )
+								: __( 'Switch to Sharing Buttons block', 'jetpack' ) }
+						</Button>
+					);
+				}
+
 				return (
-					<>
-						{ toggle }
-						<BlockThemeNotice
-							isModuleActive={ isActive }
-							redirectSlug="jetpack-support-sharing-block"
-						/>
-					</>
+					<Button rna compact href={ sharingTemplateUrl } onClick={ this.trackClickConfigure }>
+						{ __( 'Open Site Editor', 'jetpack' ) }
+					</Button>
 				);
 			};
 
@@ -117,16 +171,13 @@ export const ShareButtons = withModuleSettingsFormHelpers(
 								: sharingModuleSupportUrl,
 						} }
 					>
-						<p>
-							{ __(
-								'Add sharing buttons so visitors can share your posts and pages on social media with a couple of quick clicks.',
-								'jetpack'
-							) }
-						</p>
-						{ moduleToggle() }
+						<p>{ description }</p>
+						{ moduleAction() }
 					</SettingsGroup>
 
-					{ ( isActive || shouldShowSharingBlock ) && configCard() }
+					{ ( isActive || shouldShowSharingBlock ) &&
+						! shouldUseSharingBlockAction &&
+						configCard() }
 				</SettingsCard>
 			);
 		}

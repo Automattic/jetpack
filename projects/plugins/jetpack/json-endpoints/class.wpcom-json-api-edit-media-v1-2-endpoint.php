@@ -407,8 +407,8 @@ class WPCOM_JSON_API_Edit_Media_v1_2_Endpoint extends WPCOM_JSON_API_Update_Medi
 			return $media_item;
 		}
 
-		if ( ! current_user_can( 'upload_files', $media_id ) ) {
-			return new WP_Error( 'unauthorized', 'User cannot view media', 403 );
+		if ( ! $this->current_user_can_edit_media_item( $media_id ) ) {
+			return new WP_Error( 'unauthorized', 'User cannot edit media', 403 );
 		}
 
 		$input = $this->input( true );

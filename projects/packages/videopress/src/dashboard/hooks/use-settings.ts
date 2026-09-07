@@ -4,6 +4,7 @@ import apiFetch from '@wordpress/api-fetch';
 type ApiSettings = {
 	videopress_videos_private_for_site: boolean;
 	videopress_auto_subtitles_disabled: boolean;
+	videopress_player_preload_disabled: boolean;
 	site_is_private: boolean;
 	site_type: string;
 };
@@ -11,15 +12,54 @@ type ApiSettings = {
 export type Settings = {
 	videoPressVideosPrivateForSite: boolean;
 	videoPressAutoSubtitlesDisabled: boolean;
+	videoPressPlayerPreloadDisabled: boolean;
 	siteIsPrivate: boolean;
 	siteType: string;
 };
 
 export type SettingsPatch = Partial<
-	Pick< Settings, 'videoPressVideosPrivateForSite' | 'videoPressAutoSubtitlesDisabled' >
+	Pick<
+		Settings,
+		| 'videoPressVideosPrivateForSite'
+		| 'videoPressAutoSubtitlesDisabled'
+		| 'videoPressPlayerPreloadDisabled'
+	>
 >;
 
+/**
+ * Whether `videoPressVideosPrivateForSite` is resolved server-side and therefore
+ * not independently writable from this screen.
+ *
+ * This mirrors `Data::get_videopress_videos_private_for_site()` on the server.
+ * WordPress.com Simple always derives VideoPress privacy from the whole-site
+ * Privacy setting (there is no independent option), so it is always locked.
+ * Private Atomic/WoA sites force every video private, locking the value to its
+ * effective (true) state. On public Atomic and self-hosted Jetpack the stored
+ * option is honored, so the toggle stays writable. Deciding from the settings
+ * response — not the ENV — keeps Simple and private Atomic in sync with what
+ * the server actually accepts.
+ *
+ * @param settings - The resolved settings data, or undefined while loading.
+ * @return true when the value is server-controlled (render it read-only).
+ */
+export function isPrivateForSiteServerControlled(
+	settings: Pick< Settings, 'siteType' | 'siteIsPrivate' > | undefined
+): boolean {
+	if ( ! settings ) {
+		return false;
+	}
+	const { siteType, siteIsPrivate } = settings;
+	return siteType === 'simple' || ( siteType === 'atomic' && siteIsPrivate );
+}
+
 const QUERY_KEY = [ 'jetpack-videopress-settings' ] as const;
+
+// One path for every host. The wpcom/v2 route exists everywhere (the package
+// registers it through the standard WPCOM_REST_API_V2 loader) with host-safe
+// callbacks, and it's the only namespace that reaches the REST dispatcher on
+// WordPress.com Simple — videopress/v1 doesn't. Its videopress/v1/settings
+// twin stays for the legacy dashboard and external consumers.
+const SETTINGS_PATH = '/wpcom/v2/videopress/settings';
 
 /**
  * Convert a raw REST API settings object to the camelCase shape used in JS.
@@ -31,6 +71,7 @@ function fromApi( raw: ApiSettings ): Settings {
 	return {
 		videoPressVideosPrivateForSite: raw.videopress_videos_private_for_site,
 		videoPressAutoSubtitlesDisabled: raw.videopress_auto_subtitles_disabled,
+		videoPressPlayerPreloadDisabled: raw.videopress_player_preload_disabled,
 		siteIsPrivate: raw.site_is_private,
 		siteType: raw.site_type,
 	};
@@ -45,7 +86,7 @@ export function useSettings() {
 	return useQuery< Settings >( {
 		queryKey: QUERY_KEY,
 		queryFn: async () => {
-			const raw = await apiFetch< ApiSettings >( { path: '/videopress/v1/settings' } );
+			const raw = await apiFetch< ApiSettings >( { path: SETTINGS_PATH } );
 			return fromApi( raw );
 		},
 		staleTime: 5 * 60_000,
@@ -65,7 +106,9 @@ export function useUpdateSettings() {
 			const data: Partial<
 				Pick<
 					ApiSettings,
-					'videopress_videos_private_for_site' | 'videopress_auto_subtitles_disabled'
+					| 'videopress_videos_private_for_site'
+					| 'videopress_auto_subtitles_disabled'
+					| 'videopress_player_preload_disabled'
 				>
 			> = {};
 			if ( patch.videoPressVideosPrivateForSite !== undefined ) {
@@ -74,11 +117,14 @@ export function useUpdateSettings() {
 			if ( patch.videoPressAutoSubtitlesDisabled !== undefined ) {
 				data.videopress_auto_subtitles_disabled = patch.videoPressAutoSubtitlesDisabled;
 			}
+			if ( patch.videoPressPlayerPreloadDisabled !== undefined ) {
+				data.videopress_player_preload_disabled = patch.videoPressPlayerPreloadDisabled;
+			}
 			if ( Object.keys( data ).length === 0 ) {
 				return;
 			}
 			await apiFetch( {
-				path: '/videopress/v1/settings',
+				path: SETTINGS_PATH,
 				method: 'POST',
 				data,
 			} );

@@ -1,0 +1,75 @@
+// The modernized Backup dashboard's admin shell: the chain that pins the
+// wp-admin content column to the viewport and lays the page out as
+// "fixed header + scrollable middle + pinned footer".
+
+// Lives here, as a mixin every route includes, because each wp-build
+// route is its own bundle with its own inlined CSS. A route that does
+// not include this gets none of it: `#wpbody-content` stays static and
+// the footer sits wherever the content happens to end, which is what
+// cold-loading `/restore/$id` or `/download/$id` used to do.
+
+// Matches the modernized VideoPress / Forms dashboards — see
+// `projects/packages/videopress/src/dashboard/admin-shell.scss`.
+
+@use "@automattic/jetpack-base-styles/admin-page-layout" as *;
+
+@mixin backup-admin-shell {
+
+	// Scoped to the backup admin body so it can't leak onto other
+	// Jetpack pages.
+	body.jetpack_page_jetpack-backup {
+
+		@include jetpack-admin-page-layout-wp-build;
+
+		// `<Page>` from `@wordpress/admin-ui` puts the page title and
+		// the caller-supplied actions on the same flex row inside the
+		// header content slot. The row doesn't wrap by default, so on
+		// narrow viewports the action buttons overflow the page width
+		// (the "Back up now" button is clipped on mobile). Allow the
+		// content row and the actions group to wrap so the actions drop
+		// onto a new row instead of escaping the viewport. admin-ui's
+		// emotion-hashed classnames follow a stable
+		// `<hash>__semantic-name` pattern that we can match on without
+		// depending on the hash.
+		.jpb-dashboard-layout {
+
+			[class*="__header-content"],
+			[class*="__header-actions"] {
+				flex-wrap: wrap;
+			}
+		}
+
+		// The shared mixin assumes `<AdminPage>` from
+		// `@automattic/jetpack-components` (which stamps
+		// `.jp-admin-page` AND admin-ui's `.admin-ui-page` /
+		// `.admin-ui-page__header` classes verbatim). Our
+		// DashboardLayout uses `<Page>` from `@wordpress/admin-ui` 2.x,
+		// whose root + header classes are emotion-hashed
+		// (`_<hash>__page`, `_<hash>__header`) and don't match the
+		// mixin's selectors. We add `.jp-admin-page` to the Page so the
+		// mixin's outer flex chain still attaches, and reproduce the
+		// page-internal "header / middle / footer" sticky layout here
+		// using our own stable class names (`.jpb-dev-mode-banner`,
+		// `.jpb-dashboard-body`, `.jetpack-footer`).
+		.jp-admin-page {
+
+			> header {
+				flex-shrink: 0;
+			}
+
+			> .jpb-dev-mode-banner {
+				flex-shrink: 0;
+			}
+
+			> .jpb-dashboard-body {
+				flex: 1 1 auto;
+				min-height: 0;
+				overflow: auto;
+			}
+
+			> .jetpack-footer {
+				flex-shrink: 0;
+			}
+		}
+	}
+}

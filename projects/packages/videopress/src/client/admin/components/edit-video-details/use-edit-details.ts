@@ -25,7 +25,7 @@ import useVideo from '../../hooks/use-video';
  * Types
  */
 import type { UploadTrackDataProps } from '../../../lib/video-tracks/types';
-import type { RatingProp } from '../../../types';
+import type { RatingProp, VideoTracksLegacyResponseBodyProps } from '../../../types';
 
 const debug = debugFactory( 'videopress:use-edit-details' );
 
@@ -206,7 +206,13 @@ export default () => {
 						guid: video.guid,
 						isPrivate: video.isPrivate,
 					} );
-					const chapterFileUrl = response?.tracks?.chapters?.en?.src;
+					/*
+					 * fetchVideoItem returns the legacy kind→language nested track
+					 * map, so narrow the broader response type before reading the
+					 * chapters source.
+					 */
+					const legacyTracks = response?.tracks as VideoTracksLegacyResponseBodyProps | undefined;
+					const chapterFileUrl = legacyTracks?.chapters?.en?.src;
 					const hasChapterFile = typeof chapterFileUrl === 'string';
 
 					if ( hasChapterFile ) {

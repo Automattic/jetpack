@@ -78,9 +78,12 @@ const series = [
 	},
 	{
 		label: 'Dec 25-31, 2023',
-		group: 'comparison',
+		// Same group as the metric it shadows, and `type: 'comparison'` is what
+		// makes `alignSeriesDates` re-date it onto the primary's axis.
+		group: 'primary',
 		data: [ ... ],
 		options: {
+			type: 'comparison',
 			stroke: '#F59E0B',
 			seriesLineStyle: { strokeDasharray: '4 4', strokeWidth: 1.5 },
 		},
@@ -122,13 +125,16 @@ function MyWidget( { series } ) {
 
 ## Props
 
-| Prop         | Type                           | Required | Description                                        |
-| ------------ | ------------------------------ | -------- | -------------------------------------------------- |
-| `series`     | `ComparativeLineChartSeries[]` | Yes      | Array of series with data                          |
-| `styles`     | `SeriesStyle[]`                | No       | Styles for each series (by index)                  |
-| `dataFormat` | `DataFormat`                   | Yes      | Format for values (Y-axis ticks and tooltips)      |
-| `tickFormat` | `string`                       | No       | Custom X-axis date format (date-fns format string) |
-| `className`  | `string`                       | No       | CSS class for the chart container                  |
+| Prop         | Type                           | Required | Description                                                   |
+| ------------ | ------------------------------ | -------- | ------------------------------------------------------------- |
+| `series`     | `ComparativeLineChartSeries[]` | Yes      | Array of series with data                                     |
+| `styles`     | `SeriesStyle[]`                | No       | Styles for each series (by index)                             |
+| `dataFormat` | `DataFormat`                   | Yes      | Format for values (Y-axis ticks and tooltips)                 |
+| `tickFormat` | `DateFormatName`               | No       | Named X-axis date format; uses the chart default when omitted |
+| `className`  | `string`                       | No       | CSS class for the chart container                             |
+| `chartId`    | `string`                       | No       | Identity the charts provider keys visibility on; generated when omitted. Change it whenever `defaultHiddenSeries` should be applied again |
+| `defaultHiddenSeries` | `readonly string[]`   | No       | Labels of series hidden until revealed from the legend. Applied once per `chartId`, so only useful with `legendInteractive` |
+| `legendInteractive` | `boolean`             | No       | Let the reader click legend items to show and hide series. Defaults to `false` |
 
 ## SeriesStyle Type
 
@@ -145,11 +151,12 @@ type SeriesStyle = {
 
 ## Date Alignment
 
-The component automatically aligns comparison series to the primary series for X-axis display:
+The component aligns previous-period series onto the axis dates for X-axis display:
 
-1. First series (`series[0]`) is the reference
-2. Comparison series dates are shifted to align with the primary
-3. Original dates are preserved for tooltip display
+1. The first series (`series[0]`) sets the axis dates
+2. Only series marked `options.type: 'comparison'` are shifted onto those dates — a second
+   current-period metric keeps its own
+3. The original date is preserved in `realDate` for tooltip display
 
 **Example**: A comparison series with Dec 25-31 dates will visually align to Jan 1-7 on the X-axis, but tooltips show the real Dec 25-31 dates.
 

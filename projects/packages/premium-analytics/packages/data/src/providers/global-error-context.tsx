@@ -24,10 +24,6 @@ interface GlobalErrorContextValue {
 
 const GlobalErrorContext = createContext< GlobalErrorContextValue | null >( null );
 
-/**
- * Connects React to the global error manager via useSyncExternalStore.
- * Also subscribes to network status changes via onlineManager.
- */
 export function GlobalErrorProvider( { children }: { children: ReactNode } ) {
 	const globalError = useSyncExternalStore(
 		globalErrorManager.subscribe,
@@ -36,14 +32,10 @@ export function GlobalErrorProvider( { children }: { children: ReactNode } ) {
 	);
 
 	/**
-	 * Subscribe to TanStack Query's onlineManager to detect network status.
-	 *
-	 * When offline, TanStack Query pauses queries (doesn't execute them),
-	 * so QueryCache.onError never fires. We detect offline status here and
-	 * properly clean up the subscription when the provider unmounts.
+	 * When offline, TanStack Query pauses queries (doesn't execute them), so
+	 * QueryCache.onError never fires — offline has to be detected here instead.
 	 */
 	useEffect( () => {
-		// Check initial online status on mount
 		if ( ! onlineManager.isOnline() ) {
 			globalErrorManager.setError( 'network' );
 		}

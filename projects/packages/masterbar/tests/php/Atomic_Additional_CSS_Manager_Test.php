@@ -20,7 +20,7 @@ require_once ABSPATH . WPINC . '/class-wp-customize-section.php';
 /**
  * @covers Automattic\Jetpack\Masterbar\Atomic_Additional_CSS_Manager
  */
-#[AllowMockObjectsWithoutExpectations /* getStubBuilder() (for partial stubs) doesn't exist until PHPUnit 12.5. */ ]
+#[AllowMockObjectsWithoutExpectations /* getStubBuilder() (for partial stubs) doesn't exist until PHPUnit 12.5. */]
 #[CoversClass( Atomic_Additional_CSS_Manager::class )]
 class Atomic_Additional_CSS_Manager_Test extends TestCase {
 	/**

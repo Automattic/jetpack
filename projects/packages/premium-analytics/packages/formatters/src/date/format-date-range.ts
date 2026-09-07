@@ -1,55 +1,206 @@
 /**
+ * External dependencies
+ */
+import { getDateRangeSpan, type DateRange } from '@jetpack-premium-analytics/datetime';
+import { __, sprintf } from '@wordpress/i18n';
+/**
  * Internal dependencies
  */
+import { elideRange, type RangeFormatName } from './elide-range';
 import { formatDate } from './format-date';
+import { isSingleDaySpan } from './is-single-day-span';
+
+type FormatDateRangeOptions = {
+	/**
+	 * Name a window of a day or less by the day it ends on, even when a rolling
+	 * window crosses a calendar boundary.
+	 */
+	collapseSingleDay?: boolean;
+};
 
 /**
- * A date range with optional start and end.
+ * Format a date range in one of the forms `elideRange` can elide.
  *
- * Defined locally to avoid a cross-package import on
- * `@jetpack-premium-analytics/datetime` (which exports an identical
- * `DateRange` type). Switch to that import once the sibling-package
- * `link:` wiring is settled.
+ * @param name      - The form to render in.
+ * @param range     - The range to format.
+ * @param [options] - Formatting options.
+ * @return The formatted range.
  */
-type DateRange = { from?: Date; to?: Date };
-
-/**
- * Format a date range into a human-readable string.
- * Adjusts output based on whether dates share the same day, month, or year.
- * Returns `''` when `range`, `from`, or `to` is missing.
- *
- * @example
- * formatDateRange( { from, to } ) // same day:    'Jun 21, 2025'
- *                                  // same month:  'Jun 21-25, 2025'
- *                                  // same year:   'Jun 21-Jul 25, 2025'
- *                                  // cross-year:  'Jun 21, 2024-Jul 25, 2025'
- */
-export const formatDateRange = ( range?: DateRange ): string => {
-	if ( ! range ) {
-		return '';
-	}
-
-	const { from, to } = range;
+const formatRange = (
+	name: RangeFormatName,
+	range?: DateRange,
+	options: FormatDateRangeOptions = {}
+): string => {
+	const { from, to } = range ?? {};
 
 	if ( ! from || ! to ) {
 		return '';
 	}
 
-	const sameYear = from.getFullYear() === to.getFullYear();
-	const sameMonth = sameYear && from.getMonth() === to.getMonth();
-	const sameDay = sameMonth && from.getDate() === to.getDate();
-
-	if ( sameDay ) {
-		return formatDate( from, 'medium' );
+	if ( options.collapseSingleDay && isSingleDaySpan( getDateRangeSpan( { from, to } ) ) ) {
+		return formatDate( to, name );
 	}
 
-	if ( sameMonth ) {
-		return `${ formatDate( from, 'short' ) }-${ formatDate( to, 'd, yyyy' ) }`;
+	// Compare complete site-local dates because the display format may omit the year.
+	if ( formatDate( from, 'iso' ) === formatDate( to, 'iso' ) ) {
+		return formatDate( from, name );
 	}
 
-	if ( sameYear ) {
-		return `${ formatDate( from, 'short' ) }-${ formatDate( to ) }`;
+	return (
+		elideRange( from, to, name ) ??
+		sprintf(
+			/* translators: 1: Start date. 2: End date. */
+			__( '%1$s – %2$s', 'jetpack-premium-analytics-pkg' ),
+			formatDate( from, name ),
+			formatDate( to, name )
+		)
+	);
+};
+
+/**
+ * Format a date range into a human-readable string.
+ *
+ * A shared month or year is elided where the site's locale has a rule for it —
+ * see `elideRange`. Eliding by hand is not an option: "Jun 21-25, 2025" is an
+ * English convention that on a Spanish site yields "21 de junio-25 de junio de
+ * 2025". Where no rule can be trusted, both ends are spelled out in full.
+ *
+ * @param range     - The range to format.
+ * @param [options] - Formatting options.
+ * @return The formatted range, or `''` when `range`, `from`, or `to` is missing.
+ */
+export const formatDateRange = (
+	range?: DateRange,
+	options: FormatDateRangeOptions = {}
+): string => formatRange( 'medium', range, options );
+
+/**
+ * Format a date range with the month abbreviated.
+ *
+ * For controls sized by their row rather than their content. The abbreviation
+ * comes from WordPress's translation tables, so a locale that does not shorten
+ * its month names reads the same as `formatDateRange`.
+ *
+ * @param range - The range to format.
+ * @return The formatted range.
+ */
+export const formatDateRangeCompact = ( range?: DateRange ): string =>
+	formatRange( 'compact', range );
+
+/**
+ * Format a date range in the shortest form that still identifies it.
+ *
+ * Drops the year on top of `formatDateRangeCompact`, but only while the whole
+ * range sits in the site's current year — a range anywhere else needs its year
+ * and reads as the compact form instead.
+ *
+ * @param range - The range to format.
+ * @return The formatted range.
+ */
+export const formatDateRangeMinimal = ( range?: DateRange ): string => {
+	const { from, to } = range ?? {};
+
+	if ( ! from || ! to ) {
+		return '';
 	}
 
-	return `${ formatDate( from ) }-${ formatDate( to ) }`;
+	const currentYear = formatDate( Date.now(), 'year' );
+	const isCurrentYear =
+		formatDate( from, 'year' ) === currentYear && formatDate( to, 'year' ) === currentYear;
+
+	return formatRange( isCurrentYear ? 'compactNoYear' : 'compact', range );
+};
+
+/** A site-local calendar date, as the parts a boundary check compares. */
+type CalendarDate = {
+	year: number;
+	month: number;
+	day: number;
+};
+
+/**
+ * Read a date as its site-local calendar parts.
+ *
+ * Through the ISO form, since the `Date` getters answer in the browser's
+ * timezone and would name a different day for anyone offset from the site.
+ *
+ * @param date - The instant to read.
+ * @return Its year, 1-based month, and day of the month.
+ */
+function toCalendarDate( date: Date ): CalendarDate {
+	const [ year, month, day ] = formatDate( date, 'iso' ).split( '-' ).map( Number );
+
+	return { year, month, day };
+}
+
+/**
+ * The length of a calendar month.
+ *
+ * @param date - Any date in the month.
+ * @return Its number of days.
+ */
+function getMonthLength( date: CalendarDate ): number {
+	// Day zero of the next month is the last day of this one.
+	return new Date( Date.UTC( date.year, date.month, 0 ) ).getUTCDate();
+}
+
+/**
+ * Whether the range covers one calendar month, first day to last.
+ *
+ * @param from - The range's start, in calendar parts.
+ * @param to   - The range's end, in calendar parts.
+ * @return Whether the range is that month.
+ */
+function isWholeMonth( from: CalendarDate, to: CalendarDate ): boolean {
+	return (
+		from.year === to.year &&
+		from.month === to.month &&
+		from.day === 1 &&
+		to.day === getMonthLength( to )
+	);
+}
+
+/**
+ * Whether the range covers one calendar year, January 1 to December 31.
+ *
+ * @param from - The range's start, in calendar parts.
+ * @param to   - The range's end, in calendar parts.
+ * @return Whether the range is that year.
+ */
+function isWholeYear( from: CalendarDate, to: CalendarDate ): boolean {
+	return (
+		from.year === to.year && from.month === 1 && from.day === 1 && to.month === 12 && to.day === 31
+	);
+}
+
+/**
+ * Format a date range as the period it names, where it names one.
+ *
+ * A range covering exactly one calendar month or year reads as that month or
+ * year, and anything else falls back to `formatDateRangeMinimal`. Both forms
+ * keep the year, the current one included: this label is the only thing naming
+ * the period on the control it sits on.
+ *
+ * @param range - The range to format.
+ * @return The formatted range, or `''` when `range`, `from`, or `to` is missing.
+ */
+export const formatDateRangeNatural = ( range?: DateRange ): string => {
+	const { from, to } = range ?? {};
+
+	if ( ! from || ! to ) {
+		return '';
+	}
+
+	const start = toCalendarDate( from );
+	const end = toCalendarDate( to );
+
+	if ( isWholeYear( start, end ) ) {
+		return formatDate( from, 'year' );
+	}
+
+	if ( isWholeMonth( start, end ) ) {
+		return formatDate( from, 'monthYear' );
+	}
+
+	return formatDateRangeMinimal( range );
 };

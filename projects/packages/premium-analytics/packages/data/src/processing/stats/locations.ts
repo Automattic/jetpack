@@ -7,7 +7,10 @@ import {
 	getStatsBuckets,
 	coerceStatsRecord,
 	getStatsResponsePeriod,
+	getStatsReportItems,
 	getStatsTopLevelDataDate,
+	limitStatsRows,
+	mergeStatsComparisonRows,
 	normalizeStatsReportSummary,
 } from './utils';
 import type { StatsNormalizedItemBase, StatsNormalizedReport, StatsRecord } from './types';
@@ -21,6 +24,20 @@ export type StatsLocationsItem = StatsNormalizedItemBase & {
 	coordinates?: unknown;
 	children: null;
 };
+
+export type StatsLocationsComparisonItem = StatsLocationsItem & {
+	previousViews?: number;
+};
+
+function getLocationKey( item: StatsLocationsItem ): string | null {
+	if ( ! item.countryCode ) {
+		return null;
+	}
+
+	const label = typeof item.label === 'string' ? item.label : String( item.label );
+
+	return `${ item.countryCode }:${ label }`;
+}
 
 export function sanitizeStatsLocationsResponse(
 	response: unknown,
@@ -79,4 +96,29 @@ export function sanitizeStatsLocationsResponse(
 					)
 			  ),
 	};
+}
+
+export function mergeStatsLocationsComparisonRows(
+	primaryReport?: StatsNormalizedReport< StatsLocationsItem >,
+	comparisonReport?: StatsNormalizedReport< StatsLocationsItem >,
+	maxRows?: number
+) {
+	return mergeStatsComparisonRows<
+		StatsLocationsItem,
+		StatsLocationsItem,
+		StatsLocationsComparisonItem
+	>( {
+		primaryRows: limitStatsRows(
+			getStatsReportItems( primaryReport ).filter( item => !! item.countryCode ),
+			maxRows
+		),
+		comparisonRows: getStatsReportItems( comparisonReport ).filter( item => !! item.countryCode ),
+		getPrimaryKey: getLocationKey,
+		getComparisonKey: getLocationKey,
+		getComparisonValue: item => item.views,
+		mapRow: ( item, { previousValue } ) => ( {
+			...item,
+			previousViews: previousValue,
+		} ),
+	} );
 }

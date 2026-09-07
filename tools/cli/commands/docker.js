@@ -943,7 +943,7 @@ const defaultDockerCmdHandler = async argv => {
  * @param {object} argv - Yargs
  * @return {Array} Array of options required for specified command
  */
-const buildExecCmd = argv => {
+export const buildExecCmd = argv => {
 	let opts = [ 'exec', 'wordpress' ];
 	const cmd = argv._[ 1 ];
 
@@ -1037,6 +1037,8 @@ const buildExecCmd = argv => {
 	} else if ( cmd === 'multisite-convert' ) {
 		opts.push( '/var/scripts/multisite-convert.sh' );
 	} else if ( cmd === 'update-core' ) {
+		// Adding -T to resolve an issue when running this command within node context (e2e)
+		opts.splice( 1, 0, '-T' );
 		opts.push( '/var/scripts/update-core.sh', argv.version );
 	} else if ( cmd === 'run-extras' ) {
 		opts.push( '/var/scripts/run-extras.sh' );

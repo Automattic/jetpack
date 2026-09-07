@@ -1,1 +1,1 @@
-@../../../.agents/skills/ship-wp-ability.md
+../../../.agents/skills/ship-wp-ability.md

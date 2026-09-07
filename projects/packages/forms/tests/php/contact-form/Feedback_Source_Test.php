@@ -19,6 +19,17 @@ use WorDBless\BaseTestCase;
  */
 #[CoversClass( Feedback_Source::class )]
 class Feedback_Source_Test extends BaseTestCase {
+
+	/**
+	 * Put back the globals get_current() reads, so these tests can't leak a
+	 * source into whatever runs next.
+	 */
+	public function tear_down() {
+		$GLOBALS['post'] = null;
+		unset( $GLOBALS['grunion_block_template_part_id'], $GLOBALS['grunion_block_template_id'] );
+		parent::tear_down();
+	}
+
 	/**
 	 * Test constructor with invalid ID (0 or negative)
 	 */
@@ -365,5 +376,65 @@ class Feedback_Source_Test extends BaseTestCase {
 		// ID should be reset to 0 for non-public posts
 		$this->assertSame( $post_id, $entry->get_id() );
 		$this->assertEquals( 'Fallback Title', $entry->get_title() );
+	}
+
+	/**
+	 * With no widget attribute and neither template global set, the source of a
+	 * form is the post being viewed.
+	 */
+	public function test_get_current_falls_back_to_the_post_being_viewed() {
+		$post_id = wp_insert_post(
+			array(
+				'post_title'  => 'Source Post',
+				'post_status' => 'publish',
+				'post_type'   => 'post',
+			)
+		);
+
+		// The current post is read from the `$post` global; tear_down() clears it.
+		$GLOBALS['post'] = get_post( $post_id );
+
+		$source = Feedback_Source::get_current( array() );
+
+		$this->assertSame( $post_id, $source->get_id(), 'The source should be the post being viewed.' );
+		$this->assertSame( 'single', $source->get_source_type() );
+		$this->assertSame( 1, $source->get_page_number(), 'A null $page global should read as page 1.' );
+	}
+
+	/**
+	 * A form in a widget is attributed to the widget, not to whatever post the
+	 * widget happens to appear on.
+	 */
+	public function test_get_current_attributes_a_form_in_a_widget_to_the_widget() {
+		$source = Feedback_Source::get_current( array( 'widget' => 'text-3' ) );
+
+		$this->assertSame( 'text-3', $source->get_id() );
+		$this->assertSame( 'widget', $source->get_source_type() );
+	}
+
+	/**
+	 * A form in a block template part is attributed to the template part. The ID
+	 * comes from a render-scoped global rather than a shortcode attribute, which
+	 * is what stops post content from claiming to be an admin-authored template.
+	 */
+	public function test_get_current_attributes_a_form_in_a_template_part_to_the_template_part() {
+		$GLOBALS['grunion_block_template_part_id'] = 'twentytwentyfive//footer';
+
+		$source = Feedback_Source::get_current( array() );
+
+		$this->assertSame( 'twentytwentyfive//footer', $source->get_id() );
+		$this->assertSame( 'block_template_part', $source->get_source_type() );
+	}
+
+	/**
+	 * The same for a form in a block template.
+	 */
+	public function test_get_current_attributes_a_form_in_a_template_to_the_template() {
+		$GLOBALS['grunion_block_template_id'] = 'twentytwentyfive//home';
+
+		$source = Feedback_Source::get_current( array() );
+
+		$this->assertSame( 'twentytwentyfive//home', $source->get_id() );
+		$this->assertSame( 'block_template', $source->get_source_type() );
 	}
 }

@@ -65,4 +65,34 @@ class Cornerstone_Utils_Test extends TestCase {
 		// The key is derived from the sanitized URL, so it never carries the trailing slash itself.
 		$this->assertStringEndsNotWith( '/', $with_slash['key'] );
 	}
+
+	/**
+	 * BOOST-604: a homepage entry in the custom list ("/" or "") hashes to the same provider key as
+	 * the predefined home_url() entry (`cornerstone_d41d8cd9`). Without de-duplication the merged
+	 * list carries two pages with the same key; set_pending_pages() only marks the first, leaving the
+	 * duplicate statusless and failing the lcp_state schema on write. get_list() must collapse them.
+	 */
+	public function test_get_list_dedupes_homepage_from_custom_list() {
+		// No trailing-slash permalink structure, so URLs are left untouched.
+		Functions\when( 'get_option' )->justReturn( '' );
+		// Custom list contains the homepage as the relative "/" form plus a distinct page.
+		Functions\when( 'jetpack_boost_ds_get' )->justReturn( array( '/', '/about' ) );
+
+		$list = Cornerstone_Utils::get_list();
+		$keys = array_map( array( Cornerstone_Utils::class, 'get_provider_key' ), $list );
+
+		// No provider-key duplicates survive.
+		$this->assertSame( array_values( array_unique( $keys ) ), $keys, 'get_list() must not contain provider-key duplicates.' );
+
+		// The homepage key appears exactly once even though it is both predefined and custom.
+		$home_key = Cornerstone_Utils::get_provider_key( 'https://example.com' );
+		$this->assertCount( 1, array_keys( $keys, $home_key, true ) );
+
+		// The predefined home_url() entry wins; the duplicate custom "/" is dropped.
+		$this->assertContains( 'https://example.com', $list );
+		$this->assertNotContains( '/', $list );
+
+		// The unrelated custom page survives.
+		$this->assertContains( '/about', $list );
+	}
 }

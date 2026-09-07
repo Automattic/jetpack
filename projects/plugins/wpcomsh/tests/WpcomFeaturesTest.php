@@ -37,4 +37,25 @@ class WpcomFeaturesTest extends WP_UnitTestCase {
 		// Cleanup.
 		Atomic_Persistent_Data::delete( 'WPCOM_PURCHASES' );
 	}
+
+	/**
+	 * Tests that the wordads-free-access sticker grants WordAds without a qualifying plan.
+	 */
+	public function test_wordads_free_access_sticker_grants_wordads() {
+		$this->assertFalse( wpcom_site_has_feature( WPCOM_Features::WORDADS ) );
+		$this->assertFalse( wpcom_site_has_feature( WPCOM_Features::WORDADS_JETPACK ) );
+
+		Atomic_Persistent_Data::set( 'site_sticker_wordads-free-access', '1' );
+
+		$this->assertTrue( wpcom_site_has_feature( WPCOM_Features::WORDADS ) );
+		$this->assertTrue( wpcom_site_has_feature( WPCOM_Features::WORDADS_JETPACK ) );
+
+		// The sticker must not grant anything else.
+		$this->assertFalse( wpcom_site_has_feature( WPCOM_Features::PREMIUM_THEMES ) );
+
+		// Cleanup.
+		Atomic_Persistent_Data::delete( 'site_sticker_wordads-free-access' );
+
+		$this->assertFalse( wpcom_site_has_feature( WPCOM_Features::WORDADS ) );
+	}
 }

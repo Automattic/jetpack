@@ -334,6 +334,12 @@ function JetpackLikesWidgetQueueHandler() {
 	var wrapperID;
 
 	if ( ! jetpackLikesMasterReady ) {
+		// The master iframe emits `masterReady` a single time, when it finishes loading. On
+		// script-heavy pages it can finish loading — and emit — before this script attaches its
+		// message listener above, so that one event is missed and the queue never starts. Ping the
+		// master iframe while we wait so it re-emits `masterReady` once both it and our listener
+		// are ready.
+		JetpackLikesPostMessage( { event: 'queryMasterReady' }, window.frames[ 'likes-master' ] );
 		setTimeout( JetpackLikesWidgetQueueHandler, 500 );
 		return;
 	}

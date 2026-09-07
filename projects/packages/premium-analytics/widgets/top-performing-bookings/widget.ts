@@ -1,7 +1,6 @@
 /**
  * WordPress dependencies
  */
-import { __ } from '@wordpress/i18n';
 import { chartBar } from '@wordpress/icons';
 
 /**
@@ -23,11 +22,5 @@ export type TopPerformingBookingsAttributes = Record< never, never >;
  * dashboards can opt in.
  */
 export default {
-	name: 'jpa/top-performing-bookings',
-	title: __( 'Top performing bookings', 'jetpack-premium-analytics' ),
-	description: __(
-		'Shows the top booking products by net revenue over the selected time period.',
-		'jetpack-premium-analytics'
-	),
 	icon: chartBar,
 };

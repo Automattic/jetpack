@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Sync the jetpack_premium_analytics_enabled option, so WordPress.com can see whether a site has the Premium Analytics dashboard turned on.

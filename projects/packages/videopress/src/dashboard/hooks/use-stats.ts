@@ -1,3 +1,4 @@
+import { isSimpleSite } from '@automattic/jetpack-script-data';
 import { queryOptions, useQueries } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
 import { useCallback, useMemo, useState } from '@wordpress/element';
@@ -50,6 +51,10 @@ type StatsQueryParams = {
 };
 
 const REST_PATH = '/jetpack/v4/videopress/stats/video-plays';
+// On WordPress.com Simple the jetpack/v4 proxy doesn't exist; apiFetch's
+// rest/v1.1 middleware site-prefixes this path and unwraps the envelope,
+// landing on the same WPCOM endpoint the proxy targets.
+const SIMPLE_REST_PATH = '/rest/v1.1/stats/video-plays';
 const TOP_VIDEOS_LIMIT = 5;
 const ZERO_SUMMARY: KpiSummary = { current: 0, previousPeriod: 0 };
 
@@ -128,7 +133,17 @@ export function videoPlaysQueryOptions( params: StatsQueryParams ) {
 		queryKey: [ 'jetpack-videopress-stats', 'video-plays', params ],
 		queryFn: () =>
 			apiFetch< VideoPlaysResponse >( {
-				path: addQueryArgs( REST_PATH, { period: 'day', ...params } ),
+				// The self-hosted jetpack/v4 proxy forces complete_stats /
+				// check_stats_module server-side; on Simple the WPCOM endpoint
+				// is hit directly, so those two move into the client query.
+				path: isSimpleSite()
+					? addQueryArgs( SIMPLE_REST_PATH, {
+							period: 'day',
+							complete_stats: true,
+							check_stats_module: false,
+							...params,
+					  } )
+					: addQueryArgs( REST_PATH, { period: 'day', ...params } ),
 			} ),
 	} );
 }
@@ -378,9 +393,35 @@ export function useStats() {
 		}
 	}, [] );
 
+	// Destructure the refetch handlers so the callback depends on stable
+	// references, not the per-render `useQueries` result objects.
+	const { refetch: refetchCurrent } = currentQuery;
+	const { refetch: refetchPrevious } = previousQuery;
+	const refetch = useCallback( () => {
+		void refetchCurrent();
+		void refetchPrevious();
+	}, [ refetchCurrent, refetchPrevious ] );
+
 	return {
 		stats,
 		isLoading: currentQuery.isLoading || previousQuery.isLoading,
+		// Surface fetch failures so the Overview can distinguish "couldn't
+		// load" from a genuine zero-activity site. `transformVideoPlays`
+		// yields `EMPTY_STATS` (all zeros) whenever both windows are missing
+		// — which is exactly what an errored query looks like — so without
+		// this flag a failed request renders as fabricated zeros.
+		isError: currentQuery.isError || previousQuery.isError,
+		error: currentQuery.error ?? previousQuery.error,
+		// Whether every window still has real (possibly cached) data behind it,
+		// per window. Lets the Overview keep rendering cached stats through a
+		// failed background refetch (the failed window retains its data), while
+		// a window that failed with nothing behind it — e.g. the previous
+		// window on first load — surfaces the error pane instead of rendering
+		// its side of the comparison as fabricated zeros.
+		hasData:
+			currentQuery.data !== undefined &&
+			( ! previousQuery.isError || previousQuery.data !== undefined ),
+		refetch,
 		dateRange,
 		granularity,
 		activeMetric,

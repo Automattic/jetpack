@@ -1,0 +1,21 @@
+@use "../styles/preset-surface";
+
+// Its own bordered group, to the left of the presets rather than inside them:
+// the pills are a set to choose from and these move the choice, so sharing one
+// frame would read as a fifth and sixth preset.
+.date-period-navigation {
+
+	@include preset-surface.group;
+}
+
+.date-period-navigation__step {
+
+	@include preset-surface.pill;
+
+	// A glyph in a square box, sized like the pills beside it, which take this
+	// from `.date-filters-panel`. Set here too so the group holds its shape
+	// wherever else it is mounted.
+	--wp-ui-button-height: calc(var(--wpds-dimension-size-lg) - 2px);
+
+	min-width: var(--wpds-dimension-size-lg);
+}

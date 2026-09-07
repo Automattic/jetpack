@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Port the Bookings by device dashboard widget from next-woocommerce-analytics, composed from the widgets-toolkit and data packages.

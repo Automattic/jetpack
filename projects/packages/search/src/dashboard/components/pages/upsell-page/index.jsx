@@ -53,7 +53,7 @@ export default function UpsellPage( { isLoading = false } ) {
 	const { fetchSearchPlanInfo } = useDispatch( STORE_ID );
 	const checkSiteHasSearchProduct = useCallback( () => {
 		restApi.setApiNonce( APINonce );
-		fetchSearchPlanInfo().then( response => response?.supports_search );
+		return fetchSearchPlanInfo().then( response => response?.supports_instant_search );
 	}, [ APINonce, fetchSearchPlanInfo ] );
 
 	const { run: sendToCartPaid, hasCheckoutStarted: hasCheckoutStartedPaid } =
@@ -564,7 +564,7 @@ const searchBlocksPricingItems = [
 const aiAnswersPricingItems = [
 	{
 		id: 'ai-answers',
-		name: __( 'AI Answers (Preview)', 'jetpack-search-pkg' ),
+		name: __( 'AI Answers', 'jetpack-search-pkg' ),
 		tooltipInfo: __(
 			'Let visitors ask a question and get an instant, AI-generated answer drawn from your own content — right at the top of the search results.',
 			'jetpack-search-pkg'

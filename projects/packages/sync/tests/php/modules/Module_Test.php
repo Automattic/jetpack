@@ -16,7 +16,7 @@ use WorDBless\BaseTestCase;
  *
  * @covers Automattic\Jetpack\Sync\Modules\Module
  */
-#[AllowMockObjectsWithoutExpectations /* getStubBuilder() (for partial stubs) doesn't exist until PHPUnit 12.5. */ ]
+#[AllowMockObjectsWithoutExpectations /* getStubBuilder() (for partial stubs) doesn't exist until PHPUnit 12.5. */]
 #[CoversClass( Modules\Module::class )]
 class Module_Test extends BaseTestCase {
 

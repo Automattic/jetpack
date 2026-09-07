@@ -14,8 +14,7 @@ const meta: Meta< typeof DateComparisonDropdown > = {
 		docs: {
 			description: {
 				component:
-					'A dropdown component for selecting date comparison ranges. ' +
-					'Supports enabling/disabling comparison and selecting from preset comparison periods.',
+					'Additive comparison control: `Compare +` with no comparison active, a trigger naming the period once one is chosen. Both open the same menu.',
 			},
 		},
 	},
@@ -34,11 +33,11 @@ const defaultRange: DateRange = {
 function DateComparisonDropdownWithState( {
 	initialEnabled = true,
 	initialPresetId = 'previous-period',
-	removeCompareToPrefix = false,
+	label,
 }: {
 	initialEnabled?: boolean;
 	initialPresetId?: ComparisonPresetId;
-	removeCompareToPrefix?: boolean;
+	label?: string;
 } ) {
 	const [ enabled, setEnabled ] = useState( initialEnabled );
 	const [ presetId, setPresetId ] = useState< ComparisonPresetId | undefined >(
@@ -52,12 +51,11 @@ function DateComparisonDropdownWithState( {
 			presets={ presets }
 			enabled={ enabled }
 			presetId={ presetId }
-			removeCompareToPrefix={ removeCompareToPrefix }
-			onEnable={ () => {
+			label={ label }
+			onPresetChange={ id => {
 				setEnabled( true );
-				setPresetId( 'previous-period' );
+				setPresetId( id );
 			} }
-			onPresetChange={ setPresetId }
 			onClear={ () => {
 				setEnabled( false );
 				setPresetId( undefined );
@@ -74,10 +72,9 @@ export const Default: Story = {
 };
 
 /**
- * Comparison disabled - shows "No comparison" button.
- * Clicking opens a menu to enable comparison.
+ * No comparison active: the control reads `Compare +` and opens the same menu.
  */
-export const Disabled: Story = {
+export const NoComparison: Story = {
 	render: () => <DateComparisonDropdownWithState initialEnabled={ false } />,
 };
 
@@ -89,8 +86,8 @@ export const PreviousMonthSelected: Story = {
 };
 
 /**
- * Without the "Compare:" prefix - just shows the date range.
+ * With a caller-supplied name, which becomes the trigger's tooltip.
  */
-export const WithoutPrefix: Story = {
-	render: () => <DateComparisonDropdownWithState removeCompareToPrefix />,
+export const WithCustomLabel: Story = {
+	render: () => <DateComparisonDropdownWithState label="Compare with" />,
 };

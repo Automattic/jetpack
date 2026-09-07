@@ -1,6 +1,7 @@
-import { IconTooltip, Text } from '@automattic/jetpack-components';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
+import { info } from '@wordpress/icons';
+import { IconButton, Stack, Text } from '@wordpress/ui';
 import { store as socialStore } from '../../social-store';
 import { Connection } from '../../social-store/types';
 import ConnectionIcon from '../connection-icon';
@@ -29,8 +30,8 @@ export const ServiceConnectionInfo = ( {
 	);
 
 	return (
-		<div className={ styles[ 'service-connection-wrapper' ] }>
-			<div className={ styles[ 'service-connection' ] }>
+		<Stack direction="column" gap="lg">
+			<Stack direction="row" gap="lg">
 				<div>
 					<ConnectionIcon
 						className={ styles[ 'profile-pic' ] }
@@ -38,8 +39,13 @@ export const ServiceConnectionInfo = ( {
 						label={ connection.display_name }
 					/>
 				</div>
-				<div className={ styles[ 'connection-details' ] }>
-					<ConnectionName connection={ connection } />
+				<Stack
+					direction="column"
+					align="flex-start"
+					gap="sm"
+					className={ styles[ 'connection-details' ] }
+				>
+					<ConnectionName connection={ connection } tone="neutral" />
 					{ ( conn => {
 						/**
 						 * Showing only the connection status makes sense only
@@ -54,16 +60,30 @@ export const ServiceConnectionInfo = ( {
 						}
 
 						if ( canMarkAsShared ) {
+							const markAsSharedHelp = __(
+								'If enabled, the connection will be available to all administrators, editors, and authors.',
+								'jetpack-publicize-pkg'
+							);
+
 							return (
-								<div className={ styles[ 'mark-shared-wrap' ] }>
+								<Stack direction="row" align="center" gap="sm">
 									<MarkAsShared connection={ conn } />
-									<IconTooltip placement="top" inline={ false } shift>
-										{ __(
-											'If enabled, the connection will be available to all administrators, editors, and authors.',
-											'jetpack-publicize-pkg'
-										) }
-									</IconTooltip>
-								</div>
+									{ /*
+									 * IconButton carries its own tooltip + accessible
+									 * label, so it replaces the hand-rolled button and
+									 * Tooltip. Now that the modal is a portaled WPDS
+									 * Dialog, the tooltip stacks above the frame on its
+									 * own — the previous `z-index: 100001` workaround is
+									 * no longer needed.
+									 */ }
+									<IconButton
+										variant="minimal"
+										tone="neutral"
+										size="small"
+										label={ markAsSharedHelp }
+										icon={ info }
+									/>
+								</Stack>
 							);
 						}
 
@@ -85,12 +105,12 @@ export const ServiceConnectionInfo = ( {
 							</>
 						) : null;
 					} )( connection ) }
-				</div>
+				</Stack>
 				<div className={ styles[ 'connection-actions' ] }>
-					<Disconnect connection={ connection } variant="minimal" />
+					<Disconnect connection={ connection } variant="outline" size="compact" tone="neutral" />
 				</div>
-			</div>
+			</Stack>
 			<ConnectionTemplateEditor connection={ connection } />
-		</div>
+		</Stack>
 	);
 };

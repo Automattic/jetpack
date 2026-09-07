@@ -13,6 +13,12 @@
  * @return string Returns the post content with latest posts added.
  */
 function newspack_blocks_render_block_carousel( $attributes ) {
+
+	// Don't output the block inside RSS feeds.
+	if ( is_feed() ) {
+		return;
+	}
+
 	static $newspack_blocks_carousel_id = 0;
 	global $newspack_blocks_post_id;
 
@@ -45,7 +51,9 @@ function newspack_blocks_render_block_carousel( $attributes ) {
 			$article_query->the_post();
 			$post_id                             = get_the_ID();
 			$authors                             = Newspack_Blocks::prepare_authors();
-			$newspack_blocks_post_id[ $post_id ] = true;
+			if ( Newspack_Blocks::should_deduplicate_block( $attributes ) ) {
+				$newspack_blocks_post_id[ $post_id ] = true;
+			}
 
 			$article_classes = [
 				'post-has-image',
@@ -261,7 +269,7 @@ function newspack_blocks_render_block_carousel( $attributes ) {
 		$data_attributes[] = 'data-autoplay=1';
 		$data_attributes[] = sprintf( 'data-autoplay_delay=%s', esc_attr( $delay ) );
 	}
-	Newspack_Blocks::enqueue_view_assets( 'carousel' );
+	Newspack_Blocks::enqueue_view_assets( 'carousel', 'defer' );
 	if ( 1 === $counter ) {
 		$selector = '';
 	}
@@ -298,6 +306,7 @@ function newspack_blocks_register_carousel() {
 		apply_filters(
 			'newspack_blocks_block_args',
 			array(
+				'api_version'     => 3,
 				'attributes'      => array(
 					'className'        => array(
 						'type' => 'string',

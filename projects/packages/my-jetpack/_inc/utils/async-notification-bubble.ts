@@ -1,44 +1,39 @@
 /**
  * My Jetpack Notification Bubble async loader.
- * Fetches fresh alert data via REST API without blocking page load.
+ *
+ * `Initializer::maybe_show_red_bubble()` enqueues this script only when the
+ * red-bubble transient is cold. On that path it registers a hidden zero-count
+ * placeholder with the menu-badges `Notification_Counts` registry, so
+ * Menu_Renderer emits a hidden `[data-jp-menu-badge="my-jetpack"]` element on
+ * the current page.
+ *
+ * This request warms the red-bubble transient (the REST callback recomputes and
+ * re-caches it, see `Red_Bubble_Notifications::get_red_bubble_alerts()`) and,
+ * with the fresh alerts it gets back, lights up that placeholder via
+ * `window.jetpackMenuBadges.setCount()` — so the badge appears on the current
+ * page without waiting for a reload. The next page load takes the cached-alerts
+ * path and re-registers the authoritative per-alert counts server-side.
  */
 import apiFetch from '@wordpress/api-fetch';
 
-// Minimal type for counting non-silent alerts.
-type Alert = {
-	is_silent?: boolean;
-};
-
-type AlertsResponse = Record< string, Alert >;
-
-apiFetch< AlertsResponse >( {
+apiFetch< RedBubbleAlerts >( {
 	path: 'my-jetpack/v1/red-bubble-notifications',
 	method: 'POST',
 } )
 	.then( alerts => {
-		const count = Object.values( alerts || {} ).filter( a => ! a.is_silent ).length;
-		const menuItem = document.querySelector( '#toplevel_page_jetpack .wp-menu-name' );
-
-		if ( ! menuItem ) {
+		if ( typeof window.jetpackMenuBadges?.setCount !== 'function' ) {
 			return;
 		}
-
-		const bubble = menuItem.querySelector( '.awaiting-mod' );
-
-		if ( count > 0 ) {
-			if ( bubble ) {
-				bubble.className = 'awaiting-mod';
-				bubble.textContent = String( count );
-			} else {
-				const span = document.createElement( 'span' );
-				span.className = 'awaiting-mod';
-				span.textContent = String( count );
-				menuItem.appendChild( document.createTextNode( ' ' ) );
-				menuItem.appendChild( span );
-			}
-		} else if ( bubble ) {
-			bubble.remove();
-		}
+		// Count the alerts that would show a badge (server-side registration skips
+		// `is_silent` ones). This is a transient client-side estimate; the next page
+		// load re-registers the authoritative count server-side, which also handles
+		// the Protect-standalone de-dup this can't see.
+		const count = alerts
+			? Object.values( alerts ).filter(
+					alert => ! ( alert as { is_silent?: boolean } | null )?.is_silent
+			  ).length
+			: 0;
+		window.jetpackMenuBadges.setCount( 'my-jetpack', count );
 	} )
 	.catch( error => {
 		// eslint-disable-next-line no-console

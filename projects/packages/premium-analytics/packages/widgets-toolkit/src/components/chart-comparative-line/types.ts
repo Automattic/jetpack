@@ -1,7 +1,11 @@
 /**
  * External dependencies
  */
-import { type SeriesData, type DataPointDate, type LineStyles } from '@automattic/charts';
+import {
+	type SeriesData,
+	type DataPointDate,
+	type LineStyles,
+} from '@jetpack-premium-analytics/externals';
 
 /**
  * Types

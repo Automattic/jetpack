@@ -7,6 +7,7 @@ import { Card } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
+import { Radio } from '../components/radio';
 import type { NewsletterSettings } from '../types';
 
 interface EmailReplyToSettingsSectionProps {
@@ -33,7 +34,7 @@ export function EmailReplyToSettingsSection( {
 			id: 'jetpack_subscriptions_reply_to',
 			label: __( 'Reply-to settings', 'jetpack-newsletter' ),
 			type: 'text' as const,
-			Edit: 'radio' as const,
+			Edit: Radio,
 			elements: [
 				{
 					value: 'comment',

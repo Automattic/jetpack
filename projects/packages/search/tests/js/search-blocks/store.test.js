@@ -148,6 +148,7 @@ describe( 'store actions', () => {
 			priceRange: null,
 			staticFilterSelections: {},
 			staticPostTypes: null,
+			resultsPerPage: 10,
 			results: [ { title: 'Existing result' } ],
 			locale: 'en-US',
 			isLoading: false,
@@ -235,6 +236,19 @@ describe( 'store actions', () => {
 		expect( decodeURIComponent( global.fetch.mock.calls[ 2 ][ 0 ] ) ).not.toContain(
 			'[term][post_type]'
 		);
+	} );
+
+	it( 'fetches the page-level results-per-page value from state on every fetch', async () => {
+		// `search-results/render.php` seeds `state.resultsPerPage` once at
+		// template render (author override or the site's `posts_per_page`);
+		// the store reads it on every fetch, same as `staticPostTypes`.
+		const ok = () =>
+			createResponse( { results: [], total: 0, page_handle: null, aggregations: {} } );
+
+		state.resultsPerPage = 30;
+		global.fetch.mockResolvedValueOnce( ok() );
+		await runGenerator( actions.search( { syncUrl: false } ) );
+		expect( decodeURIComponent( global.fetch.mock.calls[ 0 ][ 0 ] ) ).toContain( 'size=30' );
 	} );
 
 	it( 'popstate re-runs search with only the syncUrl option (scope stays seeded)', async () => {
@@ -920,6 +934,133 @@ describe( 'store getters', () => {
 		// hidden so it doesn't flash before the user types.
 		state.hasSearchParam = false;
 		expect( state.showNoResults ).toBe( false );
+	} );
+
+	it( 'shows the filters-active no-results block only on a filtered search', () => {
+		state.results = [];
+		state.isLoading = false;
+		state.hasError = false;
+		state.activeFilters = {};
+		expect( state.showNoResultsFiltered ).toBe( false );
+
+		state.activeFilters = { category: [ 'news' ] };
+		expect( state.showNoResultsFiltered ).toBe( true );
+
+		// Never escapes the base gate — a search that returned results must not
+		// surface an empty state.
+		state.results = [ { title: 'Existing result' } ];
+		expect( state.showNoResultsFiltered ).toBe( false );
+	} );
+
+	// The overlay template is pre-rendered outside the page's own state, so it
+	// resolves the unscoped/scoped pairing server-side and binds here instead of
+	// to `showNoResultsAny`, which reads the flags that pass never writes.
+	it( 'shows the unfiltered no-results block only on an unfiltered search', () => {
+		state.results = [];
+		state.isLoading = false;
+		state.hasError = false;
+		state.activeFilters = {};
+		expect( state.showNoResultsUnfiltered ).toBe( true );
+
+		state.activeFilters = { category: [ 'news' ] };
+		expect( state.showNoResultsUnfiltered ).toBe( false );
+
+		// Never escapes the base gate.
+		state.activeFilters = {};
+		state.results = [ { title: 'Existing result' } ];
+		expect( state.showNoResultsUnfiltered ).toBe( false );
+	} );
+
+	it( 'yields the unscoped no-results block to a scoped one for the state it claims', () => {
+		state.results = [];
+		state.isLoading = false;
+		state.hasError = false;
+		state.activeFilters = {};
+		delete state.hasScopedNoResultsFiltered;
+		expect( state.showNoResultsAny ).toBe( true );
+
+		// A "Filters are active" block alongside the template's default one:
+		// the scoped block owns the filtered case, the unscoped one the rest.
+		state.hasScopedNoResultsFiltered = true;
+		expect( state.showNoResultsAny ).toBe( true );
+		expect( state.showNoResultsFiltered ).toBe( false );
+
+		state.activeFilters = { category: [ 'news' ] };
+		expect( state.showNoResultsAny ).toBe( false );
+		expect( state.showNoResultsFiltered ).toBe( true );
+
+		// Never escapes the base gate.
+		state.results = [ { title: 'Existing result' } ];
+		expect( state.showNoResultsAny ).toBe( false );
+	} );
+
+	it( 'shows the no-results container whenever the region is not showing results', () => {
+		state.results = [];
+		state.isLoading = false;
+		state.isLoadingMore = false;
+		state.hasError = false;
+		state.activeFilters = {};
+		expect( state.showEmptyStateRegion ).toBe( true );
+
+		// The container spans both kinds of empty state; its variants pick.
+		state.hasError = true;
+		expect( state.showEmptyStateRegion ).toBe( true );
+
+		// A search that returned results shows neither.
+		state.hasError = false;
+		state.results = [ { title: 'Existing result' } ];
+		expect( state.showEmptyStateRegion ).toBe( false );
+	} );
+
+	it( 'stands the legacy results-list error region down only for an error-scoped block', () => {
+		// Seeded server-side, so "unset" has to read as "not covered" — the
+		// store never declares it, per AGENTS.md on seeded keys.
+		state.hasError = true;
+		state.isLoading = false;
+		state.isLoadingMore = false;
+		delete state.hasErrorBlock;
+		expect( state.showLegacyError ).toBe( true );
+
+		state.hasErrorBlock = true;
+		expect( state.showLegacyError ).toBe( false );
+
+		// Never escapes the base gate.
+		delete state.hasErrorBlock;
+		state.hasError = false;
+		expect( state.showLegacyError ).toBe( false );
+	} );
+
+	it( 'stands the legacy results-list message down only for states a no-results block covers', () => {
+		// The coverage flags are seeded server-side by each block's render, and
+		// are deliberately absent from the store's literal state — see AGENTS.md
+		// on seeded keys — so the getter must treat "unset" as "not covered".
+		state.results = [];
+		state.isLoading = false;
+		state.hasError = false;
+		state.activeFilters = {};
+		delete state.hasNoResultsUnfiltered;
+		delete state.hasNoResultsFiltered;
+		expect( state.showLegacyNoResults ).toBe( true );
+
+		// A block scoped to "filters active" must not retire the unfiltered
+		// message — otherwise an unfiltered empty search renders nothing at all.
+		state.hasNoResultsFiltered = true;
+		expect( state.showLegacyNoResults ).toBe( true );
+
+		state.activeFilters = { category: [ 'news' ] };
+		expect( state.showLegacyNoResults ).toBe( false );
+
+		// Full coverage retires it in both directions.
+		state.hasNoResultsUnfiltered = true;
+		expect( state.showLegacyNoResults ).toBe( false );
+		state.activeFilters = {};
+		expect( state.showLegacyNoResults ).toBe( false );
+
+		// Never escapes the base gate.
+		state.results = [ { title: 'Existing result' } ];
+		delete state.hasNoResultsUnfiltered;
+		delete state.hasNoResultsFiltered;
+		expect( state.showLegacyNoResults ).toBe( false );
 	} );
 
 	it( 'hasActiveFilters counts the priceRange (including half-open) as a filter', () => {

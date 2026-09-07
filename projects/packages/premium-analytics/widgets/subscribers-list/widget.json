@@ -1,7 +1,10 @@
 {
 	"name": "jpa/subscribers-list",
-	"title": "Latest Subscribers",
+	"title": "Latest subscribers",
 	"description": "Your most recent subscribers.",
+	"help": {
+		"content": "Your most recent subscribers."
+	},
 	"category": "subscribers",
 	"presentation": "framed"
 }

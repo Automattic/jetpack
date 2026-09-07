@@ -1,7 +1,6 @@
 /**
  * WordPress dependencies
  */
-import { __ } from '@wordpress/i18n';
 import { chartBar } from '@wordpress/icons';
 
 /**
@@ -23,11 +22,5 @@ export type AverageOrderValueAttributes = Record< never, never >;
  * dashboards can opt in.
  */
 export default {
-	name: 'jpa/average-order-value',
-	title: __( 'Average order value', 'jetpack-premium-analytics' ),
-	description: __(
-		'Track the average value of each order over a set period of time.',
-		'jetpack-premium-analytics'
-	),
 	icon: chartBar,
 };

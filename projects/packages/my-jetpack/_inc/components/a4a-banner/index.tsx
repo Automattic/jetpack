@@ -1,6 +1,7 @@
 import { UpsellBanner, getRedirectUrl } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import useDismissA4ABanner from '../../data/use-dismiss-a4a-banner';
 import useAnalytics from '../../hooks/use-analytics';
 import icon from './icon.svg';
 
@@ -14,6 +15,9 @@ import icon from './icon.svg';
 const A4ABanner = props => {
 	const { isAgencyAccount = false } = props;
 	const { recordEvent } = useAnalytics();
+	const { dismiss } = useDismissA4ABanner();
+	// Hide the banner right away on dismissal; the request only persists that across page loads.
+	const [ isDismissed, setIsDismissed ] = useState( false );
 
 	// Track banner view.
 	useEffect( () => {
@@ -36,7 +40,16 @@ const A4ABanner = props => {
 		trackClick( 'jp-agencies-register-interest' );
 	}, [ trackClick ] );
 
-	if ( isAgencyAccount ) {
+	// Handle the banner being dismissed.
+	const handleDismiss = useCallback( () => {
+		setIsDismissed( true );
+		recordEvent( 'jetpack_myjetpack_manage_banner_dismiss', {
+			feature: 'manage',
+		} );
+		dismiss();
+	}, [ dismiss, recordEvent ] );
+
+	if ( isAgencyAccount || isDismissed ) {
 		return null;
 	}
 
@@ -52,6 +65,8 @@ const A4ABanner = props => {
 			primaryCtaURL={ getRedirectUrl( 'jetpack-for-agencies-register-interest' ) }
 			primaryCtaIsExternalLink={ true }
 			primaryCtaOnClick={ handleAgencyInterestClick }
+			onDismiss={ handleDismiss }
+			dismissLabel={ __( 'Dismiss the Automattic for Agencies banner', 'jetpack-my-jetpack' ) }
 		/>
 	);
 };

@@ -1,4 +1,6 @@
 import restApi from '@automattic/jetpack-api';
+import apiFetch from '@wordpress/api-fetch';
+import mapHealthCheckErrors from '../helpers/map-health-check-errors';
 
 const SET_CONNECTION_STATUS = 'SET_CONNECTION_STATUS';
 const SET_CONNECTION_STATUS_IS_FETCHING = 'SET_CONNECTION_STATUS_IS_FETCHING';
@@ -15,6 +17,7 @@ const FETCH_AUTHORIZATION_URL = 'FETCH_AUTHORIZATION_URL';
 const SET_CONNECTED_PLUGINS = 'SET_CONNECTED_PLUGINS';
 const REFRESH_CONNECTED_PLUGINS = 'REFRESH_CONNECTED_PLUGINS';
 const SET_CONNECTION_ERRORS = 'SET_CONNECTION_ERRORS';
+const SET_CONNECTION_HEALTH_ERRORS = 'SET_CONNECTION_HEALTH_ERRORS';
 const SET_IS_OFFLINE_MODE = 'SET_IS_OFFLINE_MODE';
 
 const setConnectionStatus = connectionStatus => {
@@ -64,6 +67,43 @@ const setConnectedPlugins = connectedPlugins => {
 const setConnectionErrors = connectionErrors => {
 	return { type: SET_CONNECTION_ERRORS, connectionErrors };
 };
+
+const setConnectionHealthErrors = connectionHealthErrors => {
+	return { type: SET_CONNECTION_HEALTH_ERRORS, connectionHealthErrors };
+};
+
+/**
+ * Run the connection health check and store any failures as connection errors.
+ *
+ * Uses `@wordpress/api-fetch` rather than the package's `restApi`
+ * (`@automattic/jetpack-api`). Rendering the connection notices only needs the
+ * connection *JS* (store + hooks, free on import) — not the connection *REST
+ * config*. `restApi` requires `apiRoot`/`apiNonce`, which come from the page
+ * PHP-localizing the connection initial state; a notice-only consumer like
+ * Activity Log provides none of that, so `useConnection`'s effect would call
+ * `setApiRoot( undefined )` and a `restApi` probe would hit the wrong root with
+ * no nonce. `apiFetch` rides wp-admin's global REST root + nonce, so the probe
+ * works with zero per-consumer setup — and, being store-layer code, it doesn't
+ * depend on some component's config effect having run first.
+ *
+ * @return {Promise<object>} Resolves with the mapped health errors (empty when healthy).
+ */
+const runConnectionHealthCheck =
+	() =>
+	async ( { dispatch } ) => {
+		try {
+			await apiFetch( { path: '/jetpack/v4/connection/test' } );
+			// All checks passed: clear any previously stored health errors.
+			dispatch( setConnectionHealthErrors( {} ) );
+			return {};
+		} catch ( error ) {
+			// On failure the endpoint returns a WP_Error; apiFetch rejects with the
+			// parsed response body ({ code, message, data, additional_errors }).
+			const healthErrors = mapHealthCheckErrors( error );
+			dispatch( setConnectionHealthErrors( healthErrors ) );
+			return healthErrors;
+		}
+	};
 
 const setIsOfflineMode = isOfflineMode => {
 	return { type: SET_IS_OFFLINE_MODE, isOfflineMode };
@@ -144,6 +184,8 @@ const actions = {
 	setConnectedPlugins,
 	refreshConnectedPlugins,
 	setConnectionErrors,
+	setConnectionHealthErrors,
+	runConnectionHealthCheck,
 	setIsOfflineMode,
 };
 
@@ -163,6 +205,7 @@ export {
 	SET_CONNECTED_PLUGINS,
 	REFRESH_CONNECTED_PLUGINS,
 	SET_CONNECTION_ERRORS,
+	SET_CONNECTION_HEALTH_ERRORS,
 	SET_IS_OFFLINE_MODE,
 	actions as default,
 };

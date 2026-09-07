@@ -1,7 +1,6 @@
 /**
  * WordPress dependencies
  */
-import { __ } from '@wordpress/i18n';
 import { chartBar } from '@wordpress/icons';
 
 /**
@@ -23,11 +22,5 @@ export type TotalSalesOverTimeAttributes = Record< never, never >;
  * dashboards can opt in.
  */
 export default {
-	name: 'jpa/total-sales-over-time',
-	title: __( 'Total sales over time', 'jetpack-premium-analytics' ),
-	description: __(
-		'Track total sales including all orders and transactions.',
-		'jetpack-premium-analytics'
-	),
 	icon: chartBar,
 };

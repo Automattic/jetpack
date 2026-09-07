@@ -1,0 +1,19 @@
+@use "../styles/preset-surface";
+
+// The mixin's `nowrap` and the pills' `flex-shrink: 0` are load-bearing here,
+// not cosmetic: this surface measures whether the pills fit and swaps in a
+// select when they don't, and a squeezed row would always measure as fitting.
+.date-year-filter__group {
+
+	@include preset-surface.group;
+}
+
+.date-year-filter__pill {
+
+	@include preset-surface.pill;
+
+	// This surface stands on its own rather than inside a BaseControl row, so
+	// it sets the control height the sibling pills inherit from
+	// `.date-filters-panel`: a full-size control minus the group's own border.
+	--wp-ui-button-height: calc(var(--wpds-dimension-size-lg) - 2px);
+}

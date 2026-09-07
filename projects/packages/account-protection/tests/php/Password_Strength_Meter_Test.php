@@ -8,7 +8,7 @@ use WorDBless\BaseTestCase;
 /**
  * Tests for the Password_Strength_Meter class.
  */
-#[AllowMockObjectsWithoutExpectations /* Mocks created in setUp, some tests add expectations and others don't. Plus getStubBuilder() (for partial stubs) doesn't exist until PHPUnit 12.5. */ ]
+#[AllowMockObjectsWithoutExpectations /* Mocks created in setUp, some tests add expectations and others don't. Plus getStubBuilder() (for partial stubs) doesn't exist until PHPUnit 12.5. */]
 class Password_Strength_Meter_Test extends BaseTestCase {
 
 	private $validation_service;

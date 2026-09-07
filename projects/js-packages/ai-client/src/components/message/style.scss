@@ -38,9 +38,15 @@
 			padding: 0;
 		}
 
+		// The "Learn more" guideline link is a @wordpress/ui <Link>, which renders
+		// a plain <a> with hashed WPDS classes (not .components-external-link), so
+		// target it by element. Keep the link on a single line and stop it from
+		// shrinking so "Learn more" never wraps mid-phrase on narrow/mobile widths.
 		.components-button.is-link,
-		.components-external-link {
+		.components-external-link,
+		a {
 			flex-shrink: 0;
+			white-space: nowrap;
 		}
 	}
 }

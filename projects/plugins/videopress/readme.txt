@@ -1,10 +1,10 @@
 === Jetpack VideoPress  ===
 Contributors: automattic, retrofox, oskosk, thehenridev, renatoagds, lhkowalski, nunyvega, leogermani, cgastrell
 Tags: video, video-hosting, video-player, cdn, video-streaming
-Requires at least: 6.9
-Tested up to: 7.0
-Stable tag: 3.1
-Requires PHP: 7.2
+Requires at least: 7.0
+Tested up to: 7.1
+Stable tag: 3.4.1
+Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 The finest video hosting for WordPress. Drag and drop videos through the WordPress editor and keep the focus on your content, not the ads.
@@ -83,12 +83,24 @@ The file size limit is 5 GB. However, on slower networks, there is a chance the 
 4. Edit your video details, cover image, and privacy from your VideoPress library.
 
 == Changelog ==
-### 3.1 - 2026-05-14
+### 3.4.1 - 2026-08-26
+#### Added
+- Add a first-run welcome modal to the dashboard.
+
 #### Changed
-- Internal: No longer require automattic/jetpack-changelogger as a per-project dev dependency.
-- Update package dependencies.
+- General: Update minimum WordPress version to 7.0.
+- My Jetpack: Show what Paid Stats actually adds — UTM tracking, device stats, and region & city locations — instead of commercial use.
+- Redesign the video details page: group details into one card in a wider layout, move the player and settings into a side column, and add thumbnail tiles, collapsible sections, and an Add to content action.
+- Tested up to WordPress 7.1.
+
+#### Removed
+- Updated PHP version requirements to PHP 7.4 or newer.
 
 #### Fixed
-- Prevent the "Add new video" button from disappearing on the admin dashboard after the first video is uploaded.
-- VideoPress admin: Add padding around the Settings section, make the hero full width on medium screens, and remove an empty pagination placeholder below the video library.
+- Charts: draw labels at the design system's font weight and size.
+- Connection: Update wording for some connection error notices.
+- Fix a timeout error when updating a video poster from the media library.
+- Fix private video playback authorization for videos embedded through synced patterns and Video Playlist blocks, let private videos preview in the block editor canvas, load live metadata for private playlist entries for authorized viewers, and show a lock placeholder on playlist thumbnails of private videos the viewer cannot access.
+- My Jetpack: always label the license activation link 'Activate a license'. It previously read 'Activate a new license' on sites with a plan, even when no licenses had been activated.
+- My Jetpack: Stop the Stats dashboard from asking which plan you want again after Start for Free was already chosen.
 

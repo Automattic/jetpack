@@ -2,11 +2,11 @@ import { hsl as d3Hsl } from '@visx/vendor/d3-color';
 import {
 	getColorDistance,
 	lightenHexColor,
+	mixHexColors,
 	isValidHexColor,
 	hexToRgba,
 	validateHexColor,
 	parseHslString,
-	parseRgbString,
 	normalizeColorToHex,
 	relativeLuminance,
 	prefersLightText,
@@ -546,7 +546,7 @@ describe( 'lightenHexColor', () => {
 			expect( result ).toBe( '#8080ff' );
 		} );
 
-		it( 'lightens a theme color by 80%', () => {
+		it( 'lightens a color by 80%', () => {
 			const result = lightenHexColor( '#98C8DF', 0.8 );
 			// R: 152 + (255-152)*0.8 = 152 + 82.4 = 234
 			// G: 200 + (255-200)*0.8 = 200 + 44 = 244
@@ -582,6 +582,34 @@ describe( 'lightenHexColor', () => {
 		it( 'throws for invalid hex characters', () => {
 			expect( () => lightenHexColor( '#gggggg', 0.5 ) ).toThrow();
 		} );
+	} );
+} );
+
+describe( 'mixHexColors', () => {
+	it( 'returns the from color at blend 0', () => {
+		expect( mixHexColors( '#ff0000', '#0000ff', 0 ) ).toBe( '#ff0000' );
+	} );
+
+	it( 'returns the to color at blend 1', () => {
+		expect( mixHexColors( '#ff0000', '#0000ff', 1 ) ).toBe( '#0000ff' );
+	} );
+
+	it( 'blends halfway between the two colors', () => {
+		expect( mixHexColors( '#000000', '#ffffff', 0.5 ) ).toBe( '#808080' );
+	} );
+
+	it( 'matches lightenHexColor when the target is white', () => {
+		expect( mixHexColors( '#98c8df', '#ffffff', 0.8 ) ).toBe( lightenHexColor( '#98c8df', 0.8 ) );
+	} );
+
+	it( 'clamps blend outside [0, 1]', () => {
+		expect( mixHexColors( '#123456', '#abcdef', -1 ) ).toBe( '#123456' );
+		expect( mixHexColors( '#123456', '#abcdef', 2 ) ).toBe( '#abcdef' );
+	} );
+
+	it( 'throws on a malformed hex', () => {
+		expect( () => mixHexColors( '#fff', '#000000', 0.5 ) ).toThrow();
+		expect( () => mixHexColors( '#000000', 'nope', 0.5 ) ).toThrow();
 	} );
 } );
 
@@ -635,52 +663,6 @@ describe( 'parseHslString', () => {
 
 		it( 'returns null for empty string', () => {
 			expect( parseHslString( '' ) ).toBeNull();
-		} );
-	} );
-} );
-
-describe( 'parseRgbString', () => {
-	describe( 'Valid RGB strings', () => {
-		it( 'parses rgb(255, 0, 0) to #ff0000', () => {
-			expect( parseRgbString( 'rgb(255, 0, 0)' ) ).toBe( '#ff0000' );
-		} );
-
-		it( 'parses rgb(0, 255, 0) to #00ff00', () => {
-			expect( parseRgbString( 'rgb(0, 255, 0)' ) ).toBe( '#00ff00' );
-		} );
-
-		it( 'parses rgb(0, 0, 255) to #0000ff', () => {
-			expect( parseRgbString( 'rgb(0, 0, 255)' ) ).toBe( '#0000ff' );
-		} );
-
-		it( 'parses rgb with no spaces', () => {
-			expect( parseRgbString( 'rgb(128,128,128)' ) ).toBe( '#808080' );
-		} );
-
-		it( 'clamps values above 255', () => {
-			expect( parseRgbString( 'rgb(300, 0, 0)' ) ).toBe( '#ff0000' );
-		} );
-
-		it( 'clamps negative values to 0', () => {
-			expect( parseRgbString( 'rgb(-50, 0, 0)' ) ).toBe( '#000000' );
-		} );
-	} );
-
-	describe( 'Invalid RGB strings', () => {
-		it( 'returns null for hsl strings', () => {
-			expect( parseRgbString( 'hsl(0, 100%, 50%)' ) ).toBeNull();
-		} );
-
-		it( 'returns null for hex colors', () => {
-			expect( parseRgbString( '#ff0000' ) ).toBeNull();
-		} );
-
-		it( 'returns null for rgba strings', () => {
-			expect( parseRgbString( 'rgba(255, 0, 0, 1)' ) ).toBeNull();
-		} );
-
-		it( 'returns null for empty string', () => {
-			expect( parseRgbString( '' ) ).toBeNull();
 		} );
 	} );
 } );

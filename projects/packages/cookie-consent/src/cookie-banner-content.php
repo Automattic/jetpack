@@ -9,10 +9,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-// $config is supplied by Cookie_Consent::render_banner() when this template is included.
+// $config (and normally $copy/$categories) are supplied by Cookie_Consent::render_banner()
+// when this template is included. $copy/$categories fall back to get_copy( $config ) /
+// get_consent_categories( $config ) so the template can also be included directly with just a
+// raw $config (tests, Storybook).
 $config              = isset( $config ) && is_array( $config ) ? $config : array();
-$copy                = \Automattic\Jetpack\CookieConsent\Cookie_Consent::get_copy( $config );
-$categories          = \Automattic\Jetpack\CookieConsent\Cookie_Consent::get_consent_categories( $config );
+$copy                = isset( $copy ) && is_array( $copy ) ? $copy : \Automattic\Jetpack\CookieConsent\Cookie_Consent::get_copy( $config );
+$categories          = isset( $categories ) && is_array( $categories ) ? $categories : \Automattic\Jetpack\CookieConsent\Cookie_Consent::get_consent_categories( $config );
 $category_context    = \Automattic\Jetpack\CookieConsent\Cookie_Consent::get_category_context( $categories );
 $banner_context      = array(
 	'showBanner'   => false,

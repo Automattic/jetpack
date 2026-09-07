@@ -41,7 +41,14 @@ class Connections {
 			}
 		}
 
-		return $connections;
+		/**
+		 * Filters the list of Publicize connections for the site.
+		 *
+		 * @since 0.84.3
+		 *
+		 * @param array $connections List of connections.
+		 */
+		return (array) apply_filters( 'jetpack_publicize_connections', $connections );
 	}
 
 	/**

@@ -1,6 +1,8 @@
 <?php // phpcs:ignore WordPress.Files.FileName.InvalidClassFileName
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Current_Plan;
+use Automattic\Jetpack\Status;
 use Automattic\Jetpack\VideoPress\Attachment_Handler;
 use Automattic\Jetpack\VideoPress\Jwt_Token_Bridge;
 use Automattic\Jetpack\VideoPress\Options as VideoPress_Options;
@@ -52,12 +54,9 @@ class Jetpack_VideoPress {
 
 		add_action( 'admin_print_footer_scripts', array( $this, 'print_in_footer_open_media_add_new' ) );
 		add_action( 'admin_head', array( $this, 'enqueue_admin_styles' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_media_new_scripts' ) );
 
 		VideoPress_Scheduler::init();
-
-		if ( $this->is_videopress_enabled() ) {
-			add_action( 'admin_notices', array( $this, 'media_new_page_admin_notice' ) );
-		}
 	}
 
 	/**
@@ -71,31 +70,127 @@ class Jetpack_VideoPress {
 	}
 
 	/**
-	 * The media-new.php page isn't supported for uploading to VideoPress.
+	 * Enqueues the script that routes media-new.php video uploads to VideoPress.
 	 *
-	 * There is either a technical reason for this (bulk uploader isn't overridable),
-	 * or it is an intentional way to give site owners an option for uploading videos that bypass VideoPress.
+	 * The classic uploader on media-new.php builds a raw plupload.Uploader
+	 * (via plupload-handlers) instead of wp.Uploader, so the override in
+	 * videopress-plupload.js never engages there. This companion script
+	 * registers the same videopress_check_uploads plupload filter and
+	 * re-targets video uploads to VideoPress. The filter is injected into the
+	 * uploader settings through the plupload_init filter, which
+	 * media_upload_form() applies when it renders later in the request.
+	 *
+	 * @param string $hook_suffix The current admin page.
 	 */
-	public function media_new_page_admin_notice() {
-		global $pagenow;
-		if ( 'media-new.php' !== $pagenow ) {
+	public function enqueue_media_new_scripts( $hook_suffix ) {
+		if ( 'media-new.php' !== $hook_suffix ) {
 			return;
 		}
 
-		$message = sprintf(
-			wp_kses(
-				/* translators: %s is the url to the Media Library */
-				__( 'VideoPress uploads are not supported here. To upload to VideoPress, add your videos from the <a href="%s">Media Library</a> or the block editor using the Video block.', 'jetpack' ),
-				array( 'a' => array( 'href' => array() ) )
+		if ( ! $this->is_videopress_enabled() ) {
+			return;
+		}
+
+		// Version with the served file's mtime so browsers and page caches pick
+		// up new builds even when JETPACK__VERSION has not changed (branch
+		// testing, beta builds).
+		$script_relative = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG
+			? 'modules/videopress/js/videopress-media-new.js'
+			: '_inc/build/videopress/js/videopress-media-new.min.js';
+		$script_path     = JETPACK__PLUGIN_DIR . $script_relative;
+		$script_version  = file_exists( $script_path ) ? (string) filemtime( $script_path ) : JETPACK__VERSION;
+
+		wp_enqueue_script(
+			'videopress-media-new',
+			Assets::get_file_url_for_environment(
+				'_inc/build/videopress/js/videopress-media-new.min.js',
+				'modules/videopress/js/videopress-media-new.js'
 			),
-			esc_url( admin_url( 'upload.php?mode=grid&action=add-new' ) )
-		);
-		wp_admin_notice(
-			$message,
 			array(
-				'type'        => 'warning',
-				'dismissible' => true,
-			)
+				'jquery',
+				'plupload-handlers',
+			),
+			$script_version,
+			true
+		);
+
+		wp_localize_script( 'videopress-media-new', 'videoPressMediaNew', $this->get_media_new_upload_limits() );
+
+		add_filter( 'plupload_init', array( $this, 'videopress_pluploder_config' ) );
+	}
+
+	/**
+	 * Returns the free-plan upload limit data used by the media-new.php script.
+	 *
+	 * The free plan includes a single video upload, so the script needs to know
+	 * whether the site has a paid VideoPress plan, whether the free upload has
+	 * already been used, and where to send the user to upgrade. Mirrors the
+	 * checks behind the VideoPress dashboard's upgrade notice: the paid check
+	 * matches Admin_UI::initial_state()'s paidFeatures, and the used check
+	 * matches the dashboard's VideoPress video count (video/videopress
+	 * attachments).
+	 *
+	 * @return array
+	 */
+	public function get_media_new_upload_limits() {
+		$has_videopress_purchase = Current_Plan::supports( 'videopress-1tb-storage' )
+			|| Current_Plan::supports( 'videopress-unlimited-storage' )
+			|| ( function_exists( 'wpcom_site_has_feature' ) && wpcom_site_has_feature( 'videopress' ) );
+
+		$has_used_video = false;
+		if ( ! $has_videopress_purchase ) {
+			$videopress_videos = get_posts(
+				array(
+					'post_type'      => 'attachment',
+					'post_status'    => 'inherit',
+					'post_mime_type' => 'video/videopress',
+					'posts_per_page' => 1,
+					'fields'         => 'ids',
+				)
+			);
+
+			$has_used_video = count( $videopress_videos ) > 0;
+		}
+
+		$upgrade_url = sprintf(
+			'https://wordpress.com/checkout/%s/jetpack_videopress?redirect_to=%s',
+			rawurlencode( ( new Status() )->get_site_suffix() ),
+			rawurlencode( admin_url( 'media-new.php' ) )
+		);
+
+		$allowed_html = array(
+			'a' => array( 'href' => array() ),
+		);
+
+		return array(
+			'hasVideoPressPurchase' => $has_videopress_purchase,
+			'hasUsedVideo'          => $has_used_video,
+			'strings'               => array(
+				'usedVideoUpload'        => sprintf(
+					wp_kses(
+						/* translators: %s is the url to upgrade the VideoPress plan */
+						__( 'You have used your free video upload. The free plan includes one video upload. <a href="%s">Upgrade now</a> to unlock unlimited videos, 1TB of storage, and more!', 'jetpack' ),
+						$allowed_html
+					),
+					esc_url( $upgrade_url )
+				),
+				'multipleVideos'         => sprintf(
+					wp_kses(
+						/* translators: %s is the url to upgrade the VideoPress plan */
+						__( 'The free plan includes one video upload. <a href="%s">Upgrade now</a> to upload more videos and unlock unlimited videos, 1TB of storage, and more!', 'jetpack' ),
+						$allowed_html
+					),
+					esc_url( $upgrade_url )
+				),
+				'multipleVideosSelected' => sprintf(
+					wp_kses(
+						/* translators: %s is the url to upgrade the VideoPress plan */
+						__( 'Uploading multiple videos requires a paid plan. The free plan includes one video upload. <a href="%s">Upgrade now</a> to unlock unlimited videos, 1TB of storage, and more!', 'jetpack' ),
+						$allowed_html
+					),
+					esc_url( $upgrade_url )
+				),
+			),
 		);
 	}
 

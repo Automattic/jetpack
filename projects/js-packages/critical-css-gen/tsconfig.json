@@ -8,7 +8,6 @@
 		"target": "es2019",
 		"sourceMap": true,
 		"allowJs": false,
-		"allowSyntheticDefaultImports": true,
 		"typeRoots": [ "node_modules/@types" ],
 		"declaration": true
 	}

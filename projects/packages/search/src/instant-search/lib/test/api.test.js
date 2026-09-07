@@ -1,4 +1,9 @@
-import { buildFilterAggregations, generateDateRangeFilter, setDocumentCountsToZero } from '../api';
+import {
+	buildFilterAggregations,
+	generateApiQueryString,
+	generateDateRangeFilter,
+	setDocumentCountsToZero,
+} from '../api';
 
 describe( 'buildFilterAggregations', () => {
 	test( 'generates aggregations for product_attribute filters', () => {
@@ -135,5 +140,58 @@ describe( 'setDocumentCountsToZero', () => {
 		expect( setDocumentCountsToZero( null ) ).toEqual( {} );
 		expect( setDocumentCountsToZero( undefined ) ).toEqual( {} );
 		expect( setDocumentCountsToZero( {} ) ).toEqual( {} );
+	} );
+} );
+
+describe( 'generateApiQueryString', () => {
+	test( 'includes highlight_phrase_only when highlightPhraseOnly is true', () => {
+		const queryString = generateApiQueryString( {
+			aggregations: {},
+			filter: {},
+			query: 'the search',
+			sort: 'relevance',
+			highlightPhraseOnly: true,
+		} );
+
+		expect( queryString ).toContain( 'highlight_phrase_only=true' );
+		expect( queryString ).toContain( 'highlight_fields' );
+	} );
+
+	test( 'omits highlight_phrase_only when highlightPhraseOnly is false', () => {
+		const queryString = generateApiQueryString( {
+			aggregations: {},
+			filter: {},
+			query: 'the search',
+			sort: 'relevance',
+			highlightPhraseOnly: false,
+		} );
+
+		expect( queryString ).not.toContain( 'highlight_phrase_only' );
+	} );
+
+	test( 'includes highlight_filter_stopwords when highlightFilterStopwords is set', () => {
+		const queryString = generateApiQueryString( {
+			aggregations: {},
+			filter: {},
+			query: 'the search',
+			sort: 'relevance',
+			highlightFilterStopwords: [ 'the', 'a' ],
+		} );
+
+		expect( queryString ).toContain( 'highlight_filter_stopwords' );
+		expect( queryString ).toContain( 'the' );
+		expect( queryString ).toContain( 'a' );
+	} );
+
+	test( 'omits highlight_filter_stopwords when highlightFilterStopwords is empty', () => {
+		const queryString = generateApiQueryString( {
+			aggregations: {},
+			filter: {},
+			query: 'the search',
+			sort: 'relevance',
+			highlightFilterStopwords: [],
+		} );
+
+		expect( queryString ).not.toContain( 'highlight_filter_stopwords' );
 	} );
 } );

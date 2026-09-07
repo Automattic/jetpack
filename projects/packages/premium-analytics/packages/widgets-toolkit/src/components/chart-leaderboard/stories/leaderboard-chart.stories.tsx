@@ -1,5 +1,7 @@
+import { WidgetCard } from '../../../stories/widget-card';
 import { withChartTheme } from '../../../stories/with-chart-theme';
 import { LeaderboardChart } from '../leaderboard-chart';
+import { LeaderboardSkeleton } from '../leaderboard-skeleton';
 import type { LeaderboardChartData } from '../leaderboard-chart';
 import type { Meta, StoryObj, Decorator } from '@storybook/react';
 
@@ -317,4 +319,47 @@ export const Resizable: Story = {
 	parameters: {
 		layout: 'padded',
 	},
+};
+
+type SkeletonStory = StoryObj< typeof LeaderboardSkeleton >;
+
+/**
+ * The loading shape widgets pass through `WidgetState`'s `renderLoading`, in the
+ * default `list` variant: the label and its value on one line, centred in the
+ * body. A full-height tile fits every row the widget asked for.
+ */
+export const Skeleton: SkeletonStory = {
+	render: args => (
+		<WidgetCard width="360px" height="320px">
+			<LeaderboardSkeleton { ...args } />
+		</WidgetCard>
+	),
+	args: { rows: 5 },
+};
+
+/**
+ * The `bars` variant, for a chart drawn without `withOverlayLabel`: the label
+ * sits above its bar, so the row loads as two lines rather than one.
+ */
+export const SkeletonBars: SkeletonStory = {
+	render: args => (
+		<WidgetCard width="360px" height="320px">
+			<LeaderboardSkeleton { ...args } />
+		</WidgetCard>
+	),
+	args: { rows: 5, variant: 'bars' },
+};
+
+/**
+ * A height-1 dashboard tile. Too short to centre eight rows, so they pack from
+ * the top and the tail is clipped rather than pushed past the widget body —
+ * the rows the loaded chart's `fitRows` drops.
+ */
+export const SkeletonShortTile: SkeletonStory = {
+	render: args => (
+		<WidgetCard width="360px" height="140px">
+			<LeaderboardSkeleton { ...args } />
+		</WidgetCard>
+	),
+	args: { rows: 8 },
 };

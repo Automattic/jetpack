@@ -7,7 +7,7 @@ module.exports = {
 	roots: [ '<rootDir>/tests/js' ],
 	transform: {
 		...baseConfig.transform,
-		'\\.[jt]sx?$': require( 'jetpack-js-tools/jest/babel-jest-config-factory.js' )(
+		'\\.m?[jt]sx?$': require( 'jetpack-js-tools/jest/babel-jest-config-factory.js' )(
 			require.resolve
 		),
 	},
@@ -23,6 +23,5 @@ module.exports = {
 		'!<rootDir>/src/**/*.stories.{js,jsx,ts,tsx}',
 		'!<rootDir>/src/**/index.{js,jsx,ts,tsx}',
 	],
-	coverageDirectory: '<rootDir>/coverage',
 	testMatch: [ '<rootDir>/tests/js/**/*.test.[jt]s?(x)' ],
 };

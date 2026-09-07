@@ -1,6 +1,5 @@
 import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { ModernizationProvider } from '../../../../hooks/use-is-modernized';
 import { setup } from '../../../../utils/test-factory';
 import { clearMockedScriptData, mockScriptData } from '../../../../utils/test-utils';
 import { ConnectionTemplateEditor } from '../../connection-template';
@@ -18,9 +17,12 @@ const setupFeatures = ( ...active ) => {
 	} );
 };
 
-// Renders inside the chassis modernization context, where the gated upsell
-// variant is shown.
-const renderModernized = ui => render( <ModernizationProvider>{ ui }</ModernizationProvider> );
+const setupSimpleSite = () => {
+	mockScriptData( {
+		site: { host: 'wpcom', suffix: 'example.wordpress.com', plan: { features: { active: [] } } },
+		social: { upgrade: { plan_slug: 'business-bundle', plan_name: 'Business' } },
+	} );
+};
 
 describe( 'ConnectionTemplateEditor', () => {
 	afterEach( () => {
@@ -29,8 +31,8 @@ describe( 'ConnectionTemplateEditor', () => {
 		jest.useRealTimers();
 	} );
 
-	test( 'renders the editor when both message-templates and enhanced-publishing are on', () => {
-		setupFeatures( 'social-message-templates', 'social-enhanced-publishing' );
+	test( 'renders the editor when the site has social paid features', () => {
+		setupFeatures( 'social-enhanced-publishing' );
 		setup();
 
 		render( <ConnectionTemplateEditor connection={ FB } /> );
@@ -38,12 +40,13 @@ describe( 'ConnectionTemplateEditor', () => {
 		expect(
 			screen.getByRole( 'textbox', { name: /Custom message for this connection/i } )
 		).toBeInTheDocument();
+		expect( screen.queryByRole( 'link', { name: /upgrade your plan/i } ) ).not.toBeInTheDocument();
 	} );
 
 	test( 'saves without marking the connection as updating', async () => {
 		jest.useFakeTimers();
 		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
-		setupFeatures( 'social-message-templates', 'social-enhanced-publishing' );
+		setupFeatures( 'social-enhanced-publishing' );
 		const { stubUpdateConnectionById } = setup();
 
 		render( <ConnectionTemplateEditor connection={ FB } /> );
@@ -61,83 +64,73 @@ describe( 'ConnectionTemplateEditor', () => {
 		);
 	} );
 
-	test( 'renders nothing when the message-templates feature is off', () => {
-		setupFeatures( 'social-enhanced-publishing' );
+	test( 'renders the locked upsell variant when the site lacks paid features', () => {
+		setupFeatures();
 		setup();
 
-		const { container } = render( <ConnectionTemplateEditor connection={ FB } /> );
+		render( <ConnectionTemplateEditor connection={ FB } /> );
 
-		expect( container ).toBeEmptyDOMElement();
+		const textarea = screen.getByRole( 'textbox', {
+			name: /Custom message for this connection/i,
+		} );
+		expect( textarea ).toBeDisabled();
+		expect( screen.getByRole( 'link', { name: /upgrade your plan/i } ) ).toBeInTheDocument();
 	} );
 
-	test( 'renders nothing when the enhanced-publishing plan is off', () => {
-		setupFeatures( 'social-message-templates' );
+	test( 'surfaces the global default message inside the locked textarea', () => {
+		setupFeatures();
+		setup( { socialSettings: { messageTemplate: 'Read my latest: {url}' } } );
+
+		render( <ConnectionTemplateEditor connection={ FB } /> );
+
+		expect(
+			screen.getByRole( 'textbox', { name: /Custom message for this connection/i } )
+		).toHaveValue( 'Read my latest: {url}' );
+	} );
+
+	test( 'shows Simple sites the locked upsell instead of hiding the editor', () => {
+		setupSimpleSite();
 		setup();
 
-		const { container } = render( <ConnectionTemplateEditor connection={ FB } /> );
+		render( <ConnectionTemplateEditor connection={ FB } /> );
 
-		expect( container ).toBeEmptyDOMElement();
+		expect(
+			screen.getByRole( 'textbox', { name: /Custom message for this connection/i } )
+		).toBeDisabled();
+	} );
+
+	test( 'points Simple sites at the WordPress.com plans page', () => {
+		setupSimpleSite();
+		setup();
+
+		render( <ConnectionTemplateEditor connection={ FB } /> );
+
+		const url = new URL(
+			screen.getByRole( 'link', { name: /upgrade to the Business plan/i } ).getAttribute( 'href' )
+		);
+
+		expect( url.origin + url.pathname ).toBe( 'https://wordpress.com/plans/example.wordpress.com' );
+		expect( url.searchParams.get( 'plan' ) ).toBe( 'business-bundle' );
+	} );
+
+	test( 'keeps the Jetpack redirect service for self-hosted sites', () => {
+		setupFeatures();
+		setup();
+
+		render( <ConnectionTemplateEditor connection={ FB } /> );
+
+		expect( screen.getByRole( 'link', { name: /upgrade your plan/i } ) ).toHaveAttribute(
+			'href',
+			expect.stringContaining( 'source=jetpack-social-per-connection-template-upsell' )
+		);
 	} );
 
 	test( 'renders nothing when the user cannot manage the connection', () => {
-		setupFeatures( 'social-message-templates', 'social-enhanced-publishing' );
+		setupFeatures( 'social-enhanced-publishing' );
 		setup( { canUserManageConnection: false } );
 
 		const { container } = render( <ConnectionTemplateEditor connection={ FB } /> );
 
 		expect( container ).toBeEmptyDOMElement();
-	} );
-
-	describe( 'modernized chassis (gated upsell)', () => {
-		test( 'renders nothing when the message-templates engine is off, even with the paid plan', () => {
-			// The engine is a rollout sticker, not a plan feature, so an "upgrade
-			// your plan" upsell would be misleading — hide the whole area instead.
-			setupFeatures( 'social-enhanced-publishing' );
-			setup();
-
-			const { container } = renderModernized( <ConnectionTemplateEditor connection={ FB } /> );
-
-			expect( container ).toBeEmptyDOMElement();
-		} );
-
-		test( 'renders the locked upsell variant when the enhanced-publishing plan is off', () => {
-			setupFeatures( 'social-message-templates' );
-			setup();
-
-			renderModernized( <ConnectionTemplateEditor connection={ FB } /> );
-
-			const textarea = screen.getByRole( 'textbox', {
-				name: /Custom message for this connection/i,
-			} );
-			expect( textarea ).toBeDisabled();
-			expect( screen.getByRole( 'link', { name: /upgrade your plan/i } ) ).toBeInTheDocument();
-		} );
-
-		test( 'surfaces the global default message inside the locked textarea', () => {
-			// Engine on, paid plan off: the plan upsell shows the global default.
-			mockScriptData( {
-				site: { plan: { features: { active: [ 'social-message-templates' ] } } },
-				social: { settings: { messageTemplate: 'Read my latest: {url}' } },
-			} );
-			setup();
-
-			renderModernized( <ConnectionTemplateEditor connection={ FB } /> );
-
-			expect(
-				screen.getByRole( 'textbox', { name: /Custom message for this connection/i } )
-			).toHaveValue( 'Read my latest: {url}' );
-		} );
-
-		test( 'renders nothing on Simple sites when the plan upsell would otherwise show', () => {
-			// Engine on, paid plan off, Simple site: keeps the trunk no-editor behavior.
-			mockScriptData( {
-				site: { host: 'wpcom', plan: { features: { active: [ 'social-message-templates' ] } } },
-			} );
-			setup();
-
-			const { container } = renderModernized( <ConnectionTemplateEditor connection={ FB } /> );
-
-			expect( container ).toBeEmptyDOMElement();
-		} );
 	} );
 } );

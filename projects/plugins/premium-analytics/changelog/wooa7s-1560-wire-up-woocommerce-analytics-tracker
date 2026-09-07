@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Wire up the WooCommerce Analytics front-end tracker with ClickHouse and proxy tracking enabled.

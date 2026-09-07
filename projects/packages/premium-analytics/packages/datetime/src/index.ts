@@ -4,6 +4,7 @@ export {
 	type DateRange,
 	type ComparisonPresetId,
 } from './get-comparison-range';
+export type { ComparisonRangeOptions } from './get-comparison-range';
 
 export {
 	createTZDateFromParts,
@@ -15,6 +16,23 @@ export {
 } from './tz';
 
 export { formatRelativeSince } from './relative-since';
+
+export { INTERVAL_TYPES, isIntervalType, type IntervalType } from './interval';
+
+export { getDateRangeSpan, type DateRangeSpan, type DateRangeSpanUnit } from './date-range-span';
+
+export { stepDateRange, canStepForward, type StepDirection } from './step-date-range';
+export { completeToDateRange, clampRangeEndToToday } from './to-date-range';
+
+export { drillDateRange } from './drill-date-range';
+
+export { parseBucketStart } from './bucket-start';
+
+export { parseSiteDateTime } from './site-datetime';
+
+export { readSiteTimestamp, type SiteTimestamp, type TimestampParts } from './site-timestamp';
+
+export { reportingTimeZone, localTZDate, dateToISOStringWithLocalTZ } from './reporting-time-zone';
 
 export {
 	formatDatePartWithTime,
@@ -29,6 +47,7 @@ export {
 	SELECTABLE_PRESETS,
 	PRESET_TODAY,
 	PRESET_YESTERDAY,
+	PRESET_LAST_24_HOURS,
 	PRESET_LAST_7_DAYS,
 	PRESET_LAST_30_DAYS,
 	PRESET_LAST_90_DAYS,
@@ -37,23 +56,46 @@ export {
 	PRESET_LAST_12_MONTHS,
 	PRESET_LAST_YEAR,
 	PRESET_CUSTOM,
+	PRESET_ALL_TIME,
+	MENU_SURFACE_PRESETS,
+	MENU_SURFACE_PRESET_GROUPS,
+	QUICK_SURFACE_PRESETS,
+	DETAIL_SURFACE_PRESETS,
+	YEAR_PRESET_PREFIX,
 
 	// Guards
 	isSelectablePreset,
 	isPrimaryPreset,
+	isYearPresetId,
+	isYearSurfacePresetId,
+
+	// Year preset ID helpers
+	toYearPresetId,
+	getPresetYear,
 
 	// Types
 	type SelectablePresetId,
+	type QuickSurfacePresetId,
 	type PrimaryPresetId,
+	type ComputablePresetId,
+	type YearPresetId,
+	type YearSurfacePresetId,
 
 	// Primary presets
 	PRESET_DEFINITIONS,
+	DEFAULT_YEAR_SURFACE_COUNT,
 	getPresetLabel,
 	getDefaultDateRangePresets,
+	getMenuSurfacePresetGroups,
+	getQuickSurfacePresets,
+	getYearSurfacePresets,
 	computePrimaryRange,
 	type DateRangePreset,
+	type YearSurfaceOptions,
+	type AllTimeRangeOptions,
+	type QuickSurfaceOptions,
 
 	// Comparison presets
-	getComparisonPresetLabel,
-	getComparisonPresetConfigs,
+	getComparisonOptions,
+	type ComparisonOption,
 } from './presets';

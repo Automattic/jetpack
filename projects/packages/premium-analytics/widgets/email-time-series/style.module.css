@@ -1,0 +1,7 @@
+.root {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	min-block-size: 0;
+	overflow: hidden;
+}

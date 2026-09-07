@@ -1,7 +1,6 @@
 /**
  * WordPress dependencies
  */
-import { __ } from '@wordpress/i18n';
 import { chartBar } from '@wordpress/icons';
 
 /**
@@ -23,11 +22,5 @@ export type NetSalesOverTimeAttributes = Record< never, never >;
  * dashboards can opt in.
  */
 export default {
-	name: 'jpa/net-sales-over-time',
-	title: __( 'Net sales over time', 'jetpack-premium-analytics' ),
-	description: __(
-		'Monitor your total revenue after discounts, returns, or adjustments over a set period of time.',
-		'jetpack-premium-analytics'
-	),
 	icon: chartBar,
 };

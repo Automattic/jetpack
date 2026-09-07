@@ -7,13 +7,11 @@ import { Component } from 'react';
 import { connect } from 'react-redux';
 import SimpleNotice from 'components/notice';
 import NoticeAction from 'components/notice/notice-action.jsx';
-import UpgradeNoticeContent from 'components/upgrade-notice-content';
 import { getCurrentVersion, getSiteAdminUrl } from 'state/initial-state';
 import {
 	getJetpackStateNoticesErrorCode,
 	getJetpackStateNoticesMessageCode,
 	getJetpackStateNoticesErrorDescription,
-	getJetpackStateNoticesMessageContent,
 } from 'state/jetpack-notices';
 
 class JetpackStateNotices extends Component {
@@ -26,6 +24,27 @@ class JetpackStateNotices extends Component {
 	dismissJetpackStateNotice = () => {
 		this.setState( { showNotice: false } );
 	};
+
+	/**
+	 * Generic copy for error codes that have no message of their own.
+	 *
+	 * @param {string} key - The error code.
+	 * @return {Element} Message element.
+	 */
+	getGenericErrorMessage = key =>
+		createInterpolateElement(
+			sprintf(
+				/* translators: %s: an error code. */
+				__(
+					'<s>Your Jetpack has a glitch.</s> We’re sorry for the inconvenience. Please try again later, if the issue continues please contact support with this message: %s',
+					'jetpack'
+				),
+				key
+			),
+			{
+				s: <strong />,
+			}
+		);
 
 	getErrorFromKey = key => {
 		const errorDesc = this.props.jetpackStateNoticesErrorDescription || false;
@@ -123,6 +142,8 @@ class JetpackStateNotices extends Component {
 				break;
 			case 'no_role':
 			case 'no_cap':
+			case 'cannot_save_secrets':
+			case 'jetpack_id':
 			case 'no_code':
 			case 'no_state':
 			case 'invalid_state':
@@ -152,23 +173,12 @@ class JetpackStateNotices extends Component {
 			case 'verify_secret_1_malformed':
 			case 'verify_secrets_missing':
 			case 'verify_secrets_mismatch':
-				message = createInterpolateElement(
-					sprintf(
-						/* translators: %s: an error code and message. */
-						__(
-							'<s>Your Jetpack has a glitch.</s> We’re sorry for the inconvenience. Please try again later, if the issue continues please contact support with this message: %s',
-							'jetpack'
-						),
-						key
-					),
-					{
-						s: <strong />,
-					}
-				);
+				message = this.getGenericErrorMessage( key );
 				break;
 
 			default:
-				message = key;
+				// Codes with no case of their own get generic glitch copy; errorDesc (if any) is appended below.
+				message = this.getGenericErrorMessage( key );
 		}
 
 		if ( errorDesc ) {
@@ -254,10 +264,9 @@ class JetpackStateNotices extends Component {
 			noticeText = '',
 			action;
 		const error = this.props.jetpackStateNoticesErrorCode,
-			message = this.props.jetpackStateNoticesMessageCode,
-			messageContent = this.props.jetpackStateNoticesMessageContent;
+			message = this.props.jetpackStateNoticesMessageCode;
 
-		if ( ! error && ! message && ! messageContent ) {
+		if ( ! error && ! message ) {
 			return;
 		}
 
@@ -266,19 +275,6 @@ class JetpackStateNotices extends Component {
 			if ( error !== 'access_denied' ) {
 				status = 'is-error';
 			}
-		}
-
-		// Show custom message for updated Jetpack.
-		if ( messageContent && messageContent.release_post_content && isJetpackSelfHostedSite() ) {
-			return (
-				<UpgradeNoticeContent
-					dismiss={ this.dismissJetpackStateNotice }
-					version={ this.props.currentVersion }
-					releasePostContent={ messageContent.release_post_content }
-					featuredImage={ messageContent.release_post_featured_image }
-					title={ messageContent.release_post_title }
-				/>
-			);
 		}
 
 		if ( message ) {
@@ -314,7 +310,6 @@ export default connect( state => {
 		jetpackStateNoticesErrorCode: getJetpackStateNoticesErrorCode( state ),
 		jetpackStateNoticesMessageCode: getJetpackStateNoticesMessageCode( state ),
 		jetpackStateNoticesErrorDescription: getJetpackStateNoticesErrorDescription( state ),
-		jetpackStateNoticesMessageContent: getJetpackStateNoticesMessageContent( state ),
 		siteAdminUrl: getSiteAdminUrl( state ),
 	};
 } )( JetpackStateNotices );

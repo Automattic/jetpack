@@ -18,6 +18,11 @@ type SummaryTilesProps = {
 	byApp?: PodcastStatsAppRow[];
 	byCountry?: PodcastStatsCountryRow[];
 	topDay?: PodcastStatsTopDay | null;
+	// Scope note for the Top app / Top country tiles when their window differs
+	// from the selected period (the All time view sources them from a 30-day snapshot).
+	breakdownScope?: string;
+	// Scope note for the Top day tile; top_day always reflects the last 90 days.
+	topDayScope?: string;
 	isLoading?: boolean;
 };
 
@@ -25,6 +30,7 @@ type Tile = {
 	heading: string;
 	value: string;
 	note?: string;
+	scope?: string;
 };
 
 const SummaryTiles = ( {
@@ -32,6 +38,8 @@ const SummaryTiles = ( {
 	byApp = [],
 	byCountry = [],
 	topDay,
+	breakdownScope,
+	topDayScope,
 	isLoading = false,
 }: SummaryTilesProps ) => {
 	const topApp = byApp[ 0 ];
@@ -48,6 +56,7 @@ const SummaryTiles = ( {
 			heading: __( 'Top app', 'jetpack-podcast' ),
 			value: loadingValue ?? ( topApp ? formatAppName( topApp.app ) : EMPTY_VALUE ),
 			note: ! loadingValue && topApp ? formatPct( topApp.pct ) : undefined,
+			scope: ! loadingValue ? breakdownScope : undefined,
 		},
 		{
 			heading: __( 'Top country', 'jetpack-podcast' ),
@@ -55,6 +64,7 @@ const SummaryTiles = ( {
 				loadingValue ??
 				( topCountry ? getCountryName( topCountry.country, unknownCountry ) : EMPTY_VALUE ),
 			note: ! loadingValue && topCountry ? formatPct( topCountry.pct ) : undefined,
+			scope: ! loadingValue ? breakdownScope : undefined,
 		},
 		{
 			heading: __( 'Top day', 'jetpack-podcast' ),
@@ -67,6 +77,7 @@ const SummaryTiles = ( {
 							formatNumber( topDay.plays )
 					  )
 					: undefined,
+			scope: ! loadingValue ? topDayScope : undefined,
 		},
 	];
 
@@ -88,6 +99,11 @@ const SummaryTiles = ( {
 					{ tile.note && (
 						<Text size={ 12 } variant="muted">
 							{ tile.note }
+						</Text>
+					) }
+					{ tile.scope && (
+						<Text size={ 12 } variant="muted">
+							{ tile.scope }
 						</Text>
 					) }
 				</VStack>

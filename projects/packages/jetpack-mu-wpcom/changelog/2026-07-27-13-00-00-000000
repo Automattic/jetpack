@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+AI Launchpad: hide the legacy Dashboard launchpad widget and the My Home menu for the no_guidance launchpad-personalization variation.

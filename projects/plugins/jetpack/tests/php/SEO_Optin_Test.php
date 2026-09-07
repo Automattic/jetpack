@@ -7,6 +7,7 @@
  */
 
 use Automattic\Jetpack\SEO\Initializer as Jetpack_SEO_Initializer;
+use Automattic\Jetpack\SEO\Surface_Visibility as Jetpack_SEO_Surface_Visibility;
 
 /**
  * Integration test: exercises the SEO package's opt-in REST route + handler from the
@@ -33,7 +34,7 @@ class SEO_Optin_Test extends WP_UnitTestCase {
 	 * deterministic effects here.)
 	 */
 	public function test_opt_in_marks_surface_visible_and_returns_dashboard_url() {
-		$data = Jetpack_SEO_Initializer::handle_optin()->get_data();
+		$data = Jetpack_SEO_Surface_Visibility::handle_optin()->get_data();
 
 		$this->assertTrue( (bool) get_option( Jetpack_SEO_Initializer::VISIBILITY_OPTION ) );
 		$this->assertTrue( $data['success'] );
@@ -44,7 +45,7 @@ class SEO_Optin_Test extends WP_UnitTestCase {
 	 * The opt-in route is registered on the jetpack/v4 namespace.
 	 */
 	public function test_opt_in_route_is_registered() {
-		Jetpack_SEO_Initializer::register_optin_route();
+		Jetpack_SEO_Surface_Visibility::register_optin_route();
 
 		$this->assertArrayHasKey( '/jetpack/v4/seo/opt-in', rest_get_server()->get_routes( 'jetpack/v4' ) );
 	}
@@ -55,7 +56,7 @@ class SEO_Optin_Test extends WP_UnitTestCase {
 	 * `permission_callback` actually runs — calling the handler directly would bypass it.
 	 */
 	public function test_opt_in_requires_manage_options() {
-		Jetpack_SEO_Initializer::register_optin_route();
+		Jetpack_SEO_Surface_Visibility::register_optin_route();
 		wp_set_current_user( self::factory()->user->create( array( 'role' => 'subscriber' ) ) );
 
 		$response = rest_get_server()->dispatch( new WP_REST_Request( 'POST', '/jetpack/v4/seo/opt-in' ) );

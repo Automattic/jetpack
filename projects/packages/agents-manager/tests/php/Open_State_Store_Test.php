@@ -69,6 +69,16 @@ class Open_State_Store_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Mock a user connection by seeding the connection tokens.
+	 *
+	 * @param int $user_id User ID.
+	 */
+	private function connect_user( int $user_id ) {
+		\Jetpack_Options::update_option( 'user_tokens', array( $user_id => 'test.token.' . $user_id ) );
+		\Jetpack_Options::update_option( 'id', 12345 );
+	}
+
+	/**
 	 * Tests that get_cached() returns null when no user is logged in.
 	 */
 	public function test_get_cached_returns_null_without_user() {
@@ -81,19 +91,40 @@ class Open_State_Store_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_get_cached_returns_null_when_uncached() {
 		wp_set_current_user( $this->user_id );
+		$this->connect_user( $this->user_id );
 		$this->assertNull( Open_State_Store::get_cached() );
 	}
 
 	/**
-	 * Tests that caching stores only the open/docked bits and get_cached() reads them.
+	 * Tests that get_cached() ignores the transient when the user has no
+	 * WordPress.com connection (e.g. after a disconnect), so the pre-render
+	 * cannot inject a shell the app will never mount into.
 	 */
-	public function test_cache_round_trip_stores_open_and_docked_only() {
+	public function test_get_cached_returns_null_when_user_not_connected() {
 		wp_set_current_user( $this->user_id );
+
+		$this->cache(
+			array(
+				'agents_manager_open'   => true,
+				'agents_manager_docked' => true,
+			)
+		);
+
+		$this->assertNull( Open_State_Store::get_cached() );
+	}
+
+	/**
+	 * Tests that caching stores only the open/docked/minimized bits and get_cached() reads them.
+	 */
+	public function test_cache_round_trip_stores_the_pre_render_bits_only() {
+		wp_set_current_user( $this->user_id );
+		$this->connect_user( $this->user_id );
 
 		$this->cache(
 			array(
 				'agents_manager_open'              => true,
 				'agents_manager_docked'            => true,
+				'agents_manager_minimized'         => true,
 				'agents_manager_floating_position' => 'left',
 				'agents_manager_router_history'    => array( 'entries' => array() ),
 			)
@@ -103,11 +134,12 @@ class Open_State_Store_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertSame(
 			array(
-				'agents_manager_open'   => true,
-				'agents_manager_docked' => true,
+				'agents_manager_open'      => true,
+				'agents_manager_docked'    => true,
+				'agents_manager_minimized' => true,
 			),
 			$cached,
-			'Only the open/docked bits the pre-render needs should be cached.'
+			'Only the open/docked/minimized bits the pre-render needs should be cached.'
 		);
 	}
 
@@ -116,6 +148,7 @@ class Open_State_Store_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_cache_coerces_booleans() {
 		wp_set_current_user( $this->user_id );
+		$this->connect_user( $this->user_id );
 
 		$this->cache(
 			array(
@@ -126,8 +159,9 @@ class Open_State_Store_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertSame(
 			array(
-				'agents_manager_open'   => true,
-				'agents_manager_docked' => false,
+				'agents_manager_open'      => true,
+				'agents_manager_docked'    => false,
+				'agents_manager_minimized' => false,
 			),
 			Open_State_Store::get_cached()
 		);
@@ -147,6 +181,7 @@ class Open_State_Store_Test extends \WorDBless\BaseTestCase {
 		);
 
 		wp_set_current_user( $this->user_id );
+		$this->connect_user( $this->user_id );
 		$this->assertNull( Open_State_Store::get_cached() );
 	}
 
@@ -180,19 +215,21 @@ class Open_State_Store_Test extends \WorDBless\BaseTestCase {
 		Constants::set_constant( 'IS_WPCOM', true );
 		Functions\when( 'get_user_attribute' )->justReturn(
 			array(
-				'agents_manager_open'   => true,
-				'agents_manager_docked' => true,
+				'agents_manager_open'      => true,
+				'agents_manager_docked'    => true,
+				'agents_manager_minimized' => true,
 			)
 		);
 		wp_set_current_user( $this->user_id );
 
 		$this->assertSame(
 			array(
-				'agents_manager_open'   => true,
-				'agents_manager_docked' => true,
+				'agents_manager_open'      => true,
+				'agents_manager_docked'    => true,
+				'agents_manager_minimized' => true,
 			),
 			Open_State_Store::get_cached(),
-			'Simple sites should read the open/docked bits straight from calypso_preferences.'
+			'Simple sites should read the open/docked/minimized bits straight from calypso_preferences.'
 		);
 	}
 
@@ -211,8 +248,9 @@ class Open_State_Store_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertSame(
 			array(
-				'agents_manager_open'   => true,
-				'agents_manager_docked' => false,
+				'agents_manager_open'      => true,
+				'agents_manager_docked'    => false,
+				'agents_manager_minimized' => false,
 			),
 			Open_State_Store::get_cached()
 		);
@@ -255,8 +293,9 @@ class Open_State_Store_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertSame(
 			array(
-				'agents_manager_open'   => true,
-				'agents_manager_docked' => true,
+				'agents_manager_open'      => true,
+				'agents_manager_docked'    => true,
+				'agents_manager_minimized' => false,
 			),
 			Open_State_Store::get_cached(),
 			'Simple sites should read calypso_preferences, not the transient.'

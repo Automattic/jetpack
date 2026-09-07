@@ -1,0 +1,34 @@
+.line {
+	block-size: var(--wpds-dimension-size-3xs);
+	border-radius: var(--wpds-border-radius-md);
+	background: var(--wpds-color-background-track-neutral);
+	animation: dashboard-skeleton-pulse var(--wpds-motion-duration-xl) var(--wpds-motion-easing-balanced) infinite;
+}
+
+.title {
+	inline-size: 40%;
+	block-size: var(--wpds-dimension-size-2xs);
+}
+
+.short {
+	inline-size: 60%;
+}
+
+@keyframes dashboard-skeleton-pulse {
+
+	0%,
+	100% {
+		opacity: 1;
+	}
+
+	50% {
+		opacity: 0.4;
+	}
+}
+
+@media ( prefers-reduced-motion: reduce ) {
+
+	.line {
+		animation: none;
+	}
+}

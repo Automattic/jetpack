@@ -209,6 +209,36 @@ export const mockOrderAttributionSourceData: OrderAttributionSummaryResponse = {
 				intervals: [],
 			},
 		},
+		// A collapsed source whose previous period dominates both periods: on the
+		// shared comparison scale its previous bar is the 100% reference while
+		// google's current bar stays at 75% (12000/16000), so bar widths agree
+		// with the deltas instead of both rendering full-width.
+		{
+			item: 'newsletter',
+			current_period: {
+				value: '3000.00',
+				intervals: [],
+			},
+			previous_period: {
+				value: '16000.00',
+				intervals: [],
+			},
+		},
+		// Ranked 5th by current-period sales, so the default maxEntries (4) hides
+		// this row. Its outsized previous value must NOT enter the denominator:
+		// visible bars stay scaled to 16000, not 60000 (see getCombinedPeriodMax's
+		// visible-rows-only contract).
+		{
+			item: 'affiliate',
+			current_period: {
+				value: '2500.00',
+				intervals: [],
+			},
+			previous_period: {
+				value: '60000.00',
+				intervals: [],
+			},
+		},
 	],
 };
 

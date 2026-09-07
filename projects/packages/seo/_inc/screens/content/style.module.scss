@@ -1,0 +1,29 @@
+// Content tab: full-width DataViews list (no max-width — it fills the available
+// width, matching the Forms dashboard), with an optional SEO inspector panel.
+.root {
+	inline-size: 100%;
+}
+
+// The per-post SEO editor, rendered in the route's native inspector sidebar.
+// The framework owns the sidebar panel; this just lays out the editor's
+// contents (header, fields + live preview, actions).
+.inspector {
+	padding: var(--wpds-dimension-padding-md);
+}
+
+// Google-style search-result snippet shown live in the inspector.
+.preview {
+	padding: var(--wpds-dimension-padding-md);
+	background: var(--wpds-color-background-surface-neutral);
+	border-radius: var(--wpds-border-radius-md);
+}
+
+.muted {
+	color: var(--wpds-color-foreground-content-neutral-weak);
+}
+
+.title {
+	color: var(--wpds-color-foreground-interactive-brand);
+	font-size: 18px;
+	line-height: 1.3;
+}

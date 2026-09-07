@@ -155,9 +155,9 @@ class Theme_Chrome_Slug_Resolver {
 			if ( null === $content ) {
 				continue;
 			}
-			$extracted       = static::extract_from_template_content( $content );
-			$found['header'] = $found['header'] ?? $extracted['header'];
-			$found['footer'] = $found['footer'] ?? $extracted['footer'];
+			$extracted         = static::extract_from_template_content( $content );
+			$found['header'] ??= $extracted['header'];
+			$found['footer'] ??= $extracted['footer'];
 		}
 		return array(
 			'header' => $found['header'] ?? self::DEFAULTS['header'],

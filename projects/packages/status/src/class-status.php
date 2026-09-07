@@ -54,7 +54,20 @@ class Status {
 		$offline_mode = (bool) apply_filters( 'jetpack_offline_mode', $offline_mode );
 
 		if ( ! $offline_mode ) {
-			$offline_mode = (bool) get_option( 'jetpack_offline_mode' );
+			// Sentinel default so an absent option isn't confused with a stored null/false.
+			$sentinel = new \stdClass();
+			$option   = get_option( 'jetpack_offline_mode', $sentinel );
+
+			if ( $sentinel === $option ) {
+				// Seed an autoloaded default to stop per-request reads, but only where it helps
+				// (no persistent object cache) and writes are safe (keep front-end reads read-only).
+				if ( ! wp_using_ext_object_cache() && ( is_admin() || wp_doing_cron() || ( defined( 'WP_CLI' ) && WP_CLI ) ) ) {
+					add_option( 'jetpack_offline_mode', false, '', true );
+				}
+			} else {
+				// A default_option filter could return a non-scalar; only a scalar is a real value.
+				$offline_mode = is_scalar( $option ) ? (bool) $option : false;
+			}
 		}
 
 		Cache::set( 'is_offline_mode', $offline_mode );
@@ -126,33 +139,55 @@ class Status {
 			return $cached;
 		}
 
-		$site_url = site_url();
+		$site_url = trim( (string) site_url() );
+
+		/*
+		 * Every check below cares about the host, not the rest of the URL. Matching the host
+		 * alone means a port, a subdirectory install, or a trailing slash can't defeat them,
+		 * and a known local domain sitting in the path can't trigger them by accident.
+		 */
+		$host = wp_parse_url( $site_url, PHP_URL_HOST );
+		if ( ( ! is_string( $host ) || '' === $host ) && ! preg_match( '#^[a-z][a-z0-9+.\-]*:#i', $site_url ) ) {
+			/*
+			 * No scheme, so site_url() isn't absolute. Read the value as a bare host.
+			 * A value that does carry a scheme but still won't parse is malformed, and
+			 * guessing at it would read "https:/example.com" as the host "https".
+			 */
+			$host = wp_parse_url( '//' . ltrim( $site_url, '/' ), PHP_URL_HOST );
+		}
+		if ( ! is_string( $host ) ) {
+			/*
+			 * Nothing host-shaped to test. Treat the site as remote rather than matching the
+			 * raw URL: a false "local" silently drops a live site into offline mode.
+			 */
+			$host = '';
+		}
 
 		// Check for localhost and sites using an IP only first.
-		// Note: str_contains() is not used here, as wp-includes/compat.php is not loaded in this file.
-		$is_local = $site_url && false === strpos( $site_url, '.' );
+		$is_local = '' !== $host && false === strpos( $host, '.' );
 
 		// Use Core's environment check, if available.
 		if ( 'local' === wp_get_environment_type() ) {
 			$is_local = true;
 		}
 
-		// Then check for usual usual domains used by local dev tools.
+		// Then check for usual domains used by local dev tools.
 		$known_local = array(
 			'#\.local$#i',
-			'#\.localhost$#i',
+			'#(^|\.)localhost$#i', // localhost and any subdomain of it.
 			'#\.test$#i',
-			'#\.docksal$#i',      // Docksal.
+			'#\.docksal$#i',       // Docksal.
 			'#\.docksal\.site$#i', // Docksal.
 			'#\.dev\.cc$#i',       // ServerPress.
 			'#\.lndo\.site$#i',    // Lando.
 			'#\.ddev\.site$#i',    // DDEV.
-			'#^https?://127\.0\.0\.1$#',
+			'#^127\.0\.0\.1$#',
+			'#^playground\.wordpress\.net$#i', // WordPress Playground, which runs entirely in the browser.
 		);
 
-		if ( ! $is_local ) {
-			foreach ( $known_local as $url ) {
-				if ( preg_match( $url, $site_url ) ) {
+		if ( ! $is_local && '' !== $host ) {
+			foreach ( $known_local as $pattern ) {
+				if ( preg_match( $pattern, $host ) ) {
 					$is_local = true;
 					break;
 				}

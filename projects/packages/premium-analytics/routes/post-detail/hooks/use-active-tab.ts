@@ -24,12 +24,16 @@ type TabSearch = {
  *
  * Reuses the dashboard's `section` param name so both pages share one
  * deep-linkable model for their tab state, built on `useStagedSearch`.
- * Switching a tab is an immediate stage + commit (one history entry per
- * change).
+ * Switching a tab is an immediate stage + commit — one history entry per
+ * change, unless `replace` is set (used to normalize a deep link without
+ * polluting history).
  *
  * @return A tuple of the active tab ID and a setter to change it.
  */
-export function useActiveTab(): [ PostDetailTabId, ( id: PostDetailTabId ) => void ] {
+export function useActiveTab(): [
+	PostDetailTabId,
+	( id: PostDetailTabId, options?: { replace?: boolean } ) => void,
+] {
 	const { effective, stage, commit } = useStagedSearch< TabSearch, typeof ROUTE_FROM >( {
 		from: ROUTE_FROM,
 	} );
@@ -37,9 +41,9 @@ export function useActiveTab(): [ PostDetailTabId, ( id: PostDetailTabId ) => vo
 	const activeTab = resolveTabId( effective.section );
 
 	const setActiveTab = useCallback(
-		( id: PostDetailTabId ) => {
+		( id: PostDetailTabId, options?: { replace?: boolean } ) => {
 			stage( { section: id } );
-			commit( { replace: false } );
+			commit( { replace: options?.replace ?? false } );
 		},
 		[ stage, commit ]
 	);

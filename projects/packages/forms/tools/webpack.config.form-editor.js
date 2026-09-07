@@ -11,6 +11,13 @@ export default {
 	mode: jetpackWebpackConfig.mode,
 	entry: {
 		'jetpack-form-editor': path.join( __dirname, '..', 'src/form-editor/index.tsx' ),
+		// Split out so the guide does not ship to every block editor screen
+		// along with the editor bundle. See welcome-guide/bootstrap.tsx.
+		'jetpack-form-welcome-guide': path.join(
+			__dirname,
+			'..',
+			'src/form-editor/welcome-guide/bootstrap.tsx'
+		),
 	},
 	output: {
 		...jetpackWebpackConfig.output,
@@ -51,7 +58,17 @@ export default {
 			// Handle CSS.
 			jetpackWebpackConfig.CssRule( {
 				extensions: [ 'css', 'sass', 'scss' ],
-				extraLoaders: [ { loader: 'sass-loader', options: { api: 'modern-compiler' } } ],
+				extraLoaders: [
+					{
+						loader: 'postcss-loader',
+						options: {
+							postcssOptions: {
+								config: path.join( __dirname, '..', 'postcss.config.js' ),
+							},
+						},
+					},
+					{ loader: 'sass-loader', options: { api: 'modern-compiler' } },
+				],
 			} ),
 
 			// Allow importing .svg files as raw HTML strings via `?raw` query.

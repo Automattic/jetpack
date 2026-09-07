@@ -1,0 +1,25 @@
+// A card title led by an accent icon in a small tinted "chip" badge, the
+// placement Jetpack's other cards use. Matches the Overview cards' chip so the
+// Settings modules and Overview cards read as one family.
+.cardTitle {
+	display: inline-flex;
+	align-items: center;
+	// `sm` (8px) matches the icon-to-label spacing used elsewhere in these cards,
+	// rather than the tighter `xs`.
+	gap: var(--wpds-dimension-gap-sm);
+}
+
+// A 24px icon (the @wordpress/ui default) in a `size-md` (32px) chip — both
+// from the WPDS size scale, so the glyph fills the badge instead of floating
+// in an oversized circle.
+.titleIcon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	flex: none;
+	inline-size: var(--wpds-dimension-size-md);
+	block-size: var(--wpds-dimension-size-md);
+	border-radius: 50%;
+	color: var(--wpds-color-foreground-interactive-brand);
+	background: var(--wpds-color-background-surface-brand);
+}

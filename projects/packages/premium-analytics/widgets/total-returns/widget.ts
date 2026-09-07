@@ -1,7 +1,6 @@
 /**
  * WordPress dependencies
  */
-import { __ } from '@wordpress/i18n';
 import { chartBar } from '@wordpress/icons';
 
 /**
@@ -23,11 +22,5 @@ export type TotalReturnsAttributes = Record< never, never >;
  * dashboards can opt in.
  */
 export default {
-	name: 'jpa/total-returns',
-	title: __( 'Total returns', 'jetpack-premium-analytics' ),
-	description: __(
-		'Shows refunds and net sales over the selected time period.',
-		'jetpack-premium-analytics'
-	),
 	icon: chartBar,
 };

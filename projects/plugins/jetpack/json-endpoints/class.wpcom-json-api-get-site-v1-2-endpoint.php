@@ -89,6 +89,8 @@ class WPCOM_JSON_API_GET_Site_V1_2_Endpoint extends WPCOM_JSON_API_GET_Site_Endp
 		'is_a4a_client'               => '(bool) If the site is an A4A client site.',
 		'is_a4a_dev_site'             => '(bool) If the site is an A4A dev site.',
 		'is_garden'                   => '(bool) If the site is a Garden site.',
+		'hosting_provider_guess'      => '(string) Guess of the hosting provider. WordPress.com platform only; only returned when explicitly requested via the fields parameter.',
+		'environment_type'            => '(string) The WP_ENVIRONMENT_TYPE of the site as synced by Jetpack. WordPress.com platform only; only returned when explicitly requested via the fields parameter.',
 	);
 
 	/**

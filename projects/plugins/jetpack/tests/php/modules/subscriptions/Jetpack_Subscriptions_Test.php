@@ -47,6 +47,9 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 		remove_all_filters( 'jetpack_is_connection_ready' );
 		remove_all_filters( 'pre_http_request' );
 
+		// Status\Cache is a process-wide static that WP_UnitTestCase does not reset.
+		\Automattic\Jetpack\Status\Cache::clear();
+
 		parent::tear_down();
 	}
 
@@ -321,7 +324,10 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 	}
 
 	public static function matrix_access() {
-		$time_outdated = time() - HOUR_IN_SECONDS;
+		// A prior-day timestamp. Paid Content grants access through the end of the
+		// end_date day (UTC), so an "expired" fixture must be before that day to
+		// actually read as expired.
+		$time_outdated = time() - 2 * DAY_IN_SECONDS;
 
 		return array(
 			// The follow use cases are mainly yot be thourough and probably duplicates some former use cases
@@ -841,9 +847,10 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 		);
 		$this->assertTrue( $subscription_service->visitor_can_view_content( Jetpack_Memberships::get_all_newsletter_plan_ids(), $post_access_level ) );
 
-		// Let's make sure date is taken into account
+		// Let's make sure date is taken into account (a fully-past day, since access
+		// lasts through the end of the end_date day).
 		$subscription_service = $this->set_returned_token(
-			$this->get_payload( true, true, time() - HOUR_IN_SECONDS, null, $gold_tier_annual_plan_id )
+			$this->get_payload( true, true, time() - 2 * DAY_IN_SECONDS, null, $gold_tier_annual_plan_id )
 		);
 		$this->assertFalse( $subscription_service->visitor_can_view_content( Jetpack_Memberships::get_all_newsletter_plan_ids(), $post_access_level ) );
 
@@ -899,9 +906,10 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 		);
 		$this->assertTrue( $subscription_service->visitor_can_view_content( Jetpack_Memberships::get_all_newsletter_plan_ids(), $post_access_level ) );
 
-		// Expired comp should NOT bypass the tier gate.
+		// Expired comp should NOT bypass the tier gate (a fully-past day, since access
+		// lasts through the end of the end_date day).
 		$subscription_service = $this->set_returned_token(
-			$this->get_payload( true, true, time() - HOUR_IN_SECONDS, null, $bronze_tier_plan_id, true )
+			$this->get_payload( true, true, time() - 2 * DAY_IN_SECONDS, null, $bronze_tier_plan_id, true )
 		);
 		$this->assertFalse( $subscription_service->visitor_can_view_content( Jetpack_Memberships::get_all_newsletter_plan_ids(), $post_access_level ) );
 
@@ -918,63 +926,72 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * On self-hosted Jetpack, the transitional Subscribers announcement page is
-	 * registered by add_subscribers_menu() when the modernization filter is on.
+	 * Collect the `load-jetpack_page_*` hooks currently registered, one per page.
+	 *
+	 * Admin_Menu::add_menu() defers add_submenu_page() to admin_menu but registers this
+	 * action synchronously, so it is the only trace a direct call leaves behind. It adds
+	 * a `-network` variant per page too, which is dropped here so one page counts once.
+	 *
+	 * @return array List of hook names.
 	 */
-	public function test_announcement_menu_is_added_on_self_hosted_when_modernization_filter_on() {
-		$announcement_class = 'Automattic\Jetpack\Newsletter\Subscribers_Announcement';
-		if ( ! class_exists( $announcement_class ) ) {
-			$this->markTestSkipped( 'Newsletter Subscribers_Announcement class is not available.' );
-		}
-
-		$load_hook = 'load-jetpack_page_' . $announcement_class::PAGE_SLUG;
-
-		// Self-hosted: not a wpcom platform (IS_WPCOM is not defined).
-		delete_option( $announcement_class::REMOVED_OPTION );
-		add_filter( 'rsm_jetpack_ui_modernization_newsletter', '__return_true' );
-		remove_all_actions( $load_hook );
-
-		Jetpack_Subscriptions::init()->add_subscribers_menu();
-
-		$this->assertNotFalse(
-			has_action( $load_hook ),
-			'The Subscribers announcement menu should be registered on self-hosted Jetpack when the modernization filter is on.'
+	private function get_jetpack_page_load_hooks() {
+		return array_values(
+			array_filter(
+				array_keys( $GLOBALS['wp_filter'] ),
+				static function ( $hook ) {
+					return str_starts_with( $hook, 'load-jetpack_page_' ) && ! str_ends_with( $hook, '-network' );
+				}
+			)
 		);
-
-		remove_all_actions( $load_hook );
-		remove_all_filters( 'rsm_jetpack_ui_modernization_newsletter' );
 	}
 
 	/**
-	 * On WordPress.com (Simple and WoA) the announcement page is owned by
-	 * jetpack-mu-wpcom's wpcom-admin-menu, so add_subscribers_menu() must NOT
-	 * register it — otherwise Atomic, where both run, gets a duplicate entry and
-	 * double page-view tracking.
+	 * Put the site in the state the legacy Calypso shortcut requires: online, with a
+	 * connected user, and not a WordPress.com platform.
 	 */
-	public function test_announcement_menu_is_not_added_on_wpcom_platform() {
-		$announcement_class = 'Automattic\Jetpack\Newsletter\Subscribers_Announcement';
-		if ( ! class_exists( $announcement_class ) ) {
-			$this->markTestSkipped( 'Newsletter Subscribers_Announcement class is not available.' );
-		}
+	private function set_up_connected_self_hosted_site() {
+		wp_set_current_user( $this->admin_user_id );
+		Jetpack_Options::update_option( 'id', 12345 );
+		Jetpack_Options::update_option( 'master_user', $this->admin_user_id );
+		Jetpack_Options::update_option( 'user_tokens', array( $this->admin_user_id => "dummy.usertoken.{$this->admin_user_id}" ) );
 
-		$load_hook = 'load-jetpack_page_' . $announcement_class::PAGE_SLUG;
+		add_filter( 'jetpack_offline_mode', '__return_false', 99 );
+		\Automattic\Jetpack\Status\Cache::clear();
+	}
 
-		// Simulate a wpcom platform (Simple/WoA).
-		\Automattic\Jetpack\Constants::set_constant( 'IS_WPCOM', true );
-		delete_option( $announcement_class::REMOVED_OPTION );
-		add_filter( 'rsm_jetpack_ui_modernization_newsletter', '__return_true' );
-		remove_all_actions( $load_hook );
+	/**
+	 * The modernization filter defaults on, so the unified Newsletter page owns the
+	 * Subscribers tab and add_subscribers_menu() registers no page at all.
+	 */
+	public function test_subscribers_menu_registers_nothing_when_modernization_filter_on() {
+		$this->set_up_connected_self_hosted_site();
 
+		$before = $this->get_jetpack_page_load_hooks();
 		Jetpack_Subscriptions::init()->add_subscribers_menu();
 
-		$this->assertFalse(
-			has_action( $load_hook ),
-			'On wpcom platforms the announcement menu is owned by jetpack-mu-wpcom; add_subscribers_menu() should not register it.'
+		$this->assertSame(
+			$before,
+			$this->get_jetpack_page_load_hooks(),
+			'No Subscribers page should be registered while the Newsletter modernization filter is on.'
 		);
+	}
 
-		// Cleanup so the simulated platform does not leak into later tests.
-		remove_all_actions( $load_hook );
-		remove_all_filters( 'rsm_jetpack_ui_modernization_newsletter' );
-		\Automattic\Jetpack\Constants::clear_single_constant( 'IS_WPCOM' );
+	/**
+	 * Witness for the assertion above: with the modernization filter off the same call
+	 * does register the legacy Calypso shortcut, so its absence there is the filter
+	 * taking effect rather than a harness that registers nothing either way.
+	 */
+	public function test_subscribers_menu_registers_legacy_link_when_modernization_filter_off() {
+		$this->set_up_connected_self_hosted_site();
+		add_filter( 'rsm_jetpack_ui_modernization_newsletter', '__return_false' );
+		// The Calypso shortcut sits below a second gate that also defaults on.
+		add_filter( 'jetpack_wp_admin_subscriber_management_enabled', '__return_false' );
+
+		$before = $this->get_jetpack_page_load_hooks();
+		Jetpack_Subscriptions::init()->add_subscribers_menu();
+		$new = array_values( array_diff( $this->get_jetpack_page_load_hooks(), $before ) );
+
+		$this->assertCount( 1, $new, 'The legacy Calypso Subscribers shortcut should be registered.' );
+		$this->assertStringContainsString( 'jetpack-menu-jetpack-manage-subscribers', $new[0] );
 	}
 }

@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
+import { getDefaultQueryParams, queryClient } from '@jetpack-premium-analytics/data';
 /**
  * Internal dependencies
  */
@@ -11,161 +11,108 @@ import {
 	widgetDashboardWithWidgetArgTypes,
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
-import { registerReportMocks } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
+import { withStoryRouter } from '../../stories/with-story-router';
+import { createStoryWidgetType } from '../../stories/create-story-widget-type';
+import { withWidgetCanvas } from '../../stories/with-widget-canvas';
+import {
+	registerReportMocks,
+	setReportMockState,
+} from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import AnnualHighlightsRender from '../render';
 import widgetDefinition from '../widget';
-import type { Decorator, Meta, StoryObj } from '@storybook/react';
-import type { WidgetRenderProps, WidgetType } from '@wordpress/widget-primitives';
+import widgetManifest from '../widget.json';
+import type { Meta, StoryObj } from '@storybook/react';
+import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
 
 registerReportMocks();
 
 const ANNUAL_HIGHLIGHTS_RENDER_MODULE = 'storybook/annual-highlights';
 
-// Carry the widget's metadata, including the metric-visibility attribute schema
-// so the dashboard story's settings drawer renders the real checkboxes, and
-// surface the full-bleed presentation so it renders edge-to-edge with its own
-// header instead of inside the host's framed chrome. The attribute schema is
-// typed loosely on the widget definition, so it is cast to the WidgetType shape.
-const storyWidgetType = {
-	name: widgetDefinition.name,
-	title: widgetDefinition.title,
-	icon: widgetDefinition.icon,
-	attributes: widgetDefinition.attributes as WidgetType[ 'attributes' ],
-	example: widgetDefinition.example,
-	presentation: 'full-bleed' as const,
-};
+// Carries the widget's metadata, including the year attribute schema, so the
+// dashboard story's frame header renders the real year dropdown.
+const storyWidgetType = createStoryWidgetType( widgetManifest, widgetDefinition );
 
-interface AnnualHighlightsStoryControls {
-	withComparison: boolean;
-	showPosts: boolean;
-	showWords: boolean;
-	showLikes: boolean;
-	showComments: boolean;
+function renderAnnualHighlights() {
+	return <AnnualHighlightsRender attributes={ { reportParams: getDefaultQueryParams() } } />;
 }
 
 /**
- * Renders the data-connected widget with report params derived from the
- * comparison toggle and the per-metric visibility toggles. The insights endpoint
- * is not period-scoped, so toggling comparison does not change what the widget
- * shows — it is wired through only to prove the widget renders unchanged when the
- * host injects comparison params. The metric toggles mirror the widget's
- * checkbox settings and hide/show the matching tile.
- *
- * @param props                - Story controls.
- * @param props.withComparison - Whether to inject comparison report params.
- * @param props.showPosts      - Whether the Posts tile is shown.
- * @param props.showWords      - Whether the Words tile is shown.
- * @param props.showLikes      - Whether the Likes tile is shown.
- * @param props.showComments   - Whether the Comments tile is shown.
- * @return The rendered widget.
+ * Forces the insights request into a loading/error/empty state for a story. The
+ * insights query key carries no date params, so only evicting it from the shared
+ * client keeps a forced result from leaking into sibling stories.
  */
-function renderAnnualHighlights( {
-	withComparison,
-	showPosts,
-	showWords,
-	showLikes,
-	showComments,
-}: AnnualHighlightsStoryControls ) {
-	return (
-		<AnnualHighlightsRender
-			attributes={ {
-				reportParams: getDefaultQueryParams( withComparison ),
-				showPosts,
-				showWords,
-				showLikes,
-				showComments,
-			} }
-		/>
-	);
+function forceInsightsState( state: 'loading' | 'error' | 'empty' ) {
+	setReportMockState( 'stats/insights', state );
+	queryClient.removeQueries( { queryKey: [ 'stats', 'insights' ] } );
+	return () => {
+		setReportMockState( 'stats/insights', null );
+		queryClient.removeQueries( { queryKey: [ 'stats', 'insights' ] } );
+	};
 }
-
-const METRIC_ARG_TYPES = {
-	showPosts: { control: 'boolean' },
-	showWords: { control: 'boolean' },
-	showLikes: { control: 'boolean' },
-	showComments: { control: 'boolean' },
-} as const;
-
-const ALL_METRICS_ARGS = {
-	showPosts: true,
-	showWords: true,
-	showLikes: true,
-	showComments: true,
-} as const;
-
-// Close-up canvas so the grid fills the frame outside the dashboard grid.
-const withWidgetCanvas: Decorator = Story => (
-	<div style={ { width: '100%', height: '300px' } }>
-		<Story />
-	</div>
-);
 
 const meta = {
 	title: 'Packages/Premium Analytics/Widgets/AnnualHighlights',
 	component: AnnualHighlightsRender,
 	tags: [ 'autodocs' ],
-	argTypes: {
-		withComparison: { control: 'boolean' },
-		...METRIC_ARG_TYPES,
-	},
 	parameters: {
 		docs: {
 			description: {
 				component:
-					'The "Annual highlights" widget. Shows one year\'s totals — posts, words, likes, and comments — as a grid of metric tiles, with year arrows to step through the years the site has published in. Each metric tile can be toggled off via the widget\'s checkbox settings (the `show*` controls here). Data comes from the designated `useStatsInsights` hook; in Storybook it is served by `registerReportMocks()` (the `stats/insights` handler in `routeStatsReport`). The insights module has no comparison period, so the tiles show bare counts and the `WithComparison` story renders identically to `Default`.',
+					"The \"Year in review\" widget. Shows one year's totals — posts, words, likes, and comments — as a grid of metric tiles. The year is the `year` attribute (`relevance: 'high'`), so the host renders its dropdown in the frame header; its entries run from the current year back to the site's oldest year of data, and an instance that never had one picked shows the current year. The insights endpoint returns every year in one request, so switching years is a client-side row pick with no new fetch; the section's date selection plays no part. Data comes from the designated `useStatsInsights` hook; in Storybook it is served by `registerReportMocks()` (the `stats/insights` handler in `routeStatsReport`, whose mock carries the current and previous year). The insights module has no comparison period, so the tiles show bare counts. The close-up stories below render the body alone — the year dropdown belongs to the host, so it appears in the dashboard story.",
 			},
 		},
 	},
-} satisfies Meta< ComponentProps< typeof AnnualHighlightsRender > & AnnualHighlightsStoryControls >;
+} satisfies Meta< typeof AnnualHighlightsRender >;
 
 export default meta;
 
-type Story = StoryObj< AnnualHighlightsStoryControls >;
+type Story = StoryObj< Partial< ComponentProps< typeof AnnualHighlightsRender > > >;
 
 /**
- * The widget on its own, populated from the mocked insights payload.
+ * The widget body on its own, populated from the mocked insights payload for
+ * the current year.
  */
 export const Default: Story = {
 	render: renderAnnualHighlights,
-	args: { withComparison: false, ...ALL_METRICS_ARGS },
-	decorators: [ withWidgetCanvas ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
 };
 
 /**
- * Same close-up with comparison report params injected. The insights module has
- * no comparison data, so this renders identically to `Default` — it only
- * verifies the widget stays stable when the host provides comparison params.
+ * First load: the fetch is in flight, so the widget shows its loading state. The
+ * mock is forced to never resolve for the duration of this story.
  */
-export const WithComparison: Story = {
+export const Loading: Story = {
 	render: renderAnnualHighlights,
-	args: { withComparison: true, ...ALL_METRICS_ARGS },
-	decorators: [ withWidgetCanvas ],
+	// Off the shared autodocs page — path-keyed override; see forceStatsMockState.
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
+	beforeEach: () => forceInsightsState( 'loading' ),
 };
 
-interface AnnualHighlightsDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		AnnualHighlightsStoryControls {}
+/**
+ * The fetch failed: the widget shows its error state with a Retry action (which
+ * re-runs the query — still mocked as failing while this story is active).
+ */
+export const Error: Story = {
+	render: renderAnnualHighlights,
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
+	beforeEach: () => forceInsightsState( 'error' ),
+};
 
 /**
- * Renders the real registered widget through the shared dashboard harness.
- *
- * @param props                - Dashboard and widget controls.
- * @param props.withComparison - Whether to inject comparison report params.
- * @param props.showPosts      - Whether the Posts tile is shown.
- * @param props.showWords      - Whether the Words tile is shown.
- * @param props.showLikes      - Whether the Likes tile is shown.
- * @param props.showComments   - Whether the Comments tile is shown.
- * @return The rendered dashboard with the widget.
+ * Resolved with no years: the widget shows its empty state (the neutral calendar
+ * glyph and "No highlights for this year.").
  */
-function AnnualHighlightsDashboardStory( {
-	withComparison,
-	showPosts,
-	showWords,
-	showLikes,
-	showComments,
-	...dashboardArgs
-}: AnnualHighlightsDashboardStoryProps ) {
+export const Empty: Story = {
+	render: renderAnnualHighlights,
+	tags: [ '!autodocs' ],
+	decorators: [ withWidgetCanvas, withStoryRouter ],
+	beforeEach: () => forceInsightsState( 'empty' ),
+};
+
+function AnnualHighlightsDashboardStory( dashboardArgs: WidgetDashboardWithWidgetControls ) {
 	return (
 		<WidgetDashboardWithWidgetStory
 			{ ...dashboardArgs }
@@ -173,28 +120,25 @@ function AnnualHighlightsDashboardStory( {
 			renderModule={ ANNUAL_HIGHLIGHTS_RENDER_MODULE }
 			renderComponent={ AnnualHighlightsRender as ComponentType< WidgetRenderProps< unknown > > }
 			attributes={ {
-				reportParams: getDefaultQueryParams( withComparison ),
-				showPosts,
-				showWords,
-				showLikes,
-				showComments,
+				// The widget ignores report params; this story covers that it keeps
+				// doing so when the host supplies them.
+				reportParams: getDefaultQueryParams( true ),
 			} }
 		/>
 	);
 }
 
-export const WidgetDashboardWithWidget: StoryObj< AnnualHighlightsDashboardStoryProps > = {
+export const WidgetDashboardWithWidget: StoryObj< WidgetDashboardWithWidgetControls > = {
 	render: args => <AnnualHighlightsDashboardStory { ...args } />,
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
-		widgetWidth: 1,
+		// The placement the dashboard seeds this widget at, where the tiles sit in
+		// one row above the report link.
+		widgetWidth: 4,
 		widgetHeight: 1,
-		withComparison: true,
-		...ALL_METRICS_ARGS,
 	},
 	argTypes: {
 		...widgetDashboardWithWidgetArgTypes,
-		withComparison: { control: 'boolean' },
-		...METRIC_ARG_TYPES,
 	},
+	decorators: [ withStoryRouter ],
 };

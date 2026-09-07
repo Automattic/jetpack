@@ -18,22 +18,18 @@ import type { ComponentProps } from 'react';
 type TopPerformingProductsRenderAttributes = TopPerformingProductsAttributes &
 	Partial< ReportParamsFieldAttributes >;
 
-type TopPerformingProductsRenderProps =
+type TopPerformingProductsWidgetProps =
 	WidgetRenderProps< TopPerformingProductsRenderAttributes > & {
 		setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
 	};
 
 /**
- * Top performing products widget.
- *
- * Thin composition over the widgets-toolkit: WidgetRoot provides the query
- * client, chart theme, and resolved report params; TopPerformingProductsWidget
- * fetches physical product data and renders a revenue leaderboard.
+ * Physical products ranked by revenue.
  */
 export default function TopPerformingProductsRender( {
 	attributes = {},
 	setError,
-}: TopPerformingProductsRenderProps ) {
+}: TopPerformingProductsWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
 			<TopPerformingProductsWidget limit={ 5 } />

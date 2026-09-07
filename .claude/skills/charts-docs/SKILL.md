@@ -1,1 +1,1 @@
-@../../../.agents/skills/charts-docs.md
+../../../.agents/skills/charts-docs.md

@@ -20,6 +20,7 @@ export const getTranslatableFeatureLabels = () => ( {
 	REAL_TIME_BACKUPS: __( 'Real-time backups and restores', 'jetpack-my-jetpack' ),
 	DETAILED_STATS: __( 'Detailed stats and insights', 'jetpack-my-jetpack' ),
 	MALWARE_SCANNING: __( 'Malware scanning and protection', 'jetpack-my-jetpack' ),
+	SPAM_FILTERING: __( 'Spam filtering for comments and forms', 'jetpack-my-jetpack' ),
 	VIDEO_HOSTING_1TB: __( 'Video hosting (1TB, ad-free)', 'jetpack-my-jetpack' ),
 	INSTANT_SITE_SEARCH: __( 'Instant site search', 'jetpack-my-jetpack' ),
 	SOCIAL_TOOLS: __( 'Social tools', 'jetpack-my-jetpack' ),

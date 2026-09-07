@@ -1,4 +1,5 @@
 import * as connectionData from './connection-data';
+import * as connectionFlowActions from './connection-flow';
 import * as renderedMessagesActions from './rendered-messages';
 import * as scheduledSharesActions from './scheduled-shares';
 import * as servicesActions from './services';
@@ -16,6 +17,7 @@ const actions = {
 	...shareStatus,
 	...sharePost,
 	...connectionData,
+	...connectionFlowActions,
 	...sigActions,
 	...utmActions,
 	...socialNoteSettings,

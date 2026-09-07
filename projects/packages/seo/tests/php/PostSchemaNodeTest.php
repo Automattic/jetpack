@@ -137,9 +137,9 @@ class PostSchemaNodeTest extends TestCase {
 	public function test_faq_answer_excludes_the_question() {
 		\Jetpack_SEO_Posts::$schema_type = 'faq';
 
-		$content  = '<!-- wp:details {"summary":"What is SEO?"} -->';
-		$content .= '<details class="wp-block-details"><summary>What is SEO?</summary>';
-		$content .= '<!-- wp:paragraph --><p>Search engine optimization.</p><!-- /wp:paragraph -->';
+		$content  = '<!-- wp:details -->';
+		$content .= '<details class="wp-block-details"><summary>What is <strong>SEO</strong> &amp; AEO?</summary>';
+		$content .= '<!-- wp:paragraph --><p>Search engine optimization &amp; answer engine optimization.</p><!-- /wp:paragraph -->';
 		$content .= '</details><!-- /wp:details -->';
 
 		$node = Post_Schema_Node::build( $this->make_post( array( 'post_content' => $content ) ) );
@@ -150,9 +150,9 @@ class PostSchemaNodeTest extends TestCase {
 
 		$item = $node['mainEntity'][0];
 		$this->assertSame( 'Question', $item['@type'] );
-		$this->assertSame( 'What is SEO?', $item['name'] );
-		$this->assertSame( 'Search engine optimization.', $item['acceptedAnswer']['text'] );
-		$this->assertStringNotContainsString( 'What is SEO?', $item['acceptedAnswer']['text'] );
+		$this->assertSame( 'What is SEO & AEO?', $item['name'] );
+		$this->assertSame( 'Search engine optimization & answer engine optimization.', $item['acceptedAnswer']['text'] );
+		$this->assertStringNotContainsString( 'What is SEO & AEO?', $item['acceptedAnswer']['text'] );
 	}
 
 	/**

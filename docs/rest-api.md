@@ -488,6 +488,8 @@ Operations related to information about the site.
 Get current site data.
 The string value in `data` is a stringified JSON object with data coming from the WordPress.com API about the site.
 
+Registered by the `automattic/jetpack-connection` package, so any plugin bundling that package serves this route.
+
 **Example response**
 
 ```json

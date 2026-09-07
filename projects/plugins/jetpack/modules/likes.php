@@ -108,7 +108,13 @@ class Jetpack_Likes {
 		$publicize_active  = Jetpack::is_module_active( 'publicize' );
 		$sharedaddy_active = Jetpack::is_module_active( 'sharedaddy' );
 
-		if ( $publicize_active && ! $sharedaddy_active ) {
+		if ( $this->settings->needs_own_sharing_menu( $sharedaddy_active ) ) {
+			/*
+			 * Sharedaddy is what registers Settings > Sharing, and it is off, so we
+			 * register that screen ourselves; our settings are displayed on it.
+			 */
+			add_action( 'admin_menu', array( $this->settings, 'sharing_menu' ) );
+		} elseif ( $publicize_active && ! $sharedaddy_active ) {
 			// we have a sharing page but not the global options area.
 			add_action( 'pre_admin_screen_sharing', array( $this->settings, 'sharing_block' ), 20 );
 			add_action( 'pre_admin_screen_sharing', array( $this->settings, 'updated_message' ), -10 );

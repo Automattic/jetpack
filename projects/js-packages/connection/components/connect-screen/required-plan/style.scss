@@ -59,10 +59,6 @@
 
 	&__with-subscription {
 		margin-top: calc(var(--spacing-base) * 4);
-
-		display: flex;
-		flex-wrap: wrap;
-		justify-content: flex-start;
 		gap: 1ch;
 		line-height: 1;
 
@@ -84,6 +80,13 @@
 			padding: 0;
 			min-width: calc(var(--spacing-base) * 8);
 			justify-content: center;
+
+			// `variant="unstyled"` drops @wordpress/ui Button's `.button` class,
+			// so its default `cursor: pointer` never applies. Restore it since
+			// this button is styled to look and behave like a text link.
+			&:not([data-disabled]) {
+				cursor: pointer;
+			}
 
 			// @wordpress/components Spinner ships with `margin: 5px 11px 0`
 			// for use inside button chrome we no longer have. Zero it out

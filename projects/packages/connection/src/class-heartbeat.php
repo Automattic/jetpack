@@ -9,6 +9,7 @@ namespace Automattic\Jetpack;
 
 use Automattic\Jetpack\Connection\Rest_Authentication;
 use Automattic\Jetpack\Connection\REST_Connector;
+use Automattic\Jetpack\Connection\Utils;
 use Jetpack_Options;
 use WP_CLI;
 use WP_Error;
@@ -171,6 +172,179 @@ class Heartbeat {
 		}
 
 		return $return;
+	}
+
+	/**
+	 * Generates the site environment stats that are reported in the heartbeat.
+	 *
+	 * These describe the host environment (WordPress/PHP versions, site configuration, etc.)
+	 * rather than the Jetpack plugin itself, so they live in the Connection package and are
+	 * reported for every connected site, including standalone-connection installs.
+	 *
+	 * @since 8.7.9
+	 *
+	 * @return array The environment stats array, keyed by unprefixed stat name.
+	 */
+	public static function get_environment_stats() {
+		$stats = array();
+
+		$stats['wp-version']   = get_bloginfo( 'version' );
+		$stats['php-version']  = PHP_VERSION;
+		$stats['wp-branch']    = (float) get_bloginfo( 'version' );
+		$stats['php-branch']   = (float) PHP_VERSION;
+		$stats['public']       = Jetpack_Options::get_option( 'public' );
+		$stats['ssl']          = self::permit_ssl();
+		$stats['is-https']     = is_ssl() ? 'https' : 'http';
+		$stats['language']     = get_bloginfo( 'language' );
+		$stats['charset']      = get_bloginfo( 'charset' );
+		$stats['is-multisite'] = is_multisite() ? 'multisite' : 'singlesite';
+		$stats['plugins']      = implode( ',', self::get_active_plugins() );
+
+		if ( function_exists( 'get_mu_plugins' ) ) {
+			$stats['mu-plugins'] = implode( ',', array_keys( get_mu_plugins() ) );
+		}
+
+		if ( function_exists( 'get_space_used' ) ) { // Only available in multisite.
+			$space_used = get_space_used();
+		} else {
+			// This is the same as `get_space_used`, except it does not apply the short-circuit filter.
+			$upload_dir = wp_upload_dir();
+			$space_used = get_dirsize( $upload_dir['basedir'] ) / MB_IN_BYTES;
+		}
+
+		$stats['space-used'] = $space_used;
+
+		// is-multi-network can have three values, `single-site`, `single-network`, and `multi-network`.
+		$stats['is-multi-network'] = 'single-site';
+		if ( is_multisite() ) {
+			$stats['is-multi-network'] = ( new Status() )->is_multi_network() ? 'multi-network' : 'single-network';
+		}
+
+		if ( ! empty( $_SERVER['SERVER_ADDR'] ) || ! empty( $_SERVER['LOCAL_ADDR'] ) ) {
+			$ip     = ! empty( $_SERVER['SERVER_ADDR'] ) ? wp_unslash( $_SERVER['SERVER_ADDR'] ) : wp_unslash( $_SERVER['LOCAL_ADDR'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized just below.
+			$ip_arr = array_map( 'intval', explode( '.', $ip ) );
+			if ( 4 === count( $ip_arr ) ) {
+				$stats['ip-2-octets'] = implode( '.', array_slice( $ip_arr, 0, 2 ) );
+			}
+		}
+
+		return $stats;
+	}
+
+	/**
+	 * Checks whether the site can connect to WordPress.com over SSL.
+	 *
+	 * This is the canonical SSL connectivity check. It caches both the boolean result (in the
+	 * `jetpack_https_test` transient) and a structured failure reason (via
+	 * {@see self::get_ssl_test_error()}) so a single check serves both the `ssl` heartbeat stat
+	 * and consumers such as the Jetpack plugin's admin notice, which renders a localized message
+	 * from the reason code. This avoids duplicate network checks and keeps translated strings out
+	 * of the package.
+	 *
+	 * @since 8.7.9
+	 *
+	 * @param bool $force_recheck Force the SSL recheck instead of using the cached result.
+	 * @return bool Whether the site can connect to WordPress.com over SSL.
+	 */
+	public static function permit_ssl( $force_recheck = false ) {
+		$ssl = false;
+		if ( ! $force_recheck ) {
+			$ssl = get_transient( 'jetpack_https_test' );
+		}
+
+		if ( $force_recheck || false === $ssl ) {
+			$error = array(
+				'code'   => '',
+				'detail' => '',
+			);
+
+			$api_base = Constants::get_constant( 'JETPACK__API_BASE' );
+			if ( ! $api_base ) {
+				$api_base = Utils::DEFAULT_JETPACK__API_BASE;
+			}
+
+			if ( ! str_starts_with( $api_base, 'https' ) ) {
+				$ssl = 0;
+			} else {
+				$ssl = 1;
+
+				if ( ! wp_http_supports( array( 'ssl' => true ) ) ) {
+					$ssl           = 0;
+					$error['code'] = 'no_ssl_support';
+				} else {
+					$response = wp_remote_get( $api_base . 'test/1/' );
+					if ( is_wp_error( $response ) ) {
+						$ssl           = 0;
+						$error['code'] = 'no_ssl_support';
+					} elseif ( 'OK' !== wp_remote_retrieve_body( $response ) ) {
+						$ssl             = 0;
+						$error['code']   = 'bad_response';
+						$error['detail'] = wp_remote_retrieve_body( $response );
+					}
+				}
+			}
+			set_transient( 'jetpack_https_test', $ssl, DAY_IN_SECONDS );
+			set_transient( 'jetpack_https_test_error', $error, DAY_IN_SECONDS );
+		}
+
+		return (bool) $ssl;
+	}
+
+	/**
+	 * Returns the structured reason for the last SSL connectivity failure.
+	 *
+	 * Consumers can map the returned reason code to a localized message. The `detail` value
+	 * carries any additional context (e.g. the unexpected response body for `bad_response`).
+	 *
+	 * @since 8.7.9
+	 *
+	 * @return array {
+	 *     The last SSL test error.
+	 *
+	 *     @type string $code   Reason code: '' (no error), 'no_ssl_support', or 'bad_response'.
+	 *     @type string $detail Additional context for the failure, if any.
+	 * }
+	 */
+	public static function get_ssl_test_error() {
+		$error = get_transient( 'jetpack_https_test_error' );
+
+		if ( ! is_array( $error ) ) {
+			$error = array();
+		}
+
+		return array(
+			'code'   => isset( $error['code'] ) ? (string) $error['code'] : '',
+			'detail' => isset( $error['detail'] ) ? (string) $error['detail'] : '',
+		);
+	}
+
+	/**
+	 * Gets all plugins currently active, regardless of whether they're traditionally
+	 * activated or network activated.
+	 *
+	 * Ported from the Jetpack plugin so the `plugins` heartbeat stat can be generated from
+	 * the Connection package. This is the canonical implementation; the Jetpack plugin's
+	 * `Jetpack::get_active_plugins()` delegates to it.
+	 *
+	 * @since 8.7.9
+	 *
+	 * @return array
+	 */
+	public static function get_active_plugins() {
+		$active_plugins = (array) get_option( 'active_plugins', array() );
+
+		if ( is_multisite() ) {
+			// Due to legacy code, active_sitewide_plugins stores them in the keys,
+			// whereas active_plugins stores them in the values.
+			$network_plugins = array_keys( get_site_option( 'active_sitewide_plugins', array() ) );
+			if ( $network_plugins ) {
+				$active_plugins = array_merge( $active_plugins, $network_plugins );
+			}
+		}
+
+		sort( $active_plugins );
+
+		return array_unique( $active_plugins );
 	}
 
 	/**

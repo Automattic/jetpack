@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Write editor: dragged-in images now show a pulsing placeholder sized to the image's aspect ratio while uploading, so the in-flight state is obvious and the placeholder stays visible even when the local preview can't render. The upload is also announced to assistive tech via aria-busy and a live region.

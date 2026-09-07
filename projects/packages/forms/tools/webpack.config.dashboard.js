@@ -54,6 +54,14 @@ export default {
 				extensions: [ 'css', 'sass', 'scss' ],
 				extraLoaders: [
 					{
+						loader: 'postcss-loader',
+						options: {
+							postcssOptions: {
+								config: path.join( __dirname, '..', 'postcss.config.js' ),
+							},
+						},
+					},
+					{
 						loader: 'sass-loader',
 						options: {
 							api: 'modern-compiler',

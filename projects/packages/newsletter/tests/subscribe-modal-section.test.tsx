@@ -39,6 +39,7 @@ jest.mock( '@wordpress/ui', () => ( {
 			</fieldset>
 		),
 	},
+	Stack: ( { children }: { children: React.ReactNode } ) => <div>{ children }</div>,
 	Text: ( { children }: { children: React.ReactNode } ) => <span>{ children }</span>,
 	Link: ( {
 		children,
@@ -273,6 +274,24 @@ describe( 'SubscribeModalSection', () => {
 				subscribe_modal_heading: 'Brand new heading',
 			},
 		} );
+	} );
+
+	it( 'keeps Enter as a newline in the textarea instead of saving the section', () => {
+		const { onChange, onSave } = renderSection( { hasChanges: true } );
+		const textarea = screen.getByLabelText( 'Subscribe modal heading' ) as HTMLTextAreaElement;
+
+		textarea.dispatchEvent( new KeyboardEvent( 'keydown', { key: 'Enter', bubbles: true } ) );
+		setTextareaValue( textarea, 'Existing\nSecond line' );
+
+		expect( onChange ).toHaveBeenLastCalledWith( {
+			subscription_options: {
+				invitation: 'I',
+				welcome: 'W',
+				comment_follow: 'CF',
+				subscribe_modal_heading: 'Existing\nSecond line',
+			},
+		} );
+		expect( onSave ).not.toHaveBeenCalled();
 	} );
 
 	it( 'fires analytics event with subscribe_modal section + changedKeys, then calls onSave', () => {

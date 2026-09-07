@@ -31,7 +31,9 @@ export type MediaTokenScopeAdminAjaxResponseBodyProps = {
 	data: {
 		upload_token: string;
 		upload_blog_id: string;
-		upload_action_url: string;
+		// Omitted by the upload-token handler on WordPress.com Simple, where
+		// the URL helper isn't loaded and only legacy (non-Simple) UIs read it.
+		upload_action_url?: string;
 		jwt: string;
 	};
 };

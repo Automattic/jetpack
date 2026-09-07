@@ -1,3 +1,5 @@
+import type { Hyperlink } from '@automattic/social-previews';
+
 /**
  * Render-messages types + cache-key hashing.
  *
@@ -10,6 +12,16 @@
  * would have produced (records there merge by id across queries, which is wrong
  * for content that depends on query inputs).
  */
+
+/**
+ * Sentinel `connection_id` used to render the global message template for the
+ * manual-sharing buttons, which exist independently of any connection (they show
+ * even with zero connections). The render endpoint requires each item to carry a
+ * `connection_id`, so we issue a dedicated single-item render under this id with
+ * the global template forced via the item's `message` override. It is the single
+ * source of truth for both the request and the cache read-back.
+ */
+export const MANUAL_SHARE_SENTINEL = '__manual_share__';
 
 export type RenderItem = {
 	connection_id: string;
@@ -26,6 +38,7 @@ export type RenderPostIntent = {
 export type RenderResult = {
 	connection_id: string;
 	rendered_message?: string;
+	hyperlinks?: Hyperlink[];
 	error?: { code: string; message: string };
 };
 

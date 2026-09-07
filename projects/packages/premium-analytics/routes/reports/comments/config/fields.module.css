@@ -1,0 +1,24 @@
+.label {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--wpds-dimension-padding-sm);
+	min-width: 0;
+}
+
+.avatar {
+	width: 24px;
+	height: 24px;
+	border-radius: 50%;
+	flex-shrink: 0;
+}
+
+.text {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+a.text:hover,
+a.text:focus {
+	text-decoration: underline;
+}

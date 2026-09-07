@@ -46,12 +46,10 @@ export function buildCouponUseData(
 	const salesWithoutCoupon = coupons.summary.sales_without_coupon;
 	const totalSales = coupons.summary.total_sales;
 
-	// Pick comparison totals
 	const comparisonTotalSales = comparisonCoupons?.summary.total_sales || 0;
 	const comparisonSalesWithCoupon = comparisonCoupons?.summary.sales_with_coupon || 0;
 	const comparisonSalesWithoutCoupon = comparisonCoupons?.summary.sales_without_coupon || 0;
 
-	// If there are no sales, return empty state
 	if ( totalSales === 0 ) {
 		return {
 			chartData: [],
@@ -61,10 +59,9 @@ export function buildCouponUseData(
 		};
 	}
 
-	// Build chart data showing sales breakdown
 	const chartData: DonutChartData = [
 		{
-			label: __( 'With coupons', 'jetpack-premium-analytics' ),
+			label: __( 'With coupons', 'jetpack-premium-analytics-pkg' ),
 			value: salesWithCoupon,
 			valueDisplay: formatMetricValue( salesWithCoupon, 'currency', {
 				useMultipliers: true,
@@ -72,7 +69,7 @@ export function buildCouponUseData(
 			} ),
 		},
 		{
-			label: __( 'No coupons', 'jetpack-premium-analytics' ),
+			label: __( 'No coupons', 'jetpack-premium-analytics-pkg' ),
 			value: salesWithoutCoupon,
 			valueDisplay: formatMetricValue( salesWithoutCoupon, 'currency', {
 				useMultipliers: true,
@@ -81,10 +78,9 @@ export function buildCouponUseData(
 		},
 	];
 
-	// Build legend data
 	const legendData: LegendItem[] = [
 		{
-			label: __( 'With coupons', 'jetpack-premium-analytics' ),
+			label: __( 'With coupons', 'jetpack-premium-analytics-pkg' ),
 			value: salesWithCoupon,
 			displayValue: formatMetricValue( salesWithCoupon, 'currency', {
 				useMultipliers: true,
@@ -93,7 +89,7 @@ export function buildCouponUseData(
 			comparison: hasComparison ? comparisonSalesWithCoupon : undefined,
 		},
 		{
-			label: __( 'No coupons', 'jetpack-premium-analytics' ),
+			label: __( 'No coupons', 'jetpack-premium-analytics-pkg' ),
 			value: salesWithoutCoupon,
 			displayValue: formatMetricValue( salesWithoutCoupon, 'currency', {
 				useMultipliers: true,

@@ -44,6 +44,48 @@ function AccountInfo( { label, profile_picture }: AccountInfoProps ) {
 const noop = () => {};
 
 /**
+ * Maps the reason wpcom reported for an empty account list to copy the user can
+ * act on. Unknown or absent reasons fall back to the generic message.
+ *
+ * @param reason - Value of `additional_external_users_empty_reason` on the keyring result.
+ *
+ * @return The message to show when there are no accounts to connect.
+ */
+function getNoAccountsFoundMessage(
+	reason: KeyringResult[ 'additional_external_users_empty_reason' ]
+) {
+	switch ( reason ) {
+		case 'no_instagram_account':
+			return __(
+				'None of your Facebook Pages has an Instagram professional account linked. Link one in Meta Business Suite, then try connecting again.',
+				'jetpack-publicize-pkg'
+			);
+		case 'no_pages':
+			return __(
+				"You don't manage any Facebook Pages. Instagram Business posting requires a Facebook Page linked to an Instagram professional account.",
+				'jetpack-publicize-pkg'
+			);
+		case 'page_access_denied':
+			return __(
+				"We couldn't access your Facebook Pages. Reconnect and make sure every Page is selected.",
+				'jetpack-publicize-pkg'
+			);
+		case 'account_check_failed':
+			return __(
+				"We couldn't check your Instagram account just now. Please try again.",
+				'jetpack-publicize-pkg'
+			);
+		case 'service_error':
+			return __(
+				"Facebook didn't respond. Please try again in a few minutes.",
+				'jetpack-publicize-pkg'
+			);
+		default:
+			return __( 'No accounts/pages found.', 'jetpack-publicize-pkg' );
+	}
+}
+
+/**
  * Connection confirmation component
  *
  * @param {ConfirmationFormProps} props - Component props
@@ -181,16 +223,13 @@ export function ConfirmationForm( {
 		<section className={ styles.confirmation }>
 			{ ! accounts.not_connected.length ? (
 				<p className={ styles[ 'header-text' ] }>
-					{
-						// TODO Make this more useful. For example, in case of Instagram, we could show a message that only Instagra business accounts are supported.
-						accounts.connected.length
-							? _x(
-									'No more accounts/pages found.',
-									'Message shown when there are no connections found to connect',
-									'jetpack-publicize-pkg'
-							  )
-							: __( 'No accounts/pages found.', 'jetpack-publicize-pkg' )
-					}
+					{ accounts.connected.length
+						? _x(
+								'No more accounts/pages found.',
+								'Message shown when there are no connections found to connect',
+								'jetpack-publicize-pkg'
+						  )
+						: getNoAccountsFoundMessage( keyringResult.additional_external_users_empty_reason ) }
 				</p>
 			) : (
 				<div>

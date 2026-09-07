@@ -96,6 +96,9 @@ type BaseLegendItem = {
 
 	/** Optional custom styles for the shape */
 	shapeStyle?: CSSProperties & LineStyles;
+
+	/** Series labels this item controls; all members of a group for a collapsed group item */
+	seriesLabels?: string[];
 };
 ```
 
@@ -107,6 +110,7 @@ type BaseLegendItem = {
 - **`glyphSize`** (optional): Custom size for the glyph in pixels. When provided, the glyph will be rendered at `glyphSize * 2` dimensions
 - **`renderGlyph`** (optional): Custom function to render the glyph. Receives GlyphProps and returns a React node. Useful for custom symbols or complex glyphs
 - **`shapeStyle`** (optional): Additional CSS and line styles to apply to the shape. Supports standard CSSProperties plus visx LineStyles
+- **`seriesLabels`** (optional): The series labels this item controls. Auto-derived items set it to just the item's own series, unless `legend.collapseGroups` is on, in which case a group collapses to one item carrying every series it toggles (primary first). An interactive legend toggles all of these together
 
 ## GlyphProps Type
 

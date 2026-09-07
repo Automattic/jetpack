@@ -114,7 +114,11 @@ const Stage = () => {
 
 	return (
 		<QueryClientProvider client={ queryClient }>
-			<SubscribersBody>
+			<SubscribersBody
+				importRefreshEnabled={
+					subscribersEnabled && canManageSubscribers && activeTab === 'subscribers'
+				}
+			>
 				{ ( { body, actions } ) => {
 					// Gate the Subscribers tab: connected visitors get the data view,
 					// everyone else gets the connect prompt.

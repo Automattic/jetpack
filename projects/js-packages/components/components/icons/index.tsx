@@ -1,6 +1,7 @@
 import { Path, SVG, G, Polygon } from '@wordpress/components';
 import clsx from 'clsx';
 import { SocialLogo } from 'social-logos';
+import 'social-logos/colors.css';
 import styles from './style.module.scss';
 import { BaseIconProps } from './types.ts';
 import type { ComponentProps, ComponentType, FC, ReactNode } from 'react';

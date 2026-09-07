@@ -1,0 +1,16 @@
+.toggle {
+
+	/* The three variables `IconButton` sets for itself. It is not used here
+	   because its `label` is required and always rendered as a tooltip, so
+	   every chevron would pop one repeating the title beside it. */
+	--wp-ui-button-min-width: unset;
+	--wp-ui-button-padding-inline: 0;
+	--wp-ui-button-aspect-ratio: 1;
+
+	display: inline-flex;
+	flex-shrink: 0;
+	align-items: center;
+	justify-content: center;
+	inline-size: var(--wpds-dimension-size-sm);
+	block-size: var(--wpds-dimension-size-sm);
+}

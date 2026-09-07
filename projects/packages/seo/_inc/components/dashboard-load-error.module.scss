@@ -1,0 +1,10 @@
+.root {
+	padding-block: 64px;
+	padding-inline: 24px;
+	text-align: center;
+}
+
+.body {
+	margin-block-end: var(--wpds-dimension-gap-sm);
+	color: var(--wpds-color-foreground-content-neutral-weak);
+}

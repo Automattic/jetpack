@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { calendar } from '@jetpack-premium-analytics/icons';
+import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
@@ -16,8 +17,6 @@ export type TopPerformingBookingsWidgetProps = {
 };
 
 /**
- * Top Performing Bookings Widget
- *
  * Displays the top-performing booking products by net revenue in a leaderboard format.
  * Shows product images, names, and revenue with comparison to previous period.
  *
@@ -33,11 +32,6 @@ export type TopPerformingBookingsWidgetProps = {
  *
  * @param props       - Component props
  * @param props.limit - Maximum number of bookings to display (default: 5)
- *
- * @example
- * <WidgetRoot attributes={ attributes }>
- *   <TopPerformingBookingsWidget limit={ 5 } />
- * </WidgetRoot>
  */
 export function TopPerformingBookingsWidget( { limit = 5 }: TopPerformingBookingsWidgetProps ) {
 	return (
@@ -45,6 +39,11 @@ export function TopPerformingBookingsWidget( { limit = 5 }: TopPerformingBooking
 			limit={ limit }
 			filter={ BOOKINGS_FILTER }
 			emptyStateIcon={ calendar }
+			emptyStateText={ __( 'No booking sales in this period.', 'jetpack-premium-analytics-pkg' ) }
+			errorText={ __(
+				"We couldn't load bookings data. Please try again in a moment.",
+				'jetpack-premium-analytics-pkg'
+			) }
 		/>
 	);
 }

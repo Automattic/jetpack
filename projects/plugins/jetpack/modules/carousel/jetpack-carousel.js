@@ -108,38 +108,47 @@
 			}
 		}
 
+		/**
+		 * CSS-transition fade (compositor). Duration + reduced-motion live in the
+		 * `.jp-carousel-fade` rule. A timer drives the finish, not `transitionend` -- that
+		 * event is skipped in background tabs / `transition: none` / zero duration, so the
+		 * timer is the reliable single source. `callback` fires once, after the fade.
+		 */
 		function fade( el, start, end, callback ) {
 			if ( ! el ) {
 				return callback();
 			}
 
-			// Prepare for transition.
-			// Ensure the item is in the render tree, in its initial state.
+			// A fade already running on this element must not deliver its callback any more.
+			if ( el.jpCarouselCancelFade ) {
+				el.jpCarouselCancelFade();
+			}
+
+			// Set + commit the start state before attaching the transition, or the fade is swallowed.
+			el.classList.remove( 'jp-carousel-fade' );
 			el.style.removeProperty( 'display' );
 			el.style.opacity = start;
 			el.style.pointerEvents = 'none';
 
-			var animate = function ( t0, duration ) {
-				var t = performance.now();
-				var diff = t - t0;
-				var ratio = diff / duration;
+			// Commit the starting opacity, otherwise the browser has nothing to animate from.
+			void el.offsetWidth;
 
-				if ( ratio < 1 ) {
-					el.style.opacity = start + ( end - start ) * ratio;
-					requestAnimationFrame( () => animate( t0, duration ) );
-				} else {
-					el.style.opacity = end;
-					el.style.removeProperty( 'pointer-events' );
-					callback();
-				}
+			el.classList.add( 'jp-carousel-fade' );
+			el.style.opacity = end;
+
+			// Read the duration back from the stylesheet so the timer always outlives the transition.
+			var duration = parseFloat( getComputedStyle( el ).transitionDuration ) * 1000 || 0;
+
+			var timer = setTimeout( function () {
+				el.jpCarouselCancelFade = null;
+				el.style.removeProperty( 'pointer-events' );
+				callback();
+			}, duration + 50 );
+
+			el.jpCarouselCancelFade = function () {
+				clearTimeout( timer );
+				el.jpCarouselCancelFade = null;
 			};
-
-			requestAnimationFrame( function () {
-				// Double rAF for browser compatibility.
-				requestAnimationFrame( function () {
-					animate( performance.now(), 200 );
-				} );
-			} );
 		}
 
 		function fadeIn( el, callback ) {
@@ -917,7 +926,12 @@
 				return args.origFile;
 			}
 
-			if ( typeof args.largeFile === 'undefined' ) {
+			// When there's no large file to fall back on (e.g. images that weren't enriched with
+			// Jetpack's data-large-file attribute), use the original file. A missing attribute is
+			// read as an empty string, so we can't only guard against `undefined` here: otherwise a
+			// narrow (portrait, mobile) viewport would return that empty string as the image source,
+			// leaving the carousel with a blank slide.
+			if ( ! args.largeFile ) {
 				return args.origFile;
 			}
 
@@ -1105,7 +1119,12 @@
 				return false;
 			}
 
-			var ul = carousel.info.querySelector( '.jp-carousel-image-meta ul.jp-carousel-image-exif' );
+			// Locate the parent container for the metadata.
+			var metaContainer = carousel.info.querySelector( '.jp-carousel-image-meta' );
+			if ( ! metaContainer ) {
+				return false;
+			}
+
 			var html = '';
 
 			for ( var key in meta ) {
@@ -1131,8 +1150,29 @@
 				html += '<li><h5>' + jetpackCarouselStrings[ key ] + '</h5>' + val + '</li>';
 			}
 
-			ul.innerHTML = html;
-			ul.style.removeProperty( 'display' );
+			// Handle the UL element dynamically to ensure valid markup.
+			var ul = metaContainer.querySelector( 'ul.jp-carousel-image-exif' );
+
+			if ( html !== '' ) {
+				// If there is data to display and the UL doesn't exist, create it.
+				if ( ! ul ) {
+					ul = document.createElement( 'ul' );
+					ul.className = 'jp-carousel-image-exif';
+
+					// Insert right after the title/caption container if it exists, otherwise prepend
+					var titleAndCaption = metaContainer.querySelector( '.jp-carousel-title-and-caption' );
+					if ( titleAndCaption && titleAndCaption.nextSibling ) {
+						metaContainer.insertBefore( ul, titleAndCaption.nextSibling );
+					} else {
+						metaContainer.insertBefore( ul, metaContainer.firstChild );
+					}
+				}
+				ul.innerHTML = html;
+				ul.style.removeProperty( 'display' );
+			} else if ( ul ) {
+				// If the data is empty but the UL exists in the DOM, remove it.
+				ul.parentNode.removeChild( ul );
+			}
 		}
 
 		// Update the contents of the jp-carousel-image-download link
@@ -1290,23 +1330,58 @@
 		}
 
 		function loadFullImage( slide ) {
-			var el = slide.el;
 			var attrs = slide.attrs;
-			var image = el.querySelector( 'img' );
+			var image = slide.el.querySelector( 'img' );
 
-			if ( ! image.hasAttribute( 'data-loaded' ) ) {
-				var hasPreview = !! attrs.previewImage;
-				var thumbSize = attrs.thumbSize;
-
-				if ( ! hasPreview || ( thumbSize && el.offsetWidth > thumbSize.width ) ) {
-					image.src = attrs.src;
-				} else {
-					image.src = attrs.previewImage;
-				}
-
-				image.setAttribute( 'itemprop', 'image' );
-				image.setAttribute( 'data-loaded', 1 );
+			if ( image.hasAttribute( 'data-loaded' ) ) {
+				return;
 			}
+
+			image.setAttribute( 'itemprop', 'image' );
+			image.setAttribute( 'data-loaded', 1 );
+
+			var hasPreview = attrs.previewImage && attrs.previewImage !== attrs.src;
+
+			if ( ! hasPreview ) {
+				// No usable in-page thumbnail (e.g. a lazy-loading plugin swapped the
+				// gallery src for a placeholder). Load the full-size image straight
+				// into the visible element so the slide is never left without a src.
+				image.src = attrs.src;
+				return;
+			}
+
+			// Show the thumbnail the browser has already decoded for this image in the
+			// post itself. Without it the slide stays empty until the full-size image
+			// arrives, which reads as a black screen whenever the reader moves through
+			// the gallery faster than the images can download.
+			image.src = attrs.previewImage;
+			// The thumbnail is much smaller than the slide, so soften the upscale
+			// until the full-size image replaces it.
+			image.style.filter = 'blur(8px)';
+
+			// Load the full-size image off-DOM, then swap it in over the preview. On
+			// error the (blurred) preview stays put rather than reverting to blank.
+			var fullImage = new window.Image();
+
+			fullImage.addEventListener(
+				'load',
+				function () {
+					// Cached by this point, so swapping it in is effectively instant.
+					image.src = attrs.src;
+					image.style.filter = '';
+				},
+				{ once: true }
+			);
+
+			fullImage.addEventListener(
+				'error',
+				function () {
+					image.style.filter = '';
+				},
+				{ once: true }
+			);
+
+			fullImage.src = attrs.src;
 		}
 
 		function preloadAdjacentImages( currentIndex ) {
@@ -1342,30 +1417,48 @@
 		}
 
 		function loadBackgroundImage( slide ) {
-			var currentSlide = slide.el;
-
-			if ( swiper && swiper.slides ) {
-				currentSlide = swiper.slides[ swiper.activeIndex ];
-			}
-
 			var image = slide.attrs.originalElement;
-			var isLoaded = image.complete && image.naturalHeight !== 0;
 
-			if ( isLoaded ) {
-				applyBackgroundImage( slide, currentSlide, image );
+			if ( ! image ) {
 				return;
 			}
 
-			image.onload = function () {
-				applyBackgroundImage( slide, currentSlide, image );
+			if ( image.complete && image.naturalHeight !== 0 ) {
+				applyBackgroundImage( slide, image );
+				return;
+			}
+
+			// The thumbnail in the post may still be loading, or may be lazy-loaded.
+			// Use an event listener rather than `onload`, which would overwrite any
+			// handler the page has already attached to its own image. Pair the load
+			// handler with an error handler so a thumbnail that never loads doesn't
+			// leave a listener (and its reference to the slide) attached for good.
+			var onLoad = function () {
+				image.removeEventListener( 'error', onError );
+				applyBackgroundImage( slide, image );
 			};
+			var onError = function () {
+				image.removeEventListener( 'load', onLoad );
+			};
+			image.addEventListener( 'load', onLoad, { once: true } );
+			image.addEventListener( 'error', onError, { once: true } );
 		}
 
-		function applyBackgroundImage( slide, currentSlide, image ) {
+		function applyBackgroundImage( slide, image ) {
 			var url = util.getBackgroundImage( image );
+
+			if ( ! url ) {
+				return;
+			}
+
+			// Always paint onto the slide the image belongs to. Preloading runs this
+			// for the neighbouring slides too, so painting onto whichever slide happens
+			// to be active would put the wrong image behind it and leave the slide it
+			// was meant for with no placeholder at all.
 			slide.backgroundImage = url;
-			currentSlide.style.backgroundImage = 'url(' + url + ')';
-			currentSlide.style.backgroundSize = 'cover';
+			slide.el.style.backgroundImage = 'url(' + url + ')';
+			slide.el.style.backgroundSize = 'cover';
+			slide.el.style.backgroundPosition = 'center';
 		}
 
 		function clearCommentTextAreaValue() {
@@ -1398,8 +1491,6 @@
 				var img = new Image();
 				img.src = items[ startIndex ].getAttribute( 'data-gallery-src' );
 			}
-
-			var useInPageThumbnails = !! domUtil.closest( items[ 0 ], '.tiled-gallery.type-rectangular' );
 
 			// create the 'slide'
 			Array.prototype.forEach.call( items, function ( item, i ) {
@@ -1486,10 +1577,10 @@
 					slideEl.setAttribute( 'data-permalink', attrs.permalink );
 					slideEl.setAttribute( 'data-orig-file', attrs.origFile );
 
-					if ( useInPageThumbnails ) {
-						// Use the image already loaded in the gallery as a preview.
-						attrs.previewImage = attrs.src;
-					}
+					// Reuse the thumbnail the browser has already decoded for this image
+					// in the post. It costs nothing to display and gives the slide
+					// something to show while the full-size image is downloading.
+					attrs.previewImage = item.currentSrc || item.getAttribute( 'src' ) || '';
 
 					var slide = { el: slideEl, attrs: attrs, index: i };
 					carousel.slides.push( slide );
@@ -1668,9 +1759,17 @@
 			}
 		}
 
+		function normalizeUrl( url ) {
+			return ( url || '' ).split( '?' )[ 0 ].replace( /\/$/, '' );
+		}
+
 		function shouldOpenModal( el ) {
+			if ( el.tagName === 'A' ) {
+				el = el.querySelector( 'img' ) || el;
+			}
+
 			var parent = el.parentElement;
-			var grandparent = parent.parentElement;
+			var grandparent = parent ? parent.parentElement : null;
 
 			// If Gallery is made up of individual Image blocks check for custom link before
 			// loading carousel. The custom link may be the parent or could be a descendant
@@ -1688,16 +1787,18 @@
 
 			// If the link does not point to the attachment or media file then assume Image has
 			// a custom link so don't load the carousel.
-			if (
-				parentHref &&
-				parentHref.split( '?' )[ 0 ] !== el.getAttribute( 'data-orig-file' ).split( '?' )[ 0 ] &&
-				parentHref !== el.getAttribute( 'data-permalink' )
-			) {
-				return false;
+			if ( parentHref ) {
+				var cleanHref = normalizeUrl( parentHref );
+				var cleanOrig = normalizeUrl( el.getAttribute( 'data-orig-file' ) );
+				var cleanPerm = normalizeUrl( el.getAttribute( 'data-permalink' ) );
+
+				if ( cleanHref !== cleanOrig && cleanHref !== cleanPerm ) {
+					return false;
+				}
 			}
 
 			// Do not open the modal if we are looking at a gallery caption from before WP5, which may contain a link.
-			if ( parent.classList.contains( 'gallery-caption' ) ) {
+			if ( parent && parent.classList.contains( 'gallery-caption' ) ) {
 				return false;
 			}
 

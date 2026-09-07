@@ -4,7 +4,7 @@ const jetpackWebpackConfig = require( '@automattic/jetpack-webpack-config/webpac
 module.exports = [
 	{
 		entry: {
-			'jetpack-external-connections-settings': [ './src/settings.js', './src/settings.scss' ],
+			'jetpack-external-connections-settings': [ './src/settings.jsx', './src/settings.scss' ],
 		},
 		mode: jetpackWebpackConfig.mode,
 		devtool: jetpackWebpackConfig.devtool,

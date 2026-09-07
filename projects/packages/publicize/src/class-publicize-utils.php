@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Publicize;
 use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Status\Host;
+use WP_Error;
 
 /**
  * Publicize_Utils class.
@@ -85,6 +86,31 @@ class Publicize_Utils {
 	}
 
 	/**
+	 * Whether the current user may be shown Publicize data.
+	 *
+	 * The single definition of that gate. Both the block editor assets and the
+	 * script data ask this, and when they disagreed the script data handed
+	 * connection details to users the editor UI was never loaded for.
+	 *
+	 * Prefers the Publicize instance so any future override is honored, and falls
+	 * back to evaluating the capability directly when the global is not set, so the
+	 * answer never depends on initialization order.
+	 *
+	 * @return bool
+	 */
+	public static function current_user_can_access_publicize_data() {
+
+		global $publicize;
+
+		if ( $publicize instanceof Publicize_Base ) {
+			return $publicize->current_user_can_access_publicize_data();
+		}
+
+		/** This filter is documented in projects/packages/publicize/src/class-publicize-base.php */
+		return current_user_can( apply_filters( 'jetpack_publicize_capability', 'publish_posts' ) );
+	}
+
+	/**
 	 * Check if we are on WPCOM.
 	 *
 	 * @return bool
@@ -147,5 +173,31 @@ class Publicize_Utils {
 
 		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- We have done it above.
 		_doing_it_wrong( esc_html( $function_name ), implode( ' ', $messages ), $version );
+	}
+
+	/**
+	 * Forward remote response to client with error handling.
+	 *
+	 * @param array|WP_Error $response Response from WPCOM.
+	 *
+	 * @return array|WP_Error
+	 */
+	public static function make_proper_response( $response ) {
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		$body        = json_decode( wp_remote_retrieve_body( $response ), true );
+		$status_code = wp_remote_retrieve_response_code( $response );
+
+		if ( 200 === $status_code ) {
+			return $body;
+		}
+
+		return new WP_Error(
+			isset( $body['error'] ) ? 'remote-error-' . $body['error'] : 'remote-error',
+			$body['message'] ?? 'unknown remote error',
+			array( 'status' => $status_code )
+		);
 	}
 }

@@ -1,4 +1,3 @@
-import '@automattic/ui/style.css';
 import { useSelect } from '@wordpress/data';
 import { useMemo } from '@wordpress/element';
 import { store as socialStore } from '../../social-store';

@@ -30,7 +30,6 @@ export type { GravatarProps } from './components/gravatar/index.tsx';
 export { default as IconTooltip } from './components/icon-tooltip/index.tsx';
 export { default as ActionButton } from './components/action-button/index.tsx';
 export { default as PricingCard } from './components/pricing-card/index.tsx';
-export { default as NumberSlider } from './components/number-slider/index.tsx';
 export { default as AdminSection } from './components/admin-section/basic/index.tsx';
 export { default as AdminSectionHero } from './components/admin-section/hero/index.tsx';
 export { default as AdminPage } from './components/admin-page/index.tsx';
@@ -50,7 +49,6 @@ export { default as Button } from './components/button/index.tsx';
 export type { ButtonProps } from './components/button/types.ts';
 export { default as LoadingPlaceholder } from './components/loading-placeholder/index.tsx';
 export { default as TermsOfService } from './components/terms-of-service/index.tsx';
-export { default as Chip } from './components/chip/index.tsx';
 export {
 	default as PricingTable,
 	PricingTableColumn,

@@ -3,15 +3,14 @@
  */
 import { useReportCustomers, type FilterCondition } from '@jetpack-premium-analytics/data';
 import { customer } from '@jetpack-premium-analytics/icons';
+import { __ } from '@wordpress/i18n';
 import { useMemo } from 'react';
-import { BarChart } from '../../components';
-import { WidgetLoadingOverlay } from '../../components/widget-loading-overlay';
+import { BarChart, BarChartSkeleton, WidgetState } from '../../components';
 /**
  * Internal dependencies
  */
 import { useWidgetRootContext } from '../../components/widget-root';
-import { buildRevenueByCustomerTypeData, BOOKINGS_FILTER } from '../../helpers';
-import { useWidgetError } from '../../hooks';
+import { buildRevenueByCustomerTypeData, isEmptyChartData, BOOKINGS_FILTER } from '../../helpers';
 import { useBarStyles } from '../common';
 
 type CustomerTypeRevenueWidgetProps = {
@@ -26,31 +25,19 @@ type CustomerTypeRevenueWidgetProps = {
 };
 
 /**
- * Customer Type Revenue Widget Component
- *
  * Displays a bar chart comparing revenue from new customers vs returning customers.
  * Optionally supports filtering by product type.
  *
  * Must be used within a WidgetRoot which provides reportParams via context.
- *
- * @example
- * ```tsx
- * <WidgetRoot attributes={ attributes }>
- *     <CustomerTypeRevenueWidget filter={ BOOKINGS_FILTER } />
- * </WidgetRoot>
- * ```
  */
 function CustomerTypeRevenueWidget( { filter }: CustomerTypeRevenueWidgetProps ) {
 	const { reportParams } = useWidgetRootContext();
 
-	const { primary, comparison, isLoading, isFetching, hasData, isError, error, refetch } =
+	const { primary, comparison, isLoading, isFetching, hasData, isError, refetch } =
 		useReportCustomers( {
 			...reportParams,
 			filters: filter ? [ filter ] : undefined,
 		} );
-
-	const isInitialLoading = isLoading && ! hasData;
-	const isRefetching = isFetching && hasData;
 
 	const { chartData } = useMemo(
 		() => buildRevenueByCustomerTypeData( primary.data, comparison.data, reportParams ),
@@ -59,17 +46,27 @@ function CustomerTypeRevenueWidget( { filter }: CustomerTypeRevenueWidgetProps )
 
 	const barStyles = useBarStyles( chartData );
 
-	const hasError = useWidgetError( isError, error, refetch );
-	if ( hasError ) {
-		return null;
-	}
-
-	if ( isInitialLoading ) {
-		return <WidgetLoadingOverlay />;
-	}
-
 	return (
-		<>
+		<WidgetState
+			isLoading={ isLoading }
+			isFetching={ isFetching }
+			// The report queries keep placeholders from the previous period across
+			// range changes, so only surface the error when nothing is left to show.
+			isError={ isError && ! hasData }
+			isEmpty={ isEmptyChartData( chartData ) }
+			error={ {
+				description: __(
+					"We couldn't load customer revenue data. Please try again in a moment.",
+					'jetpack-premium-analytics-pkg'
+				),
+				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
+			} }
+			empty={ {
+				icon: customer,
+				description: __( 'No customer revenue in this period.', 'jetpack-premium-analytics-pkg' ),
+			} }
+			renderLoading={ <BarChartSkeleton columns={ 2 } /> }
+		>
 			<BarChart
 				chartData={ chartData }
 				styles={ barStyles }
@@ -77,16 +74,12 @@ function CustomerTypeRevenueWidget( { filter }: CustomerTypeRevenueWidgetProps )
 					type: 'currency',
 					options: { useMultipliers: true, decimals: 0 },
 				} }
-				emptyStateIcon={ customer }
 			/>
-			{ isRefetching && <WidgetLoadingOverlay /> }
-		</>
+		</WidgetState>
 	);
 }
 
 /**
- * Revenue by Customer Type Widget
- *
  * Displays customer revenue data for all product types.
  * No product type filtering applied.
  */
@@ -95,8 +88,6 @@ export function RevenueByCustomerTypeWidget() {
 }
 
 /**
- * Bookings Revenue by Customer Type Widget
- *
  * Displays customer revenue data for booking products only.
  * Filters to: booking, bookable-event, and bookable-service product types.
  */

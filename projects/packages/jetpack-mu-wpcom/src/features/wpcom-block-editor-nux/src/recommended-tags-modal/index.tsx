@@ -2,7 +2,6 @@ import { Modal } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { useEffect, useRef, useState } from '@wordpress/element';
 import {
-	START_WRITING_FLOW,
 	DESIGN_FIRST_FLOW,
 	useSiteIntent,
 	useShouldShowSellerCelebrationModal,
@@ -108,7 +107,7 @@ const RecommendedTagsModalInner: FC = () => {
 
 const RecommendedTagsModal = () => {
 	const { siteIntent: intent } = useSiteIntent();
-	if ( intent === START_WRITING_FLOW || intent === DESIGN_FIRST_FLOW ) {
+	if ( intent === DESIGN_FIRST_FLOW ) {
 		return null;
 	}
 

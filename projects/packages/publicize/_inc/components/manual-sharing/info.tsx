@@ -18,7 +18,7 @@ export function ManualSharingInfo( { ...textProps }: ManualSharingInfoProps ) {
 			{ __(
 				`Just tap the social network or "Copy to Clipboard" icon, and we'll format your content for sharing.`,
 				'jetpack-publicize-pkg'
-			) }
+			) }{ ' ' }
 			<Link openInNewTab href={ getRedirectUrl( 'jetpack-social-manual-sharing-help' ) }>
 				{ __( 'Learn more', 'jetpack-publicize-pkg' ) }
 			</Link>

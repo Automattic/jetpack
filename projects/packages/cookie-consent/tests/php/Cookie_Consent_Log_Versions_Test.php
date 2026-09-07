@@ -23,10 +23,9 @@ class Cookie_Consent_Log_Versions_Test extends TestCase {
 	private $doing_it_wrong = array();
 
 	/**
-	 * Tear down: clear cookie-consent config filters and doing-it-wrong capture.
+	 * Tear down: clear doing-it-wrong capture.
 	 */
 	public function tearDown(): void {
-		remove_all_filters( 'jetpack_cookie_consent_config' );
 		remove_all_filters( 'doing_it_wrong_trigger_error' );
 		remove_all_actions( 'doing_it_wrong_run' );
 		parent::tearDown();
@@ -63,17 +62,16 @@ class Cookie_Consent_Log_Versions_Test extends TestCase {
 	}
 
 	/**
-	 * Configured log versions are returned from the cookie consent config filter.
+	 * Configured log versions are returned from the stashed configuration.
 	 */
 	public function test_get_log_versions_returns_filtered_overrides() {
-		add_filter(
-			'jetpack_cookie_consent_config',
-			static function ( $config ) {
-				$config['log']['policy_version'] = 'policy-2026-06';
-				$config['log']['banner_version'] = 'banner-2026-06';
-
-				return $config;
-			}
+		$this->set_cookie_consent_config(
+			array(
+				'log' => array(
+					'policy_version' => 'policy-2026-06',
+					'banner_version' => 'banner-2026-06',
+				),
+			)
 		);
 
 		$this->assertSame(
@@ -89,14 +87,13 @@ class Cookie_Consent_Log_Versions_Test extends TestCase {
 	 * Scalar log versions are normalized to non-empty strings.
 	 */
 	public function test_get_log_versions_normalizes_scalar_values() {
-		add_filter(
-			'jetpack_cookie_consent_config',
-			static function ( $config ) {
-				$config['log']['policy_version'] = 202606;
-				$config['log']['banner_version'] = ' banner-v2 ';
-
-				return $config;
-			}
+		$this->set_cookie_consent_config(
+			array(
+				'log' => array(
+					'policy_version' => 202606,
+					'banner_version' => ' banner-v2 ',
+				),
+			)
 		);
 
 		$this->assertSame(
@@ -113,14 +110,13 @@ class Cookie_Consent_Log_Versions_Test extends TestCase {
 	 */
 	public function test_get_log_versions_defaults_invalid_values() {
 		$this->capture_doing_it_wrong();
-		add_filter(
-			'jetpack_cookie_consent_config',
-			static function ( $config ) {
-				$config['log']['policy_version'] = array( 'policy-2026-06' );
-				$config['log']['banner_version'] = new \stdClass();
-
-				return $config;
-			}
+		$this->set_cookie_consent_config(
+			array(
+				'log' => array(
+					'policy_version' => array( 'policy-2026-06' ),
+					'banner_version' => new \stdClass(),
+				),
+			)
 		);
 
 		$this->assertSame(
@@ -140,14 +136,13 @@ class Cookie_Consent_Log_Versions_Test extends TestCase {
 	 */
 	public function test_get_log_versions_defaults_empty_values() {
 		$this->capture_doing_it_wrong();
-		add_filter(
-			'jetpack_cookie_consent_config',
-			static function ( $config ) {
-				$config['log']['policy_version'] = '';
-				$config['log']['banner_version'] = " \t ";
-
-				return $config;
-			}
+		$this->set_cookie_consent_config(
+			array(
+				'log' => array(
+					'policy_version' => '',
+					'banner_version' => " \t ",
+				),
+			)
 		);
 
 		$this->assertSame(

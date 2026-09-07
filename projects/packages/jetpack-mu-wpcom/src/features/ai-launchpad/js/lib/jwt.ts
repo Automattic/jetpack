@@ -63,7 +63,10 @@ export async function requestJwt(): Promise< TokenData > {
 			: '/jetpack/v4/jetpack-ai-jwt?_cacheBuster=' + Date.now(),
 		method: 'POST',
 		credentials: 'same-origin',
-		headers: isSimple ? undefined : { 'X-WP-Nonce': apiNonce },
+		// The guard above already threw if a non-Simple site had no nonce, but that fact can't be
+		// carried across the `isSimple` conjunction, so the nonce is re-tested rather than asserted
+		// away. The extra test is unreachable, and the request is unchanged either way.
+		headers: isSimple || ! apiNonce ? undefined : { 'X-WP-Nonce': apiNonce },
 	} ) ) as TokenEndpointResponse;
 
 	const tokenData: TokenData = {

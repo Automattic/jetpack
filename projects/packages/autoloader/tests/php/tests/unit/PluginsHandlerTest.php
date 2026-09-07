@@ -19,7 +19,7 @@ use PHPUnit\Framework\TestCase;
  * @runTestsInSeparateProcesses Ensure that each test has no previously autoloaded files.
  * @preserveGlobalState disabled
  */
-#[AllowMockObjectsWithoutExpectations /* Mocks created in setUp, some tests add expectations and others don't. */ ]
+#[AllowMockObjectsWithoutExpectations /* Mocks created in setUp, some tests add expectations and others don't. */]
 #[RunTestsInSeparateProcesses]
 #[PreserveGlobalState( false )]
 class PluginsHandlerTest extends TestCase {

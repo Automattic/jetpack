@@ -3,12 +3,16 @@
  */
 import {
 	OrderMetricWidget,
+	ReportCsvDownloadButton,
+	WidgetFooter,
 	WidgetRoot,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
+import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import styles from './style.module.css';
 import type { OrdersOverTimeAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps } from 'react';
@@ -18,13 +22,11 @@ import type { ComponentProps } from 'react';
 type OrdersOverTimeRenderAttributes = OrdersOverTimeAttributes &
 	Partial< ReportParamsFieldAttributes >;
 
-type OrdersOverTimeRenderProps = WidgetRenderProps< OrdersOverTimeRenderAttributes > & {
+type OrdersOverTimeWidgetProps = WidgetRenderProps< OrdersOverTimeRenderAttributes > & {
 	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
 };
 
 /**
- * Orders over time widget.
- *
  * Thin composition over the widgets-toolkit: WidgetRoot provides the query
  * client, chart theme, and resolved report params; OrderMetricWidget fetches
  * the orders report and renders the order count metric over time.
@@ -32,10 +34,23 @@ type OrdersOverTimeRenderProps = WidgetRenderProps< OrdersOverTimeRenderAttribut
 export default function OrdersOverTimeRender( {
 	attributes = {},
 	setError,
-}: OrdersOverTimeRenderProps ) {
+}: OrdersOverTimeWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
-			<OrderMetricWidget metricKey="orders_no" />
+			<div className={ styles.root }>
+				<OrderMetricWidget
+					metricKey="orders_no"
+					seriesLabel={ __( 'Orders', 'jetpack-premium-analytics-pkg' ) }
+					emptyStateText={ __( 'No orders in this period.', 'jetpack-premium-analytics-pkg' ) }
+					errorText={ __(
+						"We couldn't load orders. Please try again in a moment.",
+						'jetpack-premium-analytics-pkg'
+					) }
+				/>
+				<WidgetFooter>
+					<ReportCsvDownloadButton reportType="ordersovertime" />
+				</WidgetFooter>
+			</div>
 		</WidgetRoot>
 	);
 }

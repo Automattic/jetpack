@@ -28,14 +28,8 @@ export function reportCouponsByDateQuery(
 			return sanitizeReportCouponsByDateResponse( response );
 		},
 
-		/**
-		 * Enable the query only if the from, to, and interval are set.
-		 */
 		enabled: !! ( params.from && params.to && params.interval ),
 
-		/**
-		 * Keep previous data while fetching new data to prevent blank states
-		 */
 		placeholderData: previousData => previousData,
 	};
 }

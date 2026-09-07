@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Write: add anon funnel Tracks events (write-start, publish-click) and an is_anon flag on editor open, for the Write On Phase 1 fake-door funnel.

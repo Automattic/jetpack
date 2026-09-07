@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Hoist the shared scrollIntoView jsdom stub into jest setup.
+
+

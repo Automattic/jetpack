@@ -2,38 +2,50 @@
  * WordPress dependencies
  */
 import { __ } from '@wordpress/i18n';
-import { chartBar } from '@wordpress/icons';
+import { desktop } from '@wordpress/icons';
+import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
 /**
- * Widget attributes shape.
- *
- * @property max - Maximum rows to display (0 = all). Defaults to 10.
+ * Internal dependencies
  */
+import { SelectField } from '@jetpack-premium-analytics/fields';
+
 export type TopPlatformsAttributes = {
-	max?: number;
+	/**
+	 * Device dimension to rank: browsers or operating systems.
+	 */
+	platformDimension?: 'browser' | 'platform';
 };
 
 /**
- * Top Platforms widget type definition.
- *
  * Shows Browser and OS breakdown as a ranked leaderboard. The active
- * dimension (browser / platform) is controlled by a runtime dropdown,
- * not stored as a widget attribute.
+ * dimension is `platformDimension` (`relevance: 'high'`), so the widget host
+ * renders its control.
  */
 export default {
-	name: 'jpa/top-platforms',
-	title: __( 'Top Platforms', 'jetpack-premium-analytics' ),
-	icon: chartBar,
+	icon: desktop,
 	attributes: [
 		{
-			id: 'max',
-			label: __( 'Max rows', 'jetpack-premium-analytics' ),
-			type: 'number',
+			id: 'platformDimension',
+			label: __( 'View by', 'jetpack-premium-analytics-pkg' ),
+			type: 'text',
+			Edit: SelectField,
+			elements: [
+				{
+					label: __( 'Browser', 'jetpack-premium-analytics-pkg' ),
+					value: 'browser',
+				},
+				{
+					label: __( 'OS', 'jetpack-premium-analytics-pkg' ),
+					value: 'platform',
+				},
+			],
+			relevance: 'high',
 		},
-	],
+	] as WidgetAttributeField< TopPlatformsAttributes >[],
 	example: {
 		attributes: {
-			max: 10,
+			platformDimension: 'browser',
 		},
 	},
 };

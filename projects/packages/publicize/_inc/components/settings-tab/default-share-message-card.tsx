@@ -17,10 +17,9 @@ const SAVE_DEBOUNCE_MS = 1000;
  * chassis surface re-homes that editor when the legacy
  * `SocialModuleToggle` retires in PR 5.
  *
- * The parent Settings tab gates the entire card on
- * `siteHasFeature( 'social-message-templates' )` so stickerless sites
- * never see it. That keeps this component free of feature-flag
- * branching — when it renders, the feature is on.
+ * The parent Settings tab gates the entire card on `hasSocialPaidFeatures()`
+ * (and `manage_options`) so non-paid sites never see it. That keeps this
+ * component free of feature-flag branching — when it renders, the feature is on.
  *
  * @return The card.
  */

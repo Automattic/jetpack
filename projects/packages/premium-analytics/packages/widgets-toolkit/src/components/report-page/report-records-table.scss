@@ -1,0 +1,38 @@
+@use "sass:meta";
+
+/* DataViews renders its filter and view-config popovers through a portal on
+ * `<body>`, outside the component, so these rules must not be scoped to it: the
+ * portalled chrome would match none of them and fall back to unstyled popover
+ * content — a filter list with no selected-item colours, for one. Every
+ * selector DataViews ships is already namespaced under `.dataviews-*`, so
+ * loading it unscoped adds no bleed.
+ *
+ * This is a plain stylesheet rather than part of the sibling
+ * `.module.scss`, because CSS Modules would scope the class names. A bare
+ * `:global { … }` block
+ * in the module compiles to a rule with no selector at all, which fails the
+ * production build with "[lightningcss minify] Invalid empty selector". Sass
+ * loads the stylesheet through `meta.load-css` so Storybook does not emit a
+ * relative `@import`. */
+
+@include meta.load-css("@wordpress/dataviews/build-style/style");
+
+/* WordPress core's editor stylesheet (`wp-includes/css/dist/editor/style.css`)
+ * is enqueued on this admin page and carries an older copy of the DataViews
+ * styles, which draws a hovered filter option as a solid accent fill with
+ * `color: #fff`. The version loaded above redesigned that state as a 12% tint
+ * and deliberately leaves the foreground alone. Both rules have the same
+ * specificity, so ours wins the background while core's white text survives on
+ * the pale tint — an unreadable row. Restate the foreground these states are
+ * meant to keep, so the stale rule cannot leak through. */
+.dataviews-filters__search-widget-listitem:hover,
+.dataviews-filters__search-widget-listitem:focus,
+.dataviews-filters__search-widget-listitem[data-active-item] {
+	color: inherit;
+}
+
+.dataviews-filters__search-widget-listitem:hover .dataviews-filters__search-widget-listitem-description,
+.dataviews-filters__search-widget-listitem:focus .dataviews-filters__search-widget-listitem-description,
+.dataviews-filters__search-widget-listitem[data-active-item] .dataviews-filters__search-widget-listitem-description {
+	color: var(--wpds-color-foreground-content-neutral-weak);
+}

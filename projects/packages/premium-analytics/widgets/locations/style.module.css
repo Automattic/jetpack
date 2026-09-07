@@ -6,23 +6,6 @@
 	overflow: hidden;
 }
 
-.placeholder {
-	flex: 1 1 0;
-	min-block-size: 0;
-	inline-size: 100%;
-	min-height: 200px;
-	color: var(--wpds-color-fg-content-neutral-weak);
-	text-align: center;
-}
-
-.modeSelect {
-	order: 2;
-	flex: 0 1 220px;
-	inline-size: min(100%, 220px);
-	max-inline-size: 100%;
-	min-inline-size: min(100%, 160px);
-}
-
 .backLink {
 	order: 1;
 	align-self: center;
@@ -32,7 +15,6 @@
 }
 
 .content {
-	position: relative;
 	display: flex;
 	flex-direction: column;
 	flex: 1 1 0;
@@ -40,51 +22,41 @@
 }
 
 .bodyHeader {
-	position: relative;
-	z-index: 2;
 	flex-wrap: wrap;
 	justify-content: flex-end;
-	gap: var(--wpds-dimension-gap-sm, 8px) var(--wpds-dimension-gap-lg, 16px);
-	margin-block-end: var(--wpds-dimension-gap-md, 12px);
+	gap: var(--wpds-dimension-gap-sm) var(--wpds-dimension-gap-lg);
+	margin-block-end: var(--wpds-dimension-gap-md);
+}
+
+.stateArea {
+	flex: 1 1 0;
+	min-height: 0;
 }
 
 .chartArea {
+	height: 100%;
 	display: grid;
 	grid-template-columns: 280fr 400fr;
 	grid-template-rows: minmax(0, 1fr);
 	column-gap: var(--wpds-dimension-gap-lg);
 	align-items: stretch;
 	min-width: 0;
-	flex: 1 1 0;
+}
+
+.leaderboardPanel {
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
 	min-height: 0;
+	align-self: stretch;
 }
 
 .leaderboard {
-	align-self: start;
+	flex: 1 1 0;
+	align-self: stretch;
 	min-width: 0;
 	min-height: 0;
 	overflow: hidden;
-}
-
-.leaderboardLabel {
-	min-width: 0;
-	overflow: hidden;
-}
-
-.leaderboardLabel > * {
-	min-width: 0;
-	max-width: 100%;
-}
-
-.leaderboardLabel span {
-	min-width: 0;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-}
-
-.noMap {
-	grid-template-columns: 1fr;
 }
 
 .geoChart {
@@ -93,6 +65,11 @@
 	display: flex;
 	align-items: center;
 	overflow: hidden;
+
+	/* A wide cell leaves the map height-constrained, so it is drawn edge to edge
+	 * and its bottom lands on the footer divider. Reserve the gap here: the
+	 * chart's aspectRatio caps the width but still fills the full height. */
+	padding-block: var(--wpds-dimension-gap-md);
 }
 
 /* Very narrow containers: hide the map and collapse to a single leaderboard
@@ -109,12 +86,6 @@
 		order: 2;
 	}
 
-	.modeSelect {
-		order: 1;
-		flex-basis: 100%;
-		inline-size: 100%;
-	}
-
 	.geoChart {
 		display: none;
 	}
@@ -122,31 +93,4 @@
 	.chartArea {
 		grid-template-columns: 1fr;
 	}
-}
-
-.leaderboardImage {
-	height: 20px;
-	border-radius: var(--wpds-border-radius-sm, 2px);
-}
-
-/* Constrain the picker preview tile to a 4:3 aspect ratio. The picker's
- * .preview wrapper uses height: 125% of an auto-height parent, so height: 100%
- * on .root also resolves to auto, leaving aspect-ratio with no anchor.
- * Setting height: auto here lets aspect-ratio derive the height from the known
- * inline size and overflow: hidden clips the chart content. Targets only the
- * picker (inert="") — not the edit-mode wrapper (inert="true") where the grid
- * tile supplies a real height. */
-:global([inert]:not([inert="true"])) .root {
-	height: auto;
-	aspect-ratio: 4 / 3;
-	overflow: hidden;
-}
-
-/* The picker grid applies img { width: 100%; height: 100%; object-fit: cover }
- * to all images inside the media cell, overriding our 20px flag height.
- * Restore correct sizing for flag images in any inert context. */
-:global([inert]) .leaderboard .leaderboardImage {
-	width: auto;
-	height: 20px;
-	object-fit: initial;
 }

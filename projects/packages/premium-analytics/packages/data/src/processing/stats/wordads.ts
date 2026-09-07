@@ -45,7 +45,12 @@ export type StatsWordAdsEarningsRawResponse = {
 export type StatsWordAdsEarningsPeriod = {
 	amount: number;
 	pageviews: number;
-	status: number;
+	/**
+	 * The payment status code, or `undefined` when the payload omits it. `0` is
+	 * itself a meaningful status ("Unpaid"), so a missing status must not
+	 * collapse into it.
+	 */
+	status: number | undefined;
 };
 
 export type StatsWordAdsEarningsBreakdown = Record< string, StatsWordAdsEarningsPeriod >;
@@ -87,10 +92,14 @@ function summarizeWordAdsStats(
 }
 
 function normalizeEarningsPeriod( value: StatsRecord ): StatsWordAdsEarningsPeriod {
+	// Not `safeParseFloat`: its `fallback = 0` fires on an explicit `undefined`,
+	// and `0` is itself a status ("Unpaid"), so an absent status must stay absent.
+	const status = parseFloat( String( value.status ) );
+
 	return {
 		amount: safeParseFloat( value.amount ),
 		pageviews: safeParseFloat( value.pageviews ),
-		status: safeParseFloat( value.status ),
+		status: isNaN( status ) ? undefined : status,
 	};
 }
 

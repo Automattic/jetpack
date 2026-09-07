@@ -1,13 +1,14 @@
-import { Notice } from '@wordpress/components';
+import {
+	__experimentalInputControl as InputControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+} from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
-import { createInterpolateElement, useCallback, useId, useState } from '@wordpress/element';
+import { createInterpolateElement, useCallback, useState } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
-import { Link } from '@wordpress/ui';
+import { Link, Notice } from '@wordpress/ui';
 import clsx from 'clsx';
 import { store } from '../../social-store';
 import styles from './style.module.scss';
 import { SupportedService } from './types';
-import type { ChangeEvent } from 'react';
 
 type CustomInputsProps = {
 	service: SupportedService;
@@ -20,7 +21,6 @@ type CustomInputsProps = {
  * @return {import('react').ReactNode} Custom inputs component
  */
 export function CustomInputs( { service }: CustomInputsProps ) {
-	const id = useId();
 	const [ handleError, setHandleError ] = useState< string | null >( null );
 
 	const reconnectingAccount = useSelect( select => select( store ).getReconnectingAccount(), [] );
@@ -46,21 +46,16 @@ export function CustomInputs( { service }: CustomInputsProps ) {
 		return true;
 	}, [] );
 
-	const handleBskyHandleChange = useCallback(
-		( event: ChangeEvent< HTMLInputElement > ) => {
-			validateBskyHandle( event.target.value );
-		},
+	const onBskyHandleChange = useCallback(
+		( value?: string ) => validateBskyHandle( value ?? '' ),
 		[ validateBskyHandle ]
 	);
 
 	if ( 'mastodon' === service.id ) {
 		return (
 			<div className={ styles[ 'fields-item' ] }>
-				<label htmlFor={ `${ id }-handle` }>
-					{ _x( 'Handle', 'The handle of a social media account.', 'jetpack-publicize-pkg' ) }
-				</label>
-				<input
-					id={ `${ id }-handle` }
+				<InputControl
+					__next40pxDefaultSize
 					required
 					type="text"
 					name="instance"
@@ -69,25 +64,49 @@ export function CustomInputs( { service }: CustomInputsProps ) {
 					autoCorrect="off"
 					spellCheck="false"
 					aria-label={ __( 'Mastodon handle', 'jetpack-publicize-pkg' ) }
-					aria-describedby={ `${ id }-handle-description` }
-					placeholder={ '@mastodon@mastodon.social' }
+					label={ _x( 'Handle', 'The handle of a social media account.', 'jetpack-publicize-pkg' ) }
+					placeholder="@mastodon@mastodon.social"
+					help={ __(
+						'You can find the handle in your Mastodon profile.',
+						'jetpack-publicize-pkg'
+					) }
 				/>
-				<p className="description" id={ `${ id }-handle-description` }>
-					{ __( 'You can find the handle in your Mastodon profile.', 'jetpack-publicize-pkg' ) }
-				</p>
 			</div>
 		);
 	}
 
 	if ( 'bluesky' === service.id ) {
+		const bskyHandleHelp = handleError ? (
+			<span className={ styles[ 'error-text' ] }>{ handleError }</span>
+		) : (
+			<>
+				{ __( 'You can find the handle in your Bluesky profile.', 'jetpack-publicize-pkg' ) }
+				&nbsp;
+				{ createInterpolateElement(
+					sprintf(
+						/* translators: %s is the bluesky handle suffix like .bsky.social */
+						__(
+							'This can either be %s or just the domain name if you are using a custom domain.',
+							'jetpack-publicize-pkg'
+						),
+						'<strong>username.bsky.social</strong>'
+					),
+					{
+						strong: <strong />,
+					}
+				) }
+			</>
+		);
+
 		return (
 			<>
-				<div className={ styles[ 'fields-item' ] }>
-					<label htmlFor={ `${ id }-handle` }>
-						{ _x( 'Handle', 'The handle of a social media account.', 'jetpack-publicize-pkg' ) }
-					</label>
-					<input
-						id={ `${ id }-handle` }
+				<div
+					className={ clsx( styles[ 'fields-item' ], {
+						[ styles[ 'fields-item-error' ] ]: Boolean( handleError ),
+					} ) }
+				>
+					<InputControl
+						__next40pxDefaultSize
 						required
 						type="text"
 						name="handle"
@@ -101,45 +120,19 @@ export function CustomInputs( { service }: CustomInputsProps ) {
 						autoCorrect="off"
 						spellCheck="false"
 						aria-label={ __( 'Bluesky handle', 'jetpack-publicize-pkg' ) }
-						aria-describedby={ `${ id }-handle-description` }
-						placeholder={ 'username.bsky.social' }
-						onChange={ handleBskyHandleChange }
-						className={ handleError ? styles.error : undefined }
-					/>
-					<p
-						className={ clsx( 'description', handleError && styles[ 'error-text' ] ) }
-						id={ `${ id }-handle-description` }
-					>
-						{ handleError || (
-							<>
-								{ __(
-									'You can find the handle in your Bluesky profile.',
-									'jetpack-publicize-pkg'
-								) }
-								&nbsp;
-								{ createInterpolateElement(
-									sprintf(
-										/* translators: %s is the bluesky handle suffix like .bsky.social */
-										__(
-											'This can either be %s or just the domain name if you are using a custom domain.',
-											'jetpack-publicize-pkg'
-										),
-										'<strong>username.bsky.social</strong>'
-									),
-									{
-										strong: <strong />,
-									}
-								) }
-							</>
+						label={ _x(
+							'Handle',
+							'The handle of a social media account.',
+							'jetpack-publicize-pkg'
 						) }
-					</p>
+						placeholder="username.bsky.social"
+						onChange={ onBskyHandleChange }
+						help={ bskyHandleHelp }
+					/>
 				</div>
 				<div className={ styles[ 'fields-item' ] }>
-					<label htmlFor={ `${ id }-password` }>
-						{ __( 'App password', 'jetpack-publicize-pkg' ) }
-					</label>
-					<input
-						id={ `${ id }-password` }
+					<InputControl
+						__next40pxDefaultSize
 						required
 						type="password"
 						name="app_password"
@@ -147,12 +140,9 @@ export function CustomInputs( { service }: CustomInputsProps ) {
 						autoCapitalize="off"
 						autoCorrect="off"
 						spellCheck="false"
-						aria-label={ __( 'App password', 'jetpack-publicize-pkg' ) }
-						aria-describedby={ `${ id }-password-description` }
-						placeholder={ 'xxxx-xxxx-xxxx-xxxx' }
-					/>
-					<p className="description" id={ `${ id }-password-description` }>
-						{ createInterpolateElement(
+						label={ __( 'App password', 'jetpack-publicize-pkg' ) }
+						placeholder="xxxx-xxxx-xxxx-xxxx"
+						help={ createInterpolateElement(
 							__(
 								'App password is needed to safely connect your account. App password is different from your account password. You can <link>generate it in Bluesky</link>.',
 								'jetpack-publicize-pkg'
@@ -167,14 +157,16 @@ export function CustomInputs( { service }: CustomInputsProps ) {
 								),
 							}
 						) }
-					</p>
+					/>
 					{ reconnectingAccount?.service_name === 'bluesky' && (
-						<Notice status="error" isDismissible={ false }>
-							{ __(
-								'Please provide an app password to fix the connection.',
-								'jetpack-publicize-pkg'
-							) }
-						</Notice>
+						<Notice.Root intent="error">
+							<Notice.Description>
+								{ __(
+									'Please provide an app password to fix the connection.',
+									'jetpack-publicize-pkg'
+								) }
+							</Notice.Description>
+						</Notice.Root>
 					) }
 				</div>
 			</>

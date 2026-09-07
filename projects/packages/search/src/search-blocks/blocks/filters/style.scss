@@ -7,6 +7,24 @@
 	gap: var(--wp--style--block-gap, 1rem);
 }
 
+// Editor-canvas-only boundary: `render.php` never emits this class, so these
+// rules are inert on the front end despite `style.scss` loading there too.
+.jetpack-search-filters__editor-canvas {
+	border: 1px dashed color-mix(in sRGB, currentColor 40%, transparent);
+	border-radius: 2px;
+	padding: 0.5rem;
+}
+
+.jetpack-search-filters__editor-label {
+	display: block;
+	font-size: 0.6875rem;
+	font-weight: 600;
+	letter-spacing: 0.04em;
+	margin-bottom: 0.5rem;
+	opacity: 0.6;
+	text-transform: uppercase;
+}
+
 .jetpack-search-filters__empty {
 	margin: 0;
 	// Size + line-height match `results-list` no-results/error so every

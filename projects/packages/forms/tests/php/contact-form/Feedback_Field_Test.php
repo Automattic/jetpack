@@ -335,6 +335,76 @@ class Feedback_Field_Test extends BaseTestCase {
 		remove_filter( 'jetpack_unauth_file_download_url', array( $this, 'return_url' ) );
 	}
 
+	/**
+	 * A file field can be stored with a malformed value — an empty string, say,
+	 * rather than the expected array with a `files` key. Rendering it must not
+	 * fatal, in any context.
+	 */
+	public function test_get_render_value_with_malformed_file_value() {
+		$malformed = array(
+			'empty string'      => '',
+			'null'              => null,
+			'empty array'       => array(),
+			'non-empty string'  => 'not-an-array',
+			'string files key'  => array( 'files' => '' ),
+			'files key missing' => array( 'field_id' => 'g1-1' ),
+		);
+
+		foreach ( $malformed as $case => $value ) {
+			$field = new Feedback_Field( 'test_key', 'test_label', $value, 'file' );
+
+			$api = $field->get_render_value( 'api' );
+			$this->assertIsArray( $api, "api value for {$case} should be an array" );
+			$this->assertSame( array(), $api['files'], "api files for {$case} should be empty" );
+
+			$this->assertSame(
+				array(
+					'field_id' => '',
+					'files'    => array(),
+				),
+				$field->get_render_value( 'submit' ),
+				"submit value for {$case} should carry no files"
+			);
+
+			$this->assertSame(
+				array(
+					'type'  => 'file',
+					'files' => array(),
+				),
+				$field->get_render_value( 'web' ),
+				"web value for {$case} should carry no files"
+			);
+
+			$this->assertSame( '', $field->get_render_value( 'default' ), "default value for {$case} should be empty" );
+			$this->assertSame( '', $field->get_render_value( 'csv' ), "csv value for {$case} should be empty" );
+			$this->assertIsString( $field->get_render_value( 'email_html' ), "email_html value for {$case} should be a string" );
+			$this->assertFalse( $field->has_file(), "{$case} should not report a file" );
+		}
+	}
+
+	/**
+	 * A well-formed file value keeps the keys it arrived with.
+	 */
+	public function test_get_render_api_value_preserves_sibling_keys_when_files_are_dropped() {
+		$field = new Feedback_Field(
+			'test_key',
+			'test_label',
+			array(
+				'field_id' => 'g1-1',
+				'files'    => '',
+			),
+			'file'
+		);
+
+		$this->assertSame(
+			array(
+				'field_id' => 'g1-1',
+				'files'    => array(),
+			),
+			$field->get_render_value( 'api' )
+		);
+	}
+
 	public function test_render_label_in_different_contexts() {
 		$field = new Feedback_Field( 'test_key', 'test_label', 'test_value' );
 		$this->assertEquals( 'test_label', $field->get_label() );
@@ -950,5 +1020,40 @@ class Feedback_Field_Test extends BaseTestCase {
 
 		$color = Feedback_Field::get_admin_theme_color();
 		$this->assertMatchesRegularExpression( '/^#[0-9a-f]{6}$/i', $color );
+	}
+
+	/**
+	 * A ticked box submits a translated string, so anything non-empty counts.
+	 */
+	public function test_is_checked_value_accepts_any_non_empty_answer() {
+		$this->assertTrue( Feedback_Field::is_checked_value( 'Yes' ) );
+		$this->assertTrue( Feedback_Field::is_checked_value( 'Oui' ) );
+		$this->assertTrue( Feedback_Field::is_checked_value( '1' ) );
+		$this->assertTrue( Feedback_Field::is_checked_value( array( 'a' ) ) );
+	}
+
+	/**
+	 * An unticked box submits an empty value; some stored responses use "No".
+	 */
+	public function test_is_checked_value_rejects_empty_and_no() {
+		$this->assertFalse( Feedback_Field::is_checked_value( '' ) );
+		$this->assertFalse( Feedback_Field::is_checked_value( '   ' ) );
+		$this->assertFalse( Feedback_Field::is_checked_value( null ) );
+		$this->assertFalse( Feedback_Field::is_checked_value( array() ) );
+		$this->assertFalse( Feedback_Field::is_checked_value( 'no' ) );
+		$this->assertFalse( Feedback_Field::is_checked_value( 'No' ) );
+		$this->assertFalse( Feedback_Field::is_checked_value( ' NO ' ) );
+	}
+
+	/**
+	 * The consent/checkbox email chip is rendered from the same predicate, so the
+	 * label must follow it.
+	 */
+	public function test_email_consent_label_follows_the_checked_predicate() {
+		$checked   = new Feedback_Field( 'consent', 'Consent', 'Yes', 'consent' );
+		$unchecked = new Feedback_Field( 'consent', 'Consent', '', 'consent' );
+
+		$this->assertStringContainsString( 'Yes', $checked->get_render_value( 'email_html' ) );
+		$this->assertStringContainsString( 'No', $unchecked->get_render_value( 'email_html' ) );
 	}
 }

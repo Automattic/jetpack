@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Show the Stats admin bar link in wp-admin too, not just the front end, so the wpcom/v2/sites/%d/admin-bar REST endpoint can report it.

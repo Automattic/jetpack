@@ -24,3 +24,18 @@ function wpcomsh_extend_stats_menu_item_access( $default_value ) {
 	return $default_value;
 }
 add_filter( 'default_option_stats_options', 'wpcomsh_extend_stats_menu_item_access' );
+
+/**
+ * Turns on the bundled Premium Analytics dashboard for Atomic sites carrying the blog sticker.
+ *
+ * The filter is registered here, at file scope, because Jetpack resolves the flag once per request
+ * from `Jetpack::configure()` on `plugins_loaded` — a callback added on `plugins_loaded` or later
+ * would be too late to be seen.
+ *
+ * @param bool $enabled Whether Premium Analytics is already enabled.
+ * @return bool
+ */
+function wpcomsh_enable_premium_analytics( $enabled ) {
+	return $enabled || wpcomsh_is_site_sticker_active( 'jetpack-premium-analytics' );
+}
+add_filter( 'jetpack_premium_analytics_enabled', 'wpcomsh_enable_premium_analytics' );

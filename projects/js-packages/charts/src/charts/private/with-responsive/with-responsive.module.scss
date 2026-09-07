@@ -1,5 +1,24 @@
 .container {
-	// Allow wrapper to shrink in flex layouts
+	// Fill the parent by default so the wrapper's live height reflects the
+	// real available space. JS sets width/height only when passed explicitly.
+	width: 100%;
+	height: 100%;
+	// Allow the wrapper to shrink in flex layouts
+	min-width: 0;
+	min-height: 0;
+}
+
+// With an aspectRatio, center the contained box horizontally and top-align it.
+.isContained {
+	display: flex;
+	justify-content: center;
+	align-items: flex-start;
+}
+
+// The contain box. Its width/height come from JS; keep it from being stretched
+// or shrunk by the flex parent.
+.content {
+	flex: 0 0 auto;
 	min-width: 0;
 	min-height: 0;
 }

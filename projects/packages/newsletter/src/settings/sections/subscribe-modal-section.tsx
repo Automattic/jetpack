@@ -7,7 +7,7 @@ import { WpcomSupportLink } from '@automattic/jetpack-shared-extension-utils/com
 import { DataForm, type Field } from '@wordpress/dataviews';
 import { createInterpolateElement, useCallback, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Button, Card, Fieldset, Link, Text } from '@wordpress/ui';
+import { Button, Card, Fieldset, Link, Stack, Text } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -122,28 +122,28 @@ export function SubscribeModalSection( {
 				<Card.Title>{ __( 'Subscribe modal heading', 'jetpack-newsletter' ) }</Card.Title>
 			</Card.Header>
 			<Card.Content>
-				<p>
-					<Text>
+				<Stack direction="column" gap="xl">
+					<Text variant="body-md" render={ <p /> }>
 						{ __(
-							'Shown at the top of the subscribe popup that appears when a visitor clicks a Subscribe block. Only applies to blocks using the "Button only" style.',
+							'Shown at the top of the subscribe popup that appears when a visitor clicks a Subscribe block.',
 							'jetpack-newsletter'
 						) }
 					</Text>
-				</p>
-				<Fieldset.Root disabled={ ! isNewsletterEnabled }>
-					<DataForm
-						data={ formData }
-						fields={ fields }
-						form={ {
-							layout: {
-								type: 'regular',
-								labelPosition: 'top',
-							},
-							fields: [ 'subscribe_modal_heading' ],
-						} }
-						onChange={ handleDataFormChange }
-					/>
-				</Fieldset.Root>
+					<Fieldset.Root disabled={ ! isNewsletterEnabled }>
+						<DataForm
+							data={ formData }
+							fields={ fields }
+							form={ {
+								layout: {
+									type: 'regular',
+									labelPosition: 'top',
+								},
+								fields: [ 'subscribe_modal_heading' ],
+							} }
+							onChange={ handleDataFormChange }
+						/>
+					</Fieldset.Root>
+				</Stack>
 				<div className="newsletter-card-footer">
 					<Button
 						onClick={ handleSave }

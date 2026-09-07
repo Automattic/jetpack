@@ -1,4 +1,4 @@
-import PocketCastsSubmitModal from './submit-modal';
+import PocketCastsRow from './inline-row';
 import type { PodcastApp } from '../types';
 
 const PocketCastsLogo = () => (
@@ -26,5 +26,6 @@ export const pocketcasts: PodcastApp = {
 	Logo: PocketCastsLogo,
 	submitUrl: 'https://pocketcasts.com/submit',
 	learnMoreUrl: 'https://support.pocketcasts.com/knowledge-base/submitting-podcasts/',
-	Modal: PocketCastsSubmitModal,
+	submission: 'automatic',
+	Row: PocketCastsRow,
 };

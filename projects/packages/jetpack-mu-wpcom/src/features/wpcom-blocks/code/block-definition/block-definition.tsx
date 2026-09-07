@@ -593,15 +593,12 @@ function blockStyle( attributes: Attributes ): BlockStyleProperties {
  *
  * `[` is HTML encoded to prevent shortcodes from being processed.
  *
- * A numeric encoding is used for `&` as a workaround for
- * {@link https://core.trac.wordpress.org/ticket/63630|Trac 63630}.
- * The issue should be fixed in WordPress 6.9.
  * @param content - Original content.
  * @return Encoded content.
  */
 function htmlEncode( content: string ): string {
 	return content
-		.replaceAll( '&', '&#38;' )
+		.replaceAll( '&', '&amp;' )
 		.replaceAll( '<', '&lt;' )
 		.replaceAll( '>', '&gt;' )
 		.replaceAll( '[', '&#91;' )

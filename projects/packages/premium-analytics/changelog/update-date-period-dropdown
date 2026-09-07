@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add a date period dropdown: one trigger naming the applied period, a menu of the common periods grouped by scale, and the calendar beside the list on Custom range.

@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics\REST;
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Constants;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
@@ -19,6 +21,11 @@ use WP_REST_Server;
  */
 #[CoversClass( Api_Proxy_Controller::class )]
 class Api_Proxy_Controller_Test extends BaseTestCase {
+
+	/**
+	 * Email of the user the injection cases sign in as.
+	 */
+	private const FEEDBACK_USER_EMAIL = 'jpa_feedback@example.com';
 
 	/**
 	 * Controller under test.
@@ -49,7 +56,7 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 		$this->assertStringContainsString( 'analytics', $this->data_route_key() );
 	}
 
-	public function test_analytics_requires_manage_options() {
+	public function test_analytics_requires_the_woocommerce_reports_capability() {
 		$user_id = wp_insert_user(
 			array(
 				'user_login' => 'jpa_stats_only',
@@ -61,12 +68,33 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 		$user->add_cap( 'view_stats' );
 		wp_set_current_user( $user_id );
 
-		// view_stats reaches stats data but NOT the premium analytics surface.
+		// view_stats reaches stats data but NOT the store reports.
 		$this->assertFalse( $this->controller->check_data_permission( $this->build_data_request( 'GET', 'analytics/reports/totals' ) ) );
 		$this->assertTrue( $this->controller->check_data_permission( $this->build_data_request( 'GET', 'stats/top-posts' ) ) );
 	}
 
-	public function test_permission_denied_without_manage_options() {
+	/**
+	 * Shop managers hold view_woocommerce_reports without manage_options, and read
+	 * these same reports on WooCommerce's own Analytics screens.
+	 */
+	public function test_analytics_is_served_to_a_woocommerce_report_viewer() {
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'jpa_shop_manager',
+				'user_pass'  => 'password',
+				'role'       => 'subscriber',
+			)
+		);
+		$user    = new \WP_User( $user_id );
+		$user->add_cap( 'view_woocommerce_reports' );
+		wp_set_current_user( $user_id );
+
+		$this->assertTrue( $this->controller->check_data_permission( $this->build_data_request( 'GET', 'analytics/reports/totals' ) ) );
+		// Store access is not stats access.
+		$this->assertFalse( $this->controller->check_data_permission( $this->build_data_request( 'GET', 'stats/top-posts' ) ) );
+	}
+
+	public function test_permission_denied_without_any_report_capability() {
 		wp_set_current_user( 0 );
 		$this->assertFalse( $this->controller->check_data_permission( $this->build_data_request( 'GET', 'analytics/reports/totals' ) ) );
 	}
@@ -211,7 +239,8 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 		$this->assertStringContainsString( 'analytics', $route );
 		$this->assertStringContainsString( 'stats', $route );
 		$this->assertStringContainsString( 'commercial', $route );
-		$this->assertStringNotContainsString( 'posts', $route );
+		// `posts` is pattern-constrained: only public interaction lists are anchored in the route.
+		$this->assertStringContainsString( 'posts/[0-9]+/(?:likes|replies)', $route );
 		$this->assertStringNotContainsString( 'media', $route );
 	}
 
@@ -246,7 +275,8 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 		$user->add_cap( 'view_stats' );
 		wp_set_current_user( $user_id );
 
-		// view_stats reaches stats, but not the WordAds (activate_wordads) or analytics (manage_options) tiers.
+		// view_stats reaches stats, but not the WordAds (activate_wordads) or store
+		// report (view_woocommerce_reports) tiers.
 		$this->assertTrue( $this->controller->check_data_permission( $this->build_data_request( 'GET', 'stats/top-posts' ) ) );
 		$this->assertFalse( $this->controller->check_data_permission( $this->build_data_request( 'GET', 'wordads/earnings' ) ) );
 		$this->assertFalse( $this->controller->check_data_permission( $this->build_data_request( 'GET', 'analytics/reports/totals' ) ) );
@@ -273,6 +303,131 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 
 		$site_id = (int) \Jetpack_Options::get_option( 'id' );
 		$this->assertSame( sprintf( $expected, $site_id ), $accessor->call( $this->controller, $endpoint ) );
+	}
+
+	/**
+	 * The blog token carries no user, so the endpoint that attributes a submission to a person
+	 * gets the local one added on the way out. Every other group's body is forwarded untouched.
+	 *
+	 * @dataProvider data_user_email_injection
+	 *
+	 * @param array<string, mixed> $opts     The matched prefix config.
+	 * @param string               $body     The incoming request body.
+	 * @param string               $expected The body that should be forwarded.
+	 */
+	#[DataProvider( 'data_user_email_injection' )]
+	public function test_inject_user_email( array $opts, string $body, string $expected ) {
+		wp_set_current_user(
+			wp_insert_user(
+				array(
+					'user_login' => 'jpa_feedback',
+					'user_pass'  => 'password',
+					'user_email' => self::FEEDBACK_USER_EMAIL,
+					'role'       => 'administrator',
+				)
+			)
+		);
+
+		$accessor = function ( string $b, array $o ) {
+			// @phan-suppress-next-line PhanUndeclaredMethod -- rebound to the controller via Closure::call() below.
+			return $this->inject_user_email( $b, $o );
+		};
+
+		$this->assertSame( $expected, $accessor->call( $this->controller, $body, $opts ) );
+	}
+
+	public function test_inject_user_email_leaves_the_body_alone_for_a_logged_out_request() {
+		wp_set_current_user( 0 );
+
+		$accessor = function ( string $b, array $o ) {
+			// @phan-suppress-next-line PhanUndeclaredMethod -- rebound to the controller via Closure::call() below.
+			return $this->inject_user_email( $b, $o );
+		};
+
+		$this->assertSame(
+			'{"feedback":"slow"}',
+			$accessor->call( $this->controller, '{"feedback":"slow"}', array( 'inject_user_email' => true ) )
+		);
+	}
+
+	/**
+	 * The cases above call the injector directly. This one drives the whole route, so a config
+	 * flag that never reaches `forward()` fails here rather than shipping as a dead option.
+	 */
+	public function test_feedback_write_forwards_the_user_email_through_the_route() {
+		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
+		\Jetpack_Options::update_option( 'id', 4242 );
+		\Jetpack_Options::update_option( 'blog_token', 'blog_token.secret' );
+		( new Connection_Manager() )->reset_connection_status();
+
+		wp_set_current_user(
+			wp_insert_user(
+				array(
+					'user_login' => 'jpa_feedback_route',
+					'user_pass'  => 'password',
+					'user_email' => self::FEEDBACK_USER_EMAIL,
+					'role'       => 'administrator',
+				)
+			)
+		);
+
+		$captured = array(
+			'url'  => '',
+			'args' => array(),
+		);
+		add_filter(
+			'pre_http_request',
+			function ( $pre, $args, $url ) use ( &$captured ) {
+				$captured = array(
+					'url'  => $url,
+					'args' => $args,
+				);
+
+				return array(
+					'response' => array( 'code' => 200 ),
+					'body'     => wp_json_encode( array( 'success' => true ), JSON_UNESCAPED_SLASHES ),
+					'headers'  => array(),
+				);
+			},
+			10,
+			3
+		);
+
+		$request = $this->build_data_request( 'POST', 'jetpack-stats/user-feedback' );
+		$request->set_body( '{"feedback":"slow"}' );
+		try {
+			$response = $this->controller->handle_data_request( $request );
+		} finally {
+			remove_all_filters( 'pre_http_request' );
+			\Jetpack_Options::delete_option( 'blog_token' );
+			\Jetpack_Options::delete_option( 'id' );
+			( new Connection_Manager() )->reset_connection_status();
+			Constants::clear_single_constant( 'JETPACK__WPCOM_JSON_API_BASE' );
+		}
+
+		$this->assertInstanceOf( WP_REST_Response::class, $response );
+		$this->assertStringContainsString( '/wpcom/v2/sites/4242/jetpack-stats/user-feedback', $captured['url'] );
+		$this->assertSame(
+			'{"feedback":"slow","user_email":"' . self::FEEDBACK_USER_EMAIL . '"}',
+			$captured['args']['body'] ?? null
+		);
+	}
+
+	/**
+	 * @return array<string, array{0: array<string, mixed>, 1: string, 2: string}>
+	 */
+	public static function data_user_email_injection(): array {
+		$on    = array( 'inject_user_email' => true );
+		$email = self::FEEDBACK_USER_EMAIL;
+
+		return array(
+			'adds to an object'        => array( $on, '{"feedback":"slow"}', '{"feedback":"slow","user_email":"' . $email . '"}' ),
+			'adds to an empty body'    => array( $on, '', '{"user_email":"' . $email . '"}' ),
+			'overwrites a claimed one' => array( $on, '{"user_email":"spoof@example.com"}', '{"user_email":"' . $email . '"}' ),
+			'leaves a list alone'      => array( $on, '[1,2]', '[1,2]' ),
+			'leaves malformed alone'   => array( $on, 'not json', 'not json' ),
+			'skips groups without it'  => array( array(), '{"feedback":"slow"}', '{"feedback":"slow"}' ),
+		);
 	}
 
 	/**
@@ -318,7 +473,9 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 			'commercial subpath' => array( 'commercial-classification/foo', false ),
 			'stats read'         => array( 'stats/top-posts', false ),
 			'subscribers read'   => array( 'subscribers/counts', false ),
+			'user feedback'      => array( 'jetpack-stats/user-feedback', true ),
 			'usage read'         => array( 'jetpack-stats/usage', false ),
+			'feedback subpath'   => array( 'jetpack-stats/user-feedback/foo', false ),
 			'wordads read'       => array( 'wordads/earnings', false ),
 		);
 	}
@@ -395,6 +552,151 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 		$this->assertFalse( $this->controller->validate_data_endpoint( 'upgrades/foo' ) );
 	}
 
+	public function test_post_likes_forwards_unsigned() {
+		// The likes endpoint rejects blog-token auth but serves public posts without
+		// credentials, so the `posts` group forwards unsigned (no connection needed).
+		\Jetpack_Options::update_option( 'id', 4242 );
+
+		$captured = array(
+			'url'  => '',
+			'args' => array(),
+		);
+		add_filter(
+			'pre_http_request',
+			function ( $pre, $args, $url ) use ( &$captured ) {
+				$captured = array(
+					'url'  => $url,
+					'args' => $args,
+				);
+
+				return array(
+					'response' => array( 'code' => 200 ),
+					'body'     => wp_json_encode(
+						array(
+							'found' => 1,
+							'likes' => array(),
+						),
+						JSON_UNESCAPED_SLASHES
+					),
+					'headers'  => array(),
+				);
+			},
+			10,
+			3
+		);
+
+		$response = $this->controller->handle_data_request( $this->build_data_request( 'GET', 'posts/91/likes', array(), '1.2' ) );
+
+		remove_all_filters( 'pre_http_request' );
+		\Jetpack_Options::delete_option( 'id' );
+
+		$this->assertInstanceOf( WP_REST_Response::class, $response );
+		$this->assertSame( 1, $response->get_data()->found );
+		$this->assertStringContainsString( '/rest/v1.2/sites/4242/posts/91/likes', $captured['url'] );
+		$this->assertArrayNotHasKey( 'Authorization', (array) ( $captured['args']['headers'] ?? array() ) );
+	}
+
+	public function test_post_comments_forwards_unsigned() {
+		// The replies endpoint is public and the local view_stats gate remains in
+		// place, so the constrained posts group can forward it without a blog token.
+		\Jetpack_Options::update_option( 'id', 4242 );
+
+		$captured = array(
+			'url'  => '',
+			'args' => array(),
+		);
+		add_filter(
+			'pre_http_request',
+			function ( $pre, $args, $url ) use ( &$captured ) {
+				$captured = array(
+					'url'  => $url,
+					'args' => $args,
+				);
+
+				return array(
+					'response' => array( 'code' => 200 ),
+					'body'     => wp_json_encode(
+						array(
+							'found'    => 1,
+							'comments' => array(),
+						),
+						JSON_UNESCAPED_SLASHES
+					),
+					'headers'  => array(),
+				);
+			},
+			10,
+			3
+		);
+
+		$response = $this->controller->handle_data_request(
+			$this->build_data_request(
+				'GET',
+				'posts/91/replies',
+				array(
+					'number' => 10,
+					'type'   => 'comment',
+				),
+				'1.1'
+			)
+		);
+
+		remove_all_filters( 'pre_http_request' );
+		\Jetpack_Options::delete_option( 'id' );
+
+		$this->assertInstanceOf( WP_REST_Response::class, $response );
+		$this->assertSame( 1, $response->get_data()->found );
+		$this->assertStringContainsString( '/rest/v1.1/sites/4242/posts/91/replies', $captured['url'] );
+		$this->assertStringContainsString( 'number=10', $captured['url'] );
+		$this->assertStringContainsString( 'type=comment', $captured['url'] );
+		$this->assertArrayNotHasKey( 'Authorization', (array) ( $captured['args']['headers'] ?? array() ) );
+	}
+
+	public function test_post_likes_requires_a_blog_id() {
+		// Unsigned forwards skip the connection gate but still need the blog id
+		// baked into the path; without one the request must not leave the site.
+		\Jetpack_Options::delete_option( 'id' );
+
+		$response = $this->controller->handle_data_request( $this->build_data_request( 'GET', 'posts/91/likes', array(), '1.2' ) );
+
+		$this->assertInstanceOf( \WP_Error::class, $response );
+		$this->assertSame( 'no_connection', $response->get_error_code() );
+		$this->assertSame( 403, $response->get_error_data()['status'] );
+	}
+
+	public function test_post_likes_maps_transport_errors_to_api_error() {
+		\Jetpack_Options::update_option( 'id', 4242 );
+
+		add_filter(
+			'pre_http_request',
+			function () {
+				return new \WP_Error( 'http_request_failed', 'boom' );
+			}
+		);
+
+		$response = $this->controller->handle_data_request( $this->build_data_request( 'GET', 'posts/91/likes', array(), '1.2' ) );
+
+		remove_all_filters( 'pre_http_request' );
+		\Jetpack_Options::delete_option( 'id' );
+
+		$this->assertInstanceOf( \WP_Error::class, $response );
+		$this->assertSame( 'api_error', $response->get_error_code() );
+		$this->assertSame( 500, $response->get_error_data()['status'] );
+	}
+
+	public function test_validate_data_endpoint_enforces_the_posts_pattern() {
+		// `posts` only exposes public interaction lists — never post content, which
+		// the blog token could otherwise read for any view_stats user.
+		$this->assertTrue( $this->controller->validate_data_endpoint( 'posts/123/likes' ) );
+		$this->assertTrue( $this->controller->validate_data_endpoint( 'posts/123/likes/' ) );
+		$this->assertTrue( $this->controller->validate_data_endpoint( 'posts/123/replies' ) );
+		$this->assertTrue( $this->controller->validate_data_endpoint( 'posts/123/replies/' ) );
+		$this->assertFalse( $this->controller->validate_data_endpoint( 'posts/123' ) );
+		$this->assertFalse( $this->controller->validate_data_endpoint( 'posts/123/likes/extra' ) );
+		$this->assertFalse( $this->controller->validate_data_endpoint( 'posts/123/replies/extra' ) );
+		$this->assertFalse( $this->controller->validate_data_endpoint( 'posts/slug/likes' ) );
+	}
+
 	/**
 	 * Unsupported endpoints must not route at all — the request never reaches the handler and the
 	 * blog token is never forwarded. Covers other resources, foreign namespaces, prefix-extension
@@ -460,7 +762,7 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 		wp_set_current_user( $admin_id );
 
 		// A prefix outside the config fails closed (config lookup misses) — admins included.
-		$this->assertFalse( $this->controller->check_data_permission( $this->build_data_request( 'GET', 'posts' ) ) );
+		$this->assertFalse( $this->controller->check_data_permission( $this->build_data_request( 'GET', 'media' ) ) );
 		$this->assertFalse( $this->controller->check_data_permission( $this->build_data_request( 'GET', 'wp/v2/users' ) ) );
 	}
 
@@ -538,11 +840,11 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 	public static function data_endpoint_matrix(): array {
 		$stats   = 'view_stats';
 		$wordads = 'activate_wordads';
-		$admin   = 'manage_options';
+		$store   = 'view_woocommerce_reports';
 
 		return array(
-			// Analytics (manage_options).
-			'analytics report'     => array( 'analytics/reports/totals', $admin, false, '/sites/%d/analytics/reports/totals' ),
+			// Store reports (view_woocommerce_reports).
+			'analytics report'     => array( 'analytics/reports/totals', $store, false, '/sites/%d/analytics/reports/totals' ),
 
 			// Site stats + every /stats/* read family (v1.1, view_stats).
 			'site stats'           => array( 'stats', $stats, false, '/sites/%d/stats' ),
@@ -568,6 +870,7 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 			'subscribers counts'   => array( 'subscribers/counts', $stats, false, '/sites/%d/subscribers/counts' ),
 			'never published'      => array( 'site-has-never-published-post', $stats, false, '/sites/%d/site-has-never-published-post' ),
 			'plan usage'           => array( 'jetpack-stats/usage', $stats, false, '/sites/%d/jetpack-stats/usage' ),
+			'user feedback'        => array( 'jetpack-stats/user-feedback', $stats, true, '/sites/%d/jetpack-stats/user-feedback' ),
 			'dashboard modules'    => array( 'jetpack-stats-dashboard/modules', $stats, true, '/sites/%d/jetpack-stats-dashboard/modules' ),
 			'module settings'      => array( 'jetpack-stats-dashboard/module-settings', $stats, true, '/sites/%d/jetpack-stats-dashboard/module-settings' ),
 			'commercial class.'    => array( 'commercial-classification', $stats, true, '/sites/%d/commercial-classification' ),
@@ -578,6 +881,10 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 
 			// Purchases — site-less path (view_stats).
 			'purchases'            => array( 'upgrades', $stats, false, '/upgrades?site=%d' ),
+
+			// Public post interactions — the only `posts` sub-paths the pattern exposes (view_stats).
+			'post likes'           => array( 'posts/123/likes', $stats, false, '/sites/%d/posts/123/likes' ),
+			'post comments'        => array( 'posts/123/replies', $stats, false, '/sites/%d/posts/123/replies' ),
 		);
 	}
 
@@ -805,8 +1112,8 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 	 * @return WP_REST_Request
 	 */
 	private function build_data_request( string $method, string $endpoint, array $params = array(), ?string $version = null ): WP_REST_Request {
-		$version = $version ?? '2';
-		$request = new WP_REST_Request( $method, '/jetpack-premium-analytics/v1/proxy/v' . $version . '/' . $endpoint );
+		$version ??= '2';
+		$request   = new WP_REST_Request( $method, '/jetpack-premium-analytics/v1/proxy/v' . $version . '/' . $endpoint );
 		// `endpoint` and `version` are both route (URL) captures in production.
 		$request->set_url_params(
 			array(

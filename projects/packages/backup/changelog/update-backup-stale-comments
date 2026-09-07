@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Comments only: correct the `use-file-tree` note that claimed an `ls` entry id can contain a comma, and narrow the `retry: false` rationale in `usePromotedProduct` so it stays true once the promoted-product catalogue is cached. No code changed.
+
+

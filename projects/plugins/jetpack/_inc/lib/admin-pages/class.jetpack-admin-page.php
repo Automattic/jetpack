@@ -277,8 +277,9 @@ abstract class Jetpack_Admin_Page {
 						<h2 class="jp-masthead__title">
 							<?php
 							// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- View logic only.
-							$page          = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '';
-							$current_label = '';
+							$page            = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '';
+							$is_offline_mode = ( new Status() )->is_offline_mode();
+							$current_label   = '';
 							if ( 'jetpack_modules' === $page ) {
 								$current_label = __( 'Modules', 'jetpack' );
 							} elseif ( 'jetpack_about' === $page ) {
@@ -290,6 +291,10 @@ abstract class Jetpack_Admin_Page {
 							<?php if ( $current_label ) : ?>
 								<a class="jp-masthead__title-link" href="<?php echo esc_url( admin_url( 'admin.php?page=my-jetpack#/overview' ) ); ?>">Jetpack</a><?php // "Jetpack" is a product name, do not translate. ?>
 								<span class="jp-masthead__title-separator" aria-hidden="true">/</span>
+								<?php if ( $is_offline_mode ) : ?>
+									<span class="jp-masthead__title-offline"><?php esc_html_e( 'Offline Mode', 'jetpack' ); ?></span>
+									<span class="jp-masthead__title-separator" aria-hidden="true">/</span>
+								<?php endif; ?>
 								<span class="jp-masthead__title-current"><?php echo esc_html( $current_label ); ?></span>
 							<?php else : ?>
 								Jetpack<?php // "Jetpack" is a product name, do not translate. ?>

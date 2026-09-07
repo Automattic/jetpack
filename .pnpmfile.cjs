@@ -1,33 +1,53 @@
 // Packages we need to copy versions from for `@wordpress/dataviews/wp`.
-const wpPkgs = {
-	'@wordpress/components': [
-		'change-case',
-		'colord',
-		'date-fns',
-		'deepmerge',
-		'@emotion/cache',
-		'@emotion/css',
-		'@emotion/react',
-		'@emotion/styled',
-		'@emotion/utils',
-		'fast-deep-equal',
-		'@floating-ui/react-dom',
-		'framer-motion',
-		'highlight-words-core',
-		'is-plain-object',
-		'memize',
-		'@use-gesture/react',
-		'uuid',
-		'@wordpress/date',
-		'@wordpress/hooks',
-		'react-colorful',
-		'react-day-picker',
-	],
-	'@wordpress/element': [ 'react-dom' ],
-	'@wordpress/data': [ 'use-memo-one' ],
-	'@wordpress/ui': [ '@base-ui/react' ],
-};
+const wpPkgs = [
+	[ '@wordpress/components', 'change-case' ],
+	[ '@wordpress/components', '@emotion/cache' ],
+	[ '@wordpress/components', '@emotion/css' ],
+	[ '@wordpress/components', '@emotion/react' ],
+	[ '@wordpress/components', '@emotion/styled' ],
+	[ '@wordpress/components', '@emotion/utils' ],
+	[ '@wordpress/components', '@floating-ui/react-dom' ],
+	[ '@wordpress/components', 'framer-motion' ],
+	[ '@wordpress/components', 'highlight-words-core' ],
+	[ '@wordpress/components', 'is-plain-object' ],
+	[ '@wordpress/components', 'memize' ],
+	[ '@wordpress/components', '@use-gesture/react' ],
+	[ '@wordpress/components', 'uuid' ],
+	[ '@wordpress/components', '@wordpress/hooks' ],
+	[ '@wordpress/components', 'react-colorful' ],
+	[ '@wordpress/data', 'use-memo-one' ],
+	[ '@wordpress/ui', '@base-ui/react' ],
+	[ '@wordpress/ui', '@daypicker/react' ],
+	[ '@wordpress/ui', '@wordpress/theme', 'colorjs.io' ],
+];
 const wpPkgFetches = {};
+const wpPkgsUsed = new Set();
+const addWpPkgDep = async ( pkg, fromPkg, ver, deplist ) => {
+	const [ dep, ...rest ] = deplist;
+
+	if ( ! wpPkgFetches[ fromPkg ] ) {
+		wpPkgFetches[ fromPkg ] = fetch( `https://registry.npmjs.org/${ fromPkg }` ).then( r =>
+			r.json()
+		);
+	}
+	const deps = ( await wpPkgFetches[ fromPkg ] ).versions[ ver ].dependencies;
+
+	if ( rest.length > 0 ) {
+		if ( deps[ dep ] === undefined ) {
+			// This version of the package lacks the dep? We'll check in afterAllResolved for no version having it.
+			return;
+		}
+		const ver2 = deps[ dep ].replace( /^\^/, '' ).replace( /\+[0-9a-f]+$/, '' );
+		await addWpPkgDep( pkg, dep, ver2, rest );
+	} else {
+		if ( deps[ dep ] === undefined ) {
+			// Ditto.
+			return;
+		}
+		wpPkgsUsed.add( dep );
+		pkg.optionalDependencies[ dep ] = deps[ dep ];
+	}
+};
 
 /**
  * Fix package dependencies.
@@ -39,7 +59,7 @@ const wpPkgFetches = {};
  */
 async function fixDeps( pkg ) {
 	// Deps tend to get outdated due to a slow release cycle.
-	// So change `^` to `>=` and hope any breaking changes will not really break.
+	// So change `^` to `>=` to avoid many duplicate packages (most are dependency-extracted in the build anyway), and hope any breaking changes will not really break.
 	if (
 		pkg.name === '@automattic/api-core' ||
 		pkg.name === '@automattic/components' ||
@@ -57,6 +77,39 @@ async function fixDeps( pkg ) {
 				}
 			}
 		}
+	}
+
+	// lock()/unlock() pair through a module-scoped registry, so a prerelease
+	// private-apis range would resolve a second copy beside the stable one the
+	// repo pins and throw. Collapse it onto the version premium-analytics
+	// declares; the rule stops matching once no manifest asks for a prerelease.
+	if ( pkg.dependencies?.[ '@wordpress/private-apis' ]?.includes( '-next' ) ) {
+		pkg.dependencies[ '@wordpress/private-apis' ] =
+			require( './projects/packages/premium-analytics/package.json' ).dependencies[
+				'@wordpress/private-apis'
+			];
+	}
+
+	// WooCommerce packages pin `@wordpress/*` deps to versions from the lowest Core version the plugin supports.
+	// Change to `>=` to avoid many duplicate packages (most are dependency-extracted in the build anyway), and hope any breaking changes will not really break.
+	if ( pkg.name === '@woocommerce/email-editor' ) {
+		for ( const [ dep, ver ] of Object.entries( pkg.dependencies ) ) {
+			if ( dep.startsWith( '@wordpress/' ) ) {
+				if ( ver.startsWith( '^' ) ) {
+					pkg.dependencies[ dep ] = '>=' + ver.substring( 1 );
+				} else if ( ver.match( /^\d/ ) ) {
+					pkg.dependencies[ dep ] = '>=' + ver;
+				}
+			}
+		}
+	}
+
+	// Unused, vulnerable dep.
+	if (
+		pkg.name === '@automattic/components' &&
+		pkg.dependencies[ 'react-router-dom' ]?.startsWith( '^6' )
+	) {
+		delete pkg.dependencies[ 'react-router-dom' ];
 	}
 
 	// Breaking change in @wordpress/icons v11.
@@ -88,26 +141,14 @@ async function fixDeps( pkg ) {
 	// the build fails when using pnpm with hoisting.
 	// @see https://github.com/WordPress/gutenberg/issues/67864
 	if ( pkg.name === '@wordpress/dataviews' ) {
-		for ( const fromPkg of Object.keys( wpPkgs ) ) {
+		for ( const deplist of wpPkgs ) {
+			const [ fromPkg, ...rest ] = deplist;
 			if ( ! pkg.dependencies[ fromPkg ] ) {
 				// Old version of dataviews lacks a new dep? We'll check in afterAllResolved for it being an old dep instead.
 				continue;
 			}
-
-			if ( ! wpPkgFetches[ fromPkg ] ) {
-				wpPkgFetches[ fromPkg ] = fetch( `https://registry.npmjs.org/${ fromPkg }` ).then( r =>
-					r.json()
-				);
-			}
 			const ver = pkg.dependencies[ fromPkg ].replace( /^\^/, '' ).replace( /\+[0-9a-f]+$/, '' );
-			const deps = ( await wpPkgFetches[ fromPkg ] ).versions[ ver ].dependencies;
-			for ( const dep of wpPkgs[ fromPkg ] ) {
-				if ( deps[ dep ] === undefined ) {
-					// prettier-ignore
-					throw new Error( `pnpmfile hack needs updating, ${ fromPkg } ${ ver } doesn't depend on ${ dep } anymore?` );
-				}
-				pkg.optionalDependencies[ dep ] = deps[ dep ];
-			}
+			await addWpPkgDep( pkg, fromPkg, ver, rest );
 		}
 	}
 
@@ -120,37 +161,43 @@ async function fixDeps( pkg ) {
 				dep.endsWith( '/eslint-plugin' ) ||
 				dep.startsWith( 'eslint-config-' ) ||
 				dep.endsWith( '/eslint-config' ) ||
-				dep.startsWith( '@typescript-eslint/' )
+				dep.startsWith( '@typescript-eslint/' ) ||
+				dep === '@wordpress/theme'
 			) {
 				delete pkg.dependencies[ dep ];
 				pkg.peerDependencies[ dep ] = ver.replace( /^\^?/, '>=' );
 			}
 		}
-
-		// Doesn't really need these at all with eslint 9 and our config.
-		pkg.peerDependenciesMeta ??= {};
-		pkg.peerDependenciesMeta[ '@typescript-eslint/eslint-plugin' ] = { optional: true };
-		pkg.peerDependenciesMeta[ '@typescript-eslint/parser' ] = { optional: true };
-	}
-
-	// Unnecessarily explicit deps. I don't think we really even need @wordpress/babel-preset-default at all.
-	if ( pkg.name === '@wordpress/babel-preset-default' ) {
-		for ( const [ dep, ver ] of Object.entries( pkg.dependencies ) ) {
-			if ( dep.startsWith( '@babel/' ) && ! ver.startsWith( '^' ) && ! ver.startsWith( '>' ) ) {
-				pkg.dependencies[ dep ] = '^' + ver;
-			}
+		// Broaden this one further, because they're linked upstream but we update them in different Renovate PRs.
+		if ( pkg.peerDependencies[ '@wordpress/theme' ] ) {
+			pkg.peerDependencies[ '@wordpress/theme' ] = '*';
 		}
 	}
 
-	// Outdated dependency and unnecessarily explicit deps.
+	// Turn `@wordpress/stylelint-config` deps into peer deps too.
+	if ( pkg.name === '@wordpress/stylelint-config' ) {
+		for ( const [ dep, ver ] of Object.entries( pkg.peerDependencies ) ) {
+			if ( ! ver.startsWith( '>' ) ) {
+				pkg.peerDependencies[ dep ] = ver.replace( /^\^?/, '>=' );
+			}
+		}
+		for ( const [ dep, ver ] of Object.entries( pkg.dependencies ) ) {
+			delete pkg.dependencies[ dep ];
+			pkg.peerDependencies[ dep ] = ver.startsWith( '>' ) ? ver : ver.replace( /^\^?/, '>=' );
+		}
+		// Broaden this one further, because they're linked upstream but we update them in different Renovate PRs.
+		if ( pkg.peerDependencies[ '@wordpress/theme' ] ) {
+			pkg.peerDependencies[ '@wordpress/theme' ] = '*';
+		}
+	}
+
+	// Outdated dependencies
 	if ( pkg.name === '@wordpress/build' ) {
-		for ( const [ dep, ver ] of Object.entries( pkg.dependencies ) ) {
-			if ( ! ver.startsWith( '^' ) && ! ver.startsWith( '>' ) ) {
-				pkg.dependencies[ dep ] = '^' + ver;
-			}
-		}
 		if ( pkg.dependencies.cssnano === '^6.0.1' ) {
 			pkg.dependencies.cssnano = '^6 || ^7';
+		}
+		if ( pkg.dependencies.esbuild === '^0.27.2' ) {
+			pkg.dependencies.esbuild = '^0.27 || ^0.28';
 		}
 	}
 
@@ -161,38 +208,6 @@ async function fixDeps( pkg ) {
 				pkg.dependencies[ dep ] = '>=' + ver.substring( 1 );
 			}
 		}
-	}
-
-	// @wordpress/stylelint-config is still CJS, which caps how high we can upgrade.
-	// https://github.com/WordPress/gutenberg/issues/75047
-	if ( pkg.name === '@wordpress/stylelint-config' ) {
-		if ( pkg.dependencies?.[ '@stylistic/stylelint-plugin' ]?.startsWith( '^3.' ) ) {
-			pkg.dependencies[ '@stylistic/stylelint-plugin' ] = '^5';
-		}
-		if ( pkg.dependencies?.[ 'stylelint-config-recommended' ]?.startsWith( '^14.' ) ) {
-			pkg.dependencies[ 'stylelint-config-recommended' ] = '^17'; // 18 is ESM
-		}
-		if ( pkg.dependencies?.[ 'stylelint-config-recommended-scss' ]?.startsWith( '^14.' ) ) {
-			pkg.dependencies[ 'stylelint-config-recommended-scss' ] = '^16'; // 17 is ESM
-		}
-		if ( pkg.peerDependencies?.stylelint?.startsWith( '^16.' ) ) {
-			pkg.peerDependencies.stylelint = '^17';
-		}
-		if ( pkg.peerDependencies?.[ 'stylelint-scss' ]?.startsWith( '^6.' ) ) {
-			pkg.peerDependencies[ 'stylelint-scss' ] = '^7';
-		}
-	}
-	if ( pkg.name === '@wordpress/theme' && pkg.peerDependencies?.stylelint ) {
-		pkg.peerDependencies.stylelint = pkg.peerDependencies.stylelint.replace( /^(?:\^|>=)?/, '>=' );
-	}
-
-	// Make sure @wordpress/eslint-plugin and @wordpress/stylelint-config gets whatever @wordpress/theme is installed.
-	if (
-		( pkg.name === '@wordpress/stylelint-config' || pkg.name === '@wordpress/eslint-plugin' ) &&
-		pkg.dependencies?.[ '@wordpress/theme' ]
-	) {
-		delete pkg.dependencies[ '@wordpress/theme' ];
-		pkg.peerDependencies[ '@wordpress/theme' ] = '*';
 	}
 
 	// Update localtunnel axios dep to avoid CVE
@@ -255,12 +270,6 @@ async function fixDeps( pkg ) {
 		}
 	}
 
-	// Outdated, deprecated dependency.
-	// https://github.com/fontello/svg2ttf/issues/123
-	if ( pkg.name === 'svg2ttf' && pkg.dependencies?.[ '@xmldom/xmldom' ] === '^0.7.2' ) {
-		pkg.dependencies[ '@xmldom/xmldom' ] = '^0.9';
-	}
-
 	// Outdated, vulnerable dep. Seems to work with the updated version.
 	// https://github.com/istanbuljs/load-nyc-config/issues/26
 	if (
@@ -279,12 +288,13 @@ async function fixDeps( pkg ) {
 		pkg.dependencies.glob = '^13';
 	}
 
-	// Temporarily outdated deps. Storybook is already updated upstream.
+	// Updated in upstream trunk with no other changes, but not released yet.
+	// https://github.com/Automattic/newspack-workspace/pull/835
 	if (
-		pkg.dependencies?.esbuild?.match( /\^0\.27/ ) &&
-		! pkg.dependencies?.esbuild?.match( /\^0\.28/ )
+		pkg.name === 'newspack-icons' &&
+		pkg.peerDependencies?.[ '@wordpress/primitives' ] === '^3.0.0'
 	) {
-		pkg.dependencies.esbuild += ' || ^0.28';
+		pkg.peerDependencies[ '@wordpress/primitives' ] = '^3.0.0 || ^4.0.0';
 	}
 
 	// We don't use this in our E2E runs, and it brings in a lot of extraneous deps (and CVE-2026-54285).
@@ -354,11 +364,24 @@ function fixPeerDeps( pkg ) {
 		}
 	}
 
-	// Apparently this for some reason includes a vite plugin, instead of that being a separate package.
-	// And it depends on the wrong version of vite. Since we mostly don't use vite anyway (just in storybook),
-	// it should be safe to broaden the dep.
-	if ( pkg.name === '@wordpress/theme' && pkg.peerDependencies?.vite ) {
-		pkg.peerDependencies.vite = '*';
+	// @wordpress/theme includes plugins for various tools. Widen peer dependencies so it doesn't conflict.
+	// @see https://github.com/WordPress/gutenberg/pull/80267 for example
+	if ( pkg.name === '@wordpress/theme' ) {
+		for ( const dep of [ 'esbuild', 'postcss', 'stylelint', 'vite' ] ) {
+			if ( pkg.peerDependencies[ dep ] && ! pkg.peerDependencies[ dep ].startsWith( '>' ) ) {
+				pkg.peerDependencies[ dep ] = pkg.peerDependencies[ dep ].replace( /^\^?/, '>=' );
+			}
+		}
+	}
+
+	// @wordpress/build's optional peer on @wordpress/theme stops below 2.0.0, blocking the theme 2.x
+	// that @wordpress/ui and @wordpress/boot require. Widened upstream, drop once a release carries it.
+	// @see https://github.com/WordPress/gutenberg/pull/82139
+	if (
+		pkg.name === '@wordpress/build' &&
+		pkg.peerDependencies?.[ '@wordpress/theme' ] === '>=0.8.0 <2.0.0'
+	) {
+		pkg.peerDependencies[ '@wordpress/theme' ] = '>=0.8.0 <3.0.0';
 	}
 
 	// We use this under tsdown (Rolldown), not Rollup. The `rollup` peer is only used for one TypeScript type, and it being missing apparently makes no difference in our usage.
@@ -413,19 +436,6 @@ function fixPeerDeps( pkg ) {
 	// Since it already has a (non-optional 🙄) peer dep on sass-embedded, we can just delete the sass dep.
 	if ( pkg.name === 'esbuild-sass-plugin' && pkg.dependencies.sass ) {
 		delete pkg.dependencies.sass;
-	}
-
-	// These packages went ESM-only in their latest versions, which breaks `@wordpress/stylelint-config`.
-	// So we need to keep older CJS versions for now, while bumping their stylelint peer deps.
-	// https://github.com/WordPress/gutenberg/issues/75047
-	if (
-		( pkg.name === 'stylelint-config-recommended' ||
-			pkg.name === 'stylelint-config-recommended-scss' ||
-			pkg.name === '@stylistic/stylelint-plugin' ||
-			pkg.name === 'stylelint-scss' ) &&
-		pkg.peerDependencies?.stylelint?.startsWith( '^16.' )
-	) {
-		pkg.peerDependencies.stylelint = '^17';
 	}
 
 	// Having copies with and without the peer dep tends to break tests. So let's just make it non-optional.
@@ -499,11 +509,14 @@ function afterAllResolved( lockfile, context ) {
 		}
 	}
 
-	for ( const fromPkg of Object.keys( wpPkgs ) ) {
-		if ( ! wpPkgFetches[ fromPkg ] ) {
-			context.log(
-				`pnpmfile hack needs updating: wpPkgs['${ fromPkg }'] was not used. Is it obsolete?`
-			);
+	for ( const deplist of wpPkgs ) {
+		for ( const dep of deplist ) {
+			if ( ! wpPkgFetches[ dep ] && ! wpPkgsUsed.has( dep ) ) {
+				context.log(
+					// prettier-ignore
+					`pnpmfile hack needs updating: wpPkgs entry [ ${ deplist.join( ', ' ) } ] was not used. Is it obsolete?`
+				);
+			}
 		}
 	}
 

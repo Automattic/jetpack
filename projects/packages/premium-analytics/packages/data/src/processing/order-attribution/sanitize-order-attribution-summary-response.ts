@@ -10,9 +10,6 @@ type OrderAttributionSummaryResponse = Awaited<
 
 type OrderAttributionView = OrderAttributionSummaryResponse[ 'view' ];
 
-/**
- * Internal types for processing
- */
 type OrderAttributionInterval = {
 	time_interval: string;
 	date_start: string;
@@ -31,9 +28,6 @@ type OrderAttributionSummaryItem = {
 	previous_period: OrderAttributionPeriod;
 };
 
-/**
- * Processed (sanitized) response types
- */
 type SanitizedOrderAttributionInterval = {
 	time_interval: string;
 	date_start: string;
@@ -58,9 +52,6 @@ export type SanitizedOrderAttributionSummaryResponse = {
 	data: SanitizedOrderAttributionSummaryItem[];
 };
 
-/**
- * Sanitizes a single interval by converting string net_sales to number
- */
 function sanitizeOrderAttributionInterval(
 	interval: OrderAttributionInterval
 ): SanitizedOrderAttributionInterval {
@@ -72,9 +63,6 @@ function sanitizeOrderAttributionInterval(
 	};
 }
 
-/**
- * Sanitizes a period by converting value to number and intervals
- */
 function sanitizeOrderAttributionPeriod(
 	period: OrderAttributionPeriod
 ): SanitizedOrderAttributionPeriod {
@@ -84,9 +72,6 @@ function sanitizeOrderAttributionPeriod(
 	};
 }
 
-/**
- * Sanitizes a single order attribution summary item
- */
 function sanitizeOrderAttributionSummaryItem(
 	item: OrderAttributionSummaryItem
 ): SanitizedOrderAttributionSummaryItem {
@@ -97,13 +82,6 @@ function sanitizeOrderAttributionSummaryItem(
 	};
 }
 
-/**
- * Sanitizes the order attribution summary response by converting all string
- * numbers to actual numbers
- *
- * @param response - Raw API response from /summary endpoint
- * @return Sanitized response with numbers instead of strings
- */
 export function sanitizeReportOrderAttributionSummaryResponse(
 	response: OrderAttributionSummaryResponse
 ): SanitizedOrderAttributionSummaryResponse {

@@ -573,7 +573,7 @@ jQuery( function($) {
 
 		$is_post_published = 'publish' === get_post_status( $post->ID );
 
-		$templates_enabled = Current_Plan::supports( 'social-message-templates' );
+		$templates_enabled = $this->publicize->has_paid_features();
 
 		$placeholders = $this->get_message_placeholders();
 

@@ -21,6 +21,7 @@ export const statsLocationsQuery = (
 		params,
 		'locations',
 		'1.1',
-		filter_by_country ? { filter_by_country } : undefined
+		filter_by_country ? { filter_by_country } : undefined,
+		{ omitParams: [ 'days' ] }
 	);
 };

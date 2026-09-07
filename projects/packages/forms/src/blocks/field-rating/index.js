@@ -1,14 +1,24 @@
 import { __ } from '@wordpress/i18n';
 import defaultSettings from '../shared/settings/index.js';
-import edit from './edit.js';
+import edit from './edit.jsx';
 import blockIcon from './icon.jsx';
-import save from './save.js';
-import variations from './variations.js';
+import save from './save.jsx';
+import variations from './variations.jsx';
 
 export const name = 'field-rating';
 
 export const form_editor = {
 	category: 'advanced',
+};
+
+/**
+ * Conditional logic: how this field's value is compared.
+ *
+ * Declared per block so the rule builder can offer the right operators and value
+ * input. A block that omits this simply gets no conditional-logic support.
+ */
+export const conditional_logic = {
+	type: 'rating',
 };
 
 export const settings = {
@@ -60,4 +70,4 @@ export const settings = {
 	},
 };
 
-export default { name, settings, form_editor };
+export default { name, settings, form_editor, conditional_logic };

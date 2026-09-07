@@ -1,0 +1,83 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "videopress/playlist",
+	"version": "0.1.0",
+	"title": "Video Playlist",
+	"category": "media",
+	"icon": "<svg viewBox='0 0 24 24' width='24' height='24' xmlns='http://www.w3.org/2000/svg'><path fill-rule='evenodd' clip-rule='evenodd' d='M4 5.5h9A1.5 1.5 0 0 1 14.5 7v6A1.5 1.5 0 0 1 13 14.5H4A1.5 1.5 0 0 1 2.5 13V7A1.5 1.5 0 0 1 4 5.5Zm3.5 2.6v3.8L10.7 10 7.5 8.1ZM16.5 7H21v1.5h-4.5V7Zm0 4H21v1.5h-4.5V11Zm-14 6H21v1.5H2.5V17Z'></path></svg>",
+	"description": "VideoPress powered list of videos in a single customizable player. Build the playlist from your VideoPress library or video links.",
+	"keywords": [ "playlist", "video", "videopress", "series" ],
+	"textdomain": "jetpack-videopress-pkg",
+	"supports": {
+		"html": false,
+		"align": [ "wide", "full" ],
+		"anchor": true,
+		"spacing": {
+			"margin": true,
+			"padding": true
+		}
+	},
+	"attributes": {
+		"videos": {
+			"type": "array",
+			"items": {
+				"type": "object"
+			},
+			"default": []
+		},
+		"layout": {
+			"type": "string",
+			"enum": [ "side-rail", "grid", "strip" ],
+			"default": "side-rail"
+		},
+		"darkPlayer": {
+			"type": "boolean",
+			"default": false
+		},
+		"autoplayNext": {
+			"type": "boolean",
+			"default": false
+		},
+		"muteByDefault": {
+			"type": "boolean",
+			"default": false
+		},
+		"loopPlaylist": {
+			"type": "boolean",
+			"default": false
+		},
+		"showThumbnail": {
+			"type": "boolean",
+			"default": true
+		},
+		"showTitle": {
+			"type": "boolean",
+			"default": true
+		},
+		"showResolution": {
+			"type": "boolean",
+			"default": true
+		},
+		"showDuration": {
+			"type": "boolean",
+			"default": true
+		},
+		"showPositionNumber": {
+			"type": "boolean",
+			"default": false
+		},
+		"showTotalRuntime": {
+			"type": "boolean",
+			"default": true
+		},
+		"entryTitleFontFamily": {
+			"type": "string",
+			"default": ""
+		}
+	},
+	"editorScript": "file:./index.js",
+	"editorStyle": [ "file:./index.css", "file:./view.css" ],
+	"viewScript": "file:./view.js",
+	"viewStyle": "file:./view.css"
+}

@@ -67,6 +67,10 @@ class Sidebar_Open_Preservation_Test extends \WorDBless\BaseTestCase {
 			)
 		);
 		wp_set_current_user( $this->user_id );
+
+		// The pre-render only runs for connected users now, so seed the tokens.
+		\Jetpack_Options::update_option( 'user_tokens', array( $this->user_id => 'test.token.' . $this->user_id ) );
+		\Jetpack_Options::update_option( 'id', 12345 );
 	}
 
 	/**
@@ -95,7 +99,7 @@ class Sidebar_Open_Preservation_Test extends \WorDBless\BaseTestCase {
 		if ( function_exists( 'set_current_screen' ) ) {
 			set_current_screen( 'front' );
 		}
-		unset( $GLOBALS['current_screen'], $GLOBALS['pagenow'], $_GET['canvas'] );
+		unset( $GLOBALS['current_screen'], $GLOBALS['pagenow'] );
 
 		parent::tear_down();
 	}
@@ -225,20 +229,20 @@ class Sidebar_Open_Preservation_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Tests that the constructor registers the early dock-sync script hook.
+	 * Tests that the constructor registers the early docking-gate script hook.
 	 */
-	public function test_constructor_registers_sync_script_hook() {
+	public function test_constructor_registers_docking_gate_script_hook() {
 		$this->assertNotFalse(
 			has_action( 'in_admin_header', array( $this->preservation, 'print_sidebar_docking_gate_script' ) ),
-			'The docking viewport height gate script must be hooked into the admin body.'
+			'The docking gate script must be hooked into the admin header.'
 		);
 	}
 
 	/**
-	 * Tests that the dock-height sync script is printed when the
+	 * Tests that the docking-gate script is printed when the
 	 * docked-open shell is pre-rendered.
 	 */
-	public function test_print_sync_script_outputs_when_pre_rendering() {
+	public function test_print_docking_gate_script_outputs_when_pre_rendering() {
 		$this->enable_preservation();
 		$this->cache_open_state( true );
 
@@ -260,9 +264,9 @@ class Sidebar_Open_Preservation_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Tests that the dock-sync script is not printed when nothing is pre-rendered.
+	 * Tests that the docking-gate script is not printed when nothing is pre-rendered.
 	 */
-	public function test_print_sync_script_noop_when_not_pre_rendering() {
+	public function test_print_docking_gate_script_noop_when_not_pre_rendering() {
 		$this->enable_preservation();
 		$this->cache_open_state( false );
 
@@ -433,40 +437,17 @@ class Sidebar_Open_Preservation_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Tests that the shell is pre-rendered in the Site Editor editing canvas
-	 * (`?canvas=edit`), where the chat docks.
+	 * Tests that the shell is still pre-rendered on an editor screen when
+	 * fullscreen mode is on (the default), where the chat docks.
 	 */
-	public function test_pre_renders_on_site_editor_canvas() {
+	public function test_pre_renders_on_fullscreen_editor() {
 		$this->enable_preservation();
 		$this->cache_open_state( true );
 		$GLOBALS['pagenow'] = 'site-editor.php';
-		$_GET['canvas']     = 'edit';
 		$this->set_fullscreen_preference( 'core/edit-site', true );
 
 		$result = $this->preservation->add_preopen_body_classes( 'foo bar' );
 
 		$this->assertStringContainsString( self::SIDEBAR_OPEN_CLASS, $result );
-	}
-
-	/**
-	 * Tests that nothing is pre-rendered on the Site Editor navigation view (no
-	 * `?canvas=edit`), where the chat can't dock.
-	 */
-	public function test_does_not_pre_render_on_site_editor_navigation() {
-		$this->enable_preservation();
-		$this->cache_open_state( true );
-		$GLOBALS['pagenow'] = 'site-editor.php';
-
-		$this->assertSame( 'foo bar', $this->preservation->add_preopen_body_classes( 'foo bar' ) );
-
-		// Stub the gate script so the empty output proves the navigation-view gate
-		// suppresses it, not a missing build file.
-		$gate_script   = '/* gate */';
-		$expected_path = dirname( __DIR__, 2 ) . '/src/../build/sidebar-docking-gate.js';
-		$this->stub_filesystem( $gate_script, $expected_path );
-
-		ob_start();
-		$this->preservation->print_sidebar_docking_gate_script();
-		$this->assertSame( '', ob_get_clean() );
 	}
 }

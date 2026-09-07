@@ -73,7 +73,7 @@ describe( 'ReaderChatControl', () => {
 		render( <ReaderChatControl { ...defaultProps } isEnabled /> );
 
 		const toggle = screen.getByRole( 'checkbox', {
-			name: /Enable Reader Chat/i,
+			name: /Enable Site Chat/i,
 		} );
 
 		expect( toggle ).toBeChecked();
@@ -103,7 +103,7 @@ describe( 'ReaderChatControl', () => {
 		render( <ReaderChatControl { ...defaultProps } isEnabled={ false } /> );
 
 		const toggle = screen.getByRole( 'checkbox', {
-			name: /Enable Reader Chat/i,
+			name: /Enable Site Chat/i,
 		} );
 
 		expect( toggle ).not.toBeChecked();
@@ -119,7 +119,7 @@ describe( 'ReaderChatControl', () => {
 		render( <ReaderChatControl { ...defaultProps } updateOptions={ updateOptions } /> );
 
 		const toggle = screen.getByRole( 'checkbox', {
-			name: /Enable Reader Chat/i,
+			name: /Enable Site Chat/i,
 		} );
 		fireEvent.click( toggle );
 
@@ -131,7 +131,7 @@ describe( 'ReaderChatControl', () => {
 
 		expect(
 			screen.getByRole( 'checkbox', {
-				name: /Enable Reader Chat/i,
+				name: /Enable Site Chat/i,
 			} )
 		).toBeDisabled();
 	} );

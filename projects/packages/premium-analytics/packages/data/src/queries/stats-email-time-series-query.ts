@@ -1,7 +1,8 @@
 /**
  * Internal dependencies
  */
-import { reportParamsToStatsQueryParams, statsQueryParamsToApiParams } from '../utils/stats-params';
+import { toStatsBucketWindowParams, windowEndHour } from '../processing/stats';
+import { reportParamsToStatsQueryParams } from '../utils/stats-params';
 import {
 	statsProxyQuery,
 	type StatsReportParams,
@@ -31,22 +32,27 @@ const hasValidPostId = ( postId: number ) => Number.isInteger( postId ) && postI
 const toEmailPeriod = ( period?: string ): StatsEmailTimeSeriesPeriod =>
 	period === 'hour' ? 'hour' : 'day';
 
-// Mirror Calypso's requestEmailStats: the timeline is period-scoped and always sends period,
-// quantity, date, and stats_fields=timeline. quantity is the number of buckets ending at date,
-// so it must span the whole requested range — 24 buckets per day for hourly, one per day otherwise.
+// Hourly buckets are anchored on the start day's midnight whatever time `date`
+// carries, so the request must span it; the sanitizer trims the leading ones.
+const hourlyQuantity = ( days: number, endDate?: string ) =>
+	Math.max( 1, 24 * ( days - 1 ) + windowEndHour( endDate ) + 1 );
+
+// Mirrors Calypso's requestEmailStats. Unlike the other stats endpoints (where
+// `date` is the window's END), this one reads `date` as the window's START and
+// returns `quantity` buckets going forward.
 function emailTimeSeriesQuery(
 	statType: 'opens' | 'clicks',
 	postId: number,
 	params: StatsReportParams
 ): StatsReportQueryOptions< 'emailTimeSeries' > {
 	const statsParams = reportParamsToStatsQueryParams( params );
-	const apiParams = statsQueryParamsToApiParams( statsParams );
 	const period = toEmailPeriod( statsParams.period );
 	const days = statsParams.days ?? ( period === 'hour' ? 1 : 30 );
+	const window = toStatsBucketWindowParams( statsParams );
 	const emailParams: StatsProxyParams = {
 		period,
-		quantity: period === 'hour' ? 24 * days : days,
-		...( apiParams.date ? { date: apiParams.date } : {} ),
+		quantity: period === 'hour' ? hourlyQuantity( days, statsParams.end_date ) : days,
+		...( statsParams.start_date ? { date: statsParams.start_date } : {} ),
 		stats_fields: 'timeline',
 	};
 
@@ -56,6 +62,7 @@ function emailTimeSeriesQuery(
 		endpoint: `stats/${ statType }/emails/${ postId }`,
 		params: emailParams,
 		sanitizer: 'emailTimeSeries',
+		...( window ? { sanitizerParams: window } : {} ),
 		enabled: hasValidPostId( postId ) && !! emailParams.date,
 	} );
 }

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Keep the year and the day on bar chart time axes, which could previously skip the tick that named them, and stop the same label falling on two ticks in a row.

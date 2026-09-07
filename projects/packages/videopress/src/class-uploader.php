@@ -209,9 +209,18 @@ class Uploader {
 			return $this->check_status();
 		}
 		try {
-			$this->get_client()->file( $this->get_file_path(), $this->get_file_name() );
+			$attachment = get_post( $this->attachment_id );
+			$client     = $this->get_client();
+			$client->file( $this->get_file_path(), $this->get_file_name() );
+			$client->add_metadata( 'title', $attachment->post_title );
+			if ( '' !== $attachment->post_content ) {
+				$client->add_metadata( 'description', $attachment->post_content );
+			}
+			if ( '' !== $attachment->post_excerpt ) {
+				$client->add_metadata( 'caption', $attachment->post_excerpt );
+			}
 
-			$bytes_uploaded = $this->get_client()->upload( self::CHUNK_SIZE );
+			$bytes_uploaded = $client->upload( self::CHUNK_SIZE );
 
 			if ( $bytes_uploaded === $this->get_file_size() ) {
 				$this->mark_as_uploaded( $this->get_client()->get_uploaded_video_details()['media_id'] );

@@ -11,6 +11,11 @@ import type { Signal } from '@preact/signals';
  */
 export function createSignals() {
 	/*
+	 * Cookie access can't change without a page reload, so probe once and share the answer.
+	 */
+	const canAccessCookies = canWeAccessCookies();
+
+	/*
 	 * In userInfo we store the user data for logged-in users.
 	 */
 	const userInfo: Signal< UserInfo > = signal( getUserInfoCookie() );
@@ -22,7 +27,7 @@ export function createSignals() {
 	const userLoggedIn = computed( () => {
 		return (
 			VerbumComments.isJetpackCommentsLoggedIn ||
-			( canWeAccessCookies() &&
+			( canAccessCookies &&
 				userInfo.value &&
 				userInfo.value?.service !== 'guest' &&
 				userInfo.value?.service !== 'jetpack' )
@@ -78,11 +83,21 @@ export function createSignals() {
 	} );
 
 	/*
+	 * Login is required but the login options can't render, so there is no way for this comment to
+	 * be accepted. `mustLogIn` tracks the WordPress.com session, which is absent in the Jetpack
+	 * iframe even for visitors logged in to the site itself, hence the userLoggedIn check.
+	 */
+	const isCommentBlocked = computed( () => {
+		return Boolean( VerbumComments.mustLogIn ) && ! userLoggedIn.value && ! canAccessCookies;
+	} );
+
+	/*
 	 * Calculate if the reply button should be disabled. When we have no user data we check the shouldDisableReply value,
 	 * otherwise we check if the comment is empty or saving.
 	 */
 	const isReplyDisabled = computed( () => {
 		return (
+			isCommentBlocked.value ||
 			( isAuthRequired() &&
 				! userLoggedIn.value &&
 				( isMailFormMissingInput.value || isMailFormInvalid.value ) ) ||
@@ -117,12 +132,14 @@ export function createSignals() {
 	const subscribeModalStatus: Signal< string | undefined > = signal( undefined );
 
 	return {
+		canAccessCookies,
 		userInfo,
 		userLoggedIn,
 		mailLoginData,
 		isTrayOpen,
 		hasOpenedTrayOnce,
 		commentValue,
+		isCommentBlocked,
 		isEmptyComment,
 		isSavingComment,
 		isMailFormInvalid,

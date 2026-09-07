@@ -1,6 +1,6 @@
 import fs from 'fs';
 import * as core from '@actions/core';
-import yaml from 'js-yaml';
+import * as yaml from 'js-yaml';
 import { fetchPaths } from './paths.js';
 import * as reporter from './reporter.js';
 import { requestReview } from './request-review.js';
@@ -39,9 +39,7 @@ async function getRequirements() {
 	}
 
 	try {
-		const requirements = yaml.load( requirementsString, {
-			onWarning: w => core.warning( `Yaml: ${ w.message }` ),
-		} );
+		const requirements = yaml.load( requirementsString );
 		if ( ! Array.isArray( requirements ) ) {
 			throw new Error( 'Requirements file does not contain an array' );
 		}

@@ -14,7 +14,7 @@ type Props = {
  * so the row labels match the Stats dashboard treatment (no underline,
  * inherit color).
  *
- * Tags the navigation with `state: { from: 'overview' }` so the Video
+ * Tags the navigation with `state: { from: 'stats' }` so the Video
  * details breadcrumb can route its "VideoPress" parent link back to
  * Overview instead of defaulting to Library.
  *
@@ -24,7 +24,7 @@ type Props = {
  * @return The wrapped link element.
  */
 export default function VideoTitleLink( { to, children }: Props ): ReactElement {
-	const linkProps = useLinkProps( { to, state: { from: 'overview' } as never } );
+	const linkProps = useLinkProps( { to, state: { from: 'stats' } as never } );
 
 	return (
 		<Link tone="neutral" variant="unstyled" { ...linkProps }>

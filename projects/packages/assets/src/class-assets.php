@@ -32,9 +32,32 @@ class Assets {
 	/**
 	 * The registered textdomain mappings.
 	 *
-	 * @var array `array( mapped_domain => array( string target_domain, string target_type, string semver, string path_prefix ) )`.
+	 * @var array `array( mapped_domain => array( string target_domain, string target_type, string semver ) )`.
 	 */
 	private static $domain_map = array();
+
+	/**
+	 * The registered package paths, by textdomain.
+	 *
+	 * Separate from `$domain_map` because the two answer different questions:
+	 * the map says which domain a package's strings are translated under, while
+	 * this says where the package's files live — the prefix WordPress hashes to
+	 * name a JS translation file. A package whose textdomain is already its
+	 * plugin's has nothing to alias but still needs the path.
+	 *
+	 * Note the entries are keyed by domain, not by script: `downloadI18n()`
+	 * prepends a domain's prefix to every bundle path looked up under it. That
+	 * is only ever one package's path, so a plugin must not both bundle a
+	 * package whose textdomain is the plugin's own and load its own
+	 * `wp-jp-i18n-loader` bundles under that same domain — the package's prefix
+	 * would be applied to the plugin's catalogs too, and they would all 404. No
+	 * plugin does both today. One that needs to should give the package a
+	 * distinct textdomain, the way `jetpack-backup-pkg` and
+	 * `jetpack-videopress-pkg` do.
+	 *
+	 * @var array `array( domain => array( string semver, string path_prefix ) )`.
+	 */
+	private static $domain_paths = array();
 
 	/**
 	 * Constructor.
@@ -474,8 +497,10 @@ class Assets {
 			$data['baseUrl'] = site_url( substr( trailingslashit( $lang_dir ), strlen( untrailingslashit( $abspath ) ) ) );
 		}
 
-		foreach ( self::$domain_map as $from => list( $to, $type, , $path ) ) {
+		foreach ( self::$domain_map as $from => list( $to, $type ) ) {
 			$data['domainMap'][ $from ] = ( 'core' === $type ? '' : "{$type}/" ) . $to;
+		}
+		foreach ( self::$domain_paths as $from => list( , $path ) ) {
 			if ( '' !== $path ) {
 				$data['domainPaths'][ $from ] = trailingslashit( $path );
 			}
@@ -585,11 +610,28 @@ class Assets {
 			);
 		}
 
+		// Where the package lives is needed for JS translation files whether or
+		// not its domain is aliased, so it is recorded before the self-alias
+		// check below.
+		if (
+			empty( self::$domain_paths[ $from ] ) ||
+			Semver::compare( $ver, self::$domain_paths[ $from ][0] ) > 0
+		) {
+			self::$domain_paths[ $from ] = array( $ver, $path );
+		}
+
+		// A self-alias would make filter_gettext() re-translate into the same
+		// domain, recursing infinitely on any untranslated string (a package
+		// textdomain can collide with its containing plugin's slug).
+		if ( $from === $to ) {
+			return;
+		}
+
 		if ( empty( self::$domain_map[ $from ] ) ) {
 			self::init_domain_map_hooks( $from, array() === self::$domain_map );
-			self::$domain_map[ $from ] = array( $to, $totype, $ver, $path );
+			self::$domain_map[ $from ] = array( $to, $totype, $ver );
 		} elseif ( Semver::compare( $ver, self::$domain_map[ $from ][2] ) > 0 ) {
-			self::$domain_map[ $from ] = array( $to, $totype, $ver, $path );
+			self::$domain_map[ $from ] = array( $to, $totype, $ver );
 		}
 	}
 
@@ -601,6 +643,9 @@ class Assets {
 	 *  - 'domain': String, `$to`
 	 *  - 'type': String, `$totype`
 	 *  - 'packages': Array, mapping `$from` to `array( 'path' => $path, 'ver' => $ver )` (or to the string `$ver` for back compat).
+	 *  - 'paths': Array, same shape, for packages whose textdomain is already
+	 *    `$to`. Those must not be aliased — that would recurse — but their
+	 *    paths are still needed to locate their JavaScript translations.
 	 *
 	 * @since 1.15.0
 	 * @param string $file Mapping file.
@@ -615,6 +660,11 @@ class Assets {
 				);
 			}
 			self::alias_textdomain( $from, $data['domain'], $data['type'], $fromdata['ver'], $fromdata['path'] );
+		}
+		// Aliasing a domain to itself is a no-op that `alias_textdomain()`
+		// declines, leaving just the path registration these entries are for.
+		foreach ( $data['paths'] ?? array() as $from => $fromdata ) {
+			self::alias_textdomain( $from, $from, $data['type'], $fromdata['ver'], $fromdata['path'] );
 		}
 	}
 

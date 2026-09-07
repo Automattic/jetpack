@@ -14,7 +14,6 @@ build/**          production-include
 # src/**/*.scss     production-exclude
 #
 # wp-build stuff compiled during build (uncomment as needed):
-# modules/**        production-exclude
+# packages/**       production-exclude
 # routes/**         production-exclude
-# scripts/**        production-exclude
-# styles/**         production-exclude
+# widgets/**        production-exclude

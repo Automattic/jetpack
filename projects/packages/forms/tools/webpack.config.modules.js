@@ -4,7 +4,6 @@
 import fs from 'fs';
 import path from 'path';
 import jetpackWebpackConfig from '@automattic/jetpack-webpack-config/webpack';
-import autoprefixer from 'autoprefixer';
 import { glob } from 'glob';
 
 const __dirname = import.meta.dirname;
@@ -82,7 +81,9 @@ if ( ! fs.existsSync( moduleSrcDir ) ) {
 							{
 								loader: 'postcss-loader',
 								options: {
-									postcssOptions: { plugins: [ autoprefixer ] },
+									postcssOptions: {
+										config: path.join( __dirname, '..', 'postcss.config.js' ),
+									},
 								},
 							},
 							{

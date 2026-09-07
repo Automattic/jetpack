@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Build: stage the plugin zip from the working tree via jetpack rsync file-collection instead of a composer path-repo rewrite, dropping bundled dev files and the package mirror-clone modes.

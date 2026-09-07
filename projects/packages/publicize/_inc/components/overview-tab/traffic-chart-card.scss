@@ -8,7 +8,7 @@
 	align-items: center;
 	display: flex;
 	flex-wrap: wrap;
-	gap: var(--wpds-dimension-gap-md, 12px);
+	gap: var(--wpds-dimension-gap-md);
 	justify-content: space-between;
 }
 
@@ -29,7 +29,7 @@
 }
 
 .jetpack-social-overview__chart-content {
-	padding-block-start: var(--wpds-dimension-padding-md, 12px);
+	padding-block-start: var(--wpds-dimension-padding-md);
 }
 
 .jetpack-social-overview__chart-loading,
@@ -39,7 +39,7 @@
 	display: flex;
 	justify-content: center;
 	min-block-size: 240px;
-	padding-block: var(--wpds-dimension-padding-xl, 20px);
+	padding-block: var(--wpds-dimension-padding-xl);
 	text-align: center;
 }
 
@@ -76,7 +76,7 @@
 	display: flex;
 	inset: 0;
 	justify-content: center;
-	padding: var(--wpds-dimension-padding-md, 12px);
+	padding: var(--wpds-dimension-padding-md);
 	pointer-events: none;
 	position: absolute;
 }

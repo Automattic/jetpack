@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Masterbar;
 
 use Automattic\Jetpack\Status;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Users as WorDBless_Users;
@@ -174,5 +175,122 @@ class Atomic_Admin_Menu_Test extends TestCase {
 			// Make sure that Installed Plugins menu item is still in place.
 			$this->assertSame( 'plugins.php', $submenu['plugins.php'][2][2] );
 		}
+	}
+
+	/**
+	 * Adds a WooCommerce top-level menu item to the global menu fixture.
+	 */
+	private function add_woocommerce_menu_item() {
+		global $menu;
+		$menu[56] = array(
+			'WooCommerce',
+			'manage_woocommerce',
+			'woocommerce',
+			'WooCommerce',
+			'menu-top toplevel_page_woocommerce',
+			'toplevel_page_woocommerce',
+			'dashicons-store',
+		);
+	}
+
+	/**
+	 * Builds an Atomic_Admin_Menu whose site purchases are stubbed with the given plan slug.
+	 *
+	 * @param string $product_slug Product slug to expose as a site purchase.
+	 * @return Atomic_Admin_Menu
+	 */
+	private function admin_menu_with_purchase( $product_slug ) {
+		return new class( array( (object) array( 'product_slug' => $product_slug ) ) ) extends Atomic_Admin_Menu {
+			/**
+			 * Stubbed site purchases.
+			 *
+			 * @var array
+			 */
+			private $stub_purchases;
+
+			/**
+			 * @param array $stub_purchases Stubbed site purchases.
+			 */
+			public function __construct( array $stub_purchases ) {
+				$this->stub_purchases = $stub_purchases;
+			}
+
+			/**
+			 * @return array
+			 */
+			protected function get_site_purchases() {
+				return $this->stub_purchases;
+			}
+		};
+	}
+
+	/**
+	 * Tests that the WooCommerce menu item is relabeled to "Store setup" on Commerce-plan sites.
+	 *
+	 * @dataProvider provide_ecommerce_plan_slugs
+	 *
+	 * @param string $product_slug A Commerce plan product slug.
+	 */
+	#[DataProvider( 'provide_ecommerce_plan_slugs' )]
+	public function test_relabel_woocommerce_menu_on_commerce_plan( $product_slug ) {
+		global $menu;
+
+		$this->add_woocommerce_menu_item();
+
+		$this->admin_menu_with_purchase( $product_slug )->relabel_woocommerce_menu();
+
+		$this->assertSame( 'Store setup', $menu[56][0] );
+		// The slug is preserved so the menu still points at WooCommerce.
+		$this->assertSame( 'woocommerce', $menu[56][2] );
+		// Only the sidebar label changes; the page title is left untouched.
+		$this->assertSame( 'WooCommerce', $menu[56][3] );
+	}
+
+	/**
+	 * Tests that the WooCommerce menu item keeps its label on non-Commerce-plan sites.
+	 *
+	 * Legacy Woo Express plans are included here: those users keep the "WooCommerce" label.
+	 *
+	 * @dataProvider provide_non_commerce_plan_slugs
+	 *
+	 * @param string $product_slug A non-Commerce plan product slug.
+	 */
+	#[DataProvider( 'provide_non_commerce_plan_slugs' )]
+	public function test_relabel_woocommerce_menu_keeps_label_without_commerce_plan( $product_slug ) {
+		global $menu;
+
+		$this->add_woocommerce_menu_item();
+
+		$this->admin_menu_with_purchase( $product_slug )->relabel_woocommerce_menu();
+
+		$this->assertSame( 'WooCommerce', $menu[56][0] );
+	}
+
+	/**
+	 * Data provider for Commerce plan slugs.
+	 *
+	 * @return array<string, array{string}>
+	 */
+	public static function provide_ecommerce_plan_slugs() {
+		return array(
+			'Commerce'         => array( 'ecommerce-bundle' ),
+			'Commerce monthly' => array( 'ecommerce-bundle-monthly' ),
+			'Commerce 2y'      => array( 'ecommerce-bundle-2y' ),
+			'Commerce 3y'      => array( 'ecommerce-bundle-3y' ),
+			'Commerce trial'   => array( 'ecommerce-trial-bundle-monthly' ),
+		);
+	}
+
+	/**
+	 * Data provider for non-Commerce plan slugs that should keep the "WooCommerce" label.
+	 *
+	 * @return array<string, array{string}>
+	 */
+	public static function provide_non_commerce_plan_slugs() {
+		return array(
+			'Business'          => array( 'business-bundle' ),
+			'WooExpress small'  => array( 'wooexpress-small-bundle-yearly' ),
+			'WooExpress medium' => array( 'wooexpress-medium-bundle-monthly' ),
+		);
 	}
 }

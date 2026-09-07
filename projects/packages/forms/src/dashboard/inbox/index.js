@@ -1,2 +1,2 @@
 import './style.scss';
-export { default } from './stage/index.js';
+export { default } from './stage/index.jsx';

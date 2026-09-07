@@ -1,12 +1,8 @@
 {
 	"extends": "jetpack-js-tools/tsconfig.tsc.json",
 	"compilerOptions": {
-		"outDir": "dist",
-		"declarationDir": "dist/types",
 		"typeRoots": [ "./node_modules/@types/", "src/*" ],
-		"target": "ES2024",
-		// Import helpers from `tslib` instead of inlining them
-		"importHelpers": true
+		"target": "ES2024"
 	},
 	"include": [ "./src/index.ts" ]
 }

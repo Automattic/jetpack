@@ -1,0 +1,99 @@
+import { ensureCoreSettingsReady } from '@jetpack-premium-analytics/data';
+import { redirect } from '@wordpress/route';
+import { isDashboardSectionInPreviewScope } from '../site-readiness';
+import { route } from './route';
+
+jest.mock( '@jetpack-premium-analytics/data', () => ( {
+	...jest.requireActual( '@jetpack-premium-analytics/data' ),
+	ensureCoreSettingsReady: jest.fn(),
+} ) );
+
+jest.mock( '@wordpress/route', () => ( {
+	redirect: jest.fn( options => options ),
+} ) );
+jest.mock( '../site-readiness', () => ( {
+	isPremiumAnalyticsSiteConnected: () => true,
+	isDashboardSectionInPreviewScope: jest.fn( () => true ),
+} ) );
+jest.mock( './config', () => ( {
+	resolveTabId: ( section: string ) => section,
+} ) );
+
+const mockEnsureCoreSettingsReady = ensureCoreSettingsReady as jest.MockedFunction<
+	typeof ensureCoreSettingsReady
+>;
+const mockRedirect = redirect as jest.MockedFunction< typeof redirect >;
+
+const seededSearch = {
+	from: '2026-06-01',
+	to: '2026-06-16',
+	interval: 'day',
+	post_id: '42',
+};
+
+describe( 'post detail route report origin', () => {
+	beforeEach( () => {
+		jest.clearAllMocks();
+		mockEnsureCoreSettingsReady.mockResolvedValue( undefined );
+	} );
+
+	it( 'carries the report origin through the seeding redirect', async () => {
+		await expect(
+			route.beforeLoad( {
+				params: { postId: '42' },
+				search: {
+					...seededSearch,
+					post_id: undefined,
+					ref: 'comments',
+					ref_section: 'posts',
+				},
+			} )
+		).rejects.toMatchObject( {
+			to: '/post/$postId',
+			replace: true,
+			search: {
+				from: '2026-06-01',
+				to: '2026-06-16',
+				interval: 'day',
+				post_id: '42',
+				ref: 'comments',
+				ref_section: 'posts',
+			},
+		} );
+
+		expect( mockRedirect ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( 'does not redirect when a seeded search already carries the origin', async () => {
+		await expect(
+			route.beforeLoad( {
+				params: { postId: '42' },
+				search: { ...seededSearch, ref: 'comments', ref_section: 'posts' },
+			} )
+		).resolves.toBeUndefined();
+
+		expect( mockRedirect ).not.toHaveBeenCalled();
+	} );
+
+	it( 'redirects home when the All pages report is behind a hidden tab', async () => {
+		( isDashboardSectionInPreviewScope as jest.Mock ).mockReturnValueOnce( false );
+
+		await expect(
+			route.beforeLoad( {
+				params: { postId: '42' },
+				search: seededSearch,
+			} )
+		).rejects.toMatchObject( { to: '/' } );
+	} );
+
+	it( 'does not redirect when the shareable search is fully seeded and clean', async () => {
+		await expect(
+			route.beforeLoad( {
+				params: { postId: '42' },
+				search: seededSearch,
+			} )
+		).resolves.toBeUndefined();
+
+		expect( mockRedirect ).not.toHaveBeenCalled();
+	} );
+} );

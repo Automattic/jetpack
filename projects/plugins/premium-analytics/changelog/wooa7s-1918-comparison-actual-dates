@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Name the dates a comparison covers in the dashboard header, instead of "Previous period", drop the weekdays from ranges longer than a week, and leave the year off ranges that sit inside the current one.

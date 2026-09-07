@@ -52,7 +52,11 @@ export default function DescriptionSupportLink( {
 					} );
 				} }
 				style={ { display: 'block', marginTop: 10, maxWidth: 'fit-content' } }
-				ref={ reference => ref !== reference && setRef( reference ) }
+				ref={ reference => {
+					if ( ref !== reference ) {
+						setRef( reference );
+					}
+				} }
 			>
 				{ __( 'Learn more', 'jetpack-mu-wpcom' ) }
 			</WpcomSupportLink>

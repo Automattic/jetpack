@@ -3,11 +3,15 @@ import { __, sprintf } from '@wordpress/i18n';
 import { Badge } from '@wordpress/ui';
 import { useCallback } from 'react';
 import { useNavigate } from 'react-router';
-import { PRODUCTS_MUST_HAVE_A_STANDALONE_PLUGIN } from '../../../constants';
+import {
+	PRODUCTS_MUST_HAVE_A_STANDALONE_PLUGIN,
+	PRODUCTS_NEEDING_RELOAD_AFTER_TOGGLE,
+} from '../../../constants';
 import useActivatePlugins from '../../../data/products/use-activate-plugins';
 import { useDeactivatePlugins } from '../../../data/products/use-deactivate-plugins';
 import useProduct from '../../../data/products/use-product';
 import { ProductCamelCase } from '../../../data/types';
+import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
 import { useInterstitialsState } from '../../../hooks/use-interstitials-state';
 import { MyJetpackModule } from '../../../types';
 import { PRODUCT_STATUSES } from '../../product-card';
@@ -138,16 +142,31 @@ function ActivationToggle( {
  */
 export function ProductCardAction( { product, module: $module }: ProductCardActionProps ) {
 	const { data: interstitials } = useInterstitialsState();
+	const reloadOnToggle = PRODUCTS_NEEDING_RELOAD_AFTER_TOGGLE.includes( product.slug );
+	const { showAiModuleToggle = false } = getMyJetpackWindowInitialState( 'myJetpackFlags' );
 
-	// Forms is a free module feature with no interstitial yet — show the activation
-	// toggle directly instead of a "Learn more" link. (An interstitial may be added later.)
-	if ( product.slug === 'jetpack-forms' ) {
+	// Forms and AI surface the activation toggle directly instead of a "Learn more"
+	// upsell link. Forms is a free module with no interstitial; AI is the site-wide
+	// master switch, and the Content AI settings design shows the card with an inline
+	// Active/off toggle in both states (the AI upsell lives on the AI page, not on
+	// this master control). The AI toggle is limited to internal testing environments
+	// until the AI settings page goes public (pre-release gate); everyone else keeps
+	// the standard card action.
+	if (
+		product.slug === 'jetpack-forms' ||
+		( product.slug === 'jetpack-ai' && showAiModuleToggle )
+	) {
+		// Drive on/off from the module's real activated state, not product.status:
+		// a free product that also has a paid tier (Jetpack AI) reports
+		// "can_upgrade" even when its module is active, which would leave the master
+		// toggle stuck in the off position while AI is actually running.
+		const isActive = $module?.activated ?? product.status === PRODUCT_STATUSES.ACTIVE;
 		return (
 			<ActivationToggle
 				product={ product }
-				active={ product.status === PRODUCT_STATUSES.ACTIVE }
+				active={ isActive }
 				disabled={ ! $module?.available }
-				reloadOnToggle
+				reloadOnToggle={ reloadOnToggle }
 			/>
 		);
 	}
@@ -165,6 +184,7 @@ export function ProductCardAction( { product, module: $module }: ProductCardActi
 			<ActivationToggle
 				product={ product }
 				active={ product.standalonePluginInfo.isStandaloneActive }
+				reloadOnToggle={ reloadOnToggle }
 			/>
 		);
 	}
@@ -179,6 +199,12 @@ export function ProductCardAction( { product, module: $module }: ProductCardActi
 			return <UpgradeAction product={ product } />;
 
 		default:
-			return <ActivationToggle product={ product } disabled={ ! $module?.available } />;
+			return (
+				<ActivationToggle
+					product={ product }
+					disabled={ ! $module?.available }
+					reloadOnToggle={ reloadOnToggle }
+				/>
+			);
 	}
 }

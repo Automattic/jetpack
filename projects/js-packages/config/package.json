@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-config",
-	"version": "1.0.13",
+	"version": "1.0.14",
 	"description": "Handles Jetpack global configuration shared across all packages",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/config/#readme",
 	"bugs": {
@@ -16,6 +16,7 @@
 		".": "./src/index.js"
 	},
 	"main": "./src/index.js",
+	"types": "./src/index.d.ts",
 	"scripts": {
 		"test": "jest",
 		"test-coverage": "pnpm run test --coverage"

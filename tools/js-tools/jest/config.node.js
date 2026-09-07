@@ -1,6 +1,6 @@
 module.exports = {
 	transform: {
-		'\\.[jt]sx?$': [
+		'\\.m?[jt]sx?$': [
 			require.resolve( 'babel-jest' ),
 			{
 				presets: [

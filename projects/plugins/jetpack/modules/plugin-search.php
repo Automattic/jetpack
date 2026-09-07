@@ -368,12 +368,13 @@ class Jetpack_Plugin_Search {
 			}
 
 			/*
-			 * Only surface the SEO Tools hint once the new Jetpack SEO admin page is
-			 * available. The page is gated behind the `rsm_jetpack_seo` feature flag,
-			 * so without this gate the hint's CTAs would point to a page that isn't
-			 * registered yet.
+			 * Only surface the SEO Tools hint when the new Jetpack SEO admin page is
+			 * available and registered, so its CTA never points to a missing page.
 			 */
-			if ( apply_filters( 'rsm_jetpack_seo', false ) ) {
+			if (
+				\Automattic\Jetpack\SEO\Initializer::is_available()
+				&& \Automattic\Jetpack\SEO\Initializer::is_seo_surface_visible()
+			) {
 				$searchable_modules[] = 'seo-tools';
 			}
 

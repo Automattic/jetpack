@@ -1,6 +1,7 @@
 {
 	"extends": "jetpack-js-tools/tsconfig.base.json",
 	"compilerOptions": {
+		"stableTypeOrdering": true,
 		"outDir": "dist",
 		"rootDir": "src"
 	},

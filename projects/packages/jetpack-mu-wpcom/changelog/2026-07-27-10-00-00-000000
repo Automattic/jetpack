@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+AI Launchpad: drop the AI-onboarded exclusion — sites built with Big Sky are now eligible like any other; the tasklist tailors to what the build already covered.

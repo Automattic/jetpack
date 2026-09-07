@@ -28,9 +28,6 @@ type SanitizedOrdersByDateItem = Override<
 	}
 >;
 
-/**
- * Sanitize/process a single order item by converting strings to numbers
- */
 function sanitizeOrderItem( item: RawOrdersReportDataItem ): SanitizedOrdersByDateItem {
 	return {
 		...item,
@@ -52,20 +49,14 @@ function sanitizeOrderItem( item: RawOrdersReportDataItem ): SanitizedOrdersByDa
 	};
 }
 
-/**
- * Processed response with numeric values
- */
 type SanitizedOrdersByDateResponse = {
 	summary: SanitizedOrdersByDateItem;
 	data: SanitizedOrdersByDateItem[];
 };
 
 /**
- * Sanitize the response from the reports/orders/by-date endpoint
- * Converts string values to numbers for easier calculations and charting.
- *
- * The `summary` single item has basically the same structure
- * as the `data` array items, so we can use the same mapper function for both.
+ * `summary` has the same shape as a `data` array item, so both go through the same
+ * mapper.
  */
 export const sanitizeReportOrdersResponse = (
 	response: ReportsOrdersByDateResponse

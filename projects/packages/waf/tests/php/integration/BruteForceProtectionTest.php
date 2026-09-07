@@ -13,7 +13,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 /**
  * Brute Force Protection test case.
  */
-#[AllowMockObjectsWithoutExpectations /* getStubBuilder() (for partial stubs) doesn't exist until PHPUnit 12.5. */ ]
+#[AllowMockObjectsWithoutExpectations /* getStubBuilder() (for partial stubs) doesn't exist until PHPUnit 12.5. */]
 class BruteForceProtectionTest extends WorDBless\BaseTestCase {
 
 	/**

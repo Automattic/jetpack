@@ -129,6 +129,7 @@ class REST_Provider_Test extends TestCase {
 			'odyssey_stats_changed_at' => 0,
 			'notices'                  => array(),
 			'views'                    => 0,
+			'honor_cookie_consent'     => false,
 			'host'                     => 'example.org',
 			'path'                     => '/',
 			'blogname'                 => false,

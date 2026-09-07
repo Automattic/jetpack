@@ -4,7 +4,7 @@ import { Badge } from '@wordpress/ui';
 import { useCallback } from 'react';
 
 const READER_CHAT_DESCRIPTION = __(
-	'Let readers ask your blog questions and get answers from your content.',
+	'Let visitors ask your site questions and get answers from your content.',
 	'jetpack-search-pkg'
 );
 
@@ -49,7 +49,7 @@ export default function ReaderChatControl( {
 					className="jp-search-dashboard-toggle lg-col-span-12 md-col-span-8 sm-col-span-4"
 					label={
 						<>
-							{ __( 'Enable Reader Chat', 'jetpack-search-pkg' ) }
+							{ __( 'Enable Site Chat', 'jetpack-search-pkg' ) }
 							<Badge intent="informational" className="jp-reader-chat-control__preview-badge">
 								{ __( 'Preview', 'jetpack-search-pkg' ) }
 							</Badge>

@@ -53,10 +53,23 @@ function wpcom_rest_api_v2_load_plugin( $class_name ) {
 require __DIR__ . '/class-wpcom-rest-field-controller.php';
 
 /**
- * Load the REST API v2 plugin files during the plugins_loaded action.
+ * Load the REST API v2 plugin files.
+ *
+ * Hooked to `rest_api_init` (priority 5) so the ~37 endpoint class files only
+ * load on REST requests, not on every front-end page. Priority 5 ensures the
+ * loader runs before constructors register their own `register_routes` callbacks
+ * at the default priority 10 within the same `rest_api_init` action.
  */
 function load_wpcom_rest_api_v2_plugin_files() {
 	wpcom_rest_api_v2_load_plugin_files( 'wpcom-endpoints/*.php' );
 	wpcom_rest_api_v2_load_plugin_files( 'wpcom-fields/*.php' );
 }
-add_action( 'plugins_loaded', 'load_wpcom_rest_api_v2_plugin_files' );
+add_action( 'rest_api_init', 'load_wpcom_rest_api_v2_plugin_files', 5 );
+
+// In the PHPUnit test suite, fire the loader during `plugins_loaded` so all 37 endpoint
+// classes are defined before PHPUnit performs test discovery. Test files use
+// `#[CoversClass( WPCOM_REST_API_V2_Endpoint_*::class )]` attributes that PHPUnit eagerly
+// reflects, requiring the classes to be loadable at that moment.
+if ( defined( 'PHPUNIT_JETPACK_TESTSUITE' ) && PHPUNIT_JETPACK_TESTSUITE ) {
+	add_action( 'plugins_loaded', 'load_wpcom_rest_api_v2_plugin_files' );
+}

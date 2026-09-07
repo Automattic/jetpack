@@ -16,6 +16,11 @@ import type { AiFeatureProps, PlanStateProps } from './types.ts';
 // barrel (the only entry point this package exposes).
 export type * from './types.ts';
 
+// Re-export the response mapper so consumers that receive the
+// ai-assistant-feature endpoint payload server-side (e.g. as a page preload)
+// can hydrate the store with it.
+export { mapAiFeatureResponseToAiFeatureProps } from './actions.ts';
+
 const store = 'wordpress-com/plans';
 
 export const selectors = {

@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Rename `.js` files containing JSX syntax to `.jsx`. Should be no change to functionality.
+
+

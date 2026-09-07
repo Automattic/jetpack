@@ -39,9 +39,13 @@
 	}
 
 	.jp-license-activation-screen-success-info--buttons {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: var(--wpds-dimension-gap-lg) var(--wpds-dimension-gap-3xl);
 
 		@media screen and (max-width: 480px) {
-			text-align: center;
+			justify-content: center;
 		}
 	}
 }

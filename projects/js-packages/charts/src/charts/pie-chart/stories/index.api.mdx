@@ -30,17 +30,17 @@ Main component for rendering pie and donut charts.
 | `className` | `string` | - | Additional CSS class names |
 | `chartId` | `string` | - | Custom chart identifier for accessibility |
 | `maxWidth` | `number` | - | Maximum width for responsive charts |
-| `aspectRatio` | `number` | `1` | Aspect ratio for responsive charts |
+| `aspectRatio` | `number` | `1` | Height-to-width ratio for responsive charts; the chart is contained within its parent on both axes. |
 | `resizeDebounceTime` | `number` | `100` | Debounce time for resize events (ms) |
 
 ## Theme Properties
 
-The following properties can be customized via the theme system:
+Label colors are CSS custom properties, set inside the provider tree:
 
-| Prop | Type | Default | Description |
-| ---- | ---- | ------- | ----------- |
-| `labelTextColor` | `string` | `'#FFFFFF'` | Color of text displayed on pie chart segments |
-| `labelBackgroundColor` | `string` | `'transparent'` | Background color for labels. Set to any color value to enable label backgrounds |
+| Custom property | Default | Description |
+| --- | --- | --- |
+| `--a8c-charts-color-label-inverse` | `#f0f0f0` | Color of text displayed on pie chart segments |
+| `--a8c-charts-color-label-background` | `transparent` | The plate behind a label. Set any color to enable it |
 
 ## Compound Components
 

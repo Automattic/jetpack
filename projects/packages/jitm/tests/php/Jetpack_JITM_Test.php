@@ -25,6 +25,7 @@ class Jetpack_JITM_Test extends TestCase {
 		Functions\when( 'get_current_blog_id' )->justReturn( 1 );
 		Functions\when( 'get_current_screen' )->justReturn( new \stdClass() );
 		Functions\when( 'site_url' )->justReturn( 'unit-test' );
+		Functions\when( 'wp_parse_url' )->alias( 'parse_url' );
 		Functions\when( 'wp_get_environment_type' )->justReturn( '' );
 		Functions\when( 'current_user_can' )->justReturn( true );
 	}

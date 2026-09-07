@@ -13,6 +13,20 @@ use Automattic\Jetpack\Search\TestCase as Search_TestCase;
  * Unit tests for the Settings class.
  */
 class Settings_Test extends Search_TestCase {
+	use Toggles_Ai_Master;
+
+	public function setUp(): void {
+		parent::setUp();
+		// Default to a paid plan; tests exercising the gate override this.
+		Search_Blocks::set_supports_paid_search_for_testing( true );
+	}
+
+	public function tearDown(): void {
+		$this->remove_ai_master_filters();
+		Search_Blocks::reset_supports_paid_search_cache();
+		parent::tearDown();
+	}
+
 	public static function setUpBeforeClass(): void {
 		parent::setUpBeforeClass();
 		// Instantiating Settings hooks settings_register onto admin_init and
@@ -30,6 +44,35 @@ class Settings_Test extends Search_TestCase {
 		$this->assertFalse( $setting['default'] );
 	}
 
+	public function test_ai_answers_setting_persists_while_the_ai_master_is_off() {
+		// The AI feature-settings endpoint writes feature choices even while the
+		// master is off so they survive it; this option follows the same contract
+		// as the other AI feature options. Enforcement lives in is_enabled().
+		$this->turn_ai_master_off();
+
+		update_option( Options::OPTION_PREFIX . 'ai_answers_enabled', true );
+
+		$this->assertTrue( (bool) get_option( Options::OPTION_PREFIX . 'ai_answers_enabled', false ) );
+		$this->assertFalse( AI_Answers::is_enabled() );
+	}
+
+	public function test_ai_answers_setting_can_still_be_turned_off_while_the_ai_master_is_off() {
+		update_option( Options::OPTION_PREFIX . 'ai_answers_enabled', true );
+		$this->turn_ai_master_off();
+
+		update_option( Options::OPTION_PREFIX . 'ai_answers_enabled', false );
+
+		$this->assertFalse( (bool) get_option( Options::OPTION_PREFIX . 'ai_answers_enabled', false ) );
+	}
+
+	public function test_ai_answers_setting_can_be_turned_on_while_the_ai_master_is_on() {
+		$this->turn_ai_master_on();
+
+		update_option( Options::OPTION_PREFIX . 'ai_answers_enabled', true );
+
+		$this->assertTrue( (bool) get_option( Options::OPTION_PREFIX . 'ai_answers_enabled', false ) );
+	}
+
 	public function test_settings_register_registers_result_format() {
 		$registered = get_registered_settings();
 		$this->assertArrayHasKey( Options::OPTION_PREFIX . 'result_format', $registered );
@@ -44,6 +87,27 @@ class Settings_Test extends Search_TestCase {
 		$setting = $registered[ Options::OPTION_PREFIX . 'enable_sort' ];
 		$this->assertEquals( 'boolean', $setting['type'] );
 		$this->assertTrue( $setting['default'] );
+	}
+
+	/**
+	 * SEARCH-342: closes the /wp/v2/settings bypass via sanitize_option().
+	 */
+	public function test_sanitize_ai_answers_enabled_rejects_true_without_paid_plan() {
+		Search_Blocks::set_supports_paid_search_for_testing( false );
+		$this->assertFalse( Settings::sanitize_ai_answers_enabled( true ) );
+		Search_Blocks::reset_supports_paid_search_cache();
+	}
+
+	public function test_sanitize_ai_answers_enabled_allows_true_with_paid_plan() {
+		Search_Blocks::set_supports_paid_search_for_testing( true );
+		$this->assertTrue( Settings::sanitize_ai_answers_enabled( true ) );
+		Search_Blocks::reset_supports_paid_search_cache();
+	}
+
+	public function test_sanitize_ai_answers_enabled_allows_false_without_paid_plan() {
+		Search_Blocks::set_supports_paid_search_for_testing( false );
+		$this->assertFalse( Settings::sanitize_ai_answers_enabled( false ) );
+		Search_Blocks::reset_supports_paid_search_cache();
 	}
 
 	public function test_settings_register_all_settings_have_show_in_rest() {

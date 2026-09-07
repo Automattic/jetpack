@@ -7,8 +7,8 @@ import { assetUrl } from '../../utils';
 import './style.scss';
 
 /**
- * Disconnected-state gate for the modernization chassis. Replaces the legacy
- * `ConnectionScreen` with a native `@wordpress/ui` card; the illustration loads via the
+ * Disconnected-state gate for the Social dashboard. A native `@wordpress/ui`
+ * card; the illustration loads via the
  * runtime `assetUrl()` URL (no esbuild asset import). The "Get Started" CTA runs the
  * standard site-registration flow via `useConnection().handleRegisterSite`.
  *

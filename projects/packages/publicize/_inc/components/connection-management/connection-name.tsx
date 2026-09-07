@@ -8,7 +8,7 @@ import styles from './style.module.scss';
 
 type ConnectionNameProps = {
 	connection: Connection;
-	/** Link tone. Defaults to the WPDS link default; the modernized chassis passes "neutral". */
+	/** Link tone. Defaults to the WPDS link default; the Social dashboard passes "neutral". */
 	tone?: 'neutral';
 };
 

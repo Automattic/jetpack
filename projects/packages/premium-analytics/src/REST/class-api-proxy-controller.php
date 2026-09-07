@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\PremiumAnalytics\REST;
 
 use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager;
+use Automattic\Jetpack\Constants;
 use Jetpack_Options;
 use WP_Error;
 use WP_REST_Controller;
@@ -94,6 +95,20 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	 *  - `path`       (string, optional) printf template (`%d` = blog id) for groups NOT under
 	 *                  `/sites/<id>/` (e.g. `upgrades` → `/upgrades?site=%d`). A group with a
 	 *                  fixed `path` takes no sub-path. Omit for the normal `/sites/<id>/<key>/…`.
+	 *  - `pattern`    (string, optional) Regex the sub-path (after `<key>/`) must fully match,
+	 *                  for groups where only specific endpoints are safe to expose (e.g. `posts`
+	 *                  → only `<id>/likes` and `<id>/replies`, never post content). Anchored on both ends and
+	 *                  enforced in the route regex AND in `validate_data_endpoint()` (the route
+	 *                  capture can be shadowed with `?endpoint=`). Omit to allow the whole group.
+	 *  - `inject_user_email` (bool, optional) Add the local user's email to the forwarded write body
+	 *                  as `user_email`. The blog token carries no user, so a WPCOM endpoint that
+	 *                  attributes a submission to a person cannot resolve one on its own (it falls
+	 *                  back to the site's first administrator). The only body rewrite this proxy
+	 *                  does; see `inject_user_email()`.
+	 *  - `unauthenticated` (bool, optional) Forward reads WITHOUT signing (plain HTTP, like
+	 *                  stats-admin's Odyssey proxy does for post likes). For WPCOM endpoints
+	 *                  that reject blog-token auth but serve public data without credentials.
+	 *                  Reads only; the group's `capability` still gates the local request.
 	 *
 	 * Maintaining endpoints (this table is the only edit needed for a pass-through endpoint):
 	 *  - ADD a group:   add a key with at least `capability`. Reads work immediately at
@@ -103,13 +118,16 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	 *  - REMOVE a group: delete its key — the route stops matching it and it 404s.
 	 *  - Cover it with a row in `data_endpoint_matrix()` (capability / writable / WPCOM path).
 	 *  - NOTE: this is for transparent WPCOM forwards only. Endpoints needing local processing
-	 *    (DB reads, body rewrites, the Notices class, …) are NOT proxied — they get their own
-	 *    routes outside `proxy/`; do not add them here.
+	 *    (DB reads, the Notices class, …) are NOT proxied — they get their own routes outside
+	 *    `proxy/`; do not add them here. `inject_user_email` is the one exception, and stays one:
+	 *    a rewrite that cannot be expressed as a flag on this table belongs in its own route.
 	 *
 	 * @var array<string, array<string, mixed>>
 	 */
 	private const PREFIX_CONFIG = array(
-		'analytics'                     => array( 'capability' => 'manage_options' ),
+		// Gated like WooCommerce's own Analytics screens, which shop managers can read;
+		// woocommerce-analytics made the same move away from manage_options (WOOA7S-551).
+		'analytics'                     => array( 'capability' => 'view_woocommerce_reports' ),
 		'stats'                         => array(
 			'capability' => 'view_stats',
 			'writes'     => array( 'stats/referrers/spam/' ),
@@ -117,7 +135,11 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 		'wordads'                       => array( 'capability' => 'activate_wordads' ),
 		'subscribers'                   => array( 'capability' => 'view_stats' ),
 		'site-has-never-published-post' => array( 'capability' => 'view_stats' ),
-		'jetpack-stats'                 => array( 'capability' => 'view_stats' ),
+		'jetpack-stats'                 => array(
+			'capability'        => 'view_stats',
+			'writes'            => array( 'jetpack-stats/user-feedback' ),
+			'inject_user_email' => true,
+		),
 		'jetpack-stats-dashboard'       => array(
 			'capability' => 'view_stats',
 			'writes'     => array( 'jetpack-stats-dashboard/' ),
@@ -130,6 +152,16 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 		'upgrades'                      => array(
 			'capability' => 'view_stats',
 			'path'       => '/upgrades?site=%d',
+		),
+		'posts'                         => array(
+			'capability'      => 'view_stats',
+			// Only a post's public likers and approved replies — never post content
+			// (the blog token could otherwise read private posts for any view_stats user).
+			'pattern'         => '[0-9]+/(?:likes|replies)',
+			// Both endpoints serve public data without credentials, while likes
+			// rejects blog-token auth; forward the constrained group unsigned,
+			// mirroring stats-admin's Odyssey proxy for likes.
+			'unauthenticated' => true,
 		),
 	);
 
@@ -186,7 +218,7 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 		// allowlist is anchored into the route.
 		register_rest_route(
 			$this->namespace,
-			'/proxy/v(?P<version>[0-9]+(?:\.[0-9]+)?)/(?P<endpoint>(?:' . $this->allowed_prefix_pattern() . ')(?:/.*)?)',
+			'/proxy/v(?P<version>[0-9]+(?:\.[0-9]+)?)/(?P<endpoint>' . $this->allowed_endpoint_pattern() . ')',
 			array(
 				'methods'             => WP_REST_Server::READABLE . ',' . WP_REST_Server::EDITABLE,
 				'callback'            => array( $this, 'handle_data_request' ),
@@ -198,7 +230,7 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 						'validate_callback' => array( $this, 'validate_data_endpoint' ),
 					),
 					'version'  => array(
-						'description'       => __( 'WPCOM API version to forward to (e.g. 1.1, 1.2, 2).', 'jetpack-premium-analytics' ),
+						'description'       => __( 'WPCOM API version to forward to (e.g. 1.1, 1.2, 2).', 'jetpack-premium-analytics-pkg' ),
 						'type'              => 'string',
 						'required'          => true,
 						'validate_callback' => array( $this, 'validate_version' ),
@@ -209,21 +241,21 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	}
 
 	/**
-	 * Regex alternation of the allowed prefixes (the {@see PREFIX_CONFIG} keys), used to anchor
-	 * the data route.
+	 * Regex alternation of the allowed endpoints, used to anchor the data route: each
+	 * {@see PREFIX_CONFIG} key followed by its `pattern`-constrained sub-path when set, or any
+	 * sub-path otherwise.
 	 *
 	 * @return string
 	 */
-	private function allowed_prefix_pattern(): string {
-		return implode(
-			'|',
-			array_map(
-				static function ( string $prefix ): string {
-					return preg_quote( $prefix, '#' );
-				},
-				array_keys( self::PREFIX_CONFIG )
-			)
-		);
+	private function allowed_endpoint_pattern(): string {
+		$alternatives = array();
+
+		foreach ( self::PREFIX_CONFIG as $prefix => $config ) {
+			$suffix         = isset( $config['pattern'] ) ? '/' . $config['pattern'] : '(?:/.*)?';
+			$alternatives[] = preg_quote( $prefix, '#' ) . $suffix;
+		}
+
+		return '(?:' . implode( '|', $alternatives ) . ')';
 	}
 
 	/**
@@ -300,6 +332,15 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 			}
 		}
 
+		// A `pattern`-constrained prefix only exposes matching sub-paths. Re-checked here, not
+		// just in the route regex, because `get_param()` can be shadowed with `?endpoint=`.
+		if ( isset( $config['pattern'] ) ) {
+			$prefix = strtolower( explode( '/', $value )[0] );
+			if ( ! preg_match( '#^' . preg_quote( $prefix, '#' ) . '/' . $config['pattern'] . '$#i', rtrim( $value, '/' ) ) ) {
+				return false;
+			}
+		}
+
 		return true;
 	}
 
@@ -330,20 +371,24 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 		if ( 'GET' !== $method && ! ( 'POST' === $method && $this->is_write_allowed( $endpoint ) ) ) {
 			return new WP_Error(
 				'rest_read_only',
-				__( 'This endpoint is read-only.', 'jetpack-premium-analytics' ),
+				__( 'This endpoint is read-only.', 'jetpack-premium-analytics-pkg' ),
 				array( 'status' => 405 )
 			);
 		}
 
 		$version = (string) $request->get_param( 'version' );
 
+		$config = $this->config_for( $endpoint );
+
 		return $this->forward(
 			$request,
 			$this->build_data_path( $endpoint ),
 			array(
-				'version'       => $version,
-				'base'          => $this->base_for_version( $version ),
-				'bust_on_write' => $this->busts_cache( $endpoint ),
+				'version'           => $version,
+				'base'              => $this->base_for_version( $version ),
+				'bust_on_write'     => $this->busts_cache( $endpoint ),
+				'unauthenticated'   => ! empty( $config['unauthenticated'] ),
+				'inject_user_email' => ! empty( $config['inject_user_email'] ),
 			)
 		);
 	}
@@ -405,6 +450,45 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 	}
 
 	/**
+	 * Add the local user's email to a forwarded write body, for a group declaring
+	 * `inject_user_email`.
+	 *
+	 * Mirrors what stats-admin's own `post_user_feedback()` does: the request is signed with the
+	 * blog token, so WPCOM sees no user and would attribute the submission to whichever
+	 * administrator it finds first. A body that is neither empty nor a JSON object is returned
+	 * untouched rather than replaced, so a malformed request still fails at WPCOM's own validation.
+	 *
+	 * @param string               $body The request body to forward.
+	 * @param array<string, mixed> $opts The matched prefix config.
+	 *
+	 * @return string
+	 */
+	private function inject_user_email( string $body, array $opts ): string {
+		if ( empty( $opts['inject_user_email'] ) ) {
+			return $body;
+		}
+
+		$email = wp_get_current_user()->user_email;
+		if ( ! $email ) {
+			return $body;
+		}
+
+		$decoded = '' === $body ? array() : json_decode( $body, true );
+		if ( ! is_array( $decoded ) ) {
+			return $body;
+		}
+
+		// A JSON list is not a param bag, and adding a string key would reshape it into an object.
+		if ( array() !== $decoded && array_keys( $decoded ) === range( 0, count( $decoded ) - 1 ) ) {
+			return $body;
+		}
+
+		$decoded['user_email'] = $email;
+
+		return (string) wp_json_encode( $decoded, JSON_UNESCAPED_SLASHES );
+	}
+
+	/**
 	 * Whether a successful write to this endpoint should invalidate the matching read cache.
 	 *
 	 * @param string $endpoint The validated sub-path.
@@ -443,10 +527,21 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 			}
 		}
 
+		// Unsigned forwards need no tokens — only the blog id baked into the path —
+		// so they skip the connection gate (its blog-token requirement) entirely.
+		if ( ! empty( $opts['unauthenticated'] ) && $is_read ) {
+			$response = $this->request_unauthenticated( $request, $wpcom_path, $version, $base );
+			if ( is_wp_error( $response ) ) {
+				return $response;
+			}
+
+			return $this->cache_and_build_response( $response, $cache_key );
+		}
+
 		if ( ! ( new Manager( self::SLUG ) )->is_connected() ) {
 			return new WP_Error(
 				'no_connection',
-				__( 'Please connect Jetpack to load your data.', 'jetpack-premium-analytics' ),
+				__( 'Please connect Jetpack to load your data.', 'jetpack-premium-analytics-pkg' ),
 				array( 'status' => 403 )
 			);
 		}
@@ -457,7 +552,7 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 		);
 		$body = null;
 		if ( ! $is_read ) {
-			$body            = $request->get_body();
+			$body            = $this->inject_user_email( $request->get_body(), $opts );
 			$args['headers'] = array( 'Content-Type' => 'application/json' );
 		}
 
@@ -472,7 +567,7 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 		} catch ( \Exception $e ) {
 			return new WP_Error(
 				'api_error',
-				__( 'Error processing the request.', 'jetpack-premium-analytics' ),
+				__( 'Error processing the request.', 'jetpack-premium-analytics-pkg' ),
 				array( 'status' => 500 )
 			);
 		}
@@ -480,7 +575,7 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 		if ( is_wp_error( $response ) ) {
 			return new WP_Error(
 				'api_error',
-				__( 'Error communicating with the data service.', 'jetpack-premium-analytics' ),
+				__( 'Error communicating with the data service.', 'jetpack-premium-analytics-pkg' ),
 				array( 'status' => 500 )
 			);
 		}
@@ -488,6 +583,50 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 		$this->maybe_bust_read_cache( $response, ! $is_read, $opts, $wpcom_path, $version, $base );
 
 		return $this->cache_and_build_response( $response, $cache_key );
+	}
+
+	/**
+	 * Forward a read to WPCOM without signing, for `unauthenticated` endpoint groups. Mirrors
+	 * stats-admin's Odyssey proxy (`get_single_post_likes()`): the target endpoint rejects
+	 * blog-token auth but serves public data to credential-less requests. Private posts/sites
+	 * return WPCOM's own restricted error — the same limitation Odyssey has.
+	 *
+	 * @param WP_REST_Request $request    Request object.
+	 * @param string          $wpcom_path WPCOM path without the forwarded query string.
+	 * @param string          $version    WPCOM API version.
+	 * @param string          $base       WPCOM API base (`rest` or `wpcom`).
+	 *
+	 * @return array|WP_Error Raw HTTP response, or an error.
+	 */
+	private function request_unauthenticated( WP_REST_Request $request, string $wpcom_path, string $version, string $base ) {
+		// The path embeds the blog id; without one the request would target site 0.
+		if ( ! (int) Jetpack_Options::get_option( 'id' ) ) {
+			return new WP_Error(
+				'no_connection',
+				__( 'Please connect Jetpack to load your data.', 'jetpack-premium-analytics-pkg' ),
+				array( 'status' => 403 )
+			);
+		}
+
+		$api_base = Constants::get_constant( 'JETPACK__WPCOM_JSON_API_BASE' );
+		if ( empty( $api_base ) ) {
+			$api_base = 'https://public-api.wordpress.com';
+		}
+
+		$response = wp_remote_get(
+			sprintf( '%s/%s/v%s%s', $api_base, $base, $version, $this->append_forwarded_params( $request, $wpcom_path ) ),
+			array( 'timeout' => self::API_TIMEOUT )
+		);
+
+		if ( is_wp_error( $response ) ) {
+			return new WP_Error(
+				'api_error',
+				__( 'Error communicating with the data service.', 'jetpack-premium-analytics-pkg' ),
+				array( 'status' => 500 )
+			);
+		}
+
+		return $response;
 	}
 
 	/**
@@ -536,7 +675,7 @@ class Api_Proxy_Controller extends WP_REST_Controller {
 		if ( 200 === $status && null === $data && JSON_ERROR_NONE !== json_last_error() ) {
 			return new WP_Error(
 				'api_error',
-				__( 'The data service returned an unreadable response.', 'jetpack-premium-analytics' ),
+				__( 'The data service returned an unreadable response.', 'jetpack-premium-analytics-pkg' ),
 				array( 'status' => 502 )
 			);
 		}

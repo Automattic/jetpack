@@ -5,6 +5,8 @@ import { registerBlockType } from '@wordpress/blocks';
 /**
  * Internal dependencies
  */
+// Overrides Webpack's publicPath before any lazy chunk loads on wpcom.
+import '../../set-webpack-public-path';
 import editorImageURL from '../../utils/editor-image-url';
 import metadata from './block.json';
 import { VideoPressIcon as icon } from './components/icons';

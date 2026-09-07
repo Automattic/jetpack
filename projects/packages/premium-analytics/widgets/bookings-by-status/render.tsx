@@ -18,13 +18,11 @@ import type { ComponentProps } from 'react';
 type BookingsByStatusRenderAttributes = BookingsByStatusAttributes &
 	Partial< ReportParamsFieldAttributes >;
 
-type BookingsByStatusRenderProps = WidgetRenderProps< BookingsByStatusRenderAttributes > & {
+type BookingsByStatusWidgetProps = WidgetRenderProps< BookingsByStatusRenderAttributes > & {
 	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
 };
 
 /**
- * Bookings by status widget.
- *
  * Thin composition over the widgets-toolkit: WidgetRoot provides the query
  * client, chart theme, and resolved report params; BookingsByAttendanceWidget
  * fetches the bookings report and renders the status breakdown.
@@ -32,7 +30,7 @@ type BookingsByStatusRenderProps = WidgetRenderProps< BookingsByStatusRenderAttr
 export default function BookingsByStatusRender( {
 	attributes = {},
 	setError,
-}: BookingsByStatusRenderProps ) {
+}: BookingsByStatusWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
 			<BookingsByAttendanceWidget />
