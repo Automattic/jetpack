@@ -45,8 +45,8 @@ function register_videopress_blocks( $playlist_metadata_file = null ) {
 		VideoPress_Pkg_Initializer::register_videopress_playlist_block( $playlist_metadata_file );
 	}
 }
-// Register the videopress/video and videopress/playlist blocks.
-add_action( 'init', __NAMESPACE__ . '\register_videopress_blocks' );
+// Ignore the empty argument supplied by do_action( 'init' ) so metadata uses the package default.
+add_action( 'init', __NAMESPACE__ . '\register_videopress_blocks', 10, 0 );
 
 // Register the `v6-video-frame-poster` extension.
 add_action(

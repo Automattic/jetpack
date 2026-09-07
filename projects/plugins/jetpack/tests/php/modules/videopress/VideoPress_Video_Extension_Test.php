@@ -7,6 +7,8 @@
 
 use PHPUnit\Framework\Attributes\CoversNothing;
 
+require_once JETPACK__PLUGIN_DIR . 'extensions/extended-blocks/videopress-video/videopress-video.php';
+
 /**
  * Regression coverage for JETPACK-2520: the videopress/playlist block was not
  * registered by the Jetpack plugin when only the Jetpack plugin was active.
@@ -74,10 +76,12 @@ class VideoPress_Video_Extension_Test extends WP_UnitTestCase {
 	 * The extension must attach its registration callback to the init action.
 	 */
 	public function test_register_videopress_blocks_is_hooked_to_init() {
+		$callback = 'Automattic\Jetpack\Extensions\VideoPress_Video\register_videopress_blocks';
 		$this->assertSame(
 			10,
-			has_action( 'init', 'Automattic\Jetpack\Extensions\VideoPress_Video\register_videopress_blocks' )
+			has_action( 'init', $callback )
 		);
+		$this->assertSame( 0, $GLOBALS['wp_filter']['init']->callbacks[10][ $callback ]['accepted_args'] );
 	}
 
 	/**
