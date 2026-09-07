@@ -48,8 +48,17 @@ class WPCOM_Client_Test extends Stats_TestCase {
 		remove_filter( 'pre_http_request', array( $this, 'plan_http_response_fixture' ), 10 );
 		$wpcom_rejection = static function () {
 			return array(
-				'response' => array( 'code' => 403, 'message' => 'Forbidden' ),
-				'body'     => wp_json_encode( array( 'error' => 'invalid_token', 'message' => 'Invalid blog token.' ) ),
+				'response' => array(
+					'code'    => 403,
+					'message' => 'Forbidden',
+				),
+				'body'     => wp_json_encode(
+					array(
+						'error'   => 'invalid_token',
+						'message' => 'Invalid blog token.',
+					),
+					JSON_UNESCAPED_SLASHES
+				),
 			);
 		};
 		add_filter( 'pre_http_request', $wpcom_rejection );
