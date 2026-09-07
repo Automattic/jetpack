@@ -67,7 +67,7 @@
 		"@visx/responsive": "4.0.0",
 		"@visx/scale": "^4.0.0",
 		"@visx/xychart": "4.0.0",
-		"@woocommerce/email-editor": "2.4.0",
+		"@woocommerce/email-editor": "2.4.1",
 		"@wordpress/a11y": "4.54.0",
 		"@wordpress/base-styles": "13.0.0",
 		"@wordpress/block-editor": "17.0.0",

@@ -5897,8 +5897,8 @@ importers:
         specifier: 4.0.0
         version: 4.0.0(@react-spring/web@10.1.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@woocommerce/email-editor':
-        specifier: 2.4.0
-        version: 2.4.0(@date-fns/tz@1.4.1)(@types/react@18.3.31)(postcss@8.5.23)
+        specifier: 2.4.1
+        version: 2.4.1(@date-fns/tz@1.4.1)(@types/react@18.3.31)(postcss@8.5.23)
       '@wordpress/a11y':
         specifier: 4.54.0
         version: 4.54.0
@@ -11113,8 +11113,8 @@ packages:
   '@webcontainer/env@1.1.1':
     resolution: {integrity: sha512-6aN99yL695Hi9SuIk1oC88l9o0gmxL1nGWWQ/kNy81HigJ0FoaoTXpytCj6ItzgyCEwA9kF1wixsTuv5cjsgng==}
 
-  '@woocommerce/email-editor@2.4.0':
-    resolution: {integrity: sha512-1EF0SoSc3rzJIBmjCZp19j3wbkiTVrrn2Dhuo6j6zagPYShl3XI5LWWSMIbx0m/Fnu1Mus4kcAzvKoZFtSg6bQ==}
+  '@woocommerce/email-editor@2.4.1':
+    resolution: {integrity: sha512-VHcA04WtIKebeLmUe4gZxPiNSoXolexSXB+2gGPCI4sce86litIzT51QAFnrAB5/C+PORW8reXx3nmuYM6xffw==}
 
   '@wordpress/a11y@4.54.0':
     resolution: {integrity: sha512-nRB471rKurl32bTClZkdlL/1p5pLgzF4ltMpfYY2VUTm8RYX5VtsWj4tQbytk6Ch+KA2U47SgJRUyl6etEMolQ==}
@@ -23850,7 +23850,7 @@ snapshots:
 
   '@webcontainer/env@1.1.1': {}
 
-  '@woocommerce/email-editor@2.4.0(@date-fns/tz@1.4.1)(@types/react@18.3.31)(postcss@8.5.23)':
+  '@woocommerce/email-editor@2.4.1(@date-fns/tz@1.4.1)(@types/react@18.3.31)(postcss@8.5.23)':
     dependencies:
       '@wordpress/api-fetch': 7.54.0
       '@wordpress/base-styles': 13.0.0
