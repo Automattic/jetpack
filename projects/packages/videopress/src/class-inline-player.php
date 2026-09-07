@@ -193,6 +193,18 @@ class Inline_Player {
 	}
 
 	/**
+	 * Versioned URLs of the player bundle and its stylesheet, for anything that loads the player itself.
+	 *
+	 * @return array{script: string, style: string}
+	 */
+	public static function get_asset_config() {
+		return array(
+			'script' => add_query_arg( 'ver', Package_Version::PACKAGE_VERSION, self::PLAYER_SCRIPT_URL ),
+			'style'  => add_query_arg( 'ver', Package_Version::PACKAGE_VERSION, self::PLAYER_STYLE_URL ),
+		);
+	}
+
+	/**
 	 * Enqueue the shared player assets and the boot script, once per page.
 	 */
 	public static function enqueue_assets() {
