@@ -137,11 +137,7 @@ class Jetpack_Mu_Wpcom {
 		add_filter( 'option_gutenberg-experiments', array( __CLASS__, 'enable_gutenberg_react_19_experiment' ) );
 		add_filter( 'default_option_gutenberg-experiments', array( __CLASS__, 'enable_gutenberg_react_19_experiment' ) );
 
-		// Enable the Extensible Site Editor Gutenberg experiment on opted-in sites.
-		// Gated here rather than inside the filter: Gutenberg reads the option once per
-		// gutenberg_is_experiment_enabled() call, dozens of times per request.
 		if ( wpcom_has_blog_sticker( 'gutenberg-extensible-site-editor', get_wpcom_blog_id() ) ) {
-			// `option_` fires when the option exists in the DB, `default_option_` when it does not.
 			add_filter( 'option_gutenberg-experiments', array( __CLASS__, 'enable_extensible_site_editor_experiment' ) );
 
 			// Priority 20 because register_setting() hooks core's filter_default_option() at 10,
@@ -1032,8 +1028,7 @@ class Jetpack_Mu_Wpcom {
 	/**
 	 * Add `gutenberg-extensible-site-editor` to the list of enabled Gutenberg experiments.
 	 *
-	 * Only registered on sites holding the sticker, so this does not re-check it. The
-	 * experiment's new screen misses WordPress.com behaviour keyed on `site-editor.php`.
+	 * Only registered on sites holding the sticker, so this does not re-check it.
 	 *
 	 * @param mixed $experiments The current value of the gutenberg-experiments option.
 	 * @return array The experiments, with the extensible site editor enabled.
