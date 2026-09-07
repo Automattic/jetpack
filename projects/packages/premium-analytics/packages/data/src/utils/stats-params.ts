@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { getDatePart } from '@jetpack-premium-analytics/datetime';
+import { getDatePart, localTZDate } from '@jetpack-premium-analytics/datetime';
 import {
 	differenceInCalendarISOWeeks,
 	differenceInCalendarMonths,
@@ -11,7 +11,6 @@ import {
 /**
  * Internal dependencies
  */
-import { localTZDate } from './date';
 import { getDaysBetweenInclusive } from './interval';
 import type { ReportParams } from './search';
 import type { StatsProxyParams } from '../api/stats-proxy-fetch';

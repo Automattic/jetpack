@@ -36,9 +36,7 @@ export {
 	type ReportPresetId,
 } from './utils/search';
 export {
-	dateToISOStringWithLocalTZ,
 	ensureCoreSettingsReady,
-	localTZDate,
 	hasProductFilters,
 	isSelectablePreset,
 	computeDateRangeFromPreset,
