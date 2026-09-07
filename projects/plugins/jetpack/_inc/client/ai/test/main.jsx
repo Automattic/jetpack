@@ -1,4 +1,4 @@
-import { act, render, screen, waitFor } from '@testing-library/react';
+import { act, configure, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
 import { dispatch, select } from '@wordpress/data';
@@ -9,6 +9,13 @@ import App from '../main';
 // main.jsx imports the webpack-aliased 'lib/analytics', which doesn't resolve
 // under jest — provide it virtually. (jest.mock is hoisted above the imports.)
 jest.mock( 'lib/analytics', () => ( { tracks: { recordEvent: jest.fn() } } ), { virtual: true } );
+
+// This suite renders the whole admin app, whose boot chains several mocked
+// requests through effects. Under coverage instrumentation on a loaded CI
+// runner that settle can exceed testing-library's 1s default async timeout,
+// failing `findBy*`/`waitFor` on timing rather than behavior — seen as
+// repeated Code coverage (JS) failures on otherwise-unrelated PRs.
+configure( { asyncUtilTimeout: 10000 } );
 jest.mock( '@automattic/jetpack-ai-client', () => ( { requestJwt: jest.fn() } ) );
 
 // Both settings hooks fetch through @wordpress/api-fetch; stub it so nothing
