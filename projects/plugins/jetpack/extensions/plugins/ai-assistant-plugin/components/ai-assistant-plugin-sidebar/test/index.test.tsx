@@ -255,7 +255,7 @@ const DEFAULT_FEATURES = [
 const withFeatures = ( features: string[] ) =>
 	jest.mocked( getFeatureAvailability ).mockImplementation( f => features.includes( f ) );
 const AGENT_NOTICE_TEXT =
-	'AI tools have moved to the WordPress Agent. Look for the "Ask AI" button at the top of the screen.';
+	'AI tools have moved to the WordPress Agent. Look for the "Agent" button at the top of the screen.';
 
 describe( 'AiAssistantPluginSidebar', () => {
 	beforeEach( () => {
