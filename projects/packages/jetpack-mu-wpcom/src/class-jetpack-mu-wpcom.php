@@ -141,8 +141,12 @@ class Jetpack_Mu_Wpcom {
 		// Gated here rather than inside the filter: Gutenberg reads the option once per
 		// gutenberg_is_experiment_enabled() call, dozens of times per request.
 		if ( wpcom_has_blog_sticker( 'gutenberg-extensible-site-editor', get_wpcom_blog_id() ) ) {
+			// `option_` fires when the option exists in the DB, `default_option_` when it does not.
 			add_filter( 'option_gutenberg-experiments', array( __CLASS__, 'enable_extensible_site_editor_experiment' ) );
-			add_filter( 'default_option_gutenberg-experiments', array( __CLASS__, 'enable_extensible_site_editor_experiment' ) );
+
+			// Priority 20 because register_setting() hooks core's filter_default_option() at 10,
+			// and that callback discards the value it is handed and returns the registered default.
+			add_filter( 'default_option_gutenberg-experiments', array( __CLASS__, 'enable_extensible_site_editor_experiment' ), 20 );
 		}
 
 		/**
