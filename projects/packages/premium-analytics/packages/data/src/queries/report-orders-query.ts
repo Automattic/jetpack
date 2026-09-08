@@ -7,6 +7,7 @@
  */
 import { fetchReportOrders } from '../api';
 import { sanitizeReportOrdersResponse } from '../processing/orders';
+import { resolveReportTimeZone } from '../utils/report-timezone';
 import type { ReportDataMap } from '../types';
 import type { UseQueryOptions } from '@tanstack/react-query';
 
@@ -25,11 +26,13 @@ const getReportOrdersQueryKey = ( p: RequestReportOrdersParams ) => [
 export function reportOrdersQuery(
 	params: RequestReportOrdersParams
 ): UseQueryOptions< ReportDataMap[ 'orders' ] > {
+	const timezone = resolveReportTimeZone();
+
 	return {
-		queryKey: getReportOrdersQueryKey( params ),
+		queryKey: [ ...getReportOrdersQueryKey( params ), timezone ],
 		queryFn: async () => {
 			const response = await fetchReportOrders( params );
-			return sanitizeReportOrdersResponse( response );
+			return sanitizeReportOrdersResponse( response, timezone );
 		},
 
 		enabled: !! ( params.from && params.to && params.interval ),

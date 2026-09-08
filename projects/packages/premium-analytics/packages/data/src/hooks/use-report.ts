@@ -99,8 +99,8 @@ export function useReport<
 		primary,
 		comparison,
 		hasComparison: comparisonEnabled,
-		// The zone both queries were built and normalized under, so a consumer
-		// reads the report it has rather than asking the environment again.
+		// Store reports ignore `params.timezone`: Woo buckets server-side in the
+		// site zone, so only the Stats queries can be built under a named zone.
 		timezone: resolveReportTimeZone( params.timezone ),
 		isLoading,
 		isFetching,
