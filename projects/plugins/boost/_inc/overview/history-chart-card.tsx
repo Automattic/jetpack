@@ -1,4 +1,4 @@
-import { LineChart } from '@automattic/charts';
+import { LineChart, useGlobalChartsContext } from '@automattic/charts';
 import '@automattic/charts/style.css';
 import { getScoreLetter } from '@automattic/jetpack-boost-score-api';
 import { Spinner } from '@wordpress/components';
@@ -6,11 +6,16 @@ import { dateI18n } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
 import { trendingUp } from '@wordpress/icons';
 import { Button, Card, EmptyState, Notice, Text } from '@wordpress/ui';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import UpgradeCTA from './upgrade-cta';
 import type { PerformanceHistoryData } from './lib/use-performance-history';
 import type { DataPointDate, SeriesData } from '@automattic/charts';
 import type { ComponentProps } from 'react';
+
+const CHART_MARGIN = { left: 40, right: 20, bottom: 32 };
+
+type TooltipAnchor = { fraction: number };
+type DeviceColors = { desktop?: string; mobile?: string };
 
 type History = NonNullable< PerformanceHistoryData >;
 type Props = {
@@ -49,10 +54,48 @@ export function buildHistorySeries(
 	];
 }
 
-export function HistoryTooltip( { period }: { period: History[ 'periods' ][ number ] } ) {
+export function HistoryTooltip( {
+	period,
+	anchor,
+	colors,
+}: {
+	period: History[ 'periods' ][ number ];
+	anchor?: TooltipAnchor;
+	colors?: DeviceColors;
+} ) {
+	const tooltipRef = useRef< HTMLDivElement >( null );
+	const [ width, setWidth ] = useState( 0 );
+	const [ plotWidth, setPlotWidth ] = useState( 0 );
+	const isAnchored = anchor !== undefined;
+	useLayoutEffect( () => {
+		const element = tooltipRef.current;
+		if ( ! element || ! isAnchored ) {
+			return;
+		}
+		const plot = element.offsetParent;
+		const measure = () => {
+			setWidth( element.getBoundingClientRect().width );
+			setPlotWidth( plot?.clientWidth ?? 0 );
+		};
+		measure();
+		const observer = new ResizeObserver( measure );
+		observer.observe( element );
+		if ( plot ) {
+			observer.observe( plot );
+		}
+		return () => observer.disconnect();
+	}, [ isAnchored ] );
+	const anchorX =
+		CHART_MARGIN.left +
+		( anchor?.fraction ?? 0 ) * ( plotWidth - CHART_MARGIN.left - CHART_MARGIN.right );
+	const left = anchor ? Math.max( 8, Math.min( anchorX - width / 2, plotWidth - width - 8 ) ) : 0;
 	const dimensions = period.dimensions;
 	return (
-		<div className="jetpack-boost-overview__history-tooltip">
+		<div
+			ref={ tooltipRef }
+			className="jetpack-boost-overview__history-tooltip"
+			style={ anchor ? { position: 'absolute', left, bottom: CHART_MARGIN.bottom + 8 } : undefined }
+		>
 			<Text>{ dateI18n( 'F j, Y', new Date( period.timestamp ), false ) }</Text>
 			<dl>
 				<dt>{ __( 'Overall score', 'jetpack-boost' ) }</dt>
@@ -62,6 +105,11 @@ export function HistoryTooltip( { period }: { period: History[ 'periods' ][ numb
 				{ ( [ 'desktop', 'mobile' ] as const ).map( device => (
 					<div key={ device }>
 						<dt>
+							<span
+								className="jetpack-boost-overview__series-swatch"
+								style={ { backgroundColor: colors?.[ device ] } }
+								aria-hidden="true"
+							/>
 							{ device === 'desktop'
 								? __( 'Desktop score', 'jetpack-boost' )
 								: __( 'Mobile score', 'jetpack-boost' ) }
@@ -82,7 +130,30 @@ export function HistoryTooltip( { period }: { period: History[ 'periods' ][ numb
 					</div>
 				) ) }
 			</dl>
+			{ anchor && (
+				<span
+					className="jetpack-boost-overview__tooltip-pointer"
+					style={ { left: anchorX - left } }
+					aria-hidden="true"
+				/>
+			) }
 		</div>
+	);
+}
+
+function ThemedHistoryTooltip( {
+	series,
+	...props
+}: ComponentProps< typeof HistoryTooltip > & { series: SeriesData[] } ) {
+	const { getElementStyles } = useGlobalChartsContext();
+	return (
+		<HistoryTooltip
+			{ ...props }
+			colors={ {
+				desktop: getElementStyles( { data: series[ 0 ], index: 0 } ).color,
+				mobile: getElementStyles( { data: series[ 1 ], index: 1 } ).color,
+			} }
+		/>
 	);
 }
 
@@ -112,9 +183,20 @@ export default function HistoryChartCard( {
 		( { tooltipData } ) => {
 			const timestamp = tooltipData?.nearestDatum?.datum.date?.getTime();
 			const period = data?.periods.find( entry => entry.timestamp === timestamp );
-			return period ? <HistoryTooltip period={ period } /> : null;
+			if ( ! period || ! data ) {
+				return null;
+			}
+			return (
+				<ThemedHistoryTooltip
+					series={ series }
+					period={ period }
+					anchor={ {
+						fraction: ( period.timestamp - startDate ) / ( data.endDate - startDate ),
+					} }
+				/>
+			);
 		},
-		[ data ]
+		[ data, series, startDate ]
 	);
 	// Supply text announcements so WordPress does not serialize action components with hooks.
 	let content;
@@ -189,9 +271,12 @@ export default function HistoryChartCard( {
 			<div className="jetpack-boost-overview__chart-canvas">
 				<LineChart
 					data={ series }
-					height={ 240 }
+					height={ 300 }
+					margin={ CHART_MARGIN }
 					showLegend
+					legend={ { position: 'bottom', alignment: 'center', interactive: false } }
 					withGradientFill={ false }
+					curveType="linear"
 					withEndGlyphs={ data.periods.length === 1 }
 					renderTooltip={ renderTooltip }
 					options={ {

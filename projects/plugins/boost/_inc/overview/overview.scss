@@ -81,6 +81,27 @@
 		}
 	}
 
+	&__chart-canvas .visx-tooltip {
+		// Charts exposes tooltip content but no axis-positioning option.
+		display: contents;
+	}
+
+	&__tooltip-pointer {
+		position: absolute;
+		inset-block-start: 100%;
+		transform: translateX(-50%);
+		border-block-start: 8px solid var(--wpds-color-foreground-content-neutral);
+		border-inline: 8px solid transparent;
+	}
+
+	&__series-swatch {
+		display: inline-block;
+		inline-size: 12px;
+		block-size: 2px;
+		margin-inline-end: var(--wpds-dimension-gap-xs);
+		vertical-align: middle;
+	}
+
 	&__chart-loading {
 		display: grid;
 		place-items: center;
@@ -88,6 +109,10 @@
 	}
 
 	&__history-tooltip {
+		z-index: 3;
+		inline-size: max-content;
+		max-inline-size: calc(100% - 16px);
+		box-sizing: border-box;
 		padding: var(--wpds-dimension-padding-sm);
 		background-color: var(--wpds-color-foreground-content-neutral);
 		color: var(--wpds-color-background-surface-neutral);
