@@ -7,7 +7,7 @@ import {
 	isSelectablePreset,
 	reportingTimeZone,
 	type ComparisonPresetId,
-	type DateRange,
+	type EditedDateRange,
 	type PrimaryPresetId,
 } from '@jetpack-premium-analytics/datetime';
 /**
@@ -28,7 +28,7 @@ export type ReportQuerySearchParams = Partial<
 >;
 
 type BuildRangePatchArgs = {
-	nextRange?: DateRange;
+	nextRange?: EditedDateRange;
 
 	/**
 	 * The preset that produced `nextRange`, or 'custom' for manual edits.

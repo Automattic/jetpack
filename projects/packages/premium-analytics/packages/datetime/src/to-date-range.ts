@@ -62,8 +62,7 @@ export function clampRangeEndToToday< T extends DateRange >( range: T, now: Date
 
 	// Anchored to the window's own timezone, so a site offset from the browser
 	// closes the day on its own clock.
-	const timeZone = 'timeZone' in range.to ? ( range.to as TZDate ).timeZone : undefined;
-	const endOfToday = endOfDay( timeZone ? new TZDate( now.getTime(), timeZone ) : now );
+	const endOfToday = endOfDay( new TZDate( now.getTime(), range.to.timeZone ) );
 
 	return range.to.getTime() > endOfToday.getTime() ? { ...range, to: endOfToday } : range;
 }

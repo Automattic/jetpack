@@ -23,15 +23,17 @@ import { decodeDateSearchParam, encodeDateToSearchParam } from '../../search/dat
 import { hasPrimaryDateDraft } from '../../search/report-params';
 import { useStagedSearch } from '../use-staged-search';
 import { buildRangePatch, type ReportQuerySearchParams } from './build-range-patch';
+import type { TZDate } from '@date-fns/tz';
 import type {
 	ComparisonPresetId,
 	DateRange,
+	EditedDateRange,
 	IntervalType,
 	PrimaryPresetId,
 	StepDirection,
 } from '@jetpack-premium-analytics/datetime';
 
-type PickerRange = { from: Date | undefined; to: Date | undefined };
+type PickerRange = { from: TZDate | undefined; to: TZDate | undefined };
 
 /**
  * The values and callbacks that drive `DateFiltersPanel`.
@@ -66,7 +68,7 @@ export type ReportDateFilters = {
 	 */
 	intervalOptions: IntervalType[];
 
-	onChange: ( range?: DateRange, presetId?: PrimaryPresetId ) => void;
+	onChange: ( range?: EditedDateRange, presetId?: PrimaryPresetId ) => void;
 	onComparisonChange: ( range: DateRange | undefined, presetId?: ComparisonPresetId ) => void;
 	onIntervalChange: ( interval: IntervalType ) => void;
 
@@ -150,7 +152,7 @@ export function useReportDateFilters< TFrom extends string >( from?: TFrom ): Re
 	);
 
 	const onChange = useCallback(
-		( nextRange?: DateRange, nextPresetId?: PrimaryPresetId ) => {
+		( nextRange?: EditedDateRange, nextPresetId?: PrimaryPresetId ) => {
 			const patch = buildRangePatch( { nextRange, nextPresetId, effective } );
 
 			if ( patch ) {
@@ -307,7 +309,11 @@ export function useReportDateFilters< TFrom extends string >( from?: TFrom ): Re
 			 * on the clock of the date passed in, and a plain instant would cut it
 			 * on the browser's clock instead.
 			 */
-			const drilled = drillDateRange( toLocalTZ( date, timeZone ), bucketInterval, new Date() );
+			const drilled = drillDateRange(
+				toLocalTZ( date, timeZone ),
+				bucketInterval,
+				toLocalTZ( undefined, timeZone )
+			);
 
 			if ( ! drilled?.from || ! drilled.to ) {
 				return;

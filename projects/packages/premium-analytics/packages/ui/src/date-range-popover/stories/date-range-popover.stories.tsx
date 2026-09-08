@@ -1,7 +1,7 @@
 import { subDays, startOfDay, endOfDay } from 'date-fns';
 import { useState } from 'react';
 import { DateRangePopoverContent } from '../date-range-filter';
-import type { DateRange } from '../date-range-filter';
+import type { DateRange } from '@jetpack-premium-analytics/datetime';
 import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta< typeof DateRangePopoverContent > = {

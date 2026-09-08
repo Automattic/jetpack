@@ -12,10 +12,11 @@ import {
 	isSameDay,
 	startOfDay,
 } from 'date-fns';
+import type { DateRange } from './get-comparison-range';
+import type { TZDate } from '@date-fns/tz';
 /**
  * Internal dependencies
  */
-import type { DateRange } from './get-comparison-range';
 
 /**
  * The unit a range's length is best described in.
@@ -58,7 +59,7 @@ const MONTHS_PER_YEAR = 12;
  * @param to   - Range end.
  * @return Whether both ends sit on a day boundary.
  */
-function coversWholeDays( from: Date, to: Date ): boolean {
+function coversWholeDays( from: TZDate, to: TZDate ): boolean {
 	return isEqual( from, startOfDay( from ) ) && isEqual( to, endOfDay( to ) );
 }
 
@@ -72,9 +73,7 @@ function coversWholeDays( from: Date, to: Date ): boolean {
  * @param to   - Range end.
  * @return The month count, or null when the range is not a whole number of months.
  */
-function getWholeMonths( from: Date, to: Date ): number | null {
-	// `addDays` keeps the input's `Date` subclass, so a site-timezone `TZDate`
-	// stays anchored to that zone rather than the browser's.
+function getWholeMonths( from: TZDate, to: TZDate ): number | null {
 	const dayAfterTo = startOfDay( addDays( to, 1 ) );
 	const months = differenceInCalendarMonths( dayAfterTo, from );
 

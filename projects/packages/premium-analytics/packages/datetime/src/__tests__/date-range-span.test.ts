@@ -1,12 +1,21 @@
 /**
+ * External dependencies
+ */
+/**
  * Internal dependencies
  */
 import { getDateRangeSpan } from '../date-range-span';
+import { createTZDateFromParts } from '../tz';
+import type { TZDate } from '@date-fns/tz';
 
 /**
- * Build a local-time date. Dates are constructed from parts rather than parsed
- * from ISO strings so the day boundaries land in the machine's timezone, which
- * is the frame `date-fns` reads.
+ * A site timezone with a fixed offset, so every expectation below holds
+ * whatever timezone the machine running the suite is in.
+ */
+const SITE_ZONE = 'Asia/Taipei';
+
+/**
+ * Build a site-local date.
  *
  * @param year    - Full year.
  * @param month   - 1-indexed month.
@@ -15,8 +24,8 @@ import { getDateRangeSpan } from '../date-range-span';
  * @param minutes - Minute of hour.
  * @return The date.
  */
-function at( year: number, month: number, day: number, hours = 0, minutes = 0 ): Date {
-	return new Date( year, month - 1, day, hours, minutes, 0, 0 );
+function at( year: number, month: number, day: number, hours = 0, minutes = 0 ): TZDate {
+	return createTZDateFromParts( [ year, month - 1, day, hours, minutes, 0, 0 ], SITE_ZONE );
 }
 
 /**
@@ -27,8 +36,8 @@ function at( year: number, month: number, day: number, hours = 0, minutes = 0 ):
  * @param day   - Day of month.
  * @return The end of that day.
  */
-function endOf( year: number, month: number, day: number ): Date {
-	return new Date( year, month - 1, day, 23, 59, 59, 999 );
+function endOf( year: number, month: number, day: number ): TZDate {
+	return createTZDateFromParts( [ year, month - 1, day, 23, 59, 59, 999 ], SITE_ZONE );
 }
 
 describe( 'getDateRangeSpan', () => {
@@ -61,7 +70,7 @@ describe( 'getDateRangeSpan', () => {
 		expect(
 			getDateRangeSpan( {
 				from: at( 2026, 7, 28, 19 ),
-				to: new Date( 2026, 6, 29, 18, 59, 59, 999 ),
+				to: createTZDateFromParts( [ 2026, 6, 29, 18, 59, 59, 999 ], SITE_ZONE ),
 			} )
 		).toEqual( { unit: 'hour', value: 24 } );
 	} );
@@ -117,6 +126,24 @@ describe( 'getDateRangeSpan', () => {
 			unit: 'day',
 			value: 30,
 		} );
+	} );
+
+	it( "measures a 30 day window in the site zone, not the browser's", () => {
+		const from = at( 2026, 6, 29 );
+		const to = endOf( 2026, 7, 28 );
+
+		expect( getDateRangeSpan( { from, to } ) ).toEqual( { unit: 'day', value: 30 } );
+
+		// The same instants read without the zone: `coversWholeDays` no longer
+		// recognises the site's midnight, and the fallback counts a 31st day.
+		expect(
+			getDateRangeSpan( {
+				// @ts-expect-error -- `DateRange` rejects a zone-naive bound; this is what it prevents.
+				from: new Date( from.getTime() ),
+				// @ts-expect-error -- as above.
+				to: new Date( to.getTime() ),
+			} )
+		).toEqual( { unit: 'day', value: 31 } );
 	} );
 
 	it( 'falls back to days when the range does not divide into months', () => {

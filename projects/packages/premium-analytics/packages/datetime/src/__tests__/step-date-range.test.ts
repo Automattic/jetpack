@@ -7,11 +7,41 @@ import { differenceInCalendarDays } from 'date-fns';
  * Internal dependencies
  */
 import { canStepForward, stepDateRange } from '../step-date-range';
+import { createTZDateFromParts } from '../tz';
 import type { DateRange } from '../get-comparison-range';
+/**
+ * A site timezone with a fixed offset, so every expectation below holds
+ * whatever timezone the machine running the suite is in.
+ */
+const SITE_ZONE = 'Asia/Taipei';
 
 /**
- * Build a local-time date, so day boundaries land in the machine's timezone the
- * way the span helper reads them.
+ * Build a site-local date from the parts `new Date()` takes.
+ *
+ * @param year    - Full year.
+ * @param month   - 0-indexed month.
+ * @param day     - Day of month.
+ * @param hours   - Hour of day.
+ * @param minutes - Minute of hour.
+ * @param seconds - Second of minute.
+ * @param ms      - Millisecond of second.
+ * @return The date.
+ */
+function siteDate(
+	year: number,
+	month: number,
+	day: number,
+	hours = 0,
+	minutes = 0,
+	seconds = 0,
+	ms = 0
+): TZDate {
+	return createTZDateFromParts( [ year, month, day, hours, minutes, seconds, ms ], SITE_ZONE );
+}
+
+/**
+ * Build a site-local date, so day boundaries land in the zone the span helper
+ * reads them in.
  *
  * @param year   - Full year.
  * @param month  - 1-based month.
@@ -20,8 +50,8 @@ import type { DateRange } from '../get-comparison-range';
  * @param minute - Minute of the hour.
  * @return The date.
  */
-function at( year: number, month: number, day: number, hour = 0, minute = 0 ): Date {
-	return new Date( year, month - 1, day, hour, minute );
+function at( year: number, month: number, day: number, hour = 0, minute = 0 ): TZDate {
+	return siteDate( year, month - 1, day, hour, minute );
 }
 
 /**
@@ -31,10 +61,10 @@ function at( year: number, month: number, day: number, hour = 0, minute = 0 ): D
  * @param to   - Last day.
  * @return The inclusive whole-day range.
  */
-function wholeDays( from: Date, to: Date ) {
+function wholeDays( from: TZDate, to: TZDate ) {
 	return {
-		from: new Date( from.getFullYear(), from.getMonth(), from.getDate(), 0, 0, 0, 0 ),
-		to: new Date( to.getFullYear(), to.getMonth(), to.getDate(), 23, 59, 59, 999 ),
+		from: siteDate( from.getFullYear(), from.getMonth(), from.getDate(), 0, 0, 0, 0 ),
+		to: siteDate( to.getFullYear(), to.getMonth(), to.getDate(), 23, 59, 59, 999 ),
 	};
 }
 
@@ -52,13 +82,13 @@ describe( 'stepDateRange', () => {
 		// `last-24-hours`: hour boundaries, a millisecond short of 24 hours.
 		const range = {
 			from: at( 2026, 7, 9, 19 ),
-			to: new Date( 2026, 6, 10, 18, 59, 59, 999 ),
+			to: siteDate( 2026, 6, 10, 18, 59, 59, 999 ),
 		};
 
 		const previous = stepDateRange( range, 'previous' );
 
 		expect( previous?.from ).toEqual( at( 2026, 7, 8, 19 ) );
-		expect( previous?.to ).toEqual( new Date( 2026, 6, 9, 18, 59, 59, 999 ) );
+		expect( previous?.to ).toEqual( siteDate( 2026, 6, 9, 18, 59, 59, 999 ) );
 	} );
 
 	it( 'moves a month-scale window by calendar months, not by days', () => {
@@ -160,7 +190,7 @@ describe( 'canStepForward', () => {
 	it( 'is true on the window right behind a live hour-snapped one', () => {
 		const live = {
 			from: at( 2026, 7, 26, 13 ),
-			to: new Date( 2026, 6, 27, 12, 59, 59, 999 ),
+			to: siteDate( 2026, 6, 27, 12, 59, 59, 999 ),
 		};
 		const back = stepDateRange( live, 'previous' );
 

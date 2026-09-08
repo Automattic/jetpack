@@ -237,10 +237,27 @@ not the browser's.
 
 ```typescript
 type DateRange = {
+	from?: TZDate;
+	to?: TZDate;
+};
+```
+
+Zoned, so `getDateRangeSpan` and the steppers cut day boundaries on the site's
+clock. A plain `Date` names the same instant but reads its day in the browser's
+zone, which measures a 30 day window as 31.
+
+### `EditedDateRange`
+
+```typescript
+type EditedDateRange = {
 	from?: Date;
 	to?: Date;
 };
 ```
+
+What a date picker hands back, before anything anchors it: a calendar click
+reports the day in the browser's zone. `buildRangePatch` anchors these; nothing
+measures a span on one.
 
 ### `ComparisonPresetId`
 

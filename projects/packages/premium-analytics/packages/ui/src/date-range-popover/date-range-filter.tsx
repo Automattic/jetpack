@@ -1,7 +1,12 @@
 /**
  * External dependencies
  */
-import { PRESET_CUSTOM, type PrimaryPresetId } from '@jetpack-premium-analytics/datetime';
+import {
+	PRESET_CUSTOM,
+	type DateRange,
+	type EditedDateRange,
+	type PrimaryPresetId,
+} from '@jetpack-premium-analytics/datetime';
 import { Button, DateRangeCalendar, Stack } from '@jetpack-premium-analytics/externals';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
@@ -13,14 +18,16 @@ import { DateRangeInput } from '../date-range-input';
 import './date-range-filter.scss';
 
 /**
- * The calendar's own range type, from `@automattic/ui`.
+ * The calendar's own range type, from `@automattic/ui`. Zone-naive: a click
+ * reports the day in the browser's zone, so these bounds only ever leave here
+ * as an `EditedDateRange`.
  */
-export type DateRange = NonNullable< Parameters< typeof DateRangeCalendar >[ 0 ][ 'selected' ] >;
+type CalendarRange = NonNullable< Parameters< typeof DateRangeCalendar >[ 0 ][ 'selected' ] >;
 
 type DateRangePopoverContentProps = {
 	range: DateRange;
 
-	onChange: ( range?: DateRange, preset?: PrimaryPresetId ) => void;
+	onChange: ( range?: EditedDateRange, preset?: PrimaryPresetId ) => void;
 
 	onApply: () => void;
 
@@ -40,7 +47,7 @@ type DateRangePopoverContentProps = {
 	timeZone: string;
 };
 
-function getDisplayedMonth( range: DateRange ): Date {
+function getDisplayedMonth( range: EditedDateRange ): Date {
 	return range?.from ?? new Date();
 }
 
@@ -86,9 +93,9 @@ export function DateRangePopoverContent( {
 	 * Half-open calendar selection (`from` picked, `to` pending). Kept local:
 	 * consumers only receive complete ranges.
 	 */
-	const [ draftRange, setDraftRange ] = useState< DateRange | null >( null );
+	const [ draftRange, setDraftRange ] = useState< CalendarRange | null >( null );
 
-	const handleChange = ( nextRange?: DateRange, nextPrimaryPresetId?: PrimaryPresetId ) => {
+	const handleChange = ( nextRange?: EditedDateRange, nextPrimaryPresetId?: PrimaryPresetId ) => {
 		setDraftRange( null );
 
 		if ( nextRange ) {
@@ -106,7 +113,7 @@ export function DateRangePopoverContent( {
 	 * not `onSelect`'s computed range: react-day-picker never restarts a
 	 * complete range on click, it only moves the nearest endpoint.
 	 */
-	const handleCalendarSelect = ( _nextRange: DateRange | undefined, triggerDate: Date ) => {
+	const handleCalendarSelect = ( _nextRange: CalendarRange | undefined, triggerDate: Date ) => {
 		if ( draftRange?.from && ! draftRange.to ) {
 			const [ from, to ] =
 				triggerDate < draftRange.from
@@ -121,7 +128,9 @@ export function DateRangePopoverContent( {
 		setDraftRange( { from: triggerDate, to: undefined } );
 	};
 
-	const calendarRange = draftRange ?? range;
+	// Widened to the calendar's shape, which requires both keys where a
+	// `DateRange` leaves them optional.
+	const calendarRange: CalendarRange = draftRange ?? { from: range.from, to: range.to };
 
 	// Apply commits the staged range, not the draft: disable it mid-selection.
 	const effectiveCanApply = canApply && ! draftRange;

@@ -29,7 +29,7 @@ export type StepDirection = 'previous' | 'next';
  * land on the same days of the month, and a step across a DST boundary has to
  * keep the wall clock.
  */
-const ADD_BY_UNIT: Record< DateRangeSpanUnit, ( date: Date, amount: number ) => Date > = {
+const ADD_BY_UNIT: Record< DateRangeSpanUnit, ( date: TZDate, amount: number ) => TZDate > = {
 	hour: addHours,
 	day: addDays,
 	month: addMonths,
@@ -45,7 +45,7 @@ const ADD_BY_UNIT: Record< DateRangeSpanUnit, ( date: Date, amount: number ) => 
  * @param amount - How far, signed.
  * @return The shifted range.
  */
-function shift( from: Date, to: Date, unit: DateRangeSpanUnit, amount: number ): DateRange {
+function shift( from: TZDate, to: TZDate, unit: DateRangeSpanUnit, amount: number ): DateRange {
 	const add = ADD_BY_UNIT[ unit ];
 
 	return { from: add( from, amount ), to: add( to, amount ) };
@@ -113,7 +113,7 @@ export function canStepForward( range: DateRange, now: Date ): boolean {
 
 	// Anchored to the window's own timezone, so a site offset from the browser
 	// closes its buckets on its own clock.
-	const timeZone = range.to && 'timeZone' in range.to ? ( range.to as TZDate ).timeZone : undefined;
+	const timeZone = range.to?.timeZone;
 	const horizon = END_OF_BUCKET[ span.unit ](
 		timeZone ? new TZDate( now.getTime(), timeZone ) : now
 	);

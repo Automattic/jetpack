@@ -1,4 +1,5 @@
-import { canStepForward, stepDateRange } from '@jetpack-premium-analytics/datetime';
+import { canStepForward, stepDateRange, toLocalTZ } from '@jetpack-premium-analytics/datetime';
+import { endOfDay, startOfDay, subDays } from 'date-fns';
 import { useState } from 'react';
 import { DatePeriodNavigation } from '../date-period-navigation';
 import type { DateRange, StepDirection } from '@jetpack-premium-analytics/datetime';
@@ -29,6 +30,9 @@ export default meta;
 
 type Story = StoryObj< typeof DatePeriodNavigation >;
 
+/** The zone the story's windows are cut in. */
+const TIME_ZONE = 'UTC';
+
 /**
  * Seven whole days ending at the given day.
  *
@@ -36,15 +40,12 @@ type Story = StoryObj< typeof DatePeriodNavigation >;
  * @return The window.
  */
 function weekEnding( endingDaysAgo: number ): DateRange {
-	const to = new Date();
-	to.setDate( to.getDate() - endingDaysAgo );
-	to.setHours( 23, 59, 59, 999 );
+	const today = toLocalTZ( undefined, TIME_ZONE );
 
-	const from = new Date( to );
-	from.setDate( from.getDate() - 6 );
-	from.setHours( 0, 0, 0, 0 );
-
-	return { from, to };
+	return {
+		from: startOfDay( subDays( today, endingDaysAgo + 6 ) ),
+		to: endOfDay( subDays( today, endingDaysAgo ) ),
+	};
 }
 
 /**

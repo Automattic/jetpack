@@ -9,32 +9,62 @@ import { getDateRangeSpan } from '../date-range-span';
 import { COMPARISON_PRESETS, getComparisonRangeFromPreset } from '../get-comparison-range';
 import { stepDateRange } from '../step-date-range';
 import { createTZDateFromParts } from '../tz';
+import type { TZDate } from '@date-fns/tz';
+/**
+ * A site timezone with a fixed offset, so every expectation below holds
+ * whatever timezone the machine running the suite is in.
+ */
+const SITE_ZONE = 'Asia/Taipei';
+
+/**
+ * Build a site-local date from the parts `new Date()` takes.
+ *
+ * @param year    - Full year.
+ * @param month   - 0-indexed month.
+ * @param day     - Day of month.
+ * @param hours   - Hour of day.
+ * @param minutes - Minute of hour.
+ * @param seconds - Second of minute.
+ * @param ms      - Millisecond of second.
+ * @return The date.
+ */
+function siteDate(
+	year: number,
+	month: number,
+	day: number,
+	hours = 0,
+	minutes = 0,
+	seconds = 0,
+	ms = 0
+): TZDate {
+	return createTZDateFromParts( [ year, month, day, hours, minutes, seconds, ms ], SITE_ZONE );
+}
 
 describe( 'getComparisonRangeFromPreset', () => {
 	it( 'returns undefined when the reference range is incomplete', () => {
 		expect(
-			getComparisonRangeFromPreset( { from: new Date( 2026, 6, 1 ) }, 'previous-period' )
+			getComparisonRangeFromPreset( { from: siteDate( 2026, 6, 1 ) }, 'previous-period' )
 		).toBeUndefined();
 		expect( getComparisonRangeFromPreset( {}, 'previous-period' ) ).toBeUndefined();
 	} );
 
 	describe( 'day-aligned references', () => {
 		const reference = {
-			from: new Date( 2026, 5, 1, 0, 0, 0, 0 ),
-			to: new Date( 2026, 5, 7, 23, 59, 59, 999 ),
+			from: siteDate( 2026, 5, 1, 0, 0, 0, 0 ),
+			to: siteDate( 2026, 5, 7, 23, 59, 59, 999 ),
 		};
 
 		it( 'mirrors the previous period on day bounds', () => {
 			expect( getComparisonRangeFromPreset( reference, 'previous-period' ) ).toEqual( {
-				from: new Date( 2026, 4, 25, 0, 0, 0, 0 ),
-				to: new Date( 2026, 4, 31, 23, 59, 59, 999 ),
+				from: siteDate( 2026, 4, 25, 0, 0, 0, 0 ),
+				to: siteDate( 2026, 4, 31, 23, 59, 59, 999 ),
 			} );
 		} );
 
 		it( 'shifts the previous month, clamping to day bounds', () => {
 			expect( getComparisonRangeFromPreset( reference, 'previous-month' ) ).toEqual( {
-				from: new Date( 2026, 4, 1, 0, 0, 0, 0 ),
-				to: new Date( 2026, 4, 7, 23, 59, 59, 999 ),
+				from: siteDate( 2026, 4, 1, 0, 0, 0, 0 ),
+				to: siteDate( 2026, 4, 7, 23, 59, 59, 999 ),
 			} );
 		} );
 	} );
@@ -43,14 +73,14 @@ describe( 'getComparisonRangeFromPreset', () => {
 		// A rolling 24-hour window ending mid-afternoon, ends inclusive as the
 		// presets build them (`endOfHour`).
 		const reference = {
-			from: new Date( 2026, 6, 9, 14, 30, 0, 0 ),
-			to: new Date( 2026, 6, 10, 14, 29, 59, 999 ),
+			from: siteDate( 2026, 6, 9, 14, 30, 0, 0 ),
+			to: siteDate( 2026, 6, 10, 14, 29, 59, 999 ),
 		};
 
 		it( 'mirrors the exact previous window for previous-period', () => {
 			expect( getComparisonRangeFromPreset( reference, 'previous-period' ) ).toEqual( {
-				from: new Date( 2026, 6, 8, 14, 30, 0, 0 ),
-				to: new Date( 2026, 6, 9, 14, 29, 59, 999 ),
+				from: siteDate( 2026, 6, 8, 14, 30, 0, 0 ),
+				to: siteDate( 2026, 6, 9, 14, 29, 59, 999 ),
 			} );
 		} );
 
@@ -64,27 +94,27 @@ describe( 'getComparisonRangeFromPreset', () => {
 			// The `last-24-hours` shape: shifting by the exclusive span landed `to` on
 			// the reference's own `from`, pulling hourly buckets one hour late.
 			const last24Hours = {
-				from: new Date( 2026, 7, 17, 15, 0, 0, 0 ),
-				to: new Date( 2026, 7, 18, 14, 59, 59, 999 ),
+				from: siteDate( 2026, 7, 17, 15, 0, 0, 0 ),
+				to: siteDate( 2026, 7, 18, 14, 59, 59, 999 ),
 			};
 
 			expect( getComparisonRangeFromPreset( last24Hours, 'previous-period' ) ).toEqual( {
-				from: new Date( 2026, 7, 16, 15, 0, 0, 0 ),
-				to: new Date( 2026, 7, 17, 14, 59, 59, 999 ),
+				from: siteDate( 2026, 7, 16, 15, 0, 0, 0 ),
+				to: siteDate( 2026, 7, 17, 14, 59, 59, 999 ),
 			} );
 		} );
 
 		it( 'keeps the time of day for previous-month', () => {
 			expect( getComparisonRangeFromPreset( reference, 'previous-month' ) ).toEqual( {
-				from: new Date( 2026, 5, 9, 14, 30, 0, 0 ),
-				to: new Date( 2026, 5, 10, 14, 29, 59, 999 ),
+				from: siteDate( 2026, 5, 9, 14, 30, 0, 0 ),
+				to: siteDate( 2026, 5, 10, 14, 29, 59, 999 ),
 			} );
 		} );
 
 		it( 'keeps the time of day for previous-year', () => {
 			expect( getComparisonRangeFromPreset( reference, 'previous-year' ) ).toEqual( {
-				from: new Date( 2025, 6, 9, 14, 30, 0, 0 ),
-				to: new Date( 2025, 6, 10, 14, 29, 59, 999 ),
+				from: siteDate( 2025, 6, 9, 14, 30, 0, 0 ),
+				to: siteDate( 2025, 6, 10, 14, 29, 59, 999 ),
 			} );
 		} );
 	} );
@@ -93,8 +123,8 @@ describe( 'getComparisonRangeFromPreset', () => {
 		// A rolling 24-hour window at the end of March; February is shorter,
 		// so a plain calendar shift would collapse both endpoints onto Feb 28.
 		const endOfMarch = {
-			from: new Date( 2026, 2, 30, 14, 0, 0, 0 ),
-			to: new Date( 2026, 2, 31, 14, 0, 0, 0 ),
+			from: siteDate( 2026, 2, 30, 14, 0, 0, 0 ),
+			to: siteDate( 2026, 2, 31, 14, 0, 0, 0 ),
 		};
 
 		it.each( COMPARISON_PRESETS )( 'preserves the window duration for %s', presetId => {
@@ -106,32 +136,32 @@ describe( 'getComparisonRangeFromPreset', () => {
 
 		it( 'keeps a 24h window for previous-month when both endpoints would clamp', () => {
 			expect( getComparisonRangeFromPreset( endOfMarch, 'previous-month' ) ).toEqual( {
-				from: new Date( 2026, 1, 27, 14, 0, 0, 0 ),
-				to: new Date( 2026, 1, 28, 14, 0, 0, 0 ),
+				from: siteDate( 2026, 1, 27, 14, 0, 0, 0 ),
+				to: siteDate( 2026, 1, 28, 14, 0, 0, 0 ),
 			} );
 		} );
 
 		it( 'keeps a 48h window for previous-month when one endpoint would clamp', () => {
 			const rolling48h = {
-				from: new Date( 2026, 2, 30, 14, 0, 0, 0 ),
-				to: new Date( 2026, 3, 1, 14, 0, 0, 0 ),
+				from: siteDate( 2026, 2, 30, 14, 0, 0, 0 ),
+				to: siteDate( 2026, 3, 1, 14, 0, 0, 0 ),
 			};
 
 			expect( getComparisonRangeFromPreset( rolling48h, 'previous-month' ) ).toEqual( {
-				from: new Date( 2026, 1, 27, 14, 0, 0, 0 ),
-				to: new Date( 2026, 2, 1, 14, 0, 0, 0 ),
+				from: siteDate( 2026, 1, 27, 14, 0, 0, 0 ),
+				to: siteDate( 2026, 2, 1, 14, 0, 0, 0 ),
 			} );
 		} );
 
 		it( 'keeps a 24h window for previous-year across leap day', () => {
 			const leapDay = {
-				from: new Date( 2028, 1, 28, 14, 0, 0, 0 ),
-				to: new Date( 2028, 1, 29, 14, 0, 0, 0 ),
+				from: siteDate( 2028, 1, 28, 14, 0, 0, 0 ),
+				to: siteDate( 2028, 1, 29, 14, 0, 0, 0 ),
 			};
 
 			expect( getComparisonRangeFromPreset( leapDay, 'previous-year' ) ).toEqual( {
-				from: new Date( 2027, 1, 27, 14, 0, 0, 0 ),
-				to: new Date( 2027, 1, 28, 14, 0, 0, 0 ),
+				from: siteDate( 2027, 1, 27, 14, 0, 0, 0 ),
+				to: siteDate( 2027, 1, 28, 14, 0, 0, 0 ),
 			} );
 		} );
 	} );
@@ -140,38 +170,38 @@ describe( 'getComparisonRangeFromPreset', () => {
 		it.each( [
 			[
 				'a rolling 30-day window',
-				new Date( 2026, 6, 21, 0, 0, 0, 0 ),
-				new Date( 2026, 7, 19, 23, 59, 59, 999 ),
-				new Date( 2026, 5, 20, 0, 0, 0, 0 ),
-				new Date( 2026, 6, 19, 23, 59, 59, 999 ),
+				siteDate( 2026, 6, 21, 0, 0, 0, 0 ),
+				siteDate( 2026, 7, 19, 23, 59, 59, 999 ),
+				siteDate( 2026, 5, 20, 0, 0, 0, 0 ),
+				siteDate( 2026, 6, 19, 23, 59, 59, 999 ),
 			],
 			[
 				'a window whose end clamps in a shorter month',
-				new Date( 2026, 2, 2, 0, 0, 0, 0 ),
-				new Date( 2026, 2, 31, 23, 59, 59, 999 ),
-				new Date( 2026, 0, 30, 0, 0, 0, 0 ),
-				new Date( 2026, 1, 28, 23, 59, 59, 999 ),
+				siteDate( 2026, 2, 2, 0, 0, 0, 0 ),
+				siteDate( 2026, 2, 31, 23, 59, 59, 999 ),
+				siteDate( 2026, 0, 30, 0, 0, 0, 0 ),
+				siteDate( 2026, 1, 28, 23, 59, 59, 999 ),
 			],
 			[
 				'a week spanning a year boundary',
-				new Date( 2025, 11, 29, 0, 0, 0, 0 ),
-				new Date( 2026, 0, 4, 23, 59, 59, 999 ),
-				new Date( 2025, 10, 28, 0, 0, 0, 0 ),
-				new Date( 2025, 11, 4, 23, 59, 59, 999 ),
+				siteDate( 2025, 11, 29, 0, 0, 0, 0 ),
+				siteDate( 2026, 0, 4, 23, 59, 59, 999 ),
+				siteDate( 2025, 10, 28, 0, 0, 0, 0 ),
+				siteDate( 2025, 11, 4, 23, 59, 59, 999 ),
 			],
 			[
 				'a window that starts on the 1st but stops short of the month end',
-				new Date( 2026, 2, 1, 0, 0, 0, 0 ),
-				new Date( 2026, 2, 15, 23, 59, 59, 999 ),
-				new Date( 2026, 1, 1, 0, 0, 0, 0 ),
-				new Date( 2026, 1, 15, 23, 59, 59, 999 ),
+				siteDate( 2026, 2, 1, 0, 0, 0, 0 ),
+				siteDate( 2026, 2, 15, 23, 59, 59, 999 ),
+				siteDate( 2026, 1, 1, 0, 0, 0, 0 ),
+				siteDate( 2026, 1, 15, 23, 59, 59, 999 ),
 			],
 			[
 				'a window whose start has no counterpart a month back',
-				new Date( 2026, 0, 31, 0, 0, 0, 0 ),
-				new Date( 2026, 2, 1, 23, 59, 59, 999 ),
-				new Date( 2026, 0, 3, 0, 0, 0, 0 ),
-				new Date( 2026, 1, 1, 23, 59, 59, 999 ),
+				siteDate( 2026, 0, 31, 0, 0, 0, 0 ),
+				siteDate( 2026, 2, 1, 23, 59, 59, 999 ),
+				siteDate( 2026, 0, 3, 0, 0, 0, 0 ),
+				siteDate( 2026, 1, 1, 23, 59, 59, 999 ),
 			],
 		] )(
 			'keeps the reference length for previous-month with %s',
@@ -185,13 +215,13 @@ describe( 'getComparisonRangeFromPreset', () => {
 
 		it( 'keeps the reference length for previous-year across a leap day', () => {
 			const reference = {
-				from: new Date( 2028, 1, 20, 0, 0, 0, 0 ),
-				to: new Date( 2028, 2, 5, 23, 59, 59, 999 ),
+				from: siteDate( 2028, 1, 20, 0, 0, 0, 0 ),
+				to: siteDate( 2028, 2, 5, 23, 59, 59, 999 ),
 			};
 
 			expect( getComparisonRangeFromPreset( reference, 'previous-year' ) ).toEqual( {
-				from: new Date( 2027, 1, 19, 0, 0, 0, 0 ),
-				to: new Date( 2027, 2, 5, 23, 59, 59, 999 ),
+				from: siteDate( 2027, 1, 19, 0, 0, 0, 0 ),
+				to: siteDate( 2027, 2, 5, 23, 59, 59, 999 ),
 			} );
 		} );
 
@@ -199,8 +229,8 @@ describe( 'getComparisonRangeFromPreset', () => {
 			'covers the same number of days as the reference for %s',
 			presetId => {
 				const reference = {
-					from: new Date( 2026, 0, 31, 0, 0, 0, 0 ),
-					to: new Date( 2026, 2, 1, 23, 59, 59, 999 ),
+					from: siteDate( 2026, 0, 31, 0, 0, 0, 0 ),
+					to: siteDate( 2026, 2, 1, 23, 59, 59, 999 ),
 				};
 				const comparison = getComparisonRangeFromPreset( reference, presetId );
 
@@ -212,37 +242,37 @@ describe( 'getComparisonRangeFromPreset', () => {
 	describe( 'whole calendar months', () => {
 		it( 'sets a whole month against the whole month before it', () => {
 			const march = {
-				from: new Date( 2026, 2, 1, 0, 0, 0, 0 ),
-				to: new Date( 2026, 2, 31, 23, 59, 59, 999 ),
+				from: siteDate( 2026, 2, 1, 0, 0, 0, 0 ),
+				to: siteDate( 2026, 2, 31, 23, 59, 59, 999 ),
 			};
 
 			expect( getComparisonRangeFromPreset( march, 'previous-month' ) ).toEqual( {
-				from: new Date( 2026, 1, 1, 0, 0, 0, 0 ),
-				to: new Date( 2026, 1, 28, 23, 59, 59, 999 ),
+				from: siteDate( 2026, 1, 1, 0, 0, 0, 0 ),
+				to: siteDate( 2026, 1, 28, 23, 59, 59, 999 ),
 			} );
 		} );
 
 		it( 'keeps a multi-month window on month bounds', () => {
 			const janToFeb = {
-				from: new Date( 2026, 0, 1, 0, 0, 0, 0 ),
-				to: new Date( 2026, 1, 28, 23, 59, 59, 999 ),
+				from: siteDate( 2026, 0, 1, 0, 0, 0, 0 ),
+				to: siteDate( 2026, 1, 28, 23, 59, 59, 999 ),
 			};
 
 			expect( getComparisonRangeFromPreset( janToFeb, 'previous-month' ) ).toEqual( {
-				from: new Date( 2025, 11, 1, 0, 0, 0, 0 ),
-				to: new Date( 2026, 0, 31, 23, 59, 59, 999 ),
+				from: siteDate( 2025, 11, 1, 0, 0, 0, 0 ),
+				to: siteDate( 2026, 0, 31, 23, 59, 59, 999 ),
 			} );
 		} );
 
 		it( 'sets a leap February against the shorter one a year back', () => {
 			const february2028 = {
-				from: new Date( 2028, 1, 1, 0, 0, 0, 0 ),
-				to: new Date( 2028, 1, 29, 23, 59, 59, 999 ),
+				from: siteDate( 2028, 1, 1, 0, 0, 0, 0 ),
+				to: siteDate( 2028, 1, 29, 23, 59, 59, 999 ),
 			};
 
 			expect( getComparisonRangeFromPreset( february2028, 'previous-year' ) ).toEqual( {
-				from: new Date( 2027, 1, 1, 0, 0, 0, 0 ),
-				to: new Date( 2027, 1, 28, 23, 59, 59, 999 ),
+				from: siteDate( 2027, 1, 1, 0, 0, 0, 0 ),
+				to: siteDate( 2027, 1, 28, 23, 59, 59, 999 ),
 			} );
 		} );
 
@@ -268,13 +298,13 @@ describe( 'getComparisonRangeFromPreset', () => {
 		 */
 		it( 'sets a whole month against the whole month before it for previous-period', () => {
 			const march = {
-				from: new Date( 2026, 2, 1, 0, 0, 0, 0 ),
-				to: new Date( 2026, 2, 31, 23, 59, 59, 999 ),
+				from: siteDate( 2026, 2, 1, 0, 0, 0, 0 ),
+				to: siteDate( 2026, 2, 31, 23, 59, 59, 999 ),
 			};
 
 			expect( getComparisonRangeFromPreset( march, 'previous-period' ) ).toEqual( {
-				from: new Date( 2026, 1, 1, 0, 0, 0, 0 ),
-				to: new Date( 2026, 1, 28, 23, 59, 59, 999 ),
+				from: siteDate( 2026, 1, 1, 0, 0, 0, 0 ),
+				to: siteDate( 2026, 1, 28, 23, 59, 59, 999 ),
 			} );
 		} );
 
@@ -284,13 +314,13 @@ describe( 'getComparisonRangeFromPreset', () => {
 		 */
 		it( 'sets a calendar year against the previous calendar year for previous-period', () => {
 			const year2025 = {
-				from: new Date( 2025, 0, 1, 0, 0, 0, 0 ),
-				to: new Date( 2025, 11, 31, 23, 59, 59, 999 ),
+				from: siteDate( 2025, 0, 1, 0, 0, 0, 0 ),
+				to: siteDate( 2025, 11, 31, 23, 59, 59, 999 ),
 			};
 
 			expect( getComparisonRangeFromPreset( year2025, 'previous-period' ) ).toEqual( {
-				from: new Date( 2024, 0, 1, 0, 0, 0, 0 ),
-				to: new Date( 2024, 11, 31, 23, 59, 59, 999 ),
+				from: siteDate( 2024, 0, 1, 0, 0, 0, 0 ),
+				to: siteDate( 2024, 11, 31, 23, 59, 59, 999 ),
 			} );
 		} );
 
@@ -301,13 +331,13 @@ describe( 'getComparisonRangeFromPreset', () => {
 		 */
 		it( 'steps a rolling 12-month window back by its month count for previous-period', () => {
 			const last12Months = {
-				from: new Date( 2025, 7, 31, 0, 0, 0, 0 ),
-				to: new Date( 2026, 7, 30, 23, 59, 59, 999 ),
+				from: siteDate( 2025, 7, 31, 0, 0, 0, 0 ),
+				to: siteDate( 2026, 7, 30, 23, 59, 59, 999 ),
 			};
 
 			expect( getComparisonRangeFromPreset( last12Months, 'previous-period' ) ).toEqual( {
-				from: new Date( 2024, 7, 31, 0, 0, 0, 0 ),
-				to: new Date( 2025, 7, 30, 23, 59, 59, 999 ),
+				from: siteDate( 2024, 7, 31, 0, 0, 0, 0 ),
+				to: siteDate( 2025, 7, 30, 23, 59, 59, 999 ),
 			} );
 		} );
 	} );
@@ -315,25 +345,25 @@ describe( 'getComparisonRangeFromPreset', () => {
 	describe( 'previous-week', () => {
 		it( 'shifts a day-aligned range back seven days on day bounds', () => {
 			const yesterday = {
-				from: new Date( 2026, 7, 30, 0, 0, 0, 0 ),
-				to: new Date( 2026, 7, 30, 23, 59, 59, 999 ),
+				from: siteDate( 2026, 7, 30, 0, 0, 0, 0 ),
+				to: siteDate( 2026, 7, 30, 23, 59, 59, 999 ),
 			};
 
 			expect( getComparisonRangeFromPreset( yesterday, 'previous-week' ) ).toEqual( {
-				from: new Date( 2026, 7, 23, 0, 0, 0, 0 ),
-				to: new Date( 2026, 7, 23, 23, 59, 59, 999 ),
+				from: siteDate( 2026, 7, 23, 0, 0, 0, 0 ),
+				to: siteDate( 2026, 7, 23, 23, 59, 59, 999 ),
 			} );
 		} );
 
 		it( 'keeps the time of day for a rolling window', () => {
 			const rolling = {
-				from: new Date( 2026, 6, 9, 14, 30, 0, 0 ),
-				to: new Date( 2026, 6, 10, 14, 29, 59, 999 ),
+				from: siteDate( 2026, 6, 9, 14, 30, 0, 0 ),
+				to: siteDate( 2026, 6, 10, 14, 29, 59, 999 ),
 			};
 
 			expect( getComparisonRangeFromPreset( rolling, 'previous-week' ) ).toEqual( {
-				from: new Date( 2026, 6, 2, 14, 30, 0, 0 ),
-				to: new Date( 2026, 6, 3, 14, 29, 59, 999 ),
+				from: siteDate( 2026, 6, 2, 14, 30, 0, 0 ),
+				to: siteDate( 2026, 6, 3, 14, 29, 59, 999 ),
 			} );
 		} );
 
@@ -343,8 +373,8 @@ describe( 'getComparisonRangeFromPreset', () => {
 		 */
 		it( 'matches the previous period exactly at seven days', () => {
 			const week = {
-				from: new Date( 2026, 5, 1, 0, 0, 0, 0 ),
-				to: new Date( 2026, 5, 7, 23, 59, 59, 999 ),
+				from: siteDate( 2026, 5, 1, 0, 0, 0, 0 ),
+				to: siteDate( 2026, 5, 7, 23, 59, 59, 999 ),
 			};
 
 			expect( getComparisonRangeFromPreset( week, 'previous-week' ) ).toEqual(
@@ -360,14 +390,14 @@ describe( 'getComparisonRangeFromPreset', () => {
 			expect(
 				getComparisonRangeFromPreset(
 					{
-						from: new Date( 2025, 0, 1, 0, 0, 0, 0 ),
-						to: new Date( 2025, 11, 31, 23, 59, 59, 999 ),
+						from: siteDate( 2025, 0, 1, 0, 0, 0, 0 ),
+						to: siteDate( 2025, 11, 31, 23, 59, 59, 999 ),
 					},
 					'previous-period'
 				)
 			).toEqual( {
-				from: new Date( 2024, 0, 1, 0, 0, 0, 0 ),
-				to: new Date( 2024, 11, 31, 23, 59, 59, 999 ),
+				from: siteDate( 2024, 0, 1, 0, 0, 0, 0 ),
+				to: siteDate( 2024, 11, 31, 23, 59, 59, 999 ),
 			} );
 		} );
 
@@ -375,14 +405,14 @@ describe( 'getComparisonRangeFromPreset', () => {
 			expect(
 				getComparisonRangeFromPreset(
 					{
-						from: new Date( 2025, 7, 20, 0, 0, 0, 0 ),
-						to: new Date( 2026, 7, 19, 23, 59, 59, 999 ),
+						from: siteDate( 2025, 7, 20, 0, 0, 0, 0 ),
+						to: siteDate( 2026, 7, 19, 23, 59, 59, 999 ),
 					},
 					'previous-period'
 				)
 			).toEqual( {
-				from: new Date( 2024, 7, 20, 0, 0, 0, 0 ),
-				to: new Date( 2025, 7, 19, 23, 59, 59, 999 ),
+				from: siteDate( 2024, 7, 20, 0, 0, 0, 0 ),
+				to: siteDate( 2025, 7, 19, 23, 59, 59, 999 ),
 			} );
 		} );
 
@@ -392,12 +422,12 @@ describe( 'getComparisonRangeFromPreset', () => {
 			// reference's 59. The step arrows count days there, and a comparison
 			// naming a different window than the arrow would is a defect.
 			const clamping = {
-				from: new Date( 2026, 0, 31, 0, 0, 0, 0 ),
-				to: new Date( 2026, 2, 30, 23, 59, 59, 999 ),
+				from: siteDate( 2026, 0, 31, 0, 0, 0, 0 ),
+				to: siteDate( 2026, 2, 30, 23, 59, 59, 999 ),
 			};
 			const expected = {
-				from: new Date( 2025, 11, 3, 0, 0, 0, 0 ),
-				to: new Date( 2026, 0, 30, 23, 59, 59, 999 ),
+				from: siteDate( 2025, 11, 3, 0, 0, 0, 0 ),
+				to: siteDate( 2026, 0, 30, 23, 59, 59, 999 ),
 			};
 
 			expect( getComparisonRangeFromPreset( clamping, 'previous-period' ) ).toEqual( expected );
@@ -410,14 +440,14 @@ describe( 'getComparisonRangeFromPreset', () => {
 			expect(
 				getComparisonRangeFromPreset(
 					{
-						from: new Date( 2026, 0, 1, 0, 0, 0, 0 ),
-						to: new Date( 2026, 1, 28, 23, 59, 59, 999 ),
+						from: siteDate( 2026, 0, 1, 0, 0, 0, 0 ),
+						to: siteDate( 2026, 1, 28, 23, 59, 59, 999 ),
 					},
 					'previous-period'
 				)
 			).toEqual( {
-				from: new Date( 2025, 10, 1, 0, 0, 0, 0 ),
-				to: new Date( 2025, 11, 31, 23, 59, 59, 999 ),
+				from: siteDate( 2025, 10, 1, 0, 0, 0, 0 ),
+				to: siteDate( 2025, 11, 31, 23, 59, 59, 999 ),
 			} );
 		} );
 	} );
@@ -425,8 +455,8 @@ describe( 'getComparisonRangeFromPreset', () => {
 	describe( 'to-date presets', () => {
 		// `last-12-months` as read on 20 August 2026.
 		const reference = {
-			from: new Date( 2025, 8, 1, 0, 0, 0, 0 ),
-			to: new Date( 2026, 7, 20, 23, 59, 59, 999 ),
+			from: siteDate( 2025, 8, 1, 0, 0, 0, 0 ),
+			to: siteDate( 2026, 7, 20, 23, 59, 59, 999 ),
 		};
 
 		it( 'steps the previous period back by the completed window', () => {
@@ -436,7 +466,7 @@ describe( 'getComparisonRangeFromPreset', () => {
 				getComparisonRangeFromPreset( reference, 'previous-period', {
 					primaryPresetId: 'last-12-months',
 				} )?.from
-			).toEqual( new Date( 2024, 8, 1, 0, 0, 0, 0 ) );
+			).toEqual( siteDate( 2024, 8, 1, 0, 0, 0, 0 ) );
 		} );
 
 		it( 'stops the previous period as many days short as the reference does', () => {
@@ -447,7 +477,7 @@ describe( 'getComparisonRangeFromPreset', () => {
 				primaryPresetId: 'last-12-months',
 			} );
 
-			expect( comparison?.to ).toEqual( new Date( 2025, 7, 20, 23, 59, 59, 999 ) );
+			expect( comparison?.to ).toEqual( siteDate( 2025, 7, 20, 23, 59, 59, 999 ) );
 			expect( differenceInDays( comparison!.to!, comparison!.from! ) ).toBe(
 				differenceInDays( reference.to, reference.from )
 			);
@@ -461,16 +491,16 @@ describe( 'getComparisonRangeFromPreset', () => {
 					primaryPresetId: 'last-12-months',
 				} )
 			).toEqual( {
-				from: new Date( 2024, 8, 1, 0, 0, 0, 0 ),
-				to: new Date( 2025, 7, 20, 23, 59, 59, 999 ),
+				from: siteDate( 2024, 8, 1, 0, 0, 0, 0 ),
+				to: siteDate( 2025, 7, 20, 23, 59, 59, 999 ),
 			} );
 			expect(
 				getComparisonRangeFromPreset( reference, 'previous-month', {
 					primaryPresetId: 'last-12-months',
 				} )
 			).toEqual( {
-				from: new Date( 2025, 7, 1, 0, 0, 0, 0 ),
-				to: new Date( 2026, 6, 20, 23, 59, 59, 999 ),
+				from: siteDate( 2025, 7, 1, 0, 0, 0, 0 ),
+				to: siteDate( 2026, 6, 20, 23, 59, 59, 999 ),
 			} );
 		} );
 
@@ -479,8 +509,8 @@ describe( 'getComparisonRangeFromPreset', () => {
 			expect(
 				getComparisonRangeFromPreset( reference, 'previous-period', { primaryPresetId: 'custom' } )
 			).toEqual( {
-				from: new Date( 2024, 8, 12, 0, 0, 0, 0 ),
-				to: new Date( 2025, 7, 31, 23, 59, 59, 999 ),
+				from: siteDate( 2024, 8, 12, 0, 0, 0, 0 ),
+				to: siteDate( 2025, 7, 31, 23, 59, 59, 999 ),
 			} );
 		} );
 	} );

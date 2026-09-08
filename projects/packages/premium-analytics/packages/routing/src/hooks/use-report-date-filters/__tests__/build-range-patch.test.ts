@@ -10,6 +10,7 @@ jest.mock( '@jetpack-premium-analytics/datetime', () => ( {
 /**
  * External dependencies
  */
+import { TZDate } from '@date-fns/tz';
 import { canStepForward, stepDateRange } from '@jetpack-premium-analytics/datetime';
 /**
  * Internal dependencies
@@ -19,12 +20,12 @@ import { buildRangePatch } from '../build-range-patch';
 describe( 'buildRangePatch', () => {
 	// A rolling sub-day window: `to` sits mid-day, exactly where end-of-day
 	// rounding would corrupt it.
-	const from = new Date( '2026-07-09T14:30:00.000+00:00' );
-	const to = new Date( '2026-07-10T14:30:00.000+00:00' );
+	const from = new TZDate( '2026-07-09T14:30:00.000+00:00', 'UTC' );
+	const to = new TZDate( '2026-07-10T14:30:00.000+00:00', 'UTC' );
 
 	// A window long enough to allow day buckets, for the cases about carrying a
 	// selection rather than about coercing it.
-	const wideTo = new Date( '2026-07-19T14:30:00.000+00:00' );
+	const wideTo = new TZDate( '2026-07-19T14:30:00.000+00:00', 'UTC' );
 
 	it( 'returns null when there is nothing to stage', () => {
 		expect( buildRangePatch( { effective: {} } ) ).toBeNull();
@@ -125,7 +126,7 @@ describe( 'buildRangePatch', () => {
 	it( 'extends calendar and manual edits to the end of the day', () => {
 		// The end of the *site's* day (pinned to UTC above), whatever the host.
 		// A literal instant, so the expectation cannot drift with `endOfDayTZ`.
-		const expected = new Date( '2026-07-10T23:59:59.999+00:00' ).getTime();
+		const expected = new TZDate( '2026-07-10T23:59:59.999+00:00', 'UTC' ).getTime();
 
 		const custom = buildRangePatch( {
 			nextRange: { from, to },
@@ -172,7 +173,10 @@ describe( 'buildRangePatch', () => {
 			preset: 'custom',
 		} );
 
-		const backRange = { from: new Date( back?.from ?? '' ), to: new Date( back?.to ?? '' ) };
+		const backRange = {
+			from: new TZDate( back?.from ?? '', 'UTC' ),
+			to: new TZDate( back?.to ?? '', 'UTC' ),
+		};
 		expect( canStepForward( backRange, to ) ).toBe( true );
 
 		const returned = stepDateRange( backRange, 'next' );
@@ -199,8 +203,8 @@ describe( 'buildRangePatch', () => {
 	it( 'falls back to the previous period when the new range drops the preset', () => {
 		const patch = buildRangePatch( {
 			nextRange: {
-				from: new Date( '2026-08-01T00:00:00.000+00:00' ),
-				to: new Date( '2026-08-30T23:59:59.999+00:00' ),
+				from: new TZDate( '2026-08-01T00:00:00.000+00:00', 'UTC' ),
+				to: new TZDate( '2026-08-30T23:59:59.999+00:00', 'UTC' ),
 			},
 			nextPresetId: 'last-30-days',
 			effective: { comp: '1', compare_preset: 'previous-month' },
@@ -236,8 +240,8 @@ describe( 'buildRangePatch', () => {
 		// 12 September; as the to-date preset, twelve months back on the first.
 		const patch = buildRangePatch( {
 			nextRange: {
-				from: new Date( '2025-09-01T00:00:00.000Z' ),
-				to: new Date( '2026-08-20T23:59:59.999Z' ),
+				from: new TZDate( '2025-09-01T00:00:00.000Z', 'UTC' ),
+				to: new TZDate( '2026-08-20T23:59:59.999Z', 'UTC' ),
 			},
 			nextPresetId: 'last-12-months',
 			effective: { preset: 'last-7-days', comp: '1', compare_preset: 'previous-period' },
