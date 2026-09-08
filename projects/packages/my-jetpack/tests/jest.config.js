@@ -1,9 +1,9 @@
-const path = require( 'path' );
-const baseConfig = require( 'jetpack-js-tools/jest/config.base.js' );
+import path from 'path';
+import baseConfig from 'jetpack-js-tools/jest/config.base.js';
 
-module.exports = {
+export default {
 	...baseConfig,
-	rootDir: path.join( __dirname, '..' ),
+	rootDir: path.join( import.meta.dirname, '..' ),
 	setupFilesAfterEnv: [ ...baseConfig.setupFilesAfterEnv, '<rootDir>/tests/jest.setup.js' ],
 	collectCoverageFrom: [
 		'<rootDir>/_inc/**/*.{js,mjs,cjs,jsx,ts,tsx,mts,cts}',

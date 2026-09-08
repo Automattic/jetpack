@@ -1,6 +1,6 @@
 import { sprintf, __ } from '@wordpress/i18n';
-import formatNumber from '../../utils/format-number';
-import formatPercentage from '../../utils/format-percentage';
+import formatNumber from '../../utils/format-number.ts';
+import formatPercentage from '../../utils/format-percentage.ts';
 
 /**
  * Creates text describing a stat difference between two periods.
