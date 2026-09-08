@@ -521,8 +521,10 @@
 }
 
 .jetpack-paypal-variants__options {
-	margin-left: 12px;
-	padding-left: 12px;
+	// The border carries the nesting cue on its own, and this already
+	// sits inside __group's card padding, so keep it tight - the option
+	// fields start from about 230px.
+	padding-left: 8px;
 	border-left: 2px solid #ddd;
 }
 
