@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-AI Assistant block: keep saved blocks in place as empty blocks, instead of showing the "unsupported block" warning, when Jetpack AI or the Writing Assistant is turned off.
+AI Assistant and AI Chat blocks: explain in the editor that Jetpack AI, or the Writing Assistant, is turned off, instead of showing the "unsupported block" warning on posts that already contain them.
