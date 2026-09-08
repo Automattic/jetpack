@@ -222,6 +222,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 			curveType,
 			renderTooltip = renderDefaultTooltip,
 			tooltipPlacement,
+			tooltipStyle,
 			withStartGlyphs = false,
 			withEndGlyphs = false,
 			animation,
@@ -678,6 +679,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 													detectBounds
 													snapTooltipToDatumX
 													tooltipPlacement={ tooltipPlacement }
+													{ ...( tooltipStyle && { style: tooltipStyle } ) }
 													snapTooltipToDatumY
 													showSeriesGlyphs
 													renderTooltip={ tooltipRenderer }
@@ -685,6 +687,8 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 													glyphStyle={ glyphStyle }
 													showVerticalCrosshair={ withTooltipCrosshairs?.showVertical }
 													showHorizontalCrosshair={ withTooltipCrosshairs?.showHorizontal }
+													verticalCrosshairStyle={ withTooltipCrosshairs?.verticalStyle }
+													horizontalCrosshairStyle={ withTooltipCrosshairs?.horizontalStyle }
 													selectedIndex={ selectedIndex }
 													tooltipRef={ tooltipRef }
 													keyboardFocusedClassName={

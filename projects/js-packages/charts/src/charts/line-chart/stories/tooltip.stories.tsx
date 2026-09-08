@@ -169,12 +169,18 @@ BelowAxis.args = {
 	...tooltipStoryArgs,
 	height: 220,
 	tooltipPlacement: 'below-axis',
+	tooltipStyle: { background: '#1e1e1e', color: '#fff' },
+	renderTooltip: renderWideTooltip( 120 ),
+	withTooltipCrosshairs: {
+		showVertical: true,
+		verticalStyle: { strokeWidth: 40, strokeOpacity: 0.12 },
+	},
 };
 BelowAxis.parameters = {
 	docs: {
 		description: {
 			story:
-				'Hover a datum or focus the chart and use the arrow keys. The tooltip stays below the x-axis and can extend past the chart. At horizontal edges, the panel shifts while its pointer stays anchored to the datum.',
+				'Hover a datum or focus the chart and use the arrow keys. A broad translucent crosshair highlights the active column. The tooltip stays below the x-axis and can extend past the chart. At horizontal edges, the panel shifts while its pointer stays anchored to the datum.',
 		},
 	},
 };
