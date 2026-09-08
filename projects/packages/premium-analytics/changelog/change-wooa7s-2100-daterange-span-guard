@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Date range: Report no span for a range whose end precedes its start, instead of a one-hour window.

@@ -96,13 +96,20 @@ function getWholeMonths( from: TZDate, to: TZDate ): number | null {
  * open-ended range measures by the day it is read on.
  *
  * @param range - The range to measure.
- * @return The span, or null when the range is missing an end.
+ * @return The span, or null when the range is missing an end or runs backwards.
  */
 export function getDateRangeSpan( range?: DateRange ): DateRangeSpan | null {
 	const from = range?.from;
 	const to = range?.to;
 
 	if ( ! from || ! to ) {
+		return null;
+	}
+
+	// A hand-edited URL can name an end before its start. Every measurement
+	// below floors at 1, so a backwards range would otherwise report a
+	// plausible-looking one-hour window rather than no window at all.
+	if ( to.getTime() < from.getTime() ) {
 		return null;
 	}
 
