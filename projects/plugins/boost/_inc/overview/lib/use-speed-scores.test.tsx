@@ -63,3 +63,52 @@ test.each( [ undefined, { predefined_pages: [] }, { predefined_pages: [ '' ] } ]
 		);
 	}
 );
+
+test( 'keeps offline sites idle, including manual refresh', async () => {
+	window.Jetpack_Boost.site.online = false;
+	const { result } = renderHook( () => useSpeedScores() );
+	expect( result.current[ 0 ].status ).toBe( 'offline' );
+	await act( async () => result.current[ 1 ]( true ) );
+	expect( requestSpeedScores ).not.toHaveBeenCalled();
+} );
+
+test( 'retains scores on refresh failure and recovers on retry', async () => {
+	const { result } = renderHook( () => useSpeedScores() );
+	await waitFor( () => expect( result.current[ 0 ].status ).toBe( 'loaded' ) );
+	jest.mocked( requestSpeedScores ).mockRejectedValueOnce( new Error( 'Service unavailable' ) );
+	await act( async () => result.current[ 1 ]( true ) );
+	expect( result.current[ 0 ] ).toEqual( expect.objectContaining( {
+		status: 'error',
+		hasScores: true,
+		scores: { current: { mobile: 81, desktop: 91 }, noBoost: null, isStale: false },
+	} ) );
+	await act( async () => result.current[ 1 ]( true ) );
+	expect( result.current[ 0 ].status ).toBe( 'loaded' );
+	expect( result.current[ 0 ].error ).toBeUndefined();
+} );
+
+test( 'regenerates after changed module configuration settles and waits two seconds', async () => {
+	jest.useFakeTimers();
+	try {
+		const { rerender } = renderHook( state => useSpeedScores( state ), {
+			initialProps: { config: 'initial', isPending: false },
+		} );
+		await act( async () => {} );
+		rerender( { config: 'changed', isPending: true } );
+		await act( async () => jest.advanceTimersByTimeAsync( 3000 ) );
+		expect( requestSpeedScores ).toHaveBeenCalledTimes( 1 );
+		rerender( { config: 'changed', isPending: false } );
+		await act( async () => jest.advanceTimersByTimeAsync( 1999 ) );
+		expect( requestSpeedScores ).toHaveBeenCalledTimes( 1 );
+		await act( async () => jest.advanceTimersByTimeAsync( 1 ) );
+		expect( requestSpeedScores ).toHaveBeenCalledTimes( 2 );
+		expect( requestSpeedScores ).toHaveBeenLastCalledWith(
+			true,
+			wpApiSettings.root,
+			'https://example.org',
+			wpApiSettings.nonce
+		);
+	} finally {
+		jest.useRealTimers();
+	}
+} );
