@@ -174,10 +174,16 @@ $jp-breakpoint-mobile: 782px;
 	// always true and behavior is unchanged.
 	// The stage is `.boot-layout__stage` up to boot 0.20. From boot 0.21
 	// (WordPress/gutenberg#81756) boot's layout styles are CSS Modules and the
-	// class is `_<hash>__stage`, so the attribute selector matches the local
-	// name whatever the hash is — same technique as
-	// `packages/wp-build-polyfills` uses for the layout root.
-	#wpbody-content :has(.jp-admin-page):not(:has(.boot-layout__stage, [class*="__stage"])) {
+	// class is `<hash>__stage`, so match the local name whatever the hash is.
+	// The wildcard is scoped to wp-build's mount element — the hook that same
+	// PR moved to for identifying generated pages — so a stray `*__stage`
+	// class elsewhere in a dashboard cannot silently drop the flex chain.
+	// `:where()` keeps the guard at its original (1,2,0).
+	// `packages/wp-build-polyfills` pins this contract in a test.
+	$boot-mount: ":where([id$='-wp-admin-app'])";
+	$boot-stage: ".boot-layout__stage, #{$boot-mount} [class*='__stage']";
+
+	#wpbody-content :has(.jp-admin-page):not(:has(#{$boot-stage})) {
 		flex: 1 1 auto;
 		min-height: 0;
 		min-width: 0;

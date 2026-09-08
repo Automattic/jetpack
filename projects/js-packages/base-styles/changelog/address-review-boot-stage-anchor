@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Admin page layout: scope the boot stage match to wp-build's mount element.
