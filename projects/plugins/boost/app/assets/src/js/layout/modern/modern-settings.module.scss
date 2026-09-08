@@ -1,0 +1,6 @@
+// Scoped below the chassis mount: modern styles must not reach the legacy root.
+.settings {
+	display: flex;
+	flex-direction: column;
+	gap: 24px;
+}
