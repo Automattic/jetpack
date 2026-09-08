@@ -113,6 +113,27 @@ test( 'renders actual Charts lines and annotations using millisecond history dat
 	} );
 } );
 
+test( 'only renders annotations inside the displayed date domain, including its boundaries', async () => {
+	render(
+		<HistoryChartCard
+			data={ {
+				...history,
+				annotations: [
+					{ timestamp: timestamp - 20 * 86400000, text: 'Older annotation' },
+					{ timestamp, text: 'Start annotation' },
+					{ timestamp: history.endDate, text: 'End annotation' },
+					{ timestamp: history.endDate + 1, text: 'Future annotation' },
+				],
+			} }
+			{ ...callbacks }
+		/>
+	);
+	await expect( screen.findByText( 'Start annotation' ) ).resolves.toBeInTheDocument();
+	expect( screen.getByText( 'End annotation' ) ).toBeInTheDocument();
+	expect( screen.queryByText( 'Older annotation' ) ).not.toBeInTheDocument();
+	expect( screen.queryByText( 'Future annotation' ) ).not.toBeInTheDocument();
+} );
+
 test( 'sorts both device series without mutating the cached periods', () => {
 	const periods = [ history.periods[ 1 ], history.periods[ 0 ] ];
 	const series = buildHistorySeries( { ...history, periods } );

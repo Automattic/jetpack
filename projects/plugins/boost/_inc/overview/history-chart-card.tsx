@@ -415,14 +415,19 @@ export default function HistoryChartCard( {
 							} }
 						>
 							<LineChart.AnnotationsOverlay>
-								{ data.annotations.map( ( annotation, index ) => (
-									<LineChart.Annotation
-										key={ `${ annotation.timestamp }-${ index }` }
-										datum={ { date: new Date( annotation.timestamp ), value: 100 } }
-										title={ annotation.text }
-										subjectType="line-vertical"
-									/>
-								) ) }
+								{ data.annotations
+									.filter(
+										annotation =>
+											annotation.timestamp >= startDate && annotation.timestamp <= data.endDate
+									)
+									.map( ( annotation, index ) => (
+										<LineChart.Annotation
+											key={ `${ annotation.timestamp }-${ index }` }
+											datum={ { date: new Date( annotation.timestamp ), value: 100 } }
+											title={ annotation.text }
+											subjectType="line-vertical"
+										/>
+									) ) }
 							</LineChart.AnnotationsOverlay>
 						</LineChart>
 					) }
