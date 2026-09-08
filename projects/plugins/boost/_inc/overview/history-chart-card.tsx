@@ -1,6 +1,7 @@
 import { GlobalChartsProvider, LineChart, useGlobalChartsContext } from '@automattic/charts';
 import '@automattic/charts/style.css';
 import { getScoreLetter } from '@automattic/jetpack-boost-score-api';
+import { formatNumber } from '@automattic/number-formatters';
 import { Spinner, VisuallyHidden } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
@@ -37,24 +38,20 @@ export function buildHistorySeries(
 		return [];
 	}
 	const periods = [ ...data.periods ].sort( ( a, b ) => a.timestamp - b.timestamp );
-	return [
-		{
-			label: __( 'Desktop', 'jetpack-boost' ),
-			options: { stroke: 'var(--jetpack-boost-overview-chart-desktop)' },
-			data: periods.map( period => ( {
-				date: new Date( period.timestamp ),
-				value: period.dimensions.desktop_overall_score,
-			} ) ),
-		},
-		{
-			label: __( 'Mobile', 'jetpack-boost' ),
-			options: { stroke: 'var(--jetpack-boost-overview-chart-mobile)' },
-			data: periods.map( period => ( {
-				date: new Date( period.timestamp ),
-				value: period.dimensions.mobile_overall_score,
-			} ) ),
-		},
-	];
+	return ( [ 'desktop', 'mobile' ] as const ).map( device => ( {
+		label:
+			device === 'desktop' ? __( 'Desktop', 'jetpack-boost' ) : __( 'Mobile', 'jetpack-boost' ),
+		options: { stroke: `var(--jetpack-boost-overview-chart-${ device })` },
+		data: periods.map( period => ( {
+			date: new Date( period.timestamp ),
+			value: period.dimensions[ `${ device }_overall_score` ],
+		} ) ),
+	} ) );
+}
+
+function readStyleNumber( styles: CSSStyleDeclaration, property: string ): number | undefined {
+	const value = parseFloat( styles.getPropertyValue( property ) );
+	return Number.isFinite( value ) ? value : undefined;
 }
 
 export function HistoryTooltip( {
@@ -92,11 +89,10 @@ export function HistoryTooltip( {
 				);
 			}
 			setEdgeGap(
-				parseFloat(
-					getComputedStyle( marker ?? element ).getPropertyValue(
-						'--jetpack-boost-overview-chart-edge-gap'
-					)
-				) || 0
+				readStyleNumber(
+					getComputedStyle( marker ?? element ),
+					'--jetpack-boost-overview-chart-edge-gap'
+				) ?? 0
 			);
 		};
 		measure();
@@ -153,11 +149,23 @@ export function HistoryTooltip( {
 							) }
 						</dd>
 						<dt>{ __( 'Largest Contentful Paint', 'jetpack-boost' ) }</dt>
-						<dd>{ sprintf( '%.2fs', dimensions[ `${ device }_lcp` ] ) }</dd>
+						<dd>
+							{ sprintf(
+								/* translators: %s is a duration in seconds. */
+								__( '%ss', 'jetpack-boost' ),
+								formatNumber( dimensions[ `${ device }_lcp` ], { decimals: 2 } )
+							) }
+						</dd>
 						<dt>{ __( 'Total Blocking Time', 'jetpack-boost' ) }</dt>
-						<dd>{ sprintf( '%.2fs', dimensions[ `${ device }_tbt` ] ) }</dd>
+						<dd>
+							{ sprintf(
+								/* translators: %s is a duration in seconds. */
+								__( '%ss', 'jetpack-boost' ),
+								formatNumber( dimensions[ `${ device }_tbt` ], { decimals: 2 } )
+							) }
+						</dd>
 						<dt>{ __( 'Cumulative Layout Shift', 'jetpack-boost' ) }</dt>
-						<dd>{ sprintf( '%.2f', dimensions[ `${ device }_cls` ] ) }</dd>
+						<dd>{ formatNumber( dimensions[ `${ device }_cls` ], { decimals: 2 } ) }</dd>
 					</div>
 				) ) }
 			</dl>
@@ -246,21 +254,13 @@ export default function HistoryChartCard( {
 		}
 		const measure = () => {
 			const styles = getComputedStyle( node );
-			setChartWidth(
-				node.clientWidth -
-					2 * parseFloat( styles.getPropertyValue( '--jetpack-boost-overview-chart-padding' ) )
-			);
-			const margin = {
-				left: parseFloat( styles.getPropertyValue( '--jetpack-boost-overview-chart-margin-left' ) ),
-				right: parseFloat(
-					styles.getPropertyValue( '--jetpack-boost-overview-chart-margin-right' )
-				),
-				bottom: parseFloat(
-					styles.getPropertyValue( '--jetpack-boost-overview-chart-margin-bottom' )
-				),
-			};
-			if ( Object.values( margin ).every( Number.isFinite ) ) {
-				setChartMargin( margin );
+			const padding = readStyleNumber( styles, '--jetpack-boost-overview-chart-padding' ) ?? 0;
+			setChartWidth( Math.max( 0, node.clientWidth - 2 * padding ) );
+			const left = readStyleNumber( styles, '--jetpack-boost-overview-chart-margin-left' );
+			const right = readStyleNumber( styles, '--jetpack-boost-overview-chart-margin-right' );
+			const bottom = readStyleNumber( styles, '--jetpack-boost-overview-chart-margin-bottom' );
+			if ( left !== undefined && right !== undefined && bottom !== undefined ) {
+				setChartMargin( { left, right, bottom } );
 			}
 		};
 		measure();
@@ -299,7 +299,6 @@ export default function HistoryChartCard( {
 		},
 		[ data, series, startDate, chartMargin ]
 	);
-	// Supply text announcements so WordPress does not serialize action components with hooks.
 	let content;
 	if ( isLoading && ! data?.periods.length ) {
 		content = (

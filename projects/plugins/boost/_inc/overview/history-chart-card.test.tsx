@@ -134,6 +134,16 @@ test( 'only renders annotations inside the displayed date domain, including its 
 	expect( screen.queryByText( 'Future annotation' ) ).not.toBeInTheDocument();
 } );
 
+test( 'keeps the hover column width finite when chart tokens are unavailable', () => {
+	const { container } = render( <HistoryChartCard data={ history } { ...callbacks } /> );
+	// The crosshair width is a CSS custom property without an accessible query.
+	// eslint-disable-next-line testing-library/no-node-access, testing-library/no-container
+	const canvas = container.querySelector< HTMLElement >( '.jetpack-boost-overview__chart-canvas' );
+	expect( canvas?.style.getPropertyValue( '--jetpack-boost-overview-hover-column-width' ) ).toBe(
+		'0px'
+	);
+} );
+
 test( 'sorts both device series without mutating the cached periods', () => {
 	const periods = [ history.periods[ 1 ], history.periods[ 0 ] ];
 	const series = buildHistorySeries( { ...history, periods } );
