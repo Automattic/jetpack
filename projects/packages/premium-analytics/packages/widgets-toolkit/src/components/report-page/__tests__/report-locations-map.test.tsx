@@ -10,7 +10,9 @@ import { ReportLocationsMap } from '../report-locations-map';
 import type { LocationsGeoRow } from '../../locations-geo-chart';
 
 jest.mock( '../../locations-geo-chart', () => ( {
-	LocationsGeoChart: () => <div data-testid="geo-chart" />,
+	LocationsGeoChart: () => (
+		<div data-testid="geo-chart" role="img" aria-label="Views by location" />
+	),
 } ) );
 
 jest.mock( '../../widget-loading-overlay', () => ( {
@@ -38,12 +40,12 @@ describe( 'ReportLocationsMap', () => {
 		expect( screen.getByTestId( 'loading-overlay' ) ).toBeInTheDocument();
 	} );
 
-	it( 'collapses the map from the footer control', async () => {
+	it( 'collapses the map from the toggle below it', async () => {
 		render( <ReportLocationsMap rows={ ROWS } mode="country" /> );
 
 		await userEvent.click( screen.getByRole( 'button', { name: 'Hide map' } ) );
 
-		expect( screen.queryByTestId( 'geo-chart' ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'img', { name: 'Views by location' } ) ).not.toBeInTheDocument();
 		expect( screen.getByRole( 'button', { name: 'Show map' } ) ).toBeInTheDocument();
 	} );
 } );

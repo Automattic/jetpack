@@ -9,19 +9,18 @@ import userEvent from '@testing-library/user-event';
 import { ReportChartSection } from '../report-chart-section';
 
 describe( 'ReportChartSection', () => {
-	it( 'collapses and restores the chart from the footer control', async () => {
+	it( 'takes the chart out of the accessibility tree and back from the toggle', async () => {
 		render(
 			<ReportChartSection title="Performance">
-				<div data-testid="chart" />
+				<button type="button">Chart option</button>
 			</ReportChartSection>
 		);
 
-		expect( screen.getByTestId( 'chart' ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: 'Chart option' } ) ).toBeInTheDocument();
 
 		await userEvent.click( screen.getByRole( 'button', { name: 'Hide chart' } ) );
 
-		expect( screen.queryByTestId( 'chart' ) ).not.toBeInTheDocument();
-		expect( screen.getByRole( 'heading', { name: 'Performance' } ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: 'Chart option' } ) ).not.toBeInTheDocument();
 		expect( screen.getByRole( 'button', { name: 'Show chart' } ) ).toHaveAttribute(
 			'aria-expanded',
 			'false'
@@ -29,7 +28,7 @@ describe( 'ReportChartSection', () => {
 
 		await userEvent.click( screen.getByRole( 'button', { name: 'Show chart' } ) );
 
-		expect( screen.getByTestId( 'chart' ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: 'Chart option' } ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'button', { name: 'Hide chart' } ) ).toHaveAttribute(
 			'aria-expanded',
 			'true'
@@ -46,5 +45,27 @@ describe( 'ReportChartSection', () => {
 		await userEvent.click( screen.getByRole( 'button', { name: 'Hide map' } ) );
 
 		expect( screen.getByRole( 'button', { name: 'Show map' } ) ).toBeInTheDocument();
+	} );
+
+	it( 'puts the info tip behind a trigger named for the chart', async () => {
+		render(
+			<ReportChartSection title="Views by location" help="Views shaded by country.">
+				<div data-testid="chart" />
+			</ReportChartSection>
+		);
+
+		await userEvent.click( screen.getByRole( 'button', { name: 'About Views by location' } ) );
+
+		await expect( screen.findByText( 'Views shaded by country.' ) ).resolves.toBeInTheDocument();
+	} );
+
+	it( 'leaves out the info tip rather than name its trigger "About undefined"', () => {
+		render(
+			<ReportChartSection help="Views shaded by country.">
+				<div data-testid="chart" />
+			</ReportChartSection>
+		);
+
+		expect( screen.queryByRole( 'button', { name: /^About/ } ) ).not.toBeInTheDocument();
 	} );
 } );

@@ -90,17 +90,30 @@ function buildCountryTooltip( country: CountrySummary ): string {
 	return lines.join( '<br />' );
 }
 
-function summarizeByCountry( rows: LocationsGeoRow[] ): [ string, CountrySummary ][] {
+function summarizeByCountry(
+	rows: LocationsGeoRow[],
+	withLocations: boolean
+): [ string, CountrySummary ][] {
 	const countryRows = new Map< string, CountrySummary >();
 
 	rows.forEach( row => {
 		const countryCode = row.countryCode.toUpperCase();
 		const current = countryRows.get( countryCode );
-		countryRows.set( countryCode, {
-			countryFull: row.countryFull,
-			value: ( current?.value ?? 0 ) + row.value,
-			locations: [ ...( current?.locations ?? [] ), row ],
-		} );
+
+		if ( ! current ) {
+			countryRows.set( countryCode, {
+				countryFull: row.countryFull,
+				value: row.value,
+				locations: withLocations ? [ row ] : [],
+			} );
+			return;
+		}
+
+		current.value += row.value;
+
+		if ( withLocations ) {
+			current.locations.push( row );
+		}
 	} );
 
 	return Array.from( countryRows.entries() );
@@ -174,14 +187,16 @@ export function buildLocationsGeoChart( {
 			...scope,
 			data: [
 				summaryHeader,
-				...summarizeByCountry( rows ).map( ( [ countryCode, country ] ): GoogleDataTableRow => {
-					const row: GoogleDataTableRow = [
-						{ v: getGeoChartCountryId( countryCode ), f: country.countryFull },
-						country.value,
-					];
+				...summarizeByCountry( rows, withTooltips ).map(
+					( [ countryCode, country ] ): GoogleDataTableRow => {
+						const row: GoogleDataTableRow = [
+							{ v: getGeoChartCountryId( countryCode ), f: country.countryFull },
+							country.value,
+						];
 
-					return withTooltips ? [ ...row, buildCountryTooltip( country ) ] : row;
-				} ),
+						return withTooltips ? [ ...row, buildCountryTooltip( country ) ] : row;
+					}
+				),
 			],
 		};
 	}

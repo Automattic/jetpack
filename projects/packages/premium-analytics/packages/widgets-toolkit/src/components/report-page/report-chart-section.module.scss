@@ -1,6 +1,35 @@
 .root {
 	display: flex;
 	flex-direction: column;
+}
+
+/* Do not drop the `visibility` delay: without it the card leaves the tab order
+ * on the first frame and the collapse never draws. */
+.chart {
+	display: grid;
+	grid-template-rows: 1fr;
+	transition:
+		grid-template-rows var(--wpds-motion-duration-lg) var(--wpds-motion-easing-balanced),
+		opacity var(--wpds-motion-duration-md) var(--wpds-motion-easing-balanced),
+		visibility 0s linear var(--jpa-report-chart-visibility-delay, 0s);
+}
+
+.isHidden {
+	--jpa-report-chart-visibility-delay: var(--wpds-motion-duration-lg);
+
+	grid-template-rows: 0fr;
+	opacity: 0;
+	visibility: hidden;
+}
+
+.pane {
+	min-block-size: 0;
+	overflow: clip;
+}
+
+.card {
+	display: flex;
+	flex-direction: column;
 	gap: var(--wpds-dimension-gap-md);
 }
 
@@ -10,6 +39,27 @@
 	justify-content: space-between;
 	align-items: center;
 	gap: var(--wpds-dimension-gap-md);
+}
+
+.identity {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	gap: var(--wpds-dimension-gap-sm);
+}
+
+.help {
+	display: inline-flex;
+	align-items: center;
+	border: none;
+	padding: 0;
+	background: none;
+	color: var(--wpds-color-foreground-content-neutral-weak);
+	cursor: pointer;
+}
+
+.helpPopup {
+	max-inline-size: 24rem;
 }
 
 .controls {
@@ -22,4 +72,21 @@
 .footer {
 	display: flex;
 	justify-content: center;
+	padding-block: var(--wpds-dimension-padding-md);
+}
+
+.footer :global(.components-button.is-tertiary) {
+	color: var(--wpds-color-foreground-content-neutral-weak);
+	font-size: var(--wpds-typography-font-size-sm);
+}
+
+.footer :global(.components-button.is-tertiary:hover:not(:disabled)) {
+	color: var(--wpds-color-foreground-content-neutral);
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+	.chart {
+		transition: none;
+	}
 }

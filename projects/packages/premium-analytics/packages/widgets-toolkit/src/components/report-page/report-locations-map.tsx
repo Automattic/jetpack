@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { __ } from '@wordpress/i18n';
+import { globe } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
@@ -19,7 +20,7 @@ export interface ReportLocationsMapProps
 
 /**
  * The Locations report's map section: views by location, with the shared
- * footer control that collapses it.
+ * control that collapses it.
  *
  * @param {ReportLocationsMapProps} props - The component props.
  * @return The map section.
@@ -32,6 +33,12 @@ export function ReportLocationsMap( {
 }: ReportLocationsMapProps ) {
 	return (
 		<ReportChartSection
+			icon={ globe }
+			title={ __( 'Views by location', 'jetpack-premium-analytics-pkg' ) }
+			help={ __(
+				'Views shaded by country. Regions and cities are summed up to the country they sit in.',
+				'jetpack-premium-analytics-pkg'
+			) }
 			hideLabel={ __( 'Hide map', 'jetpack-premium-analytics-pkg' ) }
 			showLabel={ __( 'Show map', 'jetpack-premium-analytics-pkg' ) }
 		>

@@ -39,11 +39,13 @@ const label = __( 'All pages' );
   the section header, and stacked sections.
   `ReportPageSection` is the bordered card each section renders in.
 
-- **`ReportChartSection`** — a chart in its own card, with the footer control
-  that collapses it. Every chart above a records table renders through it, so
-  the toggle reads and behaves the same on every report. The collapsed state
-  lasts as long as the section stays mounted: hiding a chart is a per-visit
-  preference, not a stored one.
+- **`ReportChartSection`** — a chart in its own card, with the control below it
+  that collapses the card. Every chart above a records table renders through it, so
+  the toggle reads and behaves the same on every report. It also carries the
+  optional heading, icon and info tip a chart names itself with. The collapsed
+  state lasts as long as the section stays mounted: hiding a chart is a per-visit
+  preference, not a stored one. The chart stays mounted while collapsed so the
+  card animates shut, and the stylesheet takes it out of the tab order.
 - **`ReportPerformanceChart`** — the multi-metric visits chart
   (Views/Visitors/Comments/Likes via `useStatsVisits` `stat_fields`), with a
   metric show/hide menu and the time-bucket selector (owned by the page — it
