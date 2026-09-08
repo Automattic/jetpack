@@ -170,7 +170,7 @@ class FrontendNoticesTest extends WP_UnitTestCase {
 		$gifting_banner->init();
 		$this->assertNotFalse( has_action( 'wp_head', array( $gifting_banner, 'inject_gifting_banner_wpcomsh' ) ) );
 
-		wp_set_current_user( $this->factory->user->create( array( 'role' => 'administrator' ) ) );
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
 		$this->flush_expiry_notice_memos();
 		$gifting_banner = new Gifting_Banner();
 		$gifting_banner->init();
