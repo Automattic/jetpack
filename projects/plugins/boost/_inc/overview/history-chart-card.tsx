@@ -2,20 +2,17 @@ import { GlobalChartsProvider, LineChart, useGlobalChartsContext } from '@automa
 import '@automattic/charts/style.css';
 import { getScoreLetter } from '@automattic/jetpack-boost-score-api';
 import { formatNumber } from '@automattic/number-formatters';
-import { Spinner, VisuallyHidden } from '@wordpress/components';
+import { Spinner } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
 import { trendingUp } from '@wordpress/icons';
 import { Button, Card, EmptyState, Notice } from '@wordpress/ui';
-import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { createPortal } from '@wordpress/element';
+import { useCallback, useMemo, useState } from 'react';
 import UpgradeCTA from './upgrade-cta';
 import type { PerformanceHistoryData } from './lib/use-performance-history';
 import type { DataPointDate, SeriesData } from '@automattic/charts';
-import type { ComponentProps, CSSProperties } from 'react';
+import type { ComponentProps } from 'react';
 
-type ChartMargin = { left: number; right: number; bottom: number };
-type TooltipAnchor = { fraction: number; margin: ChartMargin };
 type DeviceColors = { desktop?: string; mobile?: string };
 
 type History = NonNullable< PerformanceHistoryData >;
@@ -49,73 +46,13 @@ export function buildHistorySeries(
 	} ) );
 }
 
-function readStyleNumber( styles: CSSStyleDeclaration, property: string ): number | undefined {
-	const value = parseFloat( styles.getPropertyValue( property ) );
-	return Number.isFinite( value ) ? value : undefined;
-}
-
 export function HistoryTooltip( {
 	period,
-	anchor,
 	colors,
 }: {
 	period: History[ 'periods' ][ number ];
-	anchor?: TooltipAnchor;
 	colors?: DeviceColors;
 } ) {
-	const tooltipRef = useRef< HTMLDivElement >( null );
-	const anchorRef = useRef< HTMLDivElement >( null );
-	const [ origin, setOrigin ] = useState( { left: 0, top: 0 } );
-	const [ width, setWidth ] = useState( 0 );
-	const [ plotWidth, setPlotWidth ] = useState( 0 );
-	const [ edgeGap, setEdgeGap ] = useState( 0 );
-	const isAnchored = anchor !== undefined;
-	useLayoutEffect( () => {
-		const element = tooltipRef.current;
-		if ( ! element || ! isAnchored ) {
-			return;
-		}
-		const marker = anchorRef.current;
-		const plot = marker?.offsetParent;
-		const measure = () => {
-			setWidth( element.getBoundingClientRect().width );
-			setPlotWidth( plot?.clientWidth ?? 0 );
-			const rect = marker?.getBoundingClientRect();
-			if ( rect ) {
-				setOrigin( previous =>
-					previous.left === rect.left && previous.top === rect.top
-						? previous
-						: { left: rect.left, top: rect.top }
-				);
-			}
-			setEdgeGap(
-				readStyleNumber(
-					getComputedStyle( marker ?? element ),
-					'--jetpack-boost-overview-chart-edge-gap'
-				) ?? 0
-			);
-		};
-		measure();
-		const observer = new ResizeObserver( measure );
-		observer.observe( element );
-		if ( plot ) {
-			observer.observe( plot );
-		}
-		window.addEventListener( 'scroll', measure, true );
-		window.addEventListener( 'resize', measure );
-		return () => {
-			observer.disconnect();
-			window.removeEventListener( 'scroll', measure, true );
-			window.removeEventListener( 'resize', measure );
-		};
-	}, [ isAnchored ] );
-	const anchorX =
-		( anchor?.margin.left ?? 0 ) +
-		( anchor?.fraction ?? 0 ) *
-			( plotWidth - ( anchor?.margin.left ?? 0 ) - ( anchor?.margin.right ?? 0 ) );
-	const left = anchor
-		? Math.max( edgeGap, Math.min( anchorX - width / 2, plotWidth - width - edgeGap ) )
-		: 0;
 	const dimensions = period.dimensions;
 	const content = (
 		<>
@@ -171,48 +108,7 @@ export function HistoryTooltip( {
 			</dl>
 		</>
 	);
-	const tooltip = (
-		<div
-			ref={ tooltipRef }
-			aria-hidden={ isAnchored || undefined }
-			className="jetpack-boost-overview__history-tooltip"
-			style={
-				anchor
-					? {
-							position: 'fixed',
-							left: origin.left + left,
-							top: origin.top,
-							maxInlineSize: plotWidth ? plotWidth - 2 * edgeGap : undefined,
-					  }
-					: undefined
-			}
-		>
-			{ content }
-			{ anchor && (
-				<span
-					className="jetpack-boost-overview__tooltip-pointer"
-					style={ { left: anchorX - left } }
-					aria-hidden="true"
-				/>
-			) }
-		</div>
-	);
-	return anchor ? (
-		<>
-			<div
-				ref={ anchorRef }
-				style={ {
-					position: 'absolute',
-					left: 0,
-					top: 'calc(100% - var(--wpds-dimension-size-md))',
-				} }
-			/>
-			<VisuallyHidden>{ content }</VisuallyHidden>
-			{ createPortal( tooltip, document.body ) }
-		</>
-	) : (
-		tooltip
-	);
+	return <div className="jetpack-boost-overview__history-tooltip">{ content }</div>;
 }
 
 function ThemedHistoryTooltip( {
@@ -243,31 +139,7 @@ export default function HistoryChartCard( {
 	onDismissFreshStart,
 }: Props ) {
 	const series = useMemo( () => buildHistorySeries( data ), [ data ] );
-	const [ chartMargin, setChartMargin ] = useState< ChartMargin >();
-	const [ chartWidth, setChartWidth ] = useState( 0 );
 	const [ chartKey, setChartKey ] = useState( 0 );
-	const cardRef = useRef< HTMLDivElement >( null );
-	useLayoutEffect( () => {
-		const node = cardRef.current;
-		if ( ! node ) {
-			return;
-		}
-		const measure = () => {
-			const styles = getComputedStyle( node );
-			const padding = readStyleNumber( styles, '--jetpack-boost-overview-chart-padding' ) ?? 0;
-			setChartWidth( Math.max( 0, node.clientWidth - 2 * padding ) );
-			const left = readStyleNumber( styles, '--jetpack-boost-overview-chart-margin-left' );
-			const right = readStyleNumber( styles, '--jetpack-boost-overview-chart-margin-right' );
-			const bottom = readStyleNumber( styles, '--jetpack-boost-overview-chart-margin-bottom' );
-			if ( left !== undefined && right !== undefined && bottom !== undefined ) {
-				setChartMargin( { left, right, bottom } );
-			}
-		};
-		measure();
-		const observer = new ResizeObserver( measure );
-		observer.observe( node );
-		return () => observer.disconnect();
-	}, [] );
 	const dayBeforeEndDate = ( data?.endDate ?? 0 ) - 24 * 60 * 60 * 1000;
 	const firstTimestamp = series[ 0 ]?.data[ 0 ]?.date?.getTime();
 	const startDate =
@@ -283,21 +155,12 @@ export default function HistoryChartCard( {
 		( { tooltipData } ) => {
 			const timestamp = tooltipData?.nearestDatum?.datum.date?.getTime();
 			const period = data?.periods.find( entry => entry.timestamp === timestamp );
-			if ( ! period || ! data || ! chartMargin ) {
+			if ( ! period ) {
 				return null;
 			}
-			return (
-				<ThemedHistoryTooltip
-					series={ series }
-					period={ period }
-					anchor={ {
-						fraction: ( period.timestamp - startDate ) / ( data.endDate - startDate ),
-						margin: chartMargin,
-					} }
-				/>
-			);
+			return <ThemedHistoryTooltip series={ series } period={ period } />;
 		},
-		[ data, series, startDate, chartMargin ]
+		[ data, series ]
 	);
 	let content;
 	if ( isLoading && ! data?.periods.length ) {
@@ -384,20 +247,11 @@ export default function HistoryChartCard( {
 							setChartKey( key => key + 1 );
 						}
 					} }
-					style={
-						{
-							'--jetpack-boost-overview-hover-column-width': `${
-								( chartWidth - ( chartMargin?.left ?? 0 ) - ( chartMargin?.right ?? 0 ) ) *
-								Math.min( 1, ( 24 * 60 * 60 * 1000 ) / ( data.endDate - startDate ) )
-							}px`,
-						} as CSSProperties
-					}
 				>
 					{ isVisible && (
 						<LineChart
 							key={ chartKey }
 							data={ series }
-							margin={ chartMargin }
 							showLegend
 							legend={ { position: 'bottom', alignment: 'center', interactive: false } }
 							withGradientFill={ false }
@@ -405,6 +259,7 @@ export default function HistoryChartCard( {
 							curveType="linear"
 							withEndGlyphs={ data.periods.length === 1 }
 							renderTooltip={ renderTooltip }
+							tooltipPlacement="below-axis"
 							options={ {
 								axis: {
 									x: { tickFormat: value => dateI18n( 'M j', new Date( value ), false ) },
@@ -435,7 +290,7 @@ export default function HistoryChartCard( {
 		);
 	}
 	return (
-		<Card.Root ref={ cardRef } className="jetpack-boost-overview__history-card">
+		<Card.Root className="jetpack-boost-overview__history-card">
 			<Card.Header>
 				<Card.Title>{ __( 'Historical performance', 'jetpack-boost' ) }</Card.Title>
 			</Card.Header>

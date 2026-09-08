@@ -52,19 +52,6 @@ function getSeriesPath( container: HTMLElement, label: string ) {
 }
 /* eslint-enable testing-library/no-node-access */
 
-function mockChartStyles() {
-	const getStyle = window.getComputedStyle;
-	return jest.spyOn( window, 'getComputedStyle' ).mockImplementation( element => {
-		const style = document.createElement( 'div' ).style;
-		style.cssText = getStyle( element ).cssText;
-		style.setProperty( '--jetpack-boost-overview-chart-padding', '24px' );
-		style.setProperty( '--jetpack-boost-overview-chart-margin-left', '40px' );
-		style.setProperty( '--jetpack-boost-overview-chart-margin-right', '20px' );
-		style.setProperty( '--jetpack-boost-overview-chart-margin-bottom', '32px' );
-		return style;
-	} );
-}
-
 beforeAll( () => {
 	jest.spyOn( Element.prototype, 'getBoundingClientRect' ).mockReturnValue( {
 		x: 0,
@@ -132,16 +119,6 @@ test( 'only renders annotations inside the displayed date domain, including its 
 	expect( screen.getByText( 'End annotation' ) ).toBeInTheDocument();
 	expect( screen.queryByText( 'Older annotation' ) ).not.toBeInTheDocument();
 	expect( screen.queryByText( 'Future annotation' ) ).not.toBeInTheDocument();
-} );
-
-test( 'keeps the hover column width finite when chart tokens are unavailable', () => {
-	const { container } = render( <HistoryChartCard data={ history } { ...callbacks } /> );
-	// The crosshair width is a CSS custom property without an accessible query.
-	// eslint-disable-next-line testing-library/no-node-access, testing-library/no-container
-	const canvas = container.querySelector< HTMLElement >( '.jetpack-boost-overview__chart-canvas' );
-	expect( canvas?.style.getPropertyValue( '--jetpack-boost-overview-hover-column-width' ) ).toBe(
-		'0px'
-	);
 } );
 
 test( 'sorts both device series without mutating the cached periods', () => {
@@ -224,12 +201,11 @@ test( 'keeps the WordPress date and all eight history dimensions in the tooltip'
 test.each( [ 'blur', 'hidden' ] )(
 	'closes a selected tooltip when the chart is %s',
 	async action => {
-		const styleSpy = mockChartStyles();
 		const { rerender } = render( <HistoryChartCard data={ history } { ...callbacks } /> );
 		const chart = screen.getByRole( 'grid', { name: /line chart/i } );
 		fireEvent.keyDown( chart, { key: 'ArrowRight' } );
 		const tooltip = await screen.findByTestId( 'chart-tooltip-0' );
-		expect( screen.getAllByText( 'Desktop score' ) ).toHaveLength( 2 );
+		expect( screen.getAllByText( 'Desktop score' ) ).toHaveLength( 1 );
 		await waitFor( () => expect( tooltip ).toHaveFocus() );
 		if ( action === 'blur' ) {
 			fireEvent.blur( tooltip, { relatedTarget: document.body } );
@@ -243,41 +219,36 @@ test.each( [ 'blur', 'hidden' ] )(
 		expect( screen.queryByText( 'Desktop score' ) ).not.toBeInTheDocument();
 		fireEvent.keyDown( screen.getByRole( 'grid', { name: /line chart/i } ), { key: 'ArrowRight' } );
 		await expect( screen.findByTestId( 'chart-tooltip-0' ) ).resolves.toBeInTheDocument();
-		styleSpy.mockRestore();
 	}
 );
 
 test( 'announces the selected date and measurements during arrow-key navigation', async () => {
-	const styleSpy = mockChartStyles();
-	try {
-		render( <HistoryChartCard data={ history } { ...callbacks } /> );
-		const chart = screen.getByRole( 'grid', { name: /line chart/i } );
-		fireEvent.keyDown( chart, { key: 'ArrowRight' } );
-		const firstTooltip = await screen.findByTestId( 'chart-tooltip-0' );
-		await waitFor( () => expect( firstTooltip ).toHaveFocus() );
-		for ( const value of [
-			'September 1, 2026',
-			'Overall score',
-			'Desktop score',
-			'90 / 100',
-			'Mobile score',
-			'80 / 100',
-			'1.20s',
-			'0.20s',
-			'0.01',
-			'2.40s',
-			'0.40s',
-			'0.03',
-		] ) {
-			expect( firstTooltip ).toHaveTextContent( value );
-		}
-		fireEvent.keyDown( firstTooltip, { key: 'ArrowRight' } );
-		const secondTooltip = await screen.findByTestId( 'chart-tooltip-1' );
-		await waitFor( () => expect( secondTooltip ).toHaveFocus() );
-		expect( secondTooltip ).toHaveTextContent( 'September 2, 2026' );
-	} finally {
-		styleSpy.mockRestore();
+	render( <HistoryChartCard data={ history } { ...callbacks } /> );
+	const chart = screen.getByRole( 'grid', { name: /line chart/i } );
+	fireEvent.keyDown( chart, { key: 'ArrowRight' } );
+	const firstTooltip = await screen.findByTestId( 'chart-tooltip-0' );
+	expect( screen.getByTestId( 'tooltip-axis-pointer' ) ).toBeInTheDocument();
+	await waitFor( () => expect( firstTooltip ).toHaveFocus() );
+	for ( const value of [
+		'September 1, 2026',
+		'Overall score',
+		'Desktop score',
+		'90 / 100',
+		'Mobile score',
+		'80 / 100',
+		'1.20s',
+		'0.20s',
+		'0.01',
+		'2.40s',
+		'0.40s',
+		'0.03',
+	] ) {
+		expect( firstTooltip ).toHaveTextContent( value );
 	}
+	fireEvent.keyDown( firstTooltip, { key: 'ArrowRight' } );
+	const secondTooltip = await screen.findByTestId( 'chart-tooltip-1' );
+	await waitFor( () => expect( secondTooltip ).toHaveFocus() );
+	expect( secondTooltip ).toHaveTextContent( 'September 2, 2026' );
 } );
 
 test( 'uses the non-UTC site date for both axis and tooltip', async () => {
