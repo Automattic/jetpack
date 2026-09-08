@@ -36,6 +36,7 @@ class AI_Chat_Block_Test extends \WP_UnitTestCase {
 	public function set_up() {
 		parent::set_up();
 
+		Jetpack_Gutenberg::reset();
 		add_filter( 'jetpack_offline_mode', '__return_false' );
 		$this->simulate_connected_owner();
 		// Off-Simple the `ai` module is the AI master switch; activate it so the
@@ -65,6 +66,7 @@ class AI_Chat_Block_Test extends \WP_UnitTestCase {
 		remove_filter( 'jetpack_offline_mode', '__return_false' );
 		delete_option( 'jetpack_ai_enabled' );
 		$this->disconnect_owner();
+		Jetpack_Gutenberg::reset();
 
 		parent::tear_down();
 	}
@@ -97,27 +99,103 @@ class AI_Chat_Block_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * The jetpack_ai_enabled master filter turns the block off.
+	 * The jetpack_ai_enabled master filter keeps the block registered, so its
+	 * render callback still runs, but reports it to the editor as off.
 	 */
-	public function test_not_registered_when_ai_disabled() {
+	public function test_registered_but_unavailable_when_ai_disabled() {
 		add_filter( 'jetpack_ai_enabled', '__return_false' );
 
 		AIChat\register_block();
 
-		$this->assertFalse( Blocks::is_registered( self::BLOCK_NAME ) );
+		$this->assertTrue( Blocks::is_registered( self::BLOCK_NAME ) );
+
+		$availability = $this->get_block_availability();
+		$this->assertFalse( $availability['available'] );
+		$this->assertSame( 'ai_disabled', $availability['unavailable_reason'] );
 	}
 
 	/**
-	 * The AI master switch option turns the block off.
+	 * The AI master switch option reports the block as off, with the master as the gate.
 	 */
-	public function test_not_registered_when_master_option_off() {
+	public function test_reports_master_gate_when_master_option_off() {
 		// Off-Simple the master is the `ai` module; turn it off there.
 		$this->force_master_enforcement_for_test();
 		$this->deactivate_ai_module_for_test();
 
 		AIChat\register_block();
 
-		$this->assertFalse( Blocks::is_registered( self::BLOCK_NAME ) );
+		$this->assertTrue( Blocks::is_registered( self::BLOCK_NAME ) );
+
+		$availability = $this->get_block_availability();
+		$this->assertFalse( $availability['available'] );
+		$this->assertSame( 'ai_disabled', $availability['unavailable_reason'] );
+		$this->assertSame( array( 'gate' => 'master' ), $availability['details'] );
+	}
+
+	/**
+	 * With AI on, the front end gets the chat container the view script mounts into.
+	 */
+	public function test_renders_container_when_ai_enabled() {
+		AIChat\register_block();
+
+		$html = do_blocks( '<!-- wp:jetpack/ai-chat --><div class="wp-block-jetpack-ai-chat"></div><!-- /wp:jetpack/ai-chat -->' );
+
+		$this->assertStringContainsString( 'id="jetpack-ai-chat"', $html );
+	}
+
+	/**
+	 * With AI off, the front end gets nothing at all, not the saved empty div.
+	 */
+	public function test_renders_nothing_when_ai_disabled() {
+		add_filter( 'jetpack_ai_enabled', '__return_false' );
+
+		AIChat\register_block();
+
+		$html = do_blocks( '<!-- wp:jetpack/ai-chat --><div class="wp-block-jetpack-ai-chat"></div><!-- /wp:jetpack/ai-chat -->' );
+
+		$this->assertSame( '', trim( $html ) );
+	}
+
+	/**
+	 * A disconnected site keeps the generic reason: the block is missing for a
+	 * reason the AI settings placeholder must not claim as its own.
+	 */
+	public function test_keeps_generic_reason_when_disconnected() {
+		$this->disconnect_owner();
+
+		AIChat\register_block();
+
+		$availability = $this->get_block_availability();
+		$this->assertFalse( $availability['available'] );
+		$this->assertSame( 'missing_module', $availability['unavailable_reason'] );
+	}
+
+	/**
+	 * Read the block's entry from the availability list the editor receives.
+	 *
+	 * Limits the list to this block and treats the site as connected so the
+	 * list is computed at all.
+	 *
+	 * @return array The block's availability entry.
+	 */
+	private function get_block_availability() {
+		$only_this_block = static function () {
+			return array( 'ai-chat' );
+		};
+		add_filter( 'jetpack_set_available_extensions', $only_this_block, 1000 );
+		// Atomic (wpcomsh) test runs hook these at default priority, so run late.
+		add_filter( 'jetpack_is_connection_ready', '__return_true', 1000 );
+		add_filter( 'jetpack_gutenberg', '__return_true', 1000 );
+		// Other extensions re-registering here is noise for this test.
+		remove_all_actions( 'jetpack_register_gutenberg_extensions' );
+
+		$availability = Jetpack_Gutenberg::get_availability();
+
+		remove_filter( 'jetpack_set_available_extensions', $only_this_block, 1000 );
+		remove_filter( 'jetpack_is_connection_ready', '__return_true', 1000 );
+		remove_filter( 'jetpack_gutenberg', '__return_true', 1000 );
+
+		return $availability['ai-chat'];
 	}
 
 	/**

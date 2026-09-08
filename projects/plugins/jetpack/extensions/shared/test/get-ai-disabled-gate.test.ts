@@ -1,22 +1,22 @@
-import { AI_DISABLED_REASON, getDisabledGate } from '../get-disabled-gate';
+import { AI_DISABLED_REASON, getAiDisabledGate } from '../get-ai-disabled-gate';
 
-describe( 'getDisabledGate', () => {
+describe( 'getAiDisabledGate', () => {
 	it( 'returns null when the block is available', () => {
-		expect( getDisabledGate( { available: true } ) ).toBeNull();
+		expect( getAiDisabledGate( { available: true } ) ).toBeNull();
 	} );
 
 	it( 'returns null when the block is unavailable for another reason', () => {
 		expect(
-			getDisabledGate( { available: false, unavailableReason: 'missing_plan', details: {} } )
+			getAiDisabledGate( { available: false, unavailableReason: 'missing_plan', details: {} } )
 		).toBeNull();
 		expect(
-			getDisabledGate( { available: false, unavailableReason: 'missing_module', details: {} } )
+			getAiDisabledGate( { available: false, unavailableReason: 'missing_module', details: {} } )
 		).toBeNull();
 	} );
 
 	it( 'returns the writing assistant gate when that setting is off', () => {
 		expect(
-			getDisabledGate( {
+			getAiDisabledGate( {
 				available: false,
 				unavailableReason: AI_DISABLED_REASON,
 				details: { gate: 'writing_assistant' },
@@ -26,7 +26,7 @@ describe( 'getDisabledGate', () => {
 
 	it( 'returns the master gate when Jetpack AI is off', () => {
 		expect(
-			getDisabledGate( {
+			getAiDisabledGate( {
 				available: false,
 				unavailableReason: AI_DISABLED_REASON,
 				details: { gate: 'master' },
@@ -36,7 +36,7 @@ describe( 'getDisabledGate', () => {
 
 	it( 'falls back to the master gate when the server sends no gate', () => {
 		expect(
-			getDisabledGate( { available: false, unavailableReason: AI_DISABLED_REASON, details: {} } )
+			getAiDisabledGate( { available: false, unavailableReason: AI_DISABLED_REASON, details: {} } )
 		).toBe( 'master' );
 	} );
 } );

@@ -34,16 +34,24 @@ require_once __DIR__ . '/../../../_inc/lib/class-jetpack-ai-settings.php';
  */
 function register_block() {
 	if (
-		(
-			( new Host() )->is_wpcom_simple()
-			|| ( ( new Connection_Manager( 'jetpack' ) )->has_connected_owner() && ! ( new Status() )->is_offline_mode() )
-		)
-		&& \Jetpack_AI_Settings::is_ai_enabled()
+		! ( new Host() )->is_wpcom_simple()
+		&& ( ! ( new Connection_Manager( 'jetpack' ) )->has_connected_owner() || ( new Status() )->is_offline_mode() )
 	) {
-		Blocks::jetpack_register_block(
-			__DIR__,
-			array( 'render_callback' => __NAMESPACE__ . '\load_assets' )
-		);
+		return;
+	}
+
+	// The block stays registered while Jetpack AI is off so the render callback
+	// runs and can output nothing. Otherwise WordPress echoes the saved markup,
+	// an empty div, wherever the block sits.
+	Blocks::jetpack_register_block(
+		__DIR__,
+		array( 'render_callback' => __NAMESPACE__ . '\load_assets' )
+	);
+
+	// Tell the editor why the block is off, so posts that already contain it
+	// show a placeholder instead of core's "unsupported block" warning.
+	if ( ! \Jetpack_AI_Settings::is_ai_enabled() ) {
+		Jetpack_Gutenberg::set_extension_unavailable( 'ai-chat', 'ai_disabled', array( 'gate' => 'master' ) );
 	}
 }
 add_action( 'init', __NAMESPACE__ . '\register_block' );
@@ -56,6 +64,12 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
  * @return string
  */
 function load_assets( $attr ) {
+	// With Jetpack AI off there is nothing to ask, so render nothing rather
+	// than an empty container.
+	if ( ! \Jetpack_AI_Settings::is_ai_enabled() ) {
+		return '';
+	}
+
 	/*
 	 * Enqueue necessary scripts and styles.
 	 */
