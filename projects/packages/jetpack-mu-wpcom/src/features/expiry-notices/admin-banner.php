@@ -7,6 +7,7 @@
 
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Data;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Notice_Dismiss;
+use Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Owner;
 
 /**
  * Resolve the data needed to render the banner, or null if it shouldn't show.
@@ -15,9 +16,11 @@ use Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Notice_Dismiss;
  * Memoized: each read costs a user-meta lookup, a site-slug resolution, and
  * post-grace a sticker lookup, and three hooks ask per pageview.
  *
+ * `urls` is null when the viewer cannot renew.
+ *
  * @param bool $flush Drop the memo. For tests, which move the fixture or the
  *                    screen under a process that has already answered once.
- * @return array{state:array,is_early_warning:bool,is_dismissible:bool,urls:array}|null
+ * @return array{state:array,is_early_warning:bool,is_dismissible:bool,is_owner:bool,urls:array|null}|null
  */
 function wpcom_expiry_notices_admin_banner_data( bool $flush = false ): ?array {
 	// Distinct from null, which is a real answer worth remembering.
@@ -53,11 +56,14 @@ function wpcom_expiry_notices_admin_banner_data( bool $flush = false ): ?array {
 		}
 	}
 
+	$is_owner = Expiry_Owner::current_user_is_owner( $state );
+
 	$memo = array(
 		'state'            => $state,
 		'is_early_warning' => $is_early_warning,
 		'is_dismissible'   => Expiry_Notice_Dismiss::is_dismissible( $state ),
-		'urls'             => wpcom_expiry_notices_banner_urls( $state, wpcom_expiry_notices_current_admin_url() ),
+		'is_owner'         => $is_owner,
+		'urls'             => $is_owner ? wpcom_expiry_notices_banner_urls( $state, wpcom_expiry_notices_current_admin_url() ) : null,
 	);
 
 	return $memo;
@@ -89,10 +95,8 @@ function wpcom_expiry_notices_enqueue_admin_banner_assets() {
 		$asset_handle,
 		'wpcomExpiryBanner',
 		array(
-			'metaKey'       => Expiry_Notice_Dismiss::META_BANNER,
-			'state'         => $data['state']['state'],
-			'daysRemaining' => isset( $data['state']['days_remaining'] ) ? (int) $data['state']['days_remaining'] : 0,
-			'productSlug'   => isset( $data['state']['product_slug'] ) ? (string) $data['state']['product_slug'] : '',
+			'metaKey'    => Expiry_Notice_Dismiss::META_BANNER,
+			'trackProps' => wpcom_expiry_notices_track_props( $data['state'], $data['is_owner'] ),
 		)
 	);
 }
@@ -123,40 +127,45 @@ add_action( 'admin_notices', 'wpcom_expiry_notices_render_admin_banner' );
 /**
  * Render the banner DOM.
  *
- * @param array<string,mixed> $state            Expiry state.
- * @param array<string,array> $urls             CTA URLs from Expiry_Data::get_cta_urls().
- * @param bool                $is_early_warning Whether this is the pre-final-week reminder.
- * @param bool                $is_dismissible   Whether the notice can be dismissed.
+ * @param array<string,mixed>      $state            Expiry state.
+ * @param array<string,array>|null $urls             CTA URLs from Expiry_Data::get_cta_urls(), or null when
+ *                                                   the viewer cannot renew.
+ * @param bool                     $is_early_warning Whether this is the pre-final-week reminder.
+ * @param bool                     $is_dismissible   Whether the notice can be dismissed.
  */
-function wpcom_expiry_notices_render_admin_banner_html( array $state, array $urls, bool $is_early_warning, bool $is_dismissible ): void {
+function wpcom_expiry_notices_render_admin_banner_html( array $state, ?array $urls, bool $is_early_warning, bool $is_dismissible ): void {
 	$notice_class = $is_early_warning ? 'notice-warning' : 'notice-error';
 	$is_grace     = Expiry_Data::STATE_EXPIRED_GRACE === $state['state'];
 	?>
 	<div id="wpcom-expiry-banner" class="notice <?php echo esc_attr( $notice_class ); ?>">
 		<p><strong><?php echo esc_html( wpcom_expiry_notices_admin_banner_heading( $state ) ); ?></strong></p>
-		<p><?php echo esc_html( wpcom_expiry_notices_admin_banner_body( $state ) ); ?></p>
-		<p class="wpcom-expiry-banner__actions">
-			<?php // The message turns this into a Help Center opener; the href stays as what a click falls back to. ?>
-			<a
-				class="button button-primary"
-				href="<?php echo esc_url( $urls['primary']['url'] ); ?>"
-				<?php if ( isset( $urls['primary']['message'] ) ) : ?>
-					data-support-message="<?php echo esc_attr( $urls['primary']['message'] ); ?>"
+		<p><?php echo esc_html( wpcom_expiry_notices_banner_body( $state, null !== $urls ) ); ?></p>
+		<?php if ( null !== $urls || $is_dismissible ) : ?>
+			<p class="wpcom-expiry-banner__actions">
+				<?php if ( null !== $urls ) : ?>
+					<?php // The message turns this into a Help Center opener; the href stays as what a click falls back to. ?>
+					<a
+						class="button button-primary"
+						href="<?php echo esc_url( $urls['primary']['url'] ); ?>"
+						<?php if ( isset( $urls['primary']['message'] ) ) : ?>
+							data-support-message="<?php echo esc_attr( $urls['primary']['message'] ); ?>"
+						<?php endif; ?>
+					>
+						<?php echo esc_html( $urls['primary']['label'] ); ?>
+					</a>
+					<?php if ( $is_grace ) : ?>
+						<a class="button" href="<?php echo esc_url( $urls['secondary']['url'] ); ?>">
+							<?php echo esc_html( $urls['secondary']['label'] ); ?>
+						</a>
+					<?php endif; ?>
 				<?php endif; ?>
-			>
-				<?php echo esc_html( $urls['primary']['label'] ); ?>
-			</a>
-			<?php if ( $is_grace ) : ?>
-				<a class="button" href="<?php echo esc_url( $urls['secondary']['url'] ); ?>">
-					<?php echo esc_html( $urls['secondary']['label'] ); ?>
-				</a>
-			<?php endif; ?>
-			<?php if ( $is_dismissible ) : ?>
-				<button type="button" class="button wpcom-expiry-banner__dismiss">
-					<?php esc_html_e( 'Dismiss', 'jetpack-mu-wpcom' ); ?>
-				</button>
-			<?php endif; ?>
-		</p>
+				<?php if ( $is_dismissible ) : ?>
+					<button type="button" class="button wpcom-expiry-banner__dismiss">
+						<?php esc_html_e( 'Dismiss', 'jetpack-mu-wpcom' ); ?>
+					</button>
+				<?php endif; ?>
+			</p>
+		<?php endif; ?>
 	</div>
 	<?php
 }

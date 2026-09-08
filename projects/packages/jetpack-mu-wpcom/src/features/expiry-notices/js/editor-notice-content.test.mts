@@ -29,6 +29,13 @@ describe( 'noticeActions', () => {
 		);
 	} );
 
+	it( 'offers nothing to an admin who cannot renew', () => {
+		assert.deepEqual(
+			noticeActions( { primary: null, secondary: null }, () => {} ),
+			[]
+		);
+	} );
+
 	it( 'routes each click to its CTA', () => {
 		const clicks: Array< [ string, { label: string } ] > = [];
 		const actions = noticeActions( { primary, secondary }, ( cta, target ) =>
