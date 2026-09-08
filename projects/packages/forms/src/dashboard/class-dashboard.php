@@ -412,8 +412,7 @@ class Dashboard {
 				'Forms',
 				'edit_pages',
 				self::FORMS_WPBUILD_ADMIN_SLUG,
-				$callback,
-				10
+				$callback
 			);
 
 			return;
@@ -425,8 +424,7 @@ class Dashboard {
 			'Forms',
 			'edit_pages',
 			self::ADMIN_SLUG,
-			array( $this, 'render_dashboard' ),
-			10
+			array( $this, 'render_dashboard' )
 		);
 	}
 
