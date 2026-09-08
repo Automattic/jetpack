@@ -195,4 +195,17 @@ class WPCOM_REST_API_V2_Endpoint_AI_Test extends Jetpack_REST_TestCase {
 			'The AI Chat rank route must not register when AI Chat is disabled.'
 		);
 	}
+
+	public function test_ai_assistant_feature_returns_default_when_unconnected() {
+		$this->register_routes_on_fresh_server();
+
+		$data = Jetpack_AI_Helper::get_ai_assistance_feature();
+
+		$this->assertIsArray( $data );
+		$this->assertFalse( $data['has-feature'] );
+		$this->assertFalse( $data['is-over-limit'] );
+		$this->assertSame( 0, $data['requests-count'] );
+		$this->assertSame( 20, $data['requests-limit'] );
+		$this->assertSame( 'ai-assistant-tier-free', $data['current-tier']['slug'] );
+	}
 }
