@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+VideoPress: refine the welcome modal type scale and match the upload dropzone text to the design system's empty state.
