@@ -361,10 +361,10 @@ class Error_Handler {
 					}
 
 					// An error a viewer cannot act on is withheld entirely.
+					$viewer_owns_error = 'user' === $audience && 'invalid_connection_owner' !== $error_code;
+
 					if ( $viewer_id > 0 ) {
-						$can_view_error = 'user' === $audience && 'invalid_connection_owner' !== $error_code
-						? $viewer_can_connect_user
-						: $viewer_can_connect;
+						$can_view_error = $viewer_owns_error ? $viewer_can_connect_user : $viewer_can_connect;
 
 						if ( ! $can_view_error ) {
 							continue;
@@ -424,6 +424,12 @@ class Error_Handler {
 								)
 								: __( 'The connection owner needs to reconnect their WordPress.com account to restore the connection. If you reconnect instead, you will become the new connection owner and every other user will be disconnected from WordPress.com.', 'jetpack-connection' );
 						}
+					}
+
+					// Relinking your own account and restoring the site are different actions
+					// with different capabilities, and this notice only offers the second one.
+					if ( $viewer_owns_error && $viewer_id > 0 && ! $viewer_can_connect ) {
+						$action = 'none';
 					}
 
 					$error['audience']      = $audience;

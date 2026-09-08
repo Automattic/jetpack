@@ -140,6 +140,8 @@ The one code with special-cased copy today is `invalid_connection_owner`, via `g
 * `user` audience (the viewer's own broken token, excluding `invalid_connection_owner`) needs `jetpack_connect_user`, which non-admins hold once the site has a connected owner — relinking their own account is self-service.
 * `site` and `owner` audiences, and `invalid_connection_owner` at any audience, need `jetpack_connect`. Their remedy is `Manager::restore()`, which for a broken blog token tears down the whole site connection and re-registers it — a `manage_options` action, and destructive for every other connected user.
 
+One case is kept but defused: a viewer holding only `jetpack_connect_user` sees their own token error with `action = 'none'`, because the notice's reconnect CTA is the site-scoped one they cannot use. The message stays; the working control is My Jetpack's connection card, which offers "Connect my account" to exactly these viewers.
+
 The gate applies only when there is a current user. Contexts with none (cron, WP-CLI, unauthenticated requests) render no UI and keep the unfiltered set. Errors injected by consumers through `jetpack_connection_get_verified_errors` run after the gate and are not subject to it; the wp-admin notice keeps its own `jetpack_connect` check for that reason.
 
 Because the result is viewer-dependent, the in-request cache is keyed by user ID.

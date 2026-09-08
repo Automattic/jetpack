@@ -2778,7 +2778,50 @@ class Error_Handler_Test extends BaseTestCase {
 		$result = $this->error_handler->get_displayable_errors();
 
 		$this->assertArrayHasKey( 'no_valid_user_token', $result );
-		$this->assertSame( 'user', $result['no_valid_user_token'][ (string) $editor_id ]['audience'] );
+		$displayed = $result['no_valid_user_token'][ (string) $editor_id ];
+		$this->assertSame( 'user', $displayed['audience'] );
+		$this->assertSame(
+			'none',
+			$displayed['error_data']['action'],
+			'The reconnect CTA is site-scoped, so it is suppressed for a viewer who can only relink their own account.'
+		);
+	}
+
+	/**
+	 * Test that a viewer who can restore the site keeps the reconnect CTA on their own
+	 * user-token error: the suppression above is about the missing capability, not the
+	 * audience.
+	 */
+	public function test_get_displayable_errors_keeps_reconnect_on_own_error_for_admin() {
+		$owner_id = wp_insert_user(
+			array(
+				'user_login' => 'own_error_cta_owner',
+				'user_pass'  => 'password',
+				'user_email' => 'own_error_cta_owner@example.org',
+				'role'       => 'administrator',
+			)
+		);
+		$this->assertIsInt( $owner_id );
+		\Jetpack_Options::update_option( 'master_user', $owner_id );
+		\Jetpack_Options::update_option( 'user_tokens', array( $owner_id => 'token.secret.' . $owner_id ) );
+
+		$admin_id = wp_insert_user(
+			array(
+				'user_login' => 'own_error_cta_admin',
+				'user_pass'  => 'password',
+				'user_email' => 'own_error_cta_admin@example.org',
+				'role'       => 'administrator',
+			)
+		);
+		$this->assertIsInt( $admin_id );
+		wp_set_current_user( $admin_id );
+
+		$this->store_single_verified_error( 'no_valid_user_token', (string) $admin_id );
+
+		$result = $this->error_handler->get_displayable_errors();
+
+		$this->assertArrayHasKey( 'no_valid_user_token', $result );
+		$this->assertArrayNotHasKey( 'action', $result['no_valid_user_token'][ (string) $admin_id ]['error_data'] );
 	}
 
 	/**
