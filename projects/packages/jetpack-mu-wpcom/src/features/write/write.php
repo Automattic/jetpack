@@ -1035,6 +1035,9 @@ function wpcom_write_render_admin_page() {
 			'formatUList'            => false,
 			'insideList'             => false,
 			'showRecoveryBanner'     => false,
+			// The first-visit note is opened by view.js, which owns the
+			// per-browser "already seen" flag; the server always renders it hidden.
+			'showEditorNote'         => false,
 			'unsupportedWarning'     => $unsupported_type,
 			'editorUrl'              => $editor_url,
 			'blockEditorUrl'         => $block_editor_url,
@@ -1083,6 +1086,28 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 		<div class="bw-help-wrap" data-wp-on--keydown="actions.handleHelpKeyDown" data-wp-on--focusout="actions.handleHelpFocusOut">
 		<button class="bw-help-toggle" data-wp-on--click="actions.toggleHelp" title="<?php esc_attr_e( 'Tips', 'jetpack-mu-wpcom' ); ?>" aria-label="<?php esc_attr_e( 'Tips', 'jetpack-mu-wpcom' ); ?>"><span class="bw-help-i" aria-hidden="true">i</span></button>
 		<div class="bw-help-popover" hidden data-wp-bind--hidden="!state.showHelp">
+			<div class="bw-help-note">
+				<p class="bw-help-note-text"><?php esc_html_e( 'You’re using Write, a simple editor for writing.', 'jetpack-mu-wpcom' ); ?></p>
+				<p class="bw-help-note-switch">
+				<?php
+				echo wp_kses(
+					sprintf(
+						/* translators: %1$s and %2$s are the opening and closing tags of a button reading "Block editor". */
+						__( 'Use the %1$sBlock editor%2$s instead', 'jetpack-mu-wpcom' ),
+						'<button type="button" class="bw-help-note-button" data-wp-on--click="actions.switchToBlockEditor">',
+						'</button>'
+					),
+					array(
+						'button' => array(
+							'type'              => array(),
+							'class'             => array(),
+							'data-wp-on--click' => array(),
+						),
+					)
+				);
+				?>
+				</p>
+			</div>
 			<div class="bw-help-title"><?php esc_html_e( 'Tips', 'jetpack-mu-wpcom' ); ?></div>
 			<div class="bw-help-row"><kbd>/</kbd><span><?php esc_html_e( 'Insert a heading, image, video, list, quote or divider', 'jetpack-mu-wpcom' ); ?></span></div>
 			<div class="bw-help-row"><kbd>Ctrl+B</kbd><span><?php esc_html_e( 'Bold', 'jetpack-mu-wpcom' ); ?></span></div>
@@ -1140,7 +1165,7 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 						role="menuitem"
 						tabindex="-1"
 						data-wp-on--click="actions.openInBlockEditor"
-					><?php esc_html_e( 'Open in block editor', 'jetpack-mu-wpcom' ); ?></button>
+					><?php esc_html_e( 'Open in Block editor', 'jetpack-mu-wpcom' ); ?></button>
 					<button
 						class="bw-more-menu-item"
 						role="menuitem"
@@ -1163,6 +1188,42 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 		<span class="bw-recovery-text"><?php esc_html_e( 'You have a recent draft — continue editing?', 'jetpack-mu-wpcom' ); ?></span>
 		<button class="bw-recovery-btn" data-wp-on--click="actions.resumeDraft"><?php esc_html_e( 'Resume editing', 'jetpack-mu-wpcom' ); ?></button>
 		<button class="bw-recovery-dismiss" data-wp-on--click="actions.dismissRecovery" aria-label="<?php esc_attr_e( 'Dismiss draft recovery notice', 'jetpack-mu-wpcom' ); ?>">&times;</button>
+	</div>
+
+	<!-- First-visit note. Sits after the recovery banner, which pushes it down. -->
+	<div
+		class="bw-editor-note"
+		role="dialog"
+		aria-label="<?php esc_attr_e( 'About the Write editor', 'jetpack-mu-wpcom' ); ?>"
+		hidden
+		data-wp-bind--hidden="!state.showEditorNote"
+		data-wp-on--keydown="actions.handleEditorNoteKeyDown"
+	>
+		<p class="bw-editor-note-text">
+		<?php
+		echo wp_kses(
+			sprintf(
+				/* translators: %1$s and %2$s are the opening and closing tags of a link to the Write editor guide. */
+				__( 'You’re using %1$sWrite%2$s, a simple editor for writing.', 'jetpack-mu-wpcom' ),
+				'<a class="bw-editor-note-guide" data-target="wpcom-help-center" href="https://wordpress.com/support/editors/write-editor/" target="_blank" rel="noopener noreferrer">',
+				'</a>'
+			),
+			array(
+				'a' => array(
+					'class'       => array(),
+					'data-target' => array(),
+					'href'        => array(),
+					'target'      => array(),
+					'rel'         => array(),
+				),
+			)
+		);
+		?>
+		</p>
+		<div class="bw-editor-note-actions">
+			<button class="bw-editor-note-secondary" data-wp-on--click="actions.openInBlockEditorFromNote"><?php esc_html_e( 'Use the Block editor', 'jetpack-mu-wpcom' ); ?></button>
+			<button class="bw-editor-note-ok" data-wp-on--click="actions.dismissEditorNote"><?php esc_html_e( 'Got it', 'jetpack-mu-wpcom' ); ?></button>
+		</div>
 	</div>
 
 	<!-- Persistent formatting toolbar -->

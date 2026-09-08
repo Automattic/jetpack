@@ -85,6 +85,40 @@
 	display: none;
 }
 
+.bw-help-note {
+	padding-bottom: 12px;
+	margin-bottom: 14px;
+	border-bottom: 1px solid #f0f0f0;
+}
+
+.bw-help-note-text,
+.bw-help-note-switch {
+	margin: 0;
+	font-size: 13px;
+	line-height: 1.5;
+	color: #3c3c43;
+	text-wrap: pretty;
+}
+
+.bw-help-note-switch {
+	margin-top: 6px;
+}
+
+.bw-help-note-button {
+	padding: 0;
+	border: none;
+	background: none;
+	font: inherit;
+	color: var(--wp-components-color-accent, #3858e9);
+	text-decoration: underline;
+	text-underline-offset: 2px;
+	cursor: pointer;
+}
+
+.bw-help-note-button:hover {
+	color: var(--wp-components-color-accent-darker-10, #2145e6);
+}
+
 .bw-help-title {
 	font-size: 11px;
 	font-weight: 600;
@@ -399,6 +433,109 @@
 
 .bw-recovery-banner:not([hidden]) ~ .bw-main {
 	padding-top: 164px;
+}
+
+/* ===== First-visit editor note ===== */
+
+/* Anchored under the kebab menu, where "Open in Block editor" lives. */
+.bw-editor-note {
+	position: fixed;
+	top: 60px;
+	inset-inline-end: 24px;
+	z-index: 100003;
+	box-sizing: border-box;
+	width: 304px;
+	padding: 14px 16px;
+	background: #fff;
+	border-radius: 8px;
+	box-shadow: 0 4px 24px rgba(0, 0, 0, 0.14);
+	animation: bw-fade-in 0.12s ease;
+}
+
+.bw-editor-note[hidden] {
+	display: none;
+}
+
+.bw-editor-note::before {
+	content: "";
+	position: absolute;
+	top: -5px;
+	inset-inline-end: 14px;
+	width: 12px;
+	height: 12px;
+	background: #fff;
+	transform: rotate(45deg);
+}
+
+.bw-recovery-banner:not([hidden]) ~ .bw-editor-note {
+	top: 104px;
+}
+
+.bw-editor-note-text {
+	position: relative;
+	margin: 0 0 12px;
+	font-size: 13px;
+	line-height: 1.5;
+	color: #3c3c43;
+	text-wrap: pretty;
+}
+
+.bw-editor-note-guide {
+	color: var(--wp-components-color-accent, #3858e9);
+	text-decoration: underline;
+	text-underline-offset: 2px;
+}
+
+.bw-editor-note-guide:hover {
+	color: var(--wp-components-color-accent-darker-10, #2145e6);
+}
+
+.bw-editor-note-actions {
+	position: relative;
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+	gap: 12px;
+}
+
+.bw-editor-note-secondary,
+.bw-editor-note-ok {
+	flex-shrink: 0;
+	padding: 6px 12px;
+	border-radius: 4px;
+	font-size: 13px;
+	font-weight: 500;
+	font-family: inherit;
+	cursor: pointer;
+}
+
+.bw-editor-note-secondary {
+	border: 1px solid #ccc;
+	background: transparent;
+	color: #1e1e1e;
+}
+
+.bw-editor-note-secondary:hover {
+	background: #f5f5f5;
+	border-color: #999;
+}
+
+.bw-editor-note-ok {
+	border: none;
+	background: var(--wp-components-color-accent, #3858e9);
+	color: #fff;
+}
+
+.bw-editor-note-ok:hover {
+	background: var(--wp-components-color-accent-darker-10, #2145e6);
+}
+
+@media (max-width: 640px) {
+
+	.bw-editor-note {
+		inset-inline-end: 12px;
+		width: calc(100% - 24px);
+	}
 }
 
 /* ===== Persistent formatting toolbar ===== */
@@ -2502,6 +2639,7 @@ html.bw-anon .bw-back,
 html.bw-anon .bw-help-wrap,
 html.bw-anon .bw-more-wrap,
 html.bw-anon .bw-btn-draft,
+html.bw-anon .bw-editor-note,
 html.bw-anon .bw-toolbar [data-wp-on--click="actions.openImageModal"],
 html.bw-anon #bw-slash-opt-image,
 html.bw-anon .bw-unsupported-open-editor {

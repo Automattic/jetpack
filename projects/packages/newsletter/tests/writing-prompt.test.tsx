@@ -425,7 +425,10 @@ describe( 'WritingPrompt widget analytics', () => {
 
 		const postAnswerLink = await screen.findByRole( 'link', { name: 'Post your answer' } );
 		// WordPress.com-platform site (isWpcomPlatformSite() true) → Write editor.
-		expect( postAnswerLink ).toHaveAttribute( 'href', 'admin.php?page=write&answer_prompt=1' );
+		expect( postAnswerLink ).toHaveAttribute(
+			'href',
+			'admin.php?page=write&answer_prompt=1&source=writing_prompt'
+		);
 		postAnswerLink.addEventListener( 'click', event => event.preventDefault() );
 		postAnswerLink.click();
 

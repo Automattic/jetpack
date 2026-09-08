@@ -498,7 +498,7 @@ class Write_Test extends \WorDBless\BaseTestCase {
 		$this->assertStringContainsString( 'actions.toggleMoreMenu', $output );
 		$this->assertStringContainsString( 'actions.openInBlockEditor', $output );
 		$this->assertStringContainsString( 'actions.previewPost', $output );
-		$this->assertStringContainsString( 'Open in block editor', $output );
+		$this->assertStringContainsString( 'Open in Block editor', $output );
 		$this->assertStringContainsString( '>Preview<', $output );
 	}
 
@@ -579,6 +579,57 @@ class Write_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertStringContainsString( '#tag', $output );
 		$this->assertStringContainsString( 'assigns them to the post on save', $output );
+	}
+
+	/**
+	 * Test that the Tips panel carries the permanent "you're using Write" note.
+	 */
+	public function test_help_modal_contains_editor_note() {
+		wp_set_current_user( $this->admin_id );
+
+		$output = $this->render_template();
+
+		$this->assertStringContainsString( 'class="bw-help-note"', $output );
+		$this->assertStringContainsString( 'a simple editor for writing', $output );
+		$this->assertStringContainsString( 'class="bw-help-note-button"', $output );
+		$this->assertStringContainsString( 'actions.switchToBlockEditor', $output );
+	}
+
+	/**
+	 * Test that the first-visit note markup is present but hidden on the server.
+	 */
+	public function test_template_contains_first_visit_note() {
+		wp_set_current_user( $this->admin_id );
+
+		$output = $this->render_template();
+
+		$this->assertStringContainsString( 'class="bw-editor-note"', $output );
+		$this->assertStringContainsString( 'actions.openInBlockEditorFromNote', $output );
+		$this->assertStringContainsString( 'actions.dismissEditorNote', $output );
+		$this->assertStringContainsString( 'Use the Block editor', $output );
+		$this->assertStringContainsString( 'Got it', $output );
+		$this->assertMatchesRegularExpression( '/class="bw-editor-note"[^>]*\bhidden\b/s', $output );
+
+		// The guide link runs through wp_kses, which drops any attribute missing
+		// from the allow-list — including the one that routes it to the Help Center.
+		$this->assertStringContainsString( 'data-target="wpcom-help-center"', $output );
+		$this->assertStringContainsString( 'https://wordpress.com/support/editors/write-editor/', $output );
+	}
+
+	/**
+	 * Test that the first-visit note starts hidden in the Interactivity state.
+	 */
+	public function test_interactivity_state_includes_editor_note() {
+		wp_set_current_user( $this->admin_id );
+
+		ob_start();
+		wpcom_write_render_admin_page();
+		ob_end_clean();
+
+		$state = wp_interactivity_state( 'wpcom-write' );
+
+		$this->assertArrayHasKey( 'showEditorNote', $state );
+		$this->assertFalse( $state['showEditorNote'] );
 	}
 
 	/**
