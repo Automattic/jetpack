@@ -13,6 +13,7 @@ namespace Automattic\Jetpack\Podcast\Feed;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Podcast\Podcast_Gate;
 use Automattic\Jetpack\Podcast\Settings;
+use Automattic\Jetpack\Status\Host;
 use WP_Post;
 
 /**
@@ -54,6 +55,14 @@ class Customize_Feed {
 	 * @var array{0: int, 1: string}
 	 */
 	private static $item_summary = array( 0, '' );
+
+	/**
+	 * Memoized {@see self::credit_enabled()} result; `null` until first asked.
+	 * Reset per render — see {@see self::reset_render_state()}.
+	 *
+	 * @var bool|null
+	 */
+	private static $credit_enabled = null;
 
 	/**
 	 * Wire the late-binding `wp` action that decides whether to register the
@@ -186,7 +195,11 @@ class Customize_Feed {
 	 * @return string
 	 */
 	private static function channel_summary(): string {
-		return self::append_credit( wp_strip_all_tags( (string) get_option( 'podcasting_summary', '' ) ) );
+		$summary = rtrim( wp_strip_all_tags( (string) get_option( 'podcasting_summary', '' ) ) );
+		if ( ! self::credit_enabled() ) {
+			return $summary;
+		}
+		return '' === $summary ? self::credit_text() : $summary . "\n\n" . self::credit_text();
 	}
 
 	/**
@@ -313,38 +326,24 @@ class Customize_Feed {
 
 	/**
 	 * Whether the feed carries the "Made with Jetpack Podcast" credit: only
-	 * WordPress.com sites without podcast plan access
-	 * ({@see Podcast_Gate::requires_feed_credit()}). Self-hosted sites never
+	 * WordPress.com sites without podcast plan access. Self-hosted sites never
 	 * carry it, since the WordPress.org plugin directory requires credits to
-	 * default off.
+	 * default off. Memoized: the gate hits the plan and blog lookups, and this
+	 * runs several times per item.
 	 *
 	 * @return bool
 	 */
 	public static function credit_enabled(): bool {
-		return Podcast_Gate::requires_feed_credit();
-	}
-
-	/**
-	 * Append the credit to plain text, separated by a blank line. The text
-	 * comes back untouched when the credit is off.
-	 *
-	 * @param string $text   Plain text.
-	 * @param string $credit Credit line to append; empty means {@see self::credit_text()}.
-	 * @return string
-	 */
-	public static function append_credit( string $text, string $credit = '' ): string {
-		if ( ! self::credit_enabled() ) {
-			return $text;
+		if ( null === self::$credit_enabled ) {
+			self::$credit_enabled = ( new Host() )->is_wpcom_platform() && ! Podcast_Gate::has_product_access();
 		}
-		$credit = '' === $credit ? self::credit_text() : $credit;
-		$text   = rtrim( $text );
-		return '' === $text ? $credit : $text . "\n\n" . $credit;
+		return self::$credit_enabled;
 	}
 
 	/**
 	 * `the_excerpt_rss` filter: append the credit to the episode's `<description>`.
-	 * The template wraps that in CDATA and core has already escaped `]]>` in
-	 * the excerpt by now, so the credit gets the same treatment.
+	 * The template wraps that in CDATA, so `]]>` in the credit gets the same
+	 * escape core gives generated excerpts.
 	 *
 	 * @param string $excerpt Item excerpt.
 	 * @return string
@@ -353,7 +352,9 @@ class Customize_Feed {
 		if ( ! self::credit_enabled() ) {
 			return $excerpt;
 		}
-		return self::append_credit( (string) $excerpt, str_replace( ']]>', ']]&gt;', self::credit_text() ) );
+		$excerpt = rtrim( (string) $excerpt );
+		$credit  = str_replace( ']]>', ']]&gt;', self::credit_text() );
+		return '' === $excerpt ? $credit : $excerpt . "\n\n" . $credit;
 	}
 
 	/**
@@ -368,7 +369,15 @@ class Customize_Feed {
 		if ( ! self::credit_enabled() || '' === (string) $content ) {
 			return $content;
 		}
-		return (string) $content . "\n" . self::credit_html();
+		$site_url = home_url( '/' );
+		$credit   = sprintf(
+			/* translators: 1: podcast title, 2: HTML link to "Jetpack Podcast", 3: HTML link to site URL */
+			esc_html__( '%1$s is made with %2$s. Full show notes and every episode at %3$s', 'jetpack-podcast' ),
+			esc_html( self::credit_show_title() ),
+			'<a href="' . esc_url( self::CREDIT_URL ) . '">Jetpack Podcast</a>',
+			'<a href="' . esc_url( $site_url ) . '">' . esc_html( $site_url ) . '</a>'
+		);
+		return (string) $content . "\n<p>" . $credit . '</p>';
 	}
 
 	/**
@@ -384,22 +393,6 @@ class Customize_Feed {
 			'Jetpack Podcast',
 			home_url( '/' )
 		);
-	}
-
-	/**
-	 * HTML credit, for `<content:encoded>`.
-	 *
-	 * @return string
-	 */
-	public static function credit_html(): string {
-		$site_url = home_url( '/' );
-		return '<p>' . sprintf(
-			/* translators: 1: podcast title, 2: HTML link to "Jetpack Podcast", 3: HTML link to site URL */
-			esc_html__( '%1$s is made with %2$s. Full show notes and every episode at %3$s', 'jetpack-podcast' ),
-			esc_html( self::credit_show_title() ),
-			'<a href="' . esc_url( self::CREDIT_URL ) . '">Jetpack Podcast</a>',
-			'<a href="' . esc_url( $site_url ) . '">' . esc_html( $site_url ) . '</a>'
-		) . '</p>';
 	}
 
 	/**
@@ -523,6 +516,7 @@ class Customize_Feed {
 	public static function reset_render_state() {
 		self::$seen_enclosures = array();
 		self::$item_summary    = array( 0, '' );
+		self::$credit_enabled  = null;
 	}
 
 	/**
