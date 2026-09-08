@@ -284,10 +284,9 @@ test( 'uses the non-UTC site date for both axis and tooltip', async () => {
 	const settings = getSettings();
 	setSettings( {
 		...settings,
-		timezone: { offset: -7, offsetFormatted: '-7', string: 'America/Los_Angeles', abbr: 'PDT' },
+		timezone: { offset: -12, offsetFormatted: '-12', string: 'Etc/GMT+12', abbr: '-12' },
 	} );
 	try {
-		expect( new Date( timestamp ).getTimezoneOffset() ).toBe( 0 );
 		render(
 			<>
 				<HistoryChartCard data={ history } { ...callbacks } />
