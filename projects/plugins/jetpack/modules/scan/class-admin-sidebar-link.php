@@ -76,7 +76,7 @@ class Admin_Sidebar_Link {
 				'manage_options',
 				esc_url( Redirect::get_url( 'cloud-scan-history-wp-menu' ) ),
 				null,
-				$this->get_link_offset()
+				100
 			);
 		}
 
@@ -89,7 +89,7 @@ class Admin_Sidebar_Link {
 				'manage_options',
 				esc_url( Redirect::get_url( 'cloud-scan-history-wp-menu' ) ),
 				null,
-				$this->get_link_offset()
+				100
 			);
 		}
 
@@ -101,34 +101,9 @@ class Admin_Sidebar_Link {
 				'manage_options',
 				esc_url( Redirect::get_url( 'calypso-backups' ) ),
 				null,
-				$this->get_link_offset()
+				100
 			);
 		}
-	}
-
-	/**
-	 * We create a menu offset by counting all the pages that have a jetpack_admin_page set as the capability.
-	 *
-	 * This makes it so that the highlight of the pages works as expected. When you click on the Setting or Dashboard.
-	 *
-	 * @return int Menu offset.
-	 */
-	private function get_link_offset() {
-		global $submenu;
-		$offset = 17;
-
-		if ( ! array_key_exists( 'jetpack', $submenu ) ) {
-			return $offset;
-		}
-
-		foreach ( $submenu['jetpack'] as $link ) {
-			if ( 'jetpack_admin_page' !== $link[1] ) {
-				break;
-			}
-			++$offset;
-		}
-
-		return $offset;
 	}
 
 	/**

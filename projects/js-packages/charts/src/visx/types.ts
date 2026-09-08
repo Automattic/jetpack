@@ -15,6 +15,12 @@ export interface RenderTooltipGlyphProps< Datum extends object > extends GlyphPr
 export type XyChartTooltipProps< Datum extends object > = {
 	renderTooltip: ( params: RenderTooltipParams< Datum > ) => ReactNode;
 	renderGlyph?: ( params: RenderTooltipGlyphProps< Datum > ) => ReactNode;
+	/**
+	 * Keep the panel below the bottom x-axis, centered at the datum x and horizontally clamped.
+	 * Vertical bounds do not move this placement; clipping ancestors can still cut it off.
+	 * @default 'auto'
+	 */
+	tooltipPlacement?: 'auto' | 'below-axis';
 	snapTooltipToDatumX?: boolean;
 	snapTooltipToDatumY?: boolean;
 	showVerticalCrosshair?: boolean;

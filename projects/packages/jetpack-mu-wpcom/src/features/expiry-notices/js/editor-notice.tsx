@@ -17,7 +17,8 @@ const NOTICE_ID = 'wpcom-expiry-notices/editor-notice';
 interface EditorNoticeData {
 	metaKey: string;
 	content: string;
-	primary: Cta;
+	// Null when the viewer cannot renew.
+	primary: Cta | null;
 	secondary: Cta | null;
 	isDismissible: boolean;
 	surface: string;
