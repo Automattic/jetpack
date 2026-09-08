@@ -192,6 +192,7 @@ export function HistoryTooltip( {
 					top: 'calc(100% - var(--wpds-dimension-size-md))',
 				} }
 			/>
+			{ /* Escape the dashboard scroll container while retaining date-axis anchoring. */ }
 			{ createPortal( tooltip, document.body ) }
 		</>
 	) : (

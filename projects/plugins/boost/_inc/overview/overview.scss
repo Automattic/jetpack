@@ -142,7 +142,6 @@
 		--jetpack-boost-overview-chart-margin-right: var(--wpds-dimension-size-xs);
 		--jetpack-boost-overview-chart-margin-bottom: var(--wpds-dimension-size-md);
 
-		// Let the axis tooltip extend below the card, as in the legacy chart.
 		overflow: visible;
 	}
 
@@ -151,7 +150,6 @@
 		min-inline-size: 0;
 		isolation: isolate;
 
-		// Share a stacking context so tooltips can paint above annotations.
 		[role="grid"] > div {
 			isolation: auto;
 		}
@@ -193,7 +191,6 @@
 	}
 
 	&__history-tooltip {
-		// Escape the dashboard scroll container while retaining date-axis anchoring.
 		pointer-events: none;
 		z-index: wpzindex.z-index(".components-tooltip");
 		inline-size: max-content;
