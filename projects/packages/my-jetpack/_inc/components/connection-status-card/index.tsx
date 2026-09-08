@@ -6,16 +6,18 @@ import { __ } from '@wordpress/i18n';
 import { Text } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback, useMemo, useState } from 'react';
+import {
+	connectionStatusCloud as cloud,
+	connectionStatusEmptyAvatar as emptyAvatar,
+	connectionStatusJetpackGray as jetpackGray,
+	connectionStatusJetpack as jetpack,
+} from '../../assets/inline-svgs';
 import { useAllProducts } from '../../data/products/use-all-products';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import getProductSlugsThatRequireUserConnection from '../../data/utils/get-product-slugs-that-require-user-connection';
 import useAnalytics from '../../hooks/use-analytics';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
-import cloud from './cloud.svg';
 import { ConnectionOwnerInfo } from './connection-owner-info';
-import emptyAvatar from './empty-avatar.svg';
-import jetpackGray from './jetpack-gray.svg';
-import jetpack from './jetpack.svg';
 import styles from './styles.module.scss';
 import { useConnectionState } from './use-connection-state';
 import type { ConnectionStatusCardType } from './types';
