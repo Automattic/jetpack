@@ -108,9 +108,9 @@ class Initializer {
 		// Add custom WP REST API endoints.
 		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_endpoints' ) );
 
-		// Priority 1 because both of wp-build's deadlines fall later in this request:
-		// the `current_screen` alias must exist before `set_current_screen()`, and the
-		// render function before the page callback. `admin_init` is too late for either.
+		// Both of wp-build's deadlines fall later in this request: the `current_screen`
+		// alias must exist before `set_current_screen()`, and the render function
+		// before the page callback.
 		add_action( 'admin_menu', array( __CLASS__, 'maybe_load_wp_build' ), 1 );
 
 		add_action( 'admin_menu', array( __CLASS__, 'add_my_jetpack_menu_item' ) );
@@ -359,9 +359,7 @@ class Initializer {
 	 * is unaffected.
 	 *
 	 * The alias is permanent for the request, so anything reading
-	 * `get_current_screen()->id` afterwards sees `my-jetpack-dashboard` too — JITMs
-	 * stop matching `JITM::is_a8c_admin_page()`'s allowlist, which is invisible here
-	 * because the generated page hides every non-app child of `#wpbody-content`.
+	 * `get_current_screen()->id` after `current_screen` sees `my-jetpack-dashboard`.
 	 *
 	 * @since $$next-version$$
 	 *
