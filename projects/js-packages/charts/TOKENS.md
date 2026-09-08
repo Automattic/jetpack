@@ -31,7 +31,7 @@ Highest first:
 3. The catalog default on the provider wrapper, resolving the mapped `--wpds-*` token.
 4. The WPDS spec-value fallback, when no `--wpds-*` token is set either (SSR, jsdom, or WPDS not loaded). This is not a rare corner: WordPress itself defines no `--wpds-*` typography tokens, so in wp-admin the fallback is what renders. It is injected at build time by `@wordpress/theme`'s LightningCSS plugin.
 
-CSS is the only route. The `theme` prop carries no colors, so there is nothing for a declaration to disagree with.
+Configure catalog colors through CSS; the `theme` prop carries no colors. For local LineChart tooltip overrides, see [Below-Axis Tooltips](src/charts/line-chart/stories/index.docs.mdx#below-axis-tooltips).
 
 An override set **above** `GlobalChartsProvider` does not apply: the provider's own declaration on its wrapper beats a value merely inherited from an ancestor. Set overrides inside the provider tree, or target the scope class itself — `.a8c-charts-scope { --a8c-charts-color-grid: #e0e0e0; }` matches every provider wrapper on the page, including the one a bare chart mounts for itself, and outranks the zero-specificity catalog default. That rule is the replacement for a page-level `:root` override. The same rule limits `@wordpress/theme`'s `ThemeProvider` to *above* the charts provider: the catalog substitutes its `--wpds-*` tokens at the wrapper, so a `ThemeProvider` mounted between the wrapper and a chart is never consulted and CSS-painted colors keep their light-mode spec fallbacks. The JS-consumed ones do not — `getElementStyles` resolves at the chart element — so that nesting shows up as a chart whose series marks retint while its gridlines, axis and surfaces do not.
 
