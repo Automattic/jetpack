@@ -1,13 +1,17 @@
 @use "./variables" as vars;
 
 .mastodon-preview__section {
-	max-width: 100%;
-	width: vars.$mastodon-preview-width;
+	width: 100%;
+	max-width: vars.$mastodon-preview-width;
+	min-width: 200px;
 	margin-inline: auto;
 }
 
 .mastodon-preview__post {
 	width: 100%;
+	max-width: vars.$mastodon-preview-width;
+	min-width: 200px;
+	margin-inline: auto;
 	overflow-y: hidden;
 	box-sizing: border-box;
 	padding: 1rem;
@@ -43,6 +47,11 @@
 	margin-top: 8px;
 	min-height: 64px;
 	border-radius: 8px;
+	// 566px matches Mastodon's max image height in the feed.
+	max-height: 566px;
+	width: fit-content;
+	max-width: 100%;
+	overflow: hidden;
 
 	&.as-grid {
 		display: grid;
@@ -60,8 +69,11 @@
 
 		img,
 		video {
-			width: 100%;
-			object-fit: cover;
+			max-width: 100%;
+			max-height: 566px;
+			width: auto;
+			height: auto;
+			display: block;
 		}
 	}
 }

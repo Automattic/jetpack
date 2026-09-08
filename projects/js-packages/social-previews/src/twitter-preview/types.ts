@@ -4,8 +4,13 @@ export type TwitterPreviewsProps = SocialPreviewsBaseProps & {
 	tweets: Array< TwitterPreviewProps >;
 };
 
-export type TwitterCardProps = SocialPreviewBaseProps & {
-	cardType: string;
+export type TwitterCardProps = Pick<
+	SocialPreviewBaseProps,
+	'image' | 'imageFocalPoint' | 'title' | 'url' | 'description'
+> & {
+	// Accepted so existing consumers keep type-checking; the current X link
+	// card has no card-type variants, so it is not rendered.
+	cardType?: string;
 };
 
 export type SidebarProps = {
@@ -33,4 +38,9 @@ export type TextProps = {
 
 export type TwitterPreviewProps = SidebarProps &
 	HeaderProps &
-	Partial< QuoteTweetProps & TwitterCardProps & Pick< TextProps, 'text' > >;
+	Partial<
+		QuoteTweetProps &
+			TwitterCardProps &
+			Pick< TextProps, 'text' > &
+			Pick< SocialPreviewBaseProps, 'description' | 'media' | 'caption' >
+	>;

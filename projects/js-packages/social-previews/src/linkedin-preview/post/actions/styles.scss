@@ -1,0 +1,32 @@
+.linkedin-preview__post-actions {
+	display: flex;
+	align-items: center;
+	justify-content: space-around;
+
+	width: 100%;
+	height: 2.75rem;
+	margin: 0;
+	padding: 0 0.5rem;
+
+	border-top: 1px solid rgba(0, 0, 0, 0.08);
+	color: rgba(0, 0, 0, 0.6);
+	list-style-type: none;
+
+	font-size: 0.75rem;
+	font-weight: 600;
+	line-height: 1.33;
+
+	> li {
+		display: flex;
+		align-items: center;
+		gap: 0.25rem;
+
+		margin: 0;
+		padding: 0.5rem 0.75rem;
+		cursor: default;
+
+		svg {
+			flex-shrink: 0;
+		}
+	}
+}

@@ -9,6 +9,19 @@
 	padding: 0 vars.$tumblr-preview-card-inline-padding;
 }
 
+.tumblr-preview__post-header-left {
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+}
+
+.tumblr-preview__post-header-avatar {
+	width: 44px;
+	height: 44px;
+	border-radius: 50%;
+	flex-shrink: 0;
+}
+
 .tumblr-preview__post-header-username {
 	font-size: 0.875rem; // 14px
 	font-weight: 700;

@@ -195,6 +195,7 @@ export function PostPreview( { connection, previewData }: PostPreviewProps ) {
 					{ ...commonProps }
 					description={ excerpt }
 					siteName={ siteName }
+					author={ user.displayName }
 					user={ {
 						avatarUrl: user.profileImage,
 						address: user.displayName,
@@ -252,6 +253,7 @@ export function PostPreview( { connection, previewData }: PostPreviewProps ) {
 					{ ...commonProps }
 					title={ message ? '' : title }
 					description={ desc }
+					cardTitle={ title }
 					user={ { displayName: user.displayName, avatarUrl: user.profileImage } }
 				/>
 			);
