@@ -51,6 +51,9 @@ class Writing_Prompt_Widget_Test extends BaseTestCase {
 		wp_set_current_user( 0 );
 		unset( $GLOBALS['wp_meta_boxes'] );
 
+		remove_all_filters( 'pre_http_request' );
+		delete_transient( Freshly_Pressed::TRANSIENT_KEY );
+
 		remove_all_filters( 'jetpack_options' );
 		remove_all_filters( 'jetpack_offline_mode' );
 		Constants::clear_constants();
@@ -243,9 +246,6 @@ class Writing_Prompt_Widget_Test extends BaseTestCase {
 		);
 
 		$data = Writing_Prompt_Widget::add_script_data( array() );
-
-		remove_all_filters( 'pre_http_request' );
-		delete_transient( Freshly_Pressed::TRANSIENT_KEY );
 
 		$this->assertSame(
 			array(
