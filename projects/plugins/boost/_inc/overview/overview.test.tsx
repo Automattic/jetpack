@@ -378,3 +378,24 @@ test( 'uses the legacy dismissal hook when no alert adapter is supplied', () => 
 	rerender( <PopOut scoreChange={ -20 } /> );
 	expect( screen.getByText( 'Speed score has fallen' ) ).not.toBeVisible();
 } );
+
+test( 'reports module request errors independently and retries only modules', async () => {
+	jest.mocked( apiFetch ).mockImplementation( async ( { url } ) => {
+		if ( url?.includes( 'modules-state' ) ) {
+			throw new Error( 'Module settings unavailable' );
+		}
+		return { status: 'success', JSON: null };
+	} );
+	renderOverview();
+	await expect( screen.findByText( 'Module settings unavailable' ) ).resolves.toBeTruthy();
+	expect(
+		screen.getByText( 'Failed to load module settings', { selector: 'span' } )
+	).toBeInTheDocument();
+	expect( screen.queryByRole( 'button', { name: 'Upgrade now' } ) ).not.toBeInTheDocument();
+	jest.mocked( apiFetch ).mockClear();
+	fireEvent.click( screen.getByRole( 'button', { name: 'Try again' } ) );
+	await waitFor( () => expect( apiFetch ).toHaveBeenCalledTimes( 1 ) );
+	expect( apiFetch ).toHaveBeenCalledWith(
+		expect.objectContaining( { url: expect.stringContaining( 'modules-state' ) } )
+	);
+} );

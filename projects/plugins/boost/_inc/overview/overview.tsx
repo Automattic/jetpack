@@ -90,16 +90,27 @@ export default function Overview( { isVisible = true }: { isVisible?: boolean } 
 				}
 				isVisible={ isVisible }
 			/>
+			{ modules.isError && (
+				<Notice.Root
+					intent="error"
+					spokenMessage={ __( 'Failed to load module settings', 'jetpack-boost' ) }
+				>
+					<Notice.Title>{ __( 'Failed to load module settings', 'jetpack-boost' ) }</Notice.Title>
+					<Notice.Description>{ modules.error.message }</Notice.Description>
+					<Notice.Actions>
+						<Button onClick={ () => modules.refetch() }>
+							{ __( 'Try again', 'jetpack-boost' ) }
+						</Button>
+					</Notice.Actions>
+				</Notice.Root>
+			) }
 			<HistoryChartCard
 				data={ modules.isPending ? undefined : history.data }
 				isLoading={ modules.isPending || ( history.isFetching && ! history.data?.periods.length ) }
-				isError={ modules.isError || ( history.isError && ! history.isFetching ) }
+				isError={ history.isError && ! history.isFetching }
 				error={ history.error }
-				onRetry={ () => {
-					modules.refetch();
-					history.refetch();
-				} }
-				needsUpgrade={ ! modules.isPending && ! modules.data?.performance_history?.available }
+				onRetry={ () => history.refetch() }
+				needsUpgrade={ modules.isSuccess && ! modules.data?.performance_history?.available }
 				isFreshStart={ ! freshStartCompleted }
 				onDismissFreshStart={ dismissFreshStart }
 			/>
