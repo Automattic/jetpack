@@ -106,14 +106,17 @@ export default () => {
 		<Stack direction="column" gap="md">
 			{ freshlyPressed.length > 0 ? (
 				<Tabs.Root value={ tab } onValueChange={ selectTab }>
-					<Tabs.List className="wpcom-daily-writing-prompt--tabs" variant="minimal">
-						<Tabs.Tab value={ PROMPT_TAB }>
-							{ __( 'Writing Prompt', 'jetpack-newsletter' ) }
-						</Tabs.Tab>
-						<Tabs.Tab value={ FRESHLY_PRESSED_TAB }>
-							{ __( 'Freshly Pressed', 'jetpack-newsletter' ) }
-						</Tabs.Tab>
-					</Tabs.List>
+					{ /* `Tabs.List` is `width: fit-content`, so the strip's background needs a wrapper to span the widget. */ }
+					<div className="wpcom-daily-writing-prompt--tabs">
+						<Tabs.List variant="minimal">
+							<Tabs.Tab value={ PROMPT_TAB }>
+								{ __( 'Writing Prompt', 'jetpack-newsletter' ) }
+							</Tabs.Tab>
+							<Tabs.Tab value={ FRESHLY_PRESSED_TAB }>
+								{ __( 'Freshly Pressed', 'jetpack-newsletter' ) }
+							</Tabs.Tab>
+						</Tabs.List>
+					</div>
 					{ /* Kept mounted so a trip to Freshly Pressed doesn't rewind the prompt you were on. */ }
 					<Tabs.Panel
 						className="wpcom-daily-writing-prompt--panel"

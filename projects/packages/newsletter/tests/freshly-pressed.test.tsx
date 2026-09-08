@@ -38,7 +38,7 @@ jest.mock( '@automattic/jetpack-analytics', () => ( {
 	},
 } ) );
 
-import { act, render, screen } from '@testing-library/react';
+import { act, render, screen, within } from '@testing-library/react';
 import WritingPrompt from '../src/writing-prompt/writing-prompt';
 
 const PROMPT = {
@@ -128,13 +128,28 @@ describe( 'Freshly Pressed tab', () => {
 		expect( screen.getByText( 'What is your favorite way to relax?' ) ).toBeInTheDocument();
 	} );
 
-	it( 'carries the class the compact-tab styles hang off', async () => {
-		await renderSettled();
+	it( 'wraps the tab list in the element the strip styles hang off', async () => {
+		const { container } = render( <WritingPrompt /> );
+		await expect(
+			screen.findByRole( 'img', { name: 'Jetpack Logo' } )
+		).resolves.toBeInTheDocument();
 
-		// `@wordpress/ui` sizes horizontal tabs at 48px for admin page headers and
-		// the minimal variant doesn't reset it, so style.scss overrides the height
-		// through this class. Losing it silently restores the page-header scale.
-		expect( screen.getByRole( 'tablist' ) ).toHaveClass( 'wpcom-daily-writing-prompt--tabs' );
+		// `Tabs.List` is `width: fit-content`, so the full-bleed background and
+		// hairline live on a wrapper around it. Without the wrapper the strip
+		// shrinks to the labels and loses its background.
+		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- The wrapper has no ARIA role, so a class selector is the most direct way to scope this assertion.
+		const strip = container.querySelector( '.wpcom-daily-writing-prompt--tabs' );
+		expect( strip ).not.toBeNull();
+		expect( within( strip as HTMLElement ).getByRole( 'tablist' ) ).toBeInTheDocument();
+	} );
+
+	it( 'explains what Freshly Pressed is above the list', async () => {
+		await renderSettled();
+		await openFreshlyPressedTab();
+
+		expect(
+			screen.getByText( "Freshly Pressed highlights our team's favorite blog posts." )
+		).toBeInTheDocument();
 	} );
 
 	it( 'lists the posts as Reader links once the tab is opened', async () => {

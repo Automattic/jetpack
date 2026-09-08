@@ -62,6 +62,18 @@
 	}
 }
 
+// Bleed the strip to the widget's edges and sit it flush under the
+// title bar. The offsets cancel `.postbox .inside`'s own `margin-block-
+// start: 11px` and `padding-inline: 12px`, which is how wpcom's hotstuff
+// widget anchors the same strip.
+.wpcom-daily-writing-prompt--tabs {
+	margin-block-start: -11px;
+	margin-inline: -12px;
+	padding-inline: 12px;
+	background-color: var(--wpds-color-background-surface-neutral-weak);
+	border-block-end: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
+}
+
 // `@wordpress/ui` fixes horizontal tabs at 48px for admin page
 // headers, and the minimal variant only resets their padding. That
 // leaves the label floating well above the active-tab indicator in a
@@ -70,4 +82,9 @@
 .wpcom-daily-writing-prompt--tabs [role="tab"] {
 	height: auto;
 	padding-block: var(--wpds-dimension-padding-sm);
+}
+
+.wpcom-daily-writing-prompt--freshly-pressed-intro {
+	margin: 0;
+	color: var(--wpds-color-foreground-content-neutral-weak);
 }

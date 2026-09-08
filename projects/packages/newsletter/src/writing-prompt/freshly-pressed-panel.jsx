@@ -2,7 +2,7 @@ import analytics from '@automattic/jetpack-analytics';
 import { useCallback } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
-import { Link } from '@wordpress/ui';
+import { Link, Stack, Text } from '@wordpress/ui';
 
 /**
  * One Freshly Pressed post, linking to the WordPress.com Reader.
@@ -45,14 +45,23 @@ const FreshlyPressedPost = ( { post, position, siteType } ) => {
  * @return {import('react').ReactElement} The Freshly Pressed panel.
  */
 export default ( { posts, siteType } ) => (
-	<ul
-		className="wpcom-daily-writing-prompt--freshly-pressed-list"
-		aria-label={ __( 'Freshly Pressed posts', 'jetpack-newsletter' ) }
-	>
-		{ posts.map( ( post, position ) => (
-			<li key={ post.permalink }>
-				<FreshlyPressedPost post={ post } position={ position } siteType={ siteType } />
-			</li>
-		) ) }
-	</ul>
+	<Stack direction="column" gap="sm">
+		<Text
+			className="wpcom-daily-writing-prompt--freshly-pressed-intro"
+			variant="body-sm"
+			render={ <p /> }
+		>
+			{ __( "Freshly Pressed highlights our team's favorite blog posts.", 'jetpack-newsletter' ) }
+		</Text>
+		<ul
+			className="wpcom-daily-writing-prompt--freshly-pressed-list"
+			aria-label={ __( 'Freshly Pressed posts', 'jetpack-newsletter' ) }
+		>
+			{ posts.map( ( post, position ) => (
+				<li key={ post.permalink }>
+					<FreshlyPressedPost post={ post } position={ position } siteType={ siteType } />
+				</li>
+			) ) }
+		</ul>
+	</Stack>
 );
