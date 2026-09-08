@@ -5,9 +5,29 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 import { test, expect } from '@playwright/test';
+import type { Locator } from '@playwright/test';
 
 const pluginRoot = fileURLToPath( new URL( '../../../../', import.meta.url ) );
 let fixtureDirectory: string;
+
+/**
+ * Verify that the tooltip pointer leaves the entire date label band clear.
+ * @param chart   - Chart containing the date labels.
+ * @param pointer - Visible tooltip pointer.
+ */
+async function expectPointerBelowDateLabels( chart: Locator, pointer: Locator ) {
+	const labels = chart.locator( '.visx-axis-tick text' ).filter( {
+		hasText: /^[A-Z][a-z]{2} \d{1,2}$/,
+	} );
+	const dateLabels = await labels.all();
+	expect( dateLabels.length ).toBeGreaterThan( 0 );
+	const pointerBox = ( await pointer.boundingBox() )!;
+	for ( const label of dateLabels ) {
+		await expect( label ).toBeVisible();
+		const labelBox = ( await label.boundingBox() )!;
+		expect( pointerBox.y ).toBeGreaterThanOrEqual( labelBox.y + labelBox.height );
+	}
+}
 
 test.use( {
 	viewport: { width: 1280, height: 900 },
@@ -79,7 +99,7 @@ test( 'History tooltip stays below the date axis with matching series colors', a
 	const pointer = page.getByTestId( 'tooltip-axis-pointer' );
 	const tooltipBox = page.getByTestId( 'bounded-tooltip' );
 	const pointerPosition = ( await pointer.boundingBox() )!;
-	expect( Math.abs( pointerPosition.y - axis!.y ) ).toBeLessThan( 1 );
+	await expectPointerBelowDateLabels( chart, pointer );
 	expect( ( await tooltipBox.boundingBox() )!.y ).toBeCloseTo(
 		pointerPosition.y + pointerPosition.height,
 		0
@@ -215,8 +235,9 @@ test( 'History tooltip follows the hovered date and stays within a narrow viewpo
 		expect( popup.x ).toBeGreaterThanOrEqual( 0 );
 		expect( popup.x + popup.width ).toBeLessThanOrEqual( 390 );
 		expect( popup.y ).toBeGreaterThan( axis!.y );
-		const pointer = ( await page.getByTestId( 'tooltip-axis-pointer' ).boundingBox() )!;
-		expect( Math.abs( pointer.y - axis!.y ) ).toBeLessThan( 1 );
+		const pointerElement = page.getByTestId( 'tooltip-axis-pointer' );
+		const pointer = ( await pointerElement.boundingBox() )!;
+		await expectPointerBelowDateLabels( chart, pointerElement );
 		expect( pointer.x + pointer.width / 2 ).toBeCloseTo( datePoint.x, 0 );
 		positions.push( popup );
 	}
@@ -230,6 +251,7 @@ test( 'History tooltip follows the hovered date and stays within a narrow viewpo
 	await grid.press( 'ArrowRight' );
 	await expect( surface.locator( ':scope > :first-child' ) ).not.toHaveText( keyboardDate! );
 	expect( ( await surface.boundingBox() )!.y ).toBeCloseTo( positions[ 0 ].y, 0 );
+	await expectPointerBelowDateLabels( chart, page.getByTestId( 'tooltip-axis-pointer' ) );
 } );
 
 test( 'Hiding retained history removes a keyboard tooltip until another selection', async ( {
