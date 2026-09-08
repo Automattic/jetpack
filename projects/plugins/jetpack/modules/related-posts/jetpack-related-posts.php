@@ -52,7 +52,7 @@ class Jetpack_RelatedPosts {
 	/**
 	 * Creates and returns a static instance of Jetpack_RelatedPosts_Raw.
 	 *
-	 * @return Jetpack_RelatedPosts
+	 * @return Jetpack_RelatedPosts_Raw
 	 */
 	public static function init_raw() {
 		if ( ! self::$instance_raw ) {
