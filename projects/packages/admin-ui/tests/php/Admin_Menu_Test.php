@@ -108,6 +108,15 @@ class Admin_Menu_Test extends TestCase {
 		wp_deregister_script( 'jetpack-admin-ui-upgrade-menu' );
 		wp_dequeue_style( Admin_Menu::HIDE_CORE_NOTICES_HANDLE );
 		wp_deregister_style( Admin_Menu::HIDE_CORE_NOTICES_HANDLE );
+		wp_dequeue_style( Admin_Menu::DESIGN_TOKENS_HANDLE );
+		wp_deregister_style( Admin_Menu::DESIGN_TOKENS_HANDLE );
+		wp_dequeue_script( 'wp-theme' );
+		wp_deregister_script( 'wp-theme' );
+
+		$styles        = wp_styles();
+		$styles->queue = array();
+		$styles->to_do = array();
+		$styles->done  = array();
 
 		$reflection = new \ReflectionClass( Admin_Menu::class );
 
@@ -127,6 +136,15 @@ class Admin_Menu_Test extends TestCase {
 				$initialized->setAccessible( true );
 			}
 			$initialized->setValue( null, false );
+		}
+
+		if ( $reflection->hasProperty( 'page_hooks' ) ) {
+			$page_hooks = $reflection->getProperty( 'page_hooks' );
+			// @todo Remove this call once we no longer need to support PHP <8.1.
+			if ( PHP_VERSION_ID < 80100 ) {
+				$page_hooks->setAccessible( true );
+			}
+			$page_hooks->setValue( null, array() );
 		}
 	}
 
@@ -556,6 +574,73 @@ class Admin_Menu_Test extends TestCase {
 		do_action( 'admin_menu' );
 
 		$this->assertUpgradeMenuItemAbsent();
+	}
+
+	/**
+	 * Bundled tokens enqueue when Core has not registered the wp-theme style.
+	 *
+	 * @return void
+	 */
+	public function test_enqueue_design_tokens_falls_back_when_wp_theme_style_is_unregistered() {
+		wp_dequeue_style( 'wp-theme' );
+		wp_deregister_style( 'wp-theme' );
+
+		Admin_Menu::enqueue_design_tokens();
+
+		$this->assertTrue( wp_style_is( Admin_Menu::DESIGN_TOKENS_HANDLE, 'enqueued' ) );
+		$this->assertFalse( wp_style_is( 'wp-theme', 'registered' ) );
+	}
+
+	/**
+	 * Core/Gutenberg's wp-theme style is used when that handle is registered.
+	 *
+	 * @return void
+	 */
+	public function test_enqueue_design_tokens_uses_wp_theme_when_registered() {
+		if ( ! wp_style_is( 'wp-theme', 'registered' ) ) {
+			wp_register_style( 'wp-theme', 'https://example.com/wp-theme.css', array(), '7.1' );
+		}
+
+		Admin_Menu::enqueue_design_tokens();
+
+		$this->assertTrue( wp_style_is( 'wp-theme', 'enqueued' ) );
+		$this->assertFalse( wp_style_is( Admin_Menu::DESIGN_TOKENS_HANDLE, 'enqueued' ) );
+	}
+
+	/**
+	 * The wp-theme script polyfill must not be treated as the tokens stylesheet.
+	 *
+	 * @return void
+	 */
+	public function test_enqueue_design_tokens_ignores_wp_theme_script_handle() {
+		wp_dequeue_style( 'wp-theme' );
+		wp_deregister_style( 'wp-theme' );
+		wp_register_script( 'wp-theme', 'https://example.com/theme.js', array(), '1.0.0', true );
+
+		Admin_Menu::enqueue_design_tokens();
+
+		$this->assertTrue( wp_style_is( Admin_Menu::DESIGN_TOKENS_HANDLE, 'enqueued' ) );
+		$this->assertFalse( wp_style_is( 'wp-theme', 'registered' ) );
+	}
+
+	/**
+	 * Design tokens load only on pages registered through Admin_Menu.
+	 *
+	 * @return void
+	 */
+	public function test_maybe_enqueue_design_tokens_is_scoped_to_registered_pages() {
+		wp_dequeue_style( 'wp-theme' );
+		wp_deregister_style( 'wp-theme' );
+
+		$hook = Admin_Menu::add_menu( 'Test', 'Test', 'edit_posts', 'tokens_scope_menu', '__return_null' );
+
+		Admin_Menu::maybe_enqueue_design_tokens( 'plugins.php' );
+
+		$this->assertFalse( wp_style_is( Admin_Menu::DESIGN_TOKENS_HANDLE, 'enqueued' ) );
+
+		Admin_Menu::maybe_enqueue_design_tokens( $hook );
+
+		$this->assertTrue( wp_style_is( Admin_Menu::DESIGN_TOKENS_HANDLE, 'enqueued' ) );
 	}
 
 	/**
