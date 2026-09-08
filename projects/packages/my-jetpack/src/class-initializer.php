@@ -108,8 +108,9 @@ class Initializer {
 		// Add custom WP REST API endoints.
 		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_endpoints' ) );
 
-		// Priority 1 so the modernization filter has been registered by any
-		// opt-in code and the render function exists before the menu callback runs.
+		// Priority 1 because both of wp-build's deadlines fall later in this request:
+		// the `current_screen` alias must exist before `set_current_screen()`, and the
+		// render function before the page callback. `admin_init` is too late for either.
 		add_action( 'admin_menu', array( __CLASS__, 'maybe_load_wp_build' ), 1 );
 
 		add_action( 'admin_menu', array( __CLASS__, 'add_my_jetpack_menu_item' ) );
@@ -307,6 +308,13 @@ class Initializer {
 	 * @return bool
 	 */
 	public static function is_modernized() {
+		/**
+		 * Render the My Jetpack dashboard through the wp-build pipeline.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param bool $enabled Whether to serve the modernized dashboard. Default false.
+		 */
 		return (bool) apply_filters( self::MODERNIZATION_FILTER, false );
 	}
 
@@ -349,6 +357,11 @@ class Initializer {
 	 * derives the admin body class from `$hook_suffix`, not the screen ID, so
 	 * `body.jetpack_page_my-jetpack` — which every My Jetpack rule keys off —
 	 * is unaffected.
+	 *
+	 * The alias is permanent for the request, so anything reading
+	 * `get_current_screen()->id` afterwards sees `my-jetpack-dashboard` too — JITMs
+	 * stop matching `JITM::is_a8c_admin_page()`'s allowlist, which is invisible here
+	 * because the generated page hides every non-app child of `#wpbody-content`.
 	 *
 	 * @since $$next-version$$
 	 *
@@ -731,12 +744,11 @@ class Initializer {
 	 * @return void
 	 */
 	public static function admin_page() {
-		$step = isset( $_GET['step'] ) ? sanitize_text_field( wp_unslash( $_GET['step'] ) ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-
 		// No connection check needed here: admin_init() has already redirected connected users away from onboarding.
 		// Availability IS re-checked on purpose: this render can run even when that redirect did not,
 		// and the check below is what keeps the onboarding route off WordPress.com Simple sites.
-		$is_onboarding = $step === 'onboarding' && self::is_onboarding_available();
+		// Same expression as `maybe_load_wp_build()` and `enqueue_scripts()`; they must not drift.
+		$is_onboarding = self::is_onboarding_request() && self::is_onboarding_available();
 
 		if ( ! $is_onboarding && self::is_modernized() && function_exists( 'jetpack_my_jetpack_my_jetpack_dashboard_wp_admin_render_page' ) ) {
 			jetpack_my_jetpack_my_jetpack_dashboard_wp_admin_render_page(); // @phan-suppress-current-line PhanUndeclaredFunction -- Checked with function_exists(); defined in the generated build/pages/, which Phan excludes.
