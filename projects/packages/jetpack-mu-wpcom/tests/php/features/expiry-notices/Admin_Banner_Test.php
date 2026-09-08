@@ -16,90 +16,38 @@ use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/expiry-notices/expiry-notices.php';
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/expiry-notices/admin-banner.php';
+require_once __DIR__ . '/trait-expiry-notices-fixtures.php';
 
 class Admin_Banner_Test extends \WorDBless\BaseTestCase {
-
-	/**
-	 * @var int
-	 */
-	private $admin_id;
-
-	/**
-	 * @var int
-	 */
-	private $subscriber_id;
+	use Expiry_Notices_Fixtures;
 
 	public function set_up() {
 		parent::set_up();
-		// WorDBless resets the users table between tests, so recreate fixture
-		// users here rather than in set_up_before_class.
-		$this->admin_id      = wp_insert_user(
-			array(
-				'user_login' => 'banner_admin',
-				'user_pass'  => 'pass',
-				'user_email' => 'banner_admin@example.com',
-				'role'       => 'administrator',
-			)
-		);
-		$this->subscriber_id = wp_insert_user(
-			array(
-				'user_login' => 'banner_subscriber',
-				'user_pass'  => 'pass',
-				'user_email' => 'banner_subscriber@example.com',
-				'role'       => 'subscriber',
-			)
-		);
-		wp_set_current_user( $this->admin_id );
-		wpcom_expiry_notices_eligible_state( true );
+		$this->set_up_expiry_fixtures();
 		set_current_screen( 'dashboard' );
 	}
 
 	public function tear_down() {
-		unset( $GLOBALS['wpcom_get_site_purchases_test_value'] );
-		unset( $GLOBALS['wpcom_is_vip_test_value'] );
-		delete_user_meta( $this->admin_id, Expiry_Notice_Dismiss::META_BANNER );
-		Constants::clear_constants();
+		$this->tear_down_expiry_fixtures();
 		parent::tear_down();
 	}
 
-	/**
-	 * A site the revert has already happened to.
-	 *
-	 * `has_blog_sticker` is declared per test because other suites declare their
-	 * own, and a shared definition makes theirs a fatal redeclare -- hence the
-	 * separate process on every caller.
-	 */
-	private function pretend_reverted(): void {
-		Constants::set_constant( 'IS_ATOMIC', false );
-		if ( ! function_exists( 'has_blog_sticker' ) ) {
-			eval( 'namespace { function has_blog_sticker( $sticker, $blog_id = 0 ) { return "blog-transfer-reverted" === $sticker; } }' ); // phpcs:ignore Squiz.PHP.Eval.Discouraged,MediaWiki.Usage.ForbiddenFunctions.eval
-		}
-	}
-
-	private function set_purchase( int $days_until_expiry, bool $auto_renew = false, string $slug = 'business-bundle' ): void {
-		$GLOBALS['wpcom_get_site_purchases_test_value'] = array(
-			(object) array(
-				'product_slug'           => $slug,
-				'product_type'           => 'bundle',
-				// Half a day of slack on top of the whole days: the banner
-				// computes `floor( ( expiry - now ) / DAY_IN_SECONDS )` at
-				// render time, so an expiry set to exactly N days collapses to
-				// N-1 the moment a single second elapses between this call and
-				// render() — which is a race this test loses on a slow runner.
-				// The cushion keeps every case in its intended day bucket for
-				// twelve hours instead of one second.
-				'expiry_date'            => gmdate( 'c', time() + ( $days_until_expiry * DAY_IN_SECONDS ) + ( 12 * HOUR_IN_SECONDS ) ),
-				'user_allows_auto_renew' => $auto_renew,
-			),
-		);
-		// The eligible-state memo has already answered for the previous fixture.
-		wpcom_expiry_notices_eligible_state( true );
-	}
-
 	private function render(): string {
+		// Tests move the screen between renders, so never trust the memo.
+		wpcom_expiry_notices_admin_banner_data( true );
 		ob_start();
 		wpcom_expiry_notices_render_admin_banner();
 		return (string) ob_get_clean();
+	}
+
+	public function test_leaves_block_editor_screens_to_the_editor_notice(): void {
+		$this->set_purchase( 5 );
+		set_current_screen( 'post' );
+		get_current_screen()->is_block_editor( true );
+		$this->assertSame( '', $this->render() );
+
+		get_current_screen()->is_block_editor( false );
+		$this->assertStringContainsString( 'notice-error', $this->render() );
 	}
 
 	public function test_renders_for_approaching_state(): void {

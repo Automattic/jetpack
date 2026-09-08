@@ -1,23 +1,5 @@
 @use "@automattic/charts/dist/index.css";
 
-// @automattic/date-range-picker uses Calypso dashboard CSS variables we don't
-// have here; re-color its trigger button with wp-admin tokens, and hide the
-// calendar's bounded month-nav chevrons (the API never serves dates beyond
-// today or older than a year, so the disabled arrows are dead weight).
-.daterange-input__field.components-button {
-	background: #fff;
-	border-color: #949494;
-}
-
-.daterange-input__field svg,
-.daterange-input__text {
-	color: #1e1e1e;
-}
-
-.daterange-calendar button[aria-disabled="true"] {
-	visibility: hidden;
-}
-
 $text: #1e1e1e;
 $muted: #757575;
 

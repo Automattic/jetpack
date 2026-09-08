@@ -116,7 +116,7 @@ $focus-ring-width: var(--wpds-border-width-focus);
 // Floor the mix at 15% so the lowest value stays visibly tinted, distinct from
 // an empty cell.
 .heatmap-chart__cell--filled {
-	background: color-mix(in sRGB, var(--a8c-charts-color-heatmap-primary) calc((0.15 + 0.85 * var(--a8c-charts-heatmap-cell-intensity)) * 100%), var(--a8c-charts-color-heatmap-background, #fff));
+	background: color-mix(in sRGB, var(--a8c-charts-color-heatmap-primary) calc((0.15 + 0.85 * var(--a8c-charts-heatmap-cell-intensity)) * 100%), var(--a8c-charts-color-background, #fff));
 }
 
 .heatmap-chart__cell--selected {
@@ -137,9 +137,13 @@ $focus-ring-width: var(--wpds-border-width-focus);
 	color: var(--a8c-charts-color-label-inverse);
 }
 
+.heatmap-chart__legend-label {
+	color: var(--a8c-charts-color-label);
+}
+
 .heatmap-chart__legend-swatch {
 	width: var(--wpds-dimension-size-3xs);
 	height: var(--wpds-dimension-size-3xs);
 	border-radius: var(--a8c-charts-border-radius-cell);
-	background: color-mix(in sRGB, var(--a8c-charts-color-heatmap-primary) calc((0.15 + 0.85 * var(--a8c-charts-heatmap-cell-intensity)) * 100%), var(--a8c-charts-color-heatmap-background, #fff));
+	background: color-mix(in sRGB, var(--a8c-charts-color-heatmap-primary) calc((0.15 + 0.85 * var(--a8c-charts-heatmap-cell-intensity)) * 100%), var(--a8c-charts-color-background, #fff));
 }

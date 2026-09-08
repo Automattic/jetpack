@@ -21,6 +21,22 @@ jest.mock( '../../../hooks/use-upload', () => ( {
 	useUpload: () => ( { uploadQueue: [] } ),
 } ) );
 
+// The primary CTA's upload intake and picker sizing stand on react-query
+// hooks; this render provides no QueryClient, and none of that is under test.
+jest.mock( '../../../hooks/use-upload-intake', () => ( {
+	useUploadIntake: () => jest.fn( () => 0 ),
+} ) );
+
+jest.mock( '../../../hooks/use-free-tier', () => ( {
+	useFreeTier: () => ( {
+		isFree: true,
+		isUnlimited: false,
+		isAtLimit: false,
+		videoCount: 0,
+		limit: 1,
+	} ),
+} ) );
+
 jest.mock( '@wordpress/route', () => ( {
 	useNavigate: () => jest.fn(),
 	useSearch: () => ( {} ),

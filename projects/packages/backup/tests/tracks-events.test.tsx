@@ -342,3 +342,87 @@ describe( 'Modify schedule', () => {
 		expect( mockRecordEvent ).not.toHaveBeenCalled();
 	} );
 } );
+
+describe( 'Upgrade from the no-plan gate', () => {
+	const SITE_SUFFIX = 'example.com';
+
+	let defaultPrevented: boolean | null = null;
+
+	/**
+	 * Stop jsdom trying to navigate, and note whether the click was already
+	 * cancelled by the time it got here.
+	 *
+	 * Bound on the document, so it runs after React's own handler — which is
+	 * what makes `defaultPrevented` a witness rather than a coincidence.
+	 *
+	 * @param event - The click on its way up from the anchor.
+	 */
+	function cancelNavigation( event: MouseEvent ) {
+		defaultPrevented = event.defaultPrevented;
+		event.preventDefault();
+	}
+
+	/**
+	 * Render the purchase button for a site, or for a global carrying no site.
+	 *
+	 * @param siteSuffix - The site to put on the connection global.
+	 * @return The purchase link.
+	 */
+	async function upgradeCta( siteSuffix: string | undefined ) {
+		window.JP_CONNECTION_INITIAL_STATE = {
+			...window.JP_CONNECTION_INITIAL_STATE,
+			siteSuffix,
+		} as unknown as typeof window.JP_CONNECTION_INITIAL_STATE;
+
+		const UpgradeButton = ( await import( '../src/dashboard/components/gates/upgrade-button' ) )
+			.default;
+
+		render( <UpgradeButton /> );
+
+		return screen.findByRole( 'link', { name: /^Get VaultPress Backup$/ } );
+	}
+
+	beforeEach( () => {
+		defaultPrevented = null;
+		document.addEventListener( 'click', cancelNavigation );
+	} );
+
+	afterEach( () => {
+		document.removeEventListener( 'click', cancelNavigation );
+	} );
+
+	// JETPACK-2500 — a name or payload that drifted from legacy's would read in
+	// Tracks as conversions stopping rather than telemetry stopping.
+	it( 'records the reader deciding to buy, with the site they came from', async () => {
+		await userEvent.click( await upgradeCta( SITE_SUFFIX ) );
+
+		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_backup_plugin_upgrade_click', {
+			site: SITE_SUFFIX,
+		} );
+		expect( mockRecordEvent ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( 'still lets the click reach checkout', async () => {
+		// The CTA is an anchor, so a handler that cancelled the event would
+		// record the intent and then strand the reader on this screen.
+		const cta = await upgradeCta( SITE_SUFFIX );
+
+		await userEvent.click( cta );
+
+		expect( defaultPrevented ).toBe( false );
+		expect( cta ).toHaveAttribute( 'href', expect.stringContaining( 'jetpack.com/redirect' ) );
+	} );
+
+	it( 'omits the site rather than reporting the word "undefined"', async () => {
+		await userEvent.click( await upgradeCta( undefined ) );
+
+		const [ , payload ] = mockRecordEvent.mock.calls[ 0 ];
+		expect( payload ).toBeUndefined();
+	} );
+
+	it( 'records nothing until the reader actually clicks', async () => {
+		await expect( upgradeCta( SITE_SUFFIX ) ).resolves.toBeInTheDocument();
+
+		expect( mockRecordEvent ).not.toHaveBeenCalled();
+	} );
+} );

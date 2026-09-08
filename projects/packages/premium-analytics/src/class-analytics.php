@@ -176,6 +176,12 @@ class Analytics {
 	 * @return void
 	 */
 	private static function boot_shared_services() {
+		// On every request: flags are read and toggled outside the admin too.
+		if ( ! function_exists( __NAMESPACE__ . '\\register_dashboard_feature_flags' ) ) {
+			require_once __DIR__ . '/dashboard-policy.php';
+		}
+		register_dashboard_feature_flags();
+
 		// Must be hooked before admin_menu and rest_api_init check the capability.
 		Capabilities::register();
 
@@ -332,6 +338,7 @@ class Analytics {
 		if ( ! function_exists( __NAMESPACE__ . '\\register_dashboard_section' ) ) {
 			require_once __DIR__ . '/dashboard-sections.php';
 		}
+		configure_dashboard_preview_scope();
 
 		// Default-on CSV export settings and server-side disable filter.
 		if ( ! function_exists( __NAMESPACE__ . '\\configure_csv_exports' ) ) {
@@ -345,6 +352,10 @@ class Analytics {
 			require_once __DIR__ . '/videopress-availability.php';
 		}
 		configure_videopress_availability();
+
+		// The composition flag's answer, read by the dashboard policy; the file is
+		// already loaded by boot_shared_services().
+		configure_dashboard_policy();
 	}
 
 	/**

@@ -35,12 +35,12 @@ Main component for rendering pie and donut charts.
 
 ## Theme Properties
 
-The following properties can be customized via the theme system:
+Label colors are CSS custom properties, set inside the provider tree:
 
-| Prop | Type | Default | Description |
-| ---- | ---- | ------- | ----------- |
-| `labelTextColor` | `string` | `var(--a8c-charts-color-label-on-fill, #FFFFFF)` | Color of text displayed on pie chart segments. Deprecated — declare `--a8c-charts-color-label-on-fill` instead |
-| `labelBackgroundColor` | `string` | `var(--a8c-charts-color-label-background, transparent)` | Background color for labels. Deprecated — declare `--a8c-charts-color-label-background` instead |
+| Custom property | Default | Description |
+| --- | --- | --- |
+| `--a8c-charts-color-label-inverse` | `#f0f0f0` | Color of text displayed on pie chart segments |
+| `--a8c-charts-color-label-background` | `transparent` | The plate behind a label. Set any color to enable it |
 
 ## Compound Components
 

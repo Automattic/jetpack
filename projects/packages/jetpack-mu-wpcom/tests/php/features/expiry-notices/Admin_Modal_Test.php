@@ -15,42 +15,14 @@ use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/expiry-notices/expiry-notices.php';
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/expiry-notices/admin-modal.php';
+require_once __DIR__ . '/trait-expiry-notices-fixtures.php';
 
 class Admin_Modal_Test extends \WorDBless\BaseTestCase {
-
-	/**
-	 * @var int
-	 */
-	private $admin_id;
-
-	/**
-	 * @var int
-	 */
-	private $subscriber_id;
+	use Expiry_Notices_Fixtures;
 
 	public function set_up() {
 		parent::set_up();
-		// WorDBless resets the users table between tests, so recreate fixture
-		// users here rather than in set_up_before_class.
-		$this->admin_id      = wp_insert_user(
-			array(
-				'user_login' => 'modal_admin',
-				'user_pass'  => 'pass',
-				'user_email' => 'modal_admin@example.com',
-				'role'       => 'administrator',
-			)
-		);
-		$this->subscriber_id = wp_insert_user(
-			array(
-				'user_login' => 'modal_subscriber',
-				'user_pass'  => 'pass',
-				'user_email' => 'modal_subscriber@example.com',
-				'role'       => 'subscriber',
-			)
-		);
-		wp_set_current_user( $this->admin_id );
-		wpcom_expiry_notices_eligible_state( true );
-		wpcom_expiry_notices_admin_modal_data( true );
+		$this->set_up_expiry_fixtures();
 		set_current_screen( 'dashboard' );
 		Constants::set_constant( 'IS_ATOMIC', true );
 		// The modal names the domain the site reverts to; resolving it is an HTTP
@@ -60,13 +32,9 @@ class Admin_Modal_Test extends \WorDBless\BaseTestCase {
 	}
 
 	public function tear_down() {
-		unset( $GLOBALS['wpcom_get_site_purchases_test_value'] );
-		unset( $GLOBALS['wpcom_is_vip_test_value'] );
 		unset( $GLOBALS['wpcom_blog_details_domain_test_value'] );
-		delete_user_meta( $this->admin_id, Expiry_Notice_Dismiss::META_MODAL );
-		delete_user_meta( $this->admin_id, Expiry_Notice_Dismiss::META_MODAL_GRACE );
 		delete_transient( \Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Domain::CACHE_KEY );
-		Constants::clear_constants();
+		$this->tear_down_expiry_fixtures();
 		parent::tear_down();
 	}
 
@@ -82,21 +50,6 @@ class Admin_Modal_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * A site the revert has already moved back to Simple.
-	 *
-	 * `has_blog_sticker` is declared per test because other suites declare their
-	 * own, and a shared definition makes theirs a fatal redeclare -- hence the
-	 * separate process on every caller.
-	 */
-	private function pretend_reverted_to_simple(): void {
-		Constants::set_constant( 'IS_ATOMIC', false );
-		Constants::set_constant( 'IS_WPCOM', true );
-		if ( ! function_exists( 'has_blog_sticker' ) ) {
-			eval( 'namespace { function has_blog_sticker( $sticker, $blog_id = 0 ) { return "blog-transfer-reverted" === $sticker; } }' ); // phpcs:ignore Squiz.PHP.Eval.Discouraged,MediaWiki.Usage.ForbiddenFunctions.eval
-		}
-	}
-
-	/**
 	 * Record a dismissal and clear the modal memo, which in production could not
 	 * change inside one request.
 	 *
@@ -105,23 +58,6 @@ class Admin_Modal_Test extends \WorDBless\BaseTestCase {
 	 */
 	private function set_dismissed( string $meta_key, int $when ): void {
 		update_user_meta( $this->admin_id, $meta_key, $when );
-		wpcom_expiry_notices_admin_modal_data( true );
-	}
-
-	private function set_purchase( int $days_until_expiry, string $slug = 'business-bundle' ): void {
-		$GLOBALS['wpcom_get_site_purchases_test_value'] = array(
-			(object) array(
-				'product_slug'           => $slug,
-				'product_type'           => 'bundle',
-				// Half a day of slack so a case can't slip into the neighbouring
-				// day bucket between this call and the read. Same reasoning as
-				// Admin_Banner_Test::set_purchase().
-				'expiry_date'            => gmdate( 'c', time() + ( $days_until_expiry * DAY_IN_SECONDS ) + ( 12 * HOUR_IN_SECONDS ) ),
-				'user_allows_auto_renew' => false,
-			),
-		);
-		// Both memos have already answered for the previous fixture.
-		wpcom_expiry_notices_eligible_state( true );
 		wpcom_expiry_notices_admin_modal_data( true );
 	}
 
@@ -145,7 +81,7 @@ class Admin_Modal_Test extends \WorDBless\BaseTestCase {
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
 	public function test_shows_after_grace_with_the_post_revert_copy(): void {
-		$this->pretend_reverted_to_simple();
+		$this->pretend_reverted();
 		$this->set_purchase( -45 );
 		$data = wpcom_expiry_notices_admin_modal_data();
 
@@ -184,7 +120,7 @@ class Admin_Modal_Test extends \WorDBless\BaseTestCase {
 	public function test_does_not_show_in_grace_on_a_reverted_site(): void {
 		// A site already reverted was reverted by an earlier lapse. This one has
 		// not reached the changes the pre-revert variant promises are coming.
-		$this->pretend_reverted_to_simple();
+		$this->pretend_reverted();
 
 		$this->set_purchase( -5 );
 		$this->assertNull( wpcom_expiry_notices_admin_modal_data() );
@@ -200,10 +136,10 @@ class Admin_Modal_Test extends \WorDBless\BaseTestCase {
 		// WPCOM_Features::ATOMIC is granted to Personal and higher, so there is no
 		// paid tier whose lapse could not have produced this revert. Narrowing to
 		// Business would hide the modal from most of the sites it is meant for.
-		$this->pretend_reverted_to_simple();
+		$this->pretend_reverted();
 
 		foreach ( array( 'personal-bundle', 'value_bundle', 'business-bundle' ) as $slug ) {
-			$this->set_purchase( -45, $slug );
+			$this->set_purchase( -45, false, $slug );
 			$this->assertNotNull( wpcom_expiry_notices_admin_modal_data(), "expected a modal for {$slug}" );
 		}
 	}
@@ -245,7 +181,7 @@ class Admin_Modal_Test extends \WorDBless\BaseTestCase {
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
 	public function test_post_grace_dismissal_does_not_lapse(): void {
-		$this->pretend_reverted_to_simple();
+		$this->pretend_reverted();
 		$this->set_purchase( -45 );
 		// Dismissed 10 days ago -- within this term, since the revert it reports
 		// happened at day 30, but far outside the grace TTL, which must not apply
@@ -261,7 +197,7 @@ class Admin_Modal_Test extends \WorDBless\BaseTestCase {
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
 	public function test_a_grace_dismissal_does_not_bury_the_post_grace_modal(): void {
-		$this->pretend_reverted_to_simple();
+		$this->pretend_reverted();
 		// The two states dismiss to separate keys precisely so this can't happen:
 		// a grace dismissal is stamped after expiry and would otherwise satisfy
 		// the post-grace "belongs to this term" check.
@@ -277,7 +213,7 @@ class Admin_Modal_Test extends \WorDBless\BaseTestCase {
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
 	public function test_dismissal_of_an_earlier_term_shows_again(): void {
-		$this->pretend_reverted_to_simple();
+		$this->pretend_reverted();
 		$this->set_purchase( -45 );
 		// Dismissed against a purchase that has since been renewed and lapsed
 		// again: this revert is news.
@@ -302,7 +238,7 @@ class Admin_Modal_Test extends \WorDBless\BaseTestCase {
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
 	public function test_names_the_domain_the_site_moved_to_after_the_revert(): void {
-		$this->pretend_reverted_to_simple();
+		$this->pretend_reverted();
 		// WorDBless serves example.org, so a matching blogs-table domain is a site
 		// sitting on its own unmapped address -- the switch already happened.
 		$GLOBALS['wpcom_blog_details_domain_test_value'] = 'example.org';
@@ -336,7 +272,7 @@ class Admin_Modal_Test extends \WorDBless\BaseTestCase {
 	public function test_omits_the_domain_when_a_reverted_site_kept_its_own(): void {
 		// Serving from example.org while the blogs table says otherwise: the
 		// custom domain survived the revert, so nothing was switched.
-		$this->pretend_reverted_to_simple();
+		$this->pretend_reverted();
 		$GLOBALS['wpcom_blog_details_domain_test_value'] = 'unused.wordpress.com';
 
 		$this->set_purchase( -45 );
@@ -353,7 +289,7 @@ class Admin_Modal_Test extends \WorDBless\BaseTestCase {
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
 	public function test_the_support_cta_prefills_a_message(): void {
-		$this->pretend_reverted_to_simple();
+		$this->pretend_reverted();
 		$this->set_purchase( -45 );
 		$data = wpcom_expiry_notices_admin_modal_data();
 

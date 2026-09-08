@@ -24,9 +24,8 @@ import { usePersistedView } from '../../src/dashboard/hooks/use-persisted-view';
 import { useSetPrivacy } from '../../src/dashboard/hooks/use-set-privacy';
 import { useUpload } from '../../src/dashboard/hooks/use-upload';
 import { useUploadFromLibrary } from '../../src/dashboard/hooks/use-upload-from-library';
-import { useVideoPressUpgrade } from '../../src/dashboard/hooks/use-videopress-upgrade';
+import { useUploadIntake } from '../../src/dashboard/hooks/use-upload-intake';
 import { createPromoteLocal } from './promote-local';
-import { planVideoDrop } from './upload-drop';
 import { classifyUploadFailure } from './upload-failure';
 import './style.scss';
 import type { LibraryItem, LibraryItemPrivacy } from '../../src/dashboard/types/library';
@@ -108,7 +107,7 @@ const StageInner = () => {
 		error: libraryError,
 		refetch,
 	} = useLibrary( view );
-	const { uploadQueue, startUpload, retryUpload } = useUpload();
+	const { uploadQueue, retryUpload } = useUpload();
 	// Read the store's existing errors so a failed row can name the cause; the
 	// notice this dashboard already renders carries the diagnosis and the
 	// reconnect button, so the row only has to point at it.
@@ -117,8 +116,7 @@ const StageInner = () => {
 	const { mutateAsync: deleteVideo } = useDeleteVideo();
 	const { mutateAsync: setPrivacyAsync } = useSetPrivacy();
 	const { mutateAsync: uploadFromLibrary } = useUploadFromLibrary();
-	const { isAtLimit, isFree, isUnlimited, videoCount, limit } = useFreeTier();
-	const runUpgrade = useVideoPressUpgrade();
+	const { isAtLimit, isFree, isUnlimited } = useFreeTier();
 
 	const onChangeView = useCallback(
 		( next: View ) => {
@@ -156,49 +154,11 @@ const StageInner = () => {
 
 	const { createSuccessNotice, createErrorNotice, createInfoNotice } = useGlobalNotices();
 
-	// Shared multi-file entry point for both the DropZone and the header
-	// "Upload video" file picker. Enforces the free-tier cap up front so
-	// neither path can sneak past the limit the picker button guards.
-	const handleFilesSelected = useCallback(
-		( files: File[] ) => {
-			const decision = planVideoDrop( files, {
-				isFree,
-				isUnlimited,
-				limit,
-				videoCount,
-			} );
-
-			if ( decision.kind === 'no-videos' ) {
-				createErrorNotice( __( 'Only video files can be uploaded.', 'jetpack-videopress-pkg' ) );
-				return;
-			}
-
-			if ( decision.kind === 'at-limit' ) {
-				createErrorNotice( FREE_TIER_AT_LIMIT_MESSAGE, {
-					actions: [ { label: __( 'Upgrade', 'jetpack-videopress-pkg' ), onClick: runUpgrade } ],
-				} );
-				return;
-			}
-
-			decision.toUpload.forEach( file => startUpload( file ) );
-
-			if ( decision.skipped > 0 ) {
-				createErrorNotice(
-					sprintf(
-						/* translators: %d: number of videos that could not be uploaded because the plan limit was reached. */
-						_n(
-							'%d video wasn’t uploaded because it exceeds your plan’s limit.',
-							'%d videos weren’t uploaded because they exceed your plan’s limit.',
-							decision.skipped,
-							'jetpack-videopress-pkg'
-						),
-						decision.skipped
-					)
-				);
-			}
-		},
-		[ isFree, isUnlimited, limit, videoCount, startUpload, createErrorNotice, runUpgrade ]
-	);
+	// Shared multi-file entry point for the DropZone, the header "Upload
+	// video" file picker, and (via the same hook) the welcome modal's CTA.
+	// Enforces the free-tier cap up front so no path can sneak past the limit
+	// the picker button guards.
+	const handleFilesSelected = useUploadIntake();
 
 	const onFilePicked = useCallback(
 		( event: ChangeEvent< HTMLInputElement > ) => {

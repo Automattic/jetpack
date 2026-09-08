@@ -1,7 +1,7 @@
 import { TooltipContext } from '@visx/xychart';
 import clsx from 'clsx';
 import { useContext, useEffect, useCallback, useMemo, useRef } from 'react';
-import { useGlobalChartsTheme } from '../../providers';
+import { CATALOG_POINTERS } from '../../providers/chart-context/private/catalog-pointers';
 import { useChartScopeElement, useStandaloneScopeClass } from '../../providers/chart-scope';
 import { resolveCssVariable } from '../../utils';
 import { XyChartTooltip } from './xy-chart-tooltip';
@@ -54,15 +54,14 @@ export const AccessibleTooltip: React.FC< AccessibleTooltipProps > = ( {
 } ) => {
 	const tooltipContext = useContext( TooltipContext );
 	const scopeElement = useChartScopeElement();
-	const gridStroke = useGlobalChartsTheme().gridStyles?.stroke;
 
 	// The stroke is read at the scope element, which a consumer can set outside the chart's own ancestors; see TOKENS.md#the-svg-bridge.
 	const crosshairStroke = useMemo( () => {
-		const stroke = gridStroke ? resolveCssVariable( gridStroke, scopeElement ) : null;
+		const stroke = resolveCssVariable( CATALOG_POINTERS.grid, scopeElement );
 
 		// Passing `stroke: undefined` would erase the crosshair: it overrides visx's own value, and SVG's initial `stroke` is `none`.
 		return stroke ? { stroke } : undefined;
-	}, [ gridStroke, scopeElement ] );
+	}, [ scopeElement ] );
 
 	const standaloneScopeClass = useStandaloneScopeClass();
 

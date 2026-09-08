@@ -295,7 +295,9 @@ const PieSemiCircleChartInternal: FC< PieSemiCircleChartProps > = ( {
 		const errorHeight = errorWidth / 2;
 
 		return (
-			<div className={ styles[ 'pie-semi-circle-chart' ] }>
+			<div
+				className={ clsx( 'pie-semi-circle-chart', styles[ 'pie-semi-circle-chart' ], className ) }
+			>
 				<svg width={ errorWidth } height={ errorHeight } data-testid="pie-chart-svg">
 					<text x="50%" y="50%" textAnchor="middle" className={ styles.error }>
 						{ message }

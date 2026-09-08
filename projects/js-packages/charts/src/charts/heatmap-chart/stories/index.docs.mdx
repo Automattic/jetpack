@@ -75,7 +75,7 @@ The simplest heatmap requires `data` — an array of `HeatmapColumn` objects, ea
 - **`showValues`** (default: `!compact`): render the numeric value inside each cell (compact notation for large numbers; the tooltip keeps full precision)
 - **`maxCellWidth`** / **`maxCellHeight`**: cap how large cells may grow in non-compact mode
 - **`minCellWidth`** / **`minCellHeight`** (default: `0`): keep cells from shrinking below a readable size and let the grid overflow instead
-- **`primaryColor`**: color the scale interpolates toward at the highest value (prop > `heatmapChart.primaryColor` > the first series palette color, `--a8c-charts-color-series-1`)
+- **`primaryColor`**: color the scale interpolates toward at the highest value. Defaults to the first series palette color, `--a8c-charts-color-series-1`
 - **`width`** / **`height`**: explicit dimensions in pixels. When omitted the chart fills its parent.
 - **`aspectRatio`**: Height-to-width ratio (e.g. `0.4`) for responsive charts; the chart is contained within its parent on both axes. When omitted, fills the parent container's height
 - **`maxWidth`**: Maximum width constraint for responsive charts (default: `1200`)
@@ -230,9 +230,9 @@ Enable `withTooltips` to show a tooltip on cell hover **and** during keyboard na
 
 ## Theming
 
-The heatmap resolves its full-intensity color in this order: the `primaryColor` prop wins, then `heatmapChart.primaryColor` from the active theme, then the first series palette color (`--a8c-charts-color-series-1`). The resolved color is fed to CSS `color-mix`, which derives the lighter shades for lower values.
+The heatmap resolves its full-intensity color in this order: the `primaryColor` prop wins, then the first series palette color (`--a8c-charts-color-series-1`). The resolved color is fed to CSS `color-mix`, which derives the lighter shades for lower values.
 
-Use the prop for one chart, or move the palette slot in CSS to change every chart at once. `heatmapChart.primaryColor` is deprecated and does neither better.
+Use the prop for one chart, or move the palette slot in CSS to change every chart at once.
 
 <Source
 	language="tsx"
@@ -250,7 +250,7 @@ Use the prop for one chart, or move the palette slot in CSS to change every char
 	}` }
 />
 
-Everything else — the cell gap, in-cell value size and the empty-cell color — comes from the `--a8c-charts-*` token catalog in CSS (the empty-cell color from `--a8c-charts-color-track`), so it tracks the active design system theme automatically through the catalog's own `--wpds-*` mapping. The corner radius can be overridden via `--a8c-charts-border-radius-cell`, which maps to a WPDS token (`--wpds-border-radius-sm`) by default. There are no per-instance props for these. What is left of the `heatmapChart` theme section is the compact sizing, which has no catalog role behind it and is not deprecated:
+Everything else — the cell gap, in-cell value size and the empty-cell color — comes from the `--a8c-charts-*` token catalog in CSS (the empty-cell color from `--a8c-charts-color-track`), so it tracks the active design system theme automatically through the catalog's own `--wpds-*` mapping. The corner radius can be overridden via `--a8c-charts-border-radius-cell`, which maps to a WPDS token (`--wpds-border-radius-sm`) by default. There are no per-instance props for these. The `heatmapChart` theme section carries the compact sizing, which has no catalog role behind it:
 
 <Source
 	language="tsx"

@@ -1,6 +1,6 @@
 import { Stack, Text } from '@jetpack-premium-analytics/externals';
 import clsx from 'clsx';
-import { ReactNode } from 'react';
+import { ReactNode, Ref } from 'react';
 import styles from './section-header.module.scss';
 
 export type SectionHeaderProps = {
@@ -40,6 +40,9 @@ export type SectionHeaderProps = {
 	 * not rendered: an empty one costs a band of space in the stacked layout.
 	 */
 	children?: ReactNode;
+
+	/** Reaches the controls cell, for a spotlight to anchor on. */
+	controlsRef?: Ref< HTMLDivElement >;
 };
 
 /**
@@ -58,6 +61,7 @@ export function SectionHeader( {
 	busy = false,
 	condenseOnScroll = false,
 	children,
+	controlsRef,
 }: SectionHeaderProps ) {
 	const HeadingTag = `h${ headingLevel }` as const;
 
@@ -91,7 +95,7 @@ export function SectionHeader( {
 				</div>
 
 				{ children ? (
-					<Stack direction="row" align="center" className={ styles.controls }>
+					<Stack ref={ controlsRef } direction="row" align="center" className={ styles.controls }>
 						{ children }
 					</Stack>
 				) : null }

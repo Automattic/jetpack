@@ -69,6 +69,7 @@ export { DateRangeCalendar } from '@automattic/ui';
  */
 export {
 	Button,
+	Dialog,
 	EmptyState,
 	LinkButton,
 	Field as FormField,
@@ -77,12 +78,15 @@ export {
 	IconButton,
 	Input,
 	Link,
+	Menu,
 	Notice,
+	Popover,
 	SelectControl,
 	Skeleton,
 	Stack,
 	Tabs,
 	Text,
+	TextareaControl,
 	VisuallyHidden,
 } from '@wordpress/ui';
 

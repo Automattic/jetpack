@@ -124,6 +124,12 @@ export type DateFiltersPanelProps = {
 	 * Required for proper date/time handling.
 	 */
 	timeZone: string;
+
+	/**
+	 * Greys every control out but keeps them focusable, for a surface busy
+	 * elsewhere: the dashboard while its layout is being customized.
+	 */
+	disabled?: boolean;
 };
 
 /**
@@ -157,6 +163,7 @@ export function DateFiltersPanel( {
 	onCancel,
 	canApply = true,
 	timeZone,
+	disabled = false,
 }: DateFiltersPanelProps ) {
 	/*
 	 * Read rather than a prop, so this and the widgets share one declaration —
@@ -222,6 +229,7 @@ export function DateFiltersPanel( {
 				enabled={ comparisonEnabled }
 				presetId={ validatedComparisonPresetId }
 				label={ comparisonLabel }
+				disabled={ disabled }
 				onPresetChange={ presetChange }
 				onClear={ clearComparison }
 			/>
@@ -230,6 +238,7 @@ export function DateFiltersPanel( {
 			clearComparison,
 			comparisonEnabled,
 			comparisonLabel,
+			disabled,
 			presetChange,
 			presets,
 			validatedComparisonPresetId,
@@ -251,10 +260,11 @@ export function DateFiltersPanel( {
 		return (
 			<DatePeriodNavigation
 				canStepForward={ canStepForward( committedRange, new Date() ) }
+				disabled={ disabled }
 				onStep={ onStep }
 			/>
 		);
-	}, [ appliedRange, onStep, range ] );
+	}, [ appliedRange, disabled, onStep, range ] );
 
 	// Same arrangement as the comparison control: built once, rendered in the
 	// row and in the probe.
@@ -264,10 +274,11 @@ export function DateFiltersPanel( {
 				<DateIntervalDropdown
 					options={ intervalOptions }
 					value={ interval }
+					disabled={ disabled }
 					onChange={ onIntervalChange }
 				/>
 			) : null,
-		[ withIntervalControl, interval, intervalOptions, onIntervalChange ]
+		[ withIntervalControl, interval, intervalOptions, disabled, onIntervalChange ]
 	);
 
 	return (
@@ -294,6 +305,7 @@ export function DateFiltersPanel( {
 						onCancel={ onCancel }
 						canApply={ canApply }
 						timeZone={ timeZone }
+						disabled={ disabled }
 						onOpenChange={ setIsPrimaryPickerOpen }
 						presetIds={ presetIds }
 						allTimeStart={ allTimeStart }

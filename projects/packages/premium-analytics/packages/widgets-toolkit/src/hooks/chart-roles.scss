@@ -1,9 +1,26 @@
 // On the scope element itself: its own declaration beats an inherited one.
 .a8c-charts-scope {
+	// A plate behind the pie labels, where the package leaves them bare.
+	--a8c-charts-color-label-background: var(--wpds-color-background-interactive-neutral-weak);
 
-	// The dashboard packs leaderboard rows tighter than the package default.
+	// The axis line alone carries the scale.
+	--a8c-charts-color-tick-x: none;
+
+	// Rows sit tighter here than the package default.
 	--a8c-charts-dimension-leaderboard-row-gap: var(--wpds-dimension-gap-xs);
 
 	// Rounded rather than the package's pill shape.
 	--a8c-charts-border-radius-leaderboard-bar: var(--wpds-border-radius-lg);
+}
+
+// Scoped to their charts: both roles are read by more than the chart that
+// wants them moved. GeoChart fills its dataless regions from the surface
+// role, and the funnel's change indicator reads the leaderboard's trend pair.
+.conversion-funnel-chart {
+	--a8c-charts-color-surface-secondary: var(--wpds-color-background-surface-brand);
+}
+
+.leaderboard-chart {
+	--a8c-charts-color-trend-down: var(--wpds-color-stroke-surface-error-strong);
+	--a8c-charts-color-trend-up: var(--wpds-color-stroke-surface-success-strong);
 }

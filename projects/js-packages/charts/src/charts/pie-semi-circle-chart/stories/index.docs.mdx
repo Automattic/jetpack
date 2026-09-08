@@ -192,7 +192,7 @@ For full legend configuration options — positioning, orientation, shapes, inte
 
 ### Custom Colors
 
-Segments automatically use theme colors, but you can override individual segment colors using the `color` property in your data:
+Segments automatically use the palette, but you can override individual segment colors using the `color` property in your data:
 
 <Source
 	language="jsx"
@@ -239,7 +239,7 @@ Each resolves to the design system's value for that token.
 
 ## Theming Integration
 
-Pie Semi Circle Charts integrate seamlessly with the chart theming system. The default theme has neutral colors and styling, and is automatically applied to all charts unless a custom theme is provided.
+Pie Semi Circle Charts integrate seamlessly with the chart theming system. The default theme has neutral styling, and is automatically applied to all charts unless a custom theme is provided.
 
 **Segment colors come from the palette custom properties, not the theme object.** Set as many of the five slots as you need; an unset slot is skipped, and charts generates accessible colors beyond whatever you set:
 

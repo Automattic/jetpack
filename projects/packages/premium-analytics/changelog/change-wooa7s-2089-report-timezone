@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Internal refactor: the reporting timezone is carried on the normalized report instead of read from the environment mid-normalization.
+
+

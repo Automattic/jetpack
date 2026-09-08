@@ -281,6 +281,18 @@ describe( 'when the upsell appears', () => {
 	} );
 } );
 
+describe( 'how the offer is laid out', () => {
+	it( 'hands the button one child, so nothing is spaced out as a flex item', async () => {
+		renderWithClient( <StorageSpace /> );
+		const link = await offerLink();
+
+		expect( link.childNodes ).toHaveLength( 1 );
+		expect( link ).toHaveTextContent(
+			/^Add 100GB additional storage for \$9\.95\/month, billed monthly$/
+		);
+	} );
+} );
+
 describe( 'what the offer says', () => {
 	it( 'quotes a Brazilian site in reais, with no dollar sign anywhere', async () => {
 		// Why `price.jsx` was not ported: it reads `currencyCode` off a block keyed

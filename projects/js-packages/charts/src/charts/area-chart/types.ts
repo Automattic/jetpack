@@ -74,11 +74,5 @@ export interface AreaChartProps extends BaseChartProps< SeriesData[] >, SeriesVi
 	 * @default true
 	 */
 	rescaleYOnVisibilityChange?: boolean;
-	/**
-	 * @deprecated Use `rescaleYOnVisibilityChange`. The behaviour keys off series
-	 * visibility changing, not specifically a legend toggle. Still honoured when
-	 * `rescaleYOnVisibilityChange` is not set.
-	 */
-	rescaleYOnLegendToggle?: boolean;
 	children?: ReactNode;
 }

@@ -1,0 +1,4 @@
+Significance: patch
+Type: security
+
+Recommendations: Require administrator permissions on the site evaluation endpoints, and validate their input.

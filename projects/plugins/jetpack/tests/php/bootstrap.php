@@ -185,25 +185,6 @@ function _manually_load_muplugin() {
 	}
 }
 
-/**
- * Drop the temporary Atomic fallback that reports the `ai` module active.
- *
- * These tests exercise the plugin's own module-as-master contract, where an
- * inactive module means AI is off. Remove this alongside the fallback itself,
- * once the release that introduced the module reaches Atomic.
- *
- * Jetpack_Mu_Wpcom::init() registers the filter at mu-plugin time, so removing
- * it late on plugins_loaded is always after registration.
- *
- * @return void
- */
-function _remove_ai_module_atomic_fallback() {
-	remove_filter(
-		'jetpack_active_modules',
-		'Automattic\\Jetpack\\Jetpack_Mu_Wpcom\\Jetpack_AI_Module\\keep_module_active'
-	);
-}
-
 // If we are running the uninstall tests don't load jetpack.
 if ( ! ( in_running_uninstall_group() ) ) {
 	tests_add_filter( 'plugins_loaded', '_manually_load_plugin', 1 );
@@ -211,7 +192,6 @@ if ( ! ( in_running_uninstall_group() ) ) {
 	if ( '1' === getenv( 'JETPACK_TEST_WPCOMSH' ) ) {
 		define( 'IS_ATOMIC', true );
 		tests_add_filter( 'muplugins_loaded', '_manually_load_muplugin' );
-		tests_add_filter( 'plugins_loaded', '_remove_ai_module_atomic_fallback', 100 );
 	}
 
 	if ( '1' === getenv( 'JETPACK_TEST_WOOCOMMERCE' ) ) {

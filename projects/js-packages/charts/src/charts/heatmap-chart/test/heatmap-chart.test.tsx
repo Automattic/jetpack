@@ -352,24 +352,21 @@ describe( 'HeatmapChart', () => {
 		expect( grid.style.getPropertyValue( '--a8c-charts-color-heatmap-primary' ) ).toBe( '#abcdef' );
 	} );
 
-	test( 'resolves primaryColor from the chart theme', () => {
-		render(
-			<GlobalChartsProvider theme={ { heatmapChart: { primaryColor: '#0a0b0c' } } }>
-				<HeatmapChart width={ 500 } height={ 300 } data={ data } />
-			</GlobalChartsProvider>
-		);
-		const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
-		expect( grid.style.getPropertyValue( '--a8c-charts-color-heatmap-primary' ) ).toBe( '#0a0b0c' );
-	} );
+	test( 'falls back to the first palette slot when no primaryColor prop is set', () => {
+		const scope = document.createElement( 'div' );
+		scope.style.setProperty( '--a8c-charts-color-series-1', '#0a0b0c' );
+		document.body.appendChild( scope );
 
-	test( 'falls back to the palette colors[0] when no prop or theme primaryColor is set', () => {
 		render(
-			<GlobalChartsProvider theme={ { colors: [ '#0a0b0c' ] } }>
+			<GlobalChartsProvider>
 				<HeatmapChart width={ 500 } height={ 300 } data={ data } />
-			</GlobalChartsProvider>
+			</GlobalChartsProvider>,
+			{ container: scope }
 		);
 		const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
 		expect( grid.style.getPropertyValue( '--a8c-charts-color-heatmap-primary' ) ).toBe( '#0a0b0c' );
+
+		document.body.removeChild( scope );
 	} );
 
 	test( 'the unresponsive export pins explicit width and height', () => {

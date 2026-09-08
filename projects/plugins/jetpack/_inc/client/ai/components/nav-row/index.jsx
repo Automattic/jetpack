@@ -4,6 +4,7 @@
  */
 
 import { Icon, VisuallyHidden } from '@wordpress/components';
+import { useId } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { chevronRight } from '@wordpress/icons';
 import { Text } from '@wordpress/ui';
@@ -15,6 +16,10 @@ import './style.scss';
  *
  * @param {object}   props               - Component props.
  * @param {object}   props.icon          - Icon from the WordPress icons package.
+ * @param {number}   [props.iconSize]    - Rendered size of the leading icon. Defaults to the
+ *                                       24px grid the WordPress icons are drawn on; connector
+ *                                       marks pass 28 so their inset artwork reads at the
+ *                                       same weight.
  * @param {string}   props.title         - Row title.
  * @param {string}   [props.description] - Row description.
  * @param {string}   [props.href]        - Link target; renders an anchor when set.
@@ -25,7 +30,16 @@ import './style.scss';
  *                                       takes the design system token.
  * @return {object} Component markup.
  */
-export default function NavRow( { icon, title, description, href, onClick, external, tone } ) {
+export default function NavRow( {
+	icon,
+	iconSize = 24,
+	title,
+	description,
+	href,
+	onClick,
+	external,
+	tone,
+} ) {
 	// Only the element and its props differ between the two forms: an anchor
 	// when there is a destination, a button otherwise.
 	const Tag = href ? 'a' : 'button';
@@ -36,17 +50,40 @@ export default function NavRow( { icon, title, description, href, onClick, exter
 		? `jetpack-ai-nav-row jetpack-ai-nav-row--${ tone }`
 		: 'jetpack-ai-nav-row';
 
+	const titleId = useId();
+	const descriptionId = useId();
+	const newTabId = useId();
+	// The new-tab warning belongs in the accessible NAME — screen readers often
+	// skip descriptions when scanning links — so the name is composed from the
+	// title and the warning, and the description stays a description.
+	const labelledBy = [ titleId, href && external && newTabId ].filter( Boolean ).join( ' ' );
+
 	return (
-		<Tag className={ className } { ...tagProps }>
+		<Tag
+			className={ className }
+			aria-labelledby={ labelledBy }
+			aria-describedby={ description ? descriptionId : undefined }
+			{ ...tagProps }
+		>
 			<span className="jetpack-ai-nav-row__icon">
-				<Icon icon={ icon } size={ 24 } />
+				<Icon icon={ icon } size={ iconSize } />
 			</span>
 			<span className="jetpack-ai-nav-row__text">
-				<Text render={ <p /> } variant="heading-lg" className="jetpack-ai-nav-row__title">
+				<Text
+					render={ <p /> }
+					id={ titleId }
+					variant="heading-lg"
+					className="jetpack-ai-nav-row__title"
+				>
 					{ title }
 				</Text>
 				{ description && (
-					<Text render={ <p /> } variant="body-md" className="jetpack-ai-nav-row__description">
+					<Text
+						render={ <p /> }
+						id={ descriptionId }
+						variant="body-md"
+						className="jetpack-ai-nav-row__description"
+					>
 						{ description }
 					</Text>
 				) }
@@ -55,7 +92,7 @@ export default function NavRow( { icon, title, description, href, onClick, exter
 				<Icon icon={ chevronRight } size={ 24 } />
 			</span>
 			{ href && external && (
-				<VisuallyHidden>{ __( '(opens in a new tab)', 'jetpack' ) }</VisuallyHidden>
+				<VisuallyHidden id={ newTabId }>{ __( '(opens in a new tab)', 'jetpack' ) }</VisuallyHidden>
 			) }
 		</Tag>
 	);

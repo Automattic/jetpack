@@ -1,4 +1,4 @@
-import { useSelect } from '@wordpress/data';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { useEffect } from '@wordpress/element';
 import { INTEGRATIONS_STORE } from '../../../../store/integrations/index.ts';
 
@@ -13,6 +13,7 @@ import { INTEGRATIONS_STORE } from '../../../../store/integrations/index.ts';
  * @param {Function} params.setAttributes - Setter for block attributes
  */
 export default function useFormBlockDefaults( { attributes, setAttributes } ) {
+	const { __unstableMarkNextChangeAsNotPersistent } = useDispatch( 'core/block-editor' );
 	const integrations = useSelect( select => {
 		const store = select( INTEGRATIONS_STORE );
 		return store.getIntegrations() || [];
@@ -31,10 +32,12 @@ export default function useFormBlockDefaults( { attributes, setAttributes } ) {
 		const salesforce = find( 'salesforce' );
 
 		if ( typeof attributes?.jetpackCRM === 'undefined' && crm ) {
+			__unstableMarkNextChangeAsNotPersistent();
 			setAttributes( { jetpackCRM: !! crm.enabledByDefault } );
 		}
 
 		if ( typeof attributes?.mailpoet?.enabledForForm === 'undefined' && mailpoet ) {
+			__unstableMarkNextChangeAsNotPersistent();
 			setAttributes( {
 				mailpoet: {
 					...attributes.mailpoet,
@@ -44,6 +47,7 @@ export default function useFormBlockDefaults( { attributes, setAttributes } ) {
 		}
 
 		if ( typeof attributes?.salesforceData?.sendToSalesforce === 'undefined' && salesforce ) {
+			__unstableMarkNextChangeAsNotPersistent();
 			setAttributes( {
 				salesforceData: {
 					...attributes.salesforceData,
@@ -58,5 +62,6 @@ export default function useFormBlockDefaults( { attributes, setAttributes } ) {
 		attributes.mailpoet,
 		attributes.salesforceData,
 		setAttributes,
+		__unstableMarkNextChangeAsNotPersistent,
 	] );
 }

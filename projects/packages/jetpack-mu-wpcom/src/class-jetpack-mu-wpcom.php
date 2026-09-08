@@ -22,6 +22,9 @@ class Jetpack_Mu_Wpcom {
 	const BASE_DIR        = __DIR__ . '/';
 	const BASE_FILE       = __FILE__;
 
+	// Gutenberg plugin releases known to break with React 19.
+	const REACT_19_INCOMPATIBLE_GUTENBERG = array( '23.9.0' );
+
 	// Themes (by template slug) and plugins (by basename) known to break with React 19.
 	const REACT_19_INCOMPATIBLE_THEMES  = array( 'divi', 'woodmart' );
 	const REACT_19_INCOMPATIBLE_PLUGINS = array(
@@ -133,6 +136,14 @@ class Jetpack_Mu_Wpcom {
 		// Enable the `gutenberg-react-19` Gutenberg experiment on selected sites.
 		add_filter( 'option_gutenberg-experiments', array( __CLASS__, 'enable_gutenberg_react_19_experiment' ) );
 		add_filter( 'default_option_gutenberg-experiments', array( __CLASS__, 'enable_gutenberg_react_19_experiment' ) );
+
+		if ( wpcom_has_blog_sticker( 'gutenberg-extensible-site-editor', get_wpcom_blog_id() ) ) {
+			add_filter( 'option_gutenberg-experiments', array( __CLASS__, 'enable_extensible_site_editor_experiment' ) );
+
+			// Priority 20 because register_setting() hooks core's filter_default_option() at 10,
+			// and that callback discards the value it is handed and returns the registered default.
+			add_filter( 'default_option_gutenberg-experiments', array( __CLASS__, 'enable_extensible_site_editor_experiment' ), 20 );
+		}
 
 		/**
 		 * Runs right after the Jetpack_Mu_Wpcom package is initialized.
@@ -948,6 +959,10 @@ class Jetpack_Mu_Wpcom {
 	 * @return mixed Original option value or the filtered experiments.
 	 */
 	public static function enable_gutenberg_react_19_experiment( $experiments ) {
+		if ( self::has_react_19_incompatible_gutenberg() ) {
+			return $experiments;
+		}
+
 		$blog_id = get_wpcom_blog_id();
 
 		if ( wpcom_has_blog_sticker( 'disable-gutenberg-react-19', $blog_id ) ) {
@@ -987,6 +1002,43 @@ class Jetpack_Mu_Wpcom {
 		}
 
 		$experiments['gutenberg-react-19'] = true;
+		return $experiments;
+	}
+
+	/**
+	 * Whether the site runs a Gutenberg plugin release that's known to break with React 19.
+	 *
+	 * Sites without the plugin run core's bundled Gutenberg, which the list doesn't cover.
+	 *
+	 * @return bool
+	 */
+	private static function has_react_19_incompatible_gutenberg() {
+		if ( ! defined( 'GUTENBERG_VERSION' ) ) {
+			return false;
+		}
+
+		// Match on the release number alone, so prereleases like 23.9.0-rc.1 count as 23.9.0.
+		if ( ! preg_match( '/^(\d+(?:\.\d+)*)/', (string) GUTENBERG_VERSION, $matches ) ) {
+			return false;
+		}
+
+		return in_array( $matches[1], self::REACT_19_INCOMPATIBLE_GUTENBERG, true );
+	}
+
+	/**
+	 * Add `gutenberg-extensible-site-editor` to the list of enabled Gutenberg experiments.
+	 *
+	 * Only registered on sites holding the sticker, so this does not re-check it.
+	 *
+	 * @param mixed $experiments The current value of the gutenberg-experiments option.
+	 * @return array The experiments, with the extensible site editor enabled.
+	 */
+	public static function enable_extensible_site_editor_experiment( $experiments ) {
+		if ( ! is_array( $experiments ) ) {
+			$experiments = array();
+		}
+
+		$experiments['gutenberg-extensible-site-editor'] = true;
 		return $experiments;
 	}
 

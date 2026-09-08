@@ -858,8 +858,9 @@ class Jetpack {
 	 * flag while it rolls out (WOOA7S-1595). When enabled it adds its own admin
 	 * menu alongside the existing Stats UI; it never replaces or hides the
 	 * legacy Stats menu, admin-bar entries, post-list column, or WP dashboard
-	 * widget. The Stats module's tracking is unaffected either way — Stats v2
-	 * depends on it.
+	 * widget. The Stats module's tracking is unaffected either way, and Stats v2
+	 * reads what that module collects, so while the module is off the plugin
+	 * answers false here before even reading the flag.
 	 *
 	 * The package has to be loadable for this to be true, so a site with the
 	 * flag on but a missing package answers false here and never adds the
@@ -874,12 +875,18 @@ class Jetpack {
 			return self::$premium_analytics_enabled;
 		}
 
+		if ( ! self::is_module_active( 'stats' ) ) {
+			self::$premium_analytics_enabled = false;
+			return false;
+		}
+
 		/**
 		 * Filters whether the bundled Premium Analytics dashboard is enabled.
 		 *
-		 * Resolved once, from `Jetpack::configure()` on `plugins_loaded`. Register
-		 * this from a mu-plugin or a plugin's main file — a callback added on
-		 * `plugins_loaded` or later runs too late to be seen.
+		 * Resolved once, from `Jetpack::configure()` on `plugins_loaded`, and only
+		 * while the Stats module is active. Register this from a mu-plugin or a
+		 * plugin's main file — a callback added on `plugins_loaded` or later runs
+		 * too late to be seen.
 		 *
 		 * @since 16.1
 		 *
@@ -4249,6 +4256,26 @@ p {
 	 */
 
 	/**
+	 * Build the user-facing description stored alongside a registration error code.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $error_code The WP_Error code.
+	 * @param string $message    The WP_Error message.
+	 * @return string The description, empty when the message is not user-facing copy.
+	 */
+	public static function get_registration_error_description( $error_code, $message ) {
+		// Manager::validate_remote_register_response() does not always put user-facing copy in the
+		// message slot: wpcom_5??, wpcom_408 and wpcom_bad_response store the HTTP status there,
+		// and jetpack_id stores the raw response body, which can also overflow the state cookie.
+		if ( 'jetpack_id' === $error_code || is_numeric( $message ) ) {
+			return '';
+		}
+
+		return mb_substr( (string) $message, 0, 250 );
+	}
+
+	/**
 	 * Handles the page load events for the Jetpack admin page
 	 */
 	public function admin_page_load() {
@@ -4286,7 +4313,8 @@ p {
 					if ( is_wp_error( $registered ) ) {
 						$error = $registered->get_error_code();
 						self::state( 'error', $error );
-						self::state( 'error', $registered->get_error_message() );
+
+						self::state( 'error_description', self::get_registration_error_description( $error, $registered->get_error_message() ) );
 
 						/**
 						 * Jetpack registration Error.

@@ -11,6 +11,7 @@ import {
 	useGlobalChartsContext,
 	GlobalChartsContext,
 } from '../../providers';
+import { CATALOG_POINTERS } from '../../providers/chart-context/private/catalog-pointers';
 import { useStandaloneScopeClass } from '../../providers/chart-scope';
 import { attachSubComponents } from '../../utils';
 import {
@@ -85,12 +86,13 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 
 	const { color: primaryColorHex } = getElementStyles( {
 		index: 0,
-		overrideColor: primaryColor || heatmapChartSettings.primaryColor,
+		overrideColor: primaryColor,
 	} );
 
-	// Resolve the background against this chart's own scope element (not the provider's), matching where `--a8c-charts-color-heatmap-background` is substituted for the cell blend below — a chart-level override otherwise disagrees with a provider-level read.
+	// The cell blend substitutes this role at the cell; this read happens at the scope
+	// element, so an override on the chart's own class makes the two disagree. CHARTS-255.
 	const chartBackgroundHex = normalizeColorToHex(
-		theme.backgroundColor,
+		CATALOG_POINTERS.background,
 		scopeElement,
 		resolveCssVariable
 	);
@@ -312,7 +314,6 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 		: `minmax(${ minCellHeight ?? 0 }px, ${ maxCellHeight ? `${ maxCellHeight }px` : '1fr' })`;
 	const gridStyle: Record< string, string | number > = {
 		'--a8c-charts-color-heatmap-primary': primaryColorHex,
-		'--a8c-charts-color-heatmap-background': theme.backgroundColor,
 		gridTemplateColumns: `auto repeat(${ columns }, ${ columnTrack })`,
 		gridTemplateRows: `auto repeat(${ rows }, ${ rowTrack })`,
 	};

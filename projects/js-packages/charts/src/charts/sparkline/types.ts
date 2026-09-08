@@ -6,7 +6,7 @@ export type GradientConfig = {
 	 */
 	from?: string;
 	/**
-	 * End color for gradient (defaults to theme backgroundColor)
+	 * End color for gradient (defaults to `--a8c-charts-color-background`)
 	 */
 	to?: string;
 	/**

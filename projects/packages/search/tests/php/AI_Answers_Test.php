@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Search;
 
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Search\TestCase as Search_TestCase;
+use Automattic\Jetpack\Status\Cache as Status_Cache;
 
 /**
  * Unit tests for the AI_Answers class.
@@ -30,6 +31,7 @@ class AI_Answers_Test extends Search_TestCase {
 
 	public function setUp(): void {
 		parent::setUp();
+		Status_Cache::set( 'is_woa_site', false );
 		// Default to a paid plan; tests exercising the gate override this.
 		Search_Blocks::set_supports_paid_search_for_testing( true );
 	}
@@ -48,6 +50,7 @@ class AI_Answers_Test extends Search_TestCase {
 		$this->remove_ai_master_filters();
 		unset( $GLOBALS['jetpack_search_test_internal_env'] );
 		Constants::clear_single_constant( 'IS_WPCOM' );
+		Status_Cache::clear();
 
 		if ( $this->posts_query_filter !== null ) {
 			remove_filter( 'posts_pre_query', $this->posts_query_filter, 10 );
@@ -57,6 +60,13 @@ class AI_Answers_Test extends Search_TestCase {
 			unregister_post_type( 'wp_guideline' );
 		}
 		Search_Blocks::reset_supports_paid_search_cache();
+	}
+
+	/**
+	 * Make the current request look like WordPress.com Atomic.
+	 */
+	private function force_atomic_site() {
+		Status_Cache::set( 'is_woa_site', true );
 	}
 
 	public function test_is_enabled_defaults_to_false() {
@@ -163,23 +173,36 @@ class AI_Answers_Test extends Search_TestCase {
 		$this->assertFalse( AI_Answers::should_enforce_master() );
 	}
 
-	public function test_should_enforce_master_is_true_outside_internal_testing_environments() {
-		// The master switch UI ships internal-only for now, so a public site must not be
-		// gated on a switch its owner cannot see. Module present but inactive, yet ungated.
+	public function test_should_enforce_master_follows_the_module_on_self_hosted() {
 		$this->turn_ai_module_off();
 		$GLOBALS['jetpack_search_test_internal_env'] = false;
 
-		$this->assertTrue( AI_Answers::should_enforce_master() );
+		$this->assertFalse( AI_Answers::should_enforce_master() );
 	}
 
-	public function test_is_enabled_ignores_the_module_outside_internal_testing_environments() {
-		// Module-only setup: pins that the package's own enforcement is env-scoped.
-		// (With the Jetpack plugin loaded, its filter gate still applies publicly.)
+	public function test_is_enabled_follows_the_module_on_self_hosted() {
 		update_option( 'jetpack_search_ai_answers_enabled', true );
 		$this->turn_ai_module_off();
 		$GLOBALS['jetpack_search_test_internal_env'] = false;
 
-		$this->assertTrue( AI_Answers::is_enabled() );
+		$this->assertFalse( AI_Answers::is_enabled() );
+	}
+
+	public function test_should_enforce_master_waives_the_module_on_ordinary_atomic() {
+		$this->force_atomic_site();
+		$this->turn_ai_module_off();
+		$GLOBALS['jetpack_search_test_internal_env'] = false;
+
+		$this->assertTrue( AI_Answers::should_enforce_master() );
+		$this->assertTrue( AI_Answers::is_master_enabled() );
+	}
+
+	public function test_should_enforce_master_follows_the_module_on_internal_atomic() {
+		$this->force_atomic_site();
+		$this->turn_ai_module_off();
+		$GLOBALS['jetpack_search_test_internal_env'] = true;
+
+		$this->assertFalse( AI_Answers::should_enforce_master() );
 	}
 
 	public function test_is_enabled_is_false_when_the_master_is_off() {
@@ -235,13 +258,11 @@ class AI_Answers_Test extends Search_TestCase {
 		$this->assertTrue( AI_Answers::is_master_enabled() );
 	}
 
-	public function test_is_master_enabled_reports_on_outside_internal_testing_environments() {
-		// The master rollout is a12s-scoped: public sites report ungated even
-		// when the gate is registered, so no master-off UI leaks before the sweep.
+	public function test_is_master_enabled_reports_the_gate_on_self_hosted() {
 		$this->turn_ai_master_off();
 		$GLOBALS['jetpack_search_test_internal_env'] = false;
 
-		$this->assertTrue( AI_Answers::is_master_enabled() );
+		$this->assertFalse( AI_Answers::is_master_enabled() );
 	}
 
 	public function test_is_master_enabled_reports_the_gate_on_wpcom_simple_regardless_of_environment() {
@@ -265,9 +286,8 @@ class AI_Answers_Test extends Search_TestCase {
 		$this->assertFalse( AI_Answers::is_master_enabled() );
 	}
 
-	public function test_is_enabled_still_gated_outside_internal_testing_environments() {
-		// Enforcement is the plugin's public filter — only the *reporting* is
-		// scoped. A public master-off site still reports the feature off.
+	public function test_is_enabled_stays_gated_on_self_hosted() {
+		// A master-off site reports the feature off.
 		update_option( 'jetpack_search_ai_answers_enabled', true );
 		$this->turn_ai_master_off();
 		$GLOBALS['jetpack_search_test_internal_env'] = false;

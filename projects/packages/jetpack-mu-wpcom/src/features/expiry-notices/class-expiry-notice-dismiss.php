@@ -9,13 +9,9 @@
  * time is load-bearing rather than a record: it is what tells a dismissal of
  * this plan term from one of a term since renewed.
  *
- * Notices dismiss per surface and the modal dismisses everywhere, so they do
- * not share a key. Dismissing the reverted-site notice in the hosting
- * dashboard is meant to leave wp-admin's showing — "it'll show once again in
- * the admin" — whereas closing the modal on one page is meant to remove it
- * from all of them. Each notice surface therefore gets its own key; when the
- * hosting-dashboard notice lands it registers a sibling of META_BANNER rather
- * than reusing it.
+ * The banner dismisses everywhere at once: wp-admin and the site front-end
+ * share one key, so closing it on either clears it on both. The modal has its
+ * own keys because it dismisses on a different schedule, not per surface.
  *
  * @package automattic/jetpack-mu-wpcom
  */
@@ -29,7 +25,8 @@ namespace Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices;
  */
 class Expiry_Notice_Dismiss {
 
-	// Scoped to wp-admin: this notice's dismissal is its own, not the platform's.
+	// Shared by every banner surface. The `_wp_admin` suffix predates the
+	// front-end banner and stays so stored dismissals remain valid.
 	const META_BANNER = 'wpcom_plan_expiry_notice_dismiss_wp_admin';
 	// Not scoped: one dismissal of the modal clears it on every surface.
 	const META_MODAL = 'wpcom_plan_expiry_modal_dismiss';

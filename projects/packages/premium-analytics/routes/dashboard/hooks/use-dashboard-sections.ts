@@ -9,7 +9,7 @@ import type { DashboardSection } from '../config';
 
 /**
  * Get the ordered list of dashboard sections. Reads the `dashboardSection`
- * core-data entity (registered in the route's `beforeLoad`), which resolves
+ * core-data entity (registered at app boot in `packages/init`), which resolves
  * from `GET /sections`.
  *
  * `hasResolved` distinguishes "still fetching" (empty `sections`) from a

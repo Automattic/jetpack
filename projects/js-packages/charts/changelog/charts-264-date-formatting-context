@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Render time-axis and tooltip dates in a host-supplied locale and time zone, set on GlobalChartsProvider. Both default to the browser's, as before.

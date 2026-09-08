@@ -90,22 +90,27 @@ Two local REST surfaces; almost all data comes from WordPress.com via one agnost
 - `<prefix>` must be allowlisted in `PREFIX_CONFIG` or the route 404s. This is the security
   boundary — the blog token is only forwarded for these.
 
-| Prefix                                                            | Capability                 | Writes (POST)                   |
-| ----------------------------------------------------------------- | -------------------------- | ------------------------------- |
-| `analytics` (Woo store reports)                                   | `view_woocommerce_reports` | —                               |
-| `stats`                                                           | `view_stats`               | `stats/referrers/spam/`         |
-| `wordads`                                                         | `activate_wordads`         | —                               |
-| `subscribers` / `site-has-never-published-post` / `jetpack-stats` | `view_stats`               | —                               |
-| `jetpack-stats-dashboard`                                         | `view_stats`               | whole prefix (busts read cache) |
-| `commercial-classification`                                       | `view_stats`               | exact path                      |
-| `upgrades` (not under `/sites/`)                                  | `view_stats`               | —                               |
-| `posts` (pattern-constrained: only `<id>/likes`)                  | `view_stats`               | —                               |
+| Prefix                                           | Capability                 | Writes (POST)                   |
+| ------------------------------------------------ | -------------------------- | ------------------------------- |
+| `analytics` (Woo store reports)                  | `view_woocommerce_reports` | —                               |
+| `stats`                                          | `view_stats`               | `stats/referrers/spam/`         |
+| `wordads`                                        | `activate_wordads`         | —                               |
+| `subscribers` / `site-has-never-published-post`  | `view_stats`               | —                               |
+| `jetpack-stats`                                  | `view_stats`               | `jetpack-stats/user-feedback`   |
+| `jetpack-stats-dashboard`                        | `view_stats`               | whole prefix (busts read cache) |
+| `commercial-classification`                      | `view_stats`               | exact path                      |
+| `upgrades` (not under `/sites/`)                 | `view_stats`               | —                               |
+| `posts` (pattern-constrained: only `<id>/likes`) | `view_stats`               | —                               |
 
 `manage_options` is always accepted too. `POST` is rejected (`405 rest_read_only`) outside the
 Writes column. Query params pass through except control params (`endpoint`, `version`,
 `force_refresh`) and `site`. Successful `GET`s are cached 5 min (key: path+version+params); add
 `force_refresh` to bypass. `x-wp-total` / `x-wp-totalpages` are forwarded back. Errors:
 `403 no_connection`, `500`/`502 api_error`, `405 rest_read_only`, `401`/`403` on a failed cap.
+
+The `jetpack-stats` write is the one body the proxy rewrites: it gains the submitting user's
+`user_email` (`inject_user_email`), because the blog token names no user and WPCOM would
+otherwise attribute the feedback to the first administrator it finds.
 
 ### Notices
 
@@ -116,7 +121,7 @@ gets its own route outside `proxy/`, like this.
 ### Adding a proxied endpoint
 
 To add a transparent forward, add a key to `PREFIX_CONFIG` (at least `capability`; add
-`writes` / `cache_bust` as needed) and cover it in `data_endpoint_matrix()`.
+`writes` / `cache_bust` / `inject_user_email` as needed) and cover it in `data_endpoint_matrix()`.
 
 ### Migrating from Stats / Woo Analytics
 
@@ -132,6 +137,17 @@ and reaches `public-api.wordpress.com` directly. `jetpack-mu-wpcom` boots the pa
 `Analytics::init_wpcom_simple()`, behind the site's own `jetpack_premium_analytics_enabled`
 opt-in or the `jetpack-premium-analytics` blog sticker, whichever says yes. Both answer the
 shared `jetpack_premium_analytics_enabled` filter, as they do on the other platforms.
+
+Which one says yes also decides how many tabs the dashboard offers: the site's own opt-in is the
+customer preview and exposes only the sections in `PREVIEW_SECTIONS`, while a sticker or filter
+override exposes every section the site qualifies for. `jetpack_premium_analytics_dashboard_preview_scope`
+overrides that per section — `__return_true` gives a development or test site the whole dashboard.
+
+The same list the tab bar gets over REST also reaches the client as
+`premium_analytics.preview_sections` in the script data, which is what keeps `/reports/…` out of a
+scoped preview: each report declares the tab it belongs to, and `getReportDefinition()` treats one
+behind a hidden tab as unknown. The two detail routes follow their own report (`posts`, `videos`)
+rather than declaring a tab.
 
 ### Route guards must use the shared site-readiness helpers
 

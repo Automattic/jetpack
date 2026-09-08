@@ -109,33 +109,6 @@ export const parseHslString = ( hslString: string ): [ number, number, number ] 
 };
 
 /**
- * Parse an RGB string like 'rgb(255, 0, 0)' into a hex color.
- *
- * @deprecated    Use normalizeColorToHex() instead, which handles all color formats including rgb() and rgba().
- * @param      rgbString - RGB color string (not RGBA)
- * @return        hex color string or null if invalid
- */
-export const parseRgbString = ( rgbString: string ): string | null => {
-	const lower = rgbString.toLowerCase().trim();
-
-	// Check prefix - only handle rgb(), not rgba()
-	// This is intentional - use normalizeColorToHex for rgba() support
-	if ( ! lower.startsWith( 'rgb(' ) || lower.startsWith( 'rgba(' ) ) {
-		return null;
-	}
-
-	const parsed = d3Color( lower );
-
-	// d3Color returns null for invalid colors
-	if ( ! parsed ) {
-		return null;
-	}
-
-	// d3-color clamps values automatically
-	return parsed.formatHex();
-};
-
-/**
  * Normalize any CSS color value to a hex color string.
  * Handles hex, HSL, HSLA, RGB, RGBA, named CSS colors, and CSS variables.
  *

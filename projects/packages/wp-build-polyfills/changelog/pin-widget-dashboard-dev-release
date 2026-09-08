@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Pin @wordpress/widget-primitives and @wordpress/dataviews to the 202609031004 Gutenberg development release, keeping the served module in sync with Premium Analytics.
