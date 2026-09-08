@@ -144,7 +144,7 @@ it.each( [ false, true ] )(
 	'preserves queued dismissals when the first save fails=%s',
 	async fails => {
 		const initial = { score_increase: true, performance_history_fresh_start: false };
-		window.jetpack_boost_ds.dismissed_alerts.value = initial;
+		window.jetpack_boost_ds!.dismissed_alerts!.value = initial;
 		let resolveInitial!: ( value: unknown ) => void;
 		let resolveFirst!: ( value: unknown ) => void;
 		let rejectFirst!: ( reason: Error ) => void;
@@ -175,8 +175,10 @@ it.each( [ false, true ] )(
 		await waitFor( () => expect( fetchMock ).toHaveBeenCalledTimes( 1 ) );
 		act( () => result.current.freshStart[ 1 ]() );
 		await waitFor( () => expect( fetchMock ).toHaveBeenCalledTimes( 2 ) );
+		await waitFor( () => expect( result.current.freshStart[ 0 ] ).toBe( true ) );
 		await act( async () => result.current.decrease[ 1 ]() );
 		expect( fetchMock ).toHaveBeenCalledTimes( 2 );
+		await waitFor( () => expect( result.current.decrease[ 0 ] ).toBe( true ) );
 		await act( async () => {
 			if ( fails ) {
 				rejectFirst( new Error( 'Save failed' ) );
@@ -187,7 +189,7 @@ it.each( [ false, true ] )(
 				} );
 			}
 		} );
-		await waitFor( () => expect( result.current.decrease[ 0 ] ).toBe( true ) );
+		await waitFor( () => expect( fetchMock ).toHaveBeenCalledTimes( 3 ) );
 		await act( async () => resolveInitial( { status: 'success', JSON: initial } ) );
 		expect( result.current.decrease[ 0 ] ).toBe( true );
 		expect( result.current.freshStart[ 0 ] ).toBe( ! fails );
@@ -206,3 +208,21 @@ it.each( [ false, true ] )(
 		);
 	}
 );
+
+it( 'restores an absent dismissal after an optimistic save fails', async () => {
+	let rejectSave!: ( reason: Error ) => void;
+	fetchMock.mockResolvedValueOnce( { status: 'success', JSON: { score_increase: true } } );
+	fetchMock.mockImplementationOnce(
+		() =>
+			new Promise( ( _resolve, reject ) => {
+				rejectSave = reject;
+			} )
+	);
+	const { result } = renderHook( () => useDismissibleAlertState( 'score_decrease' ), { wrapper } );
+	await waitFor( () => expect( queryClient.isFetching() ).toBe( 0 ) );
+	act( () => result.current[ 1 ]() );
+	await waitFor( () => expect( result.current[ 0 ] ).toBe( true ) );
+	await act( async () => rejectSave( new Error( 'Save failed' ) ) );
+	await waitFor( () => expect( result.current[ 0 ] ).toBe( false ) );
+	expect( queryClient.getQueryData( [ 'dismissed_alerts' ] ) ).toEqual( { score_increase: true } );
+} );

@@ -80,13 +80,16 @@ To check for PHP code compatibility run:
   ```
 
 ## Linting Jetpack Boost JavaScript code
+
 Run the monorepo's ESLint command from the monorepo root, scoped to Boost:
 
 ```sh
 pnpm run lint-file projects/plugins/boost
 ```
 
-Append `--fix` to apply automatic fixes. See [Monorepo linting](../../../../docs/monorepo.md#linting) for configuration guidance.
+Append `--fix` to apply automatic fixes. See the
+[development environment guide](../../../../docs/development-environment.md#linting-jetpacks-javascript)
+for configuration guidance.
 
 # Debugging Concatenate JS/CSS exclusions
 

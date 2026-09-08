@@ -86,7 +86,7 @@ export function parseModulesState( value: unknown ): ModulesState {
 export function useModulesState() {
 	const initial = modulesStateSchema.safeParse( window.jetpack_boost_ds?.modules_state?.value );
 	return useQuery( {
-		queryKey: [ 'jetpack_boost_modules_state' ],
+		queryKey: [ 'modules_state' ],
 		queryFn: async () => parseModulesState( await requestDataSync( 'modules_state' ) ),
 		initialData: initial.success ? initial.data : undefined,
 		enabled: isSiteOnline(),
@@ -118,7 +118,7 @@ function useGenerationState( key: 'critical_css_state' | 'lcp_state', enabled: b
 	const initial =
 		bootstrap === undefined ? undefined : generationSchemas[ key ].safeParse( bootstrap );
 	return useQuery( {
-		queryKey: [ 'jetpack_boost', key ],
+		queryKey: [ key ],
 		queryFn: async () => generationSchemas[ key ].parse( await requestDataSync( key ) ),
 		initialData: initial?.success ? initial.data : undefined,
 		enabled: enabled && isSiteOnline(),

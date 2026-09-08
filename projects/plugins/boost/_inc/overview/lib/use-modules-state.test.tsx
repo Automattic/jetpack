@@ -56,6 +56,7 @@ it( 'authenticates and revalidates bootstrapped module availability on mount', a
 	fetchMock.mockResolvedValue( { status: 'success', JSON: paid } );
 	const { result } = renderHook( useModulesState, { wrapper } );
 	await waitFor( () => expect( result.current.data ).toEqual( paid ) );
+	expect( queryClient.getQueryData( [ 'modules_state' ] ) ).toEqual( paid );
 	expect( fetchMock ).toHaveBeenCalledWith( {
 		url: 'https://example.org/wp-json/jetpack-boost-ds/modules-state',
 		method: 'GET',
@@ -176,9 +177,9 @@ it.each( [
 			initialProps: { [ module ]: { active: true, available: true } },
 		} );
 		await waitFor( () =>
-			expect( queryClient.getQueryState( [ 'jetpack_boost', key ] )?.fetchStatus ).toBe( 'idle' )
+			expect( queryClient.getQueryState( [ key ] )?.fetchStatus ).toBe( 'idle' )
 		);
-		expect( queryClient.getQueryData( [ 'jetpack_boost', key ] ) ).toMatchObject( { status } );
+		expect( queryClient.getQueryData( [ key ] ) ).toMatchObject( { status } );
 		expect( result.current.isPending ).toBe( false );
 		expect( result.current.config ).toBe( JSON.stringify( [ [ [ module, true ] ], 0, 0 ] ) );
 		const config = result.current.config;

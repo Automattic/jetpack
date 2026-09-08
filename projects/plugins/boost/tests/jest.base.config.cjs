@@ -11,6 +11,7 @@ module.exports = {
 		'<rootDir>/app/**/*.{js,mjs,cjs,jsx,ts,tsx,mts,cts}',
 		'<rootDir>/_inc/overview/**/*.{js,mjs,cjs,jsx,ts,tsx,mts,cts}',
 		...coverageConfig.collectCoverageFrom,
+		'!<rootDir>/_inc/overview/jest.config.cjs',
 	],
 	// Reuse shared transforms without the optional jest-console setup.
 	transform: baseConfig.transform,
