@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix Jetpack logo flashing white on wp-admin load by defaulting the base64 icon color to the unselected admin menu gray.

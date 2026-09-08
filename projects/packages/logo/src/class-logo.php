@@ -109,7 +109,7 @@ class Logo {
 	 *
 	 * @return string
 	 */
-	public function get_base64_logo( $color = '#ffffff' ) {
+	public function get_base64_logo( $color = '#a7aaad' ) {
 		$logo_text    = $this->get_jp_logo_parts( $color );
 		$base_logo    = sprintf(
 			'<svg xmlns="http://www.w3.org/2000/svg" x="20px" y="20px" viewBox="-4 -5 41 41">%1$s</svg>',

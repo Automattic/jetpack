@@ -25,4 +25,26 @@ class Logo_Test extends TestCase {
 		$this->assertEquals( 2, preg_match_all( '/class="jetpack-logo__icon-triangle"/', $logo_render ) );
 		$this->assertStringContainsString( 'class="jetpack-logo__text"', $logo_render );
 	}
+
+	/**
+	 * Ensure get_base64_logo defaults to the wp-admin unselected icon gray.
+	 */
+	public function test_get_base64_logo_default_color() {
+		$logo   = new Logo();
+		$result = $logo->get_base64_logo();
+		$this->assertStringStartsWith( 'data:image/svg+xml;base64,', $result );
+		$decoded = base64_decode( substr( $result, strlen( 'data:image/svg+xml;base64,' ) ) );
+		$this->assertStringContainsString( '#a7aaad', $decoded );
+	}
+
+	/**
+	 * Ensure get_base64_logo respects a custom color argument.
+	 */
+	public function test_get_base64_logo_custom_color() {
+		$logo   = new Logo();
+		$result = $logo->get_base64_logo( '#ffffff' );
+		$decoded = base64_decode( substr( $result, strlen( 'data:image/svg+xml;base64,' ) ) );
+		$this->assertStringContainsString( '#ffffff', $decoded );
+		$this->assertStringNotContainsString( '#a7aaad', $decoded );
+	}
 }
