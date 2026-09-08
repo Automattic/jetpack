@@ -26,6 +26,7 @@
 		"build": "pnpm run clean && pnpm run build-client",
 		"build-client": "pnpm webpack --config webpack.config.js",
 		"clean": "rm -rf build/",
+		"generate:inline-svgs": "node bin/generate-inline-svgs.mjs",
 		"test": "jest --config=tests/jest.config.js",
 		"test-coverage": "pnpm run test --coverage",
 		"typecheck": "tsgo --noEmit",

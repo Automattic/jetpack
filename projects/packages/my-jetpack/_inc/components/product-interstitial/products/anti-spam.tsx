@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import antispamLogo from '../logos/antispam-logo.svg';
+import { productInterstitialAntispamLogo as antispamLogo } from '../../../assets/inline-svgs';
 import { ProductConfig } from '../types';
 import { getTranslatableFeatureLabels, SECURITY, SECURITY_SLUG } from './shared-labels';
 
