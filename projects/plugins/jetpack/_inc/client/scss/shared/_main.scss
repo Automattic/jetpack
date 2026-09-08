@@ -49,7 +49,10 @@
 // `@wordpress/ui` styles all sit inside `@layer wp-ui`, which loses to the
 // unlayered rule above, and its `Link` relies on the UA underline rather than
 // setting one. The shorthand there also resets thickness, hence both lines.
-// Drop this once `--_gcd-a-text-decoration-line` lands upstream.
+// Once WordPress/gutenberg#82620 ships and we take the bump, this
+// narrows rather than goes: the upstream defense only reaches wp-ui
+// `Link`, and three notices interpolate a raw `<a>` that would lose
+// its underline.
 .jetpack-pagestyles .jp-notice a {
 	text-decoration-line: underline;
 	text-decoration-thickness: from-font;
