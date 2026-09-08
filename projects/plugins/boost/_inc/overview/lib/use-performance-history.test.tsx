@@ -76,6 +76,7 @@ it( 'fetches authenticated history and keeps it fresh for twelve hours', async (
 	expect( fetchMock ).toHaveBeenCalledWith( {
 		url: 'https://example.org/wp-json/jetpack-boost-ds/performance-history',
 		method: 'GET',
+		credentials: 'same-origin',
 		headers: { 'X-WP-Nonce': 'rest-nonce', 'X-Jetpack-WP-JS-Sync-Nonce': 'history-nonce' },
 	} );
 	unmount();
@@ -133,6 +134,7 @@ it( 'persists fresh-start dismissal and preserves other alert dismissals', async
 	expect( fetchMock ).toHaveBeenLastCalledWith( {
 		url: 'https://example.org/wp-json/jetpack-boost-ds/dismissed-alerts/set',
 		method: 'POST',
+		credentials: 'same-origin',
 		headers: { 'X-WP-Nonce': 'rest-nonce', 'X-Jetpack-WP-JS-Sync-Nonce': 'alerts-nonce' },
 		data: { JSON: { score_increase: true, performance_history_fresh_start: true } },
 	} );
@@ -192,6 +194,7 @@ it.each( [ false, true ] )(
 		expect( fetchMock ).toHaveBeenLastCalledWith(
 			expect.objectContaining( {
 				method: 'POST',
+				credentials: 'same-origin',
 				data: {
 					JSON: {
 						...initial,

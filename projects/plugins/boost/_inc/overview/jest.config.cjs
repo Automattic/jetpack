@@ -1,6 +1,5 @@
 const path = require( 'path' );
-const rootConfig = require( '../../tests/jest.config.cjs' );
-const boostConfig = rootConfig.projects?.[ 0 ] ?? rootConfig;
+const boostConfig = require( '../../tests/jest.base.config.cjs' );
 
 module.exports = {
 	...boostConfig,
@@ -9,7 +8,6 @@ module.exports = {
 	testMatch: [ '<rootDir>/_inc/overview/**/*.test.{ts,tsx}' ],
 	testEnvironmentOptions: { customExportConditions: [ 'browser', 'jetpack:src' ] },
 	setupFilesAfterEnv: [ require.resolve( 'jetpack-js-tools/jest/setup-jest-dom.js' ) ],
-	moduleDirectories: [ 'node_modules', '<rootDir>/routes/dashboard/node_modules' ],
 	moduleNameMapper: {
 		...boostConfig.moduleNameMapper,
 		'^@automattic/charts$': path.resolve(
@@ -21,7 +19,8 @@ module.exports = {
 			'../../../../js-packages/charts/src/style.css'
 		),
 	},
-	transformIgnorePatterns: [
-		'/node_modules/(?!.*/node_modules/)(?!d3-|internmap/|uuid/|@wordpress/theme/)',
-	],
+	// Jest ORs ignore patterns, so extend each pattern's exceptions in place.
+	transformIgnorePatterns: boostConfig.transformIgnorePatterns.map( pattern =>
+		pattern.replace( '/node_modules/', '/node_modules/(?!d3-|internmap/)' )
+	),
 };
