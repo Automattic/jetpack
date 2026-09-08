@@ -371,6 +371,7 @@ class Initializer {
 				'fileSystemWriteAccess'  => self::has_file_system_write_access(),
 				'loadAddLicenseScreen'   => self::is_licensing_ui_enabled(),
 				'adminUrl'               => esc_url( admin_url() ),
+				'assetsUrl'              => Assets::normalize_path( plugins_url( '../build/images/', __FILE__ ) ),
 				'IDCContainerID'         => static::get_idc_container_id(),
 				'userIsAdmin'            => current_user_can( 'manage_options' ),
 				'lifecycleStats'         => array(
