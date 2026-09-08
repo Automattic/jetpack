@@ -3,6 +3,7 @@
  */
 import { currentUserCan, isSimpleSite } from '@automattic/jetpack-script-data';
 import {
+	MY_JETPACK_SECTION_FEATURES,
 	MY_JETPACK_SECTION_HELP,
 	MY_JETPACK_SECTION_OVERVIEW,
 	MY_JETPACK_SECTION_PRODUCTS,
@@ -27,64 +28,54 @@ beforeEach( () => {
 	mockIsSimpleSite.mockReturnValue( false );
 } );
 
+const ALL_SECTIONS = [
+	MY_JETPACK_SECTION_OVERVIEW,
+	MY_JETPACK_SECTION_PRODUCTS,
+	MY_JETPACK_SECTION_FEATURES,
+	MY_JETPACK_SECTION_HELP,
+];
+
 describe( 'getMyJetpackSections', () => {
-	it( 'returns all sections for an admin', () => {
-		expect( getMyJetpackSections().map( tab => tab.name ) ).toEqual( [
-			MY_JETPACK_SECTION_OVERVIEW,
-			MY_JETPACK_SECTION_PRODUCTS,
-			MY_JETPACK_SECTION_HELP,
-		] );
+	it( 'orders Features last before Help, after Overview and Products', () => {
+		expect( getMyJetpackSections().map( tab => tab.name ) ).toEqual( ALL_SECTIONS );
 	} );
 
-	it( 'omits the Products section for non-admins', () => {
+	it( 'returns the same sections for non-admins', () => {
 		mockCurrentUserCan.mockReturnValue( false );
 
-		expect( getMyJetpackSections().map( tab => tab.name ) ).toEqual( [
-			MY_JETPACK_SECTION_OVERVIEW,
-			MY_JETPACK_SECTION_HELP,
-		] );
+		expect( getMyJetpackSections().map( tab => tab.name ) ).toEqual( ALL_SECTIONS );
 	} );
 
-	it( 'returns only the Products section on WordPress.com Simple sites', () => {
+	it( 'returns the same sections on WordPress.com Simple sites', () => {
 		mockIsSimpleSite.mockReturnValue( true );
 
-		expect( getMyJetpackSections().map( tab => tab.name ) ).toEqual( [
-			MY_JETPACK_SECTION_PRODUCTS,
-		] );
-	} );
-
-	it( 'returns only the Products section on Simple sites for non-admins too', () => {
-		mockIsSimpleSite.mockReturnValue( true );
-		mockCurrentUserCan.mockReturnValue( false );
-
-		expect( getMyJetpackSections().map( tab => tab.name ) ).toEqual( [
-			MY_JETPACK_SECTION_PRODUCTS,
-		] );
+		expect( getMyJetpackSections().map( tab => tab.name ) ).toEqual( ALL_SECTIONS );
 	} );
 } );
 
 describe( 'isValidMyJetpackSection', () => {
-	it( 'accepts the Overview section on regular sites', () => {
-		expect( isValidMyJetpackSection( MY_JETPACK_SECTION_OVERVIEW ) ).toBe( true );
+	it( 'accepts the Features section', () => {
+		expect( isValidMyJetpackSection( MY_JETPACK_SECTION_FEATURES ) ).toBe( true );
 	} );
 
-	it( 'rejects the Overview and Help sections on Simple sites', () => {
-		mockIsSimpleSite.mockReturnValue( true );
-
-		expect( isValidMyJetpackSection( MY_JETPACK_SECTION_OVERVIEW ) ).toBe( false );
-		expect( isValidMyJetpackSection( MY_JETPACK_SECTION_HELP ) ).toBe( false );
+	it( 'accepts the restored Overview and Products sections', () => {
+		expect( isValidMyJetpackSection( MY_JETPACK_SECTION_OVERVIEW ) ).toBe( true );
 		expect( isValidMyJetpackSection( MY_JETPACK_SECTION_PRODUCTS ) ).toBe( true );
+	} );
+
+	it( 'rejects a section that does not exist', () => {
+		expect( isValidMyJetpackSection( 'does-not-exist' ) ).toBe( false );
 	} );
 } );
 
 describe( 'getDefaultMyJetpackSection', () => {
-	it( 'defaults to the Overview section on regular sites', () => {
+	it( 'defaults to the Overview section', () => {
 		expect( getDefaultMyJetpackSection() ).toBe( MY_JETPACK_SECTION_OVERVIEW );
 	} );
 
-	it( 'defaults to the Products section on Simple sites', () => {
+	it( 'defaults to the Overview section on Simple sites too', () => {
 		mockIsSimpleSite.mockReturnValue( true );
 
-		expect( getDefaultMyJetpackSection() ).toBe( MY_JETPACK_SECTION_PRODUCTS );
+		expect( getDefaultMyJetpackSection() ).toBe( MY_JETPACK_SECTION_OVERVIEW );
 	} );
 } );

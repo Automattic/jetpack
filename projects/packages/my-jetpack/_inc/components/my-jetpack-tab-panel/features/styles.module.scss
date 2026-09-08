@@ -1,0 +1,192 @@
+// Matches the product-card icon palette in ../products/styles.module.scss.
+$feature-icon-background: #003010;
+$feature-icon-foreground: #0ced57;
+
+.content {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-sm);
+	padding-block: var(--wpds-dimension-padding-xl);
+}
+
+.feature-list {
+	border: var(--wpds-border-width-sm) solid var(--wpds-color-stroke-surface-neutral-weak);
+	border-radius: var(--wpds-border-radius-md);
+	overflow: hidden;
+}
+
+.feature-item {
+	padding: var(--wpds-dimension-padding-lg);
+
+	& + & {
+		border-block-start-color: var(--wpds-color-stroke-surface-neutral-weak);
+		border-block-start-style: solid;
+		border-block-start-width: var(--wpds-border-width-sm);
+	}
+}
+
+.feature-icon {
+	block-size: 3rem;
+	flex-shrink: 0;
+	inline-size: 3rem;
+
+	svg {
+		block-size: 100%;
+		inline-size: 100%;
+	}
+}
+
+// Features with no product icon get a tile in the same palette rather than
+// borrowing another product's branding.
+.feature-icon__fallback {
+	align-items: center;
+	background: $feature-icon-background;
+	block-size: 100%;
+	border-radius: var(--wpds-border-radius-sm);
+	color: $feature-icon-foreground;
+	display: flex;
+	inline-size: 100%;
+	justify-content: center;
+
+	svg {
+		block-size: 28px;
+		fill: currentColor;
+		inline-size: 28px;
+	}
+}
+
+.feature-item__details {
+	flex: 1;
+	min-inline-size: 0;
+}
+
+.list-header {
+	min-block-size: 2.5rem;
+	padding-block: var(--wpds-dimension-padding-sm);
+	padding-inline: var(--wpds-dimension-padding-lg);
+}
+
+.bulk-actions {
+	flex: 1;
+	justify-content: space-between;
+}
+
+.feature-chevron {
+	color: var(--wpds-color-foreground-content-neutral-weak);
+	flex-shrink: 0;
+}
+
+.detail-intro {
+	block-size: 100%;
+	justify-content: center;
+}
+
+.detail-lede {
+	color: var(--wpds-color-foreground-content-neutral-weak);
+}
+
+.detail-links {
+	color: var(--wpds-color-foreground-content-neutral-weak);
+}
+
+.detail-highlights {
+	background: var(--wpds-color-background-surface-neutral-weak);
+	border-radius: var(--wpds-border-radius-md);
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-md);
+	margin-block-start: var(--wpds-dimension-gap-2xl);
+	padding: var(--wpds-dimension-padding-xl);
+}
+
+.detail-highlights__grid {
+	display: grid;
+	gap: var(--wpds-dimension-gap-md);
+	grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+}
+
+.detail-highlight {
+	color: var(--wpds-color-foreground-content-neutral);
+}
+
+// Reserves the image's space before it loads, so the remote asset
+// arriving cannot reflow the page around it.
+.feature-screenshot__frame {
+	aspect-ratio: 16 / 10;
+	position: relative;
+	inline-size: 100%;
+}
+
+.feature-screenshot__skeleton {
+	block-size: 100%;
+	border-radius: var(--wpds-border-radius-md);
+	inset: 0;
+	position: absolute;
+	inline-size: 100%;
+}
+
+.feature-screenshot {
+	block-size: 100%;
+	border: var(--wpds-border-width-sm) solid var(--wpds-color-stroke-surface-neutral-weak);
+	border-radius: var(--wpds-border-radius-md);
+	inline-size: 100%;
+	object-fit: cover;
+	opacity: 0;
+	transition: opacity 200ms ease-out;
+}
+
+.feature-screenshot--loaded {
+	opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+	.feature-screenshot {
+		transition: none;
+	}
+}
+
+// Features with no artwork yet keep the page's shape rather than collapsing it.
+.feature-screenshot--placeholder {
+	align-items: center;
+	block-size: 100%;
+	border-color: var(--wpds-color-stroke-surface-neutral-weak);
+	border-style: dashed;
+	border-width: var(--wpds-border-width-sm);
+	border-radius: var(--wpds-border-radius-md);
+	color: var(--wpds-color-foreground-content-neutral-weak);
+	display: flex;
+	justify-content: center;
+	padding: var(--wpds-dimension-padding-xl);
+	text-align: center;
+}
+
+.feature-icon--small {
+	block-size: 1.75rem;
+	inline-size: 1.75rem;
+}
+
+.feature-pagination {
+	border-block-start-color: var(--wpds-color-stroke-surface-neutral-weak);
+	border-block-start-style: solid;
+	border-block-start-width: var(--wpds-border-width-sm);
+	display: flex;
+	gap: var(--wpds-dimension-gap-md);
+	justify-content: space-between;
+	margin-block-start: var(--wpds-dimension-gap-2xl);
+	padding-block-start: var(--wpds-dimension-padding-lg);
+}
+
+.feature-step {
+	background: none;
+	border: 0;
+	border-radius: var(--wpds-border-radius-md);
+	color: inherit;
+	cursor: pointer;
+	padding: var(--wpds-dimension-padding-sm);
+	text-align: start;
+
+	&:hover {
+		background: var(--wpds-color-background-surface-neutral-weak);
+	}
+}
