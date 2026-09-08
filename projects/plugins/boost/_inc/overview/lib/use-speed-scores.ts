@@ -1,10 +1,11 @@
 import { requestSpeedScores, standardizeError } from '@automattic/jetpack-boost-score-api';
+import { useQuery } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { z } from 'zod';
 import { recordBoostEvent } from '../../../app/assets/src/js/lib/utils/analytics';
 import { castToString } from '../../../app/assets/src/js/lib/utils/cast-to-string';
-import type { ScoreRefreshState } from './use-modules-state';
+import { requestDataSync, type ScoreRefreshState } from './use-modules-state';
 
 export type SpeedScoresSet = Awaited< ReturnType< typeof requestSpeedScores > >;
 export type SpeedScoreState = {
@@ -18,11 +19,17 @@ const cornerstonePagesSchema = z.object( { predefined_pages: z.array( z.string()
 
 export function useSpeedScores( refreshState?: ScoreRefreshState ) {
 	const { online } = Jetpack_Boost.site;
-	const properties = cornerstonePagesSchema.safeParse(
+	const initial = cornerstonePagesSchema.safeParse(
 		window.jetpack_boost_ds?.cornerstone_pages_properties?.value
 	);
-	const url =
-		( properties.success && properties.data.predefined_pages[ 0 ] ) || Jetpack_Boost.site.url;
+	const { data: properties } = useQuery( {
+		queryKey: [ 'cornerstone_pages_properties' ],
+		queryFn: async () =>
+			cornerstonePagesSchema.parse( await requestDataSync( 'cornerstone_pages_properties' ) ),
+		initialData: initial.success ? initial.data : undefined,
+		enabled: online,
+	} );
+	const url = properties?.predefined_pages[ 0 ] || Jetpack_Boost.site.url;
 	const [ state, setState ] = useState< SpeedScoreState >( {
 		status: online ? 'loading' : 'offline',
 		hasScores: false,
