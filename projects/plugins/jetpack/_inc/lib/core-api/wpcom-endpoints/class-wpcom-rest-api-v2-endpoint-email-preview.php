@@ -45,18 +45,14 @@ class WPCOM_REST_API_V2_Endpoint_Email_Preview extends WP_REST_Controller {
 		$options = array(
 			'show_in_index'       => true,
 			'methods'             => 'GET',
-			// if this is not a wpcom site, we need to proxy the request to wpcom
-			'callback'            => ( ( new Host() )->is_wpcom_simple() ) ? array(
-				$this,
-				'email_preview',
-			) : array( $this, 'proxy_request_to_wpcom_as_user' ),
+			'callback'            => array( $this, 'email_preview' ),
 			'permission_callback' => array( $this, 'permissions_check' ),
 			'args'                => array(
-				'id'     => array(
+				'post_id' => array(
 					'description' => __( 'Unique identifier for the post.', 'jetpack' ),
 					'type'        => 'integer',
 				),
-				'access' => array(
+				'access'  => array(
 					'description'       => __( 'Access level.', 'jetpack' ),
 					'enum'              => array( 'everybody', 'subscribers', 'paid_subscribers' ),
 					'default'           => 'everybody',
@@ -79,21 +75,26 @@ class WPCOM_REST_API_V2_Endpoint_Email_Preview extends WP_REST_Controller {
 	}
 
 	/**
-	 * Checks if the user is connected and has access to edit the post
+	 * Checks whether the request may render an email preview.
+	 *
+	 * The preview only renders the site's own post, so it needs the site to be connected
+	 * but not the requesting user. The `edit_post` capability check is the authorization.
 	 *
 	 * @param WP_REST_Request $request Full data about the request.
 	 *
-	 * @return true|WP_Error True if the request has edit access, WP_Error object otherwise.
+	 * @return true|WP_Error True if the request may render the preview, WP_Error object otherwise.
 	 */
 	public function permissions_check( $request ) {
-		if ( ! ( new Host() )->is_wpcom_simple() ) {
-			if ( ! ( new Manager() )->is_user_connected() ) {
-				return new WP_Error(
-					'rest_cannot_send_email_preview',
-					__( 'Please connect your user account to WordPress.com', 'jetpack' ),
-					array( 'status' => rest_authorization_required_code() )
-				);
-			}
+		$is_wpcom_simple = ( new Host() )->is_wpcom_simple();
+
+		// On a self-hosted site, the site must be connected before we can proxy the preview to WordPress.com.
+		// This uses its own error code (not the user-connection one) so the client can tell the two apart.
+		if ( ! $is_wpcom_simple && ! ( new Manager() )->is_connected() ) {
+			return new WP_Error(
+				'rest_cannot_view_email_preview',
+				__( 'Please connect your site to WordPress.com to preview emails.', 'jetpack' ),
+				array( 'status' => rest_authorization_required_code() )
+			);
 		}
 
 		$post = get_post( $request->get_param( 'post_id' ) );
@@ -106,25 +107,59 @@ class WPCOM_REST_API_V2_Endpoint_Email_Preview extends WP_REST_Controller {
 			);
 		}
 
-		if ( ! current_user_can( 'edit_post', $post->ID ) ) {
-			return new WP_Error(
-				'rest_forbidden_context',
-				__( 'Please connect your user account to WordPress.com', 'jetpack' ),
-				array( 'status' => rest_authorization_required_code() )
-			);
+		// Authorize any user who can edit the post: the local editor on self-hosted, a user-token request on WordPress.com.
+		if ( current_user_can( 'edit_post', $post->ID ) ) {
+			return true;
 		}
 
-		return true;
+		// On WordPress.com, a blog-token proxy authenticates as user 0 and fails the edit_post check
+		// above, so authorize it by site ownership instead. The self-hosted endpoint already verified a
+		// local editor could edit the post, and the blog token never reaches the browser.
+		if ( $is_wpcom_simple && $this->is_authorized_blog_token_request() ) {
+			return true;
+		}
+
+		return new WP_Error(
+			'rest_forbidden_context',
+			__( 'Sorry, you are not allowed to preview emails on this site.', 'jetpack' ),
+			array( 'status' => rest_authorization_required_code() )
+		);
 	}
 
 	/**
-	 * Returns an email preview of a post.
+	 * Whether the request is a valid blog-token request authorized for the current site.
+	 *
+	 * Runs on WordPress.com, where a proxied blog token authenticates as user 0.
+	 *
+	 * @return bool True if the request is authorized for the current Jetpack site.
+	 */
+	private function is_authorized_blog_token_request() {
+		if ( ! is_jetpack_site( get_current_blog_id() ) ) {
+			return false;
+		}
+
+		if ( ! class_exists( 'WPCOM_REST_API_V2_Endpoint_Jetpack_Auth' ) ) {
+			require_once dirname( __DIR__ ) . '/rest-api-plugins/endpoints/jetpack-auth.php';
+		}
+
+		$jp_auth_endpoint = new WPCOM_REST_API_V2_Endpoint_Jetpack_Auth();
+
+		return true === $jp_auth_endpoint->is_jetpack_authorized_for_site();
+	}
+
+	/**
+	 * Returns an email preview of a post, or proxies the request to WordPress.com on non-wpcom sites.
 	 *
 	 * @param WP_REST_Request $request Full data about the request.
 	 *
 	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
 	 */
 	public function email_preview( $request ) {
+		// On a non-wpcom site, proxy to WordPress.com with the user's token, falling back to the site's blog token.
+		if ( ! ( new Host() )->is_wpcom_simple() ) {
+			return $this->proxy_request_to_wpcom( $request, '', 'user', true );
+		}
+
 		$post_id = $request['post_id'];
 		$access  = $request['access'];
 		$post    = get_post( $post_id );
