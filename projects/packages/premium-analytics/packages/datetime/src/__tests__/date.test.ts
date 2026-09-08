@@ -57,14 +57,16 @@ describe( 'date helpers', () => {
 			expect( parseExactLabel( '2026-06', 'yyyy-MM' ) ).toEqual( new Date( 2026, 5, 1 ) );
 		} );
 
-		// date-fns rolls this forward to 2026-03-03, which `isValid` alone accepts.
 		it( 'rejects a day that does not exist', () => {
 			expect( parseExactLabel( '2026-02-31', 'yyyy-MM-dd' ) ).toBeNull();
+			expect( parseExactLabel( 'not a date', 'yyyy-MM-dd' ) ).toBeNull();
 		} );
 
-		it( 'rejects a label written in another format', () => {
+		// Both parse to a real date that `isValid` accepts; only the round trip
+		// rejects them. 2025-W53 resolves into 2026, and the loose day into June.
+		it( 'rejects a label that parses to a different label', () => {
+			expect( parseExactLabel( '2025-W53', "RRRR-'W'II" ) ).toBeNull();
 			expect( parseExactLabel( '2026-6-22', 'yyyy-MM-dd' ) ).toBeNull();
-			expect( parseExactLabel( 'not a date', 'yyyy-MM-dd' ) ).toBeNull();
 		} );
 	} );
 } );

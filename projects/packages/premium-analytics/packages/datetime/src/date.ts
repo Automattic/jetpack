@@ -12,18 +12,15 @@ export type DateIntervalDateParts = {
 
 const DATE_PART_FORMAT = 'yyyy-MM-dd';
 
-/** Inclusive day bounds, for the offset-less shape Stats responses carry. */
-export const DAY_START_TIME = '00:00:00';
-export const DAY_END_TIME = '23:59:59';
-
-// Only consulted for fields the parsed string omits, and every format we pass omits none.
+// date-fns needs a reference date. Every format here carries a year, which resets
+// the rest; a year-less format would silently inherit 2001.
 const REFERENCE_DATE = new Date( 2001, 0, 1 );
 
 /**
  * Parse a label that must round-trip through its own format.
  *
- * date-fns rolls impossible values forward, so `2026-02-31` parses to 2026-03-03
- * and `isValid` alone would accept it. Re-formatting catches that.
+ * `isValid` alone is not enough: date-fns reads `2025-W53` as a real date in 2026,
+ * and accepts a loosely written `2026-6-22`. Re-formatting catches both.
  *
  * @param label       - The label as written.
  * @param labelFormat - The date-fns format the label must match exactly.

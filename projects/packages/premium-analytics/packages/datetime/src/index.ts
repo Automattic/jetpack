@@ -35,8 +35,6 @@ export { readSiteTimestamp, type SiteTimestamp, type TimestampParts } from './si
 export { reportingTimeZone, localTZDate, dateToISOStringWithLocalTZ } from './reporting-time-zone';
 
 export {
-	DAY_END_TIME,
-	DAY_START_TIME,
 	formatDatePartWithTime,
 	getDateIntervalDateParts,
 	getDatePart,

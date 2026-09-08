@@ -1,6 +1,4 @@
 import {
-	DAY_END_TIME,
-	DAY_START_TIME,
 	formatDatePartWithTime,
 	getDateIntervalDateParts,
 	getDatePart,
@@ -15,6 +13,10 @@ import type {
 	StatsRecord,
 } from './types';
 import type { StatsQueryParams } from '../../utils/stats-params';
+
+/** Inclusive day bounds, in the offset-less second-precision shape Stats responses carry. */
+export const DAY_START_TIME = '00:00:00';
+export const DAY_END_TIME = '23:59:59';
 
 type StatsComparisonKey = string | number;
 

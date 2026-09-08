@@ -1,6 +1,4 @@
 import {
-	DAY_END_TIME,
-	DAY_START_TIME,
 	formatDatePartWithTime,
 	getDatePart,
 	parseExactLabel,
@@ -21,6 +19,8 @@ import { createStatsBucketWindowFilter, type StatsBucketFilter } from './bucket-
 import {
 	coerceStatsArray,
 	coerceStatsRecord,
+	DAY_END_TIME,
+	DAY_START_TIME,
 	getStatsIntervalFields,
 	normalizeStatsSummary,
 } from './utils';
