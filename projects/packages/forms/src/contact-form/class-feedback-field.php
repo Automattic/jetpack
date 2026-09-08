@@ -20,7 +20,10 @@ class Feedback_Field {
 	/**
 	 * Maximum number of rating icons to render.
 	 *
-	 * Keep in sync with MAX_RATING_ICONS in blocks/field-rating/rating-icons.js.
+	 * A rating submits "<selected>/<max>", so the scale is visitor input and every renderer
+	 * that loops over it needs this bound. Keep in sync with `MAX_RATING_ICONS` in
+	 * `blocks/field-rating/rating-icons.js`; `test_rating_icon_ceiling_matches_the_js_constant`
+	 * fails if they drift.
 	 *
 	 * @var int
 	 */
@@ -390,7 +393,6 @@ class Feedback_Field {
 			return $this->value;
 		}
 
-		// The scale is submitted, not derived, so cap it before the renderers loop over it.
 		$max    = min( $max, self::MAX_RATING_ICONS );
 		$rating = min( $rating, $max );
 
@@ -651,9 +653,7 @@ class Feedback_Field {
 			return $this->render_email_default();
 		}
 
-		// The scale is submitted, not derived, so cap it before it becomes a loop bound.
-		$max    = min( $max, self::MAX_RATING_ICONS );
-		$rating = min( $rating, $max );
+		$max = min( $max, self::MAX_RATING_ICONS );
 
 		$stars = '';
 		for ( $i = 1; $i <= $max; $i++ ) {

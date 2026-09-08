@@ -1,6 +1,7 @@
 /**
  * Maximum number of rating icons to render.
  * Used to prevent DOM bloat from malformed or excessively large values.
+ * Mirrored by `Feedback_Field::MAX_RATING_ICONS`, which a PHP test pins to this value.
  */
 export const MAX_RATING_ICONS = 10;
 
@@ -31,7 +32,6 @@ export function renderRatingIconsHtml( rating, maxRating, iconStyle, screenReade
 		? `<span class="screen-reader-text">${ screenReaderText }</span>`
 		: '';
 
-	// The scale reaches here from submitted data, so cap it before it becomes a loop bound.
 	const cappedMax = Math.min( maxRating, MAX_RATING_ICONS );
 
 	for ( let i = 1; i <= cappedMax; i++ ) {

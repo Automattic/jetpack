@@ -743,30 +743,6 @@ class Feedback_Field_Test extends BaseTestCase {
 	}
 
 	/**
-	 * A visitor picks a rating from radio inputs whose value is "<selected>/<max>",
-	 * so the scale is POST data and a forged one must not become a loop bound.
-	 */
-	public function test_rating_field_clamps_forged_scale_in_email_html_context() {
-		$field = new Feedback_Field( 'rating_key', 'Rating', '3/5000', 'rating', array( 'iconStyle' => 'stars' ) );
-
-		$value = $field->get_render_value( 'email_html' );
-
-		$this->assertSame( Feedback_Field::MAX_RATING_ICONS, substr_count( $value, '&#9733;' ) );
-	}
-
-	/**
-	 * The production OOM: a scale large enough to exhaust the memory limit while
-	 * concatenating one span per icon.
-	 */
-	public function test_rating_field_with_huge_scale_does_not_exhaust_memory() {
-		$field = new Feedback_Field( 'rating_key', 'Rating', '1/50000000', 'rating', array( 'iconStyle' => 'stars' ) );
-
-		$value = $field->get_render_value( 'email_html' );
-
-		$this->assertSame( Feedback_Field::MAX_RATING_ICONS, substr_count( $value, '&#9733;' ) );
-	}
-
-	/**
 	 * The structured value feeds the web/API renderers, which loop over maxRating
 	 * in JavaScript, so it needs the same bound the email path has.
 	 */
@@ -794,7 +770,54 @@ class Feedback_Field_Test extends BaseTestCase {
 		$this->assertSame( Feedback_Field::MAX_RATING_ICONS, $value['rating'] );
 	}
 
+	/**
+	 * The clamp is a rendering bound, so the response keeps the scale it was
+	 * submitted with for the CSV and plain-text fallbacks.
+	 */
+	public function test_rating_field_clamping_leaves_the_submitted_value_intact() {
+		$field = new Feedback_Field( 'rating_key', 'Rating', '3000/5000', 'rating', array( 'iconStyle' => 'stars' ) );
+
+		$value = $field->get_render_value( 'web' );
+
+		$this->assertIsArray( $value );
+		$this->assertSame( '3000/5000', $value['displayValue'] );
+		$this->assertSame( '3000/5000', $field->get_render_value( 'csv' ) );
+	}
+
+	/**
+	 * The PHP and JS ceilings bound the same rating scale on either side of a
+	 * submission, so a drift between them reopens the scale to unbounded loops.
+	 */
+	public function test_rating_icon_ceiling_matches_the_js_constant() {
+		$source = file_get_contents( __DIR__ . '/../../../src/blocks/field-rating/rating-icons.js' );
+
+		$this->assertIsString( $source );
+		$this->assertSame( 1, preg_match( '/export const MAX_RATING_ICONS = (\\d+);/', $source, $matches ) );
+		$this->assertSame( Feedback_Field::MAX_RATING_ICONS, (int) $matches[1] );
+	}
+
 	// ─── Email HTML rendering tests ───
+
+	/**
+	 * A visitor picks a rating from radio inputs whose value is "<selected>/<max>",
+	 * so the scale is POST data and a forged one must not become a loop bound.
+	 */
+	public function test_rating_field_clamps_forged_scale_in_email_html_context() {
+		$field = new Feedback_Field( 'rating_key', 'Rating', '3/5000', 'rating', array( 'iconStyle' => 'stars' ) );
+
+		$value = $field->get_render_value( 'email_html' );
+
+		$this->assertSame( Feedback_Field::MAX_RATING_ICONS, substr_count( $value, '&#9733;' ) );
+		$this->assertSame( 3, substr_count( $value, '#e6a117' ) );
+	}
+
+	public function test_rating_field_with_huge_scale_does_not_exhaust_memory() {
+		$field = new Feedback_Field( 'rating_key', 'Rating', '1/50000000', 'rating', array( 'iconStyle' => 'stars' ) );
+
+		$value = $field->get_render_value( 'email_html' );
+
+		$this->assertSame( Feedback_Field::MAX_RATING_ICONS, substr_count( $value, '&#9733;' ) );
+	}
 
 	/**
 	 * Test get_icon_name_for_type maps known types and falls back to field-text.

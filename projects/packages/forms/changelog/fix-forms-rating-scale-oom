@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Cap the rating scale when rendering a response so a malformed value cannot exhaust memory.
+Rating field: Cap the scale when rendering a form or a response so a malformed value cannot exhaust memory.
