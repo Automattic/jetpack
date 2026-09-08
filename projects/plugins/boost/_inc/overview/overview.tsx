@@ -4,6 +4,7 @@ import { __ } from '@wordpress/i18n';
 import { Button, Notice } from '@wordpress/ui';
 import { useEffect } from 'react';
 import ScoreAlert from './score-alert';
+import ErrorBoundary from '../../app/assets/src/js/features/error-boundary/error-boundary';
 import { recordBoostEvent } from '../../app/assets/src/js/lib/utils/analytics';
 import HistoryChartCard from './history-chart-card';
 import { useModulesState, useScoreRefreshState } from './lib/use-modules-state';
@@ -12,7 +13,27 @@ import { useSpeedScores } from './lib/use-speed-scores';
 import ScoreCards from './score-cards';
 import './overview.scss';
 
-export default function Overview( { isVisible = true }: { isVisible?: boolean } ) {
+export default function Overview( props: { isVisible?: boolean } ) {
+	return (
+		<ErrorBoundary
+			fallback={ error => (
+				<Notice.Root
+					intent="error"
+					spokenMessage={ __( 'Unable to display performance scores', 'jetpack-boost' ) }
+				>
+					<Notice.Title>
+						{ __( 'Unable to display performance scores', 'jetpack-boost' ) }
+					</Notice.Title>
+					<Notice.Description>{ error.message }</Notice.Description>
+				</Notice.Root>
+			) }
+		>
+			<OverviewContent { ...props } />
+		</ErrorBoundary>
+	);
+}
+
+function OverviewContent( { isVisible = true }: { isVisible?: boolean } ) {
 	const modules = useModulesState();
 	const refreshState = useScoreRefreshState( modules.data );
 	const [ scoreState, refreshScores ] = useSpeedScores( refreshState );
