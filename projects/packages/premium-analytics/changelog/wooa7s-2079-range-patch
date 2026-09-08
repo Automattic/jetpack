@@ -1,4 +1,4 @@
 Significance: patch
-Type: fixed
+Type: changed
 
-Report date filters: measure a widget-configured comparison against the selected period, not the rest of the day.
+Report date filters: stage a date range through one shared bounds helper in both pickers.
