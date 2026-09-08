@@ -51,7 +51,7 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 				'jetpack_manage_modules',
 				'jetpack_modules',
 				array( $this, 'render' ),
-				-5
+				Admin_Menu::POSITION_FIRST_FALLBACK
 			);
 		}
 
