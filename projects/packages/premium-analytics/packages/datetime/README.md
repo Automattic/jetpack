@@ -141,8 +141,8 @@ Calculates comparison date ranges based on predefined presets.
 
 ```typescript
 const reference = {
-	from: new Date( '2024-01-15' ),
-	to: new Date( '2024-01-21' ),
+	from: localTZDate( '2024-01-15', 'America/New_York' ),
+	to: localTZDate( '2024-01-21', 'America/New_York' ),
 };
 const comparison = getComparisonRangeFromPreset( reference, 'previous-period' );
 // Returns dates for Jan 8-14, 2024
@@ -242,22 +242,8 @@ type DateRange = {
 };
 ```
 
-Zoned, so `getDateRangeSpan` and the steppers cut day boundaries on the site's
-clock. A plain `Date` names the same instant but reads its day in the browser's
-zone, which measures a 30 day window as 31.
-
-### `EditedDateRange`
-
-```typescript
-type EditedDateRange = {
-	from?: Date;
-	to?: Date;
-};
-```
-
-What a date picker hands back, before anything anchors it: a calendar click
-reports the day in the browser's zone. `buildRangePatch` anchors these; nothing
-measures a span on one.
+Both bounds stay optional: `resolveBucketStamp` returns `undefined` for a bound
+it cannot resolve, and the chart passes that straight through.
 
 ### `ComparisonPresetId`
 

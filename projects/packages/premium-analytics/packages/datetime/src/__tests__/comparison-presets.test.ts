@@ -1,7 +1,4 @@
 /**
- * External dependencies
- */
-/**
  * Internal dependencies
  */
 import { COMPARISON_PRESETS, isComparisonPresetId } from '../get-comparison-range';

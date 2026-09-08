@@ -3,8 +3,8 @@
  */
 import {
 	PRESET_CUSTOM,
+	toLocalTZ,
 	type DateRange,
-	type EditedDateRange,
 	type PrimaryPresetId,
 } from '@jetpack-premium-analytics/datetime';
 import { Button, DateRangeCalendar, Stack } from '@jetpack-premium-analytics/externals';
@@ -18,16 +18,16 @@ import { DateRangeInput } from '../date-range-input';
 import './date-range-filter.scss';
 
 /**
- * The calendar's own range type, from `@automattic/ui`. Zone-naive: a click
- * reports the day in the browser's zone, so these bounds only ever leave here
- * as an `EditedDateRange`.
+ * The calendar's own range type, from `@automattic/ui`. Its bounds are typed as
+ * plain `Date`, so a day leaves here through `toLocalTZ` to say in the type what
+ * the picker already does at runtime.
  */
 type CalendarRange = NonNullable< Parameters< typeof DateRangeCalendar >[ 0 ][ 'selected' ] >;
 
 type DateRangePopoverContentProps = {
 	range: DateRange;
 
-	onChange: ( range?: EditedDateRange, preset?: PrimaryPresetId ) => void;
+	onChange: ( range?: DateRange, preset?: PrimaryPresetId ) => void;
 
 	onApply: () => void;
 
@@ -47,7 +47,7 @@ type DateRangePopoverContentProps = {
 	timeZone: string;
 };
 
-function getDisplayedMonth( range: EditedDateRange ): Date {
+function getDisplayedMonth( range: DateRange ): Date {
 	return range?.from ?? new Date();
 }
 
@@ -93,9 +93,9 @@ export function DateRangePopoverContent( {
 	 * Half-open calendar selection (`from` picked, `to` pending). Kept local:
 	 * consumers only receive complete ranges.
 	 */
-	const [ draftRange, setDraftRange ] = useState< CalendarRange | null >( null );
+	const [ draftRange, setDraftRange ] = useState< DateRange | null >( null );
 
-	const handleChange = ( nextRange?: EditedDateRange, nextPrimaryPresetId?: PrimaryPresetId ) => {
+	const handleChange = ( nextRange?: DateRange, nextPrimaryPresetId?: PrimaryPresetId ) => {
 		setDraftRange( null );
 
 		if ( nextRange ) {
@@ -114,23 +114,26 @@ export function DateRangePopoverContent( {
 	 * complete range on click, it only moves the nearest endpoint.
 	 */
 	const handleCalendarSelect = ( _nextRange: CalendarRange | undefined, triggerDate: Date ) => {
+		// The picker already builds its days in `timeZone`; this restates that in
+		// the type, since its `onSelect` signature says plain `Date`.
+		const day = toLocalTZ( triggerDate, timeZone );
+
 		if ( draftRange?.from && ! draftRange.to ) {
 			const [ from, to ] =
-				triggerDate < draftRange.from
-					? [ triggerDate, draftRange.from ]
-					: [ draftRange.from, triggerDate ];
+				day < draftRange.from ? [ day, draftRange.from ] : [ draftRange.from, day ];
 
 			setDraftRange( null );
 			onChange( { from, to }, PRESET_CUSTOM );
 			return;
 		}
 
-		setDraftRange( { from: triggerDate, to: undefined } );
+		setDraftRange( { from: day, to: undefined } );
 	};
 
 	// Widened to the calendar's shape, which requires both keys where a
 	// `DateRange` leaves them optional.
-	const calendarRange: CalendarRange = draftRange ?? { from: range.from, to: range.to };
+	const selected = draftRange ?? range;
+	const calendarRange: CalendarRange = { from: selected.from, to: selected.to };
 
 	// Apply commits the staged range, not the draft: disable it mid-selection.
 	const effectiveCanApply = canApply && ! draftRange;

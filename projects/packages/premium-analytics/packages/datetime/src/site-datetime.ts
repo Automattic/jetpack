@@ -1,7 +1,4 @@
 /**
- * External dependencies
- */
-/**
  * Internal dependencies
  */
 import { reportingTimeZone } from './reporting-time-zone';

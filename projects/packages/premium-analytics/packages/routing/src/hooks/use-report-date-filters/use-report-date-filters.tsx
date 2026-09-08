@@ -27,7 +27,6 @@ import type { TZDate } from '@date-fns/tz';
 import type {
 	ComparisonPresetId,
 	DateRange,
-	EditedDateRange,
 	IntervalType,
 	PrimaryPresetId,
 	StepDirection,
@@ -68,7 +67,7 @@ export type ReportDateFilters = {
 	 */
 	intervalOptions: IntervalType[];
 
-	onChange: ( range?: EditedDateRange, presetId?: PrimaryPresetId ) => void;
+	onChange: ( range?: DateRange, presetId?: PrimaryPresetId ) => void;
 	onComparisonChange: ( range: DateRange | undefined, presetId?: ComparisonPresetId ) => void;
 	onIntervalChange: ( interval: IntervalType ) => void;
 
@@ -152,7 +151,7 @@ export function useReportDateFilters< TFrom extends string >( from?: TFrom ): Re
 	);
 
 	const onChange = useCallback(
-		( nextRange?: EditedDateRange, nextPresetId?: PrimaryPresetId ) => {
+		( nextRange?: DateRange, nextPresetId?: PrimaryPresetId ) => {
 			const patch = buildRangePatch( { nextRange, nextPresetId, effective } );
 
 			if ( patch ) {

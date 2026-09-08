@@ -30,21 +30,10 @@ import type { TZDate } from '@date-fns/tz';
 /**
  * An inclusive range of instants, each anchored to the zone it was read in.
  *
- * Zoned rather than plain, so `getDateRangeSpan` measures day boundaries in the
- * site's zone; a plain `Date` reads them in the browser's and lands a day out.
- * Both bounds stay optional: `resolveBucketStamp` returns `undefined` for one it
- * cannot resolve, and the chart passes that straight through.
+ * Zoned rather than plain, so `getDateRangeSpan` cuts day boundaries on the
+ * site's clock; a plain `Date` cuts them on the browser's and lands a day out.
  */
 export type DateRange = { from?: TZDate; to?: TZDate };
-
-/**
- * A range as a date picker hands it back, before anything anchors it.
- *
- * A calendar click reports the day in the browser's zone, so these bounds name
- * an instant the site may read as a different day. `buildRangePatch` is what
- * anchors them; nothing measures a span on one.
- */
-export type EditedDateRange = { from?: Date; to?: Date };
 
 export const COMPARISON_PREVIOUS_PERIOD = 'previous-period' as const;
 export const COMPARISON_PREVIOUS_WEEK = 'previous-week' as const;

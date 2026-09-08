@@ -2,7 +2,6 @@ export {
 	getComparisonRangeFromPreset,
 	isComparisonPresetId,
 	type DateRange,
-	type EditedDateRange,
 	type ComparisonPresetId,
 } from './get-comparison-range';
 export type { ComparisonRangeOptions } from './get-comparison-range';

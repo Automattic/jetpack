@@ -13,6 +13,7 @@ import { useCallback, useEffect, useState } from 'react';
  * Internal dependencies
  */
 import { DateRangePopoverContent } from '../date-range-popover/date-range-filter';
+import type { TZDate } from '@date-fns/tz';
 import './date-range-input.scss';
 
 type DateRangeInputProps = Pick<
@@ -24,8 +25,8 @@ type DateRangeInputProps = Pick<
 
 type DateInputProps = Pick< DateRangeInputProps, 'timeZone' > & {
 	label: string;
-	date?: Date;
-	onChange: ( date?: Date ) => void;
+	date?: TZDate;
+	onChange: ( date?: TZDate ) => void;
 };
 
 const formatToString = ( date: Date | undefined, timeZone: string ) =>
