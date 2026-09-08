@@ -253,7 +253,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/agents-manager",
-                "reference": "26c221b1022a17323bcef8a9fa083935e4ac279c"
+                "reference": "bf466087512d5f4c86efcd4b8848331003f526a4"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -275,7 +275,7 @@
                 "autorelease": true,
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "0.11.x-dev"
+                    "dev-trunk": "0.12.x-dev"
                 },
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-agents-manager/compare/v${old}...v${new}"
@@ -1889,7 +1889,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/podcast",
-                "reference": "f2995197d7d9a90af87f9cce125ddf0c99f63a7e"
+                "reference": "3eb3142530d0e450a48d88171b728409059e3392"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -1916,7 +1916,7 @@
                 "autotagger": true,
                 "mirror-repo": "Automattic/jetpack-podcast",
                 "branch-alias": {
-                    "dev-trunk": "2.0.x-dev"
+                    "dev-trunk": "2.1.x-dev"
                 },
                 "textdomain": "jetpack-podcast",
                 "version-constants": {
@@ -2098,7 +2098,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/premium-analytics",
-                "reference": "89f4be4707f2894e05264c600cbc61b41d4b1870"
+                "reference": "db9e1e326079ce7b0d1c71af2defd236a7a458ff"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -2129,7 +2129,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-premium-analytics/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.5.x-dev"
+                    "dev-trunk": "0.6.x-dev"
                 }
             },
             "autoload": {
@@ -2553,7 +2553,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "7076821852e786eda5a1cccb4640dffaa64ef553"
+                "reference": "f35ab212177d3d1d5696186cbc3130e4bbb243a6"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -2586,7 +2586,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "5.0.x-dev"
+                    "dev-trunk": "5.1.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
