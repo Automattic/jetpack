@@ -48,7 +48,7 @@ if ( ! function_exists( 'jetpack_verification_validate' ) ) {
 			if ( '' !== $code && isset( $service_patterns[ $key ] ) && ! preg_match( $service_patterns[ $key ], $code ) ) {
 				if ( function_exists( 'add_settings_error' ) ) {
 					$services     = function_exists( 'jetpack_verification_services' ) ? jetpack_verification_services() : array();
-					$service_name = isset( $services[ $key ]['name'] ) ? $services[ $key ]['name'] : ucfirst( $key );
+					$service_name = $services[ $key ]['name'] ?? ucfirst( $key );
 					add_settings_error(
 						'verification_services_codes',
 						'invalid_' . $key . '_verification_code',

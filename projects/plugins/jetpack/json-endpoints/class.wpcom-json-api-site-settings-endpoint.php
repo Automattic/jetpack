@@ -1241,7 +1241,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 							continue;
 						}
 
-						$validated_code = isset( $verification_codes[ $service_key ] ) ? $verification_codes[ $service_key ] : '';
+						$validated_code = $verification_codes[ $service_key ] ?? '';
 						if ( '' === $validated_code ) {
 							return new WP_Error(
 								'invalid_input',
