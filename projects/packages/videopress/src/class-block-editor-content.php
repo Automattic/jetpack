@@ -19,22 +19,20 @@ class Block_Editor_Content {
 	 * This method should be called only once by the Initializer class. Do not call this method again.
 	 */
 	public static function init() {
-		if ( ! Status::is_standalone_plugin_active() ) {
-			return;
-		}
+		if ( Status::is_standalone_plugin_active() ) {
+			// Remove the videopress shortcodes added by the Jetpack plugin.
+			if ( shortcode_exists( 'videopress' ) ) {
+				remove_shortcode( 'videopress' );
+			}
+			if ( shortcode_exists( 'wpvideo' ) ) {
+				remove_shortcode( 'wpvideo' );
+			}
 
-		// Remove the videopress shortcodes added by the Jetpack plugin.
-		if ( shortcode_exists( 'videopress' ) ) {
-			remove_shortcode( 'videopress' );
-		}
-		if ( shortcode_exists( 'wpvideo' ) ) {
-			remove_shortcode( 'wpvideo' );
-		}
+			add_shortcode( 'videopress', array( static::class, 'videopress_embed_shortcode' ) );
+			add_shortcode( 'wpvideo', array( static::class, 'videopress_embed_shortcode' ) );
 
-		add_shortcode( 'videopress', array( static::class, 'videopress_embed_shortcode' ) );
-		add_shortcode( 'wpvideo', array( static::class, 'videopress_embed_shortcode' ) );
-
-		add_filter( 'wp_video_shortcode_override', array( static::class, 'video_shortcode_override' ), 10, 4 );
+			add_filter( 'wp_video_shortcode_override', array( static::class, 'video_shortcode_override' ), 10, 4 );
+		}
 
 		add_filter( 'default_content', array( static::class, 'videopress_video_block_by_guid' ), 10, 2 );
 	}

@@ -8,9 +8,15 @@ Jetpack Boost gives your site the same performance advantages as the world’s l
 
 ## Development
 
-### Building and watching assets
+### Watching development builds
 
-See [Build the project](./docs/DEVELOPEMENT_GUIDE.md#build-the-project) for build and watch commands.
+From `projects/plugins/boost`, run:
+
+```sh
+pnpm run watch
+```
+
+This builds the plugin and watches both the existing dashboard and the modern dashboard sources for changes.
 
 ### Installation from Git repo
 
