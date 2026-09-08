@@ -60,6 +60,13 @@ class Jetpack_Email_Design_Editor_Test extends WP_UnitTestCase {
 	private $asset_registries = array();
 
 	/**
+	 * Block types registered by a test, unregistered again however the test ends.
+	 *
+	 * @var string[]
+	 */
+	private $registered_blocks = array();
+
+	/**
 	 * Set up.
 	 */
 	public function set_up() {
@@ -105,6 +112,11 @@ class Jetpack_Email_Design_Editor_Test extends WP_UnitTestCase {
 		if ( null !== $this->created_build_dir ) {
 			rmdir( $this->created_build_dir );
 		}
+
+		foreach ( $this->registered_blocks as $name ) {
+			unregister_block_type( $name );
+		}
+		$this->registered_blocks = array();
 
 		list( $GLOBALS['menu'], $GLOBALS['submenu'] )         = $this->menu_snapshot;
 		list( $GLOBALS['wp_scripts'], $GLOBALS['wp_styles'] ) = $this->asset_registries;
@@ -162,6 +174,22 @@ class Jetpack_Email_Design_Editor_Test extends WP_UnitTestCase {
 		}
 
 		return $reflected->invokeArgs( null, $args );
+	}
+
+	/**
+	 * Register a block type for the duration of one test.
+	 *
+	 * Returned so a test can write shapes past `register_block_type()` that a caller could still
+	 * reach through `register_block_type_args`.
+	 *
+	 * @param string $name Block name.
+	 * @param array  $args Registration args.
+	 * @return WP_Block_Type
+	 */
+	private function register_test_block( $name, array $args = array() ) {
+		$this->registered_blocks[] = $name;
+
+		return register_block_type( $name, $args );
 	}
 
 	/**
@@ -263,7 +291,7 @@ class Jetpack_Email_Design_Editor_Test extends WP_UnitTestCase {
 	}
 
 	public function test_a_block_declaring_email_support_keeps_its_stylesheet() {
-		register_block_type(
+		$this->register_test_block(
 			'jetpack-test/email-block',
 			array(
 				'supports'             => array( 'email' => true ),
@@ -276,12 +304,10 @@ class Jetpack_Email_Design_Editor_Test extends WP_UnitTestCase {
 
 		$this->assertContains( 'jetpack-test-email-style-css', $handles );
 		$this->assertContains( 'jetpack-test-email-editor-style-css', $handles );
-
-		unregister_block_type( 'jetpack-test/email-block' );
 	}
 
 	public function test_a_block_without_email_support_does_not() {
-		register_block_type(
+		$this->register_test_block(
 			'jetpack-test/ordinary-block',
 			array(
 				'supports'      => array( 'align' => true ),
@@ -292,8 +318,38 @@ class Jetpack_Email_Design_Editor_Test extends WP_UnitTestCase {
 		$handles = $this->call_private( 'get_allowed_iframe_style_handles' );
 
 		$this->assertNotContains( 'jetpack-test-ordinary-style-css', $handles );
+	}
 
-		unregister_block_type( 'jetpack-test/ordinary-block' );
+	/**
+	 * `WP_Block_Type::set_props()` normalizes only `attributes`, so a handle list arrives however
+	 * it was registered — and `register_block_type_args` can rewrite it after that.
+	 */
+	public function test_a_block_declaring_its_handles_as_a_string_does_not_break_the_list() {
+		$block                = $this->register_test_block( 'jetpack-test/string-handles', array( 'supports' => array( 'email' => true ) ) );
+		$block->style_handles = 'jetpack-test-string-style';
+
+		$handles = $this->call_private( 'get_allowed_iframe_style_handles' );
+
+		$this->assertContains( 'jetpack-test-string-style-css', $handles );
+	}
+
+	public function test_a_block_whose_supports_is_not_an_array_is_skipped() {
+		$block           = $this->register_test_block( 'jetpack-test/object-supports', array( 'style_handles' => array( 'jetpack-test-object-style' ) ) );
+		$block->supports = new stdClass();
+
+		$handles = $this->call_private( 'get_allowed_iframe_style_handles' );
+
+		$this->assertNotContains( 'jetpack-test-object-style-css', $handles );
+	}
+
+	public function test_a_handle_that_is_not_a_string_is_left_out_rather_than_concatenated() {
+		$block                = $this->register_test_block( 'jetpack-test/nested-handle', array( 'supports' => array( 'email' => true ) ) );
+		$block->style_handles = array( array( 'nested' ), 'jetpack-test-nested-sibling' );
+
+		$handles = $this->call_private( 'get_allowed_iframe_style_handles' );
+
+		$this->assertContains( 'jetpack-test-nested-sibling-css', $handles );
+		$this->assertNotContains( 'Array-css', $handles );
 	}
 
 	/**

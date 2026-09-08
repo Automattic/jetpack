@@ -299,13 +299,18 @@ class Jetpack_Email_Design_Editor {
 			'wp-edit-blocks-css',
 		);
 
+		// Registration args reach the block type verbatim — `WP_Block_Type::set_props()` normalizes
+		// only `attributes`, and `register_block_type_args` can rewrite the rest — so a block
+		// declaring a bare string here would otherwise fatal the screen inside `array_merge()`.
 		foreach ( WP_Block_Type_Registry::get_instance()->get_all_registered() as $block ) {
-			if ( empty( $block->supports['email'] ) ) {
+			if ( ! is_array( $block->supports ) || empty( $block->supports['email'] ) ) {
 				continue;
 			}
 
-			foreach ( array_merge( $block->style_handles, $block->editor_style_handles ) as $handle ) {
-				$handles[] = $handle . '-css';
+			foreach ( array_merge( (array) $block->style_handles, (array) $block->editor_style_handles ) as $handle ) {
+				if ( is_string( $handle ) ) {
+					$handles[] = $handle . '-css';
+				}
 			}
 		}
 
