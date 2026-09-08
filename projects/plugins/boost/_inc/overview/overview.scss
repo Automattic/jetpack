@@ -20,8 +20,15 @@
 		display: flex;
 		flex-direction: column;
 		gap: var(--wpds-dimension-gap-sm);
-		padding: var(--wpds-dimension-padding-xl) var(--wpds-dimension-padding-2xl);
+		padding-block: var(--wpds-dimension-padding-xl);
+		padding-inline: var(--wpds-dimension-padding-2xl);
 		min-inline-size: 0;
+	}
+
+	&__score-placeholder {
+		inline-size: 2.5em;
+		block-size: 1.2em;
+		font-size: var(--wpds-typography-font-size-2xl);
 	}
 
 	&__progress {
@@ -81,15 +88,29 @@
 	}
 
 	&__history-tooltip {
+		padding: var(--wpds-dimension-padding-sm);
+		background-color: var(--wpds-color-foreground-content-neutral);
+		color: var(--wpds-color-background-surface-neutral);
+		border-radius: var(--wpds-border-radius-md);
+		font-size: var(--wpds-typography-font-size-md);
+		box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 
 		dl {
-			margin-block: 8px 0;
+			display: grid;
+			grid-template-columns: auto auto;
+			gap: var(--wpds-dimension-gap-xs) var(--wpds-dimension-gap-md);
+			margin-block: var(--wpds-dimension-gap-sm) 0;
+
+			> div {
+				display: contents;
+			}
 		}
 
 		dd {
 			margin-inline-start: 0;
-			margin-block-end: 8px;
-			font-weight: 600;
+			margin-block: 0;
+			text-align: end;
+			font-weight: var(--wpds-typography-font-weight-emphasis);
 		}
 	}
 }

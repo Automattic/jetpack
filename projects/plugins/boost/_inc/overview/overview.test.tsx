@@ -3,6 +3,8 @@ import { requestSpeedScores } from '@automattic/jetpack-boost-score-api';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, fireEvent, render, renderHook, screen, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
+import { useDismissibleAlertState as useLegacyAlertState } from '../../app/assets/src/js/features/performance-history/lib/hooks';
+import PopOut from '../../app/assets/src/js/features/speed-score/pop-out/pop-out';
 import { recordBoostEvent } from '../../app/assets/src/js/lib/utils/analytics';
 import { useSpeedScores } from './lib/use-speed-scores';
 import Overview from './overview';
@@ -13,6 +15,9 @@ jest.mock( '@automattic/jetpack-boost-score-api', () => ( {
 	requestSpeedScores: jest.fn(),
 } ) );
 jest.mock( '@wordpress/api-fetch' );
+jest.mock( '../../app/assets/src/js/features/performance-history/lib/hooks', () => ( {
+	useDismissibleAlertState: jest.fn(),
+} ) );
 jest.mock( '@react-spring/web', () => ( {
 	animated: { div: 'div' },
 	useSpring: ( { to }: { to: { right: string } } ) => ( {
@@ -114,7 +119,8 @@ test( 'tracks score errors and offers a successful retry', async () => {
 		.mockRejectedValueOnce( new Error( 'Score service unavailable' ) );
 	renderOverview();
 	await expect( screen.findByText( 'Score service unavailable' ) ).resolves.toBeTruthy();
-	expect( screen.getAllByText( '—' ) ).toHaveLength( 3 );
+	expect( screen.queryByText( '91' ) ).not.toBeInTheDocument();
+	expect( screen.queryByText( '81' ) ).not.toBeInTheDocument();
 	expect( screen.queryByRole( 'progressbar' ) ).not.toBeInTheDocument();
 	for ( const name of [ 'Overall grade', 'Desktop', 'Mobile' ] ) {
 		expect( screen.getByRole( 'region', { name } ) ).toHaveAttribute( 'aria-busy', 'false' );
@@ -149,7 +155,8 @@ test( 'retains loaded scores and Refresh alongside a subsequent score error', as
 test( 'does not present initial loading scores as measured scores', () => {
 	jest.mocked( requestSpeedScores ).mockReturnValue( new Promise( () => {} ) );
 	renderOverview();
-	expect( screen.getAllByText( '—' ) ).toHaveLength( 3 );
+	expect( screen.queryByText( '91' ) ).not.toBeInTheDocument();
+	expect( screen.queryByText( '81' ) ).not.toBeInTheDocument();
 	expect( screen.getByRole( 'region', { name: 'Desktop' } ) ).toHaveAttribute(
 		'aria-busy',
 		'true'
@@ -291,4 +298,17 @@ test.each( [
 		'speed_score_alert_shown',
 		expect.anything()
 	);
+} );
+
+test( 'uses the legacy dismissal hook when no alert adapter is supplied', () => {
+	const dismiss = jest.fn();
+	jest.mocked( useLegacyAlertState ).mockReturnValue( [ false, dismiss ] );
+	const { rerender } = render( <PopOut scoreChange={ -20 } /> );
+	expect( useLegacyAlertState ).toHaveBeenCalledWith( 'score_decrease' );
+	expect( screen.getByText( 'Speed score has fallen' ) ).toBeVisible();
+	fireEvent.click( screen.getByRole( 'button', { name: 'Do not show me again' } ) );
+	expect( dismiss ).toHaveBeenCalledTimes( 1 );
+	jest.mocked( useLegacyAlertState ).mockReturnValue( [ true, dismiss ] );
+	rerender( <PopOut scoreChange={ -20 } /> );
+	expect( screen.getByText( 'Speed score has fallen' ) ).not.toBeVisible();
 } );

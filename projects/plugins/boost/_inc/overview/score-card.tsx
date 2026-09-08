@@ -1,5 +1,5 @@
 import { __ } from '@wordpress/i18n';
-import { Badge, Stack, Text } from '@wordpress/ui';
+import { Badge, Skeleton, Stack, Text } from '@wordpress/ui';
 import {
 	formatScoreDelta,
 	getScoreDelta,
@@ -44,7 +44,11 @@ export default function ScoreCard( {
 				</Text>
 			</Stack>
 			<Stack direction="row" align="center" gap="md">
-				<Text variant="heading-2xl">{ showPlaceholder ? '—' : value }</Text>
+				{ showPlaceholder ? (
+					<Skeleton className="jetpack-boost-overview__score-placeholder" />
+				) : (
+					<Text variant="heading-2xl">{ value }</Text>
+				) }
 				{ ! showPlaceholder && score !== undefined && (
 					<Badge intent={ intent }>{ getScoreTierLabel( score ) }</Badge>
 				) }

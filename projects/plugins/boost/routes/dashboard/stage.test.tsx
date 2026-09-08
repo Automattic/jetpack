@@ -114,8 +114,9 @@ describe( 'Boost dashboard stage', () => {
 		expect( mockNavigate ).toHaveBeenCalledWith( { search: { tab: 'settings' }, replace: true } );
 	} );
 
-	it( 'keeps both mount nodes across tab changes and subpage visits', () => {
+	it( 'keeps Overview and both mount nodes across tab changes and subpage visits', () => {
 		const { rerender } = render( <Stage /> );
+		const overview = screen.getByText( 'Performance Overview' );
 		const settingsMount = getSettingsMount();
 		const subpageMount = getSubpageMount();
 
@@ -131,6 +132,7 @@ describe( 'Boost dashboard stage', () => {
 			} );
 			rerender( <Stage /> );
 
+			expect( screen.getByText( 'Performance Overview' ) ).toBe( overview );
 			expect( getSettingsMount() ).toBe( settingsMount );
 			expect( getSubpageMount() ).toBe( subpageMount );
 		}

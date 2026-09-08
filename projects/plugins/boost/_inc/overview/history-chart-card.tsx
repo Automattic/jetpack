@@ -4,11 +4,12 @@ import { getScoreLetter } from '@automattic/jetpack-boost-score-api';
 import { Spinner } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
-import { Button, Card, Notice, Text } from '@wordpress/ui';
+import { trendingUp } from '@wordpress/icons';
+import { Button, Card, EmptyState, Notice, Text } from '@wordpress/ui';
 import { useCallback, useMemo } from 'react';
 import UpgradeCTA from './upgrade-cta';
 import type { PerformanceHistoryData } from './lib/use-performance-history';
-import type { SeriesData } from '@automattic/charts';
+import type { DataPointDate, SeriesData } from '@automattic/charts';
 import type { ComponentProps } from 'react';
 
 type History = NonNullable< PerformanceHistoryData >;
@@ -23,26 +24,27 @@ type Props = {
 	onDismissFreshStart: () => void;
 };
 
-export function buildHistorySeries( data?: PerformanceHistoryData | null ): SeriesData[] {
+export function buildHistorySeries(
+	data?: PerformanceHistoryData | null
+): ( SeriesData & { data: DataPointDate[] } )[] {
 	if ( ! data?.periods.length ) {
 		return [];
 	}
+	const periods = [ ...data.periods ].sort( ( a, b ) => a.timestamp - b.timestamp );
 	return [
 		{
 			label: __( 'Desktop', 'jetpack-boost' ),
-			data: data.periods.map( period => ( {
+			data: periods.map( period => ( {
 				date: new Date( period.timestamp ),
 				value: period.dimensions.desktop_overall_score,
 			} ) ),
-			options: { stroke: '#1d4ed8' },
 		},
 		{
 			label: __( 'Mobile', 'jetpack-boost' ),
-			data: data.periods.map( period => ( {
+			data: periods.map( period => ( {
 				date: new Date( period.timestamp ),
 				value: period.dimensions.mobile_overall_score,
 			} ) ),
-			options: { stroke: '#16a34a' },
 		},
 	];
 }
@@ -95,6 +97,15 @@ export default function HistoryChartCard( {
 	onDismissFreshStart,
 }: Props ) {
 	const series = useMemo( () => buildHistorySeries( data ), [ data ] );
+	const dayBeforeEndDate = ( data?.endDate ?? 0 ) - 24 * 60 * 60 * 1000;
+	const firstTimestamp = series[ 0 ]?.data[ 0 ]?.date?.getTime();
+	const startDate =
+		firstTimestamp === undefined
+			? dayBeforeEndDate
+			: Math.min(
+					firstTimestamp - ( data?.periods.length === 1 ? 12 * 60 * 60 * 1000 : 0 ),
+					dayBeforeEndDate
+			  );
 	const renderTooltip = useCallback<
 		NonNullable< ComponentProps< typeof LineChart >[ 'renderTooltip' ] >
 	>(
@@ -162,12 +173,16 @@ export default function HistoryChartCard( {
 		);
 	} else if ( ! data || ! series.length ) {
 		content = (
-			<Text>
-				{ __(
-					'Performance history will appear here once enough data has been collected.',
-					'jetpack-boost'
-				) }
-			</Text>
+			<EmptyState.Root>
+				<EmptyState.Icon icon={ trendingUp } />
+				<EmptyState.Title>{ __( 'No performance history yet', 'jetpack-boost' ) }</EmptyState.Title>
+				<EmptyState.Description>
+					{ __(
+						'Performance history will appear here once enough data has been collected.',
+						'jetpack-boost'
+					) }
+				</EmptyState.Description>
+			</EmptyState.Root>
 		);
 	} else {
 		content = (
@@ -183,7 +198,7 @@ export default function HistoryChartCard( {
 						axis: {
 							x: { tickFormat: value => dateI18n( 'M j', new Date( value ), false ) },
 						},
-						xScale: { domain: [ new Date( data.startDate ), new Date( data.endDate ) ] },
+						xScale: { domain: [ new Date( startDate ), new Date( data.endDate ) ] },
 						yScale: { domain: [ 0, 100 ], nice: false },
 					} }
 				>

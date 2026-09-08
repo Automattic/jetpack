@@ -28,7 +28,7 @@ export default function Overview() {
 		if ( online && scoreState.status === 'loaded' ) {
 			queryClient.invalidateQueries( { queryKey: [ 'performance_history' ] } );
 		}
-	}, [ online, scoreState, queryClient ] );
+	}, [ online, scoreState.status, queryClient ] );
 
 	const onRefresh = () => {
 		recordBoostEvent( 'speed_score_refresh_clicked', {} );

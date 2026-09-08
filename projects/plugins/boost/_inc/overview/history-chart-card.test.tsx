@@ -1,5 +1,5 @@
 /* eslint-disable testing-library/prefer-user-event */
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { getSettings, setSettings } from '@wordpress/date';
 import HistoryChartCard, { buildHistorySeries, HistoryTooltip } from './history-chart-card';
 import type { PerformanceHistoryData } from './lib/use-performance-history';
@@ -33,6 +33,24 @@ const history: NonNullable< PerformanceHistoryData > = {
 	annotations: [ { timestamp, text: 'Image CDN enabled' } ],
 };
 const callbacks = { onRetry: jest.fn(), onDismissFreshStart: jest.fn() };
+
+// SVG geometry and legend swatches have no accessible queries.
+/* eslint-disable testing-library/no-node-access */
+function getSeriesColor( label: string ) {
+	const item = screen
+		.getAllByRole( 'listitem' )
+		.find( entry => within( entry ).queryByText( label ) );
+	return item?.querySelector( 'line' )?.getAttribute( 'stroke' );
+}
+
+function getSeriesPath( container: HTMLElement, label: string ) {
+	const color = getSeriesColor( label );
+	expect( color ).toBeTruthy();
+	const path = container.querySelector( `path.visx-line[stroke="${ color }"]` );
+	expect( path ).not.toBeNull();
+	return path!;
+}
+/* eslint-enable testing-library/no-node-access */
 
 beforeAll( () => {
 	jest.spyOn( Element.prototype, 'getBoundingClientRect' ).mockReturnValue( {
@@ -68,17 +86,60 @@ test( 'renders actual Charts lines and annotations using millisecond history dat
 	expect( screen.getByText( 'Desktop' ) ).toBeInTheDocument();
 	expect( screen.getByText( 'Mobile' ) ).toBeInTheDocument();
 	await expect( screen.findByText( 'Image CDN enabled' ) ).resolves.toBeTruthy();
-	for ( const color of [ '#1d4ed8', '#16a34a' ] ) {
-		// SVG series paths do not expose an accessible role.
-		// eslint-disable-next-line testing-library/no-node-access, testing-library/no-container
-		expect( container.querySelector( `path[stroke="${ color }"]` )?.getAttribute( 'd' ) ).toMatch(
-			/^M/
-		);
-	}
+	const desktopPath = getSeriesPath( container, 'Desktop' );
+	const mobilePath = getSeriesPath( container, 'Mobile' );
+	expect( desktopPath ).toHaveAttribute( 'd', expect.stringMatching( /^M/ ) );
+	expect( mobilePath ).toHaveAttribute( 'd', expect.stringMatching( /^M/ ) );
+	expect( desktopPath.getAttribute( 'stroke' ) ).not.toBe( mobilePath.getAttribute( 'stroke' ) );
+	const firstY = ( path: Element ) =>
+		Number( path.getAttribute( 'd' )?.match( /^M[^,]+,([^L]+)/ )?.[ 1 ] );
+	expect( firstY( desktopPath ) ).toBeLessThan( firstY( mobilePath ) );
 	expect( buildHistorySeries( history )[ 0 ].data[ 0 ] ).toEqual( {
 		date: new Date( '2026-09-01T00:00:00Z' ),
 		value: 90,
 	} );
+} );
+
+test( 'sorts both device series without mutating the cached periods', () => {
+	const periods = [ history.periods[ 1 ], history.periods[ 0 ] ];
+	const series = buildHistorySeries( { ...history, periods } );
+	for ( const device of series ) {
+		expect( device.data.map( point => point.date?.getTime() ) ).toEqual( [
+			timestamp,
+			timestamp + 86400000,
+		] );
+	}
+	expect( periods.map( period => period.timestamp ) ).toEqual( [
+		timestamp + 86400000,
+		timestamp,
+	] );
+} );
+
+test.each( [
+	[ 'multiple periods', history.periods, timestamp ],
+	[ 'one recent period', [ { timestamp: timestamp + 18 * 3600000, dimensions } ], timestamp ],
+	[ 'one older period', [ history.periods[ 0 ] ], timestamp - 43200000 ],
+] )( 'fits a wide requested window to %s', async ( _label, periods, expectedStart ) => {
+	const data = { ...history, periods, startDate: timestamp - 30 * 86400000 };
+	const { container, rerender } = render( <HistoryChartCard data={ data } { ...callbacks } /> );
+	await waitFor( () => expect( getSeriesPath( container, 'Desktop' ) ).toHaveAttribute( 'd' ) );
+	const wideWindowPath = getSeriesPath( container, 'Desktop' ).getAttribute( 'd' );
+	// Place a second point at the expected domain start to measure the actual rendered scale.
+	rerender(
+		<HistoryChartCard
+			data={ {
+				...data,
+				startDate: expectedStart,
+				periods: [ { timestamp: expectedStart, dimensions }, ...periods ],
+			} }
+			{ ...callbacks }
+		/>
+	);
+	const referencePath = getSeriesPath( container, 'Desktop' ).getAttribute( 'd' );
+	const firstX = ( path: string | null ) => Number( path?.match( /^M([^,]+)/ )?.[ 1 ] );
+	const lastX = ( path: string | null ) => Number( path?.match( /[ML]([^,]+),[^ML]+$/ )?.[ 1 ] );
+	const referenceX = periods.length > 1 ? firstX( referencePath ) : lastX( referencePath );
+	expect( firstX( wideWindowPath ) ).toBe( referenceX );
 } );
 
 test( 'renders visible glyphs for a single recorded period', async () => {
@@ -86,7 +147,8 @@ test( 'renders visible glyphs for a single recorded period', async () => {
 		<HistoryChartCard data={ { ...history, periods: [ history.periods[ 0 ] ] } } { ...callbacks } />
 	);
 	await waitFor( () => {
-		for ( const color of [ '#1d4ed8', '#16a34a' ] ) {
+		for ( const device of [ 'Desktop', 'Mobile' ] ) {
+			const color = getSeriesColor( device );
 			// SVG series glyphs do not expose an accessible role.
 			// eslint-disable-next-line testing-library/no-node-access, testing-library/no-container
 			expect( container.querySelector( `circle[fill="${ color }"]` ) ).toHaveAttribute( 'r', '4' );
@@ -115,22 +177,25 @@ test( 'keeps the WordPress date and all eight history dimensions in the tooltip'
 	}
 } );
 
-test( 'uses the UTC site date for both axis and tooltip at midnight UTC', async () => {
+test( 'uses the non-UTC site date for both axis and tooltip', async () => {
 	const settings = getSettings();
 	setSettings( {
 		...settings,
-		timezone: { offset: 0, offsetFormatted: '0', string: 'UTC', abbr: 'UTC' },
+		timezone: { offset: 14, offsetFormatted: '14', string: 'Pacific/Kiritimati', abbr: '+14' },
 	} );
 	try {
 		render(
 			<>
 				<HistoryChartCard data={ history } { ...callbacks } />
-				<HistoryTooltip period={ history.periods[ 0 ] } />
+				<HistoryTooltip
+					period={ { ...history.periods[ 0 ], timestamp: timestamp + 15 * 3600000 } }
+				/>
 			</>
 		);
-		await expect( screen.findAllByText( 'Sep 1' ) ).resolves.not.toHaveLength( 0 );
-		expect( screen.getByText( 'September 1, 2026' ) ).toBeInTheDocument();
-		expect( screen.queryByText( /Aug 31/ ) ).not.toBeInTheDocument();
+		await expect( screen.findByText( 'Image CDN enabled' ) ).resolves.toBeInTheDocument();
+		await expect( screen.findAllByText( 'Sep 2' ) ).resolves.not.toHaveLength( 0 );
+		expect( screen.getByText( 'September 2, 2026' ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'September 1, 2026' ) ).not.toBeInTheDocument();
 	} finally {
 		setSettings( settings );
 	}
@@ -165,6 +230,9 @@ test( 'waits for the initial fetch before showing the empty state', () => {
 	const { rerender } = render( <HistoryChartCard isLoading { ...callbacks } /> );
 	expect( screen.queryByText( /Performance history will appear/ ) ).not.toBeInTheDocument();
 	rerender( <HistoryChartCard { ...callbacks } /> );
+	expect(
+		screen.getByRole( 'heading', { name: 'No performance history yet' } )
+	).toBeInTheDocument();
 	expect( screen.getByText( /Performance history will appear/ ) ).toBeInTheDocument();
 } );
 

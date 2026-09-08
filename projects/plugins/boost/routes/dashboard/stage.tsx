@@ -97,9 +97,9 @@ function Stage() {
 			onTabChange={ onTabChange }
 			subpage={ <div id="jb-subpage-mount" hidden={ subpage === null } /> }
 		>
-			<Tabs.Panel value="overview">
+			<Tabs.Panel value="overview" keepMounted>
 				<QueryClientProvider client={ queryClient }>
-					{ activeTab === 'overview' && subpage === null ? <Overview /> : null }
+					<Overview />
 				</QueryClientProvider>
 			</Tabs.Panel>
 			<Tabs.Panel value="settings" keepMounted>
