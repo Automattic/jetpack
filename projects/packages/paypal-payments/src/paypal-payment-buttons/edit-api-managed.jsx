@@ -736,7 +736,7 @@ export default function ApiManagedEdit( { attributes, setAttributes, clientId: b
 						disabled={ isCreating }
 					/>
 					{ taxEnabled && (
-						<div className="jetpack-paypal-payment-buttons__tax-config">
+						<>
 							<SelectControl
 								label={ __( 'Tax type', 'jetpack-paypal-payments' ) }
 								value={ taxType || 'PERCENTAGE' }
@@ -774,7 +774,7 @@ export default function ApiManagedEdit( { attributes, setAttributes, clientId: b
 									help={ __( 'Percentage added to the product price.', 'jetpack-paypal-payments' ) }
 								/>
 							) }
-						</div>
+						</>
 					) }
 
 					{ /* WOOPTP-171: Customer Notes */ }
