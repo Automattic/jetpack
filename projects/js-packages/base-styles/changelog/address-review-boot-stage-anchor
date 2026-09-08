@@ -1,4 +1,5 @@
 Significance: patch
-Type: fixed
+Type: changed
+Comment: Comment only: document why the boot stage guard cannot be anchored to an ancestor.
 
-Admin page layout: scope the boot stage match to wp-build's mount element.
+
