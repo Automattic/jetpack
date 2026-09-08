@@ -1,17 +1,43 @@
+@use "@wordpress/base-styles/colors" as wpcolors;
+@use "@wordpress/base-styles/variables" as wpvariables;
+@use "@wordpress/base-styles/breakpoints" as wpbreakpoints;
+
 .jetpack-boost-overview {
+	--jetpack-boost-overview-chart-desktop: var(--wp-admin-theme-color, var(--wpds-color-foreground-interactive-brand));
+	--jetpack-boost-overview-chart-mobile: #{wpcolors.$alert-green};
+
 	display: flex;
 	flex-direction: column;
 	gap: var(--wpds-dimension-gap-xl);
 	inline-size: 100%;
-	max-inline-size: 720px;
+	max-inline-size: var(--wpds-dimension-surface-width-xl);
 	margin-inline: auto;
 	min-inline-size: 0;
+
+	&__scores-card {
+		border-color: wpcolors.$gray-200;
+	}
+
+	&__scores-header {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		min-block-size: wpvariables.$header-height;
+		padding-block: var(--wpds-dimension-padding-md);
+		padding-inline: var(--wpds-dimension-padding-xl);
+	}
+
+	&__score-icon {
+		inline-size: var(--wpds-dimension-size-xs);
+		block-size: var(--wpds-dimension-size-xs);
+		flex-shrink: 0;
+	}
 
 	&__score-row {
 		display: grid;
 		grid-template-columns: repeat(3, minmax(0, 1fr));
 
-		@media ( max-width: 600px ) {
+		@media ( max-width: wpbreakpoints.$break-small ) {
 			grid-template-columns: minmax(0, 1fr);
 		}
 	}
@@ -20,40 +46,40 @@
 		display: flex;
 		flex-direction: column;
 		gap: var(--wpds-dimension-gap-sm);
-		padding-block: var(--wpds-dimension-padding-xl);
-		padding-inline: var(--wpds-dimension-padding-2xl);
+		padding-block: var(--wpds-dimension-padding-lg);
+		padding-inline: var(--wpds-dimension-padding-xl);
 		min-inline-size: 0;
 	}
 
 	&__score-section + &__score-section {
-		border-inline-start: 1px solid var(--wpds-color-stroke-surface-neutral);
+		border-inline-start: var(--wpds-border-width-xs) solid wpcolors.$gray-100;
 
-		@media ( max-width: 600px ) {
+		@media ( max-width: wpbreakpoints.$break-small ) {
 			border-inline-start: 0;
-			border-block-start: 1px solid var(--wpds-color-stroke-surface-neutral);
+			border-block-start: var(--wpds-border-width-xs) solid wpcolors.$gray-100;
 		}
 	}
 
-	&__scores-divider {
+	& &__scores-divider {
 		margin: 0;
-		border-color: var(--wpds-color-stroke-surface-neutral);
+		border-color: wpcolors.$gray-100;
 	}
 
 	&__grade-tooltip {
-		max-inline-size: min(320px, calc(100vw - 32px));
+		max-inline-size: min(var(--wpds-dimension-surface-width-sm), calc(100vw - var(--wpds-dimension-gap-2xl)));
 	}
 
 	&__score-placeholder {
-		inline-size: 2.5em;
-		block-size: 1.2em;
+		inline-size: calc(2 * var(--wpds-dimension-size-lg));
+		block-size: var(--wpds-dimension-size-lg);
 		font-size: var(--wpds-typography-font-size-2xl);
 	}
 
 	&__progress {
 		appearance: none;
 		border: 0;
-		border-radius: 2px;
-		block-size: 4px;
+		border-radius: var(--wpds-border-radius-md);
+		block-size: var(--wpds-border-width-sm);
 		inline-size: 100%;
 		overflow: hidden;
 		background-color: var(--wpds-color-background-surface-neutral-weak);
@@ -72,11 +98,11 @@
 	}
 
 	&__progress--good {
-		color: var(--jp-green);
+		color: var(--jp-green-50);
 	}
 
 	&__delta--up {
-		color: var(--jp-green-50);
+		color: var(--wpds-color-foreground-content-success-weak);
 	}
 
 	&__progress--medium {
@@ -85,7 +111,7 @@
 
 	&__progress--poor,
 	&__delta--down {
-		color: var(--jp-red-50);
+		color: var(--wpds-color-foreground-content-error-weak);
 	}
 
 	&__delta--neutral {
@@ -93,11 +119,18 @@
 	}
 
 	&__history-card {
+		--jetpack-boost-overview-chart-edge-gap: var(--wpds-dimension-gap-sm);
+		--jetpack-boost-overview-chart-padding: var(--wpds-dimension-padding-2xl);
+		--jetpack-boost-overview-chart-margin-left: var(--wpds-dimension-size-lg);
+		--jetpack-boost-overview-chart-margin-right: var(--wpds-dimension-size-xs);
+		--jetpack-boost-overview-chart-margin-bottom: var(--wpds-dimension-size-md);
+
 		// Let the axis tooltip extend below the card, as in the legacy chart.
 		overflow: visible;
 	}
 
 	&__chart-canvas {
+		block-size: var(--wpds-dimension-surface-width-sm);
 		min-inline-size: 0;
 		isolation: isolate;
 
@@ -107,6 +140,12 @@
 		}
 	}
 
+	&__chart-canvas .visx-crosshair-vertical {
+		stroke: var(--wpds-color-foreground-content-neutral-weak);
+		stroke-opacity: 0.08;
+		stroke-width: var(--jetpack-boost-overview-hover-column-width);
+	}
+
 	&__chart-canvas .visx-tooltip {
 		// Charts exposes tooltip content but no axis-positioning option.
 		display: contents;
@@ -114,16 +153,18 @@
 
 	&__tooltip-pointer {
 		position: absolute;
-		inset-block-start: -7px;
+		inset-block-start: calc(-1 * var(--wpds-dimension-size-4xs) + var(--wpds-border-width-xs));
 		transform: translateX(-50%);
-		border-block-end: 8px solid var(--wpds-color-foreground-content-neutral);
-		border-inline: 8px solid transparent;
+		border-block-end:
+			var(--wpds-dimension-size-4xs) solid
+			var(--wpds-color-foreground-content-neutral);
+		border-inline: var(--wpds-dimension-size-4xs) solid transparent;
 	}
 
 	&__series-swatch {
 		display: inline-block;
-		inline-size: 12px;
-		block-size: 2px;
+		inline-size: var(--wpds-dimension-size-2xs);
+		block-size: var(--wpds-border-width-sm);
 		margin-inline-end: var(--wpds-dimension-gap-xs);
 		vertical-align: middle;
 	}
@@ -131,20 +172,20 @@
 	&__chart-loading {
 		display: grid;
 		place-items: center;
-		min-block-size: 240px;
+		min-block-size: var(--wpds-dimension-surface-width-xs);
 	}
 
 	&__history-tooltip {
 		z-index: 3;
 		inline-size: max-content;
-		max-inline-size: calc(100% - 16px);
+		max-inline-size: calc(100% - var(--wpds-dimension-gap-lg));
 		box-sizing: border-box;
 		padding: var(--wpds-dimension-padding-sm);
 		background-color: var(--wpds-color-foreground-content-neutral);
 		color: var(--wpds-color-background-surface-neutral);
 		border-radius: var(--wpds-border-radius-md);
 		font-size: var(--wpds-typography-font-size-md);
-		box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+		box-shadow: wpvariables.$elevation-small;
 
 		dl {
 			display: grid;

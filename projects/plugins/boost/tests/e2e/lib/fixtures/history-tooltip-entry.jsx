@@ -34,7 +34,10 @@ const data = {
 const noop = () => {};
 
 createRoot( document.getElementById( 'root' ) ).render(
-	<div className="jetpack-boost-overview">
+	<div
+		className="jetpack-boost-overview"
+		style={ { '--wp-admin-theme-color': 'var(--wpds-color-foreground-interactive-brand)' } }
+	>
 		{ new URLSearchParams( window.location.search ).has( 'scores' ) ? (
 			<>
 				<ScoreCards

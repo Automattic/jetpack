@@ -39,7 +39,7 @@ export default function ScoreCard( {
 		>
 			<Stack direction="row" align="center" gap="sm">
 				{ icon }
-				<Text render={ <h3 /> } variant="body-md">
+				<Text render={ <h3 /> } variant="heading-md">
 					{ label }
 				</Text>
 				{ help }
@@ -61,7 +61,7 @@ export default function ScoreCard( {
 			) }
 			{ ! showPlaceholder && delta !== null && (
 				<Text
-					variant="body-sm"
+					variant="body-md"
 					className={ `jetpack-boost-overview__delta jetpack-boost-overview__delta--${ getTrendDirection(
 						delta
 					) }` }

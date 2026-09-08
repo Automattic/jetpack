@@ -78,6 +78,25 @@ test( 'History tooltip stays below the date axis with matching series colors', a
 	await expect( pointer ).toHaveCSS( 'border-top-width', '0px' );
 	await expect( pointer ).toHaveCSS( 'border-bottom-width', '8px' );
 	expect( ( await pointer.boundingBox() )!.y ).toBeLessThan( upperPosition!.y );
+	const hoverColumn = chart.locator( '.visx-crosshair-vertical' );
+	await expect( hoverColumn ).toHaveCSS( 'visibility', 'visible' );
+	await expect( hoverColumn ).not.toHaveCSS( 'display', 'none' );
+	const columnWidth = await hoverColumn.evaluate( element =>
+		parseFloat( getComputedStyle( element ).strokeWidth )
+	);
+	expect( columnWidth ).toBeGreaterThan( 0 );
+	await expect( hoverColumn ).toHaveCSS( 'stroke-opacity', '0.08' );
+	const columnBounds = await hoverColumn.evaluate( element => {
+		const { x, width, height } = element.getBoundingClientRect();
+		return { x, width, height };
+	} );
+	expect( columnBounds.height ).toBeGreaterThan( 0 );
+	const pointerBounds = ( await pointer.boundingBox() )!;
+	expect( columnBounds.x + columnBounds.width / 2 ).toBeCloseTo(
+		pointerBounds.x + pointerBounds.width / 2,
+		0
+	);
+
 	const paint = await surface.evaluate( popup => {
 		const box = popup.getBoundingClientRect();
 		const card = popup.closest( '.jetpack-boost-overview__history-card' )!.getBoundingClientRect();
@@ -131,6 +150,7 @@ test( 'History tooltip stays below the date axis with matching series colors', a
 	expect( new Set( colors.swatches ).size ).toBe( 2 );
 	expect( colors.legend ).toEqual( colors.swatches );
 	expect( colors.lines ).toEqual( colors.swatches );
+	expect( colors.lines ).toEqual( [ 'rgb(56, 88, 233)', 'rgb(74, 184, 102)' ] );
 	expect( colors.areas.every( fill => fill === 'none' || fill === 'rgba(0, 0, 0, 0)' ) ).toBe(
 		true
 	);
@@ -191,33 +211,47 @@ test( 'Score cards show the tier palette, baseline delta colors, and responsive 
 	await page.goto( 'http://boost-history.test/?scores' );
 	const desktop = page.getByRole( 'region', { name: 'Desktop', exact: true } );
 	const mobile = page.getByRole( 'region', { name: 'Mobile', exact: true } ).first();
-	await expect( desktop.first().getByRole( 'progressbar' ) ).toHaveCSS( 'color', 'rgb(6, 158, 8)' );
-	await expect( mobile.getByRole( 'progressbar' ) ).toHaveCSS( 'color', 'rgb(250, 167, 84)' );
-	await expect( desktop.nth( 1 ).getByRole( 'progressbar' ) ).toHaveCSS(
-		'color',
-		'rgb(214, 54, 56)'
-	);
-	await expect( desktop.first().getByText( '+10 points compared to without Boost' ) ).toHaveCSS(
+	await expect( desktop.first().getByRole( 'progressbar' ) ).toHaveCSS(
 		'color',
 		'rgb(0, 135, 16)'
 	);
+	await expect( mobile.getByRole( 'progressbar' ) ).toHaveCSS( 'color', 'rgb(250, 167, 84)' );
+	await expect( desktop.nth( 1 ).getByRole( 'progressbar' ) ).toHaveCSS(
+		'color',
+		'rgb(204, 24, 24)'
+	);
+	await expect( desktop.first().getByText( '+10 points compared to without Boost' ) ).toHaveCSS(
+		'color',
+		'rgb(0, 128, 48)'
+	);
 	await expect( mobile.getByText( '−10 points compared to without Boost' ) ).toHaveCSS(
 		'color',
-		'rgb(214, 54, 56)'
+		'rgb(204, 24, 24)'
+	);
+	await expect( desktop.first() ).toHaveCSS( 'padding-top', '16px' );
+	await expect( desktop.first() ).toHaveCSS( 'padding-bottom', '16px' );
+	await expect( desktop.first() ).toHaveCSS( 'padding-left', '20px' );
+	await expect( desktop.first() ).toHaveCSS( 'padding-right', '20px' );
+	await expect( desktop.first() ).toHaveCSS( 'gap', '8px' );
+	await expect( desktop.first().getByRole( 'progressbar' ) ).toHaveCSS( 'height', '2px' );
+	await expect( desktop.first().getByRole( 'progressbar' ) ).toHaveCSS( 'border-radius', '4px' );
+	await expect( page.locator( '.jetpack-boost-overview__scores-header' ).first() ).toHaveCSS(
+		'height',
+		'64px'
 	);
 	const headerDivider = page.locator( '.jetpack-boost-overview__scores-divider' ).first();
 	await expect( headerDivider ).toBeVisible();
 	await expect( headerDivider ).toHaveCSS( 'border-bottom-width', '1px' );
 	await expect( headerDivider ).toHaveCSS( 'border-bottom-style', 'solid' );
-	await expect( headerDivider ).not.toHaveCSS( 'border-bottom-color', 'rgba(0, 0, 0, 0)' );
+	await expect( headerDivider ).toHaveCSS( 'border-bottom-color', 'rgb(240, 240, 240)' );
 	await expect( desktop.first() ).toHaveCSS( 'border-left-width', '1px' );
 	await expect( desktop.first() ).toHaveCSS( 'border-left-style', 'solid' );
-	await expect( desktop.first() ).not.toHaveCSS( 'border-left-color', 'rgba(0, 0, 0, 0)' );
+	await expect( desktop.first() ).toHaveCSS( 'border-left-color', 'rgb(240, 240, 240)' );
 	await page.setViewportSize( { width: 390, height: 900 } );
 	await expect( desktop.first() ).toHaveCSS( 'border-left-width', '0px' );
 	await expect( desktop.first() ).toHaveCSS( 'border-top-width', '1px' );
 	await expect( desktop.first() ).toHaveCSS( 'border-top-style', 'solid' );
-	await expect( desktop.first() ).not.toHaveCSS( 'border-top-color', 'rgba(0, 0, 0, 0)' );
+	await expect( desktop.first() ).toHaveCSS( 'border-top-color', 'rgb(240, 240, 240)' );
 } );
 
 test.describe( 'Overall grade help', () => {

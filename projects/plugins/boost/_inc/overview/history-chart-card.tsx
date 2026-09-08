@@ -1,4 +1,4 @@
-import { LineChart, useGlobalChartsContext } from '@automattic/charts';
+import { GlobalChartsProvider, LineChart, useGlobalChartsContext } from '@automattic/charts';
 import '@automattic/charts/style.css';
 import { getScoreLetter } from '@automattic/jetpack-boost-score-api';
 import { Spinner } from '@wordpress/components';
@@ -10,11 +10,10 @@ import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import UpgradeCTA from './upgrade-cta';
 import type { PerformanceHistoryData } from './lib/use-performance-history';
 import type { DataPointDate, SeriesData } from '@automattic/charts';
-import type { ComponentProps } from 'react';
+import type { ComponentProps, CSSProperties } from 'react';
 
-const CHART_MARGIN = { left: 40, right: 20, bottom: 32 };
-
-type TooltipAnchor = { fraction: number };
+type ChartMargin = { left: number; right: number; bottom: number };
+type TooltipAnchor = { fraction: number; margin: ChartMargin };
 type DeviceColors = { desktop?: string; mobile?: string };
 
 type History = NonNullable< PerformanceHistoryData >;
@@ -39,6 +38,7 @@ export function buildHistorySeries(
 	return [
 		{
 			label: __( 'Desktop', 'jetpack-boost' ),
+			options: { stroke: 'var(--jetpack-boost-overview-chart-desktop)' },
 			data: periods.map( period => ( {
 				date: new Date( period.timestamp ),
 				value: period.dimensions.desktop_overall_score,
@@ -46,6 +46,7 @@ export function buildHistorySeries(
 		},
 		{
 			label: __( 'Mobile', 'jetpack-boost' ),
+			options: { stroke: 'var(--jetpack-boost-overview-chart-mobile)' },
 			data: periods.map( period => ( {
 				date: new Date( period.timestamp ),
 				value: period.dimensions.mobile_overall_score,
@@ -66,6 +67,7 @@ export function HistoryTooltip( {
 	const tooltipRef = useRef< HTMLDivElement >( null );
 	const [ width, setWidth ] = useState( 0 );
 	const [ plotWidth, setPlotWidth ] = useState( 0 );
+	const [ edgeGap, setEdgeGap ] = useState( 0 );
 	const isAnchored = anchor !== undefined;
 	useLayoutEffect( () => {
 		const element = tooltipRef.current;
@@ -76,6 +78,11 @@ export function HistoryTooltip( {
 		const measure = () => {
 			setWidth( element.getBoundingClientRect().width );
 			setPlotWidth( plot?.clientWidth ?? 0 );
+			setEdgeGap(
+				parseFloat(
+					getComputedStyle( element ).getPropertyValue( '--jetpack-boost-overview-chart-edge-gap' )
+				) || 0
+			);
 		};
 		measure();
 		const observer = new ResizeObserver( measure );
@@ -86,9 +93,12 @@ export function HistoryTooltip( {
 		return () => observer.disconnect();
 	}, [ isAnchored ] );
 	const anchorX =
-		CHART_MARGIN.left +
-		( anchor?.fraction ?? 0 ) * ( plotWidth - CHART_MARGIN.left - CHART_MARGIN.right );
-	const left = anchor ? Math.max( 8, Math.min( anchorX - width / 2, plotWidth - width - 8 ) ) : 0;
+		( anchor?.margin.left ?? 0 ) +
+		( anchor?.fraction ?? 0 ) *
+			( plotWidth - ( anchor?.margin.left ?? 0 ) - ( anchor?.margin.right ?? 0 ) );
+	const left = anchor
+		? Math.max( edgeGap, Math.min( anchorX - width / 2, plotWidth - width - edgeGap ) )
+		: 0;
 	const dimensions = period.dimensions;
 	return (
 		<div
@@ -96,7 +106,7 @@ export function HistoryTooltip( {
 			className="jetpack-boost-overview__history-tooltip"
 			style={
 				anchor
-					? { position: 'absolute', left, top: `calc(100% - ${ CHART_MARGIN.bottom }px)` }
+					? { position: 'absolute', left, top: 'calc(100% - var(--wpds-dimension-size-md))' }
 					: undefined
 			}
 		>
@@ -172,6 +182,38 @@ export default function HistoryChartCard( {
 	onDismissFreshStart,
 }: Props ) {
 	const series = useMemo( () => buildHistorySeries( data ), [ data ] );
+	const [ chartMargin, setChartMargin ] = useState< ChartMargin >();
+	const [ chartWidth, setChartWidth ] = useState( 0 );
+	const cardRef = useRef< HTMLDivElement >( null );
+	useLayoutEffect( () => {
+		const node = cardRef.current;
+		if ( ! node ) {
+			return;
+		}
+		const measure = () => {
+			const styles = getComputedStyle( node );
+			setChartWidth(
+				node.clientWidth -
+					2 * parseFloat( styles.getPropertyValue( '--jetpack-boost-overview-chart-padding' ) )
+			);
+			const margin = {
+				left: parseFloat( styles.getPropertyValue( '--jetpack-boost-overview-chart-margin-left' ) ),
+				right: parseFloat(
+					styles.getPropertyValue( '--jetpack-boost-overview-chart-margin-right' )
+				),
+				bottom: parseFloat(
+					styles.getPropertyValue( '--jetpack-boost-overview-chart-margin-bottom' )
+				),
+			};
+			if ( Object.values( margin ).every( Number.isFinite ) ) {
+				setChartMargin( margin );
+			}
+		};
+		measure();
+		const observer = new ResizeObserver( measure );
+		observer.observe( node );
+		return () => observer.disconnect();
+	}, [] );
 	const dayBeforeEndDate = ( data?.endDate ?? 0 ) - 24 * 60 * 60 * 1000;
 	const firstTimestamp = series[ 0 ]?.data[ 0 ]?.date?.getTime();
 	const startDate =
@@ -187,7 +229,7 @@ export default function HistoryChartCard( {
 		( { tooltipData } ) => {
 			const timestamp = tooltipData?.nearestDatum?.datum.date?.getTime();
 			const period = data?.periods.find( entry => entry.timestamp === timestamp );
-			if ( ! period || ! data ) {
+			if ( ! period || ! data || ! chartMargin ) {
 				return null;
 			}
 			return (
@@ -196,11 +238,12 @@ export default function HistoryChartCard( {
 					period={ period }
 					anchor={ {
 						fraction: ( period.timestamp - startDate ) / ( data.endDate - startDate ),
+						margin: chartMargin,
 					} }
 				/>
 			);
 		},
-		[ data, series, startDate ]
+		[ data, series, startDate, chartMargin ]
 	);
 	// Supply text announcements so WordPress does not serialize action components with hooks.
 	let content;
@@ -272,41 +315,60 @@ export default function HistoryChartCard( {
 		);
 	} else {
 		content = (
-			<div className="jetpack-boost-overview__chart-canvas">
-				<LineChart
-					data={ series }
-					height={ 300 }
-					margin={ CHART_MARGIN }
-					showLegend
-					legend={ { position: 'bottom', alignment: 'center', interactive: false } }
-					withGradientFill={ false }
-					curveType="linear"
-					withEndGlyphs={ data.periods.length === 1 }
-					renderTooltip={ renderTooltip }
-					options={ {
-						axis: {
-							x: { tickFormat: value => dateI18n( 'M j', new Date( value ), false ) },
-						},
-						xScale: { domain: [ new Date( startDate ), new Date( data.endDate ) ] },
-						yScale: { domain: [ 0, 100 ], nice: false },
-					} }
+			<GlobalChartsProvider
+				theme={ {
+					legend: {
+						labelStyles: { fontSize: 'var(--wpds-typography-font-size-md)' },
+						containerStyles: { gap: 'var(--wpds-dimension-gap-xl)' },
+					},
+				} }
+			>
+				<div
+					className="jetpack-boost-overview__chart-canvas"
+					style={
+						{
+							'--jetpack-boost-overview-hover-column-width': `${
+								( chartWidth - ( chartMargin?.left ?? 0 ) - ( chartMargin?.right ?? 0 ) ) *
+								Math.min( 1, ( 24 * 60 * 60 * 1000 ) / ( data.endDate - startDate ) )
+							}px`,
+						} as CSSProperties
+					}
 				>
-					<LineChart.AnnotationsOverlay>
-						{ data.annotations.map( ( annotation, index ) => (
-							<LineChart.Annotation
-								key={ `${ annotation.timestamp }-${ index }` }
-								datum={ { date: new Date( annotation.timestamp ), value: 100 } }
-								title={ annotation.text }
-								subjectType="line-vertical"
-							/>
-						) ) }
-					</LineChart.AnnotationsOverlay>
-				</LineChart>
-			</div>
+					<LineChart
+						data={ series }
+						margin={ chartMargin }
+						showLegend
+						legend={ { position: 'bottom', alignment: 'center', interactive: false } }
+						withGradientFill={ false }
+						withTooltipCrosshairs={ { showVertical: true } }
+						curveType="linear"
+						withEndGlyphs={ data.periods.length === 1 }
+						renderTooltip={ renderTooltip }
+						options={ {
+							axis: {
+								x: { tickFormat: value => dateI18n( 'M j', new Date( value ), false ) },
+							},
+							xScale: { domain: [ new Date( startDate ), new Date( data.endDate ) ] },
+							yScale: { domain: [ 0, 100 ], nice: false },
+						} }
+					>
+						<LineChart.AnnotationsOverlay>
+							{ data.annotations.map( ( annotation, index ) => (
+								<LineChart.Annotation
+									key={ `${ annotation.timestamp }-${ index }` }
+									datum={ { date: new Date( annotation.timestamp ), value: 100 } }
+									title={ annotation.text }
+									subjectType="line-vertical"
+								/>
+							) ) }
+						</LineChart.AnnotationsOverlay>
+					</LineChart>
+				</div>
+			</GlobalChartsProvider>
 		);
 	}
 	return (
-		<Card.Root className="jetpack-boost-overview__history-card">
+		<Card.Root ref={ cardRef } className="jetpack-boost-overview__history-card">
 			<Card.Header>
 				<Card.Title>{ __( 'Historical performance', 'jetpack-boost' ) }</Card.Title>
 			</Card.Header>

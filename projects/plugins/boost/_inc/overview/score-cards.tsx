@@ -18,8 +18,8 @@ export default function ScoreCards( { scores, isLoading, showPlaceholder, header
 	const { current } = scores;
 	const noBoost = ! scores.isStale && didScoresChange( scores ) ? scores.noBoost : null;
 	return (
-		<Card.Root>
-			<Card.Header>
+		<Card.Root className="jetpack-boost-overview__scores-card">
+			<Card.Header className="jetpack-boost-overview__scores-header">
 				<Stack direction="row" justify="space-between" align="center" gap="md">
 					<Card.Title>{ __( 'Performance scores', 'jetpack-boost' ) }</Card.Title>
 					{ headerAction }
@@ -28,7 +28,7 @@ export default function ScoreCards( { scores, isLoading, showPlaceholder, header
 			<CardDivider className="jetpack-boost-overview__scores-divider" />
 			<div className="jetpack-boost-overview__score-row">
 				<ScoreCard
-					icon={ <Icon icon={ dashboard } size={ 20 } /> }
+					icon={ <Icon icon={ dashboard } className="jetpack-boost-overview__score-icon" /> }
 					label={ __( 'Overall grade', 'jetpack-boost' ) }
 					help={
 						<Popover.Root>
@@ -38,7 +38,7 @@ export default function ScoreCards( { scores, isLoading, showPlaceholder, header
 								aria-label={ __( 'How the overall grade is calculated', 'jetpack-boost' ) }
 								render={ <Button variant="minimal" tone="neutral" size="small" /> }
 							>
-								<Icon icon={ info } size={ 16 } />
+								<Icon icon={ info } className="jetpack-boost-overview__score-icon" />
 							</Popover.Trigger>
 							<Popover.Popup className="jetpack-boost-overview__grade-tooltip">
 								<Popover.Title>{ __( 'Overall grade', 'jetpack-boost' ) }</Popover.Title>
@@ -56,7 +56,7 @@ export default function ScoreCards( { scores, isLoading, showPlaceholder, header
 					showPlaceholder={ showPlaceholder }
 				/>
 				<ScoreCard
-					icon={ <Icon icon={ desktop } size={ 20 } /> }
+					icon={ <Icon icon={ desktop } className="jetpack-boost-overview__score-icon" /> }
 					label={ __( 'Desktop', 'jetpack-boost' ) }
 					value={ current.desktop }
 					score={ current.desktop }
@@ -65,7 +65,7 @@ export default function ScoreCards( { scores, isLoading, showPlaceholder, header
 					showPlaceholder={ showPlaceholder }
 				/>
 				<ScoreCard
-					icon={ <Icon icon={ mobile } size={ 20 } /> }
+					icon={ <Icon icon={ mobile } className="jetpack-boost-overview__score-icon" /> }
 					label={ __( 'Mobile', 'jetpack-boost' ) }
 					value={ current.mobile }
 					score={ current.mobile }
