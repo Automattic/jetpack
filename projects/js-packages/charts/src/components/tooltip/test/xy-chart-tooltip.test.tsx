@@ -295,7 +295,7 @@ describe( 'XyChartTooltip', () => {
 	test( 'preserves the default background and stacking with a partial style override', async () => {
 		const { unmount } = renderChart( { tooltipPlacement: 'below-axis' } );
 		const defaultBox = await screen.findByTestId( 'tooltip-box' );
-		const background = defaultBox.style.background;
+		const background = defaultBox.style.backgroundColor;
 		expect( background ).not.toBe( '' );
 		expect( background ).not.toBe( 'transparent' );
 		unmount();
@@ -303,7 +303,7 @@ describe( 'XyChartTooltip', () => {
 		renderChart( { tooltipPlacement: 'below-axis', style: { color: 'red' } } );
 
 		await expect( screen.findByTestId( 'tooltip-box' ) ).resolves.toHaveStyle( {
-			background,
+			backgroundColor: background,
 			zIndex: '3',
 			color: 'rgb(255, 0, 0)',
 		} );

@@ -193,7 +193,7 @@ const XyChartTooltipContent = < Datum extends object >( {
 	const boxStyle: CSSProperties = {
 		...defaultStyles,
 		zIndex,
-		background: theme?.backgroundColor ?? 'white',
+		backgroundColor: theme?.backgroundColor ?? 'white',
 		boxShadow: `0 1px 2px ${
 			theme?.htmlLabel?.color ? `${ theme.htmlLabel.color }55` : '#22222255'
 		}`,
