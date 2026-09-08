@@ -158,6 +158,7 @@ class Writing_Prompt_Widget {
 	 * helper and `analytics.initialize()` flow.
 	 *
 	 * @since 0.9.1
+	 * @since $$next-version$$ Also passes the Freshly Pressed posts.
 	 *
 	 * @param array $data The script data.
 	 * @return array The filtered script data.
@@ -168,6 +169,7 @@ class Writing_Prompt_Widget {
 		}
 
 		$data['newsletter']['tracksUserData'] = Jetpack_Tracks_Client::get_connected_user_tracks_identity();
+		$data['newsletter']['freshlyPressed'] = Freshly_Pressed::get_posts();
 
 		return $data;
 	}
