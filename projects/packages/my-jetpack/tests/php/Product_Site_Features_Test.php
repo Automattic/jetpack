@@ -36,7 +36,7 @@ class Product_Site_Features_Test extends TestCase {
 		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
 
 		$this->http_calls = 0;
-		Product::reset_site_features_failure();
+		Product::reset_site_features_cache();
 	}
 
 	/**
@@ -48,7 +48,7 @@ class Product_Site_Features_Test extends TestCase {
 		remove_filter( 'pre_http_request', array( $this, 'fail_http_request' ) );
 		remove_filter( 'pre_http_request', array( $this, 'succeed_http_request' ) );
 		delete_transient( Product::MY_JETPACK_SITE_FEATURES_TRANSIENT_KEY );
-		Product::reset_site_features_failure();
+		Product::reset_site_features_cache();
 
 		WorDBless_Options::init()->clear_options();
 	}

@@ -108,6 +108,21 @@ abstract class Product {
 	private static $site_features_failure_expires = 0;
 
 	/**
+	 * A successful site features lookup, kept so one WPCOM request serves a whole render
+	 * even when the transient write does not retain (e.g. an object cache evicting under load)
+	 *
+	 * @var array|null
+	 */
+	private static $site_features_success = null;
+
+	/**
+	 * Unix time at which the memoized success above stops being used
+	 *
+	 * @var int
+	 */
+	private static $site_features_success_expires = 0;
+
+	/**
 	 * Whether this module is a Jetpack feature
 	 *
 	 * @var boolean
@@ -344,6 +359,14 @@ abstract class Product {
 			return $stored_features;
 		}
 
+		/*
+		 * Checked after the transient so it can never outrank a warm cache, but kept so a
+		 * dashboard render still makes a single WPCOM request when the transient write is dropped.
+		 */
+		if ( self::$site_features_success !== null && time() < self::$site_features_success_expires ) {
+			return self::$site_features_success;
+		}
+
 		if ( self::$site_features_failure !== null && time() < self::$site_features_failure_expires ) {
 			return self::$site_features_failure;
 		}
@@ -368,17 +391,23 @@ abstract class Product {
 		// set a short transient to help with multiple lookups on the same page load.
 		set_transient( self::MY_JETPACK_SITE_FEATURES_TRANSIENT_KEY, $features, self::MY_JETPACK_SITE_FEATURES_CACHE_DURATION );
 
+		self::$site_features_success         = $features;
+		self::$site_features_success_expires = time() + self::MY_JETPACK_SITE_FEATURES_CACHE_DURATION;
+
 		return $features;
 	}
 
 	/**
-	 * Forget a memoized failed site features lookup so the next call asks WPCOM again.
+	 * Forget the in-process site features memo, failed and successful lookups alike, so the
+	 * next call asks WPCOM again. The transient is a separate cache layer and is left untouched.
 	 *
 	 * @return void
 	 */
-	public static function reset_site_features_failure() {
+	public static function reset_site_features_cache() {
 		self::$site_features_failure         = null;
 		self::$site_features_failure_expires = 0;
+		self::$site_features_success         = null;
+		self::$site_features_success_expires = 0;
 	}
 
 	/**

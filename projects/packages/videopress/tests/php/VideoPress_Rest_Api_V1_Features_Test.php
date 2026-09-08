@@ -38,6 +38,10 @@ class VideoPress_Rest_Api_V1_Features_Test extends BaseTestCase {
 	public function setUp(): void {
 		parent::setUp();
 
+		// A test here that does not seed the transient would otherwise inherit a failure
+		// memoized by an earlier test for up to 15s, flaking only in full-suite runs.
+		Product::reset_site_features_cache();
+
 		global $wp_rest_server;
 		$wp_rest_server = new WP_REST_Server();
 		$this->server   = $wp_rest_server;
