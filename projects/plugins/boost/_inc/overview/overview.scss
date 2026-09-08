@@ -68,7 +68,7 @@
 		min-inline-size: 0;
 		isolation: isolate;
 
-		// Share a stacking context with annotations so the plot tooltip can paint above them.
+		// Share a stacking context so tooltips can paint above annotations.
 		[role="grid"] > div {
 			isolation: auto;
 		}
