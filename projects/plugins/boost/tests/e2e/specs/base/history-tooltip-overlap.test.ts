@@ -64,7 +64,10 @@ test( 'History tooltip stays below the date axis with matching series colors', a
 	await grid.hover( { position: { x: bounds!.width / 2, y: 10 } } );
 	const surface = page.locator( '.jetpack-boost-overview__history-tooltip' );
 	await expect( surface ).toBeVisible();
-	await expect( page.getByTestId( 'bounded-tooltip' ) ).toHaveCSS( 'background-color', /^rgb\(/ );
+	await expect( page.getByTestId( 'bounded-tooltip' ) ).toHaveCSS(
+		'background-color',
+		'rgb(30, 30, 30)'
+	);
 	const upperPosition = await surface.boundingBox();
 	const date = await surface.locator( ':scope > :first-child' ).textContent();
 	await grid.hover( { position: { x: bounds!.width / 2, y: bounds!.height - 40 } } );

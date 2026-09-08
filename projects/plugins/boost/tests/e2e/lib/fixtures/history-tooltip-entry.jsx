@@ -6,6 +6,8 @@ import { createRoot } from 'react-dom/client';
 import HistoryChartCard from '../../../../_inc/overview/history-chart-card';
 import ScoreCards from '../../../../_inc/overview/score-cards';
 import '../../../../_inc/overview/overview.scss';
+// Boost also loads My Jetpack styles, so verify the tooltip with that stylesheet present.
+import '../../../../../../packages/my-jetpack/_inc/components/stats-section/stats-chart-tooltip.module.scss';
 
 const startDate = Date.UTC( 2026, 8, 1 );
 const day = 24 * 60 * 60 * 1000;
