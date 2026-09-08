@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Share one column-count constant between the dashboard and the detail pages; no behavior change.
+
+
