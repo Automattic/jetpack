@@ -17,10 +17,12 @@ import { useCallback } from 'react';
 /**
  * Internal dependencies
  */
+import { assetUrl } from '../../../assets/url';
 import useAnalytics from '../../../hooks/use-analytics';
 import GoBackLink from '../../go-back-link';
-import jetpackAiImage from '../assets/jetpack-ai.webp';
 import styles from './style.module.scss';
+
+const jetpackAiImage = assetUrl( 'components/product-interstitial/assets/jetpack-ai.webp' );
 
 /**
  * JetpackAIInterstitialMoreRequests component

@@ -1,7 +1,9 @@
 import { __ } from '@wordpress/i18n';
-import crmLogoSvg from '../logos/crm-logo.png';
+import { assetUrl } from '../../../assets/url';
 import { ProductConfig } from '../types';
 import { getTranslatableFeatureLabels, COMPLETE, COMPLETE_SLUG } from './shared-labels';
+
+const crmLogoSvg = assetUrl( 'components/product-interstitial/logos/crm-logo.png' );
 
 const CrmLogo = ( { height = 42 } ) => {
 	return <img src={ crmLogoSvg } alt="CRM Logo" height={ height } />;

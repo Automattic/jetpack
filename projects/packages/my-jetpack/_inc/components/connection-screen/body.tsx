@@ -3,9 +3,11 @@ import { ConnectScreen } from '@automattic/jetpack-connection';
 import { VisuallyHidden } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Icon, external } from '@wordpress/icons';
-import connectImage from './connect.webp';
+import { assetUrl } from '../../assets/url';
 import styles from './styles.module.scss';
 import type { FC, ReactNode } from 'react';
+
+const connectImage = assetUrl( 'components/connection-screen/connect.webp' );
 
 // This is copied from the connection package.
 // The connection package main file is not TypeScript currently and therefore cannot export types.

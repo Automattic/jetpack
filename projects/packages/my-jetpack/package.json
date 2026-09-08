@@ -23,7 +23,8 @@
 		"./components/*": "./_inc/components/*"
 	},
 	"scripts": {
-		"build": "pnpm run clean && pnpm run build-client",
+		"build": "pnpm run clean && pnpm run build-client && pnpm run build:copy-images",
+		"build:copy-images": "node bin/copy-raster-images.mjs",
 		"build-client": "pnpm webpack --config webpack.config.js",
 		"clean": "rm -rf build/",
 		"generate:inline-svgs": "node bin/generate-inline-svgs.mjs",

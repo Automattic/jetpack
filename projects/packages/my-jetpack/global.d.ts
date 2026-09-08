@@ -480,6 +480,7 @@ interface Window {
 		};
 		IDCContainerID: string;
 		adminUrl: string;
+		assetsUrl: string;
 		blogID: string;
 		fileSystemWriteAccess: 'yes' | 'no';
 		isStatsModuleActive: string;
