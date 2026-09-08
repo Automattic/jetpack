@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Link preview: Remove Nextdoor icon to fix orphaned icon in the panel.
+Link preview: Remove Nextdoor and keep the remaining service icons on one row.
