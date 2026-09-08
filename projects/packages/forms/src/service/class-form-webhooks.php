@@ -197,12 +197,20 @@ class Form_Webhooks {
 		// Strip IPv6 zone identifier if present (e.g., fe80::1%eth0 -> fe80::1)
 		$ip = preg_replace( '/%.*$/', '', $ip );
 
-		// Check IPv4 link-local addresses (169.254.0.0/16)
-		// This range includes the AWS/cloud metadata endpoint (169.254.169.254)
 		if ( filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 ) ) {
 			$ip_long = ip2long( $ip );
-			// 169.254.0.0/16 = 2851995648 to 2852061183
-			if ( $ip_long !== false && $ip_long >= 2851995648 && $ip_long <= 2852061183 ) {
+			if ( $ip_long === false ) {
+				return false;
+			}
+
+			// Loopback (127.0.0.0/8) and "this network" (0.0.0.0/8), the IPv4 counterparts of the ::1 check below.
+			$first_octet = ( $ip_long >> 24 ) & 0xff;
+			if ( 127 === $first_octet || 0 === $first_octet ) {
+				return true;
+			}
+
+			// Link-local 169.254.0.0/16 (2851995648-2852061183), which holds the AWS/cloud metadata endpoint.
+			if ( $ip_long >= 2851995648 && $ip_long <= 2852061183 ) {
 				return true;
 			}
 
@@ -271,7 +279,7 @@ class Form_Webhooks {
 	 * Performs validation:
 	 * - Valid URL format
 	 * - HTTPS scheme requirement
-	 * - Blocks link-local and private IP ranges not covered by wp_safe_remote_request()
+	 * - Blocks loopback, link-local, and private IP ranges
 	 *
 	 * @param string $url The webhook URL to validate.
 	 * @return bool|WP_Error True if valid, WP_Error with reason if invalid.
