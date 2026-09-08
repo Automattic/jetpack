@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Site Verification: Reject invalid verification codes instead of reporting a successful save.

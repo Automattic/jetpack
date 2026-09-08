@@ -1,6 +1,7 @@
 <?php
 
 use PHPUnit\Framework\Attributes\CoversFunction;
+use PHPUnit\Framework\Attributes\DataProvider;
 require __DIR__ . '/../../../../modules/verification-tools/verification-tools-utils.php';
 
 /**
@@ -43,6 +44,68 @@ class Jetpack_Verification_Tools_Utils_Test extends WP_UnitTestCase {
 			array( 'test' => 'jLjbTBvtuQepL3eR09id83p4q_w8JBStrB5DKCunOX7kK1XKub' ),
 			jetpack_verification_validate( array( 'test' => '<meta name="google-site-verification" content=\'jLjbTBvtuQepL3eR09id83p4q_w8JBStrB5DKCunOX7kK1XKub\' />' ) ),
 			'google-style meta tag with single quotes should be accepeted'
+		);
+	}
+
+	/**
+	 * Verification codes with valid service-specific characters are accepted.
+	 *
+	 * @dataProvider valid_verification_code_provider
+	 *
+	 * @param string $service Verification service key.
+	 * @param string $code    Verification code.
+	 */
+	#[DataProvider( 'valid_verification_code_provider' )]
+	public function test_service_specific_valid_code_is_accepted( $service, $code ) {
+		$this->assertSame(
+			array( $service => $code ),
+			jetpack_verification_validate( array( $service => $code ) )
+		);
+	}
+
+	/**
+	 * Verification codes with invalid service-specific characters are rejected.
+	 *
+	 * @dataProvider invalid_verification_code_provider
+	 *
+	 * @param string $service Verification service key.
+	 * @param string $code    Verification code.
+	 */
+	#[DataProvider( 'invalid_verification_code_provider' )]
+	public function test_service_specific_invalid_code_is_rejected( $service, $code ) {
+		$this->assertSame(
+			array( $service => '' ),
+			jetpack_verification_validate( array( $service => $code ) )
+		);
+	}
+
+	/**
+	 * Provide valid verification codes.
+	 *
+	 * @return array<string, array{string, string}> Test cases.
+	 */
+	public static function valid_verification_code_provider() {
+		return array(
+			'google'    => array( 'google', 'dBw5CvburAxi537Rp9qi5uG2174Vb6JwHwIRwPSLIK8' ),
+			'bing'      => array( 'bing', '12C1203B5086AECE94EB3A3D9830B2E' ),
+			'pinterest' => array( 'pinterest', 'f100679e6048d45e4a0b0b92dce1efce' ),
+			'yandex'    => array( 'yandex', '44d68e1216009f40' ),
+			'facebook'  => array( 'facebook', 'rvv8b23jxlp1lq41I9rwsvpzncy1fd' ),
+		);
+	}
+
+	/**
+	 * Provide invalid verification codes.
+	 *
+	 * @return array<string, array{string, string}> Test cases.
+	 */
+	public static function invalid_verification_code_provider() {
+		return array(
+			'bing with non-hex characters'     => array( 'bing', 'not-a-bing-token' ),
+			'pinterest with uppercase letters' => array( 'pinterest', 'ABCDEF123456' ),
+			'yandex with non-hex characters'   => array( 'yandex', 'not-a-yandex-token' ),
+			'google with spaces'               => array( 'google', 'not a google token' ),
+			'facebook with punctuation'        => array( 'facebook', 'not.a.facebook.token' ),
 		);
 	}
 }

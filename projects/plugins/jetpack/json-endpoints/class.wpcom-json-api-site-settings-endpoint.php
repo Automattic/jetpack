@@ -1236,6 +1236,21 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 				case 'verification_services_codes':
 					$verification_codes = jetpack_verification_validate( $value );
 
+					foreach ( $value as $service_key => $raw_code ) {
+						if ( '' === $raw_code || null === $raw_code ) {
+							continue;
+						}
+
+						$validated_code = isset( $verification_codes[ $service_key ] ) ? $verification_codes[ $service_key ] : '';
+						if ( '' === $validated_code ) {
+							return new WP_Error(
+								'invalid_input',
+								__( 'Invalid site verification code. Enter only the content value from the meta tag.', 'jetpack' ),
+								400
+							);
+						}
+					}
+
 					if ( update_option( 'verification_services_codes', $verification_codes ) ) {
 						$updated[ $key ] = $verification_codes;
 					}
