@@ -3,7 +3,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import { Button, Notice } from '@wordpress/ui';
 import { useEffect } from 'react';
-import PopOut from '../../app/assets/src/js/features/speed-score/pop-out/pop-out';
+import ScoreAlert from './score-alert';
 import { recordBoostEvent } from '../../app/assets/src/js/lib/utils/analytics';
 import HistoryChartCard from './history-chart-card';
 import { useModulesState, useScoreRefreshState } from './lib/use-modules-state';
@@ -12,7 +12,7 @@ import { useSpeedScores } from './lib/use-speed-scores';
 import ScoreCards from './score-cards';
 import './overview.scss';
 
-export default function Overview() {
+export default function Overview( { isVisible = true }: { isVisible?: boolean } ) {
 	const modules = useModulesState();
 	const refreshState = useScoreRefreshState( modules.data );
 	const [ scoreState, refreshScores ] = useSpeedScores( refreshState );
@@ -82,13 +82,13 @@ export default function Overview() {
 					</Button>
 				}
 			/>
-			<PopOut
+			<ScoreAlert
 				scoreChange={
 					scoreState.status === 'loaded' &&
 					! scoreState.scores.isStale &&
 					getScoreMovementPercentage( scoreState.scores )
 				}
-				useAlertState={ useDismissibleAlertState }
+				isVisible={ isVisible }
 			/>
 			<HistoryChartCard
 				data={ modules.isPending ? undefined : history.data }

@@ -10,9 +10,6 @@ import { recordBoostEvent } from '../../../lib/utils/analytics';
 
 type Props = {
 	scoreChange: number | false; // Speed score shift to show, or false if none.
-	useAlertState?: (
-		alertId: 'score_increase' | 'score_decrease'
-	) => readonly [ boolean, () => void ];
 };
 
 /**
@@ -26,7 +23,7 @@ type ScoreChangeMessage = {
 	ctaLink: string;
 };
 
-const fasterMessage: ScoreChangeMessage = {
+export const fasterMessage: ScoreChangeMessage = {
 	id: 'score_increase',
 	title: __( 'Your site got faster', 'jetpack-boost' ),
 	body: <p>{ __( `That's great! If you’re happy, why not rate Boost?`, 'jetpack-boost' ) }</p>,
@@ -34,7 +31,7 @@ const fasterMessage: ScoreChangeMessage = {
 	ctaLink: getRedirectUrl( 'boost-rate-plugin' ),
 };
 
-const slowerMessage: ScoreChangeMessage = {
+export const slowerMessage: ScoreChangeMessage = {
 	id: 'score_decrease',
 	title: __( 'Speed score has fallen', 'jetpack-boost' ),
 	body: (
@@ -116,7 +113,7 @@ export const VanillaPopOut = ( { message, onClose, onDismiss, isVisible }: Vanil
 	);
 };
 
-function PopOut( { scoreChange, useAlertState = useDismissibleAlertState }: Props ) {
+function PopOut( { scoreChange }: Props ) {
 	/*
 	 * Determine if the score has changed enough to show the alert.
 	 */
@@ -131,7 +128,7 @@ function PopOut( { scoreChange, useAlertState = useDismissibleAlertState }: Prop
 	 * Use datasync to track which score alerts have been dismissed.
 	 * Dismissed means that the user asked to never show us this alert again.
 	 */
-	const [ isDismissed, dismissAlert ] = useAlertState( message.id );
+	const [ isDismissed, dismissAlert ] = useDismissibleAlertState( message.id );
 	/*
 	 * Hide the alert for now. The alert will show up again if the user refreshes the page.
 	 */

@@ -99,7 +99,7 @@ function Stage() {
 		>
 			<Tabs.Panel value="overview" keepMounted>
 				<QueryClientProvider client={ queryClient }>
-					<Overview />
+					<Overview isVisible={ activeTab === 'overview' && subpage === null } />
 				</QueryClientProvider>
 			</Tabs.Panel>
 			<Tabs.Panel value="settings" keepMounted>
