@@ -292,6 +292,23 @@ describe( 'XyChartTooltip', () => {
 		await expect( screen.findByTestId( 'tooltip-box' ) ).resolves.toHaveStyle( { zIndex: '9' } );
 	} );
 
+	test( 'preserves the default background and stacking with a partial style override', async () => {
+		const { unmount } = renderChart( { tooltipPlacement: 'below-axis' } );
+		const defaultBox = await screen.findByTestId( 'tooltip-box' );
+		const background = defaultBox.style.backgroundColor;
+		expect( background ).not.toBe( '' );
+		expect( background ).not.toBe( 'transparent' );
+		unmount();
+
+		renderChart( { tooltipPlacement: 'below-axis', style: { color: 'red' } } );
+
+		await expect( screen.findByTestId( 'tooltip-box' ) ).resolves.toHaveStyle( {
+			backgroundColor: background,
+			zIndex: '3',
+			color: 'rgb(255, 0, 0)',
+		} );
+	} );
+
 	test( 'accepts the portal-era options without passing them to the box', async () => {
 		renderChart( { scroll: true, debounce: 50, resizeObserverPolyfill: undefined } );
 
