@@ -8,7 +8,7 @@ import type {
 	AnnotationStyles,
 	DataPoint,
 } from '../../types';
-import type { RenderTooltipParams } from '../../visx/types';
+import type { RenderTooltipParams, XyChartTooltipProps } from '../../visx/types';
 import type { GlyphProps } from '@visx/xychart';
 import type { ReactNode, SVGProps, FC } from 'react';
 
@@ -41,6 +41,11 @@ export interface LineChartProps extends BaseChartProps< SeriesData[] >, SeriesVi
 	renderTooltip?: (
 		params: RenderTooltipParams< DataPointDate > & { bucketInfo?: BucketInfo }
 	) => ReactNode;
+	/**
+	 * Place the panel below the bottom x-axis with a pointer at the datum x; horizontal bounds still apply.
+	 * @default 'auto'
+	 */
+	tooltipPlacement?: XyChartTooltipProps< DataPointDate >[ 'tooltipPlacement' ];
 	withStartGlyphs?: boolean;
 	withEndGlyphs?: boolean;
 	renderGlyph?: < Datum extends object >( props: GlyphProps< Datum > ) => ReactNode;

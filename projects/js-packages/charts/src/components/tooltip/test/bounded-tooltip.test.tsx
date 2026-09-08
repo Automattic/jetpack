@@ -105,6 +105,47 @@ describe( 'BoundedTooltip', () => {
 		expect( screen.getByTestId( 'box' ) ).toHaveStyle( { transform: 'translate(-40px, 60px)' } );
 	} );
 
+	test.each( [
+		{ anchor: 20, x: 0, pointerLeft: 14 },
+		{ anchor: 150, x: 46, pointerLeft: 98 },
+		{ anchor: 280, x: 92, pointerLeft: 182 },
+	] )(
+		'keeps the below-axis pointer at x=$anchor after clamping',
+		( { anchor, x, pointerLeft } ) => {
+			jest.spyOn( Element.prototype, 'getBoundingClientRect' ).mockImplementation( function (
+				this: Element
+			) {
+				return this.classList.contains( 'visx-tooltip' )
+					? rect( 0, 0, 208, 36 )
+					: rect( 0, 0, 300, 100 );
+			} );
+
+			render(
+				<div style={ { overflow: 'hidden' } }>
+					<div style={ { position: 'relative' } }>
+						<BoundedTooltip placement="below-axis" left={ anchor } top={ 100 } data-testid="box">
+							content
+						</BoundedTooltip>
+					</div>
+				</div>
+			);
+
+			expect( screen.getByTestId( 'box' ) ).toHaveStyle( {
+				transform: `translate(${ x }px, 106px)`,
+			} );
+			expect( screen.getByTestId( 'tooltip-axis-pointer' ) ).toHaveStyle( {
+				left: `${ pointerLeft }px`,
+				top: '-6px',
+				width: '12px',
+				height: '6px',
+			} );
+			expect( screen.getByTestId( 'tooltip-axis-pointer' ) ).toHaveAttribute(
+				'aria-hidden',
+				'true'
+			);
+		}
+	);
+
 	test( 'falls back to the viewport when nothing clips', () => {
 		jest.spyOn( Element.prototype, 'getBoundingClientRect' ).mockImplementation( function (
 			this: Element

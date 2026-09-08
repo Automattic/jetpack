@@ -221,6 +221,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 			smoothing = true,
 			curveType,
 			renderTooltip = renderDefaultTooltip,
+			tooltipPlacement,
 			withStartGlyphs = false,
 			withEndGlyphs = false,
 			animation,
@@ -676,6 +677,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 												<AccessibleTooltip
 													detectBounds
 													snapTooltipToDatumX
+													tooltipPlacement={ tooltipPlacement }
 													snapTooltipToDatumY
 													showSeriesGlyphs
 													renderTooltip={ tooltipRenderer }

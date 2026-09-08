@@ -163,3 +163,18 @@ WiderThanClippingCard.parameters = {
 		},
 	},
 };
+
+export const BelowAxis: StoryObj< typeof LineChart > = Template.bind( {} );
+BelowAxis.args = {
+	...tooltipStoryArgs,
+	height: 220,
+	tooltipPlacement: 'below-axis',
+};
+BelowAxis.parameters = {
+	docs: {
+		description: {
+			story:
+				'Hover a datum or focus the chart and use the arrow keys. The tooltip stays below the x-axis and can extend past the chart. At horizontal edges, the panel shifts while its pointer stays anchored to the datum.',
+		},
+	},
+};
