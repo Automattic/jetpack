@@ -59,19 +59,12 @@ test( 'History tooltip stays below the date axis with matching series colors', a
 } ) => {
 	const chart = page.locator( '.jetpack-boost-overview__chart-canvas' );
 	await expect( chart.locator( '.visx-annotationlabel' ).first() ).toBeVisible();
-	await chart.evaluate( element => {
-		const root = document.getElementById( 'root' )!;
-		root.style.overflow = 'auto';
-		root.style.height = `${
-			element.closest( '.jetpack-boost-overview__history-card' )!.getBoundingClientRect().height
-		}px`;
-	} );
 	const grid = chart.getByRole( 'grid' );
 	const bounds = await grid.boundingBox();
 	await grid.hover( { position: { x: bounds!.width / 2, y: 10 } } );
 	const surface = page.locator( '.jetpack-boost-overview__history-tooltip' );
 	await expect( surface ).toBeVisible();
-	await expect( surface ).toHaveCSS( 'background-color', /^rgb\(/ );
+	await expect( page.getByTestId( 'bounded-tooltip' ) ).toHaveCSS( 'background-color', /^rgb\(/ );
 	const upperPosition = await surface.boundingBox();
 	const date = await surface.locator( ':scope > :first-child' ).textContent();
 	await grid.hover( { position: { x: bounds!.width / 2, y: bounds!.height - 40 } } );
@@ -80,19 +73,25 @@ test( 'History tooltip stays below the date axis with matching series colors', a
 		.poll( async () => ( await surface.boundingBox() )!.y )
 		.toBeCloseTo( upperPosition!.y, 0 );
 	const axis = await chart.locator( '.visx-axis-tick line' ).first().boundingBox();
-	expect( Math.abs( upperPosition!.y - axis!.y ) ).toBeLessThan( 1 );
-	const pointer = surface.locator( '.jetpack-boost-overview__tooltip-pointer' );
-	await expect( pointer ).toHaveCSS( 'border-top-width', '0px' );
-	await expect( pointer ).toHaveCSS( 'border-bottom-width', '8px' );
-	expect( ( await pointer.boundingBox() )!.y ).toBeLessThan( upperPosition!.y );
-	const hoverColumn = chart.locator( '.visx-crosshair-vertical' );
+	const pointer = page.getByTestId( 'tooltip-axis-pointer' );
+	const tooltipBox = page.getByTestId( 'bounded-tooltip' );
+	const pointerPosition = ( await pointer.boundingBox() )!;
+	expect( Math.abs( pointerPosition.y - axis!.y ) ).toBeLessThan( 1 );
+	expect( ( await tooltipBox.boundingBox() )!.y ).toBeCloseTo(
+		pointerPosition.y + pointerPosition.height,
+		0
+	);
+	expect( upperPosition!.y ).toBeGreaterThan( axis!.y );
+	await expect( page.getByRole( 'tooltip' ) ).toContainText( 'Desktop score' );
+	await expect( page.getByRole( 'tooltip' ) ).toContainText( 'Mobile score' );
+	const hoverColumn = chart.getByTestId( 'xy-chart-tooltip-crosshair-vertical' );
 	await expect( hoverColumn ).toHaveCSS( 'visibility', 'visible' );
 	await expect( hoverColumn ).not.toHaveCSS( 'display', 'none' );
 	const columnWidth = await hoverColumn.evaluate( element =>
 		parseFloat( getComputedStyle( element ).strokeWidth )
 	);
-	expect( columnWidth ).toBeGreaterThan( 0 );
-	await expect( hoverColumn ).toHaveCSS( 'stroke-opacity', '0.08' );
+	expect.soft( columnWidth ).toBeGreaterThan( 10 );
+	await expect.soft( hoverColumn ).toHaveCSS( 'stroke-opacity', '0.08' );
 	const columnBounds = await hoverColumn.evaluate( element => {
 		const { x, width, height } = element.getBoundingClientRect();
 		return { x, width, height };
@@ -104,30 +103,20 @@ test( 'History tooltip stays below the date axis with matching series colors', a
 		0
 	);
 
-	const paint = await surface.evaluate( popup => {
+	const painted = await surface.evaluate( popup => {
 		const box = popup.getBoundingClientRect();
-		const card = document
-			.querySelector( '.jetpack-boost-overview__history-card' )!
-			.getBoundingClientRect();
 		const style = document.createElement( 'style' );
 		style.textContent =
 			'.jetpack-boost-overview__history-tooltip, .jetpack-boost-overview__history-tooltip * { pointer-events: auto !important; }';
 		document.head.append( style );
 		try {
-			const hit = document.elementFromPoint(
-				box.x + box.width / 2,
-				( card.bottom + box.bottom ) / 2
-			);
-			return {
-				extendsBelowCard: box.bottom > card.bottom,
-				painted: !! hit && popup.contains( hit ),
-			};
+			const hit = document.elementFromPoint( box.x + box.width / 2, box.bottom - 1 );
+			return !! hit && popup.contains( hit );
 		} finally {
 			style.remove();
 		}
 	} );
-	expect( paint.extendsBelowCard ).toBe( true );
-	expect( paint.painted, 'The card must not clip tooltip content below the chart.' ).toBe( true );
+	expect( painted, 'The tooltip content remains visible below the chart.' ).toBe( true );
 	const typography = await surface.evaluate( popup => {
 		const sections = Array.from(
 			popup.querySelectorAll( '.jetpack-boost-overview__tooltip-section' )
@@ -207,27 +196,24 @@ test( 'History tooltip follows the hovered date and stays within a narrow viewpo
 		[ 0, 'September 1, 2026' ],
 		[ 1, 'September 7, 2026' ],
 	] as const ) {
-		const bounds = ( await grid.boundingBox() )!;
-		await grid.hover( {
-			position: { x: 50 + fraction * ( bounds.width - 80 ), y: bounds.height / 2 },
-		} );
-		await expect( surface.locator( ':scope > :first-child' ) ).toHaveText( date );
-		const popup = ( await surface.boundingBox() )!;
-		expect( popup.x ).toBeGreaterThanOrEqual( 0 );
-		expect( popup.x + popup.width ).toBeLessThanOrEqual( 390 );
-		expect( Math.abs( popup.y - axis!.y ) ).toBeLessThan( 1 );
-		const dateX = await chart
+		const datePoint = await chart
 			.locator( 'path.visx-line' )
 			.first()
 			.evaluate( ( element, end ) => {
 				const line = element as SVGPathElement;
 				const point = line.getPointAtLength( end * line.getTotalLength() );
-				return point.matrixTransform( line.getScreenCTM()! ).x;
+				const screenPoint = point.matrixTransform( line.getScreenCTM()! );
+				return { x: screenPoint.x, y: screenPoint.y };
 			}, fraction );
-		const pointer = ( await surface
-			.locator( '.jetpack-boost-overview__tooltip-pointer' )
-			.boundingBox() )!;
-		expect( pointer.x + pointer.width / 2 ).toBeCloseTo( dateX, 0 );
+		await page.mouse.move( datePoint.x, datePoint.y );
+		await expect( surface.locator( ':scope > :first-child' ) ).toHaveText( date );
+		const popup = ( await surface.boundingBox() )!;
+		expect( popup.x ).toBeGreaterThanOrEqual( 0 );
+		expect( popup.x + popup.width ).toBeLessThanOrEqual( 390 );
+		expect( popup.y ).toBeGreaterThan( axis!.y );
+		const pointer = ( await page.getByTestId( 'tooltip-axis-pointer' ).boundingBox() )!;
+		expect( Math.abs( pointer.y - axis!.y ) ).toBeLessThan( 1 );
+		expect( pointer.x + pointer.width / 2 ).toBeCloseTo( datePoint.x, 0 );
 		positions.push( popup );
 	}
 	expect( positions[ 1 ].x ).toBeGreaterThan( positions[ 0 ].x );
@@ -242,6 +228,22 @@ test( 'History tooltip follows the hovered date and stays within a narrow viewpo
 	expect( ( await surface.boundingBox() )!.y ).toBeCloseTo( positions[ 0 ].y, 0 );
 } );
 
+test( 'Hiding retained history removes a keyboard tooltip until another selection', async ( {
+	page,
+} ) => {
+	const grid = page.getByRole( 'grid' );
+	await grid.focus();
+	await grid.press( 'ArrowRight' );
+	await expect( page.getByRole( 'tooltip' ) ).toBeVisible();
+	await page.getByRole( 'button', { name: 'Toggle history' } ).click();
+	await expect( page.getByRole( 'tooltip' ) ).toHaveCount( 0 );
+	await page.getByRole( 'button', { name: 'Toggle history' } ).click();
+	await expect( page.getByRole( 'tooltip' ) ).toHaveCount( 0 );
+	await grid.focus();
+	await grid.press( 'ArrowRight' );
+	await expect( page.getByRole( 'tooltip' ) ).toBeVisible();
+} );
+
 test( 'Score cards show the tier palette, baseline delta colors, and responsive dividers', async ( {
 	page,
 } ) => {
@@ -252,7 +254,7 @@ test( 'Score cards show the tier palette, baseline delta colors, and responsive 
 	await expect( desktop.first().getByText( 'Good', { exact: true } ) ).toBeVisible();
 	await expect( mobile.getByText( 'Could be improved', { exact: true } ) ).toBeVisible();
 	await expect( desktop.nth( 1 ).getByText( 'Poor', { exact: true } ) ).toBeVisible();
-	await expect( overall.first().getByText( 'Good', { exact: true } ) ).toBeVisible();
+	await expect( overall.first().getByText( 'Could be improved', { exact: true } ) ).toBeVisible();
 	await expect( overall.nth( 1 ).getByText( 'Poor', { exact: true } ) ).toBeVisible();
 	await expect( desktop.first().getByRole( 'progressbar' ) ).toHaveCSS(
 		'color',

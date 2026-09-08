@@ -1,11 +1,11 @@
 /* global document, window */
 import '@wordpress/theme/design-tokens.css';
 import '@automattic/jetpack-base-styles/root-variables';
+import { useCallback, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import HistoryChartCard from '../../../../_inc/overview/history-chart-card';
 import ScoreCards from '../../../../_inc/overview/score-cards';
 import '../../../../_inc/overview/overview.scss';
-import '../../../../../../packages/my-jetpack/_inc/components/stats-section/stats-chart-tooltip.module.scss';
 
 const startDate = Date.UTC( 2026, 8, 1 );
 const day = 24 * 60 * 60 * 1000;
@@ -33,6 +33,22 @@ const data = {
 
 const noop = () => {};
 
+const HistoryFixture = () => {
+	const [ isVisible, setVisible ] = useState( true );
+	const toggleVisibility = useCallback( () => setVisible( visible => ! visible ), [] );
+	return (
+		<>
+			<button onClick={ toggleVisibility }>Toggle history</button>
+			<HistoryChartCard
+				data={ data }
+				isVisible={ isVisible }
+				onRetry={ noop }
+				onDismissFreshStart={ noop }
+			/>
+		</>
+	);
+};
+
 createRoot( document.getElementById( 'root' ) ).render(
 	<div
 		className="jetpack-boost-overview"
@@ -52,7 +68,7 @@ createRoot( document.getElementById( 'root' ) ).render(
 				/>
 			</>
 		) : (
-			<HistoryChartCard data={ data } onRetry={ noop } onDismissFreshStart={ noop } />
+			<HistoryFixture />
 		) }
 	</div>
 );
