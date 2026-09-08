@@ -1,10 +1,9 @@
 import { __ } from '@wordpress/i18n';
-import { Badge, Skeleton, Stack, Text } from '@wordpress/ui';
+import { Skeleton, Stack, Text } from '@wordpress/ui';
 import {
 	formatScoreDelta,
 	getScoreDelta,
 	getScoreTier,
-	getScoreTierLabel,
 	getTrendDirection,
 } from './lib/score-utils';
 import type { ReactNode } from 'react';
@@ -30,7 +29,6 @@ export default function ScoreCard( {
 }: Props ) {
 	const tier = score === undefined ? undefined : getScoreTier( score );
 	const delta = score === undefined ? null : getScoreDelta( score, noBoost );
-	const intent = tier === 'good' ? 'stable' : tier === 'medium' ? 'medium' : 'high';
 	return (
 		<section
 			className="jetpack-boost-overview__score-section"
@@ -48,9 +46,6 @@ export default function ScoreCard( {
 					<Skeleton className="jetpack-boost-overview__score-placeholder" />
 				) : (
 					<Text variant="heading-2xl">{ value }</Text>
-				) }
-				{ ! showPlaceholder && score !== undefined && (
-					<Badge intent={ intent }>{ getScoreTierLabel( score ) }</Badge>
 				) }
 			</Stack>
 			{ ! showPlaceholder && score !== undefined && (

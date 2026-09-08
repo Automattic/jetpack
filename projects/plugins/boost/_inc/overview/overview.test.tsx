@@ -8,6 +8,7 @@ import PopOut from '../../app/assets/src/js/features/speed-score/pop-out/pop-out
 import { recordBoostEvent } from '../../app/assets/src/js/lib/utils/analytics';
 import { useSpeedScores } from './lib/use-speed-scores';
 import Overview from './overview';
+import ScoreCard from './score-card';
 import ScoreCards from './score-cards';
 
 jest.mock( '@automattic/jetpack-boost-score-api', () => ( {
@@ -164,6 +165,19 @@ test( 'does not present initial loading scores as measured scores', () => {
 	expect( screen.queryByRole( 'progressbar' ) ).not.toBeInTheDocument();
 	fireEvent.click( screen.getByRole( 'button', { name: 'Refresh' } ) );
 	expect( requestSpeedScores ).toHaveBeenCalledTimes( 1 );
+} );
+
+test.each( [ 40, 60, 90 ] )( 'renders score %i with a bar and delta without tier labels', score => {
+	render(
+		<ScoreCard icon={ null } label="Desktop" value={ score } score={ score } noBoost={ score - 10 } />
+	);
+	expect( screen.getByText( String( score ) ) ).toBeInTheDocument();
+	expect( screen.getByRole( 'progressbar', { name: 'Desktop' } ) ).toHaveAttribute(
+		'value',
+		String( score )
+	);
+	expect( screen.getByText( '+10 points compared to without Boost' ) ).toBeInTheDocument();
+	expect( screen.queryByText( /^(Good|Could be improved|Poor)$/ ) ).not.toBeInTheDocument();
 } );
 
 test( 'hides stale and absent baselines while preserving measured scores', () => {
