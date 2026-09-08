@@ -169,13 +169,16 @@ test( 'does not present initial loading scores as measured scores', () => {
 
 test.each( [ 40, 60, 90 ] )( 'renders score %i with a bar and delta without tier labels', score => {
 	render(
-		<ScoreCard icon={ null } label="Desktop" value={ score } score={ score } noBoost={ score - 10 } />
+		<ScoreCard
+			icon={ null }
+			label="Desktop"
+			value={ score }
+			score={ score }
+			noBoost={ score - 10 }
+		/>
 	);
 	expect( screen.getByText( String( score ) ) ).toBeInTheDocument();
-	expect( screen.getByRole( 'progressbar', { name: 'Desktop' } ) ).toHaveAttribute(
-		'value',
-		String( score )
-	);
+	expect( screen.getByRole( 'progressbar', { name: 'Desktop' } ) ).toHaveValue( score );
 	expect( screen.getByText( '+10 points compared to without Boost' ) ).toBeInTheDocument();
 	expect( screen.queryByText( /^(Good|Could be improved|Poor)$/ ) ).not.toBeInTheDocument();
 } );
