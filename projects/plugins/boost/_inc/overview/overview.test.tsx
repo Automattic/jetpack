@@ -25,6 +25,7 @@ jest.mock( '@automattic/jetpack-boost-score-api', () => ( {
 } ) );
 jest.mock( '@wordpress/api-fetch' );
 jest.mock( '../../app/assets/src/js/features/performance-history/lib/hooks', () => ( {
+	...jest.requireActual( '../../app/assets/src/js/features/performance-history/lib/hooks' ),
 	useDismissibleAlertState: jest.fn(),
 } ) );
 jest.mock( '@react-spring/web', () => ( {
@@ -73,6 +74,13 @@ beforeEach( () => {
 	} ) );
 } );
 
+function queryWrapper() {
+	const client = new QueryClient( { defaultOptions: { queries: { retry: false } } } );
+	return ( { children }: { children: React.ReactNode } ) => (
+		<QueryClientProvider client={ client }>{ children }</QueryClientProvider>
+	);
+}
+
 function renderOverview() {
 	const client = new QueryClient( { defaultOptions: { queries: { retry: false } } } );
 	const view = render(
@@ -117,7 +125,7 @@ test( 'keeps offline sites out of score and Data Sync requests', async () => {
 	expect( screen.queryByRole( 'button', { name: 'Refresh' } ) ).not.toBeInTheDocument();
 	expect( requestSpeedScores ).not.toHaveBeenCalled();
 	expect( apiFetch ).not.toHaveBeenCalled();
-	const { result } = renderHook( () => useSpeedScores() );
+	const { result } = renderHook( () => useSpeedScores(), { wrapper: queryWrapper() } );
 	await act( async () => result.current[ 1 ]( true ) );
 	expect( requestSpeedScores ).not.toHaveBeenCalled();
 } );
@@ -253,6 +261,7 @@ test( 'debounces optimization changes and waits for generation to finish', async
 	try {
 		const { result, rerender, unmount } = renderHook( state => useSpeedScores( state ), {
 			initialProps: { config: 'modules-active:1,updated:10', isPending: false },
+			wrapper: queryWrapper(),
 		} );
 		await waitFor( () => expect( result.current[ 0 ].status ).toBe( 'loaded' ) );
 		rerender( { config: 'modules-active:1,updated:20', isPending: true } );
