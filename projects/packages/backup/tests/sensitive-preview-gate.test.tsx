@@ -1,6 +1,5 @@
 // JETPACK-2353 — clicking `wp-config.php` printed `DB_PASSWORD` and the salts
-// straight into the `<pre>`. Calypso already hides the same single file behind
-// a "Show preview" click; this is that gate, ported.
+// straight into the `<pre>`. JETPACK-2474 widened the gate to a pattern family.
 
 const mockRecordEvent = jest.fn();
 
@@ -23,11 +22,12 @@ jest.mock( '@wordpress/api-fetch', () => ( {
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import FileInfoCard from '../src/dashboard/components/file-info-card';
+import FileInfoDialog from '../src/dashboard/components/file-info-dialog';
 import { queryClient } from '../src/dashboard/data/query-client';
 import QueryClientProvider from '../src/dashboard/providers/query-client-provider';
 import type { FileNodeFile } from '../src/dashboard/types/file-tree';
 
-/** Closing is irrelevant to these assertions; the card renders regardless. */
+/** Closing is irrelevant to these assertions; both chromes render regardless. */
 const noop = () => {};
 
 // Not a real credential — a marker whose only job is to be searched for.
@@ -111,6 +111,36 @@ function renderCard( file: FileNodeFile ) {
 			<FileInfoCard file={ file } onClose={ noop } />
 		</QueryClientProvider>
 	);
+}
+
+/**
+ * Render one file's dialog, the chrome a panel too narrow for the card uses.
+ *
+ * @param file - The file node to open.
+ * @return The Testing Library render result.
+ */
+function renderDialog( file: FileNodeFile ) {
+	return render(
+		<QueryClientProvider>
+			<FileInfoDialog file={ file } onClose={ noop } />
+		</QueryClientProvider>
+	);
+}
+
+/**
+ * A file node for the given path below the backup root.
+ *
+ * @param path - Path below the root, e.g. `/wp-config.old.php`.
+ * @return The file node the tree would hand the card.
+ */
+function fileAt( path: string ): FileNodeFile {
+	return {
+		name: path.slice( path.lastIndexOf( '/' ) + 1 ),
+		path,
+		type: 'file',
+		period: '1786644531',
+		manifestPath: `f5:${ path }`,
+	};
 }
 
 beforeEach( () => {
@@ -213,21 +243,47 @@ describe( 'sensitive preview gate', () => {
 		expect( fetchedContent() ).toBe( false );
 	} );
 
-	// The leading `/` in the compare is what stops the basename match
-	// swallowing every name that merely ends in the same letters.
-	it( 'leaves a file whose name only ends in wp-config.php alone', async () => {
+	// Near-misses on all five: the two name-anchored patterns need a segment to
+	// start with the name, and the three extension patterns need the dot.
+	it.each( [
+		[ '/wp-content/mywp-config.php' ],
+		[ '/config/app.php' ],
+		[ '/wp-content/env.php' ],
+		[ '/changelog.txt' ],
+		[ '/wp-content/uploads/mysql.txt' ],
+	] )( 'leaves %s alone', async path => {
 		mockEndpoints( PLAIN );
 
-		renderCard( {
-			name: 'mywp-config.php',
-			path: '/wp-content/mywp-config.php',
-			type: 'file',
-			period: '1786644531',
-			manifestPath: 'f5:/wp-content/mywp-config.php',
-		} );
+		renderCard( fileAt( path ) );
 
 		await expect( screen.findByText( PLAIN ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByText( HIDDEN ) ).not.toBeInTheDocument();
+	} );
+
+	// `config/application.php` is Bedrock's, where the credentials live instead.
+	it.each( [
+		[ '/wp-config-backup.php' ],
+		[ '/wp-config.old.php' ],
+		[ '/wp-config.php.txt' ],
+		[ '/config/application.php' ],
+		[ '/config/application.old.php' ],
+		[ '/config/application.php.txt' ],
+		[ '/.env.txt' ],
+		[ '/production.env.txt' ],
+		[ '/dump.sql' ],
+		[ '/dump.sql.txt' ],
+		[ '/wp-content/uploads/db-backup.sql.txt' ],
+		[ '/wp-content/debug.log' ],
+		[ '/wp-content/debug.log.txt' ],
+		[ '/wp-content/error.log.txt' ],
+	] )( 'hides %s and never fetches it', async path => {
+		mockEndpoints( SECRET );
+
+		renderCard( fileAt( path ) );
+
+		await expect( screen.findByText( HIDDEN ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByText( SECRET ) ).not.toBeInTheDocument();
+		expect( fetchedContent() ).toBe( false );
 	} );
 
 	// Two gated files in one tree is what makes the stale-reveal render
@@ -267,23 +323,28 @@ describe( 'sensitive preview gate', () => {
 		expect( screen.queryByRole( 'button', { name: SHOW } ) ).not.toBeInTheDocument();
 	} );
 
-	// Why the gate names one path instead of a family: a stray backup copy is
-	// already unpreviewable, because `bak` is not in the extension map.
-	it( 'needs no entry for a wp-config.php.bak, which never previews at all', async () => {
+	// The pattern matches this one too, and the map still wins.
+	it( 'refuses a wp-config.php.bak outright rather than offering a reveal', async () => {
 		mockEndpoints( SECRET );
 
-		renderCard( {
-			name: 'wp-config.php.bak',
-			path: '/wp-config.php.bak',
-			type: 'file',
-			period: '1786644531',
-			manifestPath: 'f5:/wp-config.php.bak',
-		} );
+		renderCard( fileAt( '/wp-config.php.bak' ) );
 
 		await expect( screen.findByText( UNAVAILABLE ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByText( SECRET ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: SHOW } ) ).not.toBeInTheDocument();
 		expect( fetchedContent() ).toBe( false );
 	} );
+
+	it( 'shows a database dump once the reader asks', async () => {
+		mockEndpoints( SECRET );
+		renderCard( fileAt( '/dump.sql' ) );
+
+		await userEvent.click( await screen.findByRole( 'button', { name: SHOW } ) );
+
+		await expect( screen.findByText( SECRET ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByText( UNAVAILABLE ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'hands focus to the preview it just revealed', async () => {
 		mockEndpoints( SECRET );
 		renderCard( WP_CONFIG );
@@ -307,5 +368,39 @@ describe( 'sensitive preview gate', () => {
 		await expect( screen.findByText( HIDDEN ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByText( SECRET ) ).not.toBeInTheDocument();
 		expect( fetchedContent() ).toBe( false );
+	} );
+
+	// The dialog shares only `useFileInfo` with the card, so the two surfaces
+	// can diverge without either one failing.
+	describe( 'the dialog chrome', () => {
+		it( 'gates a sensitive file there too, and still withholds the fetch', async () => {
+			mockEndpoints( SECRET );
+
+			renderDialog( WP_CONFIG );
+
+			// The heading level is what separates the two chromes; without it
+			// `HIDDEN` alone would pass for a dialog delegating to the card.
+			await expect( screen.findByRole( 'dialog' ) ).resolves.toBeInTheDocument();
+			expect(
+				screen.getByRole( 'heading', { level: 2, name: 'wp-config.php' } )
+			).toBeInTheDocument();
+
+			expect( screen.getByText( HIDDEN ) ).toBeInTheDocument();
+			expect( screen.getByRole( 'button', { name: SHOW } ) ).toBeInTheDocument();
+			expect( screen.queryByText( SECRET ) ).not.toBeInTheDocument();
+			expect( fetchedContent() ).toBe( false );
+		} );
+
+		it( 'reveals on a second click and hands focus to the preview, as the card does', async () => {
+			mockEndpoints( SECRET );
+
+			renderDialog( WP_CONFIG );
+			await userEvent.click( await screen.findByRole( 'button', { name: SHOW } ) );
+
+			await expect( screen.findByText( SECRET ) ).resolves.toBeInTheDocument();
+			await waitFor( () =>
+				expect( screen.getByRole( 'region', { name: /Preview of wp-config.php/ } ) ).toHaveFocus()
+			);
+		} );
 	} );
 } );

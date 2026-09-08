@@ -19,9 +19,23 @@ jest.mock( '@jetpack-premium-analytics/externals', () => ( {
 	Stack: ( { children }: { children: ReactNode } ) => <div>{ children }</div>,
 } ) );
 
+const mockChartFormatting = { locale: 'en-US', timeZone: 'Asia/Tokyo' };
+
 jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
-	GlobalChartsProvider: ( { children }: { children: ReactNode } ) => <>{ children }</>,
-	siteChartFormatting: () => ( {} ),
+	GlobalChartsProvider: ( {
+		children,
+		locale,
+		timeZone,
+	}: {
+		children: ReactNode;
+		locale?: string;
+		timeZone?: string;
+	} ) => (
+		<div data-testid="charts-provider" data-locale={ locale } data-time-zone={ timeZone }>
+			{ children }
+		</div>
+	),
+	siteChartFormatting: () => mockChartFormatting,
 	useChartTheme: () => ( {} ),
 } ) );
 
@@ -55,5 +69,14 @@ describe( 'Report stage report scope', () => {
 		render( <ReportStage /> );
 
 		await expect( screen.findByText( 'no comparison' ) ).resolves.toBeInTheDocument();
+	} );
+
+	it( "formats charts with the site's locale and timezone", async () => {
+		render( <ReportStage /> );
+
+		const provider = await screen.findByTestId( 'charts-provider' );
+
+		expect( provider ).toHaveAttribute( 'data-locale', mockChartFormatting.locale );
+		expect( provider ).toHaveAttribute( 'data-time-zone', mockChartFormatting.timeZone );
 	} );
 } );

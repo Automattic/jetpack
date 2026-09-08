@@ -27,6 +27,7 @@ function wpcom_expiry_notices_editor_notice_data(): ?array {
 
 	$state  = $data['state'];
 	$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+	$urls   = $data['urls'];
 
 	return array(
 		'metaKey'       => Expiry_Notice_Dismiss::META_BANNER,
@@ -34,29 +35,29 @@ function wpcom_expiry_notices_editor_notice_data(): ?array {
 			/* translators: %1$s is the notice heading (e.g. "Your plan has expired"), %2$s is the rest of the notice. */
 			__( '%1$s. %2$s', 'jetpack-mu-wpcom' ),
 			wpcom_expiry_notices_admin_banner_heading( $state ),
-			wpcom_expiry_notices_admin_banner_body( $state )
+			wpcom_expiry_notices_banner_body( $state, $data['is_owner'] )
 		),
-		'primary'       => $data['urls']['primary'],
-		'secondary'     => Expiry_Data::STATE_EXPIRED_GRACE === $state['state'] ? $data['urls']['secondary'] : null,
+		'primary'       => null === $urls ? null : $urls['primary'],
+		'secondary'     => null !== $urls && Expiry_Data::STATE_EXPIRED_GRACE === $state['state'] ? $urls['secondary'] : null,
 		'isDismissible' => $data['is_dismissible'],
-		'context'       => wpcom_expiry_notices_editor_context( $screen ? $screen->id : '' ),
-		'trackProps'    => wpcom_expiry_notices_track_props( $state ),
+		'surface'       => wpcom_expiry_notices_editor_surface( $screen ? $screen->id : '' ),
+		'trackProps'    => wpcom_expiry_notices_track_props( $state, $data['is_owner'] ),
 	);
 }
 
 /**
- * The Tracks `context` naming the editor the notice showed in.
+ * The Tracks `surface` naming the editor the notice showed in.
  *
  * @param string $screen_id Current screen id.
  */
-function wpcom_expiry_notices_editor_context( string $screen_id ): string {
+function wpcom_expiry_notices_editor_surface( string $screen_id ): string {
 	switch ( $screen_id ) {
 		case 'site-editor':
-			return 'site-editor';
+			return 'site_editor';
 		case 'widgets':
 			return 'widgets';
 		default:
-			return 'post-editor';
+			return 'post_editor';
 	}
 }
 

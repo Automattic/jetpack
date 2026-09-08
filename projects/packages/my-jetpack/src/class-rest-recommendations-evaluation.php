@@ -29,6 +29,16 @@ class REST_Recommendations_Evaluation {
 					'methods'             => \WP_REST_Server::READABLE,
 					'callback'            => __CLASS__ . '::evaluate_site_recommendations',
 					'permission_callback' => __CLASS__ . '::permissions_callback',
+					'args'                => array(
+						'goals' => array(
+							'description' => __( 'List of goals selected by the user.', 'jetpack-my-jetpack' ),
+							'type'        => 'array',
+							'required'    => true,
+							'items'       => array(
+								'type' => 'string',
+							),
+						),
+					),
 				),
 			)
 		);
@@ -41,6 +51,16 @@ class REST_Recommendations_Evaluation {
 					'methods'             => \WP_REST_Server::EDITABLE,
 					'callback'            => __CLASS__ . '::save_evaluation_recommendations',
 					'permission_callback' => __CLASS__ . '::permissions_callback',
+					'args'                => array(
+						'recommendations' => array(
+							'description'          => __( 'Recommended module slugs mapped to their evaluation score.', 'jetpack-my-jetpack' ),
+							'type'                 => 'object',
+							'required'             => true,
+							'additionalProperties' => array(
+								'type' => 'number',
+							),
+						),
+					),
 				),
 			)
 		);
@@ -53,6 +73,13 @@ class REST_Recommendations_Evaluation {
 					'methods'             => \WP_REST_Server::DELETABLE,
 					'callback'            => __CLASS__ . '::dismiss_evaluation_recommendations',
 					'permission_callback' => __CLASS__ . '::permissions_callback',
+					'args'                => array(
+						'showWelcomeBanner' => array(
+							'description' => __( 'Whether the welcome banner should be shown again.', 'jetpack-my-jetpack' ),
+							'type'        => 'string',
+							'enum'        => array( 'true', 'false' ),
+						),
+					),
 				),
 			)
 		);
@@ -80,7 +107,18 @@ class REST_Recommendations_Evaluation {
 			);
 		}
 
-		return true; // We require site to be connected.
+		// These endpoints read and write site-wide options, so they are limited to administrators.
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return new WP_Error(
+				'invalid_user_permission_manage_options',
+				__( 'You do not have the correct user permissions to perform this action.', 'jetpack-my-jetpack' ),
+				array(
+					'status' => rest_authorization_required_code(),
+				)
+			);
+		}
+
+		return true;
 	}
 
 	/**
@@ -98,7 +136,7 @@ class REST_Recommendations_Evaluation {
 		}
 
 		$site_id        = \Jetpack_Options::get_option( 'id' );
-		$wpcom_endpoint = sprintf( '/sites/%1$d/jetpack-recommendations/evaluation?goals=%2$s', $site_id, implode( ',', $goals ) );
+		$wpcom_endpoint = sprintf( '/sites/%1$d/jetpack-recommendations/evaluation?goals=%2$s', $site_id, implode( ',', array_map( 'rawurlencode', (array) $goals ) ) );
 		$response       = Client::wpcom_json_api_request_as_blog( $wpcom_endpoint, '2', array(), null, 'wpcom' );
 		$response_code  = wp_remote_retrieve_response_code( $response );
 		$body           = json_decode( wp_remote_retrieve_body( $response ) );

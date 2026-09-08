@@ -3,7 +3,7 @@
  * Tests for the Jetpack AI admin page script data.
  *
  * The Overview and AI Features views are public on self-hosted sites, gated on
- * Atomic, and remain filterable by the host.
+ * Atomic and VIP, and remain filterable by the host.
  *
  * @package automattic/jetpack
  */
@@ -263,8 +263,20 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 		$this->assertTrue( $settings['showFeaturesView'] );
 		$this->assertFalse( $settings['showA12sBadge'] );
 		$this->assertFalse( $settings['isTest'] );
+		$this->assertSame( 'admin.php?page=my-jetpack#/connection', $settings['userConnectionUrl'] );
 		$this->assertArrayHasKey( 'featureFlags', $settings );
 		$this->assertFalse( $settings['featureFlags'][ Jetpack_AI_Feature_Flags::SCHEDULED_TASKS ] );
+	}
+
+	/**
+	 * VIP sites connect users through the legacy Jetpack connection screen.
+	 */
+	public function test_vip_site_uses_jetpack_user_connection_url() {
+		Constants::set_constant( 'WPCOM_IS_VIP_ENV', true );
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertSame( 'admin.php?page=jetpack#/connect-user', $settings['userConnectionUrl'] );
 	}
 
 	/**
@@ -292,6 +304,20 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 		$this->assertFalse( $settings['showFeaturesView'] );
 		$this->assertFalse( $settings['showA12sBadge'] );
 		$this->assertFalse( $settings['isTest'] );
+	}
+
+	/**
+	 * The views remain hidden from VIP sites, including internal requests.
+	 */
+	public function test_features_view_flag_is_off_for_vip_site() {
+		$this->given_woa( false );
+		Constants::set_constant( 'WPCOM_IS_VIP_ENV', true );
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertFalse( $settings['showFeaturesView'] );
+		$this->assertTrue( $settings['isTest'] );
 	}
 
 	/**

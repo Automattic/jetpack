@@ -13,8 +13,10 @@ import {
 } from '@wordpress/icons';
 import { Stack } from '@wordpress/ui';
 import { useFileTree } from '../../hooks/use-file-tree';
+import useNarrowElement from '../../hooks/use-narrow-element';
 import { isFolder } from '../../types/file-tree';
 import FileInfoCard from '../file-info-card';
+import FileInfoDialog from '../file-info-dialog';
 import QueryError from '../query-error';
 import './style.scss';
 import type { FileNode, FileNodeFile } from '../../types/file-tree';
@@ -39,6 +41,17 @@ export const EMPTY_FILE_SELECTION: FileSelection = {
 	selected: new Set(),
 	deselected: new Set(),
 };
+
+const CARD_TRACK = 280;
+const COLUMN_GAP = 16;
+// Floor for the tree: a nested row spends ~120px on indent, checkbox, chevron
+// and glyph before a single character of filename.
+const MIN_TREE = 344;
+
+// Panel width at which the card can take a column beside the tree. Below it
+// the card leaves the tree ~100px and filenames truncate to `wp…`, so the
+// preview moves into `<FileInfoDialog>` instead.
+const TWO_COLUMN_MIN = CARD_TRACK + COLUMN_GAP + MIN_TREE;
 
 type Props = {
 	rewindId: string;
@@ -333,6 +346,7 @@ export default function FileBrowser( {
 	onSelectionIdsChange,
 }: Props ) {
 	const [ openFile, setOpenFile ] = useState< FileNodeFile | null >( null );
+	const [ panelRef, isNarrow ] = useNarrowElement( TWO_COLUMN_MIN );
 	const {
 		children: rootsData,
 		isLoading: rootsLoading,
@@ -458,6 +472,13 @@ export default function FileBrowser( {
 		openerRef.current?.focus();
 	}, [] );
 
+	// The card only takes a column when it is actually rendered there; a bare
+	// tree keeps the full panel width so zebra rows run edge to edge.
+	const layoutClassName =
+		openFile && ! isNarrow
+			? 'jpb-file-browser__layout jpb-file-browser__layout--with-card'
+			: 'jpb-file-browser__layout';
+
 	// A failed root tree is indistinguishable from a backup that contains
 	// nothing: `children` is null either way, so the tree renders empty
 	// under a "0 items selected" header that invites the reader to select
@@ -465,7 +486,7 @@ export default function FileBrowser( {
 	// selection header is meaningless without a tree to select from.
 	if ( rootsError ) {
 		return (
-			<div className="jpb-file-browser" data-rewind-id={ rewindId }>
+			<div className="jpb-file-browser" ref={ panelRef } data-rewind-id={ rewindId }>
 				<QueryError
 					title={ __( "We couldn't load this backup's files.", 'jetpack-backup-pkg' ) }
 					error={ rootsError }
@@ -477,7 +498,7 @@ export default function FileBrowser( {
 	}
 
 	return (
-		<div className="jpb-file-browser" data-rewind-id={ rewindId }>
+		<div className="jpb-file-browser" ref={ panelRef } data-rewind-id={ rewindId }>
 			<Stack direction="row" align="center" gap="sm" className="jpb-file-browser__selection">
 				<CheckboxControl
 					checked={ selected.size > 0 }
@@ -490,7 +511,7 @@ export default function FileBrowser( {
 					__nextHasNoMarginBottom
 				/>
 			</Stack>
-			<div className="jpb-file-browser__layout">
+			<div className={ layoutClassName }>
 				<div className="jpb-file-browser__tree">
 					{ rootsLoading && (
 						<div className="jpb-file-browser__loading">
@@ -513,8 +534,9 @@ export default function FileBrowser( {
 							/>
 						) ) }
 				</div>
-				{ openFile && <FileInfoCard file={ openFile } onClose={ closeInfoCard } /> }
+				{ openFile && ! isNarrow && <FileInfoCard file={ openFile } onClose={ closeInfoCard } /> }
 			</div>
+			{ openFile && isNarrow && <FileInfoDialog file={ openFile } onClose={ closeInfoCard } /> }
 		</div>
 	);
 }

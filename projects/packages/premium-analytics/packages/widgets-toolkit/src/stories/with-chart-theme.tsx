@@ -1,19 +1,26 @@
 import { GlobalChartsProvider } from '@jetpack-premium-analytics/externals';
+import { siteChartFormatting } from '../helpers';
 import { useChartTheme } from '../hooks';
+import { applyFixtureSiteSettings } from './fixture-site';
 import type { Decorator } from '@storybook/react';
 import type { ReactNode } from 'react';
 
+applyFixtureSiteSettings();
+
 /**
- * Wraps children in a `GlobalChartsProvider` seeded with the Woo chart theme.
- * Mirrors what `WidgetRoot` does in the app, where the provider lives at the
- * top of the widget tree.
+ * Wraps children in a `GlobalChartsProvider` seeded with the Woo chart theme and
+ * the site's chart formatting, as `WidgetRoot` does in the app.
  *
  * @return The themed chart provider wrapping `children`.
  */
 const ChartThemeProvider = ( { children }: { children: ReactNode } ) => {
 	const theme = useChartTheme();
 
-	return <GlobalChartsProvider theme={ theme }>{ children }</GlobalChartsProvider>;
+	return (
+		<GlobalChartsProvider theme={ theme } { ...siteChartFormatting() }>
+			{ children }
+		</GlobalChartsProvider>
+	);
 };
 
 /**

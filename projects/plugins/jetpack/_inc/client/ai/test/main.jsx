@@ -265,6 +265,22 @@ describe( 'AI admin page (main.jsx)', () => {
 		} );
 	} );
 
+	test( 'features tab: an unlinked user gets the connect ask and locked switches', async () => {
+		// The page-level flag says linked: the tab must read the endpoint's field.
+		window.jetpackAiSettings = { showFeaturesView: true, blogId: 1, isUserConnected: true };
+		mockApiFetch( { featureGet: { ...enabledSettings(), is_user_connected: false } } );
+
+		render( <App /> );
+
+		await expect(
+			screen.findByText( 'Your WordPress.com account isn’t connected.', IGNORE_A11Y )
+		).resolves.toBeInTheDocument();
+		expect(
+			screen.getByRole( 'link', { name: 'Connect your user account to manage AI features.' } )
+		).toHaveAttribute( 'href', 'admin.php?page=my-jetpack#/connection' );
+		expect( screen.getByRole( 'checkbox', { name: /Writing Assistant/ } ) ).toBeDisabled();
+	} );
+
 	test( 'save-confirmation: a successful AI-settings save shows a success snackbar', async () => {
 		mockApiFetch( { featurePost: () => Promise.resolve( enabledSettings() ) } );
 
@@ -455,6 +471,26 @@ describe( 'AI admin page (main.jsx)', () => {
 			// The settings fetch is skipped: without a user token it can only fail.
 			expect( apiFetch ).not.toHaveBeenCalledWith(
 				expect.objectContaining( { path: expect.stringContaining( 'mcp-settings' ) } )
+			);
+		} );
+
+		test( 'the connect card uses the supplied connection screen', async () => {
+			window.jetpackAiSettings = {
+				showFeaturesView: true,
+				blogId: 1,
+				isUserConnected: false,
+				userConnectionUrl: 'admin.php?page=jetpack#/connect-user',
+			};
+			mockApiFetch( { mcpGet: { has_mcp_access: false, mcp_abilities: {} } } );
+
+			render( <App /> );
+
+			await expect(
+				screen.findByText( CONNECT_CARD_TEXT, IGNORE_A11Y )
+			).resolves.toBeInTheDocument();
+			expect( screen.getByRole( 'link', { name: 'Connect your user account' } ) ).toHaveAttribute(
+				'href',
+				'admin.php?page=jetpack#/connect-user'
 			);
 		} );
 
