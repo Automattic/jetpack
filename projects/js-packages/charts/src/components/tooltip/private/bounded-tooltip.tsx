@@ -20,9 +20,6 @@ const isClipping = ( element: Element ) => {
 	return [ overflow, overflowX, overflowY ].some( value => value && value !== 'visible' );
 };
 
-// The first ancestor that cuts its overflow off. The box may leave the chart
-// wrapper but never this element, which is what a body-level portal used to
-// guarantee by never being inside one.
 const findClippingAncestor = ( wrapper: Element ): Element | null => {
 	let element = wrapper.parentElement;
 	while ( element && element !== document.body ) {

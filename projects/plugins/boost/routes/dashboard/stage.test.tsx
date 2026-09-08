@@ -1,4 +1,5 @@
 /* eslint-disable testing-library/no-node-access */
+import 'jetpack-js-tools/jest/setup-jest-dom';
 // Test dependencies come from the plugin, not the wp-build route package.
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { act, fireEvent, render, screen } from '@testing-library/react';
