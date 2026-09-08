@@ -1,6 +1,7 @@
 import AdminPage from '@automattic/jetpack-components/admin-page';
 import { __ } from '@wordpress/i18n';
 import { Tabs } from '@wordpress/ui';
+import clsx from 'clsx';
 import './boost-page.scss';
 import type { ReactNode } from 'react';
 
@@ -23,9 +24,7 @@ export default function BoostPage( {
 }: Props ) {
 	return (
 		<AdminPage
-			className={
-				isSubpage ? 'jetpack-boost-page jetpack-boost-page--subpage' : 'jetpack-boost-page'
-			}
+			className={ clsx( 'jetpack-boost-page', { 'jetpack-boost-page--subpage': isSubpage } ) }
 			title="Boost"
 			apiRoot={ wpApiSettings.root }
 			apiNonce={ wpApiSettings.nonce }
