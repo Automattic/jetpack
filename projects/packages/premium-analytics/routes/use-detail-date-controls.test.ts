@@ -52,6 +52,8 @@ describe( 'useDetailDateControls', () => {
 			withIntervalControl: false,
 			onStep: undefined,
 		} );
+		// Unset, not false: the panel's own default is what offers Custom range.
+		expect( result.current ).not.toHaveProperty( 'withCustomRange' );
 		// Half past midnight in Taipei, not in the runner's zone.
 		expect( result.current.allTimeStart?.toISOString() ).toBe( '2026-07-07T16:29:35.000Z' );
 	} );
