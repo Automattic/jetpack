@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Forms: Show a selected response beside the responses list again instead of below it. Also fixes the same sidebar layout on the Newsletter and SEO dashboards.
