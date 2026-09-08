@@ -156,6 +156,7 @@ describe( 'ModuleToggle', () => {
 	} );
 
 	it.each( [
+		[ 'activity-log', 'Activity Log' ],
 		[ 'podcast', 'Podcast' ],
 		[ 'subscriptions', 'Newsletter' ],
 		[ 'wpcom-reader', 'WordPress.com Reader' ],
