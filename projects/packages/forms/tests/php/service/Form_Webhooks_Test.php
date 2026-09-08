@@ -1376,6 +1376,180 @@ class Form_Webhooks_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test that webhook blocks IPv6 spellings that embed the IPv4 loopback address.
+	 * NAT64 and 6to4 both carry an embedded IPv4 that routes to 127.0.0.1.
+	 */
+	public function test_send_webhooks_blocks_ipv6_embedded_loopback() {
+		foreach ( array( 'https://[64:ff9b::7f00:1]/webhook', 'https://[2002:7f00:1::1]/webhook' ) as $url ) {
+			$form   = $this->create_mock_form(
+				array(
+					'webhooks' => array(
+						array(
+							'webhook_id' => 'test-webhook',
+							'url'        => $url,
+							'format'     => 'json',
+							'method'     => 'POST',
+							'enabled'    => true,
+						),
+					),
+				)
+			);
+			$fields = array( $this->create_mock_field( $form, 'test-field', 'test value' ) );
+
+			$post_id = $this->create_feedback_post( $form, $fields );
+
+			$http_request_made = false;
+			add_filter(
+				'pre_http_request',
+				function () use ( &$http_request_made ) {
+					$http_request_made = true;
+					return new \WP_Error( 'http_request_not_executed', 'Request should have been blocked.' );
+				}
+			);
+
+			$logged_events = array();
+			add_action(
+				'jetpack_forms_log',
+				function ( $event, $reason, $data = null ) use ( &$logged_events ) {
+					$logged_events[] = array(
+						'event'  => $event,
+						'reason' => $reason,
+						'data'   => $data,
+					);
+				},
+				10,
+				3
+			);
+
+			$webhooks = Form_Webhooks::init();
+			$webhooks->send_webhooks( $post_id, $fields, false, array() );
+
+			$this->assertFalse( $http_request_made, "HTTP request should not be made for $url" );
+			$this->assertCount( 1, $logged_events, "One skip should be logged for $url" );
+			// @phan-suppress-next-line PhanTypeArraySuspiciousNull, PhanTypeInvalidDimOffset
+			$this->assertEquals( 'blocked_ip', $logged_events[0]['reason'], "$url should be blocked_ip" );
+
+			remove_all_filters( 'pre_http_request' );
+			remove_all_actions( 'jetpack_forms_log' );
+		}
+	}
+
+	/**
+	 * Test that the jetpack_forms_webhook_blocked_ip filter can allow an otherwise blocked address.
+	 */
+	public function test_blocked_ip_filter_can_allow_loopback() {
+		$form   = $this->create_mock_form(
+			array(
+				'webhooks' => array(
+					array(
+						'webhook_id' => 'test-webhook',
+						'url'        => 'https://127.0.0.1/webhook',
+						'format'     => 'json',
+						'method'     => 'POST',
+						'enabled'    => true,
+					),
+				),
+			)
+		);
+		$fields = array( $this->create_mock_field( $form, 'test-field', 'test value' ) );
+
+		$post_id = $this->create_feedback_post( $form, $fields );
+
+		add_filter( 'jetpack_forms_webhook_blocked_ip', '__return_false' );
+
+		$http_request_made = false;
+		add_filter(
+			'pre_http_request',
+			function () use ( &$http_request_made ) {
+				$http_request_made = true;
+				return array(
+					'response' => array( 'code' => 200 ),
+					'body'     => '{}',
+					'headers'  => new CaseInsensitiveDictionary( array( 'Content-Type' => 'application/json' ) ),
+				);
+			}
+		);
+
+		$webhooks = Form_Webhooks::init();
+		$webhooks->send_webhooks( $post_id, $fields, false, array() );
+
+		$this->assertTrue( $http_request_made, 'Filter should allow the webhook through' );
+	}
+
+	/**
+	 * Test that a webhook rejected at validation records the reason on the feedback post.
+	 */
+	public function test_send_webhooks_records_validation_error_on_post_meta() {
+		$form   = $this->create_mock_form(
+			array(
+				'webhooks' => array(
+					array(
+						'webhook_id' => 'test-webhook',
+						'url'        => 'https://127.0.0.1/webhook',
+						'format'     => 'json',
+						'method'     => 'POST',
+						'enabled'    => true,
+					),
+				),
+			)
+		);
+		$fields = array( $this->create_mock_field( $form, 'test-field', 'test value' ) );
+
+		$post_id = $this->create_feedback_post( $form, $fields );
+
+		$webhooks = Form_Webhooks::init();
+		$webhooks->send_webhooks( $post_id, $fields, false, array() );
+
+		$error_meta = get_post_meta( $post_id, '_jetpack_forms_webhook_error', true );
+		$this->assertNotEmpty( $error_meta, 'A blocked webhook should still leave a diagnosable trail' );
+		$this->assertStringContainsString( 'private or internal networks', $error_meta );
+	}
+
+	/**
+	 * Test that webhook requests do not follow redirects.
+	 * A redirect escapes the validation we ran on the configured URL.
+	 */
+	public function test_send_webhooks_does_not_follow_redirects() {
+		$form   = $this->create_mock_form(
+			array(
+				'webhooks' => array(
+					array(
+						'webhook_id' => 'test-webhook',
+						// Public literal IP, so validation resolves nothing and the test stays hermetic.
+						'url'        => 'https://93.184.216.34/webhook',
+						'format'     => 'json',
+						'method'     => 'POST',
+						'enabled'    => true,
+					),
+				),
+			)
+		);
+		$fields = array( $this->create_mock_field( $form, 'test-field', 'test value' ) );
+
+		$post_id = $this->create_feedback_post( $form, $fields );
+
+		$redirection = null;
+		add_filter(
+			'pre_http_request',
+			function ( $preempt, $parsed_args ) use ( &$redirection ) {
+				$redirection = $parsed_args['redirection'];
+				return array(
+					'response' => array( 'code' => 200 ),
+					'body'     => '{}',
+					'headers'  => new CaseInsensitiveDictionary( array( 'Content-Type' => 'application/json' ) ),
+				);
+			},
+			10,
+			2
+		);
+
+		$webhooks = Form_Webhooks::init();
+		$webhooks->send_webhooks( $post_id, $fields, false, array() );
+
+		$this->assertSame( 0, $redirection, 'Webhook requests should not follow redirects' );
+	}
+
+	/**
 	 * Test that webhook blocks the IPv6 unspecified address.
 	 * SSRF protection should block ::, the IPv6 counterpart of 0.0.0.0.
 	 */

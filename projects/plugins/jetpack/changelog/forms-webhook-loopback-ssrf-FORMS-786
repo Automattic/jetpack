@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-Forms: Block webhook URLs that point at loopback or unspecified addresses.
+Forms: Block webhook URLs that point at loopback or unspecified addresses, and stop following redirects on webhook requests.
