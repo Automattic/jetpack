@@ -456,6 +456,11 @@
 	display: none;
 }
 
+/* Focused on open so screen readers read it; the panel is its own cue. */
+.bw-editor-note:focus {
+	outline: none;
+}
+
 .bw-editor-note::before {
 	content: "";
 	position: absolute;

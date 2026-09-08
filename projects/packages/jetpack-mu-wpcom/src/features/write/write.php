@@ -1195,11 +1195,13 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 		class="bw-editor-note"
 		role="dialog"
 		aria-label="<?php esc_attr_e( 'About the Write editor', 'jetpack-mu-wpcom' ); ?>"
+		aria-describedby="bw-editor-note-text"
+		tabindex="-1"
 		hidden
 		data-wp-bind--hidden="!state.showEditorNote"
 		data-wp-on--keydown="actions.handleEditorNoteKeyDown"
 	>
-		<p class="bw-editor-note-text">
+		<p class="bw-editor-note-text" id="bw-editor-note-text">
 		<?php
 		echo wp_kses(
 			sprintf(

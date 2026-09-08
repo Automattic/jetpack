@@ -618,6 +618,15 @@ class Write_Test extends \WorDBless\BaseTestCase {
 			'<a class="bw-editor-note-guide" data-target="wpcom-help-center" href="https://wordpress.com/support/editors/write-editor/"',
 			$output
 		);
+
+		// Focus moves to the dialog itself on first visit, so it needs to be
+		// focusable and to point at the message screen readers should hear.
+		$this->assertMatchesRegularExpression( '/class="bw-editor-note"[^>]*\stabindex="-1"/s', $output );
+		$this->assertMatchesRegularExpression(
+			'/class="bw-editor-note"[^>]*\saria-describedby="bw-editor-note-text"/s',
+			$output
+		);
+		$this->assertStringContainsString( 'id="bw-editor-note-text"', $output );
 	}
 
 	/**

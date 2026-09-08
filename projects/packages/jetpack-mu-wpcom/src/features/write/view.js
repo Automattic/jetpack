@@ -6738,8 +6738,10 @@ const autosaveReady = setInterval( () => {
 		markEditorNoteSeen();
 		state.showEditorNote = true;
 		recordTracksEvent( 'wpcom_write_editor_note_shown', { source: state.source || '' } );
+		// Focus the dialog itself, not a control inside it: screen readers then
+		// read the label and the message, and Tab still reaches every action.
 		requestAnimationFrame( () => {
-			document.querySelector( '.bw-editor-note-ok' )?.focus();
+			document.querySelector( '.bw-editor-note' )?.focus();
 		} );
 
 		// The note overlaps the topbar menus it points at, so a click anywhere
