@@ -1,14 +1,18 @@
 import { animated, useSpring } from '@react-spring/web';
-import CloseButton from '$features/ui/close-button/close-button';
+import CloseButton from '../../ui/close-button/close-button';
 import styles from './pop-out.module.scss';
 import { __ } from '@wordpress/i18n';
 import { ReactNode, useState, useEffect } from 'react';
-import { Button, getRedirectUrl } from '@automattic/jetpack-components';
-import { useDismissibleAlertState } from '$features/performance-history/lib/hooks';
-import { recordBoostEvent } from '$lib/utils/analytics';
+import Button from '@automattic/jetpack-components/button';
+import getRedirectUrl from '@automattic/jetpack-components/tools/jp-redirect';
+import { useDismissibleAlertState } from '../../performance-history/lib/hooks';
+import { recordBoostEvent } from '../../../lib/utils/analytics';
 
 type Props = {
 	scoreChange: number | false; // Speed score shift to show, or false if none.
+	useAlertState?: (
+		alertId: 'score_increase' | 'score_decrease'
+	) => readonly [ boolean, () => void ];
 };
 
 /**
@@ -112,7 +116,7 @@ export const VanillaPopOut = ( { message, onClose, onDismiss, isVisible }: Vanil
 	);
 };
 
-function PopOut( { scoreChange }: Props ) {
+function PopOut( { scoreChange, useAlertState = useDismissibleAlertState }: Props ) {
 	/*
 	 * Determine if the score has changed enough to show the alert.
 	 */
@@ -127,7 +131,7 @@ function PopOut( { scoreChange }: Props ) {
 	 * Use datasync to track which score alerts have been dismissed.
 	 * Dismissed means that the user asked to never show us this alert again.
 	 */
-	const [ isDismissed, dismissAlert ] = useDismissibleAlertState( message.id );
+	const [ isDismissed, dismissAlert ] = useAlertState( message.id );
 	/*
 	 * Hide the alert for now. The alert will show up again if the user refreshes the page.
 	 */

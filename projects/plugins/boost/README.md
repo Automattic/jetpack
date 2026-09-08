@@ -8,15 +8,9 @@ Jetpack Boost gives your site the same performance advantages as the world’s l
 
 ## Development
 
-### Live-reloading CSS
+### Building and watching assets
 
-The live-reload feature is configured to only reload CSS files. Currently the way our rollup/webpack combination is configured - every change results in a full rebuild of the JS files, so even style changes would trigger a full page refresh.
-
-If you want to use the live-reloading feature, you have to install the [Livereload extension](https://chrome.google.com/webstore/detail/livereload/jnihajbhpnppcggbcgedagnkighmdlei?hl=en) (for Chrome) and then run
-
-```sh
-npm run devlive
-```
+See [Build the project](./docs/DEVELOPEMENT_GUIDE.md#build-the-project) for build and watch commands.
 
 ### Installation from Git repo
 

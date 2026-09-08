@@ -12,7 +12,7 @@ Automated end-to-end acceptance tests for the Jetpack Boost plugin.
 ## Pre-requisites
 
 - This readme assumes that `node`, `pnpm` and `docker` are already installed on your machine.
-- Make sure you built Jetpack Boost first. `pnpm install && pnpm jetpack build plugins/boost` in the monorepo root directory should walk you through it. You can also refer to the Jetpack Boost [documentation](../../docs/DEVELOPMENT_GUIDE.md) in how to build Jetpack Boost.
+- Build Jetpack Boost and its dependencies using [Build the project](../../docs/DEVELOPEMENT_GUIDE.md#build-the-project).
 - Run `pnpm install` from the Jetpack Boost E2E tests directory. This command install all the required dependencies
 
 Jetpack Boost E2E tests also rely on an encrypted configuration file, which is included in the [e2e commons package](../../../../../tools/e2e-commons) config folder as [`encrypted.enc`](../../../../../tools/e2e-commons/config/encrypted.enc). To be able to run tests - that file should be decrypted first.
@@ -32,7 +32,7 @@ From the root of the repo (this has to be done only once or when pulling new cha
 
 1. run `pnpm install` - This command will install the monorepo NPM dependencies.
 2. run `jetpack build plugins/jetpack` - This command will install Jetpack NPM and Composer dependencies as well as building the asset files.
-3. run `jetpack build plugins/boost` - This command will install Jetpack Boost NPM and Composer dependencies as well as building the asset files.
+3. Follow Boost's [build instructions](../../docs/DEVELOPEMENT_GUIDE.md#build-the-project).
 
 From the `projects/plugins/boost/tests/e2e` folder:
 

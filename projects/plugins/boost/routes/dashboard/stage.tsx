@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { useNavigate, useSearch } from '@wordpress/route';
 import { Tabs } from '@wordpress/ui';
 import BoostPage, { type BoostTab } from '../../_inc/components/boost-page';
+import Overview from '../../_inc/overview/overview';
 import './route.scss';
 
 const SUBPAGES = [
@@ -97,7 +98,9 @@ function Stage() {
 			subpage={ <div id="jb-subpage-mount" hidden={ subpage === null } /> }
 		>
 			<Tabs.Panel value="overview">
-				<QueryClientProvider client={ queryClient }>{ null }</QueryClientProvider>
+				<QueryClientProvider client={ queryClient }>
+					{ activeTab === 'overview' && subpage === null ? <Overview /> : null }
+				</QueryClientProvider>
 			</Tabs.Panel>
 			<Tabs.Panel value="settings" keepMounted>
 				<div id="jb-settings-tab-mount" />

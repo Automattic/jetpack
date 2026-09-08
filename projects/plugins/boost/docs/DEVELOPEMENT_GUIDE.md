@@ -28,14 +28,19 @@ If not, you might need as a prerequisite to bypass the Jetpack connection.
 
 ## Build the project
 
-You may also need building the Image CDN Jetpack Package dependency using the following command:
+From the monorepo root, build Boost and its dependencies:
 
-  ```sh
-  jetpack build packages/image_cdn
-  ```
+```sh
+jetpack build plugins/boost --deps
+```
 
-You may need to do this only once.
+Boost builds the webpack assets and the modern dashboard's wp-build assets together. To rebuild both as files change, run from `projects/plugins/boost`:
 
+```sh
+pnpm watch
+```
+
+For development access to the modern dashboard, use the `rsm_jetpack_ui_modernization_boost` filter documented in [the admin loader](../app/admin/class-admin.php). Its default and asset fallback are defined there.
 
 ## PHP unit tests
 
@@ -79,21 +84,13 @@ To check for PHP code compatibility run:
   ```
 
 ## Linting Jetpack Boost JavaScript code
-The following commands need to be run from the `projects/plugins/boost` directory.
+Run the monorepo's ESLint command from the monorepo root, scoped to Boost:
 
-To check syntax and style in the all the TypeScript and Svelte files that Jetpack Boost relies on, you can run:
+```sh
+pnpm run lint-file projects/plugins/boost
+```
 
-  ```sh
-  pnpm lint
-  ``` 
-
-
-To automatically fix some JavaScript related issues, you can run:
-
-  ```sh
-  pnpm lint:fix
-  ``` 
-
+Append `--fix` to apply automatic fixes. See [Monorepo linting](../../../../docs/monorepo.md#linting) for configuration guidance.
 
 # Debugging Concatenate JS/CSS exclusions
 
