@@ -687,27 +687,16 @@ export default function ApiManagedEdit( { attributes, setAttributes, clientId: b
 						) }
 					</div>
 				</PanelBody>
-				<PanelBody title={ __( 'URL Redirect', 'jetpack-paypal-payments' ) } initialOpen={ false }>
-					<TextControl
-						label={ __( 'Return URL (optional)', 'jetpack-paypal-payments' ) }
-						value={ returnUrl || '' }
-						onChange={ value => setAttributes( { returnUrl: value } ) }
-						onBlur={ () => markTouched( 'returnUrl' ) }
-						type="url"
+				<PanelBody
+					title={ __( 'Product Options', 'jetpack-paypal-payments' ) }
+					initialOpen={ false }
+				>
+					<VariantBuilder
+						enabled={ variantsEnabled }
+						variants={ variants }
+						currencyCode={ currencyCode || 'USD' }
+						onChange={ updates => setAttributes( updates ) }
 						disabled={ isCreating }
-						help={
-							touchedFields.returnUrl && returnUrl && ! /^https:\/\/.+/.test( returnUrl )
-								? __(
-										'Return URL must use HTTPS (e.g., https://example.com/thank-you).',
-										'jetpack-paypal-payments'
-								  )
-								: __( 'Redirect customers here after payment.', 'jetpack-paypal-payments' )
-						}
-						className={
-							touchedFields.returnUrl && returnUrl && ! /^https:\/\/.+/.test( returnUrl )
-								? 'has-error'
-								: undefined
-						}
 					/>
 				</PanelBody>
 				<PanelBody
@@ -890,16 +879,27 @@ export default function ApiManagedEdit( { attributes, setAttributes, clientId: b
 						</div>
 					) }
 				</PanelBody>
-				<PanelBody
-					title={ __( 'Product Options', 'jetpack-paypal-payments' ) }
-					initialOpen={ false }
-				>
-					<VariantBuilder
-						enabled={ variantsEnabled }
-						variants={ variants }
-						currencyCode={ currencyCode || 'USD' }
-						onChange={ updates => setAttributes( updates ) }
+				<PanelBody title={ __( 'URL Redirect', 'jetpack-paypal-payments' ) } initialOpen={ false }>
+					<TextControl
+						label={ __( 'Return URL (optional)', 'jetpack-paypal-payments' ) }
+						value={ returnUrl || '' }
+						onChange={ value => setAttributes( { returnUrl: value } ) }
+						onBlur={ () => markTouched( 'returnUrl' ) }
+						type="url"
 						disabled={ isCreating }
+						help={
+							touchedFields.returnUrl && returnUrl && ! /^https:\/\/.+/.test( returnUrl )
+								? __(
+										'Return URL must use HTTPS (e.g., https://example.com/thank-you).',
+										'jetpack-paypal-payments'
+								  )
+								: __( 'Redirect customers here after payment.', 'jetpack-paypal-payments' )
+						}
+						className={
+							touchedFields.returnUrl && returnUrl && ! /^https:\/\/.+/.test( returnUrl )
+								? 'has-error'
+								: undefined
+						}
 					/>
 				</PanelBody>
 				<PanelBody
