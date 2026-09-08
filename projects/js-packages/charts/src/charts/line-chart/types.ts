@@ -42,11 +42,11 @@ export interface LineChartProps extends BaseChartProps< SeriesData[] >, SeriesVi
 		params: RenderTooltipParams< DataPointDate > & { bucketInfo?: BucketInfo }
 	) => ReactNode;
 	/**
-	 * Place the panel below the bottom x-axis with a pointer at the datum x; horizontal bounds still apply.
+	 * Place the panel below the x-axis tick labels with a pointer at the datum x; horizontal bounds still apply.
 	 * @default 'auto'
 	 */
 	tooltipPlacement?: XyChartTooltipProps< DataPointDate >[ 'tooltipPlacement' ];
-	/** Inline styles for the tooltip container. */
+	/** Inline container styles; the default tooltip content inherits the surface and text color. */
 	tooltipStyle?: CSSProperties;
 	withStartGlyphs?: boolean;
 	withEndGlyphs?: boolean;

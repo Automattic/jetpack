@@ -503,9 +503,9 @@ Tooltips render inside the chart's own wrapper, not in a `document.body` portal,
 
 ### Below-Axis Tooltips
 
-Set `tooltipPlacement="below-axis"` to place the panel below the bottom x-axis with its pointer touching the axis at the active datum's x coordinate. The panel centers on the datum and clamps horizontally at the nearest clipping ancestor or viewport edge. It stays below the axis even when there is insufficient vertical space; an ancestor that clips overflow can still cut it off. The default `"auto"` placement keeps the existing flipping and clamping behavior.
+Set `tooltipPlacement="below-axis"` to place the panel below the bottom x-axis label band with its pointer touching the bottom of that band at the active datum's x coordinate. The panel centers on the datum and clamps horizontally at the nearest clipping ancestor or viewport edge. The band ends at the plot bottom plus the bottom margin. The panel stays below the band even when there is insufficient vertical space; an ancestor that clips overflow can still cut it off. The default `"auto"` placement keeps the existing flipping and clamping behavior.
 
-<Canvas of={ TooltipStories.BelowAxis } />
+<Canvas of={ TooltipStories.BelowAxisDefaultRenderer } />
 
 <Source
 	language="tsx"
@@ -514,10 +514,10 @@ Set `tooltipPlacement="below-axis"` to place the panel below the bottom x-axis w
 	<LineChart
 		data={ data }
 		tooltipPlacement="below-axis"
-		tooltipStyle={ { background: '#1e1e1e', color: '#fff' } }
-		renderTooltip={ ( { tooltipData } ) => (
-			<span>{ tooltipData?.nearestDatum?.datum.value }</span>
-		) }
+		tooltipStyle={ {
+			background: 'var(--a8c-charts-color-tooltip-surface)',
+			color: 'var(--a8c-charts-color-label-inverse)',
+		} }
 		withTooltipCrosshairs={ {
 			showVertical: true,
 			verticalStyle: { strokeWidth: 40, strokeOpacity: 0.12 },
@@ -525,7 +525,9 @@ Set `tooltipPlacement="below-axis"` to place the panel below the bottom x-axis w
 	/>` }
 />
 
-Set `tooltipStyle` to customize the outer tooltip container; supplied properties override the computed styles, while unspecified properties retain their defaults. The below-axis pointer inherits its background. A custom `renderTooltip` controls the content and can inherit the container's text color, as shown above; the default renderer retains its own content styles.
+Set `tooltipStyle` to customize the tooltip surface and text color; supplied properties override the computed styles, while unspecified properties retain their defaults. The default renderer inherits these colors, and the below-axis pointer inherits the background. A custom `renderTooltip` can supply its own content styles.
+
+The public `AccessibleTooltip` component's `style` prop also merges with the computed box styles instead of replacing them. Use its `unstyled` prop to strip the box styles.
 
 Use `withTooltipCrosshairs.verticalStyle` to turn the vertical guide into a broad translucent highlight, as shown above. Both `verticalStyle` and `horizontalStyle` accept SVG line properties, such as `strokeWidth`, `strokeOpacity`, and `strokeDasharray`; their corresponding `showVertical` or `showHorizontal` option enables the guide.
 

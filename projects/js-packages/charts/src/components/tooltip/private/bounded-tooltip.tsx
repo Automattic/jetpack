@@ -1,5 +1,6 @@
 import { Tooltip, defaultStyles } from '@visx/tooltip';
 import { useLayoutEffect, useRef, useState } from 'react';
+import type { TooltipPlacement } from '../../../visx/types';
 import type { TooltipProps } from '@visx/tooltip';
 
 type Bounds = { left: number; top: number; right: number; bottom: number };
@@ -9,11 +10,14 @@ export type BoundedTooltipProps = Omit< TooltipProps, 'left' | 'top' | 'applyPos
 	/** Anchor, in the coordinates of the positioned wrapper the box renders into. */
 	left?: number;
 	top?: number;
-	placement?: 'auto' | 'below-axis';
+	placement?: TooltipPlacement;
 };
 
 const DEFAULT_OFFSET = 10;
 const POINTER_HEIGHT = 6;
+
+const clamp = ( position: number, min: number, max: number, size: number ) =>
+	Math.min( Math.max( position, min ), Math.max( min, max - size ) );
 
 const isClipping = ( element: Element ) => {
 	const { overflow, overflowX, overflowY } = getComputedStyle( element );
@@ -62,6 +66,13 @@ export const getBoundedPosition = ( {
 	bounds: Bounds;
 	placement?: BoundedTooltipProps[ 'placement' ];
 } ) => {
+	if ( placement === 'below-axis' ) {
+		return {
+			x: Math.round( clamp( left - box.width / 2, bounds.left, bounds.right, box.width ) ),
+			y: top + POINTER_HEIGHT,
+		};
+	}
+
 	const rightX = left + offsetLeft;
 	const leftX = left - offsetLeft - box.width;
 	const rightOverflow = rightX + box.width - bounds.right;
@@ -74,16 +85,12 @@ export const getBoundedPosition = ( {
 	const upOverflow = bounds.top - upY;
 	let y = downOverflow > 0 && downOverflow > upOverflow ? upY : downY;
 
-	if ( placement === 'below-axis' ) {
-		x = left - box.width / 2;
-	}
-
-	x = Math.min( Math.max( x, bounds.left ), Math.max( bounds.left, bounds.right - box.width ) );
-	y = Math.min( Math.max( y, bounds.top ), Math.max( bounds.top, bounds.bottom - box.height ) );
+	x = clamp( x, bounds.left, bounds.right, box.width );
+	y = clamp( y, bounds.top, bounds.bottom, box.height );
 
 	return {
 		x: Math.round( x ),
-		y: placement === 'below-axis' ? top + POINTER_HEIGHT : Math.round( y ),
+		y: Math.round( y ),
 	};
 };
 

@@ -104,34 +104,40 @@ describe( 'LineChart', () => {
 		);
 	};
 
-	test( 'passes custom tooltip container and crosshair styles to the rendered elements', async () => {
-		const user = userEvent.setup();
-		renderWithTheme( {
-			withTooltipCrosshairs: {
-				showVertical: true,
-				showHorizontal: true,
-				verticalStyle: { stroke: 'purple', strokeWidth: 40, strokeOpacity: 0.12 },
-				horizontalStyle: { stroke: 'orange', strokeDasharray: '4 2' },
-			},
-			tooltipPlacement: 'below-axis',
-			tooltipStyle: { backgroundColor: 'black', color: 'white', boxShadow: 'none' },
-		} );
-		screen.getByRole( 'grid', { name: /line chart/i } ).focus();
-		await user.keyboard( '{ArrowRight}' );
+	test.each( [ 'auto', 'below-axis' ] as const )(
+		'passes custom tooltip container and crosshair styles with %s placement',
+		async tooltipPlacement => {
+			const user = userEvent.setup();
+			renderWithTheme( {
+				withTooltipCrosshairs: {
+					showVertical: true,
+					showHorizontal: true,
+					verticalStyle: { stroke: 'purple', strokeWidth: 40, strokeOpacity: 0.12 },
+					horizontalStyle: { stroke: 'orange', strokeDasharray: '4 2' },
+				},
+				tooltipPlacement,
+				tooltipStyle: { backgroundColor: 'black', color: 'white', boxShadow: 'none' },
+			} );
+			screen.getByRole( 'grid', { name: /line chart/i } ).focus();
+			await user.keyboard( '{ArrowRight}' );
 
-		const vertical = screen.getByTestId( 'xy-chart-tooltip-crosshair-vertical' );
-		expect( vertical ).toHaveAttribute( 'stroke', 'purple' );
-		expect( vertical ).toHaveAttribute( 'stroke-width', '40' );
-		expect( vertical ).toHaveAttribute( 'stroke-opacity', '0.12' );
-		const horizontal = screen.getByTestId( 'xy-chart-tooltip-crosshair-horizontal' );
-		expect( horizontal ).toHaveAttribute( 'stroke', 'orange' );
-		expect( horizontal ).toHaveAttribute( 'stroke-dasharray', '4 2' );
-		expect( screen.getByTestId( 'bounded-tooltip' ) ).toHaveStyle( {
-			'background-color': 'rgb(0, 0, 0)',
-			color: 'rgb(255, 255, 255)',
-			'box-shadow': 'none',
-		} );
-	} );
+			const vertical = screen.getByTestId( 'xy-chart-tooltip-crosshair-vertical' );
+			expect( vertical ).toHaveAttribute( 'stroke', 'purple' );
+			expect( vertical ).toHaveAttribute( 'stroke-width', '40' );
+			expect( vertical ).toHaveAttribute( 'stroke-opacity', '0.12' );
+			const horizontal = screen.getByTestId( 'xy-chart-tooltip-crosshair-horizontal' );
+			expect( horizontal ).toHaveAttribute( 'stroke', 'orange' );
+			expect( horizontal ).toHaveAttribute( 'stroke-dasharray', '4 2' );
+			expect( screen.getByTestId( 'bounded-tooltip' ) ).toHaveStyle( {
+				'background-color': 'rgb(0, 0, 0)',
+				color: 'rgb(255, 255, 255)',
+				'box-shadow': 'none',
+			} );
+			expect( screen.getByTestId( 'line-chart-tooltip-content' ) ).toHaveStyle( {
+				color: 'rgb(255, 255, 255)',
+			} );
+		}
+	);
 
 	describe( 'Data Validation', () => {
 		test( 'handles empty data array', () => {

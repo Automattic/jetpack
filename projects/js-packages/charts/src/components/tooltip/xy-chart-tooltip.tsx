@@ -236,7 +236,11 @@ const XyChartTooltipContent = < Datum extends object >( {
 				createPortal(
 					<TooltipComponent
 						left={ tooltipLeft }
-						top={ tooltipPlacement === 'below-axis' ? marginTop + innerHeight : tooltipTop }
+						top={
+							tooltipPlacement === 'below-axis'
+								? marginTop + innerHeight + ( margin?.bottom ?? 0 )
+								: tooltipTop
+						}
 						style={ boxStyle }
 						applyPositionStyle
 						{ ...tooltipProps }

@@ -12,15 +12,19 @@ export interface RenderTooltipGlyphProps< Datum extends object > extends GlyphPr
 	isNearestDatum: boolean;
 }
 
+export type TooltipPlacement = 'auto' | 'below-axis';
+
 export type XyChartTooltipProps< Datum extends object > = {
 	renderTooltip: ( params: RenderTooltipParams< Datum > ) => ReactNode;
 	renderGlyph?: ( params: RenderTooltipGlyphProps< Datum > ) => ReactNode;
 	/**
-	 * Keep the panel below the bottom x-axis, centered at the datum x and horizontally clamped.
+	 * Keep the panel below the x-axis label band, centered at the datum x and horizontally clamped.
 	 * Vertical bounds do not move this placement; clipping ancestors can still cut it off.
 	 * @default 'auto'
 	 */
-	tooltipPlacement?: 'auto' | 'below-axis';
+	tooltipPlacement?: TooltipPlacement;
+	/** Merge overrides with the default box styles; use `unstyled` to strip the box styling. */
+	style?: VisxTooltipProps[ 'style' ];
 	snapTooltipToDatumX?: boolean;
 	snapTooltipToDatumY?: boolean;
 	showVerticalCrosshair?: boolean;

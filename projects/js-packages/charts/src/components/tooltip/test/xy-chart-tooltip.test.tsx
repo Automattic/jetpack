@@ -131,7 +131,7 @@ describe( 'XyChartTooltip', () => {
 		);
 	} );
 
-	test( 'anchors below the x-axis without moving datum glyphs or crosshairs', async () => {
+	test( 'anchors below the x-axis label band without moving datum glyphs or crosshairs', async () => {
 		const originalRect = Element.prototype.getBoundingClientRect;
 		const rectSpy = jest
 			.spyOn( Element.prototype, 'getBoundingClientRect' )
@@ -156,7 +156,7 @@ describe( 'XyChartTooltip', () => {
 			);
 
 			const box = await screen.findByTestId( 'tooltip-box' );
-			expect( box ).toHaveStyle( { transform: 'translate(70px, 76px)' } );
+			expect( box ).toHaveStyle( { transform: 'translate(70px, 106px)' } );
 			expect( screen.getByTestId( 'wrapper' ) ).toContainElement( box );
 			expect( screen.getByTestId( 'tooltip-axis-pointer' ) ).toHaveStyle( {
 				left: '34px',
@@ -292,22 +292,25 @@ describe( 'XyChartTooltip', () => {
 		await expect( screen.findByTestId( 'tooltip-box' ) ).resolves.toHaveStyle( { zIndex: '9' } );
 	} );
 
-	test( 'preserves the default background and stacking with a partial style override', async () => {
-		const { unmount } = renderChart( { tooltipPlacement: 'below-axis' } );
-		const defaultBox = await screen.findByTestId( 'tooltip-box' );
-		const background = defaultBox.style.backgroundColor;
-		expect( background ).not.toBe( '' );
-		expect( background ).not.toBe( 'transparent' );
-		unmount();
+	test.each( [ 'auto', 'below-axis' ] as const )(
+		'preserves %s background and stacking with a partial style override',
+		async tooltipPlacement => {
+			const { unmount } = renderChart( { tooltipPlacement } );
+			const defaultBox = await screen.findByTestId( 'tooltip-box' );
+			const background = defaultBox.style.backgroundColor;
+			expect( background ).not.toBe( '' );
+			expect( background ).not.toBe( 'transparent' );
+			unmount();
 
-		renderChart( { tooltipPlacement: 'below-axis', style: { color: 'red' } } );
+			renderChart( { tooltipPlacement, style: { color: 'red' } } );
 
-		await expect( screen.findByTestId( 'tooltip-box' ) ).resolves.toHaveStyle( {
-			backgroundColor: background,
-			zIndex: '3',
-			color: 'rgb(255, 0, 0)',
-		} );
-	} );
+			await expect( screen.findByTestId( 'tooltip-box' ) ).resolves.toHaveStyle( {
+				backgroundColor: background,
+				zIndex: '3',
+				color: 'rgb(255, 0, 0)',
+			} );
+		}
+	);
 
 	test( 'accepts the portal-era options without passing them to the box', async () => {
 		renderChart( { scroll: true, debounce: 50, resizeObserverPolyfill: undefined } );
