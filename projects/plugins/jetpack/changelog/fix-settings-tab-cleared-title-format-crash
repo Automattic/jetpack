@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-SEO: Store a cleared page title structure as an empty list instead of an empty string.
+SEO: Fix the Settings tab failing to load after a page title structure was cleared from WordPress.com.

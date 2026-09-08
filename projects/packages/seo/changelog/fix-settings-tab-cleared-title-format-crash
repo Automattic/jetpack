@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-SEO: Fix the Settings tab failing to load on sites where a page title structure had been cleared from WordPress.com.
+Fix the Settings tab failing to load on sites where a page title structure had been cleared from WordPress.com.

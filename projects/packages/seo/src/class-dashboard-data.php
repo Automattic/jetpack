@@ -195,13 +195,12 @@ class Dashboard_Data {
 	}
 
 	/**
-	 * Coerce the stored title formats into what the Settings tab can render: a
-	 * page type maps to a list of `{ type, value }` tokens, or to an empty list.
+	 * Coerce the stored title formats into one `{ type, value }` token list per page type.
 	 *
-	 * The stored option is looser than that. The site-settings API accepts an
-	 * empty string as "clear this page type" (`are_valid_title_formats()`), and
-	 * Calypso sends exactly that, so `'front_page' => ''` is a normal stored value.
-	 * Handing it to the client crashed the tab (JETPACK-2284).
+	 * The site-settings API stores a cleared page type as `''` (see JETPACK-2284), so the
+	 * option is looser than the Settings tab's type; anything not a token list becomes `array()`.
+	 *
+	 * @since $$next-version$$
 	 *
 	 * @param mixed $stored Raw option value.
 	 * @return array<string, array<int, array{type: string, value: string}>>

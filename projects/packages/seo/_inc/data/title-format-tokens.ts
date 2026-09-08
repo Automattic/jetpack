@@ -339,10 +339,10 @@ const isTitleFormatToken = ( value: unknown ): value is TitleFormatToken =>
 	typeof ( value as TitleFormatToken ).value === 'string';
 
 /**
- * Coerce a server payload's `title_formats` into a map of token lists. The
- * stored option can hold an empty string for a cleared page type (the site
- * settings API accepts it and Calypso sends it), and older servers pass it
- * through; rendering `''` as a list crashed the Settings tab.
+ * Coerce a server payload's `title_formats` into one token list per page type.
+ *
+ * The stored option holds `''` for a page type cleared from Calypso, and an older
+ * server passes that through as-is.
  *
  * @param formats - The raw `title_formats` value.
  * @return One token list per page type, empty where the input was unusable.

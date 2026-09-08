@@ -350,7 +350,10 @@ class Jetpack_SEO_Titles {
 			'archives'   => array(),
 		);
 
+		// Sanitize the stored formats too: a page type saved as '' before this guard
+		// existed would otherwise survive every partial save from Calypso.
 		$previous_formats = self::get_custom_title_formats();
+		$previous_formats = is_array( $previous_formats ) ? self::sanitize_title_formats( $previous_formats ) : array();
 
 		$result = array_merge( $empty_formats, $previous_formats, $new_formats );
 
