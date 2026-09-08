@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Webhooks: Block loopback IP addresses when validating webhook URLs.
+Webhooks: Block loopback and unspecified IP addresses when validating webhook URLs.

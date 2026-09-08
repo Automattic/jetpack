@@ -198,25 +198,33 @@ class Form_Webhooks {
 		$ip = preg_replace( '/%.*$/', '', $ip );
 
 		if ( filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 ) ) {
+			// Azure Wire Server, which fronts Azure internal services including the metadata endpoint.
+			if ( '168.63.129.16' === $ip ) {
+				return true;
+			}
+
 			$ip_long = ip2long( $ip );
-			if ( $ip_long === false ) {
+			if ( false === $ip_long ) {
 				return false;
 			}
 
-			// Loopback (127.0.0.0/8) and "this network" (0.0.0.0/8), the IPv4 counterparts of the ::1 check below.
-			$first_octet = ( $ip_long >> 24 ) & 0xff;
+			/*
+			 * Octet math rather than range comparisons: ip2long() returns a negative int on 32-bit
+			 * PHP for anything above 127.255.255.255, which silently defeats a `>=` range check.
+			 */
+			$first_octet  = ( $ip_long >> 24 ) & 0xff;
+			$second_octet = ( $ip_long >> 16 ) & 0xff;
+
+			/*
+			 * Loopback (127.0.0.0/8) and "this network" (0.0.0.0/8). Core blocks both, but
+			 * wp_http_validate_url() skips that check when the host matches the site's own home host.
+			 */
 			if ( 127 === $first_octet || 0 === $first_octet ) {
 				return true;
 			}
 
-			// Link-local 169.254.0.0/16 (2851995648-2852061183), which holds the AWS/cloud metadata endpoint.
-			if ( $ip_long >= 2851995648 && $ip_long <= 2852061183 ) {
-				return true;
-			}
-
-			// Block Azure Wire Server (168.63.129.16)
-			// Used for Azure internal services including Instance Metadata Service
-			if ( $ip === '168.63.129.16' ) {
+			// Link-local 169.254.0.0/16, which holds the AWS/cloud metadata endpoint.
+			if ( 169 === $first_octet && 254 === $second_octet ) {
 				return true;
 			}
 
@@ -230,9 +238,11 @@ class Form_Webhooks {
 				return false;
 			}
 
-			// Check for IPv6 loopback (::1) using binary comparison
-			// This handles all valid representations (e.g., 0:0:0:0:0:0:0:1, ::0:1)
-			if ( $ip_binary === inet_pton( '::1' ) ) {
+			/*
+			 * Loopback (::1) and the unspecified address (::), the IPv6 counterpart of 0.0.0.0.
+			 * Binary comparison handles every spelling (0:0:0:0:0:0:0:1, ::0:1).
+			 */
+			if ( $ip_binary === inet_pton( '::1' ) || $ip_binary === inet_pton( '::' ) ) {
 				return true;
 			}
 
@@ -279,7 +289,8 @@ class Form_Webhooks {
 	 * Performs validation:
 	 * - Valid URL format
 	 * - HTTPS scheme requirement
-	 * - Blocks loopback, link-local, and private IP ranges
+	 * - Blocks loopback, link-local, and cloud-metadata addresses, plus IPv6 private (ULA) ranges.
+	 *   IPv4 RFC1918 ranges are left to wp_safe_remote_request().
 	 *
 	 * @param string $url The webhook URL to validate.
 	 * @return bool|WP_Error True if valid, WP_Error with reason if invalid.

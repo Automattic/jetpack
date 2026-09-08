@@ -1376,6 +1376,120 @@ class Form_Webhooks_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test that webhook blocks the IPv6 unspecified address.
+	 * SSRF protection should block ::, the IPv6 counterpart of 0.0.0.0.
+	 */
+	public function test_send_webhooks_blocks_ipv6_unspecified() {
+		$form   = $this->create_mock_form(
+			array(
+				'webhooks' => array(
+					array(
+						'webhook_id' => 'test-webhook',
+						'url'        => 'https://[::]/webhook',
+						'format'     => 'json',
+						'method'     => 'POST',
+						'enabled'    => true,
+					),
+				),
+			)
+		);
+		$fields = array( $this->create_mock_field( $form, 'test-field', 'test value' ) );
+
+		$post_id = $this->create_feedback_post( $form, $fields );
+
+		// Prevent actual network requests - return WP_Error if filter is reached
+		$http_request_made = false;
+		add_filter(
+			'pre_http_request',
+			function () use ( &$http_request_made ) {
+				$http_request_made = true;
+				return new \WP_Error( 'http_request_not_executed', 'Request should have been blocked.' );
+			}
+		);
+
+		$logged_events = array();
+		add_action(
+			'jetpack_forms_log',
+			function ( $event, $reason, $data = null ) use ( &$logged_events ) {
+				$logged_events[] = array(
+					'event'  => $event,
+					'reason' => $reason,
+					'data'   => $data,
+				);
+			},
+			10,
+			3
+		);
+
+		$webhooks = Form_Webhooks::init();
+		$webhooks->send_webhooks( $post_id, $fields, false, array() );
+
+		$this->assertFalse( $http_request_made, 'HTTP request should not be made for :: URLs' );
+		$this->assertCount( 1, $logged_events );
+		// @phan-suppress-next-line PhanTypeArraySuspiciousNull, PhanTypeInvalidDimOffset
+		$this->assertEquals( 'webhook_skipped', $logged_events[0]['event'] );
+		// @phan-suppress-next-line PhanTypeArraySuspiciousNull, PhanTypeInvalidDimOffset
+		$this->assertEquals( 'blocked_ip', $logged_events[0]['reason'] );
+	}
+
+	/**
+	 * Test that webhook blocks the "this network" range.
+	 * SSRF protection should block 0.0.0.0/8 at validation time.
+	 */
+	public function test_send_webhooks_blocks_this_network_range() {
+		$form   = $this->create_mock_form(
+			array(
+				'webhooks' => array(
+					array(
+						'webhook_id' => 'test-webhook',
+						'url'        => 'https://0.0.0.0/webhook',
+						'format'     => 'json',
+						'method'     => 'POST',
+						'enabled'    => true,
+					),
+				),
+			)
+		);
+		$fields = array( $this->create_mock_field( $form, 'test-field', 'test value' ) );
+
+		$post_id = $this->create_feedback_post( $form, $fields );
+
+		// Prevent actual network requests - return WP_Error if filter is reached
+		$http_request_made = false;
+		add_filter(
+			'pre_http_request',
+			function () use ( &$http_request_made ) {
+				$http_request_made = true;
+				return new \WP_Error( 'http_request_not_executed', 'Request should have been blocked.' );
+			}
+		);
+
+		$logged_events = array();
+		add_action(
+			'jetpack_forms_log',
+			function ( $event, $reason, $data = null ) use ( &$logged_events ) {
+				$logged_events[] = array(
+					'event'  => $event,
+					'reason' => $reason,
+					'data'   => $data,
+				);
+			},
+			10,
+			3
+		);
+
+		$webhooks = Form_Webhooks::init();
+		$webhooks->send_webhooks( $post_id, $fields, false, array() );
+
+		$this->assertFalse( $http_request_made, 'HTTP request should not be made for 0.0.0.0/8 URLs' );
+		$this->assertCount( 1, $logged_events );
+		// @phan-suppress-next-line PhanTypeArraySuspiciousNull, PhanTypeInvalidDimOffset
+		$this->assertEquals( 'webhook_skipped', $logged_events[0]['event'] );
+		// @phan-suppress-next-line PhanTypeArraySuspiciousNull, PhanTypeInvalidDimOffset
+		$this->assertEquals( 'blocked_ip', $logged_events[0]['reason'] );
+	}
+
+	/**
 	 * Test that webhook blocks IPv4-mapped IPv6 loopback addresses.
 	 * SSRF protection should block ::ffff:127.0.0.1 which maps to the IPv4 loopback range.
 	 */
