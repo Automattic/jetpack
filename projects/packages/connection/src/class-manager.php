@@ -1324,10 +1324,11 @@ class Manager {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param int $user_id The local user to anchor.
+	 * @param int    $user_id      The local user to anchor.
+	 * @param string $confirmed_by How the confirmation was obtained, e.g. `popup` or `recovery`.
 	 * @return true|WP_Error True on success, WP_Error otherwise.
 	 */
-	public function set_protected_owner( $user_id ) {
+	public function set_protected_owner( $user_id, $confirmed_by ) {
 		$user_id = absint( $user_id );
 		$roles   = new Roles();
 
@@ -1351,7 +1352,7 @@ class Manager {
 			);
 		}
 
-		Protected_Owner::set( (int) $owner_data['ID'], $user_id, $owner_data['email'] ?? '' );
+		Protected_Owner::set( (int) $owner_data['ID'], $user_id, $confirmed_by, $owner_data['email'] ?? '' );
 
 		// Written directly rather than through update_connection_owner(): that round-trips to
 		// WordPress.com first, and its ownership-change guard will refuse the anchor just set here.

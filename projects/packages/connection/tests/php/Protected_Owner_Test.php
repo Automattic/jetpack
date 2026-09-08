@@ -93,7 +93,7 @@ class Protected_Owner_Test extends TestCase {
 	 * @param int $wpcom_user_id The anchored WordPress.com user ID.
 	 */
 	private function anchor( $wpcom_user_id = self::ANCHORED_WPCOM_ID ) {
-		Protected_Owner::set( $wpcom_user_id, $this->owner_id, 'owner@example.com' );
+		Protected_Owner::set( $wpcom_user_id, $this->owner_id, 'popup', 'owner@example.com' );
 	}
 
 	// ── has_protected_owner ──────────────────────────────────────────────
@@ -247,7 +247,7 @@ class Protected_Owner_Test extends TestCase {
 			)
 		);
 
-		$this->assertTrue( $manager->set_protected_owner( $this->owner_id ) );
+		$this->assertTrue( $manager->set_protected_owner( $this->owner_id, 'recovery' ) );
 
 		$anchor = (array) Protected_Owner::get();
 
@@ -255,6 +255,15 @@ class Protected_Owner_Test extends TestCase {
 		$this->assertSame( $this->owner_id, $anchor['local_user_id'] ?? null );
 		$this->assertSame( 'owner@wordpress.example', $anchor['email'] ?? null );
 		$this->assertTrue( $anchor['locked'] ?? false );
+
+		// `confirmed_by` names the mechanism, not a user: it travels to WordPress.com, where a
+		// local user ID would mean nothing.
+		$this->assertSame( 'recovery', $anchor['confirmed_by'] ?? null );
+		$this->assertMatchesRegularExpression(
+			'/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/',
+			$anchor['confirmed_at'] ?? '',
+			'confirmed_at should be an ISO 8601 UTC timestamp.'
+		);
 		$this->assertSame( $this->owner_id, (int) Jetpack_Options::get_option( 'master_user' ) );
 	}
 
@@ -271,7 +280,7 @@ class Protected_Owner_Test extends TestCase {
 		);
 
 		$manager = $this->manager( $this->owner_id, array( 'ID' => self::ANCHORED_WPCOM_ID ), $this->never() );
-		$result  = $manager->set_protected_owner( $subscriber );
+		$result  = $manager->set_protected_owner( $subscriber, 'popup' );
 
 		$this->assertInstanceOf( 'WP_Error', $result );
 		$this->assertSame( 'protected_owner_not_admin', $result->get_error_code() );
@@ -283,7 +292,7 @@ class Protected_Owner_Test extends TestCase {
 	 */
 	public function test_set_protected_owner_rejects_an_unconfirmed_identity() {
 		$manager = $this->manager( $this->owner_id, false );
-		$result  = $manager->set_protected_owner( $this->owner_id );
+		$result  = $manager->set_protected_owner( $this->owner_id, 'popup' );
 
 		$this->assertInstanceOf( 'WP_Error', $result );
 		$this->assertSame( 'protected_owner_not_verified', $result->get_error_code() );
@@ -306,6 +315,18 @@ class Protected_Owner_Test extends TestCase {
 	}
 
 	// ── anchor shape ─────────────────────────────────────────────────────
+
+	/**
+	 * The written anchor carries exactly the keys the option is documented to hold.
+	 */
+	public function test_the_anchor_carries_the_documented_keys() {
+		Protected_Owner::set( self::ANCHORED_WPCOM_ID, $this->owner_id, 'popup', 'owner@example.com' );
+
+		$this->assertSame(
+			array( 'wpcom_user_id', 'email', 'local_user_id', 'locked', 'confirmed_at', 'confirmed_by' ),
+			array_keys( (array) Protected_Owner::get() )
+		);
+	}
 
 	/**
 	 * An anchor without a WordPress.com ID names nobody and is not usable.

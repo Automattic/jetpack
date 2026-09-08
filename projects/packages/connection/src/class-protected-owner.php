@@ -44,22 +44,25 @@ class Protected_Owner {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param int      $wpcom_user_id The owner's WordPress.com user ID, as confirmed by WordPress.com.
-	 * @param int      $local_user_id The owner's local WordPress user ID.
-	 * @param string   $email         The owner's WordPress.com email.
-	 * @param int|null $confirmed_by  Who confirmed it. Defaults to the current user.
+	 * @param int    $wpcom_user_id The owner's WordPress.com user ID, as confirmed by WordPress.com.
+	 * @param int    $local_user_id The owner's local WordPress user ID.
+	 * @param string $confirmed_by  How the confirmation was obtained, e.g. `popup` or `recovery`.
+	 *                              Required, and travels to WordPress.com with the anchor: it names
+	 *                              a mechanism rather than a local user, and a default here would
+	 *                              record provenance nobody established.
+	 * @param string $email         The owner's WordPress.com email.
 	 * @return bool Whether the anchor was written.
 	 */
-	public static function set( $wpcom_user_id, $local_user_id, $email = '', $confirmed_by = null ) {
+	public static function set( $wpcom_user_id, $local_user_id, $confirmed_by, $email = '' ) {
 		return Jetpack_Options::update_option(
 			self::OPTION,
 			array(
 				'wpcom_user_id' => absint( $wpcom_user_id ),
-				'email'         => $email,
+				'email'         => sanitize_email( $email ),
 				'local_user_id' => absint( $local_user_id ),
 				'locked'        => true,
-				'confirmed_at'  => time(),
-				'confirmed_by'  => null === $confirmed_by ? get_current_user_id() : absint( $confirmed_by ),
+				'confirmed_at'  => gmdate( 'Y-m-d\TH:i:s\Z' ),
+				'confirmed_by'  => sanitize_key( $confirmed_by ),
 			)
 		);
 	}
