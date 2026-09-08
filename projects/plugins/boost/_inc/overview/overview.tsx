@@ -7,8 +7,12 @@ import ScoreAlert from './score-alert';
 import ErrorBoundary from '../../app/assets/src/js/features/error-boundary/error-boundary';
 import { recordBoostEvent } from '../../app/assets/src/js/lib/utils/analytics';
 import HistoryChartCard from './history-chart-card';
-import { useModulesState, useScoreRefreshState } from './lib/use-modules-state';
-import { useDismissibleAlertState, usePerformanceHistory } from './lib/use-performance-history';
+import { isSiteOnline, useModulesState, useScoreRefreshState } from './lib/use-modules-state';
+import {
+	performanceHistoryQueryKey,
+	useDismissibleAlertState,
+	usePerformanceHistory,
+} from './lib/use-performance-history';
 import { useSpeedScores } from './lib/use-speed-scores';
 import ScoreCards from './score-cards';
 import './overview.scss';
@@ -42,12 +46,12 @@ function OverviewContent( { isVisible = true }: { isVisible?: boolean } ) {
 		'performance_history_fresh_start'
 	);
 	const queryClient = useQueryClient();
-	const online = Jetpack_Boost.site.online;
+	const online = isSiteOnline();
 	const isLoading = scoreState.status === 'loading';
 
 	useEffect( () => {
 		if ( online && scoreState.status === 'loaded' ) {
-			queryClient.invalidateQueries( { queryKey: [ 'performance_history' ] } );
+			queryClient.invalidateQueries( { queryKey: performanceHistoryQueryKey } );
 		}
 	}, [ online, scoreState.status, queryClient ] );
 
