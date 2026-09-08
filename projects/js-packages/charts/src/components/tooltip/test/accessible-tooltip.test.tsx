@@ -59,6 +59,19 @@ describe( 'AccessibleTooltip', () => {
 		document.body.removeChild( scope );
 	} );
 
+	it( 'focuses keyboard tooltips without scrolling their ancestors', async () => {
+		const focus = jest.spyOn( HTMLElement.prototype, 'focus' );
+		try {
+			renderChart();
+			await openTooltip();
+
+			expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveFocus();
+			expect( focus ).toHaveBeenCalledWith( { preventScroll: true } );
+		} finally {
+			focus.mockRestore();
+		}
+	} );
+
 	it( 'falls back to the catalog default when the role is unset', async () => {
 		renderChart();
 

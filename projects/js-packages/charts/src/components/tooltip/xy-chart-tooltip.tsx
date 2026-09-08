@@ -236,7 +236,11 @@ const XyChartTooltipContent = < Datum extends object >( {
 				createPortal(
 					<TooltipComponent
 						left={ tooltipLeft }
-						top={ tooltipPlacement === 'below-axis' ? marginTop + innerHeight : tooltipTop }
+						top={
+							tooltipPlacement === 'below-axis'
+								? marginTop + innerHeight + ( margin?.bottom ?? 0 )
+								: tooltipTop
+						}
 						style={ boxStyle }
 						applyPositionStyle
 						{ ...tooltipProps }
@@ -264,10 +268,10 @@ const XyChartTooltipContent = < Datum extends object >( {
  * Render it as a child of `XYChart`. The element wrapping that `XYChart` must
  * be `position: relative` with the SVG at its origin, and `isolation: isolate`:
  * the box is placed with the SVG-local coordinates visx reports, and the
- * isolation keeps the box's `zIndex` from competing with page chrome. The box
- * flips and clamps to stay inside the nearest ancestor that clips its overflow
- * (or the viewport), so it may extend past the chart wrapper but is never cut
- * off unless that ancestor is smaller than the box itself.
+ * isolation keeps the box's `zIndex` from competing with page chrome. Automatic
+ * placement flips and clamps inside the nearest clipping ancestor or viewport.
+ * Below-axis placement stays below the label band with horizontal clamping only,
+ * so a clipping ancestor can cut it off vertically.
  *
  * @param props - visx's `Tooltip` options. `scroll`, `debounce` and `resizeObserverPolyfill` are accepted and ignored.
  * @return An anchor in the SVG, plus the overlay and the tooltip box while the tooltip is open.
