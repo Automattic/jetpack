@@ -239,9 +239,7 @@ class DashScan extends Component {
 						{
 							a: (
 								<a
-									href={ getRedirectUrl( 'calypso-plugins-vaultpress' ) }
-									target="_blank"
-									rel="noopener noreferrer"
+									href={ `${ this.props.siteAdminUrl }plugin-install.php?tab=search&type=term&s=vaultpress` }
 								/>
 							),
 						}

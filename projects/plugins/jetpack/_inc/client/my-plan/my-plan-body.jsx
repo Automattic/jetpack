@@ -219,11 +219,7 @@ class MyPlanBody extends Component {
 								rna
 							>
 								<Link
-									openInNewTab
-									href={ getRedirectUrl( 'calypso-plugins-setup', {
-										site: this.props.blogID ?? this.props.siteRawUrl,
-										query: 'only=vaultpress',
-									} ) }
+									href={ `${ this.props.siteAdminUrl }plugin-install.php?tab=search&type=term&s=vaultpress` }
 								>
 									{ __( 'View settings', 'jetpack' ) }
 								</Link>
@@ -381,11 +377,7 @@ class MyPlanBody extends Component {
 										rna
 									>
 										<Link
-											openInNewTab
-											href={ getRedirectUrl( 'calypso-plugins-setup', {
-												site: this.props.blogID ?? this.props.siteRawUrl,
-												query: 'only=akismet',
-											} ) }
+											href={ `${ this.props.siteAdminUrl }admin.php?page=my-jetpack#/add-akismet` }
 										>
 											{ __( 'View settings', 'jetpack' ) }
 										</Link>

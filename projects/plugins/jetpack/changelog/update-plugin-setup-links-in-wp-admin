@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Point plugin setup links at wp-admin instead of the WordPress.com plugin setup flow.

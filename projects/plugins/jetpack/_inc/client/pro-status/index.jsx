@@ -19,7 +19,7 @@ import {
 	isFetchingAkismetData,
 } from 'state/at-a-glance';
 import { isOfflineMode } from 'state/connection';
-import { getSiteRawUrl, getSiteAdminUrl } from 'state/initial-state';
+import { getSiteAdminUrl } from 'state/initial-state';
 import { getRewindStatus } from 'state/rewind';
 import { getScanStatus } from 'state/scan';
 import { getSitePlan, siteHasFeature, isFetchingSiteData } from 'state/site';
@@ -172,15 +172,31 @@ class ProStatus extends Component {
 	 * @return {import('react').ReactElement} A Button component.
 	 */
 	getSetUpButton = feature => {
+		// Akismet backs the 'akismet' feature; the rest are all backed by VaultPress.
+		const isAkismet = 'akismet' === feature;
+		const pluginFile = isAkismet ? 'akismet/akismet.php' : 'vaultpress/vaultpress.php';
+
+		let setUpUrl;
+		if ( this.props.pluginActive( pluginFile ) ) {
+			// The plugin is already running, so send the user to its own settings screen.
+			// Akismet lands here when it is active but has no valid key.
+			setUpUrl = isAkismet
+				? `${ this.props.siteAdminUrl }admin.php?page=akismet-key-config`
+				: `${ this.props.siteAdminUrl }admin.php?page=vaultpress`;
+		} else if ( isAkismet ) {
+			// My Jetpack installs and activates Akismet, so it covers both remaining states.
+			setUpUrl = `${ this.props.siteAdminUrl }admin.php?page=my-jetpack#/add-akismet`;
+		} else {
+			// The plugin search offers Install or Activate, whichever the site needs.
+			setUpUrl = `${ this.props.siteAdminUrl }plugin-install.php?tab=search&type=term&s=vaultpress`;
+		}
+
 		return (
 			<Button
 				onClick={ handleClickForTracking( 'set_up', feature ) }
 				compact={ true }
 				primary={ true }
-				href={ getRedirectUrl( 'calypso-plugins-setup', {
-					site: this.props.siteRawUrl,
-					query: `only=${ feature }`,
-				} ) }
+				href={ setUpUrl }
 			>
 				{ _x( 'Set up', 'Caption for a button to set up a feature.', 'jetpack' ) }
 			</Button>
@@ -306,7 +322,6 @@ export default connect( state => {
 	const sitePlan = getSitePlan( state );
 
 	return {
-		siteRawUrl: getSiteRawUrl( state ),
 		siteAdminUrl: getSiteAdminUrl( state ),
 		getScanThreats: () => getVaultPressScanThreatCount( state ),
 		getVaultPressData: () => getVaultPressData( state ),
