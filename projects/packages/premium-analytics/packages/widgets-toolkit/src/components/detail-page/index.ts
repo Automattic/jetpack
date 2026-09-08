@@ -13,3 +13,11 @@ export {
 	type DetailPageTabsProps,
 } from './detail-page-tabs';
 export { DetailPageShell, type DetailPageShellProps } from './detail-page-shell';
+export {
+	DetailPageActions,
+	DetailPageBreadcrumbs,
+	useDetailPageCustomize,
+	type DetailPageActionsProps,
+	type DetailPageBreadcrumbsProps,
+	type DetailPageCustomize,
+} from './detail-page-customize';

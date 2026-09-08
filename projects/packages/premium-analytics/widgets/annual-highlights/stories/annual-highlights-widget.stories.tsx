@@ -134,7 +134,7 @@ export const WidgetDashboardWithWidget: StoryObj< WidgetDashboardWithWidgetContr
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
 		// The placement the dashboard seeds this widget at, where the tiles sit in
 		// one row above the report link.
-		widgetWidth: 4,
+		widgetWidth: 3,
 		widgetHeight: 1,
 	},
 	argTypes: {
