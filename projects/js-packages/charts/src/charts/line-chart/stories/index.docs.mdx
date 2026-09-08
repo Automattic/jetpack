@@ -525,7 +525,7 @@ Set `tooltipPlacement="below-axis"` to place the panel below the bottom x-axis w
 	/>` }
 />
 
-Set `tooltipStyle` to customize the outer tooltip container. The below-axis pointer inherits its background. A custom `renderTooltip` controls the content and can inherit the container's text color, as shown above; the default renderer retains its own content styles.
+Set `tooltipStyle` to customize the outer tooltip container; supplied properties override the computed styles, while unspecified properties retain their defaults. The below-axis pointer inherits its background. A custom `renderTooltip` controls the content and can inherit the container's text color, as shown above; the default renderer retains its own content styles.
 
 Use `withTooltipCrosshairs.verticalStyle` to turn the vertical guide into a broad translucent highlight, as shown above. Both `verticalStyle` and `horizontalStyle` accept SVG line properties, such as `strokeWidth`, `strokeOpacity`, and `strokeDasharray`; their corresponding `showVertical` or `showHorizontal` option enables the guide.
 
