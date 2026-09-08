@@ -129,6 +129,8 @@ class Jetpack_Email_Design_Editor {
 
 		self::enqueue_block_editor_assets();
 
+		// `@woocommerce/email-editor` opts into core's private APIs as `@wordpress/edit-site`,
+		// resolved against the site's `wp-private-apis`. Re-check on a package bump. NL-839 (j).
 		wp_enqueue_script(
 			self::HANDLE,
 			plugins_url( '_inc/build/email-design-editor.js', JETPACK__PLUGIN_FILE ),
@@ -203,9 +205,6 @@ class Jetpack_Email_Design_Editor {
 	 *
 	 * @todo Firing `enqueue_block_editor_assets` wholesale is the leading suspect for the
 	 *       second Styles button — it pulls in core's site-editing global styles UI. NL-839 (e).
-	 * @todo `@wordpress/global-styles-engine` opts into private APIs under a name core only
-	 *       allowlisted in WP 7.1, so the bundle throws on 7.0 — polyfill `wp-private-apis`
-	 *       here the way `Jetpack_Scan::load_wp_build()` does, or gate the page on 7.1. NL-839 (j).
 	 */
 	private static function enqueue_block_editor_assets() {
 		// Named rather than built from a post: there is no post here, and `get_block_categories()`
