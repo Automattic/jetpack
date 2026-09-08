@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-My Jetpack: Stop offering upgrades for products the site already owns when a plan lookup fails.
+My Jetpack: Show the right product status as soon as fresher plan data is available, instead of reusing an earlier lookup.

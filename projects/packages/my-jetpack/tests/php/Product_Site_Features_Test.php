@@ -47,7 +47,7 @@ class Product_Site_Features_Test extends TestCase {
 
 		remove_filter( 'pre_http_request', array( $this, 'fail_http_request' ) );
 		remove_filter( 'pre_http_request', array( $this, 'succeed_http_request' ) );
-		delete_transient( Product::MY_JETPACK_SITE_FEATURES_TRANSIENT_KEY );
+		remove_filter( 'pre_set_transient_' . Product::MY_JETPACK_SITE_FEATURES_TRANSIENT_KEY, '__return_false' );
 		Product::reset_site_features_cache();
 
 		WorDBless_Options::init()->clear_options();
@@ -108,6 +108,23 @@ class Product_Site_Features_Test extends TestCase {
 		$first  = Product::get_site_features_from_wpcom();
 		$second = Product::get_site_features_from_wpcom();
 
+		$this->assertSame( array( 'backups' ), $first['active'] );
+		$this->assertSame( $first, $second );
+		$this->assertSame( 1, $this->http_calls );
+	}
+
+	/**
+	 * When the transient write does not retain — an object cache evicting under load — the
+	 * in-process memo still holds a dashboard render to a single WPCOM request.
+	 */
+	public function test_successful_lookup_is_only_attempted_once_when_the_transient_does_not_retain() {
+		add_filter( 'pre_set_transient_' . Product::MY_JETPACK_SITE_FEATURES_TRANSIENT_KEY, '__return_false' );
+		add_filter( 'pre_http_request', array( $this, 'succeed_http_request' ) );
+
+		$first  = Product::get_site_features_from_wpcom();
+		$second = Product::get_site_features_from_wpcom();
+
+		$this->assertFalse( get_transient( Product::MY_JETPACK_SITE_FEATURES_TRANSIENT_KEY ), 'The transient retained, so this test would pass without the memo.' );
 		$this->assertSame( array( 'backups' ), $first['active'] );
 		$this->assertSame( $first, $second );
 		$this->assertSame( 1, $this->http_calls );

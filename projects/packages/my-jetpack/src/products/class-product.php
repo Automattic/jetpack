@@ -398,8 +398,8 @@ abstract class Product {
 	}
 
 	/**
-	 * Forget the in-process site features memo, failed and successful lookups alike, so the
-	 * next call asks WPCOM again. The transient is a separate cache layer and is left untouched.
+	 * Forget the cached site features — both in-process memos and the transient — so the next
+	 * call asks WPCOM again.
 	 *
 	 * @return void
 	 */
@@ -408,6 +408,7 @@ abstract class Product {
 		self::$site_features_failure_expires = 0;
 		self::$site_features_success         = null;
 		self::$site_features_success_expires = 0;
+		delete_transient( self::MY_JETPACK_SITE_FEATURES_TRANSIENT_KEY );
 	}
 
 	/**
