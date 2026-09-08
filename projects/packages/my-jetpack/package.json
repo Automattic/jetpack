@@ -38,7 +38,7 @@
 		"test-coverage": "pnpm run test --coverage",
 		"typecheck": "tsgo --noEmit",
 		"validate": "pnpm exec validate-es build/",
-		"watch": "concurrently 'pnpm:build-client --watch' 'pnpm:watch:wp-build'",
+		"watch": "pnpm run build:copy-images && concurrently 'pnpm:build-client --watch' 'pnpm:watch:wp-build'",
 		"watch:hot": "pnpm run clean && webpack serve",
 		"watch:wp-build": "wp-build --watch"
 	},
