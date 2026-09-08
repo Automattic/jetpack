@@ -692,3 +692,17 @@
 	margin: 0;
 	font-style: italic;
 }
+
+// ---------------------------------------------------------------
+// Display Format panel
+// ---------------------------------------------------------------
+
+.jetpack-paypal-payment-buttons__format-toggle {
+	display: flex;
+	margin-bottom: 12px;
+
+	.components-button {
+		flex: 1;
+		justify-content: center;
+	}
+}
