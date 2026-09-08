@@ -21,8 +21,9 @@ import { useSelect } from '@wordpress/data';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useParams } from '@wordpress/route';
-import { DEFAULT_GRID, ROW_HEIGHT_PRESETS, WidgetDashboard } from '@wordpress/widget-dashboard';
+import { WidgetDashboard } from '@wordpress/widget-dashboard';
 import { type WidgetModuleRecord } from '@wordpress/widget-primitives';
+import { DETAIL_GRID } from '../detail-grid';
 import { useDetailBreadcrumbs } from '../use-detail-breadcrumbs';
 import { useDetailDateControls } from '../use-detail-date-controls';
 import { resolveWidgetModuleWithI18n, useWidgetTypesWithI18n } from '../widget-module-i18n';
@@ -32,10 +33,6 @@ import { useEmailTabScope, usePostDetailTabs, usePostSummary } from './hooks';
 import { route } from './package.json';
 
 const ROUTE_FROM = route.path;
-
-// Fixed composition (WOOA7S-1622): grid stays independent from the
-// customizable main-dashboard preference so it can't be stretched.
-const POST_DETAIL_GRID = { ...DEFAULT_GRID, rowHeight: ROW_HEIGHT_PRESETS.small };
 
 // The layout is fixed, so the change callback never fires; the dashboard
 // still requires one because it owns a staging copy internally.
@@ -134,7 +131,7 @@ function PostDetail(): JSX.Element {
 				resolveWidgetModule={ resolveWidgetModuleWithI18n }
 				layout={ layout }
 				onLayoutChange={ noopLayoutChange }
-				gridSettings={ POST_DETAIL_GRID }
+				gridSettings={ DETAIL_GRID }
 			>
 				<DetailPageShell
 					visual={ <StatsPageIcon /> }
