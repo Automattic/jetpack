@@ -22,8 +22,6 @@ use Automattic\Jetpack\My_Jetpack\Products\Videopress;
 use Jetpack_Options;
 use PHPUnit\Framework\Attributes\CoversMethod;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\PreserveGlobalState;
-use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Users as WorDBless_Users;
@@ -36,17 +34,9 @@ use WorDBless\Users as WorDBless_Users;
  * covered by _inc/components/action-button/test/plan-matrix.test.tsx, and the two halves
  * are pinned to a shared vocabulary by Status_Vocabulary_Parity_Test.
  *
- * Runs in its own process: get_site_features_from_wpcom() memoizes its answer in a static,
- * so any earlier test class that reaches it without a seeded transient answers this one too.
- *
  * @covers \Automattic\Jetpack\My_Jetpack\Product::get_status
- *
- * @runTestsInSeparateProcesses
- * @preserveGlobalState disabled
  */
 #[CoversMethod( Product::class, 'get_status' )]
-#[RunTestsInSeparateProcesses]
-#[PreserveGlobalState( false )]
 class Plan_Matrix_Test extends TestCase {
 
 	/**
