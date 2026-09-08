@@ -34,11 +34,7 @@ From the monorepo root, build Boost and its dependencies:
 jetpack build plugins/boost --deps
 ```
 
-Boost builds the webpack assets and the modern dashboard's wp-build assets together. To rebuild both as files change, run from `projects/plugins/boost`:
-
-```sh
-pnpm watch
-```
+Boost builds the webpack assets and the modern dashboard's wp-build assets together. For automatic rebuilds, see [Watching development builds](../README.md#watching-development-builds).
 
 For development access to the modern dashboard, use the `rsm_jetpack_ui_modernization_boost` filter documented in [the admin loader](../app/admin/class-admin.php). Its default and asset fallback are defined there.
 
