@@ -130,9 +130,12 @@ class Admin_Menu {
 	public static function admin_menu_hook_callback() {
 		$can_see_toplevel_menu  = true;
 		$jetpack_plugin_present = class_exists( 'Jetpack_React_Page' );
-		$icon                   = method_exists( '\Automattic\Jetpack\Assets\Logo', 'get_base64_logo' )
-			? ( new \Automattic\Jetpack\Assets\Logo() )->get_base64_logo()
-			: 'dashicons-admin-plugins';
+		$icon                   = 'dashicons-admin-plugins';
+		if ( method_exists( '\Automattic\Jetpack\Assets\Logo', 'get_base64_admin_menu_logo' ) ) {
+			$icon = ( new \Automattic\Jetpack\Assets\Logo() )->get_base64_admin_menu_logo();
+		} elseif ( method_exists( '\Automattic\Jetpack\Assets\Logo', 'get_base64_logo' ) ) {
+			$icon = ( new \Automattic\Jetpack\Assets\Logo() )->get_base64_logo();
+		}
 
 		if ( ! $jetpack_plugin_present ) {
 			add_menu_page(
