@@ -290,6 +290,10 @@
 .jetpack-paypal-payment-buttons__price-row {
 	display: flex;
 	gap: 12px;
+	// The controls in here end flush with the row box - unlike the ones stacked
+	// above and below, they carry no bottom margin of their own - so the row has
+	// to supply the gap.
+	margin-bottom: 16px;
 
 	> * {
 		flex: 1;
@@ -311,11 +315,6 @@
 // Image upload field in the create/edit form.
 .jetpack-paypal-payment-buttons__image-field {
 	margin-bottom: 16px;
-
-	.components-base-control__label {
-		display: block;
-		margin-bottom: 8px;
-	}
 }
 
 .jetpack-paypal-payment-buttons__image-preview {

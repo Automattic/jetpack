@@ -72,6 +72,11 @@ jest.mock( '@wordpress/block-editor', () => ( {
 
 // Mock WordPress components with simple HTML equivalents.
 jest.mock( '@wordpress/components', () => ( {
+	BaseControl: {
+		VisualLabel: ( { children } ) => (
+			<span className="components-base-control__label">{ children }</span>
+		),
+	},
 	Button: ( { children, onClick, disabled, variant, isBusy, ...rest } ) => (
 		<button
 			onClick={ onClick }
@@ -1272,6 +1277,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			expect( screen.getByLabelText( 'Price' ) ).toBeInTheDocument();
 			expect( screen.getByLabelText( 'Currency' ) ).toBeInTheDocument();
 			expect( screen.getByLabelText( /Description/ ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Product Image (optional)' ) ).toBeInTheDocument();
 		} );
 
 		it( 'calls setAttributes when product name changes', async () => {

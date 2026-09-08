@@ -19,6 +19,7 @@ import {
 	useBlockProps,
 } from '@wordpress/block-editor';
 import {
+	BaseControl,
 	Button,
 	Notice,
 	PanelBody,
@@ -612,17 +613,20 @@ export default function ApiManagedEdit( { attributes, setAttributes, clientId: b
 						onChange={ value => setAttributes( { productDescription: value } ) }
 						onBlur={ () => markTouched( 'productDescription' ) }
 						help={
-							touchedFields.productDescription && validationErrors.productDescription
-								? validationErrors.productDescription
-								: sprintf(
+							touchedFields.productDescription && validationErrors.productDescription ? (
+								validationErrors.productDescription
+							) : (
+								<>
+									{ __( 'Shown to customers at checkout.', 'jetpack-paypal-payments' ) }
+									<br />
+									{ sprintf(
 										/* translators: 1: current character count, 2: maximum allowed */
-										__(
-											'Shown to customers at checkout. %1$d / %2$d characters',
-											'jetpack-paypal-payments'
-										),
+										__( '%1$d / %2$d characters', 'jetpack-paypal-payments' ),
 										( productDescription || '' ).length,
 										MAX_DESCRIPTION_LENGTH
-								  )
+									) }
+								</>
+							)
 						}
 						className={
 							touchedFields.productDescription && validationErrors.productDescription
@@ -632,9 +636,9 @@ export default function ApiManagedEdit( { attributes, setAttributes, clientId: b
 					/>
 
 					<div className="jetpack-paypal-payment-buttons__image-field">
-						<p className="components-base-control__label">
+						<BaseControl.VisualLabel>
 							{ __( 'Product Image (optional)', 'jetpack-paypal-payments' ) }
-						</p>
+						</BaseControl.VisualLabel>
 						{ imageUrl ? (
 							<div className="jetpack-paypal-payment-buttons__image-preview">
 								<img src={ imageUrl } alt={ productName || '' } />
