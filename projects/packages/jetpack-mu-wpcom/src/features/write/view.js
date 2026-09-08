@@ -6069,7 +6069,13 @@ const { state } = store( 'wpcom-write', {
 				action: 'got_it',
 				source: state.source || '',
 			} );
-			getContent()?.focus();
+			const content = getContent();
+			if ( content ) {
+				content.focus();
+				// Park the caret after anything the server seeded — a bare focus()
+				// collapses to the start, i.e. inside a blogging prompt's quote.
+				placeCursorAtEnd( content );
+			}
 		},
 
 		/**
