@@ -155,10 +155,10 @@ test( 'History tooltip stays below the date axis with matching series colors', a
 		expect( device.rowGap ).toBeGreaterThan( 0 );
 		expect( device.sectionGap ).toBeGreaterThan( 0 );
 	}
-	const colors = await page.evaluate( () => {
+	const colors = await surface.evaluate( popup => {
 		const element = document;
 		const swatches = Array.from(
-			element.querySelectorAll( '.jetpack-boost-overview__series-swatch' )
+			popup.querySelectorAll( '.jetpack-boost-overview__series-swatch' )
 		);
 		return {
 			labels: Array.from(
