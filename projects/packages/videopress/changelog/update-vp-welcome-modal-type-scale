@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Welcome modal: body copy stepped up to the design system's lg size with the lede in the same colour as the value cards, and the dialog now sits at true center; upload dropzone text now matches the design system's empty state.
+Welcome modal: body copy stepped up to the design system's lg size with the lede in the same colour as the value cards, and the dialog now sits at true center. Library: the upload dropzone text matches the design system's empty state, and the header's Upload button steps aside while that dropzone is the only thing to upload into.

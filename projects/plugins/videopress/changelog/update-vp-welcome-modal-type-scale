@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-VideoPress: refine the welcome modal type scale and match the upload dropzone text to the design system's empty state.
+VideoPress: refine the welcome modal type scale, match the upload dropzone text to the design system's empty state, and drop the duplicate header Upload button while the empty-library dropzone is showing.
