@@ -934,30 +934,8 @@ export default function ApiManagedEdit( { attributes, setAttributes, clientId: b
 						disabled={ isCreating || ! isFormValid || ! isConnected }
 					>
 						{ isCreating && __( 'Saving…', 'jetpack-paypal-payments' ) }
-						{ ! isCreating &&
-							hasButton &&
-							activeFormat === 'LINK' &&
-							__( 'Update Link', 'jetpack-paypal-payments' ) }
-						{ ! isCreating &&
-							hasButton &&
-							activeFormat === 'QR' &&
-							__( 'Update QR Code', 'jetpack-paypal-payments' ) }
-						{ ! isCreating &&
-							hasButton &&
-							activeFormat === 'BUTTON' &&
-							__( 'Update Button', 'jetpack-paypal-payments' ) }
-						{ ! isCreating &&
-							! hasButton &&
-							activeFormat === 'LINK' &&
-							__( 'Create Link', 'jetpack-paypal-payments' ) }
-						{ ! isCreating &&
-							! hasButton &&
-							activeFormat === 'QR' &&
-							__( 'Create QR Code', 'jetpack-paypal-payments' ) }
-						{ ! isCreating &&
-							! hasButton &&
-							activeFormat === 'BUTTON' &&
-							__( 'Create Button', 'jetpack-paypal-payments' ) }
+						{ ! isCreating && hasButton && __( 'Save', 'jetpack-paypal-payments' ) }
+						{ ! isCreating && ! hasButton && __( 'Create New', 'jetpack-paypal-payments' ) }
 					</Button>
 
 					<Button
