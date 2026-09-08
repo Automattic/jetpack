@@ -390,6 +390,12 @@ class Admin_Test extends Base_TestCase {
 		$this->assertSame( array( 'jetpack-boost-admin' ), $enqueued );
 	}
 
+	/**
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
 	public function test_datasync_localizes_real_boost_entries_through_registered_page_callback() {
 		require_once JETPACK_BOOST_DIR_PATH . '/wp-js-data-sync.php';
 		Functions\when( 'get_option' )->justReturn( array() );
@@ -450,9 +456,6 @@ class Admin_Test extends Base_TestCase {
 			$loaded->setAccessible( true );
 		}
 		$loaded->setValue( $admin, $modern );
-		if ( ! defined( 'JETPACK_BOOST_PATH' ) ) {
-			define( 'JETPACK_BOOST_PATH', dirname( __DIR__, 3 ) . '/jetpack-boost.php' );
-		}
 		Functions\when( 'rest_url' )->justReturn( 'https://example.org/wp-json/' );
 		Functions\when( 'wp_create_nonce' )->returnArg();
 		Functions\when( 'wp_localize_script' )->alias(

@@ -10,7 +10,7 @@ module.exports = {
 	testEnvironment: require.resolve( 'jetpack-js-tools/jest/fix-environment-jsdom.mjs' ),
 	testEnvironmentOptions: baseConfig.testEnvironmentOptions,
 	collectCoverageFrom: [
-		...[ 'app', '_inc', 'routes', 'packages' ].map(
+		...[ 'app', '_inc' ].map(
 			directory => `<rootDir>/${ directory }/**/*.{js,mjs,cjs,jsx,ts,tsx,mts,cts}`
 		),
 		...coverageConfig.collectCoverageFrom,
