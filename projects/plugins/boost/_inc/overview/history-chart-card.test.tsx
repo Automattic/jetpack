@@ -52,6 +52,19 @@ function getSeriesPath( container: HTMLElement, label: string ) {
 }
 /* eslint-enable testing-library/no-node-access */
 
+function mockChartStyles() {
+	const getStyle = window.getComputedStyle;
+	return jest.spyOn( window, 'getComputedStyle' ).mockImplementation( element => {
+		const style = document.createElement( 'div' ).style;
+		style.cssText = getStyle( element ).cssText;
+		style.setProperty( '--jetpack-boost-overview-chart-padding', '24px' );
+		style.setProperty( '--jetpack-boost-overview-chart-margin-left', '40px' );
+		style.setProperty( '--jetpack-boost-overview-chart-margin-right', '20px' );
+		style.setProperty( '--jetpack-boost-overview-chart-margin-bottom', '32px' );
+		return style;
+	} );
+}
+
 beforeAll( () => {
 	jest.spyOn( Element.prototype, 'getBoundingClientRect' ).mockReturnValue( {
 		x: 0,
@@ -177,17 +190,34 @@ test( 'keeps the WordPress date and all eight history dimensions in the tooltip'
 	}
 } );
 
+test.each( [ 'blur', 'hidden' ] )(
+	'closes a selected tooltip when the chart is %s',
+	async action => {
+		const styleSpy = mockChartStyles();
+		const { rerender } = render( <HistoryChartCard data={ history } { ...callbacks } /> );
+		const chart = screen.getByRole( 'grid', { name: /line chart/i } );
+		fireEvent.keyDown( chart, { key: 'ArrowRight' } );
+		const tooltip = await screen.findByTestId( 'chart-tooltip-0' );
+		expect( screen.getAllByText( 'Desktop score' ) ).toHaveLength( 2 );
+		await waitFor( () => expect( tooltip ).toHaveFocus() );
+		if ( action === 'blur' ) {
+			fireEvent.blur( tooltip, { relatedTarget: document.body } );
+		} else {
+			rerender( <HistoryChartCard data={ history } isVisible={ false } { ...callbacks } /> );
+		}
+		expect( screen.queryByTestId( 'chart-tooltip-0' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( 'Desktop score' ) ).not.toBeInTheDocument();
+		rerender( <HistoryChartCard data={ history } { ...callbacks } /> );
+		expect( screen.queryByTestId( 'chart-tooltip-0' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( 'Desktop score' ) ).not.toBeInTheDocument();
+		fireEvent.keyDown( screen.getByRole( 'grid', { name: /line chart/i } ), { key: 'ArrowRight' } );
+		await expect( screen.findByTestId( 'chart-tooltip-0' ) ).resolves.toBeInTheDocument();
+		styleSpy.mockRestore();
+	}
+);
+
 test( 'announces the selected date and measurements during arrow-key navigation', async () => {
-	const getStyle = window.getComputedStyle;
-	const styleSpy = jest.spyOn( window, 'getComputedStyle' ).mockImplementation( element => {
-		const style = document.createElement( 'div' ).style;
-		style.cssText = getStyle( element ).cssText;
-		style.setProperty( '--jetpack-boost-overview-chart-padding', '24px' );
-		style.setProperty( '--jetpack-boost-overview-chart-margin-left', '40px' );
-		style.setProperty( '--jetpack-boost-overview-chart-margin-right', '20px' );
-		style.setProperty( '--jetpack-boost-overview-chart-margin-bottom', '32px' );
-		return style;
-	} );
+	const styleSpy = mockChartStyles();
 	try {
 		render( <HistoryChartCard data={ history } { ...callbacks } /> );
 		const chart = screen.getByRole( 'grid', { name: /line chart/i } );

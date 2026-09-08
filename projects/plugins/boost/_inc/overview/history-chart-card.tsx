@@ -21,6 +21,7 @@ type History = NonNullable< PerformanceHistoryData >;
 type Props = {
 	data?: PerformanceHistoryData | null;
 	isLoading?: boolean;
+	isVisible?: boolean;
 	isError?: boolean;
 	error?: Error | null;
 	onRetry: () => void;
@@ -225,6 +226,7 @@ function ThemedHistoryTooltip( {
 export default function HistoryChartCard( {
 	data,
 	isLoading,
+	isVisible = true,
 	isError,
 	error,
 	onRetry,
@@ -235,6 +237,7 @@ export default function HistoryChartCard( {
 	const series = useMemo( () => buildHistorySeries( data ), [ data ] );
 	const [ chartMargin, setChartMargin ] = useState< ChartMargin >();
 	const [ chartWidth, setChartWidth ] = useState( 0 );
+	const [ chartKey, setChartKey ] = useState( 0 );
 	const cardRef = useRef< HTMLDivElement >( null );
 	useLayoutEffect( () => {
 		const node = cardRef.current;
@@ -376,6 +379,12 @@ export default function HistoryChartCard( {
 			>
 				<div
 					className="jetpack-boost-overview__chart-canvas"
+					onBlur={ event => {
+						if ( ! event.currentTarget.contains( event.relatedTarget as Node | null ) ) {
+							// LineChart owns keyboard selection and does not expose a reset method.
+							setChartKey( key => key + 1 );
+						}
+					} }
 					style={
 						{
 							'--jetpack-boost-overview-hover-column-width': `${
@@ -385,35 +394,38 @@ export default function HistoryChartCard( {
 						} as CSSProperties
 					}
 				>
-					<LineChart
-						data={ series }
-						margin={ chartMargin }
-						showLegend
-						legend={ { position: 'bottom', alignment: 'center', interactive: false } }
-						withGradientFill={ false }
-						withTooltipCrosshairs={ { showVertical: true } }
-						curveType="linear"
-						withEndGlyphs={ data.periods.length === 1 }
-						renderTooltip={ renderTooltip }
-						options={ {
-							axis: {
-								x: { tickFormat: value => dateI18n( 'M j', new Date( value ), false ) },
-							},
-							xScale: { domain: [ new Date( startDate ), new Date( data.endDate ) ] },
-							yScale: { domain: [ 0, 100 ], nice: false },
-						} }
-					>
-						<LineChart.AnnotationsOverlay>
-							{ data.annotations.map( ( annotation, index ) => (
-								<LineChart.Annotation
-									key={ `${ annotation.timestamp }-${ index }` }
-									datum={ { date: new Date( annotation.timestamp ), value: 100 } }
-									title={ annotation.text }
-									subjectType="line-vertical"
-								/>
-							) ) }
-						</LineChart.AnnotationsOverlay>
-					</LineChart>
+					{ isVisible && (
+						<LineChart
+							key={ chartKey }
+							data={ series }
+							margin={ chartMargin }
+							showLegend
+							legend={ { position: 'bottom', alignment: 'center', interactive: false } }
+							withGradientFill={ false }
+							withTooltipCrosshairs={ { showVertical: true } }
+							curveType="linear"
+							withEndGlyphs={ data.periods.length === 1 }
+							renderTooltip={ renderTooltip }
+							options={ {
+								axis: {
+									x: { tickFormat: value => dateI18n( 'M j', new Date( value ), false ) },
+								},
+								xScale: { domain: [ new Date( startDate ), new Date( data.endDate ) ] },
+								yScale: { domain: [ 0, 100 ], nice: false },
+							} }
+						>
+							<LineChart.AnnotationsOverlay>
+								{ data.annotations.map( ( annotation, index ) => (
+									<LineChart.Annotation
+										key={ `${ annotation.timestamp }-${ index }` }
+										datum={ { date: new Date( annotation.timestamp ), value: 100 } }
+										title={ annotation.text }
+										subjectType="line-vertical"
+									/>
+								) ) }
+							</LineChart.AnnotationsOverlay>
+						</LineChart>
+					) }
 				</div>
 			</GlobalChartsProvider>
 		);
