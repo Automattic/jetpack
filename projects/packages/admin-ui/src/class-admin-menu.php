@@ -35,6 +35,55 @@ class Admin_Menu {
 	 */
 	const UPGRADE_MENU_FALLBACK_URL = 'https://jetpack.com/upgrade/';
 
+	/*
+	 * The sidebar's five tiers. Items sharing a tier sort alphabetically by menu title, so a
+	 * product should pass no position at all and land in POSITION_DEFAULT. Reach for another
+	 * tier only to express one of the roles below — an int of your own silently opts the item
+	 * out of alphabetical order, which is how three curation efforts overwrote it before.
+	 */
+
+	/**
+	 * Owns the top-level Jetpack link, since WordPress points it at whichever item sorts first.
+	 *
+	 * @var int
+	 */
+	const POSITION_FIRST = -10;
+
+	/**
+	 * Takes the first slot when nothing claims POSITION_FIRST, as in offline mode.
+	 *
+	 * @var int
+	 */
+	const POSITION_FIRST_FALLBACK = -5;
+
+	/**
+	 * Products, in alphabetical order. Pass no position rather than this.
+	 *
+	 * @var int
+	 */
+	const POSITION_DEFAULT = 0;
+
+	/**
+	 * Links that leave wp-admin, grouped below the products.
+	 *
+	 * @var int
+	 */
+	const POSITION_EXTERNAL = 100;
+
+	/**
+	 * Site-level items that belong under everything else.
+	 *
+	 * @var int
+	 */
+	const POSITION_LAST = 998;
+
+	/**
+	 * The upgrade item this package adds, below every tier a caller can use.
+	 *
+	 * @var int
+	 */
+	const POSITION_UPGRADE = 999;
+
 	/**
 	 * Handle for the shared, token-only WPDS design-tokens stylesheet.
 	 *
@@ -357,7 +406,8 @@ class Admin_Menu {
 	 * for instance. Null is treated as satisfied, so a gate this package cannot resolve
 	 * never removes a menu item.
 	 *
-	 * @internal Seam for My Jetpack. Hosts should use the `jetpack_admin_menu_visibility` filter.
+	 * This is the seam My Jetpack fills. Hosts wanting to shape the sidebar should use the
+	 * `jetpack_admin_menu_visibility` filter instead, which runs after whatever this answers.
 	 *
 	 * @param callable|null $resolver Resolver callback, or null to clear it.
 	 * @return void
@@ -647,7 +697,7 @@ class Admin_Menu {
 			'manage_options',
 			esc_url( $upgrade_url ),
 			null, // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
-			999
+			self::POSITION_UPGRADE
 		);
 
 		// Add a CSS class to the <li> element so styles can target it precisely.
