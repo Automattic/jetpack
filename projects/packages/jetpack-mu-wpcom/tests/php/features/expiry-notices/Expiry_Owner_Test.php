@@ -9,6 +9,7 @@ declare( strict_types = 1 );
 
 namespace Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices;
 
+use Automattic\Jetpack\Connection\Utils as Connection_Utils;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -170,6 +171,41 @@ class Expiry_Owner_Test extends \WorDBless\BaseTestCase {
 	public function test_cache_is_keyed_by_subscription_then_slug(): void {
 		$this->assertSame( Expiry_Owner::CACHE_KEY_PREFIX . '26532009', Expiry_Owner::cache_key( self::STATE ) );
 		$this->assertSame( Expiry_Owner::CACHE_KEY_PREFIX . 'business-bundle', Expiry_Owner::cache_key( array( 'product_slug' => 'business-bundle' ) ) );
+	}
+
+	public function test_on_atomic_the_owner_comes_from_wordpress_com_and_is_cached(): void {
+		\Jetpack_Options::update_option( 'id', 12345 );
+		\Jetpack_Options::update_option( 'blog_token', 'blog.token' );
+		Connection_Utils::init_default_constants();
+		$answer = static function () {
+			return array(
+				'response' => array( 'code' => 200 ),
+				'body'     => '[{"ID":"111","user_id":1},{"ID":"26532009","user_id":777}]',
+			);
+		};
+		add_filter( 'pre_http_request', $answer );
+
+		try {
+			$this->assertSame( 777, Expiry_Owner::owner_id( self::STATE ) );
+			$this->assertSame( 777, (int) get_transient( Expiry_Owner::cache_key( self::STATE ) ) );
+		} finally {
+			remove_filter( 'pre_http_request', $answer );
+			\Jetpack_Options::delete_option( 'id' );
+			\Jetpack_Options::delete_option( 'blog_token' );
+		}
+	}
+
+	public function test_on_atomic_a_connection_token_names_the_viewer(): void {
+		// No SSO meta, but a user token the connection package can answer for.
+		\Jetpack_Options::update_option( 'user_tokens', array( $this->admin_id => "token.secret.{$this->admin_id}" ) );
+		set_transient( "jetpack_connected_user_data_{$this->admin_id}", array( 'ID' => 777 ), HOUR_IN_SECONDS );
+
+		try {
+			$this->assertSame( 777, Expiry_Owner::current_user_wpcom_id() );
+		} finally {
+			delete_transient( "jetpack_connected_user_data_{$this->admin_id}" );
+			\Jetpack_Options::delete_option( 'user_tokens' );
+		}
 	}
 
 	public function test_on_simple_without_the_store_the_owner_is_unknown(): void {

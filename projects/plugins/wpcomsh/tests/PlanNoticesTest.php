@@ -21,6 +21,16 @@ class PlanNoticesTest extends WP_UnitTestCase {
 
 		$user_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
 		wp_set_current_user( $user_id );
+
+		// The replacement notices in jetpack-mu-wpcom are on by default and
+		// this one stands down for them; hold the site back so it has
+		// something to render.
+		add_filter( 'wpcom_expiry_notices_enabled', '__return_false' );
+	}
+
+	public function tearDown(): void {
+		remove_filter( 'wpcom_expiry_notices_enabled', '__return_false' );
+		parent::tearDown();
 	}
 
 	/**
@@ -36,32 +46,9 @@ class PlanNoticesTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * The replacement notices in jetpack-mu-wpcom are on by default, and a site
-	 * on them must not also get this one: the two describe the same expiry in
-	 * different words, so running both is worse than running either.
+	 * Test with data set.
 	 */
-	public function test_stands_down_for_sites_on_the_new_expiry_notices() {
-		$business_plan_purchase = array(
-			'product_slug' => 'business-bundle',
-			'expiry_date'  => ( new DateTime() )->add( new DateInterval( 'P7D' ) )->format( 'c' ),
-		);
-		Atomic_Persistent_Data::set( 'WPCOM_PURCHASES', wp_json_encode( array( $business_plan_purchase ), JSON_UNESCAPED_SLASHES ) );
-
-		ob_start();
-		wpcomsh_plan_notices();
-		$string = ob_get_clean();
-
-		$this->assertSame( '', $string );
-
-		// Cleanup.
-		Atomic_Persistent_Data::delete( 'WPCOM_PURCHASES' );
-	}
-
-	/**
-	 * ...and a site held back from them keeps getting it, so nobody is left
-	 * with no expiry notice at all.
-	 */
-	public function test_still_shows_for_a_site_held_back_from_the_new_notices() {
+	public function test_plan_notices() {
 		$business_plan_purchase = array(
 			'product_slug' => 'business-bundle',
 			'expiry_date'  => ( new DateTime() )->add( new DateInterval( 'P7D' ) )->format( 'c' ),
@@ -70,8 +57,6 @@ class PlanNoticesTest extends WP_UnitTestCase {
 
 		$plan_date = gmdate( 'F j, Y', time() + WEEK_IN_SECONDS );
 
-		add_filter( 'wpcom_expiry_notices_enabled', '__return_false' );
-
 		ob_start();
 		wpcomsh_plan_notices();
 		$string = ob_get_clean();
@@ -79,7 +64,30 @@ class PlanNoticesTest extends WP_UnitTestCase {
 		$this->assertStringContainsString( 'expires on ' . $plan_date, $string );
 
 		// Cleanup.
+		Atomic_Persistent_Data::delete( 'WPCOM_PURCHASES' );
+	}
+
+	/**
+	 * A site on the replacement notices must not also get this one: the two
+	 * describe the same expiry in different words, so running both is worse
+	 * than running either.
+	 */
+	public function test_stands_down_for_sites_on_the_new_expiry_notices() {
+		$business_plan_purchase = array(
+			'product_slug' => 'business-bundle',
+			'expiry_date'  => ( new DateTime() )->add( new DateInterval( 'P7D' ) )->format( 'c' ),
+		);
+		Atomic_Persistent_Data::set( 'WPCOM_PURCHASES', wp_json_encode( array( $business_plan_purchase ), JSON_UNESCAPED_SLASHES ) );
+
 		remove_filter( 'wpcom_expiry_notices_enabled', '__return_false' );
+
+		ob_start();
+		wpcomsh_plan_notices();
+		$string = ob_get_clean();
+
+		$this->assertSame( '', $string );
+
+		// Cleanup.
 		Atomic_Persistent_Data::delete( 'WPCOM_PURCHASES' );
 	}
 }
