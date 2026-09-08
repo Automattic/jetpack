@@ -90,8 +90,9 @@ test( 'History tooltip stays below the date axis with matching series colors', a
 	const columnWidth = await hoverColumn.evaluate( element =>
 		parseFloat( getComputedStyle( element ).strokeWidth )
 	);
-	expect.soft( columnWidth ).toBeGreaterThan( 10 );
-	await expect.soft( hoverColumn ).toHaveCSS( 'stroke-opacity', '0.08' );
+	expect.soft( columnWidth ).toBe( 40 );
+	await expect.soft( hoverColumn ).toHaveCSS( 'stroke', 'rgb(244, 244, 244)' );
+	await expect.soft( hoverColumn ).toHaveCSS( 'mix-blend-mode', 'multiply' );
 	const columnBounds = await hoverColumn.evaluate( element => {
 		const { x, width, height } = element.getBoundingClientRect();
 		return { x, width, height };
