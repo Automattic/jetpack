@@ -309,6 +309,12 @@ class Jetpack_SEO_Titles {
 	 */
 	public static function sanitize_title_formats( $title_formats ) {
 		foreach ( $title_formats as &$format_array ) {
+			// The API accepts an empty string as "clear this page type"; store it as
+			// the empty list every reader expects, and don't iterate a string.
+			if ( ! is_array( $format_array ) ) {
+				$format_array = array();
+				continue;
+			}
 			foreach ( $format_array as &$item ) {
 				if ( 'string' === $item['type'] ) {
 					// From `wp_strip_all_tags`, but omitting the `trim` portion since we want spacing preserved.

@@ -195,6 +195,42 @@ class Dashboard_Data {
 	}
 
 	/**
+	 * Coerce the stored title formats into what the Settings tab can render: a
+	 * page type maps to a list of `{ type, value }` tokens, or to an empty list.
+	 *
+	 * The stored option is looser than that. The site-settings API accepts an
+	 * empty string as "clear this page type" (`are_valid_title_formats()`), and
+	 * Calypso sends exactly that, so `'front_page' => ''` is a normal stored value.
+	 * Handing it to the client crashed the tab (JETPACK-2284).
+	 *
+	 * @param mixed $stored Raw option value.
+	 * @return array<string, array<int, array{type: string, value: string}>>
+	 */
+	public static function normalize_title_formats( $stored ) {
+		if ( ! is_array( $stored ) ) {
+			return array();
+		}
+
+		$normalized = array();
+		foreach ( $stored as $page_type => $format ) {
+			$tokens = array();
+			if ( is_array( $format ) ) {
+				foreach ( $format as $item ) {
+					if ( is_array( $item ) && isset( $item['type'] ) && isset( $item['value'] ) && is_string( $item['type'] ) && is_string( $item['value'] ) ) {
+						$tokens[] = array(
+							'type'  => $item['type'],
+							'value' => $item['value'],
+						);
+					}
+				}
+			}
+			$normalized[ (string) $page_type ] = $tokens;
+		}
+
+		return $normalized;
+	}
+
+	/**
 	 * Build the editable Settings state the Settings tab hydrates from.
 	 *
 	 * Read-only bootstrap only. Most writes go through the existing
@@ -211,10 +247,7 @@ class Dashboard_Data {
 		// Read the stored values directly: Jetpack_SEO_Titles::get_custom_title_formats()
 		// intentionally hides them while another SEO plugin controls output, but the
 		// dashboard must still show the saved values without allowing edits.
-		$title_formats = get_option( 'advanced_seo_title_formats', array() );
-		if ( ! is_array( $title_formats ) ) {
-			$title_formats = array();
-		}
+		$title_formats = self::normalize_title_formats( get_option( 'advanced_seo_title_formats', array() ) );
 		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Jetpack_SEO_Utils lives in plugins/jetpack and is guarded by class_exists.
 		$title_formats_editable = class_exists( 'Jetpack_SEO_Utils' ) && Jetpack_SEO_Utils::is_enabled_jetpack_seo();
 		// @phan-suppress-next-line PhanUndeclaredClassMethod -- Jetpack_SEO_Utils lives in plugins/jetpack and is guarded by class_exists.

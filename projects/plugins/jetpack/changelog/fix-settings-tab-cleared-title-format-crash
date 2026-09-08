@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+SEO: Store a cleared page title structure as an empty list instead of an empty string.
