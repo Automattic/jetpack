@@ -23,7 +23,8 @@ const { chromium } = require( '@playwright/test' );
 			let obscured = 0;
 			// Include pointer-transparent tooltip and annotation elements in the browser's paint-order hit test.
 			const style = document.createElement( 'style' );
-			style.textContent = '.jetpack-boost-overview__chart-canvas * { pointer-events: auto !important; }';
+			style.textContent =
+				'.jetpack-boost-overview__chart-canvas * { pointer-events: auto !important; }';
 			document.head.append( style );
 			try {
 				for ( const label of labels ) {
@@ -49,7 +50,11 @@ const { chromium } = require( '@playwright/test' );
 			return { overlaps, obscured };
 		} );
 		assert.ok( result.overlaps > 0, 'The fixture must exercise annotation/tooltip overlap.' );
-		assert.equal( result.obscured, 0, 'History tooltip must paint above overlapping annotation labels.' );
+		assert.equal(
+			result.obscured,
+			0,
+			'History tooltip must paint above overlapping annotation labels.'
+		);
 		console.log( 'History tooltip paints above overlapping annotations.' );
 	} finally {
 		await browser.close();

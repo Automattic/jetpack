@@ -117,7 +117,10 @@ test( 'keeps the WordPress date and all eight history dimensions in the tooltip'
 
 test( 'uses the UTC site date for both axis and tooltip at midnight UTC', async () => {
 	const settings = getSettings();
-	setSettings( { ...settings, timezone: { offset: 0, string: 'UTC', abbr: 'UTC' } } );
+	setSettings( {
+		...settings,
+		timezone: { offset: 0, offsetFormatted: '0', string: 'UTC', abbr: 'UTC' },
+	} );
 	try {
 		render(
 			<>
@@ -125,7 +128,7 @@ test( 'uses the UTC site date for both axis and tooltip at midnight UTC', async 
 				<HistoryTooltip period={ history.periods[ 0 ] } />
 			</>
 		);
-		expect( await screen.findAllByText( 'Sep 1' ) ).not.toHaveLength( 0 );
+		await expect( screen.findAllByText( 'Sep 1' ) ).resolves.not.toHaveLength( 0 );
 		expect( screen.getByText( 'September 1, 2026' ) ).toBeInTheDocument();
 		expect( screen.queryByText( /Aug 31/ ) ).not.toBeInTheDocument();
 	} finally {
