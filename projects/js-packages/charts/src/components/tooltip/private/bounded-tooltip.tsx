@@ -91,14 +91,8 @@ export const getBoundedPosition = ( {
 };
 
 /**
- * visx's `Tooltip`, positioned like its `TooltipWithBounds` but kept inside the
- * nearest clipping ancestor — or the viewport when there is none — rather than
- * inside its own parent. Rendered in-tree, a tooltip's parent is the chart
- * wrapper, which is often narrower than the box; measuring against the parent
- * alone would let the box spill into an `overflow: hidden` card and be cut off.
- *
- * Re-measures on every render, so a box whose content changes width between
- * two hovers is placed for its current size.
+ * Position visx's `Tooltip` against the nearest clipping ancestor or viewport.
+ * Below-axis placement applies horizontal bounds only; see `getBoundedPosition`.
  *
  * @param props            - visx `Tooltip` props.
  * @param props.left       - Anchor x, in wrapper coordinates.

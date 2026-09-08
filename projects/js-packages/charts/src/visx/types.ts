@@ -31,10 +31,8 @@ export type XyChartTooltipProps< Datum extends object > = {
 	horizontalCrosshairStyle?: SVGProps< SVGLineElement >;
 	glyphStyle?: SVGProps< SVGCircleElement >;
 	/**
-	 * Flip and clamp the tooltip box so it stays inside the nearest ancestor
-	 * that clips its overflow, or the viewport when there is none. The box may
-	 * leave the chart wrapper. (It used to keep a body-level portal inside the
-	 * viewport.)
+	 * Flip and clamp automatic placement inside the nearest clipping ancestor or viewport.
+	 * Below-axis placement always applies horizontal bounds only, regardless of this option.
 	 * @default true
 	 */
 	detectBounds?: boolean;
@@ -51,8 +49,7 @@ export type XyChartTooltipProps< Datum extends object > = {
 	 */
 	scroll?: boolean;
 	/**
-	 * @deprecated Accepted and ignored. Nothing measures the box any more, so
-	 * there is no measurement to debounce.
+	 * @deprecated Accepted and ignored. Layout-effect measurements are not debounced.
 	 */
 	debounce?: number;
 	/**
