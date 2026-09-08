@@ -27,8 +27,10 @@ $feature-icon-foreground: #0ced57;
 
 .feature-icon {
 	block-size: 3rem;
+	border-radius: var(--wpds-border-radius-md);
 	flex-shrink: 0;
 	inline-size: 3rem;
+	overflow: hidden;
 
 	svg {
 		block-size: 100%;
@@ -42,7 +44,7 @@ $feature-icon-foreground: #0ced57;
 	align-items: center;
 	background: $feature-icon-background;
 	block-size: 100%;
-	border-radius: var(--wpds-border-radius-sm);
+	border-radius: inherit;
 	color: $feature-icon-foreground;
 	display: flex;
 	inline-size: 100%;
@@ -90,11 +92,6 @@ $feature-icon-foreground: #0ced57;
 	padding: var(--wpds-dimension-padding-xl);
 }
 
-.detail-highlights__grid {
-	display: grid;
-	gap: var(--wpds-dimension-gap-md);
-	grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
-}
 
 // Reserves the image's space before it loads, so the remote asset
 // arriving cannot reflow the page around it.
@@ -152,11 +149,17 @@ $feature-icon-foreground: #0ced57;
 	margin-inline-end: auto;
 }
 
-// Capping the width caps the height too, via the frame's aspect
-// ratio: at full modal width the screenshot pushed the description
-// and highlights below the fold.
-.modal-screenshot {
-	inline-size: 100%;
-	margin-inline: auto;
-	max-inline-size: 30rem;
+
+.modal-body {
+	align-items: start;
+	display: grid;
+	gap: var(--wpds-dimension-gap-xl);
+	grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+}
+
+@media (max-width: 782px) {
+
+	.modal-body {
+		grid-template-columns: minmax(0, 1fr);
+	}
 }

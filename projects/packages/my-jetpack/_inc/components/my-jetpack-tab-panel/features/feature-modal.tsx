@@ -74,31 +74,31 @@ export function FeatureModal( { state, previous, next, onClose, onStep }: Featur
 				</Dialog.Header>
 
 				<Dialog.Content>
-					<Stack direction="column" gap="lg">
-						<div className={ styles[ 'modal-screenshot' ] }>
-							<FeatureScreenshot feature={ feature } />
-						</div>
+					<div className={ styles[ 'modal-body' ] }>
+						<Stack direction="column" gap="lg">
+							<Dialog.Description>
+								{ product?.longDescription || feature.description }
+							</Dialog.Description>
 
-						<Dialog.Description>
-							{ product?.longDescription || feature.description }
-						</Dialog.Description>
-
-						{ highlights.length > 0 && (
-							<div className={ styles[ 'detail-highlights' ] }>
-								<Text variant="heading-md">{ __( 'What you get', 'jetpack-my-jetpack' ) }</Text>
-								<div className={ styles[ 'detail-highlights__grid' ] }>
-									{ highlights.map( highlight => (
-										<Stack key={ highlight } direction="row" align="start" gap="sm">
-											<Icon icon={ check } size={ 20 } />
-											<Text variant="body-md">{ highlight }</Text>
-										</Stack>
-									) ) }
+							{ highlights.length > 0 && (
+								<div className={ styles[ 'detail-highlights' ] }>
+									<Text variant="heading-md">{ __( 'What you get', 'jetpack-my-jetpack' ) }</Text>
+									<Stack direction="column" gap="sm">
+										{ highlights.map( highlight => (
+											<Stack key={ highlight } direction="row" align="start" gap="sm">
+												<Icon icon={ check } size={ 20 } />
+												<Text variant="body-md">{ highlight }</Text>
+											</Stack>
+										) ) }
+									</Stack>
 								</div>
-							</div>
-						) }
+							) }
 
-						<FeatureLinks feature={ feature } />
-					</Stack>
+							<FeatureLinks feature={ feature } />
+						</Stack>
+
+						<FeatureScreenshot feature={ feature } />
+					</div>
 				</Dialog.Content>
 
 				<Dialog.Footer>
