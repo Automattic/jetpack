@@ -152,6 +152,53 @@ class Freshly_Pressed_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test that an untitled post is skipped rather than rendered as a link with
+	 * nothing to click.
+	 */
+	public function test_get_posts_skips_untitled_posts() {
+		$this->stub_http_response(
+			array(
+				array(
+					'ID'      => 12,
+					'site_ID' => 34,
+					'title'   => '   ',
+				),
+				array(
+					'ID'      => 56,
+					'site_ID' => 78,
+					'title'   => 'Has a title',
+				),
+			)
+		);
+
+		$posts = Freshly_Pressed::get_posts();
+
+		$this->assertCount( 1, $posts );
+		$this->assertSame( 'Has a title', $posts[0]['title'] );
+	}
+
+	/**
+	 * Test that a title of "0" survives, since it is a real title rather than an
+	 * absent one.
+	 */
+	public function test_get_posts_keeps_a_title_of_zero() {
+		$this->stub_http_response(
+			array(
+				array(
+					'ID'      => 12,
+					'site_ID' => 34,
+					'title'   => '0',
+				),
+			)
+		);
+
+		$posts = Freshly_Pressed::get_posts();
+
+		$this->assertCount( 1, $posts );
+		$this->assertSame( '0', $posts[0]['title'] );
+	}
+
+	/**
 	 * Test that a second call is served from the cache without another request.
 	 */
 	public function test_get_posts_serves_repeat_calls_from_the_cache() {
@@ -288,6 +335,36 @@ class Freshly_Pressed_Test extends BaseTestCase {
 
 		$this->assertCount( 1, $posts );
 		$this->assertSame( 'Still here', $posts[0]['title'] );
+	}
+
+	/**
+	 * Test that an untitled post is skipped on Simple sites too.
+	 */
+	public function test_get_posts_skips_untitled_posts_on_simple_sites() {
+		$this->make_simple_site();
+		$this->given_wpcom_data(
+			array(
+				'posts' => array(
+					array(
+						'blog_id' => 34,
+						'post_id' => 12,
+					),
+					array(
+						'blog_id' => 56,
+						'post_id' => 78,
+					),
+				),
+			),
+			array(
+				'34:12' => (object) array( 'post_title' => '' ),
+				'56:78' => (object) array( 'post_title' => 'Has a title' ),
+			)
+		);
+
+		$posts = Freshly_Pressed::get_posts();
+
+		$this->assertCount( 1, $posts );
+		$this->assertSame( 'Has a title', $posts[0]['title'] );
 	}
 
 	/**

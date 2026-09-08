@@ -126,10 +126,16 @@ class Freshly_Pressed {
 				continue;
 			}
 
+			// An untitled post would render as a link with nothing to click.
+			$title = trim( (string) $post->post_title );
+			if ( '' === $title ) {
+				continue;
+			}
+
 			$posts[] = self::format_post(
 				(int) $featured['blog_id'],
 				(int) $featured['post_id'],
-				(string) $post->post_title
+				$title
 			);
 		}
 
@@ -167,15 +173,13 @@ class Freshly_Pressed {
 
 		$posts = array();
 		foreach ( $body['posts'] as $post ) {
-			if ( empty( $post['ID'] ) || empty( $post['site_ID'] ) ) {
+			// An untitled post would render as a link with nothing to click.
+			$title = trim( (string) ( $post['title'] ?? '' ) );
+			if ( empty( $post['ID'] ) || empty( $post['site_ID'] ) || '' === $title ) {
 				continue;
 			}
 
-			$posts[] = self::format_post(
-				(int) $post['site_ID'],
-				(int) $post['ID'],
-				(string) ( $post['title'] ?? '' )
-			);
+			$posts[] = self::format_post( (int) $post['site_ID'], (int) $post['ID'], $title );
 		}
 
 		return $posts;

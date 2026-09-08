@@ -61,7 +61,7 @@ When WordPress.com is featuring posts, the widget grows a second tab listing ten
 
 `Freshly_Pressed::get_posts()` reads them from whichever source the site can reach:
 
-- **Simple sites** query the wpcom database directly through the `FreshlyPressed` plugin, the same way `wp-admin/index-hotstuff.php` does. No HTTP request is involved.
+- **Simple sites** query the wpcom database directly through the `FreshlyPressed` plugin. No HTTP request is involved.
 - **Everywhere else** (Atomic and self-hosted Jetpack) fetches `https://public-api.wordpress.com/rest/v1.1/freshly-pressed`.
 
 Either way the result is cached in a transient for an hour, and for five minutes when the source failed, then reaches the React app through the `jetpack_admin_js_script_data` filter. The tab is left out entirely when the list is empty, so the widget stays single-view rather than offering an empty tab.

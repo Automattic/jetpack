@@ -158,7 +158,6 @@ class Writing_Prompt_Widget {
 	 * helper and `analytics.initialize()` flow.
 	 *
 	 * @since 0.9.1
-	 * @since $$next-version$$ Also passes the Freshly Pressed posts.
 	 *
 	 * @param array $data The script data.
 	 * @return array The filtered script data.
