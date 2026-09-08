@@ -6081,6 +6081,10 @@ const { state } = store( 'wpcom-write', {
 		 * forwarding the prompt so the block editor seeds it as it always has.
 		 */
 		switchToBlockEditor() {
+			if ( isAnon() ) {
+				return;
+			}
+			state.showHelp = false;
 			if ( ! state.editPostId && ! isDirty() ) {
 				allowLeave = true;
 				window.location.href =
