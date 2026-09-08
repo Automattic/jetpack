@@ -46,6 +46,18 @@ class Initializer {
 	const PACKAGE_VERSION = '6.2.1';
 
 	/**
+	 * Filter that opts a site into the wp-build My Jetpack dashboard.
+	 */
+	const MODERNIZATION_FILTER = 'rsm_jetpack_ui_modernization_my_jetpack';
+
+	/**
+	 * Handle for the classic script that carries the React initial state on the
+	 * wp-build path. The dashboard is a script module there, so there is no
+	 * classic bundle handle to attach inline data to.
+	 */
+	const DATA_SCRIPT_HANDLE = 'my-jetpack-data';
+
+	/**
 	 * HTML container ID for the IDC screen on My Jetpack page.
 	 */
 	private const IDC_CONTAINER_ID = 'my-jetpack-identity-crisis-container';
@@ -95,6 +107,10 @@ class Initializer {
 
 		// Add custom WP REST API endoints.
 		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_endpoints' ) );
+
+		// Priority 1 so the modernization filter has been registered by any
+		// opt-in code and the render function exists before the menu callback runs.
+		add_action( 'admin_menu', array( __CLASS__, 'maybe_load_wp_build' ), 1 );
 
 		add_action( 'admin_menu', array( __CLASS__, 'add_my_jetpack_menu_item' ) );
 
@@ -281,6 +297,114 @@ class Initializer {
 	}
 
 	/**
+	 * Whether this site renders My Jetpack through wp-build.
+	 *
+	 * Defaults off while the port is verified; hosts opt in with
+	 * `add_filter( 'rsm_jetpack_ui_modernization_my_jetpack', '__return_true' );`.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public static function is_modernized() {
+		return (bool) apply_filters( self::MODERNIZATION_FILTER, false );
+	}
+
+	/**
+	 * Whether the current request targets the My Jetpack admin page.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public static function is_my_jetpack_admin_request() {
+		if ( ! isset( $_GET['page'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			return false;
+		}
+
+		return sanitize_text_field( wp_unslash( $_GET['page'] ) ) === 'my-jetpack'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	}
+
+	/**
+	 * Whether the current request is the full-viewport onboarding takeover.
+	 *
+	 * Onboarding hides all wp-admin chrome and never renders through wp-build.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public static function is_onboarding_request() {
+		if ( ! isset( $_GET['step'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			return false;
+		}
+
+		return sanitize_text_field( wp_unslash( $_GET['step'] ) ) === 'onboarding'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+	}
+
+	/**
+	 * Alias the screen ID to satisfy wp-build's generated enqueue check.
+	 *
+	 * The wp-admin slug stays `my-jetpack`, so the URL is unchanged. WordPress
+	 * derives the admin body class from `$hook_suffix`, not the screen ID, so
+	 * `body.jetpack_page_my-jetpack` — which every My Jetpack rule keys off —
+	 * is unaffected.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param \WP_Screen|null $screen The current screen object.
+	 * @return void
+	 */
+	public static function alias_screen_id_for_wp_build( $screen ) {
+		if ( ! is_object( $screen ) ) {
+			return;
+		}
+
+		$screen->id = 'my-jetpack-dashboard';
+	}
+
+	/**
+	 * Load wp-build for the My Jetpack page when the site has opted in.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public static function maybe_load_wp_build() {
+		// The onboarding condition must match `admin_page()`'s exactly. Checking
+		// `is_onboarding_request()` alone would disagree on WordPress.com Simple,
+		// where onboarding is unavailable: wp-build would not load, and the
+		// dispatcher would then silently fall through to the legacy container.
+		$is_onboarding = self::is_onboarding_request() && self::is_onboarding_available();
+
+		if ( ! self::is_modernized() || ! self::is_my_jetpack_admin_request() || $is_onboarding ) {
+			return;
+		}
+
+		$build_index = dirname( __DIR__ ) . '/build/build.php';
+
+		if ( ! file_exists( $build_index ) ) {
+			return;
+		}
+
+		require_once $build_index;
+
+		// wp-build hooks module registration to wp_default_scripts, which has
+		// already fired by admin_menu — call it directly or the init module
+		// never reaches the import map.
+		if ( function_exists( 'jetpack_my_jetpack_register_script_modules' ) ) {
+			jetpack_my_jetpack_register_script_modules(); // @phan-suppress-current-line PhanUndeclaredFunction -- Checked with function_exists(); defined in the generated build/modules.php, which Phan excludes.
+		}
+
+		WP_Build_Polyfills::register(
+			'my-jetpack',
+			array_merge( WP_Build_Polyfills::SCRIPT_HANDLES, WP_Build_Polyfills::MODULE_IDS )
+		);
+
+		add_action( 'current_screen', array( __CLASS__, 'alias_screen_id_for_wp_build' ) );
+	}
+
+	/**
 	 * Register polyfills for the wp-notices / wp-private-apis / wp-rich-text / wp-theme
 	 * handles the My Jetpack app bundle depends on but WP < 7.0 does not ship (or ships
 	 * with an incomplete allowlist).
@@ -324,16 +448,37 @@ class Initializer {
 		 */
 		do_action( 'myjetpack_enqueue_scripts' );
 		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'add_script_data' ) );
-		Assets::register_script(
-			'my_jetpack_main_app',
-			'../build/index.js',
-			__FILE__,
-			array(
-				'enqueue'    => true,
-				'in_footer'  => true,
-				'textdomain' => 'jetpack-my-jetpack',
-			)
-		);
+
+		// Same onboarding condition as `maybe_load_wp_build()` and `admin_page()`.
+		$is_onboarding = self::is_onboarding_request() && self::is_onboarding_available();
+		$is_wp_build   = self::is_modernized() && ! $is_onboarding;
+
+		if ( $is_wp_build ) {
+			// wp-build enqueues the app itself; this empty handle exists only to
+			// print the initial state before boot runs on DOMContentLoaded.
+			$data_handle = self::DATA_SCRIPT_HANDLE;
+			wp_register_script( $data_handle, false, array(), self::PACKAGE_VERSION, true );
+			wp_enqueue_script( $data_handle );
+
+			// The i18n loader is registered on every admin page but only enqueued
+			// when depended on; the esbuild bundles don't pull it in.
+			if ( wp_script_is( 'wp-jp-i18n-loader', 'registered' ) ) {
+				wp_enqueue_script( 'wp-jp-i18n-loader' );
+			}
+		} else {
+			$data_handle = 'my_jetpack_main_app';
+			Assets::register_script(
+				$data_handle,
+				'../build/index.js',
+				__FILE__,
+				array(
+					'enqueue'    => true,
+					'in_footer'  => true,
+					'textdomain' => 'jetpack-my-jetpack',
+				)
+			);
+		}
+
 		$modules             = new Modules();
 		$connection          = new Connection_Manager();
 		$speed_score_history = new Speed_Score_History( get_site_url() );
@@ -352,7 +497,7 @@ class Initializer {
 		}
 
 		wp_localize_script(
-			'my_jetpack_main_app',
+			$data_handle,
 			'myJetpackInitialState',
 			array(
 				'products'               => array(
@@ -399,7 +544,7 @@ class Initializer {
 		);
 
 		wp_localize_script(
-			'my_jetpack_main_app',
+			$data_handle,
 			'myJetpackRest',
 			array(
 				'apiRoot'  => esc_url_raw( rest_url() ),
@@ -408,7 +553,7 @@ class Initializer {
 		);
 
 		// Connection Initial State.
-		Connection_Initial_State::render_script( 'my_jetpack_main_app' );
+		Connection_Initial_State::render_script( $data_handle );
 
 		// Required for Analytics.
 		if ( self::can_use_analytics() ) {
@@ -589,6 +734,11 @@ class Initializer {
 		// Availability IS re-checked on purpose: this render can run even when that redirect did not,
 		// and the check below is what keeps the onboarding route off WordPress.com Simple sites.
 		$is_onboarding = $step === 'onboarding' && self::is_onboarding_available();
+
+		if ( ! $is_onboarding && self::is_modernized() && function_exists( 'jetpack_my_jetpack_my_jetpack_dashboard_wp_admin_render_page' ) ) {
+			jetpack_my_jetpack_my_jetpack_dashboard_wp_admin_render_page(); // @phan-suppress-current-line PhanUndeclaredFunction -- Checked with function_exists(); defined in the generated build/pages/, which Phan excludes.
+			return;
+		}
 
 		// Add data attribute for onboarding, otherwise render normal container
 		echo '<div id="my-jetpack-container" ' . ( $is_onboarding ? 'data-route="onboarding"' : '' ) . '></div>';
