@@ -9,12 +9,13 @@ import { Button, Modal, SelectControl } from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useDispatch, useRegistry, useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { useEffect, useState } from '@wordpress/element';
+import { useEffect, useRef, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 import clsx from 'clsx';
 import { FORM_POST_TYPE } from '../shared/util/constants.js';
+import ContactFormSkeletonLoader from './components/jetpack-contact-form-skeleton-loader.jsx';
 import './util/form-styles.js';
 import applyVariationToFormBlock from './util/apply-variation.js';
 import { createSyncedForm } from './util/create-synced-form.ts';
@@ -39,6 +40,10 @@ const FORMS_QUERY = {
 export default function VariationPicker( { blockName, setAttributes, clientId, classNames } ) {
 	const registry = useRegistry();
 	const [ isPatternsModalOpen, setIsPatternsModalOpen ] = useState( false );
+	const [ isCreatingForm, setIsCreatingForm ] = useState( false );
+	// Read synchronously inside the click handler; state updates land too late to
+	// stop a second click that fires before React re-renders.
+	const isCreatingFormRef = useRef( false );
 	const { replaceInnerBlocks, selectBlock } = useDispatch( blockEditorStore );
 	const { createSuccessNotice } = useDispatch( noticesStore );
 	const isCentralFormManagementEnabled = hasFeatureFlag( 'central-form-management' );
@@ -120,6 +125,92 @@ export default function VariationPicker( { blockName, setAttributes, clientId, c
 		return msg;
 	};
 
+	const applyVariationLocally = variation =>
+		applyVariationToFormBlock( {
+			batch: registry.batch,
+			setAttributes,
+			replaceInnerBlocks,
+			selectBlock,
+			clientId,
+			variation,
+			createBlocksFromTemplate: createBlocksFromInnerBlocksTemplate,
+		} );
+
+	const onVariationSelect = async ( nextVariation = defaultVariation ) => {
+		/*
+		 * Editing a jetpack_form post directly, or with central form management off,
+		 * applies the variation to this block inline: no synced form post, no ref.
+		 */
+		if (
+			isEditingJetpackFormPost ||
+			! isCentralFormManagementEnabled ||
+			nextVariation.name === 'regular-form'
+		) {
+			applyVariationLocally( nextVariation );
+			return;
+		}
+
+		/*
+		 * Creating the form post is a round trip and the picker stays clickable until
+		 * the ref lands, so without this guard every extra click publishes another form.
+		 */
+		if ( isCreatingFormRef.current ) {
+			return;
+		}
+		isCreatingFormRef.current = true;
+		setIsCreatingForm( true );
+
+		// We're editing a regular post/page - create a synced form with ref
+		try {
+			// Create inner blocks from template
+			const innerBlocks = createBlocksFromInnerBlocksTemplate( nextVariation.innerBlocks );
+
+			// Create the full jetpack/contact-form block with attributes and inner blocks
+			const formBlock = createBlock(
+				'jetpack/contact-form',
+				nextVariation.attributes || {},
+				innerBlocks
+			);
+
+			// Create synced form post and get its ID
+			const formId = await createSyncedForm(
+				formBlock,
+				nextVariation.title || 'Form',
+				currentPostId
+			);
+
+			// Set ONLY ref attribute
+			registry.batch( () => {
+				setAttributes( { ref: formId } );
+				selectBlock( clientId );
+			} );
+
+			// Show success notice
+			createSuccessNotice( __( 'New form created.', 'jetpack-forms' ), {
+				type: 'snackbar',
+				isDismissible: true,
+			} );
+		} catch ( error ) {
+			// eslint-disable-next-line no-console
+			console.error( 'Failed to create synced form:', error );
+			// Fallback to applying variation locally
+			applyVariationLocally( nextVariation );
+		} finally {
+			isCreatingFormRef.current = false;
+			setIsCreatingForm( false );
+		}
+	};
+
+	// Both branches above replace this block's content, so the picker unmounts on
+	// success; the skeleton only shows while the form post is being created.
+	if ( isCreatingForm ) {
+		return (
+			<div className={ clsx( classNames, 'is-placeholder' ) }>
+				<ContactFormSkeletonLoader />
+			</div>
+		);
+	}
+
 	return (
 		<div className={ clsx( classNames, 'is-placeholder' ) }>
 			<BlockVariationPicker
@@ -127,73 +218,7 @@ export default function VariationPicker( { blockName, setAttributes, clientId, c
 				label={ blockType?.title }
 				instructions={ getInstructions() }
 				variations={ variations.filter( v => ! v.hiddenFromPicker ) }
-				onSelect={ async ( nextVariation = defaultVariation ) => {
-					// If we're editing a jetpack-form post directly, or central form management
-					// is disabled, use the "old" behavior: apply the variation directly to this
-					// block by setting attributes and inner blocks, without creating a synced
-					// form post (i.e., without creating or updating a ref). This avoids relying
-					// on central form management when it is not available or not appropriate.
-					if (
-						isEditingJetpackFormPost ||
-						! isCentralFormManagementEnabled ||
-						nextVariation.name === 'regular-form'
-					) {
-						applyVariationToFormBlock( {
-							batch: registry.batch,
-							setAttributes,
-							replaceInnerBlocks,
-							selectBlock,
-							clientId,
-							variation: nextVariation,
-							createBlocksFromTemplate: createBlocksFromInnerBlocksTemplate,
-						} );
-					} else {
-						// We're editing a regular post/page - create a synced form with ref
-						try {
-							// Create inner blocks from template
-							const innerBlocks = createBlocksFromInnerBlocksTemplate( nextVariation.innerBlocks );
-
-							// Create the full jetpack/contact-form block with attributes and inner blocks
-							const formBlock = createBlock(
-								'jetpack/contact-form',
-								nextVariation.attributes || {},
-								innerBlocks
-							);
-
-							// Create synced form post and get its ID
-							const formId = await createSyncedForm(
-								formBlock,
-								nextVariation.title || 'Form',
-								currentPostId
-							);
-
-							// Set ONLY ref attribute
-							registry.batch( () => {
-								setAttributes( { ref: formId } );
-								selectBlock( clientId );
-							} );
-
-							// Show success notice
-							createSuccessNotice( __( 'New form created.', 'jetpack-forms' ), {
-								type: 'snackbar',
-								isDismissible: true,
-							} );
-						} catch ( error ) {
-							// eslint-disable-next-line no-console
-							console.error( 'Failed to create synced form:', error );
-							// Fallback to applying variation locally
-							applyVariationToFormBlock( {
-								batch: registry.batch,
-								setAttributes,
-								replaceInnerBlocks,
-								selectBlock,
-								clientId,
-								variation: nextVariation,
-								createBlocksFromTemplate: createBlocksFromInnerBlocksTemplate,
-							} );
-						}
-					}
-				} }
+				onSelect={ onVariationSelect }
 			/>
 			{ ! isCentralFormManagementEnabled && (
 				<div className="form-placeholder__shell">
