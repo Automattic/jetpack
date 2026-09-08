@@ -187,7 +187,7 @@ test( 'History tooltip stays below the date axis with matching series colors', a
 	expect( new Set( colors.swatches ).size ).toBe( 2 );
 	expect( colors.legend ).toEqual( colors.swatches );
 	expect( colors.lines ).toEqual( colors.swatches );
-	expect( colors.lines ).toEqual( [ 'rgb(56, 88, 233)', 'rgb(74, 184, 102)' ] );
+	expect( colors.lines ).toEqual( [ 'rgb(56, 88, 233)', 'rgb(0, 128, 48)' ] );
 	expect( colors.areas.every( fill => fill === 'none' || fill === 'rgba(0, 0, 0, 0)' ) ).toBe(
 		true
 	);
@@ -256,9 +256,9 @@ test( 'Score cards show the tier palette, baseline delta colors, and responsive 
 	await expect( overall.nth( 1 ).getByText( 'Poor', { exact: true } ) ).toBeVisible();
 	await expect( desktop.first().getByRole( 'progressbar' ) ).toHaveCSS(
 		'color',
-		'rgb(0, 135, 16)'
+		'rgb(0, 128, 48)'
 	);
-	await expect( mobile.getByRole( 'progressbar' ) ).toHaveCSS( 'color', 'rgb(250, 167, 84)' );
+	await expect( mobile.getByRole( 'progressbar' ) ).toHaveCSS( 'color', 'rgb(146, 99, 0)' );
 	await expect( desktop.nth( 1 ).getByRole( 'progressbar' ) ).toHaveCSS(
 		'color',
 		'rgb(204, 24, 24)'
@@ -276,7 +276,7 @@ test( 'Score cards show the tier palette, baseline delta colors, and responsive 
 	await expect( desktop.first() ).toHaveCSS( 'padding-left', '20px' );
 	await expect( desktop.first() ).toHaveCSS( 'padding-right', '20px' );
 	await expect( desktop.first() ).toHaveCSS( 'gap', '8px' );
-	await expect( desktop.first().getByRole( 'progressbar' ) ).toHaveCSS( 'height', '2px' );
+	await expect( desktop.first().getByRole( 'progressbar' ) ).toHaveCSS( 'height', '4px' );
 	await expect( desktop.first().getByRole( 'progressbar' ) ).toHaveCSS( 'border-radius', '4px' );
 	await expect( page.locator( '.jetpack-boost-overview__scores-header' ).first() ).toHaveCSS(
 		'height',
@@ -286,15 +286,15 @@ test( 'Score cards show the tier palette, baseline delta colors, and responsive 
 	await expect( headerDivider ).toBeVisible();
 	await expect( headerDivider ).toHaveCSS( 'border-bottom-width', '1px' );
 	await expect( headerDivider ).toHaveCSS( 'border-bottom-style', 'solid' );
-	await expect( headerDivider ).toHaveCSS( 'border-bottom-color', 'rgb(240, 240, 240)' );
+	await expect( headerDivider ).toHaveCSS( 'border-bottom-color', 'rgb(219, 219, 219)' );
 	await expect( desktop.first() ).toHaveCSS( 'border-left-width', '1px' );
 	await expect( desktop.first() ).toHaveCSS( 'border-left-style', 'solid' );
-	await expect( desktop.first() ).toHaveCSS( 'border-left-color', 'rgb(240, 240, 240)' );
+	await expect( desktop.first() ).toHaveCSS( 'border-left-color', 'rgb(219, 219, 219)' );
 	await page.setViewportSize( { width: 390, height: 900 } );
 	await expect( desktop.first() ).toHaveCSS( 'border-left-width', '0px' );
 	await expect( desktop.first() ).toHaveCSS( 'border-top-width', '1px' );
 	await expect( desktop.first() ).toHaveCSS( 'border-top-style', 'solid' );
-	await expect( desktop.first() ).toHaveCSS( 'border-top-color', 'rgb(240, 240, 240)' );
+	await expect( desktop.first() ).toHaveCSS( 'border-top-color', 'rgb(219, 219, 219)' );
 } );
 
 test.describe( 'Overall grade help', () => {
