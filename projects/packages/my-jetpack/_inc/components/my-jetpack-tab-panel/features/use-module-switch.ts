@@ -6,6 +6,7 @@ import { useCallback } from 'react';
 import { getModuleActivationMessage } from '../../../utils/module-benefit-messages';
 import { setPendingSuccessNotice } from '../products/pending-notice';
 import { reloadPage } from '../products/reload-page';
+import { getAdminPageSlug, setPendingSidebarHighlight } from './sidebar-highlight';
 import type { FeatureState } from './feature-state';
 
 // Modules that register a server-rendered wp-admin sidebar item.
@@ -63,15 +64,31 @@ export function useModuleSwitch( state: FeatureState ) {
 						feature.name
 				  );
 
-			if ( MODULES_REQUIRING_RELOAD.includes( $module.module ) ) {
+			// Activating adds the feature's wp-admin menu item, but the sidebar is
+			// rendered server-side, so it takes a reload to appear.
+			const sidebarSlug = active ? getAdminPageSlug( feature.manage_url ) : null;
+
+			if ( sidebarSlug || MODULES_REQUIRING_RELOAD.includes( $module.module ) ) {
 				setPendingSuccessNotice( message );
+
+				if ( sidebarSlug ) {
+					setPendingSidebarHighlight( sidebarSlug );
+				}
+
 				reloadPage();
 				return;
 			}
 
 			createSuccessNotice( message );
 		},
-		[ $module, createErrorNotice, createSuccessNotice, feature.name, updateJetpackModuleStatus ]
+		[
+			$module,
+			createErrorNotice,
+			createSuccessNotice,
+			feature.manage_url,
+			feature.name,
+			updateJetpackModuleStatus,
+		]
 	);
 
 	const isActive = !! $module?.activated;

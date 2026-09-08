@@ -22,6 +22,7 @@ export function FeaturesContent() {
 		[]
 	) as MainFeature[];
 	const states = useFeatureStates( features );
+
 	const [ selected, setSelected ] = useState< string[] >( [] );
 	const [ openSlug, setOpenSlug ] = useState< string | null >( null );
 

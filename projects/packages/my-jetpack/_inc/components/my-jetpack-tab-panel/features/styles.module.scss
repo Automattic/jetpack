@@ -177,3 +177,43 @@ $feature-icon-foreground: #0ced57;
 .modal-popup {
 	block-size: min(34rem, calc(100vh - 6rem));
 }
+
+// Applied to a wp-admin menu item, which lives outside this
+// app's DOM, so the class name must survive CSS Modules hashing.
+:global(.jetpack-feature-sidebar-highlight) {
+	animation: jetpack-feature-pulse 1.4s ease-in-out 3;
+	border-radius: var(--wpds-border-radius-sm);
+	position: relative;
+}
+
+:global(.jetpack-feature-sidebar-highlight)::after {
+	background: $feature-icon-foreground;
+	block-size: 0.5rem;
+	border-radius: 50%;
+	content: "";
+	inline-size: 0.5rem;
+	inset-block-start: 50%;
+	inset-inline-end: 0.75rem;
+	margin-block-start: -0.25rem;
+	position: absolute;
+}
+
+@keyframes jetpack-feature-pulse {
+
+	0%,
+	100% {
+		box-shadow: inset 0 0 0 0 transparent;
+	}
+
+	50% {
+		box-shadow: inset 0 0 0 2px $feature-icon-foreground;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+	:global(.jetpack-feature-sidebar-highlight) {
+		animation: none;
+		box-shadow: inset 0 0 0 2px $feature-icon-foreground;
+	}
+}

@@ -8,6 +8,7 @@ import useProduct from '../../../data/products/use-product';
 import useAnalytics from '../../../hooks/use-analytics';
 import { setPendingSuccessNotice } from '../products/pending-notice';
 import { reloadPage } from '../products/reload-page';
+import { getAdminPageSlug, setPendingSidebarHighlight } from './sidebar-highlight';
 import type { FeatureState } from './feature-state';
 
 /**
@@ -30,11 +31,16 @@ export function useProductSwitch( state: FeatureState ) {
 	const isBusy = isInstalling || isActivating || isDeactivating || isLoading || isRefetching;
 	const isActive = action === 'running';
 
-	// Products that register a wp-admin menu item need a full reload for the sidebar to
-	// catch up, so their success notice is persisted across it.
+	// One place decides whether a change needs a reload, and what should survive it: a
+	// success notice, and — when activating something that adds a menu item — a pointer
+	// at that item, which is server-rendered and so only appears after the reload.
 	const mutateOptions = useCallback(
 		( active: boolean ) => {
-			if ( ! PRODUCTS_NEEDING_RELOAD_AFTER_TOGGLE.includes( feature.product ) ) {
+			const sidebarSlug = active ? getAdminPageSlug( feature.manage_url ) : null;
+			const needsReload =
+				!! sidebarSlug || PRODUCTS_NEEDING_RELOAD_AFTER_TOGGLE.includes( feature.product );
+
+			if ( ! needsReload ) {
 				return undefined;
 			}
 
@@ -53,11 +59,16 @@ export function useProductSwitch( state: FeatureState ) {
 									feature.name
 							  )
 					);
+
+					if ( sidebarSlug ) {
+						setPendingSidebarHighlight( sidebarSlug );
+					}
+
 					reloadPage();
 				},
 			};
 		},
-		[ feature.name, feature.product ]
+		[ feature.manage_url, feature.name, feature.product ]
 	);
 
 	const track = useCallback(
