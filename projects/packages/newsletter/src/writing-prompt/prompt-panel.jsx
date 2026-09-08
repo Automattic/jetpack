@@ -1,4 +1,5 @@
 import analytics from '@automattic/jetpack-analytics';
+import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
 import { createInterpolateElement, useCallback, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
@@ -63,6 +64,14 @@ export default ( { prompts, siteType, readerUrl, openReaderInNewTab, onReaderCli
 
 	const prompt = prompts[ index ];
 
+	// "Post your answer" opens the Write editor on WordPress.com-platform sites
+	// (Simple/Atomic, where Write exists); on self-hosted it falls back to the
+	// classic new-post screen, where the jetpack/blogging-prompt block editor
+	// script seeds the same prompt.
+	const postAnswerHref = isWpcomPlatformSite()
+		? addQueryArgs( 'admin.php', { page: 'write', answer_prompt: prompt.id } )
+		: addQueryArgs( 'post-new.php', { answer_prompt: prompt.id } );
+
 	return (
 		<Stack direction="column" gap="md">
 			<Stack
@@ -108,7 +117,7 @@ export default ( { prompts, siteType, readerUrl, openReaderInNewTab, onReaderCli
 				<LinkButton
 					variant="outline"
 					size="compact"
-					href={ `post-new.php?answer_prompt=${ prompt.id }` }
+					href={ postAnswerHref }
 					onClick={ recordPostAnswerClick }
 				>
 					{ __( 'Post your answer', 'jetpack-newsletter' ) }

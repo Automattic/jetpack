@@ -127,11 +127,17 @@ export {
 	type ReportCsvActionProps,
 } from './report-page';
 export {
+	DetailPageActions,
+	DetailPageBreadcrumbs,
 	DetailPageLayout,
 	DetailPageSection,
 	DetailPageShell,
 	DetailPageTabPanel,
 	DetailPageTabs,
+	useDetailPageCustomize,
+	type DetailPageActionsProps,
+	type DetailPageBreadcrumbsProps,
+	type DetailPageCustomize,
 	type DetailPageHeaderSlots,
 	type DetailPageLayoutProps,
 	type DetailPageSectionProps,
