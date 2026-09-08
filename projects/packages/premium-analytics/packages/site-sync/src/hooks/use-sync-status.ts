@@ -25,15 +25,9 @@ function readMilestone(): number {
 }
 
 /**
- * Polls Jetpack's sync status and returns analytics-scoped progress.
- *
- * Polling auto-stops when the sync completes or stalls, or after
- * `MAX_POLL_FAILURES` consecutive fetch errors; a single transient error is
- * retried on the next tick and self-heals on the next success. If the
- * page-load milestone is already set, the status reports complete immediately
- * and no polling occurs. `triggerSync` POSTs the full-sync trigger and resumes
- * polling; it never rejects (failures surface via `error`), and a start that
- * failed keeps reporting until a poll proves the sync is under way.
+ * Polls Jetpack's sync status; analytics-scoped progress. Auto-stops on
+ * completion, stall, or `MAX_POLL_FAILURES` consecutive errors (a single
+ * failure self-heals). `triggerSync` never rejects — failures surface via `error`.
  *
  * @param options           - Hook options.
  * @param options.enabled   - Whether to watch the sync at all.
@@ -47,10 +41,9 @@ export function useSyncStatus( {
 	const milestoneRef = useRef< number >( readMilestone() );
 	const [ data, setData ] = useState< SyncStatus >();
 	const [ error, setError ] = useState< Error | null >( null );
-	// A start that failed leaves nothing running, so no amount of successful
-	// polling disproves it: only the analytics module appearing in the sync
-	// progress does. Held apart from the poll's own errors, which a single
-	// success clears, so the retry stays on screen until the sync is under way.
+	// A start that failed isn't disproven by mere polling success — only the
+	// analytics module appearing in progress clears it. Held apart from the
+	// poll's own errors so the retry banner survives until sync is under way.
 	const startErrorRef = useRef< Error | null >( null );
 
 	const intervalRef = useRef< ReturnType< typeof setInterval > | null >( null );
@@ -58,8 +51,7 @@ export function useSyncStatus( {
 	// (re)starts; polling only gives up once this reaches `MAX_POLL_FAILURES`.
 	const failureCountRef = useRef( 0 );
 	// Hold the latest `poll` in a ref so the interval always calls the current
-	// closure. Preserves the original package's pollRef pattern and keeps the
-	// interval stable if `poll`'s identity ever changes.
+	// closure, keeping the interval stable across `poll` identity changes.
 	const pollRef = useRef< () => void >();
 
 	const clearPolling = useCallback( () => {
@@ -72,9 +64,8 @@ export function useSyncStatus( {
 	const poll = useCallback( () => {
 		fetchSyncStatus()
 			.then( raw => {
-				// Refresh the milestone live: the backend exposes the persisted
-				// value on every /sync/status response, so it can flip mid-session
-				// even though the script-data seed was captured once at mount.
+				// Refresh the milestone live: the backend exposes it on every poll,
+				// so it can flip mid-session even though script-data was seeded once.
 				const live = raw.initial_full_sync_finished ?? 0;
 				if ( live > milestoneRef.current ) {
 					milestoneRef.current = live;

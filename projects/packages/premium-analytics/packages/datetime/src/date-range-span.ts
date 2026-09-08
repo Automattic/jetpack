@@ -54,10 +54,6 @@ const MONTHS_PER_YEAR = 12;
  * Whether the range covers whole calendar days, from the first instant of
  * `from` to the last instant of `to`.
  *
- * Rolling sub-day windows (`last-24-hours`, `today` while it is still running)
- * end at the current time instead, which is what separates them from ranges
- * that should be counted in days.
- *
  * @param from - Range start.
  * @param to   - Range end.
  * @return Whether both ends sit on a day boundary.
@@ -67,12 +63,10 @@ function coversWholeDays( from: Date, to: Date ): boolean {
 }
 
 /**
- * Whole calendar months covered by the range, or null when it does not divide
- * evenly into months.
+ * Whole calendar months covered by the range.
  *
  * Counted against the day after `to`, since an inclusive range ends on the last
- * instant of its final day: July 1 through June 30 is twelve months, and the
- * boundary that proves it is July 1 a year later.
+ * instant of its final day.
  *
  * @param from - Range start.
  * @param to   - Range end.
@@ -80,8 +74,7 @@ function coversWholeDays( from: Date, to: Date ): boolean {
  */
 function getWholeMonths( from: Date, to: Date ): number | null {
 	// `addDays` keeps the input's `Date` subclass, so a site-timezone `TZDate`
-	// stays anchored to that zone. A plain `new Date()` would drop back to the
-	// browser's and shift the boundary.
+	// stays anchored to that zone rather than the browser's.
 	const dayAfterTo = startOfDay( addDays( to, 1 ) );
 	const months = differenceInCalendarMonths( dayAfterTo, from );
 
@@ -89,9 +82,8 @@ function getWholeMonths( from: Date, to: Date ): number | null {
 		return null;
 	}
 
-	// `addMonths` clamps a day that the target month is too short for (Jan 31
-	// plus one month is Feb 28), so compare the round trip rather than the
-	// day-of-month, which would call Jan 31 - Feb 27 a whole month.
+	// `addMonths` clamps a day the target month is too short for (Jan 31 plus one
+	// month is Feb 28), so compare the round trip rather than the day-of-month.
 	return isSameDay( addMonths( from, months ), dayAfterTo ) ? months : null;
 }
 
@@ -99,20 +91,10 @@ function getWholeMonths( from: Date, to: Date ): number | null {
  * Measure how long a date range is, in the unit that describes it best.
  *
  * Derived from the range itself rather than the preset that produced it, so a
- * window stepped back from "Last 7 days" still reads as 7 days once the preset
- * has become a custom range.
+ * window stepped back from "Last 7 days" still reads as 7 days.
  *
  * A unit is only reported where the range divides evenly into it, so an
- * open-ended range measures by the day it is read on: the same selection can
- * land in days, months or years depending on whether today closes a month or a
- * year. Callers describing a selection that grows day by day should say so from
- * the selection rather than measure it.
- *
- * @example
- * getDateRangeSpan( { from, to } ) // 7 days:     { unit: 'day', value: 7 }
- *                                  // 12 months:  { unit: 'month', value: 12 }
- *                                  // 24 hours:   { unit: 'hour', value: 24 }
- *                                  // 5 years:    { unit: 'year', value: 5 }
+ * open-ended range measures by the day it is read on.
  *
  * @param range - The range to measure.
  * @return The span, or null when the range is missing an end.
@@ -126,9 +108,8 @@ export function getDateRangeSpan( range?: DateRange ): DateRangeSpan | null {
 	}
 
 	if ( ! coversWholeDays( from, to ) ) {
-		// `round`, not the default truncation: an hour-snapped window runs to
-		// the last millisecond of its final hour, and truncation reads it one
-		// hour short.
+		// `round`, not the default truncation: an hour-snapped window runs to the
+		// last millisecond of its final hour, and truncation reads it an hour short.
 		const hours = differenceInHours( to, from, { roundingMethod: 'round' } );
 
 		if ( hours <= MAX_HOURS_SPAN ) {

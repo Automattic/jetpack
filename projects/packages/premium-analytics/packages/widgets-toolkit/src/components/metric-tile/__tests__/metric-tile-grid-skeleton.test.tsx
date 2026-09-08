@@ -15,9 +15,8 @@ describe( 'MetricTileGridSkeleton', () => {
 	} );
 
 	it( 'fills the grid when every metric is switched off', () => {
-		// Callers pass a count they know before the response, but it is 0 when
-		// the user has deselected every metric — drawing that literally would
-		// leave an empty loading state.
+		// The caller's known count is 0 when every metric is deselected; drawing
+		// that literally would leave an empty loading state.
 		render( <MetricTileGridSkeleton tiles={ 0 } /> );
 
 		expect( screen.getAllByTestId( 'skeleton-tile' ).length ).toBeGreaterThan( 1 );

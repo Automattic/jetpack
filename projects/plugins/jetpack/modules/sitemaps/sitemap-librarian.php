@@ -253,6 +253,55 @@ class Jetpack_Sitemap_Librarian {
 	}
 
 	/**
+	 * Retrieve the timestamps of named sitemaps of a given type, keyed by filename.
+	 *
+	 * Looking rows up by name is what lets a caller avoid assuming the Nth row of
+	 * a type is file N, which an interrupted cleanup can make false by rewriting a
+	 * row and moving it in ID order. Only the named rows are read, in batches, so
+	 * the result is bounded by what was asked for rather than by how many sitemap
+	 * rows the site has. Names with no stored row are absent from the result.
+	 *
+	 * @access public
+	 * @since 16.2
+	 *
+	 * @param string $type  Type of the sitemap rows to retrieve.
+	 * @param array  $names Sitemap filenames to look for.
+	 *
+	 * @return array Map of sitemap filename to its 'YYYY-MM-DD hh:mm:ss' timestamp.
+	 */
+	public function query_sitemap_timestamps( $type, $names ) {
+		global $wpdb;
+
+		$timestamps = array();
+
+		foreach ( array_chunk( (array) $names, JP_SITEMAP_BATCH_SIZE ) as $chunk ) {
+			$placeholders = implode( ', ', array_fill( 0, count( $chunk ), '%s' ) );
+
+			// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $placeholders is a generated list of %s.
+			$sql = "SELECT post_title, post_date
+					FROM $wpdb->posts
+					WHERE post_type=%s
+						AND post_status=%s
+						AND post_title IN ( $placeholders );";
+			// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+
+			$rows = $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+				$wpdb->prepare(
+					$sql, // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Prepared right here.
+					array_merge( array( $type, 'draft' ), array_values( $chunk ) )
+				),
+				ARRAY_A
+			);
+
+			foreach ( (array) $rows as $row ) {
+				$timestamps[ $row['post_title'] ] = $row['post_date'];
+			}
+		}
+
+		return $timestamps;
+	}
+
+	/**
 	 * Retrieve an array of sitemap rows (of a given type) sorted by ID.
 	 *
 	 * Returns the smallest $num_posts sitemap rows (measured by ID)

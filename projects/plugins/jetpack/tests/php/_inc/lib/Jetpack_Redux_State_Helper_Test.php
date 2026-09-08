@@ -68,16 +68,11 @@ class Jetpack_Redux_State_Helper_Test extends WP_UnitTestCase {
 
 	/**
 	 * The initial state reports the effective AI state through the same gate
-	 * chain the editor enforces: waived master outside internal testing
-	 * environments, enforced master (the inactive `ai` module) inside them.
+	 * chain the editor enforces on self-hosted sites.
 	 */
 	public function test_ai_effectively_enabled_reflects_the_ai_gates() {
 		$redux_state = Jetpack_Redux_State_Helper::get_initial_state();
-		$this->assertTrue( $redux_state['isAiEnabled'], 'Outside internal testing envs the master is waived, so AI reads on.' );
 
-		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
-		$redux_state                    = Jetpack_Redux_State_Helper::get_initial_state();
-
-		$this->assertFalse( $redux_state['isAiEnabled'], 'On internal testing envs the inactive ai module reads as master off.' );
+		$this->assertFalse( $redux_state['isAiEnabled'], 'The inactive ai module reads as master off.' );
 	}
 }

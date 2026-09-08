@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Remove the segmented date preset control, replaced by the period dropdown.

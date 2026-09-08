@@ -242,4 +242,38 @@ describe( 'Stats referrers normalizer', () => {
 			} ),
 		] );
 	} );
+
+	it( 'treats a referrer group with an empty results array as a leaf row', () => {
+		const result = sanitizeStatsReferrersResponse(
+			{
+				date: '2026-06-22',
+				period: 'day',
+				summary: {
+					groups: [
+						{
+							name: 'example.com',
+							group: 'example.com',
+							total: 3,
+							url: 'https://example.com/source',
+							results: [],
+						},
+					],
+				},
+			},
+			{
+				period: 'day',
+				start_date: '2026-06-16',
+				end_date: '2026-06-22',
+				summarize: true,
+			}
+		);
+
+		expect( result.data[ 0 ].items ).toEqual( [
+			expect.objectContaining( {
+				label: 'example.com',
+				labelIcon: 'external',
+				children: null,
+			} ),
+		] );
+	} );
 } );

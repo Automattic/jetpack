@@ -248,12 +248,9 @@ function ClicksInner() {
 	const activeRows = isDrillDown ? selectedClick.children ?? [] : rows;
 	const withComparison = isDrillDown ? !! selectedClick?.childrenHaveComparison : hasComparison;
 
-	// The view already falls back to the top list when the selected link is
-	// missing or no longer drillable (no children); clear the stored selection
-	// too once data has settled without a drillable match, so stale state
-	// can't resurface on a later refetch (WOOA7S-1666). In-flight fetches keep
-	// placeholder rows and errors aren't settled data, so a valid selection
-	// survives refetches and transient failures.
+	// Clear the stored selection only once data has settled without a drillable
+	// match, so it can't resurface on a later refetch (WOOA7S-1666) and a valid
+	// selection survives in-flight fetches and transient failures.
 	useEffect( () => {
 		if ( selectedClickLabel && ! isDrillDown && ! isLoading && ! isFetching && ! isError ) {
 			clearSelectedClick();
@@ -281,10 +278,8 @@ function ClicksInner() {
 			<WidgetState
 				isLoading={ isLoading }
 				isFetching={ isFetching }
-				// The Stats queries carry `placeholderData: previousData => previousData`, so a
-				// failed range change keeps the prior period's rows while `isError` flips true.
-				// Only surface the error when there's nothing to show, so a transient refetch
-				// failure doesn't replace populated rows with the error state.
+				// `placeholderData` keeps the prior period's rows on screen while `isError`
+				// flips true, so a transient refetch failure should not replace them.
 				isError={ rows.length === 0 && isError }
 				isEmpty={ activeRows.length === 0 }
 				error={ {

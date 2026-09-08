@@ -59,6 +59,8 @@ export interface ReportPerformanceChartProps {
 	isLoading?: boolean;
 	/** The metrics offered on the chart; defaults to Views/Visitors/Comments/Likes. */
 	metrics?: ReportChartMetric[];
+	/** The zone both reports were built and normalized under (`useStatsVisits().timezone`). */
+	timezone: string;
 	/** The active time bucket. Owned by the page — it changes the query. */
 	interval: IntervalType;
 	/** Called when the user picks a different time bucket. */
@@ -72,20 +74,11 @@ export interface ReportPerformanceChartProps {
 }
 
 /**
- * The report page's multi-metric performance section: a card with the
- * Views/Visitors/Comments/Likes series drawn together, a metric show/hide
- * menu, the time-bucket selector, and a chart collapse toggle. The page owns
- * data fetching (`useStatsVisits`) and the interval, and passes the reports in.
+ * The report page's multi-metric performance section: the series drawn together with
+ * a metric show/hide menu, the time-bucket selector, and a collapse toggle.
  *
- * Chart theming comes from the `GlobalChartsProvider` mounted once by the
- * `/reports/$report` stage, so this component must render under that stage —
- * or under a provider of its own in isolated contexts like Storybook.
- *
- * With a single visible metric and comparison data present, the previous
- * period renders as a dashed overlay (see `buildReportMetricSeries`).
- *
- * @param {ReportPerformanceChartProps} props - The component props.
- * @return The performance chart section.
+ * Chart theming comes from the `GlobalChartsProvider` the `/reports/$report` stage
+ * mounts, so this must render under that stage — or its own provider in Storybook.
  */
 export function ReportPerformanceChart( {
 	title = __( 'Performance', 'jetpack-premium-analytics-pkg' ),
@@ -93,6 +86,7 @@ export function ReportPerformanceChart( {
 	comparison,
 	isLoading = false,
 	metrics,
+	timezone,
 	interval,
 	onIntervalChange,
 	intervalOptions = DEFAULT_INTERVAL_OPTIONS,
@@ -109,8 +103,9 @@ export function ReportPerformanceChart( {
 	);
 
 	const series = useMemo(
-		() => buildReportMetricSeries( { primary, comparison, metrics: visibleMetrics } ),
-		[ primary, comparison, visibleMetrics ]
+		() =>
+			buildReportMetricSeries( { primary, comparison, metrics: visibleMetrics, zone: timezone } ),
+		[ primary, comparison, visibleMetrics, timezone ]
 	);
 	const seriesStyles = useSeriesStyles( series );
 

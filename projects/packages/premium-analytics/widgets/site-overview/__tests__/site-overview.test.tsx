@@ -209,9 +209,8 @@ describe( 'SiteOverviewWidget', () => {
 		expect( requestedPaths.some( path => path.includes( 'date=2026-03-10' ) ) ).toBe( true );
 		expect( requestedPaths.some( path => path.includes( 'date=2026-02-10' ) ) ).toBe( true );
 
-		// Each tile derives its delta from the same metric in the comparison
-		// response, so distinct metrics show distinct period-over-period changes
-		// rather than one shared value: views 420 vs 300 rises, likes 48 vs 60 falls.
+		// Distinct metrics must show distinct deltas, not one shared value: views
+		// 420 vs 300 rises, likes 48 vs 60 falls.
 		await expect( screen.findByText( '+40%' ) ).resolves.toBeInTheDocument();
 		expect( screen.getByText( '-20%' ) ).toBeInTheDocument();
 	} );
@@ -244,11 +243,11 @@ describe( 'SiteOverviewWidget', () => {
 		);
 
 		// March's total is not April's, so it gives way to the skeleton.
-		await expect( screen.findByRole( 'status' ) ).resolves.toBeInTheDocument();
+		await expect( screen.findByTestId( 'widget-skeleton' ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByText( '420' ) ).not.toBeInTheDocument();
 
 		resolveNextPeriod?.();
 		await expect( screen.findByText( '999' ) ).resolves.toBeInTheDocument();
-		expect( screen.queryByRole( 'status', { hidden: true } ) ).not.toBeInTheDocument();
+		expect( screen.queryByTestId( 'widget-skeleton' ) ).not.toBeInTheDocument();
 	} );
 } );

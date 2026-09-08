@@ -140,9 +140,25 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings extends WP_REST_Controller 
 		if ( ! Jetpack_AI_Settings::host_allows_ai() ) {
 			return new WP_Error(
 				'ai_disabled_by_host',
-				__( 'AI has been turned off for this site.', 'jetpack' ),
+				__( 'Jetpack AI is not available for this site.', 'jetpack' ),
 				array( 'status' => 403 )
 			);
+		}
+
+		$features = $request->get_param( 'features' );
+
+		// AI Answers requires a paid Search plan. Checked up front, before any
+		// option changes, so a payload combining `ai_search` with other
+		// features doesn't partially apply.
+		if ( is_array( $features ) ) {
+			$ai_search_value = self::extract_feature_value( $features, 'ai_search' );
+			if ( $ai_search_value && $this->ai_search_requires_upgrade() ) {
+				return new WP_Error(
+					'ai_search_requires_upgrade',
+					__( 'AI-generated search answers require a paid Jetpack Search plan.', 'jetpack' ),
+					array( 'status' => 403 )
+				);
+			}
 		}
 
 		if ( $request->has_param( 'master_enabled' ) ) {
@@ -152,27 +168,60 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings extends WP_REST_Controller 
 			Jetpack_AI_Settings::set_master_enabled( (bool) $request->get_param( 'master_enabled' ) );
 		}
 
-		$features = $request->get_param( 'features' );
 		if ( is_array( $features ) ) {
 			foreach ( Jetpack_AI_Settings::FEATURE_OPTIONS as $key => $option ) {
-				if ( ! array_key_exists( $key, $features ) ) {
+				$value = self::extract_feature_value( $features, $key );
+				if ( null === $value ) {
 					continue;
 				}
 
-				// A feature value may be a bare boolean or an object carrying an enabled key.
-				$value = $features[ $key ];
-				if ( is_array( $value ) ) {
-					if ( ! array_key_exists( 'enabled', $value ) ) {
-						continue;
-					}
-					$value = $value['enabled'];
-				}
-
-				update_option( $option, rest_sanitize_boolean( $value ) );
+				update_option( $option, $value );
 			}
 		}
 
 		return rest_ensure_response( $this->build_settings_response() );
+	}
+
+	/**
+	 * Pull one feature's value out of the `features` request param, sanitized
+	 * to a bool. A feature value may be a bare boolean or an object carrying
+	 * an `enabled` key. Returns null only when the key (or `enabled` sub-key)
+	 * is absent — a present-but-null value still sanitizes to false, it
+	 * isn't treated as absent.
+	 *
+	 * @param array  $features The `features` request param.
+	 * @param string $key      Feature key.
+	 * @return bool|null Sanitized value, or null if absent.
+	 */
+	private static function extract_feature_value( array $features, string $key ) {
+		if ( ! array_key_exists( $key, $features ) ) {
+			return null;
+		}
+
+		$value = $features[ $key ];
+		if ( is_array( $value ) ) {
+			if ( ! array_key_exists( 'enabled', $value ) ) {
+				return null;
+			}
+			$value = $value['enabled'];
+		}
+
+		return rest_sanitize_boolean( $value );
+	}
+
+	/**
+	 * Whether enabling AI-generated search answers requires a plan upgrade.
+	 * Computed fresh from `Search_Plan`, deliberately not via the shared,
+	 * memoized `Search_Blocks::supports_paid_search()` — this endpoint's own
+	 * tests change plan fixtures across dispatches within one PHPUnit
+	 * process, and that memo doesn't reset, which breaks them.
+	 *
+	 * @param Search_Plan|null $search_plan Plan instance to reuse, or null to create one.
+	 * @return bool
+	 */
+	private function ai_search_requires_upgrade( ?Search_Plan $search_plan = null ) {
+		$search_plan ??= ( class_exists( Search_Plan::class ) ? new Search_Plan() : null );
+		return ! ( $search_plan && $search_plan->supports_instant_search() && ! $search_plan->is_free_plan() );
 	}
 
 	/**
@@ -189,7 +238,7 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings extends WP_REST_Controller 
 		// AI Answers only runs with the paid Search product provisioned. Mirror
 		// the gate the Search dashboard's AI Answers tab uses for its upsell:
 		// gated when the plan is free or lacks Instant Search.
-		$ai_search_requires_upgrade = ! ( $search_plan && $search_plan->supports_instant_search() && ! $search_plan->is_free_plan() );
+		$ai_search_requires_upgrade = $this->ai_search_requires_upgrade( $search_plan );
 
 		$stored = array();
 		foreach ( Jetpack_AI_Settings::FEATURE_OPTIONS as $key => $option ) {
@@ -232,22 +281,22 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings extends WP_REST_Controller 
 	}
 
 	/**
-	 * Whether the AI SEO row is available, so the settings page can hide it.
-	 * The row governs user-initiated suggestions as well as automatic
-	 * generation, so it follows the package's shared AI SEO gate.
+	 * Whether the AI SEO row is available, so the settings page can hide it. The
+	 * row is offered only where a surface it governs can run: the sidebar's
+	 * suggestions or the editor's generation.
 	 *
-	 * Guarded with class_exists: the autoloader can pick an older jetpack-seo
-	 * copy from another plugin, predating this class. Without the gate's verdict
-	 * the row is hidden rather than offered.
+	 * Guarded with is_callable: the autoloader can pick an older jetpack-seo copy
+	 * from another plugin, predating this gate. Without its verdict the row is
+	 * hidden rather than offered.
 	 *
 	 * @return bool
 	 */
 	private function is_ai_seo_available() {
-		if ( ! class_exists( Ai_Seo::class ) ) {
+		if ( ! is_callable( array( Ai_Seo::class, 'has_reachable_surface' ) ) ) {
 			return false;
 		}
 
-		return Ai_Seo::is_available();
+		return Ai_Seo::has_reachable_surface();
 	}
 
 	/**

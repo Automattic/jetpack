@@ -1,5 +1,0 @@
-Significance: patch
-Type: added
-Comment: Backup: add the storage meter to the modernized dashboard — a coloured usage bar under a heading that escalates as cloud storage fills up, so a site whose backups have stopped can see why. Reads the limit from /site/backup/policies and usage from /site/backup/size, and renders nothing when either is unreadable. No-op when the modernization filter is off.
-
-

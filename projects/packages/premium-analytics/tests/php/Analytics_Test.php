@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics;
 
+use Automattic\Jetpack\Constants;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\CoversFunction;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -15,13 +16,9 @@ use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Tests for the Analytics class.
- *
- * Covers metadata names ensure_widget_registry_ready() alongside the class,
- * because test_rest_request_still_serves_the_widget_manifest exercises it on
- * purpose. Coverage is attributed to those declared units too — php-code-coverage
- * discards every executed line outside them — so leaving it off would report the
- * manifest require as dead code while a green test runs it.
+ * Tests for the Analytics class. Also covers ensure_widget_registry_ready(): only
+ * test_rest_request_still_serves_the_widget_manifest exercises it, and php-code-coverage
+ * discards lines outside declared @covers units — omitting it would mark the manifest require dead.
  *
  * @covers \Automattic\Jetpack\PremiumAnalytics\Analytics
  * @covers ::Automattic\Jetpack\PremiumAnalytics\ensure_widget_registry_ready
@@ -50,10 +47,8 @@ class Analytics_Test extends TestCase {
 	/**
 	 * Fail loudly if the fixture build leaked in from an earlier test.
 	 *
-	 * Because load_build() uses require_once and there is one fixture file, a
-	 * second load is a no-op. Without this check, dropping the process isolation would
-	 * turn every "does not load the build" assertion into a vacuous pass — the
-	 * unset() below clears the marker and nothing re-sets it, gate or no gate.
+	 * Because load_build() uses require_once, a second load is a no-op — without this check,
+	 * dropping process isolation would silently pass every "does not load the build" assertion.
 	 */
 	protected function setUp(): void {
 		parent::setUp();
@@ -87,9 +82,24 @@ class Analytics_Test extends TestCase {
 		remove_all_filters( 'jetpack_stats_post_list_column_url' );
 		remove_all_filters( 'rest_post_dispatch' );
 		remove_all_filters( 'jetpack_stats_transient_cleanup_prefixes' );
+		Constants::clear_constants();
+		$this->reset_tracks_identity_state();
 		Capabilities::unregister();
 		$this->reset_analytics_init_state();
 		parent::tearDown();
+	}
+
+	/**
+	 * Drop the connected-user fixtures the Tracks identity tests set up.
+	 */
+	private function reset_tracks_identity_state() {
+		$user_id = get_current_user_id();
+
+		if ( $user_id ) {
+			delete_transient( "jetpack_connected_user_data_$user_id" );
+			\Jetpack_Options::delete_option( 'user_tokens' );
+			wp_set_current_user( 0 );
+		}
 	}
 
 	/**
@@ -227,9 +237,8 @@ class Analytics_Test extends TestCase {
 	/**
 	 * Normal package bootstrap serves the dashboard support routes from the site.
 	 *
-	 * The route files themselves are loaded lazily, on rest_api_init, via
-	 * Dashboard_Support_Routes::boot_routes() - so this checks that hook is
-	 * wired, then dispatches it and confirms the routes actually land.
+	 * Routes load lazily on rest_api_init via Dashboard_Support_Routes::boot_routes(), so this
+	 * checks the hook is wired and that dispatching it actually registers the routes.
 	 */
 	public function test_init_registers_dashboard_support_routes_by_default() {
 		$this->reset_analytics_init_state();
@@ -372,17 +381,13 @@ class Analytics_Test extends TestCase {
 	/**
 	 * A REST request still gets the full widget manifest.
 	 *
-	 * Because is_admin() is false on REST, the gate skips the build there; the route
-	 * and the lazy hydration both come from boot_routes() on rest_api_init. The
-	 * fixture is staged through the manifest-path filter rather than by declaring
-	 * jpa_get_registered_widget_modules() up front, so the sentinel can only reach
-	 * the registry via the manifest require in ensure_widget_registry_ready() —
-	 * delete that require (the #49961 outage) and this test reddens.
+	 * Since is_admin() is false on REST, the build gate skips it there; the route and its lazy
+	 * hydration come from boot_routes(). The fixture is staged via the manifest-path filter so
+	 * the sentinel can only reach the registry through the require in
+	 * ensure_widget_registry_ready() — delete that require (the #49961 outage) and this reddens.
 	 *
-	 * Asserts a uniquely named sentinel rather than "the response is not empty":
-	 * the widget type registry is process-wide, so a non-empty response could be
-	 * another test's leftovers. Isolation keeps the registry and
-	 * ensure_widget_registry_ready()'s static memo clean.
+	 * Asserts a uniquely named sentinel, not "response is not empty": the widget type registry
+	 * is process-wide, so a non-empty response could be another test's leftovers.
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
@@ -413,9 +418,8 @@ class Analytics_Test extends TestCase {
 
 			$response = $wp_rest_server->dispatch( new \WP_REST_Request( 'GET', '/wpcom/v2/widget-modules' ) );
 
-			// Asserted separately so a permissions regression reads as one, rather
-			// than as a missing sentinel: array_column() over an error envelope is
-			// an empty list either way.
+			// Asserted separately so a permissions regression reads as one, not a missing sentinel:
+			// array_column() over an error envelope is an empty list either way.
 			$this->assertSame( 200, $response->get_status(), 'The manifest route must authorize the test user.' );
 			$this->assertContains( 'test/rest-gate-sentinel', array_column( (array) $response->get_data(), 'name' ) );
 		} finally {
@@ -797,12 +801,10 @@ class Analytics_Test extends TestCase {
 	/**
 	 * With the build present, the menu wires the generated render callback.
 	 *
-	 * The other menu tests all run the missing-build half. This one covers the
-	 * normal path, whose failure is quiet: the render function's name is derived
-	 * from the page slug at build time, so a rename on either side swaps the
-	 * dashboard for the missing-build notice with nothing else to notice it.
-	 *
-	 * Use fixtures because the test suite does not generate build artifacts.
+	 * Unlike the missing-build tests, this covers the normal path, whose failure is quiet:
+	 * the render function name is derived from the page slug at build time, so a rename on
+	 * either side silently swaps the dashboard for the missing-build notice. Uses fixtures
+	 * since the test suite generates no build artifacts.
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
@@ -877,9 +879,8 @@ class Analytics_Test extends TestCase {
 	/**
 	 * The unfiltered manifest path points at the generated build output.
 	 *
-	 * Every other test stages this path through the filter, so nothing else would
-	 * notice the default breaking - and on REST a wrong path empties the widget
-	 * registry with no error at all (the #49961 bug).
+	 * Every other test stages this path through the filter, so nothing else would notice the
+	 * default breaking — on REST, a wrong path silently empties the widget registry (#49961).
 	 */
 	public function test_widget_manifest_path_defaults_to_the_generated_manifest() {
 		// Collapse the ".." the default is built from rather than realpath()ing it:
@@ -897,11 +898,9 @@ class Analytics_Test extends TestCase {
 	}
 
 	/**
-	 * Register the admin menu from a clean menu global, with the generated render
-	 * function absent - the state _doing_it_wrong() deliberately reports, so the
-	 * call is captured rather than left to trip the suite's warning gate.
-	 * add_menu_page() only wires the render callback for a user who can reach the
-	 * page, hence the capability grant.
+	 * Register the admin menu from a clean menu global, with the generated render function absent
+	 * — the state _doing_it_wrong() deliberately reports, captured here to avoid tripping the
+	 * suite's warning gate. The capability grant lets add_menu_page() wire the render callback.
 	 *
 	 * @param string $manifest_filter Method on this class supplying the manifest path.
 	 * @return array|null The registered menu entry.
@@ -967,17 +966,14 @@ class Analytics_Test extends TestCase {
 	}
 
 	/**
-	 * A front-end request registers none of the admin render surface: no menu,
-	 * no widget import map, no CSV export script data.
+	 * A front-end request registers none of the admin render surface: no menu, no widget
+	 * import map, no CSV export script data, and no Tracks plumbing.
 	 *
-	 * Isolated because the filters being asserted are registered at file scope
-	 * by widget-modules.php and csv-exports.php, and require_once means an
-	 * earlier test that loaded them would leave them registered for this one.
-	 *
-	 * Each assertion names its callback rather than just the hook.
-	 * Sync_Status_Tracker also filters jetpack_admin_js_script_data, and it
-	 * stays outside the gate, so a bare has_filter() on that hook is true on a
-	 * front-end request no matter what this gate does.
+	 * Isolated because widget-modules.php and csv-exports.php register these filters at file
+	 * scope via require_once, so an earlier test that loaded them would leave them registered
+	 * here. Each assertion names its callback, not just the hook: Sync_Status_Tracker also
+	 * filters jetpack_admin_js_script_data outside this gate, so a bare has_filter() there is
+	 * true regardless.
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
@@ -1011,6 +1007,14 @@ class Analytics_Test extends TestCase {
 				__NAMESPACE__ . '\\inject_videopress_script_data'
 			),
 			'The VideoPress availability flag is not wired on a front-end request.'
+		);
+		$this->assertFalse(
+			has_action( 'admin_enqueue_scripts', array( Analytics::class, 'enqueue_tracks_transport' ) ),
+			'The Tracks transport is not enqueued on a front-end request.'
+		);
+		$this->assertFalse(
+			has_filter( 'jetpack_admin_js_script_data', array( Analytics::class, 'add_tracks_identity_script_data' ) ),
+			'The Tracks identity is not published on a front-end request.'
 		);
 	}
 
@@ -1075,5 +1079,137 @@ class Analytics_Test extends TestCase {
 			),
 			'Simple still publishes the VideoPress availability flag.'
 		);
+	}
+
+	/**
+	 * Both halves of the Tracks plumbing hang off the dashboard request. The identity filter
+	 * runs at 20 so it merges onto the `current_user` the connection publishes at 10.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_dashboard_request_wires_the_tracks_hooks() {
+		$this->use_fixture_build();
+		$_GET['page'] = self::MENU_SLUG;
+		set_current_screen( self::MENU_HOOKNAME );
+
+		Analytics::init();
+		do_action( 'init' );
+
+		$this->assertNotFalse(
+			has_action( 'admin_enqueue_scripts', array( Analytics::class, 'enqueue_tracks_transport' ) ),
+			'The dashboard enqueues the Tracks transport.'
+		);
+		$this->assertSame(
+			20,
+			has_filter(
+				'jetpack_admin_js_script_data',
+				array( Analytics::class, 'add_tracks_identity_script_data' )
+			),
+			'The Tracks identity is published after the connection fills current_user in.'
+		);
+	}
+
+	/**
+	 * Without the Tracks transport the dashboard's `@automattic/jetpack-analytics` events
+	 * only pile up in `window._tkq`, so every feedback submission is silently lost.
+	 */
+	public function test_dashboard_enqueues_the_tracks_transport() {
+		Analytics::enqueue_tracks_transport();
+
+		$this->assertTrue( wp_script_is( 'jp-tracks', 'enqueued' ) );
+
+		wp_dequeue_script( 'jp-tracks' );
+		wp_deregister_script( 'jp-tracks' );
+	}
+
+	/**
+	 * On Simple stats.php already prints w.js on every wp-admin page, so enqueueing it
+	 * here would only repeat the request.
+	 */
+	public function test_wpcom_simple_skips_the_tracks_transport() {
+		Constants::set_constant( 'IS_WPCOM', true );
+
+		Analytics::enqueue_tracks_transport();
+
+		$this->assertFalse( wp_script_is( 'jp-tracks', 'enqueued' ) );
+	}
+
+	/**
+	 * The identity filter has to survive a site with no connected user: the dashboard
+	 * still records events there, just anonymously.
+	 */
+	public function test_tracks_identity_is_left_alone_without_a_connected_user() {
+		$data = array( 'user' => array( 'current_user' => array( 'id' => 1 ) ) );
+
+		$this->assertSame( $data, Analytics::add_tracks_identity_script_data( $data ) );
+	}
+
+	/**
+	 * On Simple the local user is the WPCOM user, so no connection lookup is involved.
+	 */
+	public function test_tracks_identity_names_the_local_user_on_wpcom_simple() {
+		Constants::set_constant( 'IS_WPCOM', true );
+		$user_id = self::sign_in_as( 'simple-user' );
+
+		$data = Analytics::add_tracks_identity_script_data( array( 'user' => array( 'current_user' => array() ) ) );
+
+		$this->assertSame(
+			array(
+				'ID'    => $user_id,
+				'login' => 'simple-user',
+			),
+			$data['user']['current_user']['wpcom']
+		);
+	}
+
+	/**
+	 * Off Simple the identity comes from the connection, and carries only the two fields
+	 * `identifyUser` needs: the rest of the connected-user payload is profile data.
+	 */
+	public function test_tracks_identity_names_the_connected_user_elsewhere() {
+		$user_id = self::sign_in_as( 'local-user' );
+		\Jetpack_Options::update_option( 'user_tokens', array( $user_id => "dummy.usertoken.$user_id" ) );
+		set_transient(
+			"jetpack_connected_user_data_$user_id",
+			array(
+				'ID'    => 777,
+				'login' => 'wpcomuser',
+				'email' => 'wpcomuser@example.com',
+			)
+		);
+
+		$data = Analytics::add_tracks_identity_script_data(
+			array( 'user' => array( 'current_user' => array( 'wpcom' => array( 'colorScheme' => 'default' ) ) ) )
+		);
+
+		$this->assertSame(
+			array(
+				'colorScheme' => 'default',
+				'ID'          => 777,
+				'login'       => 'wpcomuser',
+			),
+			$data['user']['current_user']['wpcom']
+		);
+	}
+
+	/**
+	 * Create a user and make it the current one.
+	 *
+	 * @param string $login User login.
+	 * @return int The new user's ID.
+	 */
+	private static function sign_in_as( $login ) {
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => $login,
+				'user_pass'  => 'password',
+			)
+		);
+		wp_set_current_user( $user_id );
+
+		return $user_id;
 	}
 }

@@ -18,7 +18,7 @@ export default function SuggestAllButton() {
 	const improveLabel = __( 'Improve guidelines', 'jetpack' );
 	const label = allEmpty ? generateLabel : improveLabel;
 
-	// Hide only while the empty-state banner is on screen — it carries its own
+	// Hide only while the welcome banner is on screen — it carries its own
 	// "Get started" CTA. Without an AI plan the button renders locked and
 	// clicking it opens the upgrade notice (see useGenerateAll).
 	const hidden = ! bannerDismissed && hasFeature;

@@ -365,9 +365,8 @@ describe( 'Stats clicks normalizer', () => {
 	} );
 
 	it( 'matches rows whose URL cannot be parsed by falling back to the raw value', () => {
-		// Not every `url` the endpoint returns is absolute — a root-relative one
-		// makes `new URL()` throw. Both periods have to key off the same raw
-		// string, or such rows would never match and would lose their delta.
+		// A root-relative `url` makes `new URL()` throw, so both periods must key
+		// off the same raw string or the row loses its delta.
 		const buildReport = ( views: number, date: string ) =>
 			sanitizeStatsClicksResponse(
 				{

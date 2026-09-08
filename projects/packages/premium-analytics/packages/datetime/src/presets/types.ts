@@ -60,6 +60,34 @@ export const DETAIL_SURFACE_PRESETS = [ PRESET_ALL_TIME, ...QUICK_SURFACE_PRESET
 export type QuickSurfacePresetId = SelectablePresetId | typeof PRESET_ALL_TIME;
 
 /**
+ * The period menu in display order, grouped by the scale each window measures.
+ * Each group renders as a separated block, narrowest scale first.
+ *
+ * All time sits in its own group rather than with the years: it is not one, and
+ * only some surfaces offer it.
+ */
+export const MENU_SURFACE_PRESET_GROUPS = [
+	[
+		PRESET_TODAY,
+		PRESET_YESTERDAY,
+		PRESET_LAST_24_HOURS,
+		PRESET_LAST_7_DAYS,
+		PRESET_LAST_30_DAYS,
+		PRESET_LAST_90_DAYS,
+		PRESET_LAST_365_DAYS,
+	],
+	[ PRESET_LAST_MONTH ],
+	[ PRESET_LAST_12_MONTHS, PRESET_LAST_YEAR ],
+	[ PRESET_ALL_TIME ],
+] as const;
+
+/**
+ * What the period menu offers unless a surface says otherwise. All time is left
+ * out: only a surface with a start date to anchor it can offer one.
+ */
+export const MENU_SURFACE_PRESETS = SELECTABLE_PRESETS;
+
+/**
  * Prefix of the per-year preset IDs, e.g. `year-2024`.
  */
 export const YEAR_PRESET_PREFIX = 'year-' as const;

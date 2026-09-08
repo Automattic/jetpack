@@ -34,9 +34,8 @@ type MostCommentedAuthorsWidgetProps = WidgetRenderProps< MostCommentedAuthorsRe
 const DATA_FORMAT = { type: 'number' as const, options: { useMultipliers: true, decimals: 0 } };
 
 /**
- * Top commented authors inner component. The comment counts come from the
- * all-time `stats/comments` report, so there is no date range or comparison
- * period to read from context.
+ * Counts come from the all-time `stats/comments` report, so there is no date
+ * range or comparison period to read from context.
  */
 function MostCommentedAuthorsInner() {
 	const { rows, isLoading, isFetching, isError, error, refetch } = useStatsCommentsRows( {
@@ -106,10 +105,6 @@ function MostCommentedAuthorsInner() {
 }
 
 /**
- * Top commented authors widget: the people who comment the most on the site,
- * ranked by comment count. Each row links to the comment management screen
- * filtered to that author when the report reports an email for them.
- *
  * One half of the Jetpack Stats "Comments" module; `jpa/most-commented-posts`
  * covers the other. Both read the same `stats/comments` response through
  * `useStatsCommentsRows`, so showing both costs a single request.

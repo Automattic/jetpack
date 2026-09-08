@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Pin the widget dashboard packages and DataViews to the 202609031004 Gutenberg development release, picking up the widget dashboard policy API.

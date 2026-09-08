@@ -3,9 +3,8 @@ import { getMockRouteLinkUrl, setMockRouteSearch } from '../../../../tests/js/ro
 import { getVideosFields } from './fields';
 import type { StatsVideoPlaysComparisonItem } from '@jetpack-premium-analytics/data';
 
-// The router is built dynamically at runtime, so a field-level test has no
-// router to mount. Render `Link` as the anchor it becomes, keeping `to`/
-// `params`/`search` assertable, matching the other report field tests.
+// The router is built dynamically, so a field-level test has no router to mount; render `Link`
+// as the anchor it becomes so `to`/`params`/`search` stay assertable, matching other field tests.
 jest.mock( '@wordpress/route', () => {
 	const { mockWordPressRoute } = jest.requireActual( '../../../../tests/js/route-test-utils' );
 

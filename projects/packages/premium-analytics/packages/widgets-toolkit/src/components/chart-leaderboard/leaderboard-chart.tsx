@@ -18,7 +18,6 @@ import { useMemo } from 'react';
  */
 import { ChartEmptyState } from '../chart-empty-state';
 import styles from './leaderboard-chart.module.scss';
-import type { WooChartTheme } from '../../hooks/use-chart-theme';
 import type { DataFormat } from '../../types';
 import type { ComponentProps, ReactNode } from 'react';
 
@@ -34,9 +33,6 @@ export type LegendLabels = {
 export type LeaderboardChartProps = {
 	className?: string;
 
-	/**
-	 * Leaderboard data (label, currentValue, previousValue, currentShare, previousShare, delta)
-	 */
 	data: LeaderboardChartData;
 
 	loading?: boolean;
@@ -62,21 +58,17 @@ export type LeaderboardChartProps = {
 	};
 
 	/**
-	 * Show only complete rows that fit the widget height instead of scrolling.
-	 *
-	 * Defaults to `true` here, unlike the underlying charts prop, because widgets
-	 * sit in fixed-height tiles. Pass `false` to keep the list scrollable.
+	 * Show only complete rows that fit the widget height instead of scrolling. Defaults
+	 * to `true` here, unlike the underlying charts prop, because widgets sit in
+	 * fixed-height tiles.
 	 * @default true
 	 */
 	fitRows?: boolean;
 };
 
 /**
- * "Top X by Y" ranking chart wrapping `LeaderboardChartUnresponsive` with the
- * package's formatting and styling.
- *
- * Must render inside a `GlobalChartsProvider`: colors, theme, and element
- * styles are read from that context.
+ * "Top X by Y" ranking chart wrapping `LeaderboardChartUnresponsive`. Must render
+ * inside a `GlobalChartsProvider`: colors, theme, and element styles come from it.
  */
 export function LeaderboardChart( {
 	className,
@@ -95,22 +87,15 @@ export function LeaderboardChart( {
 	style,
 	fitRows = true,
 }: LeaderboardChartProps ) {
-	const { getElementStyles, theme } = useGlobalChartsContext();
+	const { getElementStyles } = useGlobalChartsContext();
 
 	const valueFormatter = useMemo(
 		() => ( value: number ) => formatMetricValue( value, dataFormat.type, dataFormat.options ),
 		[ dataFormat ]
 	);
 
-	/**
-	 * Bar color for overlay-label mode.
-	 *
-	 * The label sits on top of the bar, so the bar needs to read as a faint
-	 * tint of the primary color. We can't pass a translucent color through the
-	 * chart's `primaryColor` prop — it resolves the value via getElementStyles,
-	 * which strips the alpha channel. Instead we pre-blend the primary with
-	 * white to produce the opaque equivalent of an 8% alpha fill.
-	 */
+	// A translucent `primaryColor` would not survive `getElementStyles`, which strips
+	// the alpha channel, so pre-blend with white to the opaque equivalent of an 8% fill.
 	const barColor = useMemo( () => {
 		if ( ! withOverlayLabel ) {
 			return undefined;
@@ -118,19 +103,6 @@ export function LeaderboardChart( {
 		const { color: primaryColor } = getElementStyles( { index: 0 } );
 		return lightenHexColor( normalizeColorToHex( primaryColor ), 0.92 );
 	}, [ withOverlayLabel, getElementStyles ] );
-
-	// The `style` prop wins over the theme's bar radius, for per-widget overrides.
-	const chartStyle = useMemo( () => {
-		const wooTheme = theme as WooChartTheme | undefined;
-		const barBorderRadius = wooTheme?.leaderboardChart?.barBorderRadius;
-		if ( ! barBorderRadius && ! style ) {
-			return undefined;
-		}
-		return {
-			'--a8c-charts-border-radius-leaderboard-bar': barBorderRadius,
-			...style,
-		} as React.CSSProperties;
-	}, [ theme, style ] );
 
 	const isEmptyData = ! data || data.length === 0;
 
@@ -155,7 +127,7 @@ export function LeaderboardChart( {
 				withOverlayLabel={ withOverlayLabel }
 				showLegend={ false }
 				fitRows={ fitRows }
-				style={ chartStyle }
+				style={ style }
 				className={ styles.chart }
 			>
 				{ showLegend && (

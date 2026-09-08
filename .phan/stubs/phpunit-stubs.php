@@ -1,6 +1,6 @@
 <?php
 /**
- * Stubs automatically generated from PHPUnit 12.5.33
+ * Stubs automatically generated from PHPUnit 12.5.34
  * using the definition file `tools/stubs/phpunit-stub-defs.php` in the Jetpack monorepo.
  *
  * Do not edit this directly! Run tools/stubs/update-stubs.sh to regenerate it.
@@ -18319,6 +18319,7 @@ final class Factory
     }
 }
 /**
+ * @extends \RecursiveFilterIterator<int, \PHPUnit\Framework\Test, \RecursiveIterator<int, \PHPUnit\Framework\Test>>
  * @no-named-arguments
  * @internal
  */
@@ -18355,6 +18356,7 @@ final class IncludeNameFilterIterator extends \PHPUnit\Runner\Filter\NameFilterI
 {
 }
 /**
+ * @extends \RecursiveFilterIterator<int, \PHPUnit\Framework\Test, \RecursiveIterator<int, \PHPUnit\Framework\Test>>
  * @no-named-arguments
  * @internal
  */
@@ -18373,6 +18375,7 @@ abstract class NameFilterIterator extends \RecursiveFilterIterator
     abstract protected function doAccept(bool $result): bool;
 }
 /**
+ * @extends \RecursiveFilterIterator<int, \PHPUnit\Framework\Test, \RecursiveIterator<int, \PHPUnit\Framework\Test>>
  * @no-named-arguments
  * @internal
  */

@@ -1,17 +1,6 @@
 /**
- * The Post views widget is the post detail Traffic view's view-trend card:
- * the scoped post's views over the dashboard date range as a line chart. The
- * post scope arrives through `reportParams.post_id` (seeded from the detail
- * page URL in product); the `hasPostScope` control toggles it to exercise the
- * scopeless empty state.
- *
- * Data comes from the proxied `stats/post/{id}` endpoint, covered by the
- * shared report mocks' `stats-post` fixture (a deterministic daily series
- * ending today, so relative date presets always intersect it). The post
- * detail design has no period-over-period comparison, so the widget maps no
- * comparison rows; the dashboard story still passes comparison params so the
- * widget stays covered against crashing or inventing an overlay when a host
- * supplies them.
+ * Served by the shared report mocks' `stats-post` fixture: a deterministic daily
+ * series ending today, so relative date presets always intersect it.
  */
 /**
  * External dependencies
@@ -30,6 +19,11 @@ import {
 import { createStoryWidgetType } from '../../stories/create-story-widget-type';
 import { presetForStoryInterval } from '../../stories/preset-for-story-interval';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
+import {
+	siteTimeZoneArgTypes,
+	withSiteTimeZone,
+	type SiteTimeZoneControls,
+} from '../../stories/with-site-time-zone';
 import PostViewsRender from '../render';
 import widgetDefinition, { type PostViewsChartType } from '../widget';
 import type { StatsChartBucketPeriod } from '@jetpack-premium-analytics/data';
@@ -46,18 +40,15 @@ const MOCK_POST_ID = 779;
 
 const POST_VIEWS_RENDER_MODULE = 'storybook/post-views';
 
-interface PostViewsStoryControls {
+interface PostViewsStoryControls extends SiteTimeZoneControls {
 	hasPostScope: boolean;
 	interval: StatsChartBucketPeriod;
 	chartType: PostViewsChartType;
 }
 
 /**
- * Builds the widget attributes: report params carrying the page's chart
- * interval (which the widget buckets by) plus the post scope the detail page
- * seeds from its URL when `hasPostScope` is on. Comparison stays a parameter
- * so the dashboard story can pass host comparison params without duplicating
- * the scoping rule.
+ * Builds the widget attributes. Comparison stays a parameter so the dashboard
+ * story can pass host comparison params without duplicating the scoping rule.
  */
 function getPostViewsAttributes(
 	{ hasPostScope, interval, chartType }: PostViewsStoryControls,
@@ -81,7 +72,9 @@ const meta = {
 	title: 'Packages/Premium Analytics/Widgets/PostViews',
 	component: PostViewsRender,
 	tags: [ 'autodocs' ],
+	decorators: [ withSiteTimeZone ],
 	argTypes: {
+		...siteTimeZoneArgTypes,
 		hasPostScope: {
 			control: 'boolean',
 			description: 'Include the `post_id` report param the post detail page seeds from its URL.',
@@ -138,11 +131,9 @@ interface PostViewsDashboardStoryProps
 		PostViewsStoryControls {}
 
 /**
- * Mounts the real `WidgetDashboard` with this single widget so it renders
- * exactly as it does in product (framed card, host toolbar controls, sizing,
- * edit mode). It passes comparison params unconditionally,
- * so the widget stays covered against crashing or inventing an overlay when
- * a host supplies comparison dates.
+ * Mounts the real `WidgetDashboard` with this single widget. Comparison params
+ * are passed unconditionally, so the widget stays covered against crashing or
+ * inventing an overlay when a host supplies comparison dates.
  */
 function PostViewsDashboardStory( {
 	hasPostScope,

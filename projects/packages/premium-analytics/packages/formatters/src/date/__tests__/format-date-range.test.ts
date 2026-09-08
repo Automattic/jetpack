@@ -16,6 +16,7 @@ import {
 	formatDateRange,
 	formatDateRangeCompact,
 	formatDateRangeMinimal,
+	formatDateRangeNatural,
 } from '../format-date-range';
 
 // The en dash between thin spaces that CLDR puts between the ends of a range.
@@ -176,8 +177,7 @@ describe( 'formatDateRange', () => {
 
 	describe( 'site whose date format carries no year', () => {
 		// `date_format` is a free-text field, so a format without a year is
-		// reachable. Collapsing on the rendered strings would fold a whole year
-		// apart into a single date.
+		// reachable; collapsing on rendered strings would fold a year into a day.
 		beforeEach( () => setSettings( settingsFor( 'en-no-year-test', 'F j' ) ) );
 
 		it( 'still spells out both ends of a range spanning years', () => {
@@ -197,9 +197,8 @@ describe( 'formatDateRange', () => {
 			resetLocaleData( {}, 'jetpack-premium-analytics-pkg' );
 		} );
 
-		// A custom `date_format` is the site telling us how it wants dates
-		// written. CLDR's rules describe a different format, so borrowing its
-		// elision would quietly overrule the setting.
+		// A custom `date_format` is the site telling us how it wants dates written,
+		// so borrowing CLDR's elision would quietly overrule the setting.
 		it( 'keeps a custom date format and spells both ends out', () => {
 			setSettings( settingsFor( 'en-custom-test', 'd/m/Y' ) );
 
@@ -226,8 +225,7 @@ describe( 'formatDateRange', () => {
 		} );
 
 		// `ja` renders a single date as 2025年6月21日 but switches its ranges to
-		// 2025/06/21～2025/06/25, so its elision cannot be mixed with the rest
-		// of the dashboard's dates.
+		// 2025/06/21～2025/06/25, so its elision cannot be mixed in.
 		it( 'spells both ends out where the locale restyles its ranges', () => {
 			setSettings( settingsFor( 'ja-JP', 'Y年n月j日', JA_MONTHS ) );
 
@@ -316,10 +314,8 @@ describe( 'formatDateRangeMinimal', () => {
 	describe( 'es_ES site', () => {
 		beforeEach( () => setSettings( ES_ES_SETTINGS ) );
 
-		// Dropping the year takes the "de" that introduced it along with it, so
-		// the shorter form is still written the way the locale writes dates.
-		// Spanish keeps both ends spelled out here for the same reason the
-		// compact form does: its abbreviated dates and CLDR's do not agree.
+		// Dropping the year takes the "de" that introduced it along with it. Both
+		// ends stay spelled out: Spanish abbreviated dates and CLDR's disagree.
 		it( 'drops the year the way the locale writes the rest of the date', () => {
 			expect(
 				formatDateRangeMinimal( { from: utcDate( 2026, 7, 13 ), to: utcDate( 2026, 7, 26 ) } )
@@ -327,10 +323,8 @@ describe( 'formatDateRangeMinimal', () => {
 		} );
 	} );
 
-	// A year-less range spanning two years leaves ICU nothing to tell them
-	// apart by, so it puts a year back. Probing the year-less form across the
-	// turn of a year measures that instead of the rendering the form produces,
-	// and locales whose ranges ICU re-years that way lose their elision.
+	// A year-less range spanning two years leaves ICU nothing to tell them apart
+	// by, so it puts a year back and such locales lose their elision.
 	describe( 'hu_HU site', () => {
 		beforeEach( () =>
 			setSettings( settingsFor( 'hu-HU-test', 'Y. F j.', HU_MONTHS, undefined, HU_MONTHS_SHORT ) )
@@ -368,5 +362,89 @@ describe( 'formatDateRangeMinimal', () => {
 				formatDateRangeMinimal( { from: utcDate( 2026, 7, 13 ), to: utcDate( 2026, 7, 26 ) } )
 			).toBe( `13/07${ FALLBACK_SEP }26/07` );
 		} );
+	} );
+} );
+
+describe( 'formatDateRangeNatural', () => {
+	beforeAll( () => jest.useFakeTimers().setSystemTime( utcDate( 2026, 8, 13 ) ) );
+	afterAll( () => jest.useRealTimers() );
+
+	describe( 'en_US site', () => {
+		beforeEach( () => setSettings( EN_US_SETTINGS ) );
+
+		it( 'names a whole calendar month', () => {
+			expect(
+				formatDateRangeNatural( { from: utcDate( 2025, 3, 1 ), to: utcDate( 2025, 3, 31 ) } )
+			).toBe( 'March 2025' );
+		} );
+
+		// The label is alone on the control, so the year is not redundant the way
+		// it is in a range with both ends on screen.
+		it( 'keeps the year on a whole month of the current year', () => {
+			expect(
+				formatDateRangeNatural( { from: utcDate( 2026, 3, 1 ), to: utcDate( 2026, 3, 31 ) } )
+			).toBe( 'March 2026' );
+		} );
+
+		it( 'names a whole calendar year', () => {
+			expect(
+				formatDateRangeNatural( { from: utcDate( 2025, 1, 1 ), to: utcDate( 2025, 12, 31 ) } )
+			).toBe( '2025' );
+		} );
+
+		it( 'measures the month by its own length', () => {
+			expect(
+				formatDateRangeNatural( { from: utcDate( 2024, 2, 1 ), to: utcDate( 2024, 2, 29 ) } )
+			).toBe( 'February 2024' );
+		} );
+
+		it( 'names the month whatever time of day the range ends at', () => {
+			expect(
+				formatDateRangeNatural( { from: utcDate( 2025, 3, 1 ), to: utcDate( 2025, 3, 31, 23 ) } )
+			).toBe( 'March 2025' );
+		} );
+
+		it( 'falls back on a range that stops short of the month', () => {
+			const range = { from: utcDate( 2026, 3, 1 ), to: utcDate( 2026, 3, 30 ) };
+
+			expect( formatDateRangeNatural( range ) ).toBe( formatDateRangeMinimal( range ) );
+		} );
+
+		it( 'falls back on February shortened to 28 days in a leap year', () => {
+			const range = { from: utcDate( 2024, 2, 1 ), to: utcDate( 2024, 2, 28 ) };
+
+			expect( formatDateRangeNatural( range ) ).toBe( formatDateRangeMinimal( range ) );
+		} );
+
+		// Two whole months name no single period, and the design asks for the
+		// shortest form rather than a made-up one.
+		it( 'falls back across two whole months', () => {
+			const range = { from: utcDate( 2026, 3, 1 ), to: utcDate( 2026, 4, 30 ) };
+
+			expect( formatDateRangeNatural( range ) ).toBe( formatDateRangeMinimal( range ) );
+		} );
+
+		it( 'falls back on a month-long window that sits between two months', () => {
+			const range = { from: utcDate( 2026, 3, 15 ), to: utcDate( 2026, 4, 14 ) };
+
+			expect( formatDateRangeNatural( range ) ).toBe( formatDateRangeMinimal( range ) );
+		} );
+	} );
+
+	describe( 'es_ES site', () => {
+		beforeEach( () => setSettings( ES_ES_SETTINGS ) );
+
+		it( 'names a whole month the way the site orders its dates', () => {
+			expect(
+				formatDateRangeNatural( { from: utcDate( 2025, 3, 1 ), to: utcDate( 2025, 3, 31 ) } )
+			).toBe( 'marzo de 2025' );
+		} );
+	} );
+
+	it( 'returns an empty string when an end is missing', () => {
+		setSettings( EN_US_SETTINGS );
+
+		expect( formatDateRangeNatural( { from: utcDate( 2025, 3, 1 ), to: undefined } ) ).toBe( '' );
+		expect( formatDateRangeNatural() ).toBe( '' );
 	} );
 } );

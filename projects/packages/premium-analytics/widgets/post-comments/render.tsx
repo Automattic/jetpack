@@ -62,9 +62,8 @@ function PostCommentsInner() {
 			<WidgetState
 				isLoading={ isLoading }
 				isFetching={ isFetching }
-				// The query keeps prior data via `placeholderData`, so a transient
-				// refetch failure keeps the comments visible; only surface the error
-				// when there is nothing to show.
+				// `placeholderData` keeps the prior comments on screen, so a transient
+				// refetch failure should not replace them with an error.
 				isError={ ! data && isError }
 				isEmpty={ isEmpty }
 				renderLoading={ <SubscriberListSkeleton rows={ COMMENTS_SHOWN } /> }

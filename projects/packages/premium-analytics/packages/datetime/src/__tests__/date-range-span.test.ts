@@ -81,7 +81,7 @@ describe( 'getDateRangeSpan', () => {
 			value: 12,
 		} );
 
-		// Rolling, as `last-12-months` actually produces it.
+		// Rolling, twelve months to the day rather than month-aligned.
 		expect( getDateRangeSpan( { from: at( 2025, 7, 29 ), to: endOf( 2026, 7, 28 ) } ) ).toEqual( {
 			unit: 'month',
 			value: 12,

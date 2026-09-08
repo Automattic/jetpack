@@ -1,7 +1,9 @@
 import { Meta, StoryObj } from '@storybook/react';
+import { expect, waitFor, within } from 'storybook/test';
 import {
 	LineChart,
 	BarChart,
+	GlobalChartsProvider,
 	PieSemiCircleChart,
 	PieChart,
 	BarListChart,
@@ -61,6 +63,13 @@ const baseBarData: SeriesData[] = [
 	medalCountsData[ 1 ],
 	medalCountsData[ 2 ],
 ];
+// `ectoplasm` from `WP_ADMIN_COLOR_SCHEMES`, kept as a literal so the assertion below fails if the
+// scheme's published color ever changes rather than silently following it.
+const ADMIN_SCHEME = 'ectoplasm';
+const ADMIN_SCHEME_COLOR = '#646c3e';
+// Any color the admin scheme does not publish; it only has to be distinguishable from the above.
+const ACCENT_COLOR_NOT_EXPECTED = '#4a19ab';
+
 const baseLineData: SeriesData[] = globalMarketComparisonByCountry;
 const baseBarListData: SeriesData[] = marketingChannelsByCountry;
 const basePieDataWithCountries: DataPointPercentage[] = [
@@ -290,5 +299,124 @@ export const WithColorOverrides: Story = {
 		showUnitedStates: true,
 		showGreatBritain: true,
 		showJapan: true,
+	},
+};
+
+/**
+ * The two colors this story sets are deliberately different, and which one wins is the assertion.
+ *
+ * `accentColor` seeds the WPDS `ThemeProvider`, so the design system's brand token derives from it.
+ * `adminColorScheme` publishes `--wp-admin-theme-color` on a closer wrapper, the way
+ * `admin-schemes.css` does. Slot 1 names the admin color before the brand token, so the bar has to
+ * paint the scheme's color and not the accent's.
+ *
+ * Reordering that chain — putting the design system's token first — passes every unit test and
+ * looks correct on WP 7.1, and this is what catches it. jsdom cannot cascade `var()`, so it can only
+ * be checked in a browser.
+ *
+ * Both values must be set before the provider mounts. The palette resolves once per provider in a
+ * layout effect, so a `play` function that sets the variable afterwards would assert against the
+ * colors resolved at mount and prove nothing.
+ */
+export const AdminColorSchemeLeadsThePalette: Story = {
+	render: () => <BarChart width={ 400 } height={ 200 } data={ [ baseBarData[ 0 ] ] } />,
+	args: {
+		themeName: 'custom',
+		accentColor: ACCENT_COLOR_NOT_EXPECTED,
+		adminColorScheme: ADMIN_SCHEME,
+	},
+	parameters: {
+		docs: {
+			description: {
+				story: `Slot 1 reads \`--wp-admin-theme-color\` before the design system's brand token. With the admin scheme set to \`${ ADMIN_SCHEME }\` and a different accent seeding the design system, the bar paints \`${ ADMIN_SCHEME_COLOR }\`.`,
+			},
+		},
+	},
+	play: async ( { canvasElement } ) => {
+		const bar = await waitFor( () => {
+			const found = canvasElement.querySelector< SVGRectElement >( '.visx-bar-group rect' );
+			if ( ! found ) {
+				throw new Error( 'No bar rendered yet.' );
+			}
+			return found;
+		} );
+
+		await expect( bar.getAttribute( 'fill' ) ).toBe( ADMIN_SCHEME_COLOR );
+		await expect( bar.getAttribute( 'fill' ) ).not.toBe( ACCENT_COLOR_NOT_EXPECTED );
+	},
+};
+
+// 15:30 UTC falls on Aug 2 in Los Angeles and Aug 3 in Tokyo, so one set of
+// instants carries a different calendar day in each column below.
+const HOST_DATE_DATA: SeriesData[] = [
+	{
+		label: 'Views',
+		data: Array.from( { length: 5 }, ( _, day ) => ( {
+			date: new Date( Date.parse( '2026-08-02T15:30:00Z' ) + day * 24 * 60 * 60 * 1000 ),
+			value: 40 + day * 6,
+		} ) ),
+		options: {},
+	},
+];
+
+const HOSTS = [
+	{ testId: 'tokyo', title: 'de-DE · Asia/Tokyo', locale: 'de-DE', timeZone: 'Asia/Tokyo' },
+	{
+		testId: 'los-angeles',
+		title: 'en-US · America/Los_Angeles',
+		locale: 'en-US',
+		timeZone: 'America/Los_Angeles',
+	},
+];
+
+/**
+ * Each provider dates and words the same instants for its own host, so the two columns disagree.
+ *
+ * Without `locale` and `timeZone` both would read the viewer's browser instead: they would agree
+ * with each other, and with at most one of the two sites.
+ */
+export const HostLocaleAndTimeZoneFormatDates: Story = {
+	render: () => (
+		<div style={ { display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '4rem' } }>
+			{ HOSTS.map( ( { testId, title, locale, timeZone } ) => (
+				<div key={ testId } data-testid={ testId }>
+					<h3>{ title }</h3>
+					<GlobalChartsProvider locale={ locale } timeZone={ timeZone }>
+						<div data-testid={ `${ testId }-bars` }>
+							<BarChart data={ HOST_DATE_DATA } width={ 350 } height={ 200 } withTooltips />
+						</div>
+						<div data-testid={ `${ testId }-lines` }>
+							<LineChart
+								data={ HOST_DATE_DATA }
+								width={ 350 }
+								height={ 200 }
+								withGradientFill={ false }
+								withTooltips
+								margin={ { bottom: 40 } }
+							/>
+						</div>
+					</GlobalChartsProvider>
+				</div>
+			) ) }
+		</div>
+	),
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'The same five instants, dated and worded for two hosts. Hover a bar or a point to see the tooltip follow its axis.',
+			},
+		},
+	},
+	play: async ( { canvasElement } ) => {
+		const canvas = within( canvasElement );
+
+		for ( const chart of [ 'bars', 'lines' ] ) {
+			const tokyo = within( canvas.getByTestId( `tokyo-${ chart }` ) );
+			const losAngeles = within( canvas.getByTestId( `los-angeles-${ chart }` ) );
+
+			await expect( await tokyo.findByText( '3. Aug.' ) ).toBeInTheDocument();
+			await expect( await losAngeles.findByText( 'Aug 2' ) ).toBeInTheDocument();
+		}
 	},
 };

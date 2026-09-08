@@ -15,8 +15,6 @@ const wpPkgs = [
 	[ '@wordpress/components', 'uuid' ],
 	[ '@wordpress/components', '@wordpress/hooks' ],
 	[ '@wordpress/components', 'react-colorful' ],
-	[ '@wordpress/components', 'react-day-picker' ],
-	[ '@wordpress/element', 'react-dom' ],
 	[ '@wordpress/data', 'use-memo-one' ],
 	[ '@wordpress/ui', '@base-ui/react' ],
 	[ '@wordpress/ui', '@daypicker/react' ],
@@ -61,7 +59,7 @@ const addWpPkgDep = async ( pkg, fromPkg, ver, deplist ) => {
  */
 async function fixDeps( pkg ) {
 	// Deps tend to get outdated due to a slow release cycle.
-	// So change `^` to `>=` and hope any breaking changes will not really break.
+	// So change `^` to `>=` to avoid many duplicate packages (most are dependency-extracted in the build anyway), and hope any breaking changes will not really break.
 	if (
 		pkg.name === '@automattic/api-core' ||
 		pkg.name === '@automattic/components' ||
@@ -70,6 +68,31 @@ async function fixDeps( pkg ) {
 		pkg.name === '@automattic/launchpad' ||
 		pkg.name === '@automattic/ui'
 	) {
+		for ( const [ dep, ver ] of Object.entries( pkg.dependencies ) ) {
+			if ( dep.startsWith( '@wordpress/' ) ) {
+				if ( ver.startsWith( '^' ) ) {
+					pkg.dependencies[ dep ] = '>=' + ver.substring( 1 );
+				} else if ( ver.match( /^\d/ ) ) {
+					pkg.dependencies[ dep ] = '>=' + ver;
+				}
+			}
+		}
+	}
+
+	// lock()/unlock() pair through a module-scoped registry, so a prerelease
+	// private-apis range would resolve a second copy beside the stable one the
+	// repo pins and throw. Collapse it onto the version premium-analytics
+	// declares; the rule stops matching once no manifest asks for a prerelease.
+	if ( pkg.dependencies?.[ '@wordpress/private-apis' ]?.includes( '-next' ) ) {
+		pkg.dependencies[ '@wordpress/private-apis' ] =
+			require( './projects/packages/premium-analytics/package.json' ).dependencies[
+				'@wordpress/private-apis'
+			];
+	}
+
+	// WooCommerce packages pin `@wordpress/*` deps to versions from the lowest Core version the plugin supports.
+	// Change to `>=` to avoid many duplicate packages (most are dependency-extracted in the build anyway), and hope any breaking changes will not really break.
+	if ( pkg.name === '@woocommerce/email-editor' ) {
 		for ( const [ dep, ver ] of Object.entries( pkg.dependencies ) ) {
 			if ( dep.startsWith( '@wordpress/' ) ) {
 				if ( ver.startsWith( '^' ) ) {
@@ -349,6 +372,16 @@ function fixPeerDeps( pkg ) {
 				pkg.peerDependencies[ dep ] = pkg.peerDependencies[ dep ].replace( /^\^?/, '>=' );
 			}
 		}
+	}
+
+	// @wordpress/build's optional peer on @wordpress/theme stops below 2.0.0, blocking the theme 2.x
+	// that @wordpress/ui and @wordpress/boot require. Widened upstream, drop once a release carries it.
+	// @see https://github.com/WordPress/gutenberg/pull/82139
+	if (
+		pkg.name === '@wordpress/build' &&
+		pkg.peerDependencies?.[ '@wordpress/theme' ] === '>=0.8.0 <2.0.0'
+	) {
+		pkg.peerDependencies[ '@wordpress/theme' ] = '>=0.8.0 <3.0.0';
 	}
 
 	// We use this under tsdown (Rolldown), not Rollup. The `rollup` peer is only used for one TypeScript type, and it being missing apparently makes no difference in our usage.

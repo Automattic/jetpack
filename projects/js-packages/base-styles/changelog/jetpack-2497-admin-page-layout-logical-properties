@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Admin page layout: Fix admin screens overlapping the admin menu in right-to-left languages.

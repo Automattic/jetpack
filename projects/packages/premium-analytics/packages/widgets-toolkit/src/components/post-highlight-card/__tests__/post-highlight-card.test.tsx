@@ -2,9 +2,11 @@
  * External dependencies
  */
 import { render, screen } from '@testing-library/react';
+import { getSettings, setSettings } from '@wordpress/date';
 /**
  * Internal dependencies
  */
+import { EN_US_SETTINGS, ES_ES_SETTINGS } from '../../../__fixtures__/wp-date-settings';
 import { PostHighlightCard } from '../post-highlight-card';
 import type { PostHighlightCardProps } from '../post-highlight-card';
 import type { AnchorHTMLAttributes, ReactNode } from 'react';
@@ -48,9 +50,8 @@ jest.mock( '@wordpress/route', () => {
 const props: PostHighlightCardProps = {
 	title: 'Quarterly update',
 	url: 'https://example.com/quarterly-update/',
-	// Midnight on purpose: the publish line formats in the site timezone (UTC
-	// here), so the date must hold on hosts west of it. A host-zone regression
-	// would show Jun 4 under `test-tz`.
+	// Midnight on purpose: formats in the site zone (UTC here), so this must hold
+	// on hosts west of it — a regression would show Jun 4 under `test-tz`.
 	date: '2026-06-05T00:00:00+00:00',
 	metrics: [
 		{ key: 'views', label: 'Views', value: 42 },
@@ -58,7 +59,14 @@ const props: PostHighlightCardProps = {
 	],
 };
 
+// Captured before any suite installs its own, since `setSettings` is global and
+// this suite shares a module registry with the rest of its group.
+const BASE_SETTINGS = getSettings();
+
 describe( 'PostHighlightCard', () => {
+	beforeEach( () => setSettings( EN_US_SETTINGS ) );
+	afterEach( () => setSettings( BASE_SETTINGS ) );
+
 	it( 'links the title to the detail route and carries the report window', () => {
 		render(
 			<PostHighlightCard
@@ -117,15 +125,22 @@ describe( 'PostHighlightCard', () => {
 		expect( screen.getByText( '42' ) ).toBeInTheDocument();
 	} );
 
+	it( "writes the publish date in the site's locale and date format", () => {
+		setSettings( ES_ES_SETTINGS );
+
+		render( <PostHighlightCard { ...props } /> );
+
+		expect( screen.getByText( 'Post published on 5 de jun de 2026' ) ).toBeInTheDocument();
+	} );
+
 	it( 'omits the publish line when the post has no date', () => {
 		render( <PostHighlightCard { ...props } date="" /> );
 
 		expect( screen.queryByText( /^Post published on/ ) ).not.toBeInTheDocument();
 	} );
 
-	// A metric whose request failed must not be shown as a real count: on a
-	// private site the Stats endpoint 403s, and "Likes 0" would be a wrong number
-	// rather than a missing one.
+	// A failed metric must not render as a real zero — e.g. a 403'd Stats request
+	// showing "Likes 0" would be a wrong count, not a missing one.
 	it( 'renders an unavailable metric as a dash, not as zero', () => {
 		render(
 			<PostHighlightCard

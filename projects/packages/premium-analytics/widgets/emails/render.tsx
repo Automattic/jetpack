@@ -123,9 +123,8 @@ function EmailsReport( { attributes }: EmailsReportProps ) {
 				<WidgetState
 					isLoading={ isLoading }
 					isFetching={ isFetching }
-					// The query keeps the prior response via `placeholderData`, so a failed
-					// refetch leaves rows on screen; only surface the error when there is
-					// nothing to show.
+					// `placeholderData` keeps the prior rows on screen, so a transient
+					// refetch failure should not replace them with an error.
 					isError={ rows.length === 0 && isError }
 					isEmpty={ rows.length === 0 }
 					error={ {

@@ -97,8 +97,8 @@ type AnnualHighlightsStory = StoryObj< typeof AnnualHighlightsSkeleton >;
 
 /**
  * The shape the Annual highlights widget passes through `WidgetState`'s
- * `renderLoading`: a row per selected metric, each an icon beside a label line
- * with its value trailing.
+ * `renderLoading`: a row per metric tile, each an icon beside a label line with
+ * its value trailing.
  */
 export const AnnualHighlights: AnnualHighlightsStory = {
 	render: () => (

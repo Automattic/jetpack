@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Remove no-longer-needed use of `Yoast\PHPUnitPolyfills\Polyfills\AssertionRenames`, now that we've dropped PHP <7.4 and PHPUnit <9.6.
+
+

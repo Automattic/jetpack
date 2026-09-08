@@ -66,6 +66,11 @@
 		}
 	}
 
+	// The notice zeroes its own margin, so it needs the card's padding here.
+	&__failure {
+		padding: 16px 16px 0;
+	}
+
 	&__summary {
 		// Trim long summary strings so the description cell stays on one line.
 		overflow: hidden;

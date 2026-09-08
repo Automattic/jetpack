@@ -2,7 +2,7 @@
  * MCP upsell card — shown when the current site does not have an MCP-capable plan.
  *
  * The CTA destination is read from `jetpackAiSettings.upgradeUrl`, which is
- * built server-side via `Redirect::get_url( 'jetpack-ai-upgrade-url-for-jetpack-sites' )`
+ * built server-side via `Redirect::get_url( 'jetpack-ai-hub-upgrade' )`
  * so the target can be changed via the Jetpack redirect service without
  * shipping a code change. The previous implementation hardcoded
  * `wordpress.com/plans/<host>`, which 403'd for non-.com sites (AIINT-404).

@@ -1,14 +1,8 @@
 <?php
 /**
- * Widget availability policy (consumer layer).
- *
- * Premium Analytics' policy over the neutral filters in widget-types.php:
- * availability is the consumer's job, core only offers the hooks.
- *
- * Policies are hooked on the registry-time filter (a hard hide, which keeps
- * every registry consumer correct without a filtered accessor): developer-only
- * widget types are never registered in production, Simple-only types are only
- * registered on WPCOM Simple, and commerce categories require their plugins.
+ * Widget availability policy (consumer layer): hides developer-only, Simple-only, and
+ * plugin-gated widget types at registry time — a hard hide, so every consumer of the
+ * registry sees the same set, over the neutral hooks in widget-types.php.
  *
  * @package automattic/jetpack-premium-analytics
  */
@@ -32,13 +26,9 @@ const WOOCOMMERCE_WIDGET_CATEGORIES = array( 'store', 'orders', 'coupons' );
 const WOOCOMMERCE_BOOKINGS_WIDGET_CATEGORIES = array( 'bookings' );
 
 /**
- * Widget categories whose data counts as a store report.
- *
- * The membership rule is the data source, not the subject matter: every
- * category here reaches WPCOM through the proxy's `analytics` prefix, which
- * {@see \Automattic\Jetpack\PremiumAnalytics\REST\Api_Proxy_Controller} gates
- * on `view_woocommerce_reports`. That is why `visitors` is in the list: its
- * widgets read `sessions/…` from the same prefix.
+ * Widget categories whose data counts as a store report — by data source, not subject
+ * matter: each reaches WPCOM via the proxy's `analytics` prefix (gated on
+ * `view_woocommerce_reports`), including `visitors`, which reads `sessions/…` from it.
  */
 const STORE_REPORT_WIDGET_CATEGORIES = array( 'store', 'orders', 'coupons', 'bookings', 'visitors' );
 
@@ -144,14 +134,9 @@ function is_bookings_plugin_active() {
 }
 
 /**
- * Registry-time callback: hides commerce widget categories without their plugin.
- *
- * WooCommerce availability is read through the store section's signal
- * (dashboard-sections.php, including its availability filter) so section and
- * widgets can't disagree — a consumer overriding the section filter gets
- * matching widget types. Both dashboard entry points load
- * dashboard-sections.php before the widget registry can hydrate, so the
- * function is always defined by the time this callback runs.
+ * Registry-time callback: hides commerce categories without their plugin, reading
+ * WooCommerce availability through the store section's signal so section and widgets
+ * agree; both entry points load dashboard-sections.php before the registry hydrates.
  *
  * @param array $widget_candidates Manifest candidates.
  * @return array The candidates, minus commerce categories missing their plugin.
@@ -166,9 +151,8 @@ function filter_registrable_widget_types_by_plugin( $widget_candidates ) {
 
 add_filter( REGISTRABLE_WIDGET_TYPES_FILTER, __NAMESPACE__ . '\\filter_registrable_widget_types_by_plugin' );
 
-// Subscriber widgets remain available when their section is hidden because
-// their data does not depend on the local module. Unregistering them would also
-// break instances placed in other sections.
+// Subscriber widgets stay registered even when their section is hidden: their data
+// doesn't depend on the local module, and unregistering would break instances placed elsewhere.
 
 /**
  * Removes candidates the reader could not load data for anyway.
@@ -197,11 +181,9 @@ function remove_capability_gated_widget_types( $widget_candidates, $can_view_sto
 }
 
 /**
- * Registry-time callback: hides widgets whose data the reader cannot fetch.
- *
- * A `view_stats` reader reaching one of them would only collect 403s from the
- * proxy's `analytics` prefix, so the types are never registered for them. The
- * registry is request-scoped, so filtering on the current user is safe here.
+ * Registry-time callback: hides widgets whose data the reader cannot fetch — a
+ * `view_stats` reader would only collect 403s from the proxy's `analytics` prefix.
+ * The registry is request-scoped, so filtering on the current user is safe here.
  *
  * @since 0.1.0
  *

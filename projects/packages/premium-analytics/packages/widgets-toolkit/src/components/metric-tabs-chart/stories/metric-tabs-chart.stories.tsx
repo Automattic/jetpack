@@ -26,13 +26,7 @@ const PREVIOUS_DATES = [
 	new Date( '2026-05-31' ),
 ];
 
-/**
- * Pair a value series with a set of dates.
- *
- * @param dates  - One date per value.
- * @param values - The series values.
- * @return The metric points.
- */
+/** Pair a value series with a set of dates. */
 const points = ( dates: Date[], values: number[] ) =>
 	dates.map( ( date, index ) => ( { date, value: values[ index ] } ) );
 

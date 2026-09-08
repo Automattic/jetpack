@@ -6,6 +6,8 @@
 	"type": "module",
 	"scripts": {
 		"calibrate": "node scripts/calibrate-throttling.js",
+		"digest": "node scripts/codevitals-digest.js",
+		"digest:dry": "DRY_RUN=1 node scripts/codevitals-digest.js",
 		"docker:down": "docker compose -f docker/docker-compose.yml down -v",
 		"docker:logs": "docker compose -f docker/docker-compose.yml logs -f",
 		"docker:reset": "pnpm run docker:down && pnpm test -- --skip-codevitals",
@@ -20,6 +22,7 @@
 		"test:unit": "node --test scripts/*.test.js"
 	},
 	"dependencies": {
+		"@slack/web-api": "7.15.1",
 		"dotenv": "^16.3.1",
 		"playwright": "^1.48.0"
 	},

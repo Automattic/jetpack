@@ -135,4 +135,107 @@ class Rest_Activity_Log_Bridge_Test extends TestCase {
 
 		$this->assertStringContainsString( '_locale=es_ES', $this->captured_url );
 	}
+
+	/**
+	 * A non-200 becomes the bridge's error, carrying the status and the
+	 * reason WordPress.com gave.
+	 *
+	 * 403 rather than 500, because 500 is also the fallback for a status
+	 * outside the failure range — a test written against it would pass
+	 * whether or not the status was forwarded.
+	 */
+	public function test_reports_a_non_200_with_the_upstream_reason() {
+		$this->arrange_wpcom(
+			array(
+				'code'    => 'authorization_required',
+				'message' => 'An active access token must be used.',
+			),
+			403
+		);
+
+		$request  = new WP_REST_Request( 'GET', '/jetpack/v4/site/rewindable-activity' );
+		$response = Activity_Log_Bridge::get_activity_log( $request );
+
+		$this->assertInstanceOf( WP_Error::class, $response );
+		$this->assertSame( 'activity_log_fetch_failed', $response->get_error_code() );
+		$this->assertSame( 403, $response->get_error_data()['status'] );
+		$this->assertSame( 'authorization_required', $response->get_error_data()['wpcom']['code'] );
+	}
+
+	/**
+	 * The sort direction reaches WordPress.com.
+	 *
+	 * Asserted on the outgoing URL: the dashboard holds one page of a paginated
+	 * log, so a direction that stopped at the bridge would only sort ten rows.
+	 */
+	public function test_forwards_the_sort_direction() {
+		$this->arrange_wpcom( array( 'current' => array( 'orderedItems' => array() ) ) );
+
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/site/rewindable-activity' );
+		$request->set_param( 'page', 1 );
+		$request->set_param( 'number', 10 );
+		$request->set_param( 'sort_order', 'asc' );
+		Activity_Log_Bridge::get_activity_log( $request );
+
+		$this->assertStringContainsString( 'sort_order=asc', $this->captured_url );
+	}
+
+	/**
+	 * Absent means absent, not empty.
+	 *
+	 * `array_filter` drops the key so WordPress.com applies its own `desc`
+	 * default; sending `sort_order=` would fail the route's `enum`.
+	 */
+	public function test_omits_the_sort_direction_when_none_is_given() {
+		$this->arrange_wpcom( array( 'current' => array( 'orderedItems' => array() ) ) );
+
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/site/rewindable-activity' );
+		$request->set_param( 'page', 1 );
+		$request->set_param( 'number', 10 );
+		Activity_Log_Bridge::get_activity_log( $request );
+
+		$this->assertStringNotContainsString( 'sort_order', $this->captured_url );
+	}
+
+	/**
+	 * A direction outside the enum is refused here, not by WordPress.com.
+	 *
+	 * Dispatched through the REST server because `args` validation is its job.
+	 */
+	public function test_rejects_a_direction_outside_the_enum() {
+		$request = new WP_REST_Request( 'GET', '/jetpack/v4/site/rewindable-activity' );
+		$request->set_param( 'sort_order', 'sideways' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 400, $response->get_status() );
+		$this->assertSame( 'rest_invalid_param', $response->get_data()['code'] );
+	}
+
+	/**
+	 * A success code reported as a string is a success.
+	 *
+	 * `wp_remote_retrieve_response_code()` hands back whatever the
+	 * transport put there, so an uncast `200 !== $status_code` sent a
+	 * perfectly good activity log down the failure branch — and the reader
+	 * got "We couldn't load your site's activity." over a response that had
+	 * arrived intact.
+	 *
+	 * The forwarded payload is what is asserted, not the absence of an
+	 * error. The uncast behaviour reported these as a 500 rather than as a
+	 * 200, so a test that only checked the status would have been satisfied
+	 * by the bug it exists to catch.
+	 */
+	public function test_treats_a_string_status_as_its_number() {
+		$this->arrange_wpcom_raw(
+			'{"current":{"orderedItems":[{"activity_id":"foo"}]},"totalItems":1}',
+			'200'
+		);
+
+		$request  = new WP_REST_Request( 'GET', '/jetpack/v4/site/rewindable-activity' );
+		$response = Activity_Log_Bridge::get_activity_log( $request );
+
+		$this->assertNotInstanceOf( WP_Error::class, $response );
+		$this->assertSame( 1, $response->get_data()['totalItems'] );
+		$this->assertSame( 'foo', $response->get_data()['current']['orderedItems'][0]['activity_id'] );
+	}
 }

@@ -39,14 +39,9 @@ const COUNT_FORMAT: DataFormat = {
 };
 
 /**
- * Render-only config per metric: the tile icon, the summary-response field the
- * tile displays, and an optional aggregation caveat. Ids and labels are shared
- * with the settings checkboxes via `SITE_OVERVIEW_METRICS` in `widget.ts`.
- *
- * Each metric reads a numeric field of the `summary` response, which totals
- * views/visitors/likes/comments over the period; `followers` is excluded
- * because it is an all-time running total, not a period metric, so it has no
- * meaningful period-over-period comparison.
+ * Render-only per-metric config; ids/labels are shared with the settings
+ * checkboxes via `SITE_OVERVIEW_METRICS` in `widget.ts`. `followers` is excluded
+ * — it's an all-time running total, not a period metric with a meaningful delta.
  */
 const TILE_CONFIG: Record<
 	SiteOverviewMetricId,
@@ -76,10 +71,8 @@ const TILE_CONFIG: Record<
 };
 
 /**
- * When a comparison period is requested and returns data, each tile shows its
- * period-over-period change; the comparison total is looked up per metric so a
- * primary metric is never paired with a fabricated previous value. Which tiles
- * appear is controlled by the `metrics` attribute — missing means every metric.
+ * Looks up the comparison total per metric so a primary metric is never paired
+ * with a fabricated previous value. Missing `metrics` attribute means every tile.
  */
 function SiteOverviewReport( {
 	metricIds = DEFAULT_SITE_OVERVIEW_METRICS,
@@ -128,11 +121,8 @@ function SiteOverviewReport( {
 			icon,
 			label,
 			value,
-			// Only pair a comparison value when the comparison period actually
-			// returned a summary; a `null` (never `undefined`) keeps every tile in
-			// the fixed-size comparison layout — no fabricated delta, and one value
-			// size instead of MetricTileGrid's responsive `.value` clamp — so tiles
-			// stay consistently sized with or without comparison data.
+			// `null` (never `undefined`) keeps every tile in the fixed-size comparison
+			// layout instead of MetricTileGrid's responsive single-value sizing.
 			previousValue: hasComparison && comparisonSummary ? metricValue( comparisonSummary ) : null,
 			note,
 			// The tile shows a shortened count (e.g. 18K); the hover title carries

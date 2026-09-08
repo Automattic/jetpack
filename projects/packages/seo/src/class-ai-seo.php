@@ -36,4 +36,32 @@ class Ai_Seo {
 			&& ( new Modules() )->is_active( 'seo-tools' )
 			&& Current_Plan::supports( 'advanced-seo' );
 	}
+
+	/**
+	 * Whether an AI SEO surface can actually run here, so a control that governs
+	 * nothing is never offered. The sidebar's suggestions need a host that loads
+	 * the sidebar; the editor's generation needs `ai-seo-enhancer`.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public static function has_reachable_surface() {
+		return self::is_available()
+			&& ( self::is_sidebar_reachable() || Current_Plan::supports( 'ai-seo-enhancer' ) );
+	}
+
+	/**
+	 * Whether this host loads the AI sidebar. Called as a string callable: the
+	 * class lives in plugins/jetpack, which bundles this package, and asking it
+	 * anything wider would route back through {@see self::is_available()}.
+	 *
+	 * @return bool
+	 */
+	private static function is_sidebar_reachable() {
+		$callback = array( 'Automattic\\Jetpack\\Extensions\\AiAssistantPlugin\\Jetpack_AI_Sidebar', 'is_host_enabled' );
+
+		// @phan-suppress-next-line PhanUndeclaredClassInCallable -- Jetpack_AI_Sidebar lives in plugins/jetpack and is guarded by is_callable.
+		return is_callable( $callback ) && (bool) call_user_func( $callback );
+	}
 }

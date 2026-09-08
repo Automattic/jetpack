@@ -5,9 +5,8 @@ import { addDays, format, isValid, parse } from 'date-fns';
 
 /**
  * The timeline matrix `stats/<opens|clicks>/emails/<postId>?stats_fields=timeline`
- * nests under a `timeline` key. Daily rows are `[ date, <metric>_count ]`;
- * hourly rows are `[ date, hour, <metric>_count ]` (Calypso's
- * parseEmailChartData shapes).
+ * nests under a `timeline` key. Daily rows are `[date, count]`; hourly rows add
+ * an hour: `[date, hour, count]` (mirrors Calypso's parseEmailChartData).
  */
 type EmailTimelineRow = [ string, number ] | [ string, number, number ];
 
@@ -32,11 +31,8 @@ function emailTimelineCount( metric: 'opens' | 'clicks', index: number ): number
 
 /**
  * Builds a mock email timeline response for the "Email performance" widget. The
- * email timeline endpoint reads `date` as the window start, resolves it to its
- * calendar day, and returns `quantity` periods going forward — hourly buckets
- * anchored on that day's midnight. Mirroring that behaviour keeps a story's
- * chart aligned with its dashboard date range, including the out-of-window
- * buckets the data layer is expected to trim.
+ * real endpoint resolves `date` to its calendar day and returns `quantity`
+ * buckets forward from midnight — mirrored here to keep a story's chart aligned with its dashboard date range.
  *
  * @param metric      - Which timeline to return.
  * @param requestPath - The request path; `period`, `quantity`, and `date` are read off its query.
@@ -52,10 +48,8 @@ export function buildEmailTimelineResponse(
 	const quantity = Number.isInteger( parsedQuantity )
 		? Math.min( Math.max( parsedQuantity, 1 ), 24 * 90 )
 		: 30;
-	// Only the date part matters: the endpoint resolves `date` to its calendar
-	// day (hourly buckets anchor on that day's midnight whatever time of day it
-	// carries), and parsing the part in the runner's own zone keeps the emitted
-	// wall-clock labels aligned with the requested day in any browser timezone.
+	// Only the date part matters: the endpoint resolves `date` to its calendar day,
+	// and parsing that part in the runner's own zone keeps labels timezone-stable.
 	const dayPart = ( query.get( 'date' ) ?? '' ).match( /^\d{4}-\d{2}-\d{2}/ )?.[ 0 ] ?? '';
 	const parsedDay = parse( dayPart, 'yyyy-MM-dd', new Date() );
 	const startDay = isValid( parsedDay ) ? parsedDay : new Date();

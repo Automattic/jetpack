@@ -9,6 +9,7 @@ use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication;
 use Automattic\Jetpack\Connection\REST_Connector;
+use Automattic\Jetpack\Connection\REST_Jetpack_AI_JWT;
 use Automattic\Jetpack\Connection\SSO;
 use Automattic\Jetpack\Jetpack_CRM_Data;
 use Automattic\Jetpack\Plugins_Installer;
@@ -72,21 +73,8 @@ class Jetpack_Core_Json_Api_Endpoints {
 		$site_endpoint          = new Jetpack_Core_API_Site_Endpoint();
 		$widget_endpoint        = new Jetpack_Core_API_Widget_Endpoint();
 
-		/**
-		 * TODO: Move me somewhere that makes more sense.
-		 * Also give me permissions that aren't awful.
-		 */
-		register_rest_route(
-			'jetpack/v4',
-			'jetpack-ai-jwt',
-			array(
-				'methods'             => WP_REST_Server::EDITABLE,
-				'callback'            => __CLASS__ . '::get_openai_jwt',
-				'permission_callback' => function () {
-					return ( new Connection_Manager( 'jetpack' ) )->is_user_connected() && current_user_can( 'edit_posts' );
-				},
-			)
-		);
+		// My Jetpack and Agents Manager register the same controller; its guard keeps the route registered once.
+		( new REST_Jetpack_AI_JWT() )->register_rest_route();
 
 		register_rest_route(
 			'jetpack/v4',
@@ -778,36 +766,23 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 	/**
 	 * Ask WPCOM for a JWT token to use for OpenAI conversations.
-	 * TODO: Clean me up. This is ugly hack code.
+	 *
+	 * @deprecated since 16.2
+	 * @see Automattic\Jetpack\Connection\REST_Jetpack_AI_JWT::get_jwt()
+	 *
+	 * @return array|WP_Error The token and blog ID, or the error from WPCOM.
 	 */
 	public static function get_openai_jwt() {
-		$blog_id = \Jetpack_Options::get_option( 'id' );
+		_deprecated_function( __METHOD__, 'jetpack-16.2', '\Automattic\Jetpack\Connection\REST_Jetpack_AI_JWT::get_jwt' );
 
-		$response = \Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_user(
-			"/sites/$blog_id/jetpack-openai-query/jwt",
-			'2',
-			array(
-				'method'  => 'POST',
-				'headers' => array( 'Content-Type' => 'application/json; charset=utf-8' ),
-			),
-			wp_json_encode( array(), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ),
-			'wpcom'
-		);
+		$response = ( new REST_Jetpack_AI_JWT() )->get_jwt();
 
 		if ( is_wp_error( $response ) ) {
 			return $response;
 		}
 
-		$json = json_decode( wp_remote_retrieve_body( $response ) );
-
-		if ( ! isset( $json->token ) ) {
-			return new WP_Error( 'no-token', 'No token returned from WPCOM' );
-		}
-
-		return array(
-			'token'   => $json->token,
-			'blog_id' => $blog_id,
-		);
+		// Pre-deprecation callers expect the raw array, not a WP_REST_Response.
+		return $response->get_data();
 	}
 
 	/**
@@ -3203,18 +3178,35 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @since 4.3.0
 	 *
-	 * @param string|bool     $value Value to check.
+	 * @param mixed           $value Value to check.
 	 * @param WP_REST_Request $request The request sent to the WP REST API.
 	 * @param string          $param Name of the parameter passed to endpoint holding $value.
 	 *
 	 * @return bool|WP_Error
 	 */
 	public static function validate_stats_roles( $value, $request, $param ) {
+		// An empty value clears the setting; sanitize_stats_allowed_roles() falls back to 'administrator'.
+		if ( empty( $value ) ) {
+			return true;
+		}
+
+		// Enforce the schema's list-of-strings contract before array_intersect() below sees the value.
+		if ( ! is_array( $value ) || count( array_filter( $value, 'is_string' ) ) !== count( $value ) ) {
+			return new WP_Error(
+				'invalid_param',
+				sprintf(
+					/* Translators: Placeholder is a parameter name. */
+					esc_html__( '%s must be an array of user roles.', 'jetpack' ),
+					$param
+				)
+			);
+		}
+
 		if ( ! function_exists( 'get_editable_roles' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/user.php';
 		}
 		$editable_roles = array_keys( get_editable_roles() );
-		if ( ! empty( $value ) && ! array_intersect( $editable_roles, $value ) ) {
+		if ( ! array_intersect( $editable_roles, $value ) ) {
 			return new WP_Error(
 				'invalid_param',
 				sprintf(
@@ -3594,9 +3586,9 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @since 4.3.0
 	 *
-	 * @param string|bool $value Value to check.
+	 * @param mixed $value Value to check.
 	 *
-	 * @return bool|array
+	 * @return mixed The value as submitted, or an array holding only 'administrator' when it is empty.
 	 */
 	public static function sanitize_stats_allowed_roles( $value ) {
 		if ( empty( $value ) ) {

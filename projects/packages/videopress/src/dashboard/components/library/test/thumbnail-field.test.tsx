@@ -90,6 +90,36 @@ describe( 'ThumbnailField — grid Details access', () => {
 		expect( actions.retryUpload ).toHaveBeenCalledWith( '5' );
 	} );
 
+	it( 'shows the Jetpack connection cause alongside the failure summary', () => {
+		renderField(
+			<ThumbnailField
+				item={ item( {
+					type: 'local',
+					upload: { status: 'failed', progress: 0, failureReason: 'connection' },
+				} ) }
+			/>,
+			makeActions()
+		);
+
+		expect( screen.getByText( 'Upload failed' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Jetpack connection issue' ) ).toBeInTheDocument();
+	} );
+
+	it( 'leaves the summary alone for a failure attributed to nothing in particular', () => {
+		renderField(
+			<ThumbnailField
+				item={ item( {
+					type: 'local',
+					upload: { status: 'failed', progress: 0, failureReason: 'other' },
+				} ) }
+			/>,
+			makeActions()
+		);
+
+		expect( screen.getByText( 'Upload failed' ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'Jetpack connection issue' ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'does not render the open-details button while uploading', () => {
 		renderField(
 			<ThumbnailField item={ item( { upload: { status: 'uploading', progress: 40 } } ) } />,

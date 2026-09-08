@@ -27,10 +27,6 @@
 		"playwright-ctrf-json-reporter": "^0.0.26"
 	},
 	"ci": {
-		"targets": [
-			"plugins/classic-theme-helper-plugin",
-			"tools/e2e-commons"
-		],
 		"pluginSlug": "classic-theme-helper-plugin",
 		"mirrorName": "classic-theme-helper-plugin"
 	}

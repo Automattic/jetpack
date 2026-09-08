@@ -53,8 +53,8 @@ describe( 'useRefreshActivityOnBackupComplete', () => {
 		expect( invalidate ).not.toHaveBeenCalled();
 	} );
 
-	// `useBackups`' most common failure mode — a non-200 from WPCOM
-	// served as HTTP 200 with a `null` body — lands here. There is no new
+	// A `useBackups` failure mode — a WPCOM reply the route could not
+	// decode, served as HTTP 200 with a `null` body — lands here. There is no new
 	// restore point to fetch, and `pollInterval()` deliberately stops
 	// polling rather than hammering an upstream that just failed.
 	it( 'does not refresh when a running backup drops to an error', () => {

@@ -23,13 +23,10 @@ export function getDatePart( value: unknown ): string | undefined {
 }
 
 /**
- * Format a date part and time into the Premium Analytics response shape: a
- * timezone-naive stamp naming a site-local wall time.
+ * Format a date part and time into the Premium Analytics response shape.
  *
- * Deliberately offset-less. Stats bucket labels are site-local calendar dates,
- * and a fabricated offset would assert an instant the bucket never named —
- * `toLocalTZ` would then anchor it in the wrong zone, and every chart consumer
- * would have to strip it back off.
+ * Deliberately offset-less: Stats bucket labels are site-local calendar dates,
+ * and a fabricated offset would assert an instant the bucket never named.
  *
  * @param datePart - Date part, normally `YYYY-MM-DD`.
  * @param time     - Time part, normally `HH:mm:ss`.

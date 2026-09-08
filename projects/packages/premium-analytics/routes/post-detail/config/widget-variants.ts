@@ -6,7 +6,7 @@ import { link, mapMarker, megaphone, desktop, seen } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
-import type { WidgetIcon } from '@wordpress/widget-primitives';
+import type { WidgetIcon, WidgetType } from '@wordpress/widget-primitives';
 
 /**
  * Page-local aliases of registered widget types for the fixed post-detail
@@ -19,13 +19,16 @@ import type { WidgetIcon } from '@wordpress/widget-primitives';
  *
  * Labels are lazy getters so translations resolve after the i18n locale data
  * has loaded, mirroring the tab definitions. Icons are static module refs;
- * variants without one inherit the base type's icon.
+ * variants without one inherit the base type's icon. A variant may also
+ * replace the base type's help note when the page pins it to a window the
+ * base note doesn't describe.
  */
 export const POST_DETAIL_WIDGET_TYPE_ALIASES: ReadonlyArray< {
 	baseType: `jpa/${ string }`;
 	variants: ReadonlyArray< {
 		name: `jpa/${ string }`;
 		getTitle: () => string;
+		getHelp?: () => NonNullable< WidgetType[ 'help' ] >;
 		icon?: WidgetIcon;
 	} >;
 } > = [
@@ -34,12 +37,24 @@ export const POST_DETAIL_WIDGET_TYPE_ALIASES: ReadonlyArray< {
 		variants: [
 			{
 				name: 'jpa/email-time-series--total-opens',
-				getTitle: () => __( 'Total opens', 'jetpack-premium-analytics-pkg' ),
+				getTitle: () => __( 'Opens, first 30 days', 'jetpack-premium-analytics-pkg' ),
+				getHelp: () => ( {
+					content: __(
+						'Daily opens for the 30 days after this email was sent. The totals above are all-time.',
+						'jetpack-premium-analytics-pkg'
+					),
+				} ),
 				icon: seen,
 			},
 			{
 				name: 'jpa/email-time-series--total-clicks',
-				getTitle: () => __( 'Total clicks', 'jetpack-premium-analytics-pkg' ),
+				getTitle: () => __( 'Clicks, first 30 days', 'jetpack-premium-analytics-pkg' ),
+				getHelp: () => ( {
+					content: __(
+						'Daily clicks for the 30 days after this email was sent. The totals above are all-time.',
+						'jetpack-premium-analytics-pkg'
+					),
+				} ),
 				icon: link,
 			},
 		],

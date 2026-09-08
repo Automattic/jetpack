@@ -90,9 +90,8 @@ describe( 'SectionSyncNotice', () => {
 			<SectionSyncNotice percentage={ 40 } hasError={ false } onRetry={ noop } isRetrying />
 		);
 
-		// The button the user just pressed is still there and reports itself busy,
-		// through `aria-disabled` rather than `disabled`, so it keeps the focus the
-		// press gave it. Nothing announced a switch back to "still syncing" either.
+		// Reports busy via `aria-disabled`, not `disabled`, so it keeps the focus the
+		// press gave it; nothing announced a switch back to "still syncing" either.
 		const retry = screen.getByRole( 'button', { name: 'Try again' } );
 		expect( retry ).toHaveAttribute( 'aria-disabled', 'true' );
 		expect( container ).toHaveTextContent( 'Something went wrong' );

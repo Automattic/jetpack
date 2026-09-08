@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Sync tests: cover the newly synced jetpack_premium_analytics_enabled option.

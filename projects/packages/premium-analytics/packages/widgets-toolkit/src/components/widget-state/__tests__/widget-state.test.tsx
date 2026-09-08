@@ -93,7 +93,7 @@ describe( 'WidgetState', () => {
 			</WidgetState>
 		);
 		expect( screen.getByText( 'rows' ) ).toBeInTheDocument();
-		expect( screen.queryByRole( 'status', { hidden: true } ) ).not.toBeInTheDocument();
+		expect( screen.queryByTestId( 'widget-skeleton' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'renders the loading state on first load even when empty', () => {
@@ -103,17 +103,15 @@ describe( 'WidgetState', () => {
 			</WidgetState>
 		);
 		expect( screen.queryByText( 'rows' ) ).not.toBeInTheDocument();
-		expect( screen.getByRole( 'status' ) ).toBeInTheDocument();
-		// And nothing above it is busy. `aria-busy` defers descendant changes, so
-		// a busy ancestor could hold this status back until the moment the node is
-		// unmounted — silencing the one announcement a first load owes.
+		expect( screen.getByTestId( 'widget-skeleton' ) ).toBeInTheDocument();
+		// `aria-busy` is reserved for a revalidation with numbers still on screen;
+		// a first load has nothing to hold back.
 		expect( screen.queryAllByRole( 'generic', { busy: true } ) ).toHaveLength( 0 );
 	} );
 
 	it( 'keeps a slow first load out of a busy region, though it reports as fetching too', () => {
-		// React Query raises `isFetching` alongside `isLoading` on the first load,
-		// so a load that outlasts the delay must not be mistaken for a refetch and
-		// wrapped in the busy region that would defer its own announcement.
+		// React Query raises `isFetching` alongside `isLoading` on first load; a slow
+		// first load must not be mistaken for a refetch and wrapped in the busy region.
 		render(
 			<WidgetState isLoading isFetching isError={ false } isEmpty={ false }>
 				{ CONTENT }
@@ -121,21 +119,20 @@ describe( 'WidgetState', () => {
 		);
 
 		elapseFetchDelay();
-		expect( screen.getByRole( 'status' ) ).toBeInTheDocument();
+		expect( screen.getByTestId( 'widget-skeleton' ) ).toBeInTheDocument();
 		expect( screen.queryAllByRole( 'generic', { busy: true } ) ).toHaveLength( 0 );
 	} );
 
 	it( 'renders the loading state whenever isLoading, regardless of the caller-derived isEmpty', () => {
-		// `isEmpty` is derived by the caller and can be false during first load
-		// (e.g. `data?.rows.length === 0` while data is still undefined); loading
-		// must still block rendering children against absent data.
+		// `isEmpty` is caller-derived and can be false during first load (e.g.
+		// `data?.rows.length === 0` while data is undefined); loading must still block children.
 		render(
 			<WidgetState isLoading isError={ false } isEmpty={ false }>
 				{ CONTENT }
 			</WidgetState>
 		);
 		expect( screen.queryByText( 'rows' ) ).not.toBeInTheDocument();
-		expect( screen.getByRole( 'status' ) ).toBeInTheDocument();
+		expect( screen.getByTestId( 'widget-skeleton' ) ).toBeInTheDocument();
 	} );
 
 	it( 'keeps the empty state on screen through a refetch that drags on', () => {
@@ -156,7 +153,7 @@ describe( 'WidgetState', () => {
 		// Still the right answer for these params, so a revalidation has nothing
 		// to correct.
 		expect( screen.getByText( 'No posts here.' ) ).toBeInTheDocument();
-		expect( screen.queryByRole( 'status', { hidden: true } ) ).not.toBeInTheDocument();
+		expect( screen.queryByTestId( 'widget-skeleton' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'renders the caller loading override instead of the default skeleton', () => {
@@ -166,7 +163,7 @@ describe( 'WidgetState', () => {
 			</WidgetState>
 		);
 		expect( screen.getByText( 'override' ) ).toBeInTheDocument();
-		expect( screen.queryByRole( 'status' ) ).not.toBeInTheDocument();
+		expect( screen.queryByTestId( 'widget-skeleton' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'keeps the caller loading override out of a refetch, however long it drags on', () => {
@@ -276,11 +273,10 @@ describe( 'WidgetState', () => {
 				{ CONTENT }
 			</WidgetState>
 		);
-		expect( screen.queryByRole( 'status', { hidden: true } ) ).not.toBeInTheDocument();
+		expect( screen.queryByTestId( 'widget-skeleton' ) ).not.toBeInTheDocument();
 		expect( screen.getByText( 'rows' ) ).toBeInTheDocument();
-		// Not busy either. Nothing on screen changed, so telling assistive tech
-		// the region is updating would interrupt a reader over an update a
-		// sighted one never sees.
+		// Not busy either: the fetch delay has not elapsed, so a revalidation this
+		// brief is never marked at all.
 		expect( screen.queryAllByRole( 'generic', { busy: true } ) ).toHaveLength( 0 );
 	} );
 
@@ -293,7 +289,7 @@ describe( 'WidgetState', () => {
 		elapseFetchDelay();
 		// A long revalidation changes only `aria-busy` — no skeleton at all,
 		// hidden or otherwise.
-		expect( screen.queryByRole( 'status', { hidden: true } ) ).not.toBeInTheDocument();
+		expect( screen.queryByTestId( 'widget-skeleton' ) ).not.toBeInTheDocument();
 		expect( screen.getAllByRole( 'generic', { busy: true } ) ).toHaveLength( 1 );
 		expect( screen.getByText( 'rows' ) ).toBeInTheDocument();
 	} );
@@ -362,10 +358,8 @@ describe( 'WidgetState', () => {
 		[ 'the empty state', { isLoading: false, isEmpty: true, isError: false } ],
 		[ 'an error', { isLoading: false, isEmpty: false, isError: true } ],
 	] )( 'catches the focus %s takes down with the children', ( _label, resolved ) => {
-		// Keyboard-activating a drill-down row changes the params by definition,
-		// so it lands on the skeleton and unmounts the row that was activated.
-		// Without this the browser drops focus to <body> and the next Tab
-		// restarts at the top of the page.
+		// A keyboard-activated drill-down row changes the params, landing on the
+		// skeleton; without the parking effect, focus would drop to <body>.
 		const { rerender } = render(
 			<WidgetState isLoading={ false } isError={ false } isEmpty={ false }>
 				<button type="button">Taiwan</button>
@@ -385,9 +379,8 @@ describe( 'WidgetState', () => {
 	} );
 
 	it( 'catches focus when new rows replace the focused one with no branch change', () => {
-		// A revalidation that comes back reordered unmounts the focused row
-		// without the state ever changing, so there is no branch to key on.
-		// Keyed, so React unmounts the old row rather than reusing the node.
+		// A reordered revalidation unmounts the focused row with no branch change to
+		// key on; keyed rows ensure React actually unmounts rather than reuses the node.
 		const props = { isLoading: false, isError: false, isEmpty: false };
 		const { rerender } = render(
 			<WidgetState { ...props }>
@@ -473,10 +466,8 @@ describe( 'WidgetState', () => {
 	} );
 
 	it( 'forgets a row it did not park focus for, so a later fall to <body> stays put', () => {
-		// Something else claiming focus in the same commit takes the widget out of
-		// the running. Left pointing at the detached row, it would answer the next
-		// unrelated fall to <body> — in tree order, ahead of the widget that
-		// actually lost its focused element.
+		// Something else claims focus in the same commit; left pointing at the
+		// detached row, this widget would wrongly answer a later, unrelated fall to <body>.
 		const props = { isError: false, isEmpty: false };
 		const elsewhereRef: RefObject< HTMLButtonElement | null > = { current: null };
 		const tree = ( { steal, isLoading }: { steal: boolean; isLoading: boolean } ) => (
@@ -505,9 +496,8 @@ describe( 'WidgetState', () => {
 	} );
 
 	it( 'error wins over loading and empty (retry in flight after a failed fetch)', () => {
-		// The production shape on a failed fetch: isError with isEmpty derived
-		// true, plus loading signals while a retry is in flight. The priority
-		// contract (error → loading → empty → ready) must hold.
+		// Production shape on a failed fetch: isError with isEmpty derived true, plus
+		// loading signals mid-retry. The priority order (error → loading → empty → ready) must hold.
 		render(
 			<WidgetState isLoading isFetching isError isEmpty error={ { description: 'Failed.' } }>
 				{ CONTENT }
@@ -515,6 +505,6 @@ describe( 'WidgetState', () => {
 		);
 		expect( screen.getByText( 'Failed.' ) ).toBeInTheDocument();
 		expect( screen.queryByText( 'rows' ) ).not.toBeInTheDocument();
-		expect( screen.queryByRole( 'status', { hidden: true } ) ).not.toBeInTheDocument();
+		expect( screen.queryByTestId( 'widget-skeleton' ) ).not.toBeInTheDocument();
 	} );
 } );

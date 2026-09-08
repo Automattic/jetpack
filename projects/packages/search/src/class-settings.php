@@ -37,8 +37,8 @@ class Settings {
 	 */
 	public function settings_register() {
 		// NOTE: This contains significant code overlap with class-jetpack-search-customize.
-		$setting_prefix = Options::OPTION_PREFIX;
-		$settings       = array(
+		$setting_prefix         = Options::OPTION_PREFIX;
+		$settings               = array(
 			array( $setting_prefix . 'ai_prompt_override', 'string', '' ),
 			array( $setting_prefix . 'color_theme', 'string', 'light' ),
 			array( $setting_prefix . 'result_format', 'string', 'minimal' ),
@@ -55,16 +55,34 @@ class Settings {
 			array( $setting_prefix . 'ai_answers_enabled', 'boolean', false ),
 			array( $setting_prefix . 'suggestions_enabled', 'boolean', false ),
 		);
+		$ai_answers_enabled_key = $setting_prefix . 'ai_answers_enabled';
+
 		foreach ( $settings as $value ) {
-			register_setting(
-				'options',
-				$value[0],
-				array(
-					'default'      => $value[2],
-					'show_in_rest' => true,
-					'type'         => $value[1],
-				)
+			$args = array(
+				'default'      => $value[2],
+				'show_in_rest' => true,
+				'type'         => $value[1],
 			);
+
+			// Also reachable via WordPress core's generic /wp/v2/settings route,
+			// which the plan-aware write gates elsewhere (REST_Controller, the
+			// plugin's AI feature settings endpoint) don't cover.
+			if ( $ai_answers_enabled_key === $value[0] ) {
+				$args['sanitize_callback'] = array( __CLASS__, 'sanitize_ai_answers_enabled' );
+			}
+
+			register_setting( 'options', $value[0], $args );
 		}
+	}
+
+	/**
+	 * Reject enabling AI Answers on a site whose plan doesn't support it.
+	 *
+	 * @param mixed $value Raw value being saved.
+	 * @return bool
+	 */
+	public static function sanitize_ai_answers_enabled( $value ) {
+		$value = rest_sanitize_boolean( $value );
+		return $value && ! Search_Blocks::supports_paid_search() ? false : $value;
 	}
 }

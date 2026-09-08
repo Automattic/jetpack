@@ -1,18 +1,7 @@
 /**
- * The Video performance widget is the video detail page's performance card:
- * the scoped video's views, impressions, hours watched, and retention rate
- * over the dashboard date range as selectable metric tabs over a chart. The
- * video scope arrives through `reportParams.post_id` (seeded from the detail
- * page URL in product); the `hasVideoScope` control toggles it to exercise
- * the scopeless empty state.
- *
- * Data comes from one proxied `stats/video/{id}` `statType=all` range
- * request, covered by the shared single-video report mock (a deterministic
- * daily series ending today, so relative date presets always intersect it).
- * The video detail design has no period-over-period comparison, so the
- * widget maps no comparison rows; the dashboard story still passes
- * comparison params so the widget stays covered against crashing or
- * inventing an overlay when a host supplies them.
+ * The video detail design has no period-over-period comparison, so the widget
+ * maps no comparison rows; the dashboard story still passes comparison params so
+ * it stays covered against inventing an overlay when a host supplies them.
  */
 /**
  * External dependencies
@@ -31,6 +20,11 @@ import {
 import { createStoryWidgetType } from '../../stories/create-story-widget-type';
 import { presetForStoryInterval } from '../../stories/preset-for-story-interval';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
+import {
+	siteTimeZoneArgTypes,
+	withSiteTimeZone,
+	type SiteTimeZoneControls,
+} from '../../stories/with-site-time-zone';
 import VideoDetailViewsPerformanceRender from '../render';
 import widgetDefinition, { type VideoDetailViewsPerformanceChartType } from '../widget';
 import type { StatsChartBucketPeriod } from '@jetpack-premium-analytics/data';
@@ -47,18 +41,15 @@ const MOCK_VIDEO_ID = 105;
 
 const VIDEO_DETAIL_VIEWS_PERFORMANCE_RENDER_MODULE = 'storybook/video-detail-views-performance';
 
-interface VideoDetailViewsPerformanceStoryControls {
+interface VideoDetailViewsPerformanceStoryControls extends SiteTimeZoneControls {
 	hasVideoScope: boolean;
 	interval: StatsChartBucketPeriod;
 	chartType: VideoDetailViewsPerformanceChartType;
 }
 
 /**
- * Builds the widget attributes: report params carrying the page's chart
- * interval (which the widget buckets by) plus the video scope the detail page
- * seeds from its URL when `hasVideoScope` is on. Comparison stays a parameter
- * so the dashboard story can pass host comparison params without duplicating
- * the scoping rule.
+ * Comparison stays a parameter so the dashboard story can pass host comparison
+ * params without duplicating the scoping rule.
  */
 function getVideoDetailViewsPerformanceAttributes(
 	{ hasVideoScope, interval, chartType }: VideoDetailViewsPerformanceStoryControls,
@@ -86,7 +77,9 @@ const meta = {
 	title: 'Packages/Premium Analytics/Widgets/VideoDetailViewsPerformance',
 	component: VideoDetailViewsPerformanceRender,
 	tags: [ 'autodocs' ],
+	decorators: [ withSiteTimeZone ],
 	argTypes: {
+		...siteTimeZoneArgTypes,
 		hasVideoScope: {
 			control: 'boolean',
 			description: 'Include the `post_id` report param the video detail page seeds from its URL.',
@@ -146,11 +139,9 @@ interface VideoDetailViewsPerformanceDashboardStoryProps
 		VideoDetailViewsPerformanceStoryControls {}
 
 /**
- * Mounts the real `WidgetDashboard` with this single widget so it renders
- * exactly as it does in product (framed card, host toolbar controls, sizing,
- * edit mode). It passes comparison params unconditionally,
- * so the widget stays covered against crashing or inventing an overlay when
- * a host supplies comparison dates.
+ * Mounts the real `WidgetDashboard` so the widget renders exactly as it does in
+ * product. Passes comparison params unconditionally so it stays covered against
+ * inventing an overlay when a host supplies comparison dates.
  */
 function VideoDetailViewsPerformanceDashboardStory( {
 	hasVideoScope,

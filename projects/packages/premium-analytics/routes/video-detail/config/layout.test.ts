@@ -1,4 +1,4 @@
-import { WIDGET_DASHBOARD_COLUMN_COUNT } from '@wordpress/widget-dashboard';
+import { DETAIL_COLUMN_COUNT } from '../../detail-grid';
 import { VIDEO_DETAIL_LAYOUT } from './layout';
 
 describe( 'video detail layout', () => {
@@ -14,20 +14,19 @@ describe( 'video detail layout', () => {
 		expect( new Set( uuids ).size ).toBe( uuids.length );
 	} );
 
-	// The page's composition is fixed (WOOA7S-1625): assert the exact
-	// arrangement, like the post-detail tab layouts test, so accidental
-	// reshuffles surface here rather than in the rendered dashboard.
-	it( 'composes the full-width performance chart above the three-column embeds list', () => {
+	// The composition is fixed (WOOA7S-1625): assert the exact arrangement so an
+	// accidental reshuffle surfaces here, not in the rendered dashboard.
+	it( 'composes the full-width performance chart above the full-width embeds list', () => {
 		expect( VIDEO_DETAIL_LAYOUT ).toEqual( [
 			{
 				uuid: 'video-detail-views-performance',
 				type: 'jpa/video-detail-views-performance',
-				placement: { width: WIDGET_DASHBOARD_COLUMN_COUNT, height: 2, order: 1 },
+				placement: { width: DETAIL_COLUMN_COUNT, height: 2, order: 1 },
 			},
 			{
 				uuid: 'video-detail-embeds',
 				type: 'jpa/video-detail-embeds',
-				placement: { width: 3, height: 2, order: 2 },
+				placement: { width: DETAIL_COLUMN_COUNT, height: 2, order: 2 },
 			},
 		] );
 	} );

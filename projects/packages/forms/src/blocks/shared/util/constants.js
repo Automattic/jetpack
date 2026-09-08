@@ -67,6 +67,11 @@ export const getDateFormatHint = dateFormat =>
 
 export const FORM_BLOCK_NAME = 'jetpack/contact-form';
 
+// Every form field block is named `jetpack/field-<something>`. Shared, because "what counts
+// as a field" decides both which blocks get a conditional-logic panel and which blocks are
+// counted when checking that field ids are unique -- and those two must not drift apart.
+export const FIELD_BLOCK_PREFIX = 'jetpack/field-';
+
 /**
  * Vertical layout preset for new form variations and programmatic form creation
  * that should explicitly stack fields vertically.

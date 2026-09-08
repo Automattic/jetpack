@@ -11,7 +11,6 @@ const label = __( 'All pages' );
 <ReportPageShell
 	visual={ <StatsPageIcon /> }
 	breadcrumbs={ <StatsBreadcrumbs items={ [ { label } ] } /> }
-	subTitle={ __( 'All your posts and archive pages.' ) }
 	actions={ downloadButton }
 >
 	<ReportPageLayout title={ getTabTitle( activeTab ) } dateFilters={ dateFilters }>
@@ -19,6 +18,7 @@ const label = __( 'All pages' );
 			primary={ visits.primary.data }
 			comparison={ visits.hasComparison ? visits.comparison.data : undefined }
 			isLoading={ visits.isLoading }
+			timezone={ visits.timezone }
 			interval={ interval }
 			onIntervalChange={ setInterval }
 		/>
@@ -30,11 +30,11 @@ const label = __( 'All pages' );
 			initialView={ { sort: { field: 'views', direction: 'desc' } } }
 		/>
 	</ReportPageLayout>
-</ReportPageShell>
+</ReportPageShell>;
 ```
 
 - **`ReportPageShell`** — the outer `Page` shell: the shared Jetpack visual,
-  Stats breadcrumbs, subtitle, and page-level actions.
+  Stats breadcrumbs and page-level actions.
 - **`ReportPageLayout`** — the report content scaffold: optional internal tabs,
   the section header, and stacked sections.
   `ReportPageSection` is the bordered card each section renders in.
@@ -63,19 +63,19 @@ const label = __( 'All pages' );
 
 `ReportPageLayout` renders `SectionHeader`, the component the dashboard's
 sections use. Pass `title` and the `useReportDateFilters` controller; the layout
-composes `DateFiltersPanel` and derives the subtitle with `getSectionSubtitle`.
+composes `DateFiltersPanel` in the header's controls slot.
 
-The picker offers the range alone — no interval control, no comparison — and the
-subtitle names neither. Both stay on the URL untouched, so the dashboard keeps
-them. Declaring this per report is WOOA7S-1952.
+The picker offers the range alone — no interval control, no comparison. Both
+stay on the URL untouched, so the dashboard keeps them. Declaring this per
+report is WOOA7S-1952.
 
 A report page carries three names:
 
-| name | where it shows | example |
-| --- | --- | --- |
-| report label | the trailing breadcrumb | `All pages` |
-| tab label | the tab strip | `Posts & Pages`, `Archives` |
-| section title | the header's `h2` | `Posts & Pages report` |
+| name          | where it shows          | example                     |
+| ------------- | ----------------------- | --------------------------- |
+| report label  | the trailing breadcrumb | `All pages`                 |
+| tab label     | the tab strip           | `Posts & Pages`, `Archives` |
+| section title | the header's `h2`       | `Posts & Pages report`      |
 
 The first two come from `routes/reports/registry.ts` (`getLabel`) and the tab
 set. `title` is the third: `getTabTitle( activeTab )` on a tabbed report, which

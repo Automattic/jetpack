@@ -148,12 +148,18 @@ class Restore_Bridge {
 			return Rest_Controller::transport_error( $response, 'restore_initiate_failed' );
 		}
 
-		$status_code = wp_remote_retrieve_response_code( $response );
+		// Cast because `wp_remote_retrieve_response_code()` hands back
+		// whatever the transport put there, and a numeric string fails the
+		// strict comparison below. On this route that is the worst place to
+		// get it wrong: a restore WordPress.com accepted would be reported
+		// as a failure, and the reader would start a second one. The long
+		// version is on `Rest_Controller::upstream_error()`.
+		$status_code = (int) wp_remote_retrieve_response_code( $response );
 		if ( 200 !== $status_code ) {
-			return new WP_Error(
+			return Rest_Controller::upstream_error(
+				$response,
 				'restore_initiate_failed',
-				__( 'Could not start the backup restore.', 'jetpack-backup-pkg' ),
-				array( 'status' => is_int( $status_code ) && $status_code > 0 ? $status_code : 500 )
+				__( 'Could not start the backup restore.', 'jetpack-backup-pkg' )
 			);
 		}
 
@@ -172,10 +178,27 @@ class Restore_Bridge {
 		// distinguished the two cases anyway: `(int) null` and `(int) 0`
 		// are both `0`.
 		if ( empty( $decoded['ok'] ) ) {
+			$data = array( 'status' => 500 );
+
+			// The `error` beside it is the whole of what went wrong —
+			// "There is already a restore in progress" and its like — and
+			// it was being dropped on the floor, leaving a reader who
+			// cannot start a second restore with no way to learn why.
+			//
+			// It arrives as prose with no machine code beside it, which is
+			// why `upstream_reason()` sorts on shape rather than on which
+			// key a value came from. The v2 route usually turns this
+			// answer into a 500 `rewind_error` before it ever reaches us,
+			// so what this branch catches is the shape upstream does not.
+			$reason = Rest_Controller::upstream_reason( $decoded );
+			if ( ! empty( $reason ) ) {
+				$data['wpcom'] = $reason;
+			}
+
 			return new WP_Error(
 				'restore_initiate_failed',
 				__( 'Could not start the backup restore.', 'jetpack-backup-pkg' ),
-				array( 'status' => 500 )
+				$data
 			);
 		}
 
@@ -198,11 +221,14 @@ class Restore_Bridge {
 	/**
 	 * WPCOM's restore statuses, mapped to the vocabulary the client uses.
 	 *
-	 * The client used to test for `in-progress`, `queued`, `finished` and
-	 * `failed`, none of which WPCOM has ever returned — so the poll never
-	 * recognised a live restore and no terminal state was reachable. That
-	 * went unnoticed because the v1 call this bridge used to make answered
-	 * 401 before any status could come back.
+	 * Two engines write this field and the v2 route serves whichever ran:
+	 * a Rewind restore — which is every restore this package starts —
+	 * reports `queued | running | finished | fail`, a legacy VaultPress one
+	 * `success | success-with-errors | aborted`.
+	 *
+	 * The Rewind half comes from Calypso's typed contract for this same
+	 * endpoint, not from the v1 endpoint's docblock: that list omits
+	 * `finished`, so every successful restore once reported `unknown`.
 	 *
 	 * Mapped here rather than in the client for the same reason the
 	 * download bridge derives its own status: the wire vocabulary is
@@ -217,10 +243,12 @@ class Restore_Bridge {
 	 * @var array<string, string>
 	 */
 	private const STATUS_MAP = array(
+		'queued'              => 'queued',
 		'running'             => 'running',
+		'finished'            => 'finished',
+		'fail'                => 'failed',
 		'success'             => 'finished',
 		'success-with-errors' => 'finished-with-errors',
-		'fail'                => 'failed',
 		'aborted'             => 'aborted',
 	);
 
@@ -260,7 +288,11 @@ class Restore_Bridge {
 			return Rest_Controller::transport_error( $response, 'restore_status_fetch_failed' );
 		}
 
-		$status_code = wp_remote_retrieve_response_code( $response );
+		// Cast, as in `initiate_restore()`. Both branches below depend on
+		// it: an uncast `'404'` would miss the queued-restore carve-out as
+		// well as the success test, so the ordinary opening seconds of a
+		// restore would surface as an error.
+		$status_code = (int) wp_remote_retrieve_response_code( $response );
 
 		// A 404 is the normal first answer, not a failure. A restore that
 		// has just been queued is not visible to this route yet, and the
@@ -269,18 +301,22 @@ class Restore_Bridge {
 		// would turn the ordinary opening seconds of every restore into a
 		// user-visible failure.
 		//
+		// Reported as `not-found` and never as `queued`, which upstream
+		// also returns: the client reads the two the same way on screen
+		// but must not treat "no record of it" as a sign of life.
+		//
 		// Safe to treat softly only because the upstream route now
 		// answers 502 for an unparseable VaultPress reply — before that, a
 		// 404 could quietly have meant "upstream is down".
 		if ( 404 === $status_code ) {
-			return rest_ensure_response( self::project_status( array(), $restore_id, 'queued' ) );
+			return rest_ensure_response( self::project_status( array(), $restore_id, 'not-found' ) );
 		}
 
 		if ( 200 !== $status_code ) {
-			return new WP_Error(
+			return Rest_Controller::upstream_error(
+				$response,
 				'restore_status_fetch_failed',
-				__( 'Could not fetch restore progress.', 'jetpack-backup-pkg' ),
-				array( 'status' => is_int( $status_code ) && $status_code > 0 ? $status_code : 500 )
+				__( 'Could not fetch restore progress.', 'jetpack-backup-pkg' )
 			);
 		}
 
@@ -309,9 +345,13 @@ class Restore_Bridge {
 		if ( null !== $force ) {
 			$mapped = $force;
 		} elseif ( '' === $raw ) {
-			// Present but silent about status: the restore exists and has
-			// not started reporting yet.
-			$mapped = 'queued';
+			// A record that arrived without a status is queued and has not
+			// started reporting. An empty payload is not a record, and
+			// calling it `queued` would claim upstream is holding a
+			// restore it never mentioned — enough to refuse the reader a
+			// new one. Tested on emptiness rather than on one key, so a
+			// record spelled with fields we do not read still counts.
+			$mapped = empty( $status ) ? 'not-found' : 'queued';
 		} else {
 			// Anything unrecognised is reported as such rather than
 			// guessed at. The client keeps polling through `unknown` under

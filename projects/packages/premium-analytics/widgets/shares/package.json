@@ -8,9 +8,9 @@
 		"@jetpack-premium-analytics/externals": "link:../../packages/externals",
 		"@jetpack-premium-analytics/icons": "link:../../packages/icons",
 		"@jetpack-premium-analytics/widgets-toolkit": "link:../../packages/widgets-toolkit",
-		"@wordpress/element": "8.3.0",
+		"@wordpress/element": "8.6.0",
 		"@wordpress/i18n": "^6.9.0",
 		"@wordpress/icons": "^15.0.0",
-		"@wordpress/widget-primitives": "0.5.0"
+		"@wordpress/widget-primitives": "0.6.2-next.v.202609031004.0"
 	}
 }

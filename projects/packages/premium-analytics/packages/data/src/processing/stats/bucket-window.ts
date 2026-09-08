@@ -1,15 +1,12 @@
 /**
  * The trim window for quantity-based time-series endpoints — the email
- * timeline's special case, owned end to end by this module. That endpoint
- * resolves its `date` param to a calendar day and returns `quantity` buckets
- * forward from that day's midnight regardless of the time of day the window
- * starts (verified against production), so a mid-day window comes back with
- * leading out-of-window buckets. The query side sizes the request with
- * `windowEndHour` and sends the window through `toStatsBucketWindowParams`;
- * only `sanitizeStatsEmailTimeSeriesResponse` turns those params back into a
- * bucket filter (`createStatsBucketWindowFilter`) and passes it to the shared
- * sanitizer — for every other sanitizer the pair is inert, so range-bounded
- * endpoints (visits, subscribers, wordads) can never be trimmed.
+ * timeline's special case, owned end to end by this module.
+ *
+ * That endpoint returns `quantity` buckets forward from the resolved day's
+ * midnight whatever time of day the window starts (verified against
+ * production), so a mid-day window comes back with leading out-of-window
+ * buckets. Only `sanitizeStatsEmailTimeSeriesResponse` turns these params back
+ * into a filter, so range-bounded endpoints can never be trimmed.
  */
 
 /**
@@ -21,11 +18,8 @@ import { formatDatePartWithTime, readSiteTimestamp } from '@jetpack-premium-anal
  */
 import type { StatsQueryParams } from '../../utils/stats-params';
 
-// One reader decides which timestamp shapes the window supports: bare dates
-// and T-separated datetimes, exactly what the stats-params pipeline itself
-// carries — getDatePart, which derives day counts upstream, splits on T
-// alone, so a space-separated datetime already degrades there and must not
-// size or trim a window here either.
+// Bare dates and T-separated datetimes only — getDatePart splits on T alone
+// upstream, so a space-separated datetime must degrade here too.
 function readWindowTimestamp( value: unknown ) {
 	const timestamp = typeof value === 'string' ? readSiteTimestamp( value ) : null;
 
@@ -52,10 +46,8 @@ const EDGE_FALLBACKS = {
 	end: { time: '23:59:59', seconds: '59' },
 } as const;
 
-// A window bound in the same timezone-naive wall-clock shape the bucket
-// labels carry: the value's own date and time parts as written, any offset
-// ignored. A bare date widens to its edge's whole-day time; a seconds-less
-// time takes the edge's seconds.
+// A window bound in the same timezone-naive wall-clock shape the bucket labels
+// carry: date and time parts as written, any offset ignored.
 function toWindowBound( value: unknown, edge: keyof typeof EDGE_FALLBACKS ) {
 	const timestamp = readWindowTimestamp( value );
 
@@ -67,8 +59,7 @@ function toWindowBound( value: unknown, edge: keyof typeof EDGE_FALLBACKS ) {
 	const datePart = `${ String( year ).padStart( 4, '0' ) }-${ padTimePart(
 		month + 1
 	) }-${ padTimePart( day ) }`;
-	// The reader guarantees these shapes, so the probes only ask what was
-	// written: a time at all, and seconds within it.
+	// The reader already constrained the shape, so these only ask what was written.
 	const hasTime = timestamp.value.includes( 'T' );
 	const hasSeconds = /T\d{2}:\d{2}:\d{2}/.test( timestamp.value );
 	const time = hasTime
@@ -80,18 +71,15 @@ function toWindowBound( value: unknown, edge: keyof typeof EDGE_FALLBACKS ) {
 	return formatDatePartWithTime( datePart, time );
 }
 
-// Bucket bounds are comparable against a window bound only in this shape; a
-// row whose bounds fall outside it (an unparseable period label echoed back
-// verbatim) is kept rather than silently discarded.
+// Bucket bounds compare against a window bound only in this shape; a row that
+// fails it is kept rather than silently discarded.
 const isWallClockStamp = ( value: string ) => /^\d{4}-\d{2}-\d{2}T/.test( value );
 
 export type StatsBucketFilter = ( range: { date_start: string; date_end: string } ) => boolean;
 
 /**
- * The sanitizer-side half of the window contract: turns the
- * `window_start`/`window_end` sanitizer params back into a bucket filter, or
- * `undefined` when the query names no usable window — a missing or invalid
- * bound, and an inverted window (a hand-edited deep link), all mean "keep
+ * The sanitizer-side half of the window contract: the `window_start`/`window_end`
+ * params as a bucket filter. A missing, invalid, or inverted window means "keep
  * every bucket" rather than a silently emptied chart.
  *
  * @param query - The sanitizer's merged query params.
@@ -107,9 +95,8 @@ export function createStatsBucketWindowFilter(
 		return undefined;
 	}
 
-	// Raw lexicographic comparison — the same rule as the shared sanitizer's
-	// compareBucketBounds, never localeCompare (a collation may ignore the
-	// separators these bounds carry).
+	// Raw lexicographic comparison, as in compareBucketBounds — never
+	// localeCompare, whose collation may ignore these bounds' separators.
 	return range =>
 		! isWallClockStamp( range.date_start ) ||
 		! isWallClockStamp( range.date_end ) ||
@@ -117,11 +104,9 @@ export function createStatsBucketWindowFilter(
 }
 
 /**
- * The query-side half of the window contract: the sanitizer params a
- * windowed query opts into trimming with. Dedicated names, never the generic
- * `start_date`/`end_date` — those reach the shared sanitizer from
- * range-bounded endpoints that must not be trimmed — and stripped from the
- * HTTP request by `statsQueryParamsToApiParams`.
+ * The query-side half of the window contract: the sanitizer params a windowed
+ * query opts into trimming with. Dedicated names, never the generic
+ * `start_date`/`end_date`, which range-bounded endpoints also send.
  *
  * @param params            - The query's stats params.
  * @param params.start_date - The window's start timestamp.

@@ -17,9 +17,8 @@ import { useBarStyles } from '../common';
 const TOP_COUPON_SEGMENTS = 3;
 
 /**
- * Displays a bar chart showing coupon discount distribution.
- * Shows top 3 coupons plus "Other" segment.
- * Displays data for all product types.
+ * Bar chart of coupon discount distribution: top 3 coupons plus an "Other"
+ * segment, across all product types.
  *
  * Must be used within a WidgetRoot which provides reportParams via context.
  */
@@ -41,9 +40,8 @@ export function SalesByCouponWidget() {
 		<WidgetState
 			isLoading={ isLoading }
 			isFetching={ isFetching }
-			// The report queries keep the previous period's data as placeholders
-			// across range changes, so only surface the error when there is
-			// nothing to show.
+			// The report queries keep the previous period's data as placeholders across
+			// range changes, so only surface the error when nothing else is showing.
 			isError={ isError && ! hasData }
 			isEmpty={ isEmptyChartData( chartData ) }
 			error={ {

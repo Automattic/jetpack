@@ -206,6 +206,7 @@ export default function SubscribersDataViews( {
 				type: 'date',
 				label: __( 'Date subscribed', 'jetpack-newsletter' ),
 				getValue: ( { item }: { item: Subscriber } ) => getSubscribedAt( item ) ?? '',
+				filterBy: false,
 				enableSorting: true,
 				enableHiding: false,
 			},

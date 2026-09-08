@@ -2,8 +2,8 @@
 	display: inline-flex;
 	align-items: center;
 	gap: 0.125em;
-	font-size: var(--wpds-typography-font-size-md, 13px);
-	font-weight: var(--wpds-typography-font-weight-emphasis, 600);
+	font-size: var(--wpds-typography-font-size-md);
+	font-weight: var(--wpds-typography-font-weight-emphasis);
 	line-height: 1;
 
 	&--up {

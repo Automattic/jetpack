@@ -49,12 +49,8 @@ export const statsSubscribersQuery = (
 /**
  * Build the subscribers time-series query from dashboard report params.
  *
- * The `stats/subscribers` endpoint is quantity-based (`unit` + `quantity` ending
- * at `date`), not `from`/`to`-based, so the dashboard range is translated here:
- * the interval picks the `unit`, the range end becomes `date`, and the number of
- * buckets spanning the range becomes `quantity`. Wrapped in `useStatsReport`,
- * the comparison window is fetched automatically from the dashboard's compare
- * range.
+ * The endpoint is quantity-based (`unit` + `quantity` ending at `date`), not
+ * `from`/`to`-based, so the dashboard range is translated here.
  */
 export const statsSubscribersReportQuery = (
 	params: StatsReportParams

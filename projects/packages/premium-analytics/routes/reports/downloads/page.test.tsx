@@ -88,10 +88,8 @@ describe( 'DownloadsReportPage', () => {
 	} );
 
 	it( 'keeps the rows on screen while a background refetch is in flight', () => {
-		// The queries carry `placeholderData`, so a refetch triggered by a date or
-		// comparison change still has the previous rows. Handing the table an empty
-		// set would drop the user's search, sorting, and page position mid-refetch,
-		// so the rows stay mounted and only the loading state reflects the refetch.
+		// `placeholderData` keeps the previous rows during a refetch, so search/sort/
+		// page position survive a date or comparison change instead of resetting.
 		useRecordsMock.mockReturnValue( {
 			isError: false,
 			refetch: jest.fn(),

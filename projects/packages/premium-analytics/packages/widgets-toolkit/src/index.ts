@@ -97,6 +97,18 @@ export {
 	type SubscriberListSkeletonProps,
 	SemiCircleChart,
 	type SemiCircleChartData,
+	DetailPageLayout,
+	DetailPageSection,
+	DetailPageShell,
+	DetailPageTabPanel,
+	DetailPageTabs,
+	type DetailPageHeaderSlots,
+	type DetailPageLayoutProps,
+	type DetailPageSectionProps,
+	type DetailPageShellProps,
+	type DetailPageTab,
+	type DetailPageTabPanelProps,
+	type DetailPageTabsProps,
 	ReportDrilldownTable,
 	ReportErrorState,
 	ReportPageLayout,
@@ -135,7 +147,6 @@ export {
 	getWordAdsHistoryFields,
 	type EarningsHistoryRow,
 	AnnualHighlightsSkeleton,
-	type AnnualHighlightsSkeletonProps,
 	GenericSkeleton,
 	HeatmapSkeleton,
 	MetricSparklineSkeleton,
@@ -177,6 +188,7 @@ export {
 	buildCsv,
 	buildCsvDateRangeFilename,
 	saveCsv,
+	withComparisonColumns,
 	type CsvColumn,
 	type CsvDateRange,
 	getCombinedPeriodMax,
@@ -188,7 +200,7 @@ export {
 	toDay,
 	defaultPeriodForInterval,
 	buildMetricTab,
-	toChartDate,
+	siteChartFormatting,
 	CHART_DISPLAY_CHART_TYPES,
 	chartTypeAttributeField,
 	type ChartDisplayChartType,
@@ -258,13 +270,9 @@ export {
 export type { MetricKey, OrderMetricKey, OrderMetrics, OrdersSummary, DataFormat } from './types';
 
 /**
- * Charts passthrough
- *
- * Widgets must import chart components from here, never from
- * `@automattic/charts` directly: the toolkit is a shared script module, so
- * charts is bundled once instead of once per widget. The toolkit itself takes
- * charts from `@jetpack-premium-analytics/externals`, which is where the
- * library is actually compiled in.
+ * Charts passthrough. Widgets must import chart components from here, never
+ * from `@automattic/charts` directly: the toolkit bundles charts once instead
+ * of once per widget, itself sourcing them from `@jetpack-premium-analytics/externals`.
  */
 export {
 	GeoChart,
@@ -283,10 +291,8 @@ export {
 } from '@jetpack-premium-analytics/externals';
 
 /**
- * UI passthrough
- *
- * Widgets must import these from here, never from
- * `@jetpack-premium-analytics/ui` directly: the toolkit is a shared script
- * module, so the ui package is bundled once instead of once per widget.
+ * UI passthrough. Widgets must import these from here, never from
+ * `@jetpack-premium-analytics/ui` directly: the toolkit bundles the ui package
+ * once instead of once per widget.
  */
 export { safeHttpUrl } from '@jetpack-premium-analytics/ui';

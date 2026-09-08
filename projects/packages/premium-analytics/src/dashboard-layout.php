@@ -2,12 +2,8 @@
 /**
  * Dashboard Layout: Premium Analytics server-side defaults.
  *
- * Premium Analytics owns its dashboard, so it ships its own default layout
- * rather than relying on the core dashboard endpoint (which is Gutenberg-only
- * and returns the core dashboard's widgets). The default is served on the
- * `dashboardSection` REST shape and a per-dashboard `default-layout` route; the
- * frontend reads it from the section entity, so there is no server-seeded
- * preference.
+ * Ships its own default layout rather than the core dashboard endpoint (Gutenberg-only, returns
+ * core's widgets); the frontend reads the default from the section entity, so nothing is server-seeded.
  *
  * @package automattic/jetpack-premium-analytics
  */
@@ -105,7 +101,14 @@ function get_dashboard_default_layout_response( $request ) {
 	$gates          = get_dashboard_default_layout_gates();
 	$section_id     = get_dashboard_default_section_id_for( $dashboard_name );
 
-	if ( isset( $gates[ $section_id ] ) && ! call_user_func( $gates[ $section_id ] ) ) {
+	$out_of_preview = null !== $section_id
+		&& ! is_dashboard_section_in_preview_scope( DASHBOARD_NAME, $section_id );
+
+	$gate_fails = null !== $section_id
+		&& isset( $gates[ $section_id ] )
+		&& ! call_user_func( $gates[ $section_id ] );
+
+	if ( $out_of_preview || $gate_fails ) {
 		return new \WP_Error(
 			'dashboard_section_unavailable',
 			__( 'Dashboard section is not available.', 'jetpack-premium-analytics-pkg' ),
@@ -184,14 +187,15 @@ function get_dashboard_default_widget_instance(
 function get_dashboard_default_section_layouts() {
 	return array(
 		DASHBOARD_TRAFFIC_SECTION_ID     => array(
-			// Rows fill the four-column grid. Plan usage is intentionally not a
-			// default; it stays available from the widget picker.
+			// Rows fill the three-column grid in the prototype's order. Plan usage
+			// is intentionally not a default; it stays available from the widget
+			// picker.
 			// Row 1: traffic chart.
 			get_dashboard_default_widget_instance(
 				'default-traffic-chart-widget-instance',
 				'jpa/traffic-chart',
 				0,
-				4,
+				3,
 				2
 			),
 			// Row 2: most-viewed posts + referrers + devices.
@@ -199,7 +203,7 @@ function get_dashboard_default_section_layouts() {
 				'default-stats-top-posts-widget-instance',
 				'jpa/stats-top-posts',
 				1,
-				2,
+				1,
 				2
 			),
 			get_dashboard_default_widget_instance(
@@ -221,7 +225,7 @@ function get_dashboard_default_section_layouts() {
 				'default-locations-widget-instance',
 				'jpa/locations',
 				4,
-				3,
+				2,
 				2
 			),
 			get_dashboard_default_widget_instance(
@@ -231,13 +235,16 @@ function get_dashboard_default_section_layouts() {
 				1,
 				2
 			),
-			// Row 4: VideoPress (sites running VideoPress only) + clicks + authors.
+			// Row 4: UTM insights + clicks + VideoPress (sites running VideoPress only).
 			get_dashboard_default_widget_instance(
-				'default-videopress-widget-instance',
-				'jpa/videopress',
+				'default-utm-insights-widget-instance',
+				'jpa/utm-insights',
 				6,
 				1,
-				2
+				2,
+				array(
+					'utmDimension' => 'utm_source,utm_medium',
+				)
 			),
 			get_dashboard_default_widget_instance(
 				'default-clicks-widget-instance',
@@ -247,22 +254,19 @@ function get_dashboard_default_section_layouts() {
 				2
 			),
 			get_dashboard_default_widget_instance(
-				'default-authors-widget-instance',
-				'jpa/authors',
+				'default-videopress-widget-instance',
+				'jpa/videopress',
 				8,
-				2,
+				1,
 				2
 			),
-			// Row 5: UTM insights + search terms + file downloads (Simple only).
+			// Row 5: authors + search terms + file downloads (Simple only).
 			get_dashboard_default_widget_instance(
-				'default-utm-insights-widget-instance',
-				'jpa/utm-insights',
+				'default-authors-widget-instance',
+				'jpa/authors',
 				9,
-				2,
-				2,
-				array(
-					'utmDimension' => 'utm_source,utm_medium',
-				)
+				1,
+				2
 			),
 			get_dashboard_default_widget_instance(
 				'default-search-terms-widget-instance',
@@ -290,95 +294,124 @@ function get_dashboard_default_section_layouts() {
 				4,
 				1
 			),
-			// Row 2: posting-activity heatmap.
+			// Row 2: the at-a-glance cards, as the design pairs them. All three are
+			// two rows tall so their display-sized figures fit without scrolling: a
+			// 1x1 tile is 200px, which the two-field cards overflow. WOOA7S-2009
+			// settles the final widths.
+			get_dashboard_default_widget_instance(
+				'default-all-time-stats-widget-instance',
+				'jpa/all-time-stats',
+				1,
+				2,
+				2,
+				array(
+					// The design shows three totals; the widget's own default adds
+					// Comments, which the comment leaderboards below already cover.
+					'metrics' => array( 'views', 'visitors', 'posts' ),
+				)
+			),
+			get_dashboard_default_widget_instance(
+				'default-most-popular-day-widget-instance',
+				'jpa/most-popular-day',
+				2,
+				1,
+				2
+			),
+			get_dashboard_default_widget_instance(
+				'default-most-popular-time-widget-instance',
+				'jpa/most-popular-time',
+				3,
+				1,
+				2
+			),
+			// Row 3: posting-activity heatmap.
 			get_dashboard_default_widget_instance(
 				'default-posting-activity-widget-instance',
 				'jpa/posting-activity',
-				1,
+				4,
 				4,
 				1
 			),
-			// Row 3: the two post spotlights.
+			// Row 4: the two post spotlights.
 			get_dashboard_default_widget_instance(
 				'default-latest-post-widget-instance',
 				'jpa/latest-post',
-				2,
+				5,
 				2,
 				2
 			),
 			get_dashboard_default_widget_instance(
 				'default-popular-post-widget-instance',
 				'jpa/popular-post',
-				3,
+				6,
 				2,
 				2
 			),
-			// Row 4: the period totals and the weekday and hour-of-day
+			// Row 5: the period totals and the weekday and hour-of-day
 			// distributions.
 			get_dashboard_default_widget_instance(
 				'default-total-views-widget-instance',
 				'jpa/total-views',
-				4,
+				7,
 				1,
 				1
 			),
 			get_dashboard_default_widget_instance(
 				'default-total-visitors-widget-instance',
 				'jpa/total-visitors',
-				5,
+				8,
 				1,
 				1
 			),
 			get_dashboard_default_widget_instance(
 				'default-popular-days-widget-instance',
 				'jpa/popular-days',
-				6,
+				9,
 				1,
 				1
 			),
 			get_dashboard_default_widget_instance(
 				'default-popular-hours-widget-instance',
 				'jpa/popular-hours',
-				7,
+				10,
 				1,
 				1
 			),
-			// Row 5: daily views heatmap. Two rows tall, as in the prototype: the
-			// cells are sized from the tile's height, and only at this height do they
-			// grow wide enough to label each day with its view count.
+			// Row 6: daily views heatmap. Two rows tall, as in the prototype: cells are sized
+			// from the tile's height, and only here do they fit each day's view count.
 			get_dashboard_default_widget_instance(
 				'default-traffic-views-activity-widget-instance',
 				'jpa/traffic-views-activity',
-				8,
+				11,
 				4,
 				2
 			),
-			// Row 6: the comment leaderboards, shares, and tags.
+			// Row 7: the comment leaderboards, shares, and tags.
 			get_dashboard_default_widget_instance(
 				'default-most-commented-posts-widget-instance',
 				'jpa/most-commented-posts',
-				9,
+				12,
 				1,
 				2
 			),
 			get_dashboard_default_widget_instance(
 				'default-most-commented-authors-widget-instance',
 				'jpa/most-commented-authors',
-				10,
+				13,
 				1,
 				2
 			),
 			get_dashboard_default_widget_instance(
 				'default-shares-widget-instance',
 				'jpa/shares',
-				11,
+				14,
 				1,
 				2
 			),
 			get_dashboard_default_widget_instance(
 				'default-tags-widget-instance',
 				'jpa/tags',
-				12,
+				15,
 				1,
 				2
 			),
@@ -546,9 +579,8 @@ function get_dashboard_default_section_id_for( $dashboard_name ) {
 /**
  * Seeds the bundled default layouts for the Premium Analytics dashboard tabs.
  *
- * Only contributes to the known Premium Analytics dashboard and tab aliases;
- * other dashboards are left untouched so the filter can be reused if more
- * dashboards are added later.
+ * Only contributes to known Premium Analytics dashboard/tab aliases, leaving other dashboards
+ * untouched so the filter stays reusable if more dashboards are added later.
  *
  * @param array  $dashboard_layout Default layout from earlier callbacks.
  * @param string $dashboard_name   Identifier of the dashboard receiving the

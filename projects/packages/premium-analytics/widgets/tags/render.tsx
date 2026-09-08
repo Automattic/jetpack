@@ -16,7 +16,6 @@ import {
 	safeHttpUrl,
 	sharePercentage,
 	useWidgetDrillDown,
-	useWidgetRootContext,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -71,15 +70,12 @@ function TagGroupMembers( { members }: TagGroupMembersProps ) {
 }
 
 function TagsInner() {
-	const { reportParams } = useWidgetRootContext();
 	const { data, isLoading, isFetching, isError, refetch } = useTagViews( {
-		reportParams,
 		max: WIDGET_ROW_LIMIT,
 	} );
 
-	// Key the selection on the group's stable label and resolve the row fresh from
-	// the current data, so a background refetch that reorders rows keeps the user
-	// in the drilled-in view, and one that drops the group falls back to the top.
+	// Key the selection on the group's stable label and resolve it fresh from the
+	// data, so a reorder keeps the drilled-in view and a dropped group falls back to top.
 	const {
 		drillDownItem: selectedLabel,
 		drillDown: selectGroup,
@@ -172,9 +168,13 @@ function TagsInner() {
 							data={ leaderboardData }
 							withOverlayLabel
 							showLegend={ false }
+							// Exact counts, not the leaderboards' usual compact form: this
+							// widget is read beside the same module in Jetpack Stats, where
+							// 1,240 views reads "1,240". Compacted to "1K" it looks like a
+							// data mismatch rather than like rounding.
 							dataFormat={ {
 								type: 'number',
-								options: { useMultipliers: true, decimals: 0 },
+								options: { useMultipliers: false, decimals: 0 },
 							} }
 						/>
 					) }
@@ -188,10 +188,8 @@ function TagsInner() {
 }
 
 /**
- * Tags & categories widget: the site's most visited tags and categories for the
- * selected period, ranked by views. Ported from the Jetpack Stats "Tags &
- * categories" module. Grouped rows (several tags/categories sharing a post) drill
- * down to their individual members.
+ * Ported from the Jetpack Stats "Tags & categories" module. Grouped rows
+ * (several tags/categories sharing a post) drill down to their individual members.
  */
 export default function Tags( { attributes = {} }: TagsWidgetProps ) {
 	return (

@@ -34,12 +34,10 @@ type TotalVisitorsWidgetProps = WidgetRenderProps< TotalVisitorsRenderAttributes
 	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
 };
 
-// Fixed, never derived from the dashboard interval. `stats/visits` reports
-// visitors as unique-within-bucket and the headline is the sum of the buckets,
-// so a coarser bucket silently changes what the number means: a daily visitor
-// counts 30 times across 30 daily buckets but 13 across 13 weekly ones, which
-// lets a longer range report a smaller total. Views are additive and unaffected,
-// but both cards use the same unit so they stay comparable and share a request.
+// Fixed, never derived from the dashboard interval: `stats/visits` counts
+// visitors unique-within-bucket, so a coarser bucket silently shrinks the
+// summed headline (a daily visitor counts 30 times across 30 daily buckets but
+// only 13 across 13 weekly ones). Views are additive and unaffected.
 const PERIOD = 'day';
 
 // `decimals: 0` would round 291,900 to "292K"; the prototype's headline keeps

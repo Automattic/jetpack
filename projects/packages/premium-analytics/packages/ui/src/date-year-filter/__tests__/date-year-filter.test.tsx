@@ -140,6 +140,29 @@ describe( 'DateYearFilter', () => {
 		expect( screen.getByRole( 'combobox', { name: 'Time period' } ) ).toBeInTheDocument();
 	} );
 
+	it( 'greys the pills out while disabled, focusable still', async () => {
+		const user = userEvent.setup();
+		const { onSelect } = renderFilter( { disabled: true } );
+
+		const allTime = screen.getByRole( 'button', { name: 'All time' } );
+		expect( allTime ).toHaveAttribute( 'aria-disabled', 'true' );
+
+		// The composite tracks the active item, so focusing is a state update.
+		act( () => allTime.focus() );
+		expect( allTime ).toHaveFocus();
+
+		await user.click( allTime );
+		expect( onSelect ).not.toHaveBeenCalled();
+	} );
+
+	// Natively, the way Base UI's select does it: the compact surface is the one
+	// control on the row that drops out of the tab order while disabled.
+	it( 'greys the select out while disabled', () => {
+		renderFilter( { isCompact: true, disabled: true } );
+
+		expect( screen.getByRole( 'combobox', { name: 'Time period' } ) ).toBeDisabled();
+	} );
+
 	describe( 'measured layout', () => {
 		let originalResizeObserver: typeof ResizeObserver;
 		let rectSpy: jest.SpyInstance;
@@ -170,6 +193,41 @@ describe( 'DateYearFilter', () => {
 			} );
 
 			renderFilter();
+
+			expect( screen.queryAllByRole( 'button' ) ).toHaveLength( 0 );
+			expect( screen.getByRole( 'combobox', { name: 'Time period' } ) ).toBeInTheDocument();
+		} );
+
+		it( 'keeps the pills on the first paint of a wide container', () => {
+			mockContainerResize();
+			Object.defineProperty( document.body, 'clientWidth', {
+				configurable: true,
+				value: 4 * PILL_WIDTH,
+			} );
+
+			renderFilter();
+
+			expect( screen.getAllByRole( 'button' ) ).toHaveLength( 4 );
+			expect( screen.queryByRole( 'combobox' ) ).not.toBeInTheDocument();
+		} );
+
+		/*
+		 * The pills are one occupant of their row. A container that fits them
+		 * alone does not fit them beside a chart-interval control, which is how
+		 * they came to run past its end (WOOA7S-2066).
+		 */
+		it( 'counts what shares the row against the container', () => {
+			const { resizeTo } = mockContainerResize();
+
+			render(
+				<div>
+					<DateYearFilter timeZone="UTC" startYear={ CURRENT_YEAR - 2 } onSelect={ jest.fn() } />
+					<span>interval</span>
+				</div>
+			);
+
+			// Room for the four pills, but not for the control beside them.
+			resizeTo( 4 * PILL_WIDTH );
 
 			expect( screen.queryAllByRole( 'button' ) ).toHaveLength( 0 );
 			expect( screen.getByRole( 'combobox', { name: 'Time period' } ) ).toBeInTheDocument();

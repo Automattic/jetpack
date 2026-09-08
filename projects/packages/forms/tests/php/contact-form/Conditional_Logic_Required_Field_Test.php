@@ -40,7 +40,7 @@ class Conditional_Logic_Required_Field_Test extends BaseTestCase {
 	protected function tear_down() {
 		remove_filter( 'jetpack_feature_flag_enabled_forms-conditional-logic', '__return_true' );
 		Contact_Form::reset_seen_refs();
-		unset( $_POST );
+		$_POST = array();
 		parent::tear_down();
 	}
 

@@ -60,18 +60,15 @@ function TrafficViewsActivityInner() {
 	// them against different days.
 	const today = format( new Date(), 'yyyy-MM-dd' );
 
-	// A ceiling only. A floor would reach back past the selection, putting years
-	// outside the card's heading inside it (WOOA7S-1963). It is equally the range
-	// the heatmap draws and pages through — with no floor the two coincide, so
-	// paging can never leave the selection.
+	// A ceiling only — a floor would leak years outside the selection into the
+	// card's heading (WOOA7S-1963); it also bounds paging, so paging can't escape the selection.
 	const fetchWindow = useMemo(
 		() => resolveCalendarHeatmapWindow( reportParams, { maxDays: windowDays }, today ),
 		[ reportParams, windowDays, today ]
 	);
 
-	// The period as selected, before the ceiling. All time on a long-lived site
-	// reaches back past the window, and the empty state has to know the response
-	// says nothing about the years left out.
+	// The period as selected, before the ceiling — the empty state needs it to know
+	// the response says nothing about years the ceiling left out.
 	const periodWindow = useMemo(
 		() => resolveCalendarHeatmapWindow( reportParams, {}, today ),
 		[ reportParams, today ]
@@ -106,10 +103,8 @@ function TrafficViewsActivityInner() {
 		[ report ]
 	);
 
-	// Key the empty state to the response rather than the densified calendar, whose
-	// missing dates are represented by null-valued cells. Days outside the window
-	// are still ruled out, so a stale response for a wider selection cannot
-	// suppress the empty state while the new one loads.
+	// Key the empty state to the response, not the densified calendar (whose gaps
+	// are null cells) — a stale wider-selection response can't hide the empty state.
 	const hasViews = ( report?.data ?? [] ).some( row => {
 		const day = String( row.time_interval );
 
@@ -118,10 +113,8 @@ function TrafficViewsActivityInner() {
 		);
 	} );
 
-	// And where the period outran the window, the message names the days the request
-	// covers instead of the period: the site may well have views outside them. Both
-	// ends are named — the clipped end is the start, but the period can also end
-	// before today, and "since" would speak for the days after it.
+	// When the period outran the window, name the days the request covers (both
+	// ends) — the period can end before today, so "since" would misname the tail.
 	const windowStart = parseSiteDateTime( fetchWindow.startDate );
 	const windowEnd = parseSiteDateTime( fetchWindow.endDate );
 	const emptyDescription =

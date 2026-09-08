@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { getDefaultQueryParams, queryClient } from '@jetpack-premium-analytics/data';
+import { WIDGET_ROW_LIMIT } from '@jetpack-premium-analytics/widgets-toolkit';
 import { fireEvent, render, screen } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 import { category, tag } from '@wordpress/icons';
@@ -124,5 +125,61 @@ describe( 'TagsWidget', () => {
 
 		await expect( screen.findByText( 'Recipes' ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByText( 'chocolate' ) ).not.toBeInTheDocument();
+	} );
+
+	// The same module in Jetpack Stats prints the count in full, and the two are
+	// read side by side. Compacting rounds to whole thousands, so 1,240 would show
+	// as "1K" and read as different data rather than as rounding (WOOA7S-2018).
+	it( 'prints view counts in full rather than compacting them', async () => {
+		render( <TagsWidget attributes={ { reportParams: getDefaultQueryParams() } } /> );
+
+		await expect( screen.findByText( '1,240' ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByText( '1K' ) ).not.toBeInTheDocument();
+	} );
+
+	// The widest count a row has to hold once the compact form is gone. It gets its
+	// own response because the top row is the denominator every other row's bar
+	// width is drawn from, so putting it in the shared fixture would quietly
+	// re-tune every other test in this file.
+	it( 'prints a seven-digit count in full', async () => {
+		mockApiFetch.mockResolvedValue( {
+			...TAGS_RESPONSE,
+			tags: [
+				{
+					tags: [ { type: 'tag', name: 'viral', link: 'https://example.com/tag/viral/' } ],
+					views: 1234567,
+				},
+			],
+		} );
+
+		render( <TagsWidget attributes={ { reportParams: getDefaultQueryParams() } } /> );
+
+		await expect( screen.findByText( '1,234,567' ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByText( '1M' ) ).not.toBeInTheDocument();
+	} );
+
+	// WPCOM declares `max` as the only query parameter `stats/tags` accepts and
+	// strips the rest, so a date would only split the cache per selected period.
+	it( 'requests the endpoint with max alone', async () => {
+		render( <TagsWidget attributes={ { reportParams: getDefaultQueryParams() } } /> );
+
+		await expect( screen.findByText( 'Recipes' ) ).resolves.toBeInTheDocument();
+
+		const requestedPaths = mockApiFetch.mock.calls
+			.map( ( [ options ] ) => String( options?.path ?? '' ) )
+			.filter( path => path.includes( 'stats/tags' ) );
+
+		expect( requestedPaths ).not.toHaveLength( 0 );
+		requestedPaths.forEach( path => {
+			const params = new URLSearchParams( path.split( '?' )[ 1 ] );
+			expect( params.get( 'max' ) ).toBe( String( WIDGET_ROW_LIMIT ) );
+			expect( params.has( 'date' ) ).toBe( false );
+		} );
+	} );
+
+	// Calypso sends no query at all, so Jetpack Stats gets the endpoint's own
+	// default of 10. Retuning the shared limit silently stops the two matching.
+	it( 'asks for the row count Jetpack Stats gets by default', () => {
+		expect( WIDGET_ROW_LIMIT ).toBe( 10 );
 	} );
 } );

@@ -6,6 +6,7 @@ import { useProcessingProgress } from '../../hooks/use-processing-progress';
 import { formatBytes, formatDuration } from '../../utils/format';
 import ThumbnailField from './thumbnail-field';
 import { useUploadActions } from './upload-actions-context';
+import { getUploadFailureLabel } from './upload-failure-label';
 import type { LibraryItem } from '../../types/library';
 import type { Field, Operator } from '@wordpress/dataviews';
 
@@ -116,9 +117,19 @@ const TitleCell = ( { item }: { item: LibraryItem } ) => {
 			label: __( 'Deleting…', 'jetpack-videopress-pkg' ),
 		};
 	} else if ( upload.status === 'failed' ) {
+		// The pill is one line, so the cause is joined onto the summary here. The
+		// grid's thumbnail overlay stacks the same two parts instead.
+		const { summary, cause } = getUploadFailureLabel( upload.failureReason );
 		pill = {
 			intent: 'high',
-			label: __( 'Upload failed', 'jetpack-videopress-pkg' ),
+			label: cause
+				? sprintf(
+						/* translators: 1: what went wrong, e.g. "Upload failed". 2: what it was attributed to, e.g. "Jetpack connection issue". */
+						__( '%1$s: %2$s', 'jetpack-videopress-pkg' ),
+						summary,
+						cause
+				  )
+				: summary,
 		};
 	} else if ( isProcessing ) {
 		pill = {

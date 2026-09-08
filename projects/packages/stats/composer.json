@@ -57,7 +57,7 @@
 			"link-template": "https://github.com/Automattic/jetpack-stats/compare/v${old}...v${new}"
 		},
 		"branch-alias": {
-			"dev-trunk": "0.20.x-dev"
+			"dev-trunk": "0.21.x-dev"
 		},
 		"textdomain": "jetpack-stats-pkg"
 	},

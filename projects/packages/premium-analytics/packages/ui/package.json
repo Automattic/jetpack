@@ -17,10 +17,10 @@
 		"@jetpack-premium-analytics/formatters": "workspace:*",
 		"@jetpack-premium-analytics/icons": "workspace:*",
 		"@jetpack-premium-analytics/routing": "workspace:*",
-		"@wordpress/admin-ui": "2.8.0",
-		"@wordpress/components": "37.0.0",
-		"@wordpress/compose": "8.6.0",
-		"@wordpress/element": "8.3.0",
+		"@wordpress/admin-ui": "2.9.0",
+		"@wordpress/components": "40.0.0",
+		"@wordpress/compose": "8.7.0",
+		"@wordpress/element": "8.6.0",
 		"@wordpress/i18n": "^6.9.0",
 		"@wordpress/icons": "^15.0.0",
 		"clsx": "2.1.1",
@@ -31,7 +31,7 @@
 		"@storybook/react": "10.4.6",
 		"@testing-library/react": "16.3.2",
 		"@testing-library/user-event": "14.6.1",
-		"@wordpress/date": "5.51.0",
+		"@wordpress/date": "5.54.0",
 		"date-fns": "4.1.0"
 	}
 }

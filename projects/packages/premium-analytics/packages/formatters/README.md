@@ -193,8 +193,8 @@ one width and not another. Two things to know if you add a form:
 
 ## `formatDateRangeLong( range?, options? )`
 
-Format a date range in explicit, readable form, for prominent surfaces such as
-the section header subtitle. Returns `''` when range or dates are missing.
+Format a date range in explicit, readable form, for prominent surfaces.
+Returns `''` when range or dates are missing.
 
 The shape follows the range's own length, along two independent axes. A window
 of a week or less leads each end with its weekday, which is what makes a

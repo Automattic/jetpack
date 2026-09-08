@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.49.0] - 2026-09-01
+### Added
+- Dashboard: Give the empty Library an upload dropzone empty state. [#51717]
+- Enable the chapters editor on all sites. [#51296]
+
+### Changed
+- Update package dependencies. [#51303] [#51802]
+
+### Fixed
+- Dashboard: Say when an upload failed because of a Jetpack connection problem, instead of only "Upload failed". [#51541]
+- Dashboard: Show the Jetpack connection error notice on the modernized dashboard. [#51541]
+- Video block: Say when an upload failed because of a Jetpack connection problem, instead of only "Failed to upload your video". [#51541]
+
 ## [0.48.0] - 2026-08-26
 ### Added
 - Dashboard: Add a first-run onboarding modal. [#51520]
@@ -2194,6 +2207,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.49.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.48.0...v0.49.0
 [0.48.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.47.2...v0.48.0
 [0.47.2]: https://github.com/Automattic/jetpack-videopress/compare/v0.47.1...v0.47.2
 [0.47.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.47.0...v0.47.1

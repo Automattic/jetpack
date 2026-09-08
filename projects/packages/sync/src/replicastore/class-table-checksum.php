@@ -300,6 +300,35 @@ class Table_Checksum {
 					return false !== Sync\Modules::get_module( 'woocommerce_products' );
 				},
 			),
+			'wc_order_stats'             => array(
+				'table'                     => "{$wpdb->prefix}wc_order_stats",
+				'range_field'               => 'order_id',
+				'key_fields'                => array( 'order_id' ),
+				'checksum_fields'           => array( 'date_paid', 'date_completed', 'total_sales' ),
+				'checksum_text_fields'      => array( 'status' ),
+				'is_table_enabled_callback' => 'Automattic\Jetpack\Sync\Replicastore\Table_Checksum::enable_woocommerce_analytics_tables',
+			),
+			'wc_order_product_lookup'    => array(
+				'table'                     => "{$wpdb->prefix}wc_order_product_lookup",
+				'range_field'               => 'order_id',
+				'key_fields'                => array( 'order_id', 'order_item_id' ),
+				'checksum_fields'           => array( 'product_id', 'variation_id', 'product_qty', 'product_net_revenue', 'date_created' ),
+				'is_table_enabled_callback' => 'Automattic\Jetpack\Sync\Replicastore\Table_Checksum::enable_woocommerce_analytics_tables',
+			),
+			'wc_order_coupon_lookup'     => array(
+				'table'                     => "{$wpdb->prefix}wc_order_coupon_lookup",
+				'range_field'               => 'order_id',
+				'key_fields'                => array( 'order_id', 'coupon_id' ),
+				'checksum_fields'           => array( 'discount_amount', 'date_created' ),
+				'is_table_enabled_callback' => 'Automattic\Jetpack\Sync\Replicastore\Table_Checksum::enable_woocommerce_analytics_tables',
+			),
+			'wc_order_tax_lookup'        => array(
+				'table'                     => "{$wpdb->prefix}wc_order_tax_lookup",
+				'range_field'               => 'order_id',
+				'key_fields'                => array( 'order_id', 'tax_rate_id' ),
+				'checksum_fields'           => array( 'order_tax', 'total_tax', 'shipping_tax', 'date_created' ),
+				'is_table_enabled_callback' => 'Automattic\Jetpack\Sync\Replicastore\Table_Checksum::enable_woocommerce_analytics_tables',
+			),
 			'woocommerce_order_items'    => array(
 				'table'                     => "{$wpdb->prefix}woocommerce_order_items",
 				'range_field'               => 'order_item_id',
@@ -1034,6 +1063,32 @@ class Table_Checksum {
 
 		// If the 'woocommerce' module is enabled, this means that WooCommerce class exists.
 		return false !== Sync\Modules::get_module( 'woocommerce' );
+	}
+
+	/**
+	 * Make sure the WooCommerce Analytics tables should be enabled for Checksum/Fix.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public static function enable_woocommerce_analytics_tables() {
+		/**
+		 * On WordPress.com, WooCommerce runtime classes and Sync modules are not
+		 * available while comparing table checksums. This override allows the
+		 * Analytics tables to be used there.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param bool $force_woocommerce_analytics_support Whether to force-enable WooCommerce Analytics table support.
+		 */
+		$force_woocommerce_analytics_support = apply_filters( 'jetpack_table_checksum_force_enable_woocommerce_analytics', false );
+
+		if ( $force_woocommerce_analytics_support ) {
+			return true;
+		}
+
+		return false !== Sync\Modules::get_module( 'woocommerce_analytics' );
 	}
 
 	/**

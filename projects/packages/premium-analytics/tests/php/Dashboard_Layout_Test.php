@@ -36,6 +36,8 @@ class Dashboard_Layout_Test extends BaseTestCase {
 		$this->reset_analytics_capabilities();
 		wp_set_current_user( 0 );
 		remove_all_filters( SUBSCRIBERS_DASHBOARD_SECTION_AVAILABLE_FILTER );
+		remove_all_filters( DASHBOARD_PREVIEW_SCOPE_FILTER );
+		delete_option( Enablement_Setting::ENABLED_OPTION );
 		Constants::clear_constants();
 		// The default layout now reaches Host::is_wpcom_platform(), which memoizes
 		// `is_woa_site` past Constants::clear_constants().
@@ -111,6 +113,33 @@ class Dashboard_Layout_Test extends BaseTestCase {
 			array( Capabilities::class, 'current_user_can_view_analytics' ),
 			$routes[ self::ROUTE ][0]['permission_callback']
 		);
+	}
+
+	/**
+	 * This route keeps its own availability table, so the preview scope has to be applied
+	 * here too or a hidden tab still hands out its layout.
+	 */
+	public function test_default_layout_route_refuses_a_tab_the_preview_hides() {
+		$this->register_route_with_capabilities();
+		$this->login_as( 'administrator' );
+		update_option( Enablement_Setting::ENABLED_OPTION, 1 );
+
+		list( $status ) = $this->request_default_layout( DASHBOARD_INSIGHTS_SECTION_ID );
+
+		$this->assertSame( 404, $status );
+	}
+
+	/**
+	 * The tab the preview does expose keeps serving its layout.
+	 */
+	public function test_default_layout_route_serves_the_traffic_tab_while_the_preview_is_scoped() {
+		$this->register_route_with_capabilities();
+		$this->login_as( 'administrator' );
+		update_option( Enablement_Setting::ENABLED_OPTION, 1 );
+
+		list( $status ) = $this->request_default_layout( DASHBOARD_TRAFFIC_SECTION_ID );
+
+		$this->assertSame( 200, $status );
 	}
 
 	/**
@@ -341,18 +370,18 @@ class Dashboard_Layout_Test extends BaseTestCase {
 		$layout_types    = array_column( $layout, 'type' );
 		$utm_widget_uuid = 'default-utm-insights-widget-instance';
 
-		// uuid => [ type, width, order ]; widths fill the four-column grid.
+		// uuid => [ type, width, order ]; widths fill the three-column grid.
 		$expected = array(
-			'default-traffic-chart-widget-instance'   => array( 'jpa/traffic-chart', 4, 0 ),
-			'default-stats-top-posts-widget-instance' => array( 'jpa/stats-top-posts', 2, 1 ),
+			'default-traffic-chart-widget-instance'   => array( 'jpa/traffic-chart', 3, 0 ),
+			'default-stats-top-posts-widget-instance' => array( 'jpa/stats-top-posts', 1, 1 ),
 			'default-referrers-widget-instance'       => array( 'jpa/referrers', 1, 2 ),
 			'default-devices-widget-instance'         => array( 'jpa/devices', 1, 3 ),
-			'default-locations-widget-instance'       => array( 'jpa/locations', 3, 4 ),
+			'default-locations-widget-instance'       => array( 'jpa/locations', 2, 4 ),
 			'default-top-platforms-widget-instance'   => array( 'jpa/top-platforms', 1, 5 ),
-			'default-videopress-widget-instance'      => array( 'jpa/videopress', 1, 6 ),
+			'default-utm-insights-widget-instance'    => array( 'jpa/utm-insights', 1, 6 ),
 			'default-clicks-widget-instance'          => array( 'jpa/clicks', 1, 7 ),
-			'default-authors-widget-instance'         => array( 'jpa/authors', 2, 8 ),
-			'default-utm-insights-widget-instance'    => array( 'jpa/utm-insights', 2, 9 ),
+			'default-videopress-widget-instance'      => array( 'jpa/videopress', 1, 8 ),
+			'default-authors-widget-instance'         => array( 'jpa/authors', 1, 9 ),
 			'default-search-terms-widget-instance'    => array( 'jpa/search-terms', 1, 10 ),
 			'default-file-downloads-widget-instance'  => array( 'jpa/file-downloads', 1, 11 ),
 		);
@@ -374,7 +403,7 @@ class Dashboard_Layout_Test extends BaseTestCase {
 			);
 		}
 
-		// Plan usage is intentionally not a default.
+		// Plan usage is intentionally not a default (and held back entirely while the paid plan is revised).
 		$this->assertNotContains( 'jpa/plan-usage', $layout_types );
 
 		$this->assertSame(
@@ -393,21 +422,26 @@ class Dashboard_Layout_Test extends BaseTestCase {
 		$layout_by_uuid = array_column( $layout, null, 'uuid' );
 		$layout_types   = array_column( $layout, 'type' );
 
-		// uuid => [ type, width, height, order ]; each row fills the four-column grid.
+		// uuid => [ type, width, height, order ]. The at-a-glance cards share row 2
+		// as the design pairs them; WOOA7S-2009 settles the final widths. Widths are
+		// still authored for four columns; the grid is now three.
 		$expected = array(
 			'default-annual-highlights-widget-instance'    => array( 'jpa/annual-highlights', 4, 1, 0 ),
-			'default-posting-activity-widget-instance'     => array( 'jpa/posting-activity', 4, 1, 1 ),
-			'default-latest-post-widget-instance'          => array( 'jpa/latest-post', 2, 2, 2 ),
-			'default-popular-post-widget-instance'         => array( 'jpa/popular-post', 2, 2, 3 ),
-			'default-total-views-widget-instance'          => array( 'jpa/total-views', 1, 1, 4 ),
-			'default-total-visitors-widget-instance'       => array( 'jpa/total-visitors', 1, 1, 5 ),
-			'default-popular-days-widget-instance'         => array( 'jpa/popular-days', 1, 1, 6 ),
-			'default-popular-hours-widget-instance'        => array( 'jpa/popular-hours', 1, 1, 7 ),
-			'default-traffic-views-activity-widget-instance' => array( 'jpa/traffic-views-activity', 4, 2, 8 ),
-			'default-most-commented-posts-widget-instance' => array( 'jpa/most-commented-posts', 1, 2, 9 ),
-			'default-most-commented-authors-widget-instance' => array( 'jpa/most-commented-authors', 1, 2, 10 ),
-			'default-shares-widget-instance'               => array( 'jpa/shares', 1, 2, 11 ),
-			'default-tags-widget-instance'                 => array( 'jpa/tags', 1, 2, 12 ),
+			'default-all-time-stats-widget-instance'       => array( 'jpa/all-time-stats', 2, 2, 1 ),
+			'default-most-popular-day-widget-instance'     => array( 'jpa/most-popular-day', 1, 2, 2 ),
+			'default-most-popular-time-widget-instance'    => array( 'jpa/most-popular-time', 1, 2, 3 ),
+			'default-posting-activity-widget-instance'     => array( 'jpa/posting-activity', 4, 1, 4 ),
+			'default-latest-post-widget-instance'          => array( 'jpa/latest-post', 2, 2, 5 ),
+			'default-popular-post-widget-instance'         => array( 'jpa/popular-post', 2, 2, 6 ),
+			'default-total-views-widget-instance'          => array( 'jpa/total-views', 1, 1, 7 ),
+			'default-total-visitors-widget-instance'       => array( 'jpa/total-visitors', 1, 1, 8 ),
+			'default-popular-days-widget-instance'         => array( 'jpa/popular-days', 1, 1, 9 ),
+			'default-popular-hours-widget-instance'        => array( 'jpa/popular-hours', 1, 1, 10 ),
+			'default-traffic-views-activity-widget-instance' => array( 'jpa/traffic-views-activity', 4, 2, 11 ),
+			'default-most-commented-posts-widget-instance' => array( 'jpa/most-commented-posts', 1, 2, 12 ),
+			'default-most-commented-authors-widget-instance' => array( 'jpa/most-commented-authors', 1, 2, 13 ),
+			'default-shares-widget-instance'               => array( 'jpa/shares', 1, 2, 14 ),
+			'default-tags-widget-instance'                 => array( 'jpa/tags', 1, 2, 15 ),
 		);
 
 		$this->assertSame( array_keys( $expected ), array_column( $layout, 'uuid' ) );
@@ -433,13 +467,19 @@ class Dashboard_Layout_Test extends BaseTestCase {
 		$this->assertNotContains( 'jpa/stats-emails', $layout_types );
 		// The Comments module ships as two focused widgets, not one toggled widget.
 		$this->assertNotContains( 'jpa/comments', $layout_types );
-		// Total views and Total visitors carry the totals row instead.
-		$this->assertNotContains( 'jpa/all-time-stats', $layout_types );
 
 		// Highlights falls back to the widget's own default metric list.
 		$this->assertArrayNotHasKey(
 			'attributes',
 			$layout_by_uuid['default-annual-highlights-widget-instance']
+		);
+
+		// All-time stats narrows the widget's own default, which also has Comments.
+		$this->assertSame(
+			array(
+				'metrics' => array( 'views', 'visitors', 'posts' ),
+			),
+			$layout_by_uuid['default-all-time-stats-widget-instance']['attributes']
 		);
 
 		$this->assertSame(
@@ -456,7 +496,7 @@ class Dashboard_Layout_Test extends BaseTestCase {
 		$layout_by_uuid = array_column( $layout, null, 'uuid' );
 		$layout_types   = array_column( $layout, 'type' );
 
-		// uuid => [ type, width, order ]; widths fill the four-column grid.
+		// uuid => [ type, width, order ]; widths are still authored for four columns.
 		$expected = array(
 			'default-subscribers-chart-widget-instance'  => array( 'jpa/subscribers-chart', 4, 0 ),
 			'default-subscribers-list-widget-instance'   => array( 'jpa/subscribers-list', 2, 1 ),
@@ -520,7 +560,7 @@ class Dashboard_Layout_Test extends BaseTestCase {
 		$layout         = seed_default_dashboard_layout( array(), DASHBOARD_ADS_SECTION_ID );
 		$layout_by_uuid = array_column( $layout, null, 'uuid' );
 
-		// uuid => [ type, width, height, order ]; widths fill the four-column grid.
+		// uuid => [ type, width, height, order ]; widths are still authored for four columns.
 		$expected = array(
 			'default-wordads-highlights-widget-instance' => array( 'jpa/wordads-highlights', 4, 1, 0 ),
 			'default-wordads-chart-tabs-widget-instance' => array( 'jpa/wordads-chart-tabs', 4, 2, 1 ),

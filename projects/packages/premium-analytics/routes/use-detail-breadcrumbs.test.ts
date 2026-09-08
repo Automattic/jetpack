@@ -108,10 +108,8 @@ describe( 'useDetailBreadcrumbs', () => {
 		expect( result.current ).toEqual( [ { label: 'Detail title' } ] );
 	} );
 
-	// `?origin=videos` outlives the feature: it survives in shared URLs, browser
-	// history, and bookmarks taken before a site turned VideoPress off. A known
-	// but unavailable report must be as unlinkable as an unknown one, or the crumb
-	// points at a page the route guard bounces straight back to the dashboard.
+	// `?origin=videos` can outlive VideoPress being turned off, so an unavailable
+	// report must be as unlinkable as an unknown one — else the crumb outruns the guard.
 	it( 'drops the videos crumb on a site without VideoPress', () => {
 		setVideoPress( false );
 		mockSearch( 'videos' );

@@ -52,12 +52,10 @@ function shift( from: Date, to: Date, unit: DateRangeSpanUnit, amount: number ):
 }
 
 /**
- * Shift a range backward or forward by its own length, measured from the range
- * rather than from the preset that produced it.
+ * Shift a range backward or forward by its own length.
  *
- * Falls back to the day count where a calendar step will not undo. `addMonths`
- * clamps a day the target month is too short for: August 31 two months back is
- * June 30, forward again August 30. Reversibility wins over calendar shape.
+ * Falls back to the day count where a calendar step will not undo — `addMonths`
+ * clamps a day the target month is too short for, and reversibility wins.
  *
  * @param range     - The window to move.
  * @param direction - Which way to move it.
@@ -98,11 +96,8 @@ const END_OF_BUCKET: Record< DateRangeSpanUnit, ( date: Date ) => Date > = {
 /**
  * Whether there is a later window to step into.
  *
- * The next window qualifies once it ends within the bucket `now` sits in, at
- * the window's own granularity. Live presets end at the end of the running
- * hour or day, so the window a reader stepped back from ends in the future;
- * counting the running bucket keeps it reachable, while a window reaching
- * into the next bucket stays out.
+ * The next window qualifies once it ends within the bucket `now` sits in, so a
+ * live preset ending in the running hour or day stays reachable.
  *
  * @param range - The window to test.
  * @param now   - The instant to compare against.

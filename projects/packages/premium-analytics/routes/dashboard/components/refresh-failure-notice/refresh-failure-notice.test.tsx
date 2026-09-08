@@ -86,9 +86,8 @@ function description( text: RegExp ) {
 }
 
 describe( 'RefreshFailureNotice', () => {
-	// The provider hands out the module-level client, which outlives each test.
-	// The notice is still mounted at this point — RTL's own cleanup runs after —
-	// so emptying the cache re-renders it.
+	// The client is module-level and outlives tests; clear it before RTL's cleanup
+	// unmounts the notice, so this actually re-renders it.
 	afterEach( () => act( () => queryClient.clear() ) );
 
 	it( 'stays out of the way while the widgets have what they asked for', async () => {

@@ -25,7 +25,8 @@ export default function useWordAdsChart( reportParams: ReportParams, period: Wor
 	// Memoize the request params so the query key is stable across renders.
 	const params = useMemo( () => ( { ...reportParams, period } ), [ reportParams, period ] );
 
-	const { primary, isLoading, isFetching, isError, refetch } = useStatsWordAdsStats( params );
+	const { primary, timezone, isLoading, isFetching, isError, refetch } =
+		useStatsWordAdsStats( params );
 
 	const primaryData = primary.data as StatsWordAdsResponse | undefined;
 
@@ -39,18 +40,18 @@ export default function useWordAdsChart( reportParams: ReportParams, period: Wor
 					field: metric.id,
 					label: metric.label,
 					dataFormat: metric.dataFormat,
+					zone: timezone,
 				} )
 			),
-		[ primaryData ]
+		[ primaryData, timezone ]
 	);
 
 	return {
 		metrics,
 		isLoading,
 		isFetching,
-		// The query keeps prior data via `placeholderData`, so a failed range change
-		// keeps the previous period's chart while `isError` flips true. Gate the
-		// error on having nothing to show, as `useTrafficChart` does.
+		// `placeholderData` keeps the previous chart while `isError` flips true; gate
+		// the error on having nothing to show, as `useTrafficChart` does.
 		isError: isError && ! primaryData?.data?.length,
 		isEmpty: primaryData !== undefined && ! primaryData.data?.length,
 		refetch,

@@ -48,8 +48,7 @@ export type StatsWordAdsEarningsPeriod = {
 	/**
 	 * The payment status code, or `undefined` when the payload omits it. `0` is
 	 * itself a meaningful status ("Unpaid"), so a missing status must not
-	 * collapse into it — consumers would state a payment claim the API never
-	 * made.
+	 * collapse into it.
 	 */
 	status: number | undefined;
 };
@@ -93,9 +92,8 @@ function summarizeWordAdsStats(
 }
 
 function normalizeEarningsPeriod( value: StatsRecord ): StatsWordAdsEarningsPeriod {
-	// Not `safeParseFloat`: its `fallback = 0` default fires on an explicit
-	// `undefined`, and `0` is itself a status ("Unpaid"), so an absent or
-	// unparseable status has to stay absent rather than collapse into it.
+	// Not `safeParseFloat`: its `fallback = 0` fires on an explicit `undefined`,
+	// and `0` is itself a status ("Unpaid"), so an absent status must stay absent.
 	const status = parseFloat( String( value.status ) );
 
 	return {

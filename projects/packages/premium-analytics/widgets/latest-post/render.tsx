@@ -27,10 +27,6 @@ type LatestPostRenderAttributes = LatestPostAttributes & Partial< ReportParamsFi
 type LatestPostWidgetProps = WidgetRenderProps< LatestPostRenderAttributes >;
 
 /**
- * Fetches the site's latest post (with its metrics) through `useLatestPost` and
- * hands it to the shared `PostHighlightCard`, with loading, error, and empty
- * states handled by `<WidgetState>`.
- *
  * Every tile is a lifetime total, so no tile carries an aggregation note.
  */
 function LatestPostReport() {

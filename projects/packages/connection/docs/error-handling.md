@@ -97,7 +97,7 @@ Storage limits and hygiene:
 
 * At most 5 user IDs are kept per error code; the oldest is evicted when a sixth arrives.
 * Errors expire 24 hours after being stored (checked on read).
-* A reporting gate only processes each error code once per hour, protecting both the site and WordPress.com from error storms. The `jetpack_connection_bypass_error_reporting_gate` filter can disable the gate (useful in tests).
+* A reporting gate only processes each error code once per hour, protecting both the site and WordPress.com from error storms. The gate is keyed by error code **and direction**: an outgoing error of a given code is verified locally and reported immediately, and that must not block an incoming error of the same code from independently clearing its own hourly gate to reach the WordPress.com verification round-trip (see [Incoming requests](#incoming-requests-wordpresscom--site)) — and vice versa. The `jetpack_connection_bypass_error_reporting_gate` filter can disable the gate (useful in tests).
 * Only [supported error codes](#supported-error-codes) are stored — anything else is silently discarded.
 
 ## Displaying errors

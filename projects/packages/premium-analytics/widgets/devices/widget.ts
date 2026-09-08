@@ -8,11 +8,7 @@ import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 export type DevicesAttributes = Record< never, never >;
 
 /**
- * Devices widget type definition.
- *
- * Shows screen size breakdown (Desktop / Mobile / Tablet) via the PA proxy
- * at `stats/devices/screensize`. Date range comes from WidgetRoot's
- * reportParams (the shared dashboard date picker).
+ * Screen size breakdown, from the PA proxy at `stats/devices/screensize`.
  */
 export default {
 	icon: mobile,

@@ -21,9 +21,8 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 	} ),
 } ) );
 
-// The chart itself is not this file's subject: the bucket the widget resolves is,
-// and `useTrafficChart` is where it lands. The stand-in records its props so the
-// click handler the widget hands it can be driven.
+// The chart itself is not this file's subject: `useTrafficChart` resolves the
+// bucket. The stand-in records props so the click handler can be driven.
 const mockMetricTabsChart = jest.fn();
 jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' ),

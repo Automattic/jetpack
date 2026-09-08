@@ -102,10 +102,8 @@ export default function useLocationViews( {
 		isLoading,
 		isFetching,
 		hasData,
-		// The Stats queries carry `placeholderData: previousData => previousData`, so a
-		// failed range change keeps the prior period's rows in `data` while `isError`
-		// flips true. Only surface the error when there's nothing to show, so a transient
-		// refetch failure doesn't replace populated rows with the error state.
+		// `placeholderData` keeps the prior period's rows in `data` while `isError`
+		// flips true, so a transient refetch failure should not replace them.
 		isError: items.length === 0 && isError,
 		refetch,
 	};

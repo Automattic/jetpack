@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Dashboard sections: stop requiring Enablement_Setting by path, which fataled on sites that vendor this package into more than one plugin.

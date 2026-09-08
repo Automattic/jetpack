@@ -87,9 +87,10 @@ otherwise host-provided `reportParams` and comparison controls are discarded.
 **A widget that hosts its own date control.** A section can set
 `date_filter_options.with_header_date_control` to `false`, which renders no header date
 control and hands it to that section's widgets. Such a widget declares a `reportParams`
-attribute with `relevance: 'high'` and `Edit: createReportParamsField( … )` from
+attribute built by `reportParamsAttributeField( … )` from
 `@jetpack-premium-analytics/fields`, and the host renders that control in the widget's
-own header.
+own header. Pass it the widget's `grain` — the windows its report can fill and the
+buckets its chart draws — so the control offers neither one the widget would drop.
 
 `WidgetRoot` prefers `attributes.reportParams` over the URL, but an instance saved
 without them still falls back to it — the section date state this widget no longer

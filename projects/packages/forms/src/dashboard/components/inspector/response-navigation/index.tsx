@@ -11,6 +11,14 @@ type ResponseNavigationProps = {
 	onClose: ( () => void ) | null;
 	onNext: () => void;
 	onPrevious: () => void;
+	// Keys to advertise in the arrow tooltips. Opt-in, because this component is
+	// also used by the inbox inspector, which does not bind them — a tooltip
+	// promising a key that does nothing is worse than no tooltip.
+	//
+	// Widened to match what `Button` accepts for `shortcut`; the arrows are labelled
+	// with the bare key today, but a caller may need the `ariaLabel` form.
+	nextShortcut?: string | { display: string; ariaLabel: string };
+	previousShortcut?: string | { display: string; ariaLabel: string };
 };
 
 const ResponseNavigation = ( {
@@ -19,6 +27,8 @@ const ResponseNavigation = ( {
 	onClose,
 	onNext,
 	onPrevious,
+	nextShortcut,
+	previousShortcut,
 }: ResponseNavigationProps ): JSX.Element => {
 	const sharedProps = {
 		accessibleWhenDisabled: true,
@@ -43,6 +53,7 @@ const ResponseNavigation = ( {
 						disabled={ ! hasPrevious }
 						icon={ chevronUp }
 						label={ __( 'Previous', 'jetpack-forms' ) }
+						shortcut={ previousShortcut }
 						onClick={ onPrevious }
 					></Button>
 				) }
@@ -52,6 +63,7 @@ const ResponseNavigation = ( {
 						disabled={ ! hasNext }
 						icon={ chevronDown }
 						label={ __( 'Next', 'jetpack-forms' ) }
+						shortcut={ nextShortcut }
 						onClick={ onNext }
 					></Button>
 				) }

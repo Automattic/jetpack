@@ -8,9 +8,11 @@
 namespace Automattic\Jetpack\Extensions\Contact_Form;
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Assets\Shared_Stores_Assets;
 use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form;
+use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Field;
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin;
 use Automattic\Jetpack\Forms\ContactForm\Form_Preview;
 use Automattic\Jetpack\Forms\Dashboard\Dashboard as Forms_Dashboard;
@@ -1152,6 +1154,9 @@ class Contact_Form_Block {
 				'akismetUrl'           => $akismet_key_url,
 				'assetsUrl'            => Jetpack_Forms::assets_url(),
 				'isMailPoetEnabled'    => Jetpack_Forms::is_mailpoet_enabled(),
+				// So the file field's "Maximum files" control offers exactly what the site will honour,
+				// including when a filter has raised the ceiling.
+				'maxFilesLimit'        => Contact_Form_Field::get_file_field_max_files_limit(),
 			),
 		);
 
@@ -1269,7 +1274,7 @@ class Contact_Form_Block {
 		// - feature_flags: hasFeatureFlag() reads this for central-form-management,
 		// form-webhooks, and multistep-form.
 		wp_localize_script(
-			'jetpack-blocks-editor',
+			Shared_Stores_Assets::SCRIPT_HANDLE,
 			'Jetpack_Editor_Initial_State',
 			array(
 				'available_blocks' => array(

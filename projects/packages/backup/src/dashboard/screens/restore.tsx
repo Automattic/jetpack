@@ -8,6 +8,7 @@ import { Button, Card, Stack, Text } from '@wordpress/ui';
 import DashboardLayout from '../components/dashboard-layout';
 import InvalidRewindId from '../components/invalid-rewind-id';
 import RestoreItemsChecklist from '../components/restore-items-checklist';
+import { useGateState } from '../hooks/use-gate-state';
 import { useRestore } from '../hooks/use-restore';
 import { DEFAULT_RESTORE_ITEMS, hasSelectedItems } from '../types/restore';
 import { isValidRewindId, rewindIdToIso } from '../types/rewind-id';
@@ -17,17 +18,29 @@ import { isValidRewindId, rewindIdToIso } from '../types/rewind-id';
 // because only one of these renders per page.
 const SELECTION_HINT_ID = 'jpb-restore__selection-hint';
 
+// `adopted` is latched for the life of the screen, so the "already
+// running" notice needs its own end. An allowlist rather than excluding
+// the terminal phases: a phase added later should not silently start
+// announcing a finished restore as still running.
+const STILL_RUNNING_PHASES = new Set( [ 'checking', 'queued', 'progress' ] );
+
 /**
  * Restore screen — narrow centered layout with the warning notice, the
  * shared item checklist, and a Confirm button. Submit drives a real
  * state machine over the `/jetpack/v4/rewind/to/$rewindId` bridge.
  *
+ * Every `ProgressBar` below is given an `aria-label`, for the reason
+ * recorded in `tests/progress-bar-names.test.tsx`; the `<Text>` beside
+ * each one never reaches the bar's accessible name.
+ *
  * @return The rendered Restore screen.
  */
 export default function RestoreScreen() {
 	const { rewindId } = useParams( { from: '/restore/$rewindId' } );
+	const gate = useGateState();
 	const [ items, setItems ] = useState( DEFAULT_RESTORE_ITEMS );
-	const { state, submit, reset, adopted } = useRestore( rewindId );
+
+	const { state, submit, reset, adopted } = useRestore( rewindId, gate.status === 'ready' );
 	const handleConfirm = useCallback( () => submit( items ), [ submit, items ] );
 	// An empty checklist would restore *everything* rather than nothing —
 	// see `hasSelectedItems`. On this screen that is unrecoverable.
@@ -70,7 +83,7 @@ export default function RestoreScreen() {
 					<Stack direction="row" gap="sm" align="center">
 						<Icon icon={ backupIcon } />
 						<Stack direction="column" gap="xs">
-							<Text variant="heading-md" render={ <h3 /> }>
+							<Text variant="heading-md" render={ <h2 /> }>
 								{ __( 'Restore backup', 'jetpack-backup-pkg' ) }
 							</Text>
 							<Text variant="body-sm" className="jpb-text-muted">
@@ -107,11 +120,11 @@ export default function RestoreScreen() {
 					 * running and we can no longer see it — promising an end state
 					 * the notice beneath has just disowned.
 					 *
-					 * "from here" because the constraint is this screen's, not the
-					 * product's: nothing upstream refuses a second restore, and the
+					 * "from here" because the constraint is this screen's: upstream
+					 * refuses a concurrent restore only as a bare failure, and the
 					 * reader can still start one from WordPress.com.
 					 */ }
-					{ adopted && state.phase !== 'lost-track' && (
+					{ adopted && STILL_RUNNING_PHASES.has( state.phase ) && (
 						<Notice status="info" isDismissible={ false }>
 							{ restorePoint
 								? sprintf(
@@ -191,15 +204,44 @@ export default function RestoreScreen() {
 					{ state.phase === 'queued' && (
 						<Stack direction="column" gap="sm">
 							<Text>
-								{ __( 'Your restore is queued and will begin shortly…', 'jetpack-backup-pkg' ) }
+								{ __(
+									'Your restore is queued and will begin automatically.',
+									'jetpack-backup-pkg'
+								) }
 							</Text>
-							<ProgressBar />
+							<ProgressBar
+								aria-label={ __( 'Waiting for your restore to begin', 'jetpack-backup-pkg' ) }
+							/>
 						</Stack>
 					) }
 					{ state.phase === 'progress' && (
 						<Stack direction="column" gap="sm">
-							<Text>{ __( 'Restoring…', 'jetpack-backup-pkg' ) }</Text>
-							<ProgressBar value={ state.percent } />
+							{ /*
+							 * Scoped to this line, not the block: the percentage and message
+							 * below change on every 5s poll and would re-announce with it.
+							 */ }
+							<Text role="status">{ __( 'Restoring…', 'jetpack-backup-pkg' ) }</Text>
+							<ProgressBar
+								value={ state.percent }
+								aria-label={ __( 'Restoring your site', 'jetpack-backup-pkg' ) }
+							/>
+							<Text variant="body-sm" className="jpb-text-muted">
+								{ sprintf(
+									/* translators: %d is a completion percentage, e.g. "50% complete". */
+									__( '%d%% complete', 'jetpack-backup-pkg' ),
+									state.percent
+								) }
+							</Text>
+							{ /*
+							 * The message is the only sign of life while `percent` stays
+							 * pinned at 0 — VaultPress's file-check preflight can run for
+							 * minutes before it moves.
+							 */ }
+							{ state.message && (
+								<Text variant="body-sm" className="jpb-text-muted">
+									{ state.message }
+								</Text>
+							) }
 						</Stack>
 					) }
 					{ state.phase === 'success' && (
@@ -254,17 +296,18 @@ export default function RestoreScreen() {
 									{ state.detail }
 								</Text>
 							) }
-							<ProgressBar />
+							<ProgressBar
+								aria-label={ __( 'Checking whether your restore started', 'jetpack-backup-pkg' ) }
+							/>
 						</Stack>
 					) }
 					{ /*
 					 * Accepted, and then out of sight — the silence deadline passed, or
 					 * the status poll stopped answering. Deliberately not the error
 					 * branch below, which offers "Try again": that resets to an armed
-					 * Confirm button, so the only control on screen would start a second
-					 * concurrent restore of the same site directly beneath a notice
-					 * saying the first may still be running. Nothing upstream is known
-					 * to refuse that.
+					 * Confirm button directly beneath a notice saying the first restore
+					 * may still be running. Upstream refuses the second one as a bare
+					 * failure — a worse answer than not offering the button.
 					 *
 					 * Warning rather than error for the same reason the copy says "may":
 					 * we have no evidence the restore failed, only that we cannot see

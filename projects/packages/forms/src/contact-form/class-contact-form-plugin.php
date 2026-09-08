@@ -1644,6 +1644,25 @@ class Contact_Form_Plugin {
 				return $validation_error;
 			}
 
+			// Bind the posted `contact-form-id` to the form the JWT was signed for. The JWT
+			// authenticates the form's source, but the posted id is a separate, unsigned field;
+			// without this a submission could present one form's signed token while claiming a
+			// different id, leaving the two out of sync for anything downstream that reads the
+			// raw id. For a single-post form the posted id is the source post id (optionally
+			// suffixed for multiple forms on a page, e.g. `5-2`), so compare on the integer id.
+			//
+			// Only apply this when the source is an actual post: a form rendered with no post in
+			// scope has source id 0 (and a non-numeric posted id like `jp-form`), which is not a
+			// mismatch to reject. This mirrors validate_parent_post()'s `is_numeric && > 0` guard.
+			$source    = $form->get_source();
+			$source_id = $source->get_id();
+
+			if ( 'single' === $source->get_source_type() && is_numeric( $source_id ) && (int) $source_id > 0 ) {
+				if ( (int) $id !== (int) $source_id ) {
+					return Form_Submission_Error::system_error( 'form_id_mismatch_post', __( 'Form ID mismatch.', 'jetpack-forms' ) );
+				}
+			}
+
 			$form->validate();
 
 			if ( $form->has_errors() ) {
@@ -4020,6 +4039,7 @@ class Contact_Form_Plugin {
 	 * Exports data to Google Drive, based on POST data.
 	 *
 	 * @see Contact_Form_Plugin::get_feedback_entries_from_post
+	 * @return never
 	 */
 	public function export_to_gdrive() {
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- verification is done on validate_export_to_gdrive_request function
@@ -4031,7 +4051,6 @@ class Contact_Form_Plugin {
 				403,
 				JSON_UNESCAPED_SLASHES
 			);
-			return;
 		}
 
 		$grunion     = self::init();

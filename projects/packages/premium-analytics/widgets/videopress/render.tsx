@@ -43,10 +43,9 @@ type VideoPressWidgetProps = WidgetRenderProps< VideoPressRenderAttributes > & {
 };
 
 /**
- * Maps normalized video rows onto the shape `LeaderboardChart` expects. Shares
- * are computed against the largest value of either period so the overlay bars
- * stay proportional. Rows without a matching comparison-period value keep
- * comparison fields undefined so the chart suppresses fabricated deltas.
+ * Maps normalized video rows to `LeaderboardChart` shape. Shares are computed
+ * against the largest value of either period; rows without a comparison match
+ * keep fields undefined so the chart doesn't fabricate deltas.
  */
 function buildLeaderboardData(
 	rows: VideoPlaysRow[],
@@ -86,9 +85,8 @@ function VideoPressReport() {
 		[ reportParams ]
 	);
 
-	// The hook merges comparison rows in the data layer and gates
-	// `hasComparison` on at least one visible row (`maxRows`) having a matching
-	// comparison row, so the chart never fabricates vs-zero deltas.
+	// The hook merges comparison rows and gates `hasComparison` on at least one
+	// visible row having a match, so the chart never fabricates vs-zero deltas.
 	const { primary, comparisonRows, hasComparison, isLoading, isFetching, isError, refetch } =
 		useStatsVideoPlays( statsParams, { maxRows: WIDGET_ROW_LIMIT } );
 
@@ -106,9 +104,8 @@ function VideoPressReport() {
 		<WidgetState
 			isLoading={ isInitialLoading }
 			isFetching={ isFetching }
-			// The Stats queries carry `placeholderData`, so a failed range change keeps
-			// the prior period's rows visible; only surface the error when there is
-			// nothing to show.
+			// `placeholderData` keeps prior rows visible after a failed range change; only
+			// surface the error when nothing is on screen.
 			isError={ rows.length === 0 && isError }
 			isEmpty={ rows.length === 0 }
 			error={ {

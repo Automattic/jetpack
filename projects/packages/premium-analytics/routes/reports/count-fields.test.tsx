@@ -106,4 +106,16 @@ describe( 'report table count fields', () => {
 
 		expect( screen.getByText( '4.0' ) ).toBeInTheDocument();
 	} );
+
+	it( 'renders the Annual insights image average to one decimal', () => {
+		renderCountField( getAnnualInsightsFields(), 'avg_images', { avg_images: 4 } as never );
+
+		expect( screen.getByText( '4.0' ) ).toBeInTheDocument();
+	} );
+
+	it( 'renders the Annual insights words-per-post average whole, as legacy does', () => {
+		renderCountField( getAnnualInsightsFields(), 'avg_words', { avg_words: 1234.4 } as never );
+
+		expect( screen.getByText( '1,234' ) ).toBeInTheDocument();
+	} );
 } );

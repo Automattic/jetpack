@@ -7,7 +7,7 @@ import {
 	type StatsSubscribersResponse,
 	type StatsSubscribersUnit,
 } from '@jetpack-premium-analytics/data';
-import { toChartDate } from '@jetpack-premium-analytics/widgets-toolkit';
+import { resolveBucketStamp } from '@jetpack-premium-analytics/datetime';
 import { useMemo } from '@wordpress/element';
 
 /**
@@ -40,24 +40,28 @@ export interface SubscribersChartState {
 	refetch: () => void;
 }
 
-// Wall clocks, not instants — the chart reads them back via
-// `pointsAreWallClocks` (rationale in `chart-date.ts`).
-function toPoints( report: StatsSubscribersResponse | undefined ): SubscribersChartPoint[] {
-	return ( report?.data ?? [] ).map( point => ( {
-		date: toChartDate( point.date_start ),
-		subscribers: Number( point.subscribers ?? point.value ?? 0 ),
-		paid: Number( point.subscribers_paid ?? 0 ),
-	} ) );
+function toPoints(
+	report: StatsSubscribersResponse | undefined,
+	zone: string
+): SubscribersChartPoint[] {
+	return ( report?.data ?? [] ).flatMap( point => {
+		const date = resolveBucketStamp( point.date_start, zone );
+
+		return date
+			? [
+					{
+						date,
+						subscribers: Number( point.subscribers ?? point.value ?? 0 ),
+						paid: Number( point.subscribers_paid ?? 0 ),
+					},
+			  ]
+			: [];
+	} );
 }
 
 /**
- * Fetch the subscribers time series for the dashboard's date range at the
- * given bucket size, together with the dashboard comparison window.
- *
- * The dashboard drives all three: the range, the previous-period overlay via
- * its comparison state, and `period` via its chart interval control. Both
- * windows are fetched by `useStatsSubscribersReport`, which layers the
- * comparison range on top of `reportParams`.
+ * Fetches the subscribers time series for the dashboard's date range and
+ * bucket size, including the comparison window when the dashboard requests it.
  */
 export default function useSubscribersChart(
 	reportParams: ReportParams,
@@ -66,8 +70,15 @@ export default function useSubscribersChart(
 	const params = useMemo( () => ( { ...reportParams, period } ), [ reportParams, period ] );
 	const report = useStatsSubscribersReport( params );
 
-	const current = useMemo( () => toPoints( report.primary.data ), [ report.primary.data ] );
-	const previous = useMemo( () => toPoints( report.comparison.data ), [ report.comparison.data ] );
+	const zone = report.timezone;
+	const current = useMemo(
+		() => toPoints( report.primary.data, zone ),
+		[ report.primary.data, zone ]
+	);
+	const previous = useMemo(
+		() => toPoints( report.comparison.data, zone ),
+		[ report.comparison.data, zone ]
+	);
 
 	return {
 		current,
@@ -75,11 +86,8 @@ export default function useSubscribersChart(
 		hasPaid: current.some( point => point.paid > 0 ),
 		isLoading: report.isLoading,
 		isFetching: report.isFetching,
-		// The Stats queries carry `placeholderData: previousData => previousData`, so a
-		// failed range change keeps the prior period's points in `current` while
-		// `isError` flips true. Only surface the error when there's nothing to show,
-		// so a transient refetch failure doesn't replace a populated chart with the
-		// error state.
+		// `placeholderData` keeps stale points in `current` after a failed refetch; only
+		// surface the error once there is nothing on screen to show.
 		isError: current.length === 0 && report.isError,
 		refetch: report.refetch,
 	};

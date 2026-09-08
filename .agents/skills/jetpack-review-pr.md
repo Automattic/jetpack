@@ -1,6 +1,6 @@
 ---
 description: Review a Jetpack pull request for bugs, security, performance, convention compliance, and test coverage
-allowed-tools: Bash(gh pr view:*), Bash(gh pr diff:*), Bash(gh pr list:*), Bash(gh auth:*), Bash(jp test:*), Bash(jp docker:*), Bash(jp phan:*), Bash(jp build:*), Bash(jp install:*), Bash(git fetch:*), Bash(git worktree:*), Bash(git branch:*), Bash(git log:*), Bash(git diff:*), Bash(git rev-parse:*), Bash(grep:*), Bash(timeout:*), Bash(mktemp:*), Read, Glob, Grep, Agent
+allowed-tools: Bash(gh pr view:*), Bash(gh pr diff:*), Bash(gh pr list:*), Bash(gh auth:*), Bash(jp test:*), Bash(jp docker:*), Bash(jp phan:*), Bash(jp build:*), Bash(jp install:*), Bash(git fetch:*), Bash(git worktree:*), Bash(git branch:*), Bash(git log:*), Bash(git diff:*), Bash(git rev-parse:*), Bash(grep:*), Bash(awk:*), Bash(timeout:*), Bash(mktemp:*), Read, Glob, Grep, Agent
 ---
 
 Review a Jetpack pull request for code quality, bugs, security, performance, Jetpack conventions, and test adequacy.
@@ -135,6 +135,7 @@ Note: `AGENTS.md` is already loaded in your context via the CLAUDE.md `@AGENTS.m
 | Translations | no | if has_strings | yes |
 | Copy consistency (grep codebase) | no | no | yes |
 | Code simplicity / WP reuse | no | yes | yes |
+| Comment budget | yes | yes | yes |
 | WP/PHP version compat | no | yes | yes |
 
 ---
@@ -286,6 +287,43 @@ grep 'MIN_PHP_VERSION' .github/versions.sh
 - Check project's own `composer.json` `require.php` — may differ from monorepo default
 - Common traps (non-exhaustive): named args (8.0+), match (8.0+), `str_contains()`/`str_starts_with()`/`str_ends_with()` (8.0+, polyfilled by WP since 5.9 — check project's minimum WP version), enums (8.1+), readonly properties (8.1+), `array_is_list()` (8.1+, NOT polyfilled by WP), readonly classes (8.2+), `json_validate()` (8.3+)
 
+---
+
+#### Comment budget (all depths — diff-visible, needs no file reading)
+
+`AGENTS.md` § Comments is the rule and is already in your context. Apply it; do not restate it in
+the review. It leaves two things to settle here:
+
+- **The unit.** The budget is *per comment*, so report over-budget **blocks**. A share-of-the-diff
+  percentage measures something the rule does not define and is not comparable against it.
+- **What counts.** Only prose. `/**`, `*/`, `@param`, `@return`, `translators:`, `phpcs:ignore`
+  and `eslint-disable` are mandatory scaffolding, so a compliant PHP docblock is already several
+  lines before it says anything. Budget: a summary (1–2 lines) plus at most 2 more.
+
+Get the candidate list, then judge each entry — the script decides nothing:
+
+```bash
+gh pr diff <PR> | awk -f .agents/skills/jetpack-review-pr/scripts/comment-budget.awk
+```
+
+It prints `path:line<TAB>N prose lines (M total)` for blocks over 4 prose lines. `line` is where
+*this PR's* added prose starts, which is mid-block when the PR edited an existing comment. It reads
+code files only — a `*` or `#` means something else in Markdown, `readme.txt` and CSS — so prose in
+docs never appears and still needs your eyes.
+
+- **Discard** — within budget once scaffolding is excluded, or a license header, generated file,
+  or vendored code.
+- **`[suggestion]`** — over budget. Name the shape (design essay / mechanic repeated on one member
+  of a list / copy-paste-survivable background / provenance that rots / the same explanation in
+  two places) and give the shorter version. "Too long" with no concrete cut is not a review.
+- **`[blocker]`** — the comment contradicts the code it describes.
+
+Read the shape of the output, not just its length. A few large blocks are incidents — file them
+individually. Many blocks clustered just over budget are a habit — say so once with two or three
+examples rather than filing fifteen near-identical findings. Check whether the untouched
+neighbours are already written that way; if they are, say so, because that makes it a
+direction-of-travel note rather than a regression this PR introduced.
+
 ### 5. Cross-project dependency check
 
 **Quick**: skip. **Standard**: only if a package changed. **Thorough**: always.
@@ -408,6 +446,7 @@ Review depth: **<depth>** (<lines> lines, <N> projects)
 ### Translation Issues
 ### Copy Review
 ### Code Simplicity / WordPress Reuse
+### Comment Budget
 ### Dependency Changes
 ### PHP / WordPress Version Compatibility
 ### Feature Gating

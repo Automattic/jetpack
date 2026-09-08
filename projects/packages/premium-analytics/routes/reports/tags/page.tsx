@@ -40,10 +40,9 @@ const sortTagCsvRows = ( a: StatsTagsItem, b: StatsTagsItem ) => b.value - a.val
 /**
  * Premium Analytics Tags & categories report page component.
  *
- * The `stats/tags` endpoint reports one flat all-time list and ignores
- * date-window parameters (verified against WPCOM; Calypso never sends date
- * params here either), so the page composes only the breadcrumb header and
- * records table: no date filters, tabs, or performance chart.
+ * `stats/tags` returns one flat list over the seven days ending yesterday and ignores
+ * date-window params, so this page has no date filters, tabs, or performance chart —
+ * just the header and records table.
  *
  * @return The Tags & categories report page.
  */
@@ -79,7 +78,6 @@ function TagsReport(): JSX.Element {
 		<ReportPageShell
 			visual={ <StatsPageIcon /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
-			subTitle={ __( 'Your most visited tags and categories.', 'jetpack-premium-analytics-pkg' ) }
 			actions={
 				canExport ? (
 					<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
@@ -88,10 +86,9 @@ function TagsReport(): JSX.Element {
 		>
 			<ReportPageLayout title={ getTitle() }>
 				{ /*
-				 * The error state replaces the table rather than sitting beside it:
-				 * `ReportRecordsTable`'s `empty` renders on row count, not fetch
-				 * status, so a failed refetch over cached rows would otherwise leave
-				 * stale data on screen with no notice and no way to retry.
+				 * The error state replaces the table: `ReportRecordsTable`'s `empty` renders on
+				 * row count, not fetch status, so a failed refetch over cached rows would
+				 * otherwise leave stale data on screen with no notice or retry.
 				 */ }
 				{ records.isError ? (
 					<ReportErrorState

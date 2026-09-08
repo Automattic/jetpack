@@ -20,6 +20,6 @@
 	"devDependencies": {
 		"jest": "30.4.2",
 		"rollup-plugin-license": "3.7.1",
-		"tsdown": "0.22.2"
+		"tsdown": "0.22.14"
 	}
 }

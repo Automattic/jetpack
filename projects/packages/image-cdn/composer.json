@@ -46,7 +46,7 @@
 		},
 		"autotagger": true,
 		"branch-alias": {
-			"dev-trunk": "0.7.x-dev"
+			"dev-trunk": "0.8.x-dev"
 		},
 		"textdomain": "jetpack-image-cdn",
 		"version-constants": {

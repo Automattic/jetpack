@@ -36,11 +36,45 @@ function renderWithClient( ui: ReactNode ) {
 }
 
 /**
+ * A 200 whose body `/size` or `/policies` could not read.
+ *
+ * One of two failure shapes these routes have, and the quiet one:
+ * `json_decode` gives `null`, the route forwards that bare `null`, and
+ * WordPress serves it as HTTP 200 — so `apiFetch` resolves, React Query
+ * records a success, and the only evidence anything went wrong is the
+ * shape of the data.
+ *
+ * The other shape is a non-200 from WordPress.com, which #51625 turned
+ * into a `WP_Error`; the REST layer serves that with a real status, so
+ * `apiFetch` rejects and `apiCall()` throws. Before that PR both failures
+ * arrived as this one, which is why the tests below used to model only
+ * this half. `mockFailedRead()` arranges the other.
+ */
+const Undecodable = null;
+
+/**
+ * The rejection a failed read now produces.
+ *
+ * A plain object rather than an `Error`, because that is what `apiFetch`
+ * itself rejects with — the parsed error envelope — and `apiCall()` reads
+ * `code`, `message` and `data` off it.
+ *
+ * @return A rejected promise shaped like `apiFetch`'s.
+ */
+function bridgeFailure(): Promise< never > {
+	return Promise.reject( {
+		code: 'failed_to_fetch_data',
+		message: 'Unable to fetch the requested data.',
+		data: { status: 500 },
+	} );
+}
+
+/**
  * Answer the two routes the meter reads.
  *
- * Both default to a healthy site well under its limit. `null` for either
- * response stands for the bridges' failure shape — a bare `null` body
- * served as HTTP 200.
+ * Both default to a healthy site well under its limit. `Undecodable` for
+ * either response stands for the 200-with-an-unreadable-body case above;
+ * `mockFailedRead()` is how the rejecting one is arranged.
  *
  * @param options          - Overrides.
  * @param options.size     - What `/site/backup/size` returns.
@@ -71,6 +105,48 @@ function mockEndpoints( {
 		}
 		return Promise.resolve( {} );
 	} );
+}
+
+/**
+ * Answer one of the two routes with a bridge failure, the other normally.
+ *
+ * @param failing - Path fragment of the route that should reject.
+ */
+function mockFailedRead( failing: '/site/backup/size' | '/site/backup/policies' ) {
+	mockApiFetch.mockImplementation( ( options: { path?: string } ) => {
+		const path = options?.path ?? '';
+		if ( path.includes( failing ) ) {
+			return bridgeFailure();
+		}
+		if ( path.includes( '/site/backup/policies' ) ) {
+			return Promise.resolve( { policies: { storage_limit_bytes: 100 * GB } } );
+		}
+		if ( path.includes( '/site/backup/size' ) ) {
+			return Promise.resolve( { ok: true, size: 10 * GB } );
+		}
+		return Promise.resolve( {} );
+	} );
+}
+
+/**
+ * Wait until neither read is in flight any more.
+ *
+ * Every "stays silent" test below is a claim about what the section does
+ * once it has both answers, and `waitFor( mockApiFetch ).toHaveBeenCalled()`
+ * does not get there: it is already true on the first render, before either
+ * promise has resolved, while the `aria-hidden` skeleton is still up. An
+ * assertion of absence made at that point passes against the skeleton, and
+ * would pass against a broken gate just as happily.
+ *
+ * The skeleton's own class is the handle because it is `aria-hidden` by
+ * design — there is nothing worth announcing yet — so no role or label
+ * reaches it. Same escape hatch as `barModifiers()`.
+ */
+async function settled() {
+	await waitFor( () =>
+		// eslint-disable-next-line testing-library/no-node-access -- see above.
+		expect( document.querySelector( '.jpb-storage-meter__placeholder' ) ).toBeNull()
+	);
 }
 
 /**
@@ -131,21 +207,58 @@ describe( 'the render gate', () => {
 		release( { ok: true, size: 10 * GB, policies: { storage_limit_bytes: 100 * GB } } );
 	} );
 
-	it( 'stays silent when the policies read fails, rather than drawing an empty bar', async () => {
-		// The dangerous case. `/policies` answering a non-200 arrives as a
-		// bare `null` with HTTP 200, so nothing rejects and nothing here
-		// gets to see an error — only the missing limit says so.
-		mockEndpoints( { policies: null } );
+	it( 'stays silent when the policies body cannot be read, rather than drawing an empty bar', async () => {
+		// The quiet case. `/policies` answering 200 with something it
+		// cannot decode forwards a bare `null`, so nothing rejects and
+		// nothing here gets to see an error — only the missing limit says
+		// so, and a bar drawn against a missing limit would read as an
+		// empty one over a site that may be full.
+		mockEndpoints( { policies: Undecodable } );
 		renderWithClient( <StorageSpace /> );
-		await waitFor( () => expect( mockApiFetch ).toHaveBeenCalled() );
+		await settled();
+		expect( screen.queryByText( 'Cloud storage space' ) ).not.toBeInTheDocument();
+		expect( meterValue() ).toBeNull();
+	} );
+
+	it( 'stays silent when the size body cannot be read', async () => {
+		// The other half of the same shape. `/size` carries the numerator,
+		// so an unreadable body there has to collapse to null rather than
+		// to a zero — which would draw an empty bar and say the site has
+		// used none of its storage.
+		mockEndpoints( { size: Undecodable } );
+		renderWithClient( <StorageSpace /> );
+		await settled();
+		expect( screen.queryByText( 'Cloud storage space' ) ).not.toBeInTheDocument();
+		expect( meterValue() ).toBeNull();
+	} );
+
+	it( 'stays silent when the policies read fails outright', async () => {
+		// The shape #51625 introduced: a non-200 from WordPress.com is a
+		// `WP_Error` now, so this one rejects rather than resolving `null`.
+		// The section has to reach the same silence down a path where
+		// React Query records an error and hands back no data at all —
+		// including staying out of the loading placeholder, which would
+		// otherwise reserve height for a bar that is never coming.
+		mockFailedRead( '/site/backup/policies' );
+		renderWithClient( <StorageSpace /> );
+		await settled();
+		expect( screen.queryByText( 'Cloud storage space' ) ).not.toBeInTheDocument();
+		expect( meterValue() ).toBeNull();
+	} );
+
+	it( 'stays silent when the size read fails outright', async () => {
+		mockFailedRead( '/site/backup/size' );
+		renderWithClient( <StorageSpace /> );
+		await settled();
 		expect( screen.queryByText( 'Cloud storage space' ) ).not.toBeInTheDocument();
 		expect( meterValue() ).toBeNull();
 	} );
 
 	it( 'stays silent for a site whose plan carries no retention policy', async () => {
-		// `{ policies: null }` inside a 200 is a different thing from a
-		// failed read, and produces the same silence for a different
-		// reason: there is no limit to measure against.
+		// `{ policies: null }` inside a 200 is a different thing again from
+		// either failure above — the read worked, and this is the answer —
+		// and it produces the same silence for a third reason: there is no
+		// limit to measure against.
 		mockApiFetch.mockImplementation( ( options: { path?: string } ) => {
 			const path = options?.path ?? '';
 			if ( path.includes( '/site/backup/policies' ) ) {
@@ -154,14 +267,14 @@ describe( 'the render gate', () => {
 			return Promise.resolve( { ok: true, size: 10 * GB } );
 		} );
 		renderWithClient( <StorageSpace /> );
-		await waitFor( () => expect( mockApiFetch ).toHaveBeenCalled() );
+		await settled();
 		expect( screen.queryByText( 'Cloud storage space' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'stays silent on a zero limit rather than reading it as 100% full', async () => {
 		mockEndpoints( { policies: { storage_limit_bytes: 0 } } );
 		renderWithClient( <StorageSpace /> );
-		await waitFor( () => expect( mockApiFetch ).toHaveBeenCalled() );
+		await settled();
 		expect( screen.queryByText( 'Cloud storage full' ) ).not.toBeInTheDocument();
 		expect( meterValue() ).toBeNull();
 	} );
@@ -171,7 +284,7 @@ describe( 'the render gate', () => {
 		// zero must not be read as "you have used none of your storage".
 		mockEndpoints( { size: { ok: false, size: 0 } } );
 		renderWithClient( <StorageSpace /> );
-		await waitFor( () => expect( mockApiFetch ).toHaveBeenCalled() );
+		await settled();
 		expect( meterValue() ).toBeNull();
 	} );
 } );
@@ -274,14 +387,15 @@ describe( 'landmarks', () => {
 		).resolves.toBeInTheDocument();
 	} );
 
-	it( 'puts the heading at level 3, level with its siblings', async () => {
-		// Deliberately not legacy's `h2`. The backup and activity detail
-		// cards are `h3` and are visual siblings of this section, so an
-		// `h2` here would read as though they were nested inside cloud
-		// storage.
+	it( 'puts the heading at level 2, level with its siblings', async () => {
+		// The page's `h1` comes from the `<Page>` chassis and this section
+		// renders inside it, so `h2` is the first in-body level. The backup
+		// and activity detail cards are `h2` as well, so the three read as
+		// siblings rather than as cards nested inside cloud storage — which
+		// is what kept this at `h3` until the outline was fixed.
 		renderWithClient( <StorageSpace /> );
 		await expect(
-			screen.findByRole( 'heading', { level: 3, name: 'Cloud storage space' } )
+			screen.findByRole( 'heading', { level: 2, name: 'Cloud storage space' } )
 		).resolves.toBeInTheDocument();
 	} );
 } );

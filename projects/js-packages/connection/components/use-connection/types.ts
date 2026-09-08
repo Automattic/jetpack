@@ -1,8 +1,8 @@
 import type { ConnectionErrorMap } from '../../hooks/use-connection-error-notice/types.ts';
-import type { ConnectionOwner } from '../../types.ts';
+import type { ConnectionOwner, WpcomUser } from '../../types.ts';
 import type { SyntheticEvent } from 'react';
 
-export type { ConnectionOwner };
+export type { ConnectionOwner, WpcomUser };
 
 export interface UseConnectionProps {
 	/**
@@ -37,15 +37,6 @@ export interface UseConnectionProps {
 	 * Whether to skip the pricing page.
 	 */
 	skipPricingPage?: boolean;
-}
-
-export interface WpcomUser {
-	display_name?: string;
-	email?: string;
-	login?: string;
-	avatar?: string;
-	ID?: number;
-	[ key: string ]: unknown;
 }
 
 export interface UserConnectionData {

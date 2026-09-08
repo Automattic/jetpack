@@ -5,6 +5,45 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.0.0] - 2026-09-04
+### Changed
+- Inject WPDS design-token fallbacks at build time via @wordpress/theme's LightningCSS plugin. [#51722]
+- Render chart tooltips inside the chart instead of a document.body portal, so they stack correctly under sticky and fixed page elements. `detectBounds` now keeps the box inside the nearest ancestor that clips its overflow, or the viewport. The tooltip's `scroll`, `debounce` and `resizeObserverPolyfill` options are deprecated and ignored. [#51640]
+- Render time-axis and tooltip dates in a host-supplied locale and time zone, set on GlobalChartsProvider. Both default to the browser's, as before. [#51812]
+- Update package dependencies. [#51701]
+
+### Removed
+- Remove every color field from the chart theme. Set the matching `--a8c-charts-color-*` custom property inside the provider tree instead — every removed field named one, and they were deprecated in the previous release. `TOKENS.md` lists the catalog. `LeaderboardChart`'s `primaryColor` and `secondaryColor` props and `HeatmapChart`'s `primaryColor` prop are unaffected, and a single annotation still takes colors through its own `styles` prop.
+  
+  Remove `gridColor` and `gridColorDark`, which were undocumented visx passthroughs. `gridColor` painted the y axis line and y tick marks, which no other field could reach. Add `--a8c-charts-color-axis-y` and `--a8c-charts-color-tick-y` to replace it: both resolve to `none`, so the y axis still carries labels only by default, and a chart that wants a painted y axis declares them.
+  
+  Rename `--a8c-charts-color-axis` to `--a8c-charts-color-axis-x` and `--a8c-charts-color-tick` to `--a8c-charts-color-tick-x`. Both only ever painted the x axis; now that the y axis has roles of its own, the names say which one they move.
+  
+  Add `leaderboard-chart`, `conversion-funnel-chart` and `bar-list-chart` classes to those charts' roots, and add the `pie-semi-circle-chart` class to that chart's error state, which was missing it. This matches the `bar-chart`, `line-chart` and `pie-chart` classes the other charts already carry, and gives a consumer somewhere to scope a role to one chart — which matters for a role more than one chart reads, since `--a8c-charts-color-surface-secondary` paints the funnel's track and `GeoChart`'s dataless regions, and the trend pair paints the funnel's change indicator and the leaderboard's deltas.
+  
+  `BarListChart` and `PieSemiCircleChart`'s error state now also pass a caller's own `className` through, which they previously dropped.
+  
+  Remove `--a8c-charts-color-label-on-fill`. Set `--a8c-charts-color-label-inverse` instead: both meant label text on a filled surface, and one role covers the pie segment labels and the heatmap cell values together. Pie labels follow that role's `--wpds-color-foreground-interactive-neutral-strong` mapping now, so they are off-white rather than pure white until a consumer sets the role.
+  
+  Remove `theme.leaderboardChart.rowGap` and `.columnGap`. Declare `--a8c-charts-dimension-leaderboard-row-gap` or `--a8c-charts-dimension-leaderboard-column-gap` inside the provider tree instead; they map to `--wpds-dimension-gap-md` and `--wpds-dimension-gap-xs`, so the default spacing follows the design system. `TOKENS.md` lists both roles.
+  
+  Remove the two remaining deprecated APIs, so this major carries every removal at once rather than spending a second one later. `AreaChart`'s `rescaleYOnLegendToggle` prop goes — use `rescaleYOnVisibilityChange`, which is the same setting under a name that matches when it applies. The `parseRgbString` helper goes — use `normalizeColorToHex`, which handles `rgb()` alongside every other format. [#51748]
+
+### Fixed
+- Place line and area chart date ticks on the host time zone's calendar boundaries, name the hour in tooltips on hourly data, let the locale rather than a forced 12-hour clock choose how every chart's hour labels read, and hand a custom tooltip the chart's date bucket classification. [#51813]
+- Tooltip: Keep the drop shadow when `--a8c-charts-color-label-axis` resolves to something other than a 6-digit hex. visx appends an alpha suffix to that color to build the shadow, which only parses after a hex, so an `rgb()` or `hsl()` value silently dropped the shadow entirely. [#51748]
+
+## [3.2.0] - 2026-09-01
+### Added
+- Bar and line charts: Report a click through the pointer event handlers and Enter or Space through an activation callback, so a chart can open the point under the pointer or the keyboard selection. [#51544]
+
+### Changed
+- Follow the WordPress admin color scheme for series colors, and move the palette to five --a8c-charts-color-series-* custom properties. theme.colors is deprecated. [#51535]
+- Stop resolving the grid, axis, tick and label colors in JavaScript and let their `--a8c-charts-color-*` chain reach the element instead, so an override set on a chart's own element applies to it and a theme change repaints with no re-render. Add `--a8c-charts-color-label-background` for the plate behind a pie-slice label.
+  
+  Deprecate every color field on the chart theme — each one now has a `--a8c-charts-color-*` role, a component prop, or both. They all still work. Where a field mixes a color with something else, only the color member is deprecated: `gridStyles.strokeWidth`, `svgLabelSmall.fontFamily` and the annotation geometry are unaffected. [#51687]
+- Update package dependencies. [#51303] [#51665] [#51802]
+
 ## [3.1.1] - 2026-08-26
 ### Fixed
 - LineChart, AreaChart, BarChart: Keep the derived date tick labels when a consumer passes an undefined tickFormat. [#51531]
@@ -1007,6 +1046,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed lints following ESLint rule changes for TS [#40584]
 - Fixing a bug in Chart storybook data. [#40640]
 
+[4.0.0]: https://github.com/Automattic/charts/compare/v3.2.0...v4.0.0
+[3.2.0]: https://github.com/Automattic/charts/compare/v3.1.1...v3.2.0
 [3.1.1]: https://github.com/Automattic/charts/compare/v3.1.0...v3.1.1
 [3.1.0]: https://github.com/Automattic/charts/compare/v3.0.0...v3.1.0
 [3.0.0]: https://github.com/Automattic/charts/compare/v2.0.1...v3.0.0

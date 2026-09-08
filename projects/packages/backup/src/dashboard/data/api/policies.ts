@@ -8,7 +8,7 @@ import { apiCall, apiPath } from './_helpers';
  * here worth reading, and it is genuinely nullable: a site whose plan
  * carries no retention policy answers `{ policies: null }` inside a 200.
  *
- * Like every legacy bridge, a non-200 upstream collapses to a bare
+ * An upstream answer the route cannot decode still collapses to a bare
  * `null` body served as HTTP 200 — so `null` at the top level means "we
  * could not read this", while `{ policies: null }` means "there is no
  * policy". Callers must not conflate the two with the storage limit

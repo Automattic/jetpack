@@ -73,7 +73,6 @@ describe( 'normalizeEntry', () => {
 			// `object.backup_stats`. Rendering backup_stats verbatim
 			// would dump JSON into the UI.
 			stats: '4 plugins, 1 theme, 20 uploads, 4 posts, 1 page',
-			isComplete: true,
 		} );
 	} );
 

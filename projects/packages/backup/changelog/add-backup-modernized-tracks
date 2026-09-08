@@ -1,3 +1,0 @@
-Significance: patch
-Type: added
-Comment: Backup: register the Tracks client on the modernized dashboard and cover the flag → menu → enqueue chain. No-op when the modernization filter is off.

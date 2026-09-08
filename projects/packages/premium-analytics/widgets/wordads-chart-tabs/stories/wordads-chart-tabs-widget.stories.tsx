@@ -14,12 +14,17 @@ import {
 } from '../../../packages/widgets-toolkit/src/stories/mocks/register-report-mocks';
 import { createStoryWidgetType } from '../../stories/create-story-widget-type';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
+import {
+	siteTimeZoneArgTypes,
+	withSiteTimeZone,
+	type SiteTimeZoneControls,
+} from '../../stories/with-site-time-zone';
 import WordAdsChartTabsRender from '../render';
 import widgetDefinition from '../widget';
 import widgetManifest from '../widget.json';
 import type { IntervalType } from '@jetpack-premium-analytics/datetime';
 import type { Meta, StoryObj } from '@storybook/react';
-import type { ComponentType } from 'react';
+import type { ComponentProps, ComponentType } from 'react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
 registerReportMocks();
@@ -39,20 +44,24 @@ const meta = {
 	title: 'Packages/Premium Analytics/Widgets/WordAdsChartTabs',
 	component: WordAdsChartTabsRender,
 	tags: [ 'autodocs' ],
+	decorators: [ withSiteTimeZone ],
+	argTypes: {
+		...siteTimeZoneArgTypes,
+	},
 	parameters: {
 		docs: {
 			description: {
 				component:
-					"WordAds performance over the selected period as selectable metric tabs — Ads Served, Average CPM, and Revenue, matching the Calypso WordAds page's tabs — over a line chart. Ads Served is a count; CPM and revenue are currency (WordAds pays USD). The widget hosts its own date range and bucket-size controls in its header, saved onto the widget instance; which metric is plotted is the chart's own tab selection. WordAds stats are computed nightly, so a range ending today is clamped to end at yesterday. Data comes from the `useStatsWordAdsStats` hook (the `wordads` proxy prefix); in Storybook it is served by `registerReportMocks`. Requires WordAds to be active on the site for live data.",
+					"WordAds performance over the selected period as selectable metric tabs — Ads Served, Average CPM, and Revenue, matching the Calypso WordAds page's tabs — over a line chart. Ads Served is a count; CPM and revenue are currency (WordAds pays USD). The widget hosts its own date range and bucket-size controls in its header, saved onto the widget instance; which metric is plotted is the chart's own tab selection. WordAds stats are computed nightly, so the last bucket of a range ending today stays empty until that run lands; only a range ending in the future is clamped back to today. Data comes from the `useStatsWordAdsStats` hook (the `wordads` proxy prefix); in Storybook it is served by `registerReportMocks`. Requires WordAds to be active on the site for live data.",
 			},
 		},
 	},
-} satisfies Meta< typeof WordAdsChartTabsRender >;
+} satisfies Meta< ComponentProps< typeof WordAdsChartTabsRender > & SiteTimeZoneControls >;
 
 export default meta;
 
-type Story = StoryObj< Record< string, never > >;
-type DashboardStory = StoryObj< WidgetDashboardWithWidgetControls >;
+type Story = StoryObj< SiteTimeZoneControls >;
+type DashboardStory = StoryObj< WidgetDashboardWithWidgetControls & SiteTimeZoneControls >;
 
 /**
  * The widget on its own, on the range its header control defaults to.
@@ -105,7 +114,9 @@ export const Empty: Story = {
 	},
 };
 
-function WordAdsChartTabsDashboardStory( dashboardArgs: WidgetDashboardWithWidgetControls ) {
+function WordAdsChartTabsDashboardStory( {
+	...dashboardArgs
+}: WidgetDashboardWithWidgetControls & SiteTimeZoneControls ) {
 	return (
 		<WidgetDashboardWithWidgetStory
 			{ ...dashboardArgs }

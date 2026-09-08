@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Forms\ContactForm;
 
+use Automattic\Jetpack\Assets\Shared_Stores_Assets;
 use Automattic\Jetpack\Extensions\Contact_Form\Contact_Form_Block;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -745,6 +746,10 @@ class Contact_Form_Block_Test extends BaseTestCase {
 	 * Contact_Form::parse() adds rather than with the block's own element.
 	 */
 	public function test_form_background_lands_on_the_blocks_own_div() {
+		// The form block renders its "Submit a form." fallback unless the request
+		// looks like a frontend one. See tests/php/bootstrap.php.
+		add_filter( 'wp_doing_ajax', '__return_false' );
+
 		Contact_Form_Block::register_block();
 		Contact_Form_Block::register_child_blocks();
 
@@ -786,15 +791,16 @@ class Contact_Form_Block_Test extends BaseTestCase {
 		// The fallback style should also be registered.
 		$this->assertTrue( wp_style_is( 'jetpack-blocks-editor', 'registered' ), 'jetpack-blocks-editor style should be registered as a fallback.' );
 
-		// Verify the localized Jetpack_Editor_Initial_State data contains expected keys.
+		// The shared store must receive state before it executes as a Forms dependency.
 		$scripts = wp_scripts();
-		$data    = $scripts->get_data( 'jetpack-blocks-editor', 'data' );
+		$data    = $scripts->get_data( Shared_Stores_Assets::SCRIPT_HANDLE, 'data' );
 
-		$this->assertNotEmpty( $data, 'jetpack-blocks-editor should have localized data.' );
+		$this->assertNotEmpty( $data, 'jetpack-shared-stores should have localized data.' );
 		$this->assertStringContainsString( 'available_blocks', $data );
 		$this->assertStringContainsString( 'contact-form', $data );
 		$this->assertStringContainsString( 'modules', $data );
 		$this->assertStringContainsString( 'feature_flags', $data );
+		$this->assertEmpty( $scripts->get_data( 'jetpack-blocks-editor', 'data' ) );
 	}
 
 	/**

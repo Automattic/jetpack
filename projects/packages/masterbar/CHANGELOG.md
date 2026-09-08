@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.28.0] - 2026-09-01
+### Removed
+- Minimum supported PHP version is now 7.4. [#51515]
+
+### Fixed
+- Admin color schemes: Render the checked checkbox and radio marks in white, matching core. [#51774]
+
 ## [0.27.38] - 2026-08-25
 ### Fixed
 - Admin color schemes: Stop labelling the Fresh scheme "Default", which duplicated the Default (Modern) entry on WordPress 7.0. [#51376]
@@ -638,6 +645,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Notifications: Change Icon [#37676]
 - Updated package dependencies. [#37669] [#37706]
 
+[0.28.0]: https://github.com/Automattic/jetpack-masterbar/compare/v0.27.38...v0.28.0
 [0.27.38]: https://github.com/Automattic/jetpack-masterbar/compare/v0.27.37...v0.27.38
 [0.27.37]: https://github.com/Automattic/jetpack-masterbar/compare/v0.27.36...v0.27.37
 [0.27.36]: https://github.com/Automattic/jetpack-masterbar/compare/v0.27.35...v0.27.36

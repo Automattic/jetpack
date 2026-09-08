@@ -10,9 +10,8 @@ import { siteSettingsIn } from '../../../__fixtures__/wp-date-settings';
 import { ComparativeBarChart } from '../comparative-bar-chart';
 import type { ComparativeBarChartSeries } from '../types';
 
-// Record the options handed to the underlying chart. The real one renders SVG
-// through a provider jsdom cannot lay out, and what matters here is the option
-// object this wrapper composes.
+// Record the options handed to the underlying chart: the real one renders SVG
+// through a provider jsdom cannot lay out.
 const mockBarSpy = jest.fn();
 const mockLegendSpy = jest.fn();
 
@@ -31,6 +30,8 @@ jest.mock( '@jetpack-premium-analytics/externals', () => {
 	};
 
 	return {
+		// The real classifier: this is what the tooltip format now follows.
+		getBucketInfo: jest.requireActual( '@automattic/charts' ).getBucketInfo,
 		BarChart,
 		// The wrapper measures this element, so the stand-in must take the ref.
 		Stack: forwardRef(
@@ -50,9 +51,8 @@ jest.mock( '@jetpack-premium-analytics/externals', () => {
 	};
 } );
 
-// jsdom's ResizeObserver is a no-op stub, so the real hook's callback never
-// fires and the chart would measure as infinitely tall in every test — leaving
-// the whole `compactWhenShort` branch unreachable. Drive the height instead.
+// jsdom's ResizeObserver is a no-op stub, so the real hook's callback never fires
+// and the chart measures as infinitely tall, leaving `compactWhenShort` unreachable.
 let mockChartHeight = Infinity;
 
 jest.mock( '@wordpress/compose', () => ( {
@@ -73,9 +73,8 @@ const DATA_FORMAT = { type: 'number' as const, options: { decimals: 0 } };
 const JULY_1 = new Date( '2026-07-01T00:00:00Z' );
 const JULY_2 = new Date( '2026-07-02T00:00:00Z' );
 
-// A tooltip label reads its point as the instant it is, in the site's timezone,
-// so this one is an instant and every label assertion fixes the site's zone.
-// Callers whose points are wall clocks pass their own `formatTooltipDate`.
+// A tooltip label reads its point as the instant it is, in the site's timezone, so
+// every label assertion below fixes the site's zone.
 const JULY_2_2PM_TOKYO = new Date( '2026-07-02T05:00:00Z' );
 
 const SERIES: ComparativeBarChartSeries[] = [
@@ -91,6 +90,18 @@ const SERIES: ComparativeBarChartSeries[] = [
 
 // Comparison points already carry the primary axis dates (that is what
 // `alignSeriesDates` does), with the real previous-period date in `realDate`.
+// An hour apart, so the library reads the series as hourly on its own.
+const HOURLY_SERIES: ComparativeBarChartSeries[] = [
+	{
+		label: 'July',
+		group: 'views',
+		data: [
+			{ date: new Date( '2026-07-02T04:00:00Z' ), value: 100 },
+			{ date: JULY_2_2PM_TOKYO, value: 200 },
+		],
+	},
+];
+
 const SERIES_WITH_COMPARISON: ComparativeBarChartSeries[] = [
 	SERIES[ 0 ],
 	{
@@ -139,11 +150,7 @@ type TooltipProps = {
 	getLabel: ( datum: { date?: Date; realDate?: Date }, index: number, key: string ) => string;
 };
 
-/**
- * Every prop the most recent chart render received.
- *
- * @return The recorded props.
- */
+/** Every prop the most recent chart render received. */
 function recordedProps(): {
 	options: {
 		axis: { x: Record< string, unknown >; y: Record< string, unknown > };
@@ -163,11 +170,7 @@ function recordedProps(): {
 	return mockBarSpy.mock.calls.at( -1 )[ 0 ];
 }
 
-/**
- * The options the most recent chart render received.
- *
- * @return The recorded chart options.
- */
+/** The options the most recent chart render received. */
 function recordedOptions() {
 	return recordedProps().options;
 }
@@ -175,9 +178,6 @@ function recordedOptions() {
 /**
  * Run the chart's `renderTooltip` for a hovered primary point and report the
  * tooltip rows it produced, as `label → value`.
- *
- * @param hoveredDate - The category the pointer (or keyboard focus) is on.
- * @return One entry per tooltip row.
  */
 function tooltipRowsFor( hoveredDate: Date ): Record< string, number > {
 	/* eslint-disable testing-library/render-result-naming-convention --
@@ -201,12 +201,7 @@ function tooltipRowsFor( hoveredDate: Date ): Record< string, number > {
 	);
 }
 
-/**
- * The label the tooltip puts on a hovered point.
- *
- * @param hoveredDate - The point's date.
- * @return The rendered row label.
- */
+/** The label the tooltip puts on a hovered point. */
 function tooltipLabelFor( hoveredDate: Date ): string {
 	/* eslint-disable testing-library/render-result-naming-convention --
 	   As above: this is the chart's `renderTooltip` prop, not testing-library's
@@ -287,8 +282,30 @@ describe( 'ComparativeBarChart', () => {
 		expect( tooltipLabelFor( JULY_2_2PM_TOKYO ) ).toBe( 'July 2, 2026 2:00 pm' );
 	} );
 
-	// How a point's date is read is the caller's to decide — Stats buckets are
-	// wall clocks rather than instants — while which format names it stays here.
+	// Most widgets declare no resolution, so reading the caller's prop alone left
+	// an hourly series naming all 24 of a day's points with the same date.
+	it( 'adds the hour for an hourly series that declares no resolution', () => {
+		setSettings( siteSettingsIn( 'Asia/Tokyo' ) );
+		render( <ComparativeBarChart series={ HOURLY_SERIES } dataFormat={ DATA_FORMAT } /> );
+
+		expect( tooltipLabelFor( JULY_2_2PM_TOKYO ) ).toBe( 'July 2, 2026 2:00 pm' );
+	} );
+
+	it( 'lets a declared resolution override what the data looks like', () => {
+		setSettings( siteSettingsIn( 'Asia/Tokyo' ) );
+		render(
+			<ComparativeBarChart
+				series={ HOURLY_SERIES }
+				dataFormat={ DATA_FORMAT }
+				tickResolution="day"
+			/>
+		);
+
+		expect( tooltipLabelFor( JULY_2_2PM_TOKYO ) ).toBe( 'July 2, 2026' );
+	} );
+
+	// How a point's date reads is the caller's to decide; which format names it
+	// stays here.
 	it( 'hands the point and the format it picked to a caller-supplied formatter', () => {
 		const formatTooltipDate = jest.fn( () => 'the bucket' );
 		render(
@@ -307,9 +324,8 @@ describe( 'ComparativeBarChart', () => {
 	it( 'adds the previous-period value to the tooltip when comparing', () => {
 		render( <ComparativeBarChart series={ SERIES_WITH_COMPARISON } dataFormat={ DATA_FORMAT } /> );
 
-		// The chart hands a custom tooltip renderer only the primary series, so
-		// without re-pairing here the shadow bar's value would be unreadable —
-		// including to screen readers, which get the same tooltip content.
+		// The chart hands a custom tooltip renderer only the primary series, so without
+		// re-pairing here the shadow bar's value would be unreadable.
 		expect( tooltipRowsFor( JULY_1 ) ).toEqual( { July: 100, June: 80 } );
 		expect( tooltipRowsFor( JULY_2 ) ).toEqual( { July: 100, June: 120 } );
 	} );
@@ -335,9 +351,8 @@ describe( 'ComparativeBarChart', () => {
 			tooltipData: { nearestDatum: { datum: { date: JULY_1, value: 100 }, key: 'July' } },
 		} ).props;
 
-		// Every row on a paired chart covers the same hovered date, so a date alone
-		// would label two of them identically. A comparison row is named after the
-		// metric it shadows, not by its own internal label.
+		// Every row on a paired chart covers the same hovered date, so a date alone would
+		// label two of them identically.
 		expect( getLabel( { date: JULY_1 }, 0, 'July' ) ).toBe( 'July · July 1, 2026' );
 		expect( getLabel( { date: JULY_1 }, 2, 'Visitors' ) ).toBe( 'Visitors · July 1, 2026' );
 		expect(
@@ -358,9 +373,8 @@ describe( 'ComparativeBarChart', () => {
 			tooltipData: { nearestDatum: { datum: { date: JULY_1, value: 100 }, key: 'July' } },
 		} );
 
-		// The chart lists both current periods before either previous period, while
-		// the styles follow the series. Without the keys the tooltip pairs each row
-		// with whichever style happens to sit at its position.
+		// The chart lists both current periods before either previous period, while the
+		// styles follow the series, so without the keys each row takes the wrong style.
 		expect( tooltip.props.seriesKeys ).toEqual( [ 'July', 'June', 'Visitors', 'Visitors · June' ] );
 	} );
 

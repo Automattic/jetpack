@@ -10,6 +10,7 @@
 namespace Automattic\Jetpack;
 
 use Automattic\Jetpack\PremiumAnalytics\Analytics as Premium_Analytics;
+use Automattic\Jetpack\PremiumAnalytics\Enablement_Setting as Premium_Analytics_Enablement_Setting;
 
 define( 'WPCOM_ADMIN_BAR_UNIFICATION', true );
 /**
@@ -21,9 +22,16 @@ class Jetpack_Mu_Wpcom {
 	const BASE_DIR        = __DIR__ . '/';
 	const BASE_FILE       = __FILE__;
 
+	// Gutenberg plugin releases known to break with React 19.
+	const REACT_19_INCOMPATIBLE_GUTENBERG = array( '23.9.0' );
+
 	// Themes (by template slug) and plugins (by basename) known to break with React 19.
-	const REACT_19_INCOMPATIBLE_THEMES  = array( 'divi' );
-	const REACT_19_INCOMPATIBLE_PLUGINS = array( 'wp-table-builder/wp-table-builder.php' );
+	const REACT_19_INCOMPATIBLE_THEMES  = array( 'divi', 'woodmart' );
+	const REACT_19_INCOMPATIBLE_PLUGINS = array(
+		'wp-table-builder/wp-table-builder.php',
+		'ultimate-blocks/ultimate-blocks.php',
+		'beehive-analytics/beehive-analytics.php',
+	);
 
 	/**
 	 * Initialize the class.
@@ -43,15 +51,6 @@ class Jetpack_Mu_Wpcom {
 		// time, before WP loads active plugins.
 		if ( Constants::is_true( 'IS_ATOMIC' ) ) {
 			require_once __DIR__ . '/features/plugin-conflicts-guardian/probe-confirm-bootstrap.php';
-
-			// Must run before regular plugins load, so it lives here rather
-			// than in load_features(). See the file header for why.
-			//
-			// Temporary until 16.2 reaches Atomic. Removing it is a two-stage
-			// process so the wpcom mid-deploy safety check does not fail:
-			// first a PR that only removes this require (deploy it), then a
-			// follow-up that deletes the file.
-			require_once __DIR__ . '/features/jetpack-ai-module/jetpack-ai-module.php';
 		}
 
 		/*
@@ -92,10 +91,16 @@ class Jetpack_Mu_Wpcom {
 
 		// These features run only on simple sites.
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_simple_jetpack_ai' ) );
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_verbum_comments' ) );
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_verbum_moderate' ) );
 			add_action( 'wp_loaded', array( __CLASS__, 'load_verbum_comments_admin' ) );
+			// Registered at mu-plugin scope rather than on plugins_loaded, because
+			// should_load_wpcom_simple_premium_analytics() resolves this filter at plugins_loaded
+			// priority 10.
+			add_filter( 'jetpack_premium_analytics_enabled', array( __CLASS__, 'enable_wpcom_simple_premium_analytics_for_sticker' ) );
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_simple_premium_analytics' ) );
+			add_action( 'rest_api_init', array( __CLASS__, 'load_wpcom_simple_premium_analytics_enablement_setting' ) );
 			add_action( 'admin_menu', array( __CLASS__, 'load_wpcom_simple_odyssey_stats' ) );
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_random_redirect' ) );
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_podcast' ) );
@@ -132,12 +137,38 @@ class Jetpack_Mu_Wpcom {
 		add_filter( 'option_gutenberg-experiments', array( __CLASS__, 'enable_gutenberg_react_19_experiment' ) );
 		add_filter( 'default_option_gutenberg-experiments', array( __CLASS__, 'enable_gutenberg_react_19_experiment' ) );
 
+		if ( wpcom_has_blog_sticker( 'gutenberg-extensible-site-editor', get_wpcom_blog_id() ) ) {
+			add_filter( 'option_gutenberg-experiments', array( __CLASS__, 'enable_extensible_site_editor_experiment' ) );
+
+			// Priority 20 because register_setting() hooks core's filter_default_option() at 10,
+			// and that callback discards the value it is handed and returns the registered default.
+			add_filter( 'default_option_gutenberg-experiments', array( __CLASS__, 'enable_extensible_site_editor_experiment' ), 20 );
+		}
+
 		/**
 		 * Runs right after the Jetpack_Mu_Wpcom package is initialized.
 		 *
 		 * @since 0.1.2
 		 */
 		do_action( 'jetpack_mu_wpcom_initialized' );
+	}
+
+	/**
+	 * Load the Jetpack AI Hub integration on WordPress.com Simple sites.
+	 */
+	public static function load_wpcom_simple_jetpack_ai() {
+		/**
+		 * Filters whether WordPress.com Simple should register the Jetpack AI Hub.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param bool $load Whether to load the AI Hub integration.
+		 */
+		if ( ! apply_filters( 'jetpack_mu_wpcom_load_jetpack_ai_hub', false ) ) {
+			return;
+		}
+
+		require_once __DIR__ . '/features/jetpack-ai-hub/jetpack-ai-hub.php';
 	}
 
 	/**
@@ -420,7 +451,6 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/wpcom-profile-settings/profile-settings-link-to-wpcom.php';
 		require_once __DIR__ . '/features/wpcom-profile-settings/profile-settings-notices.php';
 		require_once __DIR__ . '/features/wpcom-sidebar-notice/wpcom-sidebar-notice.php';
-		require_once __DIR__ . '/features/wpcom-smart-dictation/class-wpcom-smart-dictation.php';
 		require_once __DIR__ . '/features/wpcom-content-research/class-wpcom-content-research.php';
 		require_once __DIR__ . '/features/wpcom-themes/wpcom-theme-tracking.php';
 		require_once __DIR__ . '/features/wpcom-themes/wpcom-themes.php';
@@ -807,21 +837,59 @@ class Jetpack_Mu_Wpcom {
 	/**
 	 * Whether Premium Analytics should be loaded on WordPress.com Simple.
 	 *
-	 * @return bool True when the Simple rollout gate is enabled.
+	 * Resolves the same filter over the same option that connected sites use, so one hook answers
+	 * for every platform. The Jetpack plugin, which resolves it everywhere else, does not run on
+	 * Simple, so the question is asked here instead.
+	 *
+	 * @return bool
 	 */
 	public static function should_load_wpcom_simple_premium_analytics() {
-		$blog_id = (int) get_wpcom_blog_id();
-		$enabled = $blog_id > 0 && wpcom_has_blog_sticker( 'jetpack-premium-analytics', $blog_id );
+		/** This filter is documented in projects/plugins/jetpack/class.jetpack.php */
+		return (bool) apply_filters( 'jetpack_premium_analytics_enabled', (bool) get_option( 'jetpack_premium_analytics_enabled' ) );
+	}
 
-		/**
-		 * Filters whether Premium Analytics loads on WordPress.com Simple.
-		 *
-		 * @since $$next-version$$
-		 *
-		 * @param bool $enabled Whether the Simple rollout gate is enabled.
-		 * @param int  $blog_id WPCOM blog ID.
-		 */
-		return (bool) apply_filters( 'jetpack_premium_analytics_wpcom_simple_enabled', $enabled, $blog_id );
+	/**
+	 * Lets the rollout sticker switch the dashboard on, as wpcomsh_enable_premium_analytics() does
+	 * for Atomic.
+	 *
+	 * Answers the shared filter from the sticker alone. Answering it from
+	 * should_load_wpcom_simple_premium_analytics() would recurse, because that resolves this filter.
+	 *
+	 * @todo Retire alongside wpcomsh_enable_premium_analytics(); the opt-in is meant to be the
+	 *       only signal once the rollout no longer needs a lever we control.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param bool $enabled Whether Premium Analytics is already enabled.
+	 * @return bool
+	 */
+	public static function enable_wpcom_simple_premium_analytics_for_sticker( $enabled ) {
+		return $enabled || self::has_wpcom_simple_premium_analytics_sticker();
+	}
+
+	/**
+	 * Whether this Simple site carries the Premium Analytics rollout sticker.
+	 *
+	 * @return bool
+	 */
+	private static function has_wpcom_simple_premium_analytics_sticker() {
+		$blog_id = (int) get_wpcom_blog_id();
+
+		return $blog_id > 0 && wpcom_has_blog_sticker( 'jetpack-premium-analytics', $blog_id );
+	}
+
+	/**
+	 * Expose the setting that turns Premium Analytics on and off for a Simple site.
+	 *
+	 * Deliberately not behind should_load_wpcom_simple_premium_analytics(): this is the setting
+	 * that flips that gate, so it has to answer while the dashboard is still off.
+	 *
+	 * @since $$next-version$$
+	 */
+	public static function load_wpcom_simple_premium_analytics_enablement_setting() {
+		if ( class_exists( Premium_Analytics_Enablement_Setting::class ) ) {
+			Premium_Analytics_Enablement_Setting::register();
+		}
 	}
 
 	/**
@@ -891,6 +959,10 @@ class Jetpack_Mu_Wpcom {
 	 * @return mixed Original option value or the filtered experiments.
 	 */
 	public static function enable_gutenberg_react_19_experiment( $experiments ) {
+		if ( self::has_react_19_incompatible_gutenberg() ) {
+			return $experiments;
+		}
+
 		$blog_id = get_wpcom_blog_id();
 
 		if ( wpcom_has_blog_sticker( 'disable-gutenberg-react-19', $blog_id ) ) {
@@ -908,7 +980,7 @@ class Jetpack_Mu_Wpcom {
 			} elseif ( self::has_react_19_incompatible_extension() ) {
 				$is_enabled = false;
 			} else {
-				$current_segment = 5; // Segment of Atomic sites in the experiment, in %.
+				$current_segment = 10; // Segment of Atomic sites in the experiment, in %.
 				$site_segment    = $site_id % 100;
 
 				/*
@@ -930,6 +1002,43 @@ class Jetpack_Mu_Wpcom {
 		}
 
 		$experiments['gutenberg-react-19'] = true;
+		return $experiments;
+	}
+
+	/**
+	 * Whether the site runs a Gutenberg plugin release that's known to break with React 19.
+	 *
+	 * Sites without the plugin run core's bundled Gutenberg, which the list doesn't cover.
+	 *
+	 * @return bool
+	 */
+	private static function has_react_19_incompatible_gutenberg() {
+		if ( ! defined( 'GUTENBERG_VERSION' ) ) {
+			return false;
+		}
+
+		// Match on the release number alone, so prereleases like 23.9.0-rc.1 count as 23.9.0.
+		if ( ! preg_match( '/^(\d+(?:\.\d+)*)/', (string) GUTENBERG_VERSION, $matches ) ) {
+			return false;
+		}
+
+		return in_array( $matches[1], self::REACT_19_INCOMPATIBLE_GUTENBERG, true );
+	}
+
+	/**
+	 * Add `gutenberg-extensible-site-editor` to the list of enabled Gutenberg experiments.
+	 *
+	 * Only registered on sites holding the sticker, so this does not re-check it.
+	 *
+	 * @param mixed $experiments The current value of the gutenberg-experiments option.
+	 * @return array The experiments, with the extensible site editor enabled.
+	 */
+	public static function enable_extensible_site_editor_experiment( $experiments ) {
+		if ( ! is_array( $experiments ) ) {
+			$experiments = array();
+		}
+
+		$experiments['gutenberg-extensible-site-editor'] = true;
 		return $experiments;
 	}
 

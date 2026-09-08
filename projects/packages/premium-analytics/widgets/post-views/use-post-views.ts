@@ -58,10 +58,8 @@ type BucketWindow = {
 };
 
 /**
- * Extract a validated `YYYY-MM-DD` day from an ISO report param. The report
- * params originate from URL search params, so the shape and calendar validity
- * are both checked — `bucketDays()` feeds these to `parseISO()`/
- * `each*OfInterval()`, which throw on invalid dates.
+ * Extract a validated `YYYY-MM-DD` day — validated because `bucketDays()` feeds
+ * it to `parseISO()`/`each*OfInterval()`, which throw on invalid dates.
  */
 function toValidDay( value?: string ): string | undefined {
 	const day = value?.slice( 0, 10 );
@@ -126,11 +124,9 @@ function calendarBucketWindows(
 }
 
 /**
- * Sum the post's daily view history into zero-filled buckets. The endpoint
- * may omit zero-view days and the history only starts at publication, but
- * those missing values are genuine zeroes. The full history is bucketed
- * client-side because the endpoint's `weeks` field only covers a fixed recent
- * window.
+ * Sum the post's daily view history into zero-filled buckets — missing days are
+ * genuine zeroes, not gaps. Bucketed client-side since the endpoint's `weeks`
+ * field only covers a fixed recent window.
  */
 function bucketDays( days: StatsPostDay[], buckets: BucketWindow[] ): PostViewsPoint[] {
 	const totals = new Map< string, number >( buckets.map( bucket => [ bucket.date, 0 ] ) );
@@ -144,12 +140,8 @@ function bucketDays( days: StatsPostDay[], buckets: BucketWindow[] ): PostViewsP
 		}
 	}
 
-	// The endpoint's day keys are plain site-local calendar dates, so each
-	// point's instant must be that day's site-local midnight. `parseSiteDateTime`
-	// anchors the offset-less key in the site timezone; the chart's `formatDate`
-	// labels render in the same zone, so the calendar day round-trips.
-	// `bucket.date` comes from `format( start, 'yyyy-MM-dd' )`, so the parse
-	// cannot fail in practice; drop the point rather than guess if it ever does.
+	// `parseSiteDateTime` keeps the site-local day key round-tripping through the
+	// chart's same-zone labels; a null parse can't happen with `format()`-built keys.
 	return buckets.flatMap( bucket => {
 		const date = parseSiteDateTime( bucket.date );
 		return date ? [ { date, value: totals.get( bucket.date ) ?? 0 } ] : [];
@@ -157,13 +149,9 @@ function bucketDays( days: StatsPostDay[], buckets: BucketWindow[] ): PostViewsP
 }
 
 /**
- * Fetch the scoped post's view trend for the dashboard's report params. One
- * `stats/post` request carries the full daily view history; the selected
- * window is sliced from it client-side. A `postId` of 0 disables the request.
- * The post detail design has no period-over-period comparison, so comparison
- * report params are ignored — they ride along in the URL untouched so
- * dashboard state survives the round trip, and every widget on this page
- * disregards them.
+ * Fetch the scoped post's view trend and slice it to the report params' window
+ * client-side. A `postId` of 0 disables the request; comparison params are
+ * ignored since the post detail design has no period-over-period comparison.
  */
 export default function usePostViews(
 	postId: number,

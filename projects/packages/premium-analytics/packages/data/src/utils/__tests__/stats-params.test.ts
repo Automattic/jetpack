@@ -44,10 +44,8 @@ describe( 'getPeriodsBetweenInclusive', () => {
 		}
 	);
 
-	// Hourly is the one granularity finer than a calendar day, so it counts the
-	// instants rather than the days they fall on. A range ending on the hour is
-	// not a bucket longer than one ending a millisecond before it, so the span
-	// rounds up rather than gaining a fixed `+ 1`.
+	// Hourly buckets count instants, not calendar days, so a range ending on
+	// the hour rounds up rather than always adding a fixed +1.
 	it.each( [
 		[ '2026-06-01T00:00:00.000-07:00', '2026-06-01T23:59:59.999-07:00', 24 ],
 		[ '2026-06-01T09:00:00.000-07:00', '2026-06-02T08:59:59.999-07:00', 24 ],
@@ -61,9 +59,8 @@ describe( 'getPeriodsBetweenInclusive', () => {
 	} );
 
 	it( 'reads the site-local calendar day, not the UTC day, at a day boundary', () => {
-		// 23:00 on 2026-06-30 at -07:00 is already 2026-07-01 in UTC. Counting
-		// off the UTC day would report an extra bucket on every negative-offset
-		// site whose range ends late in the evening.
+		// 23:00 on 2026-06-30 at -07:00 is already 2026-07-01 in UTC; counting off
+		// the UTC day would add an extra bucket on negative-offset sites.
 		expect(
 			getPeriodsBetweenInclusive(
 				'day',
@@ -121,9 +118,8 @@ describe( 'reportParamsToStatsQueryParams', () => {
 	} );
 
 	it( 'keeps the time of day on an hourly range, still counting whole days', () => {
-		// The `last-24-hours` shape: an hourly range whose ends are mid-day, not
-		// midnight. The time survives to the wire (the endpoint resolves it),
-		// while `days` stays a calendar-day count for the bucket math.
+		// The `last-24-hours` shape: ends are mid-day, not midnight. Time survives
+		// to the wire for the endpoint to resolve, while `days` stays a day count.
 		expect(
 			reportParamsToStatsQueryParams( {
 				from: '2026-06-14T09:00:00.000-04:00',
@@ -156,9 +152,8 @@ describe( 'reportParamsToStatsQueryParams', () => {
 				days: 7,
 			} )
 		);
-		// The semantic end_date must not survive alongside the API's date param
-		// — endpoints read `date`, and a stray end_date would leak into query
-		// keys and request URLs.
+		// end_date must not survive alongside the API's `date` param — endpoints
+		// read `date`, and a stray end_date would leak into query keys and URLs.
 		expect( apiParams ).not.toHaveProperty( 'end_date' );
 	} );
 

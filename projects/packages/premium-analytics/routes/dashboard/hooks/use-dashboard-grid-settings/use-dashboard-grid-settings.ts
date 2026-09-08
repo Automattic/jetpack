@@ -19,10 +19,20 @@ import type { WidgetGridSettings } from '@wordpress/widget-dashboard';
  * and only this small default is persisted as a cleared preference.
  */
 const PA_DEFAULT_ROW_HEIGHT = ROW_HEIGHT_PRESETS.small;
+
+/**
+ * The main analytics dashboard is designed on three columns, one fewer than the
+ * package default.
+ */
+const PA_COLUMN_COUNT = 3;
 // DEFAULT_GRID is the 2D grid model, so it carries `rowHeight`; keep the spread
 // unannotated so the override type-checks against the grid variant rather than
 // the `rowHeight`-less masonry member of the settings union.
-const PA_DEFAULT_GRID = { ...DEFAULT_GRID, rowHeight: PA_DEFAULT_ROW_HEIGHT };
+const PA_DEFAULT_GRID = {
+	...DEFAULT_GRID,
+	columns: PA_COLUMN_COUNT,
+	rowHeight: PA_DEFAULT_ROW_HEIGHT,
+};
 
 /**
  * Hook for managing dashboard grid-settings preferences.
@@ -47,7 +57,12 @@ export function useDashboardGridSettings(): [
 				get: ( scope: string, name: string ) => WidgetGridSettings | undefined;
 			}
 		 ).get( DASHBOARD_PREFERENCES_SCOPE, DASHBOARD_GRID_SETTINGS_KEY );
-		return normalizeGridSettings( stored ?? PA_DEFAULT_GRID, PA_DEFAULT_ROW_HEIGHT );
+		return {
+			...normalizeGridSettings( stored ?? PA_DEFAULT_GRID, PA_DEFAULT_ROW_HEIGHT ),
+			// Preferences written by the removed Columns control may still carry
+			// another count, so pin it on read.
+			columns: PA_COLUMN_COUNT,
+		};
 	}, [] );
 
 	const { set } = useDispatch( preferencesStore ) as unknown as {
