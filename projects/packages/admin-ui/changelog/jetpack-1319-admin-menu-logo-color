@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Admin menu: Render the Jetpack logo in its unselected gray color on first paint.

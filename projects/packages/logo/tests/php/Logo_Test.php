@@ -27,7 +27,7 @@ class Logo_Test extends TestCase {
 	}
 
 	/**
-	 * Ensure get_base64_logo defaults to the wp-admin unselected icon gray.
+	 * Ensure get_base64_logo retains its white default color.
 	 */
 	public function test_get_base64_logo_default_color() {
 		$logo   = new Logo();
@@ -35,7 +35,7 @@ class Logo_Test extends TestCase {
 		$this->assertStringStartsWith( 'data:image/svg+xml;base64,', $result );
 		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode -- Decoding a generated SVG for assertions.
 		$decoded = base64_decode( substr( $result, strlen( 'data:image/svg+xml;base64,' ) ) );
-		$this->assertStringContainsString( '#a7aaad', $decoded );
+		$this->assertStringContainsString( '#ffffff', $decoded );
 	}
 
 	/**
@@ -43,10 +43,10 @@ class Logo_Test extends TestCase {
 	 */
 	public function test_get_base64_logo_custom_color() {
 		$logo   = new Logo();
-		$result = $logo->get_base64_logo( '#ffffff' );
+		$result = $logo->get_base64_logo( '#a7aaad' );
 		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode -- Decoding a generated SVG for assertions.
 		$decoded = base64_decode( substr( $result, strlen( 'data:image/svg+xml;base64,' ) ) );
-		$this->assertStringContainsString( '#ffffff', $decoded );
-		$this->assertStringNotContainsString( '#a7aaad', $decoded );
+		$this->assertStringContainsString( '#a7aaad', $decoded );
+		$this->assertStringNotContainsString( '#ffffff', $decoded );
 	}
 }

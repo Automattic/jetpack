@@ -131,7 +131,7 @@ class Admin_Menu {
 		$can_see_toplevel_menu  = true;
 		$jetpack_plugin_present = class_exists( 'Jetpack_React_Page' );
 		$icon                   = method_exists( '\Automattic\Jetpack\Assets\Logo', 'get_base64_logo' )
-			? ( new \Automattic\Jetpack\Assets\Logo() )->get_base64_logo()
+			? ( new \Automattic\Jetpack\Assets\Logo() )->get_base64_logo( '#a7aaad' )
 			: 'dashicons-admin-plugins';
 
 		if ( ! $jetpack_plugin_present ) {
