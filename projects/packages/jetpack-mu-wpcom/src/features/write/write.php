@@ -1565,7 +1565,7 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 			<div class="bw-unsupported-actions">
 				<button class="bw-unsupported-back" data-wp-on--click="actions.goBack"><?php esc_html_e( 'Go back', 'jetpack-mu-wpcom' ); ?></button>
 				<button class="bw-unsupported-open-editor" hidden data-wp-bind--hidden="!state.isClassicWarning" data-wp-on--click="actions.openEditor"><?php esc_html_e( 'Open in Classic Editor', 'jetpack-mu-wpcom' ); ?></button>
-				<button class="bw-unsupported-open-editor" hidden data-wp-bind--hidden="!state.isBlockEditorWarning" data-wp-on--click="actions.openEditor"><?php esc_html_e( 'Open in Block Editor', 'jetpack-mu-wpcom' ); ?></button>
+				<button class="bw-unsupported-open-editor" hidden data-wp-bind--hidden="!state.isBlockEditorWarning" data-wp-on--click="actions.openEditor"><?php esc_html_e( 'Open in Block editor', 'jetpack-mu-wpcom' ); ?></button>
 			</div>
 		</div>
 	</div>
