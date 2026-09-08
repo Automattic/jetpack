@@ -50,15 +50,13 @@ class Protected_Owner {
 	 *                              Required, and travels to WordPress.com with the anchor: it names
 	 *                              a mechanism rather than a local user, and a default here would
 	 *                              record provenance nobody established.
-	 * @param string $email         The owner's WordPress.com email.
 	 * @return bool Whether the anchor was written.
 	 */
-	public static function set( $wpcom_user_id, $local_user_id, $confirmed_by, $email = '' ) {
+	public static function set( $wpcom_user_id, $local_user_id, $confirmed_by ) {
 		return Jetpack_Options::update_option(
 			self::OPTION,
 			array(
 				'wpcom_user_id' => absint( $wpcom_user_id ),
-				'email'         => sanitize_email( $email ),
 				'local_user_id' => absint( $local_user_id ),
 				'locked'        => true,
 				'confirmed_at'  => gmdate( 'Y-m-d\TH:i:s\Z' ),

@@ -93,7 +93,7 @@ class Protected_Owner_Test extends TestCase {
 	 * @param int $wpcom_user_id The anchored WordPress.com user ID.
 	 */
 	private function anchor( $wpcom_user_id = self::ANCHORED_WPCOM_ID ) {
-		Protected_Owner::set( $wpcom_user_id, $this->owner_id, 'popup', 'owner@example.com' );
+		Protected_Owner::set( $wpcom_user_id, $this->owner_id, 'popup' );
 	}
 
 	// ── has_protected_owner ──────────────────────────────────────────────
@@ -239,13 +239,7 @@ class Protected_Owner_Test extends TestCase {
 	 * Anchoring a confirmed administrator locks the anchor and promotes them.
 	 */
 	public function test_set_protected_owner_writes_the_anchor_and_promotes_the_owner() {
-		$manager = $this->manager(
-			$this->owner_id,
-			array(
-				'ID'    => self::ANCHORED_WPCOM_ID,
-				'email' => 'owner@wordpress.example',
-			)
-		);
+		$manager = $this->manager( $this->owner_id, array( 'ID' => self::ANCHORED_WPCOM_ID ) );
 
 		$this->assertTrue( $manager->set_protected_owner( $this->owner_id, 'recovery' ) );
 
@@ -253,7 +247,6 @@ class Protected_Owner_Test extends TestCase {
 
 		$this->assertSame( self::ANCHORED_WPCOM_ID, $anchor['wpcom_user_id'] ?? null );
 		$this->assertSame( $this->owner_id, $anchor['local_user_id'] ?? null );
-		$this->assertSame( 'owner@wordpress.example', $anchor['email'] ?? null );
 		$this->assertTrue( $anchor['locked'] ?? false );
 
 		// `confirmed_by` names the mechanism, not a user: it travels to WordPress.com, where a
@@ -320,10 +313,10 @@ class Protected_Owner_Test extends TestCase {
 	 * The written anchor carries exactly the keys the option is documented to hold.
 	 */
 	public function test_the_anchor_carries_the_documented_keys() {
-		Protected_Owner::set( self::ANCHORED_WPCOM_ID, $this->owner_id, 'popup', 'owner@example.com' );
+		Protected_Owner::set( self::ANCHORED_WPCOM_ID, $this->owner_id, 'popup' );
 
 		$this->assertSame(
-			array( 'wpcom_user_id', 'email', 'local_user_id', 'locked', 'confirmed_at', 'confirmed_by' ),
+			array( 'wpcom_user_id', 'local_user_id', 'locked', 'confirmed_at', 'confirmed_by' ),
 			array_keys( (array) Protected_Owner::get() )
 		);
 	}

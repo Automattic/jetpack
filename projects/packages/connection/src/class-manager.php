@@ -1352,7 +1352,7 @@ class Manager {
 			);
 		}
 
-		Protected_Owner::set( (int) $owner_data['ID'], $user_id, $confirmed_by, $owner_data['email'] ?? '' );
+		Protected_Owner::set( (int) $owner_data['ID'], $user_id, $confirmed_by );
 
 		// Written directly rather than through update_connection_owner(): that round-trips to
 		// WordPress.com first, and its ownership-change guard will refuse the anchor just set here.
