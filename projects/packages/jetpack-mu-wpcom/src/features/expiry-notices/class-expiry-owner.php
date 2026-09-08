@@ -54,8 +54,9 @@ class Expiry_Owner {
 	 * The current user's WordPress.com user ID, or null when they have none.
 	 *
 	 * On Atomic, signing in through WordPress.com leaves the ID on the local
-	 * user, and a connection token can name anyone else. Null is a backstop: the
-	 * package only loads these notices for users the connection can name.
+	 * user, and a connection token can name anyone else. Null is an admin
+	 * created on the site itself, with no WordPress.com account to have bought
+	 * the plan with.
 	 */
 	public static function current_user_wpcom_id(): ?int {
 		$user_id = get_current_user_id();

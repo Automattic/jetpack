@@ -36,31 +36,9 @@ class PlanNoticesTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test with data set.
-	 */
-	public function test_plan_notices() {
-		$business_plan_purchase = array(
-			'product_slug' => 'business-bundle',
-			'expiry_date'  => ( new DateTime() )->add( new DateInterval( 'P7D' ) )->format( 'c' ),
-		);
-		Atomic_Persistent_Data::set( 'WPCOM_PURCHASES', wp_json_encode( array( $business_plan_purchase ), JSON_UNESCAPED_SLASHES ) );
-
-		$plan_date = gmdate( 'F j, Y', time() + WEEK_IN_SECONDS );
-
-		ob_start();
-		wpcomsh_plan_notices();
-		$string = ob_get_clean();
-
-		$this->assertStringContainsString( 'expires on ' . $plan_date, $string );
-
-		// Cleanup.
-		Atomic_Persistent_Data::delete( 'WPCOM_PURCHASES' );
-	}
-
-	/**
-	 * A site already on the replacement notices must not also get this one.
-	 * The two describe the same expiry in different words, so running both is
-	 * worse than running either.
+	 * The replacement notices in jetpack-mu-wpcom are on by default, and a site
+	 * on them must not also get this one: the two describe the same expiry in
+	 * different words, so running both is worse than running either.
 	 */
 	public function test_stands_down_for_sites_on_the_new_expiry_notices() {
 		$business_plan_purchase = array(
@@ -69,8 +47,6 @@ class PlanNoticesTest extends WP_UnitTestCase {
 		);
 		Atomic_Persistent_Data::set( 'WPCOM_PURCHASES', wp_json_encode( array( $business_plan_purchase ), JSON_UNESCAPED_SLASHES ) );
 
-		add_filter( 'wpcom_expiry_notices_enabled', '__return_true' );
-
 		ob_start();
 		wpcomsh_plan_notices();
 		$string = ob_get_clean();
@@ -78,20 +54,21 @@ class PlanNoticesTest extends WP_UnitTestCase {
 		$this->assertSame( '', $string );
 
 		// Cleanup.
-		remove_filter( 'wpcom_expiry_notices_enabled', '__return_true' );
 		Atomic_Persistent_Data::delete( 'WPCOM_PURCHASES' );
 	}
 
 	/**
-	 * ...and a site the rollout hasn't reached keeps getting it, so nobody is
-	 * left with no expiry notice at all while the share ramps up.
+	 * ...and a site held back from them keeps getting it, so nobody is left
+	 * with no expiry notice at all.
 	 */
-	public function test_still_shows_for_sites_outside_the_rollout() {
+	public function test_still_shows_for_a_site_held_back_from_the_new_notices() {
 		$business_plan_purchase = array(
 			'product_slug' => 'business-bundle',
 			'expiry_date'  => ( new DateTime() )->add( new DateInterval( 'P7D' ) )->format( 'c' ),
 		);
 		Atomic_Persistent_Data::set( 'WPCOM_PURCHASES', wp_json_encode( array( $business_plan_purchase ), JSON_UNESCAPED_SLASHES ) );
+
+		$plan_date = gmdate( 'F j, Y', time() + WEEK_IN_SECONDS );
 
 		add_filter( 'wpcom_expiry_notices_enabled', '__return_false' );
 
@@ -99,7 +76,7 @@ class PlanNoticesTest extends WP_UnitTestCase {
 		wpcomsh_plan_notices();
 		$string = ob_get_clean();
 
-		$this->assertStringContainsString( 'expires on ', $string );
+		$this->assertStringContainsString( 'expires on ' . $plan_date, $string );
 
 		// Cleanup.
 		remove_filter( 'wpcom_expiry_notices_enabled', '__return_false' );
