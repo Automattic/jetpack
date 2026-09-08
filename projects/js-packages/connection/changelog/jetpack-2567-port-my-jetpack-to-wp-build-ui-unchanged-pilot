@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Resolve the disconnect dialog illustrations from script data instead of importing them.

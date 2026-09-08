@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Serve the license activation illustrations from the package instead of bundling them.

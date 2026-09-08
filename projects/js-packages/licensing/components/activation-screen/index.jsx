@@ -1,5 +1,6 @@
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import restApi from '@automattic/jetpack-api';
+import { getScriptData } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
 import { Card } from '@wordpress/ui';
 import PropTypes from 'prop-types';
@@ -8,8 +9,6 @@ import ActivationScreenControls from '../activation-screen-controls';
 import ActivationScreenIllustration from '../activation-screen-illustration';
 import ActivationScreenSuccessInfo from '../activation-screen-success-info';
 import GoldenTokenModal from '../golden-token-modal';
-import lockImage from '../jetpack-license-activation-with-lock.png';
-import successImage from '../jetpack-license-activation-with-success.png';
 
 import './style.scss';
 
@@ -133,6 +132,8 @@ const ActivationScreen = props => {
 			} );
 	}, [ isSaving, license, onActivationSuccess ] );
 
+	const assetsUrl = getScriptData()?.licensing?.assets_url;
+
 	const renderActivationSuccess = () => (
 		<Card.Root className="jp-license-activation-screen">
 			<ActivationScreenSuccessInfo
@@ -141,7 +142,12 @@ const ActivationScreen = props => {
 				siteAdminUrl={ siteAdminUrl }
 				currentRecommendationsStep={ currentRecommendationsStep }
 			/>
-			<ActivationScreenIllustration imageUrl={ successImage } showSupportLink={ false } />
+			<ActivationScreenIllustration
+				imageUrl={
+					assetsUrl ? `${ assetsUrl }jetpack-license-activation-with-success.png` : undefined
+				}
+				showSupportLink={ false }
+			/>
 		</Card.Root>
 	);
 
@@ -157,7 +163,12 @@ const ActivationScreen = props => {
 				onLicenseChange={ onLicenseChange }
 				siteUrl={ siteRawUrl }
 			/>
-			<ActivationScreenIllustration imageUrl={ lockImage } showSupportLink />
+			<ActivationScreenIllustration
+				imageUrl={
+					assetsUrl ? `${ assetsUrl }jetpack-license-activation-with-lock.png` : undefined
+				}
+				showSupportLink
+			/>
 		</Card.Root>
 	);
 

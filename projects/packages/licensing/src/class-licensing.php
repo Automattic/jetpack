@@ -64,6 +64,24 @@ class Licensing {
 		add_action( 'update_option_' . self::LICENSES_OPTION_NAME, array( $this, 'attach_stored_licenses' ) );
 		add_action( 'jetpack_authorize_ending_authorized', array( $this, 'attach_stored_licenses_on_connection' ) );
 		add_action( 'rest_api_init', array( $this, 'initialize_endpoints' ) );
+		add_filter( 'jetpack_admin_js_script_data', array( $this, 'add_script_data' ) );
+	}
+
+	/**
+	 * Add the package's image base URL to the admin script data.
+	 *
+	 * The license activation illustrations are served from the package rather than bundled,
+	 * because wp-build's esbuild pipeline has no image loader.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $data Script data.
+	 * @return array
+	 */
+	public function add_script_data( $data ) {
+		$data['licensing']['assets_url'] = trailingslashit( plugins_url( 'assets/images/', __DIR__ ) );
+
+		return $data;
 	}
 
 	/**
