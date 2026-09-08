@@ -107,11 +107,11 @@ describe( 'clampRangeEndToToday', () => {
 	} );
 
 	it( 'closes the day on the window’s own clock', () => {
-		// 02:00 UTC is still the 26th in New York, so a clamp read on the
-		// browser's clock would leave the window a day long.
+		// 02:00 UTC is still the 26th in New York, so a clamp read on the zone
+		// `now` carries rather than the window's would leave it a day long.
 		const clamped = clampRangeEndToToday(
 			steppedForward,
-			new Date( Date.UTC( 2026, 7, 27, 2, 0 ) )
+			new TZDate( Date.UTC( 2026, 7, 27, 2, 0 ), 'UTC' )
 		);
 
 		expect( clamped.to ).toEqual( endOf( 2026, 8, 26 ) );

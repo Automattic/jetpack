@@ -228,8 +228,8 @@ stepDateRange( { from, to }, 'previous' ); // Last 7 days -> the 7 days before
 
 #### `canStepForward( range, now )`
 
-Whether the next window has already happened in full. Pass the site's `now`,
-not the browser's.
+Whether the next window has already happened in full. `now` is typed as a
+`TZDate`, so the site's clock is what the signature asks for.
 
 ## Types
 

@@ -52,10 +52,10 @@ export function completeToDateRange< T extends DateRange >(
  * the to-date window the reader started from.
  *
  * @param range - The window to clamp.
- * @param now   - The current instant.
+ * @param now   - The current instant, read in the site's zone.
  * @return The clamped window, or `range` itself when it already ends today or earlier.
  */
-export function clampRangeEndToToday< T extends DateRange >( range: T, now: Date ): T {
+export function clampRangeEndToToday< T extends DateRange >( range: T, now: TZDate ): T {
 	if ( ! range.to ) {
 		return range;
 	}

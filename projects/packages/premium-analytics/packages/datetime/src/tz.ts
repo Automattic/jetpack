@@ -163,7 +163,7 @@ export function dateToISOStringWithTZ( date: Date, timezone: string ): string {
  *
  * @param date     - The date to get the start of day for
  * @param timeZone - Timezone string (e.g., 'America/New_York', 'UTC', '+08:00')
- * @return A Date object representing midnight in the specified timezone
+ * @return A `TZDate` representing midnight in the specified timezone
  */
 export function startOfDayTZ( date: Date | number, timeZone: string ): TZDate {
 	const tzDate = new TZDateMini( new Date( date ).getTime(), timeZone );
@@ -176,7 +176,7 @@ export function startOfDayTZ( date: Date | number, timeZone: string ): TZDate {
  *
  * @param date     - The date to get the end of day for
  * @param timeZone - Timezone string (e.g., 'America/New_York', 'UTC', '+08:00')
- * @return A Date object representing the last millisecond of the day in the specified timezone
+ * @return A `TZDate` representing the last millisecond of the day in the specified timezone
  */
 export function endOfDayTZ( date: Date | number, timeZone: string ): TZDate {
 	const tzDate = new TZDateMini( new Date( date ).getTime(), timeZone );

@@ -86,7 +86,7 @@ export function stepDateRange( range: DateRange, direction: StepDirection ): Dat
  * End of the bucket an instant sits in, at each granularity a window measures
  * in.
  */
-const END_OF_BUCKET: Record< DateRangeSpanUnit, ( date: Date ) => Date > = {
+const END_OF_BUCKET: Record< DateRangeSpanUnit, ( date: TZDate ) => TZDate > = {
 	hour: endOfHour,
 	day: endOfDay,
 	month: endOfMonth,
@@ -100,10 +100,10 @@ const END_OF_BUCKET: Record< DateRangeSpanUnit, ( date: Date ) => Date > = {
  * live preset ending in the running hour or day stays reachable.
  *
  * @param range - The window to test.
- * @param now   - The instant to compare against.
+ * @param now   - The instant to compare against, read in the site's zone.
  * @return Whether a forward step lands on a window already worth showing.
  */
-export function canStepForward( range: DateRange, now: Date ): boolean {
+export function canStepForward( range: DateRange, now: TZDate ): boolean {
 	const span = getDateRangeSpan( range );
 	const next = stepDateRange( range, 'next' );
 

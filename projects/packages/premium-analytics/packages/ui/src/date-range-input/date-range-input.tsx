@@ -5,6 +5,7 @@ import {
 	createTZDateFromParts,
 	formatToTimezoneNaiveString,
 	getDatePart,
+	type TZDate,
 } from '@jetpack-premium-analytics/datetime';
 import { FormField, Input, Stack } from '@jetpack-premium-analytics/externals';
 import { __ } from '@wordpress/i18n';
@@ -13,7 +14,6 @@ import { useCallback, useEffect, useState } from 'react';
  * Internal dependencies
  */
 import { DateRangePopoverContent } from '../date-range-popover/date-range-filter';
-import type { TZDate } from '@date-fns/tz';
 import './date-range-input.scss';
 
 type DateRangeInputProps = Pick<

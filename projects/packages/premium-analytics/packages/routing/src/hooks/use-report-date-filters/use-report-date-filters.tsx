@@ -23,7 +23,6 @@ import { decodeDateSearchParam, encodeDateToSearchParam } from '../../search/dat
 import { hasPrimaryDateDraft } from '../../search/report-params';
 import { useStagedSearch } from '../use-staged-search';
 import { buildRangePatch, type ReportQuerySearchParams } from './build-range-patch';
-import type { TZDate } from '@date-fns/tz';
 import type {
 	ComparisonPresetId,
 	DateRange,
@@ -32,16 +31,14 @@ import type {
 	StepDirection,
 } from '@jetpack-premium-analytics/datetime';
 
-type PickerRange = { from: TZDate | undefined; to: TZDate | undefined };
-
 /**
  * The values and callbacks that drive `DateFiltersPanel`.
  */
 export type ReportDateFilters = {
 	presetId?: PrimaryPresetId;
-	range: PickerRange;
+	range: DateRange;
 	appliedPresetId?: PrimaryPresetId;
-	appliedRange: PickerRange;
+	appliedRange: DateRange;
 	comparisonPresetId?: ComparisonPresetId;
 	appliedComparisonPresetId?: ComparisonPresetId;
 

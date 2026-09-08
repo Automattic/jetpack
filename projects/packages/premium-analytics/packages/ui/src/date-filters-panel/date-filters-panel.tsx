@@ -6,6 +6,7 @@ import {
 	canStepForward,
 	isComparisonPresetId,
 	isPrimaryPreset,
+	toLocalTZ,
 	type ComparisonPresetId,
 	type IntervalType,
 	type PrimaryPresetId,
@@ -259,12 +260,12 @@ export function DateFiltersPanel( {
 
 		return (
 			<DatePeriodNavigation
-				canStepForward={ canStepForward( committedRange, new Date() ) }
+				canStepForward={ canStepForward( committedRange, toLocalTZ( undefined, timeZone ) ) }
 				disabled={ disabled }
 				onStep={ onStep }
 			/>
 		);
-	}, [ appliedRange, disabled, onStep, range ] );
+	}, [ appliedRange, disabled, onStep, range, timeZone ] );
 
 	// Same arrangement as the comparison control: built once, rendered in the
 	// row and in the probe.

@@ -1,9 +1,12 @@
 /**
  * External dependencies
  */
-import { dateToISOStringWithLocalTZ, localTZDate } from '@jetpack-premium-analytics/datetime';
+import {
+	dateToISOStringWithLocalTZ,
+	localTZDate,
+	type TZDate,
+} from '@jetpack-premium-analytics/datetime';
 import { isValid } from 'date-fns';
-import type { TZDate } from '@date-fns/tz';
 
 /**
  * Parse a stored report-param date for the picker.

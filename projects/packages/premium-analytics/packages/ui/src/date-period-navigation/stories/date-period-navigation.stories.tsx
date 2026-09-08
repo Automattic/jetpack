@@ -68,7 +68,10 @@ function DatePeriodNavigationWithState( { initialEndsAgo }: { initialEndsAgo: nu
 	};
 
 	return (
-		<DatePeriodNavigation canStepForward={ canStepForward( range, new Date() ) } onStep={ step } />
+		<DatePeriodNavigation
+			canStepForward={ canStepForward( range, toLocalTZ( undefined, TIME_ZONE ) ) }
+			onStep={ step }
+		/>
 	);
 }
 

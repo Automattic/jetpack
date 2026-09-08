@@ -212,8 +212,9 @@ describe( 'canStepForward', () => {
 			from: new TZDate( 2026, 6, 26, 0, 0, 0, 0, site ),
 			to: new TZDate( 2026, 6, 26, 23, 59, 59, 999, site ),
 		};
-		// 02:00 UTC on the next site day, whatever timezone runs the tests.
-		const nowInstant = new Date( Date.UTC( 2026, 6, 27, 2, 0 ) );
+		// 02:00 UTC on the next site day, carried in a zone still on the previous
+		// one, so a horizon cut on `now`'s own clock would answer false.
+		const nowInstant = new TZDate( Date.UTC( 2026, 6, 27, 2, 0 ), 'America/Los_Angeles' );
 
 		expect( canStepForward( yesterday, nowInstant ) ).toBe( true );
 	} );
