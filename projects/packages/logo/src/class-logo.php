@@ -119,4 +119,40 @@ class Logo {
 
 		return 'data:image/svg+xml;base64,' . $encoded_logo;
 	}
+
+	/**
+	 * Return a base64 encoded SVG of the Jetpack logo using the current admin menu color.
+	 *
+	 * This mirrors the fallback order in WordPress's wp_color_scheme_settings(), whose
+	 * JavaScript output recolors data URI SVG icons after the page loads.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string|null $color_scheme Admin color scheme to use. Defaults to the
+	 *                                  current user's scheme.
+	 *
+	 * @return string
+	 */
+	public function get_base64_admin_menu_logo( $color_scheme = null ) {
+		global $_wp_admin_css_colors;
+
+		if ( null === $color_scheme ) {
+			$color_scheme = function_exists( 'get_user_option' ) ? get_user_option( 'admin_color' ) : '';
+		}
+
+		// It's possible to have a color scheme set that is no longer registered.
+		if ( empty( $_wp_admin_css_colors[ $color_scheme ] ) ) {
+			$color_scheme = 'modern';
+		}
+
+		if ( ! empty( $_wp_admin_css_colors[ $color_scheme ]->icon_colors['base'] ) ) {
+			$color = $_wp_admin_css_colors[ $color_scheme ]->icon_colors['base'];
+		} elseif ( ! empty( $_wp_admin_css_colors['modern']->icon_colors['base'] ) ) {
+			$color = $_wp_admin_css_colors['modern']->icon_colors['base'];
+		} else {
+			$color = '#a7aaad';
+		}
+
+		return $this->get_base64_logo( $color );
+	}
 }

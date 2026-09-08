@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Admin menu: Render the Jetpack logo in its unselected gray color on first paint.
+Admin menu: Match the Jetpack logo's first paint to the active admin color scheme.

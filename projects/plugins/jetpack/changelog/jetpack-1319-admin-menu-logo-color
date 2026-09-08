@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-Admin: Render the Jetpack menu logo in its unselected gray color on first paint.
+Admin: Match the Jetpack menu logo's first paint to the active admin color scheme.
