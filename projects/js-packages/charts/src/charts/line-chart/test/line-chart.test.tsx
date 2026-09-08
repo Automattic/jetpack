@@ -104,6 +104,35 @@ describe( 'LineChart', () => {
 		);
 	};
 
+	test( 'passes custom tooltip container and crosshair styles to the rendered elements', async () => {
+		const user = userEvent.setup();
+		renderWithTheme( {
+			withTooltipCrosshairs: {
+				showVertical: true,
+				showHorizontal: true,
+				verticalStyle: { stroke: 'purple', strokeWidth: 40, strokeOpacity: 0.12 },
+				horizontalStyle: { stroke: 'orange', strokeDasharray: '4 2' },
+			},
+			tooltipPlacement: 'below-axis',
+			tooltipStyle: { backgroundColor: 'black', color: 'white', boxShadow: 'none' },
+		} );
+		screen.getByRole( 'grid', { name: /line chart/i } ).focus();
+		await user.keyboard( '{ArrowRight}' );
+
+		const vertical = screen.getByTestId( 'xy-chart-tooltip-crosshair-vertical' );
+		expect( vertical ).toHaveAttribute( 'stroke', 'purple' );
+		expect( vertical ).toHaveAttribute( 'stroke-width', '40' );
+		expect( vertical ).toHaveAttribute( 'stroke-opacity', '0.12' );
+		const horizontal = screen.getByTestId( 'xy-chart-tooltip-crosshair-horizontal' );
+		expect( horizontal ).toHaveAttribute( 'stroke', 'orange' );
+		expect( horizontal ).toHaveAttribute( 'stroke-dasharray', '4 2' );
+		expect( screen.getByTestId( 'bounded-tooltip' ) ).toHaveStyle( {
+			backgroundColor: 'rgb(0, 0, 0)',
+			color: 'rgb(255, 255, 255)',
+			boxShadow: 'none',
+		} );
+	} );
+
 	describe( 'Data Validation', () => {
 		test( 'handles empty data array', () => {
 			renderWithTheme( { data: [] } );
