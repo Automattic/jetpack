@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Date range: Type the range bounds as zoned instants, so a span cannot be measured in the browser's timezone.
+Date range: Type the range bounds as zoned instants, so day boundaries are measured on the site's clock.
