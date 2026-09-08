@@ -18,6 +18,7 @@ const label = __( 'All pages' );
 			primary={ visits.primary.data }
 			comparison={ visits.hasComparison ? visits.comparison.data : undefined }
 			isLoading={ visits.isLoading }
+			timezone={ visits.timezone }
 			interval={ interval }
 			onIntervalChange={ setInterval }
 		/>
@@ -29,7 +30,7 @@ const label = __( 'All pages' );
 			initialView={ { sort: { field: 'views', direction: 'desc' } } }
 		/>
 	</ReportPageLayout>
-</ReportPageShell>
+</ReportPageShell>;
 ```
 
 - **`ReportPageShell`** — the outer `Page` shell: the shared Jetpack visual,
@@ -70,11 +71,11 @@ report is WOOA7S-1952.
 
 A report page carries three names:
 
-| name | where it shows | example |
-| --- | --- | --- |
-| report label | the trailing breadcrumb | `All pages` |
-| tab label | the tab strip | `Posts & Pages`, `Archives` |
-| section title | the header's `h2` | `Posts & Pages report` |
+| name          | where it shows          | example                     |
+| ------------- | ----------------------- | --------------------------- |
+| report label  | the trailing breadcrumb | `All pages`                 |
+| tab label     | the tab strip           | `Posts & Pages`, `Archives` |
+| section title | the header's `h2`       | `Posts & Pages report`      |
 
 The first two come from `routes/reports/registry.ts` (`getLabel`) and the tab
 set. `title` is the third: `getTabTitle( activeTab )` on a tabbed report, which

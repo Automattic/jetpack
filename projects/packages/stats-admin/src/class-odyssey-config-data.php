@@ -64,7 +64,13 @@ class Odyssey_Config_Data {
 	protected function get_connected_blog_id() {
 		$blog_id = (int) Jetpack_Options::get_option( 'id' );
 
-		return Main::is_site_connected() ? $blog_id : 0;
+		if ( ! Main::is_site_connected() ) {
+			return 0;
+		}
+
+		// Keep registered sites in the dashboard even when their token is malformed.
+		// The traffic request reports the connection error; an ID of 0 routes to plan selection.
+		return $blog_id;
 	}
 
 	/**

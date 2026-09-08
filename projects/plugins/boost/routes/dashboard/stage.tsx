@@ -15,8 +15,30 @@ const SUBPAGES = [
 type Subpage = ( typeof SUBPAGES )[ number ];
 
 const LOCATION_CHANGE_EVENT = 'jetpack-boost:location-change';
+const HISTORY_WRAPPED_KEY = '__jetpackBoostLocationChangeWrapped';
+
+// Leave the wrapper installed for the page lifetime so later subscriptions reuse it.
+function wrapHistoryOnce() {
+	const history = window.history as History & { [ HISTORY_WRAPPED_KEY ]?: boolean };
+	if ( history[ HISTORY_WRAPPED_KEY ] ) {
+		return;
+	}
+	history[ HISTORY_WRAPPED_KEY ] = true;
+	for ( const method of [ 'pushState', 'replaceState' ] as const ) {
+		const original = history[ method ];
+		history[ method ] = function (
+			this: History,
+			...args: Parameters< History[ typeof method ] >
+		) {
+			const result = original.apply( this, args );
+			window.dispatchEvent( new Event( LOCATION_CHANGE_EVENT ) );
+			return result;
+		};
+	}
+}
 
 function subscribeToLocationChange( listener: () => void ) {
+	wrapHistoryOnce();
 	const events = [ 'hashchange', 'popstate', LOCATION_CHANGE_EVENT ];
 	events.forEach( event => window.addEventListener( event, listener ) );
 	return () => events.forEach( event => window.removeEventListener( event, listener ) );

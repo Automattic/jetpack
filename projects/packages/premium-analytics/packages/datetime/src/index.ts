@@ -26,7 +26,7 @@ export { completeToDateRange, clampRangeEndToToday } from './to-date-range';
 
 export { drillDateRange } from './drill-date-range';
 
-export { parseBucketStart } from './bucket-start';
+export { toBucketStamp, resolveBucketStamp } from './bucket-stamp';
 
 export { parseSiteDateTime } from './site-datetime';
 

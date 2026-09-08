@@ -38,9 +38,10 @@ type StorePerformanceRenderAttributes = StorePerformanceAttributes &
 
 type StorePerformanceRenderProps = WidgetRenderProps< StorePerformanceRenderAttributes >;
 
-/** The `{ primary, comparison }` pair every report hook returns. */
-type ReportPair< H extends ( ...args: never[] ) => { primary: unknown; comparison: unknown } > =
-	Pick< ReturnType< H >, 'primary' | 'comparison' >;
+/** The `{ primary, comparison }` pair every report hook returns, plus the zone it read them in. */
+type ReportPair<
+	H extends ( ...args: never[] ) => { primary: unknown; comparison: unknown; timezone: string },
+> = Pick< ReturnType< H >, 'primary' | 'comparison' | 'timezone' >;
 
 type DataSources = {
 	general: ReportPair< typeof useReportOrders >;
@@ -146,6 +147,7 @@ function buildSeriesForMetric( metric: StorePerformanceMetric, dataSources: Data
 			primary: dataSources.visitors.primary.data ?? getDefaultVisitorsReportData(),
 			comparison: dataSources.visitors.comparison.data ?? getDefaultVisitorsReportData(),
 			metricKey: metric.metricKey,
+			zone: dataSources.visitors.timezone,
 			emptyDataFallback: 'empty-array',
 		} );
 	}
@@ -155,6 +157,7 @@ function buildSeriesForMetric( metric: StorePerformanceMetric, dataSources: Data
 			primary: dataSources.conversion.primary.data ?? getDefaultConversionReportData(),
 			comparison: dataSources.conversion.comparison.data ?? getDefaultConversionReportData(),
 			metricKey: metric.metricKey,
+			zone: dataSources.conversion.timezone,
 			emptyDataFallback: 'empty-array',
 		} );
 	}
@@ -164,6 +167,7 @@ function buildSeriesForMetric( metric: StorePerformanceMetric, dataSources: Data
 			primary: dataSources.customers.primary.data ?? getDefaultCustomersReportData(),
 			comparison: dataSources.customers.comparison.data ?? getDefaultCustomersReportData(),
 			metricKey: metric.metricKey,
+			zone: dataSources.customers.timezone,
 			emptyDataFallback: 'empty-array',
 		} );
 	}
@@ -174,6 +178,7 @@ function buildSeriesForMetric( metric: StorePerformanceMetric, dataSources: Data
 		primary: source.primary.data ?? getDefaultOrdersReportData(),
 		comparison: source.comparison.data ?? getDefaultOrdersReportData(),
 		metricKey: metric.metricKey,
+		zone: source.timezone,
 		emptyDataFallback: 'empty-array',
 	} );
 }
@@ -269,15 +274,36 @@ function StorePerformanceContent() {
 
 	const dataSources: DataSources = useMemo(
 		() => ( {
-			general: { primary, comparison },
-			booking: { primary: bookingsPrimary, comparison: bookingsComparison },
-			visitors: { primary: visitorsPrimary, comparison: visitorsComparison },
-			conversion: { primary: conversionPrimary, comparison: conversionComparison },
-			customers: { primary: customersPrimary, comparison: customersComparison },
+			general: { primary, comparison, timezone: generalReport.timezone },
+			booking: {
+				primary: bookingsPrimary,
+				comparison: bookingsComparison,
+				timezone: bookingsReport.timezone,
+			},
+			visitors: {
+				primary: visitorsPrimary,
+				comparison: visitorsComparison,
+				timezone: visitorsReport.timezone,
+			},
+			conversion: {
+				primary: conversionPrimary,
+				comparison: conversionComparison,
+				timezone: conversionReport.timezone,
+			},
+			customers: {
+				primary: customersPrimary,
+				comparison: customersComparison,
+				timezone: customersReport.timezone,
+			},
 		} ),
 		[
 			primary,
 			comparison,
+			generalReport.timezone,
+			bookingsReport.timezone,
+			visitorsReport.timezone,
+			conversionReport.timezone,
+			customersReport.timezone,
 			bookingsPrimary,
 			bookingsComparison,
 			visitorsPrimary,

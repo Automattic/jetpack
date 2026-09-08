@@ -2,7 +2,6 @@
 // Test dependencies come from the plugin, not the wp-build route package.
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { act, fireEvent, render, screen } from '@testing-library/react';
-import { initLocationChange } from '../../packages/init/src/location-change';
 import { stage as Stage } from './stage';
 import type { ReactNode } from 'react';
 
@@ -29,7 +28,6 @@ const getSettingsMount = () => document.getElementById( 'jb-settings-tab-mount' 
 const getSubpageMount = () => document.getElementById( 'jb-subpage-mount' );
 
 beforeEach( () => {
-	initLocationChange();
 	window.history.replaceState( null, '', '/?page=jetpack-boost' );
 	Object.assign( window, { wpApiSettings: { root: '/wp-json/', nonce: 'test-nonce' } } );
 	mockNavigate.mockReset();
@@ -143,8 +141,6 @@ describe( 'Boost dashboard stage', () => {
 		expect( mockNavigate ).toHaveBeenCalledWith( { search: { tab: 'settings' }, replace: false } );
 	} );
 	it( 'updates the subpage mount for history navigation', () => {
-		initLocationChange();
-		initLocationChange();
 		mockNavigate.mockImplementation( () => {
 			window.history.replaceState( null, '', '/?page=jetpack-boost&tab=settings#/' );
 		} );
