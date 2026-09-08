@@ -1,17 +1,23 @@
 import { __, _n, sprintf } from '@wordpress/i18n';
 
-export function getScoreTier( score: number ): 'good' | 'medium' | 'poor' {
+export type ScoreTier = 'good' | 'medium' | 'poor';
+
+export function getScoreTier( score: number ): ScoreTier {
 	// Keep tiers aligned with js-packages/components/components/boost-score-bar/index.tsx.
 	return score > 70 ? 'good' : score > 50 ? 'medium' : 'poor';
 }
 
-export function getScoreTierLabel( score: number ): string {
+export function getGradeTier( grade: string ): ScoreTier {
+	return grade === 'A' || grade === 'B' ? 'good' : grade === 'C' ? 'medium' : 'poor';
+}
+
+export function getScoreTierLabel( tier: ScoreTier ): string {
 	const labels = {
 		good: __( 'Good', 'jetpack-boost' ),
 		medium: __( 'Could be improved', 'jetpack-boost' ),
 		poor: __( 'Poor', 'jetpack-boost' ),
 	};
-	return labels[ getScoreTier( score ) ];
+	return labels[ tier ];
 }
 
 export function getScoreDelta( current: number, noBoost?: number | null ): number | null {

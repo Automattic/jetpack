@@ -3,6 +3,7 @@ import { CardDivider } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Icon, dashboard, desktop, info, mobile } from '@wordpress/icons';
 import { Card, Stack, Popover } from '@wordpress/ui';
+import { getGradeTier } from './lib/score-utils';
 import ScoreCard from './score-card';
 import type { SpeedScoresSet } from './lib/use-speed-scores';
 import type { ReactNode } from 'react';
@@ -16,6 +17,7 @@ type Props = {
 
 export default function ScoreCards( { scores, isLoading, showPlaceholder, headerAction }: Props ) {
 	const { current } = scores;
+	const grade = getScoreLetter( current.mobile, current.desktop );
 	const noBoost = ! scores.isStale && didScoresChange( scores ) ? scores.noBoost : null;
 	return (
 		<Card.Root className="jetpack-boost-overview__scores-card">
@@ -51,8 +53,8 @@ export default function ScoreCards( { scores, isLoading, showPlaceholder, header
 							</Popover.Popup>
 						</Popover.Root>
 					}
-					value={ getScoreLetter( current.mobile, current.desktop ) }
-					score={ ( current.mobile + current.desktop ) / 2 }
+					value={ grade }
+					tier={ getGradeTier( grade ) }
 					showProgress={ false }
 					isLoading={ isLoading }
 					showPlaceholder={ showPlaceholder }

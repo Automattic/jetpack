@@ -7,6 +7,7 @@ import {
 	getScoreTierLabel,
 	getTrendDirection,
 } from './lib/score-utils';
+import type { ScoreTier } from './lib/score-utils';
 import type { ReactNode } from 'react';
 
 type Props = {
@@ -15,6 +16,7 @@ type Props = {
 	help?: ReactNode;
 	value: ReactNode;
 	score?: number;
+	tier?: ScoreTier;
 	showProgress?: boolean;
 	noBoost?: number | null;
 	isLoading?: boolean;
@@ -27,12 +29,12 @@ export default function ScoreCard( {
 	help,
 	value,
 	score,
+	tier = score === undefined ? undefined : getScoreTier( score ),
 	showProgress = true,
 	noBoost,
 	isLoading,
 	showPlaceholder = isLoading,
 }: Props ) {
-	const tier = score === undefined ? undefined : getScoreTier( score );
 	const delta = score === undefined ? null : getScoreDelta( score, noBoost );
 	return (
 		<section
@@ -53,11 +55,11 @@ export default function ScoreCard( {
 				) : (
 					<>
 						<Text variant="heading-2xl">{ value }</Text>
-						{ score !== undefined && (
+						{ tier !== undefined && (
 							<Text
 								className={ `jetpack-boost-overview__tier jetpack-boost-overview__tier--${ tier }` }
 							>
-								{ getScoreTierLabel( score ) }
+								{ getScoreTierLabel( tier ) }
 							</Text>
 						) }
 					</>

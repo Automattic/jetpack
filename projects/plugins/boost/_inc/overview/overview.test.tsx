@@ -420,3 +420,42 @@ test( 'reports module request errors independently and retries only modules', as
 		expect.objectContaining( { url: expect.stringContaining( 'modules-state' ) } )
 	);
 } );
+
+test.each( [
+	[ 100, 'A', 'Good', 'good' ],
+	[ 90, 'B', 'Good', 'good' ],
+	[ 76, 'B', 'Good', 'good' ],
+	[ 75, 'C', 'Could be improved', 'medium' ],
+	[ 71, 'C', 'Could be improved', 'medium' ],
+	[ 50, 'D', 'Poor', 'poor' ],
+	[ 30, 'E', 'Poor', 'poor' ],
+	[ 0, 'F', 'Poor', 'poor' ],
+] )( 'keeps the Overall letter and tier aligned at score %s', ( score, grade, word, tier ) => {
+	render(
+		<ScoreCards
+			scores={ {
+				current: { desktop: Number( score ), mobile: Number( score ) },
+				noBoost: null,
+				isStale: false,
+			} }
+		/>
+	);
+	const overall = within( screen.getByRole( 'region', { name: 'Overall grade' } ) );
+	expect( overall.getByText( String( grade ) ) ).toBeInTheDocument();
+	expect( overall.getByText( String( word ) ) ).toHaveClass(
+		`jetpack-boost-overview__tier--${ tier }`
+	);
+} );
+
+test( 'keeps numeric device tiers when the Overall letter uses a different tier', () => {
+	render(
+		<ScoreCards
+			scores={ { current: { desktop: 71, mobile: 71 }, noBoost: null, isStale: false } }
+		/>
+	);
+	for ( const name of [ 'Desktop', 'Mobile' ] ) {
+		expect( within( screen.getByRole( 'region', { name } ) ).getByText( 'Good' ) ).toHaveClass(
+			'jetpack-boost-overview__tier--good'
+		);
+	}
+} );
