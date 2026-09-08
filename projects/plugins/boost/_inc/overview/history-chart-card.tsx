@@ -1,7 +1,7 @@
 import { GlobalChartsProvider, LineChart, useGlobalChartsContext } from '@automattic/charts';
 import '@automattic/charts/style.css';
 import { getScoreLetter } from '@automattic/jetpack-boost-score-api';
-import { Spinner } from '@wordpress/components';
+import { Spinner, VisuallyHidden } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
 import { trendingUp } from '@wordpress/icons';
@@ -120,21 +120,8 @@ export function HistoryTooltip( {
 		? Math.max( edgeGap, Math.min( anchorX - width / 2, plotWidth - width - edgeGap ) )
 		: 0;
 	const dimensions = period.dimensions;
-	const tooltip = (
-		<div
-			ref={ tooltipRef }
-			className="jetpack-boost-overview__history-tooltip"
-			style={
-				anchor
-					? {
-							position: 'fixed',
-							left: origin.left + left,
-							top: origin.top,
-							maxInlineSize: plotWidth ? plotWidth - 2 * edgeGap : undefined,
-					  }
-					: undefined
-			}
-		>
+	const content = (
+		<>
 			<div className="jetpack-boost-overview__tooltip-date">
 				{ dateI18n( 'F j, Y', new Date( period.timestamp ), false ) }
 			</div>
@@ -173,6 +160,25 @@ export function HistoryTooltip( {
 					</div>
 				) ) }
 			</dl>
+		</>
+	);
+	const tooltip = (
+		<div
+			ref={ tooltipRef }
+			aria-hidden={ isAnchored || undefined }
+			className="jetpack-boost-overview__history-tooltip"
+			style={
+				anchor
+					? {
+							position: 'fixed',
+							left: origin.left + left,
+							top: origin.top,
+							maxInlineSize: plotWidth ? plotWidth - 2 * edgeGap : undefined,
+					  }
+					: undefined
+			}
+		>
+			{ content }
 			{ anchor && (
 				<span
 					className="jetpack-boost-overview__tooltip-pointer"
@@ -192,7 +198,7 @@ export function HistoryTooltip( {
 					top: 'calc(100% - var(--wpds-dimension-size-md))',
 				} }
 			/>
-			{ /* Escape the dashboard scroll container while retaining date-axis anchoring. */ }
+			<VisuallyHidden>{ content }</VisuallyHidden>
 			{ createPortal( tooltip, document.body ) }
 		</>
 	) : (

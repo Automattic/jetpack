@@ -177,6 +177,48 @@ test( 'keeps the WordPress date and all eight history dimensions in the tooltip'
 	}
 } );
 
+test( 'announces the selected date and measurements during arrow-key navigation', async () => {
+	const getStyle = window.getComputedStyle;
+	const styleSpy = jest.spyOn( window, 'getComputedStyle' ).mockImplementation( element => {
+		const style = document.createElement( 'div' ).style;
+		style.cssText = getStyle( element ).cssText;
+		style.setProperty( '--jetpack-boost-overview-chart-padding', '24px' );
+		style.setProperty( '--jetpack-boost-overview-chart-margin-left', '40px' );
+		style.setProperty( '--jetpack-boost-overview-chart-margin-right', '20px' );
+		style.setProperty( '--jetpack-boost-overview-chart-margin-bottom', '32px' );
+		return style;
+	} );
+	try {
+		render( <HistoryChartCard data={ history } { ...callbacks } /> );
+		const chart = screen.getByRole( 'grid', { name: /line chart/i } );
+		fireEvent.keyDown( chart, { key: 'ArrowRight' } );
+		const firstTooltip = await screen.findByTestId( 'chart-tooltip-0' );
+		await waitFor( () => expect( firstTooltip ).toHaveFocus() );
+		for ( const value of [
+			'September 1, 2026',
+			'Overall score',
+			'Desktop score',
+			'90 / 100',
+			'Mobile score',
+			'80 / 100',
+			'1.20s',
+			'0.20s',
+			'0.01',
+			'2.40s',
+			'0.40s',
+			'0.03',
+		] ) {
+			expect( firstTooltip ).toHaveTextContent( value );
+		}
+		fireEvent.keyDown( firstTooltip, { key: 'ArrowRight' } );
+		const secondTooltip = await screen.findByTestId( 'chart-tooltip-1' );
+		await waitFor( () => expect( secondTooltip ).toHaveFocus() );
+		expect( secondTooltip ).toHaveTextContent( 'September 2, 2026' );
+	} finally {
+		styleSpy.mockRestore();
+	}
+} );
+
 test( 'uses the non-UTC site date for both axis and tooltip', async () => {
 	const settings = getSettings();
 	setSettings( {
