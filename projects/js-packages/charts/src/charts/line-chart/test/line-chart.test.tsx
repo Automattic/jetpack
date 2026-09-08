@@ -127,9 +127,9 @@ describe( 'LineChart', () => {
 		expect( horizontal ).toHaveAttribute( 'stroke', 'orange' );
 		expect( horizontal ).toHaveAttribute( 'stroke-dasharray', '4 2' );
 		expect( screen.getByTestId( 'bounded-tooltip' ) ).toHaveStyle( {
-			backgroundColor: 'rgb(0, 0, 0)',
+			'background-color': 'rgb(0, 0, 0)',
 			color: 'rgb(255, 255, 255)',
-			boxShadow: 'none',
+			'box-shadow': 'none',
 		} );
 	} );
 
