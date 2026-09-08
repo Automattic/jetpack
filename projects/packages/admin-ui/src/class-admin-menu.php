@@ -114,7 +114,7 @@ class Admin_Menu {
 					remove_action( 'admin_menu', array( 'Akismet_Admin', 'admin_menu' ), 5 );
 
 					// Add an Anti-spam menu item for Jetpack.
-					self::add_menu( __( 'Akismet Anti-spam', 'jetpack-admin-ui' ), __( 'Akismet Anti-spam', 'jetpack-admin-ui' ), 'manage_options', 'akismet-key-config', array( 'Akismet_Admin', 'display_page' ), 6 );
+					self::add_menu( __( 'Akismet Anti-spam', 'jetpack-admin-ui' ), __( 'Akismet Anti-spam', 'jetpack-admin-ui' ), 'manage_options', 'akismet-key-config', array( 'Akismet_Admin', 'display_page' ) );
 				},
 				4
 			);
@@ -164,7 +164,9 @@ class Admin_Menu {
 				$result     = $position_a <=> $position_b;
 
 				if ( 0 === $result ) {
-					$result = strcmp( $a['menu_title'], $b['menu_title'] );
+					// Case-insensitive and number-aware, so "eCommerce" sorts with the Es.
+					// Still a byte compare: a leading accented character sorts after Z.
+					$result = strnatcasecmp( $a['menu_title'], $b['menu_title'] );
 				}
 
 				return $result;
