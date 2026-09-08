@@ -1,3 +1,5 @@
+process.env.TZ = 'UTC';
+
 const boostConfig = require( '../../tests/jest.base.config.cjs' );
 
 module.exports = {

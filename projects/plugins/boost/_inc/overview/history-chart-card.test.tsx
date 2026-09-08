@@ -223,20 +223,20 @@ test( 'uses the non-UTC site date for both axis and tooltip', async () => {
 	const settings = getSettings();
 	setSettings( {
 		...settings,
-		timezone: { offset: 14, offsetFormatted: '14', string: 'Pacific/Kiritimati', abbr: '+14' },
+		timezone: { offset: -7, offsetFormatted: '-7', string: 'America/Los_Angeles', abbr: 'PDT' },
 	} );
 	try {
+		expect( new Date( timestamp ).getTimezoneOffset() ).toBe( 0 );
 		render(
 			<>
 				<HistoryChartCard data={ history } { ...callbacks } />
-				<HistoryTooltip
-					period={ { ...history.periods[ 0 ], timestamp: timestamp + 15 * 3600000 } }
-				/>
+				<HistoryTooltip period={ history.periods[ 0 ] } />
 			</>
 		);
 		await expect( screen.findByText( 'Image CDN enabled' ) ).resolves.toBeInTheDocument();
-		await expect( screen.findAllByText( 'Sep 2' ) ).resolves.not.toHaveLength( 0 );
-		expect( screen.getByText( 'September 2, 2026' ) ).toBeInTheDocument();
+		const ticks = screen.getAllByText( /^[A-Z][a-z]{2} \d{1,2}$/ );
+		expect( ticks[ 0 ] ).toHaveTextContent( /^Aug 31$/ );
+		expect( screen.getByText( 'August 31, 2026' ) ).toBeInTheDocument();
 		expect( screen.queryByText( 'September 1, 2026' ) ).not.toBeInTheDocument();
 	} finally {
 		setSettings( settings );
