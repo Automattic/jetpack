@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { reportingTimeZone } from '@jetpack-premium-analytics/datetime';
 import { dateI18n, getSettings } from '@wordpress/date';
 /**
  * Internal dependencies
@@ -84,7 +85,7 @@ function formatFor( name: DateFormatName ): string {
 }
 
 /**
- * Format a date in the site's locale and timezone.
+ * Format a date in the site's locale and the reporting timezone.
  *
  * Month and weekday names come from WordPress's translation tables and the
  * ordering from `date_format`, so dates match wp-admin rather than the browser.
@@ -94,7 +95,7 @@ function formatFor( name: DateFormatName ): string {
  * @return The formatted date.
  */
 export const formatDate = ( date: DateInput, name: DateFormatName = 'medium' ): string =>
-	dateI18n( formatFor( name ), date );
+	dateI18n( formatFor( name ), date, reportingTimeZone() );
 
 /**
  * Return a full weekday name in the site's locale.

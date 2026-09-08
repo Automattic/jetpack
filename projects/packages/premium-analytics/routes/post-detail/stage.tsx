@@ -7,43 +7,47 @@ import { LinkButton } from '@jetpack-premium-analytics/externals';
 import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
 import {
 	DateFiltersPanel,
-	SectionTabPanel,
 	safeHttpUrl,
 	StatsBreadcrumbs,
 	StatsPageIcon,
 } from '@jetpack-premium-analytics/ui';
-import { Page } from '@wordpress/admin-ui';
+import {
+	DetailPageActions,
+	DetailPageBreadcrumbs,
+	DetailPageLayout,
+	DetailPageShell,
+	DetailPageTabPanel,
+	useDetailPageCustomize,
+	useStoredDetailLayout,
+} from '@jetpack-premium-analytics/widgets-toolkit';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useParams } from '@wordpress/route';
-import { DEFAULT_GRID, ROW_HEIGHT_PRESETS, WidgetDashboard } from '@wordpress/widget-dashboard';
+import { WidgetDashboard } from '@wordpress/widget-dashboard';
 import { type WidgetModuleRecord } from '@wordpress/widget-primitives';
+import { DETAIL_GRID } from '../grid';
 import { useDetailBreadcrumbs } from '../use-detail-breadcrumbs';
 import { useDetailDateControls } from '../use-detail-date-controls';
 import { resolveWidgetModuleWithI18n, useWidgetTypesWithI18n } from '../widget-module-i18n';
-import { PostDetailTabs, PostSummaryCard } from './components';
+import { PostDetailTabs, postHeaderSlots } from './components';
 import { EMAIL_TAB_IDS, POST_DETAIL_WIDGET_TYPE_ALIASES } from './config';
 import { useEmailTabScope, usePostDetailTabs, usePostSummary } from './hooks';
 import { route } from './package.json';
-import styles from './stage.module.scss';
 
 const ROUTE_FROM = route.path;
 
-// Fixed composition (WOOA7S-1622): grid stays independent from the
-// customizable main-dashboard preference so it can't be stretched.
-const POST_DETAIL_GRID = { ...DEFAULT_GRID, rowHeight: ROW_HEIGHT_PRESETS.small };
-
-// The layout is fixed, so the change callback never fires; the dashboard
-// still requires one because it owns a staging copy internally.
-const noopLayoutChange = () => {};
+// Its own preferences scope: the routes are separate packages, and the detail
+// surfaces' stored arrangements have no reason to share a namespace.
+const PREFERENCES_SCOPE = 'jetpack-premium-analytics/post-detail';
 
 /**
  * Premium Analytics post/page detail page stage component.
  *
- * A fixed, non-customizable page (WOOA7S-1622): there is no edit mode, so
- * required widgets and their sizing cannot be removed or reshaped.
+ * The composition is fixed (WOOA7S-1622), but the reader can rearrange its
+ * cards per tab from the page options menu (STATS-428); the arrangement is
+ * committed by the dashboard's own Done action and stored in preferences.
  *
  * @return {JSX.Element} The post detail page.
  */
@@ -68,11 +72,27 @@ function PostDetail(): JSX.Element {
 	// tabs mount their fixed layout and let each widget surface its own error.
 	const emailScopeBlocked = ! emailScope && ! summary.isLoading && summary.isError;
 
-	const { tabs, activeTab, setActiveTab, layout } = usePostDetailTabs(
-		postId,
-		emailScope?.reportParams,
-		emailScopeBlocked
+	const {
+		tabs,
+		activeTab,
+		setActiveTab,
+		layout: fixedLayout,
+	} = usePostDetailTabs( postId, emailScope?.reportParams, emailScopeBlocked );
+
+	// The stored per-tab arrangement, layered over the fixed composition.
+	const { layout, setLayout, resetLayout } = useStoredDetailLayout(
+		PREFERENCES_SCOPE,
+		activeTab,
+		fixedLayout
 	);
+
+	// Each tab is its own layout, so leaving the tab, by click, Back, or a deep
+	// link, leaves customize mode with it.
+	const { isCustomizing, canPerform, startCustomizing, onEditChange } = useDetailPageCustomize(
+		layout,
+		{ layoutId: activeTab }
+	);
+
 	const isEmailTab = EMAIL_TAB_IDS.includes( activeTab );
 
 	const widgetModules = useSelect(
@@ -116,78 +136,81 @@ function PostDetail(): JSX.Element {
 
 	const breadcrumbs = useDetailBreadcrumbs( summary.title );
 
+	// The email tabs are pinned to the send window, so the filter would only
+	// suggest a choice they do not offer; the range stays in the URL so the Post
+	// traffic tab keeps its selection. The design has no comparison on this page
+	// either — the panel reads that from the scope the stage declares.
+	const dateFiltersPanel = isEmailTab ? null : (
+		<DateFiltersPanel { ...dateFilters } { ...dateControls } />
+	);
+
 	return (
 		<GlobalErrorProvider>
-			<WidgetDashboard
-				widgetTypes={ pageWidgetTypes }
-				isResolvingWidgetTypes={ isResolvingWidgetTypes }
-				resolveWidgetModule={ resolveWidgetModuleWithI18n }
-				layout={ layout }
-				onLayoutChange={ noopLayoutChange }
-				gridSettings={ POST_DETAIL_GRID }
-			>
-				<Page
-					visual={ <StatsPageIcon /> }
-					breadcrumbs={ <StatsBreadcrumbs items={ breadcrumbs } /> }
-					actions={
-						publicUrl ? (
-							<LinkButton
-								variant="solid"
-								tone="neutral"
-								size="compact"
-								href={ publicUrl }
-								openInNewTab
-							>
-								{ summary.type === 'page'
-									? __( 'View page', 'jetpack-premium-analytics-pkg' )
-									: __( 'View post', 'jetpack-premium-analytics-pkg' ) }
-							</LinkButton>
-						) : undefined
-					}
-					className={ styles.page }
+			<WidgetDashboard.Policy canPerform={ canPerform }>
+				<WidgetDashboard
+					widgetTypes={ pageWidgetTypes }
+					isResolvingWidgetTypes={ isResolvingWidgetTypes }
+					resolveWidgetModule={ resolveWidgetModuleWithI18n }
+					layout={ layout }
+					onLayoutChange={ setLayout }
+					onLayoutReset={ resetLayout }
+					gridSettings={ DETAIL_GRID }
+					editMode={ isCustomizing }
+					onEditChange={ onEditChange }
 				>
-					<PostDetailTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab }>
-						<div className={ styles.scrollArea }>
+					<DetailPageShell
+						visual={ <StatsPageIcon /> }
+						breadcrumbs={
+							<DetailPageBreadcrumbs isCustomizing={ isCustomizing }>
+								<StatsBreadcrumbs items={ breadcrumbs } />
+							</DetailPageBreadcrumbs>
+						}
+						actions={
+							<DetailPageActions
+								isCustomizing={ isCustomizing }
+								onCustomize={ startCustomizing }
+								editingActions={ <WidgetDashboard.Actions /> }
+							>
+								{ publicUrl ? (
+									<LinkButton
+										variant="solid"
+										tone="neutral"
+										size="compact"
+										href={ publicUrl }
+										openInNewTab
+									>
+										{ summary.type === 'page'
+											? __( 'View page', 'jetpack-premium-analytics-pkg' )
+											: __( 'View post', 'jetpack-premium-analytics-pkg' ) }
+									</LinkButton>
+								) : null }
+							</DetailPageActions>
+						}
+					>
+						<PostDetailTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab }>
 							{ /*
-							 * The summary card and the date filter presets are shared by every
-							 * tab (same post, same date range), so they render once above the
-							 * per-tab widget grid and scroll away with it.
+							 * The header is shared by every tab (same post, same range), so it
+							 * renders once above the per-tab grids; the email tabs give it an
+							 * email identity and report over the send window.
 							 */ }
-							<div className={ styles.header }>
-								<div className={ styles.summary }>
-									{ /* The email tabs give the header an email identity and report over
-									     the send window; the title stays the post's. */ }
-									<PostSummaryCard
-										summary={ summary }
-										variant={ isEmailTab ? 'email' : 'post' }
-										performanceRange={ isEmailTab ? emailScope?.range : dateFilters.appliedRange }
-									/>
-								</div>
-								{ /* The email tabs are pinned to the send window, so the filter
-								     would only suggest a choice they do not offer; the range stays in
-								     the URL so the Post traffic tab keeps its selection. */ }
-								{ ! isEmailTab && (
-									<div className={ styles.dateFilters }>
-										{ /*
-										 * The design has no comparison on this page. The panel reads
-										 * that from the scope the stage declares; the params themselves
-										 * stay in the URL so the breadcrumb carries them back out.
-										 */ }
-										<DateFiltersPanel { ...dateFilters } { ...dateControls } />
-									</div>
-								) }
-							</div>
-							{ tabs.map( tab => (
-								<SectionTabPanel key={ tab.id } value={ tab.id } className={ styles.content }>
-									{ activeTab === tab.id ? (
-										<WidgetDashboard.Widgets className={ styles.widgets } />
-									) : null }
-								</SectionTabPanel>
-							) ) }
-						</div>
-					</PostDetailTabs>
-				</Page>
-			</WidgetDashboard>
+							<DetailPageLayout
+								header={ postHeaderSlots( {
+									summary,
+									variant: isEmailTab ? 'email' : 'post',
+									performanceRange: isEmailTab ? emailScope?.range : dateFilters.appliedRange,
+								} ) }
+								controls={ dateFiltersPanel }
+							>
+								{ tabs.map( tab => (
+									<DetailPageTabPanel key={ tab.id } value={ tab.id }>
+										{ activeTab === tab.id ? <WidgetDashboard.Widgets /> : null }
+									</DetailPageTabPanel>
+								) ) }
+							</DetailPageLayout>
+						</PostDetailTabs>
+					</DetailPageShell>
+				</WidgetDashboard>
+			</WidgetDashboard.Policy>
 		</GlobalErrorProvider>
 	);
 }

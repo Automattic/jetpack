@@ -12,9 +12,6 @@ import type { ReviewReason } from '../../data/api/review-request';
  *
  * Two whole returns, not one `__()` over a ternary: the minifier factors the
  * shared call out and leaves a non-literal msgid the extractor cannot read.
- * Both msgids are legacy's character for character, so they arrive already
- * translated — including the backups line's unconditional "real-time", which is
- * ported as-is rather than reworded at a translation cost.
  *
  * @param reason - Why the reader is being asked.
  * @return The question to show.
@@ -24,7 +21,7 @@ function reviewQuestion( reason: ReviewReason ): string {
 		return __( 'Was it easy to restore your site?', 'jetpack-backup-pkg' );
 	}
 
-	return __( 'Do you enjoy the peace of mind of having real-time backups?', 'jetpack-backup-pkg' );
+	return __( 'Do you enjoy the peace of mind of having backups?', 'jetpack-backup-pkg' );
 }
 
 /**

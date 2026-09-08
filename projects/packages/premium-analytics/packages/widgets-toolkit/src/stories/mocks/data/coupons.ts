@@ -8,6 +8,11 @@
  * - data: CouponsDataItem[]
  */
 
+/**
+ * Internal dependencies
+ */
+import { wooBucketStamp } from '../../../__fixtures__/woo-bucket-stamp';
+
 export type MockCouponsItem = {
 	coupon_code: string;
 	discount_amount: string;
@@ -58,8 +63,8 @@ export const mockCouponsData: MockCouponsResponse = {
 		total_sales: '45678.90',
 		total_discount_amount: '3456.78',
 		total_orders: '234',
-		date_start: '2024-01-01',
-		date_end: '2024-01-31',
+		date_start: wooBucketStamp( '2024-01-01' ),
+		date_end: wooBucketStamp( '2024-01-31T23:59:59' ),
 	},
 	data: [
 		{
@@ -97,8 +102,8 @@ export const mockCouponsComparisonData: MockCouponsResponse = {
 		total_sales: '38765.40',
 		total_discount_amount: '2890.12',
 		total_orders: '198',
-		date_start: '2023-12-01',
-		date_end: '2023-12-31',
+		date_start: wooBucketStamp( '2023-12-01' ),
+		date_end: wooBucketStamp( '2023-12-31T23:59:59' ),
 	},
 	data: [
 		{
@@ -142,14 +147,14 @@ export const mockCouponsByDateData: MockCouponsByDateResponse = {
 		total_discount_amount: '3456.78',
 		net_sales_after_discount: '42222.12',
 		coupon_usage_percentage: '40.60',
-		date_start: '2024-01-01',
-		date_end: '2024-01-31',
+		date_start: wooBucketStamp( '2024-01-01' ),
+		date_end: wooBucketStamp( '2024-01-31T23:59:59' ),
 	},
 	data: [
 		{
 			time_interval: '2024-01-01',
-			date_start: '2024-01-01',
-			date_end: '2024-01-10',
+			date_start: wooBucketStamp( '2024-01-01' ),
+			date_end: wooBucketStamp( '2024-01-10T23:59:59' ),
 			total_orders: '78',
 			orders_with_coupon: '31',
 			orders_without_coupon: '47',
@@ -162,8 +167,8 @@ export const mockCouponsByDateData: MockCouponsByDateResponse = {
 		},
 		{
 			time_interval: '2024-01-11',
-			date_start: '2024-01-11',
-			date_end: '2024-01-20',
+			date_start: wooBucketStamp( '2024-01-11' ),
+			date_end: wooBucketStamp( '2024-01-20T23:59:59' ),
 			total_orders: '81',
 			orders_with_coupon: '34',
 			orders_without_coupon: '47',
@@ -176,8 +181,8 @@ export const mockCouponsByDateData: MockCouponsByDateResponse = {
 		},
 		{
 			time_interval: '2024-01-21',
-			date_start: '2024-01-21',
-			date_end: '2024-01-31',
+			date_start: wooBucketStamp( '2024-01-21' ),
+			date_end: wooBucketStamp( '2024-01-31T23:59:59' ),
 			total_orders: '75',
 			orders_with_coupon: '30',
 			orders_without_coupon: '45',
@@ -205,14 +210,14 @@ export const mockCouponsByDateComparisonData: MockCouponsByDateResponse = {
 		total_discount_amount: '2890.12',
 		net_sales_after_discount: '35875.28',
 		coupon_usage_percentage: '38.38',
-		date_start: '2023-12-01',
-		date_end: '2023-12-31',
+		date_start: wooBucketStamp( '2023-12-01' ),
+		date_end: wooBucketStamp( '2023-12-31T23:59:59' ),
 	},
 	data: [
 		{
 			time_interval: '2023-12-01',
-			date_start: '2023-12-01',
-			date_end: '2023-12-10',
+			date_start: wooBucketStamp( '2023-12-01' ),
+			date_end: wooBucketStamp( '2023-12-10T23:59:59' ),
 			total_orders: '64',
 			orders_with_coupon: '25',
 			orders_without_coupon: '39',
@@ -225,8 +230,8 @@ export const mockCouponsByDateComparisonData: MockCouponsByDateResponse = {
 		},
 		{
 			time_interval: '2023-12-11',
-			date_start: '2023-12-11',
-			date_end: '2023-12-20',
+			date_start: wooBucketStamp( '2023-12-11' ),
+			date_end: wooBucketStamp( '2023-12-20T23:59:59' ),
 			total_orders: '68',
 			orders_with_coupon: '26',
 			orders_without_coupon: '42',
@@ -239,8 +244,8 @@ export const mockCouponsByDateComparisonData: MockCouponsByDateResponse = {
 		},
 		{
 			time_interval: '2023-12-21',
-			date_start: '2023-12-21',
-			date_end: '2023-12-31',
+			date_start: wooBucketStamp( '2023-12-21' ),
+			date_end: wooBucketStamp( '2023-12-31T23:59:59' ),
 			total_orders: '66',
 			orders_with_coupon: '25',
 			orders_without_coupon: '41',
@@ -262,8 +267,8 @@ export const mockCouponsEmptyData: MockCouponsResponse = {
 		total_sales: '0',
 		total_discount_amount: '0',
 		total_orders: '0',
-		date_start: '2024-01-01',
-		date_end: '2024-01-31',
+		date_start: wooBucketStamp( '2024-01-01' ),
+		date_end: wooBucketStamp( '2024-01-31T23:59:59' ),
 	},
 	data: [],
 };

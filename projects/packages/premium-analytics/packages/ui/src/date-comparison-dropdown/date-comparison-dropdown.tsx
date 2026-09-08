@@ -33,6 +33,8 @@ type DateComparisonDropdownProps = {
 	 * text. Defaults to "Compare" / "Compare to" depending on the state.
 	 */
 	label?: string;
+	/** Greys the trigger out but keeps it focusable: a passing state, not a missing control. */
+	disabled?: boolean;
 	onPresetChange: ( id: ComparisonPresetId ) => void;
 	onClear: () => void;
 };
@@ -42,6 +44,7 @@ export function DateComparisonDropdown( {
 	enabled,
 	presetId,
 	label,
+	disabled = false,
 	onPresetChange,
 	onClear,
 }: DateComparisonDropdownProps ) {
@@ -93,7 +96,7 @@ export function DateComparisonDropdown( {
 	 * Names the preset, not the period.
 	 */
 	return (
-		<div className="date-comparison-dropdown">
+		<div className={ clsx( 'date-comparison-dropdown', { 'is-disabled': disabled } ) }>
 			{ selectedPreset ? (
 				<span className="date-comparison-dropdown__prefix">
 					{ _x(
@@ -113,10 +116,14 @@ export function DateComparisonDropdown( {
 				label={ selectedPreset ? formatDateRange( selectedPreset.range ) : controlLabel }
 				menuProps={ { 'aria-label': controlLabel } }
 				popoverProps={ { placement: 'bottom-start' } }
+				// An aria-disabled Button drops clicks but not keys, so the arrow shortcut is shut apart.
+				disableOpenOnArrowDown={ disabled }
 				toggleProps={ {
 					className: clsx( 'date-comparison-dropdown__toggle', {
 						'date-comparison-dropdown__toggle--active': isComparisonActive,
 					} ),
+					disabled,
+					accessibleWhenDisabled: true,
 					iconPosition: 'right',
 					iconSize: 18,
 					// A tooltip only where the trigger's text is an abbreviation.

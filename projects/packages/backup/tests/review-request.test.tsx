@@ -46,18 +46,11 @@ const CONNECTED = { isRegistered: true, hasConnectedOwner: true, isUserConnected
 const SETTLE = { timeout: 10000 };
 
 const RESTORE_QUESTION = 'Was it easy to restore your site?';
-const BACKUPS_QUESTION = 'Do you enjoy the peace of mind of having real-time backups?';
+const BACKUPS_QUESTION = 'Do you enjoy the peace of mind of having backups?';
 // Matched loosely: `Link` appends its own "opens in a new tab" text to
 // the accessible name, so an exact match would pin this test to that
 // wording rather than to ours.
 const CTA = /Please leave a review and help us spread the word!/;
-
-// jsdom implements no scrolling, and DataViews' list layout calls
-// `scrollIntoView` on the selected row.
-Object.defineProperty( window.HTMLElement.prototype, 'scrollIntoView', {
-	value: () => {},
-	writable: true,
-} );
 
 /**
  * One rewindable-activity entry, so the list has a row to render and the

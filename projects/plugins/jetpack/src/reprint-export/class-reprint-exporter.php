@@ -151,7 +151,7 @@ class Reprint_Exporter {
 		 * secret or the signature. An export with no secret_rotated or
 		 * window_opened event before it used a secret this site did not create.
 		 *
-		 * @since $$next-version$$
+		 * @since 16.2
 		 *
 		 * @param string $event   Event name.
 		 * @param array  $context Details of the event.
@@ -217,7 +217,7 @@ class Reprint_Exporter {
 		 * Filters whether Jetpack Reprint export support is available on the
 		 * current site.
 		 *
-		 * @since $$next-version$$
+		 * @since 16.2
 		 *
 		 * @param bool $available Whether Reprint export support is available.
 		 */
@@ -336,11 +336,13 @@ class Reprint_Exporter {
 	/**
 	 * Whether the current export window is open.
 	 *
+	 * @param int|null $now Unix time to compare against, or null for the
+	 *                      current time. Tests pass a fixed time.
 	 * @return bool
 	 */
-	public static function is_export_window_open() {
+	public static function is_export_window_open( $now = null ) {
 		$enabled_at = (int) get_option( self::ENABLED_OPTION, 0 );
-		$now        = time();
+		$now        = null === $now ? time() : (int) $now;
 		return $enabled_at > 0
 			&& $enabled_at <= $now + self::HMAC_CLOCK_SKEW
 			&& ( $now - $enabled_at ) <= HOUR_IN_SECONDS;

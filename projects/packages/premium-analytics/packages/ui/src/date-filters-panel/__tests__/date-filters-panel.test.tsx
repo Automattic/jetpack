@@ -134,4 +134,55 @@ describe( 'DateFiltersPanel', () => {
 		).toEqual( [ 'Last 24 hours', 'Last 7 days', 'Last 30 days', 'Last 12 months', 'All time' ] );
 		expect( screen.getByRole( 'menuitemradio', { name: 'All time' } ) ).toBeChecked();
 	} );
+
+	it( 'steps the comparison of a to-date preset back by its completed window', async () => {
+		const onComparisonChange = jest.fn();
+		const user = userEvent.setup();
+
+		// `last-12-months` as read on 20 August 2026. Measured by the day, the
+		// previous period would start on 12 September 2024.
+		const toDateRange = {
+			from: new Date( '2025-09-01T00:00:00.000Z' ),
+			to: new Date( '2026-08-20T23:59:59.999Z' ),
+		};
+		renderPanel( {
+			appliedPresetId: 'last-12-months',
+			range: toDateRange,
+			appliedRange: toDateRange,
+			onComparisonChange,
+		} );
+
+		await user.click( screen.getByRole( 'button', { name: 'Compare' } ) );
+		await user.click( screen.getByRole( 'menuitemradio', { name: 'Previous 354 days' } ) );
+
+		expect( onComparisonChange ).toHaveBeenCalledWith(
+			{
+				from: new Date( '2024-09-01T00:00:00.000Z' ),
+				to: new Date( '2025-08-20T23:59:59.999Z' ),
+			},
+			'previous-period'
+		);
+	} );
+
+	it( 'greys every control out while disabled', () => {
+		renderPanel( {
+			disabled: true,
+			onStep: jest.fn(),
+			appliedRange: {
+				from: new Date( '2020-07-01T00:00:00.000Z' ),
+				to: new Date( '2020-07-30T23:59:59.999Z' ),
+			},
+			withIntervalControl: true,
+			intervalOptions: [ 'day', 'week' ],
+			interval: 'day',
+			onIntervalChange: jest.fn(),
+		} );
+
+		// Both arrows, the period, the comparison and the interval.
+		const buttons = screen.getAllByRole( 'button' );
+		expect( buttons ).toHaveLength( 5 );
+		buttons.forEach( button => {
+			expect( button ).toHaveAttribute( 'aria-disabled', 'true' );
+		} );
+	} );
 } );

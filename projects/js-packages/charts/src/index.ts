@@ -32,6 +32,7 @@ export {
 	GlobalChartsProvider,
 	useGlobalChartsContext,
 	useGlobalChartsTheme,
+	useChartFormatting,
 	GlobalChartsContext,
 	defaultTheme,
 	useChartScopeElement,
@@ -55,6 +56,7 @@ export type {
 	ChartTheme,
 	CompleteChartTheme,
 	AxisOptions,
+	ChartFormatting,
 	TickResolution,
 	ScaleOptions,
 	LegendItemStyles,
@@ -126,6 +128,7 @@ export type { SparklineProps, GradientConfig, SparklineDataPoint } from './chart
 
 // Utilities
 export {
+	getBucketInfo,
 	parseAsLocalDate,
 	formatMetricValue,
 	formatPercentage,
@@ -134,3 +137,4 @@ export {
 } from './utils';
 export * from './utils/color-utils';
 export type { MetricValueType } from './utils';
+export type { BucketInfo } from './types';

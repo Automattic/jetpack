@@ -38,7 +38,7 @@ const mockApiFetch = apiFetch as unknown as jest.Mock;
 
 // Built relative to today: hardcoded years would silently move the no-attribute
 // default off the data after New Year. The package test script pins TZ=UTC, which
-// is what the widget's `siteTimeZone()` also resolves to under jsdom.
+// is what the widget's `reportingTimeZone()` also resolves to under jsdom.
 const CURRENT_YEAR = new Date().getFullYear();
 const PREVIOUS_YEAR = CURRENT_YEAR - 1;
 

@@ -124,6 +124,12 @@ export type DateFiltersPanelProps = {
 	 * Required for proper date/time handling.
 	 */
 	timeZone: string;
+
+	/**
+	 * Greys every control out but keeps them focusable, for a surface busy
+	 * elsewhere: the dashboard while its layout is being customized.
+	 */
+	disabled?: boolean;
 };
 
 /**
@@ -157,6 +163,7 @@ export function DateFiltersPanel( {
 	onCancel,
 	canApply = true,
 	timeZone,
+	disabled = false,
 }: DateFiltersPanelProps ) {
 	/*
 	 * Read rather than a prop, so this and the widgets share one declaration —
@@ -186,10 +193,14 @@ export function DateFiltersPanel( {
 	 */
 	const [ isPrimaryPickerOpen, setIsPrimaryPickerOpen ] = useState( false );
 	const comparisonSourceRange = isPrimaryPickerOpen ? range : appliedRange ?? range;
+	// The draft's preset never reaches the panel, so an open draft is measured
+	// as read; the applied preset decides how a to-date window is measured.
+	const comparisonSourcePresetId = isPrimaryPickerOpen ? undefined : validatedAppliedPresetId;
 
 	// Available comparison presets, derived from whichever primary range the
-	// picker is currently reflecting (draft while open, applied while closed).
-	const presets = useComparisonDatePresets( comparisonSourceRange );
+	// picker is currently reflecting (draft while open, applied while closed)
+	// and from its preset, which decides how a to-date window is measured.
+	const presets = useComparisonDatePresets( comparisonSourceRange, comparisonSourcePresetId );
 
 	const presetChange = useCallback(
 		( id: ComparisonPresetId ) => {
@@ -218,6 +229,7 @@ export function DateFiltersPanel( {
 				enabled={ comparisonEnabled }
 				presetId={ validatedComparisonPresetId }
 				label={ comparisonLabel }
+				disabled={ disabled }
 				onPresetChange={ presetChange }
 				onClear={ clearComparison }
 			/>
@@ -226,6 +238,7 @@ export function DateFiltersPanel( {
 			clearComparison,
 			comparisonEnabled,
 			comparisonLabel,
+			disabled,
 			presetChange,
 			presets,
 			validatedComparisonPresetId,
@@ -247,10 +260,11 @@ export function DateFiltersPanel( {
 		return (
 			<DatePeriodNavigation
 				canStepForward={ canStepForward( committedRange, new Date() ) }
+				disabled={ disabled }
 				onStep={ onStep }
 			/>
 		);
-	}, [ appliedRange, onStep, range ] );
+	}, [ appliedRange, disabled, onStep, range ] );
 
 	// Same arrangement as the comparison control: built once, rendered in the
 	// row and in the probe.
@@ -260,10 +274,11 @@ export function DateFiltersPanel( {
 				<DateIntervalDropdown
 					options={ intervalOptions }
 					value={ interval }
+					disabled={ disabled }
 					onChange={ onIntervalChange }
 				/>
 			) : null,
-		[ withIntervalControl, interval, intervalOptions, onIntervalChange ]
+		[ withIntervalControl, interval, intervalOptions, disabled, onIntervalChange ]
 	);
 
 	return (
@@ -290,6 +305,7 @@ export function DateFiltersPanel( {
 						onCancel={ onCancel }
 						canApply={ canApply }
 						timeZone={ timeZone }
+						disabled={ disabled }
 						onOpenChange={ setIsPrimaryPickerOpen }
 						presetIds={ presetIds }
 						allTimeStart={ allTimeStart }

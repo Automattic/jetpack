@@ -1,9 +1,5 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import {
-	THEME_LAYERED_ROLES,
-	themeLayerVar,
-} from '../../providers/chart-context/private/theme-override-vars';
 
 const stylesheet = readFileSync( join( __dirname, '..', 'chart-scope.scss' ), 'utf8' );
 const tokensDoc = readFileSync( join( __dirname, '..', '..', '..', 'TOKENS.md' ), 'utf8' );
@@ -16,24 +12,6 @@ type Entry = {
 	/** The `var()` fallback, or the whole value when it reads nothing. */
 	fallback: string | null;
 };
-
-/**
- * Unwraps the theme layer a `theme`-prop-overridable role carries, so the tables in `TOKENS.md` keep documenting what a role ultimately resolves to rather than restating the override plumbing in every row. Which roles carry the layer is pinned separately below.
- *
- * A role with no catalog default reads its layer with no fallback at all — the empty series-palette slots — and unwraps to nothing, which is what it resolves to until a consumer sets it.
- *
- * @param name  - The declared property name.
- * @param value - Its normalized value.
- * @return The value with a leading `var(<name>-theme, … )` wrapper removed, or the empty string where that wrapper carried no fallback.
- */
-function stripThemeLayer( name: string, value: string ): string {
-	const layered = new RegExp(
-		`^var\\(\\s*${ themeLayerVar( name ) }\\s*(?:,\\s*(.*))?\\)$`,
-		's'
-	).exec( value );
-
-	return layered ? ( layered[ 1 ] ?? '' ).trim() : value;
-}
 
 /**
  * Parses each catalog declaration in the stylesheet into the property it reads and the fallback it carries. Splitting the `var()` arguments at the *first* comma keeps a fallback that is itself a function call intact — `cubic-bezier(0.25, 0, 0, 1)` would otherwise be truncated at its first argument.
@@ -57,13 +35,7 @@ function parseStylesheet(): Map< string, Entry > {
 		}
 
 		const name = declaration.slice( 0, separator ).trim();
-		const value = stripThemeLayer( name, normalize( declaration.slice( separator + 1 ) ) );
-
-		// A role that unwrapped to nothing maps to nothing and falls back to nothing.
-		if ( value === '' ) {
-			entries.set( name, { reads: null, fallback: null } );
-			continue;
-		}
+		const value = normalize( declaration.slice( separator + 1 ) );
 
 		const wrapped = /^var\(\s*(.*)\)$/s.exec( value );
 
@@ -163,21 +135,6 @@ describe( 'chart scope catalog', () => {
 		} )
 	)( 'documents %s with the fallback it is declared with', token => {
 		expect( documented.get( token )?.fallback ).toEqual( declared.get( token )?.fallback );
-	} );
-
-	// The layer is what keeps a `theme` prop override from being able to take its role down with it: an override that is invalid at computed-value time only invalidates `<role>-theme`, and the role's own fallback still resolves the mapped token. Drop the layer from a role and that role's overrides go back to blanking every read site.
-	it.each( THEME_LAYERED_ROLES )( 'declares %s reading its theme layer first', role => {
-		expect( stylesheet ).toMatch(
-			new RegExp( `${ role }:\\s*var\\(\\s*${ themeLayerVar( role ) }\\s*[,)]` )
-		);
-	} );
-
-	it( 'gives a theme layer to the overridable roles and to nothing else', () => {
-		const layered = [ ...declared.keys() ].filter( role =>
-			new RegExp( `${ role }:\\s*var\\(\\s*${ themeLayerVar( role ) }\\s*[,)]` ).test( stylesheet )
-		);
-
-		expect( layered.sort() ).toEqual( [ ...THEME_LAYERED_ROLES ].sort() );
 	} );
 
 	it( 'scopes the catalog to :where(.a8c-charts-scope) rather than :root', () => {

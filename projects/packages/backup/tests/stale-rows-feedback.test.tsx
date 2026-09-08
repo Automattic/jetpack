@@ -9,14 +9,10 @@
 // just left. Clicking to page 2 changed nothing on screen until the
 // response landed.
 //
-// The fix reports `isLoading || isFetching`. That it cannot swallow the
-// error state is not obvious and is worth stating: DataViews 17.3.0
-// initialises `hasInitiallyLoaded` to `!isLoading` and latches it true
-// on the first non-loading render, and the spinner branch that would
-// replace the `empty` slot — where `QueryError` lives — is gated on
-// `!hasInitiallyLoaded`. After the first load that branch is dead, so a
-// truthy `isLoading` only reaches the footer. What the error slot does
-// across a retry is held by `error-persists-during-retry.test.tsx`.
+// What the list reports, and why it cannot swallow the error slot, is
+// owned by the comment on `isBusy` in `activity-list/index.tsx`. What the
+// error slot does across a retry is held by
+// `error-persists-during-retry.test.tsx`.
 
 const mockApiFetch = jest.fn();
 
@@ -104,13 +100,6 @@ function Harness() {
 function list() {
 	return document.querySelector( '.jpb-activity-list' ) as HTMLElement;
 }
-
-// jsdom implements no scrolling, and DataViews' list layout calls
-// `scrollIntoView` on the selected row.
-Object.defineProperty( window.HTMLElement.prototype, 'scrollIntoView', {
-	value: () => {},
-	writable: true,
-} );
 
 beforeEach( () => {
 	queryClient.clear();

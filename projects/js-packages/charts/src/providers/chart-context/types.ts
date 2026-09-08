@@ -2,6 +2,7 @@ import { CSSProperties, ReactNode } from 'react';
 import type { BaseLegendItem } from '../../components/legend';
 import type {
 	BarStyles,
+	ChartFormatting,
 	ChartType,
 	CompleteChartTheme,
 	DataPointPercentage,
@@ -37,6 +38,8 @@ export interface GlobalChartsContextValue {
 	unregisterChart: ( id: string ) => void;
 	getChartData: ( id: string ) => ChartRegistration | undefined;
 	theme: CompleteChartTheme;
+	/** Locale and time zone every date the charts print is rendered in. */
+	formatting: ChartFormatting;
 	getElementStyles: ( params: GetElementStylesParams ) => ElementStyles;
 	// Series visibility management shared by charts, legends, and programmatic controls.
 	toggleSeriesVisibility: ( chartId: string, seriesLabel: string ) => void;

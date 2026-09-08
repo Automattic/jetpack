@@ -1,18 +1,15 @@
 /**
- * External dependencies
- */
-import { getDate } from '@wordpress/date';
-/**
  * Internal dependencies
  */
+import { reportingTimeZone } from './reporting-time-zone';
 import { readSiteTimestamp } from './site-timestamp';
+import { toLocalTZ } from './tz';
 
 /**
- * Parse a timestamp in the WordPress site timezone.
+ * Parse a timestamp in the timezone reports are read in.
  *
- * `getDate` anchors offset-less Stats API values to the WordPress site timezone
- * while preserving the instant of offset-bearing values. It shares `toLocalTZ`'s
- * reading of validity, so the two cannot disagree.
+ * Offset-less Stats API values are anchored to that zone; offset-bearing ones
+ * already name an instant and keep it.
  *
  * @param value - The raw timestamp, or a `Date`.
  * @return The instant, or `undefined` when the value is missing or malformed.
@@ -32,7 +29,8 @@ export function parseSiteDateTime( value: unknown ): Date | undefined {
 		return undefined;
 	}
 
-	const parsed = getDate( timestamp.value );
+	const parsed = toLocalTZ( timestamp.value, reportingTimeZone() );
 
-	return isNaN( parsed.getTime() ) ? undefined : parsed;
+	// A plain `Date`, so callers keep reading its parts in their own zone as they did.
+	return isNaN( parsed.getTime() ) ? undefined : new Date( parsed.getTime() );
 }

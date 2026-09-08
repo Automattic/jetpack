@@ -82,6 +82,22 @@ function wpcom_site_has_feature( $feature, $blog_id = 0 ) {
 		return true;
 	}
 
+	/*
+	 * Sites carrying the 'wordads-free-access' sticker have WordAds regardless of plan.
+	 * The wpcom features list honours that sticker separately, but Jetpack gates module
+	 * activation through its plan check, which defers here, so without this the sticker
+	 * has no effect on Atomic.
+	 */
+	if ( in_array( $feature, array( WPCOM_Features::WORDADS, WPCOM_Features::WORDADS_JETPACK ), true ) ) {
+		if ( defined( 'IS_ATOMIC' ) && IS_ATOMIC && function_exists( 'wpcomsh_is_site_sticker_active' ) ) {
+			if ( wpcomsh_is_site_sticker_active( 'wordads-free-access' ) ) {
+				return true;
+			}
+		} elseif ( function_exists( 'has_blog_sticker' ) && has_blog_sticker( 'wordads-free-access', $blog_id ) ) {
+			return true;
+		}
+	}
+
 	$purchases = wpcom_get_site_purchases( $blog_id );
 
 	if ( isset( $blog->registered ) ) {
@@ -472,32 +488,39 @@ function wpcom_get_product_features( $product ) {
 	$cache_group = 'site_purchases';
 	$cache_found = false;
 
-	// Include sticker status in cache key only for Personal and Premium plans since they're affected by feature gating experiments.
-	$sticker_cache_suffix = '';
-	// @phan-suppress-next-line PhanRedundantCondition
-	if ( function_exists( 'has_blog_sticker' ) && $purchase ) {
-		// Use existing WPCOM_Store helper methods to check plan types
-		$is_personal_or_premium_plan = false;
-		if ( isset( $purchase->product_id ) ) {
-			$is_personal_or_premium_plan = WPCOM_Store::is_wpcom_personal_plan( $purchase->product_id ) || WPCOM_Store::is_wpcom_premium_plan( $purchase->product_id );
-		}
-
-		if ( $is_personal_or_premium_plan ) {
-			$current_blog_id = get_current_blog_id();
-			if ( has_blog_sticker( 'gating-business-q1', $current_blog_id ) ) {
-				$sticker_cache_suffix .= '_gatingbq1';
-			}
-		}
+	/*
+	Adjust the cache key to include site legacy/gating_2026 status. Applying it to all plans
+	 * and not just Personal/Premium to make it future-proof and avoid issue like
+	 * WPCOM_Store::get_wpcom_personal_plans() not returning the Personal trial plan.
+	 *
+	 * The cohort is not the only per-site input: `required_sticker` branches read stickers too, and
+	 * `site_purchases` is a global cache group. WPCOM_Features builds the whole suffix because it
+	 * owns the map that decides what varies.
+	 *
+	 * method_exists() covers the deploy window, when this file can land before the class does. The
+	 * class that lacks the method still carries the pre-2026 map, which varies only on
+	 * `gating-business-q1`, so the fallback keys on that rather than dropping the cohort from the
+	 * key entirely -- an empty suffix would let two Personal/Premium sites in different cohorts
+	 * share one entry. Drop the guard once the class change is fully deployed.
+	 */
+	$blog_id_for_gating = _wpcom_get_current_blog_id();
+	if ( method_exists( 'WPCOM_Features', 'get_site_gating_cache_suffix' ) ) {
+		$gating_cache_suffix = WPCOM_Features::get_site_gating_cache_suffix( $blog_id_for_gating );
+	} elseif ( function_exists( 'has_blog_sticker' ) && has_blog_sticker( 'gating-business-q1', $blog_id_for_gating ) ) {
+		$gating_cache_suffix = '_gatingbq1';
+	} else {
+		$gating_cache_suffix = '';
 	}
 
-	$cache_key = $purchase->product_slug . $sticker_cache_suffix . filemtime( __DIR__ . '/class-wpcom-features.php' );
+	$cache_key = $purchase->product_slug
+		. $gating_cache_suffix
+		. filemtime( __DIR__ . '/class-wpcom-features.php' );
 	$features  = wp_cache_get( $cache_key, $cache_group, false, $cache_found );
 
 	if ( false === $cache_found ) {
 		$features = array();
 
 		foreach ( WPCOM_Features::get_feature_slugs() as $feature ) {
-			// @phan-suppress-next-line PhanTypeMismatchArgumentNullable
 			if ( wpcom_purchase_has_feature( $purchase, $feature ) ) {
 				$features[] = $feature;
 			}

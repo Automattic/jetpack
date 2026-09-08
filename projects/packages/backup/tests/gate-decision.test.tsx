@@ -13,7 +13,7 @@ jest.mock( '@wordpress/api-fetch', () => ( {
 } ) );
 
 // Imports must come after the jest.mock factory above.
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { onlineManager, QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, waitFor, within } from '@testing-library/react';
 import BackupNowButton from '../src/dashboard/components/backup-now-button';
 import Gates from '../src/dashboard/components/gates';
@@ -144,6 +144,25 @@ function renderButtonAlone() {
 }
 
 /**
+ * Render the gate alone, with the client a test needs to drive a refetch.
+ *
+ * @return The client and the render container.
+ */
+function renderGateAlone() {
+	const client = new QueryClient( {
+		defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
+	} );
+	const { container } = render(
+		<QueryClientProvider client={ client }>
+			<Gates>
+				<div>{ BODY }</div>
+			</Gates>
+		</QueryClientProvider>
+	);
+	return { client, container };
+}
+
+/**
  * Wait until the capabilities query has settled.
  *
  * @param client - The client the tree is rendering against.
@@ -162,6 +181,12 @@ beforeEach( () => {
 		...window.JP_CONNECTION_INITIAL_STATE,
 		connectionStatus: CONNECTED,
 	} as typeof window.JP_CONNECTION_INITIAL_STATE;
+} );
+
+afterEach( () => {
+	// `onlineManager` is a module singleton, so an offline test leaves every
+	// later one in this file parking its requests.
+	onlineManager.setOnline( true );
 } );
 
 describe( 'Gate decision — what the gate and the header button each show', () => {
@@ -247,6 +272,44 @@ describe( 'Gate decision — what the gate and the header button each show', () 
 		await expect( view.findByText( NO_PLAN ) ).resolves.toBeInTheDocument();
 		expect( view.queryByText( BODY ) ).not.toBeInTheDocument();
 		expect( headerSlot() ).toBeEmptyDOMElement();
+	} );
+
+	// JETPACK-2490 — `networkMode: 'online'` parks the read for an offline
+	// browser rather than failing it. The query is then pending but not
+	// fetching and not errored, so every flag the gate reads says "answered,
+	// with nothing", and a paying customer was sold an upgrade.
+	it( 'never sells an upgrade over a read it never managed to make', async () => {
+		onlineManager.setOnline( false );
+
+		const view = within( renderShell() );
+
+		// Parked, not sent: nothing failed, so there is no request to await.
+		expect( mockApiFetch ).not.toHaveBeenCalled();
+		expect( view.queryByText( NO_PLAN ) ).not.toBeInTheDocument();
+		expect( skeleton() ).not.toBeNull();
+
+		// And it is a wait, not a dead end: the parked read resumes by itself.
+		onlineManager.setOnline( true );
+		await expect( view.findByText( BODY ) ).resolves.toBeInTheDocument();
+	} );
+
+	// The narrowing the fix above needs. A paused query keeps whatever it
+	// cached, so a read parked mid-session must not blank a dashboard that
+	// already has its answer.
+	it( 'keeps a loaded dashboard up when a later read is parked', async () => {
+		const { client, container } = renderGateAlone();
+		const view = within( container );
+		await expect( view.findByText( BODY ) ).resolves.toBeInTheDocument();
+
+		onlineManager.setOnline( false );
+		// Not awaited: a parked refetch never settles until the browser is back.
+		void client.invalidateQueries( { queryKey: keys.capabilities() } );
+		await waitFor( () =>
+			expect( client.getQueryState( keys.capabilities() )?.fetchStatus ).toBe( 'paused' )
+		);
+
+		expect( view.getByText( BODY ) ).toBeInTheDocument();
+		expect( skeleton() ).toBeNull();
 	} );
 
 	it( 'shows the dashboard body and the button when everything passes', async () => {

@@ -31,6 +31,18 @@ const SUBSCRIBERS_DASHBOARD_SECTION_AVAILABLE_FILTER = 'jetpack_premium_analytic
 const ADS_DASHBOARD_SECTION_AVAILABLE_FILTER = 'jetpack_premium_analytics_ads_dashboard_section_available';
 
 /**
+ * Filter through which the preview's section scope is resolved.
+ */
+const DASHBOARD_PREVIEW_SCOPE_FILTER = 'jetpack_premium_analytics_dashboard_preview_scope';
+
+/**
+ * Section slugs the customer preview exposes as tabs. A section still rolling out to some
+ * sites is opened through the filter instead. Widget types are registered independently of
+ * this, as they are of the per-section availability checks.
+ */
+const PREVIEW_SECTIONS = array( DASHBOARD_TRAFFIC_SECTION_ID );
+
+/**
  * Registers a dashboard section.
  *
  * @param string $dashboard_name Dashboard identifier.
@@ -61,6 +73,113 @@ function get_registered_dashboard_section( $dashboard_name, $id ) {
  */
 function get_available_dashboard_sections( $dashboard_name ) {
 	return Dashboard_Section_Registry::get_instance()->get_available_sections( $dashboard_name );
+}
+
+/**
+ * Whether the dashboard is running as the customer-facing preview.
+ *
+ * The site's own opt-in means the preview. Anything else that switches the dashboard on, the
+ * WordPress.com blog sticker or the `jetpack_premium_analytics_enabled` filter, means us.
+ *
+ * @since 0.6.0
+ *
+ * @return bool
+ */
+function is_dashboard_preview_scoped() {
+	return (bool) get_option( Enablement_Setting::ENABLED_OPTION );
+}
+
+/**
+ * Whether the preview exposes a dashboard section.
+ *
+ * @since 0.6.0
+ *
+ * @param string $dashboard_name Dashboard identifier. Only this package's own dashboard is scoped.
+ * @param string $slug           URL-facing section slug.
+ * @return bool
+ */
+function is_dashboard_section_in_preview_scope( $dashboard_name, $slug ) {
+	$in_scope = DASHBOARD_NAME !== $dashboard_name
+		|| ! is_dashboard_preview_scoped()
+		|| in_array( $slug, PREVIEW_SECTIONS, true );
+
+	/**
+	 * Filters whether the preview exposes a dashboard section.
+	 *
+	 * `__return_true` restores the whole dashboard, which is how a development or test site
+	 * sees every tab.
+	 *
+	 * @since 0.6.0
+	 *
+	 * @param bool   $in_scope       Whether the preview exposes the section.
+	 * @param string $slug           URL-facing section slug.
+	 * @param string $dashboard_name Dashboard the section belongs to.
+	 */
+	return (bool) apply_filters( DASHBOARD_PREVIEW_SCOPE_FILTER, $in_scope, $slug, $dashboard_name );
+}
+
+/**
+ * Slugs of the tabs the dashboard exposes, for the client's report routes.
+ *
+ * Reads the same sections the tab list does, so a report cannot outlive the tab it sits
+ * behind. Null, never `array()`, before the registry is hydrated: an empty array is a
+ * published scope that exposes nothing.
+ *
+ * @since 0.6.0
+ *
+ * @return string[]|null
+ */
+function get_dashboard_preview_scope_sections() {
+	$registry = Dashboard_Section_Registry::get_instance();
+
+	if ( empty( $registry->get_all_registered( DASHBOARD_NAME ) ) ) {
+		return null;
+	}
+
+	return array_map(
+		static function ( Dashboard_Section $section ) {
+			return $section->slug;
+		},
+		$registry->get_available_sections( DASHBOARD_NAME )
+	);
+}
+
+/**
+ * Configures the preview scope script data.
+ *
+ * @since 0.6.0
+ *
+ * @return void
+ */
+function configure_dashboard_preview_scope() {
+	add_filter( 'jetpack_admin_js_script_data', __NAMESPACE__ . '\\inject_dashboard_preview_scope_script_data', 20 );
+}
+
+/**
+ * Injects the preview's section scope into JetpackScriptData.
+ *
+ * The same list travels over REST for the tab bar, but a report route reads no REST before
+ * choosing its redirect, so it reads the scope from boot data instead.
+ *
+ * @since 0.6.0
+ *
+ * @param array $data The script data passed by the assets package.
+ * @return array
+ */
+function inject_dashboard_preview_scope_script_data( array $data ): array {
+	$sections = get_dashboard_preview_scope_sections();
+
+	if ( null === $sections ) {
+		return $data;
+	}
+
+	if ( ! isset( $data['premium_analytics'] ) || ! is_array( $data['premium_analytics'] ) ) {
+		$data['premium_analytics'] = array();
+	}
+
+	$data['premium_analytics']['preview_sections'] = $sections;
+
+	return $data;
 }
 
 /**

@@ -42,12 +42,11 @@ const openTooltip = async () => {
 	screen.getByRole( 'grid', { name: /line chart/i } ).focus();
 	await user.keyboard( '{ArrowRight}' );
 
-	// eslint-disable-next-line testing-library/no-node-access -- visx owns the crosshair and hardcodes its class name, so there is no attribute to reach it by.
-	return document.querySelector( '.visx-crosshair-vertical line' );
+	return screen.getByTestId( 'xy-chart-tooltip-crosshair-vertical' );
 };
 
 describe( 'AccessibleTooltip', () => {
-	// The crosshair is painted in a portal outside the scope element; see TOKENS.md#the-svg-bridge.
+	// The stroke is read at the scope element, not inherited through the DOM; see TOKENS.md#the-svg-bridge.
 	it( 'reads the grid role from the scope element', async () => {
 		const scope = document.createElement( 'div' );
 		scope.style.setProperty( '--a8c-charts-color-grid', 'rgb(1, 2, 3)' );

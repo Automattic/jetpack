@@ -1,7 +1,12 @@
 /**
  * External dependencies
  */
-import { LineChart, Stack, type TickResolution } from '@jetpack-premium-analytics/externals';
+import {
+	LineChart,
+	Stack,
+	getBucketInfo,
+	type TickResolution,
+} from '@jetpack-premium-analytics/externals';
 import {
 	formatDate,
 	formatMetricValue,
@@ -110,8 +115,7 @@ export type ComparativeLineChartProps = {
 
 	/**
 	 * Renders a point's date for a tooltip row, in the named format this chart
-	 * picked for it. Callers whose points are wall clocks (see `chart-date.ts`)
-	 * pass a variant that re-anchors them first; defaults to `formatDate`.
+	 * picked for it. Defaults to `formatDate`.
 	 */
 	formatTooltipDate?: ( date: Date, format: DateFormatName ) => string;
 
@@ -158,7 +162,9 @@ export function ComparativeLineChart( {
 	onPointerUp,
 	onDatumActivate,
 }: ComparativeLineChartProps ) {
-	const tooltipDateFormat = dateFormatForResolution( tickResolution );
+	const tooltipDateFormat = dateFormatForResolution(
+		getBucketInfo( series, tickResolution ).displayResolution
+	);
 	// The measured Stack fills its container (flex), so its height is independent
 	// of whether the axis/legend are shown — no measure/hide feedback loop.
 	const [ chartAreaHeight, setChartAreaHeight ] = useState( Infinity );

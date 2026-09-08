@@ -109,7 +109,6 @@ function TrafficChartInner( { chartType }: TrafficChartInnerProps ) {
 					chartType={ chartType }
 					groupLabel={ groupLabel }
 					tickResolution={ period }
-					pointsAreWallClocks
 					onDatumClick={ openBucket }
 				/>
 			</WidgetState>

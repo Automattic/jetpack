@@ -1,7 +1,7 @@
 import { renderHook, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 import { anchorDateToUtc, normalizeUsage, useAiUsage } from '../use-ai-usage';
-import { freePayload, tieredPayload, unlimitedPayload } from './fixtures';
+import { freePayload, paidPayload, tieredPayload } from './fixtures';
 
 // The hook fetches through @wordpress/api-fetch; stub it so nothing hits the
 // network and each test controls the response.
@@ -40,25 +40,11 @@ describe( 'normalizeUsage', () => {
 	test( 'free tier: counts remaining requests against the free limit and offers upgrade', () => {
 		const usage = normalizeUsage( freePayload() );
 
-		expect( usage.unlimited ).toBe( false );
-		expect( usage.planLabel ).toBe( 'Free' );
+		expect( usage.isFree ).toBe( true );
 		expect( usage.requestsCount ).toBe( 12 );
 		expect( usage.requestsLimit ).toBe( 20 );
 		expect( usage.requestsAvailable ).toBe( 8 );
-		expect( usage.planLabel ).toBe( 'Free' );
 		expect( usage.showUpgrade ).toBe( true );
-	} );
-
-	test( 'tiered plan: counts remaining period requests against the tier limit', () => {
-		const usage = normalizeUsage( tieredPayload() );
-
-		expect( usage.unlimited ).toBe( false );
-
-		expect( usage.requestsCount ).toBe( 340 );
-		expect( usage.requestsLimit ).toBe( 500 );
-		expect( usage.requestsAvailable ).toBe( 160 );
-		// The tier limit is not a plan name — it already shows on the meter.
-		expect( usage.planLabel ).toBeNull();
 	} );
 
 	test( 'over the limit: available never goes negative', () => {
@@ -67,26 +53,21 @@ describe( 'normalizeUsage', () => {
 		expect( usage.requestsAvailable ).toBe( 0 );
 	} );
 
-	test( 'unlimited: no numbers, no derived plan label, no upgrade', () => {
-		const usage = normalizeUsage( unlimitedPayload() );
+	test( 'paid: no numbers, no upgrade', () => {
+		const usage = normalizeUsage( paidPayload() );
 
-		expect( usage.unlimited ).toBe( true );
+		expect( usage.isFree ).toBe( false );
 		expect( usage.requestsCount ).toBeNull();
 		expect( usage.requestsLimit ).toBeNull();
 		expect( usage.requestsAvailable ).toBeNull();
-		// The plan name can only come from the purchase; "Unlimited" would
-		// just repeat the requests cell.
-		expect( usage.planLabel ).toBeNull();
 		expect( usage.showUpgrade ).toBe( false );
 	} );
 
-	test( 'top tier: no next tier and no required upgrade means no upgrade', () => {
-		const usage = normalizeUsage( {
-			...tieredPayload(),
-			'next-tier': null,
-			'site-require-upgrade': false,
-		} );
+	test( 'fixed tier: treated as paid — no numbers, no upgrade', () => {
+		const usage = normalizeUsage( tieredPayload() );
 
+		expect( usage.isFree ).toBe( false );
+		expect( usage.requestsAvailable ).toBeNull();
 		expect( usage.showUpgrade ).toBe( false );
 	} );
 
@@ -98,15 +79,14 @@ describe( 'normalizeUsage', () => {
 		expect( usage.showUpgrade ).toBe( true );
 	} );
 
-	test( 'missing current-tier: reads the free-shape pair, not period count against the free limit', () => {
-		const payload = tieredPayload();
+	test( 'missing current-tier: not confirmably free, so no numbers and no upgrade', () => {
+		const payload = paidPayload();
 		delete payload[ 'current-tier' ];
 		const usage = normalizeUsage( payload );
 
-		// 950 used of 20 floors at 0 available — but the pair is consistent,
-		// not the usage-period count charged against an unrelated limit.
-		expect( usage.requestsCount ).toBe( 950 );
-		expect( usage.requestsLimit ).toBe( 20 );
+		expect( usage.isFree ).toBe( false );
+		expect( usage.requestsAvailable ).toBeNull();
+		expect( usage.showUpgrade ).toBe( false );
 	} );
 
 	test( 'missing data: nulls, never NaN', () => {
@@ -114,9 +94,7 @@ describe( 'normalizeUsage', () => {
 			expect( usage.requestsCount ).toBeNull();
 			expect( usage.requestsLimit ).toBeNull();
 			expect( usage.requestsAvailable ).toBeNull();
-			expect( usage.unlimited ).toBe( false );
 			expect( usage.showUpgrade ).toBe( false );
-			expect( usage.planLabel ).toBeNull();
 		}
 	} );
 } );

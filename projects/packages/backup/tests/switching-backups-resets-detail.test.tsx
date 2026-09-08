@@ -42,6 +42,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { stage as OverviewStage } from '../routes/dashboard/stage';
 import { queryClient } from '../src/dashboard/data/query-client';
+import { resetListStateForTesting } from '../src/dashboard/screens/overview';
 
 const CONNECTED = { isRegistered: true, hasConnectedOwner: true, isUserConnected: true };
 
@@ -52,13 +53,6 @@ const SETTLE = { timeout: 10000 };
 
 const REWIND_A = '1786644531.100';
 const REWIND_B = '1786644532.200';
-
-// jsdom implements no scrolling, and DataViews' list layout calls
-// `scrollIntoView` on the selected row.
-Object.defineProperty( window.HTMLElement.prototype, 'scrollIntoView', {
-	value: () => {},
-	writable: true,
-} );
 
 /**
  * One rewindable-activity entry, in WPCOM's shape.
@@ -83,6 +77,7 @@ function backupEntry( rewindId: string, title: string ) {
 beforeEach( () => {
 	queryClient.clear();
 	queryClient.setDefaultOptions( { queries: { retry: false } } );
+	resetListStateForTesting();
 
 	mockApiFetch.mockReset();
 	mockApiFetch.mockImplementation( ( o: { path?: string; data?: { rewind_id?: string } } ) => {

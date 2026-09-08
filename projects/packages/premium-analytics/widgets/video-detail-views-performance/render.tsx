@@ -81,7 +81,6 @@ function VideoDetailViewsPerformanceInner( { chartType }: VideoDetailViewsPerfor
 					dataFormat={ COUNT_FORMAT }
 					chartType={ chartType }
 					groupLabel={ groupLabel }
-					pointsAreWallClocks
 				/>
 			</WidgetState>
 		</div>

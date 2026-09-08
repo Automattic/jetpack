@@ -65,23 +65,13 @@ function wallPartsToTimestamp( parts: number[], timeZone: string ): number {
 /**
  * Build a TZDate from `DateParts` in the given timezone, UTC when omitted.
  *
- * @param root0
- * @param root0."0"
- * @param root0."1"
- * @param root0."2"
- * @param root0."3"
- * @param root0."4"
- * @param root0."5"
- * @param root0."6"
- * @param timeZone
+ * @param parts    - Wall-clock parts, `[ year, month, ...rest ]` as `Date.UTC` reads them.
+ * @param timeZone - The timezone the wall time belongs to.
+ * @return The zoned date.
  */
-export function createTZDateFromParts(
-	[ year, month, day, hours, minutes, seconds, milliseconds ]: DateParts,
-	timeZone?: string
-): TZDate {
+export function createTZDateFromParts( parts: DateParts, timeZone?: string ): TZDate {
 	const tzid = timeZone ?? '+00:00';
-
-	const dateParts = [ year, month, day, hours, minutes, seconds, milliseconds ];
+	const dateParts: ( number | undefined )[] = [ ...parts ];
 
 	// Trim until first undefined, to match one of the DateParts types.
 	const idx = dateParts.indexOf( undefined );

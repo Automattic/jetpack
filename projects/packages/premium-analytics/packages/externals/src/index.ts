@@ -29,11 +29,12 @@ export {
 	PieSemiCircleChart,
 	Sparkline,
 	buildCalendarHeatmapData,
+	getBucketInfo,
 	lightenHexColor,
 	normalizeColorToHex,
-	parseAsLocalDate,
 	useGlobalChartsContext,
 	type BaseLegendItem,
+	type BucketInfo,
 	type ChartTheme,
 	type DataPointDate,
 	type DataPointPercentage,
@@ -67,7 +68,9 @@ export { DateRangeCalendar } from '@automattic/ui';
  * is what consumers already import. Still a plain re-export, not a wrap.
  */
 export {
+	Badge,
 	Button,
+	Dialog,
 	EmptyState,
 	LinkButton,
 	Field as FormField,
@@ -76,12 +79,15 @@ export {
 	IconButton,
 	Input,
 	Link,
+	Menu,
 	Notice,
+	Popover,
 	SelectControl,
 	Skeleton,
 	Stack,
 	Tabs,
 	Text,
+	TextareaControl,
 	VisuallyHidden,
 } from '@wordpress/ui';
 

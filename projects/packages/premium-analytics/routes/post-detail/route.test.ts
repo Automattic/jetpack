@@ -1,6 +1,6 @@
 import { ensureCoreSettingsReady } from '@jetpack-premium-analytics/data';
-import { select } from '@wordpress/data';
 import { redirect } from '@wordpress/route';
+import { isDashboardSectionInPreviewScope } from '../site-readiness';
 import { route } from './route';
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
@@ -8,16 +8,12 @@ jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	ensureCoreSettingsReady: jest.fn(),
 } ) );
 
-jest.mock( '@wordpress/core-data', () => ( { store: {} } ) );
-jest.mock( '@wordpress/data', () => ( {
-	dispatch: jest.fn(),
-	select: jest.fn(),
-} ) );
 jest.mock( '@wordpress/route', () => ( {
 	redirect: jest.fn( options => options ),
 } ) );
 jest.mock( '../site-readiness', () => ( {
 	isPremiumAnalyticsSiteConnected: () => true,
+	isDashboardSectionInPreviewScope: jest.fn( () => true ),
 } ) );
 jest.mock( './config', () => ( {
 	resolveTabId: ( section: string ) => section,
@@ -26,7 +22,6 @@ jest.mock( './config', () => ( {
 const mockEnsureCoreSettingsReady = ensureCoreSettingsReady as jest.MockedFunction<
 	typeof ensureCoreSettingsReady
 >;
-const mockSelect = select as jest.MockedFunction< typeof select >;
 const mockRedirect = redirect as jest.MockedFunction< typeof redirect >;
 
 const seededSearch = {
@@ -40,10 +35,6 @@ describe( 'post detail route report origin', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
 		mockEnsureCoreSettingsReady.mockResolvedValue( undefined );
-		mockSelect.mockReturnValue( {
-			getEntityConfig: () => ( {} ),
-			getEntityRecord: () => undefined,
-		} as never );
 	} );
 
 	it( 'carries the report origin through the seeding redirect', async () => {
@@ -82,6 +73,17 @@ describe( 'post detail route report origin', () => {
 		).resolves.toBeUndefined();
 
 		expect( mockRedirect ).not.toHaveBeenCalled();
+	} );
+
+	it( 'redirects home when the All pages report is behind a hidden tab', async () => {
+		( isDashboardSectionInPreviewScope as jest.Mock ).mockReturnValueOnce( false );
+
+		await expect(
+			route.beforeLoad( {
+				params: { postId: '42' },
+				search: seededSearch,
+			} )
+		).rejects.toMatchObject( { to: '/' } );
 	} );
 
 	it( 'does not redirect when the shareable search is fully seeded and clean', async () => {

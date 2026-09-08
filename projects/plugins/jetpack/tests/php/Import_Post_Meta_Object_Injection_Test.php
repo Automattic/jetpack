@@ -88,7 +88,7 @@ class Import_Post_Meta_Object_Injection_Test extends WP_UnitTestCase {
 
 		$this->assertIsArray( $stored );
 		$this->assertSame( 'ok', $stored['safe'] );
-		$this->assertFalse( is_object( $stored['bad'] ), 'A nested object survived the import.' );
+		$this->assertIsNotObject( $stored['bad'], 'A nested object survived the import.' );
 	}
 
 	/**

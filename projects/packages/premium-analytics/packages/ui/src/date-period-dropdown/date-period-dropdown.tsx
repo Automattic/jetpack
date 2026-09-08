@@ -18,9 +18,17 @@ import { useCallback, useMemo, useRef, useState } from 'react';
 /**
  * Internal dependencies
  */
-import { WIDE_PERIOD_MENU_THRESHOLD } from '../date-range-layout';
 import { DateRangePopoverContent, type DateRange } from '../date-range-popover';
 import './date-period-dropdown.scss';
+
+/**
+ * Viewport width (in pixels) at which the menu can seat two month grids beside
+ * its list: the list's own column plus the width two grids need.
+ *
+ * Read from the viewport rather than a container, since the menu floats in a
+ * popover and is bounded by the window rather than by the row it opens from.
+ */
+const WIDE_MENU_THRESHOLD = 820;
 
 type DatePeriodDropdownProps = {
 	/**
@@ -92,6 +100,9 @@ type DatePeriodDropdownProps = {
 	 */
 	withCustomRange?: boolean;
 
+	/** Greys the trigger out but keeps it focusable: a passing state, not a missing control. */
+	disabled?: boolean;
+
 	/**
 	 * Notifies the parent as the menu opens and closes, so it can mirror the
 	 * draft-while-open behaviour for related controls (the comparison label,
@@ -117,11 +128,12 @@ export function DatePeriodDropdown( {
 	onCancel,
 	canApply,
 	withCustomRange = true,
+	disabled = false,
 	onOpenChange,
 }: DatePeriodDropdownProps ) {
 	// The menu floats free of the row it opens from, so the window is what says
 	// whether a second month fits beside the list.
-	const isWideScreen = useMediaQuery( `(min-width: ${ WIDE_PERIOD_MENU_THRESHOLD }px)` );
+	const isWideScreen = useMediaQuery( `(min-width: ${ WIDE_MENU_THRESHOLD }px)` );
 	const groups = useMemo(
 		() => getMenuSurfacePresetGroups( timeZone, { presetIds, startDate: allTimeStart } ),
 		[ allTimeStart, presetIds, timeZone ]
@@ -184,6 +196,7 @@ export function DatePeriodDropdown( {
 						className="date-period-dropdown__toggle"
 						variant="minimal"
 						tone="neutral"
+						disabled={ disabled }
 						onClick={ onToggle }
 						aria-expanded={ isOpen }
 						aria-haspopup="true"
