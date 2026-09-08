@@ -8,6 +8,7 @@ import {
 	type StatsPostDay,
 } from '@jetpack-premium-analytics/data';
 import { parseSiteDateTime } from '@jetpack-premium-analytics/datetime';
+import { toDay } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
 import {
 	addDays,
@@ -58,33 +59,19 @@ type BucketWindow = {
 };
 
 /**
- * Extract a validated `YYYY-MM-DD` day — validated because `bucketDays()` feeds
- * it to `parseISO()`/`each*OfInterval()`, which throw on invalid dates.
- */
-function toValidDay( value?: string ): string | undefined {
-	const day = value?.slice( 0, 10 );
-
-	if ( ! day || ! /^\d{4}-\d{2}-\d{2}$/.test( day ) || Number.isNaN( parseISO( day ).getTime() ) ) {
-		return undefined;
-	}
-
-	return day;
-}
-
-/**
  * Extract a `YYYY-MM-DD` window from ISO report params, or undefined when
  * either bound is missing/malformed. The endpoint's day keys are date-only,
  * so comparing date prefixes keeps the slice timezone-stable.
  */
 function toDayWindow( from?: string, to?: string ): DayWindow | undefined {
-	const fromDay = toValidDay( from );
-	const toDay = toValidDay( to );
+	const fromDay = toDay( from );
+	const toBound = toDay( to );
 
-	if ( ! fromDay || ! toDay ) {
+	if ( ! fromDay || ! toBound ) {
 		return undefined;
 	}
 
-	return { from: fromDay, to: toDay };
+	return { from: fromDay, to: toBound };
 }
 
 /**

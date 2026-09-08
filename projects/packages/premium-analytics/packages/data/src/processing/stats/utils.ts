@@ -1,4 +1,6 @@
 import {
+	DAY_END_TIME,
+	DAY_START_TIME,
 	formatDatePartWithTime,
 	getDateIntervalDateParts,
 	getDatePart,
@@ -317,8 +319,8 @@ export function getStatsIntervalFields( date: string, period?: string ): StatsIn
 
 	return {
 		time_interval: date,
-		date_start: formatDatePartWithTime( startDate, '00:00:00' ),
-		date_end: formatDatePartWithTime( endDate, '23:59:59' ),
+		date_start: formatDatePartWithTime( startDate, DAY_START_TIME ),
+		date_end: formatDatePartWithTime( endDate, DAY_END_TIME ),
 	};
 }
 
@@ -337,8 +339,8 @@ export function getStatsSummaryIntervalFields(
 	const endDate = getStatsEndDateParam( query ) ?? responseDate ?? getDatePart( query?.start_date );
 
 	return {
-		...( startDate ? { date_start: formatDatePartWithTime( startDate, '00:00:00' ) } : {} ),
-		...( endDate ? { date_end: formatDatePartWithTime( endDate, '23:59:59' ) } : {} ),
+		...( startDate ? { date_start: formatDatePartWithTime( startDate, DAY_START_TIME ) } : {} ),
+		...( endDate ? { date_end: formatDatePartWithTime( endDate, DAY_END_TIME ) } : {} ),
 	};
 }
 

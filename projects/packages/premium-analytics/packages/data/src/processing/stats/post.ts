@@ -1,4 +1,4 @@
-import { format, isValid, parse } from 'date-fns';
+import { parseExactLabel } from '@jetpack-premium-analytics/datetime';
 import { safeParseFloat } from '../../utils/parsing';
 import { decodeHtmlText } from '../../utils/text';
 import { coerceStatsArray, coerceStatsRecord, isStatsRecord } from './utils';
@@ -99,12 +99,9 @@ const STATS_POST_DAY_FORMAT = 'yyyy-MM-dd';
 
 /** A real calendar day in the API's `YYYY-MM-DD` format. */
 function isValidStatsPostDay( value: string ): boolean {
-	if ( ! /^\d{4}-\d{2}-\d{2}$/.test( value ) ) {
-		return false;
-	}
-
-	const parsed = parse( value, STATS_POST_DAY_FORMAT, new Date( 0 ) );
-	return isValid( parsed ) && format( parsed, STATS_POST_DAY_FORMAT ) === value;
+	return (
+		/^\d{4}-\d{2}-\d{2}$/.test( value ) && parseExactLabel( value, STATS_POST_DAY_FORMAT ) !== null
+	);
 }
 
 function normalizeStatsPostYear( value: unknown ): StatsPostYear {

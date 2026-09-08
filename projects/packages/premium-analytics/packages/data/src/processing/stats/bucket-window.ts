@@ -12,7 +12,12 @@
 /**
  * External dependencies
  */
-import { formatDatePartWithTime, readSiteTimestamp } from '@jetpack-premium-analytics/datetime';
+import {
+	DAY_END_TIME,
+	DAY_START_TIME,
+	formatDatePartWithTime,
+	readSiteTimestamp,
+} from '@jetpack-premium-analytics/datetime';
 /**
  * Internal dependencies
  */
@@ -42,8 +47,8 @@ export function windowEndHour( value?: string ): number {
 const padTimePart = ( part: number ) => String( part ).padStart( 2, '0' );
 
 const EDGE_FALLBACKS = {
-	start: { time: '00:00:00', seconds: '00' },
-	end: { time: '23:59:59', seconds: '59' },
+	start: { time: DAY_START_TIME, seconds: '00' },
+	end: { time: DAY_END_TIME, seconds: '59' },
 } as const;
 
 // A window bound in the same timezone-naive wall-clock shape the bucket labels

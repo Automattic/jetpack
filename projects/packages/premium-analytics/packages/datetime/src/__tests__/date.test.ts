@@ -1,7 +1,12 @@
 /**
  * Internal dependencies
  */
-import { formatDatePartWithTime, getDateIntervalDateParts, getDatePart } from '../date';
+import {
+	formatDatePartWithTime,
+	getDateIntervalDateParts,
+	getDatePart,
+	parseExactLabel,
+} from '../date';
 
 describe( 'date helpers', () => {
 	it( 'extracts date parts from ISO datetimes', () => {
@@ -43,6 +48,23 @@ describe( 'date helpers', () => {
 		expect( getDateIntervalDateParts( '2026', 'year' ) ).toEqual( {
 			startDate: '2026-01-01',
 			endDate: '2026-12-31',
+		} );
+	} );
+
+	describe( 'parseExactLabel', () => {
+		it( 'parses a label that round-trips through its format', () => {
+			expect( parseExactLabel( '2026-06-22', 'yyyy-MM-dd' ) ).toEqual( new Date( 2026, 5, 22 ) );
+			expect( parseExactLabel( '2026-06', 'yyyy-MM' ) ).toEqual( new Date( 2026, 5, 1 ) );
+		} );
+
+		// date-fns rolls this forward to 2026-03-03, which `isValid` alone accepts.
+		it( 'rejects a day that does not exist', () => {
+			expect( parseExactLabel( '2026-02-31', 'yyyy-MM-dd' ) ).toBeNull();
+		} );
+
+		it( 'rejects a label written in another format', () => {
+			expect( parseExactLabel( '2026-6-22', 'yyyy-MM-dd' ) ).toBeNull();
+			expect( parseExactLabel( 'not a date', 'yyyy-MM-dd' ) ).toBeNull();
 		} );
 	} );
 } );

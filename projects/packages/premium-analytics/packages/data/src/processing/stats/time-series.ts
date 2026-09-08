@@ -1,4 +1,10 @@
-import { formatDatePartWithTime, getDatePart } from '@jetpack-premium-analytics/datetime';
+import {
+	DAY_END_TIME,
+	DAY_START_TIME,
+	formatDatePartWithTime,
+	getDatePart,
+	parseExactLabel,
+} from '@jetpack-premium-analytics/datetime';
 import {
 	endOfISOWeek,
 	endOfMonth,
@@ -37,7 +43,6 @@ export type StatsTimeSeriesReport = StatsNormalizedReport & {
 
 const nonMetricFields = [ 'period', 'time_interval', 'date', 'date_start', 'date_end', 'hour' ];
 const dateFormat = 'yyyy-MM-dd';
-const referenceDate = new Date( 2001, 0, 1 );
 
 function numericTimeSeriesRow( row: StatsRecord ) {
 	return Object.fromEntries(
@@ -117,8 +122,8 @@ function getPrimaryMetricValue( row: StatsRecord ) {
 function getDateFnsIntervalFields( startDate: Date, endDate: Date ) {
 	return {
 		time_interval: format( startDate, dateFormat ),
-		date_start: formatDatePartWithTime( format( startDate, dateFormat ), '00:00:00' ),
-		date_end: formatDatePartWithTime( format( endDate, dateFormat ), '23:59:59' ),
+		date_start: formatDatePartWithTime( format( startDate, dateFormat ), DAY_START_TIME ),
+		date_end: formatDatePartWithTime( format( endDate, dateFormat ), DAY_END_TIME ),
 	};
 }
 
@@ -130,9 +135,9 @@ function getWeekIntervalFields( period: string ) {
 	}
 
 	const normalizedPeriod = `${ match[ 1 ] }-W${ match[ 2 ].padStart( 2, '0' ) }`;
-	const parsed = parse( normalizedPeriod, "RRRR-'W'II", referenceDate );
+	const parsed = parseExactLabel( normalizedPeriod, "RRRR-'W'II" );
 
-	if ( ! isValid( parsed ) || format( parsed, "RRRR-'W'II" ) !== normalizedPeriod ) {
+	if ( ! parsed ) {
 		return null;
 	}
 
@@ -150,8 +155,8 @@ function getWpcomWeekIntervalFields( period: string ) {
 
 	const parsed = parse(
 		`${ match[ 1 ] }-${ match[ 2 ] }-${ match[ 3 ] }`,
-		'yyyy-MM-dd',
-		referenceDate
+		dateFormat,
+		new Date( 0 )
 	);
 
 	if ( ! isValid( parsed ) ) {
@@ -162,9 +167,9 @@ function getWpcomWeekIntervalFields( period: string ) {
 }
 
 function getMonthIntervalFields( period: string ) {
-	const parsed = parse( period, 'yyyy-MM', referenceDate );
+	const parsed = parseExactLabel( period, 'yyyy-MM' );
 
-	if ( ! isValid( parsed ) || format( parsed, 'yyyy-MM' ) !== period ) {
+	if ( ! parsed ) {
 		return null;
 	}
 
@@ -172,9 +177,9 @@ function getMonthIntervalFields( period: string ) {
 }
 
 function getYearIntervalFields( period: string ) {
-	const parsed = parse( period, 'yyyy', referenceDate );
+	const parsed = parseExactLabel( period, 'yyyy' );
 
-	if ( ! isValid( parsed ) || format( parsed, 'yyyy' ) !== period ) {
+	if ( ! parsed ) {
 		return null;
 	}
 
@@ -317,8 +322,8 @@ export function sanitizeStatsTimeSeriesResponse(
 		summary: {
 			...getTimeSeriesSummarySidecars( response ),
 			...summary,
-			date_start: firstRow?.date_start ?? toSummaryBound( query?.start_date, '00:00:00' ),
-			date_end: lastRow?.date_end ?? toSummaryBound( query?.end_date ?? query?.date, '23:59:59' ),
+			date_start: firstRow?.date_start ?? toSummaryBound( query?.start_date, DAY_START_TIME ),
+			date_end: lastRow?.date_end ?? toSummaryBound( query?.end_date ?? query?.date, DAY_END_TIME ),
 		},
 		data,
 	};

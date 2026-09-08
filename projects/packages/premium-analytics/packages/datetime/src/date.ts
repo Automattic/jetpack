@@ -12,6 +12,29 @@ export type DateIntervalDateParts = {
 
 const DATE_PART_FORMAT = 'yyyy-MM-dd';
 
+/** Inclusive day bounds, for the offset-less shape Stats responses carry. */
+export const DAY_START_TIME = '00:00:00';
+export const DAY_END_TIME = '23:59:59';
+
+// Only consulted for fields the parsed string omits, and every format we pass omits none.
+const REFERENCE_DATE = new Date( 2001, 0, 1 );
+
+/**
+ * Parse a label that must round-trip through its own format.
+ *
+ * date-fns rolls impossible values forward, so `2026-02-31` parses to 2026-03-03
+ * and `isValid` alone would accept it. Re-formatting catches that.
+ *
+ * @param label       - The label as written.
+ * @param labelFormat - The date-fns format the label must match exactly.
+ * @return The parsed date, or null when the label does not name a real one.
+ */
+export function parseExactLabel( label: string, labelFormat: string ): Date | null {
+	const parsed = parse( label, labelFormat, REFERENCE_DATE );
+
+	return isValid( parsed ) && format( parsed, labelFormat ) === label ? parsed : null;
+}
+
 /**
  * Extract the calendar date part from a date-like string.
  *
