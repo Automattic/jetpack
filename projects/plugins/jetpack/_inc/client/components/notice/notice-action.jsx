@@ -9,8 +9,6 @@ export default class NoticeAction extends Component {
 		href: PropTypes.string,
 		onClick: PropTypes.func,
 		external: PropTypes.bool,
-		icon: PropTypes.string,
-		variant: PropTypes.oneOf( [ 'primary', 'secondary' ] ),
 	};
 
 	static defaultProps = {

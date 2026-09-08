@@ -55,6 +55,12 @@
 	text-decoration-thickness: from-font;
 }
 
+// Unlayered on purpose: `Notice.Root` sets `display: grid`
+// inside `@layer wp-ui`, which `[hidden]` cannot override.
+.jp-notice.is-hidden {
+	display: none;
+}
+
 // restyled the arrow to match our gray
 .toplevel_page_jetpack ul#adminmenu a.wp-has-current-submenu::after {
 	border-right-color: colors.$gray-light;

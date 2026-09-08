@@ -65,11 +65,7 @@ export default class JetpackConnectionErrors extends Component {
 					// Add secondary action if available
 					if ( errorData.secondary_action_url && errorData.secondary_action_label ) {
 						actions.push(
-							<NoticeAction
-								key="secondary"
-								href={ errorData.secondary_action_url }
-								variant="secondary"
-							>
+							<NoticeAction key="secondary" href={ errorData.secondary_action_url }>
 								{ errorData.secondary_action_label }
 							</NoticeAction>
 						);
