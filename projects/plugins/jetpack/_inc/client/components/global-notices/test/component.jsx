@@ -28,6 +28,7 @@ describe( 'NoticesList', () => {
 		const store = mountNotices();
 
 		act( () => {
+			store.dispatch( createNotice( 'is-info', 'Testing your connection…', { id: 'connection' } ) );
 			store.dispatch( createNotice( 'is-info', 'Activating Image CDN…', { id: 'module-toggle' } ) );
 		} );
 		expect( screen.getByText( 'Activating Image CDN…' ) ).toBeInTheDocument();
@@ -47,12 +48,14 @@ describe( 'NoticesList', () => {
 			jest.advanceTimersByTime( 2000 );
 		} );
 		expect( screen.queryByText( 'Image CDN has been activated.' ) ).not.toBeInTheDocument();
+		expect( screen.getByText( 'Testing your connection…' ) ).toBeInTheDocument();
 	} );
 
 	it( 'dismisses a notice that replaced an earlier one under a different id', () => {
 		const store = mountNotices();
 
 		act( () => {
+			store.dispatch( createNotice( 'is-info', 'Testing your connection…', { id: 'connection' } ) );
 			store.dispatch( createNotice( 'is-info', 'Updating settings…', { id: 'setting-update' } ) );
 		} );
 
@@ -71,6 +74,7 @@ describe( 'NoticesList', () => {
 			jest.advanceTimersByTime( 2000 );
 		} );
 		expect( screen.queryByText( 'Updated settings.' ) ).not.toBeInTheDocument();
+		expect( screen.getByText( 'Testing your connection…' ) ).toBeInTheDocument();
 	} );
 
 	it( 'dismisses a notice added while another one is already on screen', () => {
