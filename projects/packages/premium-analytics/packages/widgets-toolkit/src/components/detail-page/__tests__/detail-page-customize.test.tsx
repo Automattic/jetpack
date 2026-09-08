@@ -137,4 +137,41 @@ describe( 'DetailPageActions', () => {
 		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'button', { name: 'Page options' } ) ).not.toBeInTheDocument();
 	} );
+
+	it( 'moves focus across the swap so keyboard users keep their place', async () => {
+		const user = userEvent.setup();
+		const dashboardActions = (
+			<>
+				<button>Cancel</button>
+				<button disabled>Done</button>
+			</>
+		);
+		const { rerender } = render(
+			<DetailPageActions
+				isCustomizing={ false }
+				onCustomize={ () => {} }
+				editingActions={ dashboardActions }
+			/>
+		);
+
+		await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
+		await user.click( await screen.findByRole( 'menuitem', { name: 'Customize' } ) );
+		rerender(
+			<DetailPageActions
+				isCustomizing
+				onCustomize={ () => {} }
+				editingActions={ dashboardActions }
+			/>
+		);
+		expect( screen.getByRole( 'button', { name: 'Cancel' } ) ).toHaveFocus();
+
+		rerender(
+			<DetailPageActions
+				isCustomizing={ false }
+				onCustomize={ () => {} }
+				editingActions={ dashboardActions }
+			/>
+		);
+		expect( screen.getByRole( 'button', { name: 'Page options' } ) ).toHaveFocus();
+	} );
 } );

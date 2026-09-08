@@ -1,7 +1,7 @@
 import { Badge, Icon, IconButton, Menu, Stack } from '@jetpack-premium-analytics/externals';
 import { __ } from '@wordpress/i18n';
 import { moreVertical, pencil } from '@wordpress/icons';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { CanPerformDashboardOperation, DashboardWidget } from '@wordpress/widget-dashboard';
 import type { ReactNode } from 'react';
 
@@ -140,7 +140,8 @@ export type DetailPageActionsProps = {
 /**
  * The actions slot of a detail page. Idle, it holds the page's own actions
  * and the page options menu with Customize; customizing, the dashboard's own
- * Cancel, Done and overflow (with Reset to default) take it over.
+ * Cancel, Done and overflow (with Reset to default) take it over. Either swap
+ * unmounts the focused control, so focus is moved onto the incoming ones.
  *
  * @param props                - Component props.
  * @param props.isCustomizing  - Whether the page is in customize mode.
@@ -155,12 +156,31 @@ export function DetailPageActions( {
 	editingActions,
 	children,
 }: DetailPageActionsProps ) {
+	const frame = useRef< HTMLDivElement >( null );
+	const wasCustomizing = useRef( isCustomizing );
+
+	useEffect( () => {
+		if ( wasCustomizing.current === isCustomizing ) {
+			return;
+		}
+		wasCustomizing.current = isCustomizing;
+		// Entering: the first enabled dashboard action. Leaving: the menu trigger.
+		const target = frame.current?.querySelector< HTMLElement >(
+			isCustomizing ? 'button:not([disabled])' : '[aria-haspopup="menu"]'
+		);
+		target?.focus();
+	}, [ isCustomizing ] );
+
 	if ( isCustomizing ) {
-		return <>{ editingActions }</>;
+		return (
+			<Stack ref={ frame } direction="row" align="center" gap="sm">
+				{ editingActions }
+			</Stack>
+		);
 	}
 
 	return (
-		<Stack direction="row" align="center" gap="sm">
+		<Stack ref={ frame } direction="row" align="center" gap="sm">
 			{ children }
 			<Menu.Root>
 				<Menu.Trigger
