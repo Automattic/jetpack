@@ -683,6 +683,9 @@ importers:
       '@automattic/jetpack-script-data':
         specifier: workspace:*
         version: link:../script-data
+      '@automattic/jetpack-shared-stores':
+        specifier: workspace:*
+        version: link:../jetpack-shared-stores
       '@wordpress/api-fetch':
         specifier: 7.54.0
         version: 7.54.0
@@ -1053,6 +1056,9 @@ importers:
 
   projects/js-packages/jetpack-shared-stores:
     dependencies:
+      '@automattic/jetpack-api':
+        specifier: workspace:*
+        version: link:../api
       '@automattic/jetpack-script-data':
         specifier: workspace:*
         version: link:../script-data
@@ -1062,6 +1068,9 @@ importers:
       '@wordpress/data':
         specifier: 10.54.0
         version: 10.54.0(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/i18n':
+        specifier: 6.27.0
+        version: 6.27.0
     devDependencies:
       '@automattic/jetpack-webpack-config':
         specifier: workspace:*

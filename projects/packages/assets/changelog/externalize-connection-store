@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Bundle the connection data store into the shared stores script.

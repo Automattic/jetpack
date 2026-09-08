@@ -23,6 +23,7 @@ jest.mock(
 		useConnectionErrorNotice: () => ( { hasConnectionError: false } ),
 		useConnection: () => ( {} ),
 		ConnectionError: () => null,
+		initConnectionStore: () => 'jetpack-connection',
 	} ),
 	{ virtual: true }
 );

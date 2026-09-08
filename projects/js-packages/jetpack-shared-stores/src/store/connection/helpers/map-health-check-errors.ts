@@ -8,10 +8,31 @@
  */
 
 import { __ } from '@wordpress/i18n';
-import type {
-	ConnectionErrorData,
-	ConnectionErrorMap,
-} from '../hooks/use-connection-error-notice/types';
+
+/*
+ * The connection-error shapes the store stores. These are a structural subset of
+ * the canonical types in the connection package
+ * (js-packages/connection/hooks/use-connection-error-notice/types.ts); they're
+ * inlined here (rather than imported) so this store helper doesn't depend on the
+ * connection package, which depends on this bundle. Only the fields this helper
+ * actually produces are declared; keep them assignable to the canonical types if
+ * either side changes.
+ */
+interface ConnectionErrorData {
+	action_url?: string;
+	action_label?: string;
+	[ key: string ]: unknown;
+}
+
+interface ConnectionErrorObject {
+	error_message: string;
+	error_code?: string;
+	error_type?: string;
+	error_data?: ConnectionErrorData;
+	[ key: string ]: unknown;
+}
+
+type ConnectionErrorMap = Record< string, Record< string, ConnectionErrorObject > >;
 
 /**
  * Prefix every genuine failed health check carries. The endpoint builds each
@@ -138,7 +159,7 @@ export default function mapHealthCheckErrors( body: unknown ): ConnectionErrorMa
 				error_code: check.code,
 				// Fall back to a generic message so a failed check with no message
 				// still surfaces.
-				error_message: check.message || __( 'A connection check failed.', 'jetpack-connection-js' ),
+				error_message: check.message || __( 'A connection check failed.', 'jetpack-shared-stores' ),
 				error_type: 'connection_health',
 				error_data: parseResolution( check.data.resolution ),
 			},

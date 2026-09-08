@@ -1,4 +1,4 @@
-import { CONNECTION_STORE_ID, ConnectButton } from '@automattic/jetpack-connection';
+import { ConnectButton, initConnectionStore } from '@automattic/jetpack-connection';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
@@ -15,9 +15,10 @@ import styles from './styles.module.scss';
 export default function DisconnectedCard() {
 	const { apiNonce, apiRoot, registrationNonce } = window.automatticForAgenciesClientInitialState;
 
+	const connectionStore = initConnectionStore();
 	const connectionErrors = useSelect(
-		select => select( CONNECTION_STORE_ID ).getConnectionErrors(),
-		[]
+		select => select( connectionStore ).getConnectionErrors(),
+		[ connectionStore ]
 	);
 
 	// Use the highest-level error message.

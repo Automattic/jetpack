@@ -3,7 +3,7 @@ import { getScriptData } from '@automattic/jetpack-script-data';
 import { useDispatch } from '@wordpress/data';
 import { useEffect, useState } from 'react';
 import { getUserConnectionUrl } from '../../helpers/get-user-connection-url';
-import { STORE_ID } from '../../state/store';
+import { initConnectionStore } from '../../state/store';
 
 const { apiRoot, apiNonce } =
 	window?.JP_CONNECTION_INITIAL_STATE || getScriptData()?.connection || {};
@@ -20,12 +20,20 @@ interface ConnectionStoreDispatch {
  * @return {object} - The hook data.
  */
 export default function useRestoreConnection() {
+	// Register the connection store lazily and use the returned descriptor so
+	// the store can't be dispatched without being initialized first. Idempotent
+	// across consumers.
+	const connectionStore = initConnectionStore();
+
 	const [ isRestoringConnection, setIsRestoringConnection ] = useState( false );
 	const [ restoreConnectionError, setRestoreConnectionError ] = useState< string | null >( null );
 
+	// The store descriptor carries generic action types, so assert to the
+	// narrow shape this hook uses (via `unknown`, as the two don't structurally
+	// overlap).
 	const { disconnectUserSuccess, setConnectionErrors } = useDispatch(
-		STORE_ID
-	) as ConnectionStoreDispatch;
+		connectionStore
+	) as unknown as ConnectionStoreDispatch;
 
 	const USER_CONNECTION_URL = getUserConnectionUrl();
 

@@ -90,6 +90,14 @@ class SharedStoresAssetsTest extends TestCase {
 			}
 		);
 
+		/*
+		 * The bundle's strings are rewritten to the jetpack-assets textdomain at build
+		 * time, so the script's translations must be registered under that same domain.
+		 */
+		Functions\expect( 'wp_set_script_translations' )
+			->once()
+			->with( Shared_Stores_Assets::SCRIPT_HANDLE, 'jetpack-assets' );
+
 		Shared_Stores_Assets::register_assets();
 
 		$this->assertSame( 'jetpack-shared-stores', Shared_Stores_Assets::SCRIPT_HANDLE );
