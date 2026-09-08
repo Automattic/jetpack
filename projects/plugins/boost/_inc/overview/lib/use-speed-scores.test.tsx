@@ -1,0 +1,65 @@
+import { requestSpeedScores } from '@automattic/jetpack-boost-score-api';
+import { act, renderHook, waitFor } from '@testing-library/react';
+import { useSpeedScores } from './use-speed-scores';
+
+jest.mock( '@automattic/jetpack-boost-score-api', () => ( {
+	requestSpeedScores: jest.fn(),
+} ) );
+jest.mock( '../../../app/assets/src/js/lib/utils/analytics', () => ( {
+	recordBoostEvent: jest.fn(),
+} ) );
+
+beforeEach( () => {
+	jest
+		.mocked( requestSpeedScores )
+		.mockReset()
+		.mockResolvedValue( {
+			current: { mobile: 81, desktop: 91 },
+			noBoost: null,
+			isStale: false,
+		} );
+	Object.assign( window, {
+		Jetpack_Boost: { site: { url: 'https://example.org', online: true } },
+		wpApiSettings: { root: 'https://example.org/wp-json/', nonce: 'wp-nonce' },
+		jetpack_boost_ds: {
+			rest_api: { value: 'https://example.org/wp-json/jetpack-boost-ds', nonce: 'wp-nonce' },
+		},
+	} );
+} );
+
+test( 'preserves the exact cornerstone URL for cached and regenerated scores', async () => {
+	window.jetpack_boost_ds!.cornerstone_pages_properties = {
+		nonce: 'cornerstone-nonce',
+		value: { predefined_pages: [ 'https://example.org/', 'https://example.org/second/' ] },
+	};
+	const { result } = renderHook( () => useSpeedScores() );
+	await waitFor( () => expect( result.current[ 0 ].status ).toBe( 'loaded' ) );
+	expect( requestSpeedScores ).toHaveBeenCalledWith(
+		false,
+		wpApiSettings.root,
+		'https://example.org/',
+		wpApiSettings.nonce
+	);
+	await act( async () => result.current[ 1 ]( true ) );
+	expect( requestSpeedScores ).toHaveBeenLastCalledWith(
+		true,
+		wpApiSettings.root,
+		'https://example.org/',
+		wpApiSettings.nonce
+	);
+} );
+
+test.each( [ undefined, { predefined_pages: [] }, { predefined_pages: [ '' ] } ] )(
+	'falls back to the site URL when no first predefined page exists: %p',
+	async value => {
+		window.jetpack_boost_ds!.cornerstone_pages_properties = { nonce: 'cornerstone-nonce', value };
+		const { result } = renderHook( () => useSpeedScores() );
+		await waitFor( () => expect( result.current[ 0 ].status ).toBe( 'loaded' ) );
+		expect( requestSpeedScores ).toHaveBeenCalledWith(
+			false,
+			wpApiSettings.root,
+			'https://example.org',
+			wpApiSettings.nonce
+		);
+	}
+);

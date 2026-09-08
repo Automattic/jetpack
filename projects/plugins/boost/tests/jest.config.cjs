@@ -2,7 +2,7 @@ const path = require( 'path' );
 const coverageConfig = require( 'jetpack-js-tools/jest/config.coverage.js' );
 const baseConfig = require( 'jetpack-js-tools/jest/config.base.js' );
 
-module.exports = {
+const config = {
 	...coverageConfig,
 	rootDir: path.join( __dirname, '..' ),
 	roots: [ '<rootDir>/app', '<rootDir>/routes' ],
@@ -30,4 +30,8 @@ module.exports = {
 		'^\\$layout/(.*)$': '<rootDir>/app/assets/src/js/layout/$1',
 		'^\\$svg/(.*)$': '<rootDir>/app/assets/src/js/svg/$1',
 	},
+};
+
+module.exports = {
+	projects: [ config, path.join( __dirname, '../_inc/overview/jest.config.cjs' ) ],
 };
