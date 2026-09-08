@@ -161,18 +161,24 @@
 
 	// `@wordpress/boot`'s stage is a second scroll container above
 	// `.jp-admin-page`, so unwind it too and let the document grow with it.
+	// Boot's own classes come in two shapes; see the guard in
+	// `@automattic/jetpack-base-styles/admin-page-layout` for why.
 	html.wp-toolbar,
 	body.wp-admin,
 	#wpwrap,
 	.boot-layout,
 	.boot-layout__surfaces,
 	.boot-layout__stage,
+	[class*="__layout"],
+	[class*="__surfaces"],
+	[class*="__stage"],
 	.jp-admin-page,
 	.jp-admin-page__page,
 	.jp-admin-page__page > :not(:first-child):not(.jetpack-footer),
 	.jp-admin-page__page > :not(:first-child):not(.jetpack-footer) > * {
-		// `position` matters as much as `overflow`: `.boot-layout` is absolute, and
-		// browsers print only the first page of an out-of-flow subtree.
+		// `position` matters as much as `overflow`: boot's layout root is
+		// absolute, and browsers print only the first page of an out-of-flow
+		// subtree.
 		position: static !important;
 		inset: auto !important;
 		display: block !important;
