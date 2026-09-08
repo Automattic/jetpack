@@ -1,4 +1,0 @@
-Significance: patch
-Type: added
-
-Add an endpoint for flushing the object cache, which a database restore leaves stale.
