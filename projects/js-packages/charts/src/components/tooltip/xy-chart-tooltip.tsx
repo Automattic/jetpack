@@ -83,6 +83,7 @@ const XyChartTooltipContent = < Datum extends object >( {
 	verticalCrosshairStyle,
 	horizontalCrosshairStyle,
 	detectBounds = true,
+	tooltipPlacement = 'auto',
 	zIndex = DEFAULT_TOOLTIP_Z_INDEX,
 	...rest
 }: XyChartTooltipContentProps< Datum > ) => {
@@ -125,9 +126,12 @@ const XyChartTooltipContent = < Datum extends object >( {
 	const nearestDatum = tooltipContext.tooltipData?.nearestDatum;
 	let { tooltipLeft, tooltipTop } = tooltipContext;
 
-	if ( nearestDatum && ( snapTooltipToDatumX || snapTooltipToDatumY ) ) {
+	if (
+		nearestDatum &&
+		( snapTooltipToDatumX || snapTooltipToDatumY || tooltipPlacement === 'below-axis' )
+	) {
 		const { left, top } = getDatumLeftTop( nearestDatum.key, nearestDatum.datum );
-		if ( snapTooltipToDatumX && isValidNumber( left ) ) {
+		if ( ( snapTooltipToDatumX || tooltipPlacement === 'below-axis' ) && isValidNumber( left ) ) {
 			tooltipLeft = left;
 		}
 		if ( snapTooltipToDatumY && isValidNumber( top ) ) {
@@ -183,7 +187,8 @@ const XyChartTooltipContent = < Datum extends object >( {
 	const marginTop = margin?.top ?? 0;
 	const marginLeft = margin?.left ?? 0;
 
-	const TooltipComponent = detectBounds ? BoundedTooltip : Tooltip;
+	const TooltipComponent =
+		detectBounds || tooltipPlacement === 'below-axis' ? BoundedTooltip : Tooltip;
 	const boxStyle: CSSProperties = {
 		...defaultStyles,
 		zIndex,
@@ -229,10 +234,11 @@ const XyChartTooltipContent = < Datum extends object >( {
 				createPortal(
 					<TooltipComponent
 						left={ tooltipLeft }
-						top={ tooltipTop }
+						top={ tooltipPlacement === 'below-axis' ? marginTop + innerHeight : tooltipTop }
 						style={ boxStyle }
 						applyPositionStyle
 						{ ...tooltipProps }
+						{ ...( tooltipPlacement === 'below-axis' && { placement: tooltipPlacement } ) }
 					>
 						{ tooltipContent }
 					</TooltipComponent>,

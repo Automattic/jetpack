@@ -131,6 +131,54 @@ describe( 'XyChartTooltip', () => {
 		);
 	} );
 
+	test( 'anchors below the x-axis without moving datum glyphs or crosshairs', async () => {
+		const originalRect = Element.prototype.getBoundingClientRect;
+		const rectSpy = jest
+			.spyOn( Element.prototype, 'getBoundingClientRect' )
+			.mockImplementation( function ( this: Element ) {
+				const rect = originalRect.call( this );
+				return this.classList.contains( 'visx-tooltip' )
+					? { ...rect, width: 80, height: 30, right: rect.left + 80, bottom: rect.top + 30 }
+					: rect;
+			} );
+
+		try {
+			renderChart(
+				{
+					tooltipPlacement: 'below-axis',
+					snapTooltipToDatumY: true,
+					showDatumGlyph: true,
+					showVerticalCrosshair: true,
+					showHorizontalCrosshair: true,
+				},
+				undefined,
+				{ top: 10, right: 20, bottom: 30, left: 40 }
+			);
+
+			const box = await screen.findByTestId( 'tooltip-box' );
+			expect( box ).toHaveStyle( { transform: 'translate(70px, 76px)' } );
+			expect( screen.getByTestId( 'wrapper' ) ).toContainElement( box );
+			expect( screen.getByTestId( 'tooltip-axis-pointer' ) ).toHaveStyle( {
+				left: '34px',
+				top: '-6px',
+			} );
+			expect( screen.getByTestId( 'xy-chart-tooltip-glyph-group-A' ) ).toHaveAttribute(
+				'transform',
+				'translate(110, 40)'
+			);
+			expect( screen.getByTestId( 'xy-chart-tooltip-crosshair-vertical' ) ).toHaveAttribute(
+				'y2',
+				'70'
+			);
+			expect( screen.getByTestId( 'xy-chart-tooltip-crosshair-horizontal' ) ).toHaveAttribute(
+				'y1',
+				'40'
+			);
+		} finally {
+			rectSpy.mockRestore();
+		}
+	} );
+
 	test( 'draws one glyph per series in the SVG at the datum position', async () => {
 		renderChart( { showSeriesGlyphs: true }, BOTH_SERIES );
 
