@@ -9,9 +9,6 @@ import { PA_COLUMN_COUNT, PA_ROW_HEIGHT } from '../../../grid';
 import { DASHBOARD_GRID_SETTINGS_KEY, DASHBOARD_PREFERENCES_SCOPE } from '../constants';
 import type { WidgetGridSettings } from '@wordpress/widget-dashboard';
 
-// Users can still switch row heights; their choice is stored, and only the
-// small default is persisted as a cleared preference.
-
 // DEFAULT_GRID is the 2D grid model, so it carries `rowHeight`; keep the spread
 // unannotated so the override type-checks against the grid variant rather than
 // the `rowHeight`-less masonry member of the settings union.
