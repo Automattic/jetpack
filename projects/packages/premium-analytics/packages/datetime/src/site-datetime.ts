@@ -12,9 +12,6 @@ import type { TZDate } from '@date-fns/tz';
  * Offset-less Stats API values are anchored to that zone; offset-bearing ones
  * already name an instant and keep it.
  *
- * Anchored to that zone rather than left plain, so date arithmetic on the result
- * takes its day boundaries there instead of in the browser's zone.
- *
  * @param value - The raw timestamp, or a `Date`.
  * @return The instant, or `undefined` when the value is missing or malformed.
  */
