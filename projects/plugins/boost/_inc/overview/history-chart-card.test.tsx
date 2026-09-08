@@ -1,5 +1,6 @@
 /* eslint-disable testing-library/prefer-user-event */
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { getSettings, setSettings } from '@wordpress/date';
 import HistoryChartCard, { buildHistorySeries, HistoryTooltip } from './history-chart-card';
 import type { PerformanceHistoryData } from './lib/use-performance-history';
 
@@ -111,6 +112,24 @@ test( 'keeps the WordPress date and all eight history dimensions in the tooltip'
 		'0.40s',
 	] ) {
 		expect( screen.getByText( value ) ).toBeInTheDocument();
+	}
+} );
+
+test( 'uses the UTC site date for both axis and tooltip at midnight UTC', async () => {
+	const settings = getSettings();
+	setSettings( { ...settings, timezone: { offset: 0, string: 'UTC', abbr: 'UTC' } } );
+	try {
+		render(
+			<>
+				<HistoryChartCard data={ history } { ...callbacks } />
+				<HistoryTooltip period={ history.periods[ 0 ] } />
+			</>
+		);
+		expect( await screen.findAllByText( 'Sep 1' ) ).not.toHaveLength( 0 );
+		expect( screen.getByText( 'September 1, 2026' ) ).toBeInTheDocument();
+		expect( screen.queryByText( /Aug 31/ ) ).not.toBeInTheDocument();
+	} finally {
+		setSettings( settings );
 	}
 } );
 

@@ -180,6 +180,9 @@ export default function HistoryChartCard( {
 					withEndGlyphs={ data.periods.length === 1 }
 					renderTooltip={ renderTooltip }
 					options={ {
+						axis: {
+							x: { tickFormat: value => dateI18n( 'M j', new Date( value ), false ) },
+						},
 						xScale: { domain: [ new Date( data.startDate ), new Date( data.endDate ) ] },
 						yScale: { domain: [ 0, 100 ], nice: false },
 					} }
