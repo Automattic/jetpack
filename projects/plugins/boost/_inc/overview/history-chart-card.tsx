@@ -255,11 +255,26 @@ export default function HistoryChartCard( {
 							showLegend
 							legend={ { position: 'bottom', alignment: 'center', interactive: false } }
 							withGradientFill={ false }
-							withTooltipCrosshairs={ { showVertical: true } }
+							withTooltipCrosshairs={ {
+								showVertical: true,
+								verticalStyle: {
+									stroke: 'var(--wpds-color-background-surface-neutral-weak)',
+									strokeWidth: 'var(--wpds-dimension-size-lg)',
+									style: { mixBlendMode: 'multiply' },
+								},
+							} }
 							curveType="linear"
 							withEndGlyphs={ data.periods.length === 1 }
 							renderTooltip={ renderTooltip }
 							tooltipPlacement="below-axis"
+							tooltipStyle={ {
+								background: 'var(--wpds-color-foreground-content-neutral)',
+								color: 'var(--wpds-color-background-surface-neutral)',
+								padding: 'var(--wpds-dimension-padding-lg)',
+								borderRadius: 'var(--wpds-border-radius-md)',
+								maxWidth: 'calc(100vw - var(--wpds-dimension-gap-lg))',
+								boxSizing: 'border-box',
+							} }
 							options={ {
 								axis: {
 									x: { tickFormat: value => dateI18n( 'M j', new Date( value ), false ) },
