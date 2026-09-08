@@ -170,9 +170,10 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	/**
 	 * Jetpack Settings sub-link.
 	 *
-	 * Pinned past Beta Tester's 998 so it lands at the bottom rather than in the
-	 * alphabetical run. The upsell still renders below it — Admin_Menu appends that
-	 * one after sorting, so the two never compete on position.
+	 * Shares the bottom tier with Beta Tester so it lands below the alphabetical run
+	 * rather than inside it; the two sort by title within the tier. The upsell still
+	 * renders underneath — Admin_Menu appends that one after sorting, so it never
+	 * competes on position.
 	 *
 	 * @since 4.3.0
 	 * @since 9.7.0 If Connection does not have an owner, restrict it to admins
@@ -185,7 +186,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 				'jetpack_admin_page',
 				Jetpack::admin_url( array( 'page' => 'jetpack#/settings' ) ),
 				null,
-				999
+				998
 			);
 		}
 	}

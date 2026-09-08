@@ -19,6 +19,13 @@ class Jetpack_Admin_Menu_Test extends WP_UnitTestCase {
 	 */
 	public function set_up() {
 		parent::set_up();
+
+		/*
+		 * Admin_Menu::$initialized is static and its admin_menu hook is stripped when WP_UnitTestCase
+		 * restores hooks at teardown. Without this reset, any earlier test that calls add_menu() leaves
+		 * the class initialized but unhooked, so the menu never registers and this test silently skips.
+		 */
+		$this->reset_admin_menu();
 		// Create a user and set it up as current.
 		$user_id = self::factory()->user->create_and_get(
 			array(
@@ -43,6 +50,33 @@ class Jetpack_Admin_Menu_Test extends WP_UnitTestCase {
 		Jetpack_Options::delete_option( 'id' );
 		Jetpack_Options::delete_option( 'blog_token' );
 		Jetpack_Options::delete_option( 'user_tokens' );
+	}
+
+	/**
+	 * Clears Admin_Menu's static state between tests.
+	 */
+	private function reset_admin_menu() {
+		$reflection = new \ReflectionClass( Admin_Menu::class );
+
+		foreach ( array( 'menu_items', 'page_hooks' ) as $name ) {
+			if ( $reflection->hasProperty( $name ) ) {
+				$property = $reflection->getProperty( $name );
+				// @todo Remove this call once we no longer need to support PHP <8.1.
+				if ( PHP_VERSION_ID < 80100 ) {
+					$property->setAccessible( true );
+				}
+				$property->setValue( null, array() );
+			}
+		}
+
+		if ( $reflection->hasProperty( 'initialized' ) ) {
+			$initialized = $reflection->getProperty( 'initialized' );
+			// @todo Remove this call once we no longer need to support PHP <8.1.
+			if ( PHP_VERSION_ID < 80100 ) {
+				$initialized->setAccessible( true );
+			}
+			$initialized->setValue( null, false );
+		}
 	}
 
 	/**
@@ -72,6 +106,14 @@ class Jetpack_Admin_Menu_Test extends WP_UnitTestCase {
 		$jetpack_backup = new Jetpack_Backup();
 		$jetpack_backup->initialize();
 
+		/*
+		 * Nothing in this fixture registers an external link or a bottom-tier item on its own,
+		 * so the assertions covering those tiers would pass vacuously. Register one of each,
+		 * titled to sort first alphabetically so a broken tier shows up as a misplacement.
+		 */
+		Admin_Menu::add_menu( 'Aaa External', 'Aaa External <span aria-hidden="true">↗</span>', 'manage_options', 'https://example.org/aaa-external', null, 100 );
+		Admin_Menu::add_menu( 'Aaa Bottom', 'Aaa Bottom', 'manage_options', 'aaa-bottom-fixture', '__return_null', 998 );
+
 		do_action( 'admin_menu' );
 
 		if ( ! isset( $submenu['jetpack'] ) ) {
@@ -95,6 +137,7 @@ class Jetpack_Admin_Menu_Test extends WP_UnitTestCase {
 		$pinned = static function ( $item ) use ( $settings_slug ) {
 			return 'my-jetpack' === $item[2]
 				|| 'jetpack-beta' === $item[2]
+				|| 'aaa-bottom-fixture' === $item[2]
 				|| $settings_slug === $item[2]
 				|| false !== strpos( $item[2], Admin_Menu::UPGRADE_MENU_SLUG );
 		};
@@ -120,6 +163,11 @@ class Jetpack_Admin_Menu_Test extends WP_UnitTestCase {
 		}
 
 		$this->assertNotEmpty( $internal, 'Expected at least one internal Jetpack submenu item to check the ordering of.' );
+		$this->assertNotEmpty( $external, 'Expected an external link in the menu, otherwise the internal-before-external check proves nothing.' );
+
+		$bottom_at = array_search( 'aaa-bottom-fixture', array_column( $items, 2 ), true );
+		$this->assertNotFalse( $bottom_at, 'The bottom-tier fixture should be registered.' );
+		$this->assertGreaterThan( $last_unpinned_at, $bottom_at, 'Bottom-tier items should sort below every feature page and external link.' );
 
 		$this->assertGreaterThan( $last_unpinned_at, $settings_at, 'Settings should be pinned below every feature page and external link.' );
 
