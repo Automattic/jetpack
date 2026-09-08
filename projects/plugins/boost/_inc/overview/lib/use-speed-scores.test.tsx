@@ -2,6 +2,12 @@ import { requestSpeedScores } from '@automattic/jetpack-boost-score-api';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { useSpeedScores } from './use-speed-scores';
 
+declare global {
+	interface Window {
+		Jetpack_Boost: typeof Jetpack_Boost;
+	}
+}
+
 jest.mock( '@automattic/jetpack-boost-score-api', () => ( {
 	requestSpeedScores: jest.fn(),
 } ) );
@@ -77,11 +83,13 @@ test( 'retains scores on refresh failure and recovers on retry', async () => {
 	await waitFor( () => expect( result.current[ 0 ].status ).toBe( 'loaded' ) );
 	jest.mocked( requestSpeedScores ).mockRejectedValueOnce( new Error( 'Service unavailable' ) );
 	await act( async () => result.current[ 1 ]( true ) );
-	expect( result.current[ 0 ] ).toEqual( expect.objectContaining( {
-		status: 'error',
-		hasScores: true,
-		scores: { current: { mobile: 81, desktop: 91 }, noBoost: null, isStale: false },
-	} ) );
+	expect( result.current[ 0 ] ).toEqual(
+		expect.objectContaining( {
+			status: 'error',
+			hasScores: true,
+			scores: { current: { mobile: 81, desktop: 91 }, noBoost: null, isStale: false },
+		} )
+	);
 	await act( async () => result.current[ 1 ]( true ) );
 	expect( result.current[ 0 ].status ).toBe( 'loaded' );
 	expect( result.current[ 0 ].error ).toBeUndefined();
@@ -93,7 +101,9 @@ test( 'regenerates after changed module configuration settles and waits two seco
 		const { rerender } = renderHook( state => useSpeedScores( state ), {
 			initialProps: { config: 'initial', isPending: false },
 		} );
-		await act( async () => {} );
+		await act( async () => {
+			await Promise.resolve();
+		} );
 		rerender( { config: 'changed', isPending: true } );
 		await act( async () => jest.advanceTimersByTimeAsync( 3000 ) );
 		expect( requestSpeedScores ).toHaveBeenCalledTimes( 1 );
