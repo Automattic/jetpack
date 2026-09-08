@@ -266,6 +266,13 @@ class REST_Controller {
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'get_notice_status' ),
 				'permission_callback' => array( $this, 'can_user_view_general_stats_callback' ),
+				'args'                => array(
+					'include_details' => array(
+						'type'        => 'boolean',
+						'default'     => false,
+						'description' => 'Return a detail record per notice instead of a flat boolean map',
+					),
+				),
 			)
 		);
 
@@ -1040,10 +1047,11 @@ class REST_Controller {
 	/**
 	 * Get stats notices.
 	 *
+	 * @param WP_REST_Request $req The request object.
 	 * @return array
 	 */
-	public function get_notice_status() {
-		return ( new Notices() )->get_notices_to_show();
+	public function get_notice_status( $req ) {
+		return ( new Notices() )->get_notices_to_show( (bool) $req->get_param( 'include_details' ) );
 	}
 
 	/**
