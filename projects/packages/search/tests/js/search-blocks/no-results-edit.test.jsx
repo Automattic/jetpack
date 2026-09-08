@@ -139,12 +139,12 @@ describe( 'NoResultsEdit', () => {
 		expect( screen.queryByRole( 'button', { name: 'Any empty search' } ) ).not.toBeInTheDocument();
 	} );
 
-	// Three dashed rows read as three unrelated things without an outline and a
-	// name around them.
-	it( 'labels the container so the messages read as one block', () => {
+	// The container paints no name of its own — standard block conventions
+	// leave identification to Gutenberg's native UI (SEARCH-341).
+	it( 'paints no label on the canvas', () => {
 		render( <NoResultsEdit clientId="nr-1" /> );
 
-		expect( screen.getByText( 'No Results' ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'No Results' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'restricts inner blocks to variants and suppresses the default appender', () => {

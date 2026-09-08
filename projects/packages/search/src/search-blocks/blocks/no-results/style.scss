@@ -15,20 +15,6 @@
 	}
 }
 
-// Editor-canvas-only: `render.php` never emits this class, so the rule is
-// inert on the front end despite `style.scss` loading there too. The outline
-// groups the per-condition messages as one block — without it three dashed
-// rows read as three unrelated things rather than the empty state.
-.jetpack-search-no-results__editor-container {
-	border: 1px dashed color-mix(in sRGB, currentColor 40%, transparent);
-	border-radius: 2px;
-	padding: 0.5rem;
-
-	> * + * {
-		margin-block-start: 0.75rem;
-	}
-}
-
 .jetpack-search-no-results__variant {
 	margin: 0;
 
@@ -65,62 +51,5 @@
 		&[hidden] {
 			display: none;
 		}
-	}
-}
-
-// Editor-canvas-only boundary: `render.php` never emits these classes, so the
-// rules are inert on the front end despite `style.scss` loading there too.
-.jetpack-search-no-results__editor-canvas {
-	border: 1px dashed color-mix(in sRGB, currentColor 40%, transparent);
-	border-radius: 2px;
-	padding: 0.5rem;
-}
-
-.jetpack-search-no-results__editor-label {
-	display: block;
-	font-size: 0.6875rem;
-	font-weight: 600;
-	letter-spacing: 0.04em;
-	margin-block-end: 0.5rem;
-	opacity: 0.6;
-	text-transform: uppercase;
-}
-
-// Collapsed row: label and a one-line summary of what the condition renders,
-// side by side. Only reachable for an untouched variant, so nothing an author
-// wrote is ever behind it.
-.jetpack-search-no-results__editor-canvas--collapsed {
-	align-items: baseline;
-	display: flex;
-	gap: 0.5rem;
-
-	.jetpack-search-no-results__editor-label {
-		flex-shrink: 0;
-		margin-block-end: 0;
-	}
-}
-
-.jetpack-search-no-results__editor-summary {
-	font-size: 0.8125rem;
-	opacity: 0.6;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-}
-
-// Authored blocks stay mounted while the variant is collapsed — see the note in
-// `slot/edit.jsx` — so they're hidden here rather than unmounted there.
-.jetpack-search-no-results__editor-blocks--collapsed {
-	display: none;
-}
-
-.jetpack-search-no-results__default-preview {
-	opacity: 0.6;
-	text-align: center;
-
-	p {
-		font-size: 0.875rem;
-		margin-inline: auto;
-		max-width: 36ch;
 	}
 }
