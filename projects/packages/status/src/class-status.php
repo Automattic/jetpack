@@ -165,9 +165,9 @@ class Status {
 
 		/*
 		 * Check for localhost and sites using an IP only first. No dot means it can't be a
-		 * public domain. This also catches every bracketed IPv6 literal, routable ones
-		 * included, which is intended: WordPress.com does not accept an IPv6 site URL when
-		 * registering a site, so offline mode is where such a site belongs.
+		 * public domain. Dotless IPv6 literals land here too, routable ones included:
+		 * WordPress.com won't register an IPv6 site URL, so offline mode is where they belong.
+		 * An IPv4-mapped literal like [::ffff:127.0.0.1] keeps its dots and reads as remote.
 		 */
 		$is_local = '' !== $host && false === strpos( $host, '.' );
 

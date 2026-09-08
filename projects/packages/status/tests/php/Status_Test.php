@@ -535,6 +535,10 @@ class Status_Test extends TestCase {
 				'http://127.1.2.3:8080',
 				true,
 			),
+			'loopback_ip_broadcast'          => array(
+				'http://127.255.255.255',
+				true,
+			),
 			// 0.0.0.0 is a common container/all-interfaces bind address.
 			'all_interfaces_ipv4'            => array(
 				'http://0.0.0.0',
@@ -564,9 +568,10 @@ class Status_Test extends TestCase {
 			),
 
 			/*
-			 * An IPv6 literal is dot-free, so the rule above calls every one of them local,
-			 * routable addresses included. Pinned because that is the answer we want, not an
-			 * accident: WordPress.com won't accept an IPv6 site URL at registration.
+			 * A dotless IPv6 literal is caught by the rule above, routable addresses included.
+			 * Pinned because that is the answer we want, not an accident: WordPress.com won't
+			 * accept an IPv6 site URL at registration. The IPv4-mapped form keeps its dots and
+			 * reads as remote instead, which is a known inconsistency rather than a choice.
 			 */
 			'ipv6_loopback'                  => array(
 				'http://[::1]:8080',
@@ -575,6 +580,10 @@ class Status_Test extends TestCase {
 			'ipv6_routable'                  => array(
 				'http://[2606:4700:4700::1111]',
 				true,
+			),
+			'ipv6_mapped_ipv4_loopback'      => array(
+				'http://[::ffff:127.0.0.1]',
+				false,
 			),
 			'playground'                     => array(
 				'https://playground.wordpress.net/scope:0.8362470763364798',
