@@ -42,14 +42,13 @@ function filters( overrides: Partial< Parameters< typeof useDetailDateControls >
 }
 
 describe( 'useDetailDateControls', () => {
-	it( 'offers the preset pills alone, anchored on the site-local publish instant', () => {
+	it( 'offers the period menu alone, anchored on the site-local publish instant', () => {
 		const { result } = renderHook( () =>
 			useDetailDateControls( '2026-07-08 00:29:35', filters() )
 		);
 
 		expect( result.current ).toMatchObject( {
 			presetIds: DETAIL_SURFACE_PRESETS,
-			withCustomRange: false,
 			withIntervalControl: false,
 			onStep: undefined,
 		} );

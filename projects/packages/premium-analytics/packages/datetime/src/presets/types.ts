@@ -48,12 +48,6 @@ export const QUICK_SURFACE_PRESETS = [
 ] as const;
 
 /**
- * Quick presets of a resource detail page (post, video): the rolling windows
- * led by all time, per the detail-page design.
- */
-export const DETAIL_SURFACE_PRESETS = [ PRESET_ALL_TIME, ...QUICK_SURFACE_PRESETS ] as const;
-
-/**
  * Every preset a quick surface can render as a pill: the rolling windows, plus
  * all time where the surface opts into it.
  */
@@ -86,6 +80,12 @@ export const MENU_SURFACE_PRESET_GROUPS = [
  * out: only a surface with a start date to anchor it can offer one.
  */
 export const MENU_SURFACE_PRESETS = SELECTABLE_PRESETS;
+
+/**
+ * What a resource detail page (post, video) offers: the whole menu, plus all
+ * time, which such a page anchors on the resource's own publish date.
+ */
+export const DETAIL_SURFACE_PRESETS = [ ...MENU_SURFACE_PRESETS, PRESET_ALL_TIME ] as const;
 
 /**
  * Prefix of the per-year preset IDs, e.g. `year-2024`.
