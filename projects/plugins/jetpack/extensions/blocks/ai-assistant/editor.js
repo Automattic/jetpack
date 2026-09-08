@@ -5,7 +5,7 @@ import {
 import { registerBlockType } from '@wordpress/blocks';
 import { registerJetpackBlockFromMetadata } from '../../shared/register-jetpack-block';
 import metadata from './block.json';
-import DisabledPlaceholder from './components/disabled-placeholder';
+import DisabledEdit from './components/disabled-edit';
 import edit from './edit';
 import { getDisabledGate } from './lib/get-disabled-gate';
 import transforms from './transforms';
@@ -22,10 +22,10 @@ const disabledGate = getDisabledGate( getJetpackExtensionAvailability( 'ai-assis
 
 if ( disabledGate ) {
 	// A Jetpack AI setting is off. Register the block anyway, hidden from the
-	// inserter, so posts that already contain it show a placeholder instead of
-	// core's "unsupported block" warning.
+	// inserter, so posts that already contain it keep an empty, removable block
+	// instead of core's "unsupported block" warning.
 	registerBlockType( metadata, {
-		edit: DisabledPlaceholder,
+		edit: DisabledEdit,
 		save: () => null,
 		icon: getBlockIconProp( metadata ),
 		attributes: metadata.attributes,
