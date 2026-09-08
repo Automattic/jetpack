@@ -58,6 +58,23 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * Filter that keeps `ai` out of the active list, as an allowlist would.
+	 *
+	 * @var callable|null
+	 */
+	private $force_ai_inactive_filter = null;
+
+	/**
+	 * Filter `ai` out of the active module list.
+	 */
+	private function force_ai_module_inactive() {
+		$this->force_ai_inactive_filter = static function ( $modules ) {
+			return array_values( array_diff( (array) $modules, array( 'ai' ) ) );
+		};
+		add_filter( 'jetpack_active_modules', $this->force_ai_inactive_filter );
+	}
+
+	/**
 	 * Make the current request look like WordPress.com Atomic.
 	 */
 	private function force_atomic_site() {
@@ -87,6 +104,11 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 		remove_filter( 'jetpack_ai_enabled', '__return_true', 11 );
 		remove_filter( 'jetpack_is_connection_ready', '__return_true' );
 
+		if ( $this->force_ai_inactive_filter !== null ) {
+			remove_filter( 'jetpack_active_modules', $this->force_ai_inactive_filter );
+			$this->force_ai_inactive_filter = null;
+		}
+		Jetpack_Modules_Overrides::instance()->clear_cache();
 		if ( $this->force_ai_active_filter !== null ) {
 			remove_filter( 'jetpack_active_modules', $this->force_ai_active_filter );
 			$this->force_ai_active_filter = null;
@@ -256,6 +278,80 @@ class Jetpack_AI_Settings_Test extends \WP_UnitTestCase {
 		update_option( Jetpack_AI_Settings::MASTER_OPTION, 0 );
 		$this->force_ai_module_active();
 		$this->assertTrue( Jetpack_AI_Settings::is_master_enabled(), 'An active module means master on even with the option off.' );
+	}
+
+	/**
+	 * A filter that strips `ai` from the active list forces it off.
+	 */
+	public function test_master_forced_off_when_a_filter_removes_the_module() {
+		Constants::set_constant( 'IS_WPCOM', false );
+		\Jetpack_Options::update_option( 'active_modules', array( 'ai' ) );
+		$this->force_ai_module_inactive();
+
+		$this->assertFalse( Jetpack_AI_Settings::is_master_enabled(), 'Precondition: the filter reports the master off.' );
+		$this->assertTrue( Jetpack_AI_Settings::is_master_forced_off() );
+	}
+
+	/**
+	 * The filter is caught even when the stored list never had `ai`.
+	 */
+	public function test_master_forced_off_when_a_filter_removes_the_module_never_stored() {
+		Constants::set_constant( 'IS_WPCOM', false );
+		\Jetpack_Options::update_option( 'active_modules', array() );
+		$this->force_ai_module_inactive();
+
+		$this->assertTrue( Jetpack_AI_Settings::is_master_forced_off() );
+	}
+
+	/**
+	 * A filter that removes `ai` from the available list forces it off.
+	 */
+	public function test_master_forced_off_when_a_filter_removes_the_module_from_available() {
+		Constants::set_constant( 'IS_WPCOM', false );
+		\Jetpack_Options::update_option( 'active_modules', array( 'ai' ) );
+		$remove = static function ( $modules ) {
+			unset( $modules['ai'] );
+			return $modules;
+		};
+		add_filter( 'jetpack_get_available_modules', $remove );
+
+		$forced_off = Jetpack_AI_Settings::is_master_forced_off();
+
+		remove_filter( 'jetpack_get_available_modules', $remove );
+		$this->assertTrue( $forced_off );
+	}
+
+	/**
+	 * A module that is simply deactivated is an ordinary opt-out, not forced off.
+	 */
+	public function test_master_not_forced_off_when_module_is_plainly_inactive() {
+		Constants::set_constant( 'IS_WPCOM', false );
+		\Jetpack_Options::update_option( 'active_modules', array() );
+
+		$this->assertFalse( Jetpack_AI_Settings::is_master_enabled(), 'Precondition: the module reads off.' );
+		$this->assertFalse( Jetpack_AI_Settings::is_master_forced_off() );
+	}
+
+	/**
+	 * An active master is never forced off.
+	 */
+	public function test_master_not_forced_off_when_module_active() {
+		Constants::set_constant( 'IS_WPCOM', false );
+		\Jetpack_Options::update_option( 'active_modules', array( 'ai' ) );
+		$this->force_ai_module_active();
+
+		$this->assertFalse( Jetpack_AI_Settings::is_master_forced_off() );
+	}
+
+	/**
+	 * Never forced off on WordPress.com Simple.
+	 */
+	public function test_master_never_forced_off_on_simple() {
+		Constants::set_constant( 'IS_WPCOM', true );
+		update_option( Jetpack_AI_Settings::MASTER_OPTION, 0 );
+		\Jetpack_Options::update_option( 'active_modules', array( 'ai' ) );
+
+		$this->assertFalse( Jetpack_AI_Settings::is_master_forced_off() );
 	}
 
 	/**

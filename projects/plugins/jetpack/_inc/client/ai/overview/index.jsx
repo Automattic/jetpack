@@ -11,6 +11,7 @@ import { useEffect } from '@wordpress/element';
 import { sprintf, __ } from '@wordpress/i18n';
 import { list } from '@wordpress/icons';
 import { Card, Link, LinkButton, Notice, Skeleton, Stack, Text } from '@wordpress/ui';
+import AiUnavailableNotice from '../components/ai-unavailable-notice';
 import NavRow from '../components/nav-row';
 import { EVENTS, recordAiHubEvent, useRecordOnce } from '../tracks';
 import AssistantBanner from './assistant-banner';
@@ -344,6 +345,9 @@ function UsageCard( { upgradeUrl, planName } ) {
  *                                          copy promises AI-agent actions, which need MCP.
  * @param {boolean} [props.hostAllowsAi]    - The host's AI switch; when explicitly false, no
  *                                          usage is shown and no upgrade is ever offered.
+ * @param {boolean} [props.masterForcedOff] - Whether a filter, such as a module allowlist,
+ *                                          keeps the `ai` module off; treated like the host
+ *                                          switch, since nothing here can turn it on.
  * @param {boolean} [props.isUserConnected] - Whether the current user's own WordPress.com
  *                                          account is linked; the usage fetch needs it.
  * @return {object} Component markup.
@@ -355,9 +359,10 @@ export default function AiOverview( {
 	planName,
 	showActivityLog,
 	hostAllowsAi,
+	masterForcedOff,
 	isUserConnected,
 } ) {
-	const hostBlocked = hostAllowsAi === false;
+	const hostBlocked = hostAllowsAi === false || masterForcedOff === true;
 	const userUnlinked = isUserConnected === false;
 	useRecordOnce( EVENTS.VIEWED, { tab: 'overview' } );
 	const recordLinkClick = ( linkType, slug ) => () =>
@@ -371,14 +376,7 @@ export default function AiOverview( {
 			     the wrapper so the outer 3xl gap doesn't double. */ }
 			<Stack direction="column" gap="xl" className="jetpack-ai-overview__intro">
 				{ !! blogId && hostBlocked && (
-					<Notice.Root intent="warning">
-						<Notice.Description>
-							{ __( 'Jetpack AI is not available for this site.', 'jetpack' ) }{ ' ' }
-							<ExternalLink href={ getRedirectUrl( 'jetpack-ai-hub-docs-wp-supports-ai' ) }>
-								{ __( 'Learn more', 'jetpack' ) }
-							</ExternalLink>
-						</Notice.Description>
-					</Notice.Root>
+					<AiUnavailableNotice reason={ hostAllowsAi === false ? 'host' : 'forced_off' } />
 				) }
 				{ !! blogId && ! hostBlocked && userUnlinked && (
 					// The usage endpoint proxies as the current user, so without a

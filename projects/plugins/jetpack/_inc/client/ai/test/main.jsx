@@ -230,6 +230,23 @@ describe( 'AI admin page (main.jsx)', () => {
 			expect( screen.queryByText( MASTER_OFF_TITLE, IGNORE_A11Y ) ).not.toBeInTheDocument();
 		} );
 
+		test( 'forced off by a filter: its own notice shows, the My Jetpack link does not', async () => {
+			mockApiFetch( { featureGet: { ...masterOffSettings(), master_forced_off: true } } );
+
+			render( <App /> );
+
+			await expect(
+				screen.findByText(
+					'Jetpack AI is turned off by custom code running on this site, so it can’t be turned on here.',
+					IGNORE_A11Y
+				)
+			).resolves.toBeInTheDocument();
+			expect( screen.queryByText( MASTER_OFF_TITLE, IGNORE_A11Y ) ).not.toBeInTheDocument();
+			expect(
+				screen.queryByRole( 'link', { name: 'Manage in My Jetpack' } )
+			).not.toBeInTheDocument();
+		} );
+
 		test( 'not connected: the connect ask wins over the master-off notice', async () => {
 			mockApiFetch( { featureGet: { ...masterOffSettings(), is_connected: false } } );
 

@@ -315,6 +315,24 @@ describe( 'AiOverview', () => {
 		expect( screen.getByText( 'Documentation' ) ).toBeInTheDocument();
 	} );
 
+	test( 'module forced off by a filter: its own notice and doc link, no usage fetch', () => {
+		render( <AiOverview { ...PROPS } masterForcedOff={ true } /> );
+
+		expect(
+			screen.getByText(
+				'Jetpack AI is turned off by custom code running on this site, so it can’t be turned on here.',
+				IGNORE_A11Y
+			)
+		).toBeInTheDocument();
+		expect( screen.queryByText( 'Available requests' ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'link', { name: 'Upgrade' } ) ).not.toBeInTheDocument();
+		expect( screen.getByRole( 'link', { name: /Learn more/ } ) ).toHaveAttribute(
+			'href',
+			expect.stringContaining( 'jetpack-ai-hub-docs-module-forced-off' )
+		);
+		expect( apiFetch ).not.toHaveBeenCalled();
+	} );
+
 	test( 'host AI off: the notice renders above the assistant banner', () => {
 		dispatch( preferencesStore ).set( 'jetpack/ai', 'assistantBannerDismissed', false );
 		render( <AiOverview { ...PROPS } hostAllowsAi={ false } /> );

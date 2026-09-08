@@ -261,6 +261,7 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings extends WP_REST_Controller 
 				'is_free_search_plan' => $supports_search && $search_plan->is_free_plan(),
 			),
 			'master_enabled'    => Jetpack_AI_Settings::is_master_enabled(),
+			'master_forced_off' => Jetpack_AI_Settings::is_master_forced_off(),
 			'features'          => array(
 				'writing_assistant' => array( 'enabled' => $stored['writing_assistant'] ),
 				'image_editor'      => array( 'enabled' => $stored['image_editor'] ),

@@ -1,0 +1,4 @@
+Significance: patch
+Type: compat
+
+Jetpack AI: when a filter such as a module allowlist keeps the AI module off, say so in the AI hub instead of offering a switch that cannot stick.

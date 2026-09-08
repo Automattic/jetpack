@@ -13,17 +13,13 @@
  * MCP hub as the landing view and no tab bar.
  */
 
-import {
-	AdminPage,
-	GlobalNotices,
-	useGlobalNotices,
-	getRedirectUrl,
-} from '@automattic/jetpack-components';
-import { Spinner, ExternalLink } from '@wordpress/components';
+import { AdminPage, GlobalNotices, useGlobalNotices } from '@automattic/jetpack-components';
+import { Spinner } from '@wordpress/components';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __, isRTL, sprintf } from '@wordpress/i18n';
 import { chevronLeft, chevronRight, Icon } from '@wordpress/icons';
 import { Badge, Notice, Stack, Tabs } from '@wordpress/ui';
+import AiUnavailableNotice from './components/ai-unavailable-notice';
 import MasterOffNotice from './components/master-off-notice';
 import AiFeatures from './features/index';
 import { useFeatureSettings } from './features/use-feature-settings';
@@ -415,7 +411,8 @@ export default function App() {
 				{ ! masterEnabled &&
 					MASTER_SWITCH_VIEWS.includes( view ) &&
 					aiSettings?.is_connected !== false &&
-					aiSettings?.host_allows_ai !== false && <MasterOffNotice /> }
+					aiSettings?.host_allows_ai !== false &&
+					aiSettings?.master_forced_off !== true && <MasterOffNotice /> }
 
 				{ isMcpContext && (
 					<>
@@ -490,6 +487,7 @@ export default function App() {
 						planName={ planName }
 						isUserConnected={ isUserConnected }
 						hostAllowsAi={ aiSettings?.host_allows_ai }
+						masterForcedOff={ aiSettings?.master_forced_off }
 						// Same preconditions the MCP hub applies to its copy of the
 						// row: the copy promises AI-agent actions, which need MCP.
 						showActivityLog={
@@ -512,15 +510,10 @@ export default function App() {
 
 						{ ! isAiSettingsLoading &&
 							! aiSettingsError &&
-							( aiSettings?.host_allows_ai === false ? (
-								<Notice.Root intent="warning">
-									<Notice.Description>
-										{ __( 'Jetpack AI is not available for this site.', 'jetpack' ) }{ ' ' }
-										<ExternalLink href={ getRedirectUrl( 'jetpack-ai-hub-docs-wp-supports-ai' ) }>
-											{ __( 'Learn more', 'jetpack' ) }
-										</ExternalLink>
-									</Notice.Description>
-								</Notice.Root>
+							( aiSettings?.host_allows_ai === false || aiSettings?.master_forced_off === true ? (
+								<AiUnavailableNotice
+									reason={ aiSettings?.host_allows_ai === false ? 'host' : 'forced_off' }
+								/>
 							) : (
 								<AiFeatures
 									settings={ aiSettings }

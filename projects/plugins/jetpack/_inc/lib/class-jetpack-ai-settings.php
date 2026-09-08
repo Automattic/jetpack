@@ -288,6 +288,32 @@ class Jetpack_AI_Settings {
 	}
 
 	/**
+	 * Whether a filter, such as a module allowlist, keeps the `ai` module off,
+	 * so no switch on this site can turn it on. Always false on WordPress.com
+	 * Simple, which runs no modules.
+	 *
+	 * @return bool
+	 */
+	public static function is_master_forced_off() {
+		if ( ( new Host() )->is_wpcom_simple() ) {
+			return false;
+		}
+
+		if ( self::is_master_enabled() ) {
+			return false;
+		}
+
+		// Removed from the available list by `jetpack_get_available_modules`.
+		if ( ! in_array( self::AI_MODULE, ( new Modules() )->get_available(), true ) ) {
+			return true;
+		}
+
+		// Forced off through `option_jetpack_active_modules` or `jetpack_active_modules`.
+		return class_exists( 'Jetpack_Modules_Overrides' )
+			&& 'inactive' === Jetpack_Modules_Overrides::instance()->get_module_override( self::AI_MODULE );
+	}
+
+	/**
 	 * Set the site-wide AI master switch, writing to whichever store backs it on
 	 * this platform (see {@see self::is_master_enabled()}).
 	 *
