@@ -188,6 +188,35 @@ add_action( 'wp_after_insert_post', 'jetpack_mark_if_post_answers_blogging_promp
  */
 
 /**
+ * Build the blogging-prompts route for the REST context we're running in.
+ *
+ * The endpoint sets `wpcom_is_site_specific_endpoint`, so WordPress.com's
+ * centralized REST API registers it site-scoped, as
+ * `/wpcom/v3/sites/<blog_id>/blogging-prompts/<id>`. Everywhere else — Atomic,
+ * self-hosted, and ordinary wp-admin requests on Simple — it registers at
+ * `/wpcom/v3/blogging-prompts/<id>`. Which shape is live depends on the request
+ * we happen to be running inside, and asking for the wrong one just 404s and
+ * silently loses the prompt, so resolve it against the route table each time.
+ *
+ * Call this only after the endpoint file is required, so its routes are in
+ * place by the time `rest_get_server()` fires `rest_api_init`.
+ *
+ * @since $$next-version$$
+ *
+ * @param int $prompt_id ID of the prompt to fetch.
+ * @return string REST route for that prompt.
+ */
+function jetpack_get_blogging_prompt_route( $prompt_id ) {
+	foreach ( array_keys( rest_get_server()->get_routes() ) as $route ) {
+		if ( str_starts_with( $route, '/wpcom/v3/blogging-prompts/' ) ) {
+			return sprintf( '/wpcom/v3/blogging-prompts/%d', $prompt_id );
+		}
+	}
+
+	return sprintf( '/wpcom/v3/sites/%d/blogging-prompts/%d', get_current_blog_id(), $prompt_id );
+}
+
+/**
  * Retrieve a blogging prompt by prompt ID.
  *
  * @param int $prompt_id ID of the prompt fetch.
@@ -198,7 +227,7 @@ function jetpack_get_blogging_prompt_by_id( $prompt_id ) {
 	require_once __DIR__ . '/lib/core-api/wpcom-endpoints/class-wpcom-rest-api-v3-endpoint-blogging-prompts.php';
 
 	$locale = get_locale();
-	$route  = sprintf( '/wpcom/v3/blogging-prompts/%d', $prompt_id );
+	$route  = jetpack_get_blogging_prompt_route( $prompt_id );
 
 	$request = new WP_REST_Request( 'GET', $route );
 	$request->set_param( '_locale', $locale );

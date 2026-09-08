@@ -120,6 +120,73 @@ class Jetpack_Blogging_Prompts_Test extends WP_UnitTestCase {
 		unset( $_GET['answer_prompt'] );
 	}
 
+	/**
+	 * Pin the REST route table to a fixed set of routes, so both topologies
+	 * jetpack_get_blogging_prompt_route() has to cope with can be exercised.
+	 * `rest_endpoints` is the filter WP_REST_Server::get_routes() runs its
+	 * table through.
+	 *
+	 * @param string[] $routes Route patterns to expose.
+	 * @return callable The filter, to hand back to remove_filter().
+	 */
+	protected function force_rest_routes( array $routes ) {
+		$filter = static function () use ( $routes ) {
+			return array_fill_keys( $routes, array() );
+		};
+		add_filter( 'rest_endpoints', $filter, 99 );
+		return $filter;
+	}
+
+	public function test_prompt_route_is_unscoped_when_the_unscoped_route_is_registered() {
+		$filter = $this->force_rest_routes( array( '/wpcom/v3/blogging-prompts/(?P<id>[\d]+)' ) );
+
+		$this->assertSame( '/wpcom/v3/blogging-prompts/1234', jetpack_get_blogging_prompt_route( 1234 ) );
+
+		remove_filter( 'rest_endpoints', $filter, 99 );
+	}
+
+	/**
+	 * Regression: WordPress.com's centralized REST API registers this endpoint
+	 * site-scoped (it sets `wpcom_is_site_specific_endpoint`), so the unscoped
+	 * route isn't there to answer. Asking for it 404s, the lookup returns null,
+	 * and the prompt tags are silently never added.
+	 */
+	public function test_prompt_route_is_site_scoped_when_only_the_site_scoped_route_is_registered() {
+		$filter = $this->force_rest_routes( array( '/wpcom/v3/sites/(?P<wpcom_site>[\w.:-]+)/blogging-prompts/(?P<id>[\d]+)' ) );
+
+		$this->assertSame(
+			sprintf( '/wpcom/v3/sites/%d/blogging-prompts/1234', get_current_blog_id() ),
+			jetpack_get_blogging_prompt_route( 1234 )
+		);
+
+		remove_filter( 'rest_endpoints', $filter, 99 );
+	}
+
+	/**
+	 * The lookup must dispatch to whichever route is actually live. This is the
+	 * step that failed on Simple and left published answers untagged.
+	 */
+	public function test_prompt_lookup_dispatches_to_the_site_scoped_route() {
+		$filter     = $this->force_rest_routes( array( '/wpcom/v3/sites/(?P<wpcom_site>[\w.:-]+)/blogging-prompts/(?P<id>[\d]+)' ) );
+		$dispatched = null;
+
+		// rest_pre_dispatch runs before route matching, so this captures the
+		// route we asked for without needing the endpoint to answer for real.
+		$capture = static function ( $result, $server, $request ) use ( &$dispatched ) {
+			$dispatched = $request->get_route();
+			return new WP_REST_Response( array( 'id' => 1234 ), 200 );
+		};
+		add_filter( 'rest_pre_dispatch', $capture, 10, 3 );
+
+		$prompt = jetpack_get_blogging_prompt_by_id( 1234 );
+
+		remove_filter( 'rest_pre_dispatch', $capture, 10 );
+		remove_filter( 'rest_endpoints', $filter, 99 );
+
+		$this->assertSame( sprintf( '/wpcom/v3/sites/%d/blogging-prompts/1234', get_current_blog_id() ), $dispatched );
+		$this->assertSame( array( 'id' => 1234 ), $prompt );
+	}
+
 	public function test_mark_post_as_prompt_answer_when_it_has_block_and_tags() {
 		$prompt_id = 1234;
 
