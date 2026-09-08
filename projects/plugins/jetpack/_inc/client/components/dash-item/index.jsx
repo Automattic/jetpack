@@ -12,7 +12,7 @@ import SupportInfo from 'components/support-info';
 import analytics from 'lib/analytics';
 import ProStatus from 'pro-status';
 import { isOfflineMode } from 'state/connection';
-import { getSiteRawUrl, getSiteAdminUrl, userCanManageModules } from 'state/initial-state';
+import { getSiteAdminUrl, userCanManageModules } from 'state/initial-state';
 import { getModule as _getModule } from 'state/modules';
 
 export class DashItem extends Component {
@@ -143,7 +143,6 @@ export default connect( state => {
 		getModule: module_name => _getModule( state, module_name ),
 		isOfflineMode: isOfflineMode( state ),
 		userCanToggle: userCanManageModules( state ),
-		siteRawUrl: getSiteRawUrl( state ),
 		siteAdminUrl: getSiteAdminUrl( state ),
 	};
 } )( withModuleSettingsFormHelpers( DashItem ) );

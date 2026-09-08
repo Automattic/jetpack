@@ -49,7 +49,6 @@ describe( 'DashItem', () => {
 		href: getRedirectUrl( 'jetpack' ),
 		userCanToggle: true,
 		siteAdminUrl: 'https://example.org/wp-admin/',
-		siteRawUrl: 'example.org',
 		getOptionValue: () => true,
 		isUpdating: () => false,
 	};
@@ -180,7 +179,6 @@ describe( 'DashItem', () => {
 			isOfflineMode: false,
 			userCanToggle: true,
 			siteAdminUrl: 'https://example.org/wp-admin/',
-			siteRawUrl: 'example.org',
 			getOptionValue: () => true,
 			isUpdating: () => false,
 		};
