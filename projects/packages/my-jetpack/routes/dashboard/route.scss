@@ -1,0 +1,18 @@
+@use "@automattic/jetpack-base-styles/admin-page-layout" as *;
+
+:global {
+
+	// The wp-build variant adds defensive resets for wp-admin globals that leak
+	// into admin-ui 2.x markup. Onboarding is excluded: it never renders through
+	// wp-build and keeps its own full-viewport rules in _inc/style.module.scss.
+	body.jetpack_page_my-jetpack:not(.jetpack-admin-full-screen) {
+
+		@include jetpack-admin-page-layout-wp-build;
+
+		// Mirrors the legacy path: keep the scrollable middle's gutter reserved
+		// so content-height changes don't shift the layout sideways.
+		.jp-admin-page__page > :not(:first-child):not(.jetpack-footer) {
+			scrollbar-gutter: stable;
+		}
+	}
+}
