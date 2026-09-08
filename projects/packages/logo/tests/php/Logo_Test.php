@@ -33,6 +33,7 @@ class Logo_Test extends TestCase {
 		$logo   = new Logo();
 		$result = $logo->get_base64_logo();
 		$this->assertStringStartsWith( 'data:image/svg+xml;base64,', $result );
+		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode -- Decoding a generated SVG for assertions.
 		$decoded = base64_decode( substr( $result, strlen( 'data:image/svg+xml;base64,' ) ) );
 		$this->assertStringContainsString( '#a7aaad', $decoded );
 	}
@@ -43,6 +44,7 @@ class Logo_Test extends TestCase {
 	public function test_get_base64_logo_custom_color() {
 		$logo   = new Logo();
 		$result = $logo->get_base64_logo( '#ffffff' );
+		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode -- Decoding a generated SVG for assertions.
 		$decoded = base64_decode( substr( $result, strlen( 'data:image/svg+xml;base64,' ) ) );
 		$this->assertStringContainsString( '#ffffff', $decoded );
 		$this->assertStringNotContainsString( '#a7aaad', $decoded );
