@@ -9,7 +9,6 @@
  * External dependencies
  */
 import '@automattic/charts/style.css';
-import '@automattic/ui/style.css';
 
 /**
  * Charts
@@ -52,15 +51,6 @@ export {
 export { LineShape, RectShape } from '@automattic/charts/visx/legend';
 
 /**
- * Calendar
- *
- * `DateRangeCalendar` is the package's only `@automattic/ui` consumer, but
- * pulls in `react-day-picker` + `date-fns` behind it — ~55 KB that would
- * otherwise re-emit on every edit to the importing module.
- */
-export { DateRangeCalendar } from '@automattic/ui';
-
-/**
  * WordPress design system
  *
  * `Field` is exported as `FormField`: `@wordpress/ui`'s form-field namespace
@@ -81,6 +71,7 @@ export {
 	Menu,
 	Notice,
 	Popover,
+	RangeCalendar,
 	SelectControl,
 	Skeleton,
 	Stack,

@@ -20,25 +20,31 @@
 }
 
 .date-range-calendar-wrapper {
-	--wca-calendar-button-width: 32px;
-	--wca-calendar-button-height: 32px;
-	--wca-calendar-button-gap: 1rem; // consistent with automattic/ui style
+	--wca-calendar-cell-size: var(--wpds-dimension-size-md);
+	// The gap the calendar leaves between two month grids.
+	--wca-calendar-months-gap: var(--wpds-dimension-gap-lg);
 	--wca-calendar-padding: var(--wca-popover-padding);
-	--wca-calendar-width: calc(var(--wca-calendar-button-width) * 7 + var(--wca-calendar-padding) * 2);
-	--wca-calendar-width-wide: calc(var(--wca-calendar-button-width) * 14 + var(--wca-calendar-padding) * 2 + var(--wca-calendar-button-gap));
+	--wca-calendar-width: calc(var(--wca-calendar-cell-size) * 7 + var(--wca-calendar-padding) * 2);
+	--wca-calendar-width-wide: calc(var(--wca-calendar-cell-size) * 14 + var(--wca-calendar-padding) * 2 + var(--wca-calendar-months-gap));
 
 	padding: var(--wca-calendar-padding);
 	width: var(--wca-calendar-width);
 	background-color: #fff;
 
 	.date-range-calendar {
-		--a8c-calendar-button-width: var(--wca-calendar-button-width);
-		--a8c-calendar-button-height: var(--wca-calendar-button-height);
+		--wp-ui-calendar-cell-size: var(--wca-calendar-cell-size);
 	}
 
 	&__wide {
 		width: var(--wca-calendar-width-wide);
 	}
+}
+
+// The calendar previews moving the nearest end of a complete range on
+// hover, but a click starts a new range here, so its dashed SVG only stays
+// for the half-open draft.
+.date-range-calendar--range-complete td > svg {
+	display: none;
 }
 
 .date-range-popover-actions {
