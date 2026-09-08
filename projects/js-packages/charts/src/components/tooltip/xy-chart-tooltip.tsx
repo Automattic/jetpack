@@ -85,6 +85,7 @@ const XyChartTooltipContent = < Datum extends object >( {
 	detectBounds = true,
 	tooltipPlacement = 'auto',
 	zIndex = DEFAULT_TOOLTIP_Z_INDEX,
+	style,
 	...rest
 }: XyChartTooltipContentProps< Datum > ) => {
 	const tooltipProps = Object.fromEntries(
@@ -197,6 +198,7 @@ const XyChartTooltipContent = < Datum extends object >( {
 			theme?.htmlLabel?.color ? `${ theme.htmlLabel.color }55` : '#22222255'
 		}`,
 		...theme?.htmlLabel,
+		...style,
 	};
 
 	return (
