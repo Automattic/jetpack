@@ -451,7 +451,10 @@ class Initializer {
 
 		// Same onboarding condition as `maybe_load_wp_build()` and `admin_page()`.
 		$is_onboarding = self::is_onboarding_request() && self::is_onboarding_available();
-		$is_wp_build   = self::is_modernized() && ! $is_onboarding;
+		// Gate on the render function too, not just the flag: the loader ran back on
+		// `admin_menu` priority 1, so a filter registered later leaves wp-build unloaded
+		// and this request would get neither the legacy bundle nor the wp-build module.
+		$is_wp_build = self::is_modernized() && ! $is_onboarding && function_exists( 'jetpack_my_jetpack_my_jetpack_dashboard_wp_admin_render_page' );
 
 		if ( $is_wp_build ) {
 			// wp-build enqueues the app itself; this empty handle exists only to
