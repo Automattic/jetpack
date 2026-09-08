@@ -6095,9 +6095,15 @@ const { state } = store( 'wpcom-write', {
 			a.openInBlockEditor();
 		},
 
-		openInBlockEditorFromNote() {
+		/**
+		 * Dismiss the note by leaving for the block editor.
+		 *
+		 * Lets the pixel dispatch first: switchToBlockEditor() navigates
+		 * synchronously on an untouched new post, which is the common case here.
+		 */
+		async openInBlockEditorFromNote() {
 			state.showEditorNote = false;
-			recordTracksEvent( 'wpcom_write_editor_note_dismissed', {
+			await recordTracksEventBeforeUnload( 'wpcom_write_editor_note_dismissed', {
 				action: 'block_editor',
 				source: state.source || '',
 			} );
