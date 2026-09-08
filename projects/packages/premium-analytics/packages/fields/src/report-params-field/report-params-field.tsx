@@ -13,7 +13,6 @@ import {
 } from '@jetpack-premium-analytics/data';
 import {
 	type ComparisonPresetId,
-	endOfDayTZ,
 	type IntervalType,
 	isPrimaryPreset,
 	QUICK_SURFACE_PRESETS,
@@ -26,6 +25,7 @@ import {
 	decodeDateSearchParam,
 	deriveComparisonRange,
 	encodeDateToSearchParam,
+	encodeRangeToSearchParams,
 	hasPrimaryDateDraft,
 	useStagedValue,
 } from '@jetpack-premium-analytics/routing';
@@ -202,11 +202,12 @@ function ReportParamsControl( {
 			const patch: Partial< ReportParams > = {};
 
 			if ( nextRange?.from && nextRange?.to ) {
-				patch.from = encodeDateToSearchParam( nextRange.from );
-				patch.to = encodeDateToSearchParam(
-					// The site's day boundary, not the visitor's (see build-range-patch).
-					endOfDayTZ( nextRange.to, reportingTimeZone() )
+				const { from, to } = encodeRangeToSearchParams(
+					{ from: nextRange.from, to: nextRange.to },
+					{ presetId: nextPresetId }
 				);
+				patch.from = from;
+				patch.to = to;
 			}
 
 			if ( nextPresetId ) {

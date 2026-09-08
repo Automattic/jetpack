@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { normalizeReportParams } from '@jetpack-premium-analytics/data';
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useState } from 'react';
@@ -336,6 +337,28 @@ describe( 'report params field', () => {
 				compare_from: expect.any( String ),
 				compare_to: expect.any( String ),
 			} )
+		);
+	} );
+
+	/*
+	 * Read back through `normalizeReportParams`, the way a widget reads it: that
+	 * recomputes the primary window from the preset and so repairs a stretched
+	 * `to`, while passing the comparison it spawned through untouched.
+	 */
+	it( 'measures a comparison against the preset window, not the rest of the day', async () => {
+		const user = userEvent.setup();
+		const { latest } = renderField();
+
+		await user.click( screen.getByRole( 'button', { name: /compare/i } ) );
+		await user.click( await screen.findByRole( 'menuitemradio', { name: /^previous /i } ) );
+		await pickPeriod( user, 'Last 24 hours' );
+
+		const params = normalizeReportParams( latest() );
+		const span = ( from?: string, to?: string ) =>
+			new Date( String( to ) ).getTime() - new Date( String( from ) ).getTime();
+
+		expect( span( params.compare_from, params.compare_to ) ).toBe(
+			span( params.from, params.to )
 		);
 	} );
 

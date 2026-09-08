@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Report date filters: measure a widget-configured comparison against the selected period, not the rest of the day.
