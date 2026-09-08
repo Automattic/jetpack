@@ -59,10 +59,17 @@ test( 'History tooltip stays below the date axis with matching series colors', a
 } ) => {
 	const chart = page.locator( '.jetpack-boost-overview__chart-canvas' );
 	await expect( chart.locator( '.visx-annotationlabel' ).first() ).toBeVisible();
+	await chart.evaluate( element => {
+		const root = document.getElementById( 'root' )!;
+		root.style.overflow = 'auto';
+		root.style.height = `${
+			element.closest( '.jetpack-boost-overview__history-card' )!.getBoundingClientRect().height
+		}px`;
+	} );
 	const grid = chart.getByRole( 'grid' );
 	const bounds = await grid.boundingBox();
 	await grid.hover( { position: { x: bounds!.width / 2, y: 10 } } );
-	const surface = chart.locator( '.jetpack-boost-overview__history-tooltip' );
+	const surface = page.locator( '.jetpack-boost-overview__history-tooltip' );
 	await expect( surface ).toBeVisible();
 	await expect( surface ).toHaveCSS( 'background-color', /^rgb\(/ );
 	const upperPosition = await surface.boundingBox();
@@ -99,7 +106,9 @@ test( 'History tooltip stays below the date axis with matching series colors', a
 
 	const paint = await surface.evaluate( popup => {
 		const box = popup.getBoundingClientRect();
-		const card = popup.closest( '.jetpack-boost-overview__history-card' )!.getBoundingClientRect();
+		const card = document
+			.querySelector( '.jetpack-boost-overview__history-card' )!
+			.getBoundingClientRect();
 		const style = document.createElement( 'style' );
 		style.textContent =
 			'.jetpack-boost-overview__history-tooltip, .jetpack-boost-overview__history-tooltip * { pointer-events: auto !important; }';
@@ -119,7 +128,35 @@ test( 'History tooltip stays below the date axis with matching series colors', a
 	} );
 	expect( paint.extendsBelowCard ).toBe( true );
 	expect( paint.painted, 'The card must not clip tooltip content below the chart.' ).toBe( true );
-	const colors = await chart.evaluate( element => {
+	const typography = await surface.evaluate( popup => {
+		const sections = Array.from(
+			popup.querySelectorAll( '.jetpack-boost-overview__tooltip-section' )
+		);
+		return {
+			dateWeight: getComputedStyle( popup.firstElementChild! ).fontWeight,
+			dateGap: parseFloat( getComputedStyle( popup.firstElementChild! ).marginBottom ),
+			devices: sections.slice( 1 ).map( section => ( {
+				headingWeight: getComputedStyle( section.children[ 0 ] ).fontWeight,
+				scoreWeight: getComputedStyle( section.children[ 1 ] ).fontWeight,
+				metricWeights: Array.from( section.children )
+					.slice( 2 )
+					.map( metric => getComputedStyle( metric ).fontWeight ),
+				rowGap: parseFloat( getComputedStyle( section ).rowGap ),
+				sectionGap: parseFloat( getComputedStyle( section ).marginTop ),
+			} ) ),
+		};
+	} );
+	expect( Number( typography.dateWeight ) ).toBeGreaterThan( 400 );
+	expect( typography.dateGap ).toBeGreaterThan( 0 );
+	for ( const device of typography.devices ) {
+		expect( Number( device.headingWeight ) ).toBeGreaterThan( 400 );
+		expect( device.scoreWeight ).toBe( device.headingWeight );
+		expect( device.metricWeights ).toEqual( Array( 6 ).fill( '400' ) );
+		expect( device.rowGap ).toBeGreaterThan( 0 );
+		expect( device.sectionGap ).toBeGreaterThan( 0 );
+	}
+	const colors = await page.evaluate( () => {
+		const element = document;
 		const swatches = Array.from(
 			element.querySelectorAll( '.jetpack-boost-overview__series-swatch' )
 		);
@@ -162,7 +199,7 @@ test( 'History tooltip follows the hovered date and stays within a narrow viewpo
 	await page.setViewportSize( { width: 390, height: 900 } );
 	const chart = page.locator( '.jetpack-boost-overview__chart-canvas' );
 	const grid = chart.getByRole( 'grid' );
-	const surface = chart.locator( '.jetpack-boost-overview__history-tooltip' );
+	const surface = page.locator( '.jetpack-boost-overview__history-tooltip' );
 	await expect.poll( async () => ( await grid.boundingBox() )!.width ).toBeLessThan( 390 );
 	const axis = await chart.locator( '.visx-axis-tick line' ).first().boundingBox();
 	const positions = [];
@@ -211,6 +248,12 @@ test( 'Score cards show the tier palette, baseline delta colors, and responsive 
 	await page.goto( 'http://boost-history.test/?scores' );
 	const desktop = page.getByRole( 'region', { name: 'Desktop', exact: true } );
 	const mobile = page.getByRole( 'region', { name: 'Mobile', exact: true } ).first();
+	const overall = page.getByRole( 'region', { name: 'Overall grade', exact: true } );
+	await expect( desktop.first().getByText( 'Good', { exact: true } ) ).toBeVisible();
+	await expect( mobile.getByText( 'Could be improved', { exact: true } ) ).toBeVisible();
+	await expect( desktop.nth( 1 ).getByText( 'Poor', { exact: true } ) ).toBeVisible();
+	await expect( overall.first().getByText( 'Good', { exact: true } ) ).toBeVisible();
+	await expect( overall.nth( 1 ).getByText( 'Poor', { exact: true } ) ).toBeVisible();
 	await expect( desktop.first().getByRole( 'progressbar' ) ).toHaveCSS(
 		'color',
 		'rgb(0, 135, 16)'
@@ -265,6 +308,8 @@ test.describe( 'Overall grade help', () => {
 		const popup = page.getByRole( 'dialog', { name: 'Overall grade' } );
 		await trigger.hover();
 		await expect( popup ).toBeVisible();
+		await expect( trigger ).toHaveCSS( 'background-color', 'rgba(0, 0, 0, 0)' );
+		await expect( trigger ).toHaveCSS( 'background-image', 'none' );
 		await expect( popup ).toContainText( 'across both mobile and desktop devices' );
 		await page.mouse.move( 0, 0 );
 		await expect( popup ).toBeHidden();

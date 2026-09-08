@@ -5,8 +5,9 @@ import { Spinner } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
 import { trendingUp } from '@wordpress/icons';
-import { Button, Card, EmptyState, Notice, Text } from '@wordpress/ui';
+import { Button, Card, EmptyState, Notice } from '@wordpress/ui';
 import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from '@wordpress/element';
 import UpgradeCTA from './upgrade-cta';
 import type { PerformanceHistoryData } from './lib/use-performance-history';
 import type { DataPointDate, SeriesData } from '@automattic/charts';
@@ -65,6 +66,8 @@ export function HistoryTooltip( {
 	colors?: DeviceColors;
 } ) {
 	const tooltipRef = useRef< HTMLDivElement >( null );
+	const anchorRef = useRef< HTMLDivElement >( null );
+	const [ origin, setOrigin ] = useState( { left: 0, top: 0 } );
 	const [ width, setWidth ] = useState( 0 );
 	const [ plotWidth, setPlotWidth ] = useState( 0 );
 	const [ edgeGap, setEdgeGap ] = useState( 0 );
@@ -74,13 +77,24 @@ export function HistoryTooltip( {
 		if ( ! element || ! isAnchored ) {
 			return;
 		}
-		const plot = element.offsetParent;
+		const marker = anchorRef.current;
+		const plot = marker?.offsetParent;
 		const measure = () => {
 			setWidth( element.getBoundingClientRect().width );
 			setPlotWidth( plot?.clientWidth ?? 0 );
+			const rect = marker?.getBoundingClientRect();
+			if ( rect ) {
+				setOrigin( previous =>
+					previous.left === rect.left && previous.top === rect.top
+						? previous
+						: { left: rect.left, top: rect.top }
+				);
+			}
 			setEdgeGap(
 				parseFloat(
-					getComputedStyle( element ).getPropertyValue( '--jetpack-boost-overview-chart-edge-gap' )
+					getComputedStyle( marker ?? element ).getPropertyValue(
+						'--jetpack-boost-overview-chart-edge-gap'
+					)
 				) || 0
 			);
 		};
@@ -90,7 +104,13 @@ export function HistoryTooltip( {
 		if ( plot ) {
 			observer.observe( plot );
 		}
-		return () => observer.disconnect();
+		window.addEventListener( 'scroll', measure, true );
+		window.addEventListener( 'resize', measure );
+		return () => {
+			observer.disconnect();
+			window.removeEventListener( 'scroll', measure, true );
+			window.removeEventListener( 'resize', measure );
+		};
 	}, [ isAnchored ] );
 	const anchorX =
 		( anchor?.margin.left ?? 0 ) +
@@ -100,24 +120,33 @@ export function HistoryTooltip( {
 		? Math.max( edgeGap, Math.min( anchorX - width / 2, plotWidth - width - edgeGap ) )
 		: 0;
 	const dimensions = period.dimensions;
-	return (
+	const tooltip = (
 		<div
 			ref={ tooltipRef }
 			className="jetpack-boost-overview__history-tooltip"
 			style={
 				anchor
-					? { position: 'absolute', left, top: 'calc(100% - var(--wpds-dimension-size-md))' }
+					? {
+							position: 'fixed',
+							left: origin.left + left,
+							top: origin.top,
+							maxInlineSize: plotWidth ? plotWidth - 2 * edgeGap : undefined,
+					  }
 					: undefined
 			}
 		>
-			<Text>{ dateI18n( 'F j, Y', new Date( period.timestamp ), false ) }</Text>
+			<div className="jetpack-boost-overview__tooltip-date">
+				{ dateI18n( 'F j, Y', new Date( period.timestamp ), false ) }
+			</div>
 			<dl>
-				<dt>{ __( 'Overall score', 'jetpack-boost' ) }</dt>
-				<dd>
-					{ getScoreLetter( dimensions.mobile_overall_score, dimensions.desktop_overall_score ) }
-				</dd>
+				<div className="jetpack-boost-overview__tooltip-section">
+					<dt>{ __( 'Overall score', 'jetpack-boost' ) }</dt>
+					<dd>
+						{ getScoreLetter( dimensions.mobile_overall_score, dimensions.desktop_overall_score ) }
+					</dd>
+				</div>
 				{ ( [ 'desktop', 'mobile' ] as const ).map( device => (
-					<div key={ device }>
+					<div key={ device } className="jetpack-boost-overview__tooltip-section">
 						<dt>
 							<span
 								className="jetpack-boost-overview__series-swatch"
@@ -152,6 +181,21 @@ export function HistoryTooltip( {
 				/>
 			) }
 		</div>
+	);
+	return anchor ? (
+		<>
+			<div
+				ref={ anchorRef }
+				style={ {
+					position: 'absolute',
+					left: 0,
+					top: 'calc(100% - var(--wpds-dimension-size-md))',
+				} }
+			/>
+			{ createPortal( tooltip, document.body ) }
+		</>
+	) : (
+		tooltip
 	);
 }
 

@@ -175,7 +175,11 @@ test( 'does not present initial loading scores as measured scores', () => {
 	expect( requestSpeedScores ).toHaveBeenCalledTimes( 1 );
 } );
 
-test.each( [ 40, 60, 90 ] )( 'renders score %i with a bar and delta without tier labels', score => {
+test.each( [
+	[ 40, 'Poor' ],
+	[ 60, 'Could be improved' ],
+	[ 90, 'Good' ],
+] as const )( 'renders score %i with its tier, bar, and delta', ( score, tier ) => {
 	render(
 		<ScoreCard
 			icon={ null }
@@ -188,11 +192,14 @@ test.each( [ 40, 60, 90 ] )( 'renders score %i with a bar and delta without tier
 	expect( screen.getByText( String( score ) ) ).toBeInTheDocument();
 	expect( screen.getByRole( 'progressbar', { name: 'Desktop' } ) ).toHaveValue( score );
 	expect( screen.getByText( '+10 points compared to without Boost' ) ).toBeInTheDocument();
-	expect( screen.queryByText( /^(Good|Could be improved|Poor)$/ ) ).not.toBeInTheDocument();
+	expect( screen.getByText( tier ) ).toBeInTheDocument();
 } );
 
 test( 'opens the overall grade explanation and dismisses it with Escape', async () => {
 	render( <ScoreCards scores={ scores } /> );
+	expect(
+		within( screen.getByRole( 'region', { name: 'Overall grade' } ) ).getByText( 'Good' )
+	).toBeInTheDocument();
 	const trigger = within( screen.getByRole( 'region', { name: 'Overall grade' } ) ).getByRole(
 		'button',
 		{ name: 'How the overall grade is calculated' }
@@ -213,7 +220,7 @@ test( 'renders a negative baseline delta alongside the current measured bar', ()
 	render( <ScoreCard icon={ null } label="Mobile" value={ 40 } score={ 40 } noBoost={ 60 } /> );
 	expect( screen.getByRole( 'progressbar', { name: 'Mobile' } ) ).toHaveValue( 40 );
 	expect( screen.getByText( '−20 points compared to without Boost' ) ).toBeInTheDocument();
-	expect( screen.queryByText( /^(Good|Could be improved|Poor)$/ ) ).not.toBeInTheDocument();
+	expect( screen.getByText( 'Poor' ) ).toBeInTheDocument();
 } );
 
 test( 'hides stale and absent baselines while preserving measured scores', () => {

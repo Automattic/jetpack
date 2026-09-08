@@ -1,6 +1,7 @@
 @use "@wordpress/base-styles/colors" as wpcolors;
 @use "@wordpress/base-styles/variables" as wpvariables;
 @use "@wordpress/base-styles/breakpoints" as wpbreakpoints;
+@use "@wordpress/base-styles/z-index" as wpzindex;
 
 .jetpack-boost-overview {
 	--jetpack-boost-overview-chart-desktop: var(--wp-admin-theme-color, var(--wpds-color-foreground-interactive-brand));
@@ -65,6 +66,19 @@
 		border-color: wpcolors.$gray-100;
 	}
 
+	&__info-trigger {
+		display: inline-flex;
+		padding: 0;
+		border: 0;
+		background: transparent;
+		color: var(--wpds-color-foreground-content-neutral-weak);
+		cursor: pointer;
+
+		&:hover {
+			color: var(--wpds-color-foreground-content-neutral);
+		}
+	}
+
 	&__grade-tooltip {
 		max-inline-size: min(var(--wpds-dimension-surface-width-sm), calc(100vw - var(--wpds-dimension-gap-2xl)));
 	}
@@ -97,7 +111,8 @@
 		}
 	}
 
-	&__progress--good {
+	&__progress--good,
+	&__tier--good {
 		color: var(--jp-green-50);
 	}
 
@@ -105,11 +120,13 @@
 		color: var(--wpds-color-foreground-content-success-weak);
 	}
 
-	&__progress--medium {
+	&__progress--medium,
+	&__tier--medium {
 		color: var(--jp-orange-20);
 	}
 
 	&__progress--poor,
+	&__tier--poor,
 	&__delta--down {
 		color: var(--wpds-color-foreground-content-error-weak);
 	}
@@ -176,33 +193,65 @@
 	}
 
 	&__history-tooltip {
-		z-index: 3;
+		// Escape the dashboard scroll container while retaining date-axis anchoring.
+		pointer-events: none;
+		z-index: wpzindex.z-index(".components-tooltip");
 		inline-size: max-content;
 		max-inline-size: calc(100% - var(--wpds-dimension-gap-lg));
 		box-sizing: border-box;
-		padding: var(--wpds-dimension-padding-sm);
+		padding: var(--wpds-dimension-padding-lg);
 		background-color: var(--wpds-color-foreground-content-neutral);
 		color: var(--wpds-color-background-surface-neutral);
 		border-radius: var(--wpds-border-radius-md);
 		font-size: var(--wpds-typography-font-size-md);
 		box-shadow: wpvariables.$elevation-small;
 
-		dl {
-			display: grid;
-			grid-template-columns: auto auto;
-			gap: var(--wpds-dimension-gap-xs) var(--wpds-dimension-gap-md);
-			margin-block: var(--wpds-dimension-gap-sm) 0;
+		font-weight: var(--wpds-typography-font-weight-default);
+		line-height: var(--wpds-typography-line-height-sm);
 
-			> div {
-				display: contents;
-			}
+		dl {
+			margin: 0;
+		}
+
+		dt,
+		dd {
+			margin: 0;
+			font-weight: inherit;
 		}
 
 		dd {
-			margin-inline-start: 0;
-			margin-block: 0;
 			text-align: end;
+		}
+	}
+
+	&__tooltip-date {
+		font-weight: var(--wpds-typography-font-weight-emphasis);
+		margin-block-end: var(--wpds-dimension-gap-sm);
+	}
+
+	&__tooltip-section + &__tooltip-section {
+		margin-block-start: var(--wpds-dimension-gap-sm);
+		padding-block-start: var(--wpds-dimension-padding-sm);
+		border-block-start: var(--wpds-border-width-xs) solid wpcolors.$gray-700;
+	}
+
+	&__tooltip-section {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) auto;
+		gap: var(--wpds-dimension-gap-sm) var(--wpds-dimension-gap-md);
+
+		dt:first-child,
+		dd:nth-child(2) {
 			font-weight: var(--wpds-typography-font-weight-emphasis);
+		}
+
+		dt:not(:first-child) {
+			padding-inline-start: var(--wpds-dimension-padding-sm);
+		}
+
+		dt:not(:first-child),
+		dd:nth-child(n + 3) {
+			color: wpcolors.$gray-300;
 		}
 	}
 }

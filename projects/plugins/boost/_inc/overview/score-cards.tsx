@@ -2,7 +2,7 @@ import { didScoresChange, getScoreLetter } from '@automattic/jetpack-boost-score
 import { CardDivider } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Icon, dashboard, desktop, info, mobile } from '@wordpress/icons';
-import { Button, Card, Stack, Popover } from '@wordpress/ui';
+import { Card, Stack, Popover } from '@wordpress/ui';
 import ScoreCard from './score-card';
 import type { SpeedScoresSet } from './lib/use-speed-scores';
 import type { ReactNode } from 'react';
@@ -36,7 +36,7 @@ export default function ScoreCards( { scores, isLoading, showPlaceholder, header
 								openOnHover
 								delay={ 200 }
 								aria-label={ __( 'How the overall grade is calculated', 'jetpack-boost' ) }
-								render={ <Button variant="minimal" tone="neutral" size="small" /> }
+								className="jetpack-boost-overview__info-trigger"
 							>
 								<Icon icon={ info } className="jetpack-boost-overview__score-icon" />
 							</Popover.Trigger>
@@ -52,6 +52,8 @@ export default function ScoreCards( { scores, isLoading, showPlaceholder, header
 						</Popover.Root>
 					}
 					value={ getScoreLetter( current.mobile, current.desktop ) }
+					score={ ( current.mobile + current.desktop ) / 2 }
+					showProgress={ false }
 					isLoading={ isLoading }
 					showPlaceholder={ showPlaceholder }
 				/>

@@ -4,6 +4,7 @@ import {
 	formatScoreDelta,
 	getScoreDelta,
 	getScoreTier,
+	getScoreTierLabel,
 	getTrendDirection,
 } from './lib/score-utils';
 import type { ReactNode } from 'react';
@@ -14,6 +15,7 @@ type Props = {
 	help?: ReactNode;
 	value: ReactNode;
 	score?: number;
+	showProgress?: boolean;
 	noBoost?: number | null;
 	isLoading?: boolean;
 	showPlaceholder?: boolean;
@@ -25,6 +27,7 @@ export default function ScoreCard( {
 	help,
 	value,
 	score,
+	showProgress = true,
 	noBoost,
 	isLoading,
 	showPlaceholder = isLoading,
@@ -48,10 +51,19 @@ export default function ScoreCard( {
 				{ showPlaceholder ? (
 					<Skeleton className="jetpack-boost-overview__score-placeholder" />
 				) : (
-					<Text variant="heading-2xl">{ value }</Text>
+					<>
+						<Text variant="heading-2xl">{ value }</Text>
+						{ score !== undefined && (
+							<Text
+								className={ `jetpack-boost-overview__tier jetpack-boost-overview__tier--${ tier }` }
+							>
+								{ getScoreTierLabel( score ) }
+							</Text>
+						) }
+					</>
 				) }
 			</Stack>
-			{ ! showPlaceholder && score !== undefined && (
+			{ ! showPlaceholder && showProgress && score !== undefined && (
 				<progress
 					className={ `jetpack-boost-overview__progress jetpack-boost-overview__progress--${ tier }` }
 					value={ score }
