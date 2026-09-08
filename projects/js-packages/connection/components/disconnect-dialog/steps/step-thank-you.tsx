@@ -1,8 +1,8 @@
 import { DecorativeCard } from '@automattic/jetpack-components';
+import { getScriptData } from '@automattic/jetpack-script-data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Button, Stack, Text } from '@wordpress/ui';
-import disconnectImage from '../images/disconnect-thanks.jpg';
 import type { MouseEvent } from 'react';
 
 interface StepThankYouProps {
@@ -17,9 +17,14 @@ interface StepThankYouProps {
  * @return {import('react').ReactNode} - The StepThankYou Component
  */
 const StepThankYou = ( { onExit }: StepThankYouProps ) => {
+	const assetsUrl = getScriptData()?.connection?.assets_url;
+
 	return (
 		<div className="jp-connection__disconnect-dialog__content">
-			<DecorativeCard format="vertical" imageUrl={ disconnectImage } />
+			<DecorativeCard
+				format="vertical"
+				imageUrl={ assetsUrl ? `${ assetsUrl }disconnect-thanks.jpg` : undefined }
+			/>
 
 			<Stack
 				className="jp-connection__disconnect-dialog__copy"

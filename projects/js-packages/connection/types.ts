@@ -93,4 +93,9 @@ export type ConnectionScriptData = {
 	isOwnershipTransferable: boolean;
 	/** Owner identity; null when unresolvable or when the viewer lacks the jetpack_connect capability. */
 	connectionOwner: ConnectionOwner | null;
+	/**
+	 * Absolute URL of the package's committed images, with a trailing slash. Optional because
+	 * only the admin script data carries it, not `JP_CONNECTION_INITIAL_STATE`.
+	 */
+	assets_url?: string;
 };
