@@ -5,9 +5,7 @@ import { trackOncePerSession } from './track-once.ts';
 
 interface ExpiryFrontendBannerData {
 	metaKey: string;
-	state: string;
-	daysRemaining: number;
-	productSlug: string;
+	trackProps: Record< string, string | number >;
 }
 
 declare global {
@@ -35,12 +33,7 @@ document.addEventListener( 'DOMContentLoaded', () => {
 	setOffset();
 	new ResizeObserver( setOffset ).observe( banner );
 
-	const trackProps = {
-		state: data.state,
-		days_remaining: data.daysRemaining,
-		product_slug: data.productSlug,
-		surface: 'frontend',
-	};
+	const trackProps = { ...data.trackProps, surface: 'frontend' };
 
 	trackOncePerSession(
 		`${ data.metaKey }_frontend_impression_fired`,

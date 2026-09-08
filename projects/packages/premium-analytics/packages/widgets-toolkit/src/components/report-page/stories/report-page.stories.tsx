@@ -212,6 +212,7 @@ function ComposedReportPage( { withComparison, isLoading }: ReportPageStoryContr
 					primary={ PRIMARY_REPORT }
 					comparison={ withComparison ? COMPARISON_REPORT : undefined }
 					isLoading={ isLoading }
+					timezone="UTC"
 					interval={ interval }
 					onIntervalChange={ setInterval }
 				/>

@@ -68,6 +68,7 @@ export { DateRangeCalendar } from '@automattic/ui';
  * is what consumers already import. Still a plain re-export, not a wrap.
  */
 export {
+	Badge,
 	Button,
 	Dialog,
 	EmptyState,
