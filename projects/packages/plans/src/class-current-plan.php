@@ -30,6 +30,13 @@ class Current_Plan {
 	private static $simple_site_specific_features = array();
 
 	/**
+	 * Atomic site-specific features available, cached for the request alongside the Simple ones.
+	 *
+	 * @var array Site-specific features, keyed on blog ID.
+	 */
+	private static $atomic_site_specific_features = array();
+
+	/**
 	 * The name of the option that will store the site's plan.
 	 *
 	 * @var string
@@ -465,5 +472,55 @@ class Current_Plan {
 		self::$simple_site_specific_features[ $current_blog_id ] = $simple_site_specific_features;
 
 		return $simple_site_specific_features;
+	}
+
+	/**
+	 * Retrieve site-specific features from the WordPress.com registry the site itself carries.
+	 *
+	 * Simple sites read the store; Atomic sites read the purchases wpcomsh keeps in sync. Both
+	 * answer as of this request, where `self::PLAN_OPTION` is only as current as its last fetch.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return array|null Active and available features, or null where the site carries no registry.
+	 */
+	public static function get_wpcom_site_specific_features() {
+		if ( defined( 'IS_WPCOM' ) && constant( 'IS_WPCOM' ) ) {
+			return self::get_simple_site_specific_features();
+		}
+
+		if (
+			! Constants::is_true( 'IS_ATOMIC' )
+			|| ! class_exists( '\WPCOM_Features' )
+			|| ! function_exists( 'wpcom_get_site_purchases' )
+		) {
+			return null;
+		}
+
+		$current_blog_id = get_current_blog_id();
+
+		if ( isset( self::$atomic_site_specific_features[ $current_blog_id ] ) ) {
+			return self::$atomic_site_specific_features[ $current_blog_id ];
+		}
+
+		$purchases = \wpcom_get_site_purchases( $current_blog_id );
+		$active    = array();
+
+		foreach ( \WPCOM_Features::get_feature_slugs() as $feature ) {
+			if ( \WPCOM_Features::has_feature( $feature, $purchases, 'wpcom', $current_blog_id ) ) {
+				$active[] = $feature;
+			}
+		}
+
+		// `available` names the plans that would grant each feature the site lacks, which only the
+		// WordPress.com product catalogue can answer. Callers here read `active`.
+		$features = array(
+			'active'    => $active,
+			'available' => array(),
+		);
+
+		self::$atomic_site_specific_features[ $current_blog_id ] = $features;
+
+		return $features;
 	}
 }

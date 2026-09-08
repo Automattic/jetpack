@@ -10,6 +10,7 @@ use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Jetpack_Options;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use ReflectionProperty;
 use WP_Error;
 
 /**
@@ -28,6 +29,19 @@ class Jetpack_Plan_Test extends TestCase {
 	public function setUp(): void {
 		parent::setUp();
 		delete_option( 'jetpack_active_plan' );
+		$this->reset_atomic_feature_cache();
+	}
+
+	/**
+	 * Drop the per-request feature cache, which outlives the constants each test sets.
+	 */
+	private function reset_atomic_feature_cache() {
+		$cache = new ReflectionProperty( Jetpack_Plan::class, 'atomic_site_specific_features' );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$cache->setAccessible( true );
+		}
+		$cache->setValue( null, array() );
 	}
 
 	/**
@@ -72,6 +86,30 @@ class Jetpack_Plan_Test extends TestCase {
 
 		$this->assertTrue( $updated );
 		$this->assertFalse( get_transient( $transient_key ), 'A stale record would overwrite the plan this refresh stored.' );
+	}
+
+	/**
+	 * A site with no WordPress.com feature registry has nothing more current than its cached
+	 * plan, and the caller has to be told so rather than handed an empty feature list.
+	 */
+	public function test_wpcom_site_specific_features_are_absent_without_a_registry() {
+		$this->assertNull( Jetpack_Plan::get_wpcom_site_specific_features() );
+	}
+
+	/**
+	 * An Atomic site carries the registry, so its features are read from the purchases it holds
+	 * rather than from a plan that may predate the last purchase.
+	 */
+	public function test_wpcom_site_specific_features_come_from_the_registry_on_atomic() {
+		Constants::set_constant( 'IS_ATOMIC', true );
+
+		$this->assertSame(
+			array(
+				'active'    => array( 'stats-paid' ),
+				'available' => array(),
+			),
+			Jetpack_Plan::get_wpcom_site_specific_features()
+		);
 	}
 
 	public function test_update_from_sites_response_failure_to_update() {
