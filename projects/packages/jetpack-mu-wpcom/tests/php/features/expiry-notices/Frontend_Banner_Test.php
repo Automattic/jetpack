@@ -140,6 +140,35 @@ class Frontend_Banner_Test extends \WorDBless\BaseTestCase {
 		$this->assertStringContainsString( 'wpcom-expiry-frontend-banner--dismissible', $html );
 	}
 
+	public function test_a_non_owner_admin_gets_the_reason_and_no_cta(): void {
+		$this->act_as_non_owner();
+		$this->set_purchase( 5 );
+		$html = $this->render();
+		$this->assertStringContainsString( 'Your plan expires in 5 days. This plan was purchased by a different WordPress.com account.', $html );
+		$this->assertStringNotContainsString( 'wpcom-expiry-frontend-banner__cta', $html );
+		$this->assertStringNotContainsString( '/checkout/', $html );
+
+		$this->set_purchase( -45 );
+		$html = $this->render();
+		$this->assertStringNotContainsString( 'wpcom-expiry-frontend-banner__cta', $html );
+		$this->assertStringContainsString( 'wpcom-expiry-frontend-banner__dismiss', $html );
+	}
+
+	public function test_the_renewal_names_the_subscription(): void {
+		$this->set_purchase( 5 );
+		$this->assertStringContainsString( '/checkout/business-bundle/renew/' . $this->subscription_id . '/', $this->render() );
+	}
+
+	public function test_the_script_carries_the_track_props(): void {
+		$this->set_purchase( 5 );
+		wpcom_expiry_notices_enqueue_frontend_banner_assets();
+
+		$localized = wp_scripts()->get_data( 'jetpack-mu-wpcom-expiry-notices-frontend-banner', 'data' );
+		$this->assertIsString( $localized );
+		$this->assertStringContainsString( '"is_plan_owner":"true"', $localized );
+		$this->assertStringContainsString( '"state":"approaching_expiry"', $localized );
+	}
+
 	public function test_renders_nothing_when_not_due(): void {
 		$this->set_purchase( 45 );
 		$this->assertSame( '', $this->render() );

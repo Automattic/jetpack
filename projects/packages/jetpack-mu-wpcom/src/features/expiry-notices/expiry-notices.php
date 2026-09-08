@@ -13,6 +13,7 @@ use Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Notice_Dismiss;
 require_once __DIR__ . '/class-expiry-data.php';
 require_once __DIR__ . '/class-expiry-domain.php';
 require_once __DIR__ . '/class-expiry-notice-dismiss.php';
+require_once __DIR__ . '/class-expiry-owner.php';
 // @codeCoverageIgnoreEnd
 
 // @codeCoverageIgnoreStart -- shadowed by the test stub in tests/lib/functions-wordpress.php.
@@ -179,16 +180,38 @@ function wpcom_expiry_notices_support_cta( array $state ): array {
 }
 
 /**
+ * The body of a banner-style notice: what the site loses and what to do about
+ * it, or -- for an admin who cannot renew -- whose plan it is instead.
+ *
+ * The non-owner sentence is the one the Plans page uses, so the two agree. It
+ * replaces the body, since every stage's body ends by asking for a renewal.
+ *
+ * @param array<string,mixed> $state    Expiry state.
+ * @param bool                $is_owner Whether the viewer can renew.
+ */
+function wpcom_expiry_notices_banner_body( array $state, bool $is_owner ): string {
+	if ( $is_owner ) {
+		return wpcom_expiry_notices_admin_banner_body( $state );
+	}
+	return __( 'This plan was purchased by a different WordPress.com account. To manage this plan, log in to that account or contact the account owner.', 'jetpack-mu-wpcom' );
+}
+
+/**
  * The Tracks props every surface's events carry.
  *
- * @param array<string,mixed> $state Expiry state.
- * @return array{state:string,days_remaining:int,product_slug:string}
+ * Booleans go as the strings 'true'/'false': the PHP and JS Tracks clients
+ * encode a real boolean differently, and a funnel has to read both the same.
+ *
+ * @param array<string,mixed> $state    Expiry state.
+ * @param bool                $is_owner Whether the viewer can renew, and so was offered a CTA.
+ * @return array{state:string,days_remaining:int,product_slug:string,is_plan_owner:string}
  */
-function wpcom_expiry_notices_track_props( array $state ): array {
+function wpcom_expiry_notices_track_props( array $state, bool $is_owner ): array {
 	return array(
 		'state'          => (string) ( $state['state'] ?? '' ),
 		'days_remaining' => isset( $state['days_remaining'] ) ? (int) $state['days_remaining'] : 0,
 		'product_slug'   => isset( $state['product_slug'] ) ? (string) $state['product_slug'] : '',
+		'is_plan_owner'  => $is_owner ? 'true' : 'false',
 	);
 }
 
