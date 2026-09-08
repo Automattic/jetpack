@@ -1,9 +1,9 @@
-import { requestSpeedScores } from '@automattic/jetpack-boost-score-api';
+import { requestSpeedScores, standardizeError } from '@automattic/jetpack-boost-score-api';
 import { __ } from '@wordpress/i18n';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { z } from 'zod';
 import { recordBoostEvent } from '../../../app/assets/src/js/lib/utils/analytics';
-import { standardizeError } from '../../../app/assets/src/js/lib/utils/standardize-error';
+import { castToString } from '../../../app/assets/src/js/lib/utils/cast-to-string';
 import type { ScoreRefreshState } from './use-modules-state';
 
 export type SpeedScoresSet = Awaited< ReturnType< typeof requestSpeedScores > >;
@@ -58,7 +58,9 @@ export function useSpeedScores( refreshState?: ScoreRefreshState ) {
 					cause ?? {},
 					__( 'Error requesting speed scores', 'jetpack-boost' )
 				);
-				recordBoostEvent( 'speed_score_request_error', { error_message: String( error.message ) } );
+				recordBoostEvent( 'speed_score_request_error', {
+					error_message: castToString( error.message ),
+				} );
 				setState( previous => ( { ...previous, status: 'error', error } ) );
 			}
 		},

@@ -4,6 +4,7 @@
 	"dependencies": {
 		"@automattic/charts": "workspace:*",
 		"@automattic/jetpack-api": "workspace:*",
+		"@automattic/jetpack-boost-score-api": "workspace:*",
 		"@automattic/jetpack-components": "workspace:*",
 		"@tanstack/react-query": "5.101.2",
 		"@types/react": "18.3.31",
@@ -17,7 +18,8 @@
 		"@wordpress/route": "0.20.0",
 		"@wordpress/theme": "2.0.0",
 		"@wordpress/ui": "0.21.0",
-		"@wordpress/url": "4.54.0"
+		"@wordpress/url": "4.54.0",
+		"zod": "3.25.76"
 	},
 	"route": {
 		"path": "/",

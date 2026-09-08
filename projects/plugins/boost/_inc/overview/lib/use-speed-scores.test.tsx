@@ -9,6 +9,7 @@ declare global {
 }
 
 jest.mock( '@automattic/jetpack-boost-score-api', () => ( {
+	...jest.requireActual( '@automattic/jetpack-boost-score-api' ),
 	requestSpeedScores: jest.fn(),
 } ) );
 jest.mock( '../../../app/assets/src/js/lib/utils/analytics', () => ( {

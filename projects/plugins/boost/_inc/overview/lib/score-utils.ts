@@ -1,7 +1,7 @@
 import { __, _n, sprintf } from '@wordpress/i18n';
 
 export function getScoreTier( score: number ): 'good' | 'medium' | 'poor' {
-	// Match the thresholds of the existing Boost score bars.
+	// Keep tiers aligned with js-packages/components/components/boost-score-bar/index.tsx.
 	return score > 70 ? 'good' : score > 50 ? 'medium' : 'poor';
 }
 
