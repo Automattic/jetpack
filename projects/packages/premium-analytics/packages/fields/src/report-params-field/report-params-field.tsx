@@ -14,11 +14,11 @@ import {
 import {
 	type ComparisonPresetId,
 	type IntervalType,
-	isPrimaryPreset,
 	QUICK_SURFACE_PRESETS,
 	type QuickSurfacePresetId,
 	reportingTimeZone,
 	type DateRange,
+	type PrimaryPresetId,
 } from '@jetpack-premium-analytics/datetime';
 import { Stack } from '@jetpack-premium-analytics/externals';
 import {
@@ -198,20 +198,21 @@ function ReportParamsControl( {
 	}, [ isUnofferedPreset, fallbackPreset ] );
 
 	const stageDateRange = useCallback(
-		( nextRange?: DateRange, nextPresetId?: string ) => {
+		( nextRange?: DateRange, nextPresetId?: PrimaryPresetId ) => {
 			const patch: Partial< ReportParams > = {};
 
 			if ( nextRange?.from && nextRange?.to ) {
-				const { from, to } = encodeRangeToSearchParams(
-					{ from: nextRange.from, to: nextRange.to },
-					{ presetId: nextPresetId }
+				Object.assign(
+					patch,
+					encodeRangeToSearchParams(
+						{ from: nextRange.from, to: nextRange.to },
+						{ presetId: nextPresetId }
+					)
 				);
-				patch.from = from;
-				patch.to = to;
 			}
 
 			if ( nextPresetId ) {
-				patch.preset = isPrimaryPreset( nextPresetId ) ? nextPresetId : undefined;
+				patch.preset = nextPresetId;
 			}
 
 			if ( reportParams.comp === '1' ) {

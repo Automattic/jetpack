@@ -5,9 +5,11 @@ import {
 	dateToISOStringWithLocalTZ,
 	endOfDayTZ,
 	isSelectablePreset,
+	isYearSurfacePresetId,
 	localTZDate,
 	reportingTimeZone,
 	type DateRange,
+	type PrimaryPresetId,
 } from '@jetpack-premium-analytics/datetime';
 import { isValid } from 'date-fns';
 
@@ -50,7 +52,7 @@ export function encodeDateToSearchParam( date?: Date ): string | undefined {
  */
 export function encodeRangeToSearchParams(
 	range: Required< DateRange >,
-	{ presetId, exactRange }: { presetId?: string; exactRange?: boolean } = {}
+	{ presetId, exactRange }: { presetId?: PrimaryPresetId; exactRange?: boolean } = {}
 ): { from: string; to: string } {
 	return {
 		from: dateToISOStringWithLocalTZ( range.from ),
@@ -60,7 +62,7 @@ export function encodeRangeToSearchParams(
 		 * day because date-fns' bare `endOfDay` would use the visitor's.
 		 */
 		to: dateToISOStringWithLocalTZ(
-			exactRange || isSelectablePreset( presetId )
+			exactRange || isSelectablePreset( presetId ) || isYearSurfacePresetId( presetId )
 				? range.to
 				: endOfDayTZ( range.to, reportingTimeZone() )
 		),
