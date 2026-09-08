@@ -54,6 +54,27 @@ class Admin_Menu {
 	const HIDE_CORE_NOTICES_HANDLE = 'jetpack-admin-ui-hide-core-notices';
 
 	/**
+	 * Visibility state: show the item only when its declared gate is satisfied.
+	 *
+	 * @var string
+	 */
+	const VISIBILITY_DEFAULT = 'default';
+
+	/**
+	 * Visibility state: show the item whatever its gate says.
+	 *
+	 * @var string
+	 */
+	const VISIBILITY_VISIBLE = 'visible';
+
+	/**
+	 * Visibility state: keep the item out whatever its gate says.
+	 *
+	 * @var string
+	 */
+	const VISIBILITY_HIDDEN = 'hidden';
+
+	/**
 	 * Whether this class has been initialized
 	 *
 	 * @var boolean
@@ -82,6 +103,17 @@ class Admin_Menu {
 	 * @var object|null
 	 */
 	private static $connection_manager = null;
+
+	/**
+	 * Callback that answers whether a menu item's declared gate is satisfied.
+	 *
+	 * Set by My Jetpack, which owns the product classes the gates are expressed in.
+	 * This package deliberately does not depend on My Jetpack: My Jetpack already
+	 * depends on this one, and not every plugin bundling admin-ui bundles it.
+	 *
+	 * @var callable|null
+	 */
+	private static $visibility_resolver = null;
 
 	/**
 	 * Initialize the class and set up the main hook
@@ -173,8 +205,19 @@ class Admin_Menu {
 			}
 		);
 
+		$visibility = self::get_visibility_states();
+
 		foreach ( self::$menu_items as $menu_item ) {
+			/*
+			 * Neither check can expose a page: add_submenu_page() refuses one the user lacks the
+			 * capability for, whatever we pass it. Both run here so that an item the user cannot
+			 * see, or a host has hidden, does not keep the empty Jetpack top level menu alive.
+			 */
 			if ( ! current_user_can( $menu_item['capability'] ) ) {
+				continue;
+			}
+
+			if ( ! self::is_menu_item_visible( $menu_item, $visibility ) ) {
 				continue;
 			}
 
@@ -217,13 +260,19 @@ class Admin_Menu {
 	 *                                   and only include lowercase alphanumeric, dashes, and underscores characters
 	 *                                   to be compatible with sanitize_key().
 	 * @param callable|null $function    The function to be called to output the content for this page.
-	 * @param int           $position    The position in the menu order this item should appear. Leave empty typically.
+	 * @param int|null      $position    The position in the menu order this item should appear. Leave empty typically.
+	 * @param array         $args        Optional. Visibility declaration for this item:
+	 *                                   - 'product' (string) My Jetpack product slug whose activation gates the item.
+	 *                                   - 'module'  (string) Jetpack module name, for items with no product class.
+	 *                                   - 'key'     (string) Stable identifier for the host filter. Defaults to
+	 *                                                        $menu_slug; declare one when the slug is a URL.
+	 *                                   An item that declares no gate is always shown.
 	 *
 	 * @return string The resulting page's hook_suffix
 	 */
-	public static function add_menu( $page_title, $menu_title, $capability, $menu_slug, $function, $position = null ) {
+	public static function add_menu( $page_title, $menu_title, $capability, $menu_slug, $function, $position = null, $args = array() ) {
 		self::init();
-		self::$menu_items[] = compact( 'page_title', 'menu_title', 'capability', 'menu_slug', 'function', 'position' );
+		self::$menu_items[] = compact( 'page_title', 'menu_title', 'capability', 'menu_slug', 'function', 'position', 'args' );
 
 		/**
 		 * Let's return the page hook so consumers can use.
@@ -298,6 +347,119 @@ class Admin_Menu {
 		#wpbody-content > .updated,
 		#wpbody-content > .error { display: none !important; }
 		';
+	}
+
+	/**
+	 * Sets the callback that resolves a menu item's declared gate.
+	 *
+	 * The callback receives the item's $args array and returns true (gate satisfied),
+	 * false (not satisfied), or null when it cannot answer — an unknown product slug,
+	 * for instance. Null is treated as satisfied, so a gate this package cannot resolve
+	 * never removes a menu item.
+	 *
+	 * @internal Seam for My Jetpack. Hosts should use the `jetpack_admin_menu_visibility` filter.
+	 *
+	 * @param callable|null $resolver Resolver callback, or null to clear it.
+	 * @return void
+	 */
+	public static function set_visibility_resolver( $resolver ) {
+		self::$visibility_resolver = $resolver;
+	}
+
+	/**
+	 * Returns the stable identifier a host uses to name a menu item in the visibility filter.
+	 *
+	 * @param array $menu_item A registered menu item.
+	 * @return string
+	 */
+	private static function get_item_key( array $menu_item ) {
+		if ( ! empty( $menu_item['args']['key'] ) ) {
+			return (string) $menu_item['args']['key'];
+		}
+
+		return (string) $menu_item['menu_slug'];
+	}
+
+	/**
+	 * Builds the item => state map and hands it to hosts to amend.
+	 *
+	 * @return array Map of item key to one of the VISIBILITY_* states.
+	 */
+	private static function get_visibility_states() {
+		$states = array();
+
+		foreach ( self::$menu_items as $menu_item ) {
+			$states[ self::get_item_key( $menu_item ) ] = self::VISIBILITY_DEFAULT;
+		}
+
+		/**
+		 * Filters which Jetpack items appear in the wp-admin sidebar.
+		 *
+		 * Each item resolves to one of three states: 'default' derives visibility from whether
+		 * the item's feature is active, 'visible' forces it in, and 'hidden' keeps it out. A
+		 * host names only the items it cares about; anything it leaves alone stays 'default'.
+		 *
+		 * The whole map is passed at once so that two mu-plugins setting different keys merge
+		 * rather than clobber each other. 'visible' does not override the capability check —
+		 * a user who cannot see a page will not be shown it by this filter.
+		 *
+		 * Only items registered through Admin_Menu::add_menu() appear here. Anything added with
+		 * a bare add_submenu_page() is outside this filter's reach.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param array $states     Map of item key (menu slug unless the item declared one) to state.
+		 * @param array $menu_items The registered menu items, for context.
+		 */
+		$states = apply_filters( 'jetpack_admin_menu_visibility', $states, self::$menu_items );
+
+		return is_array( $states ) ? $states : array();
+	}
+
+	/**
+	 * Decides whether a single menu item should be registered.
+	 *
+	 * @param array $menu_item  A registered menu item.
+	 * @param array $visibility The resolved state map from get_visibility_states().
+	 * @return bool
+	 */
+	private static function is_menu_item_visible( array $menu_item, array $visibility ) {
+		$key   = self::get_item_key( $menu_item );
+		$state = $visibility[ $key ] ?? self::VISIBILITY_DEFAULT;
+
+		if ( self::VISIBILITY_HIDDEN === $state ) {
+			return false;
+		}
+
+		if ( self::VISIBILITY_VISIBLE === $state ) {
+			return true;
+		}
+
+		return self::is_gate_satisfied( $menu_item['args'] ?? array() );
+	}
+
+	/**
+	 * Asks the resolver whether an item's declared gate is satisfied.
+	 *
+	 * Everything here fails open. An item that declares no gate, a site with no resolver
+	 * registered, and a gate the resolver does not recognize all keep the item in the
+	 * sidebar, so adopting this mechanism cannot remove an item nobody asked it to.
+	 *
+	 * @param array $args The item's visibility declaration.
+	 * @return bool
+	 */
+	private static function is_gate_satisfied( array $args ) {
+		if ( ! isset( $args['product'] ) && ! isset( $args['module'] ) ) {
+			return true;
+		}
+
+		if ( ! is_callable( self::$visibility_resolver ) ) {
+			return true;
+		}
+
+		$resolved = call_user_func( self::$visibility_resolver, $args );
+
+		return null === $resolved ? true : (bool) $resolved;
 	}
 
 	/**
