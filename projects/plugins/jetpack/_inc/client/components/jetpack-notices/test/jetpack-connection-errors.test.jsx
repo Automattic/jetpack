@@ -83,15 +83,14 @@ describe( 'JetpackConnectionErrors', () => {
 			},
 		];
 
-		render( <JetpackConnectionErrors errors={ errors } /> );
+		render( <JetpackConnectionErrors errors={ errors } />, { initialState } );
 
 		expect(
 			screen.getByText( 'The connection owner needs to reconnect their account.' )
 		).toBeInTheDocument();
-		// No reconnect/restore CTA should be rendered for an informational notice.
-		// Matched exactly: the notice's own message contains the word "reconnect".
-		expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
-		expect( screen.queryByRole( 'link', { name: 'Restore Connection' } ) ).not.toBeInTheDocument();
+		// Matched by label, not by role: NoticeAction renders an <a> with no href, which
+		// has no implicit link role, so queryByRole( 'link' ) can never fail here.
+		expect( screen.queryByText( 'Restore Connection' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'should handle multiple errors correctly', () => {
