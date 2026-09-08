@@ -1,7 +1,6 @@
 /**
  * Currency symbol map for common currencies.
  *
- * Shared across paypal-button-preview.js and save.js to avoid duplication.
  * Must match class-paypal-payment-buttons.php for consistent WYSIWYG rendering.
  *
  * @package

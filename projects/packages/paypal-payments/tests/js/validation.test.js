@@ -3,7 +3,7 @@
  *
  * Covers client-side validation functions extracted from edit.js:
  * validatePrice, validateProductName, validateDescription,
- * getUserFriendlyError, and the VALID_CURRENCY_CODES constant.
+ * getUserFriendlyError.
  *
  * @package
  */
@@ -21,7 +21,6 @@ import {
 	validateProductName,
 	validateDescription,
 	getUserFriendlyError,
-	VALID_CURRENCY_CODES,
 	MAX_NAME_LENGTH,
 	MAX_DESCRIPTION_LENGTH,
 } from '../../src/paypal-payment-buttons/utils/validation';
@@ -151,15 +150,5 @@ describe( 'getUserFriendlyError', () => {
 	it( 'returns a generic fallback for unknown errors', () => {
 		const err = {};
 		expect( getUserFriendlyError( err ) ).toBe( 'An unexpected error occurred. Please try again.' );
-	} );
-} );
-
-describe( 'VALID_CURRENCY_CODES', () => {
-	it.each( [ 'USD', 'EUR', 'GBP', 'JPY' ] )( 'contains %s', code => {
-		expect( VALID_CURRENCY_CODES.has( code ) ).toBe( true );
-	} );
-
-	it( 'does not contain an invalid currency code', () => {
-		expect( VALID_CURRENCY_CODES.has( 'XYZ' ) ).toBe( false );
 	} );
 } );

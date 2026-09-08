@@ -19,36 +19,6 @@ export const MAX_NAME_LENGTH = 127;
 export const MAX_DESCRIPTION_LENGTH = 256;
 
 /**
- * Set of valid ISO currency codes supported by PayPal.
- */
-export const VALID_CURRENCY_CODES = new Set( [
-	'USD',
-	'EUR',
-	'GBP',
-	'CAD',
-	'AUD',
-	'JPY',
-	'CHF',
-	'SEK',
-	'NOK',
-	'DKK',
-	'NZD',
-	'SGD',
-	'HKD',
-	'MXN',
-	'BRL',
-	'PLN',
-	'CZK',
-	'HUF',
-	'ILS',
-	'MYR',
-	'PHP',
-	'TWD',
-	'THB',
-	'CNY',
-] );
-
-/**
  * Check the decimals a price carries against what PayPal accepts for the currency.
  *
  * PayPal rejects any decimal for JPY, HUF and TWD; every other currency takes up to two.
