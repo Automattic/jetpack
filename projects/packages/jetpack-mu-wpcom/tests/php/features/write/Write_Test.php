@@ -608,12 +608,16 @@ class Write_Test extends \WorDBless\BaseTestCase {
 		$this->assertStringContainsString( 'actions.dismissEditorNote', $output );
 		$this->assertStringContainsString( 'Use the Block editor', $output );
 		$this->assertStringContainsString( 'Got it', $output );
-		$this->assertMatchesRegularExpression( '/class="bw-editor-note"[^>]*\bhidden\b/s', $output );
+		$this->assertMatchesRegularExpression( '/class="bw-editor-note"[^>]*\shidden[\s>]/s', $output );
 
 		// The guide link runs through wp_kses, which drops any attribute missing
 		// from the allow-list — including the one that routes it to the Help Center.
-		$this->assertStringContainsString( 'data-target="wpcom-help-center"', $output );
-		$this->assertStringContainsString( 'https://wordpress.com/support/editors/write-editor/', $output );
+		// Matched on the note's own anchor: the Tips panel prints a second,
+		// non-kses'd link to the same guide that a page-wide assertion would hit.
+		$this->assertStringContainsString(
+			'<a class="bw-editor-note-guide" data-target="wpcom-help-center" href="https://wordpress.com/support/editors/write-editor/"',
+			$output
+		);
 	}
 
 	/**
