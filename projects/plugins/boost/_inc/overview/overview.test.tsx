@@ -14,7 +14,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { useDismissibleAlertState as useLegacyAlertState } from '../../app/assets/src/js/features/performance-history/lib/hooks';
 import PopOut from '../../app/assets/src/js/features/speed-score/pop-out/pop-out';
 import { recordBoostEvent } from '../../app/assets/src/js/lib/utils/analytics';
-import { useSpeedScores } from './lib/use-speed-scores';
+import * as speedScores from './lib/use-speed-scores';
 import Overview from './overview';
 import ScoreCard from './score-card';
 import ScoreCards from './score-cards';
@@ -91,6 +91,24 @@ function renderOverview() {
 	return { ...view, client };
 }
 
+test( 'contains a render failure with the Overview error fallback', () => {
+	const scoreHook = jest.spyOn( speedScores, 'useSpeedScores' ).mockImplementation( () => {
+		throw new Error( 'Score rendering failed' );
+	} );
+	const consoleError = jest.spyOn( console, 'error' ).mockImplementation( () => {} );
+	try {
+		renderOverview();
+		expect(
+			screen.getByText( 'Unable to display performance scores', { selector: 'span' } )
+		).toBeInTheDocument();
+		expect( screen.getByText( 'Score rendering failed' ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: 'Refresh' } ) ).not.toBeInTheDocument();
+	} finally {
+		scoreHook.mockRestore();
+		consoleError.mockRestore();
+	}
+} );
+
 test( 'loads online scores and regenerates them with refresh tracking and history invalidation', async () => {
 	const { client } = renderOverview();
 	await expect( screen.findByText( '91' ) ).resolves.toBeTruthy();
@@ -125,7 +143,7 @@ test( 'keeps offline sites out of score and Data Sync requests', async () => {
 	expect( screen.queryByRole( 'button', { name: 'Refresh' } ) ).not.toBeInTheDocument();
 	expect( requestSpeedScores ).not.toHaveBeenCalled();
 	expect( apiFetch ).not.toHaveBeenCalled();
-	const { result } = renderHook( () => useSpeedScores(), { wrapper: queryWrapper() } );
+	const { result } = renderHook( () => speedScores.useSpeedScores(), { wrapper: queryWrapper() } );
 	await act( async () => result.current[ 1 ]( true ) );
 	expect( requestSpeedScores ).not.toHaveBeenCalled();
 } );
@@ -259,10 +277,13 @@ test( 'selects the paid empty history state using module availability', async ()
 test( 'debounces optimization changes and waits for generation to finish', async () => {
 	jest.useFakeTimers();
 	try {
-		const { result, rerender, unmount } = renderHook( state => useSpeedScores( state ), {
-			initialProps: { config: 'modules-active:1,updated:10', isPending: false },
-			wrapper: queryWrapper(),
-		} );
+		const { result, rerender, unmount } = renderHook(
+			state => speedScores.useSpeedScores( state ),
+			{
+				initialProps: { config: 'modules-active:1,updated:10', isPending: false },
+				wrapper: queryWrapper(),
+			}
+		);
 		await waitFor( () => expect( result.current[ 0 ].status ).toBe( 'loaded' ) );
 		rerender( { config: 'modules-active:1,updated:20', isPending: true } );
 		act( () => jest.advanceTimersByTime( 2000 ) );
