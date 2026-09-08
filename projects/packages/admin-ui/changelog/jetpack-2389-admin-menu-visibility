@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Sidebar: let a menu item declare what gates it, and add the jetpack_admin_menu_visibility filter so hosts can force an item visible or hidden.

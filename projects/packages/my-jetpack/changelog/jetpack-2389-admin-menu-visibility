@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Resolve Jetpack sidebar menu visibility from the product classes, so a menu item and its product card agree on whether the product is active.

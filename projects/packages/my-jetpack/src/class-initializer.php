@@ -80,6 +80,9 @@ class Initializer {
 			return;
 		}
 
+		// Answer "is this product on?" for admin menu registration.
+		Menu_Visibility::init();
+
 		// Extend jetpack plugins action links.
 		Products::extend_plugins_action_links();
 
