@@ -4,6 +4,7 @@ import styles from './styles.module.scss';
 
 type FeatureLinksProps = {
 	feature: MainFeature;
+	isActive: boolean;
 };
 
 /**
@@ -11,14 +12,18 @@ type FeatureLinksProps = {
  *
  * Renders only the links a feature actually has: Podcast, for one, has support docs
  * but no marketing page, and most features keep their settings on the page they
- * already link to.
+ * already link to, so they offer no settings link at all.
  *
- * @param {FeatureLinksProps} props         - The component props.
- * @param {MainFeature}       props.feature - The feature to link to.
+ * @param {FeatureLinksProps} props          - The component props.
+ * @param {MainFeature}       props.feature  - The feature to link to.
+ * @param {boolean}           props.isActive - Whether the feature is running.
  * @return The rendered component.
  */
-export function FeatureLinks( { feature }: FeatureLinksProps ) {
-	if ( ! feature.info_url && ! feature.docs_url && ! feature.settings_url ) {
+export function FeatureLinks( { feature, isActive }: FeatureLinksProps ) {
+	// An inactive feature has no settings to configure yet.
+	const settingsUrl = isActive ? feature.settings_url : '';
+
+	if ( ! feature.info_url && ! feature.docs_url && ! settingsUrl ) {
 		return null;
 	}
 
@@ -41,8 +46,8 @@ export function FeatureLinks( { feature }: FeatureLinksProps ) {
 				</Link>
 			) : null }
 			{ /* Settings stay in wp-admin, so this one is not a new tab. */ }
-			{ feature.settings_url ? (
-				<Link href={ feature.settings_url }>{ __( 'Settings', 'jetpack-my-jetpack' ) }</Link>
+			{ settingsUrl ? (
+				<Link href={ settingsUrl }>{ __( 'Settings', 'jetpack-my-jetpack' ) }</Link>
 			) : null }
 		</Stack>
 	);

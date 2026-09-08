@@ -52,7 +52,7 @@ export function FeatureModal( { state, previous, next, onClose, onStep }: Featur
 
 	return (
 		<Dialog.Root open onOpenChange={ onOpenChange }>
-			<Dialog.Popup size="large">
+			<Dialog.Popup size="large" className={ styles[ 'modal-popup' ] }>
 				<Dialog.Header>
 					<Stack direction="row" align="center" gap="md">
 						<FeatureIcon feature={ feature } />
@@ -94,7 +94,7 @@ export function FeatureModal( { state, previous, next, onClose, onStep }: Featur
 								</div>
 							) }
 
-							<FeatureLinks feature={ feature } />
+							<FeatureLinks feature={ feature } isActive={ isActive } />
 						</Stack>
 
 						<FeatureScreenshot feature={ feature } />
@@ -103,6 +103,8 @@ export function FeatureModal( { state, previous, next, onClose, onStep }: Featur
 
 				<Dialog.Footer>
 					<Stack direction="row" align="center" gap="sm" className={ styles[ 'modal-steps' ] }>
+						{ /* Icon only, and always rendered: naming it too made its width vary
+						     with the feature, which shifted the next button on every step. */ }
 						<Button
 							variant="minimal"
 							tone="neutral"
@@ -121,24 +123,24 @@ export function FeatureModal( { state, previous, next, onClose, onStep }: Featur
 						>
 							<Icon icon={ backwards } size={ 20 } />
 						</Button>
-						<Button
-							variant="minimal"
-							tone="neutral"
-							size="compact"
-							onClick={ onNext }
-							disabled={ ! next }
-							aria-label={
-								next
-									? sprintf(
-											/* translators: %s is the feature name. */
-											__( 'Next feature: %s', 'jetpack-my-jetpack' ),
-											next.feature.name
-									  )
-									: __( 'Next feature', 'jetpack-my-jetpack' )
-							}
-						>
-							<Icon icon={ forwards } size={ 20 } />
-						</Button>
+						{ next ? (
+							<Button
+								variant="minimal"
+								tone="neutral"
+								size="compact"
+								onClick={ onNext }
+								aria-label={ sprintf(
+									/* translators: %s is the feature name. */
+									__( 'Next feature: %s', 'jetpack-my-jetpack' ),
+									next.feature.name
+								) }
+							>
+								<Stack direction="row" align="center" gap="xs">
+									{ next.feature.name }
+									<Icon icon={ forwards } size={ 20 } />
+								</Stack>
+							</Button>
+						) : null }
 					</Stack>
 
 					{ isActive && feature.manage_url ? (

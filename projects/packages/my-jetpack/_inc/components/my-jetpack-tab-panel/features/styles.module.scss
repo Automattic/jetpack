@@ -163,3 +163,17 @@ $feature-icon-foreground: #0ced57;
 		grid-template-columns: minmax(0, 1fr);
 	}
 }
+
+// Matches the rendered width of a FormToggle, so rows without
+// one keep the column.
+.feature-toggle-slot {
+	display: flex;
+	flex-shrink: 0;
+	inline-size: 2rem;
+	justify-content: center;
+}
+
+// A fixed height keeps the dialog from resizing as you step between features.
+.modal-popup {
+	block-size: min(34rem, calc(100vh - 6rem));
+}

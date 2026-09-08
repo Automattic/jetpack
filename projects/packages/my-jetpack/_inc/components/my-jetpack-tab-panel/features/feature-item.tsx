@@ -65,9 +65,13 @@ export function FeatureItem( { state, selected, onSelect, onOpen }: FeatureItemP
 				<Text variant="body-sm">{ feature.description }</Text>
 			</Stack>
 
-			<FeatureToggle state={ state } />
-
 			<FeatureChevron state={ state } onOpen={ onOpen } />
+
+			{ /* Reserved whether or not this feature has a toggle, so the Learn more
+			     button lines up down the whole list. */ }
+			<div className={ styles[ 'feature-toggle-slot' ] }>
+				<FeatureToggle state={ state } />
+			</div>
 		</Stack>
 	);
 }

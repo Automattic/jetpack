@@ -71,15 +71,14 @@ class Main_Features {
 				'interstitial' => '/add-backup',
 			),
 			'blaze'         => array(
-				'settings_term' => 'blaze',
-				'info_url'      => 'https://jetpack.com/blaze/',
-				'docs_url'      => 'https://jetpack.com/support/blaze/',
-				'image'         => 'https://jetpack.com/wp-content/uploads/2024/03/68752-43696-hero-blaze-2x-1.png',
-				'name'          => __( 'Blaze Ads', 'jetpack-my-jetpack' ),
-				'description'   => __( 'Promote your posts to millions of readers across the web.', 'jetpack-my-jetpack' ),
-				'icon'          => 'megaphone',
-				'admin_page'    => 'advertising',
-				'module'        => 'blaze',
+				'info_url'    => 'https://jetpack.com/blaze/',
+				'docs_url'    => 'https://jetpack.com/support/blaze/',
+				'image'       => 'https://jetpack.com/wp-content/uploads/2024/03/68752-43696-hero-blaze-2x-1.png',
+				'name'        => __( 'Blaze Ads', 'jetpack-my-jetpack' ),
+				'description' => __( 'Promote your posts to millions of readers across the web.', 'jetpack-my-jetpack' ),
+				'icon'        => 'megaphone',
+				'admin_page'  => 'advertising',
+				'module'      => 'blaze',
 			),
 			'boost'         => array(
 				'info_url'     => 'https://jetpack.com/boost/',
@@ -132,15 +131,14 @@ class Main_Features {
 				'product'     => 'newsletter',
 			),
 			'podcast'       => array(
-				'settings_term' => 'podcast',
-				'info_url'      => '',
-				'docs_url'      => 'https://jetpack.com/support/jetpack-podcast/',
-				'image'         => 'https://jetpack.com/wp-content/uploads/2026/08/9c2fc-jp-sync-6397e6142b48-image-5.png',
-				'name'          => __( 'Podcast', 'jetpack-my-jetpack' ),
-				'description'   => __( 'Publish and manage a podcast from your site.', 'jetpack-my-jetpack' ),
-				'icon'          => 'audio',
-				'admin_page'    => 'jetpack-podcast',
-				'module'        => 'podcast',
+				'info_url'    => '',
+				'docs_url'    => 'https://jetpack.com/support/jetpack-podcast/',
+				'image'       => 'https://jetpack.com/wp-content/uploads/2026/08/9c2fc-jp-sync-6397e6142b48-image-5.png',
+				'name'        => __( 'Podcast', 'jetpack-my-jetpack' ),
+				'description' => __( 'Publish and manage a podcast from your site.', 'jetpack-my-jetpack' ),
+				'icon'        => 'audio',
+				'admin_page'  => 'jetpack-podcast',
+				'module'      => 'podcast',
 			),
 			'protect'       => array(
 				'info_url'     => 'https://jetpack.com/protect/',
@@ -174,27 +172,25 @@ class Main_Features {
 				'interstitial' => '/add-social',
 			),
 			'stats'         => array(
-				'settings_term' => 'stats',
-				'info_url'      => 'https://jetpack.com/stats/',
-				'docs_url'      => 'https://jetpack.com/support/jetpack-stats/',
-				'image'         => 'https://jetpack.com/wp-content/uploads/2026/08/23631-stats-primary-desktop.png',
-				'name'          => __( 'Stats', 'jetpack-my-jetpack' ),
-				'description'   => __( 'See who visits your site and what they read.', 'jetpack-my-jetpack' ),
-				'icon'          => 'chart-bar',
-				'product'       => 'stats',
-				'essential'     => true,
-				'interstitial'  => '/add-stats',
+				'info_url'     => 'https://jetpack.com/stats/',
+				'docs_url'     => 'https://jetpack.com/support/jetpack-stats/',
+				'image'        => 'https://jetpack.com/wp-content/uploads/2026/08/23631-stats-primary-desktop.png',
+				'name'         => __( 'Stats', 'jetpack-my-jetpack' ),
+				'description'  => __( 'See who visits your site and what they read.', 'jetpack-my-jetpack' ),
+				'icon'         => 'chart-bar',
+				'product'      => 'stats',
+				'essential'    => true,
+				'interstitial' => '/add-stats',
 			),
 			'videopress'    => array(
-				'settings_term' => 'videopress',
-				'info_url'      => 'https://jetpack.com/videopress/',
-				'docs_url'      => 'https://jetpack.com/support/jetpack-videopress/',
-				'image'         => 'https://jetpack.com/wp-content/uploads/2026/08/d3d23-videopress-built-for-wp-2x.jpeg',
-				'name'          => __( 'VideoPress', 'jetpack-my-jetpack' ),
-				'description'   => __( 'Host ad-free, high quality video on your site.', 'jetpack-my-jetpack' ),
-				'icon'          => 'video',
-				'product'       => 'videopress',
-				'interstitial'  => '/add-videopress',
+				'info_url'     => 'https://jetpack.com/videopress/',
+				'docs_url'     => 'https://jetpack.com/support/jetpack-videopress/',
+				'image'        => 'https://jetpack.com/wp-content/uploads/2026/08/d3d23-videopress-built-for-wp-2x.jpeg',
+				'name'         => __( 'VideoPress', 'jetpack-my-jetpack' ),
+				'description'  => __( 'Host ad-free, high quality video on your site.', 'jetpack-my-jetpack' ),
+				'icon'         => 'video',
+				'product'      => 'videopress',
+				'interstitial' => '/add-videopress',
 			),
 		);
 	}
@@ -262,20 +258,21 @@ class Main_Features {
 	}
 
 	/**
-	 * Where a feature's settings live, when that is not simply its own page.
+	 * Where a feature's own settings screen lives.
 	 *
-	 * These settings are sections of the Jetpack plugin's settings screen, which only
-	 * exists when that plugin is active.
+	 * Must be the feature's own page: a section of the Jetpack settings screen is not a
+	 * destination this list offers. No feature declares one yet, because for all fifteen
+	 * the settings sit on the page `manage_url` already points at.
 	 *
 	 * @param array $definition A single entry from the feature catalog.
 	 * @return string Admin URL, or an empty string when the feature has no separate settings.
 	 */
 	private static function get_feature_settings_url( array $definition ) {
-		if ( empty( $definition['settings_term'] ) || ! class_exists( 'Jetpack' ) ) {
+		if ( empty( $definition['settings_page'] ) ) {
 			return '';
 		}
 
-		return admin_url( 'admin.php?page=jetpack#/settings?term=' . rawurlencode( $definition['settings_term'] ) );
+		return admin_url( 'admin.php?page=' . $definition['settings_page'] );
 	}
 
 	/**

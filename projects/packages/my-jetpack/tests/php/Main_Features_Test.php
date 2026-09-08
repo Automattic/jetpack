@@ -109,21 +109,17 @@ class Main_Features_Test extends TestCase {
 	}
 
 	/**
-	 * A settings link is only worth showing when it goes somewhere other than the page
-	 * the feature already links to, so the catalog must not set one for the rest.
+	 * A settings link must go to the feature's own screen. The Jetpack settings page is
+	 * not a destination this list offers, and it is the easy wrong answer to reach for.
 	 */
-	public function test_only_features_with_separate_settings_have_a_settings_url() {
-		$with_settings = array();
-
-		foreach ( Main_Features::get_feature_definitions() as $slug => $definition ) {
-			if ( ! empty( $definition['settings_term'] ) ) {
-				$with_settings[] = $slug;
-			}
+	public function test_settings_urls_never_point_at_the_jetpack_settings_screen() {
+		foreach ( Main_Features::get_features() as $feature ) {
+			$this->assertStringNotContainsString(
+				'page=jetpack#',
+				$feature['settings_url'],
+				"Feature {$feature['slug']} links to the Jetpack settings screen"
+			);
 		}
-
-		sort( $with_settings );
-
-		$this->assertSame( array( 'blaze', 'podcast', 'stats', 'videopress' ), $with_settings );
 	}
 
 	/**
