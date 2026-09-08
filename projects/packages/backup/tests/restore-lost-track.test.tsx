@@ -9,9 +9,9 @@
 // "Try again" button that resets the screen to an armed "Confirm
 // restore". So the only control beneath *"It may still be running —
 // you'll get an email when it finishes"* was one that starts a second
-// concurrent restore of the same site. Nothing upstream is known to
-// refuse that: `queue_restore()` calls `site_queue_rewind()` directly and
-// no in-flight check is visible from either repo.
+// concurrent restore of the same site. Upstream does refuse that —
+// `endpoint-site-queue-rewind.php` calls `is_any_restore_running()` —
+// but only as a bare failure, which is a worse screen than no button.
 //
 // The rule these tests pin: a retry is offered only when we know nothing
 // is running.

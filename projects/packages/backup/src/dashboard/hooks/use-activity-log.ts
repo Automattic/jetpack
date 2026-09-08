@@ -33,6 +33,12 @@ type Result = {
 	 */
 	isFetching: boolean;
 	/**
+	 * True while `keepPreviousData` is standing in for a key that has not
+	 * answered yet — so it separates a page or sort change, which the reader
+	 * asked for, from a background refetch, which they did not.
+	 */
+	isPlaceholderData: boolean;
+	/**
 	 * True when React Query parked the request instead of sending it, which
 	 * `networkMode: 'online'` does for an offline browser. Neither fetching nor
 	 * errored — so callers that read an absence as an answer need this to tell
@@ -140,6 +146,7 @@ export function useActivityLog( { page, pageSize, sortOrder }: Args ): Result {
 		totalPages,
 		isLoading: query.isLoading,
 		isFetching: query.isFetching,
+		isPlaceholderData: query.isPlaceholderData,
 		isPaused: query.isPaused,
 		error,
 		refetch: retry,

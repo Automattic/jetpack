@@ -68,6 +68,7 @@ export { DateRangeCalendar } from '@automattic/ui';
  * is what consumers already import. Still a plain re-export, not a wrap.
  */
 export {
+	Badge,
 	Button,
 	Dialog,
 	EmptyState,
@@ -78,6 +79,7 @@ export {
 	IconButton,
 	Input,
 	Link,
+	Menu,
 	Notice,
 	Popover,
 	SelectControl,
@@ -85,6 +87,7 @@ export {
 	Stack,
 	Tabs,
 	Text,
+	TextareaControl,
 	VisuallyHidden,
 } from '@wordpress/ui';
 

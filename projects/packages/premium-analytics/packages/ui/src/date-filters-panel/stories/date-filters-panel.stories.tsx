@@ -84,6 +84,7 @@ type DateFiltersPanelStoryProps = {
 	containerWidth?: string | number;
 	/** The detail-page surface: all time first, no custom range. */
 	detailSurface?: boolean;
+	disabled?: boolean;
 };
 
 // The day the detail story's resource was published: where its all time starts.
@@ -99,6 +100,7 @@ function DateFiltersPanelStory( {
 	initialComparisonPreset = 'previous-period',
 	containerWidth = '100%',
 	detailSurface = false,
+	disabled = false,
 }: DateFiltersPanelStoryProps ) {
 	const initialPrimary = buildPrimaryState( initialPreset );
 
@@ -217,6 +219,7 @@ function DateFiltersPanelStory( {
 				onCancel={ handlePrimaryCancel }
 				canApply={ canApplyPrimary }
 				timeZone={ STORYBOOK_TIMEZONE }
+				disabled={ disabled }
 			/>
 		</div>
 	);
@@ -255,6 +258,14 @@ export const CustomRangeWithComparison: Story = {
 	render: () => (
 		<DateFiltersPanelStory initialPreset="custom" initialComparisonPreset="previous-period" />
 	),
+};
+
+/**
+ * Every control greyed out but still focusable: the dashboard while its layout
+ * is being customized.
+ */
+export const Disabled: Story = {
+	render: () => <DateFiltersPanelStory disabled />,
 };
 
 /**

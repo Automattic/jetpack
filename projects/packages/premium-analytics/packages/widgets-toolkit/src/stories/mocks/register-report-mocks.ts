@@ -13,6 +13,7 @@ import { differenceInCalendarDays, isValid, parseISO } from 'date-fns';
 /**
  * Internal dependencies
  */
+import { wooBucketStamp } from '../../__fixtures__/woo-bucket-stamp';
 import {
 	mockOrderAttributionDeviceData,
 	mockOrderAttributionByProductDeviceData,
@@ -468,8 +469,8 @@ function buildVisitorsByDateResponse( query: URLSearchParams ) {
 		sessionsTotal += activeSessions;
 
 		return {
-			date_start: date.toISOString(),
-			date_end: toDayEnd( date ).toISOString(),
+			date_start: wooBucketStamp( date ),
+			date_end: wooBucketStamp( toDayEnd( date ) ),
 			time_interval: date.toISOString(),
 			active_sessions: String( activeSessions ),
 			visitors: String( visitors ),
@@ -480,8 +481,8 @@ function buildVisitorsByDateResponse( query: URLSearchParams ) {
 		summary: {
 			active_sessions: String( sessionsTotal ),
 			visitors: String( visitorsTotal ),
-			date_start: from.toISOString(),
-			date_end: toDayEnd( new Date( from.getTime() + ( days - 1 ) * DAY_MS ) ).toISOString(),
+			date_start: wooBucketStamp( from ),
+			date_end: wooBucketStamp( toDayEnd( new Date( from.getTime() + ( days - 1 ) * DAY_MS ) ) ),
 		},
 		data,
 	};
@@ -522,8 +523,8 @@ function buildCustomersByDateRows( query: URLSearchParams, isComparison: boolean
 
 		return {
 			time_interval: date.toISOString(),
-			date_start: date.toISOString(),
-			date_end: toDayEnd( date ).toISOString(),
+			date_start: wooBucketStamp( date ),
+			date_end: wooBucketStamp( toDayEnd( date ) ),
 			total_customers: String( totalCustomers ),
 			new_customers: String( newCustomers ),
 			returning_customers: String( totalCustomers - newCustomers ),
@@ -585,8 +586,8 @@ function buildConversionRateResponse( query: URLSearchParams ) {
 		totals.completed_checkout += completedCheckout;
 
 		return {
-			date_start: date.toISOString(),
-			date_end: toDayEnd( date ).toISOString(),
+			date_start: wooBucketStamp( date ),
+			date_end: wooBucketStamp( toDayEnd( date ) ),
 			time_interval: date.toISOString(),
 			active_sessions: String( activeSessions ),
 			visitors: String( visitors ),
@@ -603,8 +604,8 @@ function buildConversionRateResponse( query: URLSearchParams ) {
 			with_cart_addition: String( totals.with_cart_addition ),
 			reached_checkout: String( totals.reached_checkout ),
 			completed_checkout: String( totals.completed_checkout ),
-			date_start: from.toISOString(),
-			date_end: toDayEnd( new Date( from.getTime() + ( days - 1 ) * DAY_MS ) ).toISOString(),
+			date_start: wooBucketStamp( from ),
+			date_end: wooBucketStamp( toDayEnd( new Date( from.getTime() + ( days - 1 ) * DAY_MS ) ) ),
 		},
 		data,
 	};

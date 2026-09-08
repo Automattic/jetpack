@@ -38,8 +38,8 @@ export function OnboardingWelcomeModal( {
 	onStart,
 	onDismiss,
 }: OnboardingWelcomeModalProps ) {
-	// Get started closes through its own handler, so any close reaching here
-	// came from the chrome.
+	// The tour button closes through its own handler, so any close reaching
+	// here came from the chrome.
 	const handleOpenChange = useCallback(
 		( nextOpen: boolean, details?: OpenChangeDetails ) => {
 			if ( ! nextOpen ) {
@@ -53,7 +53,7 @@ export function OnboardingWelcomeModal( {
 		<Dialog.Root open={ open } onOpenChange={ handleOpenChange }>
 			<Dialog.Popup size="small">
 				<Dialog.CloseIcon className={ styles.close } />
-				{ /* The stage lives in the scroll region so the copy and Get started
+				{ /* The stage lives in the scroll region so the copy and the button
 				     stay reachable on short viewports; the footer stays pinned. */ }
 				<Dialog.Content>
 					<div className={ styles.stage }>
@@ -61,11 +61,11 @@ export function OnboardingWelcomeModal( {
 					</div>
 					<Stack direction="column" gap="md">
 						<Dialog.Title>
-							{ __( 'Introducing an updated experience', 'jetpack-premium-analytics-pkg' ) }
+							{ __( 'Welcome to the new Traffic page', 'jetpack-premium-analytics-pkg' ) }
 						</Dialog.Title>
 						<Dialog.Description>
 							{ __(
-								'We are excited to introduce a new experience for your Jetpack Stats. More consistent and more versatile. Now you are able to decide how to display your data.',
+								"It's built from widgets you can move and resize, so the page can match how you read your site. This is an early version and we'll keep adding new tabs and features in regular updates.",
 								'jetpack-premium-analytics-pkg'
 							) }
 						</Dialog.Description>
@@ -73,7 +73,7 @@ export function OnboardingWelcomeModal( {
 				</Dialog.Content>
 				<Dialog.Footer>
 					<Button variant="solid" onClick={ onStart }>
-						{ __( 'Get started', 'jetpack-premium-analytics-pkg' ) }
+						{ __( 'Take a quick tour', 'jetpack-premium-analytics-pkg' ) }
 					</Button>
 				</Dialog.Footer>
 			</Dialog.Popup>

@@ -49,7 +49,6 @@ describe( 'DashItem', () => {
 		href: getRedirectUrl( 'jetpack' ),
 		userCanToggle: true,
 		siteAdminUrl: 'https://example.org/wp-admin/',
-		siteRawUrl: 'example.org',
 		getOptionValue: () => true,
 		isUpdating: () => false,
 	};
@@ -171,48 +170,6 @@ describe( 'DashItem', () => {
 		} );
 	} );
 
-	describe( 'if this is the DashItem for Manage module', () => {
-		const manageProps = {
-			label: 'Manage',
-			module: 'manage',
-			status: 'is-warning',
-			pro: false,
-			isOfflineMode: false,
-			userCanToggle: true,
-			siteAdminUrl: 'https://example.org/wp-admin/',
-			siteRawUrl: 'example.org',
-			getOptionValue: () => true,
-			isUpdating: () => false,
-		};
-
-		it( "shows a warning badge when status is 'is-warning'", () => {
-			render( <DashItem { ...manageProps } />, {
-				initialState: buildInitialState(),
-			} );
-			expect( screen.getByText( 'Updates needed' ) ).toBeInTheDocument();
-		} );
-
-		it( 'when it is activated, the warning badge is linked to Plugins screen in WordPress.com', () => {
-			render( <DashItem { ...manageProps } />, {
-				initialState: buildInitialState(),
-			} );
-			const node = screen.getByText( 'Updates needed' ).closest( 'a' );
-			expect( node ).toBeInTheDocument();
-			expect( node ).toHaveAttribute(
-				'href',
-				getRedirectUrl( 'calypso-plugins-manage', { site: manageProps.siteRawUrl } )
-			);
-		} );
-
-		it( "when status is 'is-working', the warning badge has an 'active' label", () => {
-			const { container } = render( <DashItem { ...manageProps } status="is-working" />, {
-				initialState: buildInitialState(),
-			} );
-			// eslint-disable-next-line testing-library/no-container
-			expect( container.querySelector( '.jp-dash-item__active-label' ) ).toBeInTheDocument();
-		} );
-	} );
-
 	describe( 'if this is the DashItem for Monitor module', () => {
 		const monitorProps = {
 			module: 'monitor',
@@ -222,7 +179,6 @@ describe( 'DashItem', () => {
 			isOfflineMode: false,
 			userCanToggle: true,
 			siteAdminUrl: 'https://example.org/wp-admin/',
-			siteRawUrl: 'example.org',
 			getOptionValue: () => true,
 			isUpdating: () => false,
 		};

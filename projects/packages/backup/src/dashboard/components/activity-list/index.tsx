@@ -91,6 +91,40 @@ function MediaCell( { item }: { item: ActivityItem } ) {
 }
 
 /**
+ * The row's timestamp, formatted once for both the name and the visible line.
+ *
+ * Drift between the two would announce a different restore point than the one
+ * on screen, on the control that picks what Restore and Download act on.
+ *
+ * @param item - The activity item.
+ * @return The formatted timestamp.
+ */
+function rowDate( item: ActivityItem ): string {
+	return dateI18n( 'M j, Y, g:i A', item.publishedAt, undefined );
+}
+
+/**
+ * Title cell — the visible summary, plus the timestamp for assistive tech.
+ *
+ * DataViews points the row's `aria-labelledby` at this cell alone, so without
+ * the date every row announces the same sentence and a screen-reader user
+ * cannot tell which restore point they are about to open, download or restore.
+ *
+ * @param props      - Component props.
+ * @param props.item - The activity item.
+ * @return The rendered title.
+ */
+function TitleCell( { item }: { item: ActivityItem } ) {
+	return (
+		<>
+			{ item.title }
+			{ /* JSX drops the newline, and the name computation adds nothing back. */ }{ ' ' }
+			<span className="jpb-visually-hidden">{ rowDate( item ) }</span>
+		</>
+	);
+}
+
+/**
  * Descriptions cell — single muted line with the timestamp + optional
  * summary, joined by a thin separator.
  *
@@ -102,7 +136,7 @@ function DescriptionCell( { item }: { item: ActivityItem } ) {
 	return (
 		<Stack direction="row" align="center" gap="xs">
 			<Text variant="body-sm" className="jpb-text-muted jpb-activity-list__date">
-				{ dateI18n( 'M j, Y, g:i A', item.publishedAt, undefined ) }
+				{ rowDate( item ) }
 			</Text>
 			{ /*
 			 * `auto`, not `ltr`: WPCOM may legitimately translate this line into RTL.
@@ -138,12 +172,21 @@ function DescriptionCell( { item }: { item: ActivityItem } ) {
  */
 export default function ActivityList( { selectedId, onSelect, view, onChangeView }: Props ) {
 	const { page, pageSize, sortOrder } = activityQueryArgs( view );
-	const { items, totalItems, totalPages, isLoading, isFetching, isPaused, error, refetch } =
-		useActivityLog( {
-			page,
-			pageSize,
-			sortOrder,
-		} );
+	const {
+		items,
+		totalItems,
+		totalPages,
+		isLoading,
+		isFetching,
+		isPlaceholderData,
+		isPaused,
+		error,
+		refetch,
+	} = useActivityLog( {
+		page,
+		pageSize,
+		sortOrder,
+	} );
 
 	// DataViews' `SortDirectionControl` spreads `...view` and replaces only
 	// `sort`, so without this a reorder strands the reader on page 3 of an
@@ -204,6 +247,7 @@ export default function ActivityList( { selectedId, onSelect, view, onChangeView
 				id: 'title',
 				type: 'text',
 				label: __( 'Title', 'jetpack-backup-pkg' ),
+				render: TitleCell,
 				getValue: ( { item } ) => item.title,
 				enableSorting: false,
 				filterBy: false,
@@ -214,9 +258,7 @@ export default function ActivityList( { selectedId, onSelect, view, onChangeView
 				label: __( 'When', 'jetpack-backup-pkg' ),
 				render: DescriptionCell,
 				getValue: ( { item } ) =>
-					`${ dateI18n( 'M j, Y, g:i A', item.publishedAt, undefined ) }${
-						item.summary ? ` ${ item.summary }` : ''
-					}`,
+					`${ rowDate( item ) }${ item.summary ? ` ${ item.summary }` : '' }`,
 				enableHiding: false,
 				filterBy: false,
 			},
@@ -248,10 +290,16 @@ export default function ActivityList( { selectedId, onSelect, view, onChangeView
 	// This cannot swallow the `empty` slot: DataViews initialises
 	// `hasInitiallyLoaded` to `!isLoading` and latches it true on the first
 	// non-loading render, and the spinner branch that would replace the
-	// `empty` slot is gated on `!hasInitiallyLoaded`. Past the first load a
-	// truthy `isLoading` only reaches the footer, which marks itself inert
-	// while the next page is fetched.
-	const isBusy = isLoading || isFetching;
+	// `empty` slot is gated on `!hasInitiallyLoaded`.
+	//
+	// Placeholder data is the qualifier, not `isFetching` alone: DataViews
+	// puts `inert` on the composite that owns every row, so reporting a
+	// background refetch — the one a finished backup triggers — would blur
+	// the reader out of the list mid-read. A page or sort change still
+	// inerts them, and the footer's own copy of this flag inerts the
+	// control the reader just used; DataViews offers no way to separate
+	// those, so that case is unchanged rather than fixed.
+	const isBusy = isLoading || ( isFetching && isPlaceholderData );
 
 	return (
 		<Card.Root className="jpb-activity-list" aria-busy={ isBusy }>

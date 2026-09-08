@@ -15,6 +15,13 @@
 		}
 	}
 
+	// Same shape as the card's header, in the chrome that has less room:
+	// `Dialog.Header`'s close icon cannot shrink, and `.popup` hides overflow.
+	&__title {
+		min-width: 0;
+		overflow-wrap: anywhere;
+	}
+
 	&__body {
 		display: flex;
 		flex-direction: column;

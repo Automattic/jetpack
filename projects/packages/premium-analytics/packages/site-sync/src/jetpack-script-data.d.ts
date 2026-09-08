@@ -16,6 +16,8 @@ declare module '@automattic/jetpack-script-data' {
 			// Whether the dashboard offers adding, removing and resetting widgets: the
 			// premium-analytics-dashboard-composition feature flag, read by the policy.
 			dashboard_composition_enabled?: boolean;
+			// Slugs of the tabs the dashboard exposes. Absent until the section registry is hydrated.
+			preview_sections?: string[];
 		};
 	}
 }

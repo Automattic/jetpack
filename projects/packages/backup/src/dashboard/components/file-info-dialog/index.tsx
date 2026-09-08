@@ -69,18 +69,14 @@ export default function FileInfoDialog( { file, onClose }: Props ) {
 				style={ { '--jpb-admin-menu-width': `${ adminMenuWidth }px` } as CSSProperties }
 			>
 				<Dialog.Header>
-					<Dialog.Title>
+					<Dialog.Title className="jpb-file-info-dialog__title">
 						<span dir="ltr">{ file.name }</span>
 					</Dialog.Title>
 					<Dialog.CloseIcon label={ __( 'Close preview', 'jetpack-backup-pkg' ) } />
 				</Dialog.Header>
 				<Dialog.Content className="jpb-file-info-dialog__body">
 					<FileInfoMeta modified={ modified } size={ size } mimeType={ mimeType } hash={ hash } />
-					{ /*
-					 * The gray surface has to be the scrollport, not the `<pre>`: a
-					 * `<pre>` that only paints a background lets long lines render
-					 * past it, onto a `Dialog.Content` that clips without scrolling.
-					 */ }
+					{ /* Focusable because `handleReveal` hands focus here. */ }
 					<div
 						ref={ previewRef }
 						className="jpb-file-info-dialog__preview"

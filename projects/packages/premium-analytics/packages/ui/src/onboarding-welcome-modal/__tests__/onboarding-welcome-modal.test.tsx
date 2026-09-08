@@ -15,10 +15,12 @@ describe( 'OnboardingWelcomeModal', () => {
 	it( 'introduces the new experience with the tour as the primary action', () => {
 		renderModal();
 
-		const dialog = screen.getByRole( 'dialog', { name: 'Introducing an updated experience' } );
+		const dialog = screen.getByRole( 'dialog', { name: 'Welcome to the new Traffic page' } );
 		expect( dialog ).toBeInTheDocument();
-		expect( dialog ).toHaveTextContent( 'Now you are able to decide how to display your data.' );
-		expect( screen.getByRole( 'button', { name: 'Get started' } ) ).toBeInTheDocument();
+		expect( dialog ).toHaveTextContent(
+			"we'll keep adding new tabs and features in regular updates."
+		);
+		expect( screen.getByRole( 'button', { name: 'Take a quick tour' } ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'button', { name: 'Close' } ) ).toBeInTheDocument();
 	} );
 
@@ -28,10 +30,10 @@ describe( 'OnboardingWelcomeModal', () => {
 		expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'reports Get started without counting it as a dismissal', async () => {
+	it( 'reports the tour button without counting it as a dismissal', async () => {
 		const { onStart, onDismiss } = renderModal();
 
-		await userEvent.click( screen.getByRole( 'button', { name: 'Get started' } ) );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Take a quick tour' } ) );
 
 		expect( onStart ).toHaveBeenCalledTimes( 1 );
 		expect( onDismiss ).not.toHaveBeenCalled();

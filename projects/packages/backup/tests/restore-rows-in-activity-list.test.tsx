@@ -183,7 +183,9 @@ describe( 'a restore that has already ended', () => {
 			screen.findByText( "Restore didn't finish", undefined, SETTLE )
 		).resolves.toBeVisible();
 
-		expect( screen.getByText( RESTORE_RENDERED_AT ) ).toBeVisible();
+		expect(
+			screen.getByText( RESTORE_RENDERED_AT, { selector: '.jpb-activity-list__date' } )
+		).toBeVisible();
 		expect( screen.queryByText( RESTORE_READ_AS_LOCAL ) ).not.toBeInTheDocument();
 	} );
 

@@ -76,6 +76,18 @@ function rowTitle( page: number, number: number ): string {
 }
 
 /**
+ * The same row as a name matcher. A row's accessible name carries its
+ * timestamp after the title, so an exact string never matches the button.
+ *
+ * @param page   - 1-indexed page number.
+ * @param number - Page size.
+ * @return The matcher.
+ */
+function rowNamed( page: number, number: number ): RegExp {
+	return new RegExp( `^${ rowTitle( page, number ) } ` );
+}
+
+/**
  * One rewindable-activity page, in WPCOM's shape.
  *
  * One row per page, so the row's own name says which page and page size produced it.
@@ -113,7 +125,7 @@ function activityPage( page: number, number: number ) {
  * @return The row button.
  */
 function row( page: number, number: number ): HTMLElement {
-	return screen.getByRole( 'button', { name: rowTitle( page, number ) } );
+	return screen.getByRole( 'button', { name: rowNamed( page, number ) } );
 }
 
 /**
@@ -126,7 +138,7 @@ function row( page: number, number: number ): HTMLElement {
 async function openOverview( page: number, number: number ) {
 	const view = render( <OverviewStage /> );
 	await expect(
-		screen.findByRole( 'button', { name: rowTitle( page, number ) }, SETTLE )
+		screen.findByRole( 'button', { name: rowNamed( page, number ) }, SETTLE )
 	).resolves.toBeInTheDocument();
 	return view;
 }
@@ -226,11 +238,11 @@ async function roundTripFromPage2Of20( Stage: () => React.JSX.Element ): Promise
 	await userEvent.click( screen.getByRole( 'button', { name: 'View options' } ) );
 	await userEvent.click( screen.getByRole( 'radio', { name: '20' } ) );
 	await expect(
-		screen.findByRole( 'button', { name: rowTitle( 1, 20 ) }, SETTLE )
+		screen.findByRole( 'button', { name: rowNamed( 1, 20 ) }, SETTLE )
 	).resolves.toBeInTheDocument();
 	await userEvent.click( screen.getByRole( 'button', { name: 'Next page' } ) );
 	await expect(
-		screen.findByRole( 'button', { name: rowTitle( 2, 20 ) }, SETTLE )
+		screen.findByRole( 'button', { name: rowNamed( 2, 20 ) }, SETTLE )
 	).resolves.toBeInTheDocument();
 
 	overview.unmount();
@@ -279,7 +291,7 @@ describe( 'The trip out to Download and back', () => {
 
 		await userEvent.click( screen.getByRole( 'button', { name: 'Next page' } ) );
 		await expect(
-			screen.findByRole( 'button', { name: rowTitle( 2, 10 ) }, SETTLE )
+			screen.findByRole( 'button', { name: rowNamed( 2, 10 ) }, SETTLE )
 		).resolves.toBeInTheDocument();
 
 		await userEvent.click( row( 2, 10 ) );
@@ -304,7 +316,7 @@ describe( 'The trip out to Download and back', () => {
 			screen.findByRole( 'heading', { name: rowTitle( 2, 10 ) }, SETTLE )
 		).resolves.toBeInTheDocument();
 		await waitFor( () => expect( row( 2, 10 ) ).toHaveAttribute( 'aria-pressed', 'true' ) );
-		expect( screen.queryByRole( 'button', { name: rowTitle( 1, 10 ) } ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: rowNamed( 1, 10 ) } ) ).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'heading', { name: rowTitle( 1, 10 ) } ) ).not.toBeInTheDocument();
 	} );
 } );
@@ -316,7 +328,7 @@ describe( 'The trip out to Restore and back', () => {
 		await userEvent.click( screen.getByRole( 'button', { name: 'View options' } ) );
 		await userEvent.click( screen.getByRole( 'radio', { name: '20' } ) );
 		await expect(
-			screen.findByRole( 'button', { name: rowTitle( 1, 20 ) }, SETTLE )
+			screen.findByRole( 'button', { name: rowNamed( 1, 20 ) }, SETTLE )
 		).resolves.toBeInTheDocument();
 
 		overview.unmount();
@@ -325,9 +337,9 @@ describe( 'The trip out to Restore and back', () => {
 		render( <OverviewStage /> );
 
 		await expect(
-			screen.findByRole( 'button', { name: rowTitle( 1, 20 ) }, SETTLE )
+			screen.findByRole( 'button', { name: rowNamed( 1, 20 ) }, SETTLE )
 		).resolves.toBeInTheDocument();
-		expect( screen.queryByRole( 'button', { name: rowTitle( 1, 10 ) } ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: rowNamed( 1, 10 ) } ) ).not.toBeInTheDocument();
 	} );
 } );
 
@@ -339,7 +351,7 @@ describe( 'A gate verdict that changes under the reader', () => {
 
 		await userEvent.click( screen.getByRole( 'button', { name: 'Next page' } ) );
 		await expect(
-			screen.findByRole( 'button', { name: rowTitle( 2, 10 ) }, SETTLE )
+			screen.findByRole( 'button', { name: rowNamed( 2, 10 ) }, SETTLE )
 		).resolves.toBeInTheDocument();
 
 		hasBackupPlan = false;
@@ -356,9 +368,9 @@ describe( 'A gate verdict that changes under the reader', () => {
 		} );
 
 		await expect(
-			screen.findByRole( 'button', { name: rowTitle( 2, 10 ) }, SETTLE )
+			screen.findByRole( 'button', { name: rowNamed( 2, 10 ) }, SETTLE )
 		).resolves.toBeInTheDocument();
-		expect( screen.queryByRole( 'button', { name: rowTitle( 1, 10 ) } ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: rowNamed( 1, 10 ) } ) ).not.toBeInTheDocument();
 	} );
 } );
 
@@ -369,7 +381,7 @@ describe( 'A fresh page load', () => {
 		const overview = await openOverview( 1, 10 );
 		await userEvent.click( screen.getByRole( 'button', { name: 'Next page' } ) );
 		await expect(
-			screen.findByRole( 'button', { name: rowTitle( 2, 10 ) }, SETTLE )
+			screen.findByRole( 'button', { name: rowNamed( 2, 10 ) }, SETTLE )
 		).resolves.toBeInTheDocument();
 		overview.unmount();
 		await roundTripVia( DownloadStage );
@@ -381,10 +393,10 @@ describe( 'A fresh page load', () => {
 		render( <OverviewStage /> );
 
 		await expect(
-			screen.findByRole( 'button', { name: rowTitle( 1, 10 ) }, SETTLE )
+			screen.findByRole( 'button', { name: rowNamed( 1, 10 ) }, SETTLE )
 		).resolves.toBeInTheDocument();
 		expect( row( 1, 10 ) ).toHaveAttribute( 'aria-pressed', 'true' );
-		expect( screen.queryByRole( 'button', { name: rowTitle( 2, 10 ) } ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: rowNamed( 2, 10 ) } ) ).not.toBeInTheDocument();
 	} );
 } );
 
@@ -395,7 +407,7 @@ describe( 'A remembered place that no longer exists', () => {
 		const overview = await openOverview( 1, 10 );
 		await userEvent.click( screen.getByRole( 'button', { name: 'Next page' } ) );
 		await expect(
-			screen.findByRole( 'button', { name: rowTitle( 2, 10 ) }, SETTLE )
+			screen.findByRole( 'button', { name: rowNamed( 2, 10 ) }, SETTLE )
 		).resolves.toBeInTheDocument();
 
 		overview.unmount();
@@ -410,7 +422,7 @@ describe( 'A remembered place that no longer exists', () => {
 		// The row is the positive: without the clamp the list asks for page 2 of a
 		// one-page log and DataViews renders "No results" with no footer.
 		await expect(
-			screen.findByRole( 'button', { name: rowTitle( 1, 10 ) }, SETTLE )
+			screen.findByRole( 'button', { name: rowNamed( 1, 10 ) }, SETTLE )
 		).resolves.toBeInTheDocument();
 		expect( screen.queryByText( 'No results' ) ).not.toBeInTheDocument();
 	} );
@@ -422,7 +434,7 @@ describe( 'A remembered place that no longer exists', () => {
 		const overview = await openOverview( 1, 10 );
 		await userEvent.click( screen.getByRole( 'button', { name: 'Next page' } ) );
 		await expect(
-			screen.findByRole( 'button', { name: rowTitle( 2, 10 ) }, SETTLE )
+			screen.findByRole( 'button', { name: rowNamed( 2, 10 ) }, SETTLE )
 		).resolves.toBeInTheDocument();
 
 		overview.unmount();
@@ -434,7 +446,7 @@ describe( 'A remembered place that no longer exists', () => {
 		render( <OverviewStage /> );
 
 		await expect(
-			screen.findByRole( 'button', { name: rowTitle( 1, 10 ) }, SETTLE )
+			screen.findByRole( 'button', { name: rowNamed( 1, 10 ) }, SETTLE )
 		).resolves.toBeInTheDocument();
 		expect( screen.queryByText( 'No results' ) ).not.toBeInTheDocument();
 	} );
@@ -500,9 +512,9 @@ describe( 'A remembered place the log cannot answer for', () => {
 		activityFails = false;
 		await userEvent.click( screen.getByRole( 'button', { name: 'Try again' } ) );
 		await expect(
-			screen.findByRole( 'button', { name: rowTitle( 2, 20 ) }, SETTLE )
+			screen.findByRole( 'button', { name: rowNamed( 2, 20 ) }, SETTLE )
 		).resolves.toBeInTheDocument();
-		expect( screen.queryByRole( 'button', { name: rowTitle( 1, 20 ) } ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: rowNamed( 1, 20 ) } ) ).not.toBeInTheDocument();
 
 		view.unmount();
 	} );
@@ -534,7 +546,7 @@ describe( 'A remembered place asked for with no connection', () => {
 
 		// Page 2 is what resumes, so nothing moved the reader while they were offline.
 		await expect(
-			screen.findByRole( 'button', { name: rowTitle( 2, 20 ) }, SETTLE )
+			screen.findByRole( 'button', { name: rowNamed( 2, 20 ) }, SETTLE )
 		).resolves.toBeInTheDocument();
 		expect( activityRequests() ).not.toContain( '1/20' );
 
@@ -551,7 +563,7 @@ describe( 'Clearing a selection that came from memory', () => {
 		// page 1's newest backup, and would otherwise mask the clear.
 		const overview = await openOverview( 1, 10 );
 		await userEvent.click( screen.getByRole( 'button', { name: 'Next page' } ) );
-		await userEvent.click( await screen.findByRole( 'button', { name: rowTitle( 2, 10 ) } ) );
+		await userEvent.click( await screen.findByRole( 'button', { name: rowNamed( 2, 10 ) } ) );
 		// As above: `useSearch` is a mock, so this stands in for the router commit.
 		overview.rerender( <OverviewStage /> );
 		await waitFor( () => expect( row( 2, 10 ) ).toHaveAttribute( 'aria-pressed', 'true' ) );

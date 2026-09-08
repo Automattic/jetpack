@@ -23,3 +23,16 @@ if ( ! function_exists( 'wpcom_expiry_notices_is_enabled_for_site' ) ) {
 		return (bool) apply_filters( 'wpcom_expiry_notices_enabled', false, 0 );
 	}
 }
+
+if ( ! function_exists( 'wpcom_expiry_notices_frontend_banner_is_due' ) ) {
+	/**
+	 * Whether the front-end expiry banner renders on this request.
+	 *
+	 * @return bool
+	 *
+	 * @phan-suppress PhanRedefineFunction -- same reason as the gate above: only one definition ever loads.
+	 */
+	function wpcom_expiry_notices_frontend_banner_is_due() {
+		return (bool) apply_filters( 'wpcomsh_test_expiry_frontend_banner_is_due', false );
+	}
+}
