@@ -313,6 +313,11 @@ export default function ApiManagedEdit( { attributes, setAttributes, clientId: b
 	 */
 	const hasButton = isApiManaged && resourceId && paymentLink;
 
+	/**
+	 * Whether the block is showing that button rather than the form.
+	 */
+	const isPreviewingButton = !! hasButton && ! isEditing;
+
 	// Loading state while checking connection.
 	if ( connectionLoading ) {
 		return (
@@ -422,6 +427,7 @@ export default function ApiManagedEdit( { attributes, setAttributes, clientId: b
 			handleDeleteButton={ handleDeleteButton }
 			handleDisconnect={ handleDisconnect }
 			hasButton={ hasButton }
+			isPreviewingButton={ isPreviewingButton }
 		/>
 	);
 
@@ -492,7 +498,7 @@ export default function ApiManagedEdit( { attributes, setAttributes, clientId: b
 	const connectionLabel = isConnected ? labelConnected : labelDisconnected;
 
 	// Connected + has button + preview mode — show live button preview.
-	if ( hasButton && ! isEditing ) {
+	if ( isPreviewingButton ) {
 		return (
 			<div { ...blockProps } data-color-scheme={ colorScheme || 'auto' }>
 				{ toolbarControls }
@@ -689,7 +695,7 @@ export default function ApiManagedEdit( { attributes, setAttributes, clientId: b
 				</PanelBody>
 				<PanelBody
 					title={ __( 'Product Options', 'jetpack-paypal-payments' ) }
-					initialOpen={ false }
+					initialOpen={ ! hasButton }
 				>
 					<VariantBuilder
 						enabled={ variantsEnabled }
