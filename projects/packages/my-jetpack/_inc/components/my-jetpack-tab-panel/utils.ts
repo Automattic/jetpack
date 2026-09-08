@@ -2,6 +2,7 @@ import { __ } from '@wordpress/i18n';
 import {
 	MY_JETPACK_SECTION_FEATURES,
 	MY_JETPACK_SECTION_HELP,
+	MY_JETPACK_SECTION_MORE_FEATURES,
 	MY_JETPACK_SECTION_OVERVIEW,
 	MY_JETPACK_SECTION_PRODUCTS,
 } from './constants';
@@ -31,6 +32,10 @@ export function getMyJetpackSections(): TabPanelProps[ 'tabs' ] {
 		{
 			name: MY_JETPACK_SECTION_FEATURES,
 			title: __( 'Features', 'jetpack-my-jetpack' ),
+		},
+		{
+			name: MY_JETPACK_SECTION_MORE_FEATURES,
+			title: __( 'More features', 'jetpack-my-jetpack' ),
 		},
 		{
 			name: MY_JETPACK_SECTION_HELP,

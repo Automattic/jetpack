@@ -258,6 +258,37 @@ class Main_Features {
 	}
 
 	/**
+	 * The Jetpack modules the feature list already accounts for.
+	 *
+	 * Each feature either names a module outright or is backed by a product that runs
+	 * one. The remainder is what the More features tab has left to show, so this is the
+	 * single place that decides which side of that line a module falls on.
+	 *
+	 * @return string[] Module slugs, unsorted.
+	 */
+	public static function get_covered_modules() {
+		$modules = array();
+
+		foreach ( self::get_feature_definitions() as $definition ) {
+			if ( ! empty( $definition['module'] ) ) {
+				$modules[] = $definition['module'];
+			}
+
+			if ( empty( $definition['product'] ) ) {
+				continue;
+			}
+
+			$product_class = Products::get_product_class( $definition['product'] );
+
+			if ( $product_class && ! empty( $product_class::$module_name ) ) {
+				$modules[] = $product_class::$module_name;
+			}
+		}
+
+		return array_values( array_unique( $modules ) );
+	}
+
+	/**
 	 * Where a feature's own settings screen lives.
 	 *
 	 * Must be the feature's own page: a section of the Jetpack settings screen is not a

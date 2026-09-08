@@ -123,6 +123,31 @@ class Main_Features_Test extends TestCase {
 	}
 
 	/**
+	 * The More features tab is the modules screen minus this set, so a module leaving or
+	 * joining it silently moves between two lists. Pinned so that has to be deliberate.
+	 */
+	public function test_covered_modules_are_the_expected_set() {
+		$covered = Main_Features::get_covered_modules();
+		sort( $covered );
+
+		$this->assertSame(
+			array(
+				'ai',
+				'blaze',
+				'contact-form',
+				'podcast',
+				'protect',
+				'publicize',
+				'search',
+				'stats',
+				'subscriptions',
+				'videopress',
+			),
+			$covered
+		);
+	}
+
+	/**
 	 * Slugs are the join key between the catalog and the UI, so they must be unique.
 	 */
 	public function test_feature_slugs_are_unique() {

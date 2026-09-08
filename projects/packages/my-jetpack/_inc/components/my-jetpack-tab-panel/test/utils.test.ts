@@ -5,6 +5,7 @@ import { currentUserCan, isSimpleSite } from '@automattic/jetpack-script-data';
 import {
 	MY_JETPACK_SECTION_FEATURES,
 	MY_JETPACK_SECTION_HELP,
+	MY_JETPACK_SECTION_MORE_FEATURES,
 	MY_JETPACK_SECTION_OVERVIEW,
 	MY_JETPACK_SECTION_PRODUCTS,
 } from '../constants';
@@ -32,11 +33,12 @@ const ALL_SECTIONS = [
 	MY_JETPACK_SECTION_OVERVIEW,
 	MY_JETPACK_SECTION_PRODUCTS,
 	MY_JETPACK_SECTION_FEATURES,
+	MY_JETPACK_SECTION_MORE_FEATURES,
 	MY_JETPACK_SECTION_HELP,
 ];
 
 describe( 'getMyJetpackSections', () => {
-	it( 'orders Features last before Help, after Overview and Products', () => {
+	it( 'orders Features and More features between Products and Help', () => {
 		expect( getMyJetpackSections().map( tab => tab.name ) ).toEqual( ALL_SECTIONS );
 	} );
 

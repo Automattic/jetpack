@@ -3,6 +3,7 @@ import { FeaturesContent } from './features/content';
 import { FullWidthSeparator } from './full-width-separator';
 import { HelpContent } from './help/content';
 import { HelpFooter } from './help/footer';
+import { MoreFeaturesContent } from './more-features/content';
 import { OverviewContent } from './overview/content';
 import { OverviewFooter } from './overview/footer';
 import { ProductsContent } from './products/content';
@@ -16,6 +17,7 @@ export type TabContentProps = {
 
 const componentMap: Record< MyJetpackSection, ComponentType > = {
 	features: FeaturesContent,
+	'more-features': MoreFeaturesContent,
 	overview: OverviewContent,
 	products: ProductsContent,
 	help: HelpContent,
