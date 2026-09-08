@@ -224,8 +224,7 @@ class Jetpack_Json_Api_New_Endpoints_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Stand-in for Automatic_Install_Skin after WP_Upgrader::run() has called
-	 * set_result() with the WP_Error install_package() returned.
+	 * Stand-in for Automatic_Install_Skin once run() has set the install error.
 	 *
 	 * @param mixed $result Value of the skin's public $result.
 	 * @return stdClass
@@ -237,7 +236,7 @@ class Jetpack_Json_Api_New_Endpoints_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Stand-in for Plugin_Upgrader after check_package() has read the zip's headers.
+	 * Stand-in for Plugin_Upgrader once check_package() has read the zip's headers.
 	 *
 	 * @param array $new_plugin_data Value of the upgrader's public $new_plugin_data.
 	 * @return stdClass
@@ -281,9 +280,6 @@ class Jetpack_Json_Api_New_Endpoints_Test extends WP_UnitTestCase {
 		);
 	}
 
-	/**
-	 * The payload must not disturb the code, message or status any existing client reads.
-	 */
 	public function test_folder_exists_payload_preserves_primary_error_contract() {
 		$endpoint = $this->make_plugins_endpoint();
 		$error    = new WP_Error( 'folder_exists', 'Destination folder already exists.', 400 );
@@ -304,9 +300,6 @@ class Jetpack_Json_Api_New_Endpoints_Test extends WP_UnitTestCase {
 		$this->assertSame( 'akismet', $serialized['errors']['data']['plugin_slug'] );
 	}
 
-	/**
-	 * No slug means the client gets exactly today's rejection and falls back to the old screen.
-	 */
 	public function test_folder_exists_payload_omitted_when_no_slug_derived() {
 		$endpoint = $this->make_plugins_endpoint();
 		$error    = new WP_Error( 'folder_exists', 'Destination folder already exists.', 400 );

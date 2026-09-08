@@ -136,15 +136,14 @@ class Jetpack_JSON_API_Plugins_New_Endpoint extends Jetpack_JSON_API_Plugins_End
 	}
 
 	/**
-	 * Attach the conflicting plugin's identity to a folder_exists rejection so the client
-	 * can offer the plugins/replace flow instead of a dead end (DOTCOM-18492).
+	 * Attach the conflicting plugin's identity to a folder_exists rejection.
 	 *
-	 * The payload rides along as a second 'additional_data' entry because the API drops
-	 * extra WP_Error properties; the first entry still defines code, message and status.
+	 * It rides along as a second 'additional_data' entry because the API drops extra
+	 * WP_Error properties; the first entry still defines code, message and status.
 	 *
 	 * @param WP_Error        $error    Error to augment, modified in place.
 	 * @param object          $skin     Upgrader skin.
-	 * @param Plugin_Upgrader $upgrader Upgrader whose $new_plugin_data holds the uploaded zip's headers.
+	 * @param Plugin_Upgrader $upgrader Upgrader holding the uploaded zip's headers.
 	 * @return void
 	 */
 	protected function add_folder_exists_data( WP_Error $error, $skin, $upgrader ) {
@@ -154,7 +153,7 @@ class Jetpack_JSON_API_Plugins_New_Endpoint extends Jetpack_JSON_API_Plugins_End
 		}
 
 		$data        = array( 'plugin_slug' => $slug );
-		$plugin_data = isset( $upgrader->new_plugin_data ) && is_array( $upgrader->new_plugin_data ) ? $upgrader->new_plugin_data : array();
+		$plugin_data = is_array( $upgrader->new_plugin_data ?? null ) ? $upgrader->new_plugin_data : array();
 
 		if ( ! empty( $plugin_data['Version'] ) && is_scalar( $plugin_data['Version'] ) ) {
 			$data['plugin_version'] = (string) $plugin_data['Version'];
@@ -170,15 +169,15 @@ class Jetpack_JSON_API_Plugins_New_Endpoint extends Jetpack_JSON_API_Plugins_End
 	/**
 	 * Derive the slug of the plugin folder install_package() refused to overwrite.
 	 *
-	 * The skin's get_main_error_code()/get_main_error_message() discard the error data,
-	 * so the destination path has to come off the public $skin->result.
+	 * The skin's get_main_error_*() methods discard the error data, so the destination
+	 * path has to come off $skin->result.
 	 *
 	 * @param object $skin Upgrader skin.
 	 * @return string The slug, or '' when one could not be derived.
 	 */
 	protected function get_folder_exists_slug( $skin ) {
-		$result = isset( $skin->result ) ? $skin->result : null;
-		if ( ! is_wp_error( $result ) ) {
+		$result = $skin->result ?? null;
+		if ( ! $result instanceof WP_Error ) {
 			return '';
 		}
 
@@ -187,8 +186,7 @@ class Jetpack_JSON_API_Plugins_New_Endpoint extends Jetpack_JSON_API_Plugins_End
 			return '';
 		}
 
-		// Only the basename is returned, never the destination path, so no filesystem
-		// layout leaks; the pattern drops anything that is not a plain folder name.
+		// Basename only, so no filesystem layout leaks.
 		$slug = basename( untrailingslashit( $destination ) );
 
 		return preg_match( '/^[A-Za-z0-9][A-Za-z0-9_.-]*$/', $slug ) ? $slug : '';
