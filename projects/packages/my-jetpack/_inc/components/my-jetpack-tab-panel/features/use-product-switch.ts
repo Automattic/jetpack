@@ -61,7 +61,7 @@ export function useProductSwitch( state: FeatureState ) {
 					);
 
 					if ( sidebarSlug ) {
-						setPendingSidebarHighlight( sidebarSlug );
+						setPendingSidebarHighlight( sidebarSlug, feature.name );
 					}
 
 					reloadPage();

@@ -181,12 +181,12 @@ $feature-icon-foreground: #0ced57;
 // Applied to a wp-admin menu item, which lives outside this
 // app's DOM, so the class name must survive CSS Modules hashing.
 :global(.jetpack-feature-sidebar-highlight) {
-	animation: jetpack-feature-pulse 1.4s ease-in-out 3;
-	border-radius: var(--wpds-border-radius-sm);
 	position: relative;
 }
 
+// The dot does the blinking: a pulsing ring around the whole row was too loud.
 :global(.jetpack-feature-sidebar-highlight)::after {
+	animation: jetpack-feature-dot-pulse 1.2s ease-in-out infinite;
 	background: $feature-icon-foreground;
 	block-size: 0.5rem;
 	border-radius: 50%;
@@ -198,22 +198,42 @@ $feature-icon-foreground: #0ced57;
 	position: absolute;
 }
 
-@keyframes jetpack-feature-pulse {
+// Drawn from the data attribute the hook sets, so the copy stays translatable.
+:global(.jetpack-feature-sidebar-highlight)::before {
+	background: $feature-icon-background;
+	border-radius: var(--wpds-border-radius-sm);
+	color: #fff;
+	content: attr(data-jetpack-highlight-label);
+	font-size: 0.75rem;
+	inset-block-start: 50%;
+	inset-inline-start: calc(100% + 0.5rem);
+	line-height: 1.4;
+	padding-block: 0.25rem;
+	padding-inline: 0.5rem;
+	pointer-events: none;
+	position: absolute;
+	transform: translateY(-50%);
+	white-space: nowrap;
+	z-index: 10000;
+}
+
+@keyframes jetpack-feature-dot-pulse {
 
 	0%,
 	100% {
-		box-shadow: inset 0 0 0 0 transparent;
+		opacity: 1;
+		transform: scale(1);
 	}
 
 	50% {
-		box-shadow: inset 0 0 0 2px $feature-icon-foreground;
+		opacity: 0.35;
+		transform: scale(0.7);
 	}
 }
 
 @media (prefers-reduced-motion: reduce) {
 
-	:global(.jetpack-feature-sidebar-highlight) {
+	:global(.jetpack-feature-sidebar-highlight)::after {
 		animation: none;
-		box-shadow: inset 0 0 0 2px $feature-icon-foreground;
 	}
 }

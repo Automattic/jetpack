@@ -1,3 +1,4 @@
+import { __, sprintf } from '@wordpress/i18n';
 import { useEffect } from 'react';
 
 /**
@@ -41,14 +42,20 @@ export function getAdminPageSlug( manageUrl: string ): string | null {
 	}
 }
 
+type PendingHighlight = {
+	slug: string;
+	name: string;
+};
+
 /**
  * Store the menu item to point at after the next page load.
  *
  * @param slug - Admin page slug of the newly activated feature.
+ * @param name - The feature's name, for the tooltip.
  */
-export function setPendingSidebarHighlight( slug: string ): void {
+export function setPendingSidebarHighlight( slug: string, name: string ): void {
 	try {
-		window.sessionStorage?.setItem( PENDING_HIGHLIGHT_KEY, slug );
+		window.sessionStorage?.setItem( PENDING_HIGHLIGHT_KEY, JSON.stringify( { slug, name } ) );
 	} catch {
 		// sessionStorage may be unavailable; the highlight is non-critical.
 	}
@@ -57,15 +64,21 @@ export function setPendingSidebarHighlight( slug: string ): void {
 /**
  * Read and clear any pending highlight target.
  *
- * @return The stored slug, or null if none.
+ * @return The stored target, or null if none.
  */
-function consumePendingSidebarHighlight(): string | null {
+function consumePendingSidebarHighlight(): PendingHighlight | null {
 	try {
-		const slug = window.sessionStorage?.getItem( PENDING_HIGHLIGHT_KEY ) ?? null;
-		if ( slug ) {
-			window.sessionStorage.removeItem( PENDING_HIGHLIGHT_KEY );
+		const stored = window.sessionStorage?.getItem( PENDING_HIGHLIGHT_KEY ) ?? null;
+
+		if ( ! stored ) {
+			return null;
 		}
-		return slug;
+
+		window.sessionStorage.removeItem( PENDING_HIGHLIGHT_KEY );
+
+		const parsed = JSON.parse( stored );
+
+		return parsed?.slug ? parsed : null;
 	} catch {
 		return null;
 	}
@@ -78,23 +91,36 @@ export function useHighlightNewSidebarItem(): void {
 	// Consume once on mount: re-running would eat the value on the page that set it,
 	// before the reload that is supposed to display it.
 	useEffect( () => {
-		const slug = consumePendingSidebarHighlight();
+		const target = consumePendingSidebarHighlight();
 
-		if ( ! slug || window.matchMedia?.( ADMIN_MENU_BREAKPOINT ).matches ) {
+		if ( ! target || window.matchMedia?.( ADMIN_MENU_BREAKPOINT ).matches ) {
 			return;
 		}
 
-		const link = document.querySelector< HTMLElement >( `#adminmenu a[href*="page=${ slug }"]` );
+		const link = document.querySelector< HTMLElement >(
+			`#adminmenu a[href*="page=${ target.slug }"]`
+		);
 
 		if ( ! link ) {
 			return;
 		}
 
 		const item = link.closest( 'li' ) ?? link;
+
+		// The tooltip is drawn from this attribute, so its copy stays translatable
+		// rather than being baked into a stylesheet.
+		item.dataset.jetpackHighlightLabel = sprintf(
+			/* translators: %s is the feature name. */
+			__( '%s is here', 'jetpack-my-jetpack' ),
+			target.name
+		);
 		item.classList.add( HIGHLIGHT_CLASS );
 		link.scrollIntoView( { block: 'nearest' } );
 
-		const timer = setTimeout( () => item.classList.remove( HIGHLIGHT_CLASS ), HIGHLIGHT_MS );
+		const timer = setTimeout( () => {
+			item.classList.remove( HIGHLIGHT_CLASS );
+			delete item.dataset.jetpackHighlightLabel;
+		}, HIGHLIGHT_MS );
 
 		// Only the timer is cleaned up: removing the class here would let a remount
 		// wipe a highlight that is still meant to be showing.

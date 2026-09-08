@@ -72,7 +72,7 @@ export function useModuleSwitch( state: FeatureState ) {
 				setPendingSuccessNotice( message );
 
 				if ( sidebarSlug ) {
-					setPendingSidebarHighlight( sidebarSlug );
+					setPendingSidebarHighlight( sidebarSlug, feature.name );
 				}
 
 				reloadPage();
