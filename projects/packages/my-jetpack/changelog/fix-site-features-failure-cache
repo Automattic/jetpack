@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Show the right product status as soon as fresher plan data is available, instead of reusing an earlier lookup.
