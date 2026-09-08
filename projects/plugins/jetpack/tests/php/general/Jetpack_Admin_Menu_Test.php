@@ -53,9 +53,16 @@ class Jetpack_Admin_Menu_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Clears Admin_Menu's static state between tests.
+	 * Clears Admin_Menu's static state and the menu globals between renders.
 	 */
 	private function reset_admin_menu() {
+		// add_submenu_page() writes to all four of these and WP_UnitTestCase restores none of them.
+		global $menu, $submenu, $_parent_pages, $_registered_pages;
+		$menu              = array();
+		$submenu           = array();
+		$_parent_pages     = array();
+		$_registered_pages = array();
+
 		$reflection = new \ReflectionClass( Admin_Menu::class );
 
 		foreach ( array( 'menu_items', 'page_hooks' ) as $name ) {
@@ -175,5 +182,87 @@ class Jetpack_Admin_Menu_Test extends WP_UnitTestCase {
 		usort( $alphabetical, 'strnatcasecmp' );
 
 		$this->assertSame( $alphabetical, $internal, 'Jetpack submenu items should be ordered alphabetically by menu title.' );
+	}
+
+	/**
+	 * The menu callbacks real products register through, keyed by product.
+	 *
+	 * These are the admin_menu callbacks themselves rather than each product's init(), which guards
+	 * on static state and so registers nothing the second time a test calls it.
+	 *
+	 * @return array Product name to callable.
+	 */
+	private function menu_registrars() {
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class.jetpack-react-page.php';
+
+		return array(
+			'my-jetpack' => array( My_Jetpack_Initializer::class, 'add_my_jetpack_menu_item' ),
+			'backup'     => array( Jetpack_Backup::class, 'add_wp_admin_submenu' ),
+			'videopress' => array( Admin_UI::class, 'enable_menu' ),
+			'settings'   => array( new Jetpack_React_Page(), 'jetpack_add_settings_sub_nav_item' ),
+		);
+	}
+
+	/**
+	 * Runs a set of real product registrars through a request and reports the resulting slugs.
+	 *
+	 * @param array $registrars Callables from menu_registrars().
+	 * @return array Menu slugs, in the order WordPress rendered them.
+	 */
+	private function render_menu( array $registrars ) {
+		$this->reset_admin_menu();
+
+		/*
+		 * Loading the plugin leaves its own admin_menu callbacks hooked, so without this the products
+		 * under test register twice and products outside the set register anyway. Admin_Menu re-hooks
+		 * its own sorter from add_menu(), since the reset above uninitialized it.
+		 */
+		remove_all_actions( 'admin_menu' );
+
+		foreach ( $registrars as $registrar ) {
+			call_user_func( $registrar );
+		}
+
+		do_action( 'admin_menu' );
+
+		global $submenu;
+		$slugs = empty( $submenu['jetpack'] ) ? array() : array_column( $submenu['jetpack'], 2 );
+
+		// The free-plan upsell is appended after the sort, so it is not part of the ordering contract.
+		return array_values(
+			array_filter(
+				$slugs,
+				static function ( $slug ) {
+					return false === strpos( $slug, Admin_Menu::UPGRADE_MENU_SLUG );
+				}
+			)
+		);
+	}
+
+	/**
+	 * The same active products give the same order whichever one registered first.
+	 *
+	 * A product taking an explicit position stays deterministic, so it is test_jetpack_admin_menu_order()
+	 * above, not this one, that catches that.
+	 */
+	public function test_menu_order_is_independent_of_registrar_order() {
+		$registrars = $this->menu_registrars();
+		$order      = $this->render_menu( $registrars );
+
+		$this->assertNotEmpty( $order, 'Expected the real registrars to produce a Jetpack submenu.' );
+		$this->assertSame( 'my-jetpack', $order[0], 'My Jetpack should be pinned first.' );
+		$this->assertSame( $order, $this->render_menu( array_reverse( $registrars ) ) );
+
+		$interleaved = array( $registrars['videopress'], $registrars['settings'], $registrars['my-jetpack'], $registrars['backup'] );
+		$this->assertSame( $order, $this->render_menu( $interleaved ) );
+	}
+
+	/**
+	 * A site with nothing but My Jetpack still gets a sidebar, with My Jetpack in it.
+	 */
+	public function test_only_my_jetpack() {
+		$registrars = $this->menu_registrars();
+
+		$this->assertSame( array( 'my-jetpack' ), $this->render_menu( array( $registrars['my-jetpack'] ) ) );
 	}
 }

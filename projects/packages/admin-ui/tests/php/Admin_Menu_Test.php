@@ -1252,4 +1252,331 @@ class Admin_Menu_Test extends TestCase {
 
 		return array_column( $submenu['jetpack'] ?? array(), 2 );
 	}
+
+	/**
+	 * Suffix production appends to menu titles that leave wp-admin.
+	 */
+	private const EXTERNAL_MARK = ' <span aria-hidden="true">↗</span>';
+
+	/**
+	 * Clears every piece of state a previous render left behind.
+	 *
+	 * Core's add_submenu_page() writes to four globals and WorDBless restores none of them, so a
+	 * second render in the same test would otherwise re-sort the first render's items with its own.
+	 */
+	private function reset_menu_state() {
+		global $menu, $submenu, $_parent_pages, $_registered_pages;
+		$menu              = array();
+		$submenu           = array();
+		$_parent_pages     = array();
+		$_registered_pages = array();
+
+		$reflection = new \ReflectionClass( Admin_Menu::class );
+
+		foreach ( array(
+			'menu_items'  => array(),
+			'page_hooks'  => array(),
+			'initialized' => false,
+		) as $name => $value ) {
+			if ( ! $reflection->hasProperty( $name ) ) {
+				continue;
+			}
+
+			$property = $reflection->getProperty( $name );
+			// @todo Remove this call once we no longer need to support PHP <8.1.
+			if ( PHP_VERSION_ID < 80100 ) {
+				$property->setAccessible( true );
+			}
+			$property->setValue( null, $value );
+		}
+	}
+
+	/**
+	 * Registers a set of menu items the way a request would, and reports the order they came out in.
+	 *
+	 * @param array $items    Triples of [ menu title, menu slug, position ]; omit the position to land in the alphabetical tier.
+	 * @param int   $priority Priority to register on, to prove the sort does not care.
+	 * @return array Menu titles, in the order WordPress ended up rendering them.
+	 */
+	private function render_items( array $items, $priority = 10 ) {
+		$this->reset_menu_state();
+		wp_set_current_user( self::$admin_user_id );
+
+		$register = static function () use ( $items ) {
+			foreach ( $items as $item ) {
+				Admin_Menu::add_menu( $item[0], $item[0], 'manage_options', $item[1], '__return_null', isset( $item[2] ) ? $item[2] : null );
+			}
+		};
+
+		// Each closure is a distinct callback, so leaving it hooked would make the next render
+		// re-register this one's items on top of its own.
+		add_action( 'admin_menu', $register, $priority );
+		do_action( 'admin_menu' );
+		remove_action( 'admin_menu', $register, $priority );
+
+		global $submenu;
+		$titles = empty( $submenu['jetpack'] ) ? array() : array_column( $submenu['jetpack'], 0 );
+
+		// The free-plan upsell is appended after the sort, so it is not part of the ordering contract.
+		return array_values(
+			array_filter(
+				$titles,
+				static function ( $title ) {
+					return 'Upgrade Jetpack' !== $title;
+				}
+			)
+		);
+	}
+
+	/**
+	 * The products a Jetpack site can put in the sidebar, with the titles and tiers they register with.
+	 *
+	 * @return array Product key to [ menu title, menu slug, position ] triple.
+	 */
+	private static function product_fixtures() {
+		return array(
+			'my-jetpack'   => array( 'My Jetpack', 'my-jetpack', -10 ),
+			'activity-log' => array( 'Activity Log', 'jetpack-activity-log' ),
+			'ai'           => array( 'Jetpack AI', 'jetpack-ai' ),
+			'akismet'      => array( 'Akismet Anti-spam', 'akismet-key-config' ),
+			'backup'       => array( 'Backup', 'jetpack-backup' ),
+			'blaze'        => array( 'Blaze Ads', 'advertising' ),
+			'boost'        => array( 'Boost', 'jetpack-boost' ),
+			'forms'        => array( 'Forms', 'jetpack-forms' ),
+			'newsletter'   => array( 'Newsletter', 'jetpack-newsletter' ),
+			'podcast'      => array( 'Podcast', 'jetpack-podcast' ),
+			'protect'      => array( 'Protect', 'jetpack-protect' ),
+			'scan'         => array( 'Scan', 'jetpack-scan' ),
+			'search'       => array( 'Search', 'jetpack-search' ),
+			'seo'          => array( 'SEO', 'jetpack-seo' ),
+			'social'       => array( 'Social', 'jetpack-social' ),
+			'videopress'   => array( 'VideoPress', 'jetpack-videopress' ),
+			'manage'       => array( 'Jetpack Manage' . self::EXTERNAL_MARK, 'https://example.org/manage', 100 ),
+			'subscribers'  => array( 'Subscribers' . self::EXTERNAL_MARK, 'https://example.org/subscribers', 100 ),
+			'beta'         => array( 'Beta Tester', 'jetpack-beta', 998 ),
+			'settings'     => array( 'Settings', 'jetpack#/settings', 998 ),
+		);
+	}
+
+	/**
+	 * Builds a registration list from product keys.
+	 *
+	 * @param array $keys Keys into product_fixtures().
+	 * @return array Registration triples.
+	 */
+	private static function products( array $keys ) {
+		$fixtures = self::product_fixtures();
+
+		return array_values(
+			array_map(
+				static function ( $key ) use ( $fixtures ) {
+					return $fixtures[ $key ];
+				},
+				$keys
+			)
+		);
+	}
+
+	/**
+	 * Product combinations a site can be in, and the order the sidebar should come out in.
+	 *
+	 * @return array
+	 */
+	public static function product_combinations_data() {
+		return array(
+			'only my jetpack'                    => array(
+				array( 'my-jetpack' ),
+				array( 'My Jetpack' ),
+			),
+			'scattered middle'                   => array(
+				array( 'my-jetpack', 'videopress', 'backup', 'forms', 'subscribers', 'settings' ),
+				array( 'My Jetpack', 'Backup', 'Forms', 'VideoPress', 'Subscribers' . self::EXTERNAL_MARK, 'Settings' ),
+			),
+			'everything active'                  => array(
+				array(
+					'my-jetpack',
+					'activity-log',
+					'ai',
+					'akismet',
+					'backup',
+					'blaze',
+					'boost',
+					'forms',
+					'newsletter',
+					'podcast',
+					'protect',
+					'scan',
+					'search',
+					'seo',
+					'social',
+					'videopress',
+					'manage',
+					'subscribers',
+					'beta',
+					'settings',
+				),
+				array(
+					'My Jetpack',
+					'Activity Log',
+					'Akismet Anti-spam',
+					'Backup',
+					'Blaze Ads',
+					'Boost',
+					'Forms',
+					'Jetpack AI',
+					'Newsletter',
+					'Podcast',
+					'Protect',
+					'Scan',
+					'Search',
+					'SEO',
+					'Social',
+					'VideoPress',
+					'Jetpack Manage' . self::EXTERNAL_MARK,
+					'Subscribers' . self::EXTERNAL_MARK,
+					'Beta Tester',
+					'Settings',
+				),
+			),
+			'no products, only the pinned tiers' => array(
+				array( 'my-jetpack', 'settings' ),
+				array( 'My Jetpack', 'Settings' ),
+			),
+		);
+	}
+
+	/**
+	 * The sidebar order holds across the product combinations a site can be in.
+	 *
+	 * @param array $keys     Product keys to register.
+	 * @param array $expected Menu titles in the order they should render.
+	 *
+	 * @dataProvider product_combinations_data
+	 */
+	#[DataProvider( 'product_combinations_data' )]
+	public function test_menu_order_across_product_combinations( array $keys, array $expected ) {
+		$order = $this->render_items( self::products( $keys ) );
+
+		$this->assertSame( $expected, $order );
+		$this->assertSame( 'My Jetpack', $order[0], 'My Jetpack should be pinned first in every combination.' );
+	}
+
+	/**
+	 * Activating a product drops it into its alphabetical slot rather than onto the end.
+	 */
+	public function test_activating_a_product_inserts_it_alphabetically() {
+		$without = self::products( array( 'my-jetpack', 'backup', 'newsletter', 'videopress' ) );
+		$with    = self::products( array( 'my-jetpack', 'backup', 'newsletter', 'videopress', 'forms' ) );
+
+		$this->assertSame( array( 'My Jetpack', 'Backup', 'Newsletter', 'VideoPress' ), $this->render_items( $without ) );
+		$this->assertSame( array( 'My Jetpack', 'Backup', 'Forms', 'Newsletter', 'VideoPress' ), $this->render_items( $with ) );
+	}
+
+	/**
+	 * Deactivating a product leaves the rest of the sidebar in order.
+	 */
+	public function test_deactivating_a_product_leaves_the_rest_in_order() {
+		$with    = self::products( array( 'my-jetpack', 'backup', 'forms', 'newsletter', 'videopress' ) );
+		$without = self::products( array( 'my-jetpack', 'backup', 'newsletter', 'videopress' ) );
+
+		$this->assertSame( array( 'My Jetpack', 'Backup', 'Forms', 'Newsletter', 'VideoPress' ), $this->render_items( $with ) );
+		$this->assertSame( array( 'My Jetpack', 'Backup', 'Newsletter', 'VideoPress' ), $this->render_items( $without ) );
+	}
+
+	/**
+	 * The same active set gives the same order whichever plugin registered first.
+	 */
+	public function test_menu_order_is_independent_of_registration_order() {
+		$keys     = array( 'my-jetpack', 'videopress', 'backup', 'forms', 'seo', 'subscribers', 'settings' );
+		$products = self::products( $keys );
+		$expected = $this->render_items( $products );
+
+		$this->assertSame( array( 'My Jetpack', 'Backup', 'Forms', 'SEO', 'VideoPress', 'Subscribers' . self::EXTERNAL_MARK, 'Settings' ), $expected );
+		$this->assertSame( $expected, $this->render_items( array_reverse( $products ) ) );
+		$this->assertSame( $expected, $this->render_items( self::products( array( 'settings', 'forms', 'my-jetpack', 'subscribers', 'seo', 'videopress', 'backup' ) ) ) );
+	}
+
+	/**
+	 * Nor does it depend on which hook or priority an item registered on.
+	 *
+	 * This is the mechanism the sort relies on: add_menu() only collects, and the single usort runs
+	 * at admin_menu priority 1000, after every registration below it has been gathered.
+	 */
+	public function test_menu_order_is_independent_of_hook_and_priority() {
+		$products = self::products( array( 'my-jetpack', 'videopress', 'backup', 'forms' ) );
+		$expected = array( 'My Jetpack', 'Backup', 'Forms', 'VideoPress' );
+
+		foreach ( array( 1, 9, 500 ) as $priority ) {
+			$this->assertSame( $expected, $this->render_items( $products, $priority ), "Registering at admin_menu priority {$priority} should not change the order." );
+		}
+	}
+
+	/**
+	 * An explicit position opts an item out of alphabetical order, which is how it was overwritten before.
+	 *
+	 * The result is asserted loosely on purpose: a small int is acted on twice, by our usort and
+	 * again by core's own splice inside add_submenu_page, so it lands somewhere that matches
+	 * neither the alphabet nor the position asked for. The tiers avoid this by sitting past the end.
+	 */
+	public function test_an_explicit_position_removes_an_item_from_the_alphabetical_run() {
+		$alphabetical = array( 'My Jetpack', 'Backup', 'Forms', 'VideoPress' );
+		$products     = self::products( array( 'my-jetpack', 'backup', 'forms', 'videopress' ) );
+
+		$this->assertSame( $alphabetical, $this->render_items( $products ) );
+
+		$products[3] = array( 'VideoPress', 'jetpack-videopress', 3 );
+
+		$this->assertNotSame( $alphabetical, $this->render_items( $products ), 'An explicit position should take VideoPress out of the alphabetical run.' );
+	}
+
+	/**
+	 * A translation that reorders the labels reorders the sidebar.
+	 *
+	 * The slugs are left in the opposite order to the translations, so a sort that read them
+	 * instead of the menu title would fail here.
+	 */
+	public function test_titles_sort_on_the_translated_label() {
+		$translations = array(
+			'Alpha'   => 'Zuletzt',
+			'Bravo'   => 'Mittig',
+			'Charlie' => 'Anfang',
+		);
+
+		$filter = static function ( $translated, $text ) use ( $translations ) {
+			return isset( $translations[ $text ] ) ? $translations[ $text ] : $translated;
+		};
+
+		add_filter( 'gettext', $filter, 10, 2 );
+
+		$order = $this->render_items(
+			array(
+				array( __( 'Alpha', 'jetpack-admin-ui' ), 'locale-alpha' ),
+				array( __( 'Bravo', 'jetpack-admin-ui' ), 'locale-bravo' ),
+				array( __( 'Charlie', 'jetpack-admin-ui' ), 'locale-charlie' ),
+			)
+		);
+
+		remove_filter( 'gettext', $filter, 10 );
+
+		$this->assertSame( array( 'Anfang', 'Mittig', 'Zuletzt' ), $order );
+	}
+
+	/**
+	 * Accented labels sort after Z, which is the collation tradeoff we accepted.
+	 *
+	 * The comparator compares bytes, so every multi-byte leading character lands past the ASCII
+	 * range. A Collator would file Éclair with the Es. Verified identical on PHP 7.4 and 8.5.
+	 */
+	public function test_accented_titles_sort_after_z() {
+		$order = $this->render_items(
+			array(
+				array( 'Übersicht', 'collation-u' ),
+				array( 'Éclair', 'collation-e' ),
+				array( 'Zebra', 'collation-z' ),
+				array( 'Apfel', 'collation-a' ),
+			)
+		);
+
+		$this->assertSame( array( 'Apfel', 'Zebra', 'Éclair', 'Übersicht' ), $order );
+	}
 }
