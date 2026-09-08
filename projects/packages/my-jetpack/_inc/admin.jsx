@@ -10,7 +10,6 @@ import { HashRouter, Navigate, Routes, Route, useLocation } from 'react-router';
 import AddLicenseScreen from './components/add-license-screen';
 import ConnectionScreen from './components/connection-screen';
 import MyJetpackScreen from './components/my-jetpack-screen';
-import { FeatureDetail } from './components/my-jetpack-tab-panel/features/feature-detail';
 import OnboardingScreen from './components/onboarding-screen';
 import {
 	AntiSpamInterstitial,
@@ -72,7 +71,6 @@ const MyJetpack = () => {
 				<ScrollToTop />
 				<Routes>
 					<Route path={ MyJetpackRoutes.Home } element={ <MyJetpackScreen /> } />
-					<Route path={ MyJetpackRoutes.FeatureDetail } element={ <FeatureDetail /> } />
 					<Route path={ MyJetpackRoutes.Connection } element={ <ConnectionScreen /> } />
 					<Route path={ MyJetpackRoutes.AddAkismet } element={ <AntiSpamInterstitial /> } />
 					{ /* Redirect the old route for Anti Spam */ }

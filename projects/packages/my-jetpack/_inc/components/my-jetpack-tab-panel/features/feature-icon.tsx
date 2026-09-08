@@ -1,5 +1,4 @@
 import { Icon } from '@wordpress/ui';
-import clsx from 'clsx';
 import { PRODUCT_ICONS } from '../products/mappings';
 import { getFeatureIcon } from './icons';
 import styles from './styles.module.scss';
@@ -7,7 +6,6 @@ import type { JetpackProductWithCard } from '../../../types';
 
 type FeatureIconProps = {
 	feature: MainFeature;
-	small?: boolean;
 };
 
 /**
@@ -19,15 +17,11 @@ type FeatureIconProps = {
  *
  * @param {FeatureIconProps} props         - The component props.
  * @param {MainFeature}      props.feature - The feature to render an icon for.
- * @param {boolean}          props.small   - Render at the smaller size used in the
- *                                         previous/next footer.
  * @return The rendered component.
  */
-export function FeatureIcon( { feature, small = false }: FeatureIconProps ) {
+export function FeatureIcon( { feature }: FeatureIconProps ) {
 	const ProductIcon = PRODUCT_ICONS[ feature.product as JetpackProductWithCard ];
-	const className = clsx( styles[ 'feature-icon' ], {
-		[ styles[ 'feature-icon--small' ] ]: small,
-	} );
+	const className = styles[ 'feature-icon' ];
 
 	if ( ProductIcon ) {
 		return (
@@ -40,7 +34,7 @@ export function FeatureIcon( { feature, small = false }: FeatureIconProps ) {
 	return (
 		<span className={ className }>
 			<span className={ styles[ 'feature-icon__fallback' ] }>
-				<Icon icon={ getFeatureIcon( feature.icon ) } size={ small ? 16 : 28 } />
+				<Icon icon={ getFeatureIcon( feature.icon ) } size={ 28 } />
 			</span>
 		</span>
 	);

@@ -4,6 +4,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
 import { BulkActions } from './bulk-actions';
 import { FeatureItem } from './feature-item';
+import { FeatureModal } from './feature-modal';
 import { useFeatureStates } from './feature-state';
 import styles from './styles.module.scss';
 
@@ -22,6 +23,7 @@ export function FeaturesContent() {
 	) as MainFeature[];
 	const states = useFeatureStates( features );
 	const [ selected, setSelected ] = useState< string[] >( [] );
+	const [ openSlug, setOpenSlug ] = useState< string | null >( null );
 
 	const selectableSlugs = useMemo(
 		() => states.filter( state => state.selectable ).map( state => state.feature.slug ),
@@ -35,6 +37,11 @@ export function FeaturesContent() {
 	}, [] );
 
 	const clearSelection = useCallback( () => setSelected( [] ), [] );
+
+	const openFeature = useCallback( ( slug: string ) => setOpenSlug( slug ), [] );
+	const closeFeature = useCallback( () => setOpenSlug( null ), [] );
+
+	const openIndex = states.findIndex( item => item.feature.slug === openSlug );
 
 	const allSelected = selectableSlugs.length > 0 && selected.length === selectableSlugs.length;
 
@@ -62,9 +69,20 @@ export function FeaturesContent() {
 						state={ state }
 						selected={ selected.includes( state.feature.slug ) }
 						onSelect={ toggleFeature }
+						onOpen={ openFeature }
 					/>
 				) ) }
 			</Stack>
+
+			{ openIndex !== -1 && (
+				<FeatureModal
+					state={ states[ openIndex ] }
+					previous={ states[ openIndex - 1 ] }
+					next={ states[ openIndex + 1 ] }
+					onClose={ closeFeature }
+					onStep={ openFeature }
+				/>
+			) }
 		</section>
 	);
 }

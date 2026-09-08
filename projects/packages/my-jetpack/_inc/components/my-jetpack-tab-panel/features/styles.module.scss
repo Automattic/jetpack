@@ -76,15 +76,6 @@ $feature-icon-foreground: #0ced57;
 	flex-shrink: 0;
 }
 
-.detail-intro {
-	block-size: 100%;
-	justify-content: center;
-}
-
-.detail-lede {
-	color: var(--wpds-color-foreground-content-neutral-weak);
-}
-
 .detail-links {
 	color: var(--wpds-color-foreground-content-neutral-weak);
 }
@@ -103,10 +94,6 @@ $feature-icon-foreground: #0ced57;
 	display: grid;
 	gap: var(--wpds-dimension-gap-md);
 	grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
-}
-
-.detail-highlight {
-	color: var(--wpds-color-foreground-content-neutral);
 }
 
 // Reserves the image's space before it loads, so the remote asset
@@ -161,32 +148,15 @@ $feature-icon-foreground: #0ced57;
 	text-align: center;
 }
 
-.feature-icon--small {
-	block-size: 1.75rem;
-	inline-size: 1.75rem;
+.modal-steps {
+	margin-inline-end: auto;
 }
 
-.feature-pagination {
-	border-block-start-color: var(--wpds-color-stroke-surface-neutral-weak);
-	border-block-start-style: solid;
-	border-block-start-width: var(--wpds-border-width-sm);
-	display: flex;
-	gap: var(--wpds-dimension-gap-md);
-	justify-content: space-between;
-	margin-block-start: var(--wpds-dimension-gap-2xl);
-	padding-block-start: var(--wpds-dimension-padding-lg);
-}
-
-.feature-step {
-	background: none;
-	border: 0;
-	border-radius: var(--wpds-border-radius-md);
-	color: inherit;
-	cursor: pointer;
-	padding: var(--wpds-dimension-padding-sm);
-	text-align: start;
-
-	&:hover {
-		background: var(--wpds-color-background-surface-neutral-weak);
-	}
+// Capping the width caps the height too, via the frame's aspect
+// ratio: at full modal width the screenshot pushed the description
+// and highlights below the fold.
+.modal-screenshot {
+	inline-size: 100%;
+	margin-inline: auto;
+	max-inline-size: 30rem;
 }

@@ -3,6 +3,7 @@ import { Badge, Checkbox, Stack, Text } from '@wordpress/ui';
 import { useCallback } from 'react';
 import { FeatureChevron } from './feature-chevron';
 import { FeatureIcon } from './feature-icon';
+import { FeatureToggle } from './feature-toggle';
 import styles from './styles.module.scss';
 import type { FeatureState } from './feature-state';
 
@@ -10,6 +11,7 @@ type FeatureItemProps = {
 	state: FeatureState;
 	selected: boolean;
 	onSelect: ( slug: string, checked: boolean ) => void;
+	onOpen: ( slug: string ) => void;
 };
 
 /**
@@ -19,9 +21,10 @@ type FeatureItemProps = {
  * @param {FeatureState}     props.state    - Live state for the feature.
  * @param {boolean}          props.selected - Whether the row is selected for a bulk action.
  * @param {Function}         props.onSelect - Called when the row's checkbox changes.
+ * @param {Function}         props.onOpen   - Opens the feature's details.
  * @return The rendered component.
  */
-export function FeatureItem( { state, selected, onSelect }: FeatureItemProps ) {
+export function FeatureItem( { state, selected, onSelect, onOpen }: FeatureItemProps ) {
 	const { feature } = state;
 	const isActive = state.status === 'active';
 
@@ -62,7 +65,9 @@ export function FeatureItem( { state, selected, onSelect }: FeatureItemProps ) {
 				<Text variant="body-sm">{ feature.description }</Text>
 			</Stack>
 
-			<FeatureChevron state={ state } />
+			<FeatureToggle state={ state } />
+
+			<FeatureChevron state={ state } onOpen={ onOpen } />
 		</Stack>
 	);
 }
