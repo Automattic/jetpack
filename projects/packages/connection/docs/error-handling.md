@@ -107,7 +107,7 @@ Verified, displayable errors reach the front end through two channels, built fro
 * **A generic wp-admin notice**, rendered by `handle_verified_errors()` on `admin_init`. This is a PHP-only fallback: plain text as well as a single action link for some codes (see [Display configuration](#display-configuration) below). It has no knowledge of React, and nothing to do with the JS consumers described next.
 * **`connectionErrors` in the React initial state**, populated by `Initial_State::get_data()` (`Automattic\Jetpack\Connection\Initial_State`) from the same `get_displayable_errors()` call but via `jetpack_react_dashboard_error()`, and printed to the page as `window.JP_CONNECTION_INITIAL_STATE.connectionErrors` (or merged into a consuming plugin's own `JetpackScriptData.connection.connectionErrors` via `set_connection_script_data()`). This is the channel every React-based consumer reads from.
 
-Only a subset of error codes is user-displayable (see `get_error_display_configs()`), and each displayable error is classified by audience — `site` (blog token), `owner` (the connection owner's token), or `user` (another user's token) — so consumers can render viewer-appropriate copy, and by the [viewer capability gate](#viewer-capability-gate) below.
+Only a subset of error codes is user-displayable (see `get_error_display_configs()`), and each displayable error is classified by audience — `site` (blog token), `owner` (the connection owner's token), or `user` (a non-owner user's token, which only that user is ever shown — see the [viewer capability gate](#viewer-capability-gate)) — so consumers can render viewer-appropriate copy, and by the [viewer capability gate](#viewer-capability-gate) below.
 
 ### React/JS consumers: `@automattic/jetpack-connection`
 
@@ -135,7 +135,11 @@ The one code with special-cased copy today is `invalid_connection_owner`, via `g
 
 ### Viewer capability gate
 
-`get_displayable_errors()` is viewer-specific: an error is dropped entirely for a viewer who lacks the capability to resolve it, rather than being shown without its call to action. The split follows the scope of the remedy:
+`get_displayable_errors()` is viewer-specific: an error is dropped entirely for a viewer who lacks the capability to resolve it, rather than being shown without its call to action.
+
+Before capabilities are consulted at all, a `user`-audience error belonging to someone other than the viewer is skipped outright — another user's broken token is invisible, not merely non-actionable. `invalid_connection_owner` is exempt, since it lands in the `user` audience by ID alone when there is no current owner to compare against.
+
+The capability split then follows the scope of the remedy:
 
 * `user` audience (the viewer's own broken token, excluding `invalid_connection_owner`) needs `jetpack_connect_user`, which non-admins hold once the site has a connected owner — relinking their own account is self-service.
 * `site` and `owner` audiences, and `invalid_connection_owner` at any audience, need `jetpack_connect`. Their remedy is `Manager::restore()`, which for a broken blog token tears down the whole site connection and re-registers it — a `manage_options` action, and destructive for every other connected user.

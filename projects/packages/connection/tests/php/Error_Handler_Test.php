@@ -31,7 +31,7 @@ class Error_Handler_Test extends BaseTestCase {
 		// Registered by Manager::configure() in production. The display pipeline gates
 		// errors on jetpack_connect / jetpack_connect_user, so without it no test user
 		// would hold either capability and every error would be filtered out.
-		add_filter( 'map_meta_cap', array( new Manager(), 'jetpack_connection_custom_caps' ), 10, 4 );
+		add_filter( 'map_meta_cap', array( new Manager(), 'jetpack_connection_custom_caps' ), 1, 4 );
 	}
 
 	/**
