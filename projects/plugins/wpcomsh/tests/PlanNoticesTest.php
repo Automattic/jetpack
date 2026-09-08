@@ -68,6 +68,48 @@ class PlanNoticesTest extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Test with an expired plan.
+	 */
+	public function test_plan_notices_expired() {
+		$business_plan_purchase = array(
+			'product_slug' => 'business-bundle',
+			'expiry_date'  => ( new DateTime() )->sub( new DateInterval( 'P1D' ) )->format( 'c' ),
+		);
+		Atomic_Persistent_Data::set( 'WPCOM_PURCHASES', wp_json_encode( array( $business_plan_purchase ), JSON_UNESCAPED_SLASHES ) );
+
+		ob_start();
+		wpcomsh_plan_notices();
+		$string = ob_get_clean();
+
+		$this->assertStringContainsString( 'The Business plan for', $string );
+		$this->assertStringContainsString( 'expired on', $string );
+
+		// Cleanup.
+		Atomic_Persistent_Data::delete( 'WPCOM_PURCHASES' );
+	}
+
+	/**
+	 * Test that non-editors see nothing.
+	 */
+	public function test_plan_notices_hidden_from_subscribers() {
+		wp_set_current_user( $this->factory->user->create( array( 'role' => 'subscriber' ) ) );
+		$business_plan_purchase = array(
+			'product_slug' => 'business-bundle',
+			'expiry_date'  => ( new DateTime() )->sub( new DateInterval( 'P1D' ) )->format( 'c' ),
+		);
+		Atomic_Persistent_Data::set( 'WPCOM_PURCHASES', wp_json_encode( array( $business_plan_purchase ), JSON_UNESCAPED_SLASHES ) );
+
+		ob_start();
+		wpcomsh_plan_notices();
+		$string = ob_get_clean();
+
+		$this->assertSame( '', $string );
+
+		// Cleanup.
+		Atomic_Persistent_Data::delete( 'WPCOM_PURCHASES' );
+	}
+
+	/**
 	 * A site on the replacement notices must not also get this one: the two
 	 * describe the same expiry in different words, so running both is worse
 	 * than running either.
