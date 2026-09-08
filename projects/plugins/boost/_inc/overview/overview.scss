@@ -25,6 +25,24 @@
 		min-inline-size: 0;
 	}
 
+	&__score-section + &__score-section {
+		border-inline-start: 1px solid var(--wpds-color-stroke-surface-neutral);
+
+		@media ( max-width: 600px ) {
+			border-inline-start: 0;
+			border-block-start: 1px solid var(--wpds-color-stroke-surface-neutral);
+		}
+	}
+
+	&__scores-divider {
+		margin: 0;
+		border-color: var(--wpds-color-stroke-surface-neutral);
+	}
+
+	&__grade-tooltip {
+		max-inline-size: min(320px, calc(100vw - 32px));
+	}
+
 	&__score-placeholder {
 		inline-size: 2.5em;
 		block-size: 1.2em;
@@ -53,22 +71,30 @@
 		}
 	}
 
-	&__progress--good,
+	&__progress--good {
+		color: var(--jp-green);
+	}
+
 	&__delta--up {
-		color: var(--wpds-color-foreground-content-success);
+		color: var(--jp-green-50);
 	}
 
 	&__progress--medium {
-		color: var(--wpds-color-foreground-content-warning);
+		color: var(--jp-orange-20);
 	}
 
 	&__progress--poor,
 	&__delta--down {
-		color: var(--wpds-color-foreground-content-error);
+		color: var(--jp-red-50);
 	}
 
 	&__delta--neutral {
 		color: var(--wpds-color-foreground-content-neutral-weak);
+	}
+
+	&__history-card {
+		// Let the axis tooltip extend below the card, as in the legacy chart.
+		overflow: visible;
 	}
 
 	&__chart-canvas {
@@ -88,9 +114,9 @@
 
 	&__tooltip-pointer {
 		position: absolute;
-		inset-block-start: 100%;
+		inset-block-start: -7px;
 		transform: translateX(-50%);
-		border-block-start: 8px solid var(--wpds-color-foreground-content-neutral);
+		border-block-end: 8px solid var(--wpds-color-foreground-content-neutral);
 		border-inline: 8px solid transparent;
 	}
 

@@ -1,7 +1,15 @@
 /* eslint-disable testing-library/prefer-user-event */
 import { requestSpeedScores } from '@automattic/jetpack-boost-score-api';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { act, fireEvent, render, renderHook, screen, waitFor } from '@testing-library/react';
+import {
+	act,
+	fireEvent,
+	render,
+	renderHook,
+	screen,
+	waitFor,
+	within,
+} from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 import { useDismissibleAlertState as useLegacyAlertState } from '../../app/assets/src/js/features/performance-history/lib/hooks';
 import PopOut from '../../app/assets/src/js/features/speed-score/pop-out/pop-out';
@@ -180,6 +188,31 @@ test.each( [ 40, 60, 90 ] )( 'renders score %i with a bar and delta without tier
 	expect( screen.getByText( String( score ) ) ).toBeInTheDocument();
 	expect( screen.getByRole( 'progressbar', { name: 'Desktop' } ) ).toHaveValue( score );
 	expect( screen.getByText( '+10 points compared to without Boost' ) ).toBeInTheDocument();
+	expect( screen.queryByText( /^(Good|Could be improved|Poor)$/ ) ).not.toBeInTheDocument();
+} );
+
+test( 'opens the overall grade explanation and dismisses it with Escape', async () => {
+	render( <ScoreCards scores={ scores } /> );
+	const trigger = within( screen.getByRole( 'region', { name: 'Overall grade' } ) ).getByRole(
+		'button',
+		{ name: 'How the overall grade is calculated' }
+	);
+	expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
+	fireEvent.click( trigger );
+	const tooltip = await screen.findByRole( 'dialog' );
+	expect( tooltip ).toHaveTextContent(
+		"Your Overall Score is a summary of your first Cornerstone Page across both mobile and desktop devices. It gives a general idea of your site's overall performance."
+	);
+	expect( trigger ).toHaveAttribute( 'aria-expanded', 'true' );
+	fireEvent.keyDown( tooltip, { key: 'Escape' } );
+	await waitFor( () => expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument() );
+	expect( trigger ).toHaveFocus();
+} );
+
+test( 'renders a negative baseline delta alongside the current measured bar', () => {
+	render( <ScoreCard icon={ null } label="Mobile" value={ 40 } score={ 40 } noBoost={ 60 } /> );
+	expect( screen.getByRole( 'progressbar', { name: 'Mobile' } ) ).toHaveValue( 40 );
+	expect( screen.getByText( '−20 points compared to without Boost' ) ).toBeInTheDocument();
 	expect( screen.queryByText( /^(Good|Could be improved|Poor)$/ ) ).not.toBeInTheDocument();
 } );
 

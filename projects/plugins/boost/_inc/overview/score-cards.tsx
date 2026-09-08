@@ -1,7 +1,8 @@
 import { didScoresChange, getScoreLetter } from '@automattic/jetpack-boost-score-api';
+import { CardDivider } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { Icon, dashboard, desktop, mobile } from '@wordpress/icons';
-import { Card, Stack } from '@wordpress/ui';
+import { Icon, dashboard, desktop, info, mobile } from '@wordpress/icons';
+import { Button, Card, Stack, Popover } from '@wordpress/ui';
 import ScoreCard from './score-card';
 import type { SpeedScoresSet } from './lib/use-speed-scores';
 import type { ReactNode } from 'react';
@@ -24,10 +25,32 @@ export default function ScoreCards( { scores, isLoading, showPlaceholder, header
 					{ headerAction }
 				</Stack>
 			</Card.Header>
+			<CardDivider className="jetpack-boost-overview__scores-divider" />
 			<div className="jetpack-boost-overview__score-row">
 				<ScoreCard
 					icon={ <Icon icon={ dashboard } size={ 20 } /> }
 					label={ __( 'Overall grade', 'jetpack-boost' ) }
+					help={
+						<Popover.Root>
+							<Popover.Trigger
+								openOnHover
+								delay={ 200 }
+								aria-label={ __( 'How the overall grade is calculated', 'jetpack-boost' ) }
+								render={ <Button variant="minimal" tone="neutral" size="small" /> }
+							>
+								<Icon icon={ info } size={ 16 } />
+							</Popover.Trigger>
+							<Popover.Popup className="jetpack-boost-overview__grade-tooltip">
+								<Popover.Title>{ __( 'Overall grade', 'jetpack-boost' ) }</Popover.Title>
+								<Popover.Description>
+									{ __(
+										"Your Overall Score is a summary of your first Cornerstone Page across both mobile and desktop devices. It gives a general idea of your site's overall performance.",
+										'jetpack-boost'
+									) }
+								</Popover.Description>
+							</Popover.Popup>
+						</Popover.Root>
+					}
 					value={ getScoreLetter( current.mobile, current.desktop ) }
 					isLoading={ isLoading }
 					showPlaceholder={ showPlaceholder }

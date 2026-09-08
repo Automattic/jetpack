@@ -11,6 +11,7 @@ import type { ReactNode } from 'react';
 type Props = {
 	icon: ReactNode;
 	label: string;
+	help?: ReactNode;
 	value: ReactNode;
 	score?: number;
 	noBoost?: number | null;
@@ -21,6 +22,7 @@ type Props = {
 export default function ScoreCard( {
 	icon,
 	label,
+	help,
 	value,
 	score,
 	noBoost,
@@ -40,6 +42,7 @@ export default function ScoreCard( {
 				<Text render={ <h3 /> } variant="body-md">
 					{ label }
 				</Text>
+				{ help }
 			</Stack>
 			<Stack direction="row" align="center" gap="md">
 				{ showPlaceholder ? (

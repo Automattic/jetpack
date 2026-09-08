@@ -54,7 +54,7 @@ test.afterAll( async () => {
 	}
 } );
 
-test( 'History tooltip stays above the date axis and paints above annotations', async ( {
+test( 'History tooltip stays below the date axis with matching series colors', async ( {
 	page,
 } ) => {
 	const chart = page.locator( '.jetpack-boost-overview__chart-canvas' );
@@ -73,8 +73,33 @@ test( 'History tooltip stays above the date axis and paints above annotations', 
 		.poll( async () => ( await surface.boundingBox() )!.y )
 		.toBeCloseTo( upperPosition!.y, 0 );
 	const axis = await chart.locator( '.visx-axis-tick line' ).first().boundingBox();
-	expect( upperPosition!.y + upperPosition!.height ).toBeLessThanOrEqual( axis!.y );
-	expect( axis!.y - upperPosition!.y - upperPosition!.height ).toBeLessThan( 24 );
+	expect( Math.abs( upperPosition!.y - axis!.y ) ).toBeLessThan( 1 );
+	const pointer = surface.locator( '.jetpack-boost-overview__tooltip-pointer' );
+	await expect( pointer ).toHaveCSS( 'border-top-width', '0px' );
+	await expect( pointer ).toHaveCSS( 'border-bottom-width', '8px' );
+	expect( ( await pointer.boundingBox() )!.y ).toBeLessThan( upperPosition!.y );
+	const paint = await surface.evaluate( popup => {
+		const box = popup.getBoundingClientRect();
+		const card = popup.closest( '.jetpack-boost-overview__history-card' )!.getBoundingClientRect();
+		const style = document.createElement( 'style' );
+		style.textContent =
+			'.jetpack-boost-overview__history-tooltip, .jetpack-boost-overview__history-tooltip * { pointer-events: auto !important; }';
+		document.head.append( style );
+		try {
+			const hit = document.elementFromPoint(
+				box.x + box.width / 2,
+				( card.bottom + box.bottom ) / 2
+			);
+			return {
+				extendsBelowCard: box.bottom > card.bottom,
+				painted: !! hit && popup.contains( hit ),
+			};
+		} finally {
+			style.remove();
+		}
+	} );
+	expect( paint.extendsBelowCard ).toBe( true );
+	expect( paint.painted, 'The card must not clip tooltip content below the chart.' ).toBe( true );
 	const colors = await chart.evaluate( element => {
 		const swatches = Array.from(
 			element.querySelectorAll( '.jetpack-boost-overview__series-swatch' )
@@ -109,46 +134,6 @@ test( 'History tooltip stays above the date axis and paints above annotations', 
 	expect( colors.areas.every( fill => fill === 'none' || fill === 'rgba(0, 0, 0, 0)' ) ).toBe(
 		true
 	);
-	const result = await chart.evaluate( element => {
-		const popup = element.querySelector( '.jetpack-boost-overview__history-tooltip' )!;
-		const box = popup.getBoundingClientRect();
-		let overlaps = 0;
-		let obscured = 0;
-		// Include pointer-transparent tooltips and annotations in the browser's paint-order hit test.
-		const style = document.createElement( 'style' );
-		style.textContent =
-			'.jetpack-boost-overview__chart-canvas * { pointer-events: auto !important; }';
-		document.head.append( style );
-		try {
-			for ( const label of element.querySelectorAll( '.visx-annotationlabel' ) ) {
-				const rect = label.getBoundingClientRect();
-				const left = Math.max( box.left, rect.left );
-				const right = Math.min( box.right, rect.right );
-				const top = Math.max( box.top, rect.top );
-				const bottom = Math.min( box.bottom, rect.bottom );
-				if ( left >= right || top >= bottom ) {
-					continue;
-				}
-				overlaps++;
-				const elements = document.elementsFromPoint( ( left + right ) / 2, ( top + bottom ) / 2 );
-				const tooltipIndex = elements.findIndex( node => popup.contains( node ) );
-				const labelIndex = elements.findIndex( node => label.contains( node ) );
-				if ( tooltipIndex < 0 || labelIndex < 0 || tooltipIndex > labelIndex ) {
-					obscured++;
-				}
-			}
-		} finally {
-			style.remove();
-		}
-		return { overlaps, obscured };
-	} );
-	expect(
-		result.overlaps,
-		'The fixture must exercise annotation/tooltip overlap.'
-	).toBeGreaterThan( 0 );
-	expect( result.obscured, 'History tooltip must paint above overlapping annotation labels.' ).toBe(
-		0
-	);
 } );
 
 test( 'History tooltip follows the hovered date and stays within a narrow viewport', async ( {
@@ -173,7 +158,7 @@ test( 'History tooltip follows the hovered date and stays within a narrow viewpo
 		const popup = ( await surface.boundingBox() )!;
 		expect( popup.x ).toBeGreaterThanOrEqual( 0 );
 		expect( popup.x + popup.width ).toBeLessThanOrEqual( 390 );
-		expect( popup.y + popup.height ).toBeLessThanOrEqual( axis!.y );
+		expect( Math.abs( popup.y - axis!.y ) ).toBeLessThan( 1 );
 		const dateX = await chart
 			.locator( 'path.visx-line' )
 			.first()
@@ -198,4 +183,65 @@ test( 'History tooltip follows the hovered date and stays within a narrow viewpo
 	await grid.press( 'ArrowRight' );
 	await expect( surface.locator( ':scope > :first-child' ) ).not.toHaveText( keyboardDate! );
 	expect( ( await surface.boundingBox() )!.y ).toBeCloseTo( positions[ 0 ].y, 0 );
+} );
+
+test( 'Score cards show the tier palette, baseline delta colors, and responsive dividers', async ( {
+	page,
+} ) => {
+	await page.goto( 'http://boost-history.test/?scores' );
+	const desktop = page.getByRole( 'region', { name: 'Desktop', exact: true } );
+	const mobile = page.getByRole( 'region', { name: 'Mobile', exact: true } ).first();
+	await expect( desktop.first().getByRole( 'progressbar' ) ).toHaveCSS( 'color', 'rgb(6, 158, 8)' );
+	await expect( mobile.getByRole( 'progressbar' ) ).toHaveCSS( 'color', 'rgb(250, 167, 84)' );
+	await expect( desktop.nth( 1 ).getByRole( 'progressbar' ) ).toHaveCSS(
+		'color',
+		'rgb(214, 54, 56)'
+	);
+	await expect( desktop.first().getByText( '+10 points compared to without Boost' ) ).toHaveCSS(
+		'color',
+		'rgb(0, 135, 16)'
+	);
+	await expect( mobile.getByText( '−10 points compared to without Boost' ) ).toHaveCSS(
+		'color',
+		'rgb(214, 54, 56)'
+	);
+	const headerDivider = page.locator( '.jetpack-boost-overview__scores-divider' ).first();
+	await expect( headerDivider ).toBeVisible();
+	await expect( headerDivider ).toHaveCSS( 'border-bottom-width', '1px' );
+	await expect( headerDivider ).toHaveCSS( 'border-bottom-style', 'solid' );
+	await expect( headerDivider ).not.toHaveCSS( 'border-bottom-color', 'rgba(0, 0, 0, 0)' );
+	await expect( desktop.first() ).toHaveCSS( 'border-left-width', '1px' );
+	await expect( desktop.first() ).toHaveCSS( 'border-left-style', 'solid' );
+	await expect( desktop.first() ).not.toHaveCSS( 'border-left-color', 'rgba(0, 0, 0, 0)' );
+	await page.setViewportSize( { width: 390, height: 900 } );
+	await expect( desktop.first() ).toHaveCSS( 'border-left-width', '0px' );
+	await expect( desktop.first() ).toHaveCSS( 'border-top-width', '1px' );
+	await expect( desktop.first() ).toHaveCSS( 'border-top-style', 'solid' );
+	await expect( desktop.first() ).not.toHaveCSS( 'border-top-color', 'rgba(0, 0, 0, 0)' );
+} );
+
+test.describe( 'Overall grade help', () => {
+	test.use( { hasTouch: true } );
+
+	test( 'opens on hover, keyboard activation, and touch', async ( { page } ) => {
+		await page.goto( 'http://boost-history.test/?scores' );
+		const trigger = page
+			.getByRole( 'button', { name: 'How the overall grade is calculated' } )
+			.first();
+		const popup = page.getByRole( 'dialog', { name: 'Overall grade' } );
+		await trigger.hover();
+		await expect( popup ).toBeVisible();
+		await expect( popup ).toContainText( 'across both mobile and desktop devices' );
+		await page.mouse.move( 0, 0 );
+		await expect( popup ).toBeHidden();
+		await trigger.focus();
+		await trigger.press( 'Enter' );
+		await expect( popup ).toBeVisible();
+		await page.keyboard.press( 'Escape' );
+		await expect( popup ).toBeHidden();
+		await expect( trigger ).toBeFocused();
+		await page.setViewportSize( { width: 390, height: 900 } );
+		await trigger.tap();
+		await expect( popup ).toBeVisible();
+	} );
 } );

@@ -1,7 +1,9 @@
-/* global document */
+/* global document, window */
 import '@wordpress/theme/design-tokens.css';
+import '@automattic/jetpack-base-styles/root-variables';
 import { createRoot } from 'react-dom/client';
 import HistoryChartCard from '../../../../_inc/overview/history-chart-card';
+import ScoreCards from '../../../../_inc/overview/score-cards';
 import '../../../../_inc/overview/overview.scss';
 import '../../../../../../packages/my-jetpack/_inc/components/stats-section/stats-chart-tooltip.module.scss';
 
@@ -33,6 +35,21 @@ const noop = () => {};
 
 createRoot( document.getElementById( 'root' ) ).render(
 	<div className="jetpack-boost-overview">
-		<HistoryChartCard data={ data } onRetry={ noop } onDismissFreshStart={ noop } />
+		{ new URLSearchParams( window.location.search ).has( 'scores' ) ? (
+			<>
+				<ScoreCards
+					scores={ {
+						current: { desktop: 90, mobile: 60 },
+						noBoost: { desktop: 80, mobile: 70 },
+						isStale: false,
+					} }
+				/>
+				<ScoreCards
+					scores={ { current: { desktop: 40, mobile: 40 }, noBoost: null, isStale: false } }
+				/>
+			</>
+		) : (
+			<HistoryChartCard data={ data } onRetry={ noop } onDismissFreshStart={ noop } />
+		) }
 	</div>
 );

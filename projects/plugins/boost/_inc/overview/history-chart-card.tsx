@@ -94,7 +94,11 @@ export function HistoryTooltip( {
 		<div
 			ref={ tooltipRef }
 			className="jetpack-boost-overview__history-tooltip"
-			style={ anchor ? { position: 'absolute', left, bottom: CHART_MARGIN.bottom + 8 } : undefined }
+			style={
+				anchor
+					? { position: 'absolute', left, top: `calc(100% - ${ CHART_MARGIN.bottom }px)` }
+					: undefined
+			}
 		>
 			<Text>{ dateI18n( 'F j, Y', new Date( period.timestamp ), false ) }</Text>
 			<dl>
@@ -302,7 +306,7 @@ export default function HistoryChartCard( {
 		);
 	}
 	return (
-		<Card.Root>
+		<Card.Root className="jetpack-boost-overview__history-card">
 			<Card.Header>
 				<Card.Title>{ __( 'Historical performance', 'jetpack-boost' ) }</Card.Title>
 			</Card.Header>
