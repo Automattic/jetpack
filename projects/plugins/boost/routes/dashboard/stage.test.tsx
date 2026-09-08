@@ -9,7 +9,9 @@ const mockNavigate = jest.fn();
 
 jest.mock( '../../_inc/overview/overview', () => ( {
 	__esModule: true,
-	default: () => <div>Performance Overview</div>,
+	default: ( { isVisible }: { isVisible: boolean } ) => (
+		<div data-visible={ isVisible }>Performance Overview</div>
+	),
 } ) );
 
 jest.mock( '@wordpress/route', () => ( {
@@ -50,6 +52,10 @@ describe( 'Boost dashboard stage', () => {
 			screen.getByRole( 'tab', { name: tab } )
 		);
 		expect( getSubpageMount()?.hidden ).toBe( true );
+		expect( screen.getByText( 'Performance Overview' ) ).toHaveAttribute(
+			'data-visible',
+			String( tab === 'Overview' )
+		);
 		expect( getSettingsMount() ).not.toBeNull();
 		expect( screen.getByRole( 'tabpanel' ).tabIndex ).toBe( 0 );
 		expect( screen.getByRole( 'tabpanel' ).contains( getSettingsMount() ) ).toBe(
@@ -67,6 +73,7 @@ describe( 'Boost dashboard stage', () => {
 		render( <Stage /> );
 
 		expect( getSubpageMount()?.hidden ).toBe( false );
+		expect( screen.getByText( 'Performance Overview' ) ).toHaveAttribute( 'data-visible', 'false' );
 		expect( getSubpageMount()?.closest( '[role="tabpanel"]' ) ).toBeNull();
 		expect( screen.queryAllByRole( 'tablist' ) ).toHaveLength( 0 );
 		expect( getSettingsMount() ).not.toBeNull();

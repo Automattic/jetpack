@@ -130,6 +130,7 @@ function OverviewContent( { isVisible = true }: { isVisible?: boolean } ) {
 				</Notice.Root>
 			) }
 			<HistoryChartCard
+				isVisible={ isVisible }
 				data={ modules.isPending ? undefined : history.data }
 				isLoading={ modules.isPending || ( history.isFetching && ! history.data?.periods.length ) }
 				isError={ history.isError && ! history.isFetching }
