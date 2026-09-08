@@ -13,7 +13,7 @@ import { useTrackEvent } from './use-track-event';
 export type OnboardingPhase = 'closed' | 'modal' | 'tour';
 
 /** How the reader closed the journey without finishing it. */
-export type OnboardingDismissReason = 'close' | 'escape' | 'outside' | 'other';
+export type OnboardingDismissReason = 'close' | 'escape' | 'other';
 
 export type OnboardingOptions = {
 	/** Whether the reader is on the surface the journey introduces; nothing opens until then. */
