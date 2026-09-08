@@ -106,7 +106,7 @@ export default () => {
 		<Stack direction="column" gap="md">
 			{ freshlyPressed.length > 0 ? (
 				<Tabs.Root value={ tab } onValueChange={ selectTab }>
-					<Tabs.List variant="minimal">
+					<Tabs.List className="wpcom-daily-writing-prompt--tabs" variant="minimal">
 						<Tabs.Tab value={ PROMPT_TAB }>
 							{ __( 'Writing Prompt', 'jetpack-newsletter' ) }
 						</Tabs.Tab>

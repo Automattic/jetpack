@@ -61,3 +61,13 @@
 		text-wrap: pretty;
 	}
 }
+
+// `@wordpress/ui` fixes horizontal tabs at 48px for admin page
+// headers, and the minimal variant only resets their padding. That
+// leaves the label floating well above the active-tab indicator in a
+// dashboard widget, so scale the strip to the widget instead.
+// Unlayered, so it outranks the component's `@layer wp-ui`.
+.wpcom-daily-writing-prompt--tabs [role="tab"] {
+	height: auto;
+	padding-block: var(--wpds-dimension-padding-sm);
+}

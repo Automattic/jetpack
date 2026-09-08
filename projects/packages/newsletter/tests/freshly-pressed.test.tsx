@@ -128,6 +128,15 @@ describe( 'Freshly Pressed tab', () => {
 		expect( screen.getByText( 'What is your favorite way to relax?' ) ).toBeInTheDocument();
 	} );
 
+	it( 'carries the class the compact-tab styles hang off', async () => {
+		await renderSettled();
+
+		// `@wordpress/ui` sizes horizontal tabs at 48px for admin page headers and
+		// the minimal variant doesn't reset it, so style.scss overrides the height
+		// through this class. Losing it silently restores the page-header scale.
+		expect( screen.getByRole( 'tablist' ) ).toHaveClass( 'wpcom-daily-writing-prompt--tabs' );
+	} );
+
 	it( 'lists the posts as Reader links once the tab is opened', async () => {
 		await renderSettled();
 		await openFreshlyPressedTab();
