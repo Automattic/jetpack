@@ -275,6 +275,23 @@ function markEditorNoteSeen() {
 	}
 }
 
+// Click-away listener for the first-visit note, mirroring the topbar popovers.
+let editorNoteCloseHandler = null;
+
+/**
+ * Hide the first-visit note and detach its click-away listener.
+ *
+ * Callers record their own Tracks reason, so the funnel can tell "Got it" from
+ * the block-editor switch from a click elsewhere.
+ */
+function hideEditorNote() {
+	state.showEditorNote = false;
+	if ( editorNoteCloseHandler ) {
+		document.removeEventListener( 'click', editorNoteCloseHandler );
+		editorNoteCloseHandler = null;
+	}
+}
+
 /**
  * Remove a stale `wpcom_user_id` left in localStorage by a previous Calypso
  * session.
@@ -6064,7 +6081,7 @@ const { state } = store( 'wpcom-write', {
 		 * Dismiss the first-visit note and hand focus to the writing area.
 		 */
 		dismissEditorNote() {
-			state.showEditorNote = false;
+			hideEditorNote();
 			recordTracksEvent( 'wpcom_write_editor_note_dismissed', {
 				action: 'got_it',
 				source: state.source || '',
@@ -6112,7 +6129,7 @@ const { state } = store( 'wpcom-write', {
 		 * synchronously on an untouched new post, which is the common case here.
 		 */
 		async openInBlockEditorFromNote() {
-			state.showEditorNote = false;
+			hideEditorNote();
 			await recordTracksEventBeforeUnload( 'wpcom_write_editor_note_dismissed', {
 				action: 'block_editor',
 				source: state.source || '',
@@ -6724,6 +6741,23 @@ const autosaveReady = setInterval( () => {
 		requestAnimationFrame( () => {
 			document.querySelector( '.bw-editor-note-ok' )?.focus();
 		} );
+
+		// The note overlaps the topbar menus it points at, so a click anywhere
+		// else has to clear it the way the other popovers do.
+		editorNoteCloseHandler = e => {
+			if ( e.target.closest( '.bw-editor-note' ) ) return;
+			hideEditorNote();
+			recordTracksEvent( 'wpcom_write_editor_note_dismissed', {
+				action: 'clicked_away',
+				source: state.source || '',
+			} );
+		};
+		setTimeout( () => {
+			// Escape could already have closed the note in the meantime.
+			if ( editorNoteCloseHandler ) {
+				document.addEventListener( 'click', editorNoteCloseHandler );
+			}
+		}, 0 );
 	}
 
 	// Populate relative dates in the post picker draft list.
