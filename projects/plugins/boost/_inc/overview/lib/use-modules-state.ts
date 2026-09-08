@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
 import { z } from 'zod';
+import { isCriticalCssEnabled } from '../../../app/assets/src/js/features/critical-css/lib/is-critical-css-enabled';
 
 type DataSyncEntry = {
 	nonce: string;
@@ -68,6 +69,7 @@ export async function requestDataSync( key: DataSyncKey, value?: unknown ): Prom
 			value === undefined ? '' : '/set'
 		}`,
 		method: value === undefined ? 'GET' : 'POST',
+		credentials: 'same-origin',
 		headers: {
 			'X-WP-Nonce': config.rest_api.nonce,
 			'X-Jetpack-WP-JS-Sync-Nonce': entry.nonce,
@@ -92,14 +94,18 @@ export function useModulesState() {
 	} );
 }
 
-const criticalCssRefreshSchema = z.object( {
-	status: z.enum( [ 'not_generated', 'generated', 'pending', 'error' ] ),
-	updated: z.coerce.number().optional(),
-} );
-const lcpRefreshSchema = z.object( {
-	status: z.enum( [ 'not_analyzed', 'analyzed', 'pending', 'error' ] ),
-	updated: z.coerce.number().optional(),
-} );
+const criticalCssRefreshSchema = z
+	.object( {
+		status: z.enum( [ 'not_generated', 'generated', 'pending', 'error' ] ),
+		updated: z.coerce.number().optional(),
+	} )
+	.catch( { status: 'not_generated', updated: 0 } );
+const lcpRefreshSchema = z
+	.object( {
+		status: z.enum( [ 'not_analyzed', 'analyzed', 'pending', 'error' ] ).catch( 'not_analyzed' ),
+		updated: z.coerce.number().optional(),
+	} )
+	.catch( { status: 'not_analyzed', updated: 0 } );
 
 const generationSchemas = {
 	critical_css_state: criticalCssRefreshSchema,
@@ -108,11 +114,13 @@ const generationSchemas = {
 export type ScoreRefreshState = { config: string | undefined; isPending: boolean };
 
 function useGenerationState( key: 'critical_css_state' | 'lcp_state', enabled: boolean ) {
-	const initial = generationSchemas[ key ].safeParse( window.jetpack_boost_ds?.[ key ]?.value );
+	const bootstrap = window.jetpack_boost_ds?.[ key ]?.value;
+	const initial =
+		bootstrap === undefined ? undefined : generationSchemas[ key ].safeParse( bootstrap );
 	return useQuery( {
 		queryKey: [ 'jetpack_boost', key ],
 		queryFn: async () => generationSchemas[ key ].parse( await requestDataSync( key ) ),
-		initialData: initial.success ? initial.data : undefined,
+		initialData: initial?.success ? initial.data : undefined,
 		enabled: enabled && isSiteOnline(),
 		refetchInterval: query => {
 			if ( ! enabled || ! isSiteOnline() ) {
@@ -124,9 +132,7 @@ function useGenerationState( key: 'critical_css_state' | 'lcp_state', enabled: b
 }
 
 export function useScoreRefreshState( modules?: ModulesState ): ScoreRefreshState {
-	const cssEnabled = modules?.cloud_css?.available
-		? modules.cloud_css.active
-		: modules?.critical_css?.active === true;
+	const cssEnabled = isCriticalCssEnabled( modules );
 	const lcpEnabled = modules?.lcp?.active === true;
 	const css = useGenerationState( 'critical_css_state', cssEnabled );
 	const lcp = useGenerationState( 'lcp_state', lcpEnabled );

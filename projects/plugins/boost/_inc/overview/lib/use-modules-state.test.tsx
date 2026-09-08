@@ -59,6 +59,7 @@ it( 'authenticates and revalidates bootstrapped module availability on mount', a
 	expect( fetchMock ).toHaveBeenCalledWith( {
 		url: 'https://example.org/wp-json/jetpack-boost-ds/modules-state',
 		method: 'GET',
+		credentials: 'same-origin',
 		headers: { 'X-WP-Nonce': 'rest-nonce', 'X-Jetpack-WP-JS-Sync-Nonce': 'modules-nonce' },
 	} );
 } );
@@ -154,6 +155,7 @@ it( 'polls pending LCP every two seconds, updates its stamp, and polls settled s
 		expect( fetchMock ).toHaveBeenLastCalledWith( {
 			url: 'https://example.org/wp-json/jetpack-boost-ds/lcp-state',
 			method: 'GET',
+			credentials: 'same-origin',
 			headers: { 'X-WP-Nonce': 'rest-nonce', 'X-Jetpack-WP-JS-Sync-Nonce': 'lcp-nonce' },
 		} );
 	} finally {
@@ -161,21 +163,30 @@ it( 'polls pending LCP every two seconds, updates its stamp, and polls settled s
 	}
 } );
 
-it( 'waits for missing CSS bootstrap and blocks regeneration on malformed state responses', async () => {
-	window.jetpack_boost_ds!.critical_css_state = { nonce: 'css-nonce', value: null };
-	fetchMock.mockResolvedValue( { status: 'success', JSON: { status: 'invalid' } } );
-	const { result } = renderHook(
-		() => useScoreRefreshState( { critical_css: { active: true, available: true } } ),
-		{ wrapper }
-	);
-	expect( result.current ).toEqual( { config: undefined, isPending: true } );
-	await waitFor( () =>
-		expect( queryClient.getQueryState( [ 'jetpack_boost', 'critical_css_state' ] )?.status ).toBe(
-			'error'
-		)
-	);
-	expect( result.current ).toEqual( { config: undefined, isPending: true } );
-} );
+it.each( [
+	[ 'critical_css_state', 'critical_css', 'not_generated' ],
+	[ 'lcp_state', 'lcp', 'not_analyzed' ],
+] as const )(
+	'settles malformed %s payloads so module changes can refresh scores',
+	async ( key, module, status ) => {
+		window.jetpack_boost_ds![ key ] = { nonce: 'generation-nonce', value: null };
+		fetchMock.mockResolvedValue( { status: 'success', JSON: { status: 'invalid' } } );
+		const { result, rerender } = renderHook( modules => useScoreRefreshState( modules ), {
+			wrapper,
+			initialProps: { [ module ]: { active: true, available: true } },
+		} );
+		await waitFor( () =>
+			expect( queryClient.getQueryState( [ 'jetpack_boost', key ] )?.fetchStatus ).toBe( 'idle' )
+		);
+		expect( queryClient.getQueryData( [ 'jetpack_boost', key ] ) ).toMatchObject( { status } );
+		expect( result.current.isPending ).toBe( false );
+		expect( result.current.config ).toBe( JSON.stringify( [ [ [ module, true ] ], 0, 0 ] ) );
+		const config = result.current.config;
+		rerender( { [ module ]: { active: false, available: true } } );
+		expect( result.current.isPending ).toBe( false );
+		expect( result.current.config ).not.toBe( config );
+	}
+);
 
 it( 'treats completed generation errors as settled so their updated stamps can refresh scores', () => {
 	window.jetpack_boost_ds!.critical_css_state = {
