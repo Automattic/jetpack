@@ -116,5 +116,7 @@ describe( 'JetpackConnectionErrors', () => {
 		expect( screen.getByText( 'First error' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Second error' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Fix Issue' ) ).toBeInTheDocument();
+		// Positive control for the 'none' case above: proves this query can see the CTA.
+		expect( screen.getByText( 'Restore Connection' ) ).toBeInTheDocument();
 	} );
 } );
