@@ -423,8 +423,8 @@ class Dashboard_Layout_Test extends BaseTestCase {
 		$layout_types   = array_column( $layout, 'type' );
 
 		// uuid => [ type, width, height, order ]. The at-a-glance cards share row 2
-		// as the design pairs them; WOOA7S-2009 settles the final widths. Every row
-		// fills the four-column grid.
+		// as the design pairs them; WOOA7S-2009 settles the final widths. Widths are
+		// still authored for four columns; the grid is now three.
 		$expected = array(
 			'default-annual-highlights-widget-instance'    => array( 'jpa/annual-highlights', 4, 1, 0 ),
 			'default-all-time-stats-widget-instance'       => array( 'jpa/all-time-stats', 2, 2, 1 ),
@@ -496,7 +496,7 @@ class Dashboard_Layout_Test extends BaseTestCase {
 		$layout_by_uuid = array_column( $layout, null, 'uuid' );
 		$layout_types   = array_column( $layout, 'type' );
 
-		// uuid => [ type, width, order ]; widths fill the four-column grid.
+		// uuid => [ type, width, order ]; widths are still authored for four columns.
 		$expected = array(
 			'default-subscribers-chart-widget-instance'  => array( 'jpa/subscribers-chart', 4, 0 ),
 			'default-subscribers-list-widget-instance'   => array( 'jpa/subscribers-list', 2, 1 ),
@@ -560,7 +560,7 @@ class Dashboard_Layout_Test extends BaseTestCase {
 		$layout         = seed_default_dashboard_layout( array(), DASHBOARD_ADS_SECTION_ID );
 		$layout_by_uuid = array_column( $layout, null, 'uuid' );
 
-		// uuid => [ type, width, height, order ]; widths fill the four-column grid.
+		// uuid => [ type, width, height, order ]; widths are still authored for four columns.
 		$expected = array(
 			'default-wordads-highlights-widget-instance' => array( 'jpa/wordads-highlights', 4, 1, 0 ),
 			'default-wordads-chart-tabs-widget-instance' => array( 'jpa/wordads-chart-tabs', 4, 2, 1 ),

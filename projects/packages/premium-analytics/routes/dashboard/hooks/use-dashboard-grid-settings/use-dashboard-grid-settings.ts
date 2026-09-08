@@ -21,7 +21,7 @@ import type { WidgetGridSettings } from '@wordpress/widget-dashboard';
 const PA_DEFAULT_ROW_HEIGHT = ROW_HEIGHT_PRESETS.small;
 
 /**
- * The analytics dashboards are designed on three columns, one fewer than the
+ * The main analytics dashboard is designed on three columns, one fewer than the
  * package default.
  */
 const PA_COLUMN_COUNT = 3;
