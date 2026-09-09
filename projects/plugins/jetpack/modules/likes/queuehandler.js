@@ -347,6 +347,8 @@ function JetpackLikesWidgetQueueHandler() {
 	// Restore widgets to initial unloaded state when they are scrolled out of view.
 	jetpackUnloadScrolledOutWidgets();
 
+	jetpackObserveUnloadedWidgets();
+
 	var unloadedWidgetsInView = jetpackGetUnloadedWidgetsInView();
 
 	if ( unloadedWidgetsInView.length > 0 ) {
@@ -470,6 +472,28 @@ var jetpackWidgetsDelayedExec = function ( after, fn ) {
 };
 
 var jetpackOnScrollStopped = jetpackWidgetsDelayedExec( 250, JetpackLikesWidgetQueueHandler );
+
+// Scrolling is not the only thing that brings a widget into range. A stylesheet that lands late
+// reflows the page without firing a scroll event, and the queue would never look at that widget
+// again, leaving it on "Loading…" until the reader happens to scroll.
+var jetpackLikesWidgetObserver =
+	typeof IntersectionObserver === 'function'
+		? new IntersectionObserver( jetpackOnScrollStopped, {
+				rootMargin: `${ jetpackLikesLookAhead }px`,
+		  } )
+		: null;
+
+// Observing an element twice is a no-op, so every queue pass can call this to pick up widgets
+// added after load.
+function jetpackObserveUnloadedWidgets() {
+	if ( ! jetpackLikesWidgetObserver ) {
+		return;
+	}
+
+	document
+		.querySelectorAll( 'div.jetpack-likes-widget-unloaded' )
+		.forEach( widget => jetpackLikesWidgetObserver.observe( widget ) );
+}
 
 // Load initial batch of widgets, prior to any scrolling events.
 JetpackLikesWidgetQueueHandler();
