@@ -12,29 +12,10 @@ class StagingSitePingsTest extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
 	/**
-	 * Define WP_RUN_CORE_TESTS so wp_get_environment_type() bypasses
-	 * its static cache and re-reads the env var on every call.
-	 */
-	public function set_up() {
-		parent::set_up();
-		if ( ! defined( 'WP_RUN_CORE_TESTS' ) ) {
-			define( 'WP_RUN_CORE_TESTS', true );
-		}
-	}
-
-	/**
-	 * Reset the environment type after each test.
-	 */
-	public function tear_down() {
-		putenv( 'WP_ENVIRONMENT_TYPE' );
-		parent::tear_down();
-	}
-
-	/**
 	 * Test that outgoing pings are disabled in staging environment.
 	 */
 	public function test_outgoing_pings_disabled_in_staging() {
-		putenv( 'WP_ENVIRONMENT_TYPE=staging' );
+		add_filter( 'wpcomsh_is_staging_environment', '__return_true' );
 		$post_links = array( 'https://example.com/post-1', 'https://example.com/post-2' );
 		wpcomsh_disable_outgoing_pings_in_non_production_envs( $post_links );
 		$this->assertEmpty( $post_links );
@@ -44,7 +25,7 @@ class StagingSitePingsTest extends WP_UnitTestCase {
 	 * Test that outgoing pings are not disabled in production environment.
 	 */
 	public function test_outgoing_pings_allowed_in_production() {
-		putenv( 'WP_ENVIRONMENT_TYPE=production' );
+		add_filter( 'wpcomsh_is_staging_environment', '__return_false' );
 		$post_links = array( 'https://example.com/post-1', 'https://example.com/post-2' );
 		wpcomsh_disable_outgoing_pings_in_non_production_envs( $post_links );
 		$this->assertCount( 2, $post_links );
@@ -54,7 +35,7 @@ class StagingSitePingsTest extends WP_UnitTestCase {
 	 * Test that incoming pingback.ping method is removed in staging environment.
 	 */
 	public function test_incoming_pings_disabled_in_staging() {
-		putenv( 'WP_ENVIRONMENT_TYPE=staging' );
+		add_filter( 'wpcomsh_is_staging_environment', '__return_true' );
 		$methods = array(
 			'pingback.ping' => 'some_callback',
 			'wp.getPosts'   => 'some_callback',
@@ -70,7 +51,7 @@ class StagingSitePingsTest extends WP_UnitTestCase {
 	 * Test that incoming pingback.ping method is kept in production environment.
 	 */
 	public function test_incoming_pings_allowed_in_production() {
-		putenv( 'WP_ENVIRONMENT_TYPE=production' );
+		add_filter( 'wpcomsh_is_staging_environment', '__return_false' );
 		$methods = array(
 			'pingback.ping' => 'some_callback',
 			'wp.getPosts'   => 'some_callback',
@@ -86,7 +67,7 @@ class StagingSitePingsTest extends WP_UnitTestCase {
 	 * Test that default_pingback_flag option is forced to '0' on staging.
 	 */
 	public function test_pingback_flag_forced_off_on_staging() {
-		putenv( 'WP_ENVIRONMENT_TYPE=staging' );
+		add_filter( 'wpcomsh_is_staging_environment', '__return_true' );
 		$this->assertSame( '0', wpcomsh_force_pingback_flag_off_on_staging() );
 	}
 
@@ -94,7 +75,7 @@ class StagingSitePingsTest extends WP_UnitTestCase {
 	 * Test that default_pingback_flag option is not overridden in production.
 	 */
 	public function test_pingback_flag_not_overridden_in_production() {
-		putenv( 'WP_ENVIRONMENT_TYPE=production' );
+		add_filter( 'wpcomsh_is_staging_environment', '__return_false' );
 		$this->assertFalse( wpcomsh_force_pingback_flag_off_on_staging() );
 	}
 
@@ -102,7 +83,7 @@ class StagingSitePingsTest extends WP_UnitTestCase {
 	 * Test that default_ping_status option is forced to 'closed' on staging.
 	 */
 	public function test_ping_status_forced_closed_on_staging() {
-		putenv( 'WP_ENVIRONMENT_TYPE=staging' );
+		add_filter( 'wpcomsh_is_staging_environment', '__return_true' );
 		$this->assertSame( 'closed', wpcomsh_force_ping_status_closed_on_staging() );
 	}
 
@@ -110,7 +91,7 @@ class StagingSitePingsTest extends WP_UnitTestCase {
 	 * Test that default_ping_status option is not overridden in production.
 	 */
 	public function test_ping_status_not_overridden_in_production() {
-		putenv( 'WP_ENVIRONMENT_TYPE=production' );
+		add_filter( 'wpcomsh_is_staging_environment', '__return_false' );
 		$this->assertFalse( wpcomsh_force_ping_status_closed_on_staging() );
 	}
 
@@ -118,7 +99,7 @@ class StagingSitePingsTest extends WP_UnitTestCase {
 	 * Test that the pingback UI script is not output in production.
 	 */
 	public function test_pingback_ui_not_modified_in_production() {
-		putenv( 'WP_ENVIRONMENT_TYPE=production' );
+		add_filter( 'wpcomsh_is_staging_environment', '__return_false' );
 		set_current_screen( 'options-discussion' );
 
 		ob_start();
@@ -134,7 +115,7 @@ class StagingSitePingsTest extends WP_UnitTestCase {
 	 * Test that the pingback UI script is output on the Discussion Settings page in staging.
 	 */
 	public function test_pingback_ui_disabled_on_staging_discussion_page() {
-		putenv( 'WP_ENVIRONMENT_TYPE=staging' );
+		add_filter( 'wpcomsh_is_staging_environment', '__return_true' );
 		set_current_screen( 'options-discussion' );
 
 		ob_start();
@@ -153,7 +134,7 @@ class StagingSitePingsTest extends WP_UnitTestCase {
 	 * Test that the pingback UI script is not output on non-Discussion admin pages in staging.
 	 */
 	public function test_pingback_ui_not_modified_on_other_admin_pages() {
-		putenv( 'WP_ENVIRONMENT_TYPE=staging' );
+		add_filter( 'wpcomsh_is_staging_environment', '__return_true' );
 		set_current_screen( 'dashboard' );
 
 		ob_start();
