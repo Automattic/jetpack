@@ -13,10 +13,10 @@
  * External dependencies
  */
 import { formatDatePartWithTime, readSiteTimestamp } from '@jetpack-premium-analytics/datetime';
-import { DAY_END_TIME, DAY_START_TIME } from './utils';
 /**
  * Internal dependencies
  */
+import { DAY_END_TIME, DAY_START_TIME } from './utils';
 import type { StatsQueryParams } from '../../utils/stats-params';
 
 // Bare dates and T-separated datetimes only — getDatePart splits on T alone

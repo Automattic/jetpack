@@ -8,8 +8,6 @@ import {
 	endOfMonth,
 	endOfYear,
 	format,
-	isValid,
-	parse,
 	startOfISOWeek,
 	startOfMonth,
 	startOfYear,
@@ -153,13 +151,9 @@ function getWpcomWeekIntervalFields( period: string ) {
 		return null;
 	}
 
-	const parsed = parse(
-		`${ match[ 1 ] }-${ match[ 2 ] }-${ match[ 3 ] }`,
-		dateFormat,
-		new Date( 0 )
-	);
+	const parsed = parseExactLabel( `${ match[ 1 ] }-${ match[ 2 ] }-${ match[ 3 ] }`, dateFormat );
 
-	if ( ! isValid( parsed ) ) {
+	if ( ! parsed ) {
 		return null;
 	}
 

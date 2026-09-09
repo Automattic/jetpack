@@ -27,7 +27,7 @@ function weekdayLabel( weekday: number ) {
 function readRowDate( row: Record< string, unknown > ) {
 	const datePart = getDatePart( row.date_start ?? row.time_interval ?? row.period );
 
-	return datePart ? parseExactLabel( datePart, DATE_PART_FORMAT ) ?? undefined : undefined;
+	return datePart ? parseExactLabel( datePart, DATE_PART_FORMAT ) : null;
 }
 
 function readRowViews( row: Record< string, unknown > ) {

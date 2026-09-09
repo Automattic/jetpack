@@ -99,9 +99,7 @@ const STATS_POST_DAY_FORMAT = 'yyyy-MM-dd';
 
 /** A real calendar day in the API's `YYYY-MM-DD` format. */
 function isValidStatsPostDay( value: string ): boolean {
-	return (
-		/^\d{4}-\d{2}-\d{2}$/.test( value ) && parseExactLabel( value, STATS_POST_DAY_FORMAT ) !== null
-	);
+	return parseExactLabel( value, STATS_POST_DAY_FORMAT ) !== null;
 }
 
 function normalizeStatsPostYear( value: unknown ): StatsPostYear {

@@ -68,5 +68,11 @@ describe( 'date helpers', () => {
 			expect( parseExactLabel( '2025-W53', "RRRR-'W'II" ) ).toBeNull();
 			expect( parseExactLabel( '2026-6-22', 'yyyy-MM-dd' ) ).toBeNull();
 		} );
+
+		// The round trip still succeeds, so a year-less format resolves against the
+		// reference year rather than failing. Every caller's format must carry one.
+		it( 'anchors a year-less format to the 2001 reference year', () => {
+			expect( parseExactLabel( '06-22', 'MM-dd' ) ).toEqual( new Date( 2001, 5, 22 ) );
+		} );
 	} );
 } );

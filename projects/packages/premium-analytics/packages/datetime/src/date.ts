@@ -23,7 +23,7 @@ const REFERENCE_DATE = new Date( 2001, 0, 1 );
  * and accepts a loosely written `2026-6-22`. Re-formatting catches both.
  *
  * @param label       - The label as written.
- * @param labelFormat - The date-fns format the label must match exactly.
+ * @param labelFormat - The date-fns format the label must match exactly. Must carry a year.
  * @return The parsed date, or null when the label does not name a real one.
  */
 export function parseExactLabel( label: string, labelFormat: string ): Date | null {

@@ -63,7 +63,7 @@ type BucketWindow = {
  * either bound is missing/malformed. The endpoint's day keys are date-only,
  * so comparing date prefixes keeps the slice timezone-stable.
  */
-function toDayWindow( from?: string, to?: string ): DayWindow | undefined {
+export function toDayWindow( from?: string, to?: string ): DayWindow | undefined {
 	const fromDay = toDay( from );
 	const toBound = toDay( to );
 
