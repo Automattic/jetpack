@@ -11,7 +11,6 @@ import { DetailPageLayout, DetailPageSection } from '../detail-page-layout';
 // these classes; the shared style stub would leave every one of them undefined.
 jest.mock( '../detail-page-layout.module.scss', () => ( {
 	root: 'root',
-	header: 'header',
 	section: 'section',
 } ) );
 
@@ -23,7 +22,7 @@ describe( 'DetailPageLayout', () => {
 			</DetailPageLayout>
 		);
 
-		expect( screen.getByRole( 'heading', { level: 1 } ) ).toHaveTextContent( 'Launch recap' );
+		expect( screen.getByRole( 'heading', { level: 2 } ) ).toHaveTextContent( 'Launch recap' );
 		expect( screen.getByText( 'Video published today.' ) ).toBeInTheDocument();
 	} );
 

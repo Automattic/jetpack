@@ -8,9 +8,8 @@ export type SectionHeaderProps = {
 	title: ReactNode;
 
 	/**
-	 * The heading element the title renders as. Detail pages name their
-	 * resource, so the title is the page's `h1`; the dashboard and the report
-	 * pages title a section within one.
+	 * The heading element the title renders as. The page's `h1` is the
+	 * breadcrumb's trailing crumb, so every surface titles a section under it.
 	 */
 	headingLevel?: 1 | 2 | 3 | 4 | 5 | 6;
 

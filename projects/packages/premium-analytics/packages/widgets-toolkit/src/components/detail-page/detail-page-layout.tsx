@@ -26,8 +26,8 @@ export interface DetailPageLayoutProps {
 }
 
 /**
- * Detail page scaffold: the scroll area holding the resource header and the
- * sections below it, so the header scrolls away with them.
+ * Detail page scaffold: the scroll area holding the resource header, pinned at
+ * its top, and the sections that scroll under it.
  *
  * @param {DetailPageLayoutProps} props - The component props.
  * @return The detail page scaffold.
@@ -35,11 +35,9 @@ export interface DetailPageLayoutProps {
 export function DetailPageLayout( { header, controls, children }: DetailPageLayoutProps ) {
 	return (
 		<div className={ styles.root }>
-			<div className={ styles.header }>
-				<SectionHeader headingLevel={ 1 } { ...header }>
-					{ controls }
-				</SectionHeader>
-			</div>
+			<SectionHeader pinned { ...header }>
+				{ controls }
+			</SectionHeader>
 			{ children }
 		</div>
 	);
