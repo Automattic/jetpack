@@ -85,6 +85,8 @@ export interface ConnectionErrorProps {
 	context?: string | ReactElement;
 	/** Opt in to surfacing connection *health-check* failures. */
 	includeHealthErrors?: boolean;
+	/** Whether to resolve the CTA. */
+	resolveActions?: boolean;
 }
 
 /**

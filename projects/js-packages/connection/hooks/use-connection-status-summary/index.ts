@@ -61,7 +61,11 @@ export function getConnectionErrorScope(
  * @return {ConnectionStatusSummary} Whether the connection is broken, which half, and how badly.
  */
 export default function useConnectionStatusSummary(): ConnectionStatusSummary {
-	const { hasConnectionError, displayableErrors, viewer } = useConnectionErrorNotice();
+	// A status surface reports; it offers no CTA of its own, so the notice hook is
+	// asked to skip resolving one.
+	const { hasConnectionError, displayableErrors, viewer } = useConnectionErrorNotice( {
+		resolveActions: false,
+	} );
 
 	return useMemo( (): ConnectionStatusSummary => {
 		const scope = getConnectionErrorScope( displayableErrors, viewer );
