@@ -79,6 +79,15 @@ describe( 'completeToDateRange', () => {
 		expect( completeToDateRange( complete, 'last-12-months' ) ).toEqual( complete );
 	} );
 
+	// Completing either shifts it onto a unit of another length, and its
+	// previous period stops coming back equal — see the comparison tests.
+	it.each( [
+		[ 'month-to-date' as const, { from: at( 2026, 8, 1 ), to: endOf( 2026, 8, 20 ) } ],
+		[ 'year-to-date' as const, { from: at( 2026, 1, 1 ), to: endOf( 2026, 8, 20 ) } ],
+	] )( 'leaves %s alone', ( presetId, range ) => {
+		expect( completeToDateRange( range, presetId ) ).toBe( range );
+	} );
+
 	it( 'returns any other preset’s range as is, even one starting on the first', () => {
 		// A hand-picked range has no running month to complete.
 		expect( completeToDateRange( toDate, 'custom' ) ).toBe( toDate );
