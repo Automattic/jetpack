@@ -1,23 +1,22 @@
-import { identityUser } from '../shared/identity';
-import { GuestFields } from './guest-fields';
-import { LogInPrompt } from './log-in-prompt';
+import { hasLoginFailed } from '../shared/identity';
+
+import './style.scss';
 
 export { CommentingAs } from './commenting-as';
 
 /**
- * How the reader identifies themselves. Someone already known, logged in or
- * signed in through the checkpoint, sees nothing here; the attribution line is drawn
- * in the footer instead. Otherwise it is the log-in prompt when the site
- * requires an account, or the guest fields with the provider buttons inside.
+ * The form asks nothing of the reader up front: WordPress.com establishes who
+ * they are when they submit. All that is drawn here is the apology when that
+ * fails; the attribution line lives in the footer.
  *
- * @return The prompt with buttons and fields, or nothing.
+ * @return The error line, or nothing.
  */
 export const Identity = () => {
-	const { mustLogIn } = JetpackComments;
+	const { strings } = JetpackComments;
 
-	if ( identityUser.value ) {
-		return null;
-	}
-
-	return mustLogIn ? <LogInPrompt /> : <GuestFields />;
+	return hasLoginFailed.value ? (
+		<p className="jetpack-comments__login-error" role="alert">
+			{ strings.loginError }
+		</p>
+	) : null;
 };

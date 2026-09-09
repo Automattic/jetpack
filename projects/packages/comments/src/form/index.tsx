@@ -1,8 +1,8 @@
 import { render } from 'preact';
 import { useContext, useEffect, useRef } from 'preact/hooks';
 import { CommentingAs, Identity } from '../identity';
-import { dropCode, heldCode, markCodeSpent, needsFreshCode } from '../identity/checkpoint/code';
-import { connect } from '../identity/checkpoint/connect';
+import { heldCode, markCodeSpent, needsFreshCode } from '../identity/checkpoint/code';
+import { openCheckpoint } from '../identity/checkpoint/connect';
 import { identityUser } from '../shared/identity';
 import { CommentSignals, createSignals } from '../shared/state';
 import { CommentField } from './comment-field';
@@ -62,19 +62,21 @@ const CommentForm = ( { form }: CommentFormProps ) => {
 				return;
 			}
 
-			// A code that a submit already carried, or one about to lapse, would be
-			// turned away. Replace it first, off this click so the popup is allowed;
-			// WordPress.com's own cookie makes that instant. Then submit again.
+			// A stranger, or a code a submit already carried or one about to lapse,
+			// goes through the checkpoint first, off this click so the popup is
+			// allowed; WordPress.com's own cookie makes a repeat instant. Then
+			// submit again. A site login or a Passport the server recognised needs
+			// nothing. On failure the comment stays put and submit re-enables.
 			const held = heldCode.peek();
-			if ( held && needsFreshCode( held ) ) {
+			const needsCode =
+				! JetpackComments.isLoggedIn && ( held ? needsFreshCode( held ) : ! identityUser.peek() );
+
+			if ( needsCode ) {
 				event.preventDefault();
-				connect( held.provider ).then(
-					() => form.requestSubmit(),
-					() => {
-						// Back to the guest form; the draft is still there.
-						dropCode();
-						identityUser.value = null;
-					}
+				openCheckpoint().then(
+					// A frame later, so the hidden code field has rendered into the form.
+					() => requestAnimationFrame( () => form.requestSubmit() ),
+					() => {}
 				);
 				return;
 			}

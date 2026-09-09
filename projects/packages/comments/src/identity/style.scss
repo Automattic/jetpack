@@ -1,97 +1,14 @@
 /**
- * The identity block: guest fields when logged out, and the attribution line in
- * the submit row when logged in.
+ * The attribution line in the submit row, and the sign-in error above it.
  */
 
-.jetpack-comments__identity {
-	padding: 16px;
-	border-block-start: 1px solid var(--jetpack-comments-border-color);
-}
-
-.jetpack-comments__prompt {
+.jetpack-comments__login-error {
 	all: unset;
 	display: block;
-	margin-block-end: 16px;
-	font-size: 14px;
-	line-height: 22px;
+	padding: 12px 16px 0;
+	font-size: 13px;
 	color: var(--jetpack-comments-font-color);
 }
-
-.jetpack-comments__login {
-	display: inline-block;
-	padding: 7px 20px;
-	border: 1px solid var(--jetpack-comments-border-color);
-	border-radius: 4px;
-	color: inherit;
-	font-size: 14px;
-	text-decoration: none;
-
-	&:hover,
-	&:focus-visible {
-		border-color: var(--jetpack-comments-accent-color);
-	}
-}
-
-.jetpack-comments__guest {
-	display: flex;
-	flex-direction: column;
-	border: 1px solid var(--jetpack-comments-border-color);
-	border-radius: 4px;
-}
-
-.jetpack-comments__guest-field {
-	all: unset;
-	position: relative;
-	display: flex;
-	align-items: center;
-	block-size: 45px;
-	border-block-end: 1px solid var(--jetpack-comments-border-color);
-	color: var(--jetpack-comments-font-color);
-
-	svg {
-		position: absolute;
-		inset-block: 0;
-		inset-inline-start: 16px;
-		margin-block: auto;
-	}
-
-	input {
-		all: initial;
-		box-sizing: border-box;
-		inline-size: 100%;
-		block-size: 100%;
-		padding-inline: 44px 16px;
-		border: none;
-		background: transparent;
-		color: var(--jetpack-comments-font-color);
-		font-family: inherit;
-		font-size: 14px;
-
-		&::placeholder {
-			color: var(--jetpack-comments-font-color);
-			opacity: 0.8;
-		}
-
-		&:focus-visible {
-			outline: 1px solid var(--jetpack-comments-accent-color);
-			outline-offset: -1px;
-		}
-	}
-}
-
-.jetpack-comments__options {
-	padding: 16px 21px;
-	border-block-start: 1px solid var(--jetpack-comments-border-color);
-}
-
-.jetpack-comments__guest-field:last-child {
-	border-block-end: none;
-}
-
-.jetpack-comments__guest-field:has(+ .jetpack-comments__options) {
-	border-block-end: none;
-}
-
 
 .jetpack-comments__user {
 	display: flex;
@@ -116,7 +33,8 @@
 	font-size: 14px;
 }
 
-// The button variant, drawn to read like the link beside it would.
+// The "not you?" variant, drawn to read like the link would, with a dot
+// between it and the name when there is one.
 button.jetpack-comments__logout {
 	all: unset;
 	color: inherit;
@@ -129,4 +47,11 @@ button.jetpack-comments__logout {
 		outline: 1px solid var(--jetpack-comments-accent-color);
 		outline-offset: 2px;
 	}
+}
+
+.jetpack-comments__user-name + button.jetpack-comments__logout::before {
+	content: "\00B7";
+	display: inline-block;
+	margin-inline-end: 10px;
+	text-decoration: none;
 }

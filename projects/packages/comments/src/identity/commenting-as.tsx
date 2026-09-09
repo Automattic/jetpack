@@ -2,14 +2,15 @@ import { useContext } from 'preact/hooks';
 import { identityUser } from '../shared/identity';
 import { CommentSignals } from '../shared/state';
 import { heldCode } from './checkpoint/code';
-import { disconnect } from './checkpoint/connect';
+import { openCheckpoint } from './checkpoint/connect';
 
 import './style.scss';
 
 /**
  * Who the comment will be attributed to. A held code rides along in a hidden
- * field. Logging out of a checkpoint identity clears the cookie in place;
- * logging out of a site account follows the usual link.
+ * field. A WordPress.com-vouched reader can ask to be someone else, which
+ * opens the checkpoint with the account choice forced; a site login follows
+ * the usual log-out link.
  *
  * @return The identity line, or nothing when nobody is identified.
  */
@@ -19,7 +20,8 @@ export const CommentingAs = () => {
 	const user = identityUser.value;
 	const held = heldCode.value;
 
-	const onLogOut = () => disconnect();
+	// The rejection is already shown as the error line.
+	const onNotYou = () => openCheckpoint( { prompt: true } ).catch( () => {} );
 
 	return user ? (
 		<div className="jetpack-comments__user">
@@ -38,11 +40,12 @@ export const CommentingAs = () => {
 					height="37"
 				/>
 			) }
-			<span className="jetpack-comments__user-name">{ user.commentingAs }</span>
+			{ user.commentingAs && (
+				<span className="jetpack-comments__user-name">{ user.commentingAs }</span>
+			) }
 			{ user.isPassport ? (
-				// A button: clearing the cookie happens in place, nothing navigates.
-				<button type="button" className="jetpack-comments__logout" onClick={ onLogOut }>
-					{ strings.logOut }
+				<button type="button" className="jetpack-comments__logout" onClick={ onNotYou }>
+					{ strings.notYou }
 				</button>
 			) : (
 				<a className="jetpack-comments__logout" href={ formSettings.logoutUrl }>

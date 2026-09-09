@@ -1,6 +1,6 @@
 <?php
 /**
- * The site-origin routes behind the checkpoint.
+ * The site-origin route behind the checkpoint.
  *
  * @package automattic/jetpack-comments
  */
@@ -8,8 +8,9 @@
 namespace Automattic\Jetpack\Comments\Identity;
 
 /**
- * POST /identity/connect signs a connect request; DELETE /identity clears the
- * Passport. Logged-out commenters reach both, so the guard is a nonce.
+ * POST /identity/connect signs a fresh connect request, for when the one
+ * minted with the page has lapsed or been used. Logged-out commenters reach
+ * it, so the guard is a nonce.
  */
 class REST_Controller {
 
@@ -25,7 +26,7 @@ class REST_Controller {
 	}
 
 	/**
-	 * Register the connect and clear routes.
+	 * Register the connect route.
 	 *
 	 * @return void
 	 */
@@ -38,31 +39,21 @@ class REST_Controller {
 				'permission_callback' => array( __CLASS__, 'check_nonce' ),
 				'callback'            => array( __CLASS__, 'connect' ),
 				'args'                => array(
-					'provider' => array(
-						'type'     => 'string',
-						'required' => true,
-					),
-					'origin'   => array(
+					'origin' => array(
 						'type'     => 'string',
 						'required' => true,
 					),
 				),
 			)
 		);
-
-		register_rest_route(
-			self::NAMESPACE,
-			'/identity',
-			array(
-				'methods'             => \WP_REST_Server::DELETABLE,
-				'permission_callback' => array( __CLASS__, 'check_nonce' ),
-				'callback'            => array( __CLASS__, 'clear' ),
-			)
-		);
 	}
 
 	/**
-	 * Sign a connect request; returns the URL to open and the challenge to expect.
+	 * Sign a connect request; returns the URL to open, the challenge to expect,
+	 * and when the signature expires.
+	 *
+	 * The browser's own Origin header, sent on every POST and unforgeable, has
+	 * to agree with the origin asked for: neither is trusted about itself.
 	 *
 	 * @param \WP_REST_Request $request The request.
 	 * @return \WP_REST_Response|\WP_Error
@@ -72,23 +63,16 @@ class REST_Controller {
 			return new \WP_Error( 'not_available', __( 'Comment sign-in is not available on this site.', 'jetpack-comments' ), array( 'status' => 400 ) );
 		}
 
-		$signed = Checkpoint::signed_connect_url(
-			(string) $request->get_param( 'provider' ),
-			(string) $request->get_param( 'origin' )
-		);
+		$origin = (string) $request->get_param( 'origin' );
+		$header = isset( $_SERVER['HTTP_ORIGIN'] ) ? (string) wp_unslash( $_SERVER['HTTP_ORIGIN'] ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- compared, never output.
+
+		if ( $header !== $origin ) {
+			return new \WP_Error( 'invalid_origin', __( 'That origin is not this site.', 'jetpack-comments' ), array( 'status' => 400 ) );
+		}
+
+		$signed = Checkpoint::signed_connect_url( $origin );
 
 		return is_wp_error( $signed ) ? $signed : rest_ensure_response( $signed );
-	}
-
-	/**
-	 * Clear the Passport cookie.
-	 *
-	 * @return \WP_REST_Response
-	 */
-	public static function clear() {
-		Passport::clear();
-
-		return rest_ensure_response( array( 'cleared' => true ) );
 	}
 
 	/**

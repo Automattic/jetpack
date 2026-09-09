@@ -1,40 +1,37 @@
-export type Commenter = {
-	author: string;
-	email: string;
-	url: string;
-};
-
 export type CurrentUser = {
 	avatarUrl: string;
+	/** The attribution line, already formatted. Empty when the name is unknown. */
 	commentingAs: string;
+	/** Vouched by WordPress.com rather than logged in to this site. */
 	isPassport: boolean;
 };
 
-export type CheckpointProvider = {
-	id: string;
-	/** The provider's plain name, e.g. "Google". */
-	name: string;
-	label: string;
+/** A signed connect request, good for one attempt. */
+export type SignedRequest = {
+	url: string;
+	challenge: string;
+	/** Seconds since epoch. */
+	expires: number;
+	/** The page origin it was signed for. */
+	origin: string;
 };
 
 export type CheckpointSettings =
 	| { enabled: false }
 	| {
 			enabled: true;
-			providers: CheckpointProvider[];
+			/** Minted with the page, for the first attempt. */
+			connect: SignedRequest;
 			/** The exact origin a result is accepted from. */
 			connectOrigin: string;
 			signUrl: string;
-			logoutUrl: string;
 			nonce: string;
 			/** The hidden field a held code rides to the server in. */
 			codeField: string;
-			disclosure: string;
 	  };
 
 export type FormSettings = {
 	postId: number;
-	loginUrl: string;
 	logoutUrl: string;
 	submitId: string;
 	submitName: string;
@@ -47,29 +44,16 @@ export type Strings = {
 	replyLabel: string;
 	placeholder: string;
 	replyPlaceholder: string;
-	name: string;
-	email: string;
-	emailPlaceholder: string;
-	website: string;
-	websitePlaceholder: string;
-	guestPrompt: string;
-	mustLogInPrompt: string;
-	logIn: string;
-	guestPromptRequired: string;
-	saveDetails: string;
 	logOut: string;
-	commentingAs: string;
+	postingAs: string;
+	notYou: string;
 	loginError: string;
 };
 
 export type Settings = {
 	isLoggedIn: boolean;
-	requireNameEmail: boolean;
-	showCookiesConsent: boolean;
-	mustLogIn: boolean;
 	maxLength: number;
 	strings: Strings;
-	commenter: Commenter;
 	user: CurrentUser | null;
 	checkpoint: CheckpointSettings;
 };

@@ -9,7 +9,6 @@ import type { CurrentUser } from '../../shared/types';
 
 export type HeldCode = {
 	code: string;
-	provider: string;
 	name: string;
 	avatar: string;
 	/** Ms since epoch. */
@@ -104,31 +103,26 @@ export function dropCode() {
  * Whether the code must be replaced before a comment carries it.
  *
  * @param held - The held code.
- * @return Whether to re-connect first.
+ * @return Whether to sign in again first.
  */
 export function needsFreshCode( held: HeldCode ): boolean {
 	return held.spent || held.expires - Date.now() < 60 * 1000;
 }
 
 /**
- * The "Commenting as …" attribution for a held code.
+ * The "Posting as …" attribution for a held code.
  *
  * @param held - The held code.
  * @return The attribution to show.
  */
-export function attribution( held: Pick< HeldCode, 'provider' | 'name' | 'avatar' > ): CurrentUser {
-	const { checkpoint, strings } = JetpackComments;
-	const providerName = checkpoint.enabled
-		? checkpoint.providers.find( p => p.id === held.provider )?.name
-		: undefined;
-
-	const name = held.name || providerName || held.provider;
+export function attribution( held: Pick< HeldCode, 'name' | 'avatar' > ): CurrentUser {
+	const { strings } = JetpackComments;
 
 	return {
 		avatarUrl: held.avatar,
 		// A function replacement, so a name containing `$1` or `$&` is not
 		// treated as a replacement pattern.
-		commentingAs: strings.commentingAs.replace( /%(1\$)?s/, () => name ),
+		commentingAs: held.name ? strings.postingAs.replace( /%(1\$)?s/, () => held.name ) : '',
 		isPassport: true,
 	};
 }

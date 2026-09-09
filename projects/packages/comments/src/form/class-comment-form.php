@@ -354,11 +354,8 @@ class Comment_Form {
 
 		return array_merge(
 			array(
-				'requireNameEmail'   => (bool) get_option( 'require_name_email' ),
-				'showCookiesConsent' => (bool) get_option( 'show_comments_cookies_opt_in' ),
-				'mustLogIn'          => (bool) get_option( 'comment_registration' ) && ! is_user_logged_in() && ! Identity::has_passport_identity(),
-				'maxLength'          => isset( $lengths['comment_content'] ) ? (int) $lengths['comment_content'] : 65525,
-				'strings'            => self::strings( $args ),
+				'maxLength' => isset( $lengths['comment_content'] ) ? (int) $lengths['comment_content'] : 65525,
+				'strings'   => self::strings( $args ),
 			),
 			Identity::settings()
 		);
@@ -376,7 +373,6 @@ class Comment_Form {
 
 		$settings = array(
 			'postId'      => $post_id,
-			'loginUrl'    => wp_login_url( $permalink ),
 			'logoutUrl'   => '',
 			'submitId'    => $args['id_submit'] ?? 'submit',
 			'submitName'  => $args['name_submit'] ?? 'submit',
@@ -399,25 +395,16 @@ class Comment_Form {
 	 */
 	private static function strings( $args ) {
 		$strings = array(
-			'reply'               => _x( 'Reply', 'verb', 'jetpack-comments' ),
-			'commentLabel'        => _x( 'Comment', 'noun', 'jetpack-comments' ),
-			'replyLabel'          => _x( 'Reply', 'noun', 'jetpack-comments' ),
-			'placeholder'         => __( 'Write a comment...', 'jetpack-comments' ),
-			'replyPlaceholder'    => __( 'Write a reply...', 'jetpack-comments' ),
-			'name'                => __( 'Name', 'jetpack-comments' ),
-			'email'               => __( 'Email', 'jetpack-comments' ),
-			'emailPlaceholder'    => __( 'Email (Address never made public)', 'jetpack-comments' ),
-			'website'             => __( 'Website', 'jetpack-comments' ),
-			'websitePlaceholder'  => __( 'Website (Optional)', 'jetpack-comments' ),
-			'guestPrompt'         => __( 'Leave a comment.', 'jetpack-comments' ),
-			'mustLogInPrompt'     => __( 'Log in to leave a comment.', 'jetpack-comments' ),
-			'logIn'               => __( 'Log in', 'jetpack-comments' ),
-			'guestPromptRequired' => __( 'Provide your name and email to leave a comment.', 'jetpack-comments' ),
-			'saveDetails'         => __( 'Save my name, email, and website in this browser for the next time I comment.', 'jetpack-comments' ),
-			'logOut'              => __( 'Log out', 'jetpack-comments' ),
+			'reply'            => _x( 'Reply', 'verb', 'jetpack-comments' ),
+			'commentLabel'     => _x( 'Comment', 'noun', 'jetpack-comments' ),
+			'replyLabel'       => _x( 'Reply', 'noun', 'jetpack-comments' ),
+			'placeholder'      => __( 'Write a comment...', 'jetpack-comments' ),
+			'replyPlaceholder' => __( 'Write a reply...', 'jetpack-comments' ),
+			'logOut'           => __( 'Log out', 'jetpack-comments' ),
 			/* translators: %s is the name the commenter signed in with. */
-			'commentingAs'        => __( 'Commenting as %s', 'jetpack-comments' ),
-			'loginError'          => __( 'Sorry, that sign-in did not work. Please try again.', 'jetpack-comments' ),
+			'postingAs'        => __( 'Posting as %s', 'jetpack-comments' ),
+			'notYou'           => __( 'Not you?', 'jetpack-comments' ),
+			'loginError'       => __( 'Sorry, that sign-in did not work. Please try again.', 'jetpack-comments' ),
 		);
 
 		/**
