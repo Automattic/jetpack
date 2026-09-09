@@ -54,6 +54,10 @@ export {
 	isOtherUsersConnectionError,
 	getConnectionErrorUserScope,
 } from './hooks/use-connection-error-notice/viewer-scope';
+export { default as useConnectionStatusSummary } from './hooks/use-connection-status-summary';
+// `getConnectionErrorScope` and the summary types, forwarded the same way as the
+// error-notice types above.
+export * from './hooks/use-connection-status-summary';
 
 /**
  * Connection-error presentation. The notice copy lives here so every consumer

@@ -92,6 +92,10 @@ $myjetpack-connection-avatar-overlap: 8px;
 	h4 {
 		margin-top: 0;
 		margin-bottom: 0.25rem;
+		font-size: 1.25rem;
+		line-height: 24px;
+		font-weight: 500;
+		color: var(--jp-black);
 
 		:global(button.components-button) {
 			height: auto;
