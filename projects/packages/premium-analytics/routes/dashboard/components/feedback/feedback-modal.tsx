@@ -86,8 +86,17 @@ export function FeedbackModal( { onClose }: FeedbackModalProps ) {
 					<>
 						<Dialog.Content>
 							<Notice.Root intent="success">
+								<Notice.Title>
+									{ __(
+										'Thanks, your feedback has gone to the team.',
+										'jetpack-premium-analytics-pkg'
+									) }
+								</Notice.Title>
 								<Notice.Description>
-									{ __( 'Thank you. This helps.', 'jetpack-premium-analytics-pkg' ) }
+									{ __(
+										"It'll help us decide what to fix before the new Traffic tab replaces the old one. You can send more any time from the same menu.",
+										'jetpack-premium-analytics-pkg'
+									) }
 								</Notice.Description>
 							</Notice.Root>
 						</Dialog.Content>

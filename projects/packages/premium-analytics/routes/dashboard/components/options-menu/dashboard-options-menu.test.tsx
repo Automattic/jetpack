@@ -149,8 +149,12 @@ describe( 'DashboardOptionsMenu', () => {
 
 		// Scoped to the dialog: `Notice` also mirrors the text into the a11y-speak live
 		// region on `body`, so an unscoped query matches twice.
+		const dialog = within( screen.getByRole( 'dialog' ) );
+		expect( dialog.getByText( 'Thanks, your feedback has gone to the team.' ) ).toBeInTheDocument();
 		expect(
-			within( screen.getByRole( 'dialog' ) ).getByText( 'Thank you. This helps.' )
+			dialog.getByText(
+				"It'll help us decide what to fix before the new Traffic tab replaces the old one. You can send more any time from the same menu."
+			)
 		).toBeInTheDocument();
 		expect( screen.queryByRole( 'radiogroup' ) ).not.toBeInTheDocument();
 
@@ -296,8 +300,12 @@ describe( 'the Happiness copy of the feedback', () => {
 		await user.type( screen.getByRole( 'textbox' ), 'Charts load slowly' );
 		await user.click( screen.getByRole( 'button', { name: 'Send feedback' } ) );
 
+		const dialog = within( screen.getByRole( 'dialog' ) );
+		expect( dialog.getByText( 'Thanks, your feedback has gone to the team.' ) ).toBeInTheDocument();
 		expect(
-			within( screen.getByRole( 'dialog' ) ).getByText( 'Thank you. This helps.' )
+			dialog.getByText(
+				"It'll help us decide what to fix before the new Traffic tab replaces the old one. You can send more any time from the same menu."
+			)
 		).toBeInTheDocument();
 	} );
 } );
