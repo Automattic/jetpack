@@ -141,7 +141,7 @@ class Dashboard {
 	 * The filter gated the wp-build dashboard while it was in development. That dashboard
 	 * is now the only one, so a `false` return has nothing left to select and is ignored.
 	 *
-	 * Announced rather than applied: _deprecated_hook() reports the hook without honouring
+	 * Announced rather than applied: _deprecated_hook() reports the hook without honoring
 	 * it, where apply_filters_deprecated() would return a `false` this code can no longer
 	 * act on. Guarded by has_filter() so sites that never used it stay silent.
 	 *
@@ -162,7 +162,7 @@ class Dashboard {
 			return;
 		}
 
-		// Kept on one line: replace-next-version-tag.sh only recognises the token in a
+		// Kept on one line: replace-next-version-tag.sh only recognizes the token in a
 		// single-line deprecation call, and errors the build out otherwise.
 		_deprecated_hook( 'jetpack_forms_alpha', 'jetpack-forms-$$next-version$$', '', 'The legacy Forms dashboard has been removed, so this filter no longer selects anything.' );
 	}
@@ -170,9 +170,8 @@ class Dashboard {
 	/**
 	 * Send legacy dashboard URLs to the wp-build dashboard.
 	 *
-	 * Email and masterbar links generated before the legacy dashboard was retired still
-	 * point at its slug, which no longer registers a page. Translate them rather than
-	 * letting them 404.
+	 * Load-bearing, not a courtesy for stale links: Creative Mail's JITMs and post-install
+	 * redirect, and My Jetpack's fallback URL, still emit the legacy slug today. Keep it.
 	 */
 	public static function redirect_dashboard_url_cross_variant() {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended

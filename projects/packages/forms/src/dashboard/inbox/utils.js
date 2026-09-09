@@ -9,9 +9,9 @@ export const getPath = item => {
 };
 
 /**
- * The Forms wp-admin submenu badge is registered under the Forms dashboard
- * slug. Matched by attribute rather than assumed, so a slug change surfaces as
- * a missing badge rather than a silent mismatch.
+ * The Forms wp-admin submenu badge slug, duplicated from PHP
+ * `Dashboard::FORMS_WPBUILD_ADMIN_SLUG`. Keep the two in step: see
+ * getFormsMenuBadgeSlug() below for what drift costs.
  */
 const FORMS_MENU_BADGE_SELECTOR = '[data-jp-menu-badge="jetpack-forms-responses-wp-admin"]';
 
@@ -37,13 +37,14 @@ export const getMenuBadgeCount = () => {
 };
 
 /**
- * Resolve the slug the Forms wp-admin submenu badge is currently registered
- * under, by reading it off the rendered `data-jp-menu-badge` attribute rather
- * than assuming a fixed slug. Using the wrong slug means
- * `window.jetpackMenuBadges.setCount()` silently no-ops against a badge
- * element that doesn't exist.
+ * Resolve the Forms wp-admin submenu badge slug off the rendered
+ * `data-jp-menu-badge` attribute.
  *
- * @return {string} The active Forms menu badge slug, or the default wp-build slug if no badge is rendered.
+ * Constant in practice: selector and fallback are the same literal, so if the PHP slug
+ * changed this returns the stale one and `setCount()` no-ops against nothing. Reading the
+ * attribute does not catch that -- only keeping the literal in step with PHP does.
+ *
+ * @return {string} The Forms menu badge slug.
  */
 export const getFormsMenuBadgeSlug = () => {
 	const badge = document.querySelector( FORMS_MENU_BADGE_SELECTOR );
