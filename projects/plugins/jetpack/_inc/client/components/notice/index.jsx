@@ -29,6 +29,7 @@ export default class SimpleNotice extends Component {
 		] ),
 		title: PropTypes.oneOfType( [ PropTypes.string, PropTypes.node ] ),
 		onDismissClick: PropTypes.func,
+		dismissText: PropTypes.string,
 		className: PropTypes.string,
 		display: PropTypes.bool,
 	};

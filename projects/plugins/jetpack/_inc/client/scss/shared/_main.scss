@@ -46,16 +46,13 @@
 	text-decoration: underline;
 }
 
-// `@wordpress/ui` styles all sit inside `@layer wp-ui`, which loses to the
-// unlayered rule above, and its `Link` relies on the UA underline rather than
-// setting one. The shorthand there also resets thickness, hence both lines.
-// Once WordPress/gutenberg#82620 ships and we take the bump, this
-// narrows rather than goes: the upstream defense only reaches wp-ui
-// `Link`, and three notices interpolate a raw `<a>` that would lose
-// its underline.
+// `@wordpress/ui` sits in `@layer wp-ui`, which loses to the unlayered
+// `.jetpack-pagestyles a` above, and its `Link` relies on the UA underline.
+// WordPress/gutenberg#82620 narrows this rather than retiring it: the upstream
+// defense reaches wp-ui `Link` only, and three notices interpolate a raw `<a>`.
 .jetpack-pagestyles .jp-notice a {
 	text-decoration-line: underline;
-	text-decoration-thickness: from-font;
+	text-decoration-thickness: from-font; // `text-decoration: none` above resets it.
 }
 
 // Unlayered on purpose: `Notice.Root` sets `display: grid`

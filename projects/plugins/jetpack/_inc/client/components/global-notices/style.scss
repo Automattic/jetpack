@@ -38,17 +38,15 @@
 	}
 }
 
-/*
- * Targets children rather than a notice class: the notices are now
- * `@wordpress/ui` `Notice.Root`, whose CSS-module class name is hashed.
- * The container is click-through so it never blocks the page, so each notice
- * has to opt back in. `container-type` is off because the container shrinks to
- * fit its contents, and a size-contained child reports no width — collapsing
- * the toast. The query it disables only applies to notices with a title.
- */
+/* Targets children: `Notice.Root`'s own class is a hashed CSS-module name. */
 .global-notices > * {
-	container-type: normal;
 	margin-bottom: 0;
+
+	/* A size-contained child reports no width in this shrink-to-fit
+	   container, collapsing the toast. Only titled notices query it. */
+	container-type: normal;
+
+	/* The container is click-through, so each notice opts back in. */
 	pointer-events: auto;
 
 	/* `@wordpress/ui`'s medium elevation, the level its popovers and menus use.
