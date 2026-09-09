@@ -7,12 +7,10 @@ import {
 	getTrendDirection,
 } from './score-utils';
 
-test( 'uses the score card WPDS colors for each tier', () => {
-	expect( getScoreTierColor( 'good' ) ).toBe( 'var(--wpds-color-foreground-content-success-weak)' );
-	expect( getScoreTierColor( 'medium' ) ).toBe(
-		'var(--wpds-color-foreground-content-warning-weak)'
-	);
-	expect( getScoreTierColor( 'poor' ) ).toBe( 'var(--wpds-color-foreground-content-error-weak)' );
+test( 'uses the shared score card color tokens for each tier', () => {
+	expect( getScoreTierColor( 'good' ) ).toBe( 'var(--jetpack-boost-score-good)' );
+	expect( getScoreTierColor( 'medium' ) ).toBe( 'var(--jetpack-boost-score-medium)' );
+	expect( getScoreTierColor( 'poor' ) ).toBe( 'var(--jetpack-boost-score-poor)' );
 } );
 
 test.each( [

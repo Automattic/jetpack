@@ -40,9 +40,9 @@ export function formatScoreDelta( delta: number ): string | null {
 
 export function getScoreTierColor( tier: ScoreTier ): string {
 	const colors = {
-		good: 'var(--wpds-color-foreground-content-success-weak)',
-		medium: 'var(--wpds-color-foreground-content-warning-weak)',
-		poor: 'var(--wpds-color-foreground-content-error-weak)',
+		good: 'var(--jetpack-boost-score-good)',
+		medium: 'var(--jetpack-boost-score-medium)',
+		poor: 'var(--jetpack-boost-score-poor)',
 	};
 	return colors[ tier ];
 }

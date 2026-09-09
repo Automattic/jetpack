@@ -544,7 +544,9 @@ test( 'selects the paid empty history state using module availability', async ()
 		renderOverview();
 		const charts = await screen.findAllByRole( 'grid', { name: 'Bar chart' } );
 		fireEvent.keyDown( charts[ 0 ], { key: 'ArrowRight' } );
-		await expect( screen.findByText( 'No score recorded.' ) ).resolves.toBeInTheDocument();
+		await expect(
+			screen.findByText( 'No score recorded before you unlocked this feature.' )
+		).resolves.toBeInTheDocument();
 		expect( screen.queryByRole( 'button', { name: 'Upgrade now' } ) ).not.toBeInTheDocument();
 	} finally {
 		geometry.mockRestore();

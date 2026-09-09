@@ -1,9 +1,34 @@
 .boost-daily-history {
 	display: grid;
 	grid-template-columns: minmax(0, 1fr);
-	gap: var(--wpds-dimension-gap-lg);
+	gap: 0;
 	min-inline-size: 0;
 	isolation: isolate;
+	position: relative;
+
+	> section {
+		padding: var(--wpds-dimension-padding-lg) var(--wpds-dimension-padding-lg) var(--wpds-dimension-padding-sm);
+		border-block-start: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
+	}
+
+	&__highlight {
+		position: absolute;
+		inset-block-start: 0;
+		inset-block-end: var(--wpds-dimension-padding-3xl);
+		background: color-mix(in sRGB, var(--wp-admin-theme-color) 8%, transparent);
+		pointer-events: none;
+		z-index: -1;
+	}
+
+	&__body {
+		padding: 0;
+	}
+
+	&__card-header {
+		padding: var(--wpds-dimension-padding-md) var(--wpds-dimension-padding-xl);
+		min-block-size: calc(var(--wpds-dimension-size-md) * 2);
+		box-sizing: border-box;
+	}
 
 	> section:has([role="tooltip"]) {
 		position: relative;
@@ -25,36 +50,61 @@
 	}
 
 	&__paging {
-		font-size: var(--wpds-typography-font-size-sm);
+		font-size: var(--wpds-typography-font-size-md);
+		color: var(--jetpack-boost-history-axis);
 	}
 
 	&__device {
 		margin: 0;
 		font-size: var(--wpds-typography-font-size-md);
-		font-weight: var(--wpds-typography-font-weight-emphasis);
+		font-weight: var(--wpds-typography-font-weight-default);
+		line-height: var(--wpds-typography-line-height-sm);
+		margin-block-end: var(--wpds-dimension-gap-sm);
+
+		svg {
+			inline-size: var(--wpds-dimension-size-2xs);
+			block-size: var(--wpds-dimension-size-2xs);
+		}
 	}
 
 	&__plot {
-		block-size: var(--wpds-dimension-surface-width-xs);
+		block-size: calc(var(--wpds-dimension-size-md) * 3);
 		min-inline-size: 0;
 		isolation: isolate;
 
-		// Charts leaves an all-zero series at zero height even with showZeroValues.
+		// Keep zeros visible without lifting empty marks above the baseline.
 		.visx-bar[height="0"] {
 			height: var(--wpds-border-width-sm);
+			transform: translateY(calc(-1 * var(--wpds-border-width-sm)));
 		}
 
-		.visx-bar[fill="var(--wpds-color-stroke-surface-neutral-weak)"] {
-			height: var(--wpds-border-width-xs);
-			fill: none;
-			stroke: var(--wpds-color-stroke-surface-neutral-weak);
-			stroke-width: var(--wpds-border-width-sm);
-			stroke-dasharray: var(--wpds-dimension-gap-xs);
+		.visx-bar[fill="var(--jetpack-boost-history-empty)"] {
+			height: var(--wpds-dimension-gap-xs);
+			transform: translateY(calc(-1 * var(--wpds-dimension-gap-xs)));
+			rx: var(--wpds-border-radius-sm);
 		}
+
+		.visx-axis-tick text {
+			fill: var(--jetpack-boost-history-axis);
+			font-size: var(--wpds-typography-font-size-sm);
+		}
+
+		.visx-grid line {
+			stroke: var(--wpds-color-stroke-surface-neutral-weak);
+		}
+	}
+
+	.visx-tooltip {
+		padding: 0 !important;
 	}
 
 	.jetpack-boost-overview__history-tooltip {
 		color: var(--wpds-color-foreground-content-neutral);
+		background: var(--wpds-color-background-surface-neutral);
+		padding: var(--wpds-dimension-padding-lg);
+		border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
+		border-radius: var(--wpds-border-radius-lg);
+		box-sizing: border-box;
 		max-inline-size: calc(100vw - var(--wpds-dimension-gap-xl));
 
 		.jetpack-boost-overview__series-swatch {
@@ -67,5 +117,19 @@
 		dd:nth-child(n + 3) {
 			color: var(--wpds-color-foreground-content-neutral-weak);
 		}
+	}
+}
+
+.boost-daily-history .boost-daily-history__empty-tooltip {
+	inline-size: calc(var(--wpds-dimension-surface-width-xs) + var(--wpds-dimension-padding-2xl) + var(--wpds-border-width-xs));
+	padding: calc(var(--wpds-dimension-padding-lg) + var(--wpds-border-width-xs));
+	line-height: var(--wpds-typography-line-height-sm);
+
+	.jetpack-boost-overview__tooltip-date {
+		margin-block-end: calc(var(--wpds-dimension-gap-sm) + var(--wpds-border-width-sm));
+	}
+
+	.boost-daily-history__empty-copy {
+		color: var(--wpds-color-foreground-content-neutral-weak);
 	}
 }
