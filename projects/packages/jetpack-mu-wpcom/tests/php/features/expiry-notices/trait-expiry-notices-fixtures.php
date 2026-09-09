@@ -10,7 +10,6 @@ declare( strict_types = 1 );
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Notice_Dismiss;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Owner;
-use Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Wpcom;
 
 trait Expiry_Notices_Fixtures {
 
@@ -46,9 +45,6 @@ trait Expiry_Notices_Fixtures {
 
 	/**
 	 * Create the users the tests act as, and act as the admin, who owns the plan.
-	 *
-	 * WorDBless resets the users table between tests, so this belongs in
-	 * set_up rather than set_up_before_class.
 	 */
 	protected function set_up_expiry_fixtures(): void {
 		$this->request_uri   = $_SERVER['REQUEST_URI'] ?? null;
@@ -110,10 +106,7 @@ trait Expiry_Notices_Fixtures {
 	}
 
 	/**
-	 * Record who bought the plan, the way the resolver would have cached it.
-	 *
-	 * The lookup itself is an HTTP call on Atomic, so tests prime its cache
-	 * rather than make it.
+	 * Record who bought the plan the way the lookup, a request on Atomic, would have.
 	 *
 	 * @param int $wpcom_user_id WordPress.com user ID of the owner.
 	 */
@@ -129,22 +122,6 @@ trait Expiry_Notices_Fixtures {
 		$this->set_plan_owner( $this->admin_wpcom_id + 1 );
 	}
 
-	/**
-	 * Leave the owner unresolved, as a failed lookup does.
-	 */
-	protected function set_plan_owner_unknown(): void {
-		set_transient( $this->owner_cache_key(), Expiry_Wpcom::NONE, HOUR_IN_SECONDS );
-		$this->flush_expiry_memos();
-	}
-
-	/**
-	 * Act as an admin created on the site itself, with no WordPress.com account.
-	 */
-	protected function act_as_local_only_admin(): void {
-		delete_user_meta( $this->admin_id, 'wpcom_user_id' );
-		$this->flush_expiry_memos();
-	}
-
 	private function owner_cache_key(): string {
 		return Expiry_Owner::cache_key( array( 'subscription_id' => $this->subscription_id ) );
 	}
@@ -152,10 +129,8 @@ trait Expiry_Notices_Fixtures {
 	/**
 	 * The site's one plan purchase, expiring the given number of days from now.
 	 *
-	 * Half a day of slack on top of the whole days: the state computes
-	 * `floor( ( expiry - now ) / DAY_IN_SECONDS )` at read time, so an expiry
-	 * set to exactly N days collapses to N-1 the moment a second elapses
-	 * between this call and the read -- a race a slow runner loses.
+	 * Half a day of slack: the state floors whole days at read time, so an
+	 * expiry at exactly N days becomes N-1 a second later.
 	 *
 	 * @param int    $days_until_expiry Negative for a plan that has lapsed.
 	 * @param bool   $auto_renew        Whether the customer left auto-renew on.
