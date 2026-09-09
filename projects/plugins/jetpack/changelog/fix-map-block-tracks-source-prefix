@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-Map block: record the WordPress.com Mapbox key load event under the jetpack source so it is not rejected at ingest.
+Map block: Ensure the WordPress.com Mapbox key load tracking event is recorded on Simple sites.
