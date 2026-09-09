@@ -69,13 +69,26 @@ function wpcom_podcast_feed_credit_append_to_content( $content ) {
 		return $content;
 	}
 	$site_url = home_url( '/' );
-	$credit   = sprintf(
-		/* translators: 1: podcast title, 2: HTML link to "Jetpack Podcast", 3: HTML link to site URL */
-		esc_html__( '%1$s is made with %2$s. Full show notes and every episode at %3$s', 'jetpack-mu-wpcom' ),
-		esc_html( wpcom_podcast_feed_credit_show_title() ),
-		'<a href="https://wordpress.com/podcast/">Jetpack Podcast</a>',
-		'<a href="' . esc_url( $site_url ) . '">' . esc_html( $site_url ) . '</a>'
-	);
+	$title    = wpcom_podcast_feed_credit_show_title();
+	$product  = '<a href="https://wordpress.com/podcast/">Jetpack Podcast</a>';
+	$link     = '<a href="' . esc_url( $site_url ) . '">' . esc_html( $site_url ) . '</a>';
+
+	if ( '' === $title ) {
+		$credit = sprintf(
+			/* translators: 1: HTML link to "Jetpack Podcast", 2: HTML link to site URL */
+			esc_html__( 'This podcast is made with %1$s. Full show notes and every episode at %2$s', 'jetpack-mu-wpcom' ),
+			$product,
+			$link
+		);
+	} else {
+		$credit = sprintf(
+			/* translators: 1: podcast title, 2: HTML link to "Jetpack Podcast", 3: HTML link to site URL */
+			esc_html__( '%1$s is made with %2$s. Full show notes and every episode at %3$s', 'jetpack-mu-wpcom' ),
+			esc_html( $title ),
+			$product,
+			$link
+		);
+	}
 	return (string) $content . "\n<p>" . $credit . '</p>';
 }
 
@@ -85,27 +98,44 @@ function wpcom_podcast_feed_credit_append_to_content( $content ) {
  * @return string
  */
 function wpcom_podcast_feed_credit_text(): string {
+	$title = wpcom_podcast_feed_credit_show_title();
+
+	if ( '' === $title ) {
+		return sprintf(
+			/* translators: 1: "Jetpack Podcast", 2: site URL */
+			__( 'This podcast is made with %1$s. Full show notes and every episode at %2$s', 'jetpack-mu-wpcom' ),
+			'Jetpack Podcast',
+			home_url( '/' )
+		);
+	}
+
 	return sprintf(
 		/* translators: 1: podcast title, 2: "Jetpack Podcast", 3: site URL */
 		__( '%1$s is made with %2$s. Full show notes and every episode at %3$s', 'jetpack-mu-wpcom' ),
-		wpcom_podcast_feed_credit_show_title(),
+		$title,
 		'Jetpack Podcast',
 		home_url( '/' )
 	);
 }
 
 /**
- * The show title for the credit: `podcasting_title`, else the site name, else
- * the site's host so the sentence always has a subject.
+ * The show title for the credit: `podcasting_title`, else the site name.
+ * A site name that is just the site's slug or host is no title at all, so
+ * it yields '' and the credit goes subjectless rather than reading
+ * "example78687615498 is made with".
  *
- * @return string
+ * @return string '' when there is nothing worth calling the show.
  */
 function wpcom_podcast_feed_credit_show_title(): string {
+	$host = strtolower( (string) wp_parse_url( home_url(), PHP_URL_HOST ) );
+	$slug = strstr( $host, '.', true );
+	$junk = array_filter( array( $host, false === $slug ? '' : $slug ) );
+
 	foreach ( array( get_option( 'podcasting_title', '' ), get_bloginfo( 'name' ) ) as $candidate ) {
 		$candidate = trim( wp_strip_all_tags( (string) $candidate ) );
-		if ( '' !== $candidate ) {
+		if ( '' !== $candidate && ! in_array( strtolower( $candidate ), $junk, true ) ) {
 			return $candidate;
 		}
 	}
-	return (string) wp_parse_url( home_url(), PHP_URL_HOST );
+	return '';
 }

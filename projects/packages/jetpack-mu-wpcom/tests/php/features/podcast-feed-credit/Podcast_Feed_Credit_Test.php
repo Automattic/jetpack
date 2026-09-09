@@ -116,7 +116,7 @@ class Podcast_Feed_Credit_Test extends \WorDBless\BaseTestCase {
 		$this->assertSame( '', wpcom_podcast_feed_credit_append_to_content( '' ) );
 	}
 
-	public function test_show_title_falls_back_to_site_name_then_host() {
+	public function test_show_title_falls_back_to_site_name_then_no_subject() {
 		update_option( 'podcasting_title', 'The <b>Weekly</b> Show' );
 		$this->assertStringStartsWith( 'The Weekly Show is made with', wpcom_podcast_feed_credit_text() );
 
@@ -125,6 +125,21 @@ class Podcast_Feed_Credit_Test extends \WorDBless\BaseTestCase {
 		$this->assertStringStartsWith( 'Example Site is made with', wpcom_podcast_feed_credit_text() );
 
 		update_option( 'blogname', '' );
-		$this->assertStringStartsWith( wp_parse_url( home_url(), PHP_URL_HOST ) . ' is made with', wpcom_podcast_feed_credit_text() );
+		$this->assertStringStartsWith( 'This podcast is made with Jetpack Podcast.', wpcom_podcast_feed_credit_text() );
+	}
+
+	/**
+	 * A new site's name defaults to its slug, which is no title at all.
+	 */
+	public function test_a_site_name_that_is_the_slug_or_host_reads_as_no_title() {
+		delete_option( 'podcasting_title' );
+		$host = wp_parse_url( home_url(), PHP_URL_HOST );
+
+		update_option( 'blogname', strtoupper( $host ) );
+		$this->assertStringStartsWith( 'This podcast is made with', wpcom_podcast_feed_credit_text() );
+
+		update_option( 'blogname', strstr( $host, '.', true ) );
+		$this->assertStringStartsWith( 'This podcast is made with', wpcom_podcast_feed_credit_text() );
+		$this->assertStringContainsString( '<p>This podcast is made with <a href="https://wordpress.com/podcast/">', wpcom_podcast_feed_credit_append_to_content( '<p>Notes</p>' ) );
 	}
 }
