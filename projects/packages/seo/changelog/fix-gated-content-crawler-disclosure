@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Improve handling of protected content in generated metadata.
