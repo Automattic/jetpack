@@ -43,6 +43,10 @@ import type { CSSProperties, FC } from 'react';
 // the rendered fill is the primary mixed over the chart background at 0.15 + 0.85 * intensity.
 const CELL_MIX_FLOOR = 0.15;
 
+// One instance, not a `[]` default in the signature: `buildTooltipData` keys on
+// it, and a fresh array per render re-ran the keyboard tooltip effect endlessly.
+const NO_ROW_LABELS: string[] = [];
+
 const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 	data,
 	chartId: providedChartId,
@@ -55,7 +59,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 	maxCellHeight,
 	minCellWidth,
 	minCellHeight,
-	rowLabels = [],
+	rowLabels = NO_ROW_LABELS,
 	primaryColor,
 	gap = 'md',
 	withTooltips = false,

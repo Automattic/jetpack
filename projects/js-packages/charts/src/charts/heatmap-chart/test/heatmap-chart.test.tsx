@@ -411,6 +411,19 @@ const mockRects = () =>
 		} as DOMRect;
 	} );
 
+describe( 'HeatmapChart keyboard tooltip', () => {
+	test( 'opens on the selected cell without row labels', async () => {
+		renderChart( { withTooltips: true } );
+		const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
+		const user = userEvent.setup();
+
+		grid.focus();
+		await user.keyboard( '{ArrowDown}' );
+
+		expect( within( screen.getByRole( 'tooltip' ) ).getByText( '1' ) ).toBeInTheDocument();
+	} );
+} );
+
 describe( 'HeatmapChart tooltip position', () => {
 	afterEach( () => {
 		jest.restoreAllMocks();
