@@ -22,6 +22,9 @@
 	--wca-calendar-width: calc(var(--wca-calendar-cell-size) * 7 + var(--wca-calendar-padding) * 2);
 	--wca-calendar-width-wide: calc(var(--wca-calendar-cell-size) * 14 + var(--wca-calendar-padding) * 2 + var(--wca-calendar-months-gap));
 
+	// Grows into whatever height the panel's list leaves, so the actions
+	// below sit on the bottom edge rather than under the last week.
+	flex: 1 1 auto;
 	padding: var(--wca-calendar-padding);
 	width: var(--wca-calendar-width);
 	background-color: var(--wpds-color-background-surface-neutral-strong);
