@@ -107,8 +107,7 @@ class Jetpack_Manage {
 			'manage_options',
 			esc_url( Redirect::get_url( 'cloud-manage-dashboard-wp-menu', $args ) ),
 			null,
-			Admin_Menu::POSITION_EXTERNAL,
-			array( 'key' => 'jetpack-manage' )
+			Admin_Menu::POSITION_EXTERNAL
 		);
 	}
 
