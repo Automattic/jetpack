@@ -10,7 +10,6 @@ import { __ } from '@wordpress/i18n';
  */
 import { useTrackEvent } from '../../hooks/use-track-event';
 import { FeedbackFields } from './feedback-fields';
-import styles from './feedback-modal.module.scss';
 
 // Reaches Happiness as the subject line of the feedback email ("Feedback received
 // from …"), so it has to name the surface without any further context.
@@ -101,7 +100,7 @@ export function FeedbackModal( { onClose }: FeedbackModalProps ) {
 				) : (
 					<>
 						<Dialog.Content>
-							<Stack className={ styles.body } direction="column" gap="xl">
+							<Stack direction="column" gap="xl">
 								<FeedbackFields
 									rating={ rating }
 									onRatingChange={ setRating }
