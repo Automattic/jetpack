@@ -69,7 +69,7 @@ for ( const device of [ 'Desktop', 'Mobile' ] ) {
 		await expect( bars ).toHaveCount( 30 );
 		await expect( page.getByText( 'Aug 11 – Sep 9, 2026', { exact: true } ) ).toBeVisible();
 		await expect( page.getByRole( 'button', { name: 'Next 30 days' } ) ).toBeDisabled();
-		await bars.nth( 21 ).hover();
+		await bars.nth( 21 ).hover( { force: true } );
 		const surface = page.locator( '.jetpack-boost-overview__history-tooltip' );
 		await expect( surface ).toBeVisible();
 		await expect( surface.locator( '.jetpack-boost-overview__tooltip-date' ) ).toHaveText(
@@ -132,7 +132,7 @@ for ( const device of [ 'Desktop', 'Mobile' ] ) {
 			[ 21, 'September 1, 2026' ],
 			[ 27, 'September 7, 2026' ],
 		] as const ) {
-			await bars.nth( index ).hover();
+			await bars.nth( index ).hover( { force: true } );
 			await expect( surface.locator( '.jetpack-boost-overview__tooltip-date' ) ).toHaveText( date );
 			const popup = ( await surface.boundingBox() )!;
 			expect( popup.x ).toBeGreaterThanOrEqual( 0 );
