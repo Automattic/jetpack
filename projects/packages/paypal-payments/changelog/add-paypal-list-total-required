@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-The payment links admin screen now shows how many links the account has, instead of how many fit on the page you are looking at.

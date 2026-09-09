@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-The payment links REST endpoint now returns up to 100 links per request by default instead of 10.
+Return up to 100 payment links per request instead of 10.

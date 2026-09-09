@@ -147,14 +147,7 @@ class PayPal_Payment_Links_List_Table_Test extends TestCase {
 	 */
 	public function test_prepare_items_uses_paypals_total() {
 		$this->set_up_connected_state();
-
-		$this->mock_http_response(
-			200,
-			array(
-				'resources'   => $this->get_sample_items(),
-				'total_items' => 40,
-			)
-		);
+		$this->mock_list_response( $this->get_sample_items(), 40 );
 
 		$table = new PayPal_Payment_Links_List_Table();
 		$table->prepare_items();
@@ -163,21 +156,15 @@ class PayPal_Payment_Links_List_Table_Test extends TestCase {
 	}
 
 	/**
-	 * Test that the real total does not switch on core's numbered pagination.
+	 * Test that prepare_items sets total_pages to 1, which keeps core's
+	 * numbered pagination off.
 	 *
-	 * Paging is by cursor and prepare_items() never reads `paged`, so links
-	 * built from a computed page count would go nowhere.
+	 * Paging is by cursor and prepare_items() ignores `paged`, so links built
+	 * from a computed page count would go nowhere.
 	 */
-	public function test_prepare_items_keeps_core_pagination_off() {
+	public function test_prepare_items_sets_total_pages_to_one() {
 		$this->set_up_connected_state();
-
-		$this->mock_http_response(
-			200,
-			array(
-				'resources'   => $this->get_sample_items(),
-				'total_items' => 40,
-			)
-		);
+		$this->mock_list_response( $this->get_sample_items(), 40 );
 
 		$table = new PayPal_Payment_Links_List_Table();
 		$table->prepare_items();
@@ -186,10 +173,10 @@ class PayPal_Payment_Links_List_Table_Test extends TestCase {
 	}
 
 	/**
-	 * Test that prepare_items falls back to the row count without a total.
+	 * Test that prepare_items falls back to the row count when the total is
+	 * missing.
 	 *
-	 * A response cached before the client started asking for one has no
-	 * total_items.
+	 * A cached or older response can come back with no total_items.
 	 */
 	public function test_prepare_items_falls_back_to_row_count() {
 		$this->set_up_connected_state();
@@ -400,9 +387,10 @@ class PayPal_Payment_Links_List_Table_Test extends TestCase {
 	/**
 	 * Mock a list_resources API response.
 	 *
-	 * @param array $items The items to return.
+	 * @param array    $items The items to return.
+	 * @param int|null $total Optional. The account total PayPal reports.
 	 */
-	private function mock_list_response( $items ) {
+	private function mock_list_response( $items, $total = null ) {
 		$this->mock_http_response(
 			200,
 			array(
@@ -413,7 +401,7 @@ class PayPal_Payment_Links_List_Table_Test extends TestCase {
 						'href' => 'https://api.paypal.com/v1/checkout/payment-resources?page_size=20',
 					),
 				),
-			)
+			) + ( null === $total ? array() : array( 'total_items' => $total ) )
 		);
 	}
 

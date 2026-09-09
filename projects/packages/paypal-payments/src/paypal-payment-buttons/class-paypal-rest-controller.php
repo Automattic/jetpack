@@ -226,22 +226,22 @@ class PayPal_REST_Controller {
 					'callback'            => array( __CLASS__, 'handle_list_buttons' ),
 					'permission_callback' => array( __CLASS__, 'manage_options_permission_check' ),
 					'args'                => array(
-						// PayPal cannot search or filter server-side, so a short page just
-						// hides links from whoever has to filter them. Send a full one.
 						'page_size'  => array(
-							'description' => __( 'Payment resources per page.', 'jetpack-paypal-payments' ),
 							'required'    => false,
 							'type'        => 'integer',
+							// PayPal has no server-side search, so callers filter
+							// client-side. Fetch a whole page by default.
 							'default'     => 100,
 							'minimum'     => 1,
 							'maximum'     => 100,
+							'description' => __( 'Payment resources per page.', 'jetpack-paypal-payments' ),
 						),
 						'page_token' => array(
-							'description'       => __( 'Cursor from the previous page\'s next link.', 'jetpack-paypal-payments' ),
 							'required'          => false,
 							'type'              => 'string',
 							'default'           => '',
 							'sanitize_callback' => 'sanitize_text_field',
+							'description'       => __( 'Cursor from the previous page\'s next link.', 'jetpack-paypal-payments' ),
 						),
 					),
 				),
@@ -1097,7 +1097,7 @@ class PayPal_REST_Controller {
 							// The rate comes from the merchant's PayPal profile.
 							$tax_value = 'PROFILE';
 						} elseif ( 'FLAT' === $tax_type ) {
-							// A flat tax is an amount, not a rate - keep the string as sent
+							// A flat tax is an amount, not a rate - keep a string as sent
 							// so '1.50' does not become 1.5. PayPal validates it itself.
 							$tax_value = trim( sanitize_text_field( (string) ( $tax['value'] ?? '0' ) ) );
 							if ( '' === $tax_value ) {

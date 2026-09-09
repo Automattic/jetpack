@@ -158,13 +158,9 @@ class PayPal_Payment_Links_List_Table extends \WP_List_Table {
 			}
 		}
 
-		// PayPal sends the real total now; responses cached before that change do
-		// not have it, so fall back to this page's rows.
-		//
-		// total_pages stays 1 on purpose. Paging here is by cursor - the Next Page
-		// link the admin page draws from $next_page_token - and prepare_items()
-		// never reads `paged`, so core's numbered links would go nowhere. Leaving
-		// it to be computed from the real total is what makes them appear.
+		// Fall back to the row count when a response has no total.
+		// total_pages is 1 because this table pages by cursor: core's numbered
+		// links navigate by `paged`, which prepare_items() ignores.
 		$this->set_pagination_args(
 			array(
 				'total_items' => absint( $result['total_items'] ?? count( $this->items ) ),

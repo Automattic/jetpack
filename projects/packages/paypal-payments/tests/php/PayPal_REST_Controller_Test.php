@@ -64,12 +64,20 @@ class PayPal_REST_Controller_Test extends TestCase {
 	/**
 	 * Route mocked HTTP responses by URL fragment.
 	 *
-	 * @param array $routes Map of URL fragment => response array or WP_Error.
+	 * @param array $routes   Map of URL fragment => response array or WP_Error.
+	 * @param array $requests Optional. Collected by reference as [ url, args ] pairs.
 	 */
-	private function mock_http_routes( array $routes ) {
+	private function mock_http_routes( array $routes, &$requests = null ) {
+		$requests = array();
+
 		add_filter(
 			'pre_http_request',
-			function ( $preempt, $args, $url ) use ( $routes ) {
+			function ( $preempt, $args, $url ) use ( $routes, &$requests ) {
+				$requests[] = array(
+					'url'  => $url,
+					'args' => $args,
+				);
+
 				foreach ( $routes as $fragment => $response ) {
 					if ( false !== strpos( $url, $fragment ) ) {
 						return $response;
@@ -695,6 +703,9 @@ class PayPal_REST_Controller_Test extends TestCase {
 
 	/**
 	 * Test that listing buttons passes the API payload straight through.
+	 *
+	 * The fixture is PayPal's real list shape, so this also covers the count
+	 * that total_required adds.
 	 */
 	public function test_list_buttons_returns_api_payload() {
 		$this->set_up_connected_admin_state();
@@ -703,8 +714,10 @@ class PayPal_REST_Controller_Test extends TestCase {
 				'/v1/checkout/payment-resources' => $this->http_response(
 					200,
 					array(
-						'items'           => array( array( 'id' => 'PLB-1' ) ),
-						'next_page_token' => 'token123',
+						'resources'   => array( array( 'id' => 'PLB-1' ) ),
+						'total_items' => 40,
+						'total_pages' => 1,
+						'links'       => array( array( 'rel' => 'next' ) ),
 					)
 				),
 			)
@@ -717,8 +730,9 @@ class PayPal_REST_Controller_Test extends TestCase {
 
 		$this->assertInstanceOf( \WP_REST_Response::class, $result );
 		$this->assertSame( 200, $result->get_status() );
-		$this->assertSame( 'PLB-1', $result->get_data()['items'][0]['id'] );
-		$this->assertSame( 'token123', $result->get_data()['next_page_token'] );
+		$this->assertSame( 'PLB-1', $result->get_data()['resources'][0]['id'] );
+		$this->assertSame( 40, $result->get_data()['total_items'] );
+		$this->assertSame( 'next', $result->get_data()['links'][0]['rel'] );
 	}
 
 	/**
@@ -976,20 +990,25 @@ class PayPal_REST_Controller_Test extends TestCase {
 		$this->assertTrue( $create_args['line_items']['required'], 'line_items should be required.' );
 	}
 
+	// --- List route ---
+
 	/**
-	 * A list request with no page size asks PayPal for a full page.
+	 * A list request with no page size asks PayPal for 100 results.
 	 *
-	 * PayPal cannot search server-side, so a short page silently hides links from
-	 * whoever has to filter them.
+	 * PayPal has no server-side search, so callers filter client-side and a
+	 * short page silently hides links from them.
 	 */
-	public function test_list_route_defaults_to_a_full_page() {
+	public function test_list_route_defaults_to_100_results() {
 		$this->assertStringContainsString( 'page_size=100', $this->capture_list_route_url() );
 	}
 
 	/**
 	 * An explicit page size overrides the default.
+	 *
+	 * Unchanged behavior - it guards against the handler being simplified to a
+	 * literal 100.
 	 */
-	public function test_list_route_honors_an_explicit_page_size() {
+	public function test_list_route_uses_an_explicit_page_size() {
 		$this->assertStringContainsString( 'page_size=25', $this->capture_list_route_url( array( 'page_size' => 25 ) ) );
 	}
 
@@ -1180,10 +1199,9 @@ class PayPal_REST_Controller_Test extends TestCase {
 	// --- Tax types ---
 
 	/**
-	 * Test that a FLAT tax reaches PayPal unchanged.
+	 * Test that create and update both forward a FLAT tax verbatim.
 	 *
-	 * PayPal accepts FLAT even though its published enum omits it. The arg
-	 * schema and the sanitizer both used to turn $1.50 of tax into 1.5%.
+	 * PayPal accepts FLAT even though its published enum omits it.
 	 *
 	 * @param string $method HTTP method.
 	 * @param string $route  Route to dispatch against.
@@ -1191,7 +1209,7 @@ class PayPal_REST_Controller_Test extends TestCase {
 	 * @dataProvider write_routes_provider
 	 */
 	#[DataProvider( 'write_routes_provider' )]
-	public function test_write_routes_keep_flat_tax( $method, $route, $status ) {
+	public function test_create_and_update_forward_flat_tax_verbatim( $method, $route, $status ) {
 		$line_item = $this->capture_sent_line_item(
 			array(
 				array(
@@ -1212,8 +1230,8 @@ class PayPal_REST_Controller_Test extends TestCase {
 	}
 
 	/**
-	 * Both write routes share one argument schema and the bug showed up on
-	 * update, so the FLAT case runs over each.
+	 * Create and update share one argument schema, so the FLAT case runs over
+	 * both.
 	 *
 	 * @return array<string, array{0: string, 1: string, 2: int}>
 	 */
@@ -1227,7 +1245,8 @@ class PayPal_REST_Controller_Test extends TestCase {
 	/**
 	 * Test that a PREFERENCE tax sends PROFILE instead of the rate it was given.
 	 *
-	 * Changed: a numeric value used to pass straight through.
+	 * A rate typed into the form is ignored - PREFERENCE means the rate on the
+	 * merchant's PayPal profile.
 	 */
 	public function test_create_button_sends_profile_for_preference_tax() {
 		$line_item = $this->capture_sent_line_item(
@@ -1245,12 +1264,12 @@ class PayPal_REST_Controller_Test extends TestCase {
 	}
 
 	/**
-	 * Test that a tax with no name still reaches PayPal.
+	 * Test that a tax with no name is still sent.
 	 *
-	 * `taxes[].name` is optional and never shown to the buyer, and the form
-	 * stopped sending one. Requiring a name here threw the whole tax away.
+	 * `taxes[].name` is optional and never shown to the buyer, so a tax without
+	 * one must still go through.
 	 */
-	public function test_create_button_keeps_tax_without_name() {
+	public function test_create_button_sends_tax_with_no_name() {
 		// PERCENTAGE, so the missing name is the only thing under test.
 		$line_item = $this->capture_sent_line_item(
 			array(
@@ -1263,6 +1282,26 @@ class PayPal_REST_Controller_Test extends TestCase {
 
 		$this->assertCount( 1, $line_item['taxes'] );
 		$this->assertArrayNotHasKey( 'name', $line_item['taxes'][0] );
+		$this->assertSame( 'PERCENTAGE', $line_item['taxes'][0]['type'] );
+		$this->assertSame( '7.5', $line_item['taxes'][0]['value'] );
+	}
+
+	/**
+	 * Test that a tax with no type is sent as PERCENTAGE.
+	 *
+	 * The only type branch still reachable through the route - the arg schema
+	 * rejects an unknown type before the sanitizer runs.
+	 */
+	public function test_create_button_sends_percentage_for_tax_with_no_type() {
+		$line_item = $this->capture_sent_line_item(
+			array(
+				array(
+					'name'  => 'Sales Tax',
+					'value' => '7.5',
+				),
+			)
+		);
+
 		$this->assertSame( 'PERCENTAGE', $line_item['taxes'][0]['type'] );
 		$this->assertSame( '7.5', $line_item['taxes'][0]['value'] );
 	}
@@ -1285,12 +1324,12 @@ class PayPal_REST_Controller_Test extends TestCase {
 	}
 
 	/**
-	 * Test that a FLAT amount reaches PayPal exactly as sent.
+	 * Test that a negative FLAT amount is forwarded verbatim.
 	 *
-	 * Deliberate: PayPal answers a negative or non-numeric amount with a
-	 * clearer message than a clamp would, and clamping would book a zero tax.
+	 * PayPal rejects it with a message the merchant can act on. Forcing it to
+	 * zero instead would save a zero tax and say nothing.
 	 */
-	public function test_create_button_does_not_clamp_flat_tax() {
+	public function test_create_button_forwards_negative_flat_tax_verbatim() {
 		$line_item = $this->capture_sent_line_item(
 			array(
 				array(
@@ -1304,11 +1343,11 @@ class PayPal_REST_Controller_Test extends TestCase {
 	}
 
 	/**
-	 * Test that an empty FLAT amount lands on zero rather than an empty string.
+	 * Test that an empty FLAT amount is sent as zero, not an empty string.
 	 *
-	 * PERCENTAGE and a missing value both give '0'; PayPal rejects ''.
+	 * PERCENTAGE and a missing value both produce '0'; PayPal rejects ''.
 	 */
-	public function test_create_button_zeroes_empty_flat_tax() {
+	public function test_create_button_sends_zero_for_empty_flat_tax() {
 		$line_item = $this->capture_sent_line_item(
 			array(
 				array(
@@ -1322,11 +1361,11 @@ class PayPal_REST_Controller_Test extends TestCase {
 	}
 
 	/**
-	 * Test that a percentage rate is still clamped and normalized.
+	 * Test that a negative percentage rate is sent as zero.
 	 *
-	 * Unchanged behavior - this guards the split into per-type branches.
+	 * Unchanged behavior - only FLAT keeps the raw string.
 	 */
-	public function test_create_button_clamps_negative_percentage_tax_rate() {
+	public function test_create_button_sends_zero_for_negative_percentage_tax() {
 		$line_item = $this->capture_sent_line_item(
 			array(
 				array(
@@ -1384,8 +1423,11 @@ class PayPal_REST_Controller_Test extends TestCase {
 		$this->set_up_connected_admin_state();
 		$this->register_paypal_routes();
 
-		$sent = null;
-		$this->mock_http_response( $status, array( 'id' => 'PLB-CREATED123' ), $sent );
+		$requests = array();
+		$this->mock_http_routes(
+			array( '/v1/checkout/payment-resources' => $this->http_response( $status, array( 'id' => 'PLB-CREATED123' ) ) ),
+			$requests
+		);
 
 		$request = new \WP_REST_Request( $method, $route );
 		$request->set_header( 'content-type', 'application/json' );
@@ -1414,38 +1456,31 @@ class PayPal_REST_Controller_Test extends TestCase {
 			$response->get_status(),
 			'The route rejected the request: ' . wp_json_encode( $response->get_data(), JSON_UNESCAPED_SLASHES )
 		);
-		$this->assertNotNull( $sent, 'No request reached PayPal.' );
+		$this->assertNotEmpty( $requests, 'No request was sent to PayPal.' );
 
-		$body = json_decode( $sent, true );
+		$body = (array) json_decode( (string) $requests[0]['args']['body'], true );
+		$this->assertArrayHasKey( 'line_items', $body );
 
-		return $body['line_items'][0];
+		$line_item = $body['line_items'][0];
+		$this->assertArrayHasKey( 'taxes', $line_item, 'The taxes were dropped on the way to PayPal.' );
+
+		return $line_item;
 	}
 
 	/**
 	 * Dispatch a list request against a mocked PayPal and return the URL it built.
 	 *
 	 * @param array $params Query parameters to set on the request.
-	 * @return string The URL that reached PayPal.
+	 * @return string The URL sent to PayPal.
 	 */
 	private function capture_list_route_url( array $params = array() ) {
 		$this->set_up_connected_admin_state();
 		$this->register_paypal_routes();
 
-		$captured_url = null;
-
-		add_filter(
-			'pre_http_request',
-			function ( $preempt, $args, $url ) use ( &$captured_url ) {
-				$captured_url = $url;
-
-				return $preempt;
-			},
-			9,
-			3
-		);
-
+		$requests = array();
 		$this->mock_http_routes(
-			array( '/v1/checkout/payment-resources' => $this->http_response( 200, array( 'resources' => array() ) ) )
+			array( '/v1/checkout/payment-resources' => $this->http_response( 200, array( 'resources' => array() ) ) ),
+			$requests
 		);
 
 		$request = new \WP_REST_Request( 'GET', '/wpcom/v2/paypal/buttons' );
@@ -1460,9 +1495,9 @@ class PayPal_REST_Controller_Test extends TestCase {
 			$response->get_status(),
 			'The route rejected the request: ' . wp_json_encode( $response->get_data(), JSON_UNESCAPED_SLASHES )
 		);
-		$this->assertStringContainsString( '/v1/checkout/payment-resources', (string) $captured_url, 'No list request reached PayPal.' );
+		$this->assertNotEmpty( $requests, 'No list request was sent to PayPal.' );
 
-		return $captured_url;
+		return (string) $requests[0]['url'];
 	}
 
 	/**
@@ -1470,18 +1505,15 @@ class PayPal_REST_Controller_Test extends TestCase {
 	 *
 	 * @param int          $status_code HTTP status code.
 	 * @param array|string $body        Response body (will be JSON-encoded if array).
-	 * @param string|null  $sent_body   Set to the request body that reached PayPal.
 	 */
-	private function mock_http_response( $status_code, $body, &$sent_body = null ) {
+	private function mock_http_response( $status_code, $body ) {
 		add_filter(
 			'pre_http_request',
-			function ( $preempt, $args, $url ) use ( $status_code, $body, &$sent_body ) {
+			function ( $preempt, $args, $url ) use ( $status_code, $body ) {
 				// Skip the OAuth token endpoint mock — we use a cached token.
 				if ( strpos( $url, '/v1/oauth2/token' ) !== false ) {
 					return $preempt;
 				}
-
-				$sent_body = $args['body'] ?? null;
 
 				return array(
 					'response' => array(
