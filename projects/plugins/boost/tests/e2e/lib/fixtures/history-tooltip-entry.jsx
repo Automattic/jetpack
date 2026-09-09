@@ -1,6 +1,7 @@
 /* global document, window */
 import '@wordpress/theme/design-tokens.css';
 import '@automattic/jetpack-base-styles/root-variables';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useCallback, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import HistoryChartCard from '../../../../_inc/overview/history-chart-card';
@@ -9,7 +10,7 @@ import '../../../../_inc/overview/overview.scss';
 // Boost also loads My Jetpack styles, so verify the tooltip with that stylesheet present.
 import '../../../../../../packages/my-jetpack/_inc/components/stats-section/stats-chart-tooltip.module.scss';
 
-const startDate = Date.UTC( 2026, 8, 1 );
+const startDate = Date.UTC( 2026, 8, 1, 12 );
 const day = 24 * 60 * 60 * 1000;
 const data = {
 	startDate,
@@ -27,10 +28,7 @@ const data = {
 			mobile_cls: 0.04,
 		},
 	} ) ),
-	annotations: [
-		{ timestamp: startDate + 3 * day, text: 'Optimization enabled' },
-		{ timestamp: startDate + 4 * day, text: 'Configuration updated' },
-	],
+	annotations: [],
 };
 
 const noop = () => {};
@@ -39,6 +37,7 @@ const loadedScores = {
 	noBoost: { desktop: 70, mobile: 68 },
 	isStale: false,
 };
+const queryClient = new QueryClient();
 
 const HistoryFixture = () => {
 	const [ isVisible, setVisible ] = useState( true );
@@ -101,6 +100,8 @@ createRoot( document.getElementById( 'root' ) ).render(
 		className="jetpack-boost-overview"
 		style={ { '--wp-admin-theme-color': 'var(--wpds-color-foreground-interactive-brand)' } }
 	>
-		<Fixture />
+		<QueryClientProvider client={ queryClient }>
+			<Fixture />
+		</QueryClientProvider>
 	</div>
 );
