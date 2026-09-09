@@ -12,6 +12,12 @@
 //     body.jetpack_page_my-jetpack { @include jetpack-admin-page-layout; }
 //   }
 
+// To style the scrollable middle from a consumer, include
+// `jetpack-admin-page-scrollable-middle` inside the same scope instead of
+// copying its selectors:
+
+//   @include jetpack-admin-page-scrollable-middle { scrollbar-gutter: stable; }
+
 // Selector hooks this mixin relies on (all stable, not CSS-Modules hashed):
 
 //   wp-admin shell:          #wpcontent, #wpbody-content, #wpfooter
@@ -25,6 +31,9 @@
 //   admin-ui's header:       <header> element rendered by admin-ui's <Page>
 //                            inside `.jp-admin-page__page` (no class hooks —
 //                            we anchor structurally to the HTML5 element)
+//   <AdminPage> content:     .jp-admin-page__content   (content wrapper of an
+//                                                       <AdminPage> without a
+//                                                       title or breadcrumbs)
 //   <JetpackFooter>:         .jetpack-footer
 //   Tabs wrapper convention: .jp-admin-page-tabs   (consumer-applied div that
 //                                                   wraps `@wordpress/ui`
@@ -65,6 +74,18 @@ $jp-admin-bar-height-mobile: 46px;
 // vanilla wp-admin, and below 782px it goes off-canvas.
 $jp-breakpoint-auto-fold: 960px;
 $jp-breakpoint-mobile: 782px;
+
+// The scrollable middle of an <AdminPage>: everything between the header and
+// the footer. With a title, admin-ui's <Page> renders children as its own
+// direct children (<AdminPage> passes no `hasPadding`, so no content wrapper).
+// Without a title, <AdminPage> wraps them in `.jp-admin-page__content`.
+@mixin jetpack-admin-page-scrollable-middle {
+
+	.jp-admin-page__page > :not(:first-child):not(.jetpack-footer),
+	.jp-admin-page > .jp-admin-page__content {
+		@content;
+	}
+}
 
 @mixin jetpack-admin-page-layout {
 	// ── wp-admin chrome resets ────────────────────────────────────────
@@ -247,17 +268,13 @@ $jp-breakpoint-mobile: 782px;
 		padding-bottom: 0;
 	}
 
-	// The scrollable middle. <AdminPage> does not pass `hasPadding` to
-	// admin-ui's <Page>, so admin-ui's content wrapper is not rendered —
-	// children drop in as direct descendants of the page node. Target
-	// anything that isn't the header or the footer.
-
+	// ── The scrollable middle ─────────────────────────────────────────
 	// `overflow: auto` (both axes) lets any child wider than the column
 	// (dashboard grids with fixed column widths, wide tables, `100vw`
 	// descendants) scroll horizontally inside the middle instead of
 	// dragging the whole window into a horizontal scrollbar.
 
-	// `<AdminPage>` (title-branch) wraps children in
+	// `<AdminPage>` wraps children in
 	// `<Container fluid horizontalSpacing={0}><Col>{children}</Col></Container>`
 	// — that outer Container is `display: grid` and the single Col is a
 	// grid cell. Without intervention, the chain breaks here: any inner
@@ -270,13 +287,7 @@ $jp-breakpoint-mobile: 782px;
 	// fill their bounded slot. Form-style pages keep working: their
 	// children stay content-sized (default `flex: 0 1 auto`) and any
 	// overflow still falls back to Container's `overflow: auto`.
-
-	// An <AdminPage> without a title or breadcrumbs skips admin-ui's <Page>,
-	// so there is no `.jp-admin-page__page`. Its content wrapper carries
-	// `jp-admin-page__content` instead and needs the same treatment, or the
-	// fixed column clips everything below the fold.
-	.jp-admin-page__page > :not(:first-child):not(.jetpack-footer),
-	.jp-admin-page > .jp-admin-page__content {
+	@include jetpack-admin-page-scrollable-middle {
 		flex: 1 1 auto;
 		min-height: 0;
 		min-width: 0;
@@ -307,7 +318,7 @@ $jp-breakpoint-mobile: 782px;
 	// width of the panel area, so the hairline spans the column.
 
 	// `position: sticky` pins the strip to the top of the scrollable middle
-	// (`.jp-admin-page__page > :not(header):not(.jetpack-footer)`),
+	// (see `jetpack-admin-page-scrollable-middle`),
 	// which is the local opt-in equivalent of admin-ui's native sticky
 	// header — disabled globally by `<AdminPage>` per JETPACK-1386. Pinning
 	// the tabs strip here keeps cross-section navigation accessible while
