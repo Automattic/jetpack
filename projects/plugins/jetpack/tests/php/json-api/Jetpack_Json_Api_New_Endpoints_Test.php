@@ -331,6 +331,69 @@ class Jetpack_Json_Api_New_Endpoints_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Write a zip holding one plugin folder and register it as an attachment.
+	 *
+	 * @param string $slug Plugin folder and file name.
+	 * @return int Attachment ID.
+	 */
+	private function create_plugin_zip_attachment( $slug ) {
+		$zip_path = get_temp_dir() . uniqid( $slug . '-', true ) . '.zip';
+		$zip      = new ZipArchive();
+		$zip->open( $zip_path, ZipArchive::CREATE );
+		$zip->addFromString(
+			"$slug/$slug.php",
+			"<?php\n/**\n * Plugin Name: Folder Exists Fixture\n * Version: 1.2.3\n */\n"
+		);
+		$zip->close();
+
+		return self::factory()->attachment->create_object(
+			array(
+				'file'           => $zip_path,
+				'post_parent'    => 0,
+				'post_mime_type' => 'application/zip',
+				'post_type'      => 'attachment',
+				'post_author'    => self::$author_id,
+			)
+		);
+	}
+
+	private function install_plugin_zip( $slug ) {
+		$endpoint = new Jetpack_JSON_API_Plugins_New_Endpoint_Test_Stub(
+			$this->endpoint_args(),
+			array( 'zip' => array( array( 'id' => $this->create_plugin_zip_attachment( $slug ) ) ) )
+		);
+
+		return $endpoint->install();
+	}
+
+	/**
+	 * Installs for real, because the payload is only worth anything if a duplicate
+	 * upload actually reaches the branch that adds it.
+	 */
+	public function test_duplicate_upload_returns_folder_exists_with_plugin_identity() {
+		$slug       = 'jetpack-folder-exists-fixture';
+		$plugin_dir = WP_PLUGIN_DIR . '/' . $slug;
+		$this->assertTrue( $this->install_plugin_zip( $slug ), 'The first upload should install.' );
+		$this->assertDirectoryExists( $plugin_dir );
+
+		$error = $this->install_plugin_zip( $slug );
+
+		$this->assertInstanceOf( WP_Error::class, $error );
+		$this->assertSame( 'folder_exists', $error->get_error_code() );
+		$this->assertSame(
+			array(
+				'plugin_slug'    => $slug,
+				'plugin_version' => '1.2.3',
+				'plugin_name'    => 'Folder Exists Fixture',
+			),
+			$error->get_error_data( 'additional_data' )
+		);
+
+		$this->rmdir( $plugin_dir );
+		rmdir( $plugin_dir );
+	}
+
+	/**
 	 * @param mixed  $result   Value of the skin's public $result.
 	 * @param string $expected Expected slug.
 	 * @dataProvider provide_folder_exists_slugs
@@ -346,7 +409,8 @@ class Jetpack_Json_Api_New_Endpoints_Test extends WP_UnitTestCase {
 		return array(
 			'trailing slash'    => array( new WP_Error( 'folder_exists', '', '/srv/htdocs/wp-content/plugins/jetpack/' ), 'jetpack' ),
 			'no trailing slash' => array( new WP_Error( 'folder_exists', '', '/srv/htdocs/wp-content/plugins/jetpack' ), 'jetpack' ),
-			'dotted folder'     => array( new WP_Error( 'folder_exists', '', '/wp-content/plugins/wp-super-cache.old/' ), 'wp-super-cache.old' ),
+			'uppercase folder'  => array( new WP_Error( 'folder_exists', '', '/wp-content/plugins/Akismet/' ), 'akismet' ),
+			'dotted folder'     => array( new WP_Error( 'folder_exists', '', '/wp-content/plugins/wp-super-cache.old/' ), '' ),
 			'traversal segment' => array( new WP_Error( 'folder_exists', '', '/wp-content/plugins/../' ), '' ),
 			'empty destination' => array( new WP_Error( 'folder_exists', '', '' ), '' ),
 			'non-string data'   => array( new WP_Error( 'folder_exists', '', array( 'path' => '/plugins/jetpack/' ) ), '' ),

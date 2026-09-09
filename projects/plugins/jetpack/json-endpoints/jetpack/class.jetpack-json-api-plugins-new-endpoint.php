@@ -186,10 +186,11 @@ class Jetpack_JSON_API_Plugins_New_Endpoint extends Jetpack_JSON_API_Plugins_End
 			return '';
 		}
 
-		// Basename only, so no filesystem layout leaks.
-		$slug = basename( untrailingslashit( $destination ) );
+		// Basename only, so no filesystem layout leaks. The pattern is the one
+		// plugins/replace enforces, so every slug returned here is usable there.
+		$slug = strtolower( basename( untrailingslashit( $destination ) ) );
 
-		return preg_match( '/^[A-Za-z0-9][A-Za-z0-9_.-]*$/', $slug ) ? $slug : '';
+		return preg_match( '/^[a-z0-9][a-z0-9_-]*$/', $slug ) ? $slug : '';
 	}
 }
 
