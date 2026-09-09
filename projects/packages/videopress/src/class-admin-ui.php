@@ -38,6 +38,14 @@ class Admin_UI {
 	const MY_JETPACK_ADD_VIDEOPRESS_URI = 'admin.php?page=my-jetpack#/add-videopress';
 
 	/**
+	 * The name hosts use for the VideoPress sidebar item in the visibility filter.
+	 *
+	 * Both registrations below share it. They are mutually exclusive and render the same
+	 * "VideoPress" item, so a host hiding it should not have to know which one is live.
+	 */
+	const VISIBILITY_KEY = 'jetpack-videopress';
+
+	/**
 	 * Filter name that gates the wp-build–based dashboard.
 	 *
 	 * When this filter returns true, "Jetpack > VideoPress" renders the new
@@ -183,7 +191,9 @@ class Admin_UI {
 			'VideoPress',
 			'manage_options',
 			self::ADMIN_PAGE_SLUG,
-			$callback
+			$callback,
+			null,
+			array( 'key' => self::VISIBILITY_KEY )
 		);
 		add_action( 'load-' . $page_suffix, array( __CLASS__, 'admin_init' ) );
 	}
@@ -240,7 +250,9 @@ class Admin_UI {
 			'VideoPress',
 			'manage_options',
 			self::MY_JETPACK_ADD_VIDEOPRESS_URI,
-			null
+			null,
+			null,
+			array( 'key' => self::VISIBILITY_KEY )
 		);
 	}
 

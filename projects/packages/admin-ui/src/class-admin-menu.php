@@ -316,8 +316,11 @@ class Admin_Menu {
 	 * @param array         $args        Optional. Visibility declaration for this item:
 	 *                                   - 'product' (string) My Jetpack product slug whose activation gates the item.
 	 *                                   - 'module'  (string) Jetpack module name, for items with no product class.
-	 *                                   - 'key'     (string) Stable identifier for the host filter. Defaults to
-	 *                                                        $menu_slug; declare one when the slug is a URL.
+	 *                                   - 'key'     (string) The name hosts use for this item in the visibility
+	 *                                                        filter. Declare one on every item: menu slugs are
+	 *                                                        sometimes URLs, sometimes filterable, and sometimes
+	 *                                                        differ between two registrations of the same item.
+	 *                                                        Falls back to $menu_slug when absent.
 	 *                                   An item that declares no gate is always shown.
 	 *
 	 * @return string The resulting page's hook_suffix
@@ -420,7 +423,12 @@ class Admin_Menu {
 	}
 
 	/**
-	 * Returns the stable identifier a host uses to name a menu item in the visibility filter.
+	 * Returns the name a host uses for a menu item in the visibility filter.
+	 *
+	 * The menu slug is only a fallback. It is the wrong thing to hand a host as an identifier:
+	 * several items register a URL as their slug, Blaze's is filterable, and VideoPress swaps
+	 * between two slugs depending on whether the module is active — so a host naming one of
+	 * them is naming a moving target, or only half an item.
 	 *
 	 * @param array $menu_item A registered menu item.
 	 * @return string
