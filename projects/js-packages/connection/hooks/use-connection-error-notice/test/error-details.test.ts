@@ -2,12 +2,16 @@ import {
 	excludeOtherUsersErrors,
 	flattenConnectionErrors,
 	getConnectionErrorDetailLines,
+	getConnectionErrorDetails,
+	getConnectionErrorNoticeLinks,
 	getConnectionErrorScope,
 	getConnectionErrorTitle,
 	groupConnectionErrorsByMessage,
+	hasSupportLink,
+	isConnectionErrorMap,
 	titleIncludesScope,
-} from '../connection-error-details';
-import type { ConnectionErrorMap, ConnectionErrorObject } from '@automattic/jetpack-connection';
+} from '../error-details';
+import type { ConnectionErrorMap, ConnectionErrorObject } from '../types';
 
 // `@wordpress/i18n` is deliberately left unmocked: the plural selection and
 // positional-placeholder substitution are part of what these helpers get right,
@@ -22,6 +26,30 @@ import type { ConnectionErrorMap, ConnectionErrorObject } from '@automattic/jetp
 const anError = ( overrides: Partial< ConnectionErrorObject > = {} ): ConnectionErrorObject => ( {
 	error_message: 'Your Jetpack connection needs attention.',
 	...overrides,
+} );
+
+// The store declares `connectionErrors` as an array but hands over a
+// code → user → error object, and falls back to `[]` when there is nothing. This
+// predicate is what keeps that mismatch narrowed in one place, so the shapes it
+// must reject are the ones the store really produces.
+describe( 'isConnectionErrorMap', () => {
+	it( 'accepts a code → user → error object', () => {
+		expect( isConnectionErrorMap( { invalid_token: { 7: anError() } } ) ).toBe( true );
+	} );
+
+	it( 'accepts an empty object', () => {
+		expect( isConnectionErrorMap( {} ) ).toBe( true );
+	} );
+
+	it.each( [
+		[ "the selector's empty-array fallback", [] ],
+		[ 'a populated array', [ 'nope' ] ],
+		[ 'null', null ],
+		[ 'undefined', undefined ],
+		[ 'a string', 'nope' ],
+	] )( 'rejects %s', ( _label, value ) => {
+		expect( isConnectionErrorMap( value ) ).toBe( false );
+	} );
 } );
 
 describe( 'flattenConnectionErrors', () => {
@@ -122,9 +150,9 @@ describe( 'excludeOtherUsersErrors', () => {
 		expect( excludeOtherUsersErrors( errors, viewer ) ).toEqual( errors );
 	} );
 
-	// The rule for what counts as somebody else's error belongs to the connection
-	// package and is covered by its own tests; these two cases pin the filtering
-	// this helper adds on top of it.
+	// The rule for what counts as somebody else's error lives in `viewer-scope` and
+	// is covered by its own tests; these two cases pin the filtering this helper
+	// adds on top of it.
 } );
 
 describe( 'getConnectionErrorScope', () => {
@@ -322,5 +350,187 @@ describe( 'getConnectionErrorTitle', () => {
 
 	it( 'falls back to a generic title when there are no errors', () => {
 		expect( getConnectionErrorTitle( [] ) ).toBe( 'Jetpack Connection error' );
+	} );
+} );
+
+describe( 'getConnectionErrorNoticeLinks', () => {
+	const siteHealth = {
+		label: 'Visit Site Health',
+		url: 'https://example.com/wp-admin/site-health.php',
+	};
+
+	it( 'offers a link the error declares', () => {
+		const errors = [ anError( { error_data: { notice_link: siteHealth } } ) ];
+
+		expect( getConnectionErrorNoticeLinks( errors ) ).toEqual( [ siteHealth ] );
+	} );
+
+	// Two codes can report the same condition and carry the same link; offering it
+	// twice reads as a duplication bug.
+	it( 'offers a repeated link only once', () => {
+		const errors = [
+			anError( { error_code: 'xmlrpc_request_blocked', error_data: { notice_link: siteHealth } } ),
+			anError( { error_code: 'no_valid_blog_token', error_data: { notice_link: siteHealth } } ),
+		];
+
+		expect( getConnectionErrorNoticeLinks( errors ) ).toHaveLength( 1 );
+	} );
+
+	it( 'keeps distinct links apart', () => {
+		const other = { label: 'Read the docs', url: 'https://example.com/docs' };
+		const errors = [
+			anError( { error_data: { notice_link: siteHealth } } ),
+			anError( { error_data: { notice_link: other } } ),
+		];
+
+		expect( getConnectionErrorNoticeLinks( errors ) ).toEqual( [ siteHealth, other ] );
+	} );
+
+	// The link is server-provided and reaches us through an untyped store, so a
+	// half-built link is reachable at runtime — and a link with no text, or one
+	// that points nowhere, is worse than no link at all.
+	it.each( [
+		[ 'no url', { label: 'Visit Site Health' } ],
+		[ 'no label', { url: 'https://example.com' } ],
+		[ 'an empty url', { label: 'Visit Site Health', url: '' } ],
+		[ 'a non-object link', 'https://example.com' ],
+	] )( 'ignores a link with %s', ( _label, notice_link ) => {
+		const errors = [
+			anError( { error_data: { notice_link } as ConnectionErrorObject[ 'error_data' ] } ),
+		];
+
+		expect( getConnectionErrorNoticeLinks( errors ) ).toEqual( [] );
+	} );
+
+	it( 'returns nothing when no error declares one', () => {
+		expect( getConnectionErrorNoticeLinks( [ anError() ] ) ).toEqual( [] );
+	} );
+} );
+
+describe( 'hasSupportLink', () => {
+	it( 'is true when any error asks for one', () => {
+		const errors = [ anError(), anError( { error_data: { support_link: true } } ) ];
+
+		expect( hasSupportLink( errors ) ).toBe( true );
+	} );
+
+	it( 'is false when none does', () => {
+		expect( hasSupportLink( [ anError(), anError( { error_data: {} } ) ] ) ).toBe( false );
+	} );
+
+	it( 'is false when there is nothing to ask', () => {
+		expect( hasSupportLink( [] ) ).toBe( false );
+	} );
+} );
+
+// The one entry point consumers use: everything a notice needs, derived once so
+// the package's own notice and My Jetpack's cannot drift apart.
+describe( 'getConnectionErrorDetails', () => {
+	const viewer = { currentUserId: 7 };
+
+	it( 'derives the title, the groups and the links from the store map', () => {
+		const errors: ConnectionErrorMap = {
+			xmlrpc_request_blocked: {
+				0: anError( {
+					error_message: 'WordPress.com requests to your site are being blocked.',
+					audience: 'site',
+					user_id: '0',
+					error_data: {
+						support_link: true,
+						notice_link: { label: 'Visit Site Health', url: '/wp-admin/site-health.php' },
+					},
+				} ),
+			},
+			invalid_token: {
+				7: anError( { error_message: 'Token broken.', audience: 'user', user_id: '7' } ),
+			},
+		};
+
+		const details = getConnectionErrorDetails( errors, viewer );
+
+		expect( details.errors ).toHaveLength( 2 );
+		expect( details.title ).toBe( '2 Jetpack Connection errors' );
+		expect( details.groups.map( group => group.message ) ).toEqual( [
+			'WordPress.com requests to your site are being blocked.',
+			'Token broken.',
+		] );
+		// More than one error, so the title counts rather than naming a scope and
+		// each group states its own.
+		expect( details.groups[ 0 ].detailLines.map( line => line.text ) ).toEqual( [
+			'Site connection',
+		] );
+		expect( details.groups[ 1 ].detailLines.map( line => line.text ) ).toEqual( [
+			'Your account',
+		] );
+		expect( details.showSupportLink ).toBe( true );
+		// Attached to the group whose error asked for it, not pooled across groups —
+		// the second group (`invalid_token`) asked for no link and carries none.
+		expect( details.groups[ 0 ].noticeLinks ).toEqual( [
+			{ label: 'Visit Site Health', url: '/wp-admin/site-health.php' },
+		] );
+		expect( details.groups[ 1 ].noticeLinks ).toEqual( [] );
+	} );
+
+	// Two different-message groups can still point at the same link (e.g. both
+	// diagnosable via Site Health). Showing it under both would read as two
+	// separate suggestions rather than one, so only the first group keeps it.
+	it( 'shows a link shared by two different error groups only once', () => {
+		const sharedLink = { label: 'Visit Site Health', url: '/wp-admin/site-health.php' };
+		const errors: ConnectionErrorMap = {
+			xmlrpc_request_blocked: {
+				0: anError( {
+					error_message: 'WordPress.com requests to your site are being blocked.',
+					audience: 'site',
+					user_id: '0',
+					error_data: { notice_link: sharedLink },
+				} ),
+			},
+			another_blocked_code: {
+				7: anError( {
+					error_message: 'A different problem, same diagnosis.',
+					audience: 'user',
+					user_id: '7',
+					error_data: { notice_link: sharedLink },
+				} ),
+			},
+		};
+
+		const details = getConnectionErrorDetails( errors, viewer );
+
+		expect( details.groups[ 0 ].noticeLinks ).toEqual( [ sharedLink ] );
+		expect( details.groups[ 1 ].noticeLinks ).toEqual( [] );
+	} );
+
+	// A single error's scope is already in the title, so repeating it below would
+	// state the same thing twice.
+	it( 'leaves the scope to the title when there is one error', () => {
+		const errors: ConnectionErrorMap = {
+			no_valid_blog_token: { 0: anError( { audience: 'site', user_id: '0' } ) },
+		};
+
+		const details = getConnectionErrorDetails( errors, viewer );
+
+		expect( details.title ).toBe( 'Jetpack Connection error: Site connection' );
+		expect( details.groups[ 0 ].detailLines ).toEqual( [] );
+	} );
+
+	it( "drops another user's error, which this viewer can neither fix nor is affected by", () => {
+		const errors: ConnectionErrorMap = {
+			invalid_token: { 99: anError( { audience: 'user', user_id: '99' } ) },
+		};
+
+		const details = getConnectionErrorDetails( errors, viewer );
+
+		expect( details.errors ).toEqual( [] );
+		expect( details.groups ).toEqual( [] );
+	} );
+
+	it( 'copes with an empty store', () => {
+		const details = getConnectionErrorDetails( {} );
+
+		expect( details.errors ).toEqual( [] );
+		expect( details.groups ).toEqual( [] );
+		expect( details.title ).toBe( 'Jetpack Connection error' );
+		expect( details.showSupportLink ).toBe( false );
 	} );
 } );
