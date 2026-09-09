@@ -31,10 +31,6 @@
 	width: var(--wca-calendar-width);
 	background-color: #fff;
 
-	.date-range-calendar {
-		--wp-ui-calendar-cell-size: var(--wca-calendar-cell-size);
-	}
-
 	&__wide {
 		width: var(--wca-calendar-width-wide);
 	}

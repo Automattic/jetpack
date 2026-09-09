@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Drop a no-op calendar cell-size override, use the surface color token in the date range popover, and remove unused popover border variables.
+
+
