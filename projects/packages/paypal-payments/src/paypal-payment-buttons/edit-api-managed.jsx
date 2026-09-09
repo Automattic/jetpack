@@ -101,7 +101,6 @@ export default function ApiManagedEdit( { attributes, setAttributes, clientId: b
 		customerNotes,
 		taxEnabled,
 		taxType,
-		taxName,
 		taxValue,
 		format,
 	} = attributes;
@@ -757,13 +756,6 @@ export default function ApiManagedEdit( { attributes, setAttributes, clientId: b
 									},
 								] }
 								onChange={ value => setAttributes( { taxType: value } ) }
-								disabled={ isCreating }
-							/>
-							<TextControl
-								label={ __( 'Tax name', 'jetpack-paypal-payments' ) }
-								value={ taxName || '' }
-								onChange={ value => setAttributes( { taxName: value } ) }
-								placeholder={ __( 'Sales Tax', 'jetpack-paypal-payments' ) }
 								disabled={ isCreating }
 							/>
 							{ taxType === 'PERCENTAGE' && (

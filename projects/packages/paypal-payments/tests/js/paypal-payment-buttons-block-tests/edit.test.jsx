@@ -1485,6 +1485,48 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		} );
 	} );
 
+	describe( 'Tax', () => {
+		const resourcePath = '/wpcom/v2/paypal/buttons/PLB-TAX1';
+		const attributes = {
+			isApiManaged: true,
+			resourceId: 'PLB-TAX1',
+			paymentLink: 'https://www.paypal.com/ncp/payment/PLB-TAX1',
+			productName: 'Test Widget',
+			price: '29.99',
+			currencyCode: 'USD',
+			taxEnabled: true,
+			taxType: 'PERCENTAGE',
+			taxValue: '8.25',
+		};
+
+		/**
+		 * Mock the connection check and the pre-update read.
+		 */
+		function mockConnected() {
+			apiFetch.mockImplementation( ( { path, method } ) => {
+				if ( path.endsWith( '/connection' ) ) {
+					return Promise.resolve( { connected: true, environment: 'sandbox' } );
+				}
+				if ( path === resourcePath && method === undefined ) {
+					return Promise.resolve( { id: 'PLB-TAX1', line_items: [ {} ] } );
+				}
+				return Promise.resolve( {} );
+			} );
+		}
+
+		it( 'offers no tax name to fill in', async () => {
+			const user = userEvent.setup();
+			mockConnected();
+
+			render( <Edit attributes={ attributes } setAttributes={ setAttributes } clientId="a" /> );
+			await expect( screen.findByTestId( 'toolbar-Edit' ) ).resolves.toBeInTheDocument();
+			await user.click( screen.getByTestId( 'toolbar-Edit' ) );
+
+			expect( screen.queryByLabelText( 'Tax name' ) ).not.toBeInTheDocument();
+			expect( screen.getByLabelText( 'Tax rate (%)' ) ).toBeInTheDocument();
+		} );
+	} );
+
 	describe( 'Preview Mode (connected, has button)', () => {
 		beforeEach( () => {
 			apiFetch.mockResolvedValue( { connected: true, environment: 'sandbox' } );
