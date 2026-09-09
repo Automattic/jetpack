@@ -3,9 +3,6 @@
 ### This is a list detailing changes for all Jetpack releases.
 
 ## 16.2 - 2026-09-09
-### Major Enhancements
-- Update minimum WordPress version to 7.0. [#51370]
-
 ### Enhancements
 - AI: Add a Jetpack AI module as the site-wide master switch on self-hosted and Atomic, preserving explicit opt-outs. [#50718]
 - AI: Add an AI SEO control to the AI settings page. The AI sidebar's SEO suggestions follow it, separately from the automatic-generation setting. [#51380]
@@ -47,7 +44,6 @@
 - Forms: Show progress while a new form's editor opens, and report it when creating a form fails. [#51371]
 - Map Block: Add support for wide and full width alignments. [#50818]
 - My Jetpack: Allow the Automattic for Agencies banner to be dismissed. [#51441]
-- My Jetpack: Show what Paid Stats actually adds — UTM tracking, device stats, and region & city locations — instead of commercial use. [#51410]
 - Newsletter: Explain why the Everyone audience is unavailable when a post has a paywall block, instead of linking to the block. [#51394]
 - Newsletter: Let editors preview email with only a site connection while continuing to require a user connection for test emails. [#50777]
 - Newsletter: Rename the Access panel to Audience, describe who can read each post, and link out to set up paid subscribers. [#51262]
@@ -107,7 +103,6 @@
 - Premium Analytics: Tighten the Latest subscribers rows so more subscribers fit the widget. [#51597]
 - Premium Analytics: Tighten the spacing between leaderboard rows. [#51540]
 - Premium Analytics: Turn the dashboard period comparison off by default. [#51771]
-- REST API: Add the `atomic_email_block` field to the site endpoint response. [#51038]
 - Search: Preserve the saved AI Answers choice while site-wide AI is off, disable unavailable controls, and honor the host AI opt-out in the AI Answer block. Require Instant Search to enable AI Answers. [#51538]
 - Search Blocks: Add a customizable No Results block while continuing to render existing Results List messages. [#51164]
 - Sitemaps: Speed up sitemap generation and reduce its memory use on sites with many posts and images. [#49498]
@@ -126,7 +121,8 @@
 ### Improved compatibility
 - CSV import and export in Forms and Stats now process data containing backslashed quotation marks as specified in the relevant standard. [#51572]
 - Tested up to WordPress 7.1. [#51370]
-- Updated PHP version requirements to PHP 7.4 or newer. [#51515]
+- Update minimum PHP version to 7.4. [#51515]
+- Update minimum WordPress version to 7.0. [#51370]
 
 ### Bug fixes
 - Activity Log: Ensure table content wraps neatly onto a new line if long. [#51600]
@@ -137,18 +133,15 @@
 - AI: Auto-activate the AI module on sites running a 16.2 prerelease build. [#51528]
 - AI: Keep the editor working when another plugin loads an older copy of the Status package. [#51494]
 - AI: Prevent saving the General Settings page from turning off Jetpack AI features. [#51833]
-- AI: Render scheduled task results as Markdown. [#51319]
 - AI: Show connection notices instead of raw connection errors on the MCP settings page when the site or the current user is not connected to WordPress.com. [#51760]
 - AI Assistant: Scroll the Form block's AI prompt into view when it opens, so it no longer sits over the form. [#51079]
 - At a Glance: Stop requesting a new speed score on sites that already have Boost. [#51711]
 - Backup: Fix the backup overview ability reporting no storage usage, storage limit or backup time. [#51684]
 - Backup: Show a failure message when your backup status cannot be read, rather than the screen that says your first backup is on its way, and let the "Back up now" button recover when a backup could not be queued. [#51625]
 - Backup: Show storage usage and the plan limit the right way round when the interface is translated. [#51664]
-- Blocks: Fix an infinite refresh loop in the Goodreads block editor that regenerated the widget ID on every re-render and hammered the REST API. [#51150]
 - Blocks: Keep blocks that load outside the post editor available in front-end block editors such as P2, by never deferring their registration. [#49926]
-- Blocks: Restrict Goodreads scripts to the expected Goodreads widget endpoints. [#51150]
 - Blocks: Treat WordPress.com public API requests as a block-editor context so editor-only extensions load, restoring block plan availability (such as the core/video upgrade nudge) in the mobile editor. [#50819]
-- Blogging Prompts: Scope the endpoint's query filters to the prompts query so they no longer modify unrelated queries (e.g. Gutenberg global styles lookups) run while prompts are being rendered. [#51794]
+- Blogging Prompts: Prevent prompt rendering from interfering with other page content. [#51794]
 - Boost: Stop At a Glance re-testing the site speed when a recent score is already stored for the site's URL. [#51709]
 - Carousel: Keep the loading overlay hidden when the module stylesheet is missing. [#51546]
 - Charts: Draw labels at the design system's font weight and size. [#51452]
@@ -163,10 +156,9 @@
 - Content Guidelines AI: Keep the empty-state banner from painting over the sticky page header while scrolling. [#51137]
 - Editor: Refresh the cached plan when returning from a plan purchase so paid blocks (such as the Forms file upload field) stop showing their upgrade nudge once the plan is active. [#50324]
 - Editor: Restore active module state for module-dependent features. [#51888]
-- Escape the Premium Content block login button label on output. [#51150]
 - External Media: Improve validation for media copy requests.
 - Fix the premium block upgrade banner rendering collapsed and too narrow on the site frontend. [#50873]
-- Forms: Add an empty alt attribute to the image option thumbnails in the form success summary. [#51781]
+- Forms: Improve accessibility of image options in the form submission summary. [#51781]
 - Forms: Allow a single response to scroll when it is taller than the screen. [#51486]
 - Forms: Apply the name typed when creating a form, and stop a dismissed save from reporting into a reopened dialog. [#51371]
 - Forms: Cancel in-flight uploads and release previews when a form containing a file upload field is reset. [#51183]
@@ -193,7 +185,6 @@
 - Forms: Space out the files listed on a response and line their download buttons up on one edge. [#51734]
 - Forms: Stop uploading a file that was removed while its upload was still being prepared. [#51183]
 - Forms: Validate a required phone field with a default country against what the input actually shows, so it can no longer be submitted empty. [#51183]
-- Harden the subscriber authentication endpoint so it only redirects within the current site. [#51150]
 - Heartbeat: Restore identity crisis reporting in the WP-CLI status command. [#51196]
 - Likes: Fix Like buttons sometimes getting stuck on "Loading…" and never appearing. [#51113]
 - Likes: Include public custom post types in default visibility settings so Likes and Comment Likes render on CPTs without requiring manual configuration. [#49299]
@@ -201,7 +192,6 @@
 - Likes: Rename the settings heading on Settings > Sharing to reflect what it holds when sharing buttons are off. [#51335]
 - Map Block: Remove the duplicate alignment toolbar in the editor. [#51429]
 - Media API: Restrict the edit endpoints to attachments, so they no longer accept ordinary post IDs. [#51192]
-- Memberships: Ensure the configured post access level is evaluated correctly before authorizing access to paywalled content. [#51150]
 - My Jetpack: Always label the license activation link "Activate a license", including on sites with a plan but no activated licenses. [#51283]
 - My Jetpack: Keep the Automattic for Agencies banner hidden after dismissing it and switching tabs. [#51441]
 - My Jetpack: Stop repeating the partner lookup request on every page load. [#51441]
@@ -261,23 +251,15 @@
 - Premium Analytics: Stop the Ads chart interval menu offering buckets the WordAds chart cannot draw. [#51639]
 - Premium Content: Keep subscription login available when a WordPress session lacks a subscription token. [#50984]
 - Premium Content: Restore the local account link from a verified magic-link token so subscription access persists. [#50985]
-- Random Redirect: Avoid a fatal error when a theme or plugin already declares the module's redirect function. [#51037]
 - Related Posts: Improve handling of protected content.
-- Require a Jetpack site (blog) token for JSON API endpoints that declare no capabilities, such as the Backup helper script endpoints, and reject user tokens regardless of privilege. [#51150]
-- Resolve Redirect endpoint: Validate every redirect hop, and return a 400 error when a URL cannot be fetched, is blocked, or exceeds the redirect limit, instead of a 200 response with an empty URL. [#51150]
-- REST API: Require the admin capability for all settings in a request that also updates Post by Email. [#51150]
 - Search: Fix a crash on mount when the localized widget configuration is missing or incomplete, which could leave the whole page blank. [#51511]
 - Search: Prevent General Settings from disabling Site Chat and WordPress Agent access. [#51844]
-- Security: Enforce per-item permission checks when editing media through the JSON API. [#51150]
-- Security: External Media: Ensure imported files are always saved under a safe file name. [#51150]
-- Security: Verify attachment ownership before removing an uploaded package in the plugin and theme install endpoints. [#51150]
 - SEO: Hide the post list SEO columns for people who had customized Screen Options before those columns existed. [#51071]
 - SEO: Improve handling of protected content in generated metadata.
 - SEO: Move the dashboard's toast notices back to the top right. [#52096]
 - SEO: Stop the search-engine indexing toggle from publishing a private or coming-soon site. [#51778]
 - SEO Tools: Fix og:description leaking the first post's custom SEO description on archive and latest-posts homepage views. [#50911]
 - Settings: Dismiss success notices automatically instead of leaving them on screen. [#52054]
-- Sharing: Escape Tumblr share title, URL, and button label in official button output. [#51150]
 - Sharing: Use an unpredictable name for share and Press This popups so another page cannot pre-register the same window name. [#51226]
 - Sitemaps: Avoid a PHP notice when a sitemap query returns no posts. [#51370]
 - Stats: Fix access for users whose allowed role is not their first assigned role. [#51514]
@@ -303,8 +285,6 @@
 - VideoPress: Say when a video upload failed because of a Jetpack connection problem, instead of only "Upload failed". [#51541]
 - VideoPress: Say when a video upload from the Video block failed because of a Jetpack connection problem, instead of only "Failed to upload your video". [#51541]
 - VideoPress: Show the Jetpack connection error notice on the VideoPress dashboard again. [#51541]
-- WAF: Restrict firewall settings to administrators. [#51150]
-- WordPress Posts: Escape remote site data before output. [#51150]
 
 ### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
 - Admin Bar: Expose the command palette node through the admin bar endpoint. [#51026]
@@ -332,6 +312,7 @@
 - Related Posts: Harden rendering JavaScript. [#52041]
 - Reprint: Remove full-site export support from Jetpack while retaining Atomic exports through `wpcomsh`. [#51179]
 - Reprint export: Serve a site export from Jetpack on Pressable and WordPress.com sites. [#51430]
+- REST API: Add the `atomic_email_block` field to the site endpoint response. [#51038]
 - Sharing: Reduce the inline JavaScript on posts with sharing buttons by opening every share popup from one shared click handler. [#51299]
 - Sitemaps: Add a `jetpack_sitemap_flat_master_index` filter that makes `sitemap.xml` list individual sitemap files instead of nesting sitemap index files. [#51980]
 - Update lock file. [#50855]
