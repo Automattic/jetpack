@@ -148,16 +148,16 @@ Use `buildCalendarHeatmapData` to convert a flat `DataPointDate[]` series into t
 
 <Source
 	language="jsx"
-	code={ `import { HeatmapChart, buildCalendarHeatmapData } from '@automattic/charts';
+	code={ `import { HeatmapChart, useCalendarHeatmapData } from '@automattic/charts';
 
 	const series = [
-		{ date: new Date( '2024-01-01' ), value: 3 },
-		{ date: new Date( '2024-01-02' ), value: 0 },
+		{ dateString: '2024-01-01', value: 3 },
+		{ dateString: '2024-01-02', value: 0 },
 		// ...
 	];
 
 	function CalendarHeatmap() {
-		const { data, rowLabels } = buildCalendarHeatmapData( series );
+		const { data, rowLabels } = useCalendarHeatmapData( series );
 		return (
 			<HeatmapChart
 				data={ data }
@@ -168,11 +168,31 @@ Use `buildCalendarHeatmapData` to convert a flat `DataPointDate[]` series into t
 	}` }
 />
 
+`useCalendarHeatmapData` is `buildCalendarHeatmapData` with the locale and time zone taken from `GlobalChartsProvider`, so a host that already set them for its other charts does not name them again. Call `buildCalendarHeatmapData` directly outside a component, or when the values do not come from the provider.
+
 `buildCalendarHeatmapData` accepts an optional `options` object:
 
 - **`weekStartsOn`** (`0 | 1`, default `1`): `0` = Sunday, `1` = Monday
 - **`hideOutOfRangeDays`** (`boolean`, default `true`): render the week-completion days outside the series' date span as empty grid slots instead of blank cells, giving the calendar ragged edges. Days inside the span stay blank cells even when the series has no entry for them. Hidden slots keep their grid position but paint nothing, and hover and keyboard navigation skip them. Pass `false` to keep out-of-range days as blank cells.
 - **`gridSpan`** (`{ start?: string; end?: string }`, `yyyy-MM-dd` bounds): draw the grid over this span instead of the series' own, so a series too short to fill its container still does. Days inside the grid but outside the series become `placeholder` cells: faded empty slots that keep the grid continuous but report nothing to a pointer, the keyboard or a screen reader, since they stand for days that were never measured. A `start` is drawn from the beginning of its week, so the grid opens on a whole column. Bounds narrower than the series are ignored — the grid never drops a day that carries data.
+- **`locale`** (BCP-47 tag, e.g. `de-DE`): the language the row, month and cell labels are written in. Defaults to the runtime's locale.
+- **`timeZone`** (IANA name, e.g. `Asia/Tokyo`, or a UTC offset such as `+09:00`): the zone the series' instants are bucketed into days in. Defaults to the runtime's zone.
+
+### Time zone and locale
+
+Both options default to the viewer's browser. Set them from the site's own settings, or every viewer sees the grid bucketed on their own midnights and labeled in their own language.
+
+How a point's date is read depends on what it carries:
+
+| Point | Read as | Day it lands on |
+| ----- | ------- | --------------- |
+| `date` (a `Date`), or a `dateString` carrying `Z` or an offset | an instant | its day in `timeZone` |
+| `dateString` of `yyyy-MM-dd` | a calendar day | as written, under any `timeZone` |
+| `dateString` with a time but no offset | a wall clock in `timeZone` | its date part, as written |
+
+A bare `yyyy-MM-dd` is therefore safe to mix with a `timeZone`, unlike on the time axis, where `ChartFormatting` re-dates it.
+
+`weekStartsOn` is never derived from `locale`: a grid keeps the week start the caller asked for, or Monday.
 
 ## Fixed Dimensions
 
