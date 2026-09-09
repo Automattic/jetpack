@@ -9,9 +9,14 @@ declare( strict_types = 1 );
 
 namespace Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices;
 
+use Automattic\Jetpack\Constants;
+
 /**
  * Dismissals live in user meta written through core's `/wp/v2/users/me`, so
- * wp-admin, the front end and Calypso all read and write the same record.
+ * wp-admin and the front end read and write the same record.
+ *
+ * The `META_*` constants are base names: on Simple, where every site shares
+ * one usermeta table, the stored key is prefixed per blog (see meta_key()).
  */
 class Expiry_Notice_Dismiss {
 
@@ -36,10 +41,10 @@ class Expiry_Notice_Dismiss {
 	 * it is compared against the term's expiry to tell one lapse from the next.
 	 */
 	public static function register_user_meta(): void {
-		foreach ( array( self::META_BANNER, self::META_MODAL, self::META_MODAL_GRACE ) as $meta_key ) {
+		foreach ( array( self::META_BANNER, self::META_MODAL, self::META_MODAL_GRACE ) as $base ) {
 			register_meta(
 				'user',
-				$meta_key,
+				self::meta_key( $base ),
 				array(
 					'show_in_rest'      => true,
 					'single'            => true,
@@ -53,6 +58,27 @@ class Expiry_Notice_Dismiss {
 				)
 			);
 		}
+	}
+
+	/**
+	 * The stored meta key for a base name: per blog on Simple, where usermeta
+	 * is network-wide and a dismissal on one site must not silence another.
+	 *
+	 * @param string $base One of the `META_*` constants.
+	 */
+	public static function meta_key( string $base ): string {
+		if ( ! Constants::is_true( 'IS_WPCOM' ) ) {
+			return $base;
+		}
+		global $wpdb;
+		return $wpdb->get_blog_prefix() . $base;
+	}
+
+	/**
+	 * The key the banner dismisses to.
+	 */
+	public static function banner_meta_key(): string {
+		return self::meta_key( self::META_BANNER );
 	}
 
 	/**
@@ -75,7 +101,7 @@ class Expiry_Notice_Dismiss {
 	 */
 	public static function should_show_banner( array $expiry_state, ?int $user_id = null ): bool {
 		return ! self::is_dismissible( $expiry_state )
-			|| ! self::is_dismissed( $user_id, self::META_BANNER, self::term_expiry_ts( $expiry_state ) );
+			|| ! self::is_dismissed( $user_id, self::banner_meta_key(), self::term_expiry_ts( $expiry_state ) );
 	}
 
 	/**
@@ -112,12 +138,12 @@ class Expiry_Notice_Dismiss {
 		switch ( $expiry_state['state'] ?? '' ) {
 			case Expiry_Data::STATE_EXPIRED_GRACE:
 				return array(
-					'key' => self::META_MODAL_GRACE,
+					'key' => self::meta_key( self::META_MODAL_GRACE ),
 					'ttl' => self::MODAL_GRACE_DISMISS_TTL,
 				);
 			case Expiry_Data::STATE_EXPIRED:
 				return array(
-					'key' => self::META_MODAL,
+					'key' => self::meta_key( self::META_MODAL ),
 					'ttl' => null,
 				);
 			default:
@@ -133,7 +159,7 @@ class Expiry_Notice_Dismiss {
 	 * expiry, so a dismissal of the current term is always the later one.
 	 *
 	 * @param int|null $user_id   Defaults to the current user.
-	 * @param string   $meta_key  One of the `META_*` keys.
+	 * @param string   $meta_key  A stored key, from meta_key().
 	 * @param int|null $expiry_ts Expiry of the term being judged; null counts any stored dismissal.
 	 * @param int|null $ttl       Seconds a dismissal holds for; null never lapses.
 	 */
@@ -161,7 +187,7 @@ class Expiry_Notice_Dismiss {
 	 * The stored dismissal timestamp, or null if none.
 	 *
 	 * @param int|null $user_id  Defaults to the current user.
-	 * @param string   $meta_key One of the `META_*` keys.
+	 * @param string   $meta_key A stored key, from meta_key().
 	 */
 	private static function get_dismissed_at( ?int $user_id, string $meta_key ): ?int {
 		$user_id ??= get_current_user_id();

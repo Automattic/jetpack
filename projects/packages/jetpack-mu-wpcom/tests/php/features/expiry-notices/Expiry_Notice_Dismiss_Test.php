@@ -9,6 +9,7 @@ declare( strict_types = 1 );
 
 namespace Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices;
 
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use PHPUnit\Framework\Attributes\CoversClass;
 
@@ -41,7 +42,9 @@ class Expiry_Notice_Dismiss_Test extends \WorDBless\BaseTestCase {
 	public function tear_down() {
 		foreach ( array( Expiry_Notice_Dismiss::META_BANNER, Expiry_Notice_Dismiss::META_MODAL, Expiry_Notice_Dismiss::META_MODAL_GRACE ) as $meta_key ) {
 			unregister_meta_key( 'user', $meta_key );
+			unregister_meta_key( 'user', $GLOBALS['wpdb']->get_blog_prefix() . $meta_key );
 		}
+		Constants::clear_constants();
 		parent::tear_down();
 	}
 
@@ -121,6 +124,24 @@ class Expiry_Notice_Dismiss_Test extends \WorDBless\BaseTestCase {
 		// Inside the TTL, but recorded against a term that has since renewed and lapsed again.
 		$this->dismiss( Expiry_Notice_Dismiss::META_MODAL_GRACE, time() - HOUR_IN_SECONDS );
 		$this->assertTrue( Expiry_Notice_Dismiss::should_show_modal( $this->state( Expiry_Data::STATE_EXPIRED_GRACE, time() - 60 ), $this->user_id ) );
+	}
+
+	public function test_on_simple_a_dismissal_belongs_to_one_site(): void {
+		Constants::set_constant( 'IS_WPCOM', true );
+		$state = $this->state( Expiry_Data::STATE_EXPIRED, time() - 40 * DAY_IN_SECONDS );
+
+		$this->assertSame( $GLOBALS['wpdb']->get_blog_prefix() . Expiry_Notice_Dismiss::META_BANNER, Expiry_Notice_Dismiss::banner_meta_key() );
+		$this->assertStringStartsWith( $GLOBALS['wpdb']->get_blog_prefix(), (string) Expiry_Notice_Dismiss::modal_meta_key( $state ) );
+
+		// A dismissal recorded without the site's prefix is another site's.
+		$this->dismiss( Expiry_Notice_Dismiss::META_BANNER, time() );
+		$this->assertTrue( Expiry_Notice_Dismiss::should_show_banner( $state, $this->user_id ) );
+
+		$this->dismiss( Expiry_Notice_Dismiss::banner_meta_key(), time() );
+		$this->assertFalse( Expiry_Notice_Dismiss::should_show_banner( $state, $this->user_id ) );
+
+		Expiry_Notice_Dismiss::register_user_meta();
+		$this->assertArrayHasKey( Expiry_Notice_Dismiss::banner_meta_key(), get_registered_meta_keys( 'user' ) );
 	}
 
 	public function test_the_dismiss_meta_is_writable_over_rest_by_admins_only_and_stamps_server_time(): void {

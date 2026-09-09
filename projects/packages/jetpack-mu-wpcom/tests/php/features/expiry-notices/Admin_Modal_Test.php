@@ -62,7 +62,7 @@ class Admin_Modal_Test extends \WorDBless\BaseTestCase {
 		$data = wpcom_expiry_notices_admin_modal_data();
 
 		$this->assertNotNull( $data );
-		$this->assertSame( Expiry_Notice_Dismiss::META_MODAL, $data['metaKey'] );
+		$this->assertSame( Expiry_Notice_Dismiss::meta_key( Expiry_Notice_Dismiss::META_MODAL ), $data['metaKey'] );
 		$this->assertStringContainsString( 'has been moved to the Free plan', $data['description'] );
 		$this->assertStringContainsString( 'what changed', $data['listIntro'] );
 		$this->assertSame( 'Contact support', $data['primary']['label'] );

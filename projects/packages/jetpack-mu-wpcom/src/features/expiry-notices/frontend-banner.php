@@ -34,7 +34,7 @@ function wpcom_expiry_notices_enqueue_frontend_banner_assets() {
 		'expiry-notices-banner',
 		'wpcomExpiryBanner',
 		array(
-			'metaKey'    => Expiry_Notice_Dismiss::META_BANNER,
+			'metaKey'    => Expiry_Notice_Dismiss::banner_meta_key(),
 			'trackProps' => wpcom_expiry_notices_track_props( $data['state'], $data['is_owner'], 'frontend' ),
 		),
 		'expiry-notices-frontend-banner'

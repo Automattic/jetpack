@@ -33,7 +33,7 @@ function wpcom_expiry_notices_editor_notice_data(): ?array {
 	)[ wpcom_expiry_notices_current_screen_id() ] ?? 'post_editor';
 
 	return array(
-		'metaKey'       => Expiry_Notice_Dismiss::META_BANNER,
+		'metaKey'       => Expiry_Notice_Dismiss::banner_meta_key(),
 		'content'       => wpcom_expiry_notices_banner_sentence( $state, $data['is_owner'] ),
 		'primary'       => null === $urls ? null : $urls['primary'],
 		'secondary'     => null !== $urls && Expiry_Data::STATE_EXPIRED_GRACE === $state['state'] ? $urls['secondary'] : null,
