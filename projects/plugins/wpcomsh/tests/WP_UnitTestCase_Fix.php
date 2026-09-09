@@ -115,8 +115,9 @@ if ( explode( '.', \PHPUnit\Runner\Version::id() )[0] >= 10 ) {
 		}
 
 		/**
-		 * For core's `WP_UnitTestCase_Base::set_up()`, which asks for the test's
-		 * groups by their PHPUnit 9 name whenever `WP_RUN_CORE_TESTS` is defined.
+		 * For `WP_UnitTestCase_Base::set_up()` to call.
+		 *
+		 * Only needed for wpcomsh which sets `WP_RUN_CORE_TESTS` as the only way to bypass a cache.
 		 *
 		 * @return string[]
 		 */
