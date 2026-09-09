@@ -668,6 +668,13 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			'readonly'    => true,
 		);
 
+		$schema['properties']['payment'] = array(
+			'description' => __( 'Payment state for this response, when the form collects payment.', 'jetpack-forms' ),
+			'type'        => array( 'object', 'null' ),
+			'context'     => array( 'view', 'edit', 'embed' ),
+			'readonly'    => true,
+		);
+
 		$schema['properties']['browser'] = array(
 			'description' => __( 'The browser and platform used to submit the form.', 'jetpack-forms' ),
 			'type'        => 'string',
@@ -1047,6 +1054,23 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 
 		if ( rest_is_field_included( 'is_test', $fields ) ) {
 			$data['is_test'] = $feedback_response->is_test();
+		}
+
+		if ( rest_is_field_included( 'payment', $fields ) ) {
+			$payment = \Automattic\Jetpack\Forms\Payments\Payment_Status::get( $item->ID );
+
+			$data['payment'] = $payment
+				? array(
+					'status'          => $payment['status'],
+					'amount'          => (int) $payment['amount'],
+					'currency'        => $payment['currency'],
+					'formattedAmount' => \Automattic\Jetpack\Forms\Payments\Payments::format_amount(
+						$payment['amount'],
+						$payment['currency']
+					),
+					'verified'        => (bool) $payment['verified'],
+				)
+				: null;
 		}
 
 		if ( rest_is_field_included( 'preview_url', $fields ) ) {
