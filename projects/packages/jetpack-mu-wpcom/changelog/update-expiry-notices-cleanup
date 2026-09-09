@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Expiry notices: only treat bundle purchases as the site plan, and stop fetching the plan name from WordPress.com on every admin pageview.

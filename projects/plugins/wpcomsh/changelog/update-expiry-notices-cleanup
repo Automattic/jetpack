@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+Comment: Tests only: drop a stale memo flush for the expiry notices.
+
