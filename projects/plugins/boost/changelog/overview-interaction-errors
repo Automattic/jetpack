@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Improve error handling and chart interaction in the experimental dashboard.
