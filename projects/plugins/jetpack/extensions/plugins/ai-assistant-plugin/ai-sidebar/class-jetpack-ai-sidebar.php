@@ -522,20 +522,21 @@ class Jetpack_AI_Sidebar {
 	 * Whether the site has turned the WordPress Agent on, whatever Jetpack's own
 	 * sidebar gate says.
 	 *
+	 * The Big Sky plugin's own Settings > Writing checkbox can turn it off while
+	 * the plugin stays active, so the option counts as well as the class.
+	 *
 	 * @return bool
 	 */
 	private static function is_wordpress_agent_enabled(): bool {
-		if ( ! ( new Host() )->is_wpcom_platform() ) {
+		$host = new Host();
+
+		if ( ! $host->is_wpcom_platform() || ! class_exists( 'Big_Sky' ) ) {
 			return false;
 		}
 
-		if ( function_exists( 'big_sky_is_enabled' ) ) {
-			// @phan-suppress-next-line PhanUndeclaredFunction -- Provided by WPCOM's Big Sky mu-plugin; guarded by function_exists() above.
-			return (bool) big_sky_is_enabled();
-		}
+		$default = $host->is_wpcom_simple() ? '1' : '0';
 
-		// Off Simple the Big Sky plugin is only installed once the Agent is on.
-		return class_exists( 'Big_Sky' );
+		return (bool) get_option( 'big_sky_enable', $default );
 	}
 
 	/**
@@ -560,7 +561,8 @@ class Jetpack_AI_Sidebar {
 			return big_sky_is_available_for_site() || big_sky_is_enabled();
 		}
 
-		return self::is_wordpress_agent_enabled() || Current_Plan::supports( 'big-sky' );
+		// Off Simple the plugin is only installed once the site qualifies.
+		return class_exists( 'Big_Sky' ) || Current_Plan::supports( 'big-sky' );
 	}
 
 	/**

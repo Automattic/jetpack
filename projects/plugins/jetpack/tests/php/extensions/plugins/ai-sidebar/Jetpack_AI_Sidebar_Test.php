@@ -1248,6 +1248,7 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		$this->enable_sidebar_extension_availability_checks();
 		$this->simulate_wpcom_platform();
 		$this->simulate_big_sky_class();
+		update_option( 'big_sky_enable', '1' );
 		remove_all_filters( 'jetpack_ai_sidebar_enabled' );
 		add_filter( 'jetpack_ai_sidebar_enabled', '__return_false' );
 
@@ -1256,6 +1257,40 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		$this->assertTrue( Jetpack_AI_Sidebar::is_agent_notice_enabled() );
 		$this->assertFalse( Jetpack_AI_Sidebar::is_agent_action_available() );
 		$this->assertTrue( \Jetpack_Gutenberg::is_available( AiAssistantPlugin\AI_SIDEBAR_AGENT_ENABLED_EXTENSION ) );
+	}
+
+	/**
+	 * The plugin's own Settings > Writing checkbox can turn the Agent off while
+	 * the plugin stays active, and then there is no Agent button to point at.
+	 */
+	public function test_agent_notice_offers_enable_when_plugin_active_but_option_off() {
+		$this->skip_when_wpcomsh_is_active();
+		$this->set_block_editor_screen();
+		$this->enable_sidebar_extension_availability_checks();
+		$this->simulate_wpcom_platform();
+		$this->simulate_big_sky_class();
+		$this->simulate_big_sky_eligible_plan();
+		update_option( 'big_sky_enable', '0' );
+		remove_all_filters( 'jetpack_ai_sidebar_enabled' );
+
+		Jetpack_AI_Sidebar::register_agent_notice_extension();
+
+		$this->assertTrue( Jetpack_AI_Sidebar::is_agent_notice_enabled() );
+		$this->assertFalse( \Jetpack_Gutenberg::is_available( AiAssistantPlugin\AI_SIDEBAR_AGENT_ENABLED_EXTENSION ) );
+	}
+
+	/**
+	 * An installed plugin proves eligibility, even with the option off and no plan data.
+	 */
+	public function test_agent_notice_enabled_when_plugin_present_but_off_and_plan_unknown() {
+		$this->skip_when_wpcomsh_is_active();
+		$this->set_block_editor_screen();
+		$this->simulate_wpcom_platform();
+		$this->simulate_big_sky_class();
+		update_option( 'big_sky_enable', '0' );
+		remove_all_filters( 'jetpack_ai_sidebar_enabled' );
+
+		$this->assertTrue( Jetpack_AI_Sidebar::is_agent_notice_enabled() );
 	}
 
 	/**
