@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.2.12] - 2026-09-09
 ### Fixed
-- Admin page layout: stop the flex chain at the boot stage again, so a dashboard's sidebar panel keeps its side-by-side layout on boot 0.21 and later. [#52096]
+- Admin page layout: Stop the flex chain at the boot stage again, so a dashboard's sidebar panel keeps its side-by-side layout on boot 0.21 and later. [#52096]
 
 ## [1.2.11] - 2026-09-08
 ### Changed
