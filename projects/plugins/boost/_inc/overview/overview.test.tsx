@@ -1,5 +1,6 @@
 /* eslint-disable testing-library/prefer-user-event */
 import { requestSpeedScores } from '@automattic/jetpack-boost-score-api';
+import { queryClient as legacyQueryClient } from '@automattic/jetpack-react-data-sync-client';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
 	act,
@@ -11,6 +12,7 @@ import {
 	within,
 } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
+import { useSingleModuleState } from '../../app/assets/src/js/features/module/lib/stores';
 import { useDismissibleAlertState as useLegacyAlertState } from '../../app/assets/src/js/features/performance-history/lib/hooks';
 import PopOut from '../../app/assets/src/js/features/speed-score/pop-out/pop-out';
 import { recordBoostEvent } from '../../app/assets/src/js/lib/utils/analytics';
@@ -132,6 +134,81 @@ test( 'loads online scores and regenerates them with refresh tracking and histor
 	await waitFor( () =>
 		expect( invalidate ).toHaveBeenCalledWith( { queryKey: [ 'performance_history' ] } )
 	);
+} );
+
+test( 'regenerates scores after a Settings toggle and return to the mounted Overview', async () => {
+	const initialModules = {
+		performance_history: { available: true, active: true },
+		defer_js: { available: true, active: false },
+	};
+	let savedModules = initialModules;
+	window.jetpack_boost_ds!.modules_state!.value = initialModules;
+	legacyQueryClient.clear();
+	const originalFetch = globalThis.fetch;
+	globalThis.fetch = jest.fn().mockImplementation( async ( url, options ) => {
+		if ( options.method === 'POST' ) {
+			savedModules = JSON.parse( options.body ).JSON;
+		}
+		return {
+			ok: true,
+			text: async () => JSON.stringify( { status: 'success', JSON: savedModules } ),
+		};
+	} );
+	const fetch = jest.mocked( apiFetch ).getMockImplementation()!;
+	jest.mocked( apiFetch ).mockImplementation( options =>
+		options.url?.endsWith( '/modules-state' )
+			? Promise.resolve( { status: 'success', JSON: savedModules } )
+			: fetch( options )
+	);
+	function SettingsToggle() {
+		const [ state, setState ] = useSingleModuleState( 'defer_js' );
+		return (
+			<button onClick={ () => setState( ! state?.active ) }>
+				Defer Non-Essential JavaScript
+			</button>
+		);
+	}
+	const client = new QueryClient( { defaultOptions: { queries: { retry: false } } } );
+	const dashboard = ( isOverview: boolean ) => (
+		<>
+			<div hidden={ ! isOverview }>
+				<QueryClientProvider client={ client }>
+					<Overview isVisible={ isOverview } />
+				</QueryClientProvider>
+			</div>
+			<div hidden={ isOverview }>
+				<QueryClientProvider client={ legacyQueryClient }>
+					<SettingsToggle />
+				</QueryClientProvider>
+			</div>
+		</>
+	);
+	const view = render( dashboard( true ) );
+	try {
+		await expect( screen.findByText( '91' ) ).resolves.toBeVisible();
+		await waitFor( () => expect( client.isFetching() ).toBe( 0 ) );
+		view.rerender( dashboard( false ) );
+		jest.mocked( requestSpeedScores ).mockResolvedValue( {
+			...scores,
+			current: { desktop: 95, mobile: 85 },
+		} );
+		fireEvent.click( screen.getByRole( 'button', { name: 'Defer Non-Essential JavaScript' } ) );
+		await waitFor( () => expect( savedModules.defer_js.active ).toBe( true ) );
+		view.rerender( dashboard( true ) );
+		await waitFor( () => expect( screen.getByText( '95' ) ).toBeVisible(), { timeout: 4000 } );
+		expect( requestSpeedScores ).toHaveBeenCalledTimes( 2 );
+		expect( requestSpeedScores ).toHaveBeenLastCalledWith(
+			true,
+			wpApiSettings.root,
+			Jetpack_Boost.site.url,
+			wpApiSettings.nonce
+		);
+	} finally {
+		view.unmount();
+		client.clear();
+		legacyQueryClient.clear();
+		globalThis.fetch = originalFetch;
+	}
 } );
 
 test( 'keeps offline sites out of score and Data Sync requests', async () => {
