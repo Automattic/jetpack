@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Responses dashboard: register the responses store only once per page.
