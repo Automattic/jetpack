@@ -140,6 +140,16 @@ export default function HistoryChartCard( {
 	onDismissFreshStart,
 }: Props ) {
 	const series = useMemo( () => buildHistorySeries( data ), [ data ] );
+	const tickValues = useMemo( () => {
+		const dates = series[ 0 ]?.data.map( point => point.date ) ?? [];
+		const days = dates.filter(
+			( date, index ) =>
+				index === 0 ||
+				dateI18n( 'Y-m-d', date, false ) !== dateI18n( 'Y-m-d', dates[ index - 1 ], false )
+		);
+		const stride = Math.max( 1, Math.ceil( days.length / 5 ) );
+		return days.filter( ( _, index ) => index % stride === 0 );
+	}, [ series ] );
 	const [ chartKey, setChartKey ] = useState( 0 );
 	const dayBeforeEndDate = ( data?.endDate ?? 0 ) - 24 * 60 * 60 * 1000;
 	const firstTimestamp = series[ 0 ]?.data[ 0 ]?.date?.getTime();
@@ -278,7 +288,10 @@ export default function HistoryChartCard( {
 							} }
 							options={ {
 								axis: {
-									x: { tickFormat: value => dateI18n( 'M j', new Date( value ), false ) },
+									x: {
+										tickValues,
+										tickFormat: value => dateI18n( 'M j', new Date( value ), false ),
+									},
 								},
 								xScale: { domain: [ new Date( startDate ), new Date( data.endDate ) ] },
 								yScale: { domain: [ 0, 100 ], nice: false },

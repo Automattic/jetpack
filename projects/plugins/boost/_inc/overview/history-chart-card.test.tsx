@@ -292,7 +292,7 @@ test( 'uses the non-UTC site date for both axis and tooltip', async () => {
 		timezone: { offset: -12, offsetFormatted: '-12', string: 'Etc/GMT+12', abbr: '-12' },
 	} );
 	try {
-		render(
+		const { container } = render(
 			<>
 				<HistoryChartCard data={ history } { ...callbacks } />
 				<HistoryTooltip period={ history.periods[ 0 ] } />
@@ -303,6 +303,22 @@ test( 'uses the non-UTC site date for both axis and tooltip', async () => {
 		expect( ticks[ 0 ] ).toHaveTextContent( /^Aug 31$/ );
 		expect( screen.getByText( 'August 31, 2026' ) ).toBeInTheDocument();
 		expect( screen.queryByText( 'September 1, 2026' ) ).not.toBeInTheDocument();
+		// Tick coordinates must refer to the same instants as the measured scores.
+		/* eslint-disable testing-library/no-container, testing-library/no-node-access */
+		const axisTicks = container
+			.querySelectorAll( '.visx-axis' )[ 0 ]
+			.querySelectorAll( '.visx-axis-tick text' );
+		const pointXs = Array.from(
+			getSeriesPath( container, 'Desktop' )
+				.getAttribute( 'd' )!
+				.matchAll( /[ML]([^,]+),/g ),
+			match => Number( match[ 1 ] )
+		);
+		expect( axisTicks.length ).toBeGreaterThan( 0 );
+		for ( const tick of axisTicks ) {
+			expect( pointXs ).toContain( Number( tick.getAttribute( 'x' ) ) );
+		}
+		/* eslint-enable testing-library/no-container, testing-library/no-node-access */
 	} finally {
 		setSettings( settings );
 	}
