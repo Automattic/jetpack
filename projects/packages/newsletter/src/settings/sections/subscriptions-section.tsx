@@ -2,7 +2,7 @@
  * External dependencies
  */
 import analytics from '@automattic/jetpack-analytics';
-import { getAdminUrl, getSiteType } from '@automattic/jetpack-script-data';
+import { getAdminUrl, getSiteType, isSimpleSite } from '@automattic/jetpack-script-data';
 import { ToggleControl } from '@wordpress/components';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -35,6 +35,10 @@ const PLACEMENT_SLUG_BY_KEY: Record< string, string > = {
 	jetpack_subscriptions_subscribe_post_end_enabled: 'post_end',
 	jetpack_subscribe_floating_button_enabled: 'floating_button',
 };
+
+// The Action Bar is a WordPress.com Simple feature, so its documentation only
+// exists on the WordPress.com support site.
+const ACTION_BAR_SUPPORT_URL = 'https://wordpress.com/support/action-bar/';
 
 interface SubscriptionsSectionProps {
 	data: NewsletterSettings;
@@ -198,6 +202,11 @@ export function SubscriptionsSection( {
 		( next: boolean ) => onChange( { stc_enabled: next } ),
 		[ onChange ]
 	);
+	// The label reads positively, the option stores "hidden" — hence the negation.
+	const handleActionBarToggle = useCallback(
+		( next: boolean ) => onChange( { wpcom_hide_action_bar: ! next } ),
+		[ onChange ]
+	);
 
 	// Editor link for the navigation block templates. Both Navigation toggles
 	// open the same `index` template — the Subscribe block and the Subscriber
@@ -338,6 +347,28 @@ export function SubscriptionsSection( {
 									/>
 								</Stack>
 							</Stack>
+
+							{ isSimpleSite() && (
+								<Stack gap="sm" direction="column">
+									<Text variant="heading-sm" render={ <h3 /> }>
+										{ __( 'Action Bar', 'jetpack-newsletter' ) }
+									</Text>
+									<ToggleControl
+										__nextHasNoMarginBottom
+										checked={ ! data.wpcom_hide_action_bar }
+										onChange={ handleActionBarToggle }
+										label={ __(
+											'Show the Action Bar on the front end of the site',
+											'jetpack-newsletter'
+										) }
+										help={
+											<Link openInNewTab href={ ACTION_BAR_SUPPORT_URL }>
+												{ __( 'Learn more about the Action Bar', 'jetpack-newsletter' ) }
+											</Link>
+										}
+									/>
+								</Stack>
+							) }
 						</Stack>
 					</Fieldset.Root>
 				</Stack>
