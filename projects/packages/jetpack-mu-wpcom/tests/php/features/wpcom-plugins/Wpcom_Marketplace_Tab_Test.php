@@ -16,6 +16,13 @@ require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-plugins/wpcom-marke
 class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 
 	/**
+	 * Per-flag filter, so toggling ours leaves every other flag alone.
+	 *
+	 * @var string
+	 */
+	private const FLAG_FILTER = 'jetpack_feature_flag_enabled_' . WPCOM_MARKETPLACE_TAB_FLAG;
+
+	/**
 	 * A product as the marketplace endpoint returns it.
 	 *
 	 * @var array
@@ -41,7 +48,7 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 	 * @return void
 	 */
 	private function enable_tab() {
-		add_filter( 'jetpack_feature_flag_enabled', '__return_true' );
+		add_filter( self::FLAG_FILTER, '__return_true' );
 	}
 
 	/**
@@ -61,7 +68,7 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function tear_down() {
 		delete_transient( Marketplace_Catalog::LIST_CACHE_KEY );
-		remove_filter( 'jetpack_feature_flag_enabled', '__return_true' );
+		remove_filter( self::FLAG_FILTER, '__return_true' );
 
 		parent::tear_down();
 	}
@@ -191,13 +198,13 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 	 * With the flag off nothing about the screen changes.
 	 */
 	public function test_tab_is_absent_when_flag_is_off() {
-		add_filter( 'jetpack_feature_flag_enabled', '__return_false' );
+		add_filter( self::FLAG_FILTER, '__return_false' );
 
 		$tabs = wpcom_marketplace_add_tab( array( 'featured' => 'Featured' ) );
 
 		$this->assertSame( array( 'featured' ), array_keys( $tabs ) );
 
-		remove_filter( 'jetpack_feature_flag_enabled', '__return_false' );
+		remove_filter( self::FLAG_FILTER, '__return_false' );
 	}
 
 	/**

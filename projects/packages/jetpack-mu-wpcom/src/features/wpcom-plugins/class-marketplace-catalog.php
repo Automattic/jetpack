@@ -134,7 +134,13 @@ class Marketplace_Catalog {
 
 		// The card carries every field the modal needs except the long description.
 		if ( ! is_array( $product ) || empty( $product['slug'] ) ) {
-			return self::get_product( $slug );
+			$card = self::get_product( $slug );
+
+			if ( null !== $card ) {
+				set_transient( $cache_key, $card, self::MISS_CACHE_TTL );
+			}
+
+			return $card;
 		}
 
 		$details = self::to_card( $product );
@@ -196,7 +202,7 @@ class Marketplace_Catalog {
 	 * @return array
 	 */
 	public static function to_card( array $product ) {
-		$slug = (string) $product['slug'];
+		$slug = (string) ( $product['slug'] ?? '' );
 		$icon = is_string( $product['icons'] ?? null ) ? $product['icons'] : '';
 
 		return array(

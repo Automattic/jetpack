@@ -21,7 +21,7 @@ const WPCOM_MARKETPLACE_TAB_FLAG = 'wpcom-plugins-marketplace-tab';
 /**
  * Registers the feature flag.
  *
- * Runs on every request so the flag stays visible wherever flags are listed or toggled.
+ * Runs as this file loads, so the flag is listed wherever flags are read or toggled.
  *
  * @return void
  */
