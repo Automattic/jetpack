@@ -214,6 +214,7 @@ export {
 	CALENDAR_HEATMAP_HEADER_HEIGHT,
 	computeCalendarHeatmapLayout,
 	fitWeekColumns,
+	formatDailyViewCount,
 	formatViewCount,
 	buildDenseDaySeries,
 	resolveCalendarHeatmapGridStart,
