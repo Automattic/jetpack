@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Route dashboard navigation through a shared helper so the destination can vary by dashboard mode.
+
+

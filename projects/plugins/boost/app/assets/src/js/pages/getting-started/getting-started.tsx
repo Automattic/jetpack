@@ -6,7 +6,7 @@ import { BoostPricingTable } from '$features/boost-pricing-table/boost-pricing-t
 import BoostAdminPage from '$layout/boost-admin-page/boost-admin-page';
 import styles from './getting-started.module.scss';
 import { useGettingStarted } from '$lib/stores/getting-started';
-import { useNavigate } from 'react-router';
+import { useBoostNavigation } from '$lib/navigation/navigation-context';
 import { __ } from '@wordpress/i18n';
 import { usePremiumFeatures } from '$lib/stores/premium-features';
 import { useSingleModuleState } from '$features/module/lib/stores';
@@ -15,7 +15,7 @@ import type { FC } from 'react';
 const GettingStarted: FC = () => {
 	const [ selectedPlan, setSelectedPlan ] = useState< 'free' | 'premium' | false >( false );
 	const [ snackbarMessage, setSnackbarMessage ] = useState< string >( '' );
-	const navigate = useNavigate();
+	const { returnToSettings } = useBoostNavigation();
 
 	const {
 		site: { domain },
@@ -42,13 +42,13 @@ const GettingStarted: FC = () => {
 				if ( ! isPremium ) {
 					setCriticalCssState( true );
 				}
-				navigate( '/', { replace: true } );
+				returnToSettings( { replace: true } );
 			}
 		}
 	}, [
 		domain,
 		isPremium,
-		navigate,
+		returnToSettings,
 		selectedPlan,
 		setCriticalCssState,
 		shouldGetStarted,
