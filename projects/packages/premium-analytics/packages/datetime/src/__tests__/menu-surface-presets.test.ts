@@ -2,7 +2,7 @@
  * Internal dependencies
  */
 import { getMenuSurfacePresetGroups } from '../presets';
-import { DETAIL_SURFACE_PRESETS, MENU_SURFACE_PRESETS } from '../presets/types';
+import { DETAIL_SURFACE_PRESETS } from '../presets/types';
 
 const TIME_ZONE = 'America/New_York';
 
