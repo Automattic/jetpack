@@ -30,6 +30,13 @@ class Connections_Controller_Test extends TestCase {
 	private const ROUTE = '/wpcom/v2/publicize/connections';
 
 	/**
+	 * The WPCOM-to-site sync route.
+	 *
+	 * @var string
+	 */
+	private const SYNC_ROUTE = '/jetpack/v4/publicize/connections/sync';
+
+	/**
 	 * The user IDs, keyed by role.
 	 *
 	 * @var array
@@ -169,14 +176,14 @@ class Connections_Controller_Test extends TestCase {
 	 * The sync route is registered.
 	 */
 	public function test_sync_route_is_registered() {
-		$this->assertArrayHasKey( self::ROUTE . '/sync', $this->server->get_routes() );
+		$this->assertArrayHasKey( self::SYNC_ROUTE, $this->server->get_routes() );
 	}
 
 	/**
 	 * The sync route rejects requests not signed with a Jetpack user token.
 	 */
 	public function test_sync_requires_user_token_signature() {
-		$request = new WP_REST_Request( 'POST', self::ROUTE . '/sync' );
+		$request = new WP_REST_Request( 'POST', self::SYNC_ROUTE );
 		$request->set_body_params( array( 'connections' => array() ) );
 
 		$response = $this->server->dispatch( $request );
@@ -200,7 +207,7 @@ class Connections_Controller_Test extends TestCase {
 			),
 		);
 
-		$request = new WP_REST_Request( 'POST', self::ROUTE . '/sync' );
+		$request = new WP_REST_Request( 'POST', self::SYNC_ROUTE );
 		$request->set_param( 'connections', $connections );
 
 		$response = $this->controller->receive_updated_connections( $request );
