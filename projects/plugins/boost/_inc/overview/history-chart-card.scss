@@ -46,6 +46,12 @@
 		color: var(--wpds-color-foreground-content-neutral);
 		max-inline-size: calc(100vw - var(--wpds-dimension-gap-xl));
 
+		.jetpack-boost-overview__series-swatch {
+			inline-size: var(--wpds-dimension-size-4xs);
+			block-size: var(--wpds-dimension-size-4xs);
+			border-radius: var(--wpds-border-radius-lg);
+		}
+
 		dt:not(:first-child),
 		dd:nth-child(n + 3) {
 			color: var(--wpds-color-foreground-content-neutral-weak);
