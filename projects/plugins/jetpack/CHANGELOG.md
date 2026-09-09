@@ -158,7 +158,6 @@
 - Editor: Restore active module state for module-dependent features. [#51888]
 - External Media: Improve validation for media copy requests.
 - Fix the premium block upgrade banner rendering collapsed and too narrow on the site frontend. [#50873]
-- Forms: Improve accessibility of image options in the form submission summary. [#51781]
 - Forms: Allow a single response to scroll when it is taller than the screen. [#51486]
 - Forms: Apply the name typed when creating a form, and stop a dismissed save from reporting into a reopened dialog. [#51371]
 - Forms: Cancel in-flight uploads and release previews when a form containing a file upload field is reset. [#51183]
@@ -166,6 +165,7 @@
 - Forms: Fix several problems with adding more than one file at once to the file upload field, and with uploads that stall or fail. [#51549]
 - Forms: Fix the first change made to a form after opening a page being discarded when saving. [#51393]
 - Forms: Fix the form editor welcome guide artwork not loading on WordPress.com Simple sites. [#51682]
+- Forms: Improve accessibility of image options in the form submission summary. [#51781]
 - Forms: Keep an option's label when switching it to the "Other" option. [#51628]
 - Forms: Keep one column per form field on a form's responses when a field is moved, and read every answer from the field it belongs to. [#51615]
 - Forms: Keep prev/next working on a single response after marking it as spam or trash, open responses instantly from the list, and add keyboard shortcuts for triaging responses. [#51670]
