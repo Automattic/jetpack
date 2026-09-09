@@ -70,11 +70,13 @@ export function buildAllTimeTrafficRows(
 	const years = response?.years ?? {};
 	const reported = reportedMonths( years );
 
-	if ( reported.length === 0 ) {
+	// Without its table the average view has nothing to draw: a grid of zeros
+	// built from `years` alone would read as a real measurement.
+	if ( reported.length === 0 || ( metric === 'average' && ! response?.averages ) ) {
 		return [];
 	}
 
-	const source = metric === 'average' ? response?.averages ?? {} : years;
+	const source = metric === 'average' ? response.averages : years;
 	// A post can carry stats from before its publish date (a rescheduled one),
 	// so its life starts at whichever comes first.
 	const firstOrder = Math.min( ...reported, published ? monthOrder( published ) : Infinity );

@@ -85,6 +85,10 @@ describe( 'buildAllTimeTrafficRows', () => {
 		expect( rows[ 1 ].months.slice( 10 ) ).toEqual( [ 1, 2 ] );
 	} );
 
+	it( 'returns no rows under the average metric without its table', () => {
+		expect( buildAllTimeTrafficRows( { years: RESPONSE.years }, 'average', TODAY ) ).toEqual( [] );
+	} );
+
 	it( 'returns no rows without yearly stats', () => {
 		expect( buildAllTimeTrafficRows( undefined, 'total', TODAY ) ).toEqual( [] );
 		expect( buildAllTimeTrafficRows( { years: {} }, 'total', TODAY ) ).toEqual( [] );
