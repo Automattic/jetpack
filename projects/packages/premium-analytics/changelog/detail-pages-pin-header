@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Pin the post and video detail headers on scroll, as on the dashboard and the report pages.
+Pin the post and video detail headers on scroll and condense them as on the dashboard: the tabs scroll away, the subtitle folds and the media shrinks to the title row.

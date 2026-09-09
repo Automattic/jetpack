@@ -296,6 +296,33 @@ export const Pinned: Story = {
 };
 
 /**
+ * The detail-page instance pinned: as the box scrolls, the subtitle folds away
+ * and the visual shrinks to the title's row, so the band condenses to the same
+ * height as a header without a visual.
+ */
+export const PinnedWithVisual: Story = {
+	args: {
+		title: 'Ten things I learned building a headless storefront',
+	},
+	render: ( { title } ) => (
+		<div style={ { blockSize: 320, overflowY: 'auto', timelineScope: '--section-header-pin' } }>
+			<div style={ { blockSize: 48, paddingInline: 24 } }>
+				Something to scroll past, as the section tabs are.
+			</div>
+			<SectionHeader
+				pinned
+				title={ title }
+				visual={ <Icon icon={ post } size={ 28 } /> }
+				subTitle="Post published on Feb 3, 2025. Performance from Feb 3, 2025 to Sep 2, 2026"
+			>
+				<RollingDateControls />
+			</SectionHeader>
+			<div style={ { blockSize: 900, paddingInline: 24 } }>Content scrolling under the band.</div>
+		</div>
+	),
+};
+
+/**
  * The left half on its own: nothing in the controls slot.
  */
 export const WithoutControls: Story = {

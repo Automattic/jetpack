@@ -101,8 +101,6 @@ function UnforwardedSectionHeader(
 						{ title }
 					</Text>
 
-					{ /* A div, not a p: the slot takes whatever the surface has, including
-					     the block-level skeleton it shows while the resource resolves. */ }
 					{ subTitle ? (
 						<Text className={ styles.subTitle } variant="body-sm" render={ <div /> }>
 							{ subTitle }

@@ -39,6 +39,21 @@ describe( 'DetailPageLayout', () => {
 		expect( screen.getByTestId( 'date-filters-panel' ) ).toBeInTheDocument();
 	} );
 
+	it( 'renders the tabs above the header, inside the scroll area', () => {
+		render(
+			<DetailPageLayout header={ { title: 'Launch recap' } } tabs={ <div role="tablist" /> }>
+				widgets
+			</DetailPageLayout>
+		);
+
+		const heading = screen.getByRole( 'heading', { level: 2 } );
+
+		// Order in the scroll area is what this test is for.
+		expect( screen.getByRole( 'tablist' ).compareDocumentPosition( heading ) ).toBe(
+			Node.DOCUMENT_POSITION_FOLLOWING
+		);
+	} );
+
 	it( 'renders no controls when given none', () => {
 		render( <DetailPageLayout header={ { title: 'Launch recap' } }>widgets</DetailPageLayout> );
 

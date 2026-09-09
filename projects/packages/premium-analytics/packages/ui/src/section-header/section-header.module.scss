@@ -18,6 +18,10 @@ $section-header-visual-stacked-max-inline-size: $section-header-stacked-max-inli
 // The scroll distance the condense runs over once the header pins. Tunable.
 $section-header-condense-distance: 40px;
 
+// The visual's box once pinned: the height of the title row beside it, so a
+// header with a visual condenses to the same band as one without. Tunable.
+$section-header-visual-condensed-size: 40px;
+
 // The controls drop below the title, reading from the same edge.
 @mixin section-header-stacked {
 
@@ -206,8 +210,9 @@ $section-header-condense-distance: 40px;
 
 /*
  * Condenses the band as it pins: the padding tightens, since there are no tabs
- * left to clear, and the title drops a step on the type scale. Progress-driven,
- * so it follows the scroll in both directions.
+ * left to clear, the title drops a step on the type scale, the subtitle folds
+ * away and a visual shrinks to the title row. Progress-driven, so it follows
+ * the scroll in both directions.
  *
  * The @supports gate is load-bearing: without scroll-driven animation
  * support, the `animation` shorthand would run as a 0s time animation and its
@@ -229,13 +234,34 @@ $section-header-condense-distance: 40px;
 			animation-timeline: --section-header-pin;
 			animation-range: exit;
 		}
+
+		.subTitle {
+			animation: condense-subtitle linear both;
+			animation-timeline: --section-header-pin;
+			animation-range: exit;
+		}
+
+		.visual {
+			animation: condense-visual linear both;
+			animation-timeline: --section-header-pin;
+			animation-range: exit;
+		}
+
+		.withVisual .text {
+			animation: condense-text linear both;
+			animation-timeline: --section-header-pin;
+			animation-range: exit;
+		}
 	}
 
 	// Scroll-driven, but still chrome moving under the reader.
 	@media (prefers-reduced-motion: reduce) {
 
 		.pinned,
-		.pinned .title {
+		.pinned .title,
+		.pinned .subTitle,
+		.pinned .visual,
+		.pinned .withVisual .text {
 			animation: none;
 		}
 	}
@@ -254,6 +280,35 @@ $section-header-condense-distance: 40px;
 	to {
 		font-size: var(--wpds-typography-font-size-xl);
 		line-height: var(--wpds-typography-line-height-xl);
+	}
+}
+
+// Starts from a cap the resting line never reaches, so the fill costs nothing
+// before the pin; the line is clipped by the ellipsis rule's overflow.
+@keyframes condense-subtitle {
+
+	from {
+		max-block-size: var(--wpds-typography-line-height-sm);
+	}
+
+	to {
+		max-block-size: 0;
+		opacity: 0;
+	}
+}
+
+@keyframes condense-visual {
+
+	to {
+		inline-size: $section-header-visual-condensed-size;
+		block-size: $section-header-visual-condensed-size;
+	}
+}
+
+@keyframes condense-text {
+
+	to {
+		min-block-size: $section-header-visual-condensed-size;
 	}
 }
 

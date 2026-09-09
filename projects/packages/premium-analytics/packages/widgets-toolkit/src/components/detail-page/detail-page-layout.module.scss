@@ -1,6 +1,6 @@
-// The scroll container below the page header, so the resource header pins at
-// its top while the sections scroll under it. The scope is what lets the
-// header's pin marker reach the header beside it.
+// The scroll container below the page header, so the tabs scroll away with
+// the content while the resource header pins at its top. The scope is what
+// lets the header's pin marker reach the header beside it.
 .root {
 	flex: 1 1 auto;
 	min-block-size: 0;
