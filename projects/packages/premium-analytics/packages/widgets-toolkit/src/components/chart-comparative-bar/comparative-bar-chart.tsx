@@ -36,9 +36,6 @@ import type { ComparativeDatePointDate } from '../chart-comparative-line/types';
 import type { TooltipStyle } from '../chart-tooltip';
 import type { ComponentProps } from 'react';
 
-/** The y-axis is on the left, so the right margin is always 0. */
-const DEFAULT_MARGIN = { right: 0 };
-
 /**
  * Chart-area height (px) below which `compactWhenShort` degrades the chart to
  * a sparkline (no y-axis, grid, or legend). Matches the comparative line chart
@@ -320,12 +317,12 @@ export function ComparativeBarChart( {
 	}, [ xTickFormat, tickResolution, yTickFormat, isCompact, fixedYAxis ] );
 
 	const margin = useMemo( () => {
-		// With the y-axis hidden, reclaim its reserved left margin for the bars.
+		// A sparkline is full bleed: it hides both axes and gives their gutters to the bars.
 		if ( isCompact ) {
-			return { ...DEFAULT_MARGIN, left: 0 };
+			return { right: 0, left: 0 };
 		}
 
-		return fixedYAxis ? { ...DEFAULT_MARGIN, left: fixedYAxis.marginLeft } : DEFAULT_MARGIN;
+		return fixedYAxis ? { left: fixedYAxis.marginLeft } : undefined;
 	}, [ isCompact, fixedYAxis ] );
 
 	return (

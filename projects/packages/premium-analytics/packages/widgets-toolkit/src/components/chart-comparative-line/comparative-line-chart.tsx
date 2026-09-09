@@ -56,9 +56,6 @@ function resolveSeriesStyles(
 	} );
 }
 
-/** The y-axis is on the left, so the right margin is always 0. */
-const DEFAULT_MARGIN = { right: 0 };
-
 /**
  * Chart-area height (px) below which `compactWhenShort` degrades the chart to
  * a sparkline (no y-axis, grid, or legend).
@@ -281,7 +278,7 @@ export function ComparativeLineChart( {
 		return { ...baseOptions, yScale: { domain: fixedYAxis.domain } };
 	}, [ xTickFormat, xTickFormatType, tickResolution, yTickFormat, fixedYAxis, isCompact ] );
 
-	const margin = fixedYAxis ? { ...DEFAULT_MARGIN, left: fixedYAxis.marginLeft } : DEFAULT_MARGIN;
+	const margin = fixedYAxis ? { left: fixedYAxis.marginLeft } : undefined;
 
 	return (
 		<Stack ref={ measureRef } direction="column" className={ clsx( styles.chart, className ) }>
@@ -292,8 +289,8 @@ export function ComparativeLineChart( {
 				options={ chartOptions }
 				defaultHiddenSeries={ defaultHiddenSeries }
 				legend={ legendConfig }
-				// With the y-axis hidden, reclaim its reserved left margin for the line.
-				margin={ isCompact ? { ...margin, left: 0 } : margin }
+				// A sparkline is full bleed: it hides both axes and gives their gutters to the line.
+				margin={ isCompact ? { right: 0, left: 0 } : margin }
 				maxWidth={ maxWidth }
 				gridVisibility={ isCompact ? 'none' : undefined }
 				resizeDebounceTime={ RESIZE_DEBOUNCE_MS }

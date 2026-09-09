@@ -9,6 +9,13 @@ jest.mock( '../../utils/get-longest-tick-width', () => ( {
 	getLongestTickWidth: ( ...args: unknown[] ) => mockGetLongestTickWidth( ...args ),
 } ) );
 
+// jsdom has no getComputedTextLength, so the real measurement always returns null.
+const mockGetEdgeTickWidths = jest.fn();
+jest.mock( '../../utils/get-edge-tick-widths', () => ( {
+	...jest.requireActual( '../../utils/get-edge-tick-widths' ),
+	getEdgeTickWidths: ( ...args: unknown[] ) => mockGetEdgeTickWidths( ...args ),
+} ) );
+
 describe( 'useChartMargin', () => {
 	const baseTheme = {
 		axisStyles: {
@@ -43,6 +50,8 @@ describe( 'useChartMargin', () => {
 	beforeEach( () => {
 		mockGetLongestTickWidth.mockReset();
 		mockGetLongestTickWidth.mockReturnValue( 40 );
+		mockGetEdgeTickWidths.mockReset();
+		mockGetEdgeTickWidths.mockReturnValue( { first: null, last: null } );
 	} );
 
 	it( 'calculates left margin for left y axis', () => {
@@ -183,6 +192,79 @@ describe( 'useChartMargin', () => {
 		// svgLabelSmall font size (18) + 7px tick length = 25.
 		// This is larger than the 20px default bottom margin, so it should be used.
 		expect( result.current.bottom ).toBe( 25 );
+	} );
+
+	describe( 'x-axis edge tick labels', () => {
+		const tickFormat = ( value: number ) => new Date( value ).toDateString();
+		const tickValues = [ 1, 2, 3 ];
+		const datedXOptions = ( xOverrides = {} ) => ( {
+			...optionsBase,
+			axis: { ...optionsBase.axis, x: { tickValues, tickFormat, ...xOverrides } },
+		} );
+
+		it( 'reserves half of the last label on the right', () => {
+			mockGetEdgeTickWidths.mockReturnValue( { first: null, last: 60 } );
+
+			const { result } = renderHook( () =>
+				useChartMargin( 300, datedXOptions(), data, baseTheme )
+			);
+
+			expect( result.current.right ).toBe( 30 );
+		} );
+
+		it( 'keeps the default right margin when the last label fits inside it', () => {
+			mockGetEdgeTickWidths.mockReturnValue( { first: null, last: 30 } );
+
+			const { result } = renderHook( () =>
+				useChartMargin( 300, datedXOptions(), data, baseTheme )
+			);
+
+			expect( result.current.right ).toBe( 20 );
+		} );
+
+		it( 'widens the left margin past the y-axis reservation when the first label needs it', () => {
+			mockGetEdgeTickWidths.mockReturnValue( { first: 120, last: null } );
+
+			const { result } = renderHook( () =>
+				useChartMargin( 300, datedXOptions(), data, baseTheme )
+			);
+
+			// 60 for the label's overhanging half, over the 51 the y-axis ticks need.
+			expect( result.current.left ).toBe( 60 );
+		} );
+
+		it( 'measures the axis tick values with the x tick label style', () => {
+			const theme = {
+				...baseTheme,
+				axisStyles: {
+					...baseTheme.axisStyles,
+					x: {
+						bottom: { tickLabel: { fontSize: 11 }, tickLength: 8 } as unknown as never,
+						top: {} as unknown as never,
+					},
+				},
+			} as XYChartTheme;
+
+			renderHook( () => useChartMargin( 300, datedXOptions(), data, theme ) );
+
+			// px, not the theme's bare 11: CSSOM drops a unitless length, so the
+			// measurer would silently fall back to the host's font size.
+			expect( mockGetEdgeTickWidths ).toHaveBeenCalledWith( tickValues, tickFormat, {
+				fontSize: '11px',
+			} );
+		} );
+
+		it( 'reserves nothing for a hidden x axis', () => {
+			mockGetEdgeTickWidths.mockReturnValue( { first: 120, last: 60 } );
+
+			const { result } = renderHook( () =>
+				useChartMargin( 300, datedXOptions( { display: false } ), data, baseTheme )
+			);
+
+			expect( mockGetEdgeTickWidths ).not.toHaveBeenCalled();
+			expect( result.current.right ).toBe( 20 );
+			expect( result.current.left ).toBe( 51 );
+		} );
 	} );
 
 	describe( 'horizontal y ticks', () => {

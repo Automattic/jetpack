@@ -490,7 +490,8 @@ describe( 'ComparativeBarChart', () => {
 			render( <ComparativeBarChart series={ SERIES } dataFormat={ DATA_FORMAT } /> );
 
 			expect( recordedOptions() ).not.toHaveProperty( 'yScale' );
-			expect( recordedProps().margin ).toEqual( { right: 0 } );
+			// No override, so the chart keeps the gutters `useChartMargin` measured.
+			expect( recordedProps().margin ).toBeUndefined();
 		} );
 	} );
 

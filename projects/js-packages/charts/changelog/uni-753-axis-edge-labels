@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Charts: Reserve room for the first and last labels on a time axis so they are no longer cut off at the chart's edge.

@@ -1,6 +1,6 @@
 import { createScale, getTicks } from '@visx/scale';
 import { useMemo } from 'react';
-import { getLongestTickWidth, resolveFontSize } from '../utils';
+import { getEdgeTickWidths, getLongestTickWidth, resolveFontSize } from '../utils';
 import type { BaseChartProps, DataPointDate, SeriesData } from '../types';
 import type { XYChartTheme } from '@visx/xychart';
 
@@ -61,7 +61,17 @@ const getXAxisLabelMetrics = ( theme: XYChartTheme, orientation: 'top' | 'bottom
 
 	const tickLength = xAxisStyles?.tickLength ?? DEFAULT_TICK_LENGTH;
 
-	return { fontSize, tickLength };
+	// The measurer assigns this through CSSOM, which drops a unitless length, so
+	// the theme's plain-number fontSize has to carry its unit or labels measure
+	// at whatever the host body inherits.
+	const tickLabel = xAxisStyles?.tickLabel;
+	const tickLabelFontSize = resolveFontSize( tickLabel?.fontSize );
+	const tickLabelStyle =
+		tickLabel && tickLabelFontSize !== undefined
+			? { ...tickLabel, fontSize: `${ tickLabelFontSize }px` }
+			: tickLabel;
+
+	return { fontSize, tickLength, tickLabelStyle };
 };
 
 export const useChartMargin = (
@@ -135,7 +145,7 @@ export const useChartMargin = (
 		// This mirrors Y-axis behavior where margin is based on label size and tick length,
 		// but keeps the padding minimal so consumers can control container spacing themselves.
 		const xOrientation = options.axis?.x?.orientation === 'top' ? 'top' : 'bottom';
-		const { fontSize, tickLength } = getXAxisLabelMetrics( theme, xOrientation );
+		const { fontSize, tickLength, tickLabelStyle } = getXAxisLabelMetrics( theme, xOrientation );
 		const computedXMargin = fontSize + tickLength;
 
 		if ( xOrientation === 'top' ) {
@@ -143,6 +153,23 @@ export const useChartMargin = (
 			defaultMargin.bottom = DEFAULT_BOTTOM_FOR_TOP_AXIS;
 		} else {
 			defaultMargin.bottom = Math.max( defaultMargin.bottom, computedXMargin );
+		}
+
+		// An X-axis label is centered on its tick, so the ones at either end of the
+		// scale hang half their width outside the plot area and clip at the SVG edge.
+		if ( options.axis?.x?.display !== false ) {
+			const { first, last } = getEdgeTickWidths(
+				options.axis?.x?.tickValues ?? [],
+				options.axis?.x?.tickFormat,
+				tickLabelStyle
+			);
+
+			if ( first !== null ) {
+				defaultMargin.left = Math.max( defaultMargin.left, Math.ceil( first / 2 ) );
+			}
+			if ( last !== null ) {
+				defaultMargin.right = Math.max( defaultMargin.right, Math.ceil( last / 2 ) );
+			}
 		}
 
 		return defaultMargin;
