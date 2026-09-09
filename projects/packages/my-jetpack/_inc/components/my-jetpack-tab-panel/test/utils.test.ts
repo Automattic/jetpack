@@ -28,28 +28,27 @@ beforeEach( () => {
 	mockIsSimpleSite.mockReturnValue( false );
 } );
 
-const ALL_SECTIONS = [
+const VISIBLE_SECTIONS = [
 	MY_JETPACK_SECTION_OVERVIEW,
-	MY_JETPACK_SECTION_PRODUCTS,
 	MY_JETPACK_SECTION_FEATURES,
 	MY_JETPACK_SECTION_HELP,
 ];
 
 describe( 'getMyJetpackSections', () => {
-	it( 'orders Features last before Help, after Overview and Products', () => {
-		expect( getMyJetpackSections().map( tab => tab.name ) ).toEqual( ALL_SECTIONS );
+	it( 'omits Products from the tab bar, keeping Overview, Features and Help', () => {
+		expect( getMyJetpackSections().map( tab => tab.name ) ).toEqual( VISIBLE_SECTIONS );
 	} );
 
 	it( 'returns the same sections for non-admins', () => {
 		mockCurrentUserCan.mockReturnValue( false );
 
-		expect( getMyJetpackSections().map( tab => tab.name ) ).toEqual( ALL_SECTIONS );
+		expect( getMyJetpackSections().map( tab => tab.name ) ).toEqual( VISIBLE_SECTIONS );
 	} );
 
 	it( 'returns the same sections on WordPress.com Simple sites', () => {
 		mockIsSimpleSite.mockReturnValue( true );
 
-		expect( getMyJetpackSections().map( tab => tab.name ) ).toEqual( ALL_SECTIONS );
+		expect( getMyJetpackSections().map( tab => tab.name ) ).toEqual( VISIBLE_SECTIONS );
 	} );
 } );
 
@@ -58,9 +57,13 @@ describe( 'isValidMyJetpackSection', () => {
 		expect( isValidMyJetpackSection( MY_JETPACK_SECTION_FEATURES ) ).toBe( true );
 	} );
 
-	it( 'accepts the restored Overview and Products sections', () => {
+	it( 'accepts Overview, and Products despite it having no tab', () => {
 		expect( isValidMyJetpackSection( MY_JETPACK_SECTION_OVERVIEW ) ).toBe( true );
+		// Products keeps working by URL so the two lists can still be compared.
 		expect( isValidMyJetpackSection( MY_JETPACK_SECTION_PRODUCTS ) ).toBe( true );
+		expect( getMyJetpackSections().some( tab => tab.name === MY_JETPACK_SECTION_PRODUCTS ) ).toBe(
+			false
+		);
 	} );
 
 	it( 'rejects a section that does not exist', () => {

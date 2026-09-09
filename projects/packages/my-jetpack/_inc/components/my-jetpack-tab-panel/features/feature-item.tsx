@@ -1,6 +1,5 @@
 import { __ } from '@wordpress/i18n';
 import { Badge, Checkbox, Stack, Text } from '@wordpress/ui';
-import clsx from 'clsx';
 import { useCallback } from 'react';
 import { FeatureChevron } from './feature-chevron';
 import { FeatureIcon } from './feature-icon';
@@ -47,9 +46,7 @@ export function FeatureItem( {
 			direction="row"
 			align="center"
 			gap="md"
-			className={ clsx( styles[ 'feature-item' ], {
-				[ styles[ 'feature-item--active' ] ]: isActive,
-			} ) }
+			className={ styles[ 'feature-item' ] }
 			data-feature={ feature.slug }
 		>
 			{ showCheckbox && (

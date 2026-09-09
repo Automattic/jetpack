@@ -13,6 +13,7 @@
 }
 
 .module-list {
+	background: var(--wpds-color-background-surface-neutral-strong);
 	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
 	border-radius: var(--wpds-border-radius-md);
 	overflow: hidden;
@@ -28,9 +29,6 @@
 	}
 }
 
-.module-item--active {
-	background: var(--wpds-color-background-surface-neutral-strong);
-}
 
 .module-item__details {
 	flex: 1;

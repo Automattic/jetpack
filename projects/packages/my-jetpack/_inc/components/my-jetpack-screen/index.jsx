@@ -9,7 +9,6 @@ import {
 	GlobalNotices,
 	Notice,
 } from '@automattic/jetpack-components';
-import { isSimpleSite } from '@automattic/jetpack-script-data';
 import { useViewportMatch } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
@@ -90,11 +89,10 @@ export default function MyJetpackScreen() {
 		sandboxedDomain,
 		isDevVersion,
 		userIsAdmin,
-		isJetpackPluginActive,
 	} = getMyJetpackWindowInitialState();
 
 	const { isSectionVisible } = useEvaluationRecommendations();
-	const { apiRoot, apiNonce, isSiteConnected } = useMyJetpackConnection();
+	const { apiRoot, apiNonce } = useMyJetpackConnection();
 	const { currentNotice } = useContext( NoticeContext );
 	const {
 		message: noticeMessage,
@@ -171,13 +169,8 @@ export default function MyJetpackScreen() {
 	}
 
 	const optionalMenuItems = buildOptionalMenuItems( {
-		adminUrl,
 		isDevVersion,
 		userIsAdmin,
-		isSiteConnected,
-		isJetpackPluginActive,
-		isSimpleSite: isSimpleSite(),
-		onModulesClick: () => recordEvent( 'jetpack_myjetpack_footer_link_click', { link: 'modules' } ),
 		onResetClick: () => resetJetpackOptions(),
 		onResetKeyDown: e => onKeyDownCallback( e, () => resetJetpackOptions() ),
 	} );

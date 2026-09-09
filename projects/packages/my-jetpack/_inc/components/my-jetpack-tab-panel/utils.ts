@@ -11,10 +11,24 @@ import type { ComponentProps } from 'react';
 type TabPanelProps = ComponentProps< typeof TabPanel >;
 
 /**
+ * Sections reachable by URL, including any hidden from the tab bar.
+ *
+ * @return Every valid section name.
+ */
+export function getAllMyJetpackSections(): string[] {
+	return [
+		MY_JETPACK_SECTION_OVERVIEW,
+		MY_JETPACK_SECTION_PRODUCTS,
+		MY_JETPACK_SECTION_FEATURES,
+		MY_JETPACK_SECTION_HELP,
+	];
+}
+
+/**
  * Get the My Jetpack sections.
  *
- * Features sits last before Help, alongside the Overview and Products sections it is
- * being compared against.
+ * Products is deliberately absent: it stays reachable at `#/products` for comparison,
+ * but is no longer somewhere the tab bar will take you.
  *
  * @return The sections for the My Jetpack tab panel.
  */
@@ -23,10 +37,6 @@ export function getMyJetpackSections(): TabPanelProps[ 'tabs' ] {
 		{
 			name: MY_JETPACK_SECTION_OVERVIEW,
 			title: __( 'Overview', 'jetpack-my-jetpack' ),
-		},
-		{
-			name: MY_JETPACK_SECTION_PRODUCTS,
-			title: __( 'Products', 'jetpack-my-jetpack' ),
 		},
 		{
 			name: MY_JETPACK_SECTION_FEATURES,
@@ -55,5 +65,5 @@ export function getDefaultMyJetpackSection() {
  * @return True if the section is valid, false otherwise.
  */
 export function isValidMyJetpackSection( section: string ) {
-	return getMyJetpackSections().some( item => item.name === section );
+	return getAllMyJetpackSections().includes( section );
 }

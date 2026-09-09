@@ -4,63 +4,13 @@
 import buildOptionalMenuItems from '../build-optional-menu-items';
 
 const baseArgs = {
-	adminUrl: 'https://example.com/wp-admin/',
 	isDevVersion: false,
 	userIsAdmin: true,
-	isSiteConnected: true,
-	isJetpackPluginActive: true,
-	isSimpleSite: false,
-	onModulesClick: jest.fn(),
 	onResetClick: jest.fn(),
 	onResetKeyDown: jest.fn(),
 };
 
 describe( 'buildOptionalMenuItems', () => {
-	describe( 'Modules link', () => {
-		it( 'includes the Modules link for an admin on a connected self-hosted site', () => {
-			const items = buildOptionalMenuItems( baseArgs );
-
-			expect( items ).toHaveLength( 1 );
-			expect( items[ 0 ] ).toMatchObject( {
-				label: 'Modules',
-				href: 'https://example.com/wp-admin/admin.php?page=jetpack_modules',
-			} );
-		} );
-
-		it( 'omits the Modules link for non-admin users', () => {
-			const items = buildOptionalMenuItems( { ...baseArgs, userIsAdmin: false } );
-
-			expect( items.find( item => item.label === 'Modules' ) ).toBeUndefined();
-		} );
-
-		it( 'omits the Modules link when the site is not connected', () => {
-			const items = buildOptionalMenuItems( { ...baseArgs, isSiteConnected: false } );
-
-			expect( items.find( item => item.label === 'Modules' ) ).toBeUndefined();
-		} );
-
-		it( 'omits the Modules link when the main Jetpack plugin is not active', () => {
-			const items = buildOptionalMenuItems( { ...baseArgs, isJetpackPluginActive: false } );
-
-			expect( items.find( item => item.label === 'Modules' ) ).toBeUndefined();
-		} );
-
-		it( 'omits the Modules link on WordPress.com Simple sites', () => {
-			const items = buildOptionalMenuItems( { ...baseArgs, isSimpleSite: true } );
-
-			expect( items.find( item => item.label === 'Modules' ) ).toBeUndefined();
-		} );
-
-		it( 'invokes onModulesClick when the Modules link is clicked', () => {
-			const onModulesClick = jest.fn();
-			const items = buildOptionalMenuItems( { ...baseArgs, onModulesClick } );
-
-			items[ 0 ].onClick?.();
-
-			expect( onModulesClick ).toHaveBeenCalledTimes( 1 );
-		} );
-	} );
-
 	describe( 'Reset options entry (dev only)', () => {
 		it( 'includes the Reset options entry for an admin on a dev build', () => {
 			const items = buildOptionalMenuItems( { ...baseArgs, isDevVersion: true } );
@@ -108,8 +58,6 @@ describe( 'buildOptionalMenuItems', () => {
 		const items = buildOptionalMenuItems( {
 			...baseArgs,
 			userIsAdmin: false,
-			isSiteConnected: false,
-			isJetpackPluginActive: false,
 			isDevVersion: false,
 		} );
 
