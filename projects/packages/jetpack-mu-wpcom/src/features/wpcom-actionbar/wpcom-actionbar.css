@@ -1,0 +1,880 @@
+div#actionbar .no-display {
+	display: none !important;
+}
+
+div#actionbar * {
+	box-sizing: border-box;
+	outline: none;
+	-webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+	user-select: none;
+	-webkit-user-select: none;
+}
+
+div#actionbar {
+	background: #fff;
+	position: fixed;
+	bottom: 10px;
+	right: 10px;
+	border: solid 1px #dcdcde;
+	border-radius: 3px;
+	opacity: 0.98;
+	height: 35px;
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+	line-height: 1;
+	z-index: 100000;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+
+	-webkit-transform: translate3d(0, 0, 0);
+	-moz-transform: translate3d(0, 0, 0);
+	-o-transform: translate3d(0, 0, 0);
+	-ms-transform: translate3d(0, 0, 0);
+	transform: translate3d(0, 0, 0);
+
+	transition: all 0.2s ease-in-out;
+
+	-webkit-backface-visibility: hidden;
+	-webkit-perspective: 1000;
+	-webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+
+	user-select: none;
+	-webkit-user-select: none;
+}
+
+div#actionbar.actnbr-hidden {
+	-webkit-transform: translate3d(0, 150px, 0);
+	-moz-transform: translate3d(0, 150px, 0);
+	-o-transform: translate3d(0, 150px, 0);
+	-ms-transform: translate3d(0, 150px, 0);
+	transform: translate3d(0, 150px, 0);
+}
+
+div#actionbar.actnbr-folded {
+	opacity: 0.7;
+}
+
+div#actionbar.actnbr-folded:hover {
+	opacity: 1;
+}
+
+div#actionbar ul {
+	margin: 0;
+	padding: 0;
+	line-height: 1;
+	text-align: left;
+	font-size: 1rem;
+}
+
+div#actionbar li {
+	list-style-type: none;
+	display: inline-block;
+	min-width: 30px;
+	margin: 0;
+	padding: 0;
+	vertical-align: middle;
+	line-height: 1;
+}
+
+div#actionbar li::before {
+	display: none;
+}
+
+div#actionbar li.actnbr-btn {
+	margin: 0 2px 0 6px;
+}
+
+div#actionbar.actnbr-folded li.actnbr-btn {
+	margin-right: -5px;
+}
+
+div#actionbar li.actnbr-btn > a {
+	display: block;
+	color: #787c82;
+	font-size: 13px;
+	font-weight: 400;
+	text-decoration: none;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+	line-height: 1;
+	vertical-align: middle;
+	transition: none;
+	position: relative;
+	padding: 10px 8px 10px 32px;
+	border: none;
+	box-shadow: none;
+}
+
+div#actionbar li.actnbr-btn > a:hover {
+	color: #3c434a;
+	background: none;
+}
+
+div#actionbar li.actnbr-btn > a .gridicon {
+	fill: #787c82;
+	position: absolute;
+	top: 6px;
+	left: 5px;
+}
+
+div#actionbar li.actnbr-btn a:hover .gridicon {
+	fill: #3c434a;
+}
+
+div#actionbar li.actnbr-btn a.actnbr-actn-following,
+div#actionbar li.actnbr-btn a.actnbr-actn-following:hover {
+	color: #008a20;
+}
+
+div#actionbar li.actnbr-btn a.actnbr-actn-following .gridicon,
+div#actionbar li.actnbr-btn a.actnbr-actn-following:hover .gridicon {
+	fill: #008a20;
+}
+
+div#actionbar.actnbr-folded li.actnbr-btn a.actnbr-action .gridicon {
+	top: 2px;
+}
+
+div#actionbar.actnbr-folded li.actnbr-btn a .gridicon {
+	top: 2px;
+}
+
+div#actionbar.actnbr-folded .actnbr-btn span {
+	display: none;
+}
+
+div#actionbar li.actnbr-ellipsis {
+	position: relative;
+	top: -1px;
+	right: 2px;
+	cursor: pointer;
+	padding: 3px 5px 0 8px;
+}
+
+div#actionbar.actnbr-folded li.actnbr-ellipsis {
+	top: 2px;
+}
+
+div#actionbar .actnbr-ellipsis > .gridicon {
+	fill: #3c434a;
+	transition: all 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+	-webkit-transform: rotate(90deg);
+	-moz-transform: rotate(90deg);
+	-o-transform: rotate(90deg);
+	-ms-transform: rotate(90deg);
+	transform: rotate(90deg);
+}
+
+div#actionbar:not(.actnbr-has-actions) .actnbr-ellipsis > .gridicon {
+	margin-top: 3px;
+}
+
+div#actionbar.actnbr-folded:not(.actnbr-has-actions) .actnbr-ellipsis > .gridicon {
+	margin-top: 0;
+}
+
+div#actionbar .actnbr-ellipsis.actnbr-hidden > .gridicon {
+	fill: #787c82;
+	-webkit-transform: rotate(0);
+	-moz-transform: rotate(0);
+	-o-transform: rotate(0);
+	-ms-transform: rotate(0);
+	transform: rotate(0);
+}
+
+div#actionbar .actnbr-ellipsis.actnbr-hidden > .gridicon:hover {
+	fill: #3c434a;
+}
+
+div#actionbar .actnbr-ellipsis .tip-inner .gridicon {
+	margin: 0 5px 0 0;
+	vertical-align: middle;
+	position: relative;
+}
+
+div#actionbar .actnbr-popover {
+	font-size: 14px;
+	padding: 10px;
+	z-index: 1000;
+	margin-left: 15px;
+	position: absolute;
+	bottom: 40px;
+	right: -13px;
+	max-width: 320px;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+}
+
+div#actionbar li.actnbr-btn .actnbr-popover {
+	bottom: 47px;
+	right: 26px;
+}
+
+div#actionbar.actnbr-folded li.actnbr-btn .actnbr-popover {
+	right: 21px;
+}
+
+div#actionbar .actnbr-hidden .actnbr-popover {
+	display: none;
+}
+
+div#actionbar .actnbr-popover.tip-top-left .tip-arrow {
+	bottom: 0;
+	right: 21px;
+	margin-left: -7px;
+	border-top-style: solid;
+	border-bottom: none;
+	border-left-color: transparent;
+	border-right-color: transparent;
+}
+
+div#actionbar li.actnbr-btn .actnbr-popover.tip-top-left .tip-arrow {
+	left: 74%;
+}
+
+div#actionbar.actnbr-folded li.actnbr-btn .actnbr-popover.tip-top-left .tip-arrow {
+	left: 85%;
+}
+
+div#actionbar .actnbr-popover .tip-arrow {
+	border: 10px dashed #dcdcde;
+	height: 0;
+	line-height: 0;
+	position: absolute;
+	width: 0;
+}
+
+div#actionbar .actnbr-popover.tip-top-left .tip-arrow::before {
+	bottom: 2px;
+	border: 10px solid #fff;
+	content: " ";
+	position: absolute;
+	left: 50%;
+	margin-left: -10px;
+	border-top-style: solid;
+	border-bottom: none;
+	border-left-color: transparent;
+	border-right-color: transparent;
+}
+
+div#actionbar .actnbr-popover .tip-inner {
+	background-color: #fff;
+	border: 1px solid #dcdcde;
+	border-radius: 4px;
+	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1), 0 0 56px rgba(0, 0, 0, 0.075);
+	text-align: center;
+}
+
+div#actionbar li.actnbr-btn .actnbr-popover .tip-inner .actnbr-reader a {
+	display: block;
+	margin: 0 0 4px 0;
+	font-weight: 400;
+	text-decoration: none;
+	color: #3c434a;
+	border: none;
+}
+
+div#actionbar li.actnbr-btn .actnbr-popover .tip-inner .actnbr-reader a::before {
+	content: "\f8a3";
+	font-family: Noticons;
+	font-size: 25px;
+	margin-right: 3px;
+	line-height: 1;
+	top: 7px;
+	position: relative;
+}
+
+div#actionbar .tip ul {
+	margin-bottom: 10px;
+}
+
+div#actionbar .tip li {
+	display: block;
+	border: none;
+}
+
+div#actionbar .tip li > a {
+	position: relative;
+	background: inherit;
+	border: none;
+	box-shadow: none;
+	border-radius: 0;
+	color: #2e4453;
+	cursor: pointer;
+	display: block;
+	font-size: 14px;
+	font-weight: 400;
+	margin: 0;
+	padding: 10px 16px;
+	text-align: left;
+	transition: all 0.05s ease-in-out;
+	min-width: 250px;
+	outline: none;
+	text-decoration: none;
+}
+
+div#actionbar li.actnbr-sitename {
+	border-bottom: 1px solid #f0f0f0;
+	margin-bottom: 10px;
+}
+
+div#actionbar .actnbr-ellipsis .actnbr-fold,
+div#actionbar .actnbr-notice .actnbr-login-nudge {
+	border-top: 1px solid #f0f0f0;
+	margin-top: 10px;
+}
+
+div#actionbar .actnbr-ellipsis .actnbr-folded-following,
+div#actionbar .actnbr-ellipsis .actnbr-folded-follow {
+	border-bottom: 1px solid #f0f0f0;
+	padding-bottom: 10px;
+	margin-bottom: 10px;
+}
+
+div#actionbar .actnbr-notice .actnbr-follow-count {
+	margin-bottom: 10px;
+}
+
+div#actionbar .actnbr-ellipsis li a:hover .gridicon {
+	fill: #fff;
+}
+
+div#actionbar .actnbr-ellipsis li .actnbr-actn-following:hover .gridicon path {
+	fill: #fff;
+}
+
+div#actionbar .actnbr-ellipsis li .actnbr-actn-following:hover .gridicon .following-icon-tick {
+	fill: none;
+	stroke: #fff;
+}
+
+div#actionbar .actnbr-notice form,
+div#actionbar .actnbr-notice .actnbr-login-nudge {
+	font-size: 12px;
+	color: #2e4453;
+	line-height: 17px;
+}
+
+div#actionbar .actnbr-notice form {
+	padding: 2px 16px 6px;
+}
+
+div#actionbar .actnbr-notice .actnbr-login-nudge {
+	padding: 10px 16px 5px;
+}
+
+div#actionbar .actnbr-notice form input {
+	background: #fff;
+	color: #2e4453;
+	border: 1px solid #dcdcde;
+	font-family: inherit;
+	font-size: 14px;
+	text-indent: 10px;
+	height: 40px;
+	width: 100%;
+	margin-bottom: 12px;
+	padding: 0;
+	user-select: text;
+	-webkit-user-select: text;
+}
+
+div#actionbar .actnbr-notice form button {
+	background: #3c434a;
+	border-color: #dcdcde;
+	color: #fff;
+	border-style: solid;
+	border-width: 1px 1px 2px;
+	cursor: pointer;
+	display: inline-block;
+	margin: 0;
+	outline: 0;
+	overflow: hidden;
+	font-weight: 500;
+	text-overflow: ellipsis;
+	text-decoration: none;
+	vertical-align: top;
+	box-sizing: border-box;
+	font-size: 14px;
+	line-height: 21px;
+	border-radius: 4px;
+	padding: 7px 14px 9px;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	appearance: none;
+	font-family: inherit;
+	text-transform: none;
+	-webkit-font-smoothing: auto;
+	height: auto;
+	width: 100%;
+}
+
+div#actionbar .actnbr-notice form button[disabled] {
+	background: #bceefd;
+	border-color: #dcdcde;
+	color: #fff;
+}
+
+div#actionbar .actnbr-notice .actnbr-button-wrap {
+	text-align: right;
+}
+
+div#actionbar .actnbr-notice form button:hover {
+	border-color: #3c434a;
+	color: #fff;
+}
+
+div#actionbar .actnbr-notice form button:focus {
+	border-color: #3c434a;
+	box-shadow: 0 0 0 2px #dcdcde;
+}
+
+div#actionbar .actnbr-notice .actnbr-login-nudge a {
+	color: inherit;
+	text-decoration: underline;
+}
+
+div#actionbar .actnbr-notice .actnbr-login-nudge a:hover {
+	color: #3c434a;
+}
+
+div#actionbar li.actnbr-sitename a {
+	font-size: 14px;
+	font-weight: 700;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+	color: #2e4453;
+	text-decoration: none;
+	text-align: left;
+	border: none;
+	vertical-align: middle;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	line-height: 1.7;
+}
+
+div#actionbar li.actnbr-sitename img {
+	width: 25px;
+	height: 25px;
+	vertical-align: middle;
+	margin: -1px 5px 0 0;
+	display: inline;
+	border-radius: 0;
+	padding: 0;
+}
+
+div#actionbar .actnbr-ellipsis li a:hover {
+	background: #3c434a;
+	color: #fff;
+	text-decoration: none;
+	border: 0;
+	box-shadow: none;
+}
+
+div#actionbar li.actnbr-sitename a:hover {
+	background: transparent;
+	color: #2e4453;
+	margin: 0;
+}
+
+div#actionbar .actnbr-fold {
+	padding-top: 10px;
+}
+
+div#actionbar .actnbr-ellipsis li.actnbr-folded-follow a {
+	align-items: center;
+	display: flex;
+}
+
+div#actionbar.actnbr-has-follow .actnbr-ellipsis li.actnbr-folded-follow {
+	display: none;
+}
+
+div#actionbar .actnbr-notice .tip-inner {
+	padding: 0;
+}
+
+div#actionbar .actnbr-notice .actnbr-message {
+	padding: 15px 20px 20px;
+	width: 250px;
+	text-align: center;
+	line-height: 20px;
+	color: #2e4453;
+}
+
+div#actionbar .actnbr-notice .actnbr-message h3 {
+	margin: 0 0 10px;
+	font-size: 22px;
+	font-weight: 400;
+	font-family: inherit;
+	font-style: normal;
+	font-variant: normal;
+	text-transform: none;
+	text-decoration: none;
+	color: #2e4453;
+	padding: 0;
+	line-height: 1;
+}
+
+div#actionbar .actnbr-notice .actnbr-message a {
+	color: inherit;
+	text-decoration: underline;
+}
+
+div#actionbar .actnbr-notice .actnbr-message a:hover {
+	color: #3c434a;
+}
+
+div#actionbar .actnbr-theme a {
+	text-overflow: ellipsis;
+	overflow: hidden;
+	white-space: nowrap;
+}
+
+div#actionbar .actnbr-follow-bubble .actnbr-site-settings {
+	display: flex;
+	flex-direction: column;
+	color: #2e4453;
+}
+
+div#actionbar .actnbr-follow-bubble .actnbr-site-settings a,
+div#actionbar .actnbr-follow-bubble .actnbr-site-settings a:hover {
+	color: #3c434a;
+}
+
+div#actionbar .actnbr-follow-bubble .actnbr-site-settings__setting {
+	padding: 10px 15px;
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+}
+
+div#actionbar .actnbr-follow-bubble .actnbr-site-settings__setting label.components-toggle-control__label {
+	color: #2e4453;
+	margin: 0;
+	font-style: normal;
+	font-size: 14px;
+	font-weight: 300;
+	width: 100%;
+}
+
+div#actionbar .actnbr-follow-bubble .actnbr-site-settings p.actnbr-site-settings__details {
+	margin: 12px 0;
+	line-height: 1.5;
+}
+
+div#actionbar .actnbr-follow-bubble span.actnbr-site-settings__toggle {
+	position: relative;
+	display: inline-block;
+	margin-right: 12px;
+}
+
+div#actionbar .actnbr-follow-bubble .actnbr-site-settings__toggle__input[type="checkbox"] {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	opacity: 0;
+	margin: 0;
+	padding: 0;
+	z-index: 1;
+	border: none;
+	cursor: pointer;
+}
+
+div#actionbar .actnbr-follow-bubble span.actnbr-site-settings__toggle__track {
+	content: "";
+	display: inline-block;
+	box-sizing: border-box;
+	vertical-align: top;
+	background-color: #fff;
+	border: 1px solid #1e1e1e;
+	width: 36px;
+	height: 18px;
+	border-radius: 9px;
+	transition: 0.2s background ease;
+}
+
+div#actionbar .actnbr-follow-bubble .actnbr-site-settings__toggle.is-checked span.actnbr-site-settings__toggle__track {
+	background-color: #000;
+}
+
+div#actionbar .actnbr-follow-bubble span.actnbr-site-settings__toggle__thumb {
+	display: block;
+	position: absolute;
+	box-sizing: border-box;
+	top: 3px;
+	left: 3px;
+	width: 12px;
+	height: 12px;
+	border-radius: 50%;
+	transition: 0.1s transform ease;
+	background-color: #1e1e1e;
+	border: 5px solid #1e1e1e;
+}
+
+div#actionbar .actnbr-follow-bubble .actnbr-site-settings__toggle.is-checked span.actnbr-site-settings__toggle__thumb {
+	background-color: #fff;
+	border-width: 0;
+	transform: translateX(18px);
+}
+
+div#actionbar .actnbr-site-settings__toggle__input[type="checkbox"]::before {
+	content: "";
+}
+
+div#actionbar .actnbr-follow-bubble .actnbr-site-settings__toggle__input[type="checkbox"]:checked {
+	background: none;
+}
+
+div#actionbar .actnbr-site-settings__details {
+	font-size: 12px;
+	padding: 0 15px;
+}
+
+div#actionbar .actnbr-site-settings__details#email-new-posts-details {
+	display: none;
+}
+
+div#actionbar .actnbr-site-settings__details.is-visible#email-new-posts-details {
+	display: block;
+}
+
+div#actionbar .segmented-control {
+	display: flex;
+	margin: 0;
+	border-radius: 2px;
+	list-style: none;
+}
+
+div#actionbar .segmented-control__item {
+	flex: 1 1 auto;
+	cursor: pointer;
+}
+
+div#actionbar .actnbr-follow-bubble .actnbr-site-settings .segmented-control__item:first-of-type a.segmented-control__link {
+	border-top-left-radius: 2px;
+	border-bottom-left-radius: 2px;
+}
+
+div#actionbar .actnbr-follow-bubble .actnbr-site-settings .segmented-control__item:last-of-type a.segmented-control__link {
+	border-right: solid 1px #c3c4c7;
+	border-top-right-radius: 2px;
+	border-bottom-right-radius: 2px;
+}
+
+div#actionbar .segmented-control__item.is-selected + .segmented-control__item .segmented-control__link {
+	border-left: none;
+}
+
+div#actionbar .actnbr-follow-bubble .actnbr-site-settings a.segmented-control__link {
+	display: block;
+	padding: 8px 12px;
+	border: solid 1px #c3c4c7;
+	border-right: none;
+	line-height: 18px;
+	color: #646970;
+	text-align: center;
+	transition: color 0.1s linear, background-color 0.1s linear;
+	min-width: 0;
+}
+
+div#actionbar .actnbr-follow-bubble .actnbr-site-settings a.segmented-control__link:focus {
+	color: #3c434a;
+	outline: none;
+}
+
+div#actionbar .actnbr-follow-bubble .actnbr-site-settings .segmented-control__item.is-selected a.segmented-control__link {
+	border: 1px solid #3c434a;
+	color: #3c434a;
+}
+
+div#actionbar .segmented-control__text {
+	display: block;
+	max-width: 100%;
+	color: inherit;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	overflow: hidden;
+}
+
+div#actionbar .actnbr-shortlink .actnbr-shortlink__icon {
+	display: none;
+	vertical-align: middle;
+	margin-left: 5px;
+	transition: opacity 0.2s ease-in-out;
+	float: right;
+	margin-top: -2px;
+}
+
+div#actionbar .actnbr-shortlink textarea {
+	position: fixed;
+	opacity: 0;
+	z-index: -1;
+	left: -9999px;
+}
+
+div#actionbar .actnbr-shortlink .actnbr-shortlink__copied {
+	pointer-events: none;
+	opacity: 0.5;
+}
+
+div#actionbar .actnbr-shortlink .actnbr-shortlink__copied .actnbr-shortlink__icon {
+	display: inline-block;
+}
+
+div#actionbar .actnbr-shortlink .actnbr-shortlink__copied .actnbr-shortlink__text,
+div#actionbar .actnbr-shortlink .actnbr-shortlink__copied:hover .actnbr-shortlink__text {
+	color: #008a20;
+}
+
+div#actionbar .actnbr-shortlink .actnbr-shortlink__copied .gridicon,
+div#actionbar .actnbr-shortlink .actnbr-shortlink__copied:hover .gridicon {
+	fill: #008a20;
+}
+
+/* Responsive Styles */
+@media ( max-width: 660px ) {
+
+	div#actionbar {
+		bottom: 0;
+		right: 0;
+		padding: 5px 13px;
+		border-radius: 0;
+		width: 100%;
+		height: 44px;
+	}
+
+	div#actionbar.actnbr-folded {
+		opacity: 0.9;
+		width: auto;
+		padding: 5px 10px;
+	}
+
+	div#actionbar > ul {
+		text-align: right;
+	}
+
+	div#actionbar .actnbr-popover {
+		right: -10px;
+	}
+
+	div#actionbar .actnbr-popover.tip-top-left .tip-arrow {
+		right: 17px;
+	}
+
+	div#actionbar li.actnbr-btn .actnbr-popover {
+		right: -3px;
+	}
+
+	div#actionbar li.actnbr-btn .actnbr-popover.tip-top-left .tip-arrow {
+		left: 53%;
+	}
+
+	div#actionbar.actnbr-folded li.actnbr-btn {
+		margin-right: 3px !important;
+	}
+}
+
+/***** Position adjustments for specific themes that conflict with action bar */
+
+div#actionbar.actnbr-premium-espresso { /* Espresso */
+	right: 70px;
+}
+
+div#actionbar.actnbr-premium-shelf { /* Shelf */
+	left: 10px;
+	right: auto;
+}
+
+div#actionbar.actnbr-premium-shelf .actnbr-popover {
+	right: auto;
+	left: -35px;
+}
+
+div#actionbar.actnbr-premium-shelf .actnbr-popover.tip-top-left .tip-arrow {
+	right: auto;
+	left: 29px;
+}
+
+div#actionbar.actnbr-premium-shelf li.actnbr-btn .actnbr-popover.tip-top-left .tip-arrow,
+div#actionbar.actnbr-premium-shelf.actnbr-folded li.actnbr-btn .actnbr-popover.tip-top-left .tip-arrow {
+	left: 26px;
+}
+
+div#actionbar.actnbr-premium-shelf li.actnbr-btn .actnbr-popover,
+div#actionbar.actnbr-premium-shelf.actnbr-folded li.actnbr-btn .actnbr-popover {
+	right: 102px;
+	left: -26px;
+}
+
+body.has-playbar div#actionbar.actnbr-premium-obsidian { /* Obsidian */
+	bottom: 50px;
+}
+
+div#actionbar.actnbr-pub-boardwalk { /* Nowhere to go in boardwalk */
+	display: none;
+}
+
+body #habla_window_div.habla_window_div_base { /* Move the live chat box when needed */
+	margin-right: 160px !important;
+}
+
+div#translator-launcher { /* Move community translator tool when needed */
+	bottom: 67px;
+	right: 10px;
+	left: auto;
+}
+
+@media ( min-width: 876px ) { /* Move o2 dock count on desktop. */
+	div#o2-dock {
+		right: 230px;
+	}
+}
+
+@media ( max-width: 876px ) { /* Prioritize the o2 dock count in small screens, on top of Actionbar. */
+	div#o2-dock {
+		z-index: 50001;
+	}
+}
+
+#scrollUp,
+.to-top,
+#back-to-top { /* Up arrow on some themes */
+	bottom: 55px;
+	right: 18px;
+}
+
+#colophon #searchform input.search-field { /* Onigiri search box */
+	bottom: 65px;
+}
+
+#container #masthead #site-branding { /* Suidobashi site title */
+	z-index: 49999;
+	bottom: 65px;
+}
+
+/***** End theme adjustments */
+
+
+/* Hide Admin bar items */
+li#wp-admin-bar-follow,
+ul#wp-admin-bar-blog-secondary {
+	display: none !important;
+}
+
+/* Hide when printing */
+@media print {
+
+	#actionbar {
+		display: none !important;
+	}
+}
+
+/* Near-instant transitions for users who prefer reduced motion. */
+@media (prefers-reduced-motion: reduce) {
+
+	div#actionbar,
+	div#actionbar .actnbr-ellipsis > .gridicon,
+	div#actionbar .tip li > a {
+		transition-duration: 1ms !important;
+	}
+}
