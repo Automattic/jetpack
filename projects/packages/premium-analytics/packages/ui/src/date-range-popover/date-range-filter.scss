@@ -16,7 +16,7 @@
 .date-range-popover-content--calendar-only {
 	display: flex;
 	flex-direction: column;
-	background-color: #fff;
+	background-color: var(--wpds-color-background-surface-neutral-strong);
 }
 
 .date-range-calendar-wrapper {
@@ -29,7 +29,7 @@
 
 	padding: var(--wca-calendar-padding);
 	width: var(--wca-calendar-width);
-	background-color: #fff;
+	background-color: var(--wpds-color-background-surface-neutral-strong);
 
 	&__wide {
 		width: var(--wca-calendar-width-wide);
@@ -46,7 +46,7 @@
 
 .date-range-popover-actions {
 	padding: calc(var(--wca-popover-padding) / 2) var(--wca-popover-padding);
-	background-color: #fff;
+	background-color: var(--wpds-color-background-surface-neutral-strong);
 }
 
 /* disable animation for the date range popover */
