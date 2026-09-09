@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add WordPress.com, Google and Facebook sign-in to the comment form through a popup, with a signed cookie that remembers returning commenters.

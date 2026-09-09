@@ -1,6 +1,8 @@
+import clsx from 'clsx';
 import { render } from 'preact';
 import { useContext, useEffect, useRef } from 'preact/hooks';
 import { CommentingAs, Identity } from '../identity';
+import { markTraySeen, traySeen } from '../identity/tray';
 import { CommentSignals, createSignals } from '../shared/state';
 import { CommentField } from './comment-field';
 import { markSubmitted, resolveSubmitted, saveDraft } from './draft';
@@ -18,9 +20,31 @@ type CommentFormProps = {
 const DRAFT_DEBOUNCE_MS = 300;
 
 const CommentForm = ( { form }: CommentFormProps ) => {
-	const { formSettings, commentParent, commentValue, isSavingComment } =
-		useContext( CommentSignals );
+	const {
+		formSettings,
+		commentParent,
+		commentValue,
+		isEmptyComment,
+		isSavingComment,
+		isTrayOpen,
+		signedIn,
+	} = useContext( CommentSignals );
 	const isSubmitting = useRef( false );
+
+	// Typing opens the tray, so a guest meets the sign-in row before the button
+	// and a signed-in reader sees who they are, once.
+	useEffect( () => {
+		if ( isEmptyComment.value || isTrayOpen.value ) {
+			return;
+		}
+
+		if ( ! signedIn.value ) {
+			isTrayOpen.value = true;
+		} else if ( ! traySeen() ) {
+			markTraySeen();
+			isTrayOpen.value = true;
+		}
+	}, [ isEmptyComment.value, signedIn.value, isTrayOpen ] );
 
 	useEffect( () => {
 		const parentInput = form.querySelector< HTMLInputElement >( '#comment_parent' );
@@ -91,7 +115,13 @@ const CommentForm = ( { form }: CommentFormProps ) => {
 	return (
 		<>
 			<CommentField />
-			<Identity />
+			{ ! JetpackComments.isLoggedIn && (
+				<div className={ clsx( 'jetpack-comments__tray', { 'is-open': isTrayOpen.value } ) }>
+					<div>
+						<Identity />
+					</div>
+				</div>
+			) }
 			<div className="jetpack-comments__footer">
 				<CommentingAs />
 				<SubmitButton />

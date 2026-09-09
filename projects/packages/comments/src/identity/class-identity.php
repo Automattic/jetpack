@@ -28,6 +28,7 @@ class Identity {
 				'url'    => $commenter['comment_author_url'],
 			),
 			'user'       => null,
+			'identity'   => self::checkpoint_settings(),
 		);
 
 		if ( is_user_logged_in() ) {
@@ -41,6 +42,42 @@ class Identity {
 				),
 			);
 		}
+
+		return $settings;
+	}
+
+	/**
+	 * What the form needs to open the popup.
+	 *
+	 * Nothing here is about the visitor. This HTML is page-cached and served to
+	 * everyone, so who holds a passport comes from a cookie the script reads.
+	 *
+	 * @return array
+	 */
+	private static function checkpoint_settings() {
+		$settings = array(
+			'providers'     => array(),
+			'connect'       => array(),
+			'origin'        => Checkpoint::MESSAGE_ORIGIN,
+			'codeField'     => Checkpoint::CODE_FIELD,
+			'passportField' => Checkpoint::PASSPORT_FIELD,
+			'displayCookie' => Passport::DISPLAY_COOKIE,
+			'cookiePath'    => COOKIEPATH,
+			'cookieDomain'  => COOKIE_DOMAIN ? COOKIE_DOMAIN : '',
+			'refreshUrl'    => Checkpoint_Endpoint::connect_url(),
+			'logoutUrl'     => admin_url( 'admin-ajax.php' ),
+			'logoutAction'  => Checkpoint_Endpoint::LOGOUT_ACTION,
+		);
+
+		if ( is_user_logged_in() || ! Checkpoint::is_available() ) {
+			return $settings;
+		}
+
+		// These URLs get cached too, so visitors share a challenge until it
+		// expires. That is fine: the challenge only filters messages to the
+		// window that opened the popup, and the refresh route issues a fresh one.
+		$settings['providers'] = Checkpoint::PROVIDERS;
+		$settings['connect']   = Checkpoint::connect_urls( Checkpoint::challenge() );
 
 		return $settings;
 	}

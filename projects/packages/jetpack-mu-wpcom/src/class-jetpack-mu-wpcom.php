@@ -95,6 +95,7 @@ class Jetpack_Mu_Wpcom {
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_wpcom_simple_jetpack_ai' ) );
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_verbum_comments' ) );
+			add_action( 'plugins_loaded', array( __CLASS__, 'load_jetpack_comments_routes' ) );
 			add_action( 'plugins_loaded', array( __CLASS__, 'load_verbum_moderate' ) );
 			add_action( 'wp_loaded', array( __CLASS__, 'load_verbum_comments_admin' ) );
 			// Registered at mu-plugin scope rather than on plugins_loaded, because
@@ -818,6 +819,19 @@ class Jetpack_Mu_Wpcom {
 
 			require_once __DIR__ . '/features/verbum-comments/class-verbum-comments.php';
 			new \Automattic\Jetpack\Verbum_Comments();
+		}
+	}
+
+	/**
+	 * Register Jetpack Comments' browser-facing routes ahead of the comment
+	 * experience gates. admin-ajax is is_admin(), and a public-api request runs
+	 * plugins_loaded on the wrong blog, so load_verbum_comments() skips both.
+	 * Runs on every request, blog 1 and P2s included, on purpose: the routes
+	 * gate themselves on the feature filter, as Posts_To_Podcast_Endpoint does.
+	 */
+	public static function load_jetpack_comments_routes() {
+		if ( class_exists( '\Automattic\Jetpack\Comments\Checkpoint_Endpoint' ) ) {
+			\Automattic\Jetpack\Comments\Checkpoint_Endpoint::init();
 		}
 	}
 

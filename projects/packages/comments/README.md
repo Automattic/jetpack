@@ -20,36 +20,44 @@ only makes the second, so on Simple the filter would be read before it was added
 The form renders on the site the comment is posted to, and posts to that site's own `wp-comments-post.php`. No iframe, and no call to WordPress.com, so it behaves the same on Simple, Atomic and self-hosted.
 
 - A textarea that grows as you type.
+- Sign in with WordPress.com, Google or Facebook, through a popup rather than an iframe. See "The checkpoint" below.
 - Name, email and website for logged-out readers, honoring `require_name_email` and the comment cookies opt-in. These use core's own field names.
 - An identity line and a log-out link for readers logged in to the site itself.
 - Reply threading, by watching the `comment_parent` input WordPress rewrites.
 
-Sites that require registration get the same form with a log-in prompt in place of the guest fields, and the submit button held disabled.
+Sites that require registration take a popup sign-in as registration. Where no sign-in is available (a site with no blog token) they get a log-in prompt in place of the guest fields, and the submit button held disabled.
+
+## The checkpoint
+
+The popup opens `https://public-api.wordpress.com/connect/?comment_identity=1` with the blog id, provider, a 32-byte challenge, the site's origin, a nine-minute expiry (WordPress.com allows ten, the spare minute absorbs clock skew) and an HMAC-SHA256 signature over those five, keyed with the blog token secret. On Simple there is no blog token, and the code is already inside WordPress.com, so the Consulate signs with its own key. A click after the expiry fetches a fresh URL from `wpcom/v2/comments/identity/connect` before opening. That route goes through the WPCOM REST API v2 loader, so it is same-origin on self-hosted and Atomic and served by `public-api.wordpress.com/wpcom/v2/sites/{id}/…` on Simple.
+
+The popup posts back `{ type: 'jetpack-comment-identity', code, name, avatar, challenge }`, or an error, and only a message from `https://public-api.wordpress.com` carrying the current challenge is read. The form shows the name and avatar and carries the code in a hidden field. When the comment posts, the site redeems the code server-side over `wpcom/v2/sites/{blog_id}/comments/identity/exchange`, fills the author and email from the answer, and treats the commenter as registered. Codes are single use and good for an hour.
+
+A successful exchange also sets two first-party cookies with the same expiry. `jetpack_comment_identity` is the passport: httponly, signed with the site's auth salt over the blog id too, so it is refused on any other site of a network, carrying the id, provider, name, email and avatar, and read only by the server when a comment posts. `jetpack_comment_identity_display` carries provider, name and avatar for the page's script to draw the signed-in row from. It has to be a cookie: the HTML is page-cached and served to everyone, so nothing about the visitor can be rendered into it, which is also why the signed popup URLs in the page are shared until they expire.
+
+A returning commenter is admitted on the passport alone for as long as it lasts, up to 30 days, without going back to WordPress.com. The form says so with a hidden `jetpack_comment_identity_passport` field, and the server reads the passport only when that field is posted, so a log-out that never reached the server still leaves the reader posting as the guest the form showed them as. That is deliberate: consent for this site was given on the connect page, and the exchange already returned everything the comment needs. "Log out" posts the `jetpack_comments_identity_logout` admin-ajax action, which takes both cookies back. That is admin-ajax rather than REST because only the site's own host can clear its first-party cookie, and on Simple that host serves no REST API. A spent or expired code clears them and asks the reader to sign in again.
 
 ## Not here yet
-
-Two parts of the experience this replaces are deliberately left for a later phase.
-
-**Social login.** Commenting as a WordPress.com or Facebook account, and the `hc_post_as`, `hc_foreign_user_id` and `hc_avatar` meta that carries it. Until it lands, a site that requires registration only offers a local account, so this is not yet a like-for-like replacement anywhere that relies on WordPress.com login.
 
 **Subscriptions.** The "email me new comments" and "email me new posts" options, and the modal after submitting. Jetpack Subscriptions adds its checkboxes through `comment_form_submit_field`, which this form replaces wholesale, so they are dropped while the filter is on. On Simple the older `subscription_comment_form` output is removed for the same reason, so that no host shows a subscribe option rather than one showing it and another not.
 
 ## What it stores
 
-Nothing beyond what WordPress already keeps. A comment's author, email and URL go
-in the comment row, written by core, and the avatar is derived from the email at
-display time. No comment meta is written at all.
+A comment's author, email and URL go in the comment row, written by core. A
+comment left through the checkpoint also gets three meta keys, written from the
+exchange answer and never from the request: `jetpack_comment_identity_id`, the
+opaque per-site id WordPress.com derives for the person; `jetpack_comment_identity_provider`;
+and `jetpack_comment_identity_avatar`, served through the image CDN at display time.
 
-That is deliberate. The experience this replaces writes `hc_post_as`,
-`hc_foreign_user_id`, `hc_avatar` and `hc_wpcom_id_sig`, and those exist to carry
-an identity WordPress cannot derive from an email address. Guests and users logged
-in to the site itself are both derivable, so there is nothing to record.
+Guests and users logged in to the site itself get no meta at all, because both
+are derivable from what core already keeps.
 
-The rule to apply when that changes: **store a field in the same change that adds
-something which reads it.** `hc_avatar` is read when rendering a comment, so this
-package reads it too, for comments that already carry one. `hc_foreign_user_id` is
-read only for the `wordpress` provider, alongside a signature that verifies it,
-which is the shape worth copying.
+The experience this replaces wrote `hc_post_as`, `hc_foreign_user_id`,
+`hc_avatar` and `hc_wpcom_id_sig`. Nothing here writes those, but `hc_avatar` is
+still read for comments that already carry one, with the host check it always had.
+
+The rule to apply when adding a key: **store a field in the same change that adds
+something which reads it.**
 
 ## Layout
 
@@ -61,6 +69,7 @@ src/
   class-avatars.php     avatars on comments already written
   form/                 takeover, mount, nonce, layout, the text box, submit
   identity/             who is commenting: guest fields, log-in prompt, attribution
+    checkpoint/         the popup sign-in, the exchange, the passport cookie, its REST routes
   ui/                   widgets shared across the form
   shared/               signals, and the PHP-to-JS settings shape
 ```
@@ -68,6 +77,9 @@ src/
 Sections appear when there is something to put in them. Subscriptions, a block
 editor and submission handling each earn a directory once they exist, and a REST
 route belongs to the feature it serves rather than to a folder of endpoints.
+
+The comment meta this writes is on Jetpack Sync's comment meta whitelist, so it
+reaches WordPress.com from Jetpack and Atomic sites the way `hc_avatar` does.
 
 ## Where it loads from
 
