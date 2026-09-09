@@ -108,6 +108,28 @@ export function validateDescription( value ) {
 }
 
 /**
+ * Validate a percentage tax rate.
+ *
+ * Required and above zero. The upper bound is the control's own max attribute -
+ * PayPal's real limit has never been measured.
+ *
+ * @param {string} value - The tax rate.
+ * @return {string|null} Error message or null if valid.
+ */
+export function validateTaxRate( value ) {
+	const num = parseFloat( value );
+
+	if ( isNaN( num ) || num <= 0 ) {
+		return __(
+			'To continue, add the requested info or turn off this feature.',
+			'jetpack-paypal-payments'
+		);
+	}
+
+	return null;
+}
+
+/**
  * Map an API error response to a user-friendly message.
  *
  * The server-side already returns user-friendly messages, but this

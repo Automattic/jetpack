@@ -52,6 +52,7 @@ import {
 	validatePrice,
 	validateProductName,
 	validateDescription,
+	validateTaxRate,
 } from './utils/validation';
 
 // Button type is always 'single' — the hosted payment page handles
@@ -177,6 +178,11 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 		[ variantsEnabled, variants ]
 	);
 
+	// PERCENTAGE is the only type that carries a rate, and a missing type counts as one -
+	// the request builder sends PERCENTAGE for it. PayPal also accepts FLAT, which this
+	// form cannot produce but can be handed by a link created elsewhere.
+	const taxIsPercentage = ( taxType || 'PERCENTAGE' ) === 'PERCENTAGE';
+
 	/**
 	 * Compute validation errors for all form fields.
 	 * Memoized to avoid re-computing on every render.
@@ -188,12 +194,22 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 			// it - an error on an invisible field would disable Save with nothing to fix.
 			price: usesVariantPricing ? null : validatePrice( price, currencyCode || 'USD' ),
 			productDescription: validateDescription( productDescription ),
+			taxValue: taxEnabled && taxIsPercentage ? validateTaxRate( taxValue ) : null,
 			currencyCode:
 				currencyCode && ! VALID_CURRENCY_CODES.has( currencyCode )
 					? __( 'Unsupported currency.', 'jetpack-paypal-payments' )
 					: null,
 		} ),
-		[ productName, price, productDescription, currencyCode, usesVariantPricing ]
+		[
+			productName,
+			price,
+			productDescription,
+			currencyCode,
+			usesVariantPricing,
+			taxEnabled,
+			taxIsPercentage,
+			taxValue,
+		]
 	);
 
 	/**
@@ -212,6 +228,7 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 		! validationErrors.price &&
 		! validationErrors.productDescription &&
 		! validationErrors.currencyCode &&
+		! validationErrors.taxValue &&
 		variantErrors.length === 0;
 
 	const {
@@ -675,9 +692,12 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 						onTouch={ markTouched }
 					/>
 				</PanelBody>
+				{ /* A closed PanelBody renders no children, so an error in here reaches nobody.
+				     initialOpen, not a controlled `opened`: the panel opens when there is an
+				     error, and the merchant can still close it. */ }
 				<PanelBody
 					title={ __( 'Checkout Options', 'jetpack-paypal-payments' ) }
-					initialOpen={ false }
+					initialOpen={ !! validationErrors.taxValue }
 				>
 					{ /* WOOPTP-170: Adjustable Quantity */ }
 					<ToggleControl
@@ -729,7 +749,7 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 								onChange={ value => setAttributes( { taxType: value } ) }
 								disabled={ isCreating }
 							/>
-							{ taxType === 'PERCENTAGE' && (
+							{ taxIsPercentage && (
 								<TextControl
 									label={ __( 'Tax rate (%)', 'jetpack-paypal-payments' ) }
 									value={ taxValue || '' }
@@ -740,7 +760,11 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 									step="0.01"
 									placeholder="8.25"
 									disabled={ isCreating }
-									help={ __( 'Percentage added to the product price.', 'jetpack-paypal-payments' ) }
+									help={
+										validationErrors.taxValue ||
+										__( 'Percentage added to the product price.', 'jetpack-paypal-payments' )
+									}
+									className={ validationErrors.taxValue ? 'has-error' : undefined }
 								/>
 							) }
 						</>

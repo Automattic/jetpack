@@ -102,8 +102,10 @@ jest.mock( '@wordpress/components', () => ( {
 			) }
 		</div>
 	),
-	PanelBody: ( { children, title } ) => (
-		<div data-testid="panel-body" data-title={ title }>
+	// The real PanelBody renders nothing when closed, so initialOpen decides whether an
+	// error inside it is on screen at all. The mock always renders, and exposes the prop.
+	PanelBody: ( { children, title, initialOpen } ) => (
+		<div data-testid="panel-body" data-title={ title } data-initial-open={ !! initialOpen }>
 			{ children }
 		</div>
 	),
@@ -1838,6 +1840,29 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			} );
 		}
 
+		/**
+		 * Open the block's edit form, without saving.
+		 *
+		 * @param {object} user - The userEvent instance driving the clicks.
+		 */
+		async function openEditForm( user ) {
+			await expect( screen.findByTestId( 'toolbar-Edit' ) ).resolves.toBeInTheDocument();
+			await user.click( screen.getByTestId( 'toolbar-Edit' ) );
+		}
+
+		/**
+		 * A panel by title. The mock renders closed panels too, so read initialOpen off
+		 * it rather than trusting that an error inside is visible.
+		 *
+		 * @param {string} title - The panel's title.
+		 * @return {Element} The panel element.
+		 */
+		function panel( title ) {
+			return screen
+				.getAllByTestId( 'panel-body' )
+				.find( body => body.getAttribute( 'data-title' ) === title );
+		}
+
 		it( 'offers no tax name to fill in', async () => {
 			const user = userEvent.setup();
 			mockConnected();
@@ -1848,6 +1873,87 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 			expect( screen.queryByLabelText( 'Tax name' ) ).not.toBeInTheDocument();
 			expect( screen.getByLabelText( 'Tax rate (%)' ) ).toBeInTheDocument();
+		} );
+
+		const missingRate = 'To continue, add the requested info or turn off this feature.';
+
+		// An empty rate used to save as a 0% tax - the request sends `taxValue || '0'` and
+		// the server clamps it to 0. The rate field appears when Collect tax is turned on,
+		// so the error shows straight away rather than waiting for a blur.
+		it.each( [
+			[ 'no rate at all', '' ],
+			[ 'a rate of zero', '0' ],
+		] )( 'refuses to save tax with %s', async ( _label, taxValue ) => {
+			const user = userEvent.setup();
+			mockConnected();
+
+			render(
+				<Edit
+					attributes={ { ...attributes, taxValue } }
+					setAttributes={ setAttributes }
+					clientId="a"
+				/>
+			);
+			await openEditForm( user );
+
+			expect( screen.getByText( missingRate ) ).toBeInTheDocument();
+			expect( screen.getByTestId( 'control-Tax rate (%)' ) ).toHaveClass( 'has-error' );
+			expect( screen.getByText( 'Save' ) ).toBeDisabled();
+			expect( panel( 'Checkout Options' ) ).toHaveAttribute( 'data-initial-open', 'true' );
+		} );
+
+		// A missing type saves as a percentage, so it has to ask for a rate like one -
+		// and show the field it is asking about.
+		it( 'asks for a rate when the tax type is missing', async () => {
+			const user = userEvent.setup();
+			mockConnected();
+
+			render(
+				<Edit
+					attributes={ { ...attributes, taxType: '', taxValue: '' } }
+					setAttributes={ setAttributes }
+					clientId="a"
+				/>
+			);
+			await openEditForm( user );
+
+			expect( screen.getByLabelText( 'Tax rate (%)' ) ).toBeInTheDocument();
+			expect( screen.getByText( missingRate ) ).toBeInTheDocument();
+		} );
+
+		it( 'saves a rate that is filled in', async () => {
+			const user = userEvent.setup();
+			mockConnected();
+
+			render( <Edit attributes={ attributes } setAttributes={ setAttributes } clientId="a" /> );
+			await openEditForm( user );
+
+			expect( screen.queryByText( missingRate ) ).not.toBeInTheDocument();
+			expect( screen.getByTestId( 'control-Tax rate (%)' ) ).not.toHaveClass( 'has-error' );
+			expect( screen.getByText( 'Save' ) ).toBeEnabled();
+			expect( panel( 'Checkout Options' ) ).toHaveAttribute( 'data-initial-open', 'false' );
+		} );
+
+		// FLAT is not on the Tax type menu, but a link created outside the block can carry
+		// one and the read-back copies the type through as it is.
+		it.each( [
+			[ 'PayPal keeps the rate', 'PREFERENCE' ],
+			[ 'the tax is a flat amount', 'FLAT' ],
+		] )( 'asks for no rate when %s', async ( _label, taxType ) => {
+			const user = userEvent.setup();
+			mockConnected();
+
+			render(
+				<Edit
+					attributes={ { ...attributes, taxType, taxValue: '' } }
+					setAttributes={ setAttributes }
+					clientId="a"
+				/>
+			);
+			await openEditForm( user );
+
+			expect( screen.queryByText( missingRate ) ).not.toBeInTheDocument();
+			expect( screen.getByText( 'Save' ) ).toBeEnabled();
 		} );
 	} );
 

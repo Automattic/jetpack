@@ -3,7 +3,7 @@
  *
  * Covers client-side validation functions extracted from edit.js:
  * validatePrice, validateProductName, validateDescription,
- * getUserFriendlyError.
+ * validateTaxRate, getUserFriendlyError.
  *
  * @package
  */
@@ -20,6 +20,7 @@ import {
 	validatePrice,
 	validateProductName,
 	validateDescription,
+	validateTaxRate,
 	getUserFriendlyError,
 	MAX_NAME_LENGTH,
 	MAX_DESCRIPTION_LENGTH,
@@ -131,6 +132,39 @@ describe( 'validateDescription', () => {
 	it( 'returns null for a description at exactly MAX_DESCRIPTION_LENGTH', () => {
 		const maxDesc = 'a'.repeat( 256 );
 		expect( validateDescription( maxDesc ) ).toBeNull();
+	} );
+} );
+
+describe( 'validateTaxRate', () => {
+	const required = 'To continue, add the requested info or turn off this feature.';
+
+	it.each( [ null, undefined, '', '   ' ] )( 'returns an error for %p', value => {
+		expect( validateTaxRate( value ) ).toBe( required );
+	} );
+
+	it( 'returns an error when the rate is zero', () => {
+		expect( validateTaxRate( '0' ) ).toBe( required );
+	} );
+
+	it( 'returns an error when the rate is negative', () => {
+		expect( validateTaxRate( '-5' ) ).toBe( required );
+	} );
+
+	it( 'returns an error when the rate is not a number', () => {
+		expect( validateTaxRate( 'abc' ) ).toBe( required );
+	} );
+
+	it( 'returns null for a rate above zero', () => {
+		expect( validateTaxRate( '8.25' ) ).toBeNull();
+	} );
+
+	it( 'returns null for the smallest rate the control allows', () => {
+		expect( validateTaxRate( '0.01' ) ).toBeNull();
+	} );
+
+	// The control's max attribute is the only upper bound; PayPal's own is unmeasured.
+	it( 'accepts a rate above the control’s maximum', () => {
+		expect( validateTaxRate( '150' ) ).toBeNull();
 	} );
 } );
 
