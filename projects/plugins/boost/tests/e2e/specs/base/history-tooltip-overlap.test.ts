@@ -4,10 +4,29 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
-import { test, expect } from '@playwright/test';
+import { test, expect, type Locator } from '@playwright/test';
 
 const pluginRoot = fileURLToPath( new URL( '../../../../', import.meta.url ) );
 let fixtureDirectory: string;
+
+/**
+ * Hover a day through the chart's pointer-capture layer.
+ *
+ * @param chart - Chart region.
+ * @param index - Zero-based day index.
+ */
+async function hoverDay( chart: Locator, index: number ) {
+	const capture = chart.locator( 'svg > rect[fill="transparent"]' );
+	await capture.scrollIntoViewIfNeeded();
+	const captureBox = ( await capture.boundingBox() )!;
+	const barBox = ( await chart.locator( '.visx-bar' ).nth( index ).boundingBox() )!;
+	await capture.hover( {
+		position: {
+			x: barBox.x + barBox.width / 2 - captureBox.x,
+			y: captureBox.height / 2,
+		},
+	} );
+}
 
 test.use( {
 	viewport: { width: 1280, height: 900 },
@@ -69,7 +88,7 @@ for ( const device of [ 'Desktop', 'Mobile' ] ) {
 		await expect( bars ).toHaveCount( 30 );
 		await expect( page.getByText( 'Aug 11 – Sep 9, 2026', { exact: true } ) ).toBeVisible();
 		await expect( page.getByRole( 'button', { name: 'Next 30 days' } ) ).toBeDisabled();
-		await bars.nth( 21 ).hover( { force: true } );
+		await hoverDay( chart, 21 );
 		const surface = page.locator( '.jetpack-boost-overview__history-tooltip' );
 		await expect( surface ).toBeVisible();
 		await expect( surface.locator( '.jetpack-boost-overview__tooltip-date' ) ).toHaveText(
@@ -111,7 +130,9 @@ for ( const device of [ 'Desktop', 'Mobile' ] ) {
 		}
 	} );
 
-	test( `${ device } empty days and recorded tooltips work at narrow widths`, async ( { page } ) => {
+	test( `${ device } empty days and recorded tooltips work at narrow widths`, async ( {
+		page,
+	} ) => {
 		await page.setViewportSize( { width: 390, height: 900 } );
 		const chart = page.getByRole( 'region', { name: `${ device } score history` } );
 		const bars = chart.locator( '.visx-bar' );
@@ -132,7 +153,7 @@ for ( const device of [ 'Desktop', 'Mobile' ] ) {
 			[ 21, 'September 1, 2026' ],
 			[ 27, 'September 7, 2026' ],
 		] as const ) {
-			await bars.nth( index ).hover( { force: true } );
+			await hoverDay( chart, index );
 			await expect( surface.locator( '.jetpack-boost-overview__tooltip-date' ) ).toHaveText( date );
 			const popup = ( await surface.boundingBox() )!;
 			expect( popup.x ).toBeGreaterThanOrEqual( 0 );
