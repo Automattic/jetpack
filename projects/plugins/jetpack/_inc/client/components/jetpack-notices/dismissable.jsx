@@ -24,7 +24,7 @@ class DismissableNotices extends Component {
 	};
 
 	render() {
-		return <div>{ this.renderNotices() }</div>;
+		return this.renderNotices() || null;
 	}
 }
 

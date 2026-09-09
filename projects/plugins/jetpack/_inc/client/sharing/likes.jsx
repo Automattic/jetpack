@@ -83,13 +83,16 @@ export const Likes = withModuleSettingsFormHelpers(
 								{ __( 'Add Like buttons to your posts and pages', 'jetpack' ) }
 							</span>
 						</ModuleToggle>
-						{ shouldShowLikeBlock && (
+					</SettingsGroup>
+
+					{ shouldShowLikeBlock && (
+						<div className="jp-settings-card__notice">
 							<BlockThemeNotice
 								isModuleActive={ isActive }
 								redirectSlug="jetpack-support-like-block"
 							/>
-						) }
-					</SettingsGroup>
+						</div>
+					) }
 
 					{ shouldShowLikeBlock && configCard() }
 				</SettingsCard>

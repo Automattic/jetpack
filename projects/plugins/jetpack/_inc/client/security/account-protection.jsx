@@ -25,14 +25,15 @@ const AccountProtectionComponent = class extends Component {
 				hideButton={ true }
 			>
 				{ ! isSupported && (
-					<SimpleNotice
-						status={ 'is-info' }
-						showDismiss={ false }
-						text={ __(
-							'This feature has been disabled by your site administrator or hosting provider.',
-							'jetpack'
-						) }
-						children={
+					<div className="jp-settings-card__notice">
+						<SimpleNotice
+							status={ 'is-info' }
+							showDismiss={ false }
+							text={ __(
+								'This feature has been disabled by your site administrator or hosting provider.',
+								'jetpack'
+							) }
+						>
 							<NoticeAction
 								external
 								href={ getRedirectUrl( 'jetpack-account-protection', {
@@ -41,23 +42,24 @@ const AccountProtectionComponent = class extends Component {
 							>
 								{ __( 'Learn more', 'jetpack' ) }
 							</NoticeAction>
-						}
-					/>
+						</SimpleNotice>
+					</div>
 				) }
 				{ isSupported && ! isActive && (
-					<SimpleNotice
-						showDismiss={ false }
-						status={ 'is-info' }
-						text={ __(
-							'Jetpack recommends enabling this feature to enhance account security.',
-							'jetpack'
-						) }
-						children={
+					<div className="jp-settings-card__notice">
+						<SimpleNotice
+							showDismiss={ false }
+							status={ 'is-info' }
+							text={ __(
+								'Jetpack recommends enabling this feature to enhance account security.',
+								'jetpack'
+							) }
+						>
 							<NoticeAction external href={ getRedirectUrl( 'jetpack-account-protection-risks' ) }>
 								{ __( 'Learn about the risks', 'jetpack' ) }
 							</NoticeAction>
-						}
-					/>
+						</SimpleNotice>
+					</div>
 				) }
 				<SettingsGroup
 					hasChild
