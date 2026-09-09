@@ -162,6 +162,29 @@ for ( const device of [ 'Desktop', 'Mobile' ] ) {
 	} );
 }
 
+test( 'Tabbing between daily charts preserves focus and resets the previous tooltip', async ( {
+	page,
+} ) => {
+	const desktop = page.getByRole( 'region', { name: 'Desktop score history' } ).getByRole( 'grid' );
+	const mobile = page.getByRole( 'region', { name: 'Mobile score history' } ).getByRole( 'grid' );
+	const tooltip = page.getByRole( 'tooltip' );
+	await desktop.focus();
+	await page.keyboard.press( 'ArrowRight' );
+	await expect( tooltip ).toContainText( 'August 11, 2026' );
+	await page.keyboard.press( 'ArrowRight' );
+	await expect( tooltip ).toContainText( 'August 12, 2026' );
+	await page.keyboard.press( 'Tab' );
+	await expect( mobile ).toBeFocused();
+	await expect( tooltip ).toHaveCount( 0 );
+	await page.keyboard.press( 'ArrowRight' );
+	await expect( tooltip ).toContainText( 'August 11, 2026' );
+	await page.keyboard.press( 'Shift+Tab' );
+	await expect( desktop ).toBeFocused();
+	await expect( tooltip ).toHaveCount( 0 );
+	await page.keyboard.press( 'ArrowRight' );
+	await expect( tooltip ).toContainText( 'August 11, 2026' );
+} );
+
 test( 'Hiding retained history removes a keyboard tooltip until another selection', async ( {
 	page,
 } ) => {
