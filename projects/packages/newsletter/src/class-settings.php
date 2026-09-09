@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Newsletter;
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
@@ -39,6 +40,11 @@ class Settings {
 	const MODERNIZATION_FILTER = 'rsm_jetpack_ui_modernization_newsletter';
 
 	/**
+	 * Feature flag for the Newsletter Overview tab.
+	 */
+	const OVERVIEW_FEATURE_FLAG = 'newsletter-overview';
+
+	/**
 	 * Whether the class has been initialized
 	 *
 	 * @var boolean
@@ -46,9 +52,27 @@ class Settings {
 	private static $initialized = false;
 
 	/**
+	 * Register Newsletter feature flags.
+	 *
+	 * @return void
+	 */
+	public static function register_feature_flags() {
+		Feature_Flags::register(
+			self::OVERVIEW_FEATURE_FLAG,
+			array(
+				'default'     => false,
+				'description' => 'Enable the Newsletter Overview tab.',
+				'owner'       => 'jetpack-newsletter',
+			)
+		);
+	}
+
+	/**
 	 * Init Newsletter Settings if it wasn't already.
 	 */
 	public static function init() {
+		self::register_feature_flags();
+
 		if ( ! self::$initialized ) {
 			self::$initialized = true;
 			( new self() )->init_hooks();
@@ -315,6 +339,7 @@ class Settings {
 			'dateExample'                     => gmdate( get_option( 'date_format' ), time() ),
 			'subscriberManagementUrl'         => $this->get_subscriber_management_url( $wp_admin_subscriber_management_enabled, $is_wpcom, $site_suffix, $blog_id ),
 			'subscriberManagementEnabled'     => (bool) $wp_admin_subscriber_management_enabled,
+			'overviewEnabled'                 => Feature_Flags::is_enabled( self::OVERVIEW_FEATURE_FLAG ),
 			'isSubscriptionSiteEditSupported' => $is_block_theme,
 			'setupPaymentPlansUrl'            => $setup_payment_plan_url,
 			'isSitePublic'                    => ! $status->is_private_site() && ! $status->is_coming_soon(),

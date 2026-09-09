@@ -66,6 +66,7 @@
 		"@wordpress/theme": "2.0.0",
 		"@wordpress/ui": "0.21.0",
 		"@wordpress/url": "4.54.0",
+		"clsx": "2.1.1",
 		"debug": "4.4.3"
 	},
 	"devDependencies": {

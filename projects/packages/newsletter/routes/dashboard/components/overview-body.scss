@@ -1,0 +1,105 @@
+.jetpack-newsletter-overview {
+	inline-size: 100%;
+	max-inline-size: 660px;
+	margin-inline: auto;
+	gap: var(--wpds-dimension-gap-xl);
+
+	&__title {
+		margin: 0;
+		font-size: var(--wpds-typography-font-size-2xl);
+		line-height: var(--wpds-typography-line-height-2xl);
+	}
+
+	&__intro-card,
+	&__checklist,
+	&__guides {
+		inline-size: 100%;
+	}
+
+	&__intro-header {
+		display: flex;
+		gap: var(--wpds-dimension-gap-md);
+		align-items: center;
+		justify-content: space-between;
+	}
+
+	&__icons {
+		display: inline-grid;
+		grid-template-columns: 20px 32px;
+		align-items: center;
+	}
+
+	&__wordpress-icon {
+		grid-row: 1;
+		grid-column: 1 / span 2;
+	}
+
+	&__jetpack-icon {
+		z-index: 1;
+		grid-row: 1;
+		grid-column: 2;
+		fill: var(--jp-green-primary);
+	}
+
+	&__content > p,
+	&__step p {
+		margin-block-start: 0;
+	}
+
+	&__checklist {
+		padding: var(--wpds-dimension-padding-sm);
+		background: var(--wpds-color-background-surface-neutral-weak);
+		border-radius: var(--wpds-border-radius-lg);
+	}
+
+	&__step + &__step {
+		margin-block-start: var(--wpds-dimension-gap-sm);
+	}
+
+	&__step-status {
+		display: grid;
+		place-items: center;
+		box-sizing: border-box;
+		inline-size: 24px;
+		block-size: 24px;
+		border: 2px dashed var(--wpds-color-stroke-surface-neutral-strong);
+		border-radius: 50%;
+		flex: none;
+	}
+
+	&__step-status--complete {
+		border-style: solid;
+	}
+
+	&__step-title--complete {
+		color: var(--wpds-color-foreground-content-neutral-weak);
+		text-decoration: line-through;
+	}
+
+	&__guides-content {
+		padding: 0;
+	}
+
+	&__guides-list {
+		padding: 0;
+		margin: 0;
+		list-style: none;
+	}
+
+	&__guide {
+		display: flex;
+		gap: var(--wpds-dimension-gap-lg);
+		align-items: center;
+		justify-content: space-between;
+		padding: var(--wpds-dimension-padding-2xl);
+		border-block-start: 1px solid var(--wpds-color-stroke-surface-neutral-weak);
+	}
+
+	&__guide-meta {
+		display: flex;
+		gap: var(--wpds-dimension-gap-md);
+		align-items: center;
+		color: var(--wpds-color-foreground-content-neutral-weak);
+		white-space: nowrap;
+	}
+}
