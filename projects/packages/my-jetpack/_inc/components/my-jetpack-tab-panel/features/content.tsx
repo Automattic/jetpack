@@ -38,6 +38,7 @@ export function FeaturesContent() {
 			setSelected( [] );
 
 			const next = new URLSearchParams( searchParams );
+			next.delete( 'feature' );
 
 			if ( term ) {
 				next.set( 'search', term );
@@ -49,7 +50,7 @@ export function FeaturesContent() {
 		},
 		[ searchParams, setSearchParams ]
 	);
-	const [ openSlug, setOpenSlug ] = useState< string | null >( null );
+	const openSlug = searchParams.get( 'feature' );
 
 	const { modules: otherModules } = useOtherModules();
 	const results = useFeatureSearch( states, otherModules, search );
@@ -67,8 +68,23 @@ export function FeaturesContent() {
 
 	const clearSelection = useCallback( () => setSelected( [] ), [] );
 
-	const openFeature = useCallback( ( slug: string ) => setOpenSlug( slug ), [] );
-	const closeFeature = useCallback( () => setOpenSlug( null ), [] );
+	const setOpenSlug = useCallback(
+		( slug: string | null ) => {
+			const next = new URLSearchParams( searchParams );
+
+			if ( slug ) {
+				next.set( 'feature', slug );
+			} else {
+				next.delete( 'feature' );
+			}
+
+			setSearchParams( next, { replace: true } );
+		},
+		[ searchParams, setSearchParams ]
+	);
+
+	const openFeature = useCallback( ( slug: string ) => setOpenSlug( slug ), [ setOpenSlug ] );
+	const closeFeature = useCallback( () => setOpenSlug( null ), [ setOpenSlug ] );
 
 	const openIndex = states.findIndex( item => item.feature.slug === openSlug );
 
