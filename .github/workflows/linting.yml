@@ -498,6 +498,17 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - run: ./tools/check-copied-files.sh
 
+  ### Checks that Jetpack sidebar menu items register on a named position tier
+  # Local equivalent: `./tools/check-admin-menu-positions.php`
+  admin_menu_positions:
+    name: Sidebar menu positions
+    runs-on: ubuntu-latest
+    timeout-minutes: 1  # 2026-09-09: Scans ~2500 files in a couple of seconds.
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - run: ./tools/check-admin-menu-positions.php
+
   ### Runs tools/cleanup-excludelists.sh and checks for any changes
   # Local equivalent: `tools/cleanup-excludelists.sh`
   # On trunk: always runs
