@@ -16,6 +16,7 @@ const Notice = ( {
 	dismissable = false,
 	duration = null,
 	floating = false,
+	id = 0,
 	message,
 	spokenMessage,
 	type = 'success',
@@ -27,6 +28,10 @@ const Notice = ( {
 	}, [ clearNotice ] );
 
 	const spoken = spokenMessage ?? ( 'string' === typeof message ? message : null );
+
+	// An identical repeat has to re-run the announcing effect, and alternating a
+	// trailing non-breaking space is what `@wordpress/a11y` itself does for that.
+	const announced = spoken && id % 2 ? `${ spoken }\u00a0` : spoken;
 
 	/**
 	 * Clears the notice automatically after {duration} milliseconds.
@@ -52,7 +57,7 @@ const Notice = ( {
 			// Only the toast announces: the modal notices are read when their dialog opens.
 			// The value must be null, never undefined — `Notice.Root` defaults it to the
 			// children and renders those mid-render, corrupting hook order on a JSX message.
-			spokenMessage={ floating ? spoken : null }
+			spokenMessage={ floating ? announced : null }
 		>
 			<WPNotice.Description>{ message }</WPNotice.Description>
 			{ dismissable && (

@@ -9,7 +9,7 @@ import type { Dispatch, FC, ReactNode, SetStateAction } from 'react';
 interface NoticeState {
 	message?: string | JSX.Element;
 	spokenMessage?: string;
-	// Changes on every notice, so an identical repeat still remounts and re-announces.
+	// Stamped by the provider on every notice, so an identical repeat still announces.
 	id?: number;
 	dismissable?: boolean;
 	duration?: number;
@@ -26,7 +26,14 @@ let noticeId = 0;
 const NoticeContext = createContext< NoticeContextValue | undefined >( undefined );
 
 export const NoticeProvider: FC< { children: ReactNode } > = ( { children } ) => {
-	const [ notice, setNotice ] = useState< NoticeState >( null );
+	const [ notice, setNoticeState ] = useState< NoticeState >( null );
+
+	const setNotice: Dispatch< SetStateAction< NoticeState > > = useCallback( value => {
+		setNoticeState( previous => {
+			const next = 'function' === typeof value ? value( previous ) : value;
+			return next ? { ...next, id: ++noticeId } : next;
+		} );
+	}, [] );
 
 	return (
 		<NoticeContext.Provider value={ { notice, setNotice } }>{ children }</NoticeContext.Provider>
@@ -49,7 +56,6 @@ export default function useNotices() {
 	const showSuccessNotice = useCallback(
 		( message: string ) => {
 			setNotice( {
-				id: ++noticeId,
 				type: 'success',
 				dismissable: true,
 				duration: 7_500,
@@ -62,7 +68,6 @@ export default function useNotices() {
 	const showSavingNotice = useCallback(
 		( message?: string ) => {
 			setNotice( {
-				id: ++noticeId,
 				type: 'info',
 				dismissable: false,
 				message: message || __( 'Saving Changes…', 'jetpack-protect' ),
@@ -80,11 +85,10 @@ export default function useNotices() {
 			);
 
 			setNotice( {
-				id: ++noticeId,
 				type: 'error',
 				dismissable: true,
-				// The same translated string, with the interpolation tags stripped.
-				spokenMessage: `${ error } ${ advice.replace( /<\/?supportLink>/g, '' ) }`,
+				// The same translated string, with its interpolation tags stripped.
+				spokenMessage: `${ error } ${ advice.replace( /<\/?[^>]+>/g, '' ) }`,
 				message: (
 					<>
 						{ error }{ ' ' }

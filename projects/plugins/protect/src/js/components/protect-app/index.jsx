@@ -92,9 +92,7 @@ const ProtectApp = () => {
 			title={ 'Protect' /** "Protect" is a product name, do not translate. */ }
 			subTitle={ __( 'Automated malware scanning and firewall protection.', 'jetpack-protect' ) }
 		>
-			{ notice && (
-				<Notice key={ notice.id } floating={ true } dismissable={ true } { ...notice } />
-			) }
+			{ notice && <Notice floating={ true } dismissable={ true } { ...notice } /> }
 			<Tabs.Root ref={ tabsRootRef } value={ activeTab } onValueChange={ onValueChange }>
 				<div className="jp-admin-page-tabs jp-admin-page-tabs--minimal">
 					<Tabs.List variant="minimal">
