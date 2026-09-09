@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Keep the payment buttons block sources out of the published package mirror.

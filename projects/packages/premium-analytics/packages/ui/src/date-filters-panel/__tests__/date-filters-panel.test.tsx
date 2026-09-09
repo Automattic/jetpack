@@ -110,13 +110,10 @@ describe( 'DateFiltersPanel', () => {
 			'Last 24 hours',
 			'Last 7 days',
 			'Last 30 days',
-			'Last 90 days',
-			'Last 365 days',
 			'Month to date',
 			'Last month',
 			'Year to date',
 			'Last 12 months',
-			'Last year',
 			'All time',
 			'Custom range',
 		] );

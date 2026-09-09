@@ -368,9 +368,6 @@ An inline `@phan-suppress-next-line <Rule> -- <reason>` is acceptable ONLY as a 
 - The "phan: Update wpcom stubs" PR is machine-generated and gets rebased/recreated on every job run — never hand-edit it, your changes will be overwritten.
 - `.phan/stubs/wpcom-stubs.php` is likewise generated (its header says so). Never edit it directly to add a symbol — add it to `stub-defs.php` in wpcom instead.
 
-## Maintaining this file
+## Maintaining This File
 
-Keep this file for knowledge useful to almost every future agent session in this project.
-Do not repeat what the codebase already shows; point to the authoritative file or command instead.
-Prefer rewriting or pruning existing entries over appending new ones.
-When updating this file, preserve this bar for all agents and keep entries concise.
+If you discover a pattern or pitfall not covered here, mention it to the developer so they can decide whether to update this file.
