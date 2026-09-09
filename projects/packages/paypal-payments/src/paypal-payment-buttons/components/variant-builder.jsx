@@ -185,6 +185,7 @@ export function validateVariants( enabled, variants, currencyCode = 'USD' ) {
  * @param {string}   props.currencyCode - Product currency for pricing.
  * @param {Array}    props.errors       - This group's validation errors.
  * @param {object}   props.touched      - Fields the merchant has left, keyed by field key.
+ * @param {boolean}  props.showAll      - Show every error, whether or not its field was left.
  * @param {Function} props.onTouch      - Callback with a field key once it is left.
  * @param {Function} props.onChange     - Callback when group changes.
  * @param {Function} props.onRemove     - Callback to remove this group.
@@ -198,6 +199,7 @@ function GroupEditor( {
 	currencyCode,
 	errors,
 	touched,
+	showAll,
 	onTouch,
 	onChange,
 	onRemove,
@@ -230,7 +232,8 @@ function GroupEditor( {
 	const priceTouched = group.options?.some( ( _, i ) => touched[ fieldKey( i, 'price' ) ] );
 
 	const errorFor = ( optIndex, field ) => {
-		const revealed = field === 'price' ? priceTouched : touched[ fieldKey( optIndex, field ) ];
+		const revealed =
+			showAll || ( field === 'price' ? priceTouched : touched[ fieldKey( optIndex, field ) ] );
 		return revealed
 			? errors.find( e => e.option === optIndex && e.field === field )?.message
 			: undefined;
@@ -407,6 +410,7 @@ function GroupEditor( {
  * @param {boolean}  props.disabled     - Whether inputs are disabled.
  * @param {Array}    props.errors       - Validation errors from validateVariants().
  * @param {object}   props.touched      - The form's touched fields, keyed by field key.
+ * @param {boolean}  props.showAll      - Show every error, whether or not its field was left.
  * @param {Function} props.onTouch      - Callback with a field key once it is left.
  * @return {Element} Variants builder.
  */
@@ -418,6 +422,7 @@ export default function VariantBuilder( {
 	disabled,
 	errors = [],
 	touched = {},
+	showAll,
 	onTouch,
 } ) {
 	const dimensions = variants?.dimensions || [];
@@ -518,6 +523,7 @@ export default function VariantBuilder( {
 								currencyCode={ currencyCode }
 								errors={ errors.filter( e => e.group === dimIndex ) }
 								touched={ touched }
+								showAll={ showAll }
 								onTouch={ onTouch }
 								onChange={ newDim => updateDimension( dimIndex, newDim ) }
 								onRemove={ () => removeDimension( dimIndex ) }

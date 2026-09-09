@@ -1587,6 +1587,70 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			await user.tab();
 		};
 
+		/**
+		 * Open a saved button's edit form with the given option groups.
+		 *
+		 * @param {object} user       - userEvent instance.
+		 * @param {Array}  dimensions - Option groups.
+		 */
+		const openSavedWith = async ( user, dimensions ) => {
+			apiFetch.mockImplementation( ( { path } ) => {
+				if ( path.endsWith( '/connection' ) ) {
+					return Promise.resolve( { connected: true, environment: 'sandbox' } );
+				}
+				return Promise.resolve( { id: 'PLB-OPT1', line_items: [ {} ] } );
+			} );
+
+			render(
+				<Edit
+					attributes={ {
+						isApiManaged: true,
+						resourceId: 'PLB-OPT1',
+						paymentLink: 'https://www.paypal.com/ncp/payment/PLB-OPT1',
+						productName: 'Test Widget',
+						price: '29.99',
+						currencyCode: 'USD',
+						variantsEnabled: true,
+						variants: { dimensions },
+					} }
+					setAttributes={ setAttributes }
+				/>
+			);
+			await expect( screen.findByTestId( 'toolbar-Edit' ) ).resolves.toBeInTheDocument();
+			await user.click( screen.getByTestId( 'toolbar-Edit' ) );
+		};
+
+		/**
+		 * The Product Options panel.
+		 *
+		 * @return {Element} The panel element.
+		 */
+		const optionsPanel = () =>
+			screen
+				.getAllByTestId( 'panel-body' )
+				.find( body => body.getAttribute( 'data-title' ) === 'Product Options' );
+
+		// A saved button opens with the panel closed, and a closed panel renders no
+		// children - so a group that was already invalid when it was saved says nothing.
+		it( 'opens the panel on a saved button whose options need fixing', async () => {
+			const user = userEvent.setup();
+			await openSavedWith( user, [ group( 'g1' ) ] );
+
+			expect( optionsPanel() ).toHaveAttribute( 'data-initial-open', 'true' );
+			expect(
+				control( 'Option group 1' ).getByText( 'Option group name is required.' )
+			).toBeVisible();
+		} );
+
+		it( 'leaves the panel closed on a saved button whose options are fine', async () => {
+			const user = userEvent.setup();
+			await openSavedWith( user, [
+				group( 'g1', { name: 'Size', options: [ { _key: 'g1-o1', label: 'Small' } ] } ),
+			] );
+
+			expect( optionsPanel() ).toHaveAttribute( 'data-initial-open', 'false' );
+		} );
+
 		it( 'holds its tongue until the merchant leaves the field', async () => {
 			renderWith();
 

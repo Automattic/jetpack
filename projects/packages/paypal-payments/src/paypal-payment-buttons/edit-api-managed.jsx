@@ -677,9 +677,11 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 						) }
 					</div>
 				</PanelBody>
+				{ /* A closed panel renders no children, so open it when an option needs
+				     fixing - otherwise the error is invisible on a saved button. */ }
 				<PanelBody
 					title={ __( 'Product Options', 'jetpack-paypal-payments' ) }
-					initialOpen={ ! hasButton }
+					initialOpen={ ! hasButton || variantErrors.length > 0 }
 				>
 					<VariantBuilder
 						enabled={ variantsEnabled }
@@ -689,12 +691,14 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 						disabled={ isCreating }
 						errors={ variantErrors }
 						touched={ touchedFields }
+						// A saved button's groups came out of storage already invalid, so
+						// there is no blur coming - the same reason the panel opens below.
+						showAll={ hasButton }
 						onTouch={ markTouched }
 					/>
 				</PanelBody>
-				{ /* A closed PanelBody renders no children, so an error in here reaches nobody.
-				     initialOpen, not a controlled `opened`: the panel opens when there is an
-				     error, and the merchant can still close it. */ }
+				{ /* Same again for the tax rate. initialOpen, not a controlled `opened`: the
+				     panel opens when there is an error, and the merchant can still close it. */ }
 				<PanelBody
 					title={ __( 'Checkout Options', 'jetpack-paypal-payments' ) }
 					initialOpen={ !! validationErrors.taxValue }
