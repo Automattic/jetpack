@@ -83,7 +83,7 @@ class Admin {
 			null,
 			array(
 				'product' => 'boost',
-				'key'     => JETPACK_BOOST_SLUG,
+				'key'     => 'jetpack-boost',
 			)
 		);
 		add_action( 'load-' . $page_suffix, array( $this, 'admin_init' ) );

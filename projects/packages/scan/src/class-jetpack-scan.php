@@ -209,7 +209,7 @@ class Jetpack_Scan {
 			null,
 			array(
 				'product' => 'scan',
-				'key'     => self::PAGE_SLUG,
+				'key'     => 'jetpack-scan',
 			)
 		);
 

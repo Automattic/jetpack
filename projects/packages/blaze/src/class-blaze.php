@@ -195,8 +195,8 @@ class Blaze {
 					$menu_slug,
 					array( $blaze_dashboard, 'render' ),
 					null,
-					// The menu slug is filterable, so name the item explicitly rather than
-					// letting a host's own slug become the key hosts address it by.
+					// Not $menu_slug: that is filterable, and a host naming it would lose
+					// the item the moment anything changed it.
 					array( 'key' => 'jetpack-blaze' )
 				);
 			} else {
