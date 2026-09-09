@@ -83,7 +83,7 @@ class Table_Checksum_Test extends BaseTestCase {
 			$table['is_table_enabled_callback']
 		);
 
-		// Any other key changes which rows get hashed, so the key set is pinned too.
+		// An extra config key would change which rows get hashed, so the key set is pinned too.
 		$expected_keys = array( 'table', 'range_field', 'key_fields', 'checksum_fields', 'is_table_enabled_callback' );
 		if ( $checksum_text_fields ) {
 			$expected_keys[] = 'checksum_text_fields';
