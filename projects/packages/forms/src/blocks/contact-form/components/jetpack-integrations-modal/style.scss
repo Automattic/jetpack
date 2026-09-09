@@ -3,3 +3,16 @@
 .jetpack-forms-integrations-modal .components-modal__header-heading {
 	font-weight: 400;
 }
+
+.jp-forms__gsheets-sync {
+	// The card's own links sit directly beneath these controls. Without this the
+	// primary action and those links read as one cluster.
+	margin-block-end: 16px;
+
+	// Marks the link field out as belonging to the radio option above it rather
+	// than as a further choice. Logical property so it flips with the writing
+	// direction.
+	&__suboption {
+		margin-inline-start: 28px;
+	}
+}
