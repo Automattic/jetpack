@@ -152,7 +152,7 @@ export default function HistoryChartCard( {
 	const onRetry = offset === 0 ? retryCurrent : () => history.refetch();
 	const series = buildHistorySeries( data, window );
 	const days = bucketHistoryDays( data?.periods ?? [], window );
-	const [ chartKey, setChartKey ] = useState( 0 );
+	const [ chartKeys, setChartKeys ] = useState( [ 0, 0 ] );
 	let content;
 	if ( isLoading && ! data?.periods.length ) {
 		content = (
@@ -228,12 +228,14 @@ export default function HistoryChartCard( {
 								className="boost-daily-history__plot"
 								onBlur={ event => {
 									if ( ! event.currentTarget.contains( event.relatedTarget as Node | null ) )
-										setChartKey( key => key + 1 );
+										setChartKeys( keys =>
+											keys.map( ( key, chartIndex ) => ( chartIndex === index ? key + 1 : key ) )
+										);
 								} }
 							>
 								{ isVisible && (
 									<BarChart
-										key={ `${ offset }-${ chartKey }` }
+										key={ `${ offset }-${ chartKeys[ index ] }` }
 										data={ [ deviceSeries ] }
 										withTooltips
 										gridVisibility="none"
