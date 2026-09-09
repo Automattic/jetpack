@@ -138,6 +138,24 @@ describe( 'LineChart', () => {
 			} );
 		}
 	);
+	test.each( [
+		[ { boxShadow: 'none' }, '', '' ],
+		[ { color: 'white' }, 'inherit', '' ],
+		[ { backgroundColor: 'black' }, '', 'inherit' ],
+		[ { background: 'black' }, '', 'inherit' ],
+	] )(
+		'inherits only explicitly overridden tooltip colors: %j',
+		async ( tooltipStyle, color, background ) => {
+			const user = userEvent.setup();
+			renderWithTheme( { tooltipStyle } );
+			screen.getByRole( 'grid', { name: /line chart/i } ).focus();
+			await user.keyboard( '{ArrowRight}' );
+
+			const content = screen.getByTestId( 'line-chart-tooltip-content' );
+			expect( content.style.color ).toBe( color );
+			expect( content.style.background ).toBe( background );
+		}
+	);
 
 	describe( 'Data Validation', () => {
 		test( 'handles empty data array', () => {
