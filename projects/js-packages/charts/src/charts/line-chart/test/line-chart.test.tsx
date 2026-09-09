@@ -139,12 +139,12 @@ describe( 'LineChart', () => {
 		}
 	);
 	test.each( [
-		[ { boxShadow: 'none' }, '', '' ],
-		[ { color: 'white' }, 'inherit', '' ],
-		[ { backgroundColor: 'black' }, '', 'inherit' ],
-		[ { background: 'black' }, '', 'inherit' ],
+		[ { color: 'white' }, 'white', 'var(--a8c-charts-color-tooltip-surface)' ],
+		[ { backgroundColor: 'black' }, 'var(--a8c-charts-color-label-inverse)', 'black' ],
+		[ { background: 'black' }, 'var(--a8c-charts-color-label-inverse)', 'black' ],
+		[ { color: 'white', background: 'black' }, 'white', 'black' ],
 	] )(
-		'inherits only explicitly overridden tooltip colors: %j',
+		'preserves the tooltip color pair when overriding styles: %j',
 		async ( tooltipStyle, color, background ) => {
 			const user = userEvent.setup();
 			renderWithTheme( { tooltipStyle } );
@@ -153,10 +153,34 @@ describe( 'LineChart', () => {
 
 			const content = screen.getByTestId( 'line-chart-tooltip-content' );
 			// Computed styles resolve inheritance and cannot distinguish an absent declaration.
-			expect( content.style.getPropertyValue( 'color' ) ).toBe( color );
-			expect( content.style.getPropertyValue( 'background' ) ).toBe( background );
+			expect( content.style.getPropertyValue( 'color' ) ).toBe( 'inherit' );
+			expect( content.style.getPropertyValue( 'background' ) ).toBe( 'inherit' );
+			const container = screen.getByTestId( 'bounded-tooltip' );
+			expect( container.style.getPropertyValue( 'color' ) ).toBe( color );
+			expect(
+				container.style.getPropertyValue(
+					'background' in tooltipStyle ? 'background' : 'background-color'
+				)
+			).toBe( background );
 		}
 	);
+
+	test( 'preserves the existing tooltip colors for noncolor overrides', async () => {
+		const user = userEvent.setup();
+		renderWithTheme( { tooltipStyle: { boxShadow: 'none' } } );
+		screen.getByRole( 'grid', { name: /line chart/i } ).focus();
+		await user.keyboard( '{ArrowRight}' );
+
+		const content = screen.getByTestId( 'line-chart-tooltip-content' );
+		expect( content.style.getPropertyValue( 'color' ) ).toBe( '' );
+		expect( content.style.getPropertyValue( 'background' ) ).toBe( '' );
+		const container = screen.getByTestId( 'bounded-tooltip' );
+		expect( container ).toHaveStyle( { 'box-shadow': 'none' } );
+		expect( container.style.getPropertyValue( 'background' ) ).toBe( '' );
+		expect( container.style.getPropertyValue( 'color' ) ).not.toBe(
+			'var(--a8c-charts-color-label-inverse)'
+		);
+	} );
 
 	describe( 'Data Validation', () => {
 		test( 'handles empty data array', () => {

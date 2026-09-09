@@ -109,12 +109,12 @@ const TooltipDate: FC< { date?: Date; displayResolution: Exclude< TickResolution
  * value. Reused by AreaChart, which has the same multi-series shape.
  *
  * @param params        - visx tooltip data and the chart's optional `bucketInfo`.
- * @param inheritStyles - Inherit both container colors when true, or only colors explicitly overridden by the style object.
+ * @param inheritStyles - Inherit the paired container colors when true.
  * @return Tooltip JSX, or `null` when no datum is hovered.
  */
 export const renderDefaultTooltip = (
 	params: RenderTooltipParams< DataPointDate > & { bucketInfo?: BucketInfo },
-	inheritStyles: boolean | LineChartProps[ 'tooltipStyle' ] = false
+	inheritStyles = false
 ) => {
 	const { tooltipData, bucketInfo } = params;
 	const nearestDatum = tooltipData?.nearestDatum?.datum;
@@ -131,17 +131,7 @@ export const renderDefaultTooltip = (
 		<div
 			className={ styles[ 'line-chart__tooltip' ] }
 			data-testid="line-chart-tooltip-content"
-			style={ {
-				background:
-					inheritStyles === true ||
-					( inheritStyles && ( inheritStyles.background || inheritStyles.backgroundColor ) )
-						? 'inherit'
-						: undefined,
-				color:
-					inheritStyles === true || ( inheritStyles && inheritStyles.color )
-						? 'inherit'
-						: undefined,
-			} }
+			style={ inheritStyles ? { background: 'inherit', color: 'inherit' } : undefined }
 		>
 			<div className={ styles[ 'line-chart__tooltip-date' ] }>
 				<TooltipDate
@@ -491,14 +481,29 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 			yAccessor: ( d: DataPointDate ) => d?.value,
 		};
 
+		const resolvedTooltipStyle = useMemo( () => {
+			if ( renderTooltip !== renderDefaultTooltip || ! tooltipStyle ) return tooltipStyle;
+			if ( ! ( tooltipStyle.color || tooltipStyle.background || tooltipStyle.backgroundColor ) ) {
+				return tooltipStyle;
+			}
+			return {
+				backgroundColor: 'var(--a8c-charts-color-tooltip-surface)',
+				color: 'var(--a8c-charts-color-label-inverse)',
+				...tooltipStyle,
+			};
+		}, [ renderTooltip, tooltipStyle ] );
+
 		// Augments every renderTooltip call with the chart's bucket classification,
 		// default or custom, so a heading keyed on it can't disagree with the axis.
 		const tooltipRenderer = useMemo(
 			() => ( params: RenderTooltipParams< DataPointDate > ) =>
 				renderTooltip === renderDefaultTooltip
-					? renderDefaultTooltip( { ...params, bucketInfo }, tooltipStyle )
+					? renderDefaultTooltip(
+							{ ...params, bucketInfo },
+							Boolean( resolvedTooltipStyle?.color )
+					  )
 					: renderTooltip( { ...params, bucketInfo } ),
-			[ renderTooltip, bucketInfo, tooltipStyle ]
+			[ renderTooltip, bucketInfo, resolvedTooltipStyle ]
 		);
 
 		if ( error ) {
@@ -697,7 +702,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 													detectBounds
 													snapTooltipToDatumX
 													tooltipPlacement={ tooltipPlacement }
-													style={ tooltipStyle }
+													style={ resolvedTooltipStyle }
 													snapTooltipToDatumY
 													showSeriesGlyphs
 													renderTooltip={ tooltipRenderer }
