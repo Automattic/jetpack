@@ -12,6 +12,8 @@
  */
 import { ExperimentalEmailEditor } from '@woocommerce/email-editor';
 import apiFetch from '@wordpress/api-fetch';
+import { useBlockProps } from '@wordpress/block-editor';
+import { getBlockType, registerBlockType } from '@wordpress/blocks';
 import { Notice } from '@wordpress/components';
 import { createRoot, StrictMode } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -273,6 +275,53 @@ export function getTemplateId( bundle ) {
 }
 
 /**
+ * Register the email blocks the bootstrap describes and no client defines.
+ *
+ * They are registered in PHP only, on every host including Simple, so without this the editor
+ * reports each one as an unsupported block. WordPress.com allowlists the namespaces it owns, but
+ * a site is still free to have registered one itself, so anything already registered is left
+ * alone rather than replaced by a placeholder.
+ *
+ * Dynamic blocks with no client-side edit, so the canvas shows a labelled placeholder. What the
+ * subscriber receives is rendered server-side and is unaffected.
+ *
+ * @param {object} bundle - The response from the bootstrap route.
+ * @return {void}
+ */
+export function registerEmailBlocks( bundle ) {
+	const blocks = Array.isArray( bundle?.blocks ) ? bundle.blocks : [];
+
+	blocks.forEach( block => {
+		if ( ! block?.name || getBlockType( block.name ) ) {
+			return;
+		}
+
+		// Falls back to the slug on anything that is not a usable string. A non-string title is
+		// not just unlabelled: it reaches the placeholder as a React child, and an object there
+		// throws rather than rendering.
+		const title = typeof block.title === 'string' && block.title ? block.title : block.name;
+
+		// Named and capitalised so it reads as a component: `useBlockProps` is a hook, and an
+		// anonymous arrow here trips rules-of-hooks.
+		const EmailBlockPlaceholder = () => <div { ...useBlockProps() }>{ title }</div>;
+
+		registerBlockType( block.name, {
+			apiVersion: 3,
+			title,
+			description: block.description || '',
+			category: block.category || 'design',
+			attributes: block.attributes || {},
+
+			// Template furniture rather than blocks a creator adds by hand.
+			supports: { ...( block.supports || {} ), html: false, inserter: false },
+
+			edit: EmailBlockPlaceholder,
+			save: () => null,
+		} );
+	} );
+}
+
+/**
  * What the screen shows when it could not load.
  *
  * The design lives on another site, so without this "nothing appeared" and "your
@@ -320,6 +369,12 @@ export async function mountEmailDesignEditor() {
 		} );
 
 		const config = buildEditorConfig( bundle, data );
+
+		// Before the render, not after: the template is parsed on first render and its blocks are
+		// resolved against the registry at that moment. Registering later leaves the same
+		// unsupported-block errors, which looks identical to this never running.
+		registerEmailBlocks( bundle );
+
 		const postId = getTemplateId( bundle );
 		const preload = buildPreloadMap( bundle, postId );
 

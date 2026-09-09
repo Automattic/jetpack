@@ -34,6 +34,16 @@ jest.mock( '@woocommerce/email-editor', () => ( {
 	ExperimentalEmailEditor: MockEmailEditor,
 } ) );
 
+const mockRegisterBlockType = jest.fn();
+const mockGetBlockType = jest.fn();
+
+jest.mock( '@wordpress/blocks', () => ( {
+	registerBlockType: ( ...args ) => mockRegisterBlockType( ...args ),
+	getBlockType: ( ...args ) => mockGetBlockType( ...args ),
+} ) );
+
+jest.mock( '@wordpress/block-editor', () => ( { useBlockProps: () => ( {} ) } ) );
+
 const ELEMENT_ID = 'jetpack-email-design-editor';
 
 /**
@@ -151,6 +161,8 @@ describe( 'Email design editor entry point', () => {
 		mockRender.mockClear();
 		mockUse.mockClear();
 		mockCreatePreloadingMiddleware.mockClear();
+		mockRegisterBlockType.mockClear();
+		mockGetBlockType.mockReset();
 		mockApiFetch.mockReset();
 		mockApiFetch.mockResolvedValue( bootstrapBundle() );
 		jest.spyOn( console, 'error' ).mockImplementation( () => {} );
@@ -643,6 +655,81 @@ describe( 'Email design editor entry point', () => {
 				'/wp/v2/templates?context=edit',
 				'/wp/v2/templates?context=view',
 			] );
+		} );
+	} );
+
+	describe( 'the email blocks WordPress.com registers in PHP', () => {
+		const { registerEmailBlocks } = jest.requireActual( '../src/index' );
+
+		const payload = blocks => ( { blocks } );
+
+		it( 'registers each one the site has no definition for', () => {
+			registerEmailBlocks(
+				payload( [
+					{ name: 'wpcom/email-header', title: 'Email header', category: 'text' },
+					{ name: 'wpcom/email-footer', title: 'Email footer' },
+				] )
+			);
+
+			expect( mockRegisterBlockType ).toHaveBeenCalledTimes( 2 );
+			expect( mockRegisterBlockType ).toHaveBeenCalledWith(
+				'wpcom/email-header',
+				expect.objectContaining( { title: 'Email header', category: 'text' } )
+			);
+			// Defaulted rather than left undefined, which would fail block registration.
+			expect( mockRegisterBlockType ).toHaveBeenCalledWith(
+				'wpcom/email-footer',
+				expect.objectContaining( { category: 'design', attributes: {} } )
+			);
+		} );
+
+		it( 'leaves a block the site already registered alone', () => {
+			mockGetBlockType.mockReturnValue( { name: 'wpcom/email-header' } );
+
+			registerEmailBlocks( payload( [ { name: 'wpcom/email-header', title: 'Ours' } ] ) );
+
+			// Registering over a real implementation would replace it with a placeholder.
+			expect( mockRegisterBlockType ).not.toHaveBeenCalled();
+		} );
+
+		// The last case is not just an unlabelled block: a non-string title reaches the
+		// placeholder as a React child, and an object there throws instead of rendering.
+		it.each( [
+			[ 'reported no title', undefined ],
+			[ 'reported an empty title', '' ],
+			[ 'reported a title that is not a string', { rendered: 'Email header' } ],
+		] )( 'labels a block that %s with its slug', ( _label, title ) => {
+			registerEmailBlocks( payload( [ { name: 'lately/bulletin-intro', title } ] ) );
+
+			expect( mockRegisterBlockType ).toHaveBeenCalledWith(
+				'lately/bulletin-intro',
+				expect.objectContaining( { title: 'lately/bulletin-intro' } )
+			);
+		} );
+
+		it.each( [
+			[ 'no blocks key', {} ],
+			[ 'a non-array', { blocks: 'nope' } ],
+			[ 'an entry with no name', { blocks: [ { title: 'Nameless' } ] } ],
+		] )( 'registers nothing given %s', ( _label, bundle ) => {
+			expect( () => registerEmailBlocks( bundle ) ).not.toThrow();
+			expect( mockRegisterBlockType ).not.toHaveBeenCalled();
+		} );
+
+		it( 'registers before the editor renders, not after', async () => {
+			const order = [];
+			mockRegisterBlockType.mockImplementation( () => order.push( 'register' ) );
+			mockRender.mockImplementation( () => order.push( 'render' ) );
+			mockApiFetch.mockResolvedValue(
+				bootstrapBundle( { blocks: [ { name: 'wpcom/email-header', title: 'Email header' } ] } )
+			);
+			window.JetpackEmailDesignEditor = pageData();
+
+			await loadEntryPoint();
+
+			// The template is parsed on first render and resolved against the registry then, so
+			// registering afterwards leaves the same unsupported-block errors.
+			expect( order ).toEqual( [ 'register', 'render' ] );
 		} );
 	} );
 
