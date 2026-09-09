@@ -14,7 +14,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { useTrackEvent } from '../../hooks/use-track-event';
-import { FeedbackFields } from '../feedback/feedback-fields';
+import { ComparisonFields } from '../feedback/feedback-fields';
 import { returnToClassicStats } from './return-to-classic-stats';
 
 // Reaches Happiness as the subject line, so it tells exit feedback from the in-product kind.
@@ -109,7 +109,7 @@ export function SwitchOffDialog( { onClose }: SwitchOffDialogProps ) {
 							</Dialog.Description>
 						</Stack>
 
-						<FeedbackFields
+						<ComparisonFields
 							rating={ rating }
 							onRatingChange={ setRating }
 							comment={ comment }
