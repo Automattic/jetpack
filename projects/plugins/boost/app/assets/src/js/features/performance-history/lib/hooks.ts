@@ -15,7 +15,7 @@ const periodsSchema = z.object( {
 	} ),
 } );
 
-const performanceHistoryDataSchema = z
+export const performanceHistoryDataSchema = z
 	.object( {
 		periods: z.array( periodsSchema ),
 		annotations: z.array(

@@ -78,8 +78,8 @@ function getInclusiveDayCount( from: TZDate, to: TZDate ): number {
  * whole number of months. Detected by round trip against the day after the
  * range ends, and again from the start stepped back by that count: a start a
  * month step cannot undo (31 January two months back clamps to 30 November)
- * measures in days, the way the step arrows measure it. Shared by the
- * previous-period shift and its label, so both take the same branch; unlike
+ * measures in days instead. Shared by the previous-period shift and its
+ * label, so both take the same branch; unlike
  * `getDateRangeSpan`, a single month counts.
  *
  * @param from - Range start.

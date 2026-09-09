@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-VideoPress: Avoid free-plan limits and upgrade prompts when site features cannot be loaded.

@@ -28,7 +28,9 @@ import {
 	PRESET_LAST_30_DAYS,
 	PRESET_LAST_90_DAYS,
 	PRESET_LAST_365_DAYS,
+	PRESET_MONTH_TO_DATE,
 	PRESET_LAST_MONTH,
+	PRESET_YEAR_TO_DATE,
 	PRESET_LAST_12_MONTHS,
 	PRESET_LAST_YEAR,
 	PRESET_CUSTOM,
@@ -141,11 +143,27 @@ export const PRESET_DEFINITIONS: ReadonlyArray< PresetDefinition > = [
 		} ),
 	},
 	{
+		id: PRESET_MONTH_TO_DATE,
+		getLabel: () => __( 'Month to date', 'jetpack-premium-analytics-pkg' ),
+		getRange: ( { initOfToday, endOfToday } ) => ( {
+			from: startOfMonth( initOfToday ),
+			to: endOfToday,
+		} ),
+	},
+	{
 		id: PRESET_LAST_MONTH,
 		getLabel: () => __( 'Last month', 'jetpack-premium-analytics-pkg' ),
 		getRange: ( { lastMonth, endOfLastMonth } ) => ( {
 			from: startOfMonth( lastMonth ),
 			to: endOfLastMonth,
+		} ),
+	},
+	{
+		id: PRESET_YEAR_TO_DATE,
+		getLabel: () => __( 'Year to date', 'jetpack-premium-analytics-pkg' ),
+		getRange: ( { initOfToday, endOfToday } ) => ( {
+			from: startOfYear( initOfToday ),
+			to: endOfToday,
 		} ),
 	},
 	{

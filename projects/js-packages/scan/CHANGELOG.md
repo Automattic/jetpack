@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.17] - 2026-09-08
+### Changed
+- Update package dependencies. [#51701]
+
 ## [1.4.16] - 2026-09-01
 ### Changed
 - Update package dependencies. [#51303] [#51802]
@@ -260,6 +264,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - Updated dependencies. [#39754]
 
+[1.4.17]: https://github.com/Automattic/jetpack-scan/compare/v1.4.16...v1.4.17
 [1.4.16]: https://github.com/Automattic/jetpack-scan/compare/v1.4.15...v1.4.16
 [1.4.15]: https://github.com/Automattic/jetpack-scan/compare/v1.4.14...v1.4.15
 [1.4.14]: https://github.com/Automattic/jetpack-scan/compare/v1.4.13...v1.4.14

@@ -44,7 +44,6 @@ function buildDateFilters(): ReportDateFilters {
 		onChange: jest.fn(),
 		onComparisonChange: jest.fn(),
 		onIntervalChange: jest.fn(),
-		onStep: jest.fn(),
 		onApply: jest.fn(),
 		onCancel: jest.fn(),
 		canApply: true,

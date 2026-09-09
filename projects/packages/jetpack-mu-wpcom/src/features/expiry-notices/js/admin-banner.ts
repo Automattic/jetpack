@@ -5,9 +5,7 @@ import { trackOncePerSession } from './track-once.ts';
 
 interface ExpiryBannerData {
 	metaKey: string;
-	state: string;
-	daysRemaining: number;
-	productSlug: string;
+	trackProps: Record< string, string | number >;
 }
 
 declare global {
@@ -23,12 +21,7 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		return;
 	}
 
-	const trackProps = {
-		state: data.state,
-		days_remaining: data.daysRemaining,
-		product_slug: data.productSlug,
-		surface: 'wp_admin',
-	};
+	const trackProps = { ...data.trackProps, surface: 'wp_admin' };
 
 	// Once per browser session: the banner re-renders on every load in the
 	// non-dismissible states but we count unique sessions.

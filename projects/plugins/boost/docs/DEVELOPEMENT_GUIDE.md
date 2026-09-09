@@ -79,21 +79,9 @@ To check for PHP code compatibility run:
   ```
 
 ## Linting Jetpack Boost JavaScript code
-The following commands need to be run from the `projects/plugins/boost` directory.
 
-To check syntax and style in the all the TypeScript and Svelte files that Jetpack Boost relies on, you can run:
-
-  ```sh
-  pnpm lint
-  ``` 
-
-
-To automatically fix some JavaScript related issues, you can run:
-
-  ```sh
-  pnpm lint:fix
-  ``` 
-
+Run JavaScript linting from the monorepo root as described in the
+[development environment guide](../../../../docs/development-environment.md#linting-jetpacks-javascript).
 
 # Debugging Concatenate JS/CSS exclusions
 

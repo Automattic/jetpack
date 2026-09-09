@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-VideoPress: Register the Video Playlist block from the Jetpack plugin when the VideoPress module is active.

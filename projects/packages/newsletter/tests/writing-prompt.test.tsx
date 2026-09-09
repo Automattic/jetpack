@@ -424,7 +424,8 @@ describe( 'WritingPrompt widget analytics', () => {
 		render( <WritingPrompt /> );
 
 		const postAnswerLink = await screen.findByRole( 'link', { name: 'Post your answer' } );
-		expect( postAnswerLink ).toHaveAttribute( 'href', 'post-new.php?answer_prompt=1' );
+		// WordPress.com-platform site (isWpcomPlatformSite() true) → Write editor.
+		expect( postAnswerLink ).toHaveAttribute( 'href', 'admin.php?page=write&answer_prompt=1' );
 		postAnswerLink.addEventListener( 'click', event => event.preventDefault() );
 		postAnswerLink.click();
 
@@ -432,6 +433,18 @@ describe( 'WritingPrompt widget analytics', () => {
 			'jetpack_newsletter_writing_prompt_post_answer_click',
 			{ site_type: 'jetpack', prompt_id: 1 }
 		);
+	} );
+
+	it( 'points Post your answer at the classic new-post screen on self-hosted sites', async () => {
+		// Self-hosted (not a WordPress.com-platform site): the Write editor
+		// isn't available, so fall back to post-new.php, where the
+		// jetpack/blogging-prompt block editor script seeds the same prompt.
+		mockIsWpcomPlatformSite.mockReturnValue( false );
+
+		render( <WritingPrompt /> );
+
+		const postAnswerLink = await screen.findByRole( 'link', { name: 'Post your answer' } );
+		expect( postAnswerLink ).toHaveAttribute( 'href', 'post-new.php?answer_prompt=1' );
 	} );
 
 	it( 'records a view-responses event with the prompt id when View responses is clicked', async () => {

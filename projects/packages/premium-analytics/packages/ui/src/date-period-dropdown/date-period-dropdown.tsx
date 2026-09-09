@@ -96,8 +96,8 @@ type DatePeriodDropdownProps = {
 	canApply: boolean;
 
 	/**
-	 * Whether to offer Custom range. On by default; the detail pages' design has
-	 * common periods only.
+	 * Whether to offer Custom range. On by default; a surface whose design lists
+	 * common periods only turns it off.
 	 */
 	withCustomRange?: boolean;
 
