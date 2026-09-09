@@ -243,8 +243,8 @@ class Configuration {
 			if ( isset( $_GET['section'] ) && 'features' === $_GET['section'] ) {
 				// phpcs:disable WordPress.Security.NonceVerification.Missing
 				if ( isset( $_POST['woocommerce_feature_order_attribution_enabled'] ) ) {
-					$posted_order_attribution = wc_clean( sanitize_text_field( wp_unslash( $_POST['woocommerce_feature_order_attribution_enabled'] ) ) );
-					$is_enabled               = wc_string_to_bool( $posted_order_attribution );
+					$posted_order_attribution = strtolower( sanitize_text_field( wp_unslash( $_POST['woocommerce_feature_order_attribution_enabled'] ) ) );
+					$is_enabled               = in_array( $posted_order_attribution, array( 'yes', 'true', '1' ), true );
 				} elseif ( isset( $_SERVER['REQUEST_METHOD'] ) && 'POST' === $_SERVER['REQUEST_METHOD'] ) {
 					$is_enabled = false;
 				}
@@ -253,7 +253,7 @@ class Configuration {
 			// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
 			return $is_enabled;
-		} catch ( \Exception $e ) {
+		} catch ( \Throwable $e ) {
 			return false;
 		}
 	}
