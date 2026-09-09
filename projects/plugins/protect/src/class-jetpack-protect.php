@@ -173,7 +173,12 @@ class Jetpack_Protect {
 			'Protect', // "Protect" is a product name, do not translate.
 			'manage_options',
 			'jetpack-protect',
-			array( $this, 'plugin_settings_page' )
+			array( $this, 'plugin_settings_page' ),
+			null,
+			array(
+				'product' => 'protect',
+				'key'     => 'jetpack-protect',
+			)
 		);
 
 		add_action( 'load-' . $page_suffix, array( $this, 'enqueue_admin_scripts' ) );

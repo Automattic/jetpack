@@ -193,7 +193,11 @@ class Blaze {
 					$menu_label,
 					'manage_options',
 					$menu_slug,
-					array( $blaze_dashboard, 'render' )
+					array( $blaze_dashboard, 'render' ),
+					null,
+					// The menu slug is filterable, so name the item explicitly rather than
+					// letting a host's own slug become the key hosts address it by.
+					array( 'key' => 'jetpack-blaze' )
 				);
 			} else {
 				// Other parents already exist at this priority, so add_submenu_page is safe.

@@ -1083,7 +1083,8 @@ class Jetpack_Subscriptions {
 			'manage_options',
 			esc_url( $link ),
 			null,
-			Admin_Menu::POSITION_EXTERNAL
+			Admin_Menu::POSITION_EXTERNAL,
+			array( 'key' => 'jetpack-subscribers' )
 		);
 	}
 
