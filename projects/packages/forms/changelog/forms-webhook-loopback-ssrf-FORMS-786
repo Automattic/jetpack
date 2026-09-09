@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Webhooks: Block loopback and unspecified addresses when validating webhook URLs, including the NAT64 and 6to4 spellings, and stop following redirects.
+Webhooks: Block loopback and unspecified addresses when validating webhook URLs, including the NAT64 and 6to4 spellings.

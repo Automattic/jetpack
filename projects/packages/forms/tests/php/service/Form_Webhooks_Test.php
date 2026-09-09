@@ -1506,50 +1506,6 @@ class Form_Webhooks_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test that webhook requests do not follow redirects.
-	 * A redirect escapes the validation we ran on the configured URL.
-	 */
-	public function test_send_webhooks_does_not_follow_redirects() {
-		$form   = $this->create_mock_form(
-			array(
-				'webhooks' => array(
-					array(
-						'webhook_id' => 'test-webhook',
-						// Public literal IP, so validation resolves nothing and the test stays hermetic.
-						'url'        => 'https://93.184.216.34/webhook',
-						'format'     => 'json',
-						'method'     => 'POST',
-						'enabled'    => true,
-					),
-				),
-			)
-		);
-		$fields = array( $this->create_mock_field( $form, 'test-field', 'test value' ) );
-
-		$post_id = $this->create_feedback_post( $form, $fields );
-
-		$redirection = null;
-		add_filter(
-			'pre_http_request',
-			function ( $preempt, $parsed_args ) use ( &$redirection ) {
-				$redirection = $parsed_args['redirection'];
-				return array(
-					'response' => array( 'code' => 200 ),
-					'body'     => '{}',
-					'headers'  => new CaseInsensitiveDictionary( array( 'Content-Type' => 'application/json' ) ),
-				);
-			},
-			10,
-			2
-		);
-
-		$webhooks = Form_Webhooks::init();
-		$webhooks->send_webhooks( $post_id, $fields, false, array() );
-
-		$this->assertSame( 0, $redirection, 'Webhook requests should not follow redirects' );
-	}
-
-	/**
 	 * Test that webhook blocks the IPv6 unspecified address.
 	 * SSRF protection should block ::, the IPv6 counterpart of 0.0.0.0.
 	 */

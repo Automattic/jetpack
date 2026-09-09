@@ -524,23 +524,16 @@ class Form_Webhooks {
 		// Encode body based on format
 		$body = $webhook['format'] === self::FORMAT_JSON ? wp_json_encode( $data, JSON_UNESCAPED_SLASHES ) : $data;
 		$args = array(
-			'method'      => $method,
-			'body'        => $body,
-			'headers'     => array(
+			'method'    => $method,
+			'body'      => $body,
+			'headers'   => array(
 				'Content-Type' => $format,
 				'user-agent'   => $user_agent,
 			),
-			'sslverify'   => true,
-
-			/*
-			 * Do not follow redirects. Core re-validates each hop, but it never blocks the Azure
-			 * wire server and still permits http, so a 302 escapes our stricter checks -- and it
-			 * downgrades a redirected POST to a bodyless GET anyway.
-			 */
-			'redirection' => 0,
+			'sslverify' => true,
 		);
 
-		// Use wp_safe_remote_request for built-in SSRF protection on the URL we validated.
+		// Use wp_safe_remote_request for built-in SSRF protection and redirect validation
 		return wp_safe_remote_request( $url, $args );
 	}
 }
