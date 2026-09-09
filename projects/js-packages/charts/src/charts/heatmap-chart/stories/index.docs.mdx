@@ -108,7 +108,7 @@ In-cell values use compact notation (e.g. `748.5K`, `1.2M`) so large numbers fit
 
 ## Summary Column
 
-A column flagged `summary: true` is a per-row roll-up, such as a total or an average, and sits outside the colour scale: its values never feed the extent, its cells draw no fill and always print their figure (compact mode included), emphasised, on a track wide enough for it. It draws wherever it appears in `data`, and hover, tooltips and keyboard navigation reach it like any other column. The chart never computes the roll-up: pass the figures to show.
+A column flagged `summary: true` is a per-row roll-up, such as a total or an average, and sits outside the color scale: its values never feed the extent, its cells draw no fill and always print their figure (smaller in compact mode), emphasised, on a track wide enough for it, one gap apart from the data on either side. It draws wherever it appears in `data`, and hover, tooltips and keyboard navigation reach it like any other column. The chart never computes the roll-up: pass the figures to show.
 
 <Canvas of={ HeatmapStories.WithSummaryColumn } />
 

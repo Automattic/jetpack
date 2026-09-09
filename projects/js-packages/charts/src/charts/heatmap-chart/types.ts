@@ -29,12 +29,9 @@ export type HeatmapColumn = {
 	label?: string;
 	data: HeatmapCell[];
 	/**
-	 * A summary column: a per-row roll-up such as a total or an average. It
-	 * stays out of the colour scale, where a roll-up would flatten every real
-	 * cell to the bottom, so its cells draw no fill and always print their
-	 * figure, emphasised, on a track wide enough for it. It sits wherever it
-	 * appears in `data`; hover, tooltips and keyboard navigation reach it like
-	 * any other column. The chart never computes it: pass the figures to show.
+	 * A per-row roll-up such as a total or an average. Left out of the color
+	 * scale, drawn unfilled with its figure always printed, on an `auto` track
+	 * one gap apart from the data beside it. The chart never computes it.
 	 */
 	summary?: boolean;
 };
