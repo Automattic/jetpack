@@ -5,9 +5,12 @@
 }
 
 .chart-container {
+	display: block;
 	position: relative;
 	box-sizing: border-box;
 	cursor: pointer;
+	color: inherit;
+	text-decoration: none;
 
 	.chart-empty {
 		align-items: center;
