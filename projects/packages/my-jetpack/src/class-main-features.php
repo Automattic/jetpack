@@ -258,6 +258,30 @@ class Main_Features {
 	}
 
 	/**
+	 * Modules Jetpack itself tags as recommended.
+	 *
+	 * The tag lives on the module definition and never reaches the browser, so the
+	 * Recommended filter needs it passed through explicitly.
+	 *
+	 * @return string[] Module slugs.
+	 */
+	public static function get_recommended_modules() {
+		$recommended = array();
+
+		$modules = new Modules();
+
+		foreach ( $modules->get_available() as $slug ) {
+			$module = $modules->get( $slug );
+
+			if ( in_array( 'Recommended', (array) ( $module['feature'] ?? array() ), true ) ) {
+				$recommended[] = $slug;
+			}
+		}
+
+		return $recommended;
+	}
+
+	/**
 	 * Headings for the modules the feature list does not cover.
 	 *
 	 * Grouped by the job a site owner is doing, not by Jetpack's own module tags, which

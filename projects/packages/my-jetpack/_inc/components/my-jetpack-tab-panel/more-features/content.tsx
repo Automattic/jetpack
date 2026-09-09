@@ -1,47 +1,49 @@
 import { __ } from '@wordpress/i18n';
-import { Checkbox, Stack, Text } from '@wordpress/ui';
-import { useCallback, useMemo, useState } from 'react';
-import { ModuleBulkActions } from './module-bulk-actions';
+import { Stack, Text } from '@wordpress/ui';
+import { useMemo } from 'react';
 import { ModuleItem } from './module-item';
 import styles from './styles.module.scss';
-import { useOtherModules } from './use-other-modules';
+import type { ModuleGroup } from './use-other-modules';
+
+type MoreFeaturesContentProps = {
+	groups: ModuleGroup[];
+	visible: Set< string >;
+	selected: string[];
+	onSelect: ( slug: string, checked: boolean ) => void;
+};
 
 /**
  * Everything the Features list does not cover, under group headings.
  *
- * Sits below the feature list rather than on a tab of its own: these are the modules
- * that have not yet found a home inside the feature that owns them, and seeing them
- * beneath the features makes the overlap obvious.
+ * Selection, filtering and search all live in the toolbar above, which spans both
+ * lists, so this renders what it is given rather than owning any of it.
  *
+ * @param {MoreFeaturesContentProps} props          - The component props.
+ * @param {ModuleGroup[]}            props.groups   - The grouped modules.
+ * @param {Set}                      props.visible  - Slugs passing the current filter.
+ * @param {string[]}                 props.selected - Slugs selected for a bulk action.
+ * @param {Function}                 props.onSelect - Called when a row's checkbox changes.
  * @return The rendered component.
  */
-export function MoreFeaturesContent() {
-	const { groups, modules, isLoading } = useOtherModules();
-
-	const [ selected, setSelected ] = useState< string[] >( [] );
-
-	// A module pinned on or off by a filter cannot take part in a bulk action.
-	const selectableSlugs = useMemo(
-		() => modules.filter( item => item.available && ! item.override ).map( item => item.module ),
-		[ modules ]
+export function MoreFeaturesContent( {
+	groups,
+	visible,
+	selected,
+	onSelect,
+}: MoreFeaturesContentProps ) {
+	// A group with nothing left after filtering drops out rather than leaving a heading.
+	const visibleGroups = useMemo(
+		() =>
+			groups
+				.map( group => ( {
+					...group,
+					modules: group.modules.filter( item => visible.has( item.module ) ),
+				} ) )
+				.filter( group => group.modules.length > 0 ),
+		[ groups, visible ]
 	);
 
-	const toggleModule = useCallback( ( slug: string, checked: boolean ) => {
-		setSelected( current =>
-			checked ? [ ...current, slug ] : current.filter( item => item !== slug )
-		);
-	}, [] );
-
-	const clearSelection = useCallback( () => setSelected( [] ), [] );
-
-	const allSelected = selectableSlugs.length > 0 && selected.length === selectableSlugs.length;
-
-	const toggleAll = useCallback(
-		( checked: boolean ) => setSelected( checked ? selectableSlugs : [] ),
-		[ selectableSlugs ]
-	);
-
-	if ( isLoading || ! modules.length ) {
+	if ( ! visibleGroups.length ) {
 		return null;
 	}
 
@@ -55,17 +57,7 @@ export function MoreFeaturesContent() {
 				) }
 			</Text>
 
-			<Stack direction="row" align="center" gap="md" className={ styles[ 'list-header' ] }>
-				<Checkbox
-					checked={ allSelected }
-					indeterminate={ selected.length > 0 && ! allSelected }
-					onCheckedChange={ toggleAll }
-					aria-label={ __( 'Select all additional features', 'jetpack-my-jetpack' ) }
-				/>
-				<ModuleBulkActions modules={ modules } selected={ selected } onClear={ clearSelection } />
-			</Stack>
-
-			{ groups.map( group => (
+			{ visibleGroups.map( group => (
 				<section key={ group.label } className={ styles.group }>
 					<h3 className={ styles.group__label }>{ group.label }</h3>
 					<Stack direction="column" className={ styles[ 'module-list' ] }>
@@ -74,7 +66,7 @@ export function MoreFeaturesContent() {
 								key={ item.module }
 								module={ item }
 								selected={ selected.includes( item.module ) }
-								onSelect={ toggleModule }
+								onSelect={ onSelect }
 							/>
 						) ) }
 					</Stack>

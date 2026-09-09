@@ -65,16 +65,6 @@ $feature-icon-foreground: #0ced57;
 	min-inline-size: 0;
 }
 
-.list-header {
-	min-block-size: 2.5rem;
-	padding-block: var(--wpds-dimension-padding-sm);
-	padding-inline: var(--wpds-dimension-padding-lg);
-}
-
-.bulk-actions {
-	flex: 1;
-	justify-content: space-between;
-}
 
 .feature-chevron {
 	color: var(--wpds-color-foreground-content-neutral-weak);
@@ -248,13 +238,39 @@ $feature-icon-foreground: #0ced57;
 	margin: 0;
 }
 
-.search {
-	margin-block-end: var(--wpds-dimension-gap-md);
-	max-inline-size: 24rem;
-}
 
 .search-heading {
 
 	@include gb.heading-x-large;
 	margin-block: 0;
+}
+
+// Sticky so a selection made far down a long list can still be
+// acted on. The offset clears the wp-admin bar, which is fixed.
+.toolbar {
+	background: var(--wpds-color-background-surface-neutral-strong);
+	border-color: var(--wpds-color-stroke-surface-neutral-weak);
+	border-radius: var(--wpds-border-radius-md);
+	border-style: solid;
+	border-width: var(--wpds-border-width-xs);
+	inset-block-start: 32px;
+	margin-block: var(--wpds-dimension-gap-md);
+	padding: var(--wpds-dimension-padding-md);
+	position: sticky;
+	z-index: 10;
+}
+
+.toolbar__status {
+	color: var(--wpds-color-foreground-content-neutral-weak);
+}
+
+.toolbar__end {
+	margin-inline-start: auto;
+}
+
+@media (max-width: 782px) {
+
+	.toolbar {
+		inset-block-start: 46px;
+	}
 }

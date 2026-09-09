@@ -35,16 +35,6 @@
 	min-inline-size: 0;
 }
 
-.list-header {
-	min-block-size: 2.5rem;
-	padding-block: var(--wpds-dimension-padding-sm);
-	padding-inline: var(--wpds-dimension-padding-lg);
-}
-
-.bulk-actions {
-	flex: 1;
-	justify-content: space-between;
-}
 
 .group {
 	display: flex;

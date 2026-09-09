@@ -484,6 +484,7 @@ interface Window {
 		mainFeatures: MainFeature[];
 		coveredModules: string[];
 		moduleGroups: Array< { label: string; modules: string[] } >;
+		recommendedModuleSlugs: string[];
 		siteSuffix: string;
 		siteUrl: string;
 		latestBoostSpeedScores: {
