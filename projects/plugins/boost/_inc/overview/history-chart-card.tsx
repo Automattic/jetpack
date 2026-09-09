@@ -4,8 +4,9 @@ import { getScoreLetter } from '@automattic/jetpack-boost-score-api';
 import { formatNumber } from '@automattic/number-formatters';
 import { Spinner } from '@wordpress/components';
 import { dateI18n } from '@wordpress/date';
+import { RawHTML } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { trendingUp } from '@wordpress/icons';
+import { Icon, info, trendingUp } from '@wordpress/icons';
 import { Button, Card, EmptyState, Notice } from '@wordpress/ui';
 import { useCallback, useMemo, useState } from 'react';
 import UpgradeCTA from './upgrade-cta';
@@ -293,7 +294,9 @@ export default function HistoryChartCard( {
 										<LineChart.Annotation
 											key={ `${ annotation.timestamp }-${ index }` }
 											datum={ { date: new Date( annotation.timestamp ), value: 100 } }
-											title={ annotation.text }
+											title={ __( 'View performance history annotation', 'jetpack-boost' ) }
+											renderLabel={ () => <Icon icon={ info } /> }
+											renderLabelPopover={ () => <RawHTML>{ annotation.text }</RawHTML> }
 											subjectType="line-vertical"
 										/>
 									) ) }

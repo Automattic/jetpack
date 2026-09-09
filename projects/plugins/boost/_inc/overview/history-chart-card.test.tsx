@@ -127,6 +127,34 @@ test( 'only renders annotations inside the displayed date domain, including its 
 	expect( screen.queryByText( 'Future annotation' ) ).not.toBeInTheDocument();
 } );
 
+test( 'renders sanitized annotation markup and focusable links in the shared popover', async () => {
+	render(
+		<HistoryChartCard
+			data={ {
+				...history,
+				annotations: [
+					{
+						timestamp,
+						text: 'Enabled <strong>Image CDN</strong>. <a href="https://jetpack.com/boost/">Learn more</a>',
+					},
+				],
+			} }
+			{ ...callbacks }
+		/>
+	);
+	const trigger = await screen.findByRole( 'button', {
+		name: 'View performance history annotation',
+	} );
+	const popover = screen.getByTestId( 'line-chart-annotation-label-popover' );
+	expect( trigger ).toHaveAttribute( 'popovertarget', popover.id );
+	expect( popover ).toHaveAttribute( 'popover', 'auto' );
+	expect( within( popover ).getByText( 'Image CDN', { selector: 'strong' } ) ).toBeInTheDocument();
+	const link = within( popover ).getByRole( 'link', { hidden: true, name: 'Learn more' } );
+	expect( link ).toHaveAttribute( 'href', 'https://jetpack.com/boost/' );
+	link.focus();
+	expect( link ).toHaveFocus();
+} );
+
 test( 'sorts both device series without mutating the cached periods', () => {
 	const periods = [ history.periods[ 1 ], history.periods[ 0 ] ];
 	const series = buildHistorySeries( { ...history, periods } );
