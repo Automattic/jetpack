@@ -258,11 +258,8 @@ class Jetpack_AI_Page {
 			Tracking::register_tracks_functions_scripts( true );
 		}
 
-		if ( $show_scheduled_tasks_view ) {
-			Connection_Initial_State::render_script( 'jetpack-ai-admin' );
-		}
-
-		$host = new Host();
+		$host           = new Host();
+		$has_my_jetpack = self::has_my_jetpack();
 
 		/**
 		 * Filters the host-specific AI Hub configuration.
@@ -280,10 +277,14 @@ class Jetpack_AI_Page {
 					&& ( ! $host->is_wpcom_platform() || ( $host->is_woa_site() && $is_internal_test ) ),
 				'showA12sBadge'     => $host->is_woa_site() && $is_internal_test,
 				'isUserConnected'   => ( new Connection_Manager() )->is_user_connected(),
+				'hasMyJetpack'      => $has_my_jetpack,
 				// My Jetpack is removed on VIP, so that route dead-ends there.
 				'userConnectionUrl' => $host->is_vip_site()
 					? 'admin.php?page=jetpack#/connect-user'
 					: 'admin.php?page=my-jetpack#/connection',
+				'manageUrl'         => $has_my_jetpack
+					? 'admin.php?page=my-jetpack#/products'
+					: 'admin.php?page=jetpack_modules',
 				'mcpSettingsApi'    => array(
 					'path'   => '/wpcom/v2/jetpack-ai/mcp-settings',
 					'format' => 'jetpack',
@@ -293,6 +294,12 @@ class Jetpack_AI_Page {
 
 		$show_gated_views = ! empty( $config['showGatedViews'] );
 
+		// The page notice reads the connection store, and only the gated views
+		// render it. Initial_State can hit WordPress.com, so skip it elsewhere.
+		if ( $show_gated_views || $show_scheduled_tasks_view ) {
+			Connection_Initial_State::render_script( 'jetpack-ai-admin' );
+		}
+
 		$plan_info = $show_gated_views ? self::get_ai_plan_info() : array( 'name' => '' );
 
 		$settings = array(
@@ -301,6 +308,8 @@ class Jetpack_AI_Page {
 			'seoSettingsUrl'    => $seo_settings_url,
 			'siteAdminUrl'      => admin_url(),
 			'userConnectionUrl' => esc_url_raw( $config['userConnectionUrl'] ),
+			'manageUrl'         => esc_url_raw( $config['manageUrl'] ),
+			'hasMyJetpack'      => ! empty( $config['hasMyJetpack'] ),
 			'apiRoot'           => esc_url_raw( rest_url() ),
 			'apiNonce'          => wp_create_nonce( 'wp_rest' ),
 			'pluginUrl'         => plugins_url( '', JETPACK__PLUGIN_FILE ),
@@ -408,6 +417,20 @@ class Jetpack_AI_Page {
 			: '';
 
 		return '' !== $email && '@automattic.com' === substr( $email, -15 );
+	}
+
+	/**
+	 * Whether My Jetpack is loaded on this host.
+	 *
+	 * Hosts drop it with the `jetpack_my_jetpack_should_initialize` filter, so
+	 * neither its routes nor its labels can be assumed to exist.
+	 *
+	 * @return bool
+	 */
+	private static function has_my_jetpack() {
+		return class_exists( 'Automattic\\Jetpack\\My_Jetpack\\Initializer' )
+			&& method_exists( 'Automattic\\Jetpack\\My_Jetpack\\Initializer', 'should_initialize' )
+			&& \Automattic\Jetpack\My_Jetpack\Initializer::should_initialize();
 	}
 
 	/**

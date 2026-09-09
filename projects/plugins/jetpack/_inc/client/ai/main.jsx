@@ -13,18 +13,15 @@
  * MCP hub as the landing view and no tab bar.
  */
 
-import {
-	AdminPage,
-	GlobalNotices,
-	useGlobalNotices,
-	getRedirectUrl,
-} from '@automattic/jetpack-components';
-import { Spinner, ExternalLink } from '@wordpress/components';
+import { AdminPage, GlobalNotices, useGlobalNotices } from '@automattic/jetpack-components';
+import { useConnectionErrorNotice } from '@automattic/jetpack-connection';
+import { Spinner } from '@wordpress/components';
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __, isRTL, sprintf } from '@wordpress/i18n';
 import { chevronLeft, chevronRight, Icon } from '@wordpress/icons';
 import { Badge, Notice, Stack, Tabs } from '@wordpress/ui';
-import MasterOffNotice from './components/master-off-notice';
+import PageNotice from './components/page-notice';
+import { GATED_VIEWS } from './constants';
 import AiFeatures from './features/index';
 import { useFeatureSettings } from './features/use-feature-settings';
 import McpConnectCallout from './mcp/connect-callout';
@@ -54,19 +51,11 @@ const LEGACY_VIEW_ALIASES = {
 	setup: 'mcp/setup',
 };
 
-// Views that retain an internal-testing badge when a host enables them for a
-// test request. MCP and Connectors ships publicly, so it is not in here.
-const GATED_VIEWS = [ 'overview', 'features' ];
-
-// Views the master switch governs. MCP and Scheduled tasks are not gated by
-// it, so they never show the master-off notice.
-const MASTER_SWITCH_VIEWS = [ 'overview', 'features' ];
-
 // Read at call time, not module scope, so the flag reflects the injected page data.
 const getTabViews = () => {
 	const views = [];
 	if ( window?.jetpackAiSettings?.showFeaturesView ) {
-		views.push( 'overview', 'features' );
+		views.push( ...GATED_VIEWS );
 	}
 	if ( window?.jetpackAiSettings?.featureFlags?.[ 'ai-hub-scheduled-tasks' ] ) {
 		views.push( 'scheduled-tasks' );
@@ -195,6 +184,9 @@ export default function App() {
 		planName,
 		isUserConnected,
 		userConnectionUrl = 'admin.php?page=my-jetpack#/connection',
+		siteAdminUrl = '',
+		manageUrl = 'admin.php?page=my-jetpack#/products',
+		hasMyJetpack = true,
 		showFeaturesView = false,
 		showA12sBadge = false,
 	} = window?.jetpackAiSettings ?? {};
@@ -203,6 +195,7 @@ export default function App() {
 	// design-system SnackbarList behind @wordpress/notices): transient,
 	// auto-dismissing, no page-level styling needed.
 	const { createSuccessNotice, createErrorNotice } = useGlobalNotices();
+	const { hasConnectionError } = useConnectionErrorNotice();
 	const mcpViewedRecorded = useRef( false );
 	// Strict false: older page data (undefined) must not read as unlinked.
 	const userUnlinked = isUserConnected === false;
@@ -219,8 +212,6 @@ export default function App() {
 		error: aiSettingsError,
 		updateSettings: updateAiSettings,
 	} = useFeatureSettings( showFeaturesView );
-
-	const masterEnabled = aiSettings?.master_enabled !== false;
 
 	// The hash is the single source of truth for the current view: popstate
 	// covers back/forward, hashchange covers direct hash edits and links.
@@ -412,10 +403,18 @@ export default function App() {
 				) }
 				<GlobalNotices />
 
-				{ ! masterEnabled &&
-					MASTER_SWITCH_VIEWS.includes( view ) &&
-					aiSettings?.is_connected !== false &&
-					aiSettings?.host_allows_ai !== false && <MasterOffNotice /> }
+				<PageNotice
+					view={ view }
+					blogId={ blogId }
+					isUserConnected={ isUserConnected }
+					settings={ aiSettings }
+					userConnectionUrl={ userConnectionUrl }
+					manageUrl={ manageUrl }
+					siteAdminUrl={ siteAdminUrl }
+					apiRoot={ apiRoot }
+					apiNonce={ apiNonce }
+					hasMyJetpack={ hasMyJetpack }
+				/>
 
 				{ isMcpContext && (
 					<>
@@ -489,6 +488,8 @@ export default function App() {
 						upgradeUrl={ upgradeUrl }
 						planName={ planName }
 						isUserConnected={ isUserConnected }
+						isConnected={ aiSettings?.is_connected }
+						hasConnectionError={ hasConnectionError }
 						hostAllowsAi={ aiSettings?.host_allows_ai }
 						// Same preconditions the MCP hub applies to its copy of the
 						// row: the copy promises AI-agent actions, which need MCP.
@@ -512,22 +513,13 @@ export default function App() {
 
 						{ ! isAiSettingsLoading &&
 							! aiSettingsError &&
-							( aiSettings?.host_allows_ai === false ? (
-								<Notice.Root intent="warning">
-									<Notice.Description>
-										{ __( 'Jetpack AI is not available for this site.', 'jetpack' ) }{ ' ' }
-										<ExternalLink href={ getRedirectUrl( 'jetpack-ai-hub-docs-wp-supports-ai' ) }>
-											{ __( 'Learn more', 'jetpack' ) }
-										</ExternalLink>
-									</Notice.Description>
-								</Notice.Root>
-							) : (
+							aiSettings?.host_allows_ai !== false && (
 								<AiFeatures
 									settings={ aiSettings }
 									savingKeys={ aiSavingKeys }
 									onUpdate={ handleAiSettingsUpdate }
 								/>
-							) ) }
+							) }
 					</>
 				) }
 

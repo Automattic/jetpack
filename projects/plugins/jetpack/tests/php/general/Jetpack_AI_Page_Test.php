@@ -280,6 +280,31 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * The turned-off notice sends people to My Jetpack wherever it loads.
+	 */
+	public function test_manage_url_points_at_my_jetpack_when_it_loads() {
+		$this->given_woa( false );
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertTrue( $settings['hasMyJetpack'] );
+		$this->assertSame( 'admin.php?page=my-jetpack#/products', $settings['manageUrl'] );
+	}
+
+	/**
+	 * Hosts that keep My Jetpack out get the legacy modules page instead.
+	 */
+	public function test_manage_url_falls_back_to_the_modules_page_without_my_jetpack() {
+		$this->given_woa( false );
+		add_filter( 'jetpack_my_jetpack_should_initialize', '__return_false' );
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertFalse( $settings['hasMyJetpack'] );
+		$this->assertSame( 'admin.php?page=jetpack_modules', $settings['manageUrl'] );
+	}
+
+	/**
 	 * Internal self-hosted requests still present the views as public UI.
 	 */
 	public function test_self_hosted_internal_request_has_no_a12s_badge() {
@@ -537,9 +562,31 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * The Agents Manager connection state stays dormant with Scheduled tasks.
+	 * The page notice reads the connection store, so the gated views ship its state.
 	 */
-	public function test_connection_initial_state_is_not_injected_by_default() {
+	public function test_connection_initial_state_is_injected_for_the_gated_views() {
+		$this->given_woa( false );
+
+		unset( $GLOBALS['wp_scripts'] );
+
+		( new Jetpack_AI_Page() )->page_admin_scripts();
+
+		$inline = implode( "\n", array_filter( (array) wp_scripts()->get_data( 'jetpack-ai-admin', 'before' ) ) );
+		$this->assertStringContainsString( 'JP_CONNECTION_INITIAL_STATE', $inline );
+	}
+
+	/**
+	 * Without those views nothing reads the store, and Initial_State can call WordPress.com.
+	 */
+	public function test_connection_initial_state_is_skipped_without_the_gated_views() {
+		add_filter(
+			'jetpack_ai_admin_config',
+			function ( $config ) {
+				$config['showGatedViews'] = false;
+				return $config;
+			}
+		);
+
 		unset( $GLOBALS['wp_scripts'] );
 
 		( new Jetpack_AI_Page() )->page_admin_scripts();

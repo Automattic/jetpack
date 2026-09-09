@@ -270,20 +270,11 @@ describe( 'AiOverview', () => {
 		expect( row ).toHaveAttribute( 'href', 'https://example.com/activity' );
 	} );
 
-	test( 'not connected: explains the connection instead of an API error, and skips the fetch', async () => {
+	test( 'not connected: skips the fetch that could only fail', async () => {
 		// Without a connection the usage endpoint can only fail, and a red
-		// "Unable to fetch the requested data." is the wrong story to tell —
-		// say what's actually wrong and don't make the request at all.
+		// "Unable to fetch the requested data." is the wrong story to tell.
 		render( <AiOverview { ...PROPS } blogId={ 0 } /> );
 
-		await expect(
-			screen.findByText( 'Jetpack is not connected to WordPress.com.', IGNORE_A11Y )
-		).resolves.toBeInTheDocument();
-		// Same next step the Features view offers, so the two tabs agree.
-		expect( screen.getByRole( 'link', { name: 'Connect Jetpack' } ) ).toHaveAttribute(
-			'href',
-			'admin.php?page=my-jetpack#/connection'
-		);
 		expect( apiFetch ).not.toHaveBeenCalled();
 		// A bare `blogId &&` guard would print the 0 itself.
 		expect( screen.queryByText( '0' ) ).not.toBeInTheDocument();
@@ -302,12 +293,25 @@ describe( 'AiOverview', () => {
 		expect( screen.queryByRole( 'link', { name: /Activity log/ } ) ).not.toBeInTheDocument();
 	} );
 
-	test( 'host AI off: a notice replaces the usage card and no upgrade is offered', async () => {
+	test( 'settings report no connection: no usage card, and no fetch', async () => {
+		// Offline mode and a departed connection owner keep their blog ID, so
+		// the card must follow the settings call, not the ID alone.
+		render( <AiOverview { ...PROPS } isConnected={ false } /> );
+
+		expect( screen.queryByText( 'Available requests' ) ).not.toBeInTheDocument();
+		expect( apiFetch ).not.toHaveBeenCalled();
+	} );
+
+	test( 'connection error: no usage card, and no fetch that could only fail', async () => {
+		render( <AiOverview { ...PROPS } hasConnectionError={ true } /> );
+
+		expect( screen.queryByText( 'Available requests' ) ).not.toBeInTheDocument();
+		expect( apiFetch ).not.toHaveBeenCalled();
+	} );
+
+	test( 'host AI off: no usage card and no upgrade is offered', async () => {
 		render( <AiOverview { ...PROPS } hostAllowsAi={ false } /> );
 
-		expect(
-			screen.getByText( 'Jetpack AI is not available for this site.', IGNORE_A11Y )
-		).toBeInTheDocument();
 		expect( screen.queryByText( 'Available requests' ) ).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'link', { name: 'Upgrade' } ) ).not.toBeInTheDocument();
 		expect( apiFetch ).not.toHaveBeenCalled();
@@ -315,28 +319,9 @@ describe( 'AiOverview', () => {
 		expect( screen.getByText( 'Documentation' ) ).toBeInTheDocument();
 	} );
 
-	test( 'host AI off: the notice renders above the assistant banner', () => {
-		dispatch( preferencesStore ).set( 'jetpack/ai', 'assistantBannerDismissed', false );
-		render( <AiOverview { ...PROPS } hostAllowsAi={ false } /> );
-
-		// getAllByText returns matches in document order.
-		const [ first, second ] = screen.getAllByText(
-			/Jetpack AI is not available for this site\.|Do more on your site with AI\./,
-			IGNORE_A11Y
-		);
-		expect( first ).toHaveTextContent( 'Jetpack AI is not available for this site.' );
-		expect( second ).toHaveTextContent( 'Do more on your site with AI.' );
-	} );
-
-	test( 'user account not linked: explains the account, does not fetch', async () => {
+	test( 'user account not linked: no usage card, and no fetch that could only fail', async () => {
 		render( <AiOverview { ...PROPS } isUserConnected={ false } /> );
 
-		expect(
-			screen.getByText( 'Your WordPress.com account isn’t connected.', IGNORE_A11Y )
-		).toBeInTheDocument();
-		expect(
-			screen.getByRole( 'link', { name: 'Connect your user account to see your AI usage.' } )
-		).toHaveAttribute( 'href', 'admin.php?page=my-jetpack#/connection' );
 		expect( screen.queryByText( 'Available requests' ) ).not.toBeInTheDocument();
 		expect( apiFetch ).not.toHaveBeenCalled();
 	} );

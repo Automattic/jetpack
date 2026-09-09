@@ -13,6 +13,11 @@ jest.mock( '@automattic/jetpack-ai-client', () => ( { requestJwt: jest.fn() } ) 
 
 // Both settings hooks fetch through @wordpress/api-fetch; stub it so nothing
 // hits the network and each test controls the GET/POST responses.
+jest.mock( '@automattic/jetpack-connection', () => ( {
+	ConnectButton: ( { connectLabel } ) => <button type="button">{ connectLabel }</button>,
+	ConnectionError: () => <div data-testid="connection-error" />,
+	useConnectionErrorNotice: () => ( { hasConnectionError: false } ),
+} ) );
 jest.mock( '@wordpress/api-fetch' );
 
 // Swap Tabs for lightweight stand-ins; the real Notice/Stack are kept because
@@ -166,6 +171,7 @@ describe( 'AI admin page (main.jsx)', () => {
 		const masterOffSettings = () => ( { ...enabledSettings(), master_enabled: false } );
 
 		test( 'features tab: notice with the My Jetpack link, rendered exactly once', async () => {
+			window.jetpackAiSettings = { showFeaturesView: true, blogId: 1 };
 			mockApiFetch( { featureGet: masterOffSettings() } );
 
 			render( <App /> );
@@ -182,6 +188,42 @@ describe( 'AI admin page (main.jsx)', () => {
 			expect( screen.getByRole( 'checkbox', { name: /Writing Assistant/ } ) ).toBeDisabled();
 		} );
 
+		test( 'a host without My Jetpack is sent to the modules page instead', async () => {
+			window.jetpackAiSettings = {
+				showFeaturesView: true,
+				blogId: 1,
+				hasMyJetpack: false,
+				manageUrl: 'admin.php?page=jetpack_modules',
+			};
+			mockApiFetch( { featureGet: masterOffSettings() } );
+
+			render( <App /> );
+
+			await expect(
+				screen.findByRole( 'link', { name: 'Manage all Jetpack modules' } )
+			).resolves.toHaveAttribute( 'href', 'admin.php?page=jetpack_modules' );
+			expect(
+				screen.queryByRole( 'link', { name: 'Manage in My Jetpack' } )
+			).not.toBeInTheDocument();
+		} );
+
+		test( 'the notice sits above the view it applies to', async () => {
+			window.jetpackAiSettings = { showFeaturesView: true, blogId: 1 };
+			mockApiFetch( { featureGet: masterOffSettings() } );
+
+			render( <App /> );
+
+			await expect(
+				screen.findByText( MASTER_OFF_TITLE, IGNORE_A11Y )
+			).resolves.toBeInTheDocument();
+			// getAllByText returns matches in document order.
+			const [ first ] = screen.getAllByText(
+				/Jetpack AI is turned off for this site\.|Writing Assistant/,
+				IGNORE_A11Y
+			);
+			expect( first ).toHaveTextContent( MASTER_OFF_TITLE );
+		} );
+
 		test( 'overview tab: the notice shows', async () => {
 			window.jetpackAiSettings = { showFeaturesView: true, blogId: 1 };
 			window.location.hash = '#/overview';
@@ -192,6 +234,24 @@ describe( 'AI admin page (main.jsx)', () => {
 			await expect(
 				screen.findByText( MASTER_OFF_TITLE, IGNORE_A11Y )
 			).resolves.toBeInTheDocument();
+		} );
+
+		test( 'gated host: with no Overview or Features tab, no page notice appears', async () => {
+			// showFeaturesView false means neither tab exists, so the page-level
+			// slot must not start speaking for the MCP-only page.
+			window.jetpackAiSettings = { blogId: 1 };
+			window.location.hash = '#/mcp';
+			mockApiFetch( { featureGet: masterOffSettings(), mcpGet: connectedMcpGet() } );
+
+			render( <App /> );
+
+			await expect(
+				screen.findByRole( 'checkbox', { name: 'Enable MCP access' } )
+			).resolves.toBeInTheDocument();
+			expect( screen.queryByText( MASTER_OFF_TITLE, IGNORE_A11Y ) ).not.toBeInTheDocument();
+			expect(
+				screen.queryByText( 'This site is not connected to WordPress.com.', IGNORE_A11Y )
+			).not.toBeInTheDocument();
 		} );
 
 		test( 'MCP tab: the notice does not show and the hub stays functional', async () => {
@@ -230,13 +290,28 @@ describe( 'AI admin page (main.jsx)', () => {
 			expect( screen.queryByText( MASTER_OFF_TITLE, IGNORE_A11Y ) ).not.toBeInTheDocument();
 		} );
 
+		test( 'not connected: the site notice carries the feature-neutral ask', async () => {
+			window.jetpackAiSettings = { showFeaturesView: true, blogId: 0 };
+			mockApiFetch( { featureGet: { ...enabledSettings(), is_connected: false } } );
+
+			render( <App /> );
+
+			await expect(
+				screen.findByText( 'Connect your site to use Jetpack AI.', IGNORE_A11Y )
+			).resolves.toBeInTheDocument();
+			// One page-level notice — AiFeatures must not render a second copy.
+			expect(
+				screen.getAllByText( 'This site is not connected to WordPress.com.', IGNORE_A11Y )
+			).toHaveLength( 1 );
+		} );
+
 		test( 'not connected: the connect ask wins over the master-off notice', async () => {
 			mockApiFetch( { featureGet: { ...masterOffSettings(), is_connected: false } } );
 
 			render( <App /> );
 
 			await expect(
-				screen.findByText( 'Jetpack is not connected to WordPress.com.', IGNORE_A11Y )
+				screen.findByText( 'This site is not connected to WordPress.com.', IGNORE_A11Y )
 			).resolves.toBeInTheDocument();
 			expect( screen.queryByText( MASTER_OFF_TITLE, IGNORE_A11Y ) ).not.toBeInTheDocument();
 		} );
@@ -276,7 +351,7 @@ describe( 'AI admin page (main.jsx)', () => {
 			screen.findByText( 'Your WordPress.com account isn’t connected.', IGNORE_A11Y )
 		).resolves.toBeInTheDocument();
 		expect(
-			screen.getByRole( 'link', { name: 'Connect your user account to manage AI features.' } )
+			screen.getByRole( 'link', { name: 'Connect your user account to use Jetpack AI.' } )
 		).toHaveAttribute( 'href', 'admin.php?page=my-jetpack#/connection' );
 		expect( screen.getByRole( 'checkbox', { name: /Writing Assistant/ } ) ).toBeDisabled();
 	} );

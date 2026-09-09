@@ -12,7 +12,7 @@ import { getRedirectUrl } from '@automattic/jetpack-components';
 import { ToggleControl } from '@wordpress/components';
 import { Fragment, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Badge, Card, Link, Notice, Popover, Stack, Text, VisuallyHidden } from '@wordpress/ui';
+import { Badge, Card, Link, Popover, Stack, Text, VisuallyHidden } from '@wordpress/ui';
 import { EVENTS, recordAiHubEvent } from '../tracks';
 
 // Server-computed target for the AI SEO row: the dedicated Jetpack SEO page
@@ -219,9 +219,8 @@ function FeatureRow( {
  */
 export default function AiFeatures( { settings, savingKeys, onUpdate } ) {
 	const features = settings?.features ?? {};
-	// Children keep their saved values while the master switch is off — they
-	// render greyed (under the page-level master-off notice main.jsx owns)
-	// instead of misreporting the user's choices as off.
+	// Children keep their saved values while the master switch is off, rather
+	// than misreporting the user's choices as off. PageNotice explains why.
 	const masterEnabled = settings?.master_enabled !== false;
 	// The connection gate sits outside the master switch: false covers both a
 	// site without a connected owner and one in offline mode, and in either
@@ -288,35 +287,6 @@ export default function AiFeatures( { settings, savingKeys, onUpdate } ) {
 
 	return (
 		<Stack direction="column" gap="md">
-			{ ! isConnected && (
-				<Notice.Root intent="warning">
-					<Notice.Title>
-						{ __( 'Jetpack is not connected to WordPress.com.', 'jetpack' ) }
-					</Notice.Title>
-					<Notice.Description>
-						{ __(
-							'AI features need a connection to run. Your saved settings will apply once the site is connected.',
-							'jetpack'
-						) }{ ' ' }
-						<Link href="admin.php?page=my-jetpack#/connection">
-							{ __( 'Connect Jetpack', 'jetpack' ) }
-						</Link>
-					</Notice.Description>
-				</Notice.Root>
-			) }
-			{ isConnected && ! isUserConnected && (
-				// One ask at a time: a disconnected site gets the site notice above.
-				<Notice.Root intent="warning">
-					<Notice.Title>
-						{ __( 'Your WordPress.com account isn’t connected.', 'jetpack' ) }
-					</Notice.Title>
-					<Notice.Description>
-						<Link href="admin.php?page=my-jetpack#/connection">
-							{ __( 'Connect your user account to manage AI features.', 'jetpack' ) }
-						</Link>
-					</Notice.Description>
-				</Notice.Root>
-			) }
 			{ sections.length > 0 && (
 				<Card.Root className="jetpack-ai-features__card">
 					{ /* Single Card.Content, no Card.Header: the FullBleed dividers must
