@@ -70,7 +70,7 @@ type HeatmapStory = StoryObj< typeof HeatmapSkeleton >;
 
 /**
  * The shape the calendar-heatmap widgets (Traffic activity, Posting activity,
- * Post traffic activity) pass through `WidgetState`'s `renderLoading`: a fixed
+ * All-time traffic) pass through `WidgetState`'s `renderLoading`: a fixed
  * 28-column, 3-row grid of square cells, centred in the body.
  */
 export const Heatmap: HeatmapStory = {
