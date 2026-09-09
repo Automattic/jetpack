@@ -29,10 +29,12 @@ import {
 	type WidgetDashboardWithWidgetControls,
 } from '../../stories/widget-dashboard-with-widget';
 import { createStoryWidgetType } from '../../stories/create-story-widget-type';
+import { siteLocaleArgTypes, withSiteLocale } from '../../stories/with-site-locale';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
 import PostTrafficActivityRender from '../render';
 import widgetDefinition from '../widget';
 import widgetManifest from '../widget.json';
+import type { SiteLocaleControls } from '../../stories/with-site-locale';
 import type { Meta, StoryObj } from '@storybook/react';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps, ComponentType } from 'react';
@@ -47,7 +49,7 @@ const POST_TRAFFIC_ACTIVITY_RENDER_MODULE = 'storybook/post-traffic-activity';
 
 const POST_STATS_REQUEST_PATH = `stats/post/${ MOCK_POST_ID }`;
 
-interface PostTrafficActivityStoryControls {
+interface PostTrafficActivityStoryControls extends SiteLocaleControls {
 	hasPostScope: boolean;
 	preset: 'last-30-days' | 'last-365-days';
 }
@@ -72,7 +74,9 @@ const meta = {
 	title: 'Packages/Premium Analytics/Widgets/PostTrafficActivity',
 	component: PostTrafficActivityRender,
 	tags: [ 'autodocs' ],
+	decorators: [ withSiteLocale ],
 	argTypes: {
+		...siteLocaleArgTypes,
 		hasPostScope: {
 			control: 'boolean',
 			description: 'Include the `post_id` report param the post detail page seeds from its URL.',
