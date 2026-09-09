@@ -251,13 +251,6 @@ class Jetpack_AI_Page {
 
 		wp_set_script_translations( 'jetpack-ai-admin', 'jetpack' );
 
-		// Webpack reads this to load the lazy Scheduled tasks chunk; see _inc/client/ai/public-path.js.
-		wp_add_inline_script(
-			'jetpack-ai-admin',
-			'var Jetpack_AI_Admin_Assets_Base_Url = ' . wp_json_encode( plugins_url( '_inc/build/', JETPACK__PLUGIN_FILE ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';',
-			'before'
-		);
-
 		// The Tracks sender (w.js); without it, queued events never leave the
 		// browser. Consent-gated like the other surfaces that load it.
 		$can_send_tracks = ( new Tracking( 'jetpack', new Connection_Manager() ) )->should_enable_tracking( new Terms_Of_Service(), $status );
@@ -267,6 +260,12 @@ class Jetpack_AI_Page {
 
 		if ( $show_scheduled_tasks_view ) {
 			Connection_Initial_State::render_script( 'jetpack-ai-admin' );
+			// Webpack reads this to load the lazy Scheduled tasks chunk; see _inc/client/ai/public-path.js.
+			wp_add_inline_script(
+				'jetpack-ai-admin',
+				'var Jetpack_AI_Admin_Assets_Base_Url = ' . wp_json_encode( plugins_url( '_inc/build/', JETPACK__PLUGIN_FILE ), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';',
+				'before'
+			);
 		}
 
 		$host = new Host();
