@@ -197,7 +197,7 @@ same window as an earlier one is dropped. Each option carries the resolved
 **Returns:** `ComparisonOption[]` - Empty when the range is incomplete or
 inverted
 
-### Range Measurement and Stepping
+### Range Measurement
 
 #### `getDateRangeSpan( range? )`
 
@@ -214,22 +214,6 @@ getDateRangeSpan( { from, to } );
 A whole-month range stays in days below two months and only collapses into
 years from two years up, so "Last 30 days" reads as 30 days and a
 twelve-month window as 12 months.
-
-#### `stepDateRange( range, direction )`
-
-Shifts a range backward or forward (`'previous' | 'next'`) by its own length.
-Steps move in calendar units, so a step across a DST boundary keeps the wall
-clock; where a calendar step cannot be undone, it falls back to whole days.
-Returns `undefined` when the range has no measurable span.
-
-```typescript
-stepDateRange( { from, to }, 'previous' ); // Last 7 days -> the 7 days before
-```
-
-#### `canStepForward( range, now )`
-
-Whether the next window has already happened in full. Pass the site's `now`,
-not the browser's.
 
 ## Types
 

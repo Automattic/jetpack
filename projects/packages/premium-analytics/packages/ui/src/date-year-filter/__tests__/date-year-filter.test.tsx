@@ -33,8 +33,9 @@ function mockContainerResize() {
 		disconnect() {}
 	} as unknown as typeof ResizeObserver;
 
-	const resizeTo = ( width: number ) =>
-		act( () => {
+	const resizeTo = async ( width: number ) =>
+		// async `act()` here lets internal ariakit microtasks triggered by the callbacks settle.
+		await act( async () => {
 			callbacks.forEach( callback =>
 				callback( [ { contentRect: { width } } as ResizeObserverEntry ], {} as ResizeObserver )
 			);
@@ -43,7 +44,7 @@ function mockContainerResize() {
 	return { resizeTo, unobserved };
 }
 
-function renderFilter( props: Partial< ComponentProps< typeof DateYearFilter > > = {} ) {
+async function renderFilter( props: Partial< ComponentProps< typeof DateYearFilter > > = {} ) {
 	const onSelect = jest.fn();
 
 	const element = ( overrides: Partial< ComponentProps< typeof DateYearFilter > > = {} ) => (
@@ -58,17 +59,26 @@ function renderFilter( props: Partial< ComponentProps< typeof DateYearFilter > >
 
 	const { rerender, unmount } = render( element() );
 
+	// Drain ariakit's post-mount microtasks. See also https://github.com/testing-library/react-testing-library/pull/1214
+	// eslint-disable-next-line testing-library/no-unnecessary-act -- No user action to wrap; this settles internal ariakit state
+	await act( async () => {} );
+
 	return {
 		onSelect,
 		unmount,
-		rerender: ( overrides: Partial< ComponentProps< typeof DateYearFilter > > ) =>
-			rerender( element( overrides ) ),
+		rerender: async ( overrides: Partial< ComponentProps< typeof DateYearFilter > > ) => {
+			rerender( element( overrides ) );
+
+			// Drain ariakit's post-mount microtasks. See also https://github.com/testing-library/react-testing-library/pull/1214
+			// eslint-disable-next-line testing-library/no-unnecessary-act -- No user action to wrap; this settles internal ariakit state
+			await act( async () => {} );
+		},
 	};
 }
 
 describe( 'DateYearFilter', () => {
-	it( 'renders all time plus one pill per year, newest first', () => {
-		renderFilter();
+	it( 'renders all time plus one pill per year, newest first', async () => {
+		await renderFilter();
 
 		expect( screen.getAllByRole( 'button' ).map( button => button.textContent ) ).toEqual( [
 			'All time',
@@ -78,8 +88,8 @@ describe( 'DateYearFilter', () => {
 		] );
 	} );
 
-	it( 'presses the pill matching the active preset', () => {
-		renderFilter( { value: `year-${ CURRENT_YEAR - 1 }` } );
+	it( 'presses the pill matching the active preset', async () => {
+		await renderFilter( { value: `year-${ CURRENT_YEAR - 1 }` } );
 
 		expect( screen.getByRole( 'button', { name: String( CURRENT_YEAR - 1 ) } ) ).toHaveAttribute(
 			'aria-pressed',
@@ -91,8 +101,8 @@ describe( 'DateYearFilter', () => {
 		);
 	} );
 
-	it( 'leaves every pill unpressed for a preset from another surface', () => {
-		renderFilter( { value: 'last-7-days' } );
+	it( 'leaves every pill unpressed for a preset from another surface', async () => {
+		await renderFilter( { value: 'last-7-days' } );
 
 		screen.getAllByRole( 'button' ).forEach( button => {
 			expect( button ).toHaveAttribute( 'aria-pressed', 'false' );
@@ -101,7 +111,7 @@ describe( 'DateYearFilter', () => {
 
 	it( 'selects a closed year as its full calendar range', async () => {
 		const user = userEvent.setup();
-		const { onSelect } = renderFilter();
+		const { onSelect } = await renderFilter();
 		const year = CURRENT_YEAR - 1;
 
 		await user.click( screen.getByRole( 'button', { name: String( year ) } ) );
@@ -123,7 +133,7 @@ describe( 'DateYearFilter', () => {
 
 	it( 'selects all time from the start of the oldest year listed', async () => {
 		const user = userEvent.setup();
-		const { onSelect } = renderFilter( { startYear: 2019 } );
+		const { onSelect } = await renderFilter( { startYear: 2019 } );
 
 		await user.click( screen.getByRole( 'button', { name: 'All time' } ) );
 
@@ -133,8 +143,8 @@ describe( 'DateYearFilter', () => {
 		expect( range.to.getTime() ).toBeGreaterThan( Date.now() ); // Through the end of today.
 	} );
 
-	it( 'renders every period in a select when compact', () => {
-		renderFilter( { isCompact: true } );
+	it( 'renders every period in a select when compact', async () => {
+		await renderFilter( { isCompact: true } );
 
 		expect( screen.queryAllByRole( 'button' ) ).toHaveLength( 0 );
 		expect( screen.getByRole( 'combobox', { name: 'Time period' } ) ).toBeInTheDocument();
@@ -142,7 +152,7 @@ describe( 'DateYearFilter', () => {
 
 	it( 'greys the pills out while disabled, focusable still', async () => {
 		const user = userEvent.setup();
-		const { onSelect } = renderFilter( { disabled: true } );
+		const { onSelect } = await renderFilter( { disabled: true } );
 
 		const allTime = screen.getByRole( 'button', { name: 'All time' } );
 		expect( allTime ).toHaveAttribute( 'aria-disabled', 'true' );
@@ -157,8 +167,8 @@ describe( 'DateYearFilter', () => {
 
 	// Natively, the way Base UI's select does it: the compact surface is the one
 	// control on the row that drops out of the tab order while disabled.
-	it( 'greys the select out while disabled', () => {
-		renderFilter( { isCompact: true, disabled: true } );
+	it( 'greys the select out while disabled', async () => {
+		await renderFilter( { isCompact: true, disabled: true } );
 
 		expect( screen.getByRole( 'combobox', { name: 'Time period' } ) ).toBeDisabled();
 	} );
@@ -183,7 +193,7 @@ describe( 'DateYearFilter', () => {
 			Reflect.deleteProperty( document.body, 'clientWidth' );
 		} );
 
-		it( 'commits the select on the first paint of a narrow container', () => {
+		it( 'commits the select on the first paint of a narrow container', async () => {
 			// No resize is reported: the observer's first callback lands after the
 			// first paint, so a container read at that point would flash the pills.
 			mockContainerResize();
@@ -192,69 +202,104 @@ describe( 'DateYearFilter', () => {
 				value: 4 * PILL_WIDTH - 1,
 			} );
 
-			renderFilter();
+			await renderFilter();
 
 			expect( screen.queryAllByRole( 'button' ) ).toHaveLength( 0 );
 			expect( screen.getByRole( 'combobox', { name: 'Time period' } ) ).toBeInTheDocument();
 		} );
 
-		it( 'keeps the pills while they fit the container', () => {
-			const { resizeTo } = mockContainerResize();
-			renderFilter();
+		it( 'keeps the pills on the first paint of a wide container', async () => {
+			mockContainerResize();
+			Object.defineProperty( document.body, 'clientWidth', {
+				configurable: true,
+				value: 4 * PILL_WIDTH,
+			} );
 
-			resizeTo( 4 * PILL_WIDTH );
+			await renderFilter();
 
 			expect( screen.getAllByRole( 'button' ) ).toHaveLength( 4 );
 			expect( screen.queryByRole( 'combobox' ) ).not.toBeInTheDocument();
 		} );
 
-		it( 'collapses to the select once the pills no longer fit', () => {
+		/*
+		 * The pills are one occupant of their row. A container that fits them
+		 * alone does not fit them beside a chart-interval control, which is how
+		 * they came to run past its end (WOOA7S-2066).
+		 */
+		it( 'counts what shares the row against the container', async () => {
 			const { resizeTo } = mockContainerResize();
-			renderFilter();
 
-			resizeTo( 4 * PILL_WIDTH - 1 );
+			render(
+				<div>
+					<DateYearFilter timeZone="UTC" startYear={ CURRENT_YEAR - 2 } onSelect={ jest.fn() } />
+					<span>interval</span>
+				</div>
+			);
+
+			// Room for the four pills, but not for the control beside them.
+			await resizeTo( 4 * PILL_WIDTH );
 
 			expect( screen.queryAllByRole( 'button' ) ).toHaveLength( 0 );
 			expect( screen.getByRole( 'combobox', { name: 'Time period' } ) ).toBeInTheDocument();
 		} );
 
-		it( 'goes back to the pills when the container grows again', () => {
+		it( 'keeps the pills while they fit the container', async () => {
 			const { resizeTo } = mockContainerResize();
-			renderFilter();
+			await renderFilter();
 
-			resizeTo( 100 );
+			await resizeTo( 4 * PILL_WIDTH );
+
+			expect( screen.getAllByRole( 'button' ) ).toHaveLength( 4 );
+			expect( screen.queryByRole( 'combobox' ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'collapses to the select once the pills no longer fit', async () => {
+			const { resizeTo } = mockContainerResize();
+			await renderFilter();
+
+			await resizeTo( 4 * PILL_WIDTH - 1 );
+
+			expect( screen.queryAllByRole( 'button' ) ).toHaveLength( 0 );
+			expect( screen.getByRole( 'combobox', { name: 'Time period' } ) ).toBeInTheDocument();
+		} );
+
+		it( 'goes back to the pills when the container grows again', async () => {
+			const { resizeTo } = mockContainerResize();
+			await renderFilter();
+
+			await resizeTo( 100 );
 			expect( screen.getByRole( 'combobox' ) ).toBeInTheDocument();
 
-			resizeTo( 4 * PILL_WIDTH );
+			await resizeTo( 4 * PILL_WIDTH );
 			expect( screen.getAllByRole( 'button' ) ).toHaveLength( 4 );
 		} );
 
-		it( 'measures a shorter preset list instead of judging it by the previous one', () => {
+		it( 'measures a shorter preset list instead of judging it by the previous one', async () => {
 			const { resizeTo } = mockContainerResize();
-			const { rerender } = renderFilter();
+			const { rerender } = await renderFilter();
 
 			// Four pills ask for 320px, so this container collapses to the select.
-			resizeTo( 3 * PILL_WIDTH );
+			await resizeTo( 3 * PILL_WIDTH );
 			expect( screen.getByRole( 'combobox' ) ).toBeInTheDocument();
 
 			// One year fewer: three pills fit the same container exactly.
-			rerender( { startYear: CURRENT_YEAR - 1 } );
+			await rerender( { startYear: CURRENT_YEAR - 1 } );
 
 			expect( screen.getAllByRole( 'button' ) ).toHaveLength( 3 );
 		} );
 
-		it( 'lets an explicit isCompact override the measurement', () => {
+		it( 'lets an explicit isCompact override the measurement', async () => {
 			const { resizeTo } = mockContainerResize();
-			renderFilter( { isCompact: false } );
+			await renderFilter( { isCompact: false } );
 
-			resizeTo( 100 );
+			await resizeTo( 100 );
 
 			expect( screen.getAllByRole( 'button' ) ).toHaveLength( 4 );
 		} );
 
-		it( 'releases the container it observes when it unmounts', () => {
+		it( 'releases the container it observes when it unmounts', async () => {
 			const { unobserved } = mockContainerResize();
-			const { unmount } = renderFilter();
+			const { unmount } = await renderFilter();
 
 			unmount();
 

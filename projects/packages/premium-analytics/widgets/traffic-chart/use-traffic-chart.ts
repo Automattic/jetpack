@@ -88,9 +88,11 @@ export default function useTrafficChart(
 	const vvPrimary = viewsVisitors.primary.data as StatsVisitsResponse | undefined;
 	const vvComparison = viewsVisitors.comparison.data as StatsVisitsResponse | undefined;
 	const vvHasComparison = viewsVisitors.hasComparison;
+	const vvZone = viewsVisitors.timezone;
 	const lcPrimary = likesComments.primary.data as StatsVisitsResponse | undefined;
 	const lcComparison = likesComments.comparison.data as StatsVisitsResponse | undefined;
 	const lcHasComparison = likesComments.hasComparison;
+	const lcZone = likesComments.timezone;
 
 	// One tab per metric, in canonical definition order.
 	const metrics = useMemo(
@@ -104,6 +106,7 @@ export default function useTrafficChart(
 						hasComparison: isViewsVisitors ? vvHasComparison : lcHasComparison,
 						field: metric.id,
 						label: metric.label,
+						zone: isViewsVisitors ? vvZone : lcZone,
 					} ),
 					counterpartKey: 'counterpartId' in metric ? metric.counterpartId : undefined,
 					...( isServed( metric.id )
@@ -116,7 +119,17 @@ export default function useTrafficChart(
 						  } ),
 				};
 			} ),
-		[ isServed, vvPrimary, vvComparison, vvHasComparison, lcPrimary, lcComparison, lcHasComparison ]
+		[
+			isServed,
+			vvPrimary,
+			vvComparison,
+			vvHasComparison,
+			vvZone,
+			lcPrimary,
+			lcComparison,
+			lcHasComparison,
+			lcZone,
+		]
 	);
 
 	// Depend on the underlying refetch callbacks (stable `useReport` `useCallback`s),

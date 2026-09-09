@@ -1,4 +1,8 @@
-export { decodeDateSearchParam, encodeDateToSearchParam } from './search/date-range';
+export {
+	decodeDateSearchParam,
+	encodeDateToSearchParam,
+	encodeRangeToSearchParams,
+} from './search/date-range';
 
 export { deriveComparisonRange } from './search/comparison';
 export {

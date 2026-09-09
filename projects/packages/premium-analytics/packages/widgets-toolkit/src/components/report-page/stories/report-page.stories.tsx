@@ -183,7 +183,6 @@ const STORY_DATE_FILTERS: ReportDateFilters = {
 	onChange: () => {},
 	onComparisonChange: () => {},
 	onIntervalChange: () => {},
-	onStep: () => {},
 	onApply: () => {},
 	onCancel: () => {},
 	canApply: false,
@@ -212,6 +211,7 @@ function ComposedReportPage( { withComparison, isLoading }: ReportPageStoryContr
 					primary={ PRIMARY_REPORT }
 					comparison={ withComparison ? COMPARISON_REPORT : undefined }
 					isLoading={ isLoading }
+					timezone="UTC"
 					interval={ interval }
 					onIntervalChange={ setInterval }
 				/>

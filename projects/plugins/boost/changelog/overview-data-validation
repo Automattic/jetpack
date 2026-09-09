@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Restore JavaScript coverage output and preserve refresh fallbacks in the disabled modern dashboard.
+
+

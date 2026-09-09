@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.0.1] - 2026-09-08
+### Added
+- Add an endpoint for flushing the object cache, which a database restore leaves stale. [#52059]
+
+### Changed
+- Review request: Ask about backups instead of real-time backups, which was inaccurate on daily plans. [#51803]
+- Update package dependencies. [#51701]
+
+### Fixed
+- Cache the promoted Backup subscription price so the screen shown to sites without a plan stops fetching it from WordPress.com on every load. [#51796]
+- Report a WordPress.com failure on the Backup plan check as an error instead of as a missing plan. [#51889]
+- Stop a slow or failing WordPress.com from reading as a missing Backup plan. [#51869]
+
 ## [5.0.0] - 2026-09-01
 ### Changed
 - Update package dependencies. [#51303] [#51802]
@@ -1209,6 +1222,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add API endpoints and Jetpack Backup package for managing Help…
 
+[5.0.1]: https://github.com/Automattic/jetpack-backup/compare/v5.0.0...v5.0.1
 [5.0.0]: https://github.com/Automattic/jetpack-backup/compare/v4.3.15...v5.0.0
 [4.3.15]: https://github.com/Automattic/jetpack-backup/compare/v4.3.14...v4.3.15
 [4.3.14]: https://github.com/Automattic/jetpack-backup/compare/v4.3.13...v4.3.14

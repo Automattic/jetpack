@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { localTZDate } from '@jetpack-premium-analytics/datetime';
+import { resolveBucketStamp } from '@jetpack-premium-analytics/datetime';
 import { formatDateRange } from '@jetpack-premium-analytics/formatters';
 import { __ } from '@wordpress/i18n';
 /**
@@ -29,22 +29,22 @@ type TimeSeriesResponse< T extends TimeSeriesData > = {
 
 function mapTimeSeriesToLineChartData< T extends TimeSeriesData >(
 	data: T[],
-	metricKey: keyof T
+	metricKey: keyof T,
+	zone: string
 ): ComparativeDatePointDate[] {
-	if ( ! data ) {
-		return [];
-	}
+	return ( data ?? [] ).flatMap( item => {
+		const date = resolveBucketStamp( item.date_start, zone );
 
-	return data.map( item => ( {
-		date: localTZDate( item.date_start ),
-		value: Number( item[ metricKey ] ),
-	} ) );
+		return date ? [ { date, value: Number( item[ metricKey ] ) } ] : [];
+	} );
 }
 
 type BuildTimeSeriesChartOptions< T extends TimeSeriesData > = {
 	primary: TimeSeriesResponse< T >;
 	comparison?: TimeSeriesResponse< T >;
 	metricKey: keyof T;
+	/** The timezone the responses were built and normalized under. */
+	zone: string;
 	emptyDataFallback?: 'empty-array' | 'no-data-series';
 	/**
 	 * Name both periods after the metric instead of after their date ranges.
@@ -62,6 +62,7 @@ type BuildTimeSeriesChartOptions< T extends TimeSeriesData > = {
  * @param options.primary           - The current-period response.
  * @param options.comparison        - The previous-period response, when comparison is enabled.
  * @param options.metricKey         - The metric field to read from each point.
+ * @param options.zone              - The reports' reporting timezone.
  * @param options.emptyDataFallback - What to return when the primary response has no points.
  * @param options.label             - Metric name for both series' labels; omit for date ranges.
  * @return The chart series, current period first.
@@ -70,6 +71,7 @@ export function buildTimeSeriesChartData< T extends TimeSeriesData >( {
 	primary,
 	comparison,
 	metricKey,
+	zone,
 	emptyDataFallback = 'empty-array',
 	label,
 }: BuildTimeSeriesChartOptions< T > ): ComparativeLineChartSeries[] {
@@ -89,10 +91,11 @@ export function buildTimeSeriesChartData< T extends TimeSeriesData >( {
 		label:
 			label ||
 			formatDateRange( {
-				from: localTZDate( primary.summary.date_start ),
-				to: localTZDate( primary.summary.date_end ),
-			} ),
-		data: mapTimeSeriesToLineChartData( primary.data, metricKey ),
+				from: resolveBucketStamp( primary.summary.date_start, zone ),
+				to: resolveBucketStamp( primary.summary.date_end, zone ),
+			} ) ||
+			__( 'Current period', 'jetpack-premium-analytics-pkg' ),
+		data: mapTimeSeriesToLineChartData( primary.data, metricKey, zone ),
 		group: 'primary',
 		options: {},
 	};
@@ -102,13 +105,14 @@ export function buildTimeSeriesChartData< T extends TimeSeriesData >( {
 	}
 
 	const comparisonSeries: ComparativeLineChartSeries = {
+		// A blank range would collide with the primary series, which the chart keys by label.
 		label: label
 			? formatComparisonSeriesLabel( label )
 			: formatDateRange( {
-					from: localTZDate( comparison.summary.date_start ),
-					to: localTZDate( comparison.summary.date_end ),
-			  } ),
-		data: mapTimeSeriesToLineChartData( comparison.data, metricKey ),
+					from: resolveBucketStamp( comparison.summary.date_start, zone ),
+					to: resolveBucketStamp( comparison.summary.date_end, zone ),
+			  } ) || __( 'Previous period', 'jetpack-premium-analytics-pkg' ),
+		data: mapTimeSeriesToLineChartData( comparison.data, metricKey, zone ),
 		group: 'primary',
 		options: {
 			type: 'comparison',

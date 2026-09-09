@@ -187,14 +187,15 @@ function get_dashboard_default_widget_instance(
 function get_dashboard_default_section_layouts() {
 	return array(
 		DASHBOARD_TRAFFIC_SECTION_ID     => array(
-			// Rows fill the four-column grid. Plan usage is intentionally not a
-			// default; it stays available from the widget picker.
+			// Rows fill the three-column grid in the prototype's order. Plan usage
+			// is intentionally not a default; it stays available from the widget
+			// picker.
 			// Row 1: traffic chart.
 			get_dashboard_default_widget_instance(
 				'default-traffic-chart-widget-instance',
 				'jpa/traffic-chart',
 				0,
-				4,
+				3,
 				2
 			),
 			// Row 2: most-viewed posts + referrers + devices.
@@ -202,7 +203,7 @@ function get_dashboard_default_section_layouts() {
 				'default-stats-top-posts-widget-instance',
 				'jpa/stats-top-posts',
 				1,
-				2,
+				1,
 				2
 			),
 			get_dashboard_default_widget_instance(
@@ -224,7 +225,7 @@ function get_dashboard_default_section_layouts() {
 				'default-locations-widget-instance',
 				'jpa/locations',
 				4,
-				3,
+				2,
 				2
 			),
 			get_dashboard_default_widget_instance(
@@ -234,13 +235,16 @@ function get_dashboard_default_section_layouts() {
 				1,
 				2
 			),
-			// Row 4: VideoPress (sites running VideoPress only) + clicks + authors.
+			// Row 4: UTM insights + clicks + VideoPress (sites running VideoPress only).
 			get_dashboard_default_widget_instance(
-				'default-videopress-widget-instance',
-				'jpa/videopress',
+				'default-utm-insights-widget-instance',
+				'jpa/utm-insights',
 				6,
 				1,
-				2
+				2,
+				array(
+					'utmDimension' => 'utm_source,utm_medium',
+				)
 			),
 			get_dashboard_default_widget_instance(
 				'default-clicks-widget-instance',
@@ -250,22 +254,19 @@ function get_dashboard_default_section_layouts() {
 				2
 			),
 			get_dashboard_default_widget_instance(
-				'default-authors-widget-instance',
-				'jpa/authors',
+				'default-videopress-widget-instance',
+				'jpa/videopress',
 				8,
-				2,
+				1,
 				2
 			),
-			// Row 5: UTM insights + search terms + file downloads (Simple only).
+			// Row 5: authors + search terms + file downloads (Simple only).
 			get_dashboard_default_widget_instance(
-				'default-utm-insights-widget-instance',
-				'jpa/utm-insights',
+				'default-authors-widget-instance',
+				'jpa/authors',
 				9,
-				2,
-				2,
-				array(
-					'utmDimension' => 'utm_source,utm_medium',
-				)
+				1,
+				2
 			),
 			get_dashboard_default_widget_instance(
 				'default-search-terms-widget-instance',

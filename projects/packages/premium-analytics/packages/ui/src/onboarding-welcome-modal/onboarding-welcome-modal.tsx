@@ -4,14 +4,13 @@ import { useCallback } from 'react';
 import { WidgetGridAnimation } from '../widget-grid-animation';
 import styles from './onboarding-welcome-modal.module.scss';
 
-/** How the reader closed the modal without starting: the close button, Escape or a click outside. */
-export type OnboardingDismissReason = 'close' | 'escape' | 'outside' | 'other';
+/** How the reader closed the modal without starting: the close button or Escape. */
+export type OnboardingDismissReason = 'close' | 'escape' | 'other';
 
-// Base UI names the cause on `onOpenChange`; these are the three a reader can produce.
+// Base UI names the cause on `onOpenChange`; these are the two a reader can produce.
 const DISMISS_REASONS: Record< string, OnboardingDismissReason > = {
 	'close-press': 'close',
 	'escape-key': 'escape',
-	'outside-press': 'outside',
 };
 
 type OpenChangeDetails = {
@@ -49,8 +48,10 @@ export function OnboardingWelcomeModal( {
 		[ onDismiss ]
 	);
 
+	// A click on the backdrop must not end the journey: the modal opens once per
+	// reader, so a stray click would lose the tour for good.
 	return (
-		<Dialog.Root open={ open } onOpenChange={ handleOpenChange }>
+		<Dialog.Root open={ open } onOpenChange={ handleOpenChange } disablePointerDismissal>
 			<Dialog.Popup size="small">
 				<Dialog.CloseIcon className={ styles.close } />
 				{ /* The stage lives in the scroll region so the copy and the button
