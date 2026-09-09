@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+Comment: Tests only: shim getGroups() for WordPress trunk on PHPUnit 10+.
+
