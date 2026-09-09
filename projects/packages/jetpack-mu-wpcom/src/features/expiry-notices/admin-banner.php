@@ -21,26 +21,19 @@ function wpcom_expiry_notices_admin_banner_data(): ?array {
 }
 
 /**
- * Enqueue + localize the banner's JS/CSS on admin_enqueue_scripts so the
- * stylesheet lands in <head>.
+ * Enqueue the banner's JS/CSS on admin_enqueue_scripts so the stylesheet lands in <head>.
  */
 function wpcom_expiry_notices_enqueue_admin_banner_assets() {
 	$data = wpcom_expiry_notices_admin_banner_data();
 	if ( null === $data ) {
 		return;
 	}
-
-	$asset_handle = jetpack_mu_wpcom_enqueue_assets( 'expiry-notices-admin-banner', array( 'js', 'css' ) );
-	// Without this the banner's events are recorded on Simple and dropped on
-	// Atomic, where nothing else in wp-admin loads the Tracks transport and
-	// `window._tkq` stays an ordinary array.
-	\Automattic\Jetpack\Jetpack_Mu_Wpcom\Common\wpcom_enqueue_tracking_scripts( $asset_handle );
-	wp_localize_script(
-		$asset_handle,
+	wpcom_expiry_notices_enqueue_surface(
+		'expiry-notices-admin-banner',
 		'wpcomExpiryBanner',
 		array(
 			'metaKey'    => Expiry_Notice_Dismiss::META_BANNER,
-			'trackProps' => wpcom_expiry_notices_track_props( $data['state'], $data['is_owner'] ),
+			'trackProps' => wpcom_expiry_notices_track_props( $data['state'], $data['is_owner'], 'wp_admin' ),
 		)
 	);
 }

@@ -116,7 +116,7 @@ function wpcom_expiry_notices_modal_primary_cta( array $state, array $urls, bool
 }
 
 /**
- * Enqueue + localize the modal's JS/CSS.
+ * Enqueue the modal's JS/CSS.
  */
 function wpcom_expiry_notices_enqueue_admin_modal_assets() {
 	$data = wpcom_expiry_notices_admin_modal_data();
@@ -124,22 +124,13 @@ function wpcom_expiry_notices_enqueue_admin_modal_assets() {
 		return;
 	}
 
-	$asset_handle = jetpack_mu_wpcom_enqueue_assets( 'expiry-notices-admin-modal', array( 'js', 'css' ) );
-	// Atomic wp-admin loads no Tracks transport of its own, so without this the
-	// modal's events would accumulate in a plain array and be dropped on unload.
-	\Automattic\Jetpack\Jetpack_Mu_Wpcom\Common\wpcom_enqueue_tracking_scripts( $asset_handle );
-
 	$state = $data['state'];
 	unset( $data['state'] );
+	$data['trackProps'] = wpcom_expiry_notices_track_props( $state, true, 'wp_admin' );
 
-	wp_localize_script(
-		$asset_handle,
-		'wpcomExpiryModal',
-		array_merge(
-			$data,
-			array( 'trackProps' => wpcom_expiry_notices_track_props( $state, true ) )
-		)
-	);
+	// The bundle declares the components scripts but not their stylesheet.
+	wp_enqueue_style( 'wp-components' );
+	wpcom_expiry_notices_enqueue_surface( 'expiry-notices-admin-modal', 'wpcomExpiryModal', $data );
 }
 add_action( 'admin_enqueue_scripts', 'wpcom_expiry_notices_enqueue_admin_modal_assets' );
 

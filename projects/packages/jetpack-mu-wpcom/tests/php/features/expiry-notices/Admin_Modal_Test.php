@@ -164,7 +164,7 @@ class Admin_Modal_Test extends \WorDBless\BaseTestCase {
 		$this->set_purchase( -5 );
 		wpcom_expiry_notices_enqueue_admin_modal_assets();
 
-		$localized = wp_scripts()->get_data( 'jetpack-mu-wpcom-expiry-notices-admin-modal', 'data' );
+		$localized = wp_scripts()->get_inline_script_data( 'jetpack-mu-wpcom-expiry-notices-admin-modal', 'before' );
 		$this->assertIsString( $localized );
 		$this->assertStringContainsString( '"is_plan_owner":"true"', $localized );
 	}

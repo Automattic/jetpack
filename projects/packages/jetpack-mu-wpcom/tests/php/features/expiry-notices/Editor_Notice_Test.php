@@ -157,6 +157,7 @@ class Editor_Notice_Test extends \WorDBless\BaseTestCase {
 				'days_remaining' => 5,
 				'product_slug'   => 'business-bundle',
 				'is_plan_owner'  => 'true',
+				'surface'        => 'post_editor',
 			),
 			$data['trackProps']
 		);

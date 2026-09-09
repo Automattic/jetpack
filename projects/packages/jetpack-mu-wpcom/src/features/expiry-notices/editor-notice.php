@@ -25,8 +25,9 @@ function wpcom_expiry_notices_editor_notice_data(): ?array {
 		return null;
 	}
 
-	$state = $data['state'];
-	$urls  = $data['urls'];
+	$state   = $data['state'];
+	$urls    = $data['urls'];
+	$surface = wpcom_expiry_notices_editor_surface( wpcom_expiry_notices_current_screen_id() );
 
 	return array(
 		'metaKey'       => Expiry_Notice_Dismiss::META_BANNER,
@@ -39,8 +40,8 @@ function wpcom_expiry_notices_editor_notice_data(): ?array {
 		'primary'       => null === $urls ? null : $urls['primary'],
 		'secondary'     => null !== $urls && Expiry_Data::STATE_EXPIRED_GRACE === $state['state'] ? $urls['secondary'] : null,
 		'isDismissible' => $data['is_dismissible'],
-		'surface'       => wpcom_expiry_notices_editor_surface( wpcom_expiry_notices_current_screen_id() ),
-		'trackProps'    => wpcom_expiry_notices_track_props( $state, $data['is_owner'] ),
+		'surface'       => $surface,
+		'trackProps'    => wpcom_expiry_notices_track_props( $state, $data['is_owner'], $surface ),
 	);
 }
 
@@ -61,7 +62,7 @@ function wpcom_expiry_notices_editor_surface( string $screen_id ): string {
 }
 
 /**
- * Enqueue the editor notice's JS with its data inlined.
+ * Enqueue the editor notice's JS.
  *
  * The Customizer fires enqueue_block_editor_assets too but renders no store
  * notices, hence the positive screen check.
@@ -70,23 +71,10 @@ function wpcom_expiry_notices_enqueue_editor_notice_assets() {
 	if ( ! wpcom_expiry_notices_is_block_editor_screen() ) {
 		return;
 	}
-
 	$data = wpcom_expiry_notices_editor_notice_data();
 	if ( null === $data ) {
 		return;
 	}
-
-	// Not wp_localize_script(), which casts every top-level scalar to a string
-	// and would hand the client "" for a false `isDismissible`.
-	$json = wp_json_encode( $data, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_HEX_APOS );
-	if ( false === $json ) {
-		return;
-	}
-
-	$asset_handle = jetpack_mu_wpcom_enqueue_assets( 'expiry-notices-editor-notice', array( 'js' ) );
-	// Atomic wp-admin loads no Tracks transport of its own, so without this the
-	// notice's events would accumulate in a plain array and be dropped on unload.
-	\Automattic\Jetpack\Jetpack_Mu_Wpcom\Common\wpcom_enqueue_tracking_scripts( $asset_handle );
-	wp_add_inline_script( $asset_handle, 'window.wpcomExpiryEditorNotice = ' . $json . ';', 'before' );
+	wpcom_expiry_notices_enqueue_surface( 'expiry-notices-editor-notice', 'wpcomExpiryEditorNotice', $data, array( 'js' ) );
 }
 add_action( 'enqueue_block_editor_assets', 'wpcom_expiry_notices_enqueue_editor_notice_assets' );

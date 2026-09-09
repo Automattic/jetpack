@@ -206,15 +206,40 @@ function wpcom_expiry_notices_banner_body( array $state, bool $is_owner ): strin
  *
  * @param array<string,mixed> $state    Expiry state.
  * @param bool                $is_owner Whether the viewer can renew, and so was offered a CTA.
- * @return array{state:string,days_remaining:int,product_slug:string,is_plan_owner:string}
+ * @param string              $surface  Where the notice showed.
+ * @return array{state:string,days_remaining:int,product_slug:string,is_plan_owner:string,surface:string}
  */
-function wpcom_expiry_notices_track_props( array $state, bool $is_owner ): array {
+function wpcom_expiry_notices_track_props( array $state, bool $is_owner, string $surface ): array {
 	return array(
 		'state'          => (string) ( $state['state'] ?? '' ),
 		'days_remaining' => isset( $state['days_remaining'] ) ? (int) $state['days_remaining'] : 0,
 		'product_slug'   => isset( $state['product_slug'] ) ? (string) $state['product_slug'] : '',
 		'is_plan_owner'  => $is_owner ? 'true' : 'false',
+		'surface'        => $surface,
 	);
+}
+
+/**
+ * Enqueue a surface's bundle with its data on `window.$global`.
+ *
+ * Inline JSON rather than wp_localize_script(), which casts every top-level
+ * scalar to a string and would hand the client "" for a false. The Tracks
+ * transport rides along because Atomic wp-admin loads none of its own, and
+ * without it `window._tkq` stays an ordinary array that is dropped on unload.
+ *
+ * @param string              $asset  Build entry name.
+ * @param string              $global Name of the window property the data lands on.
+ * @param array<string,mixed> $data   What the script renders from.
+ * @param string[]            $types  Asset types to enqueue.
+ */
+function wpcom_expiry_notices_enqueue_surface( string $asset, string $global, array $data, array $types = array( 'js', 'css' ) ): void {
+	$json = wp_json_encode( $data, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_HEX_APOS );
+	if ( false === $json ) {
+		return;
+	}
+	$handle = jetpack_mu_wpcom_enqueue_assets( $asset, $types );
+	\Automattic\Jetpack\Jetpack_Mu_Wpcom\Common\wpcom_enqueue_tracking_scripts( $handle );
+	wp_add_inline_script( $handle, 'window.' . $global . ' = ' . $json . ';', 'before' );
 }
 
 /**
