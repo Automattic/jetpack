@@ -2,7 +2,7 @@
  * Internal dependencies
  */
 import { getMenuSurfacePresetGroups } from '../presets';
-import { PRESET_ALL_TIME, MENU_SURFACE_PRESETS } from '../presets/types';
+import { DETAIL_SURFACE_PRESETS, MENU_SURFACE_PRESETS } from '../presets/types';
 
 const TIME_ZONE = 'America/New_York';
 
@@ -21,18 +21,23 @@ describe( 'getMenuSurfacePresetGroups', () => {
 				'last-90-days',
 				'last-365-days',
 			],
-			[ 'last-month' ],
-			[ 'last-12-months', 'last-year' ],
+			[ 'month-to-date', 'last-month' ],
+			[ 'year-to-date', 'last-12-months', 'last-year' ],
 		] );
 	} );
 
 	// Only a surface with a start date to anchor it can offer one.
 	it( 'leaves all time out unless the surface asks for it', () => {
+		expect( idsOf( getMenuSurfacePresetGroups( TIME_ZONE ) ).flat() ).not.toContain( 'all-time' );
+	} );
+
+	it( 'offers a detail surface every period the menu lists, all time last', () => {
 		const groups = getMenuSurfacePresetGroups( TIME_ZONE, {
-			presetIds: [ ...MENU_SURFACE_PRESETS, PRESET_ALL_TIME ],
+			presetIds: DETAIL_SURFACE_PRESETS,
 			startDate: new Date( '2024-03-01T00:00:00.000Z' ),
 		} );
 
+		expect( idsOf( groups ).flat() ).toEqual( [ ...MENU_SURFACE_PRESETS, 'all-time' ] );
 		expect( idsOf( groups ).at( -1 ) ).toEqual( [ 'all-time' ] );
 	} );
 
