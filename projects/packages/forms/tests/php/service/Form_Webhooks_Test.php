@@ -1377,10 +1377,15 @@ class Form_Webhooks_Test extends BaseTestCase {
 
 	/**
 	 * Test that webhook blocks IPv6 spellings that embed the IPv4 loopback address.
-	 * NAT64 and 6to4 both carry an embedded IPv4 that routes to 127.0.0.1.
+	 * NAT64, 6to4, and the IPv4-translated form all carry an embedded IPv4 that routes to 127.0.0.1.
 	 */
 	public function test_send_webhooks_blocks_ipv6_embedded_loopback() {
-		foreach ( array( 'https://[64:ff9b::7f00:1]/webhook', 'https://[2002:7f00:1::1]/webhook' ) as $url ) {
+		$urls = array(
+			'https://[64:ff9b::7f00:1]/webhook',  // NAT64.
+			'https://[2002:7f00:1::1]/webhook',   // 6to4.
+			'https://[::ffff:0:7f00:1]/webhook',  // IPv4-translated.
+		);
+		foreach ( $urls as $url ) {
 			$form   = $this->create_mock_form(
 				array(
 					'webhooks' => array(
@@ -1435,7 +1440,8 @@ class Form_Webhooks_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test that the jetpack_forms_webhook_blocked_ip filter can allow an otherwise blocked address.
+	 * Test that the jetpack_forms_webhook_blocked_ip filter can allow an otherwise blocked address,
+	 * and that it receives the documented arguments in the documented order.
 	 */
 	public function test_blocked_ip_filter_can_allow_loopback() {
 		$form   = $this->create_mock_form(
@@ -1455,7 +1461,16 @@ class Form_Webhooks_Test extends BaseTestCase {
 
 		$post_id = $this->create_feedback_post( $form, $fields );
 
-		add_filter( 'jetpack_forms_webhook_blocked_ip', '__return_false' );
+		$filter_args = array();
+		add_filter(
+			'jetpack_forms_webhook_blocked_ip',
+			function ( $blocked, $ip, $url ) use ( &$filter_args ) {
+				$filter_args[] = array( $blocked, $ip, $url );
+				return false;
+			},
+			10,
+			3
+		);
 
 		$http_request_made = false;
 		add_filter(
@@ -1473,7 +1488,14 @@ class Form_Webhooks_Test extends BaseTestCase {
 		$webhooks = Form_Webhooks::init();
 		$webhooks->send_webhooks( $post_id, $fields, false, array() );
 
-		$this->assertTrue( $http_request_made, 'Filter should allow the webhook through' );
+		/*
+		 * pre_http_request short-circuits ahead of core's own URL check, so this asserts that the
+		 * Forms layer allowed the request, not that a loopback webhook would be delivered.
+		 */
+		$this->assertTrue( $http_request_made, 'Filter should let the request past Forms validation' );
+		$this->assertCount( 1, $filter_args, 'Filter should run once for the resolved address' );
+		// @phan-suppress-next-line PhanTypeArraySuspiciousNull, PhanTypeInvalidDimOffset
+		$this->assertSame( array( true, '127.0.0.1', 'https://127.0.0.1/webhook' ), $filter_args[0] );
 	}
 
 	/**

@@ -206,10 +206,10 @@ class Form_Webhooks {
 	 * Check if an IP address is blocked as a webhook destination.
 	 *
 	 * @param string $ip  The IP address to check.
-	 * @param string $url The webhook URL being validated, when known.
+	 * @param string $url The webhook URL being validated.
 	 * @return bool True if the IP should be blocked.
 	 */
-	private function is_blocked_ip( $ip, $url = '' ) {
+	private function is_blocked_ip( $ip, $url ) {
 		$blocked = $this->ip_is_in_blocked_range( $ip );
 
 		/**
@@ -279,11 +279,8 @@ class Form_Webhooks {
 				return false;
 			}
 
-			/*
-			 * Loopback (::1) and the unspecified address (::), the IPv6 counterpart of 0.0.0.0.
-			 * Binary comparison handles every spelling (0:0:0:0:0:0:0:1, ::0:1).
-			 */
-			if ( $ip_binary === inet_pton( '::1' ) || $ip_binary === inet_pton( '::' ) ) {
+			// Loopback ::1, by binary comparison so every spelling matches (0:0:0:0:0:0:0:1, ::0:1).
+			if ( $ip_binary === inet_pton( '::1' ) ) {
 				return true;
 			}
 
@@ -299,6 +296,7 @@ class Form_Webhooks {
 				if (
 					"\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\xff\xff" === $prefix12 // IPv4-mapped ::ffff:0:0/96.
 					|| "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00" === $prefix12 // IPv4-compatible ::/96.
+					|| "\x00\x00\x00\x00\x00\x00\x00\x00\xff\xff\x00\x00" === $prefix12 // IPv4-translated ::ffff:0:0:0/96.
 					|| "\x00\x64\xff\x9b\x00\x00\x00\x00\x00\x00\x00\x00" === $prefix12 // NAT64 64:ff9b::/96.
 				) {
 					$embedded = substr( $ip_binary, 12, 4 );
