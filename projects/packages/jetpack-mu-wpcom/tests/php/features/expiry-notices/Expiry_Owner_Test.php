@@ -147,7 +147,7 @@ class Expiry_Owner_Test extends \WorDBless\BaseTestCase {
 
 	public function test_an_unknown_owner_reads_as_the_viewer(): void {
 		update_user_meta( $this->admin_id, 'wpcom_user_id', '777' );
-		set_transient( Expiry_Owner::cache_key( self::STATE ), Expiry_Owner::UNKNOWN, HOUR_IN_SECONDS );
+		set_transient( Expiry_Owner::cache_key( self::STATE ), Expiry_Wpcom::NONE, HOUR_IN_SECONDS );
 		$this->assertTrue( Expiry_Owner::current_user_is_owner( self::STATE ) );
 	}
 
@@ -158,10 +158,10 @@ class Expiry_Owner_Test extends \WorDBless\BaseTestCase {
 
 		$cache_key  = Expiry_Owner::cache_key( self::STATE );
 		$expires_in = (int) get_option( '_transient_timeout_' . $cache_key ) - time();
-		$this->assertSame( Expiry_Owner::UNKNOWN, get_transient( $cache_key ) );
+		$this->assertSame( Expiry_Wpcom::NONE, get_transient( $cache_key ) );
 		$this->assertGreaterThan( 0, $expires_in );
-		$this->assertLessThanOrEqual( Expiry_Owner::FAILURE_TTL, $expires_in );
-		$this->assertLessThan( Expiry_Owner::CACHE_TTL, $expires_in );
+		$this->assertLessThanOrEqual( Expiry_Wpcom::FAILURE_TTL, $expires_in );
+		$this->assertLessThan( Expiry_Wpcom::CACHE_TTL, $expires_in );
 	}
 
 	public function test_nothing_to_look_up_without_a_subscription_or_slug(): void {
@@ -212,7 +212,7 @@ class Expiry_Owner_Test extends \WorDBless\BaseTestCase {
 		// No billing loader ships here, so the store cannot be read.
 		Constants::set_constant( 'IS_WPCOM', true );
 		$this->assertNull( Expiry_Owner::owner_id( self::STATE ) );
-		$this->assertSame( Expiry_Owner::UNKNOWN, get_transient( Expiry_Owner::cache_key( self::STATE ) ) );
+		$this->assertSame( Expiry_Wpcom::NONE, get_transient( Expiry_Owner::cache_key( self::STATE ) ) );
 	}
 
 	public function test_on_simple_the_cached_owner_is_read_first(): void {

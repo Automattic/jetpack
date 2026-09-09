@@ -10,6 +10,7 @@ declare( strict_types = 1 );
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Notice_Dismiss;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Owner;
+use Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Wpcom;
 
 trait Expiry_Notices_Fixtures {
 
@@ -134,7 +135,7 @@ trait Expiry_Notices_Fixtures {
 	 * Leave the owner unresolved, as a failed lookup does.
 	 */
 	protected function set_plan_owner_unknown(): void {
-		set_transient( $this->owner_cache_key(), Expiry_Owner::UNKNOWN, HOUR_IN_SECONDS );
+		set_transient( $this->owner_cache_key(), Expiry_Wpcom::NONE, HOUR_IN_SECONDS );
 		$this->flush_expiry_memos();
 	}
 

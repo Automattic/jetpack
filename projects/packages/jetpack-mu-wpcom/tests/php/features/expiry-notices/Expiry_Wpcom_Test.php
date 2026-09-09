@@ -1,6 +1,6 @@
 <?php
 /**
- * Expiry_Wpcom_Request Tests
+ * Expiry_Wpcom Tests
  *
  * @package automattic/jetpack-mu-wpcom
  */
@@ -13,13 +13,13 @@ use Automattic\Jetpack\Connection\Utils as Connection_Utils;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use PHPUnit\Framework\Attributes\CoversClass;
 
-require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/expiry-notices/class-expiry-wpcom-request.php';
+require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/expiry-notices/class-expiry-wpcom.php';
 
 /**
- * @covers \Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Wpcom_Request
+ * @covers \Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Wpcom
  */
-#[CoversClass( Expiry_Wpcom_Request::class )]
-class Expiry_Wpcom_Request_Test extends \WorDBless\BaseTestCase {
+#[CoversClass( Expiry_Wpcom::class )]
+class Expiry_Wpcom_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * @var array<int,string>
@@ -67,7 +67,7 @@ class Expiry_Wpcom_Request_Test extends \WorDBless\BaseTestCase {
 			'body'     => '[{"ID":"1","user_id":777}]',
 		);
 
-		$body = Expiry_Wpcom_Request::get_as_blog( '/upgrades?site=12345' );
+		$body = Expiry_Wpcom::get_as_blog( '/upgrades?site=%d' );
 
 		$this->assertIsArray( $body );
 		$this->assertSame( 777, $body[0]->user_id );
@@ -80,15 +80,15 @@ class Expiry_Wpcom_Request_Test extends \WorDBless\BaseTestCase {
 			'response' => array( 'code' => 403 ),
 			'body'     => '{"error":"unauthorized"}',
 		);
-		$this->assertNull( Expiry_Wpcom_Request::get_as_blog( '/upgrades?site=12345' ) );
+		$this->assertNull( Expiry_Wpcom::get_as_blog( '/upgrades?site=12345' ) );
 
 		$this->response = new \WP_Error( 'http_request_failed', 'timed out' );
-		$this->assertNull( Expiry_Wpcom_Request::get_as_blog( '/upgrades?site=12345' ) );
+		$this->assertNull( Expiry_Wpcom::get_as_blog( '/upgrades?site=12345' ) );
 	}
 
 	public function test_a_site_without_an_id_asks_nothing(): void {
 		\Jetpack_Options::delete_option( 'id' );
-		$this->assertNull( Expiry_Wpcom_Request::get_as_blog( '/upgrades?site=12345' ) );
+		$this->assertNull( Expiry_Wpcom::get_as_blog( '/upgrades?site=12345' ) );
 		$this->assertSame( array(), $this->requested );
 	}
 }

@@ -14,6 +14,7 @@ require_once __DIR__ . '/class-expiry-data.php';
 require_once __DIR__ . '/class-expiry-domain.php';
 require_once __DIR__ . '/class-expiry-notice-dismiss.php';
 require_once __DIR__ . '/class-expiry-owner.php';
+require_once __DIR__ . '/class-expiry-wpcom.php';
 // @codeCoverageIgnoreEnd
 
 // @codeCoverageIgnoreStart -- shadowed by the test stub in tests/lib/functions-wordpress.php.

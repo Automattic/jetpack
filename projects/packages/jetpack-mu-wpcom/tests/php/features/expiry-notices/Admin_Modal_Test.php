@@ -44,7 +44,7 @@ class Admin_Modal_Test extends \WorDBless\BaseTestCase {
 	private function set_revert_domain( ?string $domain ): void {
 		set_transient(
 			\Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Domain::CACHE_KEY,
-			$domain ?? \Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Domain::NONE,
+			$domain ?? \Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Wpcom::NONE,
 			HOUR_IN_SECONDS
 		);
 	}

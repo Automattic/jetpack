@@ -136,8 +136,8 @@ class Expiry_Domain_Test extends \WorDBless\BaseTestCase {
 
 		$expires_in = (int) get_option( '_transient_timeout_' . Expiry_Domain::CACHE_KEY ) - time();
 		$this->assertGreaterThan( 0, $expires_in );
-		$this->assertLessThanOrEqual( Expiry_Domain::FAILURE_TTL, $expires_in );
-		$this->assertLessThan( Expiry_Domain::CACHE_TTL, $expires_in );
+		$this->assertLessThanOrEqual( Expiry_Wpcom::FAILURE_TTL, $expires_in );
+		$this->assertLessThan( Expiry_Wpcom::CACHE_TTL, $expires_in );
 
 		delete_transient( Expiry_Domain::CACHE_KEY );
 	}
