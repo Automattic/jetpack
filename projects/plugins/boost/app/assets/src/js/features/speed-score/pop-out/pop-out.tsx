@@ -1,11 +1,12 @@
 import { animated, useSpring } from '@react-spring/web';
-import CloseButton from '$features/ui/close-button/close-button';
+import CloseButton from '../../ui/close-button/close-button';
 import styles from './pop-out.module.scss';
 import { __ } from '@wordpress/i18n';
 import { ReactNode, useState, useEffect } from 'react';
-import { Button, getRedirectUrl } from '@automattic/jetpack-components';
-import { useDismissibleAlertState } from '$features/performance-history/lib/hooks';
-import { recordBoostEvent } from '$lib/utils/analytics';
+import Button from '@automattic/jetpack-components/button';
+import getRedirectUrl from '@automattic/jetpack-components/tools/jp-redirect';
+import { useDismissibleAlertState } from '../../performance-history/lib/hooks';
+import { recordBoostEvent } from '../../../lib/utils/analytics';
 
 type Props = {
 	scoreChange: number | false; // Speed score shift to show, or false if none.
@@ -22,7 +23,7 @@ type ScoreChangeMessage = {
 	ctaLink: string;
 };
 
-const fasterMessage: ScoreChangeMessage = {
+export const fasterMessage: ScoreChangeMessage = {
 	id: 'score_increase',
 	title: __( 'Your site got faster', 'jetpack-boost' ),
 	body: <p>{ __( `That's great! If you’re happy, why not rate Boost?`, 'jetpack-boost' ) }</p>,
@@ -30,7 +31,7 @@ const fasterMessage: ScoreChangeMessage = {
 	ctaLink: getRedirectUrl( 'boost-rate-plugin' ),
 };
 
-const slowerMessage: ScoreChangeMessage = {
+export const slowerMessage: ScoreChangeMessage = {
 	id: 'score_decrease',
 	title: __( 'Speed score has fallen', 'jetpack-boost' ),
 	body: (
