@@ -41,22 +41,14 @@ jest.mock( '@wordpress/element', () => {
 jest.mock( '@wordpress/i18n', () => ( {
 	__: text => text,
 	_x: text => text,
-	_n: ( single, plural, count ) => ( count === 1 ? single : plural ),
 	sprintf: ( format, ...args ) => {
 		let i = 0;
 		return format.replace( /%[ds]/g, () => args[ i++ ] );
 	},
 } ) );
 
-// Block-editor store: the sibling count reads other blocks through useSelect.
-const mockBlockEditorSelect = {
-	getClientIdsWithDescendants: jest.fn( () => [] ),
-	getBlockName: jest.fn(),
-	getBlockAttributes: jest.fn(),
-};
 const mockMarkNotPersistent = jest.fn();
 jest.mock( '@wordpress/data', () => ( {
-	useSelect: selector => selector( () => mockBlockEditorSelect ),
 	useDispatch: () => ( { __unstableMarkNextChangeAsNotPersistent: mockMarkNotPersistent } ),
 } ) );
 
@@ -1563,7 +1555,6 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 		beforeEach( () => {
 			mockMarkNotPersistent.mockClear();
-			mockBlockEditorSelect.getClientIdsWithDescendants.mockReturnValue( [] );
 		} );
 
 		it( 'corrects a stale copy from the payment PayPal holds, without dirtying the post', async () => {
@@ -1605,7 +1596,9 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				expect( apiFetch ).toHaveBeenCalledWith( expect.objectContaining( { path: resourcePath } ) )
 			);
 			expect( setAttributes ).not.toHaveBeenCalled();
-			expect( screen.queryByTestId( 'notice' ) ).not.toBeInTheDocument();
+			expect(
+				screen.queryAllByTestId( 'notice' ).map( n => n.getAttribute( 'data-status' ) )
+			).toEqual( [ 'info' ] );
 		} );
 
 		it( 'does not read the payment while PayPal is disconnected', async () => {
@@ -1619,21 +1612,49 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			);
 		} );
 
-		it( 'says when other blocks on the page use the same payment', async () => {
+		it( 'warns that the link is shared on any block that has one', async () => {
 			mockResource( { ...attributes } );
-			mockBlockEditorSelect.getClientIdsWithDescendants.mockReturnValue( [ 'a', 'b', 'c', 'd' ] );
-			mockBlockEditorSelect.getBlockName.mockImplementation( id =>
-				id === 'd' ? 'core/paragraph' : 'jetpack/paypal-payment-buttons'
-			);
-			mockBlockEditorSelect.getBlockAttributes.mockImplementation( id => ( {
-				resourceId: id === 'c' ? 'PLB-OTHER' : 'PLB-SHARED1',
-			} ) );
 
 			render( <Edit attributes={ attributes } setAttributes={ setAttributes } clientId="a" /> );
 
 			await expect(
-				screen.findByText( /1 other block on this page uses this PayPal payment/ )
+				screen.findByText( 'Changes made will apply to all payment buttons with this link.' )
 			).resolves.toBeInTheDocument();
+		} );
+
+		it( 'stays quiet on a block whose payment link is gone', async () => {
+			apiFetch.mockResolvedValue( { connected: true, environment: 'sandbox' } );
+
+			render(
+				<Edit
+					attributes={ { ...attributes, paymentLink: '' } }
+					setAttributes={ setAttributes }
+					clientId="a"
+				/>
+			);
+
+			// No link means the create form, which must not claim a shared one.
+			await expect( screen.findByText( 'Create New' ) ).resolves.toBeInTheDocument();
+			expect(
+				screen.queryByText( 'Changes made will apply to all payment buttons with this link.' )
+			).not.toBeInTheDocument();
+		} );
+
+		it( 'stays quiet on a block with no payment link yet', async () => {
+			apiFetch.mockResolvedValue( { connected: true, environment: 'sandbox' } );
+
+			render(
+				<Edit
+					attributes={ { productName: 'Test Widget', price: '9.99', currencyCode: 'USD' } }
+					setAttributes={ setAttributes }
+					clientId="a"
+				/>
+			);
+
+			await expect( screen.findByText( 'Create New' ) ).resolves.toBeInTheDocument();
+			expect(
+				screen.queryByText( 'Changes made will apply to all payment buttons with this link.' )
+			).not.toBeInTheDocument();
 		} );
 	} );
 

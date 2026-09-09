@@ -12,7 +12,6 @@
 import apiFetch from '@wordpress/api-fetch'; // eslint-disable-line import/no-unresolved
 import {
 	BlockControls,
-	store as blockEditorStore,
 	InspectorControls,
 	MediaUpload,
 	MediaUploadCheck,
@@ -31,9 +30,8 @@ import {
 	ToolbarButton,
 	ToolbarGroup,
 } from '@wordpress/components';
-import { useSelect } from '@wordpress/data';
 import { useState, useCallback, useMemo } from '@wordpress/element';
-import { __, _n, sprintf } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import metadata from './block.json';
 import ConfirmDialogs from './components/confirm-dialogs';
 import ConnectionWizard from './components/connection-wizard';
@@ -70,10 +68,9 @@ const helpTaxOff = __( 'No tax collected.', 'jetpack-paypal-payments' );
  * @param {object}   props               - Block props.
  * @param {object}   props.attributes    - Block attributes.
  * @param {Function} props.setAttributes - Function to update block attributes.
- * @param {string}   props.clientId      - The block's client ID (not the PayPal one).
  * @return {Element} Block editor UI.
  */
-export default function ApiManagedEdit( { attributes, setAttributes, clientId: blockClientId } ) {
+export default function ApiManagedEdit( { attributes, setAttributes } ) {
 	const {
 		colorScheme,
 		isApiManaged,
@@ -237,24 +234,6 @@ export default function ApiManagedEdit( { attributes, setAttributes, clientId: b
 		setTouchedFields,
 		setShowDeleteConfirm,
 	} );
-
-	// Other blocks on this page pointing at the same PayPal payment.
-	const sharedResourceCount = useSelect(
-		select => {
-			if ( ! resourceId || ! blockClientId ) {
-				return 0;
-			}
-			const { getClientIdsWithDescendants, getBlockName, getBlockAttributes } =
-				select( blockEditorStore );
-			return getClientIdsWithDescendants().filter(
-				id =>
-					id !== blockClientId &&
-					getBlockName( id ) === metadata.name &&
-					getBlockAttributes( id )?.resourceId === resourceId
-			).length;
-		},
-		[ blockClientId, resourceId ]
-	);
 
 	/**
 	 * Handle PayPal disconnect with confirmation.
@@ -461,22 +440,15 @@ export default function ApiManagedEdit( { attributes, setAttributes, clientId: b
 		</Notice>
 	) : null;
 
-	const sharedResourceMessage = sprintf(
-		/* translators: %d: number of other blocks on this page using the same PayPal payment */
-		_n(
-			'%d other block on this page uses this PayPal payment. Changing the product or price here changes it there too. To sell something different, add a new block and create a new payment.',
-			'%d other blocks on this page use this PayPal payment. Changing the product or price here changes it there too. To sell something different, add a new block and create a new payment.',
-			sharedResourceCount,
-			'jetpack-paypal-payments'
-		),
-		sharedResourceCount
-	);
-	const sharedResourceNotice =
-		sharedResourceCount > 0 ? (
-			<Notice status="info" isDismissible={ false }>
-				{ sharedResourceMessage }
-			</Notice>
-		) : null;
+	// A payment link can be used by blocks on any post, so warn whenever there is one.
+	const sharedResourceNotice = hasButton ? (
+		<Notice status="info" isDismissible={ false }>
+			{ __(
+				'Changes made will apply to all payment buttons with this link.',
+				'jetpack-paypal-payments'
+			) }
+		</Notice>
+	) : null;
 
 	const connectionStatus = (
 		<span
