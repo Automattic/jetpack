@@ -8,6 +8,7 @@ import ErrorBoundary from '../../app/assets/src/js/features/error-boundary/error
 import { recordBoostEvent } from '../../app/assets/src/js/lib/utils/analytics';
 import HistoryChartCard from './history-chart-card';
 import { OVERVIEW_MODULES_CHANGE_EVENT, relayedQueryKeys } from './lib/modules-state-bridge';
+import { getHistoryWindow } from './lib/history-days';
 import { isSiteOnline, useModulesState, useScoreRefreshState } from './lib/use-modules-state';
 import {
 	performanceHistoryQueryKey,
@@ -177,6 +178,7 @@ function OverviewContent( {
 				</Notice.Root>
 			) }
 			<HistoryChartCard
+				now={ now }
 				isVisible={ isVisible }
 				data={ modules.isPending ? undefined : history.data }
 				isLoading={ modules.isPending || ( historyAvailable && history.isPending ) }

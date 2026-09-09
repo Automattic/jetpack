@@ -39,6 +39,11 @@
 		min-inline-size: 0;
 		isolation: isolate;
 
+		// Charts leaves an all-zero series at zero height even with showZeroValues.
+		.visx-bar[height="0"] {
+			height: var(--wpds-border-width-sm);
+		}
+
 		.visx-bar[fill="var(--wpds-color-stroke-surface-neutral-weak)"] {
 			height: var(--wpds-border-width-xs);
 			fill: none;

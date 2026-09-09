@@ -8,7 +8,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { chevronLeft, chevronRight, desktop, mobile, Icon } from '@wordpress/icons';
 import { Button, Card, Notice } from '@wordpress/ui';
 import { useState } from 'react';
-import { bucketHistoryDays, getHistoryWindow } from './lib/history-days';
+import { bucketHistoryDays, getHistoryWindow, type HistoryDay } from './lib/history-days';
 import { getScoreTier, getScoreTierLabel, getScoreTierColor } from './lib/score-utils';
 import { usePerformanceHistory } from './lib/use-performance-history';
 import UpgradeCTA from './upgrade-cta';
@@ -19,6 +19,7 @@ import type { SeriesData } from '@automattic/charts';
 type DeviceColors = { desktop?: string; mobile?: string };
 type History = PerformanceHistoryData;
 type Props = {
+	now?: Date;
 	data?: PerformanceHistoryData | null;
 	isLoading?: boolean;
 	isVisible?: boolean;
@@ -30,14 +31,11 @@ type Props = {
 	onDismissFreshStart: () => void;
 };
 
+// The empty-bar selector in history-chart-card.scss matches this fill.
 const emptyColor = 'var(--wpds-color-stroke-surface-neutral-weak)';
 const tiers = [ 'good', 'medium', 'poor' ] as const;
 
-export function buildHistorySeries(
-	data: PerformanceHistoryData | null | undefined,
-	window = getHistoryWindow( 0 )
-): SeriesData[] {
-	const days = bucketHistoryDays( data?.periods ?? [], window );
+export function buildHistorySeries( days: HistoryDay[] ): SeriesData[] {
 	return ( [ 'desktop', 'mobile' ] as const ).map( device => ( {
 		label:
 			device === 'desktop' ? __( 'Desktop', 'jetpack-boost' ) : __( 'Mobile', 'jetpack-boost' ),
@@ -57,7 +55,7 @@ export function EmptyDayTooltip( { date }: { date: string } ) {
 			<div className="jetpack-boost-overview__tooltip-date">
 				{ dateI18n( 'F j, Y', getDate( `${ date }T12:00:00` ), false ) }
 			</div>
-			{ __( 'No score recorded before you unlocked this feature.', 'jetpack-boost' ) }
+			{ __( 'No score recorded.', 'jetpack-boost' ) }
 		</div>
 	);
 }
@@ -132,6 +130,7 @@ export function HistoryTooltip( {
 }
 
 export default function HistoryChartCard( {
+	now = new Date(),
 	data: currentData,
 	isLoading: currentLoading,
 	isVisible = true,
@@ -143,15 +142,15 @@ export default function HistoryChartCard( {
 	onDismissFreshStart,
 }: Props ) {
 	const [ offset, setOffset ] = useState( 0 );
-	const window = getHistoryWindow( offset );
+	const window = getHistoryWindow( offset, now );
 	const history = usePerformanceHistory( offset > 0 && isVisible && ! needsUpgrade, window );
 	const data = offset === 0 ? currentData : history.data;
 	const isLoading = offset === 0 ? currentLoading : history.isPending;
 	const isError = offset === 0 ? currentError : history.isError;
 	const error = offset === 0 ? currentErrorDetail : history.error;
 	const onRetry = offset === 0 ? retryCurrent : () => history.refetch();
-	const series = buildHistorySeries( data, window );
 	const days = bucketHistoryDays( data?.periods ?? [], window );
+	const series = buildHistorySeries( days );
 	const [ chartKeys, setChartKeys ] = useState( [ 0, 0 ] );
 	let content;
 	if ( isLoading && ! data?.periods.length ) {
@@ -237,6 +236,7 @@ export default function HistoryChartCard( {
 									<BarChart
 										key={ `${ offset }-${ chartKeys[ index ] }` }
 										data={ [ deviceSeries ] }
+										showZeroValues
 										withTooltips
 										gridVisibility="none"
 										options={ {
