@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Post detail: Replace the daily Traffic activity heatmap with an All-time traffic table of monthly views; picking a month reads the page over it.
