@@ -2,7 +2,7 @@
  * Internal dependencies
  */
 import { getMenuSurfacePresetGroups } from '../presets';
-import { DETAIL_SURFACE_PRESETS, MENU_SURFACE_PRESETS } from '../presets/types';
+import { DETAIL_SURFACE_PRESETS } from '../presets/types';
 
 const TIME_ZONE = 'America/New_York';
 
@@ -12,17 +12,9 @@ const idsOf = ( groups: { id: string }[][] ) =>
 describe( 'getMenuSurfacePresetGroups', () => {
 	it( 'groups the periods by scale, narrowest first', () => {
 		expect( idsOf( getMenuSurfacePresetGroups( TIME_ZONE ) ) ).toEqual( [
-			[
-				'today',
-				'yesterday',
-				'last-24-hours',
-				'last-7-days',
-				'last-30-days',
-				'last-90-days',
-				'last-365-days',
-			],
+			[ 'today', 'yesterday', 'last-24-hours', 'last-7-days', 'last-30-days' ],
 			[ 'month-to-date', 'last-month' ],
-			[ 'year-to-date', 'last-12-months', 'last-year' ],
+			[ 'year-to-date', 'last-12-months' ],
 		] );
 	} );
 
@@ -37,7 +29,10 @@ describe( 'getMenuSurfacePresetGroups', () => {
 			startDate: new Date( '2024-03-01T00:00:00.000Z' ),
 		} );
 
-		expect( idsOf( groups ).flat() ).toEqual( [ ...MENU_SURFACE_PRESETS, 'all-time' ] );
+		expect( idsOf( groups ).flat() ).toEqual( [
+			...idsOf( getMenuSurfacePresetGroups( TIME_ZONE ) ).flat(),
+			'all-time',
+		] );
 		expect( idsOf( groups ).at( -1 ) ).toEqual( [ 'all-time' ] );
 	} );
 
@@ -67,8 +62,6 @@ describe( 'getMenuSurfacePresetGroups', () => {
 			'Last 24 hours',
 			'Last 7 days',
 			'Last 30 days',
-			'Last 90 days',
-			'Last 365 days',
 		] );
 
 		for ( const preset of days ) {

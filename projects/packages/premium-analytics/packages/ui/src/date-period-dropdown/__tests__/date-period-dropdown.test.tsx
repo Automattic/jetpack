@@ -63,15 +63,27 @@ describe( 'DatePeriodDropdown', () => {
 			'Last 24 hours',
 			'Last 7 days',
 			'Last 30 days',
-			'Last 90 days',
-			'Last 365 days',
 			'Month to date',
 			'Last month',
 			'Year to date',
 			'Last 12 months',
-			'Last year',
 			'Custom range',
 		] );
+	} );
+
+	// A saved layout or a bookmark can still carry a period the design has since
+	// dropped from the menu; the trigger names it rather than falling back to
+	// bare dates.
+	it( 'names an applied period the menu no longer offers', async () => {
+		const user = userEvent.setup();
+		renderDropdown( { appliedPresetId: 'last-90-days' } );
+
+		expect( screen.getByRole( 'button', { name: /Last 90 days/ } ) ).toBeInTheDocument();
+
+		await openMenu( user, 'Last 90 days' );
+		expect(
+			screen.queryByRole( 'menuitemradio', { name: 'Last 90 days' } )
+		).not.toBeInTheDocument();
 	} );
 
 	it( 'checks the applied period', async () => {
