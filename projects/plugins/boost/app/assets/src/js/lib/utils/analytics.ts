@@ -22,7 +22,7 @@ export async function recordBoostEvent(
 			jpTracksAJAX
 				.record_ajax_event( `boost_${ eventName }`, 'click', eventProp )
 				.done( resolve )
-				.fail( xhr => {
+				.fail( ( xhr: { responseText: string } ) => {
 					// eslint-disable-next-line no-console
 					console.log(
 						`Recording event 'boost_${ eventName }' failed with error: ${ xhr.responseText }`
