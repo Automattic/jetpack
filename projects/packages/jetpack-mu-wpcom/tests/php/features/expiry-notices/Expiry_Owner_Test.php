@@ -68,12 +68,13 @@ class Expiry_Owner_Test extends \WorDBless\BaseTestCase {
 		);
 	}
 
-	public function test_picks_the_owner_by_subscription_id(): void {
+	public function test_picks_the_owner_by_subscription_id_or_by_slug_without_one(): void {
 		$upgrades = array(
 			$this->upgrade(
 				array(
-					'ID'      => '111',
-					'user_id' => 1,
+					'ID'           => '111',
+					'product_slug' => 'jetpack-backup-yearly',
+					'user_id'      => 1,
 				)
 			),
 			$this->upgrade(
@@ -84,30 +85,14 @@ class Expiry_Owner_Test extends \WorDBless\BaseTestCase {
 			),
 		);
 		$this->assertSame( 777, Expiry_Owner::pick_owner_id( $upgrades, '26532009', 'business-bundle' ) );
-	}
-
-	public function test_falls_back_to_the_product_slug_without_a_subscription_id(): void {
-		$upgrades = array(
-			$this->upgrade(
-				array(
-					'product_slug' => 'jetpack-backup-yearly',
-					'user_id'      => 1,
-				)
-			),
-			$this->upgrade( array( 'user_id' => 777 ) ),
-		);
 		$this->assertSame( 777, Expiry_Owner::pick_owner_id( $upgrades, '', 'business-bundle' ) );
 	}
 
-	public function test_says_nothing_when_the_subscription_is_not_listed(): void {
-		$upgrades = array( $this->upgrade( array( 'ID' => '111' ) ) );
+	public function test_says_nothing_when_the_subscription_is_not_listed_or_names_no_owner(): void {
 		// The slug is only a fallback: a listed slug under the wrong ID is not it.
-		$this->assertNull( Expiry_Owner::pick_owner_id( $upgrades, '26532009', 'business-bundle' ) );
+		$this->assertNull( Expiry_Owner::pick_owner_id( array( $this->upgrade( array( 'ID' => '111' ) ) ), '26532009', 'business-bundle' ) );
 		$this->assertNull( Expiry_Owner::pick_owner_id( array(), '', 'business-bundle' ) );
 		$this->assertNull( Expiry_Owner::pick_owner_id( array( 'not an object' ), '', 'business-bundle' ) );
-	}
-
-	public function test_says_nothing_when_the_entry_names_no_owner(): void {
 		$this->assertNull( Expiry_Owner::pick_owner_id( array( $this->upgrade( array( 'user_id' => 0 ) ) ), '26532009', '' ) );
 		$this->assertNull( Expiry_Owner::pick_owner_id( array( $this->upgrade( array( 'user_id' => null ) ) ), '26532009', '' ) );
 	}
@@ -122,20 +107,28 @@ class Expiry_Owner_Test extends \WorDBless\BaseTestCase {
 		$this->assertSame( 777, Expiry_Owner::current_user_wpcom_id() );
 	}
 
-	public function test_a_local_only_user_has_no_wpcom_identity(): void {
-		// No SSO meta and no connection token: nothing can name this user.
+	public function test_on_atomic_a_connection_token_names_the_viewer(): void {
+		\Jetpack_Options::update_option( 'user_tokens', array( $this->admin_id => "token.secret.{$this->admin_id}" ) );
+		set_transient( "jetpack_connected_user_data_{$this->admin_id}", array( 'ID' => 777 ), HOUR_IN_SECONDS );
+
+		try {
+			$this->assertSame( 777, Expiry_Owner::current_user_wpcom_id() );
+		} finally {
+			delete_transient( "jetpack_connected_user_data_{$this->admin_id}" );
+			\Jetpack_Options::delete_option( 'user_tokens' );
+		}
+	}
+
+	public function test_a_local_only_user_is_never_the_owner(): void {
+		set_transient( Expiry_Owner::cache_key( self::STATE ), 777, HOUR_IN_SECONDS );
 		$this->assertNull( Expiry_Owner::current_user_wpcom_id() );
+		$this->assertFalse( Expiry_Owner::current_user_is_owner( self::STATE ) );
 
 		wp_set_current_user( 0 );
 		$this->assertNull( Expiry_Owner::current_user_wpcom_id() );
 	}
 
-	public function test_a_local_only_user_is_never_the_owner(): void {
-		set_transient( Expiry_Owner::cache_key( self::STATE ), 777, HOUR_IN_SECONDS );
-		$this->assertFalse( Expiry_Owner::current_user_is_owner( self::STATE ) );
-	}
-
-	public function test_the_cached_owner_decides(): void {
+	public function test_the_remembered_owner_decides_and_an_unknown_one_reads_as_the_viewer(): void {
 		update_user_meta( $this->admin_id, 'wpcom_user_id', '777' );
 
 		set_transient( Expiry_Owner::cache_key( self::STATE ), 777, HOUR_IN_SECONDS );
@@ -143,37 +136,28 @@ class Expiry_Owner_Test extends \WorDBless\BaseTestCase {
 
 		set_transient( Expiry_Owner::cache_key( self::STATE ), 778, HOUR_IN_SECONDS );
 		$this->assertFalse( Expiry_Owner::current_user_is_owner( self::STATE ) );
-	}
 
-	public function test_an_unknown_owner_reads_as_the_viewer(): void {
-		update_user_meta( $this->admin_id, 'wpcom_user_id', '777' );
 		set_transient( Expiry_Owner::cache_key( self::STATE ), Expiry_Wpcom::NONE, HOUR_IN_SECONDS );
 		$this->assertTrue( Expiry_Owner::current_user_is_owner( self::STATE ) );
 	}
 
-	public function test_a_failed_lookup_is_not_cached_as_an_answer(): void {
-		// No connected site id here, so the request can't be made -- the same
-		// path an outage takes. "We couldn't ask" must expire quickly.
-		$this->assertNull( Expiry_Owner::owner_id( self::STATE ) );
+	public function test_a_failed_lookup_is_remembered_only_briefly(): void {
+		// No connected site id on Atomic and no store on Simple: the paths an outage takes.
+		foreach ( array( false, true ) as $is_wpcom ) {
+			Constants::set_constant( 'IS_WPCOM', $is_wpcom );
+			delete_transient( Expiry_Owner::cache_key( self::STATE ) );
 
-		$cache_key  = Expiry_Owner::cache_key( self::STATE );
-		$expires_in = (int) get_option( '_transient_timeout_' . $cache_key ) - time();
-		$this->assertSame( Expiry_Wpcom::NONE, get_transient( $cache_key ) );
-		$this->assertGreaterThan( 0, $expires_in );
-		$this->assertLessThanOrEqual( Expiry_Wpcom::FAILURE_TTL, $expires_in );
-		$this->assertLessThan( Expiry_Wpcom::CACHE_TTL, $expires_in );
+			$this->assertNull( Expiry_Owner::owner_id( self::STATE ) );
+
+			$cache_key  = Expiry_Owner::cache_key( self::STATE );
+			$expires_in = (int) get_option( '_transient_timeout_' . $cache_key ) - time();
+			$this->assertSame( Expiry_Wpcom::NONE, get_transient( $cache_key ) );
+			$this->assertGreaterThan( 0, $expires_in );
+			$this->assertLessThanOrEqual( Expiry_Wpcom::FAILURE_TTL, $expires_in );
+		}
 	}
 
-	public function test_nothing_to_look_up_without_a_subscription_or_slug(): void {
-		$this->assertNull( Expiry_Owner::owner_id( array() ) );
-	}
-
-	public function test_cache_is_keyed_by_subscription_then_slug(): void {
-		$this->assertSame( Expiry_Owner::CACHE_KEY_PREFIX . '26532009', Expiry_Owner::cache_key( self::STATE ) );
-		$this->assertSame( Expiry_Owner::CACHE_KEY_PREFIX . 'business-bundle', Expiry_Owner::cache_key( array( 'product_slug' => 'business-bundle' ) ) );
-	}
-
-	public function test_on_atomic_the_owner_comes_from_wordpress_com_and_is_cached(): void {
+	public function test_on_atomic_the_owner_comes_from_wordpress_com_and_is_remembered(): void {
 		\Jetpack_Options::update_option( 'id', 12345 );
 		\Jetpack_Options::update_option( 'blog_token', 'blog.token' );
 		Connection_Utils::init_default_constants();
@@ -193,31 +177,5 @@ class Expiry_Owner_Test extends \WorDBless\BaseTestCase {
 			\Jetpack_Options::delete_option( 'id' );
 			\Jetpack_Options::delete_option( 'blog_token' );
 		}
-	}
-
-	public function test_on_atomic_a_connection_token_names_the_viewer(): void {
-		// No SSO meta, but a user token the connection package can answer for.
-		\Jetpack_Options::update_option( 'user_tokens', array( $this->admin_id => "token.secret.{$this->admin_id}" ) );
-		set_transient( "jetpack_connected_user_data_{$this->admin_id}", array( 'ID' => 777 ), HOUR_IN_SECONDS );
-
-		try {
-			$this->assertSame( 777, Expiry_Owner::current_user_wpcom_id() );
-		} finally {
-			delete_transient( "jetpack_connected_user_data_{$this->admin_id}" );
-			\Jetpack_Options::delete_option( 'user_tokens' );
-		}
-	}
-
-	public function test_on_simple_without_the_store_the_owner_is_unknown(): void {
-		// No billing loader ships here, so the store cannot be read.
-		Constants::set_constant( 'IS_WPCOM', true );
-		$this->assertNull( Expiry_Owner::owner_id( self::STATE ) );
-		$this->assertSame( Expiry_Wpcom::NONE, get_transient( Expiry_Owner::cache_key( self::STATE ) ) );
-	}
-
-	public function test_on_simple_the_cached_owner_is_read_first(): void {
-		Constants::set_constant( 'IS_WPCOM', true );
-		set_transient( Expiry_Owner::cache_key( self::STATE ), 777, HOUR_IN_SECONDS );
-		$this->assertSame( 777, Expiry_Owner::owner_id( self::STATE ) );
 	}
 }

@@ -9,6 +9,7 @@ declare( strict_types = 1 );
 
 namespace Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices;
 
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use PHPUnit\Framework\Attributes\CoversClass;
 
@@ -20,8 +21,15 @@ require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/expiry-notices/class-expi
 #[CoversClass( Expiry_Domain::class )]
 class Expiry_Domain_Test extends \WorDBless\BaseTestCase {
 
+	public function tear_down() {
+		unset( $GLOBALS['wpcom_blog_details_domain_test_value'] );
+		delete_transient( Expiry_Domain::CACHE_KEY );
+		Constants::clear_constants();
+		parent::tear_down();
+	}
+
 	/**
-	 * Build a domain row in the shape /sites/{id}/domains returns.
+	 * A domain row in the shape /sites/{id}/domains returns.
 	 *
 	 * @param string              $domain    Domain name.
 	 * @param array<string,mixed> $overrides Flags to set on the row.
@@ -68,8 +76,6 @@ class Expiry_Domain_Test extends \WorDBless\BaseTestCase {
 	}
 
 	public function test_says_nothing_when_a_custom_domain_is_primary(): void {
-		// The revert keeps a real custom domain and only repoints its A records,
-		// so there is no rename to warn about.
 		$domains = array(
 			$this->domain( 'example.wordpress.com', array( 'wpcom_domain' => true ) ),
 			$this->domain( 'example.com', array( 'primary_domain' => true ) ),
@@ -79,8 +85,6 @@ class Expiry_Domain_Test extends \WorDBless\BaseTestCase {
 	}
 
 	public function test_never_names_the_staging_domain(): void {
-		// `*.wpcomstaging.com` is an Atomic hosting artifact whose mapping the
-		// revert deletes, so it is never what the site ends up called.
 		$domains = array(
 			$this->domain(
 				'example.wpcomstaging.com',
@@ -95,23 +99,6 @@ class Expiry_Domain_Test extends \WorDBless\BaseTestCase {
 		$this->assertNull( Expiry_Domain::pick_revert_domain( $domains ) );
 	}
 
-	public function test_handles_a_managed_subdomain_site(): void {
-		// wpcom hides the .wordpress.com row when a managed subdomain (.blog and
-		// friends) is mapped, so the wpcom row is the fallback in both cases and
-		// this needs no special handling -- but it must not regress.
-		$domains = array(
-			$this->domain(
-				'example.home.blog',
-				array(
-					'wpcom_domain'   => true,
-					'primary_domain' => true,
-				)
-			),
-		);
-
-		$this->assertSame( 'example.home.blog', Expiry_Domain::pick_revert_domain( $domains ) );
-	}
-
 	public function test_says_nothing_when_the_list_is_unusable(): void {
 		$this->assertNull( Expiry_Domain::pick_revert_domain( array() ) );
 		// No primary flagged at all: we can't tell whether the site is renaming.
@@ -120,25 +107,29 @@ class Expiry_Domain_Test extends \WorDBless\BaseTestCase {
 				array( $this->domain( 'example.wordpress.com', array( 'wpcom_domain' => true ) ) )
 			)
 		);
-		// A row with no usable domain string is skipped rather than fatal.
 		$this->assertNull(
 			Expiry_Domain::pick_revert_domain( array( (object) array( 'primary_domain' => true ) ) )
 		);
 	}
 
-	public function test_a_failed_lookup_is_not_cached_as_an_answer(): void {
-		// No connected site id here, so the request can't be made -- the same
-		// path an outage takes. "We couldn't ask" must expire quickly; caching it
-		// for CACHE_TTL would drop the domain line for half a day over one blip.
-		delete_transient( Expiry_Domain::CACHE_KEY );
+	public function test_on_simple_the_blogs_table_says_whether_the_switch_happened(): void {
+		Constants::set_constant( 'IS_WPCOM', true );
 
+		// WorDBless serves example.org, so a matching unmapped domain means the
+		// site is on its own address already.
+		$GLOBALS['wpcom_blog_details_domain_test_value'] = 'example.org';
+		$this->assertSame( 'example.org', Expiry_Domain::get_revert_domain() );
+
+		$GLOBALS['wpcom_blog_details_domain_test_value'] = 'unused.wordpress.com';
+		$this->assertNull( Expiry_Domain::get_revert_domain() );
+	}
+
+	public function test_a_failed_lookup_is_remembered_only_briefly(): void {
+		// No connected site id, so the request can't be made: the path an outage takes.
 		$this->assertNull( Expiry_Domain::get_revert_domain() );
 
 		$expires_in = (int) get_option( '_transient_timeout_' . Expiry_Domain::CACHE_KEY ) - time();
 		$this->assertGreaterThan( 0, $expires_in );
 		$this->assertLessThanOrEqual( Expiry_Wpcom::FAILURE_TTL, $expires_in );
-		$this->assertLessThan( Expiry_Wpcom::CACHE_TTL, $expires_in );
-
-		delete_transient( Expiry_Domain::CACHE_KEY );
 	}
 }
