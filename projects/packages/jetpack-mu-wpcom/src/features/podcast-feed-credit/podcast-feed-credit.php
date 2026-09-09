@@ -11,10 +11,10 @@ use Automattic\Jetpack\Podcast\Podcast_Gate;
 
 /**
  * Hook the credit once the podcast package has claimed this request as the
- * podcast feed. Runs after the package's own `wp` callback.
+ * podcast feed. The package registers on `wp` at priority 10, so this runs at 11.
  */
 function wpcom_podcast_feed_credit_maybe_hook() {
-	if ( ! class_exists( Customize_Feed::class ) || ! has_action( 'rss2_head', array( Customize_Feed::class, 'output_channel_tags' ) ) ) {
+	if ( ! has_action( 'rss2_head', array( Customize_Feed::class, 'output_channel_tags' ) ) ) {
 		return;
 	}
 	if ( Podcast_Gate::has_product_access() ) {
