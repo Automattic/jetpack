@@ -53,6 +53,9 @@ function readinessOptions(): { value: StatsFeedbackReadiness; label: string }[] 
  *
  * Untranslated on purpose: this is triage copy, like the product name, not reader copy.
  *
+ * Bracketed, not newline separated: the endpoint runs the message through
+ * `sanitize_text_field`, which collapses every run of whitespace to one space.
+ *
  * @param readiness - The answer the reader picked.
  * @return The question and its answer as one line.
  */
@@ -63,7 +66,7 @@ export function readinessSummary( readiness: StatsFeedbackReadiness ) {
 		not_yet: 'Not yet',
 	};
 
-	return `Ready to replace the old Traffic tab? ${ answers[ readiness ] }`;
+	return `[Ready to replace the old Traffic tab? ${ answers[ readiness ] }]`;
 }
 
 /**

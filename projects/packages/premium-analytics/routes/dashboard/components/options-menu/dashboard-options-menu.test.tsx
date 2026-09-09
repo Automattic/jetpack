@@ -286,7 +286,7 @@ describe( 'the Happiness copy of the feedback', () => {
 				data: {
 					source_url: window.location.href,
 					product_name: 'Jetpack Stats v2',
-					feedback: `Ready to replace the old Traffic tab? ${ answer }\n\nMissing the date picker`,
+					feedback: `[Ready to replace the old Traffic tab? ${ answer }] Missing the date picker`,
 				},
 			} )
 		);

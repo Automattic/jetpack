@@ -57,7 +57,7 @@ export function FeedbackModal( { onClose }: FeedbackModalProps ) {
 		if ( message ) {
 			// The endpoint has no readiness field, so the answer rides along in the message.
 			submitStatsUserFeedback( {
-				comment: `${ readinessSummary( readiness ) }\n\n${ message }`,
+				comment: `${ readinessSummary( readiness ) } ${ message }`,
 				productName: PRODUCT_NAME,
 			} ).catch( () => {
 				// The reader has already been thanked and Tracks may well have the submission;
