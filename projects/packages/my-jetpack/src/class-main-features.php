@@ -281,10 +281,6 @@ class Main_Features {
 				'modules' => array( 'sitemaps', 'seo-tools', 'canonical-urls', 'verification-tools' ),
 			),
 			array(
-				'label'   => __( 'Sharing', 'jetpack-my-jetpack' ),
-				'modules' => array( 'sharedaddy' ),
-			),
-			array(
 				'label'   => __( 'Engagement', 'jetpack-my-jetpack' ),
 				'modules' => array(
 					'comments',
@@ -292,6 +288,8 @@ class Main_Features {
 					'comment-likes',
 					'gravatar-hovercards',
 					'related-posts',
+					'infinite-scroll',
+					'sharedaddy',
 				),
 			),
 			array(
@@ -305,15 +303,14 @@ class Main_Features {
 					'custom-content-types',
 					'post-by-email',
 					'post-list',
+					'carousel',
+					'tiled-gallery',
+					'shortlinks',
 				),
 			),
 			array(
 				'label'   => __( 'Design', 'jetpack-my-jetpack' ),
-				'modules' => array( 'google-fonts', 'infinite-scroll', 'widgets', 'widget-visibility' ),
-			),
-			array(
-				'label'   => __( 'Media', 'jetpack-my-jetpack' ),
-				'modules' => array( 'carousel', 'tiled-gallery' ),
+				'modules' => array( 'google-fonts', 'widgets', 'widget-visibility' ),
 			),
 			array(
 				'label'   => __( 'Earn', 'jetpack-my-jetpack' ),
