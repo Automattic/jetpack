@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Sidebar: name the VideoPress menu item consistently whether or not the module is active.
