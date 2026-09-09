@@ -73,8 +73,8 @@ test.describe( 'Jetpack Protect Plugin', () => {
 		// react-router <Outlet />, the matched FirewallRoute can appear in two panels at
 		// once. Scoping to the Firewall panel keeps each locator matching a single
 		// element instead of tripping Playwright strict mode. `exact` avoids matching the
-		// "Automatic firewall is on" heading variant. The "Changes saved" notice is left
-		// page-scoped on purpose: it renders at the app level, outside the tab panels.
+		// "Automatic firewall is on" heading variant. The "Changes saved" notice renders
+		// at the app level, so its helper scopes to the app root rather than a panel.
 		const firewallPanel = page.getByRole( 'tabpanel', { name: 'Firewall', exact: true } );
 
 		await test.step( 'Navigate to firewall page', async () => {
