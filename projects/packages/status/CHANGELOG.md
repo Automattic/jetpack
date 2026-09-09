@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [7.0.1] - 2026-09-09
 ### Fixed
-- Status: recognize the full 127.0.0.0/8 loopback range and 0.0.0.0 as local sites, not only 127.0.0.1. [#51311]
+- Recognize the full 127.0.0.0/8 loopback range and 0.0.0.0 as local sites, not only 127.0.0.1. [#51311]
 
 ## [7.0.0] - 2026-08-26
 ### Removed

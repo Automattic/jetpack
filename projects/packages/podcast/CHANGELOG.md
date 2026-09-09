@@ -7,10 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2.1.1] - 2026-09-09
 ### Changed
-- Sidebar: sort Jetpack menu items alphabetically, pinning My Jetpack to the top and external links and Settings to the bottom. [#52003]
+- Sidebar: Sort Jetpack menu items alphabetically, pinning My Jetpack to the top and external links and Settings to the bottom. [#52003]
 
 ### Deprecated
-- Deprecate Admin_Page::MENU_POSITION; the Jetpack submenu now orders its internal pages alphabetically. [#52003]
+- Deprecate `Admin_Page::MENU_POSITION`; the Jetpack submenu now orders its internal pages alphabetically. [#52003]
 
 ## [2.1.0] - 2026-09-08
 ### Added
