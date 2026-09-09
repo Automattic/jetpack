@@ -14,6 +14,14 @@ import Edit from '../../../src/paypal-payment-buttons/edit';
 // apiFetch mock — controls what the component receives from the REST API.
 const apiFetch = require( '@wordpress/api-fetch' );
 
+// The API-managed editor only renders while the feature flag is on.
+jest.mock( '@automattic/jetpack-shared-extension-utils', () => ( {
+	hasFeatureFlag: () => true,
+} ) );
+
+// The paste-code editor has its own suite; keep its imports out of this one.
+jest.mock( '../../../src/paypal-payment-buttons/edit-paste-code', () => () => null );
+
 // Mock WordPress element with real React hooks.
 jest.mock( '@wordpress/element', () => {
 	const React = require( 'react' );

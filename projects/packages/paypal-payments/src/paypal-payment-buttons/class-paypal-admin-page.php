@@ -117,6 +117,20 @@ class PayPal_Admin_Page {
 	}
 
 	/**
+	 * Initialize admin hooks when the API-managed buttons are enabled.
+	 *
+	 * @since $$next-version$$
+	 * @return void
+	 */
+	public static function maybe_init() {
+		if ( ! PayPal_Payment_Buttons::is_api_managed_enabled() ) {
+			return;
+		}
+
+		self::init();
+	}
+
+	/**
 	 * Initialize admin hooks.
 	 */
 	public static function init() {

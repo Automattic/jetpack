@@ -60,8 +60,8 @@ class PayPal_Payment_Buttons {
 	 * @return void
 	 */
 	public function init_hooks() {
-		// Register standalone script stubs for Jetpack dependencies not available outside the monorepo.
-		add_action( 'init', array( $this, 'register_standalone_script_stubs' ), 1 );
+		// The API-managed buttons ship behind a flag; register it before anything reads it.
+		Jetpack_PayPal_Payment_Buttons::register_feature_flags();
 
 		// Initialize PayPal Payment Buttons block with correct dist path
 		add_action( 'init', array( $this, 'register_paypal_block' ), 9 );
@@ -87,68 +87,6 @@ class PayPal_Payment_Buttons {
 	}
 
 	/**
-	 * Register script stubs for Jetpack dependencies that are not available in standalone mode.
-	 *
-	 * The editor.js bundle declares `jetpack-script-data` as a dependency (from
-	 *
-	 * @automattic/jetpack-script-data). In the Jetpack plugin this is registered by the
-	 * Assets package, but in standalone mode it does not exist. WordPress silently
-	 * refuses to enqueue scripts with unregistered dependencies, so we register an
-	 * empty stub to satisfy the dependency chain.
-	 */
-	public function register_standalone_script_stubs() {
-		/*
-		 * The Jetpack plugin registers the real handle from Script_Data on wp_loaded,
-		 * which fires after init. Registering a stub first therefore wins, and the
-		 * editor is left without window.JetpackScriptData.
-		 */
-		if ( class_exists( 'Jetpack' ) ) {
-			return;
-		}
-
-		if ( ! wp_script_is( 'jetpack-script-data', 'registered' ) ) {
-			wp_register_script( 'jetpack-script-data', false, array(), '1.0.0', false );
-
-			// The webpack build externalizes @automattic/jetpack-script-data to
-			// window.JetpackScriptDataModule (UMD global). The module's getScriptData()
-			// returns window.JetpackScriptData. Without these globals the editor.js
-			// bundle crashes at module init time in connection/state/store.jsx.
-			$current_user = wp_get_current_user();
-			$script_data  = wp_json_encode(
-				array(
-					'site' => array(
-						'icon'       => get_site_icon_url(),
-						'title'      => get_bloginfo( 'name' ),
-						'admin_url'  => admin_url(),
-						'rest_root'  => esc_url_raw( rest_url() ),
-						'rest_nonce' => wp_create_nonce( 'wp_rest' ),
-						'wp_version' => get_bloginfo( 'version' ),
-					),
-					'user' => array(
-						'current_user' => array(
-							'id'           => $current_user->ID,
-							'display_name' => $current_user->display_name,
-							'capabilities' => array(
-								'manage_options' => current_user_can( 'manage_options' ),
-								'manage_modules' => current_user_can( 'manage_options' ),
-							),
-						),
-					),
-				),
-				JSON_HEX_TAG | JSON_HEX_AMP
-			);
-
-			$inline_js = sprintf(
-				'window.JetpackScriptData = %s;'
-				. 'window.JetpackScriptDataModule = { getScriptData: function() { return window.JetpackScriptData; } };',
-				$script_data
-			);
-
-			wp_add_inline_script( 'jetpack-script-data', $inline_js, 'before' );
-		}
-	}
-
-	/**
 	 * Register the PayPal Payment Buttons block with the correct dist path.
 	 */
 	public function register_paypal_block() {
@@ -160,11 +98,14 @@ class PayPal_Payment_Buttons {
 			return false;
 		}
 
+		Jetpack_PayPal_Payment_Buttons::register_block_style();
+
 		// Register the block using the Blocks package with the correct dist path
 		Blocks::jetpack_register_block(
 			$dist_dir,
 			array(
 				'render_callback' => array( Jetpack_PayPal_Payment_Buttons::class, 'render_block' ),
+				'style'           => Jetpack_PayPal_Payment_Buttons::STYLE_HANDLE,
 			)
 		);
 	}
@@ -190,6 +131,7 @@ class PayPal_Payment_Buttons {
 					'available' => true,
 				),
 			),
+			'feature_flags'    => Jetpack_PayPal_Payment_Buttons::add_editor_feature_flags( array() ),
 		);
 
 		wp_localize_script(

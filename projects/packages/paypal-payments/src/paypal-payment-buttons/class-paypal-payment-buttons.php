@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\PaypalPayments;
 
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Blocks;
+use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 
 /**
  * Class PayPal_Payment_Buttons
@@ -29,6 +30,77 @@ class PayPal_Payment_Buttons {
 	 * @var string
 	 */
 	public const PAYPAL_PARTNER_ATTRIBUTION_ID = 'WooNCPS_Ecom_Wordpress';
+
+	/**
+	 * Feature flag gating the API-managed buttons: the connection wizard, the
+	 * wpcom/v2/paypal REST routes, and the Payment Links admin page.
+	 *
+	 * @since $$next-version$$
+	 * @var string
+	 */
+	public const API_MANAGED_BUTTONS_FLAG = 'paypal-payments-api-managed-buttons';
+
+	/**
+	 * Front-end style handle, registered by `register_block_style()`.
+	 *
+	 * @since $$next-version$$
+	 * @var string
+	 */
+	public const STYLE_HANDLE = 'jetpack-block-paypal-payment-buttons';
+
+	/**
+	 * Register the feature flags this package owns.
+	 *
+	 * Call it from every bootstrap before `init`, so the flag exists on every
+	 * request type that reads it (REST, admin, WP-CLI).
+	 *
+	 * @since $$next-version$$
+	 * @return void
+	 */
+	public static function register_feature_flags() {
+		Feature_Flags::register(
+			self::API_MANAGED_BUTTONS_FLAG,
+			array(
+				'default'     => false,
+				'description' => 'Create and manage PayPal payment buttons from the editor through the PayPal API, instead of pasting button code.',
+				'owner'       => 'paypal-payments',
+			)
+		);
+	}
+
+	/**
+	 * Whether the API-managed buttons are enabled on this site.
+	 *
+	 * Rendering is deliberately not gated on this: a button created while the
+	 * flag was on must keep rendering after it is turned off.
+	 *
+	 * @since $$next-version$$
+	 * @return bool
+	 */
+	public static function is_api_managed_enabled() {
+		return Feature_Flags::is_enabled( self::API_MANAGED_BUTTONS_FLAG );
+	}
+
+	/**
+	 * Expose the flag to the block editor under the same name.
+	 *
+	 * Jetpack hooks this on `jetpack_block_editor_feature_flags`; the standalone
+	 * plugin calls it while building its own editor state.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $flags Feature flags keyed by name.
+	 * @return array
+	 */
+	public static function add_editor_feature_flags( $flags ) {
+		if ( ! is_array( $flags ) ) {
+			$flags = array();
+		}
+
+		$flags[ self::API_MANAGED_BUTTONS_FLAG ] = self::is_api_managed_enabled();
+
+		return $flags;
+	}
 
 	/**
 	 * Validates and sanitizes a script URL to ensure it's from an allowed PayPal domain.
@@ -101,16 +173,40 @@ class PayPal_Payment_Buttons {
 	}
 
 	/**
+	 * Side-load the sibling style.css and register it under STYLE_HANDLE.
+	 *
+	 * A `file:` style in block.json would also make core register the editor bundle a
+	 * second time, so the block takes this handle as its `style` arg. Both bootstraps
+	 * call it.
+	 *
+	 * @since $$next-version$$
+	 * @return void
+	 */
+	public static function register_block_style() {
+		Assets::register_script(
+			self::STYLE_HANDLE,
+			'../../dist/paypal-payment-buttons/style.js',
+			__FILE__,
+			array(
+				'css_path' => '../../dist/paypal-payment-buttons/style.css',
+			)
+		);
+	}
+
+	/**
 	 * Registers the block for use in Gutenberg
 	 * This is done via an action so that we can disable
 	 * registration if we need to.
 	 */
 	public static function register_block() {
+		self::register_block_style();
+
 		Blocks::jetpack_register_block(
 			__DIR__,
 			array(
 				'render_callback' => array( __CLASS__, 'render_block' ),
-				'plan_check'      => false,
+				'plan_check'      => true,
+				'style'           => self::STYLE_HANDLE,
 			)
 		);
 	}
@@ -710,23 +806,37 @@ class PayPal_Payment_Buttons {
 	 * @return void
 	 */
 	public static function init_api() {
-		add_action( 'init', array( __CLASS__, 'register_standalone_script_stubs' ), 1 );
 		self::init_rest_api();
-		self::init_jetpack_sharing();
-		PayPal_Email_Sender::init();
+		add_action( 'init', array( __CLASS__, 'init_jetpack_sharing' ) );
+		add_action( 'init', array( PayPal_Email_Sender::class, 'maybe_init' ) );
 	}
 
 	/**
-	 * Register just the PayPal REST routes.
-	 *
-	 * For hosts that already provide the Jetpack runtime -- the Jetpack plugin --
-	 * and therefore must not get the standalone script stubs.
+	 * Register just the PayPal REST routes -- the subset the Jetpack loader uses,
+	 * without init_api()'s sharing and email-sender hookups.
 	 *
 	 * @since $$next-version$$
 	 * @return void
 	 */
 	public static function init_rest_api() {
-		add_action( 'rest_api_init', array( PayPal_REST_Controller::class, 'register_routes' ) );
+		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_routes' ) );
+	}
+
+	/**
+	 * Register the PayPal REST routes when the API-managed buttons are enabled.
+	 *
+	 * The flag is read here rather than in init_rest_api() so a filter added
+	 * after the bootstrap ran still decides.
+	 *
+	 * @since $$next-version$$
+	 * @return void
+	 */
+	public static function register_rest_routes() {
+		if ( ! self::is_api_managed_enabled() ) {
+			return;
+		}
+
+		PayPal_REST_Controller::register_routes();
 	}
 
 	/**
@@ -737,12 +847,14 @@ class PayPal_Payment_Buttons {
 	 * Sharedaddy module is not active.
 	 *
 	 * @since 0.9.0
+	 * @since $$next-version$$ Public, runs on `init`, and no-ops unless the API-managed buttons are enabled.
 	 * @return void
 	 */
-	private static function init_jetpack_sharing() {
+	public static function init_jetpack_sharing() {
 		// Only register if Jetpack + Sharedaddy are active.
 		if (
-			! class_exists( 'Jetpack' )
+			! self::is_api_managed_enabled()
+			|| ! class_exists( 'Jetpack' )
 			|| ! method_exists( 'Jetpack', 'is_module_active' )
 			|| ! \Jetpack::is_module_active( 'sharedaddy' )
 		) {
@@ -786,34 +898,20 @@ class PayPal_Payment_Buttons {
 	 * all merchant payment links from wp-admin.
 	 *
 	 * @since 0.9.0
+	 * @since $$next-version$$ Defers to `init` and no-ops unless the API-managed buttons are enabled.
 	 */
 	public static function init_admin() {
-		PayPal_Admin_Page::init();
-		PayPal_Email_Sender::init();
-	}
+		add_action(
+			'init',
+			static function () {
+				// Read the flag before naming the classes, so neither is autoloaded while it is off.
+				if ( ! self::is_api_managed_enabled() ) {
+					return;
+				}
 
-	/**
-	 * Register empty script stubs for Jetpack dependencies that may not be available
-	 * when the plugin runs outside the full Jetpack monorepo (e.g., WordPress Playground).
-	 *
-	 * The wp_script_is() guard ensures this is a no-op inside the full Jetpack plugin
-	 * where the real handle is already registered by the Assets package.
-	 *
-	 * @since 0.8.0
-	 * @return void
-	 */
-	public static function register_standalone_script_stubs() {
-		/*
-		 * The Jetpack plugin registers the real handle from Script_Data on wp_loaded,
-		 * which fires after init. Registering a stub first therefore wins, and the
-		 * editor is left without window.JetpackScriptData.
-		 */
-		if ( class_exists( 'Jetpack' ) ) {
-			return;
-		}
-
-		if ( ! wp_script_is( 'jetpack-script-data', 'registered' ) ) {
-			wp_register_script( 'jetpack-script-data', false, array(), '1.0.0', false );
-		}
+				PayPal_Admin_Page::maybe_init();
+				PayPal_Email_Sender::maybe_init();
+			}
+		);
 	}
 }

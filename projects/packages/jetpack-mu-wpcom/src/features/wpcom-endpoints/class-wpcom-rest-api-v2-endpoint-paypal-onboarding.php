@@ -16,6 +16,7 @@
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
@@ -126,6 +127,12 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding extends WP_REST_Controller {
 	 * Register REST API routes.
 	 */
 	public function register_routes() {
+		// Hard-coded: mu-wpcom cannot reach PayPal_Payment_Buttons::API_MANAGED_BUTTONS_FLAG.
+		// Unregistered here, so only a `jetpack_feature_flag_enabled_*` filter flips it on wpcom.
+		if ( ! Feature_Flags::is_enabled( 'paypal-payments-api-managed-buttons' ) ) {
+			return;
+		}
+
 		register_rest_route(
 			$this->namespace,
 			$this->rest_base . '/signup-link',
