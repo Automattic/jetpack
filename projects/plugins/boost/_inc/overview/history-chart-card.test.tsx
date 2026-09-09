@@ -81,23 +81,29 @@ beforeEach( () => jest.clearAllMocks() );
 afterAll( () => jest.restoreAllMocks() );
 
 test( 'renders actual Charts lines and annotations using millisecond history dates', async () => {
-	const { container } = render( <HistoryChartCard data={ history } { ...callbacks } /> );
-	expect( screen.getByRole( 'grid', { name: /line chart/i } ) ).toBeInTheDocument();
-	expect( screen.getByText( 'Desktop' ) ).toBeInTheDocument();
-	expect( screen.getByText( 'Mobile' ) ).toBeInTheDocument();
-	await expect( screen.findByText( 'Image CDN enabled' ) ).resolves.toBeTruthy();
-	const desktopPath = getSeriesPath( container, 'Desktop' );
-	const mobilePath = getSeriesPath( container, 'Mobile' );
-	expect( desktopPath ).toHaveAttribute( 'd', expect.stringMatching( /^M/ ) );
-	expect( mobilePath ).toHaveAttribute( 'd', expect.stringMatching( /^M/ ) );
-	expect( desktopPath.getAttribute( 'stroke' ) ).not.toBe( mobilePath.getAttribute( 'stroke' ) );
-	const firstY = ( path: Element ) =>
-		Number( path.getAttribute( 'd' )?.match( /^M[^,]+,([^L]+)/ )?.[ 1 ] );
-	expect( firstY( desktopPath ) ).toBeLessThan( firstY( mobilePath ) );
-	expect( buildHistorySeries( history )[ 0 ].data[ 0 ] ).toEqual( {
-		date: new Date( '2026-09-01T00:00:00Z' ),
-		value: 90,
-	} );
+	jest.useFakeTimers();
+	const { container, unmount } = render( <HistoryChartCard data={ history } { ...callbacks } /> );
+	try {
+		expect( screen.getByRole( 'grid', { name: /line chart/i } ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Desktop' ) ).toBeInTheDocument();
+		expect( screen.getByText( 'Mobile' ) ).toBeInTheDocument();
+		await expect( screen.findByText( 'Image CDN enabled' ) ).resolves.toBeTruthy();
+		const desktopPath = getSeriesPath( container, 'Desktop' );
+		const mobilePath = getSeriesPath( container, 'Mobile' );
+		expect( desktopPath ).toHaveAttribute( 'd', expect.stringMatching( /^M/ ) );
+		expect( mobilePath ).toHaveAttribute( 'd', expect.stringMatching( /^M/ ) );
+		expect( desktopPath.getAttribute( 'stroke' ) ).not.toBe( mobilePath.getAttribute( 'stroke' ) );
+		const firstY = ( path: Element ) =>
+			Number( path.getAttribute( 'd' )?.match( /^M[^,]+,([^L]+)/ )?.[ 1 ] );
+		expect( firstY( desktopPath ) ).toBeLessThan( firstY( mobilePath ) );
+		expect( buildHistorySeries( history )[ 0 ].data[ 0 ] ).toEqual( {
+			date: new Date( '2026-09-01T00:00:00Z' ),
+			value: 90,
+		} );
+	} finally {
+		unmount();
+		jest.useRealTimers();
+	}
 } );
 
 test( 'only renders annotations inside the displayed date domain, including its boundaries', async () => {
