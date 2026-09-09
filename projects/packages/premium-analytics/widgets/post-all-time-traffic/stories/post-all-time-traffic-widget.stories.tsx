@@ -1,8 +1,9 @@
 /**
  * The All-time traffic widget is the post detail Traffic view's history card:
- * every month of the scoped post's views, one row per year. It reads the
- * post's whole life regardless of the page period, and picking a month
- * applies that month to the page. The post scope arrives through
+ * every month of the scoped post's views, one row per year, as total views or
+ * views per day (the `metric` attribute, which the framed host offers in the
+ * header). It reads the post's whole life regardless of the page period, and
+ * picking a month applies that month to the page. The post scope arrives through
  * `reportParams.post_id` (seeded from the detail page URL in product); the
  * `hasPostScope` control toggles it to exercise the scopeless empty state.
  *
@@ -49,13 +50,15 @@ const POST_STATS_REQUEST_PATH = `stats/post/${ MOCK_POST_ID }`;
 
 interface PostAllTimeTrafficStoryControls {
 	hasPostScope: boolean;
+	metric: 'total' | 'average';
 }
 
 function getPostAllTimeTrafficAttributes(
-	{ hasPostScope }: PostAllTimeTrafficStoryControls,
+	{ hasPostScope, metric }: PostAllTimeTrafficStoryControls,
 	withComparison = false
 ): ComponentProps< typeof PostAllTimeTrafficRender >[ 'attributes' ] {
 	return {
+		metric,
 		reportParams: {
 			...getDefaultQueryParams( withComparison ),
 			...( hasPostScope ? { post_id: MOCK_POST_ID } : {} ),
@@ -72,6 +75,12 @@ const hasPostScopeArgType = {
 	description: 'Include the `post_id` report param the post detail page seeds from its URL.',
 } as const;
 
+const metricArgType = {
+	control: 'radio',
+	options: [ 'total', 'average' ],
+	description: "The `metric` attribute: the month's views, or its views per day.",
+} as const;
+
 const meta = {
 	title: 'Packages/Premium Analytics/Widgets/PostAllTimeTraffic',
 	component: PostAllTimeTrafficRender,
@@ -81,12 +90,13 @@ const meta = {
 	decorators: [ withStoryRouter ],
 	argTypes: {
 		hasPostScope: hasPostScopeArgType,
+		metric: metricArgType,
 	},
 	parameters: {
 		docs: {
 			description: {
 				component:
-					'The "All-time traffic" widget: every month of the scoped post\'s views, one row per year. It always covers the post\'s whole life, whatever period the page shows, and picking a month applies that month to the page. Without a post scope the widget renders a scopeless empty state.',
+					"The \"All-time traffic\" widget: every month of the scoped post's views, one row per year, as total views or views per day. The `metric` attribute has `relevance: 'high'`, so the framed host renders its select in the header; the close-up stories set it as an arg. It always covers the post's whole life, whatever period the page shows, and picking a month applies that month to the page. Without a post scope the widget renders a scopeless empty state.",
 			},
 		},
 	},
@@ -103,7 +113,17 @@ type Story = StoryObj< PostAllTimeTrafficStoryControls >;
  */
 export const Default: Story = {
 	render: renderPostAllTimeTraffic,
-	args: { hasPostScope: true },
+	args: { hasPostScope: true, metric: 'total' },
+	decorators: [ withWidgetCanvas ],
+};
+
+/**
+ * DailyAverage — the same table under the Daily average metric: each cell is
+ * the month's views per day, and the scale and tooltips say so.
+ */
+export const DailyAverage: Story = {
+	render: renderPostAllTimeTraffic,
+	args: { hasPostScope: true, metric: 'average' },
 	decorators: [ withWidgetCanvas ],
 };
 
@@ -114,7 +134,7 @@ export const Default: Story = {
  */
 export const NoPostScope: Story = {
 	render: renderPostAllTimeTraffic,
-	args: { hasPostScope: false },
+	args: { hasPostScope: false, metric: 'total' },
 	decorators: [ withWidgetCanvas ],
 };
 
@@ -124,7 +144,7 @@ export const NoPostScope: Story = {
  */
 export const Loading: Story = {
 	render: renderPostAllTimeTraffic,
-	args: { hasPostScope: true },
+	args: { hasPostScope: true, metric: 'total' },
 	// Off the shared autodocs page — path-keyed override; see setReportMockState.
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
@@ -139,7 +159,7 @@ export const Loading: Story = {
  */
 export const Error: Story = {
 	render: renderPostAllTimeTraffic,
-	args: { hasPostScope: true },
+	args: { hasPostScope: true, metric: 'total' },
 	// Off the shared autodocs page — path-keyed override; see setReportMockState.
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
@@ -155,7 +175,7 @@ export const Error: Story = {
  */
 export const ErrorRetryable: Story = {
 	render: renderPostAllTimeTraffic,
-	args: { hasPostScope: true },
+	args: { hasPostScope: true, metric: 'total' },
 	// Off the shared autodocs page — path-keyed override; see setReportMockState.
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
@@ -170,7 +190,7 @@ export const ErrorRetryable: Story = {
  */
 export const Empty: Story = {
 	render: renderPostAllTimeTraffic,
-	args: { hasPostScope: true },
+	args: { hasPostScope: true, metric: 'total' },
 	// Off the shared autodocs page — path-keyed override; see setReportMockState.
 	tags: [ '!autodocs' ],
 	decorators: [ withWidgetCanvas ],
@@ -190,6 +210,7 @@ interface PostAllTimeTrafficDashboardStoryProps
  */
 function PostAllTimeTrafficDashboardStory( {
 	hasPostScope,
+	metric,
 	...dashboardArgs
 }: PostAllTimeTrafficDashboardStoryProps ) {
 	return (
@@ -198,7 +219,7 @@ function PostAllTimeTrafficDashboardStory( {
 			widgetType={ createStoryWidgetType( widgetManifest, widgetDefinition ) }
 			renderModule={ POST_ALL_TIME_TRAFFIC_RENDER_MODULE }
 			renderComponent={ PostAllTimeTrafficRender as ComponentType< WidgetRenderProps< unknown > > }
-			attributes={ getPostAllTimeTrafficAttributes( { hasPostScope }, true ) }
+			attributes={ getPostAllTimeTrafficAttributes( { hasPostScope, metric }, true ) }
 		/>
 	);
 }
@@ -213,9 +234,11 @@ export const WidgetDashboardWithWidget: StoryObj< PostAllTimeTrafficDashboardSto
 		widgetWidth: 3,
 		widgetHeight: 2,
 		hasPostScope: true,
+		metric: 'total',
 	},
 	argTypes: {
 		...widgetDashboardWithWidgetArgTypes,
 		hasPostScope: hasPostScopeArgType,
+		metric: metricArgType,
 	},
 };

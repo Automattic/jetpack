@@ -118,6 +118,10 @@ const RESPONSE = {
 		'2025': { total: 30, months: { '11': 10, '12': 20 } },
 		'2026': { total: 45, months: { '1': 5, '3': 40 } },
 	},
+	averages: {
+		'2025': { overall: 1, months: { '11': 1, '12': 2 } },
+		'2026': { overall: 3, months: { '1': 1, '3': 8 } },
+	},
 	post: { ID: 779, post_date: '2025-11-10 16:27:32' },
 };
 
@@ -130,10 +134,11 @@ const NOVEMBER_2025 = {
 const NOW = new Date( '2026-03-15T12:00:00.000Z' );
 
 // `null` renders the widget without a post scope.
-function renderWidget( postId: number | null = 779 ) {
+function renderWidget( postId: number | null = 779, attributes: Record< string, unknown > = {} ) {
 	return render(
 		<PostAllTimeTrafficRender
 			attributes={ {
+				...attributes,
 				reportParams: {
 					from: '2026-01-01T00:00:00.000+00:00',
 					to: '2026-01-31T23:59:59.999+00:00',
@@ -174,6 +179,16 @@ describe( 'PostAllTimeTraffic widget', () => {
 		// Published in November: the months before it are filler.
 		expect( rows[ 1 ] ).toBe( '.,.,.,.,.,.,.,.,.,.,10,20' );
 		expect( screen.getByTestId( 'legend' ) ).toHaveTextContent( 'Fewer views/More views' );
+	} );
+
+	it( 'draws views per day under the average metric', () => {
+		renderWidget( 779, { metric: 'average' } );
+
+		const heatmap = screen.getByTestId( 'heatmap' );
+		expect( heatmap.dataset.rows?.split( '|' )[ 0 ]?.startsWith( '1,0,8' ) ).toBe( true );
+		expect( screen.getByTestId( 'legend' ) ).toHaveTextContent(
+			'Fewer views per day/More views per day'
+		);
 	} );
 
 	it( 'applies a clicked month to the page as a custom range cut to the post life', async () => {

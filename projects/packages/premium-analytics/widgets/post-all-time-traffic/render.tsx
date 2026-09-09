@@ -14,6 +14,7 @@ import {
 	WidgetRoot,
 	WidgetState,
 	describeError,
+	formatDailyViewCount,
 	formatViewCount,
 	useWidgetRootContext,
 	type HeatmapColumn,
@@ -25,7 +26,11 @@ import { useCallback, useMemo, type KeyboardEvent, type MouseEvent } from 'react
 /**
  * Internal dependencies
  */
-import { MONTHS_IN_YEAR } from './build-all-time-traffic-rows';
+import {
+	MONTHS_IN_YEAR,
+	resolveMetric,
+	type AllTimeTrafficMetric,
+} from './build-all-time-traffic-rows';
 import { monthRange } from './period-range';
 import styles from './style.module.css';
 import usePostAllTimeTraffic from './use-post-all-time-traffic';
@@ -45,12 +50,12 @@ const MAX_CELL_HEIGHT = 40;
 // The chart's own cell markup, which a click or the keyboard selection lands on.
 const CELL_SELECTOR = '[role="gridcell"][data-column][data-row]';
 
-function PostAllTimeTrafficInner() {
+function PostAllTimeTrafficInner( { metric }: { metric: AllTimeTrafficMetric } ) {
 	const { reportParams } = useWidgetRootContext();
 	const postId = toPostId( reportParams.post_id );
 
 	const { rows, lifeStartsAt, isLoading, isFetching, isError, error, refetch } =
-		usePostAllTimeTraffic( postId );
+		usePostAllTimeTraffic( postId, metric );
 
 	// Bound to the route hosting the widget: a month picked here becomes the
 	// page's period, read over by the other cards while this one stays all-time.
@@ -143,10 +148,10 @@ function PostAllTimeTrafficInner() {
 				// screen reader: "Aug 2026".
 				cellLabel={ `${ columnLabel ?? '' } ${ rowLabel ?? '' }`.trim() }
 				emptyLabel={ __( 'No views', 'jetpack-premium-analytics-pkg' ) }
-				formatValue={ formatViewCount }
+				formatValue={ metric === 'average' ? formatDailyViewCount : formatViewCount }
 			/>
 		),
-		[]
+		[ metric ]
 	);
 
 	return (
@@ -197,8 +202,16 @@ function PostAllTimeTrafficInner() {
 					{ /* Wrapped so the scale sits centred: the chart lays its trailing content out full width. */ }
 					<Stack direction="row" justify="center">
 						<HeatmapChart.Legend
-							lessLabel={ __( 'Fewer views', 'jetpack-premium-analytics-pkg' ) }
-							moreLabel={ __( 'More views', 'jetpack-premium-analytics-pkg' ) }
+							lessLabel={
+								metric === 'average'
+									? __( 'Fewer views per day', 'jetpack-premium-analytics-pkg' )
+									: __( 'Fewer views', 'jetpack-premium-analytics-pkg' )
+							}
+							moreLabel={
+								metric === 'average'
+									? __( 'More views per day', 'jetpack-premium-analytics-pkg' )
+									: __( 'More views', 'jetpack-premium-analytics-pkg' )
+							}
 						/>
 					</Stack>
 				</HeatmapChart>
@@ -210,7 +223,7 @@ function PostAllTimeTrafficInner() {
 export default function PostAllTimeTraffic( { attributes = {} }: PostAllTimeTrafficWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
-			<PostAllTimeTrafficInner />
+			<PostAllTimeTrafficInner metric={ resolveMetric( attributes.metric ) } />
 		</WidgetRoot>
 	);
 }

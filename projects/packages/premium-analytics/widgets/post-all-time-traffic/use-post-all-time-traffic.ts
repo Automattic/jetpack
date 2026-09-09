@@ -14,6 +14,7 @@ import { useMemo } from 'react';
  */
 import {
 	buildAllTimeTrafficRows,
+	type AllTimeTrafficMetric,
 	type AllTimeTrafficRow,
 	type MonthKey,
 } from './build-all-time-traffic-rows';
@@ -60,12 +61,16 @@ function lifeStart(
  * A `postId` of 0 disables the request.
  *
  * @param postId - The post the page is scoped to.
+ * @param metric - Which number each cell reports.
  * @return The rows and the request's state.
  */
-export default function usePostAllTimeTraffic( postId: number ): PostAllTimeTrafficState {
+export default function usePostAllTimeTraffic(
+	postId: number,
+	metric: AllTimeTrafficMetric
+): PostAllTimeTrafficState {
 	const { data, isLoading, isFetching, isError, error, refetch } = useStatsPost( {
 		postId,
-		fields: [ 'years', 'post' ],
+		fields: [ 'years', 'averages', 'post' ],
 	} );
 
 	// Same reading as the page header: a site-local wall time, or the GMT stamp
@@ -88,12 +93,13 @@ export default function usePostAllTimeTraffic( postId: number ): PostAllTimeTraf
 		};
 		const built = buildAllTimeTrafficRows(
 			data,
+			metric,
 			{ year: today.getFullYear(), month: today.getMonth() },
 			publishedMonth
 		);
 
 		return { rows: built, lifeStartsAt: lifeStart( built, publishedAt, publishedMonth ) };
-	}, [ data, publishedAt ] );
+	}, [ data, metric, publishedAt ] );
 
 	return {
 		rows,
