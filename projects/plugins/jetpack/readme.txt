@@ -326,7 +326,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 16.2 - 2026-09-09
+### 16.2 - 2026-09-10
 #### Enhancements
 - AI: Add an AI SEO control to the AI settings page. The AI sidebar's SEO suggestions follow it, separately from the automatic-generation setting.
 - AI: Add a site-wide switch for Jetpack AI on self-hosted sites, preserving explicit opt-outs.
