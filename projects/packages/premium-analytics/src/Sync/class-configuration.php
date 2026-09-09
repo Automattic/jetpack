@@ -30,25 +30,11 @@ defined( 'ABSPATH' ) || exit;
 class Configuration {
 
 	/**
-	 * Register after plugin bootstrap and before Jetpack Sync initializes modules.
-	 *
-	 * @var int
-	 */
-	const MODULE_FILTER_REGISTRATION_PRIORITY = 89;
-
-	/**
 	 * FQCN of the Analytics module shipped by the standalone plugin.
 	 *
 	 * @var string
 	 */
 	const ANALYTICS_PLUGIN_MODULE_FQCN = 'Automattic\\WooCommerce\\Analytics\\Internal\\Jetpack\\Sync\\Modules\\Analytics';
-
-	/**
-	 * FQCN of the Analytics module shipped by WooCommerce AI.
-	 *
-	 * @var string
-	 */
-	const WOO_AI_MODULE_FQCN = 'WooCommerce\\AI\\Sync\\Modules\\Analytics';
 
 	/**
 	 * FQCN of the interim Analytics module from older Premium Analytics versions.
@@ -64,7 +50,6 @@ class Configuration {
 	 */
 	const LEGACY_MODULE_FQCNS = array(
 		self::ANALYTICS_PLUGIN_MODULE_FQCN,
-		self::WOO_AI_MODULE_FQCN,
 		self::PREMIUM_ANALYTICS_MODULE_FQCN,
 	);
 
@@ -133,27 +118,12 @@ class Configuration {
 			return;
 		}
 
-		// Woo AI registers its module filter during plugins_loaded at priority 10.
-		// Register ours later so its PHP_INT_MAX callback can arbitrate the complete list.
-		if ( doing_action( 'plugins_loaded' ) ) {
-			add_action( 'plugins_loaded', array( $this, 'register_module_filter' ), self::MODULE_FILTER_REGISTRATION_PRIORITY );
-		} else {
-			$this->register_module_filter();
-		}
-
+		// Runs last so another plugin's Analytics module, when present, is already in the list.
+		add_filter( 'jetpack_sync_modules', array( $this, 'add_woocommerce_analytics_module' ), PHP_INT_MAX );
 		add_filter( 'jetpack_full_sync_config', array( $this, 'expand_full_sync_config' ) );
 		add_filter( 'jetpack_sync_post_meta_whitelist', array( $this, 'add_meta_to_sync_post_meta_whitelist' ) );
 
 		( new Config() )->ensure( 'sync', $this->get_jetpack_sync_config() );
-	}
-
-	/**
-	 * Register the final module-list arbitration callback.
-	 *
-	 * @return void
-	 */
-	public function register_module_filter(): void {
-		add_filter( 'jetpack_sync_modules', array( $this, 'add_woocommerce_analytics_module' ), PHP_INT_MAX );
 	}
 
 	/**

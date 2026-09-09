@@ -56,8 +56,8 @@ class Configuration_Test extends TestCase {
 	}
 
 	/**
-	 * With WooCommerce active, the Sync hooks and data settings register, and module
-	 * arbitration waits for plugins_loaded priority 89 so Woo AI's filter exists first.
+	 * With WooCommerce active, the Sync hooks and data settings register, and the module
+	 * filter runs last so another plugin's Analytics module is already in the list.
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
@@ -68,22 +68,10 @@ class Configuration_Test extends TestCase {
 		require_once __DIR__ . '/../mocks/woocommerce-active-mock.php';
 		$this->assertTrue( class_exists( 'WooCommerce' ) );
 
-		$configuration    = new Configuration();
-		$modules_filter   = array( $configuration, 'add_woocommerce_analytics_module' );
-		$during_bootstrap = null;
+		$configuration = new Configuration();
+		$configuration->configure_sync();
 
-		add_action(
-			'plugins_loaded',
-			static function () use ( $configuration, $modules_filter, &$during_bootstrap ) {
-				$configuration->configure_sync();
-				$during_bootstrap = has_filter( 'jetpack_sync_modules', $modules_filter );
-			},
-			1
-		);
-		do_action( 'plugins_loaded' );
-
-		$this->assertFalse( $during_bootstrap );
-		$this->assertSame( PHP_INT_MAX, has_filter( 'jetpack_sync_modules', $modules_filter ) );
+		$this->assertSame( PHP_INT_MAX, has_filter( 'jetpack_sync_modules', array( $configuration, 'add_woocommerce_analytics_module' ) ) );
 		$this->assertSame( 10, has_filter( 'jetpack_full_sync_config', array( $configuration, 'expand_full_sync_config' ) ) );
 		$this->assertSame( 10, has_filter( 'jetpack_sync_post_meta_whitelist', array( $configuration, 'add_meta_to_sync_post_meta_whitelist' ) ) );
 
@@ -153,46 +141,6 @@ class Configuration_Test extends TestCase {
 
 		$this->assertSame( array( WooCommerce_Analytics::class ), $modules );
 		$this->assertSame( $modules, $configuration->add_woocommerce_analytics_module( $modules ) );
-	}
-
-	/**
-	 * Woo AI remains authoritative when it has registered its Analytics module.
-	 */
-	public function test_add_woocommerce_analytics_module_defers_to_woo_ai() {
-		$configuration = new Configuration();
-		$modules       = array(
-			WooCommerce_Analytics::class,
-			Configuration::WOO_AI_MODULE_FQCN,
-		);
-
-		$this->assertSame(
-			array( Configuration::WOO_AI_MODULE_FQCN ),
-			$configuration->add_woocommerce_analytics_module( $modules )
-		);
-	}
-
-	/**
-	 * Premium Analytics arbitrates after Woo AI when both use the final filter priority.
-	 */
-	public function test_registered_module_filter_defers_to_woo_ai() {
-		$configuration = new Configuration();
-		$woo_ai_filter = static function ( $modules ) {
-			$modules[] = Configuration::WOO_AI_MODULE_FQCN;
-			return $modules;
-		};
-
-		add_filter( 'jetpack_sync_modules', $woo_ai_filter, PHP_INT_MAX );
-		$configuration->register_module_filter();
-
-		try {
-			$this->assertSame(
-				array( Configuration::WOO_AI_MODULE_FQCN ),
-				apply_filters( 'jetpack_sync_modules', array( WooCommerce_Analytics::class ) )
-			);
-		} finally {
-			remove_filter( 'jetpack_sync_modules', $woo_ai_filter, PHP_INT_MAX );
-			remove_filter( 'jetpack_sync_modules', array( $configuration, 'add_woocommerce_analytics_module' ), PHP_INT_MAX );
-		}
 	}
 
 	/**
