@@ -2,7 +2,7 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 16.2-beta - 2026-09-08
+## 16.2 - 2026-09-09
 ### Enhancements
 - AI: Add a welcome banner to the Overview tab, keep the tab navigation and a back link on MCP sub-pages, and name the MCP connect row by its action for screen readers. [#51783]
 - AI: Hide the Overview and AI Features views on WordPress VIP sites. [#52006]
@@ -45,7 +45,11 @@
 - Comments: Improve security in social comment avatar rendering. [#51824]
 - Connection: Show the reason a site registration failed, in cases where the notice was incomplete or did not appear at all. [#51894]
 - Editor: Restore active module state for module-dependent features. [#51888]
+- External Media: Improve validation for media copy requests.
 - Forms: Add an empty alt attribute to the image option thumbnails in the form success summary. [#51781]
+- Forms: Restore multi-page printing of a single response. SEO: Move the dashboard's toast notices back to the top right. [#52096]
+- Forms: Scroll a single response from the page edge instead of from inside the reading column. [#52096]
+- Forms: Show a selected response beside the responses list again instead of below it. Also fixes the same sidebar layout on the Newsletter and SEO dashboards. [#52096]
 - Paywall Block: Preserve paid post access after reloading the editor. [#51334]
 - Premium Analytics: Comparison control: stop showing a comparison as active when there is no window behind it. [#51820]
 - Premium Analytics: Count posts in Posting activity by the site's calendar day rather than the UTC one. [#51878]
@@ -55,8 +59,10 @@
 - Premium Analytics: On Insights, collapse the year buttons into a select as soon as they stop fitting, instead of letting them run past the edge on a phone. [#51882]
 - Premium Analytics: Show chart dates in the site's timezone and locale, and name the hour on hourly charts. [#51814]
 - Premium Analytics: Show published dates in the site's language and date format. [#51967]
+- Related Posts: Improve handling of protected content.
 - Search: Fix a crash on mount when the localized widget configuration is missing or incomplete, which could leave the whole page blank. [#51511]
 - Search: Prevent General Settings from disabling Site Chat and WordPress Agent access. [#51844]
+- SEO: Improve handling of protected content in generated metadata.
 - Settings: Dismiss success notices automatically instead of leaving them on screen. [#52054]
 - Stats: Fix traffic charts that could keep loading when a site's connection needs attention. [#51998]
 - Stats: Return a validation error when the role settings are submitted in the wrong format. [#51775]
