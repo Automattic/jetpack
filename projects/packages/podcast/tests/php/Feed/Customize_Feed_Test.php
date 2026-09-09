@@ -5,7 +5,6 @@
 
 namespace Automattic\Jetpack\Podcast\Tests\Feed;
 
-use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Podcast\Feed\Customize_Feed;
 use Jetpack_Options;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -36,7 +35,6 @@ class Customize_Feed_Test extends BaseTestCase {
 		delete_option( 'podcasting_category_id' );
 		delete_option( 'podcasting_archive' );
 		delete_option( 'podcasting_feed_limit' );
-		Constants::clear_constants();
 		remove_all_filters( 'pre_attachment_url_to_postid' );
 		remove_all_filters( 'wpcom_podcasting_enable_play_tracking' );
 		remove_all_filters( 'wpcom_podcasting_tracked_blog_id' );
@@ -45,14 +43,6 @@ class Customize_Feed_Test extends BaseTestCase {
 		wp_cache_flush();
 		unset( $GLOBALS['post'] );
 		parent::tearDown();
-	}
-
-	/**
-	 * A WordPress.com site with no plan option: free, so the credit is on.
-	 * Plan gating itself is covered by `Podcast_Gate_Test`.
-	 */
-	private function as_free_wpcom_site(): void {
-		Constants::set_constant( 'IS_WPCOM', true );
 	}
 
 	/**
@@ -110,102 +100,6 @@ class Customize_Feed_Test extends BaseTestCase {
 		$this->assertStringNotContainsString( '<script>', $result );
 		$this->assertStringNotContainsString( '"', $result );
 		$this->assertStringContainsString( '&amp;', $result );
-	}
-
-	public function test_credit_is_off_outside_wordpress_com() {
-		update_option( 'podcasting_summary', 'Our weekly podcast.' );
-
-		$this->assertFalse( Customize_Feed::credit_enabled() );
-		$this->assertSame( 'Show notes.', Customize_Feed::append_credit_to_excerpt( 'Show notes.' ) );
-		$this->assertSame( '<p>Notes</p>', Customize_Feed::append_credit_to_content( '<p>Notes</p>' ) );
-		$this->assertSame( 'Our weekly podcast.', Customize_Feed::feed_description( 'irrelevant', 'description' ) );
-	}
-
-	public function test_excerpt_credit_follows_a_blank_line_or_stands_alone() {
-		$this->as_free_wpcom_site();
-		update_option( 'podcasting_title', 'The Weekly Show' );
-		$credit = 'The Weekly Show is made with Jetpack Podcast. Full show notes and every episode at ' . home_url( '/' );
-
-		$this->assertTrue( Customize_Feed::credit_enabled() );
-		$this->assertSame( "Show notes.\n\n" . $credit, Customize_Feed::append_credit_to_excerpt( 'Show notes.' ) );
-		$this->assertSame( $credit, Customize_Feed::append_credit_to_excerpt( '' ) );
-	}
-
-	/**
-	 * `<description>` is CDATA, so `]]>` in the title gets the escape core
-	 * gives generated excerpts.
-	 */
-	public function test_excerpt_credit_escapes_cdata_terminators() {
-		$this->as_free_wpcom_site();
-		update_option( 'podcasting_title', 'The Show]]>' );
-
-		$this->assertStringContainsString( 'The Show]]&gt; is made with', Customize_Feed::append_credit_to_excerpt( 'Notes' ) );
-	}
-
-	public function test_html_credit_links_jetpack_podcast_and_the_site_and_leaves_empty_content_empty() {
-		$this->as_free_wpcom_site();
-		update_option( 'podcasting_title', 'The Weekly Show' );
-
-		$html = Customize_Feed::append_credit_to_content( '<p>Notes</p>' );
-
-		$this->assertStringStartsWith( '<p>Notes</p>', $html );
-		$this->assertStringContainsString( '<a href="' . esc_url( Customize_Feed::CREDIT_URL ) . '">Jetpack Podcast</a>', $html );
-		$this->assertStringContainsString( '<a href="' . esc_url( home_url( '/' ) ) . '">', $html );
-		$this->assertSame( '', Customize_Feed::append_credit_to_content( '' ) );
-	}
-
-	public function test_channel_description_and_itunes_summary_carry_the_credit() {
-		$this->as_free_wpcom_site();
-		update_option( 'podcasting_title', 'The Weekly Show' );
-		update_option( 'podcasting_summary', 'Our weekly podcast.' );
-
-		$description = Customize_Feed::feed_description( 'irrelevant', 'description' );
-		ob_start();
-		Customize_Feed::output_channel_tags();
-		$channel = (string) ob_get_clean();
-
-		$this->assertStringStartsWith( "Our weekly podcast.\n\nThe Weekly Show is made with Jetpack Podcast.", $description );
-		$this->assertStringContainsString( "<itunes:summary>Our weekly podcast.\n\nThe Weekly Show is made with Jetpack Podcast.", $channel );
-	}
-
-	public function test_credit_show_title_falls_back_to_site_name_then_host() {
-		$this->as_free_wpcom_site();
-		$blogname = get_option( 'blogname' );
-
-		try {
-			update_option( 'podcasting_title', 'The <b>Weekly</b> Show' );
-			$this->assertStringStartsWith( 'The Weekly Show is made with', Customize_Feed::credit_text() );
-
-			delete_option( 'podcasting_title' );
-			update_option( 'blogname', 'Example Site' );
-			$this->assertStringStartsWith( 'Example Site is made with', Customize_Feed::credit_text() );
-
-			update_option( 'blogname', '' );
-			$this->assertStringStartsWith( wp_parse_url( home_url(), PHP_URL_HOST ) . ' is made with', Customize_Feed::credit_text() );
-		} finally {
-			update_option( 'blogname', $blogname );
-		}
-	}
-
-	/**
-	 * The excerpt credit sits just below `capture_item_summary()`, so the
-	 * captured `<description>` carries it into `<itunes:summary>`.
-	 */
-	public function test_maybe_register_feed_hooks_wires_the_credit_below_the_summary_capture() {
-		$this->seed_category_term( 17 );
-		update_option( 'podcasting_category_id', 17 );
-		$previous_query      = $GLOBALS['wp_query'] ?? null;
-		$GLOBALS['wp_query'] = $this->build_podcast_feed_query_mock( 17 );
-
-		try {
-			Customize_Feed::maybe_register_feed_hooks();
-
-			$this->assertSame( PHP_INT_MAX, has_filter( 'the_excerpt_rss', array( Customize_Feed::class, 'capture_item_summary' ) ) );
-			$this->assertSame( PHP_INT_MAX - 1, has_filter( 'the_excerpt_rss', array( Customize_Feed::class, 'append_credit_to_excerpt' ) ) );
-			$this->assertSame( 10, has_filter( 'the_content_feed', array( Customize_Feed::class, 'append_credit_to_content' ) ) );
-		} finally {
-			$GLOBALS['wp_query'] = $previous_query;
-		}
 	}
 
 	public function test_feed_title_uses_override_when_set() {
