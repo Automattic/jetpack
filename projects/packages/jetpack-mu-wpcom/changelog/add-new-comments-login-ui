@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Register the Jetpack Comments sign-in routes ahead of the comment experience gates, so they exist on admin-ajax and public-api requests.

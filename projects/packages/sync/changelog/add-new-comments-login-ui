@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Sync the comment meta Jetpack Comments writes for commenters signed in through WordPress.com.

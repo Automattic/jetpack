@@ -159,7 +159,7 @@ class Comment_Form {
 	 * @param int|null $post_id Post being commented on. Defaults to the current one.
 	 * @return bool
 	 */
-	private static function enabled_for_post_type( $post_id = null ) {
+	public static function enabled_for_post_type( $post_id = null ) {
 		$post_type = $post_id ? get_post_type( $post_id ) : get_post_type();
 
 		/** This filter is documented in projects/plugins/jetpack/modules/comments/comments.php */
@@ -415,6 +415,24 @@ class Comment_Form {
 			'guestPromptRequired' => __( 'Provide your name and email to leave a comment.', 'jetpack-comments' ),
 			'saveDetails'         => __( 'Save my name, email, and website in this browser for the next time I comment.', 'jetpack-comments' ),
 			'logOut'              => __( 'Log out', 'jetpack-comments' ),
+			'logInOrProvide'      => __( 'Log in or provide your name and email to leave a comment.', 'jetpack-comments' ),
+			'logInOrProvideReply' => __( 'Log in or provide your name and email to leave a reply.', 'jetpack-comments' ),
+			'logInOptional'       => __( 'Leave a comment. (log in optional)', 'jetpack-comments' ),
+			'logInOptionalReply'  => __( 'Leave a reply. (log in optional)', 'jetpack-comments' ),
+			'logInToReply'        => __( 'Log in to leave a reply.', 'jetpack-comments' ),
+			/* translators: %s is the name of the provider (WordPress.com, Google, Facebook). */
+			'loggedInVia'         => __( 'Logged in via %s', 'jetpack-comments' ),
+			'cancel'              => __( 'Cancel', 'jetpack-comments' ),
+			'settings'            => __( 'Settings', 'jetpack-comments' ),
+			'close'               => __( 'Close', 'jetpack-comments' ),
+			'providers'           => array(
+				'wordpress' => __( 'WordPress.com', 'jetpack-comments' ),
+				'google'    => __( 'Google', 'jetpack-comments' ),
+				'facebook'  => __( 'Facebook', 'jetpack-comments' ),
+				'mail'      => __( 'Email', 'jetpack-comments' ),
+			),
+			'signInFailed'        => __( 'We could not sign you in. Please try again.', 'jetpack-comments' ),
+			'signInRateLimited'   => __( 'Too many sign-in attempts. Please wait a moment and try again.', 'jetpack-comments' ),
 		);
 
 		/**

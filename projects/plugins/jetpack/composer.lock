@@ -1025,12 +1025,18 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/comments",
-                "reference": "3fbf003a1a3e41b7a54c3cc280dd4c215cdb9df8"
+                "reference": "1bcb3b6c70d79e1da6fb63af4cbe1ded26162b01"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
+                "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-image-cdn": "@dev",
                 "php": ">=7.4"
+            },
+            "require-dev": {
+                "automattic/jetpack-test-environment": "@dev",
+                "automattic/phpunit-select-config": "@dev",
+                "yoast/phpunit-polyfills": "^4.0.0"
             },
             "suggest": {
                 "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
@@ -1062,12 +1068,21 @@
                 "build-production": [
                     "pnpm run build-production"
                 ],
-                "watch": [
-                    "Composer\\Config::disableProcessTimeout",
-                    "pnpm run watch"
+                "phpunit": [
+                    "phpunit-select-config phpunit.#.xml.dist --colors=always"
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ],
+                "test-php-coverage": [
+                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
                 ],
                 "typecheck": [
                     "pnpm run typecheck"
+                ],
+                "watch": [
+                    "Composer\\Config::disableProcessTimeout",
+                    "pnpm run watch"
                 ]
             },
             "license": [

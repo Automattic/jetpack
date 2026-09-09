@@ -15,7 +15,7 @@ use Automattic\Jetpack\Image_CDN\Image_CDN_Core;
 class Avatars {
 
 	/**
-	 * Comment meta holding a stored avatar URL.
+	 * Comment meta Highlander and Verbum wrote a stored avatar URL to.
 	 */
 	const AVATAR_META = 'hc_avatar';
 
@@ -47,10 +47,17 @@ class Avatars {
 			return $args;
 		}
 
-		$stored = get_comment_meta( (int) $id_or_email->comment_ID, self::AVATAR_META, true );
+		$comment_id = (int) $id_or_email->comment_ID;
 
-		if ( ! is_string( $stored ) || $stored === '' || ! self::is_servable_avatar( $stored ) ) {
-			return $args;
+		// Written only from an authenticated exchange with WordPress.com, so any https URL is served.
+		$stored = get_comment_meta( $comment_id, Checkpoint::META_AVATAR, true );
+
+		if ( ! is_string( $stored ) || $stored === '' || 'https' !== wp_parse_url( $stored, PHP_URL_SCHEME ) ) {
+			$stored = get_comment_meta( $comment_id, self::AVATAR_META, true );
+
+			if ( ! is_string( $stored ) || $stored === '' || ! self::is_servable_avatar( $stored ) ) {
+				return $args;
+			}
 		}
 
 		$size = isset( $args['size'] ) ? (int) $args['size'] : 96;
