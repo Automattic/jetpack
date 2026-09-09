@@ -441,7 +441,13 @@ class Expiry_Data_Test extends \WorDBless\BaseTestCase {
 			'product_slug' => 'wordpress-com-domain',
 			'expiry_date'  => gmdate( 'c', self::FIXED_NOW + 700 * DAY_IN_SECONDS ),
 		);
-		$result     = Expiry_Data::pick_primary_plan_purchase( array( $non_plan_a, $plan, $non_plan_b ) );
+		// A slug that reads like a plan, on a product that says it is not one.
+		$non_plan_c = (object) array(
+			'product_slug' => 'sensei_pro_yearly',
+			'product_type' => 'marketplace_plugin',
+			'expiry_date'  => gmdate( 'c', self::FIXED_NOW + 900 * DAY_IN_SECONDS ),
+		);
+		$result     = Expiry_Data::pick_primary_plan_purchase( array( $non_plan_a, $plan, $non_plan_b, $non_plan_c ) );
 		$this->assertSame( $plan->expiry_date, $result->expiry_date );
 	}
 

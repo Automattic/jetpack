@@ -69,21 +69,19 @@ class Expiry_Data {
 	}
 
 	/**
-	 * True if the purchase looks like a site plan, as opposed to an addon or domain.
+	 * Whether the purchase is a site plan rather than an add-on or domain.
 	 *
-	 * Primary signal is `product_type === 'bundle'`. Falls back to slug-based
-	 * inference for fixtures missing product_type.
+	 * The slug is only consulted for a purchase synced without a product type:
+	 * matching on it alone would take "sensei_pro" or "woocommerce_*" for a plan.
 	 *
 	 * @param object $purchase Purchase object.
 	 */
 	public static function is_plan_purchase( $purchase ): bool {
-		if ( isset( $purchase->product_type ) && 'bundle' === $purchase->product_type ) {
-			return true;
+		if ( ! empty( $purchase->product_type ) ) {
+			return 'bundle' === $purchase->product_type;
 		}
-		if ( isset( $purchase->product_slug ) ) {
-			return null !== self::infer_plan_class_from_slug( (string) $purchase->product_slug );
-		}
-		return false;
+		return isset( $purchase->product_slug )
+			&& null !== self::infer_plan_class_from_slug( (string) $purchase->product_slug );
 	}
 
 	/**
