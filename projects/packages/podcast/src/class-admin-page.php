@@ -93,7 +93,7 @@ class Admin_Page {
 				// Podcast has no My Jetpack product class, so the module is the only gate available.
 				array(
 					'module' => 'podcast',
-					'key'    => self::ADMIN_PAGE_SLUG,
+					'key'    => 'jetpack-podcast',
 				)
 			);
 		}
