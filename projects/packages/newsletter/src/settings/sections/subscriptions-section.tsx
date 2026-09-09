@@ -357,14 +357,16 @@ export function SubscriptionsSection( {
 										__nextHasNoMarginBottom
 										checked={ ! data.wpcom_hide_action_bar }
 										onChange={ handleActionBarToggle }
-										label={ __(
-											'Show the Action Bar on the front end of the site',
-											'jetpack-newsletter'
-										) }
-										help={
-											<Link openInNewTab href={ ACTION_BAR_SUPPORT_URL }>
-												{ __( 'Learn more about the Action Bar', 'jetpack-newsletter' ) }
-											</Link>
+										label={
+											<span>
+												{ __(
+													'Show the Action Bar on the front end of the site',
+													'jetpack-newsletter'
+												) }{ ' ' }
+												<Link openInNewTab href={ ACTION_BAR_SUPPORT_URL }>
+													{ __( 'Learn more', 'jetpack-newsletter' ) }
+												</Link>
+											</span>
 										}
 									/>
 								</Stack>

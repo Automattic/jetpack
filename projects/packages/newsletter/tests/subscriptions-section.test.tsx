@@ -78,17 +78,19 @@ jest.mock( '@wordpress/components', () => ( {
 		onChange?: ( next: boolean ) => void;
 	} ) => (
 		<div>
-			<input
-				type="checkbox"
-				// Only string labels can name the control here; the toggles with
-				// element labels aren't queried by name.
-				aria-label={ typeof label === 'string' ? label : undefined }
-				checked={ checked }
-				// Test-only mock; the re-bind-per-render cost is irrelevant in a jest render.
-				// eslint-disable-next-line react/jsx-no-bind
-				onChange={ e => onChange?.( e.target.checked ) }
-			/>
-			{ label }
+			{ /* Wrapping mirrors ToggleControl's own label association, so element
+			     labels (text plus an inline link) still name the control. */ }
+			{ /* eslint-disable-next-line jsx-a11y/label-has-associated-control */ }
+			<label>
+				<input
+					type="checkbox"
+					checked={ checked }
+					// Test-only mock; the re-bind-per-render cost is irrelevant in a jest render.
+					// eslint-disable-next-line react/jsx-no-bind
+					onChange={ e => onChange?.( e.target.checked ) }
+				/>
+				{ label }
+			</label>
 			{ help }
 		</div>
 	),
@@ -276,9 +278,10 @@ describe( 'SubscriptionsSection — Action Bar toggle', () => {
 		( isSimpleSite as jest.Mock ).mockReturnValue( true );
 		renderSection( { data: buildData( { wpcom_hide_action_bar: false } ) } );
 		expect( screen.getByRole( 'checkbox', { name: LABEL } ) ).toBeChecked();
-		expect(
-			screen.getByRole( 'link', { name: 'Learn more about the Action Bar' } )
-		).toHaveAttribute( 'href', 'https://wordpress.com/support/action-bar/' );
+		expect( screen.getByRole( 'link', { name: 'Learn more' } ) ).toHaveAttribute(
+			'href',
+			'https://wordpress.com/support/action-bar/'
+		);
 	} );
 
 	it( 'renders unchecked when the Action Bar is hidden', () => {

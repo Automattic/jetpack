@@ -203,7 +203,7 @@ export function LegacySubscriptionsSection( {
 					onChange={ fieldOnChange }
 					invert
 					url={ ACTION_BAR_SUPPORT_URL }
-					linkText={ __( 'Learn more about the Action Bar', 'jetpack-newsletter' ) }
+					linkText={ __( 'Learn more', 'jetpack-newsletter' ) }
 				/>
 			),
 		},
