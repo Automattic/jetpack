@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Make the Overview annotation rendering test deterministic under coverage.
+
+

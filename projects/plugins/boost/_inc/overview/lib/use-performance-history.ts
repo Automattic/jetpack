@@ -11,9 +11,11 @@ export function parsePerformanceHistory( value: unknown ): PerformanceHistory {
 	return performanceHistoryDataSchema.parse( value );
 }
 
+export const performanceHistoryQueryKey = [ 'performance_history' ];
+
 export function usePerformanceHistory( enabled = true ) {
 	return useQuery( {
-		queryKey: [ 'performance_history' ],
+		queryKey: performanceHistoryQueryKey,
 		queryFn: async () => parsePerformanceHistory( await requestDataSync( 'performance_history' ) ),
 		enabled: enabled && isSiteOnline(),
 		staleTime: 12 * 60 * 60 * 1000,
