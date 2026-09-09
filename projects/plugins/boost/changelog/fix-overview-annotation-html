@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Performance history: Preserve formatting and links in annotations in the experimental Overview.
