@@ -1057,6 +1057,36 @@ class Admin_Menu_Test extends TestCase {
 	}
 
 	/**
+	 * Hiding an item takes its page with it, not just its place in the sidebar.
+	 *
+	 * Worth pinning because it is not what "hidden" sounds like: the page stops being
+	 * registered at all, so its URL 404s and anything linking to it — a My Jetpack card's
+	 * Manage button, a bookmark, an email — breaks too.
+	 */
+	public function test_hiding_an_item_unregisters_its_page() {
+		global $_registered_pages;
+
+		wp_set_current_user( self::$admin_user_id );
+		$_registered_pages = array();
+
+		add_filter(
+			'jetpack_admin_menu_visibility',
+			function ( $states ) {
+				$states['page-hidden'] = Admin_Menu::VISIBILITY_HIDDEN;
+				return $states;
+			}
+		);
+
+		Admin_Menu::add_menu( 'Hidden', 'Hidden', 'manage_options', 'page-hidden', '__return_null' );
+		Admin_Menu::add_menu( 'Shown', 'Shown', 'manage_options', 'page-shown', '__return_null' );
+
+		do_action( 'admin_menu' );
+
+		$this->assertArrayHasKey( 'jetpack_page_page-shown', $_registered_pages );
+		$this->assertArrayNotHasKey( 'jetpack_page_page-hidden', $_registered_pages );
+	}
+
+	/**
 	 * Returns the slugs currently registered under the Jetpack top-level menu.
 	 *
 	 * @return array
