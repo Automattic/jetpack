@@ -31,7 +31,7 @@ add_action( 'wp_head', 'jetpack_og_tags' );
  * is already set, emits only the site default image instead of images and
  * videos parsed out of the body.
  *
- * @since $$next-version$$
+ * @since 16.2
  *
  * @param array $tags Open Graph tags.
  * @return array

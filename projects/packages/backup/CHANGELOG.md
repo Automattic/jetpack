@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.0.2] - 2026-09-09
+### Changed
+- Sidebar: sort Jetpack menu items alphabetically, pinning My Jetpack to the top and external links and Settings to the bottom. [#52003]
+
 ## [5.0.1] - 2026-09-08
 ### Added
 - Add an endpoint for flushing the object cache, which a database restore leaves stale. [#52059]
@@ -1222,6 +1226,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add API endpoints and Jetpack Backup package for managing Help…
 
+[5.0.2]: https://github.com/Automattic/jetpack-backup/compare/v5.0.1...v5.0.2
 [5.0.1]: https://github.com/Automattic/jetpack-backup/compare/v5.0.0...v5.0.1
 [5.0.0]: https://github.com/Automattic/jetpack-backup/compare/v4.3.15...v5.0.0
 [4.3.15]: https://github.com/Automattic/jetpack-backup/compare/v4.3.14...v4.3.15
