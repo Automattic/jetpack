@@ -46,7 +46,7 @@ export function MoreFeaturesContent() {
 
 	return (
 		<section className={ styles.content }>
-			<Text variant="heading-lg">{ __( 'More features', 'jetpack-my-jetpack' ) }</Text>
+			<h2>{ __( 'More features', 'jetpack-my-jetpack' ) }</h2>
 			<Text variant="body-sm" className={ styles.intro }>
 				{ __(
 					'Smaller features that do not yet belong to one of the main features above.',
@@ -66,9 +66,7 @@ export function MoreFeaturesContent() {
 
 			{ groups.map( group => (
 				<section key={ group.label } className={ styles.group }>
-					<Text variant="heading-md" className={ styles.group__label }>
-						{ group.label }
-					</Text>
+					<h3 className={ styles.group__label }>{ group.label }</h3>
 					<Stack direction="column" className={ styles[ 'module-list' ] }>
 						{ group.modules.map( item => (
 							<ModuleItem

@@ -1,3 +1,5 @@
+@use "@automattic/jetpack-base-styles/gutenberg-base-styles" as gb;
+
 .content {
 	display: flex;
 	flex-direction: column;
@@ -11,7 +13,7 @@
 }
 
 .module-list {
-	border: var(--wpds-border-width-sm) solid var(--wpds-color-stroke-surface-neutral-weak);
+	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
 	border-radius: var(--wpds-border-radius-md);
 	overflow: hidden;
 }
@@ -22,7 +24,7 @@
 	& + & {
 		border-block-start-color: var(--wpds-color-stroke-surface-neutral-weak);
 		border-block-start-style: solid;
-		border-block-start-width: var(--wpds-border-width-sm);
+		border-block-start-width: var(--wpds-border-width-xs);
 	}
 }
 
@@ -50,5 +52,7 @@
 }
 
 .group__label {
-	color: var(--wpds-color-foreground-content-neutral);
+
+	@include gb.heading-x-large;
+	margin-block: 0;
 }
