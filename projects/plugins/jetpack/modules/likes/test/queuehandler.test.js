@@ -93,6 +93,42 @@ describe( 'Likes queue handler master iframe handshake', () => {
 		widget.getBoundingClientRect = () => ( { top, bottom: top + 55 } );
 	};
 
+	// Comment widgets are the ones that get unloaded again when they scroll out of view. The
+	// iframe lands after .comment-like-feedback, two levels below the wrapper, and the unload
+	// path walks back up from it — so the nesting here has to match modules/comment-likes.php.
+	const addUnloadedCommentWidget = () => {
+		const widget = document.createElement( 'div' );
+		widget.id = 'like-comment-wrapper-12345-99-abc123';
+		widget.className = 'jetpack-comment-likes-widget-wrapper jetpack-likes-widget-unloaded';
+		widget.dataset.src = 'https://widgets.wp.com/likes/#blog_id=12345&comment_id=99';
+		widget.dataset.name = 'like-comment-frame-12345-99-abc123';
+
+		const placeholder = document.createElement( 'div' );
+		placeholder.className = 'likes-widget-placeholder comment-likes-widget-placeholder';
+		widget.appendChild( placeholder );
+
+		const inner = document.createElement( 'div' );
+		inner.className = 'comment-likes-widget jetpack-likes-widget';
+		const feedback = document.createElement( 'span' );
+		feedback.className = 'comment-like-feedback';
+		inner.appendChild( feedback );
+		widget.appendChild( inner );
+
+		document.body.appendChild( widget );
+
+		return widget;
+	};
+
+	// Drive the queue to the point where it has created the iframe, then fire the load event
+	// jsdom never fires for a cross-origin src.
+	const loadWidget = async widget => {
+		answerPingsWithMasterReady();
+		require( '../queuehandler' );
+		await Promise.resolve();
+		jest.advanceTimersByTime( 500 );
+		widget.querySelector( 'iframe' ).dispatchEvent( new Event( 'load' ) );
+	};
+
 	beforeEach( () => {
 		jest.useFakeTimers();
 		jest.resetModules();
@@ -192,5 +228,36 @@ describe( 'Likes queue handler master iframe handshake', () => {
 
 		expect( initialBatches().length ).toBeGreaterThanOrEqual( 1 );
 		expect( widget.querySelector( 'iframe.post-likes-widget' ) ).not.toBeNull();
+	} );
+
+	it( 'hides the loading placeholder itself, rather than leaving that to the stylesheet', async () => {
+		const widget = addUnloadedPostWidget();
+		const placeholder = widget.querySelector( '.likes-widget-placeholder' );
+
+		await loadWidget( widget );
+
+		expect( widget ).toHaveClass( 'jetpack-likes-widget-loaded' );
+		expect( placeholder ).not.toBeVisible();
+	} );
+
+	it( 'shows the placeholder again when a widget is unloaded', async () => {
+		const widget = addUnloadedCommentWidget();
+		const placeholder = widget.querySelector( '.likes-widget-placeholder' );
+
+		await loadWidget( widget );
+		expect( placeholder ).not.toBeVisible();
+
+		// Scroll the widget out of view: its iframe is dropped and the wrapper goes back to
+		// unloaded, so the placeholder has to become the visible state again. The wrapper needs
+		// moving too, or the same pass that unloads it finds it in view and reloads it.
+		const outOfView = () => ( { top: 50000, bottom: 50018 } );
+		widget.querySelector( 'iframe' ).getBoundingClientRect = outOfView;
+		widget.getBoundingClientRect = outOfView;
+		window.dispatchEvent( new Event( 'scroll' ) );
+		jest.advanceTimersByTime( 250 );
+
+		expect( widget ).toHaveClass( 'jetpack-likes-widget-unloaded' );
+		expect( widget.querySelectorAll( 'iframe' ) ).toHaveLength( 0 );
+		expect( placeholder ).toBeVisible();
 	} );
 } );

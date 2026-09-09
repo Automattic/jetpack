@@ -419,6 +419,12 @@ function jetpackLoadLikeWidgetIframe( wrapperID ) {
 			window.frames[ 'likes-master' ]
 		);
 
+		// The stylesheet is otherwise the only thing that hides the placeholder, so one that never
+		// applies leaves "Loading…" sitting over a widget that loaded fine.
+		if ( placeholder ) {
+			placeholder.style.display = 'none';
+		}
+
 		wrapper.classList.remove( 'jetpack-likes-widget-loading' );
 		wrapper.classList.add( 'jetpack-likes-widget-loaded' );
 	} );
@@ -453,6 +459,14 @@ function jetpackUnloadScrolledOutWidgets() {
 			widgetWrapper.classList.remove( 'jetpack-likes-widget-loaded' );
 			widgetWrapper.classList.remove( 'jetpack-likes-widget-loading' );
 			widgetWrapper.classList.add( 'jetpack-likes-widget-unloaded' );
+
+			// An empty string removes the inline declaration rather than setting one, handing the
+			// placeholder back to the stylesheet. The `display: none` set on load would otherwise
+			// outrank it, leaving an unloaded widget with neither an iframe nor a placeholder.
+			const placeholder = widgetWrapper.querySelector( '.likes-widget-placeholder' );
+			if ( placeholder ) {
+				placeholder.style.display = '';
+			}
 
 			// Remove it from the list of loaded widgets.
 			jetpackCommentLikesLoadedWidgets.splice( i, 1 );
