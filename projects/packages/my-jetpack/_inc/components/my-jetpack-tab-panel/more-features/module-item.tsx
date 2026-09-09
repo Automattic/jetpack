@@ -3,23 +3,27 @@ import { store as modulesStore } from '@automattic/jetpack-shared-stores';
 import { FormToggle } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
-import { Badge, Stack, Text } from '@wordpress/ui';
+import { Badge, Checkbox, Stack, Text } from '@wordpress/ui';
 import { useCallback } from 'react';
 import styles from './styles.module.scss';
 import type { MyJetpackModule } from '../../../types';
 
 type ModuleItemProps = {
 	module: MyJetpackModule;
+	selected: boolean;
+	onSelect: ( slug: string, checked: boolean ) => void;
 };
 
 /**
  * One row in the More features list.
  *
- * @param {ModuleItemProps} props        - The component props.
- * @param {MyJetpackModule} props.module - The module to render.
+ * @param {ModuleItemProps} props          - The component props.
+ * @param {MyJetpackModule} props.module   - The module to render.
+ * @param {boolean}         props.selected - Whether the row is selected for a bulk action.
+ * @param {Function}        props.onSelect - Called when the row's checkbox changes.
  * @return The rendered component.
  */
-export function ModuleItem( { module: $module }: ModuleItemProps ) {
+export function ModuleItem( { module: $module, selected, onSelect }: ModuleItemProps ) {
 	const { updateJetpackModuleStatus } = useDispatch( modulesStore );
 	const { createErrorNotice } = useGlobalNotices();
 
@@ -54,6 +58,11 @@ export function ModuleItem( { module: $module }: ModuleItemProps ) {
 		updateJetpackModuleStatus,
 	] );
 
+	const onCheckedChange = useCallback(
+		( checked: boolean ) => onSelect( $module.module, checked ),
+		[ $module.module, onSelect ]
+	);
+
 	return (
 		<Stack
 			direction="row"
@@ -62,6 +71,13 @@ export function ModuleItem( { module: $module }: ModuleItemProps ) {
 			className={ styles[ 'module-item' ] }
 			data-module={ $module.module }
 		>
+			<Checkbox
+				checked={ selected }
+				disabled={ isLocked }
+				onCheckedChange={ onCheckedChange }
+				aria-label={ $module.name }
+			/>
+
 			<Stack direction="column" gap="xs" className={ styles[ 'module-item__details' ] }>
 				<Stack direction="row" align="center" gap="sm" wrap="wrap">
 					<Text variant="heading-md">{ $module.name }</Text>
