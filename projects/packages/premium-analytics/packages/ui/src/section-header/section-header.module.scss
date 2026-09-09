@@ -15,6 +15,9 @@ $section-header-visual-gap: 20px;
 // fitting that much sooner.
 $section-header-visual-stacked-max-inline-size: $section-header-stacked-max-inline-size + $section-header-visual-size + $section-header-visual-gap;
 
+// The scroll distance the condense runs over once the header pins. Tunable.
+$section-header-condense-distance: 40px;
+
 // The controls drop below the title, reading from the same edge.
 @mixin section-header-stacked {
 
@@ -126,52 +129,6 @@ $section-header-visual-stacked-max-inline-size: $section-header-stacked-max-inli
 	color: var(--wpds-color-foreground-content-neutral-weak);
 }
 
-/*
- * Condenses the header into a compact bar as it pins: the title drops a step
- * on the type scale.
- *
- * The surface, not this component, knows where the header pins, so it opts in
- * by publishing a `--section-header-pin` view timeline whose `exit` phase
- * opens at the pin point (see the dashboard's pin marker in
- * `routes/dashboard/stage.module.scss`). Progress-driven, so it follows the
- * scroll in both directions.
- *
- * The @supports gate is load-bearing: without scroll-driven animation
- * support, the `animation` shorthand would run as a 0s time animation and its
- * `both` fill would freeze the header in the condensed state. Inside the gate
- * an unresolved timeline (a surface that publishes no marker) leaves the
- * animation inert, which is the resting layout.
- */
-@supports (animation-timeline: --section-header-pin) {
-
-	.condensing {
-
-		// Buys no height: the row is floored by the date controls beside it.
-		// What changes is what the pinned band reads as.
-		.title {
-			animation: condense-title linear both;
-			animation-timeline: --section-header-pin;
-			animation-range: exit;
-		}
-	}
-
-	// Scroll-driven, but still chrome moving under the reader.
-	@media (prefers-reduced-motion: reduce) {
-
-		.condensing .title {
-			animation: none;
-		}
-	}
-}
-
-@keyframes condense-title {
-
-	to {
-		font-size: var(--wpds-typography-font-size-xl);
-		line-height: var(--wpds-typography-line-height-xl);
-	}
-}
-
 .controls {
 	grid-area: controls;
 	min-inline-size: 0;
@@ -190,6 +147,107 @@ $section-header-visual-stacked-max-inline-size: $section-header-stacked-max-inli
 	// Never wider than its column, whose 0 minimum keeps the squeeze unaffected.
 	:global(.date-filters-panel) {
 		max-inline-size: 100%;
+	}
+}
+
+.notice {
+	margin-block-start: var(--wpds-dimension-gap-md);
+
+	// The slot's occupant may have nothing to say and render nothing; the
+	// wrapper must not keep its margin then.
+	&:empty {
+		display: none;
+	}
+}
+
+/*
+ * Pinned: a sticky band that stops at the top of the surface's scroll
+ * container while the content scrolls under it. Opaque, in the page header's
+ * fill: the band is page chrome, not the content's canvas, and the hairline is
+ * the edge between the two. It spans the page gutter itself, so a surface pads
+ * the content below it rather than the container the band pins in.
+ */
+.pinned {
+	position: sticky;
+	inset-block-start: 0;
+	// Above the content's own layers, which the surface caps with `isolation`
+	// rather than z-index values this band does not own.
+	z-index: 1;
+	background: var(--wpds-color-background-surface-neutral-strong);
+	border-block-end:
+		var(--wpds-border-width-xs) solid
+		var(--wpds-color-stroke-surface-neutral-weak);
+	padding-inline: var(--wpds-dimension-padding-2xl);
+	padding-block: var(--wpds-dimension-gap-lg);
+	margin-block-end: var(--wpds-dimension-gap-lg);
+}
+
+/*
+ * Publishes the `--section-header-pin` timeline the band condenses on. In flow
+ * right before the band and costing no height, its top edge sits where the
+ * band comes to rest, so the view timeline's `exit` phase opens as the band
+ * pins and runs the condense distance. The surface's `timeline-scope` on the
+ * parent is what lets the band, a sibling, see it.
+ */
+.pinMarker {
+	block-size: $section-header-condense-distance;
+	margin-block-end: -#{$section-header-condense-distance};
+	visibility: hidden;
+	pointer-events: none;
+	view-timeline-name: --section-header-pin;
+	view-timeline-axis: block;
+}
+
+/*
+ * Condenses the band as it pins: the padding tightens, since there are no tabs
+ * left to clear, and the title drops a step on the type scale. Progress-driven,
+ * so it follows the scroll in both directions.
+ *
+ * The @supports gate is load-bearing: without scroll-driven animation
+ * support, the `animation` shorthand would run as a 0s time animation and its
+ * `both` fill would freeze the band in the condensed state. Inside the gate
+ * an unresolved timeline (a surface that declares no scope) leaves the
+ * animation inert, which is the resting layout.
+ */
+@supports (animation-timeline: --section-header-pin) {
+
+	.pinned {
+		animation: condense-band linear both;
+		animation-timeline: --section-header-pin;
+		animation-range: exit;
+
+		// Buys no height: the row is floored by the date controls beside it.
+		// What changes is what the pinned band reads as.
+		.title {
+			animation: condense-title linear both;
+			animation-timeline: --section-header-pin;
+			animation-range: exit;
+		}
+	}
+
+	// Scroll-driven, but still chrome moving under the reader.
+	@media (prefers-reduced-motion: reduce) {
+
+		.pinned,
+		.pinned .title {
+			animation: none;
+		}
+	}
+}
+
+@keyframes condense-band {
+
+	to {
+		padding-block-start: var(--wpds-dimension-gap-sm);
+		padding-block-end: var(--wpds-dimension-gap-sm);
+	}
+}
+
+@keyframes condense-title {
+
+	to {
+		font-size: var(--wpds-typography-font-size-xl);
+		line-height: var(--wpds-typography-line-height-xl);
 	}
 }
 
