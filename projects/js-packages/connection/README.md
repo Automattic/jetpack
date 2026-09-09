@@ -140,44 +140,6 @@ const onDisconnectedCallback = useCallback( () => alert( 'Successfully Disconnec
 </DisconnectDialog>
 ```
 
-## Component `ConnectionStatusCard`
-The `ConnectionStatusCard` component displays the current site and user connection status as well as the corresponding actions.
-This component is meant to be used when at least the site level connection has been established, aka there's a status to display.
-In cases where the site level connection has not been established yet, please use the `ConnectScreen` component instead.
-
-It consists of 2 main states: 
-1. *User account connected*: In this state the user will be presented with information regarding their connected WordPress.com account, aka the `username` and `avatar`.
-2. *User account not connected*: In this state the user will be presented with an alert message informing them their account is not connected and a corresponding button that upon clicking will trigger the User Connection flow.
-
-In all cases, users are presented with a link to `Disconnect` (see `DisconnectDialog` component).
-
-
-### Properties
-- *apiRoot* - string (required), API root URL.
-- *apiNonce* - string (required), API Nonce.
-- *redirectUri* - string (required), The redirect admin URI after the user has connected their WordPress.com account.
-- *title* - string, The Card title. Defaults to "Connection".
-- *connectionInfoText* - string, The text that will be displayed under the title, containing info how to leverage the connection. Defaults to "Leverages the Jetpack Cloud for more features on your side."
-- *onDisconnected* - callback, The callback to be called upon disconnection success.
-
-### Important Notes
-The `Disconnect` functionality is **temporary**. In the future, it will be replaced with a link to a central connection management page from where users will be able to disconnect.
-
-
-### Basic Usage
-```jsx
-import { useCallback } from 'react';
-import { ConnectionStatusCard } from '@automattic/jetpack-connection';
-
-const onDisconnectedCallback = useCallback( () => alert( 'Successfully Disconnected' ) );
-
-<ConnectionStatusCard
-	apiRoot={ APIRoot }
-	apiNonce={ APINonce }
-	redirectUri="tools.php?page=wpcom-connection-manager"
-/>
-```
-
 ## Fetching connection status and other data from the store
 The package relies on [controls](https://developer.wordpress.org/block-editor/reference-guides/packages/packages-data/#controls-2)
 and [resolvers](https://developer.wordpress.org/block-editor/reference-guides/packages/packages-data/#resolvers)
@@ -217,4 +179,35 @@ export default withSelect( select => {
 		connectionStatus: select( CONNECTION_STORE_ID ).getConnectionStatus(),
 	}
 } )( SampleComponent );
+```
+
+# Hooks
+## Hook `useConnectionStatusSummary`
+Reports the connection's standing for a status surface — a card, a badge, a health row: whether it is broken, which half broke, and how much it is this viewer's problem.
+
+Use it wherever a surface describes the connection in its own words. For the error *message* and its CTAs, use `useConnectionErrorNotice` (or the ready-made `ConnectionError` component) instead — both read the same displayable errors, so surfaces built on either cannot contradict each other.
+
+### Returns
+- *hasConnectionError* - boolean, whether there is an error worth showing this viewer. Another user's broken token is not one.
+- *scope* - `'site'` | `'account'` | `'owner-account'` | `'mixed'`, the half of the connection at fault, or `null` when nothing is broken. `owner-account` means the connection owner's account, and the viewer is not them.
+- *severity* - `'error'` | `'warning'`, or `null` when nothing is broken. `warning` marks a break only somebody else can repair, so the viewer is being told rather than asked to act.
+
+The summary carries no copy, so each consumer keeps its own voice and text domain.
+
+The return type is discriminated on `hasConnectionError`: `scope` and `severity` are non-null exactly when it is `true`. TypeScript consumers should hold the summary as an object rather than destructuring it, so that a `hasConnectionError` check narrows the other two.
+
+### Basic Usage
+```jsx
+import { useConnectionStatusSummary } from '@automattic/jetpack-connection';
+
+const ConnectionBadge = () => {
+	const connection = useConnectionStatusSummary();
+
+	if ( ! connection.hasConnectionError ) {
+		return <Badge level="success">{ __( 'Connected', 'my-text-domain' ) }</Badge>;
+	}
+
+	// `scope` and `severity` are known non-null here.
+	return <Badge level={ connection.severity }>{ labelFor( connection.scope ) }</Badge>;
+};
 ```
