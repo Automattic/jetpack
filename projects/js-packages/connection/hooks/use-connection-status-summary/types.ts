@@ -1,21 +1,7 @@
-/**
- * Which half of the connection a set of errors describes, from the viewer's
- * point of view.
- *
- * - `site`: the site's own connection to WordPress.com.
- * - `account`: the viewer's WordPress.com account.
- * - `owner-account`: the connection owner's account, and the viewer is not them.
- * - `mixed`: the errors on screen do not agree on one half.
- */
-export type ConnectionErrorScope = 'site' | 'account' | 'owner-account' | 'mixed';
-
-/**
- * How much of a problem the errors are for the viewer.
- *
- * `warning` marks a break only somebody else can repair, so the viewer is being
- * told rather than asked to act.
- */
-export type ConnectionErrorSeverity = 'error' | 'warning';
+import type {
+	ConnectionErrorScope,
+	ConnectionErrorSeverity,
+} from '../use-connection-error-notice/types.ts';
 
 /**
  * The connection status needed by the UI: whether it is broken,

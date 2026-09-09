@@ -48,6 +48,7 @@ const useConnectionErrorsNotice = (
 	// tracking event for the reconnect CTA.
 	const {
 		hasConnectionError,
+		severity,
 		connectionError,
 		displayableErrors,
 		errorTitle,
@@ -161,7 +162,9 @@ const useConnectionErrorsNotice = (
 
 		const noticeOptions: NoticeOptions = {
 			id: 'connection-error-notice',
-			level: 'error',
+			// The package rates the break for this viewer; a broken owner token is a
+			// warning to everybody but the owner, who is the only one who can fix it.
+			level: severity ?? 'error',
 			actions: noticeActions,
 			priority: NOTICE_PRIORITY_HIGH + ( isRestoringConnection ? 1 : 0 ),
 			tracksArgs,
@@ -175,6 +178,7 @@ const useConnectionErrorsNotice = (
 	}, [
 		setNotice,
 		hasConnectionError,
+		severity,
 		tracksArgs,
 		errorGroups,
 		errorTitle,

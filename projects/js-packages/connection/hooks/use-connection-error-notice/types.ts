@@ -90,6 +90,25 @@ export interface ConnectionErrorProps {
 }
 
 /**
+ * Which half of the connection a set of errors describes, from the viewer's
+ * point of view.
+ *
+ * - `site`: the site's own connection to WordPress.com.
+ * - `account`: the viewer's WordPress.com account.
+ * - `owner-account`: the connection owner's account, and the viewer is not them.
+ * - `mixed`: the errors on screen do not agree on one half.
+ */
+export type ConnectionErrorScope = 'site' | 'account' | 'owner-account' | 'mixed';
+
+/**
+ * How much of a problem the errors are for the viewer.
+ *
+ * `warning` marks a break only somebody else can repair, so the viewer is being
+ * told rather than asked to act.
+ */
+export type ConnectionErrorSeverity = 'error' | 'warning';
+
+/**
  * Identity of the person looking at the notice, used to phrase an error's scope
  * from their point of view ("Your account" vs "Another user's account").
  */
@@ -159,6 +178,10 @@ export interface UseConnectionErrorNoticeResult {
 	 * this never wraps an empty notice.
 	 */
 	hasConnectionError: boolean;
+	/** The half of the connection at fault, or null when nothing is broken. */
+	scope: ConnectionErrorScope | null;
+	/** How much of a problem it is for this viewer, or null when nothing is broken. */
+	severity: ConnectionErrorSeverity | null;
 	/** The effective error's message, if any. */
 	connectionErrorMessage: string | undefined;
 	/** The full effective error object (with `error_type`, `error_data`, etc.). */
