@@ -96,12 +96,15 @@ class Jetpack_Forms {
 	 */
 	public static function is_feedback_dashboard_enabled() {
 		/**
-		 * Enable the new Jetpack Forms dashboard.
+		 * Enable the Jetpack Forms dashboard.
+		 *
+		 * Returning false hides the Forms admin menu entry and skips the dashboard
+		 * entirely. Unrelated to which dashboard renders — there is only one.
 		 *
 		 * @module contact-form
 		 * @since 0.3.0
 		 *
-		 * @param bool false Should the new Jetpack Forms dashboard be enabled? Default to false.
+		 * @param bool $enabled Should the Jetpack Forms dashboard be enabled? Default true.
 		 */
 		return apply_filters( 'jetpack_forms_dashboard_enable', true );
 	}
