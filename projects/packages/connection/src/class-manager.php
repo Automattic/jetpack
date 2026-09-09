@@ -172,7 +172,7 @@ class Manager {
 
 		Webhooks::init( $manager );
 
-		add_action( 'pre_update_jetpack_option_user_tokens', array( $manager, 'unbind_wpcom_user_ids_for_replaced_tokens' ), 10, 2 );
+		add_action( 'pre_update_jetpack_option_user_tokens', array( $manager, 'unbind_wpcom_user_ids_for_new_tokens' ), 10, 2 );
 
 		// Unlink user before deleting the user from WP.com.
 		add_action( 'deleted_user', array( $manager, 'disconnect_user_force' ), 9, 1 );
@@ -1010,9 +1010,9 @@ class Manager {
 	/**
 	 * Returns the WordPress.com user ID of a connected user.
 	 *
-	 * Answers only for a user who currently holds a token, so a cached ID can never outlive the
-	 * connection it describes. A cache miss costs a blocking request to WordPress.com, so this is
-	 * not safe to call per row.
+	 * Answers only for a user who currently holds a token: the binding outlives any one token, so
+	 * connectedness is checked here rather than inferred from a row existing. Resolving an unbound
+	 * user costs a blocking request to WordPress.com, so this is not safe to call per row.
 	 *
 	 * @since $$next-version$$
 	 *
@@ -1047,12 +1047,13 @@ class Manager {
 	}
 
 	/**
-	 * Unbind the WordPress.com user ID of any user whose token is being replaced.
+	 * Unbind the WordPress.com user ID of any user whose token is new.
 	 *
 	 * Every path that changes a user's token writes the `user_tokens` option, so this covers
-	 * authorize, remote connect and the REST endpoint alike. A token that is merely removed leaves
-	 * the binding correct, and other subsystems store their own meaning in the same meta, so only
-	 * a replacement — which can name a different WordPress.com account — clears it.
+	 * authorize, remote connect and the REST endpoint alike. A token that is added or replaced can
+	 * name a different WordPress.com account, so any binding it would answer with is unverified. A
+	 * token merely removed leaves the binding correct, and other subsystems store their own meaning
+	 * in the same meta, so removals are left alone.
 	 *
 	 * @internal Hooked on `pre_update_jetpack_option_user_tokens`, which fires before the write.
 	 * @since $$next-version$$
@@ -1060,15 +1061,20 @@ class Manager {
 	 * @param string $name  The option name.
 	 * @param mixed  $value The tokens about to be written.
 	 */
-	public function unbind_wpcom_user_ids_for_replaced_tokens( $name, $value ) {
-		$previous = \Jetpack_Options::get_option( 'user_tokens' );
-
-		if ( ! is_array( $previous ) || ! is_array( $value ) ) {
+	public function unbind_wpcom_user_ids_for_new_tokens( $name, $value ) {
+		if ( ! is_array( $value ) ) {
 			return;
 		}
 
-		foreach ( $previous as $user_id => $token ) {
-			if ( isset( $value[ $user_id ] ) && $value[ $user_id ] !== $token ) {
+		// A site disconnect deletes the option outright, so the first write back has nothing to
+		// diff against — treat that as every token being new rather than skipping the check.
+		$previous = \Jetpack_Options::get_option( 'user_tokens' );
+		$previous = is_array( $previous ) ? $previous : array();
+
+		// Iterating the incoming tokens covers a token being added as well as replaced, and skips
+		// removal for free: a user absent from the new set is never visited.
+		foreach ( $value as $user_id => $token ) {
+			if ( ( $previous[ $user_id ] ?? null ) !== $token ) {
 				Utils::delete_wpcom_user_id( $user_id );
 			}
 		}

@@ -119,7 +119,7 @@ class Wpcom_User_Id_Test extends TestCase {
 	/**
 	 * A cached ID is returned without asking WordPress.com.
 	 */
-	public function test_get_wpcom_user_id_reads_the_cache_without_a_remote_lookup() {
+	public function test_get_wpcom_user_id_reads_the_binding_without_a_remote_lookup() {
 		Utils::set_wpcom_user_id( $this->user_id, 4242 );
 
 		$manager = $this->manager_returning_user_data( false, $this->never() );
@@ -130,7 +130,7 @@ class Wpcom_User_Id_Test extends TestCase {
 	/**
 	 * A cache miss resolves the ID from WordPress.com and stores it.
 	 */
-	public function test_get_wpcom_user_id_resolves_from_wpcom_and_caches_the_result() {
+	public function test_get_wpcom_user_id_resolves_from_wpcom_and_stores_the_binding() {
 		$manager = $this->manager_returning_user_data( array( 'ID' => 4242 ), $this->once() );
 
 		$this->assertSame( 4242, $manager->resolve_wpcom_user_id( $this->user_id ) );
@@ -140,7 +140,7 @@ class Wpcom_User_Id_Test extends TestCase {
 	/**
 	 * A failed lookup returns 0 and caches nothing.
 	 */
-	public function test_get_wpcom_user_id_returns_zero_and_caches_nothing_when_the_lookup_fails() {
+	public function test_get_wpcom_user_id_returns_zero_and_binds_nothing_when_the_lookup_fails() {
 		$manager = $this->manager_returning_user_data( false );
 
 		$this->assertSame( 0, $manager->resolve_wpcom_user_id( $this->user_id ) );
@@ -160,7 +160,7 @@ class Wpcom_User_Id_Test extends TestCase {
 	/**
 	 * A user who no longer holds a token gets no answer, cached or otherwise.
 	 */
-	public function test_get_wpcom_user_id_ignores_a_cached_id_for_a_disconnected_user() {
+	public function test_get_wpcom_user_id_ignores_a_binding_for_a_disconnected_user() {
 		Utils::set_wpcom_user_id( $this->user_id, 4242 );
 
 		$manager = $this->manager_returning_user_data( false, $this->never(), false );
@@ -195,7 +195,7 @@ class Wpcom_User_Id_Test extends TestCase {
 	 * @requires function WP_User_Query::prepare_query
 	 */
 	#[RequiresMethod( \WP_User_Query::class, 'prepare_query' )]
-	public function test_cache_wpcom_user_id_removes_the_id_from_its_previous_holder() {
+	public function test_set_wpcom_user_id_removes_the_id_from_its_previous_holder() {
 		$previous_holder = wp_insert_user(
 			array(
 				'user_login' => 'wpcom_user_id_previous_holder',
@@ -224,9 +224,9 @@ class Wpcom_User_Id_Test extends TestCase {
 	}
 
 	/**
-	 * Deleting a cached ID leaves nothing behind.
+	 * Deleting a binding leaves nothing behind.
 	 */
-	public function test_delete_wpcom_user_id_clears_the_cache() {
+	public function test_delete_wpcom_user_id_clears_the_binding() {
 		Utils::set_wpcom_user_id( $this->user_id, 4242 );
 
 		Utils::delete_wpcom_user_id( $this->user_id );
@@ -287,7 +287,7 @@ class Wpcom_User_Id_Test extends TestCase {
 		Utils::set_wpcom_user_id( $this->user_id, 4242 );
 		Jetpack_Options::update_option( 'user_tokens', array( $this->user_id => 'old.secret.' . $this->user_id ) );
 
-		( new Manager() )->unbind_wpcom_user_ids_for_replaced_tokens(
+		( new Manager() )->unbind_wpcom_user_ids_for_new_tokens(
 			'user_tokens',
 			array( $this->user_id => 'new.secret.' . $this->user_id )
 		);
@@ -302,7 +302,7 @@ class Wpcom_User_Id_Test extends TestCase {
 		Utils::set_wpcom_user_id( $this->user_id, 4242 );
 		Jetpack_Options::update_option( 'user_tokens', array( $this->user_id => 'old.secret.' . $this->user_id ) );
 
-		( new Manager() )->unbind_wpcom_user_ids_for_replaced_tokens( 'user_tokens', array() );
+		( new Manager() )->unbind_wpcom_user_ids_for_new_tokens( 'user_tokens', array() );
 
 		$this->assertSame( 4242, Utils::get_wpcom_user_id( $this->user_id ) );
 	}
@@ -315,9 +315,62 @@ class Wpcom_User_Id_Test extends TestCase {
 		$tokens = array( $this->user_id => 'same.secret.' . $this->user_id );
 		Jetpack_Options::update_option( 'user_tokens', $tokens );
 
-		( new Manager() )->unbind_wpcom_user_ids_for_replaced_tokens( 'user_tokens', $tokens );
+		( new Manager() )->unbind_wpcom_user_ids_for_new_tokens( 'user_tokens', $tokens );
 
 		$this->assertSame( 4242, Utils::get_wpcom_user_id( $this->user_id ) );
+	}
+
+	/**
+	 * A token arriving where there was none establishes this user's identity afresh, so an
+	 * existing binding is unverified and must not survive it.
+	 */
+	public function test_an_added_token_unbinds_that_user() {
+		Utils::set_wpcom_user_id( $this->user_id, 4242 );
+		Jetpack_Options::update_option( 'user_tokens', array() );
+
+		( new Manager() )->unbind_wpcom_user_ids_for_new_tokens(
+			'user_tokens',
+			array( $this->user_id => 'new.secret.' . $this->user_id )
+		);
+
+		$this->assertSame( 0, Utils::get_wpcom_user_id( $this->user_id ) );
+	}
+
+	/**
+	 * Disconnecting and reconnecting as a different WordPress.com account must not leave the old
+	 * identity bound.
+	 */
+	public function test_a_reconnect_after_disconnect_unbinds_the_previous_identity() {
+		Utils::set_wpcom_user_id( $this->user_id, 4242 );
+
+		$manager  = new Manager();
+		$callback = array( $manager, 'unbind_wpcom_user_ids_for_new_tokens' );
+		add_action( 'pre_update_jetpack_option_user_tokens', $callback, 10, 2 );
+
+		$tokens = new Tokens();
+		$tokens->update_user_token( $this->user_id, 'first.secret.' . $this->user_id, false );
+		$tokens->disconnect_user( $this->user_id );
+		$tokens->update_user_token( $this->user_id, 'second.secret.' . $this->user_id, false );
+
+		remove_action( 'pre_update_jetpack_option_user_tokens', $callback, 10 );
+
+		$this->assertSame( 0, Utils::get_wpcom_user_id( $this->user_id ) );
+	}
+
+	/**
+	 * A first write after the option was deleted must still invalidate: a site disconnect removes
+	 * `user_tokens` outright, so the reconnect has no previous array to diff against.
+	 */
+	public function test_a_write_with_no_previous_option_still_unbinds() {
+		Utils::set_wpcom_user_id( $this->user_id, 4242 );
+		Jetpack_Options::delete_option( 'user_tokens' );
+
+		( new Manager() )->unbind_wpcom_user_ids_for_new_tokens(
+			'user_tokens',
+			array( $this->user_id => 'new.secret.' . $this->user_id )
+		);
+
+		$this->assertSame( 0, Utils::get_wpcom_user_id( $this->user_id ) );
 	}
 
 	/**
@@ -340,7 +393,7 @@ class Wpcom_User_Id_Test extends TestCase {
 			)
 		);
 
-		( new Manager() )->unbind_wpcom_user_ids_for_replaced_tokens(
+		( new Manager() )->unbind_wpcom_user_ids_for_new_tokens(
 			'user_tokens',
 			array(
 				$this->user_id => 'new.secret.' . $this->user_id,
@@ -363,7 +416,7 @@ class Wpcom_User_Id_Test extends TestCase {
 		// Only this callback is removed afterwards: the memoization hooks on the same option are
 		// added once behind a static guard and would not come back.
 		$manager  = new Manager();
-		$callback = array( $manager, 'unbind_wpcom_user_ids_for_replaced_tokens' );
+		$callback = array( $manager, 'unbind_wpcom_user_ids_for_new_tokens' );
 		add_action( 'pre_update_jetpack_option_user_tokens', $callback, 10, 2 );
 
 		( new Tokens() )->update_user_token( $this->user_id, 'new.secret.' . $this->user_id, false );

@@ -157,9 +157,10 @@ class Utils {
 	/**
 	 * Bind a WordPress.com user ID to a local user, removing it from any other user first.
 	 *
-	 * The binding is one-to-one: two local users answering to the same WordPress.com identity would
-	 * make owner resolution ambiguous, so the previous holder is cleared. On multisite the lookup is
-	 * scoped to the current site, so users on other sites may still hold the same ID.
+	 * Two local users answering to the same WordPress.com identity would make owner resolution
+	 * ambiguous, so the previous holder is cleared. That only holds for writes routed through here:
+	 * Premium Content writes the same key directly, so uniqueness is not guaranteed site-wide. On
+	 * multisite the lookup is scoped to the current site.
 	 *
 	 * @since $$next-version$$
 	 *
