@@ -197,7 +197,7 @@ same window as an earlier one is dropped. Each option carries the resolved
 **Returns:** `ComparisonOption[]` - Empty when the range is incomplete or
 inverted
 
-### Range Measurement and Stepping
+### Range Measurement
 
 #### `getDateRangeSpan( range? )`
 

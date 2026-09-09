@@ -8,9 +8,6 @@ jest.mock( '@jetpack-premium-analytics/datetime', () => ( {
 	reportingTimeZone: () => '+00:00',
 } ) );
 /**
- * External dependencies
- */
-/**
  * Internal dependencies
  */
 import { buildRangePatch } from '../build-range-patch';

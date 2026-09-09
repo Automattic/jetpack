@@ -206,11 +206,6 @@ export function DateFiltersPanel( {
 	const comparisonLabel =
 		typeof comparisonControlProps.label === 'string' ? comparisonControlProps.label : undefined;
 
-	/*
-	 * Built once and rendered twice: the row the user sees, and the probe that
-	 * measures it. The same element in both places means the measurement cannot
-	 * drift from what it measures.
-	 */
 	const comparisonControl = useMemo(
 		() => (
 			<DateComparisonDropdown
@@ -234,8 +229,6 @@ export function DateFiltersPanel( {
 		]
 	);
 
-	// Same arrangement as the comparison control: built once, rendered in the
-	// row and in the probe.
 	const intervalControl = useMemo(
 		() =>
 			withIntervalControl && intervalOptions && onIntervalChange ? (

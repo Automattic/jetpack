@@ -21,8 +21,6 @@ export { INTERVAL_TYPES, isIntervalType, type IntervalType } from './interval';
 
 export { getDateRangeSpan, type DateRangeSpan, type DateRangeSpanUnit } from './date-range-span';
 
-export { completeToDateRange } from './to-date-range';
-
 export { drillDateRange } from './drill-date-range';
 
 export { toBucketStamp, resolveBucketStamp } from './bucket-stamp';
