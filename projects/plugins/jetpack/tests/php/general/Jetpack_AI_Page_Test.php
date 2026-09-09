@@ -547,7 +547,7 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 
 		$inline = implode( "\n", array_filter( (array) wp_scripts()->get_data( 'jetpack-ai-admin', 'before' ) ) );
 		$this->assertStringContainsString(
-			'var Jetpack_AI_Admin_Assets_Base_Url = "' . plugins_url( '_inc/build/', JETPACK__PLUGIN_FILE ) . '";',
+			'window.Jetpack_AI_Admin_Assets_Base_Url = "' . plugins_url( '_inc/build/', JETPACK__PLUGIN_FILE ) . '";',
 			$inline
 		);
 	}
