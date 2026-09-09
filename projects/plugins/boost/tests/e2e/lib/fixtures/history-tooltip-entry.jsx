@@ -18,8 +18,8 @@ const data = {
 	periods: Array.from( { length: 7 }, ( _, index ) => ( {
 		timestamp: startDate + index * day,
 		dimensions: {
-			desktop_overall_score: 80 + index,
-			mobile_overall_score: 65 + index,
+			desktop_overall_score: index === 6 ? 0 : 80 + index,
+			mobile_overall_score: index === 6 ? 0 : 65 + index,
 			desktop_lcp: 1.2,
 			mobile_lcp: 2.1,
 			desktop_tbt: 0.1,
@@ -30,6 +30,13 @@ const data = {
 	} ) ),
 	annotations: [],
 };
+
+if ( new URLSearchParams( window.location.search ).has( 'zeros' ) ) {
+	data.periods = data.periods.map( period => ( {
+		...period,
+		dimensions: { ...period.dimensions, desktop_overall_score: 0, mobile_overall_score: 0 },
+	} ) );
+}
 
 const noop = () => {};
 const queryClient = new QueryClient();
