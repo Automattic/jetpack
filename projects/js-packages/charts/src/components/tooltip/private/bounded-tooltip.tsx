@@ -1,5 +1,6 @@
 import { Tooltip, defaultStyles } from '@visx/tooltip';
 import { useLayoutEffect, useRef, useState } from 'react';
+import type { TooltipPlacement } from '../../../visx/types';
 import type { TooltipProps } from '@visx/tooltip';
 
 type Bounds = { left: number; top: number; right: number; bottom: number };
@@ -9,18 +10,20 @@ export type BoundedTooltipProps = Omit< TooltipProps, 'left' | 'top' | 'applyPos
 	/** Anchor, in the coordinates of the positioned wrapper the box renders into. */
 	left?: number;
 	top?: number;
+	placement?: TooltipPlacement;
 };
 
 const DEFAULT_OFFSET = 10;
+const POINTER_HEIGHT = 6;
+
+const clamp = ( position: number, min: number, max: number, size: number ) =>
+	Math.min( Math.max( position, min ), Math.max( min, max - size ) );
 
 const isClipping = ( element: Element ) => {
 	const { overflow, overflowX, overflowY } = getComputedStyle( element );
 	return [ overflow, overflowX, overflowY ].some( value => value && value !== 'visible' );
 };
 
-// The first ancestor that cuts its overflow off. The box may leave the chart
-// wrapper but never this element, which is what a body-level portal used to
-// guarantee by never being inside one.
 const findClippingAncestor = ( wrapper: Element ): Element | null => {
 	let element = wrapper.parentElement;
 	while ( element && element !== document.body ) {
@@ -33,10 +36,8 @@ const findClippingAncestor = ( wrapper: Element ): Element | null => {
 };
 
 /**
- * Where the box goes, in wrapper coordinates. Below and to the right of the
- * anchor; flipped to the other side when that side clips less, as visx's
- * `TooltipWithBounds` decides it; then clamped so the box stays inside
- * `bounds` whenever it fits at all.
+ * Flip and clamp the box in wrapper coordinates, or pin it below the axis
+ * with horizontal clamping only.
  *
  * @param params            - Anchor, offsets, the box size and the bounds to keep inside.
  * @param params.left       - Anchor x, in wrapper coordinates.
@@ -44,8 +45,9 @@ const findClippingAncestor = ( wrapper: Element ): Element | null => {
  * @param params.offsetLeft - Gap between the anchor and the box, horizontally.
  * @param params.offsetTop  - Gap between the anchor and the box, vertically.
  * @param params.box        - Rendered size of the box.
+ * @param params.placement  - Fixed below-axis placement or automatic flipping.
  * @param params.bounds     - Edges the box must keep inside, in wrapper coordinates.
- * @return The box's top-left corner, rounded to whole pixels.
+ * @return The box's top-left corner; fixed placement preserves the axis's subpixel y.
  */
 export const getBoundedPosition = ( {
 	left,
@@ -54,6 +56,7 @@ export const getBoundedPosition = ( {
 	offsetTop,
 	box,
 	bounds,
+	placement = 'auto',
 }: {
 	left: number;
 	top: number;
@@ -61,7 +64,15 @@ export const getBoundedPosition = ( {
 	offsetTop: number;
 	box: Size;
 	bounds: Bounds;
+	placement?: BoundedTooltipProps[ 'placement' ];
 } ) => {
+	if ( placement === 'below-axis' ) {
+		return {
+			x: Math.round( clamp( left - box.width / 2, bounds.left, bounds.right, box.width ) ),
+			y: top + POINTER_HEIGHT,
+		};
+	}
+
 	const rightX = left + offsetLeft;
 	const leftX = left - offsetLeft - box.width;
 	const rightOverflow = rightX + box.width - bounds.right;
@@ -74,21 +85,18 @@ export const getBoundedPosition = ( {
 	const upOverflow = bounds.top - upY;
 	let y = downOverflow > 0 && downOverflow > upOverflow ? upY : downY;
 
-	x = Math.min( Math.max( x, bounds.left ), Math.max( bounds.left, bounds.right - box.width ) );
-	y = Math.min( Math.max( y, bounds.top ), Math.max( bounds.top, bounds.bottom - box.height ) );
+	x = clamp( x, bounds.left, bounds.right, box.width );
+	y = clamp( y, bounds.top, bounds.bottom, box.height );
 
-	return { x: Math.round( x ), y: Math.round( y ) };
+	return {
+		x: Math.round( x ),
+		y: Math.round( y ),
+	};
 };
 
 /**
- * visx's `Tooltip`, positioned like its `TooltipWithBounds` but kept inside the
- * nearest clipping ancestor — or the viewport when there is none — rather than
- * inside its own parent. Rendered in-tree, a tooltip's parent is the chart
- * wrapper, which is often narrower than the box; measuring against the parent
- * alone would let the box spill into an `overflow: hidden` card and be cut off.
- *
- * Re-measures on every render, so a box whose content changes width between
- * two hovers is placed for its current size.
+ * Position visx's `Tooltip` against the nearest clipping ancestor or viewport.
+ * Below-axis placement applies horizontal bounds only; see `getBoundedPosition`.
  *
  * @param props            - visx `Tooltip` props.
  * @param props.left       - Anchor x, in wrapper coordinates.
@@ -98,6 +106,7 @@ export const getBoundedPosition = ( {
  * @param props.style      - Box styles; visx's defaults unless `unstyled`.
  * @param props.unstyled   - Skip `style` and leave the box bare.
  * @param props.children   - Box content.
+ * @param props.placement  - Fixed below-axis placement or automatic flipping.
  * @return The tooltip box.
  */
 export const BoundedTooltip = ( {
@@ -108,6 +117,7 @@ export const BoundedTooltip = ( {
 	style = defaultStyles,
 	unstyled = false,
 	children,
+	placement = 'auto',
 	...rest
 }: BoundedTooltipProps ) => {
 	const nodeRef = useRef< HTMLDivElement >( null );
@@ -136,6 +146,7 @@ export const BoundedTooltip = ( {
 			top,
 			offsetLeft,
 			offsetTop,
+			placement,
 			box: { width: own.width, height: own.height },
 			bounds: {
 				left: clipRect.left - wrapperRect.left,
@@ -148,10 +159,10 @@ export const BoundedTooltip = ( {
 			current && current.x === next.x && current.y === next.y ? current : next
 		);
 		// `children` re-runs the measurement when the content, and so the box size, changes.
-	}, [ left, top, offsetLeft, offsetTop, children ] );
+	}, [ left, top, offsetLeft, offsetTop, children, placement ] );
 
 	const x = position?.x ?? left + offsetLeft;
-	const y = position?.y ?? top + offsetTop;
+	const y = position?.y ?? top + ( placement === 'below-axis' ? POINTER_HEIGHT : offsetTop );
 
 	return (
 		<Tooltip
@@ -166,6 +177,22 @@ export const BoundedTooltip = ( {
 			} }
 			{ ...rest }
 		>
+			{ placement === 'below-axis' && (
+				<span
+					aria-hidden="true"
+					data-testid="tooltip-axis-pointer"
+					style={ {
+						position: 'absolute',
+						left: left - x - POINTER_HEIGHT,
+						top: -POINTER_HEIGHT,
+						width: POINTER_HEIGHT * 2,
+						height: POINTER_HEIGHT,
+						background: 'inherit',
+						clipPath: 'polygon(50% 0, 100% 100%, 0 100%)',
+						pointerEvents: 'none',
+					} }
+				/>
+			) }
 			{ children }
 		</Tooltip>
 	);

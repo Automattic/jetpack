@@ -163,3 +163,41 @@ WiderThanClippingCard.parameters = {
 		},
 	},
 };
+
+export const BelowAxis: StoryObj< typeof LineChart > = Template.bind( {} );
+BelowAxis.args = {
+	...tooltipStoryArgs,
+	height: 220,
+	tooltipPlacement: 'below-axis',
+	tooltipStyle: {
+		background: 'var(--a8c-charts-color-tooltip-surface)',
+		color: 'var(--a8c-charts-color-label-inverse)',
+	},
+	renderTooltip: renderWideTooltip( 120 ),
+	withTooltipCrosshairs: {
+		showVertical: true,
+		verticalStyle: { strokeWidth: 40, strokeOpacity: 0.12 },
+	},
+};
+BelowAxis.parameters = {
+	docs: {
+		description: {
+			story:
+				'Hover a datum or focus the chart and use the arrow keys. A broad translucent crosshair highlights the active column. The tooltip stays below the x-axis label band and can extend past the chart. Its pointer touches the bottom of that band. At horizontal edges, the panel shifts while its pointer stays anchored to the datum.',
+		},
+	},
+};
+
+export const BelowAxisDefaultRenderer: StoryObj< typeof LineChart > = Template.bind( {} );
+BelowAxisDefaultRenderer.args = {
+	...BelowAxis.args,
+	renderTooltip: undefined,
+};
+BelowAxisDefaultRenderer.parameters = {
+	docs: {
+		description: {
+			story:
+				'The default renderer inherits the tooltip surface and text colors. The panel clears the x-axis label band, and its pointer uses the same background.',
+		},
+	},
+};

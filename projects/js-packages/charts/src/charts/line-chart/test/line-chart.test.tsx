@@ -104,6 +104,41 @@ describe( 'LineChart', () => {
 		);
 	};
 
+	test.each( [ 'auto', 'below-axis' ] as const )(
+		'passes custom tooltip container and crosshair styles with %s placement',
+		async tooltipPlacement => {
+			const user = userEvent.setup();
+			renderWithTheme( {
+				withTooltipCrosshairs: {
+					showVertical: true,
+					showHorizontal: true,
+					verticalStyle: { stroke: 'purple', strokeWidth: 40, strokeOpacity: 0.12 },
+					horizontalStyle: { stroke: 'orange', strokeDasharray: '4 2' },
+				},
+				tooltipPlacement,
+				tooltipStyle: { backgroundColor: 'black', color: 'white', boxShadow: 'none' },
+			} );
+			screen.getByRole( 'grid', { name: /line chart/i } ).focus();
+			await user.keyboard( '{ArrowRight}' );
+
+			const vertical = screen.getByTestId( 'xy-chart-tooltip-crosshair-vertical' );
+			expect( vertical ).toHaveAttribute( 'stroke', 'purple' );
+			expect( vertical ).toHaveAttribute( 'stroke-width', '40' );
+			expect( vertical ).toHaveAttribute( 'stroke-opacity', '0.12' );
+			const horizontal = screen.getByTestId( 'xy-chart-tooltip-crosshair-horizontal' );
+			expect( horizontal ).toHaveAttribute( 'stroke', 'orange' );
+			expect( horizontal ).toHaveAttribute( 'stroke-dasharray', '4 2' );
+			expect( screen.getByTestId( 'bounded-tooltip' ) ).toHaveStyle( {
+				'background-color': 'rgb(0, 0, 0)',
+				color: 'rgb(255, 255, 255)',
+				'box-shadow': 'none',
+			} );
+			expect( screen.getByTestId( 'line-chart-tooltip-content' ) ).toHaveStyle( {
+				color: 'rgb(255, 255, 255)',
+			} );
+		}
+	);
+
 	describe( 'Data Validation', () => {
 		test( 'handles empty data array', () => {
 			renderWithTheme( { data: [] } );
@@ -1225,44 +1260,53 @@ describe( 'LineChart', () => {
 		} );
 
 		describe( 'Arrow Key Navigation', () => {
-			test( 'right arrow key navigates to next data point', async () => {
-				const user = userEvent.setup();
-				renderWithTheme( {
-					data: [
-						{
-							label: 'Series A',
-							data: [
-								{ date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' },
-								{ date: new Date( '2024-01-02' ), value: 20, label: 'Jan 2' },
-							],
-							options: {},
-						},
-						{
-							label: 'Series B',
-							data: [
-								{ date: new Date( '2024-01-01' ), value: 15, label: 'Jan 1' },
-								{ date: new Date( '2024-01-02' ), value: 25, label: 'Jan 2' },
-							],
-							options: {},
-						},
-					],
-				} );
+			test.each( [ 'auto', 'below-axis' ] as const )(
+				'right arrow key navigates with %s tooltips',
+				async tooltipPlacement => {
+					const user = userEvent.setup();
+					renderWithTheme( {
+						tooltipPlacement,
+						data: [
+							{
+								label: 'Series A',
+								data: [
+									{ date: new Date( '2024-01-01' ), value: 10, label: 'Jan 1' },
+									{ date: new Date( '2024-01-02' ), value: 20, label: 'Jan 2' },
+								],
+								options: {},
+							},
+							{
+								label: 'Series B',
+								data: [
+									{ date: new Date( '2024-01-01' ), value: 15, label: 'Jan 1' },
+									{ date: new Date( '2024-01-02' ), value: 25, label: 'Jan 2' },
+								],
+								options: {},
+							},
+						],
+					} );
 
-				const chart = screen.getByRole( 'grid', { name: /line chart/i } );
-				chart.focus();
+					const chart = screen.getByRole( 'grid', { name: /line chart/i } );
+					chart.focus();
 
-				// Single tab should focus on the first tooltip.
-				await user.keyboard( '{ArrowRight}' );
-				expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveFocus();
-				expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveTextContent( 'Series A' );
-				expect( screen.queryByTestId( 'chart-tooltip-1' ) ).not.toBeInTheDocument();
+					// Single tab should focus on the first tooltip.
+					await user.keyboard( '{ArrowRight}' );
+					expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveFocus();
+					expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveAttribute( 'role', 'tooltip' );
+					expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveAttribute(
+						'aria-atomic',
+						'true'
+					);
+					expect( screen.getByTestId( 'chart-tooltip-0' ) ).toHaveTextContent( 'Series A' );
+					expect( screen.queryByTestId( 'chart-tooltip-1' ) ).not.toBeInTheDocument();
 
-				// Second tab should focus on the second tooltip.
-				await user.keyboard( '{ArrowRight}' );
-				expect( screen.getByTestId( 'chart-tooltip-1' ) ).toHaveFocus();
-				expect( screen.getByTestId( 'chart-tooltip-1' ) ).toHaveTextContent( 'Series B' );
-				expect( screen.queryByTestId( 'chart-tooltip-0' ) ).not.toBeInTheDocument();
-			} );
+					// Second tab should focus on the second tooltip.
+					await user.keyboard( '{ArrowRight}' );
+					expect( screen.getByTestId( 'chart-tooltip-1' ) ).toHaveFocus();
+					expect( screen.getByTestId( 'chart-tooltip-1' ) ).toHaveTextContent( 'Series B' );
+					expect( screen.queryByTestId( 'chart-tooltip-0' ) ).not.toBeInTheDocument();
+				}
+			);
 
 			test( 'left arrow key navigates to previous data point', async () => {
 				const user = userEvent.setup();

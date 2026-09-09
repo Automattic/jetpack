@@ -215,7 +215,7 @@ export const useKeyboardNavigation = ( {
 	const tooltipRef = useCallback(
 		( element: HTMLDivElement | null ) => {
 			if ( element && selectedIndex !== undefined ) {
-				element.focus();
+				element.focus( { preventScroll: true } );
 			}
 		},
 		[ selectedIndex ]
