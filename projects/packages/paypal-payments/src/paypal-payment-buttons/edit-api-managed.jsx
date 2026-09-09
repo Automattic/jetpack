@@ -58,12 +58,6 @@ import {
 // Button type is always 'single' — the hosted payment page handles
 // payment method selection (PayPal, cards, wallets, etc.).
 
-const labelPrice = __( 'Price', 'jetpack-paypal-payments' );
-const labelPriceOptional = __( 'Price (not used)', 'jetpack-paypal-payments' );
-const helpPriceFromOptions = __(
-	'Each product option sets its own price, so this value is ignored.',
-	'jetpack-paypal-payments'
-);
 const helpQtyOn = __( 'Customers can buy multiple units at checkout.', 'jetpack-paypal-payments' );
 const helpQtyOff = __( 'Fixed at 1 unit per purchase.', 'jetpack-paypal-payments' );
 const helpTaxOn = __( 'Tax will be added at PayPal checkout.', 'jetpack-paypal-payments' );
@@ -192,10 +186,9 @@ export default function ApiManagedEdit( { attributes, setAttributes, clientId: b
 	const validationErrors = useMemo(
 		() => ( {
 			productName: validateProductName( productName ),
-			// The product price is only required when the options aren't priced
-			// individually. A stray value is still validated so it can't be sent
-			// half-formed if the merchant clears the per-option prices later.
-			price: usesVariantPricing && ! price ? null : validatePrice( price, currencyCode || 'USD' ),
+			// The price field is hidden once the options are priced, so don't validate
+			// it - an error on an invisible field would disable Save with nothing to fix.
+			price: usesVariantPricing ? null : validatePrice( price, currencyCode || 'USD' ),
 			productDescription: validateDescription( productDescription ),
 			currencyCode:
 				currencyCode && ! VALID_CURRENCY_CODES.has( currencyCode )
@@ -583,27 +576,29 @@ export default function ApiManagedEdit( { attributes, setAttributes, clientId: b
 					/>
 
 					<div className="jetpack-paypal-payment-buttons__price-row">
-						<div>
-							<TextControl
-								label={ usesVariantPricing ? labelPriceOptional : labelPrice }
-								value={ price || '' }
-								onChange={ value => setAttributes( { price: value } ) }
-								onBlur={ () => markTouched( 'price' ) }
-								disabled={ isCreating }
-								type="number"
-								min={ priceStep }
-								step={ priceStep }
-								placeholder={ pricePlaceholder }
-								help={
-									touchedFields.price && validationErrors.price
-										? validationErrors.price
-										: ( usesVariantPricing && helpPriceFromOptions ) || undefined
-								}
-								className={
-									touchedFields.price && validationErrors.price ? 'has-error' : undefined
-								}
-							/>
-						</div>
+						{ ! usesVariantPricing && (
+							<div>
+								<TextControl
+									label={ __( 'Price', 'jetpack-paypal-payments' ) }
+									value={ price || '' }
+									onChange={ value => setAttributes( { price: value } ) }
+									onBlur={ () => markTouched( 'price' ) }
+									disabled={ isCreating }
+									type="number"
+									min={ priceStep }
+									step={ priceStep }
+									placeholder={ pricePlaceholder }
+									help={
+										touchedFields.price && validationErrors.price
+											? validationErrors.price
+											: undefined
+									}
+									className={
+										touchedFields.price && validationErrors.price ? 'has-error' : undefined
+									}
+								/>
+							</div>
+						) }
 						<SelectControl
 							label={ __( 'Currency', 'jetpack-paypal-payments' ) }
 							value={ currencyCode || 'USD' }

@@ -1381,6 +1381,158 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		} );
 	} );
 
+	describe( 'Per-variant pricing', () => {
+		beforeEach( () => {
+			apiFetch.mockResolvedValue( { connected: true, environment: 'sandbox' } );
+		} );
+
+		/**
+		 * Build a variants structure with one primary option group.
+		 *
+		 * A price on any option means PayPal takes the amounts from the options,
+		 * not from the product.
+		 *
+		 * @param {Array} prices - One price per option; '' means unpriced.
+		 * @return {object} Variants structure.
+		 */
+		const variantsWithPrices = prices => ( {
+			dimensions: [
+				{
+					_key: 'grp-1',
+					name: 'Size',
+					primary: true,
+					options: prices.map( ( value, i ) => ( {
+						_key: `opt-${ i }`,
+						label: `Option ${ i + 1 }`,
+						unit_amount: { currency_code: 'USD', value },
+					} ) ),
+				},
+			],
+		} );
+
+		// The variant builder gives every option in the primary group its own
+		// 'Price' control, so the product price is looked up inside Details.
+		const details = () =>
+			within(
+				screen
+					.getAllByTestId( 'panel-body' )
+					.find( p => p.getAttribute( 'data-title' ) === 'Details' )
+			);
+
+		it( 'drops the price field and keeps the currency select', async () => {
+			render(
+				<Edit
+					attributes={ {
+						productName: 'Test Widget',
+						currencyCode: 'USD',
+						variantsEnabled: true,
+						variants: variantsWithPrices( [ '10.00', '20.00' ] ),
+					} }
+					setAttributes={ setAttributes }
+				/>
+			);
+
+			await expect( screen.findByLabelText( 'Currency' ) ).resolves.toBeInTheDocument();
+			expect( details().queryByLabelText( 'Price' ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'keeps the price field while the options carry no prices', async () => {
+			render(
+				<Edit
+					attributes={ {
+						productName: 'Test Widget',
+						price: '29.99',
+						currencyCode: 'USD',
+						variantsEnabled: true,
+						variants: variantsWithPrices( [ '', '' ] ),
+					} }
+					setAttributes={ setAttributes }
+				/>
+			);
+
+			await expect( screen.findByLabelText( 'Currency' ) ).resolves.toBeInTheDocument();
+			expect( details().getByLabelText( 'Price' ) ).toBeInTheDocument();
+		} );
+
+		it( 'ignores a price left behind from before the options were priced', async () => {
+			render(
+				<Edit
+					attributes={ {
+						productName: 'Test Widget',
+						// Invalid, and now unreachable - it must not gate the save button.
+						price: '0',
+						currencyCode: 'USD',
+						variantsEnabled: true,
+						variants: variantsWithPrices( [ '10.00', '20.00' ] ),
+					} }
+					setAttributes={ setAttributes }
+				/>
+			);
+
+			await expect( screen.findByText( 'Create New' ) ).resolves.toBeInTheDocument();
+			expect( screen.getByText( 'Create New' ) ).toBeEnabled();
+		} );
+
+		it( 'gates the save button again once the option prices are cleared', async () => {
+			const attributes = {
+				productName: 'Test Widget',
+				price: '0',
+				currencyCode: 'USD',
+				variantsEnabled: true,
+				variants: variantsWithPrices( [ '10.00', '20.00' ] ),
+			};
+
+			const { rerender } = render(
+				<Edit attributes={ attributes } setAttributes={ setAttributes } />
+			);
+
+			await expect( screen.findByText( 'Create New' ) ).resolves.toBeInTheDocument();
+
+			rerender(
+				<Edit
+					attributes={ { ...attributes, variants: variantsWithPrices( [ '', '' ] ) } }
+					setAttributes={ setAttributes }
+				/>
+			);
+
+			expect( details().getByLabelText( 'Price' ) ).toHaveValue( 0 );
+			expect( screen.getByText( 'Create New' ) ).toBeDisabled();
+		} );
+
+		it( 'leaves the product amount out of the create request', async () => {
+			const user = userEvent.setup();
+
+			apiFetch
+				.mockResolvedValueOnce( { connected: true, environment: 'sandbox' } )
+				.mockResolvedValueOnce( {
+					id: 'PLB-TEST123',
+					payment_link: 'https://www.paypal.com/paymentpage/PLB-TEST123',
+				} );
+
+			render(
+				<Edit
+					attributes={ {
+						productName: 'Test Widget',
+						price: '29.99',
+						currencyCode: 'USD',
+						variantsEnabled: true,
+						variants: variantsWithPrices( [ '10.00', '20.00' ] ),
+					} }
+					setAttributes={ setAttributes }
+				/>
+			);
+
+			await expect( screen.findByText( 'Create New' ) ).resolves.toBeInTheDocument();
+			await user.click( screen.getByText( 'Create New' ) );
+
+			// PayPal rejects a request carrying unit_amount at both levels.
+			const [ , create ] = apiFetch.mock.calls;
+			expect( create[ 0 ].method ).toBe( 'POST' );
+			expect( create[ 0 ].data.line_items[ 0 ].name ).toBe( 'Test Widget' );
+			expect( create[ 0 ].data.line_items[ 0 ] ).not.toHaveProperty( 'unit_amount' );
+		} );
+	} );
+
 	describe( 'Shared payment resource', () => {
 		const attributes = {
 			isApiManaged: true,
