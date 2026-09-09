@@ -21,8 +21,8 @@ describe( 'getMenuSurfacePresetGroups', () => {
 				'last-90-days',
 				'last-365-days',
 			],
-			[ 'last-month' ],
-			[ 'last-12-months', 'last-year' ],
+			[ 'month-to-date', 'last-month' ],
+			[ 'year-to-date', 'last-12-months', 'last-year' ],
 		] );
 	} );
 
