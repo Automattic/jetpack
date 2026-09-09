@@ -46,9 +46,10 @@ const Notice = ( {
 				styles[ `notice--${ type }` ],
 				floating && styles[ 'notice--floating' ]
 			) }
-			// Only the toast reports an async result with no focus change, so only it
-			// announces. The modal notices are read when their dialog opens.
-			spokenMessage={ floating ? message : null }
+			// Only the toast announces: the modal notices are read when their dialog
+			// opens. A non-string message is never passed — `Notice.Root` renders it
+			// to a string mid-render, which corrupts hook order when it holds a Link.
+			spokenMessage={ floating && 'string' === typeof message ? message : null }
 		>
 			<WPNotice.Description>{ message }</WPNotice.Description>
 			{ dismissable && (

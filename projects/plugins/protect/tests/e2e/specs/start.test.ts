@@ -7,9 +7,11 @@ import type { Locator, Page } from '@playwright/test';
  * @param {Page} page - Playwright page object
  */
 async function closeChangesSavedNotice( page: Page ) {
-	// The toast announces, so `speak()` copies its text into `#a11y-speak-polite`
-	// at the end of the body. The notice itself is the earlier match.
-	await expect( page.getByText( 'Changes saved' ).first() ).toBeVisible();
+	// Scoped to the app root: the toast announces, and `speak()` leaves its text in
+	// `#a11y-speak-polite` after the notice goes, which would match on later calls.
+	await expect(
+		page.locator( '#jetpack-protect-root' ).getByText( 'Changes saved' )
+	).toBeVisible();
 	await page.getByRole( 'button', { name: 'Dismiss notice.' } ).click();
 }
 
