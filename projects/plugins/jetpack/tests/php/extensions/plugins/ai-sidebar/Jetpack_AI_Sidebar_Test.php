@@ -549,6 +549,44 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Without the Big_Sky class the Agent is not on, so the enabled flag stays off.
+	 * Runs before any test declares the stub.
+	 */
+	public function test_agent_enabled_extension_unavailable_when_eligible_but_not_enabled() {
+		if ( class_exists( 'Big_Sky' ) ) {
+			$this->markTestSkipped( 'Big_Sky was declared by an earlier test in this process and cannot be undeclared.' );
+		}
+		$this->skip_when_wpcomsh_is_active();
+		$this->set_block_editor_screen();
+		$this->enable_sidebar_extension_availability_checks();
+		$this->simulate_wpcom_platform();
+		$this->simulate_big_sky_eligible_plan();
+		remove_all_filters( 'jetpack_ai_sidebar_enabled' );
+
+		Jetpack_AI_Sidebar::register_agent_notice_extension();
+
+		$this->assertTrue( \Jetpack_Gutenberg::is_available( AiAssistantPlugin\AI_SIDEBAR_AGENT_NOTICE_EXTENSION ) );
+		$this->assertFalse( \Jetpack_Gutenberg::is_available( AiAssistantPlugin\AI_SIDEBAR_AGENT_ENABLED_EXTENSION ) );
+	}
+
+	/**
+	 * Neither eligible nor enabled keeps the legacy panel. Runs before any test
+	 * declares the Big_Sky stub, which would count as enabled.
+	 */
+	public function test_agent_notice_disabled_when_plan_ineligible_and_sidebar_off() {
+		if ( class_exists( 'Big_Sky' ) ) {
+			$this->markTestSkipped( 'Big_Sky was declared by an earlier test in this process and cannot be undeclared.' );
+		}
+		$this->skip_when_wpcomsh_is_active();
+		$this->set_block_editor_screen();
+		$this->simulate_wpcom_platform();
+		remove_all_filters( 'jetpack_ai_sidebar_enabled' );
+		add_filter( 'jetpack_ai_sidebar_enabled', '__return_false' );
+
+		$this->assertFalse( Jetpack_AI_Sidebar::is_agent_notice_enabled() );
+	}
+
+	/**
 	 * The preview gate is closed off the WordPress.com platform, even with Big Sky present.
 	 */
 	public function test_preview_disabled_on_self_hosted() {
@@ -1188,20 +1226,6 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Neither eligible nor enabled keeps the legacy panel.
-	 */
-	public function test_agent_notice_disabled_when_plan_ineligible_and_sidebar_off() {
-		$this->skip_when_wpcomsh_is_active();
-		$this->set_block_editor_screen();
-		$this->simulate_wpcom_platform();
-		$this->simulate_big_sky_class();
-		remove_all_filters( 'jetpack_ai_sidebar_enabled' );
-		add_filter( 'jetpack_ai_sidebar_enabled', '__return_false' );
-
-		$this->assertFalse( Jetpack_AI_Sidebar::is_agent_notice_enabled() );
-	}
-
-	/**
 	 * A self-hosted site is never eligible, whatever its plan says.
 	 */
 	public function test_agent_notice_eligibility_requires_wpcom_platform() {
@@ -1211,6 +1235,42 @@ class Jetpack_AI_Sidebar_Test extends WP_UnitTestCase {
 		$this->simulate_big_sky_eligible_plan();
 		remove_all_filters( 'jetpack_ai_sidebar_enabled' );
 		add_filter( 'jetpack_ai_sidebar_enabled', '__return_false' );
+
+		$this->assertFalse( Jetpack_AI_Sidebar::is_agent_notice_enabled() );
+	}
+
+	/**
+	 * With the Agent on but the sidebar gated, the notice shows with neither action.
+	 */
+	public function test_agent_notice_shows_without_actions_when_agent_enabled_but_sidebar_gated() {
+		$this->skip_when_wpcomsh_is_active();
+		$this->set_block_editor_screen();
+		$this->enable_sidebar_extension_availability_checks();
+		$this->simulate_wpcom_platform();
+		$this->simulate_big_sky_class();
+		remove_all_filters( 'jetpack_ai_sidebar_enabled' );
+		add_filter( 'jetpack_ai_sidebar_enabled', '__return_false' );
+
+		Jetpack_AI_Sidebar::register_agent_notice_extension();
+
+		$this->assertTrue( Jetpack_AI_Sidebar::is_agent_notice_enabled() );
+		$this->assertFalse( Jetpack_AI_Sidebar::is_agent_action_available() );
+		$this->assertTrue( \Jetpack_Gutenberg::is_available( AiAssistantPlugin\AI_SIDEBAR_AGENT_ENABLED_EXTENSION ) );
+	}
+
+	/**
+	 * A disconnected user cannot enable or open the Agent, so eligibility does not show the notice.
+	 */
+	public function test_agent_notice_disabled_when_plan_eligible_but_disconnected() {
+		$this->skip_when_wpcomsh_is_active();
+		$this->set_block_editor_screen();
+		$this->simulate_wpcom_platform();
+		$this->simulate_big_sky_class();
+		$this->simulate_big_sky_eligible_plan();
+		remove_all_filters( 'jetpack_ai_sidebar_enabled' );
+		add_filter( 'jetpack_ai_sidebar_enabled', '__return_false' );
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+		add_filter( 'agents_manager_variant', array( __CLASS__, 'return_gutenberg_disconnected_variant' ) );
 
 		$this->assertFalse( Jetpack_AI_Sidebar::is_agent_notice_enabled() );
 	}

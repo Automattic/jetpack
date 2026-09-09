@@ -33,6 +33,7 @@ const AI_SIDEBAR_PROVIDER_URL             = 'https://' . AM_ASSET_BASE_PATH . 'j
 const AI_SIDEBAR_AGENT_ID                 = 'wp-orchestrator';
 const AI_SIDEBAR_TOOLBAR_BUTTON_EXTENSION = 'ai-sidebar-toolbar-button';
 const AI_SIDEBAR_AGENT_NOTICE_EXTENSION   = 'ai-sidebar-agent-notice';
+const AI_SIDEBAR_AGENT_ENABLED_EXTENSION  = 'ai-sidebar-agent-enabled';
 
 /**
  * Initializes the Agents Manager package and registers the Jetpack AI
@@ -513,7 +514,28 @@ class Jetpack_AI_Sidebar {
 
 		return self::is_wordpress_agent_eligible()
 			&& self::is_supported_provider_surface()
-			&& self::has_ai_features();
+			&& self::has_ai_features()
+			&& ! self::is_agents_manager_disconnected();
+	}
+
+	/**
+	 * Whether the site has turned the WordPress Agent on, whatever Jetpack's own
+	 * sidebar gate says.
+	 *
+	 * @return bool
+	 */
+	private static function is_wordpress_agent_enabled(): bool {
+		if ( ! ( new Host() )->is_wpcom_platform() ) {
+			return false;
+		}
+
+		if ( function_exists( 'big_sky_is_enabled' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredFunction -- Provided by WPCOM's Big Sky mu-plugin; guarded by function_exists() above.
+			return (bool) big_sky_is_enabled();
+		}
+
+		// Off Simple the Big Sky plugin is only installed once the Agent is on.
+		return class_exists( 'Big_Sky' );
 	}
 
 	/**
@@ -538,7 +560,7 @@ class Jetpack_AI_Sidebar {
 			return big_sky_is_available_for_site() || big_sky_is_enabled();
 		}
 
-		return Current_Plan::supports( 'big-sky' );
+		return self::is_wordpress_agent_enabled() || Current_Plan::supports( 'big-sky' );
 	}
 
 	/**
@@ -557,6 +579,17 @@ class Jetpack_AI_Sidebar {
 		}
 
 		\Jetpack_Gutenberg::set_extension_available( AI_SIDEBAR_AGENT_NOTICE_EXTENSION );
+
+		// Tells the notice whether to offer to enable the Agent or to open it.
+		if ( self::is_wordpress_agent_enabled() ) {
+			\Jetpack_Gutenberg::set_extension_available( AI_SIDEBAR_AGENT_ENABLED_EXTENSION );
+			return;
+		}
+
+		\Jetpack_Gutenberg::set_extension_unavailable(
+			AI_SIDEBAR_AGENT_ENABLED_EXTENSION,
+			'jetpack_ai_sidebar_agent_not_enabled'
+		);
 	}
 
 	/**

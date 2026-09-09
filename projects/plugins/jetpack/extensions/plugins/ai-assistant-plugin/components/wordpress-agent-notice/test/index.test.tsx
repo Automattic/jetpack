@@ -24,10 +24,13 @@ let mockPostType: string | undefined = 'post';
 let mockIsAgentReady = true;
 let mockIsChatOnScreen = false;
 let mockIsFeatureAvailable = true;
+let mockIsAgentEnabled = true;
 let mockCanOpenAgent = true;
+let mockSiteFragment: string | null = 'example.wordpress.com';
 
 jest.mock( '../../../../../blocks/ai-assistant/lib/utils/get-feature-availability', () => ( {
-	getFeatureAvailability: () => mockIsFeatureAvailable,
+	getFeatureAvailability: ( feature: string ) =>
+		feature === 'ai-sidebar-agent-enabled' ? mockIsAgentEnabled : mockIsFeatureAvailable,
 } ) );
 
 jest.mock( '../open-agent', () => ( {
@@ -42,7 +45,7 @@ jest.mock( '@wordpress/a11y', () => ( { speak: jest.fn() } ) );
 
 jest.mock( '@automattic/jetpack-shared-extension-utils', () => ( {
 	useAnalytics: () => ( { tracks: { recordEvent: mockRecordEvent } } ),
-	getSiteFragment: () => 'example.wordpress.com',
+	getSiteFragment: () => mockSiteFragment,
 } ) );
 
 jest.mock( '@automattic/jetpack-ai-client', () => ( {
@@ -79,7 +82,9 @@ describe( 'WordPressAgentNotice', () => {
 		mockIsAgentReady = true;
 		mockIsChatOnScreen = false;
 		mockIsFeatureAvailable = true;
+		mockIsAgentEnabled = true;
 		mockCanOpenAgent = true;
+		mockSiteFragment = 'example.wordpress.com';
 		// The audience props read these server-injected globals for real.
 		delete ( globalThis as Record< string, unknown > ).agentsManagerData;
 		delete ( globalThis as Record< string, unknown > ).bigSkyInitialState;
@@ -125,16 +130,17 @@ describe( 'WordPressAgentNotice', () => {
 
 			// aria-disabled rather than the disabled attribute, so the button stays
 			// focusable and announces why.
-			expect(
-				screen.getByRole( 'button', { name: 'WordPress Agent is already open' } )
-			).toHaveAttribute( 'aria-disabled', 'true' );
+			expect( screen.getByRole( 'button', { name: 'Open WordPress Agent' } ) ).toHaveAttribute(
+				'aria-disabled',
+				'true'
+			);
 		} );
 
 		it( 'does nothing when the disabled action is clicked', async () => {
 			const user = userEvent.setup();
 			render( <WordPressAgentNotice placement="document-settings" /> );
 
-			await user.click( screen.getByRole( 'button', { name: 'WordPress Agent is already open' } ) );
+			await user.click( screen.getByRole( 'button', { name: 'Open WordPress Agent' } ) );
 
 			expect( setWordPressAgentChatOpen ).not.toHaveBeenCalled();
 			expect( mockRecordEvent ).not.toHaveBeenCalled();
@@ -143,9 +149,10 @@ describe( 'WordPressAgentNotice', () => {
 		it( 'says why the action is disabled, rather than only dimming it', () => {
 			render( <WordPressAgentNotice placement="document-settings" /> );
 
+			// The visible label stays the name, so voice control can still target it.
 			expect(
-				screen.getByRole( 'button', { name: 'WordPress Agent is already open' } )
-			).toBeInTheDocument();
+				screen.getByRole( 'button', { name: 'Open WordPress Agent' } )
+			).toHaveAccessibleDescription( 'WordPress Agent is already open' );
 		} );
 	} );
 
@@ -185,6 +192,7 @@ describe( 'WordPressAgentNotice', () => {
 
 	describe( 'before the site has turned the Agent on', () => {
 		beforeEach( () => {
+			mockIsAgentEnabled = false;
 			mockCanOpenAgent = false;
 		} );
 
@@ -194,7 +202,7 @@ describe( 'WordPressAgentNotice', () => {
 			expect(
 				screen.getByText( 'AI tools have moved to the WordPress Agent.' )
 			).toBeInTheDocument();
-			expect( screen.queryByText( /Look for the "Ask AI"/ ) ).not.toBeInTheDocument();
+			expect( screen.queryByText( /Look for the/ ) ).not.toBeInTheDocument();
 		} );
 
 		it( 'offers nothing to open, even once the Agents Manager is ready', () => {
@@ -231,6 +239,16 @@ describe( 'WordPressAgentNotice', () => {
 				'https://example.com/wp-admin/admin.php?page=my-jetpack#/overview'
 			);
 			expect( link ).not.toHaveAttribute( 'target' );
+		} );
+
+		it( 'falls back to the sites list when the site slug is unknown', () => {
+			mockSiteFragment = null;
+			render( <WordPressAgentNotice placement="document-settings" /> );
+
+			expect( screen.getByRole( 'link', { name: 'Enable WordPress Agent' } ) ).toHaveAttribute(
+				'href',
+				'https://wordpress.com/sites'
+			);
 		} );
 
 		it( 'shows the Enable action as a plain button, without the Agent icon', () => {
@@ -270,6 +288,35 @@ describe( 'WordPressAgentNotice', () => {
 			await user.click( screen.getByRole( 'button', { name: 'Dismiss' } ) );
 
 			expect( isDismissed() ).toBe( true );
+		} );
+	} );
+
+	describe( 'when the Agent is on but Jetpack cannot open it', () => {
+		beforeEach( () => {
+			mockIsAgentEnabled = true;
+			mockCanOpenAgent = false;
+		} );
+
+		it( 'keeps the pointer to the toolbar button, which the Agent still provides', () => {
+			render( <WordPressAgentNotice placement="document-settings" /> );
+
+			expect( screen.getByText( /Look for the/ ) ).toBeInTheDocument();
+		} );
+
+		it( 'does not offer to enable what is already on', () => {
+			render( <WordPressAgentNotice placement="document-settings" /> );
+
+			expect(
+				screen.queryByRole( 'link', { name: 'Enable WordPress Agent' } )
+			).not.toBeInTheDocument();
+		} );
+
+		it( 'does not offer to open a chat it cannot reach', () => {
+			render( <WordPressAgentNotice placement="document-settings" /> );
+
+			expect(
+				screen.queryByRole( 'button', { name: 'Open WordPress Agent' } )
+			).not.toBeInTheDocument();
 		} );
 	} );
 

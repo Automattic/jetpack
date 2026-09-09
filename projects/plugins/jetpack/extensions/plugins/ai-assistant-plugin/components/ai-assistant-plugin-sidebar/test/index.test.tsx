@@ -372,6 +372,23 @@ describe( 'AiAssistantPluginSidebar', () => {
 					name: 'Open WordPress Agent',
 				} )
 			).not.toBeInTheDocument();
+			expect(
+				within( screen.getByTestId( 'document-panel' ) ).getByRole( 'link', {
+					name: 'Enable WordPress Agent',
+				} )
+			).toBeInTheDocument();
+		} );
+
+		it( 'offers to enable the Agent when the server sends no payload at all', () => {
+			delete ( window as unknown as { agentsManagerData?: unknown } ).agentsManagerData;
+
+			render( <AiAssistantPluginSidebar /> );
+
+			expect(
+				within( screen.getByTestId( 'document-panel' ) ).getByRole( 'link', {
+					name: 'Enable WordPress Agent',
+				} )
+			).toBeInTheDocument();
 		} );
 
 		it( 'leaves the collapsed panels alone when there is no notice to show', () => {
