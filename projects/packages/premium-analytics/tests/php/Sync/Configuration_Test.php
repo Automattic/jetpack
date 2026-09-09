@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\PremiumAnalytics\Sync;
 
 use Automattic\Jetpack\Sync\Data_Settings;
+use Automattic\Jetpack\Sync\Modules;
 use Automattic\Jetpack\Sync\Modules\Meta;
 use Automattic\Jetpack\Sync\Modules\Options;
 use Automattic\Jetpack\Sync\Modules\Posts;
@@ -73,6 +74,7 @@ class Configuration_Test extends TestCase {
 
 		$this->assertSame( PHP_INT_MAX, has_filter( 'jetpack_sync_modules', array( $configuration, 'add_woocommerce_analytics_module' ) ) );
 		$this->assertSame( 10, has_filter( 'jetpack_full_sync_config', array( $configuration, 'expand_full_sync_config' ) ) );
+		$this->assertSame( 10, has_filter( 'jetpack_sync_checksum_allowed_tables', array( $configuration, 'gate_analytics_checksum_tables' ) ) );
 		$this->assertSame( 10, has_filter( 'jetpack_sync_post_meta_whitelist', array( $configuration, 'add_meta_to_sync_post_meta_whitelist' ) ) );
 
 		$data_settings = ( new Data_Settings() )->get_data_settings();
@@ -83,6 +85,14 @@ class Configuration_Test extends TestCase {
 		}
 		// A default-only option proves the must-sync list is in effect rather than the full defaults.
 		$this->assertNotContains( 'wordads_cmp_enabled', $data_settings['jetpack_sync_options_whitelist'] );
+
+		// Through the real filter chain (Data_Settings at 10, then this class last).
+		$modules = apply_filters( 'jetpack_sync_modules', Modules::DEFAULT_SYNC_MODULES );
+		$this->assertCount( 1, array_keys( $modules, WooCommerce_Analytics::class, true ) );
+
+		$modules = apply_filters( 'jetpack_sync_modules', array( Configuration::ANALYTICS_PLUGIN_MODULE_FQCN ) );
+		$this->assertContains( Configuration::ANALYTICS_PLUGIN_MODULE_FQCN, $modules );
+		$this->assertNotContains( WooCommerce_Analytics::class, $modules );
 	}
 
 	/**
@@ -133,14 +143,21 @@ class Configuration_Test extends TestCase {
 	}
 
 	/**
-	 * The shared module is added exactly once when no legacy implementation exists.
+	 * The shared module is added exactly once when the standalone plugin's module is absent.
 	 */
 	public function test_add_woocommerce_analytics_module_adds_shared_module_once() {
 		$configuration = new Configuration();
-		$modules       = $configuration->add_woocommerce_analytics_module( array() );
+		$modules       = $configuration->add_woocommerce_analytics_module( array( Posts::class ) );
 
-		$this->assertSame( array( WooCommerce_Analytics::class ), $modules );
+		$this->assertSame( array( Posts::class, WooCommerce_Analytics::class ), $modules );
 		$this->assertSame( $modules, $configuration->add_woocommerce_analytics_module( $modules ) );
+	}
+
+	/**
+	 * An emptied module list is a kill switch and stays empty.
+	 */
+	public function test_add_woocommerce_analytics_module_leaves_an_emptied_list_alone() {
+		$this->assertSame( array(), ( new Configuration() )->add_woocommerce_analytics_module( array() ) );
 	}
 
 	/**
@@ -155,22 +172,6 @@ class Configuration_Test extends TestCase {
 
 		$this->assertSame(
 			array( Configuration::ANALYTICS_PLUGIN_MODULE_FQCN ),
-			$configuration->add_woocommerce_analytics_module( $modules )
-		);
-	}
-
-	/**
-	 * An interim module bundled by another active plugin remains authoritative.
-	 */
-	public function test_add_woocommerce_analytics_module_defers_to_interim_premium_analytics() {
-		$configuration = new Configuration();
-		$modules       = array(
-			WooCommerce_Analytics::class,
-			Configuration::PREMIUM_ANALYTICS_MODULE_FQCN,
-		);
-
-		$this->assertSame(
-			array( Configuration::PREMIUM_ANALYTICS_MODULE_FQCN ),
 			$configuration->add_woocommerce_analytics_module( $modules )
 		);
 	}
@@ -212,5 +213,86 @@ class Configuration_Test extends TestCase {
 		$config        = array( 'posts' => 1 );
 
 		$this->assertSame( $config, $configuration->expand_full_sync_config( $config ) );
+	}
+
+	/**
+	 * Expanding an already expanded config changes nothing.
+	 */
+	public function test_expand_full_sync_config_is_idempotent() {
+		$configuration = new class() extends Configuration {
+			protected function can_site_sync_orders(): bool {
+				return true;
+			}
+		};
+		$config        = array(
+			'woocommerce_analytics' => 1,
+			'terms'                 => 1,
+			'term_relationships'    => 1,
+			'posts'                 => 1,
+		);
+
+		$this->assertSame( $config, $configuration->expand_full_sync_config( $config ) );
+	}
+
+	/**
+	 * The real order-attribution gate closes when WooCommerce's feature utilities are unavailable.
+	 */
+	public function test_full_sync_config_is_unchanged_without_woocommerce_features() {
+		$this->assertFalse( class_exists( 'Automattic\\WooCommerce\\Utilities\\FeaturesUtil' ) );
+		$config = array( 'posts' => 1 );
+
+		$this->assertSame( $config, ( new Configuration() )->expand_full_sync_config( $config ) );
+	}
+
+	/**
+	 * Analytics checksum tables are audited once the site can sync orders.
+	 */
+	public function test_gate_analytics_checksum_tables_keeps_tables_when_order_sync_is_allowed() {
+		$configuration = new class() extends Configuration {
+			protected function can_site_sync_orders(): bool {
+				return true;
+			}
+		};
+		$tables        = array(
+			'posts'          => array( 'table' => 'wp_posts' ),
+			'wc_order_stats' => array( 'table' => 'wp_wc_order_stats' ),
+		);
+
+		$this->assertSame( $tables, $configuration->gate_analytics_checksum_tables( $tables ) );
+	}
+
+	/**
+	 * Analytics checksum tables stay out of audits while the site cannot sync orders.
+	 */
+	public function test_gate_analytics_checksum_tables_drops_tables_when_order_sync_is_not_allowed() {
+		$configuration = new class() extends Configuration {
+			protected function can_site_sync_orders(): bool {
+				return false;
+			}
+		};
+		$tables        = array(
+			'posts'                   => array( 'table' => 'wp_posts' ),
+			'wc_order_stats'          => array( 'table' => 'wp_wc_order_stats' ),
+			'wc_order_product_lookup' => array( 'table' => 'wp_wc_order_product_lookup' ),
+			'wc_order_coupon_lookup'  => array( 'table' => 'wp_wc_order_coupon_lookup' ),
+			'wc_order_tax_lookup'     => array( 'table' => 'wp_wc_order_tax_lookup' ),
+		);
+
+		$this->assertSame(
+			array( 'posts' => array( 'table' => 'wp_posts' ) ),
+			$configuration->gate_analytics_checksum_tables( $tables )
+		);
+	}
+
+	/**
+	 * Bookings post meta is prepended to the whitelist without dropping existing keys.
+	 */
+	public function test_add_meta_to_sync_post_meta_whitelist_prepends_bookings_meta() {
+		$whitelist = ( new Configuration() )->add_meta_to_sync_post_meta_whitelist( array( '_existing' ) );
+
+		$this->assertSame( '_existing', end( $whitelist ) );
+		foreach ( array( '_booking_start', '_booking_end', '_booking_cost', '_booking_order_id' ) as $key ) {
+			$this->assertContains( $key, $whitelist );
+		}
 	}
 }
