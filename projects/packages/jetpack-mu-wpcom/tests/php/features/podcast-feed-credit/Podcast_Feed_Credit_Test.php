@@ -12,7 +12,6 @@ require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/podcast-feed-credit/podca
 
 /**
  * @covers ::wpcom_podcast_feed_credit_maybe_hook
- * @covers ::wpcom_podcast_feed_credit_append
  * @covers ::wpcom_podcast_feed_credit_append_to_summary
  * @covers ::wpcom_podcast_feed_credit_append_to_excerpt
  * @covers ::wpcom_podcast_feed_credit_append_to_content
@@ -20,7 +19,6 @@ require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/podcast-feed-credit/podca
  * @covers ::wpcom_podcast_feed_credit_show_title
  */
 #[CoversFunction( 'wpcom_podcast_feed_credit_maybe_hook' )]
-#[CoversFunction( 'wpcom_podcast_feed_credit_append' )]
 #[CoversFunction( 'wpcom_podcast_feed_credit_append_to_summary' )]
 #[CoversFunction( 'wpcom_podcast_feed_credit_append_to_excerpt' )]
 #[CoversFunction( 'wpcom_podcast_feed_credit_append_to_content' )]
@@ -70,21 +68,15 @@ class Podcast_Feed_Credit_Test extends \WorDBless\BaseTestCase {
 		return 'The Weekly Show is made with Jetpack Podcast. Full show notes and every episode at ' . home_url( '/' );
 	}
 
-	public function test_nothing_hooks_outside_the_podcast_feed() {
-		wpcom_podcast_feed_credit_maybe_hook();
-
-		$this->assertFalse( has_filter( 'the_excerpt_rss', 'wpcom_podcast_feed_credit_append_to_excerpt' ) );
-		$this->assertFalse( has_filter( 'the_content_feed', 'wpcom_podcast_feed_credit_append_to_content' ) );
-		$this->assertFalse( has_filter( 'option_podcasting_summary', 'wpcom_podcast_feed_credit_append_to_summary' ) );
-	}
-
 	/**
 	 * The excerpt credit sits just below the package's `capture_item_summary()`
 	 * at PHP_INT_MAX, so the captured `<description>` carries it.
 	 */
-	public function test_hooks_below_the_summary_capture_on_the_podcast_feed() {
-		$this->claim_podcast_feed();
+	public function test_hooks_only_on_the_podcast_feed_and_below_the_summary_capture() {
+		wpcom_podcast_feed_credit_maybe_hook();
+		$this->assertFalse( has_filter( 'the_excerpt_rss', 'wpcom_podcast_feed_credit_append_to_excerpt' ) );
 
+		$this->claim_podcast_feed();
 		wpcom_podcast_feed_credit_maybe_hook();
 
 		$this->assertSame( PHP_INT_MAX - 1, has_filter( 'the_excerpt_rss', 'wpcom_podcast_feed_credit_append_to_excerpt' ) );
@@ -103,18 +95,15 @@ class Podcast_Feed_Credit_Test extends \WorDBless\BaseTestCase {
 		$this->assertSame( "Our weekly podcast.\n\n" . $this->credit(), get_option( 'podcasting_summary', '' ) );
 	}
 
-	public function test_excerpt_credit_follows_a_blank_line_or_stands_alone() {
-		$this->assertSame( "Show notes.\n\n" . $this->credit(), wpcom_podcast_feed_credit_append_to_excerpt( 'Show notes.' ) );
-		$this->assertSame( $this->credit(), wpcom_podcast_feed_credit_append_to_excerpt( '' ) );
-	}
-
 	/**
 	 * `<description>` is CDATA, so `]]>` in the title gets the escape core
 	 * gives generated excerpts.
 	 */
-	public function test_excerpt_credit_escapes_cdata_terminators() {
-		update_option( 'podcasting_title', 'The Show]]>' );
+	public function test_excerpt_credit_follows_a_blank_line_and_escapes_cdata_terminators() {
+		$this->assertSame( "Show notes.\n\n" . $this->credit(), wpcom_podcast_feed_credit_append_to_excerpt( 'Show notes.' ) );
+		$this->assertSame( $this->credit(), wpcom_podcast_feed_credit_append_to_excerpt( '' ) );
 
+		update_option( 'podcasting_title', 'The Show]]>' );
 		$this->assertStringContainsString( 'The Show]]&gt; is made with', wpcom_podcast_feed_credit_append_to_excerpt( 'Notes' ) );
 	}
 

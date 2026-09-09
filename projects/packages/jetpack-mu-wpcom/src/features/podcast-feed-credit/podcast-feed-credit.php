@@ -32,25 +32,14 @@ function wpcom_podcast_feed_credit_maybe_hook() {
 add_action( 'wp', 'wpcom_podcast_feed_credit_maybe_hook', 11 );
 
 /**
- * Append a credit line to plain text after a blank line.
- *
- * @param string $text   Plain text.
- * @param string $credit Credit line.
- * @return string
- */
-function wpcom_podcast_feed_credit_append( string $text, string $credit ): string {
-	$text = rtrim( $text );
-	return '' === $text ? $credit : $text . "\n\n" . $credit;
-}
-
-/**
  * `option_podcasting_summary` filter: append the credit to the channel summary.
  *
  * @param mixed $summary Option value.
  * @return string
  */
 function wpcom_podcast_feed_credit_append_to_summary( $summary ) {
-	return wpcom_podcast_feed_credit_append( (string) $summary, wpcom_podcast_feed_credit_text() );
+	$summary = rtrim( (string) $summary );
+	return '' === $summary ? wpcom_podcast_feed_credit_text() : $summary . "\n\n" . wpcom_podcast_feed_credit_text();
 }
 
 /**
@@ -62,7 +51,9 @@ function wpcom_podcast_feed_credit_append_to_summary( $summary ) {
  * @return string
  */
 function wpcom_podcast_feed_credit_append_to_excerpt( $excerpt ) {
-	return wpcom_podcast_feed_credit_append( (string) $excerpt, str_replace( ']]>', ']]&gt;', wpcom_podcast_feed_credit_text() ) );
+	$excerpt = rtrim( (string) $excerpt );
+	$credit  = str_replace( ']]>', ']]&gt;', wpcom_podcast_feed_credit_text() );
+	return '' === $excerpt ? $credit : $excerpt . "\n\n" . $credit;
 }
 
 /**
