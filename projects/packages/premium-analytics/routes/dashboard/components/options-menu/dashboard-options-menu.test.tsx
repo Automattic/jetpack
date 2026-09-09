@@ -215,6 +215,16 @@ describe( 'the readiness question', () => {
 
 		expect( screen.getByRole( 'textbox', { name: "What's missing?" } ) ).toBeInTheDocument();
 	} );
+
+	it( 'asks for anything else instead once the answer is that nothing is missing', async () => {
+		const user = await openModal();
+
+		await user.click( screen.getByRole( 'radio', { name: READY } ) );
+
+		expect(
+			screen.getByRole( 'textbox', { name: "Any other feedback you'd like to share?" } )
+		).toBeInTheDocument();
+	} );
 } );
 
 describe( 'the Tracks identity', () => {

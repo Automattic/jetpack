@@ -199,6 +199,12 @@ export function ReadinessFields( {
 		'jetpack-premium-analytics-pkg'
 	);
 
+	// "What's missing?" reads oddly after "Yes", where nothing is missing by definition.
+	const commentQuestion =
+		readiness === 'ready'
+			? __( "Any other feedback you'd like to share?", 'jetpack-premium-analytics-pkg' )
+			: __( "What's missing?", 'jetpack-premium-analytics-pkg' );
+
 	const selectReadiness = useCallback(
 		( value: string ) => onReadinessChange( value as StatsFeedbackReadiness ),
 		[ onReadinessChange ]
@@ -218,7 +224,7 @@ export function ReadinessFields( {
 			</Stack>
 
 			<CommentField
-				question={ __( "What's missing?", 'jetpack-premium-analytics-pkg' ) }
+				question={ commentQuestion }
 				comment={ comment }
 				onCommentChange={ onCommentChange }
 			/>
