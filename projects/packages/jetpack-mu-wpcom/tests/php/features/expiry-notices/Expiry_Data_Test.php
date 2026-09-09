@@ -512,6 +512,41 @@ class Expiry_Data_Test extends \WorDBless\BaseTestCase {
 		$this->assertFalse( $state['auto_renew'] );
 		$this->assertSame( Expiry_Data::STATE_APPROACHING, $state['state'] );
 		$this->assertSame( 5, $state['days_remaining'] );
+		$this->assertSame( '26532009', $state['subscription_id'] );
+	}
+
+	public function test_a_purchase_synced_before_subscription_ids_carries_an_empty_one(): void {
+		$purchase = (object) array(
+			'product_slug' => 'business-bundle',
+			'expiry_date'  => '2026-06-03T00:00:00+00:00',
+		);
+		$state    = Expiry_Data::compute_state_from_purchase( $purchase, strtotime( '2026-05-29T00:00:00+00:00' ) );
+		$this->assertNotNull( $state );
+		$this->assertSame( '', $state['subscription_id'] );
+	}
+
+	public function test_get_cta_urls_renews_the_named_subscription(): void {
+		$state = array(
+			'state'           => Expiry_Data::STATE_EXPIRED_GRACE,
+			'product_slug'    => 'business-bundle',
+			'subscription_id' => '26532009',
+			'auto_renew'      => false,
+		);
+		$urls  = Expiry_Data::get_cta_urls( $state );
+		$this->assertStringStartsWith( 'https://wordpress.com/checkout/business-bundle/renew/26532009/', $urls['primary']['url'] );
+		$this->assertStringStartsWith( 'https://wordpress.com/plans/', $urls['secondary']['url'] );
+	}
+
+	public function test_get_cta_urls_falls_back_to_a_plain_checkout_without_a_subscription(): void {
+		$state = array(
+			'state'           => Expiry_Data::STATE_EXPIRED_GRACE,
+			'product_slug'    => 'business-bundle',
+			'subscription_id' => '',
+			'auto_renew'      => false,
+		);
+		$urls  = Expiry_Data::get_cta_urls( $state );
+		$this->assertStringStartsWith( 'https://wordpress.com/checkout/business-bundle/', $urls['primary']['url'] );
+		$this->assertStringNotContainsString( '/renew/', $urls['primary']['url'] );
 	}
 
 	public function test_pick_primary_plan_purchase_returns_null_when_no_plans(): void {
@@ -542,5 +577,20 @@ class Expiry_Data_Test extends \WorDBless\BaseTestCase {
 		parse_str( $parsed['query'] ?? '', $query_args );
 		$this->assertArrayHasKey( 'redirect_to', $query_args );
 		$this->assertSame( $redirect, $query_args['redirect_to'] );
+	}
+
+	public function test_get_cta_urls_keeps_a_redirect_with_its_own_query_intact(): void {
+		$state    = array(
+			'state'        => Expiry_Data::STATE_EXPIRED_GRACE,
+			'product_slug' => 'business-bundle',
+			'auto_renew'   => false,
+		);
+		$redirect = 'https://example.com/wp-admin/site-editor.php?p=%2Fpage&canvas=edit';
+		$urls     = Expiry_Data::get_cta_urls( $state, $redirect );
+
+		$parsed = wp_parse_url( $urls['primary']['url'] );
+		parse_str( $parsed['query'] ?? '', $query_args );
+		$this->assertSame( $redirect, $query_args['redirect_to'] );
+		$this->assertArrayNotHasKey( 'canvas', $query_args );
 	}
 }

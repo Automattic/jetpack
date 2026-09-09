@@ -209,17 +209,19 @@ class Jetpack_AI_Settings {
 
 	/**
 	 * Whether the AI controls — the master switch and the toggles this class owns
-	 * — take effect here. They are not publicly launched, so off Simple they apply
-	 * on internal testing environments only. Remove at public launch.
+	 * — take effect here. Simple keeps its existing option contract, self-hosted
+	 * sites use the Jetpack controls, and Atomic remains limited to internal testing.
 	 *
 	 * @return bool
 	 */
 	private static function should_enforce_ai_controls() {
-		if ( ( new Host() )->is_wpcom_simple() ) {
+		$host = new Host();
+		if ( $host->is_wpcom_simple() ) {
 			return true;
 		}
 
-		return function_exists( 'jetpack_is_internal_testing_environment' ) && jetpack_is_internal_testing_environment();
+		return ! $host->is_woa_site()
+			|| ( function_exists( 'jetpack_is_internal_testing_environment' ) && jetpack_is_internal_testing_environment() );
 	}
 
 	/**
@@ -332,9 +334,9 @@ class Jetpack_AI_Settings {
 		}
 
 		// The toggles this class owns stay on wherever they do not apply: Simple keeps
-		// the existing wp.com settings contract, and elsewhere they are not publicly
-		// launched. The reused Search option ships today with its own settings
-		// surface, so it always honors its stored value.
+		// the existing wp.com settings contract, while Atomic keeps them hidden.
+		// The reused Search option has its own settings surface, so it always honors
+		// its stored value.
 		if ( in_array( $feature, self::OWNED_FEATURES, true )
 			&& ( ( new Host() )->is_wpcom_simple() || ! self::should_enforce_ai_controls() ) ) {
 			return true;

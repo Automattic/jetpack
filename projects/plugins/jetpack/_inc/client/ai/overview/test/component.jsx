@@ -1,14 +1,19 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitForElementToBeRemoved } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { speak } from '@wordpress/a11y';
 import apiFetch from '@wordpress/api-fetch';
-import { getSettings as getDateSettings, setSettings as setDateSettings } from '@wordpress/date';
+import { dispatch } from '@wordpress/data';
+import { store as preferencesStore } from '@wordpress/preferences';
 import analytics from 'lib/analytics';
 import AiOverview from '../index';
-import { freePayload, tieredPayload, unlimitedPayload } from './fixtures';
+import { depletedPayload, freePayload, paidPayload, tieredPayload } from './fixtures';
 
 // The usage hook fetches through @wordpress/api-fetch; stub it so nothing
 // hits the network and each test controls the response.
 jest.mock( '@wordpress/api-fetch' );
+// The card announces the start and the end of the usage fetch through
+// @wordpress/a11y's persistent live regions; stub it so both are assertable.
+jest.mock( '@wordpress/a11y', () => ( { speak: jest.fn() } ) );
 // The component imports the webpack-aliased 'lib/analytics', which does not
 // resolve under jest; provide it virtually.
 jest.mock( 'lib/analytics', () => ( { tracks: { recordEvent: jest.fn() } } ), { virtual: true } );
@@ -21,11 +26,23 @@ const callsFor = eventName =>
 // jsdom does not implement navigation; cancel the anchors' default action so
 // clicks still reach React's handlers without a jsdom "not implemented" error.
 const cancelNavigation = event => event.preventDefault();
-beforeEach( () => document.addEventListener( 'click', cancelNavigation ) );
+beforeEach( () => {
+	document.addEventListener( 'click', cancelNavigation );
+	// The assistant banner has its own suite; dismissing it here keeps its
+	// links from colliding with the quick-start card queries.
+	dispatch( preferencesStore ).set( 'jetpack/ai', 'assistantBannerDismissed', true );
+} );
+
+// The assistant banner imports the webpack-aliased 'lib/analytics', which
+// doesn't resolve under jest — provide it virtually.
+jest.mock( 'lib/analytics', () => ( { tracks: { recordEvent: jest.fn() } } ), { virtual: true } );
 
 afterEach( () => {
 	jest.resetAllMocks();
 	document.removeEventListener( 'click', cancelNavigation );
+	// The preferences store lives on the shared default registry, so state
+	// written by one test survives into the next — reset the flag each time.
+	dispatch( preferencesStore ).set( 'jetpack/ai', 'assistantBannerDismissed', undefined );
 } );
 
 const PROPS = {
@@ -39,13 +56,8 @@ const PROPS = {
 // region, so a bare text query matches twice. Ignore that region.
 const IGNORE_A11Y = { ignore: 'script, style, .a11y-speak-region' };
 
-// The renewal line renders the date in its own nowrap span (the frame breaks
-// after the label, never inside the date), so its text spans two nodes.
-const renewalLine = expected => ( _, el ) =>
-	el?.classList?.contains( 'jetpack-ai-overview__renewal' ) && el.textContent === expected;
-
 describe( 'AiOverview', () => {
-	test( 'free tier: renders remaining requests against the free limit per the i4 card', async () => {
+	test( 'free tier: renders remaining requests against the free limit', async () => {
 		apiFetch.mockResolvedValueOnce( freePayload() );
 
 		render( <AiOverview { ...PROPS } /> );
@@ -56,7 +68,29 @@ describe( 'AiOverview', () => {
 		expect( screen.getByText( '20' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Available requests' ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'progressbar', { hidden: true } ) ).toBeInTheDocument();
-		expect( screen.getByText( 'Free' ) ).toBeInTheDocument();
+	} );
+
+	test( 'upsell: with requests left, the card pitches upgrading before they run out', async () => {
+		apiFetch.mockResolvedValueOnce( freePayload() );
+
+		render( <AiOverview { ...PROPS } /> );
+
+		// Same layout as the depleted state, softer copy: the upsell shows
+		// whenever an upgrade is on offer, not just at zero.
+		await expect(
+			screen.findByRole( 'heading', { level: 2, name: 'Upgrade Jetpack AI Assistant' } )
+		).resolves.toBeInTheDocument();
+		expect(
+			screen.getByText(
+				'Draft, rewrite, and illustrate posts without leaving the editor. Upgrade before you run out.'
+			)
+		).toBeInTheDocument();
+		expect( screen.getByRole( 'link', { name: 'Upgrade' } ) ).toHaveAttribute(
+			'href',
+			'https://example.com/upgrade'
+		);
+		// No plan label anywhere — plan details live in My Jetpack.
+		expect( screen.queryByText( 'Free' ) ).not.toBeInTheDocument();
 	} );
 
 	test( 'meter a11y: decorative bar, the text carries the counts', async () => {
@@ -73,119 +107,107 @@ describe( 'AiOverview', () => {
 		expect( screen.getByText( '8 of 20 requests available' ) ).toBeInTheDocument();
 	} );
 
-	test( 'tiered plan: renders remaining period requests against the tier limit', async () => {
-		apiFetch.mockResolvedValueOnce( tieredPayload() );
+	test( 'depleted: the copy hardens at zero requests', async () => {
+		apiFetch.mockResolvedValueOnce( depletedPayload() );
 
 		render( <AiOverview { ...PROPS } /> );
 
-		await expect( screen.findByText( '160' ) ).resolves.toBeInTheDocument();
-		// The limit shows once, on the meter — never repeated as a plan name.
-		expect( screen.getAllByText( '500' ) ).toHaveLength( 1 );
+		await expect(
+			screen.findByRole( 'heading', { level: 2, name: 'You’ve used all your requests' } )
+		).resolves.toBeInTheDocument();
+		expect(
+			screen.getByText(
+				'Upgrade to keep drafting, rewriting, and illustrating without leaving the editor.'
+			)
+		).toBeInTheDocument();
+		// The requests readout keeps the standard card's shape and a11y: the
+		// hidden sentence carries the counts, the empty bar stays decorative.
+		expect( screen.getByText( '0' ) ).toBeInTheDocument();
+		expect( screen.getByText( '20' ) ).toBeInTheDocument();
+		expect( screen.getByText( '0 of 20 requests available' ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'progressbar' ) ).not.toBeInTheDocument();
 		expect( screen.getByRole( 'progressbar', { hidden: true } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'link', { name: 'Upgrade' } ) ).toHaveAttribute(
+			'href',
+			'https://example.com/upgrade'
+		);
+		// No plan label anywhere — plan details live in My Jetpack.
+		expect( screen.queryByText( 'Free' ) ).not.toBeInTheDocument();
+		// The depleted state keeps its own, harder pitch.
+		expect(
+			screen.queryByRole( 'heading', { name: 'Upgrade Jetpack AI Assistant' } )
+		).not.toBeInTheDocument();
 	} );
 
-	test( 'legacy unlimited: full meter, renewal date, no upgrade', async () => {
-		apiFetch.mockResolvedValueOnce( { ...tieredPayload(), 'current-tier': { value: 1 } } );
+	test( 'depleted: without an upgrade URL, the standard card stays', async () => {
+		// Zero available with nowhere to upgrade to: the upsell copy is a
+		// pitch for a button that could not exist, so it must not show.
+		apiFetch.mockResolvedValueOnce( depletedPayload() );
 
-		render( <AiOverview { ...PROPS } /> );
+		render( <AiOverview { ...PROPS } upgradeUrl={ undefined } /> );
 
-		// The i4 paid card shows UNLIMITED over a full meter — once — and no
-		// Upgrade. Without a purchase date there is no renewal line: the usage
-		// period's rollover is a different date and must not stand in for it.
-		await expect( screen.findAllByText( 'Unlimited' ) ).resolves.toHaveLength( 1 );
-		expect( screen.getByRole( 'progressbar', { hidden: true } ) ).toBeInTheDocument();
-		expect( screen.queryByText( /Renews on/ ) ).not.toBeInTheDocument();
+		await expect( screen.findByText( '0' ) ).resolves.toBeInTheDocument();
+		expect( screen.getByText( 'Available requests' ) ).toBeInTheDocument();
+		expect(
+			screen.queryByRole( 'heading', { name: 'You’ve used all your requests' } )
+		).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'link', { name: 'Upgrade' } ) ).not.toBeInTheDocument();
 	} );
 
-	test( 'plan name: the purchase name labels a paid state', async () => {
-		apiFetch.mockResolvedValueOnce( unlimitedPayload() );
+	test( 'paid: no usage card at all', async () => {
+		apiFetch.mockResolvedValueOnce( paidPayload() );
 
-		render( <AiOverview { ...PROPS } planName="WordPress.com Business" /> );
+		// Without a named plan the upsell placeholder holds the slot, which is
+		// also the only queryable handle for "the fetch settled".
+		const { container } = render( <AiOverview { ...PROPS } /> );
 
-		await expect( screen.findByText( 'WordPress.com Business' ) ).resolves.toBeInTheDocument();
+		// Nothing to meter and nothing to sell: once the fetch lands the card
+		// unmounts entirely.
+		/* eslint-disable testing-library/no-container, testing-library/no-node-access --
+		   The skeleton bars are decorative and aria-hidden, so Testing Library
+		   has no query that reaches them; the layout class is the only handle. */
+		await waitForElementToBeRemoved( () =>
+			container.querySelector( '.jetpack-ai-overview__upsell' )
+		);
+		/* eslint-enable testing-library/no-container, testing-library/no-node-access */
+		expect( screen.queryByText( 'Unlimited' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( 'Available requests' ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'progressbar', { hidden: true } ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'link', { name: 'Upgrade' } ) ).not.toBeInTheDocument();
+		// The rest of the tab is unaffected.
+		expect( screen.getByRole( 'heading', { level: 2, name: 'Quick start' } ) ).toBeInTheDocument();
+		// With nothing left inside it, the intro wrapper must be truly :empty
+		// so the stylesheet can drop it and the outer gap doesn't double.
+		/* eslint-disable testing-library/no-container, testing-library/no-node-access --
+		   The wrapper is a bare layout div; the class is the only handle. */
+		expect( container.querySelector( '.jetpack-ai-overview__intro' ) ).toBeEmptyDOMElement();
+		/* eslint-enable testing-library/no-container, testing-library/no-node-access */
 	} );
 
-	test( 'plan name: a free tier stays Free even with a stale purchase name', async () => {
+	test( 'fixed tier: treated as paid, no usage card', async () => {
+		apiFetch.mockResolvedValueOnce( tieredPayload() );
+
+		const { container } = render( <AiOverview { ...PROPS } /> );
+
+		/* eslint-disable testing-library/no-container, testing-library/no-node-access --
+		   The skeleton bars are decorative and aria-hidden, so Testing Library
+		   has no query that reaches them; the layout class is the only handle. */
+		await waitForElementToBeRemoved( () =>
+			container.querySelector( '.jetpack-ai-overview__upsell' )
+		);
+		/* eslint-enable testing-library/no-container, testing-library/no-node-access */
+		expect( screen.queryByText( 'Available requests' ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'link', { name: 'Upgrade' } ) ).not.toBeInTheDocument();
+	} );
+
+	test( 'standard card: a free site without an upgrade URL shows no plan label either', async () => {
 		apiFetch.mockResolvedValueOnce( freePayload() );
 
-		render( <AiOverview { ...PROPS } planName="Jetpack Complete" /> );
+		render( <AiOverview { ...PROPS } upgradeUrl={ undefined } planName="Jetpack Complete" /> );
 
-		// The usage endpoint owns the tier; an expired purchase must not
-		// relabel a free site as paid.
-		await expect( screen.findByText( 'Free' ) ).resolves.toBeInTheDocument();
+		await expect( screen.findByText( '8' ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByText( 'Free' ) ).not.toBeInTheDocument();
 		expect( screen.queryByText( 'Jetpack Complete' ) ).not.toBeInTheDocument();
-	} );
-
-	test( 'plan renewal: the purchase date wins over the usage-period rollover', async () => {
-		// The payload's next-start is the monthly usage rollover; the Plan cell
-		// shows the purchase's own renewal, matching My Jetpack (design QA).
-		apiFetch.mockResolvedValueOnce( unlimitedPayload() );
-
-		render(
-			<AiOverview { ...PROPS } planName="Business" planRenewsOn="2026-12-23T00:00:00+00:00" />
-		);
-
-		await expect( screen.findByText( /December 23, 2026/ ) ).resolves.toBeInTheDocument();
-		expect( screen.queryByText( /September 1, 2026/ ) ).not.toBeInTheDocument();
-	} );
-
-	test( 'renewal date: reads as an expiry when the purchase does not auto-renew', async () => {
-		// Auto-renew off means the date is the last day of service, not a
-		// renewal — matching My Jetpack and the wpcom subscriptions page.
-		apiFetch.mockResolvedValueOnce( unlimitedPayload() );
-
-		render(
-			<AiOverview
-				{ ...PROPS }
-				planName="Business"
-				planRenewsOn="2026-12-23T00:00:00+00:00"
-				planAutoRenew={ false }
-			/>
-		);
-
-		await expect(
-			screen.findByText( renewalLine( 'Expires on: December 23, 2026' ) )
-		).resolves.toBeInTheDocument();
-		expect( screen.queryByText( /Renews on/ ) ).not.toBeInTheDocument();
-	} );
-
-	test( 'renewal date: an unknown auto-renew state keeps the renewal wording', async () => {
-		// The flag is absent on payloads that predate it; unknown must not be
-		// read as "off", which would mislabel every auto-renewing plan.
-		apiFetch.mockResolvedValueOnce( unlimitedPayload() );
-
-		render(
-			<AiOverview { ...PROPS } planName="Business" planRenewsOn="2026-12-23T00:00:00+00:00" />
-		);
-
-		await expect(
-			screen.findByText( renewalLine( 'Renews on: December 23, 2026' ) )
-		).resolves.toBeInTheDocument();
-	} );
-
-	test( 'renewal date: follows the site timezone, as the other purchase surfaces do', async () => {
-		// @wordpress/date defaults to offset 0 in jest, which would make the
-		// assertion vacuous; pin a UTC-7 site for this test only.
-		const saved = getDateSettings();
-		setDateSettings( {
-			...saved,
-			timezone: { ...saved.timezone, offset: -7, string: '' },
-		} );
-		try {
-			// A UTC-midnight purchase date is still the previous evening on a
-			// western site, and the card names that local day — matching My
-			// Jetpack rather than pinning the date to UTC.
-			apiFetch.mockResolvedValueOnce( unlimitedPayload() );
-			render(
-				<AiOverview { ...PROPS } planName="Business" planRenewsOn="2026-12-23T00:00:00+00:00" />
-			);
-			await expect(
-				screen.findByText( renewalLine( 'Renews on: December 22, 2026' ) )
-			).resolves.toBeInTheDocument();
-		} finally {
-			setDateSettings( saved );
-		}
 	} );
 
 	test( 'sections: headed at level two under the page title', async () => {
@@ -201,7 +223,7 @@ describe( 'AiOverview', () => {
 		).toBeInTheDocument();
 	} );
 
-	test( 'upgrade: links to the shared upgrade URL when a next tier exists', async () => {
+	test( 'upgrade: links to the shared upgrade URL', async () => {
 		apiFetch.mockResolvedValueOnce( freePayload() );
 
 		render( <AiOverview { ...PROPS } /> );
@@ -210,12 +232,15 @@ describe( 'AiOverview', () => {
 		expect( upgrade ).toHaveAttribute( 'href', 'https://example.com/upgrade' );
 	} );
 
-	test( 'loading: the usage card shows a spinner while docs and activity render immediately', () => {
+	test( 'loading: the usage card shows a skeleton while docs and activity render immediately', () => {
 		// A held promise keeps the usage fetch in flight for the whole test.
 		apiFetch.mockReturnValueOnce( new Promise( () => {} ) );
 
 		render( <AiOverview { ...PROPS } /> );
 
+		// The placeholder bars are decorative (Skeleton sets aria-hidden), so the
+		// loading state is announced rather than mounted as a live region.
+		expect( speak ).toHaveBeenCalledWith( 'Loading your AI usage…', 'polite' );
 		// The remote usage call must not block the static sections.
 		expect( screen.getByRole( 'link', { name: /Activity log/ } ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'link', { name: /MCP integration guide/ } ) ).toBeInTheDocument();
@@ -281,13 +306,26 @@ describe( 'AiOverview', () => {
 		render( <AiOverview { ...PROPS } hostAllowsAi={ false } /> );
 
 		expect(
-			screen.getByText( 'AI has been turned off for this site.', IGNORE_A11Y )
+			screen.getByText( 'Jetpack AI is not available for this site.', IGNORE_A11Y )
 		).toBeInTheDocument();
 		expect( screen.queryByText( 'Available requests' ) ).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'link', { name: 'Upgrade' } ) ).not.toBeInTheDocument();
 		expect( apiFetch ).not.toHaveBeenCalled();
 		// The rest of the tab is unrelated to AI billing and stays.
 		expect( screen.getByText( 'Documentation' ) ).toBeInTheDocument();
+	} );
+
+	test( 'host AI off: the notice renders above the assistant banner', () => {
+		dispatch( preferencesStore ).set( 'jetpack/ai', 'assistantBannerDismissed', false );
+		render( <AiOverview { ...PROPS } hostAllowsAi={ false } /> );
+
+		// getAllByText returns matches in document order.
+		const [ first, second ] = screen.getAllByText(
+			/Jetpack AI is not available for this site\.|Do more on your site with AI\./,
+			IGNORE_A11Y
+		);
+		expect( first ).toHaveTextContent( 'Jetpack AI is not available for this site.' );
+		expect( second ).toHaveTextContent( 'Do more on your site with AI.' );
 	} );
 
 	test( 'user account not linked: explains the account, does not fetch', async () => {
@@ -391,7 +429,7 @@ describe( 'AiOverview', () => {
 		}
 	} );
 
-	test( 'documentation: renders all five links through the redirect service', async () => {
+	test( 'documentation: renders all four links through the redirect service', async () => {
 		apiFetch.mockResolvedValueOnce( freePayload() );
 
 		render( <AiOverview { ...PROPS } /> );
@@ -403,7 +441,6 @@ describe( 'AiOverview', () => {
 		const slugByName = {
 			'MCP integration guide': 'jetpack-ai-hub-overview-docs-mcp-guide',
 			'AI features overview': 'jetpack-ai-hub-overview-docs-features',
-			'Setting up agentic workflows': 'jetpack-ai-hub-overview-docs-agent-setup',
 			'Billing & plans': 'jetpack-ai-hub-overview-docs-billing',
 			'Available capabilities': 'jetpack-ai-hub-overview-docs-mcp-tools',
 		};
@@ -468,7 +505,7 @@ describe( 'AiOverview', () => {
 		await expect( screen.findByText( 'Available requests' ) ).resolves.toBeInTheDocument();
 		expect( screen.getByRole( 'heading', { level: 2, name: 'Quick start' } ) ).toBeInTheDocument();
 
-		// The frame's Quick start row: Connect Claude / Connect ChatGPT, each a
+		// The frame's Quick start row: Connect ChatGPT / Connect Claude, each a
 		// nav row whose destination lives in the redirect service.
 		const slugByName = {
 			'Connect Claude': 'jetpack-ai-hub-overview-quick-start-claude',
@@ -494,11 +531,85 @@ describe( 'AiOverview', () => {
 		await expect( screen.findByText( 'Available requests' ) ).resolves.toBeInTheDocument();
 
 		for ( const title of [ 'Connect Claude', 'Connect ChatGPT' ] ) {
+			// The new-tab warning rides in the accessible NAME — descriptions
+			// are often skipped when scanning links; the description carries
+			// only the row's own copy.
 			const card = screen.getByRole( 'link', {
 				name: new RegExp( `${ title }.*\\(opens in a new tab\\)` ),
 			} );
+			expect( card ).not.toHaveAccessibleDescription( /\(opens in a new tab\)/ );
 			expect( card ).toHaveAttribute( 'target', '_blank' );
 			expect( card ).toHaveAttribute( 'rel', 'noopener noreferrer' );
 		}
+	} );
+	test( 'loading: announces the usage summary once the fetch lands', async () => {
+		apiFetch.mockResolvedValueOnce( freePayload() );
+
+		render( <AiOverview { ...PROPS } /> );
+
+		await expect( screen.findByText( 'Available requests' ) ).resolves.toBeInTheDocument();
+		// Removing a live region announces nothing, so completion has to be spoken.
+		expect( speak ).toHaveBeenCalledWith( '8 of 20 requests available', 'polite' );
+	} );
+
+	test( 'loading: a site that already names a plan gets no placeholder', () => {
+		// A held promise keeps the usage fetch in flight for the whole test.
+		apiFetch.mockReturnValueOnce( new Promise( () => {} ) );
+
+		const { container } = render( <AiOverview { ...PROPS } planName="Jetpack Complete" /> );
+
+		// A named plan means the likely outcome is no card at all — a skeleton
+		// that then vanishes would be a resize for nothing, and announcing a
+		// load that renders nothing is noise.
+		/* eslint-disable testing-library/no-container, testing-library/no-node-access --
+		   The placeholder bars are decorative and aria-hidden, so Testing Library
+		   has no query that reaches them; the layout class is the only handle. */
+		expect( container.querySelector( '.jetpack-ai-overview__upsell' ) ).toBeNull();
+		expect( container.querySelector( '.jetpack-ai-overview__usage' ) ).toBeNull();
+		/* eslint-enable testing-library/no-container, testing-library/no-node-access */
+		expect( speak ).not.toHaveBeenCalled();
+	} );
+
+	test( 'section order: the activity log sits below the walkthrough videos', async () => {
+		apiFetch.mockResolvedValueOnce( freePayload() );
+
+		render( <AiOverview { ...PROPS } /> );
+
+		await expect( screen.findByText( 'Available requests' ) ).resolves.toBeInTheDocument();
+
+		const videos = screen.getByRole( 'heading', { level: 2, name: 'Walkthrough videos' } );
+		const activityLog = screen.getByRole( 'link', { name: /Activity log/ } );
+		const docs = screen.getByRole( 'heading', { level: 2, name: 'Documentation' } );
+
+		// DOCUMENT_POSITION_FOLLOWING === 4.
+		expect( videos.compareDocumentPosition( activityLog ) ).toBe( 4 );
+		expect( activityLog.compareDocumentPosition( docs ) ).toBe( 4 );
+	} );
+
+	test( 'quick start: each connector row carries its own mark', async () => {
+		apiFetch.mockResolvedValueOnce( freePayload() );
+
+		render( <AiOverview { ...PROPS } /> );
+
+		await expect( screen.findByText( 'Available requests' ) ).resolves.toBeInTheDocument();
+
+		// A missing icon entry still renders the row, just with nothing in the icon
+		// slot, so the mark itself has to be asserted. It is decorative and
+		// aria-hidden by design, so Testing Library has no query that reaches it.
+		/* eslint-disable testing-library/no-node-access */
+		const marks = [ 'Connect ChatGPT', 'Connect Claude' ].map( name =>
+			screen.getByRole( 'link', { name: new RegExp( name ) } ).querySelector( 'svg' )
+		);
+
+		for ( const mark of marks ) {
+			// Inset on a 28px canvas rather than the icons' usual 24px grid.
+			expect( mark ).toHaveAttribute( 'viewBox', '-4 -4 32 32' );
+			expect( mark ).toHaveAttribute( 'width', '28' );
+		}
+
+		// The two rows must not share one mark.
+		const paths = marks.map( mark => mark.querySelector( 'path' ).getAttribute( 'd' ) );
+		/* eslint-enable testing-library/no-node-access */
+		expect( paths[ 0 ] ).not.toBe( paths[ 1 ] );
 	} );
 } );

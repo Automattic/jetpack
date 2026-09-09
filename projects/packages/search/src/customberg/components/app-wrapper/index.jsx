@@ -6,6 +6,7 @@ import SearchApp from 'instant-search/components/search-app';
 import { buildFilterAggregations } from 'instant-search/lib/api';
 import { SERVER_OBJECT_NAME } from 'instant-search/lib/constants';
 import { getThemeOptions } from 'instant-search/lib/dom';
+import { normalizeWidgets } from 'instant-search/lib/widgets';
 import store from 'instant-search/store';
 import { disableQueryStringIntegration } from 'instant-search/store/actions';
 import './styles.scss';
@@ -17,14 +18,15 @@ __webpack_public_path__ = window.JetpackInstantSearchOptions.webpackPublicPath;
 // component so nothing writes to the store during the render phase.
 store.dispatch( disableQueryStringIntegration() );
 
+const widgets = normalizeWidgets( window[ SERVER_OBJECT_NAME ].widgets );
+const widgetsOutsideOverlay = normalizeWidgets(
+	window[ SERVER_OBJECT_NAME ].widgetsOutsideOverlay
+);
+
 const PROPS_FROM_WINDOW = {
-	aggregations: buildFilterAggregations( [
-		...window[ SERVER_OBJECT_NAME ].widgets,
-		...window[ SERVER_OBJECT_NAME ].widgetsOutsideOverlay,
-	] ),
+	aggregations: buildFilterAggregations( [ ...widgets, ...widgetsOutsideOverlay ] ),
 	defaultSort: window[ SERVER_OBJECT_NAME ].defaultSort,
 	hasOverlayWidgets: !! window[ SERVER_OBJECT_NAME ].hasOverlayWidgets,
-	options: window[ SERVER_OBJECT_NAME ],
 	themeOptions: getThemeOptions( window[ SERVER_OBJECT_NAME ] ),
 };
 
@@ -84,6 +86,8 @@ export default function AppWrapper() {
 				searchSuggestionsEnabled,
 			} ).filter( ( [ , v ] ) => typeof v !== 'undefined' )
 		),
+		widgets,
+		widgetsOutsideOverlay,
 	};
 
 	const { isLoading } = useSiteLoadingState();

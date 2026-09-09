@@ -69,8 +69,8 @@ export interface HeatmapChartProps
 	/** Floor a cell's height (px) in non-compact mode; see `minCellWidth`. */
 	minCellHeight?: number;
 	/**
-	 * Color the cell scale interpolates toward at the highest value
-	 * (this prop > theme `heatmapChart.primaryColor` > palette `colors[0]`).
+	 * Color the cell scale interpolates toward at the highest value. Defaults to the
+	 * first series palette slot, `--a8c-charts-color-series-1`.
 	 */
 	primaryColor?: string;
 	renderTooltip?: ( data: HeatmapTooltipData ) => ReactNode;

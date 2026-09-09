@@ -59,6 +59,8 @@ export interface ReportPerformanceChartProps {
 	isLoading?: boolean;
 	/** The metrics offered on the chart; defaults to Views/Visitors/Comments/Likes. */
 	metrics?: ReportChartMetric[];
+	/** The zone both reports were built and normalized under (`useStatsVisits().timezone`). */
+	timezone: string;
 	/** The active time bucket. Owned by the page — it changes the query. */
 	interval: IntervalType;
 	/** Called when the user picks a different time bucket. */
@@ -84,6 +86,7 @@ export function ReportPerformanceChart( {
 	comparison,
 	isLoading = false,
 	metrics,
+	timezone,
 	interval,
 	onIntervalChange,
 	intervalOptions = DEFAULT_INTERVAL_OPTIONS,
@@ -100,8 +103,9 @@ export function ReportPerformanceChart( {
 	);
 
 	const series = useMemo(
-		() => buildReportMetricSeries( { primary, comparison, metrics: visibleMetrics } ),
-		[ primary, comparison, visibleMetrics ]
+		() =>
+			buildReportMetricSeries( { primary, comparison, metrics: visibleMetrics, zone: timezone } ),
+		[ primary, comparison, visibleMetrics, timezone ]
 	);
 	const seriesStyles = useSeriesStyles( series );
 

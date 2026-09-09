@@ -9,38 +9,48 @@ import {
 import { Button, Stack, Text } from '@jetpack-premium-analytics/externals';
 import { pickReportDateParams, useReportDateFilters } from '@jetpack-premium-analytics/routing';
 import { DateFiltersPanel, StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
-import { Page } from '@wordpress/admin-ui';
+import {
+	DetailPageActions,
+	DetailPageBreadcrumbs,
+	DetailPageLayout,
+	DetailPageSection,
+	DetailPageShell,
+	useDetailPageCustomize,
+	useStoredDetailLayout,
+} from '@jetpack-premium-analytics/widgets-toolkit';
 import { store as coreStore } from '@wordpress/core-data';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { Link, useParams, useSearch } from '@wordpress/route';
-import { DEFAULT_GRID, ROW_HEIGHT_PRESETS, WidgetDashboard } from '@wordpress/widget-dashboard';
+import { WidgetDashboard } from '@wordpress/widget-dashboard';
 import { type WidgetModuleRecord } from '@wordpress/widget-primitives';
 /**
  * Internal dependencies
  */
+import { DETAIL_GRID } from '../grid';
 import { useDetailBreadcrumbs } from '../use-detail-breadcrumbs';
 import { useDetailDateControls } from '../use-detail-date-controls';
 import { resolveWidgetModuleWithI18n, useWidgetTypesWithI18n } from '../widget-module-i18n';
-import { VideoSummaryCard } from './components';
+import { videoHeaderSlots } from './components';
 import { VIDEO_DETAIL_LAYOUT } from './config';
 import { useVideoSummary } from './hooks';
 import { route } from './package.json';
-import styles from './stage.module.scss';
 
 const ROUTE_FROM = route.path;
 
-// The composition is fixed (WOOA7S-1625), so keep its grid independent from the
-// customizable main-dashboard preference — a future settings control must not
-// stretch these tiles out of proportion.
-const VIDEO_DETAIL_GRID = { ...DEFAULT_GRID, rowHeight: ROW_HEIGHT_PRESETS.small };
+// Its own preferences scope: the routes are separate packages, and the detail
+// surfaces' stored arrangements have no reason to share a namespace.
+const PREFERENCES_SCOPE = 'jetpack-premium-analytics/video-detail';
 
-// The layout is fixed, so the change callback never fires; the dashboard
-// still requires one because it owns a staging copy internally.
-const noopLayoutChange = () => {};
+// The page shows one layout, so one stored arrangement.
+const LAYOUT_ID = 'video';
 
 /**
  * Premium Analytics video detail page shell.
+ *
+ * The composition is fixed (WOOA7S-1625), but the reader can rearrange its
+ * cards from the page options menu (STATS-428); the arrangement is committed
+ * by the dashboard's own Done action and stored in preferences.
  *
  * @return The video detail page.
  */
@@ -74,23 +84,36 @@ function VideoDetail(): JSX.Element {
 	const search = useSearch( { strict: false } ) as Record< string, unknown > | undefined;
 	const reportSearch = pickReportDateParams( search );
 
-	const layout = VIDEO_DETAIL_LAYOUT;
+	// The stored arrangement, layered over the fixed composition.
+	const { layout, setLayout, resetLayout } = useStoredDetailLayout(
+		PREFERENCES_SCOPE,
+		LAYOUT_ID,
+		VIDEO_DETAIL_LAYOUT
+	);
 
-	// Error and not-found responses have no trustworthy title, so only resolved
-	// videos add the title crumb or render the heading.
-	const title =
-		summary.isLoading || summary.isError || summary.isNotFound
-			? undefined
-			: summary.title?.trim() || __( 'Untitled video', 'jetpack-premium-analytics-pkg' );
-	const resolvedSummary = { ...summary, title };
-	const breadcrumbs = useDetailBreadcrumbs( title );
 	const canRenderWidgets = ! summary.isLoading && ! summary.isError && ! summary.isNotFound;
-	let summaryContent: JSX.Element | null;
 
-	if ( summary.isLoading ) {
-		summaryContent = null;
-	} else if ( summary.isError ) {
-		summaryContent = (
+	// Without cards there is nothing to arrange, and a refetch that fails
+	// mid-customize would otherwise hide Cancel and Done along with the grid.
+	const { isCustomizing, canPerform, startCustomizing, onEditChange } = useDetailPageCustomize(
+		layout,
+		{ enabled: canRenderWidgets }
+	);
+
+	// Error and not-found responses have no trustworthy title, so only a
+	// resolved video adds the title crumb.
+	const breadcrumbs = useDetailBreadcrumbs(
+		canRenderWidgets
+			? summary.title?.trim() || __( 'Untitled video', 'jetpack-premium-analytics-pkg' )
+			: undefined
+	);
+
+	// The reason a video is missing goes below the header, where the widgets
+	// would have been.
+	let notice: JSX.Element | null = null;
+
+	if ( summary.isError ) {
+		notice = (
 			<Stack direction="column" align="flex-start" gap="sm">
 				<Text>
 					{ __(
@@ -104,7 +127,7 @@ function VideoDetail(): JSX.Element {
 			</Stack>
 		);
 	} else if ( summary.isNotFound ) {
-		summaryContent = (
+		notice = (
 			<Stack direction="column" align="flex-start" gap="sm">
 				<Text>{ __( "We couldn't find this video.", 'jetpack-premium-analytics-pkg' ) }</Text>
 				<Link
@@ -116,50 +139,59 @@ function VideoDetail(): JSX.Element {
 				</Link>
 			</Stack>
 		);
-	} else {
-		summaryContent = (
-			<VideoSummaryCard summary={ resolvedSummary } performanceRange={ dateFilters.appliedRange } />
-		);
 	}
 
 	return (
-		<WidgetDashboard
-			widgetTypes={ widgetTypes }
-			isResolvingWidgetTypes={ isResolvingWidgetTypes }
-			resolveWidgetModule={ resolveWidgetModuleWithI18n }
-			layout={ layout }
-			onLayoutChange={ noopLayoutChange }
-			gridSettings={ VIDEO_DETAIL_GRID }
-		>
-			<Page
-				visual={ <StatsPageIcon /> }
-				breadcrumbs={ <StatsBreadcrumbs items={ breadcrumbs } /> }
-				className={ styles.page }
+		<WidgetDashboard.Policy canPerform={ canPerform }>
+			<WidgetDashboard
+				widgetTypes={ widgetTypes }
+				isResolvingWidgetTypes={ isResolvingWidgetTypes }
+				resolveWidgetModule={ resolveWidgetModuleWithI18n }
+				layout={ layout }
+				onLayoutChange={ setLayout }
+				onLayoutReset={ resetLayout }
+				gridSettings={ DETAIL_GRID }
+				editMode={ isCustomizing }
+				onEditChange={ onEditChange }
 			>
-				<div className={ styles.scrollArea }>
-					{ /*
-					 * The presets render in every summary state, so the range stays
-					 * adjustable while the video loads or errors.
-					 */ }
-					<div className={ styles.header }>
-						{ summaryContent ? <div className={ styles.summary }>{ summaryContent }</div> : null }
-						<div className={ styles.dateFilters }>
-							{ /*
-							 * The design has no comparison on this page. The panel reads that
-							 * from the scope the stage declares, which is the same declaration
-							 * that keeps the params away from the widgets.
-							 */ }
-							<DateFiltersPanel { ...dateFilters } { ...dateControls } />
-						</div>
-					</div>
-					{ canRenderWidgets ? (
-						<div className={ styles.content }>
-							<WidgetDashboard.Widgets className={ styles.widgets } />
-						</div>
-					) : null }
-				</div>
-			</Page>
-		</WidgetDashboard>
+				<DetailPageShell
+					visual={ <StatsPageIcon /> }
+					breadcrumbs={
+						<DetailPageBreadcrumbs isCustomizing={ isCustomizing }>
+							<StatsBreadcrumbs items={ breadcrumbs } />
+						</DetailPageBreadcrumbs>
+					}
+					// Without cards there is nothing to arrange, so the menu waits for the
+					// video to resolve.
+					actions={
+						canRenderWidgets ? (
+							<DetailPageActions
+								isCustomizing={ isCustomizing }
+								onCustomize={ startCustomizing }
+								editingActions={ <WidgetDashboard.Actions /> }
+							/>
+						) : undefined
+					}
+				>
+					<DetailPageLayout
+						header={ videoHeaderSlots( {
+							summary,
+							performanceRange: dateFilters.appliedRange,
+						} ) }
+						// The presets render in every summary state, so the range stays
+						// adjustable while the video loads or errors.
+						controls={ <DateFiltersPanel { ...dateFilters } { ...dateControls } /> }
+					>
+						{ canRenderWidgets ? (
+							<DetailPageSection>
+								<WidgetDashboard.Widgets />
+							</DetailPageSection>
+						) : null }
+						{ notice ? <DetailPageSection>{ notice }</DetailPageSection> : null }
+					</DetailPageLayout>
+				</DetailPageShell>
+			</WidgetDashboard>
+		</WidgetDashboard.Policy>
 	);
 }
 

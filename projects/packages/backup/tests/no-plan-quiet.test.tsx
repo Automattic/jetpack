@@ -113,13 +113,6 @@ let hasBackupPlan = false;
 /** Flipped per test; whether the site has a restore for the Restore screen to adopt. */
 let restoreRunning = false;
 
-// jsdom implements no scrolling, and DataViews' list layout calls
-// `scrollIntoView` on the selected row.
-Object.defineProperty( window.HTMLElement.prototype, 'scrollIntoView', {
-	value: () => {},
-	writable: true,
-} );
-
 /**
  * How many times `apiFetch` has been asked for a route, ignoring query args.
  *
@@ -342,7 +335,7 @@ describe( 'The Restore screen across a gate flip', () => {
 		render( <RestoreStage /> );
 		await user.click( await screen.findByRole( 'button', { name: /Confirm restore/ }, SETTLE ) );
 		await expect(
-			screen.findByText( /queued and will begin shortly/, undefined, SETTLE )
+			screen.findByText( /queued and will begin automatically/, undefined, SETTLE )
 		).resolves.toBeInTheDocument();
 		const posts = () => mockApiFetch.mock.calls.filter( ( [ o ] ) => o?.method === 'POST' ).length;
 		expect( posts() ).toBe( 1 );
@@ -359,7 +352,7 @@ describe( 'The Restore screen across a gate flip', () => {
 			await queryClient.invalidateQueries( { queryKey: keys.capabilities() } );
 		} );
 		await expect(
-			screen.findByText( /queued and will begin shortly/, undefined, SETTLE )
+			screen.findByText( /queued and will begin automatically/, undefined, SETTLE )
 		).resolves.toBeInTheDocument();
 
 		expect( screen.queryByRole( 'button', { name: /Confirm restore/ } ) ).not.toBeInTheDocument();

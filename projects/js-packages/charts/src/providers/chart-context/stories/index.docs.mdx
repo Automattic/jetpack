@@ -47,7 +47,48 @@ Wrap your application or chart components with `GlobalChartsProvider` to enable 
 ### Basic Provider Props
 
 - **`theme`** *(optional)*: Partial theme object to customize chart appearance
+- **`locale`** *(optional)*: BCP-47 tag every date label is rendered in, e.g. `de-DE`
+- **`timeZone`** *(optional)*: IANA zone every date label is dated in, e.g. `Asia/Tokyo`
 - **`children`**: Chart components and other React elements
+
+### Dates: locale and time zone
+
+The time axis and the built-in tooltips of `LineChart`, `AreaChart` and
+`BarChart` render their dates through the provider's `locale` and `timeZone`. Set
+them from whatever the host already knows — a WordPress site's user locale and
+site timezone, say — and pass plain strings; the library never reaches for a
+WordPress package to resolve them. `locale` is a BCP-47 tag, and WordPress's
+underscored form (`en_US`) is repaired for you; a value `Intl` still cannot use
+falls back to the runtime's own and warns in development.
+
+<Source
+	language="tsx"
+	code={ `<GlobalChartsProvider locale="de-DE" timeZone="Asia/Tokyo">
+		<LineChart data={ data } />
+	</GlobalChartsProvider>` }
+/>
+
+<Canvas of={ ChartContextStories.HostLocaleAndTimeZoneFormatDates } />
+
+Leave either out and that half falls back to the JavaScript runtime's own — the
+viewer's browser locale and browser time zone. That is the default, so nothing
+changes for a consumer that sets neither, but it does mean two people viewing
+the same site from different countries see different axes until the host sets
+them.
+
+`timeZone` re-dates the instants you supply rather than relabeling them, so a
+value that is really a calendar day moves under it: `new Date( '2026-08-02' )` is
+UTC midnight, which is Aug 1 in `America/Los_Angeles`. A `dateString` point moves
+the same way but by a viewer-dependent amount, because `parseAsLocalDate` reads it
+as midnight in the browser's zone. Supply true instants alongside a `timeZone`, or
+set only `locale` for day-bucketed data. CHARTS-268 has the detail.
+
+Two things neither prop reaches. `HeatmapChart` builds its labels in
+`buildCalendarHeatmapData`, a plain function the host calls outside the provider,
+so they stay in English on the browser's calendar. And the boundaries that promote
+a tick to its date or its year are read on the Gregorian calendar, so a
+non-Gregorian `locale` labels its own new year while the year tick still lands on
+January 1.
 
 ## Color Coordination
 
@@ -76,19 +117,16 @@ Precedence for a series color, highest first:
 
 1. `options.stroke` on that series — the per-series override.
 2. A CSS declaration of `--a8c-charts-color-series-N` anywhere between the chart and the provider.
-3. `theme.colors[ N - 1 ]`, which writes slot N from JS. **Deprecated** — see below.
-4. The catalog default, which only slot 1 has.
+3. The catalog default, which only slot 1 has.
 
 Because the palette resolves once at the provider wrapper, a slot set on a chart's *own* element has no effect — the colors were resolved before that element existed. Scope the rule to a wrapper around the chart, or use `options.stroke` for a single series.
 
 <Source
-	language="tsx"
-	code={ `// Deprecated: theme.colors writes the slots from JS.
-	// It still works, but a CSS declaration of a slot outranks it,
-	// and entries past the fifth are dropped with a console warning.
-	<GlobalChartsProvider theme={ { colors: [ '#3858e9', '#007a5a' ] } }>
-		{ /* Prefer setting --a8c-charts-color-series-1 … -5 in CSS. */ }
-	</GlobalChartsProvider>` }
+	language="css"
+	code={ `.my-dashboard {
+		--a8c-charts-color-series-1: #3858e9;
+		--a8c-charts-color-series-2: #007a5a;
+	}` }
 />
 
 ### Stable Colors for Groups
@@ -152,12 +190,12 @@ The context respects explicit color overrides while maintaining group stability 
 		/* Chart background and label plates */
 		--a8c-charts-color-background: #fff;
 		--a8c-charts-color-label-background: transparent;
-		--a8c-charts-color-label-on-fill: #ffffff;
+		--a8c-charts-color-label-inverse: #ffffff;
 
 		/* Grid, axis, ticks and their labels */
 		--a8c-charts-color-grid: #dbdbdb;
-		--a8c-charts-color-axis: #dbdbdb;
-		--a8c-charts-color-tick: #dbdbdb;
+		--a8c-charts-color-axis-x: #dbdbdb;
+		--a8c-charts-color-tick-x: #dbdbdb;
 		--a8c-charts-color-label-axis: #1e1e1e;
 
 		/* Every label at once, legend included */
@@ -175,7 +213,7 @@ The context respects explicit color overrides while maintaining group stability 
 
 Series colors work the same way, through the five `--a8c-charts-color-series-*` slots. See [The Series Palette](#the-series-palette).
 
-The `theme` prop's matching color fields are deprecated and will be removed; `TOKENS.md` maps each one to the role that replaces it. What stays on `theme` is everything with no role behind it — `tickLength`, stroke widths, font weights, the heatmap's compact sizing, the annotation geometry:
+The `theme` prop carries shape and spacing — `tickLength`, stroke widths, font weights, the heatmap's compact sizing, the annotation geometry. Colors are not among them: each one is a role you set in CSS, as above. If you are upgrading from a version whose `theme` took colors, `TOKENS.md` maps each of those fields to the role that replaces it.
 
 <Source
 	language="tsx"
@@ -188,7 +226,7 @@ The `theme` prop's matching color fields are deprecated and will be removed; `TO
 
 Themes are merged with the default theme, so you only need to specify the properties you want to customize.
 
-A field you leave out doesn't fall back to a separate JS default value — it falls through to the catalog default, because `defaultTheme` holds a `--a8c-charts-*` pointer for every color rather than a literal. Omitting a color is therefore how you opt into design-system theming, not how you opt out of theming.
+Colors are not part of that merge at all — they reach a chart through the catalog, so leaving the `theme` prop off entirely still gives a chart the design system's colors.
 
 ### CSS Custom Property Overrides
 
@@ -219,28 +257,20 @@ Setting these on an ancestor of `GlobalChartsProvider` has no effect — the pro
 
 That rule matches every provider wrapper — including the one a bare chart mounts for itself — and it beats the catalog default, which is declared through `:where()` at zero specificity. If you previously set `--a8c-charts-*` on `:root` or on a wrapper above your charts, this is the replacement. See TOKENS.md for the full precedence order.
 
-Three placements need care:
+Two placements need care:
 
-- **A chart's own class is too deep to reach the SVG colors.** Setting a role on the element a chart's `className` lands on — `.line-chart { --a8c-charts-color-grid: … }` — moves everything that chart paints in CSS, but not the gridlines, axis lines or tick labels: visx and Google Charts need concrete values, which are resolved in JS at the chart's scope element, an ancestor of the class you targeted. The result is a half-applied override, so scope this kind of rule to a wrapper **around** the chart instead. Supporting it on the chart itself is tracked in CHARTS-255.
+- **A chart's own class reaches everything it paints, but not the palette.** Setting a role on the element a chart's `className` lands on — `.line-chart { --a8c-charts-color-grid: … }` — moves the gridlines, axis lines and tick labels, because each of those carries its `var()` chain onto the element and resolves it there. It does not move the series colors or the chart background: those are read as strings in JS, at the chart's scope element, which is an ancestor of the class you targeted. Scope a rule for those to a wrapper **around** the chart.
 
-- **Tooltips rendered in a portal** — those of `PieChart`, `PieSemiCircleChart`, `HeatmapChart` and `ConversionFunnelChart`, which position through `@visx/tooltip`'s `useTooltipInPortal` — sit outside the provider's DOM tree, so they re-declare the catalog on themselves and never see an override scoped to the provider or to an element inside it. They do carry the scope class, so the `.a8c-charts-scope` rule above reaches them.
 - **`@wordpress/theme`'s `ThemeProvider` belongs above `GlobalChartsProvider`**, not between it and a chart. The catalog reads its `--wpds-*` tokens at the provider wrapper, so a `ThemeProvider` mounted below that wrapper is never consulted and CSS-painted colors keep the light-mode spec values.
 
-The `theme` prop is a second, narrower override path. Five `ChartTheme` fields map to a catalog role, and setting one publishes it as that role's theme-layer variable (`--a8c-charts-color-grid-theme` for the grid) on the provider wrapper — so it also reaches the SVG- and Google-Charts-painted colors those tools can't read from `theme` directly:
+**The `theme` prop is not a second override path — it carries no colors at all.** A role has one source outside the catalog: a CSS declaration of it. What `theme` carries is shape and spacing — `tickLength`, `gridStyles.strokeWidth`, `svgLabelSmall.fontFamily`, the annotation geometry, the leaderboard's gaps.
 
-| `theme` field | Catalog role |
-| --- | --- |
-| `backgroundColor` | `--a8c-charts-color-background` |
-| `gridStyles.stroke` | `--a8c-charts-color-grid` |
-| `xAxisLineStyles.stroke` | `--a8c-charts-color-axis` |
-| `xTickLineStyles.stroke` | `--a8c-charts-color-tick` |
-| `svgLabelSmall.fill` | `--a8c-charts-color-label-axis` |
+Two roles are narrower than their obvious name, so that moving one thing does not move four:
 
-Each field publishes a role read by exactly the elements that field already controlled, so a `theme` override never spreads further than the element class it names. Where the obvious role has wider readership, one side takes a role of its own: `svgLabelSmall.fill` writes the narrow `--a8c-charts-color-label-axis`, leaving legend labels, heatmap cell values, funnel labels and the line-chart tooltip on the broad `--a8c-charts-color-label`. Set the broad role in CSS to move them all together.
+- `--a8c-charts-color-label-axis` derives from `--a8c-charts-color-label`. Set the broad one to move every label — legend labels, heatmap cell values, funnel labels, the line-chart tooltip — or the narrow one to move only the SVG axis labels.
+- `--a8c-charts-color-surface` — the annotation label, `.x-zoom__reset`, tooltips — is a sibling of `--a8c-charts-color-background`, not a child, so the chart's background and the surfaces over it move independently.
 
-A CSS declaration of the role wins over the `theme` prop wherever you set it, the provider wrapper included: the prop writes the theme layer, and a role declared in CSS never reads that layer.
-
-Publishing the value one layer out is what keeps the catalog default reachable. An override CSS cannot resolve — most often `var(--wpds-…)` with no fallback, when the design-system stylesheet isn't loaded — leaves the role resolving its own mapped token instead of taking every reader of that role down with it. A value that points at the role it would override is not published at all, since that would make the role depend on itself; the field falls back to the catalog default on both the CSS and SVG paths, so the two never disagree.
+The axes go the other way: there is no broad axis role, only `--a8c-charts-color-axis-x` / `-tick-x` and `--a8c-charts-color-axis-y` / `-tick-y`. The y pair resolves to `none`, so that axis carries labels only until you declare one.
 
 See TOKENS.md for the full catalog and precedence order.
 
@@ -345,25 +375,23 @@ Access the full context for advanced chart functionality:
 
 ### useChartScopeElement
 
-Returns the element a chart's tokens resolve against — the wrapper the chart renders into, which is where an override set anywhere between the provider and that chart has landed. Pair it with `normalizeColorToHex` and `resolveCssVariable` when JS needs a *resolved* color rather than the token string: computing text contrast against `theme.backgroundColor`, for example, or feeding a color to Google Charts, which cannot read `var()`.
+Returns the element a chart's tokens resolve against — the wrapper the chart renders into, which is where an override set anywhere between the provider and that chart has landed. Pair it with `normalizeColorToHex` and `resolveCssVariable` when JS needs a *resolved* color rather than the token string: computing text contrast against the chart background, for example, or feeding a color to Google Charts, which cannot read `var()`.
 
 <Source
 	language="tsx"
 	code={ `import {
 		useChartScopeElement,
-		useGlobalChartsTheme,
 		normalizeColorToHex,
 		resolveCssVariable,
 	} from '@automattic/charts';
 
 	function ContrastAwareLabel() {
 		const scopeElement = useChartScopeElement();
-		const theme = useGlobalChartsTheme();
 
 		// Resolves at call time, so the result follows a light/dark switch
-		// even when the token string never changes. Empty input returns ''.
+		// even when the role's value never changes. Empty input returns ''.
 		const backgroundHex = normalizeColorToHex(
-			theme.backgroundColor,
+			'var(--a8c-charts-color-background, #fff)',
 			scopeElement,
 			resolveCssVariable
 		);
@@ -404,6 +432,25 @@ Access just the theme when you only need the non-color settings — sizing, weig
 	}` }
 />
 
+### useChartFormatting
+
+Read the locale and time zone dates are rendered in, for a custom tooltip or
+label that has to agree with the axis:
+
+<Source
+	language="tsx"
+	code={ `import { useChartFormatting } from '@automattic/charts';
+
+	function BucketLabel( { date } ) {
+		const { locale, timeZone } = useChartFormatting();
+
+		return <span>{ date.toLocaleDateString( locale, { timeZone } ) }</span>;
+	}` }
+/>
+
+Outside a provider it returns an empty object rather than throwing, so both
+halves fall back to the runtime's own.
+
 ### useChartRegistration
 
 Register custom charts with the global context:
@@ -426,6 +473,78 @@ Register custom charts with the global context:
 		} );
 
 		return <div>{ /* Chart implementation */ }</div>;
+	}` }
+/>
+
+## Date Bucket Classification
+
+### getBucketInfo
+
+Unlike the hooks above, this is a plain function — it reads no context and
+needs no `GlobalChartsProvider`.
+
+`LineChart` and `AreaChart` classify a series' time bucket to pick their axis
+and tooltip formats. `getBucketInfo( data, tickResolution? )` exposes that
+same classification for a consumer building its own label:
+
+<Source
+	language="tsx"
+	code={ `import { getBucketInfo } from '@automattic/charts';
+
+	const bucketInfo = getBucketInfo( data, tickResolution );
+	// { bucket: 'day', displayResolution: 'day' }` }
+/>
+
+It returns two fields because labeling and semantics diverge. A weekly
+series is labeled with calendar dates exactly as a daily one is, so
+`displayResolution` (`Exclude< TickResolution, 'week' >`) is what a date
+format keys on. But a consumer may still need to know the series is weekly —
+to write "Week of 5 Aug" rather than a bare date, say — and that is what
+`bucket` carries.
+
+`bucket` only reports `'week'` when a caller declares it, via the same
+`tickResolution` handed to the chart's `options.axis.x`. Seven-day spacing is
+indistinguishable from sparse daily data, so `getBucketInfo` cannot recover a
+week on its own; an undeclared weekly series reports `'day'` in both fields.
+
+**Inside a custom tooltip**, read it directly: `LineChart` and `AreaChart`
+always call `renderTooltip` with `bucketInfo` attached, so a custom renderer
+needs no separate call and no cast.
+
+<Source
+	language="tsx"
+	code={ `<LineChart
+		data={ data }
+		renderTooltip={ params => {
+			const heading =
+				params.bucketInfo?.bucket === 'week' ? 'Week of …' : 'Day of …';
+			return <span>{ heading }</span>;
+		} }
+	/>` }
+/>
+
+**Anywhere else — `tickFormat` above all — call `getBucketInfo` yourself.**
+visx fixes the `tickFormat` signature to `( value, index, values ) => string`,
+so a chart has no channel to hand it `bucketInfo` the way it hands
+`renderTooltip`. Call `getBucketInfo` in the component body with the same data
+and `tickResolution` the chart receives, and close over the result:
+
+<Source
+	language="tsx"
+	code={ `import { getBucketInfo } from '@automattic/charts';
+
+	function MyChart( { data, tickResolution } ) {
+		const bucketInfo = getBucketInfo( data, tickResolution );
+
+		const tickFormat = ( timestamp ) =>
+			bucketInfo.bucket === 'week' ? formatWeek( timestamp ) : formatDay( timestamp );
+
+		return (
+			<LineChart
+				data={ data }
+				options={ { axis: { x: { tickResolution, tickFormat } } } }
+			/>
+		);
 	}` }
 />
 
@@ -535,9 +654,9 @@ When charts register with a `chartId`, their legend data becomes available to st
 
 ## Accessibility
 
-### Theme Color Considerations
+### Color Considerations
 
-When creating custom themes, ensure sufficient contrast between background and foreground colors to meet WCAG AA standards (4.5:1 for normal text, 3:1 for large text)
+When setting the catalog roles, ensure sufficient contrast between background and foreground colors to meet WCAG AA standards (4.5:1 for normal text, 3:1 for large text)
 
 ### Automatic Color Generation
 
@@ -548,8 +667,8 @@ When your data has more series than the palette has seeds, the Global Charts Con
 The system uses the **golden ratio (φ ≈ 0.618)** to generate mathematically pleasing color distributions:
 
 - **Hue spacing** - New hues are distributed for optimal visual separation
-- **Hue range constraint** - Generated colors stay within an expanded range (130%) of your theme's existing colors
-- **Wrap-around handling** - Intelligently handles cases where theme colors span across the 0° hue boundary
+- **Hue range constraint** - Generated colors stay within an expanded range (130%) of the palette slots you set
+- **Wrap-around handling** - Intelligently handles cases where those colors span across the 0° hue boundary
 
 **Note that only hex colors are supported for generating colors.**
 

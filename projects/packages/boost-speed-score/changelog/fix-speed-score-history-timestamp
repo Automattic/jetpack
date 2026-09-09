@@ -1,4 +1,0 @@
-Significance: minor
-Type: fixed
-
-Record the time of every completed speed score measurement, not only the ones that change the score.

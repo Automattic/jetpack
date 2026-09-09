@@ -317,7 +317,7 @@ describe( 'AreaChart', () => {
 			expect( afterToggleDomain![ 1 ] ).toBeLessThan( initialDomain![ 1 ] );
 		} );
 
-		test( 'y-axis stays pinned for unstacked area when rescaleYOnLegendToggle is false', async () => {
+		test( 'y-axis stays pinned for unstacked area when rescaleYOnVisibilityChange is false', async () => {
 			// Exercises the non-stacked branch of fixedYDomain, which scans the
 			// raw min/max across all series rather than summing stack columns.
 			const user = userEvent.setup();
@@ -330,7 +330,7 @@ describe( 'AreaChart', () => {
 						chartId="test-interactive-domain-pin-unstacked"
 						legend={ { interactive: true } }
 						stacked={ false }
-						rescaleYOnLegendToggle={ false }
+						rescaleYOnVisibilityChange={ false }
 						ref={ ref }
 					/>
 				</GlobalChartsProvider>
@@ -351,35 +351,6 @@ describe( 'AreaChart', () => {
 			expect( afterToggleDomain ).toEqual( initialDomain );
 		} );
 
-		test( 'y-axis stays pinned when rescaleYOnLegendToggle is false', async () => {
-			const user = userEvent.setup();
-			const ref = createRef< ChartInstanceRef >();
-			render(
-				<GlobalChartsProvider>
-					<AreaChartUnresponsive
-						{ ...defaultProps }
-						showLegend
-						chartId="test-interactive-domain-pin"
-						legend={ { interactive: true } }
-						rescaleYOnLegendToggle={ false }
-						ref={ ref }
-					/>
-				</GlobalChartsProvider>
-			);
-
-			const initialDomain = (
-				ref.current?.getScales()?.yScale as { domain: () => number[] } | undefined
-			 )?.domain();
-			expect( initialDomain ).toBeDefined();
-
-			await user.click( screen.getByText( 'Series A' ) );
-
-			const afterToggleDomain = (
-				ref.current?.getScales()?.yScale as { domain: () => number[] } | undefined
-			 )?.domain();
-			expect( afterToggleDomain ).toEqual( initialDomain );
-		} );
-
 		test( 'y-axis stays pinned when rescaleYOnVisibilityChange is false', async () => {
 			const user = userEvent.setup();
 			const ref = createRef< ChartInstanceRef >();
@@ -388,7 +359,7 @@ describe( 'AreaChart', () => {
 					<AreaChartUnresponsive
 						{ ...defaultProps }
 						showLegend
-						chartId="test-interactive-domain-pin-new"
+						chartId="test-interactive-domain-pin"
 						legend={ { interactive: true } }
 						rescaleYOnVisibilityChange={ false }
 						ref={ ref }
@@ -607,7 +578,7 @@ describe( 'AreaChart', () => {
 						chartId="test-interactive-negative"
 						showLegend
 						legend={ { interactive: true } }
-						rescaleYOnLegendToggle={ false }
+						rescaleYOnVisibilityChange={ false }
 						data={ [
 							{
 								label: 'Pos',

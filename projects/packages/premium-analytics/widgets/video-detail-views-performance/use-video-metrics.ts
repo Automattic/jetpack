@@ -7,12 +7,8 @@ import {
 	type StatsChartBucketPeriod,
 	type StatsSingleVideoDataPoint,
 } from '@jetpack-premium-analytics/data';
-import {
-	toChartDate,
-	toDay,
-	type DataFormat,
-	type MetricTab,
-} from '@jetpack-premium-analytics/widgets-toolkit';
+import { resolveBucketStamp } from '@jetpack-premium-analytics/datetime';
+import { toDay, type DataFormat, type MetricTab } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import {
@@ -162,18 +158,18 @@ function bucketTotals(
 }
 
 /**
- * Turns bucket totals into chart points. Keys are wall clocks, not instants —
- * read via `toChartDate` with `pointsAreWallClocks` declared to the chart
- * (rationale in `chart-date.ts`); a real instant would shift labels by timezone.
+ * Turns bucket totals into chart points.
  */
 function toBucketPoints(
 	buckets: BucketWindow[],
-	totals: Map< string, number >
+	totals: Map< string, number >,
+	zone: string
 ): VideoMetricPoint[] {
-	return buckets.map( bucket => ( {
-		date: toChartDate( bucket.date ),
-		value: totals.get( bucket.date ) ?? 0,
-	} ) );
+	return buckets.flatMap( bucket => {
+		const date = resolveBucketStamp( bucket.date, zone );
+
+		return date ? [ { date, value: totals.get( bucket.date ) ?? 0 } ] : [];
+	} );
 }
 
 /**
@@ -220,7 +216,7 @@ export default function useVideoMetrics(
 		() => toDayWindow( reportParams.from, reportParams.to ),
 		[ reportParams.from, reportParams.to ]
 	);
-	const { data, isLoading, isFetching, isError, error, refetch } = useStatsSingleVideo(
+	const { data, timezone, isLoading, isFetching, isError, error, refetch } = useStatsSingleVideo(
 		videoId,
 		{ from: reportParams.from, to: reportParams.to, period: 'day', statType: 'all' },
 		{ enabled: !! primaryWindow }
@@ -240,7 +236,7 @@ export default function useVideoMetrics(
 			serverTotal: number | undefined,
 			dataFormat: DataFormat
 		): MetricTab => {
-			const current = toBucketPoints( buckets, bucketTotals( points, buckets ) );
+			const current = toBucketPoints( buckets, bucketTotals( points, buckets ), timezone );
 			return {
 				key,
 				label,
@@ -288,7 +284,8 @@ export default function useVideoMetrics(
 			const rates = data.series.retention_rate;
 			const current = toBucketPoints(
 				buckets,
-				playWeightedRetention( rates, playsSeries, buckets )
+				playWeightedRetention( rates, playsSeries, buckets ),
+				timezone
 			);
 			// Headline fallback: the same play-weighting over the whole window as
 			// one bucket. The server total is canonical when present.
@@ -307,7 +304,7 @@ export default function useVideoMetrics(
 		}
 
 		return tabs;
-	}, [ data, period, primaryWindow ] );
+	}, [ data, period, primaryWindow, timezone ] );
 
 	return {
 		metrics,

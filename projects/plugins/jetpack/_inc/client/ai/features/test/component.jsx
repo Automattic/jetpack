@@ -39,20 +39,9 @@ describe( 'AiFeatures rendering', () => {
 		);
 	} );
 
-	test( 'renders one Agent capabilities card with title and subtitle', () => {
-		renderFeatures();
-
-		expect(
-			screen.getByRole( 'heading', { level: 2, name: 'Agent capabilities' } )
-		).toBeInTheDocument();
-		expect(
-			screen.getByText( 'Choose what your WordPress Agent can help with across your site.' )
-		).toBeInTheDocument();
-	} );
-
-	// One divider per visible section — the first doubles as the header rule
-	// per the Figma — and the group headers are real h3s, one level below the
-	// card's h2 (the page title "AI" is the h1 above both).
+	// Dividers separate the groups and never lead the card — the group headers
+	// are real h2s, one level below the page title "AI", and the card itself
+	// carries no heading or lead line.
 	test.each( [
 		[ 'one section', { writing_assistant: { enabled: true } }, [ 'Content' ] ],
 		[ 'two sections', null, [ 'Content', 'Search' ] ],
@@ -65,34 +54,31 @@ describe( 'AiFeatures rendering', () => {
 			},
 			[ 'Content', 'Media', 'Search' ],
 		],
-	] )( '%s: one divider per section, h3 group headers in order', ( _label, features, titles ) => {
-		renderFeatures( features ? { features } : {} );
+	] )(
+		'%s: dividers between groups only, h2 group headers in order',
+		( _label, features, titles ) => {
+			renderFeatures( features ? { features } : {} );
 
-		expect( screen.getAllByRole( 'separator' ) ).toHaveLength( titles.length );
-		const headings = screen.getAllByRole( 'heading', { level: 3 } );
-		expect( headings.map( heading => heading.textContent ) ).toEqual( titles );
-	} );
+			expect( screen.queryAllByRole( 'separator' ) ).toHaveLength( titles.length - 1 );
+			const headings = screen.getAllByRole( 'heading', { level: 2 } );
+			expect( headings.map( heading => heading.textContent ) ).toEqual( titles );
+		}
+	);
 
 	test( 'no reported features: no empty card shell', () => {
 		// Everything else healthy — the empty payload alone must suppress the card.
 		renderFeatures( { features: {} } );
 
-		expect(
-			screen.queryByRole( 'heading', { name: 'Agent capabilities' } )
-		).not.toBeInTheDocument();
-		expect(
-			screen.queryByText( 'Choose what your WordPress Agent can help with across your site.' )
-		).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'region' ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'separator' ) ).not.toBeInTheDocument();
 	} );
 
-	test( 'the page notices survive the card disappearing', () => {
-		renderFeatures( { master_enabled: false, features: {} } );
+	test( 'the connect notice survives the card disappearing', () => {
+		renderFeatures( { is_connected: false, features: {} } );
 
-		// The notices live outside the card and must not go down with it.
-		expect( screen.getByText( 'Jetpack AI is turned off for this site.' ) ).toBeInTheDocument();
-		expect(
-			screen.queryByRole( 'heading', { name: 'Agent capabilities' } )
-		).not.toBeInTheDocument();
+		// The notice lives outside the card and must not go down with it.
+		expect( screen.getByText( 'Jetpack is not connected to WordPress.com.' ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'region' ) ).not.toBeInTheDocument();
 	} );
 
 	test( 'the AI SEO row renders from the ai_seo feature key inside the SEO group', () => {
@@ -112,7 +98,7 @@ describe( 'AiFeatures rendering', () => {
 	test( 'the upgrade badge sits inside the Search group', () => {
 		renderFeatures();
 
-		// Each group is a region named by its h3, so the badge's placement is
+		// Each group is a region named by its heading, so the badge's placement is
 		// part of the accessibility tree, not just visual layout.
 		const searchGroup = screen.getByRole( 'region', { name: 'Search' } );
 		expect(
@@ -192,14 +178,14 @@ describe( 'AiFeatures rendering', () => {
 		).resolves.toBeInTheDocument();
 	} );
 
-	test( 'master off: notice with a My Jetpack link, toggles keep saved values but disable, links hidden', () => {
+	test( 'master off: toggles keep saved values but disable, links hidden', () => {
 		renderFeatures( { master_enabled: false } );
 
-		expect( screen.getByText( 'Jetpack AI is turned off for this site.' ) ).toBeInTheDocument();
-		expect( screen.getByRole( 'link', { name: 'Manage in My Jetpack' } ) ).toHaveAttribute(
-			'href',
-			'admin.php?page=my-jetpack#/products'
-		);
+		// The master-off notice is page-level (main.jsx owns it) — rendering it
+		// here too would double it up.
+		expect(
+			screen.queryByText( 'Jetpack AI is turned off for this site.' )
+		).not.toBeInTheDocument();
 
 		// The saved value stays visible — the toggle must not misreport it as off.
 		const toggle = screen.getByRole( 'checkbox', { name: /Writing Assistant/ } );
@@ -229,12 +215,41 @@ describe( 'AiFeatures rendering', () => {
 		expect( screen.queryByText( 'Learn more' ) ).not.toBeInTheDocument();
 	} );
 
-	test( 'not connected takes precedence over the master-off notice', () => {
-		renderFeatures( { is_connected: false, master_enabled: false } );
+	test( 'user not linked: connect notice, toggles keep saved values but disable, links and badge hidden', () => {
+		renderFeatures( { is_connected: true, is_user_connected: false } );
+
+		expect( screen.getByText( 'Your WordPress.com account isn’t connected.' ) ).toBeInTheDocument();
+		expect(
+			screen.getByRole( 'link', { name: 'Connect your user account to manage AI features.' } )
+		).toHaveAttribute( 'href', 'admin.php?page=my-jetpack#/connection' );
+		// The site is connected, so the site-level ask must not show as well.
+		expect(
+			screen.queryByText( 'Jetpack is not connected to WordPress.com.' )
+		).not.toBeInTheDocument();
+
+		const toggle = screen.getByRole( 'checkbox', { name: /Writing Assistant/ } );
+		expect( toggle ).toBeChecked();
+		expect( toggle ).toBeDisabled();
+
+		expect( screen.queryByText( 'Requires upgrade' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( 'Learn more' ) ).not.toBeInTheDocument();
+	} );
+
+	test( 'is_user_connected absent: no user notice, toggles stay usable', () => {
+		renderFeatures( { is_connected: true } );
+
+		expect(
+			screen.queryByText( 'Your WordPress.com account isn’t connected.' )
+		).not.toBeInTheDocument();
+		expect( screen.getByRole( 'checkbox', { name: /Writing Assistant/ } ) ).toBeEnabled();
+	} );
+
+	test( 'site and user both unlinked: only the site notice shows', () => {
+		renderFeatures( { is_connected: false, is_user_connected: false } );
 
 		expect( screen.getByText( 'Jetpack is not connected to WordPress.com.' ) ).toBeInTheDocument();
 		expect(
-			screen.queryByText( 'Jetpack AI is turned off for this site.' )
+			screen.queryByText( 'Your WordPress.com account isn’t connected.' )
 		).not.toBeInTheDocument();
 	} );
 
@@ -287,15 +302,10 @@ describe( 'AiFeatures rendering', () => {
 		expect( screen.getByRole( 'checkbox', { name: /AI Answers/ } ) ).toBeDisabled();
 	} );
 
-	test( 'free plan AND master off: the master-off notice shows', () => {
-		renderFeatures( { is_connected: true, plan: { supports_ai: false }, master_enabled: false } );
-
-		expect( screen.getByText( 'Jetpack AI is turned off for this site.' ) ).toBeInTheDocument();
-	} );
-
 	// Gated toggles must be inert, not merely styled disabled.
 	test.each( [
 		[ 'not connected', { is_connected: false } ],
+		[ 'user not linked', { is_user_connected: false } ],
 		[ 'master off', { master_enabled: false } ],
 	] )( '%s fires no save and no Tracks event', async ( _label, overrides ) => {
 		analytics.tracks.recordEvent.mockClear();

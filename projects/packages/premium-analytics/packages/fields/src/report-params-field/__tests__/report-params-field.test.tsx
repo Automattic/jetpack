@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { normalizeReportParams } from '@jetpack-premium-analytics/data';
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useState } from 'react';
@@ -119,6 +120,10 @@ describe( 'reportParamsAttributeField', () => {
 } );
 
 describe( 'report params field', () => {
+	afterEach( () => {
+		jest.useRealTimers();
+	} );
+
 	it( 'offers no bucket control by default', () => {
 		renderField();
 
@@ -154,7 +159,9 @@ describe( 'report params field', () => {
 			'Last 30 days',
 			'Last 90 days',
 			'Last 365 days',
+			'Month to date',
 			'Last month',
+			'Year to date',
 			'Last 12 months',
 			'Last year',
 			'Custom range',
@@ -218,7 +225,7 @@ describe( 'report params field', () => {
 	} );
 
 	/*
-	 * `DateRangeFilter` calls `onChange` then `onApply` in the same tick; a
+	 * `DatePeriodDropdown` calls `onChange` then `onApply` in the same tick; a
 	 * commit reading staged state lands a click behind — the first click, on
 	 * the range it already had, left the previous range's buckets on offer.
 	 */
@@ -337,6 +344,36 @@ describe( 'report params field', () => {
 				compare_to: expect.any( String ),
 			} )
 		);
+	} );
+
+	/*
+	 * Read back through `normalizeReportParams`, the way a widget reads it: that
+	 * recomputes the primary window from the preset and so repairs a stretched
+	 * `to`, while passing the comparison it spawned through untouched.
+	 */
+	it( 'measures a comparison against the preset window, not the rest of the day', async () => {
+		/*
+		 * Pinned away from the day's last hour: "Last 24 hours" ends at
+		 * `endOfHour( now )`, which already *is* end of day from 23:00, so the
+		 * stretch this guards against would be a no-op and the test would pass
+		 * on the unfixed code.
+		 */
+		jest.useFakeTimers().setSystemTime( new Date( '2026-06-15T12:00:00.000Z' ) );
+		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+		const { latest } = renderField();
+
+		await user.click( screen.getByRole( 'button', { name: /compare/i } ) );
+		await user.click( await screen.findByRole( 'menuitemradio', { name: /^previous /i } ) );
+		await pickPeriod( user, 'Last 24 hours' );
+
+		// The preset's own end, not the end of the day it falls in.
+		expect( latest()?.to ).toBe( '2026-06-15T12:59:59.999+00:00' );
+
+		const params = normalizeReportParams( latest() );
+		const span = ( from?: string, to?: string ) =>
+			new Date( String( to ) ).getTime() - new Date( String( from ) ).getTime();
+
+		expect( span( params.compare_from, params.compare_to ) ).toBe( span( params.from, params.to ) );
 	} );
 
 	// A widget can carry a preset with no window behind it, and it compares

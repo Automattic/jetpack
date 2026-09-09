@@ -3,14 +3,12 @@
  */
 import { useReportScope } from '@jetpack-premium-analytics/data';
 import {
-	canStepForward,
 	isComparisonPresetId,
 	isPrimaryPreset,
 	type ComparisonPresetId,
 	type IntervalType,
 	type PrimaryPresetId,
 	type QuickSurfacePresetId,
-	type StepDirection,
 } from '@jetpack-premium-analytics/datetime';
 import { Stack } from '@jetpack-premium-analytics/externals';
 import { BaseControl } from '@wordpress/components';
@@ -21,7 +19,6 @@ import { useMemo, useCallback, useState } from 'react';
 import { DateComparisonDropdown } from '../date-comparison-dropdown';
 import { DateIntervalDropdown } from '../date-interval-dropdown';
 import { DatePeriodDropdown } from '../date-period-dropdown';
-import { DatePeriodNavigation } from '../date-period-navigation';
 import { useComparisonDatePresets } from '../use-comparison-date-presets';
 
 import './date-filters-panel.scss';
@@ -65,8 +62,8 @@ export type DateFiltersPanelProps = {
 	allTimeStart?: Date;
 
 	/**
-	 * Whether to offer Custom range at the end of the menu. On by default; the
-	 * detail pages' design has common periods only.
+	 * Whether to offer Custom range at the end of the menu. On by default; a
+	 * surface whose design lists common periods only turns it off.
 	 */
 	withCustomRange?: boolean;
 
@@ -96,13 +93,6 @@ export type DateFiltersPanelProps = {
 	onIntervalChange?: ( interval: IntervalType ) => void;
 
 	/**
-	 * Steps the applied window backward or forward by its own length. Left out,
-	 * the navigation controls are not rendered at all: a surface whose range is
-	 * not a movable window has nowhere to step.
-	 */
-	onStep?: ( direction: StepDirection ) => void;
-
-	/**
 	 * Props for the date range popover.
 	 */
 	rangeControlProps?: Omit< Parameters< typeof BaseControl >[ 0 ], 'children' >;
@@ -124,6 +114,12 @@ export type DateFiltersPanelProps = {
 	 * Required for proper date/time handling.
 	 */
 	timeZone: string;
+
+	/**
+	 * Greys every control out but keeps them focusable, for a surface busy
+	 * elsewhere: the dashboard while its layout is being customized.
+	 */
+	disabled?: boolean;
 };
 
 /**
@@ -144,7 +140,6 @@ export function DateFiltersPanel( {
 	onChange,
 	onComparisonChange,
 	onIntervalChange,
-	onStep,
 	rangeControlProps = {
 		label: null,
 		help: null,
@@ -157,6 +152,7 @@ export function DateFiltersPanel( {
 	onCancel,
 	canApply = true,
 	timeZone,
+	disabled = false,
 }: DateFiltersPanelProps ) {
 	/*
 	 * Read rather than a prop, so this and the widgets share one declaration —
@@ -186,10 +182,14 @@ export function DateFiltersPanel( {
 	 */
 	const [ isPrimaryPickerOpen, setIsPrimaryPickerOpen ] = useState( false );
 	const comparisonSourceRange = isPrimaryPickerOpen ? range : appliedRange ?? range;
+	// The draft's preset never reaches the panel, so an open draft is measured
+	// as read; the applied preset decides how a to-date window is measured.
+	const comparisonSourcePresetId = isPrimaryPickerOpen ? undefined : validatedAppliedPresetId;
 
 	// Available comparison presets, derived from whichever primary range the
-	// picker is currently reflecting (draft while open, applied while closed).
-	const presets = useComparisonDatePresets( comparisonSourceRange );
+	// picker is currently reflecting (draft while open, applied while closed)
+	// and from its preset, which decides how a to-date window is measured.
+	const presets = useComparisonDatePresets( comparisonSourceRange, comparisonSourcePresetId );
 
 	const presetChange = useCallback(
 		( id: ComparisonPresetId ) => {
@@ -206,11 +206,6 @@ export function DateFiltersPanel( {
 	const comparisonLabel =
 		typeof comparisonControlProps.label === 'string' ? comparisonControlProps.label : undefined;
 
-	/*
-	 * Built once and rendered twice: the row the user sees, and the probe that
-	 * measures it. The same element in both places means the measurement cannot
-	 * drift from what it measures.
-	 */
 	const comparisonControl = useMemo(
 		() => (
 			<DateComparisonDropdown
@@ -218,6 +213,7 @@ export function DateFiltersPanel( {
 				enabled={ comparisonEnabled }
 				presetId={ validatedComparisonPresetId }
 				label={ comparisonLabel }
+				disabled={ disabled }
 				onPresetChange={ presetChange }
 				onClear={ clearComparison }
 			/>
@@ -226,51 +222,29 @@ export function DateFiltersPanel( {
 			clearComparison,
 			comparisonEnabled,
 			comparisonLabel,
+			disabled,
 			presetChange,
 			presets,
 			validatedComparisonPresetId,
 		]
 	);
 
-	/*
-	 * Built once, rendered in the row and the probe, like the other controls.
-	 * Reads the applied range, not staged: the arrows commit on click, so a
-	 * drafted range must not decide whether the forward step is available.
-	 */
-	const navigationControl = useMemo( () => {
-		if ( ! onStep ) {
-			return null;
-		}
-
-		const committedRange = appliedRange ?? range;
-
-		return (
-			<DatePeriodNavigation
-				canStepForward={ canStepForward( committedRange, new Date() ) }
-				onStep={ onStep }
-			/>
-		);
-	}, [ appliedRange, onStep, range ] );
-
-	// Same arrangement as the comparison control: built once, rendered in the
-	// row and in the probe.
 	const intervalControl = useMemo(
 		() =>
 			withIntervalControl && intervalOptions && onIntervalChange ? (
 				<DateIntervalDropdown
 					options={ intervalOptions }
 					value={ interval }
+					disabled={ disabled }
 					onChange={ onIntervalChange }
 				/>
 			) : null,
-		[ withIntervalControl, interval, intervalOptions, onIntervalChange ]
+		[ withIntervalControl, interval, intervalOptions, disabled, onIntervalChange ]
 	);
 
 	return (
 		<div className="date-filters-panel">
 			<Stack className="date-filters-panel__row" direction="row" gap="sm">
-				{ navigationControl }
-
 				<BaseControl
 					className="date-filters-panel__primary"
 					label={ rangeControlProps.label }
@@ -290,6 +264,7 @@ export function DateFiltersPanel( {
 						onCancel={ onCancel }
 						canApply={ canApply }
 						timeZone={ timeZone }
+						disabled={ disabled }
 						onOpenChange={ setIsPrimaryPickerOpen }
 						presetIds={ presetIds }
 						allTimeStart={ allTimeStart }

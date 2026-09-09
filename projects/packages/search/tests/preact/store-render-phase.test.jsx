@@ -1,3 +1,4 @@
+/* eslint-disable testing-library/no-unnecessary-act -- Preact render does not wrap updates in act. */
 /**
  * Runs react-redux against preact/compat, the way the Instant Search bundle ships.
  *
@@ -6,6 +7,7 @@
  */
 
 import { render } from 'preact';
+import { act } from 'preact/test-utils';
 import { connect, Provider } from 'react-redux';
 import { applyMiddleware, createStore } from 'redux';
 import refx from 'refx';
@@ -25,7 +27,7 @@ const reducer = ( state = { value: 'initial', ticks: 0 }, action ) => {
 const makeStore = ( effects = {} ) => createStore( reducer, applyMiddleware( refx( effects ) ) );
 
 // Preact batches re-renders into a microtask, so let it flush before asserting.
-const flush = () => new Promise( resolve => setTimeout( resolve, 0 ) );
+const flush = () => act( () => new Promise( resolve => setTimeout( resolve, 0 ) ) );
 
 let container;
 
@@ -35,7 +37,7 @@ beforeEach( () => {
 } );
 
 afterEach( () => {
-	render( null, container );
+	act( () => render( null, container ) );
 	container.remove();
 } );
 
@@ -46,11 +48,13 @@ describe( 'react-redux under preact/compat', () => {
 			<span>{ value }</span>
 		) );
 
-		render(
-			<Provider store={ store }>
-				<Display />
-			</Provider>,
-			container
+		act( () =>
+			render(
+				<Provider store={ store }>
+					<Display />
+				</Provider>,
+				container
+			)
 		);
 		expect( container ).toHaveTextContent( 'initial' );
 
@@ -70,11 +74,13 @@ describe( 'react-redux under preact/compat', () => {
 			return <span>{ value }</span>;
 		} );
 
-		render(
-			<Provider store={ store }>
-				<Display />
-			</Provider>,
-			container
+		act( () =>
+			render(
+				<Provider store={ store }>
+					<Display />
+				</Provider>,
+				container
+			)
 		);
 
 		// Seeding before mount is what src/instant-search/index.jsx does, so the value
@@ -91,16 +97,18 @@ describe( 'react-redux under preact/compat', () => {
 			return <span>{ value }</span>;
 		} );
 
-		render(
-			<Provider store={ store }>
-				<Display />
-			</Provider>,
-			container
+		act( () =>
+			render(
+				<Provider store={ store }>
+					<Display />
+				</Provider>,
+				container
+			)
 		);
 		// eslint-disable-next-line testing-library/render-result-naming-convention -- preact's render() returns void; this is a render counter, not its result.
 		const countAtUnmount = timesRendered;
 
-		render( null, container );
+		act( () => render( null, container ) );
 		store.dispatch( { type: 'SET_VALUE', value: 'after-unmount' } );
 		await flush();
 
@@ -123,11 +131,13 @@ describe( 'react-redux under preact/compat', () => {
 			<span>ticks:{ ticks }</span>
 		) );
 
-		render(
-			<Provider store={ store }>
-				<Display />
-			</Provider>,
-			container
+		act( () =>
+			render(
+				<Provider store={ store }>
+					<Display />
+				</Provider>,
+				container
+			)
 		);
 
 		store.dispatch( { type: 'SET_VALUE', value: 'go' } );

@@ -161,3 +161,20 @@ describe( 'file preview types', () => {
 		expect( paths.some( ( path: string ) => path.includes( 'file-content' ) ) ).toBe( false );
 	} );
 } );
+
+describe( 'the size row', () => {
+	// A truthiness gate in place of the card's `size !== null` would pass
+	// every other case here and silently drop the row for a zero-byte file.
+	it( 'renders a zero-byte size rather than suppressing the row', async () => {
+		mockApiFetch.mockImplementation( ( options: { path: string } ) =>
+			Promise.resolve(
+				options.path.includes( '/rewind/backup/path-info' ) ? { size: '0' } : { contents: CONTENTS }
+			)
+		);
+
+		await openFile( 'photo.heic' );
+
+		await expect( screen.findByText( '0 B' ) ).resolves.toBeInTheDocument();
+		expect( screen.getByText( 'Size:' ) ).toBeInTheDocument();
+	} );
+} );

@@ -9,8 +9,7 @@ import {
 import {
 	drillDateRange,
 	PRESET_CUSTOM,
-	siteTimeZone,
-	stepDateRange,
+	reportingTimeZone,
 	toLocalTZ,
 } from '@jetpack-premium-analytics/datetime';
 import { useCallback, useMemo } from 'react';
@@ -26,7 +25,6 @@ import type {
 	DateRange,
 	IntervalType,
 	PrimaryPresetId,
-	StepDirection,
 } from '@jetpack-premium-analytics/datetime';
 
 type PickerRange = { from: Date | undefined; to: Date | undefined };
@@ -67,11 +65,6 @@ export type ReportDateFilters = {
 	onChange: ( range?: DateRange, presetId?: PrimaryPresetId ) => void;
 	onComparisonChange: ( range: DateRange | undefined, presetId?: ComparisonPresetId ) => void;
 	onIntervalChange: ( interval: IntervalType ) => void;
-
-	/**
-	 * Step the applied window backward or forward by its own length.
-	 */
-	onStep: ( direction: StepDirection ) => void;
 
 	/**
 	 * Open the chart bucket containing a date, narrowing to the next finer
@@ -133,7 +126,7 @@ export function useReportDateFilters< TFrom extends string >( from?: TFrom ): Re
 		TFrom
 	>( { from } );
 
-	const timeZone = siteTimeZone();
+	const timeZone = reportingTimeZone();
 
 	const presetId = useMemo( () => effective.preset ?? undefined, [ effective.preset ] );
 	const range = useMemo(
@@ -257,37 +250,9 @@ export function useReportDateFilters< TFrom extends string >( from?: TFrom ): Re
 	);
 
 	/*
-	 * Commits and pushes a history entry so Back undoes the step. Steps the
-	 * applied range, not the staged one — the arrows sit outside the picker,
-	 * so stepping must not apply an open draft.
-	 */
-	const onStep = useCallback(
-		( direction: StepDirection ) => {
-			const stepped = stepDateRange( appliedRange, direction );
-
-			if ( ! stepped ) {
-				return;
-			}
-
-			const patch = buildRangePatch( {
-				nextRange: stepped,
-				nextPresetId: PRESET_CUSTOM,
-				exactRange: true,
-				effective,
-			} );
-
-			if ( patch ) {
-				stage( patch );
-				commit();
-			}
-		},
-		[ appliedRange, commit, effective, stage ]
-	);
-
-	/*
-	 * Commits and pushes a history entry, like `onStep`, so Back exits a
-	 * drill-down. Reads the applied range/interval, not the staged one: the
-	 * chart draws what's applied, so the click belongs to that window.
+	 * Commits and pushes a history entry, so Back exits a drill-down. Reads the
+	 * applied range/interval, not the staged one: the chart draws what's
+	 * applied, so the click belongs to that window.
 	 */
 	const drillDown = useCallback(
 		( date: Date, bucketInterval: IntervalType = appliedInterval ) => {
@@ -364,7 +329,6 @@ export function useReportDateFilters< TFrom extends string >( from?: TFrom ): Re
 		onChange,
 		onComparisonChange,
 		onIntervalChange,
-		onStep,
 		drillDown,
 		onApply,
 		onCancel,

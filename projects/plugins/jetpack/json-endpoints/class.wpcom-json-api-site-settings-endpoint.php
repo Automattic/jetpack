@@ -467,6 +467,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'site_icon'                        => $this->get_cast_option_value_or_null( 'site_icon', 'intval' ),
 						Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION => get_option( Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION, '' ),
 						Jetpack_SEO_Titles::TITLE_FORMATS_OPTION => get_option( Jetpack_SEO_Titles::TITLE_FORMATS_OPTION, array() ),
+						'verification_services_codes'      => get_option( 'verification_services_codes', null ),
 						'api_cache'                        => $api_cache,
 						'posts_per_page'                   => (int) get_option( 'posts_per_page' ),
 						'posts_per_rss'                    => (int) get_option( 'posts_per_rss' ),

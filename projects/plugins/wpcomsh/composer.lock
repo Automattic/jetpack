@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2d86e97be5937a9514188a45b11b07c1",
+    "content-hash": "322ae0393abf28902a8b7658c32ea20b",
     "packages": [
         {
             "name": "automattic/block-delimiter",
@@ -253,7 +253,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/agents-manager",
-                "reference": "26c221b1022a17323bcef8a9fa083935e4ac279c"
+                "reference": "bf466087512d5f4c86efcd4b8848331003f526a4"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -275,7 +275,7 @@
                 "autorelease": true,
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "0.11.x-dev"
+                    "dev-trunk": "0.12.x-dev"
                 },
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-agents-manager/compare/v${old}...v${new}"
@@ -1889,7 +1889,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/podcast",
-                "reference": "f2995197d7d9a90af87f9cce125ddf0c99f63a7e"
+                "reference": "3eb3142530d0e450a48d88171b728409059e3392"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -1916,7 +1916,7 @@
                 "autotagger": true,
                 "mirror-repo": "Automattic/jetpack-podcast",
                 "branch-alias": {
-                    "dev-trunk": "2.0.x-dev"
+                    "dev-trunk": "2.1.x-dev"
                 },
                 "textdomain": "jetpack-podcast",
                 "version-constants": {
@@ -2098,12 +2098,13 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/premium-analytics",
-                "reference": "3f266ef7e224e73c22174fc248a5dce1a968ca9a"
+                "reference": "db9e1e326079ce7b0d1c71af2defd236a7a458ff"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
                 "automattic/jetpack-config": "@dev",
                 "automattic/jetpack-connection": "@dev",
+                "automattic/jetpack-feature-flags": "@dev",
                 "automattic/jetpack-stats": "@dev",
                 "automattic/jetpack-status": "@dev",
                 "automattic/jetpack-sync": "@dev",
@@ -2128,7 +2129,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-premium-analytics/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.5.x-dev"
+                    "dev-trunk": "0.6.x-dev"
                 }
             },
             "autoload": {
@@ -2552,7 +2553,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "7076821852e786eda5a1cccb4640dffaa64ef553"
+                "reference": "f35ab212177d3d1d5696186cbc3130e4bbb243a6"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -2585,7 +2586,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "5.0.x-dev"
+                    "dev-trunk": "5.1.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -2827,16 +2828,16 @@
         },
         {
             "name": "automattic/wc-calypso-bridge",
-            "version": "v2.11.7",
+            "version": "v2.11.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/wc-calypso-bridge.git",
-                "reference": "ff8f1980da53ce4ad724edb3ca3e7188a7f1778e"
+                "reference": "0c058d67c384d15752691402dd8031824387b6da"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/wc-calypso-bridge/zipball/ff8f1980da53ce4ad724edb3ca3e7188a7f1778e",
-                "reference": "ff8f1980da53ce4ad724edb3ca3e7188a7f1778e",
+                "url": "https://api.github.com/repos/Automattic/wc-calypso-bridge/zipball/0c058d67c384d15752691402dd8031824387b6da",
+                "reference": "0c058d67c384d15752691402dd8031824387b6da",
                 "shasum": ""
             },
             "require-dev": {
@@ -2878,7 +2879,7 @@
             "license": [
                 "GPL-2.0-or-later"
             ],
-            "time": "2026-08-21T15:43:09+00:00"
+            "time": "2026-09-03T14:06:44+00:00"
         },
         {
             "name": "automattic/woocommerce-analytics",
@@ -3360,16 +3361,16 @@
         },
         {
             "name": "symfony/filesystem",
-            "version": "v6.4.44",
+            "version": "v6.4.45",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/filesystem.git",
-                "reference": "e84ffb3e77e3a7144727a0d0735d0d9cc0ca77a7"
+                "reference": "6dabf41c21957a2060f101bd7bf7e322989866bd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/filesystem/zipball/e84ffb3e77e3a7144727a0d0735d0d9cc0ca77a7",
-                "reference": "e84ffb3e77e3a7144727a0d0735d0d9cc0ca77a7",
+                "url": "https://api.github.com/repos/symfony/filesystem/zipball/6dabf41c21957a2060f101bd7bf7e322989866bd",
+                "reference": "6dabf41c21957a2060f101bd7bf7e322989866bd",
                 "shasum": ""
             },
             "require": {
@@ -3406,7 +3407,7 @@
             "description": "Provides basic utilities for the filesystem",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/filesystem/tree/v6.4.44"
+                "source": "https://github.com/symfony/filesystem/tree/v6.4.45"
             },
             "funding": [
                 {
@@ -3426,7 +3427,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-08-20T20:21:47+00:00"
+            "time": "2026-08-23T07:59:31+00:00"
         },
         {
             "name": "symfony/polyfill-ctype",
@@ -4315,16 +4316,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "12.5.33",
+            "version": "12.5.34",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "b98e028a26c5c5ba7e4a54be96ccf35f2914d184"
+                "reference": "6cbff63d670de92cb1cb3d2ff9f40327e9da9c7f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/b98e028a26c5c5ba7e4a54be96ccf35f2914d184",
-                "reference": "b98e028a26c5c5ba7e4a54be96ccf35f2914d184",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/6cbff63d670de92cb1cb3d2ff9f40327e9da9c7f",
+                "reference": "6cbff63d670de92cb1cb3d2ff9f40327e9da9c7f",
                 "shasum": ""
             },
             "require": {
@@ -4334,18 +4335,18 @@
                 "ext-libxml": "*",
                 "ext-mbstring": "*",
                 "ext-xmlwriter": "*",
-                "myclabs/deep-copy": "^1.13.4",
+                "myclabs/deep-copy": "^1.14.0",
                 "phar-io/manifest": "^2.0.4",
                 "phar-io/version": "^3.2.1",
                 "php": ">=8.3",
                 "phpunit/php-code-coverage": "^12.5.7",
-                "phpunit/php-file-iterator": "^6.0.1",
+                "phpunit/php-file-iterator": "^6.0.2",
                 "phpunit/php-invoker": "^6.0.0",
                 "phpunit/php-text-template": "^5.0.0",
                 "phpunit/php-timer": "^8.0.0",
                 "sebastian/cli-parser": "^4.2.1",
                 "sebastian/comparator": "^7.1.8",
-                "sebastian/diff": "^7.0.0",
+                "sebastian/diff": "^7.0.1",
                 "sebastian/environment": "^8.1.2",
                 "sebastian/exporter": "^7.0.3",
                 "sebastian/global-state": "^8.0.3",
@@ -4393,7 +4394,7 @@
             "support": {
                 "issues": "https://github.com/sebastianbergmann/phpunit/issues",
                 "security": "https://github.com/sebastianbergmann/phpunit/security/policy",
-                "source": "https://github.com/sebastianbergmann/phpunit/tree/12.5.33"
+                "source": "https://github.com/sebastianbergmann/phpunit/tree/12.5.34"
             },
             "funding": [
                 {
@@ -4401,7 +4402,7 @@
                     "type": "other"
                 }
             ],
-            "time": "2026-07-28T13:58:09+00:00"
+            "time": "2026-08-27T08:38:28+00:00"
         },
         {
             "name": "sebastian/cli-parser",
@@ -4624,24 +4625,24 @@
         },
         {
             "name": "sebastian/diff",
-            "version": "7.0.0",
+            "version": "7.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/diff.git",
-                "reference": "7ab1ea946c012266ca32390913653d844ecd085f"
+                "reference": "cd4cabe39f8a4e8ee6818ba99f10a05561ea4ad6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/diff/zipball/7ab1ea946c012266ca32390913653d844ecd085f",
-                "reference": "7ab1ea946c012266ca32390913653d844ecd085f",
+                "url": "https://api.github.com/repos/sebastianbergmann/diff/zipball/cd4cabe39f8a4e8ee6818ba99f10a05561ea4ad6",
+                "reference": "cd4cabe39f8a4e8ee6818ba99f10a05561ea4ad6",
                 "shasum": ""
             },
             "require": {
                 "php": ">=8.3"
             },
             "require-dev": {
-                "phpunit/phpunit": "^12.0",
-                "symfony/process": "^7.2"
+                "phpunit/phpunit": "^12.5.33",
+                "symfony/process": "^7.4.17"
             },
             "type": "library",
             "extra": {
@@ -4679,15 +4680,27 @@
             "support": {
                 "issues": "https://github.com/sebastianbergmann/diff/issues",
                 "security": "https://github.com/sebastianbergmann/diff/security/policy",
-                "source": "https://github.com/sebastianbergmann/diff/tree/7.0.0"
+                "source": "https://github.com/sebastianbergmann/diff/tree/7.0.1"
             },
             "funding": [
                 {
                     "url": "https://github.com/sebastianbergmann",
                     "type": "github"
+                },
+                {
+                    "url": "https://liberapay.com/sebastianbergmann",
+                    "type": "liberapay"
+                },
+                {
+                    "url": "https://thanks.dev/u/gh/sebastianbergmann",
+                    "type": "thanks_dev"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/sebastian/diff",
+                    "type": "tidelift"
                 }
             ],
-            "time": "2025-02-07T04:55:46+00:00"
+            "time": "2026-08-25T15:35:54+00:00"
         },
         {
             "name": "sebastian/environment",

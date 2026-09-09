@@ -7,7 +7,11 @@ import {
 	ReportScopeProvider,
 } from '@jetpack-premium-analytics/data';
 import { Stack } from '@jetpack-premium-analytics/externals';
-import { GlobalChartsProvider, useChartTheme } from '@jetpack-premium-analytics/widgets-toolkit';
+import {
+	GlobalChartsProvider,
+	siteChartFormatting,
+	useChartTheme,
+} from '@jetpack-premium-analytics/widgets-toolkit';
 import { Spinner } from '@wordpress/components';
 import { lazy, Suspense, useMemo } from '@wordpress/element';
 import { useParams } from '@wordpress/route';
@@ -80,7 +84,7 @@ function ReportProviders( { children }: { children: ReactNode } ): JSX.Element {
 	return (
 		<AnalyticsQueryClientProvider>
 			<GlobalErrorProvider>
-				<GlobalChartsProvider theme={ chartTheme }>
+				<GlobalChartsProvider theme={ chartTheme } { ...siteChartFormatting() }>
 					{ /*
 					 * A report names no compared period, so nothing below may fetch or
 					 * draw one. The params stay on the URL for the dashboard.

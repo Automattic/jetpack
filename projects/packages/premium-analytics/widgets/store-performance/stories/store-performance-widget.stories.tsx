@@ -13,6 +13,11 @@ import {
 } from '../../stories/widget-dashboard-with-widget';
 import { createStoryWidgetType } from '../../stories/create-story-widget-type';
 import { withWidgetCanvas } from '../../stories/with-widget-canvas';
+import {
+	siteTimeZoneArgTypes,
+	withSiteTimeZone,
+	type SiteTimeZoneControls,
+} from '../../stories/with-site-time-zone';
 import StorePerformanceRender from '../render';
 import widgetDefinition from '../widget';
 import widgetManifest from '../widget.json';
@@ -34,7 +39,7 @@ const storyWidgetType = createStoryWidgetType( widgetManifest, widgetDefinition 
 
 type StorePerformanceRenderProps = ComponentProps< typeof StorePerformanceRender >;
 
-interface StorePerformanceStoryControls {
+interface StorePerformanceStoryControls extends SiteTimeZoneControls {
 	withComparison: boolean;
 	preset: SelectablePresetId;
 }
@@ -139,7 +144,9 @@ const meta = {
 	title: 'Packages/Premium Analytics/Widgets/StorePerformance',
 	component: StorePerformanceRender,
 	tags: [ 'autodocs' ],
+	decorators: [ withSiteTimeZone ],
 	argTypes: {
+		...siteTimeZoneArgTypes,
 		preset: {
 			control: 'select',
 			options: PRESET_OPTIONS,

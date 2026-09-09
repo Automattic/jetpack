@@ -127,6 +127,26 @@ export {
 	type ReportCsvActionProps,
 } from './report-page';
 export {
+	DetailPageActions,
+	DetailPageBreadcrumbs,
+	DetailPageLayout,
+	DetailPageSection,
+	DetailPageShell,
+	DetailPageTabPanel,
+	DetailPageTabs,
+	useDetailPageCustomize,
+	type DetailPageActionsProps,
+	type DetailPageBreadcrumbsProps,
+	type DetailPageCustomize,
+	type DetailPageHeaderSlots,
+	type DetailPageLayoutProps,
+	type DetailPageSectionProps,
+	type DetailPageShellProps,
+	type DetailPageTab,
+	type DetailPageTabPanelProps,
+	type DetailPageTabsProps,
+} from './detail-page';
+export {
 	ReportCsvDownloadButton,
 	type ReportCsvDownloadButtonProps,
 	RowsCsvDownloadButton,

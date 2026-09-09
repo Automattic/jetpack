@@ -142,7 +142,7 @@ describe( 'GeoChart', () => {
 	} );
 
 	describe( 'Chart Options', () => {
-		test( 'configures color axis with theme colors', () => {
+		test( 'configures a two-stop color axis from the palette', () => {
 			renderWithTheme();
 
 			const chartOptions = screen.getByTestId( 'chart-options' );
@@ -152,7 +152,7 @@ describe( 'GeoChart', () => {
 			expect( options.colorAxis.colors ).toHaveLength( 2 );
 		} );
 
-		test( 'sets datalessRegionColor from theme', () => {
+		test( 'sets datalessRegionColor from the surface-secondary role', () => {
 			renderWithTheme();
 
 			const chartOptions = screen.getByTestId( 'chart-options' );

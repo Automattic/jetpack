@@ -1,9 +1,17 @@
 /**
  * External dependencies
  */
-import { localTZDate, dateToISOStringWithLocalTZ } from '@jetpack-premium-analytics/data';
+import {
+	dateToISOStringWithLocalTZ,
+	endOfDayTZ,
+	isSelectablePreset,
+	isYearSurfacePresetId,
+	localTZDate,
+	reportingTimeZone,
+	type DateRange,
+	type PrimaryPresetId,
+} from '@jetpack-premium-analytics/datetime';
 import { isValid } from 'date-fns';
-import type { DateRange } from '@jetpack-premium-analytics/datetime';
 
 /**
  * Parse a stored report-param date for the picker.
@@ -23,88 +31,40 @@ export function decodeDateSearchParam( value?: string, timezone?: string ): Date
 }
 
 /**
- * Serialize a Date into an ISO string with the site's timezone, for writing
+ * Serialize a Date into an ISO string with the reporting timezone, for writing
  * to the URL or API requests.
+ *
+ * @param date - The date to serialize.
+ * @return The ISO string, or undefined when there is no date.
  */
-export function encodeDateToSearchParam( date?: Date, timezone?: string ): string | undefined {
-	return date ? dateToISOStringWithLocalTZ( localTZDate( date, timezone ) ) : undefined;
+export function encodeDateToSearchParam( date?: Date ): string | undefined {
+	return date ? dateToISOStringWithLocalTZ( date ) : undefined;
 }
-
-type WriteDateRangeToSearchProps = {
-	navigate: ( opts: {
-		to: string;
-		search:
-			| Record< string, string | undefined >
-			| ( ( prev: Record< string, string | undefined > ) => Record< string, string | undefined > );
-	} ) => void;
-	to: string;
-	range: DateRange;
-	timezone?: string;
-	search?: Record< string, string | undefined | null >;
-};
 
 /**
- * Write a DateRange to the URL, converting each end to ISO+offset in the
- * site's timezone. Pass `interval` or other params via `search` to keep them
- * alongside `from`/`to`.
+ * Serialize a picker range into the `from`/`to` report params.
+ *
+ * @param range              - The range to serialize.
+ * @param options            - How the range was produced.
+ * @param options.presetId   - The preset that produced the range, if any.
+ * @param options.exactRange - Store both bounds as given.
+ * @return The serialized bounds.
  */
-export function writeDateRangeToSearch( {
-	navigate,
-	to: toPath,
-	range,
-	timezone,
-	search,
-}: WriteDateRangeToSearchProps ) {
-	const fromParam = encodeDateToSearchParam( range?.from, timezone );
-	const toParam = encodeDateToSearchParam( range?.to, timezone );
-
-	navigate( {
-		to: toPath,
-		search: ( prev: Record< string, string | undefined > ) => ( {
-			...prev,
-			from: fromParam,
-			to: toParam,
-			...search,
-		} ),
-	} );
-}
-
-type WriteComparisonToSearchProps = {
-	navigate: ( opts: {
-		to: string;
-		search:
-			| Record< string, string | undefined >
-			| ( ( prev: Record< string, string | undefined > ) => Record< string, string | undefined > );
-	} ) => void;
-	to: string;
-	range?: DateRange;
-	presetId?: string;
-	enabled?: boolean;
-	timezone?: string;
-	search?: Record< string, string | undefined | null >;
-};
-
-export function writeComparisonToSearch( {
-	navigate,
-	to: toPath,
-	range,
-	presetId,
-	enabled,
-	timezone,
-	search,
-}: WriteComparisonToSearchProps ) {
-	const fromParam = encodeDateToSearchParam( range?.from, timezone );
-	const toParam = encodeDateToSearchParam( range?.to, timezone );
-
-	navigate( {
-		to: toPath,
-		search: ( prev: Record< string, string | undefined > ) => ( {
-			...prev,
-			compare_from: fromParam,
-			compare_to: toParam,
-			compare_preset: presetId ?? undefined,
-			comp: enabled ? '1' : undefined,
-			...search,
-		} ),
-	} );
+export function encodeRangeToSearchParams(
+	range: Required< DateRange >,
+	{ presetId, exactRange }: { presetId?: PrimaryPresetId; exactRange?: boolean } = {}
+): { from: string; to: string } {
+	return {
+		from: dateToISOStringWithLocalTZ( range.from ),
+		/*
+		 * Preset and already-normalized ranges carry their own `to` and are stored
+		 * verbatim; a calendar edit stages midnight, moved to the *site's* end of
+		 * day because date-fns' bare `endOfDay` would use the visitor's.
+		 */
+		to: dateToISOStringWithLocalTZ(
+			exactRange || isSelectablePreset( presetId ) || isYearSurfacePresetId( presetId )
+				? range.to
+				: endOfDayTZ( range.to, reportingTimeZone() )
+		),
+	};
 }
