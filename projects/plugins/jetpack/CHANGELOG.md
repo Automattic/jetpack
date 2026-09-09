@@ -2,6 +2,23 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 16.2 - 2026-09-09
+### Enhancements
+- Sidebar: sort Jetpack menu items alphabetically, pinning My Jetpack to the top and external links and Settings to the bottom. [#52003]
+
+### Bug fixes
+- External Media: Improve validation for media copy requests.
+- Forms: Restore multi-page printing of a single response. SEO: Move the dashboard's toast notices back to the top right. [#52096]
+- Forms: Scroll a single response from the page edge instead of from inside the reading column. [#52096]
+- Forms: Show a selected response beside the responses list again instead of below it. Also fixes the same sidebar layout on the Newsletter and SEO dashboards. [#52096]
+- My Jetpack: Show the right product status as soon as fresher plan data is available, instead of reusing an earlier lookup. [#52009]
+- Related Posts: Improve handling of protected content.
+- SEO: Improve handling of protected content in generated metadata.
+- Status: Detect a site served on any 127.0.0.0/8 loopback address, or on 0.0.0.0, as a local site. [#51311]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- Update package dependencies. [#52028]
+
 ## 16.2-beta - 2026-09-08
 ### Enhancements
 - AI: Add a welcome banner to the Overview tab, keep the tab navigation and a back link on MCP sub-pages, and name the MCP connect row by its action for screen readers. [#51783]
