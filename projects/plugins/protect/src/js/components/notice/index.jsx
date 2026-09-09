@@ -46,9 +46,9 @@ const Notice = ( {
 				styles[ `notice--${ type }` ],
 				floating && styles[ 'notice--floating' ]
 			) }
-			// The legacy notice never announced, and none of the three call sites
-			// sits in a live region. Announcing is a separate change.
-			spokenMessage={ null }
+			// Only the toast reports an async result with no focus change, so only it
+			// announces. The modal notices are read when their dialog opens.
+			spokenMessage={ floating ? message : null }
 		>
 			<WPNotice.Description>{ message }</WPNotice.Description>
 			{ dismissable && (

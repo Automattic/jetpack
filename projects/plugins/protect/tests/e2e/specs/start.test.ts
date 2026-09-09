@@ -7,7 +7,9 @@ import type { Locator, Page } from '@playwright/test';
  * @param {Page} page - Playwright page object
  */
 async function closeChangesSavedNotice( page: Page ) {
-	await expect( page.getByText( 'Changes saved' ) ).toBeVisible();
+	// The toast announces, so `speak()` copies its text into `#a11y-speak-polite`
+	// at the end of the body. The notice itself is the earlier match.
+	await expect( page.getByText( 'Changes saved' ).first() ).toBeVisible();
 	await page.getByRole( 'button', { name: 'Dismiss notice.' } ).click();
 }
 
