@@ -1,4 +1,3 @@
-@use "sass:color";
 @use "../../scss/functions/rem";
 @use "../../scss/calypso-colors";
 @use "../../scss/mixins/ui";
@@ -134,15 +133,6 @@
 			color: colors.$gray-text-min;
 		}
 	}
-}
-
-.jp-dash-item__active-label {
-	display: inline-block;
-	color: color.adjust(colors.$gray, $lightness: -10%);
-	color: colors.$gray;
-	font-size: rem.convert(12px);
-	font-weight: 400;
-	text-transform: uppercase;
 }
 
 // conditional styles for content when items are inactive

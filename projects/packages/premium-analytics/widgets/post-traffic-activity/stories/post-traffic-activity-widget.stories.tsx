@@ -210,7 +210,7 @@ export const WidgetDashboardWithWidget: StoryObj< PostTrafficActivityDashboardSt
 	render: args => <PostTrafficActivityDashboardStory { ...args } />,
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
-		widgetWidth: 4,
+		widgetWidth: 3,
 		widgetHeight: 2,
 		hasPostScope: true,
 		preset: 'last-30-days',

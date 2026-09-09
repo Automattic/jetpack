@@ -43,7 +43,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '6.1.0';
+	const PACKAGE_VERSION = '6.2.0';
 
 	/**
 	 * HTML container ID for the IDC screen on My Jetpack page.
@@ -165,7 +165,7 @@ class Initializer {
 			'edit_posts',
 			'my-jetpack',
 			array( __CLASS__, 'admin_page' ),
-			-1
+			-10
 		);
 		add_action( 'load-' . $page_suffix, array( __CLASS__, 'admin_init' ) );
 	}
@@ -934,7 +934,7 @@ class Initializer {
 	public static function get_recommended_modules() {
 		$recommendations_evaluation = \Jetpack_Options::get_option( 'recommendations_evaluation', null );
 
-		if ( ! $recommendations_evaluation ) {
+		if ( empty( $recommendations_evaluation ) || ! is_array( $recommendations_evaluation ) ) {
 			return null;
 		}
 

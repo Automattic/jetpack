@@ -108,7 +108,7 @@ export const CustomRange: Story = {
 };
 
 /**
- * A resource detail page, which offers all time and only the rolling windows.
+ * A resource detail page, which offers all time on top of the menu's periods.
  */
 export const DetailSurface: Story = {
 	render: () => (

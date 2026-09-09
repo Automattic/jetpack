@@ -5,6 +5,7 @@
  *
  * This module provides dynamic fixture generation based on request parameters.
  */
+import { wooBucketStamp } from '../../../__fixtures__/woo-bucket-stamp';
 import { seededRandom } from './orders-by-product-type';
 import type { fetchReportBookings } from '../../../../../data/src/api/report-bookings-fetch/report-bookings-fetch';
 
@@ -85,10 +86,6 @@ function generateDateIntervals(
 	return intervals;
 }
 
-function formatISODate( date: Date ): string {
-	return date.toISOString().replace( /\.\d{3}Z$/, '+00:00' );
-}
-
 // `time_interval` is a date-only field.
 function formatDateOnly( date: Date ): string {
 	return date.toISOString().split( 'T' )[ 0 ];
@@ -106,8 +103,8 @@ function generateIntervalData(
 	if ( ! hasBookings ) {
 		return {
 			time_interval: formatDateOnly( start ),
-			date_start: formatISODate( start ),
-			date_end: formatISODate( end ),
+			date_start: wooBucketStamp( start ),
+			date_end: wooBucketStamp( end ),
 			status_unpaid: '0',
 			status_pending_confirmation: '0',
 			status_confirmed: '0',
@@ -144,8 +141,8 @@ function generateIntervalData(
 
 	return {
 		time_interval: formatDateOnly( start ),
-		date_start: formatISODate( start ),
-		date_end: formatISODate( end ),
+		date_start: wooBucketStamp( start ),
+		date_end: wooBucketStamp( end ),
 		status_unpaid: statusUnpaid.toString(),
 		status_pending_confirmation: statusPendingConfirmation.toString(),
 		status_confirmed: statusConfirmed.toString(),
@@ -202,8 +199,8 @@ function calculateSummary(
 		attendance_status_booked: totals.attendance_status_booked.toString(),
 		attendance_status_no_show: totals.attendance_status_no_show.toString(),
 		attendance_status_checked_in: totals.attendance_status_checked_in.toString(),
-		date_start: formatISODate( new Date( from ) ),
-		date_end: formatISODate( new Date( to ) ),
+		date_start: wooBucketStamp( new Date( from ) ),
+		date_end: wooBucketStamp( new Date( to ) ),
 	};
 }
 
@@ -261,8 +258,8 @@ export function recalculateBookingsSummary(
 			attendance_status_booked: '0',
 			attendance_status_no_show: '0',
 			attendance_status_checked_in: '0',
-			date_start: formatISODate( new Date( from ) ),
-			date_end: formatISODate( new Date( to ) ),
+			date_start: wooBucketStamp( new Date( from ) ),
+			date_end: wooBucketStamp( new Date( to ) ),
 		};
 	}
 

@@ -95,10 +95,13 @@ type DatePeriodDropdownProps = {
 	canApply: boolean;
 
 	/**
-	 * Whether to offer Custom range. On by default; the detail pages' design has
-	 * common periods only.
+	 * Whether to offer Custom range. On by default; a surface whose design lists
+	 * common periods only turns it off.
 	 */
 	withCustomRange?: boolean;
+
+	/** Greys the trigger out but keeps it focusable: a passing state, not a missing control. */
+	disabled?: boolean;
 
 	/**
 	 * Notifies the parent as the menu opens and closes, so it can mirror the
@@ -125,6 +128,7 @@ export function DatePeriodDropdown( {
 	onCancel,
 	canApply,
 	withCustomRange = true,
+	disabled = false,
 	onOpenChange,
 }: DatePeriodDropdownProps ) {
 	// The menu floats free of the row it opens from, so the window is what says
@@ -192,6 +196,7 @@ export function DatePeriodDropdown( {
 						className="date-period-dropdown__toggle"
 						variant="minimal"
 						tone="neutral"
+						disabled={ disabled }
 						onClick={ onToggle }
 						aria-expanded={ isOpen }
 						aria-haspopup="true"

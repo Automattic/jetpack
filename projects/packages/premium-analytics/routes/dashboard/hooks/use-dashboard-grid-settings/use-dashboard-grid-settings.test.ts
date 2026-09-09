@@ -1,7 +1,7 @@
 import { act, renderHook } from '@testing-library/react';
 import { dispatch } from '@wordpress/data';
 import { store as preferencesStore } from '@wordpress/preferences';
-import { ROW_HEIGHT_PRESETS, WIDGET_DASHBOARD_COLUMN_COUNT } from '@wordpress/widget-dashboard';
+import { ROW_HEIGHT_PRESETS } from '@wordpress/widget-dashboard';
 import { DASHBOARD_GRID_SETTINGS_KEY, DASHBOARD_PREFERENCES_SCOPE } from '../constants';
 import { useDashboardGridSettings } from './use-dashboard-grid-settings';
 
@@ -14,7 +14,7 @@ describe( 'useDashboardGridSettings', () => {
 		);
 	} );
 
-	it( 'pins the column count whatever the stored preference says', () => {
+	it( 'pins the count to three columns whatever the stored preference says', () => {
 		dispatch( preferencesStore ).set( DASHBOARD_PREFERENCES_SCOPE, DASHBOARD_GRID_SETTINGS_KEY, {
 			model: 'grid',
 			rowHeight: ROW_HEIGHT_PRESETS.medium,
@@ -24,12 +24,12 @@ describe( 'useDashboardGridSettings', () => {
 		const { result } = renderHook( () => useDashboardGridSettings() );
 
 		expect( result.current[ 0 ] ).toMatchObject( {
-			columns: WIDGET_DASHBOARD_COLUMN_COUNT,
+			columns: 3,
 			rowHeight: ROW_HEIGHT_PRESETS.medium,
 		} );
 	} );
 
-	it( 'keeps the pinned count after a write', () => {
+	it( 'keeps three columns after a write', () => {
 		const { result } = renderHook( () => useDashboardGridSettings() );
 
 		act( () =>
@@ -37,7 +37,7 @@ describe( 'useDashboardGridSettings', () => {
 		);
 
 		expect( result.current[ 0 ] ).toMatchObject( {
-			columns: WIDGET_DASHBOARD_COLUMN_COUNT,
+			columns: 3,
 			rowHeight: ROW_HEIGHT_PRESETS.large,
 		} );
 	} );

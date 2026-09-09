@@ -39,8 +39,8 @@ module.exports = {
 	testPathIgnorePatterns: [ ...baseConfig.testPathIgnorePatterns, ...groupingIgnorePatterns ],
 	moduleNameMapper: {
 		...baseConfig.moduleNameMapper,
-		// Stub CSS imports (e.g. `@automattic/ui/style.css` pulled in via
-		// widgets-toolkit, or local `*.module.css`). jest's transformIgnorePatterns
+		// Stub CSS imports (e.g. `@automattic/charts/style.css` pulled in via
+		// externals, or local `*.module.css`). jest's transformIgnorePatterns
 		// skips nested node_modules CSS, so it would otherwise be parsed as JS.
 		'\\.s?css$': path.join( __dirname, 'style-stub.cjs' ),
 		// Resolve internal `packages/*` imports to their TypeScript source.

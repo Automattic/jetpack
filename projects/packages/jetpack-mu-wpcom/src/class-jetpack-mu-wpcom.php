@@ -141,6 +141,14 @@ class Jetpack_Mu_Wpcom {
 		add_filter( 'option_woocommerce_feature_block_editor_unified_assets_enabled', array( __CLASS__, 'enable_woocommerce_block_editor_unified_assets' ) );
 		add_filter( 'default_option_woocommerce_feature_block_editor_unified_assets_enabled', array( __CLASS__, 'enable_woocommerce_block_editor_unified_assets' ) );
 
+		if ( wpcom_has_blog_sticker( 'gutenberg-extensible-site-editor', get_wpcom_blog_id() ) ) {
+			add_filter( 'option_gutenberg-experiments', array( __CLASS__, 'enable_extensible_site_editor_experiment' ) );
+
+			// Priority 20 because register_setting() hooks core's filter_default_option() at 10,
+			// and that callback discards the value it is handed and returns the registered default.
+			add_filter( 'default_option_gutenberg-experiments', array( __CLASS__, 'enable_extensible_site_editor_experiment' ), 20 );
+		}
+
 		/**
 		 * Runs right after the Jetpack_Mu_Wpcom package is initialized.
 		 *
@@ -419,6 +427,14 @@ class Jetpack_Mu_Wpcom {
 			add_action( 'init', array( \Automattic\Jetpack\Help_Center\Help_Center::class, 'init' ), 10, 0 );
 		}
 
+		// Every admin, not only WordPress.com users: one who cannot renew is told
+		// whose plan it is, and the legacy notice the feature replaces stands
+		// down only once this has loaded. Agency-managed sites keep their plans
+		// out of the customer's hands, so they stay excluded.
+		if ( ! is_fully_managed_agency_site() ) {
+			require_once __DIR__ . '/features/expiry-notices/expiry-notices.php';
+		}
+
 		if ( ! is_wpcom_user() ) {
 			require_once __DIR__ . '/features/replace-site-visibility/hide-site-visibility.php';
 			return;
@@ -427,7 +443,6 @@ class Jetpack_Mu_Wpcom {
 			require_once __DIR__ . '/features/survicate/class-survicate.php';
 		}
 		require_once __DIR__ . '/features/ai-assistant-banner/ai-assistant-banner.php';
-		require_once __DIR__ . '/features/expiry-notices/expiry-notices.php';
 		require_once __DIR__ . '/features/html-block-restricted-tags/html-block-restricted-tags.php';
 		require_once __DIR__ . '/features/marketing/marketing.php';
 		require_once __DIR__ . '/features/pages/pages.php';
@@ -1061,6 +1076,23 @@ class Jetpack_Mu_Wpcom {
 		}
 
 		return in_array( $matches[1], self::REACT_19_INCOMPATIBLE_GUTENBERG, true );
+	}
+
+	/**
+	 * Add `gutenberg-extensible-site-editor` to the list of enabled Gutenberg experiments.
+	 *
+	 * Only registered on sites holding the sticker, so this does not re-check it.
+	 *
+	 * @param mixed $experiments The current value of the gutenberg-experiments option.
+	 * @return array The experiments, with the extensible site editor enabled.
+	 */
+	public static function enable_extensible_site_editor_experiment( $experiments ) {
+		if ( ! is_array( $experiments ) ) {
+			$experiments = array();
+		}
+
+		$experiments['gutenberg-extensible-site-editor'] = true;
+		return $experiments;
 	}
 
 	/**

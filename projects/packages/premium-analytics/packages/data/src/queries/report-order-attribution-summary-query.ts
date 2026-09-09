@@ -8,6 +8,7 @@ import {
 	type SanitizedOrderAttributionSummaryResponse,
 } from '../processing/order-attribution';
 import { hasProductFilters } from '../utils/product-filters';
+import { resolveReportTimeZone } from '../utils/report-timezone';
 import type { FilterCondition } from '../types/filter-condition';
 import type { UseQueryOptions } from '@tanstack/react-query';
 
@@ -46,8 +47,10 @@ const getReportOrderAttributionQueryKey = ( params: ReportOrderAttributionSummar
 export function reportOrderAttributionSummaryQuery(
 	params: ReportOrderAttributionSummaryParams
 ): UseQueryOptions< SanitizedOrderAttributionSummaryResponse > {
+	const timezone = resolveReportTimeZone();
+
 	return {
-		queryKey: getReportOrderAttributionQueryKey( params ),
+		queryKey: [ ...getReportOrderAttributionQueryKey( params ), timezone ],
 		queryFn: async () => {
 			const hasProductFiltersValue = hasProductFilters( params.filters );
 
@@ -87,12 +90,12 @@ export function reportOrderAttributionSummaryQuery(
 					previousResponse
 				);
 
-				return sanitizeReportOrderAttributionSummaryResponse( normalizedResponse );
+				return sanitizeReportOrderAttributionSummaryResponse( normalizedResponse, timezone );
 			}
 
 			// Regular API path: Returns both primary and comparison in one response
 			const response = await fetchReportOrderAttributionSummary( params );
-			return sanitizeReportOrderAttributionSummaryResponse( response );
+			return sanitizeReportOrderAttributionSummaryResponse( response, timezone );
 		},
 
 		// `view` is required by the order attribution endpoints.

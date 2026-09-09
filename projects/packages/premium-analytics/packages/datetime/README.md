@@ -102,6 +102,37 @@ const withTZ = dateToISOStringWithTZ( new Date(), 'America/New_York' );
 
 **Returns:** `string` - ISO string with timezone offset
 
+#### `localTZDate( value?, timezone? )`
+
+`toLocalTZ` with the reporting timezone as its default.
+
+```typescript
+const now = localTZDate(); // Current time in the reporting timezone
+const custom = localTZDate( '2024-01-15', 'America/New_York' );
+```
+
+**Parameters:**
+
+- `value` (optional): `number | string | Date` - Value to anchor
+- `timezone` (optional): `string` - Zone to read it in, the reporting timezone when omitted
+
+**Returns:** `TZDate` - Timezone-aware date object
+
+#### `dateToISOStringWithLocalTZ( date )`
+
+Converts a date to an ISO string with the reporting timezone's offset applied.
+
+```typescript
+const withTZ = dateToISOStringWithLocalTZ( new Date() );
+// Returns: "2024-01-15T14:30:00.000-05:00"
+```
+
+**Parameters:**
+
+- `date`: `Date` - Date to convert
+
+**Returns:** `string` - ISO string with timezone offset
+
 ### Comparison Range Calculations
 
 #### `getComparisonRangeFromPreset( reference, presetId, options? )`
@@ -166,7 +197,7 @@ same window as an earlier one is dropped. Each option carries the resolved
 **Returns:** `ComparisonOption[]` - Empty when the range is incomplete or
 inverted
 
-### Range Measurement and Stepping
+### Range Measurement
 
 #### `getDateRangeSpan( range? )`
 
@@ -183,22 +214,6 @@ getDateRangeSpan( { from, to } );
 A whole-month range stays in days below two months and only collapses into
 years from two years up, so "Last 30 days" reads as 30 days and a
 twelve-month window as 12 months.
-
-#### `stepDateRange( range, direction )`
-
-Shifts a range backward or forward (`'previous' | 'next'`) by its own length.
-Steps move in calendar units, so a step across a DST boundary keeps the wall
-clock; where a calendar step cannot be undone, it falls back to whole days.
-Returns `undefined` when the range has no measurable span.
-
-```typescript
-stepDateRange( { from, to }, 'previous' ); // Last 7 days -> the 7 days before
-```
-
-#### `canStepForward( range, now )`
-
-Whether the next window has already happened in full. Pass the site's `now`,
-not the browser's.
 
 ## Types
 

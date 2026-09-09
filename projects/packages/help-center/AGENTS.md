@@ -44,9 +44,11 @@ All routes are registered under the `help-center` namespace (`/wp-json/help-cent
 | Route                                                 | Method | Controller                  | Proxies to                                    | Description                           |
 | ----------------------------------------------------- | ------ | --------------------------- | --------------------------------------------- | ------------------------------------- |
 | `/authenticate/chat`                                  | POST   | `Authenticate`              | `POST /help/authenticate/chat`                | Zendesk/messaging chat auth           |
+| `/cta`                                                | GET    | `CTA`                       | `GET /help/cta`                               | Contextual CTA for the current user   |
 | `/support-availability/email`                         | GET    | `Email_Support_Enabled`     | `GET /help/eligibility/email/mine`            | Check email support eligibility       |
 | `/fetch-post`                                         | GET    | `Fetch_Post`                | `GET /help/article/{blog_id}/{post_id}`       | Fetch a single support article        |
 | `/articles`                                           | GET    | `Fetch_Post`                | `GET /help/articles?blog_id=...&post_ids=...` | Fetch multiple support articles       |
+| `/article-rating`                                     | POST   | `Article_Rating`            | `POST /help/article/rating`                   | Save the user's rating of an article  |
 | `/forum/new`                                          | POST   | `Forum`                     | `POST /help/forum/new`                        | Create a forum topic                  |
 | `/jetpack-connection-health`                          | GET    | `Jetpack_Connection_Health` | `GET /sites/{site}/jetpack-connection-health` | Site connection health (reachability) |
 | `/jetpack-search/ai/search`                           | GET    | `Jetpack_Search_AI`         | `GET /sites/{site}/jetpack-search/ai/search`  | AI-powered article search             |

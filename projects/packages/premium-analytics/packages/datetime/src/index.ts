@@ -21,18 +21,15 @@ export { INTERVAL_TYPES, isIntervalType, type IntervalType } from './interval';
 
 export { getDateRangeSpan, type DateRangeSpan, type DateRangeSpanUnit } from './date-range-span';
 
-export { stepDateRange, canStepForward, type StepDirection } from './step-date-range';
-export { completeToDateRange, clampRangeEndToToday } from './to-date-range';
-
 export { drillDateRange } from './drill-date-range';
 
-export { parseBucketStart } from './bucket-start';
+export { toBucketStamp, resolveBucketStamp } from './bucket-stamp';
 
 export { parseSiteDateTime } from './site-datetime';
 
 export { readSiteTimestamp, type SiteTimestamp, type TimestampParts } from './site-timestamp';
 
-export { reportingTimeZone } from './reporting-time-zone';
+export { reportingTimeZone, localTZDate, dateToISOStringWithLocalTZ } from './reporting-time-zone';
 
 export {
 	formatDatePartWithTime,
@@ -52,7 +49,9 @@ export {
 	PRESET_LAST_30_DAYS,
 	PRESET_LAST_90_DAYS,
 	PRESET_LAST_365_DAYS,
+	PRESET_MONTH_TO_DATE,
 	PRESET_LAST_MONTH,
+	PRESET_YEAR_TO_DATE,
 	PRESET_LAST_12_MONTHS,
 	PRESET_LAST_YEAR,
 	PRESET_CUSTOM,

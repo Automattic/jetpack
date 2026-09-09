@@ -477,6 +477,64 @@ class Admin_Banner_Test extends \WorDBless\BaseTestCase {
 		$this->assertStringNotContainsString( 'data-support-message', $out );
 	}
 
+	public function test_the_renewal_names_the_subscription(): void {
+		// The cart refuses a renewal of a named subscription for anyone but its
+		// owner, and explains itself; the plain form would quietly become a
+		// second purchase for another admin.
+		$this->set_purchase( 5 );
+		$this->assertStringContainsString( '/checkout/business-bundle/renew/' . $this->subscription_id . '/', $this->render() );
+	}
+
+	public function test_a_non_owner_admin_is_told_why_there_is_nothing_to_click(): void {
+		$this->act_as_non_owner();
+		foreach ( array( 45, 5, 0, -5 ) as $days ) {
+			$this->set_purchase( $days );
+			$out = $this->render();
+			$this->assertStringContainsString( 'purchased by a different WordPress.com account', $out, "expected the non-owner body {$days} days from expiry" );
+			$this->assertStringNotContainsString( 'Renew now', $out, "expected no renewal CTA {$days} days from expiry" );
+			$this->assertStringNotContainsString( '/checkout/', $out, "expected no checkout link {$days} days from expiry" );
+			$this->assertStringNotContainsString( '/plans/', $out, "expected no plans link {$days} days from expiry" );
+			$this->assertStringNotContainsString( 'wpcom-expiry-banner__actions', $out, "expected no actions row {$days} days from expiry" );
+		}
+	}
+
+	public function test_a_non_owner_admin_keeps_the_heading_and_the_post_grace_dismiss(): void {
+		$this->act_as_non_owner();
+		$this->set_purchase( -45 );
+		$out = $this->render();
+		$this->assertStringContainsString( '<strong>Your plan has expired</strong>', $out );
+		$this->assertStringContainsString( 'purchased by a different WordPress.com account', $out );
+		$this->assertStringNotContainsString( 'Restore site', $out );
+		$this->assertStringNotContainsString( 'Contact support', $out );
+		$this->assertStringContainsString( 'wpcom-expiry-banner__dismiss', $out );
+	}
+
+	public function test_a_local_only_admin_cannot_be_the_owner(): void {
+		$this->act_as_local_only_admin();
+		$this->set_purchase( 5 );
+		$out = $this->render();
+		$this->assertStringContainsString( 'purchased by a different WordPress.com account', $out );
+		$this->assertStringNotContainsString( '/checkout/', $out );
+	}
+
+	public function test_an_unknown_owner_still_gets_the_renewal(): void {
+		$this->set_plan_owner_unknown();
+		$this->set_purchase( 5 );
+		$this->assertStringContainsString( 'Renew now', $this->render() );
+	}
+
+	public function test_the_script_carries_the_track_props(): void {
+		$this->act_as_non_owner();
+		$this->set_purchase( 5 );
+		wpcom_expiry_notices_enqueue_admin_banner_assets();
+
+		$localized = wp_scripts()->get_data( 'jetpack-mu-wpcom-expiry-notices-admin-banner', 'data' );
+		$this->assertIsString( $localized );
+		$this->assertStringContainsString( '"is_plan_owner":"false"', $localized );
+		$this->assertStringContainsString( '"days_remaining":5', $localized );
+		$this->assertStringContainsString( '"product_slug":"business-bundle"', $localized );
+	}
+
 	public function test_body_falls_back_to_additional_storage_for_unknown_slug(): void {
 		$state = $this->message_state( array( 'product_slug' => 'mystery-bundle' ) );
 		$this->assertStringContainsString( 'additional storage', wpcom_expiry_notices_admin_banner_body( $state ) );

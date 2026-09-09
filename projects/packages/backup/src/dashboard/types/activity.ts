@@ -5,9 +5,13 @@
  * parent activity endpoint — `notice`, `lock`, `checkmark`), and that
  * set grows without notice. Dropping the unrecognized ones hid 27% of
  * this site's activity, so unknown maps here instead.
+ *
+ * `restore` is the exception: no gridicon produces it. A restore is not a
+ * restore point, so those rows are merged in from `GET /jetpack/v4/restores`.
  */
 export type ActivityKind =
 	| 'backup'
+	| 'restore'
 	| 'post'
 	| 'upload'
 	| 'plugin-update'

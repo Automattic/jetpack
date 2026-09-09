@@ -58,7 +58,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: changed_files
     if: needs.changed_files.outputs.php == 'true' || needs.changed_files.outputs.misc == 'true'
-    timeout-minutes: 15  # 2026-09-04: Temporary, pnpm/action-setup is taking up to 7 minutes.
+    timeout-minutes: 7  # 2025-11-06: Successful runs seem to take ~2 minutes.
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7

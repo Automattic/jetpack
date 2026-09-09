@@ -5,7 +5,9 @@ const baseConfig = require( 'jetpack-js-tools/jest/config.base.js' );
 module.exports = {
 	...coverageConfig,
 	rootDir: path.join( __dirname, '..' ),
+	roots: [ '<rootDir>/app', '<rootDir>/routes' ],
 	testEnvironment: require.resolve( 'jetpack-js-tools/jest/fix-environment-jsdom.mjs' ),
+	testEnvironmentOptions: baseConfig.testEnvironmentOptions,
 	collectCoverageFrom: [
 		'<rootDir>/app/**/*.{js,mjs,cjs,jsx,ts,tsx,mts,cts}',
 		...coverageConfig.collectCoverageFrom,

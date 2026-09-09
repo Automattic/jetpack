@@ -18,9 +18,9 @@ const meta: Meta< typeof SpotlightStep > = {
 					'the anchor, and a card beside it carries the copy, the "n of m" ' +
 					'counter and Continue, or Finish on the last step.\n\n' +
 					'The step renders nothing until its anchor is mounted, so a tour can ' +
-					'declare steps for elements that appear later. Escape calls ' +
-					'`onDismiss`; clicks on the dimmed page do nothing, as the design has ' +
-					'no skip control.',
+					'declare steps for elements that appear later. Escape and a skip ' +
+					'control that shows up on focus call `onDismiss`; clicks on the ' +
+					'dimmed page do nothing, as the design draws no skip control.',
 			},
 		},
 	},
@@ -31,19 +31,24 @@ type Story = StoryObj< typeof SpotlightStep >;
 
 const STEPS = [
 	{
-		title: 'Customize your experience',
+		title: 'Everything is a widget',
 		description:
-			'Access customization from this menu. Move and resize widgets to prioritize what you need.',
+			'Each block of data is a widget you can move and resize to suit how you read your site.',
 	},
 	{
-		title: 'Improved date selection',
+		title: 'A better date picker',
 		description:
-			'Simplified and more powerful. You can now compare your data with past periods and adjust your chart intervals.',
+			"Compare any period with the one before it, and change the chart interval to suit the range you're looking at.",
 	},
 	{
-		title: 'Introducing widgets',
+		title: 'Rearrange it your way',
 		description:
-			'All data is delivered using powerful and versatile widgets for better visualization.',
+			'Select Customize to move and resize widgets. Your layout is saved to your profile.',
+	},
+	{
+		title: 'One last thing',
+		description:
+			"This menu is where you can share feedback and switch the preview off if you want. It's an early version, so do tell us what's working and what isn't.",
 	},
 ];
 
@@ -52,7 +57,8 @@ function TourDemo() {
 	const [ menu, setMenu ] = useState< HTMLElement | null >( null );
 	const [ dates, setDates ] = useState< HTMLElement | null >( null );
 	const [ widget, setWidget ] = useState< HTMLElement | null >( null );
-	const anchors = [ menu, dates, widget ];
+	const [ customize, setCustomize ] = useState< HTMLElement | null >( null );
+	const anchors = [ widget, dates, customize, menu ];
 
 	const next = () =>
 		setStep( current => ( current && current < STEPS.length ? current + 1 : null ) );
@@ -67,6 +73,9 @@ function TourDemo() {
 							Last 30 days
 						</Button>
 					</div>
+					<Button ref={ setCustomize } variant="outline" tone="neutral">
+						Customize
+					</Button>
 					<IconButton
 						ref={ setMenu }
 						icon={ moreVertical }
@@ -106,7 +115,7 @@ function TourDemo() {
 					totalSteps={ STEPS.length }
 					onNext={ next }
 					onDismiss={ () => setStep( null ) }
-					side={ step === 3 ? 'top' : 'bottom' }
+					side={ step === 1 ? 'top' : 'bottom' }
 				/>
 			) }
 		</div>
@@ -114,8 +123,8 @@ function TourDemo() {
 }
 
 /**
- * The three onboarding steps on a mock of the dashboard header: the options
- * menu, the date controls and the first widget. Continue walks them, Finish
+ * The onboarding steps on a mock of the dashboard header: the first widget,
+ * the date controls, Customize and the options menu. Continue walks them, Finish
  * ends, Escape leaves at any point; the button that appears afterwards
  * restarts the tour.
  */
