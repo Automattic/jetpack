@@ -960,7 +960,7 @@ class PayPal_REST_Controller {
 									'name'  => array( 'type' => 'string' ),
 									'type'  => array(
 										'type' => 'string',
-										'enum' => array( 'PERCENTAGE', 'PREFERENCE' ),
+										'enum' => array( 'PERCENTAGE', 'PREFERENCE', 'FLAT' ),
 									),
 									'value' => array( 'type' => 'string' ),
 								),
@@ -1079,17 +1079,42 @@ class PayPal_REST_Controller {
 			// Tax configuration.
 			if ( ! empty( $item['taxes'] ) && is_array( $item['taxes'] ) ) {
 				$clean_taxes = array();
-				$valid_types = array( 'PERCENTAGE', 'PREFERENCE' );
+				$valid_types = array( 'PERCENTAGE', 'PREFERENCE', 'FLAT' );
 				foreach ( $item['taxes'] as $tax ) {
-					if ( is_array( $tax ) && ! empty( $tax['name'] ) ) {
-						$tax_type      = isset( $tax['type'] ) ? sanitize_text_field( $tax['type'] ) : 'PERCENTAGE';
-						$clean_taxes[] = array(
-							'name'  => sanitize_text_field( $tax['name'] ),
-							'type'  => in_array( $tax_type, $valid_types, true ) ? $tax_type : 'PERCENTAGE',
-							'value' => isset( $tax['value'] ) && 'PROFILE' !== $tax['value']
-							? (string) max( 0, floatval( $tax['value'] ) )
-							: ( 'PREFERENCE' === $tax_type ? 'PROFILE' : '0' ),
+					// No name: PayPal labels the tax itself, and requiring one here
+					// threw the whole tax away.
+					if ( is_array( $tax ) ) {
+						$tax_type = isset( $tax['type'] ) ? sanitize_text_field( $tax['type'] ) : 'PERCENTAGE';
+						if ( ! in_array( $tax_type, $valid_types, true ) ) {
+							$tax_type = 'PERCENTAGE';
+						}
+
+						if ( 'PREFERENCE' === $tax_type ) {
+							// The rate comes from the merchant's PayPal profile.
+							$tax_value = 'PROFILE';
+						} elseif ( 'FLAT' === $tax_type ) {
+							// A flat tax is an amount, not a rate - keep the string as sent
+							// so '1.50' does not become 1.5. PayPal validates it itself.
+							$tax_value = trim( sanitize_text_field( (string) ( $tax['value'] ?? '0' ) ) );
+							if ( '' === $tax_value ) {
+								$tax_value = '0';
+							}
+						} else {
+							$tax_value = (string) max( 0, floatval( $tax['value'] ?? 0 ) );
+						}
+
+						$clean_tax = array(
+							'type'  => $tax_type,
+							'value' => $tax_value,
 						);
+
+						// name is optional, so only send a real one - an empty string
+						// is not a name.
+						if ( ! empty( $tax['name'] ) ) {
+							$clean_tax['name'] = sanitize_text_field( $tax['name'] );
+						}
+
+						$clean_taxes[] = $clean_tax;
 					}
 				}
 				if ( ! empty( $clean_taxes ) ) {

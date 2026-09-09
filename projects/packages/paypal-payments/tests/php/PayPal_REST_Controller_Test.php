@@ -13,6 +13,7 @@ namespace Automattic\Jetpack\PaypalPayments;
 use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Constants;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -1159,6 +1160,170 @@ class PayPal_REST_Controller_Test extends TestCase {
 		$this->assertEquals( 'missing_variant_price', $result->get_error_code() );
 	}
 
+	// --- Tax types ---
+
+	/**
+	 * Test that a FLAT tax reaches PayPal unchanged.
+	 *
+	 * PayPal accepts FLAT even though its published enum omits it. The arg
+	 * schema and the sanitizer both used to turn $1.50 of tax into 1.5%.
+	 *
+	 * @param string $method HTTP method.
+	 * @param string $route  Route to dispatch against.
+	 * @param int    $status Status PayPal answers with, and the route returns.
+	 * @dataProvider write_routes_provider
+	 */
+	#[DataProvider( 'write_routes_provider' )]
+	public function test_write_routes_keep_flat_tax( $method, $route, $status ) {
+		$line_item = $this->capture_sent_line_item(
+			array(
+				array(
+					'name'  => 'Sales Tax',
+					'type'  => 'FLAT',
+					'value' => '1.50',
+				),
+			),
+			$method,
+			$route,
+			$status
+		);
+
+		$this->assertCount( 1, $line_item['taxes'] );
+		$this->assertSame( 'Sales Tax', $line_item['taxes'][0]['name'] );
+		$this->assertSame( 'FLAT', $line_item['taxes'][0]['type'] );
+		$this->assertSame( '1.50', $line_item['taxes'][0]['value'] );
+	}
+
+	/**
+	 * Both write routes share one argument schema and the bug showed up on
+	 * update, so the FLAT case runs over each.
+	 *
+	 * @return array<string, array{0: string, 1: string, 2: int}>
+	 */
+	public static function write_routes_provider() {
+		return array(
+			'create' => array( 'POST', '/wpcom/v2/paypal/buttons', 201 ),
+			'update' => array( 'PUT', '/wpcom/v2/paypal/buttons/PLB-CREATED123', 200 ),
+		);
+	}
+
+	/**
+	 * Test that a PREFERENCE tax sends PROFILE instead of the rate it was given.
+	 *
+	 * Changed: a numeric value used to pass straight through.
+	 */
+	public function test_create_button_sends_profile_for_preference_tax() {
+		$line_item = $this->capture_sent_line_item(
+			array(
+				array(
+					'name'  => 'Sales Tax',
+					'type'  => 'PREFERENCE',
+					'value' => '5',
+				),
+			)
+		);
+
+		$this->assertSame( 'PREFERENCE', $line_item['taxes'][0]['type'] );
+		$this->assertSame( 'PROFILE', $line_item['taxes'][0]['value'] );
+	}
+
+	/**
+	 * Test that a tax with no name still reaches PayPal.
+	 *
+	 * `taxes[].name` is optional and never shown to the buyer, and the form
+	 * stopped sending one. Requiring a name here threw the whole tax away.
+	 */
+	public function test_create_button_keeps_tax_without_name() {
+		// PERCENTAGE, so the missing name is the only thing under test.
+		$line_item = $this->capture_sent_line_item(
+			array(
+				array(
+					'type'  => 'PERCENTAGE',
+					'value' => '7.5',
+				),
+			)
+		);
+
+		$this->assertCount( 1, $line_item['taxes'] );
+		$this->assertArrayNotHasKey( 'name', $line_item['taxes'][0] );
+		$this->assertSame( 'PERCENTAGE', $line_item['taxes'][0]['type'] );
+		$this->assertSame( '7.5', $line_item['taxes'][0]['value'] );
+	}
+
+	/**
+	 * Test that an empty tax name is left off rather than sent as an empty string.
+	 */
+	public function test_create_button_omits_empty_tax_name() {
+		$line_item = $this->capture_sent_line_item(
+			array(
+				array(
+					'name'  => '',
+					'type'  => 'PERCENTAGE',
+					'value' => '7.5',
+				),
+			)
+		);
+
+		$this->assertArrayNotHasKey( 'name', $line_item['taxes'][0] );
+	}
+
+	/**
+	 * Test that a FLAT amount reaches PayPal exactly as sent.
+	 *
+	 * Deliberate: PayPal answers a negative or non-numeric amount with a
+	 * clearer message than a clamp would, and clamping would book a zero tax.
+	 */
+	public function test_create_button_does_not_clamp_flat_tax() {
+		$line_item = $this->capture_sent_line_item(
+			array(
+				array(
+					'type'  => 'FLAT',
+					'value' => '-5.00',
+				),
+			)
+		);
+
+		$this->assertSame( '-5.00', $line_item['taxes'][0]['value'] );
+	}
+
+	/**
+	 * Test that an empty FLAT amount lands on zero rather than an empty string.
+	 *
+	 * PERCENTAGE and a missing value both give '0'; PayPal rejects ''.
+	 */
+	public function test_create_button_zeroes_empty_flat_tax() {
+		$line_item = $this->capture_sent_line_item(
+			array(
+				array(
+					'type'  => 'FLAT',
+					'value' => '',
+				),
+			)
+		);
+
+		$this->assertSame( '0', $line_item['taxes'][0]['value'] );
+	}
+
+	/**
+	 * Test that a percentage rate is still clamped and normalized.
+	 *
+	 * Unchanged behavior - this guards the split into per-type branches.
+	 */
+	public function test_create_button_clamps_negative_percentage_tax_rate() {
+		$line_item = $this->capture_sent_line_item(
+			array(
+				array(
+					'name'  => 'Sales Tax',
+					'type'  => 'PERCENTAGE',
+					'value' => '-7.500',
+				),
+			)
+		);
+
+		$this->assertSame( 'PERCENTAGE', $line_item['taxes'][0]['type'] );
+		$this->assertSame( '0', $line_item['taxes'][0]['value'] );
+	}
+
 	/**
 	 * Build a variants structure with a single primary dimension.
 	 *
@@ -1189,19 +1354,73 @@ class PayPal_REST_Controller_Test extends TestCase {
 	}
 
 	/**
+	 * Dispatch a write through the REST server rather than calling the handler,
+	 * so the argument schema runs, and return the line item sent to PayPal.
+	 *
+	 * @param array  $taxes  Taxes to attach to the line item.
+	 * @param string $method HTTP method.
+	 * @param string $route  Route to dispatch against.
+	 * @param int    $status Status PayPal answers with, and the route returns.
+	 * @return array The line item as sent to PayPal.
+	 */
+	private function capture_sent_line_item( array $taxes, $method = 'POST', $route = '/wpcom/v2/paypal/buttons', $status = 201 ) {
+		$this->set_up_connected_admin_state();
+		$this->register_paypal_routes();
+
+		$sent = null;
+		$this->mock_http_response( $status, array( 'id' => 'PLB-CREATED123' ), $sent );
+
+		$request = new \WP_REST_Request( $method, $route );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body(
+			wp_json_encode(
+				array(
+					'line_items' => array(
+						array(
+							'name'        => 'Widget',
+							'unit_amount' => array(
+								'currency_code' => 'USD',
+								'value'         => '10.00',
+							),
+							'taxes'       => $taxes,
+						),
+					),
+				),
+				JSON_UNESCAPED_SLASHES
+			)
+		);
+
+		$response = rest_get_server()->dispatch( $request );
+
+		$this->assertSame(
+			$status,
+			$response->get_status(),
+			'The route rejected the request: ' . wp_json_encode( $response->get_data(), JSON_UNESCAPED_SLASHES )
+		);
+		$this->assertNotNull( $sent, 'No request reached PayPal.' );
+
+		$body = json_decode( $sent, true );
+
+		return $body['line_items'][0];
+	}
+
+	/**
 	 * Mock an HTTP response for the next wp_remote_request call.
 	 *
 	 * @param int          $status_code HTTP status code.
 	 * @param array|string $body        Response body (will be JSON-encoded if array).
+	 * @param string|null  $sent_body   Set to the request body that reached PayPal.
 	 */
-	private function mock_http_response( $status_code, $body ) {
+	private function mock_http_response( $status_code, $body, &$sent_body = null ) {
 		add_filter(
 			'pre_http_request',
-			function ( $preempt, $args, $url ) use ( $status_code, $body ) {
+			function ( $preempt, $args, $url ) use ( $status_code, $body, &$sent_body ) {
 				// Skip the OAuth token endpoint mock — we use a cached token.
 				if ( strpos( $url, '/v1/oauth2/token' ) !== false ) {
 					return $preempt;
 				}
+
+				$sent_body = $args['body'] ?? null;
 
 				return array(
 					'response' => array(
