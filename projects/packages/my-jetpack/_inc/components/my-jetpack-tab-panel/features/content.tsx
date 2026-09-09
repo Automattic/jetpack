@@ -35,6 +35,8 @@ export function FeaturesContent() {
 
 	const setSearch = useCallback(
 		( term: string ) => {
+			setSelected( [] );
+
 			const next = new URLSearchParams( searchParams );
 
 			if ( term ) {
@@ -90,24 +92,19 @@ export function FeaturesContent() {
 				className={ styles.search }
 			/>
 
-			<Stack direction="row" align="center" gap="md" className={ styles[ 'list-header' ] }>
-				<Checkbox
-					checked={ allSelected }
-					indeterminate={ selected.length > 0 && ! allSelected }
-					onCheckedChange={ toggleAll }
-					aria-label={ __( 'Select all features', 'jetpack-my-jetpack' ) }
-				/>
-				<BulkActions states={ states } selected={ selected } onClear={ clearSelection } />
-			</Stack>
+			{ results === null && (
+				<Stack direction="row" align="center" gap="md" className={ styles[ 'list-header' ] }>
+					<Checkbox
+						checked={ allSelected }
+						indeterminate={ selected.length > 0 && ! allSelected }
+						onCheckedChange={ toggleAll }
+						aria-label={ __( 'Select all features', 'jetpack-my-jetpack' ) }
+					/>
+					<BulkActions states={ states } selected={ selected } onClear={ clearSelection } />
+				</Stack>
+			) }
 
-			{ results !== null ? (
-				<SearchResults
-					results={ results }
-					selected={ selected }
-					onSelect={ toggleFeature }
-					onOpen={ openFeature }
-				/>
-			) : null }
+			{ results !== null ? <SearchResults results={ results } onOpen={ openFeature } /> : null }
 
 			{ results === null && (
 				<Stack direction="column" className={ styles[ 'feature-list' ] }>

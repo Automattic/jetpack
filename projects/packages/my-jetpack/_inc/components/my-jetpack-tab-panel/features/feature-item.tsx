@@ -11,20 +11,28 @@ type FeatureItemProps = {
 	state: FeatureState;
 	selected: boolean;
 	onSelect: ( slug: string, checked: boolean ) => void;
+	showCheckbox?: boolean;
 	onOpen: ( slug: string ) => void;
 };
 
 /**
  * A single row in the main features list.
  *
- * @param {FeatureItemProps} props          - The component props.
- * @param {FeatureState}     props.state    - Live state for the feature.
- * @param {boolean}          props.selected - Whether the row is selected for a bulk action.
- * @param {Function}         props.onSelect - Called when the row's checkbox changes.
- * @param {Function}         props.onOpen   - Opens the feature's details.
+ * @param {FeatureItemProps} props              - The component props.
+ * @param {FeatureState}     props.state        - Live state for the feature.
+ * @param {boolean}          props.selected     - Whether the row is selected for a bulk action.
+ * @param {Function}         props.onSelect     - Called when the row's checkbox changes.
+ * @param {Function}         props.onOpen       - Opens the feature's details.
+ * @param {boolean}          props.showCheckbox - Whether the row offers bulk selection.
  * @return The rendered component.
  */
-export function FeatureItem( { state, selected, onSelect, onOpen }: FeatureItemProps ) {
+export function FeatureItem( {
+	state,
+	selected,
+	onSelect,
+	onOpen,
+	showCheckbox = true,
+}: FeatureItemProps ) {
 	const { feature } = state;
 	const isActive = state.status === 'active';
 
@@ -41,12 +49,14 @@ export function FeatureItem( { state, selected, onSelect, onOpen }: FeatureItemP
 			className={ styles[ 'feature-item' ] }
 			data-feature={ feature.slug }
 		>
-			<Checkbox
-				checked={ selected }
-				disabled={ ! state.selectable }
-				onCheckedChange={ onCheckedChange }
-				aria-label={ feature.name }
-			/>
+			{ showCheckbox && (
+				<Checkbox
+					checked={ selected }
+					disabled={ ! state.selectable }
+					onCheckedChange={ onCheckedChange }
+					aria-label={ feature.name }
+				/>
+			) }
 
 			<FeatureIcon feature={ feature } />
 

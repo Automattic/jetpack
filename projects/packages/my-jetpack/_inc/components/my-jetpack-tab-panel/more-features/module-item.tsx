@@ -12,18 +12,25 @@ type ModuleItemProps = {
 	module: MyJetpackModule;
 	selected: boolean;
 	onSelect: ( slug: string, checked: boolean ) => void;
+	showCheckbox?: boolean;
 };
 
 /**
  * One row in the More features list.
  *
- * @param {ModuleItemProps} props          - The component props.
- * @param {MyJetpackModule} props.module   - The module to render.
- * @param {boolean}         props.selected - Whether the row is selected for a bulk action.
- * @param {Function}        props.onSelect - Called when the row's checkbox changes.
+ * @param {ModuleItemProps} props              - The component props.
+ * @param {MyJetpackModule} props.module       - The module to render.
+ * @param {boolean}         props.selected     - Whether the row is selected for a bulk action.
+ * @param {Function}        props.onSelect     - Called when the row's checkbox changes.
+ * @param {boolean}         props.showCheckbox - Whether the row offers bulk selection.
  * @return The rendered component.
  */
-export function ModuleItem( { module: $module, selected, onSelect }: ModuleItemProps ) {
+export function ModuleItem( {
+	module: $module,
+	selected,
+	onSelect,
+	showCheckbox = true,
+}: ModuleItemProps ) {
 	const { updateJetpackModuleStatus } = useDispatch( modulesStore );
 	const { createErrorNotice } = useGlobalNotices();
 
@@ -71,12 +78,14 @@ export function ModuleItem( { module: $module, selected, onSelect }: ModuleItemP
 			className={ styles[ 'module-item' ] }
 			data-module={ $module.module }
 		>
-			<Checkbox
-				checked={ selected }
-				disabled={ isLocked }
-				onCheckedChange={ onCheckedChange }
-				aria-label={ $module.name }
-			/>
+			{ showCheckbox && (
+				<Checkbox
+					checked={ selected }
+					disabled={ isLocked }
+					onCheckedChange={ onCheckedChange }
+					aria-label={ $module.name }
+				/>
+			) }
 
 			<Stack direction="column" gap="xs" className={ styles[ 'module-item__details' ] }>
 				<Stack direction="row" align="center" gap="sm" wrap="wrap">
