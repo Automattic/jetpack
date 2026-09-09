@@ -232,12 +232,6 @@ class Expiry_Data_Test extends \WorDBless\BaseTestCase {
 		$this->assertGreaterThan( 0, $purchase->might_still_reads );
 	}
 
-	public function test_is_monthly_plan(): void {
-		$this->assertTrue( Expiry_Data::is_monthly_plan( 'personal-bundle-monthly' ) );
-		$this->assertTrue( Expiry_Data::is_monthly_plan( 'BUSINESS_MONTHLY' ) );
-		$this->assertFalse( Expiry_Data::is_monthly_plan( 'business-bundle' ) );
-	}
-
 	public function test_active_annual_far_from_expiry(): void {
 		$state = Expiry_Data::compute_state_from_purchase(
 			$this->purchase( 'business-bundle', 200 ),
@@ -246,9 +240,7 @@ class Expiry_Data_Test extends \WorDBless\BaseTestCase {
 		$this->assertNotNull( $state );
 		$this->assertSame( Expiry_Data::STATE_ACTIVE, $state['state'] );
 		$this->assertSame( 200, $state['days_remaining'] );
-		$this->assertNull( $state['grace_days_left'] );
 		$this->assertFalse( $state['auto_renew'] );
-		$this->assertFalse( $state['is_monthly'] );
 	}
 
 	public function test_approaching_annual_within_60_days_renew_off(): void {
@@ -368,7 +360,6 @@ class Expiry_Data_Test extends \WorDBless\BaseTestCase {
 		$this->assertIsArray( $state );
 		$this->assertSame( Expiry_Data::STATE_EXPIRED_GRACE, $state['state'] );
 		$this->assertSame( -1, $state['days_remaining'] );
-		$this->assertSame( 29, $state['grace_days_left'] );
 	}
 
 	public function test_expired_grace_last_day(): void {
@@ -378,7 +369,6 @@ class Expiry_Data_Test extends \WorDBless\BaseTestCase {
 		);
 		$this->assertIsArray( $state );
 		$this->assertSame( Expiry_Data::STATE_EXPIRED_GRACE, $state['state'] );
-		$this->assertSame( 1, $state['grace_days_left'] );
 	}
 
 	public function test_expired_post_grace_first_day(): void {
@@ -388,7 +378,6 @@ class Expiry_Data_Test extends \WorDBless\BaseTestCase {
 		);
 		$this->assertIsArray( $state );
 		$this->assertSame( Expiry_Data::STATE_EXPIRED, $state['state'] );
-		$this->assertSame( 0, $state['grace_days_left'] );
 	}
 
 	public function test_far_post_grace_returns_null(): void {

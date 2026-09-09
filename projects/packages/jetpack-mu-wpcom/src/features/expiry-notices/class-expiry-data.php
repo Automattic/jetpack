@@ -9,8 +9,6 @@ declare( strict_types = 1 );
 
 namespace Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices;
 
-use Automattic\Jetpack\Constants;
-
 /**
  * Reads purchases and computes a normalized expiry state for the primary plan.
  */
@@ -61,7 +59,7 @@ class Expiry_Data {
 		usort(
 			$plans,
 			static function ( $a, $b ): int {
-				return strtotime( $b->expiry_date ) <=> strtotime( $a->expiry_date );
+				return strtotime( (string) ( $b->expiry_date ?? '' ) ) <=> strtotime( (string) ( $a->expiry_date ?? '' ) );
 			}
 		);
 
@@ -106,13 +104,12 @@ class Expiry_Data {
 		$days_remaining = (int) floor( ( $expiry_ts - $now ) / DAY_IN_SECONDS );
 		$product_slug   = (string) $purchase->product_slug;
 		$plan_name      = self::derive_plan_name( $product_slug );
-		$is_monthly     = self::is_monthly_plan( $product_slug );
+		$is_monthly     = false !== stripos( $product_slug, 'monthly' );
 		// The raw flag is only the customer's intent: it stays true for a
 		// subscription that cannot actually be charged. `might_still_auto_renew()`
 		// is the effective answer, but it is null until a site is serving the
 		// declared purchase shape, so fall back to the flag there.
 		$raw_auto_renew = ! empty( $purchase->user_allows_auto_renew ?? $purchase->auto_renew ?? null );
-		$is_atomic      = Constants::is_true( 'IS_ATOMIC' );
 
 		// Neither the effective renewal state nor the attempt schedule is a
 		// free read: on a Simple site each one queries the store and pulls in
@@ -129,8 +126,6 @@ class Expiry_Data {
 			: $raw_auto_renew;
 
 		if ( $days_remaining >= 0 ) {
-			$grace_days_left = null;
-
 			if ( ! $in_notice_range ) {
 				// Too early for either warning: the auto-renew-off window has
 				// not opened, and the first renewal attempt is at most 30 days
@@ -160,23 +155,13 @@ class Expiry_Data {
 			if ( $days_past >= self::GRACE_PERIOD_DAYS + self::POST_GRACE_PERIOD_DAYS ) {
 				return null;
 			}
-			if ( $days_past < self::GRACE_PERIOD_DAYS ) {
-				$state           = self::STATE_EXPIRED_GRACE;
-				$grace_days_left = self::GRACE_PERIOD_DAYS - $days_past;
-			} else {
-				$state           = self::STATE_EXPIRED;
-				$grace_days_left = 0;
-			}
+			$state = $days_past < self::GRACE_PERIOD_DAYS ? self::STATE_EXPIRED_GRACE : self::STATE_EXPIRED;
 		}
 
 		return array(
 			'state'           => $state,
-			'expiry_date'     => (string) $purchase->expiry_date,
 			'expiry_ts'       => $expiry_ts,
 			'days_remaining'  => $days_remaining,
-			'grace_days_left' => $grace_days_left,
-			'is_atomic'       => $is_atomic,
-			'is_monthly'      => $is_monthly,
 			'plan_name'       => $plan_name,
 			'product_slug'    => $product_slug,
 			// Empty on an Atomic site whose synced purchases predate the field.
@@ -275,15 +260,6 @@ class Expiry_Data {
 			return 'pro';
 		}
 		return null;
-	}
-
-	/**
-	 * True if the slug refers to a monthly cadence plan.
-	 *
-	 * @param string $slug Product slug.
-	 */
-	public static function is_monthly_plan( string $slug ): bool {
-		return false !== stripos( $slug, 'monthly' );
 	}
 
 	/**
