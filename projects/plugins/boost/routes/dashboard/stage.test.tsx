@@ -140,4 +140,22 @@ describe( 'Boost dashboard stage', () => {
 
 		expect( mockNavigate ).toHaveBeenCalledWith( { search: { tab: 'settings' }, replace: false } );
 	} );
+
+	it( 'does not re-navigate when the Settings redirect rewrites history', () => {
+		mockNavigate.mockImplementation( () => {
+			window.history.replaceState( null, '', '/?page=jetpack-boost&tab=settings#/' );
+		} );
+		render( <Stage /> );
+
+		act( () => {
+			window.history.pushState( null, '', '/?page=jetpack-boost#/cache-debug-log' );
+		} );
+
+		act( () => {
+			window.history.replaceState( null, '', '/?page=jetpack-boost#/' );
+		} );
+
+		expect( mockNavigate ).toHaveBeenCalledTimes( 1 );
+		expect( mockNavigate ).toHaveBeenCalledWith( { search: { tab: 'settings' }, replace: true } );
+	} );
 } );
