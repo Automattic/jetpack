@@ -604,6 +604,33 @@ class PayPal_API_Client_Test extends TestCase {
 	 * Test that list_resources sends correct URL with page_size query parameter.
 	 */
 	public function test_list_resources_pagination_params() {
+		$captured_url = $this->capture_list_url( 25, 'cursor_abc123' );
+
+		$this->assertNotNull( $captured_url );
+		$this->assertStringContainsString( 'page_size=25', $captured_url );
+		$this->assertStringContainsString( 'page_token=cursor_abc123', $captured_url );
+	}
+
+	/**
+	 * Test that list_resources asks PayPal for a total, which it omits unless asked.
+	 */
+	public function test_list_resources_asks_for_a_total() {
+		$captured_url = $this->capture_list_url();
+
+		$this->assertNotNull( $captured_url );
+
+		// The literal string 'true' - a boolean would arrive as total_required=1.
+		$this->assertStringContainsString( 'total_required=true', $captured_url );
+	}
+
+	/**
+	 * Call list_resources against a mocked PayPal and return the URL it built.
+	 *
+	 * @param int    $page_size  Number of results per page.
+	 * @param string $page_token Pagination cursor.
+	 * @return string|null The requested URL.
+	 */
+	private function capture_list_url( $page_size = 10, $page_token = '' ) {
 		$this->set_up_connected_state();
 
 		$captured_url = null;
@@ -611,8 +638,7 @@ class PayPal_API_Client_Test extends TestCase {
 		add_filter(
 			'pre_http_request',
 			function ( $preempt, $args, $url ) use ( &$captured_url ) {
-				if ( strpos( $url, '/v1/checkout/payment-resources' ) !== false
-					&& strpos( $url, '/v1/oauth2/token' ) === false ) {
+				if ( strpos( $url, '/v1/checkout/payment-resources' ) !== false ) {
 					$captured_url = $url;
 				}
 				return array(
@@ -620,18 +646,16 @@ class PayPal_API_Client_Test extends TestCase {
 						'code'    => 200,
 						'message' => 'OK',
 					),
-					'body'     => wp_json_encode( array( 'items' => array() ), JSON_UNESCAPED_SLASHES ),
+					'body'     => wp_json_encode( array( 'resources' => array() ), JSON_UNESCAPED_SLASHES ),
 				);
 			},
 			10,
 			3
 		);
 
-		PayPal_API_Client::list_resources( 25, 'cursor_abc123' );
+		PayPal_API_Client::list_resources( $page_size, $page_token );
 
-		$this->assertNotNull( $captured_url );
-		$this->assertStringContainsString( 'page_size=25', $captured_url );
-		$this->assertStringContainsString( 'page_token=cursor_abc123', $captured_url );
+		return $captured_url;
 	}
 
 	/**

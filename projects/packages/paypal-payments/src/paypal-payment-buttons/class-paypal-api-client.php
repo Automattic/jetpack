@@ -122,7 +122,9 @@ class PayPal_API_Client {
 	 */
 	public static function list_resources( $page_size = 10, $page_token = '' ) {
 		$query_args = array(
-			'page_size' => absint( $page_size ),
+			'page_size'      => absint( $page_size ),
+			// PayPal omits total_items and total_pages unless we ask for them.
+			'total_required' => 'true',
 		);
 
 		if ( ! empty( $page_token ) ) {

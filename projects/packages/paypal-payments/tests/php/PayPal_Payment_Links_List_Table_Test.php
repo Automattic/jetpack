@@ -140,6 +140,68 @@ class PayPal_Payment_Links_List_Table_Test extends TestCase {
 	}
 
 	/**
+	 * Test that prepare_items counts every link, not just the page on screen.
+	 *
+	 * The table pages by cursor, so counting its own rows told a merchant with
+	 * more links than fit on a page that they had one page's worth.
+	 */
+	public function test_prepare_items_uses_paypals_total() {
+		$this->set_up_connected_state();
+
+		$this->mock_http_response(
+			200,
+			array(
+				'resources'   => $this->get_sample_items(),
+				'total_items' => 40,
+			)
+		);
+
+		$table = new PayPal_Payment_Links_List_Table();
+		$table->prepare_items();
+
+		$this->assertSame( 40, $table->get_pagination_arg( 'total_items' ) );
+	}
+
+	/**
+	 * Test that the real total does not switch on core's numbered pagination.
+	 *
+	 * Paging is by cursor and prepare_items() never reads `paged`, so links
+	 * built from a computed page count would go nowhere.
+	 */
+	public function test_prepare_items_keeps_core_pagination_off() {
+		$this->set_up_connected_state();
+
+		$this->mock_http_response(
+			200,
+			array(
+				'resources'   => $this->get_sample_items(),
+				'total_items' => 40,
+			)
+		);
+
+		$table = new PayPal_Payment_Links_List_Table();
+		$table->prepare_items();
+
+		$this->assertSame( 1, $table->get_pagination_arg( 'total_pages' ) );
+	}
+
+	/**
+	 * Test that prepare_items falls back to the row count without a total.
+	 *
+	 * A response cached before the client started asking for one has no
+	 * total_items.
+	 */
+	public function test_prepare_items_falls_back_to_row_count() {
+		$this->set_up_connected_state();
+		$this->mock_list_response( $this->get_sample_items() );
+
+		$table = new PayPal_Payment_Links_List_Table();
+		$table->prepare_items();
+
+		$this->assertSame( 2, $table->get_pagination_arg( 'total_items' ) );
+	}
+
+	/**
 	 * Test column_name renders product name from line_items.
 	 */
 	public function test_column_name_renders_product_name() {
