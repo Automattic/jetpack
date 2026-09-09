@@ -10,7 +10,10 @@ import {
 	SUPPORTED_CURRENCIES,
 	VALID_CURRENCY_CODES,
 } from '../../src/paypal-payment-buttons/utils/currencies';
-import { CURRENCY_SYMBOLS } from '../../src/paypal-payment-buttons/utils/currency-symbols';
+import {
+	CURRENCY_SYMBOLS,
+	getPricePlaceholder,
+} from '../../src/paypal-payment-buttons/utils/currency-symbols';
 
 describe( 'VALID_CURRENCY_CODES', () => {
 	it.each( [ 'USD', 'EUR', 'GBP', 'JPY' ] )( 'contains %s', code => {
@@ -39,5 +42,15 @@ describe( 'SUPPORTED_CURRENCIES', () => {
 	// PayPal_Attribute_Mapper_Test asserts the same count on the PHP list.
 	it( 'carries all 24 currencies PayPal supports', () => {
 		expect( SUPPORTED_CURRENCIES ).toHaveLength( 24 );
+	} );
+} );
+
+describe( 'getPricePlaceholder', () => {
+	it( 'shows a decimal amount for a currency PayPal prices in cents', () => {
+		expect( getPricePlaceholder( 'USD' ) ).toBe( '29.99' );
+	} );
+
+	it( 'shows a whole amount for a currency PayPal prices whole', () => {
+		expect( getPricePlaceholder( 'JPY' ) ).toBe( '1500' );
 	} );
 } );

@@ -1402,8 +1402,8 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		/**
 		 * Build a variants structure with one primary option group.
 		 *
-		 * A price on any option means PayPal takes the amounts from the options,
-		 * not from the product.
+		 * The group is primary, so PayPal takes the amounts from the options rather
+		 * than from the product.
 		 *
 		 * @param {Array} prices - One price per option; '' means unpriced.
 		 * @return {object} Variants structure.
@@ -1449,7 +1449,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			expect( details().queryByLabelText( 'Price' ) ).not.toBeInTheDocument();
 		} );
 
-		it( 'keeps the price field while the options carry no prices', async () => {
+		it( 'drops the price field before a single option price is typed', async () => {
 			render(
 				<Edit
 					attributes={ {
@@ -1458,6 +1458,27 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 						currencyCode: 'USD',
 						variantsEnabled: true,
 						variants: variantsWithPrices( [ '', '' ] ),
+					} }
+					setAttributes={ setAttributes }
+				/>
+			);
+
+			await expect( screen.findByLabelText( 'Currency' ) ).resolves.toBeInTheDocument();
+			expect( details().queryByLabelText( 'Price' ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'keeps the price field while no group is primary', async () => {
+			const variants = variantsWithPrices( [ '', '' ] );
+			variants.dimensions[ 0 ].primary = false;
+
+			render(
+				<Edit
+					attributes={ {
+						productName: 'Test Widget',
+						price: '29.99',
+						currencyCode: 'USD',
+						variantsEnabled: true,
+						variants,
 					} }
 					setAttributes={ setAttributes }
 				/>
@@ -1486,7 +1507,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			expect( screen.getByText( 'Create New' ) ).toBeEnabled();
 		} );
 
-		it( 'gates the save button again once the option prices are cleared', async () => {
+		it( 'gates the save button on the options once their prices are cleared', async () => {
 			const attributes = {
 				productName: 'Test Widget',
 				price: '0',
@@ -1508,12 +1529,114 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				/>
 			);
 
-			expect( details().getByLabelText( 'Price' ) ).toHaveValue( 0 );
+			// Pricing stays on, so the product price field stays away and the options
+			// themselves carry the error rather than handing it back to a hidden field.
+			expect( details().queryByLabelText( 'Price' ) ).not.toBeInTheDocument();
 			expect( screen.getByText( 'Create New' ) ).toBeDisabled();
-			// The field only reappeared because the option prices were cleared, so it says
-			// what is wrong instead of waiting for a blur that may never come.
-			expect( details().getByText( 'Price must be a positive number.' ) ).toBeInTheDocument();
-			expect( details().getByTestId( 'control-Price' ) ).toHaveClass( 'has-error' );
+			expect( screen.getAllByText( 'Price is required.' ) ).toHaveLength( 2 );
+		} );
+
+		it( 'prices the first group and only the first group', async () => {
+			const user = userEvent.setup();
+
+			render(
+				<Edit
+					attributes={ {
+						productName: 'Test Widget',
+						price: '29.99',
+						currencyCode: 'EUR',
+						variantsEnabled: true,
+						variants: {
+							dimensions: [
+								{
+									_key: 'g1',
+									name: 'Color',
+									primary: false,
+									options: [ { _key: 'o1', label: 'Black' } ],
+								},
+								{
+									_key: 'g2',
+									name: 'Size',
+									primary: false,
+									options: [ { _key: 'o2', label: 'Small' } ],
+								},
+							],
+						},
+					} }
+					setAttributes={ setAttributes }
+				/>
+			);
+
+			await user.click( await screen.findByLabelText( 'Add price per variant' ) );
+
+			const { dimensions } = setAttributes.mock.lastCall[ 0 ].variants;
+			expect( dimensions.map( dim => dim.primary ) ).toEqual( [ true, false ] );
+			expect( dimensions[ 0 ].options[ 0 ].unit_amount.currency_code ).toBe( 'EUR' );
+			expect( dimensions[ 1 ].options[ 0 ] ).not.toHaveProperty( 'unit_amount' );
+		} );
+
+		it( 'takes the option prices away when pricing is turned off', async () => {
+			const user = userEvent.setup();
+
+			render(
+				<Edit
+					attributes={ {
+						productName: 'Test Widget',
+						price: '29.99',
+						currencyCode: 'USD',
+						variantsEnabled: true,
+						variants: variantsWithPrices( [ '10.00', '20.00' ] ),
+					} }
+					setAttributes={ setAttributes }
+				/>
+			);
+
+			await user.click( await screen.findByLabelText( 'Add price per variant' ) );
+
+			const [ dimension ] = setAttributes.mock.lastCall[ 0 ].variants.dimensions;
+			expect( dimension.primary ).toBe( false );
+			expect( dimension.options.every( opt => ! opt.unit_amount ) ).toBe( true );
+			// Turning pricing off drops the prices only - labels and keys stay.
+			expect( dimension.options.map( opt => opt.label ) ).toEqual( [ 'Option 1', 'Option 2' ] );
+			expect( dimension.options.map( opt => opt._key ) ).toEqual( [ 'opt-0', 'opt-1' ] );
+		} );
+
+		// A payment created outside the block can price a later group; moving it to the
+		// first would drop those prices on the next save.
+		it( 'leaves a payment that prices a later group alone', async () => {
+			const user = userEvent.setup();
+			const priced = variantsWithPrices( [ '10.00', '20.00' ] ).dimensions[ 0 ];
+
+			render(
+				<Edit
+					attributes={ {
+						productName: 'Test Widget',
+						price: '29.99',
+						currencyCode: 'USD',
+						variantsEnabled: true,
+						variants: {
+							dimensions: [
+								{ _key: 'grp-0', name: 'Color', primary: false, options: [ { label: 'Black' } ] },
+								{ ...priced, _key: 'grp-2' },
+							],
+						},
+					} }
+					setAttributes={ setAttributes }
+				/>
+			);
+
+			await expect(
+				screen.findByText( 'Prices are set on option group 2.' )
+			).resolves.toBeInTheDocument();
+			expect( screen.getByLabelText( 'Add price per variant' ) ).toBeChecked();
+
+			// Turning pricing off drops the prices from the group that has them, not from
+			// the one a new button would have used.
+			await user.click( screen.getByLabelText( 'Add price per variant' ) );
+
+			const { dimensions } = setAttributes.mock.lastCall[ 0 ].variants;
+			expect( dimensions.some( dim => dim.primary ) ).toBe( false );
+			expect( dimensions[ 1 ].options.every( opt => ! opt.unit_amount ) ).toBe( true );
 		} );
 
 		it( 'leaves the product amount out of the create request', async () => {
@@ -1548,6 +1671,40 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			expect( create[ 0 ].data.line_items[ 0 ].name ).toBe( 'Test Widget' );
 			expect( create[ 0 ].data.line_items[ 0 ] ).not.toHaveProperty( 'unit_amount' );
 		} );
+
+		it( 'sends the option prices in the currency the product is in', async () => {
+			const user = userEvent.setup();
+
+			apiFetch
+				.mockResolvedValueOnce( { connected: true, environment: 'sandbox' } )
+				.mockResolvedValueOnce( {
+					id: 'PLB-TEST124',
+					payment_link: 'https://www.paypal.com/paymentpage/PLB-TEST124',
+				} );
+
+			render(
+				<Edit
+					attributes={ {
+						productName: 'Test Widget',
+						// The options were priced in USD and the currency changed afterwards.
+						currencyCode: 'EUR',
+						variantsEnabled: true,
+						variants: variantsWithPrices( [ '10.00', '20.00' ] ),
+					} }
+					setAttributes={ setAttributes }
+				/>
+			);
+
+			await expect( screen.findByText( 'Create New' ) ).resolves.toBeInTheDocument();
+			await user.click( screen.getByText( 'Create New' ) );
+
+			const [ , create ] = apiFetch.mock.calls;
+			const [ dimension ] = create[ 0 ].data.line_items[ 0 ].variants.dimensions;
+			expect( dimension.options.map( opt => opt.unit_amount.currency_code ) ).toEqual( [
+				'EUR',
+				'EUR',
+			] );
+		} );
 	} );
 
 	describe( 'Product option errors', () => {
@@ -1565,7 +1722,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		const group = ( key, overrides = {} ) => ( {
 			_key: key,
 			name: '',
-			primary: true,
+			primary: false,
 			options: [ { _key: `${ key }-o1`, label: '' } ],
 			...overrides,
 		} );
@@ -1729,7 +1886,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 		it( 'keeps one group quiet while the merchant works in another', async () => {
 			const user = userEvent.setup();
-			renderWith( [ group( 'g1' ), group( 'g2', { primary: false } ) ] );
+			renderWith( [ group( 'g1' ), group( 'g2' ) ] );
 
 			await visit( user, await screen.findByRole( 'textbox', { name: 'Option group 2' } ) );
 
@@ -1741,11 +1898,11 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			).not.toBeInTheDocument();
 		} );
 
-		it( 'reports an unpriced option the merchant never visited', async () => {
-			const user = userEvent.setup();
+		it( 'reports an unpriced option without waiting for a visit', async () => {
 			renderWith( [
 				group( 'g1', {
 					name: 'Size',
+					primary: true,
 					options: [
 						{ _key: 'o1', label: 'Small', unit_amount: { currency_code: 'USD', value: '10.00' } },
 						{ _key: 'o2', label: 'Large', unit_amount: { currency_code: 'USD', value: '' } },
@@ -1753,14 +1910,16 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				} ),
 			] );
 
-			// Pricing is all-or-nothing across the group, so pricing one option is what
-			// makes the other one wrong. Touching either price reveals both.
-			const prices = await screen.findAllByLabelText( 'Price' );
-			await visit( user, prices[ 0 ] );
+			// Turning pricing on is the interaction, so an option with no price says so
+			// rather than waiting for a blur on a field nobody has reached.
+			await expect( screen.findAllByLabelText( 'Price' ) ).resolves.toHaveLength( 2 );
 
-			expect( screen.getByText( 'Price is required.' ) ).toBeInTheDocument();
-			// The priced option keeps its help text.
-			expect( screen.getAllByText( /Price every option in this group/ ) ).toHaveLength( 1 );
+			// Every option renders its own control labelled 'Price', so the message has to
+			// be checked against the one that is missing a price rather than the panel.
+			const [ priced, unpriced ] = screen.getAllByTestId( 'control-Price' );
+			expect( within( unpriced ).getByText( 'Price is required.' ) ).toBeInTheDocument();
+			expect( unpriced ).toHaveClass( 'has-error' );
+			expect( within( priced ).queryByText( 'Price is required.' ) ).not.toBeInTheDocument();
 		} );
 	} );
 

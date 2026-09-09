@@ -39,13 +39,17 @@ import ConnectionWizard from './components/connection-wizard';
 import { FORMAT_OPTIONS } from './components/format-switcher';
 import LegacyBlock from './components/legacy-block';
 import PayPalButtonPreview from './components/paypal-button-preview';
-import VariantBuilder, { hasVariantPricing, validateVariants } from './components/variant-builder';
+import VariantBuilder, {
+	hasVariantPricing,
+	isVariantPricingOn,
+	validateVariants,
+} from './components/variant-builder';
 import PayPalInspectorControls from './controls';
 import { broadcastConnectionChange, usePayPalConnection } from './hooks/use-paypal-connection';
 import { usePayPalResource } from './hooks/use-paypal-resource';
 import { API_BASE } from './utils/api-base';
 import { SUPPORTED_CURRENCIES, VALID_CURRENCY_CODES } from './utils/currencies';
-import { getPriceStep } from './utils/currency-symbols';
+import { getPricePlaceholder, getPriceStep } from './utils/currency-symbols';
 import {
 	MAX_CUSTOMER_NOTES,
 	MAX_DESCRIPTION_LENGTH,
@@ -105,7 +109,7 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 
 	// PayPal rejects any decimal in JPY, HUF and TWD, so the input must not offer one.
 	const priceStep = getPriceStep( currencyCode || 'USD' );
-	const pricePlaceholder = priceStep === '1' ? '1500' : '29.99';
+	const pricePlaceholder = getPricePlaceholder( currencyCode || 'USD' );
 
 	const blockProps = useBlockProps();
 
@@ -180,6 +184,18 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 		[ variantsEnabled, variants ]
 	);
 
+	/**
+	 * Whether per-variant pricing is turned on.
+	 *
+	 * The product price field goes as soon as the toggle is on, before any option price
+	 * is typed - unlike `usesVariantPricing` above, which keys on the prices themselves
+	 * because the server sanitiser reads the same thing.
+	 */
+	const variantPricingOn = useMemo(
+		() => isVariantPricingOn( variantsEnabled, variants ),
+		[ variantsEnabled, variants ]
+	);
+
 	// PERCENTAGE is the only type that carries a rate, and a missing type counts as one -
 	// the request builder sends PERCENTAGE for it. PayPal also accepts FLAT, which this
 	// form cannot produce but can be handed by a link created elsewhere.
@@ -192,9 +208,9 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 	const validationErrors = useMemo(
 		() => ( {
 			productName: validateProductName( productName ),
-			// The price field is hidden once the options are priced, so don't validate
+			// The price field is hidden once per-variant pricing is on, so don't validate
 			// it - an error on an invisible field would disable Save with nothing to fix.
-			price: usesVariantPricing ? null : validatePrice( price, currencyCode || 'USD' ),
+			price: variantPricingOn ? null : validatePrice( price, currencyCode || 'USD' ),
 			productDescription: validateDescription( productDescription ),
 			returnUrl: validateReturnUrl( returnUrl ),
 			taxValue: taxEnabled && taxIsPercentage ? validateTaxRate( taxValue ) : null,
@@ -209,7 +225,7 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 			productDescription,
 			returnUrl,
 			currencyCode,
-			usesVariantPricing,
+			variantPricingOn,
 			taxEnabled,
 			taxIsPercentage,
 			taxValue,
@@ -227,7 +243,7 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 	/**
 	 * Whether the form is valid (no validation errors on required fields or variants).
 	 */
-	// The price field only hides while the options carry prices, so seeing it with product
+	// The price field only hides while per-variant pricing is on, so seeing it with product
 	// options on means the merchant has been in the pricing UI - say what is wrong rather
 	// than wait for a blur on a field they never asked for.
 	const priceError =
@@ -582,7 +598,7 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 					/>
 
 					<div className="jetpack-paypal-payment-buttons__price-row">
-						{ ! usesVariantPricing && (
+						{ ! variantPricingOn && (
 							<div>
 								<TextControl
 									label={ __( 'Price', 'jetpack-paypal-payments' ) }

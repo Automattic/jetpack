@@ -51,3 +51,13 @@ export const ZERO_DECIMAL_CURRENCIES = new Set( [ 'HUF', 'JPY', 'TWD' ] );
 export function getPriceStep( currencyCode ) {
 	return ZERO_DECIMAL_CURRENCIES.has( currencyCode ) ? '1' : '0.01';
 }
+
+/**
+ * An example price to show in an empty price field.
+ *
+ * @param {string} currencyCode - The ISO currency code.
+ * @return {string} A whole amount for a zero-decimal currency, 29.99 otherwise.
+ */
+export function getPricePlaceholder( currencyCode ) {
+	return ZERO_DECIMAL_CURRENCIES.has( currencyCode ) ? '1500' : '29.99';
+}

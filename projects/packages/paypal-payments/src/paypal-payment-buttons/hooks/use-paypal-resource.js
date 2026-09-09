@@ -10,7 +10,7 @@ import { useDispatch } from '@wordpress/data';
 import { useState, useEffect, useCallback, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { API_BASE } from '../utils/api-base';
-import { getResourceAttributeUpdates } from '../utils/resource-sync';
+import { getResourceAttributeUpdates, withCurrency } from '../utils/resource-sync';
 import { getUserFriendlyError } from '../utils/validation';
 
 /**
@@ -132,7 +132,9 @@ export function usePayPalResource( {
 								},
 						  } ),
 					...( productDescription ? { description: productDescription } : {} ),
-					...( variantsEnabled && variants ? { variants } : {} ),
+					...( variantsEnabled && variants
+						? { variants: withCurrency( variants, currencyCode || 'USD' ) }
+						: {} ),
 					...( adjustableQuantity && maxQuantity > 1
 						? { adjustable_quantity: { maximum: parseInt( maxQuantity, 10 ) } }
 						: {} ),

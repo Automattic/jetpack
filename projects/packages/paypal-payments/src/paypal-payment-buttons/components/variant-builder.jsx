@@ -12,17 +12,13 @@
 import { Button, TextControl, ToggleControl } from '@wordpress/components';
 import { useRef, useEffect, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { getPriceStep } from '../utils/currency-symbols';
+import GridiconTrash from 'gridicons/dist/trash';
+import { getPricePlaceholder, getPriceStep } from '../utils/currency-symbols';
 import { validatePrice } from '../utils/validation';
 
 // Pre-extract translated strings used in ternaries to avoid i18n build errors.
 const placeholderColor = __( 'e.g., Color', 'jetpack-paypal-payments' );
 const placeholderSize = __( 'e.g., Size', 'jetpack-paypal-payments' );
-const helpPrimaryOn = __( 'Each option can have its own price.', 'jetpack-paypal-payments' );
-const helpPrimaryOff = __(
-	'Enable to charge different prices per option.',
-	'jetpack-paypal-payments'
-);
 const helpVariantsOn = __(
 	'Customers choose options (e.g., size, color) at checkout.',
 	'jetpack-paypal-payments'
@@ -31,12 +27,12 @@ const helpVariantsOff = __(
 	'Add size, color, or other product options.',
 	'jetpack-paypal-payments'
 );
-// PayPal accepts a price at the product level or the option level, never both,
-// so per-option pricing is all-or-nothing across the group.
-const helpOptionPrice = __(
-	'Price every option in this group, or leave them all empty to charge the product price.',
+const helpPricingFirstGroup = __(
+	'You can only set the price for your first variant.',
 	'jetpack-paypal-payments'
 );
+/* translators: %d: option group number */
+const helpPricingOtherGroup = __( 'Prices are set on option group %d.', 'jetpack-paypal-payments' );
 
 const MAX_GROUPS = 5;
 const MAX_OPTIONS = 10;
@@ -55,14 +51,15 @@ function uid() {
 /**
  * Create a new empty option group (dimension).
  *
- * @param {boolean} isPrimary - Whether this is the primary group.
+ * Never primary - pricing is off until the merchant turns it on.
+ *
  * @return {object} New group object with a stable _key.
  */
-function createGroup( isPrimary = false ) {
+function createGroup() {
 	return {
 		_key: uid(),
 		name: '',
-		primary: isPrimary,
+		primary: false,
 		options: [ { _key: uid(), label: '' } ],
 	};
 }
@@ -83,6 +80,18 @@ function createOption( withPricing = false, currency = 'USD' ) {
 }
 
 /**
+ * Drop an option's price, keeping everything else it carries.
+ *
+ * @param {object} option - The option to strip.
+ * @return {object} The option without its amount.
+ */
+function withoutAmount( option ) {
+	const rest = { ...option };
+	delete rest.unit_amount;
+	return rest;
+}
+
+/**
  * Find the primary option group — the one that carries per-option pricing.
  *
  * @param {object} variants - The variants data.
@@ -93,12 +102,21 @@ export function getPrimaryDimension( variants ) {
 }
 
 /**
- * Whether per-option pricing is in use.
+ * Which option group carries the prices.
  *
- * PayPal rejects a request that carries `unit_amount` at both the product
- * level and the variant level, so the two are mutually exclusive: as soon as
- * one option in the primary group has a price, the product-level price is
- * dropped and every option must carry its own.
+ * @param {Array} dimensions - The option groups.
+ * @return {number} Its index, or -1 when pricing is off.
+ */
+function getPrimaryIndex( dimensions ) {
+	return dimensions.findIndex( dim => dim.primary );
+}
+
+/**
+ * Whether the primary group carries prices.
+ *
+ * PayPal rejects a request that carries `unit_amount` at both the product level
+ * and the variant level, so the request builder drops the product-level price
+ * once this is true. The server's sanitiser reads the same thing.
  *
  * @param {boolean} enabled  - Whether variants are enabled.
  * @param {object}  variants - The variants data.
@@ -112,6 +130,21 @@ export function hasVariantPricing( enabled, variants ) {
 	const primary = getPrimaryDimension( variants );
 
 	return !! primary?.options?.some( opt => `${ opt.unit_amount?.value ?? '' }`.trim() !== '' );
+}
+
+/**
+ * Whether per-variant pricing is turned on.
+ *
+ * The form reads this for which fields to show and whether an empty option price
+ * is an error. `hasVariantPricing` above reads the prices actually entered, which
+ * is what the request builder and the server sanitiser use.
+ *
+ * @param {boolean} enabled  - Whether variants are enabled.
+ * @param {object}  variants - The variants data.
+ * @return {boolean} True when a group is marked primary.
+ */
+export function isVariantPricingOn( enabled, variants ) {
+	return !! enabled && !! getPrimaryDimension( variants );
 }
 
 /**
@@ -131,7 +164,6 @@ export function validateVariants( enabled, variants, currencyCode = 'USD' ) {
 	}
 
 	const errors = [];
-	const perOptionPricing = hasVariantPricing( enabled, variants );
 
 	variants.dimensions.forEach( ( dim, i ) => {
 		if ( ! dim.name?.trim() ) {
@@ -140,6 +172,17 @@ export function validateVariants( enabled, variants, currencyCode = 'USD' ) {
 				option: null,
 				field: 'name',
 				message: __( 'Option group name is required.', 'jetpack-paypal-payments' ),
+			} );
+		}
+
+		// A priced group with nothing in it hides the product price field and prices
+		// nothing in its place, which reaches PayPal as a 0.00 product.
+		if ( dim.primary && ! dim.options?.length ) {
+			errors.push( {
+				group: i,
+				option: null,
+				field: 'options',
+				message: __( 'Add at least one option to price.', 'jetpack-paypal-payments' ),
 			} );
 		}
 
@@ -153,20 +196,12 @@ export function validateVariants( enabled, variants, currencyCode = 'USD' ) {
 				} );
 			}
 
+			// Primary-group prices replace the product price, so every option needs one.
 			if ( ! dim.primary ) {
 				return;
 			}
 
-			const rawValue = `${ opt.unit_amount?.value ?? '' }`.trim();
-
-			// Per-option pricing replaces the product-level price, so it is
-			// all-or-nothing: a half-filled group would leave options unpriced. An
-			// empty price is only wrong once some other option in the group has one.
-			if ( ! perOptionPricing && rawValue === '' ) {
-				return;
-			}
-
-			const message = validatePrice( rawValue, currencyCode );
+			const message = validatePrice( `${ opt.unit_amount?.value ?? '' }`.trim(), currencyCode );
 			if ( message ) {
 				errors.push( { group: i, option: j, field: 'price', message } );
 			}
@@ -189,7 +224,6 @@ export function validateVariants( enabled, variants, currencyCode = 'USD' ) {
  * @param {Function} props.onTouch      - Callback with a field key once it is left.
  * @param {Function} props.onChange     - Callback when group changes.
  * @param {Function} props.onRemove     - Callback to remove this group.
- * @param {Function} props.onSetPrimary - Callback to set this as primary.
  * @param {boolean}  props.disabled     - Whether inputs are disabled.
  * @return {Element} Group editor.
  */
@@ -203,7 +237,6 @@ function GroupEditor( {
 	onTouch,
 	onChange,
 	onRemove,
-	onSetPrimary,
 	disabled,
 } ) {
 	const lastOptionRef = useRef( null );
@@ -227,13 +260,10 @@ function GroupEditor( {
 			? `variant:${ groupKey }:${ field }`
 			: `variant:${ groupKey }:${ group.options[ optIndex ]?._key || `#${ optIndex }` }:${ field }`;
 
-	// Pricing is all-or-nothing across the group, so an option can be flagged for a
-	// price the merchant had no reason to visit. Any price in the group reveals them all.
-	const priceTouched = group.options?.some( ( _, i ) => touched[ fieldKey( i, 'price' ) ] );
-
+	// Turning pricing on is the interaction, so price errors show right away - waiting
+	// for a blur would disable Save with no visible error. The tax rate field does the same.
 	const errorFor = ( optIndex, field ) => {
-		const revealed =
-			showAll || ( field === 'price' ? priceTouched : touched[ fieldKey( optIndex, field ) ] );
+		const revealed = showAll || field === 'price' || touched[ fieldKey( optIndex, field ) ];
 		return revealed
 			? errors.find( e => e.option === optIndex && e.field === field )?.message
 			: undefined;
@@ -275,45 +305,33 @@ function GroupEditor( {
 
 	return (
 		<div className="jetpack-paypal-variants__group" role="group" aria-label={ groupLabel }>
-			<div className="jetpack-paypal-variants__group-header">
-				<TextControl
-					label={ sprintf(
-						/* translators: %d: group number */
-						__( 'Option group %d', 'jetpack-paypal-payments' ),
-						index + 1
-					) }
-					value={ group.name }
-					onChange={ updateName }
-					onBlur={ () => onTouch( fieldKey( null, 'name' ) ) }
-					placeholder={ index === 0 ? placeholderColor : placeholderSize }
-					disabled={ disabled }
-					help={ errorFor( null, 'name' ) }
-					className={ errorFor( null, 'name' ) ? 'has-error' : undefined }
-				/>
-				<div className="jetpack-paypal-variants__group-controls">
-					<ToggleControl
-						label={ __( 'Set price per option', 'jetpack-paypal-payments' ) }
-						help={ group.primary ? helpPrimaryOn : helpPrimaryOff }
-						checked={ group.primary }
-						onChange={ () => onSetPrimary( index ) }
-						disabled={ disabled }
-					/>
-					<Button
-						isDestructive
-						isSmall
-						variant="tertiary"
-						onClick={ onRemove }
-						disabled={ disabled }
-						aria-label={ sprintf(
-							/* translators: %s: group name */
-							__( 'Remove option group "%s"', 'jetpack-paypal-payments' ),
-							groupLabel
-						) }
-					>
-						{ __( 'Remove', 'jetpack-paypal-payments' ) }
-					</Button>
-				</div>
-			</div>
+			<TextControl
+				label={ sprintf(
+					/* translators: %d: group number */
+					__( 'Option group %d', 'jetpack-paypal-payments' ),
+					index + 1
+				) }
+				value={ group.name }
+				onChange={ updateName }
+				onBlur={ () => onTouch( fieldKey( null, 'name' ) ) }
+				placeholder={ index === 0 ? placeholderColor : placeholderSize }
+				disabled={ disabled }
+				help={ errorFor( null, 'name' ) }
+				className={ errorFor( null, 'name' ) ? 'has-error' : undefined }
+			/>
+			<Button
+				isDestructive
+				isSmall
+				variant="tertiary"
+				icon={ <GridiconTrash size={ 18 } /> }
+				onClick={ onRemove }
+				disabled={ disabled }
+				label={ sprintf(
+					/* translators: %s: group name */
+					__( 'Remove option group "%s"', 'jetpack-paypal-payments' ),
+					groupLabel
+				) }
+			/>
 
 			<div className="jetpack-paypal-variants__options">
 				{ group.options.map( ( option, optIndex ) => (
@@ -348,13 +366,12 @@ function GroupEditor( {
 										},
 									} )
 								}
-								onBlur={ () => onTouch( fieldKey( optIndex, 'price' ) ) }
 								type="number"
 								min={ getPriceStep( currencyCode ) }
 								step={ getPriceStep( currencyCode ) }
-								placeholder={ __( 'Same as product price', 'jetpack-paypal-payments' ) }
+								placeholder={ getPricePlaceholder( currencyCode ) }
 								disabled={ disabled }
-								help={ errorFor( optIndex, 'price' ) || helpOptionPrice }
+								help={ errorFor( optIndex, 'price' ) }
 								className={ errorFor( optIndex, 'price' ) ? 'has-error' : undefined }
 							/>
 						) }
@@ -363,18 +380,17 @@ function GroupEditor( {
 								isSmall
 								isDestructive
 								variant="tertiary"
+								icon={ <GridiconTrash size={ 18 } /> }
 								onClick={ () => removeOption( optIndex ) }
 								disabled={ disabled }
-								aria-label={ sprintf(
+								label={ sprintf(
 									/* translators: 1: option number, 2: group name */
 									__( 'Remove option %1$d from "%2$s"', 'jetpack-paypal-payments' ),
 									optIndex + 1,
 									groupLabel
 								) }
 								className="jetpack-paypal-variants__remove-option"
-							>
-								{ __( 'Remove', 'jetpack-paypal-payments' ) }
-							</Button>
+							/>
 						) }
 					</div>
 				) ) }
@@ -426,6 +442,8 @@ export default function VariantBuilder( {
 	onTouch,
 } ) {
 	const dimensions = variants?.dimensions || [];
+	const primaryIndex = getPrimaryIndex( dimensions );
+	const pricingOn = primaryIndex !== -1;
 	const lastGroupRef = useRef( null );
 	const [ focusNewGroup, setFocusNewGroup ] = useState( false );
 
@@ -441,7 +459,7 @@ export default function VariantBuilder( {
 		if ( newEnabled && dimensions.length === 0 ) {
 			onChange( {
 				variantsEnabled: true,
-				variants: { dimensions: [ createGroup( true ) ] },
+				variants: { dimensions: [ createGroup() ] },
 			} );
 		} else {
 			onChange( { variantsEnabled: newEnabled } );
@@ -464,20 +482,32 @@ export default function VariantBuilder( {
 		} );
 	};
 
-	const setPrimary = dimIndex => {
+	// PayPal prices the primary group only, so turning pricing on marks a group primary.
+	// New buttons use the first group; one that already prices a later group keeps it,
+	// so its prices survive the save.
+	const setPricingEnabled = on => {
+		const target = primaryIndex === -1 ? 0 : primaryIndex;
+
 		const newDimensions = dimensions.map( ( dim, i ) => ( {
 			...dim,
-			primary: i === dimIndex,
-			options:
-				i === dimIndex
-					? dim.options.map( opt => ( {
+			primary: on && i === target,
+			options: ( dim.options || [] ).map( opt =>
+				on && i === target
+					? {
 							...opt,
 							unit_amount: opt.unit_amount || { currency_code: currencyCode, value: '' },
-					  } ) )
-					: dim.options.map( ( { _key, label } ) => ( { _key, label } ) ),
+					  }
+					: withoutAmount( opt )
+			),
 		} ) );
+
 		onChange( { variants: { dimensions: newDimensions } } );
 	};
+
+	// New buttons always price the first group, but a payment created elsewhere can
+	// price a later one - name that group instead of claiming it is the first.
+	const pricingHelp =
+		primaryIndex > 0 ? sprintf( helpPricingOtherGroup, primaryIndex + 1 ) : helpPricingFirstGroup;
 
 	const addGroup = () => {
 		if ( dimensions.length >= MAX_GROUPS ) {
@@ -485,7 +515,7 @@ export default function VariantBuilder( {
 		}
 		onChange( {
 			variants: {
-				dimensions: [ ...dimensions, createGroup( false ) ],
+				dimensions: [ ...dimensions, createGroup() ],
 			},
 		} );
 		setFocusNewGroup( true );
@@ -512,6 +542,16 @@ export default function VariantBuilder( {
 						</p>
 					) }
 
+					{ dimensions.length > 0 && (
+						<ToggleControl
+							label={ __( 'Add price per variant', 'jetpack-paypal-payments' ) }
+							help={ pricingHelp }
+							checked={ pricingOn }
+							onChange={ setPricingEnabled }
+							disabled={ disabled }
+						/>
+					) }
+
 					{ dimensions.map( ( dimension, dimIndex ) => (
 						<div
 							key={ dimension._key || dimIndex }
@@ -527,7 +567,6 @@ export default function VariantBuilder( {
 								onTouch={ onTouch }
 								onChange={ newDim => updateDimension( dimIndex, newDim ) }
 								onRemove={ () => removeDimension( dimIndex ) }
-								onSetPrimary={ setPrimary }
 								disabled={ disabled }
 							/>
 						</div>
