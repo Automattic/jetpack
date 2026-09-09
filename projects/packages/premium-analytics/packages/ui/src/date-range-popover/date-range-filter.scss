@@ -43,22 +43,3 @@
 	padding: calc(var(--wca-popover-padding) / 2) var(--wca-popover-padding);
 	background-color: var(--wpds-color-background-surface-neutral-strong);
 }
-
-/* disable animation for the date range popover */
-@media not ( prefers-reduced-motion: reduce ) {
-
-	.date-filters-panel__popover {
-		view-transition-name: jp-premium-analytics--date-range-popover;
-	}
-}
-
-/* ensure it's above the canvas/stage during the transition */
-::view-transition-group(jp-premium-analytics--date-range-popover) {
-	z-index: 3000;
-}
-
-/* no animation for the snapshot (avoid "flashing") */
-::view-transition-new(jp-premium-analytics--date-range-popover),
-::view-transition-old(jp-premium-analytics--date-range-popover) {
-	animation: none;
-}
