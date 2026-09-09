@@ -52,7 +52,7 @@ Admin_Menu::add_menu(
 
 **Prefer `product`.** A product is not the same thing as a plugin. It may be gated by a Jetpack module, by a standalone plugin, or by either:
 
-| Gated by | Products |
+| Gated by | Example products |
 | -- | -- |
 | A Jetpack module | Stats, Forms, Newsletter, AI, Scan |
 | A standalone plugin | Boost, Akismet, CRM |
