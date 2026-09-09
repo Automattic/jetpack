@@ -2,10 +2,8 @@
 /**
  * Wp-admin modal for plans that have expired, in grace or after it.
  *
- * For sites that carry an Atomic transfer, which is not the same as sites that
- * are Atomic now -- see wpcom_expiry_notices_revert_applies_to_site(). Copy lives
- * here rather than in the React that renders it, because this package extracts
- * PHP strings for translation and not JS.
+ * Copy lives here rather than in the React that renders it, because this
+ * package extracts PHP strings for translation and not JS.
  *
  * @package automattic/jetpack-mu-wpcom
  */
@@ -45,9 +43,7 @@ function wpcom_expiry_notices_admin_modal_data(): ?array {
 		'listIntro'   => $is_grace ? '' : __( 'Here’s what changed:', 'jetpack-mu-wpcom' ),
 		'items'       => wpcom_expiry_notices_modal_items( $is_grace ),
 		'primary'     => $is_grace ? $urls['primary'] : wpcom_expiry_notices_support_cta( $state ),
-		// Renewing is only one of two things to consider while the site is still
-		// recoverable by paying for the same plan. Once it has been reverted the
-		// only offer is to put it back, so there is nothing to compare.
+		// Nothing to compare against once the site is already on Free.
 		'secondary'   => $is_grace ? $urls['secondary'] : null,
 		'imageUrl'    => plugins_url( 'images/plan-expired.svg', __FILE__ ),
 	);
@@ -111,10 +107,6 @@ add_action( 'admin_enqueue_scripts', 'wpcom_expiry_notices_enqueue_admin_modal_a
 
 /**
  * Render the element the modal mounts into.
- *
- * In the footer because the modal is an overlay: it belongs to the page rather
- * than to any position in it, and mounting late keeps it out of the way of the
- * admin notice area the banner uses.
  */
 function wpcom_expiry_notices_render_admin_modal_root() {
 	if ( null === wpcom_expiry_notices_admin_modal_data() ) {

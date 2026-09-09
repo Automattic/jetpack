@@ -39,29 +39,19 @@ if ( ! function_exists( 'wpcom_expiry_get_purchases' ) ) {
 // @codeCoverageIgnoreEnd
 
 /**
- * Whether the new expiry notices are switched on for this site.
+ * Whether the new expiry notices are on for this site.
  *
- * The rollout that gated this is finished, so the answer is yes unless something
- * says otherwise. Kept as a function rather than inlined because it is the one
- * predicate both halves of the swap read: the notices themselves, and the
- * suppression of the ones they replace -- wpcomsh's Atomic banner here, and the
- * legacy plan-renew prompt on the WordPress.com side. They must never disagree,
- * or a site ends up showing both notices or neither.
+ * The one predicate both halves of the swap read: the notices themselves, and
+ * the legacy notices that stand down for them. They must never disagree.
  */
 function wpcom_expiry_notices_is_enabled_for_site(): bool {
 	/**
 	 * Filters whether the new expiry notices are enabled for this site.
 	 *
-	 * Both the new notices and the suppression of the ones they replace read
-	 * this, so overriding it moves the whole swap together. Left in place after
-	 * the rollout as the way to hold a single site back.
-	 *
 	 * @since $$next-version$$
 	 *
 	 * @param bool $enabled    Whether the site is on the new expiry notices.
-	 * @param int  $percentage Share of sites the rollout targets. Always 100 now
-	 *                         that it is complete; passed so that callbacks
-	 *                         declaring both parameters keep working.
+	 * @param int  $percentage Always 100 now the rollout is done; kept so two-argument callbacks keep working.
 	 */
 	return (bool) apply_filters( 'wpcom_expiry_notices_enabled', true, 100 );
 }
@@ -69,12 +59,10 @@ function wpcom_expiry_notices_is_enabled_for_site(): bool {
 /**
  * The expiry state this user should be shown something about, or null.
  *
- * The audience test every surface shares. Memoized because several hooks reach
- * it per admin pageview -- each surface enqueues and renders -- and nothing can
- * change the answer mid-request.
+ * The audience test every surface shares, memoized because several hooks ask
+ * per request and nothing can change the answer mid-request.
  *
- * @param bool $flush Drop the memo. For tests, which move the purchase fixture
- *                    under a process that has already answered once.
+ * @param bool $flush Drop the memo (tests only).
  * @return array<string,mixed>|null
  */
 function wpcom_expiry_notices_eligible_state( bool $flush = false ): ?array {
@@ -96,8 +84,7 @@ function wpcom_expiry_notices_eligible_state( bool $flush = false ): ?array {
 		return $memo;
 	}
 
-	// Excluded to match the Simple notice this replaces. Guarded because
-	// `wpcom_is_vip()` only exists on wpcom.
+	// Excluded to match the Simple notice this replaces.
 	if ( function_exists( 'wpcom_is_vip' ) && wpcom_is_vip() ) {
 		return $memo;
 	}
@@ -185,9 +172,8 @@ function wpcom_expiry_notices_expired_heading( array $state ): string {
 /**
  * Whether the revert this feature describes applies to this site, now.
  *
- * Past the grace period this waits on the sticker rather than the date, because
- * the revert runs off the subscription-removal record and can lag the state by
- * days. Before then the changes are still ahead, which only Atomic faces.
+ * Past the grace period this waits on the sticker rather than the date: the
+ * revert runs off the subscription-removal record and can lag the state by days.
  *
  * @param array<string,mixed> $state Expiry state.
  */
@@ -287,11 +273,8 @@ function wpcom_expiry_notices_render_cta_link( array $cta, string $class ): void
 }
 
 /**
- * CTA URLs for a banner surface.
- *
- * Only a reverted site is sent to support: one that never carried a transfer
- * lost plan features and nothing else, and buying the plan again does give those
- * back. The banner shows on every site, so this has to be asked, not assumed.
+ * CTA URLs for a banner surface: support once the site is reverted, a
+ * "Restore site" checkout for one that only lost plan features.
  *
  * @param array<string,mixed> $state       Expiry state.
  * @param string              $redirect_to Where checkout sends the user back to.
@@ -313,8 +296,7 @@ function wpcom_expiry_notices_banner_urls( array $state, string $redirect_to ): 
 
 /**
  * Whether this is the early reminder: approaching expiry with more than the
- * final week to go. It is the one stage the banner keeps to the Dashboard, and
- * the one stage styled as a warning rather than an error.
+ * final week to go.
  *
  * @param array<string,mixed> $state Expiry state.
  */
@@ -369,8 +351,6 @@ function wpcom_expiry_notices_banner_heading( array $state ): string {
  * admin who cannot renew -- whose plan it is instead.
  *
  * The non-owner sentence is the one the Plans page uses, so the two agree.
- * Each stage has a variant quoting the plan's storage allowance and one saying
- * "additional storage", for slugs with no storage figure on record.
  *
  * @param array<string,mixed> $state    Expiry state.
  * @param bool                $is_owner Whether the viewer can renew.
@@ -473,9 +453,8 @@ function wpcom_expiry_notices_banner_sentence( array $state, bool $is_owner ): s
 /**
  * Load the surfaces for this request, unless something has held this site back.
  *
- * On `init` rather than at file load. This file is required on `plugins_loaded`,
- * and every hook any surface registers fires later still, so waiting keeps the
- * requires off the bootstrap at no cost.
+ * On `init`: every hook a surface registers fires later still, so waiting
+ * keeps the requires off the bootstrap at no cost.
  */
 function wpcom_expiry_notices_maybe_load_surfaces() {
 	if ( ! wpcom_expiry_notices_is_enabled_for_site() ) {
@@ -522,8 +501,7 @@ function wpcom_expiry_notices_claim_wpcom_banner_slot( array $banners ): array {
 add_filter( 'wpcom_register_banners', 'wpcom_expiry_notices_claim_wpcom_banner_slot', PHP_INT_MAX ); // @codeCoverageIgnore
 
 /**
- * Register the dismiss meta keys. Gated on admin / REST so we don't pay the
- * register_meta cost on every front-end request.
+ * Register the dismiss meta keys, off the front end where nothing writes them.
  */
 function wpcom_expiry_notices_register_meta() {
 	if ( ! is_admin() && ! ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) {
@@ -535,11 +513,9 @@ function wpcom_expiry_notices_register_meta() {
 	Expiry_Notice_Dismiss::register_user_meta();
 }
 add_action( 'init', 'wpcom_expiry_notices_register_meta' ); // @codeCoverageIgnore
-// `init` alone never registers these on a REST request: WP defines REST_REQUEST
-// in rest_api_loaded() on `parse_request`, which fires after `init`, so the
-// guard above bails and the write silently no-ops -- the endpoint drops an
-// unregistered meta key and still answers 200. Every dismissal arrives over
-// REST, so without this hook none of them persist.
+// `init` alone never registers these on a REST request: REST_REQUEST is defined
+// on `parse_request`, after `init`, and a write to an unregistered key is a
+// silent 200. Every dismissal arrives over REST.
 add_action( 'rest_api_init', 'wpcom_expiry_notices_register_meta' ); // @codeCoverageIgnore
 
 /**
