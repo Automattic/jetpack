@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Align unmounted Overview history tick labels with measured timestamps in the site timezone.
+
+
