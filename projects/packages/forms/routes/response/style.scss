@@ -2,14 +2,15 @@
  * Standalone single response page (wp-build route) styles.
  */
 
-// This is the page's scrollable middle (the shared admin-page-layout mixin puts
-// `overflow: auto` on `.jp-admin-page__page`'s non-header child). It must stay
-// full width, or the scrollbar renders at the reading column's edge instead of
-// the window's. The measure therefore lives on the card below, not here.
 .jp-forms__single-response {
-	// No `width: 100%`: these boxes are content-box, so a full width plus the
-	// inline padding would overflow by exactly that padding and put a horizontal
-	// scrollbar on the page. As a stretched flex item it already fills the row.
+	// `width: 100%` keeps the column a constant width regardless of each
+	// response's content. The page content area is a flex column, and an item
+	// with only `max-width` + auto inline margins shrink-wraps to its content
+	// (so width jumped per response); a definite width clamped by max-width
+	// pins it at a consistent, readable measure.
+	width: 100%;
+	max-width: 768px;
+	margin-inline: auto;
 	padding-block: 24px;
 	padding-inline: 16px;
 }
@@ -54,16 +55,6 @@
 }
 
 .jp-forms__single-response-card {
-	// `width: 100%` keeps the column a constant width regardless of each
-	// response's content: this is a flex item, and one with only `max-width` +
-	// auto inline margins shrink-wraps to its content (so width jumped per
-	// response); a definite width clamped by max-width pins it at a consistent,
-	// readable measure. `border-box` so the 1px border stays inside that width
-	// rather than overflowing the scroll container.
-	box-sizing: border-box;
-	width: 100%;
-	max-width: 768px;
-	margin-inline: auto;
 	background-color: #fff;
 	border: 1px solid #e0e0e0;
 	border-radius: 8px;
@@ -170,24 +161,18 @@
 
 	// `@wordpress/boot`'s stage is a second scroll container above
 	// `.jp-admin-page`, so unwind it too and let the document grow with it.
-	// Boot's own classes come in two shapes; see the guard in
-	// `@automattic/jetpack-base-styles/admin-page-layout` for why.
 	html.wp-toolbar,
 	body.wp-admin,
 	#wpwrap,
 	.boot-layout,
 	.boot-layout__surfaces,
 	.boot-layout__stage,
-	[class*="__layout"],
-	[class*="__surfaces"],
-	[class*="__stage"],
 	.jp-admin-page,
 	.jp-admin-page__page,
 	.jp-admin-page__page > :not(:first-child):not(.jetpack-footer),
 	.jp-admin-page__page > :not(:first-child):not(.jetpack-footer) > * {
-		// `position` matters as much as `overflow`: boot's layout root is
-		// absolute, and browsers print only the first page of an out-of-flow
-		// subtree.
+		// `position` matters as much as `overflow`: `.boot-layout` is absolute, and
+		// browsers print only the first page of an out-of-flow subtree.
 		position: static !important;
 		inset: auto !important;
 		display: block !important;
@@ -217,8 +202,6 @@
 	}
 
 	.jp-forms__single-response-card {
-		max-width: none;
-		margin-inline: 0;
 		border: none;
 		border-radius: 0;
 		overflow: visible;

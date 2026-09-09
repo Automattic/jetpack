@@ -277,14 +277,14 @@ class Llms_Txt {
 	 */
 	private static function summary( $post ) {
 		if ( has_excerpt( $post ) ) {
-			// A manual excerpt is a deliberate public summary; a body gate does not withhold it.
 			$raw = get_the_excerpt( $post );
-		} elseif ( Content_Gate::is_gated( $post ) ) {
-			$teaser = Content_Gate::public_teaser( $post );
-			if ( '' === $teaser ) {
-				return '';
-			}
-			$raw = wp_trim_words( wp_strip_all_tags( strip_shortcodes( $teaser ) ), 30, '' );
+		} elseif (
+			get_post_meta( $post->ID, '_jetpack_memberships_contains_paid_content', true )
+			|| get_post_meta( $post->ID, '_jetpack_memberships_contains_paywalled_content', true )
+			|| has_block( 'premium-content/container', $post )
+			|| has_block( 'jetpack/paywall', $post )
+		) {
+			return '';
 		} else {
 			$raw = wp_trim_words( wp_strip_all_tags( strip_shortcodes( $post->post_content ) ), 30, '' );
 		}
