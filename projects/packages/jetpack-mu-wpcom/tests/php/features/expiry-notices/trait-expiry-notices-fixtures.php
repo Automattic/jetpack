@@ -40,12 +40,18 @@ trait Expiry_Notices_Fixtures {
 	protected $subscriber_id;
 
 	/**
+	 * @var string|null
+	 */
+	private $request_uri;
+
+	/**
 	 * Create the users the tests act as, and act as the admin, who owns the plan.
 	 *
 	 * WorDBless resets the users table between tests, so this belongs in
 	 * set_up rather than set_up_before_class.
 	 */
 	protected function set_up_expiry_fixtures(): void {
+		$this->request_uri   = $_SERVER['REQUEST_URI'] ?? null;
 		$this->admin_id      = wp_insert_user(
 			array(
 				'user_login' => 'expiry_admin',
@@ -69,6 +75,12 @@ trait Expiry_Notices_Fixtures {
 	}
 
 	protected function tear_down_expiry_fixtures(): void {
+		// Restored rather than unset: later suites read it and CI reports the missing key.
+		if ( null === $this->request_uri ) {
+			unset( $_SERVER['REQUEST_URI'] );
+		} else {
+			$_SERVER['REQUEST_URI'] = $this->request_uri;
+		}
 		unset( $GLOBALS['wpcom_get_site_purchases_test_value'] );
 		unset( $GLOBALS['wpcom_is_vip_test_value'] );
 		unset( $GLOBALS['wpcom_site_stickers_test_value'] );
