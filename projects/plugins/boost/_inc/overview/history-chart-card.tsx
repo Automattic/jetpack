@@ -1,4 +1,4 @@
-import { BarChart, GlobalChartsProvider, Legend } from '@automattic/charts';
+import { BarChart, GlobalChartsProvider } from '@automattic/charts';
 import '@automattic/charts/style.css';
 import { getScoreLetter } from '@automattic/jetpack-boost-score-api';
 import { formatNumber } from '@automattic/number-formatters';
@@ -7,14 +7,14 @@ import { dateI18n, getDate } from '@wordpress/date';
 import { __, sprintf } from '@wordpress/i18n';
 import { chevronLeft, chevronRight, desktop, mobile, Icon } from '@wordpress/icons';
 import { Button, Card, Notice } from '@wordpress/ui';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { bucketHistoryDays, getHistoryWindow, type HistoryDay } from './lib/history-days';
-import { getScoreTier, getScoreTierLabel, getScoreTierColor } from './lib/score-utils';
+import { getScoreTier, getScoreTierColor } from './lib/score-utils';
 import { usePerformanceHistory } from './lib/use-performance-history';
 import UpgradeCTA from './upgrade-cta';
 import './history-chart-card.scss';
 import type { PerformanceHistoryData } from './lib/use-performance-history';
-import type { SeriesData } from '@automattic/charts';
+import type { CategoryHighlightSelection, SeriesData } from '@automattic/charts';
 
 type DeviceColors = { desktop?: string; mobile?: string };
 type History = PerformanceHistoryData;
@@ -32,8 +32,7 @@ type Props = {
 };
 
 // The empty-bar selector in history-chart-card.scss matches this fill.
-const emptyColor = 'var(--wpds-color-stroke-surface-neutral-weak)';
-const tiers = [ 'good', 'medium', 'poor' ] as const;
+const emptyColor = 'var(--jetpack-boost-history-empty)';
 
 export function buildHistorySeries( days: HistoryDay[] ): SeriesData[] {
 	return ( [ 'desktop', 'mobile' ] as const ).map( device => ( {
@@ -51,11 +50,13 @@ export function buildHistorySeries( days: HistoryDay[] ): SeriesData[] {
 
 export function EmptyDayTooltip( { date }: { date: string } ) {
 	return (
-		<div className="jetpack-boost-overview__history-tooltip">
+		<div className="jetpack-boost-overview__history-tooltip boost-daily-history__empty-tooltip">
 			<div className="jetpack-boost-overview__tooltip-date">
 				{ dateI18n( 'F j, Y', getDate( `${ date }T12:00:00` ), false ) }
 			</div>
-			{ __( 'No score recorded.', 'jetpack-boost' ) }
+			<div className="boost-daily-history__empty-copy">
+				{ __( 'No score recorded before you unlocked this feature.', 'jetpack-boost' ) }
+			</div>
 		</div>
 	);
 }
@@ -152,6 +153,12 @@ export default function HistoryChartCard( {
 	const days = bucketHistoryDays( data?.periods ?? [], window );
 	const series = buildHistorySeries( days );
 	const [ chartKeys, setChartKeys ] = useState( [ 0, 0 ] );
+	const [ highlight, setHighlight ] = useState< CategoryHighlightSelection | null >( null );
+	const updateHighlight = useCallback( ( selection: CategoryHighlightSelection | null ) => {
+		setHighlight( previous =>
+			previous?.x === selection?.x && previous?.width === selection?.width ? previous : selection
+		);
+	}, [] );
 	let content;
 	if ( isLoading && ! data?.periods.length ) {
 		content = (
@@ -210,6 +217,16 @@ export default function HistoryChartCard( {
 		content = (
 			<GlobalChartsProvider>
 				<div className="boost-daily-history">
+					{ highlight && (
+						<div
+							aria-hidden="true"
+							className="boost-daily-history__highlight"
+							style={ {
+								insetInlineStart: `calc(var(--wpds-dimension-padding-lg) + ${ highlight.x }px)`,
+								width: highlight.width,
+							} }
+						/>
+					) }
 					{ series.map( ( deviceSeries, index ) => (
 						<section
 							key={ deviceSeries.label }
@@ -236,10 +253,12 @@ export default function HistoryChartCard( {
 									<BarChart
 										key={ `${ offset }-${ chartKeys[ index ] }` }
 										data={ [ deviceSeries ] }
-										showZeroValues
 										withTooltips
-										gridVisibility="none"
+										gridVisibility="x"
+										onCategoryHighlightChange={ updateHighlight }
+										margin={ { top: 8, bottom: 24, left: 25, right: 0 } }
 										options={ {
+											xScale: { paddingInner: 0.024, paddingOuter: 0.7 },
 											yScale: { domain: [ 0, 100 ], nice: false, zero: true },
 											axis: {
 												y: { tickValues: [ 0, 50, 100 ] },
@@ -265,20 +284,13 @@ export default function HistoryChartCard( {
 							</div>
 						</section>
 					) ) }
-					<Legend
-						items={ tiers.map( tier => ( {
-							label: getScoreTierLabel( tier ),
-							color: getScoreTierColor( tier ),
-						} ) ) }
-						interactive={ false }
-					/>
 				</div>
 			</GlobalChartsProvider>
 		);
 	}
 	return (
 		<Card.Root className="jetpack-boost-overview__history-card">
-			<Card.Header>
+			<Card.Header className="boost-daily-history__card-header">
 				<div className="boost-daily-history__header">
 					<Card.Title render={ <h2 /> }>{ __( 'Last 30 days scores', 'jetpack-boost' ) }</Card.Title>
 					{ ! needsUpgrade && ! isFreshStart && (
@@ -312,7 +324,7 @@ export default function HistoryChartCard( {
 					) }
 				</div>
 			</Card.Header>
-			<Card.Content>{ content }</Card.Content>
+			<Card.Content className="boost-daily-history__body">{ content }</Card.Content>
 		</Card.Root>
 	);
 }

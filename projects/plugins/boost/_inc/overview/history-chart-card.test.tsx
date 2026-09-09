@@ -97,6 +97,7 @@ afterAll( () => jest.restoreAllMocks() );
 test( 'renders thirty daily bars for each device using score band colours and empty slots', async () => {
 	render( <HistoryChartCard data={ history } { ...callbacks } />, { wrapper } );
 	expect( screen.getAllByRole( 'grid', { name: 'Bar chart' } ) ).toHaveLength( 2 );
+	expect( screen.queryByText( 'Could be improved' ) ).not.toBeInTheDocument();
 	for ( const [ device, tiers ] of [
 		[ 'Desktop', [ 'good', 'medium', 'poor' ] ],
 		[ 'Mobile', [ 'good', 'poor', 'good' ] ],
@@ -112,10 +113,7 @@ test( 'renders thirty daily bars for each device using score band colours and em
 			tiers.forEach( ( tier, index ) =>
 				expect( bars[ index ] ).toHaveAttribute( 'fill', getScoreTierColor( tier ) )
 			);
-			expect( bars[ 3 ] ).toHaveAttribute(
-				'fill',
-				'var(--wpds-color-stroke-surface-neutral-weak)'
-			);
+			expect( bars[ 3 ] ).toHaveAttribute( 'fill', 'var(--jetpack-boost-history-empty)' );
 		} );
 	}
 } );
@@ -141,7 +139,7 @@ test( 'retains a recorded zero and its poor-score colour rather than treating it
 		// SVG bars do not expose an accessible role.
 		// eslint-disable-next-line testing-library/no-node-access
 		const bar = chart.getByTestId( 'bar-chart' ).querySelector( '.visx-bar' );
-		expect( bar ).toHaveAttribute( 'fill', 'var(--wpds-color-foreground-content-error-weak)' );
+		expect( bar ).toHaveAttribute( 'fill', 'var(--jetpack-boost-score-poor)' );
 	} );
 	fireEvent.keyDown( chart.getByRole( 'grid' ), { key: 'ArrowRight' } );
 	await expect( screen.findByTestId( 'chart-tooltip-0' ) ).resolves.toHaveTextContent( '0 / 100' );
@@ -177,10 +175,10 @@ test( 'shows empty days after loading and explains them on keyboard focus', asyn
 	fireEvent.keyDown( screen.getAllByRole( 'grid' )[ 0 ], { key: 'ArrowRight' } );
 	const tooltip = await screen.findByTestId( 'chart-tooltip-0' );
 	expect( tooltip ).toHaveTextContent( dateI18n( 'F j, Y', timestamp, false ) );
-	expect( tooltip ).toHaveTextContent( 'No score recorded.' );
+	expect( tooltip ).toHaveTextContent( 'No score recorded before you unlocked this feature.' );
 } );
 
-test( 'uses neutral wording for a history gap and an unrecorded current day', async () => {
+test( 'explains every empty day as preceding feature access', async () => {
 	render( <HistoryChartCard data={ history } { ...callbacks } />, { wrapper } );
 	const chart = screen.getAllByRole( 'grid' )[ 0 ];
 	for ( const advance of [ 4, 26 ] ) {
@@ -188,8 +186,7 @@ test( 'uses neutral wording for a history gap and an unrecorded current day', as
 			fireEvent.keyDown( chart, { key: 'ArrowRight' } );
 		}
 		const tooltip = await screen.findByRole( 'tooltip' );
-		expect( tooltip ).toHaveTextContent( 'No score recorded.' );
-		expect( tooltip ).not.toHaveTextContent( 'unlocked' );
+		expect( tooltip ).toHaveTextContent( 'No score recorded before you unlocked this feature.' );
 	}
 } );
 
@@ -304,7 +301,7 @@ test( 'keeps the header, axis, and empty tooltip on the same day in a UTC+14 sit
 		fireEvent.keyDown( screen.getAllByRole( 'grid' )[ 0 ], { key: 'ArrowRight' } );
 		const tooltip = await screen.findByTestId( 'chart-tooltip-0' );
 		expect( tooltip ).toHaveTextContent( dateI18n( 'F j, Y', visibleWindow.startDate, false ) );
-		expect( tooltip ).toHaveTextContent( 'No score recorded.' );
+		expect( tooltip ).toHaveTextContent( 'No score recorded before you unlocked this feature.' );
 	} finally {
 		setSettings( settings );
 	}
