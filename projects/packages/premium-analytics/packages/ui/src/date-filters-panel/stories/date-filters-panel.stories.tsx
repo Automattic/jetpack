@@ -183,7 +183,6 @@ function DateFiltersPanelStory( {
 					? {
 							presetIds: DETAIL_SURFACE_PRESETS,
 							allTimeStart: STORY_PUBLISHED_DATE,
-							withCustomRange: false,
 					  }
 					: {} ) }
 				withIntervalControl

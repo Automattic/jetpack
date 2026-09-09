@@ -90,11 +90,10 @@ describe( 'DateFiltersPanel', () => {
 		expect( screen.getByRole( 'button', { name: 'Last 30 days' } ) ).toBeInTheDocument();
 	} );
 
-	it( 'renders the detail surface: all time offered, no custom range', async () => {
+	it( 'renders the detail surface: every period, plus all time and a custom range', async () => {
 		const user = userEvent.setup();
 		renderPanel( {
 			presetIds: DETAIL_SURFACE_PRESETS,
-			withCustomRange: false,
 			appliedPresetId: 'all-time',
 		} );
 
@@ -105,7 +104,20 @@ describe( 'DateFiltersPanel', () => {
 			within( menu )
 				.getAllByRole( 'menuitemradio' )
 				.map( item => item.textContent )
-		).toEqual( [ 'Last 24 hours', 'Last 7 days', 'Last 30 days', 'Last 12 months', 'All time' ] );
+		).toEqual( [
+			'Today',
+			'Yesterday',
+			'Last 24 hours',
+			'Last 7 days',
+			'Last 30 days',
+			'Last 90 days',
+			'Last 365 days',
+			'Last month',
+			'Last 12 months',
+			'Last year',
+			'All time',
+			'Custom range',
+		] );
 		expect( screen.getByRole( 'menuitemradio', { name: 'All time' } ) ).toBeChecked();
 	} );
 

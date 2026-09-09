@@ -14,7 +14,6 @@ import {
 type DetailDateControls = {
 	presetIds: typeof DETAIL_SURFACE_PRESETS;
 	allTimeStart: Date | undefined;
-	withCustomRange: false;
 	withIntervalControl: false;
 };
 
@@ -30,10 +29,10 @@ type DetailDateFilters = {
 };
 
 /**
- * The date controls a resource detail page (post, video) offers: preset pills
- * alone, with all time anchored to the resource's publish date. The controls
- * render before the summary loads, so an all-time range applied against an
- * unknown or stale start is re-anchored in place once it resolves.
+ * The date controls a resource detail page (post, video) offers: the period
+ * menu alone, with all time anchored to the resource's publish date. The
+ * controls render before the summary loads, so an all-time range applied
+ * against an unknown or stale start is re-anchored in place once it resolves.
  *
  * Spread after the date-filter controller's props: the interval props it
  * hands out are what this unsets.
@@ -77,7 +76,6 @@ export function useDetailDateControls(
 		() => ( {
 			presetIds: DETAIL_SURFACE_PRESETS,
 			allTimeStart,
-			withCustomRange: false,
 			withIntervalControl: false,
 		} ),
 		[ allTimeStart ]

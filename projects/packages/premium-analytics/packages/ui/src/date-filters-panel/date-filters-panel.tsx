@@ -62,8 +62,8 @@ export type DateFiltersPanelProps = {
 	allTimeStart?: Date;
 
 	/**
-	 * Whether to offer Custom range at the end of the menu. On by default; the
-	 * detail pages' design has common periods only.
+	 * Whether to offer Custom range at the end of the menu. On by default; a
+	 * surface whose design lists common periods only turns it off.
 	 */
 	withCustomRange?: boolean;
 
