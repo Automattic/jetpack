@@ -66,10 +66,13 @@ const CommentForm = ( { form }: CommentFormProps ) => {
 			// goes through the checkpoint first, off this click so the popup is
 			// allowed; WordPress.com's own cookie makes a repeat instant. Then
 			// submit again. A site login or a Passport the server recognised needs
-			// nothing. On failure the comment stays put and submit re-enables.
+			// nothing. On failure the comment stays put and submit re-enables. With
+			// no checkpoint the submit goes through as is and the server decides.
 			const held = heldCode.peek();
 			const needsCode =
-				! JetpackComments.isLoggedIn && ( held ? needsFreshCode( held ) : ! identityUser.peek() );
+				JetpackComments.checkpoint.enabled &&
+				! JetpackComments.isLoggedIn &&
+				( held ? needsFreshCode( held ) : ! identityUser.peek() );
 
 			if ( needsCode ) {
 				event.preventDefault();
