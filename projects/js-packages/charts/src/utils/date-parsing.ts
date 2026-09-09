@@ -1,5 +1,5 @@
 /**
- * @file Date parsing utilities using date-fns for local timezone handling
+ * @file Date parsing utilities using date-fns, dated in a supplied zone or the runtime's own
  *
  * This module provides utilities for parsing various date string formats and converting
  * them to dates using the battle-tested date-fns library. A format carrying timezone info
@@ -16,15 +16,16 @@
  * - TypeScript type safety
  * - Much smaller codebase than custom parsing
  *
- * Supported Formats:
- * - YYYY-MM-DD (treated as local)
- * - YYYY-MM-DD HH:mm:ss (treated as local)
- * - YYYY-MM-DD HH:mm (treated as local)
- * - YYYY-MM-DDTHH:mm:ss (treated as local)
- * - YYYY-MM-DDTHH:mm:ss.SSS (treated as local)
- * - YYYY-MM-DDTHH:mm (treated as local)
- * - YYYY-MM-DDTHH:mm:ssZ (converted to local)
- * - YYYY-MM-DDTHH:mm:ss±HH:mm (converted to local)
+ * Supported Formats, the first six read in the supplied zone and the last two
+ * already instants:
+ * - YYYY-MM-DD
+ * - YYYY-MM-DD HH:mm:ss
+ * - YYYY-MM-DD HH:mm
+ * - YYYY-MM-DDTHH:mm:ss
+ * - YYYY-MM-DDTHH:mm:ss.SSS
+ * - YYYY-MM-DDTHH:mm
+ * - YYYY-MM-DDTHH:mm:ssZ
+ * - YYYY-MM-DDTHH:mm:ss±HH:mm
  *
  * @example
  * ```typescript
@@ -59,7 +60,7 @@ const hasTimezone = ( dateString: string ): boolean => {
 };
 
 // Enough of the calendar to invert a zone's offset. `en-US` with `h23` pins the
-// digits as Latin and the clock as 0-23; `Date.UTC` below counts in the Gregorian
+// digits as Latin and the clock as 0-23; `asUtcMs` below counts in the Gregorian
 // calendar these parts are read on.
 const OFFSET_OPTIONS: Intl.DateTimeFormatOptions = {
 	year: 'numeric',
@@ -183,22 +184,13 @@ const wallClockToInstant = ( wallClock: Date, timeZone: string ): Date => {
 };
 
 /**
- * Parses any supported date string format and returns a local timezone date
+ * Parses any supported date string format into an instant, dated in `timeZone` or the runtime's own
  *
  * Uses date-fns for robust parsing and validation. A string carrying timezone info
  * is already an instant and is returned as one, whatever `timeZone` says. A string
  * without it is a wall-clock reading, dated in `timeZone` when one is supplied and
  * in the runtime's own zone when none is.
  *
- * Supports:
- * - YYYY-MM-DD (local)
- * - YYYY-MM-DD HH:mm:ss (local)
- * - YYYY-MM-DD HH:mm (local)
- * - YYYY-MM-DDTHH:mm:ss (local)
- * - YYYY-MM-DDTHH:mm:ss.SSS (local)
- * - YYYY-MM-DDTHH:mm (local)
- * - YYYY-MM-DDTHH:mm:ssZ (UTC → local)
- * - YYYY-MM-DDTHH:mm:ss±HH:mm (offset → local)
  * @param {string} dateString - The date string to parse into a date
  * @param {string} [timeZone] - IANA zone a naive string is read in; the runtime's own when absent, and ignored by a string that carries its own offset
  * @return {Date} A Date object representing the parsed instant, or an invalid Date if parsing fails

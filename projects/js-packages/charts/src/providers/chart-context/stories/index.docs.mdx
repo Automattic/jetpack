@@ -84,8 +84,12 @@ provider's `timeZone`, and every viewer reads the day you wrote. Pass day bucket
 as `dateString` and the round trip closes; pass them as `Date` and you are back to
 choosing which midnight you meant.
 
-Outside a chart, `parseAsLocalDate( '2026-08-02', timeZone )` reads a naive string
-the same way, for a host labeling the same point in its own markup.
+<Canvas of={ ChartContextStories.HostTimeZoneDatesDayStrings } />
+
+A host labeling the same point in its own markup needs **both** halves in that
+zone, not just the parse: `parseAsLocalDate( '2026-08-02', timeZone )` and an
+`Intl.DateTimeFormat` constructed with the same `timeZone`. Moving only the parse
+is worse than moving neither, because the two no longer cancel.
 
 Two things neither prop reaches. `HeatmapChart` builds its labels in
 `buildCalendarHeatmapData`, a plain function the host calls outside the provider,

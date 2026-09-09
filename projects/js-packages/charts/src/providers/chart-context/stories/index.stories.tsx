@@ -420,3 +420,60 @@ export const HostLocaleAndTimeZoneFormatDates: Story = {
 		}
 	},
 };
+
+// Naive day strings, the shape a Stats payload gives for day buckets.
+const HOST_DAY_DATA: SeriesData[] = [
+	{
+		label: 'Views',
+		data: Array.from( { length: 5 }, ( _, day ) => ( {
+			dateString: `2026-08-0${ day + 2 }`,
+			value: 40 + day * 6,
+		} ) ),
+		options: {},
+	},
+];
+
+/**
+ * The same day strings under two hosts, both landing on the day they name.
+ *
+ * A `dateString` names no instant, so it is read as midnight in the provider's `timeZone` rather
+ * than the viewer's. Switch your browser's own zone and nothing here moves; before CHARTS-268 the
+ * first column shifted a day for a viewer far enough east.
+ */
+export const HostTimeZoneDatesDayStrings: Story = {
+	render: () => (
+		<div style={ { display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '4rem' } }>
+			{ HOSTS.map( ( { testId, title, locale, timeZone } ) => (
+				<div key={ testId } data-testid={ `days-${ testId }` }>
+					<h3>{ title }</h3>
+					<GlobalChartsProvider locale={ locale } timeZone={ timeZone }>
+						<LineChart
+							data={ HOST_DAY_DATA }
+							width={ 350 }
+							height={ 200 }
+							withGradientFill={ false }
+							withTooltips
+							margin={ { bottom: 40 } }
+						/>
+					</GlobalChartsProvider>
+				</div>
+			) ) }
+		</div>
+	),
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Both columns start on Aug 2, the day the string names, whatever zone the browser is in.',
+			},
+		},
+	},
+	play: async ( { canvasElement } ) => {
+		const canvas = within( canvasElement );
+		const tokyo = within( canvas.getByTestId( 'days-tokyo' ) );
+		const losAngeles = within( canvas.getByTestId( 'days-los-angeles' ) );
+
+		await expect( await tokyo.findByText( '2. Aug.' ) ).toBeInTheDocument();
+		await expect( await losAngeles.findByText( 'Aug 2' ) ).toBeInTheDocument();
+	},
+};

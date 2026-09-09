@@ -11,6 +11,9 @@ const CASES: Array< [ string, string, string ] > = [
 	[ '2026-09-06', 'America/Santiago', '2026-09-06T04:00:00.000Z' ],
 	// And falls back at midnight, so this one happens twice; the first wins.
 	[ '2026-04-04 23:00:00', 'America/Santiago', '2026-04-05T02:00:00.000Z' ],
+	// Hours past a fall-back, where the first offset probe lands on the wrong side
+	// of the transition and only the second one is right.
+	[ '2026-11-01 08:00:00', 'America/Los_Angeles', '2026-11-01T16:00:00.000Z' ],
 ];
 
 // A string carrying its own offset is already an instant, so the zone must not move it.
@@ -37,6 +40,10 @@ export const describeZonedParsing = () => {
 			const fallback = parseAsLocalDate( '2026-08-02', 'Not/AZone' );
 
 			expect( fallback.getTime() ).toBe( parseAsLocalDate( '2026-08-02' ).getTime() );
+		} );
+
+		it( 'keeps a year below 100 out of the 1900s', () => {
+			expect( parseAsLocalDate( '0099-08-02', 'Asia/Tokyo' ).getUTCFullYear() ).toBe( 99 );
 		} );
 
 		it( 'reads a naive string in the runtime zone when no zone is supplied', () => {
