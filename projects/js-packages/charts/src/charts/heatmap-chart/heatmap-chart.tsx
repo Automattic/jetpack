@@ -316,9 +316,14 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 	const rowTrack = compact
 		? 'var(--a8c-charts-dimension-heatmap-cell-size)'
 		: `minmax(${ minCellHeight ?? 0 }px, ${ maxCellHeight ? `${ maxCellHeight }px` : '1fr' })`;
+	// A summary column takes an `auto` track: a roll-up is wider than a cell,
+	// and a shared track would stretch every cell to fit it.
+	const columnTracks = data.some( column => column.summary )
+		? data.map( column => ( column.summary ? 'auto' : columnTrack ) ).join( ' ' )
+		: `repeat(${ columns }, ${ columnTrack })`;
 	const gridStyle: Record< string, string | number > = {
 		'--a8c-charts-color-heatmap-primary': primaryColorHex,
-		gridTemplateColumns: `auto repeat(${ columns }, ${ columnTrack })`,
+		gridTemplateColumns: `auto ${ columnTracks }`,
 		gridTemplateRows: `auto repeat(${ rows }, ${ rowTrack })`,
 	};
 	if ( compact ) {
@@ -378,7 +383,9 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 							{ data.map( ( column, columnIndex ) => (
 								<span
 									key={ `col-${ columnIndex }` }
-									className={ styles[ 'heatmap-chart__col-label' ] }
+									className={ clsx( styles[ 'heatmap-chart__col-label' ], {
+										[ styles[ 'heatmap-chart__col-label--summary' ] ]: column.summary,
+									} ) }
 								>
 									{ column.label }
 								</span>
@@ -437,7 +444,9 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 
 										const value = cell?.value ?? null;
 										const present = isPresent( value );
-										const normalized = present ? getNormalizedValue( value, extent ) : 0;
+										// A summary cell is on another scale, so it takes no fill.
+										const filled = present && ! column.summary;
+										const normalized = filled ? getNormalizedValue( value, extent ) : 0;
 										const flatIndex = columnIndex * rows + rowIndex;
 										const info = buildTooltipData( columnIndex, rowIndex );
 										const accessibleName =
@@ -453,7 +462,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 											<div
 												key={ `cell-${ columnIndex }-${ rowIndex }` }
 												id={ `${ chartId }-cell-${ columnIndex }-${ rowIndex }` }
-												data-testid="heatmap-cell"
+												data-testid={ column.summary ? 'heatmap-cell-summary' : 'heatmap-cell' }
 												role="gridcell"
 												// Focus stays on the grid (aria-activedescendant); cells are
 												// focusable but out of the tab order.
@@ -463,14 +472,15 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 												data-column={ columnIndex }
 												data-row={ rowIndex }
 												className={ clsx( styles[ 'heatmap-chart__cell' ], {
-													[ styles[ 'heatmap-chart__cell--filled' ] ]: present,
+													[ styles[ 'heatmap-chart__cell--filled' ] ]: filled,
 													[ styles[ 'heatmap-chart__cell--strong' ] ]:
-														present && cellHasLightText( normalized ),
+														filled && cellHasLightText( normalized ),
+													[ styles[ 'heatmap-chart__cell--summary' ] ]: column.summary,
 													[ styles[ 'heatmap-chart__cell--selected' ] ]:
 														selectedIndex === flatIndex,
 												} ) }
 												style={
-													present
+													filled
 														? ( {
 																'--a8c-charts-heatmap-cell-intensity': normalized,
 														  } as CSSProperties )
@@ -479,7 +489,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 												onMouseMove={ handleCellMouseMove }
 												onMouseLeave={ handleCellMouseLeave }
 											>
-												{ drawValues && present && (
+												{ ( drawValues || column.summary ) && present && (
 													<span className={ styles[ 'heatmap-chart__cell-value' ] }>
 														{ /* Compact display; tooltip and aria-label keep full precision. */ }
 														{ formatNumberCompact( value ) }

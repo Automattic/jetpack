@@ -445,3 +445,48 @@ describe( 'HeatmapChart tooltip position', () => {
 		} );
 	} );
 } );
+
+describe( 'HeatmapChart summary column', () => {
+	const withTotals: HeatmapColumn[] = [
+		...data,
+		{ label: 'Total', summary: true, data: [ { value: 400 }, { value: 200 }, { value: null } ] },
+	];
+
+	test( 'keeps the summary column out of the colour scale', () => {
+		renderChart( { data: withTotals } );
+		// 4 is still the data maximum, so it keeps full intensity.
+		expect(
+			screen
+				.getByRole( 'gridcell', { name: 'W2: 4' } )
+				.style.getPropertyValue( '--a8c-charts-heatmap-cell-intensity' )
+		).toBe( '1' );
+		expect(
+			screen
+				.getByRole( 'gridcell', { name: 'Total: 400' } )
+				.style.getPropertyValue( '--a8c-charts-heatmap-cell-intensity' )
+		).toBe( '' );
+	} );
+
+	test( 'draws every summary cell, printing its figure even in compact mode', () => {
+		renderChart( { data: withTotals, compact: true } );
+		expect( screen.getAllByTestId( 'heatmap-cell-summary' ) ).toHaveLength( 3 );
+		expect( screen.getByRole( 'gridcell', { name: 'Total: 400' } ) ).toHaveTextContent( '400' );
+		expect( screen.getByRole( 'gridcell', { name: 'Total: No data' } ) ).toBeEmptyDOMElement();
+		expect( screen.getByRole( 'grid' ) ).toHaveAttribute( 'aria-colcount', '3' );
+	} );
+
+	test( 'reaches the summary column by keyboard, with its tooltip', async () => {
+		renderChart( { data: withTotals, withTooltips: true } );
+		const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
+		const user = userEvent.setup();
+
+		grid.focus();
+		await user.keyboard( '{ArrowDown}{ArrowRight}{ArrowRight}' );
+
+		expect( grid ).toHaveAttribute(
+			'aria-activedescendant',
+			expect.stringMatching( /-cell-2-0$/ )
+		);
+		expect( within( screen.getByRole( 'tooltip' ) ).getByText( '400' ) ).toBeInTheDocument();
+	} );
+} );

@@ -113,6 +113,22 @@ $focus-ring-width: var(--wpds-border-width-focus);
 	background: color-mix(in sRGB, var(--a8c-charts-color-track) 45%, transparent);
 }
 
+// A roll-up beside the grid, on another scale from it: no fill, its figure
+// always printed and emphasised, set one gap apart from the data columns.
+.heatmap-chart__cell--summary {
+	background: none;
+	margin-inline-start: var(--a8c-charts-dimension-heatmap-cell-gap, var(--wpds-dimension-gap-xs));
+}
+
+.heatmap-chart__col-label--summary {
+	margin-inline-start: var(--a8c-charts-dimension-heatmap-cell-gap, var(--wpds-dimension-gap-xs));
+	font-weight: var(--wpds-typography-font-weight-emphasis);
+}
+
+.heatmap-chart__cell--summary .heatmap-chart__cell-value {
+	font-weight: var(--wpds-typography-font-weight-emphasis);
+}
+
 // Floor the mix at 15% so the lowest value stays visibly tinted, distinct from
 // an empty cell.
 .heatmap-chart__cell--filled {
