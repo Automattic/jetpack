@@ -1,7 +1,7 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, arsihasi, azaozz, barry, batmoo, beaulebens, bindlegirl, biskobe, bjorsch, blobaugh, brbrr, brileyhooper, cainm, cena, cfinke, cgastrell, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, daniloercoli, davoraltman, delawski, designsimply, dkmyta, dllh, dlocc, drawmyface, dsmart, dun2mis, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, joen, jblz, jeffgolenski, jeherve, jennywp, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lhkowalski, lschuyler, macmanx, martinremy, matt, mattwiebe, matveb, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, miguelxavierpenha, mikeyarce, mkaz, nancythanki, nickmomrik, njweller, nunyvega, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, renatoagds, retrofox, richardmtl, richardmuscat, robertbpugh, roccotripaldi, ryanc413, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, thehenridev, tmoorewp, tyxla, Viper007Bond, westi, williamvianas, wpkaren, yoavf, zinigor
 Tags: Security, backup, malware, scan, performance
-Stable tag: 16.2-a.5
+Stable tag: 16.2
 Requires at least: 7.0
 Requires PHP: 7.4
 Tested up to: 7.1
@@ -326,7 +326,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 16.2-beta - 2026-09-08
+### 16.2 - 2026-09-09
 #### Major Enhancements
 - Update minimum WordPress version to 7.0.
 
@@ -469,7 +469,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - Backup: Show a failure message when your backup status cannot be read, rather than the screen that says your first backup is on its way, and let the "Back up now" button recover when a backup could not be queued.
 - Backup: Show storage usage and the plan limit the right way round when the interface is translated.
 - Blocks: Fix an infinite refresh loop in the Goodreads block editor that regenerated the widget ID on every re-render and hammered the REST API.
-- Blocks: Keep blocks that load outside the post editor available in front-end block editors such as P2, by never deferring their registration. See JETPACK-1747.
+- Blocks: Keep blocks that load outside the post editor available in front-end block editors such as P2, by never deferring their registration.
 - Blocks: Restrict Goodreads scripts to the expected Goodreads widget endpoints.
 - Blocks: Treat WordPress.com public API requests as a block-editor context so editor-only extensions load, restoring block plan availability (such as the core/video upgrade nudge) in the mobile editor.
 - Blogging Prompts: Scope the endpoint's query filters to the prompts query so they no longer modify unrelated queries (e.g. Gutenberg global styles lookups) run while prompts are being rendered.
@@ -488,6 +488,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - Editor: Refresh the cached plan when returning from a plan purchase so paid blocks (such as the Forms file upload field) stop showing their upgrade nudge once the plan is active.
 - Editor: Restore active module state for module-dependent features.
 - Escape the Premium Content block login button label on output.
+- External Media: Improve validation for media copy requests.
 - Fix the premium block upgrade banner rendering collapsed and too narrow on the site frontend.
 - Forms: Add an empty alt attribute to the image option thumbnails in the form success summary.
 - Forms: Allow a single response to scroll when it is taller than the screen.
@@ -508,8 +509,11 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - Forms: Prevent an error that could stop responses from loading when a file upload field was stored without any file data.
 - Forms: Prevent a new choice option from inheriting the previous option's label when pressing Enter.
 - Forms: Remove an uploaded file from the form immediately instead of waiting for the server, so a slow connection no longer leaves the file upload field looking stuck.
+- Forms: Restore multi-page printing of a single response.
 - Forms: Restore the Integrations button in the Form block toolbar when the settings sidebar is closed.
+- Forms: Scroll a single response from the page edge instead of from inside the reading column.
 - Forms: Show an empty checkbox icon next to checkbox fields the respondent left unchecked, instead of always showing a ticked one.
+- Forms: Show a selected response beside the responses list again instead of below it. Also fixes the same sidebar layout on the Newsletter and SEO dashboards.
 - Forms: Space out the files listed on a response and line their download buttons up on one edge.
 - Forms: Stop uploading a file that was removed while its upload was still being prepared.
 - Forms: Validate a required phone field with a default country against what the input actually shows, so it can no longer be submitted empty.
@@ -582,6 +586,7 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - Premium Content: Keep subscription login available when a WordPress session lacks a subscription token.
 - Premium Content: Restore the local account link from a verified magic-link token so subscription access persists.
 - Random Redirect: Avoid a fatal error when a theme or plugin already declares the module's redirect function.
+- Related Posts: Improve handling of protected content.
 - Require a Jetpack site (blog) token for JSON API endpoints that declare no capabilities, such as the Backup helper script endpoints, and reject user tokens regardless of privilege.
 - Resolve Redirect endpoint: Validate every redirect hop, and return a 400 error when a URL cannot be fetched, is blocked, or exceeds the redirect limit, instead of a 200 response with an empty URL.
 - REST API: Require the admin capability for all settings in a request that also updates Post by Email.
@@ -591,6 +596,8 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 - Security: External Media: Ensure imported files are always saved under a safe file name.
 - Security: Verify attachment ownership before removing an uploaded package in the plugin and theme install endpoints.
 - SEO: Hide the post list SEO columns for people who had customized Screen Options before those columns existed.
+- SEO: Improve handling of protected content in generated metadata.
+- SEO: Move the dashboard's toast notices back to the top right.
 - SEO: Stop the search-engine indexing toggle from publishing a private or coming-soon site.
 - SEO Tools: Fix og:description leaking the first post's custom SEO description on archive and latest-posts homepage views.
 - Settings: Dismiss success notices automatically instead of leaving them on screen.
