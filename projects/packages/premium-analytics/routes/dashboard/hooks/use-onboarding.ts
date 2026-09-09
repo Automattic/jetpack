@@ -1,4 +1,7 @@
 /**
+ * External dependencies
+ */
+/**
  * WordPress dependencies
  */
 import { useDispatch, useSelect } from '@wordpress/data';
@@ -9,11 +12,11 @@ import { store as preferencesStore } from '@wordpress/preferences';
  */
 import { DASHBOARD_ONBOARDING_KEY, DASHBOARD_PREFERENCES_SCOPE } from './constants';
 import { useTrackEvent } from './use-track-event';
+import type { OnboardingDismissReason } from '@jetpack-premium-analytics/ui';
 
 export type OnboardingPhase = 'closed' | 'modal' | 'tour';
 
-/** How the reader closed the journey without finishing it. */
-export type OnboardingDismissReason = 'close' | 'escape' | 'other';
+export type { OnboardingDismissReason };
 
 export type OnboardingOptions = {
 	/** Whether the reader is on the surface the journey introduces; nothing opens until then. */
