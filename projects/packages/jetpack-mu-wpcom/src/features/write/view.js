@@ -6099,16 +6099,19 @@ const { state } = store( 'wpcom-write', {
 		 * Leave for the block editor from the note or the Tips panel.
 		 *
 		 * Both offer the switch before anyone has typed, where openInBlockEditor()
-		 * would answer "Please write something" instead. An untouched new post has
-		 * nothing worth saving, so hand it straight to a blank post-new.php,
-		 * forwarding the prompt so the block editor seeds it as it always has.
+		 * would answer "Please write something" instead. A new post with nothing
+		 * in it has nothing worth saving, so hand it straight to a blank
+		 * post-new.php, forwarding the prompt so the block editor seeds it as it
+		 * always has. Anything already on screen — including a seeded prompt the
+		 * visitor has not touched — goes through the save, so the block editor
+		 * opens on the same words rather than on a fresh post.
 		 */
 		switchToBlockEditor() {
 			if ( isAnon() ) {
 				return;
 			}
 			state.showHelp = false;
-			if ( ! state.editPostId && ! isDirty() ) {
+			if ( ! state.editPostId && ! hasWritableContent() ) {
 				allowLeave = true;
 				window.location.href =
 					state.adminUrl +
