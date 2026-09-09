@@ -331,6 +331,21 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 		gridStyle[ '--a8c-charts-dimension-heatmap-cell-size' ] = `${ compactCellSize }px`;
 	}
 
+	// A summary column sits one gap apart from the data on either side; two
+	// summaries side by side share no extra gap.
+	const summaryGaps = ( columnIndex: number ) => {
+		if ( ! data[ columnIndex ]?.summary ) {
+			return {};
+		}
+
+		return {
+			[ styles[ 'heatmap-chart__gap-start' ] ]:
+				columnIndex > 0 && ! data[ columnIndex - 1 ]?.summary,
+			[ styles[ 'heatmap-chart__gap-end' ] ]:
+				columnIndex < columns - 1 && ! data[ columnIndex + 1 ]?.summary,
+		};
+	};
+
 	const activeDescendant =
 		selectedIndex !== undefined
 			? `${ chartId }-cell-${ Math.floor( selectedIndex / rows ) }-${ selectedIndex % rows }`
@@ -385,6 +400,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 									key={ `col-${ columnIndex }` }
 									className={ clsx( styles[ 'heatmap-chart__col-label' ], {
 										[ styles[ 'heatmap-chart__col-label--summary' ] ]: column.summary,
+										...summaryGaps( columnIndex ),
 									} ) }
 								>
 									{ column.label }
@@ -476,6 +492,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 													[ styles[ 'heatmap-chart__cell--strong' ] ]:
 														filled && cellHasLightText( normalized ),
 													[ styles[ 'heatmap-chart__cell--summary' ] ]: column.summary,
+													...summaryGaps( columnIndex ),
 													[ styles[ 'heatmap-chart__cell--selected' ] ]:
 														selectedIndex === flatIndex,
 												} ) }

@@ -452,7 +452,7 @@ describe( 'HeatmapChart summary column', () => {
 		{ label: 'Total', summary: true, data: [ { value: 400 }, { value: 200 }, { value: null } ] },
 	];
 
-	test( 'keeps the summary column out of the colour scale', () => {
+	test( 'keeps the summary column out of the color scale', () => {
 		renderChart( { data: withTotals } );
 		// 4 is still the data maximum, so it keeps full intensity.
 		expect(
@@ -473,6 +473,31 @@ describe( 'HeatmapChart summary column', () => {
 		expect( screen.getByRole( 'gridcell', { name: 'Total: 400' } ) ).toHaveTextContent( '400' );
 		expect( screen.getByRole( 'gridcell', { name: 'Total: No data' } ) ).toBeEmptyDOMElement();
 		expect( screen.getByRole( 'grid' ) ).toHaveAttribute( 'aria-colcount', '3' );
+	} );
+
+	test( 'sets a summary apart from the data on either side, but not from another summary', () => {
+		renderChart( {
+			data: [
+				{ label: 'Lead', summary: true, data: [ { value: 7 }, { value: 8 }, { value: 9 } ] },
+				...withTotals,
+				{ label: 'Mean', summary: true, data: [ { value: 2 }, { value: 1 }, { value: 3 } ] },
+			],
+		} );
+
+		const lead = screen.getByRole( 'gridcell', { name: 'Lead: 7' } );
+		expect( lead ).toHaveClass( 'heatmap-chart__gap-end' );
+		expect( lead ).not.toHaveClass( 'heatmap-chart__gap-start' );
+
+		const total = screen.getByRole( 'gridcell', { name: 'Total: 400' } );
+		expect( total ).toHaveClass( 'heatmap-chart__gap-start' );
+		expect( total ).not.toHaveClass( 'heatmap-chart__gap-end' );
+
+		const mean = screen.getByRole( 'gridcell', { name: 'Mean: 2' } );
+		expect( mean ).not.toHaveClass( 'heatmap-chart__gap-start' );
+		expect( mean ).not.toHaveClass( 'heatmap-chart__gap-end' );
+		expect( screen.getByRole( 'gridcell', { name: 'W1: 1' } ) ).not.toHaveClass(
+			'heatmap-chart__gap-start'
+		);
 	} );
 
 	test( 'reaches the summary column by keyboard, with its tooltip', async () => {
