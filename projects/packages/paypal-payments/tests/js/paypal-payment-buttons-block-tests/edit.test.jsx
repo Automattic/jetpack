@@ -1679,6 +1679,104 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		} );
 	} );
 
+	describe( 'Custom checkout fields', () => {
+		beforeEach( () => {
+			apiFetch.mockResolvedValue( { connected: true, environment: 'sandbox' } );
+		} );
+
+		/**
+		 * Build a customer notes attribute with one labelled note per field.
+		 *
+		 * @param {number} count - How many fields to configure.
+		 * @return {Array} Customer notes.
+		 */
+		const notes = count =>
+			Array.from( { length: count }, ( _, i ) => ( {
+				label: `Note ${ i + 1 }`,
+				required: false,
+			} ) );
+
+		/**
+		 * Render the create form with the given fields already configured.
+		 *
+		 * @param {Array} customerNotes - The customerNotes attribute.
+		 * @return {object} Testing Library render result.
+		 */
+		const renderWith = customerNotes =>
+			render(
+				<Edit
+					attributes={ {
+						productName: 'Test Widget',
+						price: '29.99',
+						currencyCode: 'USD',
+						customerNotes,
+					} }
+					setAttributes={ setAttributes }
+				/>
+			);
+
+		it( 'offers a second field while only one is configured', async () => {
+			renderWith( notes( 1 ) );
+
+			await expect( screen.findByText( 'Add field' ) ).resolves.toBeInTheDocument();
+		} );
+
+		it( 'stops offering more once two are configured', async () => {
+			renderWith( notes( 2 ) );
+
+			await expect( screen.findByLabelText( 'Field 2 label' ) ).resolves.toBeInTheDocument();
+			expect( screen.queryByText( 'Add field' ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'adds the second field on Add field', async () => {
+			const user = userEvent.setup();
+			renderWith( notes( 1 ) );
+
+			await user.click( await screen.findByText( 'Add field' ) );
+
+			expect( setAttributes ).toHaveBeenCalledWith( {
+				customerNotes: [
+					{ label: 'Note 1', required: false },
+					{ label: '', required: false },
+				],
+			} );
+		} );
+
+		it( 'keeps a third field editable but offers no fourth', async () => {
+			renderWith( notes( 3 ) );
+
+			await expect( screen.findByLabelText( 'Field 3 label' ) ).resolves.toHaveValue( 'Note 3' );
+			expect( screen.getByLabelText( 'Remove field 3' ) ).toBeInTheDocument();
+			expect( screen.queryByText( 'Add field' ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'offers the field again once one is removed', async () => {
+			const user = userEvent.setup();
+			const { rerender } = render(
+				<Edit
+					attributes={ { productName: 'Test Widget', customerNotes: notes( 2 ) } }
+					setAttributes={ setAttributes }
+				/>
+			);
+
+			await expect( screen.findByLabelText( 'Remove field 2' ) ).resolves.toBeInTheDocument();
+			await user.click( screen.getByLabelText( 'Remove field 2' ) );
+
+			expect( setAttributes ).toHaveBeenCalledWith( {
+				customerNotes: [ { label: 'Note 1', required: false } ],
+			} );
+
+			rerender(
+				<Edit
+					attributes={ { productName: 'Test Widget', customerNotes: notes( 1 ) } }
+					setAttributes={ setAttributes }
+				/>
+			);
+
+			expect( screen.getByText( 'Add field' ) ).toBeInTheDocument();
+		} );
+	} );
+
 	describe( 'Preview Mode (connected, has button)', () => {
 		beforeEach( () => {
 			apiFetch.mockResolvedValue( { connected: true, environment: 'sandbox' } );

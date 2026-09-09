@@ -48,6 +48,7 @@ import { API_BASE } from './utils/api-base';
 import { SUPPORTED_CURRENCIES, VALID_CURRENCY_CODES } from './utils/currencies';
 import { getPriceStep } from './utils/currency-symbols';
 import {
+	MAX_CUSTOMER_NOTES,
 	MAX_DESCRIPTION_LENGTH,
 	MAX_NAME_LENGTH,
 	validatePrice,
@@ -855,7 +856,7 @@ export default function ApiManagedEdit( { attributes, setAttributes, clientId: b
 									</div>
 								</div>
 							) ) }
-							{ customerNotes.length < 5 && (
+							{ customerNotes.length < MAX_CUSTOMER_NOTES && (
 								<Button
 									isSmall
 									variant="secondary"

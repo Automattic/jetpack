@@ -17,6 +17,8 @@ import { ZERO_DECIMAL_CURRENCIES } from './currency-symbols';
  */
 export const MAX_NAME_LENGTH = 127;
 export const MAX_DESCRIPTION_LENGTH = 256;
+// PayPal rejects a third custom checkout field with a 400.
+export const MAX_CUSTOMER_NOTES = 2;
 
 /**
  * Check the decimals a price carries against what PayPal accepts for the currency.
