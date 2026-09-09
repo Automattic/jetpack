@@ -204,8 +204,10 @@ export async function setDashboardModernization( enabled: boolean ) {
  * Restore the default dashboard filter and remove the test option.
  */
 export async function resetDashboardModernization() {
-	await executeWpCommand( 'plugin deactivate e2e-dashboard-modernization' );
-	await executeWpCommand( [ 'eval', "delete_option( 'e2e_boost_dashboard_modernization' );" ] );
+	await executeWpCommand( [
+		'eval',
+		"if ( is_plugin_active( 'e2e-dashboard-modernization.php' ) ) { deactivate_plugins( 'e2e-dashboard-modernization.php' ); } delete_option( 'e2e_boost_dashboard_modernization' );",
+	] );
 }
 
 /**

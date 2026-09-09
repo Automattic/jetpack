@@ -80,11 +80,13 @@ To check for PHP code compatibility run:
   composer phpcs:compatibility ./projects/plugins/boost
   ```
 
-## Linting Jetpack Boost JavaScript code
+## Typechecking the modern dashboard
+
 From `projects/plugins/boost`, run `pnpm typecheck` to check the modern dashboard TypeScript using
 [`tsconfig.dashboard.json`](../tsconfig.dashboard.json). This command does not
 check the full legacy application.
 
+## Linting Jetpack Boost JavaScript code
 
 Run JavaScript linting from the monorepo root as described in the
 [development environment guide](../../../../docs/development-environment.md#linting-jetpacks-javascript).

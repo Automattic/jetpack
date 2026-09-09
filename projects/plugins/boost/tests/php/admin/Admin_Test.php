@@ -285,7 +285,7 @@ class Admin_Test extends Base_TestCase {
 
 		$this->assertSame( array(), $this->enqueued );
 		$this->assertSame( array( 'wp-i18n', 'jetpack-boost-admin' ), $prerequisites->deps );
-		$this->assertSame( array( 'register', 'Jetpack_Boost', 'enqueue', 'wpApiSettings', 'prerequisites' ), $this->enqueue_events );
+		$this->assertSame( array( array( 'register', 'jetpack-boost-admin' ), 'Jetpack_Boost', array( 'enqueue', 'jetpack-boost-admin' ), 'wpApiSettings', 'prerequisites' ), $this->enqueue_events );
 	}
 
 	public function test_modern_prerequisites_wait_for_webpack_bootstrap_and_i18n() {
@@ -295,7 +295,7 @@ class Admin_Test extends Base_TestCase {
 		$admin->enqueue_scripts();
 
 		$this->assertSame( array( 'wp-i18n', 'jetpack-boost-admin', 'wp-jp-i18n-loader' ), $prerequisites->deps );
-		$this->assertSame( array( 'register', 'Jetpack_Boost', 'enqueue', 'wpApiSettings', 'i18n', 'prerequisites' ), $this->enqueue_events );
+		$this->assertSame( array( array( 'register', 'jetpack-boost-admin' ), 'Jetpack_Boost', array( 'enqueue', 'jetpack-boost-admin' ), 'wpApiSettings', 'wp-jp-i18n-loader', 'prerequisites' ), $this->enqueue_events );
 	}
 
 	public function test_missing_modern_prerequisites_are_logged() {
@@ -472,7 +472,7 @@ class Admin_Test extends Base_TestCase {
 		);
 		Functions\when( 'wp_enqueue_script' )->alias(
 			function ( $handle ) {
-				$this->enqueue_events[] = 'i18n';
+				$this->enqueue_events[] = $handle;
 				$this->enqueued[]       = $handle;
 			}
 		);
@@ -484,14 +484,14 @@ class Admin_Test extends Base_TestCase {
 		);
 		\Patchwork\redefine(
 			Assets::class . '::register_script',
-			function () {
-				$this->enqueue_events[] = 'register';
+			function ( $handle ) {
+				$this->enqueue_events[] = array( 'register', $handle );
 			}
 		);
 		\Patchwork\redefine(
 			Assets::class . '::enqueue_script',
-			function () {
-				$this->enqueue_events[] = 'enqueue';
+			function ( $handle ) {
+				$this->enqueue_events[] = array( 'enqueue', $handle );
 			}
 		);
 		$this->mock_prerequisites();

@@ -5,7 +5,7 @@ const baseConfig = require( 'jetpack-js-tools/jest/config.base.js' );
 module.exports = {
 	rootDir: path.join( __dirname, '..' ),
 	roots: [ '<rootDir>/app', '<rootDir>/_inc', '<rootDir>/routes', '<rootDir>/packages' ],
-	testPathIgnorePatterns: [ '/node_modules/', '<rootDir>/tests/e2e/' ],
+	testPathIgnorePatterns: [ '/node_modules/' ],
 	testEnvironment: require.resolve( 'jetpack-js-tools/jest/fix-environment-jsdom.mjs' ),
 	testEnvironmentOptions: baseConfig.testEnvironmentOptions,
 	collectCoverageFrom: [

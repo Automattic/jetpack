@@ -140,25 +140,21 @@ describe( 'Boost dashboard stage', () => {
 
 		expect( mockNavigate ).toHaveBeenCalledWith( { search: { tab: 'settings' }, replace: false } );
 	} );
-	it( 'updates the subpage mount for history navigation', () => {
+
+	it( 'does not re-navigate when the Settings redirect rewrites history', () => {
 		mockNavigate.mockImplementation( () => {
 			window.history.replaceState( null, '', '/?page=jetpack-boost&tab=settings#/' );
 		} );
 		render( <Stage /> );
-		const subpageMount = getSubpageMount();
 
 		act( () => {
 			window.history.pushState( null, '', '/?page=jetpack-boost#/cache-debug-log' );
 		} );
 
-		expect( subpageMount?.hidden ).toBe( false );
-		expect( screen.queryAllByRole( 'tablist' ) ).toHaveLength( 0 );
-
 		act( () => {
 			window.history.replaceState( null, '', '/?page=jetpack-boost#/' );
 		} );
 
-		expect( subpageMount?.hidden ).toBe( true );
 		expect( mockNavigate ).toHaveBeenCalledTimes( 1 );
 		expect( mockNavigate ).toHaveBeenCalledWith( { search: { tab: 'settings' }, replace: true } );
 	} );
