@@ -7,9 +7,11 @@
 
 namespace Automattic\Jetpack\Publicize\REST_API;
 
+use Automattic\Jetpack\Connection\Rest_Authentication;
 use Automattic\Jetpack\Connection\Traits\WPCOM_REST_API_Proxy_Request;
 use Automattic\Jetpack\Publicize\Connections;
 use Automattic\Jetpack\Publicize\Jetpack_Social_Settings\Settings;
+use Automattic\Jetpack\Publicize\Publicize;
 use Automattic\Jetpack\Publicize\Publicize_Utils;
 use WP_Error;
 use WP_REST_Request;
@@ -119,6 +121,49 @@ class Connections_Controller extends Base_Controller {
 				),
 				'schema' => array( $this, 'get_public_item_schema' ),
 			)
+		);
+
+		register_rest_route(
+			$this->namespace,
+			'/' . $this->rest_base . '/sync',
+			array(
+				array(
+					'methods'             => WP_REST_Server::CREATABLE,
+					'callback'            => array( $this, 'receive_updated_connections' ),
+					'permission_callback' => array( Rest_Authentication::class, 'is_signed_with_user_token' ),
+					'args'                => array(
+						'connections' => array(
+							'type'        => 'object',
+							'required'    => true,
+							'description' => __( 'The updated Publicize connections, keyed by service name.', 'jetpack-publicize-pkg' ),
+						),
+					),
+				),
+			)
+		);
+	}
+
+	/**
+	 * Receive updated Publicize connections from WPCOM.
+	 *
+	 * REST replacement for the jetpack.updatePublicizeConnections XML-RPC method.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public function receive_updated_connections( $request ) {
+		global $publicize;
+
+		if ( ! $publicize instanceof Publicize ) {
+			return new WP_Error(
+				'publicize_not_available',
+				__( 'Sorry, Jetpack Social is not available on your site right now.', 'jetpack-publicize-pkg' ),
+				array( 'status' => 500 )
+			);
+		}
+
+		return rest_ensure_response(
+			$publicize->receive_updated_publicize_connections( $request->get_param( 'connections' ) )
 		);
 	}
 
