@@ -3,14 +3,12 @@
  */
 import { useReportScope } from '@jetpack-premium-analytics/data';
 import {
-	canStepForward,
 	isComparisonPresetId,
 	isPrimaryPreset,
 	type ComparisonPresetId,
 	type IntervalType,
 	type PrimaryPresetId,
 	type QuickSurfacePresetId,
-	type StepDirection,
 } from '@jetpack-premium-analytics/datetime';
 import { Stack } from '@jetpack-premium-analytics/externals';
 import { BaseControl } from '@wordpress/components';
@@ -21,7 +19,6 @@ import { useMemo, useCallback, useState } from 'react';
 import { DateComparisonDropdown } from '../date-comparison-dropdown';
 import { DateIntervalDropdown } from '../date-interval-dropdown';
 import { DatePeriodDropdown } from '../date-period-dropdown';
-import { DatePeriodNavigation } from '../date-period-navigation';
 import { useComparisonDatePresets } from '../use-comparison-date-presets';
 
 import './date-filters-panel.scss';
@@ -96,13 +93,6 @@ export type DateFiltersPanelProps = {
 	onIntervalChange?: ( interval: IntervalType ) => void;
 
 	/**
-	 * Steps the applied window backward or forward by its own length. Left out,
-	 * the navigation controls are not rendered at all: a surface whose range is
-	 * not a movable window has nowhere to step.
-	 */
-	onStep?: ( direction: StepDirection ) => void;
-
-	/**
 	 * Props for the date range popover.
 	 */
 	rangeControlProps?: Omit< Parameters< typeof BaseControl >[ 0 ], 'children' >;
@@ -150,7 +140,6 @@ export function DateFiltersPanel( {
 	onChange,
 	onComparisonChange,
 	onIntervalChange,
-	onStep,
 	rangeControlProps = {
 		label: null,
 		help: null,
@@ -245,27 +234,6 @@ export function DateFiltersPanel( {
 		]
 	);
 
-	/*
-	 * Built once, rendered in the row and the probe, like the other controls.
-	 * Reads the applied range, not staged: the arrows commit on click, so a
-	 * drafted range must not decide whether the forward step is available.
-	 */
-	const navigationControl = useMemo( () => {
-		if ( ! onStep ) {
-			return null;
-		}
-
-		const committedRange = appliedRange ?? range;
-
-		return (
-			<DatePeriodNavigation
-				canStepForward={ canStepForward( committedRange, new Date() ) }
-				disabled={ disabled }
-				onStep={ onStep }
-			/>
-		);
-	}, [ appliedRange, disabled, onStep, range ] );
-
 	// Same arrangement as the comparison control: built once, rendered in the
 	// row and in the probe.
 	const intervalControl = useMemo(
@@ -284,8 +252,6 @@ export function DateFiltersPanel( {
 	return (
 		<div className="date-filters-panel">
 			<Stack className="date-filters-panel__row" direction="row" gap="sm">
-				{ navigationControl }
-
 				<BaseControl
 					className="date-filters-panel__primary"
 					label={ rangeControlProps.label }

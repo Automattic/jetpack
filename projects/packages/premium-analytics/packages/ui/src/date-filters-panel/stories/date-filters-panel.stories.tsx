@@ -1,12 +1,9 @@
 import {
 	computePrimaryRange,
-	stepDateRange,
 	DETAIL_SURFACE_PRESETS,
-	PRESET_CUSTOM,
 	type ComparisonPresetId,
 	type IntervalType,
 	type PrimaryPresetId,
-	type StepDirection,
 } from '@jetpack-premium-analytics/datetime';
 import { setLocaleData, resetLocaleData } from '@wordpress/i18n';
 import { endOfDay, subDays, startOfDay } from 'date-fns';
@@ -160,25 +157,6 @@ function DateFiltersPanelStory( {
 		stagedPrimary.range.to !== committedPrimary.range.to ||
 		stagedPrimary.presetId !== committedPrimary.presetId;
 
-	// Stepping applies on click and takes the range off its preset, the way it
-	// commits through the report params in product.
-	const handleStep = useCallback( ( direction: StepDirection ) => {
-		const stepped = stepDateRange( stagedPrimaryRef.current.range, direction );
-
-		if ( ! stepped?.from || ! stepped.to ) {
-			return;
-		}
-
-		const nextPrimary: PrimaryFilterState = {
-			range: { from: stepped.from, to: stepped.to },
-			presetId: PRESET_CUSTOM,
-		};
-
-		stagedPrimaryRef.current = nextPrimary;
-		setStagedPrimary( nextPrimary );
-		setCommittedPrimary( nextPrimary );
-	}, [] );
-
 	/*
 	 * The interval follows the range being edited, so switching preset re-derives
 	 * the menu. A pick the new range still allows survives; one it does not falls
@@ -214,7 +192,6 @@ function DateFiltersPanelStory( {
 				onChange={ handlePrimaryChange }
 				onComparisonChange={ handleComparisonChange }
 				onIntervalChange={ setPickedInterval }
-				onStep={ handleStep }
 				onApply={ handlePrimaryApply }
 				onCancel={ handlePrimaryCancel }
 				canApply={ canApplyPrimary }

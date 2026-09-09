@@ -43,32 +43,6 @@ describe( 'DateFiltersPanel', () => {
 		expect( screen.queryByRole( 'button', { name: 'Compare' } ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'steps the applied window from the navigation arrows', async () => {
-		const onStep = jest.fn();
-		const user = userEvent.setup();
-
-		// A window whose next one has fully happened, so both arrows render.
-		renderPanel( {
-			onStep,
-			appliedRange: {
-				from: new Date( '2020-07-01T00:00:00.000Z' ),
-				to: new Date( '2020-07-30T23:59:59.999Z' ),
-			},
-		} );
-
-		await user.click( screen.getByRole( 'button', { name: 'Previous period' } ) );
-		expect( onStep ).toHaveBeenCalledWith( 'previous' );
-
-		await user.click( screen.getByRole( 'button', { name: 'Next period' } ) );
-		expect( onStep ).toHaveBeenCalledWith( 'next' );
-	} );
-
-	it( 'renders no period navigation without onStep', () => {
-		renderPanel();
-
-		expect( screen.queryByRole( 'button', { name: 'Previous period' } ) ).not.toBeInTheDocument();
-	} );
-
 	// The comparison qualifies the range the presets just set; the interval only
 	// buckets the charts. Reading order follows that, so it is worth pinning.
 	it( 'places the comparison before the chart interval', () => {
@@ -167,20 +141,15 @@ describe( 'DateFiltersPanel', () => {
 	it( 'greys every control out while disabled', () => {
 		renderPanel( {
 			disabled: true,
-			onStep: jest.fn(),
-			appliedRange: {
-				from: new Date( '2020-07-01T00:00:00.000Z' ),
-				to: new Date( '2020-07-30T23:59:59.999Z' ),
-			},
 			withIntervalControl: true,
 			intervalOptions: [ 'day', 'week' ],
 			interval: 'day',
 			onIntervalChange: jest.fn(),
 		} );
 
-		// Both arrows, the period, the comparison and the interval.
+		// The period, the comparison and the interval.
 		const buttons = screen.getAllByRole( 'button' );
-		expect( buttons ).toHaveLength( 5 );
+		expect( buttons ).toHaveLength( 3 );
 		buttons.forEach( button => {
 			expect( button ).toHaveAttribute( 'aria-disabled', 'true' );
 		} );
