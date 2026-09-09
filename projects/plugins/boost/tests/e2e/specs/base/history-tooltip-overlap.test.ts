@@ -167,7 +167,8 @@ for ( const device of [ 'Desktop', 'Mobile' ] ) {
 		await page.keyboard.press( 'ArrowRight' );
 		const surface = page.locator( '.jetpack-boost-overview__history-tooltip' );
 		await expect( surface ).toContainText( 'August 11, 2026' );
-		await expect( surface ).toContainText( 'No score recorded before you unlocked this feature.' );
+		await expect( surface ).toHaveCSS( 'background-color', /^rgb\(/ );
+		await expect( surface ).toContainText( 'No score recorded.' );
 		await page.keyboard.press( 'ArrowRight' );
 		await expect( surface ).toContainText( 'August 12, 2026' );
 		await page.keyboard.press( 'Escape' );
@@ -178,12 +179,40 @@ for ( const device of [ 'Desktop', 'Mobile' ] ) {
 		] as const ) {
 			await hoverDay( chart, index );
 			await expect( surface.locator( '.jetpack-boost-overview__tooltip-date' ) ).toHaveText( date );
+
 			const popup = ( await surface.boundingBox() )!;
 			expect( popup.x ).toBeGreaterThanOrEqual( 0 );
 			expect( popup.x + popup.width ).toBeLessThanOrEqual( 390 );
 		}
+		const zeroBar = bars.nth( 27 );
+		await expect( zeroBar ).toHaveAttribute(
+			'fill',
+			'var(--wpds-color-foreground-content-error-weak)'
+		);
+		await expect( zeroBar ).not.toHaveCSS( 'fill', 'none' );
+		expect( ( await zeroBar.boundingBox() )!.height ).toBeGreaterThan( 0 );
+		await expect( surface ).toContainText( '0 / 100' );
 	} );
 }
+
+test( 'an all-zero window paints recorded scores separately from empty slots', async ( {
+	page,
+} ) => {
+	await page.goto( 'http://boost-history.test/?zeros' );
+	for ( const device of [ 'Desktop', 'Mobile' ] ) {
+		const chart = page.getByRole( 'region', { name: `${ device } score history` } );
+		const bars = chart.locator( '.visx-bar' );
+		const zeroBar = bars.nth( 21 );
+		await expect( zeroBar ).toHaveAttribute(
+			'fill',
+			'var(--wpds-color-foreground-content-error-weak)'
+		);
+		await expect( zeroBar ).not.toHaveCSS( 'fill', 'none' );
+		expect( ( await zeroBar.boundingBox() )!.height ).toBeGreaterThan( 0 );
+		await expect( bars.first() ).toHaveCSS( 'fill', 'none' );
+		await expect( bars.first() ).not.toHaveCSS( 'stroke-dasharray', 'none' );
+	}
+} );
 
 test( 'Tabbing between daily charts preserves focus and resets the previous tooltip', async ( {
 	page,

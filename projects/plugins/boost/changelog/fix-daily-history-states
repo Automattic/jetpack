@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Overview: Distinguish zero scores and missing history, surface loading errors, and preserve keyboard focus in score charts.
