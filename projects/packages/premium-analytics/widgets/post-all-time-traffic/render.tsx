@@ -59,12 +59,12 @@ function PostAllTimeTrafficInner() {
 	const openMonth = useCallback(
 		( cell: Element ) => {
 			const row = rows[ Number( cell.getAttribute( 'data-row' ) ) ];
-			const month = Number( cell.getAttribute( 'data-column' ) );
 
-			if ( ! row || ! ( month < MONTHS_IN_YEAR ) ) {
+			if ( ! row ) {
 				return;
 			}
 
+			const month = Number( cell.getAttribute( 'data-column' ) );
 			const range = monthRange( { year: row.year, month }, { publishedAt, timeZone } );
 
 			if ( range ) {
@@ -87,15 +87,19 @@ function PostAllTimeTrafficInner() {
 		[ openMonth ]
 	);
 
-	// Focus stays on the grid, which names the selected cell through
-	// `aria-activedescendant`; Enter and Space open it the way a click does.
+	// The grid names the selected cell through `aria-activedescendant`; Enter
+	// and Space open it the way a click does. A click leaves the focus on the
+	// cell itself (the chart gives cells `tabIndex={ -1 }`), so the grid is
+	// looked up from whichever of the two the key lands on.
 	const handleKeyDown = useCallback(
 		( event: KeyboardEvent< HTMLDivElement > ) => {
 			if ( event.key !== 'Enter' && event.key !== ' ' ) {
 				return;
 			}
 
-			const activeId = ( event.target as Element ).getAttribute( 'aria-activedescendant' );
+			const activeId = ( event.target as Element )
+				.closest( '[role="grid"]' )
+				?.getAttribute( 'aria-activedescendant' );
 			const cell = activeId ? document.getElementById( activeId ) : null;
 
 			if ( cell && event.currentTarget.contains( cell ) && cell.matches( CELL_SELECTOR ) ) {

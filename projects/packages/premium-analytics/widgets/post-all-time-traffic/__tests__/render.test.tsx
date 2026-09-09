@@ -74,6 +74,7 @@ jest.mock( '@jetpack-premium-analytics/externals', () => {
 							key={ `${ columnIndex }-${ row }` }
 							id={ `cell-${ columnIndex }-${ row }` }
 							role="gridcell"
+							tabIndex={ -1 }
 							aria-label={ `${ column.label } ${ rowLabel }` }
 							data-column={ columnIndex }
 							data-row={ row }
@@ -194,6 +195,16 @@ describe( 'PostAllTimeTraffic widget', () => {
 
 		expect( mockOnChange ).toHaveBeenCalledWith( NOVEMBER_2025, 'custom' );
 		expect( mockOnApply ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( 'opens the keyboard-selected month on Enter after a click left the focus on a cell', async () => {
+		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+		renderWidget();
+
+		screen.getByRole( 'gridcell', { name: 'Nov 2025' } ).focus();
+		await user.keyboard( '{Enter}' );
+
+		expect( mockOnChange ).toHaveBeenCalledWith( NOVEMBER_2025, 'custom' );
 	} );
 
 	it( 'leaves the page alone for keys that do not activate', async () => {
