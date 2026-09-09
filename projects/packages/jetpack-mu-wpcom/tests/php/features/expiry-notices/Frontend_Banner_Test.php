@@ -90,6 +90,22 @@ class Frontend_Banner_Test extends \WorDBless\BaseTestCase {
 		$this->assertSame( '', $this->render() );
 	}
 
+	public function test_nothing_in_the_customizer_preview(): void {
+		$this->set_purchase( 5 );
+		require_once ABSPATH . WPINC . '/class-wp-customize-manager.php';
+		$manager    = ( new \ReflectionClass( \WP_Customize_Manager::class ) )->newInstanceWithoutConstructor();
+		$previewing = new \ReflectionProperty( $manager, 'previewing' );
+		$previewing->setValue( $manager, true );
+		$GLOBALS['wp_customize'] = $manager;
+		try {
+			$this->assertNull( wpcom_expiry_notices_frontend_banner_data() );
+			$this->assertFalse( wpcom_expiry_notices_frontend_banner_is_due() );
+		} finally {
+			unset( $GLOBALS['wp_customize'] );
+		}
+		$this->assertNotNull( wpcom_expiry_notices_frontend_banner_data() );
+	}
+
 	public function test_a_wp_admin_dismissal_hides_the_front_end_banner(): void {
 		$this->set_purchase( -45 );
 		update_user_meta( $this->admin_id, Expiry_Notice_Dismiss::banner_meta_key(), time() - DAY_IN_SECONDS );

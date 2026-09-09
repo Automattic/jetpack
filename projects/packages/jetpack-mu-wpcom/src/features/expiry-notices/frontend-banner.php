@@ -11,12 +11,13 @@ use Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Notice_Dismiss;
 /**
  * What the banner renders from, or null if it shouldn't show.
  *
- * Feeds and embeds render markup of their own the bar would corrupt.
+ * Feeds and embeds render markup of their own the bar would corrupt, and the
+ * Customizer preview is not the site.
  *
  * @return array<string,mixed>|null
  */
 function wpcom_expiry_notices_frontend_banner_data(): ?array {
-	if ( is_feed() || is_embed() ) {
+	if ( is_feed() || is_embed() || is_customize_preview() ) {
 		return null;
 	}
 	return wpcom_expiry_notices_banner_data();
