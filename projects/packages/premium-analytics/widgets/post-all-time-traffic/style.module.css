@@ -24,3 +24,31 @@
 	align-content: start;
 	overflow: auto;
 }
+
+/* The chart starts its column labels at the track's edge, which suits a
+ * calendar; here each label names its column, so it sits over the middle. */
+.root .chart [role="row"][aria-hidden="true"] > span {
+	text-align: center;
+}
+
+/* The grid is the scroll container, so the label row and the year column stay
+ * in view while a long history scrolls; the corner covers where they cross. */
+.root .chart [role="row"][aria-hidden="true"] > span,
+.root .chart [role="row"][aria-rowindex] > span:first-child {
+	position: sticky;
+	z-index: 1;
+	background: var(--wpds-color-background-surface-neutral-strong);
+}
+
+.root .chart [role="row"][aria-hidden="true"] > span {
+	inset-block-start: 0;
+}
+
+.root .chart [role="row"][aria-rowindex] > span:first-child {
+	inset-inline-start: 0;
+}
+
+.root .chart [role="row"][aria-hidden="true"] > span:first-child {
+	inset-inline-start: 0;
+	z-index: 2;
+}
