@@ -136,7 +136,7 @@ export const WidgetDashboardWithWidget: StoryObj< WidgetDashboardWithWidgetContr
 	render: args => <TrafficViewsActivityDashboardStory { ...args } />,
 	args: {
 		...DEFAULT_WIDGET_DASHBOARD_STORY_ARGS,
-		widgetWidth: 4,
+		widgetWidth: 3,
 		widgetHeight: 1,
 		rowHeight: 200,
 	},

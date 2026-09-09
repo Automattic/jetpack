@@ -1,5 +1,5 @@
 import { createInterpolateElement } from '@wordpress/element';
-import { standardizeError } from '$lib/utils/standardize-error';
+import { standardizeError } from '@automattic/jetpack-boost-score-api';
 import NoticeOutline from '$svg/notice-outline';
 import styles from './error-notice.module.scss';
 import clsx from 'clsx';

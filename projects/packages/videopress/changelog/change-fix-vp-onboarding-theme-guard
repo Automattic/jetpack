@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Fix the dashboard rendering blank on WordPress 7.0.x, where the welcome modal crashed on the missing public ThemeProvider export.

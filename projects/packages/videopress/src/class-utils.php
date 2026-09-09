@@ -41,6 +41,11 @@ class Utils {
 			)
 		);
 
+		// The site-wide opt-out wins over the block's own preload attribute.
+		if ( Data::get_videopress_player_preload_disabled() ) {
+			$video_press_url_options['preload'] = 'none';
+		}
+
 		$query_args = array(
 			'resizeToParent'  => 1,
 			'cover'           => 1,

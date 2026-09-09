@@ -544,4 +544,38 @@ class Data_Test extends BaseTestCase {
 		$this->assertArrayHasKey( 'videopress_auto_subtitles_disabled', $settings );
 		$this->assertTrue( $settings['videopress_auto_subtitles_disabled'] );
 	}
+
+	/**
+	 * Test that player preloading is not disabled by default (preload on).
+	 */
+	public function test_player_preload_disabled_defaults_to_false() {
+		delete_option( 'videopress_player_preload_disabled' );
+
+		$this->assertFalse( Data::get_videopress_player_preload_disabled() );
+	}
+
+	/**
+	 * Test that the stored player preload opt-out option is honored.
+	 */
+	public function test_player_preload_disabled_reflects_stored_option() {
+		update_option( 'videopress_player_preload_disabled', true );
+
+		$this->assertTrue( Data::get_videopress_player_preload_disabled() );
+
+		delete_option( 'videopress_player_preload_disabled' );
+	}
+
+	/**
+	 * Test that get_videopress_settings exposes the player preload opt-out value.
+	 */
+	public function test_get_videopress_settings_includes_player_preload() {
+		update_option( 'videopress_player_preload_disabled', true );
+
+		$settings = Data::get_videopress_settings();
+
+		$this->assertArrayHasKey( 'videopress_player_preload_disabled', $settings );
+		$this->assertTrue( $settings['videopress_player_preload_disabled'] );
+
+		delete_option( 'videopress_player_preload_disabled' );
+	}
 }

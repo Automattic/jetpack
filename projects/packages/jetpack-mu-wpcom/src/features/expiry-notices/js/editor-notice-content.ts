@@ -2,7 +2,7 @@ import type { Cta } from './types.ts';
 import type { MouseEvent } from 'react';
 
 export interface NoticeCtas {
-	primary: Cta;
+	primary: Cta | null;
 	secondary: Cta | null;
 }
 
@@ -23,7 +23,7 @@ export interface NoticeAction {
  * The notice's action links.
  *
  * @param ctas           - The CTAs the state offers.
- * @param ctas.primary   - Always present.
+ * @param ctas.primary   - Absent only for an admin who cannot renew.
  * @param ctas.secondary - Only in the grace period.
  * @param onCtaClick     - Receives which CTA was clicked, its target, and the click.
  * @return The actions, primary first.
@@ -32,6 +32,9 @@ export const noticeActions = (
 	{ primary, secondary }: NoticeCtas,
 	onCtaClick: CtaClickHandler
 ): NoticeAction[] => {
+	if ( ! primary ) {
+		return [];
+	}
 	const actions: NoticeAction[] = [
 		{
 			label: primary.label,

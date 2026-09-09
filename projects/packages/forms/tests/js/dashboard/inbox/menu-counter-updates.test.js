@@ -8,7 +8,6 @@ import { describe, expect, it, beforeEach } from '@jest/globals';
 import { getFormsMenuBadgeSlug, getMenuBadgeCount } from '../../../../src/dashboard/inbox/utils';
 
 const FORMS_MENU_BADGE_SLUG = 'jetpack-forms-responses-wp-admin';
-const FORMS_LEGACY_MENU_BADGE_SLUG = 'jetpack-forms-admin';
 
 describe( 'getMenuBadgeCount', () => {
 	beforeEach( () => {
@@ -19,12 +18,6 @@ describe( 'getMenuBadgeCount', () => {
 		document.body.innerHTML = `<span data-jp-menu-badge="${ FORMS_MENU_BADGE_SLUG }" data-jp-menu-count="5"></span>`;
 
 		expect( getMenuBadgeCount() ).toBe( 5 );
-	} );
-
-	it( 'reads the count when the legacy (jetpack_forms_alpha=false) badge slug is rendered instead', () => {
-		document.body.innerHTML = `<span data-jp-menu-badge="${ FORMS_LEGACY_MENU_BADGE_SLUG }" data-jp-menu-count="7"></span>`;
-
-		expect( getMenuBadgeCount() ).toBe( 7 );
 	} );
 
 	it( 'returns 0 when the badge is not rendered (e.g. count is already 0)', () => {
@@ -54,12 +47,6 @@ describe( 'getFormsMenuBadgeSlug', () => {
 		document.body.innerHTML = `<span data-jp-menu-badge="${ FORMS_MENU_BADGE_SLUG }" data-jp-menu-count="5"></span>`;
 
 		expect( getFormsMenuBadgeSlug() ).toBe( FORMS_MENU_BADGE_SLUG );
-	} );
-
-	it( 'returns the legacy slug when jetpack_forms_alpha=false renders that badge instead', () => {
-		document.body.innerHTML = `<span data-jp-menu-badge="${ FORMS_LEGACY_MENU_BADGE_SLUG }" data-jp-menu-count="7"></span>`;
-
-		expect( getFormsMenuBadgeSlug() ).toBe( FORMS_LEGACY_MENU_BADGE_SLUG );
 	} );
 
 	it( 'falls back to the wp-build slug when no badge is rendered', () => {

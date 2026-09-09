@@ -13,10 +13,14 @@
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Data;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Domain;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Notice_Dismiss;
+use Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Owner;
 
 /**
  * Resolve the data the modal renders from, or null if it shouldn't show.
  * Shared by the enqueue and render hooks.
+ *
+ * Owners only: the modal exists to interrupt someone into acting, and an admin
+ * who cannot renew has nothing to act on. The banner tells them why.
  *
  * @param bool $flush Drop the memo. For tests, which move the fixture under a
  *                    process that has already answered once.
@@ -53,6 +57,10 @@ function wpcom_expiry_notices_admin_modal_data( bool $flush = false ): ?array {
 
 	$meta_key = Expiry_Notice_Dismiss::modal_meta_key( $state );
 	if ( null === $meta_key ) {
+		return $memo;
+	}
+
+	if ( ! Expiry_Owner::current_user_is_owner( $state ) ) {
 		return $memo;
 	}
 
@@ -163,7 +171,7 @@ function wpcom_expiry_notices_enqueue_admin_modal_assets() {
 		'wpcomExpiryModal',
 		array_merge(
 			$data,
-			array( 'trackProps' => wpcom_expiry_notices_track_props( $state ) )
+			array( 'trackProps' => wpcom_expiry_notices_track_props( $state, true ) )
 		)
 	);
 }

@@ -4,6 +4,7 @@
 import {
 	computePrimaryRange,
 	getMenuSurfacePresetGroups,
+	getPresetLabel,
 	PRESET_CUSTOM,
 	type PrimaryPresetId,
 	type QuickSurfacePresetId,
@@ -95,8 +96,8 @@ type DatePeriodDropdownProps = {
 	canApply: boolean;
 
 	/**
-	 * Whether to offer Custom range. On by default; the detail pages' design has
-	 * common periods only.
+	 * Whether to offer Custom range. On by default; a surface whose design lists
+	 * common periods only turns it off.
 	 */
 	withCustomRange?: boolean;
 
@@ -175,12 +176,17 @@ export function DatePeriodDropdown( {
 		[ allTimeStart, onSelect, timeZone ]
 	);
 
-	// The preset names the period where one drives it; a hand-picked range is
-	// named by the period it covers, and falls back to its own dates.
+	/*
+	 * The preset names the period where one drives it; a hand-picked range is
+	 * named by the period it covers, and falls back to its own dates. Read past
+	 * the menu, so a saved period the menu no longer offers still names itself.
+	 */
 	const triggerLabel = useMemo( () => {
 		const applied = groups.flat().find( preset => preset.id === appliedPresetId );
 
-		return applied?.label ?? formatDateRangeNatural( appliedRange );
+		return (
+			applied?.label ?? getPresetLabel( appliedPresetId ) ?? formatDateRangeNatural( appliedRange )
+		);
 	}, [ appliedPresetId, appliedRange, groups ] );
 
 	return (

@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Status: Detect a site served on any 127.0.0.0/8 loopback address, or on 0.0.0.0, as a local site.

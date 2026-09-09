@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+PayPal Payment Buttons: Load PayPal's onboarding script into the editor canvas so the Connect with PayPal button opens PayPal's window instead of a new browser tab.
