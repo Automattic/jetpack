@@ -13,7 +13,7 @@ import { Button, TextControl, ToggleControl } from '@wordpress/components';
 import { useRef, useEffect, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { getPriceStep } from '../utils/currency-symbols';
-import { getPriceFormatError } from '../utils/validation';
+import { validatePrice } from '../utils/validation';
 
 // Pre-extract translated strings used in ternaries to avoid i18n build errors.
 const placeholderColor = __( 'e.g., Color', 'jetpack-paypal-payments' );
@@ -115,12 +115,15 @@ export function hasVariantPricing( enabled, variants ) {
 }
 
 /**
- * Validate variant data and return error messages.
+ * Validate variant data.
+ *
+ * Errors carry the group and option they belong to so the builder can render each
+ * one under the control that caused it.
  *
  * @param {boolean} enabled      - Whether variants are enabled.
  * @param {object}  variants     - The variants data.
  * @param {string}  currencyCode - Product currency the option prices are in.
- * @return {Array} Array of error strings. Empty if valid.
+ * @return {Array} Errors as { group, option, field, message }. Empty if valid.
  */
 export function validateVariants( enabled, variants, currencyCode = 'USD' ) {
 	if ( ! enabled || ! variants?.dimensions?.length ) {
@@ -132,25 +135,22 @@ export function validateVariants( enabled, variants, currencyCode = 'USD' ) {
 
 	variants.dimensions.forEach( ( dim, i ) => {
 		if ( ! dim.name?.trim() ) {
-			errors.push(
-				sprintf(
-					/* translators: %d: option group number */
-					__( 'Option group %d needs a name.', 'jetpack-paypal-payments' ),
-					i + 1
-				)
-			);
+			errors.push( {
+				group: i,
+				option: null,
+				field: 'name',
+				message: __( 'Option group name is required.', 'jetpack-paypal-payments' ),
+			} );
 		}
 
 		dim.options?.forEach( ( opt, j ) => {
 			if ( ! opt.label?.trim() ) {
-				errors.push(
-					sprintf(
-						/* translators: 1: option number, 2: group name or number */
-						__( 'Option %1$d in "%2$s" needs a label.', 'jetpack-paypal-payments' ),
-						j + 1,
-						dim.name || `#${ i + 1 }`
-					)
-				);
+				errors.push( {
+					group: i,
+					option: j,
+					field: 'label',
+					message: __( 'Option name is required.', 'jetpack-paypal-payments' ),
+				} );
 			}
 
 			if ( ! dim.primary ) {
@@ -160,51 +160,15 @@ export function validateVariants( enabled, variants, currencyCode = 'USD' ) {
 			const rawValue = `${ opt.unit_amount?.value ?? '' }`.trim();
 
 			// Per-option pricing replaces the product-level price, so it is
-			// all-or-nothing: a half-filled group would leave options unpriced.
-			if ( perOptionPricing && rawValue === '' ) {
-				errors.push(
-					sprintf(
-						/* translators: 1: option label or number, 2: group name */
-						__(
-							'Price for "%1$s" in "%2$s" is required once any option in the group has its own price.',
-							'jetpack-paypal-payments'
-						),
-						opt.label || `Option ${ j + 1 }`,
-						dim.name || `#${ i + 1 }`
-					)
-				);
+			// all-or-nothing: a half-filled group would leave options unpriced. An
+			// empty price is only wrong once some other option in the group has one.
+			if ( ! perOptionPricing && rawValue === '' ) {
 				return;
 			}
 
-			if ( rawValue !== '' ) {
-				const val = parseFloat( rawValue );
-				if ( isNaN( val ) || val <= 0 ) {
-					errors.push(
-						sprintf(
-							/* translators: 1: option label or number, 2: group name */
-							__(
-								'Price for "%1$s" in "%2$s" must be a positive number.',
-								'jetpack-paypal-payments'
-							),
-							opt.label || `Option ${ j + 1 }`,
-							dim.name || `#${ i + 1 }`
-						)
-					);
-					return;
-				}
-
-				const formatError = getPriceFormatError( rawValue, currencyCode );
-				if ( formatError ) {
-					errors.push(
-						sprintf(
-							/* translators: 1: option label or number, 2: group name, 3: what is wrong with the price */
-							__( 'Price for "%1$s" in "%2$s": %3$s', 'jetpack-paypal-payments' ),
-							opt.label || `Option ${ j + 1 }`,
-							dim.name || `#${ i + 1 }`,
-							formatError
-						)
-					);
-				}
+			const message = validatePrice( rawValue, currencyCode );
+			if ( message ) {
+				errors.push( { group: i, option: j, field: 'price', message } );
 			}
 		} );
 	} );
@@ -219,13 +183,27 @@ export function validateVariants( enabled, variants, currencyCode = 'USD' ) {
  * @param {object}   props.group        - The group data.
  * @param {number}   props.index        - Group index.
  * @param {string}   props.currencyCode - Product currency for pricing.
+ * @param {Array}    props.errors       - This group's validation errors.
+ * @param {object}   props.touched      - Fields the merchant has left, keyed by field key.
+ * @param {Function} props.onTouch      - Callback with a field key once it is left.
  * @param {Function} props.onChange     - Callback when group changes.
  * @param {Function} props.onRemove     - Callback to remove this group.
  * @param {Function} props.onSetPrimary - Callback to set this as primary.
  * @param {boolean}  props.disabled     - Whether inputs are disabled.
  * @return {Element} Group editor.
  */
-function GroupEditor( { group, index, currencyCode, onChange, onRemove, onSetPrimary, disabled } ) {
+function GroupEditor( {
+	group,
+	index,
+	currencyCode,
+	errors,
+	touched,
+	onTouch,
+	onChange,
+	onRemove,
+	onSetPrimary,
+	disabled,
+} ) {
 	const lastOptionRef = useRef( null );
 	const [ focusNewOption, setFocusNewOption ] = useState( false );
 
@@ -236,6 +214,27 @@ function GroupEditor( { group, index, currencyCode, onChange, onRemove, onSetPri
 			setFocusNewOption( false );
 		}
 	}, [ focusNewOption ] );
+
+	// A field only shows its error once the merchant has left it - enabling the panel
+	// seeds an empty group, which is invalid from the first render. Keys ride on the
+	// stable _key, so removing a group or an option does not hand its marks to a neighbour.
+	// A variants structure read back from PayPal carries no _key, so fall back to the index.
+	const groupKey = group._key || `#${ index }`;
+	const fieldKey = ( optIndex, field ) =>
+		optIndex === null
+			? `variant:${ groupKey }:${ field }`
+			: `variant:${ groupKey }:${ group.options[ optIndex ]?._key || `#${ optIndex }` }:${ field }`;
+
+	// Pricing is all-or-nothing across the group, so an option can be flagged for a
+	// price the merchant had no reason to visit. Any price in the group reveals them all.
+	const priceTouched = group.options?.some( ( _, i ) => touched[ fieldKey( i, 'price' ) ] );
+
+	const errorFor = ( optIndex, field ) => {
+		const revealed = field === 'price' ? priceTouched : touched[ fieldKey( optIndex, field ) ];
+		return revealed
+			? errors.find( e => e.option === optIndex && e.field === field )?.message
+			: undefined;
+	};
 
 	const updateName = name => {
 		onChange( { ...group, name } );
@@ -282,8 +281,11 @@ function GroupEditor( { group, index, currencyCode, onChange, onRemove, onSetPri
 					) }
 					value={ group.name }
 					onChange={ updateName }
+					onBlur={ () => onTouch( fieldKey( null, 'name' ) ) }
 					placeholder={ index === 0 ? placeholderColor : placeholderSize }
 					disabled={ disabled }
+					help={ errorFor( null, 'name' ) }
+					className={ errorFor( null, 'name' ) ? 'has-error' : undefined }
 				/>
 				<div className="jetpack-paypal-variants__group-controls">
 					<ToggleControl
@@ -325,8 +327,11 @@ function GroupEditor( { group, index, currencyCode, onChange, onRemove, onSetPri
 							) }
 							value={ option.label }
 							onChange={ label => updateOption( optIndex, { label } ) }
+							onBlur={ () => onTouch( fieldKey( optIndex, 'label' ) ) }
 							placeholder={ __( 'e.g., Black', 'jetpack-paypal-payments' ) }
 							disabled={ disabled }
+							help={ errorFor( optIndex, 'label' ) }
+							className={ errorFor( optIndex, 'label' ) ? 'has-error' : undefined }
 						/>
 						{ group.primary && (
 							<TextControl
@@ -340,12 +345,14 @@ function GroupEditor( { group, index, currencyCode, onChange, onRemove, onSetPri
 										},
 									} )
 								}
+								onBlur={ () => onTouch( fieldKey( optIndex, 'price' ) ) }
 								type="number"
 								min={ getPriceStep( currencyCode ) }
 								step={ getPriceStep( currencyCode ) }
 								placeholder={ __( 'Same as product price', 'jetpack-paypal-payments' ) }
 								disabled={ disabled }
-								help={ helpOptionPrice }
+								help={ errorFor( optIndex, 'price' ) || helpOptionPrice }
+								className={ errorFor( optIndex, 'price' ) ? 'has-error' : undefined }
 							/>
 						) }
 						{ group.options.length > 1 && (
@@ -398,6 +405,9 @@ function GroupEditor( { group, index, currencyCode, onChange, onRemove, onSetPri
  * @param {string}   props.currencyCode - Product currency code.
  * @param {Function} props.onChange     - Callback with { variantsEnabled, variants }.
  * @param {boolean}  props.disabled     - Whether inputs are disabled.
+ * @param {Array}    props.errors       - Validation errors from validateVariants().
+ * @param {object}   props.touched      - The form's touched fields, keyed by field key.
+ * @param {Function} props.onTouch      - Callback with a field key once it is left.
  * @return {Element} Variants builder.
  */
 export default function VariantBuilder( {
@@ -406,6 +416,9 @@ export default function VariantBuilder( {
 	currencyCode = 'USD',
 	onChange,
 	disabled,
+	errors = [],
+	touched = {},
+	onTouch,
 } ) {
 	const dimensions = variants?.dimensions || [];
 	const lastGroupRef = useRef( null );
@@ -503,6 +516,9 @@ export default function VariantBuilder( {
 								group={ dimension }
 								index={ dimIndex }
 								currencyCode={ currencyCode }
+								errors={ errors.filter( e => e.group === dimIndex ) }
+								touched={ touched }
+								onTouch={ onTouch }
 								onChange={ newDim => updateDimension( dimIndex, newDim ) }
 								onRemove={ () => removeDimension( dimIndex ) }
 								onSetPrimary={ setPrimary }

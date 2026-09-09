@@ -134,8 +134,10 @@ jest.mock( '@wordpress/components', () => ( {
 			</div>
 		);
 	},
+	// Real TextControl puts className and help on the BaseControl wrapper, not the input,
+	// which is what editor.scss's `.has-error .components-text-control__input` expects.
 	TextControl: ( { label, value, onChange, onBlur, type, help, className, ...rest } ) => (
-		<div>
+		<div data-testid={ `control-${ label }` } className={ className }>
 			<label htmlFor={ `field-${ label }` }>{ label }</label>
 			<input
 				id={ `field-${ label }` }
@@ -144,7 +146,6 @@ jest.mock( '@wordpress/components', () => ( {
 				onChange={ e => onChange( e.target.value ) }
 				onBlur={ onBlur }
 				type={ type || 'text' }
-				className={ className }
 				{ ...rest }
 			/>
 			{ help && <span className="help-text">{ help }</span> }
@@ -1522,6 +1523,156 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			expect( create[ 0 ].method ).toBe( 'POST' );
 			expect( create[ 0 ].data.line_items[ 0 ].name ).toBe( 'Test Widget' );
 			expect( create[ 0 ].data.line_items[ 0 ] ).not.toHaveProperty( 'unit_amount' );
+		} );
+	} );
+
+	describe( 'Product option errors', () => {
+		beforeEach( () => {
+			apiFetch.mockResolvedValue( { connected: true, environment: 'sandbox' } );
+		} );
+
+		/**
+		 * Build an option group, shaped like the empty one enabling the panel seeds.
+		 *
+		 * @param {string} key       - Stable group key.
+		 * @param {object} overrides - Fields to replace on the group.
+		 * @return {object} Option group.
+		 */
+		const group = ( key, overrides = {} ) => ( {
+			_key: key,
+			name: '',
+			primary: true,
+			options: [ { _key: `${ key }-o1`, label: '' } ],
+			...overrides,
+		} );
+
+		/**
+		 * Render the form with the given option groups.
+		 *
+		 * @param {Array} dimensions - Option groups.
+		 * @return {object} Testing Library render result.
+		 */
+		const renderWith = ( dimensions = [ group( 'g1' ) ] ) =>
+			render(
+				<Edit
+					attributes={ {
+						productName: 'Test Widget',
+						price: '29.99',
+						currencyCode: 'USD',
+						variantsEnabled: true,
+						variants: { dimensions },
+					} }
+					setAttributes={ setAttributes }
+				/>
+			);
+
+		/**
+		 * The control a message has to appear inside for the fix to mean anything.
+		 *
+		 * @param {string} label - The control's label.
+		 * @return {object} Queries scoped to that control.
+		 */
+		const control = label => within( screen.getByTestId( `control-${ label }` ) );
+
+		/**
+		 * Focus a control and leave it, which is what marks the field touched.
+		 *
+		 * @param {object} user  - userEvent instance.
+		 * @param {object} field - The control to visit.
+		 */
+		const visit = async ( user, field ) => {
+			await user.click( field );
+			await user.tab();
+		};
+
+		it( 'holds its tongue until the merchant leaves the field', async () => {
+			renderWith();
+
+			await expect(
+				screen.findByRole( 'textbox', { name: 'Option group 1' } )
+			).resolves.toBeInTheDocument();
+			expect( screen.queryByText( 'Option group name is required.' ) ).not.toBeInTheDocument();
+			expect( screen.queryByText( 'Option name is required.' ) ).not.toBeInTheDocument();
+			// The save button is dead from the first render, with nothing on screen saying why.
+			expect( screen.getByText( 'Create New' ) ).toBeDisabled();
+		} );
+
+		it( 'puts the error inside the control that caused it', async () => {
+			const user = userEvent.setup();
+			renderWith();
+
+			await visit( user, await screen.findByRole( 'textbox', { name: 'Option group 1' } ) );
+
+			expect(
+				control( 'Option group 1' ).getByText( 'Option group name is required.' )
+			).toBeInTheDocument();
+			expect( screen.getByTestId( 'control-Option group 1' ) ).toHaveClass( 'has-error' );
+			// Leaving the group name says nothing about the option below it.
+			expect( screen.queryByText( 'Option name is required.' ) ).not.toBeInTheDocument();
+			expect( screen.getByTestId( 'control-Option 1' ) ).not.toHaveClass( 'has-error' );
+
+			await visit( user, screen.getByRole( 'textbox', { name: 'Option 1' } ) );
+
+			expect( control( 'Option 1' ).getByText( 'Option name is required.' ) ).toBeInTheDocument();
+		} );
+
+		it( 'clears the error once the field is filled', async () => {
+			const user = userEvent.setup();
+			const { rerender } = renderWith();
+
+			await visit( user, await screen.findByRole( 'textbox', { name: 'Option group 1' } ) );
+			expect( screen.getByText( 'Option group name is required.' ) ).toBeInTheDocument();
+
+			rerender(
+				<Edit
+					attributes={ {
+						productName: 'Test Widget',
+						price: '29.99',
+						currencyCode: 'USD',
+						variantsEnabled: true,
+						variants: { dimensions: [ group( 'g1', { name: 'Size' } ) ] },
+					} }
+					setAttributes={ setAttributes }
+				/>
+			);
+
+			expect( screen.queryByText( 'Option group name is required.' ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'keeps one group quiet while the merchant works in another', async () => {
+			const user = userEvent.setup();
+			renderWith( [ group( 'g1' ), group( 'g2', { primary: false } ) ] );
+
+			await visit( user, await screen.findByRole( 'textbox', { name: 'Option group 2' } ) );
+
+			expect(
+				control( 'Option group 2' ).getByText( 'Option group name is required.' )
+			).toBeInTheDocument();
+			expect(
+				control( 'Option group 1' ).queryByText( 'Option group name is required.' )
+			).not.toBeInTheDocument();
+		} );
+
+		it( 'reports an unpriced option the merchant never visited', async () => {
+			const user = userEvent.setup();
+			renderWith( [
+				group( 'g1', {
+					name: 'Size',
+					options: [
+						{ _key: 'o1', label: 'Small', unit_amount: { currency_code: 'USD', value: '10.00' } },
+						{ _key: 'o2', label: 'Large', unit_amount: { currency_code: 'USD', value: '' } },
+					],
+				} ),
+			] );
+
+			// Pricing is all-or-nothing across the group, so pricing one option is what
+			// makes the other one wrong. Touching either price reveals both.
+			const prices = await screen.findAllByLabelText( 'Price' );
+			await visit( user, prices[ 0 ] );
+
+			expect( screen.getByText( 'Price is required.' ) ).toBeInTheDocument();
+			// The priced option keeps its help text.
+			expect( screen.getAllByText( /Price every option in this group/ ) ).toHaveLength( 1 );
 		} );
 	} );
 

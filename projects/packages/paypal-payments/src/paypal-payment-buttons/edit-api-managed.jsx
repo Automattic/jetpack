@@ -670,6 +670,9 @@ export default function ApiManagedEdit( { attributes, setAttributes } ) {
 						currencyCode={ currencyCode || 'USD' }
 						onChange={ updates => setAttributes( updates ) }
 						disabled={ isCreating }
+						errors={ variantErrors }
+						touched={ touchedFields }
+						onTouch={ markTouched }
 					/>
 				</PanelBody>
 				<PanelBody

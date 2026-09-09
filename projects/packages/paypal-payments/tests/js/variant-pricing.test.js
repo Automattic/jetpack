@@ -83,32 +83,33 @@ describe( 'validateVariants', () => {
 		expect( validateVariants( true, variantsWithPrices( [ '', '' ] ) ) ).toEqual( [] );
 	} );
 
-	it( 'rejects a partially priced group', () => {
+	it( 'rejects a partially priced group, against the option that is missing a price', () => {
 		const errors = validateVariants( true, variantsWithPrices( [ '10.00', '' ] ) );
 
-		expect( errors ).toHaveLength( 1 );
-		expect( errors[ 0 ] ).toContain( 'required once any option in the group has its own price' );
+		expect( errors ).toEqual( [
+			{ group: 0, option: 1, field: 'price', message: 'Price is required.' },
+		] );
 	} );
 
 	it( 'rejects a non-positive price', () => {
 		const errors = validateVariants( true, variantsWithPrices( [ '10.00', '0' ] ) );
 
 		expect( errors ).toHaveLength( 1 );
-		expect( errors[ 0 ] ).toContain( 'must be a positive number' );
+		expect( errors[ 0 ].message ).toContain( 'must be a positive number' );
 	} );
 
 	it( 'rejects more than two decimals on an option price', () => {
 		const errors = validateVariants( true, variantsWithPrices( [ '10.00', '10.005' ] ) );
 
 		expect( errors ).toHaveLength( 1 );
-		expect( errors[ 0 ] ).toContain( 'at most 2 decimal places' );
+		expect( errors[ 0 ].message ).toContain( 'at most 2 decimal places' );
 	} );
 
 	it( 'rejects a decimal option price in a currency PayPal prices whole', () => {
 		const errors = validateVariants( true, variantsWithPrices( [ '1500', '1500.50' ] ), 'JPY' );
 
 		expect( errors ).toHaveLength( 1 );
-		expect( errors[ 0 ] ).toContain( 'Prices in JPY are whole numbers' );
+		expect( errors[ 0 ].message ).toContain( 'Prices in JPY are whole numbers' );
 	} );
 
 	it( 'accepts whole-number option prices in a currency PayPal prices whole', () => {
@@ -122,7 +123,11 @@ describe( 'validateVariants', () => {
 			dimensions: [ { name: '', primary: true, options: [ { label: '' } ] } ],
 		} );
 
-		expect( errors ).toHaveLength( 2 );
+		// The group name error belongs to no single option, so it carries option: null.
+		expect( errors ).toEqual( [
+			{ group: 0, option: null, field: 'name', message: 'Option group name is required.' },
+			{ group: 0, option: 0, field: 'label', message: 'Option name is required.' },
+		] );
 	} );
 
 	it( 'returns no errors when variants are disabled', () => {
