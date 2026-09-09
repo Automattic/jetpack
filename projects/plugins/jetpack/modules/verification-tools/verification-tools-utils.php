@@ -29,20 +29,6 @@ if ( ! function_exists( 'jetpack_verification_validate' ) ) {
 			$code = substr( $code, 0, 100 );
 
 			if ( '' !== $code && ! preg_match( $code_pattern, $code ) ) {
-				if ( function_exists( 'add_settings_error' ) ) {
-					$services     = function_exists( 'jetpack_verification_services' ) ? jetpack_verification_services() : array();
-					$service_name = $services[ $key ]['name'] ?? ucfirst( $key );
-					add_settings_error(
-						'verification_services_codes',
-						'invalid_' . $key . '_verification_code',
-						sprintf(
-							/* translators: %s: Name of the verification service. */
-							__( 'Invalid verification code for %s. Enter only the content value from the meta tag.', 'jetpack' ),
-							$service_name
-						)
-					);
-				}
-
 				$code = '';
 			}
 
