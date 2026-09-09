@@ -142,7 +142,7 @@ test( 'retains a recorded zero and its poor-score colour rather than treating it
 		expect( bar ).toHaveAttribute( 'fill', 'var(--jetpack-boost-score-poor)' );
 	} );
 	fireEvent.keyDown( chart.getByRole( 'grid' ), { key: 'ArrowRight' } );
-	await expect( screen.findByTestId( 'chart-tooltip-0' ) ).resolves.toHaveTextContent( '0 / 100' );
+	await expect( screen.findByTestId( 'chart-tooltip-0' ) ).resolves.toHaveTextContent( '0/100' );
 } );
 
 test( 'exposes the date, grade, and both device metrics through keyboard tooltips', async () => {
@@ -152,10 +152,10 @@ test( 'exposes the date, grade, and both device metrics through keyboard tooltip
 	for ( const value of [
 		dateI18n( 'F j, Y', timestamp, false ),
 		'Overall score',
-		'Desktop score',
-		'90 / 100',
-		'Mobile score',
-		'80 / 100',
+		'Desktop',
+		'90/100',
+		'Mobile',
+		'80/100',
 		'1.20s',
 		'0.20s',
 		'0.01',
