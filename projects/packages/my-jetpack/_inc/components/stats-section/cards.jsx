@@ -1,5 +1,6 @@
 import { sprintf, __, _n } from '@wordpress/i18n';
 import { Icon, commentContent, people, starEmpty, chevronRight } from '@wordpress/icons';
+import { Link } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useState, useCallback } from 'react';
 import formatNumber from '../../utils/format-number';
@@ -170,7 +171,8 @@ const StatsCards = ( {
 
 	return (
 		<div className={ styles[ 'section-stats-highlights' ] }>
-			<a
+			<Link
+				variant="unstyled"
 				className={ styles[ 'section-title-container' ] }
 				href={ detailedStatsHref }
 				onClick={ onDetailedStatsClick }
@@ -181,7 +183,7 @@ const StatsCards = ( {
 				<div>
 					<Icon icon={ chevronRight } />
 				</div>
-			</a>
+			</Link>
 
 			<StatsChart
 				data={ transformedChartData }

@@ -22,14 +22,6 @@ $min-card-width: 155px;
 	border-bottom: 1px solid var(--jp-gray-5);
 	cursor: pointer;
 	margin-bottom: $spacing-vertical;
-	color: inherit;
-	text-decoration: none;
-
-	&:hover,
-	&:focus {
-		color: inherit;
-		text-decoration: none;
-	}
 }
 
 .section-title {

@@ -1,6 +1,7 @@
 import { BarChart, DataPointDate } from '@automattic/charts';
 import { __ } from '@wordpress/i18n';
 import { Icon, info } from '@wordpress/icons';
+import { Link } from '@wordpress/ui';
 import { Suspense, useCallback, useMemo } from 'react';
 import LoadingBlock from '../loading-block';
 import StatsChartTooltip from './stats-chart-tooltip';
@@ -75,7 +76,12 @@ const StatsChart: FC< StatsChartProps > = ( { data, isLoading, href, onClick, me
 	);
 
 	return (
-		<a className={ styles[ 'chart-container' ] } href={ href } onClick={ onClick }>
+		<Link
+			variant="unstyled"
+			className={ styles[ 'chart-container' ] }
+			href={ href }
+			onClick={ onClick }
+		>
 			{ isEmpty && (
 				<div className={ styles[ 'chart-empty' ] }>
 					<div
@@ -151,7 +157,7 @@ const StatsChart: FC< StatsChartProps > = ( { data, isLoading, href, onClick, me
 					/>
 				</Suspense>
 			) }
-		</a>
+		</Link>
 	);
 };
 
