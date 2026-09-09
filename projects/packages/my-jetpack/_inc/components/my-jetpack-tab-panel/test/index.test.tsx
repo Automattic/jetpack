@@ -66,7 +66,7 @@ describe( 'MyJetpackTabPanel', () => {
 		render( <MyJetpackTabPanel /> );
 		await expect( screen.findByRole( 'tablist' ) ).resolves.toBeInTheDocument();
 
-		expect( screen.getAllByRole( 'tab' ) ).toHaveLength( 5 );
+		expect( screen.getAllByRole( 'tab' ) ).toHaveLength( 4 );
 		expect( screen.getByTestId( 'tab-content' ) ).toHaveTextContent( MY_JETPACK_SECTION_FEATURES );
 		expect( mockNavigate ).not.toHaveBeenCalled();
 		expect( callsFor( 'jetpack_myjetpack_tab_click' ) ).toHaveLength( 0 );
@@ -84,7 +84,7 @@ describe( 'MyJetpackTabPanel', () => {
 		// Awaiting the query lets TabPanel's async post-mount selection settle in act().
 		await expect( screen.findByRole( 'tablist' ) ).resolves.toBeInTheDocument();
 
-		expect( screen.getAllByRole( 'tab' ) ).toHaveLength( 5 );
+		expect( screen.getAllByRole( 'tab' ) ).toHaveLength( 4 );
 		// Mount and the keyed remount both settle on the current tab: no phantom click.
 		expect( callsFor( 'jetpack_myjetpack_tab_click' ) ).toHaveLength( 0 );
 		expect( mockNavigate ).not.toHaveBeenCalled();

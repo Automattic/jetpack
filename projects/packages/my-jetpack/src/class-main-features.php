@@ -258,6 +258,75 @@ class Main_Features {
 	}
 
 	/**
+	 * Headings for the modules the feature list does not cover.
+	 *
+	 * Grouped by the job a site owner is doing, not by Jetpack's own module tags, which
+	 * describe mechanism instead: the Image CDN is tagged Appearance though its job is
+	 * speed. A module missing from here falls into Other rather than disappearing.
+	 *
+	 * @return array Ordered groups, each with a label and its module slugs.
+	 */
+	public static function get_module_groups() {
+		return array(
+			array(
+				'label'   => __( 'Security', 'jetpack-my-jetpack' ),
+				'modules' => array( 'account-protection', 'monitor', 'sso', 'waf', 'vaultpress' ),
+			),
+			array(
+				'label'   => __( 'Performance', 'jetpack-my-jetpack' ),
+				'modules' => array( 'photon', 'photon-cdn' ),
+			),
+			array(
+				'label'   => __( 'Search engines', 'jetpack-my-jetpack' ),
+				'modules' => array( 'sitemaps', 'seo-tools', 'canonical-urls', 'verification-tools' ),
+			),
+			array(
+				'label'   => __( 'Sharing', 'jetpack-my-jetpack' ),
+				'modules' => array( 'sharedaddy' ),
+			),
+			array(
+				'label'   => __( 'Engagement', 'jetpack-my-jetpack' ),
+				'modules' => array(
+					'comments',
+					'likes',
+					'comment-likes',
+					'gravatar-hovercards',
+					'related-posts',
+				),
+			),
+			array(
+				'label'   => __( 'Writing', 'jetpack-my-jetpack' ),
+				'modules' => array(
+					'blocks',
+					'markdown',
+					'latex',
+					'shortcodes',
+					'copy-post',
+					'custom-content-types',
+					'post-by-email',
+					'post-list',
+				),
+			),
+			array(
+				'label'   => __( 'Design', 'jetpack-my-jetpack' ),
+				'modules' => array( 'google-fonts', 'infinite-scroll', 'widgets', 'widget-visibility' ),
+			),
+			array(
+				'label'   => __( 'Media', 'jetpack-my-jetpack' ),
+				'modules' => array( 'carousel', 'tiled-gallery' ),
+			),
+			array(
+				'label'   => __( 'Earn', 'jetpack-my-jetpack' ),
+				'modules' => array( 'wordads' ),
+			),
+			array(
+				'label'   => __( 'Analytics', 'jetpack-my-jetpack' ),
+				'modules' => array( 'woocommerce-analytics' ),
+			),
+		);
+	}
+
+	/**
 	 * The Jetpack modules the feature list already accounts for.
 	 *
 	 * Each feature either names a module outright or is backed by a product that runs

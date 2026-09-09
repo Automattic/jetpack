@@ -7,17 +7,16 @@ import styles from './styles.module.scss';
 import { useOtherModules } from './use-other-modules';
 
 /**
- * The More features content component.
+ * Everything the Features list does not cover, under group headings.
  *
- * Everything the legacy Modules screen lists that the Features tab does not already
- * cover. Shown as its own tab while the shape is being explored; the intent is for it
- * to sit under the feature list behind a "More features" control, and for each of
- * these to eventually move inside the feature that owns it.
+ * Sits below the feature list rather than on a tab of its own: these are the modules
+ * that have not yet found a home inside the feature that owns them, and seeing them
+ * beneath the features makes the overlap obvious.
  *
  * @return The rendered component.
  */
 export function MoreFeaturesContent() {
-	const { modules, isLoading } = useOtherModules();
+	const { groups, modules, isLoading } = useOtherModules();
 	const [ selected, setSelected ] = useState< string[] >( [] );
 
 	// A module pinned on or off by a filter cannot take part in a bulk action.
@@ -41,12 +40,13 @@ export function MoreFeaturesContent() {
 		[ selectableSlugs ]
 	);
 
-	if ( isLoading ) {
+	if ( isLoading || ! modules.length ) {
 		return null;
 	}
 
 	return (
 		<section className={ styles.content }>
+			<Text variant="heading-lg">{ __( 'More features', 'jetpack-my-jetpack' ) }</Text>
 			<Text variant="body-sm" className={ styles.intro }>
 				{ __(
 					'Smaller features that do not yet belong to one of the main features above.',
@@ -59,21 +59,28 @@ export function MoreFeaturesContent() {
 					checked={ allSelected }
 					indeterminate={ selected.length > 0 && ! allSelected }
 					onCheckedChange={ toggleAll }
-					aria-label={ __( 'Select all features', 'jetpack-my-jetpack' ) }
+					aria-label={ __( 'Select all additional features', 'jetpack-my-jetpack' ) }
 				/>
 				<ModuleBulkActions modules={ modules } selected={ selected } onClear={ clearSelection } />
 			</Stack>
 
-			<Stack direction="column" className={ styles[ 'module-list' ] }>
-				{ modules.map( item => (
-					<ModuleItem
-						key={ item.module }
-						module={ item }
-						selected={ selected.includes( item.module ) }
-						onSelect={ toggleModule }
-					/>
-				) ) }
-			</Stack>
+			{ groups.map( group => (
+				<section key={ group.label } className={ styles.group }>
+					<Text variant="heading-md" className={ styles.group__label }>
+						{ group.label }
+					</Text>
+					<Stack direction="column" className={ styles[ 'module-list' ] }>
+						{ group.modules.map( item => (
+							<ModuleItem
+								key={ item.module }
+								module={ item }
+								selected={ selected.includes( item.module ) }
+								onSelect={ toggleModule }
+							/>
+						) ) }
+					</Stack>
+				</section>
+			) ) }
 		</section>
 	);
 }

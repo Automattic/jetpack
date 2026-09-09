@@ -2,6 +2,7 @@ import { __ } from '@wordpress/i18n';
 import { Checkbox, Stack } from '@wordpress/ui';
 import { useCallback, useMemo, useState } from 'react';
 import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
+import { MoreFeaturesContent } from '../more-features/content';
 import { BulkActions } from './bulk-actions';
 import { FeatureItem } from './feature-item';
 import { FeatureModal } from './feature-modal';
@@ -74,6 +75,8 @@ export function FeaturesContent() {
 					/>
 				) ) }
 			</Stack>
+
+			<MoreFeaturesContent />
 
 			{ openIndex !== -1 && (
 				<FeatureModal

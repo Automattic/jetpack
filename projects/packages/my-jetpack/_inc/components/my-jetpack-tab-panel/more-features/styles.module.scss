@@ -41,3 +41,14 @@
 	flex: 1;
 	justify-content: space-between;
 }
+
+.group {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-sm);
+	margin-block-start: var(--wpds-dimension-gap-xl);
+}
+
+.group__label {
+	color: var(--wpds-color-foreground-content-neutral);
+}

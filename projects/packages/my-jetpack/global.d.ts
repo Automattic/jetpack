@@ -483,6 +483,7 @@ interface Window {
 	myJetpackInitialState?: {
 		mainFeatures: MainFeature[];
 		coveredModules: string[];
+		moduleGroups: Array< { label: string; modules: string[] } >;
 		siteSuffix: string;
 		siteUrl: string;
 		latestBoostSpeedScores: {

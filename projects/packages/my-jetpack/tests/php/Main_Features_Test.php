@@ -148,6 +148,29 @@ class Main_Features_Test extends TestCase {
 	}
 
 	/**
+	 * A module in two groups would render twice; one in a group the features list
+	 * already covers would render above and below at once.
+	 */
+	public function test_module_groups_are_disjoint_and_uncovered() {
+		$covered = Main_Features::get_covered_modules();
+		$seen    = array();
+
+		foreach ( Main_Features::get_module_groups() as $group ) {
+			$this->assertNotEmpty( $group['label'] );
+
+			foreach ( $group['modules'] as $slug ) {
+				$this->assertNotContains( $slug, $seen, "{$slug} appears in two groups" );
+				$this->assertNotContains(
+					$slug,
+					$covered,
+					"{$slug} is grouped but already covered by a feature"
+				);
+				$seen[] = $slug;
+			}
+		}
+	}
+
+	/**
 	 * Slugs are the join key between the catalog and the UI, so they must be unique.
 	 */
 	public function test_feature_slugs_are_unique() {
