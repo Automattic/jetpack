@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Responses dashboard: register each of the dashboard's data stores only once per page.
+Stop the Forms data stores from logging a duplicate registration error in the browser console.
