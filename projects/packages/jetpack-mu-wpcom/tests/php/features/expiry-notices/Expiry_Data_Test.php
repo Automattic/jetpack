@@ -124,7 +124,8 @@ class Expiry_Data_Test extends \WorDBless\BaseTestCase {
 				$this->assertNull( $state, "{$days} days past expiry should produce no state" );
 				continue;
 			}
-			$this->assertSame( $expected, $state['state'] ?? null, "wrong state {$days} days past expiry" );
+			$this->assertNotNull( $state );
+			$this->assertSame( $expected, $state['state'], "wrong state {$days} days past expiry" );
 			$this->assertSame( $days, $state['days_remaining'] );
 		}
 	}
@@ -269,6 +270,7 @@ class Expiry_Data_Test extends \WorDBless\BaseTestCase {
 		);
 
 		$state = Expiry_Data::compute_state_from_purchase( $purchase, strtotime( '2026-05-29T00:00:00+00:00' ) );
+		$this->assertNotNull( $state );
 		$this->assertSame( Expiry_Data::STATE_APPROACHING, $state['state'] );
 		$this->assertFalse( $state['auto_renew'] );
 		$this->assertSame( 5, $state['days_remaining'] );
@@ -291,6 +293,7 @@ class Expiry_Data_Test extends \WorDBless\BaseTestCase {
 			'expiry_date'  => '2026-06-03T00:00:00+00:00',
 		);
 		$state        = Expiry_Data::compute_state_from_purchase( $synced_early, strtotime( '2026-05-29T00:00:00+00:00' ) );
+		$this->assertNotNull( $state );
 		$this->assertSame( '', $state['subscription_id'] );
 		$this->assertStringNotContainsString( '/renew/', Expiry_Data::get_cta_urls( $state )['primary']['url'] );
 	}

@@ -98,14 +98,6 @@ class Expiry_Data {
 		$product_slug   = (string) $purchase->product_slug;
 		$is_monthly     = false !== stripos( $product_slug, 'monthly' );
 
-		if ( $days_remaining < 0 ) {
-			$days_past = -$days_remaining;
-			if ( $days_past >= self::GRACE_PERIOD_DAYS + self::POST_GRACE_PERIOD_DAYS ) {
-				return null;
-			}
-			$state = $days_past < self::GRACE_PERIOD_DAYS ? self::STATE_EXPIRED_GRACE : self::STATE_EXPIRED;
-		}
-
 		// The raw flag is the customer's intent and stays on for a subscription
 		// billing can no longer charge. The effective answer is a store query on
 		// Simple, so it is only asked inside this plan's own notice window.
@@ -115,18 +107,22 @@ class Expiry_Data {
 			? ( self::might_still_auto_renew( $purchase ) ?? $raw_auto_renew )
 			: $raw_auto_renew;
 
-		if ( $days_remaining >= 0 ) {
-			if ( ! $in_notice_range ) {
-				$state = self::STATE_ACTIVE;
-			} elseif ( ! $will_renew ) {
-				$state = self::STATE_APPROACHING;
-			} else {
-				// A plan still expected to renew has nothing to hear until a
-				// scheduled attempt has passed without renewing it. Monthly terms
-				// attempt only on the expiry date itself, so they never do.
-				$attempt_has_failed = ! $is_monthly && self::is_past_first_auto_renew_attempt( $purchase, $now );
-				$state              = $attempt_has_failed ? self::STATE_APPROACHING : self::STATE_ACTIVE;
+		if ( $days_remaining < 0 ) {
+			$days_past = -$days_remaining;
+			if ( $days_past >= self::GRACE_PERIOD_DAYS + self::POST_GRACE_PERIOD_DAYS ) {
+				return null;
 			}
+			$state = $days_past < self::GRACE_PERIOD_DAYS ? self::STATE_EXPIRED_GRACE : self::STATE_EXPIRED;
+		} elseif ( ! $in_notice_range ) {
+			$state = self::STATE_ACTIVE;
+		} elseif ( ! $will_renew ) {
+			$state = self::STATE_APPROACHING;
+		} else {
+			// A plan still expected to renew has nothing to hear until a
+			// scheduled attempt has passed without renewing it. Monthly terms
+			// attempt only on the expiry date itself, so they never do.
+			$attempt_has_failed = ! $is_monthly && self::is_past_first_auto_renew_attempt( $purchase, $now );
+			$state              = $attempt_has_failed ? self::STATE_APPROACHING : self::STATE_ACTIVE;
 		}
 
 		return array(

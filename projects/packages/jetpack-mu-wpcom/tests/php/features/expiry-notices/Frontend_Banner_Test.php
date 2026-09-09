@@ -99,7 +99,9 @@ class Frontend_Banner_Test extends \WorDBless\BaseTestCase {
 	public function test_checkout_redirects_back_to_the_front_end_url(): void {
 		$_SERVER['REQUEST_URI'] = '/about/?utm_source=x&settings-updated=true';
 		$this->set_purchase( 5 );
-		$url = wpcom_expiry_notices_frontend_banner_data()['urls']['primary']['url'];
+		$data = wpcom_expiry_notices_frontend_banner_data();
+		$this->assertNotNull( $data );
+		$url = $data['urls']['primary']['url'];
 
 		$this->assertStringContainsString( 'redirect_to=' . rawurlencode( home_url( '/about/?utm_source=x' ) ), $url );
 		$this->assertStringNotContainsString( 'settings-updated', rawurldecode( $url ) );

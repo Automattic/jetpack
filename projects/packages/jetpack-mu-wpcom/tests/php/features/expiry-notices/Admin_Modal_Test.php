@@ -123,12 +123,15 @@ class Admin_Modal_Test extends \WorDBless\BaseTestCase {
 		$this->set_purchase( -5 );
 
 		$this->set_revert_domain( 'example.wordpress.com' );
-		$items = wpcom_expiry_notices_admin_modal_data()['items'];
-		$this->assertCount( 4, $items );
-		$this->assertSame( 'Use example.wordpress.com as your primary domain.', $items[0] );
+		$data = wpcom_expiry_notices_admin_modal_data();
+		$this->assertNotNull( $data );
+		$this->assertCount( 4, $data['items'] );
+		$this->assertSame( 'Use example.wordpress.com as your primary domain.', $data['items'][0] );
 
 		$this->set_revert_domain( null );
-		$items = wpcom_expiry_notices_admin_modal_data()['items'];
+		$data = wpcom_expiry_notices_admin_modal_data();
+		$this->assertNotNull( $data );
+		$items = $data['items'];
 		$this->assertCount( 3, $items );
 		$this->assertStringNotContainsString( 'primary domain', implode( "\n", $items ) );
 	}

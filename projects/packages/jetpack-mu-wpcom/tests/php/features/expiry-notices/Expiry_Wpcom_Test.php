@@ -100,24 +100,27 @@ class Expiry_Wpcom_Test extends \WorDBless\BaseTestCase {
 			++$lookups;
 			return $answer;
 		};
+		$twice   = static function () use ( $lookup ): array {
+			return array( Expiry_Wpcom::remember( self::CACHE_KEY, $lookup ), Expiry_Wpcom::remember( self::CACHE_KEY, $lookup ) );
+		};
+		$ttl     = static function (): int {
+			return (int) get_option( '_transient_timeout_' . self::CACHE_KEY ) - time();
+		};
 
-		$this->assertNull( Expiry_Wpcom::remember( self::CACHE_KEY, $lookup ) );
-		$this->assertNull( Expiry_Wpcom::remember( self::CACHE_KEY, $lookup ) );
+		$this->assertSame( array( null, null ), $twice() );
 		$this->assertSame( 1, $lookups );
-		$this->assertLessThanOrEqual( Expiry_Wpcom::FAILURE_TTL, (int) get_option( '_transient_timeout_' . self::CACHE_KEY ) - time() );
+		$this->assertLessThanOrEqual( Expiry_Wpcom::FAILURE_TTL, $ttl() );
 
 		delete_transient( self::CACHE_KEY );
 		$answer = 'example.wordpress.com';
-		$this->assertSame( $answer, Expiry_Wpcom::remember( self::CACHE_KEY, $lookup ) );
-		$this->assertSame( $answer, Expiry_Wpcom::remember( self::CACHE_KEY, $lookup ) );
+		$this->assertSame( array( $answer, $answer ), $twice() );
 		$this->assertSame( 2, $lookups );
-		$this->assertGreaterThan( Expiry_Wpcom::FAILURE_TTL, (int) get_option( '_transient_timeout_' . self::CACHE_KEY ) - time() );
+		$this->assertGreaterThan( Expiry_Wpcom::FAILURE_TTL, $ttl() );
 
 		// A resolved "nothing" is an answer too, and is kept as one.
 		delete_transient( self::CACHE_KEY );
 		$answer = '';
-		$this->assertSame( '', Expiry_Wpcom::remember( self::CACHE_KEY, $lookup ) );
-		$this->assertSame( '', Expiry_Wpcom::remember( self::CACHE_KEY, $lookup ) );
+		$this->assertSame( array( '', '' ), $twice() );
 		$this->assertSame( 3, $lookups );
 	}
 }
