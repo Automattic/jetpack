@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Hide the Boost sidebar item when Boost is not active.

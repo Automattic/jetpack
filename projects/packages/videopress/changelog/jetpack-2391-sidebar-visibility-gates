@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Hide the VideoPress sidebar item when VideoPress is not active.

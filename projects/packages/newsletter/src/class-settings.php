@@ -220,7 +220,12 @@ class Settings {
 				'Newsletter',
 				'manage_options',
 				'jetpack-newsletter',
-				$callback
+				$callback,
+				null,
+				array(
+					'product' => 'newsletter',
+					'key'     => 'jetpack-newsletter',
+				)
 			);
 		} else {
 			$page_suffix = add_submenu_page(

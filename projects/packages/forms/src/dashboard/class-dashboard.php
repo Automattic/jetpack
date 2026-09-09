@@ -358,7 +358,12 @@ class Dashboard {
 			'Forms',
 			'edit_pages',
 			self::FORMS_WPBUILD_ADMIN_SLUG,
-			$callback
+			$callback,
+			null,
+			array(
+				'product' => 'jetpack-forms',
+				'key'     => 'jetpack-forms',
+			)
 		);
 	}
 

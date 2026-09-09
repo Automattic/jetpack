@@ -77,7 +77,12 @@ class Jetpack_AI_Page {
 			'Jetpack AI',
 			'manage_options',
 			'jetpack-ai',
-			array( $this, 'render' )
+			array( $this, 'render' ),
+			null,
+			array(
+				'product' => 'jetpack-ai',
+				'key'     => 'jetpack-ai',
+			)
 		);
 	}
 
