@@ -416,7 +416,10 @@ class Error_Handler {
 					// already fall back to the reconnect CTA when no action is set, and
 					// injecting an explicit 'reconnect' could trip consumer code paths
 					// reserved for custom actions.
-					if ( null !== $action || ! empty( $display_config['support_link'] ) ) {
+					$notice_link = $display_config['notice_link'] ?? null;
+					$has_link    = ! empty( $notice_link['url'] ) && ! empty( $notice_link['label'] );
+
+					if ( null !== $action || ! empty( $display_config['support_link'] ) || $has_link ) {
 						$error_data = ( isset( $error['error_data'] ) && is_array( $error['error_data'] ) ) ? $error['error_data'] : array();
 
 						if ( null !== $action ) {
@@ -428,6 +431,19 @@ class Error_Handler {
 						// get_error_display_configs().
 						if ( ! empty( $display_config['support_link'] ) ) {
 							$error_data['support_link'] = true;
+						}
+
+						// Where the resolution lives somewhere else (Site Health for a
+						// blocked request), carry the link on the error so every notice can
+						// offer it — not just the wp-admin one. Errors like this suppress
+						// the reconnect CTA, so without it the notice names a problem and
+						// offers nothing to do about it. See `notice_link` in
+						// get_error_display_configs().
+						if ( $has_link ) {
+							$error_data['notice_link'] = array(
+								'label' => $notice_link['label'],
+								'url'   => $notice_link['url'],
+							);
 						}
 
 						$error['error_data'] = $error_data;
@@ -508,9 +524,20 @@ class Error_Handler {
 	 *   This is the only key that reaches beyond My Jetpack's own display: it opts
 	 *   the code into a site-wide wp-admin notice. Leave it unset unless the error
 	 *   genuinely needs that broader reach (see `xmlrpc_request_blocked` below for why).
-	 * - `notice_link` (array): presentational `label` and `url` for a link appended to
-	 *   the default admin notice only. Only used when the notice shows this error's
-	 *   default message (a filtered message keeps full control of the copy).
+	 * - `notice_link` (array): presentational `label` and `url` for a link the notice
+	 *   offers alongside (or instead of) the CTA. It reaches two surfaces, gated
+	 *   differently on purpose:
+	 *   - The default wp-admin notice appends it only when showing this error's own
+	 *     default message. There, `jetpack_connection_error_notice_message` hands the
+	 *     consumer a bare string with no way to drop the link, so a filtered message
+	 *     that kept it could end up pointing somewhere its copy never mentions.
+	 *   - The displayable error carries it as `error_data['notice_link']`
+	 *     unconditionally, for the connection JS package to render in its own notices.
+	 *     No equivalent gate is possible or needed: `error_message` on this path is
+	 *     not filtered through anything, and the one filter that can rewrite it —
+	 *     `jetpack_connection_displayable_errors` below — receives the whole error
+	 *     array, link included, so a consumer changing the copy can unset the link in
+	 *     the same pass.
 	 * - `survives_owner_promotion` (bool): when true, this code is not dropped by
 	 *   promote_owner_errors() while the connection owner's own connection is broken.
 	 *   Set it only for a code that is not a token problem, and so is not waiting on

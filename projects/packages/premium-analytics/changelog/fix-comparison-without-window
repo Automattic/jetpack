@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Comparison control: stop showing a comparison as active when there is no window behind it.

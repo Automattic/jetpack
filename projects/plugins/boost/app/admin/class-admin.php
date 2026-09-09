@@ -79,8 +79,7 @@ class Admin {
 			'Boost', // "Boost" is a product name, do not translate.
 			'manage_options',
 			JETPACK_BOOST_SLUG,
-			$this->modern_dashboard_loaded ? 'jetpack_boost_jetpack_boost_dashboard_wp_admin_render_page' : array( $this, 'render_settings' ),
-			2
+			$this->modern_dashboard_loaded ? 'jetpack_boost_jetpack_boost_dashboard_wp_admin_render_page' : array( $this, 'render_settings' )
 		);
 		add_action( 'load-' . $page_suffix, array( $this, 'admin_init' ) );
 	}
