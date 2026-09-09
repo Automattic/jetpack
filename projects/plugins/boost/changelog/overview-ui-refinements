@@ -1,5 +1,4 @@
 Significance: patch
 Type: changed
-Comment: Refine the opt-in dashboard Overview presentation and regression coverage.
-
+Comment: Add unmounted Overview score cards, alerts, an upgrade bridge, and shared styles for later dashboard integration.
 
