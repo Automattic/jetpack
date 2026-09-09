@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Forms: Scroll a single response from the page edge instead of from inside the reading column.

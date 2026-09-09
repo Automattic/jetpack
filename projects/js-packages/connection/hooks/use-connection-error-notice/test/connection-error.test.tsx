@@ -93,4 +93,83 @@ describe( 'ConnectionError', () => {
 		// The default "Restore Connection" fallback must also be suppressed.
 		expect( props.restoreConnectionCallback ).toBeNull();
 	} );
+
+	// Only that user can restore their own token, so the notice drops the error —
+	// and with nothing left to describe there is no notice at all. Without this,
+	// the empty group list falls through to the plain-`message` branch and prints
+	// the very error the filtering removed.
+	it( 'renders nothing when the only error belongs to another user', () => {
+		mockConnection( {
+			connectionErrors: {
+				invalid_token: {
+					99: {
+						error_message: 'A user token is broken.',
+						audience: 'user',
+						user_id: '99',
+					},
+				},
+			},
+			userConnectionData: { currentUser: { id: 7 } },
+		} );
+
+		render( <ConnectionError /> );
+
+		expect( ConnectionErrorNotice ).not.toHaveBeenCalled();
+	} );
+
+	// The scope, the full error list and the links are the hook's to derive, so
+	// every `<ConnectionError />` consumer gets them without doing anything.
+	it( 'passes the derived title, groups and links to the notice', () => {
+		mockConnection( {
+			connectionErrors: {
+				xmlrpc_request_blocked: {
+					0: {
+						error_message: 'WordPress.com requests to your site are being blocked.',
+						audience: 'site',
+						user_id: '0',
+						error_data: {
+							action: 'none',
+							support_link: true,
+							notice_link: { label: 'Visit Site Health', url: '/wp-admin/site-health.php' },
+						},
+					},
+				},
+				invalid_token: {
+					7: { error_message: 'Token broken.', audience: 'user', user_id: '7' },
+				},
+			},
+			userConnectionData: { currentUser: { id: 7 } },
+		} );
+
+		render( <ConnectionError /> );
+
+		const props = ConnectionErrorNotice.mock.calls[ 0 ][ 0 ];
+		expect( props.context ).toBe( '2 Jetpack Connection errors' );
+		expect( props.errorGroups.map( group => group.message ) ).toEqual( [
+			'WordPress.com requests to your site are being blocked.',
+			'Token broken.',
+		] );
+		expect( props.showSupportLink ).toBe( true );
+		// Attached to the group whose error asked for it, not pooled across groups.
+		expect( props.errorGroups[ 0 ].noticeLinks ).toEqual( [
+			{ label: 'Visit Site Health', url: '/wp-admin/site-health.php' },
+		] );
+		expect( props.errorGroups[ 1 ].noticeLinks ).toEqual( [] );
+	} );
+
+	// A feature's own framing is more specific than the shared title, and there is
+	// only one slot for it.
+	it( 'prefers a consumer-supplied context over the derived title', () => {
+		mockConnection( {
+			connectionErrors: {
+				invalid_token: { 0: { error_message: 'Token broken.', audience: 'site' } },
+			},
+		} );
+
+		render( <ConnectionError context="Backup needs your connection" /> );
+
+		expect( ConnectionErrorNotice.mock.calls[ 0 ][ 0 ].context ).toBe(
+			'Backup needs your connection'
+		);
+	} );
 } );

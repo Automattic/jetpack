@@ -88,9 +88,9 @@ $section-header-visual-stacked-max-inline-size: $section-header-stacked-max-inli
 	background: var(--wpds-color-background-surface-neutral-weak);
 	color: var(--wpds-color-foreground-content-neutral-weak);
 
-	// The boot shell's `.boot-layout-container .boot-layout img` reset outranks
-	// a class here, so the box comes back through the square aspect ratio
-	// rather than a specificity contest.
+	// The boot shell resets images to `max-width: 100%; height: auto`, so the
+	// box comes back through the square aspect ratio rather than by fighting
+	// that reset.
 	img {
 		inline-size: 100%;
 		block-size: 100%;

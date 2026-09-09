@@ -49,6 +49,7 @@ import {
 	useOnboarding,
 	useSectionDateFilter,
 } from './hooks';
+import './overlay-focus-ring.scss';
 import styles from './stage.module.scss';
 import type { DateRange, YearSurfacePresetId } from '@jetpack-premium-analytics/datetime';
 

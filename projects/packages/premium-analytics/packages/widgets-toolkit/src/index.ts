@@ -292,6 +292,7 @@ export {
 	type DataPointDate,
 	type GeoChartError,
 	type GeoData,
+	type HeatmapColumn,
 	type GoogleDataTableColumn,
 	type GoogleDataTableRow,
 	type HeatmapTooltipData,

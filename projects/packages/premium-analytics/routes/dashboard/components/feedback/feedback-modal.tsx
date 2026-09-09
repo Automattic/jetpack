@@ -1,7 +1,7 @@
 /**
  * WordPress dependencies
  */
-import { submitStatsUserFeedback, type StatsFeedbackRating } from '@jetpack-premium-analytics/data';
+import { submitStatsUserFeedback } from '@jetpack-premium-analytics/data';
 import { Button, Dialog, Notice, Stack } from '@jetpack-premium-analytics/externals';
 import { useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -9,8 +9,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { useTrackEvent } from '../../hooks/use-track-event';
-import { FeedbackFields } from './feedback-fields';
-import styles from './feedback-modal.module.scss';
+import { ReadinessFields, readinessSummary, type StatsFeedbackReadiness } from './feedback-fields';
 
 // Reaches Happiness as the subject line of the feedback email ("Feedback received
 // from …"), so it has to name the surface without any further context.
@@ -21,7 +20,7 @@ type FeedbackModalProps = {
 };
 
 /**
- * Comparison rating with an optional comment. Both reach Tracks as one event; a non-empty
+ * Readiness answer with an optional comment. Both reach Tracks as one event; a non-empty
  * comment also goes to the Stats feedback endpoint.
  *
  * @param {FeedbackModalProps} props         - Component props.
@@ -30,14 +29,9 @@ type FeedbackModalProps = {
  */
 export function FeedbackModal( { onClose }: FeedbackModalProps ) {
 	const trackEvent = useTrackEvent();
-	const [ rating, setRating ] = useState< StatsFeedbackRating >();
+	const [ readiness, setReadiness ] = useState< StatsFeedbackReadiness >();
 	const [ comment, setComment ] = useState( '' );
 	const [ hasSubmitted, setHasSubmitted ] = useState( false );
-
-	const blockerQuestion = __(
-		"What's the one thing we'd need to fix before this replaces the old Stats?",
-		'jetpack-premium-analytics-pkg'
-	);
 
 	const handleOpenChange = useCallback(
 		( isOpen: boolean ) => {
@@ -49,28 +43,30 @@ export function FeedbackModal( { onClose }: FeedbackModalProps ) {
 	);
 
 	const submit = useCallback( () => {
-		if ( rating === undefined ) {
+		if ( readiness === undefined ) {
 			return;
 		}
 
 		const message = comment.trim();
 
-		trackEvent( 'jetpack_premium_analytics_feedback_submit', { rating, comment: message } );
+		trackEvent( 'jetpack_premium_analytics_feedback_submit', { readiness, comment: message } );
 
 		// Second channel, deliberately not awaited: Tracks is a pixel and ad blockers drop it
 		// silently, so the message also goes to Happiness where delivery is not the reader's
-		// browser's decision. A rating alone would only open an empty ticket.
+		// browser's decision. An answer alone would only open an empty ticket.
 		if ( message ) {
-			submitStatsUserFeedback( { rating, comment: message, productName: PRODUCT_NAME } ).catch(
-				() => {
-					// The reader has already been thanked and Tracks may well have the submission;
-					// a second, contradictory message would cost more than the lost email.
-				}
-			);
+			// The endpoint has no readiness field, so the answer rides along in the message.
+			submitStatsUserFeedback( {
+				comment: `${ readinessSummary( readiness ) } ${ message }`,
+				productName: PRODUCT_NAME,
+			} ).catch( () => {
+				// The reader has already been thanked and Tracks may well have the submission;
+				// a second, contradictory message would cost more than the lost email.
+			} );
 		}
 
 		setHasSubmitted( true );
-	}, [ comment, rating, trackEvent ] );
+	}, [ comment, readiness, trackEvent ] );
 
 	return (
 		<Dialog.Root open onOpenChange={ handleOpenChange }>
@@ -86,8 +82,17 @@ export function FeedbackModal( { onClose }: FeedbackModalProps ) {
 					<>
 						<Dialog.Content>
 							<Notice.Root intent="success">
+								<Notice.Title>
+									{ __(
+										'Thanks, your feedback has gone to the team.',
+										'jetpack-premium-analytics-pkg'
+									) }
+								</Notice.Title>
 								<Notice.Description>
-									{ __( 'Thank you. This helps.', 'jetpack-premium-analytics-pkg' ) }
+									{ __(
+										"It'll help us decide what to fix before the new Traffic tab replaces the old one. You can send more any time from the same menu.",
+										'jetpack-premium-analytics-pkg'
+									) }
 								</Notice.Description>
 							</Notice.Root>
 						</Dialog.Content>
@@ -101,13 +106,12 @@ export function FeedbackModal( { onClose }: FeedbackModalProps ) {
 				) : (
 					<>
 						<Dialog.Content>
-							<Stack className={ styles.body } direction="column" gap="xl">
-								<FeedbackFields
-									rating={ rating }
-									onRatingChange={ setRating }
+							<Stack direction="column" gap="xl">
+								<ReadinessFields
+									readiness={ readiness }
+									onReadinessChange={ setReadiness }
 									comment={ comment }
 									onCommentChange={ setComment }
-									commentQuestion={ blockerQuestion }
 								/>
 							</Stack>
 						</Dialog.Content>
@@ -119,7 +123,7 @@ export function FeedbackModal( { onClose }: FeedbackModalProps ) {
 							<Button
 								variant="solid"
 								size="compact"
-								disabled={ rating === undefined }
+								disabled={ readiness === undefined }
 								onClick={ submit }
 							>
 								{ __( 'Send feedback', 'jetpack-premium-analytics-pkg' ) }

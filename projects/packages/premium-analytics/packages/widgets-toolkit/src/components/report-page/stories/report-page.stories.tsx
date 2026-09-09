@@ -183,7 +183,6 @@ const STORY_DATE_FILTERS: ReportDateFilters = {
 	onChange: () => {},
 	onComparisonChange: () => {},
 	onIntervalChange: () => {},
-	onStep: () => {},
 	onApply: () => {},
 	onCancel: () => {},
 	canApply: false,

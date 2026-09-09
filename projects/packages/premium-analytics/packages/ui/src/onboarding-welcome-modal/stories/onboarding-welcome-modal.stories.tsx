@@ -17,7 +17,7 @@ const meta: Meta< typeof OnboardingWelcomeModal > = {
 					'the tour.\n\n' +
 					'The consumer owns the open state. `onStart` fires when the reader ' +
 					'presses Take a quick tour; `onDismiss` when they close the dialog any other ' +
-					'way, naming which (the close button, Escape, a click outside). The ' +
+					'way, naming which (the close button or Escape; a click outside is ignored). The ' +
 					'onboarding hook decides what each one means for the journey.\n\n' +
 					'On viewports too short for the animation, the copy and the tour button ' +
 					'take the room instead; on the ones in between, the content scrolls ' +

@@ -2,7 +2,7 @@ import { PA_COLUMN_COUNT } from '../../grid';
 import { POST_DETAIL_TAB_LAYOUTS } from './tab-layouts';
 
 describe( 'post detail tab layouts', () => {
-	it( 'composes Post traffic as full-width highlights and Post views rows, Likes, Comments and UTM side by side, then a full-width Traffic activity', () => {
+	it( 'composes Post traffic as full-width highlights and Post views rows, Likes, Comments and UTM side by side, then a full-width All-time traffic', () => {
 		expect( POST_DETAIL_TAB_LAYOUTS[ 'post-traffic' ] ).toEqual( [
 			{
 				uuid: 'post-detail-highlights',
@@ -31,8 +31,8 @@ describe( 'post detail tab layouts', () => {
 				placement: { width: 1, height: 2, order: 5 },
 			},
 			{
-				uuid: 'post-traffic-activity',
-				type: 'jpa/post-traffic-activity',
+				uuid: 'post-all-time-traffic',
+				type: 'jpa/post-all-time-traffic',
 				placement: { width: PA_COLUMN_COUNT, height: 2, order: 6 },
 			},
 		] );

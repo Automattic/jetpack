@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-AI: Send the standard site and audience props on the feature-toggle Tracks event.

@@ -2,6 +2,7 @@ export {
 	formatDate,
 	formatHourOfDay,
 	formatMondayFirstWeekday,
+	formatMonth,
 	formatWeekday,
 	type DateFormatName,
 } from './format-date';

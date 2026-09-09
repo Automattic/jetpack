@@ -267,6 +267,11 @@ class Error_Handler {
 	 * predefined error messages and actions, with optional filtering for specific sites.
 	 * Only processes a limited set of error codes that are meant to be displayed to users.
 	 *
+	 * The result is specific to the current viewer: an error is omitted entirely when
+	 * they lack the capability to resolve it, so viewer-facing surfaces need not gate
+	 * it again. Two exceptions: a context with no current user gets the unfiltered set,
+	 * and consumer-injected errors are appended after the gate. See docs/error-handling.md.
+	 *
 	 * error_data.action is only set when it deviates from the default behavior
 	 * (e.g. 'none' to suppress the reconnect CTA); when absent, readers fall back
 	 * to offering the reconnect CTA.
@@ -315,6 +320,10 @@ class Error_Handler {
 			$viewer_is_owner = $owner_id > 0 && $viewer_id === $owner_id;
 			$is_transferable = ( new Manager() )->is_ownership_transferable();
 
+			// Viewer-wide, so resolved once rather than per error.
+			$viewer_can_connect      = current_user_can( 'jetpack_connect' );
+			$viewer_can_connect_user = current_user_can( 'jetpack_connect_user' );
+
 			foreach ( $verified_errors as $error_code => $users ) {
 				// Only process error codes that are meant to be displayed to users.
 				// A raw verified error whose code is marked non-displayable in
@@ -353,6 +362,17 @@ class Error_Handler {
 						continue;
 					}
 
+					// An error a viewer cannot act on is withheld entirely.
+					$viewer_owns_error = 'user' === $audience && ! $this->is_owner_scoped_error( $error_code, $audience );
+
+					if ( $viewer_id > 0 ) {
+						$can_view_error = $viewer_owns_error ? $viewer_can_connect_user : $viewer_can_connect;
+
+						if ( ! $can_view_error ) {
+							continue;
+						}
+					}
+
 					$message = $generic_message;
 					$action  = null;
 
@@ -375,8 +395,7 @@ class Error_Handler {
 						// they can usefully be told depends on whether ownership is transferable.
 						// Only name the owner, or describe what reconnecting would do, for
 						// viewers who can act on connection issues.
-						$viewer_can_connect = current_user_can( 'jetpack_connect' );
-						$owner_name         = '';
+						$owner_name = '';
 						if ( $viewer_can_connect ) {
 							$owner      = get_userdata( $owner_id );
 							$owner_name = $owner instanceof \WP_User ? $owner->display_name : '';
@@ -409,6 +428,13 @@ class Error_Handler {
 						}
 					}
 
+					// Relinking your own account and restoring the site are different actions
+					// with different capabilities, and this notice only offers the second one.
+					// A reporter-declared action is something else, so it is left alone.
+					if ( $viewer_owns_error && ! $viewer_can_connect && empty( $error['error_data']['action'] ) ) {
+						$action = 'none';
+					}
+
 					$error['audience']      = $audience;
 					$error['error_message'] = $message;
 
@@ -416,7 +442,10 @@ class Error_Handler {
 					// already fall back to the reconnect CTA when no action is set, and
 					// injecting an explicit 'reconnect' could trip consumer code paths
 					// reserved for custom actions.
-					if ( null !== $action || ! empty( $display_config['support_link'] ) ) {
+					$notice_link = $display_config['notice_link'] ?? null;
+					$has_link    = ! empty( $notice_link['url'] ) && ! empty( $notice_link['label'] );
+
+					if ( null !== $action || ! empty( $display_config['support_link'] ) || $has_link ) {
 						$error_data = ( isset( $error['error_data'] ) && is_array( $error['error_data'] ) ) ? $error['error_data'] : array();
 
 						if ( null !== $action ) {
@@ -428,6 +457,19 @@ class Error_Handler {
 						// get_error_display_configs().
 						if ( ! empty( $display_config['support_link'] ) ) {
 							$error_data['support_link'] = true;
+						}
+
+						// Where the resolution lives somewhere else (Site Health for a
+						// blocked request), carry the link on the error so every notice can
+						// offer it — not just the wp-admin one. Errors like this suppress
+						// the reconnect CTA, so without it the notice names a problem and
+						// offers nothing to do about it. See `notice_link` in
+						// get_error_display_configs().
+						if ( $has_link ) {
+							$error_data['notice_link'] = array(
+								'label' => $notice_link['label'],
+								'url'   => $notice_link['url'],
+							);
 						}
 
 						$error['error_data'] = $error_data;
@@ -508,9 +550,20 @@ class Error_Handler {
 	 *   This is the only key that reaches beyond My Jetpack's own display: it opts
 	 *   the code into a site-wide wp-admin notice. Leave it unset unless the error
 	 *   genuinely needs that broader reach (see `xmlrpc_request_blocked` below for why).
-	 * - `notice_link` (array): presentational `label` and `url` for a link appended to
-	 *   the default admin notice only. Only used when the notice shows this error's
-	 *   default message (a filtered message keeps full control of the copy).
+	 * - `notice_link` (array): presentational `label` and `url` for a link the notice
+	 *   offers alongside (or instead of) the CTA. It reaches two surfaces, gated
+	 *   differently on purpose:
+	 *   - The default wp-admin notice appends it only when showing this error's own
+	 *     default message. There, `jetpack_connection_error_notice_message` hands the
+	 *     consumer a bare string with no way to drop the link, so a filtered message
+	 *     that kept it could end up pointing somewhere its copy never mentions.
+	 *   - The displayable error carries it as `error_data['notice_link']`
+	 *     unconditionally, for the connection JS package to render in its own notices.
+	 *     No equivalent gate is possible or needed: `error_message` on this path is
+	 *     not filtered through anything, and the one filter that can rewrite it —
+	 *     `jetpack_connection_displayable_errors` below — receives the whole error
+	 *     array, link included, so a consumer changing the copy can unset the link in
+	 *     the same pass.
 	 * - `survives_owner_promotion` (bool): when true, this code is not dropped by
 	 *   promote_owner_errors() while the connection owner's own connection is broken.
 	 *   Set it only for a code that is not a token problem, and so is not waiting on
@@ -712,6 +765,19 @@ class Error_Handler {
 	}
 
 	/**
+	 * Whether an error describes the connection owner's own connection.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $error_code The error code.
+	 * @param string $audience   The classified audience.
+	 * @return bool
+	 */
+	private function is_owner_scoped_error( $error_code, $audience ) {
+		return 'owner' === $audience || 'invalid_connection_owner' === $error_code;
+	}
+
+	/**
 	 * Reduces a set of displayable errors to the connection-owner ones when the
 	 * owner's own connection is broken.
 	 *
@@ -719,12 +785,7 @@ class Error_Handler {
 	 * off. While it is broken, no other error in the set is independently
 	 * actionable.
 	 *
-	 * Two shapes count as a broken owner:
-	 * - any error classified with the `owner` audience, i.e. attributed to the
-	 *   current owner's user ID; and
-	 * - `invalid_connection_owner` at any audience — when there is no current owner
-	 *   to compare a user ID against, classify_error_audience() falls back to
-	 *   `user`, but the code itself already says the owner cannot be resolved.
+	 * See is_owner_scoped_error() for which errors count as a broken owner.
 	 *
 	 * A code whose display config sets `survives_owner_promotion` is kept regardless.
 	 * The premise above holds for token errors, whose one remedy is a reconnect the
@@ -748,8 +809,7 @@ class Error_Handler {
 			$survives       = null !== $display_config && ! empty( $display_config['survives_owner_promotion'] );
 
 			foreach ( $users as $user_id => $error ) {
-				$is_owner_error = 'owner' === ( $error['audience'] ?? '' )
-					|| 'invalid_connection_owner' === $error_code;
+				$is_owner_error = $this->is_owner_scoped_error( $error_code, $error['audience'] ?? '' );
 
 				if ( ! $is_owner_error && ! $survives ) {
 					continue;
