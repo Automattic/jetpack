@@ -1,0 +1,34 @@
+/**
+ * Marketplace tab on the Add Plugins screen.
+ *
+ * Partner plugins carry no install count and no WordPress.org ratings, and core
+ * renders a missing count as "Less Than 10 Active Installations" and a missing
+ * rating as zero stars. Both would be wrong, so those two cells are dropped.
+ */
+
+.wpcom-marketplace-tab .plugin-card .column-rating,
+.wpcom-marketplace-tab .plugin-card .column-downloaded {
+	display: none;
+}
+
+.wpcom-marketplace-tab .plugin-card-bottom {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px 20px;
+}
+
+.wpcom-marketplace-tab .plugin-card .column-updated,
+.wpcom-marketplace-tab .plugin-card .column-compatibility {
+	float: none;
+	clear: none;
+	width: auto;
+	margin-block-end: 0;
+	text-align: start;
+}
+
+.wpcom-marketplace-tab .wpcom-marketplace-intro {
+	max-inline-size: 60em;
+	margin-block: 0 1em;
+	margin-inline: 0;
+	color: #50575e;
+}
