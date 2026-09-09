@@ -109,12 +109,18 @@ $section-header-condense-distance: 40px;
 	min-inline-size: 0;
 }
 
+// Matches the visual's box: title against its top, subtitle against its
+// bottom. A floor, not a height — the stacked layout lets the title wrap,
+// and a fixed box would push the subtitle out from under it.
 .withVisual .text {
-	// Matches the visual's box: title against its top, subtitle against its
-	// bottom. A floor, not a height — the stacked layout lets the title wrap,
-	// and a fixed box would push the subtitle out from under it.
 	min-block-size: $section-header-visual-size;
 	justify-content: space-between;
+}
+
+// On the title's row, as on a header without a visual, rather than floating
+// between the title and the subtitle.
+.withVisual .controls {
+	align-self: start;
 }
 
 // @todo Drop once `Text` truncates natively: https://github.com/WordPress/gutenberg/issues/77391

@@ -306,9 +306,10 @@ export const WithoutControls: Story = {
 };
 
 /**
- * The **detail-page** instance: a resource names the page, so the title is its
- * `h1`, its mark (here the type icon, a thumbnail when the post has one) sits
- * before it, and a subtitle states what the widgets below report on.
+ * The **detail-page** instance: a resource's mark (here the type icon, a
+ * thumbnail when the post has one) sits before the title, and a subtitle
+ * states what the widgets below report on. The date controls sit on the
+ * title's row.
  *
  * The visual slot owns its box, so a consumer passes only the image or the
  * glyph. It is decorative by contract — the title already names the resource.
@@ -319,7 +320,6 @@ export const WithVisualAndSubtitle: Story = {
 	},
 	render: ( { title } ) => (
 		<SectionHeader
-			headingLevel={ 1 }
 			title={ title }
 			visual={ <Icon icon={ post } size={ 28 } /> }
 			subTitle="Post published on Feb 3, 2025. Performance from Feb 3, 2025 to Sep 2, 2026"
@@ -336,7 +336,6 @@ export const WithVisualAndSubtitle: Story = {
 export const LoadingResource: Story = {
 	render: () => (
 		<SectionHeader
-			headingLevel={ 1 }
 			busy
 			title={ <Skeleton style={ { display: 'block', blockSize: 38, inlineSize: 320 } } /> }
 			visual={ <Icon icon={ post } size={ 28 } /> }
