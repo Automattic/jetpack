@@ -1087,13 +1087,33 @@ function wpcom_write_template( $edit_title = '', $edit_content = '', $edit_post_
 		<button class="bw-help-toggle" data-wp-on--click="actions.toggleHelp" title="<?php esc_attr_e( 'Tips', 'jetpack-mu-wpcom' ); ?>" aria-label="<?php esc_attr_e( 'Tips', 'jetpack-mu-wpcom' ); ?>"><span class="bw-help-i" aria-hidden="true">i</span></button>
 		<div class="bw-help-popover" hidden data-wp-bind--hidden="!state.showHelp">
 			<div class="bw-help-note">
-				<p class="bw-help-note-text"><?php esc_html_e( 'You’re using Write, a simple editor for writing.', 'jetpack-mu-wpcom' ); ?></p>
+				<p class="bw-help-note-text">
+				<?php
+				echo wp_kses(
+					sprintf(
+						/* translators: %1$s and %2$s are the opening and closing tags of a link to the Write editor guide. */
+						__( 'You’re using %1$sWrite%2$s, a simple editor for writing.', 'jetpack-mu-wpcom' ),
+						'<a class="bw-help-note-guide" data-target="wpcom-help-center" href="https://wordpress.com/support/editors/write-editor/" target="_blank" rel="noopener noreferrer">',
+						'</a>'
+					),
+					array(
+						'a' => array(
+							'class'       => array(),
+							'data-target' => array(),
+							'href'        => array(),
+							'target'      => array(),
+							'rel'         => array(),
+						),
+					)
+				);
+				?>
+				</p>
 				<p class="bw-help-note-switch">
 				<?php
 				echo wp_kses(
 					sprintf(
 						/* translators: %1$s and %2$s are the opening and closing tags of a button reading "Block editor". */
-						__( 'Use the %1$sBlock editor%2$s instead', 'jetpack-mu-wpcom' ),
+						__( 'Use the %1$sBlock editor%2$s instead.', 'jetpack-mu-wpcom' ),
 						'<button type="button" class="bw-help-note-button" data-wp-on--click="actions.switchToBlockEditor">',
 						'</button>'
 					),
