@@ -1,7 +1,8 @@
 import { __, isRTL, sprintf } from '@wordpress/i18n';
 import { check, chevronLeft, chevronRight } from '@wordpress/icons';
 import { Badge, Button, Dialog, Icon, LinkButton, Stack, Text } from '@wordpress/ui';
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
+import { getArrowStep } from './arrow-navigation';
 import { FeatureIcon } from './feature-icon';
 import { FeatureLinks } from './feature-links';
 import { FeatureScreenshot } from './feature-screenshot';
@@ -49,6 +50,23 @@ export function FeatureModal( { state, previous, next, onClose, onStep }: Featur
 		[ onStep, previous ]
 	);
 	const onNext = useCallback( () => next && onStep( next.feature.slug ), [ next, onStep ] );
+
+	useEffect( () => {
+		const onKeyDown = ( event: KeyboardEvent ) => {
+			const step = getArrowStep( event, isRTL() );
+
+			if ( ! step ) {
+				return;
+			}
+
+			event.preventDefault();
+			( step === 'previous' ? onPrevious : onNext )();
+		};
+
+		// Capture phase: the dialog stops keydown propagating, so bubbling never reaches us.
+		document.addEventListener( 'keydown', onKeyDown, true );
+		return () => document.removeEventListener( 'keydown', onKeyDown, true );
+	}, [ onNext, onPrevious ] );
 
 	return (
 		<Dialog.Root open onOpenChange={ onOpenChange }>
