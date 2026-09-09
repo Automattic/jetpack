@@ -1075,7 +1075,7 @@ CSS;
 			$user_found_with = 'external_user_id';
 			$user            = get_user_by( 'id', (int) $user_data->external_user_id );
 			if ( $user ) {
-				$expected_id = Utils::get_cached_wpcom_user_id( $user->ID );
+				$expected_id = Utils::get_wpcom_user_id( $user->ID );
 				if ( $expected_id && $expected_id !== (int) $user_data->ID ) {
 					$error = new WP_Error( 'expected_wpcom_user', __( 'Something got a little mixed up and an unexpected WordPress.com user logged in.', 'jetpack-connection' ) );
 
@@ -1494,7 +1494,7 @@ CSS;
 	 * @param int $wpcom_user_id The WordPress.com user ID.
 	 */
 	private static function set_wpcom_user_id_meta( $user_id, $wpcom_user_id ) {
-		Utils::cache_wpcom_user_id( $user_id, $wpcom_user_id );
+		Utils::set_wpcom_user_id( $user_id, $wpcom_user_id );
 	}
 
 	/**

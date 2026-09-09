@@ -134,27 +134,31 @@ class Utils {
 			return false;
 		}
 
-		self::cache_wpcom_user_id( $created_user_id, (int) $user_data->ID );
+		self::set_wpcom_user_id( $created_user_id, (int) $user_data->ID );
 		return get_userdata( $created_user_id );
 	}
 
 	/**
-	 * Get the WordPress.com user ID cached on a local user.
+	 * Get the WordPress.com user ID bound to a local user.
+	 *
+	 * The `wpcom_user_id` meta is a durable, one-to-one, WordPress.com-asserted identity binding,
+	 * not a cache of any one token: SSO and Premium Content read and write it too, and it outlives
+	 * the connection that first established it. Do not drop it because a token went away.
 	 *
 	 * @since $$next-version$$
 	 *
 	 * @param int $user_id The local WordPress user ID.
-	 * @return int The WordPress.com user ID, or 0 when none is cached.
+	 * @return int The WordPress.com user ID, or 0 when none is bound.
 	 */
-	public static function get_cached_wpcom_user_id( $user_id ) {
+	public static function get_wpcom_user_id( $user_id ) {
 		return (int) get_user_meta( absint( $user_id ), 'wpcom_user_id', true );
 	}
 
 	/**
-	 * Cache a WordPress.com user ID on a local user, removing it from any other user first.
+	 * Bind a WordPress.com user ID to a local user, removing it from any other user first.
 	 *
-	 * Two local users sharing one WordPress.com user ID would each answer to the same identity,
-	 * so the stale holder is cleared rather than left to collide. On multisite the lookup is
+	 * The binding is one-to-one: two local users answering to the same WordPress.com identity would
+	 * make owner resolution ambiguous, so the previous holder is cleared. On multisite the lookup is
 	 * scoped to the current site, so users on other sites may still hold the same ID.
 	 *
 	 * @since $$next-version$$
@@ -162,11 +166,11 @@ class Utils {
 	 * @param int $user_id       The local WordPress user ID.
 	 * @param int $wpcom_user_id The WordPress.com user ID.
 	 */
-	public static function cache_wpcom_user_id( $user_id, $wpcom_user_id ) {
+	public static function set_wpcom_user_id( $user_id, $wpcom_user_id ) {
 		$user_id       = absint( $user_id );
 		$wpcom_user_id = absint( $wpcom_user_id );
 
-		// 0 is what `get_cached_wpcom_user_id()` returns for "nothing cached", so it is not storable.
+		// 0 is what `get_wpcom_user_id()` returns for "nothing bound", so it is not storable.
 		if ( ! $user_id || ! $wpcom_user_id ) {
 			return;
 		}
@@ -191,17 +195,21 @@ class Utils {
 	}
 
 	/**
-	 * Drop the WordPress.com user ID cached on a local user.
+	 * Drop the WordPress.com user ID bound to a local user.
+	 *
+	 * Only for when the binding itself is known to be wrong — a token replaced with a different
+	 * WordPress.com account. A disconnect does not make it wrong, and other subsystems store their
+	 * own meaning in this key.
 	 *
 	 * @since $$next-version$$
 	 *
 	 * @param int $user_id The local WordPress user ID.
 	 */
-	public static function delete_cached_wpcom_user_id( $user_id ) {
+	public static function delete_wpcom_user_id( $user_id ) {
 		$user_id = absint( $user_id );
 
 		// `clean_user_cache()` bumps the site-wide users cache salt, so skip it on the common
-		// no-op path where there was nothing cached to delete.
+		// no-op path where there was nothing bound.
 		if ( delete_user_meta( $user_id, 'wpcom_user_id' ) ) {
 			clean_user_cache( $user_id );
 		}

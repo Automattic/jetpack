@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Connection;
 
+use Jetpack_Options;
 use PHPUnit\Framework\Attributes\AllowMockObjectsWithoutExpectations;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\RequiresMethod;
@@ -119,11 +120,11 @@ class Wpcom_User_Id_Test extends TestCase {
 	 * A cached ID is returned without asking WordPress.com.
 	 */
 	public function test_get_wpcom_user_id_reads_the_cache_without_a_remote_lookup() {
-		Utils::cache_wpcom_user_id( $this->user_id, 4242 );
+		Utils::set_wpcom_user_id( $this->user_id, 4242 );
 
 		$manager = $this->manager_returning_user_data( false, $this->never() );
 
-		$this->assertSame( 4242, $manager->get_wpcom_user_id( $this->user_id ) );
+		$this->assertSame( 4242, $manager->resolve_wpcom_user_id( $this->user_id ) );
 	}
 
 	/**
@@ -132,8 +133,8 @@ class Wpcom_User_Id_Test extends TestCase {
 	public function test_get_wpcom_user_id_resolves_from_wpcom_and_caches_the_result() {
 		$manager = $this->manager_returning_user_data( array( 'ID' => 4242 ), $this->once() );
 
-		$this->assertSame( 4242, $manager->get_wpcom_user_id( $this->user_id ) );
-		$this->assertSame( 4242, Utils::get_cached_wpcom_user_id( $this->user_id ) );
+		$this->assertSame( 4242, $manager->resolve_wpcom_user_id( $this->user_id ) );
+		$this->assertSame( 4242, Utils::get_wpcom_user_id( $this->user_id ) );
 	}
 
 	/**
@@ -142,8 +143,8 @@ class Wpcom_User_Id_Test extends TestCase {
 	public function test_get_wpcom_user_id_returns_zero_and_caches_nothing_when_the_lookup_fails() {
 		$manager = $this->manager_returning_user_data( false );
 
-		$this->assertSame( 0, $manager->get_wpcom_user_id( $this->user_id ) );
-		$this->assertSame( 0, Utils::get_cached_wpcom_user_id( $this->user_id ) );
+		$this->assertSame( 0, $manager->resolve_wpcom_user_id( $this->user_id ) );
+		$this->assertSame( 0, Utils::get_wpcom_user_id( $this->user_id ) );
 	}
 
 	/**
@@ -152,31 +153,31 @@ class Wpcom_User_Id_Test extends TestCase {
 	public function test_get_wpcom_user_id_returns_zero_when_the_response_carries_no_id() {
 		$manager = $this->manager_returning_user_data( array( 'email' => 'nobody@example.com' ) );
 
-		$this->assertSame( 0, $manager->get_wpcom_user_id( $this->user_id ) );
-		$this->assertSame( 0, Utils::get_cached_wpcom_user_id( $this->user_id ) );
+		$this->assertSame( 0, $manager->resolve_wpcom_user_id( $this->user_id ) );
+		$this->assertSame( 0, Utils::get_wpcom_user_id( $this->user_id ) );
 	}
 
 	/**
 	 * A user who no longer holds a token gets no answer, cached or otherwise.
 	 */
 	public function test_get_wpcom_user_id_ignores_a_cached_id_for_a_disconnected_user() {
-		Utils::cache_wpcom_user_id( $this->user_id, 4242 );
+		Utils::set_wpcom_user_id( $this->user_id, 4242 );
 
 		$manager = $this->manager_returning_user_data( false, $this->never(), false );
 
-		$this->assertSame( 0, $manager->get_wpcom_user_id( $this->user_id ) );
+		$this->assertSame( 0, $manager->resolve_wpcom_user_id( $this->user_id ) );
 	}
 
 	/**
 	 * The current user is used when no ID is given.
 	 */
 	public function test_get_wpcom_user_id_defaults_to_the_current_user() {
-		Utils::cache_wpcom_user_id( $this->user_id, 4242 );
+		Utils::set_wpcom_user_id( $this->user_id, 4242 );
 		wp_set_current_user( $this->user_id );
 
 		$manager = $this->manager_returning_user_data( false, $this->never() );
 
-		$this->assertSame( 4242, $manager->get_wpcom_user_id() );
+		$this->assertSame( 4242, $manager->resolve_wpcom_user_id() );
 	}
 
 	/**
@@ -185,7 +186,7 @@ class Wpcom_User_Id_Test extends TestCase {
 	public function test_get_wpcom_user_id_returns_zero_without_a_user() {
 		$manager = $this->manager_returning_user_data( false, $this->never() );
 
-		$this->assertSame( 0, $manager->get_wpcom_user_id() );
+		$this->assertSame( 0, $manager->resolve_wpcom_user_id() );
 	}
 
 	/**
@@ -216,52 +217,32 @@ class Wpcom_User_Id_Test extends TestCase {
 			$this->markTestSkipped( 'WP_User_Query meta queries not supported in this environment.' );
 		}
 
-		Utils::cache_wpcom_user_id( $this->user_id, 4242 );
+		Utils::set_wpcom_user_id( $this->user_id, 4242 );
 
-		$this->assertSame( 4242, Utils::get_cached_wpcom_user_id( $this->user_id ) );
-		$this->assertSame( 0, Utils::get_cached_wpcom_user_id( $previous_holder ) );
+		$this->assertSame( 4242, Utils::get_wpcom_user_id( $this->user_id ) );
+		$this->assertSame( 0, Utils::get_wpcom_user_id( $previous_holder ) );
 	}
 
 	/**
 	 * Deleting a cached ID leaves nothing behind.
 	 */
-	public function test_delete_cached_wpcom_user_id_clears_the_cache() {
-		Utils::cache_wpcom_user_id( $this->user_id, 4242 );
+	public function test_delete_wpcom_user_id_clears_the_cache() {
+		Utils::set_wpcom_user_id( $this->user_id, 4242 );
 
-		Utils::delete_cached_wpcom_user_id( $this->user_id );
+		Utils::delete_wpcom_user_id( $this->user_id );
 
-		$this->assertSame( 0, Utils::get_cached_wpcom_user_id( $this->user_id ) );
+		$this->assertSame( 0, Utils::get_wpcom_user_id( $this->user_id ) );
 	}
 
 	/**
-	 * Disconnecting a user drops their cached ID.
+	 * A disconnect leaves the binding intact: the local user is still that WordPress.com account,
+	 * and SSO and Premium Content keep their own meaning in the same meta.
 	 */
-	public function test_disconnect_user_clears_the_cached_wpcom_user_id() {
-		Utils::cache_wpcom_user_id( $this->user_id, 4242 );
+	public function test_disconnect_user_leaves_the_binding_intact() {
+		Utils::set_wpcom_user_id( $this->user_id, 4242 );
 
 		$this->assertTrue( $this->disconnecting_manager()->disconnect_user( $this->user_id ) );
-		$this->assertSame( 0, Utils::get_cached_wpcom_user_id( $this->user_id ) );
-	}
-
-	/**
-	 * The cached ID outlives `jetpack_unlinked_user`, whose SSO listener reads it to tear down
-	 * the WordPress.com-side association and bails when it is already gone.
-	 */
-	public function test_disconnect_user_clears_the_cached_wpcom_user_id_only_after_the_unlink_hook() {
-		Utils::cache_wpcom_user_id( $this->user_id, 4242 );
-
-		$seen_by_hook = null;
-		add_action(
-			'jetpack_unlinked_user',
-			function ( $user_id ) use ( &$seen_by_hook ) {
-				$seen_by_hook = Utils::get_cached_wpcom_user_id( $user_id );
-			}
-		);
-
-		$this->disconnecting_manager()->disconnect_user( $this->user_id );
-
-		$this->assertSame( 4242, $seen_by_hook );
-		$this->assertSame( 0, Utils::get_cached_wpcom_user_id( $this->user_id ) );
+		$this->assertSame( 4242, Utils::get_wpcom_user_id( $this->user_id ) );
 	}
 
 	/**
@@ -286,50 +267,109 @@ class Wpcom_User_Id_Test extends TestCase {
 	}
 
 	/**
-	 * Deleting every connection token drops the cached ID too.
+	 * Tearing down every token leaves the binding intact for the same reason.
 	 */
-	public function test_delete_all_connection_tokens_clears_the_cached_wpcom_user_id() {
+	public function test_delete_all_connection_tokens_leaves_the_binding_intact() {
 		wp_set_current_user( $this->user_id );
-		Utils::cache_wpcom_user_id( $this->user_id, 4242 );
+		Utils::set_wpcom_user_id( $this->user_id, 4242 );
 
 		( new Manager() )->delete_all_connection_tokens( true );
 
-		$this->assertSame( 0, Utils::get_cached_wpcom_user_id( $this->user_id ) );
+		$this->assertSame( 4242, Utils::get_wpcom_user_id( $this->user_id ) );
+	}
+
+	// ── token replacement ────────────────────────────────────────────────
+
+	/**
+	 * Replacing a token can name a different WordPress.com account, so the binding goes.
+	 */
+	public function test_a_replaced_token_unbinds_that_user() {
+		Utils::set_wpcom_user_id( $this->user_id, 4242 );
+		Jetpack_Options::update_option( 'user_tokens', array( $this->user_id => 'old.secret.' . $this->user_id ) );
+
+		( new Manager() )->unbind_wpcom_user_ids_for_replaced_tokens(
+			'user_tokens',
+			array( $this->user_id => 'new.secret.' . $this->user_id )
+		);
+
+		$this->assertSame( 0, Utils::get_wpcom_user_id( $this->user_id ) );
 	}
 
 	/**
-	 * Authorizing replaces the token, so the cached ID cannot be carried over.
+	 * A token that is merely removed leaves the binding correct.
 	 */
-	public function test_authorize_clears_the_cached_wpcom_user_id() {
-		$user_id = wp_insert_user(
+	public function test_a_removed_token_leaves_the_binding_intact() {
+		Utils::set_wpcom_user_id( $this->user_id, 4242 );
+		Jetpack_Options::update_option( 'user_tokens', array( $this->user_id => 'old.secret.' . $this->user_id ) );
+
+		( new Manager() )->unbind_wpcom_user_ids_for_replaced_tokens( 'user_tokens', array() );
+
+		$this->assertSame( 4242, Utils::get_wpcom_user_id( $this->user_id ) );
+	}
+
+	/**
+	 * An unchanged token is not a replacement.
+	 */
+	public function test_an_unchanged_token_leaves_the_binding_intact() {
+		Utils::set_wpcom_user_id( $this->user_id, 4242 );
+		$tokens = array( $this->user_id => 'same.secret.' . $this->user_id );
+		Jetpack_Options::update_option( 'user_tokens', $tokens );
+
+		( new Manager() )->unbind_wpcom_user_ids_for_replaced_tokens( 'user_tokens', $tokens );
+
+		$this->assertSame( 4242, Utils::get_wpcom_user_id( $this->user_id ) );
+	}
+
+	/**
+	 * Only the user whose token changed is unbound.
+	 */
+	public function test_a_replacement_leaves_other_users_alone() {
+		$other = wp_insert_user(
 			array(
-				'user_login' => 'wpcom_user_id_authorizer',
+				'user_login' => 'wpcom_user_id_bystander',
 				'user_pass'  => 'pass',
-				'role'       => 'administrator',
 			)
 		);
-		wp_set_current_user( $user_id );
-		Utils::cache_wpcom_user_id( $user_id, 4242 );
-
-		$tokens = $this->getMockBuilder( Tokens::class )
-			->onlyMethods( array( 'get', 'update_user_token' ) )
-			->getMock();
-		$tokens->method( 'get' )->willReturn( 'usertoken.secret' );
-		$tokens->method( 'update_user_token' )->willReturn( true );
-
-		$manager = $this->getMockBuilder( Manager::class )
-			->onlyMethods( array( 'get_tokens', 'get_connection_owner_id' ) )
-			->getMock();
-		$manager->method( 'get_tokens' )->willReturn( $tokens );
-		$manager->method( 'get_connection_owner_id' )->willReturn( 123 );
-
-		$manager->authorize(
+		Utils::set_wpcom_user_id( $this->user_id, 4242 );
+		Utils::set_wpcom_user_id( $other, 5353 );
+		Jetpack_Options::update_option(
+			'user_tokens',
 			array(
-				'state' => (string) $user_id,
-				'code'  => 'authorization_code',
+				$this->user_id => 'old.secret.' . $this->user_id,
+				$other         => 'other.secret.' . $other,
 			)
 		);
 
-		$this->assertSame( 0, Utils::get_cached_wpcom_user_id( $user_id ) );
+		( new Manager() )->unbind_wpcom_user_ids_for_replaced_tokens(
+			'user_tokens',
+			array(
+				$this->user_id => 'new.secret.' . $this->user_id,
+				$other         => 'other.secret.' . $other,
+			)
+		);
+
+		$this->assertSame( 0, Utils::get_wpcom_user_id( $this->user_id ) );
+		$this->assertSame( 5353, Utils::get_wpcom_user_id( $other ) );
+	}
+
+	/**
+	 * Every token-writing path goes through the option, so the hook covers them without each
+	 * call site remembering to.
+	 */
+	public function test_updating_a_user_token_unbinds_through_the_option_hook() {
+		Utils::set_wpcom_user_id( $this->user_id, 4242 );
+		( new Tokens() )->update_user_token( $this->user_id, 'old.secret.' . $this->user_id, false );
+
+		// Only this callback is removed afterwards: the memoization hooks on the same option are
+		// added once behind a static guard and would not come back.
+		$manager  = new Manager();
+		$callback = array( $manager, 'unbind_wpcom_user_ids_for_replaced_tokens' );
+		add_action( 'pre_update_jetpack_option_user_tokens', $callback, 10, 2 );
+
+		( new Tokens() )->update_user_token( $this->user_id, 'new.secret.' . $this->user_id, false );
+
+		remove_action( 'pre_update_jetpack_option_user_tokens', $callback, 10 );
+
+		$this->assertSame( 0, Utils::get_wpcom_user_id( $this->user_id ) );
 	}
 }

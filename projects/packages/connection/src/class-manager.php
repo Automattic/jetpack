@@ -172,6 +172,8 @@ class Manager {
 
 		Webhooks::init( $manager );
 
+		add_action( 'pre_update_jetpack_option_user_tokens', array( $manager, 'unbind_wpcom_user_ids_for_replaced_tokens' ), 10, 2 );
+
 		// Unlink user before deleting the user from WP.com.
 		add_action( 'deleted_user', array( $manager, 'disconnect_user_force' ), 9, 1 );
 		add_action( 'remove_user_from_blog', array( $manager, 'disconnect_user_force' ), 9, 1 );
@@ -1017,7 +1019,7 @@ class Manager {
 	 * @param int|false $user_id The local user identifier. Default is the current user.
 	 * @return int The WordPress.com user ID, or 0 if it could not be determined.
 	 */
-	public function get_wpcom_user_id( $user_id = false ) {
+	public function resolve_wpcom_user_id( $user_id = false ) {
 		$user_id = $user_id ? absint( $user_id ) : get_current_user_id();
 
 		// The cached ID outlives the token, unlike the transient behind `get_connected_user_data()`,
@@ -1026,7 +1028,7 @@ class Manager {
 			return 0;
 		}
 
-		$cached = Utils::get_cached_wpcom_user_id( $user_id );
+		$cached = Utils::get_wpcom_user_id( $user_id );
 
 		if ( $cached ) {
 			return $cached;
@@ -1039,9 +1041,37 @@ class Manager {
 			return 0;
 		}
 
-		Utils::cache_wpcom_user_id( $user_id, (int) $user_data['ID'] );
+		Utils::set_wpcom_user_id( $user_id, (int) $user_data['ID'] );
 
 		return (int) $user_data['ID'];
+	}
+
+	/**
+	 * Unbind the WordPress.com user ID of any user whose token is being replaced.
+	 *
+	 * Every path that changes a user's token writes the `user_tokens` option, so this covers
+	 * authorize, remote connect and the REST endpoint alike. A token that is merely removed leaves
+	 * the binding correct, and other subsystems store their own meaning in the same meta, so only
+	 * a replacement — which can name a different WordPress.com account — clears it.
+	 *
+	 * @internal Hooked on `pre_update_jetpack_option_user_tokens`, which fires before the write.
+	 * @since $$next-version$$
+	 *
+	 * @param string $name  The option name.
+	 * @param mixed  $value The tokens about to be written.
+	 */
+	public function unbind_wpcom_user_ids_for_replaced_tokens( $name, $value ) {
+		$previous = \Jetpack_Options::get_option( 'user_tokens' );
+
+		if ( ! is_array( $previous ) || ! is_array( $value ) ) {
+			return;
+		}
+
+		foreach ( $previous as $user_id => $token ) {
+			if ( isset( $value[ $user_id ] ) && $value[ $user_id ] !== $token ) {
+				Utils::delete_wpcom_user_id( $user_id );
+			}
+		}
 	}
 
 	/**
@@ -1420,10 +1450,6 @@ class Manager {
 				 * @param int $user_id The current user's ID.
 				 */
 				do_action( 'jetpack_unlinked_user', $user_id );
-
-				// Must follow the action above: SSO's unlink teardown reads this meta and bails
-				// without it, leaving the WordPress.com-side association and cached profile behind.
-				Utils::delete_cached_wpcom_user_id( $user_id );
 
 				if ( $is_primary_user ) {
 					Jetpack_Options::delete_option( 'master_user' );
@@ -2206,7 +2232,6 @@ class Manager {
 		// Delete cached connected user data.
 		$transient_key = 'jetpack_connected_user_data_' . get_current_user_id();
 		delete_transient( $transient_key );
-		Utils::delete_cached_wpcom_user_id( get_current_user_id() );
 
 		// Delete the cached site record, which a later connection must not serve.
 		self::delete_cached_site_data();
@@ -2601,10 +2626,6 @@ class Manager {
 		// Delete cached connected user data, so a cached failure from the
 		// previous (broken) token doesn't linger after reconnecting.
 		delete_transient( "jetpack_connected_user_data_$current_user_id" );
-
-		// The replacement token may name a different WordPress.com account, so the cached ID
-		// has to go even though this user was never disconnected.
-		Utils::delete_cached_wpcom_user_id( $current_user_id );
 
 		/**
 		 * Fires after user has successfully received an auth token.
