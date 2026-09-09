@@ -129,8 +129,6 @@ class Expiry_Data {
 			'state'           => $state,
 			'expiry_ts'       => $expiry_ts,
 			'days_remaining'  => $days_remaining,
-			// Only once there is something to say: on Atomic the name is a request.
-			'plan_name'       => self::STATE_ACTIVE === $state ? null : self::derive_plan_name( $product_slug ),
 			'product_slug'    => $product_slug,
 			// Empty on an Atomic site whose synced purchases predate the field.
 			'subscription_id' => isset( $purchase->subscription_id ) && is_scalar( $purchase->subscription_id ) ? (string) $purchase->subscription_id : '',
@@ -180,8 +178,9 @@ class Expiry_Data {
 	/**
 	 * The plan's localized short name, or null where the Plans package can't say.
 	 *
-	 * Remembered per locale: on Atomic the Plans package fetches the whole plan
-	 * list from WordPress.com to answer, and on Simple it loads the billing stack.
+	 * Ask only when copy is about to name the plan: on Atomic the Plans package
+	 * fetches the whole plan list from WordPress.com to answer, and on Simple it
+	 * loads the billing stack. Remembered per locale.
 	 *
 	 * @param string $slug Product slug.
 	 */

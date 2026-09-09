@@ -150,10 +150,13 @@ function wpcom_expiry_notices_banner_data(): ?array {
  * The plan's short name, or '' for the rare purchase whose slug the Plans
  * package can't resolve; every string has a variant without it.
  *
+ * Resolved here rather than with the state, so a request that renders nothing
+ * never asks for it.
+ *
  * @param array<string,mixed> $state Expiry state.
  */
 function wpcom_expiry_notices_plan_name( array $state ): string {
-	return isset( $state['plan_name'] ) && is_string( $state['plan_name'] ) ? $state['plan_name'] : '';
+	return Expiry_Data::derive_plan_name( (string) ( $state['product_slug'] ?? '' ) ) ?? '';
 }
 
 /**

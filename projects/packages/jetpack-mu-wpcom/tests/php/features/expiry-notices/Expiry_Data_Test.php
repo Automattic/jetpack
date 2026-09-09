@@ -199,16 +199,14 @@ class Expiry_Data_Test extends \WorDBless\BaseTestCase {
 		);
 	}
 
-	public function test_the_plan_name_is_only_resolved_once_there_is_something_to_say(): void {
+	public function test_the_state_carries_no_plan_name_and_asks_for_none(): void {
 		$cache_key = 'wpcom_expiry_notices_plan_name_business-bundle_' . get_user_locale();
-		set_transient( $cache_key, 'Business', HOUR_IN_SECONDS );
+		delete_transient( $cache_key );
 
-		try {
-			$this->assertNull( $this->state( $this->purchase( 'business-bundle', 200 ) )['plan_name'] );
-			$this->assertSame( 'Business', $this->state( $this->purchase( 'business-bundle', 45 ) )['plan_name'] );
-		} finally {
-			delete_transient( $cache_key );
-		}
+		$state = $this->state( $this->purchase( 'business-bundle', 45 ) );
+
+		$this->assertArrayNotHasKey( 'plan_name', $state );
+		$this->assertFalse( get_transient( $cache_key ), 'computing the state must not look the plan name up' );
 	}
 
 	public function test_picks_the_plan_with_the_latest_expiry_and_skips_everything_else(): void {

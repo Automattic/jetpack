@@ -24,6 +24,7 @@ class Expiry_Notices_Test extends \WorDBless\BaseTestCase {
 	}
 
 	public function tear_down() {
+		delete_transient( 'wpcom_expiry_notices_plan_name_business-bundle_' . get_user_locale() );
 		remove_all_filters( 'wpcom_expiry_notices_enabled' );
 		foreach ( array( Expiry_Notice_Dismiss::META_BANNER, Expiry_Notice_Dismiss::META_MODAL, Expiry_Notice_Dismiss::META_MODAL_GRACE ) as $base ) {
 			unregister_meta_key( 'user', Expiry_Notice_Dismiss::meta_key( $base ) );
@@ -99,13 +100,18 @@ class Expiry_Notices_Test extends \WorDBless\BaseTestCase {
 		$this->assertSame( home_url( '/about/?utm_source=x' ), wpcom_expiry_notices_current_url() );
 	}
 
+	/**
+	 * A state for the copy helpers, with the plan name for its slug already remembered.
+	 *
+	 * @param array<string,mixed> $overrides State fields to set.
+	 */
 	private function message_state( array $overrides = array() ): array {
+		set_transient( 'wpcom_expiry_notices_plan_name_business-bundle_' . get_user_locale(), 'Business', HOUR_IN_SECONDS );
 		return array_merge(
 			array(
 				'state'          => Expiry_Data::STATE_APPROACHING,
 				'expiry_ts'      => time() + ( 45 * DAY_IN_SECONDS ),
 				'days_remaining' => 45,
-				'plan_name'      => 'Business',
 				'product_slug'   => 'business-bundle',
 				'auto_renew'     => false,
 			),
@@ -123,7 +129,7 @@ class Expiry_Notices_Test extends \WorDBless\BaseTestCase {
 				'state'          => Expiry_Data::STATE_EXPIRED_GRACE,
 				'days_remaining' => -5,
 			),
-			'Your plan expires in 45 days'             => array( 'plan_name' => null ),
+			'Your plan expires in 45 days'             => array( 'product_slug' => 'mystery-bundle' ),
 		);
 		foreach ( $cases as $expected => $overrides ) {
 			$this->assertSame( $expected, wpcom_expiry_notices_banner_heading( $this->message_state( $overrides ) ) );
@@ -243,7 +249,7 @@ class Expiry_Notices_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertSame(
 			'My plan expired and I need your help getting it restored.',
-			wpcom_expiry_notices_support_cta( array( 'plan_name' => null ) )['message']
+			wpcom_expiry_notices_support_cta( array( 'product_slug' => 'mystery-bundle' ) )['message']
 		);
 	}
 
