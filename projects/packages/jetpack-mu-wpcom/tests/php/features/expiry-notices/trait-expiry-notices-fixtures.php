@@ -79,19 +79,10 @@ trait Expiry_Notices_Fixtures {
 	}
 
 	/**
-	 * Drop every per-request memo, for whichever surfaces this test loaded.
+	 * Drop the per-request memo.
 	 */
 	protected function flush_expiry_memos(): void {
 		wpcom_expiry_notices_eligible_state( true );
-		if ( function_exists( 'wpcom_expiry_notices_admin_banner_data' ) ) {
-			wpcom_expiry_notices_admin_banner_data( true );
-		}
-		if ( function_exists( 'wpcom_expiry_notices_admin_modal_data' ) ) {
-			wpcom_expiry_notices_admin_modal_data( true );
-		}
-		if ( function_exists( 'wpcom_expiry_notices_frontend_banner_data' ) ) {
-			wpcom_expiry_notices_frontend_banner_data( true );
-		}
 	}
 
 	/**

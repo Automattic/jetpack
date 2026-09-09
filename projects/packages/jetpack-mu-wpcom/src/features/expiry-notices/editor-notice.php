@@ -12,7 +12,7 @@ use Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Data;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Notice_Dismiss;
 
 /**
- * Resolve the data the editor notice renders from, or null if it shouldn't show.
+ * What the editor notice renders from, or null if it shouldn't show.
  *
  * The banner's own answer: an editor screen is never the Dashboard, so the
  * early reminder is already excluded.
@@ -20,14 +20,13 @@ use Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Notice_Dismiss;
  * @return array<string,mixed>|null
  */
 function wpcom_expiry_notices_editor_notice_data(): ?array {
-	$data = wpcom_expiry_notices_admin_banner_data();
+	$data = wpcom_expiry_notices_banner_data();
 	if ( null === $data ) {
 		return null;
 	}
 
-	$state  = $data['state'];
-	$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
-	$urls   = $data['urls'];
+	$state = $data['state'];
+	$urls  = $data['urls'];
 
 	return array(
 		'metaKey'       => Expiry_Notice_Dismiss::META_BANNER,
@@ -40,7 +39,7 @@ function wpcom_expiry_notices_editor_notice_data(): ?array {
 		'primary'       => null === $urls ? null : $urls['primary'],
 		'secondary'     => null !== $urls && Expiry_Data::STATE_EXPIRED_GRACE === $state['state'] ? $urls['secondary'] : null,
 		'isDismissible' => $data['is_dismissible'],
-		'surface'       => wpcom_expiry_notices_editor_surface( $screen ? $screen->id : '' ),
+		'surface'       => wpcom_expiry_notices_editor_surface( wpcom_expiry_notices_current_screen_id() ),
 		'trackProps'    => wpcom_expiry_notices_track_props( $state, $data['is_owner'] ),
 	);
 }

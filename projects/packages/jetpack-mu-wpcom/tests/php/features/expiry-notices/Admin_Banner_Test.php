@@ -34,7 +34,7 @@ class Admin_Banner_Test extends \WorDBless\BaseTestCase {
 
 	private function render(): string {
 		// Tests move the screen between renders, so never trust the memo.
-		wpcom_expiry_notices_admin_banner_data( true );
+		wpcom_expiry_notices_eligible_state( true );
 		ob_start();
 		wpcom_expiry_notices_render_admin_banner();
 		return (string) ob_get_clean();

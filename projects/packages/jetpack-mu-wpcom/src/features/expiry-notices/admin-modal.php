@@ -16,60 +16,28 @@ use Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Notice_Dismiss;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Owner;
 
 /**
- * Resolve the data the modal renders from, or null if it shouldn't show.
- * Shared by the enqueue and render hooks.
+ * What the modal renders from, or null if it shouldn't show.
  *
  * Owners only: the modal exists to interrupt someone into acting, and an admin
  * who cannot renew has nothing to act on. The banner tells them why.
  *
- * @param bool $flush Drop the memo. For tests, which move the fixture under a
- *                    process that has already answered once.
  * @return array<string,mixed>|null
  */
-function wpcom_expiry_notices_admin_modal_data( bool $flush = false ): ?array {
-	// Read twice per pageview -- once to enqueue, once to render -- and each read
-	// costs a sticker lookup and a domain resolution. Distinct from null, which
-	// is a real answer.
-	static $memo = false;
-
-	if ( $flush ) {
-		$memo = false;
+function wpcom_expiry_notices_admin_modal_data(): ?array {
+	$state = wpcom_expiry_notices_eligible_state();
+	if ( null === $state
+		|| ! wpcom_expiry_notices_revert_applies_to_site( $state )
+		|| ! Expiry_Notice_Dismiss::should_show_modal( $state )
+		|| ! Expiry_Owner::current_user_is_owner( $state ) ) {
 		return null;
 	}
 
-	if ( false !== $memo ) {
-		return $memo;
-	}
-
-	$memo  = null;
-	$state = wpcom_expiry_notices_eligible_state();
-	if ( null === $state ) {
-		return $memo;
-	}
-
-	if ( ! wpcom_expiry_notices_revert_applies_to_site( $state ) ) {
-		return $memo;
-	}
-
-	if ( ! Expiry_Notice_Dismiss::should_show_modal( $state ) ) {
-		return $memo;
-	}
-
-	$meta_key = Expiry_Notice_Dismiss::modal_meta_key( $state );
-	if ( null === $meta_key ) {
-		return $memo;
-	}
-
-	if ( ! Expiry_Owner::current_user_is_owner( $state ) ) {
-		return $memo;
-	}
-
 	$is_grace = Expiry_Data::STATE_EXPIRED_GRACE === $state['state'];
-	$urls     = Expiry_Data::get_cta_urls( $state, wpcom_expiry_notices_current_admin_url() );
+	$urls     = Expiry_Data::get_cta_urls( $state, wpcom_expiry_notices_current_url() );
 
-	$memo = array(
+	return array(
 		'state'       => $state,
-		'metaKey'     => $meta_key,
+		'metaKey'     => Expiry_Notice_Dismiss::modal_meta_key( $state ),
 		'title'       => wpcom_expiry_notices_expired_heading( $state ),
 		'description' => wpcom_expiry_notices_modal_description( $is_grace ),
 		'listIntro'   => $is_grace ? '' : __( 'Here’s what changed:', 'jetpack-mu-wpcom' ),
@@ -81,8 +49,6 @@ function wpcom_expiry_notices_admin_modal_data( bool $flush = false ): ?array {
 		'secondary'   => $is_grace ? $urls['secondary'] : null,
 		'imageUrl'    => plugins_url( 'images/plan-expired.svg', __FILE__ ),
 	);
-
-	return $memo;
 }
 
 /**

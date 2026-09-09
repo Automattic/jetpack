@@ -8,6 +8,7 @@
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Data;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Notice_Dismiss;
+use Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Owner;
 
 // @codeCoverageIgnoreStart
 require_once __DIR__ . '/class-expiry-data.php';
@@ -217,12 +218,51 @@ function wpcom_expiry_notices_track_props( array $state, bool $is_owner ): array
 }
 
 /**
+ * The current admin screen's id, or '' outside wp-admin.
+ */
+function wpcom_expiry_notices_current_screen_id(): string {
+	$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+	return $screen ? (string) $screen->id : '';
+}
+
+/**
  * Whether the current screen is a block editor: post editor, site editor, or
  * block widgets.
  */
 function wpcom_expiry_notices_is_block_editor_screen(): bool {
 	$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
 	return $screen ? $screen->is_block_editor() : false;
+}
+
+/**
+ * What a banner surface renders from, or null if none should show.
+ *
+ * The early reminder is a Dashboard-only nudge; every later stage shows on
+ * every wp-admin screen and on the front end. `urls` is null when the viewer
+ * cannot renew.
+ *
+ * @return array{state:array,is_early_warning:bool,is_dismissible:bool,is_owner:bool,urls:array|null}|null
+ */
+function wpcom_expiry_notices_banner_data(): ?array {
+	$state = wpcom_expiry_notices_eligible_state();
+	if ( null === $state || ! Expiry_Notice_Dismiss::should_show_banner( $state ) ) {
+		return null;
+	}
+
+	$is_early_warning = wpcom_expiry_notices_is_early_warning( $state );
+	if ( $is_early_warning && 'dashboard' !== wpcom_expiry_notices_current_screen_id() ) {
+		return null;
+	}
+
+	$is_owner = Expiry_Owner::current_user_is_owner( $state );
+
+	return array(
+		'state'            => $state,
+		'is_early_warning' => $is_early_warning,
+		'is_dismissible'   => Expiry_Notice_Dismiss::is_dismissible( $state ),
+		'is_owner'         => $is_owner,
+		'urls'             => $is_owner ? wpcom_expiry_notices_banner_urls( $state, wpcom_expiry_notices_current_url() ) : null,
+	);
 }
 
 /**
@@ -514,15 +554,14 @@ add_action( 'init', 'wpcom_expiry_notices_maybe_load_surfaces' ); // @codeCovera
 /**
  * Whether the front-end banner will render on this request.
  *
- * The one predicate the other front-end banners read to stand down. Loads the
- * surface itself because the callers hook `init` and can run before the loader.
+ * The one predicate the other front-end banners read to stand down. Callable
+ * from `init`, so it does not ask conditional query tags.
  */
 function wpcom_expiry_notices_frontend_banner_is_due(): bool {
 	if ( is_admin() || is_customize_preview() || ! wpcom_expiry_notices_is_enabled_for_site() ) {
 		return false;
 	}
-	require_once __DIR__ . '/frontend-banner.php';
-	return null !== wpcom_expiry_notices_frontend_banner_data();
+	return null !== wpcom_expiry_notices_banner_data();
 }
 
 /**
@@ -564,17 +603,20 @@ add_action( 'init', 'wpcom_expiry_notices_register_meta' ); // @codeCoverageIgno
 add_action( 'rest_api_init', 'wpcom_expiry_notices_register_meta' ); // @codeCoverageIgnore
 
 /**
- * Build the full URL of the current admin page so checkout can redirect back.
- * Strips transient query args (`settings-updated`, `_wpnonce`, etc.) so the
- * redirected user doesn't re-trigger one-shot admin notices or hit stale
- * nonces on return.
+ * The URL of the current page, for checkout to send the user back to.
+ *
+ * One-shot query args (`settings-updated`, `updated`, ...) are dropped so the
+ * return trip doesn't replay them.
  */
-function wpcom_expiry_notices_current_admin_url(): string {
-	$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated
-	if ( '' === $request_uri ) {
-		return admin_url();
-	}
+function wpcom_expiry_notices_current_url(): string {
+	$request_uri = isset( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated -- isset() is the validation; the sniff wants a second one.
 	$request_uri = remove_query_arg( wp_removable_query_args(), $request_uri );
-	$admin_path  = preg_replace( '#^/?wp-admin/?#', '', $request_uri );
-	return admin_url( ltrim( $admin_path, '/' ) );
+
+	if ( is_admin() ) {
+		$admin_path = (string) wp_parse_url( admin_url(), PHP_URL_PATH );
+		return 0 === strpos( $request_uri, $admin_path )
+			? admin_url( substr( $request_uri, strlen( $admin_path ) ) )
+			: admin_url();
+	}
+	return home_url( '' === $request_uri ? '/' : $request_uri );
 }

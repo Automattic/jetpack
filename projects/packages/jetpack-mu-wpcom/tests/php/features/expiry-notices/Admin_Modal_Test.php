@@ -58,7 +58,7 @@ class Admin_Modal_Test extends \WorDBless\BaseTestCase {
 	 */
 	private function set_dismissed( string $meta_key, int $when ): void {
 		update_user_meta( $this->admin_id, $meta_key, $when );
-		wpcom_expiry_notices_admin_modal_data( true );
+		wpcom_expiry_notices_eligible_state( true );
 	}
 
 	public function test_shows_in_grace_with_the_pre_revert_copy(): void {
