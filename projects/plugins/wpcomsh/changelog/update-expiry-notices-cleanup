@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
-Comment: Tests only: drop a stale memo flush for the expiry notices.
 
+Expiry notices: show the plan expiry notice on agency-managed sites, telling client admins whose plan it is.
