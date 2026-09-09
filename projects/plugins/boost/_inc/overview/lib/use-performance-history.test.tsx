@@ -30,6 +30,7 @@ const history = {
 	],
 	annotations: [ { timestamp: 1700000000000, text: 'Boost activated' } ],
 };
+const historyWindow = { startDate: history.startDate, endDate: history.endDate };
 let queryClient: QueryClient;
 function wrapper( { children }: PropsWithChildren ) {
 	return createElement( QueryClientProvider, { client: queryClient }, children );
@@ -71,11 +72,14 @@ it( 'preserves eight dimensions, millisecond timestamps, annotations, and null h
 
 it( 'fetches authenticated history and keeps it fresh for twelve hours', async () => {
 	fetchMock.mockResolvedValue( { status: 'success', JSON: history } );
-	const { result, unmount } = renderHook( () => usePerformanceHistory(), { wrapper } );
+	const { result, unmount } = renderHook( () => usePerformanceHistory( true, historyWindow ), {
+		wrapper,
+	} );
 	await waitFor( () => expect( result.current.data ).toEqual( history ) );
 	expect( fetchMock ).toHaveBeenCalledWith( {
-		url: 'https://example.org/wp-json/jetpack-boost-ds/performance-history',
-		method: 'GET',
+		url: 'https://example.org/wp-json/jetpack-boost-ds/performance-history/set',
+		method: 'POST',
+		data: { JSON: { ...historyWindow, periods: [], annotations: [] } },
 		credentials: 'same-origin',
 		headers: { 'X-WP-Nonce': 'rest-nonce', 'X-Jetpack-WP-JS-Sync-Nonce': 'history-nonce' },
 	} );
@@ -83,16 +87,41 @@ it( 'fetches authenticated history and keeps it fresh for twelve hours', async (
 	const now = Date.now();
 	const dateSpy = jest.spyOn( Date, 'now' ).mockReturnValue( now + 12 * 60 * 60 * 1000 - 1000 );
 	const { result: cachedResult, unmount: unmountCached } = renderHook(
-		() => usePerformanceHistory(),
+		() => usePerformanceHistory( true, historyWindow ),
 		{ wrapper }
 	);
 	expect( cachedResult.current.isStale ).toBe( false );
 	expect( fetchMock ).toHaveBeenCalledTimes( 1 );
 	unmountCached();
 	dateSpy.mockReturnValue( now + 12 * 60 * 60 * 1000 + 1000 );
-	renderHook( () => usePerformanceHistory(), { wrapper } );
+	renderHook( () => usePerformanceHistory( true, historyWindow ), { wrapper } );
 	await waitFor( () => expect( fetchMock ).toHaveBeenCalledTimes( 2 ) );
 	dateSpy.mockRestore();
+} );
+
+it( 'requests each page separately and reuses its cached history when paging back', async () => {
+	const previousWindow = {
+		startDate: history.startDate - 30 * 24 * 60 * 60 * 1000,
+		endDate: history.endDate - 30 * 24 * 60 * 60 * 1000,
+	};
+	const previousHistory = { ...history, ...previousWindow, periods: [] };
+	fetchMock.mockResolvedValueOnce( { status: 'success', JSON: history } );
+	fetchMock.mockResolvedValueOnce( { status: 'success', JSON: previousHistory } );
+	const { result, rerender } = renderHook( window => usePerformanceHistory( true, window ), {
+		wrapper,
+		initialProps: historyWindow,
+	} );
+	await waitFor( () => expect( result.current.data ).toEqual( history ) );
+	rerender( previousWindow );
+	await waitFor( () => expect( result.current.data ).toEqual( previousHistory ) );
+	expect( fetchMock ).toHaveBeenLastCalledWith(
+		expect.objectContaining( {
+			data: { JSON: { ...previousWindow, periods: [], annotations: [] } },
+		} )
+	);
+	rerender( historyWindow );
+	expect( result.current.data ).toEqual( history );
+	expect( fetchMock ).toHaveBeenCalledTimes( 2 );
 } );
 
 it( 'surfaces malformed history envelopes and supports retrying', async () => {

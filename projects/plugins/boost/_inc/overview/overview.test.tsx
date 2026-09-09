@@ -16,6 +16,7 @@ import { useDismissibleAlertState as useLegacyAlertState } from '../../app/asset
 import PopOut from '../../app/assets/src/js/features/speed-score/pop-out/pop-out';
 import { recordBoostEvent } from '../../app/assets/src/js/lib/utils/analytics';
 import { observeLegacyModulesState } from './lib/modules-state-bridge';
+import { getHistoryWindow } from './lib/history-days';
 import * as speedScores from './lib/use-speed-scores';
 import Overview from './overview';
 import ScoreCard from './score-card';
@@ -516,9 +517,41 @@ test( 'retains the free history state when a modules refetch fails with a fresh-
 } );
 
 test( 'selects the paid empty history state using module availability', async () => {
-	renderOverview();
-	await expect( screen.findByText( /Performance history will appear/ ) ).resolves.toBeTruthy();
-	expect( screen.queryByRole( 'button', { name: 'Upgrade now' } ) ).not.toBeInTheDocument();
+	const geometry = jest.spyOn( Element.prototype, 'getBoundingClientRect' ).mockReturnValue( {
+		x: 0,
+		y: 0,
+		top: 0,
+		left: 0,
+		right: 800,
+		bottom: 300,
+		width: 800,
+		height: 300,
+		toJSON: () => ( {} ),
+	} );
+	const resizeObserver = globalThis.ResizeObserver;
+	globalThis.ResizeObserver = class {
+		constructor( private callback: ResizeObserverCallback ) {}
+		observe( target: Element ) {
+			this.callback(
+				[ { target, contentRect: target.getBoundingClientRect() } as ResizeObserverEntry ],
+				this
+			);
+		}
+		unobserve() {}
+		disconnect() {}
+	};
+	try {
+		renderOverview();
+		const charts = await screen.findAllByRole( 'grid', { name: 'Bar chart' } );
+		fireEvent.keyDown( charts[ 0 ], { key: 'ArrowRight' } );
+		await expect(
+			screen.findByText( 'No score recorded before you unlocked this feature.' )
+		).resolves.toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: 'Upgrade now' } ) ).not.toBeInTheDocument();
+	} finally {
+		geometry.mockRestore();
+		globalThis.ResizeObserver = resizeObserver;
+	}
 } );
 
 test( 'debounces optimization changes and waits for generation to finish', async () => {
@@ -559,12 +592,19 @@ test( 'passes the history server error message to the notice', async () => {
 	jest
 		.mocked( apiFetch )
 		.mockImplementation( options =>
-			options.url?.endsWith( '/performance-history' )
+			options.url?.endsWith( '/performance-history/set' )
 				? Promise.resolve( { status: 'error', message: 'History service unavailable' } )
 				: fetch( options )
 		);
 	renderOverview();
 	await expect( screen.findByText( 'History service unavailable' ) ).resolves.toBeTruthy();
+	expect( apiFetch ).toHaveBeenCalledWith(
+		expect.objectContaining( {
+			url: 'https://example.org/wp-json/jetpack-boost-ds/performance-history/set',
+			method: 'POST',
+			data: { JSON: { ...getHistoryWindow( 0 ), periods: [], annotations: [] } },
+		} )
+	);
 	await expect( screen.findByRole( 'button', { name: 'Try again' } ) ).resolves.toBeEnabled();
 } );
 
@@ -601,7 +641,19 @@ test( 'temporarily closes the score decrease without persisting dismissal', asyn
 	await waitFor( () => expect( screen.getByText( 'Speed score has fallen' ) ).toBeVisible() );
 	fireEvent.click( screen.getByRole( 'link', { name: 'Dismiss' } ) );
 	expect( screen.getByText( 'Speed score has fallen' ) ).not.toBeVisible();
-	expect( apiFetch ).not.toHaveBeenCalledWith( expect.objectContaining( { method: 'POST' } ) );
+	expect( apiFetch ).not.toHaveBeenCalledWith(
+		expect.objectContaining( {
+			url: 'https://example.org/wp-json/jetpack-boost-ds/dismissed-alerts/set',
+			method: 'POST',
+		} )
+	);
+	expect( apiFetch ).toHaveBeenCalledWith(
+		expect.objectContaining( {
+			url: 'https://example.org/wp-json/jetpack-boost-ds/performance-history/set',
+			method: 'POST',
+			data: { JSON: { ...getHistoryWindow( 0 ), periods: [], annotations: [] } },
+		} )
+	);
 } );
 
 test.each( [

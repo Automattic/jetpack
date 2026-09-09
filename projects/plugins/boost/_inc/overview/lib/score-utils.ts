@@ -37,3 +37,12 @@ export function formatScoreDelta( delta: number ): string | null {
 		`+${ delta }`
 	);
 }
+
+export function getScoreTierColor( tier: ScoreTier ): string {
+	const colors = {
+		good: 'var(--wpds-color-foreground-content-success-weak)',
+		medium: 'var(--wpds-color-foreground-content-warning-weak)',
+		poor: 'var(--wpds-color-foreground-content-error-weak)',
+	};
+	return colors[ tier ];
+}
