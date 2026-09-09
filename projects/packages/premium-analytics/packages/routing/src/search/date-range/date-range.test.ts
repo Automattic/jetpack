@@ -118,6 +118,16 @@ describe( 'encodeRangeToSearchParams', () => {
 		);
 	} );
 
+	// The year surface computes its own bounds too, so they are stored as given.
+	it( 'stores a year-surface range as given', () => {
+		expect( encodeRangeToSearchParams( { from, to }, { presetId: 'year-2025' } ).to ).toBe(
+			'2026-07-09T00:00:00.000-04:00'
+		);
+		expect( encodeRangeToSearchParams( { from, to }, { presetId: 'all-time' } ).to ).toBe(
+			'2026-07-09T00:00:00.000-04:00'
+		);
+	} );
+
 	// 'custom' marks a manual edit, so it takes the calendar rule, not the preset one.
 	it( 'extends a custom range', () => {
 		expect( encodeRangeToSearchParams( { from, to }, { presetId: 'custom' } ).to ).toBe(

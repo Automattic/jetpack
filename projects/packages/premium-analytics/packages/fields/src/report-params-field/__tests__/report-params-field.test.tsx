@@ -120,6 +120,10 @@ describe( 'reportParamsAttributeField', () => {
 } );
 
 describe( 'report params field', () => {
+	afterEach( () => {
+		jest.useRealTimers();
+	} );
+
 	it( 'offers no bucket control by default', () => {
 		renderField();
 
@@ -368,8 +372,6 @@ describe( 'report params field', () => {
 			new Date( String( to ) ).getTime() - new Date( String( from ) ).getTime();
 
 		expect( span( params.compare_from, params.compare_to ) ).toBe( span( params.from, params.to ) );
-
-		jest.useRealTimers();
 	} );
 
 	// A widget can carry a preset with no window behind it, and it compares
