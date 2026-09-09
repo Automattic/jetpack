@@ -48,7 +48,7 @@ Admin_Menu::add_menu(
 | -- | -- |
 | `product` | A My Jetpack product slug — the products with cards on the My Jetpack page. Preferred, and covers most items. |
 | `module` | A Jetpack module name. Only for items with no product behind them. |
-| `key` | The name a host uses for this item in the filter below. Defaults to the menu slug; declare one when the slug is a URL. |
+| `key` | The name a host uses for this item in the filter below. Declare one on every item. Falls back to the menu slug when absent. |
 
 **Prefer `product`.** A product is not the same thing as a plugin. It may be gated by a Jetpack module, by a standalone plugin, or by either:
 
@@ -63,6 +63,8 @@ Admin_Menu::add_menu(
 Reach for `module` only when a sidebar item has no product class at all. SEO is the example: it's gated by the `seo-tools` module and has no My Jetpack card, so there's no product to name. An item that declares neither is always shown.
 
 A standalone plugin using `module` must also declare that module through `jetpack_get_available_standalone_modules`, or it never reads as active.
+
+**Always declare a `key`.** The menu slug is a poor identifier to hand a host. Several items register a URL as their slug (`admin.php?page=my-jetpack#/add-videopress`), Blaze's slug is filterable, and VideoPress registers under one slug when its module is active and another when it isn't — so a host naming a slug is naming something that can move, or is naming half an item. A key is a name we control and can keep stable across all of that.
 
 Everything fails open. An item that declares no gate, a gate naming a product that isn't registered, and a site where My Jetpack didn't initialize all leave the item in place, so declaring a gate can only ever remove an item deliberately.
 

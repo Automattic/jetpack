@@ -1015,6 +1015,48 @@ class Admin_Menu_Test extends TestCase {
 	}
 
 	/**
+	 * One key covers an item that registers under a different slug depending on state.
+	 *
+	 * VideoPress is the live case: the dashboard slug when the module is active, a My Jetpack
+	 * URL when it isn't. A host hiding VideoPress should not have to name both, or know which
+	 * one the site is currently on.
+	 *
+	 * @param string $slug The slug this registration happens to use.
+	 *
+	 * @dataProvider one_key_two_slugs_data
+	 */
+	#[DataProvider( 'one_key_two_slugs_data' )]
+	public function test_one_key_covers_either_registration( $slug ) {
+		wp_set_current_user( self::$admin_user_id );
+
+		add_filter(
+			'jetpack_admin_menu_visibility',
+			function ( $states ) {
+				$states['jetpack-videopress'] = Admin_Menu::VISIBILITY_HIDDEN;
+				return $states;
+			}
+		);
+
+		Admin_Menu::add_menu( 'VideoPress', 'VideoPress', 'manage_options', $slug, '__return_null', null, array( 'key' => 'jetpack-videopress' ) );
+
+		do_action( 'admin_menu' );
+
+		$this->assertNotContains( $slug, $this->get_submenu_slugs() );
+	}
+
+	/**
+	 * The two slugs one VideoPress item registers under.
+	 *
+	 * @return array
+	 */
+	public static function one_key_two_slugs_data() {
+		return array(
+			'module active'   => array( 'jetpack-videopress' ),
+			'module inactive' => array( 'admin.php?page=my-jetpack#/add-videopress' ),
+		);
+	}
+
+	/**
 	 * Returns the slugs currently registered under the Jetpack top-level menu.
 	 *
 	 * @return array
