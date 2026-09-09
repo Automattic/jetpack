@@ -108,11 +108,13 @@ const TooltipDate: FC< { date?: Date; displayResolution: Exclude< TickResolution
  * one row per visible series (label + formatted value), sorted descending by
  * value. Reused by AreaChart, which has the same multi-series shape.
  *
- * @param params - visx `RenderTooltipParams< DataPointDate >`, plus the chart's optional `bucketInfo`.
+ * @param params        - visx tooltip data and the chart's optional `bucketInfo`.
+ * @param inheritStyles - Inherit the container's surface and text color.
  * @return Tooltip JSX, or `null` when no datum is hovered.
  */
 export const renderDefaultTooltip = (
-	params: RenderTooltipParams< DataPointDate > & { bucketInfo?: BucketInfo }
+	params: RenderTooltipParams< DataPointDate > & { bucketInfo?: BucketInfo },
+	inheritStyles = false
 ) => {
 	const { tooltipData, bucketInfo } = params;
 	const nearestDatum = tooltipData?.nearestDatum?.datum;
@@ -126,7 +128,11 @@ export const renderDefaultTooltip = (
 		.sort( ( a, b ) => b.value - a.value );
 
 	return (
-		<div className={ styles[ 'line-chart__tooltip' ] }>
+		<div
+			className={ styles[ 'line-chart__tooltip' ] }
+			data-testid="line-chart-tooltip-content"
+			style={ inheritStyles ? { background: 'inherit', color: 'inherit' } : undefined }
+		>
 			<div className={ styles[ 'line-chart__tooltip-date' ] }>
 				<TooltipDate
 					date={ nearestDatum.date }
@@ -221,6 +227,8 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 			smoothing = true,
 			curveType,
 			renderTooltip = renderDefaultTooltip,
+			tooltipPlacement,
+			tooltipStyle,
 			withStartGlyphs = false,
 			withEndGlyphs = false,
 			animation,
@@ -477,8 +485,10 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 		// default or custom, so a heading keyed on it can't disagree with the axis.
 		const tooltipRenderer = useMemo(
 			() => ( params: RenderTooltipParams< DataPointDate > ) =>
-				renderTooltip( { ...params, bucketInfo } ),
-			[ renderTooltip, bucketInfo ]
+				renderTooltip === renderDefaultTooltip
+					? renderDefaultTooltip( { ...params, bucketInfo }, Boolean( tooltipStyle ) )
+					: renderTooltip( { ...params, bucketInfo } ),
+			[ renderTooltip, bucketInfo, tooltipStyle ]
 		);
 
 		if ( error ) {
@@ -676,6 +686,8 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 												<AccessibleTooltip
 													detectBounds
 													snapTooltipToDatumX
+													tooltipPlacement={ tooltipPlacement }
+													style={ tooltipStyle }
 													snapTooltipToDatumY
 													showSeriesGlyphs
 													renderTooltip={ tooltipRenderer }
@@ -683,6 +695,8 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 													glyphStyle={ glyphStyle }
 													showVerticalCrosshair={ withTooltipCrosshairs?.showVertical }
 													showHorizontalCrosshair={ withTooltipCrosshairs?.showHorizontal }
+													verticalCrosshairStyle={ withTooltipCrosshairs?.verticalStyle }
+													horizontalCrosshairStyle={ withTooltipCrosshairs?.horizontalStyle }
 													selectedIndex={ selectedIndex }
 													tooltipRef={ tooltipRef }
 													keyboardFocusedClassName={

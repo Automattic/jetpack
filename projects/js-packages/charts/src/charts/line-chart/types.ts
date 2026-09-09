@@ -8,9 +8,9 @@ import type {
 	AnnotationStyles,
 	DataPoint,
 } from '../../types';
-import type { RenderTooltipParams } from '../../visx/types';
+import type { RenderTooltipParams, XyChartTooltipProps } from '../../visx/types';
 import type { GlyphProps } from '@visx/xychart';
-import type { ReactNode, SVGProps, FC } from 'react';
+import type { ReactNode, SVGProps, FC, CSSProperties } from 'react';
 
 export type LineChartAnnotationProps = {
 	datum: DataPointDate;
@@ -41,6 +41,13 @@ export interface LineChartProps extends BaseChartProps< SeriesData[] >, SeriesVi
 	renderTooltip?: (
 		params: RenderTooltipParams< DataPointDate > & { bucketInfo?: BucketInfo }
 	) => ReactNode;
+	/**
+	 * Place the panel below the x-axis tick labels with a pointer at the datum x; horizontal bounds still apply.
+	 * @default 'auto'
+	 */
+	tooltipPlacement?: XyChartTooltipProps< DataPointDate >[ 'tooltipPlacement' ];
+	/** Inline container styles; the default tooltip content inherits the surface and text color. */
+	tooltipStyle?: CSSProperties;
 	withStartGlyphs?: boolean;
 	withEndGlyphs?: boolean;
 	renderGlyph?: < Datum extends object >( props: GlyphProps< Datum > ) => ReactNode;
@@ -49,6 +56,8 @@ export interface LineChartProps extends BaseChartProps< SeriesData[] >, SeriesVi
 	withTooltipCrosshairs?: {
 		showVertical?: boolean;
 		showHorizontal?: boolean;
+		verticalStyle?: SVGProps< SVGLineElement >;
+		horizontalStyle?: SVGProps< SVGLineElement >;
 	};
 	/**
 	 * Enable drag-to-zoom on the X axis. The user drags horizontally to
