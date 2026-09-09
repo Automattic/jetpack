@@ -164,6 +164,8 @@ class Publicize extends Publicize_Base {
 	/**
 	 * Add method to update Publicize connections.
 	 *
+	 * @todo Kept as a fallback for the wpcom/v2/publicize/connections/sync REST endpoint that replaced it; remove after a few releases (CONNECT-446).
+	 *
 	 * @param array $methods Array of registered methods.
 	 * @return array
 	 */

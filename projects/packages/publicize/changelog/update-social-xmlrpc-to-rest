@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Connections: Add a REST endpoint to receive updated connections from WordPress.com.
