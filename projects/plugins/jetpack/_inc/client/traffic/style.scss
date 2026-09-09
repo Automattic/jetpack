@@ -256,13 +256,6 @@ $twitter-pofile-image-padding: 17px;
 	top: 1em;
 }
 
-.jp-stats-odyssey-disabled-notice {
-
-	@include breakpoints.breakpoint(">480px") {
-		width: calc(100% - 26px);
-	}
-}
-
 .jp-stats-odyssey-toggle {
 	margin-bottom: 20px;
 }
