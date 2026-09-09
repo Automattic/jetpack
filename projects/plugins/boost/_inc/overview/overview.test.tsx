@@ -268,6 +268,25 @@ test( 'selects the free history upgrade using module availability', async () => 
 	expect( screen.queryByText( /Performance history will appear/ ) ).not.toBeInTheDocument();
 } );
 
+test( 'retains the free history state when a modules refetch fails with a fresh-start alert', async () => {
+	window.jetpack_boost_ds!.modules_state!.value = {
+		performance_history: { available: false, active: false },
+	};
+	window.jetpack_boost_ds!.dismissed_alerts!.value = {
+		performance_history_fresh_start: false,
+	};
+	const { client } = renderOverview();
+	await expect( screen.findByRole( 'button', { name: 'Upgrade now' } ) ).resolves.toBeTruthy();
+	await waitFor( () => expect( client.isFetching() ).toBe( 0 ) );
+	jest.mocked( apiFetch ).mockRejectedValueOnce( new Error( 'Module settings unavailable' ) );
+	await act( async () => {
+		await client.refetchQueries( { queryKey: [ 'modules_state' ] } );
+	} );
+	await expect( screen.findByText( 'Module settings unavailable' ) ).resolves.toBeTruthy();
+	expect( screen.getByRole( 'button', { name: 'Upgrade now' } ) ).toBeInTheDocument();
+	expect( screen.queryByText( /Jetpack Boost premium has been activated/ ) ).not.toBeInTheDocument();
+} );
+
 test( 'selects the paid empty history state using module availability', async () => {
 	renderOverview();
 	await expect( screen.findByText( /Performance history will appear/ ) ).resolves.toBeTruthy();

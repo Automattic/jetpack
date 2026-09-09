@@ -136,7 +136,7 @@ function OverviewContent( { isVisible = true }: { isVisible?: boolean } ) {
 				isError={ history.isError && ! history.isFetching }
 				error={ history.error }
 				onRetry={ () => history.refetch() }
-				needsUpgrade={ modules.isSuccess && ! modules.data?.performance_history?.available }
+				needsUpgrade={ modules.data?.performance_history?.available !== true }
 				isFreshStart={ ! freshStartCompleted }
 				onDismissFreshStart={ dismissFreshStart }
 			/>
