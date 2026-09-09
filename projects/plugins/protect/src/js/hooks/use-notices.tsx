@@ -9,6 +9,8 @@ import type { Dispatch, FC, ReactNode, SetStateAction } from 'react';
 interface NoticeState {
 	message?: string | JSX.Element;
 	spokenMessage?: string;
+	// Changes on every notice, so an identical repeat still remounts and re-announces.
+	id?: number;
 	dismissable?: boolean;
 	duration?: number;
 	type?: 'success' | 'info' | 'warning' | 'error';
@@ -18,6 +20,8 @@ interface NoticeContextValue {
 	notice: NoticeState;
 	setNotice: Dispatch< SetStateAction< NoticeState > >;
 }
+
+let noticeId = 0;
 
 const NoticeContext = createContext< NoticeContextValue | undefined >( undefined );
 
@@ -45,6 +49,7 @@ export default function useNotices() {
 	const showSuccessNotice = useCallback(
 		( message: string ) => {
 			setNotice( {
+				id: ++noticeId,
 				type: 'success',
 				dismissable: true,
 				duration: 7_500,
@@ -57,6 +62,7 @@ export default function useNotices() {
 	const showSavingNotice = useCallback(
 		( message?: string ) => {
 			setNotice( {
+				id: ++noticeId,
 				type: 'info',
 				dismissable: false,
 				message: message || __( 'Saving Changes…', 'jetpack-protect' ),
@@ -67,28 +73,30 @@ export default function useNotices() {
 
 	const showErrorNotice = useCallback(
 		( message: string ) => {
+			const error = message || __( 'An error occurred.', 'jetpack-protect' );
+			const advice = __(
+				'Please try again or <supportLink>contact support</supportLink>.',
+				'jetpack-protect'
+			);
+
 			setNotice( {
+				id: ++noticeId,
 				type: 'error',
 				dismissable: true,
-				spokenMessage: message || __( 'An error occurred.', 'jetpack-protect' ),
+				// The same translated string, with the interpolation tags stripped.
+				spokenMessage: `${ error } ${ advice.replace( /<\/?supportLink>/g, '' ) }`,
 				message: (
 					<>
-						{ message || __( 'An error occurred.', 'jetpack-protect' ) }{ ' ' }
-						{ createInterpolateElement(
-							__(
-								'Please try again or <supportLink>contact support</supportLink>.',
-								'jetpack-protect'
+						{ error }{ ' ' }
+						{ createInterpolateElement( advice, {
+							supportLink: (
+								<Link
+									openInNewTab
+									href={ hasPlan ? PAID_PLUGIN_SUPPORT_URL : FREE_PLUGIN_SUPPORT_URL }
+									children={ null }
+								/>
 							),
-							{
-								supportLink: (
-									<Link
-										openInNewTab
-										href={ hasPlan ? PAID_PLUGIN_SUPPORT_URL : FREE_PLUGIN_SUPPORT_URL }
-										children={ null }
-									/>
-								),
-							}
-						) }
+						} ) }
 					</>
 				),
 			} );
