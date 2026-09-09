@@ -152,8 +152,8 @@ describe( 'LineChart', () => {
 			await user.keyboard( '{ArrowRight}' );
 
 			const content = screen.getByTestId( 'line-chart-tooltip-content' );
-			expect( content.style.color ).toBe( color );
-			expect( content.style.background ).toBe( background );
+			expect( content ).toHaveStyle( { color } );
+			expect( content ).toHaveStyle( { background } );
 		}
 	);
 
