@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { PRESET_CUSTOM, type PrimaryPresetId } from '@jetpack-premium-analytics/datetime';
-import { Button, DateRangeCalendar, Stack } from '@jetpack-premium-analytics/externals';
+import { Button, RangeCalendar, Stack } from '@jetpack-premium-analytics/externals';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useState } from 'react';
@@ -13,9 +13,9 @@ import { DateRangeInput } from '../date-range-input';
 import './date-range-filter.scss';
 
 /**
- * The calendar's own range type, from `@automattic/ui`.
+ * The calendar's own range type, from `@wordpress/ui`.
  */
-export type DateRange = NonNullable< Parameters< typeof DateRangeCalendar >[ 0 ][ 'selected' ] >;
+export type DateRange = NonNullable< Parameters< typeof RangeCalendar >[ 0 ][ 'value' ] >;
 
 type DateRangePopoverContentProps = {
 	range: DateRange;
@@ -103,10 +103,10 @@ export function DateRangePopoverContent( {
 
 	/*
 	 * First click starts a new range, second completes it. Uses the clicked day,
-	 * not `onSelect`'s computed range: react-day-picker never restarts a
+	 * not the calendar's computed range: `RangeCalendar` never restarts a
 	 * complete range on click, it only moves the nearest endpoint.
 	 */
-	const handleCalendarSelect = ( _nextRange: DateRange | undefined, triggerDate: Date ) => {
+	const handleCalendarChange = ( _nextRange: DateRange | null, triggerDate: Date ) => {
 		if ( draftRange?.from && ! draftRange.to ) {
 			const [ from, to ] =
 				triggerDate < draftRange.from
@@ -137,10 +137,12 @@ export function DateRangePopoverContent( {
 			>
 				<DateRangeInput range={ range } onChange={ handleChange } timeZone={ timeZone } />
 
-				<DateRangeCalendar
-					className="date-range-calendar"
-					selected={ calendarRange }
-					onSelect={ handleCalendarSelect }
+				<RangeCalendar
+					className={ clsx( 'date-range-calendar', {
+						'date-range-calendar--range-complete': ! draftRange,
+					} ) }
+					value={ calendarRange }
+					onValueChange={ handleCalendarChange }
 					numberOfMonths={ isWideScreen ? 2 : 1 }
 					month={ displayedMonth }
 					onMonthChange={ setDisplayedMonth }
