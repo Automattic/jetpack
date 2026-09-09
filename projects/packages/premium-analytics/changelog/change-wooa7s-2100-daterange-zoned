@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Date range: Type the range bounds as zoned instants, so day boundaries are measured on the site's clock.
+Date range: Type the range bounds as zoned instants, so day boundaries are measured on the site's clock. A range whose end precedes its start now reports no period length instead of a one-hour window.
