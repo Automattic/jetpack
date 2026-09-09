@@ -49,8 +49,8 @@
 	/* The container is click-through, so each notice opts back in. */
 	pointer-events: auto;
 
-	/* `@wordpress/ui`'s medium elevation, the level its popovers and menus use.
-	   Copied because the design system has no shadow token to reference yet. */
+	/* `@wordpress/ui`'s medium elevation. Copied, not referenced: its
+	   `--_wp-ui-elevation-md` is redeclared per component, never published. */
 	box-shadow:
 		0 2px 3px rgba(0, 0, 0, 0.05),
 		0 4px 5px rgba(0, 0, 0, 0.04),
