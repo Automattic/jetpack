@@ -33,9 +33,7 @@ export const useXYChartTheme = ( data: SeriesData[] ) => {
 			.map( color => resolveColor( color ) )
 			.filter( ( color ): color is string => Boolean( color ) && ! color.includes( 'var(' ) );
 
-		// The tooltip is painted in a portal outside the scope, and visx concatenates this color into a `box-shadow` where a chain cannot take a suffix; see TOKENS.md#the-svg-bridge. Passing it explicitly leaves `svgLabelSmall.fill`, which visx derives it from, a chain for the SVG tick labels.
-		// Hex specifically: that concatenation appends `55`, which only yields a color
-		// after a 6-digit hex. An `rgb()` computed value takes the whole shadow down.
+		// Tooltip shadow color resolution is explained in TOKENS.md#the-svg-bridge.
 		const resolvedLabelColor = resolveColor( CATALOG_POINTERS.labelAxis );
 		const htmlLabelColor = resolvedLabelColor
 			? normalizeColorToHex( resolvedLabelColor ) || resolvedLabelColor

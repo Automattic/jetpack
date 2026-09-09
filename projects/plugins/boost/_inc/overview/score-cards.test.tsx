@@ -31,3 +31,29 @@ test( 'the Overall information popover shows every grade and its score range', a
 		expect( row.getByRole( 'cell', { name: range } ) ).toBeVisible();
 	}
 } );
+
+test.each( [
+	[ 91, 'A', 'Good' ],
+	[ 90, 'B', 'Good' ],
+	[ 75, 'C', 'Could be improved' ],
+	[ 50, 'D', 'Poor' ],
+	[ 35, 'E', 'Poor' ],
+	[ 25, 'F', 'Poor' ],
+] )( 'pairs grade %s with its description', ( score, grade, description ) => {
+	render(
+		<ScoreCards
+			scores={ {
+				current: { mobile: Number( score ), desktop: Number( score ) },
+				noBoost: null,
+				isStale: false,
+			} }
+		/>
+	);
+	const overall = within( screen.getByRole( 'region', { name: 'Overall grade' } ) );
+	expect( overall.getByText( String( grade ) ) ).toBeVisible();
+	expect( overall.getByText( String( description ) ) ).toBeVisible();
+	if ( score === 75 ) {
+		const desktop = within( screen.getByRole( 'region', { name: 'Desktop' } ) );
+		expect( desktop.getByText( 'Good' ) ).toBeVisible();
+	}
+} );
