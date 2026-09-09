@@ -133,7 +133,6 @@ class Expiry_Data_Test extends \WorDBless\BaseTestCase {
 	public function test_billing_overrides_the_raw_flag_when_it_answers(): void {
 		$this->assertSame( Expiry_Data::STATE_APPROACHING, $this->state( $this->declared_purchase( 45, true, false ) )['state'] );
 
-		// An Atomic site synced before the declared shape answers null and keeps the flag.
 		$this->assertSame( Expiry_Data::STATE_APPROACHING, $this->state( $this->declared_purchase( 45, false, null ) )['state'] );
 		$this->assertSame( Expiry_Data::STATE_ACTIVE, $this->state( $this->declared_purchase( 45, true, null ) )['state'] );
 	}

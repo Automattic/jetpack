@@ -232,10 +232,8 @@ function wpcom_expiry_notices_track_props( array $state, bool $is_owner, string 
 /**
  * Enqueue a surface's script with its data on `window.$global`, and its stylesheet.
  *
- * Inline JSON rather than wp_localize_script(), which casts every top-level
- * scalar to a string and would hand the client "" for a false. The Tracks
- * transport rides along because Atomic wp-admin loads none of its own, and
- * without it `window._tkq` stays an ordinary array that is dropped on unload.
+ * Inline JSON: wp_localize_script() would hand the client "" for a false.
+ * The Tracks transport rides along because Atomic wp-admin loads none of its own.
  *
  * @param string              $script Build entry of the script.
  * @param string              $global Name of the window property the data lands on.

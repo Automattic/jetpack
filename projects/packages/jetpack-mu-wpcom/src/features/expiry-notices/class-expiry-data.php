@@ -186,7 +186,7 @@ class Expiry_Data {
 	 * @param string $slug Product slug.
 	 */
 	public static function derive_plan_name( string $slug ): ?string {
-		if ( '' === $slug || ! class_exists( '\Automattic\Jetpack\Plans' ) ) {
+		if ( '' === $slug || ! method_exists( '\Automattic\Jetpack\Plans', 'get_plan_short_name' ) ) {
 			return null;
 		}
 		return Expiry_Wpcom::remember(
