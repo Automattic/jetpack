@@ -215,6 +215,7 @@ function buildDateContext( timeZone: string ): DateContext {
 	const nowWithTZ = toLocalTZ( undefined, timeZone );
 	const initOfToday = startOfDay( nowWithTZ );
 	const endOfToday = endOfDay( nowWithTZ );
+	// A nested `date-fns` call has no contextual type, and widens the result to `Date`.
 	const initOfYesterday = subDays( initOfToday, 1 );
 	const endOfYesterday = endOfDay( initOfYesterday );
 	const lastMonth = subMonths( initOfToday, 1 );

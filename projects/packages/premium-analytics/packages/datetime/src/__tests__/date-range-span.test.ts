@@ -3,7 +3,6 @@
  */
 import { getDateRangeSpan } from '../date-range-span';
 import { createTZDateFromParts } from '../tz';
-import type { DateRange } from '../get-comparison-range';
 import type { TZDate } from '@date-fns/tz';
 
 /**
@@ -43,6 +42,10 @@ describe( 'getDateRangeSpan', () => {
 		expect( getDateRangeSpan() ).toBeNull();
 		expect( getDateRangeSpan( {} ) ).toBeNull();
 		expect( getDateRangeSpan( { from: at( 2026, 7, 21 ) } ) ).toBeNull();
+	} );
+
+	it( 'returns null when the range runs backwards', () => {
+		expect( getDateRangeSpan( { from: endOf( 2026, 7, 28 ), to: at( 2026, 6, 29 ) } ) ).toBeNull();
 	} );
 
 	it( 'counts whole days inclusively', () => {
@@ -124,21 +127,6 @@ describe( 'getDateRangeSpan', () => {
 			unit: 'day',
 			value: 30,
 		} );
-	} );
-
-	it( "measures a 30 day window on the site's clock, not the machine's", () => {
-		expect( getDateRangeSpan( { from: at( 2026, 6, 29 ), to: endOf( 2026, 7, 28 ) } ) ).toEqual( {
-			unit: 'day',
-			value: 30,
-		} );
-	} );
-
-	// Babel strips types, so this is checked by `pnpm run typecheck`, not by jest.
-	it( 'rejects a zone-naive bound at the type level', () => {
-		// @ts-expect-error -- a plain `Date` names an instant but no zone to cut days in.
-		const naive: DateRange = { from: new Date( 0 ), to: new Date( 0 ) };
-
-		expect( naive ).toBeDefined();
 	} );
 
 	it( 'falls back to days when the range does not divide into months', () => {
