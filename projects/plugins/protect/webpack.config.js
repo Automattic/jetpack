@@ -19,7 +19,19 @@ module.exports = [
 			...jetpackWebpackConfig.resolve,
 		},
 		node: false,
-		plugins: [ ...jetpackWebpackConfig.StandardPlugins() ],
+		plugins: [
+			...jetpackWebpackConfig.StandardPlugins( {
+				DependencyExtractionPlugin: {
+					// `@wordpress/ui`'s close control reaches `@wordpress/theme` and
+					// `@wordpress/private-apis`. This page registers no shim for those
+					// handles, and an unmet one stops the whole bundle enqueuing.
+					requestMap: {
+						'@wordpress/theme': { external: false },
+						'@wordpress/private-apis': { external: false },
+					},
+				},
+			} ),
+		],
 		module: {
 			strictExportPresence: true,
 			rules: [
