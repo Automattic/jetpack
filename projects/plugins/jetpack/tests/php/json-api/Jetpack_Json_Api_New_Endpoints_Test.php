@@ -24,6 +24,8 @@ require_once JETPACK__PLUGIN_DIR . 'class.json-api-endpoints.php';
 class Jetpack_Json_Api_New_Endpoints_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
+	const FIXTURE_SLUG = 'jetpack-folder-exists-fixture';
+
 	/**
 	 * A user without install_plugins / install_themes.
 	 *
@@ -49,6 +51,28 @@ class Jetpack_Json_Api_New_Endpoints_Test extends WP_UnitTestCase {
 		$_SERVER['HTTP_HOST']      = '127.0.0.1';
 		$_SERVER['REQUEST_URI']    = '/';
 		wp_set_current_user( self::$author_id );
+	}
+
+	public function tear_down() {
+		$this->remove_fixture_plugin();
+		parent::tear_down();
+	}
+
+	/**
+	 * The duplicate-upload test installs for real, so the plugin has to go before
+	 * the next test calls get_plugins() and finds a plugin nothing else installed.
+	 */
+	private function remove_fixture_plugin() {
+		$dir = WP_PLUGIN_DIR . '/' . self::FIXTURE_SLUG;
+		if ( ! is_dir( $dir ) ) {
+			return;
+		}
+
+		foreach ( (array) glob( $dir . '/*' ) as $file ) {
+			unlink( $file );
+		}
+		rmdir( $dir );
+		wp_clean_plugins_cache( false );
 	}
 
 	/**
@@ -363,7 +387,20 @@ class Jetpack_Json_Api_New_Endpoints_Test extends WP_UnitTestCase {
 			array( 'zip' => array( array( 'id' => $this->create_plugin_zip_attachment( $slug ) ) ) )
 		);
 
-		return $endpoint->install();
+		// Sync accumulates installs for the whole request and never clears them, so
+		// its listener has to be muted or this fixture shows up in the install events
+		// later tests assert on.
+		$sync_plugins = \Automattic\Jetpack\Sync\Modules::get_module( 'plugins' );
+		$listener     = array( $sync_plugins, 'on_upgrader_completion' );
+		$was_hooked   = remove_action( 'upgrader_process_complete', $listener, 10 );
+
+		$result = $endpoint->install();
+
+		if ( $was_hooked ) {
+			add_action( 'upgrader_process_complete', $listener, 10, 2 );
+		}
+
+		return $result;
 	}
 
 	/**
@@ -371,26 +408,21 @@ class Jetpack_Json_Api_New_Endpoints_Test extends WP_UnitTestCase {
 	 * upload actually reaches the branch that adds it.
 	 */
 	public function test_duplicate_upload_returns_folder_exists_with_plugin_identity() {
-		$slug       = 'jetpack-folder-exists-fixture';
-		$plugin_dir = WP_PLUGIN_DIR . '/' . $slug;
-		$this->assertTrue( $this->install_plugin_zip( $slug ), 'The first upload should install.' );
-		$this->assertDirectoryExists( $plugin_dir );
+		$this->assertTrue( $this->install_plugin_zip( self::FIXTURE_SLUG ), 'The first upload should install.' );
+		$this->assertDirectoryExists( WP_PLUGIN_DIR . '/' . self::FIXTURE_SLUG );
 
-		$error = $this->install_plugin_zip( $slug );
+		$error = $this->install_plugin_zip( self::FIXTURE_SLUG );
 
 		$this->assertInstanceOf( WP_Error::class, $error );
 		$this->assertSame( 'folder_exists', $error->get_error_code() );
 		$this->assertSame(
 			array(
-				'plugin_slug'    => $slug,
+				'plugin_slug'    => self::FIXTURE_SLUG,
 				'plugin_version' => '1.2.3',
 				'plugin_name'    => 'Folder Exists Fixture',
 			),
 			$error->get_error_data( 'additional_data' )
 		);
-
-		$this->rmdir( $plugin_dir );
-		rmdir( $plugin_dir );
 	}
 
 	/**
