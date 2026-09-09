@@ -46,9 +46,23 @@ Admin_Menu::add_menu(
 
 | Key | Meaning |
 | -- | -- |
-| `product` | A My Jetpack product slug. Its `is_active()` decides, which covers both module-gated and plugin-gated products. |
-| `module` | A Jetpack module name. For items with no product class behind them. A standalone plugin must also declare the module through `jetpack_get_available_standalone_modules`, or it never reads as active. |
+| `product` | A My Jetpack product slug — the products with cards on the My Jetpack page. Preferred, and covers most items. |
+| `module` | A Jetpack module name. Only for items with no product behind them. |
 | `key` | The name a host uses for this item in the filter below. Defaults to the menu slug; declare one when the slug is a URL. |
+
+**Prefer `product`.** A product is not the same thing as a plugin. It may be gated by a Jetpack module, by a standalone plugin, or by either:
+
+| Gated by | Products |
+| -- | -- |
+| A Jetpack module | Stats, Forms, Newsletter, AI, Scan |
+| A standalone plugin | Boost, Akismet, CRM |
+| Either — the standalone plugin when it's installed, the module otherwise | Social, Search, VideoPress, Backup, Protect |
+
+`is_active()` already knows which of those applies, so a registration site names the product and never has to work out which kind it is.
+
+Reach for `module` only when a sidebar item has no product class at all. SEO is the example: it's gated by the `seo-tools` module and has no My Jetpack card, so there's no product to name. An item that declares neither is always shown.
+
+A standalone plugin using `module` must also declare that module through `jetpack_get_available_standalone_modules`, or it never reads as active.
 
 Everything fails open. An item that declares no gate, a gate naming a product that isn't registered, and a site where My Jetpack didn't initialize all leave the item in place, so declaring a gate can only ever remove an item deliberately.
 
