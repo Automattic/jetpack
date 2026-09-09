@@ -127,8 +127,8 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding extends WP_REST_Controller {
 	 * Register REST API routes.
 	 */
 	public function register_routes() {
-		// Same flag as the plugin-side controller. Spelled out because mu-wpcom
-		// cannot see the paypal-payments constant.
+		// Hard-coded: mu-wpcom cannot reach PayPal_Payment_Buttons::API_MANAGED_BUTTONS_FLAG.
+		// Unregistered here, so only a `jetpack_feature_flag_enabled_*` filter flips it on wpcom.
 		if ( ! Feature_Flags::is_enabled( 'paypal-payments-api-managed-buttons' ) ) {
 			return;
 		}

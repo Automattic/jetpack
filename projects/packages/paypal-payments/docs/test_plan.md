@@ -194,7 +194,7 @@ Items marked 🔧 Manual are genuinely manual-only (accessibility, live PayPal A
 | Install standalone plugin in WordPress Playground | 🔧 Manual (environment-dependent) |
 | Insert block in new post — editor UI loads | 🔧 Manual (environment-dependent) |
 | Open post with existing PayPal block — no "doesn't include support" error | 🔧 Manual (environment-dependent) |
-| Block works in full Jetpack context (stub is no-op) | 🔧 Manual (environment-dependent) |
+| Block works in full Jetpack context | 🔧 Manual (environment-dependent) |
 
 ---
 
@@ -218,7 +218,7 @@ These cannot be automated and require a human tester with the specified environm
 - [ ] Standalone plugin installs cleanly in WordPress Playground
 - [ ] Create a new post → insert PayPal Payment Buttons block → editor UI loads (no "doesn't include support" error)
 - [ ] Open a post containing an existing PayPal block → block renders without error
-- [ ] Same block works correctly in full Jetpack monorepo context (stub is a no-op when real `jetpack-script-data` handle is registered)
+- [ ] Standalone and Playground load the real `jetpack-script-data` handle, so the editor gets `isWpcomPlatformSite`
 
 ### Live PayPal API (WOOPTP-163 + WOOPTP-164)
 

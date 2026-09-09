@@ -117,8 +117,8 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 	}
 
 	/**
-	 * A stacked button saved under the old schema carries no buttonType: Gutenberg
-	 * drops attributes equal to the default, and the default was 'stacked' then.
+	 * Gutenberg omits attributes matching the default, so buttons saved as stacked carry
+	 * no buttonType -- the default must stay 'stacked' or they re-render as single.
 	 */
 	public function test_a_legacy_stacked_button_still_renders_the_sdk_widget() {
 		register_block_type_from_metadata(
@@ -134,16 +134,45 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 		$this->assertStringNotContainsString( '/ncp/payment/', $html );
 	}
 
+	/**
+	 * A `file:` asset field here makes core register the editor bundle a second time,
+	 * on top of the copy load_editor_scripts() already enqueues.
+	 */
+	public function test_block_json_declares_no_asset_fields() {
+		$metadata = json_decode(
+			file_get_contents( dirname( __DIR__, 2 ) . '/src/paypal-payment-buttons/block.json' ),
+			true
+		);
+
+		$this->assertArrayNotHasKey( 'editorScript', $metadata );
+		$this->assertArrayNotHasKey( 'editorStyle', $metadata );
+		$this->assertArrayNotHasKey( 'style', $metadata );
+	}
+
+	public function test_register_block_style_registers_the_front_end_handle() {
+		wp_deregister_script( PayPal_Payment_Buttons::STYLE_HANDLE );
+
+		PayPal_Payment_Buttons::register_block_style();
+
+		$this->assertTrue( wp_script_is( PayPal_Payment_Buttons::STYLE_HANDLE, 'registered' ) );
+
+		wp_deregister_script( PayPal_Payment_Buttons::STYLE_HANDLE );
+	}
+
 	public function test_init_admin_registers_nothing_while_the_flag_is_off() {
 		remove_all_actions( 'init' );
 		remove_all_actions( 'admin_menu' );
 		remove_all_actions( 'wp_ajax_' . PayPal_Email_Sender::AJAX_ACTION );
 
-		PayPal_Payment_Buttons::init_admin();
-		$this->assertTrue( has_action( 'init' ) );
+		PayPal_Payment_Buttons::register_feature_flags();
 
+		PayPal_Payment_Buttons::init_admin();
 		do_action( 'init' );
 
+		// Covers the outcome, not the guard: both maybe_init() methods gate on the flag
+		// themselves, so this still passes if init_admin()'s own check is removed. The
+		// guard's only other effect -- keeping both classes off the autoloader -- is
+		// process-global, so no in-process assertion can pin it.
 		$this->assertFalse( has_action( 'admin_menu', array( PayPal_Admin_Page::class, 'register_menu' ) ) );
 		$this->assertFalse( has_action( 'wp_ajax_' . PayPal_Email_Sender::AJAX_ACTION, array( PayPal_Email_Sender::class, 'handle_send' ) ) );
 
@@ -423,44 +452,24 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 	}
 
 	/**
-	 * Test that init_rest_api() does not register the standalone script stubs.
-	 *
-	 * Script_Data registers the real jetpack-script-data handle on wp_loaded, after
-	 * init. A stub registered first wins, and the block editor is then left without
-	 * window.JetpackScriptData -- which breaks the editor for every block, not just
-	 * this one.
+	 * The editor bundle imports isWpcomPlatformSite from @automattic/jetpack-script-data,
+	 * which only exists in the real jetpack-script-data.js. Script_Data registers that file
+	 * on wp_loaded; anything that claims the handle on init wins, and the editor is left with
+	 * a module missing the export.
 	 */
-	public function test_init_rest_api_does_not_register_script_stubs() {
+	public function test_init_api_leaves_the_script_data_handle_alone() {
 		remove_all_actions( 'init' );
 		remove_all_actions( 'rest_api_init' );
+		wp_deregister_script( 'jetpack-script-data' );
 
-		PayPal_Payment_Buttons::init_rest_api();
+		PayPal_Payment_Buttons::init_api();
+		do_action( 'init' );
 
-		$this->assertFalse(
-			has_action( 'init', array( PayPal_Payment_Buttons::class, 'register_standalone_script_stubs' ) )
-		);
+		$this->assertFalse( wp_script_is( 'jetpack-script-data', 'registered' ) );
+		$this->assertNotFalse( has_action( 'rest_api_init', array( PayPal_Payment_Buttons::class, 'register_rest_routes' ) ) );
 
 		remove_all_actions( 'init' );
 		remove_all_actions( 'rest_api_init' );
-	}
-
-	/**
-	 * Test that the script stub is registered when the Jetpack runtime is absent.
-	 *
-	 * This is the standalone and Playground case the stub exists for. The Jetpack
-	 * case is covered by init_rest_api() not hooking the stub at all, since
-	 * defining a stand-in Jetpack class here would leak into every other test.
-	 */
-	public function test_script_stub_registers_without_jetpack() {
-		$this->assertFalse( class_exists( 'Jetpack' ), 'Precondition: no Jetpack runtime in this suite.' );
-
-		wp_deregister_script( 'jetpack-script-data' );
-
-		PayPal_Payment_Buttons::register_standalone_script_stubs();
-
-		$this->assertTrue( wp_script_is( 'jetpack-script-data', 'registered' ) );
-
-		wp_deregister_script( 'jetpack-script-data' );
 	}
 
 	/**

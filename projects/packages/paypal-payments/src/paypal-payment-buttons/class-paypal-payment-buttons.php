@@ -41,8 +41,7 @@ class PayPal_Payment_Buttons {
 	public const API_MANAGED_BUTTONS_FLAG = 'paypal-payments-api-managed-buttons';
 
 	/**
-	 * Front-end style handle, side-loaded from the sibling style.css by
-	 * `Assets::register_script` and handed to the block as its `style` arg.
+	 * Front-end style handle, registered by `register_block_style()`.
 	 *
 	 * @since $$next-version$$
 	 * @var string
@@ -174,16 +173,11 @@ class PayPal_Payment_Buttons {
 	}
 
 	/**
-	 * Side-load the front-end stylesheet and register it under STYLE_HANDLE.
+	 * Side-load the sibling style.css and register it under STYLE_HANDLE.
 	 *
-	 * The block.json `style` field can't do this. Its metadata is read from src/ in the
-	 * Jetpack plugin, and a `file:` path there also makes core register the editor
-	 * bundle a second time under its own generated handle, so the whole bundle is
-	 * parsed twice on every editor screen. Pass the handle to jetpack_register_block()
-	 * as `style` instead -- the podcast-episode block does the same.
-	 *
-	 * Called by both bootstraps: the standalone plugin registers the block itself and
-	 * never goes through register_block().
+	 * A `file:` style in block.json would also make core register the editor bundle a
+	 * second time, so the block takes this handle as its `style` arg. Both bootstraps
+	 * call it.
 	 *
 	 * @since $$next-version$$
 	 * @return void
@@ -812,17 +806,14 @@ class PayPal_Payment_Buttons {
 	 * @return void
 	 */
 	public static function init_api() {
-		add_action( 'init', array( __CLASS__, 'register_standalone_script_stubs' ), 1 );
 		self::init_rest_api();
 		add_action( 'init', array( __CLASS__, 'init_jetpack_sharing' ) );
 		add_action( 'init', array( PayPal_Email_Sender::class, 'maybe_init' ) );
 	}
 
 	/**
-	 * Register just the PayPal REST routes.
-	 *
-	 * For hosts that already provide the Jetpack runtime -- the Jetpack plugin --
-	 * and therefore must not get the standalone script stubs.
+	 * Register just the PayPal REST routes -- the subset the Jetpack loader uses,
+	 * without init_api()'s sharing and email-sender hookups.
 	 *
 	 * @since $$next-version$$
 	 * @return void
@@ -922,30 +913,5 @@ class PayPal_Payment_Buttons {
 				PayPal_Email_Sender::maybe_init();
 			}
 		);
-	}
-
-	/**
-	 * Register empty script stubs for Jetpack dependencies that may not be available
-	 * when the plugin runs outside the full Jetpack monorepo (e.g., WordPress Playground).
-	 *
-	 * The wp_script_is() guard ensures this is a no-op inside the full Jetpack plugin
-	 * where the real handle is already registered by the Assets package.
-	 *
-	 * @since 0.8.0
-	 * @return void
-	 */
-	public static function register_standalone_script_stubs() {
-		/*
-		 * The Jetpack plugin registers the real handle from Script_Data on wp_loaded,
-		 * which fires after init. Registering a stub first therefore wins, and the
-		 * editor is left without window.JetpackScriptData.
-		 */
-		if ( class_exists( 'Jetpack' ) ) {
-			return;
-		}
-
-		if ( ! wp_script_is( 'jetpack-script-data', 'registered' ) ) {
-			wp_register_script( 'jetpack-script-data', false, array(), '1.0.0', false );
-		}
 	}
 }

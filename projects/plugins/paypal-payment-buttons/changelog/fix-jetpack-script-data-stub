@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Stop the standalone plugin registering a jetpack-script-data stub when the Jetpack plugin is active, which left the block editor blank.
