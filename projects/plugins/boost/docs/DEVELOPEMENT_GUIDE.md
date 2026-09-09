@@ -7,8 +7,9 @@
 	* [Setting up your environment](#setting-up-your-environment)
 	* [Build the project](#build-the-project)
 	* [PHP unit tests](#php-unit-tests)
-	* [JavaScript unit tests and e2e tests](#javascript-e2e-tests)
+	* [JavaScript unit tests and e2e tests](#javascript-unit-tests-and-e2e-tests)
 	* [Linting Jetpack Boost's PHP code](#linting-jetpack-boost-php-code)
+	* [Typechecking the modern dashboard](#typechecking-the-modern-dashboard)
 	* [Linting Jetpack Boost's JavaScript code](#linting-jetpack-boost-javascript-code)
 * [Debugging Concatenate JS/CSS exclusions](#debugging-concatenate-jscss-exclusions)
 
@@ -54,7 +55,11 @@ Or you might also choose to run them inside Docker if you are using it as your d
 jetpack docker exec -- sh -c "composer -d wp-content/plugins/boost test-php"
 ```
 
-## JavaScript e2e tests
+## JavaScript unit tests and e2e tests
+
+From `projects/plugins/boost`, run `pnpm test` for JavaScript unit tests, including
+the modern dashboard. Test discovery is configured in
+[`tests/jest.config.cjs`](../tests/jest.config.cjs).
 
 Please refer to the Jetpack Boost e2e tests specific [documentation](../tests/e2e/README.md).
 

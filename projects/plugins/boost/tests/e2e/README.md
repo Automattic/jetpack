@@ -122,8 +122,8 @@ test.afterAll(async ({ boostUtils }) => {
 The `e2e-dashboard-modernization` plugin is mounted in the Docker E2E environment.
 Use `boostUtils.setDashboardModernization( true )` to opt in, or pass `false` to
 force the legacy dashboard. Call `boostUtils.resetDashboardModernization()` in
-teardown to deactivate the fixture and remove its option. `resetEnvironment()`
-also resets the filter before each suite.
+teardown to deactivate the fixture and remove its option. Calling
+`resetEnvironment()` during suite setup also resets the filter.
 
 For a local demo, run these commands from the monorepo root after starting your
 E2E environment:
