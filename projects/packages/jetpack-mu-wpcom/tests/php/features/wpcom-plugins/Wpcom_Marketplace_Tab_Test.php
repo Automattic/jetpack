@@ -117,14 +117,12 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 		$this->assertSame( 'https://example.com/icon.png', $card['icons']['1x'] );
 		$this->assertSame( 'https://example.com/icon.png', $card['icons']['default'] );
 
-		// The rating is already a percentage, and has to be numeric for wp_star_rating().
-		$this->assertSame( 53.4, $card['rating'] );
+		$this->assertSame( 0, $card['rating'] );
+		$this->assertSame( 0, $card['num_ratings'] );
 
 		// The author arrives wrapped in a link that goes nowhere.
 		$this->assertSame( 'Gravity Forms', $card['author'] );
 
-		// No download link, which is also what stops core offering an Install
-		// button inside the details modal.
 		$this->assertSame( '', $card['download_link'] );
 
 		$this->assertTrue( $card['wpcom_marketplace'] );
@@ -173,8 +171,7 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * The tab sits after Featured, so the screen's default view does not change:
-	 * core lands on whichever tab comes first when none is requested.
+	 * The tab sits after Featured, leaving the screen's default view unchanged.
 	 */
 	public function test_tab_is_registered_after_featured() {
 		$this->enable_tab();
@@ -197,13 +194,26 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 	/**
 	 * With the flag off nothing about the screen changes.
 	 */
+	public function test_tab_is_absent_by_default() {
+		$this->assertSame(
+			array( 'featured' ),
+			array_keys( wpcom_marketplace_add_tab( array( 'featured' => 'Featured' ) ) )
+		);
+	}
+
+	/**
+	 * Turning the flag off beats the registered default, whatever that becomes.
+	 */
 	public function test_tab_is_absent_when_flag_is_off() {
+		add_filter( self::FLAG_FILTER, '__return_true' );
+		$this->assertContains( WPCOM_MARKETPLACE_TAB, array_keys( wpcom_marketplace_add_tab( array( 'featured' => 'Featured' ) ) ) );
+		remove_filter( self::FLAG_FILTER, '__return_true' );
+
 		add_filter( self::FLAG_FILTER, '__return_false' );
-
-		$tabs = wpcom_marketplace_add_tab( array( 'featured' => 'Featured' ) );
-
-		$this->assertSame( array( 'featured' ), array_keys( $tabs ) );
-
+		$this->assertSame(
+			array( 'featured' ),
+			array_keys( wpcom_marketplace_add_tab( array( 'featured' => 'Featured' ) ) )
+		);
 		remove_filter( self::FLAG_FILTER, '__return_false' );
 	}
 
@@ -217,6 +227,10 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertIsArray( $args );
 		$this->assertTrue( $args['wpcom_marketplace'] );
+
+		// prepare_items() reads these back after the query without guarding them.
+		$this->assertArrayHasKey( 'per_page', $args );
+		$this->assertArrayHasKey( 'page', $args );
 	}
 
 	/**
@@ -261,6 +275,75 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 			$existing,
 			wpcom_marketplace_serve_plugins_api( $existing, 'query_plugins', (object) array( 'wpcom_marketplace' => true ) )
 		);
+	}
+
+	/**
+	 * Core resolves installed state from the directory name, so the card's slug has to
+	 * be the software slug. Three products in the live catalog differ from their own.
+	 */
+	public function test_card_uses_the_software_slug() {
+		$card = Marketplace_Catalog::to_card(
+			array_merge(
+				self::PRODUCT,
+				array(
+					'slug'          => 'mailpoet-business',
+					'software_slug' => 'mailpoet-premium',
+				)
+			)
+		);
+
+		$this->assertSame( 'mailpoet-premium', $card['slug'] );
+		$this->assertSame( 'mailpoet-business', $card['wpcom_product_slug'] );
+
+		// The purchase link still needs the product slug.
+		$this->assertStringContainsString( 'wordpress.com/plugins/mailpoet-business/', $card['homepage'] );
+	}
+
+	/**
+	 * One product in the live catalog has no software slug at all.
+	 */
+	public function test_card_falls_back_to_the_product_slug() {
+		$product = self::PRODUCT;
+		unset( $product['software_slug'] );
+
+		$this->assertSame( 'gravityforms', Marketplace_Catalog::to_card( $product )['slug'] );
+	}
+
+	/**
+	 * The catalog is keyed by the slug core will ask for.
+	 */
+	public function test_catalog_is_keyed_by_software_slug() {
+		$catalog = Marketplace_Catalog::to_catalog(
+			array(
+				array_merge(
+					self::PRODUCT,
+					array(
+						'slug'          => 'js-composer',
+						'software_slug' => 'js_composer',
+					)
+				),
+			)
+		);
+
+		$this->assertSame( array( 'js_composer' ), array_keys( $catalog ) );
+	}
+
+	/**
+	 * An unexpected payload shape produces a usable card rather than a warning.
+	 */
+	public function test_card_survives_unexpected_shapes() {
+		$card = Marketplace_Catalog::to_card(
+			array(
+				'slug'    => 'odd-one',
+				'icons'   => array( '1x' => 'https://example.com/a.png' ),
+				'banners' => null,
+			)
+		);
+
+		$this->assertSame( '', $card['version'] );
+		$this->assertSame( '', $card['icons']['default'] );
+		$this->assertSame( array(), $card['banners'] );
+		$this->assertSame( '', $card['last_updated'] );
 	}
 
 	/**

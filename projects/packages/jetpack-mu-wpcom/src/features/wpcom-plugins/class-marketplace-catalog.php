@@ -83,7 +83,9 @@ class Marketplace_Catalog {
 				continue;
 			}
 
-			$products[ $product['slug'] ] = self::to_card( $product );
+			$card = self::to_card( $product );
+
+			$products[ $card['slug'] ] = $card;
 		}
 
 		return $products;
@@ -120,7 +122,8 @@ class Marketplace_Catalog {
 	 * @return array|null Normalized product data, or null when the slug is not ours.
 	 */
 	public static function get_product_details( $slug ) {
-		if ( ! self::has_product( $slug ) ) {
+		$card = self::get_product( $slug );
+		if ( null === $card ) {
 			return null;
 		}
 
@@ -130,15 +133,11 @@ class Marketplace_Catalog {
 			return $cached;
 		}
 
-		$product = self::request( '/marketplace/products/' . rawurlencode( $slug ) );
+		$product = self::request( '/marketplace/products/' . rawurlencode( $card['wpcom_product_slug'] ?? $slug ) );
 
 		// The card carries every field the modal needs except the long description.
 		if ( ! is_array( $product ) || empty( $product['slug'] ) ) {
-			$card = self::get_product( $slug );
-
-			if ( null !== $card ) {
-				set_transient( $cache_key, $card, self::MISS_CACHE_TTL );
-			}
+			set_transient( $cache_key, $card, self::MISS_CACHE_TTL );
 
 			return $card;
 		}
@@ -153,21 +152,6 @@ class Marketplace_Catalog {
 		set_transient( $cache_key, $details, self::CACHE_TTL );
 
 		return $details;
-	}
-
-	/**
-	 * Clears everything this class caches.
-	 *
-	 * @return void
-	 */
-	public static function flush_cache() {
-		$products = get_transient( self::LIST_CACHE_KEY );
-
-		delete_transient( self::LIST_CACHE_KEY );
-
-		foreach ( array_keys( is_array( $products ) ? $products : array() ) as $slug ) {
-			delete_transient( self::PRODUCT_CACHE_PREFIX . $slug );
-		}
 	}
 
 	/**
@@ -202,45 +186,55 @@ class Marketplace_Catalog {
 	 * @return array
 	 */
 	public static function to_card( array $product ) {
-		$slug = (string) ( $product['slug'] ?? '' );
-		$icon = is_string( $product['icons'] ?? null ) ? $product['icons'] : '';
+		$product_slug = (string) ( $product['slug'] ?? '' );
+		$icon         = is_string( $product['icons'] ?? null ) ? $product['icons'] : '';
+
+		// Core resolves installed state from the plugin directory name, and
+		// Marketplace_Products_Updater keys its updates the same way, so the card has
+		// to carry the software slug. The two differ for a handful of products.
+		$slug = (string) ( $product['software_slug'] ?? '' );
+		if ( '' === $slug ) {
+			$slug = $product_slug;
+		}
 
 		return array(
-			'name'              => (string) ( $product['name'] ?? '' ),
-			'slug'              => $slug,
-			'version'           => (string) ( $product['version'] ?? '' ),
+			'name'               => (string) ( $product['name'] ?? '' ),
+			'slug'               => $slug,
+			'version'            => (string) ( $product['version'] ?? '' ),
 			// wpcom wraps the author name in a placeholder link that goes nowhere.
-			'author'            => wp_strip_all_tags( (string) ( $product['author'] ?? '' ) ),
-			'author_profile'    => '',
-			'contributors'      => array(),
-			'short_description' => (string) ( $product['short_description'] ?? '' ),
-			'sections'          => array( 'description' => (string) ( $product['short_description'] ?? '' ) ),
-			'icons'             => array(
+			'author'             => wp_strip_all_tags( (string) ( $product['author'] ?? '' ) ),
+			'author_profile'     => '',
+			'contributors'       => array(),
+			'short_description'  => (string) ( $product['short_description'] ?? '' ),
+			'sections'           => array( 'description' => (string) ( $product['short_description'] ?? '' ) ),
+			'icons'              => array(
 				'1x'      => $icon,
 				'2x'      => $icon,
 				'default' => $icon,
 			),
-			'banners'           => is_array( $product['banners'] ?? null ) ? $product['banners'] : array(),
-			// Already a 0-100 percentage, which is the scale wp_star_rating() wants.
-			'rating'            => (float) ( $product['rating'] ?? 0 ),
-			'num_ratings'       => 0,
-			'ratings'           => array(),
-			'active_installs'   => 0,
-			'downloaded'        => 0,
-			'last_updated'      => (string) ( $product['last_updated'] ?? '' ),
-			'added'             => '',
-			'homepage'          => self::product_url( $slug ),
-			'donate_link'       => '',
+			'banners'            => is_array( $product['banners'] ?? null ) ? $product['banners'] : array(),
+			// The payload has an average but no count, and core renders stars from the
+			// average alone, so showing one would mean "(based on 0 ratings)".
+			'rating'             => 0,
+			'num_ratings'        => 0,
+			'ratings'            => array(),
+			'active_installs'    => 0,
+			'downloaded'         => 0,
+			'last_updated'       => (string) ( $product['last_updated'] ?? '' ),
+			'added'              => '',
+			'homepage'           => self::product_url( $product_slug ),
+			'donate_link'        => '',
 			// No download link: these install through a purchase, and its absence is also
 			// what keeps core from offering an Install button in the details modal.
-			'download_link'     => '',
-			'requires'          => false,
-			'requires_php'      => false,
-			'tested'            => '',
-			'upgrade_notice'    => '',
+			'download_link'      => '',
+			'requires'           => false,
+			'requires_php'       => false,
+			'tested'             => '',
+			'upgrade_notice'     => '',
 			// Suppresses core's "WordPress.org Plugin Page" link. These are not on .org.
-			'external'          => true,
-			'wpcom_marketplace' => true,
+			'external'           => true,
+			'wpcom_marketplace'  => true,
+			'wpcom_product_slug' => $product_slug,
 		);
 	}
 

@@ -78,7 +78,9 @@ add_filter( 'install_plugins_tabs', 'wpcom_marketplace_add_tab' );
 /**
  * Restores and tags the list table's API request.
  *
- * Core sets `$args` to false for a tab it does not know, skipping the query entirely.
+ * Core sets `$args` to false for a tab it does not know, which both skips the query
+ * and discards the page, per_page and locale it had already put there. It reads
+ * per_page back unguarded after the query, so they have to be restored here.
  *
  * @param array|false $args Plugin install API arguments.
  * @return array|false
@@ -90,9 +92,16 @@ function wpcom_marketplace_tab_api_args( $args ) {
 
 	$args = is_array( $args ) ? $args : array();
 
-	$args['wpcom_marketplace'] = true;
-
-	return $args;
+	// The catalog comes back whole, so per_page only exists to keep core's pagination happy.
+	return array_merge(
+		array(
+			'page'     => 1,
+			'per_page' => 100,
+			'locale'   => get_user_locale(),
+		),
+		$args,
+		array( 'wpcom_marketplace' => true )
+	);
 }
 add_filter( 'install_plugins_table_api_args_' . WPCOM_MARKETPLACE_TAB, 'wpcom_marketplace_tab_api_args' );
 
@@ -124,7 +133,9 @@ function wpcom_marketplace_serve_plugins_api( $result, $action, $args ) {
 		);
 	}
 
-	if ( 'plugin_information' === $action && ! empty( $args->slug ) ) {
+	// Only answered from a warm cache: plugins_api( 'plugin_information' ) is called
+	// from unrelated screens, and none of them should pay for a catalog fetch.
+	if ( 'plugin_information' === $action && ! empty( $args->slug ) && false !== get_transient( Marketplace_Catalog::LIST_CACHE_KEY ) ) {
 		$product = Marketplace_Catalog::get_product_details( (string) $args->slug );
 
 		if ( null !== $product ) {
@@ -156,13 +167,23 @@ function wpcom_marketplace_action_links( $action_links, $plugin ) {
 		return $action_links;
 	}
 
-	$action_links[0] = sprintf(
+	$button = sprintf(
 		'<a class="button" href="%s" aria-label="%s" target="_blank" rel="noopener">%s</a>',
-		esc_url( Marketplace_Catalog::product_url( $plugin['slug'] ) ),
+		esc_url( Marketplace_Catalog::product_url( $plugin['wpcom_product_slug'] ?? $plugin['slug'] ) ),
 		/* translators: %s: Plugin name. */
 		esc_attr( sprintf( __( 'Get started with %s', 'jetpack-mu-wpcom' ), $plugin['name'] ?? $plugin['slug'] ) ),
 		esc_html__( 'Get started', 'jetpack-mu-wpcom' )
 	);
+
+	// Replace core's install button wherever it ended up, rather than assuming index 0.
+	foreach ( $action_links as $index => $link ) {
+		if ( str_contains( $link, 'install-now' ) ) {
+			$action_links[ $index ] = $button;
+			return $action_links;
+		}
+	}
+
+	array_unshift( $action_links, $button );
 
 	return $action_links;
 }
