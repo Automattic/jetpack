@@ -76,8 +76,7 @@ class Admin_Sidebar_Link {
 				'manage_options',
 				esc_url( Redirect::get_url( 'cloud-scan-history-wp-menu' ) ),
 				null,
-				Admin_Menu::POSITION_EXTERNAL,
-				array( 'key' => 'jetpack-scan-cloud' )
+				Admin_Menu::POSITION_EXTERNAL
 			);
 		}
 
@@ -90,8 +89,7 @@ class Admin_Sidebar_Link {
 				'manage_options',
 				esc_url( Redirect::get_url( 'cloud-scan-history-wp-menu' ) ),
 				null,
-				Admin_Menu::POSITION_EXTERNAL,
-				array( 'key' => 'jetpack-scan-cloud' )
+				Admin_Menu::POSITION_EXTERNAL
 			);
 		}
 
@@ -103,8 +101,7 @@ class Admin_Sidebar_Link {
 				'manage_options',
 				esc_url( Redirect::get_url( 'calypso-backups' ) ),
 				null,
-				Admin_Menu::POSITION_EXTERNAL,
-				array( 'key' => 'jetpack-backup-cloud' )
+				Admin_Menu::POSITION_EXTERNAL
 			);
 		}
 	}

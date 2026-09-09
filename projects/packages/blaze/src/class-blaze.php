@@ -193,11 +193,7 @@ class Blaze {
 					$menu_label,
 					'manage_options',
 					$menu_slug,
-					array( $blaze_dashboard, 'render' ),
-					null,
-					// Not $menu_slug: that is filterable, and a host naming it would lose
-					// the item the moment anything changed it.
-					array( 'key' => 'jetpack-blaze' )
+					array( $blaze_dashboard, 'render' )
 				);
 			} else {
 				// Other parents already exist at this priority, so add_submenu_page is safe.
