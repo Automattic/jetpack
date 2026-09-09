@@ -18,6 +18,12 @@ export interface ConnectionErrorData {
 	secondary_tracking_event?: string;
 	/** When true, the notice appends a "Contact Jetpack Support" link, e.g. because a reconnect may not fix it. */
 	support_link?: boolean;
+	/**
+	 * A presentational link the notice offers alongside (or instead of) the CTA,
+	 * e.g. Site Health for a blocked-request error. Set server-side from
+	 * `Error_Handler`'s `notice_link` display config.
+	 */
+	notice_link?: { label: string; url: string };
 	[ key: string ]: unknown;
 }
 
@@ -82,11 +88,74 @@ export interface ConnectionErrorProps {
 }
 
 /**
+ * Identity of the person looking at the notice, used to phrase an error's scope
+ * from their point of view ("Your account" vs "Another user's account").
+ */
+export type ConnectionErrorViewer = {
+	/** The viewer's local WordPress user ID, if known. */
+	currentUserId?: number;
+	/** Whether the viewer is the connection owner. */
+	isOwner?: boolean;
+	/** The connection owner's display name, if the viewer is allowed to see it. */
+	ownerName?: string;
+};
+
+/**
+ * One rendered detail line, standing for one or more errors.
+ */
+export type ConnectionErrorDetailLine = {
+	/** Stable key for rendering. */
+	key: string;
+	/** The line to display. */
+	text: string;
+};
+
+/**
+ * A presentational link an error asks the notice to offer, alongside (or instead
+ * of) its CTA. Declared server-side in `Error_Handler`'s display config — for
+ * example the Site Health link on a blocked-request error, where Site Health
+ * holds the diagnosis a reconnect cannot provide.
+ */
+export type ConnectionErrorNoticeLink = {
+	/** The link text. */
+	label: string;
+	/** Where it points. */
+	url: string;
+};
+
+/**
+ * A set of errors that share one headline message.
+ */
+export type ConnectionErrorGroup = {
+	/** The shared headline, rendered once for the whole group. */
+	message: string;
+	/** The errors it covers, each still carrying its own scope and code. */
+	errors: ConnectionErrorObject[];
+	/**
+	 * The deduplicated scope lines to render beneath the headline. Empty when the
+	 * title already names the scope, so it is never stated twice.
+	 */
+	detailLines: ConnectionErrorDetailLine[];
+	/**
+	 * Presentational links this group's errors ask for, e.g. Site Health for a
+	 * blocked-request error. Rendered directly beneath this group, not pooled
+	 * with other groups' links — with more than one error group on screen, a
+	 * link floating after all of them reads as belonging to the wrong one (or to
+	 * none in particular). Deduplicated by URL.
+	 */
+	noticeLinks: ConnectionErrorNoticeLink[];
+};
+
+/**
  * The return shape of `useConnectionErrorNotice` — the package's stable,
  * public data contract for connection-error consumers.
  */
 export interface UseConnectionErrorNoticeResult {
-	/** Whether there is an effective connection error to surface. */
+	/**
+	 * Whether there is an error worth surfacing to this viewer — true exactly when
+	 * `displayableErrors` is non-empty, so a consumer gating its notice chrome on
+	 * this never wraps an empty notice.
+	 */
 	hasConnectionError: boolean;
 	/** The effective error's message, if any. */
 	connectionErrorMessage: string | undefined;
@@ -106,6 +175,22 @@ export interface UseConnectionErrorNoticeResult {
 	connectionOwner: ConnectionOwner | null;
 	/** Whether the current viewer is the owner of record. */
 	isCurrentUserConnectionOwner: boolean;
+	/**
+	 * Every error worth showing this viewer: the store's map flattened, minus the
+	 * ones belonging to other users. Empty when there is nothing to render.
+	 */
+	displayableErrors: ConnectionErrorObject[];
+	/** The notice title: names the scope for a single error, counts them otherwise. */
+	errorTitle: string;
+	/**
+	 * The displayable errors grouped by shared message, each group carrying its
+	 * deduplicated scope lines. This is what a notice renders as its body.
+	 */
+	errorGroups: ConnectionErrorGroup[];
+	/** Whether the notice should offer a "Contact Jetpack Support" link. */
+	showSupportLink: boolean;
+	/** Who the notice is being phrased for, as derived from the connection data. */
+	viewer: ConnectionErrorViewer;
 	/**
 	 * The viewer's local WordPress user ID, so consumers can tell an error that is
 	 * theirs from one belonging to another user without subscribing to the store
