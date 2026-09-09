@@ -109,7 +109,7 @@ const TooltipDate: FC< { date?: Date; displayResolution: Exclude< TickResolution
  * value. Reused by AreaChart, which has the same multi-series shape.
  *
  * @param params        - visx tooltip data and the chart's optional `bucketInfo`.
- * @param inheritStyles - Inherit the container's surface and text color.
+ * @param inheritStyles - Inherit both container colors when true, or only colors explicitly overridden by the style object.
  * @return Tooltip JSX, or `null` when no datum is hovered.
  */
 export const renderDefaultTooltip = (
@@ -138,7 +138,9 @@ export const renderDefaultTooltip = (
 						? 'inherit'
 						: undefined,
 				color:
-					inheritStyles === true || ( inheritStyles && inheritStyles.color ) ? 'inherit' : undefined,
+					inheritStyles === true || ( inheritStyles && inheritStyles.color )
+						? 'inherit'
+						: undefined,
 			} }
 		>
 			<div className={ styles[ 'line-chart__tooltip-date' ] }>

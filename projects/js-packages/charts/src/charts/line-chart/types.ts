@@ -46,7 +46,7 @@ export interface LineChartProps extends BaseChartProps< SeriesData[] >, SeriesVi
 	 * @default 'auto'
 	 */
 	tooltipPlacement?: XyChartTooltipProps< DataPointDate >[ 'tooltipPlacement' ];
-	/** Inline container styles; the default tooltip content inherits the surface and text color. */
+	/** Inline container styles; see Below-Axis Tooltips in stories/index.docs.mdx for inheritance behavior. */
 	tooltipStyle?: CSSProperties;
 	withStartGlyphs?: boolean;
 	withEndGlyphs?: boolean;
