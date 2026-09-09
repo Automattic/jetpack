@@ -91,6 +91,29 @@ for ( const device of [ 'Desktop', 'Mobile' ] ) {
 		await hoverDay( chart, 21 );
 		const surface = page.locator( '.jetpack-boost-overview__history-tooltip' );
 		await expect( surface ).toBeVisible();
+		await expect( surface ).toHaveCSS( 'background-color', /^rgb\(/ );
+		const coveredBars = await surface.evaluate( element => {
+			// Include the non-interactive tooltip in browser paint-order hit testing.
+			const surfaceElement = element as HTMLElement;
+			surfaceElement.style.pointerEvents = 'auto';
+			const popup = element.getBoundingClientRect();
+			const overlaps = Array.from( document.querySelectorAll( '.visx-bar' ) ).flatMap( bar => {
+				const rect = bar.getBoundingClientRect();
+				const left = Math.max( popup.left, rect.left );
+				const right = Math.min( popup.right, rect.right );
+				const top = Math.max( popup.top, rect.top );
+				const bottom = Math.min( popup.bottom, rect.bottom );
+				if ( left >= right || top >= bottom ) {
+					return [];
+				}
+				const painted = document.elementFromPoint( ( left + right ) / 2, ( top + bottom ) / 2 );
+				return [ element.contains( painted ) ];
+			} );
+			surfaceElement.style.removeProperty( 'pointer-events' );
+			return overlaps;
+		} );
+		expect( coveredBars.length ).toBeGreaterThan( 0 );
+		expect( coveredBars.every( covered => covered ) ).toBe( true );
 		await expect( surface.locator( '.jetpack-boost-overview__tooltip-date' ) ).toHaveText(
 			'September 1, 2026'
 		);

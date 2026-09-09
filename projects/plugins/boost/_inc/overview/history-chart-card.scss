@@ -3,6 +3,12 @@
 	grid-template-columns: minmax(0, 1fr);
 	gap: var(--wpds-dimension-gap-lg);
 	min-inline-size: 0;
+	isolation: isolate;
+
+	> section:has([role="tooltip"]) {
+		position: relative;
+		z-index: 1;
+	}
 
 	&__header,
 	&__paging,
