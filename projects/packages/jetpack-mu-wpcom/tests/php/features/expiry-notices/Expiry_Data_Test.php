@@ -232,6 +232,21 @@ class Expiry_Data_Test extends \WorDBless\BaseTestCase {
 		$this->assertGreaterThan( 0, $purchase->might_still_reads );
 	}
 
+	public function test_the_plan_name_is_only_resolved_once_there_is_something_to_say(): void {
+		$cache_key = 'wpcom_expiry_notices_plan_name_business-bundle_' . get_user_locale();
+		set_transient( $cache_key, 'Business', HOUR_IN_SECONDS );
+
+		try {
+			$active = Expiry_Data::compute_state_from_purchase( $this->purchase( 'business-bundle', 200 ), self::FIXED_NOW );
+			$this->assertNull( $active['plan_name'] );
+
+			$approaching = Expiry_Data::compute_state_from_purchase( $this->purchase( 'business-bundle', 45 ), self::FIXED_NOW );
+			$this->assertSame( 'Business', $approaching['plan_name'] );
+		} finally {
+			delete_transient( $cache_key );
+		}
+	}
+
 	public function test_active_annual_far_from_expiry(): void {
 		$state = Expiry_Data::compute_state_from_purchase(
 			$this->purchase( 'business-bundle', 200 ),

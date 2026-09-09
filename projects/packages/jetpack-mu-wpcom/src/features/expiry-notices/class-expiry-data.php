@@ -9,6 +9,8 @@ declare( strict_types = 1 );
 
 namespace Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices;
 
+require_once __DIR__ . '/class-expiry-wpcom.php';
+
 /**
  * Reads purchases and computes a normalized expiry state for the primary plan.
  */
@@ -103,7 +105,6 @@ class Expiry_Data {
 		$now          ??= time();
 		$days_remaining = (int) floor( ( $expiry_ts - $now ) / DAY_IN_SECONDS );
 		$product_slug   = (string) $purchase->product_slug;
-		$plan_name      = self::derive_plan_name( $product_slug );
 		$is_monthly     = false !== stripos( $product_slug, 'monthly' );
 		// The raw flag is only the customer's intent: it stays true for a
 		// subscription that cannot actually be charged. `might_still_auto_renew()`
@@ -162,7 +163,8 @@ class Expiry_Data {
 			'state'           => $state,
 			'expiry_ts'       => $expiry_ts,
 			'days_remaining'  => $days_remaining,
-			'plan_name'       => $plan_name,
+			// Only once there is something to say: on Atomic the name is a request.
+			'plan_name'       => self::STATE_ACTIVE === $state ? null : self::derive_plan_name( $product_slug ),
 			'product_slug'    => $product_slug,
 			// Empty on an Atomic site whose synced purchases predate the field.
 			'subscription_id' => isset( $purchase->subscription_id ) && is_scalar( $purchase->subscription_id ) ? (string) $purchase->subscription_id : '',
@@ -220,8 +222,10 @@ class Expiry_Data {
 	}
 
 	/**
-	 * Resolve the canonical localized short name for a plan slug. Returns null
-	 * if the Plans package isn't loaded (i.e. outside wpcom contexts).
+	 * The plan's localized short name, or null where the Plans package can't say.
+	 *
+	 * Remembered per locale: on Atomic the Plans package fetches the whole plan
+	 * list from WordPress.com to answer, and on Simple it loads the billing stack.
 	 *
 	 * @param string $slug Product slug.
 	 */
@@ -229,8 +233,13 @@ class Expiry_Data {
 		if ( '' === $slug || ! class_exists( '\Automattic\Jetpack\Plans' ) ) {
 			return null;
 		}
-		$short_name = \Automattic\Jetpack\Plans::get_plan_short_name( $slug );
-		return is_string( $short_name ) && '' !== $short_name ? $short_name : null;
+		return Expiry_Wpcom::remember(
+			'wpcom_expiry_notices_plan_name_' . $slug . '_' . get_user_locale(),
+			static function () use ( $slug ): ?string {
+				$short_name = \Automattic\Jetpack\Plans::get_plan_short_name( $slug );
+				return is_string( $short_name ) && '' !== $short_name ? $short_name : null;
+			}
+		);
 	}
 
 	/**
