@@ -230,39 +230,45 @@ function wpcom_expiry_notices_track_props( array $state, bool $is_owner, string 
 }
 
 /**
- * Enqueue a surface's bundle with its data on `window.$global`.
+ * Enqueue a surface's script with its data on `window.$global`, and its stylesheet.
  *
  * Inline JSON rather than wp_localize_script(), which casts every top-level
  * scalar to a string and would hand the client "" for a false. The Tracks
  * transport rides along because Atomic wp-admin loads none of its own, and
  * without it `window._tkq` stays an ordinary array that is dropped on unload.
  *
- * @param string              $asset  Build entry name.
+ * @param string              $script Build entry of the script.
  * @param string              $global Name of the window property the data lands on.
  * @param array<string,mixed> $data   What the script renders from.
- * @param string[]            $types  Asset types to enqueue.
+ * @param string|null         $style  Build entry of the stylesheet, if any.
  */
-function wpcom_expiry_notices_enqueue_surface( string $asset, string $global, array $data, array $types = array( 'js', 'css' ) ): void {
+function wpcom_expiry_notices_enqueue_surface( string $script, string $global, array $data, ?string $style = null ): void {
 	$json = wp_json_encode( $data, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_HEX_APOS );
 	if ( false === $json ) {
 		return;
 	}
-	$handle = jetpack_mu_wpcom_enqueue_assets( $asset, $types );
+	$handle = jetpack_mu_wpcom_enqueue_assets( $script, array( 'js' ) );
 	\Automattic\Jetpack\Jetpack_Mu_Wpcom\Common\wpcom_enqueue_tracking_scripts( $handle );
 	wp_add_inline_script( $handle, 'window.' . $global . ' = ' . $json . ';', 'before' );
+	if ( null !== $style ) {
+		jetpack_mu_wpcom_enqueue_assets( $style, array( 'css' ) );
+	}
 }
 
 /**
- * Print a CTA as a link, carrying the support message where there is one.
+ * Print a CTA as a link the banner script tracks, carrying the support
+ * message where there is one.
  *
- * @param array<string,string> $cta   Label, url and optional message.
- * @param string               $class Class attribute.
+ * @param array<string,string> $cta    Label, url and optional message.
+ * @param string               $cta_id Which CTA: primary or secondary.
+ * @param string               $class  Class attribute.
  */
-function wpcom_expiry_notices_render_cta_link( array $cta, string $class ): void {
+function wpcom_expiry_notices_render_cta_link( array $cta, string $cta_id, string $class ): void {
 	?>
 	<a
 		class="<?php echo esc_attr( $class ); ?>"
 		href="<?php echo esc_url( $cta['url'] ); ?>"
+		data-wpcom-expiry-cta="<?php echo esc_attr( $cta_id ); ?>"
 		<?php if ( isset( $cta['message'] ) ) : ?>
 			data-support-message="<?php echo esc_attr( $cta['message'] ); ?>"
 		<?php endif; ?>

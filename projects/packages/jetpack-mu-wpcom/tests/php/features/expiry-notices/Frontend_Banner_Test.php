@@ -123,8 +123,8 @@ class Frontend_Banner_Test extends \WorDBless\BaseTestCase {
 		$this->set_purchase( 5 );
 		wpcom_expiry_notices_enqueue_frontend_banner_assets();
 
-		$inline = wp_scripts()->get_inline_script_data( 'jetpack-mu-wpcom-expiry-notices-frontend-banner', 'before' );
-		$this->assertStringContainsString( 'window.wpcomExpiryFrontendBanner = {', $inline );
+		$inline = wp_scripts()->get_inline_script_data( 'jetpack-mu-wpcom-expiry-notices-banner', 'before' );
+		$this->assertStringContainsString( 'window.wpcomExpiryBanner = {', $inline );
 		$this->assertStringContainsString( '"is_plan_owner":"true"', $inline );
 		$this->assertStringContainsString( '"state":"approaching_expiry"', $inline );
 		$this->assertStringContainsString( '"surface":"frontend"', $inline );

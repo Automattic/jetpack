@@ -101,7 +101,7 @@ function wpcom_expiry_notices_enqueue_admin_modal_assets() {
 
 	// The bundle declares the components scripts but not their stylesheet.
 	wp_enqueue_style( 'wp-components' );
-	wpcom_expiry_notices_enqueue_surface( 'expiry-notices-admin-modal', 'wpcomExpiryModal', $data );
+	wpcom_expiry_notices_enqueue_surface( 'expiry-notices-admin-modal', 'wpcomExpiryModal', $data, 'expiry-notices-admin-modal' );
 }
 add_action( 'admin_enqueue_scripts', 'wpcom_expiry_notices_enqueue_admin_modal_assets' );
 

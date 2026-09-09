@@ -57,6 +57,6 @@ function wpcom_expiry_notices_enqueue_editor_notice_assets() {
 	if ( null === $data ) {
 		return;
 	}
-	wpcom_expiry_notices_enqueue_surface( 'expiry-notices-editor-notice', 'wpcomExpiryEditorNotice', $data, array( 'js' ) );
+	wpcom_expiry_notices_enqueue_surface( 'expiry-notices-editor-notice', 'wpcomExpiryEditorNotice', $data );
 }
 add_action( 'enqueue_block_editor_assets', 'wpcom_expiry_notices_enqueue_editor_notice_assets' );

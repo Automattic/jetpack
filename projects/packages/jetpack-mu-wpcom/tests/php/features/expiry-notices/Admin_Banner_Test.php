@@ -180,7 +180,7 @@ class Admin_Banner_Test extends \WorDBless\BaseTestCase {
 		$this->set_purchase( 5 );
 		wpcom_expiry_notices_enqueue_admin_banner_assets();
 
-		$inline = wp_scripts()->get_inline_script_data( 'jetpack-mu-wpcom-expiry-notices-admin-banner', 'before' );
+		$inline = wp_scripts()->get_inline_script_data( 'jetpack-mu-wpcom-expiry-notices-banner', 'before' );
 		$this->assertStringContainsString( 'window.wpcomExpiryBanner = {', $inline );
 		$this->assertStringContainsString( '"is_plan_owner":"false"', $inline );
 		$this->assertStringContainsString( '"days_remaining":5', $inline );

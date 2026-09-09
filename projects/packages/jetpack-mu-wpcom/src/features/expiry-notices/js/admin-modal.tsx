@@ -1,9 +1,8 @@
 import { Button, Modal } from '@wordpress/components';
 import { createRoot, useState } from '@wordpress/element';
 import { wpcomTrackEvent } from '../../../common/tracks';
-import { recordDismissal } from './dismiss.ts';
-import { openHelpCenterWithMessage } from './help-center.ts';
-import type { Cta } from './types.ts';
+import { clickCta, dismissNotice, recordDismissal } from './notice.ts';
+import type { Cta, TrackProps } from './notice.ts';
 import type { MouseEvent } from 'react';
 
 interface ExpiryModalData {
@@ -15,7 +14,7 @@ interface ExpiryModalData {
 	primary: Cta;
 	secondary: Cta | null;
 	imageUrl: string;
-	trackProps: Record< string, string | number >;
+	trackProps: TrackProps;
 }
 
 declare global {
@@ -26,67 +25,43 @@ declare global {
 
 const ExpiryModal = ( { data }: { data: ExpiryModalData } ) => {
 	const [ isOpen, setIsOpen ] = useState( true );
+	const { metaKey, primary, secondary, trackProps } = data;
 
 	if ( ! isOpen ) {
 		return null;
 	}
 
-	// Closing is the dismissal however it was reached, so the record matches what
-	// the user saw happen. Writing only from the button would let Escape hide a
-	// modal that then came straight back on the next page load.
-	const dismiss = async () => {
+	// Closing is the dismissal however it was reached, or Escape would hide a
+	// modal that came straight back on the next page load.
+	const dismiss = () => {
 		setIsOpen( false );
-
-		try {
-			await recordDismissal( data.metaKey );
-			wpcomTrackEvent( 'jetpack_expiry_modal_dismiss', data.trackProps );
-		} catch ( err ) {
-			wpcomTrackEvent( 'jetpack_expiry_modal_dismiss_failed', {
-				...data.trackProps,
-				error_message: err instanceof Error ? err.message : String( err ),
-			} );
-			// eslint-disable-next-line no-console
-			console.error( 'Failed to record expiry modal dismiss', err );
-		}
+		dismissNotice( metaKey, 'jetpack_expiry_modal_dismiss', trackProps, () => {} );
 	};
 
-	// Acting on a CTA settles the modal too: someone who has answered it should
-	// not meet it again on the way back. Reported as a CTA rather than a
-	// dismissal -- one event per thing the user actually did.
-	const onCtaClick = ( cta: string, target: Cta, event: MouseEvent ) => {
-		// The support CTA opens the Help Center over this page rather than
-		// navigating, so the modal has to close itself; its href is only the
-		// fallback for a Help Center that never loaded.
-		const openedHere = target.message ? openHelpCenterWithMessage( target.message ) : false;
+	// Acting on a CTA settles the modal too; reported as a CTA, not a dismissal.
+	const onCtaClick = ( ctaId: string, cta: Cta, event: MouseEvent ) => {
+		const openedHere = clickCta(
+			event,
+			cta.message,
+			ctaId,
+			'jetpack_expiry_modal_cta_click',
+			trackProps
+		);
 		if ( openedHere ) {
-			event.preventDefault();
 			setIsOpen( false );
 		}
-
-		wpcomTrackEvent( 'jetpack_expiry_modal_cta_click', {
-			...data.trackProps,
-			cta: target.message ? 'support' : cta,
-		} );
-		// Keepalive survives the page unload a CTA starts; without it the browser
-		// may cancel the write as it navigates, and the modal returns.
-		recordDismissal( data.metaKey, ! openedHere ).catch( () => {
-			// Nothing useful to do while the page is leaving; at worst the modal
-			// shows once more.
-		} );
+		// Keepalive survives the page unload a link starts; at worst the modal shows once more.
+		recordDismissal( metaKey, ! openedHere ).catch( () => {} );
 	};
 
 	return (
-		// No `title`: the heading belongs under the illustration, so the header is
-		// left holding just the close button, which the stylesheet lifts onto the
-		// image. `contentLabel` names the dialog in its place -- Modal destructures
-		// a fixed prop list, so a bare `aria-label` would be dropped.
+		// `contentLabel` names the dialog: Modal destructures a fixed prop list, so
+		// a bare `aria-label` is dropped. The heading renders under the image instead.
 		<Modal
 			className="wpcom-expiry-modal"
 			contentLabel={ data.title }
-			// A stray click on the overlay shouldn't spend the one dismissal the
-			// user gets, so closing has to be deliberate. Escape still works, and
-			// is left alone on purpose: it is the only way out for someone who
-			// can't use a pointer.
+			// A stray overlay click must not spend the one dismissal; Escape stays,
+			// as the only pointer-free way out.
 			shouldCloseOnClickOutside={ false }
 			onRequestClose={ dismiss }
 		>
@@ -104,21 +79,21 @@ const ExpiryModal = ( { data }: { data: ExpiryModalData } ) => {
 				</ul>
 
 				<div className="wpcom-expiry-modal__actions">
-					{ data.secondary && (
+					{ secondary && (
 						<Button
 							variant="secondary"
-							href={ data.secondary.url }
-							onClick={ event => onCtaClick( 'secondary', data.secondary as Cta, event ) }
+							href={ secondary.url }
+							onClick={ ( event: MouseEvent ) => onCtaClick( 'secondary', secondary, event ) }
 						>
-							{ data.secondary.label }
+							{ secondary.label }
 						</Button>
 					) }
 					<Button
 						variant="primary"
-						href={ data.primary.url }
-						onClick={ event => onCtaClick( 'primary', data.primary, event ) }
+						href={ primary.url }
+						onClick={ ( event: MouseEvent ) => onCtaClick( 'primary', primary, event ) }
 					>
-						{ data.primary.label }
+						{ primary.label }
 					</Button>
 				</div>
 			</div>
@@ -126,15 +101,10 @@ const ExpiryModal = ( { data }: { data: ExpiryModalData } ) => {
 	);
 };
 
-document.addEventListener( 'DOMContentLoaded', () => {
-	const root = document.getElementById( 'wpcom-expiry-modal-root' );
-	const data = window.wpcomExpiryModal;
-	if ( ! root || ! data ) {
-		return;
-	}
-
-	// No session guard, unlike the banner: the server only serves this markup
-	// when the modal is actually due, so a render is already a unique showing.
+const root = document.getElementById( 'wpcom-expiry-modal-root' );
+const data = window.wpcomExpiryModal;
+if ( root && data ) {
+	// No session guard: the server only serves this markup when the modal is due.
 	wpcomTrackEvent( 'jetpack_expiry_modal_impression', data.trackProps );
 	createRoot( root ).render( <ExpiryModal data={ data } /> );
-} );
+}

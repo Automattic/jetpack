@@ -29,12 +29,13 @@ function wpcom_expiry_notices_enqueue_admin_banner_assets() {
 		return;
 	}
 	wpcom_expiry_notices_enqueue_surface(
-		'expiry-notices-admin-banner',
+		'expiry-notices-banner',
 		'wpcomExpiryBanner',
 		array(
 			'metaKey'    => Expiry_Notice_Dismiss::META_BANNER,
 			'trackProps' => wpcom_expiry_notices_track_props( $data['state'], $data['is_owner'], 'wp_admin' ),
-		)
+		),
+		'expiry-notices-admin-banner'
 	);
 }
 add_action( 'admin_enqueue_scripts', 'wpcom_expiry_notices_enqueue_admin_banner_assets' );
@@ -54,19 +55,19 @@ function wpcom_expiry_notices_render_admin_banner() {
 	$notice_class   = $data['is_early_warning'] ? 'notice-warning' : 'notice-error';
 	$is_grace       = Expiry_Data::STATE_EXPIRED_GRACE === $state['state'];
 	?>
-	<div id="wpcom-expiry-banner" class="notice <?php echo esc_attr( $notice_class ); ?>">
+	<div id="wpcom-expiry-banner" class="notice <?php echo esc_attr( $notice_class ); ?>" data-wpcom-expiry-banner>
 		<p><strong><?php echo esc_html( wpcom_expiry_notices_banner_heading( $state ) ); ?></strong></p>
 		<p><?php echo esc_html( wpcom_expiry_notices_banner_body( $state, $data['is_owner'] ) ); ?></p>
 		<?php if ( null !== $urls || $is_dismissible ) : ?>
 			<p class="wpcom-expiry-banner__actions">
 				<?php if ( null !== $urls ) : ?>
-					<?php wpcom_expiry_notices_render_cta_link( $urls['primary'], 'button button-primary' ); ?>
+					<?php wpcom_expiry_notices_render_cta_link( $urls['primary'], 'primary', 'button button-primary' ); ?>
 					<?php if ( $is_grace ) : ?>
-						<?php wpcom_expiry_notices_render_cta_link( $urls['secondary'], 'button' ); ?>
+						<?php wpcom_expiry_notices_render_cta_link( $urls['secondary'], 'secondary', 'button' ); ?>
 					<?php endif; ?>
 				<?php endif; ?>
 				<?php if ( $is_dismissible ) : ?>
-					<button type="button" class="button wpcom-expiry-banner__dismiss">
+					<button type="button" class="button wpcom-expiry-banner__dismiss" data-wpcom-expiry-dismiss>
 						<?php esc_html_e( 'Dismiss', 'jetpack-mu-wpcom' ); ?>
 					</button>
 				<?php endif; ?>

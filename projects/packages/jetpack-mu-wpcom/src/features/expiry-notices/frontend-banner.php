@@ -31,12 +31,13 @@ function wpcom_expiry_notices_enqueue_frontend_banner_assets() {
 		return;
 	}
 	wpcom_expiry_notices_enqueue_surface(
-		'expiry-notices-frontend-banner',
-		'wpcomExpiryFrontendBanner',
+		'expiry-notices-banner',
+		'wpcomExpiryBanner',
 		array(
 			'metaKey'    => Expiry_Notice_Dismiss::META_BANNER,
 			'trackProps' => wpcom_expiry_notices_track_props( $data['state'], $data['is_owner'], 'frontend' ),
-		)
+		),
+		'expiry-notices-frontend-banner'
 	);
 }
 add_action( 'wp_enqueue_scripts', 'wpcom_expiry_notices_enqueue_frontend_banner_assets' );
@@ -68,13 +69,13 @@ function wpcom_expiry_notices_render_frontend_banner() {
 	$urls           = $data['urls'];
 	$is_dismissible = $data['is_dismissible'];
 	?>
-	<div id="wpcom-expiry-frontend-banner" class="wpcom-expiry-frontend-banner<?php echo $is_dismissible ? ' wpcom-expiry-frontend-banner--dismissible' : ''; ?>" role="region" aria-label="<?php esc_attr_e( 'Plan expiry notice', 'jetpack-mu-wpcom' ); ?>">
+	<div id="wpcom-expiry-frontend-banner" class="wpcom-expiry-frontend-banner<?php echo $is_dismissible ? ' wpcom-expiry-frontend-banner--dismissible' : ''; ?>" role="region" aria-label="<?php esc_attr_e( 'Plan expiry notice', 'jetpack-mu-wpcom' ); ?>" data-wpcom-expiry-banner>
 		<span class="wpcom-expiry-frontend-banner__text"><?php echo esc_html( wpcom_expiry_notices_banner_sentence( $data['state'], $data['is_owner'] ) ); ?></span>
 		<?php if ( null !== $urls ) : ?>
-			<?php wpcom_expiry_notices_render_cta_link( $urls['primary'], 'wpcom-expiry-frontend-banner__cta' ); ?>
+			<?php wpcom_expiry_notices_render_cta_link( $urls['primary'], 'primary', 'wpcom-expiry-frontend-banner__cta' ); ?>
 		<?php endif; ?>
 		<?php if ( $is_dismissible ) : ?>
-			<button type="button" class="wpcom-expiry-frontend-banner__dismiss" aria-label="<?php esc_attr_e( 'Dismiss', 'jetpack-mu-wpcom' ); ?>">
+			<button type="button" class="wpcom-expiry-frontend-banner__dismiss" data-wpcom-expiry-dismiss aria-label="<?php esc_attr_e( 'Dismiss', 'jetpack-mu-wpcom' ); ?>">
 				<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="m13.06 12 6.47-6.47-1.06-1.06L12 10.94 5.53 4.47 4.47 5.53 10.94 12l-6.47 6.47 1.06 1.06L12 13.06l6.47 6.47 1.06-1.06L13.06 12Z"/></svg>
 			</button>
 		<?php endif; ?>
