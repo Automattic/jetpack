@@ -48,7 +48,7 @@ class Jetpack_Verification_Tools_Utils_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Verification codes with valid service-specific characters are accepted.
+	 * Verification codes with valid characters are accepted for every service.
 	 *
 	 * @dataProvider valid_verification_code_provider
 	 *
@@ -56,7 +56,7 @@ class Jetpack_Verification_Tools_Utils_Test extends WP_UnitTestCase {
 	 * @param string $code    Verification code.
 	 */
 	#[DataProvider( 'valid_verification_code_provider' )]
-	public function test_service_specific_valid_code_is_accepted( $service, $code ) {
+	public function test_valid_code_is_accepted_for_every_service( $service, $code ) {
 		$this->assertSame(
 			array( $service => $code ),
 			jetpack_verification_validate( array( $service => $code ) )
@@ -64,7 +64,7 @@ class Jetpack_Verification_Tools_Utils_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Verification codes with invalid service-specific characters are rejected.
+	 * Verification codes with invalid characters are rejected for every service.
 	 *
 	 * @dataProvider invalid_verification_code_provider
 	 *
@@ -72,7 +72,7 @@ class Jetpack_Verification_Tools_Utils_Test extends WP_UnitTestCase {
 	 * @param string $code    Verification code.
 	 */
 	#[DataProvider( 'invalid_verification_code_provider' )]
-	public function test_service_specific_invalid_code_is_rejected( $service, $code ) {
+	public function test_invalid_code_is_rejected_for_every_service( $service, $code ) {
 		$this->assertSame(
 			array( $service => '' ),
 			jetpack_verification_validate( array( $service => $code ) )
@@ -86,11 +86,11 @@ class Jetpack_Verification_Tools_Utils_Test extends WP_UnitTestCase {
 	 */
 	public static function valid_verification_code_provider() {
 		return array(
-			'google'    => array( 'google', 'dBw5CvburAxi537Rp9qi5uG2174Vb6JwHwIRwPSLIK8' ),
-			'bing'      => array( 'bing', '12C1203B5086AECE94EB3A3D9830B2E' ),
-			'pinterest' => array( 'pinterest', 'f100679e6048d45e4a0b0b92dce1efce' ),
-			'yandex'    => array( 'yandex', '44d68e1216009f40' ),
-			'facebook'  => array( 'facebook', 'rvv8b23jxlp1lq41I9rwsvpzncy1fd' ),
+			'google'    => array( 'google', 'verification_Code-123' ),
+			'bing'      => array( 'bing', 'verification_Code-123' ),
+			'pinterest' => array( 'pinterest', 'verification_Code-123' ),
+			'yandex'    => array( 'yandex', 'verification_Code-123' ),
+			'facebook'  => array( 'facebook', 'verification_Code-123' ),
 		);
 	}
 
@@ -101,11 +101,11 @@ class Jetpack_Verification_Tools_Utils_Test extends WP_UnitTestCase {
 	 */
 	public static function invalid_verification_code_provider() {
 		return array(
-			'bing with non-hex characters'     => array( 'bing', 'not-a-bing-token' ),
-			'pinterest with uppercase letters' => array( 'pinterest', 'ABCDEF123456' ),
-			'yandex with non-hex characters'   => array( 'yandex', 'not-a-yandex-token' ),
-			'google with spaces'               => array( 'google', 'not a google token' ),
-			'facebook with punctuation'        => array( 'facebook', 'not.a.facebook.token' ),
+			'google'    => array( 'google', 'invalid.code' ),
+			'bing'      => array( 'bing', 'invalid.code' ),
+			'pinterest' => array( 'pinterest', 'invalid.code' ),
+			'yandex'    => array( 'yandex', 'invalid.code' ),
+			'facebook'  => array( 'facebook', 'invalid.code' ),
 		);
 	}
 }

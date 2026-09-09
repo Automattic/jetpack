@@ -6,23 +6,6 @@
  * @package jetpack
  */
 
-if ( ! function_exists( 'jetpack_verification_service_patterns' ) ) {
-	/**
-	 * Return the accepted character patterns for verification service codes.
-	 *
-	 * @return array<string, string> Verification service patterns.
-	 */
-	function jetpack_verification_service_patterns() {
-		return array(
-			'google'    => '/^[A-Za-z0-9_-]+$/',
-			'bing'      => '/^[A-Fa-f0-9]+$/',
-			'pinterest' => '/^[a-f0-9]+$/',
-			'yandex'    => '/^[a-f0-9]+$/',
-			'facebook'  => '/^[A-Za-z0-9_-]+$/',
-		);
-	}
-}
-
 if ( ! function_exists( 'jetpack_verification_validate' ) ) {
 	/**
 	 * Validate jetpack verification codes.
@@ -30,13 +13,13 @@ if ( ! function_exists( 'jetpack_verification_validate' ) ) {
 	 * @param array $verification_services_codes - array of verification codes.
 	 */
 	function jetpack_verification_validate( $verification_services_codes ) {
-		$service_patterns = jetpack_verification_service_patterns();
+		$code_pattern = '/^[a-z0-9_-]+$/i';
 
 		foreach ( $verification_services_codes as $key => $code ) {
 			$code = is_scalar( $code ) ? (string) $code : '';
 
 			// Parse html meta tag if it does not look like a valid code.
-			if ( ! preg_match( '/^[a-z0-9_-]+$/i', $code ) ) {
+			if ( ! preg_match( $code_pattern, $code ) ) {
 				$code = jetpack_verification_get_code( $code );
 			}
 
@@ -45,7 +28,7 @@ if ( ! function_exists( 'jetpack_verification_validate' ) ) {
 			// limit length to 100 chars.
 			$code = substr( $code, 0, 100 );
 
-			if ( '' !== $code && isset( $service_patterns[ $key ] ) && ! preg_match( $service_patterns[ $key ], $code ) ) {
+			if ( '' !== $code && ! preg_match( $code_pattern, $code ) ) {
 				if ( function_exists( 'add_settings_error' ) ) {
 					$services     = function_exists( 'jetpack_verification_services' ) ? jetpack_verification_services() : array();
 					$service_name = $services[ $key ]['name'] ?? ucfirst( $key );

@@ -186,7 +186,7 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 	 */
 	public function test_post_rejects_invalid_site_verification_code() {
 		$setting = wp_json_encode(
-			array( 'verification_services_codes' => array( 'bing' => 'not-a-bing-token' ) ),
+			array( 'verification_services_codes' => array( 'bing' => 'not.a.valid.token' ) ),
 			JSON_UNESCAPED_SLASHES
 		);
 
