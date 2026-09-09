@@ -8,6 +8,7 @@ import SettingsPage from '$layout/settings-page/settings-page';
 import { useEffect, StrictMode } from 'react';
 import type { JSX } from 'react';
 import { recordBoostEvent } from '$lib/utils/analytics';
+import { LegacyNavigationProvider } from '$lib/navigation/navigation-context';
 import { DataSyncProvider } from '@automattic/jetpack-react-data-sync-client';
 import { useGettingStarted } from '$lib/stores/getting-started';
 import '../css/admin-style.scss';
@@ -29,9 +30,9 @@ const useBoostRouter = () => {
 			loader: checkForGettingStarted,
 			element: (
 				<SettingsPage>
-					<Tracks>
+					<LegacyRouteFrame>
 						<Index />
-					</Tracks>
+					</LegacyRouteFrame>
 				</SettingsPage>
 			),
 		},
@@ -39,9 +40,9 @@ const useBoostRouter = () => {
 			path: '/cache-debug-log',
 			loader: checkForGettingStarted,
 			element: (
-				<Tracks>
+				<LegacyRouteFrame>
 					<CacheDebugLog />
-				</Tracks>
+				</LegacyRouteFrame>
 			),
 		},
 		{
@@ -49,26 +50,26 @@ const useBoostRouter = () => {
 			loader: checkForGettingStarted,
 			element: (
 				<SettingsPage>
-					<Tracks>
+					<LegacyRouteFrame>
 						<AdvancedCriticalCss />
-					</Tracks>
+					</LegacyRouteFrame>
 				</SettingsPage>
 			),
 		},
 		{
 			path: '/getting-started',
 			element: (
-				<Tracks>
+				<LegacyRouteFrame>
 					<GettingStarted />
-				</Tracks>
+				</LegacyRouteFrame>
 			),
 		},
 		{
 			path: '/purchase-successful',
 			element: (
-				<Tracks>
+				<LegacyRouteFrame>
 					<PurchaseSuccess />
-				</Tracks>
+				</LegacyRouteFrame>
 			),
 		},
 	] );
@@ -80,12 +81,12 @@ function Main() {
 }
 
 /**
- * Track the page view.
+ * Record the page view and provide navigation for a legacy route.
  *
  * @param props
  * @param props.children - The actual page to render
  */
-const Tracks = ( { children }: { children: JSX.Element } ) => {
+const LegacyRouteFrame = ( { children }: { children: JSX.Element } ) => {
 	const location = useLocation();
 
 	useEffect( () => {
@@ -99,7 +100,7 @@ const Tracks = ( { children }: { children: JSX.Element } ) => {
 		} );
 	}, [ location ] );
 
-	return children;
+	return <LegacyNavigationProvider>{ children }</LegacyNavigationProvider>;
 };
 
 export default () => {

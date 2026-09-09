@@ -11,11 +11,11 @@ import {
 	groupRecommendationsByStatus,
 } from '$features/critical-css/lib/critical-css-errors';
 import { BackButton, CloseButton } from '$features/ui';
+import { useBoostNavigation } from '$lib/navigation/navigation-context';
 import CriticalCssErrorDescription from '$features/critical-css/error-description/error-description';
 import InfoIcon from '$svg/info';
 import styles from './critical-css-advanced.module.scss';
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router';
 import clsx from 'clsx';
 import { Button } from '@automattic/jetpack-components';
 import {
@@ -51,12 +51,12 @@ export default function AdvancedCriticalCss() {
 	}
 
 	// If there are no issues at all, redirect to the main page.
-	const navigate = useNavigate();
+	const { returnToSettings } = useBoostNavigation();
 	useEffect( () => {
 		if ( providersWithIssues.length === 0 ) {
-			navigate( '/' );
+			returnToSettings();
 		}
-	}, [ providersWithIssues, navigate ] );
+	}, [ providersWithIssues, returnToSettings ] );
 	const heading =
 		activeRecommendations.length === 0
 			? __( 'Congratulations, you have dealt with all the recommendations.', 'jetpack-boost' )
