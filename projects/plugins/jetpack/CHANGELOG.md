@@ -2,7 +2,7 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
-## 16.2 - 2026-09-09
+## 16.2 - 2026-09-10
 ### Enhancements
 - AI: Add an AI SEO control to the AI settings page. The AI sidebar's SEO suggestions follow it, separately from the automatic-generation setting. [#51380]
 - AI: Add a site-wide switch for Jetpack AI on self-hosted sites, preserving explicit opt-outs. [#50718]
