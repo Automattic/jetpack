@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Contact Form: remove the classic-theme editor margin from blocks nested inside a form.
