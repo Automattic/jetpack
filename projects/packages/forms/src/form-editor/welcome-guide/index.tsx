@@ -115,20 +115,37 @@ export const FormWelcomeGuide = () => {
 	 */
 	const origin: GuideOrigin = isForced ? 'forced' : ( isReopened && 'menu' ) || 'auto';
 
-	// The slide the user is on, so a dismissal says how far they got. Held in a
-	// ref because only the dismissal reads it, and re-rendering on every slide
-	// change would rebuild the whole guide.
+	/*
+	 * The last slide recorded for this opening. It says how far the user got
+	 * when they leave, and it is what separates a navigation from the tracker
+	 * re-reporting a slide it is already on. Held in a ref because only the
+	 * recorders read it, and re-rendering on every slide change would rebuild
+	 * the whole guide.
+	 */
 	const currentSlide = useRef( 1 );
 
+	// Whether the guide was open on the previous render, so a new opening can be
+	// spotted. See the reset below.
+	const wasOpen = useRef( false );
+
 	const recordSlideView = useCallback(
-		( event: string, props: Record< string, string | number | boolean > = {} ) => {
-			if ( typeof props.slide === 'number' ) {
-				currentSlide.current = props.slide;
+		( slide: number ) => {
+			/*
+			 * The tracker reports its slide whenever it mounts, and an opening
+			 * records its own first slide in the effect below — so the first
+			 * report of an opening is always a duplicate of one already made.
+			 * Comparing against the last slide recorded drops it. Unlike asking
+			 * the tracker whether this is its first run, that holds however
+			 * often `Guide` chooses to remount it.
+			 */
+			if ( slide === currentSlide.current ) {
+				return;
 			}
 
-			record( event, props );
+			currentSlide.current = slide;
+			record( SLIDE_VIEW_EVENT, { slide, slide_count: SLIDE_COUNT, origin } );
 		},
-		[ record ]
+		[ origin, record ]
 	);
 
 	const recordDismiss = useCallback( () => {
@@ -164,13 +181,27 @@ export const FormWelcomeGuide = () => {
 		isFormEditor &&
 		isWelcomeGuideOpen( { preference, isForced, isEligible, isClosed, isReopened } );
 
+	/*
+	 * Start each opening back at slide 1, and do it during render rather than in
+	 * the effect below. The tracker sits inside the guide, so its effects run
+	 * before this component's: a guide closed on slide 4 and then reopened would
+	 * have its first report compared against 4, pass as a navigation, and record
+	 * a slide 1 the effect is about to record again.
+	 *
+	 * Safe to write during render because it only ever restates the opening
+	 * value, so a repeated render cannot move it.
+	 */
+	if ( isOpen && ! wasOpen.current ) {
+		currentSlide.current = 1;
+	}
+	wasOpen.current = isOpen;
+
 	// One view per opening, not per render.
 	useEffect( () => {
 		if ( ! isOpen ) {
 			return;
 		}
 
-		currentSlide.current = 1;
 		record( VIEW_EVENT, { origin, slide_count: SLIDE_COUNT } );
 		record( SLIDE_VIEW_EVENT, { slide: 1, slide_count: SLIDE_COUNT, origin } );
 		// eslint-disable-next-line react-hooks/exhaustive-deps -- Only a change in `isOpen` is a new viewing; `origin` is fixed for one.
@@ -253,12 +284,7 @@ export const FormWelcomeGuide = () => {
 		...page,
 		content: (
 			<>
-				<SlideTracker
-					index={ index }
-					origin={ origin }
-					record={ recordSlideView }
-					slideCount={ SLIDE_COUNT }
-				/>
+				<SlideTracker index={ index } report={ recordSlideView } />
 				{ page.content }
 			</>
 		),

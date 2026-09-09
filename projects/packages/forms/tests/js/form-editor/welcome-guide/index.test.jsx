@@ -44,6 +44,14 @@ await jest.unstable_mockModule( '@wordpress/data', () => ( {
 } ) );
 
 /*
+ * Whether the mocked `Guide` throws its page away on every change instead of
+ * reusing the element. Real `Guide` reuses it today, so that is the default —
+ * but that is an implementation detail of @wordpress/components rather than
+ * anything it promises, and the slide tracking has to survive either choice.
+ */
+let guideRemountsPages = false;
+
+/*
  * `Guide` renders into a portal and pulls in a large slice of
  * @wordpress/components. The mock keeps the two behaviours the tests depend
  * on: it renders only the page you are on, and it owns the page number — which
@@ -58,7 +66,7 @@ await jest.unstable_mockModule( '@wordpress/components', () => ( {
 		return (
 			<div data-testid="guide">
 				{ contentLabel }
-				{ pages[ current ]?.content }
+				<div key={ guideRemountsPages ? current : 'page' }>{ pages[ current ]?.content }</div>
 				<button type="button" onClick={ goForward }>
 					Next
 				</button>
@@ -111,6 +119,7 @@ describe( 'FormWelcomeGuide', () => {
 		seedPreferences();
 		setSearch( '' );
 		currentPostType = 'jetpack_form';
+		guideRemountsPages = false;
 		window.jetpackFormsWelcomeGuide = { isEligible: true };
 	} );
 
@@ -409,6 +418,49 @@ describe( 'FormWelcomeGuide', () => {
 				.map( ( [ , props ] ) => props.slide );
 
 			expect( slides ).toEqual( [ 1, 2, 3, 2 ] );
+		} );
+
+		/*
+		 * The tracker reports by being mounted inside the page, so whether it
+		 * survives a page change is `Guide`'s decision rather than ours. If it
+		 * ever starts remounting, a tracker that suppressed its own first run
+		 * would suppress every slide instead of just the opening one, and every
+		 * test above would keep passing.
+		 */
+		it( 'records the same slides whether or not Guide remounts each page', async () => {
+			guideRemountsPages = true;
+			const user = userEvent.setup();
+			render( <FormWelcomeGuide /> );
+
+			await user.click( screen.getByRole( 'button', { name: 'Next' } ) );
+			await user.click( screen.getByRole( 'button', { name: 'Next' } ) );
+			await user.click( screen.getByRole( 'button', { name: 'Previous' } ) );
+
+			expect(
+				allOf( 'jetpack_forms_welcome_guide_slide_view' ).map( props => props.slide )
+			).toEqual( [ 1, 2, 3, 2 ] );
+		} );
+
+		/*
+		 * A reopened guide starts at slide 1 again, and the tracker mounts and
+		 * reports it before this component's own effects run. Recording it from
+		 * both places would double-count the opening slide of every reopen.
+		 */
+		it( 'records the opening slide once when a guide closed part-way is reopened', async () => {
+			const user = userEvent.setup();
+			const { rerender } = render( <FormWelcomeGuide /> );
+
+			await user.click( screen.getByRole( 'button', { name: 'Next' } ) );
+			await user.click( screen.getByRole( 'button', { name: 'Next' } ) );
+			await user.click( screen.getByRole( 'button', { name: 'Finish' } ) );
+
+			// The dismissal is stored, then Options -> Welcome Guide brings it back.
+			seedPreferences( { jetpackForms: false, coreWelcomeGuide: true } );
+			rerender( <FormWelcomeGuide /> );
+
+			expect(
+				allOf( 'jetpack_forms_welcome_guide_slide_view' ).map( props => props.slide )
+			).toEqual( [ 1, 2, 3, 1 ] );
 		} );
 
 		it( 'reports how far the user got when they leave', async () => {
