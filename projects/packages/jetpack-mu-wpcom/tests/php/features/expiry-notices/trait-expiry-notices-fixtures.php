@@ -71,6 +71,7 @@ trait Expiry_Notices_Fixtures {
 	protected function tear_down_expiry_fixtures(): void {
 		unset( $GLOBALS['wpcom_get_site_purchases_test_value'] );
 		unset( $GLOBALS['wpcom_is_vip_test_value'] );
+		unset( $GLOBALS['wpcom_site_stickers_test_value'] );
 		foreach ( array( Expiry_Notice_Dismiss::META_BANNER, Expiry_Notice_Dismiss::META_MODAL, Expiry_Notice_Dismiss::META_MODAL_GRACE ) as $meta_key ) {
 			delete_user_meta( $this->admin_id, $meta_key );
 		}
@@ -87,19 +88,13 @@ trait Expiry_Notices_Fixtures {
 
 	/**
 	 * A site the revert has already moved back to Simple.
-	 *
-	 * `has_blog_sticker` is declared per test because other suites declare their
-	 * own, and a shared definition makes theirs a fatal redeclare -- hence the
-	 * separate process on every caller.
 	 */
 	protected function pretend_reverted(): void {
 		Constants::set_constant( 'IS_ATOMIC', false );
 		Constants::set_constant( 'IS_WPCOM', true );
+		$GLOBALS['wpcom_site_stickers_test_value'] = array( 'blog-transfer-reverted' );
 		// On Simple the viewer's WordPress.com ID is their user ID.
 		$this->set_plan_owner( $this->admin_id );
-		if ( ! function_exists( 'has_blog_sticker' ) ) {
-			eval( 'namespace { function has_blog_sticker( $sticker, $blog_id = 0 ) { return "blog-transfer-reverted" === $sticker; } }' ); // phpcs:ignore Squiz.PHP.Eval.Discouraged,MediaWiki.Usage.ForbiddenFunctions.eval
-		}
 	}
 
 	/**

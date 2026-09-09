@@ -9,8 +9,6 @@ declare( strict_types = 1 );
 
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Notice_Dismiss;
-use PHPUnit\Framework\Attributes\PreserveGlobalState;
-use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/expiry-notices/expiry-notices.php';
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/expiry-notices/admin-banner.php';
@@ -113,12 +111,6 @@ class Editor_Notice_Test extends \WorDBless\BaseTestCase {
 		$this->assertNull( wpcom_expiry_notices_editor_notice_data() );
 	}
 
-	/**
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
-	 */
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState( false )]
 	public function test_a_reverted_site_is_sent_to_support(): void {
 		$this->pretend_reverted();
 		$this->set_purchase( -45 );

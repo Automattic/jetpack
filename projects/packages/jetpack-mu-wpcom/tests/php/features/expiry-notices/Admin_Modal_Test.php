@@ -10,8 +10,6 @@ declare( strict_types = 1 );
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Notice_Dismiss;
-use PHPUnit\Framework\Attributes\PreserveGlobalState;
-use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/expiry-notices/expiry-notices.php';
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/expiry-notices/admin-modal.php';
@@ -74,12 +72,6 @@ class Admin_Modal_Test extends \WorDBless\BaseTestCase {
 		$this->assertStringContainsString( '/plans/', $data['secondary']['url'] );
 	}
 
-	/**
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
-	 */
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState( false )]
 	public function test_shows_after_grace_with_the_post_revert_copy(): void {
 		$this->pretend_reverted();
 		$this->set_purchase( -45 );
@@ -111,12 +103,6 @@ class Admin_Modal_Test extends \WorDBless\BaseTestCase {
 		}
 	}
 
-	/**
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
-	 */
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState( false )]
 	public function test_does_not_show_in_grace_on_a_reverted_site(): void {
 		// A site already reverted was reverted by an earlier lapse. This one has
 		// not reached the changes the pre-revert variant promises are coming.
@@ -126,12 +112,6 @@ class Admin_Modal_Test extends \WorDBless\BaseTestCase {
 		$this->assertNull( wpcom_expiry_notices_admin_modal_data() );
 	}
 
-	/**
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
-	 */
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState( false )]
 	public function test_shows_for_any_plan_that_could_have_carried_a_transfer(): void {
 		// WPCOM_Features::ATOMIC is granted to Personal and higher, so there is no
 		// paid tier whose lapse could not have produced this revert. Narrowing to
@@ -199,12 +179,6 @@ class Admin_Modal_Test extends \WorDBless\BaseTestCase {
 		$this->assertNotNull( wpcom_expiry_notices_admin_modal_data(), 'the site is still lapsing, so a stale dismissal should not hold' );
 	}
 
-	/**
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
-	 */
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState( false )]
 	public function test_post_grace_dismissal_does_not_lapse(): void {
 		$this->pretend_reverted();
 		$this->set_purchase( -45 );
@@ -215,12 +189,6 @@ class Admin_Modal_Test extends \WorDBless\BaseTestCase {
 		$this->assertNull( wpcom_expiry_notices_admin_modal_data() );
 	}
 
-	/**
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
-	 */
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState( false )]
 	public function test_a_grace_dismissal_does_not_bury_the_post_grace_modal(): void {
 		$this->pretend_reverted();
 		// The two states dismiss to separate keys precisely so this can't happen:
@@ -231,12 +199,6 @@ class Admin_Modal_Test extends \WorDBless\BaseTestCase {
 		$this->assertNotNull( wpcom_expiry_notices_admin_modal_data() );
 	}
 
-	/**
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
-	 */
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState( false )]
 	public function test_dismissal_of_an_earlier_term_shows_again(): void {
 		$this->pretend_reverted();
 		$this->set_purchase( -45 );
@@ -256,12 +218,6 @@ class Admin_Modal_Test extends \WorDBless\BaseTestCase {
 		$this->assertStringContainsString( 'Use example.wordpress.com as your primary domain.', implode( "\n", $grace['items'] ) );
 	}
 
-	/**
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
-	 */
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState( false )]
 	public function test_names_the_domain_the_site_moved_to_after_the_revert(): void {
 		$this->pretend_reverted();
 		// WorDBless serves example.org, so a matching blogs-table domain is a site
@@ -288,12 +244,6 @@ class Admin_Modal_Test extends \WorDBless\BaseTestCase {
 		$this->assertStringNotContainsString( 'primary domain', implode( "\n", $data['items'] ) );
 	}
 
-	/**
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
-	 */
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState( false )]
 	public function test_omits_the_domain_when_a_reverted_site_kept_its_own(): void {
 		// Serving from example.org while the blogs table says otherwise: the
 		// custom domain survived the revert, so nothing was switched.
@@ -307,12 +257,6 @@ class Admin_Modal_Test extends \WorDBless\BaseTestCase {
 		$this->assertStringNotContainsString( 'primary domain', implode( "\n", $data['items'] ) );
 	}
 
-	/**
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
-	 */
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState( false )]
 	public function test_the_support_cta_prefills_a_message(): void {
 		$this->pretend_reverted();
 		$this->set_purchase( -45 );
