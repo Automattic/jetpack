@@ -51,7 +51,6 @@ describe( 'useDetailDateControls', () => {
 			presetIds: DETAIL_SURFACE_PRESETS,
 			withCustomRange: false,
 			withIntervalControl: false,
-			onStep: undefined,
 		} );
 		// Half past midnight in Taipei, not in the runner's zone.
 		expect( result.current.allTimeStart?.toISOString() ).toBe( '2026-07-07T16:29:35.000Z' );
