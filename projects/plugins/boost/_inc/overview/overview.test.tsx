@@ -284,7 +284,9 @@ test( 'retains the free history state when a modules refetch fails with a fresh-
 	} );
 	await expect( screen.findByText( 'Module settings unavailable' ) ).resolves.toBeTruthy();
 	expect( screen.getByRole( 'button', { name: 'Upgrade now' } ) ).toBeInTheDocument();
-	expect( screen.queryByText( /Jetpack Boost premium has been activated/ ) ).not.toBeInTheDocument();
+	expect(
+		screen.queryByText( /Jetpack Boost premium has been activated/ )
+	).not.toBeInTheDocument();
 } );
 
 test( 'selects the paid empty history state using module availability', async () => {
